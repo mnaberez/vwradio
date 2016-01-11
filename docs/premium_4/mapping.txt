@@ -14,7 +14,6 @@
 0xea (11101010) "9"
 0xf3 (11110011) "2"
 
-
 1234 on large matrix, nothing on small matrix (1234.csv)
   strobe low -> high (data input)
   command byte = 0x82 (10000010)
