@@ -7,19 +7,37 @@ def explain_cmd(cmd)
   if cmdsel == 0b00000000
     puts "  Display Setting Command"
 
+    if (cmd & 1) == 0
+      puts "    Duty setting: 1/8 duty"
+    else
+      puts "    Duty setting: 1/15 duty"
+    end
+
+    if (cmd & 2) == 0
+      puts "    Master/slave setting: master"
+    else
+      puts "    Master/slave setting: slave"
+    end
+
+    if (cmd & 4) == 0
+      puts "    Drive voltage supply method: external"
+    else
+      puts "    Drive voltage supply method: internal"
+    end
+
   elsif cmdsel == 0b01000000
     puts "  Data Setting Command"
 
     mode = cmd & 0b00000111
-    if mode == 0b000
+    if mode == 0
       puts "    Write to display data RAM"
-    elsif mode == 0b001
+    elsif mode == 1
       puts "    Write to character display RAM"
-    elsif mode == 0b010
+    elsif mode == 2
       puts "    Wrie to CGRAM"
-    elsif mode == 0b011
+    elsif mode == 3
       puts "    Write to LED output latch"
-    elsif mode == 0b100
+    elsif mode == 4
       puts "    Read key data"
     else
       puts "    ? Unknown mode ?"
@@ -27,12 +45,12 @@ def explain_cmd(cmd)
 
     # TODO page 12 says increment should be bit 3 off
     # but page 15 says increment should be bit 3 on
-    # bit 3 on makes more sense looking at the captures
-    increment = cmd & 0b00001000
-    if increment == 0b00001000
-      puts "    Address increment mode: fixed"
-    else
+    # bit 3 off makes more sense looking at the captures
+    incflag = cmd & 0b00001000
+    if incflag == 0
       puts "    Address increment mode: increment"
+    else
+      puts "    Address increment mode: fixed"
     end
 
   elsif cmdsel == 0b10000000
@@ -43,38 +61,38 @@ def explain_cmd(cmd)
   elsif cmdsel == 0b11000000
     puts "  Status Command"
 
-    if (cmd & 0b00100000) == 0b00100000
-      puts "    Test mode setting: 1=Test Mode"
-    else
+    if (cmd & 32) == 0
       puts "    Test mode setting: 0=Normal operation"
+    else
+      puts "    Test mode setting: 1=Test Mode"
     end
 
-    if (cmd & 0b00010000) == 0b00010000
-      puts "    Standby mode setting: 1=Standby mode"
-    else
+    if (cmd & 16) == 0
       puts "    Standby mode setting: 0=Normal operation"
+    else
+      puts "    Standby mode setting: 1=Standby mode"
     end
 
-    if (cmd & 0b00001000) == 0b00001000
-      puts "    Key scan control: 1=Key scan operation"
-    else
+    if (cmd & 8) == 0
       puts "    Key scan control: 0=Key scanning stopped"
+    else
+      puts "    Key scan control: 1=Key scan operation"
     end
 
-    if (cmd & 0b00000100) == 0b00000100
-      puts "    LED control: 1=Normal operation"
-    else
+    if (cmd & 4) == 0
       puts "    LED control: 0=LED forced off"
+    else
+      puts "    LED control: 1=Normal operation"
     end
 
     lcd_mode = cmd & 0b00000011
-    if lcd_mode == 0b00
+    if lcd_mode == 0
       puts "    LCD mode: LCD forced off (SEGn, COMn=Vlc5)"
-    elsif lcd_mode == 0b01
+    elsif lcd_mode == 1
       puts "    LCD mode: LCD forced off (SEGn, COMn=unselected waveform"
-    elsif lcd_mode == 0b10
+    elsif lcd_mode == 2
       puts "    LCD mode: Normal operation (0b00)"
-    else
+    else # 3
       puts "    LCD mode: Normal operation (0b11)"
     end
   else
@@ -132,6 +150,3 @@ File.readlines(ARGV[0]).each_with_index do |line, i|
   old_bus = bus
   old_rst = rst
 end
-
-
-# Time[s], STB, DAT, CLK, BUS, RST,
