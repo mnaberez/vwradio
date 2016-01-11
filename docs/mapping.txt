@@ -1,0 +1,50 @@
+0 = 0xe4 (11100100)
+1 = 0xe5 (11100101)
+2 = 0xf3 (11110011)
+3 = 0xe6 (11100110)
+4 = 0xe7 (11100111)
+5 = 0xe8 (11101000)
+6 = 0xe9 (11101001)
+7 = 0x37 (00110111)
+8 = 0x38 (00111000)
+9 = 0xea (11101010)
+
+
+1234 on display (1234.csv)
+    strobe low -> high (data input)
+    command byte = 0x82 (10000010)
+      Address Setting Command
+        Address = 02
+      data byte = 0x20 (00100000)
+      data byte = 0x20 (00100000)
+      data byte = 0xe7 (11100111)  4
+      data byte = 0xe6 (11100110)  3
+      data byte = 0xf3 (11110011)  2
+      data byte = 0xe5 (11100101)  1
+      data byte = 0x20 (00100000)
+      data byte = 0x20 (00100000)
+      data byte = 0x20 (00100000)
+      data byte = 0x20 (00100000)
+      data byte = 0x20 (00100000)
+    strobe high -> low (execute command)
+
+4321 on display (4321.csv)
+    strobe low -> high (data input)
+    command byte = 0x82 (10000010)
+      Address Setting Command
+        Address = 02
+      data byte = 0x20 (00100000)
+      data byte = 0x20 (00100000)
+      data byte = 0xe5 (11100101)  1
+      data byte = 0xf3 (11110011)  2
+      data byte = 0xe6 (11100110)  3
+      data byte = 0xe7 (11100111)  4
+      data byte = 0x20 (00100000)
+      data byte = 0x20 (00100000)
+      data byte = 0x20 (00100000)
+      data byte = 0x20 (00100000)
+      data byte = 0x20 (00100000)
+    strobe high -> low (execute command)
+
+
+
