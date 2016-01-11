@@ -15,7 +15,7 @@
 0xf3 (11110011) "2"
 
 
-1234 on display (1234.csv)
+1234 on large matrix, nothing on small matrix (1234.csv)
   strobe low -> high (data input)
   command byte = 0x82 (10000010)
     Address Setting Command
@@ -33,7 +33,7 @@
     data byte = 0x20 (00100000)  " "
   strobe high -> low (execute command)
 
-4321 on display (4321.csv)
+4321 on large matrix, nothing on small matrix (4321.csv)
   strobe low -> high (data input)
   command byte = 0x82 (10000010)
     Address Setting Command
@@ -51,7 +51,7 @@
     data byte = 0x20 (00100000)  " "
   strobe high -> low (execute command)
 
-SAFE on display (safe-1000.csv)
+SAFE on large matrix, nothing on small matrix (safe-1000.csv)
   strobe low -> high (data input)
   command byte = 0x82 (10000010)
     Address Setting Command
@@ -68,3 +68,39 @@ SAFE on display (safe-1000.csv)
     data byte = 0x20 (00100000)  " "
     data byte = 0x20 (00100000)  " "
   strobe high -> low (execute command)
+
+SAFE on large matrix, 1 on small matrix (1000-safe-1.csv)
+  strobe low -> high (data input)
+  command byte = 0x82 (10000010)
+    Address Setting Command
+      Address = 02
+    data byte = 0x20 (00100000)  " "
+    data byte = 0x20 (00100000)  " "
+    data byte = 0x45 (01000101)  "E"
+    data byte = 0x46 (01000110)  "F"
+    data byte = 0xe0 (11100000)  "A"
+    data byte = 0x53 (01010011)  "S"
+    data byte = 0x20 (00100000)  " "
+    data byte = 0x20 (00100000)  " "
+    data byte = 0x20 (00100000)  " "
+    data byte = 0x20 (00100000)  " "
+    data byte = 0xe5 (11100101)  "1"
+  strobe high -> low (execute command)
+
+1000 on large matrix, 2 on small matrix (safe-1-safe-2.csv)
+strobe low -> high (data input)
+command byte = 0x82 (10000010)
+  Address Setting Command
+    Address = 02
+  data byte = 0x20 (00100000)  " "
+  data byte = 0x20 (00100000)  " "
+  data byte = 0xe4 (11100100)  "0"
+  data byte = 0xe4 (11100100)  "0"
+  data byte = 0xe4 (11100100)  "0"
+  data byte = 0xe5 (11100101)  "1"
+  data byte = 0x20 (00100000)  " "
+  data byte = 0x20 (00100000)  " "
+  data byte = 0x20 (00100000)  " "
+  data byte = 0x20 (00100000)  " "
+  data byte = 0xf3 (11110011)  "2"
+strobe high -> low (execute command)
