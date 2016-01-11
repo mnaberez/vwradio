@@ -1,3 +1,20 @@
+CHARACTERS = {
+  0x20 => " ",
+  0x37 => "7",
+  0x38 => "8",
+  0x45 => "E",
+  0x46 => "F",
+  0x53 => "S",
+  0xe0 => "A",
+  0xe4 => "0",
+  0xe5 => "1",
+  0xe6 => "3",
+  0xe7 => "4",
+  0xe8 => "5",
+  0xe9 => "6",
+  0xea => "9",
+  0xf3 => "2",
+}
 
 def explain_cmd(cmd)
   puts "command byte = 0x%02x (%08b)" % [cmd, cmd]
@@ -133,7 +150,10 @@ File.readlines(ARGV[0]).each_with_index do |line, i|
         explain_cmd(byte)
         receiving_command = false
       else
-        puts "  data byte = 0x%02x (%08b)" % [byte, byte]
+        line = "  data byte = 0x%02x (%08b)" % [byte, byte]
+        char = CHARACTERS[byte]
+        line += "  \"#{char}\"" if char
+        puts line
       end
       bit = 7
       byte = 0
