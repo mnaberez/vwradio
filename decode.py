@@ -105,11 +105,8 @@ def explain_cmd(cmd):
     else:
       print("    ? Unknown mode ?")
 
-    # TODO page 12 says increment should be bit 3 off
-    # but page 15 says increment should be bit 3 on
-    # bit 3 off makes more sense looking at the captures
-    incflag = cmd & 0b00001000
-    if incflag == 0:
+    incr = cmd & 0b00001000
+    if incr == 0:
       print("    Address increment mode: increment")
     else:
       print("    Address increment mode: fixed")
