@@ -20,14 +20,14 @@ PREMIUM_4_CHARACTERS = {
 
 # Most Premium 5 characters are ASCII
 PREMIUM_5_CHARACTERS = {
-  0x00: "1 (fm1 or fm2)",
-  0x01: "2 (fm1 or fm2)",
-  0x02: "1 (preset)",
-  0x03: "2 (preset)",
-  0x04: "3 (preset)",
-  0x05: "4 (preset)",
-  0x06: "5 (preset)",
-  0x07: "6 (preset)",
+  0x00: "<fm 1>",
+  0x01: "<fm 1>",
+  0x02: "<preset 1>",
+  0x03: "<preset 2>",
+  0x04: "<preset 3>",
+  0x05: "<preset 4>",
+  0x06: "<preset 5>",
+  0x07: "<preset 6>",
   0x20: " ",
   0x2b: "+",
   0x2d: "-",
@@ -65,142 +65,238 @@ PREMIUM_5_CHARACTERS = {
 
 CHARACTERS = PREMIUM_5_CHARACTERS
 
-def explain_cmd(cmd):
-  print("command byte = 0x%02x (%s)" % (cmd, bin(cmd)))
+class LcdState(object):
+  '''Abstract'''
+  def __init__(self, debug=True):
+    self.debug = debug
 
-  cmdsel = cmd & 0b11000000
+    self.display_data_ram = [0] * 0x19
+    self.character_display_ram = [0] * 0x08
+    self.cgram = [0] * 0x10
 
-  if cmdsel == 0b00000000:
-    print("  Display Setting Command")
+    self.current_ram = None
+    self.address = 0
+    self.increment = False
 
-    if (cmd & 1) == 0:
-      print("    Duty setting: 1/8 duty")
+  def eval(self, session):
+    if self.debug:
+      self.print_session(session)
+
+    # Command Byte
+    cmd = session[0]
+    cmdsel = cmd & 0b11000000
+    if cmdsel == 0b01000000: # Data Setting Command
+      mode = cmd & 0b00000111
+      if mode == 0: # Write to display data RAM
+        self.current_ram = self.display_data_ram
+      elif mode == 1: # Write to character display RAM
+        self.current_ram = self.character_display_ram
+      elif mode == 2: # Write to CGRAM
+        self.current_ram = self.cgram
+      elif mode == 3: # Write to LED output latch
+        self.current_ram = None
+      elif mode == 4: # Read key data
+        self.current_ram = None
+      else: # Unknown mode
+        self.current_ram = None
+
+      incr = cmd & 0b00001000
+      self.increment = incr == 0
+    elif cmdsel == 0b10000000: # Address Setting Command
+      self.address = cmd & 0b00011111
+
+    # Data Bytes
+    for byte in session[1:]:
+      if self.current_ram is not None:
+        self.current_ram[self.address] = byte
+        if self.increment:
+          self.address += 1
+
+    if self.debug:
+      self.print_state()
+
+  @property
+  def characters(self):
+    raise NotImplementedError
+
+  def decode_display_ram(self):
+    raise NotImplementedError
+
+  def print_state(self):
+    print('CGRAM: %r' % self.cgram)
+    print('Character Display RAM: %r' % self.character_display_ram)
+    print('Display Data RAM: %r' % self.display_data_ram)
+    print('Decoded Display Data RAM: %r' % self.decode_display_ram())
+    print('')
+
+  def print_session(self, session):
+    print("Session: [%r]" % ', '.join([ '%02x' % x for x in session ]))
+    for i, byte in enumerate(session):
+      if i == 0: # command byte
+        self.print_command(byte)
+      else: # data byte
+        print("  Data byte = 0x%02x (%s)" % (byte, format(byte, '#010b')))
+    print('')
+
+  def print_command(self, cmd):
+    print("  Command byte = 0x%02x (%s)" % (cmd, format(cmd, '#010b')))
+
+    cmdsel = cmd & 0b11000000
+
+    if cmdsel == 0b00000000:
+      print("    Display Setting Command")
+
+      if (cmd & 1) == 0:
+        print("    Duty setting: 0=1/8 duty")
+      else:
+        print("    Duty setting: 1=1/15 duty")
+
+      if (cmd & 2) == 0:
+        print("    Master/slave setting: 0=master")
+      else:
+        print("    Master/slave setting: 1=slave")
+
+      if (cmd & 4) == 0:
+        print("    Drive voltage supply method: 0=external")
+      else:
+        print("    Drive voltage supply method: 1=internal")
+
+    elif cmdsel == 0b01000000:
+      print("  Data Setting Command")
+
+      mode = cmd & 0b00000111
+      if mode == 0:
+        print("    0=Write to display data RAM")
+      elif mode == 1:
+        print("    1=Write to character display RAM")
+      elif mode == 2:
+        print("    2=Write to CGRAM")
+      elif mode == 3:
+        print("    3=Write to LED output latch")
+      elif mode == 4:
+        print("    4=Read key data")
+      else:
+        print("    ? Unknown mode ?")
+
+      incr = cmd & 0b00001000
+      if incr == 0:
+        print("    Address increment mode: 0=increment")
+      else:
+        print("    Address increment mode: 1=fixed")
+
+    elif cmdsel == 0b10000000:
+      print("  Address Setting Command")
+      address = cmd & 0b00011111
+      print("    Address = %02x" % address)
+
+    elif cmdsel == 0b11000000:
+      print("  Status Command")
+
+      if (cmd & 32) == 0:
+        print("    Test mode setting: 0=Normal operation")
+      else:
+        print("    Test mode setting: 1=Test Mode")
+
+      if (cmd & 16) == 0:
+        print("    Standby mode setting: 0=Normal operation")
+      else:
+        print("    Standby mode setting: 1=Standby mode")
+
+      if (cmd & 8) == 0:
+        print("    Key scan control: 0=Key scanning stopped")
+      else:
+        print("    Key scan control: 1=Key scan operation")
+
+      if (cmd & 4) == 0:
+        print("    LED control: 0=LED forced off")
+      else:
+        print("    LED control: 1=Normal operation")
+
+      lcd_mode = cmd & 0b00000011
+      if lcd_mode == 0:
+        print("    LCD mode: 0=LCD forced off (SEGn, COMn=Vlc5)")
+      elif lcd_mode == 1:
+        print("    LCD mode: 1=LCD forced off (SEGn, COMn=unselected waveform")
+      elif lcd_mode == 2:
+        print("    LCD mode: 2=Normal operation (0b00)")
+      else: # 3
+        print("    LCD mode: 3=Normal operation (0b11)")
     else:
-      print("    Duty setting: 1/15 duty")
+      raise Exception("unknown command")
 
-    if (cmd & 2) == 0:
-      print("    Master/slave setting: master")
-    else:
-      print("    Master/slave setting: slave")
 
-    if (cmd & 4) == 0:
-      print("    Drive voltage supply method: external")
-    else:
-      print("    Drive voltage supply method: internal")
+class Premium4(LcdState):
+  @property
+  def characters(self):
+    return PREMIUM_4_CHARACTERS
 
-  elif cmdsel == 0b01000000:
-    print("  Data Setting Command")
+  def decode_display_ram(self):
+    decoded = ''
+    for byte in reversed(self.display_data_ram[2:13]):
+      decoded += self.characters.get(byte, '?')
+    return decoded
 
-    mode = cmd & 0b00000111
-    if mode == 0:
-      print("    Write to display data RAM")
-    elif mode == 1:
-      print("    Write to character display RAM")
-    elif mode == 2:
-      print("    Wrie to CGRAM")
-    elif mode == 3:
-      print("    Write to LED output latch")
-    elif mode == 4:
-      print("    Read key data")
-    else:
-      print("    ? Unknown mode ?")
 
-    incr = cmd & 0b00001000
-    if incr == 0:
-      print("    Address increment mode: increment")
-    else:
-      print("    Address increment mode: fixed")
+class Premium5(LcdState):
+  @property
+  def characters(self):
+    return PREMIUM_5_CHARACTERS
 
-  elif cmdsel == 0b10000000:
-    print("  Address Setting Command")
-    address = cmd & 0b00011111
-    print("    Address = %02x" % address)
+  def decode_display_ram(self):
+    decoded = ''
+    for byte in self.display_data_ram[:11]:
+      decoded += self.characters.get(byte, '?')
+    return decoded
 
-  elif cmdsel == 0b11000000:
-    print("  Status Command")
 
-    if (cmd & 32) == 0:
-      print("    Test mode setting: 0=Normal operation")
-    else:
-      print("    Test mode setting: 1=Test Mode")
+def parse_analyzer_file(filename, lcd):
+  session = []
+  byte = 0
+  bit = 0
 
-    if (cmd & 16) == 0:
-      print("    Standby mode setting: 0=Normal operation")
-    else:
-      print("    Standby mode setting: 1=Standby mode")
+  old_stb = 0
+  old_clk = 0
 
-    if (cmd & 8) == 0:
-      print("    Key scan control: 0=Key scanning stopped")
-    else:
-      print("    Key scan control: 1=Key scan operation")
+  with open(filename, 'r') as f:
+    for i, line in enumerate(f.readlines()):
+      if i == 0:
+        continue # skip header line
 
-    if (cmd & 4) == 0:
-      print("    LED control: 0=LED forced off")
-    else:
-      print("    LED control: 1=Normal operation")
+      cols = [ c.strip() for c in line.split(',') ]
+      # time = float(cols[0])
+      stb, dat, clk, bus, rst = [ int(c) for c in cols[1:6] ]
 
-    lcd_mode = cmd & 0b00000011
-    if lcd_mode == 0:
-      print("    LCD mode: LCD forced off (SEGn, COMn=Vlc5)")
-    elif lcd_mode == 1:
-      print("    LCD mode: LCD forced off (SEGn, COMn=unselected waveform")
-    elif lcd_mode == 2:
-      print("    LCD mode: Normal operation (0b00)")
-    else: # 3
-      print("    LCD mode: Normal operation (0b11)")
-  else:
-    raise Exception("unknown command")
-
-old_stb = 0
-old_dat = 0
-old_clk = 0
-old_bus = 0
-old_rst = 0
-
-receiving_command = False
-byte = 0
-bit = 0
-
-with open(sys.argv[1], 'r') as f:
-  for i, line in enumerate(f.readlines()):
-    if i == 0:
-      continue # skip header line
-
-    cols = [ c.strip() for c in line.split(',') ]
-    time = float(cols[0])
-    stb, dat, clk, bus, rst = [ int(c) for c in cols[1:6] ]
-
-    # strobe means start of command
-    if (old_stb == 0) and (stb == 1):
-      print("\nstrobe low -> high (data input)")
-      receiving_command = True
-      byte = 0
-      bit = 7
-
-    # clocked bit
-    if (old_clk == 0) and (clk == 1):
-      if dat == 1:
-        byte += (2 ** bit)
-
-      bit -= 1
-      if bit < 0: # got all bits of byte
-        if receiving_command:
-          explain_cmd(byte)
-          receiving_command = False
-        else:
-          line = "  data byte = 0x%02x (%s)" % (byte, bin(byte))
-          char = CHARACTERS.get(byte)
-          if char is not None:
-            line += '  "%s"' % char
-          print(line)
-        bit = 7
+      # strobe low->high starts session
+      if (old_stb == 0) and (stb == 1):
         byte = 0
+        bit = 7
 
-    if (old_stb == 1) and (stb == 0):
-      print("strobe high -> low (execute command)")
+      # clock low->high latches data from radio to lcd
+      if (old_clk == 0) and (clk == 1):
+        if dat == 1:
+          byte += (2 ** bit)
 
-    old_stb = stb
-    old_dat = dat
-    old_clk = clk
-    old_bus = bus
-    old_rst = rst
+        bit -= 1
+        if bit < 0: # got all bits of byte
+          session.append(byte)
+          byte = 0
+          bit = 7
+
+      # strobe high->low ends session
+      if (old_stb == 1) and (stb == 0):
+        lcd.eval(session)
+        session = []
+        byte = 0
+        bit = 7
+
+      old_stb = stb
+      old_clk = clk
+
+
+if __name__ == '__main__':
+    if sys.argv[1] == '4':
+      lcd = Premium4(debug=True)
+    else:
+      lcd = Premium5(debug=True)
+    filename = sys.argv[2]
+    parse_analyzer_file(filename, lcd)
