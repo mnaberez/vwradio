@@ -36,17 +36,12 @@ Display:     "    4321   "
 Display RAM: [0x20, 0x20, 0x20, 0x20, 0x34, 0x33, 0x32, 0x31, 0x20, 0x20, 0x20, ?...]
 
 
-Dot Matrix Character Set
-------------------------
+Character ROM
+-------------
 
-0x00: narrow "1" for FM 1
-0x01: narrow "2" for FM 2
-0x02: narrow "1" for AM/FM preset 1
-0x03: narrow "2" for AM/FM preset 2
-0x04: narrow "3" for AM/FM preset 3
-0x05: narrow "4" for AM/FM preset 3
-0x06: narrow "5" for AM/FM preset 3
-0x07: narrow "6" for AM/FM preset 3
+Character codes 0x10-0xFF are stored in ROM.  These have been sent from the
+radio and seen on the LCD:
+
 0x20: " "
 0x2b: "+"
 0x2d: "-"
@@ -80,3 +75,28 @@ Dot Matrix Character Set
 0x59: "Y"
 0x6b: "k"
 0x7a: "z"
+
+
+Character RAM
+-------------
+
+Character codes 0x00-0x0F are programmable.  The radio sends these:
+
+  0x00:  0x01:  0x02:  0x03:  0x04:  0x05:  0x06:  0x07:  0x08:
+  .O...  OOO..  ....O  ..OOO  ..OOO  ..O.O  ..OOO  ..OOO  OOOOO
+  .O...  ..O..  ....O  ....O  ....O  ..O.O  ..O..  ..O..  OOOOO
+  .O...  ..O..  ....O  ....O  ....O  ..O.O  ..O..  ..O..  OOOOO
+  .O...  OOO..  ....O  ..OOO  ...OO  ..OOO  ..OO.  ..OOO  OOOOO
+  .O...  O....  ....O  ..O..  ....O  ....O  ....O  ..O.O  OOOOO
+  .O...  O....  ....O  ..O..  ....O  ....O  ....O  ..O.O  OOOOO
+  .O...  OOO..  ....O  ..OOO  ..OOO  ....O  ..OO.  ..OOO  OOOOO
+
+0x00: Narrow "1" for FM 1
+0x01: Narrow "2" for FM 2
+0x02: Narrow "1" for AM/FM preset 1
+0x03: Narrow "2" for AM/FM preset 2
+0x04: Narrow "3" for AM/FM preset 3
+0x05: Narrow "4" for AM/FM preset 3
+0x06: Narrow "5" for AM/FM preset 3
+0x07: Narrow "6" for AM/FM preset 3
+0x08: All bits on; has not been seen on LCD

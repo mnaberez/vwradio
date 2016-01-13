@@ -36,8 +36,10 @@ Display:     "     4321  "
 Display RAM: [?, ?, 0x20, 0x20, 0xe5, 0xf3, 0xe6, 0xe7, 0x20, 0x20, 0x20, 0x20, 0x20, ?...]
 
 
-Dot Matrix Character Set
-------------------------
+Character ROM
+-------------
+
+Character codes 0x10-0xFF are stored in ROM.  These have been seen on the LCD:
 
 0x20: " "
 0x37: "7"
@@ -54,3 +56,10 @@ Dot Matrix Character Set
 0xe9: "6"
 0xea: "9"
 0xf3: "2"
+
+Character RAM
+-------------
+
+Character codes 0x00-0x0F are programmable.
+
+???

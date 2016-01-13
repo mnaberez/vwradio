@@ -10,7 +10,7 @@ class LcdState(object):
 
     self.display_data_ram = [0] * 0x19
     self.pictograph_ram = [0] * 0x08
-    self.chargen_ram = [0] * 0x10
+    self.chargen_ram = [0] * 7 * 0x10
 
     self.current_ram = None
     self.address = 0
@@ -38,10 +38,20 @@ class LcdState(object):
       else: # Unknown mode
         self.current_ram = None
 
-      incr = cmd & 0b00001000
-      self.increment = incr == 0
+      if mode in (0, 1):
+        # display data ram or pictograph support increment flag
+        incr = cmd & 0b00001000
+        self.increment = incr == 0
+      else:
+        # other modes are always increment
+        self.increment = True
+
     elif cmdsel == 0b10000000: # Address Setting Command
-      self.address = cmd & 0b00011111
+      address = cmd & 0b00011111
+      if self.current_ram is self.chargen_ram:
+        self.address = address * 7 # character number, 7 bytes per char
+      else:
+        self.address = address
 
     # Data Bytes
     for byte in session[1:]:
@@ -52,6 +62,22 @@ class LcdState(object):
 
     if self.debug:
       self.print_state()
+
+  def decode_chargen_ram(self):
+    lines = []
+    line = ''
+    for charnum in range(16):
+      line += '0x%02x:  ' % charnum
+    lines.append(line)
+
+    for row in range(7):
+      line = ''
+      for charnum in range(16):
+        byte = self.chargen_ram[(charnum * 7) + row]
+        line += (format(byte, '#010b')[5:].
+                  replace('0', '.').replace('1', 'O') + '  ')
+      lines.append(line)
+    return lines
 
   def decode_display_ram(self):
     raise NotImplementedError
@@ -66,6 +92,9 @@ class LcdState(object):
     print('Chargen RAM: ' + self._hexdump(self.chargen_ram))
     print('Pictograph RAM: ' + self._hexdump(self.pictograph_ram))
     print('Display Data RAM: ' + self._hexdump(self.display_data_ram))
+    print('Decoded Chargen RAM:')
+    for line in self.decode_chargen_ram():
+      print '  ' + line
     print('Decoded Pictographs: ' + self.decode_pictographs())
     print('Decoded Display Data: %r' % self.decode_display_ram())
     print('')
@@ -124,6 +153,9 @@ class LcdState(object):
         print("    Address increment mode: 0=increment")
       else:
         print("    Address increment mode: 1=fixed")
+
+      if mode not in (0, 1):
+        print("    Increment mode ignored; this area always increments")
 
     elif cmdsel == 0b10000000:
       print("  Address Setting Command")
@@ -188,7 +220,10 @@ class Premium4(LcdState):
   def decode_display_ram(self):
     decoded = ''
     for byte in reversed(self.display_data_ram[2:13]):
-      decoded += self.CHARACTERS.get(byte, '?')
+      if byte in range(16):
+        decoded += "<cgram:0x%02x>" % byte
+      else:
+        decoded += self.CHARACTERS.get(byte, '?')
     return decoded
 
   def decode_pictographs(self):
@@ -196,14 +231,6 @@ class Premium4(LcdState):
 
 class Premium5(LcdState):
   CHARACTERS = {
-    0x00: "<fm 1>",
-    0x01: "<fm 2>",
-    0x02: "<preset 1>",
-    0x03: "<preset 2>",
-    0x04: "<preset 3>",
-    0x05: "<preset 4>",
-    0x06: "<preset 5>",
-    0x07: "<preset 6>",
     0x20: " ",
     0x2b: "+",
     0x2d: "-",
@@ -242,7 +269,10 @@ class Premium5(LcdState):
   def decode_display_ram(self):
     decoded = ''
     for byte in self.display_data_ram[:11]:
-      decoded += self.CHARACTERS.get(byte, '?')
+      if byte in range(16):
+        decoded += "<cgram:0x%02x>" % byte
+      else:
+        decoded += self.CHARACTERS.get(byte, '?')
     return decoded
 
   def decode_pictographs(self):
