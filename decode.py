@@ -1,72 +1,10 @@
 import sys
 
-PREMIUM_4_CHARACTERS = {
-  0x20: " ",
-  0x37: "7",
-  0x38: "8",
-  0x45: "E",
-  0x46: "F",
-  0x53: "S",
-  0xe0: "A",
-  0xe4: "0",
-  0xe5: "1",
-  0xe6: "3",
-  0xe7: "4",
-  0xe8: "5",
-  0xe9: "6",
-  0xea: "9",
-  0xf3: "2",
-}
-
-# Most Premium 5 characters are ASCII
-PREMIUM_5_CHARACTERS = {
-  0x00: "<fm 1>",
-  0x01: "<fm 2>",
-  0x02: "<preset 1>",
-  0x03: "<preset 2>",
-  0x04: "<preset 3>",
-  0x05: "<preset 4>",
-  0x06: "<preset 5>",
-  0x07: "<preset 6>",
-  0x20: " ",
-  0x2b: "+",
-  0x2d: "-",
-  0x30: "0",
-  0x31: "1",
-  0x32: "2",
-  0x33: "3",
-  0x34: "4",
-  0x35: "5",
-  0x36: "6",
-  0x37: "7",
-  0x38: "8",
-  0x39: "9",
-  0x41: "A",
-  0x42: "B",
-  0x43: "C",
-  0x44: "D",
-  0x45: "E",
-  0x46: "F",
-  0x47: "G",
-  0x48: "H",
-  0x49: "I",
-  0x4c: "L",
-  0x4d: "M",
-  0x4e: "N",
-  0x4f: "O",
-  0x50: "P",
-  0x52: "R",
-  0x53: "S",
-  0x54: "T",
-  0x59: "Y",
-  0x6b: "k",
-  0x7a: "z",
-}
-
-CHARACTERS = PREMIUM_5_CHARACTERS
-
 class LcdState(object):
   '''Abstract'''
+
+  CHARACTERS = {}
+
   def __init__(self, debug=True):
     self.debug = debug
 
@@ -114,10 +52,6 @@ class LcdState(object):
 
     if self.debug:
       self.print_state()
-
-  @property
-  def characters(self):
-    raise NotImplementedError
 
   def decode_display_ram(self):
     raise NotImplementedError
@@ -177,7 +111,7 @@ class LcdState(object):
       elif mode == 1:
         print("    1=Write to pictograph RAM")
       elif mode == 2:
-        print("    2=Write to chargen_ram")
+        print("    2=Write to chargen ram")
       elif mode == 3:
         print("    3=Write to LED output latch")
       elif mode == 4:
@@ -233,28 +167,82 @@ class LcdState(object):
 
 
 class Premium4(LcdState):
-  @property
-  def characters(self):
-    return PREMIUM_4_CHARACTERS
+  CHARACTERS = {
+    0x20: " ",
+    0x37: "7",
+    0x38: "8",
+    0x45: "E",
+    0x46: "F",
+    0x53: "S",
+    0xe0: "A",
+    0xe4: "0",
+    0xe5: "1",
+    0xe6: "3",
+    0xe7: "4",
+    0xe8: "5",
+    0xe9: "6",
+    0xea: "9",
+    0xf3: "2",
+  }
 
   def decode_display_ram(self):
     decoded = ''
     for byte in reversed(self.display_data_ram[2:13]):
-      decoded += self.characters.get(byte, '?')
+      decoded += self.CHARACTERS.get(byte, '?')
     return decoded
 
   def decode_pictographs(self):
     return '??? Not Implemented '
 
 class Premium5(LcdState):
-  @property
-  def characters(self):
-    return PREMIUM_5_CHARACTERS
+  CHARACTERS = {
+    0x00: "<fm 1>",
+    0x01: "<fm 2>",
+    0x02: "<preset 1>",
+    0x03: "<preset 2>",
+    0x04: "<preset 3>",
+    0x05: "<preset 4>",
+    0x06: "<preset 5>",
+    0x07: "<preset 6>",
+    0x20: " ",
+    0x2b: "+",
+    0x2d: "-",
+    0x30: "0",
+    0x31: "1",
+    0x32: "2",
+    0x33: "3",
+    0x34: "4",
+    0x35: "5",
+    0x36: "6",
+    0x37: "7",
+    0x38: "8",
+    0x39: "9",
+    0x41: "A",
+    0x42: "B",
+    0x43: "C",
+    0x44: "D",
+    0x45: "E",
+    0x46: "F",
+    0x47: "G",
+    0x48: "H",
+    0x49: "I",
+    0x4c: "L",
+    0x4d: "M",
+    0x4e: "N",
+    0x4f: "O",
+    0x50: "P",
+    0x52: "R",
+    0x53: "S",
+    0x54: "T",
+    0x59: "Y",
+    0x6b: "k",
+    0x7a: "z",
+  }
 
   def decode_display_ram(self):
     decoded = ''
     for byte in self.display_data_ram[:11]:
-      decoded += self.characters.get(byte, '?')
+      decoded += self.CHARACTERS.get(byte, '?')
     return decoded
 
   def decode_pictographs(self):
