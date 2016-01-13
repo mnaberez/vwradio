@@ -21,7 +21,7 @@ PREMIUM_4_CHARACTERS = {
 # Most Premium 5 characters are ASCII
 PREMIUM_5_CHARACTERS = {
   0x00: "<fm 1>",
-  0x01: "<fm 1>",
+  0x01: "<fm 2>",
   0x02: "<preset 1>",
   0x03: "<preset 2>",
   0x04: "<preset 3>",
@@ -71,8 +71,8 @@ class LcdState(object):
     self.debug = debug
 
     self.display_data_ram = [0] * 0x19
-    self.character_display_ram = [0] * 0x08
-    self.cgram = [0] * 0x10
+    self.pictograph_ram = [0] * 0x08
+    self.chargen_ram = [0] * 0x10
 
     self.current_ram = None
     self.address = 0
@@ -89,10 +89,10 @@ class LcdState(object):
       mode = cmd & 0b00000111
       if mode == 0: # Write to display data RAM
         self.current_ram = self.display_data_ram
-      elif mode == 1: # Write to character display RAM
-        self.current_ram = self.character_display_ram
-      elif mode == 2: # Write to CGRAM
-        self.current_ram = self.cgram
+      elif mode == 1: # Write to pictograph RAM
+        self.current_ram = self.pictograph_ram
+      elif mode == 2: # Write to character generator RAM
+        self.current_ram = self.chargen_ram
       elif mode == 3: # Write to LED output latch
         self.current_ram = None
       elif mode == 4: # Read key data
@@ -122,15 +122,22 @@ class LcdState(object):
   def decode_display_ram(self):
     raise NotImplementedError
 
+  def decode_pictographs(self):
+    raise NotImplementedError
+
+  def _hexdump(self, list_of_bytes):
+    return '[%s]' % ', '.join([ '0x%02x' % x for x in list_of_bytes ])
+
   def print_state(self):
-    print('CGRAM: %r' % self.cgram)
-    print('Character Display RAM: %r' % self.character_display_ram)
-    print('Display Data RAM: %r' % self.display_data_ram)
-    print('Decoded Display Data RAM: %r' % self.decode_display_ram())
+    print('Chargen RAM: ' + self._hexdump(self.chargen_ram))
+    print('Pictograph RAM: ' + self._hexdump(self.pictograph_ram))
+    print('Display Data RAM: ' + self._hexdump(self.display_data_ram))
+    print('Decoded Pictographs: ' + self.decode_pictographs())
+    print('Decoded Display Data: %r' % self.decode_display_ram())
     print('')
 
   def print_session(self, session):
-    print("Session: [%r]" % ', '.join([ '%02x' % x for x in session ]))
+    print("Session: " + self._hexdump(session))
     for i, byte in enumerate(session):
       if i == 0: # command byte
         self.print_command(byte)
@@ -168,9 +175,9 @@ class LcdState(object):
       if mode == 0:
         print("    0=Write to display data RAM")
       elif mode == 1:
-        print("    1=Write to character display RAM")
+        print("    1=Write to pictograph RAM")
       elif mode == 2:
-        print("    2=Write to CGRAM")
+        print("    2=Write to chargen_ram")
       elif mode == 3:
         print("    3=Write to LED output latch")
       elif mode == 4:
@@ -236,6 +243,8 @@ class Premium4(LcdState):
       decoded += self.characters.get(byte, '?')
     return decoded
 
+  def decode_pictographs(self):
+    return '??? Not Implemented '
 
 class Premium5(LcdState):
   @property
@@ -247,6 +256,17 @@ class Premium5(LcdState):
     for byte in self.display_data_ram[:11]:
       decoded += self.characters.get(byte, '?')
     return decoded
+
+  def decode_pictographs(self):
+    pictographs = []
+    if self.pictograph_ram[1] & 0x04:
+      pictographs.append("dolby")
+    if self.pictograph_ram[2] & 0x80:
+      pictographs.append("metal")
+    if self.pictograph_ram[4] & 0x20:
+      pictographs.append("period")
+    # TODO handle MIX pictograph
+    return '[%s]' % ', '.join(pictographs)
 
 
 def parse_analyzer_file(filename, lcd):

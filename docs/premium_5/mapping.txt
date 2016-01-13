@@ -1,71 +1,82 @@
-0x20 (00100000) " "
-0x30 (00110000) "0"
-0x31 (00110001) "1"
-0x32 (00110010) "2"
-0x33 (00110011) "3"
-0x34 (00110100) "4"
-0x35 (00110101) "5"
-0x36 (00110110) "6"
-0x37 (00110111) "7"
-0x38 (00111000) "8"
-0x39 (00111001) "9"
-0x41 (01000001) "A"
-0x45 (01000101) "E"
-0x4e (01001110) "N"
-0x4f (01001111) "O"
-0x50 (01010000) "P"
-0x54 (01010100) "T"
+Pictographs
+-----------
 
-1234 on large matrix, nothing on small matrix (1234.csv)
-  strobe low -> high (data input)
-  command byte = 0x80 (10000000)
-    Address Setting Command
-      Address = 00
-    data byte = 0x20 (00100000)  " "
-    data byte = 0x20 (00100000)  " "
-    data byte = 0x20 (00100000)  " "
-    data byte = 0x20 (00100000)  " "
-    data byte = 0x31 (00110001)  "1"
-    data byte = 0x32 (00110010)  "2"
-    data byte = 0x33 (00110011)  "3"
-    data byte = 0x33 (00110011)  "4"
-    data byte = 0x20 (00100000)  " "
-    data byte = 0x20 (00100000)  " "
-    data byte = 0x20 (00100000)  " "
-  strobe high -> low (execute command)
+Pictographs are symbols on the display like the Dolby logo
+64 possible: 8 bytes, 1 bit per pictograph, bit on = pictograph displayed
+4 pictographs total on the LCD
 
-4321 on large matrix, nothing on small matrix (4321.csv)
-  strobe low -> high (data input)
-  command byte = 0x80 (10000000)
-    Address Setting Command
-      Address = 00
-    data byte = 0x20 (00100000)  " "
-    data byte = 0x20 (00100000)  " "
-    data byte = 0x20 (00100000)  " "
-    data byte = 0x20 (00100000)  " "
-    data byte = 0x34 (00110100)  "4"
-    data byte = 0x33 (00110011)  "3"
-    data byte = 0x32 (00110010)  "2"
-    data byte = 0x31 (00110001)  "1"
-    data byte = 0x20 (00100000)  " "
-    data byte = 0x20 (00100000)  " "
-    data byte = 0x20 (00100000)  " "
-  strobe high -> low (execute command)
+Pictograph  Byte (0-7)  Bit (0-7)
+Dolby           1           2
+Metal           2           7
+Period          4           5
+Mix            ???         ???
 
-1000 on large matrix, 1 on small matrix (1000-safe-1.csv)
-  strobe low -> high (data input)
-  command byte = 0x80 (10000000)
-    Address Setting Command
-      Address = 00
-    data byte = 0x31 (00110001)  "1"
-    data byte = 0x20 (00100000)  " "
-    data byte = 0x20 (00100000)  " "
-    data byte = 0x20 (00100000)  " "
-    data byte = 0x31 (00110001)  "1"
-    data byte = 0x30 (00110000)  "0"
-    data byte = 0x30 (00110000)  "0"
-    data byte = 0x30 (00110000)  "0"
-    data byte = 0x20 (00100000)  " "
-    data byte = 0x20 (00100000)  " "
-    data byte = 0x20 (00100000)  " "
-  strobe high -> low (execute command)
+<all off>   Pictograph RAM: [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
+Dolby       Pictograph RAM: [0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
+Metal       Pictograph RAM: [0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00]
+Period      Pictograph RAM: [0x00, 0x00, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00]
+Mix         Pictograph RAM: ???
+
+
+Dot Matrix Characters
+---------------------
+
+Every character is a 5x7 matrix but some are physically smaller on the LCD
+11 characters total on the LCD (4 small on left, 7 large on right)
+Leftmost character on display is address 0 in display RAM
+Rightmost character on display is address 0x0a in display RAM
+
+Display:     "NO CHANGER"
+Display RAM: [0x4e, 0x4f, 0x20, 0x20, 0x43, 0x48, 0x41, 0x4e, 0x47, 0x45, 0x52, ?...]
+
+Display:     "    1234   "
+Display RAM: [0x20, 0x20, 0x20, 0x20, 0x31, 0x32, 0x33, 0x34, 0x20, 0x20, 0x20, ?...]
+
+Display:     "    4321   "
+Display RAM: [0x20, 0x20, 0x20, 0x20, 0x34, 0x33, 0x32, 0x31, 0x20, 0x20, 0x20, ?...]
+
+
+Dot Matrix Character Set
+------------------------
+
+0x00: narrow "1" for FM 1
+0x01: narrow "2" for FM 2
+0x02: narrow "1" for AM/FM preset 1
+0x03: narrow "2" for AM/FM preset 2
+0x04: narrow "3" for AM/FM preset 3
+0x05: narrow "4" for AM/FM preset 3
+0x06: narrow "5" for AM/FM preset 3
+0x07: narrow "6" for AM/FM preset 3
+0x20: " "
+0x2b: "+"
+0x2d: "-"
+0x30: "0"
+0x31: "1"
+0x32: "2"
+0x33: "3"
+0x34: "4"
+0x35: "5"
+0x36: "6"
+0x37: "7"
+0x38: "8"
+0x39: "9"
+0x41: "A"
+0x42: "B"
+0x43: "C"
+0x44: "D"
+0x45: "E"
+0x46: "F"
+0x47: "G"
+0x48: "H"
+0x49: "I"
+0x4c: "L"
+0x4d: "M"
+0x4e: "N"
+0x4f: "O"
+0x50: "P"
+0x52: "R"
+0x53: "S"
+0x54: "T"
+0x59: "Y"
+0x6b: "k"
+0x7a: "z"

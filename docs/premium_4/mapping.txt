@@ -1,105 +1,56 @@
-0x20 (00100000) " "
-0x37 (00110111) "7"
-0x38 (00111000) "8"
-0x45 (01000101) "E"
-0x46 (01000101) "F"
-0x53 (01010011) "S"
-0xe0 (11100000) "A"
-0xe4 (11100100) "0"
-0xe5 (11100101) "1"
-0xe6 (11100110) "3"
-0xe7 (11100111) "4"
-0xe8 (11101000) "5"
-0xe9 (11101001) "6"
-0xea (11101010) "9"
-0xf3 (11110011) "2"
+Pictographs
+-----------
 
-1234 on large matrix, nothing on small matrix (1234.csv)
-  strobe low -> high (data input)
-  command byte = 0x82 (10000010)
-    Address Setting Command
-      Address = 02
-    data byte = 0x20 (00100000)  " "
-    data byte = 0x20 (00100000)  " "
-    data byte = 0xe7 (11100111)  "4"
-    data byte = 0xe6 (11100110)  "3"
-    data byte = 0xf3 (11110011)  "2"
-    data byte = 0xe5 (11100101)  "1"
-    data byte = 0x20 (00100000)  " "
-    data byte = 0x20 (00100000)  " "
-    data byte = 0x20 (00100000)  " "
-    data byte = 0x20 (00100000)  " "
-    data byte = 0x20 (00100000)  " "
-  strobe high -> low (execute command)
+Pictographs are symbols on the display like the Dolby logo
+64 possible: 8 bytes, 1 bit per pictograph, bit on = pictograph displayed
+4 pictographs total on the LCD
 
-4321 on large matrix, nothing on small matrix (4321.csv)
-  strobe low -> high (data input)
-  command byte = 0x82 (10000010)
-    Address Setting Command
-      Address = 02
-    data byte = 0x20 (00100000)  " "
-    data byte = 0x20 (00100000)  " "
-    data byte = 0xe5 (11100101)  "1"
-    data byte = 0xf3 (11110011)  "2"
-    data byte = 0xe6 (11100110)  "3"
-    data byte = 0xe7 (11100111)  "4"
-    data byte = 0x20 (00100000)  " "
-    data byte = 0x20 (00100000)  " "
-    data byte = 0x20 (00100000)  " "
-    data byte = 0x20 (00100000)  " "
-    data byte = 0x20 (00100000)  " "
-  strobe high -> low (execute command)
+Pictograph  Byte (0-7)  Bit (0-7)
+Dolby          ???         ???
+Metal          ???         ???
+Period         ???         ???
+Mix            ???         ???
 
-SAFE on large matrix, nothing on small matrix (safe-1000.csv)
-  strobe low -> high (data input)
-  command byte = 0x82 (10000010)
-    Address Setting Command
-      Address = 02
-    data byte = 0x20 (00100000)  " "
-    data byte = 0x20 (00100000)  " "
-    data byte = 0x45 (01000101)  "E"
-    data byte = 0x46 (01000110)  "F"
-    data byte = 0xe0 (11100000)  "A"
-    data byte = 0x53 (01010011)  "S"
-    data byte = 0x20 (00100000)  " "
-    data byte = 0x20 (00100000)  " "
-    data byte = 0x20 (00100000)  " "
-    data byte = 0x20 (00100000)  " "
-    data byte = 0x20 (00100000)  " "
-  strobe high -> low (execute command)
+<all off>   Pictograph RAM: ???
+Dolby       Pictograph RAM: ???
+Metal       Pictograph RAM: ???
+Period      Pictograph RAM: ???
+Mix         Pictograph RAM: ???
 
-SAFE on large matrix, 1 on small matrix (1000-safe-1.csv)
-  strobe low -> high (data input)
-  command byte = 0x82 (10000010)
-    Address Setting Command
-      Address = 02
-    data byte = 0x20 (00100000)  " "
-    data byte = 0x20 (00100000)  " "
-    data byte = 0x45 (01000101)  "E"
-    data byte = 0x46 (01000110)  "F"
-    data byte = 0xe0 (11100000)  "A"
-    data byte = 0x53 (01010011)  "S"
-    data byte = 0x20 (00100000)  " "
-    data byte = 0x20 (00100000)  " "
-    data byte = 0x20 (00100000)  " "
-    data byte = 0x20 (00100000)  " "
-    data byte = 0xe5 (11100101)  "1"
-  strobe high -> low (execute command)
 
-1000 on large matrix, 2 on small matrix (safe-1-safe-2.csv)
-strobe low -> high (data input)
-command byte = 0x82 (10000010)
-  Address Setting Command
-    Address = 02
-  data byte = 0x20 (00100000)  " "
-  data byte = 0x20 (00100000)  " "
-  data byte = 0xe4 (11100100)  "0"
-  data byte = 0xe4 (11100100)  "0"
-  data byte = 0xe4 (11100100)  "0"
-  data byte = 0xe5 (11100101)  "1"
-  data byte = 0x20 (00100000)  " "
-  data byte = 0x20 (00100000)  " "
-  data byte = 0x20 (00100000)  " "
-  data byte = 0x20 (00100000)  " "
-  data byte = 0xf3 (11110011)  "2"
-strobe high -> low (execute command)
+Dot Matrix Characters
+---------------------
+
+Every character is a 5x7 matrix but some are physically smaller on the LCD
+11 characters total on the LCD (4 small on left, 7 large on right)
+Leftmost character on display is address 0x0c in display RAM
+Rightmost character on display is address 0x02 in display RAM
+
+Display:     "     SAFE  "
+Display RAM: [?, ?, 0x20, 0x20, 0x45, 0x46, 0xe0, 0x53, 0x20, 0x20, 0x20, 0x20, 0x20, ?...]
+
+Display:     "     1234  "
+Display RAM: [?, ?, 0x20, 0x20, 0xe7, 0xe6, 0xf3, 0xe5, 0x20, 0x20, 0x20, 0x20, 0x20, ?...]
+
+Display:     "     4321  "
+Display RAM: [?, ?, 0x20, 0x20, 0xe5, 0xf3, 0xe6, 0xe7, 0x20, 0x20, 0x20, 0x20, 0x20, ?...]
+
+
+Dot Matrix Character Set
+------------------------
+
+0x20: " "
+0x37: "7"
+0x38: "8"
+0x45: "E"
+0x46: "F"
+0x53: "S"
+0xe0: "A"
+0xe4: "0"
+0xe5: "1"
+0xe6: "3"
+0xe7: "4"
+0xe8: "5"
+0xe9: "6"
+0xea: "9"
+0xf3: "2"
