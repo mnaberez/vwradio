@@ -11,6 +11,7 @@ class LcdState(object):
     self.display_data_ram = [0] * 0x19
     self.pictograph_ram = [0] * 0x08
     self.chargen_ram = [0] * 7 * 0x10
+    self.led_output_ram = [0]
 
     self.current_ram = None
     self.address = 0
@@ -32,7 +33,7 @@ class LcdState(object):
       elif mode == 2: # Write to character generator RAM
         self.current_ram = self.chargen_ram
       elif mode == 3: # Write to LED output latch
-        self.current_ram = None
+        self.current_ram = self.led_output_ram
       elif mode == 4: # Read key data
         self.current_ram = None
       else: # Unknown mode
@@ -56,7 +57,11 @@ class LcdState(object):
     # Data Bytes
     for byte in session[1:]:
       if self.current_ram is not None:
+        if self.address >= len(self.current_ram):
+          self.address = 0
+
         self.current_ram[self.address] = byte
+
         if self.increment:
           self.address += 1
 
@@ -92,9 +97,10 @@ class LcdState(object):
     print('Chargen RAM: ' + self._hexdump(self.chargen_ram))
     print('Pictograph RAM: ' + self._hexdump(self.pictograph_ram))
     print('Display Data RAM: ' + self._hexdump(self.display_data_ram))
+    print('LED Output Latch: 0x%02x' % self.led_output_ram[0])
     print('Decoded Chargen RAM:')
     for line in self.decode_chargen_ram():
-      print '  ' + line
+      print('  ' + line)
     print('Decoded Pictographs: ' + self.decode_pictographs())
     print('Decoded Display Data: %r' % self.decode_display_ram())
     print('')
