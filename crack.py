@@ -5,8 +5,9 @@ import u3 # LabJack
 class Radio(object):
     """Radio front panel interaction
 
-       Station preset buttons 1-4 connect to FIO0-3
-       Execute security code button ("Tuning >") connects to FIO4
+       Station preset buttons 1-4 connect to LabJack FIO0-3
+       Execute security code button ("Tuning >") connects to LabJack FIO4
+       Lines are inverted (0=close contact, 1=open contact)
     """
 
     def __init__(self):
@@ -20,16 +21,17 @@ class Radio(object):
     def clear(self):
         """Initialize the LabJack DIO and set the default button states"""
         for i in range(0, 5):
-            self._d.setFIOState(i, 0)
-        time.sleep(0.10)
+            self._d.setFIOState(i, 1)
+        time.sleep(0.2)
 
         # security code always defaults to "1000"
         self.digits = [1, 0, 0, 0]
 
     def enter_code(self, code):
-        """Toggle in a new security code without executing it"""
+        """Toggle in a new security code without executing it.  Code
+        is an integer from 0-9999."""
         code = str(code).rjust(4, "0")
-        digits = [int(c) for c in code]
+        digits = [ int(c) for c in code ]
 
         for button, digit in enumerate(digits):
             while self.digits[button] != digit:
@@ -37,17 +39,18 @@ class Radio(object):
 
     def execute(self):
         """Execute the current security code to try and unlock the radio"""
-        self._d.setFIOState(4, 1)
+        self._d.setFIOState(4, 0) # button down
         time.sleep(5) # execute requires a long press
 
-        self._d.setFIOState(4, 0)
+        self._d.setFIOState(4, 1) # button up
         time.sleep(30) # long delay until radio finishes flashing "SAFE"
 
     def _press_preset_button(self, button):
-        """Press a preset button and update the button's current digit"""
-        for state in (1, 0):
+        """Press a preset button and update the button's current digit.
+        Button is an integer starting at 0 for preset 1."""
+        for state in (0, 1): # 0=button down, 1=button up
             self._d.setFIOState(button, state)
-            time.sleep(0.10)
+            time.sleep(0.2)
 
         self.digits[button] += 1
         if self.digits[button] > 9:
