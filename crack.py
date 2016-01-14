@@ -1,4 +1,4 @@
-import random
+import sys
 import time
 import u3 # LabJack
 
@@ -58,39 +58,26 @@ class Radio(object):
 
 
 if __name__ == '__main__':
-    radio = Radio()
-    MAX = 2000
-    guessed = set()
-    guess = 0
+    if len(sys.argv) != 2:
+        sys.stderr.write("Usage: crack.py <starting code>\n")
+        sys.exit(1)
+
+    code = int(sys.argv[1])
+    max_code = 1999
     tries_this_hour = 0
-    filename = "codes.txt"
+    radio = Radio()
 
-    # read in previously tried codes from file
-    f = open(filename, "r")
-    lines = f.read().splitlines()
-    f.close()
-    for line in lines:
-        if len(line):
-            guessed.add(int(line))
+    while code <= max_code:
+        print("Trying code %d (max=%d)" % (code, max_code))
 
-    while len(guessed) < MAX:
-        # guess a new number in the range 0 to max
-        while guess in guessed:
-            guess = random.randrange(0, MAX)
-        guessed.add(guess)
-
-        print("Trying code %d (%d of %d)" % (guess, len(guessed), MAX))
-        radio.enter_code(guess)
+        radio.enter_code(code)
         radio.execute()
-        radio.clear()
+        radio.clear() # radio clears to 1000 after unsuccessful try
 
-        # record the code as tried in the file
-        f = open(filename,"a")
-        f.write("%d\n" % guess)
-        f.close()
+        code += 1
 
-        # radio allows only two tries, then it must be
-        # left idle for an hour before the next try
+        # radio allows only two tries, then it must be left
+        # idle for at least an hour before the next try
         tries_this_hour += 1
         if tries_this_hour == 2:
             print("Waiting since %s" % time.strftime('%I:%M %p'))
