@@ -68,7 +68,9 @@ if __name__ == '__main__':
     radio = Radio()
 
     while code <= max_code:
-        print("Trying code %d (max=%d)" % (code, max_code))
+        percent = (float(code) / max_code) * 100
+        print("Trying code %04d (max=%04d, %0.2f%% done)" % (
+            code, max_code, percent))
 
         radio.enter_code(code)
         radio.execute()
