@@ -18,6 +18,9 @@ class LcdState(object):
     self.increment = False
 
   def eval(self, session):
+    if not session:
+      return
+
     if self.debug:
       self.print_session(session)
 
@@ -207,12 +210,29 @@ class LcdState(object):
 class Premium4(LcdState):
   CHARACTERS = {
     0x20: " ",
+    0x2b: "+",
+    0x2d: "-",
     0x37: "7",
     0x38: "8",
+    0x43: "C",
+    0x44: "D",
     0x45: "E",
     0x46: "F",
+    0x47: "G",
+    0x48: "H",
+    0x4b: "K",
+    0x4d: "M",
+    0x4c: "L",
+    0x4f: "O",
+    0x49: "I",
+    0x50: "P",
+    0x52: "R",
     0x53: "S",
+    0x54: "T",
+    0x5a: "Z",
     0xe0: "A",
+    0xe1: "B",
+    0xe2: "N",
     0xe4: "0",
     0xe5: "1",
     0xe6: "3",
@@ -220,6 +240,13 @@ class Premium4(LcdState):
     0xe8: "5",
     0xe9: "6",
     0xea: "9",
+    0xeb: "1", # for FM1
+    0xec: "2", # for FM2
+    0xed: "2", # for preset 2
+    0xee: "3", # for preset 3
+    0xef: "4", # for preset 4
+    0xf0: "5", # for preset 5
+    0xf2: "6", # for preset 6
     0xf3: "2",
   }
 
@@ -233,7 +260,13 @@ class Premium4(LcdState):
     return decoded
 
   def decode_pictographs(self):
-    return '??? Not Implemented '
+    pictographs = []
+    if self.pictograph_ram[3] & 0x40:
+      pictographs.append("period")
+    # TODO handle dolby
+    # TODO handle metal
+    # TODO handle MIX
+    return '[%s]' % ', '.join(pictographs)
 
 class Premium5(LcdState):
   CHARACTERS = {
