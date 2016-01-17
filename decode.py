@@ -3,11 +3,11 @@ import sys
 class LcdState(object):
   '''Abstract'''
 
+  MATRIX_ORDER = []
   CHARACTERS = {}
+  PICTOGRAPHS = {}
 
-  def __init__(self, debug=True):
-    self.debug = debug
-
+  def __init__(self):
     self.display_data_ram = [0] * 0x19
     self.pictograph_ram = [0] * 0x08
     self.chargen_ram = [0] * 7 * 0x10
@@ -18,46 +18,25 @@ class LcdState(object):
     self.increment = False
 
   def eval(self, session):
-    if not session:
-      return
-
-    if self.debug:
-      self.print_session(session)
+    self.print_session(session)
 
     # Command Byte
     cmd = session[0]
     cmdsel = cmd & 0b11000000
-    if cmdsel == 0b01000000: # Data Setting Command
-      mode = cmd & 0b00000111
-      if mode == 0: # Write to display data RAM
-        self.current_ram = self.display_data_ram
-      elif mode == 1: # Write to pictograph RAM
-        self.current_ram = self.pictograph_ram
-      elif mode == 2: # Write to character generator RAM
-        self.current_ram = self.chargen_ram
-      elif mode == 3: # Write to LED output latch
-        self.current_ram = self.led_output_ram
-      elif mode == 4: # Read key data
-        self.current_ram = None
-      else: # Unknown mode
-        self.current_ram = None
 
-      if mode in (0, 1):
-        # display data ram or pictograph support increment flag
-        incr = cmd & 0b00001000
-        self.increment = incr == 0
-      else:
-        # other modes are always increment
-        self.increment = True
+    # Process command byte
+    if cmdsel == 0b00000000:
+      self._cmd_display_setting(session)
+    elif cmdsel == 0b01000000:
+      self._cmd_data_setting(session)
+    elif cmdsel == 0b10000000:
+      self._cmd_address_setting(session)
+    elif cmdsel == 0b11000000:
+      self._cmd_status(session)
+    else:
+      self._cmd_unknown(session)
 
-    elif cmdsel == 0b10000000: # Address Setting Command
-      address = cmd & 0b00011111
-      if self.current_ram is self.chargen_ram:
-        self.address = address * 7 # character number, 7 bytes per char
-      else:
-        self.address = address
-
-    # Data Bytes
+    # Process data bytes
     for byte in session[1:]:
       if self.current_ram is not None:
         if self.address >= len(self.current_ram):
@@ -68,8 +47,108 @@ class LcdState(object):
         if self.increment:
           self.address += 1
 
-    if self.debug:
-      self.print_state()
+    self.print_state()
+
+  def _cmd_display_setting(self, session):
+    print("    Display Setting Command")
+    cmd = session[0]
+
+    if (cmd & 1) == 0:
+      print("    Duty setting: 0=1/8 duty")
+    else:
+      print("    Duty setting: 1=1/15 duty")
+
+    if (cmd & 2) == 0:
+      print("    Master/slave setting: 0=master")
+    else:
+      print("    Master/slave setting: 1=slave")
+
+    if (cmd & 4) == 0:
+      print("    Drive voltage supply method: 0=external")
+    else:
+      print("    Drive voltage supply method: 1=internal")
+
+  def _cmd_data_setting(self, session):
+    print("  Data Setting Command")
+    cmd = session[0]
+    mode = cmd & 0b00000111
+    if mode == 0:
+      print("    0=Write to display data RAM")
+      self.current_ram = self.display_data_ram
+    elif mode == 1:
+      print("    1=Write to pictograph RAM")
+      self.current_ram = self.pictograph_ram
+    elif mode == 2:
+      print("    2=Write to chargen ram")
+      self.current_ram = self.chargen_ram
+    elif mode == 3:
+      print("    3=Write to LED output latch")
+      self.current_ram = self.led_output_ram
+    elif mode == 4: # Read key data
+      print("    4=Read key data")
+      self.current_ram = None
+    else: # Unknown mode
+      print("    ? Unknown mode ?")
+      self.current_ram = None
+
+    if mode in (0, 1):
+      # display data ram or pictograph support increment flag
+      incr = cmd & 0b00001000
+      self.increment = incr == 0
+      if self.increment:
+        print("    Address increment mode: 0=increment")
+      else:
+        print("    Address increment mode: 1=fixed")
+    else:
+      # other modes are always increment
+      print("    Increment mode ignored; this area always increments")
+      self.increment = True
+
+  def _cmd_address_setting(self, session):
+      print("  Address Setting Command")
+      cmd = session[0]
+      address = cmd & 0b00011111
+      print("    Address = %02x" % address)
+      if self.current_ram is self.chargen_ram:
+        self.address = address * 7 # character number, 7 bytes per char
+      else:
+        self.address = address
+
+  def _cmd_status(self, session):
+    print("  Status command")
+    cmd = session[0]
+    if (cmd & 32) == 0:
+      print("    Test mode setting: 0=Normal operation")
+    else:
+      print("    Test mode setting: 1=Test Mode")
+
+    if (cmd & 16) == 0:
+      print("    Standby mode setting: 0=Normal operation")
+    else:
+      print("    Standby mode setting: 1=Standby mode")
+
+    if (cmd & 8) == 0:
+      print("    Key scan control: 0=Key scanning stopped")
+    else:
+      print("    Key scan control: 1=Key scan operation")
+
+    if (cmd & 4) == 0:
+      print("    LED control: 0=LED forced off")
+    else:
+      print("    LED control: 1=Normal operation")
+
+    lcd_mode = cmd & 0b00000011
+    if lcd_mode == 0:
+      print("    LCD mode: 0=LCD forced off (SEGn, COMn=Vlc5)")
+    elif lcd_mode == 1:
+      print("    LCD mode: 1=LCD forced off (SEGn, COMn=unselected waveform")
+    elif lcd_mode == 2:
+      print("    LCD mode: 2=Normal operation (0b00)")
+    else: # 3
+      print("    LCD mode: 3=Normal operation (0b11)")
+
+  def _cmd_unknown(session):
+    print("? Unknown command ?")
 
   def decode_chargen_ram(self):
     lines = []
@@ -88,10 +167,25 @@ class LcdState(object):
     return lines
 
   def decode_display_ram(self):
-    raise NotImplementedError
+    decoded = ''
+    for address in self.MATRIX_ORDER:
+      byte = self.display_data_ram[address]
+      if byte in range(16):
+        decoded += "<cgram:0x%02x>" % byte
+      else:
+        decoded += self.CHARACTERS.get(byte, '?')
+    return decoded
 
   def decode_pictographs(self):
-    raise NotImplementedError
+    names = []
+    for offset in range(8):
+      for bit in range(8):
+        if self.pictograph_ram[offset] & (2**bit):
+          name = self.PICTOGRAPHS.get(offset, {}).get(bit, None)
+          if name is None:
+            name = "<unknown at byte %d, bit %d>" % (offset, bit)
+          names.append(name)
+    return '[%s]' % ', '.join(names)
 
   def _hexdump(self, list_of_bytes):
     return '[%s]' % ', '.join([ '0x%02x' % x for x in list_of_bytes ])
@@ -111,103 +205,14 @@ class LcdState(object):
   def print_session(self, session):
     print("Session: " + self._hexdump(session))
     for i, byte in enumerate(session):
-      if i == 0: # command byte
-        self.print_command(byte)
-      else: # data byte
-        print("  Data byte = 0x%02x (%s)" % (byte, format(byte, '#010b')))
+      desc = "Command byte" if i == 0 else "Data byte"
+      print("  %s = 0x%02x (%s)" % (desc, byte, format(byte, '#010b')))
     print('')
-
-  def print_command(self, cmd):
-    print("  Command byte = 0x%02x (%s)" % (cmd, format(cmd, '#010b')))
-
-    cmdsel = cmd & 0b11000000
-
-    if cmdsel == 0b00000000:
-      print("    Display Setting Command")
-
-      if (cmd & 1) == 0:
-        print("    Duty setting: 0=1/8 duty")
-      else:
-        print("    Duty setting: 1=1/15 duty")
-
-      if (cmd & 2) == 0:
-        print("    Master/slave setting: 0=master")
-      else:
-        print("    Master/slave setting: 1=slave")
-
-      if (cmd & 4) == 0:
-        print("    Drive voltage supply method: 0=external")
-      else:
-        print("    Drive voltage supply method: 1=internal")
-
-    elif cmdsel == 0b01000000:
-      print("  Data Setting Command")
-
-      mode = cmd & 0b00000111
-      if mode == 0:
-        print("    0=Write to display data RAM")
-      elif mode == 1:
-        print("    1=Write to pictograph RAM")
-      elif mode == 2:
-        print("    2=Write to chargen ram")
-      elif mode == 3:
-        print("    3=Write to LED output latch")
-      elif mode == 4:
-        print("    4=Read key data")
-      else:
-        print("    ? Unknown mode ?")
-
-      incr = cmd & 0b00001000
-      if incr == 0:
-        print("    Address increment mode: 0=increment")
-      else:
-        print("    Address increment mode: 1=fixed")
-
-      if mode not in (0, 1):
-        print("    Increment mode ignored; this area always increments")
-
-    elif cmdsel == 0b10000000:
-      print("  Address Setting Command")
-      address = cmd & 0b00011111
-      print("    Address = %02x" % address)
-
-    elif cmdsel == 0b11000000:
-      print("  Status Command")
-
-      if (cmd & 32) == 0:
-        print("    Test mode setting: 0=Normal operation")
-      else:
-        print("    Test mode setting: 1=Test Mode")
-
-      if (cmd & 16) == 0:
-        print("    Standby mode setting: 0=Normal operation")
-      else:
-        print("    Standby mode setting: 1=Standby mode")
-
-      if (cmd & 8) == 0:
-        print("    Key scan control: 0=Key scanning stopped")
-      else:
-        print("    Key scan control: 1=Key scan operation")
-
-      if (cmd & 4) == 0:
-        print("    LED control: 0=LED forced off")
-      else:
-        print("    LED control: 1=Normal operation")
-
-      lcd_mode = cmd & 0b00000011
-      if lcd_mode == 0:
-        print("    LCD mode: 0=LCD forced off (SEGn, COMn=Vlc5)")
-      elif lcd_mode == 1:
-        print("    LCD mode: 1=LCD forced off (SEGn, COMn=unselected waveform")
-      elif lcd_mode == 2:
-        print("    LCD mode: 2=Normal operation (0b00)")
-      else: # 3
-        print("    LCD mode: 3=Normal operation (0b11)")
-    else:
-      raise Exception("unknown command")
 
 
 class Premium4(LcdState):
+  MATRIX_ORDER = list(range(12, 1, -1))
+
   CHARACTERS = {
     0x20: " ",
     0x2b: "+",
@@ -229,6 +234,8 @@ class Premium4(LcdState):
     0x52: "R",
     0x53: "S",
     0x54: "T",
+    0x57: "W",
+    0x59: "Y",
     0x5a: "Z",
     0xe0: "A",
     0xe1: "B",
@@ -248,27 +255,19 @@ class Premium4(LcdState):
     0xf0: "5", # for preset 5
     0xf2: "6", # for preset 6
     0xf3: "2",
-  }
+    }
 
-  def decode_display_ram(self):
-    decoded = ''
-    for byte in reversed(self.display_data_ram[2:13]):
-      if byte in range(16):
-        decoded += "<cgram:0x%02x>" % byte
-      else:
-        decoded += self.CHARACTERS.get(byte, '?')
-    return decoded
+  PICTOGRAPHS = {
+    7: {3: 'metal'},
+    6: {5: 'dolby'},
+    3: {6: 'period'},
+    # TODO MIX
+    }
 
-  def decode_pictographs(self):
-    pictographs = []
-    if self.pictograph_ram[3] & 0x40:
-      pictographs.append("period")
-    # TODO handle dolby
-    # TODO handle metal
-    # TODO handle MIX
-    return '[%s]' % ', '.join(pictographs)
 
 class Premium5(LcdState):
+  MATRIX_ORDER = list(range(11))
+
   CHARACTERS = {
     0x20: " ",
     0x2b: "+",
@@ -303,27 +302,14 @@ class Premium5(LcdState):
     0x59: "Y",
     0x6b: "k",
     0x7a: "z",
-  }
+    }
 
-  def decode_display_ram(self):
-    decoded = ''
-    for byte in self.display_data_ram[:11]:
-      if byte in range(16):
-        decoded += "<cgram:0x%02x>" % byte
-      else:
-        decoded += self.CHARACTERS.get(byte, '?')
-    return decoded
-
-  def decode_pictographs(self):
-    pictographs = []
-    if self.pictograph_ram[1] & 0x04:
-      pictographs.append("dolby")
-    if self.pictograph_ram[2] & 0x80:
-      pictographs.append("metal")
-    if self.pictograph_ram[4] & 0x20:
-      pictographs.append("period")
-    # TODO handle MIX pictograph
-    return '[%s]' % ', '.join(pictographs)
+  PICTOGRAPHS = {
+    4: {5: 'period'},
+    2: {7: 'metal'},
+    1: {2: 'dolby'},
+    # TODO MIX
+    }
 
 
 def parse_analyzer_file(filename, lcd):
@@ -361,7 +347,8 @@ def parse_analyzer_file(filename, lcd):
 
       # strobe high->low ends session
       if (old_stb == 1) and (stb == 0):
-        lcd.eval(session)
+        if session:
+          lcd.eval(session)
         session = []
         byte = 0
         bit = 7
@@ -372,8 +359,8 @@ def parse_analyzer_file(filename, lcd):
 
 if __name__ == '__main__':
     if sys.argv[1] == '4':
-      lcd = Premium4(debug=True)
+      lcd = Premium4()
     else:
-      lcd = Premium5(debug=True)
+      lcd = Premium5()
     filename = sys.argv[2]
     parse_analyzer_file(filename, lcd)

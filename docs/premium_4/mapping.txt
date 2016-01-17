@@ -6,16 +6,23 @@ Pictographs are symbols on the display like the Dolby logo
 4 pictographs total on the LCD
 
 Pictograph  Byte (0-7)  Bit (0-7)
-Dolby          ???         ???
-Metal          ???         ???
-Period         ???         ???
-Mix            ???         ???
+Dolby           6          5
+Metal           7          3
+Mix            ???        ???
+Period          3          6
+Unknown 1       1          5        Seems to be on when in tape mode
+Unknown 2       2          3        Seems to be on when in AM/FM mode
 
-<all off>   Pictograph RAM: ???
-Dolby       Pictograph RAM: ???
-Metal       Pictograph RAM: ???
-Period      Pictograph RAM: ???
+<all off>   Pictograph RAM: [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
+Dolby       Pictograph RAM: [0x00, 0x20, 0x00, 0x00, 0x00, 0x00, 0x20, 0x00]
+Metal       Pictograph RAM: [0x00, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x08]
+Period      Pictograph RAM: [0x00, 0x00, 0x08, 0x40, 0x00, 0x00, 0x00, 0x00]
 Mix         Pictograph RAM: ???
+
+There are two unknown bits (see "Unknown 1" and "Unknown 2" above) that seem
+to be correlated with tape or AM/FM mode.  The physical LCD only has the
+pictographs Dolby, Metal, Mix, and Period so the two unknown bits may be
+unused or for a different physical LCD.
 
 
 Dot Matrix Characters
@@ -61,6 +68,8 @@ Character codes 0x10-0xFF are stored in ROM.  These have been seen on the LCD:
 0x52: "R"
 0x53: "S"
 0x54: "T"
+0x57: "W"
+0x59: "Y"
 0x5a: "Z"
 0xe0: "A"
 0xe1: "B"
