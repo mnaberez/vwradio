@@ -329,7 +329,7 @@ def parse_analyzer_file(filename, lcd):
       if i == 0:
         continue # skip header line
 
-      cols = [ c.strip() for c in line.split(',') ]
+      cols = [ c.strip() for c in line.split(b',') ]
       # time = float(cols[0])
       stb, dat, clk, bus, rst = [ int(c) for c in cols[1:6] ]
 
