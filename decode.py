@@ -1,3 +1,4 @@
+import gzip
 import sys
 
 class LcdState(object):
@@ -320,7 +321,8 @@ def parse_analyzer_file(filename, lcd):
   old_stb = 0
   old_clk = 0
 
-  with open(filename, 'r') as f:
+  opener = gzip.open if filename.endswith('.gz') else open
+  with opener(filename, 'r') as f:
     for i, line in enumerate(f.readlines()):
       if i == 0:
         continue # skip header line
