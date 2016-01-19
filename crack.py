@@ -1,6 +1,6 @@
 """
 This program uses a LabJack U3 controlling 10 relays to brute force crack
-a VW Premium 4 or 5 radio made by Clarion.
+a VW Premium 4 radio made by Clarion.
 
 The radio normally allows only two attempts per hour.  After each failed
 attempt, it writes the attempt count to the AT93C64 EEPROM.  If power is
