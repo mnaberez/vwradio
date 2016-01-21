@@ -235,6 +235,7 @@ class Premium4(LcdState):
     0x52: "R",
     0x53: "S",
     0x54: "T",
+    0x55: "U",
     0x57: "W",
     0x58: "X",
     0x59: "Y",
@@ -261,9 +262,10 @@ class Premium4(LcdState):
 
   PICTOGRAPHS = {
     7: {3: 'metal'},
-    6: {5: 'dolby'},
+    6: {5: 'dolby', 0: 'mix'},
     3: {6: 'period'},
-    # TODO MIX
+    2: {3: 'mode:am/fm'},
+    1: {0: 'mode:cd', 5: 'mode:tape'},
     }
 
 

@@ -1,3 +1,10 @@
+Signals
+-------
+
+POW - Normally 5V but momentarily drops to 0V for as long as the POWER
+      button is pressed down.
+
+
 Pictographs
 -----------
 
@@ -8,21 +15,17 @@ Pictographs are symbols on the display like the Dolby logo
 Pictograph  Byte (0-7)  Bit (0-7)
 Dolby           6          5
 Metal           7          3
-Mix            ???        ???
+Mix             6          0
 Period          3          6
-Unknown 1       1          5        Seems to be on when in tape mode
-Unknown 2       2          3        Seems to be on when in AM/FM mode
+Mode: CD        1          0        Set by radio but not visible on LCD
+Mode: Tape      1          5        Set by radio but not visible on LCD
+Mode: AM/FM     2          3        Set by radio but not visible on LCD
 
 <all off>   Pictograph RAM: [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
 Dolby       Pictograph RAM: [0x00, 0x20, 0x00, 0x00, 0x00, 0x00, 0x20, 0x00]
 Metal       Pictograph RAM: [0x00, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x08]
+Mix         Pictograph RAM: [0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00]
 Period      Pictograph RAM: [0x00, 0x00, 0x08, 0x40, 0x00, 0x00, 0x00, 0x00]
-Mix         Pictograph RAM: ???
-
-There are two unknown bits (see "Unknown 1" and "Unknown 2" above) that seem
-to be correlated with tape or AM/FM mode.  The physical LCD only has the
-pictographs Dolby, Metal, Mix, and Period so the two unknown bits may be
-unused or for a different physical LCD.
 
 
 Dot Matrix Characters
