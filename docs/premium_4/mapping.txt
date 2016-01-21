@@ -1,9 +1,28 @@
 Signals
 -------
 
-POW - Normally 5V but momentarily drops to 0V for as long as the POWER
-      button is pressed down.
+POW - Normally 5V, drops to 0V while the POWER key is pressed.
+EJE - Normally 5V, drops to 0V while the EJECT key is pressed.
+STB - Connects to /STB on uPD16432B.
+CLK - Connects to SCK on uPD16432B.
+DAT - Connects to DATA on uPD16432B.
+BUS - Connects to KEY REQ on uPD16432B.  Normally 5V, drops to 0V when
+      the uPD16432B has latched key data.
+RST - Connects to /RESET on uPD16432B.  If ignition power is on but the
+      radio is turned off by pushing the POWER key, radio holds RST low.
+LOF - Connects to /LCDOFF on uPD16432B.  If ignition power is on but the
+      radio is turned off by pushing the POWER key, radio holds LOF low.
+M5V - Main 5V power controlled by radio.  If ignition power is on but the
+      radio is turned off by pushing the POWER key, M5V drops to 0V.
+ILL - Illumination power.  Measures slightly less than B+ (13V) when the
+      car's dash illumination power is on, otherwise measures 0V.
+L/I - LCD Illumination power.  Measures 8.75V when the car's dash illumination
+      is on, otherwise measures 0V.
+CAT - Clarion Anti-Theft Security LED.
+VLC - LCD Drive Voltage.  Measures 6.0V.  If ignition power is on but the
+      radio is turned off by pushing the POWER key, VLC drops to 0V.
 
+TODO: Are the POWER and EJECT keys connected to the uPD16432B?
 
 Pictographs
 -----------
