@@ -40,8 +40,12 @@ class Lcd(object):
         self.spi([0x80] + ([0]*8)) # Address Setting command, pictograph data
         self.spi([0x40]) # Data Setting Command: write to display ram
         for i in range(0, 0x100, 7):
-            data = [ self.char_code(c) for c in '0x%02X' % i ] # "0xAB" char code in hex
-            data.extend([ i+j for j in range(7) ])             # 7 characters
+            data = [ self.char_code(c) for c in '0x%02X' % i ]
+            for j in range(7): # 7 characters
+                code = i + j
+                if code > 0xFF: # past end of charset
+                    code = 0x20 # blank space
+                data.append(code)
             data = list(reversed(data))
 
             self.spi([0x82] + data) # Address Setting command, display data
@@ -63,8 +67,6 @@ if __name__ == '__main__':
     device = u3.U3()
     try:
         lcd = Lcd(device)
-        lcd.write('DumpCharset')
-        time.sleep(3)
         lcd.dump_charset()
 
     finally:
