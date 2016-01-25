@@ -34,8 +34,10 @@ class Lcd(object):
         self.spi([0x80] + ([0]*16)) # Address Setting command, display data
 
     def write(self, text):
+        if len(text) > 11:
+            raise ValueError("Text %r is longer than max of 11", text)
         self.spi([0x40]) # Data Setting command: write to display ram
-        text = reversed(text[:11].ljust(11, ' '))
+        text = reversed(text.ljust(11, ' '))
         packet = [0x82] + list([ self.char_code(c) for c in text ])
         self.spi(packet)
 
