@@ -33,13 +33,16 @@ class Lcd(object):
         self.spi([0x40]) # Data Setting command: write to display ram
         self.spi([0x80] + ([0]*16)) # Address Setting command, display data
 
-    def write(self, text):
-        if len(text) > 11:
-            raise ValueError("Text %r is longer than max of 11", text)
+    def write(self, text, pos=0):
+        self.write_codes([ self.char_code(c) for c in text ], pos)
+
+    def write_codes(self, char_codes, pos=0):
+        if len(char_codes) > (11 - pos):
+            raise ValueError("Data %r exceeds visible range from pos %d" % 
+                (char_codes, pos))
         self.spi([0x40]) # Data Setting command: write to display ram
-        text = reversed(text.ljust(11, ' '))
-        packet = [0x82] + list([ self.char_code(c) for c in text ])
-        self.spi(packet)
+        address = 0x0d - len(char_codes) - pos
+        self.spi([0x80 + address] + list(reversed(char_codes)))
 
     def define_char(self, index, data):
         if index not in range(16):
@@ -51,17 +54,15 @@ class Lcd(object):
         self.spi(packet)
 
     def display_charset(self):
-        self.spi([0x40]) # Data Setting command: write to display ram
         for i in range(0, 0x100, 7):
-            data = [ ord(c) for c in '0x%02X' % i ] # 4 chars: code in hex
-            for j in range(7): # 7 characters
+            self.write('0x%02X' % i, pos=0)
+            data = [0x20] * 7 # 7 chars, default blank spaces
+            for j in range(len(data)):
                 code = i + j
                 if code > 0xFF: # past end of charset
-                    code = 0x20 # blank space
-                data.append(code)
-            data = list(reversed(data))
-
-            self.spi([0x82] + data) # Address Setting command, display data
+                    break
+                data[j] = code
+            self.write_codes(data, pos=4)
             time.sleep(1)
         self.clear()
 
@@ -77,14 +78,12 @@ class Lcd(object):
             lcd.define_char(0, data)
 
             # first four chars: display character code in hex
-            lcd.spi([0x40])
-            data = list(reversed([ ord(c) for c in '0x%02X' % i ]))
-            lcd.spi([0x89] + data)
+            self.write('0x%02X' % i, pos=0)
 
             # all other chars: alternate between rom and programmable char 0
             for blink in range(6):
                 for code in (0, i):
-                    lcd.spi([0x82] + ([code]*7))
+                    self.write_codes([code]*7, pos=4)
                     time.sleep(0.2)
         self.clear()
 
