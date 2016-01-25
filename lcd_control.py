@@ -31,7 +31,7 @@ class Lcd(object):
         self.spi([0x41]) # Data Setting command: write to pictograph ram
         self.spi([0x80] + ([0]*8)) # Address Setting command, pictograph data
         self.spi([0x40]) # Data Setting command: write to display ram
-        self.spi([0x80] + ([0]*16)) # Address Setting command, display data
+        self.spi([0x80] + ([0x20]*16)) # Address Setting command, display data
 
     def write(self, text, pos=0):
         self.write_codes([ self.char_code(c) for c in text ], pos)
