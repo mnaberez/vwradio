@@ -1,3 +1,4 @@
+import string
 import time
 
 import u3 # LabJackPython
@@ -89,13 +90,12 @@ class Lcd(object):
 
     CHARACTERS = lcd_decode.Premium4.CHARACTERS
     def char_code(self, char):
-        code = None
+        if char in string.digits:
+            return ord(char)
         for key, value in self.CHARACTERS.items():
             if value == char:
-                code = key
-        if code is None:
-            code = 0x7f # block cursor
-        return code
+                return key
+        return 0x7f # not found, show block cursor char
 
 
 if __name__ == '__main__':
