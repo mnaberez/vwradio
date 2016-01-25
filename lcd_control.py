@@ -35,13 +35,15 @@ class Lcd(object):
         self.spi(packet)
 
     def define_char(self, index, data):
+        if index not in range(16):
+            raise ValueError("Character number %r is not 0-15", index)
+        if len(data) != 7:
+            raise ValueError("Character data length %r is not 7" % len(data))
         self.spi([0x4a]) # Data Setting Command: write to chargen ram
-        packet = [0x80 + index]
-        for i, d in enumerate(data):
-            packet.append((d & 0b00011111) + (i << 5))
+        packet = [0x80 + index] + list(data) # Address Setting Command, data
         self.spi(packet)
 
-    def display_rom_charset(self):
+    def display_charset(self):
         self.spi([0x04]) # Display Setting Command
         self.spi([0xcf]) # Status Command
         self.spi([0x41]) # Data Setting Command: write to pictograph ram

@@ -296,11 +296,11 @@ def _encode_charset(text):
         for line in range(7):
             for char in range(8):
                 data_offset = (group * 8 * 7) + (char * 7) + line
+                data[data_offset] |= line << 5
                 for bit in range(4, -1, -1):
                     if pixels[pixel_index] == 'O':
-                        data[data_offset] += 2 ** bit
+                        data[data_offset] |= 2 ** bit
                     pixel_index += 1
-                data_offset += 1
     return tuple(data)
 
 PREMIUM_4 = _encode_charset(_PREMIUM_4)
