@@ -34,12 +34,41 @@ class Lcd(object):
         self.spi([0x40]) # Data Setting command: write to display ram
         self.spi([0x80] + ([0x20]*16)) # Address Setting command, display data
 
+    def read_key_data(self):
+        return lcd.spi([0x44, 0, 0, 0, 0])[1:]
+
+    def read_keys(self):
+        keys = []
+        data = self.read_key_data()
+        if data[0] & 1:   keys.append('treb')
+        if data[0] & 2:   keys.append('preset1')
+        if data[0] & 4:   keys.append('preset2')
+        if data[0] & 8:   keys.append('preset3')
+        if data[0] & 16:  keys.append('bass')
+        if data[0] & 32:  keys.append('preset4')
+        if data[0] & 64:  keys.append('preset5')
+        if data[0] & 128: keys.append('preset6')
+        if data[1] & 1:   keys.append('fade')
+        if data[1] & 2:   keys.append('tune <')
+        if data[1] & 4:   keys.append('tape')
+        if data[1] & 8:   keys.append('cd')
+        if data[1] & 16:  keys.append('bal')
+        if data[1] & 32:  keys.append('tune >')
+        if data[1] & 64:  keys.append('am')
+        if data[1] & 128: keys.append('fm')
+        if data[2] & 1:   keys.append('seek <')
+        if data[2] & 2:   keys.append('scan')
+        if data[2] & 8:   keys.append('mix')
+        if data[2] & 16:  keys.append('seek >')
+        if data[2] & 32:  keys.append('tapside')
+        return keys
+
     def write(self, text, pos=0):
         self.write_codes([ self.char_code(c) for c in text ], pos)
 
     def write_codes(self, char_codes, pos=0):
         if len(char_codes) > (11 - pos):
-            raise ValueError("Data %r exceeds visible range from pos %d" % 
+            raise ValueError("Data %r exceeds visible range from pos %d" %
                 (char_codes, pos))
         self.spi([0x40]) # Data Setting command: write to display ram
         address = 0x0d - len(char_codes) - pos
@@ -102,6 +131,15 @@ class Demonstrator(object):
                     time.sleep(0.2)
         self.lcd.clear()
 
+    def show_keys(self):
+        lcd.clear()
+        lcd.write('Hit Key', pos=4)
+        while True:
+            keys = lcd.read_keys()
+            if keys:
+                lcd.write(("KEY:" + keys[0]).upper().ljust(11))
+        time.sleep(0.1)
+
     def clock(self):
         lcd.write("Time", pos=0)
         while True:
@@ -109,7 +147,7 @@ class Demonstrator(object):
             if clock[0] == '0':
                 clock = ' ' + clock[1:]
             lcd.write(clock, pos=4)
-            time.sleep(0.5)        
+            time.sleep(0.5)
 
 
 if __name__ == '__main__':
@@ -117,7 +155,7 @@ if __name__ == '__main__':
     try:
         lcd = Lcd(device)
         demo = Demonstrator(lcd)
-        demo.show_rom_charset_comparison()
+        demo.show_keys()
 
     finally:
         device.getFeedback(u3.BitStateWrite(IONumber=u3.FIO0, State=0)) # STB

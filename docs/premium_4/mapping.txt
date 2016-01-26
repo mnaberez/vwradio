@@ -22,7 +22,34 @@ CAT - Clarion Anti-Theft Security LED.
 VLC - LCD Drive Voltage.  Measures 6.0V.  If ignition power is on but the
       radio is turned off by pushing the POWER key, VLC drops to 0V.
 
-TODO: Are the POWER and EJECT keys connected to the uPD16432B?
+
+Keys
+----
+
+if data[0] & 1:   keys.append('treb')
+if data[0] & 2:   keys.append('preset1')
+if data[0] & 4:   keys.append('preset2')
+if data[0] & 8:   keys.append('preset3')
+if data[0] & 16:  keys.append('bass')
+if data[0] & 32:  keys.append('preset4')
+if data[0] & 64:  keys.append('preset5')
+if data[0] & 128: keys.append('preset6')
+if data[1] & 1:   keys.append('fade')
+if data[1] & 2:   keys.append('tune <')
+if data[1] & 4:   keys.append('tape')
+if data[1] & 8:   keys.append('cd')
+if data[1] & 16:  keys.append('bal')
+if data[1] & 32:  keys.append('tune >')
+if data[1] & 64:  keys.append('am')
+if data[1] & 128: keys.append('fm')
+if data[2] & 1:   keys.append('seek <')
+if data[2] & 2:   keys.append('scan')
+if data[2] & 8:   keys.append('mix')
+if data[2] & 16:  keys.append('seek >')
+if data[2] & 32:  keys.append('tapside')
+
+The POWER and EJECT keys are not readable by the uPD16432B.
+
 
 Pictographs
 -----------
