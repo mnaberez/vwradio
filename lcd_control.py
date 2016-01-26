@@ -10,10 +10,10 @@ class Lcd(object):
         self.device = device
 
     def spi(self, data):
-        self.device.getFeedback(u3.BitStateWrite(IONumber=u3.FIO0, State=1))
         data = self.device.spi(
             SPIBytes=data,
-            AutoCS=False,
+            AutoCS=True,
+            InvertCS=True,
             DisableDirConfig=False,
             SPIMode='D', # CPOL=1, CPHA=1
             SPIClockFactor=255, # 0-255, 255=slowest
@@ -22,8 +22,6 @@ class Lcd(object):
             CLKPinNum=u3.FIO2,
             MISOPinNum=u3.FIO3,
             )['SPIBytes']
-        self.device.getFeedback(u3.BitStateWrite(IONumber=u3.FIO0, State=0))
-        self.device.getFeedback(u3.BitStateWrite(IONumber=u3.FIO1, State=0))
         return data
 
     def clear(self):
@@ -141,6 +139,7 @@ class Demonstrator(object):
         time.sleep(0.1)
 
     def clock(self):
+        lcd.clear()
         lcd.write("Time", pos=0)
         while True:
             clock = time.strftime("%I:%M%p").lower()
@@ -152,13 +151,10 @@ class Demonstrator(object):
 
 if __name__ == '__main__':
     device = u3.U3()
+    device.getFeedback(u3.BitStateWrite(IONumber=u3.FIO0, State=0)) # STB
     try:
         lcd = Lcd(device)
-        demo = Demonstrator(lcd)
         demo.show_keys()
-
     finally:
-        device.getFeedback(u3.BitStateWrite(IONumber=u3.FIO0, State=0)) # STB
-        device.getFeedback(u3.BitStateWrite(IONumber=u3.FIO1, State=0)) # DAT
         device.reset()
         device.close()
