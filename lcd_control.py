@@ -5,6 +5,16 @@ import u3 # LabJackPython
 import lcd_charsets
 import lcd_decode
 
+class Pins(object):
+    STB = u3.FIO0
+    DAT_OUT = u3.FIO1
+    DAT_IN = u3.FIO2
+    CLK = u3.FIO3
+    RST = u3.FIO4
+    LOF = u3.FIO5
+    EJE = u3.FIO6
+    POW = u3.FIO7
+
 class Lcd(object):
     def __init__(self, device):
         self.device = device
@@ -17,12 +27,21 @@ class Lcd(object):
             DisableDirConfig=False,
             SPIMode='D', # CPOL=1, CPHA=1
             SPIClockFactor=255, # 0-255, 255=slowest
-            CSPinNum=u3.FIO0,
-            MOSIPinNum=u3.FIO1,
-            CLKPinNum=u3.FIO2,
-            MISOPinNum=u3.FIO3,
+            CSPinNum=Pins.STB,
+            MOSIPinNum=Pins.DAT_OUT,
+            MISOPinNum=Pins.DAT_IN,
+            CLKPinNum=Pins.CLK,
             )['SPIBytes']
         return data
+
+    def reset(self):
+        self.device.getFeedback(u3.BitStateRead(IONumber=Pins.EJE))
+        self.device.getFeedback(u3.BitStateRead(IONumber=Pins.POW))
+        self.device.getFeedback(u3.BitStateWrite(IONumber=Pins.STB, State=0))
+        self.device.getFeedback(u3.BitStateWrite(IONumber=Pins.LOF, State=1))
+        for state in (1, 0, 1):
+            self.device.getFeedback(u3.BitStateWrite(IONumber=Pins.RST, State=state))
+        self.clear()
 
     def clear(self):
         self.spi([0x04]) # Display Setting command
@@ -33,10 +52,11 @@ class Lcd(object):
         self.spi([0x80] + ([0x20]*16)) # Address Setting command, display data
 
     def read_key_data(self):
-        return lcd.spi([0x44, 0, 0, 0, 0])[1:]
+        return self.spi([0x44, 0, 0, 0, 0])[1:]
 
     def read_keys(self):
         keys = []
+
         data = self.read_key_data()
         if data[0] & 1:   keys.append('treb')
         if data[0] & 2:   keys.append('preset1')
@@ -59,6 +79,15 @@ class Lcd(object):
         if data[2] & 8:   keys.append('mix')
         if data[2] & 16:  keys.append('seek >')
         if data[2] & 32:  keys.append('tapside')
+
+        data = self.device.getFeedback(u3.BitStateRead(IONumber=Pins.EJE))
+        if data[0] != 1:
+            keys.append('eject')
+
+        data = self.device.getFeedback(u3.BitStateRead(IONumber=Pins.POW))
+        if data[0] != 1:
+            keys.append('power')
+
         return keys
 
     def write(self, text, pos=0):
@@ -117,7 +146,7 @@ class Demonstrator(object):
         for i in range(0x10, 0x100):
             # refine character 0 with the rom pattern
             data = read_char_data(lcd_charsets.PREMIUM_4, i)
-            lcd.define_char(0, data)
+            self.lcd.define_char(0, data)
 
             # first four chars: display character code in hex
             self.lcd.write('0x%02X' % i, pos=0)
@@ -130,31 +159,37 @@ class Demonstrator(object):
         self.lcd.clear()
 
     def show_keys(self):
-        lcd.clear()
-        lcd.write('Hit Key', pos=4)
+        self.lcd.clear()
+        self.lcd.write('Hit Key', pos=4)
         while True:
-            keys = lcd.read_keys()
+            keys = self.lcd.read_keys()
             if keys:
-                lcd.write(("KEY:" + keys[0]).upper().ljust(11))
+                self.lcd.write(("KEY:" + keys[0]).upper().ljust(11))
         time.sleep(0.1)
 
     def clock(self):
-        lcd.clear()
-        lcd.write("Time", pos=0)
+        self.lcd.clear()
+        self.lcd.write("Time", pos=0)
         while True:
             clock = time.strftime("%I:%M%p").lower()
             if clock[0] == '0':
                 clock = ' ' + clock[1:]
-            lcd.write(clock, pos=4)
+            self.lcd.write(clock, pos=4)
             time.sleep(0.5)
 
 
-if __name__ == '__main__':
+def main():
     device = u3.U3()
-    device.getFeedback(u3.BitStateWrite(IONumber=u3.FIO0, State=0)) # STB
     try:
         lcd = Lcd(device)
+        lcd.reset()
+        demo = Demonstrator(lcd)
         demo.show_keys()
     finally:
         device.reset()
-        device.close()
+        device.close()    
+
+
+if __name__ == '__main__':
+    main()
+
