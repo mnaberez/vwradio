@@ -527,6 +527,7 @@ def parse_analyzer_file(filename, lcd):
 
       # strobe low->high starts session
       if (old_stb == 0) and (stb == 1):
+        session = []
         byte = 0
         bit = 7
 
