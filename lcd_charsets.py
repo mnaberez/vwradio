@@ -304,3 +304,4 @@ def _encode_charset(text):
     return tuple(data)
 
 PREMIUM_4 = _encode_charset(_PREMIUM_4)
+PREMIUM_5 = PREMIUM_4 # TODO temporary until Premium 5 is dumped

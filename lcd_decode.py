@@ -1,5 +1,6 @@
 import gzip
 import sys
+import lcd_charsets
 
 class _Enum(object):
     @classmethod
@@ -46,7 +47,8 @@ class Pictographs(_Enum):
 class LcdState(object):
   '''Abstract'''
 
-  MATRIX_ORDER = []
+  DISPLAY_ADDRESSES = ()
+  ROM_CHARSET = ()
   CHARACTERS = {}
   PICTOGRAPHS = {}
   KEYS = {}
@@ -191,28 +193,41 @@ class LcdState(object):
     else: # 3
       print("    LCD mode: 3=Normal operation (0b11)")
 
-  def _cmd_unknown(session):
+  def _cmd_unknown(self, session):
     print("? Unknown command ?")
 
-  def decode_chargen_ram(self):
-    lines = []
-    line = ''
-    for charnum in range(16):
-      line += '0x%02x:  ' % charnum
-    lines.append(line)
+  def _read_char_data(self, char_code):
+    charset = self.chargen_ram if char_code < 0x10 else self.ROM_CHARSET
+    start = char_code * 7
+    end = start + 7
+    return charset[start:end]
+
+  def _draw_chars(self, data, addresses):
+    heading = ''.join(['0x%02x:  ' % a for a in addresses])
+    lines = [heading]
 
     for row in range(7):
       line = ''
-      for charnum in range(16):
-        byte = self.chargen_ram[(charnum * 7) + row]
+      for charnum in range(len(addresses)):
+        byte = data[(charnum * 7) + row]
         line += (format(byte, '#010b')[5:].
                   replace('0', '.').replace('1', 'O') + '  ')
       lines.append(line)
     return lines
 
+  def draw_display_ram(self):
+    data = []
+    for address in self.DISPLAY_ADDRESSES:
+      char_code = self.display_data_ram[address]
+      data.extend(self._read_char_data(char_code))
+    return self._draw_chars(data, self.DISPLAY_ADDRESSES)
+
+  def draw_chargen_ram(self):
+    return self._draw_chars(self.chargen_ram, range(0x10))
+
   def decode_display_ram(self):
     decoded = ''
-    for address in self.MATRIX_ORDER:
+    for address in self.DISPLAY_ADDRESSES:
       byte = self.display_data_ram[address]
       if byte in range(16):
         decoded += "<cgram:0x%02x>" % byte
@@ -241,11 +256,14 @@ class LcdState(object):
     print('Pictograph RAM: ' + self._hexdump(self.pictograph_ram))
     print('Display Data RAM: ' + self._hexdump(self.display_data_ram))
     print('LED Output Latch: 0x%02x' % self.led_output_ram[0])
-    print('Decoded Chargen RAM:')
-    for line in self.decode_chargen_ram():
+    print('Drawn Chargen RAM:')
+    for line in self.draw_chargen_ram():
       print('  ' + line)
+    print('Drawn Display Data RAM:')
+    for line in self.draw_display_ram():
+      print('  ' + line)
+    print('Decoded Display Data RAM: %r' % self.decode_display_ram())
     print('Decoded Pictographs: ' + self.decode_pictographs())
-    print('Decoded Display Data: %r' % self.decode_display_ram())
     print('')
 
   def print_session(self, session):
@@ -257,8 +275,8 @@ class LcdState(object):
 
 
 class Premium4(LcdState):
-  MATRIX_ORDER = list(range(12, 1, -1))
-
+  DISPLAY_ADDRESSES = tuple(range(0x0c, 1, -1))
+  ROM_CHARSET = lcd_charsets.PREMIUM_4
   CHARACTERS = {
     0x10: " ",
     0x11: " ",
@@ -439,7 +457,8 @@ class Premium4(LcdState):
 
 
 class Premium5(LcdState):
-  MATRIX_ORDER = list(range(11))
+  DISPLAY_ADDRESSES = tuple(range(11))
+  ROM_CHARSET = lcd_charsets.PREMIUM_5
 
   CHARACTERS = {
     0x20: " ",
