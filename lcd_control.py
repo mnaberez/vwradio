@@ -35,12 +35,15 @@ class Lcd(object):
         return data
 
     def reset(self):
-        self.device.getFeedback(u3.BitStateRead(IONumber=Pins.EJE))
-        self.device.getFeedback(u3.BitStateRead(IONumber=Pins.POW))
-        self.device.getFeedback(u3.BitStateWrite(IONumber=Pins.STB, State=0))
-        self.device.getFeedback(u3.BitStateWrite(IONumber=Pins.LOF, State=1))
+        # configure pins as inputs
+        self.device.getDIState(Pins.EJE)
+        self.device.getDIState(Pins.POW)
+
+        # configure pins as ouputs and set initial state
+        self.device.setDOState(Pins.STB, 0)
+        self.device.setDOState(Pins.LOF, 1)
         for state in (1, 0, 1):
-            self.device.getFeedback(u3.BitStateWrite(IONumber=Pins.RST, State=state))
+            self.device.setDOState(Pins.RST, state)
         self.clear()
 
     def clear(self):
@@ -51,44 +54,28 @@ class Lcd(object):
         self.spi([0x40]) # Data Setting command: write to display ram
         self.spi([0x80] + ([0x20]*16)) # Address Setting command, display data
 
-    def read_key_data(self):
-        return self.spi([0x44, 0, 0, 0, 0])[1:]
-
     def read_keys(self):
         keys = []
 
-        data = self.read_key_data()
-        if data[0] & 1:   keys.append('treb')
-        if data[0] & 2:   keys.append('preset1')
-        if data[0] & 4:   keys.append('preset2')
-        if data[0] & 8:   keys.append('preset3')
-        if data[0] & 16:  keys.append('bass')
-        if data[0] & 32:  keys.append('preset4')
-        if data[0] & 64:  keys.append('preset5')
-        if data[0] & 128: keys.append('preset6')
-        if data[1] & 1:   keys.append('fade')
-        if data[1] & 2:   keys.append('tune <')
-        if data[1] & 4:   keys.append('tape')
-        if data[1] & 8:   keys.append('cd')
-        if data[1] & 16:  keys.append('bal')
-        if data[1] & 32:  keys.append('tune >')
-        if data[1] & 64:  keys.append('am')
-        if data[1] & 128: keys.append('fm')
-        if data[2] & 1:   keys.append('seek <')
-        if data[2] & 2:   keys.append('scan')
-        if data[2] & 8:   keys.append('mix')
-        if data[2] & 16:  keys.append('seek >')
-        if data[2] & 32:  keys.append('tapside')
+        keydata = self.read_key_data()
+        for bytenum, byte in enumerate(keydata):
+            current_map = lcd_decode.Premium4.KEYS.get(bytenum, {})
+            for bitnum in range(8):
+                if byte & (2**bitnum):
+                    key = current_map.get(bitnum)
+                    if key is None:
+                        raise ValueError('Unrecognized key')
+                    keys.append(key)
 
-        data = self.device.getFeedback(u3.BitStateRead(IONumber=Pins.EJE))
-        if data[0] != 1:
-            keys.append('eject')
-
-        data = self.device.getFeedback(u3.BitStateRead(IONumber=Pins.POW))
-        if data[0] != 1:
-            keys.append('power')
+        if self.device.getDIState(Pins.EJE) == 0:
+            keys.append(lcd_decode.Keys.STOP_EJECT)
+        if self.device.getDIState(Pins.POW) == 0:
+            keys.append(lcd_decode.Keys.POWER)
 
         return keys
+
+    def read_key_data(self):
+        return self.spi([0x44, 0, 0, 0, 0])[1:]
 
     def write(self, text, pos=0):
         self.write_codes([ self.char_code(c) for c in text ], pos)
@@ -163,8 +150,11 @@ class Demonstrator(object):
         self.lcd.write('Hit Key', pos=4)
         while True:
             keys = self.lcd.read_keys()
-            if keys:
-                self.lcd.write(("KEY:" + keys[0]).upper().ljust(11))
+            names = [ lcd_decode.Keys.get_name(k) for k in keys ]
+            if names:
+                print("%r" % names)
+                msg = names[0][:11].ljust(11)
+                self.lcd.write(msg)
         time.sleep(0.1)
 
     def clock(self):
@@ -187,7 +177,7 @@ def main():
         demo.show_keys()
     finally:
         device.reset()
-        device.close()    
+        device.close()
 
 
 if __name__ == '__main__':

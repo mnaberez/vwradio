@@ -6,10 +6,10 @@ Pictographs are symbols on the display like the Dolby logo
 4 pictographs total on the LCD
 
 Pictograph  Byte (0-7)  Bit (0-7)
-Dolby           1           2
-Metal           2           7
-Mix            ???         ???
 Period          4           5
+Metal           2           7
+Dolby           1           2
+Mix            ???         ???
 
 <all off>   Pictograph RAM: [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
 Dolby       Pictograph RAM: [0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]

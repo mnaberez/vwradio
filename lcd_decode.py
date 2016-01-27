@@ -1,12 +1,47 @@
 import gzip
 import sys
 
+
+class Keys(object):
+    POWER = 0
+    PRESET_1 = 1
+    PRESET_2 = 2
+    PRESET_3 = 3
+    PRESET_4 = 4
+    PRESET_5 = 5
+    PRESET_6 = 6
+    SOUND_BASS = 10
+    SOUND_TREB = 11
+    SOUND_FADE = 12
+    SOUND_BAL = 13
+    TUNE_UP = 20
+    TUNE_DOWN = 21
+    SEEK_UP = 22
+    SEEK_DOWN = 23
+    SCAN = 24
+    MODE_CD = 30
+    MODE_AM = 31
+    MODE_FM = 32
+    MODE_TAPE = 33
+    TAPE_SIDE = 40
+    STOP_EJECT = 41
+    MIX_DOLBY = 42
+
+    @classmethod
+    def get_name(klass, button):
+        for k, v in klass.__dict__.items():
+            if v == button:
+                return k
+        return None
+
+
 class LcdState(object):
   '''Abstract'''
 
   MATRIX_ORDER = []
   CHARACTERS = {}
   PICTOGRAPHS = {}
+  KEYS = {}
 
   def __init__(self):
     self.display_data_ram = [0] * 0x19
@@ -364,6 +399,32 @@ class Premium4(LcdState):
     1: {0: 'mode:cd', 5: 'mode:tape'},
     }
 
+  KEYS = {
+    2: {5: Keys.TAPE_SIDE,
+        4: Keys.SEEK_UP,
+        3: Keys.MIX_DOLBY,
+        1: Keys.SCAN,
+        0: Keys.SEEK_DOWN},
+
+    1: {7: Keys.MODE_FM,
+        6: Keys.MODE_AM,
+        5: Keys.TUNE_UP,
+        4: Keys.SOUND_BAL,
+        3: Keys.MODE_CD,
+        2: Keys.MODE_TAPE,
+        1: Keys.TUNE_DOWN,
+        0: Keys.SOUND_FADE},
+
+    0: {7: Keys.PRESET_6,
+        6: Keys.PRESET_5,
+        5: Keys.PRESET_4,
+        4: Keys.SOUND_BASS,
+        3: Keys.PRESET_3,
+        2: Keys.PRESET_2,
+        1: Keys.PRESET_1,
+        0: Keys.SOUND_TREB}
+  }
+
 
 class Premium5(LcdState):
   MATRIX_ORDER = list(range(11))
@@ -411,6 +472,8 @@ class Premium5(LcdState):
     1: {2: 'dolby'},
     # TODO MIX
     }
+
+  KEYS = {} # TODO key map
 
 
 def parse_analyzer_file(filename, lcd):
