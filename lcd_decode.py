@@ -1,8 +1,15 @@
 import gzip
 import sys
 
+class _Enum(object):
+    @classmethod
+    def get_name(klass, value):
+        for k, v in klass.__dict__.items():
+            if v == value:
+                return k
+        return None
 
-class Keys(object):
+class Keys(_Enum):
     POWER = 0
     PRESET_1 = 1
     PRESET_2 = 2
@@ -27,13 +34,14 @@ class Keys(object):
     STOP_EJECT = 41
     MIX_DOLBY = 42
 
-    @classmethod
-    def get_name(klass, button):
-        for k, v in klass.__dict__.items():
-            if v == button:
-                return k
-        return None
-
+class Pictographs(_Enum):
+    PERIOD = 0
+    MIX = 10
+    TAPE_METAL = 20
+    TAPE_DOLBY = 21
+    MODE_AMFM = 30
+    MODE_CD = 31
+    MODE_TAPE = 32
 
 class LcdState(object):
   '''Abstract'''
@@ -217,9 +225,11 @@ class LcdState(object):
     for offset in range(8):
       for bit in range(8):
         if self.pictograph_ram[offset] & (2**bit):
-          name = self.PICTOGRAPHS.get(offset, {}).get(bit, None)
-          if name is None:
+          pictograph = self.PICTOGRAPHS.get(offset, {}).get(bit, None)
+          if pictograph is None:
             name = "<unknown at byte %d, bit %d>" % (offset, bit)
+          else:
+            name = Pictographs.get_name(pictograph)
           names.append(name)
     return '[%s]' % ', '.join(names)
 
@@ -392,11 +402,13 @@ class Premium4(LcdState):
     }
 
   PICTOGRAPHS = {
-    7: {3: 'metal'},
-    6: {5: 'dolby', 0: 'mix'},
-    3: {6: 'period'},
-    2: {3: 'mode:am/fm'},
-    1: {0: 'mode:cd', 5: 'mode:tape'},
+    7: {3: Pictographs.TAPE_METAL},
+    6: {5: Pictographs.TAPE_DOLBY,
+        0: Pictographs.MIX},
+    3: {6: Pictographs.PERIOD},
+    2: {3: Pictographs.MODE_AMFM},
+    1: {0: Pictographs.MODE_CD,
+        5: Pictographs.MODE_TAPE},
     }
 
   KEYS = {
@@ -467,9 +479,9 @@ class Premium5(LcdState):
     }
 
   PICTOGRAPHS = {
-    4: {5: 'period'},
-    2: {7: 'metal'},
-    1: {2: 'dolby'},
+    4: {5: Pictographs.PERIOD},
+    2: {7: Pictographs.TAPE_METAL},
+    1: {2: Pictographs.TAPE_DOLBY},
     # TODO MIX
     }
 
