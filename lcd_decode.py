@@ -22,6 +22,8 @@ class Keys(_Enum):
     SOUND_TREB = 11
     SOUND_FADE = 12
     SOUND_BAL = 13
+    SOUND_MID = 14
+    SOUND_FB = 15
     TUNE_UP = 20
     TUNE_DOWN = 21
     SEEK_UP = 22
@@ -453,8 +455,7 @@ class Premium4(LcdState):
         2: Keys.PRESET_2,
         1: Keys.PRESET_1,
         0: Keys.SOUND_TREB}
-  }
-
+    }
 
 class Premium5(LcdState):
   DISPLAY_ADDRESSES = tuple(range(11))
@@ -504,8 +505,30 @@ class Premium5(LcdState):
     # TODO MIX
     }
 
-  KEYS = {} # TODO key map
-
+  KEYS = {
+    3: {7: Keys.MODE_AM,
+        6: Keys.PRESET_6,
+        5: Keys.PRESET_5,
+        4: Keys.PRESET_4,
+        3: Keys.SCAN,
+        2: Keys.TUNE_DOWN,
+        1: Keys.TUNE_UP,
+        0: Keys.MIX_DOLBY},
+    2: {7: Keys.MODE_FM,
+        6: Keys.SEEK_UP,
+        5: Keys.SEEK_DOWN,
+        3: Keys.MODE_CD,
+        2: Keys.PRESET_1,
+        1: Keys.PRESET_2,
+        0: Keys.PRESET_3},
+    1: {7: Keys.SOUND_TREB,
+        6: Keys.SOUND_MID,
+        5: Keys.SOUND_BASS,
+        4: Keys.SOUND_FB,
+        3: Keys.MODE_TAPE,
+        2: Keys.PRESET_1,
+        0: Keys.TAPE_SIDE},
+    }
 
 def parse_analyzer_file(filename, lcd):
   session = []
