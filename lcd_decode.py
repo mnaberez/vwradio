@@ -499,10 +499,10 @@ class Premium5(LcdState):
     }
 
   PICTOGRAPHS = {
+    5: {1: Pictographs.MIX},
     4: {5: Pictographs.PERIOD},
     2: {7: Pictographs.TAPE_METAL},
     1: {2: Pictographs.TAPE_DOLBY},
-    # TODO MIX
     }
 
   KEYS = {
