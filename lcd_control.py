@@ -2,13 +2,12 @@ import string
 import time
 
 import u3 # LabJackPython
-import lcd_charsets
 import lcd_decode
 
 class Pins(object):
     STB = u3.FIO0
-    DAT_OUT = u3.FIO1
-    DAT_IN = u3.FIO2
+    DAT_MOSI = u3.FIO1
+    DAT_MISO = u3.FIO2
     CLK = u3.FIO3
     RST = u3.FIO4
     LOF = u3.FIO5
@@ -18,6 +17,7 @@ class Pins(object):
 class Lcd(object):
     def __init__(self, device):
         self.device = device
+        self.lcd_state = lcd_decode.Premium5 # TODO temporary
 
     def spi(self, data):
         data = self.device.spi(
@@ -28,8 +28,8 @@ class Lcd(object):
             SPIMode='D', # CPOL=1, CPHA=1
             SPIClockFactor=255, # 0-255, 255=slowest
             CSPinNum=Pins.STB,
-            MOSIPinNum=Pins.DAT_OUT,
-            MISOPinNum=Pins.DAT_IN,
+            MOSIPinNum=Pins.DAT_MOSI,
+            MISOPinNum=Pins.DAT_MISO,
             CLKPinNum=Pins.CLK,
             )['SPIBytes']
         return data
@@ -57,14 +57,15 @@ class Lcd(object):
     def read_keys(self):
         keys = []
 
-        keydata = self.read_key_data()
-        for bytenum, byte in enumerate(keydata):
-            current_map = lcd_decode.Premium4.KEYS.get(bytenum, {})
+        key_data = self.read_key_data()
+        for bytenum, byte in enumerate(key_data):
+            key_map = self.lcd_state.KEYS.get(bytenum, {})
             for bitnum in range(8):
                 if byte & (2**bitnum):
-                    key = current_map.get(bitnum)
+                    key = key_map.get(bitnum)
                     if key is None:
-                        raise ValueError('Unrecognized key')
+                        msg = 'Unrecognized key at byte %d, bit %d'
+                        raise ValueError(msg % (bytenum, bitnum))
                     keys.append(key)
 
         if self.device.getDIState(Pins.EJE) == 0:
@@ -81,12 +82,42 @@ class Lcd(object):
         self.write_codes([ self.char_code(c) for c in text ], pos)
 
     def write_codes(self, char_codes, pos=0):
-        if len(char_codes) > (11 - pos):
+        display_addresses = self.lcd_state.DISPLAY_ADDRESSES
+
+        if len(char_codes) > (len(display_addresses) - pos):
             raise ValueError("Data %r exceeds visible range from pos %d" %
                 (char_codes, pos))
-        self.spi([0x40]) # Data Setting command: write to display ram
-        address = 0x0d - len(char_codes) - pos
-        self.spi([0x80 + address] + list(reversed(char_codes)))
+
+        # build dict of display data to write
+        char_codes_by_address = {}
+        for i, char_code in enumerate(char_codes):
+            address = display_addresses[i + pos]
+            char_codes_by_address[address] = char_code
+
+        # find groups of contiguous addresses that need to be written
+        addresses = char_codes_by_address.keys()
+        address_groups = self._split_into_contiguous_groups(addresses)
+
+        # send Data Setting command: write to display ram
+        self.spi([0x40])
+
+        # send Address Setting command plus data for each contiguous group
+        for addresses in address_groups:
+            start_address = addresses[0]
+            codes = [ char_codes_by_address[a] for a in addresses ]
+            self.spi([0x80 + start_address] + codes)
+
+    def _split_into_contiguous_groups(self, integers):
+        '''[2,1,7,6,5,10] -> [[1,2], [5,6,7], [10]]'''
+        groups = []
+        last = None
+        for i in sorted(integers):
+            if (last is not None) and (i == last + 1):
+                groups[-1].append(i)
+            else:
+                groups.append([i])
+            last = i
+        return groups
 
     def define_char(self, index, data):
         if index not in range(16):
@@ -94,17 +125,15 @@ class Lcd(object):
         if len(data) != 7:
             raise ValueError("Character data length %r is not 7" % len(data))
         self.spi([0x4a]) # Data Setting command: write to chargen ram
-        packet = [0x80 + index] + list(data) # Address Setting command, data
-        self.spi(packet)
+        self.spi([0x80 + index] + list(data)) # Address Setting command, data
 
-    CHARACTERS = lcd_decode.Premium4.CHARACTERS
     def char_code(self, char):
         if char in string.digits:
             return ord(char)
-        for key, value in self.CHARACTERS.items():
+        for key, value in self.lcd_state.CHARACTERS.items():
             if value == char:
                 return key
-        return 0x7f # not found, show block cursor char
+        return ord(char)
 
 
 class Demonstrator(object):
@@ -132,7 +161,7 @@ class Demonstrator(object):
 
         for i in range(0x10, 0x100):
             # refine character 0 with the rom pattern
-            data = read_char_data(lcd_charsets.PREMIUM_4, i)
+            data = read_char_data(self.lcd_state.ROM_CHARSET, i)
             self.lcd.define_char(0, data)
 
             # first four chars: display character code in hex
