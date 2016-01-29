@@ -11,32 +11,33 @@ class LcdAnalyzer(object):
     self.pictograph_ram = [0] * 0x08
     self.chargen_ram = [0] * 7 * 0x10
     self.led_output_ram = [0]
+    self.key_data_ram = [0] * 4
 
     self.current_ram = None
     self.address = 0
     self.increment = False
 
-  def eval(self, session):
-    self.print_session(session)
+  def process(self, spi_data):
+    self.print_spi_data(spi_data)
 
     # Command Byte
-    cmd = session[0]
+    cmd = spi_data[0]
     cmdsel = cmd & 0b11000000
 
     # Process command byte
     if cmdsel == 0b00000000:
-      self._cmd_display_setting(session)
+      self._cmd_display_setting(spi_data)
     elif cmdsel == 0b01000000:
-      self._cmd_data_setting(session)
+      self._cmd_data_setting(spi_data)
     elif cmdsel == 0b10000000:
-      self._cmd_address_setting(session)
+      self._cmd_address_setting(spi_data)
     elif cmdsel == 0b11000000:
-      self._cmd_status(session)
+      self._cmd_status(spi_data)
     else:
-      self._cmd_unknown(session)
+      self._cmd_unknown(spi_data)
 
     # Process data bytes
-    for byte in session[1:]:
+    for byte in spi_data[1:]:
       if self.current_ram is not None:
         if self.address >= len(self.current_ram):
           self.address = 0
@@ -48,9 +49,9 @@ class LcdAnalyzer(object):
 
     self.print_state()
 
-  def _cmd_display_setting(self, session):
+  def _cmd_display_setting(self, spi_data):
     print("    Display Setting Command")
-    cmd = session[0]
+    cmd = spi_data[0]
 
     if (cmd & 1) == 0:
       print("    Duty setting: 0=1/8 duty")
@@ -67,9 +68,9 @@ class LcdAnalyzer(object):
     else:
       print("    Drive voltage supply method: 1=internal")
 
-  def _cmd_data_setting(self, session):
+  def _cmd_data_setting(self, spi_data):
     print("  Data Setting Command")
-    cmd = session[0]
+    cmd = spi_data[0]
     mode = cmd & 0b00000111
     if mode == 0:
       print("    0=Write to display data RAM")
@@ -85,7 +86,7 @@ class LcdAnalyzer(object):
       self.current_ram = self.led_output_ram
     elif mode == 4: # Read key data
       print("    4=Read key data")
-      self.current_ram = None
+      self.current_ram = self.key_data_ram
     else: # Unknown mode
       print("    ? Unknown mode ?")
       self.current_ram = None
@@ -99,13 +100,16 @@ class LcdAnalyzer(object):
       else:
         print("    Address increment mode: 1=fixed")
     else:
-      # other modes are always increment
-      print("    Increment mode ignored; this area always increments")
+      # other commands always increment and also reset address
+      print("    Command implies address increment; increment is now on")
       self.increment = True
+      print("    Command implies reset to address 0; address is now 0")
+      self.address = 0
 
-  def _cmd_address_setting(self, session):
+
+  def _cmd_address_setting(self, spi_data):
       print("  Address Setting Command")
-      cmd = session[0]
+      cmd = spi_data[0]
       address = cmd & 0b00011111
       print("    Address = %02x" % address)
       if self.current_ram is self.chargen_ram:
@@ -113,9 +117,9 @@ class LcdAnalyzer(object):
       else:
         self.address = address
 
-  def _cmd_status(self, session):
+  def _cmd_status(self, spi_data):
     print("  Status command")
-    cmd = session[0]
+    cmd = spi_data[0]
     if (cmd & 32) == 0:
       print("    Test mode setting: 0=Normal operation")
     else:
@@ -146,7 +150,7 @@ class LcdAnalyzer(object):
     else: # 3
       print("    LCD mode: 3=Normal operation (0b11)")
 
-  def _cmd_unknown(self, session):
+  def _cmd_unknown(self, spi_data):
     print("? Unknown command ?")
 
   def _read_char_data(self, char_code):
@@ -201,10 +205,26 @@ class LcdAnalyzer(object):
           names.append(name)
     return '[%s]' % ', '.join(names)
 
+  def decode_keys(self):
+    keys = []
+    key_data = self.key_data_ram
+    for bytenum, byte in enumerate(key_data):
+        key_map = self.faceplate.KEYS.get(bytenum, {})
+        for bitnum in range(8):
+            if byte & (2**bitnum):
+                key = key_map.get(bitnum)
+                if key is None:
+                    msg = 'Unrecognized key at byte %d, bit %d'
+                    raise ValueError(msg % (bytenum, bitnum))
+                keys.append(key)
+    names = [ lcd_faceplates.Keys.get_name(k) for k in keys ]
+    return '[%s]' % ', '.join(names)
+
   def _hexdump(self, list_of_bytes):
     return '[%s]' % ', '.join([ '0x%02x' % x for x in list_of_bytes ])
 
   def print_state(self):
+    print('Key Data RAM: ' + self._hexdump(self.key_data_ram))
     print('Chargen RAM: ' + self._hexdump(self.chargen_ram))
     print('Pictograph RAM: ' + self._hexdump(self.pictograph_ram))
     print('Display Data RAM: ' + self._hexdump(self.display_data_ram))
@@ -217,18 +237,19 @@ class LcdAnalyzer(object):
       print('  ' + line)
     print('Decoded Display Data RAM: %r' % self.decode_display_ram())
     print('Decoded Pictographs: ' + self.decode_pictographs())
+    print('Decoded Keys Pressed: ' + self.decode_keys())
     print('')
 
-  def print_session(self, session):
-    print("Session: " + self._hexdump(session))
-    for i, byte in enumerate(session):
+  def print_spi_data(self, spi_data):
+    print("SPI Data: " + self._hexdump(spi_data))
+    for i, byte in enumerate(spi_data):
       desc = "Command byte" if i == 0 else "Data byte"
       print("  %s = 0x%02x (%s)" % (desc, byte, format(byte, '#010b')))
     print('')
 
 
 def parse_analyzer_file(filename, analyzer):
-  session = []
+  spi_data = []
   byte = 0
   bit = 0
 
@@ -247,7 +268,7 @@ def parse_analyzer_file(filename, analyzer):
 
       # strobe low->high starts session
       if (old_stb == 0) and (stb == 1):
-        session = []
+        spi_data = []
         byte = 0
         bit = 7
 
@@ -258,15 +279,15 @@ def parse_analyzer_file(filename, analyzer):
 
         bit -= 1
         if bit < 0: # got all bits of byte
-          session.append(byte)
+          spi_data.append(byte)
           byte = 0
           bit = 7
 
       # strobe high->low ends session
       if (old_stb == 1) and (stb == 0):
-        if session:
-          analyzer.eval(session)
-        session = []
+        if spi_data:
+          analyzer.process(spi_data)
+        spi_data = []
         byte = 0
         bit = 7
 
@@ -274,11 +295,15 @@ def parse_analyzer_file(filename, analyzer):
       old_clk = clk
 
 
+def main():
+  if sys.argv[1] == '4':
+    faceplate = lcd_faceplates.Premium4
+  else:
+    faceplate = lcd_faceplates.Premium5
+  analyzer = LcdAnalyzer(faceplate)
+  filename = sys.argv[2]
+  parse_analyzer_file(filename, analyzer)
+
+
 if __name__ == '__main__':
-    if sys.argv[1] == '4':
-      faceplate = lcd_faceplates.Premium4
-    else:
-      faceplate = lcd_faceplates.Premium5
-    analyzer = LcdAnalyzer(faceplate)
-    filename = sys.argv[2]
-    parse_analyzer_file(filename, analyzer)
+  main()
