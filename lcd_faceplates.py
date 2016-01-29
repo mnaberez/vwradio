@@ -265,7 +265,6 @@ class Premium5(Faceplate):
             5: Keys.SOUND_BASS,
             4: Keys.SOUND_FB,
             3: Keys.MODE_TAPE,
-            2: Keys.PRESET_1,
             0: Keys.TAPE_SIDE},
     }
 
