@@ -2,7 +2,7 @@ import string
 import time
 
 import u3 # LabJackPython
-import lcd_decode
+import lcd_faceplates
 
 class Pins(object):
     STB = u3.FIO0
@@ -15,12 +15,12 @@ class Pins(object):
     POW = u3.FIO7
 
 class Lcd(object):
-    def __init__(self, device):
-        self.device = device
-        self.lcd_state = lcd_decode.Premium5 # TODO temporary
+    def __init__(self, labjack, faceplate):
+        self.labjack = labjack
+        self.faceplate = faceplate
 
     def spi(self, data):
-        data = self.device.spi(
+        data = self.labjack.spi(
             SPIBytes=data,
             AutoCS=True,
             InvertCS=True,
@@ -36,14 +36,14 @@ class Lcd(object):
 
     def reset(self):
         # configure pins as inputs
-        self.device.getDIState(Pins.EJE)
-        self.device.getDIState(Pins.POW)
+        self.labjack.getDIState(Pins.EJE)
+        self.labjack.getDIState(Pins.POW)
 
         # configure pins as ouputs and set initial state
-        self.device.setDOState(Pins.STB, 0)
-        self.device.setDOState(Pins.LOF, 1)
+        self.labjack.setDOState(Pins.STB, 0)
+        self.labjack.setDOState(Pins.LOF, 1)
         for state in (1, 0, 1):
-            self.device.setDOState(Pins.RST, state)
+            self.labjack.setDOState(Pins.RST, state)
         self.clear()
 
     def clear(self):
@@ -59,7 +59,7 @@ class Lcd(object):
 
         key_data = self.read_key_data()
         for bytenum, byte in enumerate(key_data):
-            key_map = self.lcd_state.KEYS.get(bytenum, {})
+            key_map = self.faceplate.KEYS.get(bytenum, {})
             for bitnum in range(8):
                 if byte & (2**bitnum):
                     key = key_map.get(bitnum)
@@ -68,10 +68,10 @@ class Lcd(object):
                         raise ValueError(msg % (bytenum, bitnum))
                     keys.append(key)
 
-        if self.device.getDIState(Pins.EJE) == 0:
-            keys.append(lcd_decode.Keys.STOP_EJECT)
-        if self.device.getDIState(Pins.POW) == 0:
-            keys.append(lcd_decode.Keys.POWER)
+        if self.labjack.getDIState(Pins.EJE) == 0:
+            keys.append(lcd_faceplates.Keys.STOP_EJECT)
+        if self.labjack.getDIState(Pins.POW) == 0:
+            keys.append(lcd_faceplates.Keys.POWER)
 
         return keys
 
@@ -82,7 +82,7 @@ class Lcd(object):
         self.write_codes([ self.char_code(c) for c in text ], pos)
 
     def write_codes(self, char_codes, pos=0):
-        display_addresses = self.lcd_state.DISPLAY_ADDRESSES
+        display_addresses = self.faceplate.DISPLAY_ADDRESSES
 
         if len(char_codes) > (len(display_addresses) - pos):
             raise ValueError("Data %r exceeds visible range from pos %d" %
@@ -130,7 +130,7 @@ class Lcd(object):
     def char_code(self, char):
         if char in string.digits:
             return ord(char)
-        for key, value in self.lcd_state.CHARACTERS.items():
+        for key, value in self.faceplate.CHARACTERS.items():
             if value == char:
                 return key
         return ord(char)
@@ -161,7 +161,7 @@ class Demonstrator(object):
 
         for i in range(0x10, 0x100):
             # refine character 0 with the rom pattern
-            data = read_char_data(self.lcd_state.ROM_CHARSET, i)
+            data = read_char_data(self.faceplate.ROM_CHARSET, i)
             self.lcd.define_char(0, data)
 
             # first four chars: display character code in hex
@@ -179,7 +179,7 @@ class Demonstrator(object):
         self.lcd.write('Hit Key', pos=4)
         while True:
             keys = self.lcd.read_keys()
-            names = [ lcd_decode.Keys.get_name(k) for k in keys ]
+            names = [ lcd_faceplates.Keys.get_name(k) for k in keys ]
             if names:
                 print("%r" % names)
                 msg = names[0][:11].ljust(11)
@@ -198,15 +198,16 @@ class Demonstrator(object):
 
 
 def main():
-    device = u3.U3()
+    labjack = u3.U3()
+    faceplate = lcd_faceplates.Premium5
     try:
-        lcd = Lcd(device)
+        lcd = Lcd(labjack, faceplate)
         lcd.reset()
         demo = Demonstrator(lcd)
         demo.show_keys()
     finally:
-        device.reset()
-        device.close()
+        labjack.reset()
+        labjack.close()
 
 
 if __name__ == '__main__':

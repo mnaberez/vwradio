@@ -1,61 +1,12 @@
 import gzip
 import sys
-import lcd_charsets
+import lcd_faceplates
 
-class _Enum(object):
-    @classmethod
-    def get_name(klass, value):
-        for k, v in klass.__dict__.items():
-            if v == value:
-                return k
-        return None
+class LcdAnalyzer(object):
 
-class Keys(_Enum):
-    POWER = 0
-    PRESET_1 = 1
-    PRESET_2 = 2
-    PRESET_3 = 3
-    PRESET_4 = 4
-    PRESET_5 = 5
-    PRESET_6 = 6
-    SOUND_BASS = 10
-    SOUND_TREB = 11
-    SOUND_FADE = 12
-    SOUND_BAL = 13
-    SOUND_MID = 14
-    SOUND_FB = 15
-    TUNE_UP = 20
-    TUNE_DOWN = 21
-    SEEK_UP = 22
-    SEEK_DOWN = 23
-    SCAN = 24
-    MODE_CD = 30
-    MODE_AM = 31
-    MODE_FM = 32
-    MODE_TAPE = 33
-    TAPE_SIDE = 40
-    STOP_EJECT = 41
-    MIX_DOLBY = 42
+  def __init__(self, faceplate):
+    self.faceplate = faceplate
 
-class Pictographs(_Enum):
-    PERIOD = 0
-    MIX = 10
-    TAPE_METAL = 20
-    TAPE_DOLBY = 21
-    MODE_AMFM = 30
-    MODE_CD = 31
-    MODE_TAPE = 32
-
-class LcdState(object):
-  '''Abstract'''
-
-  DISPLAY_ADDRESSES = ()
-  ROM_CHARSET = ()
-  CHARACTERS = {}
-  PICTOGRAPHS = {}
-  KEYS = {}
-
-  def __init__(self):
     self.display_data_ram = [0] * 0x19
     self.pictograph_ram = [0] * 0x08
     self.chargen_ram = [0] * 7 * 0x10
@@ -199,7 +150,7 @@ class LcdState(object):
     print("? Unknown command ?")
 
   def _read_char_data(self, char_code):
-    charset = self.chargen_ram if char_code < 0x10 else self.ROM_CHARSET
+    charset = self.chargen_ram if char_code < 0x10 else self.faceplate.ROM_CHARSET
     start = char_code * 7
     end = start + 7
     return charset[start:end]
@@ -219,22 +170,22 @@ class LcdState(object):
 
   def draw_display_ram(self):
     data = []
-    for address in self.DISPLAY_ADDRESSES:
+    for address in self.faceplate.DISPLAY_ADDRESSES:
       char_code = self.display_data_ram[address]
       data.extend(self._read_char_data(char_code))
-    return self._draw_chars(data, self.DISPLAY_ADDRESSES)
+    return self._draw_chars(data, self.faceplate.DISPLAY_ADDRESSES)
 
   def draw_chargen_ram(self):
     return self._draw_chars(self.chargen_ram, range(0x10))
 
   def decode_display_ram(self):
     decoded = ''
-    for address in self.DISPLAY_ADDRESSES:
+    for address in self.faceplate.DISPLAY_ADDRESSES:
       byte = self.display_data_ram[address]
       if byte in range(16):
         decoded += "<cgram:0x%02x>" % byte
       else:
-        decoded += self.CHARACTERS.get(byte, '?')
+        decoded += self.faceplate.CHARACTERS.get(byte, '?')
     return decoded
 
   def decode_pictographs(self):
@@ -242,11 +193,11 @@ class LcdState(object):
     for offset in range(8):
       for bit in range(8):
         if self.pictograph_ram[offset] & (2**bit):
-          pictograph = self.PICTOGRAPHS.get(offset, {}).get(bit, None)
+          pictograph = self.faceplate.PICTOGRAPHS.get(offset, {}).get(bit, None)
           if pictograph is None:
             name = "<unknown at byte %d, bit %d>" % (offset, bit)
           else:
-            name = Pictographs.get_name(pictograph)
+            name = lcd_faceplates.Pictographs.get_name(pictograph)
           names.append(name)
     return '[%s]' % ', '.join(names)
 
@@ -276,261 +227,7 @@ class LcdState(object):
     print('')
 
 
-class Premium4(LcdState):
-  DISPLAY_ADDRESSES = tuple(range(0x0c, 1, -1))
-  ROM_CHARSET = lcd_charsets.PREMIUM_4
-  CHARACTERS = {
-    0x10: " ",
-    0x11: " ",
-    0x12: " ",
-    0x13: " ",
-    0x14: " ",
-    0x15: " ",
-    0x16: " ",
-    0x17: " ",
-    0x18: " ",
-    0x19: " ",
-    0x1a: " ",
-    0x1b: " ",
-    0x1c: " ",
-    0x1d: " ",
-    0x1e: " ",
-    0x1f: " ",
-    0x20: " ",
-    0x21: "!",
-    0x22: '"',
-    0x23: "#",
-    0x24: "$",
-    0x25: "%",
-    0x26: "&",
-    0x27: "'",
-    0x28: "(",
-    0x29: ")",
-    0x2a: "*",
-    0x2b: "+",
-    0x2c: ",",
-    0x2d: "-",
-    0x2e: ".",
-    0x2f: "/",
-    0x30: "0",
-    0x31: "1",
-    0x32: "2",
-    0x33: "3",
-    0x34: "4",
-    0x35: "5",
-    0x36: "6",
-    0x37: "7",
-    0x38: "8",
-    0x39: "9",
-    0x3a: ":",
-    0x3b: ";",
-    0x3c: "<",
-    0x3d: "=",
-    0x3e: ">",
-    0x3f: "?",
-    0x40: "@",
-    0x41: "A",
-    0x42: "B",
-    0x43: "C",
-    0x44: "D",
-    0x45: "E",
-    0x46: "F",
-    0x47: "G",
-    0x48: "H",
-    0x49: "I",
-    0x4a: "J",
-    0x4b: "K",
-    0x4c: "L",
-    0x4d: "M",
-    0x4e: "N",
-    0x4f: "O",
-    0x50: "P",
-    0x51: "Q",
-    0x52: "R",
-    0x53: "S",
-    0x54: "T",
-    0x55: "U",
-    0x56: "V",
-    0x57: "W",
-    0x58: "X",
-    0x59: "Y",
-    0x5a: "Z",
-    0x5b: "[",
-    0x5c: "\\",
-    0x5d: "]",
-    0x5e: "^",
-    0x5f: "_",
-    0x60: "`",
-    0x61: "a",
-    0x62: "b",
-    0x63: "c",
-    0x64: "d",
-    0x65: "e",
-    0x66: "f",
-    0x67: "g",
-    0x68: "h",
-    0x69: "i",
-    0x6a: "j",
-    0x6b: "k",
-    0x6c: "l",
-    0x6d: "m",
-    0x6e: "n",
-    0x6f: "o",
-    0x70: "p",
-    0x71: "q",
-    0x72: "r",
-    0x73: "s",
-    0x74: "t",
-    0x75: "u",
-    0x76: "v",
-    0x77: "w",
-    0x78: "x",
-    0x79: "y",
-    0x7a: "z",
-    0x7b: "{",
-    0x7c: "|",
-    0x7d: "}",
-    0x7e: "~",
-    0xe0: "A",
-    0xe1: "B",
-    0xe2: "N",
-    0xe3: "V",
-    0xe4: "0",
-    0xe5: "1",
-    0xe6: "3",
-    0xe7: "4",
-    0xe8: "5",
-    0xe9: "6",
-    0xea: "9",
-    0xeb: "1", # for FM1
-    0xec: "2", # for FM2
-    0xed: "2", # for preset 2
-    0xee: "3", # for preset 3
-    0xef: "4", # for preset 4
-    0xf0: "5", # for preset 5
-    0xf1: "6",
-    0xf2: "6", # for preset 6
-    0xf3: "2",
-    0xf4: " ",
-    0xf5: " ",
-    0xf6: " ",
-    0xf7: " ",
-    0xf8: " ",
-    0xf9: " ",
-    0xfa: " ",
-    0xfb: " ",
-    }
-
-  PICTOGRAPHS = {
-    7: {3: Pictographs.TAPE_METAL},
-    6: {5: Pictographs.TAPE_DOLBY,
-        0: Pictographs.MIX},
-    3: {6: Pictographs.PERIOD},
-    2: {3: Pictographs.MODE_AMFM},
-    1: {0: Pictographs.MODE_CD,
-        5: Pictographs.MODE_TAPE},
-    }
-
-  KEYS = {
-    2: {5: Keys.TAPE_SIDE,
-        4: Keys.SEEK_UP,
-        3: Keys.MIX_DOLBY,
-        1: Keys.SCAN,
-        0: Keys.SEEK_DOWN},
-
-    1: {7: Keys.MODE_FM,
-        6: Keys.MODE_AM,
-        5: Keys.TUNE_UP,
-        4: Keys.SOUND_BAL,
-        3: Keys.MODE_CD,
-        2: Keys.MODE_TAPE,
-        1: Keys.TUNE_DOWN,
-        0: Keys.SOUND_FADE},
-
-    0: {7: Keys.PRESET_6,
-        6: Keys.PRESET_5,
-        5: Keys.PRESET_4,
-        4: Keys.SOUND_BASS,
-        3: Keys.PRESET_3,
-        2: Keys.PRESET_2,
-        1: Keys.PRESET_1,
-        0: Keys.SOUND_TREB}
-    }
-
-class Premium5(LcdState):
-  DISPLAY_ADDRESSES = tuple(range(11))
-  ROM_CHARSET = lcd_charsets.PREMIUM_5
-
-  CHARACTERS = {
-    0x20: " ",
-    0x2b: "+",
-    0x2d: "-",
-    0x30: "0",
-    0x31: "1",
-    0x32: "2",
-    0x33: "3",
-    0x34: "4",
-    0x35: "5",
-    0x36: "6",
-    0x37: "7",
-    0x38: "8",
-    0x39: "9",
-    0x41: "A",
-    0x42: "B",
-    0x43: "C",
-    0x44: "D",
-    0x45: "E",
-    0x46: "F",
-    0x47: "G",
-    0x48: "H",
-    0x49: "I",
-    0x4c: "L",
-    0x4d: "M",
-    0x4e: "N",
-    0x4f: "O",
-    0x50: "P",
-    0x52: "R",
-    0x53: "S",
-    0x54: "T",
-    0x58: "X",
-    0x59: "Y",
-    0x6b: "k",
-    0x7a: "z",
-    }
-
-  PICTOGRAPHS = {
-    5: {1: Pictographs.MIX},
-    4: {5: Pictographs.PERIOD},
-    2: {7: Pictographs.TAPE_METAL},
-    1: {2: Pictographs.TAPE_DOLBY},
-    }
-
-  KEYS = {
-    3: {7: Keys.MODE_AM,
-        6: Keys.PRESET_6,
-        5: Keys.PRESET_5,
-        4: Keys.PRESET_4,
-        3: Keys.SCAN,
-        2: Keys.TUNE_DOWN,
-        1: Keys.TUNE_UP,
-        0: Keys.MIX_DOLBY},
-    2: {7: Keys.MODE_FM,
-        6: Keys.SEEK_UP,
-        5: Keys.SEEK_DOWN,
-        3: Keys.MODE_CD,
-        2: Keys.PRESET_1,
-        1: Keys.PRESET_2,
-        0: Keys.PRESET_3},
-    1: {7: Keys.SOUND_TREB,
-        6: Keys.SOUND_MID,
-        5: Keys.SOUND_BASS,
-        4: Keys.SOUND_FB,
-        3: Keys.MODE_TAPE,
-        2: Keys.PRESET_1,
-        0: Keys.TAPE_SIDE},
-    }
-
-def parse_analyzer_file(filename, lcd):
+def parse_analyzer_file(filename, analyzer):
   session = []
   byte = 0
   bit = 0
@@ -568,7 +265,7 @@ def parse_analyzer_file(filename, lcd):
       # strobe high->low ends session
       if (old_stb == 1) and (stb == 0):
         if session:
-          lcd.eval(session)
+          analyzer.eval(session)
         session = []
         byte = 0
         bit = 7
@@ -579,8 +276,9 @@ def parse_analyzer_file(filename, lcd):
 
 if __name__ == '__main__':
     if sys.argv[1] == '4':
-      lcd = Premium4()
+      faceplate = lcd_faceplates.Premium4
     else:
-      lcd = Premium5()
+      faceplate = lcd_faceplates.Premium5
+    analyzer = LcdAnalyzer(faceplate)
     filename = sys.argv[2]
-    parse_analyzer_file(filename, lcd)
+    parse_analyzer_file(filename, analyzer)
