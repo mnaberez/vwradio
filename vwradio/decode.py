@@ -1,6 +1,6 @@
 import gzip
 import sys
-import lcd_faceplates
+from vwradio import faceplates
 
 class LcdAnalyzer(object):
     def __init__(self, faceplate):
@@ -277,9 +277,9 @@ def parse_analyzer_file(filename, analyzer):
 
 def main():
     if sys.argv[1] == '4':
-        faceplate = lcd_faceplates.Premium4()
+        faceplate = faceplates.Premium4()
     else:
-        faceplate = lcd_faceplates.Premium5()
+        faceplate = faceplates.Premium5()
     analyzer = LcdAnalyzer(faceplate)
     filename = sys.argv[2]
     parse_analyzer_file(filename, analyzer)

@@ -2,11 +2,15 @@
 .coverage
 .tox
 *~
+*.egg
+*.egg-info
 *.pyc
 *.pyo
 *.swp
 coverage.xml
 nosetests.xml
+.eggs/
+__pycache__/
 build/
 dist/
 env*/

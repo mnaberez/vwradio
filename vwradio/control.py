@@ -1,7 +1,6 @@
 import time
-
 import u3 # LabJackPython
-import lcd_faceplates
+from vwradio import faceplates
 
 class Pins(object):
     STB = u3.FIO0
@@ -58,9 +57,9 @@ class Lcd(object):
         keys = self.faceplate.decode_keys(key_data)
 
         if self.labjack.getDIState(Pins.EJE) == 0:
-            keys.append(lcd_faceplates.Keys.STOP_EJECT)
+            keys.append(faceplates.Keys.STOP_EJECT)
         if self.labjack.getDIState(Pins.POW) == 0:
-            keys.append(lcd_faceplates.Keys.POWER)
+            keys.append(faceplates.Keys.POWER)
 
         return keys
 
@@ -178,7 +177,7 @@ class Demonstrator(object):
 
 def main():
     labjack = u3.U3()
-    faceplate = lcd_faceplates.Premium5()
+    faceplate = faceplates.Premium5()
     try:
         lcd = Lcd(labjack, faceplate)
         lcd.reset()

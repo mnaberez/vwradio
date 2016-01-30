@@ -1,5 +1,5 @@
-import lcd_charsets
 import string
+from vwradio import charsets
 
 class Enum(object):
     '''Abstract'''
@@ -100,7 +100,7 @@ class Faceplate(object):
 
 class Premium4(Faceplate):
     DISPLAY_ADDRESSES = tuple(range(0x0c, 1, -1))
-    ROM_CHARSET = lcd_charsets.PREMIUM_4
+    ROM_CHARSET = charsets.PREMIUM_4
     CHARACTERS = {
         0x10: " ",
         0x11: " ",
@@ -282,7 +282,7 @@ class Premium4(Faceplate):
 
 class Premium5(Faceplate):
     DISPLAY_ADDRESSES = tuple(range(11))
-    ROM_CHARSET = lcd_charsets.PREMIUM_5
+    ROM_CHARSET = charsets.PREMIUM_5
 
     KEYS = {
         3: {7: Keys.MODE_AM,
