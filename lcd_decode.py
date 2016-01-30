@@ -154,10 +154,12 @@ class LcdAnalyzer(object):
     print("? Unknown command ?")
 
   def _read_char_data(self, char_code):
-    charset = self.chargen_ram if char_code < 0x10 else self.faceplate.ROM_CHARSET
-    start = char_code * 7
-    end = start + 7
-    return charset[start:end]
+    if char_code < 0x10:
+      charset = self.chargen_ram
+    else:
+      charset = self.faceplate.ROM_CHARSET
+    offset = char_code * 7
+    return charset[offset:offset+7]
 
   def _draw_chars(self, data, addresses):
     heading = ''.join(['0x%02x:  ' % a for a in addresses])
@@ -192,39 +194,19 @@ class LcdAnalyzer(object):
         decoded += self.faceplate.CHARACTERS.get(byte, '?')
     return decoded
 
-  def decode_pictographs(self):
-    names = []
-    for offset in range(8):
-      for bit in range(8):
-        if self.pictograph_ram[offset] & (2**bit):
-          pictograph = self.faceplate.PICTOGRAPHS.get(offset, {}).get(bit, None)
-          if pictograph is None:
-            name = "<unknown at byte %d, bit %d>" % (offset, bit)
-          else:
-            name = lcd_faceplates.Pictographs.get_name(pictograph)
-          names.append(name)
-    return '[%s]' % ', '.join(names)
+  def decode_pictograph_names(self):
+    pictographs = self.faceplate.decode_pictographs(self.pictograph_ram)
+    return [ self.faceplate.get_pictograph_name(p) for p in pictographs ]
 
-  def decode_keys(self):
-    keys = []
-    key_data = self.key_data_ram
-    for bytenum, byte in enumerate(key_data):
-        key_map = self.faceplate.KEYS.get(bytenum, {})
-        for bitnum in range(8):
-            if byte & (2**bitnum):
-                key = key_map.get(bitnum)
-                if key is None:
-                    msg = 'Unrecognized key at byte %d, bit %d'
-                    raise ValueError(msg % (bytenum, bitnum))
-                keys.append(key)
-    names = [ lcd_faceplates.Keys.get_name(k) for k in keys ]
-    return '[%s]' % ', '.join(names)
+  def decode_key_names(self):
+    keys = self.faceplate.decode_keys(self.key_data_ram)
+    return [ self.faceplate.get_key_name(k) for k in keys ]
 
   def _hexdump(self, list_of_bytes):
     return '[%s]' % ', '.join([ '0x%02x' % x for x in list_of_bytes ])
 
   def print_state(self):
-    print('Key Data RAM: ' + self._hexdump(self.key_data_ram))
+    print('Key Data RAM: %r' + self._hexdump(self.key_data_ram))
     print('Chargen RAM: ' + self._hexdump(self.chargen_ram))
     print('Pictograph RAM: ' + self._hexdump(self.pictograph_ram))
     print('Display Data RAM: ' + self._hexdump(self.display_data_ram))
@@ -236,8 +218,8 @@ class LcdAnalyzer(object):
     for line in self.draw_display_ram():
       print('  ' + line)
     print('Decoded Display Data RAM: %r' % self.decode_display_ram())
-    print('Decoded Pictographs: ' + self.decode_pictographs())
-    print('Decoded Keys Pressed: ' + self.decode_keys())
+    print('Decoded Pictographs: %r' % self.decode_pictograph_names())
+    print('Decoded Keys Pressed: %r' % self.decode_key_names())
     print('')
 
   def print_spi_data(self, spi_data):
@@ -297,9 +279,9 @@ def parse_analyzer_file(filename, analyzer):
 
 def main():
   if sys.argv[1] == '4':
-    faceplate = lcd_faceplates.Premium4
+    faceplate = lcd_faceplates.Premium4()
   else:
-    faceplate = lcd_faceplates.Premium5
+    faceplate = lcd_faceplates.Premium5()
   analyzer = LcdAnalyzer(faceplate)
   filename = sys.argv[2]
   parse_analyzer_file(filename, analyzer)

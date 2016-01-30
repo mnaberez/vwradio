@@ -1,4 +1,3 @@
-import string
 import time
 
 import u3 # LabJackPython
@@ -55,18 +54,8 @@ class Lcd(object):
         self.spi([0x80] + ([0x20]*16)) # Address Setting command, display data
 
     def read_keys(self):
-        keys = []
-
-        key_data = self.read_key_data()
-        for bytenum, byte in enumerate(key_data):
-            key_map = self.faceplate.KEYS.get(bytenum, {})
-            for bitnum in range(8):
-                if byte & (2**bitnum):
-                    key = key_map.get(bitnum)
-                    if key is None:
-                        msg = 'Unrecognized key at byte %d, bit %d'
-                        raise ValueError(msg % (bytenum, bitnum))
-                    keys.append(key)
+        key_data = self.spi([0x44, 0, 0, 0, 0])[1:]
+        keys = self.faceplate.decode_keys(key_data)
 
         if self.labjack.getDIState(Pins.EJE) == 0:
             keys.append(lcd_faceplates.Keys.STOP_EJECT)
@@ -75,13 +64,11 @@ class Lcd(object):
 
         return keys
 
-    def read_key_data(self):
-        return self.spi([0x44, 0, 0, 0, 0])[1:]
-
     def write(self, text, pos=0):
-        self.write_codes([ self.char_code(c) for c in text ], pos)
+        char_codes = [ self.faceplate.char_code(c) for c in text ]
+        self.write_char_codes(char_codes, pos)
 
-    def write_codes(self, char_codes, pos=0):
+    def write_char_codes(self, char_codes, pos=0):
         display_addresses = self.faceplate.DISPLAY_ADDRESSES
 
         if len(char_codes) > (len(display_addresses) - pos):
@@ -127,14 +114,6 @@ class Lcd(object):
         self.spi([0x4a]) # Data Setting command: write to chargen ram
         self.spi([0x80 + index] + list(data)) # Address Setting command, data
 
-    def char_code(self, char):
-        if char in string.digits:
-            return ord(char)
-        for key, value in self.faceplate.CHARACTERS.items():
-            if value == char:
-                return key
-        return ord(char)
-
 
 class Demonstrator(object):
     def __init__(self, lcd):
@@ -149,7 +128,7 @@ class Demonstrator(object):
                 if code > 0xFF: # past end of charset
                     break
                 data[j] = code
-            self.lcd.write_codes(data, pos=4)
+            self.lcd.write_char_codes(data, pos=4)
             time.sleep(1)
         self.lcd.clear()
 
@@ -170,7 +149,7 @@ class Demonstrator(object):
             # all other chars: alternate between rom and programmable char 0
             for blink in range(6):
                 for code in (0, i):
-                    self.lcd.write_codes([code]*7, pos=4)
+                    self.lcd.write_char_codes([code]*7, pos=4)
                     time.sleep(0.2)
         self.lcd.clear()
 
@@ -179,7 +158,7 @@ class Demonstrator(object):
         self.lcd.write('Hit Key', pos=4)
         while True:
             keys = self.lcd.read_keys()
-            names = [ lcd_faceplates.Keys.get_name(k) for k in keys ]
+            names = [ self.lcd.faceplate.get_key_name(k) for k in keys ]
             if names:
                 print("%r" % names)
                 msg = names[0][:11].ljust(11)
@@ -199,7 +178,7 @@ class Demonstrator(object):
 
 def main():
     labjack = u3.U3()
-    faceplate = lcd_faceplates.Premium5
+    faceplate = lcd_faceplates.Premium5()
     try:
         lcd = Lcd(labjack, faceplate)
         lcd.reset()
@@ -212,4 +191,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-

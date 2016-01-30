@@ -1,5 +1,5 @@
 import lcd_charsets
-
+import string
 
 class Enum(object):
     '''Abstract'''
@@ -56,6 +56,46 @@ class Faceplate(object):
     CHARACTERS = {}
     PICTOGRAPHS = {}
     KEYS = {}
+
+    def decode_keys(self, key_data, as_names=False):
+        keys = []
+        for bytenum, byte in enumerate(key_data):
+            key_map = self.KEYS.get(bytenum, {})
+            for bitnum in range(8):
+                if byte & (2**bitnum):
+                    key = key_map.get(bitnum)
+                    if key is None:
+                        msg = 'Unrecognized key at byte %d, bit %d'
+                        raise ValueError(msg % (bytenum, bitnum))
+                    keys.append(key)
+        return keys
+
+    def get_key_name(self, key):
+        return Keys.get_name(key)
+
+    def decode_pictographs(self, pictograph_data):
+        pictographs = []
+        for bytenum, byte in enumerate(pictograph_data):
+            pictograph_map = self.PICTOGRAPHS.get(bytenum, {})
+            for bit in range(8):
+                if byte & (2**bit):
+                    pictograph = pictograph_map.get(bit)
+                    if pictograph is None:
+                        msg = 'Unrecognized pictograph at byte %d, bit %d'
+                        raise ValueError(msg % (bytenum, bit))
+                    pictographs.append(pictograph)
+        return pictographs
+
+    def get_pictograph_name(self, pictograph):
+        return Pictographs.get_name(pictograph)
+
+    def char_code(self, char):
+        if char in string.digits:
+            return ord(char)
+        for key, value in self.CHARACTERS.items():
+            if value == char:
+                return key
+        return ord(char)
 
 
 class Premium4(Faceplate):
