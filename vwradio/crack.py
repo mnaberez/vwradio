@@ -165,7 +165,7 @@ class Cracker(object):
             if tries_this_cycle == 2:
                 self.power_off()
                 self.power_on()
-                self.tries_this_cycle = 0
+                tries_this_cycle = 0
 
     def power_on(self):
         print("Power on sequence")
