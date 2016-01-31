@@ -30,16 +30,16 @@ LabJack U3 connections:
 
 Lines are inverted (0=close contact, 1=open contact).
 
-A pull-down resistor must be connected between the AT93C64's CS
-line and GND so the EEPROM is disabled when its CS line is
-disconnected from the radio's microcontroller.
+Connect a 3.3K pull-down resistor between the AT93C64's CS input and GND
+so the AT93C64 is disabled when the CS line is disconnected from the
+radio's microcontroller.  Do not let the CS input float.
 
-A load must be connected in parallel with the radio's 12VDC input.
-This can be a small DC motor or light bulb.  When 12VDC is disconnected,
-the radio has residual power that can keep the microcontroller's RAM
-alive.  The load is used to drain all the radio's residual power quickly.
-If this is not done, the radio will remember the attempt count in its
-microcontroller's RAM even if power is removed for a while.
+Connect a load in parallel with the radio's 12VDC input.  I used a small
+DC motor.  When the relay disconnects 12V power, the radio still has residual
+power that can keep the microcontroller's RAM alive.  The load is used to
+drain all the radio's residual power quickly.  If this is not done, the radio
+may remember the attempt count in its microcontroller's RAM even if power
+is removed for a while.
 """
 
 import sys
@@ -181,7 +181,7 @@ class Cracker(object):
     def power_off(self):
         print("Power off sequence")
         self.harness.power_off()
-        time.sleep(4)
+        time.sleep(5)
 
 
 def main():
