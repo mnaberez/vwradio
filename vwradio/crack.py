@@ -62,7 +62,7 @@ class Radio(object):
     def clear(self):
         """Initialize the LabJack DIO and set the default button states"""
         for i in range(0, 5):
-            self.labjack.setFIOState(u3.FIO0 + i, 1)
+            self.labjack.setDOState(u3.FIO0 + i, 1)
         time.sleep(0.2)
 
         # security code always defaults to "1000"
@@ -81,23 +81,23 @@ class Radio(object):
 
     def execute(self):
         """Execute the current security code to try and unlock the radio"""
-        self.labjack.setFIOState(u3.FIO4, 0) # button down
+        self.labjack.setDOState(u3.FIO4, 0) # button down
         time.sleep(3) # execute requires a long press
 
-        self.labjack.setFIOState(u3.FIO4, 1) # button up
+        self.labjack.setDOState(u3.FIO4, 1) # button up
         time.sleep(5) # long delay until radio finishes flashing "SAFE"
 
     def press_power_button(self):
         """Press the power button"""
         for state in (0, 1): # 0=button down, 1=button up
-            self.labjack.setFIOState(u3.FIO5, state)
+            self.labjack.setDOState(u3.FIO5, state)
             time.sleep(0.2)
 
     def press_preset_button(self, button):
         """Press a preset button and update the button's current digit.
         Button is an integer starting at 0 for preset 1."""
         for state in (0, 1): # 0=button down, 1=button up
-            self.labjack.setFIOState(u3.FIO0 + button, state)
+            self.labjack.setDOState(u3.FIO0 + button, state)
             time.sleep(0.2)
 
         self.digits[button] += 1
@@ -115,22 +115,22 @@ class Harness(object):
 
     def power_on(self):
         '''Turn on all 12VDC power to the radio'''
-        self.labjack.setFIOState(u3.FIO7, 0)
+        self.labjack.setDOState(u3.FIO7, 0)
 
     def power_off(self):
         '''Turn off all 12VDC power to the radio'''
-        self.labjack.setFIOState(u3.FIO7, 1)
+        self.labjack.setDOState(u3.FIO7, 1)
 
     def allow_eeprom_cs(self):
         '''Allow the EEPROM to see the CS signal from the
         radio's microcontroller'''
-        self.labjack.setFIOState(u3.FIO6, 0)
+        self.labjack.setDOState(u3.FIO6, 0)
 
     def deny_eeprom_cs(self):
         '''Deny the EEPROM from seing the CS signal by disconnecting it
         from the radio's microcontroller and making it always
         low (not enabled)'''
-        self.labjack.setFIOState(u3.FIO6, 1)
+        self.labjack.setDOState(u3.FIO6, 1)
 
 
 class Cracker(object):
@@ -191,7 +191,6 @@ def main():
     starting_code=int(sys.argv[1])
 
     labjack = u3.U3()
-    labjack.configU3()
     radio = Radio(labjack)
     harness = Harness(labjack)
     Cracker(radio, harness).crack(starting_code)
