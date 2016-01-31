@@ -46,13 +46,14 @@ import sys
 import time
 import u3 # LabJack
 
+
 class Radio(object):
     """Radio front panel interaction"""
-    def __init__(self, device=None):
-        if device is None:
-            device = u3.U3()
-            device.configU3()
-        self._d = device
+    def __init__(self, labjack=None):
+        if labjack is None:
+            labjack = u3.U3()
+            labjack.configU3()
+        self.labjack = labjack
         self.clear()
 
     def __repr__(self):
@@ -61,7 +62,7 @@ class Radio(object):
     def clear(self):
         """Initialize the LabJack DIO and set the default button states"""
         for i in range(0, 5):
-            self._d.setFIOState(u3.FIO0 + i, 1)
+            self.labjack.setFIOState(u3.FIO0 + i, 1)
         time.sleep(0.2)
 
         # security code always defaults to "1000"
@@ -80,23 +81,23 @@ class Radio(object):
 
     def execute(self):
         """Execute the current security code to try and unlock the radio"""
-        self._d.setFIOState(u3.FIO4, 0) # button down
+        self.labjack.setFIOState(u3.FIO4, 0) # button down
         time.sleep(3) # execute requires a long press
 
-        self._d.setFIOState(u3.FIO4, 1) # button up
+        self.labjack.setFIOState(u3.FIO4, 1) # button up
         time.sleep(5) # long delay until radio finishes flashing "SAFE"
 
     def press_power_button(self):
         """Press the power button"""
         for state in (0, 1): # 0=button down, 1=button up
-            self._d.setFIOState(u3.FIO5, state)
+            self.labjack.setFIOState(u3.FIO5, state)
             time.sleep(0.2)
 
     def press_preset_button(self, button):
         """Press a preset button and update the button's current digit.
         Button is an integer starting at 0 for preset 1."""
         for state in (0, 1): # 0=button down, 1=button up
-            self._d.setFIOState(u3.FIO0 + button, state)
+            self.labjack.setFIOState(u3.FIO0 + button, state)
             time.sleep(0.2)
 
         self.digits[button] += 1
@@ -106,80 +107,95 @@ class Radio(object):
 
 class Harness(object):
     """Hardware test harness control (12VDC power, EEPROM CS block)"""
-    def __init__(self, device=None):
-        if device is None:
-            device = u3.U3()
-            device.configU3()
-        self._d = device
+    def __init__(self, labjack=None):
+        if labjack is None:
+            labjack = u3.U3()
+            labjack.configU3()
+        self.labjack = labjack
 
     def power_on(self):
         '''Turn on all 12VDC power to the radio'''
-        self._d.setFIOState(u3.FIO7, 0)
+        self.labjack.setFIOState(u3.FIO7, 0)
 
     def power_off(self):
         '''Turn off all 12VDC power to the radio'''
-        self._d.setFIOState(u3.FIO7, 1)
+        self.labjack.setFIOState(u3.FIO7, 1)
 
     def allow_eeprom_cs(self):
         '''Allow the EEPROM to see the CS signal from the
         radio's microcontroller'''
-        self._d.setFIOState(u3.FIO6, 0)
+        self.labjack.setFIOState(u3.FIO6, 0)
 
     def deny_eeprom_cs(self):
         '''Deny the EEPROM from seing the CS signal by disconnecting it
         from the radio's microcontroller and making it always
         low (not enabled)'''
-        self._d.setFIOState(u3.FIO6, 1)
+        self.labjack.setFIOState(u3.FIO6, 1)
 
 
-if __name__ == '__main__':
+class Cracker(object):
+    """Crack a radio by brute force guessing codes"""
+    def __init__(self, radio, harness):
+        self.radio = radio
+        self.harness = harness
+
+    def crack(self, starting_code):
+        code = starting_code
+        max_code = 1999
+        tries_this_cycle = 0
+
+        self.power_on()
+
+        while code <= max_code:
+            percent = (float(code) / max_code) * 100
+            print("Trying code %04d (max=%04d, %0.2f%% done)" % (
+                code, max_code, percent))
+
+            self.radio.enter_code(code)
+            self.radio.execute()
+            self.radio.clear()
+
+            code += 1
+
+            # the radio allows only 2 tries, then it locks out code entry
+            # for an hour.  since we have blocked updating the attempt
+            # count in the eeprom, power cycling allows us to try again
+            # without waiting.
+            tries_this_cycle += 1
+            if tries_this_cycle == 2:
+                self.power_off()
+                self.power_on()
+                self.tries_this_cycle = 0
+
+    def power_on(self):
+        print("Power on sequence")
+        self.harness.allow_eeprom_cs()
+        time.sleep(0.5)
+        self.harness.power_on()
+        time.sleep(2)
+        self.radio.press_power_button()
+        self.radio.clear()
+        time.sleep(8)
+        self.harness.deny_eeprom_cs()
+
+    def power_off(self):
+        print("Power off sequence")
+        self.harness.power_off()
+        time.sleep(4)
+
+
+def main():
     if len(sys.argv) != 2:
         sys.stderr.write("Usage: crack.py <starting code>\n")
         sys.exit(1)
+    starting_code=int(sys.argv[1])
 
-    device = u3.U3()
-    device.configU3()
-    radio = Radio(device)
-    harness = Harness(device)
+    labjack = u3.U3()
+    labjack.configU3()
+    radio = Radio(labjack)
+    harness = Harness(labjack)
+    Cracker(radio, harness).crack(starting_code)
 
-    code = int(sys.argv[1])
-    max_code = 1999
-    tries_this_cycle = 0
 
-    def power_on():
-        print("Power on sequence")
-        harness.allow_eeprom_cs()
-        time.sleep(0.5)
-        harness.power_on()
-        time.sleep(2)
-        radio.press_power_button()
-        radio.clear()
-        time.sleep(8)
-        harness.deny_eeprom_cs()
-
-    def power_off():
-        print("Power off sequence")
-        harness.power_off()
-        time.sleep(4)
-
-    power_on()
-
-    while code <= max_code:
-        percent = (float(code) / max_code) * 100
-        print("Trying code %04d (max=%04d, %0.2f%% done)" % (
-            code, max_code, percent))
-
-        radio.enter_code(code)
-        radio.execute()
-        radio.clear()
-
-        code += 1
-
-        # the radio allows only 2 tries, then it locks out code entry for
-        # an hour.  since we have blocked updating the attempt count in the
-        # eeprom, power cycling allows us to try again without waiting.
-        tries_this_cycle += 1
-        if tries_this_cycle == 2:
-            power_off()
-            power_on()
-            tries_this_cycle = 0
+if __name__ == '__main__':
+    main()
