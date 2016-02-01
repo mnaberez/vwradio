@@ -139,7 +139,7 @@ class Demonstrator(object):
 
         for i in range(0x10, 0x100):
             # refine character 0 with the rom pattern
-            data = read_char_data(self.faceplate.ROM_CHARSET, i)
+            data = read_char_data(self.lcd.faceplate.ROM_CHARSET, i)
             self.lcd.define_char(0, data)
 
             # first four chars: display character code in hex
