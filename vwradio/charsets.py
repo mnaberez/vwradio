@@ -618,10 +618,10 @@ _SONY_MDX_C7900R = '''
     0x20:  0x21:  0x22:  0x23:  0x24:  0x25:  0x26:  0x27:
     .....  ..O..  OO.OO  .O.O.  ..O..  OO...  .O...  .OO..
     .....  ..O..  .O..O  OOOOO  .OOOO  OO..O  O.O..  ..O..
-    .....  ..O..  O..O.  .O.O.  O.O..  ...O.  O.O.O  .O...
+    .....  ..O..  O..O.  .O.O.  O.O..  ...O.  O.O..  .O...
     .....  ..O..  .....  .O.O.  .OOO.  ..O..  .O..O  .....
-    .....  ..O..  .....  OOOOO  ..O.O  .O...  O.O..  .....
-    .....  .....  .....  .O.O.  OOOO.  O..OO  O..O.  .....
+    .....  ..O..  .....  .O.O.  ..O.O  .O...  O.O.O  .....
+    .....  .....  .....  OOOOO  OOOO.  O..OO  O..O.  .....
     .....  ..O..  .....  .O.O.  ..O..  ...OO  .OO.O  .....
 
     0x28:  0x29:  0x2A:  0x2B:  0x2C:  0x2D:  0x2E:  0x2F:
@@ -636,9 +636,9 @@ _SONY_MDX_C7900R = '''
     0x30:  0x31:  0x32:  0x33:  0x34:  0x35:  0x36:  0x37:
     .OOO.  ...O.  .OOO.  .OOO.  ...O.  OOOOO  ..OO.  OOOOO
     O...O  .OOO.  O...O  O...O  ..OO.  O....  .O...  ....O
-    O...O  ...O.  ....O  ....O  .O.O.  OOOO.  O....  ...O.
-    O...O  ...O.  ..OO.  ..OO.  O..O.  ....O  OOOO.  ...O.
-    O...O  ...O.  .O...  ....O  OOOOO  ....O  O...O  ..O..
+    O..OO  ...O.  ....O  ....O  .O.O.  OOOO.  O....  ...O.
+    O.O.O  ...O.  ..OO.  ..OO.  O..O.  ....O  OOOO.  ...O.
+    OO..O  ...O.  .O...  ....O  OOOOO  ....O  O...O  ..O..
     O...O  ...O.  O....  O...O  ...O.  O...O  O...O  ..O..
     .OOO.  ...O.  OOOOO  .OOO.  ...O.  .OOO.  .OOO.  ..O..
 
@@ -655,7 +655,7 @@ _SONY_MDX_C7900R = '''
     .OOO.  ..O..  OOOO.  .OOO.  OOOO.  OOOOO  OOOOO  .OOO.
     O...O  .O.O.  .O..O  O...O  .O..O  O....  O....  O...O
     O..OO  O...O  .O..O  O....  .O..O  O....  O....  O....
-    O.O.O  O...O  OOOO.  O....  .O..O  OOOO.  OOOO.  O.OOO
+    O.O.O  O...O  .OOO.  O....  .O..O  OOOO.  OOOO.  O.OOO
     O.O.O  OOOOO  .O..O  O....  .O..O  O....  O....  O...O
     O..OO  O...O  .O..O  O...O  .O..O  O....  O....  O...O
     .O...  O...O  OOOO.  .OOO.  OOOO.  OOOOO  O....  .OOO.
@@ -673,7 +673,7 @@ _SONY_MDX_C7900R = '''
     OOOO.  .OOO.  OOOO.  .OOO.  OOOOO  O...O  O...O  O...O
     O...O  O...O  O...O  O...O  ..O..  O...O  O...O  O...O
     O...O  O...O  O...O  O....  ..O..  O...O  O...O  O...O
-    OOOO.  O...O  OOOO.  .OOO.  ..O..  O...O  O...O  O...O
+    OOOO.  O...O  OOOO.  .OOO.  ..O..  O...O  O...O  O.O.O
     O....  O.O.O  O.O..  ....O  ..O..  O...O  .O.O.  O.O.O
     O....  O..O.  O..O.  O...O  ..O..  O...O  .O.O.  OO.OO
     O....  .OO.O  O...O  .OOO.  ..O..  .OOO.  ..O..  O...O
@@ -733,13 +733,13 @@ _SONY_MDX_C7900R = '''
     .OOOO  .OOOO  .OOOO  .OOOO  .OOO.  .OOO.  .OOO.  .OOO.
 
     0x88:  0x89:  0x8A:  0x8B:  0x8C:  0x8D:  0x8E:  0x8F:
-    ...O.  .O...  .OO.O  .OOO.  .OOO.  .OO..  ..O..  O...O
-    ..O..  ..O..  O..O.  O...O  O...O  O..O.  .....  O...O
-    .....  .....  O...O  O....  .OO..  O..O.  .OOO.  O...O
-    O...O  O...O  OO..O  O....  ...O.  O.O..  ..O..  O...O
-    O...O  O...O  O.O.O  O...O  O...O  O..O.  ..O..  O...O
-    O..OO  O..OO  O..OO  .OOO.  .OOO.  O..O.  ..O..  O.O.O
-    .OO.O  .OO.O  O...O  ..O..  ..O..  O.O..  .OOO.  O..O.
+    ...O.  .O...  .OO.O  .OOO.  .OOO.  ..OO.  ..O..  O...O
+    ..O..  ..O..  O..O.  O...O  O...O  .O..O  .....  O...O
+    .....  .....  O...O  O....  .OO..  .O..O  .OOO.  O...O
+    O...O  O...O  OO..O  O....  ...O.  .O.O.  ..O..  O...O
+    O...O  O...O  O.O.O  O...O  O...O  .O..O  ..O..  O...O
+    O..OO  O..OO  O..OO  .OOO.  .OOO.  .O..O  ..O..  O.O.O
+    .OO.O  .OO.O  O...O  ..O..  ..O..  .O.O.  .OOO.  O..O.
 
     0x90:  0x91:  0x92:  0x93:  0x94:  0x95:  0x96:  0x97:
     ..O..  .O.O.  ..O..  .O.O.  ..O..  .....  ..O..  .....
@@ -772,7 +772,7 @@ _SONY_MDX_C7900R = '''
     .....  OOO..  ..OO.  ..O..  .....  .....  .....  .....
     .....  O....  .O...  .OOOO  ..O..  ..O..  ..O..  ..O..
     OOOOO  O.OOO  .O...  O.O..  .O...  .OOO.  ...O.  ..O..
-    .O.O.  O.O..  OOOOO  .OOO.  OOOOO  O.O.O  OOOOO  O.O.O
+    .O.O.  O.O..  OOOO.  .OOO.  OOOOO  O.O.O  OOOOO  O.O.O
     .O.O.  OOOOO  .O...  ..O.O  .O...  ..O..  ...O.  .OOO.
     .O.O.  ..O..  .O...  OOOO.  ..O..  ..O..  ..O..  ..O..
     .O.OO  ..OOO  O.OOO  ..O..  .....  .....  .....  .....
@@ -796,7 +796,7 @@ _SONY_MDX_C7900R = '''
     O....  .OOO.  .....  .....  ...O.  ..OOO  ....O  OOOO.
 
     0xC0:  0xC1:  0xC2:  0xC3:  0xC4:  0xC5:  0xC6:  0xC7:
-    ..O..  ..O..  .O...  ...O.  ..O..  ..O..  ...O.  .O...
+    ..O..  ..O..  ...O.  .O...  ..O..  ..O..  ...O.  .O...
     .O...  ...O.  ..O..  ..O..  .O...  ...O.  ..O..  ..O..
     ..O..  ..O..  OOOOO  OOOOO  .OOO.  .OOO.  .OOO.  .OOO.
     .O.O.  .O.O.  O....  O....  ..O..  ..O..  O...O  O...O
@@ -816,7 +816,7 @@ _SONY_MDX_C7900R = '''
     0xD0:  0xD1:  0xD2:  0xD3:  0xD4:  0xD5:  0xD6:  0xD7:
     ..O..  .O.O.  ..O..  .O.O.  ..O..  .O.O.  ..O..  .O.O.
     .O.O.  .....  .O.O.  .....  .O.O.  .....  .O.O.  .....
-    ..O..  .....  OOOOO  OOOOO  .OOO.  .OOO.  .OOO.  .OOO.
+    ..O..  ..O..  OOOOO  OOOOO  .OOO.  .OOO.  .OOO.  .OOO.
     .O.O.  .O.O.  O....  O....  ..O..  ..O..  O...O  O...O
     O...O  O...O  OOOO.  OOOO.  ..O..  ..O..  O...O  O...O
     OOOOO  OOOOO  O....  O....  ..O..  ..O..  O...O  O...O
@@ -826,10 +826,10 @@ _SONY_MDX_C7900R = '''
     ..O..  .O.O.  .O.O.  .O.O.  .O.O.  .O.O.  ....O  .OO..
     .O.O.  .....  ..O..  ..O..  ..O..  ..O..  ..OOO  ..O..
     .....  O...O  .....  .....  .OOO.  .....  ....O  ..O.O
-    O...O  O...O  .O.OO  ..OOO  O....  OOOO.  .OOOO  ..O..
-    O...O  O...O  .OO..  .O...  .OO..  ..O..  O...O  ..O..
-    O...O  O...O  .O...  .O...  ...O.  .O...  O...O  ..O..
-    .OOO.  .OOO.  .O...  ..OOO  OOO..  OOOO.  .OOOO  .OOO.
+    O...O  O...O  .O.OO  .OOO.  O....  OOOO.  .OOOO  ..O..
+    O...O  O...O  .OO..  O....  .OO..  ..O..  O...O  ..O..
+    O...O  O...O  .O...  O....  ...O.  .O...  O...O  ..O..
+    .OOO.  .OOO.  .O...  .OOO.  OOO..  OOOO.  .OOOO  .OOO.
 
     0xE0:  0xE1:  0xE2:  0xE3:  0xE4:  0xE5:  0xE6:  0xE7:
     .OO.O  ..O..  .OOOO  .OOOO  ..O..  ...O.  .OO.O  .OO.O
@@ -852,7 +852,7 @@ _SONY_MDX_C7900R = '''
     0xF0:  0xF1:  0xF2:  0xF3:  0xF4:  0xF5:  0xF6:  0xF7:
     .OO.O  ..OO.  .....  .....  ..O..  ...O.  .OO.O  .....
     O..O.  ..OO.  .....  .....  .O.O.  ..O..  O..O.  .....
-    .OOOO  .OOO.  OO.O.  .O.O.  .....  .....  .....  .OO.O
+    .OOO.  .OOO.  OO.O.  .O.O.  .....  .....  .....  .OO.O
     ....O  ....O  ..O.O  O.O.O  O.O.O  O...O  .OOO.  O..O.
     .OOOO  .OOOO  .OOOO  O.OOO  O.O.O  .OOOO  O...O  O.O.O
     O...O  O...O  O.O..  O.O..  OO.OO  ....O  O...O  .O..O
