@@ -1,0 +1,66 @@
+SAFE mode
+  Decoded Display Data RAM: '     0000  '
+  Decoded Display Data RAM: '     SAFE  '
+  Decoded Display Data RAM: '1    1000  '
+  Decoded Display Data RAM: '1    SAFE  '
+  Decoded Display Data RAM: '2    1000  '
+  Decoded Display Data RAM: '2    SAFE  '
+
+Radio AM
+  Decoded Display Data RAM: 'AM 1 670KHZ'
+  Decoded Display Data RAM: 'AM 3 530KHZ'
+  Decoded Display Data RAM: 'SCAN 530KHZ'
+  Decoded Display Data RAM: 'SCAN1710KHZ'
+
+Radio FM1
+  Decoded Display Data RAM: 'FM1  887MHZ'
+  Decoded Display Data RAM: 'FM11 915MHZ'
+  Decoded Display Data RAM: 'SCAN 879MHZ'
+  Decoded Display Data RAM: 'SCAN1079MHZ'
+
+Radio FM2
+  Decoded Display Data RAM: 'FM211041MHZ'
+  Decoded Display Data RAM: 'FM22 881MHZ'
+  Decoded Display Data RAM: 'FM23 981MHZ'
+  Decoded Display Data RAM: 'FM241041MHZ'
+  Decoded Display Data RAM: 'FM251079MHZ'
+  Decoded Display Data RAM: 'FM261079MHZ'
+
+CD
+  Decoded Display Data RAM: 'CD 1 TR 01 '
+  Decoded Display Data RAM: 'CD 2 NO CD '
+  Decoded Display Data RAM: 'CUE   122  '
+  Decoded Display Data RAM: 'CHK MAGAZIN'
+  Decoded Display Data RAM: 'NO  CHANGER'
+  Decoded Display Data RAM: '    NO DISC'
+
+Tape
+  Decoded Display Data RAM: 'TAPE PLAY A'
+  Decoded Display Data RAM: 'TAPE PLAY B'
+  Decoded Display Data RAM: 'TAPEMSS FF '
+  Decoded Display Data RAM: 'TAPEMSS REW'
+  Decoded Display Data RAM: 'TAPE ERROR '
+  TODO tape rew/ff without mss
+  TODO tape metal
+  TODO no tape
+
+Balance
+  Decoded Display Data RAM: 'BAL CENTER '
+  Decoded Display Data RAM: 'BAL LEFT  7'
+  Decoded Display Data RAM: 'BAL RIGHT 3'
+
+Bass
+  TODO BASS
+
+Treble
+  Decoded Display Data RAM: 'TREB  + 7  '
+  Decoded Display Data RAM: 'TREB  - 4  '
+
+Fade
+  TODO FADE FRONT
+  Decoded Display Data RAM: 'FADECENTER '
+  Decoded Display Data RAM: 'FADEREAR  5'
+
+Volume
+  Decoded Display Data RAM: 'FM1   MAX  '
+  Decoded Display Data RAM: 'FM1   MIN  '
