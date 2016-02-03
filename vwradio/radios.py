@@ -4,9 +4,8 @@ class RadioModes(Enum):
     UNKNOWN = 0
     SAFE_ENTRY = 10
     SAFE_LOCKED = 11
-    RADIO_AM = 20
-    RADIO_FM1 = 21
-    RADIO_FM2 = 22
+    RADIO_PLAYING = 20
+    RADIO_SCANNING = 21
     CD_PLAYING = 30
     CD_CUEING = 31
     CD_NO_CD = 32
@@ -21,6 +20,11 @@ class RadioModes(Enum):
     TAPE_NO_TAPE = 45
     TAPE_ERROR = 46
 
+class RadioBands(Enum):
+    UNKNOWN = 0
+    FM1 = 1
+    FM2 = 2
+    AM = 3
 
 class Radio(object):
     def __init__(self):
@@ -32,9 +36,9 @@ class Radio(object):
         self.sound_fade = 0 # rear -9, center 0, front +9
         self.sound_bass = 0 # -9 to 9
         self.sound_treble = 0 # -9 to 9
+        self.radio_band = RadioBands.UNKNOWN
         self.radio_freq = 0 # 883=88.3 MHz, 5400=540.0 KHz
         self.radio_preset = 0 # 0=none, am/fm1/fm2 preset 1-6
-        self.radio_scanning = False # True if tuner is scanning
         self.cd_disc = 0 # 0=none, disc 1-6
         self.cd_track = 0 # 0=none, track 1-99
         self.cd_cue_pos = 0 # 0 or other integer as seen on lcd
@@ -133,13 +137,16 @@ class Radio(object):
             self.radio_freq = int(freq)
 
         if text[0:4] == 'SCAN':
-            self.radio_scanning = True
+            self.radio_mode = RadioModes.RADIO_SCANNING
             self.radio_preset = 0
+            if self.radio_band not in (RadioBands.FM1, RadioBands.FM2):
+                self.radio_band = RadioBands.FM1
         elif text[0:3] in ('FM1', 'FM2'):
+            self.radio_mode = RadioModes.RADIO_PLAYING
             if text[2] == '1':
-                self.mode = RadioModes.RADIO_FM1
+                self.radio_band = RadioBands.FM1
             elif text[2] == '2': # "2"
-                self.mode = RadioModes.RADIO_FM2
+                self.radio_band = RadioBands.FM2
 
             if str.isdigit(text[3]):
                 self.radio_preset = int(text[3])
@@ -155,13 +162,13 @@ class Radio(object):
         if str.isdigit(freq):
             self.radio_freq = int(freq) * 10
 
-        self.mode = RadioModes.RADIO_AM
+        self.radio_band = RadioBands.AM
 
         if text[0:4] == 'SCAN':
-            self.radio_scanning = True
+            self.mode = RadioModes.RADIO_SCANNING
             self.radio_preset = 0
         else:
-            self.radio_scanning = False
+            self.mode = RadioModes.RADIO_PLAYING
             if str.isdigit(text[3]):
                 self.radio_preset = int(text[3])
             else: # no preset

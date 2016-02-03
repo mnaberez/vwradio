@@ -1,6 +1,6 @@
 import sys
 import unittest
-from vwradio.radios import Radio, RadioModes
+from vwradio.radios import Radio, RadioModes, RadioBands
 
 class TestRadio(unittest.TestCase):
     def test_safe_mode(self):
@@ -79,37 +79,39 @@ class TestRadio(unittest.TestCase):
 
     def test_fm_scan_off(self):
         values = (
-            ('FM1  887MHz',  887, RadioModes.RADIO_FM1, 0),
-            ('FM1  887MHZ',  887, RadioModes.RADIO_FM1, 0),
-            ('FM1 1023MHZ', 1023, RadioModes.RADIO_FM1, 0),
-            ('FM11 915MHZ',  915, RadioModes.RADIO_FM1, 1),
-            ('FM161079MHZ', 1079, RadioModes.RADIO_FM1, 6),
-            ('FM2  887MHZ',  887, RadioModes.RADIO_FM2, 0),
-            ('FM2 1023MHZ', 1023, RadioModes.RADIO_FM2, 0),
-            ('FM21 915MHZ',  915, RadioModes.RADIO_FM2, 1),
-            ('FM261079MHZ', 1079, RadioModes.RADIO_FM2, 6),
+            ('FM1  887MHz',  887, RadioBands.FM1, 0),
+            ('FM1  887MHZ',  887, RadioBands.FM1, 0),
+            ('FM1 1023MHZ', 1023, RadioBands.FM1, 0),
+            ('FM11 915MHZ',  915, RadioBands.FM1, 1),
+            ('FM161079MHZ', 1079, RadioBands.FM1, 6),
+            ('FM2  887MHZ',  887, RadioBands.FM2, 0),
+            ('FM2 1023MHZ', 1023, RadioBands.FM2, 0),
+            ('FM21 915MHZ',  915, RadioBands.FM2, 1),
+            ('FM261079MHZ', 1079, RadioBands.FM2, 6),
             )
-        for text, freq, mode, preset in values:
+        for text, freq, band, preset in values:
             radio = Radio()
             radio.process(text)
-            self.assertFalse(radio.radio_scanning)
-            self.assertEqual(radio.mode, mode)
+            self.assertEqual(radio.radio_mode, RadioModes.RADIO_PLAYING)
+            self.assertEqual(radio.radio_band, band)
             self.assertEqual(radio.radio_freq, freq)
             self.assertEqual(radio.radio_preset, preset)
 
     def test_fm_scan_on(self):
         values = (
-            ('SCAN 879MHz',  879, RadioModes.RADIO_FM1),
-            ('SCAN 879MHZ',  879, RadioModes.RADIO_FM1),
-            ('SCAN1035MHZ', 1035, RadioModes.RADIO_FM2),
+            ('SCAN 879MHz',  879, RadioBands.FM1, RadioBands.FM1),
+            ('SCAN 879MHZ',  879, RadioBands.FM1, RadioBands.FM1),
+            ('SCAN 879MHZ',  879, RadioBands.UNKNOWN, RadioBands.FM1),
+            ('SCAN1035MHZ', 1035, RadioBands.FM2, RadioBands.FM2),
         )
-        for text, freq, mode in values:
+        for text, freq, initial_band, expected_band in values:
             radio = Radio()
-            radio.mode = mode
+            radio.radio_band = initial_band
             radio.process(text)
             self.assertEqual(radio.radio_freq, freq)
             self.assertEqual(radio.radio_preset, 0)
-            self.assertTrue(radio.radio_scanning)
+            self.assertEqual(radio.radio_mode, RadioModes.RADIO_SCANNING)
+            self.assertEqual(radio.radio_band, expected_band)
 
     def test_am_scan_off(self):
         values = (
@@ -124,7 +126,8 @@ class TestRadio(unittest.TestCase):
             radio.mode = RadioModes.UNKNOWN
             radio.process(text)
             self.assertEqual(radio.radio_freq, freq)
-            self.assertEqual(radio.mode, RadioModes.RADIO_AM)
+            self.assertEqual(radio.radio_band, RadioBands.AM)
+            self.assertEqual(radio.mode, RadioModes.RADIO_PLAYING)
             self.assertEqual(radio.radio_preset, preset)
 
     def test_am_scan_on(self):
@@ -135,12 +138,12 @@ class TestRadio(unittest.TestCase):
         )
         for text, freq in values:
             radio = Radio()
-            radio.mode = RadioModes.RADIO_AM
+            radio.radio_band = RadioBands.AM
             radio.process(text)
             self.assertEqual(radio.radio_freq, freq)
-            self.assertEqual(radio.mode, RadioModes.RADIO_AM)
+            self.assertEqual(radio.radio_band, RadioBands.AM)
             self.assertEqual(radio.radio_preset, 0)
-            self.assertTrue(radio.radio_scanning)
+            self.assertEqual(radio.mode, RadioModes.RADIO_SCANNING)
 
     def test_cd_playing(self):
         values = (
@@ -270,9 +273,9 @@ class TestRadio(unittest.TestCase):
 
     def test_ignores_blank(self):
         radio = Radio()
-        radio.mode = RadioModes.RADIO_FM1
+        radio.mode = RadioModes.RADIO_PLAYING
         radio.process(' ' * 11)
-        self.assertEqual(radio.mode, RadioModes.RADIO_FM1)
+        self.assertEqual(radio.mode, RadioModes.RADIO_PLAYING)
 
     def test_ignores_volume_min_max(self):
         texts = (
