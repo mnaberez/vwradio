@@ -37,6 +37,7 @@ class Radio(object):
         self.radio_scanning = False # True if tuner is scanning
         self.cd_disc = 0 # 0=none, disc 1-6
         self.cd_track = 0 # 0=none, track 1-99
+        self.cd_cue_pos = 0 # 0 or other integer as seen on lcd
         self.tape_side = 0 # 0=none, 1=side a, 2=side b
 
     def process(self, text):
@@ -171,16 +172,20 @@ class Radio(object):
             self.mode = RadioModes.CD_CHECK_MAGAZINE
             self.cd_disc = 0
             self.cd_track = 0
+            self.cd_cue_pos = 0
         elif text == 'NO  CHANGER':
             self.mode = RadioModes.CD_NO_CHANGER
             self.cd_disc = 0
             self.cd_track = 0
+            self.cd_cue_pos = 0
         elif text == '    NO DISC':
             self.mode = RadioModes.CD_NO_DISC
             self.cd_disc = 0
             self.cd_track = 0
+            self.cd_cue_pos = 0
         elif text[0:3] == 'CD ':
             self.cd_disc = int(text[3])
+            self.cd_cue_pos = 0
             if text[5:10] == 'NO CD':
                 self.mode = RadioModes.CD_NO_CD
                 self.cd_track = 0
@@ -189,7 +194,7 @@ class Radio(object):
                 self.cd_track = int(text[8:10])
         elif text[0:3] == 'CUE':
             self.mode = RadioModes.CD_CUEING
-            # TODO cue position
+            self.cd_cue_pos = int(text[4:9].strip())
         else:
             self._process_unknown(text)
 

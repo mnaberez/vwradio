@@ -155,16 +155,6 @@ class TestRadio(unittest.TestCase):
             self.assertEqual(radio.cd_disc, disc)
             self.assertEqual(radio.cd_track, track)
 
-    def test_cd_no_cd(self):
-        radio = Radio()
-        radio.mode = RadioModes.CD_PLAYING
-        radio.cd_disc = 1
-        radio.cd_track = 3
-        radio.process('CD 2 NO CD ')
-        self.assertEqual(radio.mode, RadioModes.CD_NO_CD)
-        self.assertEqual(radio.cd_disc, 2)
-        self.assertEqual(radio.cd_track, 0)
-
     def test_cd_cueing(self):
         radio = Radio()
         radio.mode = RadioModes.CD_PLAYING
@@ -174,36 +164,55 @@ class TestRadio(unittest.TestCase):
         self.assertEqual(radio.mode, RadioModes.CD_CUEING)
         self.assertEqual(radio.cd_disc, 5)
         self.assertEqual(radio.cd_track, 12)
+        self.assertEqual(radio.cd_cue_pos, 122)
 
     def test_cd_check_magazine(self):
         radio = Radio()
         radio.mode = RadioModes.CD_PLAYING
         radio.cd_disc = 1
         radio.cd_track = 3
+        radio.cd_cue_pos = 99
         radio.process('CHK MAGAZIN')
         self.assertEqual(radio.mode, RadioModes.CD_CHECK_MAGAZINE)
         self.assertEqual(radio.cd_disc, 0)
         self.assertEqual(radio.cd_track, 0)
+        self.assertEqual(radio.cd_cue_pos, 0)
+
+    def test_cd_no_cd(self):
+        radio = Radio()
+        radio.mode = RadioModes.CD_PLAYING
+        radio.cd_disc = 1
+        radio.cd_track = 3
+        radio.cd_cue_pos = 99
+        radio.process('CD 2 NO CD ')
+        self.assertEqual(radio.mode, RadioModes.CD_NO_CD)
+        self.assertEqual(radio.cd_disc, 2)
+        self.assertEqual(radio.cd_track, 0)
+        self.assertEqual(radio.cd_cue_pos, 0)
 
     def test_cd_no_disc(self):
         radio = Radio()
         radio.mode = RadioModes.CD_PLAYING
         radio.cd_disc = 7
         radio.cd_track = 9
+        radio.cd_cue_pos = 99
         radio.process('    NO DISC')
         self.assertEqual(radio.mode, RadioModes.CD_NO_DISC)
         self.assertEqual(radio.cd_disc, 0)
         self.assertEqual(radio.cd_track, 0)
+        self.assertEqual(radio.cd_cue_pos, 0)
 
     def test_cd_no_changer(self):
         radio = Radio()
         radio.mode = RadioModes.CD_PLAYING
         radio.cd_disc = 7
         radio.cd_track = 9
+        radio.cd_cue_pos = 99
         radio.process('NO  CHANGER')
         self.assertEqual(radio.mode, RadioModes.CD_NO_CHANGER)
         self.assertEqual(radio.cd_disc, 0)
         self.assertEqual(radio.cd_track, 0)
+        self.assertEqual(radio.cd_cue_pos, 0)
 
     def test_tape_play_a(self):
         radio = Radio()
