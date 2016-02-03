@@ -29,6 +29,7 @@ Radio FM2
 CD
   Decoded Display Data RAM: 'CD 1 TR 01 '
   Decoded Display Data RAM: 'CD 2 NO CD '
+  Decoded Display Data RAM: 'CD1 CD ERR ' (no space in "CD1"!)
   Decoded Display Data RAM: 'CUE   122  '
   Decoded Display Data RAM: 'CHK MAGAZIN'
   Decoded Display Data RAM: 'NO  CHANGER'

@@ -264,18 +264,33 @@ class TestRadio(unittest.TestCase):
         self.assertEqual(radio.display_mode,
             DisplayModes.SHOWING_OPERATION)
 
-    def test_cd_no_cd(self):
+    def test_cd_cdx_no_cd(self):
         radio = Radio()
         radio.operation_mode = OperationModes.CD_PLAYING
         radio.cd_disc = 1
         radio.cd_track = 3
         radio.cd_cue_pos = 99
-        radio.process('CD 2 NO CD ')
+        radio.process('CD 2 NO CD ') # space in "CD 2"
         self.assertEqual(radio.cd_disc, 2)
         self.assertEqual(radio.cd_track, 0)
         self.assertEqual(radio.cd_cue_pos, 0)
         self.assertEqual(radio.operation_mode,
-            OperationModes.CD_NO_CD)
+            OperationModes.CD_CDX_NO_CD)
+        self.assertEqual(radio.display_mode,
+            DisplayModes.SHOWING_OPERATION)
+
+    def test_cd_cdx_cd_err(self):
+        radio = Radio()
+        radio.operation_mode = OperationModes.CD_PLAYING
+        radio.cd_disc = 5
+        radio.cd_track = 3
+        radio.cd_cue_pos = 99
+        radio.process('CD1 CD ERR ') # no space in "CD1"
+        self.assertEqual(radio.cd_disc, 1)
+        self.assertEqual(radio.cd_track, 0)
+        self.assertEqual(radio.cd_cue_pos, 0)
+        self.assertEqual(radio.operation_mode,
+            OperationModes.CD_CDX_CD_ERR)
         self.assertEqual(radio.display_mode,
             DisplayModes.SHOWING_OPERATION)
 

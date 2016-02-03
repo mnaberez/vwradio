@@ -8,10 +8,11 @@ class OperationModes(Enum):
     RADIO_SCANNING = 21
     CD_PLAYING = 30
     CD_CUEING = 31
-    CD_NO_CD = 32
-    CD_NO_DISC = 33
-    CD_NO_CHANGER = 34
-    CD_CHECK_MAGAZINE = 35
+    CD_NO_DISC = 32
+    CD_NO_CHANGER = 33
+    CD_CHECK_MAGAZINE = 34
+    CD_CDX_NO_CD = 35
+    CD_CDX_CD_ERR = 36
     TAPE_PLAYING = 40
     TAPE_LOADING = 41
     TAPE_FF = 42
@@ -77,7 +78,7 @@ class Radio(object):
             self._process_fade(text)
         elif text[0:3] == 'TAP' or text == '    NO TAPE':
             self._process_tape(text)
-        elif text[0:3] in ('CD ', 'CUE', 'CHK'):
+        elif text[0:2] == 'CD' or text[0:3] in ('CUE', 'CHK'):
             self._process_cd(text)
         elif text in ('NO  CHANGER', '    NO DISC'):
             self._process_cd(text)
@@ -173,15 +174,25 @@ class Radio(object):
             self.cd_disc = 0
             self.cd_track = 0
             self.cd_cue_pos = 0
-        elif text[0:3] == 'CD ':
+        elif text[0:3] == 'CD ': # "CD 1" to "CD 6"
             self.cd_disc = int(text[3])
             self.cd_cue_pos = 0
             if text[5:10] == 'NO CD':
-                self.operation_mode = OperationModes.CD_NO_CD
+                self.operation_mode = OperationModes.CD_CDX_NO_CD
                 self.cd_track = 0
-            else: # "TR 01"
+            elif text[5:7] == 'TR':
                 self.operation_mode = OperationModes.CD_PLAYING
                 self.cd_track = int(text[8:10])
+            else:
+                self._process_unknown(text)
+        elif text[0:2] == 'CD': # "CD1" to "CD6"
+            self.cd_disc = int(text[2])
+            self.cd_cue_pos = 0
+            if text[4:10] == 'CD ERR':
+                self.operation_mode = OperationModes.CD_CDX_CD_ERR
+                self.cd_track = 0
+            else:
+                self._process_unknown(text)
         elif text[0:3] == 'CUE':
             self.operation_mode = OperationModes.CD_CUEING
             self.cd_cue_pos = int(text[4:9].strip())
