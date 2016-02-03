@@ -14,10 +14,12 @@ class RadioModes(Enum):
     CD_NO_CHANGER = 34
     CD_CHECK_MAGAZINE = 35
     TAPE_PLAYING = 40
-    TAPE_MSS_FF = 41
-    TAPE_MSS_REW = 42
-    TAPE_NO_TAPE = 43
-    TAPE_ERROR = 44
+    TAPE_FF = 41
+    TAPE_REW = 42
+    TAPE_MSS_FF = 43
+    TAPE_MSS_REW = 44
+    TAPE_NO_TAPE = 45
+    TAPE_ERROR = 46
 
 
 class Radio(object):
@@ -54,7 +56,7 @@ class Radio(object):
             self._process_balance(text)
         elif text[0:3] == 'FAD':
             self._process_fade(text)
-        elif text[0:3] == 'TAP':
+        elif text[0:3] == 'TAP' or text == '    NO TAPE':
             self._process_tape(text)
         elif text[0:3] in ('CD ', 'CUE', 'CHK'):
             self._process_cd(text)
@@ -198,11 +200,19 @@ class Radio(object):
                 self.tape_side = 1
             else: # "B"
                 self.tape_side = 2
+        elif text in ('TAPE  FF   ', 'TAPE  REW  '):
+            if text[6:9] == 'REW':
+                self.mode = RadioModes.TAPE_REW
+            else: # 'FF '
+                self.mode = RadioModes.TAPE_FF
         elif text in ('TAPEMSS FF ', 'TAPEMSS REW'):
             if text[8:11] == 'REW':
                 self.mode = RadioModes.TAPE_MSS_REW
             else: # 'FF '
                 self.mode = RadioModes.TAPE_MSS_FF
+        elif text == '    NO TAPE':
+            self.mode = RadioModes.TAPE_NO_TAPE
+            self.tape_side = 0
         elif text == 'TAPE ERROR ':
             self.mode = RadioModes.TAPE_ERROR
             self.tape_side = 0

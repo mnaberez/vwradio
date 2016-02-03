@@ -23,9 +23,11 @@ class TestRadio(unittest.TestCase):
 
     def test_balance(self):
         values = (
+            ('BAL RIGHT 9', -9),
+            ('BAL RIGHT 1', -1),
             ('BAL CENTER ', 0),
-            ('BAL LEFT  7', 7),
-            ('BAL RIGHT 3', -3),
+            ('BAL LEFT  1', 1),
+            ('BAL LEFT  9', 9),
         )
         for text, balance in values:
             radio = Radio()
@@ -35,9 +37,11 @@ class TestRadio(unittest.TestCase):
 
     def test_fade(self):
         values = (
+            ('FADEREAR  9', -9),
+            ('FADEREAR  1', -1),
             ('FADECENTER ', 0),
-            ('FADEREAR  5', -5),
-            ('FADEFRONT 7', 7) # TODO Verify on radio
+            ('FADEFRONT 1', 1),
+            ('FADEFRONT 9', 9),
         )
         for text, fade in values:
             radio = Radio()
@@ -47,9 +51,11 @@ class TestRadio(unittest.TestCase):
 
     def test_bass(self):
         values = (
+            ('BASS  - 9  ', -9),
+            ('BASS  - 1  ', -1),
             ('BASS    0  ', 0),
-            ('BASS  + 7  ', 7),
-            ('BASS  - 5  ', -5),
+            ('BASS  + 1  ', 1),
+            ('BASS  + 9  ', 9),
         )
         for text, bass in values:
             radio = Radio()
@@ -59,9 +65,11 @@ class TestRadio(unittest.TestCase):
 
     def test_treble(self):
         values = (
+            ('TREB  - 9  ', -9),
+            ('TREB  - 1  ', -1),
             ('TREB    0  ', 0),
-            ('TREB  + 7  ', 7),
-            ('TREB  - 5  ', -5),
+            ('TREB  + 1  ', 1),
+            ('TREB  + 9  ', 9),
         )
         for text, treble in values:
             radio = Radio()
@@ -209,12 +217,26 @@ class TestRadio(unittest.TestCase):
         self.assertEqual(radio.mode, RadioModes.TAPE_PLAYING)
         self.assertEqual(radio.tape_side, 2)
 
+    def test_tape_ff(self):
+        radio = Radio()
+        radio.process('TAPE  FF   ')
+        radio.tape_side = 1
+        self.assertEqual(radio.mode, RadioModes.TAPE_FF)
+        self.assertEqual(radio.tape_side, 1)
+
     def test_tape_mss_ff(self):
         radio = Radio()
         radio.process('TAPEMSS FF ')
         radio.tape_side = 1
         self.assertEqual(radio.mode, RadioModes.TAPE_MSS_FF)
         self.assertEqual(radio.tape_side, 1)
+
+    def test_tape_rew(self):
+        radio = Radio()
+        radio.tape_side = 2
+        radio.process('TAPE  REW  ')
+        self.assertEqual(radio.mode, RadioModes.TAPE_REW)
+        self.assertEqual(radio.tape_side, 2)
 
     def test_tape_mss_rew(self):
         radio = Radio()
@@ -228,6 +250,13 @@ class TestRadio(unittest.TestCase):
         radio.tape_side = 1
         radio.process('TAPE ERROR ')
         self.assertEqual(radio.mode, RadioModes.TAPE_ERROR)
+        self.assertEqual(radio.tape_side, 0)
+
+    def test_tape_no_tape(self):
+        radio = Radio()
+        radio.tape_side = 0
+        radio.process('    NO TAPE')
+        self.assertEqual(radio.mode, RadioModes.TAPE_NO_TAPE)
         self.assertEqual(radio.tape_side, 0)
 
     def test_ignores_blank(self):

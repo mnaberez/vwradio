@@ -1,5 +1,5 @@
 SAFE mode
-  Decoded Display Data RAM: '     0000  '
+  Decoded Display Data RAM: '     1000  '
   Decoded Display Data RAM: '     SAFE  '
   Decoded Display Data RAM: '1    1000  '
   Decoded Display Data RAM: '1    SAFE  '
@@ -40,9 +40,10 @@ Tape
   Decoded Display Data RAM: 'TAPEMSS FF '
   Decoded Display Data RAM: 'TAPEMSS REW'
   Decoded Display Data RAM: 'TAPE ERROR '
-  TODO tape rew/ff without mss
+  Decoded Display Data RAM: '    NO TAPE'
+  Decoded Display Data RAM: 'TAPE  FF   '
+  Decoded Display Data RAM: 'TAPE  REW  '
   TODO tape metal
-  TODO no tape
 
 Balance
   Decoded Display Data RAM: 'BAL CENTER '
@@ -50,14 +51,16 @@ Balance
   Decoded Display Data RAM: 'BAL RIGHT 3'
 
 Bass
-  TODO BASS
+  Decoded Display Data RAM: 'BASS  - 9  '
+  Decoded Display Data RAM: 'BASS    0  '
+  Decoded Display Data RAM: 'BASS  + 9  '
 
 Treble
   Decoded Display Data RAM: 'TREB  + 7  '
   Decoded Display Data RAM: 'TREB  - 4  '
 
 Fade
-  TODO FADE FRONT
+  Decoded Display Data RAM: 'FADEFRONT 9'
   Decoded Display Data RAM: 'FADECENTER '
   Decoded Display Data RAM: 'FADEREAR  5'
 
