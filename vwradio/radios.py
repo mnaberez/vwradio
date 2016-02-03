@@ -13,12 +13,13 @@ class OperationModes(Enum):
     CD_NO_CHANGER = 34
     CD_CHECK_MAGAZINE = 35
     TAPE_PLAYING = 40
-    TAPE_FF = 41
-    TAPE_REW = 42
-    TAPE_MSS_FF = 43
-    TAPE_MSS_REW = 44
-    TAPE_NO_TAPE = 45
-    TAPE_ERROR = 46
+    TAPE_LOADING = 41
+    TAPE_FF = 42
+    TAPE_REW = 43
+    TAPE_MSS_FF = 44
+    TAPE_MSS_REW = 45
+    TAPE_NO_TAPE = 46
+    TAPE_ERROR = 47
 
 class DisplayModes(Enum):
     UNKNOWN = 0
@@ -28,6 +29,7 @@ class DisplayModes(Enum):
     ADJUSTING_FADE = 22
     ADJUSTING_BASS = 23
     ADJUSTING_TREBLE = 24
+    ADJUSTING_MID = 25
 
 class RadioBands(Enum):
     UNKNOWN = 0
@@ -67,6 +69,8 @@ class Radio(object):
             self._process_bass(text)
         elif text[0:3] == 'TRE':
             self._process_treble(text)
+        elif text[0:3] == 'MID':
+            self._process_mid(text)
         elif text[0:3] == 'BAL':
             self._process_balance(text)
         elif text[0:3] == 'FAD':
@@ -208,6 +212,9 @@ class Radio(object):
         elif text == 'TAPE ERROR ':
             self.operation_mode = OperationModes.TAPE_ERROR
             self.tape_side = 0
+        elif text == 'TAPE LOAD  ':
+            self.operation_mode = OperationModes.TAPE_LOADING
+            self.tape_side = 0
         else:
             self._process_unknown(text)
 
@@ -253,6 +260,16 @@ class Radio(object):
                 self.sound_treble = -int(text[8])
             else:
                 self.sound_treble = int(text[8])
+        else:
+            self._process_unknown(text)
+
+    def _process_mid(self, text):
+        self.display_mode = DisplayModes.ADJUSTING_MID
+        if str.isdigit(text[8]):
+            if text[6] == '-':
+                self.sound_mid = -int(text[8])
+            else:
+                self.sound_mid = int(text[8])
         else:
             self._process_unknown(text)
 

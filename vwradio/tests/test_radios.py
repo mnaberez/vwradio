@@ -121,6 +121,25 @@ class TestRadio(unittest.TestCase):
             self.assertEqual(radio.display_mode,
                 DisplayModes.ADJUSTING_TREBLE)
 
+    def test_mid(self):
+        values = (
+            ('MID   - 9  ', -9),
+            ('MID   - 1  ', -1),
+            ('MID     0  ', 0),
+            ('MID   + 1  ', 1),
+            ('MID   + 9  ', 9),
+        )
+        for text, mid in values:
+            radio = Radio()
+            original_operation_mode = radio.operation_mode
+            radio.sound_mid = 99
+            radio.process(text)
+            self.assertEqual(radio.sound_mid, mid)
+            self.assertEqual(radio.operation_mode,
+                original_operation_mode)
+            self.assertEqual(radio.display_mode,
+                DisplayModes.ADJUSTING_MID)
+
     def test_fm_scan_off(self):
         values = (
             ('FM1  887MHz',  887, RadioBands.FM1, 0),
@@ -287,6 +306,15 @@ class TestRadio(unittest.TestCase):
         self.assertEqual(radio.cd_cue_pos, 0)
         self.assertEqual(radio.operation_mode,
             OperationModes.CD_NO_CHANGER)
+        self.assertEqual(radio.display_mode,
+            DisplayModes.SHOWING_OPERATION)
+
+    def test_premium_5_tape_load(self):
+        radio = Radio()
+        radio.process('TAPE LOAD  ')
+        self.assertEqual(radio.tape_side, 0)
+        self.assertEqual(radio.operation_mode,
+            OperationModes.TAPE_LOADING)
         self.assertEqual(radio.display_mode,
             DisplayModes.SHOWING_OPERATION)
 
