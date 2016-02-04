@@ -14,13 +14,14 @@ class OperationModes(Enum):
     CD_CDX_NO_CD = 35
     CD_CDX_CD_ERR = 36
     TAPE_PLAYING = 40
-    TAPE_LOADING = 41
-    TAPE_FF = 42
-    TAPE_REW = 43
-    TAPE_MSS_FF = 44
-    TAPE_MSS_REW = 45
-    TAPE_NO_TAPE = 46
-    TAPE_ERROR = 47
+    TAPE_LOAD = 41
+    TAPE_METAL = 42
+    TAPE_FF = 43
+    TAPE_REW = 44
+    TAPE_MSS_FF = 45
+    TAPE_MSS_REW = 46
+    TAPE_NO_TAPE = 47
+    TAPE_ERROR = 48
 
 class DisplayModes(Enum):
     UNKNOWN = 0
@@ -226,7 +227,10 @@ class Radio(object):
             self.operation_mode = OperationModes.TAPE_ERROR
             self.tape_side = 0
         elif text == 'TAPE LOAD  ':
-            self.operation_mode = OperationModes.TAPE_LOADING
+            self.operation_mode = OperationModes.TAPE_LOAD
+            self.tape_side = 0
+        elif text == 'TAPE METAL ':
+            self.operation_mode = OperationModes.TAPE_METAL
             self.tape_side = 0
         else:
             self._process_unknown(text)

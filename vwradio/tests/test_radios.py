@@ -336,7 +336,16 @@ class TestRadio(unittest.TestCase):
         radio.process('TAPE LOAD  ')
         self.assertEqual(radio.tape_side, 0)
         self.assertEqual(radio.operation_mode,
-            OperationModes.TAPE_LOADING)
+            OperationModes.TAPE_LOAD)
+        self.assertEqual(radio.display_mode,
+            DisplayModes.SHOWING_OPERATION)
+
+    def test_premium_5_tape_metal(self):
+        radio = Radio()
+        radio.process('TAPE METAL ')
+        self.assertEqual(radio.tape_side, 0)
+        self.assertEqual(radio.operation_mode,
+            OperationModes.TAPE_METAL)
         self.assertEqual(radio.display_mode,
             DisplayModes.SHOWING_OPERATION)
 
