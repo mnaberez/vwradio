@@ -4,6 +4,9 @@
 *~
 *.egg
 *.egg-info
+*.elf
+*.hex
+*.o
 *.pyc
 *.pyo
 *.swp
