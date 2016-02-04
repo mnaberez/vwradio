@@ -98,13 +98,15 @@ class Radio(object):
         else:
             self.safe_tries = 0
 
-        safe_or_code = text[5:9]
-        if safe_or_code == 'SAFE':
+        if text[5:9] == 'SAFE':
             self.operation_mode = OperationModes.SAFE_LOCKED
             self.safe_code = 1000
-        elif str.isdigit(safe_or_code):
+        elif str.isdigit(text[4]) and str.isdigit(text[4:8]): # Premium 5
             self.operation_mode = OperationModes.SAFE_ENTRY
-            self.safe_code = int(safe_or_code)
+            self.safe_code = int(text[4:8])
+        elif str.isdigit(text[5]) and str.isdigit(text[5:9]): # Premium 4
+            self.operation_mode = OperationModes.SAFE_ENTRY
+            self.safe_code = int(text[5:9])
         else:
             self._process_unknown(text)
 

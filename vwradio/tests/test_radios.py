@@ -5,10 +5,17 @@ from vwradio.radios import Radio, OperationModes, DisplayModes, RadioBands
 class TestRadio(unittest.TestCase):
     def test_safe_mode(self):
         values = (
+            # Premium 4
             ('     0000  ',    0, 0, OperationModes.SAFE_ENTRY),
             ('1    1234  ', 1234, 1, OperationModes.SAFE_ENTRY),
             ('2    5678  ', 5678, 2, OperationModes.SAFE_ENTRY),
             ('9    9999  ', 9999, 9, OperationModes.SAFE_ENTRY),
+            # Premium 5
+            ('    0000   ',    0, 0, OperationModes.SAFE_ENTRY),
+            ('1   1234   ', 1234, 1, OperationModes.SAFE_ENTRY),
+            ('2   5678   ', 5678, 2, OperationModes.SAFE_ENTRY),
+            ('9   9999   ', 9999, 9, OperationModes.SAFE_ENTRY),
+            # Premium 4 and 5
             ('     SAFE  ', 1000, 0, OperationModes.SAFE_LOCKED),
             ('1    SAFE  ', 1000, 1, OperationModes.SAFE_LOCKED),
             ('2    SAFE  ', 1000, 2, OperationModes.SAFE_LOCKED),
