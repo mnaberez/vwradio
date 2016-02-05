@@ -1,10 +1,8 @@
 import re
-import sys
 import unittest
 from vwradio import charsets
 
-
-class TestCharsetMixin():
+class _TestCharsetMixin():
     def test_text_has_correct_offset_labels(self):
         matches = re.findall('0x..:', self.TEXT)
         for i in range(256):
@@ -34,21 +32,14 @@ class TestCharsetMixin():
             if line == 7:
                 line = 0
 
-class TestVW_PREMIUM_4(unittest.TestCase, TestCharsetMixin):
+class TestVW_PREMIUM_4(unittest.TestCase, _TestCharsetMixin):
     TEXT = charsets._VW_PREMIUM_4
     CHARSET = charsets.VW_PREMIUM_4
 
-class TestVW_PREMIUM_5(unittest.TestCase, TestCharsetMixin):
+class TestVW_PREMIUM_5(unittest.TestCase, _TestCharsetMixin):
     TEXT = charsets._VW_PREMIUM_5
     CHARSET = charsets.VW_PREMIUM_5
 
-class TestSONY_MDX_C7900R(unittest.TestCase, TestCharsetMixin):
+class TestSONY_MDX_C7900R(unittest.TestCase, _TestCharsetMixin):
     TEXT = charsets._SONY_MDX_C7900R
     CHARSET = charsets.SONY_MDX_C7900R
-
-
-def test_suite():
-    return unittest.findTestCases(sys.modules[__name__])
-
-if __name__ == '__main__':
-    unittest.main(defaultTest='test_suite')
