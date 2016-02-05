@@ -16,6 +16,8 @@ class LcdAnalyzer(object):
         self.address = 0
         self.increment = False
 
+        self.debug = False
+
     def process(self, spi_data):
         self.print_spi_data(spi_data)
 
@@ -49,45 +51,45 @@ class LcdAnalyzer(object):
         self.print_state()
 
     def _cmd_display_setting(self, spi_data):
-        print("    Display Setting Command")
+        self._out("    Display Setting Command")
         cmd = spi_data[0]
 
         if (cmd & 1) == 0:
-            print("    Duty setting: 0=1/8 duty")
+            self._out("    Duty setting: 0=1/8 duty")
         else:
-            print("    Duty setting: 1=1/15 duty")
+            self._out("    Duty setting: 1=1/15 duty")
 
         if (cmd & 2) == 0:
-            print("    Master/slave setting: 0=master")
+            self._out("    Master/slave setting: 0=master")
         else:
-            print("    Master/slave setting: 1=slave")
+            self._out("    Master/slave setting: 1=slave")
 
         if (cmd & 4) == 0:
-            print("    Drive voltage supply method: 0=external")
+            self._out("    Drive voltage supply method: 0=external")
         else:
-            print("    Drive voltage supply method: 1=internal")
+            self._out("    Drive voltage supply method: 1=internal")
 
     def _cmd_data_setting(self, spi_data):
-        print("  Data Setting Command")
+        self._out("  Data Setting Command")
         cmd = spi_data[0]
         mode = cmd & 0b00000111
         if mode == 0:
-            print("    0=Write to display data RAM")
+            self._out("    0=Write to display data RAM")
             self.current_ram = self.display_data_ram
         elif mode == 1:
-            print("    1=Write to pictograph RAM")
+            self._out("    1=Write to pictograph RAM")
             self.current_ram = self.pictograph_ram
         elif mode == 2:
-            print("    2=Write to chargen ram")
+            self._out("    2=Write to chargen ram")
             self.current_ram = self.chargen_ram
         elif mode == 3:
-            print("    3=Write to LED output latch")
+            self._out("    3=Write to LED output latch")
             self.current_ram = self.led_output_ram
         elif mode == 4: # Read key data
-            print("    4=Read key data")
+            self._out("    4=Read key data")
             self.current_ram = self.key_data_ram
         else: # Unknown mode
-            print("    ? Unknown mode ?")
+            self._out("    ? Unknown mode ?")
             self.current_ram = None
 
         if mode in (0, 1):
@@ -95,61 +97,61 @@ class LcdAnalyzer(object):
             incr = cmd & 0b00001000
             self.increment = incr == 0
             if self.increment:
-                print("    Address increment mode: 0=increment")
+                self._out("    Address increment mode: 0=increment")
             else:
-                print("    Address increment mode: 1=fixed")
+                self._out("    Address increment mode: 1=fixed")
         else:
             # other commands always increment and also reset address
-            print("    Command implies address increment; increment is now on")
+            self._out("    Command implies address increment; increment is now on")
             self.increment = True
-            print("    Command implies reset to address 0; address is now 0")
+            self._out("    Command implies reset to address 0; address is now 0")
             self.address = 0
 
     def _cmd_address_setting(self, spi_data):
-        print("  Address Setting Command")
+        self._out("  Address Setting Command")
         cmd = spi_data[0]
         address = cmd & 0b00011111
-        print("    Address = %02x" % address)
+        self._out("    Address = %02x" % address)
         if self.current_ram is self.chargen_ram:
             self.address = address * 7 # character number, 7 bytes per char
         else:
             self.address = address
 
     def _cmd_status(self, spi_data):
-        print("  Status command")
+        self._out("  Status command")
         cmd = spi_data[0]
         if (cmd & 32) == 0:
-            print("    Test mode setting: 0=Normal operation")
+            self._out("    Test mode setting: 0=Normal operation")
         else:
-            print("    Test mode setting: 1=Test Mode")
+            self._out("    Test mode setting: 1=Test Mode")
 
         if (cmd & 16) == 0:
-            print("    Standby mode setting: 0=Normal operation")
+            self._out("    Standby mode setting: 0=Normal operation")
         else:
-            print("    Standby mode setting: 1=Standby mode")
+            self._out("    Standby mode setting: 1=Standby mode")
 
         if (cmd & 8) == 0:
-            print("    Key scan control: 0=Key scanning stopped")
+            self._out("    Key scan control: 0=Key scanning stopped")
         else:
-            print("    Key scan control: 1=Key scan operation")
+            self._out("    Key scan control: 1=Key scan operation")
 
         if (cmd & 4) == 0:
-            print("    LED control: 0=LED forced off")
+            self._out("    LED control: 0=LED forced off")
         else:
-            print("    LED control: 1=Normal operation")
+            self._out("    LED control: 1=Normal operation")
 
         lcd_mode = cmd & 0b00000011
         if lcd_mode == 0:
-            print("    LCD mode: 0=LCD forced off (SEGn, COMn=Vlc5)")
+            self._out("    LCD mode: 0=LCD forced off (SEGn, COMn=Vlc5)")
         elif lcd_mode == 1:
-            print("    LCD mode: 1=LCD forced off (SEGn, COMn=unselected waveform")
+            self._out("    LCD mode: 1=LCD forced off (SEGn, COMn=unselected waveform")
         elif lcd_mode == 2:
-            print("    LCD mode: 2=Normal operation (0b00)")
+            self._out("    LCD mode: 2=Normal operation (0b00)")
         else: # 3
-            print("    LCD mode: 3=Normal operation (0b11)")
+            self._out("    LCD mode: 3=Normal operation (0b11)")
 
     def _cmd_unknown(self, spi_data):
-        print("? Unknown command ?")
+        self._out("? Unknown command ?")
 
     def _read_char_data(self, char_code):
         if char_code < 0x10:
@@ -204,28 +206,32 @@ class LcdAnalyzer(object):
         return '[%s]' % ', '.join([ '0x%02x' % x for x in list_of_bytes ])
 
     def print_state(self):
-        print('Key Data RAM: %r' + self._hexdump(self.key_data_ram))
-        print('Chargen RAM: ' + self._hexdump(self.chargen_ram))
-        print('Pictograph RAM: ' + self._hexdump(self.pictograph_ram))
-        print('Display Data RAM: ' + self._hexdump(self.display_data_ram))
-        print('LED Output Latch: 0x%02x' % self.led_output_ram[0])
-        print('Drawn Chargen RAM:')
+        self._out('Key Data RAM: %r' + self._hexdump(self.key_data_ram))
+        self._out('Chargen RAM: ' + self._hexdump(self.chargen_ram))
+        self._out('Pictograph RAM: ' + self._hexdump(self.pictograph_ram))
+        self._out('Display Data RAM: ' + self._hexdump(self.display_data_ram))
+        self._out('LED Output Latch: 0x%02x' % self.led_output_ram[0])
+        self._out('Drawn Chargen RAM:')
         for line in self.draw_chargen_ram():
-            print('  ' + line)
-        print('Drawn Display Data RAM:')
+            self._out('  ' + line)
+        self._out('Drawn Display Data RAM:')
         for line in self.draw_display_ram():
-            print('  ' + line)
-        print('Decoded Display Data RAM: %r' % self.decode_display_ram())
-        print('Decoded Pictographs: %r' % self.decode_pictograph_names())
-        print('Decoded Keys Pressed: %r' % self.decode_key_names())
-        print('')
+            self._out('  ' + line)
+        self._out('Decoded Display Data RAM: %r' % self.decode_display_ram())
+        self._out('Decoded Pictographs: %r' % self.decode_pictograph_names())
+        self._out('Decoded Keys Pressed: %r' % self.decode_key_names())
+        self._out('')
 
     def print_spi_data(self, spi_data):
-        print("SPI Data: " + self._hexdump(spi_data))
+        self._out("SPI Data: " + self._hexdump(spi_data))
         for i, byte in enumerate(spi_data):
             desc = "Command byte" if i == 0 else "Data byte"
-            print("  %s = 0x%02x (%s)" % (desc, byte, format(byte, '#010b')))
-        print('')
+            self._out("  %s = 0x%02x (%s)" % (desc, byte, format(byte, '#010b')))
+        self._out('')
+
+    def _out(self, text):
+        if self.debug:
+            print(text)
 
 
 def parse_analyzer_file(filename, analyzer):
@@ -281,6 +287,7 @@ def main():
     else:
         faceplate = faceplates.Premium5()
     analyzer = LcdAnalyzer(faceplate)
+    analyzer.debug = True
     filename = sys.argv[2]
     parse_analyzer_file(filename, analyzer)
 
