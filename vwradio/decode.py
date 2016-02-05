@@ -85,7 +85,7 @@ class LcdAnalyzer(object):
         elif mode == 3:
             self._out("    3=Write to LED output latch")
             self.current_ram = self.led_output_ram
-        elif mode == 4: # Read key data
+        elif mode == 4:
             self._out("    4=Read key data")
             self.current_ram = self.key_data_ram
         else: # Unknown mode
@@ -206,7 +206,7 @@ class LcdAnalyzer(object):
         return '[%s]' % ', '.join([ '0x%02x' % x for x in list_of_bytes ])
 
     def print_state(self):
-        self._out('Key Data RAM: %r' + self._hexdump(self.key_data_ram))
+        self._out('Key Data RAM: ' + self._hexdump(self.key_data_ram))
         self._out('Chargen RAM: ' + self._hexdump(self.chargen_ram))
         self._out('Pictograph RAM: ' + self._hexdump(self.pictograph_ram))
         self._out('Display Data RAM: ' + self._hexdump(self.display_data_ram))
