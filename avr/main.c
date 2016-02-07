@@ -10,14 +10,17 @@
 #define F_CPU 18432000UL
 #endif
 
-#define LED_RED 0x40
-#define LED_GREEN 0x20
-#define BAUD 9600
-
 #include <avr/io.h>
+#include <avr/interrupt.h>
 #include <util/delay.h>
+
+#define BAUD 9600
 #include <util/setbaud.h>
 
+#define LED_PORT PORTD
+#define LED_DDR DDRD
+#define LED_RED PD6
+#define LED_GREEN PD5
 
 /*************************************************************************
  * Utils
@@ -38,19 +41,19 @@ void sleep(uint16_t millisecs)
 
 void led_init()
 {
-    DDRD = LED_GREEN | LED_RED;
-    PORTD = 0;
+    LED_DDR = _BV(LED_GREEN) | _BV(LED_RED);
+    LED_PORT = 0;
 }
 
 void led_set(uint8_t lednum, uint8_t state)
 {
     if (state)
     {
-        PORTD |= lednum;
+        LED_PORT |= _BV(lednum);
     }
     else
     {
-        PORTD &= ~lednum;
+        LED_PORT &= ~_BV(lednum);
     }
 }
 
@@ -83,6 +86,9 @@ void uart_init(void)
 
     UCSR0C = _BV(UCSZ01) | _BV(UCSZ00); // N-8-1
     UCSR0B = _BV(RXEN0) | _BV(TXEN0);   // Enable RX and TX
+
+    // Enable the USART Recieve Complete interrupt
+    UCSR0B |= _BV(RXC0);
 }
 
 void uart_putc(char c)
@@ -102,6 +108,31 @@ void uart_puts(char *str)
     }
 }
 
+/* XXX This implmentation blocks for long periods during the interrupt.  The
+       AVR's receive FIFO can only buffer 2 bytes so it is easily overrun. */
+ISR(USART0_RX_vect)
+{
+    uint8_t c;
+    c = UDR0;
+
+    if (c == 'r' || c == 'R')
+    {
+        led_blink(LED_RED, 1);
+    }
+    else if (c == 'g' || c == 'G')
+    {
+        led_blink(LED_GREEN, 1);
+    }
+    else
+    {
+        led_set(LED_RED, 1);
+        led_set(LED_GREEN, 1);
+        sleep(250);
+        led_set(LED_RED, 0);
+        led_set(LED_GREEN, 0);
+    }
+}
+
 /*************************************************************************
  * Main
  *************************************************************************/
@@ -110,12 +141,12 @@ int main(void)
 {
     led_init();
     uart_init();
+    sei();
 
     while(1)
     {
-        led_blink(LED_GREEN, 1);
-
         char msg[] = "Hello World";
         uart_puts(msg);
+        sleep(500);
     }
 }
