@@ -4,9 +4,9 @@ import time
 import serial # pyserial
 
 def forever():
-    outbuf = 'ggrbrg' # green, green, red, both...
-    bufpos = 0
-    lastwrite = time.time()
+    outbuf = 'grgrgrgrgrb' # green/red/both
+    ser.write(outbuf)
+    ser.flush()
 
     while True:
         time.sleep(0.1)
@@ -15,16 +15,6 @@ def forever():
         if numbytes:
             sys.stdout.write(ser.read(numbytes))
             sys.stdout.flush()
-
-        now = time.time()
-        secs = now - lastwrite
-        if secs >= 1:
-            lastwrite = now
-            ser.write(outbuf[bufpos])
-            ser.flush()
-            bufpos += 1
-            if bufpos == len(outbuf):
-                bufpos = 0
 
 ser = serial.Serial()
 ser.port = '/dev/cu.usbserial-FTHKH0VE'

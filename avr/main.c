@@ -70,6 +70,40 @@ void led_blink(uint8_t lednum, uint16_t times)
 }
 
 /*************************************************************************
+ * UART Receive Buffer
+ *************************************************************************/
+
+uint8_t buffer[32];
+uint8_t write_index;
+uint8_t read_index;
+
+void buf_init()
+{
+    read_index = 0;
+    write_index = 0;
+}
+
+void buf_write_byte(uint8_t c)
+{
+    buffer[write_index] = c;
+    write_index++;
+    if (write_index == 32) { write_index = 0; }
+}
+
+uint8_t buf_read_byte()
+{
+    uint8_t c = buffer[read_index];
+    read_index++;
+    if (read_index == 32) { read_index = 0; }
+    return c;
+}
+
+uint8_t buf_has_byte()
+{
+    return read_index != write_index;
+}
+
+/*************************************************************************
  * UART
  *************************************************************************/
 
@@ -114,23 +148,7 @@ ISR(USART0_RX_vect)
 {
     uint8_t c;
     c = UDR0;
-
-    if (c == 'r' || c == 'R')
-    {
-        led_blink(LED_RED, 1);
-    }
-    else if (c == 'g' || c == 'G')
-    {
-        led_blink(LED_GREEN, 1);
-    }
-    else
-    {
-        led_set(LED_RED, 1);
-        led_set(LED_GREEN, 1);
-        sleep(250);
-        led_set(LED_RED, 0);
-        led_set(LED_GREEN, 0);
-    }
+    buf_write_byte(c);
 }
 
 /*************************************************************************
@@ -141,10 +159,34 @@ int main(void)
 {
     led_init();
     uart_init();
+    buf_init();
     sei();
 
     while(1)
     {
+        uint8_t c;
+        while (buf_has_byte())
+        {
+            c = buf_read_byte();
+
+            if (c == 'r' || c == 'R')
+            {
+                led_blink(LED_RED, 1);
+            }
+            else if (c == 'g' || c == 'G')
+            {
+                led_blink(LED_GREEN, 1);
+            }
+            else
+            {
+                led_set(LED_RED, 1);
+                led_set(LED_GREEN, 1);
+                sleep(250);
+                led_set(LED_RED, 0);
+                led_set(LED_GREEN, 0);
+            }
+        }
+
         char msg[] = "Hello World";
         uart_puts(msg);
         sleep(500);
