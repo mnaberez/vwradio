@@ -191,7 +191,7 @@ ISR(USART0_UDRE_vect)
  * Command Interpreter
  *************************************************************************/
 
-uint8_t cmd_buf[128];
+uint8_t cmd_buf[256];
 uint8_t cmd_buf_index;
 uint8_t cmd_expected_length;
 
@@ -199,6 +199,7 @@ uint8_t cmd_expected_length;
 #define NAK 0x15
 
 #define CMD_SET_LED 0x01
+#define CMD_ECHO 0x02
 #define CMD_ARG_GREEN_LED 0x00
 #define CMD_ARG_RED_LED 0x01
 
@@ -222,11 +223,33 @@ void cmd_reply_nak(void)
     uart_flush_tx();
 }
 
+/* Command: Echo
+ * Arguments: <arg1> <arg2> <arg3> ...
+ * Returns: <ack> <arg1> <arg1> <arg3> ...
+ *
+ * Echoes the arguments received back to the client.  If no args were
+ * received after the command byte, an empty ACK response is returned.
+ */
+void cmd_do_echo(void)
+{
+    uart_putc(cmd_buf_index); // number of bytes to follow
+    uart_putc(ACK); // ACK byte
+    uint8_t i;
+    for (i=1; i<cmd_buf_index; i++) {
+        uart_putc(cmd_buf[i]);
+        uart_flush_tx();
+    }
+}
+
+/* Command: Set LED
+ * Arguments: <led number> <led state>
+ * Returns: <ack|nak>
+ *
+ * Turns one of the LEDs on or off.  Returns a NAK if the LED
+ * number is not recognized.
+ */
 void cmd_do_set_led(void)
 {
-    // 0        1           2
-    // command, led number, led state
-
     if (cmd_buf_index != 3)
     {
         cmd_reply_nak();
@@ -234,6 +257,7 @@ void cmd_do_set_led(void)
     }
 
     uint8_t led_num = cmd_buf[1];
+    uint8_t led_state = cmd_buf[2];
 
     if (led_num == CMD_ARG_RED_LED)
     {
@@ -252,23 +276,28 @@ void cmd_do_set_led(void)
     cmd_reply_ack();
 }
 
-void cmd_process_buffer(void)
+/* Dispatch a command.  A complete command packet has been received.  The
+ * command buffer has one more bytes.  The first byte is the command byte.
+ * Dispatch to a handler, or return a NAK if the command is unrecognized.
+ */
+void cmd_dispatch(void)
 {
-    // 0=command, 1=arg, 2=arg, ...
-
-    if (cmd_buf[0] == CMD_SET_LED)
+    switch (cmd_buf[0])
     {
-        cmd_do_set_led();
-    }
-    else // unrecognized command
-    {
-        cmd_reply_nak();
+        case CMD_SET_LED:
+            cmd_do_set_led();
+            break;
+        case CMD_ECHO:
+            cmd_do_echo();
+            break;
+        default:
+            cmd_reply_nak();
     }
 
     cmd_init();
 }
 
-/* Receive a command byte.  Commands are processed immediately after the
+/* Receive a command byte.  Commands are executed immediately after the
  * last byte has been received.
  *
  * Format of a command request:
@@ -287,7 +316,7 @@ void cmd_process_buffer(void)
  */
 void cmd_receive_byte(uint8_t c)
 {
-    // receive command length
+    // receive command length byte
     if (cmd_expected_length == 0)
     {
         if (c == 0) // invalid, command length must be 1 byte or longer
@@ -306,7 +335,7 @@ void cmd_receive_byte(uint8_t c)
 
         if (cmd_buf_index == cmd_expected_length)
         {
-            cmd_process_buffer();
+            cmd_dispatch();
         }
     }
 }
@@ -319,6 +348,7 @@ int main(void)
 {
     led_init();
     uart_init();
+    cmd_init();
     sei();
 
     uint8_t c;
