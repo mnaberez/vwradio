@@ -20,7 +20,7 @@ def forever():
 
         time.sleep(0.1)
 
-ser = serial.Serial(port='/dev/cu.usbserial-FTHKH0VE', baudrate=9600)
+ser = serial.Serial(port='/dev/cu.usbserial-FTHKH0VE', baudrate=57600)
 try:
     forever()
 finally:
