@@ -75,15 +75,13 @@ void buf_init(volatile ringbuffer_t *buf)
 
 void buf_write_byte(volatile ringbuffer_t *buf, uint8_t c)
 {
-    buf->data[buf->write_index] = c;
-    buf->write_index++;
+    buf->data[buf->write_index++] = c;
     if (buf->write_index == 129) { buf->write_index = 0; }
 }
 
 uint8_t buf_read_byte(volatile ringbuffer_t *buf)
 {
-    uint8_t c = buf->data[buf->read_index];
-    buf->read_index++;
+    uint8_t c = buf->data[buf->read_index++];
     if (buf->read_index == 129) { buf->read_index = 0; }
     return c;
 }
@@ -190,6 +188,130 @@ ISR(USART0_UDRE_vect)
 }
 
 /*************************************************************************
+ * Command Interpreter
+ *************************************************************************/
+
+uint8_t cmd_buf[128];
+uint8_t cmd_buf_index;
+uint8_t cmd_expected_length;
+
+#define ACK 0x06
+#define NAK 0x15
+
+#define CMD_SET_LED 0x01
+#define CMD_ARG_GREEN_LED 0x00
+#define CMD_ARG_RED_LED 0x01
+
+void cmd_init()
+{
+    cmd_buf_index = 0;
+    cmd_expected_length = 0;
+}
+
+void cmd_reply_ack(void)
+{
+    uart_putc(0x01); // 1 byte to follow
+    uart_putc(ACK);  // ACK byte
+    uart_flush_tx();
+}
+
+void cmd_reply_nak(void)
+{
+    uart_putc(0x01); // 1 byte to follow
+    uart_putc(NAK);  // NAK byte
+    uart_flush_tx();
+}
+
+void cmd_do_set_led(void)
+{
+    // 0        1           2
+    // command, led number, led state
+
+    if (cmd_buf_index != 3)
+    {
+        cmd_reply_nak();
+        return;
+    }
+
+    uint8_t led_num = cmd_buf[1];
+
+    if (led_num == CMD_ARG_RED_LED)
+    {
+        led_set(LED_RED, led_state);
+    }
+    else if (led_num == CMD_ARG_GREEN_LED)
+    {
+        led_set(LED_GREEN, led_state);
+    }
+    else
+    {
+        cmd_reply_nak();
+        return;
+    }
+
+    cmd_reply_ack();
+}
+
+void cmd_process_buffer(void)
+{
+    // 0=command, 1=arg, 2=arg, ...
+
+    if (cmd_buf[0] == CMD_SET_LED)
+    {
+        cmd_do_set_led();
+    }
+    else // unrecognized command
+    {
+        cmd_reply_nak();
+    }
+
+    cmd_init();
+}
+
+/* Receive a command byte.  Commands are processed immediately after the
+ * last byte has been received.
+ *
+ * Format of a command request:
+ *   <number of bytes to follow> <command byte> <arg> <arg> ...
+ * Examples:
+ *   01 AB         Command AB, no args
+ *   03 DE AA 55   Command DE, args: [AA, 55]
+ *
+ * Format of a command response:
+ *   <number of bytes to follow> <ack|nak> <arg> <arg> ...
+ * Examples:
+ *   01 06         Command acknowledged, no args
+ *   02 06 AA      Command acknowledged, args: [AA]
+ *   01 15         Command not acknowledged, no args
+ *   03 15 AA 55   Command not acknowledged, args: [AA, 55]
+ */
+void cmd_receive_byte(uint8_t c)
+{
+    // receive command length
+    if (cmd_expected_length == 0)
+    {
+        if (c == 0) // invalid, command length must be 1 byte or longer
+        {
+            cmd_reply_nak();
+        }
+        else
+        {
+            cmd_expected_length = c;
+        }
+    }
+    // receive command byte(s)
+    else
+    {
+        cmd_buf[cmd_buf_index++] = c;
+
+        if (cmd_buf_index == cmd_expected_length)
+        {
+            cmd_process_buffer();
+        }
+    }
+}
+
+/*************************************************************************
  * Main
  *************************************************************************/
 
@@ -199,21 +321,13 @@ int main(void)
     uart_init();
     sei();
 
-    _delay_ms(2000);
-    uart_puts("\n\n");
-
-    uint32_t i;
-    for (i=0; i<0x10000; i++)
-    {
-        uart_puthex_16(i);
-        uart_putc(' ');
-        uart_flush_tx();
-    }
-
-    uart_puts("\ndone.\n");
-
+    uint8_t c;
     while(1)
     {
-        led_blink(LED_GREEN, 1);
+        if (buf_has_byte(&uart_rx_buffer))
+        {
+            c = buf_read_byte(&uart_rx_buffer);
+            cmd_receive_byte(c);
+        }
     }
 }
