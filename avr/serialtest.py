@@ -4,22 +4,23 @@ import time
 import serial # pyserial
 
 def forever():
-    outbuf = 'grgrgrgrgrb' # green/red/both
-    ser.write(outbuf)
-    ser.flush()
+    lastwrite = time.time()
 
     while True:
-        time.sleep(0.1)
+        now = time.time()
+        if now - lastwrite >= 1:
+            lastwrite = now
+            ser.write('Hello world, this is a lot of text that should be buffered.')
+            ser.flush()
 
         numbytes = ser.in_waiting
         if numbytes:
             sys.stdout.write(ser.read(numbytes))
             sys.stdout.flush()
 
-ser = serial.Serial()
-ser.port = '/dev/cu.usbserial-FTHKH0VE'
-ser.baud = 9600
-ser.open()
+        time.sleep(0.1)
+
+ser = serial.Serial(port='/dev/cu.usbserial-FTHKH0VE', baudrate=9600)
 try:
     forever()
 finally:

@@ -70,37 +70,43 @@ void led_blink(uint8_t lednum, uint16_t times)
 }
 
 /*************************************************************************
- * UART Receive Buffer
+ * Ring Buffers for UART
  *************************************************************************/
 
-uint8_t buffer[32];
-uint8_t write_index;
-uint8_t read_index;
-
-void buf_init()
+typedef struct
 {
-    read_index = 0;
-    write_index = 0;
+    uint8_t data[129];
+    uint8_t write_index;
+    uint8_t read_index;
+} RingBuffer;
+
+volatile RingBuffer rx_buffer;
+volatile RingBuffer tx_buffer;
+
+void buf_init(volatile RingBuffer *buf)
+{
+    buf->read_index = 0;
+    buf->write_index = 0;
 }
 
-void buf_write_byte(uint8_t c)
+void buf_write_byte(volatile RingBuffer *buf, uint8_t c)
 {
-    buffer[write_index] = c;
-    write_index++;
-    if (write_index == 32) { write_index = 0; }
+    buf->data[buf->write_index] = c;
+    buf->write_index++;
+    if (buf->write_index == 129) { buf->write_index = 0; }
 }
 
-uint8_t buf_read_byte()
+uint8_t buf_read_byte(volatile RingBuffer *buf)
 {
-    uint8_t c = buffer[read_index];
-    read_index++;
-    if (read_index == 32) { read_index = 0; }
+    uint8_t c = buf->data[buf->read_index];
+    buf->read_index++;
+    if (buf->read_index == 129) { buf->read_index = 0; }
     return c;
 }
 
-uint8_t buf_has_byte()
+uint8_t buf_has_byte(volatile RingBuffer *buf)
 {
-    return read_index != write_index;
+    return buf->read_index != buf->write_index;
 }
 
 /*************************************************************************
@@ -109,9 +115,9 @@ uint8_t buf_has_byte()
 
 void uart_init(void)
 {
+    // Baud Rate
     UBRR0H = UBRRH_VALUE;
     UBRR0L = UBRRL_VALUE;
-
 #if USE_2X
     UCSR0A |= _BV(U2X0);
 #else
@@ -120,17 +126,15 @@ void uart_init(void)
 
     UCSR0C = _BV(UCSZ01) | _BV(UCSZ00); // N-8-1
     UCSR0B = _BV(RXEN0) | _BV(TXEN0);   // Enable RX and TX
-
-    // Enable the USART Recieve Complete interrupt
-    UCSR0B |= _BV(RXC0);
+    // Enable the USART Recieve Complete
+    UCSR0B |= _BV(RXCIE0);
 }
 
 void uart_putc(char c)
 {
-    // Wait for the tx buffer ready
-    loop_until_bit_is_set(UCSR0A, UDRE0);
-
-    UDR0 = c;
+    buf_write_byte(&tx_buffer, c);
+    // Enable UDRE interrupts
+    UCSR0B |= _BV(UDRIE0);
 }
 
 void uart_puts(char *str)
@@ -142,13 +146,28 @@ void uart_puts(char *str)
     }
 }
 
-/* XXX This implmentation blocks for long periods during the interrupt.  The
-       AVR's receive FIFO can only buffer 2 bytes so it is easily overrun. */
+// USART Receive Complete
 ISR(USART0_RX_vect)
 {
     uint8_t c;
     c = UDR0;
-    buf_write_byte(c);
+    buf_write_byte(&rx_buffer, c);
+}
+
+// USART Data Register Empty (USART is ready to transmit a byte)
+ISR(USART0_UDRE_vect)
+{
+    if (buf_has_byte(&tx_buffer))
+    {
+        uint8_t c;
+        c = buf_read_byte(&tx_buffer);
+        UDR0 = c;
+    }
+    else
+    {
+        // Disable UDRE interrupts
+        UCSR0B &= ~_BV(UDRE0);
+    }
 }
 
 /*************************************************************************
@@ -159,36 +178,25 @@ int main(void)
 {
     led_init();
     uart_init();
-    buf_init();
+    buf_init(&rx_buffer);
+    buf_init(&tx_buffer);
     sei();
+
+    uint8_t c;
 
     while(1)
     {
-        uint8_t c;
-        while (buf_has_byte())
+        if (buf_has_byte(&rx_buffer))
         {
-            c = buf_read_byte();
-
-            if (c == 'r' || c == 'R')
+            char msg[] = "You typed some text: ";
+            uart_puts(msg);
+            while (buf_has_byte(&rx_buffer))
             {
-                led_blink(LED_RED, 1);
+                c = buf_read_byte(&rx_buffer);
+                uart_putc(c);
             }
-            else if (c == 'g' || c == 'G')
-            {
-                led_blink(LED_GREEN, 1);
-            }
-            else
-            {
-                led_set(LED_RED, 1);
-                led_set(LED_GREEN, 1);
-                sleep(250);
-                led_set(LED_RED, 0);
-                led_set(LED_GREEN, 0);
-            }
+            uart_putc('\n');
         }
-
-        char msg[] = "Hello World";
-        uart_puts(msg);
-        sleep(500);
+        led_blink(LED_GREEN, 1);
     }
 }
