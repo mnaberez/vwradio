@@ -23,19 +23,6 @@
 #define LED_GREEN PD5
 
 /*************************************************************************
- * Utils
- *************************************************************************/
-
-void sleep(uint16_t millisecs)
-{
-    while (millisecs > 0)
-    {
-        _delay_ms(1);
-        millisecs -= 1;
-    }
-}
-
-/*************************************************************************
  * LED
  *************************************************************************/
 
@@ -62,9 +49,9 @@ void led_blink(uint8_t lednum, uint16_t times)
     while (times > 0)
     {
         led_set(lednum, 1);
-        sleep(250);
+        _delay_ms(250);
         led_set(lednum, 0);
-        sleep(250);
+        _delay_ms(250);
         times -= 1;
     }
 }
@@ -212,7 +199,7 @@ int main(void)
     uart_init();
     sei();
 
-    sleep(2000);
+    _delay_ms(2000);
     uart_puts("\n\n");
 
     uint32_t i;
