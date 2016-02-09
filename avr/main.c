@@ -14,7 +14,7 @@
 #include <avr/interrupt.h>
 #include <util/delay.h>
 
-#define BAUD 57600
+#define BAUD 115200
 #include <util/atomic.h>
 #include <util/setbaud.h>
 
@@ -222,6 +222,45 @@ void cmd_init()
     cmd_expected_length = 0;
 }
 
+/* Start or restart the command timeout timer.
+ * Call this after each byte of the command is received.
+ */
+void cmd_timer_start()
+{
+    // set timer1 CTC mode (CS11=0, CS10=1 = prescaler 1024)
+    TCCR1B = (1 << CS12) | (0 << CS11) | (1 << CS10);
+
+    // set compare value (2 seconds at 18.432MHz with prescaler 1024)
+    OCR1A = 36000;
+
+    // set initial count
+    TCNT1 = 0;
+
+    // enable timer1 compare interrupt
+    TIMSK1 = (1 << OCIE1A);
+}
+
+/* Stop the command timeout timer.
+ * Call this after the last byte of a command has been received.
+ */
+void cmd_timer_stop()
+{
+    // stop timer1
+    TCCR1B = 0;
+    // disable timer1 compare interrupt
+    TIMSK1 = 0;
+}
+
+/* Command timeout has occurred while receiving command bytes.  We forget the
+ * buffer and don't send any reply.  This allows the client to resynchronize
+ * by waiting longer than the timeout.
+ */
+ISR(TIMER1_COMPA_vect)
+{
+    cmd_timer_stop();
+    cmd_init();
+}
+
 void cmd_reply_ack(void)
 {
     uart_putc(0x01); // 1 byte to follow
@@ -338,15 +377,18 @@ void cmd_receive_byte(uint8_t c)
         else
         {
             cmd_expected_length = c;
+            cmd_timer_start();
         }
     }
     // receive command byte(s)
     else
     {
         cmd_buf[cmd_buf_index++] = c;
+        cmd_timer_start();
 
         if (cmd_buf_index == cmd_expected_length)
         {
+            cmd_timer_stop();
             cmd_dispatch();
             cmd_init();
         }
