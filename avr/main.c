@@ -15,6 +15,7 @@
 #include <util/delay.h>
 
 #define BAUD 57600
+#include <util/atomic.h>
 #include <util/setbaud.h>
 
 #define LED_PORT PORTD
@@ -69,26 +70,38 @@ typedef struct
 
 void buf_init(volatile ringbuffer_t *buf)
 {
-    buf->read_index = 0;
-    buf->write_index = 0;
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+    {
+        buf->read_index = 0;
+        buf->write_index = 0;
+    }
 }
 
 void buf_write_byte(volatile ringbuffer_t *buf, uint8_t c)
 {
-    buf->data[buf->write_index++] = c;
-    if (buf->write_index == 129) { buf->write_index = 0; }
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+    {
+        buf->data[buf->write_index++] = c;
+        if (buf->write_index == 129) { buf->write_index = 0; }
+    }
 }
 
 uint8_t buf_read_byte(volatile ringbuffer_t *buf)
 {
-    uint8_t c = buf->data[buf->read_index++];
-    if (buf->read_index == 129) { buf->read_index = 0; }
-    return c;
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+    {
+        uint8_t c = buf->data[buf->read_index++];
+        if (buf->read_index == 129) { buf->read_index = 0; }
+        return c;
+    }
 }
 
 uint8_t buf_has_byte(volatile ringbuffer_t *buf)
 {
-    return buf->read_index != buf->write_index;
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+    {
+        return buf->read_index != buf->write_index;
+    }
 }
 
 /*************************************************************************
