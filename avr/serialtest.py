@@ -14,10 +14,6 @@ class Client(object):
     def __init__(self, ser):
         self.serial = ser
 
-    def send_command(self, data):
-        rx_bytes = self.send_raw(data)
-        return rx_bytes
-
     def send_command(self, data, ignore_nak=False):
         self.serial.write(bytearray([len(data)] + list(data)))
         self.serial.flush()
