@@ -16,17 +16,44 @@ class Client(object):
 
     def send_command(self, data):
         rx_bytes = self.send_raw(data)
-        if rx_bytes[0] != ACK:
-            raise Exception("Bad response: %r" % rx_bytes)
         return rx_bytes
 
-    def send_raw(self, data):
+    def send_command(self, data, ignore_nak=False):
         self.serial.write(bytearray([len(data)] + list(data)))
         self.serial.flush()
-        num_bytes = ord(self.serial.read(1))
-        rx_bytes = bytearray(self.serial.read(num_bytes))
-        if len(rx_bytes) != num_bytes:
-            raise Exception("Timeout")
+
+        # read number of bytes to expect
+        head = self.serial.read(1)
+        if len(head) == 0:
+            raise Exception("Timeout: No reply header byte received")
+        expected_num_bytes = ord(head)
+
+        # read bytes expected, or more if available
+        num_bytes_to_read = expected_num_bytes
+        if self.serial.in_waiting > num_bytes_to_read: # unexpected extra data
+            num_bytes_to_read = self.serial.in_waiting
+        rx_bytes = bytearray(self.serial.read(num_bytes_to_read))
+
+        # sanity checks on reply length
+        if len(rx_bytes) < expected_num_bytes:
+            raise Exception(
+                "Timeout: Expected reply of %d bytes, got only %d bytes: %r" %
+                (expected_num_bytes, len(rx_bytes), rx_bytes)
+                )
+        elif len(rx_bytes) > expected_num_bytes:
+            raise Exception(
+                "Invalid: Too long: expected of %d bytes, got %d bytes: %r " %
+                (expected_num_bytes, len(rx_bytes), rx_bytes)
+            )
+        elif len(rx_bytes) == 0:
+            raise Exception("Invalid: Reply had header byte but not ack/nak")
+
+        # check ack/nak byte
+        if rx_bytes[0] not in (ACK, NAK):
+            raise Exception("Invalid: First byte not ACK/NAK: %r" % rx_bytes)
+        elif (rx_bytes[0] == NAK) and (not ignore_nak):
+            raise Exception("Received NAK response: %r" % rx_bytes)
+
         return rx_bytes
 
     def set_led(self, led_num, led_state):
@@ -44,25 +71,27 @@ class AvrTests(unittest.TestCase):
 
     def test_dispatch_returns_nak_for_zero_length_command(self):
         client = self._make_client()
-        rx_bytes = client.send_raw([])
+        rx_bytes = client.send_command(data=[], ignore_nak=True)
         self.assertEqual(rx_bytes, bytearray([NAK]))
 
     def test_dispatch_returns_nak_for_invalid_command(self):
         client = self._make_client()
-        rx_bytes = client.send_raw([0xFF])
+        rx_bytes = client.send_command(data=[0xFF], ignore_nak=True)
         self.assertEqual(rx_bytes, bytearray([NAK]))
 
     # Echo command
 
     def test_echo_empty_args_returns_empty_ack(self):
         client = self._make_client()
-        rx_bytes = client.send_raw([CMD_ECHO])
+        rx_bytes = client.send_command(
+            data=[CMD_ECHO], ignore_nak=True)
         self.assertEqual(rx_bytes, bytearray([ACK]))
 
     def test_echo_returns_args(self):
         for args in ([], [1], [1, 2, 3], list(range(254))):
             client = self._make_client()
-            rx_bytes = client.send_raw([CMD_ECHO] + args)
+            rx_bytes = client.send_command(
+                data=[CMD_ECHO] + args, ignore_nak=True)
             self.assertEqual(rx_bytes, bytearray([ACK] + args))
 
     # Set LED command
@@ -70,19 +99,22 @@ class AvrTests(unittest.TestCase):
     def test_set_led_returns_nak_for_bad_args_length(self):
         for args in ([], [1]):
             client = self._make_client()
-            rx_bytes = client.send_raw([CMD_SET_LED] + args)
+            rx_bytes = client.send_command(
+                data=[CMD_SET_LED] + args, ignore_nak=True)
             self.assertEqual(rx_bytes, bytearray([NAK]))
 
     def test_set_led_returns_nak_for_bad_led(self):
         client = self._make_client()
-        rx_bytes = client.send_raw([CMD_SET_LED, 0xFF, 1])
+        rx_bytes = client.send_command(
+            data=[CMD_SET_LED, 0xFF, 1], ignore_nak=True)
         self.assertEqual(rx_bytes, bytearray([NAK]))
 
     def test_set_led_changes_valid_led(self):
         client = self._make_client()
         for led in (LED_GREEN, LED_RED):
             for state in (1, 0):
-                rx_bytes = client.send_raw([CMD_SET_LED, led, state])
+                rx_bytes = client.send_command(
+                    data=[CMD_SET_LED, led, state], ignore_nak=True)
                 self.assertEqual(rx_bytes, bytearray([ACK]))
 
 
