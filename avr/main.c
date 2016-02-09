@@ -306,8 +306,6 @@ void cmd_dispatch(void)
         default:
             cmd_reply_nak();
     }
-
-    cmd_init();
 }
 
 /* Receive a command byte.  Commands are executed immediately after the
@@ -335,6 +333,7 @@ void cmd_receive_byte(uint8_t c)
         if (c == 0) // invalid, command length must be 1 byte or longer
         {
             cmd_reply_nak();
+            cmd_init();
         }
         else
         {
@@ -349,6 +348,7 @@ void cmd_receive_byte(uint8_t c)
         if (cmd_buf_index == cmd_expected_length)
         {
             cmd_dispatch();
+            cmd_init();
         }
     }
 }
