@@ -16,6 +16,17 @@ class Client(object):
     def __init__(self, ser):
         self.serial = ser
 
+    # High level
+
+    def echo(self, data):
+        rx_bytes = self.command(bytearray([CMD_ECHO]) + bytearray(data))
+        return rx_bytes[1:]
+
+    def set_led(self, led_num, led_state):
+        self.command([CMD_SET_LED, led_num, int(led_state)])
+
+    # Low level
+
     def command(self, data, ignore_nak=False):
         self.send(data)
         return self.receive(ignore_nak)
@@ -58,9 +69,6 @@ class Client(object):
             raise Exception("Received NAK response: %r" % rx_bytes)
 
         return rx_bytes
-
-    def set_led(self, led_num, led_state):
-        self.command([CMD_SET_LED, led_num, int(led_state)])
 
 
 class AvrTests(unittest.TestCase):
@@ -109,6 +117,11 @@ class AvrTests(unittest.TestCase):
 
     # Echo command
 
+    def test_high_level_echo(self):
+        client = Client(self.serial)
+        data = b'Hello world'
+        self.assertEqual(client.echo(data), data)
+
     def test_echo_empty_args_returns_empty_ack(self):
         client = Client(self.serial)
         rx_bytes = client.command(
@@ -123,6 +136,12 @@ class AvrTests(unittest.TestCase):
             self.assertEqual(rx_bytes, bytearray([ACK] + args))
 
     # Set LED command
+
+    def test_high_level_set_led(self):
+        client = Client(self.serial)
+        for led in (LED_GREEN, LED_RED):
+            for state in (1, 0):
+                client.set_led(led, state)
 
     def test_set_led_returns_nak_for_bad_args_length(self):
         for args in ([], [1]):
@@ -146,12 +165,24 @@ class AvrTests(unittest.TestCase):
                 self.assertEqual(rx_bytes, bytearray([ACK]))
 
 
-if __name__ == '__main__':
-    AvrTests.serial = serial.Serial(
-        port='/dev/cu.usbserial-FTHKH0VE',
-        baudrate=115200, timeout=2
-        )
+def make_serial():
+    from serial.tools.list_ports import comports
+    names = [ x.device for x in comports() if 'Bluetooth' not in x.device ]
+    if not names:
+        raise Exception("No serial port found")
+    return serial.Serial(port=names[0], baudrate=115200, timeout=2)
 
-    def test_suite():
-        return unittest.findTestCases(sys.modules[__name__])
+def make_client(serial=None):
+    if serial is None:
+        serial = make_serial()
+    return Client(serial)
+
+def test_suite():
+    return unittest.findTestCases(sys.modules[__name__])
+
+def main():
+    AvrTests.serial = make_serial()
     unittest.main(defaultTest='test_suite')
+
+if __name__ == '__main__':
+    main()
