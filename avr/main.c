@@ -208,8 +208,16 @@ ISR(USART0_UDRE_vect)
  * SPI Slave interface to Radio
  *************************************************************************/
 
+#define START_OF_SPI_PACKET 0x100
+#define END_OF_SPI_PACKET   0x101
+
+volatile uint16_t spi_slave_data[2048]; // values > 0xFF used as markers
+volatile uint16_t spi_slave_data_index;
+
 void spi_slave_init(void)
 {
+    spi_slave_data_index = 0;
+
     // PB2 as input (STB from radio)
     DDRB &= ~_BV(PB2);
     // PB3 as output (/SS output we'll make in software from STB)
@@ -228,22 +236,39 @@ void spi_slave_init(void)
     // PB5 as input (AVR hardware SPI MOSI)
     DDRB &= ~_BV(PB5);
 
+    // SPI data output register initially 0
+    SPDR = 0;
+
     // SPE=1 SPI enabled, MSTR=0 SPI slave,
     // DORD=0 MSB first, CPOL=1, CPHA=1
-    // SPI=1 SPI interrupts enabled
-    SPCR = _BV(SPE) | _BV(CPOL) | _BV(CPHA);
+    // SPIE=1 SPI interrupts enabled
+    SPCR = _BV(SPE) | _BV(CPOL) | _BV(CPHA) | _BV(SPIE);
 }
 
 // When STB from radio changes, set /SS output to inverse of STB.
 ISR(PCINT1_vect)
 {
-    if (PINB & _BV(PB2))
+    if (PINB & _BV(PB2)) // STB=high
     {
-        PORTB &= ~_BV(PB3);
+        spi_slave_data[spi_slave_data_index++] = START_OF_SPI_PACKET;
+        PORTB &= ~_BV(PB3); // /SS=low
     }
     else
     {
-        PORTB |= _BV(PB3);
+        spi_slave_data[spi_slave_data_index++] = END_OF_SPI_PACKET;
+        PORTB |= _BV(PB3); // /SS=high
+    }
+}
+
+// SPI Serial Transfer Complete
+ISR(SPI_STC_vect)
+{
+    spi_slave_data[spi_slave_data_index++] = SPDR;
+
+    if (spi_slave_data_index == 2048)
+    {
+        SPCR = 0; // stop all spi
+        PCICR = 0; // stop pin change interrupts
     }
 }
 
@@ -454,23 +479,33 @@ int main(void)
     spi_slave_init();
     sei();
 
-    // Record 2048 bytes of SPI data from radio
-    uint8_t data[2048];
     uint16_t i;
-    for (i=0; i<2048; i++)
+    while(1)
     {
-        SPDR = 0;
-        while (!(SPSR & (1<<SPIF) )) {}
-        data[i] = SPDR;
-    }
+        // capture 2048 bytes of spi data
+        if (spi_slave_data_index == 2048) {
+            // dump captured spi data to uart
+            for (i=0; i<spi_slave_data_index; i++)
+            {
+                if (spi_slave_data[i] == START_OF_SPI_PACKET)
+                {
+                    uart_puts("<start>");
+                }
+                else if (spi_slave_data[i] == END_OF_SPI_PACKET)
+                {
+                    uart_puts("<end>\n");
+                }
+                else
+                {
+                    uart_puthex_byte(spi_slave_data[i]);
+                    uart_putc(' ');
+                }
+                uart_flush_tx();
+            }
+            uart_puts("\n\n");
 
-    // Dump those bytes to the serial port
-    for (i=0; i<2048; i++)
-    {
-        uart_puthex_byte(data[i]);
-        uart_putc(' ');
-        uart_flush_tx();
+            // start capturing again
+            spi_slave_init();
+        }
     }
-
-    while(1) {}
 }
