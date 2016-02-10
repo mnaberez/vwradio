@@ -1,7 +1,12 @@
-/*
+/* Pine 3: PB2 STB from radio in
+ * Pin  4: PB3 /SS out (software generated, connect to PB4)
+ * Pin  5: PB4 /SS in (connect to PB3)
+ * Pin  6: PB5 MOSI (to radio's DAT)
+ * Pin  7: PB6 MISO (not connected for now)
+ * pin  8: PB7 SCK (to radio's CLK)
  * Pin 11: GND
- * Pin 14: PD0/RXD
- * Pin 15: PD1/TXD
+ * Pin 14: PD0/RXD (to PC's serial TXD)
+ * Pin 15: PD1/TXD (to PC's serial RXD)
  * Pin 18: PD4: Green LED
  * Pin 19: PD5: Red LED
  */
@@ -12,10 +17,9 @@
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
-#include <util/delay.h>
-
-#define BAUD 115200
 #include <util/atomic.h>
+#include <util/delay.h>
+#define BAUD 115200
 #include <util/setbaud.h>
 
 #define LED_PORT PORTD
@@ -197,6 +201,49 @@ ISR(USART0_UDRE_vect)
     {
         // Disable UDRE interrupts
         UCSR0B &= ~_BV(UDRE0);
+    }
+}
+
+/*************************************************************************
+ * SPI Slave interface to Radio
+ *************************************************************************/
+
+void spi_slave_init(void)
+{
+    // PB2 as input (STB from radio)
+    DDRB &= ~_BV(PB2);
+    // PB3 as output (/SS output we'll make in software from STB)
+    DDRB |= _BV(PB3);
+    // PB3 state initially high (/SS not asserted)
+    PORTB |= _BV(PB3);
+    // Set pin change enable mask 1 for PB2 (PCINT10) only
+    PCMSK1 = _BV(PCINT10);
+    // Any transition generates the pin change interrupt
+    EICRA = _BV(ISC11);
+    // Enable interrupts from pin change group 1 only
+    PCICR = _BV(PCIE1);
+
+    // PB4 as input (AVR hardware SPI /SS input)
+    DDRB &= ~_BV(PB4);
+    // PB5 as input (AVR hardware SPI MOSI)
+    DDRB &= ~_BV(PB5);
+
+    // SPE=1 SPI enabled, MSTR=0 SPI slave,
+    // DORD=0 MSB first, CPOL=1, CPHA=1
+    // SPI=1 SPI interrupts enabled
+    SPCR = _BV(SPE) | _BV(CPOL) | _BV(CPHA);
+}
+
+// When STB from radio changes, set /SS output to inverse of STB.
+ISR(PCINT1_vect)
+{
+    if (PINB & _BV(PB2))
+    {
+        PORTB &= ~_BV(PB3);
+    }
+    else
+    {
+        PORTB |= _BV(PB3);
     }
 }
 
@@ -404,15 +451,26 @@ int main(void)
     led_init();
     uart_init();
     cmd_init();
+    spi_slave_init();
     sei();
 
-    uint8_t c;
-    while(1)
+    // Record 2048 bytes of SPI data from radio
+    uint8_t data[2048];
+    uint16_t i;
+    for (i=0; i<2048; i++)
     {
-        if (buf_has_byte(&uart_rx_buffer))
-        {
-            c = buf_read_byte(&uart_rx_buffer);
-            cmd_receive_byte(c);
-        }
+        SPDR = 0;
+        while (!(SPSR & (1<<SPIF) )) {}
+        data[i] = SPDR;
     }
+
+    // Dump those bytes to the serial port
+    for (i=0; i<2048; i++)
+    {
+        uart_puthex_byte(data[i]);
+        uart_putc(' ');
+        uart_flush_tx();
+    }
+
+    while(1) {}
 }
