@@ -12,7 +12,7 @@
  */
 
 #ifndef F_CPU
-#define F_CPU 18432000UL
+#define F_CPU 20000000UL
 #endif
 
 #include <avr/io.h>
@@ -303,7 +303,7 @@ void cmd_timer_start()
     TCCR1B = (1 << CS12) | (0 << CS11) | (1 << CS10);
 
     // set compare value (2 seconds at 18.432MHz with prescaler 1024)
-    OCR1A = 36000;
+    OCR1A = 39062;
 
     // set initial count
     TCNT1 = 0;
