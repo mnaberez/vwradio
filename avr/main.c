@@ -277,10 +277,10 @@ ISR(SPI_STC_vect)
  *************************************************************************/
 
 // Selected RAM area
-#define UPD_RAM_NONE 0
-#define UPD_RAM_DISPLAY_DATA 1
-#define UPD_RAM_PICTOGRAPH 2
+#define UPD_RAM_DISPLAY_DATA 0
+#define UPD_RAM_PICTOGRAPH 1
 #define UPD_RAM_CHARGEN 2
+#define UPD_RAM_NONE 0xFF
 // Address increment mode
 #define UPD_INCREMENT_OFF 0
 #define UPD_INCREMENT_ON 1
@@ -298,6 +298,7 @@ typedef struct
 typedef struct
 {
     uint8_t ram_area;  // Selected RAM area
+    uint8_t ram_size;  // Size of selected RAM area
     uint8_t address;   // Current address in that area
     uint8_t increment; // Address increment mode on/off
 
@@ -324,6 +325,7 @@ void upd_init()
         upd_state.chargen_ram[i] = 0;
     }
     upd_state.ram_area = UPD_RAM_NONE;
+    upd_state.ram_size = 0;
     upd_state.address = 0;
     upd_state.increment = UPD_INCREMENT_OFF;
 }
@@ -332,19 +334,44 @@ void _upd_process_data_setting_cmd(uint8_t cmd)
 {
     uint8_t mode;
     mode = cmd & 0b00000111;
+
+    // set ram target area
     switch (mode)
     {
-        case 0:
+        case UPD_RAM_DISPLAY_DATA:
             upd_state.ram_area = UPD_RAM_DISPLAY_DATA;
+            upd_state.ram_size = UPD_DISPLAY_DATA_RAM_SIZE;
+            // TODO does the real uPD16432B reset the address?
             break;
-        case 1:
+        case UPD_RAM_PICTOGRAPH:
             upd_state.ram_area = UPD_RAM_PICTOGRAPH;
+            upd_state.ram_size = UPD_PICTOGRAPH_RAM_SIZE;
+            // TODO does the real uPD16432B reset the address?
             break;
-        case 2:
+        case UPD_RAM_CHARGEN:
             upd_state.ram_area = UPD_RAM_CHARGEN;
+            upd_state.ram_size = UPD_CHARGEN_RAM_SIZE;
+            // TODO does the real uPD16432B reset the address?
             break;
         default:
             upd_state.ram_area = UPD_RAM_NONE;
+            upd_state.ram_size = 0;
+            upd_state.address = 0;
+    }
+
+    // set increment mode
+    switch (mode)
+    {
+        // only these modes support increment
+        case UPD_RAM_DISPLAY_DATA:
+        case UPD_RAM_PICTOGRAPH:
+            upd_state.increment = ((cmd & 0b00001000) == 0);
+            break;
+        // other modes always increment and also reset address
+        default:
+            upd_state.increment = 1;
+            upd_state.address = 0;
+            break;
     }
 }
 
@@ -368,7 +395,7 @@ void upd_process_command(upd_command_t *updcmd)
     }
 
     // Process data bytes
-    if ((updcmd->size > 1) && (upd_state.ram_area != UPD_RAM_NONE))
+    if ((upd_state.ram_area != UPD_RAM_NONE) && (updcmd->size > 1))
     {
         uint8_t i;
         for (i=1; i<updcmd->size; i++)
@@ -377,8 +404,6 @@ void upd_process_command(upd_command_t *updcmd)
         }
     }
 }
-
-
 
 /*************************************************************************
  * Command Interpreter
@@ -492,6 +517,7 @@ void cmd_do_dump_upd_state()
 
     uint8_t size = 1 + // ACK byte
                    1 + // Selected RAM area
+                   1 + // Size of selected RAM area
                    1 + // Current address in that area
                    1 + // Address increment mode on/off
                    UPD_DISPLAY_DATA_RAM_SIZE +
@@ -501,6 +527,7 @@ void cmd_do_dump_upd_state()
     uart_putc(size); // number of bytes to follow
     uart_putc(ACK); // ACK byte
     uart_putc(upd_state.ram_area);
+    uart_putc(upd_state.ram_size);
     uart_putc(upd_state.address);
     uart_putc(upd_state.increment);
     uart_flush_tx();
@@ -523,7 +550,7 @@ void cmd_do_dump_upd_state()
 }
 
 /* Command: Process uPD16432B Command Interpreter Command
- * Arguments: <cmd byte> <cmd arg1> <cmd arg2> ...
+ * Arguments: <cmd byte> <cmd arg byte1> <cmd arg byte2> ...
  * Returns: <ack>
  *
  * Sends a fake SPI command to the uPD16432B Command Interpreter.  The
@@ -533,12 +560,14 @@ void cmd_do_dump_upd_state()
 void cmd_do_process_upd_command()
 {
     upd_command_t cmd;
+
     uint8_t i;
     for (i=1; i<cmd_buf_index; i++)
     {
-        cmd.data[i] = cmd_buf[i];
+        cmd.data[i-1] = cmd_buf[i];
     }
     cmd.size = i-1;
+
     upd_process_command(&cmd);
     return cmd_reply_ack();
 }
@@ -672,8 +701,6 @@ void cmd_receive_byte(uint8_t c)
         }
     }
 }
-
-
 
 /*************************************************************************
  * Main
