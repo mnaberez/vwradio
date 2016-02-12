@@ -34,8 +34,6 @@ class LcdAnalyzer(object):
             self._cmd_address_setting(spi_data)
         elif cmdsel == 0b11000000:
             self._cmd_status(spi_data)
-        else:
-            self._cmd_unknown(spi_data)
 
         # Process data bytes
         if self.current_ram is not None:
@@ -149,9 +147,6 @@ class LcdAnalyzer(object):
             self._out("    LCD mode: 2=Normal operation (0b00)")
         else: # 3
             self._out("    LCD mode: 3=Normal operation (0b11)")
-
-    def _cmd_unknown(self, spi_data):
-        self._out("? Unknown command ?")
 
     def _read_char_data(self, char_code):
         if char_code < 0x10:
