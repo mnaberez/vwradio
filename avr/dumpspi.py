@@ -1,4 +1,6 @@
+#!/usr/bin/env python
 import sys
+
 from serialtest import make_client
 ser = make_client().serial
 

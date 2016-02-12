@@ -471,6 +471,46 @@ void cmd_receive_byte(uint8_t c)
  * Main
  *************************************************************************/
 
+void capture_and_dump_spi(void)
+{
+    // capture 2048 bytes of spi data
+    if (spi_slave_data_index == 2048) {
+        // dump captured spi data to uart
+        uint16_t i;
+        for (i=0; i<spi_slave_data_index; i++)
+        {
+            if (spi_slave_data[i] == START_OF_SPI_PACKET)
+            {
+                uart_puts("<start>");
+            }
+            else if (spi_slave_data[i] == END_OF_SPI_PACKET)
+            {
+                uart_puts("<end>\n");
+            }
+            else
+            {
+                uart_puthex_byte(spi_slave_data[i]);
+                uart_putc(' ');
+            }
+            uart_flush_tx();
+        }
+        uart_puts("\n\n");
+
+        // start capturing again
+        spi_slave_init();
+    }
+}
+
+void receive_and_run_command(void)
+{
+    uint8_t c;
+    if (buf_has_byte(&uart_rx_buffer))
+    {
+        c = buf_read_byte(&uart_rx_buffer);
+        cmd_receive_byte(c);
+    }
+}
+
 int main(void)
 {
     led_init();
@@ -479,33 +519,8 @@ int main(void)
     spi_slave_init();
     sei();
 
-    uint16_t i;
     while(1)
     {
-        // capture 2048 bytes of spi data
-        if (spi_slave_data_index == 2048) {
-            // dump captured spi data to uart
-            for (i=0; i<spi_slave_data_index; i++)
-            {
-                if (spi_slave_data[i] == START_OF_SPI_PACKET)
-                {
-                    uart_puts("<start>");
-                }
-                else if (spi_slave_data[i] == END_OF_SPI_PACKET)
-                {
-                    uart_puts("<end>\n");
-                }
-                else
-                {
-                    uart_puthex_byte(spi_slave_data[i]);
-                    uart_putc(' ');
-                }
-                uart_flush_tx();
-            }
-            uart_puts("\n\n");
-
-            // start capturing again
-            spi_slave_init();
-        }
+        capture_and_dump_spi();
     }
 }
