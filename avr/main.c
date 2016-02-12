@@ -115,7 +115,7 @@ uint8_t buf_has_byte(volatile ringbuffer_t *buf)
 volatile ringbuffer_t uart_rx_buffer;
 volatile ringbuffer_t uart_tx_buffer;
 
-void uart_init(void)
+void uart_init()
 {
     // Baud Rate
     UBRR0H = UBRRH_VALUE;
@@ -214,7 +214,7 @@ ISR(USART0_UDRE_vect)
 volatile uint16_t spi_slave_data[2048]; // values > 0xFF used as markers
 volatile uint16_t spi_slave_data_index;
 
-void spi_slave_init(void)
+void spi_slave_init()
 {
     spi_slave_data_index = 0;
 
@@ -273,6 +273,114 @@ ISR(SPI_STC_vect)
 }
 
 /*************************************************************************
+ * NEC uPD16432B LCD Controller Command Interpreter
+ *************************************************************************/
+
+// Selected RAM area
+#define UPD_RAM_NONE 0
+#define UPD_RAM_DISPLAY_DATA 1
+#define UPD_RAM_PICTOGRAPH 2
+#define UPD_RAM_CHARGEN 2
+// Address increment mode
+#define UPD_INCREMENT_OFF 0
+#define UPD_INCREMENT_ON 1
+// RAM sizes
+#define UPD_DISPLAY_DATA_RAM_SIZE 0x19
+#define UPD_PICTOGRAPH_RAM_SIZE 0x08
+#define UPD_CHARGEN_RAM_SIZE 0x70
+
+typedef struct
+{
+    uint8_t data[32];
+    uint8_t size;
+} upd_command_t;
+
+typedef struct
+{
+    uint8_t ram_area;  // Selected RAM area
+    uint8_t address;   // Current address in that area
+    uint8_t increment; // Address increment mode on/off
+
+    uint8_t display_data_ram[UPD_DISPLAY_DATA_RAM_SIZE];
+    uint8_t pictograph_ram[UPD_PICTOGRAPH_RAM_SIZE];
+    uint8_t chargen_ram[UPD_CHARGEN_RAM_SIZE];
+} upd_state_t;
+
+upd_state_t upd_state;
+
+void upd_init()
+{
+    uint8_t i;
+    for (i=0; i<UPD_DISPLAY_DATA_RAM_SIZE; i++)
+    {
+        upd_state.display_data_ram[i] = 0;
+    }
+    for (i=0; i<UPD_PICTOGRAPH_RAM_SIZE; i++)
+    {
+        upd_state.pictograph_ram[i] = 0;
+    }
+    for (i=0; i<UPD_CHARGEN_RAM_SIZE; i++)
+    {
+        upd_state.chargen_ram[i] = 0;
+    }
+    upd_state.ram_area = UPD_RAM_NONE;
+    upd_state.address = 0;
+    upd_state.increment = UPD_INCREMENT_OFF;
+}
+
+void _upd_process_data_setting_cmd(uint8_t cmd)
+{
+    uint8_t mode;
+    mode = cmd & 0b00000111;
+    switch (mode)
+    {
+        case 0:
+            upd_state.ram_area = UPD_RAM_DISPLAY_DATA;
+            break;
+        case 1:
+            upd_state.ram_area = UPD_RAM_PICTOGRAPH;
+            break;
+        case 2:
+            upd_state.ram_area = UPD_RAM_CHARGEN;
+            break;
+        default:
+            upd_state.ram_area = UPD_RAM_NONE;
+    }
+}
+
+void upd_process_command(upd_command_t *updcmd)
+{
+    if (updcmd->size == 0)
+    {
+        return;
+    }
+
+    // Process command byte
+    uint8_t cmd;
+    cmd = updcmd->data[0];
+    switch (cmd & 0b11000000)
+    {
+        case 0b01000000:
+            _upd_process_data_setting_cmd(cmd);
+            break;
+        default:
+            break;
+    }
+
+    // Process data bytes
+    if ((updcmd->size > 1) && (upd_state.ram_area != UPD_RAM_NONE))
+    {
+        uint8_t i;
+        for (i=1; i<updcmd->size; i++)
+        {
+            // updcmd->data[i]
+        }
+    }
+}
+
+
+
+/*************************************************************************
  * Command Interpreter
  *************************************************************************/
 
@@ -285,6 +393,9 @@ uint8_t cmd_expected_length;
 
 #define CMD_SET_LED 0x01
 #define CMD_ECHO 0x02
+#define CMD_DUMP_UPD_STATE 0x03
+#define CMD_RESET_UPD 0x04
+#define CMD_PROCESS_UPD_COMMAND 0x05
 #define CMD_ARG_GREEN_LED 0x00
 #define CMD_ARG_RED_LED 0x01
 
@@ -333,18 +444,103 @@ ISR(TIMER1_COMPA_vect)
     cmd_init();
 }
 
-void cmd_reply_ack(void)
+void cmd_reply_ack()
 {
     uart_putc(0x01); // 1 byte to follow
     uart_putc(ACK);  // ACK byte
     uart_flush_tx();
 }
 
-void cmd_reply_nak(void)
+void cmd_reply_nak()
 {
     uart_putc(0x01); // 1 byte to follow
     uart_putc(NAK);  // NAK byte
     uart_flush_tx();
+}
+
+/* Command: Reset uPD16432B Command Interpreter
+ * Arguments: none
+ * Returns: <ack>
+ *
+ * Reset the uPD16432B Command Interpreter to its default state
+ */
+void cmd_do_reset_upd()
+{
+    if (cmd_buf_index != 1)
+    {
+        cmd_reply_nak();
+        return;
+    }
+
+    upd_init();
+    cmd_reply_ack();
+}
+
+/* Command: Dump uPD16432B Command Interpreter State
+ * Arguments: none
+ * Returns: <ack> <all bytes in upd_state>
+ *
+ * Dumps the current state of the uPD16432B Command Interpreter.
+ */
+void cmd_do_dump_upd_state()
+{
+    if (cmd_buf_index != 1)
+    {
+        cmd_reply_nak();
+        return;
+    }
+
+    uint8_t size = 1 + // ACK byte
+                   1 + // Selected RAM area
+                   1 + // Current address in that area
+                   1 + // Address increment mode on/off
+                   UPD_DISPLAY_DATA_RAM_SIZE +
+                   UPD_PICTOGRAPH_RAM_SIZE +
+                   UPD_CHARGEN_RAM_SIZE;
+
+    uart_putc(size); // number of bytes to follow
+    uart_putc(ACK); // ACK byte
+    uart_putc(upd_state.ram_area);
+    uart_putc(upd_state.address);
+    uart_putc(upd_state.increment);
+    uart_flush_tx();
+    uint8_t i;
+    for (i=0; i<UPD_DISPLAY_DATA_RAM_SIZE; i++)
+    {
+        uart_putc(upd_state.display_data_ram[i]);
+    }
+    uart_flush_tx();
+    for (i=0; i<UPD_PICTOGRAPH_RAM_SIZE; i++)
+    {
+        uart_putc(upd_state.pictograph_ram[i]);
+    }
+    uart_flush_tx();
+    for (i=0; i<UPD_CHARGEN_RAM_SIZE; i++)
+    {
+        uart_putc(upd_state.chargen_ram[i]);
+    }
+    uart_flush_tx();
+}
+
+/* Command: Process uPD16432B Command Interpreter Command
+ * Arguments: <cmd byte> <cmd arg1> <cmd arg2> ...
+ * Returns: <ack>
+ *
+ * Sends a fake SPI command to the uPD16432B Command Interpreter.  The
+ * arguments are the SPI bytes that would be received by the uPD16432B
+ * while it is selected with STB high.
+ */
+void cmd_do_process_upd_command()
+{
+    upd_command_t cmd;
+    uint8_t i;
+    for (i=1; i<cmd_buf_index; i++)
+    {
+        cmd.data[i] = cmd_buf[i];
+    }
+    cmd.size = i-1;
+    upd_process_command(&cmd);
+    return cmd_reply_ack();
 }
 
 /* Command: Echo
@@ -354,12 +550,13 @@ void cmd_reply_nak(void)
  * Echoes the arguments received back to the client.  If no args were
  * received after the command byte, an empty ACK response is returned.
  */
-void cmd_do_echo(void)
+void cmd_do_echo()
 {
     uart_putc(cmd_buf_index); // number of bytes to follow
     uart_putc(ACK); // ACK byte
     uint8_t i;
-    for (i=1; i<cmd_buf_index; i++) {
+    for (i=1; i<cmd_buf_index; i++)
+    {
         uart_putc(cmd_buf[i]);
         uart_flush_tx();
     }
@@ -372,7 +569,7 @@ void cmd_do_echo(void)
  * Turns one of the LEDs on or off.  Returns a NAK if the LED
  * number is not recognized.
  */
-void cmd_do_set_led(void)
+void cmd_do_set_led()
 {
     if (cmd_buf_index != 3)
     {
@@ -404,7 +601,7 @@ void cmd_do_set_led(void)
  * command buffer has one more bytes.  The first byte is the command byte.
  * Dispatch to a handler, or return a NAK if the command is unrecognized.
  */
-void cmd_dispatch(void)
+void cmd_dispatch()
 {
     switch (cmd_buf[0])
     {
@@ -413,6 +610,15 @@ void cmd_dispatch(void)
             break;
         case CMD_ECHO:
             cmd_do_echo();
+            break;
+        case CMD_DUMP_UPD_STATE:
+            cmd_do_dump_upd_state();
+            break;
+        case CMD_RESET_UPD:
+            cmd_do_reset_upd();
+            break;
+        case CMD_PROCESS_UPD_COMMAND:
+            cmd_do_process_upd_command();
             break;
         default:
             cmd_reply_nak();
@@ -467,11 +673,13 @@ void cmd_receive_byte(uint8_t c)
     }
 }
 
+
+
 /*************************************************************************
  * Main
  *************************************************************************/
 
-void capture_and_dump_spi(void)
+void capture_and_dump_spi()
 {
     // capture 2048 bytes of spi data
     if (spi_slave_data_index == 2048) {
@@ -501,7 +709,7 @@ void capture_and_dump_spi(void)
     }
 }
 
-void receive_and_run_command(void)
+void receive_and_run_command()
 {
     uint8_t c;
     if (buf_has_byte(&uart_rx_buffer))
@@ -511,16 +719,17 @@ void receive_and_run_command(void)
     }
 }
 
-int main(void)
+int main()
 {
     led_init();
     uart_init();
     cmd_init();
     spi_slave_init();
+    upd_init();
     sei();
 
     while(1)
     {
-        capture_and_dump_spi();
+        receive_and_run_command();
     }
 }

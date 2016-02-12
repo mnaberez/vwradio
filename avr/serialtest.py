@@ -7,6 +7,9 @@ import serial # pyserial
 
 CMD_SET_LED = 0x01
 CMD_ECHO = 0x02
+CMD_DUMP_UPD_STATE = 0x03
+CMD_RESET_UPD = 0x04
+CMD_PROCESS_UPD_COMMAND = 0x05
 LED_GREEN = 0x00
 LED_RED = 0x01
 ACK = 0x06
@@ -24,6 +27,26 @@ class Client(object):
 
     def set_led(self, led_num, led_state):
         self.command([CMD_SET_LED, led_num, int(led_state)])
+
+    def reset_upd(self):
+        self.command([CMD_RESET_UPD])
+
+    def dump_upd_state(self):
+        raw = self.command([CMD_DUMP_UPD_STATE])
+        dump = {'ram_area': raw[1],
+                'address': raw[2],
+                'increment': bool(raw[3]),
+                'display_data_ram': raw[4:29],
+                'pictograph_ram': raw[29:37],
+                'chargen_ram': raw[37:149]
+               }
+        assert len(dump['display_data_ram']) == 25
+        assert len(dump['pictograph_ram']) == 8
+        assert len(dump['chargen_ram']) == 112
+        return dump
+
+    def process_upd_command(self, spi_bytes):
+        self.command(bytearray([CMD_PROCESS_UPD_COMMAND]) + bytearray(spi_bytes))
 
     # Low level
 
@@ -56,7 +79,7 @@ class Client(object):
                 )
         elif len(rx_bytes) > expected_num_bytes:
             raise Exception(
-                "Invalid: Too long: expected of %d bytes, got %d bytes: %r " %
+                "Invalid: Too long: expected %d bytes, got %d bytes: %r " %
                 (expected_num_bytes, len(rx_bytes), rx_bytes)
             )
         elif len(rx_bytes) == 0:
@@ -164,6 +187,80 @@ class AvrTests(unittest.TestCase):
                     data=[CMD_SET_LED, led, state], ignore_nak=True)
                 self.assertEqual(rx_bytes, bytearray([ACK]))
 
+    # Reset UPD command
+
+    def test_reset_upd_accepts_no_args(self):
+        client = Client(self.serial)
+        rx_bytes = client.command(
+            data=[CMD_RESET_UPD, 1], ignore_nak=True)
+        self.assertEqual(rx_bytes, bytearray([NAK]))
+
+    # Dump UPD State command
+
+    def test_dump_upd_state_accepts_no_args(self):
+        client = Client(self.serial)
+        rx_bytes = client.command(
+            data=[CMD_DUMP_UPD_STATE, 1], ignore_nak=True)
+        self.assertEqual(rx_bytes, bytearray([NAK]))
+
+    def test_dump_upd_state_dumps_serialized_state(self):
+        client = Client(self.serial)
+        rx_bytes = client.command(
+            data=[CMD_DUMP_UPD_STATE], ignore_nak=True)
+        self.assertEqual(rx_bytes[0], ACK)
+        self.assertEqual(len(rx_bytes), 149)
+
+    # uPD16432B Emulator
+
+    def test_upd_resets_to_known_state(self):
+        client = Client(self.serial)
+        client.reset_upd()
+        state = client.dump_upd_state()
+        self.assertEqual(state['ram_area'], 0) # 0=none
+        self.assertEqual(state['address'], 0)
+        self.assertEqual(state['increment'], False)
+        self.assertEqual(state['display_data_ram'], bytearray([0]*25))
+        self.assertEqual(state['chargen_ram'], bytearray([0]*112))
+        self.assertEqual(state['pictograph_ram'], bytearray([0]*8))
+
+    def test_upd_process_ignores_empty_spi_bytes(self):
+        client = Client(self.serial)
+        client.reset_upd()
+        old_state = client.dump_upd_state()
+        client.process_upd_command([])
+        self.assertEqual(client.dump_upd_state(), old_state)
+
+    # uPD16432B Emulator: Data Setting Command
+
+    def test_upd_data_setting_sets_display_data_ram_area(self):
+        client = Client(self.serial)
+        client.reset_upd()
+        cmd  = 0b01000000 # data setting command
+        cmd |= 0b00000000 # display data ram
+        client.process_upd_command([cmd])
+        state = client.dump_upd_state()
+        self.assertEqual(state['ram_area'], 1) # 1=display data ram
+
+    def test_upd_data_setting_sets_pictograph_ram_area(self):
+        client = Client(self.serial)
+        client.reset_upd()
+        cmd  = 0b01000000 # data setting command
+        cmd |= 0b00000001 # pictograph ram
+        client.process_upd_command([cmd])
+        state = client.dump_upd_state()
+        self.assertEqual(state['ram_area'], 2) # 2=pictograph ram
+
+    # uPD16432B Emulator: Address Setting Command
+
+    def test_upd_address_setting_with_no_ram_area_selected_does_nothing(self):
+        client = Client(self.serial)
+        client.reset_upd()
+        old_state = client.dump_upd_state()
+        self.assertEqual(old_state['ram_area'], 0) # 0=none
+        cmd  = 0b10000000 # address setting command
+        cmd &= 0x02 # address 0x03
+        client.process_upd_command([cmd])
+        self.assertEqual(client.dump_upd_state(), old_state)
 
 def make_serial():
     from serial.tools.list_ports import comports
