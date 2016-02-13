@@ -368,6 +368,61 @@ class AvrTests(unittest.TestCase):
             state = client.dump_upd_state()
             self.assertEqual(state['address'], expected_address)
 
+    # uPD16432B Emulator: Writing Data
+
+    def test_upd_no_ram_area_ignores_data(self):
+        client = Client(self.serial)
+        client.reset_upd()
+        state = client.dump_upd_state()
+        # address setting command
+        # followed by bytes that should be ignored
+        cmd = 0b10000000
+        cmd |= 0 # address 0
+        data = bytearray(range(1, 8))
+        client.process_upd_command(bytearray([cmd]) + data)
+        self.assertEqual(client.dump_upd_state(), state)
+
+    def test_upd_display_data_increment_on_writes_data(self):
+        client = Client(self.serial)
+        client.reset_upd()
+        # data setting command
+        cmd  = 0b01000000 # data setting command
+        cmd |= 0b00000000 # display data ram
+        cmd |= 0b00000000 # increment on
+        client.process_upd_command([cmd])
+        # address setting command
+        # followed by a unique byte for all 25 bytes of display data ram
+        cmd = 0b10000000
+        cmd |= 0 # address 0
+        data = bytearray(range(1, 26))
+        client.process_upd_command(bytearray([cmd]) + data)
+        state = client.dump_upd_state()
+        self.assertEqual(state['ram_area'], UPD_RAM_DISPLAY_DATA)
+        self.assertEqual(state['increment'], True)
+        self.assertEqual(state['address'], 0) # wrapped around
+        self.assertEqual(state['display_data_ram'], data)
+
+    def test_upd_display_data_increment_off_rewrites_data(self):
+        client = Client(self.serial)
+        client.reset_upd()
+        # data setting command
+        cmd  = 0b01000000 # data setting command
+        cmd |= 0b00000000 # display data ram
+        cmd |= 0b00001000 # increment off
+        client.process_upd_command([cmd])
+        # address setting command
+        cmd = 0b10000000
+        cmd |= 5 # address 5
+        # address setting command
+        # followed by bytes that should be written to address 5 only
+        client.process_upd_command([cmd, 1, 2, 3, 4, 5, 6, 7])
+        state = client.dump_upd_state()
+        self.assertEqual(state['ram_area'], UPD_RAM_DISPLAY_DATA)
+        self.assertEqual(state['increment'], False)
+        self.assertEqual(state['address'], 5)
+        self.assertEqual(state['display_data_ram'][5], 7)
+
+
 def make_serial():
     from serial.tools.list_ports import comports
     names = [ x.device for x in comports() if 'Bluetooth' not in x.device ]

@@ -434,7 +434,7 @@ void _upd_process_data_setting_cmd(uint8_t cmd)
     // set increment mode
     switch (mode)
     {
-        // only these modes support increment
+        // only these modes support setting increment on/off
         case UPD_RAM_DISPLAY_DATA:
         case UPD_RAM_PICTOGRAPH:
             upd_state.increment = ((cmd & 0b00001000) == 0);
@@ -566,11 +566,11 @@ void cmd_reply_nak()
     uart_flush_tx();
 }
 
-/* Command: Reset uPD16432B Command Interpreter
+/* Command: Reset uPD16432B Emulator
  * Arguments: none
  * Returns: <ack>
  *
- * Reset the uPD16432B Command Interpreter to its default state
+ * Reset the uPD16432B Emulator to its default state
  */
 void cmd_do_reset_upd()
 {
@@ -584,11 +584,11 @@ void cmd_do_reset_upd()
     cmd_reply_ack();
 }
 
-/* Command: Dump uPD16432B Command Interpreter State
+/* Command: Dump uPD16432B Emulator State
  * Arguments: none
  * Returns: <ack> <all bytes in upd_state>
  *
- * Dumps the current state of the uPD16432B Command Interpreter.
+ * Dumps the current state of the uPD16432B Emulator.
  */
 void cmd_do_dump_upd_state()
 {
@@ -632,11 +632,11 @@ void cmd_do_dump_upd_state()
     uart_flush_tx();
 }
 
-/* Command: Process uPD16432B Command Interpreter Command
+/* Command: Process uPD16432B Emulator Command
  * Arguments: <cmd byte> <cmd arg byte1> <cmd arg byte2> ...
  * Returns: <ack>
  *
- * Sends a fake SPI command to the uPD16432B Command Interpreter.  The
+ * Sends a fake SPI command to the uPD16432B Emulator.  The
  * arguments are the SPI bytes that would be received by the uPD16432B
  * while it is selected with STB high.
  */
