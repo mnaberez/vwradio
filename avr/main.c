@@ -21,6 +21,7 @@
 #include <util/delay.h>
 #define BAUD 115200
 #include <util/setbaud.h>
+#include <string.h>
 
 #define LED_PORT PORTD
 #define LED_DDR DDRD
@@ -67,45 +68,31 @@ void led_blink(uint8_t lednum, uint16_t times)
 
 typedef struct
 {
-    uint8_t data[129];
+    uint8_t data[256];
     uint8_t write_index;
     uint8_t read_index;
 } ringbuffer_t;
 
 void buf_init(volatile ringbuffer_t *buf)
 {
-    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-    {
-        buf->read_index = 0;
-        buf->write_index = 0;
-    }
+    buf->read_index = 0;
+    buf->write_index = 0;
 }
 
 void buf_write_byte(volatile ringbuffer_t *buf, uint8_t c)
 {
-    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-    {
-        buf->data[buf->write_index++] = c;
-        if (buf->write_index == 129) { buf->write_index = 0; }
-    }
+    buf->data[buf->write_index++] = c;
 }
 
 uint8_t buf_read_byte(volatile ringbuffer_t *buf)
 {
-    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-    {
-        uint8_t c = buf->data[buf->read_index++];
-        if (buf->read_index == 129) { buf->read_index = 0; }
-        return c;
-    }
+    uint8_t c = buf->data[buf->read_index++];
+    return c;
 }
 
 uint8_t buf_has_byte(volatile ringbuffer_t *buf)
 {
-    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-    {
-        return buf->read_index != buf->write_index;
-    }
+    return buf->read_index != buf->write_index;
 }
 
 /*************************************************************************
@@ -191,11 +178,9 @@ ISR(USART0_RX_vect)
 // USART Data Register Empty (USART is ready to transmit a byte)
 ISR(USART0_UDRE_vect)
 {
-    if (buf_has_byte(&uart_tx_buffer))
+    if (uart_tx_buffer.read_index != uart_tx_buffer.write_index)
     {
-        uint8_t c;
-        c = buf_read_byte(&uart_tx_buffer);
-        UDR0 = c;
+        UDR0 = uart_tx_buffer.data[uart_tx_buffer.read_index++];
     }
     else
     {
@@ -208,14 +193,26 @@ ISR(USART0_UDRE_vect)
  * SPI Slave interface to Radio
  *************************************************************************/
 
-#define START_OF_SPI_PACKET 0x100
-#define END_OF_SPI_PACKET   0x101
-
-volatile uint16_t spi_slave_data[2048]; // values > 0xFF used as markers
+// buffer for current SPI transfer in process
+volatile uint16_t spi_slave_data[32];
 volatile uint16_t spi_slave_data_index;
+
+// upd16432b command request
+typedef struct
+{
+    uint8_t data[32]; // spi bytes
+    uint8_t size;
+} upd_command_t;
+// circular buffer for receiving upd commands
+volatile upd_command_t upd_cmds_buf[256];
+volatile uint8_t upd_cmds_buf_write_index;
+volatile uint8_t upd_cmds_buf_read_index;
 
 void spi_slave_init()
 {
+    uint8_t upd_cmds_buf_read_index = 0;
+    uint8_t upd_cmds_buf_write_index = 0;
+
     spi_slave_data_index = 0;
 
     // PB2 as input (STB from radio)
@@ -250,13 +247,41 @@ ISR(PCINT1_vect)
 {
     if (PINB & _BV(PB2)) // STB=high
     {
-        spi_slave_data[spi_slave_data_index++] = START_OF_SPI_PACKET;
         PORTB &= ~_BV(PB3); // /SS=low
+        spi_slave_data_index = 0;
     }
-    else
+    else // STB=low
     {
-        spi_slave_data[spi_slave_data_index++] = END_OF_SPI_PACKET;
         PORTB |= _BV(PB3); // /SS=high
+
+        // transfer complete
+
+        // empty data can occur if we miss a strobe edge
+        // or if we are strobed but no spi bytes are received
+        if (spi_slave_data_index != 0)
+        {
+            // key data request
+            if (spi_slave_data[0] == 0x44)
+            {
+                // ignored for now
+            }
+
+            // command to move into the circular buffer
+            else
+            {
+                volatile upd_command_t *cmd;
+                cmd = &upd_cmds_buf[upd_cmds_buf_write_index];
+
+                uint8_t i;
+                for (i=spi_slave_data_index-1; i!=0xff; i--)
+                {
+                    cmd->data[i] = spi_slave_data[i];
+                }
+                cmd->size = spi_slave_data_index;
+
+                upd_cmds_buf_write_index++;
+            }
+        }
     }
 }
 
@@ -264,16 +289,10 @@ ISR(PCINT1_vect)
 ISR(SPI_STC_vect)
 {
     spi_slave_data[spi_slave_data_index++] = SPDR;
-
-    if (spi_slave_data_index == 2048)
-    {
-        SPCR = 0; // stop all spi
-        PCICR = 0; // stop pin change interrupts
-    }
 }
 
 /*************************************************************************
- * NEC uPD16432B LCD Controller Command Interpreter
+ * NEC uPD16432B LCD Controller Emulator
  *************************************************************************/
 
 // Selected RAM area
@@ -288,12 +307,6 @@ ISR(SPI_STC_vect)
 #define UPD_DISPLAY_DATA_RAM_SIZE 0x19
 #define UPD_PICTOGRAPH_RAM_SIZE 0x08
 #define UPD_CHARGEN_RAM_SIZE 0x70
-
-typedef struct
-{
-    uint8_t data[32];
-    uint8_t size;
-} upd_command_t;
 
 typedef struct
 {
@@ -789,34 +802,9 @@ void cmd_receive_byte(uint8_t c)
  * Main
  *************************************************************************/
 
-void capture_and_dump_spi()
+ISR(BADISR_vect)
 {
-    // capture 2048 bytes of spi data
-    if (spi_slave_data_index == 2048) {
-        // dump captured spi data to uart
-        uint16_t i;
-        for (i=0; i<spi_slave_data_index; i++)
-        {
-            if (spi_slave_data[i] == START_OF_SPI_PACKET)
-            {
-                uart_puts("<start>");
-            }
-            else if (spi_slave_data[i] == END_OF_SPI_PACKET)
-            {
-                uart_puts("<end>\n");
-            }
-            else
-            {
-                uart_puthex_byte(spi_slave_data[i]);
-                uart_putc(' ');
-            }
-            uart_flush_tx();
-        }
-        uart_puts("\n\n");
-
-        // start capturing again
-        spi_slave_init();
-    }
+    led_blink(LED_RED,1);
 }
 
 void receive_and_run_command()
@@ -838,8 +826,26 @@ int main()
     upd_init();
     sei();
 
+    uart_puts("\nstart of program\n");
+
     while(1)
     {
-        receive_and_run_command();
+        if (upd_cmds_buf_read_index != upd_cmds_buf_write_index)
+        {
+            upd_command_t updcmd;
+            updcmd = upd_cmds_buf[upd_cmds_buf_read_index];
+            upd_cmds_buf_read_index++;
+
+            uint8_t i;
+            for (i=0; i<updcmd.size; i++)
+            {
+                uart_puthex_byte(updcmd.data[i]);
+                uart_putc(' ');
+            }
+            uart_putc('\n');
+
+
+        }
+
     }
 }
