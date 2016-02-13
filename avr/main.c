@@ -1,4 +1,4 @@
-/* Pine 3: PB2 STB from radio in
+/* Pin  3: PB2 STB from radio in
  * Pin  4: PB3 /SS out (software generated, connect to PB4)
  * Pin  5: PB4 /SS in (connect to PB3)
  * Pin  6: PB5 MOSI (to radio's DAT)
@@ -330,6 +330,74 @@ void upd_init()
     upd_state.increment = UPD_INCREMENT_OFF;
 }
 
+void _upd_wrap_address()
+{
+    if (upd_state.address >= upd_state.ram_size)
+    {
+        upd_state.address = 0;
+    }
+}
+
+void _upd_write_data_byte(uint8_t b)
+{
+    switch (upd_state.ram_area)
+    {
+        case UPD_RAM_DISPLAY_DATA:
+            upd_state.display_data_ram[upd_state.address] = b;
+            break;
+
+        case UPD_RAM_PICTOGRAPH:
+            upd_state.pictograph_ram[upd_state.address] = b;
+            break;
+
+        case UPD_RAM_CHARGEN:
+            upd_state.chargen_ram[upd_state.address] = b;
+            break;
+
+        case UPD_RAM_NONE:
+        default:
+            return;
+    }
+
+    if (upd_state.increment == UPD_INCREMENT_ON)
+    {
+        upd_state.address++;
+        _upd_wrap_address();
+    }
+}
+
+void _upd_process_address_setting_cmd(uint8_t cmd)
+{
+    uint8_t address;
+    address = cmd & 0b00011111;
+
+    switch (upd_state.ram_area)
+    {
+        case UPD_RAM_DISPLAY_DATA:
+        case UPD_RAM_PICTOGRAPH:
+            upd_state.address = address;
+            _upd_wrap_address();
+            break;
+
+        case UPD_RAM_CHARGEN:
+            // for chargen, address is character number (valid from 0 to 0x0F)
+            if (address < 0x10)
+            {
+                upd_state.address = address * 7; // 7 bytes per character
+            }
+            else
+            {
+                upd_state.address = 0;
+            }
+            break;
+
+        case UPD_RAM_NONE:
+        default:
+            address = 0;
+            break;
+    }
+}
+
 void _upd_process_data_setting_cmd(uint8_t cmd)
 {
     uint8_t mode;
@@ -343,16 +411,20 @@ void _upd_process_data_setting_cmd(uint8_t cmd)
             upd_state.ram_size = UPD_DISPLAY_DATA_RAM_SIZE;
             // TODO does the real uPD16432B reset the address?
             break;
+
         case UPD_RAM_PICTOGRAPH:
             upd_state.ram_area = UPD_RAM_PICTOGRAPH;
             upd_state.ram_size = UPD_PICTOGRAPH_RAM_SIZE;
             // TODO does the real uPD16432B reset the address?
             break;
+
         case UPD_RAM_CHARGEN:
             upd_state.ram_area = UPD_RAM_CHARGEN;
             upd_state.ram_size = UPD_CHARGEN_RAM_SIZE;
             // TODO does the real uPD16432B reset the address?
             break;
+
+        case UPD_RAM_NONE:
         default:
             upd_state.ram_area = UPD_RAM_NONE;
             upd_state.ram_size = 0;
@@ -367,16 +439,22 @@ void _upd_process_data_setting_cmd(uint8_t cmd)
         case UPD_RAM_PICTOGRAPH:
             upd_state.increment = ((cmd & 0b00001000) == 0);
             break;
+
         // other modes always increment and also reset address
         default:
             upd_state.increment = 1;
             upd_state.address = 0;
             break;
     }
+
+    // TODO changing data mode may make current address out of bounds
+    // what does the real uPD16432B do when data setting is changed?
+    _upd_wrap_address();
 }
 
 void upd_process_command(upd_command_t *updcmd)
 {
+    // No bytes SPI were received while STB was asserted
     if (updcmd->size == 0)
     {
         return;
@@ -390,6 +468,11 @@ void upd_process_command(upd_command_t *updcmd)
         case 0b01000000:
             _upd_process_data_setting_cmd(cmd);
             break;
+
+        case 0b10000000:
+            _upd_process_address_setting_cmd(cmd);
+            break;
+
         default:
             break;
     }
@@ -400,7 +483,7 @@ void upd_process_command(upd_command_t *updcmd)
         uint8_t i;
         for (i=1; i<updcmd->size; i++)
         {
-            // updcmd->data[i]
+            _upd_write_data_byte(updcmd->data[i]);
         }
     }
 }

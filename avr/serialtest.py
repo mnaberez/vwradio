@@ -51,7 +51,8 @@ class Client(object):
         return dump
 
     def process_upd_command(self, spi_bytes):
-        self.command(bytearray([CMD_PROCESS_UPD_COMMAND]) + bytearray(spi_bytes))
+        data = bytearray([CMD_PROCESS_UPD_COMMAND]) + bytearray(spi_bytes)
+        self.command(data)
 
     # Low level
 
@@ -310,7 +311,7 @@ class AvrTests(unittest.TestCase):
         self.assertEqual(state['address'], 0)
         self.assertEqual(state['increment'], True)
 
-    def test_upd_data_setting_unrecognized_ram_ignores_increment_off(self):
+    def test_upd_data_setting_unrecognized_ram_area_ignores_increment_off(self):
         client = Client(self.serial)
         client.reset_upd()
         cmd  = 0b01000000 # data setting command
@@ -325,15 +326,47 @@ class AvrTests(unittest.TestCase):
 
     # uPD16432B Emulator: Address Setting Command
 
-    def test_upd_address_setting_with_no_ram_area_selected_does_nothing(self):
+    def test_upd_address_setting_unrecognized_ram_area_sets_zero(self):
         client = Client(self.serial)
         client.reset_upd()
-        old_state = client.dump_upd_state()
-        self.assertEqual(old_state['ram_area'], UPD_RAM_NONE)
+        state = client.dump_upd_state()
+        self.assertEqual(state['ram_area'], UPD_RAM_NONE)
         cmd  = 0b10000000 # address setting command
         cmd |= 0b00000011 # address 0x03
         client.process_upd_command([cmd])
-        self.assertEqual(client.dump_upd_state(), old_state)
+        state = client.dump_upd_state()
+        self.assertEqual(state['address'], 0)
+
+    def test_upd_address_setting_sets_addresses_for_each_ram_area(self):
+        client = Client(self.serial)
+        tuples = (
+            (UPD_RAM_DISPLAY_DATA, 0b00000000, 0,       0), # min
+            (UPD_RAM_DISPLAY_DATA, 0b00000000, 0x18, 0x18), # max
+            (UPD_RAM_DISPLAY_DATA, 0b00000000, 0x19,    0), # out of range
+
+            (UPD_RAM_PICTOGRAPH,   0b00000001,    0,    0), # min
+            (UPD_RAM_PICTOGRAPH,   0b00000001, 0x07, 0x07), # max
+            (UPD_RAM_PICTOGRAPH,   0b00000001, 0x08,    0), # out of range
+
+            (UPD_RAM_CHARGEN,      0b00000010,    0,    0), # min
+            (UPD_RAM_CHARGEN,      0b00000010, 0x0f, 0x69), # max
+            (UPD_RAM_CHARGEN,      0b00000010, 0x10,    0), # out of range
+        )
+        for ram_area, ram_select_bits, address, expected_address in tuples:
+            client.reset_upd()
+            # data setting command
+            cmd  = 0b01000000 # data setting command
+            cmd |= ram_select_bits
+            client.process_upd_command([cmd])
+            state = client.dump_upd_state()
+            self.assertEqual(state['ram_area'], ram_area)
+            # address setting command
+            cmd = 0b10000000
+            cmd |= address
+            client.process_upd_command([cmd])
+            # address should be character number * 7 (7 bytes per char)
+            state = client.dump_upd_state()
+            self.assertEqual(state['address'], expected_address)
 
 def make_serial():
     from serial.tools.list_ports import comports
