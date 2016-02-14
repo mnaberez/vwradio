@@ -208,18 +208,22 @@ typedef struct
     uint8_t size;
 } upd_command_t;
 
-// circular buffer for receiving upd commands
-volatile upd_command_t upd_cmds_buf[256];
-volatile uint8_t upd_cmds_buf_read_index;
-volatile uint8_t upd_cmds_buf_write_index;
-volatile upd_command_t *upd_cmds_cmd_at_write_index;
+// ring buffer for receiving upd16432b commands from radio
+typedef struct
+{
+    volatile upd_command_t cmds[256];
+    volatile uint8_t read_index;
+    volatile uint8_t write_index;
+    volatile upd_command_t *cmd_at_write_index;
+} upd_rx_buf_t;
+volatile upd_rx_buf_t upd_rx_buf;
 
 void spi_slave_init()
 {
-    upd_cmds_buf_read_index = 0;
-    upd_cmds_buf_write_index = 0;
-    upd_cmds_cmd_at_write_index = &upd_cmds_buf[upd_cmds_buf_write_index];
-    upd_cmds_cmd_at_write_index->size = 0;
+    upd_rx_buf.read_index = 0;
+    upd_rx_buf.write_index = 0;
+    upd_rx_buf.cmd_at_write_index = &upd_rx_buf.cmds[upd_rx_buf.write_index];
+    upd_rx_buf.cmd_at_write_index->size = 0;
 
     // PB2 as input (STB from radio)
     DDRB &= ~_BV(PB2);
@@ -256,7 +260,7 @@ LED_PORT |= _BV(LED_GREEN); // XXX timing marker for logic analyzer
     if (PINB & _BV(PB2)) // STB=high
     {
         PORTB &= ~_BV(PB3); // /SS=low
-        upd_cmds_cmd_at_write_index->size = 0;
+        upd_rx_buf.cmd_at_write_index->size = 0;
     }
     else // STB=low
     {
@@ -265,12 +269,12 @@ LED_PORT |= _BV(LED_GREEN); // XXX timing marker for logic analyzer
         // transfer complete
         // copy the current spi command into the circular buffer
         // empty transfers and key data request commands are ignored
-        if ((upd_cmds_cmd_at_write_index->size !=0) &&      // no bytes
-            (upd_cmds_cmd_at_write_index->data[0] != 0x44)) // key data request
+        if ((upd_rx_buf.cmd_at_write_index->size !=0 ) &&     // no bytes
+            (upd_rx_buf.cmd_at_write_index->data[0] != 0x44)) // key data cmd
         {
-            upd_cmds_buf_write_index++;
-            upd_cmds_cmd_at_write_index =
-                &upd_cmds_buf[upd_cmds_buf_write_index];
+            upd_rx_buf.write_index++;
+            upd_rx_buf.cmd_at_write_index =
+                &upd_rx_buf.cmds[upd_rx_buf.write_index];
         }
     }
 
@@ -284,15 +288,15 @@ LED_PORT |= _BV(LED_RED); // XXX timing marker for logic analyzer
 
     // receive byte into current command
     uint8_t c = SPDR;
-    upd_cmds_cmd_at_write_index->data[
-        upd_cmds_cmd_at_write_index->size++
+    upd_rx_buf.cmd_at_write_index->data[
+        upd_rx_buf.cmd_at_write_index->size++
     ] = c;
 
-    // handle buffer overflow
-    if (upd_cmds_cmd_at_write_index->size ==
-        sizeof(upd_cmds_cmd_at_write_index->data))
+    // handle command size overflow
+    if (upd_rx_buf.cmd_at_write_index->size ==
+        sizeof(upd_rx_buf.cmd_at_write_index->data))
     {
-        upd_cmds_cmd_at_write_index->size = 0;
+        upd_rx_buf.cmd_at_write_index->size = 0;
     }
 
 LED_PORT &= ~_BV(LED_RED); // XXX timing marker for logic analyzer
@@ -874,21 +878,11 @@ int main()
         }
 
         // service commands from radio
-        if (upd_cmds_buf_read_index != upd_cmds_buf_write_index)
+        if (upd_rx_buf.read_index != upd_rx_buf.write_index)
         {
             upd_command_t updcmd;
-            updcmd = upd_cmds_buf[upd_cmds_buf_read_index];
-            upd_cmds_buf_read_index++;
-
-            // uint8_t i;
-            // for (i=0; i<updcmd.size; i++)
-            // {
-            //     uart_puthex_byte(updcmd.data[i]);
-            //     uart_putc(' ');
-            // }
-            // uart_putc('\n');
-
-
+            updcmd = upd_rx_buf.cmds[upd_rx_buf.read_index];
+            upd_rx_buf.read_index++;
             // in test mode, commands from radio are received but ignored
             if (run_mode != RUN_MODE_TEST)
             {
