@@ -802,21 +802,6 @@ void cmd_receive_byte(uint8_t c)
  * Main
  *************************************************************************/
 
-ISR(BADISR_vect)
-{
-    led_blink(LED_RED,1);
-}
-
-void receive_and_run_command()
-{
-    uint8_t c;
-    if (buf_has_byte(&uart_rx_buffer))
-    {
-        c = buf_read_byte(&uart_rx_buffer);
-        cmd_receive_byte(c);
-    }
-}
-
 int main()
 {
     led_init();
@@ -826,26 +811,23 @@ int main()
     upd_init();
     sei();
 
-    uart_puts("\nstart of program\n");
-
-    while(1)
+    while (1)
     {
+        // service bytes from uart
+        if (buf_has_byte(&uart_rx_buffer))
+        {
+            uint8_t c;
+            c = buf_read_byte(&uart_rx_buffer);
+            cmd_receive_byte(c);
+        }
+
+        // service commands from radio
         if (upd_cmds_buf_read_index != upd_cmds_buf_write_index)
         {
             upd_command_t updcmd;
             updcmd = upd_cmds_buf[upd_cmds_buf_read_index];
             upd_cmds_buf_read_index++;
-
-            uint8_t i;
-            for (i=0; i<updcmd.size; i++)
-            {
-                uart_puthex_byte(updcmd.data[i]);
-                uart_putc(' ');
-            }
-            uart_putc('\n');
-
-
+            upd_process_command(&updcmd);
         }
-
     }
 }
