@@ -29,6 +29,15 @@
 #define LED_GREEN PD5
 
 /*************************************************************************
+ * Run Mode
+ *************************************************************************/
+
+#define RUN_MODE_NORMAL 0
+#define RUN_MODE_TEST 1
+
+volatile uint8_t run_mode;
+
+/*************************************************************************
  * LED
  *************************************************************************/
 
@@ -517,8 +526,11 @@ uint8_t cmd_expected_length;
 #define CMD_DUMP_UPD_STATE 0x03
 #define CMD_RESET_UPD 0x04
 #define CMD_PROCESS_UPD_COMMAND 0x05
+#define CMD_SET_RUN_MODE 0x06
 #define CMD_ARG_GREEN_LED 0x00
 #define CMD_ARG_RED_LED 0x01
+#define CMD_ARG_RUN_MODE_NORMAL 0x00
+#define CMD_ARG_RUN_MODE_TEST 0x01
 
 void cmd_init()
 {
@@ -705,22 +717,59 @@ void cmd_do_set_led()
     uint8_t led_num = cmd_buf[1];
     uint8_t led_state = cmd_buf[2];
 
-    if (led_num == CMD_ARG_RED_LED)
+    switch (led_num)
     {
-        led_set(LED_RED, led_state);
+        case CMD_ARG_RED_LED:
+            led_set(LED_RED, led_state);
+            break;
+
+        case CMD_ARG_GREEN_LED:
+            led_set(LED_GREEN, led_state);
+            break;
+
+        default:
+            cmd_reply_nak();
+            return;
     }
-    else if (led_num == CMD_ARG_GREEN_LED)
-    {
-        led_set(LED_GREEN, led_state);
-    }
-    else
+
+    cmd_reply_ack();
+}
+
+/* Command: Set Run Mode
+ * Argumnts: <mode>
+ * Returns: <ack|nak>
+ *
+ * Sets the current running mode (one of the RUN_MODE_* constants).  In
+ * test mode, SPI commands from the radio are ignored so the uPD16432B
+ * code can be tested.
+ */
+void cmd_do_set_run_mode()
+{
+    if (cmd_buf_index != 2)
     {
         cmd_reply_nak();
         return;
     }
 
+    uint8_t mode = cmd_buf[1];
+
+    switch (mode)
+    {
+        case CMD_ARG_RUN_MODE_NORMAL:
+            run_mode = RUN_MODE_NORMAL;
+            break;
+
+        case CMD_ARG_RUN_MODE_TEST:
+            run_mode = RUN_MODE_TEST;
+            break;
+
+        default:
+            return cmd_reply_nak();
+    }
+
     cmd_reply_ack();
 }
+
 
 /* Dispatch a command.  A complete command packet has been received.  The
  * command buffer has one more bytes.  The first byte is the command byte.
@@ -744,6 +793,9 @@ void cmd_dispatch()
             break;
         case CMD_PROCESS_UPD_COMMAND:
             cmd_do_process_upd_command();
+            break;
+        case CMD_SET_RUN_MODE:
+            cmd_do_set_run_mode();
             break;
         default:
             cmd_reply_nak();
@@ -804,6 +856,8 @@ void cmd_receive_byte(uint8_t c)
 
 int main()
 {
+    run_mode = RUN_MODE_NORMAL;
+
     led_init();
     uart_init();
     cmd_init();
@@ -827,7 +881,11 @@ int main()
             upd_command_t updcmd;
             updcmd = upd_cmds_buf[upd_cmds_buf_read_index];
             upd_cmds_buf_read_index++;
-            upd_process_command(&updcmd);
+            // in test mode, commands from radio are received but ignored
+            if (run_mode != RUN_MODE_TEST)
+            {
+                upd_process_command(&updcmd);
+            }
         }
     }
 }

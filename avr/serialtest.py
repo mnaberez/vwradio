@@ -10,8 +10,11 @@ CMD_ECHO = 0x02
 CMD_DUMP_UPD_STATE = 0x03
 CMD_RESET_UPD = 0x04
 CMD_PROCESS_UPD_COMMAND = 0x05
+CMD_SET_RUN_MODE = 0x06
 ACK = 0x06
 NAK = 0x15
+RUN_MODE_NORMAL = 0x00
+RUN_MODE_TEST = 0x01
 LED_GREEN = 0x00
 LED_RED = 0x01
 UPD_RAM_DISPLAY_DATA = 0
@@ -28,6 +31,9 @@ class Client(object):
     def echo(self, data):
         rx_bytes = self.command(bytearray([CMD_ECHO]) + bytearray(data))
         return rx_bytes[1:]
+
+    def set_run_mode(self, mode):
+        self.command([CMD_SET_RUN_MODE, mode])
 
     def set_led(self, led_num, led_state):
         self.command([CMD_SET_LED, led_num, int(led_state)])
@@ -103,115 +109,121 @@ class Client(object):
 class AvrTests(unittest.TestCase):
     serial = None # serial.Serial instance
 
+    def setUp(self):
+        self.client = Client(self.serial)
+        self.client.set_run_mode(RUN_MODE_TEST)
+
+    def tearDown(self):
+        self.client.set_run_mode(RUN_MODE_NORMAL)
+
     # Command timeout
 
     if 'ALL' in os.environ:
         def test_timeout_ignores_incomplete_command(self):
             '''this test takes 2.25 seconds'''
-            client = Client(self.serial)
             # send incomplete command
-            client.serial.write(bytearray([42, 1, 2, 3]))
-            client.serial.flush()
+            self.client.serial.write(bytearray([42, 1, 2, 3]))
+            self.client.serial.flush()
             # wait longer than timeout period
             time.sleep(2.25)
             # command should have timed out
             # next command should complete successfully
-            rx_bytes = client.command(
+            rx_bytes = self.client.command(
                 data=[CMD_ECHO], ignore_nak=True)
             self.assertEqual(rx_bytes, bytearray([ACK]))
 
         def test_timeout_timer_resets_after_each_byte(self):
             '''this test takes 6 seconds'''
-            client = Client(self.serial)
             # send individual bytes very slowly
             for b in (5,CMD_ECHO,4,3,2,1,):
-                client.serial.write(bytearray([b]))
-                client.serial.flush()
+                self.client.serial.write(bytearray([b]))
+                self.client.serial.flush()
                 time.sleep(1)
             # command should not have timed out
-            rx_bytes = client.receive()
+            rx_bytes = self.client.receive()
             self.assertEqual(rx_bytes, bytearray([ACK,4,3,2,1,]))
 
     # Command dispatch
 
     def test_dispatch_returns_nak_for_zero_length_command(self):
-        client = Client(self.serial)
-        rx_bytes = client.command(data=[], ignore_nak=True)
+        rx_bytes = self.client.command(data=[], ignore_nak=True)
         self.assertEqual(rx_bytes, bytearray([NAK]))
 
     def test_dispatch_returns_nak_for_invalid_command(self):
-        client = Client(self.serial)
-        rx_bytes = client.command(data=[0xFF], ignore_nak=True)
+        rx_bytes = self.client.command(data=[0xFF], ignore_nak=True)
         self.assertEqual(rx_bytes, bytearray([NAK]))
 
     # Echo command
 
     def test_high_level_echo(self):
-        client = Client(self.serial)
         data = b'Hello world'
-        self.assertEqual(client.echo(data), data)
+        self.assertEqual(self.client.echo(data), data)
 
     def test_echo_empty_args_returns_empty_ack(self):
-        client = Client(self.serial)
-        rx_bytes = client.command(
+        rx_bytes = self.client.command(
             data=[CMD_ECHO], ignore_nak=True)
         self.assertEqual(rx_bytes, bytearray([ACK]))
 
     def test_echo_returns_args(self):
         for args in ([], [1], [1, 2, 3], list(range(254))):
-            client = Client(self.serial)
-            rx_bytes = client.command(
+            rx_bytes = self.client.command(
                 data=[CMD_ECHO] + args, ignore_nak=True)
             self.assertEqual(rx_bytes, bytearray([ACK] + args))
+
+    # Set run mode command
+
+    def test_set_run_mode_returns_nak_for_bad_args_length(self):
+        for args in ([], [RUN_MODE_TEST, 1]):
+            rx_bytes = self.client.command(
+                data=[CMD_SET_RUN_MODE] + args, ignore_nak=True)
+            self.assertEqual(rx_bytes, bytearray([NAK]))
+
+    def test_set_run_mode_returns_nak_for_bad_mode(self):
+        rx_bytes = self.client.command(
+            data=[CMD_SET_RUN_MODE, 0xFF], ignore_nak=True)
+        self.assertEqual(rx_bytes, bytearray([NAK]))
 
     # Set LED command
 
     def test_high_level_set_led(self):
-        client = Client(self.serial)
         for led in (LED_GREEN, LED_RED):
             for state in (1, 0):
-                client.set_led(led, state)
+                self.client.set_led(led, state)
 
     def test_set_led_returns_nak_for_bad_args_length(self):
         for args in ([], [1]):
-            client = Client(self.serial)
-            rx_bytes = client.command(
+            rx_bytes = self.client.command(
                 data=[CMD_SET_LED] + args, ignore_nak=True)
             self.assertEqual(rx_bytes, bytearray([NAK]))
 
     def test_set_led_returns_nak_for_bad_led(self):
-        client = Client(self.serial)
-        rx_bytes = client.command(
+        rx_bytes = self.client.command(
             data=[CMD_SET_LED, 0xFF, 1], ignore_nak=True)
         self.assertEqual(rx_bytes, bytearray([NAK]))
 
     def test_set_led_changes_valid_led(self):
-        client = Client(self.serial)
         for led in (LED_GREEN, LED_RED):
             for state in (1, 0):
-                rx_bytes = client.command(
+                rx_bytes = self.client.command(
                     data=[CMD_SET_LED, led, state], ignore_nak=True)
                 self.assertEqual(rx_bytes, bytearray([ACK]))
 
     # Reset UPD command
 
     def test_reset_upd_accepts_no_args(self):
-        client = Client(self.serial)
-        rx_bytes = client.command(
+        rx_bytes = self.client.command(
             data=[CMD_RESET_UPD, 1], ignore_nak=True)
         self.assertEqual(rx_bytes, bytearray([NAK]))
 
     # Dump UPD State command
 
     def test_dump_upd_state_accepts_no_args(self):
-        client = Client(self.serial)
-        rx_bytes = client.command(
+        rx_bytes = self.client.command(
             data=[CMD_DUMP_UPD_STATE, 1], ignore_nak=True)
         self.assertEqual(rx_bytes, bytearray([NAK]))
 
     def test_dump_upd_state_dumps_serialized_state(self):
-        client = Client(self.serial)
-        rx_bytes = client.command(
+        rx_bytes = self.client.command(
             data=[CMD_DUMP_UPD_STATE], ignore_nak=True)
         self.assertEqual(rx_bytes[0], ACK)
         self.assertEqual(len(rx_bytes), 150)
@@ -219,9 +231,8 @@ class AvrTests(unittest.TestCase):
     # uPD16432B Emulator
 
     def test_upd_resets_to_known_state(self):
-        client = Client(self.serial)
-        client.reset_upd()
-        state = client.dump_upd_state()
+        self.client.reset_upd()
+        state = self.client.dump_upd_state()
         self.assertEqual(state['ram_area'], UPD_RAM_NONE) # 0=none
         self.assertEqual(state['ram_size'], 0)
         self.assertEqual(state['address'], 0)
@@ -231,94 +242,87 @@ class AvrTests(unittest.TestCase):
         self.assertEqual(state['pictograph_ram'], bytearray([0]*8))
 
     def test_upd_process_ignores_empty_spi_bytes(self):
-        client = Client(self.serial)
-        client.reset_upd()
-        old_state = client.dump_upd_state()
-        client.process_upd_command([])
-        self.assertEqual(client.dump_upd_state(), old_state)
+        self.client.reset_upd()
+        old_state = self.client.dump_upd_state()
+        self.client.process_upd_command([])
+        self.assertEqual(self.client.dump_upd_state(), old_state)
 
     # uPD16432B Emulator: Data Setting Command
 
     def test_upd_data_setting_sets_display_data_ram_area_increment_off(self):
-        client = Client(self.serial)
-        client.reset_upd()
+        self.client.reset_upd()
         cmd  = 0b01000000 # data setting command
         cmd |= 0b00000000 # display data ram
         cmd |= 0b00001000 # increment off
-        client.process_upd_command([cmd])
-        state = client.dump_upd_state()
+        self.client.process_upd_command([cmd])
+        state = self.client.dump_upd_state()
         self.assertEqual(state['ram_area'], UPD_RAM_DISPLAY_DATA)
         self.assertEqual(state['ram_size'], 25)
         self.assertEqual(state['increment'], False)
 
     def test_upd_data_setting_sets_display_data_ram_area_increment_on(self):
-        client = Client(self.serial)
-        client.reset_upd()
+        self.client.reset_upd()
         cmd  = 0b01000000 # data setting command
         cmd |= 0b00000000 # display data ram
         cmd |= 0b00000000 # increment on
-        client.process_upd_command([cmd])
-        state = client.dump_upd_state()
+        self.client.process_upd_command([cmd])
+        state = self.client.dump_upd_state()
         self.assertEqual(state['ram_area'], UPD_RAM_DISPLAY_DATA)
         self.assertEqual(state['ram_size'], 25)
         self.assertEqual(state['increment'], True)
 
     def test_upd_data_setting_sets_pictograph_ram_area_increment_off(self):
-        client = Client(self.serial)
-        client.reset_upd()
+        self.client.reset_upd()
         cmd  = 0b01000000 # data setting command
         cmd |= 0b00000001 # pictograph ram
         cmd |= 0b00001000 # increment off
-        client.process_upd_command([cmd])
-        state = client.dump_upd_state()
+        self.client.process_upd_command([cmd])
+        state = self.client.dump_upd_state()
         self.assertEqual(state['ram_area'], UPD_RAM_PICTOGRAPH)
         self.assertEqual(state['ram_size'], 8)
         self.assertEqual(state['increment'], False)
 
     def test_upd_data_setting_sets_chargen_ram_area_increment_on(self):
-        client = Client(self.serial)
-        client.reset_upd()
+        self.client.reset_upd()
         cmd  = 0b01000000 # data setting command
         cmd |= 0b00000010 # chargen ram
         cmd |= 0b00000000 # increment on
-        client.process_upd_command([cmd])
-        state = client.dump_upd_state()
+        self.client.process_upd_command([cmd])
+        state = self.client.dump_upd_state()
         self.assertEqual(state['ram_area'], UPD_RAM_CHARGEN)
         self.assertEqual(state['ram_size'], 112)
         self.assertEqual(state['increment'], True)
 
     def test_upd_data_setting_sets_chargen_ram_area_ignores_increment_off(self):
-        client = Client(self.serial)
-        client.reset_upd()
+        self.client.reset_upd()
         cmd  = 0b01000000 # data setting command
         cmd |= 0b00000010 # chargen ram
         cmd |= 0b00001000 # increment off (should be ignored)
-        client.process_upd_command([cmd])
-        state = client.dump_upd_state()
+        self.client.process_upd_command([cmd])
+        state = self.client.dump_upd_state()
         self.assertEqual(state['ram_area'], UPD_RAM_CHARGEN)
         self.assertEqual(state['ram_size'], 112)
         self.assertEqual(state['increment'], True)
 
     def test_upd_data_setting_unrecognized_ram_area_sets_none(self):
-        client = Client(self.serial)
-        client.reset_upd()
+
+        self.client.reset_upd()
         cmd  = 0b01000000 # data setting command
         cmd |= 0b00000111 # not a valid ram area
-        client.process_upd_command([cmd])
-        state = client.dump_upd_state()
+        self.client.process_upd_command([cmd])
+        state = self.client.dump_upd_state()
         self.assertEqual(state['ram_area'], UPD_RAM_NONE)
         self.assertEqual(state['ram_size'], 0)
         self.assertEqual(state['address'], 0)
         self.assertEqual(state['increment'], True)
 
     def test_upd_data_setting_unrecognized_ram_area_ignores_increment_off(self):
-        client = Client(self.serial)
-        client.reset_upd()
+        self.client.reset_upd()
         cmd  = 0b01000000 # data setting command
         cmd |= 0b00000111 # not a valid ram area
         cmd |= 0b00001000 # increment off (should be ignored)
-        client.process_upd_command([cmd])
-        state = client.dump_upd_state()
+        self.client.process_upd_command([cmd])
+        state = self.client.dump_upd_state()
         self.assertEqual(state['ram_area'], UPD_RAM_NONE)
         self.assertEqual(state['ram_size'], 0)
         self.assertEqual(state['address'], 0)
@@ -327,18 +331,16 @@ class AvrTests(unittest.TestCase):
     # uPD16432B Emulator: Address Setting Command
 
     def test_upd_address_setting_unrecognized_ram_area_sets_zero(self):
-        client = Client(self.serial)
-        client.reset_upd()
-        state = client.dump_upd_state()
+        self.client.reset_upd()
+        state = self.client.dump_upd_state()
         self.assertEqual(state['ram_area'], UPD_RAM_NONE)
         cmd  = 0b10000000 # address setting command
         cmd |= 0b00000011 # address 0x03
-        client.process_upd_command([cmd])
-        state = client.dump_upd_state()
+        self.client.process_upd_command([cmd])
+        state = self.client.dump_upd_state()
         self.assertEqual(state['address'], 0)
 
     def test_upd_address_setting_sets_addresses_for_each_ram_area(self):
-        client = Client(self.serial)
         tuples = (
             (UPD_RAM_DISPLAY_DATA, 0b00000000, 0,       0), # min
             (UPD_RAM_DISPLAY_DATA, 0b00000000, 0x18, 0x18), # max
@@ -353,70 +355,67 @@ class AvrTests(unittest.TestCase):
             (UPD_RAM_CHARGEN,      0b00000010, 0x10,    0), # out of range
         )
         for ram_area, ram_select_bits, address, expected_address in tuples:
-            client.reset_upd()
+            self.client.reset_upd()
             # data setting command
             cmd  = 0b01000000 # data setting command
             cmd |= ram_select_bits
-            client.process_upd_command([cmd])
-            state = client.dump_upd_state()
+            self.client.process_upd_command([cmd])
+            state = self.client.dump_upd_state()
             self.assertEqual(state['ram_area'], ram_area)
             # address setting command
             cmd = 0b10000000
             cmd |= address
-            client.process_upd_command([cmd])
+            self.client.process_upd_command([cmd])
             # address should be character number * 7 (7 bytes per char)
-            state = client.dump_upd_state()
+            state = self.client.dump_upd_state()
             self.assertEqual(state['address'], expected_address)
 
     # uPD16432B Emulator: Writing Data
 
     def test_upd_no_ram_area_ignores_data(self):
-        client = Client(self.serial)
-        client.reset_upd()
-        state = client.dump_upd_state()
+        self.client.reset_upd()
+        state = self.client.dump_upd_state()
         # address setting command
         # followed by bytes that should be ignored
         cmd = 0b10000000
         cmd |= 0 # address 0
         data = bytearray(range(1, 8))
-        client.process_upd_command(bytearray([cmd]) + data)
-        self.assertEqual(client.dump_upd_state(), state)
+        self.client.process_upd_command(bytearray([cmd]) + data)
+        self.assertEqual(self.client.dump_upd_state(), state)
 
     def test_upd_display_data_increment_on_writes_data(self):
-        client = Client(self.serial)
-        client.reset_upd()
+        self.client.reset_upd()
         # data setting command
         cmd  = 0b01000000 # data setting command
         cmd |= 0b00000000 # display data ram
         cmd |= 0b00000000 # increment on
-        client.process_upd_command([cmd])
+        self.client.process_upd_command([cmd])
         # address setting command
         # followed by a unique byte for all 25 bytes of display data ram
         cmd = 0b10000000
         cmd |= 0 # address 0
         data = bytearray(range(1, 26))
-        client.process_upd_command(bytearray([cmd]) + data)
-        state = client.dump_upd_state()
+        self.client.process_upd_command(bytearray([cmd]) + data)
+        state = self.client.dump_upd_state()
         self.assertEqual(state['ram_area'], UPD_RAM_DISPLAY_DATA)
         self.assertEqual(state['increment'], True)
         self.assertEqual(state['address'], 0) # wrapped around
         self.assertEqual(state['display_data_ram'], data)
 
     def test_upd_display_data_increment_off_rewrites_data(self):
-        client = Client(self.serial)
-        client.reset_upd()
+        self.client.reset_upd()
         # data setting command
         cmd  = 0b01000000 # data setting command
         cmd |= 0b00000000 # display data ram
         cmd |= 0b00001000 # increment off
-        client.process_upd_command([cmd])
+        self.client.process_upd_command([cmd])
         # address setting command
         cmd = 0b10000000
         cmd |= 5 # address 5
         # address setting command
         # followed by bytes that should be written to address 5 only
-        client.process_upd_command([cmd, 1, 2, 3, 4, 5, 6, 7])
-        state = client.dump_upd_state()
+        self.client.process_upd_command([cmd, 1, 2, 3, 4, 5, 6, 7])
+        state = self.client.dump_upd_state()
         self.assertEqual(state['ram_area'], UPD_RAM_DISPLAY_DATA)
         self.assertEqual(state['increment'], False)
         self.assertEqual(state['address'], 5)
