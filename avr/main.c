@@ -7,8 +7,8 @@
  * Pin 11: GND
  * Pin 14: PD0/RXD (to PC's serial TXD)
  * Pin 15: PD1/TXD (to PC's serial RXD)
- * Pin 18: PD4: Green LED
- * Pin 19: PD5: Red LED
+ * Pin 19: PD5: Green LED
+ * Pin 20: PD6: Red LED
  */
 
 #ifndef F_CPU
@@ -201,27 +201,25 @@ ISR(USART0_UDRE_vect)
  * SPI Slave interface to Radio
  *************************************************************************/
 
-// buffer for current SPI transfer in process
-volatile uint8_t spi_slave_data[16];
-volatile uint8_t spi_slave_data_index;
-
 // upd16432b command request
 typedef struct
 {
-    uint8_t data[16];
+    uint8_t data[32];
     uint8_t size;
 } upd_command_t;
+
 // circular buffer for receiving upd commands
 volatile upd_command_t upd_cmds_buf[256];
-volatile uint8_t upd_cmds_buf_write_index;
 volatile uint8_t upd_cmds_buf_read_index;
+volatile uint8_t upd_cmds_buf_write_index;
+volatile upd_command_t *upd_cmds_cmd_at_write_index;
 
 void spi_slave_init()
 {
     upd_cmds_buf_read_index = 0;
     upd_cmds_buf_write_index = 0;
-
-    spi_slave_data_index = 0;
+    upd_cmds_cmd_at_write_index = &upd_cmds_buf[upd_cmds_buf_write_index];
+    upd_cmds_cmd_at_write_index->size = 0;
 
     // PB2 as input (STB from radio)
     DDRB &= ~_BV(PB2);
@@ -253,10 +251,12 @@ void spi_slave_init()
 // When STB from radio changes, set /SS output to inverse of STB.
 ISR(PCINT1_vect)
 {
+LED_PORT |= _BV(LED_GREEN); // XXX timing marker for logic analyzer
+
     if (PINB & _BV(PB2)) // STB=high
     {
         PORTB &= ~_BV(PB3); // /SS=low
-        spi_slave_data_index = 0;
+        upd_cmds_cmd_at_write_index->size = 0;
     }
     else // STB=low
     {
@@ -264,41 +264,38 @@ ISR(PCINT1_vect)
 
         // transfer complete
         // copy the current spi command into the circular buffer
-        // key data request command 0x44 is ignored
-        if (spi_slave_data[0x00] != 0x44)
+        // empty transfers and key data request commands are ignored
+        if ((upd_cmds_cmd_at_write_index->size !=0) &&      // no bytes
+            (upd_cmds_cmd_at_write_index->data[0] != 0x44)) // key data request
         {
-            volatile upd_command_t *cmd;
-            cmd = &upd_cmds_buf[upd_cmds_buf_write_index];
-            // loop is unrolled for performance.  without this optimization,
-            // this ISR may not finish in time to catch the next strobe edge.
-            cmd->data[0x00] = spi_slave_data[0x00];
-            cmd->data[0x01] = spi_slave_data[0x01];
-            cmd->data[0x02] = spi_slave_data[0x02];
-            cmd->data[0x03] = spi_slave_data[0x03];
-            cmd->data[0x04] = spi_slave_data[0x04];
-            cmd->data[0x05] = spi_slave_data[0x05];
-            cmd->data[0x06] = spi_slave_data[0x06];
-            cmd->data[0x07] = spi_slave_data[0x07];
-            cmd->data[0x08] = spi_slave_data[0x08];
-            cmd->data[0x09] = spi_slave_data[0x09];
-            cmd->data[0x0a] = spi_slave_data[0x0a];
-            cmd->data[0x0b] = spi_slave_data[0x0b];
-            cmd->data[0x0c] = spi_slave_data[0x0c];
-            cmd->data[0x0d] = spi_slave_data[0x0d];
-            cmd->data[0x0e] = spi_slave_data[0x0e];
-            cmd->data[0x0f] = spi_slave_data[0x0f];
-            cmd->size = spi_slave_data_index;
             upd_cmds_buf_write_index++;
+            upd_cmds_cmd_at_write_index =
+                &upd_cmds_buf[upd_cmds_buf_write_index];
         }
     }
+
+LED_PORT &= ~_BV(LED_GREEN); // XXX timing marker for logic analyzer
 }
 
 // SPI Serial Transfer Complete
 ISR(SPI_STC_vect)
 {
-    SPDR = spi_slave_data_index;
-    spi_slave_data[spi_slave_data_index++] = SPDR;
-    if (spi_slave_data_index == 16) { spi_slave_data_index = 0; } // overflow
+LED_PORT |= _BV(LED_RED); // XXX timing marker for logic analyzer
+
+    // receive byte into current command
+    uint8_t c = SPDR;
+    upd_cmds_cmd_at_write_index->data[
+        upd_cmds_cmd_at_write_index->size++
+    ] = c;
+
+    // handle buffer overflow
+    if (upd_cmds_cmd_at_write_index->size ==
+        sizeof(upd_cmds_cmd_at_write_index->data))
+    {
+        upd_cmds_cmd_at_write_index->size = 0;
+    }
+
+LED_PORT &= ~_BV(LED_RED); // XXX timing marker for logic analyzer
 }
 
 /*************************************************************************
@@ -882,6 +879,15 @@ int main()
             upd_command_t updcmd;
             updcmd = upd_cmds_buf[upd_cmds_buf_read_index];
             upd_cmds_buf_read_index++;
+
+            // uint8_t i;
+            // for (i=0; i<updcmd.size; i++)
+            // {
+            //     uart_puthex_byte(updcmd.data[i]);
+            //     uart_putc(' ');
+            // }
+            // uart_putc('\n');
+
 
             // in test mode, commands from radio are received but ignored
             if (run_mode != RUN_MODE_TEST)
