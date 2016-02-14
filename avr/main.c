@@ -669,16 +669,25 @@ void cmd_do_dump_upd_state()
  */
 void cmd_do_process_upd_command()
 {
-    upd_command_t cmd;
+    upd_command_t updcmd;
 
+    // Bail out if size of bytes from UART exceeds uPD16432B command max size
+    // -1 because first byte in cmd_buf is CMD_PROCESS_UPD_COMMAND not SPI data
+    if ((cmd_buf_index - 1) > sizeof(updcmd.data))
+    {
+        return cmd_reply_nak();
+    }
+
+    // Popular uPD16432B command request with bytes from UART
     uint8_t i;
     for (i=1; i<cmd_buf_index; i++)
     {
-        cmd.data[i-1] = cmd_buf[i];
+        updcmd.data[i-1] = cmd_buf[i];
     }
-    cmd.size = i-1;
+    updcmd.size = i-1;
 
-    upd_process_command(&cmd);
+    // Process uPD16432B command request as if we received it over SPI
+    upd_process_command(&updcmd);
     return cmd_reply_ack();
 }
 

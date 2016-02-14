@@ -228,6 +228,29 @@ class AvrTests(unittest.TestCase):
         self.assertEqual(rx_bytes[0], ACK)
         self.assertEqual(len(rx_bytes), 150)
 
+    # Process UPD Command command
+
+    def test_process_upd_cmd_allows_empty_spi_data(self):
+        self.client.reset_upd()
+        rx_bytes = self.client.command(
+            data=[CMD_PROCESS_UPD_COMMAND] + [], ignore_nak=True)
+        self.assertEqual(rx_bytes[0], ACK)
+        self.assertEqual(len(rx_bytes), 1)
+
+    def test_process_upd_cmd_allows_max_spi_data_size_of_32(self):
+        self.client.reset_upd()
+        rx_bytes = self.client.command(
+            data=[CMD_PROCESS_UPD_COMMAND] + ([0] * 32), ignore_nak=True)
+        self.assertEqual(rx_bytes[0], ACK)
+        self.assertEqual(len(rx_bytes), 1)
+
+    def test_process_upd_cmd_returns_nak_spi_data_size_exceeds_32(self):
+        self.client.reset_upd()
+        rx_bytes = self.client.command(
+            data=[CMD_PROCESS_UPD_COMMAND] + ([0] * 33), ignore_nak=True)
+        self.assertEqual(rx_bytes[0], NAK)
+        self.assertEqual(len(rx_bytes), 1)
+
     # uPD16432B Emulator
 
     def test_upd_resets_to_known_state(self):
@@ -240,12 +263,6 @@ class AvrTests(unittest.TestCase):
         self.assertEqual(state['display_data_ram'], bytearray([0]*25))
         self.assertEqual(state['chargen_ram'], bytearray([0]*112))
         self.assertEqual(state['pictograph_ram'], bytearray([0]*8))
-
-    def test_upd_process_ignores_empty_spi_bytes(self):
-        self.client.reset_upd()
-        old_state = self.client.dump_upd_state()
-        self.client.process_upd_command([])
-        self.assertEqual(self.client.dump_upd_state(), old_state)
 
     # uPD16432B Emulator: Data Setting Command
 
