@@ -21,7 +21,6 @@
 #include <util/delay.h>
 #define BAUD 115200
 #include <util/setbaud.h>
-#include <string.h>
 
 #define LED_PORT PORTD
 #define LED_DDR DDRD
@@ -203,13 +202,13 @@ ISR(USART0_UDRE_vect)
  *************************************************************************/
 
 // buffer for current SPI transfer in process
-volatile uint16_t spi_slave_data[32];
-volatile uint16_t spi_slave_data_index;
+volatile uint8_t spi_slave_data[16];
+volatile uint8_t spi_slave_data_index;
 
 // upd16432b command request
 typedef struct
 {
-    uint8_t data[32]; // spi bytes
+    uint8_t data[16];
     uint8_t size;
 } upd_command_t;
 // circular buffer for receiving upd commands
@@ -219,8 +218,8 @@ volatile uint8_t upd_cmds_buf_read_index;
 
 void spi_slave_init()
 {
-    uint8_t upd_cmds_buf_read_index = 0;
-    uint8_t upd_cmds_buf_write_index = 0;
+    upd_cmds_buf_read_index = 0;
+    upd_cmds_buf_write_index = 0;
 
     spi_slave_data_index = 0;
 
@@ -264,32 +263,32 @@ ISR(PCINT1_vect)
         PORTB |= _BV(PB3); // /SS=high
 
         // transfer complete
-
-        // empty data can occur if we miss a strobe edge
-        // or if we are strobed but no spi bytes are received
-        if (spi_slave_data_index != 0)
+        // copy the current spi command into the circular buffer
+        // key data request command 0x44 is ignored
+        if (spi_slave_data[0x00] != 0x44)
         {
-            // key data request
-            if (spi_slave_data[0] == 0x44)
-            {
-                // ignored for now
-            }
-
-            // command to move into the circular buffer
-            else
-            {
-                volatile upd_command_t *cmd;
-                cmd = &upd_cmds_buf[upd_cmds_buf_write_index];
-
-                uint8_t i;
-                for (i=spi_slave_data_index-1; i!=0xff; i--)
-                {
-                    cmd->data[i] = spi_slave_data[i];
-                }
-                cmd->size = spi_slave_data_index;
-
-                upd_cmds_buf_write_index++;
-            }
+            volatile upd_command_t *cmd;
+            cmd = &upd_cmds_buf[upd_cmds_buf_write_index];
+            // loop is unrolled for performance.  without this optimization,
+            // this ISR may not finish in time to catch the next strobe edge.
+            cmd->data[0x00] = spi_slave_data[0x00];
+            cmd->data[0x01] = spi_slave_data[0x01];
+            cmd->data[0x02] = spi_slave_data[0x02];
+            cmd->data[0x03] = spi_slave_data[0x03];
+            cmd->data[0x04] = spi_slave_data[0x04];
+            cmd->data[0x05] = spi_slave_data[0x05];
+            cmd->data[0x06] = spi_slave_data[0x06];
+            cmd->data[0x07] = spi_slave_data[0x07];
+            cmd->data[0x08] = spi_slave_data[0x08];
+            cmd->data[0x09] = spi_slave_data[0x09];
+            cmd->data[0x0a] = spi_slave_data[0x0a];
+            cmd->data[0x0b] = spi_slave_data[0x0b];
+            cmd->data[0x0c] = spi_slave_data[0x0c];
+            cmd->data[0x0d] = spi_slave_data[0x0d];
+            cmd->data[0x0e] = spi_slave_data[0x0e];
+            cmd->data[0x0f] = spi_slave_data[0x0f];
+            cmd->size = spi_slave_data_index;
+            upd_cmds_buf_write_index++;
         }
     }
 }
@@ -297,7 +296,9 @@ ISR(PCINT1_vect)
 // SPI Serial Transfer Complete
 ISR(SPI_STC_vect)
 {
+    SPDR = spi_slave_data_index;
     spi_slave_data[spi_slave_data_index++] = SPDR;
+    if (spi_slave_data_index == 16) { spi_slave_data_index = 0; } // overflow
 }
 
 /*************************************************************************
@@ -476,7 +477,7 @@ void _upd_process_data_setting_cmd(uint8_t cmd)
 
 void upd_process_command(upd_command_t *updcmd)
 {
-    // No bytes SPI were received while STB was asserted
+    // No SPI bytes were received while STB was asserted
     if (updcmd->size == 0)
     {
         return;
@@ -881,6 +882,7 @@ int main()
             upd_command_t updcmd;
             updcmd = upd_cmds_buf[upd_cmds_buf_read_index];
             upd_cmds_buf_read_index++;
+
             // in test mode, commands from radio are received but ignored
             if (run_mode != RUN_MODE_TEST)
             {
