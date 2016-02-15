@@ -57,6 +57,20 @@ class Faceplate(object):
     PICTOGRAPHS = {}
     KEYS = {}
 
+    def encode_keys(self, keys_pressed):
+        key_data = [0, 0, 0, 0]
+        for key_pressed in keys_pressed:
+            found = False
+            for byte_bit, key in self.KEYS.items():
+                if key == key_pressed:
+                    bytenum, bitnum = byte_bit
+                    key_data[bytenum] |= (2**bitnum)
+                    found = True
+                    break
+            if not found:
+                raise ValueError('Key %d not found' % key_pressed)
+        return tuple(key_data)
+
     def decode_keys(self, key_data, as_names=False):
         keys = []
         for bytenum, byte in enumerate(key_data):
