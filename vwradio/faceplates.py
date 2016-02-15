@@ -60,10 +60,9 @@ class Faceplate(object):
     def decode_keys(self, key_data, as_names=False):
         keys = []
         for bytenum, byte in enumerate(key_data):
-            key_map = self.KEYS.get(bytenum, {})
             for bitnum in range(8):
                 if byte & (2**bitnum):
-                    key = key_map.get(bitnum)
+                    key = self.KEYS.get((bytenum, bitnum))
                     if key is None:
                         msg = 'Unrecognized key at byte %d, bit %d'
                         raise ValueError(msg % (bytenum, bitnum))
@@ -76,13 +75,12 @@ class Faceplate(object):
     def decode_pictographs(self, pictograph_data):
         pictographs = []
         for bytenum, byte in enumerate(pictograph_data):
-            pictograph_map = self.PICTOGRAPHS.get(bytenum, {})
-            for bit in range(8):
-                if byte & (2**bit):
-                    pictograph = pictograph_map.get(bit)
+            for bitnum in range(8):
+                if byte & (2**bitnum):
+                    pictograph = self.PICTOGRAPHS.get((bytenum, bitnum))
                     if pictograph is None:
                         msg = 'Unrecognized pictograph at byte %d, bit %d'
-                        raise ValueError(msg % (bytenum, bit))
+                        raise ValueError(msg % (bytenum, bitnum))
                     pictographs.append(pictograph)
         return pictographs
 
@@ -241,43 +239,43 @@ class Premium4(Faceplate):
         0xf9: " ",
         0xfa: " ",
         0xfb: " ",
-    }
+        }
 
     PICTOGRAPHS = {
-        7: {3: Pictographs.TAPE_METAL},
-        6: {5: Pictographs.TAPE_DOLBY,
-            0: Pictographs.MIX},
-        3: {6: Pictographs.PERIOD},
-        2: {3: Pictographs.MODE_AMFM},
-        1: {0: Pictographs.MODE_CD,
-            5: Pictographs.MODE_TAPE},
-    }
+        # (byte, bit)
+        (7, 3): Pictographs.TAPE_METAL,
+        (6, 5): Pictographs.TAPE_DOLBY,
+        (6, 0): Pictographs.MIX,
+        (3, 6): Pictographs.PERIOD,
+        (2, 3): Pictographs.MODE_AMFM,
+        (1, 0): Pictographs.MODE_CD,
+        (1, 5): Pictographs.MODE_TAPE,
+        }
 
     KEYS = {
-        2: {5: Keys.TAPE_SIDE,
-            4: Keys.SEEK_UP,
-            3: Keys.MIX_DOLBY,
-            1: Keys.SCAN,
-            0: Keys.SEEK_DOWN},
-
-        1: {7: Keys.MODE_FM,
-            6: Keys.MODE_AM,
-            5: Keys.TUNE_UP,
-            4: Keys.SOUND_BAL,
-            3: Keys.MODE_CD,
-            2: Keys.MODE_TAPE,
-            1: Keys.TUNE_DOWN,
-            0: Keys.SOUND_FADE},
-
-        0: {7: Keys.PRESET_6,
-            6: Keys.PRESET_5,
-            5: Keys.PRESET_4,
-            4: Keys.SOUND_BASS,
-            3: Keys.PRESET_3,
-            2: Keys.PRESET_2,
-            1: Keys.PRESET_1,
-            0: Keys.SOUND_TREB}
-    }
+        # (byte, bit)
+        (2, 5): Keys.TAPE_SIDE,
+        (2, 4): Keys.SEEK_UP,
+        (2, 3): Keys.MIX_DOLBY,
+        (2, 1): Keys.SCAN,
+        (2, 0): Keys.SEEK_DOWN,
+        (1, 7): Keys.MODE_FM,
+        (1, 6): Keys.MODE_AM,
+        (1, 5): Keys.TUNE_UP,
+        (1, 4): Keys.SOUND_BAL,
+        (1, 3): Keys.MODE_CD,
+        (1, 2): Keys.MODE_TAPE,
+        (1, 1): Keys.TUNE_DOWN,
+        (1, 0): Keys.SOUND_FADE,
+        (0, 7): Keys.PRESET_6,
+        (0, 6): Keys.PRESET_5,
+        (0, 5): Keys.PRESET_4,
+        (0, 4): Keys.SOUND_BASS,
+        (0, 3): Keys.PRESET_3,
+        (0, 2): Keys.PRESET_2,
+        (0, 1): Keys.PRESET_1,
+        (0, 0): Keys.SOUND_TREB
+        }
 
 
 class Premium5(Faceplate):
@@ -285,35 +283,37 @@ class Premium5(Faceplate):
     ROM_CHARSET = charsets.VW_PREMIUM_5
 
     KEYS = {
-        3: {7: Keys.MODE_AM,
-            6: Keys.PRESET_6,
-            5: Keys.PRESET_5,
-            4: Keys.PRESET_4,
-            3: Keys.SCAN,
-            2: Keys.TUNE_DOWN,
-            1: Keys.TUNE_UP,
-            0: Keys.MIX_DOLBY},
-        2: {7: Keys.MODE_FM,
-            6: Keys.SEEK_UP,
-            5: Keys.SEEK_DOWN,
-            3: Keys.MODE_CD,
-            2: Keys.PRESET_1,
-            1: Keys.PRESET_2,
-            0: Keys.PRESET_3},
-        1: {7: Keys.SOUND_TREB,
-            6: Keys.SOUND_MID,
-            5: Keys.SOUND_BASS,
-            4: Keys.SOUND_FB,
-            3: Keys.MODE_TAPE,
-            0: Keys.TAPE_SIDE},
-    }
+        # (byte, bit)
+        (3, 7): Keys.MODE_AM,
+        (3, 6): Keys.PRESET_6,
+        (3, 5): Keys.PRESET_5,
+        (3, 4): Keys.PRESET_4,
+        (3, 3): Keys.SCAN,
+        (3, 2): Keys.TUNE_DOWN,
+        (3, 1): Keys.TUNE_UP,
+        (3, 0): Keys.MIX_DOLBY,
+        (2, 7): Keys.MODE_FM,
+        (2, 6): Keys.SEEK_UP,
+        (2, 5): Keys.SEEK_DOWN,
+        (2, 3): Keys.MODE_CD,
+        (2, 2): Keys.PRESET_1,
+        (2, 1): Keys.PRESET_2,
+        (2, 0): Keys.PRESET_3,
+        (1, 7): Keys.SOUND_TREB,
+        (1, 6): Keys.SOUND_MID,
+        (1, 5): Keys.SOUND_BASS,
+        (1, 4): Keys.SOUND_FB,
+        (1, 3): Keys.MODE_TAPE,
+        (1, 0): Keys.TAPE_SIDE,
+        }
 
     PICTOGRAPHS = {
-        5: {1: Pictographs.MIX},
-        4: {5: Pictographs.PERIOD},
-        2: {7: Pictographs.TAPE_METAL},
-        1: {2: Pictographs.TAPE_DOLBY},
-    }
+        # (byte, bit)
+        (5, 1): Pictographs.MIX,
+        (4, 5): Pictographs.PERIOD,
+        (2, 7): Pictographs.TAPE_METAL,
+        (1, 2): Pictographs.TAPE_DOLBY,
+        }
 
     CHARACTERS = {
         0x20: " ",
@@ -350,4 +350,4 @@ class Premium5(Faceplate):
         0x59: "Y",
         0x6b: "k",
         0x7a: "z",
-    }
+        }
