@@ -553,7 +553,8 @@ uint8_t cmd_expected_length;
 #define CMD_DUMP_UPD_STATE 0x03
 #define CMD_RESET_UPD 0x04
 #define CMD_PROCESS_UPD_COMMAND 0x05
-#define CMD_SET_RUN_MODE 0x06
+#define CMD_LOAD_UPD_TX_KEY_DATA 0x06
+#define CMD_SET_RUN_MODE 0x07
 #define CMD_ARG_GREEN_LED 0x00
 #define CMD_ARG_RED_LED 0x01
 #define CMD_ARG_RUN_MODE_NORMAL 0x00
@@ -622,7 +623,8 @@ void cmd_reply_nak()
  * Arguments: none
  * Returns: <ack>
  *
- * Reset the uPD16432B Emulator to its default state
+ * Reset the uPD16432B Emulator to its default state.  This does not
+ * affect the UPD key data output bytes (upd_tx_key_data).
  */
 void cmd_do_reset_upd()
 {
@@ -714,6 +716,34 @@ void cmd_do_process_upd_command()
     // Process uPD16432B command request as if we received it over SPI
     upd_process_command(&updcmd);
     return cmd_reply_ack();
+}
+
+/* Command: Load uPD16432B Emulator Key Data
+ * Arguments: <cmd byte> <key0> <key1> <key2> <key3>
+ * Returns: <ack>
+ *
+ * Load the four bytes of the uPD16432B emulator key data.  These bytes
+ * will be sent to the radio whenever a key data request command is received.
+ * The same bytes will be sent for every key data request until the bytes
+ * are changed.  Set {0, 0, 0, 0} to indicate no keys pressed.
+ */
+void cmd_do_load_upd_tx_key_data()
+{
+    if (cmd_buf_index != 5)
+    {
+        cmd_reply_nak();
+        return;
+    }
+
+    // load the four key data bytes
+    uint8_t i;
+    for (i=0; i<4; i++)
+    {
+        upd_tx_key_data[i] = cmd_buf[i+1];
+    }
+
+    cmd_reply_ack();
+    return;
 }
 
 /* Command: Echo
@@ -829,6 +859,9 @@ void cmd_dispatch()
             break;
         case CMD_PROCESS_UPD_COMMAND:
             cmd_do_process_upd_command();
+            break;
+        case CMD_LOAD_UPD_TX_KEY_DATA:
+            cmd_do_load_upd_tx_key_data();
             break;
         case CMD_SET_RUN_MODE:
             cmd_do_set_run_mode();

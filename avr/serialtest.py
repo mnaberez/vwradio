@@ -10,7 +10,8 @@ CMD_ECHO = 0x02
 CMD_DUMP_UPD_STATE = 0x03
 CMD_RESET_UPD = 0x04
 CMD_PROCESS_UPD_COMMAND = 0x05
-CMD_SET_RUN_MODE = 0x06
+CMD_LOAD_UPD_TX_KEY_DATA = 0x06
+CMD_SET_RUN_MODE = 0x07
 ACK = 0x06
 NAK = 0x15
 RUN_MODE_NORMAL = 0x00
@@ -58,6 +59,10 @@ class Client(object):
 
     def process_upd_command(self, spi_bytes):
         data = bytearray([CMD_PROCESS_UPD_COMMAND]) + bytearray(spi_bytes)
+        self.command(data)
+
+    def load_upd_tx_key_data(self, key_bytes):
+        data = bytearray([CMD_LOAD_UPD_TX_KEY_DATA]) + bytearray(key_bytes)
         self.command(data)
 
     # Low level
