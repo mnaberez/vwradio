@@ -218,12 +218,24 @@ typedef struct
 } upd_rx_buf_t;
 volatile upd_rx_buf_t upd_rx_buf;
 
+// key data bytes that will be transmitted if the radio sends
+// a read key data command
+volatile uint8_t upd_tx_key_data[4];
+
 void spi_slave_init()
 {
+    // initialize buffer to receive commands
     upd_rx_buf.read_index = 0;
     upd_rx_buf.write_index = 0;
     upd_rx_buf.cmd_at_write_index = &upd_rx_buf.cmds[upd_rx_buf.write_index];
     upd_rx_buf.cmd_at_write_index->size = 0;
+
+    // initialize key press data to be sent
+    uint8_t i;
+    for (i=0; i<sizeof(upd_tx_key_data); i++)
+    {
+        upd_tx_key_data[i] = 0;
+    }
 
     // PB2 as input (STB from radio)
     DDRB &= ~_BV(PB2);
@@ -242,8 +254,10 @@ void spi_slave_init()
     DDRB &= ~_BV(PB4);
     // PB5 as input (AVR hardware SPI MOSI)
     DDRB &= ~_BV(PB5);
+    // PB6 as output (AVR hardware SPI MISO)
+    DDRB |= _BV(PB6);
 
-    // SPI data output register initially 0
+    // SPI data output register (MISO) initially 0
     SPDR = 0;
 
     // SPE=1 SPI enabled, MSTR=0 SPI slave,
@@ -252,21 +266,24 @@ void spi_slave_init()
     SPCR = _BV(SPE) | _BV(CPOL) | _BV(CPHA) | _BV(SPIE);
 }
 
-// When STB from radio changes, set /SS output to inverse of STB.
+// Pin Change Interrupt: Fires for any change of STB
 ISR(PCINT1_vect)
 {
-LED_PORT |= _BV(LED_GREEN); // XXX timing marker for logic analyzer
-
-    if (PINB & _BV(PB2)) // STB=high
+    if (PINB & _BV(PB2))
     {
+        // STB=high: start of transfer
         PORTB &= ~_BV(PB3); // /SS=low
+
         upd_rx_buf.cmd_at_write_index->size = 0;
     }
-    else // STB=low
+    else
     {
+        // STB=low: end of transfer
         PORTB |= _BV(PB3); // /SS=high
 
-        // transfer complete
+        // SPI data output register (MISO) = 0 to set up for next transfer
+        SPDR = 0;
+
         // copy the current spi command into the circular buffer
         // empty transfers and key data request commands are ignored
         if ((upd_rx_buf.cmd_at_write_index->size !=0 ) &&     // no bytes
@@ -277,29 +294,37 @@ LED_PORT |= _BV(LED_GREEN); // XXX timing marker for logic analyzer
                 &upd_rx_buf.cmds[upd_rx_buf.write_index];
         }
     }
-
-LED_PORT &= ~_BV(LED_GREEN); // XXX timing marker for logic analyzer
 }
 
 // SPI Serial Transfer Complete
 ISR(SPI_STC_vect)
 {
-LED_PORT |= _BV(LED_RED); // XXX timing marker for logic analyzer
+    // index into current command data or key request data
+    uint8_t index = upd_rx_buf.cmd_at_write_index->size;
 
-    // receive byte into current command
-    uint8_t c = SPDR;
-    upd_rx_buf.cmd_at_write_index->data[
-        upd_rx_buf.cmd_at_write_index->size++
-    ] = c;
+    // store data byte from MOSI into current command
+    upd_rx_buf.cmd_at_write_index->data[index] = SPDR;
+
+    // if current command is a key data request, load a key data byte to
+    // transmit on MISO.  otherwise, load a zero.
+    if ((index < sizeof(upd_tx_key_data)) &&
+        (upd_rx_buf.cmd_at_write_index->data[0] == 0x44))
+    {
+        SPDR = upd_tx_key_data[index];
+    }
+    else
+    {
+        SPDR = 0;
+    }
+
+    // advance data index in current command
+    upd_rx_buf.cmd_at_write_index->size = ++index;
 
     // handle command size overflow
-    if (upd_rx_buf.cmd_at_write_index->size ==
-        sizeof(upd_rx_buf.cmd_at_write_index->data))
+    if (index == sizeof(upd_rx_buf.cmd_at_write_index->data))
     {
         upd_rx_buf.cmd_at_write_index->size = 0;
     }
-
-LED_PORT &= ~_BV(LED_RED); // XXX timing marker for logic analyzer
 }
 
 /*************************************************************************
@@ -671,7 +696,7 @@ void cmd_do_process_upd_command()
 {
     upd_command_t updcmd;
 
-    // Bail out if size of bytes from UART exceeds uPD16432B command max size
+    // Bail out if size of bytes from UART exceeds uPD16432B command max size.
     // -1 because first byte in cmd_buf is CMD_PROCESS_UPD_COMMAND not SPI data
     if ((cmd_buf_index - 1) > sizeof(updcmd.data))
     {
