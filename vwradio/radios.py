@@ -4,8 +4,8 @@ class OperationModes(Enum):
     UNKNOWN = 0
     SAFE_ENTRY = 10
     SAFE_LOCKED = 11
-    RADIO_PLAYING = 20
-    RADIO_SCANNING = 21
+    TUNER_PLAYING = 20
+    TUNER_SCANNING = 21
     CD_PLAYING = 30
     CD_CUEING = 31
     CD_NO_DISC = 32
@@ -33,7 +33,7 @@ class DisplayModes(Enum):
     ADJUSTING_TREBLE = 24
     ADJUSTING_MID = 25
 
-class RadioBands(Enum):
+class TunerBands(Enum):
     UNKNOWN = 0
     FM1 = 1
     FM2 = 2
@@ -50,9 +50,9 @@ class Radio(object):
         self.sound_fade = 0 # rear -9, center 0, front +9
         self.sound_bass = 0 # -9 to 9
         self.sound_treble = 0 # -9 to 9
-        self.radio_band = RadioBands.UNKNOWN
-        self.radio_freq = 0 # 883=88.3 MHz, 5400=540.0 KHz
-        self.radio_preset = 0 # 0=none, am/fm1/fm2 preset 1-6
+        self.tuner_band = TunerBands.UNKNOWN
+        self.tuner_freq = 0 # 883=88.3 MHz, 5400=540.0 KHz
+        self.tuner_preset = 0 # 0=none, am/fm1/fm2 preset 1-6
         self.cd_disc = 0 # 0=none, disc 1-6
         self.cd_track = 0 # 0=none, track 1-99
         self.cd_cue_pos = 0 # 0 or other integer as seen on lcd
@@ -118,24 +118,24 @@ class Radio(object):
         if freq[0] == ' ': # " 881"
             freq = '0' + freq[1:]
         if str.isdigit(freq):
-            self.radio_freq = int(freq)
+            self.tuner_freq = int(freq)
 
         if text[0:4] == 'SCAN':
-            self.operation_mode = OperationModes.RADIO_SCANNING
-            self.radio_preset = 0
-            if self.radio_band not in (RadioBands.FM1, RadioBands.FM2):
-                self.radio_band = RadioBands.FM1
+            self.operation_mode = OperationModes.TUNER_SCANNING
+            self.tuner_preset = 0
+            if self.tuner_band not in (TunerBands.FM1, TunerBands.FM2):
+                self.tuner_band = TunerBands.FM1
         elif text[0:3] in ('FM1', 'FM2'):
-            self.operation_mode = OperationModes.RADIO_PLAYING
+            self.operation_mode = OperationModes.TUNER_PLAYING
             if text[2] == '1':
-                self.radio_band = RadioBands.FM1
+                self.tuner_band = TunerBands.FM1
             elif text[2] == '2': # "2"
-                self.radio_band = RadioBands.FM2
+                self.tuner_band = TunerBands.FM2
 
             if str.isdigit(text[3]):
-                self.radio_preset = int(text[3])
+                self.tuner_preset = int(text[3])
             else: # " " no preset
-                self.radio_preset = 0
+                self.tuner_preset = 0
         else:
             self._process_unknown(text)
 
@@ -146,19 +146,19 @@ class Radio(object):
         if freq[0] == ' ': # " 540"
             freq = '0' + freq[1:]
         if str.isdigit(freq):
-            self.radio_freq = int(freq) * 10
+            self.tuner_freq = int(freq) * 10
 
-        self.radio_band = RadioBands.AM
+        self.tuner_band = TunerBands.AM
 
         if text[0:4] == 'SCAN':
-            self.operation_mode = OperationModes.RADIO_SCANNING
-            self.radio_preset = 0
+            self.operation_mode = OperationModes.TUNER_SCANNING
+            self.tuner_preset = 0
         else:
-            self.operation_mode = OperationModes.RADIO_PLAYING
+            self.operation_mode = OperationModes.TUNER_PLAYING
             if str.isdigit(text[3]):
-                self.radio_preset = int(text[3])
+                self.tuner_preset = int(text[3])
             else: # no preset
-                self.radio_preset = 0
+                self.tuner_preset = 0
 
     def _process_cd(self, text):
         self.display_mode = DisplayModes.SHOWING_OPERATION
