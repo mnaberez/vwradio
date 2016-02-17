@@ -2,9 +2,11 @@
 import time
 from serialtest import make_client
 from vwradio.faceplates import Premium4, Keys
+from vwradio.radios import Radio, OperationModes
 
-client = make_client()
-face = Premium4()
+client = make_client() # avr
+face = Premium4() # display ram and character info
+radio = Radio() # infers radio state from display
 
 def read_display():
     display_data_ram = client.dump_upd_state()['display_data_ram']
@@ -28,22 +30,39 @@ def hit_key(key, secs=0.25):
     time.sleep(secs)
 
 if __name__ == '__main__':
-    try:
-        while '1000' not in read_display():
-            print("Waiting for 1000 on display")
-            time.sleep(0.25)
-        # toggle in code 1611 (assumes current code is 1000)
-        hit_key(Keys.PRESET_2) # 0->1
-        hit_key(Keys.PRESET_2) # 1->2
-        hit_key(Keys.PRESET_2) # 2->3
-        hit_key(Keys.PRESET_2) # 3->4
-        hit_key(Keys.PRESET_2) # 4->5
-        hit_key(Keys.PRESET_2) # 5->6
-        hit_key(Keys.PRESET_3) # 0->1
-        hit_key(Keys.PRESET_4) # 0->1
-        hit_key(Keys.TUNE_UP, secs=3)
-        print(read_display())
-        hit_key(Keys.SCAN)
-        print(read_display())
-    except KeyboardInterrupt:
-        client.load_upd_tx_key_data([0,0,0,0])
+    code_to_enter = 1611
+    code_entry_keys = (Keys.PRESET_1, Keys.PRESET_2,
+                       Keys.PRESET_3, Keys.PRESET_4)
+    safe_modes = (OperationModes.SAFE_ENTRY,
+                  OperationModes.SAFE_LOCKED)
+
+    lcd_text = read_display()
+    radio.process(lcd_text)
+
+    while radio.operation_mode == OperationModes.UNKNOWN:
+        print("Unknown state: Waiting for radio to write to LCD")
+        lcd_text = read_display()
+        radio.process(lcd_text)
+        time.sleep(1)
+
+    while radio.operation_mode in safe_modes:
+        if radio.operation_mode == OperationModes.SAFE_LOCKED:
+            print("Safe mode locked: Waiting for code entry prompt")
+            lcd_text = read_display()
+            radio.process(lcd_text)
+            time.sleep(1)
+        else: # OperationModes.SAFE_ENTRY
+            print("Safe mode entry: Toggling in code %d" % code_to_enter)
+            for i in range(4):
+                while str(radio.safe_code)[i] != str(code_to_enter)[i]:
+                    hit_key(code_entry_keys[i])
+                    lcd_text = read_display()
+                    radio.process(lcd_text)
+                    print(lcd_text)
+            hit_key(Keys.TUNE_UP, secs=3)
+            lcd_text = read_display()
+            radio.process(lcd_text)
+            print(lcd_text)
+
+    print("Radio is unlocked")
+    hit_key(Keys.SCAN)
