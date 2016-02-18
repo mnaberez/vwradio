@@ -254,8 +254,10 @@ void spi_slave_init()
     DDRB &= ~_BV(PB4);
     // PB5 as input (AVR hardware SPI MOSI)
     DDRB &= ~_BV(PB5);
-    // PB6 as output (AVR hardware SPI MISO)
-    DDRB |= _BV(PB6);
+    // PB6 initially as input (AVR hardware SPI MISO)
+    // MISO and MOSI are wired together as a single line to the radio (DAT),
+    // so we don't set MISO as an output until we need to send data on it.
+    DDRB &= ~_BV(PB6);
 
     // SPI data output register (MISO) initially 0
     SPDR = 0;
@@ -283,6 +285,9 @@ ISR(PCINT1_vect)
 
         // SPI data output register (MISO) = 0 to set up for next transfer
         SPDR = 0;
+        // MISO might be configured as an output if we were just sending data,
+        // so set it back to an input until the next time we need to send data.
+        DDRB &= ~_BV(PB6);
 
         // copy the current spi command into the circular buffer
         // empty transfers and key data request commands are ignored
@@ -305,12 +310,14 @@ ISR(SPI_STC_vect)
     // store data byte from MOSI into current command
     upd_rx_buf.cmd_at_write_index->data[index] = SPDR;
 
-    // if current command is a key data request, load a key data byte to
-    // transmit on MISO.  otherwise, load a zero.
+    // if current command is a key data request, load the byte to send on MISO
     if ((index < sizeof(upd_tx_key_data)) &&
         (upd_rx_buf.cmd_at_write_index->data[0] == 0x44))
     {
+        // Load key data byte that will be sent on MISO
         SPDR = upd_tx_key_data[index];
+        // Set MISO as an output
+        DDRB |= _BV(PB6);
     }
     else
     {
