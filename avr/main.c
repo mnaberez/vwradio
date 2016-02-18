@@ -291,8 +291,8 @@ ISR(PCINT1_vect)
 
         // copy the current spi command into the circular buffer
         // empty transfers and key data request commands are ignored
-        if ((upd_rx_buf.cmd_at_write_index->size !=0 ) &&     // no bytes
-            (upd_rx_buf.cmd_at_write_index->data[0] != 0x44)) // key data cmd
+        if ((upd_rx_buf.cmd_at_write_index->size !=0) &&
+            ((upd_rx_buf.cmd_at_write_index->data[0] & 0x44) != 0x44))
         {
             upd_rx_buf.write_index++;
             upd_rx_buf.cmd_at_write_index =
@@ -304,7 +304,7 @@ ISR(PCINT1_vect)
 // SPI Serial Transfer Complete
 ISR(SPI_STC_vect)
 {
-    // index into current command data or key request data
+    // get index for current command data or key request data
     uint8_t index = upd_rx_buf.cmd_at_write_index->size;
 
     // store data byte from MOSI into current command
@@ -312,7 +312,7 @@ ISR(SPI_STC_vect)
 
     // if current command is a key data request, load the byte to send on MISO
     if ((index < sizeof(upd_tx_key_data)) &&
-        (upd_rx_buf.cmd_at_write_index->data[0] == 0x44))
+        ((upd_rx_buf.cmd_at_write_index->data[0] & 0x44) == 0x44))
     {
         // Load key data byte that will be sent on MISO
         SPDR = upd_tx_key_data[index];
