@@ -12,6 +12,7 @@ CMD_RESET_UPD = 0x04
 CMD_PROCESS_UPD_COMMAND = 0x05
 CMD_LOAD_UPD_TX_KEY_DATA = 0x06
 CMD_SET_RUN_MODE = 0x07
+CMD_PUSH_POWER_BUTTON = 0x08
 ACK = 0x06
 NAK = 0x15
 RUN_MODE_NORMAL = 0x00
@@ -64,6 +65,9 @@ class Client(object):
     def load_upd_tx_key_data(self, key_bytes):
         data = bytearray([CMD_LOAD_UPD_TX_KEY_DATA]) + bytearray(key_bytes)
         self.command(data)
+
+    def push_power_button(self):
+        self.command([CMD_PUSH_POWER_BUTTON])
 
     # Low level
 
@@ -212,6 +216,13 @@ class AvrTests(unittest.TestCase):
                 rx_bytes = self.client.command(
                     data=[CMD_SET_LED, led, state], ignore_nak=True)
                 self.assertEqual(rx_bytes, bytearray([ACK]))
+
+    # Push power button command
+
+    def test_push_power_button_retuns_nak_for_bad_args_length(self):
+        rx_bytes = self.client.command(
+            data=[CMD_PUSH_POWER_BUTTON, 1], ignore_nak=True)
+        self.assertEqual(rx_bytes, bytearray([NAK]))
 
     # Reset UPD command
 

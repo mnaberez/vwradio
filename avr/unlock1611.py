@@ -17,6 +17,10 @@ def read_display():
         lcd_text += char
     return lcd_text
 
+def push_power_button():
+    print("Pushing power button")
+    client.push_power_button()
+
 def hit_key(key, secs=0.25):
     key_name = face.get_key_name(key)
     print('Hitting key %s' % key_name)
@@ -38,12 +42,16 @@ if __name__ == '__main__':
 
     lcd_text = read_display()
     radio.process(lcd_text)
-
+    secs_in_unknown_state = 0
     while radio.operation_mode == OperationModes.UNKNOWN:
         print("Unknown state: Waiting for radio to write to LCD")
         lcd_text = read_display()
         radio.process(lcd_text)
         time.sleep(1)
+        secs_in_unknown_state += 1
+        if secs_in_unknown_state >= 5:
+            push_power_button()
+            secs_in_unknown_state = 0
 
     while radio.operation_mode in safe_modes:
         if radio.operation_mode == OperationModes.SAFE_LOCKED:

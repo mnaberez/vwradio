@@ -1,10 +1,12 @@
-/* Pin  3: PB2 STB from radio in
- * Pin  4: PB3 /SS out (software generated, connect to PB4)
+/* Pin  1: PB0 POW out (drive low to push POWER button, else high-z)
+ * Pin  2: PB1 (not connected for now)
+ * Pin  3: PB2 STB in from radio
+ * Pin  4: PB3 /SS out (software generated from STB, connect to PB4)
  * Pin  5: PB4 /SS in (connect to PB3)
- * Pin  6: PB5 MOSI (to radio's DAT)
- * Pin  7: PB6 MISO (not connected for now)
- * pin  8: PB7 SCK (to radio's CLK)
- * Pin 11: GND
+ * Pin  6: PB5 MOSI in (to radio's DAT)
+ * Pin  7: PB6 MISO out (connect to PB5 through 10K resistor)
+ * pin  8: PB7 SCK in from radio
+ * Pin 11: GND (connect to radio's GND)
  * Pin 14: PD0/RXD (to PC's serial TXD)
  * Pin 15: PD1/TXD (to PC's serial RXD)
  * Pin 19: PD5: Green LED
@@ -236,7 +238,10 @@ void spi_slave_init()
     {
         upd_tx_key_data[i] = 0;
     }
-
+    // PB0 as input (POWER button output to radio)
+    // Drive PB0 low to push POWER button, otherwise set as high impedance
+    DDRB &= ~_BV(PB0);
+    PORTB &= ~_BV(PB0);
     // PB2 as input (STB from radio)
     DDRB &= ~_BV(PB2);
     // PB3 as output (/SS output we'll make in software from STB)
@@ -332,6 +337,19 @@ ISR(SPI_STC_vect)
     {
         upd_rx_buf.cmd_at_write_index->size = 0;
     }
+}
+
+// Push the radio's POWER button momentarily.
+// This should turn the radio either on or off.
+void radio_push_power_button()
+{
+    // configure POW line as output, drive it low
+    DDRB |= _BV(PB0);
+    PORTB &= ~_BV(PB0);
+    // wait for radio to see POWER button
+    _delay_ms(100);
+    // return POW line to high-z input
+    DDRB &= ~_BV(PB0);
 }
 
 /*************************************************************************
@@ -562,6 +580,7 @@ uint8_t cmd_expected_length;
 #define CMD_PROCESS_UPD_COMMAND 0x05
 #define CMD_LOAD_UPD_TX_KEY_DATA 0x06
 #define CMD_SET_RUN_MODE 0x07
+#define CMD_PUSH_POWER_BUTTON 0x08
 #define CMD_ARG_GREEN_LED 0x00
 #define CMD_ARG_RED_LED 0x01
 #define CMD_ARG_RUN_MODE_NORMAL 0x00
@@ -809,7 +828,7 @@ void cmd_do_set_led()
 }
 
 /* Command: Set Run Mode
- * Argumnts: <mode>
+ * Arguments: <mode>
  * Returns: <ack|nak>
  *
  * Sets the current running mode (one of the RUN_MODE_* constants).  In
@@ -843,6 +862,24 @@ void cmd_do_set_run_mode()
     cmd_reply_ack();
 }
 
+/* Command: Push Radio Power Button
+ * Arguments: <mode>
+ * Returns: <ack|nak>
+ *
+ * Push the radio's power button momentarily.  This should either turn
+ * the radio on or off.
+ */
+void cmd_do_push_power_button()
+{
+    if (cmd_buf_index != 1)
+    {
+        cmd_reply_nak();
+        return;
+    }
+
+    radio_push_power_button();
+    cmd_reply_ack();
+}
 
 /* Dispatch a command.  A complete command packet has been received.  The
  * command buffer has one more bytes.  The first byte is the command byte.
@@ -872,6 +909,9 @@ void cmd_dispatch()
             break;
         case CMD_SET_RUN_MODE:
             cmd_do_set_run_mode();
+            break;
+        case CMD_PUSH_POWER_BUTTON:
+            cmd_do_push_power_button();
             break;
         default:
             cmd_reply_nak();
