@@ -13,6 +13,8 @@ CMD_UPD_RESET = 0x11
 CMD_UPD_PROCESS_COMMAND = 0x12
 CMD_RADIO_LOAD_KEY_DATA = 0x20
 CMD_RADIO_PUSH_POWER_BUTTON = 0x21
+CMD_FACEPLATE_SEND_UPD_COMMAND = 0x30
+CMD_FACEPLATE_CLEAR_DISPLAY = 0x31
 ACK = 0x06
 NAK = 0x15
 RUN_MODE_NORMAL = 0x00
@@ -68,6 +70,13 @@ class Client(object):
 
     def push_power_button(self):
         self.command([CMD_RADIO_PUSH_POWER_BUTTON])
+
+    def faceplate_send_upd_command(self, spi_bytes):
+        data = bytearray([CMD_FACEPLATE_SEND_UPD_COMMAND]) + bytearray(spi_bytes)
+        self.command(data)
+
+    def faceplate_clear_display(self):
+        self.command([CMD_FACEPLATE_CLEAR_DISPLAY])
 
     # Low level
 
@@ -260,10 +269,12 @@ class AvrTests(unittest.TestCase):
         self.assertEqual(rx_bytes[0], ACK)
         self.assertEqual(len(rx_bytes), 1)
 
-    def test_process_upd_cmd_returns_nak_spi_data_size_exceeds_32(self):
+    def test_process_upd_cmd_returns_nak_if_spi_data_size_exceeds_32(self):
         self.client.reset_upd()
         rx_bytes = self.client.command(
-            data=[CMD_UPD_PROCESS_COMMAND] + ([0] * 33), ignore_nak=True)
+            data=[CMD_UPD_PROCESS_COMMAND] + ([0] * 33),
+            ignore_nak=True
+            )
         self.assertEqual(rx_bytes[0], NAK)
         self.assertEqual(len(rx_bytes), 1)
 
@@ -454,6 +465,39 @@ class AvrTests(unittest.TestCase):
         self.assertEqual(state['address'], 5)
         self.assertEqual(state['display_data_ram'][5], 7)
 
+    # Faceplate
+
+    def test_faceplate_clear_display_returns_nak_for_bad_args_length(self):
+        rx_bytes = self.client.command(
+            data=[CMD_FACEPLATE_CLEAR_DISPLAY, 1], ignore_nak=True)
+        self.assertEqual(rx_bytes, bytearray([NAK]))
+
+    def test_faceplate_clear_display(self):
+        self.client.faceplate_clear_display() # shouldn't raise
+
+    def test_faceplate_send_upd_command_allows_max_spi_data_size_of_32(self):
+        rx_bytes = self.client.command(
+            data=[CMD_FACEPLATE_SEND_UPD_COMMAND] + [0x80] + ([0] * 31),
+            ignore_nak=True
+            )
+        self.assertEqual(rx_bytes[0], ACK)
+        self.assertEqual(len(rx_bytes), 1)
+
+    def test_faceplate_send_upd_command_nak_if_spi_data_size_exceeds_32(self):
+        rx_bytes = self.client.command(
+            data=[CMD_FACEPLATE_SEND_UPD_COMMAND] + ([0] * 33),
+            ignore_nak=True
+            )
+        self.assertEqual(rx_bytes[0], NAK)
+        self.assertEqual(len(rx_bytes), 1)
+
+    def test_faceplate_send_upd_command(self):
+        # Data Setting command: write to display data ram
+        data = [0x40]
+        self.client.faceplate_send_upd_command(data) # shouldn't raise
+        # Address Setting command + display data
+        data = [0x80, 0, 0, 0x6f, 0x6c, 0x6c, 0x65, 0x48]
+        self.client.faceplate_send_upd_command(data) # shouldn't raise
 
 def make_serial():
     from serial.tools.list_ports import comports
