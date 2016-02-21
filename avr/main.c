@@ -230,7 +230,7 @@ volatile upd_rx_buf_t upd_rx_buf;
 // a read key data command
 volatile uint8_t upd_tx_key_data[4];
 
-void spi_slave_init()
+void radio_spi_init()
 {
     // initialize buffer to receive commands
     upd_rx_buf.read_index = 0;
@@ -362,7 +362,7 @@ void radio_push_power_button()
  * SPI Master Interface to Faceplate
  *************************************************************************/
 
-void spi_master_init()
+void faceplate_spi_init()
 {
     // PA0: RST out to faceplate
     DDRA |= _BV(PA0);
@@ -395,7 +395,7 @@ void spi_master_init()
     UBRR1 = 9;
 }
 
-uint8_t spi_master_xfer_byte(uint8_t c)
+uint8_t faceplate_spi_xfer_byte(uint8_t c)
 {
     // wait for transmitter ready
     while ((UCSR1A & _BV(UDRE1)) == 0);
@@ -410,7 +410,7 @@ uint8_t spi_master_xfer_byte(uint8_t c)
     return UDR1;
 }
 
-void spi_master_send_command(uint8_t size, uint8_t *data)
+void faceplate_spi_send_cmd(uint8_t size, uint8_t *data)
 {
     // STB=high (start of transfer)
     PORTD |= _BV(PD7);
@@ -419,36 +419,36 @@ void spi_master_send_command(uint8_t size, uint8_t *data)
     uint8_t i;
     for (i=0; i<size; i++)
     {
-        spi_master_xfer_byte(data[i]);
+        faceplate_spi_xfer_byte(data[i]);
     }
 
     // STB=low (end of transfer)
     PORTD &= ~_BV(PD7);
 }
 
-void spi_master_clear()
+void faceplate_spi_clear()
 {
     // Display Setting command
     uint8_t data1[] = {0x04};
-    spi_master_send_command(1, data1);
+    faceplate_spi_send_cmd(1, data1);
     // Status command
     uint8_t data2[] = {0xcf};
-    spi_master_send_command(1, data2);
+    faceplate_spi_send_cmd(1, data2);
 
     // Data Setting command: write to pictograph ram
     uint8_t data3[] = {0x41};
-    spi_master_send_command(1, data3);
+    faceplate_spi_send_cmd(1, data3);
     // Address Setting command, pictograph data
     uint8_t data4[] = {0x80, 0, 0, 0, 0, 0, 0, 0, 0,};
-    spi_master_send_command(9, data4);
+    faceplate_spi_send_cmd(9, data4);
 
     // Data Setting command: write to display data ram
     uint8_t data5[] = {0x40};
-    spi_master_send_command(1, data5);
+    faceplate_spi_send_cmd(1, data5);
     // Address Setting command, display data
     uint8_t data6[] = {0x80, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20,
                              0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20,};
-    spi_master_send_command(17, data6);
+    faceplate_spi_send_cmd(17, data6);
 }
 
 /*************************************************************************
@@ -674,12 +674,12 @@ uint8_t cmd_expected_length;
 
 #define CMD_SET_LED 0x01
 #define CMD_ECHO 0x02
-#define CMD_DUMP_UPD_STATE 0x03
-#define CMD_RESET_UPD 0x04
-#define CMD_PROCESS_UPD_COMMAND 0x05
-#define CMD_LOAD_UPD_TX_KEY_DATA 0x06
-#define CMD_SET_RUN_MODE 0x07
-#define CMD_PUSH_POWER_BUTTON 0x08
+#define CMD_SET_RUN_MODE 0x03
+#define CMD_UPD_DUMP_STATE 0x10
+#define CMD_UPD_RESET 0x11
+#define CMD_UPD_PROCESS_COMMAND 0x12
+#define CMD_RADIO_LOAD_KEY_DATA 0x20
+#define CMD_RADIO_PUSH_POWER_BUTTON 0x21
 #define CMD_ARG_GREEN_LED 0x00
 #define CMD_ARG_RED_LED 0x01
 #define CMD_ARG_RUN_MODE_NORMAL 0x00
@@ -751,7 +751,7 @@ void cmd_reply_nak()
  * Reset the uPD16432B Emulator to its default state.  This does not
  * affect the UPD key data output bytes (upd_tx_key_data).
  */
-void cmd_do_reset_upd()
+void cmd_do_upd_reset()
 {
     if (cmd_buf_index != 1)
     {
@@ -769,7 +769,7 @@ void cmd_do_reset_upd()
  *
  * Dumps the current state of the uPD16432B Emulator.
  */
-void cmd_do_dump_upd_state()
+void cmd_do_upd_dump_state()
 {
     if (cmd_buf_index != 1)
     {
@@ -819,12 +819,12 @@ void cmd_do_dump_upd_state()
  * arguments are the SPI bytes that would be received by the uPD16432B
  * while it is selected with STB high.
  */
-void cmd_do_process_upd_command()
+void cmd_do_upd_process_command()
 {
     upd_command_t updcmd;
 
     // Bail out if size of bytes from UART exceeds uPD16432B command max size.
-    // -1 because first byte in cmd_buf is CMD_PROCESS_UPD_COMMAND not SPI data
+    // -1 because first byte in cmd_buf is CMD_UPD_PROCESS_COMMAND not SPI data
     if ((cmd_buf_index - 1) > sizeof(updcmd.data))
     {
         return cmd_reply_nak();
@@ -852,7 +852,7 @@ void cmd_do_process_upd_command()
  * The same bytes will be sent for every key data request until the bytes
  * are changed.  Set {0, 0, 0, 0} to indicate no keys pressed.
  */
-void cmd_do_load_upd_tx_key_data()
+void cmd_do_radio_load_key_data()
 {
     if (cmd_buf_index != 5)
     {
@@ -994,24 +994,27 @@ void cmd_dispatch()
         case CMD_ECHO:
             cmd_do_echo();
             break;
-        case CMD_DUMP_UPD_STATE:
-            cmd_do_dump_upd_state();
-            break;
-        case CMD_RESET_UPD:
-            cmd_do_reset_upd();
-            break;
-        case CMD_PROCESS_UPD_COMMAND:
-            cmd_do_process_upd_command();
-            break;
-        case CMD_LOAD_UPD_TX_KEY_DATA:
-            cmd_do_load_upd_tx_key_data();
-            break;
         case CMD_SET_RUN_MODE:
             cmd_do_set_run_mode();
             break;
-        case CMD_PUSH_POWER_BUTTON:
+
+        case CMD_UPD_DUMP_STATE:
+            cmd_do_upd_dump_state();
+            break;
+        case CMD_UPD_RESET:
+            cmd_do_upd_reset();
+            break;
+        case CMD_UPD_PROCESS_COMMAND:
+            cmd_do_upd_process_command();
+            break;
+
+        case CMD_RADIO_LOAD_KEY_DATA:
+            cmd_do_radio_load_key_data();
+            break;
+        case CMD_RADIO_PUSH_POWER_BUTTON:
             cmd_do_push_power_button();
             break;
+
         default:
             cmd_reply_nak();
     }
@@ -1077,7 +1080,7 @@ void copy_emulated_upd_to_faceplate()
 
     // send data setting command: write to display data ram
     data[0] = 0x40;
-    spi_master_send_command(1, data);
+    faceplate_spi_send_cmd(1, data);
 
     // send address setting command + display data
     data[0] = 0x80;
@@ -1085,11 +1088,11 @@ void copy_emulated_upd_to_faceplate()
     {
         data[i+1] = upd_state.display_data_ram[i];
     }
-    spi_master_send_command(1+16, data);
+    faceplate_spi_send_cmd(1+16, data);
 
     // send data setting command: write to pictograph ram
     data[0] = 0x41;
-    spi_master_send_command(1, data);
+    faceplate_spi_send_cmd(1, data);
 
     // send address setting command + pictograph data
     data[0] = 0x80;
@@ -1097,7 +1100,7 @@ void copy_emulated_upd_to_faceplate()
     {
         data[i+1] = upd_state.pictograph_ram[i];
     }
-    spi_master_send_command(1+8, data);
+    faceplate_spi_send_cmd(1+8, data);
 }
 
 int main()
@@ -1107,13 +1110,13 @@ int main()
     led_init();
     uart_init();
     cmd_init();
-    spi_slave_init();  // for radio
-    spi_master_init(); // for faceplate
+    radio_spi_init();
+    faceplate_spi_init();
     upd_init();
     sei();
 
     // clear faceplate
-    spi_master_clear();
+    faceplate_spi_clear();
 
     while (1)
     {

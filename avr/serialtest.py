@@ -7,12 +7,12 @@ import serial # pyserial
 
 CMD_SET_LED = 0x01
 CMD_ECHO = 0x02
-CMD_DUMP_UPD_STATE = 0x03
-CMD_RESET_UPD = 0x04
-CMD_PROCESS_UPD_COMMAND = 0x05
-CMD_LOAD_UPD_TX_KEY_DATA = 0x06
-CMD_SET_RUN_MODE = 0x07
-CMD_PUSH_POWER_BUTTON = 0x08
+CMD_SET_RUN_MODE = 0x03
+CMD_UPD_DUMP_STATE = 0x10
+CMD_UPD_RESET = 0x11
+CMD_UPD_PROCESS_COMMAND = 0x12
+CMD_RADIO_LOAD_KEY_DATA = 0x20
+CMD_RADIO_PUSH_POWER_BUTTON = 0x21
 ACK = 0x06
 NAK = 0x15
 RUN_MODE_NORMAL = 0x00
@@ -41,10 +41,10 @@ class Client(object):
         self.command([CMD_SET_LED, led_num, int(led_state)])
 
     def reset_upd(self):
-        self.command([CMD_RESET_UPD])
+        self.command([CMD_UPD_RESET])
 
     def dump_upd_state(self):
-        raw = self.command([CMD_DUMP_UPD_STATE])
+        raw = self.command([CMD_UPD_DUMP_STATE])
         dump = {'ram_area': raw[1],
                 'ram_size': raw[2],
                 'address': raw[3],
@@ -59,15 +59,15 @@ class Client(object):
         return dump
 
     def process_upd_command(self, spi_bytes):
-        data = bytearray([CMD_PROCESS_UPD_COMMAND]) + bytearray(spi_bytes)
+        data = bytearray([CMD_UPD_PROCESS_COMMAND]) + bytearray(spi_bytes)
         self.command(data)
 
     def load_upd_tx_key_data(self, key_bytes):
-        data = bytearray([CMD_LOAD_UPD_TX_KEY_DATA]) + bytearray(key_bytes)
+        data = bytearray([CMD_RADIO_LOAD_KEY_DATA]) + bytearray(key_bytes)
         self.command(data)
 
     def push_power_button(self):
-        self.command([CMD_PUSH_POWER_BUTTON])
+        self.command([CMD_RADIO_PUSH_POWER_BUTTON])
 
     # Low level
 
@@ -221,26 +221,26 @@ class AvrTests(unittest.TestCase):
 
     def test_push_power_button_retuns_nak_for_bad_args_length(self):
         rx_bytes = self.client.command(
-            data=[CMD_PUSH_POWER_BUTTON, 1], ignore_nak=True)
+            data=[CMD_RADIO_PUSH_POWER_BUTTON, 1], ignore_nak=True)
         self.assertEqual(rx_bytes, bytearray([NAK]))
 
     # Reset UPD command
 
     def test_reset_upd_accepts_no_args(self):
         rx_bytes = self.client.command(
-            data=[CMD_RESET_UPD, 1], ignore_nak=True)
+            data=[CMD_UPD_RESET, 1], ignore_nak=True)
         self.assertEqual(rx_bytes, bytearray([NAK]))
 
     # Dump UPD State command
 
     def test_dump_upd_state_accepts_no_args(self):
         rx_bytes = self.client.command(
-            data=[CMD_DUMP_UPD_STATE, 1], ignore_nak=True)
+            data=[CMD_UPD_DUMP_STATE, 1], ignore_nak=True)
         self.assertEqual(rx_bytes, bytearray([NAK]))
 
     def test_dump_upd_state_dumps_serialized_state(self):
         rx_bytes = self.client.command(
-            data=[CMD_DUMP_UPD_STATE], ignore_nak=True)
+            data=[CMD_UPD_DUMP_STATE], ignore_nak=True)
         self.assertEqual(rx_bytes[0], ACK)
         self.assertEqual(len(rx_bytes), 150)
 
@@ -249,21 +249,21 @@ class AvrTests(unittest.TestCase):
     def test_process_upd_cmd_allows_empty_spi_data(self):
         self.client.reset_upd()
         rx_bytes = self.client.command(
-            data=[CMD_PROCESS_UPD_COMMAND] + [], ignore_nak=True)
+            data=[CMD_UPD_PROCESS_COMMAND] + [], ignore_nak=True)
         self.assertEqual(rx_bytes[0], ACK)
         self.assertEqual(len(rx_bytes), 1)
 
     def test_process_upd_cmd_allows_max_spi_data_size_of_32(self):
         self.client.reset_upd()
         rx_bytes = self.client.command(
-            data=[CMD_PROCESS_UPD_COMMAND] + ([0] * 32), ignore_nak=True)
+            data=[CMD_UPD_PROCESS_COMMAND] + ([0] * 32), ignore_nak=True)
         self.assertEqual(rx_bytes[0], ACK)
         self.assertEqual(len(rx_bytes), 1)
 
     def test_process_upd_cmd_returns_nak_spi_data_size_exceeds_32(self):
         self.client.reset_upd()
         rx_bytes = self.client.command(
-            data=[CMD_PROCESS_UPD_COMMAND] + ([0] * 33), ignore_nak=True)
+            data=[CMD_UPD_PROCESS_COMMAND] + ([0] * 33), ignore_nak=True)
         self.assertEqual(rx_bytes[0], NAK)
         self.assertEqual(len(rx_bytes), 1)
 
