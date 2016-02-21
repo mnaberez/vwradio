@@ -9,8 +9,14 @@
  * Pin 11: GND (connect to radio's GND)
  * Pin 14: PD0/RXD (to PC's serial TXD)
  * Pin 15: PD1/TXD (to PC's serial RXD)
+ * Pin 16: PD2/RXD1 MISO in (from faceplate's DAT)
+ * Pin 17: PD3/TXD1 MOSI out (to faceplate's DAT through 10K resistor)
+ * Pin 18: PD4/XCK1 SCK out (to faceplate's CLK)
  * Pin 19: PD5: Green LED
  * Pin 20: PD6: Red LED
+ * Pin 21: PD7: STB out to faceplate
+ * Pin 39: PA1: LOF out to faceplate
+ * Pin 40: PA0: RST out to faceplate
  */
 
 #ifndef F_CPU
@@ -350,6 +356,99 @@ void radio_push_power_button()
     _delay_ms(100);
     // return POW line to high-z input
     DDRB &= ~_BV(PB0);
+}
+
+/*************************************************************************
+ * SPI Master Interface to Faceplate
+ *************************************************************************/
+
+void spi_master_init()
+{
+    // PA0: RST out to faceplate
+    DDRA |= _BV(PA0);
+    PORTA |= _BV(PA0);
+    // PA1: LOF out to faceplate
+    DDRA |= _BV(PA1);
+    PORTA |= _BV(PA1);
+
+    // PD2/RXD1 MISO as input (from faceplate's DAT)
+    DDRD &= ~_BV(PD2);
+    // PD3/TXD1 MOSI as output (to faceplate's DAT through 10K resistor?)
+    DDRD |= _BV(PD3);
+    // PD4/XCK1 SCK as output (to faceplate's CLK)
+    DDRD |= _BV(PD4);
+    // PD7 as output (to faceplate's STB)
+    DDRD |= _BV(PD7);
+    // PD7 initially low (faceplate STB = not selected)
+    PORTD &= ~_BV(PD7);
+
+    // must be done first
+    UBRR1 = 0;
+    // preset transmit complete flag
+    UCSR1A = _BV(TXC1);
+    // Master SPI mode, CPOL=1 (bit 1), CPHA=1 (bit 0)
+    UCSR1C = _BV(UMSEL10) | _BV(UMSEL11) | 2 | 1;
+    // transmit enable and receive enable
+    UCSR1B = _BV(TXEN1) | _BV(RXEN1);
+    // must be done last
+    // spi clock (9 = 1mhz for 20mhz clock)
+    UBRR1 = 9;
+}
+
+uint8_t spi_master_xfer_byte(uint8_t c)
+{
+    // wait for transmitter ready
+    while ((UCSR1A & _BV(UDRE1)) == 0);
+
+    // send byte
+    UDR1 = c;
+
+    // wait for receiver ready
+    while ((UCSR1A & _BV (RXC1)) == 0);
+
+    // receive byte, return it
+    return UDR1;
+}
+
+void spi_master_send_command(uint8_t size, uint8_t *data)
+{
+    // STB=high (start of transfer)
+    PORTD |= _BV(PD7);
+
+    // Send each byte
+    uint8_t i;
+    for (i=0; i<size; i++)
+    {
+        spi_master_xfer_byte(data[i]);
+    }
+
+    // STB=low (end of transfer)
+    PORTD &= ~_BV(PD7);
+}
+
+void spi_master_clear()
+{
+    // Display Setting command
+    uint8_t data1[] = {0x04};
+    spi_master_send_command(1, data1);
+    // Status command
+    uint8_t data2[] = {0xcf};
+    spi_master_send_command(1, data2);
+
+    // Data Setting command: write to pictograph ram
+    uint8_t data3[] = {0x41};
+    spi_master_send_command(1, data3);
+    // Address Setting command, pictograph data
+    uint8_t data4[] = {0x80, 0, 0, 0, 0, 0, 0, 0, 0,};
+    spi_master_send_command(9, data4);
+
+    // Data Setting command: write to display data ram
+    uint8_t data5[] = {0x40};
+    spi_master_send_command(1, data5);
+    // Address Setting command, display data
+    uint8_t data6[] = {0x80, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20,
+                             0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20,};
+    spi_master_send_command(17, data6);
 }
 
 /*************************************************************************
@@ -970,6 +1069,37 @@ void cmd_receive_byte(uint8_t c)
  * Main
  *************************************************************************/
 
+// copy emulated upd display to real faceplate
+void copy_emulated_upd_to_faceplate()
+{
+    uint8_t data[17];
+    uint8_t i;
+
+    // send data setting command: write to display data ram
+    data[0] = 0x40;
+    spi_master_send_command(1, data);
+
+    // send address setting command + display data
+    data[0] = 0x80;
+    for (i=0; i<16; i++)
+    {
+        data[i+1] = upd_state.display_data_ram[i];
+    }
+    spi_master_send_command(1+16, data);
+
+    // send data setting command: write to pictograph ram
+    data[0] = 0x41;
+    spi_master_send_command(1, data);
+
+    // send address setting command + pictograph data
+    data[0] = 0x80;
+    for (i=0; i<8; i++)
+    {
+        data[i+1] = upd_state.pictograph_ram[i];
+    }
+    spi_master_send_command(1+8, data);
+}
+
 int main()
 {
     run_mode = RUN_MODE_NORMAL;
@@ -977,9 +1107,13 @@ int main()
     led_init();
     uart_init();
     cmd_init();
-    spi_slave_init();
+    spi_slave_init();  // for radio
+    spi_master_init(); // for faceplate
     upd_init();
     sei();
+
+    // clear faceplate
+    spi_master_clear();
 
     while (1)
     {
@@ -997,11 +1131,13 @@ int main()
             upd_command_t updcmd;
             updcmd = upd_rx_buf.cmds[upd_rx_buf.read_index];
             upd_rx_buf.read_index++;
-            // in test mode, commands from radio are received but ignored
+
             if (run_mode != RUN_MODE_TEST)
             {
                 upd_process_command(&updcmd);
+                copy_emulated_upd_to_faceplate();
             }
         }
+
     }
 }
