@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include "cmd.h"
+#include "leds.h"
 #include "main.h"
 #include "uart.h"
 #include "updemu.h"

@@ -24,52 +24,11 @@
 #include <stdint.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
-#include <util/delay.h>
 
 #include "uart.h"
 #include "updemu.h"
 #include "cmd.h"
-
-#define LED_PORT PORTD
-#define LED_DDR DDRD
-
-
-
-
-
-/*************************************************************************
- * LED
- *************************************************************************/
-
-void led_init()
-{
-    LED_DDR = _BV(LED_GREEN) | _BV(LED_RED);
-    LED_PORT = 0;
-}
-
-void led_set(uint8_t lednum, uint8_t state)
-{
-    if (state)
-    {
-        LED_PORT |= _BV(lednum);
-    }
-    else
-    {
-        LED_PORT &= ~_BV(lednum);
-    }
-}
-
-void led_blink(uint8_t lednum, uint16_t times)
-{
-    while (times > 0)
-    {
-        led_set(lednum, 1);
-        _delay_ms(250);
-        led_set(lednum, 0);
-        _delay_ms(250);
-        times -= 1;
-    }
-}
+#include "leds.h"
 
 /*************************************************************************
  * SPI Slave interface to Radio

@@ -1,3 +1,6 @@
+#ifndef CMD_H
+#define CMD_H
+
 #include "updemu.h"
 
 #define ACK 0x06
@@ -24,3 +27,5 @@ uint8_t cmd_expected_length;
 
 void cmd_init();
 void cmd_receive_byte(uint8_t c);
+
+#endif
