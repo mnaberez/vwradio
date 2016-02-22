@@ -23,7 +23,7 @@ clean:
 	rm -f *.o
 
 test:
-	python serialtest.py
+	python scripts/serialtest.py
 
 _sleep:
 	sleep 0.5
