@@ -47,13 +47,17 @@ class Client(object):
 
     def dump_upd_state(self):
         raw = self.command([CMD_UPD_DUMP_STATE])
+        assert len(raw) == 153
         dump = {'ram_area': raw[1],
                 'ram_size': raw[2],
                 'address': raw[3],
                 'increment': bool(raw[4]),
                 'display_data_ram': raw[5:30],
-                'pictograph_ram': raw[30:38],
-                'chargen_ram': raw[38:150]
+                'display_data_ram_dirty': bool(raw[30]),
+                'pictograph_ram': raw[31:39],
+                'pictograph_ram_dirty': bool(raw[39]),
+                'chargen_ram': raw[40:152],
+                'chargen_ram_dirty': bool(raw[152]),
                }
         assert len(dump['display_data_ram']) == 25
         assert len(dump['pictograph_ram']) == 8
@@ -251,7 +255,7 @@ class AvrTests(unittest.TestCase):
         rx_bytes = self.client.command(
             data=[CMD_UPD_DUMP_STATE], ignore_nak=True)
         self.assertEqual(rx_bytes[0], ACK)
-        self.assertEqual(len(rx_bytes), 150)
+        self.assertEqual(len(rx_bytes), 153)
 
     # Process UPD Command command
 
@@ -464,6 +468,119 @@ class AvrTests(unittest.TestCase):
         self.assertEqual(state['increment'], False)
         self.assertEqual(state['address'], 5)
         self.assertEqual(state['display_data_ram'][5], 7)
+
+    # uPD16432B Emulator: Dirty RAM Tracking
+
+    def test_upd_writing_display_data_ram_same_value_doesnt_set_dirty(self):
+        self.client.reset_upd()
+        state = self.client.dump_upd_state()
+        self.assertFalse(state['display_data_ram_dirty'])
+        self.assertEqual(state['display_data_ram'][0], 0)
+        # send data setting command
+        cmd  = 0b01000000 # data setting command
+        cmd |= 0b00000000 # display data ram
+        cmd |= 0b00001000 # increment off
+        self.client.process_upd_command([cmd])
+        # send address setting command followed by same value
+        cmd = 0b10000000
+        cmd |= 0 # address 0
+        self.client.process_upd_command([cmd, 0])
+        # dirty flag should still be false
+        state = self.client.dump_upd_state()
+        self.assertFalse(state['display_data_ram_dirty'])
+
+    def test_upd_writing_display_data_ram_new_value_sets_dirty(self):
+        self.client.reset_upd()
+        state = self.client.dump_upd_state()
+        self.assertFalse(state['display_data_ram_dirty'])
+        self.assertEqual(state['display_data_ram'][0], 0)
+        # send data setting command
+        cmd  = 0b01000000 # data setting command
+        cmd |= 0b00000000 # display data ram
+        cmd |= 0b00001000 # increment off
+        self.client.process_upd_command([cmd])
+        # send address setting command followed by same value
+        cmd = 0b10000000
+        cmd |= 0 # address 0
+        self.client.process_upd_command([cmd, 1])
+        # dirty flag should be true
+        state = self.client.dump_upd_state()
+        self.assertEqual(state['display_data_ram'][0], 1)
+        self.assertTrue(state['display_data_ram_dirty'])
+
+    def test_upd_writing_pictograph_ram_same_value_doesnt_set_dirty(self):
+        self.client.reset_upd()
+        state = self.client.dump_upd_state()
+        self.assertFalse(state['pictograph_ram_dirty'])
+        self.assertEqual(state['pictograph_ram'][0], 0)
+        # send data setting command
+        cmd  = 0b01000000 # data setting command
+        cmd |= 0b00000001 # pictograph ram
+        cmd |= 0b00001000 # increment off
+        self.client.process_upd_command([cmd])
+        # send address setting command followed by same value
+        cmd = 0b10000000
+        cmd |= 0 # address 0
+        self.client.process_upd_command([cmd, 0])
+        # dirty flag should still be false
+        state = self.client.dump_upd_state()
+        self.assertFalse(state['pictograph_ram_dirty'])
+
+    def test_upd_writing_pictograph_ram_new_value_sets_dirty(self):
+        self.client.reset_upd()
+        state = self.client.dump_upd_state()
+        self.assertFalse(state['pictograph_ram_dirty'])
+        self.assertEqual(state['pictograph_ram'][0], 0)
+        # send data setting command
+        cmd  = 0b01000000 # data setting command
+        cmd |= 0b00000001 # pictograph ram
+        cmd |= 0b00001000 # increment off
+        self.client.process_upd_command([cmd])
+        # send address setting command followed by same value
+        cmd = 0b10000000
+        cmd |= 0 # address 0
+        self.client.process_upd_command([cmd, 1])
+        # dirty flag should be true
+        state = self.client.dump_upd_state()
+        self.assertEqual(state['pictograph_ram'][0], 1)
+        self.assertTrue(state['pictograph_ram_dirty'])
+
+    def test_upd_writing_chargen_ram_same_value_doesnt_set_dirty(self):
+        self.client.reset_upd()
+        state = self.client.dump_upd_state()
+        self.assertFalse(state['chargen_ram_dirty'])
+        self.assertEqual(state['chargen_ram'][0], 0)
+        # send data setting command
+        cmd  = 0b01000000 # data setting command
+        cmd |= 0b00000010 # chargen ram
+        cmd |= 0b00001000 # increment off
+        self.client.process_upd_command([cmd])
+        # send address setting command followed by same value
+        cmd = 0b10000000
+        cmd |= 0 # address 0
+        self.client.process_upd_command([cmd, 0])
+        # dirty flag should still be false
+        state = self.client.dump_upd_state()
+        self.assertFalse(state['chargen_ram_dirty'])
+
+    def test_upd_writing_chargen_ram_new_value_sets_dirty(self):
+        self.client.reset_upd()
+        state = self.client.dump_upd_state()
+        self.assertFalse(state['chargen_ram_dirty'])
+        self.assertEqual(state['chargen_ram'][0], 0)
+        # send data setting command
+        cmd  = 0b01000000 # data setting command
+        cmd |= 0b00000010 # chargen ram
+        cmd |= 0b00001000 # increment off
+        self.client.process_upd_command([cmd])
+        # send address setting command followed by same value
+        cmd = 0b10000000
+        cmd |= 0 # address 0
+        self.client.process_upd_command([cmd, 1])
+        # dirty flag should be true
+        state = self.client.dump_upd_state()
+        self.assertEqual(state['chargen_ram'][0], 1)
+        self.assertTrue(state['chargen_ram_dirty'])
 
     # Faceplate
 

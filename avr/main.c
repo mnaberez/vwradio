@@ -476,6 +476,27 @@ void faceplate_clear_display()
     faceplate_send_upd_command(&updcmd);
 }
 
+void faceplate_write_upd_ram(uint8_t data_setting_cmd,
+    uint8_t data_size, uint8_t *data)
+{
+    upd_command_t updcmd;
+    uint8_t i;
+
+    // send data setting command: write to display data ram
+    updcmd.data[0] = data_setting_cmd;
+    updcmd.size = 1;
+    faceplate_send_upd_command(&updcmd);
+
+    // send address setting command + 16 bytes display data
+    updcmd.data[0] = 0x80;
+    for (i=0; i<data_size; i++)
+    {
+        updcmd.data[i+1] = data[i];
+    }
+    updcmd.size = 1 + data_size;
+    faceplate_send_upd_command(&updcmd);
+}
+
 /*************************************************************************
  * NEC uPD16432B LCD Controller Emulator
  *************************************************************************/
@@ -501,8 +522,13 @@ typedef struct
     uint8_t increment; // Address increment mode on/off
 
     uint8_t display_data_ram[UPD_DISPLAY_DATA_RAM_SIZE];
+    uint8_t display_data_ram_dirty; // 0=no changes, 1=changed
+
     uint8_t pictograph_ram[UPD_PICTOGRAPH_RAM_SIZE];
+    uint8_t pictograph_ram_dirty; // 0=no changes, 1=changed
+
     uint8_t chargen_ram[UPD_CHARGEN_RAM_SIZE];
+    uint8_t chargen_ram_dirty; // 0=no changes, 1=changed
 } upd_state_t;
 
 upd_state_t upd_state;
@@ -510,18 +536,25 @@ upd_state_t upd_state;
 void upd_init()
 {
     uint8_t i;
+
     for (i=0; i<UPD_DISPLAY_DATA_RAM_SIZE; i++)
     {
         upd_state.display_data_ram[i] = 0;
     }
+    upd_state.display_data_ram_dirty = 0;
+
     for (i=0; i<UPD_PICTOGRAPH_RAM_SIZE; i++)
     {
         upd_state.pictograph_ram[i] = 0;
     }
+    upd_state.pictograph_ram_dirty = 0;
+
     for (i=0; i<UPD_CHARGEN_RAM_SIZE; i++)
     {
         upd_state.chargen_ram[i] = 0;
     }
+    upd_state.chargen_ram_dirty = 0;
+
     upd_state.ram_area = UPD_RAM_NONE;
     upd_state.ram_size = 0;
     upd_state.address = 0;
@@ -541,15 +574,27 @@ void _upd_write_data_byte(uint8_t b)
     switch (upd_state.ram_area)
     {
         case UPD_RAM_DISPLAY_DATA:
-            upd_state.display_data_ram[upd_state.address] = b;
+            if (upd_state.display_data_ram[upd_state.address] != b)
+            {
+                upd_state.display_data_ram[upd_state.address] = b;
+                upd_state.display_data_ram_dirty = 1;
+            }
             break;
 
         case UPD_RAM_PICTOGRAPH:
-            upd_state.pictograph_ram[upd_state.address] = b;
+            if (upd_state.pictograph_ram[upd_state.address] != b)
+            {
+                upd_state.pictograph_ram[upd_state.address] = b;
+                upd_state.pictograph_ram_dirty = 1;
+            }
             break;
 
         case UPD_RAM_CHARGEN:
-            upd_state.chargen_ram[upd_state.address] = b;
+            if (upd_state.chargen_ram[upd_state.address] != b)
+            {
+                upd_state.chargen_ram[upd_state.address] = b;
+                upd_state.chargen_ram_dirty = 1;
+            }
             break;
 
         case UPD_RAM_NONE:
@@ -804,14 +849,18 @@ void cmd_do_upd_dump_state()
         return;
     }
 
-    uint8_t size = 1 + // ACK byte
-                   1 + // Selected RAM area
-                   1 + // Size of selected RAM area
-                   1 + // Current address in that area
-                   1 + // Address increment mode on/off
-                   UPD_DISPLAY_DATA_RAM_SIZE +
-                   UPD_PICTOGRAPH_RAM_SIZE +
-                   UPD_CHARGEN_RAM_SIZE;
+    uint8_t size;
+    size = 1 + // ACK byte
+           1 + // Selected RAM area
+           1 + // Size of selected RAM area
+           1 + // Current address in that area
+           1 + // Address increment mode on/off
+           UPD_DISPLAY_DATA_RAM_SIZE +
+           1 + // dirty byte for display data ram
+           UPD_PICTOGRAPH_RAM_SIZE +
+           1 + // dirty byte for pictograph ram
+           UPD_CHARGEN_RAM_SIZE +
+           1; // dirty byte for chargen ram
 
     uart_putc(size); // number of bytes to follow
     uart_putc(ACK); // ACK byte
@@ -820,21 +869,30 @@ void cmd_do_upd_dump_state()
     uart_putc(upd_state.address);
     uart_putc(upd_state.increment);
     uart_flush_tx();
+
+    // dump display data ram & dirty byte
     uint8_t i;
     for (i=0; i<UPD_DISPLAY_DATA_RAM_SIZE; i++)
     {
         uart_putc(upd_state.display_data_ram[i]);
     }
+    uart_putc(upd_state.display_data_ram_dirty);
     uart_flush_tx();
+
+    // dump pictograph ram & dirty byte
     for (i=0; i<UPD_PICTOGRAPH_RAM_SIZE; i++)
     {
         uart_putc(upd_state.pictograph_ram[i]);
     }
+    uart_putc(upd_state.pictograph_ram_dirty);
     uart_flush_tx();
+
+    // dump chargen ram & dirty byte
     for (i=0; i<UPD_CHARGEN_RAM_SIZE; i++)
     {
         uart_putc(upd_state.chargen_ram[i]);
     }
+    uart_putc(upd_state.chargen_ram_dirty);
     uart_flush_tx();
 }
 
@@ -1160,36 +1218,35 @@ void cmd_receive_byte(uint8_t c)
 // copy emulated upd display to real faceplate
 void copy_emulated_upd_to_faceplate()
 {
-    upd_command_t updcmd;
-    uint8_t i;
-
-    // send data setting command: write to display data ram
-    updcmd.data[0] = 0x40;
-    updcmd.size = 1;
-    faceplate_send_upd_command(&updcmd);
-
-    // send address setting command + 16 bytes display data
-    updcmd.data[0] = 0x80;
-    for (i=0; i<16; i++)
+    if (upd_state.display_data_ram_dirty == 1)
     {
-        updcmd.data[i+1] = upd_state.display_data_ram[i];
+        faceplate_write_upd_ram(
+            0x40, // data setting command: display data ram
+            sizeof(upd_state.display_data_ram),
+            upd_state.display_data_ram
+        );
+        upd_state.display_data_ram_dirty = 0;
     }
-    updcmd.size = 1 + 16;
-    faceplate_send_upd_command(&updcmd);
 
-    // send data setting command: write to pictograph ram
-    updcmd.data[0] = 0x41;
-    updcmd.size = 1;
-    faceplate_send_upd_command(&updcmd);
-
-    // send address setting command + 8 bytes pictograph data
-    updcmd.data[0] = 0x80;
-    for (i=0; i<8; i++)
+    if (upd_state.pictograph_ram_dirty == 1)
     {
-        updcmd.data[i+1] = upd_state.pictograph_ram[i];
+        faceplate_write_upd_ram(
+            0x41, // data setting command: pictograph ram
+            sizeof(upd_state.pictograph_ram),
+            upd_state.pictograph_ram
+            );
+        upd_state.pictograph_ram_dirty = 0;
     }
-    updcmd.size = 1 + 8;
-    faceplate_send_upd_command(&updcmd);
+
+    if (upd_state.chargen_ram_dirty == 1)
+    {
+        faceplate_write_upd_ram(
+            0x4a, // data setting command: chargen ram
+            sizeof(upd_state.chargen_ram),
+            upd_state.chargen_ram
+            );
+        upd_state.chargen_ram_dirty = 0;
+    }
 }
 
 int main()
