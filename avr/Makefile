@@ -1,5 +1,5 @@
 PROJECT=main
-SOURCES=updemu.c uart.c $(PROJECT).c
+SOURCES=cmd.c updemu.c uart.c $(PROJECT).c
 MMCU=atmega1284p
 ISP=avrisp2
 

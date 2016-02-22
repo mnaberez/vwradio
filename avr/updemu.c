@@ -33,7 +33,7 @@ void upd_init(upd_state_t *state)
     state->increment = UPD_INCREMENT_OFF;
 }
 
-void _upd_wrap_address(upd_state_t *state)
+static void _upd_wrap_address(upd_state_t *state)
 {
     if (state->address >= state->ram_size)
     {
@@ -41,7 +41,7 @@ void _upd_wrap_address(upd_state_t *state)
     }
 }
 
-void _upd_write_data_byte(upd_state_t *state, uint8_t b)
+static void _upd_write_data_byte(upd_state_t *state, uint8_t b)
 {
     switch (state->ram_area)
     {
@@ -81,7 +81,7 @@ void _upd_write_data_byte(upd_state_t *state, uint8_t b)
     }
 }
 
-void _upd_process_address_setting_cmd(upd_state_t *state, upd_command_t *cmd)
+static void _upd_process_address_setting_cmd(upd_state_t *state, upd_command_t *cmd)
 {
     uint8_t address;
     address = cmd->data[0] & 0b00011111;
@@ -113,7 +113,7 @@ void _upd_process_address_setting_cmd(upd_state_t *state, upd_command_t *cmd)
     }
 }
 
-void _upd_process_data_setting_cmd(upd_state_t *state, upd_command_t *cmd)
+static void _upd_process_data_setting_cmd(upd_state_t *state, upd_command_t *cmd)
 {
     uint8_t mode;
     mode = cmd->data[0] & 0b00000111;
