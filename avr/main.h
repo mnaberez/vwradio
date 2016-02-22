@@ -22,9 +22,5 @@ volatile uint8_t run_mode;
 // a read key data command
 volatile uint8_t upd_tx_key_data[4];
 
-
-void faceplate_clear_display(); // XXX remove me
-void faceplate_send_upd_command(); // XXX remove me
-
 #endif
 

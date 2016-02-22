@@ -1,5 +1,5 @@
 PROJECT=vwradio
-SOURCES=cmd.c leds.c main.c radio.c uart.c updemu.c
+SOURCES=cmd.c faceplate.c leds.c main.c radio.c uart.c updemu.c
 MMCU=atmega1284p
 ISP=avrisp2
 

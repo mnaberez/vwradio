@@ -2,6 +2,7 @@
 #include "cmd.h"
 #include "leds.h"
 #include "main.h"
+#include "faceplate.h"
 #include "radio.h"
 #include "uart.h"
 #include "updemu.h"
