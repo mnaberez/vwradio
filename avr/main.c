@@ -410,10 +410,10 @@ uint8_t faceplate_spi_xfer_byte(uint8_t c)
     return UDR1;
 }
 
-void faceplate_send_upd_command(upd_command_t *updcmd)
+void faceplate_send_upd_command(upd_command_t *cmd)
 {
     // Bail out if command is empty so we don't assert STB with no bytes
-    if (updcmd->size == 0)
+    if (cmd->size == 0)
     {
         return;
     }
@@ -423,9 +423,9 @@ void faceplate_send_upd_command(upd_command_t *updcmd)
 
     // Send each byte
     uint8_t i;
-    for (i=0; i<updcmd->size; i++)
+    for (i=0; i<cmd->size; i++)
     {
-        faceplate_spi_xfer_byte(updcmd->data[i]);
+        faceplate_spi_xfer_byte(cmd->data[i]);
     }
 
     // STB=low (end of transfer)
@@ -434,67 +434,67 @@ void faceplate_send_upd_command(upd_command_t *updcmd)
 
 void faceplate_clear_display()
 {
-    upd_command_t updcmd;
+    upd_command_t cmd;
     uint8_t i;
 
     // Display Setting command
-    updcmd.data[0] = 0x04;
-    updcmd.size = 1;
-    faceplate_send_upd_command(&updcmd);
+    cmd.data[0] = 0x04;
+    cmd.size = 1;
+    faceplate_send_upd_command(&cmd);
 
     // Status command
-    updcmd.data[0] = 0xcf;
-    updcmd.size = 1;
-    faceplate_send_upd_command(&updcmd);
+    cmd.data[0] = 0xcf;
+    cmd.size = 1;
+    faceplate_send_upd_command(&cmd);
 
     // Data Setting command: write to pictograph ram
-    updcmd.data[0] = 0x41;
-    updcmd.size = 1;
-    faceplate_send_upd_command(&updcmd);
+    cmd.data[0] = 0x41;
+    cmd.size = 1;
+    faceplate_send_upd_command(&cmd);
 
     // Address Setting command + pictograph data
-    updcmd.data[0] = 0x80;
+    cmd.data[0] = 0x80;
     for (i=1; i<9; i++)
     {
-        updcmd.data[i] = 0;
+        cmd.data[i] = 0;
     }
-    updcmd.size = 9;
-    faceplate_send_upd_command(&updcmd);
+    cmd.size = 9;
+    faceplate_send_upd_command(&cmd);
 
     // Data Setting command: write to display data ram
-    updcmd.data[0] = 0x40;
-    updcmd.size = 1;
-    faceplate_send_upd_command(&updcmd);
+    cmd.data[0] = 0x40;
+    cmd.size = 1;
+    faceplate_send_upd_command(&cmd);
 
     // Address Setting command + display data
-    updcmd.data[0] = 0x80;
+    cmd.data[0] = 0x80;
     for (i=1; i<17; i++)
     {
-        updcmd.data[i] = 0x20;
+        cmd.data[i] = 0x20;
     }
-    updcmd.size = 17;
-    faceplate_send_upd_command(&updcmd);
+    cmd.size = 17;
+    faceplate_send_upd_command(&cmd);
 }
 
 void faceplate_write_upd_ram(uint8_t data_setting_cmd,
     uint8_t data_size, uint8_t *data)
 {
-    upd_command_t updcmd;
+    upd_command_t cmd;
     uint8_t i;
 
     // send data setting command: write to display data ram
-    updcmd.data[0] = data_setting_cmd;
-    updcmd.size = 1;
-    faceplate_send_upd_command(&updcmd);
+    cmd.data[0] = data_setting_cmd;
+    cmd.size = 1;
+    faceplate_send_upd_command(&cmd);
 
     // send address setting command + 16 bytes display data
-    updcmd.data[0] = 0x80;
+    cmd.data[0] = 0x80;
     for (i=0; i<data_size; i++)
     {
-        updcmd.data[i+1] = data[i];
+        cmd.data[i+1] = data[i];
     }
-    updcmd.size = 1 + data_size;
-    faceplate_send_upd_command(&updcmd);
+    cmd.size = 1 + data_size;
+    faceplate_send_upd_command(&cmd);
 }
 
 /*************************************************************************
@@ -531,69 +531,69 @@ typedef struct
     uint8_t chargen_ram_dirty; // 0=no changes, 1=changed
 } upd_state_t;
 
-upd_state_t upd_state;
+upd_state_t emulated_upd_state;
 
-void upd_init()
+void upd_init(upd_state_t *state)
 {
     uint8_t i;
 
     for (i=0; i<UPD_DISPLAY_DATA_RAM_SIZE; i++)
     {
-        upd_state.display_data_ram[i] = 0;
+        state->display_data_ram[i] = 0;
     }
-    upd_state.display_data_ram_dirty = 0;
+    state->display_data_ram_dirty = 0;
 
     for (i=0; i<UPD_PICTOGRAPH_RAM_SIZE; i++)
     {
-        upd_state.pictograph_ram[i] = 0;
+        state->pictograph_ram[i] = 0;
     }
-    upd_state.pictograph_ram_dirty = 0;
+    state->pictograph_ram_dirty = 0;
 
     for (i=0; i<UPD_CHARGEN_RAM_SIZE; i++)
     {
-        upd_state.chargen_ram[i] = 0;
+        state->chargen_ram[i] = 0;
     }
-    upd_state.chargen_ram_dirty = 0;
+    state->chargen_ram_dirty = 0;
 
-    upd_state.ram_area = UPD_RAM_NONE;
-    upd_state.ram_size = 0;
-    upd_state.address = 0;
-    upd_state.increment = UPD_INCREMENT_OFF;
+    state->ram_area = UPD_RAM_NONE;
+    state->ram_size = 0;
+    state->address = 0;
+    state->increment = UPD_INCREMENT_OFF;
 }
 
-void _upd_wrap_address()
+void _upd_wrap_address(upd_state_t *state)
 {
-    if (upd_state.address >= upd_state.ram_size)
+    if (state->address >= state->ram_size)
     {
-        upd_state.address = 0;
+        state->address = 0;
     }
 }
 
-void _upd_write_data_byte(uint8_t b)
+void _upd_write_data_byte(upd_state_t *state, uint8_t b)
 {
-    switch (upd_state.ram_area)
+    switch (state->ram_area)
     {
         case UPD_RAM_DISPLAY_DATA:
-            if (upd_state.display_data_ram[upd_state.address] != b)
+            if (state->display_data_ram[state->address] != b)
             {
-                upd_state.display_data_ram[upd_state.address] = b;
-                upd_state.display_data_ram_dirty = 1;
+                state->display_data_ram[state->address] = b;
+                state->display_data_ram_dirty = 1;
             }
             break;
 
         case UPD_RAM_PICTOGRAPH:
-            if (upd_state.pictograph_ram[upd_state.address] != b)
+            if (state->pictograph_ram[state->address] != b)
             {
-                upd_state.pictograph_ram[upd_state.address] = b;
-                upd_state.pictograph_ram_dirty = 1;
+                state->pictograph_ram[state->address] = b;
+                state->pictograph_ram_dirty = 1;
             }
             break;
 
         case UPD_RAM_CHARGEN:
-            if (upd_state.chargen_ram[upd_state.address] != b)
+            if (state->chargen_ram[state->address] != b)
             {
-                upd_state.chargen_ram[upd_state.address] = b;
-                upd_state.chargen_ram_dirty = 1;
+                state->chargen_ram[state->address] = b;
+                state->chargen_ram_dirty = 1;
             }
             break;
 
@@ -602,35 +602,35 @@ void _upd_write_data_byte(uint8_t b)
             return;
     }
 
-    if (upd_state.increment == UPD_INCREMENT_ON)
+    if (state->increment == UPD_INCREMENT_ON)
     {
-        upd_state.address++;
-        _upd_wrap_address();
+        state->address++;
+        _upd_wrap_address(state);
     }
 }
 
-void _upd_process_address_setting_cmd(uint8_t cmd)
+void _upd_process_address_setting_cmd(upd_state_t *state, upd_command_t *cmd)
 {
     uint8_t address;
-    address = cmd & 0b00011111;
+    address = cmd->data[0] & 0b00011111;
 
-    switch (upd_state.ram_area)
+    switch (state->ram_area)
     {
         case UPD_RAM_DISPLAY_DATA:
         case UPD_RAM_PICTOGRAPH:
-            upd_state.address = address;
-            _upd_wrap_address();
+            state->address = address;
+            _upd_wrap_address(state);
             break;
 
         case UPD_RAM_CHARGEN:
             // for chargen, address is character number (valid from 0 to 0x0F)
             if (address < 0x10)
             {
-                upd_state.address = address * 7; // 7 bytes per character
+                state->address = address * 7; // 7 bytes per character
             }
             else
             {
-                upd_state.address = 0;
+                state->address = 0;
             }
             break;
 
@@ -641,37 +641,37 @@ void _upd_process_address_setting_cmd(uint8_t cmd)
     }
 }
 
-void _upd_process_data_setting_cmd(uint8_t cmd)
+void _upd_process_data_setting_cmd(upd_state_t *state, upd_command_t *cmd)
 {
     uint8_t mode;
-    mode = cmd & 0b00000111;
+    mode = cmd->data[0] & 0b00000111;
 
     // set ram target area
     switch (mode)
     {
         case UPD_RAM_DISPLAY_DATA:
-            upd_state.ram_area = UPD_RAM_DISPLAY_DATA;
-            upd_state.ram_size = UPD_DISPLAY_DATA_RAM_SIZE;
+            state->ram_area = UPD_RAM_DISPLAY_DATA;
+            state->ram_size = UPD_DISPLAY_DATA_RAM_SIZE;
             // TODO does the real uPD16432B reset the address?
             break;
 
         case UPD_RAM_PICTOGRAPH:
-            upd_state.ram_area = UPD_RAM_PICTOGRAPH;
-            upd_state.ram_size = UPD_PICTOGRAPH_RAM_SIZE;
+            state->ram_area = UPD_RAM_PICTOGRAPH;
+            state->ram_size = UPD_PICTOGRAPH_RAM_SIZE;
             // TODO does the real uPD16432B reset the address?
             break;
 
         case UPD_RAM_CHARGEN:
-            upd_state.ram_area = UPD_RAM_CHARGEN;
-            upd_state.ram_size = UPD_CHARGEN_RAM_SIZE;
+            state->ram_area = UPD_RAM_CHARGEN;
+            state->ram_size = UPD_CHARGEN_RAM_SIZE;
             // TODO does the real uPD16432B reset the address?
             break;
 
         case UPD_RAM_NONE:
         default:
-            upd_state.ram_area = UPD_RAM_NONE;
-            upd_state.ram_size = 0;
-            upd_state.address = 0;
+            state->ram_area = UPD_RAM_NONE;
+            state->ram_size = 0;
+            state->address = 0;
     }
 
     // set increment mode
@@ -680,40 +680,40 @@ void _upd_process_data_setting_cmd(uint8_t cmd)
         // only these modes support setting increment on/off
         case UPD_RAM_DISPLAY_DATA:
         case UPD_RAM_PICTOGRAPH:
-            upd_state.increment = ((cmd & 0b00001000) == 0);
+            state->increment = ((cmd->data[0] & 0b00001000) == 0);
             break;
 
         // other modes always increment and also reset address
         default:
-            upd_state.increment = 1;
-            upd_state.address = 0;
+            state->increment = 1;
+            state->address = 0;
             break;
     }
 
     // TODO changing data mode may make current address out of bounds
     // what does the real uPD16432B do when data setting is changed?
-    _upd_wrap_address();
+    _upd_wrap_address(state);
 }
 
-void upd_process_command(upd_command_t *updcmd)
+void upd_process_command(upd_state_t *state, upd_command_t *cmd)
 {
     // No SPI bytes were received while STB was asserted
-    if (updcmd->size == 0)
+    if (cmd->size == 0)
     {
         return;
     }
 
     // Process command byte
-    uint8_t cmd;
-    cmd = updcmd->data[0];
-    switch (cmd & 0b11000000)
+    uint8_t cmd_type;
+    cmd_type = cmd->data[0] & 0b11000000;
+    switch (cmd_type)
     {
         case 0b01000000:
-            _upd_process_data_setting_cmd(cmd);
+            _upd_process_data_setting_cmd(state, cmd);
             break;
 
         case 0b10000000:
-            _upd_process_address_setting_cmd(cmd);
+            _upd_process_address_setting_cmd(state, cmd);
             break;
 
         default:
@@ -721,12 +721,12 @@ void upd_process_command(upd_command_t *updcmd)
     }
 
     // Process data bytes
-    if ((upd_state.ram_area != UPD_RAM_NONE) && (updcmd->size > 1))
+    if ((state->ram_area != UPD_RAM_NONE) && (cmd->size > 1))
     {
         uint8_t i;
-        for (i=1; i<updcmd->size; i++)
+        for (i=1; i<cmd->size; i++)
         {
-            _upd_write_data_byte(updcmd->data[i]);
+            _upd_write_data_byte(state, cmd->data[i]);
         }
     }
 }
@@ -831,13 +831,13 @@ void cmd_do_upd_reset()
         return;
     }
 
-    upd_init();
+    upd_init(&emulated_upd_state);
     cmd_reply_ack();
 }
 
 /* Command: Dump uPD16432B Emulator State
  * Arguments: none
- * Returns: <ack> <all bytes in upd_state>
+ * Returns: <ack> <all bytes in emulated_upd_state>
  *
  * Dumps the current state of the uPD16432B Emulator.
  */
@@ -864,46 +864,46 @@ void cmd_do_upd_dump_state()
 
     uart_putc(size); // number of bytes to follow
     uart_putc(ACK); // ACK byte
-    uart_putc(upd_state.ram_area);
-    uart_putc(upd_state.ram_size);
-    uart_putc(upd_state.address);
-    uart_putc(upd_state.increment);
+    uart_putc(emulated_upd_state.ram_area);
+    uart_putc(emulated_upd_state.ram_size);
+    uart_putc(emulated_upd_state.address);
+    uart_putc(emulated_upd_state.increment);
     uart_flush_tx();
 
     // dump display data ram & dirty byte
     uint8_t i;
     for (i=0; i<UPD_DISPLAY_DATA_RAM_SIZE; i++)
     {
-        uart_putc(upd_state.display_data_ram[i]);
+        uart_putc(emulated_upd_state.display_data_ram[i]);
     }
-    uart_putc(upd_state.display_data_ram_dirty);
+    uart_putc(emulated_upd_state.display_data_ram_dirty);
     uart_flush_tx();
 
     // dump pictograph ram & dirty byte
     for (i=0; i<UPD_PICTOGRAPH_RAM_SIZE; i++)
     {
-        uart_putc(upd_state.pictograph_ram[i]);
+        uart_putc(emulated_upd_state.pictograph_ram[i]);
     }
-    uart_putc(upd_state.pictograph_ram_dirty);
+    uart_putc(emulated_upd_state.pictograph_ram_dirty);
     uart_flush_tx();
 
     // dump chargen ram & dirty byte
     for (i=0; i<UPD_CHARGEN_RAM_SIZE; i++)
     {
-        uart_putc(upd_state.chargen_ram[i]);
+        uart_putc(emulated_upd_state.chargen_ram[i]);
     }
-    uart_putc(upd_state.chargen_ram_dirty);
+    uart_putc(emulated_upd_state.chargen_ram_dirty);
     uart_flush_tx();
 }
 
 /* Populate a upd_command_t from the UART command buffer
  * Returns 1 on success, 0 on failure.
  */
-uint8_t _populate_upd_cmd_from_uart_cmd_buf(upd_command_t *updcmd)
+uint8_t _populate_cmd_from_uart_cmd_buf(upd_command_t *cmd)
 {
     // Bail out if size of bytes from UART exceeds uPD16432B command max size.
     // -1 is because first byte in cmd_buf is the uart command byte
-    if ((cmd_buf_index - 1) > sizeof(updcmd->data))
+    if ((cmd_buf_index - 1) > sizeof(cmd->data))
     {
         return 0;
     }
@@ -912,9 +912,9 @@ uint8_t _populate_upd_cmd_from_uart_cmd_buf(upd_command_t *updcmd)
     uint8_t i;
     for (i=1; i<cmd_buf_index; i++)
     {
-        updcmd->data[i-1] = cmd_buf[i];
+        cmd->data[i-1] = cmd_buf[i];
     }
-    updcmd->size = i-1;
+    cmd->size = i-1;
     return 1;
 }
 
@@ -928,16 +928,16 @@ uint8_t _populate_upd_cmd_from_uart_cmd_buf(upd_command_t *updcmd)
  */
 void cmd_do_upd_process_command()
 {
-    upd_command_t updcmd;
+    upd_command_t cmd;
 
-    uint8_t success = _populate_upd_cmd_from_uart_cmd_buf(&updcmd);
+    uint8_t success = _populate_cmd_from_uart_cmd_buf(&cmd);
     if (success == 0)
     {
         return cmd_reply_nak();
     }
 
     // Process uPD16432B command request as if we received it over SPI
-    upd_process_command(&updcmd);
+    upd_process_command(&emulated_upd_state, &cmd);
     return cmd_reply_ack();
 }
 
@@ -1086,15 +1086,16 @@ void cmd_do_push_power_button()
  */
 void cmd_do_faceplate_send_upd_command()
 {
-    upd_command_t updcmd;
+    upd_command_t cmd;
 
-    uint8_t success = _populate_upd_cmd_from_uart_cmd_buf(&updcmd);
+    uint8_t success;
+    success = _populate_cmd_from_uart_cmd_buf(&cmd);
     if (success == 0)
     {
         return cmd_reply_nak();
     }
 
-    faceplate_send_upd_command(&updcmd);
+    faceplate_send_upd_command(&cmd);
     return cmd_reply_ack();
 }
 
@@ -1141,7 +1142,7 @@ void cmd_dispatch()
             cmd_do_upd_reset();
             break;
         case CMD_UPD_PROCESS_COMMAND:
-            cmd_do_upd_process_command();
+            cmd_do_upd_process_command(&emulated_upd_state);
             break;
 
         case CMD_RADIO_LOAD_KEY_DATA:
@@ -1218,34 +1219,34 @@ void cmd_receive_byte(uint8_t c)
 // copy emulated upd display to real faceplate
 void copy_emulated_upd_to_faceplate()
 {
-    if (upd_state.display_data_ram_dirty == 1)
+    if (emulated_upd_state.display_data_ram_dirty == 1)
     {
         faceplate_write_upd_ram(
             0x40, // data setting command: display data ram
-            sizeof(upd_state.display_data_ram),
-            upd_state.display_data_ram
+            sizeof(emulated_upd_state.display_data_ram),
+            emulated_upd_state.display_data_ram
         );
-        upd_state.display_data_ram_dirty = 0;
+        emulated_upd_state.display_data_ram_dirty = 0;
     }
 
-    if (upd_state.pictograph_ram_dirty == 1)
+    if (emulated_upd_state.pictograph_ram_dirty == 1)
     {
         faceplate_write_upd_ram(
             0x41, // data setting command: pictograph ram
-            sizeof(upd_state.pictograph_ram),
-            upd_state.pictograph_ram
+            sizeof(emulated_upd_state.pictograph_ram),
+            emulated_upd_state.pictograph_ram
             );
-        upd_state.pictograph_ram_dirty = 0;
+        emulated_upd_state.pictograph_ram_dirty = 0;
     }
 
-    if (upd_state.chargen_ram_dirty == 1)
+    if (emulated_upd_state.chargen_ram_dirty == 1)
     {
         faceplate_write_upd_ram(
             0x4a, // data setting command: chargen ram
-            sizeof(upd_state.chargen_ram),
-            upd_state.chargen_ram
+            sizeof(emulated_upd_state.chargen_ram),
+            emulated_upd_state.chargen_ram
             );
-        upd_state.chargen_ram_dirty = 0;
+        emulated_upd_state.chargen_ram_dirty = 0;
     }
 }
 
@@ -1258,7 +1259,7 @@ int main()
     cmd_init();
     radio_spi_init();
     faceplate_spi_init();
-    upd_init();
+    upd_init(&emulated_upd_state);
     sei();
 
     // clear faceplate
@@ -1277,13 +1278,13 @@ int main()
         // service commands from radio
         if (upd_rx_buf.read_index != upd_rx_buf.write_index)
         {
-            upd_command_t updcmd;
-            updcmd = upd_rx_buf.cmds[upd_rx_buf.read_index];
+            upd_command_t cmd;
+            cmd = upd_rx_buf.cmds[upd_rx_buf.read_index];
             upd_rx_buf.read_index++;
 
             if (run_mode != RUN_MODE_TEST)
             {
-                upd_process_command(&updcmd);
+                upd_process_command(&emulated_upd_state, &cmd);
                 copy_emulated_upd_to_faceplate();
             }
         }
