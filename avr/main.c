@@ -23,6 +23,7 @@
 #define F_CPU 20000000UL
 #endif
 
+#include <stdint.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <util/atomic.h>
@@ -30,10 +31,16 @@
 #define BAUD 115200
 #include <util/setbaud.h>
 
+#include "updemu.h"
+
 #define LED_PORT PORTD
 #define LED_DDR DDRD
 #define LED_RED PD6
 #define LED_GREEN PD5
+
+
+upd_state_t emulated_upd_state;
+
 
 /*************************************************************************
  * Run Mode
@@ -208,13 +215,6 @@ ISR(USART0_UDRE_vect)
 /*************************************************************************
  * SPI Slave interface to Radio
  *************************************************************************/
-
-// upd16432b command request
-typedef struct
-{
-    uint8_t data[32];
-    uint8_t size;
-} upd_command_t;
 
 // ring buffer for receiving upd16432b commands from radio
 typedef struct
@@ -495,240 +495,6 @@ void faceplate_write_upd_ram(uint8_t data_setting_cmd,
     }
     cmd.size = 1 + data_size;
     faceplate_send_upd_command(&cmd);
-}
-
-/*************************************************************************
- * NEC uPD16432B LCD Controller Emulator
- *************************************************************************/
-
-// Selected RAM area
-#define UPD_RAM_DISPLAY_DATA 0
-#define UPD_RAM_PICTOGRAPH 1
-#define UPD_RAM_CHARGEN 2
-#define UPD_RAM_NONE 0xFF
-// Address increment mode
-#define UPD_INCREMENT_OFF 0
-#define UPD_INCREMENT_ON 1
-// RAM sizes
-#define UPD_DISPLAY_DATA_RAM_SIZE 0x19
-#define UPD_PICTOGRAPH_RAM_SIZE 0x08
-#define UPD_CHARGEN_RAM_SIZE 0x70
-
-typedef struct
-{
-    uint8_t ram_area;  // Selected RAM area
-    uint8_t ram_size;  // Size of selected RAM area
-    uint8_t address;   // Current address in that area
-    uint8_t increment; // Address increment mode on/off
-
-    uint8_t display_data_ram[UPD_DISPLAY_DATA_RAM_SIZE];
-    uint8_t display_data_ram_dirty; // 0=no changes, 1=changed
-
-    uint8_t pictograph_ram[UPD_PICTOGRAPH_RAM_SIZE];
-    uint8_t pictograph_ram_dirty; // 0=no changes, 1=changed
-
-    uint8_t chargen_ram[UPD_CHARGEN_RAM_SIZE];
-    uint8_t chargen_ram_dirty; // 0=no changes, 1=changed
-} upd_state_t;
-
-upd_state_t emulated_upd_state;
-
-void upd_init(upd_state_t *state)
-{
-    uint8_t i;
-
-    for (i=0; i<UPD_DISPLAY_DATA_RAM_SIZE; i++)
-    {
-        state->display_data_ram[i] = 0;
-    }
-    state->display_data_ram_dirty = 0;
-
-    for (i=0; i<UPD_PICTOGRAPH_RAM_SIZE; i++)
-    {
-        state->pictograph_ram[i] = 0;
-    }
-    state->pictograph_ram_dirty = 0;
-
-    for (i=0; i<UPD_CHARGEN_RAM_SIZE; i++)
-    {
-        state->chargen_ram[i] = 0;
-    }
-    state->chargen_ram_dirty = 0;
-
-    state->ram_area = UPD_RAM_NONE;
-    state->ram_size = 0;
-    state->address = 0;
-    state->increment = UPD_INCREMENT_OFF;
-}
-
-void _upd_wrap_address(upd_state_t *state)
-{
-    if (state->address >= state->ram_size)
-    {
-        state->address = 0;
-    }
-}
-
-void _upd_write_data_byte(upd_state_t *state, uint8_t b)
-{
-    switch (state->ram_area)
-    {
-        case UPD_RAM_DISPLAY_DATA:
-            if (state->display_data_ram[state->address] != b)
-            {
-                state->display_data_ram[state->address] = b;
-                state->display_data_ram_dirty = 1;
-            }
-            break;
-
-        case UPD_RAM_PICTOGRAPH:
-            if (state->pictograph_ram[state->address] != b)
-            {
-                state->pictograph_ram[state->address] = b;
-                state->pictograph_ram_dirty = 1;
-            }
-            break;
-
-        case UPD_RAM_CHARGEN:
-            if (state->chargen_ram[state->address] != b)
-            {
-                state->chargen_ram[state->address] = b;
-                state->chargen_ram_dirty = 1;
-            }
-            break;
-
-        case UPD_RAM_NONE:
-        default:
-            return;
-    }
-
-    if (state->increment == UPD_INCREMENT_ON)
-    {
-        state->address++;
-        _upd_wrap_address(state);
-    }
-}
-
-void _upd_process_address_setting_cmd(upd_state_t *state, upd_command_t *cmd)
-{
-    uint8_t address;
-    address = cmd->data[0] & 0b00011111;
-
-    switch (state->ram_area)
-    {
-        case UPD_RAM_DISPLAY_DATA:
-        case UPD_RAM_PICTOGRAPH:
-            state->address = address;
-            _upd_wrap_address(state);
-            break;
-
-        case UPD_RAM_CHARGEN:
-            // for chargen, address is character number (valid from 0 to 0x0F)
-            if (address < 0x10)
-            {
-                state->address = address * 7; // 7 bytes per character
-            }
-            else
-            {
-                state->address = 0;
-            }
-            break;
-
-        case UPD_RAM_NONE:
-        default:
-            address = 0;
-            break;
-    }
-}
-
-void _upd_process_data_setting_cmd(upd_state_t *state, upd_command_t *cmd)
-{
-    uint8_t mode;
-    mode = cmd->data[0] & 0b00000111;
-
-    // set ram target area
-    switch (mode)
-    {
-        case UPD_RAM_DISPLAY_DATA:
-            state->ram_area = UPD_RAM_DISPLAY_DATA;
-            state->ram_size = UPD_DISPLAY_DATA_RAM_SIZE;
-            // TODO does the real uPD16432B reset the address?
-            break;
-
-        case UPD_RAM_PICTOGRAPH:
-            state->ram_area = UPD_RAM_PICTOGRAPH;
-            state->ram_size = UPD_PICTOGRAPH_RAM_SIZE;
-            // TODO does the real uPD16432B reset the address?
-            break;
-
-        case UPD_RAM_CHARGEN:
-            state->ram_area = UPD_RAM_CHARGEN;
-            state->ram_size = UPD_CHARGEN_RAM_SIZE;
-            // TODO does the real uPD16432B reset the address?
-            break;
-
-        case UPD_RAM_NONE:
-        default:
-            state->ram_area = UPD_RAM_NONE;
-            state->ram_size = 0;
-            state->address = 0;
-    }
-
-    // set increment mode
-    switch (mode)
-    {
-        // only these modes support setting increment on/off
-        case UPD_RAM_DISPLAY_DATA:
-        case UPD_RAM_PICTOGRAPH:
-            state->increment = ((cmd->data[0] & 0b00001000) == 0);
-            break;
-
-        // other modes always increment and also reset address
-        default:
-            state->increment = 1;
-            state->address = 0;
-            break;
-    }
-
-    // TODO changing data mode may make current address out of bounds
-    // what does the real uPD16432B do when data setting is changed?
-    _upd_wrap_address(state);
-}
-
-void upd_process_command(upd_state_t *state, upd_command_t *cmd)
-{
-    // No SPI bytes were received while STB was asserted
-    if (cmd->size == 0)
-    {
-        return;
-    }
-
-    // Process command byte
-    uint8_t cmd_type;
-    cmd_type = cmd->data[0] & 0b11000000;
-    switch (cmd_type)
-    {
-        case 0b01000000:
-            _upd_process_data_setting_cmd(state, cmd);
-            break;
-
-        case 0b10000000:
-            _upd_process_address_setting_cmd(state, cmd);
-            break;
-
-        default:
-            break;
-    }
-
-    // Process data bytes
-    if ((state->ram_area != UPD_RAM_NONE) && (cmd->size > 1))
-    {
-        uint8_t i;
-        for (i=1; i<cmd->size; i++)
-        {
-            _upd_write_data_byte(state, cmd->data[i]);
-        }
-    }
 }
 
 /*************************************************************************
