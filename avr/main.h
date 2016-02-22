@@ -25,8 +25,6 @@ volatile uint8_t upd_tx_key_data[4];
 
 void faceplate_clear_display(); // XXX remove me
 void faceplate_send_upd_command(); // XXX remove me
-void radio_push_power_button(); // XXX remove me
-void led_set(uint8_t lednum, uint8_t state); // XXX remove me
 
 #endif
 

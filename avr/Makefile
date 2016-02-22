@@ -1,5 +1,5 @@
-PROJECT=main
-SOURCES=cmd.c leds.c uart.c updemu.c $(PROJECT).c
+PROJECT=vwradio
+SOURCES=cmd.c leds.c main.c radio.c uart.c updemu.c
 MMCU=atmega1284p
 ISP=avrisp2
 
