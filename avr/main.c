@@ -32,6 +32,14 @@
 #include "uart.h"
 #include "updemu.h"
 
+/* Blink red forever if an unhandled interrupt occurs.
+ * This code should never been called.
+ */
+ISR(BADISR_vect)
+{
+    led_fatal(LED_CODE_BADISR);
+}
+
 /*************************************************************************
  * Main
  *************************************************************************/
