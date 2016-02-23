@@ -140,3 +140,34 @@ void faceplate_write_upd_ram(uint8_t data_setting_cmd,
     cmd.size = 1 + data_size;
     faceplate_send_upd_command(&cmd);
 }
+
+// copy emulated upd display to real faceplate
+void faceplate_update_from_upd_if_dirty(upd_state_t *state)
+{
+    if (state->display_data_ram_dirty == 1)
+    {
+        faceplate_write_upd_ram(
+            0x40, // data setting command: display data ram
+            sizeof(state->display_data_ram),
+            state->display_data_ram
+        );
+    }
+
+    if (state->pictograph_ram_dirty == 1)
+    {
+        faceplate_write_upd_ram(
+            0x41, // data setting command: pictograph ram
+            sizeof(state->pictograph_ram),
+            state->pictograph_ram
+            );
+    }
+
+    if (state->chargen_ram_dirty == 1)
+    {
+        faceplate_write_upd_ram(
+            0x4a, // data setting command: chargen ram
+            sizeof(state->chargen_ram),
+            state->chargen_ram
+            );
+    }
+}

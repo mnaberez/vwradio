@@ -202,3 +202,10 @@ void upd_process_command(upd_state_t *state, upd_command_t *cmd)
         }
     }
 }
+
+void upd_clear_dirty_flags(upd_state_t *state)
+{
+    state->display_data_ram_dirty = 0;
+    state->pictograph_ram_dirty = 0;
+    state->chargen_ram_dirty = 0;
+}

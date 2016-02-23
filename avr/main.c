@@ -36,40 +36,6 @@
  * Main
  *************************************************************************/
 
-// copy emulated upd display to real faceplate
-void copy_emulated_upd_to_faceplate()
-{
-    if (emulated_upd_state.display_data_ram_dirty == 1)
-    {
-        faceplate_write_upd_ram(
-            0x40, // data setting command: display data ram
-            sizeof(emulated_upd_state.display_data_ram),
-            emulated_upd_state.display_data_ram
-        );
-        emulated_upd_state.display_data_ram_dirty = 0;
-    }
-
-    if (emulated_upd_state.pictograph_ram_dirty == 1)
-    {
-        faceplate_write_upd_ram(
-            0x41, // data setting command: pictograph ram
-            sizeof(emulated_upd_state.pictograph_ram),
-            emulated_upd_state.pictograph_ram
-            );
-        emulated_upd_state.pictograph_ram_dirty = 0;
-    }
-
-    if (emulated_upd_state.chargen_ram_dirty == 1)
-    {
-        faceplate_write_upd_ram(
-            0x4a, // data setting command: chargen ram
-            sizeof(emulated_upd_state.chargen_ram),
-            emulated_upd_state.chargen_ram
-            );
-        emulated_upd_state.chargen_ram_dirty = 0;
-    }
-}
-
 int main()
 {
     run_mode = RUN_MODE_NORMAL;
@@ -105,7 +71,8 @@ int main()
             if (run_mode != RUN_MODE_TEST)
             {
                 upd_process_command(&emulated_upd_state, &cmd);
-                copy_emulated_upd_to_faceplate();
+                faceplate_update_from_upd_if_dirty(&emulated_upd_state);
+                upd_clear_dirty_flags(&emulated_upd_state);
             }
         }
 

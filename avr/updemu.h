@@ -40,6 +40,7 @@ typedef struct
 
 void upd_init(upd_state_t *state);
 void upd_process_command(upd_state_t *state, upd_command_t *cmd);
+void upd_clear_dirty_flags(upd_state_t *state);
 
 upd_state_t emulated_upd_state;
 
