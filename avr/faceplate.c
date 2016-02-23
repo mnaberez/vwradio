@@ -55,6 +55,22 @@ uint8_t faceplate_spi_xfer_byte(uint8_t c)
     return UDR1;
 }
 
+void faceplate_read_key_data(volatile uint8_t *key_data)
+{
+    // STB=high (start of transfer)
+    PORTD |= _BV(PD7);
+
+    faceplate_spi_xfer_byte(0x44); // key data request command
+
+    key_data[0] = faceplate_spi_xfer_byte(0xFF);
+    key_data[1] = faceplate_spi_xfer_byte(0xFF);
+    key_data[2] = faceplate_spi_xfer_byte(0xFF);
+    key_data[3] = faceplate_spi_xfer_byte(0xFF);
+
+    // STB=low (end of transfer)
+    PORTD &= ~_BV(PD7);
+}
+
 void faceplate_send_upd_command(upd_command_t *cmd)
 {
     // Bail out if command is empty so we don't assert STB with no bytes
