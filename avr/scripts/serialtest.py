@@ -422,7 +422,7 @@ class AvrTests(unittest.TestCase):
             cmd = 0b10000000
             cmd |= address
             self.client.emulated_upd_send_command([cmd])
-            # address should be character number * 7 (7 bytes per char)
+            # address should be as expected
             state = self.client.emulated_upd_dump_state()
             self.assertEqual(state['address'], expected_address)
 
@@ -639,9 +639,13 @@ def make_client(serial=None):
 def test_suite():
     return unittest.findTestCases(sys.modules[__name__])
 
-def main():
+def main(verbosity):
     AvrTests.serial = make_serial()
-    unittest.main(defaultTest='test_suite')
+    unittest.main(defaultTest='test_suite', verbosity=verbosity)
 
 if __name__ == '__main__':
-    main()
+    if 'VERBOSE' in os.environ:
+        verbosity = 2 # test names
+    else:
+        verbosity = 1 # dots only
+    main(verbosity)
