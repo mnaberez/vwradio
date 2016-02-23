@@ -1,9 +1,9 @@
+#ifndef LEDS_H
+#define LEDS_H
+
 #include "main.h"
 #include <stdint.h>
 #include <util/delay.h>
-
-#ifndef LEDS_H
-#define LEDS_H
 
 #define LED_PORT PORTD
 #define LED_DDR DDRD
