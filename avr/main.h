@@ -12,9 +12,6 @@
 #define RUN_MODE_NORMAL 0
 #define RUN_MODE_TEST 1
 
-#define LED_RED PD6
-#define LED_GREEN PD5
-
 volatile uint8_t run_mode;
 
 
