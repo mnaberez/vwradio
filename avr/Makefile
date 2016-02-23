@@ -18,9 +18,10 @@ dump: $(PROJECT).elf
 	avr-objdump -h -S $(PROJECT).elf
 
 clean:
-	rm -f *.elf
-	rm -f *.hex
-	rm -f *.o
+	find . -depth -name '*.elf' -print -delete
+	find . -depth -name '*.hex' -print -delete
+	find . -depth -name '*.o'   -print -delete
+	find . -depth -name '*.pyc' -print -delete
 
 test:
 	python scripts/serialtest.py
