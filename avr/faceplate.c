@@ -125,7 +125,7 @@ void faceplate_clear_display()
     faceplate_send_upd_command(&cmd);
 }
 
-void faceplate_write_upd_ram(uint8_t data_setting_cmd,
+static void _faceplate_write_upd_ram(uint8_t data_setting_cmd,
     uint8_t data_size, uint8_t *data)
 {
     upd_command_t cmd;
@@ -136,7 +136,7 @@ void faceplate_write_upd_ram(uint8_t data_setting_cmd,
     cmd.size = 1;
     faceplate_send_upd_command(&cmd);
 
-    // send address setting command + 16 bytes display data
+    // send address setting command + display data bytes
     cmd.data[0] = 0x80;
     for (i=0; i<data_size; i++)
     {
@@ -151,7 +151,7 @@ void faceplate_update_from_upd_if_dirty(upd_state_t *state)
 {
     if (state->display_data_ram_dirty == 1)
     {
-        faceplate_write_upd_ram(
+        _faceplate_write_upd_ram(
             0x40, // data setting command: display data ram
             sizeof(state->display_data_ram),
             state->display_data_ram
@@ -160,7 +160,7 @@ void faceplate_update_from_upd_if_dirty(upd_state_t *state)
 
     if (state->pictograph_ram_dirty == 1)
     {
-        faceplate_write_upd_ram(
+        _faceplate_write_upd_ram(
             0x41, // data setting command: pictograph ram
             sizeof(state->pictograph_ram),
             state->pictograph_ram
@@ -169,7 +169,7 @@ void faceplate_update_from_upd_if_dirty(upd_state_t *state)
 
     if (state->chargen_ram_dirty == 1)
     {
-        faceplate_write_upd_ram(
+        _faceplate_write_upd_ram(
             0x4a, // data setting command: chargen ram
             sizeof(state->chargen_ram),
             state->chargen_ram
