@@ -79,7 +79,7 @@ static void cmd_reply_nak()
  * Reset the uPD16432B Emulator to its default state.  This does not
  * affect the UPD key data output bytes (upd_tx_key_data).
  */
-static void cmd_do_upd_reset()
+static void cmd_do_emulated_upd_reset()
 {
     if (cmd_buf_index != 1)
     {
@@ -91,18 +91,12 @@ static void cmd_do_upd_reset()
     cmd_reply_ack();
 }
 
-/* Command: Dump uPD16432B Emulator State
- * Arguments: none
- * Returns: <ack> <all bytes in emulated_upd_state>
- *
- * Dumps the current state of the uPD16432B Emulator.
- */
-static void cmd_do_upd_dump_state()
+uint8_t _dump_upd_state_to_uart(upd_state_t *state)
 {
+    // Bail out if any command arguments were given.
     if (cmd_buf_index != 1)
     {
-        cmd_reply_nak();
-        return;
+        return 0;
     }
 
     uint8_t size;
@@ -120,36 +114,54 @@ static void cmd_do_upd_dump_state()
 
     uart_putc(size); // number of bytes to follow
     uart_putc(ACK); // ACK byte
-    uart_putc(emulated_upd_state.ram_area);
-    uart_putc(emulated_upd_state.ram_size);
-    uart_putc(emulated_upd_state.address);
-    uart_putc(emulated_upd_state.increment);
+    uart_putc(state->ram_area);
+    uart_putc(state->ram_size);
+    uart_putc(state->address);
+    uart_putc(state->increment);
     uart_flush_tx();
 
     // dump display data ram & dirty byte
     uint8_t i;
     for (i=0; i<UPD_DISPLAY_DATA_RAM_SIZE; i++)
     {
-        uart_putc(emulated_upd_state.display_data_ram[i]);
+        uart_putc(state->display_data_ram[i]);
     }
-    uart_putc(emulated_upd_state.display_data_ram_dirty);
+    uart_putc(state->display_data_ram_dirty);
     uart_flush_tx();
 
     // dump pictograph ram & dirty byte
     for (i=0; i<UPD_PICTOGRAPH_RAM_SIZE; i++)
     {
-        uart_putc(emulated_upd_state.pictograph_ram[i]);
+        uart_putc(state->pictograph_ram[i]);
     }
-    uart_putc(emulated_upd_state.pictograph_ram_dirty);
+    uart_putc(state->pictograph_ram_dirty);
     uart_flush_tx();
 
     // dump chargen ram & dirty byte
     for (i=0; i<UPD_CHARGEN_RAM_SIZE; i++)
     {
-        uart_putc(emulated_upd_state.chargen_ram[i]);
+        uart_putc(state->chargen_ram[i]);
     }
-    uart_putc(emulated_upd_state.chargen_ram_dirty);
+    uart_putc(state->chargen_ram_dirty);
     uart_flush_tx();
+
+    return 1;
+}
+
+/* Command: Dump uPD16432B Emulator State
+ * Arguments: none
+ * Returns: <ack> <all bytes in emulated_upd_state>
+ *
+ * Dump the current state of the uPD16432B emulator.
+ */
+static void cmd_do_emulated_upd_dump_state()
+{
+    uint8_t success;
+    success = _dump_upd_state_to_uart(&emulated_upd_state);
+    if (success == 0)
+    {
+        return cmd_reply_nak();
+    }
 }
 
 /* Populate a upd_command_t from the UART command buffer
@@ -174,7 +186,7 @@ static uint8_t _populate_cmd_from_uart_cmd_buf(upd_command_t *cmd)
     return 1;
 }
 
-/* Command: Process uPD16432B Emulator Command
+/* Command: Send uPD16432B Emulator Command
  * Arguments: <cmd byte> <cmd arg byte1> <cmd arg byte2> ...
  * Returns: <ack>
  *
@@ -182,7 +194,7 @@ static uint8_t _populate_cmd_from_uart_cmd_buf(upd_command_t *cmd)
  * are the SPI bytes that would be received by the uPD16432B while it
  * is selected with STB high.
  */
-static void cmd_do_upd_process_command()
+static void cmd_do_emulated_upd_send_command()
 {
     upd_command_t cmd;
 
@@ -334,13 +346,29 @@ static void cmd_do_push_power_button()
     cmd_reply_ack();
 }
 
+/* Command: Dump the real faceplate's uPD16432B state
+ * Arguments: none
+ * Returns: <ack> <all bytes in faceplate_upd_state>
+ *
+ * Dump the current state of the real uPD16432B on the faceplate.
+ */
+static void cmd_do_faceplate_upd_dump_state()
+{
+    uint8_t success;
+    success = _dump_upd_state_to_uart(&faceplate_upd_state);
+    if (success == 0)
+    {
+        return cmd_reply_nak();
+    }
+}
+
 /* Command: Send command to faceplate's uPD16432B
  * Arguments: <cmd byte> <cmd arg byte1> <cmd arg byte2> ...
  * Returns: <ack>
  *
  * Send an SPI command to the faceplate's uPD16432B.
  */
-static void cmd_do_faceplate_send_upd_command()
+static void cmd_do_faceplate_upd_send_command()
 {
     upd_command_t cmd;
 
@@ -391,16 +419,6 @@ static void cmd_dispatch()
             cmd_do_set_run_mode();
             break;
 
-        case CMD_UPD_DUMP_STATE:
-            cmd_do_upd_dump_state();
-            break;
-        case CMD_UPD_RESET:
-            cmd_do_upd_reset();
-            break;
-        case CMD_UPD_PROCESS_COMMAND:
-            cmd_do_upd_process_command(&emulated_upd_state);
-            break;
-
         case CMD_RADIO_LOAD_KEY_DATA:
             cmd_do_radio_load_key_data();
             break;
@@ -408,8 +426,21 @@ static void cmd_dispatch()
             cmd_do_push_power_button();
             break;
 
-        case CMD_FACEPLATE_SEND_UPD_COMMAND:
-            cmd_do_faceplate_send_upd_command();
+        case CMD_EMULATED_UPD_DUMP_STATE:
+            cmd_do_emulated_upd_dump_state();
+            break;
+        case CMD_EMULATED_UPD_SEND_COMMAND:
+            cmd_do_emulated_upd_send_command();
+            break;
+        case CMD_EMULATED_UPD_RESET:
+            cmd_do_emulated_upd_reset();
+            break;
+
+        case CMD_FACEPLATE_UPD_DUMP_STATE:
+            cmd_do_faceplate_upd_dump_state();
+            break;
+        case CMD_FACEPLATE_UPD_SEND_COMMAND:
+            cmd_do_faceplate_upd_send_command();
             break;
         case CMD_FACEPLATE_CLEAR_DISPLAY:
             cmd_do_faceplate_clear_display();

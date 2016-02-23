@@ -9,7 +9,7 @@ face = Premium4() # display ram and character info
 radio = Radio() # infers radio state from display
 
 def read_display():
-    display_data_ram = client.dump_upd_state()['display_data_ram']
+    display_data_ram = client.emulated_upd_dump_state()['display_data_ram']
     lcd_text = ''
     for addr in face.DISPLAY_ADDRESSES:
         code_code = display_data_ram[addr]
@@ -26,11 +26,11 @@ def hit_key(key, secs=0.25):
     print('Hitting key %s' % key_name)
     # hit the key
     key_data = face.encode_keys([key])
-    client.load_upd_tx_key_data(key_data)
+    client.radio_load_key_data(key_data)
     time.sleep(secs)
     # release all keys
     key_data = face.encode_keys([])
-    client.load_upd_tx_key_data(key_data)
+    client.radio_load_key_data(key_data)
     time.sleep(secs)
 
 if __name__ == '__main__':

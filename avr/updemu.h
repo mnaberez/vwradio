@@ -42,6 +42,10 @@ void upd_init(upd_state_t *state);
 void upd_process_command(upd_state_t *state, upd_command_t *cmd);
 void upd_clear_dirty_flags(upd_state_t *state);
 
+// State of the emulated uPD16432B
 upd_state_t emulated_upd_state;
+// State of the real uPD16432B on the faceplate.  The uPD16432B doesn't provide
+// a way to read back its registers so use an emulator instance to track them.
+upd_state_t faceplate_upd_state;
 
 #endif

@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <avr/io.h>
+#include "faceplate.h"
 #include "updemu.h"
 
 /*************************************************************************
@@ -74,6 +75,10 @@ void faceplate_send_upd_command(upd_command_t *cmd)
 
     // STB=low (end of transfer)
     PORTD &= ~_BV(PD7);
+
+    // The real uPD16432B doesn't have a way to read back its registers so
+    // we use an instance of the emulator to remember it.
+    upd_process_command(&faceplate_upd_state, cmd);
 }
 
 void faceplate_clear_display()

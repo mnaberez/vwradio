@@ -46,6 +46,7 @@ int main()
     radio_spi_init();
     faceplate_spi_init();
     upd_init(&emulated_upd_state);
+    upd_init(&faceplate_upd_state);
     sei();
 
     // clear faceplate

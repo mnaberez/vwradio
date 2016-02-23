@@ -13,7 +13,7 @@ ser = client.serial
 
 fp = Premium4()
 while True:
-    display_data_ram = client.dump_upd_state()['display_data_ram']
+    display_data_ram = client.emulated_upd_dump_state()['display_data_ram']
     lcd_text = ''
 
     for addr in fp.DISPLAY_ADDRESSES:
