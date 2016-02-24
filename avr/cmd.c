@@ -327,25 +327,6 @@ static void cmd_do_set_run_mode()
     cmd_reply_ack();
 }
 
-/* Command: Push Radio Power Button
- * Arguments: none
- * Returns: <ack|nak>
- *
- * Push the radio's power button momentarily.  This should either turn
- * the radio on or off.
- */
-static void cmd_do_push_power_button()
-{
-    if (cmd_buf_index != 1)
-    {
-        cmd_reply_nak();
-        return;
-    }
-
-    radio_push_power_button();
-    cmd_reply_ack();
-}
-
 /* Command: Dump the real faceplate's uPD16432B state
  * Arguments: none
  * Returns: <ack> <all bytes in faceplate_upd_state>
@@ -421,9 +402,6 @@ static void cmd_dispatch()
 
         case CMD_RADIO_LOAD_KEY_DATA:
             cmd_do_radio_load_key_data();
-            break;
-        case CMD_RADIO_PUSH_POWER_BUTTON:
-            cmd_do_push_power_button();
             break;
 
         case CMD_EMULATED_UPD_DUMP_STATE:

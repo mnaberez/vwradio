@@ -9,16 +9,9 @@
 
 void faceplate_spi_init()
 {
-    // PA0: RST out to faceplate
-    DDRA |= _BV(PA0);
-    PORTA |= _BV(PA0);
-    // PA1: LOF out to faceplate
-    DDRA |= _BV(PA1);
-    PORTA |= _BV(PA1);
-
     // PD2/RXD1 MISO as input (from faceplate's DAT)
     DDRD &= ~_BV(PD2);
-    // PD3/TXD1 MOSI as output (to faceplate's DAT through 10K resistor?)
+    // PD3/TXD1 MOSI as output (to faceplate's DAT through 10K resistor)
     DDRD |= _BV(PD3);
     // PD4/XCK1 SCK as output (to faceplate's CLK)
     DDRD |= _BV(PD4);

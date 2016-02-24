@@ -15,6 +15,5 @@ typedef struct
 volatile upd_rx_buf_t upd_rx_buf;
 
 void radio_spi_init();
-void radio_push_power_button();
 
 #endif

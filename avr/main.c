@@ -1,5 +1,5 @@
-/* Pin  1: PB0 POW out (drive low to push POWER button, else high-z)
- * Pin  2: PB1 (not connected for now)
+/* Pin  1: PB0 (not connected)
+ * Pin  2: PB1 (not connected)
  * Pin  3: PB2 STB in from radio
  * Pin  4: PB3 /SS out (software generated from STB, connect to PB4)
  * Pin  5: PB4 /SS in (connect to PB3)
@@ -12,11 +12,11 @@
  * Pin 16: PD2/RXD1 MISO in (from faceplate's DAT)
  * Pin 17: PD3/TXD1 MOSI out (to faceplate's DAT through 10K resistor)
  * Pin 18: PD4/XCK1 SCK out (to faceplate's CLK)
- * Pin 19: PD5: Green LED
- * Pin 20: PD6: Red LED
- * Pin 21: PD7: STB out to faceplate
- * Pin 39: PA1: LOF out to faceplate
- * Pin 40: PA0: RST out to faceplate
+ * Pin 19: PD5 Green LED
+ * Pin 20: PD6 Red LED
+ * Pin 21: PD7 STB out to faceplate
+ * Pin 39: PA1 (not connected)
+ * Pin 40: PA0 (not connected)
  */
 
 #include "main.h"

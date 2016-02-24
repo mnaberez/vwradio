@@ -12,7 +12,6 @@ CMD_EMULATED_UPD_DUMP_STATE = 0x10
 CMD_EMULATED_UPD_SEND_COMMAND = 0x11
 CMD_EMULATED_UPD_RESET = 0x12
 CMD_RADIO_LOAD_KEY_DATA = 0x20
-CMD_RADIO_PUSH_POWER_BUTTON = 0x21
 CMD_FACEPLATE_UPD_DUMP_STATE = 0x30
 CMD_FACEPLATE_UPD_SEND_COMMAND = 0x31
 CMD_FACEPLATE_CLEAR_DISPLAY = 0x32
@@ -75,9 +74,6 @@ class Client(object):
     def radio_load_key_data(self, key_bytes):
         data = bytearray([CMD_RADIO_LOAD_KEY_DATA]) + bytearray(key_bytes)
         self.command(data)
-
-    def push_power_button(self):
-        self.command([CMD_RADIO_PUSH_POWER_BUTTON])
 
     def faceplate_upd_send_command(self, spi_bytes):
         data = bytearray([CMD_FACEPLATE_UPD_SEND_COMMAND]) + bytearray(spi_bytes)
@@ -237,13 +233,6 @@ class AvrTests(unittest.TestCase):
                 rx_bytes = self.client.command(
                     data=[CMD_SET_LED, led, state], ignore_nak=True)
                 self.assertEqual(rx_bytes, bytearray([ACK]))
-
-    # Push power button command
-
-    def test_push_power_button_retuns_nak_for_bad_args_length(self):
-        rx_bytes = self.client.command(
-            data=[CMD_RADIO_PUSH_POWER_BUTTON, 1], ignore_nak=True)
-        self.assertEqual(rx_bytes, bytearray([NAK]))
 
     # Reset UPD command
 

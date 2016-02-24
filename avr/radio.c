@@ -23,10 +23,7 @@ void radio_spi_init()
     {
         upd_tx_key_data[i] = 0;
     }
-    // PB0 as input (POWER button output to radio)
-    // Drive PB0 low to push POWER button, otherwise set as high impedance
-    DDRB &= ~_BV(PB0);
-    PORTB &= ~_BV(PB0);
+    
     // PB2 as input (STB from radio)
     DDRB &= ~_BV(PB2);
     // PB3 as output (/SS output we'll make in software from STB)
@@ -122,17 +119,4 @@ ISR(SPI_STC_vect)
     {
         upd_rx_buf.cmd_at_write_index->size = 0;
     }
-}
-
-// Push the radio's POWER button momentarily.
-// This should turn the radio either on or off.
-void radio_push_power_button()
-{
-    // configure POW line as output, drive it low
-    DDRB |= _BV(PB0);
-    PORTB &= ~_BV(PB0);
-    // wait for radio to see POWER button
-    _delay_ms(100);
-    // return POW line to high-z input
-    DDRB &= ~_BV(PB0);
 }
