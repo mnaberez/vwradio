@@ -14,6 +14,9 @@ $(PROJECT).elf: $(SOURCES)
 program: $(PROJECT).hex
 	avrdude -c $(ISP) -p $(MMCU) -U flash:w:$(PROJECT).hex
 
+size: $(PROJECT).elf
+	avr-size --mcu=$(MMCU) --format=avr $(PROJECT).elf
+
 dump: $(PROJECT).elf
 	avr-objdump -h -S -I. $(PROJECT).elf
 
