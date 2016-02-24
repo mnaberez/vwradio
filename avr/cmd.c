@@ -176,7 +176,7 @@ static uint8_t _populate_cmd_from_uart_cmd_buf(upd_command_t *cmd)
         return 0;
     }
 
-    // Popular uPD16432B command request with bytes from UART
+    // Populate uPD16432B command request with bytes from UART
     uint8_t i;
     for (i=1; i<cmd_buf_index; i++)
     {
