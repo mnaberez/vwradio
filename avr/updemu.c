@@ -9,11 +9,11 @@ void upd_init(upd_state_t *state)
 {
     uint8_t i;
 
-    for (i=0; i<UPD_DISPLAY_DATA_RAM_SIZE; i++)
+    for (i=0; i<UPD_DISPLAY_RAM_SIZE; i++)
     {
-        state->display_data_ram[i] = 0;
+        state->display_ram[i] = 0;
     }
-    state->display_data_ram_dirty = 0;
+    state->display_ram_dirty = 0;
 
     for (i=0; i<UPD_PICTOGRAPH_RAM_SIZE; i++)
     {
@@ -45,11 +45,11 @@ static void _upd_write_data_byte(upd_state_t *state, uint8_t b)
 {
     switch (state->ram_area)
     {
-        case UPD_RAM_DISPLAY_DATA:
-            if (state->display_data_ram[state->address] != b)
+        case UPD_RAM_DISPLAY:
+            if (state->display_ram[state->address] != b)
             {
-                state->display_data_ram[state->address] = b;
-                state->display_data_ram_dirty = 1;
+                state->display_ram[state->address] = b;
+                state->display_ram_dirty = 1;
             }
             break;
 
@@ -88,7 +88,7 @@ static void _upd_process_address_setting_cmd(upd_state_t *state, upd_command_t *
 
     switch (state->ram_area)
     {
-        case UPD_RAM_DISPLAY_DATA:
+        case UPD_RAM_DISPLAY:
         case UPD_RAM_PICTOGRAPH:
             state->address = address;
             _upd_wrap_address(state);
@@ -121,9 +121,9 @@ static void _upd_process_data_setting_cmd(upd_state_t *state, upd_command_t *cmd
     // set ram target area
     switch (mode)
     {
-        case UPD_RAM_DISPLAY_DATA:
-            state->ram_area = UPD_RAM_DISPLAY_DATA;
-            state->ram_size = UPD_DISPLAY_DATA_RAM_SIZE;
+        case UPD_RAM_DISPLAY:
+            state->ram_area = UPD_RAM_DISPLAY;
+            state->ram_size = UPD_DISPLAY_RAM_SIZE;
             // TODO does the real uPD16432B reset the address?
             break;
 
@@ -150,7 +150,7 @@ static void _upd_process_data_setting_cmd(upd_state_t *state, upd_command_t *cmd
     switch (mode)
     {
         // only these modes support setting increment on/off
-        case UPD_RAM_DISPLAY_DATA:
+        case UPD_RAM_DISPLAY:
         case UPD_RAM_PICTOGRAPH:
             state->increment = ((cmd->data[0] & 0b00001000) == 0);
             break;
@@ -205,7 +205,7 @@ void upd_process_command(upd_state_t *state, upd_command_t *cmd)
 
 void upd_clear_dirty_flags(upd_state_t *state)
 {
-    state->display_data_ram_dirty = 0;
+    state->display_ram_dirty = 0;
     state->pictograph_ram_dirty = 0;
     state->chargen_ram_dirty = 0;
 }

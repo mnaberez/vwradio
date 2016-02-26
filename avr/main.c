@@ -83,14 +83,14 @@ int main()
                 upd_process_command(&emulated_upd_state, &cmd);
                 faceplate_update_from_upd_if_dirty(&emulated_upd_state);
 
-                if (emulated_upd_state.display_data_ram_dirty == 1)
+                if (emulated_upd_state.display_ram_dirty == 1)
                 {
                     // TODO XXX this is premium 4 specific
                     uint8_t display[25];
                     uint8_t i;
                     for (i=0; i<11; i++)
                     {
-                        display[i] = emulated_upd_state.display_data_ram[0x0c-i];
+                        display[i] = emulated_upd_state.display_ram[0x0c-i];
                     }
                     radio_state_process(&radio_state, display);
                 }

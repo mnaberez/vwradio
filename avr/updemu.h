@@ -2,7 +2,7 @@
 #define UPDEMU_H
 
 // Selected RAM area
-#define UPD_RAM_DISPLAY_DATA 0
+#define UPD_RAM_DISPLAY 0
 #define UPD_RAM_PICTOGRAPH 1
 #define UPD_RAM_CHARGEN 2
 #define UPD_RAM_NONE 0xFF
@@ -10,7 +10,7 @@
 #define UPD_INCREMENT_OFF 0
 #define UPD_INCREMENT_ON 1
 // RAM sizes
-#define UPD_DISPLAY_DATA_RAM_SIZE 0x19
+#define UPD_DISPLAY_RAM_SIZE 0x19
 #define UPD_PICTOGRAPH_RAM_SIZE 0x08
 #define UPD_CHARGEN_RAM_SIZE 0x70
 
@@ -28,8 +28,8 @@ typedef struct
     uint8_t address;   // Current address in that area
     uint8_t increment; // Address increment mode on/off
 
-    uint8_t display_data_ram[UPD_DISPLAY_DATA_RAM_SIZE];
-    uint8_t display_data_ram_dirty; // 0=no changes, 1=changed
+    uint8_t display_ram[UPD_DISPLAY_RAM_SIZE];
+    uint8_t display_ram_dirty; // 0=no changes, 1=changed
 
     uint8_t pictograph_ram[UPD_PICTOGRAPH_RAM_SIZE];
     uint8_t pictograph_ram_dirty; // 0=no changes, 1=changed

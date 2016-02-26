@@ -9,10 +9,10 @@ face = Premium4() # display ram and character info
 radio = Radio() # infers radio state from display
 
 def read_display():
-    display_data_ram = client.emulated_upd_dump_state()['display_data_ram']
+    display_ram = client.emulated_upd_dump_state()['display_ram']
     lcd_text = ''
     for addr in face.DISPLAY_ADDRESSES:
-        code_code = display_data_ram[addr]
+        code_code = display_ram[addr]
         char = face.CHARACTERS.get(code_code, '?')
         lcd_text += char
     return lcd_text

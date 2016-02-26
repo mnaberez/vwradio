@@ -106,7 +106,7 @@ uint8_t _dump_upd_state_to_uart(upd_state_t *state)
            1 + // Size of selected RAM area
            1 + // Current address in that area
            1 + // Address increment mode on/off
-           UPD_DISPLAY_DATA_RAM_SIZE +
+           UPD_DISPLAY_RAM_SIZE +
            1 + // dirty byte for display data ram
            UPD_PICTOGRAPH_RAM_SIZE +
            1 + // dirty byte for pictograph ram
@@ -123,11 +123,11 @@ uint8_t _dump_upd_state_to_uart(upd_state_t *state)
 
     // dump display data ram & dirty byte
     uint8_t i;
-    for (i=0; i<UPD_DISPLAY_DATA_RAM_SIZE; i++)
+    for (i=0; i<UPD_DISPLAY_RAM_SIZE; i++)
     {
-        uart_putc(state->display_data_ram[i]);
+        uart_putc(state->display_ram[i]);
     }
-    uart_putc(state->display_data_ram_dirty);
+    uart_putc(state->display_ram_dirty);
     uart_flush_tx();
 
     // dump pictograph ram & dirty byte
@@ -251,29 +251,29 @@ static void cmd_do_radio_state_process()
 {
     // TODO arg length checking
 
-    // Bail out if size of bytes from UART exceeds DISPLAY_DATA_RAM size
+    // Bail out if size of bytes from UART exceeds display RAM size
     // -1 is because first byte in cmd_buf is the uart command byte
-    if ((cmd_buf_index - 1) > UPD_DISPLAY_DATA_RAM_SIZE)
+    if ((cmd_buf_index - 1) > UPD_DISPLAY_RAM_SIZE)
     {
         cmd_reply_nak();
         return;
     }
 
     // Initialize empty data buffer
-    uint8_t display_data_ram[UPD_DISPLAY_DATA_RAM_SIZE];
+    uint8_t display_ram[UPD_DISPLAY_RAM_SIZE];
     uint8_t i;
-    for (i=0; i<sizeof(display_data_ram); i++)
+    for (i=0; i<sizeof(display_ram); i++)
     {
-        display_data_ram[i] = 0;
+        display_ram[i] = 0;
     }
 
     // Populate data buffer with UART data
     for (i=1; i<cmd_buf_index; i++)
     {
-        display_data_ram[i-1] = cmd_buf[i];
+        display_ram[i-1] = cmd_buf[i];
     }
 
-    radio_state_process(&radio_state, display_data_ram);
+    radio_state_process(&radio_state, display_ram);
     cmd_reply_ack();
 }
 

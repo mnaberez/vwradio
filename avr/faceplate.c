@@ -158,12 +158,12 @@ static void _faceplate_write_upd_ram(uint8_t data_setting_cmd,
 // copy emulated upd display to real faceplate
 void faceplate_update_from_upd_if_dirty(upd_state_t *state)
 {
-    if (state->display_data_ram_dirty == 1)
+    if (state->display_ram_dirty == 1)
     {
         _faceplate_write_upd_ram(
             0x40, // data setting command: display data ram
-            sizeof(state->display_data_ram),
-            state->display_data_ram
+            sizeof(state->display_ram),
+            state->display_ram
         );
     }
 

@@ -6,7 +6,7 @@ class LcdAnalyzer(object):
     def __init__(self, faceplate):
         self.faceplate = faceplate
 
-        self.display_data_ram = [0] * 0x19
+        self.display_ram = [0] * 0x19
         self.pictograph_ram = [0] * 0x08
         self.chargen_ram = [0] * 7 * 0x10
         self.led_output_ram = [0]
@@ -72,8 +72,8 @@ class LcdAnalyzer(object):
         cmd = spi_data[0]
         mode = cmd & 0b00000111
         if mode == 0:
-            self._out("    0=Write to display data RAM")
-            self.current_ram = self.display_data_ram
+            self._out("    0=Write to display RAM")
+            self.current_ram = self.display_ram
         elif mode == 1:
             self._out("    1=Write to pictograph RAM")
             self.current_ram = self.pictograph_ram
@@ -91,7 +91,7 @@ class LcdAnalyzer(object):
             self.current_ram = None
 
         if mode in (0, 1):
-            # display data ram or pictograph support increment flag
+            # display ram or pictograph support increment flag
             incr = cmd & 0b00001000
             self.increment = incr == 0
             if self.increment:
@@ -172,7 +172,7 @@ class LcdAnalyzer(object):
     def draw_display_ram(self):
         data = []
         for address in self.faceplate.DISPLAY_ADDRESSES:
-            char_code = self.display_data_ram[address]
+            char_code = self.display_ram[address]
             data.extend(self._read_char_data(char_code))
         return self._draw_chars(data, self.faceplate.DISPLAY_ADDRESSES)
 
@@ -182,7 +182,7 @@ class LcdAnalyzer(object):
     def decode_display_ram(self):
         decoded = ''
         for address in self.faceplate.DISPLAY_ADDRESSES:
-            byte = self.display_data_ram[address]
+            byte = self.display_ram[address]
             if byte in range(16):
                 decoded += "<cgram:0x%02x>" % byte
             else:
@@ -204,15 +204,15 @@ class LcdAnalyzer(object):
         self._out('Key Data RAM: ' + self._hexdump(self.key_data_ram))
         self._out('Chargen RAM: ' + self._hexdump(self.chargen_ram))
         self._out('Pictograph RAM: ' + self._hexdump(self.pictograph_ram))
-        self._out('Display Data RAM: ' + self._hexdump(self.display_data_ram))
+        self._out('Display RAM: ' + self._hexdump(self.display_ram))
         self._out('LED Output Latch: 0x%02x' % self.led_output_ram[0])
         self._out('Drawn Chargen RAM:')
         for line in self.draw_chargen_ram():
             self._out('  ' + line)
-        self._out('Drawn Display Data RAM:')
+        self._out('Drawn Display RAM:')
         for line in self.draw_display_ram():
             self._out('  ' + line)
-        self._out('Decoded Display Data RAM: %r' % self.decode_display_ram())
+        self._out('Decoded Display RAM: %r' % self.decode_display_ram())
         self._out('Decoded Pictographs: %r' % self.decode_pictograph_names())
         self._out('Decoded Keys Pressed: %r' % self.decode_key_names())
         self._out('')
