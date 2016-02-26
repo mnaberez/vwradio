@@ -50,6 +50,7 @@ class Radio(object):
         self.sound_fade = 0 # rear -9, center 0, front +9
         self.sound_bass = 0 # -9 to 9
         self.sound_treble = 0 # -9 to 9
+        self.sound_mid = 0 # Premium 5 only, -9 to 9
         self.tuner_band = TunerBands.UNKNOWN
         self.tuner_freq = 0 # 883=88.3 MHz, 5400=540.0 KHz
         self.tuner_preset = 0 # 0=none, am/fm1/fm2 preset 1-6
