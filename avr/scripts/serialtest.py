@@ -124,12 +124,13 @@ class Client(object):
     # Low level
 
     def command(self, data, ignore_nak=False):
+        self._flush_rx() # discard rx if a previous command was interrupted
         self.send(data)
         return self.receive(ignore_nak)
 
     def send(self, data):
         self.serial.write(bytearray([len(data)] + list(data)))
-        self.serial.flush()
+        self._flush_tx()
 
     def receive(self, ignore_nak=False):
         # read number of bytes to expect
@@ -165,6 +166,14 @@ class Client(object):
             raise Exception("Received NAK response: %r" % rx_bytes)
 
         return rx_bytes
+
+    def _flush_rx(self):
+        num_bytes = self.serial.in_waiting
+        if num_bytes:
+            self.serial.read(num_bytes)
+
+    def _flush_tx(self):
+        self.serial.flush()
 
 
 class AvrTests(unittest.TestCase):
@@ -385,7 +394,6 @@ class AvrTests(unittest.TestCase):
         self.assertEqual(state['increment'], True)
 
     def test_upd_data_setting_unrecognized_ram_area_sets_none(self):
-
         self.client.emulated_upd_reset()
         cmd  = 0b01000000 # data setting command
         cmd |= 0b00000111 # not a valid ram area
