@@ -190,11 +190,11 @@ class TestRadio(unittest.TestCase):
 
     def test_tuner_am_scan_off(self):
         values = (
-            ("AM   670kHz",  6700, 0),
-            ("AM   670KHZ",  6700, 0),
-            ("AM  1540KHZ", 15400, 0),
-            ("AM 1 670KHZ",  6700, 1),
-            ("AM 61540KHZ", 15400, 6),
+            ("AM   670kHz",  670, 0),
+            ("AM   670KHZ",  670, 0),
+            ("AM  1540KHZ", 1540, 0),
+            ("AM 1 670KHZ",  670, 1),
+            ("AM 61540KHZ", 1540, 6),
             )
         for text, freq, preset in values:
             radio = Radio()
@@ -209,9 +209,9 @@ class TestRadio(unittest.TestCase):
 
     def test_tuner_am_scan_on(self):
         values = (
-            ("SCAN 530kHz",  5300),
-            ("SCAN 530KHZ",  5300),
-            ("SCAN1710KHZ", 17100),
+            ("SCAN 530kHz",  530),
+            ("SCAN 530KHZ",  530),
+            ("SCAN1710KHZ", 1710),
         )
         for text, freq in values:
             radio = Radio()

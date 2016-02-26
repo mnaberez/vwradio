@@ -330,11 +330,11 @@ static void _radio_state_process_tuner_am(radio_state_t *state, uint8_t *ram)
 {
     state->display_mode = DISPLAY_MODE_SHOWING_OPERATION;
 
-    state->tuner_freq = 0; // 1640 kHz = 16400
-    if (isdigit(ram[4])) { state->tuner_freq += (ram[4] & 0x0F) * 10000; }
-    if (isdigit(ram[5])) { state->tuner_freq += (ram[5] & 0x0F) * 1000; }
-    if (isdigit(ram[6])) { state->tuner_freq += (ram[6] & 0x0F) * 100; }
-    if (isdigit(ram[7])) { state->tuner_freq += (ram[7] & 0x0F) * 10; }
+    state->tuner_freq = 0; // 1640 kHz = 1640
+    if (isdigit(ram[4])) { state->tuner_freq += (ram[4] & 0x0F) * 1000; }
+    if (isdigit(ram[5])) { state->tuner_freq += (ram[5] & 0x0F) * 100; }
+    if (isdigit(ram[6])) { state->tuner_freq += (ram[6] & 0x0F) * 10; }
+    if (isdigit(ram[7])) { state->tuner_freq += (ram[7] & 0x0F) * 1; }
 
     state->tuner_band = TUNER_BAND_AM;
 

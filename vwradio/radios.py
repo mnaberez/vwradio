@@ -117,7 +117,7 @@ class Radio(object):
         if freq[0] == " ": # " 881"
             freq = "0" + freq[1:]
         if str.isdigit(freq):
-            self.tuner_freq = int(freq)
+            self.tuner_freq = int(freq) # 102.3 MHz = 1023
 
         if text[0:4] == "SCAN":
             self.operation_mode = OperationModes.TUNER_SCANNING
@@ -145,7 +145,7 @@ class Radio(object):
         if freq[0] == " ": # " 540"
             freq = "0" + freq[1:]
         if str.isdigit(freq):
-            self.tuner_freq = int(freq) * 10
+            self.tuner_freq = int(freq) # 1640 kHz = 1640
 
         self.tuner_band = TunerBands.AM
 
