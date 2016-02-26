@@ -152,6 +152,9 @@ class UpdEmulatorState(object):
         self.chargen_ram = []
         self.chargen_ram_dirty = False
 
+    def __repr__(self):
+        return '<%s: %s> ' % (self.__class__.__name__, repr(self.__dict__))
+
     def __eq__(self, other):
         return self.__dict__ == other.__dict__
 
@@ -191,6 +194,9 @@ class RadioState(object):
         self.tuner_preset = 0
         self.tuner_band = 0
         self.display = 0
+
+    def __repr__(self):
+        return '<%s: %s> ' % (self.__class__.__name__, repr(self.__dict__))
 
     def __eq__(self, other):
         return self.__dict__ == other.__dict__
