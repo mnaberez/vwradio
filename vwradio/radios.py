@@ -61,31 +61,31 @@ class Radio(object):
     def process(self, text):
         if text == ' ' * 11:
             pass # blank
-        elif text[6:9] in ('MIN', 'MAX'):
+        elif text[6:9] in ("MIN", "MAX"):
             self._process_volume(text)
         elif str.isdigit(text[0]):
             self._process_safe(text)
-        elif text[0:4] == '    ' and text[9:11] == '  ':
+        elif text[0:4] == "    " and text[9:11] == "  ":
             self._process_safe(text)
-        elif text[0:3] == 'BAS':
+        elif text[0:3] == "BAS":
             self._process_bass(text)
-        elif text[0:3] == 'TRE':
+        elif text[0:3] == "TRE":
             self._process_treble(text)
-        elif text[0:3] == 'MID':
+        elif text[0:3] == "MID":
             self._process_mid(text)
-        elif text[0:3] == 'BAL':
+        elif text[0:3] == "BAL":
             self._process_balance(text)
-        elif text[0:3] == 'FAD':
+        elif text[0:3] == "FAD":
             self._process_fade(text)
-        elif text[0:3] == 'TAP' or text == '    NO TAPE':
+        elif text[0:3] == "TAP" or text == "    NO TAPE":
             self._process_tape(text)
-        elif text[0:2] == 'CD' or text[0:3] in ('CUE', 'CHK'):
+        elif text[0:2] == "CD" or text[0:3] in ("CUE", "CHK"):
             self._process_cd(text)
-        elif text in ('NO  CHANGER', '    NO DISC'):
+        elif text in ("NO  CHANGER", "    NO DISC"):
             self._process_cd(text)
-        elif text[8:11] in ('MHZ', 'MHz'):
+        elif text[8:11] in ("MHZ", "MHz"):
             self._process_fm(text)
-        elif text[8:11] in ('KHZ', 'kHz'):
+        elif text[8:11] in ("KHZ", "kHz"):
             self._process_am(text)
         else:
             self._process_unknown(text)
@@ -99,7 +99,7 @@ class Radio(object):
         else:
             self.safe_tries = 0
 
-        if text[5:9] == 'SAFE':
+        if text[5:9] == "SAFE":
             self.operation_mode = OperationModes.SAFE_LOCKED
             self.safe_code = 1000
         elif str.isdigit(text[4]) and str.isdigit(text[4:8]): # Premium 5
@@ -115,21 +115,21 @@ class Radio(object):
         self.display_mode = DisplayModes.SHOWING_OPERATION
 
         freq = text[4:8]
-        if freq[0] == ' ': # " 881"
-            freq = '0' + freq[1:]
+        if freq[0] == " ": # " 881"
+            freq = "0" + freq[1:]
         if str.isdigit(freq):
             self.tuner_freq = int(freq)
 
-        if text[0:4] == 'SCAN':
+        if text[0:4] == "SCAN":
             self.operation_mode = OperationModes.TUNER_SCANNING
             self.tuner_preset = 0
             if self.tuner_band not in (TunerBands.FM1, TunerBands.FM2):
                 self.tuner_band = TunerBands.FM1
-        elif text[0:3] in ('FM1', 'FM2'):
+        elif text[0:3] in ("FM1", "FM2"):
             self.operation_mode = OperationModes.TUNER_PLAYING
-            if text[2] == '1':
+            if text[2] == "1":
                 self.tuner_band = TunerBands.FM1
-            elif text[2] == '2': # "2"
+            elif text[2] == "2": # "2"
                 self.tuner_band = TunerBands.FM2
 
             if str.isdigit(text[3]):
@@ -143,14 +143,14 @@ class Radio(object):
         self.display_mode = DisplayModes.SHOWING_OPERATION
 
         freq = text[4:8]
-        if freq[0] == ' ': # " 540"
-            freq = '0' + freq[1:]
+        if freq[0] == " ": # " 540"
+            freq = "0" + freq[1:]
         if str.isdigit(freq):
             self.tuner_freq = int(freq) * 10
 
         self.tuner_band = TunerBands.AM
 
-        if text[0:4] == 'SCAN':
+        if text[0:4] == "SCAN":
             self.operation_mode = OperationModes.TUNER_SCANNING
             self.tuner_preset = 0
         else:
@@ -162,41 +162,41 @@ class Radio(object):
 
     def _process_cd(self, text):
         self.display_mode = DisplayModes.SHOWING_OPERATION
-        if text == 'CHK MAGAZIN':
+        if text == "CHK MAGAZIN":
             self.operation_mode = OperationModes.CD_CHECK_MAGAZINE
             self.cd_disc = 0
             self.cd_track = 0
             self.cd_cue_pos = 0
-        elif text == 'NO  CHANGER':
+        elif text == "NO  CHANGER":
             self.operation_mode = OperationModes.CD_NO_CHANGER
             self.cd_disc = 0
             self.cd_track = 0
             self.cd_cue_pos = 0
-        elif text == '    NO DISC':
+        elif text == "    NO DISC":
             self.operation_mode = OperationModes.CD_NO_DISC
             self.cd_disc = 0
             self.cd_track = 0
             self.cd_cue_pos = 0
-        elif text[0:3] == 'CD ': # "CD 1" to "CD 6"
+        elif text[0:3] == "CD ": # "CD 1" to "CD 6"
             self.cd_disc = int(text[3])
             self.cd_cue_pos = 0
-            if text[5:10] == 'NO CD':
+            if text[5:10] == "NO CD":
                 self.operation_mode = OperationModes.CD_CDX_NO_CD
                 self.cd_track = 0
-            elif text[5:7] == 'TR':
+            elif text[5:7] == "TR":
                 self.operation_mode = OperationModes.CD_PLAYING
                 self.cd_track = int(text[8:10])
             else:
                 self._process_unknown(text)
-        elif text[0:2] == 'CD': # "CD1" to "CD6"
+        elif text[0:2] == "CD": # "CD1" to "CD6"
             self.cd_disc = int(text[2])
             self.cd_cue_pos = 0
-            if text[4:10] == 'CD ERR':
+            if text[4:10] == "CD ERR":
                 self.operation_mode = OperationModes.CD_CDX_CD_ERR
                 self.cd_track = 0
             else:
                 self._process_unknown(text)
-        elif text[0:3] == 'CUE':
+        elif text[0:3] == "CUE":
             self.operation_mode = OperationModes.CD_CUEING
             self.cd_cue_pos = int(text[4:9].strip())
         else:
@@ -204,32 +204,32 @@ class Radio(object):
 
     def _process_tape(self, text):
         self.display_mode = DisplayModes.SHOWING_OPERATION
-        if text in ('TAPE PLAY A', 'TAPE PLAY B'):
+        if text in ("TAPE PLAY A", "TAPE PLAY B"):
             self.operation_mode = OperationModes.TAPE_PLAYING
-            if text[10] == 'A':
+            if text[10] == "A":
                 self.tape_side = 1
             else: # "B"
                 self.tape_side = 2
-        elif text in ('TAPE  FF   ', 'TAPE  REW  '):
-            if text[6:9] == 'REW':
+        elif text in ("TAPE  FF   ", "TAPE  REW  "):
+            if text[6:9] == "REW":
                 self.operation_mode = OperationModes.TAPE_REW
-            else: # 'FF '
+            else: # "FF "
                 self.operation_mode = OperationModes.TAPE_FF
-        elif text in ('TAPEMSS FF ', 'TAPEMSS REW'):
-            if text[8:11] == 'REW':
+        elif text in ("TAPEMSS FF ", "TAPEMSS REW"):
+            if text[8:11] == "REW":
                 self.operation_mode = OperationModes.TAPE_MSS_REW
-            else: # 'FF '
+            else: # "FF "
                 self.operation_mode = OperationModes.TAPE_MSS_FF
-        elif text == '    NO TAPE':
+        elif text == "    NO TAPE":
             self.operation_mode = OperationModes.TAPE_NO_TAPE
             self.tape_side = 0
-        elif text == 'TAPE ERROR ':
+        elif text == "TAPE ERROR ":
             self.operation_mode = OperationModes.TAPE_ERROR
             self.tape_side = 0
-        elif text == 'TAPE LOAD  ':
+        elif text == "TAPE LOAD  ":
             self.operation_mode = OperationModes.TAPE_LOAD
             self.tape_side = 0
-        elif text == 'TAPE METAL ':
+        elif text == "TAPE METAL ":
             self.operation_mode = OperationModes.TAPE_METAL
             self.tape_side = 0
         else:
@@ -240,22 +240,22 @@ class Radio(object):
 
     def _process_balance(self, text):
         self.display_mode = DisplayModes.ADJUSTING_BALANCE
-        if text[4] == 'C':
+        if text[4] == "C":
             self.sound_balance = 0  # Center
-        elif text[4] == 'L' and str.isdigit(text[10]):
+        elif text[4] == "L" and str.isdigit(text[10]):
             self.sound_balance = int(text[10])  # Left
-        elif text[4] == 'R' and str.isdigit(text[10]):
+        elif text[4] == "R" and str.isdigit(text[10]):
             self.sound_balance = -int(text[10])  # Right
         else:
             self._process_unknown(text)
 
     def _process_fade(self, text):
         self.display_mode = DisplayModes.ADJUSTING_FADE
-        if text[4] == 'C':
+        if text[4] == "C":
             self.sound_fade = 0  # Center
-        elif text[4] == 'F' and str.isdigit(text[10]):
+        elif text[4] == "F" and str.isdigit(text[10]):
             self.sound_fade = int(text[10])  # Front
-        elif text[4] == 'R' and str.isdigit(text[10]):
+        elif text[4] == "R" and str.isdigit(text[10]):
             self.sound_fade = -int(text[10])  # Rear
         else:
             self._process_unknown(text)
@@ -263,7 +263,7 @@ class Radio(object):
     def _process_bass(self, text):
         self.display_mode = DisplayModes.ADJUSTING_BASS
         if str.isdigit(text[8]):
-            if text[6] == '-':
+            if text[6] == "-":
                 self.sound_bass = -int(text[8])
             else:
                 self.sound_bass = int(text[8])
@@ -273,7 +273,7 @@ class Radio(object):
     def _process_treble(self, text):
         self.display_mode = DisplayModes.ADJUSTING_TREBLE
         if str.isdigit(text[8]):
-            if text[6] == '-':
+            if text[6] == "-":
                 self.sound_treble = -int(text[8])
             else:
                 self.sound_treble = int(text[8])
@@ -283,7 +283,7 @@ class Radio(object):
     def _process_mid(self, text):
         self.display_mode = DisplayModes.ADJUSTING_MID
         if str.isdigit(text[8]):
-            if text[6] == '-':
+            if text[6] == "-":
                 self.sound_mid = -int(text[8])
             else:
                 self.sound_mid = int(text[8])
