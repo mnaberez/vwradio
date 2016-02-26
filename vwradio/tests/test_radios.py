@@ -146,7 +146,7 @@ class TestRadio(unittest.TestCase):
             self.assertEqual(radio.display_mode,
                 DisplayModes.ADJUSTING_MIDRANGE)
 
-    def test_fm_scan_off(self):
+    def test_tuner_fm_scan_off(self):
         values = (
             ("FM1  887MHz",  887, TunerBands.FM1, 0),
             ("FM1  887MHZ",  887, TunerBands.FM1, 0),
@@ -169,7 +169,7 @@ class TestRadio(unittest.TestCase):
             self.assertEqual(radio.display_mode,
                 DisplayModes.SHOWING_OPERATION)
 
-    def test_fm_scan_on(self):
+    def test_tuner_fm_scan_on(self):
         values = (
             ("SCAN 879MHz",  879, TunerBands.FM1,     TunerBands.FM1),
             ("SCAN 879MHZ",  879, TunerBands.FM1,     TunerBands.FM1),
@@ -188,7 +188,7 @@ class TestRadio(unittest.TestCase):
             self.assertEqual(radio.display_mode,
                 DisplayModes.SHOWING_OPERATION)
 
-    def test_am_scan_off(self):
+    def test_tuner_am_scan_off(self):
         values = (
             ("AM   670kHz",  6700, 0),
             ("AM   670KHZ",  6700, 0),
@@ -207,7 +207,7 @@ class TestRadio(unittest.TestCase):
             self.assertEqual(radio.display_mode,
                 DisplayModes.SHOWING_OPERATION)
 
-    def test_am_scan_on(self):
+    def test_tuner_am_scan_on(self):
         values = (
             ("SCAN 530kHz",  5300),
             ("SCAN 530KHZ",  5300),

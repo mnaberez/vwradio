@@ -85,9 +85,9 @@ class Radio(object):
         elif text in ("NO  CHANGER", "    NO DISC"):
             self._process_cd(text)
         elif text[8:11] in ("MHZ", "MHz"):
-            self._process_fm(text)
+            self._process_tuner_fm(text)
         elif text[8:11] in ("KHZ", "kHz"):
-            self._process_am(text)
+            self._process_tuner_am(text)
         else:
             self._process_unknown(text)
         self.text = text
@@ -112,7 +112,7 @@ class Radio(object):
         else:
             self._process_unknown(text)
 
-    def _process_fm(self, text):
+    def _process_tuner_fm(self, text):
         self.display_mode = DisplayModes.SHOWING_OPERATION
 
         freq = text[4:8]
@@ -140,7 +140,7 @@ class Radio(object):
         else:
             self._process_unknown(text)
 
-    def _process_am(self, text):
+    def _process_tuner_am(self, text):
         self.display_mode = DisplayModes.SHOWING_OPERATION
 
         freq = text[4:8]
