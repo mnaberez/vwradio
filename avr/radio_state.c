@@ -1,6 +1,5 @@
 #include "main.h"
 #include "radio_state.h"
-#include "leds.h"
 #include "updemu.h"
 #include <ctype.h>
 #include <string.h>
@@ -225,8 +224,6 @@ static void _radio_state_process_cd(radio_state_t *state, uint8_t *ram)
     }
     else if (memcmp(ram, "    NO DISC", 11) == 0)
     {
-        led_set(LED_RED, 1);
-
         state->operation_mode = OPERATION_MODE_CD_NO_DISC;
         state->cd_disc = 0;
         state->cd_track = 0;
@@ -410,6 +407,60 @@ static void _radio_state_process_safe(radio_state_t *state, uint8_t *ram)
 
 void radio_state_process(radio_state_t *state, uint8_t *ram)
 {
+    uint8_t i;
+    for (i=0; i<11; i++)
+    {
+        // TODO XXX this table is specific to premium 4
+        uint8_t c;
+        c = ram[i];
+        switch (c)
+        {
+            case 0xe4:
+                c = '0'; break;
+            case 0xe5:
+                c = '1'; break;
+            case 0xe6:
+                c = '3'; break;
+            case 0xe7:
+                c = '4'; break;
+            case 0xe8:
+                c = '5'; break;
+            case 0xe9:
+                c = '6'; break;
+            case 0xea:
+                c = '9'; break;
+            case 0xeb:
+                c = '1'; break; // for FM'1'
+            case 0xe0:
+                c = 'A'; break; // for SC'A'N
+            case 0xe1:
+                c = 'B'; break; // for 'B'ASS, TRE'B', 'B'AL
+            case 0xe2:
+                c = 'N'; break; // for SCA'N'
+            case 0xec:
+                c = '2'; break; // for FM'2'
+            case 0xed:
+                c = '2'; break; // for preset 2
+            case 0xee:
+                c = '3'; break; // for preset 3
+            case 0xef:
+                c = '4'; break; // for preset 4
+            case 0xf0:
+                c = '5'; break; // for preset 5
+            case 0xf1:
+                c = '6'; break;
+            case 0xf2:
+                c = '6'; break; // for preset 6
+            case 0xf3:
+                c = '2'; break;
+            default:
+                break;
+        }
+
+        state->display[i] = c;
+        ram[i] = c; // XXX terrible hack, don't mutate ram in
+    }
+
     if (memcmp(ram, "\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0", 11) == 0)
     {
         // ignore uninitialized

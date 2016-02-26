@@ -282,7 +282,7 @@ static void cmd_do_radio_state_dump()
 {
     // TODO arg length checking
 
-    uart_putc(20); // number of bytes to follow
+    uart_putc(31); // number of bytes to follow
     uart_putc(ACK);
     uart_putc(radio_state.operation_mode);
     uart_putc(radio_state.display_mode);
@@ -303,6 +303,11 @@ static void cmd_do_radio_state_dump()
     uart_putc((radio_state.tuner_freq & 0xFF00) >> 8);
     uart_putc(radio_state.tuner_preset);
     uart_putc(radio_state.tuner_band);
+    uint8_t i;
+    for (i=0; i<11; i++)
+    {
+        uart_putc(radio_state.display[i]);
+    }
 }
 
 /* Command: Echo

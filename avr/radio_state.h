@@ -39,6 +39,7 @@
 
 typedef struct
 {
+    uint8_t display[11];
     uint8_t operation_mode;
     uint8_t display_mode;
     uint8_t safe_tries;

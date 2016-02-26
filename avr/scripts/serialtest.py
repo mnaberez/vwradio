@@ -93,7 +93,7 @@ class Client(object):
 
     def radio_state_dump(self):
         raw = self.command([CMD_RADIO_STATE_DUMP])
-        assert len(raw) == 20
+        assert len(raw) == 31
         dump = {'operation_mode': raw[1],
                 'display_mode': raw[2],
                 'safe_tries': raw[3],
@@ -110,6 +110,7 @@ class Client(object):
                 'tuner_freq': (raw[16] + (raw[17] << 8)),
                 'tuner_preset': raw[18],
                 'tuner_band': raw[19],
+                'display': raw[20:31]
                }
         return dump
 
