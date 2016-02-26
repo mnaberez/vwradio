@@ -130,7 +130,7 @@ class Radio(object):
             self.operation_mode = OperationModes.TUNER_PLAYING
             if text[2] == "1":
                 self.tuner_band = TunerBands.FM1
-            elif text[2] == "2": # "2"
+            else: # "2"
                 self.tuner_band = TunerBands.FM2
 
             if str.isdigit(text[3]):
