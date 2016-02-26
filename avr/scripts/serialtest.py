@@ -760,11 +760,11 @@ class AvrTests(unittest.TestCase):
 
     def test_radio_state_balance(self):
         values = (
-            (b"BAL RIGHT 9", -9),
-            (b"BAL RIGHT 1", -1),
+            (b"BAL LEFT  9", -9),
+            (b"BAL LEFT  1", -1),
             (b"BAL CENTER ", 0),
-            (b"BAL LEFT  1", 1),
-            (b"BAL LEFT  9", 9),
+            (b"BAL RIGHT 1", 1),
+            (b"BAL RIGHT 9", 9),
         )
         for display, balance in values:
             self.client.radio_state_reset()

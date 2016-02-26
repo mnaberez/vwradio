@@ -53,11 +53,11 @@ class TestRadio(unittest.TestCase):
 
     def test_balance(self):
         values = (
-            ("BAL RIGHT 9", -9),
-            ("BAL RIGHT 1", -1),
+            ("BAL LEFT  9", -9),
+            ("BAL LEFT  1", -1),
             ("BAL CENTER ", 0),
-            ("BAL LEFT  1", 1),
-            ("BAL LEFT  9", 9),
+            ("BAL RIGHT 1", 1),
+            ("BAL RIGHT 9", 9),
         )
         for text, balance in values:
             radio = Radio()
@@ -69,7 +69,7 @@ class TestRadio(unittest.TestCase):
                 original_operation_mode)
             self.assertEqual(radio.display_mode,
                 DisplayModes.ADJUSTING_BALANCE)
-    
+
     def test_fade(self):
         values = (
             ("FADEREAR  9", -9),
@@ -88,7 +88,7 @@ class TestRadio(unittest.TestCase):
                 original_operation_mode)
             self.assertEqual(radio.display_mode,
                 DisplayModes.ADJUSTING_FADE)
-    
+
     def test_bass(self):
         values = (
             ("BASS  - 9  ", -9),
@@ -107,7 +107,7 @@ class TestRadio(unittest.TestCase):
                 original_operation_mode)
             self.assertEqual(radio.display_mode,
                 DisplayModes.ADJUSTING_BASS)
-    
+
     def test_treble(self):
         values = (
             ("TREB  - 9  ", -9),
@@ -126,7 +126,7 @@ class TestRadio(unittest.TestCase):
                 original_operation_mode)
             self.assertEqual(radio.display_mode,
                 DisplayModes.ADJUSTING_TREBLE)
-    
+
     def test_premium_5_midrange(self):
         values = (
             ("MID   - 9  ", -9),

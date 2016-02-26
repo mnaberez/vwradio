@@ -101,13 +101,13 @@ static void _radio_state_process_balance(radio_state_t *state, uint8_t *ram)
     {
         state->sound_balance = 0; // Center
     }
-    else if ((ram[4] == 'L') && isdigit(ram[10]))
-    {
-        state->sound_balance = ram[10] & 0x0F; // Left
-    }
     else if ((ram[4] == 'R') && isdigit(ram[10]))
     {
-        state->sound_balance = (ram[10] & 0x0F) * -1; // Right
+        state->sound_balance = ram[10] & 0x0F; // Right
+    }
+    else if ((ram[4] == 'L') && isdigit(ram[10]))
+    {
+        state->sound_balance = (ram[10] & 0x0F) * -1; // Left
     }
     else
     {

@@ -241,10 +241,10 @@ class Radio(object):
         self.display_mode = DisplayModes.ADJUSTING_BALANCE
         if text[4] == "C":
             self.sound_balance = 0  # Center
-        elif text[4] == "L" and str.isdigit(text[10]):
-            self.sound_balance = int(text[10])  # Left
         elif text[4] == "R" and str.isdigit(text[10]):
-            self.sound_balance = -int(text[10])  # Right
+            self.sound_balance = int(text[10])  # Right
+        elif text[4] == "L" and str.isdigit(text[10]):
+            self.sound_balance = -int(text[10])  # Left
         else:
             self._process_unknown(text)
 

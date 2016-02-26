@@ -47,7 +47,7 @@ typedef struct
     int8_t sound_bass; // -9 to 9
     int8_t sound_treble; // -9 to 9
     int8_t sound_midrange; // -9 to 9, Premium 5 only
-    int8_t sound_balance; // left -9, center 0, right +9
+    int8_t sound_balance; // right -9, center 0, left +9
     int8_t sound_fade; // rear -9, center 0, front +9
     uint8_t tape_side; // 0=none, 1=side a, 2=side b
     uint8_t cd_disc;
