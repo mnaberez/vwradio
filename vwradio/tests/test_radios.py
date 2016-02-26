@@ -69,7 +69,7 @@ class TestRadio(unittest.TestCase):
                 original_operation_mode)
             self.assertEqual(radio.display_mode,
                 DisplayModes.ADJUSTING_BALANCE)
-
+    
     def test_fade(self):
         values = (
             ("FADEREAR  9", -9),
@@ -88,7 +88,7 @@ class TestRadio(unittest.TestCase):
                 original_operation_mode)
             self.assertEqual(radio.display_mode,
                 DisplayModes.ADJUSTING_FADE)
-
+    
     def test_bass(self):
         values = (
             ("BASS  - 9  ", -9),
@@ -107,7 +107,7 @@ class TestRadio(unittest.TestCase):
                 original_operation_mode)
             self.assertEqual(radio.display_mode,
                 DisplayModes.ADJUSTING_BASS)
-
+    
     def test_treble(self):
         values = (
             ("TREB  - 9  ", -9),
@@ -126,8 +126,8 @@ class TestRadio(unittest.TestCase):
                 original_operation_mode)
             self.assertEqual(radio.display_mode,
                 DisplayModes.ADJUSTING_TREBLE)
-
-    def test_mid(self):
+    
+    def test_premium_5_midrange(self):
         values = (
             ("MID   - 9  ", -9),
             ("MID   - 1  ", -1),
@@ -138,13 +138,13 @@ class TestRadio(unittest.TestCase):
         for text, mid in values:
             radio = Radio()
             original_operation_mode = radio.operation_mode
-            radio.sound_mid = 99
+            radio.sound_midrange = 99
             radio.process(text)
-            self.assertEqual(radio.sound_mid, mid)
+            self.assertEqual(radio.sound_midrange, mid)
             self.assertEqual(radio.operation_mode,
                 original_operation_mode)
             self.assertEqual(radio.display_mode,
-                DisplayModes.ADJUSTING_MID)
+                DisplayModes.ADJUSTING_MIDRANGE)
 
     def test_fm_scan_off(self):
         values = (
@@ -171,10 +171,10 @@ class TestRadio(unittest.TestCase):
 
     def test_fm_scan_on(self):
         values = (
-            ("SCAN 879MHz",  879, TunerBands.FM1, TunerBands.FM1),
-            ("SCAN 879MHZ",  879, TunerBands.FM1, TunerBands.FM1),
+            ("SCAN 879MHz",  879, TunerBands.FM1,     TunerBands.FM1),
+            ("SCAN 879MHZ",  879, TunerBands.FM1,     TunerBands.FM1),
             ("SCAN 879MHZ",  879, TunerBands.UNKNOWN, TunerBands.FM1),
-            ("SCAN1035MHZ", 1035, TunerBands.FM2, TunerBands.FM2),
+            ("SCAN1035MHZ", 1035, TunerBands.FM2,     TunerBands.FM2),
         )
         for text, freq, initial_band, expected_band in values:
             radio = Radio()
