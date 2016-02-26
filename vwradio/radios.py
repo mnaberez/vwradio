@@ -73,7 +73,7 @@ class Radio(object):
         elif text[0:3] == "TRE":
             self._process_treble(text)
         elif text[0:3] == "MID":
-            self._process_mid(text)
+            self._process_midrange(text)
         elif text[0:3] == "BAL":
             self._process_balance(text)
         elif text[0:3] == "FAD":
@@ -264,30 +264,27 @@ class Radio(object):
     def _process_bass(self, text):
         self.display_mode = DisplayModes.ADJUSTING_BASS
         if str.isdigit(text[8]):
+            self.sound_bass = int(text[8])
             if text[6] == "-":
-                self.sound_bass = -int(text[8])
-            else:
-                self.sound_bass = int(text[8])
+                self.sound_bass = self.sound_bass * -1
         else:
             self._process_unknown(text)
 
     def _process_treble(self, text):
         self.display_mode = DisplayModes.ADJUSTING_TREBLE
         if str.isdigit(text[8]):
+            self.sound_treble = int(text[8])
             if text[6] == "-":
-                self.sound_treble = -int(text[8])
-            else:
-                self.sound_treble = int(text[8])
+                self.sound_treble = self.sound_treble * -1
         else:
             self._process_unknown(text)
 
-    def _process_mid(self, text):
+    def _process_midrange(self, text):
         self.display_mode = DisplayModes.ADJUSTING_MIDRANGE
         if str.isdigit(text[8]):
+            self.sound_midrange = int(text[8])
             if text[6] == "-":
-                self.sound_midrange = -int(text[8])
-            else:
-                self.sound_midrange = int(text[8])
+                self.sound_midrange = self.sound_midrange * -1
         else:
             self._process_unknown(text)
 
