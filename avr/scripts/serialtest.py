@@ -50,27 +50,9 @@ class Client(object):
     def emulated_upd_reset(self):
         self.command([CMD_EMULATED_UPD_RESET])
 
-    def _decode_state(self, raw):
-        assert len(raw) == 153
-        dump = {'ram_area': raw[1],
-                'ram_size': raw[2],
-                'address': raw[3],
-                'increment': bool(raw[4]),
-                'display_ram': raw[5:30],
-                'display_ram_dirty': bool(raw[30]),
-                'pictograph_ram': raw[31:39],
-                'pictograph_ram_dirty': bool(raw[39]),
-                'chargen_ram': raw[40:152],
-                'chargen_ram_dirty': bool(raw[152]),
-               }
-        assert len(dump['display_ram']) == 25
-        assert len(dump['pictograph_ram']) == 8
-        assert len(dump['chargen_ram']) == 112
-        return dump
-
     def emulated_upd_dump_state(self):
-        raw = self.command([CMD_EMULATED_UPD_DUMP_STATE])
-        return self._decode_state(raw)
+        data = self.command([CMD_EMULATED_UPD_DUMP_STATE])
+        return UpdEmulatorState.from_bytes(data[1:])
 
     def emulated_upd_send_command(self, spi_bytes):
         data = bytearray([CMD_EMULATED_UPD_SEND_COMMAND]) + bytearray(spi_bytes)
@@ -85,34 +67,15 @@ class Client(object):
         self.command(data)
 
     def faceplate_upd_dump_state(self):
-        raw = self.command([CMD_FACEPLATE_UPD_DUMP_STATE])
-        return self._decode_state(raw)
+        data = self.command([CMD_FACEPLATE_UPD_DUMP_STATE])
+        return UpdEmulatorState.from_bytes(data[1:])
 
     def faceplate_clear_display(self):
         self.command([CMD_FACEPLATE_CLEAR_DISPLAY])
 
     def radio_state_dump(self):
-        raw = self.command([CMD_RADIO_STATE_DUMP])
-        assert len(raw) == 31
-        dump = {'operation_mode': raw[1],
-                'display_mode': raw[2],
-                'safe_tries': raw[3],
-                'safe_code': (raw[4] + (raw[5] << 8)),
-                'sound_bass':     struct.unpack('b', bytearray([raw[ 6]]))[0],
-                'sound_treble':   struct.unpack('b', bytearray([raw[ 7]]))[0],
-                'sound_midrange': struct.unpack('b', bytearray([raw[ 8]]))[0],
-                'sound_balance':  struct.unpack('b', bytearray([raw[ 9]]))[0],
-                'sound_fade':     struct.unpack('b', bytearray([raw[10]]))[0],
-                'tape_side': raw[11],
-                'cd_disc': raw[12],
-                'cd_track': raw[13],
-                'cd_cue_pos': (raw[14] + (raw[15] << 8)),
-                'tuner_freq': (raw[16] + (raw[17] << 8)),
-                'tuner_preset': raw[18],
-                'tuner_band': raw[19],
-                'display': raw[20:31]
-               }
-        return dump
+        data = self.command([CMD_RADIO_STATE_DUMP])
+        return RadioState.from_bytes(data[1:])
 
     def radio_state_process(self, display_ram):
         data = bytearray([CMD_RADIO_STATE_PROCESS]) + bytearray(display_ram)
@@ -174,6 +137,86 @@ class Client(object):
 
     def _flush_tx(self):
         self.serial.flush()
+
+
+class UpdEmulatorState(object):
+    def __init(self):
+        self.ram_area = 0
+        self.ram_size = 0
+        self.address = 0
+        self.incrment = False
+        self.display_ram = []
+        self.display_ram_dirty = False
+        self.pictograph_ram = []
+        self.pictograph_ram_dirty = False
+        self.chargen_ram = []
+        self.chargen_ram_dirty = False
+
+    def __eq__(self, other):
+        return self.__dict__ == other.__dict__
+
+    @classmethod
+    def from_bytes(klass, data):
+        assert len(data) == 152
+        inst = klass()
+        inst.ram_area = data[0]
+        inst.ram_size = data[1]
+        inst.address = data[2]
+        inst.increment = bool(data[3])
+        inst.display_ram = data[4:29]
+        inst.display_ram_dirty = bool(data[29])
+        inst.pictograph_ram = data[30:38]
+        inst.pictograph_ram_dirty = bool(data[38])
+        inst.chargen_ram  = data[39:151]
+        inst.chargen_ram_dirty = bool(data[151])
+        return inst
+
+
+class RadioState(object):
+    def __init__(self):
+        self.operation_mode = 0
+        self.display_mode = 0
+        self.safe_tries = 0
+        self.safe_code = 0
+        self.sound_bass = 0
+        self.sound_treble = 0
+        self.sound_midrange = 0
+        self.sound_balance = 0
+        self.sound_fade = 0
+        self.tape_side = 0
+        self.cd_disc = 0
+        self.cd_track = 0
+        self.cd_cue_pos = 0
+        self.tuner_freq = 0
+        self.tuner_preset = 0
+        self.tuner_band = 0
+        self.display = 0
+
+    def __eq__(self, other):
+        return self.__dict__ == other.__dict__
+
+    @classmethod
+    def from_bytes(klass, data):
+        assert len(data) == 30
+        inst = klass()
+        inst.operation_mode = data[0]
+        inst.display_mode = data[1]
+        inst.safe_tries = data[2]
+        inst.safe_code = (data[3] + (data[4] << 8))
+        inst.sound_bass =     struct.unpack('b', bytearray([data[5]]))[0]
+        inst.sound_treble =   struct.unpack('b', bytearray([data[6]]))[0]
+        inst.sound_midrange = struct.unpack('b', bytearray([data[7]]))[0]
+        inst.sound_balance =  struct.unpack('b', bytearray([data[8]]))[0]
+        inst.sound_fade =     struct.unpack('b', bytearray([data[9]]))[0]
+        inst.tape_side = data[10]
+        inst.cd_disc = data[11]
+        inst.cd_track = data[12]
+        inst.cd_cue_pos = (data[13] + (data[14] << 8))
+        inst.tuner_freq = (data[15] + (data[16] << 8))
+        inst.tuner_preset = data[17]
+        inst.tuner_band = data[18]
+        inst.display = data[19:30]
+        return inst
 
 
 class AvrTests(unittest.TestCase):
@@ -328,13 +371,13 @@ class AvrTests(unittest.TestCase):
     def test_upd_resets_to_known_state(self):
         self.client.emulated_upd_reset()
         state = self.client.emulated_upd_dump_state()
-        self.assertEqual(state['ram_area'], UPD_RAM_NONE) # 0=none
-        self.assertEqual(state['ram_size'], 0)
-        self.assertEqual(state['address'], 0)
-        self.assertEqual(state['increment'], False)
-        self.assertEqual(state['display_ram'], bytearray([0]*25))
-        self.assertEqual(state['chargen_ram'], bytearray([0]*112))
-        self.assertEqual(state['pictograph_ram'], bytearray([0]*8))
+        self.assertEqual(state.ram_area, UPD_RAM_NONE) # 0=none
+        self.assertEqual(state.ram_size, 0)
+        self.assertEqual(state.address, 0)
+        self.assertEqual(state.increment, False)
+        self.assertEqual(state.display_ram, bytearray([0]*25))
+        self.assertEqual(state.chargen_ram, bytearray([0]*112))
+        self.assertEqual(state.pictograph_ram, bytearray([0]*8))
 
     # uPD16432B Emulator: Data Setting Command
 
@@ -345,9 +388,9 @@ class AvrTests(unittest.TestCase):
         cmd |= 0b00001000 # increment off
         self.client.emulated_upd_send_command([cmd])
         state = self.client.emulated_upd_dump_state()
-        self.assertEqual(state['ram_area'], UPD_RAM_DISPLAY)
-        self.assertEqual(state['ram_size'], 25)
-        self.assertEqual(state['increment'], False)
+        self.assertEqual(state.ram_area, UPD_RAM_DISPLAY)
+        self.assertEqual(state.ram_size, 25)
+        self.assertEqual(state.increment, False)
 
     def test_upd_data_setting_sets_display_ram_area_increment_on(self):
         self.client.emulated_upd_reset()
@@ -356,9 +399,9 @@ class AvrTests(unittest.TestCase):
         cmd |= 0b00000000 # increment on
         self.client.emulated_upd_send_command([cmd])
         state = self.client.emulated_upd_dump_state()
-        self.assertEqual(state['ram_area'], UPD_RAM_DISPLAY)
-        self.assertEqual(state['ram_size'], 25)
-        self.assertEqual(state['increment'], True)
+        self.assertEqual(state.ram_area, UPD_RAM_DISPLAY)
+        self.assertEqual(state.ram_size, 25)
+        self.assertEqual(state.increment, True)
 
     def test_upd_data_setting_sets_pictograph_ram_area_increment_off(self):
         self.client.emulated_upd_reset()
@@ -367,9 +410,9 @@ class AvrTests(unittest.TestCase):
         cmd |= 0b00001000 # increment off
         self.client.emulated_upd_send_command([cmd])
         state = self.client.emulated_upd_dump_state()
-        self.assertEqual(state['ram_area'], UPD_RAM_PICTOGRAPH)
-        self.assertEqual(state['ram_size'], 8)
-        self.assertEqual(state['increment'], False)
+        self.assertEqual(state.ram_area, UPD_RAM_PICTOGRAPH)
+        self.assertEqual(state.ram_size, 8)
+        self.assertEqual(state.increment, False)
 
     def test_upd_data_setting_sets_chargen_ram_area_increment_on(self):
         self.client.emulated_upd_reset()
@@ -378,9 +421,9 @@ class AvrTests(unittest.TestCase):
         cmd |= 0b00000000 # increment on
         self.client.emulated_upd_send_command([cmd])
         state = self.client.emulated_upd_dump_state()
-        self.assertEqual(state['ram_area'], UPD_RAM_CHARGEN)
-        self.assertEqual(state['ram_size'], 112)
-        self.assertEqual(state['increment'], True)
+        self.assertEqual(state.ram_area, UPD_RAM_CHARGEN)
+        self.assertEqual(state.ram_size, 112)
+        self.assertEqual(state.increment, True)
 
     def test_upd_data_setting_sets_chargen_ram_area_ignores_increment_off(self):
         self.client.emulated_upd_reset()
@@ -389,9 +432,9 @@ class AvrTests(unittest.TestCase):
         cmd |= 0b00001000 # increment off (should be ignored)
         self.client.emulated_upd_send_command([cmd])
         state = self.client.emulated_upd_dump_state()
-        self.assertEqual(state['ram_area'], UPD_RAM_CHARGEN)
-        self.assertEqual(state['ram_size'], 112)
-        self.assertEqual(state['increment'], True)
+        self.assertEqual(state.ram_area, UPD_RAM_CHARGEN)
+        self.assertEqual(state.ram_size, 112)
+        self.assertEqual(state.increment, True)
 
     def test_upd_data_setting_unrecognized_ram_area_sets_none(self):
         self.client.emulated_upd_reset()
@@ -399,10 +442,10 @@ class AvrTests(unittest.TestCase):
         cmd |= 0b00000111 # not a valid ram area
         self.client.emulated_upd_send_command([cmd])
         state = self.client.emulated_upd_dump_state()
-        self.assertEqual(state['ram_area'], UPD_RAM_NONE)
-        self.assertEqual(state['ram_size'], 0)
-        self.assertEqual(state['address'], 0)
-        self.assertEqual(state['increment'], True)
+        self.assertEqual(state.ram_area, UPD_RAM_NONE)
+        self.assertEqual(state.ram_size, 0)
+        self.assertEqual(state.address, 0)
+        self.assertEqual(state.increment, True)
 
     def test_upd_data_setting_unrecognized_ram_area_ignores_increment_off(self):
         self.client.emulated_upd_reset()
@@ -411,22 +454,22 @@ class AvrTests(unittest.TestCase):
         cmd |= 0b00001000 # increment off (should be ignored)
         self.client.emulated_upd_send_command([cmd])
         state = self.client.emulated_upd_dump_state()
-        self.assertEqual(state['ram_area'], UPD_RAM_NONE)
-        self.assertEqual(state['ram_size'], 0)
-        self.assertEqual(state['address'], 0)
-        self.assertEqual(state['increment'], True)
+        self.assertEqual(state.ram_area, UPD_RAM_NONE)
+        self.assertEqual(state.ram_size, 0)
+        self.assertEqual(state.address, 0)
+        self.assertEqual(state.increment, True)
 
     # uPD16432B Emulator: Address Setting Command
 
     def test_upd_address_setting_unrecognized_ram_area_sets_zero(self):
         self.client.emulated_upd_reset()
         state = self.client.emulated_upd_dump_state()
-        self.assertEqual(state['ram_area'], UPD_RAM_NONE)
+        self.assertEqual(state.ram_area, UPD_RAM_NONE)
         cmd  = 0b10000000 # address setting command
         cmd |= 0b00000011 # address 0x03
         self.client.emulated_upd_send_command([cmd])
         state = self.client.emulated_upd_dump_state()
-        self.assertEqual(state['address'], 0)
+        self.assertEqual(state.address, 0)
 
     def test_upd_address_setting_sets_addresses_for_each_ram_area(self):
         tuples = (
@@ -449,14 +492,14 @@ class AvrTests(unittest.TestCase):
             cmd |= ram_select_bits
             self.client.emulated_upd_send_command([cmd])
             state = self.client.emulated_upd_dump_state()
-            self.assertEqual(state['ram_area'], ram_area)
+            self.assertEqual(state.ram_area, ram_area)
             # address setting command
             cmd = 0b10000000
             cmd |= address
             self.client.emulated_upd_send_command([cmd])
             # address should be as expected
             state = self.client.emulated_upd_dump_state()
-            self.assertEqual(state['address'], expected_address)
+            self.assertEqual(state.address, expected_address)
 
     # uPD16432B Emulator: Writing Data
 
@@ -485,10 +528,10 @@ class AvrTests(unittest.TestCase):
         data = bytearray(range(1, 26))
         self.client.emulated_upd_send_command(bytearray([cmd]) + data)
         state = self.client.emulated_upd_dump_state()
-        self.assertEqual(state['ram_area'], UPD_RAM_DISPLAY)
-        self.assertEqual(state['increment'], True)
-        self.assertEqual(state['address'], 0) # wrapped around
-        self.assertEqual(state['display_ram'], data)
+        self.assertEqual(state.ram_area, UPD_RAM_DISPLAY)
+        self.assertEqual(state.increment, True)
+        self.assertEqual(state.address, 0) # wrapped around
+        self.assertEqual(state.display_ram, data)
 
     def test_upd_display_increment_off_rewrites_data(self):
         self.client.emulated_upd_reset()
@@ -504,18 +547,18 @@ class AvrTests(unittest.TestCase):
         # followed by bytes that should be written to address 5 only
         self.client.emulated_upd_send_command([cmd, 1, 2, 3, 4, 5, 6, 7])
         state = self.client.emulated_upd_dump_state()
-        self.assertEqual(state['ram_area'], UPD_RAM_DISPLAY)
-        self.assertEqual(state['increment'], False)
-        self.assertEqual(state['address'], 5)
-        self.assertEqual(state['display_ram'][5], 7)
+        self.assertEqual(state.ram_area, UPD_RAM_DISPLAY)
+        self.assertEqual(state.increment, False)
+        self.assertEqual(state.address, 5)
+        self.assertEqual(state.display_ram[5], 7)
 
     # uPD16432B Emulator: Dirty RAM Tracking
 
     def test_upd_writing_display_ram_same_value_doesnt_set_dirty(self):
         self.client.emulated_upd_reset()
         state = self.client.emulated_upd_dump_state()
-        self.assertFalse(state['display_ram_dirty'])
-        self.assertEqual(state['display_ram'][0], 0)
+        self.assertFalse(state.display_ram_dirty)
+        self.assertEqual(state.display_ram[0], 0)
         # send data setting command
         cmd  = 0b01000000 # data setting command
         cmd |= 0b00000000 # display data ram
@@ -527,13 +570,13 @@ class AvrTests(unittest.TestCase):
         self.client.emulated_upd_send_command([cmd, 0])
         # dirty flag should still be false
         state = self.client.emulated_upd_dump_state()
-        self.assertFalse(state['display_ram_dirty'])
+        self.assertFalse(state.display_ram_dirty)
 
     def test_upd_writing_display_ram_new_value_sets_dirty(self):
         self.client.emulated_upd_reset()
         state = self.client.emulated_upd_dump_state()
-        self.assertFalse(state['display_ram_dirty'])
-        self.assertEqual(state['display_ram'][0], 0)
+        self.assertFalse(state.display_ram_dirty)
+        self.assertEqual(state.display_ram[0], 0)
         # send data setting command
         cmd  = 0b01000000 # data setting command
         cmd |= 0b00000000 # display data ram
@@ -545,14 +588,14 @@ class AvrTests(unittest.TestCase):
         self.client.emulated_upd_send_command([cmd, 1])
         # dirty flag should be true
         state = self.client.emulated_upd_dump_state()
-        self.assertEqual(state['display_ram'][0], 1)
-        self.assertTrue(state['display_ram_dirty'])
+        self.assertEqual(state.display_ram[0], 1)
+        self.assertTrue(state.display_ram_dirty)
 
     def test_upd_writing_pictograph_ram_same_value_doesnt_set_dirty(self):
         self.client.emulated_upd_reset()
         state = self.client.emulated_upd_dump_state()
-        self.assertFalse(state['pictograph_ram_dirty'])
-        self.assertEqual(state['pictograph_ram'][0], 0)
+        self.assertFalse(state.pictograph_ram_dirty)
+        self.assertEqual(state.pictograph_ram[0], 0)
         # send data setting command
         cmd  = 0b01000000 # data setting command
         cmd |= 0b00000001 # pictograph ram
@@ -564,13 +607,13 @@ class AvrTests(unittest.TestCase):
         self.client.emulated_upd_send_command([cmd, 0])
         # dirty flag should still be false
         state = self.client.emulated_upd_dump_state()
-        self.assertFalse(state['pictograph_ram_dirty'])
+        self.assertFalse(state.pictograph_ram_dirty)
 
     def test_upd_writing_pictograph_ram_new_value_sets_dirty(self):
         self.client.emulated_upd_reset()
         state = self.client.emulated_upd_dump_state()
-        self.assertFalse(state['pictograph_ram_dirty'])
-        self.assertEqual(state['pictograph_ram'][0], 0)
+        self.assertFalse(state.pictograph_ram_dirty)
+        self.assertEqual(state.pictograph_ram[0], 0)
         # send data setting command
         cmd  = 0b01000000 # data setting command
         cmd |= 0b00000001 # pictograph ram
@@ -582,14 +625,14 @@ class AvrTests(unittest.TestCase):
         self.client.emulated_upd_send_command([cmd, 1])
         # dirty flag should be true
         state = self.client.emulated_upd_dump_state()
-        self.assertEqual(state['pictograph_ram'][0], 1)
-        self.assertTrue(state['pictograph_ram_dirty'])
+        self.assertEqual(state.pictograph_ram[0], 1)
+        self.assertTrue(state.pictograph_ram_dirty)
 
     def test_upd_writing_chargen_ram_same_value_doesnt_set_dirty(self):
         self.client.emulated_upd_reset()
         state = self.client.emulated_upd_dump_state()
-        self.assertFalse(state['chargen_ram_dirty'])
-        self.assertEqual(state['chargen_ram'][0], 0)
+        self.assertFalse(state.chargen_ram_dirty)
+        self.assertEqual(state.chargen_ram[0], 0)
         # send data setting command
         cmd  = 0b01000000 # data setting command
         cmd |= 0b00000010 # chargen ram
@@ -601,13 +644,13 @@ class AvrTests(unittest.TestCase):
         self.client.emulated_upd_send_command([cmd, 0])
         # dirty flag should still be false
         state = self.client.emulated_upd_dump_state()
-        self.assertFalse(state['chargen_ram_dirty'])
+        self.assertFalse(state.chargen_ram_dirty)
 
     def test_upd_writing_chargen_ram_new_value_sets_dirty(self):
         self.client.emulated_upd_reset()
         state = self.client.emulated_upd_dump_state()
-        self.assertFalse(state['chargen_ram_dirty'])
-        self.assertEqual(state['chargen_ram'][0], 0)
+        self.assertFalse(state.chargen_ram_dirty)
+        self.assertEqual(state.chargen_ram[0], 0)
         # send data setting command
         cmd  = 0b01000000 # data setting command
         cmd |= 0b00000010 # chargen ram
@@ -619,8 +662,8 @@ class AvrTests(unittest.TestCase):
         self.client.emulated_upd_send_command([cmd, 1])
         # dirty flag should be true
         state = self.client.emulated_upd_dump_state()
-        self.assertEqual(state['chargen_ram'][0], 1)
-        self.assertTrue(state['chargen_ram_dirty'])
+        self.assertEqual(state.chargen_ram[0], 1)
+        self.assertTrue(state.chargen_ram_dirty)
 
     # Faceplate
 
@@ -680,10 +723,10 @@ class AvrTests(unittest.TestCase):
             self.client.radio_state_reset()
             self.client.radio_state_process(display)
             state = self.client.radio_state_dump()
-            self.assertEqual(state['safe_code'], safe_code)
-            self.assertEqual(state['safe_tries'], safe_tries)
-            self.assertEqual(state['operation_mode'], mode)
-            self.assertEqual(state['display_mode'],
+            self.assertEqual(state.safe_code, safe_code)
+            self.assertEqual(state.safe_tries, safe_tries)
+            self.assertEqual(state.operation_mode, mode)
+            self.assertEqual(state.display_mode,
                 DisplayModes.SHOWING_OPERATION)
 
     def test_radio_state_volume(self):
@@ -703,7 +746,7 @@ class AvrTests(unittest.TestCase):
             self.client.radio_state_reset()
             self.client.radio_state_process(display)
             state = self.client.radio_state_dump()
-            self.assertEqual(state['display_mode'],
+            self.assertEqual(state.display_mode,
                 DisplayModes.ADJUSTING_VOLUME)
 
     def test_radio_state_bass(self):
@@ -717,13 +760,13 @@ class AvrTests(unittest.TestCase):
         for display, bass in values:
             self.client.radio_state_reset()
             state = self.client.radio_state_dump()
-            original_operation_mode = state['operation_mode']
+            original_operation_mode = state.operation_mode
             self.client.radio_state_process(display)
             state = self.client.radio_state_dump()
-            self.assertEqual(state['sound_bass'], bass)
-            self.assertEqual(state['operation_mode'],
+            self.assertEqual(state.sound_bass, bass)
+            self.assertEqual(state.operation_mode,
                 original_operation_mode)
-            self.assertEqual(state['display_mode'],
+            self.assertEqual(state.display_mode,
                 DisplayModes.ADJUSTING_BASS)
 
     def test_radio_state_treble(self):
@@ -737,13 +780,13 @@ class AvrTests(unittest.TestCase):
         for display, treble in values:
             self.client.radio_state_reset()
             state = self.client.radio_state_dump()
-            original_operation_mode = state['operation_mode']
+            original_operation_mode = state.operation_mode
             self.client.radio_state_process(display)
             state = self.client.radio_state_dump()
-            self.assertEqual(state['sound_treble'], treble)
-            self.assertEqual(state['operation_mode'],
+            self.assertEqual(state.sound_treble, treble)
+            self.assertEqual(state.operation_mode,
                 original_operation_mode)
-            self.assertEqual(state['display_mode'],
+            self.assertEqual(state.display_mode,
                 DisplayModes.ADJUSTING_TREBLE)
 
     def test_radio_state_mid(self):
@@ -757,13 +800,13 @@ class AvrTests(unittest.TestCase):
         for display, mid in values:
             self.client.radio_state_reset()
             state = self.client.radio_state_dump()
-            original_operation_mode = state['operation_mode']
+            original_operation_mode = state.operation_mode
             self.client.radio_state_process(display)
             state = self.client.radio_state_dump()
-            self.assertEqual(state['sound_midrange'], mid)
-            self.assertEqual(state['operation_mode'],
+            self.assertEqual(state.sound_midrange, mid)
+            self.assertEqual(state.operation_mode,
                 original_operation_mode)
-            self.assertEqual(state['display_mode'],
+            self.assertEqual(state.display_mode,
                 DisplayModes.ADJUSTING_MIDRANGE)
 
     def test_radio_state_balance(self):
@@ -777,13 +820,13 @@ class AvrTests(unittest.TestCase):
         for display, balance in values:
             self.client.radio_state_reset()
             state = self.client.radio_state_dump()
-            original_operation_mode = state['operation_mode']
+            original_operation_mode = state.operation_mode
             self.client.radio_state_process(display)
             state = self.client.radio_state_dump()
-            self.assertEqual(state['sound_balance'], balance)
-            self.assertEqual(state['operation_mode'],
+            self.assertEqual(state.sound_balance, balance)
+            self.assertEqual(state.operation_mode,
                 original_operation_mode)
-            self.assertEqual(state['display_mode'],
+            self.assertEqual(state.display_mode,
                 DisplayModes.ADJUSTING_BALANCE)
 
     def test_radio_state_fade(self):
@@ -797,109 +840,109 @@ class AvrTests(unittest.TestCase):
         for display, fade in values:
             self.client.radio_state_reset()
             state = self.client.radio_state_dump()
-            original_operation_mode = state['operation_mode']
+            original_operation_mode = state.operation_mode
             self.client.radio_state_process(display)
             state = self.client.radio_state_dump()
-            self.assertEqual(state['sound_fade'], fade)
-            self.assertEqual(state['operation_mode'],
+            self.assertEqual(state.sound_fade, fade)
+            self.assertEqual(state.operation_mode,
                 original_operation_mode)
-            self.assertEqual(state['display_mode'],
+            self.assertEqual(state.display_mode,
                 DisplayModes.ADJUSTING_FADE)
 
     def test_radio_state_premium_5_tape_load(self):
         self.client.radio_state_reset()
         self.client.radio_state_process("TAPE LOAD  ")
         state = self.client.radio_state_dump()
-        self.assertEqual(state['tape_side'], 0)
-        self.assertEqual(state['operation_mode'],
+        self.assertEqual(state.tape_side, 0)
+        self.assertEqual(state.operation_mode,
             OperationModes.TAPE_LOAD)
-        self.assertEqual(state['display_mode'],
+        self.assertEqual(state.display_mode,
             DisplayModes.SHOWING_OPERATION)
 
     def test_radio_state_premium_5_tape_metal(self):
         self.client.radio_state_reset()
         self.client.radio_state_process("TAPE METAL ")
         state = self.client.radio_state_dump()
-        self.assertEqual(state['tape_side'], 0)
-        self.assertEqual(state['operation_mode'],
+        self.assertEqual(state.tape_side, 0)
+        self.assertEqual(state.operation_mode,
             OperationModes.TAPE_METAL)
-        self.assertEqual(state['display_mode'],
+        self.assertEqual(state.display_mode,
             DisplayModes.SHOWING_OPERATION)
 
     def test_radio_state_tape_play_a(self):
         self.client.radio_state_reset()
         self.client.radio_state_process("TAPE PLAY A")
         state = self.client.radio_state_dump()
-        self.assertEqual(state['tape_side'], 1)
-        self.assertEqual(state['operation_mode'],
+        self.assertEqual(state.tape_side, 1)
+        self.assertEqual(state.operation_mode,
             OperationModes.TAPE_PLAYING)
-        self.assertEqual(state['display_mode'],
+        self.assertEqual(state.display_mode,
             DisplayModes.SHOWING_OPERATION)
 
     def test_radio_state_tape_play_b(self):
         self.client.radio_state_reset()
         self.client.radio_state_process("TAPE PLAY B")
         state = self.client.radio_state_dump()
-        self.assertEqual(state['tape_side'], 2)
-        self.assertEqual(state['operation_mode'],
+        self.assertEqual(state.tape_side, 2)
+        self.assertEqual(state.operation_mode,
             OperationModes.TAPE_PLAYING)
-        self.assertEqual(state['display_mode'],
+        self.assertEqual(state.display_mode,
             DisplayModes.SHOWING_OPERATION)
 
     def test_radio_state_tape_ff(self):
         self.client.radio_state_reset()
         self.client.radio_state_process("TAPE  FF   ")
         state = self.client.radio_state_dump()
-        self.assertEqual(state['operation_mode'],
+        self.assertEqual(state.operation_mode,
             OperationModes.TAPE_FF)
-        self.assertEqual(state['display_mode'],
+        self.assertEqual(state.display_mode,
             DisplayModes.SHOWING_OPERATION)
 
     def test_radio_state_tape_mss_ff(self):
         self.client.radio_state_reset()
         self.client.radio_state_process("TAPEMSS FF ")
         state = self.client.radio_state_dump()
-        self.assertEqual(state['operation_mode'],
+        self.assertEqual(state.operation_mode,
             OperationModes.TAPE_MSS_FF)
-        self.assertEqual(state['display_mode'],
+        self.assertEqual(state.display_mode,
             DisplayModes.SHOWING_OPERATION)
 
     def test_radio_state_tape_rew(self):
         self.client.radio_state_reset()
         self.client.radio_state_process("TAPE  REW  ")
         state = self.client.radio_state_dump()
-        self.assertEqual(state['operation_mode'],
+        self.assertEqual(state.operation_mode,
             OperationModes.TAPE_REW)
-        self.assertEqual(state['display_mode'],
+        self.assertEqual(state.display_mode,
             DisplayModes.SHOWING_OPERATION)
 
     def test_radio_state_tape_mss_rew(self):
         self.client.radio_state_reset()
         self.client.radio_state_process("TAPEMSS REW")
         state = self.client.radio_state_dump()
-        self.assertEqual(state['operation_mode'],
+        self.assertEqual(state.operation_mode,
             OperationModes.TAPE_MSS_REW)
-        self.assertEqual(state['display_mode'],
+        self.assertEqual(state.display_mode,
             DisplayModes.SHOWING_OPERATION)
 
     def test_radio_state_tape_error(self):
         self.client.radio_state_reset()
         self.client.radio_state_process("TAPE ERROR ")
         state = self.client.radio_state_dump()
-        self.assertEqual(state['tape_side'], 0)
-        self.assertEqual(state['operation_mode'],
+        self.assertEqual(state.tape_side, 0)
+        self.assertEqual(state.operation_mode,
             OperationModes.TAPE_ERROR)
-        self.assertEqual(state['display_mode'],
+        self.assertEqual(state.display_mode,
             DisplayModes.SHOWING_OPERATION)
 
     def test_radio_state_tape_no_tape(self):
         self.client.radio_state_reset()
         self.client.radio_state_process("    NO TAPE")
         state = self.client.radio_state_dump()
-        self.assertEqual(state['tape_side'], 0)
-        self.assertEqual(state['operation_mode'],
+        self.assertEqual(state.tape_side, 0)
+        self.assertEqual(state.operation_mode,
             OperationModes.TAPE_NO_TAPE)
-        self.assertEqual(state['display_mode'],
+        self.assertEqual(state.display_mode,
             DisplayModes.SHOWING_OPERATION)
 
     def test_radio_state_cd_playing(self):
@@ -911,11 +954,11 @@ class AvrTests(unittest.TestCase):
             self.client.radio_state_reset()
             self.client.radio_state_process(display)
             state = self.client.radio_state_dump()
-            self.assertEqual(state['cd_disc'], disc)
-            self.assertEqual(state['cd_track'], track)
-            self.assertEqual(state['operation_mode'],
+            self.assertEqual(state.cd_disc, disc)
+            self.assertEqual(state.cd_track, track)
+            self.assertEqual(state.operation_mode,
                 OperationModes.CD_PLAYING)
-            self.assertEqual(state['display_mode'],
+            self.assertEqual(state.display_mode,
                 DisplayModes.SHOWING_OPERATION)
 
     def test_radio_state_cd_cueing(self):
@@ -925,24 +968,24 @@ class AvrTests(unittest.TestCase):
         # radio.cd_track = 12
         self.client.radio_state_process("CUE   122  ")
         state = self.client.radio_state_dump()
-        # self.assertEqual(state['cd_disc'], 5)
-        # self.assertEqual(state['cd_track'], 12)
+        # self.assertEqual(state.cd_disc, 5)
+        # self.assertEqual(state.cd_track, 12)
         # self.assertEqual(radio.cd_cue_pos, 122) TODO
-        self.assertEqual(state['operation_mode'],
+        self.assertEqual(state.operation_mode,
             OperationModes.CD_CUEING)
-        self.assertEqual(state['display_mode'],
+        self.assertEqual(state.display_mode,
             DisplayModes.SHOWING_OPERATION)
 
     def test_radio_state_cd_check_magazine(self):
         self.client.radio_state_reset()
         self.client.radio_state_process("CHK MAGAZIN")
         state = self.client.radio_state_dump()
-        self.assertEqual(state['cd_disc'], 0)
-        self.assertEqual(state['cd_track'], 0)
+        self.assertEqual(state.cd_disc, 0)
+        self.assertEqual(state.cd_track, 0)
         # self.assertEqual(radio.cd_cue_pos, 0) TODO
-        self.assertEqual(state['operation_mode'],
+        self.assertEqual(state.operation_mode,
             OperationModes.CD_CHECK_MAGAZINE)
-        self.assertEqual(state['display_mode'],
+        self.assertEqual(state.display_mode,
             DisplayModes.SHOWING_OPERATION)
 
     def test_radio_state_cd_cdx_no_cd(self):
@@ -953,12 +996,12 @@ class AvrTests(unittest.TestCase):
 #        radio.cd_cue_pos = 99
         self.client.radio_state_process("CD 2 NO CD ") # space in "CD 2"
         state = self.client.radio_state_dump()
-        self.assertEqual(state['cd_disc'], 2)
-        self.assertEqual(state['cd_track'], 0)
+        self.assertEqual(state.cd_disc, 2)
+        self.assertEqual(state.cd_track, 0)
         # self.assertEqual(radio.cd_cue_pos, 0) TODO
-        self.assertEqual(state['operation_mode'],
+        self.assertEqual(state.operation_mode,
             OperationModes.CD_CDX_NO_CD)
-        self.assertEqual(state['display_mode'],
+        self.assertEqual(state.display_mode,
             DisplayModes.SHOWING_OPERATION)
 
     def test_radio_state_cd_cdx_cd_err(self):
@@ -969,12 +1012,12 @@ class AvrTests(unittest.TestCase):
         # radio.cd_cue_pos = 99
         self.client.radio_state_process("CD1 CD ERR ") # no space in "CD1"
         state = self.client.radio_state_dump()
-        self.assertEqual(state['cd_disc'], 1)
-        self.assertEqual(state['cd_track'], 0)
+        self.assertEqual(state.cd_disc, 1)
+        self.assertEqual(state.cd_track, 0)
         #self.assertEqual(radio.cd_cue_pos, 0) TODO
-        self.assertEqual(state['operation_mode'],
+        self.assertEqual(state.operation_mode,
             OperationModes.CD_CDX_CD_ERR)
-        self.assertEqual(state['display_mode'],
+        self.assertEqual(state.display_mode,
             DisplayModes.SHOWING_OPERATION)
 
     def test_radio_state_cd_no_disc(self):
@@ -985,12 +1028,12 @@ class AvrTests(unittest.TestCase):
         # radio.cd_cue_pos = 99
         self.client.radio_state_process("    NO DISC")
         state = self.client.radio_state_dump()
-        self.assertEqual(state['cd_disc'], 0)
-        self.assertEqual(state['cd_track'], 0)
+        self.assertEqual(state.cd_disc, 0)
+        self.assertEqual(state.cd_track, 0)
         # self.assertEqual(radio.cd_cue_pos, 0) TODO
-        self.assertEqual(state['operation_mode'],
+        self.assertEqual(state.operation_mode,
             OperationModes.CD_NO_DISC)
-        self.assertEqual(state['display_mode'],
+        self.assertEqual(state.display_mode,
             DisplayModes.SHOWING_OPERATION)
 
     def test_radio_state_cd_no_changer(self):
@@ -1001,12 +1044,12 @@ class AvrTests(unittest.TestCase):
         # radio.cd_cue_pos = 99
         self.client.radio_state_process("NO  CHANGER")
         state = self.client.radio_state_dump()
-        self.assertEqual(state['cd_disc'], 0)
-        self.assertEqual(state['cd_track'], 0)
+        self.assertEqual(state.cd_disc, 0)
+        self.assertEqual(state.cd_track, 0)
         # self.assertEqual(radio.cd_cue_pos, 0) TODO
-        self.assertEqual(state['operation_mode'],
+        self.assertEqual(state.operation_mode,
             OperationModes.CD_NO_CHANGER)
-        self.assertEqual(state['display_mode'],
+        self.assertEqual(state.display_mode,
             DisplayModes.SHOWING_OPERATION)
 
     def test_radio_state_tuner_fm_scan_off(self):
@@ -1025,12 +1068,12 @@ class AvrTests(unittest.TestCase):
             self.client.radio_state_reset()
             self.client.radio_state_process(display)
             state = self.client.radio_state_dump()
-            self.assertEqual(state['tuner_band'], band)
-            self.assertEqual(state['tuner_freq'], freq)
-            self.assertEqual(state['tuner_preset'], preset)
-            self.assertEqual(state['operation_mode'],
+            self.assertEqual(state.tuner_band, band)
+            self.assertEqual(state.tuner_freq, freq)
+            self.assertEqual(state.tuner_preset, preset)
+            self.assertEqual(state.operation_mode,
                 OperationModes.TUNER_PLAYING)
-            self.assertEqual(state['display_mode'],
+            self.assertEqual(state.display_mode,
                 DisplayModes.SHOWING_OPERATION)
 
     def test_radio_state_tuner_fm_scan_on(self):
@@ -1045,12 +1088,12 @@ class AvrTests(unittest.TestCase):
 #            radio.tuner_band = initial_band
             self.client.radio_state_process(display)
             state = self.client.radio_state_dump()
-            self.assertEqual(state['tuner_freq'], freq)
-            self.assertEqual(state['tuner_preset'], 0)
-            self.assertEqual(state['tuner_band'], expected_band)
-            self.assertEqual(state['operation_mode'],
+            self.assertEqual(state.tuner_freq, freq)
+            self.assertEqual(state.tuner_preset, 0)
+            self.assertEqual(state.tuner_band, expected_band)
+            self.assertEqual(state.operation_mode,
                 OperationModes.TUNER_SCANNING)
-            self.assertEqual(state['display_mode'],
+            self.assertEqual(state.display_mode,
                 DisplayModes.SHOWING_OPERATION)
 
     def test_radio_state_tuner_am_scan_off(self):
@@ -1066,11 +1109,11 @@ class AvrTests(unittest.TestCase):
 #            radio.operation_mode = OperationModes.UNKNOWN
             self.client.radio_state_process(display)
             state = self.client.radio_state_dump()
-            self.assertEqual(state['tuner_freq'], freq)
-            self.assertEqual(state['tuner_band'], TunerBands.AM)
-            self.assertEqual(state['operation_mode'], OperationModes.TUNER_PLAYING)
-            self.assertEqual(state['tuner_preset'], preset)
-            self.assertEqual(state['display_mode'],
+            self.assertEqual(state.tuner_freq, freq)
+            self.assertEqual(state.tuner_band, TunerBands.AM)
+            self.assertEqual(state.operation_mode, OperationModes.TUNER_PLAYING)
+            self.assertEqual(state.tuner_preset, preset)
+            self.assertEqual(state.display_mode,
                 DisplayModes.SHOWING_OPERATION)
 
     def test_radio_state_tuner_am_scan_on(self):
@@ -1084,12 +1127,12 @@ class AvrTests(unittest.TestCase):
 #            radio.tuner_band = TunerBands.AM
             self.client.radio_state_process(display)
             state = self.client.radio_state_dump()
-            self.assertEqual(state['tuner_freq'], freq)
-            self.assertEqual(state['tuner_band'], TunerBands.AM)
-            self.assertEqual(state['tuner_preset'], 0)
-            self.assertEqual(state['operation_mode'],
+            self.assertEqual(state.tuner_freq, freq)
+            self.assertEqual(state.tuner_band, TunerBands.AM)
+            self.assertEqual(state.tuner_preset, 0)
+            self.assertEqual(state.operation_mode,
                 OperationModes.TUNER_SCANNING)
-            self.assertEqual(state['display_mode'],
+            self.assertEqual(state.display_mode,
                 DisplayModes.SHOWING_OPERATION)
 
     def test_radio_state_ignores_blank(self):
