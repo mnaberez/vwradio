@@ -3,7 +3,8 @@
 #include "leds.h"
 #include "main.h"
 #include "faceplate.h"
-#include "radio.h"
+#include "radio_spi.h"
+#include "radio_state.h"
 #include "uart.h"
 #include "updemu.h"
 #include <avr/io.h>
@@ -234,7 +235,74 @@ static void cmd_do_radio_load_key_data()
     }
 
     cmd_reply_ack();
-    return;
+}
+
+
+static void cmd_do_radio_state_reset()
+{
+    // TODO arg length checking
+
+    radio_state_init(&radio_state);
+    cmd_reply_ack();
+}
+
+
+static void cmd_do_radio_state_process()
+{
+    // TODO arg length checking
+
+    // Bail out if size of bytes from UART exceeds DISPLAY_DATA_RAM size
+    // -1 is because first byte in cmd_buf is the uart command byte
+    if ((cmd_buf_index - 1) > UPD_DISPLAY_DATA_RAM_SIZE)
+    {
+        cmd_reply_nak();
+        return;
+    }
+
+    // Initialize empty data buffer
+    uint8_t display_data_ram[UPD_DISPLAY_DATA_RAM_SIZE];
+    uint8_t i;
+    for (i=0; i<sizeof(display_data_ram); i++)
+    {
+        display_data_ram[i] = 0;
+    }
+
+    // Populate data buffer with UART data
+    for (i=1; i<cmd_buf_index; i++)
+    {
+        display_data_ram[i-1] = cmd_buf[i];
+    }
+
+    radio_state_process(&radio_state, display_data_ram);
+    cmd_reply_ack();
+}
+
+
+static void cmd_do_radio_state_dump()
+{
+    // TODO arg length checking
+
+    uart_putc(20); // number of bytes to follow
+    uart_putc(ACK);
+    uart_putc(radio_state.operation_mode);
+    uart_putc(radio_state.display_mode);
+    uart_putc(radio_state.safe_tries);
+    uart_putc(radio_state.safe_code & 0x00FF);
+    uart_putc((radio_state.safe_code & 0xFF00) >> 8);
+    uart_putc(radio_state.sound_bass);
+    uart_putc(radio_state.sound_treble);
+    uart_putc(radio_state.sound_midrange);
+    uart_putc(radio_state.sound_balance);
+    uart_putc(radio_state.sound_fade);
+    uart_putc(radio_state.tape_side);
+    uart_putc(radio_state.cd_disc);
+    uart_putc(radio_state.cd_track);
+    uart_putc(radio_state.cd_cue_pos & 0x00FF);
+    uart_putc((radio_state.cd_cue_pos & 0xFF00) >> 8);
+    uart_putc(radio_state.tuner_freq & 0x00FF);
+    uart_putc((radio_state.tuner_freq & 0xFF00) >> 8);
+    uart_putc(radio_state.tuner_preset);
+    uart_putc(radio_state.tuner_band);
 }
 
 /* Command: Echo
@@ -402,6 +470,16 @@ static void cmd_dispatch()
 
         case CMD_RADIO_LOAD_KEY_DATA:
             cmd_do_radio_load_key_data();
+            break;
+
+        case CMD_RADIO_STATE_PROCESS:
+            cmd_do_radio_state_process();
+            break;
+        case CMD_RADIO_STATE_DUMP:
+            cmd_do_radio_state_dump();
+            break;
+        case CMD_RADIO_STATE_RESET:
+            cmd_do_radio_state_reset();
             break;
 
         case CMD_EMULATED_UPD_DUMP_STATE:

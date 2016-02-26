@@ -1,5 +1,5 @@
-#ifndef RADIO_H
-#define RADIO_H
+#ifndef RADIO_SPI_H
+#define RADIO_SPI_H
 
 #include <stdint.h>
 #include "updemu.h"

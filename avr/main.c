@@ -28,7 +28,8 @@
 #include "cmd.h"
 #include "faceplate.h"
 #include "leds.h"
-#include "radio.h"
+#include "radio_spi.h"
+#include "radio_state.h"
 #include "uart.h"
 #include "updemu.h"
 

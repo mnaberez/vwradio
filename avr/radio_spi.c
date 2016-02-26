@@ -1,9 +1,8 @@
 #include "main.h"
-#include "radio.h"
+#include "radio_spi.h"
 #include "updemu.h"
 #include <avr/interrupt.h>
 #include <avr/io.h>
-#include <util/delay.h>
 
 /*************************************************************************
  * SPI Slave interface to Radio
@@ -23,7 +22,7 @@ void radio_spi_init()
     {
         upd_tx_key_data[i] = 0;
     }
-    
+
     // PB2 as input (STB from radio)
     DDRB &= ~_BV(PB2);
     // PB3 as output (/SS output we'll make in software from STB)
