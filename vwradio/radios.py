@@ -41,7 +41,6 @@ class TunerBands(Enum):
 
 class Radio(object):
     def __init__(self):
-        self.text = ' ' * 11
         self.operation_mode = OperationModes.UNKNOWN
         self.display_mode = DisplayModes.UNKNOWN
         self.safe_code = 1000
@@ -90,7 +89,6 @@ class Radio(object):
             self._process_tuner_am(text)
         else:
             self._process_unknown(text)
-        self.text = text
 
     def _process_safe(self, text):
         self.display_mode = DisplayModes.SHOWING_OPERATION
