@@ -188,7 +188,7 @@ static uint8_t _populate_cmd_from_uart_cmd_buf(upd_command_t *cmd)
 }
 
 /* Command: Send uPD16432B Emulator Command
- * Arguments: <cmd byte> <cmd arg byte1> <cmd arg byte2> ...
+ * Arguments: <cmd arg byte0> <cmd arg byte1> ...
  * Returns: <ack>
  *
  * Sends a fake SPI command to the uPD16432B Emulator.  The arguments
@@ -211,7 +211,7 @@ static void cmd_do_emulated_upd_send_command()
 }
 
 /* Command: Load uPD16432B Emulator Key Data
- * Arguments: <cmd byte> <key0> <key1> <key2> <key3>
+ * Arguments: <key0> <key1> <key2> <key3>
  * Returns: <ack>
  *
  * Load the four bytes of the uPD16432B emulator key data.  These bytes
@@ -237,16 +237,26 @@ static void cmd_do_radio_load_key_data()
     cmd_reply_ack();
 }
 
-
+/* Command: Radio State Reset
+ * Arguments: <byte0> <byte1> ...
+ * Returns: <ack>
+ */
 static void cmd_do_radio_state_reset()
 {
-    // TODO arg length checking
+    if (cmd_buf_index != 1)
+    {
+        cmd_reply_nak();
+        return;
+    }
 
     radio_state_init(&radio_state);
     cmd_reply_ack();
 }
 
-
+/* Command: Radio State Process
+ * Arguments: <byte1>
+ * Returns: <ack>
+ */
 static void cmd_do_radio_state_process()
 {
     // TODO arg length checking
@@ -277,10 +287,17 @@ static void cmd_do_radio_state_process()
     cmd_reply_ack();
 }
 
-
+/* Command: Radio State Dump
+ * Arguments: <byte1>
+ * Returns: <ack>
+ */
 static void cmd_do_radio_state_dump()
 {
-    // TODO arg length checking
+    if (cmd_buf_index != 1)
+    {
+        cmd_reply_nak();
+        return;
+    }
 
     uart_putc(31); // number of bytes to follow
     uart_putc(ACK);
@@ -417,7 +434,7 @@ static void cmd_do_faceplate_upd_dump_state()
 }
 
 /* Command: Send command to faceplate's uPD16432B
- * Arguments: <cmd byte> <cmd arg byte1> <cmd arg byte2> ...
+ * Arguments: <cmd arg byte1> <cmd arg byte2> ...
  * Returns: <ack>
  *
  * Send an SPI command to the faceplate's uPD16432B.

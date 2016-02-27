@@ -58,10 +58,6 @@ class Client(object):
         data = bytearray([CMD_EMULATED_UPD_SEND_COMMAND]) + bytearray(spi_bytes)
         self.command(data)
 
-    def radio_load_key_data(self, key_bytes):
-        data = bytearray([CMD_RADIO_LOAD_KEY_DATA]) + bytearray(key_bytes)
-        self.command(data)
-
     def faceplate_upd_send_command(self, spi_bytes):
         data = bytearray([CMD_FACEPLATE_UPD_SEND_COMMAND]) + bytearray(spi_bytes)
         self.command(data)
@@ -73,6 +69,13 @@ class Client(object):
     def faceplate_clear_display(self):
         self.command([CMD_FACEPLATE_CLEAR_DISPLAY])
 
+    def radio_load_key_data(self, key_bytes):
+        data = bytearray([CMD_RADIO_LOAD_KEY_DATA]) + bytearray(key_bytes)
+        self.command(data)
+
+    def radio_state_reset(self):
+        self.command([CMD_RADIO_STATE_RESET])
+
     def radio_state_dump(self):
         data = self.command([CMD_RADIO_STATE_DUMP])
         return RadioState(data[1:])
@@ -80,9 +83,6 @@ class Client(object):
     def radio_state_process(self, display_ram):
         data = bytearray([CMD_RADIO_STATE_PROCESS]) + bytearray(display_ram)
         self.command(data)
-
-    def radio_state_reset(self):
-        self.command([CMD_RADIO_STATE_RESET])
 
     # Low level
 
@@ -288,6 +288,20 @@ class AvrTests(unittest.TestCase):
                 rx_bytes = self.client.command(
                     data=[CMD_SET_LED, led, state], ignore_nak=True)
                 self.assertEqual(rx_bytes, bytearray([ACK]))
+
+    # Radio State Reset command
+
+    def test_radio_state_reset_returns_nak_for_bad_args_length(self):
+        rx_bytes = self.client.command(
+            data=[CMD_RADIO_STATE_RESET, 1], ignore_nak=True)
+        self.assertEqual(rx_bytes, bytearray([NAK]))
+
+    # Radio State Dump command
+
+    def test_radio_state_dump_returns_nak_for_bad_args_length(self):
+        rx_bytes = self.client.command(
+            data=[CMD_RADIO_STATE_DUMP, 1], ignore_nak=True)
+        self.assertEqual(rx_bytes, bytearray([NAK]))
 
     # Reset UPD command
 
