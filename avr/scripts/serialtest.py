@@ -52,7 +52,7 @@ class Client(object):
 
     def emulated_upd_dump_state(self):
         data = self.command([CMD_EMULATED_UPD_DUMP_STATE])
-        return UpdEmulatorState.from_bytes(data[1:])
+        return UpdEmulatorState(data[1:])
 
     def emulated_upd_send_command(self, spi_bytes):
         data = bytearray([CMD_EMULATED_UPD_SEND_COMMAND]) + bytearray(spi_bytes)
@@ -68,14 +68,14 @@ class Client(object):
 
     def faceplate_upd_dump_state(self):
         data = self.command([CMD_FACEPLATE_UPD_DUMP_STATE])
-        return UpdEmulatorState.from_bytes(data[1:])
+        return UpdEmulatorState(data[1:])
 
     def faceplate_clear_display(self):
         self.command([CMD_FACEPLATE_CLEAR_DISPLAY])
 
     def radio_state_dump(self):
         data = self.command([CMD_RADIO_STATE_DUMP])
-        return RadioState.from_bytes(data[1:])
+        return RadioState(data[1:])
 
     def radio_state_process(self, display_ram):
         data = bytearray([CMD_RADIO_STATE_PROCESS]) + bytearray(display_ram)
@@ -140,89 +140,51 @@ class Client(object):
 
 
 class UpdEmulatorState(object):
-    def __init(self):
-        self.ram_area = 0
-        self.ram_size = 0
-        self.address = 0
-        self.incrment = False
-        self.display_ram = []
-        self.display_ram_dirty = False
-        self.pictograph_ram = []
-        self.pictograph_ram_dirty = False
-        self.chargen_ram = []
-        self.chargen_ram_dirty = False
+    def __init__(self, data):
+        self.ram_area = data[0]
+        self.ram_size = data[1]
+        self.address = data[2]
+        self.increment = bool(data[3])
+        self.display_ram = data[4:29]
+        self.display_ram_dirty = bool(data[29])
+        self.pictograph_ram = data[30:38]
+        self.pictograph_ram_dirty = bool(data[38])
+        self.chargen_ram  = data[39:151]
+        self.chargen_ram_dirty = bool(data[151])
 
     def __repr__(self):
         return '<%s: %s> ' % (self.__class__.__name__, repr(self.__dict__))
 
     def __eq__(self, other):
         return self.__dict__ == other.__dict__
-
-    @classmethod
-    def from_bytes(klass, data):
-        assert len(data) == 152
-        inst = klass()
-        inst.ram_area = data[0]
-        inst.ram_size = data[1]
-        inst.address = data[2]
-        inst.increment = bool(data[3])
-        inst.display_ram = data[4:29]
-        inst.display_ram_dirty = bool(data[29])
-        inst.pictograph_ram = data[30:38]
-        inst.pictograph_ram_dirty = bool(data[38])
-        inst.chargen_ram  = data[39:151]
-        inst.chargen_ram_dirty = bool(data[151])
-        return inst
 
 
 class RadioState(object):
-    def __init__(self):
-        self.operation_mode = 0
-        self.display_mode = 0
-        self.safe_tries = 0
-        self.safe_code = 0
-        self.sound_bass = 0
-        self.sound_treble = 0
-        self.sound_midrange = 0
-        self.sound_balance = 0
-        self.sound_fade = 0
-        self.tape_side = 0
-        self.cd_disc = 0
-        self.cd_track = 0
-        self.cd_cue_pos = 0
-        self.tuner_freq = 0
-        self.tuner_preset = 0
-        self.tuner_band = 0
-        self.display = 0
+    def __init__(self, data):
+        assert len(data) == 30
+        self.operation_mode = data[0]
+        self.display_mode = data[1]
+        self.safe_tries = data[2]
+        self.safe_code = (data[3] + (data[4] << 8))
+        self.sound_bass =     struct.unpack('b', bytearray([data[5]]))[0]
+        self.sound_treble =   struct.unpack('b', bytearray([data[6]]))[0]
+        self.sound_midrange = struct.unpack('b', bytearray([data[7]]))[0]
+        self.sound_balance =  struct.unpack('b', bytearray([data[8]]))[0]
+        self.sound_fade =     struct.unpack('b', bytearray([data[9]]))[0]
+        self.tape_side = data[10]
+        self.cd_disc = data[11]
+        self.cd_track = data[12]
+        self.cd_cue_pos = (data[13] + (data[14] << 8))
+        self.tuner_freq = (data[15] + (data[16] << 8))
+        self.tuner_preset = data[17]
+        self.tuner_band = data[18]
+        self.display = data[19:30]
 
     def __repr__(self):
         return '<%s: %s> ' % (self.__class__.__name__, repr(self.__dict__))
 
     def __eq__(self, other):
         return self.__dict__ == other.__dict__
-
-    @classmethod
-    def from_bytes(klass, data):
-        assert len(data) == 30
-        inst = klass()
-        inst.operation_mode = data[0]
-        inst.display_mode = data[1]
-        inst.safe_tries = data[2]
-        inst.safe_code = (data[3] + (data[4] << 8))
-        inst.sound_bass =     struct.unpack('b', bytearray([data[5]]))[0]
-        inst.sound_treble =   struct.unpack('b', bytearray([data[6]]))[0]
-        inst.sound_midrange = struct.unpack('b', bytearray([data[7]]))[0]
-        inst.sound_balance =  struct.unpack('b', bytearray([data[8]]))[0]
-        inst.sound_fade =     struct.unpack('b', bytearray([data[9]]))[0]
-        inst.tape_side = data[10]
-        inst.cd_disc = data[11]
-        inst.cd_track = data[12]
-        inst.cd_cue_pos = (data[13] + (data[14] << 8))
-        inst.tuner_freq = (data[15] + (data[16] << 8))
-        inst.tuner_preset = data[17]
-        inst.tuner_band = data[18]
-        inst.display = data[19:30]
-        return inst
 
 
 class AvrTests(unittest.TestCase):
