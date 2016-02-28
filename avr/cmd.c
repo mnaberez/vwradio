@@ -63,14 +63,12 @@ static void cmd_reply_ack()
 {
     uart_putc(0x01); // 1 byte to follow
     uart_putc(ACK);  // ACK byte
-    uart_flush_tx();
 }
 
 static void cmd_reply_nak()
 {
     uart_putc(0x01); // 1 byte to follow
     uart_putc(NAK);  // NAK byte
-    uart_flush_tx();
 }
 
 /* Command: Reset uPD16432B Emulator
