@@ -124,19 +124,16 @@ static void _upd_process_data_setting_cmd(upd_state_t *state, upd_command_t *cmd
         case UPD_RAM_DISPLAY:
             state->ram_area = UPD_RAM_DISPLAY;
             state->ram_size = UPD_DISPLAY_RAM_SIZE;
-            // TODO does the real uPD16432B reset the address?
             break;
 
         case UPD_RAM_PICTOGRAPH:
             state->ram_area = UPD_RAM_PICTOGRAPH;
             state->ram_size = UPD_PICTOGRAPH_RAM_SIZE;
-            // TODO does the real uPD16432B reset the address?
             break;
 
         case UPD_RAM_CHARGEN:
             state->ram_area = UPD_RAM_CHARGEN;
             state->ram_size = UPD_CHARGEN_RAM_SIZE;
-            // TODO does the real uPD16432B reset the address?
             break;
 
         case UPD_RAM_NONE:
@@ -162,8 +159,6 @@ static void _upd_process_data_setting_cmd(upd_state_t *state, upd_command_t *cmd
             break;
     }
 
-    // TODO changing data mode may make current address out of bounds
-    // what does the real uPD16432B do when data setting is changed?
     _upd_wrap_address(state);
 }
 
