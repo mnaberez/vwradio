@@ -1,10 +1,10 @@
 #!/usr/bin/env python -u
 import time
-from vwradio.avrclient import make_client
+from vwradio import avrclient
 from vwradio.faceplates import Premium4, Keys
 from vwradio.radios import Radio, OperationModes
 
-client = make_client() # avr
+client = avrclient.make_client() # avr
 face = Premium4() # display ram and character info
 radio = Radio() # infers radio state from display
 
@@ -18,6 +18,7 @@ def read_display():
     return lcd_text
 
 def hit_key(key, secs=0.25):
+    client.set_run_mode(avrclient.RUN_MODE_TEST) # XXX
     key_name = face.get_key_name(key)
     print('Hitting key %s' % key_name)
     # hit the key
@@ -28,6 +29,8 @@ def hit_key(key, secs=0.25):
     key_data = face.encode_keys([])
     client.radio_load_key_data(key_data)
     time.sleep(secs)
+    client.set_run_mode(avrclient.RUN_MODE_NORMAL) # XXX
+    time.sleep(1) # XXX
 
 if __name__ == '__main__':
     code_to_enter = 1611
