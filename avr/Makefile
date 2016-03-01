@@ -27,7 +27,7 @@ clean:
 	find . -depth -name '*.pyc' -print -delete
 
 test:
-	python scripts/serialtest.py
+	python ../setup.py test -q
 
 _sleep:
 	sleep 0.5

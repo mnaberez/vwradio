@@ -1,6 +1,6 @@
 #!/usr/bin/env python -u
 import time
-from serialtest import make_client
+from vwradio.avrclient import make_client
 from vwradio.faceplates import Premium4, Keys
 from vwradio.radios import Radio, OperationModes
 

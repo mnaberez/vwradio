@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import sys
-from serialtest import make_client
+from vwradio.avrclient import make_client
 from vwradio.faceplates import Premium4
 
 client = make_client()
