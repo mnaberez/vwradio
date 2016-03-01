@@ -711,7 +711,7 @@ class AvrTests(unittest.TestCase):
             self.assertEqual(state.display_mode,
                 DisplayModes.SHOWING_OPERATION)
 
-    def test_radio_state_volume(self):
+    def test_radio_state_sound_volume(self):
         displays = (
             b"AM    MIN  ",
             b"AM    MAX  ",
@@ -741,7 +741,7 @@ class AvrTests(unittest.TestCase):
             self.assertEqual(state.display_mode,
                 DisplayModes.ADJUSTING_VOLUME)
 
-    def test_radio_state_balance(self):
+    def test_radio_state_sound_balance(self):
         values = (
             (b"BAL LEFT  9", -9),
             (b"BAL LEFT  1", -1),
@@ -767,7 +767,7 @@ class AvrTests(unittest.TestCase):
                 DisplayModes.ADJUSTING_BALANCE)
             self.assertEqual(state.sound_balance, balance)
 
-    def test_radio_state_fade(self):
+    def test_radio_state_sound_fade(self):
         values = (
             (b"FADEREAR  9", -9),
             (b"FADEREAR  1", -1),
@@ -793,7 +793,7 @@ class AvrTests(unittest.TestCase):
                 DisplayModes.ADJUSTING_FADE)
             self.assertEqual(state.sound_fade, fade)
 
-    def test_radio_state_bass(self):
+    def test_radio_state_sound_bass(self):
         values = (
             (b"BASS  - 9  ", -9),
             (b"BASS  - 1  ", -1),
@@ -819,7 +819,7 @@ class AvrTests(unittest.TestCase):
                 DisplayModes.ADJUSTING_BASS)
             self.assertEqual(state.sound_bass, bass)
 
-    def test_radio_state_treble(self):
+    def test_radio_state_sound_treble(self):
         values = (
             (b"TREB  - 9  ", -9),
             (b"TREB  - 1  ", -1),
@@ -845,7 +845,7 @@ class AvrTests(unittest.TestCase):
                 DisplayModes.ADJUSTING_TREBLE)
             self.assertEqual(state.sound_treble, treble)
 
-    def test_radio_state_premium_5_midrange(self):
+    def test_radio_state_sound_midrange_premium_5(self):
         values = (
             (b"MID   - 9  ", -9),
             (b"MID   - 1  ", -1),
@@ -1012,7 +1012,7 @@ class AvrTests(unittest.TestCase):
         self.assertEqual(state.display_mode,
             DisplayModes.SHOWING_OPERATION)
 
-    def test_radio_state_premium_5_tape_load(self):
+    def test_radio_state_tape_load_premium_5(self):
         # set up known values
         self.client.radio_state_reset()
         self.client.radio_state_process(b"TAPE PLAY A")
@@ -1027,7 +1027,7 @@ class AvrTests(unittest.TestCase):
         self.assertEqual(state.display_mode,
             DisplayModes.SHOWING_OPERATION)
 
-    def test_radio_state_premium_5_tape_metal(self):
+    def test_radio_state_tape_metal_premium_5(self):
         # set up known values
         self.client.radio_state_reset()
         self.client.radio_state_process(b"TAPE PLAY A")
@@ -1266,7 +1266,7 @@ class AvrTests(unittest.TestCase):
 
     def test_radio_state_ignores_blank(self):
         self.client.radio_state_reset()
-        # put into a known state
+        # set up known values
         self.client.radio_state_process(b"FM161079MHZ")
         state = self.client.radio_state_dump()
         self.assertEqual(state.operation_mode,

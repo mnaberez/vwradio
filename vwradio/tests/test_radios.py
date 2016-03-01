@@ -29,7 +29,7 @@ class TestRadio(unittest.TestCase):
             self.assertEqual(radio.display_mode,
                 DisplayModes.SHOWING_OPERATION)
 
-    def test_volume(self):
+    def test_sound_volume(self):
         displays = (
             "AM    MIN  ",
             "AM    MAX  ",
@@ -54,7 +54,7 @@ class TestRadio(unittest.TestCase):
             self.assertEqual(radio.display_mode,
                 DisplayModes.ADJUSTING_VOLUME)
 
-    def test_balance(self):
+    def test_sound_balance(self):
         values = (
             ("BAL LEFT  9", -9),
             ("BAL LEFT  1", -1),
@@ -75,7 +75,7 @@ class TestRadio(unittest.TestCase):
                 DisplayModes.ADJUSTING_BALANCE)
             self.assertEqual(radio.sound_balance, balance)
 
-    def test_fade(self):
+    def test_sound_fade(self):
         values = (
             ("FADEREAR  9", -9),
             ("FADEREAR  1", -1),
@@ -96,7 +96,7 @@ class TestRadio(unittest.TestCase):
                 DisplayModes.ADJUSTING_FADE)
             self.assertEqual(radio.sound_fade, fade)
 
-    def test_bass(self):
+    def test_sound_bass(self):
         values = (
             ("BASS  - 9  ", -9),
             ("BASS  - 1  ", -1),
@@ -117,7 +117,7 @@ class TestRadio(unittest.TestCase):
                 DisplayModes.ADJUSTING_BASS)
             self.assertEqual(radio.sound_bass, bass)
 
-    def test_treble(self):
+    def test_sound_treble(self):
         values = (
             ("TREB  - 9  ", -9),
             ("TREB  - 1  ", -1),
@@ -130,15 +130,15 @@ class TestRadio(unittest.TestCase):
             # set up known values
             radio.operation_mode = OperationModes.TUNER_PLAYING
             radio.display_mode = DisplayModes.SHOWING_OPERATION
-            radio.process(display)
             # process display
+            radio.process(display)
             self.assertEqual(radio.operation_mode,
                 OperationModes.TUNER_PLAYING)
             self.assertEqual(radio.display_mode,
                 DisplayModes.ADJUSTING_TREBLE)
             self.assertEqual(radio.sound_treble, treble)
 
-    def test_premium_5_midrange(self):
+    def test_sound_midrange_premium_5(self):
         values = (
             ("MID   - 9  ", -9),
             ("MID   - 1  ", -1),
@@ -148,12 +148,14 @@ class TestRadio(unittest.TestCase):
         )
         for display, mid in values:
             radio = Radio()
-            original_operation_mode = radio.operation_mode
-            radio.sound_midrange = 99
+            # set up known values
+            radio.operation_mode = OperationModes.TUNER_PLAYING
+            radio.display_mode = DisplayModes.SHOWING_OPERATION
+            # process display
             radio.process(display)
             self.assertEqual(radio.sound_midrange, mid)
             self.assertEqual(radio.operation_mode,
-                original_operation_mode)
+                OperationModes.TUNER_PLAYING)
             self.assertEqual(radio.display_mode,
                 DisplayModes.ADJUSTING_MIDRANGE)
 
@@ -164,7 +166,6 @@ class TestRadio(unittest.TestCase):
         )
         for display, disc, track in values:
             radio = Radio()
-            radio.operation_mode = OperationModes.UNKNOWN
             radio.process(display)
             self.assertEqual(radio.cd_disc, disc)
             self.assertEqual(radio.cd_track, track)
@@ -274,7 +275,7 @@ class TestRadio(unittest.TestCase):
         self.assertEqual(radio.display_mode,
             DisplayModes.SHOWING_OPERATION)
 
-    def test_premium_5_tape_load(self):
+    def test_tape_load_premium_5(self):
         radio = Radio()
         # set up known values
         radio.tape_side = 1
@@ -286,7 +287,7 @@ class TestRadio(unittest.TestCase):
         self.assertEqual(radio.display_mode,
             DisplayModes.SHOWING_OPERATION)
 
-    def test_premium_5_tape_metal(self):
+    def test_tape_metal_premium_5(self):
         radio = Radio()
         # set up known values
         radio.tape_side = 1
@@ -379,7 +380,7 @@ class TestRadio(unittest.TestCase):
     def test_tape_no_tape(self):
         radio = Radio()
         # set up known values
-        radio.tape_side = 0
+        radio.tape_side = 1
         # process display
         radio.process("    NO TAPE")
         self.assertEqual(radio.tape_side, 0)
@@ -446,7 +447,6 @@ class TestRadio(unittest.TestCase):
     def test_tuner_fm_scan_on_unknown_band_sets_fm1(self):
         radio = Radio()
         self.assertEqual(radio.tuner_band, TunerBands.UNKNOWN)
-        # process display
         radio.process("SCAN 879MHZ")
         self.assertEqual(radio.tuner_freq, 879)
         self.assertEqual(radio.tuner_preset, 0)
@@ -466,12 +466,12 @@ class TestRadio(unittest.TestCase):
             )
         for display, freq, preset in values:
             radio = Radio()
-            radio.operation_mode = OperationModes.UNKNOWN
             radio.process(display)
             self.assertEqual(radio.tuner_freq, freq)
-            self.assertEqual(radio.tuner_band, TunerBands.AM)
-            self.assertEqual(radio.operation_mode, OperationModes.TUNER_PLAYING)
             self.assertEqual(radio.tuner_preset, preset)
+            self.assertEqual(radio.tuner_band, TunerBands.AM)
+            self.assertEqual(radio.operation_mode,
+                OperationModes.TUNER_PLAYING)
             self.assertEqual(radio.display_mode,
                 DisplayModes.SHOWING_OPERATION)
 
