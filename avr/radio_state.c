@@ -181,7 +181,7 @@ static void _radio_state_process_tape(radio_state_t *state, uint8_t *ram)
     else if (memcmp(ram, "TAPE METAL ", 11) == 0)
     {
         state->operation_mode = OPERATION_MODE_TAPE_METAL;
-    }    
+    }
     else if (memcmp(ram, "    NO TAPE", 11) == 0)
     {
         state->operation_mode = OPERATION_MODE_TAPE_NO_TAPE;
@@ -527,5 +527,9 @@ void radio_state_process(radio_state_t *state, uint8_t *ram)
              (memcmp(ram+8, "kHz", 3) == 0))
     {
         _radio_state_process_tuner_am(state, ram);
+    }
+    else
+    {
+        _radio_state_process_unknown(state, ram);
     }
 }
