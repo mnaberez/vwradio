@@ -23,7 +23,7 @@ void cmd_init()
 /* Start or restart the command timeout timer.
  * Call this after each byte of the command is received.
  */
-static void cmd_timer_start()
+static void _cmd_timer_start()
 {
     // set timer1 CTC mode (CS11=0, CS10=1 = prescaler 1024)
     TCCR1B = (1 << CS12) | (0 << CS11) | (1 << CS10);
@@ -41,7 +41,7 @@ static void cmd_timer_start()
 /* Stop the command timeout timer.
  * Call this after the last byte of a command has been received.
  */
-static void cmd_timer_stop()
+static void _cmd_timer_stop()
 {
     // stop timer1
     TCCR1B = 0;
@@ -55,17 +55,17 @@ static void cmd_timer_stop()
  */
 ISR(TIMER1_COMPA_vect)
 {
-    cmd_timer_stop();
+    _cmd_timer_stop();
     cmd_init();
 }
 
-static void cmd_reply_ack()
+static void _cmd_reply_ack()
 {
     uart_putc(0x01); // 1 byte to follow
     uart_putc(ACK);  // ACK byte
 }
 
-static void cmd_reply_nak()
+static void _cmd_reply_nak()
 {
     uart_putc(0x01); // 1 byte to follow
     uart_putc(NAK);  // NAK byte
@@ -78,19 +78,19 @@ static void cmd_reply_nak()
  * Reset the uPD16432B Emulator to its default state.  This does not
  * affect the UPD key data output bytes (upd_tx_key_data).
  */
-static void cmd_do_emulated_upd_reset()
+static void _cmd_do_emulated_upd_reset()
 {
     if (cmd_buf_index != 1)
     {
-        cmd_reply_nak();
+        _cmd_reply_nak();
         return;
     }
 
     upd_init(&emulated_upd_state);
-    cmd_reply_ack();
+    _cmd_reply_ack();
 }
 
-uint8_t _dump_upd_state_to_uart(upd_state_t *state)
+static uint8_t _dump_upd_state_to_uart(upd_state_t *state)
 {
     // Bail out if any command arguments were given.
     if (cmd_buf_index != 1)
@@ -149,13 +149,13 @@ uint8_t _dump_upd_state_to_uart(upd_state_t *state)
  *
  * Dump the current state of the uPD16432B emulator.
  */
-static void cmd_do_emulated_upd_dump_state()
+static void _cmd_do_emulated_upd_dump_state()
 {
     uint8_t success;
     success = _dump_upd_state_to_uart(&emulated_upd_state);
     if (success == 0)
     {
-        return cmd_reply_nak();
+        return _cmd_reply_nak();
     }
 }
 
@@ -189,19 +189,19 @@ static uint8_t _populate_cmd_from_uart_cmd_buf(upd_command_t *cmd)
  * are the SPI bytes that would be received by the uPD16432B while it
  * is selected with STB high.
  */
-static void cmd_do_emulated_upd_send_command()
+static void _cmd_do_emulated_upd_send_command()
 {
     upd_command_t cmd;
 
     uint8_t success = _populate_cmd_from_uart_cmd_buf(&cmd);
     if (success == 0)
     {
-        return cmd_reply_nak();
+        return _cmd_reply_nak();
     }
 
     // Process uPD16432B command request as if we received it over SPI
     upd_process_command(&emulated_upd_state, &cmd);
-    return cmd_reply_ack();
+    return _cmd_reply_ack();
 }
 
 /* Command: Load uPD16432B Emulator Key Data
@@ -213,11 +213,11 @@ static void cmd_do_emulated_upd_send_command()
  * The same bytes will be sent for every key data request until the bytes
  * are changed.  Set {0, 0, 0, 0} to indicate no keys pressed.
  */
-static void cmd_do_radio_load_key_data()
+static void _cmd_do_radio_load_key_data()
 {
     if (cmd_buf_index != 5)
     {
-        cmd_reply_nak();
+        _cmd_reply_nak();
         return;
     }
 
@@ -228,30 +228,30 @@ static void cmd_do_radio_load_key_data()
         upd_tx_key_data[i] = cmd_buf[i+1];
     }
 
-    cmd_reply_ack();
+    _cmd_reply_ack();
 }
 
 /* Command: Radio State Reset
  * Arguments: <byte0> <byte1> ...
  * Returns: <ack>
  */
-static void cmd_do_radio_state_reset()
+static void _cmd_do_radio_state_reset()
 {
     if (cmd_buf_index != 1)
     {
-        cmd_reply_nak();
+        _cmd_reply_nak();
         return;
     }
 
     radio_state_init(&radio_state);
-    cmd_reply_ack();
+    _cmd_reply_ack();
 }
 
 /* Command: Radio State Process
  * Arguments: <byte1>
  * Returns: <ack>
  */
-static void cmd_do_radio_state_process()
+static void _cmd_do_radio_state_process()
 {
     // TODO arg length checking
 
@@ -259,7 +259,7 @@ static void cmd_do_radio_state_process()
     // -1 is because first byte in cmd_buf is the uart command byte
     if ((cmd_buf_index - 1) > UPD_DISPLAY_RAM_SIZE)
     {
-        cmd_reply_nak();
+        _cmd_reply_nak();
         return;
     }
 
@@ -278,18 +278,18 @@ static void cmd_do_radio_state_process()
     }
 
     radio_state_process(&radio_state, display_ram);
-    cmd_reply_ack();
+    _cmd_reply_ack();
 }
 
 /* Command: Radio State Dump
  * Arguments: <byte1>
  * Returns: <ack>
  */
-static void cmd_do_radio_state_dump()
+static void _cmd_do_radio_state_dump()
 {
     if (cmd_buf_index != 1)
     {
-        cmd_reply_nak();
+        _cmd_reply_nak();
         return;
     }
 
@@ -328,7 +328,7 @@ static void cmd_do_radio_state_dump()
  * Echoes the arguments received back to the client.  If no args were
  * received after the command byte, an empty ACK response is returned.
  */
-static void cmd_do_echo()
+static void _cmd_do_echo()
 {
     uart_putc(cmd_buf_index); // number of bytes to follow
     uart_putc(ACK); // ACK byte
@@ -347,11 +347,11 @@ static void cmd_do_echo()
  * Turns one of the LEDs on or off.  Returns a NAK if the LED
  * number is not recognized.
  */
-static void cmd_do_set_led()
+static void _cmd_do_set_led()
 {
     if (cmd_buf_index != 3)
     {
-        cmd_reply_nak();
+        _cmd_reply_nak();
         return;
     }
 
@@ -369,11 +369,11 @@ static void cmd_do_set_led()
             break;
 
         default:
-            cmd_reply_nak();
+            _cmd_reply_nak();
             return;
     }
 
-    cmd_reply_ack();
+    _cmd_reply_ack();
 }
 
 /* Command: Set Run Mode
@@ -384,11 +384,11 @@ static void cmd_do_set_led()
  * test mode, SPI commands from the radio are ignored so the uPD16432B
  * code can be tested.
  */
-static void cmd_do_set_run_mode()
+static void _cmd_do_set_run_mode()
 {
     if (cmd_buf_index != 2)
     {
-        cmd_reply_nak();
+        _cmd_reply_nak();
         return;
     }
 
@@ -405,10 +405,10 @@ static void cmd_do_set_run_mode()
             break;
 
         default:
-            return cmd_reply_nak();
+            return _cmd_reply_nak();
     }
 
-    cmd_reply_ack();
+    _cmd_reply_ack();
 }
 
 /* Command: Dump the real faceplate's uPD16432B state
@@ -417,13 +417,13 @@ static void cmd_do_set_run_mode()
  *
  * Dump the current state of the real uPD16432B on the faceplate.
  */
-static void cmd_do_faceplate_upd_dump_state()
+static void _cmd_do_faceplate_upd_dump_state()
 {
     uint8_t success;
     success = _dump_upd_state_to_uart(&faceplate_upd_state);
     if (success == 0)
     {
-        return cmd_reply_nak();
+        return _cmd_reply_nak();
     }
 }
 
@@ -433,7 +433,7 @@ static void cmd_do_faceplate_upd_dump_state()
  *
  * Send an SPI command to the faceplate's uPD16432B.
  */
-static void cmd_do_faceplate_upd_send_command()
+static void _cmd_do_faceplate_upd_send_command()
 {
     upd_command_t cmd;
 
@@ -441,11 +441,11 @@ static void cmd_do_faceplate_upd_send_command()
     success = _populate_cmd_from_uart_cmd_buf(&cmd);
     if (success == 0)
     {
-        return cmd_reply_nak();
+        return _cmd_reply_nak();
     }
 
     faceplate_send_upd_command(&cmd);
-    return cmd_reply_ack();
+    return _cmd_reply_ack();
 }
 
 /* Command: Clear the faceplate's display
@@ -454,72 +454,72 @@ static void cmd_do_faceplate_upd_send_command()
  *
  * Sends SPI commands to initialize the faceplate and clear it.
  */
-static void cmd_do_faceplate_clear_display()
+static void _cmd_do_faceplate_clear_display()
 {
     if (cmd_buf_index != 1)
     {
-        cmd_reply_nak();
+        _cmd_reply_nak();
         return;
     }
 
     faceplate_clear_display();
-    return cmd_reply_ack();
+    return _cmd_reply_ack();
 }
 
 /* Dispatch a command.  A complete command packet has been received.  The
  * command buffer has one more bytes.  The first byte is the command byte.
  * Dispatch to a handler, or return a NAK if the command is unrecognized.
  */
-static void cmd_dispatch()
+static void _cmd_dispatch()
 {
     switch (cmd_buf[0])
     {
         case CMD_SET_LED:
-            cmd_do_set_led();
+            _cmd_do_set_led();
             break;
         case CMD_ECHO:
-            cmd_do_echo();
+            _cmd_do_echo();
             break;
         case CMD_SET_RUN_MODE:
-            cmd_do_set_run_mode();
+            _cmd_do_set_run_mode();
             break;
 
         case CMD_RADIO_LOAD_KEY_DATA:
-            cmd_do_radio_load_key_data();
+            _cmd_do_radio_load_key_data();
             break;
 
         case CMD_RADIO_STATE_PROCESS:
-            cmd_do_radio_state_process();
+            _cmd_do_radio_state_process();
             break;
         case CMD_RADIO_STATE_DUMP:
-            cmd_do_radio_state_dump();
+            _cmd_do_radio_state_dump();
             break;
         case CMD_RADIO_STATE_RESET:
-            cmd_do_radio_state_reset();
+            _cmd_do_radio_state_reset();
             break;
 
         case CMD_EMULATED_UPD_DUMP_STATE:
-            cmd_do_emulated_upd_dump_state();
+            _cmd_do_emulated_upd_dump_state();
             break;
         case CMD_EMULATED_UPD_SEND_COMMAND:
-            cmd_do_emulated_upd_send_command();
+            _cmd_do_emulated_upd_send_command();
             break;
         case CMD_EMULATED_UPD_RESET:
-            cmd_do_emulated_upd_reset();
+            _cmd_do_emulated_upd_reset();
             break;
 
         case CMD_FACEPLATE_UPD_DUMP_STATE:
-            cmd_do_faceplate_upd_dump_state();
+            _cmd_do_faceplate_upd_dump_state();
             break;
         case CMD_FACEPLATE_UPD_SEND_COMMAND:
-            cmd_do_faceplate_upd_send_command();
+            _cmd_do_faceplate_upd_send_command();
             break;
         case CMD_FACEPLATE_CLEAR_DISPLAY:
-            cmd_do_faceplate_clear_display();
+            _cmd_do_faceplate_clear_display();
             break;
 
         default:
-            cmd_reply_nak();
+            _cmd_reply_nak();
     }
 }
 
@@ -547,25 +547,25 @@ void cmd_receive_byte(uint8_t c)
     {
         if (c == 0) // invalid, command length must be 1 byte or longer
         {
-            cmd_reply_nak();
+            _cmd_reply_nak();
             cmd_init();
         }
         else
         {
             cmd_expected_length = c;
-            cmd_timer_start();
+            _cmd_timer_start();
         }
     }
     // receive command byte(s)
     else
     {
         cmd_buf[cmd_buf_index++] = c;
-        cmd_timer_start();
+        _cmd_timer_start();
 
         if (cmd_buf_index == cmd_expected_length)
         {
-            cmd_timer_stop();
-            cmd_dispatch();
+            _cmd_timer_stop();
+            _cmd_dispatch();
             cmd_init();
         }
     }
