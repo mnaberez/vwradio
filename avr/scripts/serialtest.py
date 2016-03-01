@@ -873,8 +873,8 @@ class AvrTests(unittest.TestCase):
 
     def test_radio_state_cd_playing(self):
         values = (
-            ("CD 1 TR 01 ", 1, 1),
-            ("CD 6 TR 99 ", 6, 99),
+            (b"CD 1 TR 01 ", 1, 1),
+            (b"CD 6 TR 99 ", 6, 99),
         )
         for display, disc, track in values:
             self.client.radio_state_reset()
@@ -1179,12 +1179,12 @@ class AvrTests(unittest.TestCase):
     def test_radio_state_tuner_fm_scan_on_fm1_band(self):
         # set up known values
         self.client.radio_state_reset()
-        self.client.radio_state_process("FM11 915MHZ")
+        self.client.radio_state_process(b"FM11 915MHZ")
         state = self.client.radio_state_dump()
         self.assertEqual(state.tuner_band, TunerBands.FM1)
         self.assertEqual(state.tuner_preset, 1)
         # process display
-        self.client.radio_state_process("SCAN 879MHZ")
+        self.client.radio_state_process(b"SCAN 879MHZ")
         state = self.client.radio_state_dump()
         self.assertEqual(state.tuner_freq, 879)
         self.assertEqual(state.tuner_preset, 0)
@@ -1197,12 +1197,12 @@ class AvrTests(unittest.TestCase):
     def test_radio_state_tuner_fm_scan_on_fm2_band(self):
         # set up known values
         self.client.radio_state_reset()
-        self.client.radio_state_process("FM21 915MHZ")
+        self.client.radio_state_process(b"FM21 915MHZ")
         state = self.client.radio_state_dump()
         self.assertEqual(state.tuner_band, TunerBands.FM2)
         self.assertEqual(state.tuner_preset, 1)
         # process display
-        self.client.radio_state_process("SCAN 879MHZ")
+        self.client.radio_state_process(b"SCAN 879MHZ")
         state = self.client.radio_state_dump()
         self.assertEqual(state.tuner_freq, 879)
         self.assertEqual(state.tuner_preset, 0)
@@ -1218,7 +1218,7 @@ class AvrTests(unittest.TestCase):
         state = self.client.radio_state_dump()
         self.assertEqual(state.tuner_band, TunerBands.UNKNOWN)
         # process display
-        self.client.radio_state_process("SCAN 879MHZ")
+        self.client.radio_state_process(b"SCAN 879MHZ")
         state = self.client.radio_state_dump()
         self.assertEqual(state.tuner_freq, 879)
         self.assertEqual(state.tuner_preset, 0)
