@@ -71,6 +71,13 @@ int main()
             cmd_receive_byte(c);
         }
 
+        // pass keys through to radio
+        if (run_mode != RUN_MODE_TEST)
+        {
+            // read keys from faceplate and send to radio
+            faceplate_read_key_data(upd_tx_key_data);
+        }
+
         // service commands from radio
         if (upd_rx_buf.read_index != upd_rx_buf.write_index)
         {
@@ -94,12 +101,9 @@ int main()
                     }
                     radio_state_process(&radio_state, display);
                 }
-
                 emulated_upd_state.dirty_flags = UPD_DIRTY_NONE;
             }
         }
 
-        // read keys from faceplate and send to radio
-        faceplate_read_key_data(upd_tx_key_data);
     }
 }
