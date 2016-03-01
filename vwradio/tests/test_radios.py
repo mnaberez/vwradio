@@ -411,24 +411,50 @@ class TestRadio(unittest.TestCase):
             self.assertEqual(radio.display_mode,
                 DisplayModes.SHOWING_OPERATION)
 
-    def test_tuner_fm_scan_on(self):
-        values = (
-            ("SCAN 879MHz",  879, TunerBands.FM1,     TunerBands.FM1),
-            ("SCAN 879MHZ",  879, TunerBands.FM1,     TunerBands.FM1),
-            ("SCAN 879MHZ",  879, TunerBands.UNKNOWN, TunerBands.FM1),
-            ("SCAN1035MHZ", 1035, TunerBands.FM2,     TunerBands.FM2),
-        )
-        for text, freq, initial_band, expected_band in values:
-            radio = Radio()
-            radio.tuner_band = initial_band
-            radio.process(text)
-            self.assertEqual(radio.tuner_freq, freq)
-            self.assertEqual(radio.tuner_preset, 0)
-            self.assertEqual(radio.tuner_band, expected_band)
-            self.assertEqual(radio.operation_mode,
-                OperationModes.TUNER_SCANNING)
-            self.assertEqual(radio.display_mode,
-                DisplayModes.SHOWING_OPERATION)
+    def test_tuner_fm_scan_on_fm1_band(self):
+        radio = Radio()
+        # set up known values
+        radio.tuner_band = TunerBands.FM1
+        radio.tuner_freq = 915
+        radio.tuner_preset = 1
+        # process display
+        radio.process("SCAN 879MHZ")
+        self.assertEqual(radio.tuner_freq, 879)
+        self.assertEqual(radio.tuner_preset, 0)
+        self.assertEqual(radio.tuner_band, TunerBands.FM1)
+        self.assertEqual(radio.operation_mode,
+            OperationModes.TUNER_SCANNING)
+        self.assertEqual(radio.display_mode,
+            DisplayModes.SHOWING_OPERATION)
+
+    def test_tuner_fm_scan_on_fm2_band(self):
+        radio = Radio()
+        # set up known values
+        radio.tuner_band = TunerBands.FM2
+        radio.tuner_freq = 915
+        radio.tuner_preset = 1
+        # process display
+        radio.process("SCAN1035MHZ")
+        self.assertEqual(radio.tuner_freq, 1035)
+        self.assertEqual(radio.tuner_preset, 0)
+        self.assertEqual(radio.tuner_band, TunerBands.FM2)
+        self.assertEqual(radio.operation_mode,
+            OperationModes.TUNER_SCANNING)
+        self.assertEqual(radio.display_mode,
+            DisplayModes.SHOWING_OPERATION)
+
+    def test_tuner_fm_scan_on_unknown_band_sets_fm1(self):
+        radio = Radio()
+        self.assertEqual(radio.tuner_band, TunerBands.UNKNOWN)
+        # process display
+        radio.process("SCAN 879MHZ")
+        self.assertEqual(radio.tuner_freq, 879)
+        self.assertEqual(radio.tuner_preset, 0)
+        self.assertEqual(radio.tuner_band, TunerBands.FM1)
+        self.assertEqual(radio.operation_mode,
+            OperationModes.TUNER_SCANNING)
+        self.assertEqual(radio.display_mode,
+            DisplayModes.SHOWING_OPERATION)
 
     def test_tuner_am_scan_off(self):
         values = (
