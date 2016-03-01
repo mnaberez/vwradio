@@ -117,7 +117,6 @@ uint8_t _dump_upd_state_to_uart(upd_state_t *state)
     uart_putc(state->ram_size);
     uart_putc(state->address);
     uart_putc(state->increment);
-    uart_flush_tx();
 
     // dump display data ram & dirty byte
     uint8_t i;
@@ -126,7 +125,6 @@ uint8_t _dump_upd_state_to_uart(upd_state_t *state)
         uart_putc(state->display_ram[i]);
     }
     uart_putc(state->display_ram_dirty);
-    uart_flush_tx();
 
     // dump pictograph ram & dirty byte
     for (i=0; i<UPD_PICTOGRAPH_RAM_SIZE; i++)
@@ -134,7 +132,6 @@ uint8_t _dump_upd_state_to_uart(upd_state_t *state)
         uart_putc(state->pictograph_ram[i]);
     }
     uart_putc(state->pictograph_ram_dirty);
-    uart_flush_tx();
 
     // dump chargen ram & dirty byte
     for (i=0; i<UPD_CHARGEN_RAM_SIZE; i++)
@@ -142,7 +139,6 @@ uint8_t _dump_upd_state_to_uart(upd_state_t *state)
         uart_putc(state->chargen_ram[i]);
     }
     uart_putc(state->chargen_ram_dirty);
-    uart_flush_tx();
 
     return 1;
 }
