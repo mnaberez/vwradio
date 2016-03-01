@@ -83,7 +83,7 @@ int main()
                 upd_process_command(&emulated_upd_state, &cmd);
                 faceplate_update_from_upd_if_dirty(&emulated_upd_state);
 
-                if (emulated_upd_state.display_ram_dirty == 1)
+                if ((emulated_upd_state.dirty_flags & UPD_DIRTY_DISPLAY) != 0)
                 {
                     // TODO XXX this is premium 4 specific
                     uint8_t display[25];
@@ -95,7 +95,7 @@ int main()
                     radio_state_process(&radio_state, display);
                 }
 
-                upd_clear_dirty_flags(&emulated_upd_state);
+                emulated_upd_state.dirty_flags = UPD_DIRTY_NONE;
             }
         }
 

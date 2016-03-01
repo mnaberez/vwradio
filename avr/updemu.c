@@ -13,24 +13,22 @@ void upd_init(upd_state_t *state)
     {
         state->display_ram[i] = 0;
     }
-    state->display_ram_dirty = 0;
 
     for (i=0; i<UPD_PICTOGRAPH_RAM_SIZE; i++)
     {
         state->pictograph_ram[i] = 0;
     }
-    state->pictograph_ram_dirty = 0;
 
     for (i=0; i<UPD_CHARGEN_RAM_SIZE; i++)
     {
         state->chargen_ram[i] = 0;
     }
-    state->chargen_ram_dirty = 0;
 
     state->ram_area = UPD_RAM_NONE;
     state->ram_size = 0;
     state->address = 0;
     state->increment = UPD_INCREMENT_OFF;
+    state->dirty_flags = UPD_DIRTY_NONE;
 }
 
 static void _upd_wrap_address(upd_state_t *state)
@@ -49,7 +47,7 @@ static void _upd_write_data_byte(upd_state_t *state, uint8_t b)
             if (state->display_ram[state->address] != b)
             {
                 state->display_ram[state->address] = b;
-                state->display_ram_dirty = 1;
+                state->dirty_flags |= UPD_DIRTY_DISPLAY;
             }
             break;
 
@@ -57,7 +55,7 @@ static void _upd_write_data_byte(upd_state_t *state, uint8_t b)
             if (state->pictograph_ram[state->address] != b)
             {
                 state->pictograph_ram[state->address] = b;
-                state->pictograph_ram_dirty = 1;
+                state->dirty_flags |= UPD_DIRTY_PICTOGRAPH;
             }
             break;
 
@@ -65,7 +63,7 @@ static void _upd_write_data_byte(upd_state_t *state, uint8_t b)
             if (state->chargen_ram[state->address] != b)
             {
                 state->chargen_ram[state->address] = b;
-                state->chargen_ram_dirty = 1;
+                state->dirty_flags |= UPD_DIRTY_CHARGEN;
             }
             break;
 
@@ -106,7 +104,6 @@ static void _upd_process_address_setting_cmd(upd_state_t *state, upd_command_t *
             }
             break;
 
-        case UPD_RAM_NONE:
         default:
             address = 0;
             break;
@@ -136,7 +133,6 @@ static void _upd_process_data_setting_cmd(upd_state_t *state, upd_command_t *cmd
             state->ram_size = UPD_CHARGEN_RAM_SIZE;
             break;
 
-        case UPD_RAM_NONE:
         default:
             state->ram_area = UPD_RAM_NONE;
             state->ram_size = 0;
@@ -196,11 +192,4 @@ void upd_process_command(upd_state_t *state, upd_command_t *cmd)
             _upd_write_data_byte(state, cmd->data[i]);
         }
     }
-}
-
-void upd_clear_dirty_flags(upd_state_t *state)
-{
-    state->display_ram_dirty = 0;
-    state->pictograph_ram_dirty = 0;
-    state->chargen_ram_dirty = 0;
 }

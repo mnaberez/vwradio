@@ -100,16 +100,14 @@ static uint8_t _dump_upd_state_to_uart(upd_state_t *state)
 
     uint8_t size;
     size = 1 + // ACK byte
-           1 + // Selected RAM area
-           1 + // Size of selected RAM area
-           1 + // Current address in that area
-           1 + // Address increment mode on/off
+           1 + // ram_area
+           1 + // ram_size
+           1 + // address
+           1 + // increment
+           1 + // dirty_flags
            UPD_DISPLAY_RAM_SIZE +
-           1 + // dirty byte for display data ram
            UPD_PICTOGRAPH_RAM_SIZE +
-           1 + // dirty byte for pictograph ram
-           UPD_CHARGEN_RAM_SIZE +
-           1; // dirty byte for chargen ram
+           UPD_CHARGEN_RAM_SIZE;
 
     uart_putc(size); // number of bytes to follow
     uart_putc(ACK); // ACK byte
@@ -117,28 +115,23 @@ static uint8_t _dump_upd_state_to_uart(upd_state_t *state)
     uart_putc(state->ram_size);
     uart_putc(state->address);
     uart_putc(state->increment);
+    uart_putc(state->dirty_flags);
 
-    // dump display data ram & dirty byte
     uint8_t i;
     for (i=0; i<UPD_DISPLAY_RAM_SIZE; i++)
     {
         uart_putc(state->display_ram[i]);
     }
-    uart_putc(state->display_ram_dirty);
 
-    // dump pictograph ram & dirty byte
     for (i=0; i<UPD_PICTOGRAPH_RAM_SIZE; i++)
     {
         uart_putc(state->pictograph_ram[i]);
     }
-    uart_putc(state->pictograph_ram_dirty);
 
-    // dump chargen ram & dirty byte
     for (i=0; i<UPD_CHARGEN_RAM_SIZE; i++)
     {
         uart_putc(state->chargen_ram[i]);
     }
-    uart_putc(state->chargen_ram_dirty);
 
     return 1;
 }

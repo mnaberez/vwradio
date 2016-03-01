@@ -26,10 +26,14 @@ RUN_MODE_NORMAL = 0x00
 RUN_MODE_TEST = 0x01
 LED_GREEN = 0x00
 LED_RED = 0x01
+UPD_RAM_NONE = 0xFF
 UPD_RAM_DISPLAY = 0
 UPD_RAM_PICTOGRAPH = 1
 UPD_RAM_CHARGEN = 2
-UPD_RAM_NONE = 0xFF
+UPD_DIRTY_NONE = 0
+UPD_DIRTY_DISPLAY = 1<<UPD_RAM_DISPLAY
+UPD_DIRTY_PICTOGRAPH = 1<<UPD_RAM_PICTOGRAPH
+UPD_DIRTY_CHARGEN = 1<<UPD_RAM_CHARGEN
 
 class Client(object):
     def __init__(self, ser):
@@ -145,12 +149,10 @@ class UpdEmulatorState(object):
         self.ram_size = data[1]
         self.address = data[2]
         self.increment = bool(data[3])
-        self.display_ram = data[4:29]
-        self.display_ram_dirty = bool(data[29])
+        self.dirty_flags = data[4]
+        self.display_ram = data[5:30]
         self.pictograph_ram = data[30:38]
-        self.pictograph_ram_dirty = bool(data[38])
-        self.chargen_ram  = data[39:151]
-        self.chargen_ram_dirty = bool(data[151])
+        self.chargen_ram  = data[38:150]
 
     def __repr__(self):
         return '<%s: %s> ' % (self.__class__.__name__, repr(self.__dict__))
@@ -321,7 +323,7 @@ class AvrTests(unittest.TestCase):
         rx_bytes = self.client.command(
             data=[CMD_EMULATED_UPD_DUMP_STATE], ignore_nak=True)
         self.assertEqual(rx_bytes[0], ACK)
-        self.assertEqual(len(rx_bytes), 153)
+        self.assertEqual(len(rx_bytes), 151)
 
     # Process UPD Command command
 
@@ -539,7 +541,7 @@ class AvrTests(unittest.TestCase):
     def test_upd_writing_display_ram_same_value_doesnt_set_dirty(self):
         self.client.emulated_upd_reset()
         state = self.client.emulated_upd_dump_state()
-        self.assertFalse(state.display_ram_dirty)
+        self.assertEqual(state.dirty_flags & UPD_DIRTY_DISPLAY, 0)
         self.assertEqual(state.display_ram[0], 0)
         # send data setting command
         cmd  = 0b01000000 # data setting command
@@ -552,12 +554,12 @@ class AvrTests(unittest.TestCase):
         self.client.emulated_upd_send_command([cmd, 0])
         # dirty flag should still be false
         state = self.client.emulated_upd_dump_state()
-        self.assertFalse(state.display_ram_dirty)
+        self.assertEqual(state.dirty_flags & UPD_DIRTY_DISPLAY, 0)
 
     def test_upd_writing_display_ram_new_value_sets_dirty(self):
         self.client.emulated_upd_reset()
         state = self.client.emulated_upd_dump_state()
-        self.assertFalse(state.display_ram_dirty)
+        self.assertEqual(state.dirty_flags & UPD_DIRTY_DISPLAY, 0)
         self.assertEqual(state.display_ram[0], 0)
         # send data setting command
         cmd  = 0b01000000 # data setting command
@@ -571,12 +573,13 @@ class AvrTests(unittest.TestCase):
         # dirty flag should be true
         state = self.client.emulated_upd_dump_state()
         self.assertEqual(state.display_ram[0], 1)
-        self.assertTrue(state.display_ram_dirty)
+        self.assertEqual(state.dirty_flags & UPD_DIRTY_DISPLAY,
+            UPD_DIRTY_DISPLAY)
 
     def test_upd_writing_pictograph_ram_same_value_doesnt_set_dirty(self):
         self.client.emulated_upd_reset()
         state = self.client.emulated_upd_dump_state()
-        self.assertFalse(state.pictograph_ram_dirty)
+        self.assertEqual(state.dirty_flags & UPD_DIRTY_PICTOGRAPH, 0)
         self.assertEqual(state.pictograph_ram[0], 0)
         # send data setting command
         cmd  = 0b01000000 # data setting command
@@ -589,12 +592,12 @@ class AvrTests(unittest.TestCase):
         self.client.emulated_upd_send_command([cmd, 0])
         # dirty flag should still be false
         state = self.client.emulated_upd_dump_state()
-        self.assertFalse(state.pictograph_ram_dirty)
+        self.assertEqual(state.dirty_flags & UPD_DIRTY_PICTOGRAPH, 0)
 
     def test_upd_writing_pictograph_ram_new_value_sets_dirty(self):
         self.client.emulated_upd_reset()
         state = self.client.emulated_upd_dump_state()
-        self.assertFalse(state.pictograph_ram_dirty)
+        self.assertEqual(state.dirty_flags & UPD_DIRTY_PICTOGRAPH, 0)
         self.assertEqual(state.pictograph_ram[0], 0)
         # send data setting command
         cmd  = 0b01000000 # data setting command
@@ -608,12 +611,13 @@ class AvrTests(unittest.TestCase):
         # dirty flag should be true
         state = self.client.emulated_upd_dump_state()
         self.assertEqual(state.pictograph_ram[0], 1)
-        self.assertTrue(state.pictograph_ram_dirty)
+        self.assertEqual(state.dirty_flags & UPD_DIRTY_PICTOGRAPH,
+            UPD_DIRTY_PICTOGRAPH)
 
     def test_upd_writing_chargen_ram_same_value_doesnt_set_dirty(self):
         self.client.emulated_upd_reset()
         state = self.client.emulated_upd_dump_state()
-        self.assertFalse(state.chargen_ram_dirty)
+        self.assertEqual(state.dirty_flags & UPD_DIRTY_CHARGEN, 0)
         self.assertEqual(state.chargen_ram[0], 0)
         # send data setting command
         cmd  = 0b01000000 # data setting command
@@ -626,12 +630,12 @@ class AvrTests(unittest.TestCase):
         self.client.emulated_upd_send_command([cmd, 0])
         # dirty flag should still be false
         state = self.client.emulated_upd_dump_state()
-        self.assertFalse(state.chargen_ram_dirty)
+        self.assertEqual(state.dirty_flags & UPD_DIRTY_CHARGEN, 0)
 
     def test_upd_writing_chargen_ram_new_value_sets_dirty(self):
         self.client.emulated_upd_reset()
         state = self.client.emulated_upd_dump_state()
-        self.assertFalse(state.chargen_ram_dirty)
+        self.assertEqual(state.dirty_flags & UPD_DIRTY_CHARGEN, 0)
         self.assertEqual(state.chargen_ram[0], 0)
         # send data setting command
         cmd  = 0b01000000 # data setting command
@@ -645,7 +649,8 @@ class AvrTests(unittest.TestCase):
         # dirty flag should be true
         state = self.client.emulated_upd_dump_state()
         self.assertEqual(state.chargen_ram[0], 1)
-        self.assertTrue(state.chargen_ram_dirty)
+        self.assertEqual(state.dirty_flags & UPD_DIRTY_CHARGEN,
+            UPD_DIRTY_CHARGEN)
 
     # Faceplate
 

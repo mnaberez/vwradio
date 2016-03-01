@@ -158,7 +158,7 @@ static void _faceplate_write_upd_ram(uint8_t data_setting_cmd,
 // copy emulated upd display to real faceplate
 void faceplate_update_from_upd_if_dirty(upd_state_t *state)
 {
-    if (state->display_ram_dirty == 1)
+    if ((state->dirty_flags & UPD_DIRTY_DISPLAY) != 0)
     {
         _faceplate_write_upd_ram(
             0x40, // data setting command: display data ram
@@ -167,7 +167,7 @@ void faceplate_update_from_upd_if_dirty(upd_state_t *state)
         );
     }
 
-    if (state->pictograph_ram_dirty == 1)
+    if ((state->dirty_flags & UPD_DIRTY_PICTOGRAPH) != 0)
     {
         _faceplate_write_upd_ram(
             0x41, // data setting command: pictograph ram
@@ -176,7 +176,7 @@ void faceplate_update_from_upd_if_dirty(upd_state_t *state)
             );
     }
 
-    if (state->chargen_ram_dirty == 1)
+    if ((state->dirty_flags & UPD_DIRTY_CHARGEN) != 0)
     {
         _faceplate_write_upd_ram(
             0x4a, // data setting command: chargen ram
