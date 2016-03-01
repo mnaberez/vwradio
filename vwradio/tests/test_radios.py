@@ -44,10 +44,13 @@ class TestRadio(unittest.TestCase):
         )
         for text in texts:
             radio = Radio()
-            radio.operation_mode = OperationModes.SAFE_LOCKED
+            # set up known values
+            radio.operation_mode = OperationModes.TUNER_PLAYING
+            radio.display_mode = DisplayModes.SHOWING_OPERATION
+            # process display
             radio.process(text)
             self.assertEqual(radio.operation_mode,
-                OperationModes.SAFE_LOCKED)
+                OperationModes.TUNER_PLAYING)
             self.assertEqual(radio.display_mode,
                 DisplayModes.ADJUSTING_VOLUME)
 
@@ -61,14 +64,16 @@ class TestRadio(unittest.TestCase):
         )
         for text, balance in values:
             radio = Radio()
-            original_operation_mode = radio.operation_mode
-            radio.sound_balance = 99
+            # set up known values
+            radio.operation_mode = OperationModes.TUNER_PLAYING
+            radio.display_mode = DisplayModes.SHOWING_OPERATION
+            # process display
             radio.process(text)
-            self.assertEqual(radio.sound_balance, balance)
             self.assertEqual(radio.operation_mode,
-                original_operation_mode)
+                OperationModes.TUNER_PLAYING)
             self.assertEqual(radio.display_mode,
                 DisplayModes.ADJUSTING_BALANCE)
+            self.assertEqual(radio.sound_balance, balance)
 
     def test_fade(self):
         values = (
@@ -80,14 +85,16 @@ class TestRadio(unittest.TestCase):
         )
         for text, fade in values:
             radio = Radio()
-            original_operation_mode = radio.operation_mode
-            radio.sound_fade = 99
+            # set up known values
+            radio.operation_mode = OperationModes.TUNER_PLAYING
+            radio.display_mode = DisplayModes.SHOWING_OPERATION
+            # process display
             radio.process(text)
-            self.assertEqual(radio.sound_fade, fade)
             self.assertEqual(radio.operation_mode,
-                original_operation_mode)
+                OperationModes.TUNER_PLAYING)
             self.assertEqual(radio.display_mode,
                 DisplayModes.ADJUSTING_FADE)
+            self.assertEqual(radio.sound_fade, fade)
 
     def test_bass(self):
         values = (
@@ -99,14 +106,16 @@ class TestRadio(unittest.TestCase):
         )
         for text, bass in values:
             radio = Radio()
-            original_operation_mode = radio.operation_mode
-            radio.sound_bass = 99
+            # set up known values
+            radio.operation_mode = OperationModes.TUNER_PLAYING
+            radio.display_mode = DisplayModes.SHOWING_OPERATION
+            # process display
             radio.process(text)
-            self.assertEqual(radio.sound_bass, bass)
             self.assertEqual(radio.operation_mode,
-                original_operation_mode)
+                OperationModes.TUNER_PLAYING)
             self.assertEqual(radio.display_mode,
                 DisplayModes.ADJUSTING_BASS)
+            self.assertEqual(radio.sound_bass, bass)
 
     def test_treble(self):
         values = (
@@ -118,14 +127,16 @@ class TestRadio(unittest.TestCase):
         )
         for text, treble in values:
             radio = Radio()
-            original_operation_mode = radio.operation_mode
-            radio.sound_treble = 99
+            # set up known values
+            radio.operation_mode = OperationModes.TUNER_PLAYING
+            radio.display_mode = DisplayModes.SHOWING_OPERATION
             radio.process(text)
-            self.assertEqual(radio.sound_treble, treble)
+            # process display
             self.assertEqual(radio.operation_mode,
-                original_operation_mode)
+                OperationModes.TUNER_PLAYING)
             self.assertEqual(radio.display_mode,
                 DisplayModes.ADJUSTING_TREBLE)
+            self.assertEqual(radio.sound_treble, treble)
 
     def test_premium_5_midrange(self):
         values = (
@@ -145,6 +156,237 @@ class TestRadio(unittest.TestCase):
                 original_operation_mode)
             self.assertEqual(radio.display_mode,
                 DisplayModes.ADJUSTING_MIDRANGE)
+
+    def test_cd_playing(self):
+        values = (
+            ("CD 1 TR 01 ", 1, 1),
+            ("CD 6 TR 99 ", 6, 99),
+        )
+        for text, disc, track in values:
+            radio = Radio()
+            radio.operation_mode = OperationModes.UNKNOWN
+            radio.process(text)
+            self.assertEqual(radio.cd_disc, disc)
+            self.assertEqual(radio.cd_track, track)
+            self.assertEqual(radio.operation_mode,
+                OperationModes.CD_PLAYING)
+            self.assertEqual(radio.display_mode,
+                DisplayModes.SHOWING_OPERATION)
+
+    def test_cd_cueing(self):
+        radio = Radio()
+        # set up known values
+        radio.operation_mode = OperationModes.CD_PLAYING
+        radio.cd_disc = 5
+        radio.cd_track = 12
+        # process display
+        radio.process("CUE   122  ")
+        self.assertEqual(radio.cd_disc, 5)
+        self.assertEqual(radio.cd_track, 12)
+        self.assertEqual(radio.cd_cue_pos, 122)
+        self.assertEqual(radio.operation_mode,
+            OperationModes.CD_CUEING)
+        self.assertEqual(radio.display_mode,
+            DisplayModes.SHOWING_OPERATION)
+
+    def test_cd_check_magazine(self):
+        radio = Radio()
+        # set up known values
+        radio.operation_mode = OperationModes.CD_PLAYING
+        radio.cd_disc = 1
+        radio.cd_track = 3
+        radio.cd_cue_pos = 99
+        # process display
+        radio.process("CHK MAGAZIN")
+        self.assertEqual(radio.cd_disc, 0)
+        self.assertEqual(radio.cd_track, 0)
+        self.assertEqual(radio.cd_cue_pos, 0)
+        self.assertEqual(radio.operation_mode,
+            OperationModes.CD_CHECK_MAGAZINE)
+        self.assertEqual(radio.display_mode,
+            DisplayModes.SHOWING_OPERATION)
+
+    def test_cd_cdx_no_cd(self):
+        radio = Radio()
+        # set up known values
+        radio.operation_mode = OperationModes.CD_PLAYING
+        radio.cd_disc = 1
+        radio.cd_track = 3
+        radio.cd_cue_pos = 99
+        # process display
+        radio.process("CD 2 NO CD ") # space in "CD 2"
+        self.assertEqual(radio.cd_disc, 2)
+        self.assertEqual(radio.cd_track, 0)
+        self.assertEqual(radio.cd_cue_pos, 0)
+        self.assertEqual(radio.operation_mode,
+            OperationModes.CD_CDX_NO_CD)
+        self.assertEqual(radio.display_mode,
+            DisplayModes.SHOWING_OPERATION)
+
+    def test_cd_cdx_cd_err(self):
+        radio = Radio()
+        # set up known values
+        radio.operation_mode = OperationModes.CD_PLAYING
+        radio.cd_disc = 5
+        radio.cd_track = 3
+        radio.cd_cue_pos = 99
+        # process display
+        radio.process("CD1 CD ERR ") # no space in "CD1"
+        self.assertEqual(radio.cd_disc, 1)
+        self.assertEqual(radio.cd_track, 0)
+        self.assertEqual(radio.cd_cue_pos, 0)
+        self.assertEqual(radio.operation_mode,
+            OperationModes.CD_CDX_CD_ERR)
+        self.assertEqual(radio.display_mode,
+            DisplayModes.SHOWING_OPERATION)
+
+    def test_cd_no_disc(self):
+        radio = Radio()
+        # set up known values
+        radio.operation_mode = OperationModes.CD_PLAYING
+        radio.cd_disc = 5
+        radio.cd_track = 3
+        radio.cd_cue_pos = 99
+        # process display
+        radio.process("    NO DISC")
+        self.assertEqual(radio.cd_disc, 0)
+        self.assertEqual(radio.cd_track, 0)
+        self.assertEqual(radio.cd_cue_pos, 0)
+        self.assertEqual(radio.operation_mode,
+            OperationModes.CD_NO_DISC)
+        self.assertEqual(radio.display_mode,
+            DisplayModes.SHOWING_OPERATION)
+
+    def test_cd_no_changer(self):
+        radio = Radio()
+        # set up known values
+        radio.operation_mode = OperationModes.CD_PLAYING
+        radio.cd_disc = 5
+        radio.cd_track = 3
+        radio.cd_cue_pos = 99
+        # process display
+        radio.process("NO  CHANGER")
+        self.assertEqual(radio.cd_disc, 0)
+        self.assertEqual(radio.cd_track, 0)
+        self.assertEqual(radio.cd_cue_pos, 0)
+        self.assertEqual(radio.operation_mode,
+            OperationModes.CD_NO_CHANGER)
+        self.assertEqual(radio.display_mode,
+            DisplayModes.SHOWING_OPERATION)
+
+    def test_premium_5_tape_load(self):
+        radio = Radio()
+        # set up known values
+        radio.tape_side = 1
+        # process display
+        radio.process("TAPE LOAD  ")
+        self.assertEqual(radio.tape_side, 0)
+        self.assertEqual(radio.operation_mode,
+            OperationModes.TAPE_LOAD)
+        self.assertEqual(radio.display_mode,
+            DisplayModes.SHOWING_OPERATION)
+
+    def test_premium_5_tape_metal(self):
+        radio = Radio()
+        # set up known values
+        radio.tape_side = 1
+        # process display
+        radio.process("TAPE METAL ")
+        self.assertEqual(radio.tape_side, 0) # XXX shouldn't this stay 1?
+        self.assertEqual(radio.operation_mode,
+            OperationModes.TAPE_METAL)
+        self.assertEqual(radio.display_mode,
+            DisplayModes.SHOWING_OPERATION)
+
+    def test_tape_play_a(self):
+        radio = Radio()
+        radio.process("TAPE PLAY A")
+        self.assertEqual(radio.tape_side, 1)
+        self.assertEqual(radio.operation_mode,
+            OperationModes.TAPE_PLAYING)
+        self.assertEqual(radio.display_mode,
+            DisplayModes.SHOWING_OPERATION)
+
+    def test_tape_play_b(self):
+        radio = Radio()
+        radio.process("TAPE PLAY B")
+        self.assertEqual(radio.tape_side, 2)
+        self.assertEqual(radio.operation_mode,
+            OperationModes.TAPE_PLAYING)
+        self.assertEqual(radio.display_mode,
+            DisplayModes.SHOWING_OPERATION)
+
+    def test_tape_ff(self):
+        radio = Radio()
+        # set up known values
+        radio.tape_side = 1
+        # process display
+        radio.process("TAPE  FF   ")
+        self.assertEqual(radio.tape_side, 1)
+        self.assertEqual(radio.operation_mode,
+            OperationModes.TAPE_FF)
+        self.assertEqual(radio.display_mode,
+            DisplayModes.SHOWING_OPERATION)
+
+    def test_tape_mss_ff(self):
+        radio = Radio()
+        # set up known values
+        radio.tape_side = 2
+        # process display
+        radio.process("TAPEMSS FF ")
+        self.assertEqual(radio.tape_side, 2)
+        self.assertEqual(radio.operation_mode,
+            OperationModes.TAPE_MSS_FF)
+        self.assertEqual(radio.display_mode,
+            DisplayModes.SHOWING_OPERATION)
+
+    def test_tape_rew(self):
+        radio = Radio()
+        # set up known values
+        radio.tape_side = 1
+        # process display
+        radio.process("TAPE  REW  ")
+        self.assertEqual(radio.tape_side, 1)
+        self.assertEqual(radio.operation_mode,
+            OperationModes.TAPE_REW)
+        self.assertEqual(radio.display_mode,
+            DisplayModes.SHOWING_OPERATION)
+
+    def test_tape_mss_rew(self):
+        radio = Radio()
+        # set up known values
+        radio.tape_side = 2
+        # process display
+        radio.process("TAPEMSS REW")
+        self.assertEqual(radio.tape_side, 2)
+        self.assertEqual(radio.operation_mode,
+            OperationModes.TAPE_MSS_REW)
+        self.assertEqual(radio.display_mode,
+            DisplayModes.SHOWING_OPERATION)
+
+    def test_tape_error(self):
+        radio = Radio()
+        # set up known values
+        radio.tape_side = 1
+        # process display
+        radio.process("TAPE ERROR ")
+        self.assertEqual(radio.tape_side, 0)
+        self.assertEqual(radio.operation_mode,
+            OperationModes.TAPE_ERROR)
+        self.assertEqual(radio.display_mode,
+            DisplayModes.SHOWING_OPERATION)
+
+    def test_tape_no_tape(self):
+        radio = Radio()
+        # set up known values
+        radio.tape_side = 0
+        # process display
+        radio.process("    NO TAPE")
+        self.assertEqual(radio.tape_side, 0)
+        self.assertEqual(radio.operation_mode,
+            OperationModes.TAPE_NO_TAPE)
+        self.assertEqual(radio.display_mode,
+            DisplayModes.SHOWING_OPERATION)
 
     def test_tuner_fm_scan_off(self):
         values = (
@@ -225,211 +467,12 @@ class TestRadio(unittest.TestCase):
             self.assertEqual(radio.display_mode,
                 DisplayModes.SHOWING_OPERATION)
 
-    def test_cd_playing(self):
-        values = (
-            ("CD 1 TR 01 ", 1, 1),
-            ("CD 6 TR 99 ", 6, 99),
-        )
-        for text, disc, track in values:
-            radio = Radio()
-            radio.operation_mode = OperationModes.UNKNOWN
-            radio.process(text)
-            self.assertEqual(radio.cd_disc, disc)
-            self.assertEqual(radio.cd_track, track)
-            self.assertEqual(radio.operation_mode,
-                OperationModes.CD_PLAYING)
-            self.assertEqual(radio.display_mode,
-                DisplayModes.SHOWING_OPERATION)
-
-    def test_cd_cueing(self):
-        radio = Radio()
-        radio.operation_mode = OperationModes.CD_PLAYING
-        radio.cd_disc = 5
-        radio.cd_track = 12
-        radio.process("CUE   122  ")
-        self.assertEqual(radio.cd_disc, 5)
-        self.assertEqual(radio.cd_track, 12)
-        self.assertEqual(radio.cd_cue_pos, 122)
-        self.assertEqual(radio.operation_mode,
-            OperationModes.CD_CUEING)
-        self.assertEqual(radio.display_mode,
-            DisplayModes.SHOWING_OPERATION)
-
-    def test_cd_check_magazine(self):
-        radio = Radio()
-        radio.operation_mode = OperationModes.CD_PLAYING
-        radio.cd_disc = 1
-        radio.cd_track = 3
-        radio.cd_cue_pos = 99
-        radio.process("CHK MAGAZIN")
-        self.assertEqual(radio.cd_disc, 0)
-        self.assertEqual(radio.cd_track, 0)
-        self.assertEqual(radio.cd_cue_pos, 0)
-        self.assertEqual(radio.operation_mode,
-            OperationModes.CD_CHECK_MAGAZINE)
-        self.assertEqual(radio.display_mode,
-            DisplayModes.SHOWING_OPERATION)
-
-    def test_cd_cdx_no_cd(self):
-        radio = Radio()
-        radio.operation_mode = OperationModes.CD_PLAYING
-        radio.cd_disc = 1
-        radio.cd_track = 3
-        radio.cd_cue_pos = 99
-        radio.process("CD 2 NO CD ") # space in "CD 2"
-        self.assertEqual(radio.cd_disc, 2)
-        self.assertEqual(radio.cd_track, 0)
-        self.assertEqual(radio.cd_cue_pos, 0)
-        self.assertEqual(radio.operation_mode,
-            OperationModes.CD_CDX_NO_CD)
-        self.assertEqual(radio.display_mode,
-            DisplayModes.SHOWING_OPERATION)
-
-    def test_cd_cdx_cd_err(self):
-        radio = Radio()
-        radio.operation_mode = OperationModes.CD_PLAYING
-        radio.cd_disc = 5
-        radio.cd_track = 3
-        radio.cd_cue_pos = 99
-        radio.process("CD1 CD ERR ") # no space in "CD1"
-        self.assertEqual(radio.cd_disc, 1)
-        self.assertEqual(radio.cd_track, 0)
-        self.assertEqual(radio.cd_cue_pos, 0)
-        self.assertEqual(radio.operation_mode,
-            OperationModes.CD_CDX_CD_ERR)
-        self.assertEqual(radio.display_mode,
-            DisplayModes.SHOWING_OPERATION)
-
-    def test_cd_no_disc(self):
-        radio = Radio()
-        radio.operation_mode = OperationModes.CD_PLAYING
-        radio.cd_disc = 7
-        radio.cd_track = 9
-        radio.cd_cue_pos = 99
-        radio.process("    NO DISC")
-        self.assertEqual(radio.cd_disc, 0)
-        self.assertEqual(radio.cd_track, 0)
-        self.assertEqual(radio.cd_cue_pos, 0)
-        self.assertEqual(radio.operation_mode,
-            OperationModes.CD_NO_DISC)
-        self.assertEqual(radio.display_mode,
-            DisplayModes.SHOWING_OPERATION)
-
-    def test_cd_no_changer(self):
-        radio = Radio()
-        radio.operation_mode = OperationModes.CD_PLAYING
-        radio.cd_disc = 7
-        radio.cd_track = 9
-        radio.cd_cue_pos = 99
-        radio.process("NO  CHANGER")
-        self.assertEqual(radio.cd_disc, 0)
-        self.assertEqual(radio.cd_track, 0)
-        self.assertEqual(radio.cd_cue_pos, 0)
-        self.assertEqual(radio.operation_mode,
-            OperationModes.CD_NO_CHANGER)
-        self.assertEqual(radio.display_mode,
-            DisplayModes.SHOWING_OPERATION)
-
-    def test_premium_5_tape_load(self):
-        radio = Radio()
-        radio.process("TAPE LOAD  ")
-        self.assertEqual(radio.tape_side, 0)
-        self.assertEqual(radio.operation_mode,
-            OperationModes.TAPE_LOAD)
-        self.assertEqual(radio.display_mode,
-            DisplayModes.SHOWING_OPERATION)
-
-    def test_premium_5_tape_metal(self):
-        radio = Radio()
-        radio.process("TAPE METAL ")
-        self.assertEqual(radio.tape_side, 0)
-        self.assertEqual(radio.operation_mode,
-            OperationModes.TAPE_METAL)
-        self.assertEqual(radio.display_mode,
-            DisplayModes.SHOWING_OPERATION)
-
-    def test_tape_play_a(self):
-        radio = Radio()
-        radio.process("TAPE PLAY A")
-        self.assertEqual(radio.tape_side, 1)
-        self.assertEqual(radio.operation_mode,
-            OperationModes.TAPE_PLAYING)
-        self.assertEqual(radio.display_mode,
-            DisplayModes.SHOWING_OPERATION)
-
-    def test_tape_play_b(self):
-        radio = Radio()
-        radio.process("TAPE PLAY B")
-        self.assertEqual(radio.tape_side, 2)
-        self.assertEqual(radio.operation_mode,
-            OperationModes.TAPE_PLAYING)
-        self.assertEqual(radio.display_mode,
-            DisplayModes.SHOWING_OPERATION)
-
-    def test_tape_ff(self):
-        radio = Radio()
-        radio.process("TAPE  FF   ")
-        radio.tape_side = 1
-        self.assertEqual(radio.tape_side, 1)
-        self.assertEqual(radio.operation_mode,
-            OperationModes.TAPE_FF)
-        self.assertEqual(radio.display_mode,
-            DisplayModes.SHOWING_OPERATION)
-
-    def test_tape_mss_ff(self):
-        radio = Radio()
-        radio.process("TAPEMSS FF ")
-        radio.tape_side = 1
-        self.assertEqual(radio.tape_side, 1)
-        self.assertEqual(radio.operation_mode,
-            OperationModes.TAPE_MSS_FF)
-        self.assertEqual(radio.display_mode,
-            DisplayModes.SHOWING_OPERATION)
-
-    def test_tape_rew(self):
-        radio = Radio()
-        radio.tape_side = 2
-        radio.process("TAPE  REW  ")
-        self.assertEqual(radio.tape_side, 2)
-        self.assertEqual(radio.operation_mode,
-            OperationModes.TAPE_REW)
-        self.assertEqual(radio.display_mode,
-            DisplayModes.SHOWING_OPERATION)
-
-    def test_tape_mss_rew(self):
-        radio = Radio()
-        radio.tape_side = 2
-        radio.process("TAPEMSS REW")
-        self.assertEqual(radio.tape_side, 2)
-        self.assertEqual(radio.operation_mode,
-            OperationModes.TAPE_MSS_REW)
-        self.assertEqual(radio.display_mode,
-            DisplayModes.SHOWING_OPERATION)
-
-    def test_tape_error(self):
-        radio = Radio()
-        radio.tape_side = 1
-        radio.process("TAPE ERROR ")
-        self.assertEqual(radio.tape_side, 0)
-        self.assertEqual(radio.operation_mode,
-            OperationModes.TAPE_ERROR)
-        self.assertEqual(radio.display_mode,
-            DisplayModes.SHOWING_OPERATION)
-
-    def test_tape_no_tape(self):
-        radio = Radio()
-        radio.tape_side = 0
-        radio.process("    NO TAPE")
-        self.assertEqual(radio.tape_side, 0)
-        self.assertEqual(radio.operation_mode,
-            OperationModes.TAPE_NO_TAPE)
-        self.assertEqual(radio.display_mode,
-            DisplayModes.SHOWING_OPERATION)
-
     def test_ignores_blank(self):
         radio = Radio()
+        # set up known values
         radio.operation_mode = OperationModes.TUNER_PLAYING
         radio.display_mode = DisplayModes.SHOWING_OPERATION
+        # process display
         radio.process(" " * 11)
         self.assertEqual(radio.operation_mode,
             OperationModes.TUNER_PLAYING)
