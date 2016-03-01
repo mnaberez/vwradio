@@ -292,7 +292,7 @@ class TestRadio(unittest.TestCase):
         radio.tape_side = 1
         # process display
         radio.process("TAPE METAL ")
-        self.assertEqual(radio.tape_side, 0) # XXX shouldn't this stay 1?
+        self.assertEqual(radio.tape_side, 1)
         self.assertEqual(radio.operation_mode,
             OperationModes.TAPE_METAL)
         self.assertEqual(radio.display_mode,

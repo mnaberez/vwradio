@@ -219,6 +219,8 @@ class Radio(object):
                 self.operation_mode = OperationModes.TAPE_MSS_REW
             else: # "FF "
                 self.operation_mode = OperationModes.TAPE_MSS_FF
+        elif text == "TAPE METAL ":
+            self.operation_mode = OperationModes.TAPE_METAL
         elif text == "    NO TAPE":
             self.operation_mode = OperationModes.TAPE_NO_TAPE
             self.tape_side = 0
@@ -227,9 +229,6 @@ class Radio(object):
             self.tape_side = 0
         elif text == "TAPE LOAD  ":
             self.operation_mode = OperationModes.TAPE_LOAD
-            self.tape_side = 0
-        elif text == "TAPE METAL ":
-            self.operation_mode = OperationModes.TAPE_METAL
             self.tape_side = 0
         else:
             self._process_unknown(text)

@@ -178,6 +178,10 @@ static void _radio_state_process_tape(radio_state_t *state, uint8_t *ram)
             state->operation_mode = OPERATION_MODE_TAPE_MSS_FF;
         }
     }
+    else if (memcmp(ram, "TAPE METAL ", 11) == 0)
+    {
+        state->operation_mode = OPERATION_MODE_TAPE_METAL;
+    }    
     else if (memcmp(ram, "    NO TAPE", 11) == 0)
     {
         state->operation_mode = OPERATION_MODE_TAPE_NO_TAPE;
@@ -191,11 +195,6 @@ static void _radio_state_process_tape(radio_state_t *state, uint8_t *ram)
     else if (memcmp(ram, "TAPE LOAD  ", 11) == 0)
     {
         state->operation_mode = OPERATION_MODE_TAPE_LOAD;
-        state->tape_side = 0;
-    }
-    else if (memcmp(ram, "TAPE METAL ", 11) == 0)
-    {
-        state->operation_mode = OPERATION_MODE_TAPE_METAL;
         state->tape_side = 0;
     }
     else

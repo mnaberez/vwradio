@@ -1036,7 +1036,7 @@ class AvrTests(unittest.TestCase):
         # process display
         self.client.radio_state_process(b"TAPE METAL ")
         state = self.client.radio_state_dump()
-        self.assertEqual(state.tape_side, 0) # XXX shouldn't this stay 1?
+        self.assertEqual(state.tape_side, 1)
         self.assertEqual(state.operation_mode,
             OperationModes.TAPE_METAL)
         self.assertEqual(state.display_mode,
