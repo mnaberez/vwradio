@@ -478,7 +478,6 @@ class TestRadio(unittest.TestCase):
     def test_tuner_am_scan_on(self):
         values = (
             ("SCAN 530kHz",  530),
-            ("SCAN 530KHZ",  530),
             ("SCAN1710KHZ", 1710),
         )
         for display, freq in values:

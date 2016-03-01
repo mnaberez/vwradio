@@ -1250,7 +1250,6 @@ class AvrTests(unittest.TestCase):
     def test_radio_state_tuner_am_scan_on(self):
         values = (
             (b"SCAN 530kHz",  530),
-            (b"SCAN 530KHZ",  530),
             (b"SCAN1710KHZ", 1710),
         )
         for display, freq in values:
