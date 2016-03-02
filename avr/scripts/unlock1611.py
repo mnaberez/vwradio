@@ -30,7 +30,7 @@ def hit_key(key, secs=0.25):
     time.sleep(secs)
 
 if __name__ == '__main__':
-    client.pass_faceplate_keys_to_radio(False);
+    client.pass_faceplate_keys_to_emulated_upd(False);
     code_to_enter = 1611
     code_entry_keys = (Keys.PRESET_1, Keys.PRESET_2,
                        Keys.PRESET_3, Keys.PRESET_4)
@@ -66,4 +66,4 @@ if __name__ == '__main__':
 
     print("Radio is unlocked")
     hit_key(Keys.SCAN)
-    client.pass_faceplate_keys_to_radio(True);
+    client.pass_faceplate_keys_to_emulated_upd(True);

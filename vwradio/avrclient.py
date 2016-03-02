@@ -4,9 +4,9 @@ import serial # pyserial
 
 CMD_SET_LED = 0x01
 CMD_ECHO = 0x02
-CMD_PASS_RADIO_COMMANDS_TO_EMULATOR = 0x03
-CMD_PASS_EMULATOR_DISPLAY_TO_FACEPLATE = 0x04
-CMD_PASS_FACEPLATE_KEYS_TO_RADIO = 0x05
+CMD_PASS_RADIO_COMMANDS_TO_EMULATED_UPD = 0x03
+CMD_PASS_EMULATED_UPD_DISPLAY_TO_FACEPLATE = 0x04
+CMD_PASS_FACEPLATE_KEYS_TO_EMULATED_UPD = 0x05
 CMD_EMULATED_UPD_DUMP_STATE = 0x10
 CMD_EMULATED_UPD_SEND_COMMAND = 0x11
 CMD_EMULATED_UPD_RESET = 0x12
@@ -43,14 +43,14 @@ class Client(object):
         rx_bytes = self.command(bytearray([CMD_ECHO]) + bytearray(data))
         return rx_bytes[1:]
 
-    def pass_radio_commands_to_emulator(self, enabled):
-        self.command([CMD_PASS_RADIO_COMMANDS_TO_EMULATOR, int(enabled)])
+    def pass_radio_commands_to_emulated_upd(self, enabled):
+        self.command([CMD_PASS_RADIO_COMMANDS_TO_EMULATED_UPD, int(enabled)])
 
-    def pass_emulator_display_to_faceplate(self, enabled):
-        self.command([CMD_PASS_EMULATOR_DISPLAY_TO_FACEPLATE, int(enabled)])
+    def pass_emulated_upd_display_to_faceplate(self, enabled):
+        self.command([CMD_PASS_EMULATED_UPD_DISPLAY_TO_FACEPLATE, int(enabled)])
 
-    def pass_faceplate_keys_to_radio(self, enabled):
-        self.command([CMD_PASS_FACEPLATE_KEYS_TO_RADIO, int(enabled)])
+    def pass_faceplate_keys_to_emulated_upd(self, enabled):
+        self.command([CMD_PASS_FACEPLATE_KEYS_TO_EMULATED_UPD, int(enabled)])
 
     def set_led(self, led_num, led_state):
         self.command([CMD_SET_LED, led_num, int(led_state)])

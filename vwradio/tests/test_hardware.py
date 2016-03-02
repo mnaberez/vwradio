@@ -12,14 +12,14 @@ class AvrTests(unittest.TestCase):
         if getattr(self, 'serial') is None:
             self.serial = avrclient.make_serial()
         self.client = avrclient.Client(self.serial)
-        self.client.pass_radio_commands_to_emulator(False)
-        self.client.pass_emulator_display_to_faceplate(False)
-        self.client.pass_faceplate_keys_to_radio(False)
+        self.client.pass_radio_commands_to_emulated_upd(False)
+        self.client.pass_emulated_upd_display_to_faceplate(False)
+        self.client.pass_faceplate_keys_to_emulated_upd(False)
 
     def tearDown(self):
-        self.client.pass_radio_commands_to_emulator(True)
-        self.client.pass_emulator_display_to_faceplate(True)
-        self.client.pass_faceplate_keys_to_radio(True)
+        self.client.pass_radio_commands_to_emulated_upd(True)
+        self.client.pass_emulated_upd_display_to_faceplate(True)
+        self.client.pass_faceplate_keys_to_emulated_upd(True)
 
     # Command timeout
 
@@ -75,9 +75,9 @@ class AvrTests(unittest.TestCase):
                 data=[avrclient.CMD_ECHO] + args, ignore_nak=True)
             self.assertEqual(rx_bytes, bytearray([avrclient.ACK] + args))
 
-    # TODO tests for pass_faceplate_keys_to_radio
-    # TODO tests for pass_radio_commands_to_emulator
-    # TODO tests for pass_emulator_display_to_faceplate
+    # TODO tests for pass_radio_commands_to_emulated_upd
+    # TODO tests for pass_emulated_upd_display_to_faceplate
+    # TODO tests for pass_faceplate_keys_to_emulated_upd
 
     # Set LED command
 

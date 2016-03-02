@@ -371,7 +371,7 @@ static void _cmd_do_set_led()
 
 /* TODO document me
  */
-static void _cmd_do_pass_radio_commands_to_emulator()
+static void _cmd_do_pass_radio_commands_to_emulated_upd()
 {
     if (cmd_buf_index != 2)
     {
@@ -381,12 +381,12 @@ static void _cmd_do_pass_radio_commands_to_emulator()
 
     // TODO check arg
     uint8_t c = cmd_buf[1];
-    pass_radio_commands_to_emulator = c;
+    pass_radio_commands_to_emulated_upd = c;
     _cmd_reply_ack();
 }
 /* TODO document me
  */
-static void _cmd_do_pass_emulator_display_to_faceplate()
+static void _cmd_do_pass_emulated_upd_display_to_faceplate()
 {
     if (cmd_buf_index != 2)
     {
@@ -396,13 +396,13 @@ static void _cmd_do_pass_emulator_display_to_faceplate()
 
     // TODO check arg
     uint8_t c = cmd_buf[1];
-    pass_emulator_display_to_faceplate = c;
+    pass_emulated_upd_display_to_faceplate = c;
     _cmd_reply_ack();
 }
 
 /* TODO document me
  */
-static void _cmd_do_pass_faceplate_keys_to_radio()
+static void _cmd_do_pass_faceplate_keys_to_emulated_upd()
 {
     if (cmd_buf_index != 2)
     {
@@ -412,7 +412,7 @@ static void _cmd_do_pass_faceplate_keys_to_radio()
 
     // TODO check arg
     uint8_t c = cmd_buf[1];
-    pass_faceplate_keys_to_radio = c;
+    pass_faceplate_keys_to_emulated_upd = c;
     _cmd_reply_ack();
 }
 
@@ -502,14 +502,14 @@ static void _cmd_dispatch()
             _cmd_do_echo();
             break;
 
-        case CMD_PASS_RADIO_COMMANDS_TO_EMULATOR:
-            _cmd_do_pass_radio_commands_to_emulator();
+        case CMD_PASS_RADIO_COMMANDS_TO_EMULATED_UPD:
+            _cmd_do_pass_radio_commands_to_emulated_upd();
             break;
-        case CMD_PASS_EMULATOR_DISPLAY_TO_FACEPLATE:
-            _cmd_do_pass_emulator_display_to_faceplate();
+        case CMD_PASS_EMULATED_UPD_DISPLAY_TO_FACEPLATE:
+            _cmd_do_pass_emulated_upd_display_to_faceplate();
             break;
-        case CMD_PASS_FACEPLATE_KEYS_TO_RADIO:
-            _cmd_do_pass_faceplate_keys_to_radio();
+        case CMD_PASS_FACEPLATE_KEYS_TO_EMULATED_UPD:
+            _cmd_do_pass_faceplate_keys_to_emulated_upd();
             break;
 
         case CMD_RADIO_STATE_PROCESS:
