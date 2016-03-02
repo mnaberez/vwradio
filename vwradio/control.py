@@ -139,9 +139,9 @@ def main():
         controller.clear()
         demo = Demonstrator(controller)
 #        demo.clock()
-        demo.show_charset()
+#        demo.show_charset()
 #        demo.show_rom_charset_comparison()
-#        demo.show_keys()
+        demo.show_keys()
     except KeyboardInterrupt:
         # if a command is in process, let it finish
         time.sleep(0.1)
