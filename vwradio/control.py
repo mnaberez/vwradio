@@ -1,66 +1,19 @@
 import time
-import u3 # LabJackPython
+from vwradio import avrclient
 from vwradio import faceplates
 
-class Pins(object):
-    STB = u3.FIO0
-    DAT_MOSI = u3.FIO1
-    DAT_MISO = u3.FIO2
-    CLK = u3.FIO3
-    RST = u3.FIO4
-    LOF = u3.FIO5
-    EJE = u3.FIO6
-    POW = u3.FIO7
 
-class Lcd(object):
-    def __init__(self, labjack, faceplate):
-        self.labjack = labjack
+class Controller(object):
+    def __init__(self, client, faceplate):
+        self.client = client
         self.faceplate = faceplate
 
-    def spi(self, data):
-        data = self.labjack.spi(
-            SPIBytes=data,
-            AutoCS=True,
-            InvertCS=True,
-            DisableDirConfig=False,
-            SPIMode='D', # CPOL=1, CPHA=1
-            SPIClockFactor=255, # 0-255, 255=slowest
-            CSPinNum=Pins.STB,
-            MOSIPinNum=Pins.DAT_MOSI,
-            MISOPinNum=Pins.DAT_MISO,
-            CLKPinNum=Pins.CLK,
-            )['SPIBytes']
-        return data
-
-    def reset(self):
-        # configure pins as inputs
-        self.labjack.getDIState(Pins.EJE)
-        self.labjack.getDIState(Pins.POW)
-
-        # configure pins as ouputs and set initial state
-        self.labjack.setDOState(Pins.STB, 0)
-        self.labjack.setDOState(Pins.LOF, 1)
-        for state in (1, 0, 1):
-            self.labjack.setDOState(Pins.RST, state)
-        self.clear()
-
     def clear(self):
-        self.spi([0x04]) # Display Setting command
-        self.spi([0xcf]) # Status command
-        self.spi([0x41]) # Data Setting command: write to pictograph ram
-        self.spi([0x80] + ([0]*8)) # Address Setting command, pictograph data
-        self.spi([0x40]) # Data Setting command: write to display ram
-        self.spi([0x80] + ([0x20]*16)) # Address Setting command, display data
+        self.client.faceplate_upd_clear_display()
 
     def read_keys(self):
-        key_data = self.spi([0x44, 0, 0, 0, 0])[1:]
+        key_data = self.client.faceplate_upd_read_key_data()
         keys = self.faceplate.decode_keys(key_data)
-
-        if self.labjack.getDIState(Pins.EJE) == 0:
-            keys.append(faceplates.Keys.STOP_EJECT)
-        if self.labjack.getDIState(Pins.POW) == 0:
-            keys.append(faceplates.Keys.POWER)
-
         return keys
 
     def write(self, text, pos=0):
@@ -85,13 +38,13 @@ class Lcd(object):
         address_groups = self._split_into_contiguous_groups(addresses)
 
         # send Data Setting command: write to display ram
-        self.spi([0x40])
+        self.client.faceplate_upd_send_command([0x40])
 
         # send Address Setting command plus data for each contiguous group
         for addresses in address_groups:
             start_address = addresses[0]
             codes = [ char_codes_by_address[a] for a in addresses ]
-            self.spi([0x80 + start_address] + codes)
+            self.client.faceplate_upd_send_command([0x80 + start_address] + codes)
 
     def _split_into_contiguous_groups(self, integers):
         '''[2,1,7,6,5,10] -> [[1,2], [5,6,7], [10]]'''
@@ -110,26 +63,28 @@ class Lcd(object):
             raise ValueError("Character number %r is not 0-15", index)
         if len(data) != 7:
             raise ValueError("Character data length %r is not 7" % len(data))
-        self.spi([0x4a]) # Data Setting command: write to chargen ram
-        self.spi([0x80 + index] + list(data)) # Address Setting command, data
+        # Data Setting command: write to chargen ram
+        self.client.faceplate_upd_send_command([0x4a])
+        # Address Setting command, data
+        self.client.faceplate_upd_send_command([0x80 + index] + list(data))
 
 
 class Demonstrator(object):
-    def __init__(self, lcd):
-        self.lcd = lcd
+    def __init__(self, controller):
+        self.controller = controller
 
     def show_charset(self):
         for i in range(0, 0x100, 7):
-            self.lcd.write('0x%02X' % i, pos=0)
+            self.controller.write('0x%02X' % i, pos=0)
             data = [0x20] * 7 # 7 chars, default blank spaces
             for j in range(len(data)):
                 code = i + j
                 if code > 0xFF: # past end of charset
                     break
                 data[j] = code
-            self.lcd.write_char_codes(data, pos=4)
+            self.controller.write_char_codes(data, pos=4)
             time.sleep(1)
-        self.lcd.clear()
+        self.controller.clear()
 
     def show_rom_charset_comparison(self):
         def read_char_data(charset, index):
@@ -139,53 +94,61 @@ class Demonstrator(object):
 
         for i in range(0x10, 0x100):
             # refine character 0 with the rom pattern
-            data = read_char_data(self.lcd.faceplate.ROM_CHARSET, i)
-            self.lcd.define_char(0, data)
+            data = read_char_data(self.controller.faceplate.ROM_CHARSET, i)
+            self.controller.define_char(0, data)
 
             # first four chars: display character code in hex
-            self.lcd.write('0x%02X' % i, pos=0)
+            self.controller.write('0x%02X' % i, pos=0)
 
             # all other chars: alternate between rom and programmable char 0
             for blink in range(6):
                 for code in (0, i):
-                    self.lcd.write_char_codes([code]*7, pos=4)
+                    self.controller.write_char_codes([code]*7, pos=4)
                     time.sleep(0.2)
-        self.lcd.clear()
+        self.controller.clear()
 
     def show_keys(self):
-        self.lcd.clear()
-        self.lcd.write('Hit Key', pos=4)
+        self.controller.clear()
+        self.controller.write('Hit Key', pos=4)
         while True:
-            keys = self.lcd.read_keys()
-            names = [ self.lcd.faceplate.get_key_name(k) for k in keys ]
+            keys = self.controller.read_keys()
+            names = [ self.controller.faceplate.get_key_name(k) for k in keys ]
             if names:
                 print("%r" % names)
                 msg = names[0][:11].ljust(11)
-                self.lcd.write(msg)
+                self.controller.write(msg)
         time.sleep(0.1)
 
     def clock(self):
-        self.lcd.clear()
-        self.lcd.write("Time", pos=0)
+        self.controller.clear()
+        self.controller.write("Time", pos=0)
         while True:
             clock = time.strftime("%I:%M%p").lower()
             if clock[0] == '0':
                 clock = ' ' + clock[1:]
-            self.lcd.write(clock, pos=4)
+            self.controller.write(clock, pos=4)
             time.sleep(0.5)
 
 
 def main():
-    labjack = u3.U3()
-    faceplate = faceplates.Premium5()
+    client = avrclient.make_client()
+    faceplate = faceplates.Premium4()
     try:
-        lcd = Lcd(labjack, faceplate)
-        lcd.reset()
-        demo = Demonstrator(lcd)
-        demo.show_keys()
+        client.pass_emulator_display_to_faceplate(False)
+        client.pass_faceplate_keys_to_radio(False)
+        controller = Controller(client, faceplate)
+        controller.clear()
+        demo = Demonstrator(controller)
+#        demo.clock()
+        demo.show_charset()
+#        demo.show_rom_charset_comparison()
+#        demo.show_keys()
+    except KeyboardInterrupt:
+        # if a command is in process, let it finish
+        time.sleep(0.1)
     finally:
-        labjack.reset()
-        labjack.close()
+        client.pass_emulator_display_to_faceplate(True)
+        client.pass_faceplate_keys_to_radio(True)
 
 
 if __name__ == '__main__':
