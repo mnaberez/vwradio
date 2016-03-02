@@ -1,6 +1,8 @@
 #ifndef RADIO_STATE_H
 #define RADIO_STATE_H
 
+#include "updemu.h"
+
 #define OPERATION_MODE_UNKNOWN 0
 #define OPERATION_MODE_SAFE_ENTRY 10
 #define OPERATION_MODE_SAFE_LOCKED 11
@@ -61,5 +63,6 @@ radio_state_t radio_state;
 
 void radio_state_init(radio_state_t *state);
 void radio_state_process(radio_state_t *state, uint8_t *ram);
+void radio_state_update_from_upd_if_dirty(radio_state_t *radio_state, upd_state_t *upd_state);
 
 #endif
