@@ -108,8 +108,7 @@ class Demonstrator(object):
         self.controller.clear()
 
     def show_keys(self):
-        self.controller.clear()
-        self.controller.write('Hit Key', pos=4)
+        self.controller.write('    Hit Key')
         while True:
             keys = self.controller.read_keys()
             names = [ self.controller.faceplate.get_key_name(k) for k in keys ]

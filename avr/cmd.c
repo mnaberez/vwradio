@@ -384,6 +384,7 @@ static void _cmd_do_pass_radio_commands_to_emulated_upd()
     pass_radio_commands_to_emulated_upd = c;
     _cmd_reply_ack();
 }
+
 /* TODO document me
  */
 static void _cmd_do_pass_emulated_upd_display_to_faceplate()
@@ -397,6 +398,19 @@ static void _cmd_do_pass_emulated_upd_display_to_faceplate()
     // TODO check arg
     uint8_t c = cmd_buf[1];
     pass_emulated_upd_display_to_faceplate = c;
+
+    // if returning control of the faceplate to the emulated upd, force an
+    // immediate update of the faceplate to restore the radio's display
+    if (pass_emulated_upd_display_to_faceplate == 1)
+    {
+        emulated_upd_state.dirty_flags =
+            UPD_DIRTY_DISPLAY |
+            UPD_DIRTY_PICTOGRAPH |
+            UPD_DIRTY_CHARGEN;
+        faceplate_update_from_upd_if_dirty(&emulated_upd_state);
+        emulated_upd_state.dirty_flags = UPD_DIRTY_NONE;
+    }
+
     _cmd_reply_ack();
 }
 
