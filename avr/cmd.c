@@ -206,7 +206,7 @@ static void _cmd_do_emulated_upd_send_command()
  * The same bytes will be sent for every key data request until the bytes
  * are changed.  Set {0, 0, 0, 0} to indicate no keys pressed.
  */
-static void _cmd_do_radio_load_key_data()
+static void _cmd_do_emulated_upd_load_key_data()
 {
     if (cmd_buf_index != 5)
     {
@@ -369,15 +369,9 @@ static void _cmd_do_set_led()
     _cmd_reply_ack();
 }
 
-/* Command: Set Run Mode
- * Arguments: <mode>
- * Returns: <ack|nak>
- *
- * Sets the current running mode (one of the RUN_MODE_* constants).  In
- * test mode, SPI commands from the radio are ignored so the uPD16432B
- * code can be tested.
+/* TODO document me
  */
-static void _cmd_do_set_run_mode()
+static void _cmd_do_pass_radio_commands_to_emulator()
 {
     if (cmd_buf_index != 2)
     {
@@ -385,22 +379,40 @@ static void _cmd_do_set_run_mode()
         return;
     }
 
-    uint8_t mode = cmd_buf[1];
-
-    switch (mode)
+    // TODO check arg
+    uint8_t c = cmd_buf[1];
+    pass_radio_commands_to_emulator = c;
+    _cmd_reply_ack();
+}
+/* TODO document me
+ */
+static void _cmd_do_pass_emulator_display_to_faceplate()
+{
+    if (cmd_buf_index != 2)
     {
-        case CMD_ARG_RUN_MODE_NORMAL:
-            run_mode = RUN_MODE_NORMAL;
-            break;
-
-        case CMD_ARG_RUN_MODE_TEST:
-            run_mode = RUN_MODE_TEST;
-            break;
-
-        default:
-            return _cmd_reply_nak();
+        _cmd_reply_nak();
+        return;
     }
 
+    // TODO check arg
+    uint8_t c = cmd_buf[1];
+    pass_emulator_display_to_faceplate = c;
+    _cmd_reply_ack();
+}
+
+/* TODO document me
+ */
+static void _cmd_do_pass_faceplate_keys_to_radio()
+{
+    if (cmd_buf_index != 2)
+    {
+        _cmd_reply_nak();
+        return;
+    }
+
+    // TODO check arg
+    uint8_t c = cmd_buf[1];
+    pass_faceplate_keys_to_radio = c;
     _cmd_reply_ack();
 }
 
@@ -447,7 +459,7 @@ static void _cmd_do_faceplate_upd_send_command()
  *
  * Sends SPI commands to initialize the faceplate and clear it.
  */
-static void _cmd_do_faceplate_clear_display()
+static void _cmd_do_faceplate_upd_clear_display()
 {
     if (cmd_buf_index != 1)
     {
@@ -458,6 +470,22 @@ static void _cmd_do_faceplate_clear_display()
     faceplate_clear_display();
     return _cmd_reply_ack();
 }
+
+/* TODO document me
+ */
+ static void _cmd_do_faceplate_upd_read_key_data()
+ {
+     // todo check arguments
+     uint8_t key_data[4] = {0, 0, 0, 0};
+     faceplate_read_key_data(key_data);
+
+     uart_putc(5); // number of bytes to follow
+     uart_putc(ACK); // ACK byte
+     uart_putc(key_data[0]);
+     uart_putc(key_data[1]);
+     uart_putc(key_data[2]);
+     uart_putc(key_data[3]);
+ }
 
 /* Dispatch a command.  A complete command packet has been received.  The
  * command buffer has one more bytes.  The first byte is the command byte.
@@ -473,12 +501,15 @@ static void _cmd_dispatch()
         case CMD_ECHO:
             _cmd_do_echo();
             break;
-        case CMD_SET_RUN_MODE:
-            _cmd_do_set_run_mode();
-            break;
 
-        case CMD_RADIO_LOAD_KEY_DATA:
-            _cmd_do_radio_load_key_data();
+        case CMD_PASS_RADIO_COMMANDS_TO_EMULATOR:
+            _cmd_do_pass_radio_commands_to_emulator();
+            break;
+        case CMD_PASS_EMULATOR_DISPLAY_TO_FACEPLATE:
+            _cmd_do_pass_emulator_display_to_faceplate();
+            break;
+        case CMD_PASS_FACEPLATE_KEYS_TO_RADIO:
+            _cmd_do_pass_faceplate_keys_to_radio();
             break;
 
         case CMD_RADIO_STATE_PROCESS:
@@ -491,6 +522,9 @@ static void _cmd_dispatch()
             _cmd_do_radio_state_reset();
             break;
 
+        case CMD_EMULATED_UPD_LOAD_KEY_DATA:
+            _cmd_do_emulated_upd_load_key_data();
+            break;
         case CMD_EMULATED_UPD_DUMP_STATE:
             _cmd_do_emulated_upd_dump_state();
             break;
@@ -507,8 +541,11 @@ static void _cmd_dispatch()
         case CMD_FACEPLATE_UPD_SEND_COMMAND:
             _cmd_do_faceplate_upd_send_command();
             break;
-        case CMD_FACEPLATE_CLEAR_DISPLAY:
-            _cmd_do_faceplate_clear_display();
+        case CMD_FACEPLATE_UPD_CLEAR_DISPLAY:
+            _cmd_do_faceplate_upd_clear_display();
+            break;
+        case CMD_FACEPLATE_UPD_READ_KEY_DATA:
+            _cmd_do_faceplate_upd_read_key_data();
             break;
 
         default:

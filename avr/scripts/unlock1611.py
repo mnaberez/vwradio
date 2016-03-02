@@ -18,21 +18,19 @@ def read_display():
     return lcd_text
 
 def hit_key(key, secs=0.25):
-    client.set_run_mode(avrclient.RUN_MODE_TEST) # XXX
     key_name = face.get_key_name(key)
     print('Hitting key %s' % key_name)
     # hit the key
     key_data = face.encode_keys([key])
-    client.radio_load_key_data(key_data)
+    client.emulated_upd_load_key_data(key_data)
     time.sleep(secs)
     # release all keys
     key_data = face.encode_keys([])
-    client.radio_load_key_data(key_data)
+    client.emulated_upd_load_key_data(key_data)
     time.sleep(secs)
-    client.set_run_mode(avrclient.RUN_MODE_NORMAL) # XXX
-    time.sleep(1) # XXX
 
 if __name__ == '__main__':
+    client.pass_faceplate_keys_to_radio(False);
     code_to_enter = 1611
     code_entry_keys = (Keys.PRESET_1, Keys.PRESET_2,
                        Keys.PRESET_3, Keys.PRESET_4)
@@ -68,3 +66,4 @@ if __name__ == '__main__':
 
     print("Radio is unlocked")
     hit_key(Keys.SCAN)
+    client.pass_faceplate_keys_to_radio(True);

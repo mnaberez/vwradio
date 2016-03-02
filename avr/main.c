@@ -47,7 +47,9 @@ ISR(BADISR_vect)
 
 int main()
 {
-    run_mode = RUN_MODE_NORMAL;
+    pass_radio_commands_to_emulator = 1;
+    pass_emulator_display_to_faceplate = 1;
+    pass_faceplate_keys_to_radio = 1;
 
     led_init();
     uart_init();
@@ -71,8 +73,7 @@ int main()
             cmd_receive_byte(c);
         }
 
-        // pass keys through to radio
-        if (run_mode != RUN_MODE_TEST)
+        if (pass_faceplate_keys_to_radio)
         {
             // read keys from faceplate and send to radio
             faceplate_read_key_data(upd_tx_key_data);
@@ -85,9 +86,13 @@ int main()
             cmd = upd_rx_buf.cmds[upd_rx_buf.read_index];
             upd_rx_buf.read_index++;
 
-            if (run_mode != RUN_MODE_TEST)
+            if (pass_radio_commands_to_emulator)
             {
                 upd_process_command(&emulated_upd_state, &cmd);
+            }
+
+            if (pass_emulator_display_to_faceplate)
+            {
                 faceplate_update_from_upd_if_dirty(&emulated_upd_state);
 
                 if ((emulated_upd_state.dirty_flags & UPD_DIRTY_DISPLAY) != 0)

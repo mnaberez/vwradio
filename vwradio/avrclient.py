@@ -4,17 +4,20 @@ import serial # pyserial
 
 CMD_SET_LED = 0x01
 CMD_ECHO = 0x02
-CMD_SET_RUN_MODE = 0x03
+CMD_PASS_EMULATOR_DISPLAY_TO_FACEPLATE = 0x03
+CMD_PASS_FACEPLATE_KEYS_TO_RADIO = 0x04
+CMD_PASS_RADIO_COMMANDS_TO_EMULATOR = 0x05
 CMD_EMULATED_UPD_DUMP_STATE = 0x10
 CMD_EMULATED_UPD_SEND_COMMAND = 0x11
 CMD_EMULATED_UPD_RESET = 0x12
-CMD_RADIO_LOAD_KEY_DATA = 0x20
+CMD_EMULATED_UPD_LOAD_KEY_DATA = 0x13
 CMD_RADIO_STATE_PROCESS = 0x21
 CMD_RADIO_STATE_DUMP = 0x22
 CMD_RADIO_STATE_RESET = 0x23
 CMD_FACEPLATE_UPD_DUMP_STATE = 0x30
 CMD_FACEPLATE_UPD_SEND_COMMAND = 0x31
-CMD_FACEPLATE_CLEAR_DISPLAY = 0x32
+CMD_FACEPLATE_UPD_CLEAR_DISPLAY = 0x32
+CMD_FACEPLATE_UPD_READ_KEY_DATA = 0x33
 ACK = 0x06
 NAK = 0x15
 RUN_MODE_NORMAL = 0x00
@@ -40,8 +43,14 @@ class Client(object):
         rx_bytes = self.command(bytearray([CMD_ECHO]) + bytearray(data))
         return rx_bytes[1:]
 
-    def set_run_mode(self, mode):
-        self.command([CMD_SET_RUN_MODE, mode])
+    def pass_radio_commands_to_emulator(self, enabled):
+        self.command([CMD_PASS_RADIO_COMMANDS_TO_EMULATOR, int(enabled)])
+
+    def pass_emulator_display_to_faceplate(self, enabled):
+        self.command([CMD_PASS_EMULATOR_DISPLAY_TO_FACEPLATE, int(enabled)])
+
+    def pass_faceplate_keys_to_radio(self, enabled):
+        self.command([CMD_PASS_FACEPLATE_KEYS_TO_RADIO, int(enabled)])
 
     def set_led(self, led_num, led_state):
         self.command([CMD_SET_LED, led_num, int(led_state)])
@@ -57,6 +66,10 @@ class Client(object):
         data = bytearray([CMD_EMULATED_UPD_SEND_COMMAND]) + bytearray(spi_bytes)
         self.command(data)
 
+    def emulated_upd_load_key_data(self, key_bytes):
+        data = bytearray([CMD_EMULATED_UPD_LOAD_KEY_DATA]) + bytearray(key_bytes)
+        self.command(data)
+
     def faceplate_upd_send_command(self, spi_bytes):
         data = bytearray([CMD_FACEPLATE_UPD_SEND_COMMAND]) + bytearray(spi_bytes)
         self.command(data)
@@ -65,12 +78,12 @@ class Client(object):
         data = self.command([CMD_FACEPLATE_UPD_DUMP_STATE])
         return UpdEmulatorState(data[1:])
 
-    def faceplate_clear_display(self):
-        self.command([CMD_FACEPLATE_CLEAR_DISPLAY])
+    def faceplate_upd_clear_display(self):
+        self.command([CMD_FACEPLATE_UPD_CLEAR_DISPLAY])
 
-    def radio_load_key_data(self, key_bytes):
-        data = bytearray([CMD_RADIO_LOAD_KEY_DATA]) + bytearray(key_bytes)
-        self.command(data)
+    def faceplate_upd_read_key_data(self):
+        data = self.command([CMD_FACEPLATE_UPD_READ_KEY_DATA])
+        return data[1:]
 
     def radio_state_reset(self):
         self.command([CMD_RADIO_STATE_RESET])

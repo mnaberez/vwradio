@@ -12,10 +12,14 @@ class AvrTests(unittest.TestCase):
         if getattr(self, 'serial') is None:
             self.serial = avrclient.make_serial()
         self.client = avrclient.Client(self.serial)
-        self.client.set_run_mode(avrclient.RUN_MODE_TEST)
+        self.client.pass_radio_commands_to_emulator(False)
+        self.client.pass_emulator_display_to_faceplate(False)
+        self.client.pass_faceplate_keys_to_radio(False)
 
     def tearDown(self):
-        self.client.set_run_mode(avrclient.RUN_MODE_NORMAL)
+        self.client.pass_radio_commands_to_emulator(True)
+        self.client.pass_emulator_display_to_faceplate(True)
+        self.client.pass_faceplate_keys_to_radio(True)
 
     # Command timeout
 
@@ -71,18 +75,9 @@ class AvrTests(unittest.TestCase):
                 data=[avrclient.CMD_ECHO] + args, ignore_nak=True)
             self.assertEqual(rx_bytes, bytearray([avrclient.ACK] + args))
 
-    # Set run mode command
-
-    def test_set_run_mode_returns_nak_for_bad_args_length(self):
-        for args in ([], [avrclient.RUN_MODE_TEST, 1]):
-            rx_bytes = self.client.command(
-                data=[avrclient.CMD_SET_RUN_MODE] + args, ignore_nak=True)
-            self.assertEqual(rx_bytes, bytearray([avrclient.NAK]))
-
-    def test_set_run_mode_returns_nak_for_bad_mode(self):
-        rx_bytes = self.client.command(
-            data=[avrclient.CMD_SET_RUN_MODE, 0xFF], ignore_nak=True)
-        self.assertEqual(rx_bytes, bytearray([avrclient.NAK]))
+    # TODO tests for pass_faceplate_keys_to_radio
+    # TODO tests for pass_radio_commands_to_emulator
+    # TODO tests for pass_emulator_display_to_faceplate
 
     # Set LED command
 
@@ -474,11 +469,11 @@ class AvrTests(unittest.TestCase):
 
     def test_faceplate_clear_display_returns_nak_for_bad_args_length(self):
         rx_bytes = self.client.command(
-            data=[avrclient.CMD_FACEPLATE_CLEAR_DISPLAY, 1], ignore_nak=True)
+            data=[avrclient.CMD_FACEPLATE_UPD_CLEAR_DISPLAY, 1], ignore_nak=True)
         self.assertEqual(rx_bytes, bytearray([avrclient.NAK]))
 
     def test_faceplate_clear_display(self):
-        self.client.faceplate_clear_display() # shouldn't raise
+        self.client.faceplate_upd_clear_display() # shouldn't raise
 
     def test_faceplate_upd_send_command_allows_max_spi_data_size_of_32(self):
         rx_bytes = self.client.command(
