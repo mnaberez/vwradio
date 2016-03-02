@@ -134,7 +134,8 @@ void faceplate_clear_display()
     faceplate_send_upd_command(&cmd);
 }
 
-static void _faceplate_write_upd_ram(uint8_t data_setting_cmd,
+static void _faceplate_write_upd_ram(
+    uint8_t data_setting_cmd, uint8_t address,
     uint8_t data_size, uint8_t *data)
 {
     upd_command_t cmd;
@@ -145,8 +146,8 @@ static void _faceplate_write_upd_ram(uint8_t data_setting_cmd,
     cmd.size = 1;
     faceplate_send_upd_command(&cmd);
 
-    // send address setting command + display data bytes
-    cmd.data[0] = 0x80;
+    // send address setting command + data bytes
+    cmd.data[0] = 0x80 + address;
     for (i=0; i<data_size; i++)
     {
         cmd.data[i+1] = data[i];
@@ -162,6 +163,7 @@ void faceplate_update_from_upd_if_dirty(upd_state_t *state)
     {
         _faceplate_write_upd_ram(
             0x40, // data setting command: display data ram
+            0,    // address
             sizeof(state->display_ram),
             state->display_ram
         );
@@ -171,6 +173,7 @@ void faceplate_update_from_upd_if_dirty(upd_state_t *state)
     {
         _faceplate_write_upd_ram(
             0x41, // data setting command: pictograph ram
+            0,   // address
             sizeof(state->pictograph_ram),
             state->pictograph_ram
             );
@@ -178,10 +181,23 @@ void faceplate_update_from_upd_if_dirty(upd_state_t *state)
 
     if ((state->dirty_flags & UPD_DIRTY_CHARGEN) != 0)
     {
-        _faceplate_write_upd_ram(
-            0x4a, // data setting command: chargen ram
-            sizeof(state->chargen_ram),
-            state->chargen_ram
-            );
-    }
+        uint8_t charnum;
+        uint8_t chardata[7];
+        uint8_t i;
+
+        for (charnum=0; charnum<0x10; charnum++)
+        {
+            for (i=0; i<7; i++)
+            {
+                chardata[i] = state->chargen_ram[i * 7];
+            }
+
+            _faceplate_write_upd_ram(
+                0x4a,    // data setting command: chargen ram
+                charnum, // address = character number
+                7,       // size = 7 bytes per char
+                chardata // 7 bytes data for this character
+                );
+        }
+   }
 }
