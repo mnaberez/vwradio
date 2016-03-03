@@ -570,9 +570,6 @@ static void _cmd_dispatch()
             _cmd_do_radio_state_reset();
             break;
 
-        case CMD_EMULATED_UPD_LOAD_KEY_DATA:
-            _cmd_do_emulated_upd_load_key_data();
-            break;
         case CMD_EMULATED_UPD_DUMP_STATE:
             _cmd_do_emulated_upd_dump_state();
             break;
@@ -581,6 +578,9 @@ static void _cmd_dispatch()
             break;
         case CMD_EMULATED_UPD_RESET:
             _cmd_do_emulated_upd_reset();
+            break;
+        case CMD_EMULATED_UPD_LOAD_KEY_DATA:
+            _cmd_do_emulated_upd_load_key_data();
             break;
 
         case CMD_FACEPLATE_UPD_DUMP_STATE:
