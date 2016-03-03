@@ -62,14 +62,14 @@ ISR(TIMER1_COMPA_vect)
 
 static void _cmd_reply_ack()
 {
-    uart_putc(0x01); // 1 byte to follow
-    uart_putc(ACK);  // ACK byte
+    uart_putc(1);   // 1 byte to follow
+    uart_putc(ACK); // ACK byte
 }
 
 static void _cmd_reply_nak()
 {
-    uart_putc(0x01); // 1 byte to follow
-    uart_putc(NAK);  // NAK byte
+    uart_putc(1);   // 1 byte to follow
+    uart_putc(NAK); // NAK byte
 }
 
 /* Command: Reset uPD16432B Emulator
@@ -516,7 +516,12 @@ static void _cmd_do_faceplate_upd_clear_display()
  */
  static void _cmd_do_faceplate_upd_read_key_data()
  {
-     // todo check arguments
+     if (cmd_buf_index != 1)
+     {
+         _cmd_reply_nak();
+         return;
+     }
+
      uint8_t key_data[4] = {0, 0, 0, 0};
      faceplate_read_key_data(key_data);
 

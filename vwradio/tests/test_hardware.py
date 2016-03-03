@@ -530,6 +530,15 @@ class AvrTests(unittest.TestCase):
         data = [0x80, 0, 0, 0x6f, 0x6c, 0x6c, 0x65, 0x48]
         self.client.faceplate_upd_send_command(data) # shouldn't raise
 
+    def test_faceplate_upd_read_key_data_returns_nak_for_bad_args_length(self):
+        rx_bytes = self.client.command(
+            data=[avrclient.CMD_FACEPLATE_UPD_READ_KEY_DATA, 1], ignore_nak=True)
+        self.assertEqual(rx_bytes, bytearray([avrclient.NAK]))
+
+    def test_faceplate_upd_read_key_data_returns_4_bytes(self):
+        data = self.client.faceplate_upd_read_key_data()
+        self.assertEqual(len(data), 4)
+
     # Radio State
 
     def test_radio_state_safe_mode(self):
