@@ -1,4 +1,7 @@
 #include <stdint.h>
+#include <string.h>
+#include <avr/io.h>
+#include <avr/interrupt.h>
 #include "cmd.h"
 #include "leds.h"
 #include "main.h"
@@ -7,8 +10,6 @@
 #include "radio_state.h"
 #include "uart.h"
 #include "updemu.h"
-#include <avr/io.h>
-#include <avr/interrupt.h>
 
 /*************************************************************************
  * Command Interpreter
@@ -161,17 +162,15 @@ static uint8_t _populate_cmd_from_uart_cmd_buf(upd_command_t *cmd)
     // -1 is because first byte in cmd_buf is the uart command byte
     if ((cmd_buf_index - 1) > sizeof(cmd->data))
     {
-        return 0;
+        return 0; // failure
     }
 
     // Populate uPD16432B command request with bytes from UART
-    uint8_t i;
-    for (i=1; i<cmd_buf_index; i++)
-    {
-        cmd->data[i-1] = cmd_buf[i];
-    }
-    cmd->size = i-1;
-    return 1;
+    uint8_t size = cmd_buf_index - 1;
+    memcpy(cmd->data, cmd_buf+1, size);
+    cmd->size = size;
+
+    return 1; // success
 }
 
 /* Command: Send uPD16432B Emulator Command
@@ -216,7 +215,7 @@ static void _cmd_do_emulated_upd_load_key_data()
 
     // load the four key data bytes
     uint8_t i;
-    for (i=0; i<4; i++)
+    for (i=0; i<sizeof(upd_tx_key_data); i++)
     {
         upd_tx_key_data[i] = cmd_buf[i+1];
     }
@@ -256,19 +255,12 @@ static void _cmd_do_radio_state_process()
         return;
     }
 
-    // Initialize empty data buffer
+    // Initialize empty display data buffer
     uint8_t display_ram[UPD_DISPLAY_RAM_SIZE];
-    uint8_t i;
-    for (i=0; i<sizeof(display_ram); i++)
-    {
-        display_ram[i] = 0;
-    }
+    memset(display_ram, 0, UPD_DISPLAY_RAM_SIZE);
 
-    // Populate data buffer with UART data
-    for (i=1; i<cmd_buf_index; i++)
-    {
-        display_ram[i-1] = cmd_buf[i];
-    }
+    // Populate display data buffer with UART data
+    memcpy(display_ram, cmd_buf+1, cmd_buf_index-1);
 
     radio_state_process(&radio_state, display_ram);
     _cmd_reply_ack();
