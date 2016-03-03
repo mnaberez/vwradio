@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <string.h>
 #include <avr/io.h>
 #include "faceplate.h"
 #include "updemu.h"
@@ -93,7 +94,6 @@ void faceplate_send_upd_command(upd_command_t *cmd)
 void faceplate_clear_display()
 {
     upd_command_t cmd;
-    uint8_t i;
 
     // Display Setting command
     cmd.data[0] = 0x04;
@@ -112,11 +112,8 @@ void faceplate_clear_display()
 
     // Address Setting command + pictograph data
     cmd.data[0] = 0x80;
-    for (i=1; i<9; i++)
-    {
-        cmd.data[i] = 0;
-    }
-    cmd.size = 9;
+    memset(cmd.data + 1, 0x00, UPD_PICTOGRAPH_RAM_SIZE);
+    cmd.size = 1 + UPD_PICTOGRAPH_RAM_SIZE;
     faceplate_send_upd_command(&cmd);
 
     // Data Setting command: write to display data ram
@@ -126,11 +123,8 @@ void faceplate_clear_display()
 
     // Address Setting command + display data
     cmd.data[0] = 0x80;
-    for (i=1; i<17; i++)
-    {
-        cmd.data[i] = 0x20;
-    }
-    cmd.size = 17;
+    memset(cmd.data + 1, 0x20, UPD_DISPLAY_RAM_SIZE);
+    cmd.size = 1 + UPD_DISPLAY_RAM_SIZE;
     faceplate_send_upd_command(&cmd);
 }
 
@@ -139,7 +133,6 @@ static void _faceplate_write_upd_ram(
     uint8_t data_size, uint8_t *data)
 {
     upd_command_t cmd;
-    uint8_t i;
 
     // send data setting command: write to display data ram
     cmd.data[0] = data_setting_cmd;
@@ -148,10 +141,7 @@ static void _faceplate_write_upd_ram(
 
     // send address setting command + data bytes
     cmd.data[0] = 0x80 + address;
-    for (i=0; i<data_size; i++)
-    {
-        cmd.data[i+1] = data[i];
-    }
+    memcpy(cmd.data + 1, data, data_size);
     cmd.size = 1 + data_size;
     faceplate_send_upd_command(&cmd);
 }
@@ -182,22 +172,15 @@ void faceplate_update_from_upd_if_dirty(upd_state_t *state)
     if ((state->dirty_flags & UPD_DIRTY_CHARGEN) != 0)
     {
         uint8_t charnum;
-        uint8_t chardata[7];
-        uint8_t i;
 
         for (charnum=0; charnum<0x10; charnum++)
         {
-            for (i=0; i<7; i++)
-            {
-                chardata[i] = state->chargen_ram[i * 7];
-            }
-
             _faceplate_write_upd_ram(
                 0x4a,    // data setting command: chargen ram
                 charnum, // address = character number
                 7,       // size = 7 bytes per char
-                chardata // 7 bytes data for this character
+                state->chargen_ram + (charnum * 7) // data for this char
                 );
         }
-   }
+    }
 }
