@@ -71,9 +71,44 @@ class AvrTests(unittest.TestCase):
                 data=[avrclient.CMD_ECHO] + args, ignore_nak=True)
             self.assertEqual(rx_bytes, bytearray([avrclient.ACK] + args))
 
-    # TODO tests for set_run_mode
-    # TODO tests for pass_emulated_upd_display_to_faceplate
-    # TODO tests for pass_faceplate_keys_to_emulated_upd
+    # Set Run Mode command
+
+    def test_set_run_mode_returns_nak_for_bad_args_length(self):
+        for args in ([], [avrclient.RUN_MODE_STOPPED, 1]):
+            rx_bytes = self.client.command(
+            data=[avrclient.CMD_SET_RUN_MODE] + args, ignore_nak=True)
+            self.assertEqual(rx_bytes, bytearray([avrclient.NAK]))
+
+    def test_set_run_mode_returns_nak_for_bad_mode(self):
+        rx_bytes = self.client.command(
+        data=[avrclient.CMD_SET_RUN_MODE, 0xFF], ignore_nak=True)
+        self.assertEqual(rx_bytes, bytearray([avrclient.NAK]))
+
+    # Pass Emulated uPD Display to Faceplate command
+
+    def test_pass_emulated_upd_display_to_faceplate_nak_bad_args_length(self):
+        for args in ([], [0, 0]):
+            cmd = avrclient.CMD_PASS_EMULATED_UPD_DISPLAY_TO_FACEPLATE
+            rx_bytes = self.client.command(data=[cmd] + args, ignore_nak=True)
+            self.assertEqual(rx_bytes, bytearray([avrclient.NAK]))
+
+    def test_pass_emulated_upd_display_to_faceplate_nak_bad_arg_value(self):
+        cmd = avrclient.CMD_PASS_EMULATED_UPD_DISPLAY_TO_FACEPLATE
+        rx_bytes = self.client.command(data=[cmd, 0xFF], ignore_nak=True)
+        self.assertEqual(rx_bytes, bytearray([avrclient.NAK]))
+
+    # Pass Faceplate Keys to Emulated uPD command
+
+    def test_pass_faceplate_keys_to_emulated_upd_nak_bad_args_length(self):
+        for args in ([], [0, 0]):
+            cmd = avrclient.CMD_PASS_FACEPLATE_KEYS_TO_EMULATED_UPD
+            rx_bytes = self.client.command(data=[cmd] + args, ignore_nak=True)
+            self.assertEqual(rx_bytes, bytearray([avrclient.NAK]))
+
+    def test_pass_faceplate_keys_to_emulated_upd_nak_bad_arg_value(self):
+        cmd = avrclient.CMD_PASS_FACEPLATE_KEYS_TO_EMULATED_UPD
+        rx_bytes = self.client.command(data=[cmd, 0xFF], ignore_nak=True)
+        self.assertEqual(rx_bytes, bytearray([avrclient.NAK]))
 
     # Set LED command
 

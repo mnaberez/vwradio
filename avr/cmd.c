@@ -225,7 +225,7 @@ static void _cmd_do_emulated_upd_load_key_data()
 }
 
 /* Command: Radio State Reset
- * Arguments: <byte0> <byte1> ...
+ * Arguments: none
  * Returns: <ack>
  */
 static void _cmd_do_radio_state_reset()
@@ -379,9 +379,14 @@ static void _cmd_do_set_run_mode()
         return;
     }
 
-    // TODO check arg
-    uint8_t c = cmd_buf[1];
-    run_mode = c;
+    uint8_t mode = cmd_buf[1];
+    if ((mode != RUN_MODE_RUNNING) && (mode != RUN_MODE_STOPPED))
+    {
+        _cmd_reply_nak();
+        return;
+    }
+
+    run_mode = mode;
     _cmd_reply_ack();
 }
 
@@ -395,9 +400,13 @@ static void _cmd_do_pass_emulated_upd_display_to_faceplate()
         return;
     }
 
-    // TODO check arg
-    uint8_t c = cmd_buf[1];
-    pass_emulated_upd_display_to_faceplate = c;
+    uint8_t onoff = cmd_buf[1];
+    if ((onoff != 0) && (onoff != 1))
+    {
+        _cmd_reply_nak();
+        return;
+    }
+    pass_emulated_upd_display_to_faceplate = onoff;
 
     // if returning control of the faceplate to the emulated upd, force the
     // emulated state to be dirty.  this will cause an immediate update of
@@ -423,9 +432,14 @@ static void _cmd_do_pass_faceplate_keys_to_emulated_upd()
         return;
     }
 
-    // TODO check arg
-    uint8_t c = cmd_buf[1];
-    pass_faceplate_keys_to_emulated_upd = c;
+    uint8_t onoff = cmd_buf[1];
+    if ((onoff != 0) && (onoff != 1))
+    {
+        _cmd_reply_nak();
+        return;
+    }
+    pass_faceplate_keys_to_emulated_upd = onoff;
+
     _cmd_reply_ack();
 }
 
