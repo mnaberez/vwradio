@@ -3,32 +3,20 @@
  *************************************************************************/
 
 #include <stdint.h>
+#include <string.h>
 #include "updemu.h"
 
 void upd_init(upd_state_t *state)
 {
-    uint8_t i;
-
-    for (i=0; i<UPD_DISPLAY_RAM_SIZE; i++)
-    {
-        state->display_ram[i] = 0;
-    }
-
-    for (i=0; i<UPD_PICTOGRAPH_RAM_SIZE; i++)
-    {
-        state->pictograph_ram[i] = 0;
-    }
-
-    for (i=0; i<UPD_CHARGEN_RAM_SIZE; i++)
-    {
-        state->chargen_ram[i] = 0;
-    }
-
     state->ram_area = UPD_RAM_NONE;
     state->ram_size = 0;
     state->address = 0;
     state->increment = UPD_INCREMENT_OFF;
     state->dirty_flags = UPD_DIRTY_NONE;
+
+    memset(state->display_ram, 0, UPD_DISPLAY_RAM_SIZE);
+    memset(state->pictograph_ram, 0, UPD_PICTOGRAPH_RAM_SIZE);
+    memset(state->chargen_ram, 0, UPD_CHARGEN_RAM_SIZE);
 }
 
 static void _upd_wrap_address(upd_state_t *state)
