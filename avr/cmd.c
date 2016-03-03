@@ -361,7 +361,13 @@ static void _cmd_do_set_led()
     _cmd_reply_ack();
 }
 
-/* TODO document me
+/* Command: Set Run Mode
+ * Arguments: <run mode>
+ * Returns: <ack|nak>
+ *
+ * Sets the run mode to either RUN_MODE_RUNNING or RUN_MODE_STOPPED.  This is
+ * mainly used for testing.  When stopped, commands from the radio are ignored
+ * and the faceplate is not updated.
  */
 static void _cmd_do_set_run_mode()
 {
@@ -382,7 +388,13 @@ static void _cmd_do_set_run_mode()
     _cmd_reply_ack();
 }
 
-/* TODO document me
+/* Command: Set passthru of emulated uPD display to the real faceplate
+ * Arguments: <0|1>
+ * Returns: <ack|nak>
+ *
+ * Sets whether the faceplate will be automatically updated with the display
+ * from the radio.  Set to 1 to enable passthru, or set to 0 to disable
+ * passthru so the faceplate display can be taken over.
  */
 static void _cmd_do_pass_emulated_upd_display_to_faceplate()
 {
@@ -414,7 +426,13 @@ static void _cmd_do_pass_emulated_upd_display_to_faceplate()
     _cmd_reply_ack();
 }
 
-/* TODO document me
+/* Command: Set passthru of keys on the real faceplate to the emulated uPD
+ * Argument: <0|1>
+ * Returns: <ack|nak>
+ *
+ * Sets whether key presses on the faceplate will be automatically passed on
+ * to the radio.  Set to 1 to enable passthru, or set to 0 to disable
+ * passthru so the faceplate keys can be taken over.
  */
 static void _cmd_do_pass_faceplate_keys_to_emulated_upd()
 {
@@ -490,7 +508,11 @@ static void _cmd_do_faceplate_upd_clear_display()
     return _cmd_reply_ack();
 }
 
-/* TODO document me
+/* Command: Read the faceplate's key data
+ * Arguments: none
+ * Returns: <ack> <byte0> <byte1> <byte2> <byte3>
+ *
+ * Reads the key data from the faceplate and returns the 4 raw key data bytes.
  */
  static void _cmd_do_faceplate_upd_read_key_data()
  {
