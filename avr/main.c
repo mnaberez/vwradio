@@ -48,8 +48,8 @@ ISR(BADISR_vect)
 int main()
 {
     run_mode = RUN_MODE_RUNNING;
-    pass_emulated_upd_display_to_faceplate = 1;
-    pass_faceplate_keys_to_emulated_upd = 1;
+    auto_display_passthru = 1;
+    auto_keypress_passthru = 1;
 
     led_init();
     uart_init();
@@ -77,7 +77,7 @@ int main()
             continue;
         }
 
-        if (pass_faceplate_keys_to_emulated_upd)
+        if (auto_keypress_passthru)
         {
             // read keys from faceplate and send to radio
             faceplate_read_key_data(upd_tx_key_data);
@@ -95,7 +95,7 @@ int main()
 
         // update radio state and faceplate as needed
         radio_state_update_from_upd_if_dirty(&radio_state, &emulated_upd_state);
-        if (pass_emulated_upd_display_to_faceplate)
+        if (auto_display_passthru)
         {
             faceplate_update_from_upd_if_dirty(&emulated_upd_state);
         }

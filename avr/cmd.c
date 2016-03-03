@@ -398,7 +398,7 @@ static void _cmd_do_set_run_mode()
  * from the radio.  Set to 1 to enable passthru, or set to 0 to disable
  * passthru so the faceplate display can be taken over.
  */
-static void _cmd_do_pass_emulated_upd_display_to_faceplate()
+static void _cmd_do_set_auto_display_passthru()
 {
     if (cmd_buf_index != 2)
     {
@@ -412,12 +412,12 @@ static void _cmd_do_pass_emulated_upd_display_to_faceplate()
         _cmd_reply_nak();
         return;
     }
-    pass_emulated_upd_display_to_faceplate = onoff;
+    auto_display_passthru = onoff;
 
     // if returning control of the faceplate to the emulated upd, force the
     // emulated state to be dirty.  this will cause an immediate update of
     // the real faceplate in the main loop.
-    if (pass_emulated_upd_display_to_faceplate == 1)
+    if (auto_display_passthru)
     {
         emulated_upd_state.dirty_flags =
             UPD_DIRTY_DISPLAY |
@@ -436,7 +436,7 @@ static void _cmd_do_pass_emulated_upd_display_to_faceplate()
  * to the radio.  Set to 1 to enable passthru, or set to 0 to disable
  * passthru so the faceplate keys can be taken over.
  */
-static void _cmd_do_pass_faceplate_keys_to_emulated_upd()
+static void _cmd_do_set_auto_keypress_passthru()
 {
     if (cmd_buf_index != 2)
     {
@@ -450,7 +450,7 @@ static void _cmd_do_pass_faceplate_keys_to_emulated_upd()
         _cmd_reply_nak();
         return;
     }
-    pass_faceplate_keys_to_emulated_upd = onoff;
+    auto_keypress_passthru = onoff;
 
     _cmd_reply_ack();
 }
@@ -553,11 +553,11 @@ static void _cmd_dispatch()
         case CMD_SET_RUN_MODE:
             _cmd_do_set_run_mode();
             break;
-        case CMD_PASS_EMULATED_UPD_DISPLAY_TO_FACEPLATE:
-            _cmd_do_pass_emulated_upd_display_to_faceplate();
+        case CMD_SET_AUTO_DISPLAY_PASSTHRU:
+            _cmd_do_set_auto_display_passthru();
             break;
-        case CMD_PASS_FACEPLATE_KEYS_TO_EMULATED_UPD:
-            _cmd_do_pass_faceplate_keys_to_emulated_upd();
+        case CMD_SET_AUTO_KEYPRESS_PASSTHRU:
+            _cmd_do_set_auto_keypress_passthru();
             break;
 
         case CMD_RADIO_STATE_PROCESS:

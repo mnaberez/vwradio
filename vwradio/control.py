@@ -133,8 +133,8 @@ def main():
     client = avrclient.make_client()
     faceplate = faceplates.Premium4()
     try:
-        client.pass_emulated_upd_display_to_faceplate(False)
-        client.pass_faceplate_keys_to_emulated_upd(False)
+        client.set_auto_display_passthru(False)
+        client.set_auto_keypress_passthru(False)
         controller = Controller(client, faceplate)
         controller.clear()
         demo = Demonstrator(controller)
@@ -146,8 +146,8 @@ def main():
         # if a command is in process, let it finish
         time.sleep(0.1)
     finally:
-        client.pass_emulated_upd_display_to_faceplate(True)
-        client.pass_faceplate_keys_to_emulated_upd(True)
+        client.set_auto_display_passthru(True)
+        client.set_auto_keypress_passthru(True)
 
 
 if __name__ == '__main__':

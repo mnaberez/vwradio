@@ -11,16 +11,17 @@
 // Run mode allows normally processing to be stopped for testing.
 volatile uint8_t run_mode;
 
-// If true, the emulated uPD16432B display will be mirrored to the real
-// uPD16432B on the faceplate.  In other words, what the radio thinks is
-// on the faceplate will be on the real faceplate.
+// If true, the emulated uPD16432B display will be automatically mirrored to
+// the real uPD16432B on the faceplate.  In other words, what the radio thinks
+// is on the faceplate will be on the real faceplate.
 // Set this to false to take over the faceplate display.
-volatile uint8_t pass_emulated_upd_display_to_faceplate;
+volatile uint8_t auto_display_passthru;
 
-// If true, the keys pressed on the real faceplate will be passed back
-// to the radio.  If false, the radio will not see when keys are pressed.
+// If true, the keys pressed on the real faceplate will be automatically
+// mirrored to the emulated uPD16432B.  In other words, the radio will see
+// whenever a key is pressed on the real faceplate.
 // Set this to false to take over the faceplate keys.
-volatile uint8_t pass_faceplate_keys_to_emulated_upd;
+volatile uint8_t auto_keypress_passthru;
 
 // key data bytes that will be transmitted if the radio sends
 // a read key data command

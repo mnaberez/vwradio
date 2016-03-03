@@ -5,8 +5,8 @@ import serial # pyserial
 CMD_SET_LED = 0x01
 CMD_ECHO = 0x02
 CMD_SET_RUN_MODE = 0x03
-CMD_PASS_EMULATED_UPD_DISPLAY_TO_FACEPLATE = 0x04
-CMD_PASS_FACEPLATE_KEYS_TO_EMULATED_UPD = 0x05
+CMD_SET_AUTO_DISPLAY_PASSTHRU = 0x04
+CMD_SET_AUTO_KEYPRESS_PASSTHRU = 0x05
 CMD_EMULATED_UPD_DUMP_STATE = 0x10
 CMD_EMULATED_UPD_SEND_COMMAND = 0x11
 CMD_EMULATED_UPD_RESET = 0x12
@@ -46,11 +46,11 @@ class Client(object):
     def set_run_mode(self, mode):
         self.command([CMD_SET_RUN_MODE, int(mode)])
 
-    def pass_emulated_upd_display_to_faceplate(self, enabled):
-        self.command([CMD_PASS_EMULATED_UPD_DISPLAY_TO_FACEPLATE, int(enabled)])
+    def set_auto_display_passthru(self, enabled):
+        self.command([CMD_SET_AUTO_DISPLAY_PASSTHRU, int(enabled)])
 
-    def pass_faceplate_keys_to_emulated_upd(self, enabled):
-        self.command([CMD_PASS_FACEPLATE_KEYS_TO_EMULATED_UPD, int(enabled)])
+    def set_auto_keypress_passthru(self, enabled):
+        self.command([CMD_SET_AUTO_KEYPRESS_PASSTHRU, int(enabled)])
 
     def set_led(self, led_num, led_state):
         self.command([CMD_SET_LED, led_num, int(led_state)])

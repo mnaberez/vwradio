@@ -86,27 +86,27 @@ class AvrTests(unittest.TestCase):
 
     # Pass Emulated uPD Display to Faceplate command
 
-    def test_pass_emulated_upd_display_to_faceplate_nak_bad_args_length(self):
+    def test_auto_display_passthru_nak_bad_args_length(self):
         for args in ([], [0, 0]):
-            cmd = avrclient.CMD_PASS_EMULATED_UPD_DISPLAY_TO_FACEPLATE
+            cmd = avrclient.CMD_SET_AUTO_DISPLAY_PASSTHRU
             rx_bytes = self.client.command(data=[cmd] + args, ignore_nak=True)
             self.assertEqual(rx_bytes, bytearray([avrclient.NAK]))
 
-    def test_pass_emulated_upd_display_to_faceplate_nak_bad_arg_value(self):
-        cmd = avrclient.CMD_PASS_EMULATED_UPD_DISPLAY_TO_FACEPLATE
+    def test_auto_display_passthru_nak_bad_arg_value(self):
+        cmd = avrclient.CMD_SET_AUTO_DISPLAY_PASSTHRU
         rx_bytes = self.client.command(data=[cmd, 0xFF], ignore_nak=True)
         self.assertEqual(rx_bytes, bytearray([avrclient.NAK]))
 
     # Pass Faceplate Keys to Emulated uPD command
 
-    def test_pass_faceplate_keys_to_emulated_upd_nak_bad_args_length(self):
+    def test_auto_keypress_passthru_nak_bad_args_length(self):
         for args in ([], [0, 0]):
-            cmd = avrclient.CMD_PASS_FACEPLATE_KEYS_TO_EMULATED_UPD
+            cmd = avrclient.CMD_SET_AUTO_KEYPRESS_PASSTHRU
             rx_bytes = self.client.command(data=[cmd] + args, ignore_nak=True)
             self.assertEqual(rx_bytes, bytearray([avrclient.NAK]))
 
-    def test_pass_faceplate_keys_to_emulated_upd_nak_bad_arg_value(self):
-        cmd = avrclient.CMD_PASS_FACEPLATE_KEYS_TO_EMULATED_UPD
+    def test_auto_keypress_passthru_nak_bad_arg_value(self):
+        cmd = avrclient.CMD_SET_AUTO_KEYPRESS_PASSTHRU
         rx_bytes = self.client.command(data=[cmd, 0xFF], ignore_nak=True)
         self.assertEqual(rx_bytes, bytearray([avrclient.NAK]))
 
