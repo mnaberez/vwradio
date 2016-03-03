@@ -541,6 +541,22 @@ class AvrTests(unittest.TestCase):
 
     # Radio State
 
+    def test_radio_state_returns_nak_for_too_few_display_data_bytes(self):
+        rx_bytes = self.client.command(
+            data=[avrclient.CMD_RADIO_STATE_PROCESS] + ([0] * 10),
+            ignore_nak=True
+            )
+        self.assertEqual(rx_bytes[0], avrclient.NAK)
+        self.assertEqual(len(rx_bytes), 1)
+
+    def test_radio_state_returns_nak_for_too_many_display_data_bytes(self):
+        rx_bytes = self.client.command(
+            data=[avrclient.CMD_RADIO_STATE_PROCESS] + ([0] * 33),
+            ignore_nak=True
+            )
+        self.assertEqual(rx_bytes[0], avrclient.NAK)
+        self.assertEqual(len(rx_bytes), 1)
+
     def test_radio_state_safe_mode(self):
         values = (
             # Premium 4

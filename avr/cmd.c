@@ -245,11 +245,13 @@ static void _cmd_do_radio_state_reset()
  */
 static void _cmd_do_radio_state_process()
 {
-    // TODO arg length checking
-
-    // Bail out if size of bytes from UART exceeds display RAM size
     // -1 is because first byte in cmd_buf is the uart command byte
-    if ((cmd_buf_index - 1) > UPD_DISPLAY_RAM_SIZE)
+    uint8_t data_size = cmd_buf_index - 1;
+
+    // Bail out if not enough bytes of display data were received or
+    // if size of bytes from UART exceeds display RAM size
+    if ((data_size < 11) ||
+        (data_size > UPD_DISPLAY_RAM_SIZE))
     {
         _cmd_reply_nak();
         return;
@@ -260,7 +262,7 @@ static void _cmd_do_radio_state_process()
     memset(display_ram, 0, UPD_DISPLAY_RAM_SIZE);
 
     // Populate display data buffer with UART data
-    memcpy(display_ram, cmd_buf+1, cmd_buf_index-1);
+    memcpy(display_ram, cmd_buf+1, data_size);
 
     radio_state_process(&radio_state, display_ram);
     _cmd_reply_ack();
