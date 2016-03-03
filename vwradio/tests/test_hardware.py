@@ -12,14 +12,10 @@ class AvrTests(unittest.TestCase):
         if getattr(self, 'serial') is None:
             self.serial = avrclient.make_serial()
         self.client = avrclient.Client(self.serial)
-        self.client.pass_radio_commands_to_emulated_upd(False)
-        self.client.pass_emulated_upd_display_to_faceplate(False)
-        self.client.pass_faceplate_keys_to_emulated_upd(False)
+        self.client.set_run_mode(avrclient.RUN_MODE_STOPPED)
 
     def tearDown(self):
-        self.client.pass_radio_commands_to_emulated_upd(True)
-        self.client.pass_emulated_upd_display_to_faceplate(True)
-        self.client.pass_faceplate_keys_to_emulated_upd(True)
+        self.client.set_run_mode(avrclient.RUN_MODE_RUNNING)
 
     # Command timeout
 
@@ -75,7 +71,7 @@ class AvrTests(unittest.TestCase):
                 data=[avrclient.CMD_ECHO] + args, ignore_nak=True)
             self.assertEqual(rx_bytes, bytearray([avrclient.ACK] + args))
 
-    # TODO tests for pass_radio_commands_to_emulated_upd
+    # TODO tests for set_run_mode
     # TODO tests for pass_emulated_upd_display_to_faceplate
     # TODO tests for pass_faceplate_keys_to_emulated_upd
 

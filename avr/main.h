@@ -5,10 +5,11 @@
 
 #include <stdint.h>
 
-// If true, commands from the radio will be processed by the uPD16432B
-// emulator.  If false, commands from the radio will be ignored.  This
-// is used to test the emulator code without the radio interfering.
-volatile uint8_t pass_radio_commands_to_emulated_upd;
+#define RUN_MODE_STOPPED 0
+#define RUN_MODE_RUNNING 1
+
+// Run mode allows normally processing to be stopped for testing.
+volatile uint8_t run_mode;
 
 // If true, the emulated uPD16432B display will be mirrored to the real
 // uPD16432B on the faceplate.  In other words, what the radio thinks is

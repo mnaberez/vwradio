@@ -4,7 +4,7 @@ import serial # pyserial
 
 CMD_SET_LED = 0x01
 CMD_ECHO = 0x02
-CMD_PASS_RADIO_COMMANDS_TO_EMULATED_UPD = 0x03
+CMD_SET_RUN_MODE = 0x03
 CMD_PASS_EMULATED_UPD_DISPLAY_TO_FACEPLATE = 0x04
 CMD_PASS_FACEPLATE_KEYS_TO_EMULATED_UPD = 0x05
 CMD_EMULATED_UPD_DUMP_STATE = 0x10
@@ -20,6 +20,8 @@ CMD_FACEPLATE_UPD_CLEAR_DISPLAY = 0x32
 CMD_FACEPLATE_UPD_READ_KEY_DATA = 0x33
 ACK = 0x06
 NAK = 0x15
+RUN_MODE_STOPPED = 0
+RUN_MODE_RUNNING = 1
 LED_GREEN = 0x00
 LED_RED = 0x01
 UPD_RAM_NONE = 0xFF
@@ -41,8 +43,8 @@ class Client(object):
         rx_bytes = self.command(bytearray([CMD_ECHO]) + bytearray(data))
         return rx_bytes[1:]
 
-    def pass_radio_commands_to_emulated_upd(self, enabled):
-        self.command([CMD_PASS_RADIO_COMMANDS_TO_EMULATED_UPD, int(enabled)])
+    def set_run_mode(self, mode):
+        self.command([CMD_SET_RUN_MODE, int(mode)])
 
     def pass_emulated_upd_display_to_faceplate(self, enabled):
         self.command([CMD_PASS_EMULATED_UPD_DISPLAY_TO_FACEPLATE, int(enabled)])

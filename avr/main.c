@@ -47,7 +47,7 @@ ISR(BADISR_vect)
 
 int main()
 {
-    pass_radio_commands_to_emulated_upd = 1;
+    run_mode = RUN_MODE_RUNNING;
     pass_emulated_upd_display_to_faceplate = 1;
     pass_faceplate_keys_to_emulated_upd = 1;
 
@@ -60,7 +60,6 @@ int main()
     upd_init(&faceplate_upd_state);
     sei();
 
-    // clear faceplate
     faceplate_clear_display();
 
     while (1)
@@ -73,33 +72,35 @@ int main()
             cmd_receive_byte(c);
         }
 
+        if (run_mode == RUN_MODE_STOPPED)
+        {
+            continue;
+        }
+
         if (pass_faceplate_keys_to_emulated_upd)
         {
             // read keys from faceplate and send to radio
             faceplate_read_key_data(upd_tx_key_data);
         }
 
-        // service commands from radio
+        // process a command from the radio if one is available
         if (upd_rx_buf.read_index != upd_rx_buf.write_index)
         {
             upd_command_t cmd;
             cmd = upd_rx_buf.cmds[upd_rx_buf.read_index];
             upd_rx_buf.read_index++;
 
-            if (pass_radio_commands_to_emulated_upd)
-            {
-                upd_process_command(&emulated_upd_state, &cmd);
-                radio_state_update_from_upd_if_dirty(&radio_state, &emulated_upd_state);
-                // XXX radio state always sees dirty if pass_emulated_upd_display_to_faceplate
-                // is set to off because dirty is never cleared
-            }
-
-            if (pass_emulated_upd_display_to_faceplate)
-            {
-                faceplate_update_from_upd_if_dirty(&emulated_upd_state);
-                emulated_upd_state.dirty_flags = UPD_DIRTY_NONE;
-            }
+            upd_process_command(&emulated_upd_state, &cmd);
         }
 
+        // update radio state and faceplate as needed
+        radio_state_update_from_upd_if_dirty(&radio_state, &emulated_upd_state);
+        if (pass_emulated_upd_display_to_faceplate)
+        {
+            faceplate_update_from_upd_if_dirty(&emulated_upd_state);
+        }
+
+        // clear dirty state for next time
+        emulated_upd_state.dirty_flags = UPD_DIRTY_NONE;
     }
 }
