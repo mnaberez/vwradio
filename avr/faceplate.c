@@ -91,7 +91,7 @@ void faceplate_send_upd_command(upd_command_t *cmd)
     upd_process_command(&faceplate_upd_state, cmd);
 }
 
-void faceplate_clear_display()
+static void _faceplate_prepare_display()
 {
     upd_command_t cmd;
 
@@ -104,6 +104,13 @@ void faceplate_clear_display()
     cmd.data[0] = 0xcf;
     cmd.size = 1;
     faceplate_send_upd_command(&cmd);
+}
+
+void faceplate_clear_display()
+{
+    upd_command_t cmd;
+
+    _faceplate_prepare_display();
 
     // Data Setting command: write to pictograph ram
     cmd.data[0] = 0x41;
@@ -149,7 +156,15 @@ static void _faceplate_write_upd_ram(
 // copy emulated upd display to real faceplate
 void faceplate_update_from_upd_if_dirty(upd_state_t *state)
 {
-    if ((state->dirty_flags & UPD_DIRTY_DISPLAY) != 0)
+    // Always re-prepare if anything is dirty to ensure the faceplate
+    // display is turned on.  This allows the faceplate to be disconnected
+    // and still be visible when it is reconnected again.
+    if (state->dirty_flags)
+    {
+        _faceplate_prepare_display();
+    }
+
+    if (state->dirty_flags & UPD_DIRTY_DISPLAY)
     {
         _faceplate_write_upd_ram(
             0x40, // data setting command: display data ram
@@ -159,7 +174,7 @@ void faceplate_update_from_upd_if_dirty(upd_state_t *state)
         );
     }
 
-    if ((state->dirty_flags & UPD_DIRTY_PICTOGRAPH) != 0)
+    if (state->dirty_flags & UPD_DIRTY_PICTOGRAPH)
     {
         _faceplate_write_upd_ram(
             0x41, // data setting command: pictograph ram
@@ -169,7 +184,7 @@ void faceplate_update_from_upd_if_dirty(upd_state_t *state)
             );
     }
 
-    if ((state->dirty_flags & UPD_DIRTY_CHARGEN) != 0)
+    if (state->dirty_flags & UPD_DIRTY_CHARGEN)
     {
         uint8_t charnum;
 
