@@ -1,8 +1,7 @@
 PROJECT=vwradio
 SOURCES=cmd.c faceplate.c leds.c main.c radio_spi.c radio_state.c uart.c updemu.c
 MMCU=atmega1284p
-ISP=avrisp2
-
+ISPFLAGS=-c avrisp2 -B 1
 CFLAGS=-mmcu=$(MMCU) -g -Wall -Os -std=c99
 
 $(PROJECT).hex: $(PROJECT).elf
@@ -12,7 +11,7 @@ $(PROJECT).elf: $(SOURCES)
 	avr-gcc $(CFLAGS) -I. -o $(PROJECT).elf $(SOURCES)
 
 program: $(PROJECT).hex
-	avrdude -c $(ISP) -p $(MMCU) -U flash:w:$(PROJECT).hex
+	avrdude $(ISPFLAGS) -p $(MMCU) -U flash:w:$(PROJECT).hex
 
 size: $(PROJECT).elf
 	avr-size --mcu=$(MMCU) --format=avr $(PROJECT).elf
