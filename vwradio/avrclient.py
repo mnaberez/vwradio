@@ -18,6 +18,10 @@ CMD_FACEPLATE_UPD_READ_KEY_DATA = 0x23
 CMD_RADIO_STATE_DUMP = 0x30
 CMD_RADIO_STATE_PROCESS = 0x31
 CMD_RADIO_STATE_RESET = 0x32
+CMD_CONVERT_UPD_KEY_DATA_TO_KEY_CODES = 0x40
+CMD_CONVERT_CODE_TO_UPD_KEY_DATA = 0x41
+CMD_READ_KEYS = 0x42
+CMD_LOAD_KEYS = 0x43
 ACK = 0x06
 NAK = 0x15
 RUN_MODE_STOPPED = 0
@@ -94,6 +98,28 @@ class Client(object):
 
     def radio_state_process(self, display_ram):
         data = bytearray([CMD_RADIO_STATE_PROCESS]) + bytearray(display_ram)
+        self.command(data)
+
+    def convert_upd_key_data_to_codes(self, key_data):
+        data = (bytearray([CMD_CONVERT_UPD_KEY_DATA_TO_KEY_CODES]) +
+                bytearray(key_data))
+        rx_bytes = self.command(data)
+        num_keys_pressed = rx_bytes[1]
+        return list(rx_bytes[2:2+num_keys_pressed])
+
+    def convert_code_to_upd_key_data(self, key_code):
+        rx_bytes = self.command([CMD_CONVERT_CODE_TO_UPD_KEY_DATA, key_code])
+        return list(rx_bytes[1:])
+
+    # read keys on real faceplate
+    def read_keys(self):
+        rx_bytes = self.command([CMD_READ_KEYS])
+        num_keys_pressed = rx_bytes[1]
+        return list(rx_bytes[2:2+num_keys_pressed])
+
+    # send key presses to the radio
+    def load_keys(self, key_codes):
+        data = bytearray([CMD_LOAD_KEYS]) + bytearray(key_codes)
         self.command(data)
 
     # Low level

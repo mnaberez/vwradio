@@ -2,7 +2,9 @@
 #include <string.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include <avr/pgmspace.h>
 #include "cmd.h"
+#include "convert.h"
 #include "leds.h"
 #include "main.h"
 #include "faceplate.h"
@@ -63,13 +65,13 @@ ISR(TIMER1_COMPA_vect)
 static void _cmd_reply_ack()
 {
     uart_putc(1);   // 1 byte to follow
-    uart_putc(ACK); // ACK byte
+    uart_putc(ACK);
 }
 
 static void _cmd_reply_nak()
 {
     uart_putc(1);   // 1 byte to follow
-    uart_putc(NAK); // NAK byte
+    uart_putc(NAK);
 }
 
 /* Command: Reset uPD16432B Emulator
@@ -111,7 +113,7 @@ static uint8_t _dump_upd_state_to_uart(upd_state_t *state)
            UPD_CHARGEN_RAM_SIZE;
 
     uart_putc(size); // number of bytes to follow
-    uart_putc(ACK); // ACK byte
+    uart_putc(ACK);
     uart_putc(state->ram_area);
     uart_putc(state->ram_size);
     uart_putc(state->address);
@@ -147,7 +149,7 @@ static void _cmd_do_emulated_upd_dump_state()
 {
     uint8_t success;
     success = _dump_upd_state_to_uart(&emulated_upd_state);
-    if (success == 0)
+    if (! success)
     {
         return _cmd_reply_nak();
     }
@@ -186,7 +188,7 @@ static void _cmd_do_emulated_upd_send_command()
     upd_command_t cmd;
 
     uint8_t success = _populate_cmd_from_uart_cmd_buf(&cmd);
-    if (success == 0)
+    if (! success)
     {
         return _cmd_reply_nak();
     }
@@ -318,7 +320,7 @@ static void _cmd_do_radio_state_dump()
 static void _cmd_do_echo()
 {
     uart_putc(cmd_buf_index); // number of bytes to follow
-    uart_putc(ACK); // ACK byte
+    uart_putc(ACK);
     uint8_t i;
     for (i=1; i<cmd_buf_index; i++)
     {
@@ -465,7 +467,7 @@ static void _cmd_do_faceplate_upd_dump_state()
 {
     uint8_t success;
     success = _dump_upd_state_to_uart(&faceplate_upd_state);
-    if (success == 0)
+    if (! success)
     {
         return _cmd_reply_nak();
     }
@@ -483,7 +485,7 @@ static void _cmd_do_faceplate_upd_send_command()
 
     uint8_t success;
     success = _populate_cmd_from_uart_cmd_buf(&cmd);
-    if (success == 0)
+    if (! success)
     {
         return _cmd_reply_nak();
     }
@@ -510,7 +512,7 @@ static void _cmd_do_faceplate_upd_clear_display()
     return _cmd_reply_ack();
 }
 
-/* Command: Read the faceplate's key data
+/* Command: Read the faceplate's raw key data
  * Arguments: none
  * Returns: <ack> <byte0> <byte1> <byte2> <byte3>
  *
@@ -528,12 +530,118 @@ static void _cmd_do_faceplate_upd_clear_display()
      faceplate_read_key_data(key_data);
 
      uart_putc(5); // number of bytes to follow
-     uart_putc(ACK); // ACK byte
+     uart_putc(ACK);
      uart_putc(key_data[0]);
      uart_putc(key_data[1]);
      uart_putc(key_data[2]);
      uart_putc(key_data[3]);
  }
+
+/* TODO document me
+ */
+static void _cmd_do_convert_upd_key_data_to_key_codes()
+{
+    // command byte + 4 key data bytes
+    if (cmd_buf_index != 5)
+    {
+        _cmd_reply_nak();
+        return;
+    }
+
+    uint8_t key_codes[2];
+    uint8_t num_keys_pressed;
+    num_keys_pressed = convert_upd_key_data_to_codes(cmd_buf+1, key_codes);
+
+    uart_putc(4); // number of bytes to follow
+    uart_putc(ACK);
+    uart_putc(num_keys_pressed);
+    uart_putc(key_codes[0]);
+    uart_putc(key_codes[1]);
+}
+
+/* TODO document me
+ */
+static void _cmd_do_convert_code_to_upd_key_data()
+{
+    if (cmd_buf_index != 2)
+    {
+        _cmd_reply_nak();
+        return;
+    }
+
+    uint8_t key_code = cmd_buf[1];
+    uint8_t key_data[4] = {0, 0, 0, 0};
+    uint8_t success = convert_code_to_upd_key_data(key_code, key_data);
+    if (! success) // key code not found
+    {
+        _cmd_reply_nak();
+        return;
+    }
+
+    uart_putc(5); // number of bytes to follow
+    uart_putc(ACK);
+    uart_putc(key_data[0]);
+    uart_putc(key_data[1]);
+    uart_putc(key_data[2]);
+    uart_putc(key_data[3]);
+}
+
+/* TODO document me
+ */
+static void _cmd_do_read_keys()
+{
+    // Read keys from the faceplate
+    uint8_t key_data[4] = {0, 0, 0, 0};
+    faceplate_read_key_data(key_data);
+
+    // Convert uPD16432B key raw data to key codes
+    uint8_t key_codes[2] = {0, 0};
+    uint8_t num_pressed = convert_upd_key_data_to_codes(key_data, key_codes);
+
+    uart_putc(4); // number of bytes to follow
+    uart_putc(ACK);
+    uart_putc(num_pressed);
+    uart_putc(key_codes[0]);
+    uart_putc(key_codes[1]);
+}
+
+static void _cmd_do_load_keys()
+{
+    // can't push keys while passthru is enabled
+    if (auto_keypress_passthru)
+    {
+        _cmd_reply_nak();
+        return;
+    }
+
+    uint8_t key_data[4] = {0, 0, 0, 0};
+    uint8_t i;
+    for (i=1; i<cmd_buf_index; i++)
+    {
+        // get key upd data bytes for this one key
+        uint8_t one_key_data[4] = {0, 0, 0, 0};
+        uint8_t success = convert_code_to_upd_key_data(cmd_buf[i], one_key_data);
+        if (! success) // bad key code
+        {
+            _cmd_reply_nak();
+            return;
+        }
+
+        // merge the one key into final key data
+        key_data[0] |= one_key_data[0];
+        key_data[1] |= one_key_data[1];
+        key_data[2] |= one_key_data[2];
+        key_data[3] |= one_key_data[3];
+    }
+
+    // load the four key data bytes
+    for (i=0; i<4; i++)
+    {
+        upd_tx_key_data[i] = key_data[i];
+    }
+
+    _cmd_reply_ack();
+}
 
 /* Dispatch a command.  A complete command packet has been received.  The
  * command buffer has one more bytes.  The first byte is the command byte.
@@ -560,11 +668,11 @@ static void _cmd_dispatch()
             _cmd_do_set_auto_keypress_passthru();
             break;
 
-        case CMD_RADIO_STATE_PROCESS:
-            _cmd_do_radio_state_process();
-            break;
         case CMD_RADIO_STATE_DUMP:
             _cmd_do_radio_state_dump();
+            break;
+        case CMD_RADIO_STATE_PROCESS:
+            _cmd_do_radio_state_process();
             break;
         case CMD_RADIO_STATE_RESET:
             _cmd_do_radio_state_reset();
@@ -594,6 +702,19 @@ static void _cmd_dispatch()
             break;
         case CMD_FACEPLATE_UPD_READ_KEY_DATA:
             _cmd_do_faceplate_upd_read_key_data();
+            break;
+
+        case CMD_CONVERT_UPD_KEY_DATA_TO_KEY_CODES:
+            _cmd_do_convert_upd_key_data_to_key_codes();
+            break;
+        case CMD_CONVERT_CODE_TO_UPD_KEY_DATA:
+            _cmd_do_convert_code_to_upd_key_data();
+            break;
+        case CMD_READ_KEYS:
+            _cmd_do_read_keys();
+            break;
+        case CMD_LOAD_KEYS:
+            _cmd_do_load_keys();
             break;
 
         default:
@@ -648,3 +769,4 @@ void cmd_receive_byte(uint8_t c)
         }
     }
 }
+

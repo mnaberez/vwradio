@@ -12,13 +12,14 @@ class Enum(object):
 
 
 class Keys(Enum):
-    POWER = 0
+    NONE = 0
     PRESET_1 = 1
     PRESET_2 = 2
     PRESET_3 = 3
     PRESET_4 = 4
     PRESET_5 = 5
     PRESET_6 = 6
+    POWER = 7
     SOUND_BASS = 10
     SOUND_TREB = 11
     SOUND_FADE = 12
@@ -38,15 +39,15 @@ class Keys(Enum):
     STOP_EJECT = 41
     MIX_DOLBY = 42
 
-
 class Pictographs(Enum):
-    PERIOD = 0
-    MIX = 10
-    TAPE_METAL = 20
-    TAPE_DOLBY = 21
-    MODE_AMFM = 30
-    MODE_CD = 31
-    MODE_TAPE = 32
+    NONE = 0
+    PERIOD = 1
+    MIX = 2
+    TAPE_METAL = 10
+    TAPE_DOLBY = 11
+    MODE_AMFM = 20
+    MODE_CD = 21
+    MODE_TAPE = 22
 
 
 class Faceplate(object):
@@ -365,3 +366,30 @@ class Premium5(Faceplate):
         0x6b: "k",
         0x7a: "z",
         }
+
+if __name__ == '__main__':
+    # for bytenum in range(4):
+    #     for bitnum in range(8):
+    #         keyval = Premium4.KEYS.get((bytenum, bitnum), Keys.NONE)
+    #         line = "    KEY_%s, " % Keys.get_name(keyval)
+    #         line = line.ljust(22, ' ')
+    #         line += '// byte %d, bit %d' % (bytenum, bitnum)
+    #         print(line)
+
+    for keycode in range(256):
+        bytenum_bitnum = None
+        for k, v in Premium4.KEYS.items():
+            if v == keycode:
+                bytenum_bitnum = k
+                break
+        if bytenum_bitnum is None:
+            print("    {   0,    0,    0,    0}, // 0x%02x" % keycode)
+        else:
+            bytenum, bitnum = bytenum_bitnum
+            key_data = [0, 0, 0, 0]
+            key_data[bytenum] |= 1<<bitnum
+            print("    {0x%02x, 0x%02x, 0x%02x, 0x%02x}, // 0x%02x KEY_%s" % (
+                key_data[0], key_data[1], key_data[2], key_data[3],
+                keycode,
+                Keys.get_name(keycode)
+                ))

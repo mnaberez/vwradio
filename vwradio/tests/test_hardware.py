@@ -3,6 +3,7 @@ import os
 import time
 import unittest
 from vwradio.radios import DisplayModes, OperationModes, TunerBands
+from vwradio.faceplates import Premium4, Keys
 from vwradio import avrclient
 
 class AvrTests(unittest.TestCase):
@@ -1155,3 +1156,31 @@ class AvrTests(unittest.TestCase):
                 OperationModes.TUNER_PLAYING)
             self.assertEqual(state.display_mode,
                 DisplayModes.SHOWING_OPERATION)
+
+    # Converting uPD16432B key data to key codes
+
+    def test_convert_upd_key_data_to_codes_returns_empty_for_no_keys(self):
+        key_data = [0, 0, 0, 0]
+        key_codes = self.client.convert_upd_key_data_to_codes(key_data)
+        self.assertEqual(len(key_codes), 0)
+
+    def test_convert_upd_key_data_decodes_all_individual_premium4_keys(self):
+        for bytenum_bitnum, key_code in Premium4.KEYS.items():
+            bytenum, bitnum = bytenum_bitnum
+            key_data = [0, 0, 0, 0]
+            key_data[bytenum] |= 1<<bitnum
+            key_codes = self.client.convert_upd_key_data_to_codes(key_data)
+            self.assertEqual(key_codes, [key_code])
+
+    def test_convert_upd_key_data_decodes_2_premium4_keys(self):
+        key_data = [0, 3, 0, 0]
+        key_codes = self.client.convert_upd_key_data_to_codes(key_data)
+        self.assertEqual(
+            sorted(key_codes),
+            sorted([Keys.TUNE_DOWN, Keys.SOUND_FADE])
+            )
+
+    def test_convert_upd_key_data_returns_at_most_2_keys(self):
+        key_data = [0xff, 0xff, 0xff, 0xff]
+        key_codes = self.client.convert_upd_key_data_to_codes(key_data)
+        self.assertEqual(len(key_codes), 2)
