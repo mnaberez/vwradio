@@ -1,69 +1,48 @@
 #!/usr/bin/env python -u
 import time
 from vwradio import avrclient
-from vwradio.faceplates import Premium4, Keys
-from vwradio.radios import Radio, OperationModes
+from vwradio.faceplates import Keys
+from vwradio.radios import OperationModes
 
-client = avrclient.make_client() # avr
-face = Premium4() # display ram and character info
-radio = Radio() # infers radio state from display
-
-def read_display():
-    display_ram = client.emulated_upd_dump_state().display_ram
-    lcd_text = ''
-    for addr in face.DISPLAY_ADDRESSES:
-        code_code = display_ram[addr]
-        char = face.CHARACTERS.get(code_code, '?')
-        lcd_text += char
-    return lcd_text
+client = avrclient.make_client()
 
 def hit_key(key, secs=0.25):
-    key_name = face.get_key_name(key)
+    key_name = Keys.get_name(key)
     print('Hitting key %s' % key_name)
-    # hit the key
-    key_data = face.encode_keys([key])
-    client.emulated_upd_load_key_data(key_data)
+    client.load_keys([key]) # hit key
     time.sleep(secs)
-    # release all keys
-    key_data = face.encode_keys([])
-    client.emulated_upd_load_key_data(key_data)
+    client.load_keys([]) # release all keys
     time.sleep(secs)
 
 if __name__ == '__main__':
-    client.set_auto_keypress_passthru(False);
+    client.set_auto_keypress_passthru(False)
     code_to_enter = 1611
     code_entry_keys = (Keys.PRESET_1, Keys.PRESET_2,
                        Keys.PRESET_3, Keys.PRESET_4)
     safe_modes = (OperationModes.SAFE_ENTRY,
                   OperationModes.SAFE_LOCKED)
 
-    lcd_text = read_display()
-    radio.process(lcd_text)
-    while radio.operation_mode == OperationModes.UNKNOWN:
+    state = client.radio_state_dump()
+    while state.operation_mode == OperationModes.UNKNOWN:
         print("Unknown state: Waiting for radio to write to LCD")
-        lcd_text = read_display()
-        radio.process(lcd_text)
+        state = client.radio_state_dump()
         time.sleep(1)
 
-    while radio.operation_mode in safe_modes:
-        if radio.operation_mode == OperationModes.SAFE_LOCKED:
+    while state.operation_mode in safe_modes:
+        if state.operation_mode == OperationModes.SAFE_LOCKED:
             print("Safe mode locked: Waiting for code entry prompt")
-            lcd_text = read_display()
-            radio.process(lcd_text)
+            state = client.radio_state_dump()
             time.sleep(1)
         else: # OperationModes.SAFE_ENTRY
             print("Safe mode entry: Toggling in code %d" % code_to_enter)
             for i in range(4):
-                while str(radio.safe_code)[i] != str(code_to_enter)[i]:
+                while str(state.safe_code)[i] != str(code_to_enter)[i]:
                     hit_key(code_entry_keys[i])
-                    lcd_text = read_display()
-                    radio.process(lcd_text)
-                    print(lcd_text)
+                    state = client.radio_state_dump()
+                    print(state.safe_code)
             hit_key(Keys.TUNE_UP, secs=3)
-            lcd_text = read_display()
-            radio.process(lcd_text)
-            print(lcd_text)
+            state = client.radio_state_dump()
 
     print("Radio is unlocked")
     hit_key(Keys.SCAN)
-    client.set_auto_keypress_passthru(True);
+    client.set_auto_keypress_passthru(True)
