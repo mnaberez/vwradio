@@ -320,18 +320,20 @@ class Premium5(Faceplate):
         0x7a: "z",
         }
 
-if __name__ == '__main__':
-    # for bytenum in range(4):
-    #     for bitnum in range(8):
-    #         keyval = Premium4.KEYS.get((bytenum, bitnum), Keys.NONE)
-    #         line = "    KEY_%s, " % Keys.get_name(keyval)
-    #         line = line.ljust(22, ' ')
-    #         line += '// byte %d, bit %d' % (bytenum, bitnum)
-    #         print(line)
+def _print_key_encode_table_for_avr_c(keys):
+    for bytenum in range(4):
+        print('    // byte %d' % bytenum)
+        for bitnum in range(8):
+            keyval = keys.get((bytenum, bitnum), Keys.NONE)
+            line = "    KEY_%s, " % Keys.get_name(keyval)
+            line = line.ljust(22, ' ')
+            line += '// byte %d, bit %d' % (bytenum, bitnum)
+            print(line)
 
+def _print_key_decode_table_for_avr_c(keys):
     for keycode in range(256):
         bytenum_bitnum = None
-        for k, v in Premium4.KEYS.items():
+        for k, v in keys.items():
             if v == keycode:
                 bytenum_bitnum = k
                 break
@@ -346,3 +348,9 @@ if __name__ == '__main__':
                 keycode,
                 Keys.get_name(keycode)
                 ))
+
+if __name__ == '__main__':
+    print("// Premium 4 Key Encoding Table")
+    _print_key_encode_table_for_avr_c(Premium4.KEYS)
+    print("// Premium 4 Key Decoding Table")
+    _print_key_decode_table_for_avr_c(Premium4.KEYS)
