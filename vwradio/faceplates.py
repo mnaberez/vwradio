@@ -1,53 +1,6 @@
 import string
 from vwradio import charsets
-
-class Enum(object):
-    '''Abstract'''
-    @classmethod
-    def get_name(klass, value):
-        for k, v in klass.__dict__.items():
-            if v == value:
-                return k
-        return None
-
-
-class Keys(Enum):
-    NONE = 0
-    PRESET_1 = 1
-    PRESET_2 = 2
-    PRESET_3 = 3
-    PRESET_4 = 4
-    PRESET_5 = 5
-    PRESET_6 = 6
-    POWER = 7
-    SOUND_BASS = 10
-    SOUND_TREB = 11
-    SOUND_FADE = 12
-    SOUND_BAL = 13
-    SOUND_MID = 14
-    SOUND_FB = 15
-    TUNE_UP = 20
-    TUNE_DOWN = 21
-    SEEK_UP = 22
-    SEEK_DOWN = 23
-    SCAN = 24
-    MODE_CD = 30
-    MODE_AM = 31
-    MODE_FM = 32
-    MODE_TAPE = 33
-    TAPE_SIDE = 40
-    STOP_EJECT = 41
-    MIX_DOLBY = 42
-
-class Pictographs(Enum):
-    NONE = 0
-    PERIOD = 1
-    MIX = 2
-    TAPE_METAL = 10
-    TAPE_DOLBY = 11
-    MODE_AMFM = 20
-    MODE_CD = 21
-    MODE_TAPE = 22
+from vwradio.constants import Keys, Pictographs
 
 
 class Faceplate(object):

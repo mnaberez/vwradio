@@ -2,8 +2,8 @@
 import os
 import time
 import unittest
-from vwradio.radios import DisplayModes, OperationModes, TunerBands
-from vwradio.faceplates import Premium4, Keys
+from vwradio.constants import DisplayModes, OperationModes, TunerBands, Keys
+from vwradio.faceplates import Premium4
 from vwradio import avrclient
 
 class AvrTests(unittest.TestCase):

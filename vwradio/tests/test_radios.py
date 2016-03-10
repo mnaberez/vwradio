@@ -1,5 +1,6 @@
 import unittest
-from vwradio.radios import Radio, OperationModes, DisplayModes, TunerBands
+from vwradio.radios import Radio
+from vwradio.constants import OperationModes, DisplayModes, TunerBands
 
 class TestRadio(unittest.TestCase):
     def test_safe_mode(self):
