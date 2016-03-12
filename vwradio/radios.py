@@ -200,10 +200,10 @@ class Radio(object):
             self._parse_unknown(text)
 
     def _parse_volume(self, text):
-        self.display_mode = DisplayModes.ADJUSTING_VOLUME
+        self.display_mode = DisplayModes.ADJUSTING_SOUND_VOLUME
 
     def _parse_sound_balance(self, text):
-        self.display_mode = DisplayModes.ADJUSTING_BALANCE
+        self.display_mode = DisplayModes.ADJUSTING_SOUND_BALANCE
         if text[4] == "C":
             self.sound_balance = 0  # Center
         elif text[4] == "R" and str.isdigit(text[10]):
@@ -214,7 +214,7 @@ class Radio(object):
             self._parse_unknown(text)
 
     def _parse_sound_fade(self, text):
-        self.display_mode = DisplayModes.ADJUSTING_FADE
+        self.display_mode = DisplayModes.ADJUSTING_SOUND_FADE
         if text[4] == "C":
             self.sound_fade = 0  # Center
         elif text[4] == "F" and str.isdigit(text[10]):
@@ -225,7 +225,7 @@ class Radio(object):
             self._parse_unknown(text)
 
     def _parse_sound_bass(self, text):
-        self.display_mode = DisplayModes.ADJUSTING_BASS
+        self.display_mode = DisplayModes.ADJUSTING_SOUND_BASS
         if str.isdigit(text[8]):
             self.sound_bass = int(text[8])
             if text[6] == "-":
@@ -234,7 +234,7 @@ class Radio(object):
             self._parse_unknown(text)
 
     def _parse_sound_treble(self, text):
-        self.display_mode = DisplayModes.ADJUSTING_TREBLE
+        self.display_mode = DisplayModes.ADJUSTING_SOUND_TREBLE
         if str.isdigit(text[8]):
             self.sound_treble = int(text[8])
             if text[6] == "-":
@@ -243,7 +243,7 @@ class Radio(object):
             self._parse_unknown(text)
 
     def _parse_sound_midrange(self, text):
-        self.display_mode = DisplayModes.ADJUSTING_MIDRANGE
+        self.display_mode = DisplayModes.ADJUSTING_SOUND_MIDRANGE
         if str.isdigit(text[8]):
             self.sound_midrange = int(text[8])
             if text[6] == "-":

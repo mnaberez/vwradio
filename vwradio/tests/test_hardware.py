@@ -645,7 +645,7 @@ class AvrTests(unittest.TestCase):
             self.assertEqual(state.operation_mode,
                 OperationModes.TUNER_PLAYING)
             self.assertEqual(state.display_mode,
-                DisplayModes.ADJUSTING_VOLUME)
+                DisplayModes.ADJUSTING_SOUND_VOLUME)
 
     def test_radio_state_sound_balance(self):
         values = (
@@ -670,7 +670,7 @@ class AvrTests(unittest.TestCase):
             self.assertEqual(state.operation_mode,
                 OperationModes.TUNER_PLAYING)
             self.assertEqual(state.display_mode,
-                DisplayModes.ADJUSTING_BALANCE)
+                DisplayModes.ADJUSTING_SOUND_BALANCE)
             self.assertEqual(state.sound_balance, balance)
 
     def test_radio_state_sound_fade(self):
@@ -696,7 +696,7 @@ class AvrTests(unittest.TestCase):
             self.assertEqual(state.operation_mode,
                 OperationModes.TUNER_PLAYING)
             self.assertEqual(state.display_mode,
-                DisplayModes.ADJUSTING_FADE)
+                DisplayModes.ADJUSTING_SOUND_FADE)
             self.assertEqual(state.sound_fade, fade)
 
     def test_radio_state_sound_bass(self):
@@ -722,7 +722,7 @@ class AvrTests(unittest.TestCase):
             self.assertEqual(state.operation_mode,
                 OperationModes.TUNER_PLAYING)
             self.assertEqual(state.display_mode,
-                DisplayModes.ADJUSTING_BASS)
+                DisplayModes.ADJUSTING_SOUND_BASS)
             self.assertEqual(state.sound_bass, bass)
 
     def test_radio_state_sound_treble(self):
@@ -748,7 +748,7 @@ class AvrTests(unittest.TestCase):
             self.assertEqual(state.operation_mode,
                 OperationModes.TUNER_PLAYING)
             self.assertEqual(state.display_mode,
-                DisplayModes.ADJUSTING_TREBLE)
+                DisplayModes.ADJUSTING_SOUND_TREBLE)
             self.assertEqual(state.sound_treble, treble)
 
     def test_radio_state_sound_midrange_premium_5(self):
@@ -774,7 +774,7 @@ class AvrTests(unittest.TestCase):
             self.assertEqual(state.operation_mode,
                 OperationModes.TUNER_PLAYING)
             self.assertEqual(state.display_mode,
-                DisplayModes.ADJUSTING_MIDRANGE)
+                DisplayModes.ADJUSTING_SOUND_MIDRANGE)
             self.assertEqual(state.sound_midrange, mid)
 
     def test_radio_state_cd_playing(self):

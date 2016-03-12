@@ -16,12 +16,12 @@ static void _parse_unknown(radio_state_t *state, uint8_t *ram)
 
 static void _parse_sound_volume(radio_state_t *state, uint8_t *ram)
 {
-    state->display_mode = DISPLAY_MODE_ADJUSTING_VOLUME;
+    state->display_mode = DISPLAY_MODE_ADJUSTING_SOUND_VOLUME;
 }
 
 static void _parse_sound_bass(radio_state_t *state, uint8_t *ram)
 {
-    state->display_mode = DISPLAY_MODE_ADJUSTING_BASS;
+    state->display_mode = DISPLAY_MODE_ADJUSTING_SOUND_BASS;
 
     if (isdigit(ram[8]))
     {
@@ -39,7 +39,7 @@ static void _parse_sound_bass(radio_state_t *state, uint8_t *ram)
 
 static void _parse_sound_treble(radio_state_t *state, uint8_t *ram)
 {
-    state->display_mode = DISPLAY_MODE_ADJUSTING_TREBLE;
+    state->display_mode = DISPLAY_MODE_ADJUSTING_SOUND_TREBLE;
 
     if (isdigit(ram[8]))
     {
@@ -57,7 +57,7 @@ static void _parse_sound_treble(radio_state_t *state, uint8_t *ram)
 
 static void _parse_midrange(radio_state_t *state, uint8_t *ram)
 {
-    state->display_mode = DISPLAY_MODE_ADJUSTING_MIDRANGE;
+    state->display_mode = DISPLAY_MODE_ADJUSTING_SOUND_MIDRANGE;
 
     if (isdigit(ram[8]))
     {
@@ -75,7 +75,7 @@ static void _parse_midrange(radio_state_t *state, uint8_t *ram)
 
 static void _parse_sound_balance(radio_state_t *state, uint8_t *ram)
 {
-    state->display_mode = DISPLAY_MODE_ADJUSTING_BALANCE;
+    state->display_mode = DISPLAY_MODE_ADJUSTING_SOUND_BALANCE;
 
     if (ram[4] == 'C')
     {
@@ -97,7 +97,7 @@ static void _parse_sound_balance(radio_state_t *state, uint8_t *ram)
 
 static void _parse_sound_fade(radio_state_t *state, uint8_t *ram)
 {
-    state->display_mode = DISPLAY_MODE_ADJUSTING_FADE;
+    state->display_mode = DISPLAY_MODE_ADJUSTING_SOUND_FADE;
 
     if (ram[4] == 'C')
     {

@@ -54,7 +54,7 @@ class TestRadio(unittest.TestCase):
             self.assertEqual(radio.operation_mode,
                 OperationModes.TUNER_PLAYING)
             self.assertEqual(radio.display_mode,
-                DisplayModes.ADJUSTING_VOLUME)
+                DisplayModes.ADJUSTING_SOUND_VOLUME)
 
     def test_sound_balance(self):
         values = (
@@ -74,7 +74,7 @@ class TestRadio(unittest.TestCase):
             self.assertEqual(radio.operation_mode,
                 OperationModes.TUNER_PLAYING)
             self.assertEqual(radio.display_mode,
-                DisplayModes.ADJUSTING_BALANCE)
+                DisplayModes.ADJUSTING_SOUND_BALANCE)
             self.assertEqual(radio.sound_balance, balance)
 
     def test_sound_fade(self):
@@ -95,7 +95,7 @@ class TestRadio(unittest.TestCase):
             self.assertEqual(radio.operation_mode,
                 OperationModes.TUNER_PLAYING)
             self.assertEqual(radio.display_mode,
-                DisplayModes.ADJUSTING_FADE)
+                DisplayModes.ADJUSTING_SOUND_FADE)
             self.assertEqual(radio.sound_fade, fade)
 
     def test_sound_bass(self):
@@ -116,7 +116,7 @@ class TestRadio(unittest.TestCase):
             self.assertEqual(radio.operation_mode,
                 OperationModes.TUNER_PLAYING)
             self.assertEqual(radio.display_mode,
-                DisplayModes.ADJUSTING_BASS)
+                DisplayModes.ADJUSTING_SOUND_BASS)
             self.assertEqual(radio.sound_bass, bass)
 
     def test_sound_treble(self):
@@ -137,7 +137,7 @@ class TestRadio(unittest.TestCase):
             self.assertEqual(radio.operation_mode,
                 OperationModes.TUNER_PLAYING)
             self.assertEqual(radio.display_mode,
-                DisplayModes.ADJUSTING_TREBLE)
+                DisplayModes.ADJUSTING_SOUND_TREBLE)
             self.assertEqual(radio.sound_treble, treble)
 
     def test_sound_midrange_premium_5(self):
@@ -159,7 +159,7 @@ class TestRadio(unittest.TestCase):
             self.assertEqual(radio.operation_mode,
                 OperationModes.TUNER_PLAYING)
             self.assertEqual(radio.display_mode,
-                DisplayModes.ADJUSTING_MIDRANGE)
+                DisplayModes.ADJUSTING_SOUND_MIDRANGE)
 
     def test_cd_playing(self):
         values = (
