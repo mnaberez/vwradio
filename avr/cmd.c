@@ -253,7 +253,7 @@ static void _cmd_do_radio_state_reset()
  * Arguments: <byte1>
  * Returns: <ack>
  */
-static void _cmd_do_radio_state_process()
+static void _cmd_do_radio_state_parse()
 {
     // -1 is because first byte in cmd_buf is the uart command byte
     uint8_t data_size = cmd_buf_index - 1;
@@ -274,7 +274,7 @@ static void _cmd_do_radio_state_process()
     // Populate display data buffer with UART data
     memcpy(display_ram, cmd_buf+1, data_size);
 
-    radio_state_process(&radio_state, display_ram);
+    radio_state_parse(&radio_state, display_ram);
     _cmd_reply_ack();
 }
 
@@ -680,8 +680,8 @@ static void _cmd_dispatch()
         case CMD_RADIO_STATE_DUMP:
             _cmd_do_radio_state_dump();
             break;
-        case CMD_RADIO_STATE_PROCESS:
-            _cmd_do_radio_state_process();
+        case CMD_RADIO_STATE_PARSE:
+            _cmd_do_radio_state_parse();
             break;
         case CMD_RADIO_STATE_RESET:
             _cmd_do_radio_state_reset();

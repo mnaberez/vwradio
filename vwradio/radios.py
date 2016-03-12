@@ -19,41 +19,41 @@ class Radio(object):
         self.cd_cue_pos = 0 # 0 or other integer as seen on lcd
         self.tape_side = 0 # 0=none, 1=side a, 2=side b
 
-    def process(self, text):
+    def parse(self, text):
         if text == ' ' * 11:
             pass # blank
         elif text[6:9] in ("MIN", "MAX"):
-            self._process_volume(text)
+            self._parse_volume(text)
         elif str.isdigit(text[0]):
-            self._process_safe(text)
+            self._parse_safe(text)
         elif text[0:4] == "    " and text[9:11] == "  ":
-            self._process_safe(text)
+            self._parse_safe(text)
         elif text == "    NO CODE":
-            self._process_safe(text)
+            self._parse_safe(text)
         elif text[0:3] == "BAS":
-            self._process_sound_bass(text)
+            self._parse_sound_bass(text)
         elif text[0:3] == "TRE":
-            self._process_sound_treble(text)
+            self._parse_sound_treble(text)
         elif text[0:3] == "MID":
-            self._process_sound_midrange(text)
+            self._parse_sound_midrange(text)
         elif text[0:3] == "BAL":
-            self._process_sound_balance(text)
+            self._parse_sound_balance(text)
         elif text[0:3] == "FAD":
-            self._process_sound_fade(text)
+            self._parse_sound_fade(text)
         elif text[0:3] == "TAP" or text == "    NO TAPE":
-            self._process_tape(text)
+            self._parse_tape(text)
         elif text[0:2] == "CD" or text[0:3] in ("CUE", "CHK"):
-            self._process_cd(text)
+            self._parse_cd(text)
         elif text in ("NO  CHANGER", "    NO DISC"):
-            self._process_cd(text)
+            self._parse_cd(text)
         elif text[8:11] in ("MHZ", "MHz"):
-            self._process_tuner_fm(text)
+            self._parse_tuner_fm(text)
         elif text[8:11] in ("KHZ", "kHz"):
-            self._process_tuner_am(text)
+            self._parse_tuner_am(text)
         else:
-            self._process_unknown(text)
+            self._parse_unknown(text)
 
-    def _process_safe(self, text):
+    def _parse_safe(self, text):
         self.display_mode = DisplayModes.SHOWING_OPERATION
 
         if str.isdigit(text[0]):
@@ -74,9 +74,9 @@ class Radio(object):
             self.operation_mode = OperationModes.SAFE_ENTRY
             self.safe_code = int(text[5:9])
         else:
-            self._process_unknown(text)
+            self._parse_unknown(text)
 
-    def _process_tuner_fm(self, text):
+    def _parse_tuner_fm(self, text):
         self.display_mode = DisplayModes.SHOWING_OPERATION
 
         freq = text[4:8]
@@ -102,9 +102,9 @@ class Radio(object):
             else: # " " no preset
                 self.tuner_preset = 0
         else:
-            self._process_unknown(text)
+            self._parse_unknown(text)
 
-    def _process_tuner_am(self, text):
+    def _parse_tuner_am(self, text):
         self.display_mode = DisplayModes.SHOWING_OPERATION
 
         freq = text[4:8]
@@ -125,7 +125,7 @@ class Radio(object):
             else: # no preset
                 self.tuner_preset = 0
 
-    def _process_cd(self, text):
+    def _parse_cd(self, text):
         self.display_mode = DisplayModes.SHOWING_OPERATION
         if text == "CHK MAGAZIN":
             self.operation_mode = OperationModes.CD_CHECK_MAGAZINE
@@ -152,7 +152,7 @@ class Radio(object):
                 self.operation_mode = OperationModes.CD_PLAYING
                 self.cd_track = int(text[8:10])
             else:
-                self._process_unknown(text)
+                self._parse_unknown(text)
         elif text[0:2] == "CD": # "CD1" to "CD6"
             self.cd_disc = int(text[2])
             self.cd_cue_pos = 0
@@ -160,14 +160,14 @@ class Radio(object):
                 self.operation_mode = OperationModes.CD_CDX_CD_ERR
                 self.cd_track = 0
             else:
-                self._process_unknown(text)
+                self._parse_unknown(text)
         elif text[0:3] == "CUE":
             self.operation_mode = OperationModes.CD_CUEING
             self.cd_cue_pos = int(text[4:9].strip())
         else:
-            self._process_unknown(text)
+            self._parse_unknown(text)
 
-    def _process_tape(self, text):
+    def _parse_tape(self, text):
         self.display_mode = DisplayModes.SHOWING_OPERATION
         if text in ("TAPE PLAY A", "TAPE PLAY B"):
             self.operation_mode = OperationModes.TAPE_PLAYING
@@ -197,12 +197,12 @@ class Radio(object):
             self.operation_mode = OperationModes.TAPE_LOAD
             self.tape_side = 0
         else:
-            self._process_unknown(text)
+            self._parse_unknown(text)
 
-    def _process_volume(self, text):
+    def _parse_volume(self, text):
         self.display_mode = DisplayModes.ADJUSTING_VOLUME
 
-    def _process_sound_balance(self, text):
+    def _parse_sound_balance(self, text):
         self.display_mode = DisplayModes.ADJUSTING_BALANCE
         if text[4] == "C":
             self.sound_balance = 0  # Center
@@ -211,9 +211,9 @@ class Radio(object):
         elif text[4] == "L" and str.isdigit(text[10]):
             self.sound_balance = -int(text[10])  # Left
         else:
-            self._process_unknown(text)
+            self._parse_unknown(text)
 
-    def _process_sound_fade(self, text):
+    def _parse_sound_fade(self, text):
         self.display_mode = DisplayModes.ADJUSTING_FADE
         if text[4] == "C":
             self.sound_fade = 0  # Center
@@ -222,36 +222,36 @@ class Radio(object):
         elif text[4] == "R" and str.isdigit(text[10]):
             self.sound_fade = -int(text[10])  # Rear
         else:
-            self._process_unknown(text)
+            self._parse_unknown(text)
 
-    def _process_sound_bass(self, text):
+    def _parse_sound_bass(self, text):
         self.display_mode = DisplayModes.ADJUSTING_BASS
         if str.isdigit(text[8]):
             self.sound_bass = int(text[8])
             if text[6] == "-":
                 self.sound_bass = self.sound_bass * -1
         else:
-            self._process_unknown(text)
+            self._parse_unknown(text)
 
-    def _process_sound_treble(self, text):
+    def _parse_sound_treble(self, text):
         self.display_mode = DisplayModes.ADJUSTING_TREBLE
         if str.isdigit(text[8]):
             self.sound_treble = int(text[8])
             if text[6] == "-":
                 self.sound_treble = self.sound_treble * -1
         else:
-            self._process_unknown(text)
+            self._parse_unknown(text)
 
-    def _process_sound_midrange(self, text):
+    def _parse_sound_midrange(self, text):
         self.display_mode = DisplayModes.ADJUSTING_MIDRANGE
         if str.isdigit(text[8]):
             self.sound_midrange = int(text[8])
             if text[6] == "-":
                 self.sound_midrange = self.sound_midrange * -1
         else:
-            self._process_unknown(text)
+            self._parse_unknown(text)
 
-    def _process_unknown(self, text):
+    def _parse_unknown(self, text):
         # TODO temporary
         import sys
         sys.stderr.write("Unrecognized: %r\n" % text)

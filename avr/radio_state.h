@@ -63,7 +63,7 @@ typedef struct
 radio_state_t radio_state;
 
 void radio_state_init(radio_state_t *state);
-void radio_state_process(radio_state_t *state, uint8_t *ram);
+void radio_state_parse(radio_state_t *state, uint8_t *ram);
 void radio_state_update_from_upd_if_dirty(radio_state_t *radio_state, upd_state_t *upd_state);
 
 #endif

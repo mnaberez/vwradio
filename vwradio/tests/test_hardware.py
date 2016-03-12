@@ -574,7 +574,7 @@ class AvrTests(unittest.TestCase):
 
     def test_radio_state_returns_nak_for_too_few_display_data_bytes(self):
         rx_bytes = self.client.command(
-            data=[avrclient.CMD_RADIO_STATE_PROCESS] + ([0] * 10),
+            data=[avrclient.CMD_RADIO_STATE_PARSE] + ([0] * 10),
             ignore_nak=True
             )
         self.assertEqual(rx_bytes[0], avrclient.NAK)
@@ -582,7 +582,7 @@ class AvrTests(unittest.TestCase):
 
     def test_radio_state_returns_nak_for_too_many_display_data_bytes(self):
         rx_bytes = self.client.command(
-            data=[avrclient.CMD_RADIO_STATE_PROCESS] + ([0] * 33),
+            data=[avrclient.CMD_RADIO_STATE_PARSE] + ([0] * 33),
             ignore_nak=True
             )
         self.assertEqual(rx_bytes[0], avrclient.NAK)
@@ -609,7 +609,7 @@ class AvrTests(unittest.TestCase):
         )
         for display, safe_code, safe_tries, mode in values:
             self.client.radio_state_reset()
-            self.client.radio_state_process(display)
+            self.client.radio_state_parse(display)
             state = self.client.radio_state_dump()
             self.assertEqual(state.safe_code, safe_code)
             self.assertEqual(state.safe_tries, safe_tries)
@@ -633,14 +633,14 @@ class AvrTests(unittest.TestCase):
         for display in displays:
             # set up known values
             self.client.radio_state_reset()
-            self.client.radio_state_process(b"FM161079MHZ")
+            self.client.radio_state_parse(b"FM161079MHZ")
             state = self.client.radio_state_dump()
             self.assertEqual(state.operation_mode,
                 OperationModes.TUNER_PLAYING)
             self.assertEqual(state.display_mode,
                 DisplayModes.SHOWING_OPERATION)
-            # process display
-            self.client.radio_state_process(display)
+            # parse display
+            self.client.radio_state_parse(display)
             state = self.client.radio_state_dump()
             self.assertEqual(state.operation_mode,
                 OperationModes.TUNER_PLAYING)
@@ -658,14 +658,14 @@ class AvrTests(unittest.TestCase):
         for display, balance in values:
             # set up known values
             self.client.radio_state_reset()
-            self.client.radio_state_process(b"FM161079MHZ")
+            self.client.radio_state_parse(b"FM161079MHZ")
             state = self.client.radio_state_dump()
             self.assertEqual(state.operation_mode,
                 OperationModes.TUNER_PLAYING)
             self.assertEqual(state.display_mode,
                 DisplayModes.SHOWING_OPERATION)
-            # process display
-            self.client.radio_state_process(display)
+            # parse display
+            self.client.radio_state_parse(display)
             state = self.client.radio_state_dump()
             self.assertEqual(state.operation_mode,
                 OperationModes.TUNER_PLAYING)
@@ -684,14 +684,14 @@ class AvrTests(unittest.TestCase):
         for display, fade in values:
             # set up known values
             self.client.radio_state_reset()
-            self.client.radio_state_process(b"FM161079MHZ")
+            self.client.radio_state_parse(b"FM161079MHZ")
             state = self.client.radio_state_dump()
             self.assertEqual(state.operation_mode,
                 OperationModes.TUNER_PLAYING)
             self.assertEqual(state.display_mode,
                 DisplayModes.SHOWING_OPERATION)
-            # process display
-            self.client.radio_state_process(display)
+            # parse display
+            self.client.radio_state_parse(display)
             state = self.client.radio_state_dump()
             self.assertEqual(state.operation_mode,
                 OperationModes.TUNER_PLAYING)
@@ -710,14 +710,14 @@ class AvrTests(unittest.TestCase):
         for display, bass in values:
             # set up known values
             self.client.radio_state_reset()
-            self.client.radio_state_process(b"FM161079MHZ")
+            self.client.radio_state_parse(b"FM161079MHZ")
             state = self.client.radio_state_dump()
             self.assertEqual(state.operation_mode,
                 OperationModes.TUNER_PLAYING)
             self.assertEqual(state.display_mode,
                 DisplayModes.SHOWING_OPERATION)
-            # process display
-            self.client.radio_state_process(display)
+            # parse display
+            self.client.radio_state_parse(display)
             state = self.client.radio_state_dump()
             self.assertEqual(state.operation_mode,
                 OperationModes.TUNER_PLAYING)
@@ -736,14 +736,14 @@ class AvrTests(unittest.TestCase):
         for display, treble in values:
             # set up known values
             self.client.radio_state_reset()
-            self.client.radio_state_process(b"FM161079MHZ")
+            self.client.radio_state_parse(b"FM161079MHZ")
             state = self.client.radio_state_dump()
             self.assertEqual(state.operation_mode,
                 OperationModes.TUNER_PLAYING)
             self.assertEqual(state.display_mode,
                 DisplayModes.SHOWING_OPERATION)
-            # process display
-            self.client.radio_state_process(display)
+            # parse display
+            self.client.radio_state_parse(display)
             state = self.client.radio_state_dump()
             self.assertEqual(state.operation_mode,
                 OperationModes.TUNER_PLAYING)
@@ -762,14 +762,14 @@ class AvrTests(unittest.TestCase):
         for display, mid in values:
             # set up known values
             self.client.radio_state_reset()
-            self.client.radio_state_process(b"FM161079MHZ")
+            self.client.radio_state_parse(b"FM161079MHZ")
             state = self.client.radio_state_dump()
             self.assertEqual(state.operation_mode,
                 OperationModes.TUNER_PLAYING)
             self.assertEqual(state.display_mode,
                 DisplayModes.SHOWING_OPERATION)
-            # process display
-            self.client.radio_state_process(display)
+            # parse display
+            self.client.radio_state_parse(display)
             state = self.client.radio_state_dump()
             self.assertEqual(state.operation_mode,
                 OperationModes.TUNER_PLAYING)
@@ -784,7 +784,7 @@ class AvrTests(unittest.TestCase):
         )
         for display, disc, track in values:
             self.client.radio_state_reset()
-            self.client.radio_state_process(display)
+            self.client.radio_state_parse(display)
             state = self.client.radio_state_dump()
             self.assertEqual(state.cd_disc, disc)
             self.assertEqual(state.cd_track, track)
@@ -796,14 +796,14 @@ class AvrTests(unittest.TestCase):
     def test_radio_state_cd_cueing(self):
         # set up known values
         self.client.radio_state_reset()
-        self.client.radio_state_process(b"CD 5 TR 12 ")
+        self.client.radio_state_parse(b"CD 5 TR 12 ")
         state = self.client.radio_state_dump()
         self.assertEqual(state.operation_mode,
             OperationModes.CD_PLAYING)
         self.assertEqual(state.cd_disc, 5)
         self.assertEqual(state.cd_track, 12)
-        # process display
-        self.client.radio_state_process(b"CUE   122  ")
+        # parse display
+        self.client.radio_state_parse(b"CUE   122  ")
         state = self.client.radio_state_dump()
         self.assertEqual(state.cd_disc, 5)
         self.assertEqual(state.cd_track, 12)
@@ -816,15 +816,15 @@ class AvrTests(unittest.TestCase):
     def test_radio_state_cd_check_magazine(self):
         # set up known values
         self.client.radio_state_reset()
-        self.client.radio_state_process(b"CD 1 TR 03 ")
+        self.client.radio_state_parse(b"CD 1 TR 03 ")
         state = self.client.radio_state_dump()
         self.assertEqual(state.operation_mode,
             OperationModes.CD_PLAYING)
         self.assertEqual(state.cd_disc, 1)
         self.assertEqual(state.cd_track, 3)
         # radio.cd_cue_pos = 99 # TODO
-        # process display
-        self.client.radio_state_process(b"CHK MAGAZIN")
+        # parse display
+        self.client.radio_state_parse(b"CHK MAGAZIN")
         state = self.client.radio_state_dump()
         self.assertEqual(state.cd_disc, 0)
         self.assertEqual(state.cd_track, 0)
@@ -837,15 +837,15 @@ class AvrTests(unittest.TestCase):
     def test_radio_state_cd_cdx_no_cd(self):
         # set up known values
         self.client.radio_state_reset()
-        self.client.radio_state_process(b"CD 1 TR 03 ")
+        self.client.radio_state_parse(b"CD 1 TR 03 ")
         state = self.client.radio_state_dump()
         self.assertEqual(state.operation_mode,
             OperationModes.CD_PLAYING)
         self.assertEqual(state.cd_disc, 1)
         self.assertEqual(state.cd_track, 3)
         # radio.cd_cue_pos = 99 # TODO
-        # process display
-        self.client.radio_state_process(b"CD 2 NO CD ") # space in "CD 2"
+        # parse display
+        self.client.radio_state_parse(b"CD 2 NO CD ") # space in "CD 2"
         state = self.client.radio_state_dump()
         self.assertEqual(state.cd_disc, 2)
         self.assertEqual(state.cd_track, 0)
@@ -858,15 +858,15 @@ class AvrTests(unittest.TestCase):
     def test_radio_state_cd_cdx_cd_err(self):
         # set up known values
         self.client.radio_state_reset()
-        self.client.radio_state_process(b"CD 5 TR 03 ")
+        self.client.radio_state_parse(b"CD 5 TR 03 ")
         state = self.client.radio_state_dump()
         self.assertEqual(state.operation_mode,
             OperationModes.CD_PLAYING)
         self.assertEqual(state.cd_disc, 5)
         self.assertEqual(state.cd_track, 3)
         # radio.cd_cue_pos = 99 # TODO
-        # process display
-        self.client.radio_state_process(b"CD1 CD ERR ") # no space in "CD1"
+        # parse display
+        self.client.radio_state_parse(b"CD1 CD ERR ") # no space in "CD1"
         state = self.client.radio_state_dump()
         self.assertEqual(state.cd_disc, 1)
         self.assertEqual(state.cd_track, 0)
@@ -879,15 +879,15 @@ class AvrTests(unittest.TestCase):
     def test_radio_state_cd_no_disc(self):
         # set up known values
         self.client.radio_state_reset()
-        self.client.radio_state_process(b"CD 5 TR 03 ")
+        self.client.radio_state_parse(b"CD 5 TR 03 ")
         state = self.client.radio_state_dump()
         self.assertEqual(state.operation_mode,
             OperationModes.CD_PLAYING)
         self.assertEqual(state.cd_disc, 5)
         self.assertEqual(state.cd_track, 3)
         # radio.cd_cue_pos = 99 # TODO
-        # process display
-        self.client.radio_state_process(b"    NO DISC")
+        # parse display
+        self.client.radio_state_parse(b"    NO DISC")
         state = self.client.radio_state_dump()
         self.assertEqual(state.cd_disc, 0)
         self.assertEqual(state.cd_track, 0)
@@ -900,7 +900,7 @@ class AvrTests(unittest.TestCase):
     def test_radio_state_cd_no_changer(self):
         # set up known values
         self.client.radio_state_reset()
-        self.client.radio_state_process(b"CD 5 TR 03 ")
+        self.client.radio_state_parse(b"CD 5 TR 03 ")
         state = self.client.radio_state_dump()
         self.assertEqual(state.operation_mode,
             OperationModes.CD_PLAYING)
@@ -908,7 +908,7 @@ class AvrTests(unittest.TestCase):
         self.assertEqual(state.cd_track, 3)
         # radio.cd_cue_pos = 99 # TODO
         # process
-        self.client.radio_state_process(b"NO  CHANGER")
+        self.client.radio_state_parse(b"NO  CHANGER")
         state = self.client.radio_state_dump()
         self.assertEqual(state.cd_disc, 0)
         self.assertEqual(state.cd_track, 0)
@@ -921,11 +921,11 @@ class AvrTests(unittest.TestCase):
     def test_radio_state_tape_load_premium_5(self):
         # set up known values
         self.client.radio_state_reset()
-        self.client.radio_state_process(b"TAPE PLAY A")
+        self.client.radio_state_parse(b"TAPE PLAY A")
         state = self.client.radio_state_dump()
         self.assertEqual(state.tape_side, 1)
-        # process display
-        self.client.radio_state_process(b"TAPE LOAD  ")
+        # parse display
+        self.client.radio_state_parse(b"TAPE LOAD  ")
         state = self.client.radio_state_dump()
         self.assertEqual(state.tape_side, 0)
         self.assertEqual(state.operation_mode,
@@ -936,11 +936,11 @@ class AvrTests(unittest.TestCase):
     def test_radio_state_tape_metal_premium_5(self):
         # set up known values
         self.client.radio_state_reset()
-        self.client.radio_state_process(b"TAPE PLAY A")
+        self.client.radio_state_parse(b"TAPE PLAY A")
         state = self.client.radio_state_dump()
         self.assertEqual(state.tape_side, 1)
-        # process display
-        self.client.radio_state_process(b"TAPE METAL ")
+        # parse display
+        self.client.radio_state_parse(b"TAPE METAL ")
         state = self.client.radio_state_dump()
         self.assertEqual(state.tape_side, 1)
         self.assertEqual(state.operation_mode,
@@ -950,7 +950,7 @@ class AvrTests(unittest.TestCase):
 
     def test_radio_state_tape_play_a(self):
         self.client.radio_state_reset()
-        self.client.radio_state_process(b"TAPE PLAY A")
+        self.client.radio_state_parse(b"TAPE PLAY A")
         state = self.client.radio_state_dump()
         self.assertEqual(state.tape_side, 1)
         self.assertEqual(state.operation_mode,
@@ -960,7 +960,7 @@ class AvrTests(unittest.TestCase):
 
     def test_radio_state_tape_play_b(self):
         self.client.radio_state_reset()
-        self.client.radio_state_process(b"TAPE PLAY B")
+        self.client.radio_state_parse(b"TAPE PLAY B")
         state = self.client.radio_state_dump()
         self.assertEqual(state.tape_side, 2)
         self.assertEqual(state.operation_mode,
@@ -971,11 +971,11 @@ class AvrTests(unittest.TestCase):
     def test_radio_state_tape_ff(self):
         # set up known values
         self.client.radio_state_reset()
-        self.client.radio_state_process(b"TAPE PLAY A")
+        self.client.radio_state_parse(b"TAPE PLAY A")
         state = self.client.radio_state_dump()
         self.assertEqual(state.tape_side, 1)
-        # process display
-        self.client.radio_state_process(b"TAPE  FF   ")
+        # parse display
+        self.client.radio_state_parse(b"TAPE  FF   ")
         state = self.client.radio_state_dump()
         self.assertEqual(state.tape_side, 1)
         self.assertEqual(state.operation_mode,
@@ -986,11 +986,11 @@ class AvrTests(unittest.TestCase):
     def test_radio_state_tape_mss_ff(self):
         # set up known values
         self.client.radio_state_reset()
-        self.client.radio_state_process(b"TAPE PLAY B")
+        self.client.radio_state_parse(b"TAPE PLAY B")
         state = self.client.radio_state_dump()
         self.assertEqual(state.tape_side, 2)
-        # process display
-        self.client.radio_state_process(b"TAPEMSS FF ")
+        # parse display
+        self.client.radio_state_parse(b"TAPEMSS FF ")
         state = self.client.radio_state_dump()
         self.assertEqual(state.tape_side, 2)
         self.assertEqual(state.operation_mode,
@@ -1001,11 +1001,11 @@ class AvrTests(unittest.TestCase):
     def test_radio_state_tape_rew(self):
         # set up known values
         self.client.radio_state_reset()
-        self.client.radio_state_process(b"TAPE PLAY A")
+        self.client.radio_state_parse(b"TAPE PLAY A")
         state = self.client.radio_state_dump()
         self.assertEqual(state.tape_side, 1)
-        # process display
-        self.client.radio_state_process(b"TAPE  REW  ")
+        # parse display
+        self.client.radio_state_parse(b"TAPE  REW  ")
         state = self.client.radio_state_dump()
         self.assertEqual(state.tape_side, 1)
         self.assertEqual(state.operation_mode,
@@ -1016,11 +1016,11 @@ class AvrTests(unittest.TestCase):
     def test_radio_state_tape_mss_rew(self):
         # set up known values
         self.client.radio_state_reset()
-        self.client.radio_state_process(b"TAPE PLAY B")
+        self.client.radio_state_parse(b"TAPE PLAY B")
         state = self.client.radio_state_dump()
         self.assertEqual(state.tape_side, 2)
-        # process display
-        self.client.radio_state_process(b"TAPEMSS REW")
+        # parse display
+        self.client.radio_state_parse(b"TAPEMSS REW")
         state = self.client.radio_state_dump()
         self.assertEqual(state.tape_side, 2)
         self.assertEqual(state.operation_mode,
@@ -1031,11 +1031,11 @@ class AvrTests(unittest.TestCase):
     def test_radio_state_tape_error(self):
         # set up known values
         self.client.radio_state_reset()
-        self.client.radio_state_process(b"TAPE PLAY A")
+        self.client.radio_state_parse(b"TAPE PLAY A")
         state = self.client.radio_state_dump()
         self.assertEqual(state.tape_side, 1)
-        # process display
-        self.client.radio_state_process(b"TAPE ERROR ")
+        # parse display
+        self.client.radio_state_parse(b"TAPE ERROR ")
         state = self.client.radio_state_dump()
         self.assertEqual(state.tape_side, 0)
         self.assertEqual(state.operation_mode,
@@ -1046,11 +1046,11 @@ class AvrTests(unittest.TestCase):
     def test_radio_state_tape_no_tape(self):
         # set up known values
         self.client.radio_state_reset()
-        self.client.radio_state_process(b"TAPE PLAY A")
+        self.client.radio_state_parse(b"TAPE PLAY A")
         state = self.client.radio_state_dump()
         self.assertEqual(state.tape_side, 1)
-        # process display
-        self.client.radio_state_process(b"    NO TAPE")
+        # parse display
+        self.client.radio_state_parse(b"    NO TAPE")
         state = self.client.radio_state_dump()
         self.assertEqual(state.tape_side, 0)
         self.assertEqual(state.operation_mode,
@@ -1072,7 +1072,7 @@ class AvrTests(unittest.TestCase):
             )
         for display, freq, band, preset in values:
             self.client.radio_state_reset()
-            self.client.radio_state_process(display)
+            self.client.radio_state_parse(display)
             state = self.client.radio_state_dump()
             self.assertEqual(state.tuner_band, band)
             self.assertEqual(state.tuner_freq, freq)
@@ -1085,12 +1085,12 @@ class AvrTests(unittest.TestCase):
     def test_radio_state_tuner_fm_scan_on_fm1_band(self):
         # set up known values
         self.client.radio_state_reset()
-        self.client.radio_state_process(b"FM11 915MHZ")
+        self.client.radio_state_parse(b"FM11 915MHZ")
         state = self.client.radio_state_dump()
         self.assertEqual(state.tuner_band, TunerBands.FM1)
         self.assertEqual(state.tuner_preset, 1)
-        # process display
-        self.client.radio_state_process(b"SCAN 879MHZ")
+        # parse display
+        self.client.radio_state_parse(b"SCAN 879MHZ")
         state = self.client.radio_state_dump()
         self.assertEqual(state.tuner_freq, 879)
         self.assertEqual(state.tuner_preset, 0)
@@ -1103,12 +1103,12 @@ class AvrTests(unittest.TestCase):
     def test_radio_state_tuner_fm_scan_on_fm2_band(self):
         # set up known values
         self.client.radio_state_reset()
-        self.client.radio_state_process(b"FM21 915MHZ")
+        self.client.radio_state_parse(b"FM21 915MHZ")
         state = self.client.radio_state_dump()
         self.assertEqual(state.tuner_band, TunerBands.FM2)
         self.assertEqual(state.tuner_preset, 1)
-        # process display
-        self.client.radio_state_process(b"SCAN 879MHZ")
+        # parse display
+        self.client.radio_state_parse(b"SCAN 879MHZ")
         state = self.client.radio_state_dump()
         self.assertEqual(state.tuner_freq, 879)
         self.assertEqual(state.tuner_preset, 0)
@@ -1123,8 +1123,8 @@ class AvrTests(unittest.TestCase):
         self.client.radio_state_reset()
         state = self.client.radio_state_dump()
         self.assertEqual(state.tuner_band, TunerBands.UNKNOWN)
-        # process display
-        self.client.radio_state_process(b"SCAN 879MHZ")
+        # parse display
+        self.client.radio_state_parse(b"SCAN 879MHZ")
         state = self.client.radio_state_dump()
         self.assertEqual(state.tuner_freq, 879)
         self.assertEqual(state.tuner_preset, 0)
@@ -1144,7 +1144,7 @@ class AvrTests(unittest.TestCase):
             )
         for display, freq, preset in values:
             self.client.radio_state_reset()
-            self.client.radio_state_process(display)
+            self.client.radio_state_parse(display)
             state = self.client.radio_state_dump()
             self.assertEqual(state.tuner_freq, freq)
             self.assertEqual(state.tuner_band, TunerBands.AM)
@@ -1160,7 +1160,7 @@ class AvrTests(unittest.TestCase):
         )
         for display, freq in values:
             self.client.radio_state_reset()
-            self.client.radio_state_process(display)
+            self.client.radio_state_parse(display)
             state = self.client.radio_state_dump()
             self.assertEqual(state.tuner_freq, freq)
             self.assertEqual(state.tuner_band, TunerBands.AM)
@@ -1173,7 +1173,7 @@ class AvrTests(unittest.TestCase):
     def test_radio_state_ignores_blank(self):
         self.client.radio_state_reset()
         # set up known values
-        self.client.radio_state_process(b"FM161079MHZ")
+        self.client.radio_state_parse(b"FM161079MHZ")
         state = self.client.radio_state_dump()
         self.assertEqual(state.operation_mode,
             OperationModes.TUNER_PLAYING)
@@ -1181,7 +1181,7 @@ class AvrTests(unittest.TestCase):
             DisplayModes.SHOWING_OPERATION)
         # blank displays should not change the state
         for display in (b'\x00'*11, b' '*11):
-            self.client.radio_state_process(display)
+            self.client.radio_state_parse(display)
             state = self.client.radio_state_dump()
             self.assertEqual(state.operation_mode,
                 OperationModes.TUNER_PLAYING)

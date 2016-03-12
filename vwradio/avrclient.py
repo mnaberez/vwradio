@@ -17,7 +17,7 @@ CMD_FACEPLATE_UPD_SEND_COMMAND = 0x21
 CMD_FACEPLATE_UPD_CLEAR_DISPLAY = 0x22
 CMD_FACEPLATE_UPD_READ_KEY_DATA = 0x23
 CMD_RADIO_STATE_DUMP = 0x30
-CMD_RADIO_STATE_PROCESS = 0x31
+CMD_RADIO_STATE_PARSE = 0x31
 CMD_RADIO_STATE_RESET = 0x32
 CMD_CONVERT_UPD_KEY_DATA_TO_KEY_CODES = 0x40
 CMD_CONVERT_CODE_TO_UPD_KEY_DATA = 0x41
@@ -97,8 +97,8 @@ class Client(object):
         data = self.command([CMD_RADIO_STATE_DUMP])
         return RadioState(data[1:])
 
-    def radio_state_process(self, display_ram):
-        data = bytearray([CMD_RADIO_STATE_PROCESS]) + bytearray(display_ram)
+    def radio_state_parse(self, display_ram):
+        data = bytearray([CMD_RADIO_STATE_PARSE]) + bytearray(display_ram)
         self.command(data)
 
     def convert_upd_key_data_to_codes(self, key_data):

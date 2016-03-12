@@ -24,7 +24,7 @@ class TestRadio(unittest.TestCase):
         )
         for display, safe_code, safe_tries, mode in values:
             radio = Radio()
-            radio.process(display)
+            radio.parse(display)
             self.assertEqual(radio.safe_code, safe_code)
             self.assertEqual(radio.safe_tries, safe_tries)
             self.assertEqual(radio.operation_mode, mode)
@@ -49,8 +49,8 @@ class TestRadio(unittest.TestCase):
             # set up known values
             radio.operation_mode = OperationModes.TUNER_PLAYING
             radio.display_mode = DisplayModes.SHOWING_OPERATION
-            # process display
-            radio.process(display)
+            # parse display
+            radio.parse(display)
             self.assertEqual(radio.operation_mode,
                 OperationModes.TUNER_PLAYING)
             self.assertEqual(radio.display_mode,
@@ -69,8 +69,8 @@ class TestRadio(unittest.TestCase):
             # set up known values
             radio.operation_mode = OperationModes.TUNER_PLAYING
             radio.display_mode = DisplayModes.SHOWING_OPERATION
-            # process display
-            radio.process(display)
+            # parse display
+            radio.parse(display)
             self.assertEqual(radio.operation_mode,
                 OperationModes.TUNER_PLAYING)
             self.assertEqual(radio.display_mode,
@@ -90,8 +90,8 @@ class TestRadio(unittest.TestCase):
             # set up known values
             radio.operation_mode = OperationModes.TUNER_PLAYING
             radio.display_mode = DisplayModes.SHOWING_OPERATION
-            # process display
-            radio.process(display)
+            # parse display
+            radio.parse(display)
             self.assertEqual(radio.operation_mode,
                 OperationModes.TUNER_PLAYING)
             self.assertEqual(radio.display_mode,
@@ -111,8 +111,8 @@ class TestRadio(unittest.TestCase):
             # set up known values
             radio.operation_mode = OperationModes.TUNER_PLAYING
             radio.display_mode = DisplayModes.SHOWING_OPERATION
-            # process display
-            radio.process(display)
+            # parse display
+            radio.parse(display)
             self.assertEqual(radio.operation_mode,
                 OperationModes.TUNER_PLAYING)
             self.assertEqual(radio.display_mode,
@@ -132,8 +132,8 @@ class TestRadio(unittest.TestCase):
             # set up known values
             radio.operation_mode = OperationModes.TUNER_PLAYING
             radio.display_mode = DisplayModes.SHOWING_OPERATION
-            # process display
-            radio.process(display)
+            # parse display
+            radio.parse(display)
             self.assertEqual(radio.operation_mode,
                 OperationModes.TUNER_PLAYING)
             self.assertEqual(radio.display_mode,
@@ -153,8 +153,8 @@ class TestRadio(unittest.TestCase):
             # set up known values
             radio.operation_mode = OperationModes.TUNER_PLAYING
             radio.display_mode = DisplayModes.SHOWING_OPERATION
-            # process display
-            radio.process(display)
+            # parse display
+            radio.parse(display)
             self.assertEqual(radio.sound_midrange, mid)
             self.assertEqual(radio.operation_mode,
                 OperationModes.TUNER_PLAYING)
@@ -168,7 +168,7 @@ class TestRadio(unittest.TestCase):
         )
         for display, disc, track in values:
             radio = Radio()
-            radio.process(display)
+            radio.parse(display)
             self.assertEqual(radio.cd_disc, disc)
             self.assertEqual(radio.cd_track, track)
             self.assertEqual(radio.operation_mode,
@@ -182,8 +182,8 @@ class TestRadio(unittest.TestCase):
         radio.operation_mode = OperationModes.CD_PLAYING
         radio.cd_disc = 5
         radio.cd_track = 12
-        # process display
-        radio.process("CUE   122  ")
+        # parse display
+        radio.parse("CUE   122  ")
         self.assertEqual(radio.cd_disc, 5)
         self.assertEqual(radio.cd_track, 12)
         self.assertEqual(radio.cd_cue_pos, 122)
@@ -199,8 +199,8 @@ class TestRadio(unittest.TestCase):
         radio.cd_disc = 1
         radio.cd_track = 3
         radio.cd_cue_pos = 99
-        # process display
-        radio.process("CHK MAGAZIN")
+        # parse display
+        radio.parse("CHK MAGAZIN")
         self.assertEqual(radio.cd_disc, 0)
         self.assertEqual(radio.cd_track, 0)
         self.assertEqual(radio.cd_cue_pos, 0)
@@ -216,8 +216,8 @@ class TestRadio(unittest.TestCase):
         radio.cd_disc = 1
         radio.cd_track = 3
         radio.cd_cue_pos = 99
-        # process display
-        radio.process("CD 2 NO CD ") # space in "CD 2"
+        # parse display
+        radio.parse("CD 2 NO CD ") # space in "CD 2"
         self.assertEqual(radio.cd_disc, 2)
         self.assertEqual(radio.cd_track, 0)
         self.assertEqual(radio.cd_cue_pos, 0)
@@ -233,8 +233,8 @@ class TestRadio(unittest.TestCase):
         radio.cd_disc = 5
         radio.cd_track = 3
         radio.cd_cue_pos = 99
-        # process display
-        radio.process("CD1 CD ERR ") # no space in "CD1"
+        # parse display
+        radio.parse("CD1 CD ERR ") # no space in "CD1"
         self.assertEqual(radio.cd_disc, 1)
         self.assertEqual(radio.cd_track, 0)
         self.assertEqual(radio.cd_cue_pos, 0)
@@ -250,8 +250,8 @@ class TestRadio(unittest.TestCase):
         radio.cd_disc = 5
         radio.cd_track = 3
         radio.cd_cue_pos = 99
-        # process display
-        radio.process("    NO DISC")
+        # parse display
+        radio.parse("    NO DISC")
         self.assertEqual(radio.cd_disc, 0)
         self.assertEqual(radio.cd_track, 0)
         self.assertEqual(radio.cd_cue_pos, 0)
@@ -267,8 +267,8 @@ class TestRadio(unittest.TestCase):
         radio.cd_disc = 5
         radio.cd_track = 3
         radio.cd_cue_pos = 99
-        # process display
-        radio.process("NO  CHANGER")
+        # parse display
+        radio.parse("NO  CHANGER")
         self.assertEqual(radio.cd_disc, 0)
         self.assertEqual(radio.cd_track, 0)
         self.assertEqual(radio.cd_cue_pos, 0)
@@ -281,8 +281,8 @@ class TestRadio(unittest.TestCase):
         radio = Radio()
         # set up known values
         radio.tape_side = 1
-        # process display
-        radio.process("TAPE LOAD  ")
+        # parse display
+        radio.parse("TAPE LOAD  ")
         self.assertEqual(radio.tape_side, 0)
         self.assertEqual(radio.operation_mode,
             OperationModes.TAPE_LOAD)
@@ -293,8 +293,8 @@ class TestRadio(unittest.TestCase):
         radio = Radio()
         # set up known values
         radio.tape_side = 1
-        # process display
-        radio.process("TAPE METAL ")
+        # parse display
+        radio.parse("TAPE METAL ")
         self.assertEqual(radio.tape_side, 1)
         self.assertEqual(radio.operation_mode,
             OperationModes.TAPE_METAL)
@@ -303,7 +303,7 @@ class TestRadio(unittest.TestCase):
 
     def test_tape_play_a(self):
         radio = Radio()
-        radio.process("TAPE PLAY A")
+        radio.parse("TAPE PLAY A")
         self.assertEqual(radio.tape_side, 1)
         self.assertEqual(radio.operation_mode,
             OperationModes.TAPE_PLAYING)
@@ -312,7 +312,7 @@ class TestRadio(unittest.TestCase):
 
     def test_tape_play_b(self):
         radio = Radio()
-        radio.process("TAPE PLAY B")
+        radio.parse("TAPE PLAY B")
         self.assertEqual(radio.tape_side, 2)
         self.assertEqual(radio.operation_mode,
             OperationModes.TAPE_PLAYING)
@@ -323,8 +323,8 @@ class TestRadio(unittest.TestCase):
         radio = Radio()
         # set up known values
         radio.tape_side = 1
-        # process display
-        radio.process("TAPE  FF   ")
+        # parse display
+        radio.parse("TAPE  FF   ")
         self.assertEqual(radio.tape_side, 1)
         self.assertEqual(radio.operation_mode,
             OperationModes.TAPE_FF)
@@ -335,8 +335,8 @@ class TestRadio(unittest.TestCase):
         radio = Radio()
         # set up known values
         radio.tape_side = 2
-        # process display
-        radio.process("TAPEMSS FF ")
+        # parse display
+        radio.parse("TAPEMSS FF ")
         self.assertEqual(radio.tape_side, 2)
         self.assertEqual(radio.operation_mode,
             OperationModes.TAPE_MSS_FF)
@@ -347,8 +347,8 @@ class TestRadio(unittest.TestCase):
         radio = Radio()
         # set up known values
         radio.tape_side = 1
-        # process display
-        radio.process("TAPE  REW  ")
+        # parse display
+        radio.parse("TAPE  REW  ")
         self.assertEqual(radio.tape_side, 1)
         self.assertEqual(radio.operation_mode,
             OperationModes.TAPE_REW)
@@ -359,8 +359,8 @@ class TestRadio(unittest.TestCase):
         radio = Radio()
         # set up known values
         radio.tape_side = 2
-        # process display
-        radio.process("TAPEMSS REW")
+        # parse display
+        radio.parse("TAPEMSS REW")
         self.assertEqual(radio.tape_side, 2)
         self.assertEqual(radio.operation_mode,
             OperationModes.TAPE_MSS_REW)
@@ -371,8 +371,8 @@ class TestRadio(unittest.TestCase):
         radio = Radio()
         # set up known values
         radio.tape_side = 1
-        # process display
-        radio.process("TAPE ERROR ")
+        # parse display
+        radio.parse("TAPE ERROR ")
         self.assertEqual(radio.tape_side, 0)
         self.assertEqual(radio.operation_mode,
             OperationModes.TAPE_ERROR)
@@ -383,8 +383,8 @@ class TestRadio(unittest.TestCase):
         radio = Radio()
         # set up known values
         radio.tape_side = 1
-        # process display
-        radio.process("    NO TAPE")
+        # parse display
+        radio.parse("    NO TAPE")
         self.assertEqual(radio.tape_side, 0)
         self.assertEqual(radio.operation_mode,
             OperationModes.TAPE_NO_TAPE)
@@ -405,7 +405,7 @@ class TestRadio(unittest.TestCase):
             )
         for display, freq, band, preset in values:
             radio = Radio()
-            radio.process(display)
+            radio.parse(display)
             self.assertEqual(radio.tuner_band, band)
             self.assertEqual(radio.tuner_freq, freq)
             self.assertEqual(radio.tuner_preset, preset)
@@ -420,8 +420,8 @@ class TestRadio(unittest.TestCase):
         radio.tuner_band = TunerBands.FM1
         radio.tuner_freq = 915
         radio.tuner_preset = 1
-        # process display
-        radio.process("SCAN 879MHZ")
+        # parse display
+        radio.parse("SCAN 879MHZ")
         self.assertEqual(radio.tuner_freq, 879)
         self.assertEqual(radio.tuner_preset, 0)
         self.assertEqual(radio.tuner_band, TunerBands.FM1)
@@ -436,8 +436,8 @@ class TestRadio(unittest.TestCase):
         radio.tuner_band = TunerBands.FM2
         radio.tuner_freq = 915
         radio.tuner_preset = 1
-        # process display
-        radio.process("SCAN1035MHZ")
+        # parse display
+        radio.parse("SCAN1035MHZ")
         self.assertEqual(radio.tuner_freq, 1035)
         self.assertEqual(radio.tuner_preset, 0)
         self.assertEqual(radio.tuner_band, TunerBands.FM2)
@@ -449,7 +449,7 @@ class TestRadio(unittest.TestCase):
     def test_tuner_fm_scan_on_unknown_band_sets_fm1(self):
         radio = Radio()
         self.assertEqual(radio.tuner_band, TunerBands.UNKNOWN)
-        radio.process("SCAN 879MHZ")
+        radio.parse("SCAN 879MHZ")
         self.assertEqual(radio.tuner_freq, 879)
         self.assertEqual(radio.tuner_preset, 0)
         self.assertEqual(radio.tuner_band, TunerBands.FM1)
@@ -468,7 +468,7 @@ class TestRadio(unittest.TestCase):
             )
         for display, freq, preset in values:
             radio = Radio()
-            radio.process(display)
+            radio.parse(display)
             self.assertEqual(radio.tuner_freq, freq)
             self.assertEqual(radio.tuner_preset, preset)
             self.assertEqual(radio.tuner_band, TunerBands.AM)
@@ -485,7 +485,7 @@ class TestRadio(unittest.TestCase):
         for display, freq in values:
             radio = Radio()
             radio.tuner_band = TunerBands.AM
-            radio.process(display)
+            radio.parse(display)
             self.assertEqual(radio.tuner_freq, freq)
             self.assertEqual(radio.tuner_band, TunerBands.AM)
             self.assertEqual(radio.tuner_preset, 0)
@@ -499,8 +499,8 @@ class TestRadio(unittest.TestCase):
         # set up known values
         radio.operation_mode = OperationModes.TUNER_PLAYING
         radio.display_mode = DisplayModes.SHOWING_OPERATION
-        # process display
-        radio.process(" " * 11)
+        # parse display
+        radio.parse(" " * 11)
         self.assertEqual(radio.operation_mode,
             OperationModes.TUNER_PLAYING)
         self.assertEqual(radio.display_mode,

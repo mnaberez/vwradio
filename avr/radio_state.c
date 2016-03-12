@@ -9,17 +9,17 @@
  * Radio State
  *************************************************************************/
 
-static void _process_unknown(radio_state_t *state, uint8_t *ram)
+static void _parse_unknown(radio_state_t *state, uint8_t *ram)
 {
     // unknown displays are ignored
 }
 
-static void _process_sound_volume(radio_state_t *state, uint8_t *ram)
+static void _parse_sound_volume(radio_state_t *state, uint8_t *ram)
 {
     state->display_mode = DISPLAY_MODE_ADJUSTING_VOLUME;
 }
 
-static void _process_sound_bass(radio_state_t *state, uint8_t *ram)
+static void _parse_sound_bass(radio_state_t *state, uint8_t *ram)
 {
     state->display_mode = DISPLAY_MODE_ADJUSTING_BASS;
 
@@ -33,11 +33,11 @@ static void _process_sound_bass(radio_state_t *state, uint8_t *ram)
     }
     else
     {
-        _process_unknown(state, ram);
+        _parse_unknown(state, ram);
     }
 }
 
-static void _process_sound_treble(radio_state_t *state, uint8_t *ram)
+static void _parse_sound_treble(radio_state_t *state, uint8_t *ram)
 {
     state->display_mode = DISPLAY_MODE_ADJUSTING_TREBLE;
 
@@ -51,11 +51,11 @@ static void _process_sound_treble(radio_state_t *state, uint8_t *ram)
     }
     else
     {
-        _process_unknown(state, ram);
+        _parse_unknown(state, ram);
     }
 }
 
-static void _process_midrange(radio_state_t *state, uint8_t *ram)
+static void _parse_midrange(radio_state_t *state, uint8_t *ram)
 {
     state->display_mode = DISPLAY_MODE_ADJUSTING_MIDRANGE;
 
@@ -69,11 +69,11 @@ static void _process_midrange(radio_state_t *state, uint8_t *ram)
     }
     else
     {
-        _process_unknown(state, ram);
+        _parse_unknown(state, ram);
     }
 }
 
-static void _process_sound_balance(radio_state_t *state, uint8_t *ram)
+static void _parse_sound_balance(radio_state_t *state, uint8_t *ram)
 {
     state->display_mode = DISPLAY_MODE_ADJUSTING_BALANCE;
 
@@ -91,11 +91,11 @@ static void _process_sound_balance(radio_state_t *state, uint8_t *ram)
     }
     else
     {
-        _process_unknown(state, ram);
+        _parse_unknown(state, ram);
     }
 }
 
-static void _process_sound_fade(radio_state_t *state, uint8_t *ram)
+static void _parse_sound_fade(radio_state_t *state, uint8_t *ram)
 {
     state->display_mode = DISPLAY_MODE_ADJUSTING_FADE;
 
@@ -113,11 +113,11 @@ static void _process_sound_fade(radio_state_t *state, uint8_t *ram)
     }
     else
     {
-        _process_unknown(state, ram);
+        _parse_unknown(state, ram);
     }
 }
 
-static void _process_tape(radio_state_t *state, uint8_t *ram)
+static void _parse_tape(radio_state_t *state, uint8_t *ram)
 {
     state->display_mode = DISPLAY_MODE_SHOWING_OPERATION;
 
@@ -179,11 +179,11 @@ static void _process_tape(radio_state_t *state, uint8_t *ram)
     }
     else
     {
-        _process_unknown(state, ram);
+        _parse_unknown(state, ram);
     }
 }
 
-static void _process_cd(radio_state_t *state, uint8_t *ram)
+static void _parse_cd(radio_state_t *state, uint8_t *ram)
 {
     state->display_mode = DISPLAY_MODE_SHOWING_OPERATION;
 
@@ -227,7 +227,7 @@ static void _process_cd(radio_state_t *state, uint8_t *ram)
         }
         else
         {
-            _process_unknown(state, ram);
+            _parse_unknown(state, ram);
         }
     }
     else if (memcmp(ram, "CD", 2) == 0) // "CD1" to "CD6"
@@ -242,7 +242,7 @@ static void _process_cd(radio_state_t *state, uint8_t *ram)
         }
         else
         {
-            _process_unknown(state, ram);
+            _parse_unknown(state, ram);
         }
     }
     else if (memcmp(ram, "CUE", 3) == 0)
@@ -252,11 +252,11 @@ static void _process_cd(radio_state_t *state, uint8_t *ram)
     }
     else
     {
-        _process_unknown(state, ram);
+        _parse_unknown(state, ram);
     }
 }
 
-static void _process_tuner_fm(radio_state_t *state, uint8_t *ram)
+static void _parse_tuner_fm(radio_state_t *state, uint8_t *ram)
 {
     state->display_mode = DISPLAY_MODE_SHOWING_OPERATION;
 
@@ -301,11 +301,11 @@ static void _process_tuner_fm(radio_state_t *state, uint8_t *ram)
     }
     else
     {
-        _process_unknown(state, ram);
+        _parse_unknown(state, ram);
     }
 }
 
-static void _process_tuner_am(radio_state_t *state, uint8_t *ram)
+static void _parse_tuner_am(radio_state_t *state, uint8_t *ram)
 {
     state->display_mode = DISPLAY_MODE_SHOWING_OPERATION;
 
@@ -336,7 +336,7 @@ static void _process_tuner_am(radio_state_t *state, uint8_t *ram)
     }
 }
 
-static void _process_safe(radio_state_t *state, uint8_t *ram)
+static void _parse_safe(radio_state_t *state, uint8_t *ram)
 {
     state->display_mode = DISPLAY_MODE_SHOWING_OPERATION;
 
@@ -385,11 +385,11 @@ static void _process_safe(radio_state_t *state, uint8_t *ram)
     }
     else
     {
-        _process_unknown(state, ram);
+        _parse_unknown(state, ram);
     }
 }
 
-void radio_state_process(radio_state_t *state, uint8_t *ram)
+void radio_state_parse(radio_state_t *state, uint8_t *ram)
 {
     if (memcmp(ram, "\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0", 11) == 0)
     {
@@ -402,70 +402,70 @@ void radio_state_process(radio_state_t *state, uint8_t *ram)
     else if ((memcmp(ram+6, "MIN", 3) == 0) ||
              (memcmp(ram+6, "MAX", 3) == 0))
     {
-        _process_sound_volume(state, ram);
+        _parse_sound_volume(state, ram);
     }
     else if (isdigit(ram[0]))
     {
-        _process_safe(state, ram);
+        _parse_safe(state, ram);
     }
     else if ((memcmp(ram+0, "    ", 4) == 0) &&
              (memcmp(ram+9, "  ", 2) == 0))
     {
-        _process_safe(state, ram);
+        _parse_safe(state, ram);
     }
     else if (memcmp(ram, "    NO CODE", 11) == 0)
     {
-        _process_safe(state, ram);
+        _parse_safe(state, ram);
     }
     else if (memcmp(ram, "BAS", 3) == 0)
     {
-        _process_sound_bass(state, ram);
+        _parse_sound_bass(state, ram);
     }
     else if (memcmp(ram, "TRE", 3) == 0)
     {
-        _process_sound_treble(state, ram);
+        _parse_sound_treble(state, ram);
     }
     else if (memcmp(ram, "MID", 3) == 0)
     {
-        _process_midrange(state, ram);
+        _parse_midrange(state, ram);
     }
     else if (memcmp(ram, "BAL", 3) == 0)
     {
-        _process_sound_balance(state, ram);
+        _parse_sound_balance(state, ram);
     }
     else if (memcmp(ram, "FAD", 3) == 0)
     {
-        _process_sound_fade(state, ram);
+        _parse_sound_fade(state, ram);
     }
     else if ((memcmp(ram, "TAP", 3) == 0) ||
              (memcmp(ram, "    NO TAPE", 11) == 0))
     {
-        _process_tape(state, ram);
+        _parse_tape(state, ram);
     }
     else if ((memcmp(ram, "CD", 2) == 0) ||
              (memcmp(ram, "CUE", 3) == 0) ||
              (memcmp(ram, "CHK", 3) == 0))
     {
-        _process_cd(state, ram);
+        _parse_cd(state, ram);
     }
     else if ((memcmp(ram, "NO  CHANGER", 11) == 0) ||
              (memcmp(ram, "    NO DISC", 11) == 0))
     {
-        _process_cd(state, ram);
+        _parse_cd(state, ram);
     }
     else if ((memcmp(ram+8, "MHZ", 3) == 0) ||
              (memcmp(ram+8, "MHz", 3) == 0))
     {
-        _process_tuner_fm(state, ram);
+        _parse_tuner_fm(state, ram);
     }
     else if ((memcmp(ram+8, "KHZ", 3) == 0) ||
              (memcmp(ram+8, "kHz", 3) == 0))
     {
-        _process_tuner_am(state, ram);
+        _parse_tuner_am(state, ram);
     }
     else
     {
-        _process_unknown(state, ram);
+        _parse_unknown(state, ram);
     }
 }
 
@@ -529,7 +529,7 @@ void radio_state_update_from_upd_if_dirty(radio_state_t *radio_state, upd_state_
         }
         display[i] = c;
     }
-    radio_state_process(radio_state, display);
+    radio_state_parse(radio_state, display);
 }
 
 void radio_state_init(radio_state_t *state)
