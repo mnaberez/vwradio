@@ -195,6 +195,36 @@ class AvrTests(unittest.TestCase):
         self.assertEqual(rx_bytes[0], avrclient.NAK)
         self.assertEqual(len(rx_bytes), 1)
 
+    # Load UPD Key Data command
+
+    def emulated_upd_load_key_data_returns_nak_if_too_few_or_too_many_args(self):
+        for bad_args in ([], [1,2,3,4,5]):
+            rx_bytes = self.client.command(
+                data=[avrclient.CMD_EMULATED_UPD_LOAD_KEY_DATA] + bad_args,
+                ignore_nak=True
+                )
+            self.assertEqual(rx_bytes[0], avrclient.NAK)
+            self.assertEqual(len(rx_bytes), 1)
+
+    def emulated_upd_load_key_data_returns_nak_if_key_passthru_is_enabled(self):
+        self.client.set_auto_keypress_passthru(True)
+        rx_bytes = self.client.command(
+            data=[avrclient.CMD_EMULATED_UPD_LOAD_KEY_DATA, 0, 0, 0, 0],
+            ignore_nak=True
+            )
+        self.assertEqual(rx_bytes[0], avrclient.NAK)
+        self.assertEqual(len(rx_bytes), 1)
+        self.client.set_auto_keypress_passthru(False)
+
+    def emulated_upd_load_key_data_returns_ack_if_passhthru_disabled(self):
+        self.client.set_auto_keypress_passthru(False)
+        rx_bytes = self.client.command(
+            data=[avrclient.CMD_EMULATED_UPD_LOAD_KEY_DATA, 0, 0, 0, 0],
+            ignore_nak=True
+            )
+        self.assertEqual(rx_bytes[0], avrclient.ACK)
+        self.assertEqual(len(rx_bytes), 1)
+
     # uPD16432B Emulator
 
     def test_upd_resets_to_known_state(self):

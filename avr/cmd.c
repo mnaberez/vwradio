@@ -209,6 +209,14 @@ static void _cmd_do_emulated_upd_send_command()
  */
 static void _cmd_do_emulated_upd_load_key_data()
 {
+    // can't load key data while keypress passthru is enabled because
+    // the data we'd load would be immediately overwritten by passthru
+    if (auto_keypress_passthru)
+    {
+        _cmd_reply_nak();
+        return;
+    }
+
     if (cmd_buf_index != 5)
     {
         _cmd_reply_nak();
@@ -607,7 +615,8 @@ static void _cmd_do_read_keys()
 
 static void _cmd_do_load_keys()
 {
-    // can't push keys while passthru is enabled
+    // can't load key data while keypress passthru is enabled because
+    // the data we'd load would be immediately overwritten by passthru
     if (auto_keypress_passthru)
     {
         _cmd_reply_nak();
