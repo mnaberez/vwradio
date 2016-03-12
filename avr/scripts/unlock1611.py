@@ -1,8 +1,7 @@
 #!/usr/bin/env python -u
 import time
 from vwradio import avrclient
-from vwradio.faceplates import Keys
-from vwradio.radios import OperationModes
+from vwradio.constants import Keys, OperationModes
 
 client = avrclient.make_client()
 
