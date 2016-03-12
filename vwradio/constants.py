@@ -74,6 +74,12 @@ class Keys(Enum):
     TAPE_SIDE = 40
     STOP_EJECT = 41
     MIX_DOLBY = 42
+    HIDDEN_INITIAL = 50
+    HIDDEN_NO_CODE = 51
+    HIDDEN_VOL_UP = 52
+    HIDDEN_VOL_DOWN = 53
+    HIDDEN_SEEK_UP = 54
+    HIDDEN_SEEK_DOWN = 55
 
 class Pictographs(Enum):
     NONE = 0

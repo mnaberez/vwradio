@@ -222,6 +222,12 @@ class Premium4(Faceplate):
 
     KEYS = {
         # (byte, bit)
+        (3, 7): Keys.HIDDEN_NO_CODE,
+        (3, 6): Keys.HIDDEN_INITIAL,
+        (3, 3): Keys.HIDDEN_VOL_DOWN,
+        (3, 2): Keys.HIDDEN_VOL_UP,
+        (3, 1): Keys.HIDDEN_SEEK_DOWN,
+        (3, 0): Keys.HIDDEN_SEEK_UP,
         (2, 5): Keys.TAPE_SIDE,
         (2, 4): Keys.SEEK_UP,
         (2, 3): Keys.MIX_DOLBY,

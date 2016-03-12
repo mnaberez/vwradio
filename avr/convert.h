@@ -29,6 +29,12 @@
 #define KEY_TAPE_SIDE 40
 #define KEY_STOP_EJECT 41
 #define KEY_MIX_DOLBY 42
+#define KEY_HIDDEN_INITIAL 50
+#define KEY_HIDDEN_NO_CODE 51
+#define KEY_HIDDEN_VOL_UP 52
+#define KEY_HIDDEN_VOL_DOWN 53
+#define KEY_HIDDEN_SEEK_UP 54
+#define KEY_HIDDEN_SEEK_DOWN 55
 
 uint8_t convert_upd_key_data_to_codes(uint8_t *key_data_in, uint8_t *key_codes_out);
 uint8_t convert_code_to_upd_key_data(uint8_t key_code, uint8_t *key_data_out);

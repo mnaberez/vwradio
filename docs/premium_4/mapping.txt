@@ -27,6 +27,12 @@ Keys
 ----
 
 Key         (Byte 0-3)  Bit (0-7)
+"NO CODE"       3           7       Hidden
+"INITIAL"       3           6       Hidden
+Volume Down     3           3       Hidden
+Volume Up       3           2       Hidden
+Seek Down       3           1       Hidden
+Seek Up         3           0       Hidden
 Tape Side       2           5
 Seek Up         2           4
 Mix/Dolby       2           3
@@ -48,6 +54,9 @@ Preset 3        0           3
 Preset 2        0           2
 Preset 1        0           1
 Treb            0           0
+
+The keys marked "Hidden" above keys aren't found on the faceplate
+but the radio supports them.
 
 The POWER and EJECT keys are not readable by the uPD16432B.
 

@@ -33,14 +33,14 @@ static const uint8_t _premium4_key_decode[4][8] PROGMEM = {
         KEY_NONE,         // byte 2, bit 7
     },
     {
-        KEY_NONE,         // byte 3, bit 0
-        KEY_NONE,         // byte 3, bit 1
-        KEY_NONE,         // byte 3, bit 2
-        KEY_NONE,         // byte 3, bit 3
-        KEY_NONE,         // byte 3, bit 4
-        KEY_NONE,         // byte 3, bit 5
-        KEY_NONE,         // byte 3, bit 6
-        KEY_NONE,         // byte 3, bit 7
+        KEY_HIDDEN_SEEK_UP,   // byte 3, bit 0
+        KEY_HIDDEN_SEEK_DOWN, // byte 3, bit 1
+        KEY_HIDDEN_VOL_UP,    // byte 3, bit 2
+        KEY_HIDDEN_VOL_DOWN,  // byte 3, bit 3
+        KEY_NONE,             // byte 3, bit 4
+        KEY_NONE,             // byte 3, bit 5
+        KEY_HIDDEN_INITIAL,   // byte 3, bit 6
+        KEY_HIDDEN_NO_CODE,   // byte 3, bit 7
     }
 };
 
@@ -96,12 +96,12 @@ static const uint8_t _premium4_key_encode[256][4] PROGMEM = {
     {   0,    0,    0,    0}, // 0x2f
     {   0,    0,    0,    0}, // 0x30
     {   0,    0,    0,    0}, // 0x31
-    {   0,    0,    0,    0}, // 0x32
-    {   0,    0,    0,    0}, // 0x33
-    {   0,    0,    0,    0}, // 0x34
-    {   0,    0,    0,    0}, // 0x35
-    {   0,    0,    0,    0}, // 0x36
-    {   0,    0,    0,    0}, // 0x37
+    {0x00, 0x00, 0x00, 0x40}, // 0x32 KEY_HIDDEN_INITIAL
+    {0x00, 0x00, 0x00, 0x80}, // 0x33 KEY_HIDDEN_NO_CODE
+    {0x00, 0x00, 0x00, 0x04}, // 0x34 KEY_HIDDEN_VOL_UP
+    {0x00, 0x00, 0x00, 0x08}, // 0x35 KEY_HIDDEN_VOL_DOWN
+    {0x00, 0x00, 0x00, 0x01}, // 0x35 KEY_HIDDEN_SEEK_UP
+    {0x00, 0x00, 0x00, 0x02}, // 0x35 KEY_HIDDEN_SEEK_DOWN
     {   0,    0,    0,    0}, // 0x38
     {   0,    0,    0,    0}, // 0x39
     {   0,    0,    0,    0}, // 0x3a
