@@ -19,7 +19,7 @@ void upd_init(upd_state_t *state)
     memset(state->chargen_ram, 0, UPD_CHARGEN_RAM_SIZE);
 }
 
-static void _upd_wrap_address(upd_state_t *state)
+static void _wrap_address(upd_state_t *state)
 {
     if (state->address >= state->ram_size)
     {
@@ -27,7 +27,7 @@ static void _upd_wrap_address(upd_state_t *state)
     }
 }
 
-static void _upd_write_data_byte(upd_state_t *state, uint8_t b)
+static void _write_data_byte(upd_state_t *state, uint8_t b)
 {
     switch (state->ram_area)
     {
@@ -63,11 +63,11 @@ static void _upd_write_data_byte(upd_state_t *state, uint8_t b)
     if (state->increment == UPD_INCREMENT_ON)
     {
         state->address++;
-        _upd_wrap_address(state);
+        _wrap_address(state);
     }
 }
 
-static void _upd_process_address_setting_cmd(upd_state_t *state, upd_command_t *cmd)
+static void _process_address_setting_cmd(upd_state_t *state, upd_command_t *cmd)
 {
     uint8_t address;
     address = cmd->data[0] & 0b00011111;
@@ -77,7 +77,7 @@ static void _upd_process_address_setting_cmd(upd_state_t *state, upd_command_t *
         case UPD_RAM_DISPLAY:
         case UPD_RAM_PICTOGRAPH:
             state->address = address;
-            _upd_wrap_address(state);
+            _wrap_address(state);
             break;
 
         case UPD_RAM_CHARGEN:
@@ -98,7 +98,7 @@ static void _upd_process_address_setting_cmd(upd_state_t *state, upd_command_t *
     }
 }
 
-static void _upd_process_data_setting_cmd(upd_state_t *state, upd_command_t *cmd)
+static void _process_data_setting_cmd(upd_state_t *state, upd_command_t *cmd)
 {
     uint8_t mode;
     mode = cmd->data[0] & 0b00000111;
@@ -143,7 +143,7 @@ static void _upd_process_data_setting_cmd(upd_state_t *state, upd_command_t *cmd
             break;
     }
 
-    _upd_wrap_address(state);
+    _wrap_address(state);
 }
 
 void upd_process_command(upd_state_t *state, upd_command_t *cmd)
@@ -160,11 +160,11 @@ void upd_process_command(upd_state_t *state, upd_command_t *cmd)
     switch (cmd_type)
     {
         case 0b01000000:
-            _upd_process_data_setting_cmd(state, cmd);
+            _process_data_setting_cmd(state, cmd);
             break;
 
         case 0b10000000:
-            _upd_process_address_setting_cmd(state, cmd);
+            _process_address_setting_cmd(state, cmd);
             break;
 
         default:
@@ -177,7 +177,7 @@ void upd_process_command(upd_state_t *state, upd_command_t *cmd)
         uint8_t i;
         for (i=1; i<cmd->size; i++)
         {
-            _upd_write_data_byte(state, cmd->data[i]);
+            _write_data_byte(state, cmd->data[i]);
         }
     }
 }

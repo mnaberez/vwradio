@@ -26,7 +26,7 @@ void cmd_init()
 /* Start or restart the command timeout timer.
  * Call this after each byte of the command is received.
  */
-static void _cmd_timer_start()
+static void _start_timer()
 {
     // set timer1 CTC mode (CS11=0, CS10=1 = prescaler 1024)
     TCCR1B = (1 << CS12) | (0 << CS11) | (1 << CS10);
@@ -44,7 +44,7 @@ static void _cmd_timer_start()
 /* Stop the command timeout timer.
  * Call this after the last byte of a command has been received.
  */
-static void _cmd_timer_stop()
+static void _stop_timer()
 {
     // stop timer1
     TCCR1B = 0;
@@ -58,17 +58,17 @@ static void _cmd_timer_stop()
  */
 ISR(TIMER1_COMPA_vect)
 {
-    _cmd_timer_stop();
+    _stop_timer();
     cmd_init();
 }
 
-static void _cmd_reply_ack()
+static void _reply_ack()
 {
     uart_putc(1);   // 1 byte to follow
     uart_putc(ACK);
 }
 
-static void _cmd_reply_nak()
+static void _reply_nak()
 {
     uart_putc(1);   // 1 byte to follow
     uart_putc(NAK);
@@ -81,16 +81,16 @@ static void _cmd_reply_nak()
  * Reset the uPD16432B Emulator to its default state.  This does not
  * affect the UPD key data output bytes (upd_tx_key_data).
  */
-static void _cmd_do_emulated_upd_reset()
+static void _do_emulated_upd_reset()
 {
     if (cmd_buf_index != 1)
     {
-        _cmd_reply_nak();
+        _reply_nak();
         return;
     }
 
     upd_init(&emulated_upd_state);
-    _cmd_reply_ack();
+    _reply_ack();
 }
 
 static uint8_t _dump_upd_state_to_uart(upd_state_t *state)
@@ -145,13 +145,13 @@ static uint8_t _dump_upd_state_to_uart(upd_state_t *state)
  *
  * Dump the current state of the uPD16432B emulator.
  */
-static void _cmd_do_emulated_upd_dump_state()
+static void _do_emulated_upd_dump_state()
 {
     uint8_t success;
     success = _dump_upd_state_to_uart(&emulated_upd_state);
     if (! success)
     {
-        return _cmd_reply_nak();
+        return _reply_nak();
     }
 }
 
@@ -183,19 +183,19 @@ static uint8_t _populate_cmd_from_uart_cmd_buf(upd_command_t *cmd)
  * are the SPI bytes that would be received by the uPD16432B while it
  * is selected with STB high.
  */
-static void _cmd_do_emulated_upd_send_command()
+static void _do_emulated_upd_send_command()
 {
     upd_command_t cmd;
 
     uint8_t success = _populate_cmd_from_uart_cmd_buf(&cmd);
     if (! success)
     {
-        return _cmd_reply_nak();
+        return _reply_nak();
     }
 
     // Process uPD16432B command request as if we received it over SPI
     upd_process_command(&emulated_upd_state, &cmd);
-    return _cmd_reply_ack();
+    return _reply_ack();
 }
 
 /* Command: Load uPD16432B Emulator Key Data
@@ -207,19 +207,19 @@ static void _cmd_do_emulated_upd_send_command()
  * The same bytes will be sent for every key data request until the bytes
  * are changed.  Set {0, 0, 0, 0} to indicate no keys pressed.
  */
-static void _cmd_do_emulated_upd_load_key_data()
+static void _do_emulated_upd_load_key_data()
 {
     // can't load key data while keypress passthru is enabled because
     // the data we'd load would be immediately overwritten by passthru
     if (auto_keypress_passthru)
     {
-        _cmd_reply_nak();
+        _reply_nak();
         return;
     }
 
     if (cmd_buf_index != 5)
     {
-        _cmd_reply_nak();
+        _reply_nak();
         return;
     }
 
@@ -230,30 +230,30 @@ static void _cmd_do_emulated_upd_load_key_data()
         upd_tx_key_data[i] = cmd_buf[i+1];
     }
 
-    _cmd_reply_ack();
+    _reply_ack();
 }
 
 /* Command: Radio State Reset
  * Arguments: none
  * Returns: <ack>
  */
-static void _cmd_do_radio_state_reset()
+static void _do_radio_state_reset()
 {
     if (cmd_buf_index != 1)
     {
-        _cmd_reply_nak();
+        _reply_nak();
         return;
     }
 
     radio_state_init(&radio_state);
-    _cmd_reply_ack();
+    _reply_ack();
 }
 
 /* Command: Radio State Process
  * Arguments: <byte1>
  * Returns: <ack>
  */
-static void _cmd_do_radio_state_parse()
+static void _do_radio_state_parse()
 {
     // -1 is because first byte in cmd_buf is the uart command byte
     uint8_t data_size = cmd_buf_index - 1;
@@ -263,7 +263,7 @@ static void _cmd_do_radio_state_parse()
     if ((data_size < 11) ||
         (data_size > UPD_DISPLAY_RAM_SIZE))
     {
-        _cmd_reply_nak();
+        _reply_nak();
         return;
     }
 
@@ -275,18 +275,18 @@ static void _cmd_do_radio_state_parse()
     memcpy(display_ram, cmd_buf+1, data_size);
 
     radio_state_parse(&radio_state, display_ram);
-    _cmd_reply_ack();
+    _reply_ack();
 }
 
 /* Command: Radio State Dump
  * Arguments: <byte1>
  * Returns: <ack>
  */
-static void _cmd_do_radio_state_dump()
+static void _do_radio_state_dump()
 {
     if (cmd_buf_index != 1)
     {
-        _cmd_reply_nak();
+        _reply_nak();
         return;
     }
 
@@ -325,7 +325,7 @@ static void _cmd_do_radio_state_dump()
  * Echoes the arguments received back to the client.  If no args were
  * received after the command byte, an empty ACK response is returned.
  */
-static void _cmd_do_echo()
+static void _do_echo()
 {
     uart_putc(cmd_buf_index); // number of bytes to follow
     uart_putc(ACK);
@@ -344,11 +344,11 @@ static void _cmd_do_echo()
  * Turns one of the LEDs on or off.  Returns a NAK if the LED
  * number is not recognized.
  */
-static void _cmd_do_set_led()
+static void _do_set_led()
 {
     if (cmd_buf_index != 3)
     {
-        _cmd_reply_nak();
+        _reply_nak();
         return;
     }
 
@@ -366,11 +366,11 @@ static void _cmd_do_set_led()
             break;
 
         default:
-            _cmd_reply_nak();
+            _reply_nak();
             return;
     }
 
-    _cmd_reply_ack();
+    _reply_ack();
 }
 
 /* Command: Set Run Mode
@@ -381,23 +381,23 @@ static void _cmd_do_set_led()
  * mainly used for testing.  When stopped, commands from the radio are ignored
  * and the faceplate is not updated.
  */
-static void _cmd_do_set_run_mode()
+static void _do_set_run_mode()
 {
     if (cmd_buf_index != 2)
     {
-        _cmd_reply_nak();
+        _reply_nak();
         return;
     }
 
     uint8_t mode = cmd_buf[1];
     if ((mode != RUN_MODE_RUNNING) && (mode != RUN_MODE_STOPPED))
     {
-        _cmd_reply_nak();
+        _reply_nak();
         return;
     }
 
     run_mode = mode;
-    _cmd_reply_ack();
+    _reply_ack();
 }
 
 /* Command: Set passthru of emulated uPD display to the real faceplate
@@ -408,18 +408,18 @@ static void _cmd_do_set_run_mode()
  * from the radio.  Set to 1 to enable passthru, or set to 0 to disable
  * passthru so the faceplate display can be taken over.
  */
-static void _cmd_do_set_auto_display_passthru()
+static void _do_set_auto_display_passthru()
 {
     if (cmd_buf_index != 2)
     {
-        _cmd_reply_nak();
+        _reply_nak();
         return;
     }
 
     uint8_t onoff = cmd_buf[1];
     if ((onoff != 0) && (onoff != 1))
     {
-        _cmd_reply_nak();
+        _reply_nak();
         return;
     }
     auto_display_passthru = onoff;
@@ -435,7 +435,7 @@ static void _cmd_do_set_auto_display_passthru()
             UPD_DIRTY_CHARGEN;
     }
 
-    _cmd_reply_ack();
+    _reply_ack();
 }
 
 /* Command: Set passthru of keys on the real faceplate to the emulated uPD
@@ -446,23 +446,23 @@ static void _cmd_do_set_auto_display_passthru()
  * to the radio.  Set to 1 to enable passthru, or set to 0 to disable
  * passthru so the faceplate keys can be taken over.
  */
-static void _cmd_do_set_auto_keypress_passthru()
+static void _do_set_auto_keypress_passthru()
 {
     if (cmd_buf_index != 2)
     {
-        _cmd_reply_nak();
+        _reply_nak();
         return;
     }
 
     uint8_t onoff = cmd_buf[1];
     if ((onoff != 0) && (onoff != 1))
     {
-        _cmd_reply_nak();
+        _reply_nak();
         return;
     }
     auto_keypress_passthru = onoff;
 
-    _cmd_reply_ack();
+    _reply_ack();
 }
 
 /* Command: Dump the real faceplate's uPD16432B state
@@ -471,13 +471,13 @@ static void _cmd_do_set_auto_keypress_passthru()
  *
  * Dump the current state of the real uPD16432B on the faceplate.
  */
-static void _cmd_do_faceplate_upd_dump_state()
+static void _do_faceplate_upd_dump_state()
 {
     uint8_t success;
     success = _dump_upd_state_to_uart(&faceplate_upd_state);
     if (! success)
     {
-        return _cmd_reply_nak();
+        return _reply_nak();
     }
 }
 
@@ -487,7 +487,7 @@ static void _cmd_do_faceplate_upd_dump_state()
  *
  * Send an SPI command to the faceplate's uPD16432B.
  */
-static void _cmd_do_faceplate_upd_send_command()
+static void _do_faceplate_upd_send_command()
 {
     upd_command_t cmd;
 
@@ -495,11 +495,11 @@ static void _cmd_do_faceplate_upd_send_command()
     success = _populate_cmd_from_uart_cmd_buf(&cmd);
     if (! success)
     {
-        return _cmd_reply_nak();
+        return _reply_nak();
     }
 
     faceplate_send_upd_command(&cmd);
-    return _cmd_reply_ack();
+    return _reply_ack();
 }
 
 /* Command: Clear the faceplate's display
@@ -508,16 +508,16 @@ static void _cmd_do_faceplate_upd_send_command()
  *
  * Sends SPI commands to initialize the faceplate and clear it.
  */
-static void _cmd_do_faceplate_upd_clear_display()
+static void _do_faceplate_upd_clear_display()
 {
     if (cmd_buf_index != 1)
     {
-        _cmd_reply_nak();
+        _reply_nak();
         return;
     }
 
     faceplate_clear_display();
-    return _cmd_reply_ack();
+    return _reply_ack();
 }
 
 /* Command: Read the faceplate's raw key data
@@ -526,11 +526,11 @@ static void _cmd_do_faceplate_upd_clear_display()
  *
  * Reads the key data from the faceplate and returns the 4 raw key data bytes.
  */
- static void _cmd_do_faceplate_upd_read_key_data()
+ static void _do_faceplate_upd_read_key_data()
  {
      if (cmd_buf_index != 1)
      {
-         _cmd_reply_nak();
+         _reply_nak();
          return;
      }
 
@@ -547,12 +547,12 @@ static void _cmd_do_faceplate_upd_clear_display()
 
 /* TODO document me
  */
-static void _cmd_do_convert_upd_key_data_to_key_codes()
+static void _do_convert_upd_key_data_to_key_codes()
 {
     // command byte + 4 key data bytes
     if (cmd_buf_index != 5)
     {
-        _cmd_reply_nak();
+        _reply_nak();
         return;
     }
 
@@ -569,11 +569,11 @@ static void _cmd_do_convert_upd_key_data_to_key_codes()
 
 /* TODO document me
  */
-static void _cmd_do_convert_code_to_upd_key_data()
+static void _do_convert_code_to_upd_key_data()
 {
     if (cmd_buf_index != 2)
     {
-        _cmd_reply_nak();
+        _reply_nak();
         return;
     }
 
@@ -582,7 +582,7 @@ static void _cmd_do_convert_code_to_upd_key_data()
     uint8_t success = convert_code_to_upd_key_data(key_code, key_data);
     if (! success) // key code not found
     {
-        _cmd_reply_nak();
+        _reply_nak();
         return;
     }
 
@@ -596,7 +596,7 @@ static void _cmd_do_convert_code_to_upd_key_data()
 
 /* TODO document me
  */
-static void _cmd_do_read_keys()
+static void _do_read_keys()
 {
     // Read keys from the faceplate
     uint8_t key_data[4] = {0, 0, 0, 0};
@@ -613,13 +613,13 @@ static void _cmd_do_read_keys()
     uart_putc(key_codes[1]);
 }
 
-static void _cmd_do_load_keys()
+static void _do_load_keys()
 {
     // can't load key data while keypress passthru is enabled because
     // the data we'd load would be immediately overwritten by passthru
     if (auto_keypress_passthru)
     {
-        _cmd_reply_nak();
+        _reply_nak();
         return;
     }
 
@@ -632,7 +632,7 @@ static void _cmd_do_load_keys()
         uint8_t success = convert_code_to_upd_key_data(cmd_buf[i], one_key_data);
         if (! success) // bad key code
         {
-            _cmd_reply_nak();
+            _reply_nak();
             return;
         }
 
@@ -649,7 +649,7 @@ static void _cmd_do_load_keys()
         upd_tx_key_data[i] = key_data[i];
     }
 
-    _cmd_reply_ack();
+    _reply_ack();
 }
 
 /* Dispatch a command.  A complete command packet has been received.  The
@@ -661,73 +661,73 @@ static void _cmd_dispatch()
     switch (cmd_buf[0])
     {
         case CMD_SET_LED:
-            _cmd_do_set_led();
+            _do_set_led();
             break;
         case CMD_ECHO:
-            _cmd_do_echo();
+            _do_echo();
             break;
 
         case CMD_SET_RUN_MODE:
-            _cmd_do_set_run_mode();
+            _do_set_run_mode();
             break;
         case CMD_SET_AUTO_DISPLAY_PASSTHRU:
-            _cmd_do_set_auto_display_passthru();
+            _do_set_auto_display_passthru();
             break;
         case CMD_SET_AUTO_KEYPRESS_PASSTHRU:
-            _cmd_do_set_auto_keypress_passthru();
+            _do_set_auto_keypress_passthru();
             break;
 
         case CMD_RADIO_STATE_DUMP:
-            _cmd_do_radio_state_dump();
+            _do_radio_state_dump();
             break;
         case CMD_RADIO_STATE_PARSE:
-            _cmd_do_radio_state_parse();
+            _do_radio_state_parse();
             break;
         case CMD_RADIO_STATE_RESET:
-            _cmd_do_radio_state_reset();
+            _do_radio_state_reset();
             break;
 
         case CMD_EMULATED_UPD_DUMP_STATE:
-            _cmd_do_emulated_upd_dump_state();
+            _do_emulated_upd_dump_state();
             break;
         case CMD_EMULATED_UPD_SEND_COMMAND:
-            _cmd_do_emulated_upd_send_command();
+            _do_emulated_upd_send_command();
             break;
         case CMD_EMULATED_UPD_RESET:
-            _cmd_do_emulated_upd_reset();
+            _do_emulated_upd_reset();
             break;
         case CMD_EMULATED_UPD_LOAD_KEY_DATA:
-            _cmd_do_emulated_upd_load_key_data();
+            _do_emulated_upd_load_key_data();
             break;
 
         case CMD_FACEPLATE_UPD_DUMP_STATE:
-            _cmd_do_faceplate_upd_dump_state();
+            _do_faceplate_upd_dump_state();
             break;
         case CMD_FACEPLATE_UPD_SEND_COMMAND:
-            _cmd_do_faceplate_upd_send_command();
+            _do_faceplate_upd_send_command();
             break;
         case CMD_FACEPLATE_UPD_CLEAR_DISPLAY:
-            _cmd_do_faceplate_upd_clear_display();
+            _do_faceplate_upd_clear_display();
             break;
         case CMD_FACEPLATE_UPD_READ_KEY_DATA:
-            _cmd_do_faceplate_upd_read_key_data();
+            _do_faceplate_upd_read_key_data();
             break;
 
         case CMD_CONVERT_UPD_KEY_DATA_TO_KEY_CODES:
-            _cmd_do_convert_upd_key_data_to_key_codes();
+            _do_convert_upd_key_data_to_key_codes();
             break;
         case CMD_CONVERT_CODE_TO_UPD_KEY_DATA:
-            _cmd_do_convert_code_to_upd_key_data();
+            _do_convert_code_to_upd_key_data();
             break;
         case CMD_READ_KEYS:
-            _cmd_do_read_keys();
+            _do_read_keys();
             break;
         case CMD_LOAD_KEYS:
-            _cmd_do_load_keys();
+            _do_load_keys();
             break;
 
         default:
-            _cmd_reply_nak();
+            _reply_nak();
     }
 }
 
@@ -755,24 +755,24 @@ void cmd_receive_byte(uint8_t c)
     {
         if (c == 0) // invalid, command length must be 1 byte or longer
         {
-            _cmd_reply_nak();
+            _reply_nak();
             cmd_init();
         }
         else
         {
             cmd_expected_length = c;
-            _cmd_timer_start();
+            _start_timer();
         }
     }
     // receive command byte(s)
     else
     {
         cmd_buf[cmd_buf_index++] = c;
-        _cmd_timer_start();
+        _start_timer();
 
         if (cmd_buf_index == cmd_expected_length)
         {
-            _cmd_timer_stop();
+            _stop_timer();
             _cmd_dispatch();
             cmd_init();
         }
