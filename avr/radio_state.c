@@ -369,7 +369,12 @@ static void _radio_state_process_safe(radio_state_t *state, uint8_t *ram)
         state->safe_tries = 0;
     }
 
-    if (memcmp(ram+5, "SAFE", 4) == 0)
+    if (memcmp(ram, "    NO CODE", 11) == 0)
+    {
+      state->operation_mode = OPERATION_MODE_SAFE_NO_CODE;
+      state->safe_code = 0;
+    }
+    else if (memcmp(ram+5, "SAFE", 4) == 0)
     {
         state->operation_mode = OPERATION_MODE_SAFE_LOCKED;
         state->safe_code = 1000;
@@ -425,6 +430,10 @@ void radio_state_process(radio_state_t *state, uint8_t *ram)
     }
     else if ((memcmp(ram+0, "    ", 4) == 0) &&
              (memcmp(ram+9, "  ", 2) == 0))
+    {
+        _radio_state_process_safe(state, ram);
+    }
+    else if (memcmp(ram, "    NO CODE", 11) == 0)
     {
         _radio_state_process_safe(state, ram);
     }

@@ -12,6 +12,7 @@ class OperationModes(Enum):
     UNKNOWN = 0
     SAFE_ENTRY = 10
     SAFE_LOCKED = 11
+    SAFE_NO_CODE = 12
     TUNER_PLAYING = 20
     TUNER_SCANNING = 21
     CD_PLAYING = 30

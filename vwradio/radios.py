@@ -28,6 +28,8 @@ class Radio(object):
             self._process_safe(text)
         elif text[0:4] == "    " and text[9:11] == "  ":
             self._process_safe(text)
+        elif text == "    NO CODE":
+            self._process_safe(text)
         elif text[0:3] == "BAS":
             self._process_bass(text)
         elif text[0:3] == "TRE":
@@ -59,7 +61,10 @@ class Radio(object):
         else:
             self.safe_tries = 0
 
-        if text[5:9] == "SAFE":
+        if text == "    NO CODE":
+            self.operation_mode = OperationModes.SAFE_NO_CODE
+            self.safe_code = 0
+        elif text[5:9] == "SAFE":
             self.operation_mode = OperationModes.SAFE_LOCKED
             self.safe_code = 1000
         elif str.isdigit(text[4]) and str.isdigit(text[4:8]): # Premium 5

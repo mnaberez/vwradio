@@ -595,6 +595,7 @@ class AvrTests(unittest.TestCase):
             (b"1    1234  ", 1234, 1, OperationModes.SAFE_ENTRY),
             (b"2    5678  ", 5678, 2, OperationModes.SAFE_ENTRY),
             (b"9    9999  ", 9999, 9, OperationModes.SAFE_ENTRY),
+            (b"    NO CODE",    0, 0, OperationModes.SAFE_NO_CODE),
             # Premium 5
             (b"    0000   ",    0, 0, OperationModes.SAFE_ENTRY),
             (b"1   1234   ", 1234, 1, OperationModes.SAFE_ENTRY),
