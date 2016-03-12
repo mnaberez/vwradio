@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import struct
+import time
 import serial # pyserial
 
 CMD_SET_LED = 0x01
@@ -121,6 +122,13 @@ class Client(object):
     def load_keys(self, key_codes):
         data = bytearray([CMD_LOAD_KEYS]) + bytearray(key_codes)
         self.command(data)
+
+    # XXX this should be implemented on the avr
+    def hit_key(self, key, secs=0.15):
+        self.load_keys([key]) # hit key
+        time.sleep(secs)
+        self.load_keys([]) # release all keys
+        time.sleep(secs)
 
     # Low level
 
