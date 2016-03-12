@@ -31,15 +31,15 @@ class Radio(object):
         elif text == "    NO CODE":
             self._process_safe(text)
         elif text[0:3] == "BAS":
-            self._process_bass(text)
+            self._process_sound_bass(text)
         elif text[0:3] == "TRE":
-            self._process_treble(text)
+            self._process_sound_treble(text)
         elif text[0:3] == "MID":
-            self._process_midrange(text)
+            self._process_sound_midrange(text)
         elif text[0:3] == "BAL":
-            self._process_balance(text)
+            self._process_sound_balance(text)
         elif text[0:3] == "FAD":
-            self._process_fade(text)
+            self._process_sound_fade(text)
         elif text[0:3] == "TAP" or text == "    NO TAPE":
             self._process_tape(text)
         elif text[0:2] == "CD" or text[0:3] in ("CUE", "CHK"):
@@ -202,7 +202,7 @@ class Radio(object):
     def _process_volume(self, text):
         self.display_mode = DisplayModes.ADJUSTING_VOLUME
 
-    def _process_balance(self, text):
+    def _process_sound_balance(self, text):
         self.display_mode = DisplayModes.ADJUSTING_BALANCE
         if text[4] == "C":
             self.sound_balance = 0  # Center
@@ -213,7 +213,7 @@ class Radio(object):
         else:
             self._process_unknown(text)
 
-    def _process_fade(self, text):
+    def _process_sound_fade(self, text):
         self.display_mode = DisplayModes.ADJUSTING_FADE
         if text[4] == "C":
             self.sound_fade = 0  # Center
@@ -224,7 +224,7 @@ class Radio(object):
         else:
             self._process_unknown(text)
 
-    def _process_bass(self, text):
+    def _process_sound_bass(self, text):
         self.display_mode = DisplayModes.ADJUSTING_BASS
         if str.isdigit(text[8]):
             self.sound_bass = int(text[8])
@@ -233,7 +233,7 @@ class Radio(object):
         else:
             self._process_unknown(text)
 
-    def _process_treble(self, text):
+    def _process_sound_treble(self, text):
         self.display_mode = DisplayModes.ADJUSTING_TREBLE
         if str.isdigit(text[8]):
             self.sound_treble = int(text[8])
@@ -242,7 +242,7 @@ class Radio(object):
         else:
             self._process_unknown(text)
 
-    def _process_midrange(self, text):
+    def _process_sound_midrange(self, text):
         self.display_mode = DisplayModes.ADJUSTING_MIDRANGE
         if str.isdigit(text[8]):
             self.sound_midrange = int(text[8])
