@@ -211,7 +211,7 @@ static void _do_emulated_upd_load_key_data()
 {
     // can't load key data while keypress passthru is enabled because
     // the data we'd load would be immediately overwritten by passthru
-    if (auto_keypress_passthru)
+    if (auto_key_passthru)
     {
         _reply_nak();
         return;
@@ -449,7 +449,7 @@ static void _do_set_auto_display_passthru()
  * to the radio.  Set to 1 to enable passthru, or set to 0 to disable
  * passthru so the faceplate keys can be taken over.
  */
-static void _do_set_auto_keypress_passthru()
+static void _do_set_auto_key_passthru()
 {
     if (cmd_buf_index != 2)
     {
@@ -463,7 +463,7 @@ static void _do_set_auto_keypress_passthru()
         _reply_nak();
         return;
     }
-    auto_keypress_passthru = onoff;
+    auto_key_passthru = onoff;
 
     _reply_ack();
 }
@@ -620,7 +620,7 @@ static void _do_load_keys()
 {
     // can't load key data while keypress passthru is enabled because
     // the data we'd load would be immediately overwritten by passthru
-    if (auto_keypress_passthru)
+    if (auto_key_passthru)
     {
         _reply_nak();
         return;
@@ -676,8 +676,8 @@ static void _cmd_dispatch()
         case CMD_SET_AUTO_DISPLAY_PASSTHRU:
             _do_set_auto_display_passthru();
             break;
-        case CMD_SET_AUTO_KEYPRESS_PASSTHRU:
-            _do_set_auto_keypress_passthru();
+        case CMD_SET_AUTO_KEY_PASSTHRU:
+            _do_set_auto_key_passthru();
             break;
 
         case CMD_RADIO_STATE_DUMP:

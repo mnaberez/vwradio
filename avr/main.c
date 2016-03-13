@@ -49,7 +49,7 @@ int main()
 {
     run_mode = RUN_MODE_RUNNING;
     auto_display_passthru = 1;
-    auto_keypress_passthru = 1;
+    auto_key_passthru = 1;
 
     led_init();
     uart_init();
@@ -77,7 +77,7 @@ int main()
             continue;
         }
 
-        if (auto_keypress_passthru)
+        if (auto_key_passthru)
         {
             // read keys from faceplate and send to radio
             faceplate_read_key_data(upd_tx_key_data);

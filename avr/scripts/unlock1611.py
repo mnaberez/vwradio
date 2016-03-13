@@ -6,7 +6,7 @@ from vwradio.constants import Keys, OperationModes
 client = avrclient.make_client()
 
 if __name__ == '__main__':
-    client.set_auto_keypress_passthru(False)
+    client.set_auto_key_passthru(False)
     code_to_enter = 1611
     code_entry_keys = (Keys.PRESET_1, Keys.PRESET_2,
                        Keys.PRESET_3, Keys.PRESET_4)
@@ -36,4 +36,4 @@ if __name__ == '__main__':
 
     print("Radio is unlocked")
     client.hit_key(Keys.SCAN)
-    client.set_auto_keypress_passthru(True)
+    client.set_auto_key_passthru(True)

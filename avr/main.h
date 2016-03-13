@@ -21,7 +21,7 @@ volatile uint8_t auto_display_passthru;
 // mirrored to the emulated uPD16432B.  In other words, the radio will see
 // whenever a key is pressed on the real faceplate.
 // Set this to false to take over the faceplate keys.
-volatile uint8_t auto_keypress_passthru;
+volatile uint8_t auto_key_passthru;
 
 // key data bytes that will be transmitted if the radio sends
 // a read key data command

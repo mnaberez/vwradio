@@ -100,14 +100,14 @@ class AvrTests(unittest.TestCase):
 
     # Pass Faceplate Keys to Emulated uPD command
 
-    def test_auto_keypress_passthru_nak_bad_args_length(self):
+    def test_auto_key_passthru_nak_bad_args_length(self):
         for args in ([], [0, 0]):
-            cmd = avrclient.CMD_SET_AUTO_KEYPRESS_PASSTHRU
+            cmd = avrclient.CMD_SET_AUTO_KEY_PASSTHRU
             rx_bytes = self.client.command(data=[cmd] + args, ignore_nak=True)
             self.assertEqual(rx_bytes, bytearray([avrclient.NAK]))
 
-    def test_auto_keypress_passthru_nak_bad_arg_value(self):
-        cmd = avrclient.CMD_SET_AUTO_KEYPRESS_PASSTHRU
+    def test_auto_key_passthru_nak_bad_arg_value(self):
+        cmd = avrclient.CMD_SET_AUTO_KEY_PASSTHRU
         rx_bytes = self.client.command(data=[cmd, 0xFF], ignore_nak=True)
         self.assertEqual(rx_bytes, bytearray([avrclient.NAK]))
 
@@ -207,17 +207,17 @@ class AvrTests(unittest.TestCase):
             self.assertEqual(len(rx_bytes), 1)
 
     def emulated_upd_load_key_data_returns_nak_if_key_passthru_is_enabled(self):
-        self.client.set_auto_keypress_passthru(True)
+        self.client.set_auto_key_passthru(True)
         rx_bytes = self.client.command(
             data=[avrclient.CMD_EMULATED_UPD_LOAD_KEY_DATA, 0, 0, 0, 0],
             ignore_nak=True
             )
         self.assertEqual(rx_bytes[0], avrclient.NAK)
         self.assertEqual(len(rx_bytes), 1)
-        self.client.set_auto_keypress_passthru(False)
+        self.client.set_auto_key_passthru(False)
 
     def emulated_upd_load_key_data_returns_ack_if_passhthru_disabled(self):
-        self.client.set_auto_keypress_passthru(False)
+        self.client.set_auto_key_passthru(False)
         rx_bytes = self.client.command(
             data=[avrclient.CMD_EMULATED_UPD_LOAD_KEY_DATA, 0, 0, 0, 0],
             ignore_nak=True

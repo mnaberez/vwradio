@@ -134,7 +134,7 @@ def main():
     faceplate = faceplates.Premium4()
     try:
         client.set_auto_display_passthru(False)
-        client.set_auto_keypress_passthru(False)
+        client.set_auto_key_passthru(False)
         controller = Controller(client, faceplate)
         controller.clear()
         demo = Demonstrator(controller)
@@ -147,7 +147,7 @@ def main():
         time.sleep(0.1)
     finally:
         client.set_auto_display_passthru(True)
-        client.set_auto_keypress_passthru(True)
+        client.set_auto_key_passthru(True)
 
 
 if __name__ == '__main__':
