@@ -192,38 +192,42 @@ static void _parse_cd(radio_state_t *state, uint8_t *ram)
         state->operation_mode = OPERATION_MODE_CD_CHECK_MAGAZINE;
         state->cd_disc = 0;
         state->cd_track = 0;
-        state->cd_cue_pos = 0;
+        state->cd_track_pos = 0;
     }
     else if (memcmp(ram, "NO  CHANGER", 11) == 0)
     {
         state->operation_mode = OPERATION_MODE_CD_NO_CHANGER;
         state->cd_disc = 0;
         state->cd_track = 0;
-        state->cd_cue_pos = 0;
+        state->cd_track_pos = 0;
     }
     else if (memcmp(ram, "    NO DISC", 11) == 0)
     {
         state->operation_mode = OPERATION_MODE_CD_NO_DISC;
         state->cd_disc = 0;
         state->cd_track = 0;
-        state->cd_cue_pos = 0;
+        state->cd_track_pos = 0;
     }
     else if (memcmp(ram, "CD ", 3) == 0) // "CD 1" to "CD 6"
     {
         state->cd_disc = ram[3] & 0x0F;
-        state->cd_cue_pos = 0;
+        state->cd_track_pos = 0;
 
-        if (memcmp(ram+5, "NO CD", 5) == 0)
+        if (memcmp(ram+5, "NO CD", 5) == 0) // "CD 1 NO CD "
         {
             state->operation_mode = OPERATION_MODE_CD_CDX_NO_CD;
             state->cd_track = 0;
         }
-        else if (memcmp(ram+5, "TR", 2) == 0)
+        else if (memcmp(ram+5, "TR", 2) == 0) // "CD 1 TR 03 "
         {
             state->operation_mode = OPERATION_MODE_CD_PLAYING;
             state->cd_track = 0;
             state->cd_track += (ram[8] & 0x0F) * 10;
             state->cd_track += (ram[9] & 0x0F) * 1;
+        }
+        else if (isdigit(ram[8])) // "CD 1  047  "
+        {
+            state->operation_mode = OPERATION_MODE_CD_PLAYING;
         }
         else
         {
@@ -233,9 +237,9 @@ static void _parse_cd(radio_state_t *state, uint8_t *ram)
     else if (memcmp(ram, "CD", 2) == 0) // "CD1" to "CD6"
     {
         state->cd_disc = ram[2] & 0x0F;
-        state->cd_cue_pos = 0;
+        state->cd_track_pos = 0;
 
-        if (memcmp(ram+4, "CD ERR", 6) == 0)
+        if (memcmp(ram+4, "CD ERR", 6) == 0) // # "CD1 CD ERR "
         {
             state->operation_mode = OPERATION_MODE_CD_CDX_CD_ERR;
             state->cd_track = 0;
@@ -245,10 +249,15 @@ static void _parse_cd(radio_state_t *state, uint8_t *ram)
             _parse_unknown(state, ram);
         }
     }
-    else if (memcmp(ram, "CUE", 3) == 0)
+    else if (memcmp(ram, "CUE", 3) == 0) // "CUE   034  "
     {
-        state->operation_mode = OPERATION_MODE_CD_CUEING;
-        // TODO  self.cd_cue_pos = int(text[4:9].strip())
+        state->operation_mode = OPERATION_MODE_CD_CUE;
+        // TODO  self.cd_track_pos = int(text[4:9].strip())
+    }
+    else if (memcmp(ram, "REV", 3) == 0) // "REV   209  "
+    {
+        state->operation_mode = OPERATION_MODE_CD_REV;
+        // TODO  self.cd_track_pos = int(text[4:9].strip())
     }
     else
     {
@@ -497,8 +506,9 @@ void radio_state_parse(radio_state_t *state, uint8_t *ram)
         _parse_tape(state, ram);
     }
     else if ((memcmp(ram, "CD", 2) == 0) ||
+             (memcmp(ram, "CHK", 3) == 0) ||
              (memcmp(ram, "CUE", 3) == 0) ||
-             (memcmp(ram, "CHK", 3) == 0))
+             (memcmp(ram, "REV", 3) == 0))
     {
         _parse_cd(state, ram);
     }
@@ -602,7 +612,7 @@ void radio_state_init(radio_state_t *state)
     state->tuner_preset = 0;
     state->cd_disc = 0;
     state->cd_track = 0;
-    state->cd_cue_pos = 0;
+    state->cd_track_pos = 0;
     state->tape_side = 0;
     state->option_on_vol = 0;
     state->option_cd_mix = 1;

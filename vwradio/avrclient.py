@@ -218,7 +218,7 @@ class RadioState(object):
         self.tape_side = data[10]
         self.cd_disc = data[11]
         self.cd_track = data[12]
-        self.cd_cue_pos = (data[13] + (data[14] << 8))
+        self.cd_track_pos = (data[13] + (data[14] << 8))
         self.tuner_freq = (data[15] + (data[16] << 8))
         self.tuner_preset = data[17]
         self.tuner_band = data[18]

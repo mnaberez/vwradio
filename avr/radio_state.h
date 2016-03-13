@@ -10,12 +10,13 @@
 #define OPERATION_MODE_TUNER_PLAYING 20
 #define OPERATION_MODE_TUNER_SCANNING 21
 #define OPERATION_MODE_CD_PLAYING 30
-#define OPERATION_MODE_CD_CUEING 31
-#define OPERATION_MODE_CD_NO_DISC 32
-#define OPERATION_MODE_CD_NO_CHANGER 33
-#define OPERATION_MODE_CD_CHECK_MAGAZINE 34
-#define OPERATION_MODE_CD_CDX_NO_CD 35
-#define OPERATION_MODE_CD_CDX_CD_ERR 36
+#define OPERATION_MODE_CD_CUE 31
+#define OPERATION_MODE_CD_REV 32
+#define OPERATION_MODE_CD_NO_DISC 33
+#define OPERATION_MODE_CD_NO_CHANGER 34
+#define OPERATION_MODE_CD_CHECK_MAGAZINE 35
+#define OPERATION_MODE_CD_CDX_NO_CD 36
+#define OPERATION_MODE_CD_CDX_CD_ERR 37
 #define OPERATION_MODE_TAPE_PLAYING 40
 #define OPERATION_MODE_TAPE_LOAD 41
 #define OPERATION_MODE_TAPE_METAL 42
@@ -59,7 +60,7 @@ typedef struct
     uint8_t tape_side; // 0=none, 1=side a, 2=side b
     uint8_t cd_disc;
     uint8_t cd_track;
-    uint16_t cd_cue_pos;
+    uint16_t cd_track_pos;
     uint16_t tuner_freq;
     uint8_t tuner_preset;
     uint8_t tuner_band;

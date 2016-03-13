@@ -246,7 +246,7 @@ class TestRadio(unittest.TestCase):
             self.assertEqual(radio.display_mode,
                 DisplayModes.SHOWING_OPERATION)
 
-    def test_cd_cueing(self):
+    def test_cd_cue(self):
         radio = Radio()
         # set up known values
         radio.operation_mode = OperationModes.CD_PLAYING
@@ -256,9 +256,41 @@ class TestRadio(unittest.TestCase):
         radio.parse("CUE   122  ")
         self.assertEqual(radio.cd_disc, 5)
         self.assertEqual(radio.cd_track, 12)
-        self.assertEqual(radio.cd_cue_pos, 122)
+        self.assertEqual(radio.cd_track_pos, 122)
         self.assertEqual(radio.operation_mode,
-            OperationModes.CD_CUEING)
+            OperationModes.CD_CUE)
+        self.assertEqual(radio.display_mode,
+            DisplayModes.SHOWING_OPERATION)
+
+    def test_cd_rev(self):
+        radio = Radio()
+        # set up known values
+        radio.operation_mode = OperationModes.CD_PLAYING
+        radio.cd_disc = 5
+        radio.cd_track = 12
+        # parse display
+        radio.parse("REV   419  ")
+        self.assertEqual(radio.cd_disc, 5)
+        self.assertEqual(radio.cd_track, 12)
+        self.assertEqual(radio.cd_track_pos, 419)
+        self.assertEqual(radio.operation_mode,
+            OperationModes.CD_REV)
+        self.assertEqual(radio.display_mode,
+            DisplayModes.SHOWING_OPERATION)
+
+    def test_cd_track_pos_after_cue_or_rev(self):
+        radio = Radio()
+        # set up known values
+        radio.operation_mode = OperationModes.CD_CUE
+        radio.cd_disc = 5
+        radio.cd_track = 12
+        # parse display
+        radio.parse("CD 2  051  ")
+        self.assertEqual(radio.cd_disc, 2)
+        self.assertEqual(radio.cd_track, 12)
+        self.assertEqual(radio.cd_track_pos, 51)
+        self.assertEqual(radio.operation_mode,
+            OperationModes.CD_PLAYING)
         self.assertEqual(radio.display_mode,
             DisplayModes.SHOWING_OPERATION)
 
@@ -268,12 +300,12 @@ class TestRadio(unittest.TestCase):
         radio.operation_mode = OperationModes.CD_PLAYING
         radio.cd_disc = 1
         radio.cd_track = 3
-        radio.cd_cue_pos = 99
+        radio.cd_track_pos = 99
         # parse display
         radio.parse("CHK MAGAZIN")
         self.assertEqual(radio.cd_disc, 0)
         self.assertEqual(radio.cd_track, 0)
-        self.assertEqual(radio.cd_cue_pos, 0)
+        self.assertEqual(radio.cd_track_pos, 0)
         self.assertEqual(radio.operation_mode,
             OperationModes.CD_CHECK_MAGAZINE)
         self.assertEqual(radio.display_mode,
@@ -285,12 +317,12 @@ class TestRadio(unittest.TestCase):
         radio.operation_mode = OperationModes.CD_PLAYING
         radio.cd_disc = 1
         radio.cd_track = 3
-        radio.cd_cue_pos = 99
+        radio.cd_track_pos = 99
         # parse display
         radio.parse("CD 2 NO CD ") # space in "CD 2"
         self.assertEqual(radio.cd_disc, 2)
         self.assertEqual(radio.cd_track, 0)
-        self.assertEqual(radio.cd_cue_pos, 0)
+        self.assertEqual(radio.cd_track_pos, 0)
         self.assertEqual(radio.operation_mode,
             OperationModes.CD_CDX_NO_CD)
         self.assertEqual(radio.display_mode,
@@ -302,12 +334,12 @@ class TestRadio(unittest.TestCase):
         radio.operation_mode = OperationModes.CD_PLAYING
         radio.cd_disc = 5
         radio.cd_track = 3
-        radio.cd_cue_pos = 99
+        radio.cd_track_pos = 99
         # parse display
         radio.parse("CD1 CD ERR ") # no space in "CD1"
         self.assertEqual(radio.cd_disc, 1)
         self.assertEqual(radio.cd_track, 0)
-        self.assertEqual(radio.cd_cue_pos, 0)
+        self.assertEqual(radio.cd_track_pos, 0)
         self.assertEqual(radio.operation_mode,
             OperationModes.CD_CDX_CD_ERR)
         self.assertEqual(radio.display_mode,
@@ -319,12 +351,12 @@ class TestRadio(unittest.TestCase):
         radio.operation_mode = OperationModes.CD_PLAYING
         radio.cd_disc = 5
         radio.cd_track = 3
-        radio.cd_cue_pos = 99
+        radio.cd_track_pos = 99
         # parse display
         radio.parse("    NO DISC")
         self.assertEqual(radio.cd_disc, 0)
         self.assertEqual(radio.cd_track, 0)
-        self.assertEqual(radio.cd_cue_pos, 0)
+        self.assertEqual(radio.cd_track_pos, 0)
         self.assertEqual(radio.operation_mode,
             OperationModes.CD_NO_DISC)
         self.assertEqual(radio.display_mode,
@@ -336,12 +368,12 @@ class TestRadio(unittest.TestCase):
         radio.operation_mode = OperationModes.CD_PLAYING
         radio.cd_disc = 5
         radio.cd_track = 3
-        radio.cd_cue_pos = 99
+        radio.cd_track_pos = 99
         # parse display
         radio.parse("NO  CHANGER")
         self.assertEqual(radio.cd_disc, 0)
         self.assertEqual(radio.cd_track, 0)
-        self.assertEqual(radio.cd_cue_pos, 0)
+        self.assertEqual(radio.cd_track_pos, 0)
         self.assertEqual(radio.operation_mode,
             OperationModes.CD_NO_CHANGER)
         self.assertEqual(radio.display_mode,

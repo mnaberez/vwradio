@@ -305,8 +305,8 @@ static void _do_radio_state_dump()
     uart_putc(radio_state.tape_side);
     uart_putc(radio_state.cd_disc);
     uart_putc(radio_state.cd_track);
-    uart_putc(radio_state.cd_cue_pos & 0x00FF);
-    uart_putc((radio_state.cd_cue_pos & 0xFF00) >> 8);
+    uart_putc(radio_state.cd_track_pos & 0x00FF);
+    uart_putc((radio_state.cd_track_pos & 0xFF00) >> 8);
     uart_putc(radio_state.tuner_freq & 0x00FF);
     uart_putc((radio_state.tuner_freq & 0xFF00) >> 8);
     uart_putc(radio_state.tuner_preset);

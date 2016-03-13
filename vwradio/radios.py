@@ -16,7 +16,7 @@ class Radio(object):
         self.tuner_preset = 0 # 0=none, am/fm1/fm2 preset 1-6
         self.cd_disc = 0 # 0=none, disc 1-6
         self.cd_track = 0 # 0=none, track 1-99
-        self.cd_cue_pos = 0 # 0 or other integer as seen on lcd
+        self.cd_track_pos = 0 # 0 or other integer as seen on lcd
         self.tape_side = 0 # 0=none, 1=side a, 2=side b
         self.option_on_vol = 0 # 13-63 on Premium 4
         self.option_cd_mix = 1 # 1 or 6
@@ -49,7 +49,7 @@ class Radio(object):
             self._parse_set(text)
         elif text[0:3] == "TAP" or text == "    NO TAPE":
             self._parse_tape(text)
-        elif text[0:2] == "CD" or text[0:3] in ("CUE", "CHK"):
+        elif text[0:2] == "CD" or text[0:3] in ("CHK", "CUE", "REV"):
             self._parse_cd(text)
         elif text in ("NO  CHANGER", "    NO DISC"):
             self._parse_cd(text)
@@ -161,39 +161,45 @@ class Radio(object):
             self.operation_mode = OperationModes.CD_CHECK_MAGAZINE
             self.cd_disc = 0
             self.cd_track = 0
-            self.cd_cue_pos = 0
+            self.cd_track_pos = 0
         elif text == "NO  CHANGER":
             self.operation_mode = OperationModes.CD_NO_CHANGER
             self.cd_disc = 0
             self.cd_track = 0
-            self.cd_cue_pos = 0
+            self.cd_track_pos = 0
         elif text == "    NO DISC":
             self.operation_mode = OperationModes.CD_NO_DISC
             self.cd_disc = 0
             self.cd_track = 0
-            self.cd_cue_pos = 0
+            self.cd_track_pos = 0
         elif text[0:3] == "CD ": # "CD 1" to "CD 6"
             self.cd_disc = int(text[3])
-            self.cd_cue_pos = 0
-            if text[5:10] == "NO CD":
+            self.cd_track_pos = 0
+            if text[5:10] == "NO CD": # "CD 1 NO CD "
                 self.operation_mode = OperationModes.CD_CDX_NO_CD
                 self.cd_track = 0
-            elif text[5:7] == "TR":
+            elif text[5:7] == "TR": # "CD 1 TR 03 "
                 self.operation_mode = OperationModes.CD_PLAYING
                 self.cd_track = int(text[8:10])
+            elif str.isdigit(text[8]): # "CD 1  047  "
+                self.operation_mode = OperationModes.CD_PLAYING
+                self.cd_track_pos = int(text[4:9].strip())
             else:
                 self._parse_unknown(text)
         elif text[0:2] == "CD": # "CD1" to "CD6"
             self.cd_disc = int(text[2])
-            self.cd_cue_pos = 0
-            if text[4:10] == "CD ERR":
+            self.cd_track_pos = 0
+            if text[4:10] == "CD ERR": # "CD1 CD ERR "
                 self.operation_mode = OperationModes.CD_CDX_CD_ERR
                 self.cd_track = 0
             else:
                 self._parse_unknown(text)
-        elif text[0:3] == "CUE":
-            self.operation_mode = OperationModes.CD_CUEING
-            self.cd_cue_pos = int(text[4:9].strip())
+        elif text[0:3] == "CUE": # "CUE   034  "
+            self.operation_mode = OperationModes.CD_CUE
+            self.cd_track_pos = int(text[4:9].strip())
+        elif text[0:3] == "REV": # "REV   209  "
+            self.operation_mode = OperationModes.CD_REV
+            self.cd_track_pos = int(text[4:9].strip())
         else:
             self._parse_unknown(text)
 
