@@ -123,7 +123,7 @@ void faceplate_clear_display()
     cmd.size = 1 + UPD_PICTOGRAPH_RAM_SIZE;
     faceplate_send_upd_command(&cmd);
 
-    // Data Setting command: write to display data ram
+    // Data Setting command: write to display ram
     cmd.data[0] = 0x40;
     cmd.size = 1;
     faceplate_send_upd_command(&cmd);
@@ -141,7 +141,7 @@ static void _write_ram(
 {
     upd_command_t cmd;
 
-    // send data setting command: write to display data ram
+    // send data setting command: write to display ram
     cmd.data[0] = data_setting_cmd;
     cmd.size = 1;
     faceplate_send_upd_command(&cmd);
@@ -167,7 +167,7 @@ void faceplate_update_from_upd_if_dirty(upd_state_t *state)
     if (state->dirty_flags & UPD_DIRTY_DISPLAY)
     {
         _write_ram(
-            0x40, // data setting command: display data ram
+            0x40, // data setting command: display ram
             0,    // address
             sizeof(state->display_ram),
             state->display_ram

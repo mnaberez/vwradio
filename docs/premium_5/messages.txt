@@ -1,56 +1,56 @@
 SAFE mode
   TODO "NO CODE"?
-  Decoded Display Data RAM: '    1000   '
-  Decoded Display Data RAM: '1    SAFE  ' (note extra space before SAFE)
-  Decoded Display Data RAM: '1   1000   '
+  Decoded Display RAM: '    1000   '
+  Decoded Display RAM: '1    SAFE  ' (note extra space before SAFE)
+  Decoded Display RAM: '1   1000   '
 
 Radio AM
-  Decoded Display Data RAM: 'AM  1000kHz'
-  Decoded Display Data RAM: 'AM <cgram:0x02> 570kHz'
-  Decoded Display Data RAM: 'AM <cgram:0x07>1440kHz'
-  Decoded Display Data RAM: 'SCAN 530kHz'
-  Decoded Display Data RAM: 'SCAN1710kHz'
+  Decoded Display RAM: 'AM  1000kHz'
+  Decoded Display RAM: 'AM <cgram:0x02> 570kHz'
+  Decoded Display RAM: 'AM <cgram:0x07>1440kHz'
+  Decoded Display RAM: 'SCAN 530kHz'
+  Decoded Display RAM: 'SCAN1710kHz'
 
 Radio FM1/2
-  Decoded Display Data RAM: 'FM<cgram:0x00><cgram:0x02>1003MHz'
-  Decoded Display Data RAM: 'FM<cgram:0x00><cgram:0x03>1011MHz'
-  Decoded Display Data RAM: 'FM<cgram:0x00><cgram:0x04>1035MHz'
-  Decoded Display Data RAM: 'FM<cgram:0x00><cgram:0x05>1043MHz'
-  Decoded Display Data RAM: 'FM<cgram:0x00><cgram:0x06>1051MHz'
-  Decoded Display Data RAM: 'FM<cgram:0x00><cgram:0x07> 931MHz'
-  Decoded Display Data RAM: 'FM<cgram:0x01><cgram:0x02> 925MHz'
-  Decoded Display Data RAM: 'SCAN 881MHz'
-  Decoded Display Data RAM: 'SCAN1079MHz'
+  Decoded Display RAM: 'FM<cgram:0x00><cgram:0x02>1003MHz'
+  Decoded Display RAM: 'FM<cgram:0x00><cgram:0x03>1011MHz'
+  Decoded Display RAM: 'FM<cgram:0x00><cgram:0x04>1035MHz'
+  Decoded Display RAM: 'FM<cgram:0x00><cgram:0x05>1043MHz'
+  Decoded Display RAM: 'FM<cgram:0x00><cgram:0x06>1051MHz'
+  Decoded Display RAM: 'FM<cgram:0x00><cgram:0x07> 931MHz'
+  Decoded Display RAM: 'FM<cgram:0x01><cgram:0x02> 925MHz'
+  Decoded Display RAM: 'SCAN 881MHz'
+  Decoded Display RAM: 'SCAN1079MHz'
 
 CD
-  Decoded Display Data RAM: 'NO  CHANGER'
+  Decoded Display RAM: 'NO  CHANGER'
 
 Tape
-  Decoded Display Data RAM: '    NO TAPE'
-  Decoded Display Data RAM: 'TAPE LOAD  '
-  Decoded Display Data RAM: 'TAPE METAL '
-  Decoded Display Data RAM: 'TAPE PLAY A'
-  Decoded Display Data RAM: 'TAPE PLAY B'
+  Decoded Display RAM: '    NO TAPE'
+  Decoded Display RAM: 'TAPE LOAD  '
+  Decoded Display RAM: 'TAPE METAL '
+  Decoded Display RAM: 'TAPE PLAY A'
+  Decoded Display RAM: 'TAPE PLAY B'
 
 Balance
   TODO
 
 Bass
-  Decoded Display Data RAM: 'BASS  + 8  '
+  Decoded Display RAM: 'BASS  + 8  '
 
 Treble
-  Decoded Display Data RAM: 'TREB  + 6  '
-  Decoded Display Data RAM: 'TREB  - 5  '
+  Decoded Display RAM: 'TREB  + 6  '
+  Decoded Display RAM: 'TREB  - 5  '
 
 Fade
-  Decoded Display Data RAM: 'FADEREAR  2'
+  Decoded Display RAM: 'FADEREAR  2'
 
 Mid
-  Decoded Display Data RAM: 'MID   + 4  '
+  Decoded Display RAM: 'MID   + 4  '
 
 Volume
-  Decoded Display Data RAM: 'FM<cgram:0x00>   MAX  '
-  Decoded Display Data RAM: 'FM<cgram:0x00>   MIN  '
+  Decoded Display RAM: 'FM<cgram:0x00>   MAX  '
+  Decoded Display RAM: 'FM<cgram:0x00>   MIN  '
 
 Setting Options
   TODO

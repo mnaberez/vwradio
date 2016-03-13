@@ -243,7 +243,7 @@ class AvrTests(unittest.TestCase):
     def test_upd_data_setting_sets_display_ram_area_increment_off(self):
         self.client.emulated_upd_reset()
         cmd  = 0b01000000 # data setting command
-        cmd |= 0b00000000 # display data ram
+        cmd |= 0b00000000 # display ram
         cmd |= 0b00001000 # increment off
         self.client.emulated_upd_send_command([cmd])
         state = self.client.emulated_upd_dump_state()
@@ -254,7 +254,7 @@ class AvrTests(unittest.TestCase):
     def test_upd_data_setting_sets_display_ram_area_increment_on(self):
         self.client.emulated_upd_reset()
         cmd  = 0b01000000 # data setting command
-        cmd |= 0b00000000 # display data ram
+        cmd |= 0b00000000 # display ram
         cmd |= 0b00000000 # increment on
         self.client.emulated_upd_send_command([cmd])
         state = self.client.emulated_upd_dump_state()
@@ -377,11 +377,11 @@ class AvrTests(unittest.TestCase):
         self.client.emulated_upd_reset()
         # data setting command
         cmd  = 0b01000000 # data setting command
-        cmd |= 0b00000000 # display data ram
+        cmd |= 0b00000000 # display ram
         cmd |= 0b00000000 # increment on
         self.client.emulated_upd_send_command([cmd])
         # address setting command
-        # followed by a unique byte for all 25 bytes of display data ram
+        # followed by a unique byte for all 25 bytes of display ram
         cmd = 0b10000000
         cmd |= 0 # address 0
         data = bytearray(range(1, 26))
@@ -396,7 +396,7 @@ class AvrTests(unittest.TestCase):
         self.client.emulated_upd_reset()
         # data setting command
         cmd  = 0b01000000 # data setting command
-        cmd |= 0b00000000 # display data ram
+        cmd |= 0b00000000 # display ram
         cmd |= 0b00001000 # increment off
         self.client.emulated_upd_send_command([cmd])
         # address setting command
@@ -420,7 +420,7 @@ class AvrTests(unittest.TestCase):
         self.assertEqual(state.display_ram[0], 0)
         # send data setting command
         cmd  = 0b01000000 # data setting command
-        cmd |= 0b00000000 # display data ram
+        cmd |= 0b00000000 # display ram
         cmd |= 0b00001000 # increment off
         self.client.emulated_upd_send_command([cmd])
         # send address setting command followed by same value
@@ -438,7 +438,7 @@ class AvrTests(unittest.TestCase):
         self.assertEqual(state.display_ram[0], 0)
         # send data setting command
         cmd  = 0b01000000 # data setting command
-        cmd |= 0b00000000 # display data ram
+        cmd |= 0b00000000 # display ram
         cmd |= 0b00001000 # increment off
         self.client.emulated_upd_send_command([cmd])
         # send address setting command followed by same value
@@ -529,7 +529,7 @@ class AvrTests(unittest.TestCase):
 
     # Faceplate
 
-    def test_faceplate_clear_display_returns_nak_for_bad_args_length(self):
+    def test_faceplate_upd_clear_display_returns_nak_for_bad_args_length(self):
         rx_bytes = self.client.command(
             data=[avrclient.CMD_FACEPLATE_UPD_CLEAR_DISPLAY, 1], ignore_nak=True)
         self.assertEqual(rx_bytes, bytearray([avrclient.NAK]))
@@ -554,7 +554,7 @@ class AvrTests(unittest.TestCase):
         self.assertEqual(len(rx_bytes), 1)
 
     def test_faceplate_upd_send_command(self):
-        # Data Setting command: write to display data ram
+        # Data Setting command: write to display ram
         data = [0x40]
         self.client.faceplate_upd_send_command(data) # shouldn't raise
         # Address Setting command + display data

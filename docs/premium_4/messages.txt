@@ -1,82 +1,82 @@
 SAFE mode
-  Decoded Display Data RAM: '    NO CODE'
-  Decoded Display Data RAM: '     1000  '
-  Decoded Display Data RAM: '     SAFE  '
-  Decoded Display Data RAM: '1    1000  '
-  Decoded Display Data RAM: '1    SAFE  '
-  Decoded Display Data RAM: '2    1000  '
-  Decoded Display Data RAM: '2    SAFE  '
+  Decoded Display RAM: '    NO CODE'
+  Decoded Display RAM: '     1000  '
+  Decoded Display RAM: '     SAFE  '
+  Decoded Display RAM: '1    1000  '
+  Decoded Display RAM: '1    SAFE  '
+  Decoded Display RAM: '2    1000  '
+  Decoded Display RAM: '2    SAFE  '
 
 Radio AM
-  Decoded Display Data RAM: 'AM 1 670KHZ'
-  Decoded Display Data RAM: 'AM 3 530KHZ'
-  Decoded Display Data RAM: 'SCAN 530KHZ'
-  Decoded Display Data RAM: 'SCAN1710KHZ'
+  Decoded Display RAM: 'AM 1 670KHZ'
+  Decoded Display RAM: 'AM 3 530KHZ'
+  Decoded Display RAM: 'SCAN 530KHZ'
+  Decoded Display RAM: 'SCAN1710KHZ'
 
 Radio FM1
-  Decoded Display Data RAM: 'FM1  887MHZ'
-  Decoded Display Data RAM: 'FM11 915MHZ'
-  Decoded Display Data RAM: 'SCAN 879MHZ'
-  Decoded Display Data RAM: 'SCAN1079MHZ'
+  Decoded Display RAM: 'FM1  887MHZ'
+  Decoded Display RAM: 'FM11 915MHZ'
+  Decoded Display RAM: 'SCAN 879MHZ'
+  Decoded Display RAM: 'SCAN1079MHZ'
 
 Radio FM2
-  Decoded Display Data RAM: 'FM211041MHZ'
-  Decoded Display Data RAM: 'FM22 881MHZ'
-  Decoded Display Data RAM: 'FM23 981MHZ'
-  Decoded Display Data RAM: 'FM241041MHZ'
-  Decoded Display Data RAM: 'FM251079MHZ'
-  Decoded Display Data RAM: 'FM261079MHZ'
+  Decoded Display RAM: 'FM211041MHZ'
+  Decoded Display RAM: 'FM22 881MHZ'
+  Decoded Display RAM: 'FM23 981MHZ'
+  Decoded Display RAM: 'FM241041MHZ'
+  Decoded Display RAM: 'FM251079MHZ'
+  Decoded Display RAM: 'FM261079MHZ'
 
 CD
-  Decoded Display Data RAM: 'CD 1 TR 01 '
-  Decoded Display Data RAM: 'CD 2 NO CD '
-  Decoded Display Data RAM: 'CD1 CD ERR ' (no space in "CD1"!)
-  Decoded Display Data RAM: 'CUE   122  '
-  Decoded Display Data RAM: 'CHK MAGAZIN'
-  Decoded Display Data RAM: 'NO  CHANGER'
-  Decoded Display Data RAM: '    NO DISC'
+  Decoded Display RAM: 'CD 1 TR 01 '
+  Decoded Display RAM: 'CD 2 NO CD '
+  Decoded Display RAM: 'CD1 CD ERR ' (no space in "CD1"!)
+  Decoded Display RAM: 'CUE   122  '
+  Decoded Display RAM: 'CHK MAGAZIN'
+  Decoded Display RAM: 'NO  CHANGER'
+  Decoded Display RAM: '    NO DISC'
 
 Tape
-  Decoded Display Data RAM: 'TAPE PLAY A'
-  Decoded Display Data RAM: 'TAPE PLAY B'
-  Decoded Display Data RAM: 'TAPEMSS FF '
-  Decoded Display Data RAM: 'TAPEMSS REW'
-  Decoded Display Data RAM: 'TAPE ERROR '
-  Decoded Display Data RAM: '    NO TAPE'
-  Decoded Display Data RAM: 'TAPE  FF   '
-  Decoded Display Data RAM: 'TAPE  REW  '
+  Decoded Display RAM: 'TAPE PLAY A'
+  Decoded Display RAM: 'TAPE PLAY B'
+  Decoded Display RAM: 'TAPEMSS FF '
+  Decoded Display RAM: 'TAPEMSS REW'
+  Decoded Display RAM: 'TAPE ERROR '
+  Decoded Display RAM: '    NO TAPE'
+  Decoded Display RAM: 'TAPE  FF   '
+  Decoded Display RAM: 'TAPE  REW  '
   TODO tape metal
 
 Balance
-  Decoded Display Data RAM: 'BAL CENTER '
-  Decoded Display Data RAM: 'BAL LEFT  7'
-  Decoded Display Data RAM: 'BAL RIGHT 3'
+  Decoded Display RAM: 'BAL CENTER '
+  Decoded Display RAM: 'BAL LEFT  7'
+  Decoded Display RAM: 'BAL RIGHT 3'
 
 Bass
-  Decoded Display Data RAM: 'BASS  - 9  '
-  Decoded Display Data RAM: 'BASS    0  '
-  Decoded Display Data RAM: 'BASS  + 9  '
+  Decoded Display RAM: 'BASS  - 9  '
+  Decoded Display RAM: 'BASS    0  '
+  Decoded Display RAM: 'BASS  + 9  '
 
 Treble
-  Decoded Display Data RAM: 'TREB  + 7  '
-  Decoded Display Data RAM: 'TREB  - 4  '
+  Decoded Display RAM: 'TREB  + 7  '
+  Decoded Display RAM: 'TREB  - 4  '
 
 Fade
-  Decoded Display Data RAM: 'FADEFRONT 9'
-  Decoded Display Data RAM: 'FADECENTER '
-  Decoded Display Data RAM: 'FADEREAR  5'
+  Decoded Display RAM: 'FADEFRONT 9'
+  Decoded Display RAM: 'FADECENTER '
+  Decoded Display RAM: 'FADEREAR  5'
 
 Volume
-  Decoded Display Data RAM: 'FM1   MAX  '
-  Decoded Display Data RAM: 'FM1   MIN  '
+  Decoded Display RAM: 'FM1   MAX  '
+  Decoded Display RAM: 'FM1   MIN  '
 
 Setting Options
-  Decoded Display Data RAM: 'SET ONVOL13'
-  Decoded Display Data RAM: 'SET ONVOL63'
-  Decoded Display Data RAM: 'SET CD MIX1'
-  Decoded Display Data RAM: 'SET CD MIX6'
-  Decoded Display Data RAM: 'TAPE SKIP N'
-  Decoded Display Data RAM: 'TAPE SKIP Y'
+  Decoded Display RAM: 'SET ONVOL13'
+  Decoded Display RAM: 'SET ONVOL63'
+  Decoded Display RAM: 'SET CD MIX1'
+  Decoded Display RAM: 'SET CD MIX6'
+  Decoded Display RAM: 'TAPE SKIP N'
+  Decoded Display RAM: 'TAPE SKIP Y'
 
 Initializing
-  Decoded Display Data RAM: '    INITIAL'
+  Decoded Display RAM: '    INITIAL'
