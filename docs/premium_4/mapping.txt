@@ -55,8 +55,8 @@ Preset 2        0           2
 Preset 1        0           1
 Treb            0           0
 
-The keys marked "Hidden" above keys aren't found on the faceplate
-but the radio supports them.
+The keys marked "Hidden" above aren't on the faceplate
+but the radio responds to them.
 
 The POWER and EJECT keys are not readable by the uPD16432B.
 
@@ -73,9 +73,12 @@ Metal           7          3
 Dolby           6          5
 Mix             6          0
 Period          3          6
-Mode: AM/FM     2          3        Set by radio but not visible on LCD
-Mode: CD        1          0        Set by radio but not visible on LCD
-Mode: Tape      1          5        Set by radio but not visible on LCD
+Mode: AM/FM     2          3        Hidden
+Mode: CD        1          0        Hidden
+Mode: Tape      1          5        Hidden
+
+The pictographs marked "Hidden" above aren't on the LCD
+but the radio sends them.
 
 
 Dot Matrix Characters
