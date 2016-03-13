@@ -45,7 +45,7 @@ Tape
   Decoded Display RAM: '    NO TAPE'
   Decoded Display RAM: 'TAPE  FF   '
   Decoded Display RAM: 'TAPE  REW  '
-  TODO tape metal
+  Decoded Display RAM: 'TAPE METAL '
 
 Balance
   Decoded Display RAM: 'BAL CENTER '

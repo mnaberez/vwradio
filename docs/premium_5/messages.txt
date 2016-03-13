@@ -31,6 +31,7 @@ Tape
   Decoded Display RAM: 'TAPE METAL '
   Decoded Display RAM: 'TAPE PLAY A'
   Decoded Display RAM: 'TAPE PLAY B'
+  TODO MSS
 
 Balance
   TODO
@@ -45,7 +46,7 @@ Treble
 Fade
   Decoded Display RAM: 'FADEREAR  2'
 
-Mid
+Midrange
   Decoded Display RAM: 'MID   + 4  '
 
 Volume
