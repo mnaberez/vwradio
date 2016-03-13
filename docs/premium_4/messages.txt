@@ -77,3 +77,6 @@ Setting Options
   Decoded Display Data RAM: 'SET CD MIX6'
   Decoded Display Data RAM: 'TAPE SKIP N'
   Decoded Display Data RAM: 'TAPE SKIP Y'
+
+Initializing
+  Decoded Display Data RAM: '    INITIAL'

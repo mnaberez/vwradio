@@ -31,6 +31,7 @@ class OperationModes(Enum):
     TAPE_MSS_REW = 46
     TAPE_NO_TAPE = 47
     TAPE_ERROR = 48
+    INITIALIZING = 50
 
 class DisplayModes(Enum):
     UNKNOWN = 0

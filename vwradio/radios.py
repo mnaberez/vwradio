@@ -33,6 +33,8 @@ class Radio(object):
             self._parse_safe(text)
         elif text == "    NO CODE":
             self._parse_safe(text)
+        elif text == "    INITIAL":
+            self._parse_initial(text)
         elif text[0:3] == "BAS":
             self._parse_sound_bass(text)
         elif text[0:3] == "TRE":
@@ -78,6 +80,13 @@ class Radio(object):
         elif str.isdigit(text[5]) and str.isdigit(text[5:9]): # Premium 4
             self.operation_mode = OperationModes.SAFE_ENTRY
             self.safe_code = int(text[5:9])
+        else:
+            self._parse_unknown(text)
+
+    def _parse_initial(self, text):
+        if text == "    INITIAL":
+            self.display_mode = DisplayModes.SHOWING_OPERATION
+            self.operation_mode = OperationModes.INITIALIZING
         else:
             self._parse_unknown(text)
 

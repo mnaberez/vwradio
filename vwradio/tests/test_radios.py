@@ -31,6 +31,18 @@ class TestRadio(unittest.TestCase):
             self.assertEqual(radio.display_mode,
                 DisplayModes.SHOWING_OPERATION)
 
+    def test_initial(self):
+        radio = Radio()
+        # set up known values
+        radio.operation_mode = OperationModes.TUNER_PLAYING
+        radio.display_mode = DisplayModes.ADJUSTING_SOUND_VOLUME
+        # parse display
+        radio.parse("    INITIAL")
+        self.assertEqual(radio.operation_mode,
+            OperationModes.INITIALIZING)
+        self.assertEqual(radio.display_mode,
+            DisplayModes.SHOWING_OPERATION)
+
     def test_sound_volume(self):
         displays = (
             "AM    MIN  ",
