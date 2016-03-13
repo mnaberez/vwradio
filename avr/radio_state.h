@@ -34,6 +34,9 @@
 #define DISPLAY_MODE_ADJUSTING_SOUND_BASS 23
 #define DISPLAY_MODE_ADJUSTING_SOUND_TREBLE 24
 #define DISPLAY_MODE_ADJUSTING_SOUND_MIDRANGE 25
+#define DISPLAY_MODE_SETTING_OPTION_ON_VOL 30
+#define DISPLAY_MODE_SETTING_OPTION_CD_MIX 31
+#define DISPLAY_MODE_SETTING_OPTION_TAPE_SKIP 32
 
 #define TUNER_BAND_UNKNOWN 0
 #define TUNER_BAND_FM1 1
@@ -59,6 +62,9 @@ typedef struct
     uint16_t tuner_freq;
     uint8_t tuner_preset;
     uint8_t tuner_band;
+    uint8_t option_on_vol;
+    uint8_t option_cd_mix;
+    uint8_t option_tape_skip;
 } radio_state_t;
 radio_state_t radio_state;
 

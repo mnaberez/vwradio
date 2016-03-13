@@ -389,6 +389,38 @@ static void _parse_safe(radio_state_t *state, uint8_t *ram)
     }
 }
 
+static void _parse_set(radio_state_t *state, uint8_t *ram)
+{
+    if (memcmp(ram, "SET ONVOL", 9) == 0)
+    {
+        state->display_mode = DISPLAY_MODE_SETTING_OPTION_ON_VOL;
+        state->option_on_vol = 0;
+        if (isdigit(ram[9]))  { state->option_on_vol += (ram[9]  & 0x0F) * 10; }
+        if (isdigit(ram[10])) { state->option_on_vol += (ram[10] & 0x0F); }
+    }
+    else if (memcmp(ram, "SET CD MIX", 10) == 0)
+    {
+        state->display_mode = DISPLAY_MODE_SETTING_OPTION_CD_MIX;
+        state->option_cd_mix = ram[10] & 0x0F; // 1 or 6
+    }
+    else if (memcmp(ram, "TAPE SKIP", 9) == 0)
+    {
+        state->display_mode = DISPLAY_MODE_SETTING_OPTION_TAPE_SKIP;
+        if (ram[10] == 'Y')
+        {
+            state->option_tape_skip = 1;
+        }
+        else // 'N'
+        {
+            state->option_tape_skip = 0;
+        }
+    }
+    else
+    {
+        _parse_unknown(state, ram);
+    }
+}
+
 void radio_state_parse(radio_state_t *state, uint8_t *ram)
 {
     if (memcmp(ram, "\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0", 11) == 0)
@@ -436,6 +468,11 @@ void radio_state_parse(radio_state_t *state, uint8_t *ram)
     else if (memcmp(ram, "FAD", 3) == 0)
     {
         _parse_sound_fade(state, ram);
+    }
+    else if ((memcmp(ram, "SET", 3) == 0) ||
+             (memcmp(ram, "TAPE SKIP", 9) == 0))
+    {
+        _parse_set(state, ram);
     }
     else if ((memcmp(ram, "TAP", 3) == 0) ||
              (memcmp(ram, "    NO TAPE", 11) == 0))
@@ -550,4 +587,7 @@ void radio_state_init(radio_state_t *state)
     state->cd_track = 0;
     state->cd_cue_pos = 0;
     state->tape_side = 0;
+    state->option_on_vol = 0;
+    state->option_cd_mix = 1;
+    state->option_tape_skip = 0;
 }

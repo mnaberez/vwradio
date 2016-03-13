@@ -18,6 +18,9 @@ class Radio(object):
         self.cd_track = 0 # 0=none, track 1-99
         self.cd_cue_pos = 0 # 0 or other integer as seen on lcd
         self.tape_side = 0 # 0=none, 1=side a, 2=side b
+        self.option_on_vol = 0 # 13-63 on Premium 4
+        self.option_cd_mix = 1 # 1 or 6
+        self.option_tape_skip = 0 # 0=no, 1=yes
 
     def parse(self, text):
         if text == ' ' * 11:
@@ -40,6 +43,8 @@ class Radio(object):
             self._parse_sound_balance(text)
         elif text[0:3] == "FAD":
             self._parse_sound_fade(text)
+        elif text[0:3] == "SET" or text[0:9] == 'TAPE SKIP':
+            self._parse_set(text)
         elif text[0:3] == "TAP" or text == "    NO TAPE":
             self._parse_tape(text)
         elif text[0:2] == "CD" or text[0:3] in ("CUE", "CHK"):
@@ -73,6 +78,22 @@ class Radio(object):
         elif str.isdigit(text[5]) and str.isdigit(text[5:9]): # Premium 4
             self.operation_mode = OperationModes.SAFE_ENTRY
             self.safe_code = int(text[5:9])
+        else:
+            self._parse_unknown(text)
+
+    def _parse_set(self, text):
+        if text[0:9] == 'SET ONVOL':
+            self.display_mode = DisplayModes.SETTING_OPTION_ON_VOL
+            self.option_on_vol = int(text[9:11])
+        elif text[0:10] == 'SET CD MIX':
+            self.display_mode = DisplayModes.SETTING_OPTION_CD_MIX
+            self.option_cd_mix = int(text[10]) # 1 or 6
+        elif text[0:9] == 'TAPE SKIP':
+            self.display_mode = DisplayModes.SETTING_OPTION_TAPE_SKIP
+            if text[10] == 'Y':
+                self.option_tape_skip = 1
+            else: # 'N'
+                self.option_tape_skip = 0
         else:
             self._parse_unknown(text)
 
