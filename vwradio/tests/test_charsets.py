@@ -39,7 +39,3 @@ class TestVW_PREMIUM_4(unittest.TestCase, _TestCharsetMixin):
 class TestVW_PREMIUM_5(unittest.TestCase, _TestCharsetMixin):
     TEXT = charsets._VW_PREMIUM_5
     CHARSET = charsets.VW_PREMIUM_5
-
-class TestSONY_MDX_C7900R(unittest.TestCase, _TestCharsetMixin):
-    TEXT = charsets._SONY_MDX_C7900R
-    CHARSET = charsets.SONY_MDX_C7900R
