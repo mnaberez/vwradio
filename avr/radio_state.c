@@ -183,6 +183,26 @@ static void _parse_tape(radio_state_t *state, uint8_t *ram)
     }
 }
 
+static void _parse_cd_track_pos(radio_state_t *state, uint8_t *ram)
+{
+    if ((ram[4] == '-') || (ram[5] == '-'))
+    {
+        state->cd_track_pos = 0;
+    }
+    else
+    {
+        uint8_t minutes = 0;
+        if (isdigit(ram[5])) { minutes += (ram[5] & 0x0F) * 10; }
+        if (isdigit(ram[6])) { minutes += (ram[6] & 0x0F); }
+
+        uint8_t seconds = 0;
+        if (isdigit(ram[7])) { seconds += (ram[7] & 0x0F) * 10; }
+        if (isdigit(ram[8])) { seconds += (ram[8] & 0x0F); }
+
+        state->cd_track_pos = (minutes * 60) + seconds;
+    }
+}
+
 static void _parse_cd(radio_state_t *state, uint8_t *ram)
 {
     state->display_mode = DISPLAY_MODE_SHOWING_OPERATION;
@@ -228,6 +248,7 @@ static void _parse_cd(radio_state_t *state, uint8_t *ram)
         else if (isdigit(ram[8])) // "CD 1  047  "
         {
             state->operation_mode = OPERATION_MODE_CD_PLAYING;
+            _parse_cd_track_pos(state, ram);
         }
         else
         {
@@ -252,12 +273,12 @@ static void _parse_cd(radio_state_t *state, uint8_t *ram)
     else if (memcmp(ram, "CUE", 3) == 0) // "CUE   034  "
     {
         state->operation_mode = OPERATION_MODE_CD_CUE;
-        // TODO  self.cd_track_pos = int(text[4:9].strip())
+        _parse_cd_track_pos(state, ram);
     }
     else if (memcmp(ram, "REV", 3) == 0) // "REV   209  "
     {
         state->operation_mode = OPERATION_MODE_CD_REV;
-        // TODO  self.cd_track_pos = int(text[4:9].strip())
+        _parse_cd_track_pos(state, ram);
     }
     else
     {

@@ -246,53 +246,50 @@ class TestRadio(unittest.TestCase):
             self.assertEqual(radio.display_mode,
                 DisplayModes.SHOWING_OPERATION)
 
-    def test_cd_cue(self):
-        radio = Radio()
-        # set up known values
-        radio.operation_mode = OperationModes.CD_PLAYING
-        radio.cd_disc = 5
-        radio.cd_track = 12
-        # parse display
-        radio.parse("CUE   122  ")
-        self.assertEqual(radio.cd_disc, 5)
-        self.assertEqual(radio.cd_track, 12)
-        self.assertEqual(radio.cd_track_pos, 122)
-        self.assertEqual(radio.operation_mode,
-            OperationModes.CD_CUE)
-        self.assertEqual(radio.display_mode,
-            DisplayModes.SHOWING_OPERATION)
+    def test_cd_cue_rev_pos(self):
+        values = (
+            ("CUE   000  ", OperationModes.CD_CUE, 5, (0*60)+0),
+            ("CUE   001  ", OperationModes.CD_CUE, 5, (0*60)+1),
+            ("CUE   012  ", OperationModes.CD_CUE, 5, (0*60)+12),
+            ("CUE   123  ", OperationModes.CD_CUE, 5, (1*60)+23),
+            ("CUE  1234  ", OperationModes.CD_CUE, 5, (12*60)+34),
+            ("CUE  9999  ", OperationModes.CD_CUE, 5, (99*60)+99),
+            ("CUE  -002  ", OperationModes.CD_CUE, 5, 0),
+            ("CUE -1234  ", OperationModes.CD_CUE, 5, 0),
 
-    def test_cd_rev(self):
-        radio = Radio()
-        # set up known values
-        radio.operation_mode = OperationModes.CD_PLAYING
-        radio.cd_disc = 5
-        radio.cd_track = 12
-        # parse display
-        radio.parse("REV   419  ")
-        self.assertEqual(radio.cd_disc, 5)
-        self.assertEqual(radio.cd_track, 12)
-        self.assertEqual(radio.cd_track_pos, 419)
-        self.assertEqual(radio.operation_mode,
-            OperationModes.CD_REV)
-        self.assertEqual(radio.display_mode,
-            DisplayModes.SHOWING_OPERATION)
+            ("REV   000  ", OperationModes.CD_REV, 5, (0*60)+0),
+            ("REV   001  ", OperationModes.CD_REV, 5, (0*60)+1),
+            ("REV   012  ", OperationModes.CD_REV, 5, (0*60)+12),
+            ("REV   123  ", OperationModes.CD_REV, 5, (1*60)+23),
+            ("REV  1234  ", OperationModes.CD_REV, 5, (12*60)+34),
+            ("REV  9999  ", OperationModes.CD_REV, 5, (99*60)+99),
+            ("REV  -002  ", OperationModes.CD_REV, 5, 0),
+            ("REV -1234  ", OperationModes.CD_REV, 5, 0),
 
-    def test_cd_track_pos_after_cue_or_rev(self):
-        radio = Radio()
-        # set up known values
-        radio.operation_mode = OperationModes.CD_CUE
-        radio.cd_disc = 5
-        radio.cd_track = 12
-        # parse display
-        radio.parse("CD 2  051  ")
-        self.assertEqual(radio.cd_disc, 2)
-        self.assertEqual(radio.cd_track, 12)
-        self.assertEqual(radio.cd_track_pos, 51)
-        self.assertEqual(radio.operation_mode,
-            OperationModes.CD_PLAYING)
-        self.assertEqual(radio.display_mode,
-            DisplayModes.SHOWING_OPERATION)
+            ("CD 2  000  ", OperationModes.CD_PLAYING, 2, (0*60)+0),
+            ("CD 2  001  ", OperationModes.CD_PLAYING, 2, (0*60)+1),
+            ("CD 2  012  ", OperationModes.CD_PLAYING, 2, (0*60)+12),
+            ("CD 2  123  ", OperationModes.CD_PLAYING, 2, (1*60)+23),
+            ("CD 2 1234  ", OperationModes.CD_PLAYING, 2, (12*60)+34),
+            ("CD 2 9999  ", OperationModes.CD_PLAYING, 2, (99*60)+99),
+            ("CD 2 -002  ", OperationModes.CD_PLAYING, 2, 0),
+            ("CD 2-1234  ", OperationModes.CD_PLAYING, 2, 0),
+        )
+        for display, operation_mode, cd_disc, cd_track_pos in values:
+            radio = Radio()
+            # set up known values
+            radio.operation_mode = OperationModes.CD_PLAYING
+            radio.cd_disc = 5
+            radio.cd_track = 12
+            # parse display
+            radio.parse(display)
+            self.assertEqual(radio.cd_disc, cd_disc)
+            self.assertEqual(radio.cd_track, 12)
+            self.assertEqual(radio.cd_track_pos, cd_track_pos)
+            self.assertEqual(radio.operation_mode,
+                operation_mode)
+            self.assertEqual(radio.display_mode,
+                DisplayModes.SHOWING_OPERATION)
 
     def test_cd_check_magazine(self):
         radio = Radio()

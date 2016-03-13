@@ -884,77 +884,66 @@ class AvrTests(unittest.TestCase):
             self.assertEqual(state.display_mode,
                 DisplayModes.SHOWING_OPERATION)
 
-    def test_radio_state_cd_cue(self):
-        # set up known values
-        self.client.radio_state_reset()
-        self.client.radio_state_parse(b"CD 5 TR 12 ")
-        state = self.client.radio_state_dump()
-        self.assertEqual(state.operation_mode,
-            OperationModes.CD_PLAYING)
-        self.assertEqual(state.cd_disc, 5)
-        self.assertEqual(state.cd_track, 12)
-        # parse display
-        self.client.radio_state_parse(b"CUE   122  ")
-        state = self.client.radio_state_dump()
-        self.assertEqual(state.cd_disc, 5)
-        self.assertEqual(state.cd_track, 12)
-        # self.assertEqual(radio.cd_track_pos, 122) TODO
-        self.assertEqual(state.operation_mode,
-            OperationModes.CD_CUE)
-        self.assertEqual(state.display_mode,
-            DisplayModes.SHOWING_OPERATION)
+    def test_cd_cue_rev_pos(self):
+        values = (
+            (b"CUE   000  ", OperationModes.CD_CUE, 5, (0*60)+0),
+            (b"CUE   001  ", OperationModes.CD_CUE, 5, (0*60)+1),
+            (b"CUE   012  ", OperationModes.CD_CUE, 5, (0*60)+12),
+            (b"CUE   123  ", OperationModes.CD_CUE, 5, (1*60)+23),
+            (b"CUE  1234  ", OperationModes.CD_CUE, 5, (12*60)+34),
+            (b"CUE  9999  ", OperationModes.CD_CUE, 5, (99*60)+99),
+            (b"CUE  -002  ", OperationModes.CD_CUE, 5, 0),
+            (b"CUE -1234  ", OperationModes.CD_CUE, 5, 0),
 
-    def test_cd_rev(self):
-        # set up known values
-        self.client.radio_state_reset()
-        self.client.radio_state_parse(b"CD 5 TR 12 ")
-        state = self.client.radio_state_dump()
-        self.assertEqual(state.operation_mode,
-            OperationModes.CD_PLAYING)
-        self.assertEqual(state.cd_disc, 5)
-        self.assertEqual(state.cd_track, 12)
-        # parse display
-        self.client.radio_state_parse(b"REV   419  ")
-        state = self.client.radio_state_dump()
-        self.assertEqual(state.cd_disc, 5)
-        self.assertEqual(state.cd_track, 12)
-        # self.assertEqual(state.cd_track_pos, 419) TODO
-        self.assertEqual(state.operation_mode,
-            OperationModes.CD_REV)
-        self.assertEqual(state.display_mode,
-            DisplayModes.SHOWING_OPERATION)
+            (b"REV   000  ", OperationModes.CD_REV, 5, (0*60)+0),
+            (b"REV   001  ", OperationModes.CD_REV, 5, (0*60)+1),
+            (b"REV   012  ", OperationModes.CD_REV, 5, (0*60)+12),
+            (b"REV   123  ", OperationModes.CD_REV, 5, (1*60)+23),
+            (b"REV  1234  ", OperationModes.CD_REV, 5, (12*60)+34),
+            (b"REV  9999  ", OperationModes.CD_REV, 5, (99*60)+99),
+            (b"REV  -002  ", OperationModes.CD_REV, 5, 0),
+            (b"REV -1234  ", OperationModes.CD_REV, 5, 0),
 
-    def test_cd_track_pos_after_cue_or_rev(self):
-        # set up known values
-        self.client.radio_state_reset()
-        self.client.radio_state_parse(b"CD 5 TR 12 ")
-        self.client.radio_state_parse(b"CUE   122  ")
-        state = self.client.radio_state_dump()
-        self.assertEqual(state.operation_mode,
-            OperationModes.CD_CUE)
-        self.assertEqual(state.cd_disc, 5)
-        self.assertEqual(state.cd_track, 12)
-        # parse display
-        self.client.radio_state_parse(b"CD 2  051  ")
-        state = self.client.radio_state_dump()
-        self.assertEqual(state.cd_disc, 2)
-        self.assertEqual(state.cd_track, 12)
-        # self.assertEqual(state.cd_track_pos, 51) TODO
-        self.assertEqual(state.operation_mode,
-            OperationModes.CD_PLAYING)
-        self.assertEqual(state.display_mode,
-            DisplayModes.SHOWING_OPERATION)
+            (b"CD 2  000  ", OperationModes.CD_PLAYING, 2, (0*60)+0),
+            (b"CD 2  001  ", OperationModes.CD_PLAYING, 2, (0*60)+1),
+            (b"CD 2  012  ", OperationModes.CD_PLAYING, 2, (0*60)+12),
+            (b"CD 2  123  ", OperationModes.CD_PLAYING, 2, (1*60)+23),
+            (b"CD 2 1234  ", OperationModes.CD_PLAYING, 2, (12*60)+34),
+            (b"CD 2 9999  ", OperationModes.CD_PLAYING, 2, (99*60)+99),
+            (b"CD 2 -002  ", OperationModes.CD_PLAYING, 2, 0),
+            (b"CD 2-1234  ", OperationModes.CD_PLAYING, 2, 0),
+        )
+        for display, operation_mode, cd_disc, cd_track_pos in values:
+            # set up known values
+            self.client.radio_state_reset()
+            self.client.radio_state_parse(b"CD 5 TR 12 ")
+            state = self.client.radio_state_dump()
+            self.assertEqual(state.cd_disc, 5)
+            self.assertEqual(state.cd_track, 12)
+            self.assertEqual(state.operation_mode,
+                OperationModes.CD_PLAYING)
+            # parse display
+            self.client.radio_state_parse(display)
+            state = self.client.radio_state_dump()
+            self.assertEqual(state.cd_disc, cd_disc)
+            self.assertEqual(state.cd_track, 12)
+            self.assertEqual(state.cd_track_pos, cd_track_pos)
+            self.assertEqual(state.operation_mode,
+                operation_mode)
+            self.assertEqual(state.display_mode,
+                DisplayModes.SHOWING_OPERATION)
 
     def test_radio_state_cd_check_magazine(self):
         # set up known values
         self.client.radio_state_reset()
         self.client.radio_state_parse(b"CD 1 TR 03 ")
+        self.client.radio_state_parse(b"CD 1  139  ")
         state = self.client.radio_state_dump()
         self.assertEqual(state.operation_mode,
             OperationModes.CD_PLAYING)
         self.assertEqual(state.cd_disc, 1)
         self.assertEqual(state.cd_track, 3)
-        # radio.cd_track_pos = 99 # TODO
+        self.assertEqual(state.cd_track_pos, 99)
         # parse display
         self.client.radio_state_parse(b"CHK MAGAZIN")
         state = self.client.radio_state_dump()
@@ -970,12 +959,13 @@ class AvrTests(unittest.TestCase):
         # set up known values
         self.client.radio_state_reset()
         self.client.radio_state_parse(b"CD 1 TR 03 ")
+        self.client.radio_state_parse(b"CD 1  139  ")
         state = self.client.radio_state_dump()
         self.assertEqual(state.operation_mode,
             OperationModes.CD_PLAYING)
         self.assertEqual(state.cd_disc, 1)
         self.assertEqual(state.cd_track, 3)
-        # radio.cd_track_pos = 99 # TODO
+        self.assertEqual(state.cd_track_pos, 99)
         # parse display
         self.client.radio_state_parse(b"CD 2 NO CD ") # space in "CD 2"
         state = self.client.radio_state_dump()
@@ -991,12 +981,13 @@ class AvrTests(unittest.TestCase):
         # set up known values
         self.client.radio_state_reset()
         self.client.radio_state_parse(b"CD 5 TR 03 ")
+        self.client.radio_state_parse(b"CD 5  139  ")
         state = self.client.radio_state_dump()
         self.assertEqual(state.operation_mode,
             OperationModes.CD_PLAYING)
         self.assertEqual(state.cd_disc, 5)
         self.assertEqual(state.cd_track, 3)
-        # radio.cd_track_pos = 99 # TODO
+        self.assertEqual(state.cd_track_pos, 99)
         # parse display
         self.client.radio_state_parse(b"CD1 CD ERR ") # no space in "CD1"
         state = self.client.radio_state_dump()
@@ -1012,12 +1003,13 @@ class AvrTests(unittest.TestCase):
         # set up known values
         self.client.radio_state_reset()
         self.client.radio_state_parse(b"CD 5 TR 03 ")
+        self.client.radio_state_parse(b"CD 5  139  ")
         state = self.client.radio_state_dump()
         self.assertEqual(state.operation_mode,
             OperationModes.CD_PLAYING)
         self.assertEqual(state.cd_disc, 5)
         self.assertEqual(state.cd_track, 3)
-        # radio.cd_track_pos = 99 # TODO
+        self.assertEqual(state.cd_track_pos, 99)
         # parse display
         self.client.radio_state_parse(b"    NO DISC")
         state = self.client.radio_state_dump()
@@ -1033,12 +1025,13 @@ class AvrTests(unittest.TestCase):
         # set up known values
         self.client.radio_state_reset()
         self.client.radio_state_parse(b"CD 5 TR 03 ")
+        self.client.radio_state_parse(b"CD 5  139  ")
         state = self.client.radio_state_dump()
         self.assertEqual(state.operation_mode,
             OperationModes.CD_PLAYING)
         self.assertEqual(state.cd_disc, 5)
         self.assertEqual(state.cd_track, 3)
-        # radio.cd_track_pos = 99 # TODO
+        self.assertEqual(state.cd_track_pos, 99)
         # process
         self.client.radio_state_parse(b"NO  CHANGER")
         state = self.client.radio_state_dump()

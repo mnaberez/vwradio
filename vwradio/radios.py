@@ -16,7 +16,7 @@ class Radio(object):
         self.tuner_preset = 0 # 0=none, am/fm1/fm2 preset 1-6
         self.cd_disc = 0 # 0=none, disc 1-6
         self.cd_track = 0 # 0=none, track 1-99
-        self.cd_track_pos = 0 # 0 or other integer as seen on lcd
+        self.cd_track_pos = 0 # position on track during cue/rev, in seconds
         self.tape_side = 0 # 0=none, 1=side a, 2=side b
         self.option_on_vol = 0 # 13-63 on Premium 4
         self.option_cd_mix = 1 # 1 or 6
@@ -183,7 +183,7 @@ class Radio(object):
                 self.cd_track = int(text[8:10])
             elif str.isdigit(text[8]): # "CD 1  047  "
                 self.operation_mode = OperationModes.CD_PLAYING
-                self.cd_track_pos = int(text[4:9].strip())
+                self._parse_cd_track_pos(text)
             else:
                 self._parse_unknown(text)
         elif text[0:2] == "CD": # "CD1" to "CD6"
@@ -196,12 +196,31 @@ class Radio(object):
                 self._parse_unknown(text)
         elif text[0:3] == "CUE": # "CUE   034  "
             self.operation_mode = OperationModes.CD_CUE
-            self.cd_track_pos = int(text[4:9].strip())
+            self._parse_cd_track_pos(text)
+
         elif text[0:3] == "REV": # "REV   209  "
             self.operation_mode = OperationModes.CD_REV
-            self.cd_track_pos = int(text[4:9].strip())
+            self._parse_cd_track_pos(text)
         else:
             self._parse_unknown(text)
+
+    def _parse_cd_track_pos(self, text):
+        if text[4] == '-' or text[5] == '-':
+            self.cd_track_pos = 0
+        else:
+            minutes = 0
+            if str.isdigit(text[5]):
+                minutes += int(text[5]) * 10
+            if str.isdigit(text[6]):
+                minutes += int(text[6])
+
+            seconds = 0
+            if str.isdigit(text[7]):
+                seconds += int(text[7]) * 10
+            if str.isdigit(text[8]):
+                seconds += int(text[8])
+
+            self.cd_track_pos = (minutes * 60) + seconds
 
     def _parse_tape(self, text):
         self.display_mode = DisplayModes.SHOWING_OPERATION
