@@ -550,11 +550,11 @@ static void _do_faceplate_upd_clear_display()
 
 /* Command: Convert uPD16432B raw key data bytes to key codes
  * Arguments: <byte0> <byte1> <byte2> <byte3>
- * Returns: <ack> <num_keycodes> <keycode0> <keycode1>
+ * Returns: <ack> <count> <keycode0> <keycode1>
  *
  * Convert uPD16432B key data to key codes (the KEY_ constants).  Returns 0, 1,
- * or 2 key codes.  The first byte indicates the number of key codes.  2 key
- * code bytes are always returned; unused bytes are set to 0.
+ * or 2 key codes as indicated by <count>  Two key code bytes are always
+ * returned; unused bytes are set to 0.
  */
 static void _do_convert_upd_key_data_to_key_codes()
 {
@@ -576,7 +576,13 @@ static void _do_convert_upd_key_data_to_key_codes()
     uart_putc(key_codes[1]);
 }
 
-/* TODO document me
+/* Command: Convert a key code to uPD16432B raw data bytes
+ * Arguments: <keycode>
+ * Returns: <ack> <byte0> <byte1> <byte2> <byte3>
+ *
+ * Convert a key code (one of the KEY_ constants) to uPD16432B raw data
+ * bytes.  If the key code is bad, or the key is not supported by the
+ * radio, NAK is returned.
  */
 static void _do_convert_code_to_upd_key_data()
 {
@@ -603,11 +609,21 @@ static void _do_convert_code_to_upd_key_data()
     uart_putc(key_data[3]);
 }
 
-/* TODO document me
+/* Command: Read faceplate keys as key codes
+ * Arguments: none
+ * Returns: <ack> <count> <keycode0> <keycode1>
+ *
+ * Read the faceplate and return keys codes for any keys pressed.  It may
+ * return 0, 1, or 2 key codes as indicated by <count>.  Two key code bytes
+ * bytes are always returned; unused bytes are set to 0.
  */
 static void _do_read_keys()
 {
-    // TODO check args length
+    if (cmd_buf_index != 1)
+    {
+        _reply_nak();
+        return;
+    }
 
     // Read keys from the faceplate
     uint8_t key_data[4] = {0, 0, 0, 0};

@@ -1380,3 +1380,22 @@ class AvrTests(unittest.TestCase):
             expected_key_data[bytenum] |= 1<<bitnum
             key_data = self.client.convert_code_to_upd_key_data(key_code)
             self.assertEqual(key_data, expected_key_data)
+
+    # Read Keys command
+
+    def test_read_keys_returns_nak_for_bad_args_length(self):
+        rx_bytes = self.client.command(
+            data=[avrclient.CMD_READ_KEYS, 1],
+            ignore_nak=True
+            )
+        self.assertEqual(rx_bytes[0], avrclient.NAK)
+        self.assertEqual(len(rx_bytes), 1)
+
+    def test_read_keys_returns_zeros_for_no_keys(self):
+        # assumes no keys are being pressed on the faceplate
+        rx_bytes = self.client.command([avrclient.CMD_READ_KEYS])
+        self.assertEqual(rx_bytes, bytearray([avrclient.ACK, 0, 0, 0]))
+
+    def test_high_level_read_keys_returns_empty_list_for_no_keys(self):
+        # assumes no keys are being pressed on the faceplate
+        self.assertEqual(self.client.read_keys(), [])
