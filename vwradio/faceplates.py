@@ -338,22 +338,35 @@ def _print_key_encode_table_for_avr_c(keys):
 
 def _print_key_decode_table_for_avr_c(keys):
     for keycode in range(256):
+        name = Keys.get_name(keycode)
+        if name is None:
+            name = ''
+        else:
+            name = 'KEY_%s' % name
+
         bytenum_bitnum = None
         for k, v in keys.items():
             if v == keycode:
                 bytenum_bitnum = k
                 break
+
         if bytenum_bitnum is None:
-            print("    {   0,    0,    0,    0}, // 0x%02x" % keycode)
+            line = "    {   0,    0,    0,    0}, // 0x%02x %s" % (
+                keycode,
+                name,
+                )
         else:
             bytenum, bitnum = bytenum_bitnum
             key_data = [0, 0, 0, 0]
             key_data[bytenum] |= 1<<bitnum
-            print("    {0x%02x, 0x%02x, 0x%02x, 0x%02x}, // 0x%02x KEY_%s" % (
+            line = "    {0x%02x, 0x%02x, 0x%02x, 0x%02x}, // 0x%02x %s" % (
                 key_data[0], key_data[1], key_data[2], key_data[3],
                 keycode,
-                Keys.get_name(keycode)
-                ))
+                name,
+                )
+            line = line.replace("0x00", "   0")
+        print(line)
+
 
 if __name__ == '__main__':
     print("// Premium 4 Key Encoding Table")
