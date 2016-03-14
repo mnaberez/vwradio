@@ -209,7 +209,7 @@ static void _do_emulated_upd_send_command()
  */
 static void _do_emulated_upd_load_key_data()
 {
-    // can't load key data while keypress passthru is enabled because
+    // can't load key data while key passthru is enabled because
     // the data we'd load would be immediately overwritten by passthru
     if (auto_key_passthru)
     {
@@ -548,7 +548,13 @@ static void _do_faceplate_upd_clear_display()
      uart_putc(key_data[3]);
  }
 
-/* TODO document me
+/* Command: Convert uPD16432B raw key data bytes to key codes
+ * Arguments: <byte0> <byte1> <byte2> <byte3>
+ * Returns: <ack> <num_keycodes> <keycode0> <keycode1>
+ *
+ * Convert uPD16432B key data to key codes (the KEY_ constants).  Returns 0, 1,
+ * or 2 key codes.  The first byte indicates the number of key codes.  2 key
+ * code bytes are always returned; unused bytes are set to 0.
  */
 static void _do_convert_upd_key_data_to_key_codes()
 {
@@ -601,6 +607,8 @@ static void _do_convert_code_to_upd_key_data()
  */
 static void _do_read_keys()
 {
+    // TODO check args length
+
     // Read keys from the faceplate
     uint8_t key_data[4] = {0, 0, 0, 0};
     faceplate_read_key_data(key_data);
@@ -616,9 +624,13 @@ static void _do_read_keys()
     uart_putc(key_codes[1]);
 }
 
+/* TODO document me
+ */
 static void _do_load_keys()
 {
-    // can't load key data while keypress passthru is enabled because
+    // TODO check args length
+
+    // can't load key data while key passthru is enabled because
     // the data we'd load would be immediately overwritten by passthru
     if (auto_key_passthru)
     {

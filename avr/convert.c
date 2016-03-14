@@ -305,9 +305,14 @@ static const uint8_t _premium4_key_encode[256][4] PROGMEM = {
 };
 
 /* Convert uPD16432B key data to key codes (the KEY_ constants)
+ *
  * key_data_in: array of 4 bytes from uPD16432B
- * key_codes_out: array of 2 bytes for key codes
+ * key_codes_out: array of 2 bytes that will be overwritten with key codes
+ *
  * Returns the number keys pressed: 0, 1, or 2
+ * If less than 2 keys are pressed, unused bytes in key_codes_out are set to 0.
+ * No more than 2 simultaneous keys can be detected because this is a
+ * limitation of the faceplate's circuitry.
  */
 uint8_t convert_upd_key_data_to_codes(
     uint8_t *key_data_in, uint8_t *key_codes_out)
@@ -342,7 +347,16 @@ uint8_t convert_upd_key_data_to_codes(
     return num_keys_pressed;
 }
 
-/* TODO document me
+/* Convert a key code (one of the KEY_ constants) to uPD16432B key data
+ *
+ * key_code: key code to convert into key data
+ * key_data_out: array of 4 bytes that will be overwritten with the key data
+ *
+ * On success, 1 is returned and key_data_out will be overwritten with 4 new
+ * bytes.  Of the 32 bits returned, only 1 will be set (the bit for the key).
+ *
+ * On failure, 0 is returned and key_data_out will be set to (0, 0, 0, 0).  This
+ * happens if key_code is not a recognized code.
  */
 uint8_t convert_code_to_upd_key_data(uint8_t key_code, uint8_t *key_data_out)
 {

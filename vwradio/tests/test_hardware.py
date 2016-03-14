@@ -1315,12 +1315,22 @@ class AvrTests(unittest.TestCase):
 
     # Converting uPD16432B key data to key codes
 
+    def test_convert_upd_key_data_to_codes_returns_nak_for_bad_args_len(self):
+        for bad_args in ([], [1,2,3,4,5]):
+            cmd = avrclient.CMD_CONVERT_UPD_KEY_DATA_TO_KEY_CODES
+            rx_bytes = self.client.command(
+                data=[cmd] + bad_args,
+                ignore_nak=True
+                )
+            self.assertEqual(rx_bytes[0], avrclient.NAK)
+            self.assertEqual(len(rx_bytes), 1)
+
     def test_convert_upd_key_data_to_codes_returns_empty_for_no_keys(self):
         key_data = [0, 0, 0, 0]
         key_codes = self.client.convert_upd_key_data_to_codes(key_data)
         self.assertEqual(len(key_codes), 0)
 
-    def test_convert_upd_key_data_decodes_all_individual_premium4_keys(self):
+    def test_convert_upd_key_data_to_codes_decodes_all_premium4_keys(self):
         for bytenum_bitnum, key_code in Premium4.KEYS.items():
             bytenum, bitnum = bytenum_bitnum
             key_data = [0, 0, 0, 0]
@@ -1328,7 +1338,7 @@ class AvrTests(unittest.TestCase):
             key_codes = self.client.convert_upd_key_data_to_codes(key_data)
             self.assertEqual(key_codes, [key_code])
 
-    def test_convert_upd_key_data_decodes_2_premium4_keys(self):
+    def test_convert_upd_key_data_to_codes_decodes_2_premium4_keys(self):
         key_data = [0, 3, 0, 0]
         key_codes = self.client.convert_upd_key_data_to_codes(key_data)
         self.assertEqual(
@@ -1340,3 +1350,33 @@ class AvrTests(unittest.TestCase):
         key_data = [0xff, 0xff, 0xff, 0xff]
         key_codes = self.client.convert_upd_key_data_to_codes(key_data)
         self.assertEqual(len(key_codes), 2)
+
+    # Converting a key code to uPD16432B key data
+
+    def test_convert_code_to_upd_key_data_returns_nak_for_bad_args_length(self):
+        for bad_args in ([], [1,2,]):
+            cmd = avrclient.CMD_CONVERT_CODE_TO_UPD_KEY_DATA
+            rx_bytes = self.client.command(
+                data=[cmd] + bad_args,
+                ignore_nak=True
+                )
+            self.assertEqual(rx_bytes[0], avrclient.NAK)
+            self.assertEqual(len(rx_bytes), 1)
+
+    def test_convert_code_to_upd_key_data_returns_nak_for_bad_key_codes(self):
+        for bad_code in ([0, 0xFF]):
+            cmd = avrclient.CMD_CONVERT_CODE_TO_UPD_KEY_DATA
+            rx_bytes = self.client.command(
+                data=[cmd, bad_code],
+                ignore_nak=True
+                )
+            self.assertEqual(rx_bytes[0], avrclient.NAK)
+            self.assertEqual(len(rx_bytes), 1)
+
+    def test_convert_code_to_upd_key_data_encodes_all_premium4_keys(self):
+        for bytenum_bitnum, key_code in Premium4.KEYS.items():
+            bytenum, bitnum = bytenum_bitnum
+            expected_key_data = [0, 0, 0, 0]
+            expected_key_data[bytenum] |= 1<<bitnum
+            key_data = self.client.convert_code_to_upd_key_data(key_code)
+            self.assertEqual(key_data, expected_key_data)
