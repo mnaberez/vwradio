@@ -301,6 +301,7 @@ static const uint8_t _premium4_key_encode[256][4] PROGMEM = {
     {   0,    0,    0,    0}, // 0xfc
     {   0,    0,    0,    0}, // 0xfd
     {   0,    0,    0,    0}, // 0xfe
+    {   0,    0,    0,    0}, // 0xff
 };
 
 /* Convert uPD16432B key data to key codes (the KEY_ constants)
