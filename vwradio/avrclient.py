@@ -120,7 +120,12 @@ class Client(object):
 
     # send key presses to the radio
     def load_keys(self, key_codes):
-        data = bytearray([CMD_LOAD_KEYS]) + bytearray(key_codes)
+        count = len(key_codes)
+        data = [CMD_LOAD_KEYS, count, 0, 0]
+        if count > 0:
+            data[2] = key_codes[0]
+        if count > 1:
+            data[3] = key_codes[1]
         self.command(data)
 
     # XXX this should be implemented on the avr

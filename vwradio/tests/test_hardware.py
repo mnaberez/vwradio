@@ -197,7 +197,7 @@ class AvrTests(unittest.TestCase):
 
     # Load UPD Key Data command
 
-    def emulated_upd_load_key_data_returns_nak_if_too_few_or_too_many_args(self):
+    def test_emulated_upd_load_key_data_nak_if_bad_args(self):
         for bad_args in ([], [1,2,3,4,5]):
             rx_bytes = self.client.command(
                 data=[avrclient.CMD_EMULATED_UPD_LOAD_KEY_DATA] + bad_args,
@@ -206,7 +206,7 @@ class AvrTests(unittest.TestCase):
             self.assertEqual(rx_bytes[0], avrclient.NAK)
             self.assertEqual(len(rx_bytes), 1)
 
-    def emulated_upd_load_key_data_returns_nak_if_key_passthru_is_enabled(self):
+    def test_emulated_upd_load_key_data_nak_if_key_passthru_is_enabled(self):
         self.client.set_auto_key_passthru(True)
         rx_bytes = self.client.command(
             data=[avrclient.CMD_EMULATED_UPD_LOAD_KEY_DATA, 0, 0, 0, 0],
@@ -216,7 +216,7 @@ class AvrTests(unittest.TestCase):
         self.assertEqual(len(rx_bytes), 1)
         self.client.set_auto_key_passthru(False)
 
-    def emulated_upd_load_key_data_returns_ack_if_passhthru_disabled(self):
+    def test_emulated_upd_load_key_data_ack_if_passhthru_disabled(self):
         self.client.set_auto_key_passthru(False)
         rx_bytes = self.client.command(
             data=[avrclient.CMD_EMULATED_UPD_LOAD_KEY_DATA, 0, 0, 0, 0],
@@ -1399,3 +1399,48 @@ class AvrTests(unittest.TestCase):
     def test_high_level_read_keys_returns_empty_list_for_no_keys(self):
         # assumes no keys are being pressed on the faceplate
         self.assertEqual(self.client.read_keys(), [])
+
+    # Load Keys command
+
+    def test_load_keys_returns_nak_for_bad_args_length(self):
+        for bad_args in ([], [1,2,3,4,]):
+            rx_bytes = self.client.command(
+                data=bytearray([avrclient.CMD_LOAD_KEYS] + bad_args),
+                ignore_nak=True
+                )
+            self.assertEqual(rx_bytes[0], avrclient.NAK)
+            self.assertEqual(len(rx_bytes), 1)
+
+    def test_load_keys_returns_nak_if_key_passthru_enabled(self):
+        self.client.set_auto_key_passthru(True)
+        rx_bytes = self.client.command(
+            data=bytearray([avrclient.CMD_LOAD_KEYS, 1, 0, 0]),
+            ignore_nak=True
+            )
+        self.assertEqual(rx_bytes[0], avrclient.NAK)
+        self.assertEqual(len(rx_bytes), 1)
+        self.client.set_auto_key_passthru(False)
+
+    def test_load_keys_returns_nak_if_key_count_greater_than_2(self):
+        rx_bytes = self.client.command(
+            data=bytearray([avrclient.CMD_LOAD_KEYS, 3, 0, 0]),
+            ignore_nak=True
+            )
+        self.assertEqual(rx_bytes[0], avrclient.NAK)
+        self.assertEqual(len(rx_bytes), 1)
+
+    def test_load_keys_returns_nak_for_bad_key_code(self):
+        rx_bytes = self.client.command(
+            data=bytearray([avrclient.CMD_LOAD_KEYS, 1, 0xFF, 0]),
+            ignore_nak=True
+            )
+        self.assertEqual(rx_bytes[0], avrclient.NAK)
+        self.assertEqual(len(rx_bytes), 1)
+
+    def test_load_keys_loads_empty(self):
+        rx_bytes = self.client.command(
+            data=bytearray([avrclient.CMD_LOAD_KEYS, 0, 0, 0]),
+            ignore_nak=True
+            )
+        self.assertEqual(rx_bytes[0], avrclient.ACK)
+        self.assertEqual(len(rx_bytes), 1)

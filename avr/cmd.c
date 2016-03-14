@@ -209,8 +209,8 @@ static void _do_emulated_upd_send_command()
  */
 static void _do_emulated_upd_load_key_data()
 {
-    // can't load key data while key passthru is enabled because
-    // the data we'd load would be immediately overwritten by passthru
+    // can't load key data while key passthru is enabled because the
+    // data we'd load would be immediately overwritten by passthru
     if (auto_key_passthru)
     {
         _reply_nak();
@@ -548,34 +548,6 @@ static void _do_faceplate_upd_clear_display()
      uart_putc(key_data[3]);
  }
 
-/* Command: Convert uPD16432B raw key data bytes to key codes
- * Arguments: <byte0> <byte1> <byte2> <byte3>
- * Returns: <ack> <count> <keycode0> <keycode1>
- *
- * Convert uPD16432B key data to key codes (the KEY_ constants).  Returns 0, 1,
- * or 2 key codes as indicated by <count>  Two key code bytes are always
- * returned; unused bytes are set to 0.
- */
-static void _do_convert_upd_key_data_to_key_codes()
-{
-    // command byte + 4 key data bytes
-    if (cmd_buf_index != 5)
-    {
-        _reply_nak();
-        return;
-    }
-
-    uint8_t key_codes[2];
-    uint8_t num_keys_pressed;
-    num_keys_pressed = convert_upd_key_data_to_codes(cmd_buf+1, key_codes);
-
-    uart_putc(4); // number of bytes to follow
-    uart_putc(ACK);
-    uart_putc(num_keys_pressed);
-    uart_putc(key_codes[0]);
-    uart_putc(key_codes[1]);
-}
-
 /* Command: Convert a key code to uPD16432B raw data bytes
  * Arguments: <keycode>
  * Returns: <ack> <byte0> <byte1> <byte2> <byte3>
@@ -609,13 +581,41 @@ static void _do_convert_code_to_upd_key_data()
     uart_putc(key_data[3]);
 }
 
-/* Command: Read faceplate keys as key codes
+/* Command: Convert uPD16432B raw key data bytes to key codes
+ * Arguments: <byte0> <byte1> <byte2> <byte3>
+ * Returns: <ack> <count> <keycode0> <keycode1>
+ *
+ * Convert uPD16432B key data to key codes (the KEY_ constants).  Returns 0, 1,
+ * or 2 key codes as indicated by <count>  Two key code bytes are always
+ * returned; unused bytes are set to 0.
+ */
+static void _do_convert_upd_key_data_to_key_codes()
+{
+    // command byte + 4 key data bytes
+    if (cmd_buf_index != 5)
+    {
+        _reply_nak();
+        return;
+    }
+
+    uint8_t key_codes[2];
+    uint8_t num_keys_pressed;
+    num_keys_pressed = convert_upd_key_data_to_codes(cmd_buf+1, key_codes);
+
+    uart_putc(4); // number of bytes to follow
+    uart_putc(ACK);
+    uart_putc(num_keys_pressed);
+    uart_putc(key_codes[0]);
+    uart_putc(key_codes[1]);
+}
+
+/* Command: Read the real faceplate's keys as key codes
  * Arguments: none
  * Returns: <ack> <count> <keycode0> <keycode1>
  *
- * Read the faceplate and return keys codes for any keys pressed.  It may
- * return 0, 1, or 2 key codes as indicated by <count>.  Two key code bytes
- * bytes are always returned; unused bytes are set to 0.
+ * Read the faceplate and return keys codes (KEY_ constants) for any keys
+ * pressed.  It may return 0, 1, or 2 key codes as indicated by <count>.  Two
+ * key code bytes bytes are always returned; unused bytes are set to 0.
  */
 static void _do_read_keys()
 {
@@ -640,41 +640,73 @@ static void _do_read_keys()
     uart_putc(key_codes[1]);
 }
 
-/* TODO document me
+/* Command: Load the emulated faceplate's key data from key codes
+ * Arguments: <count> <keycode0> <keycode1>
+ * Returns: <ack>
+ *
+ * Load the emulated uPD16432B's key data from key codes (KEY_ constants).
+ * The key codes will be converted to uPD16432B key data and then sent
+ * to the radio when it requests key data.  This same key data will always
+ * be sent until it is changed again (i.e., the keys will be held down).
+ *
+ * If a given key code is bad, or a key is not supported by the radio, NAK
+ * is returned.
+ *
+ * Always send three arguments: a count of key codes (may be 0, 1, 2) followed
+ * by two key code bytes.  If count < 2, the extra key code bytes are ignored.
+ * To release all keys, send a count of 0.
  */
 static void _do_load_keys()
 {
-    // TODO check args length
+    // command byte + count byte + 2 key code bytes
+    if (cmd_buf_index != 4)
+    {
+        _reply_nak();
+        return;
+    }
 
-    // can't load key data while key passthru is enabled because
-    // the data we'd load would be immediately overwritten by passthru
+    // can't load key data while key passthru is enabled because the
+    // data we'd load would be immediately overwritten by passthru
     if (auto_key_passthru)
     {
         _reply_nak();
         return;
     }
 
+    // get number of keys pressed and their keycodes from cmd buffer
+    uint8_t num_pressed = cmd_buf[1];
+    uint8_t key_codes[2] = { cmd_buf[2], cmd_buf[3] };
+
+    // 0, 1, or 2 keys can be pressed simultaneously
+    if (num_pressed > 2)
+    {
+        _reply_nak();
+        return;
+    }
+
+    // convert the key codes to four uPD16432B key data bytes
     uint8_t key_data[4] = {0, 0, 0, 0};
     uint8_t i;
-    for (i=1; i<cmd_buf_index; i++)
+    for (i=0; i<num_pressed; i++)
     {
         // get key upd data bytes for this one key
         uint8_t one_key_data[4] = {0, 0, 0, 0};
-        uint8_t success = convert_code_to_upd_key_data(cmd_buf[i], one_key_data);
+        uint8_t success = convert_code_to_upd_key_data(
+            key_codes[i], one_key_data);
         if (! success) // bad key code
         {
             _reply_nak();
             return;
         }
 
-        // merge the one key into final key data
+        // merge the bytes from this one key into the final key data
         key_data[0] |= one_key_data[0];
         key_data[1] |= one_key_data[1];
         key_data[2] |= one_key_data[2];
         key_data[3] |= one_key_data[3];
     }
 
-    // load the four key data bytes
+    // load the four uPD16432B key data bytes
     for (i=0; i<4; i++)
     {
         upd_tx_key_data[i] = key_data[i];
@@ -684,7 +716,7 @@ static void _do_load_keys()
 }
 
 /* Dispatch a command.  A complete command packet has been received.  The
- * command buffer has one more bytes.  The first byte is the command byte.
+ * command buffer has one or more bytes.  The first byte is the command byte.
  * Dispatch to a handler, or return a NAK if the command is unrecognized.
  */
 static void _cmd_dispatch()
@@ -809,4 +841,3 @@ void cmd_receive_byte(uint8_t c)
         }
     }
 }
-
