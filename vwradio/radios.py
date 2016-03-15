@@ -29,7 +29,7 @@ class Radio(object):
             self._parse_diag(text)
         elif text[6:9] in ("MIN", "MAX"):
             self._parse_volume(text)
-        elif str.isdigit(text[0]):
+        elif str.isdigit(text[0]) and text[1] == " ":
             self._parse_safe(text)
         elif text[0:4] == "    " and text[9:11] == "  ":
             self._parse_safe(text)

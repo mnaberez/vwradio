@@ -496,7 +496,7 @@ void radio_state_parse(radio_state_t *state, uint8_t *ram)
     {
         _parse_sound_volume(state, ram);
     }
-    else if (isdigit(ram[0]))
+    else if (isdigit(ram[0]) && ram[1] == ' ')
     {
         _parse_safe(state, ram);
     }
