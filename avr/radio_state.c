@@ -419,6 +419,19 @@ static void _parse_safe(radio_state_t *state, uint8_t *ram)
     }
 }
 
+static void _parse_diag(radio_state_t *state, uint8_t *ram)
+{
+    if (memcmp(ram, "     DIAG  ", 11) == 0)
+    {
+        state->display_mode = DISPLAY_MODE_SHOWING_OPERATION;
+        state->operation_mode = OPERATION_MODE_DIAGNOSTICS;
+    }
+    else
+    {
+        _parse_unknown(state, ram);
+    }
+}
+
 static void _parse_initial(radio_state_t *state, uint8_t *ram)
 {
     if (memcmp(ram, "    INITIAL", 11) == 0)
@@ -473,6 +486,10 @@ void radio_state_parse(radio_state_t *state, uint8_t *ram)
     else if (memcmp(ram, "           ", 11) == 0)
     {
         // ignore all spaces
+    }
+    else if (memcmp(ram, "     DIAG  ", 11) == 0)
+    {
+        _parse_diag(state, ram);
     }
     else if ((memcmp(ram+6, "MIN", 3) == 0) ||
              (memcmp(ram+6, "MAX", 3) == 0))

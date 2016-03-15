@@ -25,6 +25,8 @@ class Radio(object):
     def parse(self, text):
         if text == ' ' * 11:
             pass # blank
+        elif text == "     DIAG  ":
+            self._parse_diag(text)
         elif text[6:9] in ("MIN", "MAX"):
             self._parse_volume(text)
         elif str.isdigit(text[0]):
@@ -90,16 +92,23 @@ class Radio(object):
         else:
             self._parse_unknown(text)
 
+    def _parse_diag(self, text):
+        if text == "     DIAG  ":
+            self.display_mode = DisplayModes.SHOWING_OPERATION
+            self.operation_mode = OperationModes.DIAGNOSTICS
+        else:
+            self._parse_unknown(text)
+
     def _parse_set(self, text):
-        if text[0:9] == 'SET ONVOL':
+        if text[0:9] == "SET ONVOL":
             self.display_mode = DisplayModes.SETTING_OPTION_ON_VOL
             self.option_on_vol = int(text[9:11])
-        elif text[0:10] == 'SET CD MIX':
+        elif text[0:10] == "SET CD MIX":
             self.display_mode = DisplayModes.SETTING_OPTION_CD_MIX
             self.option_cd_mix = int(text[10]) # 1 or 6
-        elif text[0:9] == 'TAPE SKIP':
+        elif text[0:9] == "TAPE SKIP":
             self.display_mode = DisplayModes.SETTING_OPTION_TAPE_SKIP
-            if text[10] == 'Y':
+            if text[10] == "Y":
                 self.option_tape_skip = 1
             else: # 'N'
                 self.option_tape_skip = 0
@@ -307,7 +316,4 @@ class Radio(object):
             self._parse_unknown(text)
 
     def _parse_unknown(self, text):
-        # TODO temporary
-        import sys
-        sys.stderr.write("Unrecognized: %r\n" % text)
-        # raise ValueError("Unrecognized: %r" % text)
+        raise ValueError("Unrecognized: %r" % text)

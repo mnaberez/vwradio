@@ -80,3 +80,6 @@ Setting Options
 
 Initializing
   Decoded Display RAM: '    INITIAL'
+
+Diagnostics (KW1281)
+  Decoded Display RAM: '     DIAG  '

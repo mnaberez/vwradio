@@ -635,6 +635,24 @@ class AvrTests(unittest.TestCase):
         self.assertEqual(state.display_mode,
             DisplayModes.SHOWING_OPERATION)
 
+    def test_diag(self):
+        self.client.radio_state_reset()
+        # set up known values
+        self.client.radio_state_parse(b"FM161079MHZ")
+        self.client.radio_state_parse(b"FM1   MIN  ")
+        state = self.client.radio_state_dump()
+        self.assertEqual(state.operation_mode,
+            OperationModes.TUNER_PLAYING)
+        self.assertEqual(state.display_mode,
+            DisplayModes.ADJUSTING_SOUND_VOLUME)
+        # parse display
+        self.client.radio_state_parse("     DIAG  ")
+        state = self.client.radio_state_dump()
+        self.assertEqual(state.operation_mode,
+            OperationModes.DIAGNOSTICS)
+        self.assertEqual(state.display_mode,
+            DisplayModes.SHOWING_OPERATION)
+
     def test_radio_state_sound_volume(self):
         displays = (
             b"AM    MIN  ",

@@ -33,6 +33,7 @@ class OperationModes(Enum):
     TAPE_NO_TAPE = 47
     TAPE_ERROR = 48
     INITIALIZING = 50
+    DIAGNOSTICS = 60
 
 class DisplayModes(Enum):
     UNKNOWN = 0
