@@ -97,8 +97,8 @@ class Client(object):
         data = self.command([CMD_RADIO_STATE_DUMP])
         return RadioState(data[1:])
 
-    def radio_state_parse(self, display_ram):
-        data = bytearray([CMD_RADIO_STATE_PARSE]) + bytearray(display_ram)
+    def radio_state_parse(self, display):
+        data = bytearray([CMD_RADIO_STATE_PARSE]) + bytearray(display)
         self.command(data)
 
     def convert_upd_key_data_to_codes(self, key_data):
