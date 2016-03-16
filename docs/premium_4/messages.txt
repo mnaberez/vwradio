@@ -83,3 +83,8 @@ Initializing
 
 Diagnostics (KW1281)
   Decoded Display RAM: '     DIAG  '
+
+Test Mode
+  Decoded Display RAM: 'RAD 3CP T7 '
+  Decoded Display RAM: 'VER  0702  '
+  Decoded Display RAM: 'FERN   OFF '

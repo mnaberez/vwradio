@@ -1,0 +1,64 @@
+Test Mode
+---------
+
+If the radio is in FM1 or FM2 mode only, holding the "BAL" key for 10+ seconds
+enters test mode.
+
+Pressing "TAPE" moves forward through the test mode displays.  After the last
+display ("VER"), it wraps around to the first display ("RAD").
+
+Pressing "CD" moves backward through the test mode displays.  After the first
+display ("RAD"), it wraps around to the last display ("VER").
+
+No other key seems functional.  The radio seems to stay in test mode
+indefinitely.  Holding the "BAL" key for 10+ seconds again exits test mode.
+
+Test mode displays:
+  'RAD 3CP T7 '
+  'FERN   OFF '
+  'VER  0702  '
+
+
+Set Options
+-----------
+
+Holding the "SCAN" key for 5+ seconds enters a mode to set options.
+
+Pressing "TUNE UP" or "SEEK UP" moves forward through the options.  After the
+last option ("TAPE SKIP"), it wraps around to the first option ("SET ONVOL").
+
+Pressing "TUNE DOWN" or "SEEK DOWN" moves backward through the options.  After
+the first option ("SET ONVOL"), it wraps around to the last option ("TAPE SKIP").
+
+Pressing "SCAN" moves forward through the options.  If "SCAN" is pressed on the
+last option ("TAPE SKIP"), no matter what keys were used to get there, the
+radio exits this mode.
+
+The current option is changed by turning the volume knob.  The hidden volume
+keys do not change the option.
+
+No other key seems functional.  If no key is pressed and the volume knob is
+not turned for 30+ seconds, the radio will automatically exits this mode.
+
+Set options displays:
+  'SET ONVOL13'
+  'SET CD MIX1'
+  'TAPE SKIP N'
+
+
+Diagnostics (KWP1281)
+---------------------
+
+The radio is address 56 on KWP1281.  Connecting to the radio on KWP1281 will
+cause it to stop whatever it is doing and enter diagnostics mode.  No faceplate
+keys seem to work in diagnostics mode.  The radio returns to its previous
+operation after exiting diagnostics mode.
+
+Diagnostics displays:
+  '     DIAG  '
+
+Special case: if the radio is in Test Mode at the time it is accessed on
+KWP1281, it will enter diagnostics mode but it will not show the "DIAG" display.
+It will leave the current Test Mode display but the faceplate keys won't work.
+After exiting diagnostics mode, the Test Mode will continue to work as it was
+before it was interrupted.

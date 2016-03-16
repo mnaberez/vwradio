@@ -64,3 +64,6 @@ Initializing
 
 Diagnostics (KW1281)
   TODO
+
+Test Mode
+  TODO
