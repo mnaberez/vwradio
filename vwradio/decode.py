@@ -277,6 +277,10 @@ def parse_analyzer_file(filename, analyzer):
 
 
 def main():
+    if len(sys.argv) != 3:
+        sys.stderr.write("Usage: %s <4|5> <filename>\n" % sys.argv[0])
+        sys.exit(1)
+
     if sys.argv[1] == '4':
         faceplate = faceplates.Premium4()
     else:
