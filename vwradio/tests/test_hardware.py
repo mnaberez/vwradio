@@ -628,7 +628,7 @@ class AvrTests(unittest.TestCase):
         self.assertEqual(state.display_mode,
             DisplayModes.ADJUSTING_SOUND_VOLUME)
         # parse display
-        self.client.radio_state_parse("    INITIAL")
+        self.client.radio_state_parse(b"    INITIAL")
         state = self.client.radio_state_dump()
         self.assertEqual(state.operation_mode,
             OperationModes.INITIALIZING)
@@ -646,7 +646,7 @@ class AvrTests(unittest.TestCase):
         self.assertEqual(state.display_mode,
             DisplayModes.ADJUSTING_SOUND_VOLUME)
         # parse display
-        self.client.radio_state_parse("     DIAG  ")
+        self.client.radio_state_parse(b"     DIAG  ")
         state = self.client.radio_state_dump()
         self.assertEqual(state.operation_mode,
             OperationModes.DIAGNOSTICS)
