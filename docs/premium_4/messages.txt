@@ -81,6 +81,10 @@ Setting Options
 Initializing
   Decoded Display RAM: '    INITIAL'
 
+Code Change
+  Decoded Display RAM: '     CODE  '
+  Decoded Display RAM: '     1000  '
+
 Diagnostics (KW1281)
   Decoded Display RAM: '     DIAG  '
 
