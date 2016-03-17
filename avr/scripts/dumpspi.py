@@ -17,8 +17,8 @@ while True:
     lcd_text = ''
 
     for addr in fp.DISPLAY_ADDRESSES:
-        code_code = display_ram[addr]
-        char = fp.CHARACTERS[code_code]
+        char_code = display_ram[addr]
+        char = fp.CHARACTERS[char_code]
         lcd_text += char
     sys.stdout.write("\r" + lcd_text)
     sys.stdout.flush()
