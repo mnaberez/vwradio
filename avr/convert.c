@@ -1,4 +1,5 @@
 #include "convert.h"
+#include "main.h"
 
 // premium 4 decode: upd16432b key data -> our arbitrary key codes
 static const uint8_t _premium4_key_decode_table[4][8] PROGMEM = {
@@ -609,6 +610,7 @@ static const uint8_t _premium5_key_encode_table[256][4] PROGMEM = {
 };
 
 /* Convert uPD16432B key data to key codes (the KEY_ constants)
+ * The global variable radio_model is used to select the conversion table.
  *
  * key_data_in: array of 4 bytes from uPD16432B
  * key_codes_out: array of 2 bytes that will be overwritten with key codes
@@ -636,9 +638,19 @@ uint8_t convert_upd_key_data_to_codes(
         {
             if (key_data_in[bytenum] & (1<<bitnum))
             {
-                uint8_t key_code = pgm_read_byte(
-                    &(_premium4_key_decode_table[bytenum][bitnum])
-                    );
+                uint8_t key_code;
+                if (radio_model == RADIO_MODEL_PREMIUM_4)
+                {
+                    key_code = pgm_read_byte(
+                        &(_premium4_key_decode_table[bytenum][bitnum])
+                        );
+                }
+                else // RADIO_MODEL_PREMIUM_5
+                {
+                    key_code = pgm_read_byte(
+                        &(_premium5_key_decode_table[bytenum][bitnum])
+                        );
+                }
 
                 if ((key_code != KEY_NONE) && (num_keys_pressed < 2))
                 {
@@ -651,7 +663,8 @@ uint8_t convert_upd_key_data_to_codes(
     return num_keys_pressed;
 }
 
-/* Convert a key code (one of the KEY_ constants) to uPD16432B key data
+/* Convert a key code (one of the KEY_ constants) to uPD16432B key data.
+ * The global variable radio_model is used to select the conversion table.
  *
  * key_code: key code to convert into key data
  * key_data_out: array of 4 bytes that will be overwritten with the key data
@@ -664,10 +677,20 @@ uint8_t convert_upd_key_data_to_codes(
  */
 uint8_t convert_code_to_upd_key_data(uint8_t key_code, uint8_t *key_data_out)
 {
-    key_data_out[0] = pgm_read_byte(&_premium4_key_encode_table[key_code][0]);
-    key_data_out[1] = pgm_read_byte(&_premium4_key_encode_table[key_code][1]);
-    key_data_out[2] = pgm_read_byte(&_premium4_key_encode_table[key_code][2]);
-    key_data_out[3] = pgm_read_byte(&_premium4_key_encode_table[key_code][3]);
+    if (radio_model == RADIO_MODEL_PREMIUM_4)
+    {
+        key_data_out[0] = pgm_read_byte(&_premium4_key_encode_table[key_code][0]);
+        key_data_out[1] = pgm_read_byte(&_premium4_key_encode_table[key_code][1]);
+        key_data_out[2] = pgm_read_byte(&_premium4_key_encode_table[key_code][2]);
+        key_data_out[3] = pgm_read_byte(&_premium4_key_encode_table[key_code][3]);
+    }
+    else // RADIO_MODEL_PREMIUM_5
+    {
+        key_data_out[0] = pgm_read_byte(&_premium5_key_encode_table[key_code][0]);
+        key_data_out[1] = pgm_read_byte(&_premium5_key_encode_table[key_code][1]);
+        key_data_out[2] = pgm_read_byte(&_premium5_key_encode_table[key_code][2]);
+        key_data_out[3] = pgm_read_byte(&_premium5_key_encode_table[key_code][3]);
+    }
 
     if (key_data_out[0] | key_data_out[1] | key_data_out[2] | key_data_out[3])
     {

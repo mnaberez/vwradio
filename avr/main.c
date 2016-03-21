@@ -26,6 +26,7 @@
 #include <avr/interrupt.h>
 
 #include "cmd.h"
+#include "convert.h"
 #include "faceplate.h"
 #include "leds.h"
 #include "radio_spi.h"
@@ -47,6 +48,7 @@ ISR(BADISR_vect)
 
 int main()
 {
+    radio_model = RADIO_MODEL_PREMIUM_4;
     run_mode = RUN_MODE_RUNNING;
     auto_display_passthru = 1;
     auto_key_passthru = 1;

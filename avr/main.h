@@ -8,6 +8,12 @@
 #define RUN_MODE_STOPPED 0
 #define RUN_MODE_RUNNING 1
 
+#define RADIO_MODEL_PREMIUM_4 4
+#define RADIO_MODEL_PREMIUM_5 5
+
+// Specifies the radio model for key and display conversions.
+volatile uint8_t radio_model;
+
 // Run mode allows normally processing to be stopped for testing.
 volatile uint8_t run_mode;
 
