@@ -326,7 +326,7 @@ class Premium5(Faceplate):
         0x7a: "z",
         }
 
-def _print_key_encode_table_for_avr_c(keys):
+def _print_key_decode_table_for_avr_c(keys):
     for bytenum in range(4):
         print('    // byte %d' % bytenum)
         for bitnum in range(8):
@@ -336,7 +336,7 @@ def _print_key_encode_table_for_avr_c(keys):
             line += '// byte %d, bit %d' % (bytenum, bitnum)
             print(line)
 
-def _print_key_decode_table_for_avr_c(keys):
+def _print_key_encode_table_for_avr_c(keys):
     for keycode in range(256):
         name = Keys.get_name(keycode)
         if name is None:
@@ -369,7 +369,7 @@ def _print_key_decode_table_for_avr_c(keys):
 
 
 if __name__ == '__main__':
-    print("// Premium 4 Key Encoding Table")
-    _print_key_encode_table_for_avr_c(Premium4.KEYS)
-    print("// Premium 4 Key Decoding Table")
-    _print_key_decode_table_for_avr_c(Premium4.KEYS)
+    print("// Premium 5 Key Decoding Table")
+    _print_key_encode_table_for_avr_c(Premium5.KEYS)
+    print("// Premium 5 Key Encoding Table")
+    _print_key_decode_table_for_avr_c(Premium5.KEYS)
