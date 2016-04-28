@@ -1,4 +1,6 @@
 .bin binary
 .gz binary
 .jpg binary
+.logicdata binary
 .pdf binary
+.png binary
