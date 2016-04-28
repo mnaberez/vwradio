@@ -1,0 +1,31 @@
+FE/ME:
+    metal tape indicator, don't care
+MONITOR:
+    always 5V
+SWITCH:
+    no tape = 0v
+    tape in, not playing = 5v constant
+    play tape:
+        ENABLE high->low
+        2426 ms delay
+        SWITCH high->low
+        3366 ms delay
+        SWITCH low->high
+        75 ms delay
+        SWITCH high->low
+        (SWITCH stays low until STOP is pressed, then goes constant high)
+
+
+simulator:
+    set FE/ME as output, permanently high or low, don't care
+    set MONITOR as output, permanently high
+    ENABLE as input, SWITCH as output
+    set SWITCH high
+    wait for ENABLE high->low
+    delay 2426 ms
+    set SWITCH low
+    delay 3366 ms
+    set SWITCH high
+    delay 75 ms
+    set SWITCH low
+
