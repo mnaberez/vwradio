@@ -22,15 +22,17 @@
 
 int main()
 {
+    led_init();
+    led_set(LED_RED, 0);
+    led_set(LED_GREEN, 0);
+
+    DDRB &= ~_BV(PB4);  // ENABLE as input
     DDRB &= ~_BV(PB0);  // CLOCK as input
 
     DDRB |= _BV(PB1);   // SWITCH as output
     PORTB |= _BV(PB1);  // set SWITCH initially high
 
-    DDRB &= ~_BV(PB4);  // ENABLE as input
-    PORTB |= _BV(PB4);  // Activate internal pull-up on ENABLE
-
-    while (PINB & _BV(PB4)) {} // wait for ENABLE to go low
+    loop_until_bit_is_clear(PINB, PB4);  // wait for ENABLE to go low
 
     // SWITCH is already high
     _delay_ms(286);
@@ -40,16 +42,18 @@ int main()
     _delay_ms(77);
     PORTB &= ~_BV(PB1); // set SWITCH low
 
-    led_init();
     led_set(LED_GREEN, 1);
 
-    DDRB |= _BV(PB0); // CLOCK as output
     while (1)
     {
-        PORTB |= _BV(PB0); // set CLOCK high
-        _delay_ms(25);
+        // CLOCK low for 1ms
+        DDRB |= _BV(PB0);
         PORTB &= ~_BV(PB0); // set CLOCK low
         _delay_ms(1);
+
+        // CLOCK high for 25ms
+        DDRB &= ~_BV(PB0); // CLOCK as input (external pull-up makes it high)
+        _delay_ms(25);
     }
 
 }
