@@ -10,9 +10,11 @@
  */
 
 #include "main.h"
+#include "uart.h"
 #include "leds.h"
 
 #include <stdint.h>
+#include <avr/interrupt.h>
 #include <avr/io.h>
 #include <util/delay.h>
 
@@ -22,7 +24,18 @@
 
 int main()
 {
+    uart_init();
     led_init();
+    sei();
+
+    uart_puts((uint8_t *)"RESET\n");
+    for (uint8_t i=0; i<20; i++)
+    {
+        uart_puts((uint8_t *)"0x");
+        uart_puthex_byte(i);
+        uart_putc('\n');
+    }
+
     led_set(LED_RED, 0);
     led_set(LED_GREEN, 0);
 

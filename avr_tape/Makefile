@@ -1,5 +1,5 @@
 PROJECT=tape
-SOURCES=leds.c main.c
+SOURCES=leds.c main.c uart.c
 MMCU=atmega1284p
 ISPFLAGS=-c avrisp2 -B 1
 CFLAGS=-mmcu=$(MMCU) -g -Wall -Os -std=c99
