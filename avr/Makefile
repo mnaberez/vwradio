@@ -1,7 +1,7 @@
 PROJECT=vwradio
 SOURCES=cmd.c convert.c faceplate.c leds.c main.c radio_spi.c radio_state.c uart.c updemu.c
-MMCU=atmega1284p
-ISPFLAGS=-c avrisp2 -B 1
+MMCU=atmega1284
+ISPFLAGS=-c avrisp2 -B 5
 CFLAGS=-mmcu=$(MMCU) -g -Wall -Os -std=c99
 
 $(PROJECT).hex: $(PROJECT).elf
