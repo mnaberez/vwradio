@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import sys
+import time
 import serial # pyserial
 
 def make_serial():
@@ -15,3 +16,5 @@ if __name__ == '__main__':
         numbytes = ser.in_waiting
         if numbytes:
             sys.stdout.write(ser.read(numbytes))
+        else:
+            time.sleep(0.05)

@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import sys
+import time
 from vwradio.avrclient import make_client
 from vwradio.faceplates import Premium4
 
@@ -10,6 +11,8 @@ ser = client.serial
 #     numbytes = ser.in_waiting
 #     if numbytes:
 #         sys.stdout.write(ser.read(numbytes))
+#     else:
+#         time.sleep(0.05)
 
 fp = Premium4()
 while True:
