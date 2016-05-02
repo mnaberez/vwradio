@@ -1,5 +1,5 @@
-SCA4.4 (Module with TDA3612
----------------------------
+SCA4.4 (Cassette Mechanism with TDA3612)
+----------------------------------------
 
 FE/ME:
     output
@@ -78,3 +78,40 @@ Simulating Stop
 
 set SWITCH high
 stop pulsing CLOCK
+
+
+TEA0675 (Cassette Preamplifier with Dolby NR)
+---------------------------------------------
+
+To inject external audio, disconnect pin 1 (OUTA) and pin 24 (OUTB) from
+the board.  These are the outputs of the TEA0675's preamplifier.  Connect an
+audio source to the pads on the board.  Headphone jack audio from a Macbook Pro
+and a Raspberry Pi 2 Model B both worked.
+
+Pin 19 (AMSEQ) always seems to be high, regardless of whether there is
+audio from the tape head or not.  The radio doesn't appear to use the
+AMS feature.  It uses the LA2000 instead (see below).
+
+Audio will only be heard from the TEA0675 if the LA2000's pin 6 is high.  This
+means that either a cassette with music must be playing, or the pin has to
+be faked.
+
+If the TEA0675 is completely removed from the circuit, the LA2000 will no
+longer detect cassette audio.  The TEA0675 can be removed, but the LA2000 must
+also be removed and its pin 6 faked.
+
+
+LA2000 (Audio Level Sensor)
+---------------------------
+
+Pin 6 goes immediately high when there is audio from the tape head and
+immediately low when there not.  It does not seem to detect audio from any
+other source.  Pin 6 is connected directly to pin 44 on the MCU at IC802.
+
+If the LA2000 is removed and pin 6 tied high, the MCU will always think tape
+audio is present and will keep the tape audio active even if the tape head
+is disconnected.
+
+Pin 6 can be tied permanently high, but MSS FW/REW will not stop (it will act
+like regular FW/REW).  When MSS FW/REW is on, the MCU waits for pin 6 high->low
+(end of current song) followed by pin 6 low->high (start of next song).
