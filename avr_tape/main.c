@@ -1,12 +1,11 @@
 /*
  * Pin  1: PB0 CLOCK in/out (connect to radio through 3.3K resistor)
- * Pin  2: PB1 SWITCH out
- * Pin  3: PB2 /ENABLE in
- * Pin  4: PB3 /SS out (software generated from /ENABLE, connect to PB4)
- * Pin  5: PB4 /SS in
+ * Pin  2: PB1 SWITCH out (3.3K pull-down to GND)
+ * Pin  3: PB2 /ENABLE in (3.3K pull-up to 5V)
  * Pin  6: PB5 MOSI in (to radio's DATA)
- * Pin 19: PD5 Green LED
- * Pin 20: PD6 Red LED
+ * Pin 18: PD4 Pushbutton (low=pushed)
+ * Pin 19: PD5 Green LED (high=illuminated)
+ * Pin 20: PD6 Red LED (high=illuminated)
  *
  * Tie FE/ME out permanently low (means non-metal tape)
  * Tie MONITOR out permanently high (means no error condition)
@@ -26,6 +25,20 @@
  *************************************************************************/
 
 volatile uint8_t clock_in_use = 0;
+
+/* Blink red forever if an unhandled interrupt occurs.
+ * This code should never been called.
+ */
+ISR(BADISR_vect)
+{
+    while(1)
+    {
+        led_set(LED_RED, 1);
+        _delay_ms(200);
+        led_set(LED_RED, 0);
+        _delay_ms(200);
+    }
+}
 
 // Pin Change Interrupt: Fires for any change of /ENABLE
 ISR(PCINT1_vect)
@@ -55,18 +68,9 @@ int main()
 {
     uart_init();
     led_init();
-    sei();
-    uart_puts((uint8_t*)"RESET!\n\n");
-    uart_flush_tx();
-    led_set(LED_RED, 1);
 
-    DDRB |= _BV(PB0);
-    while (1) {
-        PORTB &= ~_BV(PB0);
-        _delay_ms(1);
-        PORTB |= _BV(PB0);
-        _delay_ms(1);
-    }
+    // Pushbutton as input (low=pushed)
+    DDRD &= ~_BV(PD4);
 
     // /ENABLE as input
     DDRB &= ~_BV(PB2);
@@ -96,24 +100,32 @@ int main()
     // SPIE=1 SPI interrupts enabled
     SPCR = _BV(SPE) | _BV(CPOL) | _BV(CPHA) | _BV(SPIE);
 
-    led_set(LED_GREEN,1);
-    sei();
-    uart_puts((uint8_t*)"RESET\n");
-    uart_flush_tx();
-
     DDRB &= ~_BV(PB0);  // CLOCK as input
-
-    DDRB |= _BV(PB1);   // SWITCH as output
-    PORTB |= _BV(PB1);  // set SWITCH initially high
-
     DDRB |= _BV(PB4);   // /SS out as output
     PORTB |= _BV(PB4);  // /SS out initially high
+    sei();
 
-    // led_set(LED_RED, 0);
+    uart_puts((uint8_t*)"RESET!\n\n");
+    uart_flush_tx();
+    led_set(LED_RED, 1);
     led_set(LED_GREEN, 0);
 
+    DDRB |= _BV(PB1);   // SWITCH as output
+    PORTB &= ~_BV(PB1);  // set SWITCH initially low (no tape inserted)
+    _delay_ms(200);
+
+    loop_until_bit_is_clear(PIND, PD4); // wait for pushbutton to be pressed
+
+    uart_puts((uint8_t*)"Tape Inserted\n\n");
+    uart_flush_tx();
+    PORTB |= _BV(PB1); // set SWITCH high (tape inserted)
+    _delay_ms(200);
+
+    loop_until_bit_is_clear(PINB, PB2);  // wait for ENABLE to go low
+    led_set(LED_GREEN, 1);
+
     // SWITCH is already high
-    _delay_ms(286);
+    _delay_ms(300);
     PORTB &= ~_BV(PB1); // set SWITCH low
     _delay_ms(337);
     PORTB |= _BV(PB1); // set SWITCH high
