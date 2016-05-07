@@ -1,8 +1,19 @@
 /*
- * Pin  1: PB0 CLOCK in/out (connect to radio through 3.3K resistor)
- * Pin  2: PB1 SWITCH out (3.3K pull-down to GND)
- * Pin  3: PB2 /ENABLE in (3.3K pull-up to 5V)
- * Pin  6: PB5 MOSI in (to radio's DATA)
+ * Pin  1: PB0 CLOCK in/out:
+              connect directly to PB7 (SCK)
+              connect to radio's CLOCK through 3.3K resistor
+ * Pin  2: PB1 SWITCH out to radio with 3.3K pull-down to GND
+ * Pin  3: PB2 /ENABLE in from radio with 3.3K pull-up to 5V
+ * Pin  4: PB3 /SS out: connect directly to PB4
+ * Pin  5: PB4 /SS in:  connect directly to PB3
+ * Pin  6: PB5 MOSI in:
+                 connect directly to AVR ISP header
+                 connect to radio's DAT through 3.3K resistor
+ * Pin  7: PB6 MISO out:
+                 connect directly to AVR ISP header
+ * pin  8: PB7 SCK in from radio:
+ *               connect directly to AVR ISP header
+ *               connect directly to PB0
  * Pin 18: PD4 Pushbutton (low=pushed)
  * Pin 19: PD5 Green LED (high=illuminated)
  * Pin 20: PD6 Red LED (high=illuminated)
@@ -45,7 +56,7 @@ ISR(PCINT1_vect)
 {
     // /ENABLE low->high (unselect)
     if (PINB & _BV(PB2)) {
-        PORTB |= _BV(PB4); // /SS = high
+        PORTB |= _BV(PB3); // /SS out = high
         clock_in_use = 0;
     }
     // /ENABLE high->low (select)
@@ -53,14 +64,16 @@ ISR(PCINT1_vect)
     {
         uart_puts((uint8_t*)"L\n");
         DDRB &= ~_BV(PB0); // CLOCK as input
-        PORTB &= ~_BV(PB4); // /SS = low
+        PORTB &= ~_BV(PB3); // /SS out = low
         clock_in_use = 1;
     }
 }
 
 ISR(SPI_STC_vect)
 {
+    led_set(LED_GREEN, 0);
     uart_puthex_byte(SPDR);
+    uart_putc('\n');
     SPDR = 0;
 }
 
@@ -69,12 +82,17 @@ int main()
     uart_init();
     led_init();
 
-    // Pushbutton as input (low=pushed)
-    DDRD &= ~_BV(PD4);
+    sei();
+
+    DDRB &= ~_BV(PB0);  // CLOCK as input
+    DDRB &= ~_BV(PB7);  // SCK as input
 
     // /ENABLE as input
     DDRB &= ~_BV(PB2);
     PORTB |= _BV(PB2);  // internal pull-up
+
+    DDRB |= _BV(PB3);  // /SS out as output
+    PORTB |= _BV(PB3); // /SS out initially high
 
     // Set pin change enable mask 1 for PB2 (PCINT10) only
     PCMSK1 = _BV(PCINT10);
@@ -87,10 +105,6 @@ int main()
     DDRB &= ~_BV(PB4);
     // PB5 as input (AVR hardware SPI MOSI)
     DDRB &= ~_BV(PB5);
-    // PB6 initially as input (AVR hardware SPI MISO)
-    // MISO and MOSI are wired together as a single line to the radio (DAT),
-    // so we don't set MISO as an output until we need to send data on it.
-    DDRB &= ~_BV(PB6);
 
     // SPI data output register (MISO) initially 0
     SPDR = 0;
@@ -100,10 +114,8 @@ int main()
     // SPIE=1 SPI interrupts enabled
     SPCR = _BV(SPE) | _BV(CPOL) | _BV(CPHA) | _BV(SPIE);
 
-    DDRB &= ~_BV(PB0);  // CLOCK as input
-    DDRB |= _BV(PB4);   // /SS out as output
-    PORTB |= _BV(PB4);  // /SS out initially high
-    sei();
+    // Pushbutton as input (low=pushed)
+    DDRD &= ~_BV(PD4);
 
     uart_puts((uint8_t*)"RESET!\n\n");
     uart_flush_tx();
