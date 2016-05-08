@@ -46,7 +46,7 @@ CLOCK:
       the radio will report a side switch (e.g. "PLAY A" -> "PLAY B").
 
 
-Board Connections
+Radio Board Connections
 -----------------
 
 SCA4.4      MB89677A            Notes
@@ -56,7 +56,16 @@ CLOCK        7 SCA CLK OUT      47K pull-up to Main 5V
             65 SCA CLOCK IN     Pins 4 & 65 shorted together
 ENABLE      39 SCA ENABLE       ?? No pull-up or pull-down ??
 FE/ME       41 SCA ME/FE        47K pull-up to Main 5V
-SWITCH      64 SCA SWITCH
+SWITCH      64 SCA SWITCH       ?? No pull-up or pull-down ??
+
+SCA4.4 board itself has 220 Ohm resistors inline with CLOCK, DATA,
+ENABLE.
+
+?? There doesn't seem to be pull-up resistors on ENABLE and SWITCH. ??
+
+Audi Concert/Chorus schematic shows 47K resistors to 5V on CLOCK,
+DATA, ENABLE, and SWITCH.  It has a 10K resistor to 5V on FE/ME.
+
 
 
 TDA3612 SPI Commands

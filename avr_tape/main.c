@@ -1,22 +1,17 @@
 /*
- * Pin  1: PB0 CLOCK in/out:
-              connect directly to PB7 (SCK)
-              connect to radio's CLOCK through 3.3K resistor
- * Pin  2: PB1 SWITCH out to radio with 3.3K pull-down to GND
- * Pin  3: PB2 /ENABLE in from radio with 3.3K pull-up to 5V
- * Pin  4: PB3 /SS out: connect directly to PB4
- * Pin  5: PB4 /SS in:  connect directly to PB3
- * Pin  6: PB5 MOSI in:
-                 connect directly to AVR ISP header
-                 connect to radio's DAT through 3.3K resistor
- * Pin  7: PB6 MISO out:
-                 connect directly to AVR ISP header
- * pin  8: PB7 SCK in from radio:
- *               connect directly to AVR ISP header
- *               connect directly to PB0
+ * Pin  1: PB0 CLOCK in/out: connect to radio's CLOCK and to PB7
+ * Pin  2: PB1 SWITCH out to radio, needs 3.3K pull-down to GND
+ * Pin  3: PB2 /ENABLE in from radio, needs 3.3K pull-up to 5V
+ * Pin  4: PB3 /SS out: connect to PB4
+ * Pin  5: PB4 /SS in:  connect to PB3 (/SS out)
+ * Pin  6: PB5 MOSI in: connect to radio's DAT **
+ * pin  8: PB7 SCK in: connect to PB0 (CLOCK in/out) **
  * Pin 18: PD4 Pushbutton (low=pushed)
  * Pin 19: PD5 Green LED (high=illuminated)
  * Pin 20: PD6 Red LED (high=illuminated)
+ *
+ * Pins marked ** above are also used by the ISP programmer but the ISP
+ * can't be connected at the same time as the radio.
  *
  * Tie FE/ME out permanently low (means non-metal tape)
  * Tie MONITOR out permanently high (means no error condition)
@@ -62,7 +57,7 @@ ISR(PCINT1_vect)
     // /ENABLE high->low (select)
     else
     {
-        uart_puts((uint8_t*)"L\n");
+        uart_puts((uint8_t*)"0x");
         DDRB &= ~_BV(PB0); // CLOCK as input
         PORTB &= ~_BV(PB3); // /SS out = low
         clock_in_use = 1;
