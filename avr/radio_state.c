@@ -457,21 +457,22 @@ static void _parse_initial(radio_state_t *state, uint8_t *display)
 
 static void _parse_set(radio_state_t *state, uint8_t *display)
 {
+    state->display_mode = DISPLAY_MODE_SHOWING_OPERATION;
     if (memcmp(display, "SET ONVOL", 9) == 0)
     {
-        state->display_mode = DISPLAY_MODE_SETTING_OPTION_ON_VOL;
+        state->operation_mode = OPERATION_MODE_SETTING_ON_VOL;
         state->option_on_vol = 0;
         if (isdigit(display[9]))  { state->option_on_vol += (display[9]  & 0x0F) * 10; }
         if (isdigit(display[10])) { state->option_on_vol += (display[10] & 0x0F); }
     }
     else if (memcmp(display, "SET CD MIX", 10) == 0)
     {
-        state->display_mode = DISPLAY_MODE_SETTING_OPTION_CD_MIX;
+        state->operation_mode = OPERATION_MODE_SETTING_CD_MIX;
         state->option_cd_mix = display[10] & 0x0F; // 1 or 6
     }
     else if (memcmp(display, "TAPE SKIP", 9) == 0)
     {
-        state->display_mode = DISPLAY_MODE_SETTING_OPTION_TAPE_SKIP;
+        state->operation_mode = OPERATION_MODE_SETTING_TAPE_SKIP;
         if (display[10] == 'Y')
         {
             state->option_tape_skip = 1;

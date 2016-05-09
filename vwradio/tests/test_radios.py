@@ -198,14 +198,14 @@ class TestRadio(unittest.TestCase):
             radio = Radio()
             # set up known values
             radio.operation_mode = OperationModes.TUNER_PLAYING
-            radio.display_mode = DisplayModes.SHOWING_OPERATION
+            radio.display_mode = DisplayModes.ADJUSTING_SOUND_VOLUME
             # parse display
             radio.parse(display)
             self.assertEqual(radio.option_on_vol, on_vol)
             self.assertEqual(radio.operation_mode,
-                OperationModes.TUNER_PLAYING)
+                OperationModes.SETTING_ON_VOL)
             self.assertEqual(radio.display_mode,
-                DisplayModes.SETTING_OPTION_ON_VOL)
+                DisplayModes.SHOWING_OPERATION)
 
     def test_set_option_cd_mix(self):
         values = (
@@ -216,14 +216,14 @@ class TestRadio(unittest.TestCase):
             radio = Radio()
             # set up known values
             radio.operation_mode = OperationModes.TUNER_PLAYING
-            radio.display_mode = DisplayModes.SHOWING_OPERATION
+            radio.display_mode = DisplayModes.ADJUSTING_SOUND_VOLUME
             # parse display
             radio.parse(display)
             self.assertEqual(radio.option_cd_mix, cd_mix)
             self.assertEqual(radio.operation_mode,
-                OperationModes.TUNER_PLAYING)
+                OperationModes.SETTING_CD_MIX)
             self.assertEqual(radio.display_mode,
-                DisplayModes.SETTING_OPTION_CD_MIX)
+                DisplayModes.SHOWING_OPERATION)
 
     def test_set_option_tape_skip(self):
         values = (
@@ -234,14 +234,14 @@ class TestRadio(unittest.TestCase):
             radio = Radio()
             # set up known values
             radio.operation_mode = OperationModes.TUNER_PLAYING
-            radio.display_mode = DisplayModes.SHOWING_OPERATION
+            radio.display_mode = DisplayModes.ADJUSTING_SOUND_VOLUME
             # parse display
             radio.parse(display)
             self.assertEqual(radio.option_tape_skip, tape_skip)
             self.assertEqual(radio.operation_mode,
-                OperationModes.TUNER_PLAYING)
+                OperationModes.SETTING_TAPE_SKIP)
             self.assertEqual(radio.display_mode,
-                DisplayModes.SETTING_OPTION_TAPE_SKIP)
+                DisplayModes.SHOWING_OPERATION)
 
     def test_cd_playing(self):
         values = (

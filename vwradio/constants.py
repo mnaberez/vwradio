@@ -35,6 +35,9 @@ class OperationModes(Enum):
     TAPE_ERROR = 48
     INITIALIZING = 50
     DIAGNOSTICS = 60
+    SETTING_ON_VOL = 70
+    SETTING_CD_MIX = 71
+    SETTING_TAPE_SKIP = 72
 
 class DisplayModes(Enum):
     UNKNOWN = 0
@@ -45,9 +48,6 @@ class DisplayModes(Enum):
     ADJUSTING_SOUND_BASS = 23
     ADJUSTING_SOUND_TREBLE = 24
     ADJUSTING_SOUND_MIDRANGE = 25
-    SETTING_OPTION_ON_VOL = 30
-    SETTING_OPTION_CD_MIX = 31
-    SETTING_OPTION_TAPE_SKIP = 32
 
 class TunerBands(Enum):
     UNKNOWN = 0

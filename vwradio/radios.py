@@ -102,14 +102,15 @@ class Radio(object):
             self._parse_unknown(display)
 
     def _parse_set(self, display):
+        self.display_mode = DisplayModes.SHOWING_OPERATION
         if display[0:9] == b"SET ONVOL":
-            self.display_mode = DisplayModes.SETTING_OPTION_ON_VOL
+            self.operation_mode = OperationModes.SETTING_ON_VOL
             self.option_on_vol = int(display[9:11])
         elif display[0:10] == b"SET CD MIX":
-            self.display_mode = DisplayModes.SETTING_OPTION_CD_MIX
+            self.operation_mode = OperationModes.SETTING_CD_MIX
             self.option_cd_mix = int(display[10:11]) # 1 or 6
         elif display[0:9] == b"TAPE SKIP":
-            self.display_mode = DisplayModes.SETTING_OPTION_TAPE_SKIP
+            self.operation_mode = OperationModes.SETTING_TAPE_SKIP
             if display[10:11] == b"Y":
                 self.option_tape_skip = 1
             else: # 'N'

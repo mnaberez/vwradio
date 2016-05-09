@@ -826,19 +826,20 @@ class AvrTests(unittest.TestCase):
             # set up known values
             self.client.radio_state_reset()
             self.client.radio_state_parse(b"FM161079MHZ")
+            self.client.radio_state_parse(b"FM1   MIN  ")
             state = self.client.radio_state_dump()
             self.assertEqual(state.operation_mode,
                 OperationModes.TUNER_PLAYING)
             self.assertEqual(state.display_mode,
-                DisplayModes.SHOWING_OPERATION)
+                DisplayModes.ADJUSTING_SOUND_VOLUME)
             # parse display
             self.client.radio_state_parse(display)
             state = self.client.radio_state_dump()
             self.assertEqual(state.option_on_vol, on_vol)
             self.assertEqual(state.operation_mode,
-                OperationModes.TUNER_PLAYING)
+                OperationModes.SETTING_ON_VOL)
             self.assertEqual(state.display_mode,
-                DisplayModes.SETTING_OPTION_ON_VOL)
+                DisplayModes.SHOWING_OPERATION)
 
     def test_radio_state_set_option_cd_mix(self):
         values = (
@@ -849,19 +850,20 @@ class AvrTests(unittest.TestCase):
             # set up known values
             self.client.radio_state_reset()
             self.client.radio_state_parse(b"FM161079MHZ")
+            self.client.radio_state_parse(b"FM1   MIN  ")
             state = self.client.radio_state_dump()
             self.assertEqual(state.operation_mode,
                 OperationModes.TUNER_PLAYING)
             self.assertEqual(state.display_mode,
-                DisplayModes.SHOWING_OPERATION)
+                DisplayModes.ADJUSTING_SOUND_VOLUME)
             # parse display
             self.client.radio_state_parse(display)
             state = self.client.radio_state_dump()
             self.assertEqual(state.option_cd_mix, cd_mix)
             self.assertEqual(state.operation_mode,
-                OperationModes.TUNER_PLAYING)
+                OperationModes.SETTING_CD_MIX)
             self.assertEqual(state.display_mode,
-                DisplayModes.SETTING_OPTION_CD_MIX)
+                DisplayModes.SHOWING_OPERATION)
 
     def test_radio_state_set_option_tape_skip(self):
         values = (
@@ -872,19 +874,20 @@ class AvrTests(unittest.TestCase):
             # set up known values
             self.client.radio_state_reset()
             self.client.radio_state_parse(b"FM161079MHZ")
+            self.client.radio_state_parse(b"FM1   MIN  ")
             state = self.client.radio_state_dump()
             self.assertEqual(state.operation_mode,
                 OperationModes.TUNER_PLAYING)
             self.assertEqual(state.display_mode,
-                DisplayModes.SHOWING_OPERATION)
+                DisplayModes.ADJUSTING_SOUND_VOLUME)
             # parse display
             self.client.radio_state_parse(display)
             state = self.client.radio_state_dump()
             self.assertEqual(state.option_tape_skip, tape_skip)
             self.assertEqual(state.operation_mode,
-                OperationModes.TUNER_PLAYING)
+                OperationModes.SETTING_TAPE_SKIP)
             self.assertEqual(state.display_mode,
-                DisplayModes.SETTING_OPTION_TAPE_SKIP)
+                DisplayModes.SHOWING_OPERATION)
 
     def test_radio_state_cd_playing(self):
         values = (
