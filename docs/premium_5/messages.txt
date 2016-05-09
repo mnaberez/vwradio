@@ -25,6 +25,8 @@ Radio FM1/2
 CD
   Decoded Display RAM: 'NO  CHANGER'
 
+  TODO CD SCAN
+
 Tape
   Decoded Display RAM: '    NO TAPE'
   Decoded Display RAM: 'TAPE LOAD  '
@@ -32,6 +34,8 @@ Tape
   Decoded Display RAM: 'TAPE PLAY A'
   Decoded Display RAM: 'TAPE PLAY B'
   TODO MSS
+  TODO TAPE SCAN A
+  TODO TAPE SCAN B
 
 Balance
   TODO

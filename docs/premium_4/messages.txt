@@ -36,6 +36,8 @@ CD
   Decoded Display RAM: 'NO  CHANGER'
   Decoded Display RAM: '    NO DISC'
 
+  TODO CD SCAN
+
 Tape
   Decoded Display RAM: 'TAPE PLAY A'
   Decoded Display RAM: 'TAPE PLAY B'
@@ -46,6 +48,9 @@ Tape
   Decoded Display RAM: 'TAPE  FF   '
   Decoded Display RAM: 'TAPE  REW  '
   Decoded Display RAM: 'TAPE METAL '
+
+  TODO TAPE SCAN A
+  TODO TAPE SCAN B
 
 Balance
   Decoded Display RAM: 'BAL CENTER '
