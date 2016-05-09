@@ -951,6 +951,33 @@ class AvrTests(unittest.TestCase):
             self.assertEqual(state.display_mode,
                 DisplayModes.SHOWING_OPERATION)
 
+    def test_cd_scanning(self):
+        values = (
+            (b"SCANCD1TR04", 1, 4),
+            (b"SCANCD3TR15", 3, 15),
+        )
+        for display, disc, track in values:
+            # set up known values
+            self.client.radio_state_reset()
+            self.client.radio_state_parse(b"CD 5 TR 12 ")
+            self.client.radio_state_parse(b"CD 5  042  ")
+            state = self.client.radio_state_dump()
+            self.assertEqual(state.operation_mode,
+                OperationModes.CD_PLAYING)
+            self.assertEqual(state.cd_disc, 5)
+            self.assertEqual(state.cd_track, 12)
+            self.assertEqual(state.cd_track_pos, 42)
+            # parse display
+            self.client.radio_state_parse(display)
+            state = self.client.radio_state_dump()
+            self.assertEqual(state.cd_disc, disc)
+            self.assertEqual(state.cd_track, track)
+            self.assertEqual(state.cd_track_pos, 0)
+            self.assertEqual(state.operation_mode,
+                OperationModes.CD_SCANNING)
+            self.assertEqual(state.display_mode,
+                DisplayModes.SHOWING_OPERATION)
+
     def test_radio_state_cd_check_magazine(self):
         # set up known values
         self.client.radio_state_reset()

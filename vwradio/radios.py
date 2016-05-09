@@ -188,7 +188,7 @@ class Radio(object):
             self.cd_disc = int(display[6:7])
             self.cd_track = int(display[9:11])
             self.cd_track_pos = 0
-        elif display[0:3] == b"CD ": # "CD 1" to "CD 6"
+        elif display[0:3] == b"CD ": # "CD 1"... to "CD 6"...
             self.cd_disc = int(display[3:4])
             self.cd_track_pos = 0
             if display[5:10] == b"NO CD": # "CD 1 NO CD "
@@ -202,7 +202,7 @@ class Radio(object):
                 self._parse_cd_track_pos(display)
             else:
                 self._parse_unknown(display)
-        elif display[0:2] == b"CD": # "CD1" to "CD6"
+        elif display[0:2] == b"CD": # "CD1"... to "CD6"...
             self.cd_disc = int(display[2:3])
             self.cd_track_pos = 0
             if display[4:10] == b"CD ERR": # "CD1 CD ERR "

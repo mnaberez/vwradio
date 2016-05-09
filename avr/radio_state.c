@@ -229,7 +229,16 @@ static void _parse_cd(radio_state_t *state, uint8_t *display)
         state->cd_track = 0;
         state->cd_track_pos = 0;
     }
-    else if (memcmp(display, "CD ", 3) == 0) // "CD 1" to "CD 6"
+    else if (memcmp(display, "SCAN", 4) == 0) // "SCANCD1TR04"
+    {
+        state->operation_mode = OPERATION_MODE_CD_SCANNING;
+        state->cd_disc = display[6] & 0x0F;
+        state->cd_track = 0;
+        state->cd_track += (display[9]  & 0x0F) * 10;
+        state->cd_track += (display[10] & 0x0F) * 1;
+        state->cd_track_pos = 0;
+    }
+    else if (memcmp(display, "CD ", 3) == 0) // "CD 1"... to "CD 6"...
     {
         state->cd_disc = display[3] & 0x0F;
         state->cd_track_pos = 0;
@@ -256,7 +265,7 @@ static void _parse_cd(radio_state_t *state, uint8_t *display)
             _parse_unknown(state, display);
         }
     }
-    else if (memcmp(display, "CD", 2) == 0) // "CD1" to "CD6"
+    else if (memcmp(display, "CD", 2) == 0) // "CD1"... to "CD6"...
     {
         state->cd_disc = display[2] & 0x0F;
         state->cd_track_pos = 0;
@@ -545,6 +554,7 @@ void radio_state_parse(radio_state_t *state, uint8_t *display)
         _parse_tape(state, display);
     }
     else if ((memcmp(display, "CD", 2) == 0) ||
+             (memcmp(display+4, "CD", 2) == 0) ||
              (memcmp(display, "CHK", 3) == 0) ||
              (memcmp(display, "CUE", 3) == 0) ||
              (memcmp(display, "REV", 3) == 0))
