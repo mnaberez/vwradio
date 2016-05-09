@@ -23,6 +23,7 @@ class OperationModes(Enum):
     CD_CHECK_MAGAZINE = 35
     CD_CDX_NO_CD = 36
     CD_CDX_CD_ERR = 37
+    CD_SCANNING = 38
     TAPE_PLAYING = 40
     TAPE_LOAD = 41
     TAPE_METAL = 42

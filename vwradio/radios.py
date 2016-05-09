@@ -51,7 +51,9 @@ class Radio(object):
             self._parse_set(display)
         elif display[0:3] == b"TAP" or display == b"    NO TAPE":
             self._parse_tape(display)
-        elif display[0:2] == b"CD" or display[0:3] in (b"CHK", b"CUE", b"REV"):
+        elif display[0:2] == b"CD" or display[4:6] == b"CD":
+            self._parse_cd(display)
+        elif display[0:3] in (b"CHK", b"CUE", b"REV"):
             self._parse_cd(display)
         elif display in (b"NO  CHANGER", b"    NO DISC"):
             self._parse_cd(display)
@@ -180,6 +182,11 @@ class Radio(object):
             self.operation_mode = OperationModes.CD_NO_DISC
             self.cd_disc = 0
             self.cd_track = 0
+            self.cd_track_pos = 0
+        elif display[0:4] == b"SCAN": # "SCANCD1TR04"
+            self.operation_mode = OperationModes.CD_SCANNING
+            self.cd_disc = int(display[6:7])
+            self.cd_track = int(display[9:11])
             self.cd_track_pos = 0
         elif display[0:3] == b"CD ": # "CD 1" to "CD 6"
             self.cd_disc = int(display[3:4])
