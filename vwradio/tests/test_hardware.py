@@ -889,6 +889,78 @@ class AvrTests(unittest.TestCase):
             self.assertEqual(state.display_mode,
                 DisplayModes.SHOWING_OPERATION)
 
+    def test_test_fern(self):
+        values = (
+            (b"FERN   OFF ", 0),
+            (b"FERN   ON  ", 1),
+        )
+        for display, fern in values:
+            # set up known values
+            self.client.radio_state_reset()
+            self.client.radio_state_parse(b"FM161079MHZ")
+            self.client.radio_state_parse(b"FM1   MIN  ")
+            state = self.client.radio_state_dump()
+            self.assertEqual(state.operation_mode,
+                OperationModes.TUNER_PLAYING)
+            self.assertEqual(state.display_mode,
+                DisplayModes.ADJUSTING_SOUND_VOLUME)
+            # parse display
+            self.client.radio_state_parse(display)
+            state = self.client.radio_state_dump()
+            self.assertEqual(state.test_fern, fern)
+            self.assertEqual(state.operation_mode,
+                OperationModes.TESTING_FERN)
+            self.assertEqual(state.display_mode,
+                DisplayModes.SHOWING_OPERATION)
+
+    def test_test_rad(self):
+        values = (
+            (b"RAD 3CP T7 ", b" 3CP T7 "),
+            (b"RAD01234567", b"01234567"),
+        )
+        for display, rad in values:
+            # set up known values
+            self.client.radio_state_reset()
+            self.client.radio_state_parse(b"FM161079MHZ")
+            self.client.radio_state_parse(b"FM1   MIN  ")
+            state = self.client.radio_state_dump()
+            self.assertEqual(state.operation_mode,
+                OperationModes.TUNER_PLAYING)
+            self.assertEqual(state.display_mode,
+                DisplayModes.ADJUSTING_SOUND_VOLUME)
+            # parse display
+            self.client.radio_state_parse(display)
+            state = self.client.radio_state_dump()
+            self.assertEqual(state.test_rad, rad)
+            self.assertEqual(state.operation_mode,
+                OperationModes.TESTING_RAD)
+            self.assertEqual(state.display_mode,
+                DisplayModes.SHOWING_OPERATION)
+
+    def test_test_ver(self):
+        values = (
+            (b"VER  0702  ", b"  0702  "),
+            (b"VERABCDEFGH", b"ABCDEFGH"),
+        )
+        for display, ver in values:
+            # set up known values
+            self.client.radio_state_reset()
+            self.client.radio_state_parse(b"FM161079MHZ")
+            self.client.radio_state_parse(b"FM1   MIN  ")
+            state = self.client.radio_state_dump()
+            self.assertEqual(state.operation_mode,
+                OperationModes.TUNER_PLAYING)
+            self.assertEqual(state.display_mode,
+                DisplayModes.ADJUSTING_SOUND_VOLUME)
+            # parse display
+            self.client.radio_state_parse(display)
+            state = self.client.radio_state_dump()
+            self.assertEqual(state.test_ver, ver)
+            self.assertEqual(state.operation_mode,
+                OperationModes.TESTING_VER)
+            self.assertEqual(state.display_mode,
+                DisplayModes.SHOWING_OPERATION)
+
     def test_radio_state_cd_playing(self):
         values = (
             (b"CD 1 TR 01 ", 1, 1),

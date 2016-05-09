@@ -32,6 +32,9 @@
 #define OPERATION_MODE_SETTING_ON_VOL 70
 #define OPERATION_MODE_SETTING_CD_MIX 71
 #define OPERATION_MODE_SETTING_TAPE_SKIP 72
+#define OPERATION_MODE_TESTING_FERN 80
+#define OPERATION_MODE_TESTING_RAD 81
+#define OPERATION_MODE_TESTING_VER 82
 
 #define DISPLAY_MODE_UNKNOWN 0
 #define DISPLAY_MODE_SHOWING_OPERATION 10
@@ -69,6 +72,9 @@ typedef struct
     uint8_t option_on_vol;
     uint8_t option_cd_mix;
     uint8_t option_tape_skip;
+    uint8_t test_fern;
+    uint8_t test_rad[8];
+    uint8_t test_ver[8];
 } radio_state_t;
 radio_state_t radio_state;
 

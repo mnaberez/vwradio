@@ -243,6 +243,60 @@ class TestRadio(unittest.TestCase):
             self.assertEqual(radio.display_mode,
                 DisplayModes.SHOWING_OPERATION)
 
+    def test_test_fern(self):
+        values = (
+            (b"FERN   OFF ", 0),
+            (b"FERN   ON  ", 1),
+        )
+        for display, fern in values:
+            radio = Radio()
+            # set up known values
+            radio.operation_mode = OperationModes.TUNER_PLAYING
+            radio.display_mode = DisplayModes.ADJUSTING_SOUND_VOLUME
+            # parse display
+            radio.parse(display)
+            self.assertEqual(radio.test_fern, fern)
+            self.assertEqual(radio.operation_mode,
+                OperationModes.TESTING_FERN)
+            self.assertEqual(radio.display_mode,
+                DisplayModes.SHOWING_OPERATION)
+
+    def test_test_rad(self):
+        values = (
+            (b"RAD 3CP T7 ", b" 3CP T7 "),
+            (b"RAD01234567", b"01234567"),
+        )
+        for display, rad in values:
+            radio = Radio()
+            # set up known values
+            radio.operation_mode = OperationModes.TUNER_PLAYING
+            radio.display_mode = DisplayModes.ADJUSTING_SOUND_VOLUME
+            # parse display
+            radio.parse(display)
+            self.assertEqual(radio.test_rad, rad)
+            self.assertEqual(radio.operation_mode,
+                OperationModes.TESTING_RAD)
+            self.assertEqual(radio.display_mode,
+                DisplayModes.SHOWING_OPERATION)
+
+    def test_test_ver(self):
+        values = (
+            (b"VER  0702  ", b"  0702  "),
+            (b"VERABCDEFGH", b"ABCDEFGH"),
+        )
+        for display, ver in values:
+            radio = Radio()
+            # set up known values
+            radio.operation_mode = OperationModes.TUNER_PLAYING
+            radio.display_mode = DisplayModes.ADJUSTING_SOUND_VOLUME
+            # parse display
+            radio.parse(display)
+            self.assertEqual(radio.test_ver, ver)
+            self.assertEqual(radio.operation_mode,
+                OperationModes.TESTING_VER)
+            self.assertEqual(radio.display_mode,
+                DisplayModes.SHOWING_OPERATION)
+
     def test_cd_playing(self):
         values = (
             (b"CD 1 TR 01 ", 1, 1),

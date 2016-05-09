@@ -488,6 +488,37 @@ static void _parse_set(radio_state_t *state, uint8_t *display)
     }
 }
 
+static void _parse_test(radio_state_t *state, uint8_t *display)
+{
+    state->display_mode = DISPLAY_MODE_SHOWING_OPERATION;
+    if (memcmp(display, "FERN", 4) == 0)
+    {
+        state->operation_mode = OPERATION_MODE_TESTING_FERN;
+        if (display[8] == 'F') // "OFF"
+        {
+            state->test_fern = 0;
+        }
+        else
+        {
+            state->test_fern = 1;
+        }
+    }
+    else if (memcmp(display, "RAD", 3) == 0)
+    {
+        state->operation_mode = OPERATION_MODE_TESTING_RAD;
+        memcpy(state->test_rad, display+3, sizeof(state->test_rad));
+    }
+    else if (memcmp(display, "VER", 3) == 0)
+    {
+        state->operation_mode = OPERATION_MODE_TESTING_VER;
+        memcpy(state->test_ver, display+3, sizeof(state->test_ver));
+    }
+    else
+    {
+        _parse_unknown(state, display);
+    }
+}
+
 void radio_state_parse(radio_state_t *state, uint8_t *display)
 {
     if (memcmp(display, "\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0", 11) == 0)
@@ -548,6 +579,12 @@ void radio_state_parse(radio_state_t *state, uint8_t *display)
              (memcmp(display, "TAPE SKIP", 9) == 0))
     {
         _parse_set(state, display);
+    }
+    else if ((memcmp(display, "FER", 3) == 0) ||
+             (memcmp(display, "RAD", 3) == 0) ||
+             (memcmp(display, "VER", 3) == 0))
+    {
+        _parse_test(state, display);
     }
     else if ((memcmp(display, "TAP", 3) == 0) ||
              (memcmp(display, "    NO TAPE", 11) == 0))
@@ -665,7 +702,11 @@ void radio_state_init(radio_state_t *state)
     state->cd_track = 0;
     state->cd_track_pos = 0;
     state->tape_side = 0;
+    memset(state->display, 0, sizeof(state->display));
     state->option_on_vol = 0;
     state->option_cd_mix = 1;
     state->option_tape_skip = 0;
+    state->test_fern = 0;
+    memset(state->test_rad, ' ', sizeof(state->test_rad));
+    memset(state->test_ver, ' ', sizeof(state->test_rad));
 }

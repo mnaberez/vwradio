@@ -21,6 +21,9 @@ class Radio(object):
         self.option_on_vol = 0 # 13-63 on Premium 4
         self.option_cd_mix = 1 # 1 or 6
         self.option_tape_skip = 0 # 0=no, 1=yes
+        self.test_fern = 0 # 0=off, 1=on
+        self.test_rad = b" " * 8 # 8 bytes like b" 3CP T7 "
+        self.test_ver = b" " * 8 # 8 bytes like b"  0702  "
 
     def parse(self, display):
         if display == b' ' * 11:
@@ -49,6 +52,8 @@ class Radio(object):
             self._parse_sound_fade(display)
         elif display[0:3] == b"SET" or display[0:9] == b"TAPE SKIP":
             self._parse_set(display)
+        elif display[0:3] in (b"FER", b"RAD", b"VER"):
+            self._parse_test(display)
         elif display[0:3] == b"TAP" or display == b"    NO TAPE":
             self._parse_tape(display)
         elif display[0:2] == b"CD" or display[4:6] == b"CD":
@@ -115,6 +120,23 @@ class Radio(object):
                 self.option_tape_skip = 1
             else: # 'N'
                 self.option_tape_skip = 0
+        else:
+            self._parse_unknown(display)
+
+    def _parse_test(self, display):
+        self.display_mode = DisplayModes.SHOWING_OPERATION
+        if display[0:4] == b"FERN":
+            self.operation_mode = OperationModes.TESTING_FERN
+            if display[8:9] == b"F": # b"OFF"
+                self.test_fern = 0
+            else: # b"ON"
+                self.test_fern = 1
+        elif display[0:3] == b"RAD":
+            self.operation_mode = OperationModes.TESTING_RAD
+            self.test_rad = display[3:11]
+        elif display[0:3] == b"VER":
+            self.operation_mode = OperationModes.TESTING_VER
+            self.test_ver = display[3:11]
         else:
             self._parse_unknown(display)
 

@@ -290,7 +290,7 @@ static void _do_radio_state_dump()
         return;
     }
 
-    uart_putc(34); // number of bytes to follow
+    uart_putc(51); // number of bytes to follow
     uart_putc(ACK);
     uart_putc(radio_state.operation_mode);
     uart_putc(radio_state.display_mode);
@@ -312,13 +312,22 @@ static void _do_radio_state_dump()
     uart_putc(radio_state.tuner_preset);
     uart_putc(radio_state.tuner_band);
     uint8_t i;
-    for (i=0; i<11; i++)
+    for (i=0; i<sizeof(radio_state.display); i++)
     {
         uart_putc(radio_state.display[i]);
     }
     uart_putc(radio_state.option_on_vol);
     uart_putc(radio_state.option_cd_mix);
     uart_putc(radio_state.option_tape_skip);
+    uart_putc(radio_state.test_fern);
+    for (i=0; i<sizeof(radio_state.test_rad); i++)
+    {
+        uart_putc(radio_state.test_rad[i]);
+    }
+    for (i=0; i<sizeof(radio_state.test_ver); i++)
+    {
+        uart_putc(radio_state.test_ver[i]);
+    }
 }
 
 /* Command: Echo

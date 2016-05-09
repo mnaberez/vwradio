@@ -38,6 +38,9 @@ class OperationModes(Enum):
     SETTING_ON_VOL = 70
     SETTING_CD_MIX = 71
     SETTING_TAPE_SKIP = 72
+    TESTING_FERN = 80
+    TESTING_RAD = 81
+    TESTING_VER = 82
 
 class DisplayModes(Enum):
     UNKNOWN = 0
