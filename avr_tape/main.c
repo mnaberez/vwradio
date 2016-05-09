@@ -31,6 +31,7 @@
  *************************************************************************/
 
 volatile uint8_t clock_in_use = 0;
+volatile uint8_t state = STATE_IDLE_TAPE_OUT;
 
 /* Blink red forever if an unhandled interrupt occurs.
  * This code should never been called.
@@ -57,7 +58,6 @@ ISR(PCINT1_vect)
     // /ENABLE high->low (select)
     else
     {
-        uart_puts((uint8_t*)"0x");
         DDRB &= ~_BV(PB0); // CLOCK as input
         PORTB &= ~_BV(PB3); // /SS out = low
         clock_in_use = 1;
@@ -66,10 +66,21 @@ ISR(PCINT1_vect)
 
 ISR(SPI_STC_vect)
 {
-    led_set(LED_GREEN, 0);
-    uart_puthex_byte(SPDR);
+    uint8_t c = SPDR;
+    uart_putc('0');
+    uart_putc('x');
+    uart_puthex_byte(c);
     uart_putc('\n');
-    SPDR = 0;
+    if ((c == 0xac) || (c == 0xa8))
+    {
+        uart_puts((uint8_t*)"-> PLAY\n");
+        state = STATE_STARTING_PLAY;
+    }
+    else if ((c == 0) && (state == STATE_PLAYING))
+    {
+        uart_puts((uint8_t*)"-> STOP\n");
+        state = STATE_IDLE_TAPE_IN;
+    }
 }
 
 int main()
@@ -128,23 +139,40 @@ int main()
     PORTB |= _BV(PB1); // set SWITCH high (tape inserted)
     _delay_ms(200);
 
-    loop_until_bit_is_clear(PINB, PB2);  // wait for ENABLE to go low
-    led_set(LED_GREEN, 1);
-
-    // SWITCH is already high
-    _delay_ms(300);
-    PORTB &= ~_BV(PB1); // set SWITCH low
-    _delay_ms(337);
-    PORTB |= _BV(PB1); // set SWITCH high
-    _delay_ms(77);
-    PORTB &= ~_BV(PB1); // set SWITCH low
-
-    led_set(LED_GREEN, 1);
-
     while (1)
     {
-        if (!clock_in_use)
+        if (state == STATE_IDLE_TAPE_OUT)
         {
+            led_set(LED_RED, 1);
+            led_set(LED_GREEN, 0);
+            PORTB &= ~_BV(PB1);  // set SWITCH low (no tape inserted)
+        }
+
+        if (state == STATE_IDLE_TAPE_IN)
+        {
+            led_set(LED_RED, 0);
+            led_set(LED_GREEN, 0);
+            PORTB |= _BV(PB1);  // set SWITCH high (tape inserted)
+        }
+
+        if (state == STATE_STARTING_PLAY)
+        {
+            // SWITCH is already high
+            _delay_ms(300);
+            PORTB &= ~_BV(PB1); // set SWITCH low
+            _delay_ms(337);
+            PORTB |= _BV(PB1); // set SWITCH high
+            _delay_ms(77);
+            PORTB &= ~_BV(PB1); // set SWITCH low
+
+            state = STATE_PLAYING;
+        }
+
+        if ((state == STATE_PLAYING) && (!clock_in_use))
+        {
+            led_set(LED_RED, 0);
+            led_set(LED_GREEN, 1);
+
             // CLOCK low for 1ms
             DDRB |= _BV(PB0);
             PORTB &= ~_BV(PB0); // set CLOCK low
