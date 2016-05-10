@@ -134,6 +134,19 @@ static void _parse_tape(radio_state_t *state, uint8_t *display)
             state->tape_side = 2;
         }
     }
+    else if ((memcmp(display, "TAPE SCAN A", 11) == 0) ||
+        (memcmp(display, "TAPE SCAN B", 11) == 0))
+    {
+        state->operation_mode = OPERATION_MODE_TAPE_SCANNING;
+        if (display[10] == 'A')
+        {
+            state->tape_side = 1;
+        }
+        else // 'B'
+        {
+            state->tape_side = 2;
+        }
+    }
     else if ((memcmp(display, "TAPE  FF   ", 11) == 0) ||
              (memcmp(display, "TAPE  REW  ", 11) == 0))
     {

@@ -33,6 +33,7 @@ class OperationModes(Enum):
     TAPE_MSS_REW = 46
     TAPE_NO_TAPE = 47
     TAPE_ERROR = 48
+    TAPE_SCANNING = 49
     INITIALIZING = 50
     DIAGNOSTICS = 60
     SETTING_ON_VOL = 70

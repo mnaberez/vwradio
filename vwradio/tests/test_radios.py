@@ -490,6 +490,10 @@ class TestRadio(unittest.TestCase):
 
     def test_tape_play_a(self):
         radio = Radio()
+        # set up known values
+        radio.tape_side = 2
+        radio.operation_mode = OperationModes.TUNER_PLAYING
+        # parse display
         radio.parse(b"TAPE PLAY A")
         self.assertEqual(radio.tape_side, 1)
         self.assertEqual(radio.operation_mode,
@@ -499,10 +503,40 @@ class TestRadio(unittest.TestCase):
 
     def test_tape_play_b(self):
         radio = Radio()
+        # set up known values
+        radio.tape_side = 1
+        radio.operation_mode = OperationModes.TUNER_PLAYING
+        # parse display
         radio.parse(b"TAPE PLAY B")
         self.assertEqual(radio.tape_side, 2)
         self.assertEqual(radio.operation_mode,
             OperationModes.TAPE_PLAYING)
+        self.assertEqual(radio.display_mode,
+            DisplayModes.SHOWING_OPERATION)
+
+    def test_tape_scan_a(self):
+        radio = Radio()
+        # set up known values
+        radio.tape_side = 2
+        radio.operation_mode = OperationModes.TUNER_PLAYING
+        # parse display
+        radio.parse(b"TAPE SCAN A")
+        self.assertEqual(radio.tape_side, 1)
+        self.assertEqual(radio.operation_mode,
+            OperationModes.TAPE_SCANNING)
+        self.assertEqual(radio.display_mode,
+            DisplayModes.SHOWING_OPERATION)
+
+    def test_tape_scan_b(self):
+        radio = Radio()
+        # set up known values
+        radio.tape_side = 1
+        radio.operation_mode = OperationModes.TUNER_PLAYING
+        # parse display
+        radio.parse(b"TAPE SCAN B")
+        self.assertEqual(radio.tape_side, 2)
+        self.assertEqual(radio.operation_mode,
+            OperationModes.TAPE_SCANNING)
         self.assertEqual(radio.display_mode,
             DisplayModes.SHOWING_OPERATION)
 

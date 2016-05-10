@@ -269,6 +269,12 @@ class Radio(object):
                 self.tape_side = 1
             else: # "B"
                 self.tape_side = 2
+        elif display in (b"TAPE SCAN A", b"TAPE SCAN B"):
+            self.operation_mode = OperationModes.TAPE_SCANNING
+            if display[10:11] == b"A":
+                self.tape_side = 1
+            else: # "B"
+                self.tape_side = 2
         elif display in (b"TAPE  FF   ", b"TAPE  REW  "):
             if display[6:9] == b"REW":
                 self.operation_mode = OperationModes.TAPE_REW

@@ -1194,7 +1194,15 @@ class AvrTests(unittest.TestCase):
             DisplayModes.SHOWING_OPERATION)
 
     def test_radio_state_tape_play_a(self):
+        # set up known values
         self.client.radio_state_reset()
+        self.client.radio_state_parse(b"TAPE PLAY B")
+        self.client.radio_state_parse(b"FM11 915MHZ")
+        state = self.client.radio_state_dump()
+        self.assertEqual(state.tape_side, 2)
+        self.assertEqual(state.operation_mode,
+            OperationModes.TUNER_PLAYING)
+        # parse display
         self.client.radio_state_parse(b"TAPE PLAY A")
         state = self.client.radio_state_dump()
         self.assertEqual(state.tape_side, 1)
@@ -1204,12 +1212,56 @@ class AvrTests(unittest.TestCase):
             DisplayModes.SHOWING_OPERATION)
 
     def test_radio_state_tape_play_b(self):
+        # set up known values
         self.client.radio_state_reset()
+        self.client.radio_state_parse(b"TAPE PLAY A")
+        self.client.radio_state_parse(b"FM11 915MHZ")
+        state = self.client.radio_state_dump()
+        self.assertEqual(state.tape_side, 1)
+        self.assertEqual(state.operation_mode,
+            OperationModes.TUNER_PLAYING)
+        # parse display
         self.client.radio_state_parse(b"TAPE PLAY B")
         state = self.client.radio_state_dump()
         self.assertEqual(state.tape_side, 2)
         self.assertEqual(state.operation_mode,
             OperationModes.TAPE_PLAYING)
+        self.assertEqual(state.display_mode,
+            DisplayModes.SHOWING_OPERATION)
+
+    def test_radio_state_tape_scan_a(self):
+        # set up known values
+        self.client.radio_state_reset()
+        self.client.radio_state_parse(b"TAPE PLAY B")
+        self.client.radio_state_parse(b"FM11 915MHZ")
+        state = self.client.radio_state_dump()
+        self.assertEqual(state.tape_side, 2)
+        self.assertEqual(state.operation_mode,
+            OperationModes.TUNER_PLAYING)
+        # parse display
+        self.client.radio_state_parse(b"TAPE SCAN A")
+        state = self.client.radio_state_dump()
+        self.assertEqual(state.tape_side, 1)
+        self.assertEqual(state.operation_mode,
+            OperationModes.TAPE_SCANNING)
+        self.assertEqual(state.display_mode,
+            DisplayModes.SHOWING_OPERATION)
+
+    def test_radio_state_tape_scan_b(self):
+        # set up known values
+        self.client.radio_state_reset()
+        self.client.radio_state_parse(b"TAPE PLAY A")
+        self.client.radio_state_parse(b"FM11 915MHZ")
+        state = self.client.radio_state_dump()
+        self.assertEqual(state.tape_side, 1)
+        self.assertEqual(state.operation_mode,
+            OperationModes.TUNER_PLAYING)
+        # parse display
+        self.client.radio_state_parse(b"TAPE SCAN B")
+        state = self.client.radio_state_dump()
+        self.assertEqual(state.tape_side, 2)
+        self.assertEqual(state.operation_mode,
+            OperationModes.TAPE_SCANNING)
         self.assertEqual(state.display_mode,
             DisplayModes.SHOWING_OPERATION)
 
