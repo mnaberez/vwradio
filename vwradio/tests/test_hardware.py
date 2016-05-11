@@ -1184,12 +1184,31 @@ class AvrTests(unittest.TestCase):
         self.client.radio_state_parse(b"TAPE PLAY A")
         state = self.client.radio_state_dump()
         self.assertEqual(state.tape_side, 1)
+        self.assertEqual(state.operation_mode,
+            OperationModes.TAPE_PLAYING)
         # parse display
         self.client.radio_state_parse(b"TAPE METAL ")
         state = self.client.radio_state_dump()
         self.assertEqual(state.tape_side, 1)
         self.assertEqual(state.operation_mode,
             OperationModes.TAPE_METAL)
+        self.assertEqual(state.display_mode,
+            DisplayModes.SHOWING_OPERATION)
+
+    def test_tape_bls(self):
+        # set up known values
+        self.client.radio_state_reset()
+        self.client.radio_state_parse(b"TAPE PLAY B")
+        state = self.client.radio_state_dump()
+        self.assertEqual(state.tape_side, 2)
+        self.assertEqual(state.operation_mode,
+            OperationModes.TAPE_PLAYING)
+        # parse display
+        self.client.radio_state_parse(b"TAPE  BLS  ")
+        state = self.client.radio_state_dump()
+        self.assertEqual(state.tape_side, 2)
+        self.assertEqual(state.operation_mode,
+            OperationModes.TAPE_BLS)
         self.assertEqual(state.display_mode,
             DisplayModes.SHOWING_OPERATION)
 

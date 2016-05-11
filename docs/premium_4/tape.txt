@@ -167,3 +167,7 @@ is disconnected.
 Pin 6 can be tied permanently high, but MSS FW/REW will not stop (it will act
 like regular FW/REW).  When MSS FW/REW is on, the MCU waits for pin 6 high->low
 (end of current song) followed by pin 6 low->high (start of next song).
+
+On the PU-1666A (matrix display), the radio will ignore the LA2000 for BLS
+if the "TAPE SKIP" option is set to "Y".  The non-matrix display radios don't
+seem to have the "TAPE SKIP" option.

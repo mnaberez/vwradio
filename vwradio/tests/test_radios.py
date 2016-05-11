@@ -480,11 +480,25 @@ class TestRadio(unittest.TestCase):
         radio = Radio()
         # set up known values
         radio.tape_side = 1
+        radio.operation_mode = OperationModes.TAPE_PLAYING
         # parse display
         radio.parse(b"TAPE METAL ")
         self.assertEqual(radio.tape_side, 1)
         self.assertEqual(radio.operation_mode,
             OperationModes.TAPE_METAL)
+        self.assertEqual(radio.display_mode,
+            DisplayModes.SHOWING_OPERATION)
+
+    def test_tape_bls(self):
+        radio = Radio()
+        # set up known values
+        radio.tape_side = 2
+        radio.operation_mode = OperationModes.TAPE_PLAYING
+        # parse display
+        radio.parse(b"TAPE  BLS  ")
+        self.assertEqual(radio.tape_side, 2)
+        self.assertEqual(radio.operation_mode,
+            OperationModes.TAPE_BLS)
         self.assertEqual(radio.display_mode,
             DisplayModes.SHOWING_OPERATION)
 

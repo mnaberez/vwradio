@@ -285,6 +285,8 @@ class Radio(object):
                 self.operation_mode = OperationModes.TAPE_MSS_REW
             else: # "FF "
                 self.operation_mode = OperationModes.TAPE_MSS_FF
+        elif display == b"TAPE  BLS  ":
+            self.operation_mode = OperationModes.TAPE_BLS
         elif display == b"TAPE METAL ":
             self.operation_mode = OperationModes.TAPE_METAL
         elif display == b"    NO TAPE":

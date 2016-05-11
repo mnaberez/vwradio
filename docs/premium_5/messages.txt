@@ -34,6 +34,7 @@ Tape
   Decoded Display RAM: 'TAPE PLAY A'
   Decoded Display RAM: 'TAPE PLAY B'
   TODO MSS
+  TODO BLS
   TODO TAPE SCAN A
   TODO TAPE SCAN B
 

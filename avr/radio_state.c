@@ -171,6 +171,10 @@ static void _parse_tape(radio_state_t *state, uint8_t *display)
             state->operation_mode = OPERATION_MODE_TAPE_MSS_FF;
         }
     }
+    else if (memcmp(display, "TAPE  BLS  ", 11) == 0)
+    {
+        state->operation_mode = OPERATION_MODE_TAPE_BLS;
+    }
     else if (memcmp(display, "TAPE METAL ", 11) == 0)
     {
         state->operation_mode = OPERATION_MODE_TAPE_METAL;

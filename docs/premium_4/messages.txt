@@ -43,6 +43,7 @@ Tape
   Decoded Display RAM: 'TAPE PLAY B'
   Decoded Display RAM: 'TAPE SCAN A'
   Decoded Display RAM: 'TAPE SCAN B'
+  Decoded Display RAM: 'TAPE  BLS  '
   Decoded Display RAM: 'TAPEMSS FF '
   Decoded Display RAM: 'TAPEMSS REW'
   Decoded Display RAM: 'TAPE ERROR '
