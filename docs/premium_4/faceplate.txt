@@ -157,3 +157,107 @@ Unlike the Premium 5, the Premium 4 does not send any programmable characters.
 The "special" characters like the narrow numbers for the presets are included
 in the ROM character set on the Premium 4.
 
+
+Messages
+--------
+
+SAFE mode
+  Decoded Display RAM: '    NO CODE'
+  Decoded Display RAM: '     1000  '
+  Decoded Display RAM: '     SAFE  '
+  Decoded Display RAM: '1    1000  '
+  Decoded Display RAM: '1    SAFE  '
+  Decoded Display RAM: '2    1000  '
+  Decoded Display RAM: '2    SAFE  '
+
+Radio AM
+  Decoded Display RAM: 'AM 1 670KHZ'
+  Decoded Display RAM: 'AM 3 530KHZ'
+  Decoded Display RAM: 'SCAN 530KHZ'
+  Decoded Display RAM: 'SCAN1710KHZ'
+
+Radio FM1
+  Decoded Display RAM: 'FM1  887MHZ'
+  Decoded Display RAM: 'FM11 915MHZ'
+  Decoded Display RAM: 'SCAN 879MHZ'
+  Decoded Display RAM: 'SCAN1079MHZ'
+
+Radio FM2
+  Decoded Display RAM: 'FM211041MHZ'
+  Decoded Display RAM: 'FM22 881MHZ'
+  Decoded Display RAM: 'FM23 981MHZ'
+  Decoded Display RAM: 'FM241041MHZ'
+  Decoded Display RAM: 'FM251079MHZ'
+  Decoded Display RAM: 'FM261079MHZ'
+
+CD
+  Decoded Display RAM: 'CD 1 TR 01 '
+  Decoded Display RAM: 'CD 2 NO CD '
+  Decoded Display RAM: 'CD1 CD ERR ' (no space in "CD1"!)
+  Decoded Display RAM: 'CUE   122  '
+  Decoded Display RAM: 'REV   310  '
+  Decoded Display RAM: 'SCANCD1TR04'
+  Decoded Display RAM: 'CHK MAGAZIN'
+  Decoded Display RAM: 'NO  CHANGER'
+  Decoded Display RAM: '    NO DISC'
+
+Tape
+  Decoded Display RAM: 'TAPE PLAY A'
+  Decoded Display RAM: 'TAPE PLAY B'
+  Decoded Display RAM: 'TAPE SCAN A'
+  Decoded Display RAM: 'TAPE SCAN B'
+  Decoded Display RAM: 'TAPE  BLS  '
+  Decoded Display RAM: 'TAPEMSS FF '
+  Decoded Display RAM: 'TAPEMSS REW'
+  Decoded Display RAM: 'TAPE ERROR '
+  Decoded Display RAM: '    NO TAPE'
+  Decoded Display RAM: 'TAPE  FF   '
+  Decoded Display RAM: 'TAPE  REW  '
+  Decoded Display RAM: 'TAPE METAL '
+
+Balance
+  Decoded Display RAM: 'BAL CENTER '
+  Decoded Display RAM: 'BAL LEFT  7'
+  Decoded Display RAM: 'BAL RIGHT 3'
+
+Bass
+  Decoded Display RAM: 'BASS  - 9  '
+  Decoded Display RAM: 'BASS    0  '
+  Decoded Display RAM: 'BASS  + 9  '
+
+Treble
+  Decoded Display RAM: 'TREB  + 7  '
+  Decoded Display RAM: 'TREB  - 4  '
+
+Fade
+  Decoded Display RAM: 'FADEFRONT 9'
+  Decoded Display RAM: 'FADECENTER '
+  Decoded Display RAM: 'FADEREAR  5'
+
+Volume
+  Decoded Display RAM: 'FM1   MAX  '
+  Decoded Display RAM: 'FM1   MIN  '
+
+Setting Options
+  Decoded Display RAM: 'SET ONVOL13'
+  Decoded Display RAM: 'SET ONVOL63'
+  Decoded Display RAM: 'SET CD MIX1'
+  Decoded Display RAM: 'SET CD MIX6'
+  Decoded Display RAM: 'TAPE SKIP N'
+  Decoded Display RAM: 'TAPE SKIP Y'
+
+Initializing
+  Decoded Display RAM: '    INITIAL'
+
+Code Change
+  Decoded Display RAM: '     CODE  '
+  Decoded Display RAM: '     1000  '
+
+Diagnostics (KWP1281)
+  Decoded Display RAM: '     DIAG  '
+
+Test Mode
+  Decoded Display RAM: 'RAD 3CP T7 '
+  Decoded Display RAM: 'VER  0702  '
+  Decoded Display RAM: 'FERN   OFF '
+

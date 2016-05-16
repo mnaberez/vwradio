@@ -122,3 +122,85 @@ Character codes 0x00-0x0F are programmable.  The radio sends these:
 0x06: Narrow "5" for AM/FM preset 3
 0x07: Narrow "6" for AM/FM preset 3
 0x08: All bits on; has not been seen on LCD
+
+
+Messages
+--------
+
+SAFE mode
+  TODO "NO CODE"?
+  Decoded Display RAM: '    1000   '
+  Decoded Display RAM: '1    SAFE  ' (note extra space before SAFE)
+  Decoded Display RAM: '1   1000   '
+
+Radio AM
+  Decoded Display RAM: 'AM  1000kHz'
+  Decoded Display RAM: 'AM <cgram:0x02> 570kHz'
+  Decoded Display RAM: 'AM <cgram:0x07>1440kHz'
+  Decoded Display RAM: 'SCAN 530kHz'
+  Decoded Display RAM: 'SCAN1710kHz'
+
+Radio FM1/2
+  Decoded Display RAM: 'FM<cgram:0x00><cgram:0x02>1003MHz'
+  Decoded Display RAM: 'FM<cgram:0x00><cgram:0x03>1011MHz'
+  Decoded Display RAM: 'FM<cgram:0x00><cgram:0x04>1035MHz'
+  Decoded Display RAM: 'FM<cgram:0x00><cgram:0x05>1043MHz'
+  Decoded Display RAM: 'FM<cgram:0x00><cgram:0x06>1051MHz'
+  Decoded Display RAM: 'FM<cgram:0x00><cgram:0x07> 931MHz'
+  Decoded Display RAM: 'FM<cgram:0x01><cgram:0x02> 925MHz'
+  Decoded Display RAM: 'SCAN 881MHz'
+  Decoded Display RAM: 'SCAN1079MHz'
+
+CD
+  Decoded Display RAM: 'NO  CHANGER'
+
+  TODO CD SCAN
+
+Tape
+  Decoded Display RAM: '    NO TAPE'
+  Decoded Display RAM: 'TAPE LOAD  '
+  Decoded Display RAM: 'TAPE METAL '
+  Decoded Display RAM: 'TAPE PLAY A'
+  Decoded Display RAM: 'TAPE PLAY B'
+  TODO MSS
+  TODO BLS
+  TODO TAPE SCAN A
+  TODO TAPE SCAN B
+
+Balance
+  TODO
+
+Bass
+  Decoded Display RAM: 'BASS  + 8  '
+
+Treble
+  Decoded Display RAM: 'TREB  + 6  '
+  Decoded Display RAM: 'TREB  - 5  '
+
+Fade
+  Decoded Display RAM: 'FADEREAR  2'
+
+Midrange
+  Decoded Display RAM: 'MID   + 4  '
+
+Volume
+  Decoded Display RAM: 'FM<cgram:0x00>   MAX  '
+  Decoded Display RAM: 'FM<cgram:0x00>   MIN  '
+
+Setting Options
+  TODO
+
+Monsoon
+  TODO
+
+Initializing
+  TODO
+
+Code Change
+  TODO
+
+Diagnostics (KWP1281)
+  TODO
+
+Test Mode
+  TODO
