@@ -70,7 +70,7 @@ Initializing
 Code Change
   TODO
 
-Diagnostics (KW1281)
+Diagnostics (KWP1281)
   TODO
 
 Test Mode
