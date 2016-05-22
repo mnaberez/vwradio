@@ -138,7 +138,7 @@ TEA0675 (Cassette Preamplifier with Dolby NR)
 To inject external audio, disconnect pin 1 (OUTA) and pin 24 (OUTB) from
 the board.  These are the outputs of the TEA0675's preamplifier.  Connect an
 audio source to the pads on the board.  Headphone jack audio from a Macbook Pro
-and a Raspberry Pi 2 Model B both worked.
+and a Raspberry Pi 3 Model B both worked (see Raspberry Pi section below).
 
 Pin 19 (AMSEQ) always seems to be high, regardless of whether there is
 audio from the tape head or not.  The radio doesn't appear to use the
@@ -171,3 +171,15 @@ like regular FW/REW).  When MSS FW/REW is on, the MCU waits for pin 6 high->low
 On the PU-1666A (matrix display), the radio will ignore the LA2000 for BLS
 if the "TAPE SKIP" option is set to "Y".  The non-matrix display radios don't
 seem to have the "TAPE SKIP" option.
+
+
+Raspberry Pi Audio
+------------------
+
+When the Raspberry Pi 3 Model B's headphone jack is connected to the TEA0675
+output pads, it produces acceptable sound only if the Raspberry Pi is powered
+by an external AC adapter.
+
+If power for the Raspberry Pi is derived from the same 12V supply as the
+radio, the sound has significant buzzing and is unusable.  This was true using
+both Hobbywing 5V/6V 3A UBEC (switch mode supply) and a 7805 circuit.

@@ -88,3 +88,16 @@ KWP1281, it will enter diagnostics mode but it will not show the "DIAG" display.
 It will leave the current Test Mode display but the faceplate keys won't work.
 After exiting diagnostics mode, the Test Mode will continue to work as it was
 before it was interrupted.
+
+
+Power
+-----
+
+The main MCU has constant 5V power on pin 55 (Vdd).  It appears that Vdd
+is always on (TODO: check what happens to Vdd with ignition power on/off).
+
+The Main 5V line (M5V) that supplies the faceplate and the "SCA-R" header
+is switched on/off by the MCU.  The +14V line on the "SCA-4.4" header is
+also switched by the MCU.  When power is first applied to the radio, M5V
+seems to turn on and off a couple of times, then stays off unit it is
+powered up with the POWER button.
