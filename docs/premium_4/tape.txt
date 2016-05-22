@@ -182,4 +182,6 @@ by an external AC adapter.
 
 If power for the Raspberry Pi is derived from the same 12V supply as the
 radio, the sound has significant buzzing and is unusable.  This was true using
-both Hobbywing 5V/6V 3A UBEC (switch mode supply) and a 7805 circuit.
+both Hobbywing 5V/6V 3A UBEC (switch mode supply) and a 7805 circuit.  It made
+no difference if the 5V power was applied at the Raspberry Pi's header pins or
+at the pads under the mini-USB power input connector.
