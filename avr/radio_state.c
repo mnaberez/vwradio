@@ -220,7 +220,6 @@ static void _parse_cd_track_pos(radio_state_t *state, uint8_t *display)
     }
 }
 
-// TODO parse CD_SCANNING state ("SCANCD1TR04")
 static void _parse_cd(radio_state_t *state, uint8_t *display)
 {
     state->display_mode = DISPLAY_MODE_SHOWING_OPERATION;
