@@ -176,12 +176,18 @@ seem to have the "TAPE SKIP" option.
 Raspberry Pi Audio
 ------------------
 
-When the Raspberry Pi 3 Model B's headphone jack is connected to the TEA0675
-output pads, it produces acceptable sound only if the Raspberry Pi is powered
-by an external AC adapter.
+The Raspberry Pi 3 Model B's headphone jack will produce acceptable sound when
+connected directly to the TEA0675 output pads if the Raspberry Pi is powered
+from an external AC adapter.  If the Raspberry Pi is powered from the same 12V
+supply as the radio, a filter must be used.
 
-If power for the Raspberry Pi is derived from the same 12V supply as the
+When the Raspberry Pi headphone jack is connected directly to the TEA0675 pads,
+and power for the Raspberry Pi is derived from the same 12V supply as the
 radio, the sound has significant buzzing and is unusable.  This was true using
 both Hobbywing 5V/6V 3A UBEC (switch mode supply) and a 7805 circuit.  It made
 no difference if the 5V power was applied at the Raspberry Pi's header pins or
 at the pads under the mini-USB power input connector.
+
+Putting the SNI-1/3.5 ground loop noise isolator (pac-audio.com) inline between
+the Raspberry Pi and the radio eliminates the noise and makes the sound usable
+(tested with the UBEC).
