@@ -71,7 +71,7 @@ class Radio(object):
     def enter_code(self, code):
         """Toggle in a new security code without executing it.  Code
         is an integer from 0-9999.  No radio has been seen with a code
-        higher than"""
+        higher than 1999."""
         code = str(code).rjust(4, "0")
         digits = [ int(c) for c in code ]
 
