@@ -68,12 +68,6 @@ class Radio(object):
         self.labjack.setDOState(u3.FIO4, 1) # button up
         time.sleep(5) # long delay until radio finishes flashing "SAFE"
 
-    def press_power_button(self):
-        """Press the power button"""
-        for state in (0, 1): # 0=button down, 1=button up
-            self.labjack.setDOState(u3.FIO5, state)
-            time.sleep(0.2)
-
     def press_preset_button(self, button):
         """Press a preset button and update the button's current digit.
         Button is an integer starting at 0 for preset 1."""
