@@ -1,21 +1,14 @@
 """
-This program uses a LabJack U3 controlling 10 relays to brute force crack
-a VW Premium 4 radio made by Clarion.
+This program uses a LabJack U3 controlling 5 relays to brute force crack
+a VW Premium 4 or 5 radio.
 
-The radio normally allows only two attempts per hour.  After each failed
-attempt, it writes the attempt count to the AT93C64 EEPROM.  If power is
-removed and then restored, the radio will read the attempt count from the
-EEPROM and stay locked out for an hour.
-
-Here, the EEPROM's chip select (CS) line is disconnected with a relay
-so the radio can't update the attempt count, which allows the one hour
-wait to be bypassed.  The radio will not start up without the EEPROM,
-so the EPROM's CS is connected to the radio's microcontroller to allow
-the radio to start, then disconnected before code entry.
-
-Once two failed attempts are made, the radio locks out and starts waiting
-an hour.  The power is then removed, and the radio doesn't remember the
-attempts when it is powered up again.
+The radio allows two code entry attempts per hour.  After each failed attempt,
+it writes the attempt count to the AT93C64 EEPROM.  After two failed attempts,
+the radio displays "SAFE" and is locked out for an hour.  The radio must
+remain powered on for an hour to unlock, which gives two more attempts.  If the
+radio is powered off and then on again, it will read the attempt count from the
+EEPROM and stay locked out for an hour.  The radio seems to track attempts only
+for rate limiting; it does not seem to care about the total number of attempts.
 
 Codes are guessed sequentially from 0000-1999.  No radio has been seen
 with a code higher than 1999.  There is no feedback from the radio, so
@@ -24,24 +17,13 @@ it must be observed to know when it has been cracked.
 LabJack U3 connections:
     FIO0-3 Station preset buttons 1-4 for code entry
     FIO4   Execute security code button ("Tuning >")
-    FIO5   Power button
-    FIO6   AT93C64 EEPROM CS signal interrupter
-    FIO7   12VDC power input to radio
 
 Lines are inverted (0=close contact, 1=open contact).
 
-Connect a 3.3K pull-down resistor between the AT93C64's CS input and GND
-so the AT93C64 is disabled when the CS line is disconnected from the
-radio's microcontroller.  Do not let the CS input float.
-
-Connect a load in parallel with the radio's 12VDC input.  I used a small
-DC motor.  When the relay disconnects 12V power, the radio still has residual
-power that can keep the microcontroller's RAM alive.  The load is used to
-drain all the radio's residual power quickly.  If this is not done, the radio
-may remember the attempt count in its microcontroller's RAM even if power
-is removed for a while.
+Usage: crack.py <starting code>
 """
 
+import datetime
 import sys
 import time
 import u3 # LabJack
@@ -70,8 +52,7 @@ class Radio(object):
 
     def enter_code(self, code):
         """Toggle in a new security code without executing it.  Code
-        is an integer from 0-9999.  No radio has been seen with a code
-        higher than 1999."""
+        is an integer from 0-9999."""
         code = str(code).rjust(4, "0")
         digits = [ int(c) for c in code ]
 
@@ -105,46 +86,15 @@ class Radio(object):
             self.digits[button] = 0
 
 
-class Harness(object):
-    """Hardware test harness control (12VDC power, EEPROM CS block)"""
-    def __init__(self, labjack=None):
-        if labjack is None:
-            labjack = u3.U3()
-            labjack.configU3()
-        self.labjack = labjack
-
-    def power_on(self):
-        '''Turn on all 12VDC power to the radio'''
-        self.labjack.setDOState(u3.FIO7, 0)
-
-    def power_off(self):
-        '''Turn off all 12VDC power to the radio'''
-        self.labjack.setDOState(u3.FIO7, 1)
-
-    def allow_eeprom_cs(self):
-        '''Allow the EEPROM to see the CS signal from the
-        radio's microcontroller'''
-        self.labjack.setDOState(u3.FIO6, 0)
-
-    def deny_eeprom_cs(self):
-        '''Deny the EEPROM from seing the CS signal by disconnecting it
-        from the radio's microcontroller and making it always
-        low (not enabled)'''
-        self.labjack.setDOState(u3.FIO6, 1)
-
-
 class Cracker(object):
     """Crack a radio by brute force guessing codes"""
-    def __init__(self, radio, harness):
+    def __init__(self, radio):
         self.radio = radio
-        self.harness = harness
 
     def crack(self, starting_code):
         code = starting_code
         max_code = 1999
         tries_this_cycle = 0
-
-        self.power_on()
 
         while code <= max_code:
             percent = (float(code) / max_code) * 100
@@ -158,42 +108,23 @@ class Cracker(object):
             code += 1
 
             # the radio allows only 2 tries, then it locks out code entry
-            # for an hour.  since we have blocked updating the attempt
-            # count in the eeprom, power cycling allows us to try again
-            # without waiting.
+            # for an hour.
             tries_this_cycle += 1
             if tries_this_cycle == 2:
-                self.power_off()
-                self.power_on()
+                print("Waiting 1 hour since %s" % datetime.datetime.now())
+                time.sleep(3600)
                 tries_this_cycle = 0
-
-    def power_on(self):
-        print("Power on sequence")
-        self.harness.allow_eeprom_cs()
-        time.sleep(0.5)
-        self.harness.power_on()
-        time.sleep(2)
-        self.radio.press_power_button()
-        self.radio.clear()
-        time.sleep(8)
-        self.harness.deny_eeprom_cs()
-
-    def power_off(self):
-        print("Power off sequence")
-        self.harness.power_off()
-        time.sleep(5)
 
 
 def main():
     if len(sys.argv) != 2:
-        sys.stderr.write("Usage: crack.py <starting code>\n")
+        sys.stderr.write(__doc__)
         sys.exit(1)
     starting_code=int(sys.argv[1])
 
     labjack = u3.U3()
     radio = Radio(labjack)
-    harness = Harness(labjack)
-    Cracker(radio, harness).crack(starting_code)
+    Cracker(radio).crack(starting_code)
 
 
 if __name__ == '__main__':
