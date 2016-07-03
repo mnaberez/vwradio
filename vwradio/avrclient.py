@@ -192,6 +192,7 @@ class Client(object):
 
 class UpdEmulatorState(object):
     def __init__(self, data):
+        assert len(data) == 150
         self.ram_area = data[0]
         self.ram_size = data[1]
         self.address = data[2]
