@@ -1,3 +1,4 @@
+import csv
 import gzip
 import sys
 from vwradio import faceplates
@@ -262,13 +263,13 @@ def parse_analyzer_file(filename, emulator, visualizer):
 
     opener = gzip.open if filename.endswith('.gz') else open
     with opener(filename, 'r') as f:
-        for i, line in enumerate(f.readlines()):
-            if i == 0:
-                continue # skip header line
+        headings = [ col.strip() for col in f.next().split(',') ]
+        reader = csv.DictReader(f, headings)
 
-            cols = [ c.strip() for c in line.split(b',') ]
-            # time = float(cols[0])
-            stb, dat, clk, bus, rst = [ int(c) for c in cols[1:6] ]
+        for row in reader:
+            stb = int(row['STB'])
+            dat = int(row['DAT'])
+            clk = int(row['CLK'])
 
             # strobe low->high starts session
             if (old_stb == 0) and (stb == 1):
