@@ -1,5 +1,5 @@
 """
-This program uses a LabJack U3 controlling 5 relays to brute force crack
+This program uses a Raspberry Pi controlling 5 relays to brute force crack
 a VW Premium 4 or 5 radio.
 
 The radio allows two code entry attempts per hour.  After each failed attempt,
@@ -14,40 +14,50 @@ Codes are guessed sequentially from 0000-1999.  No radio has been seen
 with a code higher than 1999.  There is no feedback from the radio, so
 it must be observed to know when it has been cracked.
 
-LabJack U3 connections:
-    FIO0-3 Station preset buttons 1-4 for code entry
-    FIO4   Execute security code button ("Tuning >")
-
-Lines are inverted (0=close contact, 1=open contact).
-
 Usage: crack.py <starting code>
 """
 
 import datetime
 import sys
 import time
-import u3 # LabJack
+import RPi.GPIO as GPIO
+
+
+class Pins(object):
+    """Raspberry Pi GPIO header pin assignments"""
+    PRESET_1 = 29
+    PRESET_2 = 31
+    PRESET_3 = 33
+    PRESET_4 = 35
+    EXECUTE = 37
+
+class States(object):
+    """Logic states to output on GPIO to open/close relay contacts"""
+    OPEN_CONTACT = GPIO.HIGH
+    CLOSE_CONTACT = GPIO.LOW
 
 
 class Radio(object):
     """Radio front panel interaction"""
-    def __init__(self, labjack=None):
-        if labjack is None:
-            labjack = u3.U3()
-            labjack.configU3()
-        self.labjack = labjack
-        self.clear()
+    def __init__(self):
+        self.setup()
 
     def __repr__(self):
         return '<Radio: %s>' % ''.join([str(d) for d in self.digits])
 
-    def clear(self):
-        """Initialize the LabJack DIO and set the default button states"""
-        for i in range(0, 5):
-            self.labjack.setDOState(u3.FIO0 + i, 1)
+    def setup(self):
+        """Initialize GPIO and set the default button states"""
+        GPIO.setwarnings(False)
+        GPIO.setmode(GPIO.BOARD)
+        for name, pin in Pins.__dict__.items():
+            if not name.startswith('_'):
+                GPIO.setup(pin, GPIO.OUT, initial=States.OPEN_CONTACT)
+        GPIO.setwarnings(True)
         time.sleep(0.2)
+        self.clear()
 
-        # security code always defaults to "1000"
+    def clear(self):
+        """Security code always defaults to 1000"""
         self.digits = [1, 0, 0, 0]
 
     def enter_code(self, code):
@@ -62,17 +72,18 @@ class Radio(object):
 
     def execute(self):
         """Execute the current security code to try and unlock the radio"""
-        self.labjack.setDOState(u3.FIO4, 0) # button down
+        GPIO.output(Pins.EXECUTE, States.CLOSE_CONTACT)
         time.sleep(3) # execute requires a long press
 
-        self.labjack.setDOState(u3.FIO4, 1) # button up
+        GPIO.output(Pins.EXECUTE, States.OPEN_CONTACT)
         time.sleep(5) # long delay until radio finishes flashing "SAFE"
 
     def press_preset_button(self, button):
         """Press a preset button and update the button's current digit.
         Button is an integer starting at 0 for preset 1."""
-        for state in (0, 1): # 0=button down, 1=button up
-            self.labjack.setDOState(u3.FIO0 + button, state)
+        for state in (States.CLOSE_CONTACT, States.OPEN_CONTACT):
+            pin = getattr(Pins, 'PRESET_%d' % (button + 1))
+            GPIO.output(pin, state)
             time.sleep(0.2)
 
         self.digits[button] += 1
@@ -90,6 +101,9 @@ class Cracker(object):
         max_code = 1999
         tries_this_cycle = 0
 
+        print("Cracking starts in 30 seconds.  Power radio on now.")
+        time.sleep(30)
+
         while code <= max_code:
             percent = (float(code) / max_code) * 100
             print("Trying code %04d (max=%04d, %0.2f%% done)" % (
@@ -105,7 +119,8 @@ class Cracker(object):
             # for an hour.
             tries_this_cycle += 1
             if tries_this_cycle == 2:
-                print("Waiting 1 hour since %s" % datetime.datetime.now())
+                next_at = datetime.datetime.now() + datetime.timedelta(hours=1)
+                print("Waiting 1 hour.  Next attempt at %s" % next_at)
                 time.sleep(3600)
                 tries_this_cycle = 0
 
@@ -116,8 +131,7 @@ def main():
         sys.exit(1)
     starting_code=int(sys.argv[1])
 
-    labjack = u3.U3()
-    radio = Radio(labjack)
+    radio = Radio()
     Cracker(radio).crack(starting_code)
 
 
