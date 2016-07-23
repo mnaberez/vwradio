@@ -125,6 +125,11 @@ class Client(object):
             data[2] = key_codes[0]
         if count > 1:
             data[3] = key_codes[1]
+        if count > 2:
+            raise ValueError(
+                'Tried to press %d keys, but only 0, 1, or 2 keys '
+                'can be pressed at once' % count
+                )
         self.command(data)
 
     def hit_key(self, key, secs=0.15):
