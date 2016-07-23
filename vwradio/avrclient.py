@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 import struct
 import time
 import serial # pyserial

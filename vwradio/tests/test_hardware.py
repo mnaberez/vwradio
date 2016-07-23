@@ -1,7 +1,7 @@
-#!/usr/bin/env python
 import os
 import time
 import unittest
+
 from vwradio.constants import DisplayModes, OperationModes, TunerBands, Keys
 from vwradio.faceplates import Premium4
 from vwradio import avrclient
