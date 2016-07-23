@@ -41,7 +41,7 @@ class Client(object):
     def __init__(self, ser):
         self.serial = ser
 
-    # High level
+    # High level ==============================================================
 
     def echo(self, data):
         rx_bytes = self.command(bytearray([CMD_ECHO]) + bytearray(data))
@@ -111,14 +111,14 @@ class Client(object):
         rx_bytes = self.command([CMD_CONVERT_CODE_TO_UPD_KEY_DATA, key_code])
         return list(rx_bytes[1:])
 
-    # read keys on real faceplate
     def read_keys(self):
+        '''read keys on real faceplate'''
         rx_bytes = self.command([CMD_READ_KEYS])
         num_keys_pressed = rx_bytes[1]
         return list(rx_bytes[2:2+num_keys_pressed])
 
-    # send key presses to the radio
     def load_keys(self, key_codes):
+        '''send key presses to the radio'''
         count = len(key_codes)
         data = [CMD_LOAD_KEYS, count, 0, 0]
         if count > 0:
@@ -127,14 +127,14 @@ class Client(object):
             data[3] = key_codes[1]
         self.command(data)
 
-    # XXX this should be implemented on the avr
     def hit_key(self, key, secs=0.15):
+        '''XXX this should be implemented on the avr'''
         self.load_keys([key]) # hit key
         time.sleep(secs)
         self.load_keys([]) # release all keys
         time.sleep(secs)
 
-    # Low level
+    # Low level ===============================================================
 
     def command(self, data, ignore_nak=False):
         self._flush_rx() # discard rx if a previous command was interrupted
