@@ -24,11 +24,11 @@ class Upd16432b(object):
         first byte is the command, any successive bytes are data.'''
         self._print_spi_command(spi_command)
 
-        # Command Byte
+        # Command byte
         cmd = spi_command[0]
-        cmdsel = cmd & 0b11000000
 
         # Process command byte
+        cmdsel = cmd & 0b11000000
         if cmdsel == 0b00000000:
             self._process_display_setting(spi_command)
         elif cmdsel == 0b01000000:
