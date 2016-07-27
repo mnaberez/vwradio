@@ -7,7 +7,11 @@ class Upd16432b(object):
     '''Emulates the NEC uPD16432B.  Processes SPI command packets
     and updates internal RAM areas as the uPD16432B would.'''
 
-    def __init__(self):
+    def __init__(self, stdout=None):
+        if stdout is None:
+            stdout = sys.stdout
+        self.stdout = stdout
+
         self.display_ram = [0] * 0x19
         self.pictograph_ram = [0] * 0x08
         self.chargen_ram = [0] * 7 * 0x10
@@ -23,6 +27,10 @@ class Upd16432b(object):
         bytes received while the uPD16432B was selected with STB.  The
         first byte is the command, any successive bytes are data.'''
         self._print_spi_command(spi_command)
+
+        # No SPI bytes were received while STB was asserted
+        if len(spi_command) == 0:
+            return
 
         # Command byte
         cmd = spi_command[0]
@@ -50,45 +58,45 @@ class Upd16432b(object):
                     self.address += 1
 
     def _process_display_setting(self, spi_command):
-        self._out("    Display Setting Command")
+        self._print("    Display Setting Command")
         cmd = spi_command[0]
 
         if (cmd & 1) == 0:
-            self._out("    Duty setting: 0=1/8 duty")
+            self._print("    Duty setting: 0=1/8 duty")
         else:
-            self._out("    Duty setting: 1=1/15 duty")
+            self._print("    Duty setting: 1=1/15 duty")
 
         if (cmd & 2) == 0:
-            self._out("    Master/slave setting: 0=master")
+            self._print("    Master/slave setting: 0=master")
         else:
-            self._out("    Master/slave setting: 1=slave")
+            self._print("    Master/slave setting: 1=slave")
 
         if (cmd & 4) == 0:
-            self._out("    Drive voltage supply method: 0=external")
+            self._print("    Drive voltage supply method: 0=external")
         else:
-            self._out("    Drive voltage supply method: 1=internal")
+            self._print("    Drive voltage supply method: 1=internal")
 
     def _process_data_setting(self, spi_command):
-        self._out("  Data Setting Command")
+        self._print("  Data Setting Command")
         cmd = spi_command[0]
         mode = cmd & 0b00000111
         if mode == 0:
-            self._out("    0=Write to display RAM")
+            self._print("    0=Write to display RAM")
             self.current_ram = self.display_ram
         elif mode == 1:
-            self._out("    1=Write to pictograph RAM")
+            self._print("    1=Write to pictograph RAM")
             self.current_ram = self.pictograph_ram
         elif mode == 2:
-            self._out("    2=Write to chargen ram")
+            self._print("    2=Write to chargen ram")
             self.current_ram = self.chargen_ram
         elif mode == 3:
-            self._out("    3=Write to LED output latch")
+            self._print("    3=Write to LED output latch")
             self.current_ram = self.led_output_ram
         elif mode == 4:
-            self._out("    4=Read key data")
+            self._print("    4=Read key data")
             self.current_ram = self.key_data_ram
         else: # Unknown mode
-            self._out("    ? Unknown mode ?")
+            self._print("    ? Unknown mode ?")
             self.current_ram = None
 
         if mode in (0, 1):
@@ -96,69 +104,69 @@ class Upd16432b(object):
             incr = cmd & 0b00001000
             self.increment = incr == 0
             if self.increment:
-                self._out("    Address increment mode: 0=increment")
+                self._print("    Address increment mode: 0=increment")
             else:
-                self._out("    Address increment mode: 1=fixed")
+                self._print("    Address increment mode: 1=fixed")
         else:
             # other commands always increment and also reset address
-            self._out("    Command implies address increment; increment = on")
+            self._print("    Command implies address increment; increment = on")
             self.increment = True
-            self._out("    Command implies reset to address 0; address = 0")
+            self._print("    Command implies reset to address 0; address = 0")
             self.address = 0
 
     def _process_address_setting(self, spi_command):
-        self._out("  Address Setting Command")
+        self._print("  Address Setting Command")
         cmd = spi_command[0]
         address = cmd & 0b00011111
-        self._out("    Address = %02x" % address)
+        self._print("    Address = %02x" % address)
         if self.current_ram is self.chargen_ram:
             self.address = address * 7 # character number, 7 bytes per char
         else:
             self.address = address
 
     def _process_status(self, spi_command):
-        self._out("  Status command")
+        self._print("  Status command")
         cmd = spi_command[0]
         if (cmd & 32) == 0:
-            self._out("    Test mode setting: 0=Normal operation")
+            self._print("    Test mode setting: 0=Normal operation")
         else:
-            self._out("    Test mode setting: 1=Test Mode")
+            self._print("    Test mode setting: 1=Test Mode")
 
         if (cmd & 16) == 0:
-            self._out("    Standby mode setting: 0=Normal operation")
+            self._print("    Standby mode setting: 0=Normal operation")
         else:
-            self._out("    Standby mode setting: 1=Standby mode")
+            self._print("    Standby mode setting: 1=Standby mode")
 
         if (cmd & 8) == 0:
-            self._out("    Key scan control: 0=Key scanning stopped")
+            self._print("    Key scan control: 0=Key scanning stopped")
         else:
-            self._out("    Key scan control: 1=Key scan operation")
+            self._print("    Key scan control: 1=Key scan operation")
 
         if (cmd & 4) == 0:
-            self._out("    LED control: 0=LED forced off")
+            self._print("    LED control: 0=LED forced off")
         else:
-            self._out("    LED control: 1=Normal operation")
+            self._print("    LED control: 1=Normal operation")
 
         lcd_mode = cmd & 0b00000011
         if lcd_mode == 0:
-            self._out("    LCD mode: 0=LCD forced off (SEGn, COMn=Vlc5)")
+            self._print("    LCD mode: 0=LCD forced off (SEGn, COMn=Vlc5)")
         elif lcd_mode == 1:
-            self._out("    LCD mode: 1=LCD forced off (SEGn, "
+            self._print("    LCD mode: 1=LCD forced off (SEGn, "
                       "COMn=unselected waveform")
         elif lcd_mode == 2:
-            self._out("    LCD mode: 2=Normal operation (0b00)")
+            self._print("    LCD mode: 2=Normal operation (0b00)")
         else: # 3
-            self._out("    LCD mode: 3=Normal operation (0b11)")
+            self._print("    LCD mode: 3=Normal operation (0b11)")
 
     def _print_spi_command(self, spi_command):
-        self._out("SPI Data: " + _hexdump(spi_command))
+        self._print("SPI Data: " + _hexdump(spi_command))
         for i, byte in enumerate(spi_command):
             desc = "Command byte" if i == 0 else "Data byte"
             line = "  %s = 0x%02x (%s)" % (desc, byte, format(byte, '#010b'))
-            self._out(line)
+            self._print(line)
 
-    def _out(self, text):
-        print(text)
+    def _print(self, text):
+        self.stdout.write('%s\n' % text)
 
 
 class Visualizer(object):
@@ -177,24 +185,24 @@ class Visualizer(object):
 
     def print_state(self):
         # dump ram as hex
-        self._out('Key Data RAM: ' + _hexdump(self.upd.key_data_ram))
-        self._out('Chargen RAM: ' + _hexdump(self.upd.chargen_ram))
-        self._out('Pictograph RAM: ' + _hexdump(self.upd.pictograph_ram))
-        self._out('Display RAM: ' + _hexdump(self.upd.display_ram))
-        self._out('LED Output Latch: 0x%02x' % self.upd.led_output_ram[0])
+        self._print('Key Data RAM: ' + _hexdump(self.upd.key_data_ram))
+        self._print('Chargen RAM: ' + _hexdump(self.upd.chargen_ram))
+        self._print('Pictograph RAM: ' + _hexdump(self.upd.pictograph_ram))
+        self._print('Display RAM: ' + _hexdump(self.upd.display_ram))
+        self._print('LED Output Latch: 0x%02x' % self.upd.led_output_ram[0])
 
         # draw characters as bitmaps
-        self._out('Drawn Chargen RAM:')
+        self._print('Drawn Chargen RAM:')
         for line in self.draw_chargen_ram():
-            self._out('  ' + line)
-        self._out('Drawn Display RAM:')
+            self._print('  ' + line)
+        self._print('Drawn Display RAM:')
         for line in self.draw_display_ram():
-            self._out('  ' + line)
+            self._print('  ' + line)
 
         # decode raw bytes into equivalent ascii, pictograph names, etc.
-        self._out('Decoded Display RAM: %r' % self.decode_display_ram())
-        self._out('Decoded Pictographs: %r' % self.decode_pictograph_names())
-        self._out('Decoded Keys Pressed: %r' % self.decode_key_names())
+        self._print('Decoded Display RAM: %r' % self.decode_display_ram())
+        self._print('Decoded Pictographs: %r' % self.decode_pictograph_names())
+        self._print('Decoded Keys Pressed: %r' % self.decode_key_names())
 
     def draw_display_ram(self):
         data = []
@@ -245,7 +253,7 @@ class Visualizer(object):
         keys = self.faceplate.decode_keys(self.upd.key_data_ram)
         return [ self.faceplate.get_key_name(k) for k in keys ]
 
-    def _out(self, text):
+    def _print(self, text):
         print(text)
 
 
@@ -290,11 +298,13 @@ def parse_analyzer_file(filename, emulator, visualizer):
 
             # strobe high->low ends session
             if (old_stb == 1) and (stb == 0):
-                if spi_command:
-                    emulator.process(spi_command)
-                    print('')
-                    visualizer.print_state()
-                    print('')
+                # process command
+                emulator.process(spi_command)
+                print('')
+                # print state
+                visualizer.print_state()
+                print('')
+                # prepare for next comnand
                 spi_command = []
                 byte = 0
                 bit = 7

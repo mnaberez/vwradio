@@ -6,7 +6,7 @@ from vwradio.constants import DisplayModes, OperationModes, TunerBands, Keys
 from vwradio.faceplates import Premium4
 from vwradio import avrclient
 
-class AvrTests(unittest.TestCase):
+class TestAvr(unittest.TestCase):
     serial = None # serial.Serial instance
 
     def setUp(self):
