@@ -133,7 +133,7 @@ class Client(object):
         self.command(data)
 
     def hit_key(self, key, secs=0.15):
-        '''XXX this should be implemented on the avr'''
+        '''TODO implement this on the AVR side instead'''
         self.load_keys([key]) # hit key
         time.sleep(secs)
         self.load_keys([]) # release all keys

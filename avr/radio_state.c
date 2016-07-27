@@ -649,9 +649,9 @@ void radio_state_update_from_upd_if_dirty(
     uint8_t c;
     for (i=0; i<11; i++)
     {
-        // TODO XXX this display order is premium 4 specific
+        // TODO this display order is premium 4 only, make general purpose
         c = upd_state->display_ram[0x0c-i];
-        // TODO xxx this conversion table is premium 4 specific
+        // TODO this converion table is premium 4 specific, make general purpose
         switch (c)
         {
             case 0xe4:
