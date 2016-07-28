@@ -15,7 +15,7 @@ class Upd16432b(object):
         self.display_ram = [0] * 0x19
         self.pictograph_ram = [0] * 0x08
         self.chargen_ram = [0] * 7 * 0x10
-        self.led_output_ram = [0]
+        self.led_ram = [0] 
         self.key_data_ram = [0] * 4
 
         self.current_ram = None
@@ -94,7 +94,7 @@ class Upd16432b(object):
             self.current_ram = self.chargen_ram
         elif mode == 3:
             self._print("    3=Write to LED output latch")
-            self.current_ram = self.led_output_ram
+            self.current_ram = self.led_ram
         elif mode == 4:
             self._print("    4=Read key data")
             self.current_ram = self.key_data_ram
@@ -200,7 +200,7 @@ class Visualizer(object):
         self._print('Chargen RAM: ' + _hexdump(self.upd.chargen_ram))
         self._print('Pictograph RAM: ' + _hexdump(self.upd.pictograph_ram))
         self._print('Display RAM: ' + _hexdump(self.upd.display_ram))
-        self._print('LED Output Latch: 0x%02x' % self.upd.led_output_ram[0])
+        self._print('LED Output Latch: 0x%02x' % self.upd.led_ram[0])
 
         # draw characters as bitmaps
         self._print('Drawn Chargen RAM:')

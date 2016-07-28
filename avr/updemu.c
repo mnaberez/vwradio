@@ -17,6 +17,7 @@ void upd_init(upd_state_t *state)
     memset(state->display_ram, 0, UPD_DISPLAY_RAM_SIZE);
     memset(state->pictograph_ram, 0, UPD_PICTOGRAPH_RAM_SIZE);
     memset(state->chargen_ram, 0, UPD_CHARGEN_RAM_SIZE);
+    memset(state->led_ram, 0, UPD_LED_RAM_SIZE);
 }
 
 static void _wrap_address(upd_state_t *state)
@@ -55,6 +56,14 @@ static void _write_data_byte(upd_state_t *state, uint8_t b)
             }
             break;
 
+        case UPD_RAM_LED:
+            if (state->led_ram[state->address] != b)
+            {
+                state->led_ram[state->address] = b;
+                state->dirty_flags |= UPD_DIRTY_LED;
+            }
+            break;
+
         case UPD_RAM_NONE:
         default:
             return;
@@ -76,6 +85,7 @@ static void _process_address_setting_cmd(upd_state_t *state, upd_command_t *cmd)
     {
         case UPD_RAM_DISPLAY:
         case UPD_RAM_PICTOGRAPH:
+        case UPD_RAM_LED:
             state->address = address;
             _wrap_address(state);
             break;
@@ -120,6 +130,11 @@ static void _process_data_setting_cmd(upd_state_t *state, upd_command_t *cmd)
         case UPD_RAM_CHARGEN:
             state->ram_area = UPD_RAM_CHARGEN;
             state->ram_size = UPD_CHARGEN_RAM_SIZE;
+            break;
+
+        case UPD_RAM_LED:
+            state->ram_area = UPD_RAM_LED;
+            state->ram_size = UPD_LED_RAM_SIZE;
             break;
 
         default:

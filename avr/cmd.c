@@ -110,7 +110,8 @@ static uint8_t _dump_upd_state_to_uart(upd_state_t *state)
            1 + // dirty_flags
            UPD_DISPLAY_RAM_SIZE +
            UPD_PICTOGRAPH_RAM_SIZE +
-           UPD_CHARGEN_RAM_SIZE;
+           UPD_CHARGEN_RAM_SIZE +
+           UPD_LED_RAM_SIZE;
 
     uart_putc(size); // number of bytes to follow
     uart_putc(ACK);
@@ -134,6 +135,11 @@ static uint8_t _dump_upd_state_to_uart(upd_state_t *state)
     for (i=0; i<UPD_CHARGEN_RAM_SIZE; i++)
     {
         uart_putc(state->chargen_ram[i]);
+    }
+
+    for (i=0; i<UPD_LED_RAM_SIZE; i++)
+    {
+        uart_putc(state->led_ram[i]);
     }
 
     return 1;

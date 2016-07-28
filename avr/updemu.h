@@ -6,11 +6,13 @@
 #define UPD_RAM_DISPLAY 0
 #define UPD_RAM_PICTOGRAPH 1
 #define UPD_RAM_CHARGEN 2
+#define UPD_RAM_LED 3
 // RAM area dirty flags
 #define UPD_DIRTY_NONE 0
 #define UPD_DIRTY_DISPLAY 1<<UPD_RAM_DISPLAY
 #define UPD_DIRTY_PICTOGRAPH 1<<UPD_RAM_PICTOGRAPH
 #define UPD_DIRTY_CHARGEN 1<<UPD_RAM_CHARGEN
+#define UPD_DIRTY_LED 1<<UPD_RAM_LED
 // Address increment mode
 #define UPD_INCREMENT_OFF 0
 #define UPD_INCREMENT_ON 1
@@ -18,6 +20,7 @@
 #define UPD_DISPLAY_RAM_SIZE 0x19
 #define UPD_PICTOGRAPH_RAM_SIZE 0x08
 #define UPD_CHARGEN_RAM_SIZE 0x70
+#define UPD_LED_RAM_SIZE 0x01
 
 // upd16432b command request
 typedef struct
@@ -37,6 +40,7 @@ typedef struct
     uint8_t display_ram[UPD_DISPLAY_RAM_SIZE];
     uint8_t pictograph_ram[UPD_PICTOGRAPH_RAM_SIZE];
     uint8_t chargen_ram[UPD_CHARGEN_RAM_SIZE];
+    uint8_t led_ram[UPD_LED_RAM_SIZE];
 } upd_state_t;
 
 void upd_init(upd_state_t *state);

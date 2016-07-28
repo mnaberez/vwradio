@@ -12,7 +12,7 @@ class TestUpd16432b(unittest.TestCase):
             ('display_ram', 0x19),
             ('pictograph_ram', 0x08),
             ('chargen_ram', 0x70),
-            ('led_output_ram', 0x01),
+            ('led_ram', 0x01),
             ('key_data_ram', 0x04),
         )
         for name, size in names_and_sizes:
@@ -58,7 +58,7 @@ class TestUpd16432b(unittest.TestCase):
         self.assertTrue(emu.current_ram is emu.pictograph_ram)
         self.assertFalse(emu.increment)
 
-    def test_upd_upd_data_setting_sets_chargen_ram_area_increment_on(self):
+    def test_upd_data_setting_sets_chargen_ram_area_increment_on(self):
         emu = Upd16432b(stdout=StringIO())
         cmd  = 0b01000000 # data setting command
         cmd |= 0b00000010 # chargen ram
@@ -74,6 +74,24 @@ class TestUpd16432b(unittest.TestCase):
         cmd |= 0b00001000 # increment off (should be ignored)
         emu.process([cmd])
         self.assertTrue(emu.current_ram is emu.chargen_ram)
+        self.assertTrue(emu.increment)
+
+    def test_upd_data_setting_sets_led_ram_area_increment_on(self):
+        emu = Upd16432b(stdout=StringIO())
+        cmd  = 0b01000000 # data setting command
+        cmd |= 0b00000011 # led output latch
+        cmd |= 0b00000000 # increment on
+        emu.process([cmd])
+        self.assertTrue(emu.current_ram is emu.led_ram)
+        self.assertTrue(emu.increment)
+
+    def test_upd_data_setting_sets_led_ram_area_ignores_increment_off(self):
+        emu = Upd16432b(stdout=StringIO())
+        cmd  = 0b01000000 # data setting command
+        cmd |= 0b00000011 # led output latch
+        cmd |= 0b00001000 # increment off (should be ignored)
+        emu.process([cmd])
+        self.assertTrue(emu.current_ram is emu.led_ram)
         self.assertTrue(emu.increment)
 
     def test_upd_data_setting_unrecognized_ram_area_sets_none(self):
@@ -118,6 +136,10 @@ class TestUpd16432b(unittest.TestCase):
             ('chargen_ram',     0b00000010,    0,    0), # min
             ('chargen_ram',     0b00000010, 0x0f, 0x69), # max
             ('chargen_ram',     0b00000010, 0x10,    0), # out of range
+
+            ('led_ram',         0b00000011,    0,    0), # min
+            ('led_ram',         0b00000011,    0,    0), # max
+            ('led_ram',         0b00000011,    1,    0), # out of range
         )
         for ram_area, ram_select_bits, address, expected_address in tuples:
             emu = Upd16432b(stdout=StringIO())

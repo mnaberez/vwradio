@@ -32,10 +32,12 @@ UPD_RAM_NONE = 0xFF
 UPD_RAM_DISPLAY = 0
 UPD_RAM_PICTOGRAPH = 1
 UPD_RAM_CHARGEN = 2
+UPD_RAM_LED = 3
 UPD_DIRTY_NONE = 0
 UPD_DIRTY_DISPLAY = 1<<UPD_RAM_DISPLAY
 UPD_DIRTY_PICTOGRAPH = 1<<UPD_RAM_PICTOGRAPH
 UPD_DIRTY_CHARGEN = 1<<UPD_RAM_CHARGEN
+UPD_DIRTY_LED = 1<<UPD_RAM_LED
 
 class Client(object):
     def __init__(self, ser):
@@ -196,7 +198,7 @@ class Client(object):
 
 class UpdEmulatorState(object):
     def __init__(self, data):
-        assert len(data) == 150
+        assert len(data) == 151
         self.ram_area = data[0]
         self.ram_size = data[1]
         self.address = data[2]
@@ -204,7 +206,8 @@ class UpdEmulatorState(object):
         self.dirty_flags = data[4]
         self.display_ram = data[5:30]
         self.pictograph_ram = data[30:38]
-        self.chargen_ram  = data[38:150]
+        self.chargen_ram = data[38:150]
+        self.led_ram = data[150:151]
 
     def __repr__(self):
         return '<%s: %s> ' % (self.__class__.__name__, repr(self.__dict__))

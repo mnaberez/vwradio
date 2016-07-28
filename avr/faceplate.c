@@ -87,7 +87,7 @@ void faceplate_send_upd_command(upd_command_t *cmd)
     PORTD &= ~_BV(PD7);
 
     // The real uPD16432B doesn't have a way to read back its registers so
-    // we use an instance of the emulator to remember it.
+    // we use an instance of the emulator to remember them.
     upd_process_command(&faceplate_upd_state, cmd);
 }
 
@@ -171,14 +171,14 @@ void faceplate_update_from_upd_if_dirty(upd_state_t *state)
             0,    // address
             sizeof(state->display_ram),
             state->display_ram
-        );
+            );
     }
 
     if (state->dirty_flags & UPD_DIRTY_PICTOGRAPH)
     {
         _write_ram(
             0x41, // data setting command: pictograph ram
-            0,   // address
+            0,    // address
             sizeof(state->pictograph_ram),
             state->pictograph_ram
             );
@@ -197,5 +197,15 @@ void faceplate_update_from_upd_if_dirty(upd_state_t *state)
                 state->chargen_ram + (charnum * 7) // data for this char
                 );
         }
+    }
+
+    if (state->dirty_flags & UPD_DIRTY_LED)
+    {
+        _write_ram(
+            0x4b, // data setting command: led output latch
+            0,    // address
+            sizeof(state->led_ram),
+            state->led_ram
+            );
     }
 }
