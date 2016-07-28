@@ -88,11 +88,12 @@ static void _process_address_setting_cmd(upd_state_t *state, upd_command_t *cmd)
             }
             else
             {
-                state->address = 0;
+                state->address = 0; // character number out of range
             }
             break;
 
         default:
+            // unknown ram area
             address = 0;
             break;
     }

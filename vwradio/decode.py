@@ -49,13 +49,16 @@ class Upd16432b(object):
         # Process data bytes
         if self.current_ram is not None:
             for byte in spi_command[1:]:
-                if self.address >= len(self.current_ram):
-                    self.address = 0
-
                 self.current_ram[self.address] = byte
 
                 if self.increment:
                     self.address += 1
+                    self._wrap_address()
+
+    def _wrap_address(self):
+        if self.current_ram is not None:
+            if self.address >= len(self.current_ram):
+                self.address = 0
 
     def _process_display_setting(self, spi_command):
         self._print("    Display Setting Command")
@@ -119,10 +122,18 @@ class Upd16432b(object):
         cmd = spi_command[0]
         address = cmd & 0b00011111
         self._print("    Address = %02x" % address)
+
         if self.current_ram is self.chargen_ram:
-            self.address = address * 7 # character number, 7 bytes per char
-        else:
+            # for chargen, address is character number (valid from 0 to 0x0F)
+            if address < 0x10:
+                self.address = address * 7 # 7 bytes per character
+            else:
+                self.address = 0 # character number out of range
+        elif self.current_ram is not None:
             self.address = address
+            self._wrap_address()
+        else:
+            self.address = 0 # unknown ram area
 
     def _process_status(self, spi_command):
         self._print("  Status command")
