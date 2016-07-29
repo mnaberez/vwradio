@@ -1,3 +1,4 @@
+import itertools
 import os
 import time
 import unittest
@@ -233,7 +234,7 @@ class TestAvr(unittest.TestCase):
         self.assertEqual(state.ram_area, avrclient.UPD_RAM_NONE) # 0=none
         self.assertEqual(state.ram_size, 0)
         self.assertEqual(state.address, 0)
-        self.assertEqual(state.increment, False)
+        self.assertFalse(state.increment)
         self.assertEqual(state.display_ram, bytearray([0]*25))
         self.assertEqual(state.chargen_ram, bytearray([0]*112))
         self.assertEqual(state.pictograph_ram, bytearray([0]*8))
@@ -249,7 +250,7 @@ class TestAvr(unittest.TestCase):
         state = self.client.emulated_upd_dump_state()
         self.assertEqual(state.ram_area, avrclient.UPD_RAM_DISPLAY)
         self.assertEqual(state.ram_size, 25)
-        self.assertEqual(state.increment, False)
+        self.assertFalse(state.increment)
 
     def test_upd_data_setting_sets_display_ram_area_increment_on(self):
         self.client.emulated_upd_reset()
@@ -260,7 +261,7 @@ class TestAvr(unittest.TestCase):
         state = self.client.emulated_upd_dump_state()
         self.assertEqual(state.ram_area, avrclient.UPD_RAM_DISPLAY)
         self.assertEqual(state.ram_size, 25)
-        self.assertEqual(state.increment, True)
+        self.assertTrue(state.increment)
 
     def test_upd_data_setting_sets_pictograph_ram_area_increment_off(self):
         self.client.emulated_upd_reset()
@@ -271,7 +272,7 @@ class TestAvr(unittest.TestCase):
         state = self.client.emulated_upd_dump_state()
         self.assertEqual(state.ram_area, avrclient.UPD_RAM_PICTOGRAPH)
         self.assertEqual(state.ram_size, 8)
-        self.assertEqual(state.increment, False)
+        self.assertFalse(state.increment)
 
     def test_upd_data_setting_sets_chargen_ram_area_increment_on(self):
         self.client.emulated_upd_reset()
@@ -282,7 +283,7 @@ class TestAvr(unittest.TestCase):
         state = self.client.emulated_upd_dump_state()
         self.assertEqual(state.ram_area, avrclient.UPD_RAM_CHARGEN)
         self.assertEqual(state.ram_size, 112)
-        self.assertEqual(state.increment, True)
+        self.assertTrue(state.increment)
 
     def test_upd_data_setting_sets_chargen_ram_area_ignores_increment_off(self):
         self.client.emulated_upd_reset()
@@ -293,7 +294,7 @@ class TestAvr(unittest.TestCase):
         state = self.client.emulated_upd_dump_state()
         self.assertEqual(state.ram_area, avrclient.UPD_RAM_CHARGEN)
         self.assertEqual(state.ram_size, 112)
-        self.assertEqual(state.increment, True)
+        self.assertTrue(state.increment) # should ignore increment off
 
     def test_upd_data_setting_sets_led_ram_area_increment_on(self):
         self.client.emulated_upd_reset()
@@ -304,7 +305,7 @@ class TestAvr(unittest.TestCase):
         state = self.client.emulated_upd_dump_state()
         self.assertEqual(state.ram_area, avrclient.UPD_RAM_LED)
         self.assertEqual(state.ram_size, 1)
-        self.assertEqual(state.increment, True)
+        self.assertTrue(state.increment)
 
     def test_upd_data_setting_sets_led_ram_area_ignores_increment_off(self):
         self.client.emulated_upd_reset()
@@ -315,7 +316,7 @@ class TestAvr(unittest.TestCase):
         state = self.client.emulated_upd_dump_state()
         self.assertEqual(state.ram_area, avrclient.UPD_RAM_LED)
         self.assertEqual(state.ram_size, 1)
-        self.assertEqual(state.increment, True)
+        self.assertTrue(state.increment) # should ignore increment off
 
     def test_upd_data_setting_unrecognized_ram_area_sets_none(self):
         self.client.emulated_upd_reset()
@@ -326,7 +327,7 @@ class TestAvr(unittest.TestCase):
         self.assertEqual(state.ram_area, avrclient.UPD_RAM_NONE)
         self.assertEqual(state.ram_size, 0)
         self.assertEqual(state.address, 0)
-        self.assertEqual(state.increment, True)
+        self.assertTrue(state.increment)
 
     def test_upd_data_setting_unrecognized_ram_area_ignores_increment_off(self):
         self.client.emulated_upd_reset()
@@ -338,7 +339,7 @@ class TestAvr(unittest.TestCase):
         self.assertEqual(state.ram_area, avrclient.UPD_RAM_NONE)
         self.assertEqual(state.ram_size, 0)
         self.assertEqual(state.address, 0)
-        self.assertEqual(state.increment, True)
+        self.assertTrue(state.increment) # should ignore increment off
 
     # uPD16432B Emulator: Address Setting Command
 
@@ -388,7 +389,7 @@ class TestAvr(unittest.TestCase):
 
     # uPD16432B Emulator: Writing Data
 
-    def test_upd_no_ram_area_ignores_data(self):
+    def test_upd_writing_no_ram_area_ignores_data(self):
         self.client.emulated_upd_reset()
         state = self.client.emulated_upd_dump_state()
         # address setting command
@@ -399,7 +400,7 @@ class TestAvr(unittest.TestCase):
         self.client.emulated_upd_send_command(bytearray([cmd]) + data)
         self.assertEqual(self.client.emulated_upd_dump_state(), state)
 
-    def test_upd_display_ram_increment_on_writes_data(self):
+    def test_upd_writing_display_ram_increment_on_writes_data(self):
         self.client.emulated_upd_reset()
         # data setting command
         cmd  = 0b01000000 # data setting command
@@ -414,11 +415,11 @@ class TestAvr(unittest.TestCase):
         self.client.emulated_upd_send_command(bytearray([cmd]) + data)
         state = self.client.emulated_upd_dump_state()
         self.assertEqual(state.ram_area, avrclient.UPD_RAM_DISPLAY)
-        self.assertEqual(state.increment, True)
+        self.assertTrue(state.increment)
         self.assertEqual(state.address, 0) # wrapped around
         self.assertEqual(state.display_ram, data)
 
-    def test_upd_display_ram_increment_off_rewrites_data(self):
+    def test_upd_writing_display_ram_increment_off_rewrites_data(self):
         self.client.emulated_upd_reset()
         # data setting command
         cmd  = 0b01000000 # data setting command
@@ -433,11 +434,141 @@ class TestAvr(unittest.TestCase):
         self.client.emulated_upd_send_command([cmd, 1, 2, 3, 4, 5, 6, 7])
         state = self.client.emulated_upd_dump_state()
         self.assertEqual(state.ram_area, avrclient.UPD_RAM_DISPLAY)
-        self.assertEqual(state.increment, False)
+        self.assertFalse(state.increment)
         self.assertEqual(state.address, 5)
         self.assertEqual(state.display_ram[5], 7)
 
-    # TODO tests for writing other RAM areas
+    def test_upd_writing_pictograph_ram_increment_on_writes_data(self):
+        self.client.emulated_upd_reset()
+        # data setting command
+        cmd  = 0b01000000 # data setting command
+        cmd |= 0b00000001 # pictograph ram
+        cmd |= 0b00000000 # increment on
+        self.client.emulated_upd_send_command([cmd])
+        # address setting command
+        # followed by a unique byte for all 8 bytes of pictograph ram
+        cmd = 0b10000000
+        cmd |= 0 # address 0
+        data = bytearray(range(1, 9))
+        self.client.emulated_upd_send_command(bytearray([cmd]) + data)
+        state = self.client.emulated_upd_dump_state()
+        self.assertEqual(state.ram_area, avrclient.UPD_RAM_PICTOGRAPH)
+        self.assertTrue(state.increment)
+        self.assertEqual(state.address, 0) # wrapped around
+        self.assertEqual(state.pictograph_ram, data)
+
+    def test_upd_writing_pictograph_ram_increment_off_rewrites_data(self):
+        self.client.emulated_upd_reset()
+        # data setting command
+        cmd  = 0b01000000 # data setting command
+        cmd |= 0b00000001 # pictograph ram
+        cmd |= 0b00001000 # increment off
+        self.client.emulated_upd_send_command([cmd])
+        # address setting command
+        cmd = 0b10000000
+        cmd |= 5 # address 5
+        # address setting command
+        # followed by bytes that should be written to address 5 only
+        self.client.emulated_upd_send_command([cmd, 1, 2, 3, 4, 5, 6, 7])
+        state = self.client.emulated_upd_dump_state()
+        self.assertEqual(state.ram_area, avrclient.UPD_RAM_PICTOGRAPH)
+        self.assertFalse(state.increment)
+        self.assertEqual(state.address, 5)
+        self.assertEqual(state.pictograph_ram[5], 7)
+
+    def test_upd_writing_chargen_ram_increment_on_writes_data(self):
+        self.client.emulated_upd_reset()
+        # data setting command
+        cmd  = 0b01000000 # data setting command
+        cmd |= 0b00000010 # chargen ram
+        cmd |= 0b00000000 # increment on
+        self.client.emulated_upd_send_command([cmd])
+        # make unique data for every byte of every character
+        data = [] # groups of 7 bytes, one for each character
+        for charnum in range(16):
+            offset = charnum * 7
+            data.append(bytearray(range(offset, offset+7)))
+        # write character data in groups of 2 characters per command
+        for charnum in range(0, 16, 2):
+            # address setting command
+            cmd = 0b10000000
+            cmd |= charnum # address
+            self.client.emulated_upd_send_command(
+                bytearray([cmd]) + data[charnum] + data[charnum+1]
+                )
+        # verify all chargen ram data
+        state = self.client.emulated_upd_dump_state()
+        self.assertEqual(state.ram_area, avrclient.UPD_RAM_CHARGEN)
+        self.assertTrue(state.increment)
+        self.assertEqual(state.address, 0) # wrapped around
+        flattened_data = bytearray(itertools.chain.from_iterable(data))
+        self.assertEqual(state.chargen_ram, flattened_data)
+
+    def test_upd_writing_chargen_ram_ignores_increment_off_writes_data(self):
+        self.client.emulated_upd_reset()
+        # data setting command
+        cmd  = 0b01000000 # data setting command
+        cmd |= 0b00000010 # chargen ram
+        cmd |= 0b00001000 # increment off (ignored)
+        self.client.emulated_upd_send_command([cmd])
+        # make unique data for every byte of every character
+        data = [] # groups of 7 bytes, one for each character
+        for charnum in range(16):
+            offset = charnum * 7
+            data.append(bytearray(range(offset, offset+7)))
+        # write character data in groups of 2 characters per command
+        for charnum in range(0, 16, 2):
+            # address setting command
+            cmd = 0b10000000
+            cmd |= charnum # address
+            self.client.emulated_upd_send_command(
+                bytearray([cmd]) + data[charnum] + data[charnum+1]
+                )
+        # verify all chargen ram data
+        state = self.client.emulated_upd_dump_state()
+        self.assertEqual(state.ram_area, avrclient.UPD_RAM_CHARGEN)
+        self.assertTrue(state.increment) # should ignore increment off
+        self.assertEqual(state.address, 0) # wrapped around
+        flattened_data = bytearray(itertools.chain.from_iterable(data))
+        self.assertEqual(state.chargen_ram, flattened_data)
+
+    def test_upd_writing_led_ram_increment_on_writes_data(self):
+        self.client.emulated_upd_reset()
+        # data setting command
+        cmd  = 0b01000000 # data setting command
+        cmd |= 0b00000011 # led output latch
+        cmd |= 0b00000000 # increment on
+        self.client.emulated_upd_send_command([cmd])
+        # address setting command
+        # followed a byte for the led output latch
+        cmd = 0b10000000
+        cmd |= 0 # address 0
+        data = bytearray([42])
+        self.client.emulated_upd_send_command(bytearray([cmd]) + data)
+        state = self.client.emulated_upd_dump_state()
+        self.assertEqual(state.ram_area, avrclient.UPD_RAM_LED)
+        self.assertTrue(state.increment)
+        self.assertEqual(state.address, 0) # wrapped around
+        self.assertEqual(state.led_ram, data)
+
+    def test_upd_writing_led_ram_ignores_increment_off_writes_data(self):
+        self.client.emulated_upd_reset()
+        # data setting command
+        cmd  = 0b01000000 # data setting command
+        cmd |= 0b00000011 # led output latch
+        cmd |= 0b00001000 # increment off (ignored)
+        self.client.emulated_upd_send_command([cmd])
+        # address setting command
+        # followed a byte for the led output latch
+        cmd = 0b10000000
+        cmd |= 0 # address 0
+        data = bytearray([42])
+        self.client.emulated_upd_send_command(bytearray([cmd]) + data)
+        state = self.client.emulated_upd_dump_state()
+        self.assertEqual(state.ram_area, avrclient.UPD_RAM_LED)
+        self.assertTrue(state.increment) # should ignore increment off
+        self.assertEqual(state.address, 0) # wrapped around
+        self.assertEqual(state.led_ram, data)
 
     # uPD16432B Emulator: Dirty RAM Tracking
 

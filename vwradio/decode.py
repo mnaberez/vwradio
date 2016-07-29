@@ -12,11 +12,11 @@ class Upd16432b(object):
             stdout = sys.stdout
         self.stdout = stdout
 
-        self.display_ram = [0] * 0x19
-        self.pictograph_ram = [0] * 0x08
-        self.chargen_ram = [0] * 7 * 0x10
-        self.led_ram = [0] 
-        self.key_data_ram = [0] * 4
+        self.display_ram = bytearray([0] * 0x19)
+        self.pictograph_ram = bytearray([0] * 0x08)
+        self.chargen_ram = bytearray([0] * 7 * 0x10)
+        self.led_ram = bytearray([0])
+        self.key_data_ram = bytearray([0] * 4)
 
         self.current_ram = None
         self.address = 0
@@ -26,6 +26,7 @@ class Upd16432b(object):
         '''Process an SPI command packet, which is an arbitrary number of
         bytes received while the uPD16432B was selected with STB.  The
         first byte is the command, any successive bytes are data.'''
+        spi_command = bytearray(spi_command)
         self._print_spi_command(spi_command)
 
         # No SPI bytes were received while STB was asserted
@@ -169,6 +170,19 @@ class Upd16432b(object):
         else: # 3
             self._print("    LCD mode: 3=Normal operation (0b11)")
 
+    def dump_ram(self):
+        ram_areas = (
+            'display_ram',
+            'pictograph_ram',
+            'chargen_ram',
+            'led_ram',
+            'key_data_ram',
+            )
+        dump = {}
+        for ram_area in ram_areas:
+            dump[ram_area] = bytes(getattr(self, ram_area))
+        return dump
+
     def _print_spi_command(self, spi_command):
         self._print("SPI Data: " + _hexdump(spi_command))
         for i, byte in enumerate(spi_command):
@@ -273,7 +287,7 @@ def _hexdump(list_of_bytes):
 
 
 def parse_analyzer_file(filename, emulator, visualizer):
-    spi_command = []
+    spi_command = bytearray()
     byte = 0
     bit = 0
 
@@ -292,7 +306,7 @@ def parse_analyzer_file(filename, emulator, visualizer):
 
             # strobe low->high starts session
             if (old_stb == 0) and (stb == 1):
-                spi_command = []
+                spi_command = bytearray()
                 byte = 0
                 bit = 7
 
@@ -316,7 +330,7 @@ def parse_analyzer_file(filename, emulator, visualizer):
                 visualizer.print_state()
                 print('')
                 # prepare for next comnand
-                spi_command = []
+                spi_command = bytearray()
                 byte = 0
                 bit = 7
 
