@@ -167,11 +167,11 @@ Tape
   Decoded Display RAM: 'TAPE SCAN B'
   Decoded Display RAM: 'TAPEMSS FF '
   Decoded Display RAM: 'TAPEMSS REW'
+  Decoded Display RAM: 'TAPE ERROR '
   Decoded Display RAM: 'TAPE  FF   '
   Decoded Display RAM: 'TAPE  REW  '
 
   TODO BLS
-  TODO TAPE ERROR
 
 Balance
   Decoded Display RAM: 'BAL CENTER '
