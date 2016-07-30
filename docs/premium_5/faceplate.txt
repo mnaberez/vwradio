@@ -196,7 +196,25 @@ Treble
   Decoded Display RAM: 'TREB  - 5  '
 
 Fade
+  Decoded Display RAM: 'FADECENTER '
+  Decoded Display RAM: 'FADEFRONT 1'
+  Decoded Display RAM: 'FADEFRONT 2'
+  Decoded Display RAM: 'FADEFRONT 3'
+  Decoded Display RAM: 'FADEFRONT 4'
+  Decoded Display RAM: 'FADEFRONT 5'
+  Decoded Display RAM: 'FADEFRONT 6'
+  Decoded Display RAM: 'FADEFRONT 7'
+  Decoded Display RAM: 'FADEFRONT 8'
+  Decoded Display RAM: 'FADEFRONT 9'
+  Decoded Display RAM: 'FADEREAR  1'
   Decoded Display RAM: 'FADEREAR  2'
+  Decoded Display RAM: 'FADEREAR  3'
+  Decoded Display RAM: 'FADEREAR  4'
+  Decoded Display RAM: 'FADEREAR  5'
+  Decoded Display RAM: 'FADEREAR  6'
+  Decoded Display RAM: 'FADEREAR  7'
+  Decoded Display RAM: 'FADEREAR  8'
+  Decoded Display RAM: 'FADEREAR  9'
 
 Midrange
   Decoded Display RAM: 'MID   + 4  '
