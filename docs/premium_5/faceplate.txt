@@ -183,11 +183,18 @@ Balance
   Decoded Display RAM: 'BAL RIGHT 9'
 
 Bass
-  Decoded Display RAM: 'BASS  + 8  '
+  Decoded Display RAM: 'BASS  - 9  '
+  Decoded Display RAM: 'BASS  - 1  '
+  Decoded Display RAM: 'BASS    0  '
+  Decoded Display RAM: 'BASS  + 1  '
+  Decoded Display RAM: 'BASS  + 9  '
 
 Treble
-  Decoded Display RAM: 'TREB  + 6  '
-  Decoded Display RAM: 'TREB  - 5  '
+  Decoded Display RAM: 'TREB  - 9  '
+  Decoded Display RAM: 'TREB  - 1  '
+  Decoded Display RAM: 'TREB    0  '
+  Decoded Display RAM: 'TREB  + 1  '
+  Decoded Display RAM: 'TREB  + 9  '
 
 Fade
   Decoded Display RAM: 'FADECENTER '
@@ -197,7 +204,11 @@ Fade
   Decoded Display RAM: 'FADEREAR  9'
 
 Midrange
-  Decoded Display RAM: 'MID   + 4  '
+  Decoded Display RAM: 'MID   - 9  '
+  Decoded Display RAM: 'MID   - 1  '
+  Decoded Display RAM: 'MID     0  '
+  Decoded Display RAM: 'MID   + 1  '
+  Decoded Display RAM: 'MID   + 9  '
 
 Volume
   Decoded Display RAM: 'FM<cgram:0x00>   MAX  '
