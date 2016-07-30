@@ -325,7 +325,11 @@ class Premium5(Faceplate):
         0x57: "W",
         0x58: "X",
         0x59: "Y",
+        0x5a: "Z",
+        0x65: "e",
         0x6b: "k",
+        0x72: "r",
+        0x73: "s",
         0x7a: "z",
         }
 
