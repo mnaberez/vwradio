@@ -296,7 +296,7 @@ static void _do_radio_state_dump()
         return;
     }
 
-    uart_putc(51); // number of bytes to follow
+    uart_putc(49); // number of bytes to follow
     uart_putc(ACK);
     uart_putc(radio_state.operation_mode);
     uart_putc(radio_state.display_mode);

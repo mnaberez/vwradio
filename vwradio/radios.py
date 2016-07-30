@@ -22,8 +22,8 @@ class Radio(object):
         self.option_cd_mix = 1 # 1 or 6
         self.option_tape_skip = 0 # 0=no, 1=yes
         self.test_fern = 0 # 0=off, 1=on
-        self.test_rad = b" " * 8 # 8 bytes like b" 3CP T7 "
-        self.test_ver = b" " * 8 # 8 bytes like b"  0702  "
+        self.test_rad = b" " * 7 # 7 bytes like b"3CP T7 "
+        self.test_ver = b" " * 7 # 7 bytes like b" 0702  "
 
     def parse(self, display):
         if display == b' ' * 11:
@@ -133,10 +133,10 @@ class Radio(object):
                 self.test_fern = 1
         elif display[0:3] == b"RAD":
             self.operation_mode = OperationModes.TESTING_RAD
-            self.test_rad = display[3:11]
+            self.test_rad = display[4:11]
         elif display[0:3] == b"VER":
             self.operation_mode = OperationModes.TESTING_VER
-            self.test_ver = display[3:11]
+            self.test_ver = display[4:11]
         else:
             self._parse_unknown(display)
 

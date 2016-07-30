@@ -218,7 +218,7 @@ class UpdEmulatorState(object):
 
 class RadioState(object):
     def __init__(self, data):
-        assert len(data) == 50
+        assert len(data) == 48
         self.operation_mode = data[0]
         self.display_mode = data[1]
         self.safe_tries = data[2]
@@ -240,8 +240,8 @@ class RadioState(object):
         self.option_cd_mix = data[31]
         self.option_tape_skip = data[32]
         self.test_fern = data[33]
-        self.test_rad = data[34:42]
-        self.test_ver = data[42:50]
+        self.test_rad = data[34:41]
+        self.test_ver = data[41:49]
 
     def __repr__(self):
         return '<%s: %s> ' % (self.__class__.__name__, repr(self.__dict__))

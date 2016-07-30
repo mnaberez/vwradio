@@ -522,12 +522,12 @@ static void _parse_test(radio_state_t *state, uint8_t *display)
     else if (memcmp(display, "RAD", 3) == 0)
     {
         state->operation_mode = OPERATION_MODE_TESTING_RAD;
-        memcpy(state->test_rad, display+3, sizeof(state->test_rad));
+        memcpy(state->test_rad, display+4, sizeof(state->test_rad));
     }
     else if (memcmp(display, "VER", 3) == 0)
     {
         state->operation_mode = OPERATION_MODE_TESTING_VER;
-        memcpy(state->test_ver, display+3, sizeof(state->test_ver));
+        memcpy(state->test_ver, display+4, sizeof(state->test_ver));
     }
     else
     {
@@ -724,5 +724,5 @@ void radio_state_init(radio_state_t *state)
     state->option_tape_skip = 0;
     state->test_fern = 0;
     memset(state->test_rad, ' ', sizeof(state->test_rad));
-    memset(state->test_ver, ' ', sizeof(state->test_rad));
+    memset(state->test_ver, ' ', sizeof(state->test_ver));
 }

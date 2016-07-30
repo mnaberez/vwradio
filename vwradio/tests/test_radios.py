@@ -263,8 +263,8 @@ class TestRadio(unittest.TestCase):
 
     def test_test_rad(self):
         values = (
-            (b"RAD 3CP T7 ", b" 3CP T7 "),
-            (b"RAD01234567", b"01234567"),
+            (b"RAD 3CP T7 ", b"3CP T7 "),
+            (b"RAD 0123456", b"0123456"),
         )
         for display, rad in values:
             radio = Radio()
@@ -281,8 +281,8 @@ class TestRadio(unittest.TestCase):
 
     def test_test_ver(self):
         values = (
-            (b"VER  0702  ", b"  0702  "),
-            (b"VERABCDEFGH", b"ABCDEFGH"),
+            (b"VER  0702  ", b" 0702  "),
+            (b"VER ABCDEFG", b"ABCDEFG"),
         )
         for display, ver in values:
             radio = Radio()

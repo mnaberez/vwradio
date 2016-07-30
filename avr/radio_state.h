@@ -75,8 +75,8 @@ typedef struct
     uint8_t option_cd_mix;
     uint8_t option_tape_skip;
     uint8_t test_fern;
-    uint8_t test_rad[8];
-    uint8_t test_ver[8];
+    uint8_t test_rad[7];
+    uint8_t test_ver[7];
 } radio_state_t;
 radio_state_t radio_state;
 
