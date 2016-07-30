@@ -163,14 +163,14 @@ Tape
   Decoded Display RAM: 'TAPE METAL '
   Decoded Display RAM: 'TAPE PLAY A'
   Decoded Display RAM: 'TAPE PLAY B'
+  Decoded Display RAM: 'TAPE SCAN A'
+  Decoded Display RAM: 'TAPE SCAN B'
   Decoded Display RAM: 'TAPEMSS FF '
   Decoded Display RAM: 'TAPEMSS REW'
 
   TODO BLS
   TODO TAPE FF
   TODO TAPE REW
-  TODO TAPE SCAN A
-  TODO TAPE SCAN B
 
 Balance
   Decoded Display RAM: 'BAL CENTER '
