@@ -320,6 +320,7 @@ class Premium5(Faceplate):
         0x52: "R",
         0x53: "S",
         0x54: "T",
+        0x56: "V",
         0x57: "W",
         0x58: "X",
         0x59: "Y",
