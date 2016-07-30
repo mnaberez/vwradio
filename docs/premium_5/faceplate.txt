@@ -85,6 +85,7 @@ radio and seen on the LCD:
 0x47: "G"
 0x48: "H"
 0x49: "I"
+0x4b: "K"
 0x4c: "L"
 0x4d: "M"
 0x4e: "N"
@@ -231,7 +232,12 @@ Volume
   Decoded Display RAM: 'FM<cgram:0x00>   MIN  '
 
 Setting Options
-  TODO
+  Decoded Display RAM: 'SET ONVOL 8'
+  Decoded Display RAM: 'SET ONVOL45'
+  Decoded Display RAM: 'SET CD MIX1'
+  Decoded Display RAM: 'SET CD MIX6'
+  Decoded Display RAM: 'TAPE SKIP N'
+  Decoded Display RAM: 'TAPE SKIP Y'
 
 Monsoon
   Decoded Display RAM: '    MONSOON'

@@ -312,6 +312,7 @@ class Premium5(Faceplate):
         0x47: "G",
         0x48: "H",
         0x49: "I",
+        0x4b: "K",
         0x4c: "L",
         0x4d: "M",
         0x4e: "N",

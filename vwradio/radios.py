@@ -18,7 +18,7 @@ class Radio(object):
         self.cd_track = 0 # 0=none, track 1-99
         self.cd_track_pos = 0 # position on track during cue/rev, in seconds
         self.tape_side = 0 # 0=none, 1=side a, 2=side b
-        self.option_on_vol = 0 # 13-63 on Premium 4
+        self.option_on_vol = 0 # 13-63 on Premium 4, 8-45 on Premium 5
         self.option_cd_mix = 1 # 1 or 6
         self.option_tape_skip = 0 # 0=no, 1=yes
         self.test_fern = 0 # 0=off, 1=on
