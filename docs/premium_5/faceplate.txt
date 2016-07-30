@@ -242,7 +242,7 @@ Code Change
   TODO
 
 Diagnostics (KWP1281)
-  TODO
+  Decoded Display RAM: '     DIAG  '
 
 Test Mode
   TODO
