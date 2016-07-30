@@ -168,7 +168,25 @@ Tape
   TODO TAPE SCAN B
 
 Balance
-  TODO
+  Decoded Display RAM: 'BAL CENTER '
+  Decoded Display RAM: 'BAL LEFT  1'
+  Decoded Display RAM: 'BAL LEFT  2'
+  Decoded Display RAM: 'BAL LEFT  3'
+  Decoded Display RAM: 'BAL LEFT  4'
+  Decoded Display RAM: 'BAL LEFT  5'
+  Decoded Display RAM: 'BAL LEFT  6'
+  Decoded Display RAM: 'BAL LEFT  7'
+  Decoded Display RAM: 'BAL LEFT  8'
+  Decoded Display RAM: 'BAL LEFT  9'
+  Decoded Display RAM: 'BAL RIGHT 1'
+  Decoded Display RAM: 'BAL RIGHT 2'
+  Decoded Display RAM: 'BAL RIGHT 3'
+  Decoded Display RAM: 'BAL RIGHT 4'
+  Decoded Display RAM: 'BAL RIGHT 5'
+  Decoded Display RAM: 'BAL RIGHT 6'
+  Decoded Display RAM: 'BAL RIGHT 7'
+  Decoded Display RAM: 'BAL RIGHT 8'
+  Decoded Display RAM: 'BAL RIGHT 9'
 
 Bass
   Decoded Display RAM: 'BASS  + 8  '
