@@ -93,6 +93,7 @@ radio and seen on the LCD:
 0x52: "R"
 0x53: "S"
 0x54: "T"
+0x57: "W"
 0x58: "X"
 0x59: "Y"
 0x6b: "k"
@@ -162,8 +163,12 @@ Tape
   Decoded Display RAM: 'TAPE METAL '
   Decoded Display RAM: 'TAPE PLAY A'
   Decoded Display RAM: 'TAPE PLAY B'
-  TODO MSS
+  Decoded Display RAM: 'TAPEMSS FF '
+  Decoded Display RAM: 'TAPEMSS REW'
+
   TODO BLS
+  TODO TAPE FF
+  TODO TAPE REW
   TODO TAPE SCAN A
   TODO TAPE SCAN B
 
