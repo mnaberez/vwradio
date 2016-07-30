@@ -191,7 +191,7 @@ Setting Options
   TODO
 
 Monsoon
-  TODO
+  Decoded Display RAM: '    MONSOON'
 
 Initializing
   TODO
