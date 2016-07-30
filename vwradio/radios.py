@@ -52,7 +52,7 @@ class Radio(object):
             self._parse_sound_fade(display)
         elif display[0:3] == b"SET" or display[0:9] == b"TAPE SKIP":
             self._parse_set(display)
-        elif display[0:3] in (b"FER", b"RAD", b"VER"):
+        elif display[0:3] in (b"FER", b"RAD", b"VER", b"Ver"):
             self._parse_test(display)
         elif display[0:3] == b"TAP" or display == b"    NO TAPE":
             self._parse_tape(display)
@@ -131,12 +131,15 @@ class Radio(object):
                 self.test_fern = 0
             else: # b"ON"
                 self.test_fern = 1
+        elif display[0:4] == b"Vers": # Premium 5
+            self.operation_mode = OperationModes.TESTING_VER
+            self.test_ver = display[4:11]
+        elif display[0:3] == b"VER": # Premium 4
+            self.operation_mode = OperationModes.TESTING_VER
+            self.test_ver = display[4:11]
         elif display[0:3] == b"RAD":
             self.operation_mode = OperationModes.TESTING_RAD
             self.test_rad = display[4:11]
-        elif display[0:3] == b"VER":
-            self.operation_mode = OperationModes.TESTING_VER
-            self.test_ver = display[4:11]
         else:
             self._parse_unknown(display)
 

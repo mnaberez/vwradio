@@ -1112,7 +1112,8 @@ class TestAvr(unittest.TestCase):
 
     def test_test_rad(self):
         values = (
-            (b"RAD 3CP T7 ", b"3CP T7 "),
+            (b"RAD 3CP T7 ", b"3CP T7 "), # Premium 4
+            (b"RAD   DE2  ", b"  DE2  "), # Premium 5
             (b"RAD 0123456", b"0123456"),
         )
         for display, rad in values:
@@ -1136,7 +1137,8 @@ class TestAvr(unittest.TestCase):
 
     def test_test_ver(self):
         values = (
-            (b"VER  0702  ", b" 0702  "),
+            (b"VER  0702  ", b" 0702  "), # Premium 4
+            (b"VersA99CZ23", b"A99CZ23"), # Premium 5
             (b"VER ABCDEFG", b"ABCDEFG"),
         )
         for display, ver in values:

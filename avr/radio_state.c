@@ -519,15 +519,20 @@ static void _parse_test(radio_state_t *state, uint8_t *display)
             state->test_fern = 1;
         }
     }
+    else if (memcmp(display, "Vers", 4) == 0) // Premium 5
+    {
+        state->operation_mode = OPERATION_MODE_TESTING_VER;
+        memcpy(state->test_ver, display+4, sizeof(state->test_ver));
+    }
+    else if (memcmp(display, "VER", 3) == 0) // Premium 4
+    {
+        state->operation_mode = OPERATION_MODE_TESTING_VER;
+        memcpy(state->test_ver, display+4, sizeof(state->test_ver));
+    }
     else if (memcmp(display, "RAD", 3) == 0)
     {
         state->operation_mode = OPERATION_MODE_TESTING_RAD;
         memcpy(state->test_rad, display+4, sizeof(state->test_rad));
-    }
-    else if (memcmp(display, "VER", 3) == 0)
-    {
-        state->operation_mode = OPERATION_MODE_TESTING_VER;
-        memcpy(state->test_ver, display+4, sizeof(state->test_ver));
     }
     else
     {
@@ -598,7 +603,8 @@ void radio_state_parse(radio_state_t *state, uint8_t *display)
     }
     else if ((memcmp(display, "FER", 3) == 0) ||
              (memcmp(display, "RAD", 3) == 0) ||
-             (memcmp(display, "VER", 3) == 0))
+             (memcmp(display, "VER", 3) == 0) ||
+             (memcmp(display, "Ver", 3) == 0))
     {
         _parse_test(state, display);
     }
