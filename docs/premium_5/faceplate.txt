@@ -94,6 +94,7 @@ radio and seen on the LCD:
 0x52: "R"
 0x53: "S"
 0x54: "T"
+0x55: "U"
 0x56: "V"
 0x57: "W"
 0x58: "X"
@@ -159,9 +160,16 @@ Radio FM1/2
   Decoded Display RAM: 'SCAN1079MHz'
 
 CD
+  Decoded Display RAM: 'CD 1 TR 01 '
+  Decoded Display RAM: 'CD 2 NO CD '
+  Decoded Display RAM: 'CD 1CD ERR '
+  Decoded Display RAM: 'CUE   245  '
+  Decoded Display RAM: 'REV   147  '
+  Decoded Display RAM: 'CD 1  251  ' (shown when exiting CUE or REV)
+  Decoded Display RAM: 'SCANCD1TR04'
+  Decoded Display RAM: 'CHK MAGAZIN'
   Decoded Display RAM: 'NO  CHANGER'
-
-  TODO CD SCAN
+  Decoded Display RAM: '    NO DISC'
 
 Tape
   Decoded Display RAM: '    NO TAPE'
