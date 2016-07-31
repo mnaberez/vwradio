@@ -10,3 +10,12 @@ gets its ground from where installed in the car.
 
 Interestingly, the player seems to work fine on the Premium 4 radio without
 having to ground the chassis.  It's a good idea to ground it anyway.
+
+CD Pause
+--------
+
+The radio doesn't expose a way to pause while playing a CD, but the player is
+capable of pausing.  If you are playing a CD and switch to another mode like FM,
+the CD will stop.  If you then switch back to CD, it will pick up where it left
+off.  Connecting to the radio with KWP-1281 ("DIAG" mode) also pauses the CD
+and resumes on disconnect.
