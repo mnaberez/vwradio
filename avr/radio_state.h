@@ -39,6 +39,7 @@
 #define OPERATION_MODE_TESTING_FERN 100
 #define OPERATION_MODE_TESTING_RAD 101
 #define OPERATION_MODE_TESTING_VER 102
+#define OPERATION_MODE_TESTING_SIGNAL 103
 
 #define DISPLAY_MODE_UNKNOWN 0
 #define DISPLAY_MODE_SHOWING_OPERATION 10
@@ -63,7 +64,7 @@ typedef struct
     uint16_t safe_code;
     int8_t sound_bass; // -9 to 9
     int8_t sound_treble; // -9 to 9
-    int8_t sound_midrange; // -9 to 9, Premium 5 only
+    int8_t sound_midrange; // Premium 5 only, -9 to 9
     int8_t sound_balance; // right -9, center 0, left +9
     int8_t sound_fade; // rear -9, center 0, front +9
     uint8_t tape_side; // 0=none, 1=side a, 2=side b
@@ -79,6 +80,8 @@ typedef struct
     uint8_t test_fern;
     uint8_t test_rad[7];
     uint8_t test_ver[7];
+    uint16_t test_signal_freq; // Premium 5 only, 977=97.7 Mhz, 540=540 KHz
+    uint16_t test_signal_strength; // Premium 5 only, 0 to 0xFFFF
 } radio_state_t;
 radio_state_t radio_state;
 

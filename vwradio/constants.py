@@ -45,6 +45,7 @@ class OperationModes(Enum):
     TESTING_FERN = 100
     TESTING_RAD = 101
     TESTING_VER = 102
+    TESTING_SIGNAL = 103
 
 class DisplayModes(Enum):
     UNKNOWN = 0

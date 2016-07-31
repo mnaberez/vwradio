@@ -311,6 +311,31 @@ class TestRadio(unittest.TestCase):
             self.assertEqual(radio.display_mode,
                 DisplayModes.SHOWING_OPERATION)
 
+    def test_test_signal_premium5(self):
+        values = (
+            (b" 5300 2 6 F",  530, 0x026F), # AM 530 KHz
+            (b"17100 1 2 3", 1710, 0x0123), # AM 1710 KHz
+            (b" 8770 5 3 0",  877, 0x0530), # FM 87.7 MHz
+            (b"10770 6 4 0", 1077, 0x0640), # FM 107.7 MHz
+            (b"1077A B C D", 1077, 0xABCD),
+            (b"1077E F 1 2", 1077, 0xEF12),
+            (b"10770 0 0 0", 1077, 0x0000),
+            (b"1077F F F F", 1077, 0xFFFF),
+        )
+        for display, freq, strength in values:
+            radio = Radio()
+            # set up known values
+            radio.operation_mode = OperationModes.TUNER_PLAYING
+            radio.display_mode = DisplayModes.ADJUSTING_SOUND_VOLUME
+            # parse display
+            radio.parse(display)
+            self.assertEqual(radio.test_signal_freq, freq)
+            self.assertEqual(radio.test_signal_strength, strength)
+            self.assertEqual(radio.operation_mode,
+                OperationModes.TESTING_SIGNAL)
+            self.assertEqual(radio.display_mode,
+                DisplayModes.SHOWING_OPERATION)
+
     def test_cd_playing(self):
         values = (
             (b"CD 1 TR 01 ", 1, 1),

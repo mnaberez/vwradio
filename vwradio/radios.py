@@ -24,6 +24,8 @@ class Radio(object):
         self.test_fern = 0 # 0=off, 1=on
         self.test_rad = b" " * 7 # 7 bytes like b"3CP T7 "
         self.test_ver = b" " * 7 # 7 bytes like b" 0702  "
+        self.test_signal_freq = 0 # Premium 5 only, 977=97.7 Mhz, 540=540 KHz
+        self.test_signal_strength = 0 # Premium 5 only, 0 to 0xFFFF
 
     def parse(self, display):
         if display == b' ' * 11:
@@ -55,6 +57,8 @@ class Radio(object):
         elif display[0:3] == b"SET" or display[0:9] == b"TAPE SKIP":
             self._parse_set(display)
         elif display[0:3] in (b"FER", b"RAD", b"VER", b"Ver"):
+            self._parse_test(display)
+        elif display[1:4].isdigit():
             self._parse_test(display)
         elif display[0:3] == b"TAP" or display == b"    NO TAPE":
             self._parse_tape(display)
@@ -149,6 +153,16 @@ class Radio(object):
         elif display[0:3] == b"RAD":
             self.operation_mode = OperationModes.TESTING_RAD
             self.test_rad = display[4:11]
+        elif display[1:4].isdigit(): # Premium 5
+            self.operation_mode = OperationModes.TESTING_SIGNAL
+
+            freq = display[0:4]
+            if freq[0:1] == b" ": # b' 5300 2 6 F'
+                freq = b"0" + freq[1:]
+            self.test_signal_freq = int(freq) # 97.7MHz=977, 540KHz=540
+
+            strength = display[4] + display[6] + display[8] + display[10]
+            self.test_signal_strength = int(strength, 16)
         else:
             self._parse_unknown(display)
 
@@ -158,8 +172,7 @@ class Radio(object):
         freq = display[4:8]
         if freq[0:1] == b" ": # b" 881"
             freq = b"0" + freq[1:]
-        if freq.isdigit():
-            self.tuner_freq = int(freq) # 102.3 MHz = 1023
+        self.tuner_freq = int(freq) # 102.3 MHz = 1023
 
         if display[0:4] == b"SCAN":
             self.operation_mode = OperationModes.TUNER_SCANNING

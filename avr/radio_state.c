@@ -2,6 +2,7 @@
 #include "radio_state.h"
 #include "updemu.h"
 #include <ctype.h>
+#include <stdlib.h>
 #include <string.h>
 #include <avr/io.h>
 
@@ -559,6 +560,26 @@ static void _parse_test(radio_state_t *state, uint8_t *display)
         state->operation_mode = OPERATION_MODE_TESTING_RAD;
         memcpy(state->test_rad, display+4, sizeof(state->test_rad));
     }
+    else if (isdigit(display[1]) &&
+             isdigit(display[2]) &&
+             isdigit(display[3]))
+    {
+        state->operation_mode = OPERATION_MODE_TESTING_SIGNAL;
+
+        state->test_signal_freq = 0; // 97.7MHz=977, 540KHz=540
+        if (isdigit(display[0])) { state->test_signal_freq += (display[0] & 0x0F) * 1000; }
+        if (isdigit(display[1])) { state->test_signal_freq += (display[1] & 0x0F) * 100; }
+        if (isdigit(display[2])) { state->test_signal_freq += (display[2] & 0x0F) * 10; }
+        if (isdigit(display[3])) { state->test_signal_freq += (display[3] & 0x0F) * 1; }
+
+        char strength[4];
+        strength[0] = display[4];
+        strength[1] = display[6];
+        strength[2] = display[8];
+        strength[3] = display[10];
+        char *part;
+        state->test_signal_strength = (uint16_t)strtol(strength, &part, 16);
+    }
     else
     {
         _parse_unknown(state, display);
@@ -634,6 +655,12 @@ void radio_state_parse(radio_state_t *state, uint8_t *display)
              (memcmp(display, "RAD", 3) == 0) ||
              (memcmp(display, "VER", 3) == 0) ||
              (memcmp(display, "Ver", 3) == 0))
+    {
+        _parse_test(state, display);
+    }
+    else if (isdigit(display[1]) &&
+             isdigit(display[2]) &&
+             isdigit(display[3]))
     {
         _parse_test(state, display);
     }

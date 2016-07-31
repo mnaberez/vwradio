@@ -296,7 +296,7 @@ static void _do_radio_state_dump()
         return;
     }
 
-    uart_putc(49); // number of bytes to follow
+    uart_putc(53); // number of bytes to follow
     uart_putc(ACK);
     uart_putc(radio_state.operation_mode);
     uart_putc(radio_state.display_mode);
@@ -334,6 +334,10 @@ static void _do_radio_state_dump()
     {
         uart_putc(radio_state.test_ver[i]);
     }
+    uart_putc(radio_state.test_signal_freq & 0x00FF);
+    uart_putc((radio_state.test_signal_freq & 0xFF00) >> 8);
+    uart_putc(radio_state.test_signal_strength & 0x00FF);
+    uart_putc((radio_state.test_signal_strength & 0xFF00) >> 8);
 }
 
 /* Command: Echo
