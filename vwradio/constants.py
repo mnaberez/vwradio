@@ -20,10 +20,11 @@ class OperationModes(Enum):
     CD_REV = 32
     CD_NO_DISC = 33
     CD_NO_CHANGER = 34
-    CD_CHECK_MAGAZINE = 35
-    CD_CDX_NO_CD = 36
-    CD_CDX_CD_ERR = 37
-    CD_SCANNING = 38
+    CD_NO_MAGAZINE = 35
+    CD_CHECK_MAGAZINE = 36
+    CD_CDX_NO_CD = 37
+    CD_CDX_CD_ERR = 38
+    CD_SCANNING = 39
     TAPE_PLAYING = 40
     TAPE_LOAD = 41
     TAPE_METAL = 42

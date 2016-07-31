@@ -238,6 +238,13 @@ static void _parse_cd(radio_state_t *state, uint8_t *display)
         state->cd_track = 0;
         state->cd_track_pos = 0;
     }
+    else if (memcmp(display, "NO  MAGAZIN", 11) == 0)
+    {
+        state->operation_mode = OPERATION_MODE_CD_NO_MAGAZINE;
+        state->cd_disc = 0;
+        state->cd_track = 0;
+        state->cd_track_pos = 0;
+    }
     else if (memcmp(display, "    NO DISC", 11) == 0)
     {
         state->operation_mode = OPERATION_MODE_CD_NO_DISC;
@@ -644,6 +651,7 @@ void radio_state_parse(radio_state_t *state, uint8_t *display)
         _parse_cd(state, display);
     }
     else if ((memcmp(display, "NO  CHANGER", 11) == 0) ||
+             (memcmp(display, "NO  MAGAZIN", 11) == 0) ||
              (memcmp(display, "    NO DISC", 11) == 0))
     {
         _parse_cd(state, display);

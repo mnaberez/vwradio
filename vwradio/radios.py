@@ -62,7 +62,7 @@ class Radio(object):
             self._parse_cd(display)
         elif display[0:3] in (b"CHK", b"CUE", b"REV"):
             self._parse_cd(display)
-        elif display in (b"NO  CHANGER", b"    NO DISC"):
+        elif display in (b"NO  CHANGER", b"NO  MAGAZIN", b"    NO DISC"):
             self._parse_cd(display)
         elif display[8:11] in (b"MHZ", b"MHz"):
             self._parse_tuner_fm(display)
@@ -210,6 +210,11 @@ class Radio(object):
             self.cd_track_pos = 0
         elif display == b"NO  CHANGER":
             self.operation_mode = OperationModes.CD_NO_CHANGER
+            self.cd_disc = 0
+            self.cd_track = 0
+            self.cd_track_pos = 0
+        elif display == b"NO  MAGAZIN":
+            self.operation_mode = OperationModes.CD_NO_MAGAZINE
             self.cd_disc = 0
             self.cd_track = 0
             self.cd_track_pos = 0

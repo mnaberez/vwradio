@@ -483,6 +483,23 @@ class TestRadio(unittest.TestCase):
         self.assertEqual(radio.display_mode,
             DisplayModes.SHOWING_OPERATION)
 
+    def test_cd_no_magazine(self):
+        radio = Radio()
+        # set up known values
+        radio.operation_mode = OperationModes.CD_PLAYING
+        radio.cd_disc = 5
+        radio.cd_track = 3
+        radio.cd_track_pos = 99
+        # parse display
+        radio.parse(b"NO  MAGAZIN")
+        self.assertEqual(radio.cd_disc, 0)
+        self.assertEqual(radio.cd_track, 0)
+        self.assertEqual(radio.cd_track_pos, 0)
+        self.assertEqual(radio.operation_mode,
+            OperationModes.CD_NO_MAGAZINE)
+        self.assertEqual(radio.display_mode,
+            DisplayModes.SHOWING_OPERATION)
+
     def test_tape_load_premium_5(self):
         radio = Radio()
         # set up known values
