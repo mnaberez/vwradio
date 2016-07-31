@@ -476,6 +476,19 @@ static void _parse_initial(radio_state_t *state, uint8_t *display)
     }
 }
 
+static void _parse_monsoon(radio_state_t *state, uint8_t *display)
+{
+    if (memcmp(display, "    MONSOON", 11) == 0)
+    {
+        state->display_mode = DISPLAY_MODE_SHOWING_OPERATION;
+        state->operation_mode = OPERATION_MODE_MONSOON;
+    }
+    else
+    {
+        _parse_unknown(state, display);
+    }
+}
+
 static void _parse_set(radio_state_t *state, uint8_t *display)
 {
     state->display_mode = DISPLAY_MODE_SHOWING_OPERATION;
@@ -580,6 +593,10 @@ void radio_state_parse(radio_state_t *state, uint8_t *display)
     else if (memcmp(display, "    INITIAL", 11) == 0)
     {
         _parse_initial(state, display);
+    }
+    else if (memcmp(display, "    MONSOON", 11) == 0)
+    {
+        _parse_monsoon(state, display);
     }
     else if (memcmp(display, "BAS", 3) == 0)
     {

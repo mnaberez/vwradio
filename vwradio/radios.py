@@ -40,6 +40,8 @@ class Radio(object):
             self._parse_safe(display)
         elif display == b"    INITIAL":
             self._parse_initial(display)
+        elif display == b"    MONSOON":
+            self._parse_monsoon(display)
         elif display[0:3] == b"BAS":
             self._parse_sound_bass(display)
         elif display[0:3] == b"TRE":
@@ -96,6 +98,13 @@ class Radio(object):
         if display == b"    INITIAL":
             self.display_mode = DisplayModes.SHOWING_OPERATION
             self.operation_mode = OperationModes.INITIALIZING
+        else:
+            self._parse_unknown(display)
+
+    def _parse_monsoon(self, display):
+        if display == b"    MONSOON":
+            self.display_mode = DisplayModes.SHOWING_OPERATION
+            self.operation_mode = OperationModes.MONSOON
         else:
             self._parse_unknown(display)
 

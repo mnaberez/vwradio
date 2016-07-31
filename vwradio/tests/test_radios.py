@@ -43,6 +43,18 @@ class TestRadio(unittest.TestCase):
         self.assertEqual(radio.display_mode,
             DisplayModes.SHOWING_OPERATION)
 
+    def test_monsoon_premium_5(self):
+        radio = Radio()
+        # set up known values
+        radio.operation_mode = OperationModes.TUNER_PLAYING
+        radio.display_mode = DisplayModes.ADJUSTING_SOUND_VOLUME
+        # parse display
+        radio.parse(b"    MONSOON")
+        self.assertEqual(radio.operation_mode,
+            OperationModes.MONSOON)
+        self.assertEqual(radio.display_mode,
+            DisplayModes.SHOWING_OPERATION)
+
     def test_diag(self):
         radio = Radio()
         # set up known values

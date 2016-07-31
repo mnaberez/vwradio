@@ -37,12 +37,13 @@ class OperationModes(Enum):
     TAPE_BLS = 50
     INITIALIZING = 60
     DIAGNOSTICS = 70
-    SETTING_ON_VOL = 80
-    SETTING_CD_MIX = 81
-    SETTING_TAPE_SKIP = 82
-    TESTING_FERN = 90
-    TESTING_RAD = 91
-    TESTING_VER = 92
+    MONSOON = 80
+    SETTING_ON_VOL = 90
+    SETTING_CD_MIX = 91
+    SETTING_TAPE_SKIP = 92
+    TESTING_FERN = 100
+    TESTING_RAD = 101
+    TESTING_VER = 102
 
 class DisplayModes(Enum):
     UNKNOWN = 0
