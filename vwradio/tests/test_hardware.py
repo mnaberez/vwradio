@@ -1297,26 +1297,31 @@ class TestAvr(unittest.TestCase):
             DisplayModes.SHOWING_OPERATION)
 
     def test_radio_state_cd_cdx_cd_err(self):
-        # set up known values
-        self.client.radio_state_reset()
-        self.client.radio_state_parse(b"CD 5 TR 03 ")
-        self.client.radio_state_parse(b"CD 5  139  ")
-        state = self.client.radio_state_dump()
-        self.assertEqual(state.operation_mode,
-            OperationModes.CD_PLAYING)
-        self.assertEqual(state.cd_disc, 5)
-        self.assertEqual(state.cd_track, 3)
-        self.assertEqual(state.cd_track_pos, 99)
-        # parse display
-        self.client.radio_state_parse(b"CD1 CD ERR ") # no space in "CD1"
-        state = self.client.radio_state_dump()
-        self.assertEqual(state.cd_disc, 1)
-        self.assertEqual(state.cd_track, 0)
-        self.assertEqual(state.cd_track_pos, 0)
-        self.assertEqual(state.operation_mode,
-            OperationModes.CD_CDX_CD_ERR)
-        self.assertEqual(state.display_mode,
-            DisplayModes.SHOWING_OPERATION)
+        displays = (
+            b"CD1 CD ERR ", # Premium 4
+            b"CD 1CD ERR ", # Premium 5
+        )
+        for display in displays:
+            # set up known values
+            self.client.radio_state_reset()
+            self.client.radio_state_parse(b"CD 5 TR 03 ")
+            self.client.radio_state_parse(b"CD 5  139  ")
+            state = self.client.radio_state_dump()
+            self.assertEqual(state.operation_mode,
+                OperationModes.CD_PLAYING)
+            self.assertEqual(state.cd_disc, 5)
+            self.assertEqual(state.cd_track, 3)
+            self.assertEqual(state.cd_track_pos, 99)
+            # parse display
+            self.client.radio_state_parse(display)
+            state = self.client.radio_state_dump()
+            self.assertEqual(state.cd_disc, 1)
+            self.assertEqual(state.cd_track, 0)
+            self.assertEqual(state.cd_track_pos, 0)
+            self.assertEqual(state.operation_mode,
+                OperationModes.CD_CDX_CD_ERR)
+            self.assertEqual(state.display_mode,
+                DisplayModes.SHOWING_OPERATION)
 
     def test_radio_state_cd_no_disc(self):
         # set up known values

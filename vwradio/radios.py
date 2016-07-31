@@ -217,7 +217,10 @@ class Radio(object):
         elif display[0:3] == b"CD ": # "CD 1"... to "CD 6"...
             self.cd_disc = int(display[3:4])
             self.cd_track_pos = 0
-            if display[5:10] == b"NO CD": # "CD 1 NO CD "
+            if display[4:10] == b"CD ERR": # "CD 1CD ERR " (Premium 5)
+                self.operation_mode = OperationModes.CD_CDX_CD_ERR
+                self.cd_track = 0
+            elif display[5:10] == b"NO CD": # "CD 1 NO CD "
                 self.operation_mode = OperationModes.CD_CDX_NO_CD
                 self.cd_track = 0
             elif display[5:7] == b"TR": # "CD 1 TR 03 "
@@ -231,7 +234,7 @@ class Radio(object):
         elif display[0:2] == b"CD": # "CD1"... to "CD6"...
             self.cd_disc = int(display[2:3])
             self.cd_track_pos = 0
-            if display[4:10] == b"CD ERR": # "CD1 CD ERR "
+            if display[4:10] == b"CD ERR": # "CD1 CD ERR " (Premium 4)
                 self.operation_mode = OperationModes.CD_CDX_CD_ERR
                 self.cd_track = 0
             else:

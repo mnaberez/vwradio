@@ -259,7 +259,12 @@ static void _parse_cd(radio_state_t *state, uint8_t *display)
         state->cd_disc = display[3] & 0x0F;
         state->cd_track_pos = 0;
 
-        if (memcmp(display+5, "NO CD", 5) == 0) // "CD 1 NO CD "
+        if (memcmp(display+4, "CD ERR", 6) == 0) // "CD 1CD ERR " (Premium 5)
+        {
+            state->operation_mode = OPERATION_MODE_CD_CDX_CD_ERR;
+            state->cd_track = 0;
+        }
+        else if (memcmp(display+5, "NO CD", 5) == 0) // "CD 1 NO CD "
         {
             state->operation_mode = OPERATION_MODE_CD_CDX_NO_CD;
             state->cd_track = 0;
@@ -286,7 +291,7 @@ static void _parse_cd(radio_state_t *state, uint8_t *display)
         state->cd_disc = display[2] & 0x0F;
         state->cd_track_pos = 0;
 
-        if (memcmp(display+4, "CD ERR", 6) == 0) // # "CD1 CD ERR "
+        if (memcmp(display+4, "CD ERR", 6) == 0) // "CD1 CD ERR " (Premium 4)
         {
             state->operation_mode = OPERATION_MODE_CD_CDX_CD_ERR;
             state->cd_track = 0;
