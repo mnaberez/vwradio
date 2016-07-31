@@ -59,18 +59,24 @@ void uart_flush_tx()
     while (buf_has_byte(&uart_tx_buffer)) {}
 }
 
-void uart_putc(uint8_t c)
+void uart_put(uint8_t c)
 {
     buf_write_byte(&uart_tx_buffer, c);
     // Enable UDRE interrupts
     UCSR0B |= _BV(UDRIE0);
 }
 
+void uart_put16(uint16_t w)
+{
+    uart_put(w & 0x00FF);
+    uart_put((w & 0xFF00) >> 8);
+}
+
 void uart_puts(uint8_t *str)
 {
     while (*str != '\0')
     {
-        uart_putc(*str);
+        uart_put(*str);
         str++;
     }
 }
@@ -79,11 +85,11 @@ void uart_puthex_nib(uint8_t c)
 {
     if (c < 10) // 0-9
     {
-        uart_putc(c + 0x30);
+        uart_put(c + 0x30);
     }
     else // A-F
     {
-        uart_putc(c + 0x37);
+        uart_put(c + 0x37);
     }
 }
 

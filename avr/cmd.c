@@ -64,14 +64,14 @@ ISR(TIMER1_COMPA_vect)
 
 static void _reply_ack()
 {
-    uart_putc(1);   // 1 byte to follow
-    uart_putc(ACK);
+    uart_put(1);   // 1 byte to follow
+    uart_put(ACK);
 }
 
 static void _reply_nak()
 {
-    uart_putc(1);   // 1 byte to follow
-    uart_putc(NAK);
+    uart_put(1);   // 1 byte to follow
+    uart_put(NAK);
 }
 
 /* Command: Reset uPD16432B Emulator
@@ -113,33 +113,33 @@ static uint8_t _dump_upd_state_to_uart(upd_state_t *state)
            UPD_CHARGEN_RAM_SIZE +
            UPD_LED_RAM_SIZE;
 
-    uart_putc(size); // number of bytes to follow
-    uart_putc(ACK);
-    uart_putc(state->ram_area);
-    uart_putc(state->ram_size);
-    uart_putc(state->address);
-    uart_putc(state->increment);
-    uart_putc(state->dirty_flags);
+    uart_put(size); // number of bytes to follow
+    uart_put(ACK);
+    uart_put(state->ram_area);
+    uart_put(state->ram_size);
+    uart_put(state->address);
+    uart_put(state->increment);
+    uart_put(state->dirty_flags);
 
     uint8_t i;
     for (i=0; i<UPD_DISPLAY_RAM_SIZE; i++)
     {
-        uart_putc(state->display_ram[i]);
+        uart_put(state->display_ram[i]);
     }
 
     for (i=0; i<UPD_PICTOGRAPH_RAM_SIZE; i++)
     {
-        uart_putc(state->pictograph_ram[i]);
+        uart_put(state->pictograph_ram[i]);
     }
 
     for (i=0; i<UPD_CHARGEN_RAM_SIZE; i++)
     {
-        uart_putc(state->chargen_ram[i]);
+        uart_put(state->chargen_ram[i]);
     }
 
     for (i=0; i<UPD_LED_RAM_SIZE; i++)
     {
-        uart_putc(state->led_ram[i]);
+        uart_put(state->led_ram[i]);
     }
 
     return 1;
@@ -296,48 +296,43 @@ static void _do_radio_state_dump()
         return;
     }
 
-    uart_putc(53); // number of bytes to follow
-    uart_putc(ACK);
-    uart_putc(radio_state.operation_mode);
-    uart_putc(radio_state.display_mode);
-    uart_putc(radio_state.safe_tries);
-    uart_putc(radio_state.safe_code & 0x00FF);
-    uart_putc((radio_state.safe_code & 0xFF00) >> 8);
-    uart_putc(radio_state.sound_bass);
-    uart_putc(radio_state.sound_treble);
-    uart_putc(radio_state.sound_midrange);
-    uart_putc(radio_state.sound_balance);
-    uart_putc(radio_state.sound_fade);
-    uart_putc(radio_state.tape_side);
-    uart_putc(radio_state.cd_disc);
-    uart_putc(radio_state.cd_track);
-    uart_putc(radio_state.cd_track_pos & 0x00FF);
-    uart_putc((radio_state.cd_track_pos & 0xFF00) >> 8);
-    uart_putc(radio_state.tuner_freq & 0x00FF);
-    uart_putc((radio_state.tuner_freq & 0xFF00) >> 8);
-    uart_putc(radio_state.tuner_preset);
-    uart_putc(radio_state.tuner_band);
+    uart_put(53); // number of bytes to follow
+    uart_put(ACK);
+    uart_put(radio_state.operation_mode);
+    uart_put(radio_state.display_mode);
+    uart_put(radio_state.safe_tries);
+    uart_put16(radio_state.safe_code);
+    uart_put(radio_state.sound_bass);
+    uart_put(radio_state.sound_treble);
+    uart_put(radio_state.sound_midrange);
+    uart_put(radio_state.sound_balance);
+    uart_put(radio_state.sound_fade);
+    uart_put(radio_state.tape_side);
+    uart_put(radio_state.cd_disc);
+    uart_put(radio_state.cd_track);
+    uart_put16(radio_state.cd_track_pos);
+    uart_put16(radio_state.tuner_freq);
+    uart_put(radio_state.tuner_preset);
+    uart_put(radio_state.tuner_band);
     uint8_t i;
     for (i=0; i<sizeof(radio_state.display); i++)
     {
-        uart_putc(radio_state.display[i]);
+        uart_put(radio_state.display[i]);
     }
-    uart_putc(radio_state.option_on_vol);
-    uart_putc(radio_state.option_cd_mix);
-    uart_putc(radio_state.option_tape_skip);
-    uart_putc(radio_state.test_fern);
+    uart_put(radio_state.option_on_vol);
+    uart_put(radio_state.option_cd_mix);
+    uart_put(radio_state.option_tape_skip);
+    uart_put(radio_state.test_fern);
     for (i=0; i<sizeof(radio_state.test_rad); i++)
     {
-        uart_putc(radio_state.test_rad[i]);
+        uart_put(radio_state.test_rad[i]);
     }
     for (i=0; i<sizeof(radio_state.test_ver); i++)
     {
-        uart_putc(radio_state.test_ver[i]);
+        uart_put(radio_state.test_ver[i]);
     }
-    uart_putc(radio_state.test_signal_freq & 0x00FF);
-    uart_putc((radio_state.test_signal_freq & 0xFF00) >> 8);
-    uart_putc(radio_state.test_signal_strength & 0x00FF);
-    uart_putc((radio_state.test_signal_strength & 0xFF00) >> 8);
+    uart_put16(radio_state.test_signal_freq);
+    uart_put16(radio_state.test_signal_strength);
 }
 
 /* Command: Echo
@@ -349,12 +344,12 @@ static void _do_radio_state_dump()
  */
 static void _do_echo()
 {
-    uart_putc(cmd_buf_index); // number of bytes to follow
-    uart_putc(ACK);
+    uart_put(cmd_buf_index); // number of bytes to follow
+    uart_put(ACK);
     uint8_t i;
     for (i=1; i<cmd_buf_index; i++)
     {
-        uart_putc(cmd_buf[i]);
+        uart_put(cmd_buf[i]);
         uart_flush_tx();
     }
 }
@@ -559,12 +554,12 @@ static void _do_faceplate_upd_clear_display()
      uint8_t key_data[4] = {0, 0, 0, 0};
      faceplate_read_key_data(key_data);
 
-     uart_putc(5); // number of bytes to follow
-     uart_putc(ACK);
-     uart_putc(key_data[0]);
-     uart_putc(key_data[1]);
-     uart_putc(key_data[2]);
-     uart_putc(key_data[3]);
+     uart_put(5); // number of bytes to follow
+     uart_put(ACK);
+     uart_put(key_data[0]);
+     uart_put(key_data[1]);
+     uart_put(key_data[2]);
+     uart_put(key_data[3]);
  }
 
 /* Command: Convert a key code to uPD16432B raw data bytes
@@ -592,12 +587,12 @@ static void _do_convert_code_to_upd_key_data()
         return;
     }
 
-    uart_putc(5); // number of bytes to follow
-    uart_putc(ACK);
-    uart_putc(key_data[0]);
-    uart_putc(key_data[1]);
-    uart_putc(key_data[2]);
-    uart_putc(key_data[3]);
+    uart_put(5); // number of bytes to follow
+    uart_put(ACK);
+    uart_put(key_data[0]);
+    uart_put(key_data[1]);
+    uart_put(key_data[2]);
+    uart_put(key_data[3]);
 }
 
 /* Command: Convert uPD16432B raw key data bytes to key codes
@@ -621,11 +616,11 @@ static void _do_convert_upd_key_data_to_key_codes()
     uint8_t num_keys_pressed;
     num_keys_pressed = convert_upd_key_data_to_codes(cmd_buf+1, key_codes);
 
-    uart_putc(4); // number of bytes to follow
-    uart_putc(ACK);
-    uart_putc(num_keys_pressed);
-    uart_putc(key_codes[0]);
-    uart_putc(key_codes[1]);
+    uart_put(4); // number of bytes to follow
+    uart_put(ACK);
+    uart_put(num_keys_pressed);
+    uart_put(key_codes[0]);
+    uart_put(key_codes[1]);
 }
 
 /* Command: Read the real faceplate's keys as key codes
@@ -652,11 +647,11 @@ static void _do_read_keys()
     uint8_t key_codes[2] = {0, 0};
     uint8_t num_pressed = convert_upd_key_data_to_codes(key_data, key_codes);
 
-    uart_putc(4); // number of bytes to follow
-    uart_putc(ACK);
-    uart_putc(num_pressed);
-    uart_putc(key_codes[0]);
-    uart_putc(key_codes[1]);
+    uart_put(4); // number of bytes to follow
+    uart_put(ACK);
+    uart_put(num_pressed);
+    uart_put(key_codes[0]);
+    uart_put(key_codes[1]);
 }
 
 /* Command: Load the emulated faceplate's key data from key codes

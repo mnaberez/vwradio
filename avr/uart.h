@@ -26,7 +26,8 @@ volatile ringbuffer_t uart_tx_buffer;
 
 void uart_init();
 void uart_flush_tx();
-void uart_putc(uint8_t c);
+void uart_put(uint8_t c);
+void uart_put16(uint16_t w);
 void uart_puts(uint8_t *str);
 void uart_puthex_nib(uint8_t c);
 void uart_puthex_byte(uint8_t c);

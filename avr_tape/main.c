@@ -67,10 +67,10 @@ ISR(PCINT1_vect)
 ISR(SPI_STC_vect)
 {
     uint8_t c = SPDR;
-    uart_putc('0');
-    uart_putc('x');
+    uart_put('0');
+    uart_put('x');
     uart_puthex_byte(c);
-    uart_putc('\n');
+    uart_put('\n');
     if ((c == 0xac) || (c == 0xa8))
     {
         uart_puts((uint8_t*)"-> PLAY\n");
