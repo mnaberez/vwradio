@@ -74,10 +74,10 @@ class Keys(Enum):
     POWER = 7
     SOUND_BASS = 10
     SOUND_TREB = 11
-    SOUND_FADE = 12
-    SOUND_BAL = 13
-    SOUND_MID = 14
-    SOUND_FB = 15
+    SOUND_FADE = 12  # Premium 4 only
+    SOUND_BAL = 13 # Premium 4 only
+    SOUND_MID = 14  # Premium 5 only
+    SOUND_FB = 15  # Premium 5 only
     TUNE_UP = 20
     TUNE_DOWN = 21
     SEEK_UP = 22
