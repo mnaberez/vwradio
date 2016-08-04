@@ -103,6 +103,6 @@ class Pictographs(Enum):
     MIX = 2
     TAPE_METAL = 10
     TAPE_DOLBY = 11
-    MODE_AMFM = 20
-    MODE_CD = 21
-    MODE_TAPE = 22
+    HIDDEN_MODE_AMFM = 20  # Premium 4 only
+    HIDDEN_MODE_CD = 21  # Premium 4 only
+    HIDDEN_MODE_TAPE = 22  # Premium 4 only
