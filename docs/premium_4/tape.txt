@@ -47,7 +47,7 @@ CLOCK:
 
 
 Radio Board Connections
------------------
+-----------------------
 
 SCA4.4      MB89677A            Notes
 MONITOR     N/C                 Appears completely unconnected
