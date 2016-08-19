@@ -5,13 +5,15 @@ from vwradio.constants import Keys, Pictographs
 
 class Faceplate(object):
     '''Abstract'''
-    DISPLAY_ADDRESSES = ()
-    ROM_CHARSET = ()
-    CHARACTERS = {}
-    PICTOGRAPHS = {}
-    KEYS = {}
+    DISPLAY_ADDRESSES = () # uPD16432B display RAM addresses in on-screen order
+    ROM_CHARSET = () # uPD16432B character generator ROM contents (1792 bytes)
+    CHARACTERS = {} # uPD16432B byte as key, equiv ASCII char as value
+    PICTOGRAPHS = {} # uPD16432B byte/bit as key, Pictographs.* as value
+    KEYS = {} # uPD16432B byte/bit as key, Keys.* as value
 
     def encode_keys(self, keys_pressed):
+        '''Encode a list of keys (Keys.* constants) to four bytes of
+        uPD16432B key scan data.  Encode an empty list for no keys pressed.'''
         key_data = [0, 0, 0, 0]
         for key_pressed in keys_pressed:
             found = False
@@ -26,6 +28,8 @@ class Faceplate(object):
         return tuple(key_data)
 
     def decode_keys(self, key_data, as_names=False):
+        '''Decode four bytes of uPD16432B key scan data to a list of
+        keys (Keys.*) pressed, or an empty list if nothing pressed'''
         keys = []
         for bytenum, byte in enumerate(key_data):
             for bitnum in range(8):
@@ -38,9 +42,12 @@ class Faceplate(object):
         return keys
 
     def get_key_name(self, key):
+        '''Get the string name of a key from a Keys.* constant'''
         return Keys.get_name(key)
 
     def decode_pictographs(self, pictograph_data):
+        '''Decode eight bytes of uPD16432B pictograph data to a list of
+        pictographs (Pictographs.*) displayed, or an empty list if none.'''
         pictographs = []
         for bytenum, byte in enumerate(pictograph_data):
             for bitnum in range(8):
@@ -53,9 +60,12 @@ class Faceplate(object):
         return pictographs
 
     def get_pictograph_name(self, pictograph):
+        '''Get the string name of a pictograph from a Pictographs.* constant'''
         return Pictographs.get_name(pictograph)
 
     def char_code(self, char):
+        '''Convert a character ("a") to its closest equivalent byte for the
+        uPD16432B display (65)'''
         if char in string.digits:
             return ord(char)
         for key, value in self.CHARACTERS.items():
@@ -333,6 +343,7 @@ class Premium5(Faceplate):
         0x73: "s",
         0x7a: "z",
         }
+
 
 def _print_key_decode_table_for_avr_c(keys):
     for bytenum in range(4):
