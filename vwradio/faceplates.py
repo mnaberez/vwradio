@@ -225,9 +225,9 @@ class Premium4(Faceplate):
         (6, 5): Pictographs.TAPE_DOLBY,
         (6, 0): Pictographs.MIX,
         (3, 6): Pictographs.PERIOD,
-        (2, 3): Pictographs.MODE_AMFM,
-        (1, 0): Pictographs.MODE_CD,
-        (1, 5): Pictographs.MODE_TAPE,
+        (2, 3): Pictographs.HIDDEN_MODE_AMFM,
+        (1, 0): Pictographs.HIDDEN_MODE_CD,
+        (1, 5): Pictographs.HIDDEN_MODE_TAPE,
         }
 
     KEYS = {
