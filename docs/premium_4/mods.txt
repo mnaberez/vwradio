@@ -8,12 +8,12 @@ x    CLK(to faceplate)
 x    DAT(to faceplate)
 x    STB(to faceplate)
 x    LOF(to radio+faceplate)
+x    !POWER_EJECT
+x    EJECT
 x    TAPE CLOCK
 x    TAPE DATA
 x    TAPE ENABLE
 x    TAPE SWITCH
-x    !POWER_EJECT
-x    EJECT
 
 Header Pinout
 -------------
