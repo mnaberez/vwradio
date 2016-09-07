@@ -1,8 +1,8 @@
 Signals
 -------
 
-POW - Normally 5V, drops to 0V while the POWER key is pressed.
-EJE - Normally 5V, drops to 0V while the EJECT key is pressed.
+POW - Do not read pin directly; read via the signals described in Keys below.
+EJE - Do not read pin directly; read via the signals described in Keys below.
 STB - Connects to /STB on uPD16432B.
 CLK - Connects to SCK on uPD16432B.
 DAT - Connects to DATA on uPD16432B.
@@ -25,6 +25,9 @@ VLC - LCD Drive Voltage.  Measures 6.0V.  If ignition power is on but the
 
 Keys
 ----
+
+All of the keys on faceplate are readable by the uPD16432B except for
+the Power and Eject keys:
 
 Key         (Byte 0-3)  Bit (0-7)
 "NO CODE"       3           7       Hidden
@@ -55,10 +58,20 @@ Preset 2        0           2
 Preset 1        0           1
 Treb            0           0
 
-The keys marked "Hidden" above aren't on the faceplate
-but the radio responds to them.
+The keys marked "Hidden" above aren't physically present on the faceplate
+but the radio responds if the uPD16432B sends them.
 
-The POWER and EJECT keys are not readable by the uPD16432B.
+The Power and Eject keys are read by the main MCU via two lines.  One is like
+an interrupt line; it is held low whenever either key is pressed.  The
+other line distinguishes which of the two is pressed.
+
+Main MCU Pin     Name           Description
+1                !POWER_EJECT   Low while either Power or Eject are pressed.
+61               EJECT          Indicates which key: low=Power, high=Eject
+
+Note that these signals are not the same as the POW and EJE pins on the
+faceplate header.  Those pins go through electronics on the radio board that
+generates these signals somehow.
 
 
 Pictographs
