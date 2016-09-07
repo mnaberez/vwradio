@@ -7,37 +7,29 @@ x    BUS(to faceplate)
 x    CLK(to faceplate)
 x    DAT(to faceplate)
 x    STB(to faceplate)
-x    LOF(to radio+faceplate), or RST(to radio+faceplate)
+x    LOF(to radio+faceplate)
 x    TAPE CLOCK
 x    TAPE DATA
 x    TAPE ENABLE
 x    TAPE SWITCH
-
-Unsure power, possibly on a separate connector:
-    Unswitched 14V?
-    Unswitched 5V?
-    Main (switched) 5V?
-    GND?
-
-Unsure signals:
-    Use LOF or RST from radio, or both?
-    TAPE FE/ME?    - can be left no-connect
-    TAPE MONITOR?  - can be left no-connect
+x    !POWER_EJECT
+x    EJECT
 
 Header Pinout
 -------------
 
-                 +------+
-           GND   | o  o |   LOF/RST(r+f)
-    BUS(radio)   | o  o |   BUS(face)
-    CLK(radio)   | o  o |   CLK(face)
-    DAT(radio)   | o  o |   DAT(face)
-    STB(radio)   | o  o |   STB(face)
-FIS_CLK(radio)     o  o |   FIS_CLK(car)
-FIS_DAT(radio)   | o  o |   FIS_DAT(car)
-FIS_ENA(radio)   | o  o |   FIS_ENA(car)
-    REM(radio)   | o  o |   REM(car)
-                 | o  o |
-    TAPE_CLK     | o  o |   TAPE_DAT
-     TAPE_ENA    | o  o |   TAPE_SWI
-                 +------+
+                 24 pin
+                +------+
+           GND  | o  o |  Unswitched +14V
+           LOF  | o  o |  Unswitched +5V
+    BUS(radio)  | o  o |  BUS(face)
+    CLK(radio)  | o  o |  CLK(face)
+    DAT(radio)  | o  o |  DAT(face)
+    STB(radio)    o  o |  STB(face)
+  !POWER_EJECT  | o  o |  EJECT
+      TAPE_CLK  | o  o |  TAPE_DAT
+      TAPE_ENA  | o  o |  TAPE_SWI
+                | o  o |
+                | o  o |
+           GND  | o  o |  Unswitched +14V
+                +------+
