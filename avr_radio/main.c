@@ -1,4 +1,6 @@
-/* ...
+/*
+ * Pin  1: PB0 T0 (unused)
+ * Pin  2: PB1 T1 (unused)
  * Pin  3: PB2 STB in from radio
  * Pin  4: PB3 /SS out (software generated from STB, connect to PB4)
  * Pin  5: PB4 /SS in (connect to PB3)
@@ -15,28 +17,28 @@
  * Pin 16: PD2/RXD1 MISO in (from faceplate's DAT)
  * Pin 17: PD3/TXD1 MOSI out (to faceplate's DAT through 10K resistor)
  * Pin 18: PD4/XCK1 SCK out (to faceplate's CLK)
- * Pin 19: PD5 Green LED
- * Pin 20: PD6 Red LED
- * Pin 21: PD7 STB out to faceplate
- * ...
+ * Pin 19: PD5 (out to faceplate's STB)             (XXX currently Green LED)
+ * Pin 20: PD6 (in from faceplate's BUS)            (XXX currently Red LED)
+ * Pin 21: PD7 (out to radio's BUS)                 (XXX currently STB out to faceplate)
+ * Pin 22: PC0 SDA (to I2C) (unused)
+ * Pin 23: PC1 SCL (to I2C) (unused)
  * Pin 24: PC2 TCK (to JTAG)
  * Pin 25: PC3 TMS (to JTAG)
  * Pin 26: PC4 TDO (to JTAG)
  * Pin 27: PC5 TDI (to JTAG)
- * ...
+ * Pin 28: PC6 TOSC1 (to RTC crystal) (unused)
+ * Pin 29: PC7 TOSC2 (to RTC crystal) (unused)
+ * Pin 30: AVCC connect directly to Vcc
  * Pin 31: GND
- * ...
- *
- * Pin assignment needed:
- *  - LOF from radio
- *  - BUS from faceplate
- *  - BUS to radio
- *  - !POWER_EJECT
- *  - EJECT
- *
- * Consider reassigning pins:
- *  - Move Green LED and Red LED somewhere else so all faceplate signals
- *    can be grouped together
+ * Pin 32: AREF connect to GND through 0.1 uF cap
+ * Pin 33: PA7 Red LED                              (XXX not wired yet)
+ * Pin 34: PA6 Green LED                            (XXX not wired yet)
+ * Pin 35: PA5 (unused)
+ * Pin 36: PA4 (unused)
+ * Pin 37: PA3 (unused)
+ * Pin 38: PA2 EJECT from radio
+ * Pin 39: PA1 !POWER_EJECT from radio
+ * Pin 40: PA0 LOF in (from radio, also tied to faceplate's LOF in)
  */
 
 #include "main.h"
