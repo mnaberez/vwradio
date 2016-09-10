@@ -8,6 +8,7 @@
  * Pin  7: PB6 MISO out (connect to PB5 through 10K resistor)
  * pin  8: PB7 SCK in from radio
  * pin  9: /RESET to GND through pushbutton, 10K pullup to Vcc
+ *                also connect to Atmel-ICE AVR port pin 6 nSRST
  * pin 10: Vcc (connect to unswitched 5V)
  * Pin 11: GND (connect to radio's GND)
  * Pin 12: XTAL2 (to 20 MHz crystal)
@@ -20,16 +21,16 @@
  * Pin 19: PD5 (out to faceplate's STB)             (XXX currently Green LED)
  * Pin 20: PD6 (in from faceplate's BUS)            (XXX currently Red LED)
  * Pin 21: PD7 (out to radio's BUS)                 (XXX currently STB out to faceplate)
- * Pin 22: PC0 SDA (to I2C) (unused)
- * Pin 23: PC1 SCL (to I2C) (unused)
- * Pin 24: PC2 TCK (to JTAG)
- * Pin 25: PC3 TMS (to JTAG)
- * Pin 26: PC4 TDO (to JTAG)
- * Pin 27: PC5 TDI (to JTAG)
+ * Pin 22: PC0 I2C SDA (unused)
+ * Pin 23: PC1 I2C SCL (unused)
+ * Pin 24: PC2 JTAG TCK (to Atmel-ICE AVR port pin 1 TCK)
+ * Pin 25: PC3 JTAG TMS (to Atmel-ICE AVR port pin 5 TMS)
+ * Pin 26: PC4 JTAG TDO (to Atmel-ICE AVR port pin 3 TDO)
+ * Pin 27: PC5 JTAG TDI (to Atmel-ICE AVR port pin 9 TDI)
  * Pin 28: PC6 TOSC1 (to RTC crystal) (unused)
  * Pin 29: PC7 TOSC2 (to RTC crystal) (unused)
- * Pin 30: AVCC connect directly to Vcc
- * Pin 31: GND
+ * Pin 30: AVCC connect directly to Vcc (also to Atmel-ICE AVR port pin 4 VTG)
+ * Pin 31: GND (also to Atmel-ICE AVR port pin 2 GND)
  * Pin 32: AREF connect to GND through 0.1 uF cap
  * Pin 33: PA7 Red LED                              (XXX not wired yet)
  * Pin 34: PA6 Green LED                            (XXX not wired yet)

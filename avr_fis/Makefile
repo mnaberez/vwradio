@@ -1,7 +1,7 @@
 PROJECT=fis
 SOURCES=$(wildcard *.c)
 MMCU=atmega1284
-ISPFLAGS=-c avrisp2 -B 5
+ISPFLAGS=-c atmelice
 CFLAGS=-mmcu=$(MMCU) -g -Wall -Os -std=c99
 
 $(PROJECT).hex: $(PROJECT).elf
