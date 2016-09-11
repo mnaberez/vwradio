@@ -37,9 +37,9 @@
  * Pin 35: PA5 (unused)
  * Pin 36: PA4 (unused)
  * Pin 37: PA3 (unused)
- * Pin 38: PA2 EJECT from radio
- * Pin 39: PA1 !POWER_EJECT from radio
- * Pin 40: PA0 LOF in (from radio, also tied to faceplate's LOF in)
+ * Pin 38: PA2 EJECT from radio                     (XXX not wired yet)
+ * Pin 39: PA1 !POWER_EJECT from radio              (XXX not wired yet)
+ * Pin 40: PA0 LOF in (from radio, also tied to faceplate's LOF in) (XXX not wired yet)
  */
 
 #include "main.h"
