@@ -3,10 +3,10 @@
 
 #include <stdint.h>
 
-#define LED_PORT PORTD
-#define LED_DDR DDRD
-#define LED_RED PD6
-#define LED_GREEN PD5
+#define LED_PORT PORTA
+#define LED_DDR DDRA
+#define LED_RED PA7
+#define LED_GREEN PA6
 
 #define LED_CODE_BADISR 3
 

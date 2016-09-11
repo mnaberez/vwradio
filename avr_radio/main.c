@@ -11,15 +11,15 @@
  *                also connect to Atmel-ICE AVR port pin 6 nSRST
  * pin 10: Vcc (connect to unswitched 5V)
  * Pin 11: GND (connect to radio's GND)
- * Pin 12: XTAL2 (to 20 MHz crystal)
- * Pin 13: XTAL1 (to 20 MHz crystal)
+ * Pin 12: XTAL2 (to 20 MHz crystal with 18pF cap to GND)
+ * Pin 13: XTAL1 (to 20 MHz crystal and 18pF cap to GND)
  * Pin 14: PD0/RXD (to PC's serial TXD)
  * Pin 15: PD1/TXD (to PC's serial RXD)
  * Pin 16: PD2/RXD1 MISO in (from faceplate's DAT)
  * Pin 17: PD3/TXD1 MOSI out (to faceplate's DAT through 10K resistor)
  * Pin 18: PD4/XCK1 SCK out (to faceplate's CLK)
- * Pin 19: PD5 (out to faceplate's STB)             (XXX currently Green LED)
- * Pin 20: PD6 (in from faceplate's BUS)            (XXX currently Red LED)
+ * Pin 19: PD5 (out to faceplate's STB)             (XXX not wired yet)
+ * Pin 20: PD6 (in from faceplate's BUS)            (XXX not wired yet)
  * Pin 21: PD7 (out to radio's BUS)                 (XXX currently STB out to faceplate)
  * Pin 22: PC0 I2C SDA (unused)
  * Pin 23: PC1 I2C SCL (unused)
@@ -32,8 +32,8 @@
  * Pin 30: AVCC connect directly to Vcc (also to Atmel-ICE AVR port pin 4 VTG)
  * Pin 31: GND (also to Atmel-ICE AVR port pin 2 GND)
  * Pin 32: AREF connect to GND through 0.1 uF cap
- * Pin 33: PA7 Red LED                              (XXX not wired yet)
- * Pin 34: PA6 Green LED                            (XXX not wired yet)
+ * Pin 33: PA7 Red LED anode through 180 ohm resistor
+ * Pin 34: PA6 Green LED anode through 180 ohm resistor
  * Pin 35: PA5 (unused)
  * Pin 36: PA4 (unused)
  * Pin 37: PA3 (unused)
