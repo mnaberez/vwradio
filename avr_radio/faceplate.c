@@ -16,10 +16,10 @@ void faceplate_spi_init()
     DDRD |= _BV(PD3);
     // PD4/XCK1 SCK as output (to faceplate's CLK)
     DDRD |= _BV(PD4);
-    // PD7 as output (to faceplate's STB)
-    DDRD |= _BV(PD7);
-    // PD7 initially low (faceplate STB = not selected)
-    PORTD &= ~_BV(PD7);
+    // PD5 as output (to faceplate's STB)
+    DDRD |= _BV(PD5);
+    // PD5 initially low (faceplate STB = not selected)
+    PORTD &= ~_BV(PD5);
 
     // must be done first
     UBRR1 = 0;
@@ -52,7 +52,7 @@ uint8_t faceplate_spi_xfer_byte(uint8_t c)
 void faceplate_read_key_data(volatile uint8_t *key_data)
 {
     // STB=high (start of transfer)
-    PORTD |= _BV(PD7);
+    PORTD |= _BV(PD5);
 
     faceplate_spi_xfer_byte(0x44); // key data request command
 
@@ -62,7 +62,7 @@ void faceplate_read_key_data(volatile uint8_t *key_data)
     key_data[3] = faceplate_spi_xfer_byte(0xFF);
 
     // STB=low (end of transfer)
-    PORTD &= ~_BV(PD7);
+    PORTD &= ~_BV(PD5);
 }
 
 void faceplate_send_upd_command(upd_command_t *cmd)
@@ -74,7 +74,7 @@ void faceplate_send_upd_command(upd_command_t *cmd)
     }
 
     // STB=high (start of transfer)
-    PORTD |= _BV(PD7);
+    PORTD |= _BV(PD5);
 
     // Send each byte
     uint8_t i;
@@ -84,7 +84,7 @@ void faceplate_send_upd_command(upd_command_t *cmd)
     }
 
     // STB=low (end of transfer)
-    PORTD &= ~_BV(PD7);
+    PORTD &= ~_BV(PD5);
 
     // The real uPD16432B doesn't have a way to read back its registers so
     // we use an instance of the emulator to remember them.
