@@ -30,7 +30,7 @@
  * Pin 28: PC6 TOSC1 (unused)
  * Pin 29: PC7 TOSC2 (unused)
  * Pin 30: AVCC connect directly to Vcc (also to Atmel-ICE AVR port pin 4 VTG)
- * Pin 31: GND (also to Atmel-ICE AVR port pin 2 GND)
+ * Pin 31: GND (also to Atmel-ICE AVR port pins 2 GND and 10 GND)
  * Pin 32: AREF connect to GND through 0.1 uF cap
  * Pin 33: PA7 (unused)
  * Pin 34: PA6 (unused)
