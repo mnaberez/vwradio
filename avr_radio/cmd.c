@@ -31,8 +31,8 @@ static void _start_timer()
     // set timer1 CTC mode (CS11=0, CS10=1 = prescaler 1024)
     TCCR1B = (1 << CS12) | (0 << CS11) | (1 << CS10);
 
-    // set compare value (2 seconds at 18.432MHz with prescaler 1024)
-    OCR1A = 39062;
+    // set compare value (2.00 seconds at 20 MHz)
+    OCR1A = 39063;
 
     // set initial count
     TCNT1 = 0;
