@@ -22,12 +22,20 @@ CMD_CONVERT_UPD_KEY_DATA_TO_KEY_CODES = 0x40
 CMD_CONVERT_CODE_TO_UPD_KEY_DATA = 0x41
 CMD_READ_KEYS = 0x42
 CMD_LOAD_KEYS = 0x43
-ACK = 0x06
-NAK = 0x15
+
+ERROR_OK = 0x00
+ERROR_NO_COMMAND = 0x01
+ERROR_BAD_COMMAND = 0x02
+ERROR_BAD_ARGS_LENGTH = 0x03
+ERROR_BAD_ARGS_VALUE = 0x04
+ERROR_BLOCKED_BY_PASSTHRU = 0x05
+
 RUN_MODE_STOPPED = 0
 RUN_MODE_RUNNING = 1
+
 LED_GREEN = 0x00
 LED_RED = 0x01
+
 UPD_RAM_NONE = 0xFF
 UPD_RAM_DISPLAY = 0
 UPD_RAM_PICTOGRAPH = 1
@@ -38,6 +46,7 @@ UPD_DIRTY_DISPLAY = 1<<UPD_RAM_DISPLAY
 UPD_DIRTY_PICTOGRAPH = 1<<UPD_RAM_PICTOGRAPH
 UPD_DIRTY_CHARGEN = 1<<UPD_RAM_CHARGEN
 UPD_DIRTY_LED = 1<<UPD_RAM_LED
+
 
 class Client(object):
     def __init__(self, ser):
@@ -143,16 +152,16 @@ class Client(object):
 
     # Low level ===============================================================
 
-    def command(self, data, ignore_nak=False):
+    def command(self, data, ignore_error=False):
         self._flush_rx() # discard rx if a previous command was interrupted
         self.send(data)
-        return self.receive(ignore_nak)
+        return self.receive(ignore_error)
 
     def send(self, data):
         self.serial.write(bytearray([len(data)] + list(data)))
         self._flush_tx()
 
-    def receive(self, ignore_nak=False):
+    def receive(self, ignore_error=False):
         # read number of bytes to expect
         head = self.serial.read(1)
         if len(head) == 0:
@@ -179,10 +188,8 @@ class Client(object):
         elif len(rx_bytes) == 0:
             raise Exception("Invalid: Reply had header byte but not ack/nak")
 
-        # check ack/nak byte
-        if rx_bytes[0] not in (ACK, NAK):
-            raise Exception("Invalid: First byte not ACK/NAK: %r" % rx_bytes)
-        elif (rx_bytes[0] == NAK) and (not ignore_nak):
+        # check error code byte
+        if (rx_bytes[0] != ERROR_OK) and (not ignore_error):
             raise Exception("Received NAK response: %r" % rx_bytes)
 
         return rx_bytes

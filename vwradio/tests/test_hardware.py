@@ -32,8 +32,8 @@ class TestAvr(unittest.TestCase):
             # command should have timed out
             # next command should complete successfully
             rx_bytes = self.client.command(
-                data=[avrclient.CMD_ECHO], ignore_nak=True)
-            self.assertEqual(rx_bytes, bytearray([avrclient.ACK]))
+                data=[avrclient.CMD_ECHO], ignore_error=True)
+            self.assertEqual(rx_bytes, bytearray([avrclient.ERROR_OK]))
 
         def test_timeout_timer_resets_after_each_byte(self):
             '''this test takes 6 seconds'''
@@ -44,17 +44,17 @@ class TestAvr(unittest.TestCase):
                 time.sleep(1)
             # command should not have timed out
             rx_bytes = self.client.receive()
-            self.assertEqual(rx_bytes, bytearray([avrclient.ACK,4,3,2,1,]))
+            self.assertEqual(rx_bytes, bytearray([avrclient.ERROR_OK,4,3,2,1,]))
 
     # Command dispatch
 
-    def test_dispatch_returns_nak_for_zero_length_command(self):
-        rx_bytes = self.client.command(data=[], ignore_nak=True)
-        self.assertEqual(rx_bytes, bytearray([avrclient.NAK]))
+    def test_dispatch_returns_error_for_zero_length_command(self):
+        rx_bytes = self.client.command(data=[], ignore_error=True)
+        self.assertEqual(rx_bytes, bytearray([avrclient.ERROR_NO_COMMAND]))
 
-    def test_dispatch_returns_nak_for_invalid_command(self):
-        rx_bytes = self.client.command(data=[0xFF], ignore_nak=True)
-        self.assertEqual(rx_bytes, bytearray([avrclient.NAK]))
+    def test_dispatch_returns_error_for_invalid_command(self):
+        rx_bytes = self.client.command(data=[0xFF], ignore_error=True)
+        self.assertEqual(rx_bytes, bytearray([avrclient.ERROR_BAD_COMMAND]))
 
     # Echo command
 
@@ -64,53 +64,62 @@ class TestAvr(unittest.TestCase):
 
     def test_echo_empty_args_returns_empty_ack(self):
         rx_bytes = self.client.command(
-            data=[avrclient.CMD_ECHO], ignore_nak=True)
-        self.assertEqual(rx_bytes, bytearray([avrclient.ACK]))
+            data=[avrclient.CMD_ECHO], ignore_error=True)
+        self.assertEqual(rx_bytes, bytearray([avrclient.ERROR_OK]))
 
     def test_echo_returns_args(self):
         for args in ([], [1], [1, 2, 3], list(range(254))):
             rx_bytes = self.client.command(
-                data=[avrclient.CMD_ECHO] + args, ignore_nak=True)
-            self.assertEqual(rx_bytes, bytearray([avrclient.ACK] + args))
+                data=[avrclient.CMD_ECHO] + args, ignore_error=True)
+            self.assertEqual(rx_bytes, bytearray([avrclient.ERROR_OK] + args))
 
     # Set Run Mode command
 
-    def test_set_run_mode_returns_nak_for_bad_args_length(self):
+    def test_set_run_mode_returns_error_for_bad_args_length(self):
         for args in ([], [avrclient.RUN_MODE_STOPPED, 1]):
             rx_bytes = self.client.command(
-            data=[avrclient.CMD_SET_RUN_MODE] + args, ignore_nak=True)
-            self.assertEqual(rx_bytes, bytearray([avrclient.NAK]))
+            data=[avrclient.CMD_SET_RUN_MODE] + args, ignore_error=True)
+            self.assertEqual(
+                rx_bytes,
+                bytearray([avrclient.ERROR_BAD_ARGS_LENGTH])
+                )
 
-    def test_set_run_mode_returns_nak_for_bad_mode(self):
+    def test_set_run_mode_returns_error_for_bad_mode(self):
         rx_bytes = self.client.command(
-        data=[avrclient.CMD_SET_RUN_MODE, 0xFF], ignore_nak=True)
-        self.assertEqual(rx_bytes, bytearray([avrclient.NAK]))
+        data=[avrclient.CMD_SET_RUN_MODE, 0xFF], ignore_error=True)
+        self.assertEqual(rx_bytes, bytearray([avrclient.ERROR_BAD_ARGS_VALUE]))
 
     # Pass Emulated uPD Display to Faceplate command
 
     def test_auto_display_passthru_nak_bad_args_length(self):
         for args in ([], [0, 0]):
             cmd = avrclient.CMD_SET_AUTO_DISPLAY_PASSTHRU
-            rx_bytes = self.client.command(data=[cmd] + args, ignore_nak=True)
-            self.assertEqual(rx_bytes, bytearray([avrclient.NAK]))
+            rx_bytes = self.client.command(data=[cmd] + args, ignore_error=True)
+            self.assertEqual(
+                rx_bytes,
+                bytearray([avrclient.ERROR_BAD_ARGS_LENGTH])
+                )
 
     def test_auto_display_passthru_nak_bad_arg_value(self):
         cmd = avrclient.CMD_SET_AUTO_DISPLAY_PASSTHRU
-        rx_bytes = self.client.command(data=[cmd, 0xFF], ignore_nak=True)
-        self.assertEqual(rx_bytes, bytearray([avrclient.NAK]))
+        rx_bytes = self.client.command(data=[cmd, 0xFF], ignore_error=True)
+        self.assertEqual(rx_bytes, bytearray([avrclient.ERROR_BAD_ARGS_VALUE]))
 
     # Pass Faceplate Keys to Emulated uPD command
 
     def test_auto_key_passthru_nak_bad_args_length(self):
         for args in ([], [0, 0]):
             cmd = avrclient.CMD_SET_AUTO_KEY_PASSTHRU
-            rx_bytes = self.client.command(data=[cmd] + args, ignore_nak=True)
-            self.assertEqual(rx_bytes, bytearray([avrclient.NAK]))
+            rx_bytes = self.client.command(data=[cmd] + args, ignore_error=True)
+            self.assertEqual(
+                rx_bytes,
+                bytearray([avrclient.ERROR_BAD_ARGS_LENGTH])
+                )
 
     def test_auto_key_passthru_nak_bad_arg_value(self):
         cmd = avrclient.CMD_SET_AUTO_KEY_PASSTHRU
-        rx_bytes = self.client.command(data=[cmd, 0xFF], ignore_nak=True)
-        self.assertEqual(rx_bytes, bytearray([avrclient.NAK]))
+        rx_bytes = self.client.command(data=[cmd, 0xFF], ignore_error=True)
+        self.assertEqual(rx_bytes, bytearray([avrclient.ERROR_BAD_ARGS_VALUE]))
 
     # Set LED command
 
@@ -119,56 +128,62 @@ class TestAvr(unittest.TestCase):
             for state in (1, 0):
                 self.client.set_led(led, state)
 
-    def test_set_led_returns_nak_for_bad_args_length(self):
+    def test_set_led_returns_error_for_bad_args_length(self):
         for args in ([], [1]):
             rx_bytes = self.client.command(
-                data=[avrclient.CMD_SET_LED] + args, ignore_nak=True)
-            self.assertEqual(rx_bytes, bytearray([avrclient.NAK]))
+                data=[avrclient.CMD_SET_LED] + args, ignore_error=True)
+            self.assertEqual(
+                rx_bytes,
+                bytearray([avrclient.ERROR_BAD_ARGS_LENGTH])
+                )
 
-    def test_set_led_returns_nak_for_bad_led(self):
+    def test_set_led_returns_error_for_bad_led(self):
         rx_bytes = self.client.command(
-            data=[avrclient.CMD_SET_LED, 0xFF, 1], ignore_nak=True)
-        self.assertEqual(rx_bytes, bytearray([avrclient.NAK]))
+            data=[avrclient.CMD_SET_LED, 0xFF, 1], ignore_error=True)
+        self.assertEqual(rx_bytes, bytearray([avrclient.ERROR_BAD_ARGS_VALUE]))
 
     def test_set_led_changes_valid_led(self):
         for led in (avrclient.LED_GREEN, avrclient.LED_RED):
             for state in (1, 0):
                 rx_bytes = self.client.command(
-                    data=[avrclient.CMD_SET_LED, led, state], ignore_nak=True)
-                self.assertEqual(rx_bytes, bytearray([avrclient.ACK]))
+                    data=[avrclient.CMD_SET_LED, led, state], ignore_error=True)
+                self.assertEqual(rx_bytes, bytearray([avrclient.ERROR_OK]))
 
     # Radio State Reset command
 
-    def test_radio_state_reset_returns_nak_for_bad_args_length(self):
+    def test_radio_state_reset_returns_error_for_bad_args_length(self):
         rx_bytes = self.client.command(
-            data=[avrclient.CMD_RADIO_STATE_RESET, 1], ignore_nak=True)
-        self.assertEqual(rx_bytes, bytearray([avrclient.NAK]))
+            data=[avrclient.CMD_RADIO_STATE_RESET, 1], ignore_error=True)
+        self.assertEqual(
+            rx_bytes,
+            bytearray([avrclient.ERROR_BAD_ARGS_LENGTH])
+            )
 
     # Radio State Dump command
 
-    def test_radio_state_dump_returns_nak_for_bad_args_length(self):
+    def test_radio_state_dump_returns_error_for_bad_args_length(self):
         rx_bytes = self.client.command(
-            data=[avrclient.CMD_RADIO_STATE_DUMP, 1], ignore_nak=True)
-        self.assertEqual(rx_bytes, bytearray([avrclient.NAK]))
+            data=[avrclient.CMD_RADIO_STATE_DUMP, 1], ignore_error=True)
+        self.assertEqual(rx_bytes, bytearray([avrclient.ERROR_BAD_ARGS_LENGTH]))
 
     # Reset UPD command
 
     def test_emulated_upd_reset_accepts_no_args(self):
         rx_bytes = self.client.command(
-            data=[avrclient.CMD_EMULATED_UPD_RESET, 1], ignore_nak=True)
-        self.assertEqual(rx_bytes, bytearray([avrclient.NAK]))
+            data=[avrclient.CMD_EMULATED_UPD_RESET, 1], ignore_error=True)
+        self.assertEqual(rx_bytes, bytearray([avrclient.ERROR_BAD_ARGS_LENGTH]))
 
     # Dump UPD State command
 
     def test_emulated_upd_dump_state_accepts_no_args(self):
         rx_bytes = self.client.command(
-            data=[avrclient.CMD_EMULATED_UPD_DUMP_STATE, 1], ignore_nak=True)
-        self.assertEqual(rx_bytes, bytearray([avrclient.NAK]))
+            data=[avrclient.CMD_EMULATED_UPD_DUMP_STATE, 1], ignore_error=True)
+        self.assertEqual(rx_bytes, bytearray([avrclient.ERROR_BAD_ARGS_LENGTH]))
 
     def test_emulated_upd_dump_state_dumps_serialized_state(self):
         rx_bytes = self.client.command(
-            data=[avrclient.CMD_EMULATED_UPD_DUMP_STATE], ignore_nak=True)
-        self.assertEqual(rx_bytes[0], avrclient.ACK)
+            data=[avrclient.CMD_EMULATED_UPD_DUMP_STATE], ignore_error=True)
+        self.assertEqual(rx_bytes[0], avrclient.ERROR_OK)
         self.assertEqual(len(rx_bytes), 152)
 
     # Process UPD Command command
@@ -176,24 +191,28 @@ class TestAvr(unittest.TestCase):
     def test_process_upd_cmd_allows_empty_spi_data(self):
         self.client.emulated_upd_reset()
         rx_bytes = self.client.command(
-            data=[avrclient.CMD_EMULATED_UPD_SEND_COMMAND] + [], ignore_nak=True)
-        self.assertEqual(rx_bytes[0], avrclient.ACK)
+            data=[avrclient.CMD_EMULATED_UPD_SEND_COMMAND] + [],
+            ignore_error=True
+            )
+        self.assertEqual(rx_bytes[0], avrclient.ERROR_OK)
         self.assertEqual(len(rx_bytes), 1)
 
     def test_process_upd_cmd_allows_max_spi_data_size_of_32(self):
         self.client.emulated_upd_reset()
         rx_bytes = self.client.command(
-            data=[avrclient.CMD_EMULATED_UPD_SEND_COMMAND] + ([0] * 32), ignore_nak=True)
-        self.assertEqual(rx_bytes[0], avrclient.ACK)
+            data=[avrclient.CMD_EMULATED_UPD_SEND_COMMAND] + ([0] * 32),
+            ignore_error=True
+            )
+        self.assertEqual(rx_bytes[0], avrclient.ERROR_OK)
         self.assertEqual(len(rx_bytes), 1)
 
-    def test_process_upd_cmd_returns_nak_if_spi_data_size_exceeds_32(self):
+    def test_process_upd_cmd_returns_error_if_spi_data_size_exceeds_32(self):
         self.client.emulated_upd_reset()
         rx_bytes = self.client.command(
             data=[avrclient.CMD_EMULATED_UPD_SEND_COMMAND] + ([0] * 33),
-            ignore_nak=True
+            ignore_error=True
             )
-        self.assertEqual(rx_bytes[0], avrclient.NAK)
+        self.assertEqual(rx_bytes[0], avrclient.ERROR_BAD_ARGS_LENGTH)
         self.assertEqual(len(rx_bytes), 1)
 
     # Load UPD Key Data command
@@ -202,18 +221,18 @@ class TestAvr(unittest.TestCase):
         for bad_args in ([], [1,2,3,4,5]):
             rx_bytes = self.client.command(
                 data=[avrclient.CMD_EMULATED_UPD_LOAD_KEY_DATA] + bad_args,
-                ignore_nak=True
+                ignore_error=True
                 )
-            self.assertEqual(rx_bytes[0], avrclient.NAK)
+            self.assertEqual(rx_bytes[0], avrclient.ERROR_BAD_ARGS_LENGTH)
             self.assertEqual(len(rx_bytes), 1)
 
     def test_emulated_upd_load_key_data_nak_if_key_passthru_is_enabled(self):
         self.client.set_auto_key_passthru(True)
         rx_bytes = self.client.command(
             data=[avrclient.CMD_EMULATED_UPD_LOAD_KEY_DATA, 0, 0, 0, 0],
-            ignore_nak=True
+            ignore_error=True
             )
-        self.assertEqual(rx_bytes[0], avrclient.NAK)
+        self.assertEqual(rx_bytes[0], avrclient.ERROR_BLOCKED_BY_PASSTHRU)
         self.assertEqual(len(rx_bytes), 1)
         self.client.set_auto_key_passthru(False)
 
@@ -221,9 +240,9 @@ class TestAvr(unittest.TestCase):
         self.client.set_auto_key_passthru(False)
         rx_bytes = self.client.command(
             data=[avrclient.CMD_EMULATED_UPD_LOAD_KEY_DATA, 0, 0, 0, 0],
-            ignore_nak=True
+            ignore_error=True
             )
-        self.assertEqual(rx_bytes[0], avrclient.ACK)
+        self.assertEqual(rx_bytes[0], avrclient.ERROR_OK)
         self.assertEqual(len(rx_bytes), 1)
 
     # uPD16432B Emulator
@@ -726,10 +745,12 @@ class TestAvr(unittest.TestCase):
 
     # Faceplate
 
-    def test_faceplate_upd_clear_display_returns_nak_for_bad_args_length(self):
+    def test_faceplate_upd_clear_display_returns_error_for_bad_args_length(self):
         rx_bytes = self.client.command(
-            data=[avrclient.CMD_FACEPLATE_UPD_CLEAR_DISPLAY, 1], ignore_nak=True)
-        self.assertEqual(rx_bytes, bytearray([avrclient.NAK]))
+            data=[avrclient.CMD_FACEPLATE_UPD_CLEAR_DISPLAY, 1],
+            ignore_error=True
+            )
+        self.assertEqual(rx_bytes, bytearray([avrclient.ERROR_BAD_ARGS_LENGTH]))
 
     def test_faceplate_clear_display(self):
         self.client.faceplate_upd_clear_display() # shouldn't raise
@@ -737,17 +758,17 @@ class TestAvr(unittest.TestCase):
     def test_faceplate_upd_send_command_allows_max_spi_data_size_of_32(self):
         rx_bytes = self.client.command(
             data=[avrclient.CMD_FACEPLATE_UPD_SEND_COMMAND] + [0x80] + ([0] * 31),
-            ignore_nak=True
+            ignore_error=True
             )
-        self.assertEqual(rx_bytes[0], avrclient.ACK)
+        self.assertEqual(rx_bytes[0], avrclient.ERROR_OK)
         self.assertEqual(len(rx_bytes), 1)
 
     def test_faceplate_upd_send_command_nak_if_spi_data_size_exceeds_32(self):
         rx_bytes = self.client.command(
             data=[avrclient.CMD_FACEPLATE_UPD_SEND_COMMAND] + ([0] * 33),
-            ignore_nak=True
+            ignore_error=True
             )
-        self.assertEqual(rx_bytes[0], avrclient.NAK)
+        self.assertEqual(rx_bytes[0], avrclient.ERROR_BAD_ARGS_LENGTH)
         self.assertEqual(len(rx_bytes), 1)
 
     def test_faceplate_upd_send_command(self):
@@ -758,31 +779,40 @@ class TestAvr(unittest.TestCase):
         data = [0x80, 0, 0, 0x6f, 0x6c, 0x6c, 0x65, 0x48]
         self.client.faceplate_upd_send_command(data) # shouldn't raise
 
-    def test_faceplate_upd_read_key_data_returns_nak_for_bad_args_length(self):
+    def test_faceplate_upd_read_key_data_returns_error_for_bad_args_length(self):
         rx_bytes = self.client.command(
-            data=[avrclient.CMD_FACEPLATE_UPD_READ_KEY_DATA, 1], ignore_nak=True)
-        self.assertEqual(rx_bytes, bytearray([avrclient.NAK]))
+            data=[avrclient.CMD_FACEPLATE_UPD_READ_KEY_DATA, 1],
+            ignore_error=True
+            )
+        self.assertEqual(rx_bytes, bytearray([avrclient.ERROR_BAD_ARGS_LENGTH]))
 
     def test_faceplate_upd_read_key_data_returns_4_bytes(self):
         data = self.client.faceplate_upd_read_key_data()
         self.assertEqual(len(data), 4)
 
+    def test_faceplate_upd_dump_state_accepts_no_args(self):
+        rx_bytes = self.client.command(
+            data=[avrclient.CMD_FACEPLATE_UPD_DUMP_STATE, 1], ignore_error=True)
+        self.assertEqual(rx_bytes, bytearray([avrclient.ERROR_BAD_ARGS_LENGTH]))
+
+    # TODO more tests for faceplate_upd_dump_state
+
     # Radio State
 
-    def test_radio_state_returns_nak_for_too_few_display_data_bytes(self):
+    def test_radio_state_returns_error_for_too_few_display_data_bytes(self):
         rx_bytes = self.client.command(
             data=[avrclient.CMD_RADIO_STATE_PARSE] + ([0] * 10),
-            ignore_nak=True
+            ignore_error=True
             )
-        self.assertEqual(rx_bytes[0], avrclient.NAK)
+        self.assertEqual(rx_bytes[0], avrclient.ERROR_BAD_ARGS_LENGTH)
         self.assertEqual(len(rx_bytes), 1)
 
-    def test_radio_state_returns_nak_for_too_many_display_data_bytes(self):
+    def test_radio_state_returns_error_for_too_many_display_data_bytes(self):
         rx_bytes = self.client.command(
             data=[avrclient.CMD_RADIO_STATE_PARSE] + ([0] * 33),
-            ignore_nak=True
+            ignore_error=True
             )
-        self.assertEqual(rx_bytes[0], avrclient.NAK)
+        self.assertEqual(rx_bytes[0], avrclient.ERROR_BAD_ARGS_LENGTH)
         self.assertEqual(len(rx_bytes), 1)
 
     def test_radio_state_safe_mode(self):
@@ -1759,14 +1789,14 @@ class TestAvr(unittest.TestCase):
 
     # Converting uPD16432B key data to key codes
 
-    def test_convert_upd_key_data_to_codes_returns_nak_for_bad_args_len(self):
+    def test_convert_upd_key_data_to_codes_returns_error_for_bad_args_len(self):
         for bad_args in ([], [1,2,3,4,5]):
             cmd = avrclient.CMD_CONVERT_UPD_KEY_DATA_TO_KEY_CODES
             rx_bytes = self.client.command(
                 data=[cmd] + bad_args,
-                ignore_nak=True
+                ignore_error=True
                 )
-            self.assertEqual(rx_bytes[0], avrclient.NAK)
+            self.assertEqual(rx_bytes[0], avrclient.ERROR_BAD_ARGS_LENGTH)
             self.assertEqual(len(rx_bytes), 1)
 
     def test_convert_upd_key_data_to_codes_returns_empty_for_no_keys(self):
@@ -1797,24 +1827,24 @@ class TestAvr(unittest.TestCase):
 
     # Converting a key code to uPD16432B key data
 
-    def test_convert_code_to_upd_key_data_returns_nak_for_bad_args_length(self):
+    def test_convert_code_to_upd_key_data_returns_error_for_bad_args_length(self):
         for bad_args in ([], [1,2,]):
             cmd = avrclient.CMD_CONVERT_CODE_TO_UPD_KEY_DATA
             rx_bytes = self.client.command(
                 data=[cmd] + bad_args,
-                ignore_nak=True
+                ignore_error=True
                 )
-            self.assertEqual(rx_bytes[0], avrclient.NAK)
+            self.assertEqual(rx_bytes[0], avrclient.ERROR_BAD_ARGS_LENGTH)
             self.assertEqual(len(rx_bytes), 1)
 
-    def test_convert_code_to_upd_key_data_returns_nak_for_bad_key_codes(self):
+    def test_convert_code_to_upd_key_data_returns_error_for_bad_key_codes(self):
         for bad_code in ([0, 0xFF]):
             cmd = avrclient.CMD_CONVERT_CODE_TO_UPD_KEY_DATA
             rx_bytes = self.client.command(
                 data=[cmd, bad_code],
-                ignore_nak=True
+                ignore_error=True
                 )
-            self.assertEqual(rx_bytes[0], avrclient.NAK)
+            self.assertEqual(rx_bytes[0], avrclient.ERROR_BAD_ARGS_VALUE)
             self.assertEqual(len(rx_bytes), 1)
 
     def test_convert_code_to_upd_key_data_encodes_all_premium4_keys(self):
@@ -1827,19 +1857,19 @@ class TestAvr(unittest.TestCase):
 
     # Read Keys command
 
-    def test_read_keys_returns_nak_for_bad_args_length(self):
+    def test_read_keys_returns_error_for_bad_args_length(self):
         rx_bytes = self.client.command(
             data=[avrclient.CMD_READ_KEYS, 1],
-            ignore_nak=True
+            ignore_error=True
             )
-        self.assertEqual(rx_bytes[0], avrclient.NAK)
+        self.assertEqual(rx_bytes[0], avrclient.ERROR_BAD_ARGS_LENGTH)
         self.assertEqual(len(rx_bytes), 1)
 
     # TODO fix test that fails without radio connected
     def _dont_test_read_keys_returns_zeros_for_no_keys(self):
         # assumes no keys are being pressed on the faceplate
         rx_bytes = self.client.command([avrclient.CMD_READ_KEYS])
-        self.assertEqual(rx_bytes, bytearray([avrclient.ACK, 0, 0, 0]))
+        self.assertEqual(rx_bytes, bytearray([avrclient.ERROR_OK, 0, 0, 0]))
 
     # TODO fix test that fails without radio connected
     def _dont_test_high_level_read_keys_returns_empty_list_for_no_keys(self):
@@ -1848,45 +1878,45 @@ class TestAvr(unittest.TestCase):
 
     # Load Keys command
 
-    def test_load_keys_returns_nak_for_bad_args_length(self):
+    def test_load_keys_returns_error_for_bad_args_length(self):
         for bad_args in ([], [1,2,3,4,]):
             rx_bytes = self.client.command(
                 data=bytearray([avrclient.CMD_LOAD_KEYS] + bad_args),
-                ignore_nak=True
+                ignore_error=True
                 )
-            self.assertEqual(rx_bytes[0], avrclient.NAK)
+            self.assertEqual(rx_bytes[0], avrclient.ERROR_BAD_ARGS_LENGTH)
             self.assertEqual(len(rx_bytes), 1)
 
-    def test_load_keys_returns_nak_if_key_passthru_enabled(self):
+    def test_load_keys_returns_error_if_key_passthru_enabled(self):
         self.client.set_auto_key_passthru(True)
         rx_bytes = self.client.command(
             data=bytearray([avrclient.CMD_LOAD_KEYS, 1, 0, 0]),
-            ignore_nak=True
+            ignore_error=True
             )
-        self.assertEqual(rx_bytes[0], avrclient.NAK)
+        self.assertEqual(rx_bytes[0], avrclient.ERROR_BLOCKED_BY_PASSTHRU)
         self.assertEqual(len(rx_bytes), 1)
         self.client.set_auto_key_passthru(False)
 
-    def test_load_keys_returns_nak_if_key_count_greater_than_2(self):
+    def test_load_keys_returns_error_if_key_count_greater_than_2(self):
         rx_bytes = self.client.command(
             data=bytearray([avrclient.CMD_LOAD_KEYS, 3, 0, 0]),
-            ignore_nak=True
+            ignore_error=True
             )
-        self.assertEqual(rx_bytes[0], avrclient.NAK)
+        self.assertEqual(rx_bytes[0], avrclient.ERROR_BAD_ARGS_VALUE)
         self.assertEqual(len(rx_bytes), 1)
 
-    def test_load_keys_returns_nak_for_bad_key_code(self):
+    def test_load_keys_returns_error_for_bad_key_code(self):
         rx_bytes = self.client.command(
             data=bytearray([avrclient.CMD_LOAD_KEYS, 1, 0xFF, 0]),
-            ignore_nak=True
+            ignore_error=True
             )
-        self.assertEqual(rx_bytes[0], avrclient.NAK)
+        self.assertEqual(rx_bytes[0], avrclient.ERROR_BAD_ARGS_VALUE)
         self.assertEqual(len(rx_bytes), 1)
 
     def test_load_keys_loads_empty(self):
         rx_bytes = self.client.command(
             data=bytearray([avrclient.CMD_LOAD_KEYS, 0, 0, 0]),
-            ignore_nak=True
+            ignore_error=True
             )
-        self.assertEqual(rx_bytes[0], avrclient.ACK)
+        self.assertEqual(rx_bytes[0], avrclient.ERROR_OK)
         self.assertEqual(len(rx_bytes), 1)

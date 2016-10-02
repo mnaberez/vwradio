@@ -62,21 +62,15 @@ ISR(TIMER1_COMPA_vect)
     cmd_init();
 }
 
-static void _reply_ack()
+static void _send_empty_reply(uint8_t error_code)
 {
     uart_put(1);   // 1 byte to follow
-    uart_put(ACK);
-}
-
-static void _reply_nak()
-{
-    uart_put(1);   // 1 byte to follow
-    uart_put(NAK);
+    uart_put(error_code);
 }
 
 /* Command: Reset uPD16432B Emulator
  * Arguments: none
- * Returns: <ack>
+ * Returns: <error>
  *
  * Reset the uPD16432B Emulator to its default state.  This does not
  * affect the UPD key data output bytes (upd_tx_key_data).
@@ -85,24 +79,24 @@ static void _do_emulated_upd_reset()
 {
     if (cmd_buf_index != 1)
     {
-        _reply_nak();
+        _send_empty_reply(CMD_ERROR_BAD_ARGS_LENGTH);
         return;
     }
 
     upd_init(&emulated_upd_state);
-    _reply_ack();
+    _send_empty_reply(CMD_ERROR_OK);
 }
 
-static uint8_t _dump_upd_state_to_uart(upd_state_t *state)
+static void _dump_upd_state_to_uart(upd_state_t *state)
 {
-    // Bail out if any command arguments were given.
     if (cmd_buf_index != 1)
     {
-        return 0;
+        _send_empty_reply(CMD_ERROR_BAD_ARGS_LENGTH);
+        return;
     }
 
     uint8_t size;
-    size = 1 + // ACK byte
+    size = 1 + // error byte
            1 + // ram_area
            1 + // ram_size
            1 + // address
@@ -114,7 +108,7 @@ static uint8_t _dump_upd_state_to_uart(upd_state_t *state)
            UPD_LED_RAM_SIZE;
 
     uart_put(size); // number of bytes to follow
-    uart_put(ACK);
+    uart_put(CMD_ERROR_OK);
     uart_put(state->ram_area);
     uart_put(state->ram_size);
     uart_put(state->address);
@@ -122,8 +116,7 @@ static uint8_t _dump_upd_state_to_uart(upd_state_t *state)
     uart_put(state->dirty_flags);
 
     uint8_t i;
-    for (i=0; i<UPD_DISPLAY_RAM_SIZE; i++)
-    {
+    for (i=0; i<UPD_DISPLAY_RAM_SIZE; i++) {
         uart_put(state->display_ram[i]);
     }
 
@@ -141,28 +134,21 @@ static uint8_t _dump_upd_state_to_uart(upd_state_t *state)
     {
         uart_put(state->led_ram[i]);
     }
-
-    return 1;
 }
 
 /* Command: Dump uPD16432B Emulator State
  * Arguments: none
- * Returns: <ack> <all bytes in emulated_upd_state>
+ * Returns: <error> <all bytes in emulated_upd_state>
  *
  * Dump the current state of the uPD16432B emulator.
  */
 static void _do_emulated_upd_dump_state()
 {
-    uint8_t success;
-    success = _dump_upd_state_to_uart(&emulated_upd_state);
-    if (! success)
-    {
-        return _reply_nak();
-    }
+    _dump_upd_state_to_uart(&emulated_upd_state);
 }
 
 /* Populate a upd_command_t from the UART command buffer
- * Returns 1 on success, 0 on failure.
+ * Returns an error code (one of CMD_ERROR_*)
  */
 static uint8_t _populate_cmd_from_uart_cmd_buf(upd_command_t *cmd)
 {
@@ -170,7 +156,7 @@ static uint8_t _populate_cmd_from_uart_cmd_buf(upd_command_t *cmd)
     // -1 is because first byte in cmd_buf is the uart command byte
     if ((cmd_buf_index - 1) > sizeof(cmd->data))
     {
-        return 0; // failure
+        return CMD_ERROR_BAD_ARGS_LENGTH;
     }
 
     // Populate uPD16432B command request with bytes from UART
@@ -178,12 +164,12 @@ static uint8_t _populate_cmd_from_uart_cmd_buf(upd_command_t *cmd)
     memcpy(cmd->data, cmd_buf+1, size);
     cmd->size = size;
 
-    return 1; // success
+    return CMD_ERROR_OK;
 }
 
 /* Command: Send uPD16432B Emulator Command
  * Arguments: <cmd arg byte0> <cmd arg byte1> ...
- * Returns: <ack>
+ * Returns: <error>
  *
  * Sends a fake SPI command to the uPD16432B Emulator.  The arguments
  * are the SPI bytes that would be received by the uPD16432B while it
@@ -193,20 +179,21 @@ static void _do_emulated_upd_send_command()
 {
     upd_command_t cmd;
 
-    uint8_t success = _populate_cmd_from_uart_cmd_buf(&cmd);
-    if (! success)
+    uint8_t error_code = _populate_cmd_from_uart_cmd_buf(&cmd);
+    if (error_code != CMD_ERROR_OK)
     {
-        return _reply_nak();
+        _send_empty_reply(error_code);
+        return;
     }
 
     // Process uPD16432B command request as if we received it over SPI
     upd_process_command(&emulated_upd_state, &cmd);
-    return _reply_ack();
+    _send_empty_reply(CMD_ERROR_OK);
 }
 
 /* Command: Load uPD16432B Emulator Key Data
  * Arguments: <key0> <key1> <key2> <key3>
- * Returns: <ack>
+ * Returns: <error>
  *
  * Load the four bytes of the uPD16432B emulator key data.  These bytes
  * will be sent to the radio whenever a key data request command is received.
@@ -215,17 +202,17 @@ static void _do_emulated_upd_send_command()
  */
 static void _do_emulated_upd_load_key_data()
 {
+    if (cmd_buf_index != 5)
+    {
+        _send_empty_reply(CMD_ERROR_BAD_ARGS_LENGTH);
+        return;
+    }
+
     // can't load key data while key passthru is enabled because the
     // data we'd load would be immediately overwritten by passthru
     if (auto_key_passthru)
     {
-        _reply_nak();
-        return;
-    }
-
-    if (cmd_buf_index != 5)
-    {
-        _reply_nak();
+        _send_empty_reply(CMD_ERROR_BLOCKED_BY_PASSTHRU);
         return;
     }
 
@@ -236,28 +223,28 @@ static void _do_emulated_upd_load_key_data()
         upd_tx_key_data[i] = cmd_buf[i+1];
     }
 
-    _reply_ack();
+    _send_empty_reply(CMD_ERROR_OK);
 }
 
 /* Command: Radio State Reset
  * Arguments: none
- * Returns: <ack>
+ * Returns: <error>
  */
 static void _do_radio_state_reset()
 {
     if (cmd_buf_index != 1)
     {
-        _reply_nak();
+        _send_empty_reply(CMD_ERROR_BAD_ARGS_LENGTH);
         return;
     }
 
     radio_state_init(&radio_state);
-    _reply_ack();
+    _send_empty_reply(CMD_ERROR_OK);
 }
 
 /* Command: Radio State Process
  * Arguments: <byte1>
- * Returns: <ack>
+ * Returns: <error>
  */
 static void _do_radio_state_parse()
 {
@@ -269,7 +256,7 @@ static void _do_radio_state_parse()
     if ((data_size < 11) ||
         (data_size > UPD_DISPLAY_RAM_SIZE))
     {
-        _reply_nak();
+        _send_empty_reply(CMD_ERROR_BAD_ARGS_LENGTH);
         return;
     }
 
@@ -281,23 +268,23 @@ static void _do_radio_state_parse()
     memcpy(display_ram, cmd_buf+1, data_size);
 
     radio_state_parse(&radio_state, display_ram);
-    _reply_ack();
+    _send_empty_reply(CMD_ERROR_OK);
 }
 
 /* Command: Radio State Dump
  * Arguments: <byte1>
- * Returns: <ack>
+ * Returns: <error>
  */
 static void _do_radio_state_dump()
 {
     if (cmd_buf_index != 1)
     {
-        _reply_nak();
+        _send_empty_reply(CMD_ERROR_BAD_ARGS_LENGTH);
         return;
     }
 
     uart_put(53); // number of bytes to follow
-    uart_put(ACK);
+    uart_put(CMD_ERROR_OK);
     uart_put(radio_state.operation_mode);
     uart_put(radio_state.display_mode);
     uart_put(radio_state.safe_tries);
@@ -337,15 +324,15 @@ static void _do_radio_state_dump()
 
 /* Command: Echo
  * Arguments: <arg1> <arg2> <arg3> ...
- * Returns: <ack> <arg1> <arg1> <arg3> ...
+ * Returns: <error> <arg1> <arg1> <arg3> ...
  *
  * Echoes the arguments received back to the client.  If no args were
- * received after the command byte, an empty ACK response is returned.
+ * received after the command byte, an empty success response is returned.
  */
 static void _do_echo()
 {
     uart_put(cmd_buf_index); // number of bytes to follow
-    uart_put(ACK);
+    uart_put(CMD_ERROR_OK);
     uint8_t i;
     for (i=1; i<cmd_buf_index; i++)
     {
@@ -356,16 +343,16 @@ static void _do_echo()
 
 /* Command: Set LED
  * Arguments: <led number> <led state>
- * Returns: <ack|nak>
+ * Returns: <error>
  *
- * Turns one of the LEDs on or off.  Returns a NAK if the LED
+ * Turns one of the LEDs on or off.  Returns an error if the LED
  * number is not recognized.
  */
 static void _do_set_led()
 {
     if (cmd_buf_index != 3)
     {
-        _reply_nak();
+        _send_empty_reply(CMD_ERROR_BAD_ARGS_LENGTH);
         return;
     }
 
@@ -383,16 +370,16 @@ static void _do_set_led()
             break;
 
         default:
-            _reply_nak();
+            _send_empty_reply(CMD_ERROR_BAD_ARGS_VALUE);
             return;
     }
 
-    _reply_ack();
+    _send_empty_reply(CMD_ERROR_OK);
 }
 
 /* Command: Set Run Mode
  * Arguments: <run mode>
- * Returns: <ack|nak>
+ * Returns: <error>
  *
  * Sets the run mode to either RUN_MODE_RUNNING or RUN_MODE_STOPPED.  This is
  * mainly used for testing.  When stopped, commands from the radio are ignored
@@ -402,24 +389,24 @@ static void _do_set_run_mode()
 {
     if (cmd_buf_index != 2)
     {
-        _reply_nak();
+        _send_empty_reply(CMD_ERROR_BAD_ARGS_LENGTH);
         return;
     }
 
     uint8_t mode = cmd_buf[1];
     if ((mode != RUN_MODE_RUNNING) && (mode != RUN_MODE_STOPPED))
     {
-        _reply_nak();
+        _send_empty_reply(CMD_ERROR_BAD_ARGS_VALUE);
         return;
     }
 
     run_mode = mode;
-    _reply_ack();
+    _send_empty_reply(CMD_ERROR_OK);
 }
 
 /* Command: Set passthru of emulated uPD display to the real faceplate
  * Arguments: <0|1>
- * Returns: <ack|nak>
+ * Returns: <error>
  *
  * Sets whether the faceplate will be automatically updated with the display
  * from the radio.  Set to 1 to enable passthru, or set to 0 to disable
@@ -429,14 +416,14 @@ static void _do_set_auto_display_passthru()
 {
     if (cmd_buf_index != 2)
     {
-        _reply_nak();
+        _send_empty_reply(CMD_ERROR_BAD_ARGS_LENGTH);
         return;
     }
 
     uint8_t onoff = cmd_buf[1];
     if ((onoff != 0) && (onoff != 1))
     {
-        _reply_nak();
+        _send_empty_reply(CMD_ERROR_BAD_ARGS_VALUE);
         return;
     }
     auto_display_passthru = onoff;
@@ -452,12 +439,12 @@ static void _do_set_auto_display_passthru()
             UPD_DIRTY_CHARGEN;
     }
 
-    _reply_ack();
+    _send_empty_reply(CMD_ERROR_OK);
 }
 
 /* Command: Set passthru of keys on the real faceplate to the emulated uPD
  * Argument: <0|1>
- * Returns: <ack|nak>
+ * Returns: <error>
  *
  * Sets whether key presses on the faceplate will be automatically passed on
  * to the radio.  Set to 1 to enable passthru, or set to 0 to disable
@@ -467,40 +454,35 @@ static void _do_set_auto_key_passthru()
 {
     if (cmd_buf_index != 2)
     {
-        _reply_nak();
+        _send_empty_reply(CMD_ERROR_BAD_ARGS_LENGTH);
         return;
     }
 
     uint8_t onoff = cmd_buf[1];
     if ((onoff != 0) && (onoff != 1))
     {
-        _reply_nak();
+        _send_empty_reply(CMD_ERROR_BAD_ARGS_VALUE);
         return;
     }
     auto_key_passthru = onoff;
 
-    _reply_ack();
+    _send_empty_reply(CMD_ERROR_OK);
 }
 
 /* Command: Dump the real faceplate's uPD16432B state
  * Arguments: none
- * Returns: <ack> <all bytes in faceplate_upd_state>
+ * Returns: <error> <all bytes in faceplate_upd_state>
  *
  * Dump the current state of the real uPD16432B on the faceplate.
  */
 static void _do_faceplate_upd_dump_state()
 {
-    uint8_t success;
-    success = _dump_upd_state_to_uart(&faceplate_upd_state);
-    if (! success)
-    {
-        return _reply_nak();
-    }
+    _dump_upd_state_to_uart(&faceplate_upd_state);
 }
 
 /* Command: Send command to faceplate's uPD16432B
  * Arguments: <cmd arg byte1> <cmd arg byte2> ...
- * Returns: <ack>
+ * Returns: <error>
  *
  * Send an SPI command to the faceplate's uPD16432B.
  */
@@ -508,20 +490,20 @@ static void _do_faceplate_upd_send_command()
 {
     upd_command_t cmd;
 
-    uint8_t success;
-    success = _populate_cmd_from_uart_cmd_buf(&cmd);
-    if (! success)
+    uint8_t error_code = _populate_cmd_from_uart_cmd_buf(&cmd);
+    if (error_code != CMD_ERROR_OK)
     {
-        return _reply_nak();
+        _send_empty_reply(error_code);
+        return;
     }
 
     faceplate_send_upd_command(&cmd);
-    return _reply_ack();
+    _send_empty_reply(CMD_ERROR_OK);
 }
 
 /* Command: Clear the faceplate's display
  * Arguments: none
- * Returns: <ack|nak>
+ * Returns: <error>
  *
  * Sends SPI commands to initialize the faceplate and clear it.
  */
@@ -529,17 +511,17 @@ static void _do_faceplate_upd_clear_display()
 {
     if (cmd_buf_index != 1)
     {
-        _reply_nak();
+        _send_empty_reply(CMD_ERROR_BAD_ARGS_LENGTH);
         return;
     }
 
     faceplate_clear_display();
-    return _reply_ack();
+    _send_empty_reply(CMD_ERROR_OK);
 }
 
 /* Command: Read the faceplate's raw key data
  * Arguments: none
- * Returns: <ack> <byte0> <byte1> <byte2> <byte3>
+ * Returns: <error> <byte0> <byte1> <byte2> <byte3>
  *
  * Reads the key data from the faceplate and returns the 4 raw key data bytes.
  */
@@ -547,7 +529,7 @@ static void _do_faceplate_upd_clear_display()
  {
      if (cmd_buf_index != 1)
      {
-         _reply_nak();
+         _send_empty_reply(CMD_ERROR_BAD_ARGS_LENGTH);
          return;
      }
 
@@ -555,7 +537,7 @@ static void _do_faceplate_upd_clear_display()
      faceplate_read_key_data(key_data);
 
      uart_put(5); // number of bytes to follow
-     uart_put(ACK);
+     uart_put(CMD_ERROR_OK);
      uart_put(key_data[0]);
      uart_put(key_data[1]);
      uart_put(key_data[2]);
@@ -564,17 +546,17 @@ static void _do_faceplate_upd_clear_display()
 
 /* Command: Convert a key code to uPD16432B raw data bytes
  * Arguments: <keycode>
- * Returns: <ack> <byte0> <byte1> <byte2> <byte3>
+ * Returns: <error> <byte0> <byte1> <byte2> <byte3>
  *
  * Convert a key code (one of the KEY_ constants) to uPD16432B raw data
  * bytes.  If the key code is bad, or the key is not supported by the
- * radio, NAK is returned.
+ * radio, an error is returned.
  */
 static void _do_convert_code_to_upd_key_data()
 {
     if (cmd_buf_index != 2)
     {
-        _reply_nak();
+        _send_empty_reply(CMD_ERROR_BAD_ARGS_LENGTH);
         return;
     }
 
@@ -583,12 +565,12 @@ static void _do_convert_code_to_upd_key_data()
     uint8_t success = convert_code_to_upd_key_data(key_code, key_data);
     if (! success) // key code not found
     {
-        _reply_nak();
+        _send_empty_reply(CMD_ERROR_BAD_ARGS_VALUE);
         return;
     }
 
     uart_put(5); // number of bytes to follow
-    uart_put(ACK);
+    uart_put(CMD_ERROR_OK);
     uart_put(key_data[0]);
     uart_put(key_data[1]);
     uart_put(key_data[2]);
@@ -597,7 +579,7 @@ static void _do_convert_code_to_upd_key_data()
 
 /* Command: Convert uPD16432B raw key data bytes to key codes
  * Arguments: <byte0> <byte1> <byte2> <byte3>
- * Returns: <ack> <count> <keycode0> <keycode1>
+ * Returns: <error> <count> <keycode0> <keycode1>
  *
  * Convert uPD16432B key data to key codes (the KEY_ constants).  Returns 0, 1,
  * or 2 key codes as indicated by <count>  Two key code bytes are always
@@ -608,7 +590,7 @@ static void _do_convert_upd_key_data_to_key_codes()
     // command byte + 4 key data bytes
     if (cmd_buf_index != 5)
     {
-        _reply_nak();
+        _send_empty_reply(CMD_ERROR_BAD_ARGS_LENGTH);
         return;
     }
 
@@ -617,7 +599,7 @@ static void _do_convert_upd_key_data_to_key_codes()
     num_keys_pressed = convert_upd_key_data_to_codes(cmd_buf+1, key_codes);
 
     uart_put(4); // number of bytes to follow
-    uart_put(ACK);
+    uart_put(CMD_ERROR_OK);
     uart_put(num_keys_pressed);
     uart_put(key_codes[0]);
     uart_put(key_codes[1]);
@@ -625,9 +607,9 @@ static void _do_convert_upd_key_data_to_key_codes()
 
 /* Command: Read the real faceplate's keys as key codes
  * Arguments: none
- * Returns: <ack> <count> <keycode0> <keycode1>
+ * Returns: <error> <count> <keycode0> <keycode1>
  *
- * Read the faceplate and return keys codes (KEY_ constants) for any keys
+ * Read the faceplate and return keys codes (KEY_* constants) for any keys
  * pressed.  It may return 0, 1, or 2 key codes as indicated by <count>.  Two
  * key code bytes bytes are always returned; unused bytes are set to 0.
  */
@@ -635,7 +617,7 @@ static void _do_read_keys()
 {
     if (cmd_buf_index != 1)
     {
-        _reply_nak();
+        _send_empty_reply(CMD_ERROR_BAD_ARGS_LENGTH);
         return;
     }
 
@@ -648,7 +630,7 @@ static void _do_read_keys()
     uint8_t num_pressed = convert_upd_key_data_to_codes(key_data, key_codes);
 
     uart_put(4); // number of bytes to follow
-    uart_put(ACK);
+    uart_put(CMD_ERROR_OK);
     uart_put(num_pressed);
     uart_put(key_codes[0]);
     uart_put(key_codes[1]);
@@ -656,15 +638,15 @@ static void _do_read_keys()
 
 /* Command: Load the emulated faceplate's key data from key codes
  * Arguments: <count> <keycode0> <keycode1>
- * Returns: <ack>
+ * Returns: <error>
  *
  * Load the emulated uPD16432B's key data from key codes (KEY_ constants).
  * The key codes will be converted to uPD16432B key data and then sent
  * to the radio when it requests key data.  This same key data will always
  * be sent until it is changed again (i.e., the keys will be held down).
  *
- * If a given key code is bad, or a key is not supported by the radio, NAK
- * is returned.
+ * If a given key code is bad, or a key is not supported by the radio, an
+ * error is returned.
  *
  * Always send three arguments: a count of key codes (may be 0, 1, 2) followed
  * by two key code bytes.  If count < 2, the extra key code bytes are ignored.
@@ -675,7 +657,7 @@ static void _do_load_keys()
     // command byte + count byte + 2 key code bytes
     if (cmd_buf_index != 4)
     {
-        _reply_nak();
+        _send_empty_reply(CMD_ERROR_BAD_ARGS_LENGTH);
         return;
     }
 
@@ -683,7 +665,7 @@ static void _do_load_keys()
     // data we'd load would be immediately overwritten by passthru
     if (auto_key_passthru)
     {
-        _reply_nak();
+        _send_empty_reply(CMD_ERROR_BLOCKED_BY_PASSTHRU);
         return;
     }
 
@@ -694,7 +676,7 @@ static void _do_load_keys()
     // 0, 1, or 2 keys can be pressed simultaneously
     if (num_pressed > 2)
     {
-        _reply_nak();
+        _send_empty_reply(CMD_ERROR_BAD_ARGS_VALUE);
         return;
     }
 
@@ -709,7 +691,7 @@ static void _do_load_keys()
             key_codes[i], one_key_data);
         if (! success) // bad key code
         {
-            _reply_nak();
+            _send_empty_reply(CMD_ERROR_BAD_ARGS_VALUE);
             return;
         }
 
@@ -726,12 +708,12 @@ static void _do_load_keys()
         upd_tx_key_data[i] = key_data[i];
     }
 
-    _reply_ack();
+    _send_empty_reply(CMD_ERROR_OK);
 }
 
 /* Dispatch a command.  A complete command packet has been received.  The
  * command buffer has one or more bytes.  The first byte is the command byte.
- * Dispatch to a handler, or return a NAK if the command is unrecognized.
+ * Dispatch to a handler, or return an error if the command is unrecognized.
  */
 static void _cmd_dispatch()
 {
@@ -804,7 +786,7 @@ static void _cmd_dispatch()
             break;
 
         default:
-            _reply_nak();
+            _send_empty_reply(CMD_ERROR_BAD_COMMAND);
     }
 }
 
@@ -818,12 +800,14 @@ static void _cmd_dispatch()
  *   03 DE AA 55   Command DE, args: [AA, 55]
  *
  * Format of a command response:
- *   <number of bytes to follow> <ack|nak> <arg> <arg> ...
+ *   <number of bytes to follow> <error> <arg> <arg> ...
  * Examples:
- *   01 06         Command acknowledged, no args
- *   02 06 AA      Command acknowledged, args: [AA]
- *   01 15         Command not acknowledged, no args
- *   03 15 AA 55   Command not acknowledged, args: [AA, 55]
+ *   01 00         Command succeeded, no data
+ *   02 00 AA      Command succeeded, data: [AA]
+ *   01 01         Command failed, no data
+ *   03 01 AA 55   Command failed, data: [AA, 55]
+ *
+ * Error byte of zero means success, non-zero means error.
  */
 void cmd_receive_byte(uint8_t c)
 {
@@ -832,7 +816,7 @@ void cmd_receive_byte(uint8_t c)
     {
         if (c == 0) // invalid, command length must be 1 byte or longer
         {
-            _reply_nak();
+            _send_empty_reply(CMD_ERROR_NO_COMMAND);
             cmd_init();
         }
         else

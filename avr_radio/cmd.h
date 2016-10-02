@@ -3,9 +3,6 @@
 
 #include "updemu.h"
 
-#define ACK 0x06
-#define NAK 0x15
-
 #define CMD_SET_LED 0x01
 #define CMD_ECHO 0x02
 #define CMD_SET_RUN_MODE 0x03
@@ -33,6 +30,13 @@
 
 #define CMD_ARG_GREEN_LED 0x00
 #define CMD_ARG_RED_LED 0x01
+
+#define CMD_ERROR_OK 0x00
+#define CMD_ERROR_NO_COMMAND 0x01
+#define CMD_ERROR_BAD_COMMAND 0x02
+#define CMD_ERROR_BAD_ARGS_LENGTH 0x03
+#define CMD_ERROR_BAD_ARGS_VALUE 0x04
+#define CMD_ERROR_BLOCKED_BY_PASSTHRU 0x05
 
 uint8_t cmd_buf[256];
 uint8_t cmd_buf_index;
