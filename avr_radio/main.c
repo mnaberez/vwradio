@@ -16,11 +16,11 @@
  * Pin 14: PD0/RXD (to PC's serial TXD)
  * Pin 15: PD1/TXD (to PC's serial RXD)
  * Pin 16: PD2/RXD1 MISO in (from faceplate's DAT)
- * Pin 17: PD3/TXD1 MOSI out (to faceplate's DAT through 10K resistor)
+ * Pin 17: PD3/TXD1 MOSI out (connect to PD2 through 10K resistor)
  * Pin 18: PD4/XCK1 SCK out (to faceplate's CLK)
  * Pin 19: PD5 (out to faceplate's STB)
- * Pin 20: PD6 (in from faceplate's BUS)            (XXX not wired yet)
- * Pin 21: PD7 (out to radio's BUS)                 (XXX not wired yet)
+ * Pin 20: PD6 (in from faceplate's BUS)
+ * Pin 21: PD7 (out to radio's BUS)           
  * Pin 22: PC0 I2C SDA (unused)
  * Pin 23: PC1 I2C SCL (unused)
  * Pin 24: PC2 JTAG TCK (to Atmel-ICE AVR port pin 1 TCK)
@@ -37,9 +37,9 @@
  * Pin 35: PA5 (unused)
  * Pin 36: PA4 (unused)
  * Pin 37: PA3 (unused)
- * Pin 38: PA2 EJECT from radio                     (XXX not wired yet)
- * Pin 39: PA1 !POWER_EJECT from radio              (XXX not wired yet)
- * Pin 40: PA0 LOF in (from radio, also tied to faceplate's LOF in) (XXX not wired yet)
+ * Pin 38: PA1 !POWER_EJECT from radio
+ * Pin 39: PA2 EJECT from radio
+ * Pin 40: PA0 LOF in (from radio, also tied to faceplate's LOF in)
  */
 
 #include "main.h"
