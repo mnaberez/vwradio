@@ -242,7 +242,7 @@ static void _do_radio_state_reset()
     _send_empty_reply(CMD_ERROR_OK);
 }
 
-/* Command: Radio State Process
+/* Command: Radio State Parse
  * Arguments: <byte1>
  * Returns: <error>
  */
