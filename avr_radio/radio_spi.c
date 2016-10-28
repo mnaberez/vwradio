@@ -77,7 +77,7 @@ ISR(PCINT1_vect)
 
         // copy the current spi command into the circular buffer
         // empty transfers and key data request commands are ignored
-        if ((upd_rx_buf.cmd_at_write_index->size !=0) &&
+        if ((upd_rx_buf.cmd_at_write_index->size != 0) &&
             ((upd_rx_buf.cmd_at_write_index->data[0] & 0x44) != 0x44))
         {
             upd_rx_buf.write_index++;
