@@ -128,15 +128,16 @@ Character codes 0x10-0xFF are stored in ROM.  These have been seen on the LCD:
 0x46: "F"
 0x47: "G"
 0x48: "H"
-0x4b: "K"
-0x4d: "M"
-0x4c: "L"
-0x4f: "O"
 0x49: "I"
+0x4b: "K"
+0x4c: "L"
+0x4d: "M"
+0x4f: "O"
 0x50: "P"
 0x52: "R"
 0x53: "S"
 0x54: "T"
+0x55: "U"
 0x57: "W"
 0x58: "X"
 0x59: "Y"
@@ -144,13 +145,14 @@ Character codes 0x10-0xFF are stored in ROM.  These have been seen on the LCD:
 0xe0: "A"
 0xe1: "B"
 0xe2: "N"
+0xe3: "V"
 0xe4: "0"
-0xe5: "1"
-0xe6: "3"
-0xe7: "4"
-0xe8: "5"
-0xe9: "6"
-0xea: "9"
+0xe5: "1"  for both full-size 1 and preset 1
+0xe6: "3"  for full-size 3
+0xe7: "4"  for full-size 4
+0xe8: "5"  for full-size 5
+0xe9: "6"  for full-size 6
+0xea: "9"  for full-size 9
 0xeb: "1"  for FM1
 0xec: "2"  for FM2
 0xed: "2"  for preset 2
@@ -158,7 +160,7 @@ Character codes 0x10-0xFF are stored in ROM.  These have been seen on the LCD:
 0xef: "4"  for preset 4
 0xf0: "5"  for preset 5
 0xf2: "6"  for preset 6
-0xf3: "2"
+0xf3: "2"  for full-size 2
 
 
 Character RAM
