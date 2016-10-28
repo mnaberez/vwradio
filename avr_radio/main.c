@@ -20,7 +20,7 @@
  * Pin 18: PD4/XCK1 SCK out (to faceplate's CLK)
  * Pin 19: PD5 (out to faceplate's STB)
  * Pin 20: PD6 (in from faceplate's BUS)
- * Pin 21: PD7 (out to radio's BUS)           
+ * Pin 21: PD7 (out to radio's BUS)
  * Pin 22: PC0 I2C SDA (unused)
  * Pin 23: PC1 I2C SCL (unused)
  * Pin 24: PC2 JTAG TCK (to Atmel-ICE AVR port pin 1 TCK)
@@ -49,7 +49,6 @@
 #include <avr/interrupt.h>
 
 #include "cmd.h"
-#include "convert.h"
 #include "faceplate.h"
 #include "leds.h"
 #include "radio_spi.h"

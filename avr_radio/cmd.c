@@ -4,7 +4,7 @@
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
 #include "cmd.h"
-#include "convert.h"
+#include "convert_keys.h"
 #include "leds.h"
 #include "main.h"
 #include "faceplate.h"
