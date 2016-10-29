@@ -3,7 +3,7 @@ This program uses a Raspberry Pi controlling 5 relays to brute force crack
 a VW Premium 4 or 5 radio.
 
 The radio allows two code entry attempts per hour.  After each failed attempt,
-it writes the attempt count to the AT93C64 EEPROM.  After two failed attempts,
+it writes the attempt count its onboard EEPROM.  After two failed attempts,
 the radio displays "SAFE" and is locked out for an hour.  The radio must
 remain powered on for an hour to unlock, which gives two more attempts.  If the
 radio is powered off and then on again, it will read the attempt count from the
