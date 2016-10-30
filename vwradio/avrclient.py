@@ -123,7 +123,10 @@ class Client(object):
         return list(rx_bytes[1:])
 
     def read_keys(self):
-        '''read keys on real faceplate'''
+        '''Read keys pressed on the real faceplate and return a list of
+        key codes (KEY_ constants).  If no keys are pressed, the list will
+        be empty.  At most 2 keys can be pressed at once, so up to 2 key
+        codes may be returned.'''
         rx_bytes = self.command([CMD_READ_KEYS])
         num_keys_pressed = rx_bytes[1]
         return list(rx_bytes[2:2+num_keys_pressed])

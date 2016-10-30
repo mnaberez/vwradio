@@ -12,9 +12,7 @@ class Controller(object):
         self.client.faceplate_upd_clear_display()
 
     def read_keys(self):
-        key_data = self.client.faceplate_upd_read_key_data()
-        keys = self.faceplate.decode_keys(key_data)
-        return keys
+        return self.client.read_keys()
 
     def write(self, text, pos=0):
         char_codes = [ self.faceplate.char_code(c) for c in text ]
@@ -98,7 +96,6 @@ class Demonstrator(object):
                 print("%r" % names)
                 msg = names[0][:11].ljust(11)
                 self.controller.write(msg)
-        time.sleep(0.1)
 
     def clock(self):
         self.controller.clear()
