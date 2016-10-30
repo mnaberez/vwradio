@@ -27,36 +27,18 @@ class Controller(object):
             raise ValueError("Data %r exceeds visible range from pos %d" %
                 (char_codes, pos))
 
-        # build dict of display data to write
-        char_codes_by_address = {}
-        for i, char_code in enumerate(char_codes):
-            address = display_addresses[i + pos]
-            char_codes_by_address[address] = char_code
-
-        # find groups of contiguous addresses that need to be written
-        addresses = char_codes_by_address.keys()
-        address_groups = self._split_into_contiguous_groups(addresses)
+        if display_addresses[0] < display_addresses[1]:
+            start_address = display_addresses[pos]
+        else:
+            start_address = display_addresses[pos + len(char_codes) - 1]
+            char_codes = char_codes[::-1] # reverse it
 
         # send Data Setting command: write to display ram
         self.client.faceplate_upd_send_command([0x40])
 
-        # send Address Setting command plus data for each contiguous group
-        for addresses in address_groups:
-            start_address = addresses[0]
-            codes = [ char_codes_by_address[a] for a in addresses ]
-            self.client.faceplate_upd_send_command([0x80 + start_address] + codes)
-
-    def _split_into_contiguous_groups(self, integers):
-        '''[2,1,7,6,5,10] -> [[1,2], [5,6,7], [10]]'''
-        groups = []
-        last = None
-        for i in sorted(integers):
-            if (last is not None) and (i == last + 1):
-                groups[-1].append(i)
-            else:
-                groups.append([i])
-            last = i
-        return groups
+        # send Address Setting command plus data to write to display ram
+        data = [0x80 + start_address] + list(char_codes)
+        self.client.faceplate_upd_send_command(data)
 
     def define_char(self, index, data):
         if index not in range(16):
