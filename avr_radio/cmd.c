@@ -611,7 +611,7 @@ static void _do_convert_upd_key_data_to_key_codes()
  *
  * Read the faceplate and return keys codes (KEY_* constants) for any keys
  * pressed.  It may return 0, 1, or 2 key codes as indicated by <count>.  Two
- * key code bytes bytes are always returned; unused bytes are set to 0.
+ * key code bytes are always returned; unused bytes are set to 0.
  */
 static void _do_read_keys()
 {
