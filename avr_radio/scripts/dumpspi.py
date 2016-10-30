@@ -19,7 +19,7 @@ while True:
     display_ram = client.emulated_upd_dump_state().display_ram
     lcd_text = ''
 
-    for addr in fp.DISPLAY_ADDRESSES:
+    for addr in fp.VISIBLE_DISPLAY_ADDRESSES:
         char_code = display_ram[addr]
         char = fp.CHARACTERS[char_code]
         lcd_text += char

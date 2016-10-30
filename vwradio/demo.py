@@ -21,16 +21,16 @@ class Controller(object):
         self.write_char_codes(char_codes, pos)
 
     def write_char_codes(self, char_codes, pos=0):
-        display_addresses = self.faceplate.DISPLAY_ADDRESSES
+        addresses = self.faceplate.VISIBLE_DISPLAY_ADDRESSES
 
-        if len(char_codes) > (len(display_addresses) - pos):
+        if len(char_codes) > (len(addresses) - pos):
             raise ValueError("Data %r exceeds visible range from pos %d" %
                 (char_codes, pos))
 
-        if display_addresses[0] < display_addresses[1]:
-            start_address = display_addresses[pos]
+        if addresses[0] < addresses[1]:
+            start_address = addresses[pos]
         else:
-            start_address = display_addresses[pos + len(char_codes) - 1]
+            start_address = addresses[pos + len(char_codes) - 1]
             char_codes = char_codes[::-1] # reverse it
 
         # send Data Setting command: write to display ram

@@ -5,11 +5,16 @@ from vwradio.constants import Keys, Pictographs
 
 class Faceplate(object):
     '''Abstract'''
-    DISPLAY_ADDRESSES = () # uPD16432B display RAM addresses in on-screen order
-    ROM_CHARSET = () # uPD16432B character generator ROM contents (1792 bytes)
-    CHARACTERS = {} # uPD16432B byte as key, equiv ASCII char as value
-    PICTOGRAPHS = {} # uPD16432B byte/bit as key, Pictographs.* as value
-    KEYS = {} # uPD16432B byte/bit as key, Keys.* as value
+    # uPD16432B display RAM addresses visible on screen in left-to-right order
+    VISIBLE_DISPLAY_ADDRESSES = ()
+    # uPD16432B character generator ROM contents (1792 bytes)
+    ROM_CHARSET = ()
+    # uPD16432B byte as key, equiv ASCII char as value
+    CHARACTERS = {}
+    # uPD16432B byte/bit as key, Pictographs.* as value
+    PICTOGRAPHS = {}
+    # uPD16432B byte/bit as key, Keys.* as value
+    KEYS = {}
 
     def encode_keys(self, keys_pressed):
         '''Encode a list of keys (Keys.* constants) to four bytes of
@@ -75,7 +80,7 @@ class Faceplate(object):
 
 
 class Premium4(Faceplate):
-    DISPLAY_ADDRESSES = tuple(range(0x0c, 1, -1))
+    VISIBLE_DISPLAY_ADDRESSES = tuple(range(0x0c, 1, -1))
     ROM_CHARSET = charsets.VW_PREMIUM_4
     CHARACTERS = {
         0x10: " ",
@@ -263,7 +268,7 @@ class Premium4(Faceplate):
 
 
 class Premium5(Faceplate):
-    DISPLAY_ADDRESSES = tuple(range(11))
+    VISIBLE_DISPLAY_ADDRESSES = tuple(range(11))
     ROM_CHARSET = charsets.VW_PREMIUM_5
 
     KEYS = {

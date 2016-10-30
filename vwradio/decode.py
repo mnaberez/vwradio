@@ -231,10 +231,10 @@ class Visualizer(object):
 
     def draw_display_ram(self):
         data = []
-        for address in self.faceplate.DISPLAY_ADDRESSES:
+        for address in self.faceplate.VISIBLE_DISPLAY_ADDRESSES:
             char_code = self.upd.display_ram[address]
             data.extend(self._read_char_data(char_code))
-        return self._draw_chars(data, self.faceplate.DISPLAY_ADDRESSES)
+        return self._draw_chars(data, self.faceplate.VISIBLE_DISPLAY_ADDRESSES)
 
     def draw_chargen_ram(self):
         return self._draw_chars(self.upd.chargen_ram, range(0x10))
@@ -262,7 +262,7 @@ class Visualizer(object):
 
     def decode_display_ram(self):
         decoded = ''
-        for address in self.faceplate.DISPLAY_ADDRESSES:
+        for address in self.faceplate.VISIBLE_DISPLAY_ADDRESSES:
             byte = self.upd.display_ram[address]
             if byte in range(16):
                 decoded += "<cgram:0x%02x>" % byte

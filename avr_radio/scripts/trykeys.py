@@ -9,7 +9,7 @@ client = avrclient.make_client()
 def read_display():
     display_ram = client.emulated_upd_dump_state().display_ram
     lcd_text = ''
-    for addr in Premium4.DISPLAY_ADDRESSES:
+    for addr in Premium4.VISIBLE_DISPLAY_ADDRESSES:
         code_code = display_ram[addr]
         char = Premium4.CHARACTERS.get(code_code, '?')
         lcd_text += char
