@@ -254,9 +254,9 @@ class TestAvr(unittest.TestCase):
         self.assertEqual(state.ram_size, 0)
         self.assertEqual(state.address, 0)
         self.assertFalse(state.increment)
-        self.assertEqual(state.display_ram, bytearray([0]*25))
-        self.assertEqual(state.chargen_ram, bytearray([0]*112))
-        self.assertEqual(state.pictograph_ram, bytearray([0]*8))
+        self.assertEqual(state.display_ram, bytearray(0x19))
+        self.assertEqual(state.chargen_ram, bytearray(7 * 0x10))
+        self.assertEqual(state.pictograph_ram, bytearray(8))
 
     # uPD16432B Emulator: Data Setting Command
 

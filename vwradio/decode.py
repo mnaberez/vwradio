@@ -12,11 +12,11 @@ class Upd16432b(object):
             stdout = sys.stdout
         self.stdout = stdout
 
-        self.display_ram = bytearray([0] * 0x19)
-        self.pictograph_ram = bytearray([0] * 0x08)
-        self.chargen_ram = bytearray([0] * 7 * 0x10)
-        self.led_ram = bytearray([0])
-        self.key_data_ram = bytearray([0] * 4)
+        self.display_ram = bytearray(0x19)
+        self.pictograph_ram = bytearray(0x08)
+        self.chargen_ram = bytearray(7 * 0x10)
+        self.led_ram = bytearray(1)
+        self.key_data_ram = bytearray(4)
 
         self.current_ram = None
         self.address = 0

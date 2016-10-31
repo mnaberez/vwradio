@@ -18,7 +18,7 @@ class TestUpd16432b(unittest.TestCase):
         )
         for name, size in names_and_sizes:
             ram = getattr(emu, name)
-            self.assertEqual(ram, bytearray([0] * size))
+            self.assertEqual(ram, bytearray(size))
 
     def test_ctor_initializes_ram_pointers(self):
         emu = Upd16432b(stdout=StringIO())
