@@ -1,5 +1,5 @@
-#ifndef CONVERT_H
-#define CONVERT_H
+#ifndef CONVERT_KEYS_H
+#define CONVERT_KEYS_H
 
 #include <avr/pgmspace.h>
 
