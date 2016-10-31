@@ -18,12 +18,12 @@ CMD_FACEPLATE_UPD_READ_KEY_DATA = 0x23
 CMD_RADIO_STATE_DUMP = 0x30
 CMD_RADIO_STATE_PARSE = 0x31
 CMD_RADIO_STATE_RESET = 0x32
-CMD_CONVERT_UPD_KEY_DATA_TO_KEY_CODES = 0x40
+CMD_CONVERT_UPD_KEY_DATA_TO_CODES = 0x40
 CMD_CONVERT_CODE_TO_UPD_KEY_DATA = 0x41
-CMD_READ_KEYS = 0x42
-CMD_LOAD_KEYS = 0x43
-CMD_CONVERT_UPD_PICTOGRAPH_DATA_TO_PICTOGRAPH_CODES = 0x44
-CMD_CONVERT_CODE_TO_UPD_PICTOGRAPH_DATA = 0x45
+CMD_CONVERT_UPD_PICTOGRAPH_DATA_TO_CODES = 0x42
+CMD_CONVERT_CODE_TO_UPD_PICTOGRAPH_DATA = 0x43
+CMD_READ_KEYS = 0x44
+CMD_LOAD_KEYS = 0x45
 
 ERROR_OK = 0x00
 ERROR_NO_COMMAND = 0x01
@@ -114,7 +114,7 @@ class Client(object):
         self.command(data)
 
     def convert_upd_key_data_to_codes(self, key_data):
-        data = (bytearray([CMD_CONVERT_UPD_KEY_DATA_TO_KEY_CODES]) +
+        data = (bytearray([CMD_CONVERT_UPD_KEY_DATA_TO_CODES]) +
                 bytearray(key_data))
         rx_bytes = self.command(data)
         num_keys_pressed = rx_bytes[1]
@@ -125,7 +125,7 @@ class Client(object):
         return list(rx_bytes[1:])
 
     def convert_upd_pictograph_data_to_codes(self, pictograph_data):
-        data = (bytearray([CMD_CONVERT_UPD_PICTOGRAPH_DATA_TO_PICTOGRAPH_CODES]) +
+        data = (bytearray([CMD_CONVERT_UPD_PICTOGRAPH_DATA_TO_CODES]) +
                 bytearray(pictograph_data))
         rx_bytes = self.command(data)
         num_pictographs_displayed = rx_bytes[1]

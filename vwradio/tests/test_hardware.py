@@ -1791,7 +1791,7 @@ class TestAvr(unittest.TestCase):
 
     def test_convert_upd_key_data_to_codes_returns_error_for_bad_args_len(self):
         for bad_args in ([], [1,2,3,4,5]):
-            cmd = avrclient.CMD_CONVERT_UPD_KEY_DATA_TO_KEY_CODES
+            cmd = avrclient.CMD_CONVERT_UPD_KEY_DATA_TO_CODES
             rx_bytes = self.client.command(
                 data=[cmd] + bad_args,
                 ignore_error=True
@@ -1859,7 +1859,7 @@ class TestAvr(unittest.TestCase):
 
     def test_convert_upd_pictograph_data_to_codes_returns_error_for_bad_args_len(self):
         for bad_args in ([], [1,2,3,4,5,6,7,8,9]):
-            cmd = avrclient.CMD_CONVERT_UPD_PICTOGRAPH_DATA_TO_PICTOGRAPH_CODES
+            cmd = avrclient.CMD_CONVERT_UPD_PICTOGRAPH_DATA_TO_CODES
             rx_bytes = self.client.command(
                 data=[cmd] + bad_args,
                 ignore_error=True

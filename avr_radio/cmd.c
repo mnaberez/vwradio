@@ -586,7 +586,7 @@ static void _do_convert_code_to_upd_key_data()
  * or 2 key codes as indicated by <count>  Two key code bytes are always
  * returned; unused bytes are set to 0.
  */
-static void _do_convert_upd_key_data_to_key_codes()
+static void _do_convert_upd_key_data_to_codes()
 {
     // command byte + 4 key data bytes
     if (cmd_buf_index != 5)
@@ -649,7 +649,7 @@ static void _do_convert_code_to_upd_pictograph_data()
  * Returns 0-7 pictograph codes as indicated by <count>.  7 pictograph code
  * bytes are always returned; unused bytes are set to 0.
  */
-static void _do_convert_upd_pictograph_data_to_pictograph_codes()
+static void _do_convert_upd_pictograph_data_to_codes()
 {
     // command byte + 8 pictograph data bytes
     if (cmd_buf_index != 9)
@@ -838,14 +838,14 @@ static void _cmd_dispatch()
             _do_faceplate_upd_read_key_data();
             break;
 
-        case CMD_CONVERT_UPD_KEY_DATA_TO_KEY_CODES:
-            _do_convert_upd_key_data_to_key_codes();
+        case CMD_CONVERT_UPD_KEY_DATA_TO_CODES:
+            _do_convert_upd_key_data_to_codes();
             break;
         case CMD_CONVERT_CODE_TO_UPD_KEY_DATA:
             _do_convert_code_to_upd_key_data();
             break;
-        case CMD_CONVERT_UPD_PICTOGRAPH_DATA_TO_PICTOGRAPH_CODES:
-            _do_convert_upd_pictograph_data_to_pictograph_codes();
+        case CMD_CONVERT_UPD_PICTOGRAPH_DATA_TO_CODES:
+            _do_convert_upd_pictograph_data_to_codes();
             break;
         case CMD_CONVERT_CODE_TO_UPD_PICTOGRAPH_DATA:
             _do_convert_code_to_upd_pictograph_data();
