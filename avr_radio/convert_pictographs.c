@@ -772,38 +772,28 @@ uint8_t convert_upd_pictograph_data_to_codes(
  */
 uint8_t convert_code_to_upd_pictograph_data(uint8_t pictograph_code, uint8_t *pictograph_data_out)
 {
+    uint8_t i;
     if (radio_model == RADIO_MODEL_PREMIUM_4)
     {
-        pictograph_data_out[0] = pgm_read_byte(&_premium4_pictograph_encode[pictograph_code][0]);
-        pictograph_data_out[1] = pgm_read_byte(&_premium4_pictograph_encode[pictograph_code][1]);
-        pictograph_data_out[2] = pgm_read_byte(&_premium4_pictograph_encode[pictograph_code][2]);
-        pictograph_data_out[3] = pgm_read_byte(&_premium4_pictograph_encode[pictograph_code][3]);
-        pictograph_data_out[4] = pgm_read_byte(&_premium4_pictograph_encode[pictograph_code][4]);
-        pictograph_data_out[5] = pgm_read_byte(&_premium4_pictograph_encode[pictograph_code][5]);
-        pictograph_data_out[6] = pgm_read_byte(&_premium4_pictograph_encode[pictograph_code][6]);
-        pictograph_data_out[7] = pgm_read_byte(&_premium4_pictograph_encode[pictograph_code][7]);
+        for (i=0; i<8; i++)
+        {
+            pictograph_data_out[i] = pgm_read_byte(&_premium4_pictograph_encode[pictograph_code][i]);
+        }
     }
     else // RADIO_MODEL_PREMIUM_5
     {
-        pictograph_data_out[0] = pgm_read_byte(&_premium5_pictograph_encode[pictograph_code][0]);
-        pictograph_data_out[1] = pgm_read_byte(&_premium5_pictograph_encode[pictograph_code][1]);
-        pictograph_data_out[2] = pgm_read_byte(&_premium5_pictograph_encode[pictograph_code][2]);
-        pictograph_data_out[3] = pgm_read_byte(&_premium5_pictograph_encode[pictograph_code][3]);
-        pictograph_data_out[4] = pgm_read_byte(&_premium5_pictograph_encode[pictograph_code][4]);
-        pictograph_data_out[5] = pgm_read_byte(&_premium5_pictograph_encode[pictograph_code][5]);
-        pictograph_data_out[6] = pgm_read_byte(&_premium5_pictograph_encode[pictograph_code][6]);
-        pictograph_data_out[7] = pgm_read_byte(&_premium5_pictograph_encode[pictograph_code][7]);
+        for (i=0; i<8; i++)
+        {
+            pictograph_data_out[i] = pgm_read_byte(&_premium5_pictograph_encode[pictograph_code][i]);
+        }
     }
 
-    if (pictograph_data_out[0] | pictograph_data_out[1] |
-        pictograph_data_out[2] | pictograph_data_out[3] |
-        pictograph_data_out[4] | pictograph_data_out[5] |
-        pictograph_data_out[6] | pictograph_data_out[7])
+    for (i=0; i<8; i++)
     {
-        return 1; // success
+        if (pictograph_data_out[i] != 0)
+        {
+            return 1; // success
+        }
     }
-    else
-    {
-        return 0; // failure: pictograph code not found
-    }
+    return 0; // failure: pictograph code not found
 }
