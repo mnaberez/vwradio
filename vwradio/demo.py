@@ -73,7 +73,7 @@ class Demonstrator(object):
             return charset[start:end]
 
         for i in range(0x10, 0x100):
-            # refine character 0 with the rom pattern
+            # define character 0 with the rom pattern
             data = read_char_data(self.controller.faceplate.ROM_CHARSET, i)
             self.controller.define_char(0, data)
 
