@@ -5,6 +5,7 @@
 #include <avr/pgmspace.h>
 #include "cmd.h"
 #include "convert_keys.h"
+#include "convert_pictographs.h"
 #include "leds.h"
 #include "main.h"
 #include "faceplate.h"
@@ -605,6 +606,71 @@ static void _do_convert_upd_key_data_to_key_codes()
     uart_put(key_codes[1]);
 }
 
+/*
+ * Command: Convert a pictograph code to uPD16432B raw pictograph data bytes
+ * Arguments: <code>
+ * Returns: <error> <byte0>...<byte7>
+ *
+ * Convert a pictograph code (one of the PICTOGRAPH_ constants) to uPD16432B
+ * raw pictograph data bytes.  If the pictograph code is bad, or the pictograph
+ * is not supported by the radio, an error is returned.
+ */
+static void _do_convert_code_to_upd_pictograph_data()
+{
+    if (cmd_buf_index != 2)
+    {
+        _send_empty_reply(CMD_ERROR_BAD_ARGS_LENGTH);
+        return;
+    }
+
+    uint8_t pictograph_code = cmd_buf[1];
+    uint8_t pictograph_data[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+    uint8_t success = convert_code_to_upd_pictograph_data(pictograph_code, pictograph_data);
+    if (! success) // key code not found
+    {
+        _send_empty_reply(CMD_ERROR_BAD_ARGS_VALUE);
+        return;
+    }
+
+    uart_put(9); // number of bytes to follow
+    uart_put(CMD_ERROR_OK);
+    for (uint8_t i=0; i<8; i++)
+    {
+        uart_put(pictograph_data[i]);
+    }
+}
+
+/*
+ * Command: Convert uPD16432B raw pictograph data bytes to pictograph codes
+ * Arguments: <byte0>...<byte7>
+ * Returns: <error> <count> <byte0>...<byte6>
+ *
+ * Convert uPD16432B pictograph data to codes (the PICTOGRAPH_ constants).
+ * Returns 0-7 pictograph codes as indicated by <count>.  7 pictograph code
+ * bytes are always returned; unused bytes are set to 0.
+ */
+static void _do_convert_upd_pictograph_data_to_pictograph_codes()
+{
+    // command byte + 8 pictograph data bytes
+    if (cmd_buf_index != 9)
+    {
+        _send_empty_reply(CMD_ERROR_BAD_ARGS_LENGTH);
+        return;
+    }
+
+    uint8_t pictograph_codes[8];
+    uint8_t num_pictographs_displayed;
+    num_pictographs_displayed = convert_upd_pictograph_data_to_codes(cmd_buf+1, pictograph_codes);
+
+    uart_put(9); // number of bytes to follow
+    uart_put(CMD_ERROR_OK);
+    uart_put(num_pictographs_displayed);
+    for (uint8_t i=0; i<7; i++)
+    {
+        uart_put(pictograph_codes[i]);
+    }
+}
+
 /* Command: Read the real faceplate's keys as key codes
  * Arguments: none
  * Returns: <error> <count> <keycode0> <keycode1>
@@ -778,6 +844,13 @@ static void _cmd_dispatch()
         case CMD_CONVERT_CODE_TO_UPD_KEY_DATA:
             _do_convert_code_to_upd_key_data();
             break;
+        case CMD_CONVERT_UPD_PICTOGRAPH_DATA_TO_PICTOGRAPH_CODES:
+            _do_convert_upd_pictograph_data_to_pictograph_codes();
+            break;
+        case CMD_CONVERT_CODE_TO_UPD_PICTOGRAPH_DATA:
+            _do_convert_code_to_upd_pictograph_data();
+            break;
+
         case CMD_READ_KEYS:
             _do_read_keys();
             break;

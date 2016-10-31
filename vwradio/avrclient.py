@@ -22,6 +22,8 @@ CMD_CONVERT_UPD_KEY_DATA_TO_KEY_CODES = 0x40
 CMD_CONVERT_CODE_TO_UPD_KEY_DATA = 0x41
 CMD_READ_KEYS = 0x42
 CMD_LOAD_KEYS = 0x43
+CMD_CONVERT_UPD_PICTOGRAPH_DATA_TO_PICTOGRAPH_CODES = 0x44
+CMD_CONVERT_CODE_TO_UPD_PICTOGRAPH_DATA = 0x45
 
 ERROR_OK = 0x00
 ERROR_NO_COMMAND = 0x01
@@ -120,6 +122,17 @@ class Client(object):
 
     def convert_code_to_upd_key_data(self, key_code):
         rx_bytes = self.command([CMD_CONVERT_CODE_TO_UPD_KEY_DATA, key_code])
+        return list(rx_bytes[1:])
+
+    def convert_upd_pictograph_data_to_codes(self, pictograph_data):
+        data = (bytearray([CMD_CONVERT_UPD_PICTOGRAPH_DATA_TO_PICTOGRAPH_CODES]) +
+                bytearray(pictograph_data))
+        rx_bytes = self.command(data)
+        num_pictographs_displayed = rx_bytes[1]
+        return list(rx_bytes[2:2+num_pictographs_displayed])
+
+    def convert_code_to_upd_pictograph_data(self, pictograph_code):
+        rx_bytes = self.command([CMD_CONVERT_CODE_TO_UPD_PICTOGRAPH_DATA, pictograph_code])
         return list(rx_bytes[1:])
 
     def read_keys(self):

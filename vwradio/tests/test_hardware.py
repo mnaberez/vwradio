@@ -3,7 +3,7 @@ import os
 import time
 import unittest
 
-from vwradio.constants import DisplayModes, OperationModes, TunerBands, Keys
+from vwradio.constants import DisplayModes, OperationModes, TunerBands, Keys, Pictographs
 from vwradio.faceplates import Premium4
 from vwradio import avrclient
 
@@ -1854,6 +1854,83 @@ class TestAvr(unittest.TestCase):
             expected_key_data[bytenum] |= 1<<bitnum
             key_data = self.client.convert_code_to_upd_key_data(key_code)
             self.assertEqual(key_data, expected_key_data)
+
+    # Converting uPD16432B pictograph data to pictograph codes
+
+    def test_convert_upd_pictograph_data_to_codes_returns_error_for_bad_args_len(self):
+        for bad_args in ([], [1,2,3,4,5,6,7,8,9]):
+            cmd = avrclient.CMD_CONVERT_UPD_PICTOGRAPH_DATA_TO_PICTOGRAPH_CODES
+            rx_bytes = self.client.command(
+                data=[cmd] + bad_args,
+                ignore_error=True
+                )
+            self.assertEqual(rx_bytes[0], avrclient.ERROR_BAD_ARGS_LENGTH)
+            self.assertEqual(len(rx_bytes), 1)
+
+    def test_convert_upd_pictograph_data_to_codes_returns_empty_for_no_pictographs(self):
+        pictograph_data = [0, 0, 0, 0, 0, 0, 0, 0]
+        pictograph_codes = self.client.convert_upd_pictograph_data_to_codes(pictograph_data)
+        self.assertEqual(len(pictograph_codes), 0)
+
+    def test_convert_upd_pictograph_data_to_codes_decodes_all_premium4_pictographs(self):
+        for bytenum_bitnum, pictograph_code in Premium4.PICTOGRAPHS.items():
+            bytenum, bitnum = bytenum_bitnum
+            pictograph_data = [0, 0, 0, 0, 0, 0, 0, 0]
+            pictograph_data[bytenum] |= 1<<bitnum
+            pictograph_codes = self.client.convert_upd_pictograph_data_to_codes(pictograph_data)
+            self.assertEqual(pictograph_codes, [pictograph_code])
+
+    def test_convert_upd_pictograph_data_to_codes_decodes_7_premium4_pictographs(self):
+        pictograph_data = [0, 33, 8, 64, 0, 0, 33, 8]
+        pictograph_codes = self.client.convert_upd_pictograph_data_to_codes(pictograph_data)
+        expected_codes = [
+            Pictographs.PERIOD,
+            Pictographs.MIX,
+            Pictographs.TAPE_METAL,
+            Pictographs.TAPE_DOLBY,
+            Pictographs.HIDDEN_MODE_AMFM,
+            Pictographs.HIDDEN_MODE_CD,
+            Pictographs.HIDDEN_MODE_TAPE,
+            ]
+        self.assertEqual(
+            sorted(pictograph_codes),
+            sorted(expected_codes)
+            )
+
+    def test_convert_upd_key_data_returns_at_most_7_pictographs(self):
+        pictograph_data = [0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff]
+        pictograph_codes = self.client.convert_upd_pictograph_data_to_codes(pictograph_data)
+        self.assertEqual(len(pictograph_codes), 7)
+
+    # Converting a pictograph code to uPD16432B pictograph data
+
+    def test_convert_code_to_upd_pictograph_data_returns_error_for_bad_args_length(self):
+        for bad_args in ([], [1,2,]):
+            cmd = avrclient.CMD_CONVERT_CODE_TO_UPD_PICTOGRAPH_DATA
+            rx_bytes = self.client.command(
+                data=[cmd] + bad_args,
+                ignore_error=True
+                )
+            self.assertEqual(rx_bytes[0], avrclient.ERROR_BAD_ARGS_LENGTH)
+            self.assertEqual(len(rx_bytes), 1)
+
+    def test_convert_code_to_upd_pictograph_data_returns_error_for_bad_pictograph_codes(self):
+        for bad_code in ([0, 0xFF]):
+            cmd = avrclient.CMD_CONVERT_CODE_TO_UPD_PICTOGRAPH_DATA
+            rx_bytes = self.client.command(
+                data=[cmd, bad_code],
+                ignore_error=True
+                )
+            self.assertEqual(rx_bytes[0], avrclient.ERROR_BAD_ARGS_VALUE)
+            self.assertEqual(len(rx_bytes), 1)
+
+    def test_convert_code_to_upd_pictograph_data_encodes_all_premium4_keys(self):
+        for bytenum_bitnum, pictograph_code in Premium4.PICTOGRAPHS.items():
+            bytenum, bitnum = bytenum_bitnum
+            expected_pictograph_data = [0, 0, 0, 0, 0, 0, 0, 0]
+            expected_pictograph_data[bytenum] |= 1<<bitnum
+            key_data = self.client.convert_code_to_upd_pictograph_data(pictograph_code)
+            self.assertEqual(key_data, expected_pictograph_data)
 
     # Read Keys command
 

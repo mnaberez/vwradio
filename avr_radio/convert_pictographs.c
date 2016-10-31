@@ -1,103 +1,104 @@
-#include "convert_picts.h"
+#include <string.h>
+#include "convert_pictographs.h"
 #include "main.h"
 
 // premium 4 decode: upd16432b pictograph data -> our arbitrary pictograph codes
 static const uint8_t _premium4_pictograph_decode[8][8] PROGMEM = {
     // byte 0
     {
-    PICT_NONE,              // byte 0, bit 0
-    PICT_NONE,              // byte 0, bit 1
-    PICT_NONE,              // byte 0, bit 2
-    PICT_NONE,              // byte 0, bit 3
-    PICT_NONE,              // byte 0, bit 4
-    PICT_NONE,              // byte 0, bit 5
-    PICT_NONE,              // byte 0, bit 6
-    PICT_NONE,              // byte 0, bit 7
+    PICTOGRAPH_NONE,              // byte 0, bit 0
+    PICTOGRAPH_NONE,              // byte 0, bit 1
+    PICTOGRAPH_NONE,              // byte 0, bit 2
+    PICTOGRAPH_NONE,              // byte 0, bit 3
+    PICTOGRAPH_NONE,              // byte 0, bit 4
+    PICTOGRAPH_NONE,              // byte 0, bit 5
+    PICTOGRAPH_NONE,              // byte 0, bit 6
+    PICTOGRAPH_NONE,              // byte 0, bit 7
     },
     // byte 1
     {
-    PICT_HIDDEN_MODE_CD,    // byte 1, bit 0
-    PICT_NONE,              // byte 1, bit 1
-    PICT_NONE,              // byte 1, bit 2
-    PICT_NONE,              // byte 1, bit 3
-    PICT_NONE,              // byte 1, bit 4
-    PICT_HIDDEN_MODE_TAPE,  // byte 1, bit 5
-    PICT_NONE,              // byte 1, bit 6
-    PICT_NONE,              // byte 1, bit 7
+    PICTOGRAPH_HIDDEN_MODE_CD,    // byte 1, bit 0
+    PICTOGRAPH_NONE,              // byte 1, bit 1
+    PICTOGRAPH_NONE,              // byte 1, bit 2
+    PICTOGRAPH_NONE,              // byte 1, bit 3
+    PICTOGRAPH_NONE,              // byte 1, bit 4
+    PICTOGRAPH_HIDDEN_MODE_TAPE,  // byte 1, bit 5
+    PICTOGRAPH_NONE,              // byte 1, bit 6
+    PICTOGRAPH_NONE,              // byte 1, bit 7
     },
     // byte 2
     {
-    PICT_NONE,              // byte 2, bit 0
-    PICT_NONE,              // byte 2, bit 1
-    PICT_NONE,              // byte 2, bit 2
-    PICT_HIDDEN_MODE_AMFM,  // byte 2, bit 3
-    PICT_NONE,              // byte 2, bit 4
-    PICT_NONE,              // byte 2, bit 5
-    PICT_NONE,              // byte 2, bit 6
-    PICT_NONE,              // byte 2, bit 7
+    PICTOGRAPH_NONE,              // byte 2, bit 0
+    PICTOGRAPH_NONE,              // byte 2, bit 1
+    PICTOGRAPH_NONE,              // byte 2, bit 2
+    PICTOGRAPH_HIDDEN_MODE_AMFM,  // byte 2, bit 3
+    PICTOGRAPH_NONE,              // byte 2, bit 4
+    PICTOGRAPH_NONE,              // byte 2, bit 5
+    PICTOGRAPH_NONE,              // byte 2, bit 6
+    PICTOGRAPH_NONE,              // byte 2, bit 7
     },
     // byte 3
     {
-    PICT_NONE,              // byte 3, bit 0
-    PICT_NONE,              // byte 3, bit 1
-    PICT_NONE,              // byte 3, bit 2
-    PICT_NONE,              // byte 3, bit 3
-    PICT_NONE,              // byte 3, bit 4
-    PICT_NONE,              // byte 3, bit 5
-    PICT_PERIOD,            // byte 3, bit 6
-    PICT_NONE,              // byte 3, bit 7
+    PICTOGRAPH_NONE,              // byte 3, bit 0
+    PICTOGRAPH_NONE,              // byte 3, bit 1
+    PICTOGRAPH_NONE,              // byte 3, bit 2
+    PICTOGRAPH_NONE,              // byte 3, bit 3
+    PICTOGRAPH_NONE,              // byte 3, bit 4
+    PICTOGRAPH_NONE,              // byte 3, bit 5
+    PICTOGRAPH_PERIOD,            // byte 3, bit 6
+    PICTOGRAPH_NONE,              // byte 3, bit 7
     },
     // byte 4
     {
-    PICT_NONE,              // byte 4, bit 0
-    PICT_NONE,              // byte 4, bit 1
-    PICT_NONE,              // byte 4, bit 2
-    PICT_NONE,              // byte 4, bit 3
-    PICT_NONE,              // byte 4, bit 4
-    PICT_NONE,              // byte 4, bit 5
-    PICT_NONE,              // byte 4, bit 6
-    PICT_NONE,              // byte 4, bit 7
+    PICTOGRAPH_NONE,              // byte 4, bit 0
+    PICTOGRAPH_NONE,              // byte 4, bit 1
+    PICTOGRAPH_NONE,              // byte 4, bit 2
+    PICTOGRAPH_NONE,              // byte 4, bit 3
+    PICTOGRAPH_NONE,              // byte 4, bit 4
+    PICTOGRAPH_NONE,              // byte 4, bit 5
+    PICTOGRAPH_NONE,              // byte 4, bit 6
+    PICTOGRAPH_NONE,              // byte 4, bit 7
     },
     // byte 5
     {
-    PICT_NONE,              // byte 5, bit 0
-    PICT_NONE,              // byte 5, bit 1
-    PICT_NONE,              // byte 5, bit 2
-    PICT_NONE,              // byte 5, bit 3
-    PICT_NONE,              // byte 5, bit 4
-    PICT_NONE,              // byte 5, bit 5
-    PICT_NONE,              // byte 5, bit 6
-    PICT_NONE,              // byte 5, bit 7
+    PICTOGRAPH_NONE,              // byte 5, bit 0
+    PICTOGRAPH_NONE,              // byte 5, bit 1
+    PICTOGRAPH_NONE,              // byte 5, bit 2
+    PICTOGRAPH_NONE,              // byte 5, bit 3
+    PICTOGRAPH_NONE,              // byte 5, bit 4
+    PICTOGRAPH_NONE,              // byte 5, bit 5
+    PICTOGRAPH_NONE,              // byte 5, bit 6
+    PICTOGRAPH_NONE,              // byte 5, bit 7
     },
     // byte 6
     {
-    PICT_MIX,               // byte 6, bit 0
-    PICT_NONE,              // byte 6, bit 1
-    PICT_NONE,              // byte 6, bit 2
-    PICT_NONE,              // byte 6, bit 3
-    PICT_NONE,              // byte 6, bit 4
-    PICT_TAPE_DOLBY,        // byte 6, bit 5
-    PICT_NONE,              // byte 6, bit 6
-    PICT_NONE,              // byte 6, bit 7
+    PICTOGRAPH_MIX,               // byte 6, bit 0
+    PICTOGRAPH_NONE,              // byte 6, bit 1
+    PICTOGRAPH_NONE,              // byte 6, bit 2
+    PICTOGRAPH_NONE,              // byte 6, bit 3
+    PICTOGRAPH_NONE,              // byte 6, bit 4
+    PICTOGRAPH_TAPE_DOLBY,        // byte 6, bit 5
+    PICTOGRAPH_NONE,              // byte 6, bit 6
+    PICTOGRAPH_NONE,              // byte 6, bit 7
     },
     // byte 7
     {
-    PICT_NONE,              // byte 7, bit 0
-    PICT_NONE,              // byte 7, bit 1
-    PICT_NONE,              // byte 7, bit 2
-    PICT_TAPE_METAL,        // byte 7, bit 3
-    PICT_NONE,              // byte 7, bit 4
-    PICT_NONE,              // byte 7, bit 5
-    PICT_NONE,              // byte 7, bit 6
-    PICT_NONE,              // byte 7, bit 7
+    PICTOGRAPH_NONE,              // byte 7, bit 0
+    PICTOGRAPH_NONE,              // byte 7, bit 1
+    PICTOGRAPH_NONE,              // byte 7, bit 2
+    PICTOGRAPH_TAPE_METAL,        // byte 7, bit 3
+    PICTOGRAPH_NONE,              // byte 7, bit 4
+    PICTOGRAPH_NONE,              // byte 7, bit 5
+    PICTOGRAPH_NONE,              // byte 7, bit 6
+    PICTOGRAPH_NONE,              // byte 7, bit 7
     }
 };
 
 // premium 4 encode: our arbitrary pictograph codes -> upd16432b pictograph data
 static const uint8_t _premium4_pictograph_encode[256][8] PROGMEM = {
-    {   0,    0,    0,    0,    0,    0,    0,    0}, // 0x00 PICT_NONE
-    {   0,    0,    0, 0x40,    0,    0,    0,    0}, // 0x01 PICT_PERIOD
-    {   0,    0,    0,    0,    0,    0, 0x01,    0}, // 0x02 PICT_MIX
+    {   0,    0,    0,    0,    0,    0,    0,    0}, // 0x00 PICTOGRAPH_NONE
+    {   0,    0,    0, 0x40,    0,    0,    0,    0}, // 0x01 PICTOGRAPH_PERIOD
+    {   0,    0,    0,    0,    0,    0, 0x01,    0}, // 0x02 PICTOGRAPH_MIX
     {   0,    0,    0,    0,    0,    0,    0,    0}, // 0x03
     {   0,    0,    0,    0,    0,    0,    0,    0}, // 0x04
     {   0,    0,    0,    0,    0,    0,    0,    0}, // 0x05
@@ -105,8 +106,8 @@ static const uint8_t _premium4_pictograph_encode[256][8] PROGMEM = {
     {   0,    0,    0,    0,    0,    0,    0,    0}, // 0x07
     {   0,    0,    0,    0,    0,    0,    0,    0}, // 0x08
     {   0,    0,    0,    0,    0,    0,    0,    0}, // 0x09
-    {   0,    0,    0,    0,    0,    0,    0, 0x08}, // 0x0a PICT_TAPE_METAL
-    {   0,    0,    0,    0,    0,    0, 0x20,    0}, // 0x0b PICT_TAPE_DOLBY
+    {   0,    0,    0,    0,    0,    0,    0, 0x08}, // 0x0a PICTOGRAPH_TAPE_METAL
+    {   0,    0,    0,    0,    0,    0, 0x20,    0}, // 0x0b PICTOGRAPH_TAPE_DOLBY
     {   0,    0,    0,    0,    0,    0,    0,    0}, // 0x0c
     {   0,    0,    0,    0,    0,    0,    0,    0}, // 0x0d
     {   0,    0,    0,    0,    0,    0,    0,    0}, // 0x0e
@@ -115,9 +116,9 @@ static const uint8_t _premium4_pictograph_encode[256][8] PROGMEM = {
     {   0,    0,    0,    0,    0,    0,    0,    0}, // 0x11
     {   0,    0,    0,    0,    0,    0,    0,    0}, // 0x12
     {   0,    0,    0,    0,    0,    0,    0,    0}, // 0x13
-    {   0,    0, 0x08,    0,    0,    0,    0,    0}, // 0x14 PICT_HIDDEN_MODE_AMFM
-    {   0, 0x01,    0,    0,    0,    0,    0,    0}, // 0x15 PICT_HIDDEN_MODE_CD
-    {   0, 0x20,    0,    0,    0,    0,    0,    0}, // 0x16 PICT_HIDDEN_MODE_TAPE
+    {   0,    0, 0x08,    0,    0,    0,    0,    0}, // 0x14 PICTOGRAPH_HIDDEN_MODE_AMFM
+    {   0, 0x01,    0,    0,    0,    0,    0,    0}, // 0x15 PICTOGRAPH_HIDDEN_MODE_CD
+    {   0, 0x20,    0,    0,    0,    0,    0,    0}, // 0x16 PICTOGRAPH_HIDDEN_MODE_TAPE
     {   0,    0,    0,    0,    0,    0,    0,    0}, // 0x17
     {   0,    0,    0,    0,    0,    0,    0,    0}, // 0x18
     {   0,    0,    0,    0,    0,    0,    0,    0}, // 0x19
@@ -357,99 +358,99 @@ static const uint8_t _premium4_pictograph_encode[256][8] PROGMEM = {
 static const uint8_t _premium5_pictograph_decode[8][8] PROGMEM = {
     // byte 0
     {
-    PICT_NONE,              // byte 0, bit 0
-    PICT_NONE,              // byte 0, bit 1
-    PICT_NONE,              // byte 0, bit 2
-    PICT_NONE,              // byte 0, bit 3
-    PICT_NONE,              // byte 0, bit 4
-    PICT_NONE,              // byte 0, bit 5
-    PICT_NONE,              // byte 0, bit 6
-    PICT_NONE,              // byte 0, bit 7
+    PICTOGRAPH_NONE,              // byte 0, bit 0
+    PICTOGRAPH_NONE,              // byte 0, bit 1
+    PICTOGRAPH_NONE,              // byte 0, bit 2
+    PICTOGRAPH_NONE,              // byte 0, bit 3
+    PICTOGRAPH_NONE,              // byte 0, bit 4
+    PICTOGRAPH_NONE,              // byte 0, bit 5
+    PICTOGRAPH_NONE,              // byte 0, bit 6
+    PICTOGRAPH_NONE,              // byte 0, bit 7
     },
     // byte 1
     {
-    PICT_NONE,              // byte 1, bit 0
-    PICT_NONE,              // byte 1, bit 1
-    PICT_TAPE_DOLBY,        // byte 1, bit 2
-    PICT_NONE,              // byte 1, bit 3
-    PICT_NONE,              // byte 1, bit 4
-    PICT_NONE,              // byte 1, bit 5
-    PICT_NONE,              // byte 1, bit 6
-    PICT_NONE,              // byte 1, bit 7
+    PICTOGRAPH_NONE,              // byte 1, bit 0
+    PICTOGRAPH_NONE,              // byte 1, bit 1
+    PICTOGRAPH_TAPE_DOLBY,        // byte 1, bit 2
+    PICTOGRAPH_NONE,              // byte 1, bit 3
+    PICTOGRAPH_NONE,              // byte 1, bit 4
+    PICTOGRAPH_NONE,              // byte 1, bit 5
+    PICTOGRAPH_NONE,              // byte 1, bit 6
+    PICTOGRAPH_NONE,              // byte 1, bit 7
     },
     // byte 2
     {
-    PICT_NONE,              // byte 2, bit 0
-    PICT_NONE,              // byte 2, bit 1
-    PICT_NONE,              // byte 2, bit 2
-    PICT_NONE,              // byte 2, bit 3
-    PICT_NONE,              // byte 2, bit 4
-    PICT_NONE,              // byte 2, bit 5
-    PICT_NONE,              // byte 2, bit 6
-    PICT_TAPE_METAL,        // byte 2, bit 7
+    PICTOGRAPH_NONE,              // byte 2, bit 0
+    PICTOGRAPH_NONE,              // byte 2, bit 1
+    PICTOGRAPH_NONE,              // byte 2, bit 2
+    PICTOGRAPH_NONE,              // byte 2, bit 3
+    PICTOGRAPH_NONE,              // byte 2, bit 4
+    PICTOGRAPH_NONE,              // byte 2, bit 5
+    PICTOGRAPH_NONE,              // byte 2, bit 6
+    PICTOGRAPH_TAPE_METAL,        // byte 2, bit 7
     },
     // byte 3
     {
-    PICT_NONE,              // byte 3, bit 0
-    PICT_NONE,              // byte 3, bit 1
-    PICT_NONE,              // byte 3, bit 2
-    PICT_NONE,              // byte 3, bit 3
-    PICT_NONE,              // byte 3, bit 4
-    PICT_NONE,              // byte 3, bit 5
-    PICT_NONE,              // byte 3, bit 6
-    PICT_NONE,              // byte 3, bit 7
+    PICTOGRAPH_NONE,              // byte 3, bit 0
+    PICTOGRAPH_NONE,              // byte 3, bit 1
+    PICTOGRAPH_NONE,              // byte 3, bit 2
+    PICTOGRAPH_NONE,              // byte 3, bit 3
+    PICTOGRAPH_NONE,              // byte 3, bit 4
+    PICTOGRAPH_NONE,              // byte 3, bit 5
+    PICTOGRAPH_NONE,              // byte 3, bit 6
+    PICTOGRAPH_NONE,              // byte 3, bit 7
     },
     // byte 4
     {
-    PICT_NONE,              // byte 4, bit 0
-    PICT_NONE,              // byte 4, bit 1
-    PICT_NONE,              // byte 4, bit 2
-    PICT_NONE,              // byte 4, bit 3
-    PICT_NONE,              // byte 4, bit 4
-    PICT_PERIOD,            // byte 4, bit 5
-    PICT_NONE,              // byte 4, bit 6
-    PICT_NONE,              // byte 4, bit 7
+    PICTOGRAPH_NONE,              // byte 4, bit 0
+    PICTOGRAPH_NONE,              // byte 4, bit 1
+    PICTOGRAPH_NONE,              // byte 4, bit 2
+    PICTOGRAPH_NONE,              // byte 4, bit 3
+    PICTOGRAPH_NONE,              // byte 4, bit 4
+    PICTOGRAPH_PERIOD,            // byte 4, bit 5
+    PICTOGRAPH_NONE,              // byte 4, bit 6
+    PICTOGRAPH_NONE,              // byte 4, bit 7
     },
     // byte 5
     {
-    PICT_NONE,              // byte 5, bit 0
-    PICT_MIX,               // byte 5, bit 1
-    PICT_NONE,              // byte 5, bit 2
-    PICT_NONE,              // byte 5, bit 3
-    PICT_NONE,              // byte 5, bit 4
-    PICT_NONE,              // byte 5, bit 5
-    PICT_NONE,              // byte 5, bit 6
-    PICT_NONE,              // byte 5, bit 7
+    PICTOGRAPH_NONE,              // byte 5, bit 0
+    PICTOGRAPH_MIX,               // byte 5, bit 1
+    PICTOGRAPH_NONE,              // byte 5, bit 2
+    PICTOGRAPH_NONE,              // byte 5, bit 3
+    PICTOGRAPH_NONE,              // byte 5, bit 4
+    PICTOGRAPH_NONE,              // byte 5, bit 5
+    PICTOGRAPH_NONE,              // byte 5, bit 6
+    PICTOGRAPH_NONE,              // byte 5, bit 7
     },
     // byte 6
     {
-    PICT_NONE,              // byte 6, bit 0
-    PICT_NONE,              // byte 6, bit 1
-    PICT_NONE,              // byte 6, bit 2
-    PICT_NONE,              // byte 6, bit 3
-    PICT_NONE,              // byte 6, bit 4
-    PICT_NONE,              // byte 6, bit 5
-    PICT_NONE,              // byte 6, bit 6
-    PICT_NONE,              // byte 6, bit 7
+    PICTOGRAPH_NONE,              // byte 6, bit 0
+    PICTOGRAPH_NONE,              // byte 6, bit 1
+    PICTOGRAPH_NONE,              // byte 6, bit 2
+    PICTOGRAPH_NONE,              // byte 6, bit 3
+    PICTOGRAPH_NONE,              // byte 6, bit 4
+    PICTOGRAPH_NONE,              // byte 6, bit 5
+    PICTOGRAPH_NONE,              // byte 6, bit 6
+    PICTOGRAPH_NONE,              // byte 6, bit 7
     },
     // byte 7
     {
-    PICT_NONE,              // byte 7, bit 0
-    PICT_NONE,              // byte 7, bit 1
-    PICT_NONE,              // byte 7, bit 2
-    PICT_NONE,              // byte 7, bit 3
-    PICT_NONE,              // byte 7, bit 4
-    PICT_NONE,              // byte 7, bit 5
-    PICT_NONE,              // byte 7, bit 6
-    PICT_NONE,              // byte 7, bit 7
+    PICTOGRAPH_NONE,              // byte 7, bit 0
+    PICTOGRAPH_NONE,              // byte 7, bit 1
+    PICTOGRAPH_NONE,              // byte 7, bit 2
+    PICTOGRAPH_NONE,              // byte 7, bit 3
+    PICTOGRAPH_NONE,              // byte 7, bit 4
+    PICTOGRAPH_NONE,              // byte 7, bit 5
+    PICTOGRAPH_NONE,              // byte 7, bit 6
+    PICTOGRAPH_NONE,              // byte 7, bit 7
     },
 };
 
 // premium 5 encode: our arbitrary pictograph codes -> upd16432b pictograph data
 static const uint8_t _premium5_pictograph_encode[256][8] PROGMEM = {
-    {   0,    0,    0,    0,    0,    0,    0,    0}, // 0x00 PICT_NONE
-    {   0,    0,    0,    0, 0x20,    0,    0,    0}, // 0x01 PICT_PERIOD
-    {   0,    0,    0,    0,    0, 0x02,    0,    0}, // 0x02 PICT_MIX
+    {   0,    0,    0,    0,    0,    0,    0,    0}, // 0x00 PICTOGRAPH_NONE
+    {   0,    0,    0,    0, 0x20,    0,    0,    0}, // 0x01 PICTOGRAPH_PERIOD
+    {   0,    0,    0,    0,    0, 0x02,    0,    0}, // 0x02 PICTOGRAPH_MIX
     {   0,    0,    0,    0,    0,    0,    0,    0}, // 0x03
     {   0,    0,    0,    0,    0,    0,    0,    0}, // 0x04
     {   0,    0,    0,    0,    0,    0,    0,    0}, // 0x05
@@ -457,8 +458,8 @@ static const uint8_t _premium5_pictograph_encode[256][8] PROGMEM = {
     {   0,    0,    0,    0,    0,    0,    0,    0}, // 0x07
     {   0,    0,    0,    0,    0,    0,    0,    0}, // 0x08
     {   0,    0,    0,    0,    0,    0,    0,    0}, // 0x09
-    {   0,    0, 0x80,    0,    0,    0,    0,    0}, // 0x0a PICT_TAPE_METAL
-    {   0, 0x04,    0,    0,    0,    0,    0,    0}, // 0x0b PICT_TAPE_DOLBY
+    {   0,    0, 0x80,    0,    0,    0,    0,    0}, // 0x0a PICTOGRAPH_TAPE_METAL
+    {   0, 0x04,    0,    0,    0,    0,    0,    0}, // 0x0b PICTOGRAPH_TAPE_DOLBY
     {   0,    0,    0,    0,    0,    0,    0,    0}, // 0x0c
     {   0,    0,    0,    0,    0,    0,    0,    0}, // 0x0d
     {   0,    0,    0,    0,    0,    0,    0,    0}, // 0x0e
@@ -467,9 +468,9 @@ static const uint8_t _premium5_pictograph_encode[256][8] PROGMEM = {
     {   0,    0,    0,    0,    0,    0,    0,    0}, // 0x11
     {   0,    0,    0,    0,    0,    0,    0,    0}, // 0x12
     {   0,    0,    0,    0,    0,    0,    0,    0}, // 0x13
-    {   0,    0,    0,    0,    0,    0,    0,    0}, // 0x14 PICT_HIDDEN_MODE_AMFM
-    {   0,    0,    0,    0,    0,    0,    0,    0}, // 0x15 PICT_HIDDEN_MODE_CD
-    {   0,    0,    0,    0,    0,    0,    0,    0}, // 0x16 PICT_HIDDEN_MODE_TAPE
+    {   0,    0,    0,    0,    0,    0,    0,    0}, // 0x14 PICTOGRAPH_HIDDEN_MODE_AMFM
+    {   0,    0,    0,    0,    0,    0,    0,    0}, // 0x15 PICTOGRAPH_HIDDEN_MODE_CD
+    {   0,    0,    0,    0,    0,    0,    0,    0}, // 0x16 PICTOGRAPH_HIDDEN_MODE_TAPE
     {   0,    0,    0,    0,    0,    0,    0,    0}, // 0x17
     {   0,    0,    0,    0,    0,    0,    0,    0}, // 0x18
     {   0,    0,    0,    0,    0,    0,    0,    0}, // 0x19
@@ -705,57 +706,50 @@ static const uint8_t _premium5_pictograph_encode[256][8] PROGMEM = {
     {   0,    0,    0,    0,    0,    0,    0,    0}, // 0xff
 };
 
-/* Convert uPD16432B pictograph data to pictograph codes (the PICT_ constants)
+/* Convert uPD16432B pictograph data to pictograph codes (the pictograph_ constants)
  * The global variable radio_model is used to select the conversion table.
  *
- * pict_data_in: array of 8 bytes from uPD16432B
- * pict_codes_out: array of 8 bytes that will be overwritten with pict codes
+ * pictograph_data_in: array of 8 bytes from uPD16432B
+ * pictograph_codes_out: array of 7 bytes that will be overwritten with pict codes
  *
- * Returns the number pictographs displayed: 0-8
- # If less than 8 pictographs are displayed, unused bytes in pict_codes_out
+ * Returns the number pictographs displayed: 0-7
+ # If less than 7 pictographs are displayed, unused bytes in pictograph_codes_out
  #   are set to 0.
  */
-uint8_t convert_upd_pict_data_to_codes(
-    uint8_t *pict_data_in, uint8_t *pict_codes_out)
+uint8_t convert_upd_pictograph_data_to_codes(
+    uint8_t *pictograph_data_in, uint8_t *pictograph_codes_out)
 {
-    pict_codes_out[0] = 0;
-    pict_codes_out[1] = 0;
-    pict_codes_out[2] = 0;
-    pict_codes_out[3] = 0;
-    pict_codes_out[4] = 0;
-    pict_codes_out[5] = 0;
-    pict_codes_out[6] = 0;
-    pict_codes_out[7] = 0;
+    memset(pictograph_codes_out, 0, 7);
     uint8_t num_picts_displayed = 0;
 
     for (uint8_t bytenum=0; bytenum<8; bytenum++)
     {
-        if (pict_data_in[bytenum] == 0)
+        if (pictograph_data_in[bytenum] == 0)
         {
             continue;
         }
 
         for (uint8_t bitnum=0; bitnum<8; bitnum++)
         {
-            if (pict_data_in[bytenum] & (1<<bitnum))
+            if (pictograph_data_in[bytenum] & (1<<bitnum))
             {
-                uint8_t pict_code;
+                uint8_t pictograph_code;
                 if (radio_model == RADIO_MODEL_PREMIUM_4)
                 {
-                    pict_code = pgm_read_byte(
+                    pictograph_code = pgm_read_byte(
                         &(_premium4_pictograph_decode[bytenum][bitnum])
                         );
                 }
                 else // RADIO_MODEL_PREMIUM_5
                 {
-                    pict_code = pgm_read_byte(
+                    pictograph_code = pgm_read_byte(
                         &(_premium5_pictograph_decode[bytenum][bitnum])
                         );
                 }
 
-                if ((pict_code != PICT_NONE) && (num_picts_displayed < 8))
+                if ((pictograph_code != PICTOGRAPH_NONE) && (num_picts_displayed < 7))
                 {
-                    pict_codes_out[num_picts_displayed++] = pict_code;
+                    pictograph_codes_out[num_picts_displayed++] = pictograph_code;
                 }
             }
         }
@@ -764,47 +758,47 @@ uint8_t convert_upd_pict_data_to_codes(
     return num_picts_displayed;
 }
 
-/* Convert a pictograph code (one of the PICT_ constants) to uPD16432B pictograph data.
+/* Convert a pictograph code (one of the pictograph_ constants) to uPD16432B pictograph data.
  * The global variable radio_model is used to select the conversion table.
  *
- * pict_code: pictograph code (PICT_ constant) to convert into pictograph data
- * pict_data_out: array of 8 bytes that will be overwritten with the pict data
+ * pictograph_code: pictograph code (pictograph_ constant) to convert into pictograph data
+ * pictograph_data_out: array of 8 bytes that will be overwritten with the pict data
  *
- * On success, 1 is returned and pict_data_out will be overwritten with 8 new
+ * On success, 1 is returned and pictograph_data_out will be overwritten with 8 new
  * bytes.  Of the 64 bits returned, only 1 will be set (the bit for the pictograph).
  *
- * On failure, 0 is returned and pict_data_out will be set to (0, 0, 0, 0, 0, 0, 0, 0).
- * This happens if pict_code is not a recognized code.
+ * On failure, 0 is returned and pictograph_data_out will be set to (0, 0, 0, 0, 0, 0, 0, 0).
+ * This happens if pictograph_code is not a recognized code.
  */
-uint8_t convert_code_to_upd_pict_data(uint8_t pict_code, uint8_t *pict_data_out)
+uint8_t convert_code_to_upd_pictograph_data(uint8_t pictograph_code, uint8_t *pictograph_data_out)
 {
     if (radio_model == RADIO_MODEL_PREMIUM_4)
     {
-        pict_data_out[0] = pgm_read_byte(&_premium4_pictograph_encode[pict_code][0]);
-        pict_data_out[1] = pgm_read_byte(&_premium4_pictograph_encode[pict_code][1]);
-        pict_data_out[2] = pgm_read_byte(&_premium4_pictograph_encode[pict_code][2]);
-        pict_data_out[3] = pgm_read_byte(&_premium4_pictograph_encode[pict_code][3]);
-        pict_data_out[4] = pgm_read_byte(&_premium4_pictograph_encode[pict_code][4]);
-        pict_data_out[5] = pgm_read_byte(&_premium4_pictograph_encode[pict_code][5]);
-        pict_data_out[6] = pgm_read_byte(&_premium4_pictograph_encode[pict_code][6]);
-        pict_data_out[7] = pgm_read_byte(&_premium4_pictograph_encode[pict_code][7]);
+        pictograph_data_out[0] = pgm_read_byte(&_premium4_pictograph_encode[pictograph_code][0]);
+        pictograph_data_out[1] = pgm_read_byte(&_premium4_pictograph_encode[pictograph_code][1]);
+        pictograph_data_out[2] = pgm_read_byte(&_premium4_pictograph_encode[pictograph_code][2]);
+        pictograph_data_out[3] = pgm_read_byte(&_premium4_pictograph_encode[pictograph_code][3]);
+        pictograph_data_out[4] = pgm_read_byte(&_premium4_pictograph_encode[pictograph_code][4]);
+        pictograph_data_out[5] = pgm_read_byte(&_premium4_pictograph_encode[pictograph_code][5]);
+        pictograph_data_out[6] = pgm_read_byte(&_premium4_pictograph_encode[pictograph_code][6]);
+        pictograph_data_out[7] = pgm_read_byte(&_premium4_pictograph_encode[pictograph_code][7]);
     }
     else // RADIO_MODEL_PREMIUM_5
     {
-        pict_data_out[0] = pgm_read_byte(&_premium5_pictograph_encode[pict_code][0]);
-        pict_data_out[1] = pgm_read_byte(&_premium5_pictograph_encode[pict_code][1]);
-        pict_data_out[2] = pgm_read_byte(&_premium5_pictograph_encode[pict_code][2]);
-        pict_data_out[3] = pgm_read_byte(&_premium5_pictograph_encode[pict_code][3]);
-        pict_data_out[4] = pgm_read_byte(&_premium5_pictograph_encode[pict_code][4]);
-        pict_data_out[5] = pgm_read_byte(&_premium5_pictograph_encode[pict_code][5]);
-        pict_data_out[6] = pgm_read_byte(&_premium5_pictograph_encode[pict_code][6]);
-        pict_data_out[7] = pgm_read_byte(&_premium5_pictograph_encode[pict_code][7]);
+        pictograph_data_out[0] = pgm_read_byte(&_premium5_pictograph_encode[pictograph_code][0]);
+        pictograph_data_out[1] = pgm_read_byte(&_premium5_pictograph_encode[pictograph_code][1]);
+        pictograph_data_out[2] = pgm_read_byte(&_premium5_pictograph_encode[pictograph_code][2]);
+        pictograph_data_out[3] = pgm_read_byte(&_premium5_pictograph_encode[pictograph_code][3]);
+        pictograph_data_out[4] = pgm_read_byte(&_premium5_pictograph_encode[pictograph_code][4]);
+        pictograph_data_out[5] = pgm_read_byte(&_premium5_pictograph_encode[pictograph_code][5]);
+        pictograph_data_out[6] = pgm_read_byte(&_premium5_pictograph_encode[pictograph_code][6]);
+        pictograph_data_out[7] = pgm_read_byte(&_premium5_pictograph_encode[pictograph_code][7]);
     }
 
-    if (pict_data_out[0] | pict_data_out[1] |
-        pict_data_out[2] | pict_data_out[3] |
-        pict_data_out[4] | pict_data_out[5] |
-        pict_data_out[6] | pict_data_out[7])
+    if (pictograph_data_out[0] | pictograph_data_out[1] |
+        pictograph_data_out[2] | pictograph_data_out[3] |
+        pictograph_data_out[4] | pictograph_data_out[5] |
+        pictograph_data_out[6] | pictograph_data_out[7])
     {
         return 1; // success
     }
