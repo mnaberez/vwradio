@@ -2,7 +2,7 @@
 #include "main.h"
 
 // premium 4 decode: upd16432b key data -> our arbitrary key codes
-static const uint8_t _premium4_key_decode_table[4][8] PROGMEM = {
+static const uint8_t _premium4_key_decode[4][8] PROGMEM = {
     {
         KEY_SOUND_TREB,   // byte 0, bit 0
         KEY_PRESET_1,     // byte 0, bit 1
@@ -46,7 +46,7 @@ static const uint8_t _premium4_key_decode_table[4][8] PROGMEM = {
 };
 
 // premium 4 encode: our arbitrary key codes -> upd16432b key data
-static const uint8_t _premium4_key_encode_table[256][4] PROGMEM = {
+static const uint8_t _premium4_key_encode[256][4] PROGMEM = {
     {   0,    0,    0,    0}, // 0x00 KEY_NONE
     {0x02,    0,    0,    0}, // 0x01 KEY_PRESET_1
     {0x04,    0,    0,    0}, // 0x02 KEY_PRESET_2
@@ -306,7 +306,7 @@ static const uint8_t _premium4_key_encode_table[256][4] PROGMEM = {
 };
 
 // premium 5 decode: upd16432b key data -> our arbitrary key codes
-static const uint8_t _premium5_key_decode_table[4][8] PROGMEM = {
+static const uint8_t _premium5_key_decode[4][8] PROGMEM = {
     {
     KEY_NONE,         // byte 0, bit 0
     KEY_NONE,         // byte 0, bit 1
@@ -350,7 +350,7 @@ static const uint8_t _premium5_key_decode_table[4][8] PROGMEM = {
 };
 
 // premium 5 encode: our arbitrary key codes -> upd16432b key data
-static const uint8_t _premium5_key_encode_table[256][4] PROGMEM = {
+static const uint8_t _premium5_key_encode[256][4] PROGMEM = {
     {   0,    0,    0,    0}, // 0x00 KEY_NONE
     {   0,    0, 0x04,    0}, // 0x01 KEY_PRESET_1
     {   0,    0, 0x02,    0}, // 0x02 KEY_PRESET_2
@@ -642,13 +642,13 @@ uint8_t convert_upd_key_data_to_codes(
                 if (radio_model == RADIO_MODEL_PREMIUM_4)
                 {
                     key_code = pgm_read_byte(
-                        &(_premium4_key_decode_table[bytenum][bitnum])
+                        &(_premium4_key_decode[bytenum][bitnum])
                         );
                 }
                 else // RADIO_MODEL_PREMIUM_5
                 {
                     key_code = pgm_read_byte(
-                        &(_premium5_key_decode_table[bytenum][bitnum])
+                        &(_premium5_key_decode[bytenum][bitnum])
                         );
                 }
 
@@ -672,24 +672,24 @@ uint8_t convert_upd_key_data_to_codes(
  * On success, 1 is returned and key_data_out will be overwritten with 4 new
  * bytes.  Of the 32 bits returned, only 1 will be set (the bit for the key).
  *
- * On failure, 0 is returned and key_data_out will be set to (0, 0, 0, 0).  This
- * happens if key_code is not a recognized code.
+ * On failure, 0 is returned and key_data_out will be set to (0, 0, 0, 0).
+ * This happens if key_code is not a recognized code.
  */
 uint8_t convert_code_to_upd_key_data(uint8_t key_code, uint8_t *key_data_out)
 {
     if (radio_model == RADIO_MODEL_PREMIUM_4)
     {
-        key_data_out[0] = pgm_read_byte(&_premium4_key_encode_table[key_code][0]);
-        key_data_out[1] = pgm_read_byte(&_premium4_key_encode_table[key_code][1]);
-        key_data_out[2] = pgm_read_byte(&_premium4_key_encode_table[key_code][2]);
-        key_data_out[3] = pgm_read_byte(&_premium4_key_encode_table[key_code][3]);
+        key_data_out[0] = pgm_read_byte(&_premium4_key_encode[key_code][0]);
+        key_data_out[1] = pgm_read_byte(&_premium4_key_encode[key_code][1]);
+        key_data_out[2] = pgm_read_byte(&_premium4_key_encode[key_code][2]);
+        key_data_out[3] = pgm_read_byte(&_premium4_key_encode[key_code][3]);
     }
     else // RADIO_MODEL_PREMIUM_5
     {
-        key_data_out[0] = pgm_read_byte(&_premium5_key_encode_table[key_code][0]);
-        key_data_out[1] = pgm_read_byte(&_premium5_key_encode_table[key_code][1]);
-        key_data_out[2] = pgm_read_byte(&_premium5_key_encode_table[key_code][2]);
-        key_data_out[3] = pgm_read_byte(&_premium5_key_encode_table[key_code][3]);
+        key_data_out[0] = pgm_read_byte(&_premium5_key_encode[key_code][0]);
+        key_data_out[1] = pgm_read_byte(&_premium5_key_encode[key_code][1]);
+        key_data_out[2] = pgm_read_byte(&_premium5_key_encode[key_code][2]);
+        key_data_out[3] = pgm_read_byte(&_premium5_key_encode[key_code][3]);
     }
 
     if (key_data_out[0] | key_data_out[1] | key_data_out[2] | key_data_out[3])
