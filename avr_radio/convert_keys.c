@@ -678,27 +678,29 @@ uint8_t convert_upd_key_data_to_codes(
 uint8_t convert_code_to_upd_key_data(uint8_t key_code, uint8_t *key_data_out)
 {
     uint8_t i;
+    uint8_t enc;
+    uint8_t ored = 0;
+
     if (radio_model == RADIO_MODEL_PREMIUM_4)
     {
         for (i=0; i<4; i++)
         {
-            key_data_out[i] = pgm_read_byte(&_premium4_key_encode[key_code][i]);
+            enc = pgm_read_byte(&_premium4_key_encode[key_code][i]);
+            key_data_out[i] = enc;
+            ored |= enc;
         }
     }
     else // RADIO_MODEL_PREMIUM_5
     {
         for (i=0; i<4; i++)
         {
-            key_data_out[i] = pgm_read_byte(&_premium5_key_encode[key_code][i]);
+            enc = pgm_read_byte(&_premium5_key_encode[key_code][i]);
+            key_data_out[i] = enc;
+            ored |= enc;
         }
     }
 
-    for (i=0; i<4; i++)
-    {
-        if (key_data_out[i] != 0)
-        {
-            return 1; // success
-        }
-    }
-    return 0; // failure: key code not found
+    // returns 1 = success,
+    //         0 = failure (key code not found)
+    return ored != 0;
 }

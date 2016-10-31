@@ -773,27 +773,29 @@ uint8_t convert_upd_pictograph_data_to_codes(
 uint8_t convert_code_to_upd_pictograph_data(uint8_t pictograph_code, uint8_t *pictograph_data_out)
 {
     uint8_t i;
+    uint8_t enc;
+    uint8_t ored = 0;
+
     if (radio_model == RADIO_MODEL_PREMIUM_4)
     {
         for (i=0; i<8; i++)
         {
-            pictograph_data_out[i] = pgm_read_byte(&_premium4_pictograph_encode[pictograph_code][i]);
+            enc = pgm_read_byte(&_premium4_pictograph_encode[pictograph_code][i]);
+            pictograph_data_out[i] = enc;
+            ored |= enc;
         }
     }
     else // RADIO_MODEL_PREMIUM_5
     {
         for (i=0; i<8; i++)
         {
-            pictograph_data_out[i] = pgm_read_byte(&_premium5_pictograph_encode[pictograph_code][i]);
+            enc = pgm_read_byte(&_premium5_pictograph_encode[pictograph_code][i]);
+            pictograph_data_out[i] = enc;
+            ored |= enc;
         }
     }
 
-    for (i=0; i<8; i++)
-    {
-        if (pictograph_data_out[i] != 0)
-        {
-            return 1; // success
-        }
-    }
-    return 0; // failure: pictograph code not found
+    // returns 1 = success,
+    //         0 = failure (pictograph code not found)
+    return ored != 0;
 }
