@@ -48,8 +48,8 @@ void upd_process_command(upd_state_t *state, upd_command_t *cmd);
 
 // State of the emulated uPD16432B
 upd_state_t emulated_upd_state;
-// State of the real uPD16432B on the faceplate.  The uPD16432B doesn't provide
-// a way to read back its registers so use an emulator instance to track them.
+// State of the real uPD16432B on the faceplate.  The uPD16432B doesn't have a
+// way to read its registers so an emulator instance is used to remember them.
 upd_state_t faceplate_upd_state;
 
 #endif
