@@ -706,7 +706,7 @@ static const uint8_t _premium5_pictograph_encode[256][8] PROGMEM = {
     {   0,    0,    0,    0,    0,    0,    0,    0}, // 0xff
 };
 
-/* Convert uPD16432B pictograph data to pictograph codes (the pictograph_ constants)
+/* Convert uPD16432B pictograph data to pictograph codes (the PICTOGRAPH_ constants)
  * The global variable radio_model is used to select the conversion table.
  *
  * pictograph_data_in: array of 8 bytes from uPD16432B
@@ -758,10 +758,10 @@ uint8_t convert_upd_pictograph_data_to_codes(
     return num_picts_displayed;
 }
 
-/* Convert a pictograph code (one of the pictograph_ constants) to uPD16432B pictograph data.
+/* Convert a pictograph code (one of the PICTOGRAPH_ constants) to uPD16432B pictograph data.
  * The global variable radio_model is used to select the conversion table.
  *
- * pictograph_code: pictograph code (pictograph_ constant) to convert into pictograph data
+ * pictograph_code: pictograph code (PICTOGRAPH_ constant) to convert into pictograph data
  * pictograph_data_out: array of 8 bytes that will be overwritten with the pict data
  *
  * On success, 1 is returned and pictograph_data_out will be overwritten with 8 new
