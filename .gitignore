@@ -9,6 +9,7 @@
 *.o
 *.pyc
 *.pyo
+*.retry
 *.swp
 coverage.xml
 nosetests.xml
