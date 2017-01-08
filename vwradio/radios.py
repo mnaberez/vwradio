@@ -157,12 +157,12 @@ class Radio(object):
             self.operation_mode = OperationModes.TESTING_SIGNAL
 
             freq = display[0:4]
-            if freq[0:1] == b" ": # b' 5300 2 6 F'
+            if freq[0:1] == b" ": # b' 530A 2 6 F'
                 freq = b"0" + freq[1:]
             self.test_signal_freq = int(freq) # 97.7MHz=977, 540KHz=540
 
-            strength = display[4] + display[6] + display[8] + display[10]
-            self.test_signal_strength = int(strength, 16)
+            # b' 530A 2 6 F' = 0xA26F
+            self.test_signal_strength = int(display[4:].replace(b' ', b''), 16)
         else:
             self._parse_unknown(display)
 
