@@ -10,10 +10,6 @@ x    STB(to faceplate)
 x    LOF(to radio+faceplate)
 x    !POWER_EJECT
 x    EJECT
-x    TAPE CLOCK
-x    TAPE DATA
-x    TAPE ENABLE
-x    TAPE SWITCH
 
 Header Pinout
 -------------
@@ -27,8 +23,8 @@ Header Pinout
     DAT(radio)  | o  o |  DAT(face)
     STB(radio)    o  o |  STB(face)
   !POWER_EJECT  | o  o |  EJECT
-      TAPE_CLK  | o  o |  TAPE_DAT
-      TAPE_ENA  | o  o |  TAPE_SWI
+                | o  o |
+                | o  o |
                 | o  o |
                 | o  o |
            GND  | o  o |  Unswitched +14V
