@@ -1,4 +1,4 @@
-#!/usr/bin/env python -u
+#!/usr/bin/env python3 -u
 import time
 from vwradio import avrclient
 from vwradio.constants import Keys, OperationModes

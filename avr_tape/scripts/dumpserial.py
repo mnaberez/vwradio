@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3 -u
 import sys
 import time
 import serial # pyserial

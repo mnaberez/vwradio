@@ -3,6 +3,7 @@ SOURCES=$(wildcard *.c)
 MMCU=atmega1284
 ISPFLAGS=-c atmelice
 CFLAGS=-mmcu=$(MMCU) -g -Wall -Os -std=c99
+PYTHON=python3
 
 $(PROJECT).hex: $(PROJECT).elf
 	avr-objcopy -j .text -j .data -O ihex $(PROJECT).elf $(PROJECT).hex
@@ -27,7 +28,7 @@ clean:
 	find . -depth -name '*.pyc' -print -delete
 
 test:
-	cd .. && python setup.py test -q
+	cd .. && $(PYTHON) -u setup.py test -q
 
 _sleep:
 	sleep 0.5
