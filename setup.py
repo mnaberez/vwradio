@@ -33,7 +33,7 @@ setup(
         'console_scripts': [
             'vwcrack = vwradio.crack:main',
             'vwdecode = vwradio.decode:main',
-            'vwcontrol = vwradio.control:main',
+            'vwdemo = vwradio.demo:main',
         ],
     },
 )
