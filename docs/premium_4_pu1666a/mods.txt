@@ -16,7 +16,7 @@ Header Pinout
 
                  24 pin
                 +------+
-           GND  | o  o |  Unswitched +14V
+                | o  o |
            LOF  | o  o |  Unswitched +5V
     BUS(radio)  | o  o |  BUS(face)
     CLK(radio)  | o  o |  CLK(face)
@@ -27,5 +27,5 @@ Header Pinout
                 | o  o |
                 | o  o |
                 | o  o |
-           GND  | o  o |  Unswitched +14V
+                | o  o |
                 +------+
