@@ -9,8 +9,11 @@
 
 void led_init()
 {
-    LED_DDR = _BV(LED_GREEN) | _BV(LED_RED);
-    LED_PORT = 0;
+    // set direction of led pins to output
+    LED_DDR |= _BV(LED_GREEN) | _BV(LED_RED);
+
+    // set leds initially off
+    LED_PORT &= ~(_BV(LED_GREEN) | _BV(LED_RED));
 }
 
 void led_set(uint8_t lednum, uint8_t state)
