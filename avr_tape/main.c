@@ -123,7 +123,7 @@ int main()
 
     // /ENABLE as input
     DDRB &= ~_BV(PB2);
-    PORTB |= _BV(PB2);  // internal pull-up
+    PORTB |= _BV(PB2);  // activate internal pull-up
 
     DDRB |= _BV(PB3);  // /SS out as output
     PORTB |= _BV(PB3); // /SS out initially high
