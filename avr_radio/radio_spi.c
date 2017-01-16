@@ -23,6 +23,12 @@ void radio_spi_init()
         upd_tx_key_data[i] = 0;
     }
 
+    // PA0 as input (/RST from radio)
+    // PA1 as input (/LOF from radio)
+    // PA2 as input (EJECT from radio)
+    // PA3 as input (/POWER_EJECT from radio)
+    DDRA &= ~(_BV(PA0) | _BV(PA1) | _BV(PA2) | _BV(PA3));
+
     // PB2 as input (STB from radio)
     DDRB &= ~_BV(PB2);
     // PB3 as output (/SS output we'll make in software from STB)

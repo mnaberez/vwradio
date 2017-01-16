@@ -19,8 +19,8 @@
  * Pin 17: PD3/TXD1 MOSI out (connect to PD2 through 10K resistor)
  * Pin 18: PD4/XCK1 SCK out (to faceplate's CLK)
  * Pin 19: PD5 (out to faceplate's STB)
- * Pin 20: PD6 (in from faceplate's BUS)
- * Pin 21: PD7 (out to radio's BUS)
+ * Pin 20: PD6 (in from faceplate's /BUS)
+ * Pin 21: PD7 (out to radio's /BUS)
  * Pin 22: PC0 I2C SDA (unused)
  * Pin 23: PC1 I2C SCL (unused)
  * Pin 24: PC2 JTAG TCK (to Atmel-ICE AVR port pin 1 TCK)
@@ -36,10 +36,10 @@
  * Pin 34: PA6 Green LED anode through 180 ohm resistor
  * Pin 35: PA5 (unused)
  * Pin 36: PA4 (unused)
- * Pin 37: PA3 (unused)
- * Pin 38: PA1 !POWER_EJECT from radio
- * Pin 39: PA2 EJECT from radio
- * Pin 40: PA0 LOF in (from radio, also tied to faceplate's LOF in)
+ * Pin 37: PA3 /POWER_EJECT from radio
+ * Pin 38: PA2 EJECT from radio
+ * Pin 39: PA1 /LOF in (from radio, also tied to faceplate's /LOF in)
+ * Pin 40: PA0 /RST in (from radio, also tied to faceplate's /RST in)
  */
 
 #include "main.h"
