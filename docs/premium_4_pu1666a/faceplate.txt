@@ -9,9 +9,11 @@ DAT - Connects to DATA on uPD16432B.
 BUS - Connects to KEY REQ on uPD16432B.  Normally 5V, drops to 0V when
       the uPD16432B has latched key data.
 RST - Connects to /RESET on uPD16432B.  If ignition power is on but the
-      radio is turned off by pushing the POWER key, radio holds RST low.
+      radio is turned off by pushing the POWER key, radio holds RST high.
+      When the POWER key is pressed to turn on, RST pulses low briefly.
 LOF - Connects to /LCDOFF on uPD16432B.  If ignition power is on but the
       radio is turned off by pushing the POWER key, radio holds LOF low.
+      When the radio is turned on, radio holds LOF high.
 M5V - Main 5V power controlled by radio.  If ignition power is on but the
       radio is turned off by pushing the POWER key, M5V drops to 0V.
 ILL - Illumination power.  Measures slightly less than B+ (13V) when the
