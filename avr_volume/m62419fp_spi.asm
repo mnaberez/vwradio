@@ -84,7 +84,7 @@ spi_isr_done:
 
 spi_get_packet:
 ;Check if a new packet has been received by the ISR, if so then move
-;it into the work buffer.  Destroys R16, R17.
+;it into the work buffer.  Destroys R16, R17, R18.
 ;
 ;Stores the packet in packet_work_buf if one is ready.
 ;Carry set = packet ready, Carry clear = no packet.
@@ -97,17 +97,19 @@ spi_get_packet:
     breq sgp_none
 
 	;A packet is available in packet_rx_buf
-	;Transfer it into the work buffer
+	;Read it into R16+R17 then clear packet_rx_buf for the next packet
 	;Interrupts disabled to prevent race if a new byte is received during copy
+	clr r18
 	cli
     lds r16, packet_rx_buf
-	sts packet_work_buf, r16
-	lds r16, packet_rx_buf+1
-	sts packet_work_buf+1, r16
-	clr r16
-	sts packet_rx_buf, r16
-	sts packet_rx_buf+1, r16
+	lds r17, packet_rx_buf+1
+	sts packet_rx_buf, r18
+	sts packet_rx_buf+1, r18
 	sei
+
+	;Copy the received packet into the work buffer
+	sts packet_work_buf, r16
+	sts packet_work_buf+1, r17
 
     sec                             ;Carry set = packet received
     ret
