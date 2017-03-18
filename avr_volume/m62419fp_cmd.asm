@@ -70,7 +70,6 @@ cmd_calc_att1_db:
 ;
 ;Reads 5-bit ATT1 code from R16.
 ;Stores attenuation value of ATT1 (dB) in R16.
-;Destroys R0.
 ;
     cpi r16, 0x20
     brsh ca1_invalid            ;Branch if 0x20 or higher (out of range)
@@ -84,13 +83,12 @@ cmd_calc_att1_db:
     add ZL, r16                 ;Add index to table base address
     clr r16
     adc ZH, r16
-    lpm                         ;Read from value from table
+    lpm r16, Z                  ;Read from value from table
 
     pop ZL
     pop ZH
 
-    mov r16, r0                 ;Return dB value in R16
-    ret
+    ret                         ;Return dB value in R16
 
 ca1_invalid:
     ldi r16, 0xff               ;0xFF dB = undefined
