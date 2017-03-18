@@ -2,11 +2,14 @@
 .coverage
 .tox
 *~
+*.cof
 *.egg
 *.egg-info
 *.elf
 *.hex
+*.lst
 *.o
+*.obj
 *.pyc
 *.pyo
 *.retry
