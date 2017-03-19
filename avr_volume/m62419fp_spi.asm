@@ -11,6 +11,14 @@
 ;(below) and then operate only on packet_work_buf.
 ;
 
+;Registers reserved for the ISR that may not be used by any other code
+.def r20_count = r20	;counts down number of bits remaining in packet
+.def r21_pina  = r21 	;byte read from PINA (contains CLK and DAT)
+.def r22_low   = r22 	;low byte of current packet
+.def r23_high  = r23 	;high byte of current packet
+.def r24_sreg  = r24 	;used to preserve SREG
+
+
 spi_init:
 ;Set up for receiving M62419FP commands on interrupt.
 ;Destroy R16.
@@ -29,9 +37,9 @@ spi_init:
     sts PCICR, r16
 
 	;Clear registers used by ISR
-	ldi r20, 14 				;Set initial count = 14 bits to receive
-	clr r22 					;Clear low data byte
-	clr r23 					;Clear high data byte
+	ldi r20_count, 14 				;Set initial count = 14 bits to receive
+	clr r22_low 					;Clear low data byte
+	clr r23_high 					;Clear high data byte
 
 	;Clear latest packet received (ISR writes to this buffer)
 	ldi r16, 0
@@ -44,41 +52,34 @@ spi_isr_pcint0:
 ;PCINT0 Pin Change Group 0 Interrupt Service Routine
 ;Fires for any change on PCINT1 (M62419FP CLK).
 ;
-;Registers r21-r24 can only be used by this ISR.
-;  r20: counts down number of bits remaining in this packet (14, 13, ...)
-;  r21: byte read from PINA (contains CLK and DAT)
-;  r22: low byte of current packet
-;  r23: high byte of current packet
-;  r24: used to preserve SREG
-;
-	in r21, PINA 				;Sample port immediately (SREG unaffected)
-	in r24, SREG 				;Save SREG
+	in r21_pina, PINA 			;Sample port immediately (SREG unaffected)
+	in r24_sreg, SREG 			;Save SREG
 
-	sbrs r21, PINA1 			;Skip next instruction if CLK=1
+	sbrs r21_pina, PINA1 		;Skip next instruction if CLK=1
 	rjmp spi_isr_done			;Nothing to do; it was a falling edge.
 
 	;This is a rising edge and the DAT bit is valid.
 
-	asr r21 					;Shift DAT bit into the carry
-	rol r22 					;  then shift carry into low byte
-	rol r23 					;  then shift carry into high byte
+	asr r21_pina 				;Shift DAT bit into the carry
+	rol r22_low 				;  then shift carry into low byte
+	rol r23_high 				;  then shift carry into high byte
 
-	dec r20 					;Decrement number of bits remaining
+	dec r20_count 				;Decrement number of bits remaining
 	brne spi_isr_done 			;More bits?  Nothing more to do this time.
 
 	;A complete packet has been received.
 
-	sts packet_rx_buf, r22 		;Save low byte
-	sts packet_rx_buf+1, r23 	;Save high byte
+	sts packet_rx_buf, r22_low 		;Save low byte
+	sts packet_rx_buf+1, r23_high 	;Save high byte
 
-	;Set up for next time
+	;Set up for next time.
 
-	ldi r20, 14 				;Set initial count = 14 bits to receive
-	clr r22 					;Clear low data byte
-	clr r23 					;Clear high data byte
+	ldi r20_count, 14 			;Set initial count = 14 bits to receive
+	clr r22_low 				;Clear low data byte
+	clr r23_high 				;Clear high data byte
 
 spi_isr_done:
-	out SREG, r24 				;Restore SREG
+	out SREG, r24_sreg 			;Restore SREG
 	reti
 
 
