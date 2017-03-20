@@ -83,7 +83,7 @@ cmd_calc_att1_db:
     add ZL, r16                 ;Add index to table base address
     clr r16
     adc ZH, r16
-    lpm r16, Z                  ;Read from value from table
+    lpm r16, Z                  ;Read dB value from table
 
     pop ZL
     pop ZH
