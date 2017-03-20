@@ -13,22 +13,22 @@ import csv
 import gzip
 import sys
 
-att1_to_db = [-100,  -20, -52, None, -68,   -4, -36, None,  # -100 = infinity
+att1_to_db = (-100,  -20, -52, None, -68,   -4, -36, None,  # -100 = infinity
                -76,  -12, -44, None, -60, None, -28, None,  # None = undefined
                -80,  -16, -48, None, -64,    0, -32, None,
-               -72,   -8, -40, None, -56, None, -24, None]
+               -72,   -8, -40, None, -56, None, -24, None)
 
-att2_to_db = [-3, -1, -2, 0]
+att2_to_db = (-3, -1, -2, 0)
 
-input_to_name = ['D (CD)', 'B (FM)', 'C (TAPE?)', 'A (AM)']
+input_to_name = ('D (CD)', 'B (FM)', 'C (TAPE?)', 'A (AM)')
 
-fadesel_to_name = ['FRNT', 'REAR']
+fadesel_to_name = ('FRNT', 'REAR')
 
-tone_to_db = [None, -2, -10, 6, None, 2, -6, 10,  # None = undefined
-              None,  0,  -8, 8,  -12, 4, -4, 12]
+tone_to_db = (None, -2, -10, 6, None, 2, -6, 10,  # None = undefined
+              None,  0,  -8, 8,  -12, 4, -4, 12)
 
-fade_to_db = [-100, -10, -20, -3, -45, -6, -14, -1,  # -100 = infinity
-               -60,  -8, -16, -2, -30, -4, -12,  0]
+fade_to_db = (-100, -10, -20, -3, -45, -6, -14, -1,  # -100 = infinity
+               -60,  -8, -16, -2, -30, -4, -12,  0)
 
 def read_file(filename):
     opener = gzip.open if filename.endswith('.gz') else open
