@@ -2,9 +2,7 @@
 '''
 VW Radio Volume Monitor
 
-Receives packets of attenuation data from the AVR's UART and displays them.
-The format of a packet is [CH0, CH1, 0xFF].  The first two bytes are
-attenuation levels for each channel (in dB).  0xFF signals end of packet.
+Receives packets of M62419FP data from the AVR's UART and displays them.
 '''
 
 import sys
