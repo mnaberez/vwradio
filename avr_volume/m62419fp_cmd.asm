@@ -91,7 +91,7 @@ cmd_calc_att1_db:
     ret                         ;Return dB value in R16
 
 ca1_invalid:
-    ldi r16, 0xff               ;0xFF dB = undefined
+    ser r16                     ;0xFF dB = undefined
     ret                         ;Return dB value in R16
 
 ca1_att1_to_db:
@@ -124,7 +124,7 @@ cmd_calc_att2_db:
     rjmp ca2_done
 
 ca2_invalid:
-    ldi r17, 0xff               ;0xFF = undefined
+    ser r17                     ;0xFF = undefined
 
 ca2_done:
     mov r16, r17                ;Return dB value in R16
@@ -149,7 +149,7 @@ cmd_calc_att_sum_db:
     rjmp cas_done
 
 cas_invalid:
-    ldi r16, 0xff               ;0xFF = undefined
+    ser r16                     ;0xFF = undefined
 
 cas_done:
     ret                         ;Return dB value in R16

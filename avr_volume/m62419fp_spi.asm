@@ -42,7 +42,7 @@ spi_init:
 	clr r23_high 					;Clear high data byte
 
 	;Clear latest packet received (ISR writes to this buffer)
-	ldi r16, 0
+	clr r16
 	sts packet_rx_buf, r16
 	sts packet_rx_buf+1, r16
     ret
