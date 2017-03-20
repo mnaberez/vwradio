@@ -95,7 +95,7 @@ ca1_invalid:
     ret                         ;Return dB value in R16
 
 ca1_att1_to_db:
-    .db  100,   20,   52, 0xff,   68,   4,    36, 0xff  ; 100 = infinity
+    .db  100,   20,   52, 0xff,   68,    4,   36, 0xff  ; 100 = infinity
     .db   76,   12,   44, 0xff,   60, 0xff,   28, 0xff  ;0xff = undefined
     .db   80,   16,   48, 0xff,   64,    0,   32, 0xff
     .db   72,    8,   40, 0xff,   56, 0xff,   24, 0xff
