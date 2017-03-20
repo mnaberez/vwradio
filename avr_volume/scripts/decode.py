@@ -9,6 +9,7 @@ descriptions of M62419FP commands.
 Usage: %s <file.csv|file.csv.gz>
 '''
 
+import csv
 import gzip
 import sys
 
@@ -81,24 +82,23 @@ tone_to_db = {0b1111: 12,
 
 def read_file(filename):
     opener = gzip.open if filename.endswith('.gz') else open
-    with opener(filename) as f:
-        lines = f.readlines()
-    lines.pop(0) # remove csv header
+    with opener(filename, 'r') as f:
+        headings = [ col.strip() for col in f.next().split(',') ]
+        reader = csv.DictReader(f, headings)
 
-    command, bit = 0, 0
-    last_clock = None
-    for line in lines:
-        cols = [c.strip() for c in str(line).split(",")]
-        data, clock = int(cols[1]), int(cols[2])
+        command, bit = 0, 0
+        last_clock = None
+        for row in reader:
+            data, clock = int(row['DAT']), int(row['CLK'])
 
-        if (last_clock == 0) and (clock == 1):
-            command = command << 1
-            command = command | data
-            bit += 1
-            if bit == 14:
-                display_command(command)
-                command, bit = 0, 0
-        last_clock = clock
+            if (last_clock == 0) and (clock == 1):
+                command = command << 1
+                command = command | data
+                bit += 1
+                if bit == 14:
+                    display_command(command)
+                    command, bit = 0, 0
+            last_clock = clock
 
 def display_command(command):
     b = bin(command)[2:] # skip "0b" prefix
