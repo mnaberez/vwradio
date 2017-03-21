@@ -8,6 +8,7 @@
 
 cmd_parse_input:
 ;Parse input selector from an M62419FP command packet.
+;Command must have data select bit = 0 (volume/loudness/input)
 ;
 ;Reads command in packet_work_buf.
 ;Stores 2-bit input selector code in R16.
@@ -21,6 +22,7 @@ cmd_parse_input:
 
 cmd_parse_loudness:
 ;Parse loudness from an M62419FP command packet.
+;Command must have data select bit = 0 (volume/loudness/input)
 ;
 ;Reads command in packet_work_buf.
 ;Stores 1-bit loudness flag (1=loudness on) in R16.
@@ -28,18 +30,19 @@ cmd_parse_loudness:
     lds r16, packet_work_buf    ;Read low byte
     bst r16, 4                  ;Set T flag to loudness bit
     clr r16
-    bld r16, 0                  ;Set bit 0 from T flag (loudness bit)
+    bld r16, 0                  ;Set bit 0 from T flag
     ret
 
 
 cmd_parse_att1:
-;Parse ATT1 attenuator codes from an M62419FP command packet.
+;Parse ATT1 attenuator code from an M62419FP command packet.
+;Command must have data select bit = 0 (volume/loudness/input)
 ;
 ;Reads command in packet_work_buf.
 ;Stores 5-bit ATT1 code in R16.
 ;
     ;5-bit ATT1 code is made up of bit 7 of low byte & bits 0-3 of high byte
-    ;Combine and shift into lower 5 bits of a byte, store it in att1_code
+    ;Combine and shift into lower 5 bits of R16
     lds r16, packet_work_buf    ;Read low byte
     rol r16
     lds r16, packet_work_buf+1  ;Read high byte
@@ -49,17 +52,47 @@ cmd_parse_att1:
 
 
 cmd_parse_att2:
-;Parse ATT2 attenuator codes from an M62419FP command packet.
+;Parse ATT2 attenuator code from an M62419FP command packet.
+;Command must have data select bit = 0 (volume/loudness/input)
 ;
 ;Reads command in packet_work_buf.
 ;Stores 2-bit ATT1 code in R16.
 ;
     ;2-bit ATT2 code is made up of bits 5-6 of the low byte
-    ;Shift into the lower 2 bits of a byte, store it in att2_code
+    ;Shift into the lower 2 bits of R16
     lds r16, packet_work_buf    ;Read low byte
     swap r16
     lsr r16
     andi r16, 0b00000011
+    ret
+
+
+cmd_parse_fadesel:
+;Parse Fader Select bit from an M62419FP command packet.
+;Command must have data select bit = 1 (bass/treble/fader)
+;
+;Reads command in packet_work_buf
+;Stores 1-bit Fader Select flag in R16
+;
+    lds r16, packet_work_buf    ;Read low byte
+    lsr r16
+    andi r16, 0b00000001
+    ret
+
+
+cmd_parse_fader:
+;Parse Fader attenuator code from an M62419FP command packet.
+;Command must have data select bit = 1 (bass/treble/fader)
+;
+;Reads command in packet_work_buf
+;Stores 4-bit Fader code in R16
+;
+    ;4-bit Fader code is made up of bits 2-5 of the low byte
+    ;Combine and shift into lower 4 bits of R16
+    lds r16, packet_work_buf    ;Read low byte
+    lsr r16
+    lsr r16
+    andi r16, 0b00001111
     ret
 
 
@@ -106,7 +139,7 @@ cmd_calc_att2_db:
 ;ATT2 codes undefined in the datasheet are returned as 0xFF dB.
 ;
 ;Reads 2-bit ATT2 code from R16.
-;Returns attenuation value of ATT2 (db) in R16.
+;Returns attenuation value of ATT2 (dB) in R16.
 ;Destroys R17.
 ;
     cpi r16, 0x04
@@ -153,3 +186,39 @@ cas_invalid:
 
 cas_done:
     ret                         ;Return dB value in R16
+
+
+cmd_calc_fader_db:
+;Calculate Fader value in dB from Fader code.
+;Infinity (Fader code 0x0F) is returned as 100 dB.
+;Fader codes undefined in the datasheet are returned as 0xFF dB.
+;
+;Reads 4-bit Fader code from R16.
+;Returns attenuation value of Fader (dB) in R16.
+;
+    cpi r16, 0x10
+    brsh ccf_invalid            ;Branch if 0x10 or higher (out of range)
+
+    push ZH
+    push ZL
+
+    ldi ZL, low(ccf_fade_to_db * 2)   ;Base address of Fader to dB table
+    ldi ZH, high(ccf_fade_to_db * 2)
+
+    add ZL, r16                 ;Add index to table base address
+    clr r16
+    adc ZH, r16
+    lpm r16, Z                  ;Read dB value from table
+
+    pop ZL
+    pop ZH
+
+    ret                         ;Return dB value in R16
+
+ccf_invalid:
+    ser r16                     ;0xFF dB = undefined
+    ret                         ;Return dB value in R16
+
+ccf_fade_to_db:
+    .db 100, 10, 20, 3, 45, 6, 14, 1  ;100 = infinity
+    .db  60,  8, 16, 2, 30, 4, 12, 0

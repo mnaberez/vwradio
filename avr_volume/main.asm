@@ -46,10 +46,13 @@
 .equ ch0_loudness    = ch0+2            ;  Loudness flag
 .equ ch0_input       = ch0+3            ;  Input selector 2-bit code
 .equ ch1             = ch0_input+1      ;Channel 1:
-.equ ch1_att1        = ch1+1            ;  ATT1 5-bit code
-.equ ch2_att2        = ch1+2            ;  ATT2 2-bit code
-.equ ch3_loudness    = ch1+3            ;  Loudness flag
-.equ ch4_input       = ch1+4            ;  Input selector 2-bit code
+.equ ch1_att1        = ch1+0            ;  ATT1 5-bit code
+.equ ch2_att2        = ch1+1            ;  ATT2 2-bit code
+.equ ch3_loudness    = ch1+2            ;  Loudness flag
+.equ ch4_input       = ch1+3            ;  Input selector 2-bit code
+.equ common          = ch4_input+1      ;Common to both channels:
+.equ fadesel         = common+0         ;  Fader Select flag
+.equ fader           = common+1         ;  Fader 4-bit code
 
 
 .org 0
@@ -67,31 +70,33 @@ reset:
 	ldi r16, high(RAMEND)
 	out SPH, r16
 
-	call uart_init 				;15200 bps, N-8-1
-	call spi_init               ;Set up for M62419FP receive on interrupt
+	rcall uart_init 			;15200 bps, N-8-1
+	rcall spi_init              ;Set up for M62419FP receive on interrupt
 	sei                         ;Enable interrupts
-
+    rcall dump_buffer_to_uart
 loop:
     ;Wait for an M62419FP command packet
     rcall spi_get_packet        ;Try to get a new packet in packet_work_buf
     brcc loop                   ;Loop until one is ready
 
-    ;Check if this command includes volume (attenuation)
-    lds r16, packet_work_buf    ;Load low byte
-    andi r16, 1                 ;Mask off all except data select bit
-    brne loop                   ;Nothing to do if this is not a volume command
-
-    ;Parse this command and dump the virtual M62419FP state
-    call parse_cmd_into_buffer
-    call dump_buffer_to_uart
+    rcall parse_cmd_into_buffer
+    rcall dump_buffer_to_uart
     rjmp loop
 
 
 parse_cmd_into_buffer:
-;Parse the command packet and update the virtual M62419FP state.
-;Reads from packet_work_buf, writes to m62419fp_buf.
-;Destroys R16, Z-pointer.
-;
+    lds r16, packet_work_buf    ;Load low byte
+    andi r16, 1                 ;Mask off all except data select bit
+    brne parse_fader            ;Branch if it's not a volume command
+    rcall parse_vol_cmd_into_buffer
+    rjmp parse_done
+parse_fader:
+    rcall parse_fade_tone_cmd_into_buffer
+parse_done:
+    ret
+
+
+parse_vol_cmd_into_buffer:
     ;Set Z-pointer for buffer area for channel 0 or 1
     ldi ZL, low(m62419fp_buf)   ;Base address of M62419FP registers buffer
     ldi ZH, high(m62419fp_buf)
@@ -111,12 +116,23 @@ parse_cmd_into_buffer:
     ret
 
 
+parse_fade_tone_cmd_into_buffer:
+    ;Set Z-pointer to buffer area for fader
+    ldi ZL, low(m62419fp_buf+common)
+    ldi ZH, high(m62419fp_buf+common)
+    rcall cmd_parse_fadesel
+    st Z+, r16
+    rcall cmd_parse_fader
+    st Z+, r16
+    ret
+
+
 dump_buffer_to_uart:
 ;Dump the virtual M62419FP register state to the UART, along with
 ;the calculated attenuation values in dB.
 ;
 ;Format of the dump:
-;  Byte  0: Number of bytes to follow (always 10)
+;  Byte  0: Number of bytes to follow (always 13)
 ;  Byte  1: CH0 ATT1 5-bit code
 ;  Byte  2: CH0 ATT2 2-bit code
 ;  Byte  3: CH0 Attenuation (ATT1+ATT2) in dB
@@ -127,11 +143,14 @@ dump_buffer_to_uart:
 ;  Byte  8: CH1 Attenuation (ATT1+ATT2) in dB
 ;  Byte  9: CH1 Loudness flag
 ;  Byte 10: CH1 Input Selector 2-bit code
+;  Byte 11: Fader Select flag
+;  Byte 12: Fader 4-bit code
+;  Byte 13: Fader Attenuation in dB
 ;
 ;Destroys R16, R17, R18, Z-pointer.
 ;
-    ldi r16, 10
-    call uart_send_byte         ;Send number of bytes to follow
+    ldi r16, 13
+    rcall uart_send_byte        ;Send number of bytes to follow
     clr r18                     ;Channel number = 0
 dump_loop:
     ;Set Z-pointer to buffer area for channel 0 or 1
@@ -162,6 +181,19 @@ dump_loop:
     inc r18                     ;Increment channel number
     cpi r18, 2                  ;Finished both channels?
     brne dump_loop              ;  No: dump next channel
+
+    ;Set Z-pointer to buffer area for fader
+    ldi ZL, low(m62419fp_buf+common)
+    ldi ZH, high(m62419fp_buf+common)
+
+    ld r16, Z+                  ;Load and send fader select
+    rcall uart_send_byte
+
+    ld r16, Z+                  ;Load fader 4-bit code
+    rcall uart_send_byte        ;Send it
+    rcall cmd_calc_fader_db     ;Convert it to dB
+    rcall uart_send_byte        ;Send it
+
     ret
 
 

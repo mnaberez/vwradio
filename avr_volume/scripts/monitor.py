@@ -23,7 +23,8 @@ def read_packet(ser):
     packet = bytearray(ser.read(count)) # read those bytes
     return packet
 
-inputs = ['CD', 'FM', 'TAPE', 'AM']
+inputs = ('CD', 'FM', 'TAPE', 'AM')
+fadesels = ('F', 'R')
 
 def main():
     '''Wait for a packet from the AVR, display it, repeat forever'''
@@ -35,14 +36,17 @@ def main():
     try:
         while True:
             packet = read_packet(ser)
-            fmt = '\rCH0=-%d dB (L=%d,I=%s), CH1=-%d dB (L=%d,I=%s)    '
+            fmt = ('\rCH0=-%d dB (L=%d,I=%s), CH1=-%d dB (L=%d,I=%s),    '
+                   'FADER=%d dB (%s) ')
             sys.stdout.write(fmt % (
                 packet[2],
                 packet[3],
                 inputs[packet[4]],
                 packet[7],
                 packet[8],
-                inputs[packet[9]]))
+                inputs[packet[9]],
+                packet[12],
+                fadesels[packet[10]]))
             sys.stdout.flush()
     except KeyboardInterrupt:
         pass
