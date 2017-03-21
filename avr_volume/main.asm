@@ -36,7 +36,7 @@
 .equ packet_rx_buf   = SRAM_START       ;2 byte buffer used for ISR receive
 .equ packet_work_buf = SRAM_START+$02 	;2 byte buffer used during parsing
 ;Buffer used to track M62419FP state across commands
-.equ m62419fp_buf    = SRAM_START+$04   ;8 byte buffer for M62419FP state
+.equ m62419fp_buf    = SRAM_START+$04   ;12 byte buffer for M62419FP state
 
 
 ;Offsets into M62419FP state buffer
@@ -53,6 +53,8 @@
 .equ common          = ch4_input+1      ;Common to both channels:
 .equ fadesel         = common+0         ;  Fader Select flag
 .equ fader           = common+1         ;  Fader 4-bit code
+.equ bass            = common+2         ;  Bass 4-bit tone code
+.equ treble          = common+3         ;  Treble 4-bit tone code
 
 
 .org 0
@@ -87,10 +89,10 @@ loop:
 parse_cmd_into_buffer:
     lds r16, packet_work_buf    ;Load low byte
     andi r16, 1                 ;Mask off all except data select bit
-    brne parse_fader            ;Branch if it's not a volume command
+    brne parse_fade_tone        ;Branch if it's a tone command
     rcall parse_vol_cmd_into_buffer
     rjmp parse_done
-parse_fader:
+parse_fade_tone:
     rcall parse_fade_tone_cmd_into_buffer
 parse_done:
     ret
@@ -124,6 +126,10 @@ parse_fade_tone_cmd_into_buffer:
     st Z+, r16
     rcall cmd_parse_fader
     st Z+, r16
+    rcall cmd_parse_bass
+    st Z+, r16
+    rcall cmd_parse_treble
+    st Z+, r16
     ret
 
 
@@ -132,7 +138,7 @@ dump_buffer_to_uart:
 ;the calculated attenuation values in dB.
 ;
 ;Format of the dump:
-;  Byte  0: Number of bytes to follow (always 13)
+;  Byte  0: Number of bytes to follow (always 15)
 ;  Byte  1: CH0 ATT1 5-bit code
 ;  Byte  2: CH0 ATT2 2-bit code
 ;  Byte  3: CH0 Attenuation (ATT1+ATT2) in dB
@@ -146,10 +152,12 @@ dump_buffer_to_uart:
 ;  Byte 11: Fader Select flag
 ;  Byte 12: Fader 4-bit code
 ;  Byte 13: Fader Attenuation in dB
+;  Byte 14: Bass 4-bit code
+;  Byte 15: Treble 4-bit code
 ;
 ;Destroys R16, R17, R18, Z-pointer.
 ;
-    ldi r16, 13
+    ldi r16, 15
     rcall uart_send_byte        ;Send number of bytes to follow
     clr r18                     ;Channel number = 0
 dump_loop:
@@ -194,6 +202,11 @@ dump_loop:
     rcall cmd_calc_fader_db     ;Convert it to dB
     rcall uart_send_byte        ;Send it
 
+    ld r16, Z+                  ;Load bass 4-bit code
+    rcall uart_send_byte        ;Send it
+
+    ld r16, Z+                  ;Load treble 4-bit code
+    rcall uart_send_byte        ;Send it
     ret
 
 

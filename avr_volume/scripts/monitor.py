@@ -36,8 +36,8 @@ def main():
     try:
         while True:
             packet = read_packet(ser)
-            fmt = ('\rCH0=-%d dB (L=%d,I=%s), CH1=-%d dB (L=%d,I=%s),    '
-                   'FADER=%d dB (%s) ')
+            fmt = ('\rCH0=-%d dB (L=%d,I=%s)  CH1=-%d dB (L=%d,I=%s)  '
+                   'FADER=%d dB (%s) %d %d  ')
             sys.stdout.write(fmt % (
                 packet[2],
                 packet[3],
@@ -46,7 +46,9 @@ def main():
                 packet[8],
                 inputs[packet[9]],
                 packet[12],
-                fadesels[packet[10]]))
+                fadesels[packet[10]],
+                packet[13],
+                packet[14]))
             sys.stdout.flush()
     except KeyboardInterrupt:
         pass
