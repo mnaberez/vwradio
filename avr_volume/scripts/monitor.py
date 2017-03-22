@@ -5,6 +5,7 @@ VW Radio Volume Monitor
 Receives packets of M62419FP data from the AVR's UART and displays them.
 '''
 
+import struct
 import sys
 import time
 import serial # pyserial
@@ -23,6 +24,7 @@ def read_packet(ser):
     packet = bytearray(ser.read(count)) # read those bytes
     return packet
 
+signed_char = lambda x: struct.unpack('b', x)[0]
 inputs = ('CD', 'FM', 'TAPE', 'AM')
 fadesels = ('F', 'R')
 
@@ -36,16 +38,16 @@ def main():
     try:
         while True:
             packet = read_packet(ser)
-            fmt = ('\rCH0=-%d dB (L=%d,I=%s)  CH1=-%d dB (L=%d,I=%s)  '
-                   'FADER=-%d dB (%s) %d %d  ')
+            fmt = ('\rCH0=%d dB (L=%d,I=%s)  CH1=%d dB (L=%d,I=%s)  '
+                   'FADER=%d dB (%s) %d %d  ')
             sys.stdout.write(fmt % (
-                packet[2],
+                signed_char(packet[2:3]),
                 packet[3],
                 inputs[packet[4]],
-                packet[7],
+                signed_char(packet[7:8]),
                 packet[8],
                 inputs[packet[9]],
-                packet[12],
+                signed_char(packet[12:13]),
                 fadesels[packet[10]],
                 packet[13],
                 packet[14]))

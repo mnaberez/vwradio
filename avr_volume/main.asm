@@ -174,14 +174,14 @@ dump_loop:
     ;Send ATT1 and ATT2 codes, calculate ATT1+ATT2 in dB and send it
     ld r16, Z+                  ;Load ATT1 code
     rcall uart_send_byte        ;Send it
-    rcall cmd_calc_att1_db      ;Convert ATT1 to dB
+    rcall cmd_calc_att1_db      ;Convert ATT1 to signed dB
     push r16                    ;Save ATT1 dB on the stack
     ld r16, Z+                  ;Load ATT2 code
     rcall uart_send_byte        ;Send it
-    rcall cmd_calc_att2_db      ;Convert it to dB
+    rcall cmd_calc_att2_db      ;Convert it to signed dB
     mov r17, r16                ;Move ATT2 dB into R17
     pop r16                     ;Recall ATT1 dB into R16
-    rcall cmd_calc_att_sum_db   ;Caculate sum of R16 + R17 in dB
+    rcall cmd_calc_att_sum_db   ;Caculate sum of R16 + R17 in signed dB
     rcall uart_send_byte        ;Send it
 
     ;Send other registers
@@ -203,7 +203,7 @@ dump_loop:
 
     ld r16, Z+                  ;Load fader 4-bit code
     rcall uart_send_byte        ;Send it
-    rcall cmd_calc_fader_db     ;Convert it to dB
+    rcall cmd_calc_fader_db     ;Convert it to signed dB
     rcall uart_send_byte        ;Send it
 
     ld r16, Z+                  ;Load bass 4-bit code

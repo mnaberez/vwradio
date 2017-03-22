@@ -132,15 +132,15 @@ cmd_parse_treble:
 
 cmd_calc_att1_db:
 ;Calculate ATT1 value in dB from ATT1 code.
-;Infinity (ATT1 code 0) is returned as 100 dB.
-;ATT1 codes undefined in the datasheet are returned as 0xFF dB.
+;Infinity (ATT1 code 0) is returned as -100 dB.
+;ATT1 codes undefined in the datasheet are returned as -127 dB.
 ;
 ;Reads 5-bit ATT1 code from R16.
-;Stores attenuation value of ATT1 (dB) in R16.
+;Stores signed dB value in R16.
 ;
     push ZL
     push ZH
-    ldi ZL, low(att1_to_db * 2)   ;Base address of ATT1 to dB table
+    ldi ZL, low(att1_to_db * 2) ;Base address of lookup table
     ldi ZH, high(att1_to_db * 2)
 
     cpi r16, 0x20               ;ATT2 code 0x20 and above are invalid
@@ -149,15 +149,15 @@ cmd_calc_att1_db:
 
 cmd_calc_att2_db:
 ;Calculate ATT2 value in dB from ATT2 code.
-;ATT2 codes undefined in the datasheet are returned as 0xFF dB.
+;ATT2 codes undefined in the datasheet are returned as -127 dB.
 ;
 ;Reads 2-bit ATT2 code from R16.
-;Returns attenuation value of ATT2 (dB) in R16.
+;Stores signed dB value in R16.
 ;Destroys R17.
 ;
     push ZL
     push ZH
-    ldi ZL, low(att2_to_db * 2)   ;Base address of ATT1 to dB table
+    ldi ZL, low(att2_to_db * 2) ;Base address of lookup table
     ldi ZH, high(att2_to_db * 2)
 
     cpi r16, 0x04               ;ATT2 code 0x04 and above are invalid
@@ -166,15 +166,15 @@ cmd_calc_att2_db:
 
 cmd_calc_fader_db:
 ;Calculate Fader value in dB from Fader code.
-;Infinity (Fader code 0x0F) is returned as 100 dB.
-;Fader codes undefined in the datasheet are returned as 0xFF dB.
+;Infinity (Fader code 0x0F) is returned as -100 dB.
+;Fader codes undefined in the datasheet are returned as -127 dB.
 ;
 ;Reads 4-bit Fader code from R16.
-;Returns attenuation value of Fader (dB) in R16.
+;Stores signed dB value in R16.
 ;
     push ZL
     push ZH
-    ldi ZL, low(fade_to_db * 2)   ;Base address of ATT1 to dB table
+    ldi ZL, low(fade_to_db * 2) ;Base address of lookup table
     ldi ZH, high(fade_to_db * 2)
 
     cpi r16, 0x10               ;Fader code 0x10 and above are invalid
@@ -193,43 +193,43 @@ finish_db_lookup:
     pop ZL
     ret                         ;Return dB value in R16
 finish_invalid:
-    ser r16                     ;0xFF dB = undefined
+    ldi r16, -127               ;-127 dB = undefined
     ret                         ;Return dB value in R16
 
 
 att1_to_db:
-    .db  100,   20,   52, 0xff,   68,    4,   36, 0xff  ; 100 = infinity
-    .db   76,   12,   44, 0xff,   60, 0xff,   28, 0xff  ;0xff = undefined
-    .db   80,   16,   48, 0xff,   64,    0,   32, 0xff
-    .db   72,    8,   40, 0xff,   56, 0xff,   24, 0xff
+    .db -100,  -20,  -52, -127,  -68,   -4,  -36, -127  ;-100 = infinity
+    .db  -76,  -12,  -44, -127,  -60, -127,  -28, -127  ;-127 = undefined
+    .db  -80,  -16,  -48, -127,  -64,    0,  -32, -127
+    .db  -72,   -8,  -40, -127,  -56, -127,  -24, -127
 
 att2_to_db:
-    .db 3, 1, 2, 0
+    .db   -3,   -1,   -2,    0
 
 fade_to_db:
-    .db 100, 10, 20, 3, 45, 6, 14, 1  ;100 = infinity
-    .db  60,  8, 16, 2, 30, 4, 12, 0
+    .db -100,  -10,  -20,   -3,  -45,   -6,  -14,   -1  ;-100 = infinity
+    .db  -60,   -8,  -16,   -2,  -30,   -4,  -12,    0
 
 
 cmd_calc_att_sum_db:
-;Calculate the total attenuation of ATT1 and ATT2 in dB.
-;If either is undefined (0xFF), the sum is undefined (0xFF).
+;Calculate the total attenuation of two signed dB values.
+;If either is undefined (-127), the sum is undefined (-127).
 ;
-;Reads ATT1 dB from R16
-;Reads ATT2 dB from R17
-;Returns total attenuation dB in R16.  R17 unchanged.
+;Reads a signed dB value from R16
+;Reads a signed dB value from R17
+;Returns total attenuation as signed dB value in R16.  R17 unchanged.
 ;
-    cpi r16, 0xff               ;Is ATT1 undefined?
+    cpi r16, -127               ;Is ATT1 undefined?
     breq cas_invalid            ;  Yes: sum will also be undefined
 
-    cpi r17, 0xff               ;Is ATT2 undefined?
+    cpi r17, -127               ;Is ATT2 undefined?
     breq cas_invalid            ;  Yes: sum will also be undefined
 
     add r16, r17                ;ATT1 and ATT2 are valid, so add them
     rjmp cas_done
 
 cas_invalid:
-    ser r16                     ;0xFF = undefined
+    ldi r16, -127               ;-127 dB = undefined
 
 cas_done:
     ret                         ;Return dB value in R16
