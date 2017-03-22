@@ -142,26 +142,28 @@ dump_buffer_to_uart:
 ;the calculated attenuation values in dB.
 ;
 ;Format of the dump:
-;  Byte  0: Number of bytes to follow (always 15)
+;  Byte  0: Number of bytes to follow
 ;  Byte  1: CH0 ATT1 5-bit code
 ;  Byte  2: CH0 ATT2 2-bit code
-;  Byte  3: CH0 Attenuation (ATT1+ATT2) in dB
+;  Byte  3: CH0 Attenuation (ATT1+ATT2) in signed dB
 ;  Byte  4: CH0 Loudness flag
 ;  Byte  5: CH0 Input Selector 2-bit code
 ;  Byte  6: CH1 ATT1 5-bit code
 ;  Byte  7: CH1 ATT2 2-bit code
-;  Byte  8: CH1 Attenuation (ATT1+ATT2) in dB
+;  Byte  8: CH1 Attenuation (ATT1+ATT2) in signed dB
 ;  Byte  9: CH1 Loudness flag
 ;  Byte 10: CH1 Input Selector 2-bit code
 ;  Byte 11: Fader Select flag
 ;  Byte 12: Fader 4-bit code
-;  Byte 13: Fader Attenuation in dB
+;  Byte 13: Fader Attenuation in signed dB
 ;  Byte 14: Bass 4-bit code
-;  Byte 15: Treble 4-bit code
+;  Byte 15: Bass tone in signed dB
+;  Byte 16: Treble 4-bit code
+;  Byte 17: Treble tone in signed dB
 ;
 ;Destroys R16, R17, R18, Z-pointer.
 ;
-    ldi r16, 15
+    ldi r16, 17
     rcall uart_send_byte        ;Send number of bytes to follow
     clr r18                     ;Channel number = 0
 dump_loop:
@@ -208,8 +210,12 @@ dump_loop:
 
     ld r16, Z+                  ;Load bass 4-bit code
     rcall uart_send_byte        ;Send it
+    rcall cmd_calc_tone_db      ;Convert it to signed dB
+    rcall uart_send_byte        ;Send it
 
     ld r16, Z+                  ;Load treble 4-bit code
+    rcall uart_send_byte        ;Send it
+    rcall cmd_calc_tone_db      ;Convert it to signed dB
     rcall uart_send_byte        ;Send it
     ret
 

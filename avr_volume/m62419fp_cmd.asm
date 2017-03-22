@@ -68,11 +68,11 @@ cmd_parse_att2:
 
 
 cmd_parse_fadesel:
-;Parse Fader Select bit from an M62419FP command packet.
+;Parse fader select bit from an M62419FP command packet.
 ;Command must have data select bit = 1 (bass/treble/fader)
 ;
 ;Reads 2-byte command packet at Y-pointer
-;Stores 1-bit Fader Select flag in R16
+;Stores 1-bit fader select flag in R16
 ;
     ;00100110 010001x1 -> 0000000x
     ld r16, Y               ;Read low byte
@@ -82,11 +82,11 @@ cmd_parse_fadesel:
 
 
 cmd_parse_fader:
-;Parse Fader attenuator code from an M62419FP command packet.
+;Parse fader code from an M62419FP command packet.
 ;Command must have data select bit = 1 (bass/treble/fader)
 ;
 ;Reads 2-byte command packet at Y-pointer
-;Stores 4-bit Fader code in R16
+;Stores 4-bit fader code in R16
 ;
     ;00100110 01xxxx01 -> 0000xxxx
     ld r16, Y               ;Read low byte
@@ -97,11 +97,11 @@ cmd_parse_fader:
 
 
 cmd_parse_bass:
-;Parse Bass tone code from an M62419FP command packet
+;Parse bass tone code from an M62419FP command packet
 ;Command must have data select bit = 1 (bass/treble/fader)
 ;
 ;Reads 2-byte command packet at Y-pointer
-;Stores 4-bit Bass code in R16
+;Stores 4-bit tone code in R16
 ;
     ;00xxxx10 01000101 -> 0000xxxx
     ldd r16, Y+1            ;Read high byte
@@ -112,11 +112,11 @@ cmd_parse_bass:
 
 
 cmd_parse_treble:
-;Parse Treble tone code from an M62419FP command packet
+;Parse treble tone code from an M62419FP command packet
 ;Command must have data select bit = 1 (bass/treble/fader)
 ;
 ;Reads 2-byte command packet at Y-pointer
-;Stores 4-bit Treble code in R16
+;Stores 4-bit tone code in R16
 ;
     ;001001xx xx000101 -> 0000xxxx
     ld r16, Y               ;Read low byte
@@ -165,11 +165,11 @@ cmd_calc_att2_db:
 
 
 cmd_calc_fader_db:
-;Calculate Fader value in dB from Fader code.
-;Infinity (Fader code 0x0F) is returned as -100 dB.
+;Calculate fader value in dB from a fader code.
+;Infinity (fader code 0x0F) is returned as -100 dB.
 ;Fader codes undefined in the datasheet are returned as -127 dB.
 ;
-;Reads 4-bit Fader code from R16.
+;Reads 4-bit fader code from R16.
 ;Stores signed dB value in R16.
 ;
     push ZL
@@ -178,6 +178,22 @@ cmd_calc_fader_db:
     ldi ZH, high(fade_to_db * 2)
 
     cpi r16, 0x10               ;Fader code 0x10 and above are invalid
+    rjmp finish_db_lookup       ;Look up dB value, return it in R16
+
+
+cmd_calc_tone_db:
+;Calculate tone value in dB from a tone code (bass or treble).
+;Tone codes undefined in the datasheet are returned as -127 dB.
+;
+;Reads 4-bit tone code from R16.
+;Stores signed dB value in R16.
+;
+    push ZL
+    push ZH
+    ldi ZL, low(tone_to_db * 2) ;Base address of lookup table
+    ldi ZH, high(tone_to_db * 2)
+
+    cpi r16, 0x10               ;Tone code 0x10 and above are invalid
     rjmp finish_db_lookup       ;Look up dB value, return it in R16
 
 
@@ -209,6 +225,10 @@ att2_to_db:
 fade_to_db:
     .db -100,  -10,  -20,   -3,  -45,   -6,  -14,   -1  ;-100 = infinity
     .db  -60,   -8,  -16,   -2,  -30,   -4,  -12,    0
+
+tone_to_db:
+    .db -127,   -2,  -10,    6, -127,    2,   -6,   10  ;-127 = undefined
+    .db -127,    0,   -8,    8,  -12,    4,   -4,   12
 
 
 cmd_calc_att_sum_db:
