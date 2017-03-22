@@ -37,7 +37,7 @@ def main():
         while True:
             packet = read_packet(ser)
             fmt = ('\rCH0=-%d dB (L=%d,I=%s)  CH1=-%d dB (L=%d,I=%s)  '
-                   'FADER=%d dB (%s) %d %d  ')
+                   'FADER=-%d dB (%s) %d %d  ')
             sys.stdout.write(fmt % (
                 packet[2],
                 packet[3],
