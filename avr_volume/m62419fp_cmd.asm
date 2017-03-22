@@ -138,34 +138,13 @@ cmd_calc_att1_db:
 ;Reads 5-bit ATT1 code from R16.
 ;Stores attenuation value of ATT1 (dB) in R16.
 ;
-    cpi r16, 0x20
-    brsh ca1_invalid            ;Branch if 0x20 or higher (out of range)
-
-    push ZH
     push ZL
+    push ZH
+    ldi ZL, low(att1_to_db * 2)   ;Base address of ATT1 to dB table
+    ldi ZH, high(att1_to_db * 2)
 
-    ldi ZL, low(ca1_att1_to_db * 2)   ;Base address of ATT1 to dB table
-    ldi ZH, high(ca1_att1_to_db * 2)
-
-    add ZL, r16                 ;Add index to table base address
-    clr r16
-    adc ZH, r16
-    lpm r16, Z                  ;Read dB value from table
-
-    pop ZL
-    pop ZH
-
-    ret                         ;Return dB value in R16
-
-ca1_invalid:
-    ser r16                     ;0xFF dB = undefined
-    ret                         ;Return dB value in R16
-
-ca1_att1_to_db:
-    .db  100,   20,   52, 0xff,   68,    4,   36, 0xff  ; 100 = infinity
-    .db   76,   12,   44, 0xff,   60, 0xff,   28, 0xff  ;0xff = undefined
-    .db   80,   16,   48, 0xff,   64,    0,   32, 0xff
-    .db   72,    8,   40, 0xff,   56, 0xff,   24, 0xff
+    cpi r16, 0x20               ;ATT2 code 0x20 and above are invalid
+    rjmp finish_db_lookup       ;Look up dB value, return it in R16
 
 
 cmd_calc_att2_db:
@@ -176,35 +155,69 @@ cmd_calc_att2_db:
 ;Returns attenuation value of ATT2 (dB) in R16.
 ;Destroys R17.
 ;
-    cpi r16, 0x04
-    brsh ca2_invalid            ;Branch if 0x04 or higher (out of range)
+    push ZL
+    push ZH
+    ldi ZL, low(att2_to_db * 2)   ;Base address of ATT1 to dB table
+    ldi ZH, high(att2_to_db * 2)
 
-    ldi r17, 3
-    cpi r16, 0x00               ;ATT2 code 0x00 = 3 dB
-    breq ca2_done
+    cpi r16, 0x04               ;ATT2 code 0x04 and above are invalid
+    rjmp finish_db_lookup       ;Look up dB value, return it in R16
 
-    ldi r17, 0
-    cpi r16, 0x03               ;ATT2 code 0x03 = 0 dB
-    breq ca2_done
 
-    mov r17, r16                ;ATT2 code 0x01 = 1 dB, ATT2 code 0x02 = 2 dB
-    rjmp ca2_done
+cmd_calc_fader_db:
+;Calculate Fader value in dB from Fader code.
+;Infinity (Fader code 0x0F) is returned as 100 dB.
+;Fader codes undefined in the datasheet are returned as 0xFF dB.
+;
+;Reads 4-bit Fader code from R16.
+;Returns attenuation value of Fader (dB) in R16.
+;
+    push ZL
+    push ZH
+    ldi ZL, low(fade_to_db * 2)   ;Base address of ATT1 to dB table
+    ldi ZH, high(fade_to_db * 2)
 
-ca2_invalid:
-    ser r17                     ;0xFF = undefined
+    cpi r16, 0x10               ;Fader code 0x10 and above are invalid
+    rjmp finish_db_lookup       ;Look up dB value, return it in R16
 
-ca2_done:
-    mov r16, r17                ;Return dB value in R16
-    ret
+
+finish_db_lookup:
+    brsh finish_invalid         ;Branch if equal or greater (invalid code)
+
+    add ZL, r16                 ;Add index to table base address
+    clr r16
+    adc ZH, r16
+    lpm r16, Z                  ;Read dB value from table
+
+    pop ZH
+    pop ZL
+    ret                         ;Return dB value in R16
+finish_invalid:
+    ser r16                     ;0xFF dB = undefined
+    ret                         ;Return dB value in R16
+
+
+att1_to_db:
+    .db  100,   20,   52, 0xff,   68,    4,   36, 0xff  ; 100 = infinity
+    .db   76,   12,   44, 0xff,   60, 0xff,   28, 0xff  ;0xff = undefined
+    .db   80,   16,   48, 0xff,   64,    0,   32, 0xff
+    .db   72,    8,   40, 0xff,   56, 0xff,   24, 0xff
+
+att2_to_db:
+    .db 3, 1, 2, 0
+
+fade_to_db:
+    .db 100, 10, 20, 3, 45, 6, 14, 1  ;100 = infinity
+    .db  60,  8, 16, 2, 30, 4, 12, 0
 
 
 cmd_calc_att_sum_db:
 ;Calculate the total attenuation of ATT1 and ATT2 in dB.
 ;If either is undefined (0xFF), the sum is undefined (0xFF).
 ;
-;Reads 5-bit ATT1 code from R16
-;Reads 2-bit ATT2 code from R17
-;Returns total attenuation in R16.  R17 unchanged.
+;Reads ATT1 dB from R16
+;Reads ATT2 dB from R17
+;Returns total attenuation dB in R16.  R17 unchanged.
 ;
     cpi r16, 0xff               ;Is ATT1 undefined?
     breq cas_invalid            ;  Yes: sum will also be undefined
@@ -220,39 +233,3 @@ cas_invalid:
 
 cas_done:
     ret                         ;Return dB value in R16
-
-
-cmd_calc_fader_db:
-;Calculate Fader value in dB from Fader code.
-;Infinity (Fader code 0x0F) is returned as 100 dB.
-;Fader codes undefined in the datasheet are returned as 0xFF dB.
-;
-;Reads 4-bit Fader code from R16.
-;Returns attenuation value of Fader (dB) in R16.
-;
-    cpi r16, 0x10
-    brsh ccf_invalid            ;Branch if 0x10 or higher (out of range)
-
-    push ZH
-    push ZL
-
-    ldi ZL, low(ccf_fade_to_db * 2)   ;Base address of Fader to dB table
-    ldi ZH, high(ccf_fade_to_db * 2)
-
-    add ZL, r16                 ;Add index to table base address
-    clr r16
-    adc ZH, r16
-    lpm r16, Z                  ;Read dB value from table
-
-    pop ZL
-    pop ZH
-
-    ret                         ;Return dB value in R16
-
-ccf_invalid:
-    ser r16                     ;0xFF dB = undefined
-    ret                         ;Return dB value in R16
-
-ccf_fade_to_db:
-    .db 100, 10, 20, 3, 45, 6, 14, 1  ;100 = infinity
-    .db  60,  8, 16, 2, 30, 4, 12, 0
