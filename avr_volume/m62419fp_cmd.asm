@@ -10,11 +10,11 @@ cmd_parse_input:
 ;Parse input selector from an M62419FP command packet.
 ;Command must have data select bit = 0 (volume/loudness/input)
 ;
-;Reads command in packet_work_buf.
+;Reads 2-byte command packet at Y-pointer.
 ;Stores 2-bit input selector code in R16.
 ;
     ;00111010 1111xx00 -> 0000000xx
-    lds r16, packet_work_buf    ;Read low byte
+    ld r16, Y               ;Read low byte
     lsr r16
     lsr r16
     andi r16, 0b00000011
@@ -25,14 +25,14 @@ cmd_parse_loudness:
 ;Parse loudness from an M62419FP command packet.
 ;Command must have data select bit = 0 (volume/loudness/input)
 ;
-;Reads command in packet_work_buf.
+;Reads 2-byte command packet at Y-pointer.
 ;Stores 1-bit loudness flag (1=loudness on) in R16.
 ;
     ;00111010 111x0100 -> 0000000x
-    lds r16, packet_work_buf    ;Read low byte
-    bst r16, 4                  ;Set T flag to loudness bit
+    ld r16, Y               ;Read low byte
+    bst r16, 4              ;Set T flag to loudness bit
     clr r16
-    bld r16, 0                  ;Set bit 0 from T flag
+    bld r16, 0              ;Set bit 0 from T flag
     ret
 
 
@@ -40,13 +40,13 @@ cmd_parse_att1:
 ;Parse ATT1 attenuator code from an M62419FP command packet.
 ;Command must have data select bit = 0 (volume/loudness/input)
 ;
-;Reads command in packet_work_buf.
+;Reads 2-byte command packet at Y-pointer.
 ;Stores 5-bit ATT1 code in R16.
 ;
     ;0011xxxx x1110100 -> 000xxxxx
-    lds r16, packet_work_buf    ;Read low byte
+    ld r16, Y               ;Read low byte
     rol r16
-    lds r16, packet_work_buf+1  ;Read high byte
+    ldd r16, Y+1            ;Read high byte
     rol r16
     andi r16, 0b00011111
     ret
@@ -56,11 +56,11 @@ cmd_parse_att2:
 ;Parse ATT2 attenuator code from an M62419FP command packet.
 ;Command must have data select bit = 0 (volume/loudness/input)
 ;
-;Reads command in packet_work_buf.
+;Reads 2-byte command packet at Y-pointer.
 ;Stores 2-bit ATT2 code in R16.
 ;
     ;00111010 1xx10100 -> 000000xx
-    lds r16, packet_work_buf    ;Read low byte
+    ld r16, Y               ;Read low byte
     swap r16
     lsr r16
     andi r16, 0b00000011
@@ -71,11 +71,11 @@ cmd_parse_fadesel:
 ;Parse Fader Select bit from an M62419FP command packet.
 ;Command must have data select bit = 1 (bass/treble/fader)
 ;
-;Reads command in packet_work_buf
+;Reads 2-byte command packet at Y-pointer
 ;Stores 1-bit Fader Select flag in R16
 ;
     ;00100110 010001x1 -> 0000000x
-    lds r16, packet_work_buf    ;Read low byte
+    ld r16, Y               ;Read low byte
     lsr r16
     andi r16, 0b00000001
     ret
@@ -85,11 +85,11 @@ cmd_parse_fader:
 ;Parse Fader attenuator code from an M62419FP command packet.
 ;Command must have data select bit = 1 (bass/treble/fader)
 ;
-;Reads command in packet_work_buf
+;Reads 2-byte command packet at Y-pointer
 ;Stores 4-bit Fader code in R16
 ;
     ;00100110 01xxxx01 -> 0000xxxx
-    lds r16, packet_work_buf    ;Read low byte
+    ld r16, Y               ;Read low byte
     lsr r16
     lsr r16
     andi r16, 0b00001111
@@ -100,11 +100,11 @@ cmd_parse_bass:
 ;Parse Bass tone code from an M62419FP command packet
 ;Command must have data select bit = 1 (bass/treble/fader)
 ;
-;Reads command in packet_work_buf
+;Reads 2-byte command packet at Y-pointer
 ;Stores 4-bit Bass code in R16
 ;
     ;00xxxx10 01000101 -> 0000xxxx
-    lds r16, packet_work_buf+1  ;Read high byte
+    ldd r16, Y+1            ;Read high byte
     lsr r16
     lsr r16
     andi r16, 0b00001111
@@ -115,17 +115,17 @@ cmd_parse_treble:
 ;Parse Treble tone code from an M62419FP command packet
 ;Command must have data select bit = 1 (bass/treble/fader)
 ;
-;Reads command in packet_work_buf
+;Reads 2-byte command packet at Y-pointer
 ;Stores 4-bit Treble code in R16
 ;
     ;001001xx xx000101 -> 0000xxxx
-    lds r16, packet_work_buf    ;Read low byte
-    bst r16, 6                  ;Save bit 6 of low byte in T
-    lsl r16                     ;Save bit 7 of low byte in carry
-    lds r16, packet_work_buf+1  ;Read high byte
-    rol r16                     ;Rotate in bit 7 from low byte
-    lsl r16                     ;Rotate in a zero
-    bld r16, 0                  ;  then replace it with bit 6 from low byte
+    ld r16, Y               ;Read low byte
+    bst r16, 6              ;Save bit 6 of low byte in T
+    lsl r16                 ;Save bit 7 of low byte in carry
+    ldd r16, Y+1            ;Read high byte
+    rol r16                 ;Rotate in bit 7 from low byte
+    lsl r16                 ;Rotate in a zero
+    bld r16, 0              ;  then replace it with bit 6 from low byte
     andi r16, 0b00001111
     ret
 

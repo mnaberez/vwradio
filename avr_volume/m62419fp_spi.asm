@@ -88,7 +88,7 @@ spi_get_packet:
 ;Check if a new packet has been received by the ISR, if so then move
 ;it into the work buffer.  Destroys R16, R17, R18.
 ;
-;Stores the packet in packet_work_buf if one is ready.
+;Stores the packet at Y-pointer (if a packet is available).
 ;Carry set = packet ready, Carry clear = no packet.
 ;
 	;Check for a new packet
@@ -108,10 +108,10 @@ spi_get_packet:
 	sts packet_rx_buf+1, r18
 	sei
 
-	;Copy the received 14-bit packet into the work buffer
-	sts packet_work_buf, r16 	;Copy low byte
+	;Copy the received 14-bit packet into the work buffer at Y
+	st Y, r16 					;Copy low byte
 	andi r17, 0b00111111 		;Zero out non-data bits of high byte
-	sts packet_work_buf+1, r17  ;Copy high byte
+	std Y+1, r17  				;Copy high byte
 
     sec                         ;Carry set = packet received
     ret

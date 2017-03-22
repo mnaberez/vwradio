@@ -77,6 +77,10 @@ reset:
 	sei                         ;Enable interrupts
     rcall dump_buffer_to_uart
 loop:
+    ;Set Y-pointer to a buffer that will receive a packet
+    ldi YL, low(packet_work_buf)
+    ldi YH, high(packet_work_buf)
+
     ;Wait for an M62419FP command packet
     rcall spi_get_packet        ;Try to get a new packet in packet_work_buf
     brcc loop                   ;Loop until one is ready
@@ -87,7 +91,7 @@ loop:
 
 
 parse_cmd_into_buffer:
-    lds r16, packet_work_buf    ;Load low byte
+    ld r16, Y                   ;Load command packet low byte
     andi r16, 1                 ;Mask off all except data select bit
     brne parse_fade_tone        ;Branch if it's a tone command
     rcall parse_vol_cmd_into_buffer
@@ -102,7 +106,7 @@ parse_vol_cmd_into_buffer:
     ;Set Z-pointer for buffer area for channel 0 or 1
     ldi ZL, low(m62419fp_buf)   ;Base address of M62419FP registers buffer
     ldi ZH, high(m62419fp_buf)
-    lds r16, packet_work_buf+1  ;Load high byte
+    ldd r16, Y+1                ;Load command packet high byte
     sbrc r16, 5                 ;Skip next instruction if this is channel 0
     adiw ZH:ZL, ch1             ;Add offset for channel 1
 
