@@ -70,6 +70,7 @@ spi_isr_pcint0:
 	;A complete packet has been received.
 
 	sts packet_rx_buf, r22_low 		;Save low byte
+	ori r23_high, 0b10000000		;Set unused bit to indicate packet complete
 	sts packet_rx_buf+1, r23_high 	;Save high byte
 
 	;Set up for next time.
@@ -92,10 +93,9 @@ spi_get_packet:
 ;
 	;Check for a new packet
 	;(ignores a packet of all zeroes but that's never been seen)
-	lds r16, packet_rx_buf
-    lds r17, packet_rx_buf+1
-    or r16, r17
-    breq sgp_none
+	lds r16, packet_rx_buf+1 	;Load high byte
+	sbrs r16, 7 				;Skip next if bit 7 indicates packet complete
+	rjmp sgp_none 				;No packet yet
 
 	;A packet is available in packet_rx_buf
 	;Read it into R16+R17 then clear packet_rx_buf for the next packet
@@ -108,12 +108,13 @@ spi_get_packet:
 	sts packet_rx_buf+1, r18
 	sei
 
-	;Copy the received packet into the work buffer
-	sts packet_work_buf, r16
-	sts packet_work_buf+1, r17
+	;Copy the received 14-bit packet into the work buffer
+	sts packet_work_buf, r16 	;Copy low byte
+	andi r17, 0b00111111 		;Zero out non-data bits of high byte
+	sts packet_work_buf+1, r17  ;Copy high byte
 
-    sec                             ;Carry set = packet received
+    sec                         ;Carry set = packet received
     ret
 sgp_none:
-    clc                             ;Carry clear = no packet
+    clc                         ;Carry clear = no packet
     ret
