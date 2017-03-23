@@ -58,7 +58,10 @@ def display_command(command):
 
     data_select = int(b[13])
     if data_select == 0:  # volume/loudness/input selector
-        chan = int(b[0])
+        if int(b[1]) == 1: # single channel
+            chan = "CH%d " % int(b[0])
+        else: # both channels
+            chan = "BOTH"
 
         att1_code = int(b[2:7], 2)
         att1_db = att1_to_db[att1_code]
@@ -68,7 +71,7 @@ def display_command(command):
 
         att_sum_db = att1_db + att2_db
 
-        fmt = ("SEL:VOL/LOUD/INP\tCH%s\t"
+        fmt = ("SEL:VOL/LOUD/INP\t%s\t"
                "ATT1 = %d dB\tATT2 = %d dB\tSUM = %d dB")
         print(fmt % (chan, att1_db, att2_db, att_sum_db))
 

@@ -25,20 +25,29 @@ cmd_parse_ds0:
 ;Reads 2-byte command packet at Y.
 ;Updates M62419FP registers buffer at Z.
 ;
-    ;Increment Z-pointer for buffer area for channel 0 or 1
     ldd r16, Y+1                ;Load command packet high byte
-    sbrc r16, 5                 ;Skip next instruction if this is channel 0
-    adiw ZH:ZL, ch1             ;Add offset for channel 1
-
-    ;Parse command, save in buffer
+    sbrc r16, 4                 ;Skip next if bit 4 indicates both channels
+    rjmp cpds0_single           ;Jump to handle single channel only
+    call cpds0_parse            ;Parse into channel 0 registers, then
+    rjmp cpds0_parse_ch1        ;  parse into channel 1 registers and return
+cpds0_single:
+    sbrs r16, 5                 ;Skip next if bit 5 indicates channel 1
+    rjmp cpds0_parse            ;Parse into channel 0 registers and return
+    rjmp cpds0_parse_ch1        ;Parse into channel 1 registers and return
+cpds0_parse:
     rcall cmd_parse_att1        ;Parse ATT1 code
-    st Z+, r16
+    std Z+0, r16
     rcall cmd_parse_att2        ;Parse ATT1 code
-    st Z+, r16
-    rcall cmd_parse_loudness    ;Parse loudness fag
-    st Z+, r16
+    std Z+1, r16
+    rcall cmd_parse_loudness    ;Parse loudness flag
+    std Z+2, r16
     rcall cmd_parse_input       ;Parse input selector
-    st Z+, r16
+    std Z+3, r16
+    ret
+cpds0_parse_ch1:
+    adiw ZH:ZL, ch1             ;Add offset for channel 1
+    call cpds0_parse            ;Parse command into channel 1 registers
+    sbiw ZH:ZL, ch1             ;Restore original Z pointer
     ret
 
 
