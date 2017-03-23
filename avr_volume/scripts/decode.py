@@ -20,7 +20,7 @@ att1_to_db = (-100,  -20, -52, None, -68,   -4, -36, None,  # -100 = infinity
 
 att2_to_db = (-3, -1, -2, 0)
 
-input_to_name = ('D (CD)', 'B (FM)', 'C (TAPE?)', 'A (AM)')
+input_to_name = ('D (CD)', 'B (FM)', 'C (TAPE)', 'A (AM)')
 
 fadesel_to_name = ('FRNT', 'REAR')
 
@@ -59,7 +59,8 @@ def display_command(command):
     data_select = int(b[13])
     if data_select == 0:  # volume/loudness/input selector
         if int(b[1]) == 1: # single channel
-            chan = "CH%d " % int(b[0])
+            chnum = int(b[0])
+            chan = "CH%d/%s" % (chnum, ('R', 'L')[chnum])
         else: # both channels
             chan = "BOTH"
 

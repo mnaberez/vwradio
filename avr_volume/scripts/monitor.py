@@ -38,7 +38,7 @@ def main():
     try:
         while True:
             packet = read_packet(ser)
-            fmt = ('\rCH0=%d dB (L=%d,I=%s)  CH1=%d dB (L=%d,I=%s)  '
+            fmt = ('\rCH0/R=%d dB (L=%d,I=%s)  CH1/L=%d dB (L=%d,I=%s)  '
                    'FADER=%d dB (%s)  BASS=%d dB  TREB=%d dB        ')
             sys.stdout.write(fmt % (
                 signed_char(packet[2:3]),

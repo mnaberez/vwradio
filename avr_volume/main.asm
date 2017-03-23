@@ -40,18 +40,18 @@
 
 
 ;Offsets into M62419FP state buffer
-.equ ch0             = 0                ;Channel 0:
+.equ ch0             = 0                ;Channel 0 (Right):
 .equ ch0_att1        = ch0+0            ;  ATT1 5-bit code
 .equ ch0_att2        = ch0+1            ;  ATT2 2-bit code
-.equ ch0_loudness    = ch0+2            ;  Loudness flag
+.equ ch0_loudness    = ch0+2            ;  Loudness flag (0=off, 1=on)
 .equ ch0_input       = ch0+3            ;  Input selector 2-bit code
-.equ ch1             = ch0_input+1      ;Channel 1:
+.equ ch1             = ch0_input+1      ;Channel 1 (Left):
 .equ ch1_att1        = ch1+0            ;  ATT1 5-bit code
 .equ ch2_att2        = ch1+1            ;  ATT2 2-bit code
-.equ ch3_loudness    = ch1+2            ;  Loudness flag
+.equ ch3_loudness    = ch1+2            ;  Loudness bit (0=off, 1=on)
 .equ ch4_input       = ch1+3            ;  Input selector 2-bit code
 .equ common          = ch4_input+1      ;Common to both channels:
-.equ fadesel         = common+0         ;  Fader Select flag
+.equ fadesel         = common+0         ;  Fader Select flag (0=front, 1=rear)
 .equ fader           = common+1         ;  Fader 4-bit code
 .equ bass            = common+2         ;  Bass 4-bit tone code
 .equ treble          = common+3         ;  Treble 4-bit tone code
@@ -90,6 +90,7 @@ wait:
     rcall spi_get_packet        ;Try to get a new packet into bufer at Y
     brcc wait                   ;Loop until one is ready
 
+    rcall cmd_parse             ;Parse command at Y into registers at Z
     rcall cmd_parse             ;Parse command at Y into registers at Z
     rcall dump_to_uart
     rjmp loop

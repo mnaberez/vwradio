@@ -20,7 +20,7 @@ cmd_parse:
 
 
 cmd_parse_ds0:
-;Parse an M62419FP command with data select = 0 (volume/loudness/input select).
+;Parse an M62419FP command with data select bit = 0 (volume/loudness/input).
 ;
 ;Reads 2-byte command packet at Y.
 ;Updates M62419FP registers buffer at Z.
@@ -37,7 +37,7 @@ cpds0_single:
 cpds0_parse:
     rcall cmd_parse_att1        ;Parse ATT1 code
     std Z+0, r16
-    rcall cmd_parse_att2        ;Parse ATT1 code
+    rcall cmd_parse_att2        ;Parse ATT2 code
     std Z+1, r16
     rcall cmd_parse_loudness    ;Parse loudness flag
     std Z+2, r16
@@ -52,7 +52,7 @@ cpds0_parse_ch1:
 
 
 cmd_parse_ds1:
-;Parse an M62419FP command with data select = 1 (bass/treble/fader)
+;Parse an M62419FP command with data select bit = 1 (bass/treble/fader).
 ;
 ;Reads 2-byte command packet at Y.
 ;Updates M62419FP registers buffer at Z.
@@ -70,7 +70,9 @@ cmd_parse_ds1:
 
 cmd_parse_input:
 ;Parse input selector from an M62419FP command packet.
-;Command must have data select bit = 0 (volume/loudness/input)
+;Command must have data select bit = 0 (volume/loudness/input).
+;
+;0=D/CD, 1=B/FM, 2=C/TAPE, 3=A/AM
 ;
 ;Reads 2-byte command packet at Y-pointer.
 ;Stores 2-bit input selector code in R16.
@@ -86,6 +88,8 @@ cmd_parse_input:
 cmd_parse_loudness:
 ;Parse loudness from an M62419FP command packet.
 ;Command must have data select bit = 0 (volume/loudness/input)
+;
+;0=Loudness off, 1=Loudness on
 ;
 ;Reads 2-byte command packet at Y-pointer.
 ;Stores 1-bit loudness flag (1=loudness on) in R16.
@@ -132,6 +136,8 @@ cmd_parse_att2:
 cmd_parse_fadesel:
 ;Parse fader select bit from an M62419FP command packet.
 ;Command must have data select bit = 1 (bass/treble/fader)
+;
+;0=Fader attenuates front, 1=Fader attenuates rear
 ;
 ;Reads 2-byte command packet at Y-pointer
 ;Stores 1-bit fader select flag in R16
