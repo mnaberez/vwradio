@@ -92,7 +92,6 @@ spi_get_packet:
 ;Carry set = packet ready, Carry clear = no packet.
 ;
 	;Check for a new packet
-	;(ignores a packet of all zeroes but that's never been seen)
 	lds r16, packet_rx_buf+1 	;Load high byte
 	sbrs r16, 7 				;Skip next if bit 7 indicates packet complete
 	rjmp sgp_none 				;No packet yet

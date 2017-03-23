@@ -1,7 +1,7 @@
 ;M62419FP Command Parsing
 ;
 ;These routines parse data from the M62419FP commands received.  They all
-;operate on the work buffer (packet_work_buf) and are intended to run in
+;operate on a 2-byte buffer at the Y-pointer and are intended to run in
 ;the main loop.  See the M62419FP datasheet for the command format and
 ;conversions from codes to dB.
 ;
