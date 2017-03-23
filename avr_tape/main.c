@@ -130,8 +130,6 @@ int main()
 
     // Set pin change enable mask 1 for PB2 (PCINT10) only
     PCMSK1 = _BV(PCINT10);
-    // Any transition generates the pin change interrupt
-    EICRA = _BV(ISC11);
     // Enable interrupts from pin change group 1 only
     PCICR = _BV(PCIE1);
 
