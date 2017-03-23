@@ -6,6 +6,59 @@
 ;conversions from codes to dB.
 ;
 
+
+cmd_parse:
+;Parse any M62419FP command and update virtual M62419FP registers.
+;
+;Reads 2-byte command packet at Y.
+;Updates M62419FP registers buffer at Z.
+;
+    ld r16, Y                   ;Load command packet low byte
+    sbrs r16, 0                 ;Skip next if data select bit = 1
+    rjmp cmd_parse_ds0          ;Parse command with ds=0 (vol/loud/input)
+    rjmp cmd_parse_ds1          ;Parse command with ds=1 (bass/treb/fade)
+
+
+cmd_parse_ds0:
+;Parse an M62419FP command with data select = 0 (volume/loudness/input select).
+;
+;Reads 2-byte command packet at Y.
+;Updates M62419FP registers buffer at Z.
+;
+    ;Increment Z-pointer for buffer area for channel 0 or 1
+    ldd r16, Y+1                ;Load command packet high byte
+    sbrc r16, 5                 ;Skip next instruction if this is channel 0
+    adiw ZH:ZL, ch1             ;Add offset for channel 1
+
+    ;Parse command, save in buffer
+    rcall cmd_parse_att1        ;Parse ATT1 code
+    st Z+, r16
+    rcall cmd_parse_att2        ;Parse ATT1 code
+    st Z+, r16
+    rcall cmd_parse_loudness    ;Parse loudness fag
+    st Z+, r16
+    rcall cmd_parse_input       ;Parse input selector
+    st Z+, r16
+    ret
+
+
+cmd_parse_ds1:
+;Parse an M62419FP command with data select = 1 (bass/treble/fader)
+;
+;Reads 2-byte command packet at Y.
+;Updates M62419FP registers buffer at Z.
+;
+    rcall cmd_parse_fadesel     ;Parse fade select flag
+    std Z+fadesel, r16
+    rcall cmd_parse_fader       ;Parse fader code
+    std Z+fader, r16
+    rcall cmd_parse_bass        ;Parse bass code
+    std Z+bass, r16
+    rcall cmd_parse_treble      ;Parse treble code
+    std Z+treble, r16
+    ret
+
+
 cmd_parse_input:
 ;Parse input selector from an M62419FP command packet.
 ;Command must have data select bit = 0 (volume/loudness/input)

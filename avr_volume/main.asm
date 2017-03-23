@@ -75,69 +75,27 @@ reset:
 	rcall uart_init 			;15200 bps, N-8-1
 	rcall spi_init              ;Set up for M62419FP receive on interrupt
 	sei                         ;Enable interrupts
-    rcall dump_buffer_to_uart
+
 loop:
     ;Set Y-pointer to a buffer that will receive a packet
     ldi YL, low(packet_work_buf)
     ldi YH, high(packet_work_buf)
 
-    ;Wait for an M62419FP command packet
-    rcall spi_get_packet        ;Try to get a new packet in packet_work_buf
-    brcc loop                   ;Loop until one is ready
+    ;Set Z-pointer to M62419FP registers buffer
+    ldi ZL, low(m62419fp_buf)
+    ldi ZH, high(m62419fp_buf)
 
-    rcall parse_cmd_into_buffer
-    rcall dump_buffer_to_uart
+wait:
+    ;Wait for an M62419FP command packet
+    rcall spi_get_packet        ;Try to get a new packet into bufer at Y
+    brcc wait                   ;Loop until one is ready
+
+    rcall cmd_parse             ;Parse command at Y into registers at Z
+    rcall dump_to_uart
     rjmp loop
 
 
-parse_cmd_into_buffer:
-    ld r16, Y                   ;Load command packet low byte
-    andi r16, 1                 ;Mask off all except data select bit
-    brne parse_fade_tone        ;Branch if it's a tone command
-    rcall parse_vol_cmd_into_buffer
-    rjmp parse_done
-parse_fade_tone:
-    rcall parse_fade_tone_cmd_into_buffer
-parse_done:
-    ret
-
-
-parse_vol_cmd_into_buffer:
-    ;Set Z-pointer for buffer area for channel 0 or 1
-    ldi ZL, low(m62419fp_buf)   ;Base address of M62419FP registers buffer
-    ldi ZH, high(m62419fp_buf)
-    ldd r16, Y+1                ;Load command packet high byte
-    sbrc r16, 5                 ;Skip next instruction if this is channel 0
-    adiw ZH:ZL, ch1             ;Add offset for channel 1
-
-    ;Parse command, save in buffer
-    rcall cmd_parse_att1        ;Parse ATT1 code from packet
-    st Z+, r16
-    rcall cmd_parse_att2        ;Parse ATT1 code from packet
-    st Z+, r16
-    rcall cmd_parse_loudness    ;Parse loudness from packet
-    st Z+, r16
-    rcall cmd_parse_input       ;Parse input selector from packet
-    st Z+, r16
-    ret
-
-
-parse_fade_tone_cmd_into_buffer:
-    ;Set Z-pointer to buffer area for fader
-    ldi ZL, low(m62419fp_buf+common)
-    ldi ZH, high(m62419fp_buf+common)
-    rcall cmd_parse_fadesel
-    st Z+, r16
-    rcall cmd_parse_fader
-    st Z+, r16
-    rcall cmd_parse_bass
-    st Z+, r16
-    rcall cmd_parse_treble
-    st Z+, r16
-    ret
-
-
-dump_buffer_to_uart:
+dump_to_uart:
 ;Dump the virtual M62419FP register state to the UART, along with
 ;the calculated attenuation values in dB.
 ;
