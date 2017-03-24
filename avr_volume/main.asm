@@ -32,11 +32,14 @@
 .include "m1284def.asm"
 
 
-;Buffers for M62419FP commands (rx buf -> work buf)
-.equ packet_rx_buf   = SRAM_START       ;2 byte buffer used for ISR receive
-.equ packet_work_buf = SRAM_START+$02 	;2 byte buffer used during parsing
+.equ ram             = SRAM_START
+;Buffers for M62419FP command packets (isr buf -> rx buf -> work buf)
+.equ packet_bitcount = ram      ;Counts down bits remaining to rx in packet
+.equ packet_isr_buf  = ram+$01  ;2 bytes to accumulate SPI packet bits in ISR
+.equ packet_rx_buf   = ram+$03  ;2 bytes for complete SPI packet received
+.equ packet_work_buf = ram+$05 	;2 bytes for SPI packet used during parsing
 ;Buffer used to track M62419FP state across commands
-.equ m62419fp_buf    = SRAM_START+$04   ;12 byte buffer for M62419FP state
+.equ m62419fp_buf    = ram+$07  ;12 byte buffer for M62419FP state
 
 
 ;Offsets into M62419FP state buffer
