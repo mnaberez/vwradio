@@ -262,7 +262,8 @@ cmd_calc_tone_db:
     ldi ZH, high(tone_to_db * 2)
 
     cpi r16, 0x10               ;Tone code 0x10 and above are invalid
-    rjmp finish_db_lookup       ;Look up dB value, return it in R16
+
+    ;Fall through into finish_db_lookup to look up dB value, return it in R16
 
 
 finish_db_lookup:
