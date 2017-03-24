@@ -25,13 +25,13 @@ uart_init:
 uart_send_byte:
 ;Send the byte in R16 out the UART.
 ;If the UART is busy transmitting, this routine blocks until it is ready.
-;Destroys R17.
 ;
-    ;Wait for transmit buffer to be empty.
-    lds  r17, UCSR0A
-    sbrs r17, UDRE0
-    rjmp uart_send_byte
+	push r16
+usb_wait:
+    lds  r16, UCSR0A 		;Read UART status register
+    sbrs r16, UDRE0 		;Skip next if ready to transmit
+    rjmp usb_wait
 
-    ;Send the data byte.
-    sts UDR0, r16
+	pop r16
+    sts UDR0, r16 			;Send the data byte
 	ret
