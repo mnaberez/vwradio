@@ -78,7 +78,7 @@ spi_isr_pcint0:
 	brne spi_isr_done 			;More bits?  Nothing more to do this time.
 
 	;A complete packet has been received.
-	;Transfer packet_isr_buf/packet_isr_buf+1 -> packet_rx_buf
+	;Transfer packet_isr_buf -> packet_rx_buf
 
 	lds r21, packet_isr_buf
 	sts packet_rx_buf, r21 		;Save low byte
@@ -109,8 +109,9 @@ spi_get_packet:
 ;
 	;Check for a new packet
 	lds r16, packet_rx_buf+1 	;Load high byte
+	clc 						;Carry clear = no packet
 	sbrs r16, 7 				;Skip next if bit 7 indicates packet complete
-	rjmp sgp_none 				;No packet yet
+	ret			 				;No packet yet
 
 	;A packet is available in packet_rx_buf
 	;Read it into R16+R17 and then clear packet_rx_buf for the next packet
@@ -129,7 +130,4 @@ spi_get_packet:
 	std Y+1, r17  				;Copy high byte
 
     sec                         ;Carry set = packet received
-    ret
-sgp_none:
-    clc                         ;Carry clear = no packet
     ret
