@@ -1,0 +1,100 @@
+Main-MCU
+    CD Changer
+    KWP1281
+    SCA4.4
+    M62419FP
+    TC9212F
+    EEPROM
+    PLL (Tuner)
+    Equalizer
+
+Sub-MCU
+    FIS Display
+    MFSW
+    uPD16432B
+
+
+Sub-MCU Pins:
+   32 S2M ENA
+   50 M2S ENA
+   51 M2S CLK
+   53 M2S DAT
+   54 S2M CLK
+   55 S2M DAT
+
+
+CD 1 TR 01        81 10 01 01 01 00
+CD 1 TR 02        81 10 01 01 02 00
+CD 1 TR 12        81 10 01 01 12 00
+REV 159           81 50 03 00 01 59
+SCANCD1TR02       81 50 04 01 02 00
+SCANDD1TR12       81 50 04 01 12 00
+NO CHANGER        81 00 05 00 00 00
+NO DISC           81 00 07 00 00 00
+CUE 059           81 50 09 01 00 59
+CD 1  MAX         81 10 0A 01 00 00
+CD 1  MIN         81 10 0B 01 00 00
+CHK MAGAZIN       81 10 0C 00 00 00
+CD1 CD ERR        81 10 0D 01 00 00
+SET ONVOL13       81 00 12 0D 00 00
+SET ONVOL14       81 00 12 0E 00 00
+SET ONVOL63       81 00 12 3F 00 00
+SET CD MIX1       81 00 13 00 00 00
+SET CD MIX6       81 00 14 00 00 00
+TAPE SKIP Y       81 00 15 00 00 00
+TAPE SKIP N       81 00 16 00 00 00
+RAD 3CP T7        81 00 20 00 00 00
+VER 0602          81 00 21 00 06 00
+FERN OFF          81 00 31 00 00 00
+FM1 1 87.9 MHZ    81 08 40 11 00 00
+FM1 2 87.9 MHZ    81 08 40 12 00 00
+FM1 6 87.9 MHZ    81 08 40 16 00 00
+FM2 1 87.9 MHZ    81 08 40 21 00 00
+FM2 2 87.9 MHZ    81 08 40 22 00 00
+FM2 6 87.9 MHZ    81 08 40 26 00 00
+FM1   87.9 MHZ    81 08 40 10 00 00
+FM1   88.1 MHZ    81 08 40 10 01 00
+FM1   88.3 MHZ    81 08 40 10 02 00
+FM1  107.7 MHZ    81 08 40 10 63 00
+FM1  107.9 MHZ    81 08 40 10 64 00
+AM     530 KHZ    81 08 41 00 00 00
+AM     540 KHZ    81 08 41 00 01 00
+AM    1710 KHZ    81 08 41 00 76 00
+AM  1  530 KHZ    81 08 41 01 00 00
+SCAN xxx.x MHZ    81 08 42 10 xx 00
+SCAN  xxxx KHZ    81 08 43 00 xx 00
+FM1   MAX         81 08 44 10 02 00
+FM1   MIN         81 08 45 10 02 00
+AM    MAX         81 08 46 00 01 00
+AM    MIN         81 08 47 00 01 00
+TAPE ERROR        81 20 5B 00 00 00
+BASS 0            81 00 62 00 00 00
+BASS +1           81 00 62 01 00 00
+BASS +9           81 00 62 09 00 00
+BASS -1           81 00 62 FF 00 00
+BASS -9           81 00 62 F7 00 00
+TREB 0            81 00 63 00 00 00
+TREB +1           81 00 63 01 00 00
+BAL LEFT 1        81 00 64 01 00 00
+BAL RIGHT 1       81 00 65 FF 00 00
+BAL CENTER        81 00 66 00 00 00
+FADE FRONT 1      81 00 67 01 00 00
+FADE REAR 1       81 00 68 FF 00 00
+FADE CENTER       81 00 69 00 00 00
+SAFE              81 00 83 00 00 00
+  0000            81 00 82 00 00 00
+  9999            81 00 82 00 99 99
+  1234            81 00 82 00 12 34
+1 0000            81 00 82 01 00 00
+DIAG              81 00 B0 00 00 00
+Blank screen      81 00 C1 00 00 00
+Power off         83 00 00 00 00 00
+
+
+Pushing power off button sends one:
+    83 00 00 00 00 00
+then repeatedly sends:
+    81 00 C1 00 00 00
+
+The 83 command is only seen at power off.  There's doesn't seem to be a
+special power on command.
