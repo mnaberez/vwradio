@@ -15,12 +15,18 @@ Sub-MCU
 
 
 Sub-MCU Pins:
-   32 S2M ENA
-   50 M2S ENA
-   51 M2S CLK
-   53 M2S DAT
-   54 S2M CLK
-   55 S2M DAT
+    32 S2M ENA (output)
+    50 M2S ENA (input)
+    51 M2S CLK (input)
+    53 M2S DAT (input)
+    54 S2M CLK (output)
+    55 S2M DAT (output)
+    56 Vcc is connected to M5V (switched 5V)
+
+Main-MCU Pins:
+    51 M2S CLK (normal output)
+    52 M2S DAT (normal output)
+    59 M2S ENA (open-drain output, has 47K pull-up to M5V)
 
 
 CD 1 TR 01        81 10 01 01 01 00
