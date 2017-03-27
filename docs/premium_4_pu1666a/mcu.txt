@@ -87,7 +87,7 @@ BAL CENTER        81 00 66 00 00 00
 FADE FRONT 1      81 00 67 01 00 00
 FADE REAR 1       81 00 68 FF 00 00
 FADE CENTER       81 00 69 00 00 00
-SAFE              81 00 83 00 00 00
+  SAFE            81 00 83 00 00 00
   0000            81 00 82 00 00 00
   9999            81 00 82 00 99 99
   1234            81 00 82 00 12 34
@@ -104,3 +104,97 @@ then repeatedly sends:
 
 The 83 command is only seen at power off.  There's doesn't seem to be a
 special power on command.
+
+
+Command Format
+--------------
+
+6 bytes: [Command, Pictographs, Param 0, Param 1, Param 2, Param 3]
+
+Commands:
+    0x81: Write to display
+    0x83: Power off?
+
+Pictographs:
+    Bit 6: period
+    Bit 2: dolby
+    Bit 1: mix
+    Bit 0: metal
+
+
+Command 0x01
+                               P0 P1 P2
+    CD 1 TR 12        81 10 01 01 12 00
+
+    Param 0 High Nibble: Ignored
+            Low Nibble:  0-F = CD Number 0-F
+
+    Param 1: Track Number
+            0x00-0xFF = Track 00-FF
+
+    Param 2: Ignored
+
+Command 0x40
+                               P0 P1 P2
+    FM1 1 87.9 MHZ    81 08 40 11 00 00
+
+    Param 0 High Nibble: Mode:   0 = "FM"
+                         Mode:   1 = "FM1"
+                         Mode:   2 = "FM2"
+                         Mode:   Others ignored (shows "FM")
+            Low Nibble:  Preset: 0 = No preset
+                                 1-6 = Preset 1-6
+                                 Others ignored (shows no preset)
+    Param 1 Frequency Index
+                0x00= 87.9 MHz
+                0x01= 88.1 MHz
+                0xFE=138.7 MHz
+                0xFF=138.9 MHz
+
+    Param 2 Ignored
+
+    Ignores the Period pictograph in the pictographs byte.  The period is
+    always displayed.  Other bits in the pictograph byte behave normally.
+
+Command 0x41
+                               P0 P1 P2
+    AM  1  530 KHZ    81 08 41 01 00 00
+
+    Param 0 High Nibble: Ignored
+            Low Nibble:  Preset: 0 = No preset
+                                 0-F = Preset 0-F
+    Param 1 Frequency Index
+                0x00= 530 kHz
+                0x01= 540 kHz
+                0xFE=3070 kHz
+                0xFF=3080 kHz
+
+    Param 2 Ignored
+
+    All pictograph bits behave normally.
+
+Command 0x82
+                               P0 P1 P2
+    1 2345            81 00 82 01 23 45
+
+    Param 0 High Nibble: Ignored
+          1 Low Nibble: 0 = No SAFE Attempts
+                        1-F = SAFE Attempt Number 0-F
+
+    Param 1 High Nibble: SAFE Code First Digit 0-F
+            Low Nibble:  SAFE Code Second Digit 0-F
+
+    Param 2 High Nibble: SAFE Code Third Digit 0-F
+                         SAFE Code Fourth Digit 0-F
+
+Command 0x83
+
+                             P0 P1 P2
+    2 SAFE          81 00 83 02 00 00
+
+    Param 0 High Nibble: Ignored
+    Param 1 Low Nibble:  SAFE Attempt Number 0-F
+
+    Param 2 Ignored
+    Param 3 Ignored
+
