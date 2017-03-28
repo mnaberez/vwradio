@@ -1,5 +1,3 @@
-Premium 4 and 5 both behave the same.
-
 Button          Code    Complete Packet
 ------          ----    ---------------
 Volume Down     0x00    41E880FF
