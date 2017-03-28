@@ -1,0 +1,14 @@
+Main-MCU
+    CD Changer
+    KWP1281
+    SCA4.4
+    M62419FP
+    TC9212F
+    EEPROM
+    PLL (Tuner)
+    Equalizer
+
+Sub-MCU
+    FIS Display
+    MFSW
+    uPD16432B

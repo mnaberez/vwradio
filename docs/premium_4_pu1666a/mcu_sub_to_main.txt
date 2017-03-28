@@ -1,8 +1,14 @@
+
+Main-MCU Pins:             Sub-MCU Pins:
+    63 S2M ENA (input)          32 S2M ENA (output)
+    67 S2M CLK (input)          54 S2M CLK (output)
+    56 S2M DAT (input)          55 S2M DAT (output)
+
 The Sub-MCU sends a packet to the Main-MCU every 100ms, even if nothing
 has changed.  Holding a key down does not seem to increase the packet rate.
 The packet is always 4 bytes.
 
-Idle state when radio is doing nothing:
+Idle state when no keys are pressed:
     10010000 01001000 00000000 00101010 (0x9048002a)
 
 Faceplate keys:
