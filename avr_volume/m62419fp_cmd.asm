@@ -1,9 +1,21 @@
 ;M62419FP Command Parsing
 ;
-;These routines parse data from the M62419FP commands received.  They all
-;operate on a 2-byte buffer at the Y-pointer and are intended to run in
+;These routines parse data from the 14-bit M62419FP commands received.  They
+;all operate on a 2-byte buffer at the Y-pointer and are intended to run in
 ;the main loop.  See the M62419FP datasheet for the command format and
 ;conversions from codes to dB.
+;
+;  High Byte
+;                  |   5   |   4   |   3   |   2   |   1   |   0   |
+;  ----------------+-------+-------+-------+-------+-------+-------+
+;                  | CH0/1 |CH/BOTH|            ATT1               |  DS=0
+;                  |             BASS              |      TREB     |  DS=1
+;
+;  Low Byte
+;  |   7   |   6   |   5   |   4   |   3   |   2   |   1   |   0   |
+;  +-------+-------+-------+-------+-------+-------+-------+-------+
+;  |  ATT1 |      ATT2     |  LOUD |     INPUT     |   0   |  DS   |  DS=0
+;  |     TREB      |             FADER             |FADESEL|  DS   |  DS=1
 ;
 
 
