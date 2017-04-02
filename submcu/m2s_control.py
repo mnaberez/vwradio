@@ -39,8 +39,10 @@ class SubMCU(object):
 if __name__ == '__main__':
     sub = SubMCU()
     for i in range(256):
-        print i
-        sub.send([0x81, 0x00, 113, i, i, i])
+        packet = [0x81, 0, i, 0, 0, 0]
+        print([hex(x) for x in packet])
+        sub.send(packet)
+        time.sleep(0.3)
 
 # 0x00 = "    VW-CAR", static
 # 0x01 = "CD x TR xx", params
