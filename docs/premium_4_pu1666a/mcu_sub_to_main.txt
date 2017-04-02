@@ -8,40 +8,54 @@ The Sub-MCU sends a packet to the Main-MCU every 100ms, even if nothing
 has changed.  Holding a key down does not seem to increase the packet rate.
 The packet is always 4 bytes.
 
-Idle state when no keys are pressed:
-    10010000 01001000 00000000 00101010 (0x9048002a)
+Format:
+    11000011 01001000 00000000 00101010 (0xc348002a)    Preset 1 pressed
+    10010000 01001000 00000000 00101010 (0x9048002a)    No key pressed
+    AB  CCCC C   DE     FF  F   AAAAAAA
 
-Faceplate keys:
-    11000000 01001000 00000000 00101010 (0xc048002a)    PRESET 6
-    11000000 11001000 00000000 00101010 (0xc0c8002a)    PRESET 5
-    11000001 01001000 00000000 00101010 (0xc148002a)    PRESET 4
-    11000001 11001000 00000000 00101010 (0xc1c8002a)    BASS
-    11000010 01001000 00000000 00101010 (0xc248002a)    PRESET 3
-    11000010 11001000 00000000 00101010 (0xc2c8002a)    PRESET 2
-    11000011 01001000 00000000 00101010 (0xc348002a)    PRESET 1
-    11000011 11001000 00000000 00101010 (0xc3c8002a)    TREB
-    11000100 01001000 00000000 00101010 (0xc448002a)    FM
-    11000100 11001000 00000000 00101010 (0xc4c8002a)    AM
-    11000101 01001000 00000000 00101010 (0xc548002a)    TUNE UP
-    11000101 11001000 00000000 00101010 (0xc5c8002a)    BAL
-    11000110 01001000 00000000 00101010 (0xc648002a)    CD
-    11000110 11001000 00000000 00101010 (0xc6c8002a)    TAPE
-    11000111 01001000 00000000 00101010 (0xc748002a)    TUNE DOWN
-    11000111 11001000 00000000 00101010 (0xc7c8002a)    FADE
-    11001001 01001000 00000000 00101010 (0xc948002a)    TAPE SIDE
-    11001001 11001000 00000000 00101010 (0xc9c8002a)    SEEK UP
-    11001010 01001000 00000000 00101010 (0xca48002a)    MIX DOLBY
-    11001011 01001000 00000000 00101010 (0xcb48002a)    SCAN
-    11001011 11001000 00000000 00101010 (0xcbc8002a)    SEEK DOWN
-     ^  ^^^^ ^
-     |  |
-     |  +-Seems to be a unique 5-bit code for each key
-     +----Seems to go high when a key is pressed
+     A = Unknown; changes during KWP-1281 speaker test
+     B = 1 when a key is pressed
+     C = Unique 5-bit code for each key
+     D = 1 if an FIS cluster is connected
+     E = 1 if an FIS cluster is not connected
+     F = Unknown; 1 when radio is illuminated
 
-MFSW keys:
-    11001110 01001000 00000000 00101010 (0xce48002a)    VOL DOWN  MFSW:41E850AF
-    11001110 11001000 00000000 00101010 (0xcec8002a)    VOL UP    MFSW:41E8807F
-    11001111 11001000 00000000 00101010 (0xcfc8002a)    UP        MFSW:41E8D02F
-    11001111 01001000 00000000 00101010 (0xcf48002a)    DOWN      MFSW:41E850AF
-     ^  ^^^^ ^
-     MFSW seems to be the same as the faceplate, just different 5-bit codes.
+Key Codes:
+    00000 (0x00)  Preset 6
+    00001 (0x01)  Preset 5
+    00010 (0x02)  Preset 4
+    00011 (0x03)  Bass
+    00100 (0x04)  Preset 3
+    00101 (0x05)  Preset 2
+    00110 (0x06)  Preset 1
+    00111 (0x07)  Treb
+    01000 (0x08)  FM
+    01001 (0x09)  AM
+    01010 (0x0a)  Tune Up
+    01011 (0x0b)  Bal
+    01100 (0x0c)  CD
+    01101 (0x0d)  Tape
+    01110 (0x0e)  Tune Down
+    01111 (0x0f)  Fade
+    10000 (0x10)  ?
+    10001 (0x11)  ?
+    10010 (0x12)  Tape Side
+    10011 (0x13)  Seek Up
+    10100 (0x14)  Mix/Dolby
+    10101 (0x15)  ?
+    10110 (0x16)  Scan
+    10111 (0x17)  Seek Down
+    11000 (0x18)  ?
+    11001 (0x19)  ?
+    11010 (0x1a)  ?
+    11011 (0x1b)  ?
+    11100 (0x1c)  MFSW:41E850AF VOL DOWN
+    11101 (0x1d)  MFSW:41E8807F VOL UP
+    11110 (0x1e)  MFSW:41E850AF DOWN
+    11111 (0x1f)  MFSW:41E8D02F UP
+
+A unique 5-bit code identifies each key.  This one set of codes is used to
+indicate keys on the radio's own faceplate and also when the radio receives
+a key from the MFSW (Multi-Function Steering Wheel).  When no key is pressed,
+the Sub-MCU sends 0x00 (same as Preset 6).  The "key pressed" bit (not part of
+the 5-bit code) is used to differentiate between Preset 6 and no key pressed.
