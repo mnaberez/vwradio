@@ -11,10 +11,12 @@ PU-1634A
   footprint for an Epson RTC-4543 in the same area.  The RTC always
   seems to be populated.
 
+PU-1635A
+  New Beetle version of PU-1634A.
+
 PU-1666A
   Like PU-1634A but has a dot matrix display driven by NEC uPD16432B.
 
 PU-1667A
-  Like PU-1666A but with a different face assembly for the New Beetle.  The
-  dot matrix display on PU-1667A is very similar to PU-1666A but has
-  different pictographs.
+  New Beetle version of PU-1666A.  The dot matrix display on PU-1667A
+  has different pictographs than PU-1666A.
