@@ -1,0 +1,41 @@
+Running the Sub-MCU Outside of the Radio
+----------------------------------------
+
+Minimum connections:
+
+    11 AVCC     +5V
+    12 AVR      GND
+    13 AVSS     GND
+    19 /RST     DS1813 or similar *1
+    20 MOD0     GND to select internal ROM mode
+    21 MOD1     GND to select internal ROM mode
+    22 X0       8 MHz crystal in  *2
+    23 X1       8 MHz crystal out *2
+    24 VSS      GND
+    49 VSS      GND
+    56 VCC      +5V
+
+    *1 = Power-on reset is generated internally so /RST can be left open.
+         In the radio, /RST is connected to an output pin on the Main-MCU.
+         For bench testing, a DS1813 or similar can be used to generate /RST
+         from a pushbutton.
+
+    *2 = Instead of a crystal, a TTL oscillator may be used.  Connect
+         its output to pin 22 (X0) and leave pin 23 (X1) open.
+
+Inputs:
+
+    50 M2S ENA (input)
+    51 M2S CLK (input)
+    53 M2S DAT (input)
+
+Outputs:
+
+    32 P20      S2M ENA (output)
+    54 P34      S2M CLK (output)
+    55 P35      S2M DAT (output)
+
+    46 P02      uPD16432B STB (output)
+    47 P01      uPD16432B CLK (output)
+    48 P00      uPD16432B DAT (bidirectional)
+
