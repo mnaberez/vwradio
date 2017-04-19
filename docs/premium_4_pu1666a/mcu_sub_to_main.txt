@@ -4,21 +4,26 @@ Main-MCU Pins:             Sub-MCU Pins:
     67 S2M CLK (input)          54 S2M CLK (output)
     56 S2M DAT (input)          55 S2M DAT (output)
 
-The Sub-MCU sends a packet to the Main-MCU every 100ms, even if nothing
-has changed.  Holding a key down does not seem to increase the packet rate.
-The packet is always 4 bytes.
+The Sub-MCU sends a 4-byte packet to the Main-MCU every 100ms, even if nothing
+has changed.  The Sub-MCU starts transmitting packets on its own and will
+transmit them even if the Main-MCU is not in the circuit.  Holding a key down
+does not seem to increase the packet rate.
 
 Format:
-    11000011 01001000 00000000 00101010 (0xc348002a)    Preset 1 pressed
     10010000 01001000 00000000 00101010 (0x9048002a)    No key pressed
-    AB  CCCC C   DE     FF  F   AAAAAAA
+    11000011 01001000 00000000 00101010 (0xc348002a)    Preset 1 pressed
+    AB  CCCC CIJ DE H G FF  F   AAAAAAA
 
-     A = Unknown; changes during KWP-1281 speaker test
+     A = Unknown; changes during KWP1281 speaker test
      B = 1 when a key is pressed
      C = Unique 5-bit code for each key
      D = 1 if an FIS cluster is connected
      E = 1 if an FIS cluster is not connected
      F = Unknown; 1 when radio is illuminated
+     G = BOSE    P07 (Pin 41)
+     H = BOSE    P06 (Pin 42)
+     I = KWP1281 P05 (Pin 43)
+     J = KWP1281 P04 (Pin 44)
 
 Key Codes:
     00000 (0x00)  Preset 6
