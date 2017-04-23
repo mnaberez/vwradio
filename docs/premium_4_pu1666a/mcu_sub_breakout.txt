@@ -7,8 +7,8 @@ Minimum connections:
     12 AVR      GND
     13 AVSS     GND
     19 /RST     DS1813 or similar *1
-    20 MOD0     GND to select internal ROM mode
-    21 MOD1     GND to select internal ROM mode
+    20 MOD0     GND (internal ROM mode)
+    21 MOD1     GND (internal ROM mode)
     22 X0       8 MHz crystal in  *2
     23 X1       8 MHz crystal out *2
     24 VSS      GND
@@ -39,3 +39,58 @@ Outputs:
     47 P01      uPD16432B CLK (output)
     48 P00      uPD16432B DAT (bidirectional)
 
+
+External ROM Mode
+-----------------
+
+Requires minimum connections above, but these mode pins:
+
+    20 MOD0     Vcc (external ROM mode)
+    21 MOD1     GND (external ROM mode)
+
+MB89623R:
+
+    25 ALE  74HCT373 Pin 11 CLK
+    26 /RD  2764 Pin 22 /OE
+    29 RDY  4.7K pull-up resistor to Vcc
+    33 A15  74HCT138 Pin 3 C
+    34 A14  74HCT138 Pin 2 B
+    35 A13  74HCT138 Pin 1 A
+    36 A12  2764 Pin 2  A12
+    37 A11  2764 Pin 23 A11
+    38 A10  2764 Pin 21 A10
+    39 A9   2764 Pin 24 A9
+    40 A8   2764 Pin 25 A8
+    41 AD7  74HCT373 Pin 18 8D     and     2764 Pin 19 D7
+    42 AD6  74HCT373 Pin 17 7D     and     2764 Pin 18 D6
+    43 AD5  74HCT373 Pin 14 6D     and     2764 Pin 17 D5
+    44 AD4  74HCT373 Pin 13 5D     and     2764 Pin 16 D4
+    45 AD3  74HCT373 Pin 8 4D      and     2764 Pin 15 D3
+    46 AD2  74HCT373 Pin 7 3D      and     2764 Pin 13 D2
+    47 AD1  74HCT373 Pin 4 2D      and     2764 Pin 12 D1
+    48 AD0  74HCT373 Pin 3 1D      and     2764 Pin 11 D0
+
+74HCT373:
+    1  /OE  Tie to GND
+    2  1Q   2764 Pin 10 A0
+    5  2Q   2764 Pin 9  A1
+    6  3Q   2764 Pin 8  A2
+    9  4Q   2764 Pin 7  A3
+    12 5Q   2764 Pin 6  A4
+    15 6Q   2764 Pin 5  A5
+    16 7Q   2764 Pin 4  A6
+    19 8Q   2764 Pin 3  A7
+    10 GND
+    20 Vcc
+
+74HCT138:
+    4 /G2A  Tie to GND
+    5 /G2B  Tie to GND
+    6 G1    Tie to Vcc
+    7 Y7    2764 Pin 20 /CE
+
+2764:
+    1  Vpp  Tie to Vcc
+    27 /PGM Tie to Vcc
+    14 GND
+    28 Vcc
