@@ -2,13 +2,31 @@
 	.area CODE1 (ABS)
 	.org 0xe000
 
+ddr3 = 0x0d 			;Port 3 Data Direction Register (0=input, 1=output)
+pdr3 = 0x0c 			;Port 3 Data Register
+
 start:
-	mov a, 0x42
-	jmp start
+	;Load RAM with a program to toggle Port 3
 
-	.org 0xfffd			;mode byte
-	.byte 0x01
+	mov 0x80, #0x85 	;0x80 85 0D FF MOV DDR3, 0xFF
+	mov 0x81, #ddr3
+	mov 0x82, #0xff
 
-	.org 0xfffe 		;reset vector
-	.word start
+	mov 0x83, #0x85		;0x83 85 0C 00 MOV PDR3, 0
+	mov 0x84, #pdr3
+	mov 0x85, #0
 
+	mov 0x86, #0x85		;0x86 85 0C FF MOV PDR3, 0xFF
+	mov 0x87, #pdr3
+	mov 0x88, #0xff
+
+	mov 0x89, #0x21 	;0x89 21 00 80 JMP 0x0083
+	mov 0x8a, #0
+	mov 0x8b, #0x83
+
+	;Jump to program in RAM
+	jmp 0x0080
+
+	.org 0xfffd
+	.byte 0x01 			;mode byte
+	.word start			;reset vector
