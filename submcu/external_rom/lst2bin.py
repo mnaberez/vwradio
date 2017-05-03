@@ -11,17 +11,33 @@ import sys
 def parse_listing(lines):
     '''Parse listing lines into a dict of address: value'''
     bytes_by_address = {}
+    last_address = 0
     for line in lines:
-        # split line: 'E000 21 E0 00' => ['E000', '21', 'E0', '00']
-        parts = line[0:20].split()
-
-        # ignore lines without address and data
-        if (len(parts) < 2) or (not re.match(r'([A-F\d]{4})', parts[0])):
+        # ignore header lines
+        if ('ASxxxx Assembler') in line or ('Hexadecimal [16-Bits]') in line:
             continue
 
-        # parse address and each data byte
-        address = int(parts[0], 16)
-        for i, part in enumerate(parts[1:]):
+        # symbol table indicates listing is complete
+        if 'Symbol Table' in line:
+            break
+
+        # split line: 'E000 21 E0 00' => ['E000', '21', 'E0', '00']
+        parts = line[0:28].split('[')[0].split()
+        if not parts:
+            continue
+
+        # parse address and find index of data bytes
+        if len(parts[0]) == 4:
+            address = int(parts[0], 16)
+            data_index = 1
+        else:
+            # long .byte list continues on next line without address
+            address = last_address + 6
+            data_index = 0
+        last_address = address
+
+        # parse data bytes
+        for i, part in enumerate(parts[data_index:]):
             bytes_by_address[address + i] = int(part, 16)
     return bytes_by_address
 
