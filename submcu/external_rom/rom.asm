@@ -23,18 +23,18 @@ ram  = 0x0080				;Start address of RAM
 	.org 0xe000
 
 reset:
-	;Put a string at the start of RAM to make it easy to identify
+	;Write "RAMSTART" string at the start of RAM to make it easy to identify
 
-	mov ram+0x00, #0x52		;"RAMSTART"
-	mov ram+0x01, #0x41
-	mov ram+0x02, #0x4d
-	mov ram+0x03, #0x53
-	mov ram+0x04, #0x54
-	mov ram+0x05, #0x41
-	mov ram+0x06, #0x52
-	mov ram+0x07, #0x54
+	mov ram+0x00, #'R
+	mov ram+0x01, #'A
+	mov ram+0x02, #'M
+	mov ram+0x03, #'S
+	mov ram+0x04, #'T
+	mov ram+0x05, #'A
+	mov ram+0x06, #'R
+	mov ram+0x07, #'T
 
-	;Load RAM with code to dump all memory out on P30-P37, with /STROBE on P40
+	;Write code into RAM to dump all memory out P30-P37 with /STROBE on P40
 
 	mov ram+0x08, #0x07		;07 	  mov a, @ep	;A = byte at address EP
 	mov ram+0x09, #0x45 	;45 0c    mov pdr3, a  	;Put byte on P30-P37
@@ -62,5 +62,5 @@ reset:
 	.ascii "EXTROM" 		;String to make the external ROM easy to identify
 
 	.org 0xfffd
-	.byte 0x01 				;mode byte
-	.word reset				;reset vector
+	.byte 0x01 				;Mode byte
+	.word reset				;Reset vector
