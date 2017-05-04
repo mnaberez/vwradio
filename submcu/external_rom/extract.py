@@ -1,7 +1,12 @@
 '''
-Extract MB89623R internal ROM images from a logic analyzer dump.
+Extract individual MB89623R memory images from a logic analyzer dump.
+Reads <file.csv> and writes individual binary images to <output directory>.
 
-Usage: extract <file.csv> <output directory>
+The optional <size> specifies the number of bytes to save from each image,
+from the top of memory.  It defaults to 65536 (the entire 64K of memory).  To
+extract only the 8K ROM at 0xE000-0xFFFF, give a size of 8192.
+
+Usage: extract <file.csv> <output directory> [<size>]
 '''
 
 import os
@@ -9,7 +14,7 @@ import sys
 
 def read_file(filename):
     '''Read logic analyzer CSV export and return a bytearray with all bytes'''
-    with open(sys.argv[1]) as f:
+    with open(filename) as f:
         lines = f.readlines()
     data = bytearray()
     last_line_cols = []
@@ -40,7 +45,7 @@ def find_image_offsets(data):
                 index = index + len(ramstart)
     return offsets
 
-def extract_images(data, offsets):
+def extract_64k_images(data, offsets):
     '''Extract a bytearray for each 64K memory image at the given offsets'''
     images = []
     for offset in offsets:
@@ -49,21 +54,33 @@ def extract_images(data, offsets):
             images.append(image)
     return images
 
-def write_8k_rom_files(images, directory):
-    '''Write the 8K rom area (0xE000-0xFFFF) from every image to disk'''
+def write_image_files(images, directory, size):
+    '''Write the upper +size+ bytes of every image to files in the
+       given directory.'''
+    assert size in range(1, 0x10000+1), 'Bad size (must be 1-65536)'
+    offset = 0x10000 - size
     for i, image in enumerate(images):
-        filename = os.path.join(sys.argv[2], 'rom_%03d.bin' % i)
+        assert len(image) == 0x10000
+        filename = os.path.join(directory, 'dump_%04x_%03d.bin' % (offset, i))
         with open(filename, 'wb') as f:
-            f.write(image[0xe000:])
+            f.write(image[offset:])
 
 def main():
-    if len(sys.argv) != 3:
+    if len(sys.argv) < 3:
         sys.stderr.write("%s\n" % __doc__)
         sys.exit(1)
-    data = read_file(sys.argv[1])
+
+    csv_filename = sys.argv[1]
+    output_directory = sys.argv[2]
+    if len(sys.argv) == 4:
+        size = int(sys.argv[3])
+    else:
+        size = 0x10000
+
+    data = read_file(csv_filename)
     offsets = find_image_offsets(data)
-    images = extract_images(data, offsets)
-    write_8k_rom_files(images, sys.argv[2])
+    images = extract_64k_images(data, offsets)
+    write_image_files(images, output_directory, size)
 
 if __name__ == '__main__':
     main()
