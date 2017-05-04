@@ -1,16 +1,19 @@
 rom.hex: rom.bin
 	srec_cat rom.bin -binary -o rom.hex -intel -address-length=2 -line-length=44 -crlf
 
-rom.bin: rom.lst
-	python lst2bin.py rom.lst rom.bin
+rom.bin: rom.rel
+	python rel2bin.py rom.rel rom.bin
 
-rom.lst: rom.asm
-	asf2mc8 -l rom.asm
+rom.rel: rom.asm
+	asf2mc8 -l -o rom.asm
+	rm -f rom.hlr
 
 clean:
-	rm -f *.bin
-	rm -f *.hex
-	rm -f *.lst
+	rm -f rom.bin
+	rm -f rom.hex
+	rm -f rom.hlr
+	rm -f rom.lst
+	rm -f rom.rel
 
 program:
 	python dprom2.py /dev/tty.usbserial-FT0G8F41 rom.hex

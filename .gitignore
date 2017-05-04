@@ -7,9 +7,11 @@
 *.egg-info
 *.elf
 *.hex
+*.hlr
 *.lst
 *.o
 *.obj
+*.rel
 *.pyc
 *.pyo
 *.retry
