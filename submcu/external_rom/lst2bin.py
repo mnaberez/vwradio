@@ -1,7 +1,7 @@
 '''
 Parse an ASF2MC8 listing file and create a binary file from it.
 
-Usage: lst2bin <lstfile> [<binfile>]
+Usage: lst2bin <file.lst> [<file.bin>]
 '''
 
 import os
