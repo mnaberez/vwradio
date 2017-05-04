@@ -70,7 +70,7 @@ def main(lstfile, binfile):
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
-        print(__doc__)
+        sys.stderr.write("%s\n" % __doc__)
         sys.exit(1)
     else:
         lstfile = sys.argv[1]
