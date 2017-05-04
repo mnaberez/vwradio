@@ -1,32 +1,39 @@
 '''
-Extract individual MB89623R memory images from a logic analyzer dump.
+Extract individual MB89623R memory images from a logic analyzer CSV export.
 Reads <file.csv> and writes individual binary images to <output directory>.
 
 The optional <size> specifies the number of bytes to save from each image,
 from the top of memory.  It defaults to 65536 (the entire 64K of memory).  To
 extract only the 8K ROM at 0xE000-0xFFFF, give a size of 8192.
 
+Format of the logic analyzer CSV export:
+    Time[s],    D0, D1, D2, D3, D4, D5, D6, D7, ... , /STROBE
+    0.00000000,  1,  1,  0,  0,  0,  1,  1,  0, ... , 1
+    0.00001816,  1,  1,  0,  0,  0,  1,  1,  0, ... , 0
+
+Individual memory images are extracted by searching for the string "RAMSTART",
+which must be present at address 0x0080 in each image.  Incomplete images
+(less than the full 64K memory space) are ignored during extraction.
+
 Usage: extract <file.csv> <output directory> [<size>]
 '''
 
+import csv
 import os
 import sys
 
 def read_file(filename):
     '''Read logic analyzer CSV export and return a bytearray with all bytes'''
-    with open(filename) as f:
-        lines = f.readlines()
     data = bytearray()
-    last_line_cols = []
-    for i, line in enumerate(lines):
-        if i == 0:  # ignore header line
-            continue
-        cols = [s.strip() for s in line.split(', ')]
-        if (i > 1) and (last_line_cols[-1] == '1') and (cols[-1] == '0'):
-            binstring = ''.join(reversed(cols[1:9]))
-            value = int(binstring, 2)
-            data.append(value)
-        last_line_cols = cols
+    last_strobe = None
+    with open(filename, 'r') as f:
+        reader = csv.reader(f, skipinitialspace=True)
+        next(reader, None) # skip header row
+        for row in reader:
+            strobe = int(row[-1])
+            if (last_strobe == 1) and (strobe == 0):
+                data.append(int(''.join(reversed(row[1:9])), 2))
+            last_strobe = strobe
     return data
 
 def find_image_offsets(data):
