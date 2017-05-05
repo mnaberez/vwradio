@@ -9,11 +9,7 @@ rom.rel: rom.asm
 	rm -f rom.hlr
 
 clean:
-	rm -f rom.bin
-	rm -f rom.hex
-	rm -f rom.hlr
-	rm -f rom.lst
-	rm -f rom.rel
+	rm -f rom.bin rom.hex rom.hlr rom.lst rom.rel
 
 program:
 	python dprom2.py /dev/tty.usbserial-FT0G8F41 rom.hex
