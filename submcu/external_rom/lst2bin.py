@@ -22,7 +22,7 @@ def parse_listing(lines):
             break
 
         # split line: 'E000 21 E0 00' => ['E000', '21', 'E0', '00']
-        parts = line[0:28].split('[')[0].split()
+        parts = line[0:27].split('[')[0].split()
         if not parts:
             continue
 
