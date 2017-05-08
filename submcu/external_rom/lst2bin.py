@@ -5,7 +5,6 @@ Usage: lst2bin <file.lst> [<file.bin>]
 '''
 
 import os
-import re
 import sys
 
 def parse_listing(lines):
