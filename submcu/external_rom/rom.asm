@@ -36,30 +36,28 @@ reset:
 
 	;Write code into RAM to dump all memory out P30-P37 with /STROBE on P40
 
-	mov ram+0x08, #0x07		;07 	  mov a, @ep	;A = byte at address EP
-	mov ram+0x09, #0x45 	;45 0c    mov pdr3, a  	;Put byte on P30-P37
-	mov ram+0x0a, #0x0c
-	mov ram+0x0b, #0x85 	;85 0e 00 mov pdr4, #0  ;P40 = Low (/STROBE)
-	mov ram+0x0c, #0x0e
-	mov ram+0x0d, #0x00
-	mov ram+0x0e, #0x85 	;85 0e 01 mov pdr4, #1 	;P40 = High (/STROBE)
-	mov ram+0x0f, #0x0e
-	mov ram+0x10, #0x01
-	mov ram+0x11, #0xf7 	;f7       xchw a, ep 	;A=EP
-	mov ram+0x12, #0xc0 	;c0       incw a 		;Increment A, set Z
-	mov ram+0x13, #0xf7 	;f7       xchw a, ep 	;EP=A
-	mov ram+0x14, #0x21  	;21 00 88 jmp 0x0088
-	mov ram+0x15, #0x00
-	mov ram+0x16, #0x88
+	mov ram+0x08, #0x06		;06 00     mov a, @ix+0  ;A = byte at address IX
+	mov ram+0x09, #0x00
+	mov ram+0x0a, #0x45  	;45 0c	   mov pdr3, a 	 ;Put byte on P30-P37
+	mov ram+0x0b, #0x0c
+	mov ram+0x0c, #0x85 	;85 0e 00  mov pdr4, #0  ;P40 = Low (/STROBE)
+	mov ram+0x0d, #0x0e
+	mov ram+0x0e, #0x00
+	mov ram+0x0f, #0x85 	;85 0e 01  mov pdr4, #1  ;P40 = High (/STROBE)
+	mov ram+0x10, #0x0e
+	mov ram+0x11, #0x01
+	mov ram+0x12, #0xc2 	;c2 	   incw ix
+	mov ram+0x13, #0x21 	;21 00 88  jmp 0x0088
+	mov ram+0x14, #0x00
+	mov ram+0x15, #0x88
 
 	;Run the dumping code in RAM
 
 	mov ddr3, #0xff 		;P30-P37 = all outputs (no setup needed for P40)
-	movw a, #0
-    xchw a, ep 			    ;EP = 0 (start address for dumping)
+	movw ix, #0 			;IX = 0 (start address for dumping)
 	jmp ram
 
-	.ascii "EXTROM" 		;String to make the external ROM easy to identify
+	.ascii "EXTERNALROM"	;String to make the external ROM easy to identify
 
 	.org 0xfffd
 	.byte 0x01 				;Mode byte
