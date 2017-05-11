@@ -37,8 +37,8 @@ def parse_listing(lines):
 
         # parse data bytes
         for i, part in enumerate(parts[data_index:]):
-            assert len(part) == 2 # hex number like "A5"
-            bytes_by_address[address + i] = int(part, 16)
+            if len(part) == 2:  # hex number like "A5"
+                bytes_by_address[address + i] = int(part, 16)
     return bytes_by_address
 
 def build_binary(bytes_by_address):
