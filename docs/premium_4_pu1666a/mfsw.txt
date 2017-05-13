@@ -1,6 +1,6 @@
 Button          Code    Complete Packet
 ------          ----    ---------------
-Volume Down     0x00    41E880FF
+Volume Down     0x00    41E800FF
 Volume Up       0x80    41E8807F
 Down            0x50    41E850AF
 Up              0xD0    41E8D02F
