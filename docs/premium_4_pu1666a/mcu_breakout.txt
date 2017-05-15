@@ -74,7 +74,7 @@ Main-MCU    Sub-MCU     Signal      Connection
     5  /G2B  Tie to GND
     6  G1    Tie to Vcc
     7  Y7    2764 Pin 20 /CE
-    10 GND
+    8  GND
     16 Vcc
 
 2764:
