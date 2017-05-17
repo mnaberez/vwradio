@@ -8,19 +8,21 @@
 ;continues forever.  The string "RAMSTART" is written at the start of RAM
 ;(0x0080) to make it easy to separate the dumps.
 ;
-;Load this program into an external ROM (MOD0=Vcc, MOD1=Vss).  On reset, it
-;will write the dumping code to RAM and then jump it.  While it is running,
-;change MOD0 to Vss.  This selects the internal ROM mode.  The internal ROM
-;will replace the external ROM in the memory map.  The dumping code running
-;from RAM will dump the internal ROM.
+;Load this program into an external ROM (MOD0=Vcc, MOD1=Vss) at 0xE000.  On
+;reset, it will write the dumping code to RAM and then jump it.  While it is
+;running, change MOD0 to Vss.  This selects the internal ROM mode.  The
+;internal ROM will replace the external ROM in the memory map.  The dumping
+;code running from RAM will dump the internal ROM.
+;
 
+sycc = 0x0007 				;System Clock Control Register (MB8967x only)
 pdr3 = 0x000c 				;Port 3 Data Register
-ddr3 = 0x000d 				;Port 3 Data Direction Register (0=input, 1=output)
+ddr3 = 0x000d 				;Port 3 Data Direction Register
 pdr4 = 0x000e 				;Port 4 Data Register
-ddr4 = 0x000f 				;Port 4 Data Direction Register (except MB8962x)
+ddr4 = 0x000f 				;Port 4 Data Direction Register (MB8967x only)
 ram  = 0x0080				;Start address of RAM
 
-	;.define mb8962x  		;Comment this line out if MCU is not MB8962x
+	.define mb8967x  		;Comment this line out if MCU is not MB8967x
 
 	.F2MC8L
 	.area CODE1 (ABS)
@@ -51,16 +53,17 @@ reset:
 	mov ram+0x10, #0x0e
 	mov ram+0x11, #0x01
 	mov ram+0x12, #0xc2 	;c2 	   incw ix
-	mov ram+0x13, #0x21 	;21 00 88  jmp 0x0088
+	mov ram+0x13, #0x21 	;21 00 88  jmp ram+0x08
 	mov ram+0x14, #0x00
 	mov ram+0x15, #0x88
 
-	;Initialize I/O ports
+	;Initialize hardware registers
 
 	mov ddr3, #0xff 		;Set P30-P37 as outputs
 
-	.ifndef mb8962x
-	mov ddr4, #0x01 		;Set P40 as output (not applicable on MB8962x)
+	.ifdef mb8967x
+	mov ddr4, #0x01 		;Set P40 as output
+	mov sycc, #0x17 		;Set maximum clock frequency
 	.endif
 
 	;Start dumping
