@@ -1,7 +1,5 @@
-Running the MCUs Outside of the Radio
--------------------------------------
-
-Minimum connections:
+Minimum Connections
+-------------------
 
 MB89677AR   MB89623R
 Main-MCU    Sub-MCU     Signal      Connection
@@ -28,8 +26,8 @@ Main-MCU    Sub-MCU     Signal      Connection
      the output of the TTL oscillator to X0 and leave X1 open.
 
 
-External ROM Mode
------------------
+External ROM Connections
+------------------------
 
 Requires minimum connections above.  Set the MOD0 pin to Vcc to select
 external ROM mode.
@@ -87,3 +85,24 @@ TTL Oscillator:
     7  GND
     8  Output  Connect to MCU's X0 pin
     14 Vcc
+
+
+ROM Dumping Connections
+-----------------------
+
+Requires External ROM mode connections above.
+
+MB89677AR   MB89623R
+Main-MCU    Sub-MCU     Signal      Connection
+48          50          P30         Data Out Bit 0
+47          51          P31         Data Out Bit 1
+46          52          P32         Data Out Bit 2
+45          53          P33         Data Out Bit 3
+44          54          P34         Data Out Bit 4
+43          55          P35         Data Out Bit 5
+42          57          P36         Data Out Bit 6
+41          58          P37         Data Out Bit 7
+57          59          P40         /STROBE  *1
+
+*1 = On MB89623R, P40 is open drain and needs a 47K pull-up to Vcc.
+     On MB89677AR, P40 is a normal output so no pull-up is needed.
