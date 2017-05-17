@@ -29,6 +29,15 @@ ram  = 0x0080				;Start address of RAM
 	.org 0xe000
 
 reset:
+	;Initialize hardware registers
+
+	.ifdef mb8967x
+	mov sycc, #0x17 		;Set clock frequency to fastest
+	mov ddr4, #0x01 		;Set P40 as output
+	.endif
+
+	mov ddr3, #0xff 		;Set P30-P37 as outputs
+
 	;Write "RAMSTART" string at the start of RAM to make it easy to identify
 
 	mov ram+0x00, #'R
@@ -56,15 +65,6 @@ reset:
 	mov ram+0x13, #0x21 	;21 00 88  jmp ram+0x08
 	mov ram+0x14, #0x00
 	mov ram+0x15, #0x88
-
-	;Initialize hardware registers
-
-	mov ddr3, #0xff 		;Set P30-P37 as outputs
-
-	.ifdef mb8967x
-	mov ddr4, #0x01 		;Set P40 as output
-	mov sycc, #0x17 		;Set maximum clock frequency
-	.endif
 
 	;Start dumping
 
