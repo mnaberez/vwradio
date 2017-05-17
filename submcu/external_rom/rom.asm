@@ -1,22 +1,26 @@
-;MB89623R Dumper
+;F2MC-8L Dumper
 ;
-;This program dumps every byte of the MB89623R memory space (0x0000-0xFFFF) out
-;on P30-P37, strobing P40 low after each byte.  P30-P37 are normal outputs but
-;P40 is open drain and needs a 47K pull-up to Vcc.  Dumping wraps around memory
-;and continues forever.  The string "RAMSTART" is written at the start of RAM
+;This program dumps every byte of the memory space (0x0000-0xFFFF) out on
+;P30-P37, strobing P40 low after each byte.  It has been used to dump the
+;internal ROM on the MB89623R, MB89625R, and MB89677AR.  P30-P37 are normal
+;outputs.  P40 is open drain on the MB8962x and needs a 47K pull-up to Vcc.
+;P40 is a normal output on MB89677AR.  Dumping wraps around memory and
+;continues forever.  The string "RAMSTART" is written at the start of RAM
 ;(0x0080) to make it easy to separate the dumps.
 ;
 ;Load this program into an external ROM (MOD0=Vcc, MOD1=Vss).  On reset, it
 ;will write the dumping code to RAM and then jump it.  While it is running,
 ;change MOD0 to Vss.  This selects the internal ROM mode.  The internal ROM
-;will replace the external ROM in the memory map (0xE000-0xFFFF).  The dumping
-;code running from RAM will dump the internal ROM.
-;
+;will replace the external ROM in the memory map.  The dumping code running
+;from RAM will dump the internal ROM.
 
 pdr3 = 0x000c 				;Port 3 Data Register
 ddr3 = 0x000d 				;Port 3 Data Direction Register (0=input, 1=output)
-pdr4 = 0x000e 				;Port 4 Data Register (no DDR for Port 4)
+pdr4 = 0x000e 				;Port 4 Data Register
+ddr4 = 0x000f 				;Port 4 Data Direction Register (except MB8962x)
 ram  = 0x0080				;Start address of RAM
+
+	;.define mb8962x  		;Comment this line out if MCU is not MB8962x
 
 	.F2MC8L
 	.area CODE1 (ABS)
@@ -51,11 +55,18 @@ reset:
 	mov ram+0x14, #0x00
 	mov ram+0x15, #0x88
 
-	;Run the dumping code in RAM
+	;Initialize I/O ports
 
-	mov ddr3, #0xff 		;P30-P37 = all outputs (no setup needed for P40)
+	mov ddr3, #0xff 		;Set P30-P37 as outputs
+
+	.ifndef mb8962x
+	mov ddr4, #0x01 		;Set P40 as output (not applicable on MB8962x)
+	.endif
+
+	;Start dumping
+
 	movw ix, #0 			;IX = 0 (start address for dumping)
-	jmp ram
+	jmp ram 				;Jump to dumping code in RAM
 
 	.ascii "EXTERNALROM"	;String to make the external ROM easy to identify
 
