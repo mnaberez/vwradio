@@ -69,7 +69,7 @@ reset:
 	;Start dumping
 
 	movw ix, #0 			;IX = 0 (start address for dumping)
-	jmp ram 				;Jump to dumping code in RAM
+	jmp ram+0x08			;Jump to dumping code in RAM
 
 	.ascii "EXTERNALROM"	;String to make the external ROM easy to identify
 
