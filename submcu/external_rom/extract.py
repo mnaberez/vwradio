@@ -49,7 +49,7 @@ def find_image_offsets(data):
             offset = index - 0x80  # ram is address 0x80, image starts from 0
             if offset >= 0:  # might be negative if start of capture
                 offsets.append(offset)
-                index = index + len(ramstart)
+            index += len(ramstart)
     return offsets
 
 def extract_64k_images(data, offsets):
