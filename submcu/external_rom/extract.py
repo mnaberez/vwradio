@@ -1,5 +1,5 @@
 '''
-Extract individual MB89623R memory images from a logic analyzer CSV export.
+Extract individual F2MC-8L memory images from a logic analyzer CSV export.
 Reads <file.csv> and writes individual binary images to <output directory>.
 
 The optional <size> specifies the number of bytes to save from each image,
