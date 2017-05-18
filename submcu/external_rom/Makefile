@@ -12,6 +12,6 @@ clean:
 	rm -f rom.bin rom.hex rom.hlr rom.lst rom.lst
 
 program:
-	python dprom2.py /dev/tty.usbserial-FT0G8F41 rom.hex
+	dprom /dev/tty.usbserial-FT0G8F41 rom.hex
 
 all: clean rom.hex program
