@@ -43,14 +43,14 @@ def parse_listing(lines):
 
 def build_binary(bytes_by_address):
     '''Build binary data block from dict of address: value'''
-    addresses = sorted(bytes_by_address.keys())
-    start_address = addresses[0]
-    end_address = addresses[-1]
-
     data = bytearray()
-    for address in range(start_address, end_address + 1):
-        data.append(bytes_by_address.get(address, 0))
-
+    addresses = sorted(bytes_by_address.keys())
+    if addresses:
+        start_address, end_address = addresses[0], addresses[-1]
+        for address in range(start_address, end_address + 1):
+            data.append(bytes_by_address.get(address, 0))
+    else:
+        start_address, end_address = 0, 0
     return start_address, end_address, data
 
 def main(lstfile, binfile):
