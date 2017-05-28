@@ -2,7 +2,7 @@ rom.hex: rom.bin
 	srec_cat rom.bin -binary -o rom.hex -intel -address-length=2 -line-length=44 -crlf
 
 rom.bin: rom.lst
-	python lst2bin.py rom.lst rom.bin
+	python ../scripts/lst2bin.py rom.lst rom.bin
 
 rom.lst: rom.asm
 	asf2mc8 -l rom.asm
