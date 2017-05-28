@@ -3,7 +3,6 @@ Send messages to the Sub-MCU over the Main-to-Sub SPI bus
 '''
 
 import u3
-import sys
 import time
 
 class Pins(object):

@@ -7,8 +7,6 @@ slowest SPI clock rate is still too fast for the Main-MCU.
 '''
 
 import u3
-import sys
-import time
 
 class Pins(object):
     DAT_MOSI = u3.FIO1
