@@ -71,9 +71,9 @@ lab_e033:
     movw a, #0x0030         ;e043  e4 00 30
     movw ps, a              ;e046  71
     mov a, #0x0a            ;e047  04 0a
-    .byte 0x61, 0x00, 0xd1  ;e049  61 00 d1    mov 0x00d1, a
+    .byte 0x61, 0x00, 0xd1  ;e049  61 00 d1     mov 0x00d1, a
     mov a, #0x20            ;e04c  04 20
-    .byte 0x61, 0x00, 0x8a  ;e04e  61 00 8a    mov 0x008a, a
+    .byte 0x61, 0x00, 0x8a  ;e04e  61 00 8a     mov 0x008a, a
     mov 0xaa, #0x09         ;e051  85 aa 09
     call sub_e0b8           ;e054  31 e0 b8
     call sub_e1c0           ;e057  31 e1 c0
@@ -83,12 +83,12 @@ lab_e033:
     mov a, #0x14            ;e062  04 14
     mov 0x0145, a           ;e064  61 01 45
     mov a, #0x14            ;e067  04 14
-    .byte 0x61, 0x00, 0xc9  ;e069  61 00 c9    mov 0x00c9, a
+    .byte 0x61, 0x00, 0xc9  ;e069  61 00 c9     mov 0x00c9, a
 
 lab_e06c:
     bbc 0x00a9:7, lab_e075  ;e06c  b7 a9 06
     bbs 0x00a9:6, lab_e075  ;e06f  be a9 03
-    call sub_f993           ;e072  31 f9 93
+    call upd_init_and_clear ;e072  31 f9 93     Initialize uPD16432B and clear display
 
 lab_e075:
     call sub_fa59           ;e075  31 fa 59
@@ -103,7 +103,7 @@ lab_e086:
 
 lab_e089:
     bbc 0x00a9:6, lab_e08f  ;e089  b6 a9 03
-    call sub_f9f5           ;e08c  31 f9 f5
+    call upd_init_and_write ;e08c  31 f9 f5     Initialize uPD16432B and write all data
 
 lab_e08f:
     call sub_f3c7           ;e08f  31 f3 c7
@@ -3677,7 +3677,7 @@ lab_f766:
     setb eic2:0             ;f774  a8 25
     jmp lab_f760            ;f776  21 f7 60
 
-sub_f779:
+upd_read_key_data:
 ;Read key data from uPD16432B
 ;
     setb pdr0:2             ;f779  aa 00        UPD_STB = high
@@ -3685,7 +3685,7 @@ sub_f779:
     mov a, #0x44            ;f77b  04 44        Command byte = 0x44 (0b01000100)
                             ;                   Data Setting Command
                             ;                     4=Read key data
-    call sub_f9db           ;f77d  31 f9 db     Send byte in A to the uPD16432B
+    call upd_send_byte      ;f77d  31 f9 db     Send byte in A to the uPD16432B
 
     mov ddr0, #0x0e         ;f780  85 01 0e
     setb pdr0:0             ;f783  a8 00        UPD_DATA = high
@@ -3984,8 +3984,8 @@ lab_f947:
 lab_f94d:
     ret                     ;f94d  20
 
-sub_f94e:
-;Send uPD16432B display RAM and pictograph RAM
+upd_send_all_data:
+;Send uPD16432B characters and pictographs
 ;
     pushw ix                ;f94e  41
 
@@ -3993,7 +3993,7 @@ sub_f94e:
                             ;                   Data Setting Command
                             ;                     0=Write to display RAM
                             ;                     Address increment mode: 0=increment
-    call sub_f9cd           ;f951  31 f9 cd     Send single-byte command to uPD16432B
+    call upd_send_cmd_byte  ;f951  31 f9 cd     Send single-byte command to uPD16432B
 
     movw ix, #0x013a        ;f954  e6 01 3a
 
@@ -4006,7 +4006,7 @@ sub_f94e:
     nop                     ;f95c  00
 
 lab_f95d:
-    call sub_f9db           ;f95d  31 f9 db     Send byte in A to the uPD16432B
+    call upd_send_byte      ;f95d  31 f9 db     Send byte in A to the uPD16432B
     movw a, ix              ;f960  f2
     movw a, #0x012f         ;f961  e4 01 2f
     cmpw a                  ;f964  13
@@ -4024,7 +4024,7 @@ lab_f96d:
                             ;                   Data Setting Command
                             ;                     1=Write to pictograph RAM
                             ;                     Address
-    call sub_f9cd           ;f973  31 f9 cd     Send single-byte command to uPD16432B
+    call upd_send_cmd_byte  ;f973  31 f9 cd     Send single-byte command to uPD16432B
 
     movw ix, #0x00a0        ;f976  e6 00 a0
 
@@ -4037,7 +4037,7 @@ lab_f96d:
     nop                     ;f97e  00
 
 lab_f97f:
-    call sub_f9db           ;f97f  31 f9 db     Send byte in A to the uPD16432B
+    call upd_send_byte      ;f97f  31 f9 db     Send byte in A to the uPD16432B
     movw a, ix              ;f982  f2
     movw a, #0x00a8         ;f983  e4 00 a8
     cmpw a                  ;f986  13
@@ -4051,7 +4051,9 @@ lab_f98f:
     popw ix                 ;f991  51
     ret                     ;f992  20
 
-sub_f993:
+upd_init_and_clear:
+;Initialize the uPD16432B and clear the display
+;
     nop                     ;f993  00
     nop                     ;f994  00
     nop                     ;f995  00
@@ -4066,7 +4068,7 @@ sub_f993:
                             ;                     Duty setting: 0=1/8 duty
                             ;                     Master/slave setting: 0=master
                             ;                     Drive voltage supply method: 1=internal
-    call sub_f9cd           ;f99d  31 f9 cd     Send single-byte command to uPD16432B
+    call upd_send_cmd_byte  ;f99d  31 f9 cd     Send single-byte command to uPD16432B
 
     mov a, #0xcf            ;f9a0  04 cf        Command byte = 0xcf (0b11001111)
                             ;                   Status command
@@ -4075,34 +4077,38 @@ sub_f993:
                             ;                     Key scan control: 1=Key scan operation
                             ;                     LED control: 1=Normal operation
                             ;                     LCD mode: 3=Normal operation (0b11)
-    call sub_f9cd           ;f9a2  31 f9 cd     Send single-byte command to uPD16432B
+    call upd_send_cmd_byte  ;f9a2  31 f9 cd     Send single-byte command to uPD16432B
 
-    mov a, #0x20            ;f9a5  04 20
+    mov a, #0x20            ;f9a5  04 20        A = 0x2020 (two space characters)
     swap                    ;f9a7  10
     mov a, #0x20            ;f9a8  04 20
-    movw ix, #0x012f        ;f9aa  e6 01 2f
-    movw @ix+0x00, a        ;f9ad  d6 00
+    movw ix, #0x012f        ;f9aa  e6 01 2f     IX = 0x012f (display buffer)
+    movw @ix+0x00, a        ;f9ad  d6 00        Fill all 11 bytes of display buffer
     movw @ix+0x02, a        ;f9af  d6 02
     movw @ix+0x04, a        ;f9b1  d6 04
     movw @ix+0x06, a        ;f9b3  d6 06
     movw @ix+0x08, a        ;f9b5  d6 08
     mov @ix+0x0a, a         ;f9b7  46 0a
-    movw a, #0x0000         ;f9b9  e4 00 00
-    movw ix, #0x00a1        ;f9bc  e6 00 a1
-    movw @ix+0x00, a        ;f9bf  d6 00
+
+    movw a, #0x0000         ;f9b9  e4 00 00     A = 0 (two empty pictograph bytes)
+    movw ix, #0x00a1        ;f9bc  e6 00 a1     IX = 0x00a1 (pictograph buffer)
+    movw @ix+0x00, a        ;f9bf  d6 00        Fill all 8 bytes of pictograph buffer
     movw @ix+0x02, a        ;f9c1  d6 02
     movw @ix+0x04, a        ;f9c3  d6 04
     movw @ix+0x06, a        ;f9c5  d6 06
-    call sub_f94e           ;f9c7  31 f9 4e     Send display RAM and pictograph RAM to uPD16432B
+
+    call upd_send_all_data  ;f9c7  31 f9 4e     Send characters and pictographs to uPD16432B
     setb 0xa9:6             ;f9ca  ae a9
     ret                     ;f9cc  20
 
-sub_f9cd:
+upd_send_cmd_byte:
 ;Send a single-byte command to the uPD16432B
+;STB is activated before the byte and deactivated after.
+;
     setb pdr0:2             ;f9cd  aa 00        UPD_STB = high
     nop                     ;f9cf  00
     nop                     ;f9d0  00
-    call sub_f9db           ;f9d1  31 f9 db     Send byte in A to the uPD16432B
+    call upd_send_byte      ;f9d1  31 f9 db     Send byte in A to the uPD16432B
     nop                     ;f9d4  00
     nop                     ;f9d5  00
     clrb pdr0:2             ;f9d6  a2 00        UPD_STB = low
@@ -4110,8 +4116,9 @@ sub_f9cd:
     nop                     ;f9d9  00
     ret                     ;f9da  20
 
-sub_f9db:
+upd_send_byte:
 ;Send byte in A to uPD16432B
+;STB is unaffected.
 ;
     mov ddr0, #0x0f         ;f9db  85 01 0f
     setb pdr0:1             ;f9de  a9 00        UPD_CLK = high
@@ -4135,7 +4142,9 @@ lab_f9eb:
     bne lab_f9e2            ;f9f2  fc ee
     ret                     ;f9f4  20
 
-sub_f9f5:
+upd_init_and_write:
+;Initialize uPD16432B and write all data
+;
     bbc 0x0087:7, lab_fa08  ;f9f5  b7 87 10
     clrb 0x87:7             ;f9f8  a7 87
 
@@ -4144,7 +4153,7 @@ sub_f9f5:
                             ;                     Duty setting: 0=1/8 duty
                             ;                     Master/slave setting: 0=master
                             ;                     Drive voltage supply method: 1=internal
-    call sub_f9cd           ;f9fc  31 f9 cd     Send single-byte command to uPD16432B
+    call upd_send_cmd_byte  ;f9fc  31 f9 cd     Send single-byte command to uPD16432B
 
     mov a, #0xcf            ;f9ff  04 cf        Command byte = 0xcf (0b11001111)
                             ;                   Status command
@@ -4153,9 +4162,9 @@ sub_f9f5:
                             ;                     Key scan control: 1=Key scan operation
                             ;                     LED control: 1=Normal operation
                             ;                     LCD mode: 3=Normal operation (0b11)
-    call sub_f9cd           ;fa01  31 f9 cd     Send single-byte command to uPD16432B
+    call upd_send_cmd_byte  ;fa01  31 f9 cd     Send single-byte command to uPD16432B
 
-    call sub_f94e           ;fa04  31 f9 4e     Send display RAM and pictograph RAM to uPD16432B
+    call upd_send_all_data  ;fa04  31 f9 4e     Send characters and pictographs to uPD16432B
     ret                     ;fa07  20
 
 lab_fa08:
@@ -4226,7 +4235,7 @@ lab_fa69:
 
 sub_fa6a:
     bbc 0x00a9:6, lab_fa70  ;fa6a  b6 a9 03
-    call sub_f779           ;fa6d  31 f7 79     Read key data from uPD16432B
+    call upd_read_key_data  ;fa6d  31 f7 79     Read key data from uPD16432B
 
 lab_fa70:
     bbc 0x00d2:2, lab_fa83  ;fa70  b2 d2 10
