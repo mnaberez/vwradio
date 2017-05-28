@@ -1032,8 +1032,8 @@ lab_e5c6:
     jmp lab_e579            ;e5cd  21 e5 79
 
 lab_e5d0:
-;A > 0xD0
-    call sub_ec8e           ;e5d0  31 ec 8e     Call if A > 0xD0
+;A >= 0xD0
+    call sub_ec8e           ;e5d0  31 ec 8e     Call if A >= 0xD0
     jmp lab_e579            ;e5d3  21 e5 79
 
 sub_e5d6:
@@ -2243,7 +2243,7 @@ lab_ec8b:
     jmp lab_ec84            ;ec8b  21 ec 84
 
 sub_ec8e:
-;Called if A > 0xD0
+;Called if A >= 0xD0
     movw a, #0x0000         ;ec8e  e4 00 00
     movw a, #msgs_d0_ff     ;ec91  e4 f1 a1
     clrc                    ;ec94  81
