@@ -1100,7 +1100,7 @@ sub_e60f:
     addcw a                 ;e620  23
     movw ix, a              ;e621  e2
     movw ep, #0x012f        ;e622  e7 01 2f
-    call sub_eca1           ;e625  31 ec a1
+    call copy_11_ix_to_ep   ;e625  31 ec a1     Copy 11 bytes from @ix to @ep
     movw ix, #0x012f        ;e628  e6 01 2f
     movw ep, #0x011e        ;e62b  e7 01 1e
     movw a, #0x0000         ;e62e  e4 00 00
@@ -1255,7 +1255,7 @@ sub_e6f6:
     addcw a                 ;e707  23
     movw ix, a              ;e708  e2
     movw ep, #0x012f        ;e709  e7 01 2f
-    call sub_eca1           ;e70c  31 ec a1
+    call copy_11_ix_to_ep   ;e70c  31 ec a1     Copy 11 bytes from @ix to @ep
     movw ix, #0x012f        ;e70f  e6 01 2f
     movw ep, #0x011e        ;e712  e7 01 1e
     movw a, #0x0000         ;e715  e4 00 00
@@ -1332,7 +1332,7 @@ sub_e761:
     addcw a                 ;e772  23
     movw ix, a              ;e773  e2
     movw ep, #0x012f        ;e774  e7 01 2f
-    call sub_eca1           ;e777  31 ec a1
+    call copy_11_ix_to_ep   ;e777  31 ec a1     Copy 11 bytes from @ix to @ep
     movw ix, #0x012f        ;e77a  e6 01 2f
     movw ep, #0x011e        ;e77d  e7 01 1e
     movw a, #0x0000         ;e780  e4 00 00
@@ -1647,7 +1647,7 @@ sub_e931:
     addcw a                 ;e942  23
     movw ix, a              ;e943  e2
     movw ep, #0x012f        ;e944  e7 01 2f
-    call sub_eca1           ;e947  31 ec a1
+    call copy_11_ix_to_ep   ;e947  31 ec a1     Copy 11 bytes from @ix to @ep
     movw ix, #0x012f        ;e94a  e6 01 2f
     movw ep, #0x011e        ;e94d  e7 01 1e
     movw a, #0x0000         ;e950  e4 00 00
@@ -1780,7 +1780,7 @@ sub_e9f1:
     addcw a                 ;ea02  23
     movw ix, a              ;ea03  e2
     movw ep, #0x012f        ;ea04  e7 01 2f
-    call sub_eca1           ;ea07  31 ec a1
+    call copy_11_ix_to_ep   ;ea07  31 ec a1     Copy 11 bytes from @ix to @ep
     movw ix, #0x012f        ;ea0a  e6 01 2f
     movw ep, #0x011e        ;ea0d  e7 01 1e
     movw a, #0x0000         ;ea10  e4 00 00
@@ -1875,7 +1875,7 @@ sub_ea6b:
     addcw a                 ;ea80  23
     movw ix, a              ;ea81  e2
     movw ep, #0x012f        ;ea82  e7 01 2f
-    call sub_eca1           ;ea85  31 ec a1
+    call copy_11_ix_to_ep   ;ea85  31 ec a1     Copy 11 bytes from @ix to @ep
 
 lab_ea88:
     movw ix, #0x012f        ;ea88  e6 01 2f
@@ -2062,7 +2062,7 @@ sub_eb78:
     addcw a                 ;eb89  23
     movw ix, a              ;eb8a  e2
     movw ep, #0x012f        ;eb8b  e7 01 2f
-    call sub_eca1           ;eb8e  31 ec a1
+    call copy_11_ix_to_ep   ;eb8e  31 ec a1     Copy 11 bytes from @ix to @ep
     movw ix, #0x012f        ;eb91  e6 01 2f
     movw ep, #0x011e        ;eb94  e7 01 1e
     movw a, #0x0000         ;eb97  e4 00 00
@@ -2167,7 +2167,7 @@ sub_ec12:
     addcw a                 ;ec23  23
     movw ix, a              ;ec24  e2
     movw ep, #0x012f        ;ec25  e7 01 2f
-    call sub_eca1           ;ec28  31 ec a1
+    call copy_11_ix_to_ep   ;ec28  31 ec a1     Copy 11 bytes from @ix to @ep
     movw ix, #0x012f        ;ec2b  e6 01 2f
     movw ep, #0x011e        ;ec2e  e7 01 1e
     movw a, #0x0000         ;ec31  e4 00 00
@@ -2212,7 +2212,7 @@ sub_ec50:
     addcw a                 ;ec61  23
     movw ix, a              ;ec62  e2
     movw ep, #0x012f        ;ec63  e7 01 2f
-    call sub_eca1           ;ec66  31 ec a1
+    call copy_11_ix_to_ep   ;ec66  31 ec a1     Copy 11 bytes from @ix to @ep
     movw ix, #0x012f        ;ec69  e6 01 2f
     movw ep, #0x011e        ;ec6c  e7 01 1e
     movw a, #0x0000         ;ec6f  e4 00 00
@@ -2250,43 +2250,44 @@ sub_ec8e:
     addcw a                 ;ec95  23
     movw ix, a              ;ec96  e2
     movw ep, #0x012f        ;ec97  e7 01 2f
-    call sub_eca1           ;ec9a  31 ec a1
+    call copy_11_ix_to_ep   ;ec9a  31 ec a1     Copy 11 bytes from @ix to @ep
     call sub_ecce           ;ec9d  31 ec ce
     ret                     ;eca0  20
 
-sub_eca1:
+copy_11_ix_to_ep:
+;Copy 11 bytes from @ix to @ep
     mov a, @ix+0x00         ;eca1  06 00
-    mov @ep, a              ;eca3  47
+    mov @ep, a              ;eca3  47       Copy byte 0
     incw ep                 ;eca4  c3
     mov a, @ix+0x01         ;eca5  06 01
-    mov @ep, a              ;eca7  47
+    mov @ep, a              ;eca7  47       Copy byte 1
     incw ep                 ;eca8  c3
     mov a, @ix+0x02         ;eca9  06 02
-    mov @ep, a              ;ecab  47
+    mov @ep, a              ;ecab  47       Copy byte 2
     incw ep                 ;ecac  c3
     mov a, @ix+0x03         ;ecad  06 03
-    mov @ep, a              ;ecaf  47
+    mov @ep, a              ;ecaf  47       Copy byte 3
     incw ep                 ;ecb0  c3
     mov a, @ix+0x04         ;ecb1  06 04
-    mov @ep, a              ;ecb3  47
+    mov @ep, a              ;ecb3  47       Copy byte 4
     incw ep                 ;ecb4  c3
     mov a, @ix+0x05         ;ecb5  06 05
-    mov @ep, a              ;ecb7  47
+    mov @ep, a              ;ecb7  47       Copy byte 5
     incw ep                 ;ecb8  c3
     mov a, @ix+0x06         ;ecb9  06 06
-    mov @ep, a              ;ecbb  47
+    mov @ep, a              ;ecbb  47       Copy byte 6
     incw ep                 ;ecbc  c3
     mov a, @ix+0x07         ;ecbd  06 07
-    mov @ep, a              ;ecbf  47
+    mov @ep, a              ;ecbf  47       Copy byte 7
     incw ep                 ;ecc0  c3
     mov a, @ix+0x08         ;ecc1  06 08
-    mov @ep, a              ;ecc3  47
+    mov @ep, a              ;ecc3  47       Copy byte 8
     incw ep                 ;ecc4  c3
     mov a, @ix+0x09         ;ecc5  06 09
-    mov @ep, a              ;ecc7  47
+    mov @ep, a              ;ecc7  47       Copy byte 9
     incw ep                 ;ecc8  c3
     mov a, @ix+0x0a         ;ecc9  06 0a
-    mov @ep, a              ;eccb  47
+    mov @ep, a              ;eccb  47       Copy byte 10
     incw ep                 ;eccc  c3
     ret                     ;eccd  20
 
