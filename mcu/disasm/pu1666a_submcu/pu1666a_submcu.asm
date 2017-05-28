@@ -854,7 +854,7 @@ sub_e49b:
     mov a, #0x20            ;e4ab  04 20
     clrc                    ;e4ad  81
     subc a                  ;e4ae  32
-    movw a, #0xe4ba         ;e4af  e4 e4 ba
+    movw a, #ascii_to_upd   ;e4af  e4 e4 ba
     clrc                    ;e4b2  81
     addcw a                 ;e4b3  23
     mov a, @a               ;e4b4  92
@@ -865,98 +865,31 @@ lab_e4b7:
     mov @ep, #0x20          ;e4b7  87 20
     ret                     ;e4b9  20
 
-    .byte 0x20              ;e4ba  20          DATA ' '
-    .byte 0x20              ;e4bb  20          DATA ' '
-    .byte 0x20              ;e4bc  20          DATA ' '
-    .byte 0x20              ;e4bd  20          DATA ' '
-    .byte 0x20              ;e4be  20          DATA ' '
-    .byte 0x20              ;e4bf  20          DATA ' '
-    .byte 0x20              ;e4c0  20          DATA ' '
-    .byte 0x20              ;e4c1  20          DATA ' '
-    .byte 0x20              ;e4c2  20          DATA ' '
-    .byte 0x20              ;e4c3  20          DATA ' '
-    .byte 0x20              ;e4c4  20          DATA ' '
-    .byte 0x2B              ;e4c5  2b          DATA '+'
-    .byte 0x20              ;e4c6  20          DATA ' '
-    .byte 0x2D              ;e4c7  2d          DATA '-'
-    .byte 0x20              ;e4c8  20          DATA ' '
-    .byte 0x20              ;e4c9  20          DATA ' '
-    .byte 0xE4              ;e4ca  e4          DATA '\xe4'
-    .byte 0xE5              ;e4cb  e5          DATA '\xe5'
-    .byte 0xF3              ;e4cc  f3          DATA '\xf3'
-    .byte 0xE6              ;e4cd  e6          DATA '\xe6'
-    .byte 0xE7              ;e4ce  e7          DATA '\xe7'
-    .byte 0xE8              ;e4cf  e8          DATA '\xe8'
-    .byte 0xE9              ;e4d0  e9          DATA '\xe9'
-    .byte 0x37              ;e4d1  37          DATA '7'
-    .byte 0x38              ;e4d2  38          DATA '8'
-    .byte 0xEA              ;e4d3  ea          DATA '\xea'
-    .byte 0x20              ;e4d4  20          DATA ' '
-    .byte 0x20              ;e4d5  20          DATA ' '
-    .byte 0x20              ;e4d6  20          DATA ' '
-    .byte 0x20              ;e4d7  20          DATA ' '
-    .byte 0x20              ;e4d8  20          DATA ' '
-    .byte 0x20              ;e4d9  20          DATA ' '
-    .byte 0x20              ;e4da  20          DATA ' '
-    .byte 0xE0              ;e4db  e0          DATA '\xe0'
-    .byte 0xE1              ;e4dc  e1          DATA '\xe1'
-    .byte 0x43              ;e4dd  43          DATA 'C'
-    .byte 0x44              ;e4de  44          DATA 'D'
-    .byte 0x45              ;e4df  45          DATA 'E'
-    .byte 0x46              ;e4e0  46          DATA 'F'
-    .byte 0x47              ;e4e1  47          DATA 'G'
-    .byte 0x48              ;e4e2  48          DATA 'H'
-    .byte 0x49              ;e4e3  49          DATA 'I'
-    .byte 0x4A              ;e4e4  4a          DATA 'J'
-    .byte 0x4B              ;e4e5  4b          DATA 'K'
-    .byte 0x4C              ;e4e6  4c          DATA 'L'
-    .byte 0x4D              ;e4e7  4d          DATA 'M'
-    .byte 0xE2              ;e4e8  e2          DATA '\xe2'
-    .byte 0x4F              ;e4e9  4f          DATA 'O'
-    .byte 0x50              ;e4ea  50          DATA 'P'
-    .byte 0x51              ;e4eb  51          DATA 'Q'
-    .byte 0x52              ;e4ec  52          DATA 'R'
-    .byte 0x53              ;e4ed  53          DATA 'S'
-    .byte 0x54              ;e4ee  54          DATA 'T'
-    .byte 0x55              ;e4ef  55          DATA 'U'
-    .byte 0xE3              ;e4f0  e3          DATA '\xe3'
-    .byte 0x57              ;e4f1  57          DATA 'W'
-    .byte 0x58              ;e4f2  58          DATA 'X'
-    .byte 0x59              ;e4f3  59          DATA 'Y'
-    .byte 0x5A              ;e4f4  5a          DATA 'Z'
-    .byte 0x20              ;e4f5  20          DATA ' '
-    .byte 0x20              ;e4f6  20          DATA ' '
-    .byte 0x20              ;e4f7  20          DATA ' '
-    .byte 0x20              ;e4f8  20          DATA ' '
-    .byte 0x20              ;e4f9  20          DATA ' '
-    .byte 0x20              ;e4fa  20          DATA ' '
-    .byte 0x61              ;e4fb  61          DATA 'a'
-    .byte 0x62              ;e4fc  62          DATA 'b'
-    .byte 0x63              ;e4fd  63          DATA 'c'
-    .byte 0x64              ;e4fe  64          DATA 'd'
-    .byte 0x65              ;e4ff  65          DATA 'e'
-    .byte 0x66              ;e500  66          DATA 'f'
-    .byte 0x67              ;e501  67          DATA 'g'
-    .byte 0x68              ;e502  68          DATA 'h'
-    .byte 0x69              ;e503  69          DATA 'i'
-    .byte 0x6A              ;e504  6a          DATA 'j'
-    .byte 0x6B              ;e505  6b          DATA 'k'
-    .byte 0x6C              ;e506  6c          DATA 'l'
-    .byte 0x6D              ;e507  6d          DATA 'm'
-    .byte 0x6E              ;e508  6e          DATA 'n'
-    .byte 0x6F              ;e509  6f          DATA 'o'
-    .byte 0x70              ;e50a  70          DATA 'p'
-    .byte 0x71              ;e50b  71          DATA 'q'
-    .byte 0x72              ;e50c  72          DATA 'r'
-    .byte 0x73              ;e50d  73          DATA 's'
-    .byte 0x74              ;e50e  74          DATA 't'
-    .byte 0x75              ;e50f  75          DATA 'u'
-    .byte 0x76              ;e510  76          DATA 'v'
-    .byte 0x77              ;e511  77          DATA 'w'
-    .byte 0x78              ;e512  78          DATA 'x'
-    .byte 0x79              ;e513  79          DATA 'y'
-    .byte 0x7A              ;e514  7a          DATA 'z'
-
+ascii_to_upd:
+    ;e4ba '........'
+    .byte 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20
+    ;e4c2 '........'
+    .byte 0x20, 0x20, 0x20, 0x2b, 0x20, 0x2d, 0x20, 0x20
+    ;e4ca '.......7'
+    .byte 0xe4, 0xe5, 0xf3, 0xe6, 0xe7, 0xe8, 0xe9, 0x37
+    ;e4d2 '8.......'
+    .byte 0x38, 0xea, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20
+    ;e4da '...CDEFG'
+    .byte 0x20, 0xe0, 0xe1, 0x43, 0x44, 0x45, 0x46, 0x47
+    ;e4e2 'HIJKLM.O'
+    .byte 0x48, 0x49, 0x4a, 0x4b, 0x4c, 0x4d, 0xe2, 0x4f
+    ;e4ea 'PQRSTU.W'
+    .byte 0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0xe3, 0x57
+    ;e4f2 'XYZ.....'
+    .byte 0x58, 0x59, 0x5a, 0x20, 0x20, 0x20, 0x20, 0x20
+    ;e4fa '.abcdefg'
+    .byte 0x20, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67
+    ;e502 'hijklmno'
+    .byte 0x68, 0x69, 0x6a, 0x6b, 0x6c, 0x6d, 0x6e, 0x6f
+    ;e50a 'pqrstuvw'
+    .byte 0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77
+    ;e602 'xyz'
+    .byte 0x78, 0x79, 0x7a
 
 sub_e515:
     mov a, @ep              ;e515  07
