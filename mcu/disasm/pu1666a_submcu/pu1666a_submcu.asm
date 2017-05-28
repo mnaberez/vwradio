@@ -41,25 +41,9 @@
     ilr2 = 0x7d             ;interrupt level setting register 2
     ilr3 = 0x7e             ;interrupt level setting register 3
 
-    .byte 0xFF              ;e000  ff          DATA '\xff'
-    .byte 0xFF              ;e001  ff          DATA '\xff'
-    .byte 0xFF              ;e002  ff          DATA '\xff'
-    .byte 0xFF              ;e003  ff          DATA '\xff'
-    .byte 0xFF              ;e004  ff          DATA '\xff'
-    .byte 0xFF              ;e005  ff          DATA '\xff'
-    .byte 0xFF              ;e006  ff          DATA '\xff'
-    .byte 0xFF              ;e007  ff          DATA '\xff'
-    .byte 0x98              ;e008  98          DATA '\x98'
-    .byte 0x11              ;e009  11          DATA '\x11'
-    .byte 0x17              ;e00a  17          DATA '\x17'
-    .byte 0x02              ;e00b  02          DATA '\x02'
-    .byte 0x02              ;e00c  02          DATA '\x02'
-    .byte 0x45              ;e00d  45          DATA 'E'
-    .byte 0x08              ;e00e  08          DATA '\x08'
-    .byte 0x02              ;e00f  02          DATA '\x02'
-    .byte 0x12              ;e010  12          DATA '\x12'
-    .byte 0x09              ;e011  09          DATA '\t'
-
+    .byte 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
+    .byte 0x98, 0x11, 0x17, 0x02, 0x02, 0x45, 0x08, 0x02
+    .byte 0x12, 0x09
 
 reset_e012:
     mov pdr0, #0xf3         ;e012  85 00 f3
