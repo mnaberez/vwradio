@@ -1095,7 +1095,7 @@ sub_e60f:
     mov r0, a               ;e617  48
     movw a, #0x000b         ;e618  e4 00 0b
     mulu a                  ;e61b  01
-    movw a, #messages_1     ;e61c  e4 ed ad
+    movw a, #msgs_00_0f     ;e61c  e4 ed ad
     clrc                    ;e61f  81
     addcw a                 ;e620  23
     movw ix, a              ;e621  e2
@@ -1250,7 +1250,7 @@ sub_e6f6:
     mov r0, a               ;e6fe  48
     movw a, #0x000b         ;e6ff  e4 00 0b
     mulu a                  ;e702  01
-    movw a, #messages_2     ;e703  e4 ee 52
+    movw a, #msgs_10_1f     ;e703  e4 ee 52
     clrc                    ;e706  81
     addcw a                 ;e707  23
     movw ix, a              ;e708  e2
@@ -1327,7 +1327,7 @@ sub_e761:
     mov r0, a               ;e769  48
     movw a, #0x000b         ;e76a  e4 00 0b
     mulu a                  ;e76d  01
-    movw a, #messages_3     ;e76e  e4 ee 9f
+    movw a, #msgs_20_3f     ;e76e  e4 ee 9f
     clrc                    ;e771  81
     addcw a                 ;e772  23
     movw ix, a              ;e773  e2
@@ -1642,7 +1642,7 @@ sub_e931:
     mov r0, a               ;e939  48
     movw a, #0x000b         ;e93a  e4 00 0b
     mulu a                  ;e93d  01
-    movw a, #messages_4     ;e93e  e4 ef bd
+    movw a, #msgs_40_4f     ;e93e  e4 ef bd
     clrc                    ;e941  81
     addcw a                 ;e942  23
     movw ix, a              ;e943  e2
@@ -1775,7 +1775,7 @@ sub_e9f1:
     mov r0, a               ;e9f9  48
     movw a, #0x000b         ;e9fa  e4 00 0b
     mulu a                  ;e9fd  01
-    movw a, #messages_5     ;e9fe  e4 f0 15
+    movw a, #msgs_50_5f     ;e9fe  e4 f0 15
     clrc                    ;ea01  81
     addcw a                 ;ea02  23
     movw ix, a              ;ea03  e2
@@ -1870,7 +1870,7 @@ sub_ea6b:
     blo lab_ea88            ;ea76  f9 10
     movw a, #0x000b         ;ea78  e4 00 0b
     mulu a                  ;ea7b  01
-    movw a, #messages_6     ;ea7c  e4 f0 af
+    movw a, #msgs_60_7f     ;ea7c  e4 f0 af
     clrc                    ;ea7f  81
     addcw a                 ;ea80  23
     movw ix, a              ;ea81  e2
@@ -2057,7 +2057,7 @@ sub_eb78:
     mov r0, a               ;eb80  48
     movw a, #0x000b         ;eb81  e4 00 0b
     mulu a                  ;eb84  01
-    movw a, #messages_7     ;eb85  e4 f1 1d
+    movw a, #msgs_80_af     ;eb85  e4 f1 1d
     clrc                    ;eb88  81
     addcw a                 ;eb89  23
     movw ix, a              ;eb8a  e2
@@ -2162,7 +2162,7 @@ sub_ec12:
     mov r0, a               ;ec1a  48
     movw a, #0x000b         ;ec1b  e4 00 0b
     mulu a                  ;ec1e  01
-    movw a, #0xf175         ;ec1f  e4 f1 75
+    movw a, #msgs_b0_bf     ;ec1f  e4 f1 75
     clrc                    ;ec22  81
     addcw a                 ;ec23  23
     movw ix, a              ;ec24  e2
@@ -2207,7 +2207,7 @@ sub_ec50:
     mov r0, a               ;ec58  48
     movw a, #0x000b         ;ec59  e4 00 0b
     mulu a                  ;ec5c  01
-    movw a, #0xf18b         ;ec5d  e4 f1 8b
+    movw a, #msgs_c0_cf     ;ec5d  e4 f1 8b
     clrc                    ;ec60  81
     addcw a                 ;ec61  23
     movw ix, a              ;ec62  e2
@@ -2245,7 +2245,7 @@ lab_ec8b:
 sub_ec8e:
 ;Called if A > 0xD0
     movw a, #0x0000         ;ec8e  e4 00 00
-    movw a, #messages_8     ;ec91  e4 f1 a1
+    movw a, #msgs_d0_ff     ;ec91  e4 f1 a1
     clrc                    ;ec94  81
     addcw a                 ;ec95  23
     movw ix, a              ;ec96  e2
@@ -2451,7 +2451,7 @@ sub_ed92:
 alphanum:
     .ascii '0123456789ABCDEF' ;ed9d
 
-messages_1:
+msgs_00_0f:
 ;Table for A < 0x10
     ;edad 'CD...TR....'
     .byte 0x43, 0x44, 0x00, 0x00, 0x00, 0x54, 0x52, 0x00, 0x00, 0x00, 0x00
@@ -2484,7 +2484,7 @@ messages_1:
     ;ee47 'CD...NO.CD.'
     .byte 0x43, 0x44, 0x00, 0x00, 0x00, 0x4e, 0x4f, 0x00, 0x43, 0x44, 0x00
 
-messages_2:
+msgs_10_1f:
 ;Table for A >= 0x10 and A < 0x20
     ;ee52 'SET.ONVOL.Y'
     .byte 0x53, 0x45, 0x54, 0x00, 0x4f, 0x4e, 0x56, 0x4f, 0x4c, 0x00, 0x59
@@ -2501,7 +2501,7 @@ messages_2:
     ;ee94 'TAPE.SKIP.N'
     .byte 0x54, 0x41, 0x50, 0x45, 0x00, 0x53, 0x4b, 0x49, 0x50, 0x00, 0x4e
 
-messages_3:
+msgs_20_3f:
 ;Table for A >= 0x20 and A < 0x40
     ;ee9f 'RAD.3CP.T7.'
     .byte 0x52, 0x41, 0x44, 0x00, 0x33, 0x43, 0x50, 0x00, 0x54, 0x37, 0x00
@@ -2556,7 +2556,7 @@ messages_3:
     ;efb2 'TESTTREB...'
     .byte 0x54, 0x45, 0x53, 0x54, 0x54, 0x52, 0x45, 0x42, 0x00, 0x00, 0x00
 
-messages_4:
+msgs_40_4f:
 ;Table for A >= 0x40 and A < 0x50
     ;efbd 'FM......MHZ'
     .byte 0x46, 0x4d, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x4d, 0x48, 0x5a
@@ -2575,7 +2575,7 @@ messages_4:
     ;f00a 'AM....MIN..'
     .byte 0x41, 0x4d, 0x00, 0x00, 0x00, 0x00, 0x4d, 0x49, 0x4e, 0x00, 0x00
 
-messages_5:
+msgs_50_5f:
 ;Table for A >= 0x50 and A < 0x60
     ;f015 'TAPE.PLAY.A'
     .byte 0x54, 0x41, 0x50, 0x45, 0x00, 0x50, 0x4c, 0x41, 0x59, 0x00, 0x41
@@ -2606,7 +2606,7 @@ messages_5:
     ;f0a4 'TAPE..MIN..'
     .byte 0x54, 0x41, 0x50, 0x45, 0x00, 0x00, 0x4d, 0x49, 0x4e, 0x00, 0x00
 
-messages_6:
+msgs_60_7f:
 ;Table for A >= 0x60 and A < 0x80
     ;f0af '.....MAX...'
     .byte 0x00, 0x00, 0x00, 0x00, 0x00, 0x4d, 0x41, 0x58, 0x00, 0x00, 0x00
@@ -2629,7 +2629,7 @@ messages_6:
     ;f112 'FADECENTER.'
     .byte 0x46, 0x41, 0x44, 0x45, 0x43, 0x45, 0x4e, 0x54, 0x45, 0x52, 0x00
 
-messages_7:
+msgs_80_af:
 ;Table for A >= 0x80 and A < 0xB0
     ;f11d '....NO.CODE'
     .byte 0x00, 0x00, 0x00, 0x00, 0x4e, 0x4f, 0x00, 0x43, 0x4f, 0x44, 0x45
@@ -2647,16 +2647,20 @@ messages_7:
     .byte 0x00, 0x00, 0x00, 0x00, 0x00, 0x53, 0x41, 0x46, 0x45, 0x00, 0x00
     ;f16a '....CLEAR..'
     .byte 0x00, 0x00, 0x00, 0x00, 0x43, 0x4c, 0x45, 0x41, 0x52, 0x00, 0x00
+
+msgs_b0_bf:
     ;f175 '.....DIAG..'
     .byte 0x00, 0x00, 0x00, 0x00, 0x00, 0x44, 0x49, 0x41, 0x47, 0x00, 0x00
     ;f180 'TESTDISPLAY'
     .byte 0x54, 0x45, 0x53, 0x54, 0x44, 0x49, 0x53, 0x50, 0x4c, 0x41, 0x59
+
+msgs_c0_cf:
     ;f18b '.....BOSE..'
     .byte 0x00, 0x00, 0x00, 0x00, 0x00, 0x42, 0x4f, 0x53, 0x45, 0x00, 0x00
     ;f196 '...........'
     .byte 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 
-messages_8:
+msgs_d0_ff:
 ;Table for A > 0xD0
     ;f1a1 '....VW.CAR.'
     .byte 0x00, 0x00, 0x00, 0x00, 0x56, 0x57, 0x2d, 0x43, 0x41, 0x52, 0x00
