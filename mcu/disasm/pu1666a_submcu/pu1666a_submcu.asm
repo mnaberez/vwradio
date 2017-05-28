@@ -905,7 +905,7 @@ sub_e515:
     mov a, #0x31            ;e525  04 31
     clrc                    ;e527  81
     subc a                  ;e528  32
-    movw a, #0xe534         ;e529  e4 e5 34
+    movw a, #table_e534     ;e529  e4 e5 34
     clrc                    ;e52c  81
     addcw a                 ;e52d  23
     mov a, @a               ;e52e  92
@@ -916,8 +916,8 @@ lab_e531:
     mov @ep, #0x20          ;e531  87 20
     ret                     ;e533  20
 
-    .byte 0xEB              ;e534  eb          DATA '\xeb'
-    .byte 0xEC              ;e535  ec          DATA '\xec'
+table_e534:
+    .word 0xEBEC            ;e534  eb ec       DATA '\xeb\xec'
 
 
 sub_e536:
@@ -934,7 +934,7 @@ sub_e536:
     mov a, #0x31            ;e546  04 31
     clrc                    ;e548  81
     subc a                  ;e549  32
-    movw a, #0xe555         ;e54a  e4 e5 55
+    movw a, #table_e555     ;e54a  e4 e5 55
     clrc                    ;e54d  81
     addcw a                 ;e54e  23
     mov a, @a               ;e54f  92
@@ -945,12 +945,10 @@ lab_e552:
     mov @ep, #0x20          ;e552  87 20
     ret                     ;e554  20
 
-    .byte 0xE5              ;e555  e5          DATA '\xe5'
-    .byte 0xED              ;e556  ed          DATA '\xed'
-    .byte 0xEE              ;e557  ee          DATA '\xee'
-    .byte 0xEF              ;e558  ef          DATA '\xef'
-    .byte 0xF0              ;e559  f0          DATA '\xf0'
-    .byte 0xF2              ;e55a  f2          DATA '\xf2'
+table_e555:
+    .word 0xE5ED            ;e555  e5 ed       DATA '\xe5\xed'
+    .word 0xEEEF            ;e557  ee ef       DATA '\xee\xef'
+    .word 0xF0F2            ;e559  f0 f2       DATA '\xf0\xf2'
 
 
 sub_e55b:
@@ -968,7 +966,7 @@ sub_e55b:
     beq lab_e5d0            ;e570  fd 5e
     cmp a, #0x10            ;e572  14 10
     bhs lab_e580            ;e574  f8 0a
-    call sub_e60f           ;e576  31 e6 0f
+    call sub_e60f           ;e576  31 e6 0f     Call if A < 0x10
 
 lab_e579:
     call sub_e5d6           ;e579  31 e5 d6
@@ -1088,6 +1086,7 @@ lab_e60e:
     ret                     ;e60e  20
 
 sub_e60f:
+;Called if A < 0x10
     movw a, #0x0000         ;e60f  e4 00 00
     mov a, @ep              ;e612  07
     mov a, #0x01            ;e613  04 01
@@ -1110,12 +1109,13 @@ sub_e60f:
     bhs lab_e65d            ;e634  f8 27
     clrc                    ;e636  81
     rolc a                  ;e637  02
-    movw a, #0xe63f         ;e638  e4 e6 3f
+    movw a, #table_e63f     ;e638  e4 e6 3f
     clrc                    ;e63b  81
     addcw a                 ;e63c  23
     movw a, @a              ;e63d  93
     jmp @a                  ;e63e  e0
 
+table_e63f:
     .word lab_e661          ;e63f  e6 61       VECTOR
     .word lab_e677          ;e641  e6 77       VECTOR
     .word lab_e69e          ;e643  e6 9e       VECTOR
@@ -1264,12 +1264,13 @@ sub_e6f6:
     bhs lab_e734            ;e71b  f8 17
     clrc                    ;e71d  81
     rolc a                  ;e71e  02
-    movw a, #0xe726         ;e71f  e4 e7 26
+    movw a, #table_e726     ;e71f  e4 e7 26
     clrc                    ;e722  81
     addcw a                 ;e723  23
     movw a, @a              ;e724  93
     jmp @a                  ;e725  e0
 
+table_e726:
     .word lab_e738          ;e726  e7 38       VECTOR
     .word lab_e73b          ;e728  e7 3b       VECTOR
     .word lab_e73e          ;e72a  e7 3e       VECTOR
@@ -1340,12 +1341,13 @@ sub_e761:
     bhs lab_e7c1            ;e786  f8 39
     clrc                    ;e788  81
     rolc a                  ;e789  02
-    movw a, #0xe791         ;e78a  e4 e7 91
+    movw a, #table_e791     ;e78a  e4 e7 91
     clrc                    ;e78d  81
     addcw a                 ;e78e  23
     movw a, @a              ;e78f  93
     jmp @a                  ;e790  e0
 
+table_e791:
     .word lab_e7c5          ;e791  e7 c5       VECTOR
     .word lab_e7c8          ;e793  e7 c8       VECTOR
     .word lab_e7e9          ;e795  e7 e9       VECTOR
@@ -1654,12 +1656,13 @@ sub_e931:
     bhs lab_e971            ;e956  f8 19
     clrc                    ;e958  81
     rolc a                  ;e959  02
-    movw a, #0xe961         ;e95a  e4 e9 61
+    movw a, #table_e961     ;e95a  e4 e9 61
     clrc                    ;e95d  81
     addcw a                 ;e95e  23
     movw a, @a              ;e95f  93
     jmp @a                  ;e960  e0
 
+table_e961:
     .word lab_e975          ;e961  e9 75       VECTOR
     .word lab_e9af          ;e963  e9 af       VECTOR
     .word lab_e9c1          ;e965  e9 c1       VECTOR
@@ -1786,12 +1789,13 @@ sub_e9f1:
     bhs lab_ea3d            ;ea16  f8 25
     clrc                    ;ea18  81
     rolc a                  ;ea19  02
-    movw a, #0xea21         ;ea1a  e4 ea 21
+    movw a, #table_ea21     ;ea1a  e4 ea 21
     clrc                    ;ea1d  81
     addcw a                 ;ea1e  23
     movw a, @a              ;ea1f  93
     jmp @a                  ;ea20  e0
 
+table_ea21:
     .word lab_ea41          ;ea21  ea 41       VECTOR
     .word lab_ea44          ;ea23  ea 44       VECTOR
     .word lab_ea47          ;ea25  ea 47       VECTOR
@@ -1882,12 +1886,13 @@ lab_ea88:
     bhs lab_eab3            ;ea94  f8 1d
     clrc                    ;ea96  81
     rolc a                  ;ea97  02
-    movw a, #0xea9f         ;ea98  e4 ea 9f
+    movw a, #table_ea9f     ;ea98  e4 ea 9f
     clrc                    ;ea9b  81
     addcw a                 ;ea9c  23
     movw a, @a              ;ea9d  93
     jmp @a                  ;ea9e  e0
 
+table_ea9f:
     .word lab_eab7          ;ea9f  ea b7       VECTOR   A=0
     .word lab_ead2          ;eaa1  ea d2       VECTOR   A=1
     .word lab_eaed          ;eaa3  ea ed       VECTOR   A=2
@@ -2066,12 +2071,13 @@ sub_eb78:
     bhs lab_ebb8            ;eb9d  f8 19
     clrc                    ;eb9f  81
     rolc a                  ;eba0  02
-    movw a, #0xeba8         ;eba1  e4 eb a8
+    movw a, #table_eba8     ;eba1  e4 eb a8
     clrc                    ;eba4  81
     addcw a                 ;eba5  23
     movw a, @a              ;eba6  93
     jmp @a                  ;eba7  e0
 
+table_eba8:
     .word lab_ebbc          ;eba8  eb bc       VECTOR   A=0
     .word lab_ebbf          ;ebaa  eb bf       VECTOR   A=1
     .word lab_ebc2          ;ebac  eb c2       VECTOR   A=2
@@ -2170,12 +2176,13 @@ sub_ec12:
     bhs lab_ec46            ;ec37  f8 0d
     clrc                    ;ec39  81
     rolc a                  ;ec3a  02
-    movw a, #0xec42         ;ec3b  e4 ec 42
+    movw a, #table_ec42     ;ec3b  e4 ec 42
     clrc                    ;ec3e  81
     addcw a                 ;ec3f  23
     movw a, @a              ;ec40  93
     jmp @a                  ;ec41  e0
 
+table_ec42:
     .word lab_ec4a          ;ec42  ec 4a       VECTOR   A=0
     .word lab_ec4d          ;ec44  ec 4d       VECTOR   A=1
 
@@ -2214,12 +2221,13 @@ sub_ec50:
     bhs lab_ec84            ;ec75  f8 0d
     clrc                    ;ec77  81
     rolc a                  ;ec78  02
-    movw a, #0xec80         ;ec79  e4 ec 80
+    movw a, #table_ec80     ;ec79  e4 ec 80
     clrc                    ;ec7c  81
     addcw a                 ;ec7d  23
     movw a, @a              ;ec7e  93
     jmp @a                  ;ec7f  e0
 
+table_ec80:
     .word lab_ec88          ;ec80  ec 88       VECTOR   A=0
     .word lab_ec8b          ;ec82  ec 8b       VECTOR   A=1
 
@@ -2444,6 +2452,7 @@ alphanum:
     .ascii '0123456789ABCDEF' ;ed9d
 
 messages_1:
+;Table for A < 0x10
     ;edad 'CD...TR....'
     .byte 0x43, 0x44, 0x00, 0x00, 0x00, 0x54, 0x52, 0x00, 0x00, 0x00, 0x00
     ;edb8 'CUE........'
