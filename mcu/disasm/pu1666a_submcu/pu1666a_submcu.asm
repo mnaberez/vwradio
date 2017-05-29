@@ -945,12 +945,15 @@ sub_e55b:
     setb 0x9c:3             ;e566  ab 9c
     clrb 0xa9:0             ;e568  a0 a9
     clrb 0xa9:1             ;e56a  a1 a9
+
     movw ep, #0x011d        ;e56c  e7 01 1d
     mov a, @ep              ;e56f  07
-    beq lab_e5d0            ;e570  fd 5e
+
+    beq lab_e5d0            ;e570  fd 5e        Branch if A = 0 (vw-car message)
+
     cmp a, #0x10            ;e572  14 10
     bhs lab_e580            ;e574  f8 0a
-    call sub_e60f           ;e576  31 e6 0f     Call if A < 0x10
+    call sub_e60f           ;e576  31 e6 0f     Call if A >= 0x01 and A < 0x10 (cd messages)
 
 lab_e579:
     call sub_e5d6           ;e579  31 e5 d6
@@ -963,61 +966,61 @@ lab_e580:
 ;A >= 0x10
     cmp a, #0x20            ;e580  14 20
     bhs lab_e58a            ;e582  f8 06
-    call sub_e6f6           ;e584  31 e6 f6     Call if A >= 0x10, A < 0x20
+    call sub_e6f6           ;e584  31 e6 f6     Call if A >= 0x10 and A < 0x20 ("set" messages)
     jmp lab_e579            ;e587  21 e5 79
 
 lab_e58a:
 ;A >= 0x20
     cmp a, #0x40            ;e58a  14 40
     bhs lab_e594            ;e58c  f8 06
-    call sub_e761           ;e58e  31 e7 61     Call if A >= 0x20, A < 0x40
+    call sub_e761           ;e58e  31 e7 61     Call if A >= 0x20 and A < 0x40 (test mode messages)
     jmp lab_e579            ;e591  21 e5 79
 
 lab_e594:
 ;A >= 0x40
     cmp a, #0x50            ;e594  14 50
     bhs lab_e59e            ;e596  f8 06
-    call sub_e931           ;e598  31 e9 31     Call if A >= 0x40, A < 0x50
+    call sub_e931           ;e598  31 e9 31     Call if A >= 0x40 and A < 0x50 (tuner messages)
     jmp lab_e579            ;e59b  21 e5 79
 
 lab_e59e:
 ;A >= 0x50
     cmp a, #0x60            ;e59e  14 60
     bhs lab_e5a8            ;e5a0  f8 06
-    call sub_e9f1           ;e5a2  31 e9 f1     Call if A >= 0x50, A < 0x60
+    call sub_e9f1           ;e5a2  31 e9 f1     Call if A >= 0x50 and A < 0x60 (tape messages)
     jmp lab_e579            ;e5a5  21 e5 79
 
 lab_e5a8:
 ;A >= 0x60
     cmp a, #0x80            ;e5a8  14 80
     bhs lab_e5b2            ;e5aa  f8 06
-    call sub_ea6b           ;e5ac  31 ea 6b     Call if A >= 0x60, A < 0x80
+    call sub_ea6b           ;e5ac  31 ea 6b     Call if A >= 0x60 and A < 0x80 (sound messages)
     jmp lab_e579            ;e5af  21 e5 79
 
 lab_e5b2:
 ;A >= 0x80
     cmp a, #0xb0            ;e5b2  14 b0
     bhs lab_e5bc            ;e5b4  f8 06
-    call sub_eb78           ;e5b6  31 eb 78     Call if A >= 0x80, A < 0xB0
+    call sub_eb78           ;e5b6  31 eb 78     Call if A >= 0x80 and A < 0xB0 (code messages)
     jmp lab_e579            ;e5b9  21 e5 79
 
 lab_e5bc:
 ;A >= 0xb0
     cmp a, #0xc0            ;e5bc  14 c0
     bhs lab_e5c6            ;e5be  f8 06
-    call sub_ec12           ;e5c0  31 ec 12     Call if A >= 0xB0, A < 0xC0
+    call sub_ec12           ;e5c0  31 ec 12     Call if A >= 0xB0 and A < 0xC0 (diag messages)
     jmp lab_e579            ;e5c3  21 e5 79
 
 lab_e5c6:
-;A >= 0xc0
+;A >= 0xC0
     cmp a, #0xd0            ;e5c6  14 d0
     bhs lab_e5d0            ;e5c8  f8 06
-    call sub_ec50           ;e5ca  31 ec 50     Call if A >= 0xC0, A < 0xD0
+    call sub_ec50           ;e5ca  31 ec 50     Call if A >= 0xC0 and A < 0xD0 (bose messages)
     jmp lab_e579            ;e5cd  21 e5 79
 
 lab_e5d0:
-;A >= 0xD0
-    call sub_ec8e           ;e5d0  31 ec 8e     Call if A >= 0xD0
+;A = 0 or A >= 0xD0
+    call sub_ec8e           ;e5d0  31 ec 8e     Call if A = 0 or A >= 0xD0 (vw-car message)
     jmp lab_e579            ;e5d3  21 e5 79
 
 sub_e5d6:
@@ -1070,7 +1073,7 @@ lab_e60e:
     ret                     ;e60e  20
 
 sub_e60f:
-;Called if A < 0x10 
+;Called if A >= 0x01 and A < 0x10 (cd messages)
     movw a, #0x0000         ;e60f  e4 00 00
     mov a, @ep              ;e612  07
     mov a, #0x01            ;e613  04 01
@@ -1079,7 +1082,7 @@ sub_e60f:
     mov r0, a               ;e617  48
     movw a, #0x000b         ;e618  e4 00 0b
     mulu a                  ;e61b  01
-    movw a, #msgs_00_0f     ;e61c  e4 ed ad
+    movw a, #msgs_01_0f     ;e61c  e4 ed ad     A = pointer to cd messages
     clrc                    ;e61f  81
     addcw a                 ;e620  23
     movw ix, a              ;e621  e2
@@ -1100,28 +1103,28 @@ sub_e60f:
     jmp @a                  ;e63e  e0
 
 table_e63f:
-    .word lab_e661          ;e63f  e6 61       VECTOR
-    .word lab_e677          ;e641  e6 77       VECTOR
-    .word lab_e69e          ;e643  e6 9e       VECTOR
-    .word lab_e6a1          ;e645  e6 a1       VECTOR
-    .word lab_e6b7          ;e647  e6 b7       VECTOR
-    .word lab_e6ba          ;e649  e6 ba       VECTOR
-    .word lab_e6bd          ;e64b  e6 bd       VECTOR
-    .word lab_e6c0          ;e64d  e6 c0       VECTOR
-    .word lab_e6c9          ;e64f  e6 c9       VECTOR
-    .word lab_e6d2          ;e651  e6 d2       VECTOR
-    .word lab_e6db          ;e653  e6 db       VECTOR
-    .word lab_e6de          ;e655  e6 de       VECTOR
-    .word lab_e6e1          ;e657  e6 e1       VECTOR
-    .word lab_e6ea          ;e659  e6 ea       VECTOR
-    .word lab_e6ed          ;e65b  e6 ed       VECTOR
-
+    .word lab_e661          ;e63f  e6 61       VECTOR   A=0x00  'CD...TR....'
+    .word lab_e677          ;e641  e6 77       VECTOR   A=0x01  'CUE........'
+    .word lab_e69e          ;e643  e6 9e       VECTOR   A=0x02  'REV........'
+    .word lab_e6a1          ;e645  e6 a1       VECTOR   A=0x03  'SCANCD.TR..'
+    .word lab_e6b7          ;e647  e6 b7       VECTOR   A=0x04  'NO..CHANGER'
+    .word lab_e6ba          ;e649  e6 ba       VECTOR   A=0x05  'NO  MAGAZIN'
+    .word lab_e6bd          ;e64b  e6 bd       VECTOR   A=0x06  '....NO.DISC'
+    .word lab_e6c0          ;e64d  e6 c0       VECTOR   A=0x07  'CD...ERROR.'
+    .word lab_e6c9          ;e64f  e6 c9       VECTOR   A=0x08  'CD.........'
+    .word lab_e6d2          ;e651  e6 d2       VECTOR   A=0x09  'CD....MAX..'
+    .word lab_e6db          ;e653  e6 db       VECTOR   A=0x0A  'CD....MIN..'
+    .word lab_e6de          ;e655  e6 de       VECTOR   A=0x0B  'CHK.MAGAZIN'
+    .word lab_e6e1          ;e657  e6 e1       VECTOR   A=0x0C  'CD..CD.ERR.'
+    .word lab_e6ea          ;e659  e6 ea       VECTOR   A=0x0D  'CD...ERROR.'
+    .word lab_e6ed          ;e65b  e6 ed       VECTOR   A=0x0E  'CD...NO.CD.'
 
 lab_e65d:
     call sub_ecce           ;e65d  31 ec ce
     ret                     ;e660  20
 
 lab_e661:
+;'CD...TR....'
     mov a, @ep              ;e661  07
     call sub_ed92           ;e662  31 ed 92
     mov @ix+0x03, a         ;e665  46 03
@@ -1135,6 +1138,7 @@ lab_e661:
     jmp lab_e65d            ;e674  21 e6 5d
 
 lab_e677:
+;'CUE........'
     incw ep                 ;e677  c3
     mov a, @ep              ;e678  07
     and a, #0xf0            ;e679  64 f0
@@ -1143,10 +1147,8 @@ lab_e677:
     cmp a, #0x41            ;e680  14 41
     bne lab_e686            ;e682  fc 02
     mov a, #0x2d            ;e684  04 2d
-
 lab_e686:
     mov @ix+0x05, a         ;e686  46 05
-
 lab_e688:
     mov a, @ep              ;e688  07
     call sub_ed92           ;e689  31 ed 92
@@ -1161,9 +1163,11 @@ lab_e688:
     jmp lab_e65d            ;e69b  21 e6 5d
 
 lab_e69e:
+;'REV........'
     jmp lab_e677            ;e69e  21 e6 77
 
 lab_e6a1:
+;'SCANCD.TR..'
     mov a, @ep              ;e6a1  07
     call sub_ed92           ;e6a2  31 ed 92
     mov @ix+0x06, a         ;e6a5  46 06
@@ -1177,55 +1181,66 @@ lab_e6a1:
     jmp lab_e65d            ;e6b4  21 e6 5d
 
 lab_e6b7:
+;'NO..CHANGER'
     jmp lab_e65d            ;e6b7  21 e6 5d
 
 lab_e6ba:
+;'NO  MAGAZIN'
     jmp lab_e65d            ;e6ba  21 e6 5d
 
 lab_e6bd:
+;'....NO.DISC'
     jmp lab_e65d            ;e6bd  21 e6 5d
 
 lab_e6c0:
+;'CD...ERROR.'
     mov a, @ep              ;e6c0  07
     call sub_ed92           ;e6c1  31 ed 92
     mov @ix+0x03, a         ;e6c4  46 03
     jmp lab_e65d            ;e6c6  21 e6 5d
 
 lab_e6c9:
+;'CD.........'
     mov a, @ep              ;e6c9  07
     call sub_ed92           ;e6ca  31 ed 92
     mov @ix+0x03, a         ;e6cd  46 03
     jmp lab_e677            ;e6cf  21 e6 77
 
 lab_e6d2:
+;'CD....MAX..'
     mov a, @ep              ;e6d2  07
     call sub_ed92           ;e6d3  31 ed 92
     mov @ix+0x03, a         ;e6d6  46 03
     jmp lab_e65d            ;e6d8  21 e6 5d
 
 lab_e6db:
+;'CD....MIN..'
     jmp lab_e6d2            ;e6db  21 e6 d2
 
 lab_e6de:
+;'CHK.MAGAZIN'
     jmp lab_e65d            ;e6de  21 e6 5d
 
 lab_e6e1:
+;'CD..CD.ERR.'
     mov a, @ep              ;e6e1  07
     call sub_ed92           ;e6e2  31 ed 92
     mov @ix+0x02, a         ;e6e5  46 02
     jmp lab_e65d            ;e6e7  21 e6 5d
 
 lab_e6ea:
+;'CD...ERROR.'
     jmp lab_e65d            ;e6ea  21 e6 5d
 
 lab_e6ed:
+;'CD...NO.CD.'
     mov a, @ep              ;e6ed  07
     call sub_ed92           ;e6ee  31 ed 92
     mov @ix+0x03, a         ;e6f1  46 03
     jmp lab_e65d            ;e6f3  21 e6 5d
 
 sub_e6f6:
-;Called if A >= 0x10 and A < 0x20
+;Called if A >= 0x10 and A < 0x20 ("set" messages)
     movw a, #0x0000         ;e6f6  e4 00 00
     mov a, @ep              ;e6f9  07
     mov a, #0x10            ;e6fa  04 10
@@ -1234,7 +1249,7 @@ sub_e6f6:
     mov r0, a               ;e6fe  48
     movw a, #0x000b         ;e6ff  e4 00 0b
     mulu a                  ;e702  01
-    movw a, #msgs_10_1f     ;e703  e4 ee 52
+    movw a, #msgs_10_1f     ;e703  e4 ee 52     A = pointer to "set" messages
     clrc                    ;e706  81
     addcw a                 ;e707  23
     movw ix, a              ;e708  e2
@@ -1255,26 +1270,28 @@ sub_e6f6:
     jmp @a                  ;e725  e0
 
 table_e726:
-    .word lab_e738          ;e726  e7 38       VECTOR
-    .word lab_e73b          ;e728  e7 3b       VECTOR
-    .word lab_e73e          ;e72a  e7 3e       VECTOR
-    .word lab_e755          ;e72c  e7 55       VECTOR
-    .word lab_e758          ;e72e  e7 58       VECTOR
-    .word lab_e75b          ;e730  e7 5b       VECTOR
-    .word lab_e75e          ;e732  e7 5e       VECTOR
-
+    .word lab_e738          ;e726  e7 38       VECTOR   A=0x00  'SET.ONVOL.Y'
+    .word lab_e73b          ;e728  e7 3b       VECTOR   A=0x01  'SET.ONVOL.N'
+    .word lab_e73e          ;e72a  e7 3e       VECTOR   A=0x02  'SET.ONVOL..'
+    .word lab_e755          ;e72c  e7 55       VECTOR   A=0x03  'SET.CD.MIX1'
+    .word lab_e758          ;e72e  e7 58       VECTOR   A=0x04  'SET.CD.MIX6'
+    .word lab_e75b          ;e730  e7 5b       VECTOR   A=0x05  'TAPE.SKIP.Y'
+    .word lab_e75e          ;e732  e7 5e       VECTOR   A=0x06  'TAPE.SKIP.N'
 
 lab_e734:
     call sub_ecce           ;e734  31 ec ce
     ret                     ;e737  20
 
 lab_e738:
+;'SET.ONVOL.Y'
     jmp lab_e734            ;e738  21 e7 34
 
 lab_e73b:
+;'SET.ONVOL.N'
     jmp lab_e734            ;e73b  21 e7 34
 
 lab_e73e:
+;'SET.ONVOL..'
     mov a, @ep              ;e73e  07
     call sub_ed5d           ;e73f  31 ed 5d
     mov a, r7               ;e742  0f
@@ -1282,7 +1299,6 @@ lab_e73e:
     beq lab_e74c            ;e745  fd 05
     call sub_ed88           ;e747  31 ed 88
     mov @ix+0x09, a         ;e74a  46 09
-
 lab_e74c:
     mov a, r7               ;e74c  0f
     call sub_ed92           ;e74d  31 ed 92
@@ -1290,19 +1306,23 @@ lab_e74c:
     jmp lab_e734            ;e752  21 e7 34
 
 lab_e755:
+;'SET.CD.MIX1'
     jmp lab_e734            ;e755  21 e7 34
 
 lab_e758:
+;'SET.CD.MIX6'
     jmp lab_e734            ;e758  21 e7 34
 
 lab_e75b:
+;'TAPE.SKIP.Y'
     jmp lab_e734            ;e75b  21 e7 34
 
 lab_e75e:
+;'TAPE.SKIP.N'
     jmp lab_e734            ;e75e  21 e7 34
 
 sub_e761:
-;Called if A >= 0x20 and A < 0x40
+;Called if A >= 0x20 and A < 0x40 (test mode messages)
     movw a, #0x0000         ;e761  e4 00 00
     mov a, @ep              ;e764  07
     mov a, #0x20            ;e765  04 20
@@ -1311,7 +1331,7 @@ sub_e761:
     mov r0, a               ;e769  48
     movw a, #0x000b         ;e76a  e4 00 0b
     mulu a                  ;e76d  01
-    movw a, #msgs_20_3f     ;e76e  e4 ee 9f
+    movw a, #msgs_20_3f     ;e76e  e4 ee 9f     A = pointer to test mode messages
     clrc                    ;e771  81
     addcw a                 ;e772  23
     movw ix, a              ;e773  e2
@@ -1332,40 +1352,41 @@ sub_e761:
     jmp @a                  ;e790  e0
 
 table_e791:
-    .word lab_e7c5          ;e791  e7 c5       VECTOR
-    .word lab_e7c8          ;e793  e7 c8       VECTOR
-    .word lab_e7e9          ;e795  e7 e9       VECTOR
-    .word lab_e828          ;e797  e8 28       VECTOR
-    .word lab_e831          ;e799  e8 31       VECTOR
-    .word lab_e880          ;e79b  e8 80       VECTOR
-    .word lab_e889          ;e79d  e8 89       VECTOR
-    .word lab_e88c          ;e79f  e8 8c       VECTOR
-    .word lab_e895          ;e7a1  e8 95       VECTOR
-    .word lab_e898          ;e7a3  e8 98       VECTOR
-    .word lab_e89b          ;e7a5  e8 9b       VECTOR
-    .word lab_e89e          ;e7a7  e8 9e       VECTOR
-    .word lab_e8a1          ;e7a9  e8 a1       VECTOR
-    .word lab_e8a4          ;e7ab  e8 a4       VECTOR
-    .word lab_e8b7          ;e7ad  e8 b7       VECTOR
-    .word lab_e8ba          ;e7af  e8 ba       VECTOR
-    .word lab_e8bd          ;e7b1  e8 bd       VECTOR
-    .word lab_e8c0          ;e7b3  e8 c0       VECTOR
-    .word lab_e8c3          ;e7b5  e8 c3       VECTOR
-    .word lab_e8c6          ;e7b7  e8 c6       VECTOR
-    .word lab_e90a          ;e7b9  e9 0a       VECTOR
-    .word lab_e928          ;e7bb  e9 28       VECTOR
-    .word lab_e92b          ;e7bd  e9 2b       VECTOR
-    .word lab_e92e          ;e7bf  e9 2e       VECTOR
-
+    .word lab_e7c5          ;e791  e7 c5       VECTOR   A=0x00  'RAD.3CP.T7.'
+    .word lab_e7c8          ;e793  e7 c8       VECTOR   A=0x01  'VER........'
+    .word lab_e7e9          ;e795  e7 e9       VECTOR   A=0x02  '...........'
+    .word lab_e828          ;e797  e8 28       VECTOR   A=0x03  'HC.........'
+    .word lab_e831          ;e799  e8 31       VECTOR   A=0x04  'V..........'
+    .word lab_e880          ;e79b  e8 80       VECTOR   A=0x05  'SEEKSET.M..'
+    .word lab_e889          ;e79d  e8 89       VECTOR   A=0x06  'SEEKSET.N..'
+    .word lab_e88c          ;e79f  e8 8c       VECTOR   A=0x07  'SEEKSET.M1.'
+    .word lab_e895          ;e7a1  e8 95       VECTOR   A=0x08  'SEEKSET.M2.'
+    .word lab_e898          ;e7a3  e8 98       VECTOR   A=0x09  'SEEKSET.M3.'
+    .word lab_e89b          ;e7a5  e8 9b       VECTOR   A=0x0A  'SEEKSET.N1.'
+    .word lab_e89e          ;e7a7  e8 9e       VECTOR   A=0x0B  'SEEKSET.N2.'
+    .word lab_e8a1          ;e7a9  e8 a1       VECTOR   A=0x0C  'SEEKSET.N3.'
+    .word lab_e8a4          ;e7ab  e8 a4       VECTOR   A=0x0D  'SEEKSET.X..'
+    .word lab_e8b7          ;e7ad  e8 b7       VECTOR   A=0x0E  'SEEKSET.Y..'
+    .word lab_e8ba          ;e7af  e8 ba       VECTOR   A=0x0F  'SEEKSET.Z..'
+    .word lab_e8bd          ;e7b1  e8 bd       VECTOR   A=0x10  'FERN...ON..'
+    .word lab_e8c0          ;e7b3  e8 c0       VECTOR   A=0x11  'FERN...OFF.'
+    .word lab_e8c3          ;e7b5  e8 c3       VECTOR   A=0x12  'TESTTUN.ON.'
+    .word lab_e8c6          ;e7b7  e8 c6       VECTOR   A=0x13  'TEST..Q....'
+    .word lab_e90a          ;e7b9  e9 0a       VECTOR   A=0x14  'TESTBASS...'
+    .word lab_e928          ;e7bb  e9 28       VECTOR   A=0x15  'TESTTREB...'
+    .word lab_e92b          ;e7bd  e9 2b       VECTOR   A=0x16  'TESTTUN.OFF'
+    .word lab_e92e          ;e7bf  e9 2e       VECTOR   A=0x17  '.ON.TUNING.'
 
 lab_e7c1:
     call sub_ecce           ;e7c1  31 ec ce
     ret                     ;e7c4  20
 
 lab_e7c5:
+;'RAD.3CP.T7.'
     jmp lab_e7c1            ;e7c5  21 e7 c1
 
 lab_e7c8:
+;'VER........'
     setb 0xa9:0             ;e7c8  a8 a9
     incw ep                 ;e7ca  c3
     mov a, @ep              ;e7cb  07
@@ -1384,6 +1405,7 @@ lab_e7c8:
     jmp lab_e7c1            ;e7e6  21 e7 c1
 
 lab_e7e9:
+;'...........'
     mov a, @ep              ;e7e9  07
     call sub_ed33           ;e7ea  31 ed 33
     mov r1, a               ;e7ed  49
@@ -1393,7 +1415,6 @@ lab_e7e9:
     beq lab_e7f9            ;e7f2  fd 05
     call sub_ed88           ;e7f4  31 ed 88
     mov @ix+0x00, a         ;e7f7  46 00
-
 lab_e7f9:
     mov a, r2               ;e7f9  0a
     call sub_ed92           ;e7fa  31 ed 92
@@ -1404,7 +1425,6 @@ lab_e7f9:
     mov a, r1               ;e805  09
     call sub_ed92           ;e806  31 ed 92
     mov @ix+0x03, a         ;e809  46 03
-
 lab_e80b:
     incw ep                 ;e80b  c3
     mov a, @ep              ;e80c  07
@@ -1423,12 +1443,14 @@ lab_e80b:
     jmp lab_e7c1            ;e825  21 e7 c1
 
 lab_e828:
+;'HC.........'
     mov a, @ep              ;e828  07
     call sub_ed92           ;e829  31 ed 92
     mov @ix+0x03, a         ;e82c  46 03
     jmp lab_e80b            ;e82e  21 e8 0b
 
 lab_e831:
+;'V..........'
     mov a, @ep              ;e831  07
     and a, #0xf0            ;e832  64 f0
     beq lab_e878            ;e834  fd 42
@@ -1437,7 +1459,6 @@ lab_e831:
     mov a, @ep              ;e83a  07
     xor a, #0xff            ;e83b  54 ff
     incw a                  ;e83d  c0
-
 lab_e83e:
     call sub_ed92           ;e83e  31 ed 92
     mov @ix+0x02, a         ;e841  46 02
@@ -1448,7 +1469,6 @@ lab_e83e:
     beq lab_e850            ;e849  fd 05
     call sub_ed92           ;e84b  31 ed 92
     mov @ix+0x04, a         ;e84e  46 04
-
 lab_e850:
     mov a, r7               ;e850  0f
     call sub_ed88           ;e851  31 ed 88
@@ -1463,7 +1483,6 @@ lab_e850:
     beq lab_e869            ;e862  fd 05
     call sub_ed92           ;e864  31 ed 92
     mov @ix+0x08, a         ;e867  46 08
-
 lab_e869:
     mov a, r7               ;e869  0f
     call sub_ed88           ;e86a  31 ed 88
@@ -1472,7 +1491,6 @@ lab_e869:
     call sub_ed92           ;e870  31 ed 92
     mov @ix+0x0a, a         ;e873  46 0a
     jmp lab_e7c1            ;e875  21 e7 c1
-
 lab_e878:
     mov a, #0x2b            ;e878  04 2b
     mov @ix+0x01, a         ;e87a  46 01
@@ -1480,42 +1498,50 @@ lab_e878:
     jmp lab_e83e            ;e87d  21 e8 3e
 
 lab_e880:
+;'SEEKSET.M..'
     mov a, @ep              ;e880  07
     call sub_ed92           ;e881  31 ed 92
     mov @ix+0x09, a         ;e884  46 09
     jmp lab_e7c1            ;e886  21 e7 c1
 
 lab_e889:
+;'SEEKSET.N..'
     jmp lab_e880            ;e889  21 e8 80
 
 lab_e88c:
+;'SEEKSET.M1.'
     mov a, @ep              ;e88c  07
     call sub_ed92           ;e88d  31 ed 92
     mov @ix+0x0a, a         ;e890  46 0a
     jmp lab_e7c1            ;e892  21 e7 c1
 
 lab_e895:
+;'SEEKSET.M2.'
     jmp lab_e88c            ;e895  21 e8 8c
 
 lab_e898:
+;'SEEKSET.M3.'
     jmp lab_e88c            ;e898  21 e8 8c
 
 lab_e89b:
+;'SEEKSET.N1.'
     jmp lab_e88c            ;e89b  21 e8 8c
 
 lab_e89e:
+;'SEEKSET.N2.'
     jmp lab_e88c            ;e89e  21 e8 8c
 
 lab_e8a1:
+;'SEEKSET.N3.'
     jmp lab_e88c            ;e8a1  21 e8 8c
 
 lab_e8a4:
+;'SEEKSET.X..'
     mov a, @ep              ;e8a4  07
     and a, #0xf0            ;e8a5  64 f0
     beq lab_e8ae            ;e8a7  fd 05
     call sub_ed88           ;e8a9  31 ed 88
     mov @ix+0x09, a         ;e8ac  46 09
-
 lab_e8ae:
     mov a, @ep              ;e8ae  07
     call sub_ed92           ;e8af  31 ed 92
@@ -1523,27 +1549,32 @@ lab_e8ae:
     jmp lab_e7c1            ;e8b4  21 e7 c1
 
 lab_e8b7:
+;'SEEKSET.Y..'
     jmp lab_e8a4            ;e8b7  21 e8 a4
 
 lab_e8ba:
+;'SEEKSET.Z..'
     jmp lab_e8a4            ;e8ba  21 e8 a4
 
 lab_e8bd:
+;'FERN...ON..'
     jmp lab_e7c1            ;e8bd  21 e7 c1
 
 lab_e8c0:
+;'FERN...OFF.'
     jmp lab_e7c1            ;e8c0  21 e7 c1
 
 lab_e8c3:
+;'TESTTUN.ON.'
     jmp lab_e7c1            ;e8c3  21 e7 c1
 
 lab_e8c6:
+;'TEST..Q....'
     mov a, @ep              ;e8c6  07
     and a, #0xf0            ;e8c7  64 f0
     beq lab_e8d0            ;e8c9  fd 05
     call sub_ed88           ;e8cb  31 ed 88
     mov @ix+0x04, a         ;e8ce  46 04
-
 lab_e8d0:
     mov a, @ep              ;e8d0  07
     call sub_ed92           ;e8d1  31 ed 92
@@ -1561,7 +1592,6 @@ lab_e8d0:
     mov a, @ep              ;e8e7  07
     xor a, #0xff            ;e8e8  54 ff
     incw a                  ;e8ea  c0
-
 lab_e8eb:
     clrc                    ;e8eb  81
     addc a, #0x00           ;e8ec  24 00
@@ -1571,13 +1601,11 @@ lab_e8eb:
     cmp a, #0x30            ;e8f3  14 30
     beq lab_e8f9            ;e8f5  fd 02
     mov @ix+0x09, a         ;e8f7  46 09
-
 lab_e8f9:
     mov a, r0               ;e8f9  08
     call sub_ed92           ;e8fa  31 ed 92
     mov @ix+0x0a, a         ;e8fd  46 0a
     jmp lab_e7c1            ;e8ff  21 e7 c1
-
 lab_e902:
     mov a, #0x2b            ;e902  04 2b
     mov @ix+0x08, a         ;e904  46 08
@@ -1585,20 +1613,19 @@ lab_e902:
     jmp lab_e8eb            ;e907  21 e8 eb
 
 lab_e90a:
+;'TESTBASS...'
     mov a, @ep              ;e90a  07
     mov r0, a               ;e90b  48
     beq lab_e913            ;e90c  fd 05
     rolc a                  ;e90e  02
     blo lab_e91e            ;e90f  f9 0d
     mov a, #0x2b            ;e911  04 2b
-
 lab_e913:
     mov @ix+0x09, a         ;e913  46 09
     mov a, r0               ;e915  08
     call sub_ed92           ;e916  31 ed 92
     mov @ix+0x0a, a         ;e919  46 0a
     jmp lab_e7c1            ;e91b  21 e7 c1
-
 lab_e91e:
     mov a, r0               ;e91e  08
     xor a, #0xff            ;e91f  54 ff
@@ -1608,16 +1635,19 @@ lab_e91e:
     jmp lab_e913            ;e925  21 e9 13
 
 lab_e928:
+;'TESTTREB...'
     jmp lab_e90a            ;e928  21 e9 0a
 
 lab_e92b:
+;'TESTTUN.OFF'
     jmp lab_e7c1            ;e92b  21 e7 c1
 
 lab_e92e:
+;'.ON.TUNING.'
     jmp lab_e7c1            ;e92e  21 e7 c1
 
 sub_e931:
-;Called if A >= 0x40 and A < 0x50
+;Called if A >= 0x40 and A < 0x50 (tuner messages)
     movw a, #0x0000         ;e931  e4 00 00
     mov a, @ep              ;e934  07
     mov a, #0x40            ;e935  04 40
@@ -1626,7 +1656,7 @@ sub_e931:
     mov r0, a               ;e939  48
     movw a, #0x000b         ;e93a  e4 00 0b
     mulu a                  ;e93d  01
-    movw a, #msgs_40_4f     ;e93e  e4 ef bd
+    movw a, #msgs_40_4f     ;e93e  e4 ef bd     A = pointer to tuner messages
     clrc                    ;e941  81
     addcw a                 ;e942  23
     movw ix, a              ;e943  e2
@@ -1647,21 +1677,21 @@ sub_e931:
     jmp @a                  ;e960  e0
 
 table_e961:
-    .word lab_e975          ;e961  e9 75       VECTOR
-    .word lab_e9af          ;e963  e9 af       VECTOR
-    .word lab_e9c1          ;e965  e9 c1       VECTOR
-    .word lab_e9c6          ;e967  e9 c6       VECTOR
-    .word lab_e9c9          ;e969  e9 c9       VECTOR
-    .word lab_e9de          ;e96b  e9 de       VECTOR
-    .word lab_e9e1          ;e96d  e9 e1       VECTOR
-    .word lab_e9ee          ;e96f  e9 ee       VECTOR
-
+    .word lab_e975          ;e961  e9 75       VECTOR   A=0x00  'FM......MHZ'
+    .word lab_e9af          ;e963  e9 af       VECTOR   A=0x01  'AM......KHZ'
+    .word lab_e9c1          ;e965  e9 c1       VECTOR   A=0x02  'SCAN....MHZ'
+    .word lab_e9c6          ;e967  e9 c6       VECTOR   A=0x03  'SCAN....KHZ'
+    .word lab_e9c9          ;e969  e9 c9       VECTOR   A=0x04  'FM....MAX..'
+    .word lab_e9de          ;e96b  e9 de       VECTOR   A=0x05  'FM....MIN..'
+    .word lab_e9e1          ;e96d  e9 e1       VECTOR   A=0x06  'AM....MAX..'
+    .word lab_e9ee          ;e96f  e9 ee       VECTOR   A=0x07  'AM....MIN..'
 
 lab_e971:
     call sub_ecce           ;e971  31 ec ce
     ret                     ;e974  20
 
 lab_e975:
+;'FM......MHZ'
     setb 0xa9:0             ;e975  a8 a9
     setb 0xa9:1             ;e977  a9 a9
     mov a, @ep              ;e979  07
@@ -1672,12 +1702,10 @@ lab_e975:
     cmp a, #0x30            ;e983  14 30
     beq lab_e989            ;e985  fd 02
     mov @ix+0x03, a         ;e987  46 03
-
 lab_e989:
     incw ep                 ;e989  c3
     mov a, @ep              ;e98a  07
     call sub_ed33           ;e98b  31 ed 33
-
 lab_e98e:
     mov r1, a               ;e98e  49
     swap                    ;e98f  10
@@ -1686,7 +1714,6 @@ lab_e98e:
     beq lab_e99a            ;e993  fd 05
     call sub_ed88           ;e995  31 ed 88
     mov @ix+0x04, a         ;e998  46 04
-
 lab_e99a:
     mov a, r2               ;e99a  0a
     call sub_ed92           ;e99b  31 ed 92
@@ -1700,12 +1727,12 @@ lab_e99a:
     jmp lab_e971            ;e9ac  21 e9 71
 
 lab_e9af:
+;'AM......KHZ'
     mov a, @ep              ;e9af  07
     call sub_ed92           ;e9b0  31 ed 92
     cmp a, #0x30            ;e9b3  14 30
     beq lab_e9b9            ;e9b5  fd 02
     mov @ix+0x03, a         ;e9b7  46 03
-
 lab_e9b9:
     incw ep                 ;e9b9  c3
     mov a, @ep              ;e9ba  07
@@ -1713,13 +1740,16 @@ lab_e9b9:
     jmp lab_e98e            ;e9be  21 e9 8e
 
 lab_e9c1:
+;'SCAN....MHZ'
     setb 0xa9:0             ;e9c1  a8 a9
     jmp lab_e989            ;e9c3  21 e9 89
 
 lab_e9c6:
+;'SCAN....KHZ'
     jmp lab_e9b9            ;e9c6  21 e9 b9
 
 lab_e9c9:
+;'FM....MAX..'
     setb 0xa9:1             ;e9c9  a9 a9
     mov a, @ep              ;e9cb  07
     call sub_ed88           ;e9cc  31 ed 88
@@ -1729,14 +1759,15 @@ lab_e9c9:
     cmp a, #0x30            ;e9d5  14 30
     beq lab_e9db            ;e9d7  fd 02
     mov @ix+0x03, a         ;e9d9  46 03
-
 lab_e9db:
     jmp lab_e971            ;e9db  21 e9 71
 
 lab_e9de:
+;'FM....MIN..'
     jmp lab_e9c9            ;e9de  21 e9 c9
 
 lab_e9e1:
+;'AM....MAX..'
     mov a, @ep              ;e9e1  07
     call sub_ed92           ;e9e2  31 ed 92
     cmp a, #0x30            ;e9e5  14 30
@@ -1747,10 +1778,11 @@ lab_e9eb:
     jmp lab_e971            ;e9eb  21 e9 71
 
 lab_e9ee:
+;'AM....MIN..'
     jmp lab_e9e1            ;e9ee  21 e9 e1
 
 sub_e9f1:
-;Called if A >= 50 and A < 0x60
+;Called if A >= 50 and A < 0x60 (tape messages)
     movw a, #0x0000         ;e9f1  e4 00 00
     mov a, @ep              ;e9f4  07
     mov a, #0x50            ;e9f5  04 50
@@ -1759,7 +1791,7 @@ sub_e9f1:
     mov r0, a               ;e9f9  48
     movw a, #0x000b         ;e9fa  e4 00 0b
     mulu a                  ;e9fd  01
-    movw a, #msgs_50_5f     ;e9fe  e4 f0 15
+    movw a, #msgs_50_5f     ;e9fe  e4 f0 15     A = pointer to tape messages
     clrc                    ;ea01  81
     addcw a                 ;ea02  23
     movw ix, a              ;ea03  e2
@@ -1780,70 +1812,83 @@ sub_e9f1:
     jmp @a                  ;ea20  e0
 
 table_ea21:
-    .word lab_ea41          ;ea21  ea 41       VECTOR
-    .word lab_ea44          ;ea23  ea 44       VECTOR
-    .word lab_ea47          ;ea25  ea 47       VECTOR
-    .word lab_ea4a          ;ea27  ea 4a       VECTOR
-    .word lab_ea4d          ;ea29  ea 4d       VECTOR
-    .word lab_ea50          ;ea2b  ea 50       VECTOR
-    .word lab_ea53          ;ea2d  ea 53       VECTOR
-    .word lab_ea56          ;ea2f  ea 56       VECTOR
-    .word lab_ea59          ;ea31  ea 59       VECTOR
-    .word lab_ea5c          ;ea33  ea 5c       VECTOR
-    .word lab_ea5f          ;ea35  ea 5f       VECTOR
-    .word lab_ea62          ;ea37  ea 62       VECTOR
-    .word lab_ea65          ;ea39  ea 65       VECTOR
-    .word lab_ea68          ;ea3b  ea 68       VECTOR
-
+    .word lab_ea41          ;ea21  ea 41       VECTOR   A=0x00  'TAPE.PLAY.A'
+    .word lab_ea44          ;ea23  ea 44       VECTOR   A=0x01  'TAPE.PLAY.B'
+    .word lab_ea47          ;ea25  ea 47       VECTOR   A=0x02  'TAPE..FF...'
+    .word lab_ea4a          ;ea27  ea 4a       VECTOR   A=0x03  'TAPE..REW..'
+    .word lab_ea4d          ;ea29  ea 4d       VECTOR   A=0x04  'TAPEMSS.FF.'
+    .word lab_ea50          ;ea2b  ea 50       VECTOR   A=0x05  'TAPEMSS.REW'
+    .word lab_ea53          ;ea2d  ea 53       VECTOR   A=0x06  'TAPE.SCAN.A'
+    .word lab_ea56          ;ea2f  ea 56       VECTOR   A=0x07  'TAPE.SCAN.B'
+    .word lab_ea59          ;ea31  ea 59       VECTOR   A=0x08  'TAPE.METAL.'
+    .word lab_ea5c          ;ea33  ea 5c       VECTOR   A=0x09  'TAPE..BLS..'
+    .word lab_ea5f          ;ea35  ea 5f       VECTOR   A=0x0A  '....NO.TAPE'
+    .word lab_ea62          ;ea37  ea 62       VECTOR   A=0x0B  'TAPE.ERROR.'
+    .word lab_ea65          ;ea39  ea 65       VECTOR   A=0x0C  'TAPE..MAX..'
+    .word lab_ea68          ;ea3b  ea 68       VECTOR   A=0x0D  'TAPE..MIN..'
 
 lab_ea3d:
     call sub_ecce           ;ea3d  31 ec ce
     ret                     ;ea40  20
 
 lab_ea41:
+;'TAPE.PLAY.A'
     jmp lab_ea3d            ;ea41  21 ea 3d
 
 lab_ea44:
+;'TAPE.PLAY.B'
     jmp lab_ea3d            ;ea44  21 ea 3d
 
 lab_ea47:
+;'TAPE..FF...'
     jmp lab_ea3d            ;ea47  21 ea 3d
 
 lab_ea4a:
+;'TAPE..REW..'
     jmp lab_ea3d            ;ea4a  21 ea 3d
 
 lab_ea4d:
+;'TAPEMSS.FF.'
     jmp lab_ea3d            ;ea4d  21 ea 3d
 
 lab_ea50:
+;'TAPEMSS.REW'
     jmp lab_ea3d            ;ea50  21 ea 3d
 
 lab_ea53:
+;'TAPE.SCAN.A'
     jmp lab_ea3d            ;ea53  21 ea 3d
 
 lab_ea56:
+;'TAPE.SCAN.B'
     jmp lab_ea3d            ;ea56  21 ea 3d
 
 lab_ea59:
+;'TAPE.METAL.'
     jmp lab_ea3d            ;ea59  21 ea 3d
 
 lab_ea5c:
+;'TAPE..BLS..'
     jmp lab_ea3d            ;ea5c  21 ea 3d
 
 lab_ea5f:
+;'....NO.TAPE'
     jmp lab_ea3d            ;ea5f  21 ea 3d
 
 lab_ea62:
+;'TAPE.ERROR.'
     jmp lab_ea3d            ;ea62  21 ea 3d
 
 lab_ea65:
+;'TAPE..MAX..'
     jmp lab_ea3d            ;ea65  21 ea 3d
 
 lab_ea68:
+;'TAPE..MIN..'
     jmp lab_ea3d            ;ea68  21 ea 3d
 
 sub_ea6b:
-;Called if A >= 0x60 and A < 0x80
+;Called if A >= 0x60 and A < 0x80 (sound messages)
     movw a, #0x0000         ;ea6b  e4 00 00
     mov a, @ep              ;ea6e  07
     mov a, #0x60            ;ea6f  04 60
@@ -1854,7 +1899,7 @@ sub_ea6b:
     blo lab_ea88            ;ea76  f9 10
     movw a, #0x000b         ;ea78  e4 00 0b
     mulu a                  ;ea7b  01
-    movw a, #msgs_60_7f     ;ea7c  e4 f0 af
+    movw a, #msgs_60_7f     ;ea7c  e4 f0 af     A = pointer to sound messages
     clrc                    ;ea7f  81
     addcw a                 ;ea80  23
     movw ix, a              ;ea81  e2
@@ -1877,23 +1922,23 @@ lab_ea88:
     jmp @a                  ;ea9e  e0
 
 table_ea9f:
-    .word lab_eab7          ;ea9f  ea b7       VECTOR   A=0
-    .word lab_ead2          ;eaa1  ea d2       VECTOR   A=1
-    .word lab_eaed          ;eaa3  ea ed       VECTOR   A=2
-    .word lab_eb0b          ;eaa5  eb 0b       VECTOR   A=3
-    .word lab_eb0e          ;eaa7  eb 0e       VECTOR   A=4
-    .word lab_eb3d          ;eaa9  eb 3d       VECTOR   A=5
-    .word lab_eb6c          ;eaab  eb 6c       VECTOR   A=6
-    .word lab_eb6f          ;eaad  eb 6f       VECTOR   A=7
-    .word lab_eb72          ;eaaf  eb 72       VECTOR   A=8
-    .word lab_eb75          ;eab1  eb 75       VECTOR   A=9
-
+    .word lab_eab7          ;ea9f  ea b7       VECTOR   A=0x00  '.....MAX...'
+    .word lab_ead2          ;eaa1  ea d2       VECTOR   A=0x01  '.....MIN...'
+    .word lab_eaed          ;eaa3  ea ed       VECTOR   A=0x02  'BASS.......'
+    .word lab_eb0b          ;eaa5  eb 0b       VECTOR   A=0x03  'TREB.......'
+    .word lab_eb0e          ;eaa7  eb 0e       VECTOR   A=0x04  'BAL.LEFT...'
+    .word lab_eb3d          ;eaa9  eb 3d       VECTOR   A=0x05  'BAL.RIGHT..'
+    .word lab_eb6c          ;eaab  eb 6c       VECTOR   A=0x06  'BAL.CENTER.'
+    .word lab_eb6f          ;eaad  eb 6f       VECTOR   A=0x07  'FADEFRONT..'
+    .word lab_eb72          ;eaaf  eb 72       VECTOR   A=0x08  'FADEREAR...'
+    .word lab_eb75          ;eab1  eb 75       VECTOR   A=0x09  'FADECENTER.'
 
 lab_eab3:
     call sub_ecce           ;eab3  31 ec ce
     ret                     ;eab6  20
 
 lab_eab7:
+;'.....MAX...'
     mov a, #0x00            ;eab7  04 00
     mov @ix+0x04, a         ;eab9  46 04
     mov @ix+0x05, a         ;eabb  46 05
@@ -1909,6 +1954,7 @@ lab_eab7:
     jmp lab_eab3            ;eacf  21 ea b3
 
 lab_ead2:
+;'.....MIN...'
     mov a, #0x00            ;ead2  04 00
     mov @ix+0x04, a         ;ead4  46 04
     mov @ix+0x05, a         ;ead6  46 05
@@ -1924,6 +1970,7 @@ lab_ead2:
     jmp lab_eab3            ;eaea  21 ea b3
 
 lab_eaed:
+;'BASS.......'
     mov a, @ep              ;eaed  07
     mov r0, a               ;eaee  48
     beq lab_eaf6            ;eaef  fd 05
@@ -1932,6 +1979,7 @@ lab_eaed:
     mov a, #0x2b            ;eaf4  04 2b
 
 lab_eaf6:
+;'TREB.......'
     mov @ix+0x06, a         ;eaf6  46 06
     mov a, r0               ;eaf8  08
     call sub_ed92           ;eaf9  31 ed 92
@@ -1945,11 +1993,11 @@ lab_eb01:
     mov r0, a               ;eb05  48
     mov a, #0x2d            ;eb06  04 2d
     jmp lab_eaf6            ;eb08  21 ea f6
-
 lab_eb0b:
     jmp lab_eaed            ;eb0b  21 ea ed
 
 lab_eb0e:
+;'BAL.LEFT...'
     mov a, @ep              ;eb0e  07
     and a, #0xf0            ;eb0f  64 f0
     cmp a, #0xf0            ;eb11  14 f0
@@ -1961,20 +2009,17 @@ lab_eb0e:
     addc a, #0x00           ;eb1b  24 00
     daa                     ;eb1d  84
     mov @ep, a              ;eb1e  47
-
 lab_eb1f:
     mov a, @ep              ;eb1f  07
     and a, #0xf0            ;eb20  64 f0
     beq lab_eb29            ;eb22  fd 05
     call sub_ed88           ;eb24  31 ed 88
     mov @ix+0x09, a         ;eb27  46 09
-
 lab_eb29:
     mov a, @ep              ;eb29  07
     call sub_ed92           ;eb2a  31 ed 92
     mov @ix+0x0a, a         ;eb2d  46 0a
     jmp lab_eab3            ;eb2f  21 ea b3
-
 lab_eb32:
     mov a, @ep              ;eb32  07
     xor a, #0xff            ;eb33  54 ff
@@ -1985,6 +2030,7 @@ lab_eb32:
     jmp lab_eb1f            ;eb3a  21 eb 1f
 
 lab_eb3d:
+;'BAL.RIGHT..'
     mov a, @ep              ;eb3d  07
     and a, #0xf0            ;eb3e  64 f0
     cmp a, #0xf0            ;eb40  14 f0
@@ -1996,20 +2042,17 @@ lab_eb3d:
     addc a, #0x00           ;eb4a  24 00
     daa                     ;eb4c  84
     mov @ep, a              ;eb4d  47
-
 lab_eb4e:
     mov a, @ep              ;eb4e  07
     and a, #0xf0            ;eb4f  64 f0
     beq lab_eb58            ;eb51  fd 05
     call sub_ed88           ;eb53  31 ed 88
     mov @ix+0x09, a         ;eb56  46 09
-
 lab_eb58:
     mov a, @ep              ;eb58  07
     call sub_ed92           ;eb59  31 ed 92
     mov @ix+0x0a, a         ;eb5c  46 0a
     jmp lab_eab3            ;eb5e  21 ea b3
-
 lab_eb61:
     mov a, @ep              ;eb61  07
     xor a, #0xff            ;eb62  54 ff
@@ -2020,19 +2063,23 @@ lab_eb61:
     jmp lab_eb4e            ;eb69  21 eb 4e
 
 lab_eb6c:
+;'BAL.CENTER.'
     jmp lab_eab3            ;eb6c  21 ea b3
 
 lab_eb6f:
+;'FADEFRONT..'
     jmp lab_eb3d            ;eb6f  21 eb 3d
 
 lab_eb72:
+;'FADEREAR...'
     jmp lab_eb0e            ;eb72  21 eb 0e
 
 lab_eb75:
+;'FADECENTER.'
     jmp lab_eab3            ;eb75  21 ea b3
 
 sub_eb78:
-;Called if A >= 0x80 and A < 0xB0
+;Called if A >= 0x80 and A < 0xB0 (code messages)
     movw a, #0x0000         ;eb78  e4 00 00
     mov a, @ep              ;eb7b  07
     mov a, #0x80            ;eb7c  04 80
@@ -2041,7 +2088,7 @@ sub_eb78:
     mov r0, a               ;eb80  48
     movw a, #0x000b         ;eb81  e4 00 0b
     mulu a                  ;eb84  01
-    movw a, #msgs_80_af     ;eb85  e4 f1 1d
+    movw a, #msgs_80_af     ;eb85  e4 f1 1d     A = pointer to code messages
     clrc                    ;eb88  81
     addcw a                 ;eb89  23
     movw ix, a              ;eb8a  e2
@@ -2062,33 +2109,34 @@ sub_eb78:
     jmp @a                  ;eba7  e0
 
 table_eba8:
-    .word lab_ebbc          ;eba8  eb bc       VECTOR   A=0
-    .word lab_ebbf          ;ebaa  eb bf       VECTOR   A=1
-    .word lab_ebc2          ;ebac  eb c2       VECTOR   A=2
-    .word lab_ebe9          ;ebae  eb e9       VECTOR   A=3
-    .word lab_ebf6          ;ebb0  eb f6       VECTOR   A=4
-    .word lab_ebf9          ;ebb2  eb f9       VECTOR   A=5
-    .word lab_ebfc          ;ebb4  eb fc       VECTOR   A=6
-    .word lab_ec0f          ;ebb6  ec 0f       VECTOR   A=7
-
+    .word lab_ebbc          ;eba8  eb bc       VECTOR   A=0x00  '....NO.CODE'
+    .word lab_ebbf          ;ebaa  eb bf       VECTOR   A=0x01  '.....CODE..'
+    .word lab_ebc2          ;ebac  eb c2       VECTOR   A=0x02  '...........'
+    .word lab_ebe9          ;ebae  eb e9       VECTOR   A=0x03  '.....SAFE..'
+    .word lab_ebf6          ;ebb0  eb f6       VECTOR   A=0x04  '....INITIAL'
+    .word lab_ebf9          ;ebb2  eb f9       VECTOR   A=0x05  '....NO.CODE'
+    .word lab_ebfc          ;ebb4  eb fc       VECTOR   A=0x06  '.....SAFE..'
+    .word lab_ec0f          ;ebb6  ec 0f       VECTOR   A=0x07  '....CLEAR..'
 
 lab_ebb8:
     call sub_ecce           ;ebb8  31 ec ce
     ret                     ;ebbb  20
 
 lab_ebbc:
+;'....NO.CODE'
     jmp lab_ebb8            ;ebbc  21 eb b8
 
 lab_ebbf:
+;'.....CODE..'
     jmp lab_ebb8            ;ebbf  21 eb b8
 
 lab_ebc2:
+;'...........'
     mov a, @ep              ;ebc2  07
     and a, #0x0f            ;ebc3  64 0f
     beq lab_ebcc            ;ebc5  fd 05
     call sub_ed92           ;ebc7  31 ed 92
     mov @ix+0x00, a         ;ebca  46 00
-
 lab_ebcc:
     incw ep                 ;ebcc  c3
     mov a, @ep              ;ebcd  07
@@ -2107,22 +2155,25 @@ lab_ebcc:
     jmp lab_ebb8            ;ebe6  21 eb b8
 
 lab_ebe9:
+;'.....SAFE..'
     mov a, @ep              ;ebe9  07
     and a, #0x0f            ;ebea  64 0f
     beq lab_ebf3            ;ebec  fd 05
     call sub_ed92           ;ebee  31 ed 92
     mov @ix+0x00, a         ;ebf1  46 00
-
 lab_ebf3:
     jmp lab_ebb8            ;ebf3  21 eb b8
 
 lab_ebf6:
+;'....INITIAL'
     jmp lab_ebb8            ;ebf6  21 eb b8
 
 lab_ebf9:
+;'....NO.CODE'
     jmp lab_ebb8            ;ebf9  21 eb b8
 
 lab_ebfc:
+;'.....SAFE..'
     mov a, @ep              ;ebfc  07
     call sub_ed5d           ;ebfd  31 ed 5d
     mov a, r7               ;ec00  0f
@@ -2134,10 +2185,11 @@ lab_ebfc:
     jmp lab_ebb8            ;ec0c  21 eb b8
 
 lab_ec0f:
+;'....CLEAR..'
     jmp lab_ebb8            ;ec0f  21 eb b8
 
 sub_ec12:
-;Called if A >= 0xB0 and A < 0xC0
+;Called if A >= 0xB0 and A < 0xC0 (diag messages)
     movw a, #0x0000         ;ec12  e4 00 00
     mov a, @ep              ;ec15  07
     mov a, #0xb0            ;ec16  04 b0
@@ -2146,7 +2198,7 @@ sub_ec12:
     mov r0, a               ;ec1a  48
     movw a, #0x000b         ;ec1b  e4 00 0b
     mulu a                  ;ec1e  01
-    movw a, #msgs_b0_bf     ;ec1f  e4 f1 75
+    movw a, #msgs_b0_bf     ;ec1f  e4 f1 75     A = pointer to diag messages
     clrc                    ;ec22  81
     addcw a                 ;ec23  23
     movw ix, a              ;ec24  e2
@@ -2167,22 +2219,23 @@ sub_ec12:
     jmp @a                  ;ec41  e0
 
 table_ec42:
-    .word lab_ec4a          ;ec42  ec 4a       VECTOR   A=0
-    .word lab_ec4d          ;ec44  ec 4d       VECTOR   A=1
-
+    .word lab_ec4a          ;ec42  ec 4a       VECTOR   A=0x00  '.....DIAG..'
+    .word lab_ec4d          ;ec44  ec 4d       VECTOR   A=0x01 'TESTDISPLAY'
 
 lab_ec46:
     call sub_ecce           ;ec46  31 ec ce
     ret                     ;ec49  20
 
 lab_ec4a:
+;'.....DIAG..'
     jmp lab_ec46            ;ec4a  21 ec 46
 
 lab_ec4d:
+;'TESTDISPLAY'
     jmp lab_ec46            ;ec4d  21 ec 46
 
 sub_ec50:
-;Called if A >= 0xC0 and A < 0xD0
+;Called if A >= 0xC0 and A < 0xD0 (bose messages)
     movw a, #0x0000         ;ec50  e4 00 00
     mov a, @ep              ;ec53  07
     mov a, #0xc0            ;ec54  04 c0
@@ -2191,7 +2244,7 @@ sub_ec50:
     mov r0, a               ;ec58  48
     movw a, #0x000b         ;ec59  e4 00 0b
     mulu a                  ;ec5c  01
-    movw a, #msgs_c0_cf     ;ec5d  e4 f1 8b
+    movw a, #msgs_c0_cf     ;ec5d  e4 f1 8b     A = pointer to bose messages
     clrc                    ;ec60  81
     addcw a                 ;ec61  23
     movw ix, a              ;ec62  e2
@@ -2212,24 +2265,25 @@ sub_ec50:
     jmp @a                  ;ec7f  e0
 
 table_ec80:
-    .word lab_ec88          ;ec80  ec 88       VECTOR   A=0
-    .word lab_ec8b          ;ec82  ec 8b       VECTOR   A=1
-
+    .word lab_ec88          ;ec80  ec 88       VECTOR   A=0x00  '.....BOSE..'
+    .word lab_ec8b          ;ec82  ec 8b       VECTOR   A=0x01  '...........'
 
 lab_ec84:
     call sub_ecce           ;ec84  31 ec ce
     ret                     ;ec87  20
 
 lab_ec88:
+;'.....BOSE..'
     jmp lab_ec84            ;ec88  21 ec 84
 
 lab_ec8b:
+;'...........'
     jmp lab_ec84            ;ec8b  21 ec 84
 
 sub_ec8e:
-;Called if A >= 0xD0
+;Called if A = 0 or A >= 0xD0 (vw-car message)
     movw a, #0x0000         ;ec8e  e4 00 00
-    movw a, #msgs_d0_ff     ;ec91  e4 f1 a1
+    movw a, #msgs_d0_ff     ;ec91  e4 f1 a1     A = pointer to vw-car message
     clrc                    ;ec94  81
     addcw a                 ;ec95  23
     movw ix, a              ;ec96  e2
@@ -2436,7 +2490,7 @@ sub_ed92:
 alphanum:
     .ascii '0123456789ABCDEF' ;ed9d
 
-msgs_00_0f:
+msgs_01_0f:
     ;edad 'CD...TR....'
     .byte 0x43, 0x44, 0x00, 0x00, 0x00, 0x54, 0x52, 0x00, 0x00, 0x00, 0x00
     ;edb8 'CUE........'
@@ -2533,9 +2587,9 @@ msgs_20_3f:
     .byte 0x54, 0x45, 0x53, 0x54, 0x54, 0x55, 0x4e, 0x00, 0x4f, 0x46, 0x46
     ;ef9c '.ON.TUNING.'
     .byte 0x00, 0x4f, 0x4e, 0x00, 0x54, 0x55, 0x4e, 0x49, 0x4e, 0x47, 0x00
-    ;efa7 'TESTBASS...'
+    ;efa7 'TESTBASS...' XXX Duplicate, no entry in jump table
     .byte 0x54, 0x45, 0x53, 0x54, 0x42, 0x41, 0x53, 0x53, 0x00, 0x00, 0x00
-    ;efb2 'TESTTREB...'
+    ;efb2 'TESTTREB...' XXX Duplicate, no entry in jump table
     .byte 0x54, 0x45, 0x53, 0x54, 0x54, 0x52, 0x45, 0x42, 0x00, 0x00, 0x00
 
 msgs_40_4f:
