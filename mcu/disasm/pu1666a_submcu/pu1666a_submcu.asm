@@ -592,7 +592,7 @@ lab_e339:
     jmp lab_e333            ;e34b  21 e3 33
 
 sub_e34e:
-;mfsw changed
+;mfsw input changed
     mov a, 0x0126           ;e34e  60 01 26
     bne lab_e35e            ;e351  fc 0b
     movw a, tchr            ;e353  c5 19
@@ -1070,7 +1070,7 @@ lab_e60e:
     ret                     ;e60e  20
 
 sub_e60f:
-;Called if A < 0x10
+;Called if A < 0x10 
     movw a, #0x0000         ;e60f  e4 00 00
     mov a, @ep              ;e612  07
     mov a, #0x01            ;e613  04 01
@@ -3672,7 +3672,7 @@ lab_f766:
 upd_read_key_data:
 ;Read key data from uPD16432B
 ;
-    setb pdr0:2             ;f779  aa 00        UPD_STB = high
+    setb pdr0:2             ;f779  aa 00        UPD_STB = high (select uPD16432B)
 
     mov a, #0x44            ;f77b  04 44        Command byte = 0x44 (0b01000100)
                             ;                   Data Setting Command
@@ -3682,8 +3682,8 @@ upd_read_key_data:
     mov ddr0, #0x0e         ;f780  85 01 0e
     setb pdr0:0             ;f783  a8 00        UPD_DATA = high
     setb pdr0:1             ;f785  a9 00        UPD_CLK = high
-    movw a, #0x008f         ;f787  e4 00 8f
-    movw 0x80, a            ;f78a  d5 80
+    movw a, #0x008f         ;f787  e4 00 8f     A = pointer to 4-byte buffer for key data
+    movw 0x80, a            ;f78a  d5 80        Save pointer to buffer in 0x80
     mov 0x82, #0x04         ;f78c  85 82 04     4 bytes left to receive
 
 lab_f78f:
@@ -3704,59 +3704,67 @@ lab_f799:
     nop                     ;f7a2  00
     nop                     ;f7a3  00
     setb pdr0:1             ;f7a4  a9 00        UPD_CLK = high
-    movw a, 0x80            ;f7a6  c5 80
-    movw ep, a              ;f7a8  e3
-    mov a, @ep              ;f7a9  07
+
+    movw a, 0x80            ;f7a6  c5 80        A = pointer to 4-byte key data buffer
+    movw ep, a              ;f7a8  e3           EP = A
+    mov a, @ep              ;f7a9  07           Get current byte from buffer
     clrc                    ;f7aa  81
-    rolc a                  ;f7ab  02
-    mov @ep, a              ;f7ac  47
+    rolc a                  ;f7ab  02           Rotate 0 into the byte
+    mov @ep, a              ;f7ac  47           Store byte back in the buffer
+
     bbc pdr0:0, lab_f799    ;f7ad  b0 00 e9     Branch if UPD_DATA = low
-    or a, #0x01             ;f7b0  74 01
-    mov @ep, a              ;f7b2  47
+    or a, #0x01             ;f7b0  74 01        Set bit 0 in the byte
+    mov @ep, a              ;f7b2  47           Store byte back in the buffer
+
     bne lab_f799            ;f7b3  fc e4
 
 lab_f7b5:
-    movw a, 0x80            ;f7b5  c5 80
-    incw a                  ;f7b7  c0
-    movw 0x80, a            ;f7b8  d5 80
+    movw a, 0x80            ;f7b5  c5 80        A = pointer to 4-byte key data buffer
+    incw a                  ;f7b7  c0           Increment it
+    movw 0x80, a            ;f7b8  d5 80        Store it
     jmp lab_f78f            ;f7ba  21 f7 8f
 
 lab_f7bd:
 ;All 4 bytes of key data have been received from uPD16432B
 ;
-    clrb pdr0:2             ;f7bd  a2 00        UPD_STB = low
+    clrb pdr0:2             ;f7bd  a2 00        UPD_STB = low (deselect uPD16432B)
+
     movw ix, #0x008b        ;f7bf  e6 00 8b
-    mov a, 0x8f             ;f7c2  05 8f
+    mov a, 0x8f             ;f7c2  05 8f        A = Byte 0 of 4-byte key data buffer
     xor a, @ix+0x00         ;f7c4  56 00
-    mov a, 0x90             ;f7c6  05 90
+    mov a, 0x90             ;f7c6  05 90        A = Byte 1 of 4-byte key data buffer
     xor a, @ix+0x01         ;f7c8  56 01
     or a                    ;f7ca  72
-    mov a, 0x91             ;f7cb  05 91
+    mov a, 0x91             ;f7cb  05 91        A = Byte 2 of 4-byte key data buffer
     xor a, @ix+0x02         ;f7cd  56 02
     or a                    ;f7cf  72
-    mov a, 0x92             ;f7d0  05 92
+    mov a, 0x92             ;f7d0  05 92        A = Byte 3 of 4-byte key data buffer
     xor a, @ix+0x03         ;f7d2  56 03
     or a                    ;f7d4  72
     bne lab_f80e            ;f7d5  fc 37
+
     mov a, 0x0108           ;f7d7  60 01 08
     bne lab_f801            ;f7da  fc 25
+
     movw ix, #0x0093        ;f7dc  e6 00 93
-    mov a, 0x8f             ;f7df  05 8f
+    mov a, 0x8f             ;f7df  05 8f        A = Byte 0 of 4-byte key data buffer
     xor a, @ix+0x00         ;f7e1  56 00
-    mov a, 0x90             ;f7e3  05 90
+    mov a, 0x90             ;f7e3  05 90        A = Byte 1 of 4-byte key data buffer
     xor a, @ix+0x01         ;f7e5  56 01
     or a                    ;f7e7  72
-    mov a, 0x91             ;f7e8  05 91
+    mov a, 0x91             ;f7e8  05 91        A = Byte 2 of 4-byte key data buffer
     xor a, @ix+0x02         ;f7ea  56 02
     or a                    ;f7ec  72
-    mov a, 0x92             ;f7ed  05 92
+    mov a, 0x92             ;f7ed  05 92        A = Byte 3 of 4-byte key data buffer
     xor a, @ix+0x03         ;f7ef  56 03
     or a                    ;f7f1  72
     beq lab_f81b            ;f7f2  fd 27
-    movw a, 0x8f            ;f7f4  c5 8f
-    movw 0x93, a            ;f7f6  d5 93
-    movw a, 0x91            ;f7f8  c5 91
+
+    movw a, 0x8f            ;f7f4  c5 8f        Copy 4-byte key data buffer
+    movw 0x93, a            ;f7f6  d5 93          from 0x008f-0x0092
+    movw a, 0x91            ;f7f8  c5 91          to   0x0093-0x0096
     movw 0x95, a            ;f7fa  d5 95
+
     setb 0x88:0             ;f7fc  a8 88
     jmp lab_f81b            ;f7fe  21 f8 1b
 
@@ -3993,7 +4001,7 @@ upd_send_all_data:
                             ;                     Address Setting Command
                             ;                     Address = 02
 
-    setb pdr0:2             ;f959  aa 00        UPD_STB = high
+    setb pdr0:2             ;f959  aa 00        UPD_STB = high (select uPD16432B)
     nop                     ;f95b  00
     nop                     ;f95c  00
 
@@ -4008,7 +4016,7 @@ lab_f95d:
     jmp lab_f95d            ;f96a  21 f9 5d
 
 lab_f96d:
-    clrb pdr0:2             ;f96d  a2 00        UPD_STB = low
+    clrb pdr0:2             ;f96d  a2 00        UPD_STB = low (deselect uPD16432B)
     nop                     ;f96f  00
     nop                     ;f970  00
 
@@ -4024,7 +4032,7 @@ lab_f96d:
                             ;                   Address Setting Command
                             ;                     Address = 00
 
-    setb pdr0:2             ;f97b  aa 00        UPD_STB = high
+    setb pdr0:2             ;f97b  aa 00        UPD_STB = high (select uPD16432B)
     nop                     ;f97d  00
     nop                     ;f97e  00
 
@@ -4039,7 +4047,7 @@ lab_f97f:
     jmp lab_f97f            ;f98c  21 f9 7f
 
 lab_f98f:
-    clrb pdr0:2             ;f98f  a2 00        UPD_STB = low
+    clrb pdr0:2             ;f98f  a2 00        UPD_STB = low (deselect uPD16432B)
     popw ix                 ;f991  51
     ret                     ;f992  20
 
@@ -4097,13 +4105,13 @@ upd_send_cmd_byte:
 ;Send a single-byte command to the uPD16432B
 ;STB is activated before the byte and deactivated after.
 ;
-    setb pdr0:2             ;f9cd  aa 00        UPD_STB = high
+    setb pdr0:2             ;f9cd  aa 00        UPD_STB = high (select uPD16432B)
     nop                     ;f9cf  00
     nop                     ;f9d0  00
     call upd_send_byte      ;f9d1  31 f9 db     Send byte in A to the uPD16432B
     nop                     ;f9d4  00
     nop                     ;f9d5  00
-    clrb pdr0:2             ;f9d6  a2 00        UPD_STB = low
+    clrb pdr0:2             ;f9d6  a2 00        UPD_STB = low (deselect uPD16432B)
     nop                     ;f9d8  00
     nop                     ;f9d9  00
     ret                     ;f9da  20
