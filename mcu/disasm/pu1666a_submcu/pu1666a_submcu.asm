@@ -192,7 +192,7 @@ irq5_e0ef:
     decw a                  ;e0fe  d0
     mov 0xaa, a             ;e0ff  45 aa
     bne lab_e107            ;e101  fc 04
-    setb pdr1:6             ;e103  ae 02
+    setb pdr1:6             ;e103  ae 02        TODO what is pdr1:6?
     setb 0xa9:7             ;e105  af a9
 
 lab_e107:
