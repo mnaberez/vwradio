@@ -1144,9 +1144,9 @@ lab_e677:
     and a, #0xf0            ;e679  64 f0
     beq lab_e688            ;e67b  fd 0b
     call sub_ed88           ;e67d  31 ed 88
-    cmp a, #0x41            ;e680  14 41
+    cmp a, #'A              ;e680  14 41
     bne lab_e686            ;e682  fc 02
-    mov a, #0x2d            ;e684  04 2d
+    mov a, #'-              ;e684  04 2d
 lab_e686:
     mov @ix+0x05, a         ;e686  46 05
 lab_e688:
@@ -1454,7 +1454,7 @@ lab_e831:
     mov a, @ep              ;e831  07
     and a, #0xf0            ;e832  64 f0
     beq lab_e878            ;e834  fd 42
-    mov a, #0x2d            ;e836  04 2d
+    mov a, #'-              ;e836  04 2d
     mov @ix+0x01, a         ;e838  46 01
     mov a, @ep              ;e83a  07
     xor a, #0xff            ;e83b  54 ff
@@ -1492,7 +1492,7 @@ lab_e869:
     mov @ix+0x0a, a         ;e873  46 0a
     jmp lab_e7c1            ;e875  21 e7 c1
 lab_e878:
-    mov a, #0x2b            ;e878  04 2b
+    mov a, #'+              ;e878  04 2b
     mov @ix+0x01, a         ;e87a  46 01
     mov a, @ep              ;e87c  07
     jmp lab_e83e            ;e87d  21 e8 3e
@@ -1587,7 +1587,7 @@ lab_e8d0:
     mov a, @ep              ;e8de  07
     and a, #0xf0            ;e8df  64 f0
     beq lab_e902            ;e8e1  fd 1f
-    mov a, #0x2d            ;e8e3  04 2d
+    mov a, #'-              ;e8e3  04 2d
     mov @ix+0x08, a         ;e8e5  46 08
     mov a, @ep              ;e8e7  07
     xor a, #0xff            ;e8e8  54 ff
@@ -1598,7 +1598,7 @@ lab_e8eb:
     daa                     ;e8ee  84
     mov r0, a               ;e8ef  48
     call sub_ed88           ;e8f0  31 ed 88
-    cmp a, #0x30            ;e8f3  14 30
+    cmp a, #'0              ;e8f3  14 30
     beq lab_e8f9            ;e8f5  fd 02
     mov @ix+0x09, a         ;e8f7  46 09
 lab_e8f9:
@@ -1607,7 +1607,7 @@ lab_e8f9:
     mov @ix+0x0a, a         ;e8fd  46 0a
     jmp lab_e7c1            ;e8ff  21 e7 c1
 lab_e902:
-    mov a, #0x2b            ;e902  04 2b
+    mov a, #'+              ;e902  04 2b
     mov @ix+0x08, a         ;e904  46 08
     mov a, @ep              ;e906  07
     jmp lab_e8eb            ;e907  21 e8 eb
@@ -1619,7 +1619,7 @@ lab_e90a:
     beq lab_e913            ;e90c  fd 05
     rolc a                  ;e90e  02
     blo lab_e91e            ;e90f  f9 0d
-    mov a, #0x2b            ;e911  04 2b
+    mov a, #'+              ;e911  04 2b
 lab_e913:
     mov @ix+0x09, a         ;e913  46 09
     mov a, r0               ;e915  08
@@ -1631,7 +1631,7 @@ lab_e91e:
     xor a, #0xff            ;e91f  54 ff
     incw a                  ;e921  c0
     mov r0, a               ;e922  48
-    mov a, #0x2d            ;e923  04 2d
+    mov a, #'-              ;e923  04 2d
     jmp lab_e913            ;e925  21 e9 13
 
 lab_e928:
@@ -1699,7 +1699,7 @@ lab_e975:
     mov @ix+0x02, a         ;e97d  46 02
     mov a, @ep              ;e97f  07
     call sub_ed92           ;e980  31 ed 92
-    cmp a, #0x30            ;e983  14 30
+    cmp a, #'0              ;e983  14 30
     beq lab_e989            ;e985  fd 02
     mov @ix+0x03, a         ;e987  46 03
 lab_e989:
@@ -1730,7 +1730,7 @@ lab_e9af:
 ;'AM......KHZ'
     mov a, @ep              ;e9af  07
     call sub_ed92           ;e9b0  31 ed 92
-    cmp a, #0x30            ;e9b3  14 30
+    cmp a, #'0              ;e9b3  14 30
     beq lab_e9b9            ;e9b5  fd 02
     mov @ix+0x03, a         ;e9b7  46 03
 lab_e9b9:
@@ -1756,7 +1756,7 @@ lab_e9c9:
     mov @ix+0x02, a         ;e9cf  46 02
     mov a, @ep              ;e9d1  07
     call sub_ed92           ;e9d2  31 ed 92
-    cmp a, #0x30            ;e9d5  14 30
+    cmp a, #'0              ;e9d5  14 30
     beq lab_e9db            ;e9d7  fd 02
     mov @ix+0x03, a         ;e9d9  46 03
 lab_e9db:
@@ -1770,7 +1770,7 @@ lab_e9e1:
 ;'AM....MAX..'
     mov a, @ep              ;e9e1  07
     call sub_ed92           ;e9e2  31 ed 92
-    cmp a, #0x30            ;e9e5  14 30
+    cmp a, #'0              ;e9e5  14 30
     beq lab_e9eb            ;e9e7  fd 02
     mov @ix+0x03, a         ;e9e9  46 03
 
@@ -1942,11 +1942,11 @@ lab_eab7:
     mov a, #0x00            ;eab7  04 00
     mov @ix+0x04, a         ;eab9  46 04
     mov @ix+0x05, a         ;eabb  46 05
-    mov a, #0x4d            ;eabd  04 4d
+    mov a, #'M              ;eabd  04 4d
     mov @ix+0x06, a         ;eabf  46 06
-    mov a, #0x41            ;eac1  04 41
+    mov a, #'A              ;eac1  04 41
     mov @ix+0x07, a         ;eac3  46 07
-    mov a, #0x58            ;eac5  04 58
+    mov a, #'X              ;eac5  04 58
     mov @ix+0x08, a         ;eac7  46 08
     mov a, #0x00            ;eac9  04 00
     mov @ix+0x09, a         ;eacb  46 09
@@ -1958,11 +1958,11 @@ lab_ead2:
     mov a, #0x00            ;ead2  04 00
     mov @ix+0x04, a         ;ead4  46 04
     mov @ix+0x05, a         ;ead6  46 05
-    mov a, #0x4d            ;ead8  04 4d
+    mov a, #'M              ;ead8  04 4d
     mov @ix+0x06, a         ;eada  46 06
-    mov a, #0x49            ;eadc  04 49
+    mov a, #'I              ;eadc  04 49
     mov @ix+0x07, a         ;eade  46 07
-    mov a, #0x4e            ;eae0  04 4e
+    mov a, #'N              ;eae0  04 4e
     mov @ix+0x08, a         ;eae2  46 08
     mov a, #0x00            ;eae4  04 00
     mov @ix+0x09, a         ;eae6  46 09
@@ -1976,7 +1976,7 @@ lab_eaed:
     beq lab_eaf6            ;eaef  fd 05
     rolc a                  ;eaf1  02
     blo lab_eb01            ;eaf2  f9 0d
-    mov a, #0x2b            ;eaf4  04 2b
+    mov a, #'+              ;eaf4  04 2b
 
 lab_eaf6:
 ;'TREB.......'
@@ -1991,7 +1991,7 @@ lab_eb01:
     xor a, #0xff            ;eb02  54 ff
     incw a                  ;eb04  c0
     mov r0, a               ;eb05  48
-    mov a, #0x2d            ;eb06  04 2d
+    mov a, #'-              ;eb06  04 2d
     jmp lab_eaf6            ;eb08  21 ea f6
 lab_eb0b:
     jmp lab_eaed            ;eb0b  21 ea ed
