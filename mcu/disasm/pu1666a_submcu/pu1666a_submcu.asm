@@ -41,6 +41,7 @@
     ilr2 = 0x7d             ;interrupt level setting register 2
     ilr3 = 0x7e             ;interrupt level setting register 3
 
+table_e000:
     .byte 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
     .byte 0x98, 0x11, 0x17, 0x02, 0x02, 0x45, 0x08, 0x02
     .byte 0x12, 0x09
@@ -1395,7 +1396,7 @@ lab_e7c8:
     mov a, @ep              ;e7d1  07
     call sub_ed92           ;e7d2  31 ed 92
     mov @ix+0x06, a         ;e7d5  46 06
-    movw ep, #0xe00b        ;e7d7  e7 e0 0b
+    movw ep, #table_e000+0x0b ;e7d7  e7 e0 0b
     mov a, @ep              ;e7da  07
     call sub_ed88           ;e7db  31 ed 88
     mov @ix+0x07, a         ;e7de  46 07
