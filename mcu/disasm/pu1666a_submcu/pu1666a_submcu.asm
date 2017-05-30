@@ -779,43 +779,43 @@ sub_e43f:
 ;Convert buffer at 0x012f-0x139 from ASCII to uPD16432B codes
 ;
     movw ep, #0x012f        ;e43f  e7 01 2f
-    call sub_e49b           ;e442  31 e4 9b     Replace ASCII code at 0x012f with uPD16432B char code
+    call ascii_to_upd       ;e442  31 e4 9b     Replace ASCII char at 0x012f with uPD16432B char
     movw ep, #0x0130        ;e445  e7 01 30
-    call sub_e49b           ;e448  31 e4 9b     Replace ASCII code at 0x0130 with uPD16432B char code
+    call ascii_to_upd       ;e448  31 e4 9b     Replace ASCII char at 0x0130 with uPD16432B char
     movw ep, #0x0131        ;e44b  e7 01 31
     bbs 0x00a9:1, lab_e457  ;e44e  b9 a9 06
-    call sub_e49b           ;e451  31 e4 9b     Replace ASCII code at 0x0131 with uPD16432B char code
+    call ascii_to_upd       ;e451  31 e4 9b     Replace ASCII char at 0x0131 with uPD16432B char
     jmp lab_e45a            ;e454  21 e4 5a
 
 lab_e457:
-    call sub_e515           ;e457  31 e5 15
+    call ascii_to_upd_fm12  ;e457  31 e5 15     Replace ASCII char at @ep for uPD16432B char for FM1/2
 
 lab_e45a:
     movw ep, #0x0132        ;e45a  e7 01 32
     bbs 0x00a9:1, lab_e466  ;e45d  b9 a9 06
-    call sub_e49b           ;e460  31 e4 9b     Replace ASCII code at 0x0132 with uPD16432B char code
+    call ascii_to_upd       ;e460  31 e4 9b     Replace ASCII char at 0x0132 with uPD16432B char
     jmp lab_e469            ;e463  21 e4 69     Jump to convert buffer at 0x0133-0x139 from ASCII to uPD16432B
 
 lab_e466:
     call sub_e536           ;e466  31 e5 36
 
 lab_e469:
-;Convert buffer at 0x0133-0x139 from ASCII to uPD16432B codes
+;Convert buffer at 0x0133-0x139 from ASCII chars to uPD16432B chars
 ;
     movw ep, #0x0133        ;e469  e7 01 33
-    call sub_e49b           ;e46c  31 e4 9b     Replace ASCII code at 0x0133 with uPD16432B char code
+    call ascii_to_upd       ;e46c  31 e4 9b     Replace ASCII char at 0x0133 with uPD16432B char
     movw ep, #0x0134        ;e46f  e7 01 34
-    call sub_e49b           ;e472  31 e4 9b     Replace ASCII code at 0x0134 with uPD16432B char code
+    call ascii_to_upd       ;e472  31 e4 9b     Replace ASCII char at 0x0134 with uPD16432B char
     movw ep, #0x0135        ;e475  e7 01 35
-    call sub_e49b           ;e478  31 e4 9b     Replace ASCII code at 0x0135 with uPD16432B char code
+    call ascii_to_upd       ;e478  31 e4 9b     Replace ASCII char at 0x0135 with uPD16432B char
     movw ep, #0x0136        ;e47b  e7 01 36
-    call sub_e49b           ;e47e  31 e4 9b     Replace ASCII code at 0x0136 with uPD16432B char code
+    call ascii_to_upd       ;e47e  31 e4 9b     Replace ASCII char at 0x0136 with uPD16432B char
     movw ep, #0x0137        ;e481  e7 01 37
-    call sub_e49b           ;e484  31 e4 9b     Replace ASCII code at 0x0137 with uPD16432B char code
+    call ascii_to_upd       ;e484  31 e4 9b     Replace ASCII char at 0x0137 with uPD16432B char
     movw ep, #0x0138        ;e487  e7 01 38
-    call sub_e49b           ;e48a  31 e4 9b     Replace ASCII code at 0x0138 with uPD16432B char code
+    call ascii_to_upd       ;e48a  31 e4 9b     Replace ASCII char at 0x0138 with uPD16432B char
     movw ep, #0x0139        ;e48d  e7 01 39
-    call sub_e49b           ;e490  31 e4 9b     Replace ASCII code at 0x0139 with uPD16432B char code
+    call ascii_to_upd       ;e490  31 e4 9b     Replace ASCII char at 0x0139 with uPD16432B char
     bbs 0x00ab:4, lab_e49a  ;e493  bc ab 04
     setb 0x87:2             ;e496  aa 87
     setb 0xab:5             ;e498  ad ab
@@ -823,8 +823,8 @@ lab_e469:
 lab_e49a:
     ret                     ;e49a  20
 
-sub_e49b:
-;Replace the ASCII code at @ep with its equivalent upd16432B character code.
+ascii_to_upd:
+;Replace the ASCII char at @ep with its equivalent upd16432B char.
 ;
     mov a, @ep              ;e49b  07
     mov a, #0x20            ;e49c  04 20
@@ -839,7 +839,7 @@ sub_e49b:
     mov a, #0x20            ;e4ab  04 20
     clrc                    ;e4ad  81
     subc a                  ;e4ae  32
-    movw a, #ascii_to_upd   ;e4af  e4 e4 ba
+    movw a, #ascii_to_upd_table ;e4af  e4 e4 ba
     clrc                    ;e4b2  81
     addcw a                 ;e4b3  23
     mov a, @a               ;e4b4  92
@@ -850,7 +850,7 @@ lab_e4b7:
     mov @ep, #0x20          ;e4b7  87 20
     ret                     ;e4b9  20
 
-ascii_to_upd:
+ascii_to_upd_table:
     ;e4ba '........'
     .byte 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20
     ;e4c2 '........'
@@ -876,38 +876,45 @@ ascii_to_upd:
     ;e602 'xyz'
     .byte 0x78, 0x79, 0x7a
 
-sub_e515:
+ascii_to_upd_fm12:
+;Replace ASCII char at @ep for uPD16432B char for FM1/2
+;  ASCII "1" becomes "1" for FM1
+;  ASCII "2" becomes "2" for FM2
+;  Anything else becomes a space
+;
     mov a, @ep              ;e515  07
-    mov a, #0x31            ;e516  04 31
+    mov a, #'1              ;e516  04 31
     cmp a                   ;e518  12
-    blo lab_e531            ;e519  f9 16
+    blo lab_e531            ;e519  f9 16        Branch if ASCII char at @ep < '1'
+
     mov a, @ep              ;e51b  07
-    mov a, #0x33            ;e51c  04 33
+    mov a, #'3              ;e51c  04 33
     cmp a                   ;e51e  12
-    bhs lab_e531            ;e51f  f8 10
-    movw a, #0x0000         ;e521  e4 00 00
+    bhs lab_e531            ;e51f  f8 10        Branch if ASCII char at @ep >= '3'
+
+    movw a, #0x0000         ;e521  e4 00 00     Convert ASCII '1'-'2' to binary 0-1
     mov a, @ep              ;e524  07
-    mov a, #0x31            ;e525  04 31
+    mov a, #'1              ;e525  04 31
     clrc                    ;e527  81
     subc a                  ;e528  32
-    movw a, #table_e534     ;e529  e4 e5 34
+
+    movw a, #upd_fm12       ;e529  e4 e5 34     Look up uPD16432B char "1" for FM1 or "2" for FM2
     clrc                    ;e52c  81
     addcw a                 ;e52d  23
     mov a, @a               ;e52e  92
-    mov @ep, a              ;e52f  47
+    mov @ep, a              ;e52f  47           Store char at pointer
     ret                     ;e530  20
-
 lab_e531:
-    mov @ep, #0x20          ;e531  87 20
+    mov @ep, #0x20          ;e531  87 20        Store space at pointer (out of range)
     ret                     ;e533  20
-
-table_e534:
-    .word 0xEBEC            ;e534  eb ec       DATA '\xeb\xec'
+upd_fm12:
+    .byte 0xEB              ;e534  eb           uPD16432B char "1" for FM1
+    .byte 0xEC              ;e535  ec           uPD16432B char "2" for FM2
 
 
 sub_e536:
     mov a, @ep              ;e536  07
-    mov a, #0x31            ;e537  04 31
+    mov a, #'1              ;e537  04 31
     cmp a                   ;e539  12
     blo lab_e552            ;e53a  f9 16
     mov a, @ep              ;e53c  07
@@ -916,7 +923,7 @@ sub_e536:
     bhs lab_e552            ;e540  f8 10
     movw a, #0x0000         ;e542  e4 00 00
     mov a, @ep              ;e545  07
-    mov a, #0x31            ;e546  04 31
+    mov a, #'1              ;e546  04 31
     clrc                    ;e548  81
     subc a                  ;e549  32
     movw a, #table_e555     ;e54a  e4 e5 55
@@ -958,7 +965,7 @@ sub_e55b:
 
 lab_e579:
     call sub_e5d6           ;e579  31 e5 d6
-    call sub_e43f           ;e57c  31 e4 3f     Convert buffer at 0x012f-0x139 from ASCII to uPD16432B codes
+    call sub_e43f           ;e57c  31 e4 3f     Convert buffer at 0x012f-0x139 from ASCII to uPD16432B chars
 
 lab_e57f:
     ret                     ;e57f  20
