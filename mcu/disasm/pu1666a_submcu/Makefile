@@ -1,5 +1,5 @@
 diff: out.bin
-	diff out.bin ../../dumps/pu1666a_submcu.bin
+	diff out.bin ../../roms/pu1666a_submcu.bin
 
 out.bin: out.lst
 	python ../../scripts/lst2bin.py out.lst out.bin
