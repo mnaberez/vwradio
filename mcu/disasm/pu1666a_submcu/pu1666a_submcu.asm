@@ -797,7 +797,7 @@ lab_e45a:
     jmp lab_e469            ;e463  21 e4 69     Jump to convert buffer at 0x0133-0x139 from ASCII to uPD16432B
 
 lab_e466:
-    call sub_e536           ;e466  31 e5 36
+    call ascii_to_upd_preset ;e466  31 e5 36    Replace ASCII char at @ep with uPD16432B char for station presets
 
 lab_e469:
 ;Convert buffer at 0x0133-0x139 from ASCII chars to uPD16432B chars
@@ -877,9 +877,9 @@ ascii_to_upd_table:
     .byte 0x78, 0x79, 0x7a
 
 ascii_to_upd_fm12:
-;Replace ASCII char at @ep for uPD16432B char for FM1/2
-;  ASCII "1" becomes "1" for FM1
-;  ASCII "2" becomes "2" for FM2
+;Replace ASCII char at @ep with uPD16432B char for FM1/2
+;  ASCII "1" becomes uPD16432B "1" for FM1
+;  ASCII "2" becomes uPD16432B "2" for FM2
 ;  Anything else becomes a space
 ;
     mov a, @ep              ;e515  07
@@ -912,35 +912,43 @@ upd_fm12:
     .byte 0xEC              ;e535  ec           uPD16432B char "2" for FM2
 
 
-sub_e536:
+ascii_to_upd_preset:
+;Replace ASCII char at @ep with uPD16432B char for station presets
+;  ASCII "1" to "6" becomes uPD16432B "1" to "6"
+;  Anything else becomes a space
+;
     mov a, @ep              ;e536  07
     mov a, #'1              ;e537  04 31
     cmp a                   ;e539  12
-    blo lab_e552            ;e53a  f9 16
+    blo lab_e552            ;e53a  f9 16        Branch if ASCII char at @ep < '1'
+
     mov a, @ep              ;e53c  07
-    mov a, #0x37            ;e53d  04 37
+    mov a, #'7              ;e53d  04 37
     cmp a                   ;e53f  12
-    bhs lab_e552            ;e540  f8 10
-    movw a, #0x0000         ;e542  e4 00 00
+    bhs lab_e552            ;e540  f8 10        Branch if ASCII char at @ep >= '7'
+
+    movw a, #0x0000         ;e542  e4 00 00     Convert ASCII '1'-'6' to binary 0-5
     mov a, @ep              ;e545  07
     mov a, #'1              ;e546  04 31
     clrc                    ;e548  81
     subc a                  ;e549  32
-    movw a, #table_e555     ;e54a  e4 e5 55
+
+    movw a, #upd_presets    ;e54a  e4 e5 55     Look up uPD16432B char for preset
     clrc                    ;e54d  81
     addcw a                 ;e54e  23
     mov a, @a               ;e54f  92
-    mov @ep, a              ;e550  47
+    mov @ep, a              ;e550  47           Store char at pointer
     ret                     ;e551  20
-
 lab_e552:
-    mov @ep, #0x20          ;e552  87 20
+    mov @ep, #0x20          ;e552  87 20        Store space at pointer (out of range)
     ret                     ;e554  20
-
-table_e555:
-    .word 0xE5ED            ;e555  e5 ed       DATA '\xe5\xed'
-    .word 0xEEEF            ;e557  ee ef       DATA '\xee\xef'
-    .word 0xF0F2            ;e559  f0 f2       DATA '\xf0\xf2'
+upd_presets:
+    .byte 0xE5              ;e555  e5           uPD16432B char "1" for preset 1
+    .byte 0xED              ;e556  ed           uPD16432B char "2" for preset 2
+    .byte 0xEE              ;e557  ee           uPD16432B char "3" for preset 3
+    .byte 0xEF              ;e558  ef           uPD16432B char "4" for preset 4
+    .byte 0xF0              ;e559  f0           uPD16432B char "5" for preset 5
+    .byte 0xF2              ;e560  f2           uPD16432B char "6" for preset 6
 
 
 sub_e55b:
