@@ -1,3 +1,6 @@
+MB89623R Sub-MCU I/O Pin Usage
+------------------------------
+
 48  P00/AD0     UPD_DATA        I/O uPD16432B data
 47  P01/AD1     UPD_CLK         O   uPD16532B clock
 46  P02/AD2     UPD_STB         O   uPD16432B strobe
