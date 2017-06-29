@@ -95,12 +95,12 @@ lab_e075:
     call sub_fa59           ;e075  31 fa 59
     call sub_e40c           ;e078  31 e4 0c
     bbc 0x0088:0, lab_e086  ;e07b  b0 88 08
-    clrb 0x88:0             ;e07e  a0 88
-    call sub_f81c           ;e080  31 f8 1c
+    clrb 0x88:0             ;e07e  a0 88        Clear key data available flag
+    call parse_upd_key_data ;e080  31 f8 1c     Parse 4 bytes of key data from uPD16432B
     jmp lab_e089            ;e083  21 e0 89
 
 lab_e086:
-    call sub_f8df           ;e086  31 f8 df
+    call parse_mfsw           ;e086  31 f8 df   Parse key code from MFSW
 
 lab_e089:
     bbc 0x00a9:6, lab_e08f  ;e089  b6 a9 03
@@ -3834,7 +3834,7 @@ lab_f7bd:
     movw a, 0x91            ;f7f8  c5 91          to   0x0093-0x0096
     movw 0x95, a            ;f7fa  d5 95
 
-    setb 0x88:0             ;f7fc  a8 88
+    setb 0x88:0             ;f7fc  a8 88        Set key data available flag
     jmp lab_f81b            ;f7fe  21 f8 1b
 
 lab_f801:
@@ -3855,31 +3855,36 @@ lab_f80e:
 lab_f81b:
     ret                     ;f81b  20
 
-sub_f81c:
+parse_upd_key_data:
+;Parse 4 bytes of key data from uPD16432B
     mov 0x85, #0x1c         ;f81c  85 85 1c
     mov 0x82, #0x00         ;f81f  85 82 00
     mov 0x83, #0x00         ;f822  85 83 00
-    mov 0x84, #0x04         ;f825  85 84 04
-    movw ep, #0x0093        ;f828  e7 00 93
+    mov 0x84, #0x04         ;f825  85 84 04     Counter: 4 bytes of key data to process
+    movw ep, #0x0093        ;f828  e7 00 93     EP = pointer to 4-byte key data buffer
 
 lab_f82b:
-    mov a, @ep              ;f82b  07
-    call sub_f8bb           ;f82c  31 f8 bb
-    call sub_f8bb           ;f82f  31 f8 bb
-    call sub_f8bb           ;f832  31 f8 bb
-    call sub_f8bb           ;f835  31 f8 bb
-    call sub_f8bb           ;f838  31 f8 bb
-    call sub_f8bb           ;f83b  31 f8 bb
-    call sub_f8bb           ;f83e  31 f8 bb
-    call sub_f8bb           ;f841  31 f8 bb
-    incw ep                 ;f844  c3
-    movw a, #0x0000         ;f845  e4 00 00
+    mov a, @ep              ;f82b  07           A = byte from key data buffer
+    call parse_upd_key_bit  ;f82c  31 f8 bb
+    call parse_upd_key_bit  ;f82f  31 f8 bb
+    call parse_upd_key_bit  ;f832  31 f8 bb
+    call parse_upd_key_bit  ;f835  31 f8 bb
+    call parse_upd_key_bit  ;f838  31 f8 bb
+    call parse_upd_key_bit  ;f83b  31 f8 bb
+    call parse_upd_key_bit  ;f83e  31 f8 bb
+    call parse_upd_key_bit  ;f841  31 f8 bb
+
+    incw ep                 ;f844  c3           Move to next byte in key data buffer
+
+    movw a, #0x0000         ;f845  e4 00 00     Decrement count of key data bytes available
     mov a, 0x84             ;f848  05 84
     decw a                  ;f84a  d0
     mov 0x84, a             ;f84b  45 84
-    bne lab_f82b            ;f84d  fc dc
+    bne lab_f82b            ;f84d  fc dc        Keep going until 4 bytes have been processed
+
     mov a, 0x83             ;f84f  05 83
     bne lab_f86e            ;f851  fc 1b
+
     movw a, #0x0000         ;f853  e4 00 00
     movw 0x8f, a            ;f856  d5 8f
     movw 0x91, a            ;f858  d5 91
@@ -3887,6 +3892,7 @@ lab_f82b:
     movw 0x8d, a            ;f85c  d5 8d
     movw 0x93, a            ;f85e  d5 93
     movw 0x95, a            ;f860  d5 95
+
     clrb 0x89:0             ;f862  a0 89
     mov 0xd6, #0x00         ;f864  85 d6 00
     setb 0x88:1             ;f867  a9 88
@@ -3944,20 +3950,25 @@ lab_f8a1:
     mov a, #0x19            ;f8b7  04 19
     bne lab_f879            ;f8b9  fc be
 
-sub_f8bb:
-    rolc a                  ;f8bb  02
-    bhs lab_f8d8            ;f8bc  f8 1a
+parse_upd_key_bit:
+    rolc a                  ;f8bb  02       Rotate left, store bit 7 in carry
+    bnc lab_f8d8            ;f8bc  f8 1a    Branch if no carry
+
     mov a, 0x86             ;f8be  05 86
     mov 0xd3, a             ;f8c0  45 d3
     xch a, t                ;f8c2  42
+
     mov a, 0x85             ;f8c3  05 85
     mov 0x86, a             ;f8c5  45 86
     xch a, t                ;f8c7  42
+
     mov a, 0x82             ;f8c8  05 82
     mov 0x85, a             ;f8ca  45 85
     xch a, t                ;f8cc  42
+
     cmp 0x83, #0x04         ;f8cd  95 83 04
     bhs lab_f8d8            ;f8d0  f8 06
+
     mov a, 0x83             ;f8d2  05 83
     incw a                  ;f8d4  c0
     mov 0x83, a             ;f8d5  45 83
@@ -3970,10 +3981,10 @@ lab_f8d8:
     xch a, t                ;f8dd  42
     ret                     ;f8de  20
 
-sub_f8df:
-    mov a, 0x0127           ;f8df  60 01 27
-    cmp a, #0xff            ;f8e2  14 ff
-    bne lab_f8ff            ;f8e4  fc 19
+parse_mfsw:
+    mov a, 0x0127           ;f8df  60 01 27     ;Get byte from MFSW
+    cmp a, #0xff            ;f8e2  14 ff        ;Is it 0xFF (no MFSW key)?
+    bne parse_mfsw_byte      ;f8e4  fc 19        ;  No: branch to handle MFSW key
     bbc 0x0089:3, lab_f8f3  ;f8e6  b3 89 0a
     clrb 0x89:3             ;f8e9  a3 89
     clrb 0x89:0             ;f8eb  a0 89
@@ -3986,52 +3997,57 @@ lab_f8ed:
 lab_f8f3:
     ret                     ;f8f3  20
 
-lab_f8f4:
+parse_mfsw_byte_good:
     or a, #0x80             ;f8f4  74 80
     mov 0x8a, a             ;f8f6  45 8a
     setb 0x88:1             ;f8f8  a9 88
     setb 0x89:3             ;f8fa  ab 89
     setb 0x89:0             ;f8fc  a8 89
 
-lab_f8fe:
+parse_mfsw_byte_done:
     ret                     ;f8fe  20
 
-lab_f8ff:
+parse_mfsw_byte:
+;Parse MFSW key code in 0x0127
     bbs 0x0089:0, lab_f928  ;f8ff  b8 89 26
     mov a, 0x0127           ;f902  60 01 27
     mov 0x014c, a           ;f905  61 01 4c
 
-    cmp a, #0x00            ;f908  14 00        ;0x00 -> 0x1c
-    bne lab_f910            ;f90a  fc 04
-    mov a, #0x1c            ;f90c  04 1c        ;mfsw vol down?
-    bne lab_f8f4            ;f90e  fc e4        ;no: goto lab_f8f4
+    ;MFSW 0x00 -> Key Code 0x1c (vol down)
+    cmp a, #0x00            ;f908  14 00        MSFW key = 0x00?
+    bne parse_mfsw_try_01   ;f90a  fc 04        No: branch to try next MFSW key
+    mov a, #0x1c            ;f90c  04 1c        A = key code for vol down
+    bne parse_mfsw_byte_good ;f90e  fc e4       Branch always
 
-lab_f910:
-    cmp a, #0x01            ;f910  14 01        ;0x01 -> 0x1d
-    bne lab_f918            ;f912  fc 04
-    mov a, #0x1d            ;f914  04 1d        ;mfsw vol up
-    bne lab_f8f4            ;f916  fc dc
+parse_mfsw_try_01:
+    ;MFSW 0x00 -> Key Code 0x1d (vol up)
+    cmp a, #0x01            ;f910  14 01        MFSW key = 0x01?
+    bne parse_mfsw_try_0a   ;f912  fc 04        No: branch to try next MFSW key
+    mov a, #0x1d            ;f914  04 1d        A = key code for vol up
+    bne parse_mfsw_byte_good ;f916  fc dc       Branch always
 
-lab_f918:
-    cmp a, #0x0a            ;f918  14 0a        ;0x0a -> 0x1e
-    bne lab_f920            ;f91a  fc 04
-    mov a, #0x1e            ;f91c  04 1e        ;mfsw down
-    bne lab_f8f4            ;f91e  fc d4
+parse_mfsw_try_0a:
+    ;MFSW 0x0a -> Key Code 0x1e (down)
+    cmp a, #0x0a            ;f918  14 0a        MFSW key = 0x0a?
+    bne parse_mfsw_try_0b   ;f91a  fc 04        No: branch to try next MFSW key
+    mov a, #0x1e            ;f91c  04 1e        A = key code for down
+    bne parse_mfsw_byte_good ;f91e  fc d4       Branch always
 
-lab_f920:
-    cmp a, #0x0b            ;f920  14 0b        ;0x0b -> 0x1f
-    bne lab_f8fe            ;f922  fc da
-    mov a, #0x1f            ;f924  04 1f        ;mfsw up
-    bne lab_f8f4            ;f926  fc cc
+parse_mfsw_try_0b:
+    ;MFSW 0x0b -> Key Code 0x1f (up)
+    cmp a, #0x0b            ;f920  14 0b        MFSW key = 0x0b?
+    bne parse_mfsw_byte_done ;f922  fc da       No: branch to done, no more MFSW keys to try
+    mov a, #0x1f            ;f924  04 1f        A = key code for up
+    bne parse_mfsw_byte_good ;f926  fc cc       Branch always
 
 lab_f928:
     mov a, 0x0127           ;f928  60 01 27
     mov a, 0x014c           ;f92b  60 01 4c
     cmp a                   ;f92e  12
-    beq lab_f8fe            ;f92f  fd cd
+    beq parse_mfsw_byte_done ;f92f  fd cd       branch to return
     mov a, #0xfe            ;f931  04 fe
     mov 0x014c, a           ;f933  61 01 4c
-    jmp lab_f8ed            ;f936  21 f8 ed     ;jmp to ret
+    jmp lab_f8ed            ;f936  21 f8 ed     jmp to ret
 
 sub_f939:
     cmp a, #0x18            ;f939  14 18
