@@ -94,13 +94,13 @@ lab_e06c:
 lab_e075:
     call sub_fa59           ;e075  31 fa 59
     call sub_e40c           ;e078  31 e4 0c
-    bbc 0x0088:0, lab_e086  ;e07b  b0 88 08
+    bbc 0x0088:0, lab_e086  ;e07b  b0 88 08     Branch if no key data is available
     clrb 0x88:0             ;e07e  a0 88        Clear key data available flag
     call parse_upd_key_data ;e080  31 f8 1c     Parse 4 bytes of key data from uPD16432B
     jmp lab_e089            ;e083  21 e0 89
 
 lab_e086:
-    call parse_mfsw           ;e086  31 f8 df   Parse key code from MFSW
+    call try_parse_mfsw     ;e086  31 f8 df     Try to get a key code from MFSW
 
 lab_e089:
     bbc 0x00a9:6, lab_e08f  ;e089  b6 a9 03
@@ -131,10 +131,11 @@ lab_e0b5:
     ret                     ;e0b7  20
 
 sub_e0b8:
-    movw a, ps              ;e0b8  70
-    movw a, #0x00ff         ;e0b9  e4 00 ff
+    movw a, ps              ;e0b8  70           Clear RP (register bank pointer) in PS
+    movw a, #0x00ff         ;e0b9  e4 00 ff       R0=0x100, R1=0x101...
     andw a                  ;e0bc  63
     movw ps, a              ;e0bd  71
+
     call sub_f59f           ;e0be  31 f5 9f
     call sub_f5c3           ;e0c1  31 f5 c3
     call sub_f5ec           ;e0c4  31 f5 ec
@@ -960,10 +961,11 @@ upd_presets:
 
 
 sub_e55b:
-    movw a, ps              ;e55b  70
-    movw a, #0x00ff         ;e55c  e4 00 ff
+    movw a, ps              ;e55b  70           Clear RP (register bank pointer) in PS
+    movw a, #0x00ff         ;e55c  e4 00 ff       R0=0x100, R1=0x101...
     andw a                  ;e55f  63
     movw ps, a              ;e560  71
+
     bbc 0x009a:7, lab_e57f  ;e561  b7 9a 1b
     clrb 0x9a:7             ;e564  a7 9a
     setb 0x9c:3             ;e566  ab 9c
@@ -2720,10 +2722,11 @@ msgs_00_or_gte_d0_text:
     .byte 0x00, 0x00, 0x00, 0x00, 0x56, 0x57, 0x2d, 0x43, 0x41, 0x52, 0x00
 
 sub_f1ac:
-    movw a, ps              ;f1ac  70
-    movw a, #0x00ff         ;f1ad  e4 00 ff
+    movw a, ps              ;f1ac  70           Clear RP (register bank pointer) in PS
+    movw a, #0x00ff         ;f1ad  e4 00 ff       R0=0x100, R1=0x101...
     andw a                  ;f1b0  63
     movw ps, a              ;f1b1  71
+
     call sub_f1f3           ;f1b2  31 f1 f3
     bbc 0x00ab:5, lab_f1d4  ;f1b5  b5 ab 1c
     bbc 0x00ab:0, lab_f1d4  ;f1b8  b0 ab 19
@@ -3417,10 +3420,11 @@ lab_f532:
     jmp lab_f531            ;f53e  21 f5 31
 
 sub_f541:
-    movw a, ps              ;f541  70
-    movw a, #0x00ff         ;f542  e4 00 ff
+    movw a, ps              ;f541  70           Clear RP (register bank pointer) in PS
+    movw a, #0x00ff         ;f542  e4 00 ff       R0=0x100, R1=0x101...
     andw a                  ;f545  63
     movw ps, a              ;f546  71
+
     call sub_f516           ;f547  31 f5 16
     call sub_f571           ;f54a  31 f5 71
     mov a, 0x0148           ;f54d  60 01 48
@@ -4036,7 +4040,7 @@ lab_f8d8:
     xch a, t                ;f8dd  42
     ret                     ;f8de  20
 
-parse_mfsw:
+try_parse_mfsw:
     mov a, 0x0127           ;f8df  60 01 27     ;Get byte from MFSW
     cmp a, #0xff            ;f8e2  14 ff        ;Is it 0xFF (no MFSW key)?
     bne parse_mfsw_byte     ;f8e4  fc 19        ;  No: branch to handle MFSW key
