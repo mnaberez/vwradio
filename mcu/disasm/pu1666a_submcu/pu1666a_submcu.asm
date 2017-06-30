@@ -3125,10 +3125,10 @@ lab_f3ca:
     mov a, #0x0a            ;f3ce  04 0a
     mov 0x9d, a             ;f3d0  45 9d
     call read_bose          ;f3d2  31 f3 ef
-    call sub_f413           ;f3d5  31 f4 13
-    call sub_f41f           ;f3d8  31 f4 1f
-    call sub_f42e           ;f3db  31 f4 2e
-    call sub_f43f           ;f3de  31 f4 3f
+    call read_0xab_bit2     ;f3d5  31 f4 13
+    call read_0xe7          ;f3d8  31 f4 1f
+    call read_diag          ;f3db  31 f4 2e
+    call read_0xcd_bit0     ;f3de  31 f4 3f
     setb 0x9b:0             ;f3e1  a8 9b
 
 lab_f3e3:
@@ -3155,7 +3155,7 @@ read_bose:
     mov a, pdr0             ;f3f5  05 00    Read port with BOSE switches
     and a, #0b11000000      ;f3f7  64 c0    Mask off all except BOSE_SW2 (bit 7) and BOSE_SW1 (bit 6)
     cmp a, #0b10000000      ;f3f9  14 80    Compare with BOSE_SW2=1, BOSE_SW1=0
-    bne read_bose_case_2  ;f3fb  fc 08
+    bne read_bose_case_2    ;f3fb  fc 08
 
     ;BOSE_SW2 = 1, BOSE_SW1 = 0
     mov a, #0b00000001      ;f3fd  04 01
@@ -3180,51 +3180,81 @@ read_bose_case_else:
     jmp read_bose_done      ;f410  21 f3 ff
 
 
-sub_f413:
+read_0xab_bit2:
+;Read 0xab:2 and put it in 0x9e:3
+;
+;0xab:2 = 0 -> 0bXXXX0XXX
+;0xab:2 = 1 -> 0bXXXX1XXX
+;
     mov a, 0x9e             ;f413  05 9e
-    and a, #0xf7            ;f415  64 f7
+    and a, #0b11110111      ;f415  64 f7
     mov 0x9e, a             ;f417  45 9e
-    bbc 0x00ab:2, lab_f41e  ;f419  b2 ab 02
+    bbc 0x00ab:2, read_0xab_bit2_done  ;f419  b2 ab 02
     setb 0x9e:3             ;f41c  ab 9e
-
-lab_f41e:
+read_0xab_bit2_done:
     ret                     ;f41e  20
 
-sub_f41f:
+
+read_0xe7:
+;Read 0xe7 and set 0x9e:4 if 0xe7 = 5
+;
+;0xe5  = 5 -> 0bXXX0XXXX
+;0xe5 != 5 -> 0bXXX1XXXX
+;
     mov a, 0x9e             ;f41f  05 9e
-    and a, #0xef            ;f421  64 ef
+    and a, #0b11101111      ;f421  64 ef
     mov 0x9e, a             ;f423  45 9e
+
     mov a, 0xe7             ;f425  05 e7
     cmp a, #0x05            ;f427  14 05
-    bne lab_f42d            ;f429  fc 02
-    setb 0x9e:4             ;f42b  ac 9e
+    bne read_0xe7_done      ;f429  fc 02
 
-lab_f42d:
+    setb 0x9e:4             ;f42b  ac 9e
+read_0xe7_done:
     ret                     ;f42d  20
 
-sub_f42e:
-    mov a, 0x9e             ;f42e  05 9e
-    and a, #0x3f            ;f430  64 3f
+
+read_diag:
+;Read DIAG_SW1, DIAG_SW2 and set two bits in 0x9e
+;
+;DIAG_SW2 = 0, DIAG_SW1 = 0 -> 0x9e = 0b00XXXXXX
+;DIAG_SW2 = 0, DIAG_SW1 = 1 -> 0x9e = 0b01XXXXXX
+;DIAG_SW2 = 1, DIAG_SW1 = 0 -> 0x9e = 0b10XXXXXX
+;DIAG_SW2 = 1, DIAG_SW1 = 1 -> 0x9e = 0b11XXXXXX
+;
+    mov a, 0x9e             ;f42e  05 9e        Clear bits in 0x9e to receive DIAG switches
+    and a, #0b00111111      ;f430  64 3f
     mov 0x9e, a             ;f432  45 9e
-    bbc pdr0:4, lab_f439    ;f434  b4 00 02     ;Branch if DIAG_SW1 = low
+
+    bbc pdr0:4, lab_f439    ;f434  b4 00 02     Branch if DIAG_SW1 = low
+
+    ;DIAG_SW1 = high
     setb 0x9e:6             ;f437  ae 9e
 
 lab_f439:
-    bbc pdr0:5, lab_f43e    ;f439  b5 00 02     ;Branch if DIAG_SW2 = low
+    bbc pdr0:5, read_diag_done ;f439  b5 00 02  Branch if DIAG_SW2 = low
+
+    ;DIAG_SW2 = high
     setb 0x9e:7             ;f43c  af 9e
 
-lab_f43e:
+read_diag_done:
     ret                     ;f43e  20
 
-sub_f43f:
-    mov a, 0x9e             ;f43f  05 9e
-    and a, #0xdf            ;f441  64 df
-    mov 0x9e, a             ;f443  45 9e
-    bbc 0x00cd:0, lab_f44a  ;f445  b0 cd 02
-    setb 0x9e:5             ;f448  ad 9e
 
-lab_f44a:
+read_0xcd_bit0:
+;Read 0xcd:0 and put it in 0x09e:5
+;TODO what is 0xcd:0?
+;
+    mov a, 0x9e             ;f43f  05 9e
+    and a, #0b11011111      ;f441  64 df
+    mov 0x9e, a             ;f443  45 9e
+
+    bbc 0x00cd:0, read_0xcd_bit0_done  ;f445  b0 cd 02
+
+    setb 0x9e:5             ;f448  ad 9e
+read_0xcd_bit0_done:
     ret                     ;f44a  20
+
 
 sub_f44b:
     movw a, tchr            ;f44b  c5 19
