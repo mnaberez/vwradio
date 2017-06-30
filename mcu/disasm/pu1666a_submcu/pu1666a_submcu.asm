@@ -447,29 +447,34 @@ lab_e261:
     jmp lab_e260            ;e26b  21 e2 60
 
 sub_e26e:
-    bbc 0x009a:3, lab_e27c  ;e26e  b3 9a 0b
+    bbc 0x009a:3, m2s_cmd_done  ;e26e  b3 9a 0b
     clrb 0x9a:3             ;e271  a3 9a
     mov a, 0x0115           ;e273  60 01 15
     and a, #0xf0            ;e276  64 f0
     cmp a, #0x80            ;e278  14 80
-    beq lab_e27d            ;e27a  fd 01
+    beq m2s_cmd_dispatch    ;e27a  fd 01
 
-lab_e27c:
+m2s_cmd_done:
     ret                     ;e27c  20
 
-lab_e27d:
+m2s_cmd_dispatch:
     mov a, 0x0115           ;e27d  60 01 15
-    cmp a, #0x81            ;e280  14 81
-    beq lab_e28f            ;e282  fd 0b
-    cmp a, #0x82            ;e284  14 82
-    beq lab_e2a8            ;e286  fd 20
-    cmp a, #0x83            ;e288  14 83
-    beq lab_e2ad            ;e28a  fd 21
-    jmp lab_e27c            ;e28c  21 e2 7c
 
-lab_e28f:
+    cmp a, #0x81            ;e280  14 81        0x81 = Write to both LCD and FIS
+    beq m2s_cmd_81          ;e282  fd 0b
+
+    cmp a, #0x82            ;e284  14 82        0x82 = Write only to FIS (used during KWP1281 output tests)
+    beq m2s_cmd_82          ;e286  fd 20
+
+    cmp a, #0x83            ;e288  14 83        0x83 = Power off? TODO?
+    beq m2s_cmd_83          ;e28a  fd 21
+
+    jmp m2s_cmd_done        ;e28c  21 e2 7c
+
+m2s_cmd_81:
+;Handle Main-to-Sub command 0x81 (Write to both LCD and FIS)
 ;A = 0x81
-    clrb 0xab:4             ;e28f  a4 ab
+    clrb 0xab:4             ;e28f  a4 ab        Clear "write to FIS only flag"
 
 lab_e291:
     movw a, 0x0116          ;e291  c4 01 16
@@ -477,19 +482,21 @@ lab_e291:
     movw a, 0x0118          ;e297  c4 01 18
     movw 0x011e, a          ;e29a  d4 01 1e     Copy 0x0118-0x0119 to 0x011e-0x011f
     mov a, 0x011a           ;e29d  60 01 1a
-    mov 0x0120, a           ;e2a0  61 01 20     Copy 0x11a to 0x0120
+    mov 0x0120, a           ;e2a0  61 01 20     Copy 0x011a to 0x0120
     setb 0x9a:7             ;e2a3  af 9a
-    jmp lab_e27c            ;e2a5  21 e2 7c
+    jmp m2s_cmd_done        ;e2a5  21 e2 7c
 
-lab_e2a8:
+m2s_cmd_82:
+;Handle Main-to-Sub command 0x82 = Write only to FIS (used during KWP1281 output tests)
 ;A = 0x82
-    setb 0xab:4             ;e2a8  ac ab
+    setb 0xab:4             ;e2a8  ac ab        Set "write to FIS only" flag
     jmp lab_e291            ;e2aa  21 e2 91
 
-lab_e2ad:
+m2s_cmd_83:
+;Handle Main-to-Sub command 0x83 = Power off? TODO?
 ;A = 0x83
     setb 0x9c:1             ;e2ad  a9 9c
-    jmp lab_e27c            ;e2af  21 e2 7c
+    jmp m2s_cmd_done        ;e2af  21 e2 7c
 
 sub_e2b2:
     bbc 0x009a:0, lab_e2db  ;e2b2  b0 9a 26
@@ -816,7 +823,8 @@ lab_e469:
     call ascii_to_upd       ;e48a  31 e4 9b     Replace ASCII char at 0x0138 with uPD16432B char
     movw ep, #0x0139        ;e48d  e7 01 39
     call ascii_to_upd       ;e490  31 e4 9b     Replace ASCII char at 0x0139 with uPD16432B char
-    bbs 0x00ab:4, lab_e49a  ;e493  bc ab 04
+
+    bbs 0x00ab:4, lab_e49a  ;e493  bc ab 04     Branch if "write to FIS only" flag is set
     setb 0x87:2             ;e496  aa 87
     setb 0xab:5             ;e498  ad ab
 
@@ -2738,9 +2746,9 @@ lab_f1cd:
     ret                     ;f1d3  20
 
 lab_f1d4:
-    bbc 0x00ab:4, lab_f1e3  ;f1d4  b4 ab 0c
+    bbc 0x00ab:4, lab_f1e3  ;f1d4  b4 ab 0c     Branch if "write to FIS only" flag is clear
     bbc 0x00ab:0, lab_f1e3  ;f1d7  b0 ab 09
-    clrb 0xab:4             ;f1da  a4 ab
+    clrb 0xab:4             ;f1da  a4 ab        Clear "write to FIS only" flag
     mov a, #0x10            ;f1dc  04 10
     mov 0xca, a             ;f1de  45 ca
     jmp lab_f1c1            ;f1e0  21 f1 c1
@@ -3116,7 +3124,7 @@ lab_f3ca:
     setb 0x9b:2             ;f3cc  aa 9b
     mov a, #0x0a            ;f3ce  04 0a
     mov 0x9d, a             ;f3d0  45 9d
-    call sub_f3ef           ;f3d2  31 f3 ef
+    call read_bose          ;f3d2  31 f3 ef
     call sub_f413           ;f3d5  31 f4 13
     call sub_f41f           ;f3d8  31 f4 1f
     call sub_f42e           ;f3db  31 f4 2e
@@ -3132,31 +3140,45 @@ lab_f3e4:
     clrb 0xcd:3             ;f3ea  a3 cd
     jmp lab_f3ca            ;f3ec  21 f3 ca
 
-sub_f3ef:
-    mov a, 0x9e             ;f3ef  05 9e
-    and a, #0xfc            ;f3f1  64 fc
-    mov 0x9e, a             ;f3f3  45 9e
-    mov a, pdr0             ;f3f5  05 00
-    and a, #0xc0            ;f3f7  64 c0
-    cmp a, #0x80            ;f3f9  14 80
-    bne lab_f405            ;f3fb  fc 08
-    mov a, #0x01            ;f3fd  04 01
 
-lab_f3ff:
-    mov a, 0x9e             ;f3ff  05 9e
+read_bose:
+;Read BOSE_SW1, BOSE_SW2 and set two bits in 0x9e
+;
+;BOSE_SW2 = 1, BOSE_SW1 = 0 -> 0x9e = 0bXXXXXX01
+;BOSE_SW2 = 0, BOSE_SW1 = 1 -> 0x9e = 0bXXXXXX10
+;Anything else              -> 0x9e = 0bXXXXXX00
+;
+    mov a, 0x9e             ;f3ef  05 9e    Clear bits in 0x9e to receive BOSE switches
+    and a, #0b11111100      ;f3f1  64 fc
+    mov 0x9e, a             ;f3f3  45 9e
+
+    mov a, pdr0             ;f3f5  05 00    Read port with BOSE switches
+    and a, #0b11000000      ;f3f7  64 c0    Mask off all except BOSE_SW2 (bit 7) and BOSE_SW1 (bit 6)
+    cmp a, #0b10000000      ;f3f9  14 80    Compare with BOSE_SW2=1, BOSE_SW1=0
+    bne read_bose_case_2  ;f3fb  fc 08
+
+    ;BOSE_SW2 = 1, BOSE_SW1 = 0
+    mov a, #0b00000001      ;f3fd  04 01
+
+read_bose_done:
+    mov a, 0x9e             ;f3ff  05 9e    Set bits in 0x9e with new BOSE switch status
     orw a                   ;f401  73
     mov 0x9e, a             ;f402  45 9e
     ret                     ;f404  20
 
-lab_f405:
-    cmp a, #0x40            ;f405  14 40
-    bne lab_f40e            ;f407  fc 05
-    mov a, #0x02            ;f409  04 02
-    jmp lab_f3ff            ;f40b  21 f3 ff
+read_bose_case_2:
+    cmp a, #0b01000000      ;f405  14 40    Compare with BOSE_SW2=0, BOSE_SW1=1
+    bne read_bose_case_else ;f407  fc 05
 
-lab_f40e:
-    mov a, #0x00            ;f40e  04 00
-    jmp lab_f3ff            ;f410  21 f3 ff
+    ;BOSE_SW2 = 0, BOSE_SW1 = 1
+    mov a, #0b00000010      ;f409  04 02
+    jmp read_bose_done      ;f40b  21 f3 ff
+
+read_bose_case_else:
+    ;Any other combination of BOSE_SW2 and BOSE_SW1
+    mov a, #0               ;f40e  04 00
+    jmp read_bose_done      ;f410  21 f3 ff
+
 
 sub_f413:
     mov a, 0x9e             ;f413  05 9e
@@ -3885,13 +3907,14 @@ lab_f82b:
     mov a, 0x83             ;f84f  05 83
     bne lab_f86e            ;f851  fc 1b
 
-    movw a, #0x0000         ;f853  e4 00 00
-    movw 0x8f, a            ;f856  d5 8f
-    movw 0x91, a            ;f858  d5 91
-    movw 0x8b, a            ;f85a  d5 8b
-    movw 0x8d, a            ;f85c  d5 8d
-    movw 0x93, a            ;f85e  d5 93
-    movw 0x95, a            ;f860  d5 95
+    ;0x0083 is zero
+    movw a, #0x0000         ;f853  e4 00 00     Clear 0x008b-0x0096:
+    movw 0x8f, a            ;f856  d5 8f            Clear 0x008f-0x0090
+    movw 0x91, a            ;f858  d5 91            Clear 0x0091-0x0092
+    movw 0x8b, a            ;f85a  d5 8b            Clear 0x008b-0x008c
+    movw 0x8d, a            ;f85c  d5 8d            Clear 0x008d-0x008e
+    movw 0x93, a            ;f85e  d5 93            Clear 0x0093-0x0094
+    movw 0x95, a            ;f860  d5 95            Clear 0x0095-0x0096
 
     clrb 0x89:0             ;f862  a0 89
     mov 0xd6, #0x00         ;f864  85 d6 00
@@ -3905,6 +3928,7 @@ lab_f86d:
     ret                     ;f86d  20
 
 lab_f86e:
+;A is from 0x0083, and A != 0
     cmp a, #0x01            ;f86e  14 01
     bne lab_f895            ;f870  fc 23
     bbs 0x0089:0, lab_f884  ;f872  b8 89 0f
@@ -3931,6 +3955,7 @@ lab_f890:
     jmp lab_f869            ;f892  21 f8 69
 
 lab_f895:
+;A is from 0x0083, A != 0, A != 1
     cmp a, #0x03            ;f895  14 03
     bne lab_f890            ;f897  fc f7
     cmp 0xd6, #0x07         ;f899  95 d6 07
@@ -3984,7 +4009,7 @@ lab_f8d8:
 parse_mfsw:
     mov a, 0x0127           ;f8df  60 01 27     ;Get byte from MFSW
     cmp a, #0xff            ;f8e2  14 ff        ;Is it 0xFF (no MFSW key)?
-    bne parse_mfsw_byte      ;f8e4  fc 19        ;  No: branch to handle MFSW key
+    bne parse_mfsw_byte     ;f8e4  fc 19        ;  No: branch to handle MFSW key
     bbc 0x0089:3, lab_f8f3  ;f8e6  b3 89 0a
     clrb 0x89:3             ;f8e9  a3 89
     clrb 0x89:0             ;f8eb  a0 89
