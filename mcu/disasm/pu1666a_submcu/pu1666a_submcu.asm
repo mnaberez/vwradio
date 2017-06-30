@@ -2875,7 +2875,7 @@ sub_f281:
     mov a, #0x06            ;f285  04 06
     mov 0xc3, a             ;f287  45 c3        ;Set 0x00C3 = 0x06
 
-    call sub_f30f           ;f289  31 f3 0f
+    call build_navi_packet  ;f289  31 f3 0f
     mov 0xc2, #0x00         ;f28c  85 c2 00
     mov a, #0x03            ;f28f  04 03
     mov 0xc8, a             ;f291  45 c8
@@ -2979,103 +2979,124 @@ lab_f30b:
     bbc smr2:7, lab_f30b    ;f30b  b7 1e fd
     ret                     ;f30e  20
 
-sub_f30f:
-    mov a, 0xd7             ;f30f  05 d7
-    bne lab_f315            ;f311  fc 02
-    mov a, #0x20            ;f313  04 20
 
+build_navi_packet:
+;Reads message text in 0x00d7-0x00e6
+;Stores complete Navi protocol packet in 0x00ac-0x00bf
+;
+    ;0x00d7 -> 0x00af
+    mov a, 0xd7             ;f30f  05 d7    A = value from 0x00d7
+    bnz lab_f315            ;f311  fc 02    Skip space change if A != 0
+    mov a, #0x20            ;f313  04 20    A = space character
 lab_f315:
-    mov 0xaf, a             ;f315  45 af
-    mov a, 0xd8             ;f317  05 d8
-    bne lab_f31d            ;f319  fc 02
-    mov a, #0x20            ;f31b  04 20
+    mov 0xaf, a             ;f315  45 af    Save A in 0x00af
 
+    ;0x00d8 -> 0x00b0
+    mov a, 0xd8             ;f317  05 d8    A = value from 0x00d8
+    bnz lab_f31d            ;f319  fc 02    Skip space change if A != 0
+    mov a, #0x20            ;f31b  04 20    A = space character
 lab_f31d:
-    mov 0xb0, a             ;f31d  45 b0
-    mov a, 0xd9             ;f31f  05 d9
-    bne lab_f325            ;f321  fc 02
-    mov a, #0x20            ;f323  04 20
+    mov 0xb0, a             ;f31d  45 b0    Save A in 0x00b0
 
+    ;0x00d9 -> 0x00b1
+    mov a, 0xd9             ;f31f  05 d9    A = value from 0x00d9
+    bnz lab_f325            ;f321  fc 02    Skip space change if A != 0
+    mov a, #0x20            ;f323  04 20    A = space character
 lab_f325:
-    mov 0xb1, a             ;f325  45 b1
-    mov a, 0xda             ;f327  05 da
-    bne lab_f32d            ;f329  fc 02
-    mov a, #0x20            ;f32b  04 20
+    mov 0xb1, a             ;f325  45 b1    Save A in 0x00b1
 
+    ;0x00da -> 0x00b2
+    mov a, 0xda             ;f327  05 da    A = value from 0x00da
+    bnz lab_f32d            ;f329  fc 02    Skip space change if A != 0
+    mov a, #0x20            ;f32b  04 20    A = space character
 lab_f32d:
-    mov 0xb2, a             ;f32d  45 b2
-    mov a, 0xdb             ;f32f  05 db
-    bne lab_f335            ;f331  fc 02
-    mov a, #0x20            ;f333  04 20
+    mov 0xb2, a             ;f32d  45 b2    Save A in 0x00b2
 
+    ;0x00db -> 0x00b3
+    mov a, 0xdb             ;f32f  05 db    A = value from 0x00db
+    bnz lab_f335            ;f331  fc 02    Skip space change if A != 0
+    mov a, #0x20            ;f333  04 20    A = space character
 lab_f335:
-    mov 0xb3, a             ;f335  45 b3
-    mov a, 0xdc             ;f337  05 dc
-    bne lab_f33d            ;f339  fc 02
-    mov a, #0x20            ;f33b  04 20
+    mov 0xb3, a             ;f335  45 b3    Save A in 0x00b3
 
+    ;0x00dc -> 0x00b4
+    mov a, 0xdc             ;f337  05 dc    A = value at 0x00dc
+    bnz lab_f33d            ;f339  fc 02    Skip space change if A != 0
+    mov a, #0x20            ;f33b  04 20    A = space character
 lab_f33d:
-    mov 0xb4, a             ;f33d  45 b4
-    mov a, 0xdd             ;f33f  05 dd
-    bne lab_f345            ;f341  fc 02
-    mov a, #0x20            ;f343  04 20
+    mov 0xb4, a             ;f33d  45 b4    Save A in 0x00b4
 
+    ;0x00dd -> 0x00b5
+    mov a, 0xdd             ;f33f  05 dd    A = value at 0x00dd
+    bnz lab_f345            ;f341  fc 02    Skip space change if A != 0
+    mov a, #0x20            ;f343  04 20    A = space character
 lab_f345:
-    mov 0xb5, a             ;f345  45 b5
-    mov a, 0xde             ;f347  05 de
-    bne lab_f34d            ;f349  fc 02
-    mov a, #0x20            ;f34b  04 20
+    mov 0xb5, a             ;f345  45 b5    Save A in 0x00b5
 
+    ;0x00de -> 0x00b6
+    mov a, 0xde             ;f347  05 de    A = value at 0x00de
+    bnz lab_f34d            ;f349  fc 02    Skip space change if A != 0
+    mov a, #0x20            ;f34b  04 20    A = space character
 lab_f34d:
-    mov 0xb6, a             ;f34d  45 b6
-    mov a, 0xdf             ;f34f  05 df
-    bne lab_f355            ;f351  fc 02
-    mov a, #0x1c            ;f353  04 1c
+    mov 0xb6, a             ;f34d  45 b6    Save A in 0x00b6
 
+    ;0x00df -> 0x00b7
+    mov a, 0xdf             ;f34f  05 df    A = value at 0x00df
+    bnz lab_f355            ;f351  fc 02    Skip 0x1c change if A != 0
+    mov a, #0x1c            ;f353  04 1c    A = 0x1c
 lab_f355:
-    mov 0xb7, a             ;f355  45 b7
-    mov a, 0xe0             ;f357  05 e0
-    bne lab_f35d            ;f359  fc 02
-    mov a, #0x1c            ;f35b  04 1c
+    mov 0xb7, a             ;f355  45 b7    Save A in 0x00b7
 
+    ;0x00e0 -> 0x00b8
+    mov a, 0xe0             ;f357  05 e0    A = value at 0x00e0
+    bnz lab_f35d            ;f359  fc 02    Skip 0x1c change if A != 0
+    mov a, #0x1c            ;f35b  04 1c    A = 0x1c
 lab_f35d:
-    mov 0xb8, a             ;f35d  45 b8
-    mov a, 0xe1             ;f35f  05 e1
-    bne lab_f365            ;f361  fc 02
-    mov a, #0x1c            ;f363  04 1c
+    mov 0xb8, a             ;f35d  45 b8    Save A in 0x00b8
 
+    ;0x00e1 -> 0x00b9
+    mov a, 0xe1             ;f35f  05 e1    A = value at 0x00e1
+    bnz lab_f365            ;f361  fc 02    Skip 0x1c change if A != 0
+    mov a, #0x1c            ;f363  04 1c    A = 0x1c
 lab_f365:
-    mov 0xb9, a             ;f365  45 b9
-    mov a, 0xe2             ;f367  05 e2
-    bne lab_f36d            ;f369  fc 02
-    mov a, #0x1c            ;f36b  04 1c
+    mov 0xb9, a             ;f365  45 b9    Save A in 0x00b9
 
+    ;0x00e2 -> 0x00ba
+    mov a, 0xe2             ;f367  05 e2    A = value at 0x00e2
+    bnz lab_f36d            ;f369  fc 02    Skip 0x1c change if A != 0
+    mov a, #0x1c            ;f36b  04 1c    A = 0x1c
 lab_f36d:
-    mov 0xba, a             ;f36d  45 ba
-    mov a, 0xe3             ;f36f  05 e3
-    bne lab_f375            ;f371  fc 02
-    mov a, #0x1c            ;f373  04 1c
+    mov 0xba, a             ;f36d  45 ba    Save A in 0x00b9
 
+    ;0x00e3 -> 0x00bb
+    mov a, 0xe3             ;f36f  05 e3    A = value at 0x00e3
+    bnz lab_f375            ;f371  fc 02    Skip 0x1c change if A != 0
+    mov a, #0x1c            ;f373  04 1c    A = 0x1c
 lab_f375:
-    mov 0xbb, a             ;f375  45 bb
-    mov a, 0xe4             ;f377  05 e4
-    bne lab_f37d            ;f379  fc 02
-    mov a, #0x1c            ;f37b  04 1c
+    mov 0xbb, a             ;f375  45 bb    Save A in 0x00bb
 
+    ;0x00e4 -> 0x00bc
+    mov a, 0xe4             ;f377  05 e4    A = value at 0x00e4
+    bnz lab_f37d            ;f379  fc 02    Skip 0x1c change if A != 0
+    mov a, #0x1c            ;f37b  04 1c    A = 0x1c
 lab_f37d:
-    mov 0xbc, a             ;f37d  45 bc
-    mov a, 0xe5             ;f37f  05 e5
-    bne lab_f385            ;f381  fc 02
-    mov a, #0x1c            ;f383  04 1c
+    mov 0xbc, a             ;f37d  45 bc    Save A in 0x00bc
 
+    ;0x00e5 -> 0x00bd
+    mov a, 0xe5             ;f37f  05 e5    A = value at 0x00e5
+    bnz lab_f385            ;f381  fc 02    Skip 0x1c change if A != 0
+    mov a, #0x1c            ;f383  04 1c    A = 0x1c
 lab_f385:
-    mov 0xbd, a             ;f385  45 bd
-    mov a, 0xe6             ;f387  05 e6
-    bne lab_f38d            ;f389  fc 02
-    mov a, #0x1c            ;f38b  04 1c
+    mov 0xbd, a             ;f385  45 bd    Save A in 0x00bd
 
+    ;0x00e6 -> 0x00be
+    mov a, 0xe6             ;f387  05 e6    A = value at 0x00e6
+    bnz lab_f38d            ;f389  fc 02    Skip 0x1c change if A != 0
+    mov a, #0x1c            ;f38b  04 1c    A = 0x1c
 lab_f38d:
-    mov 0xbe, a             ;f38d  45 be
+    mov 0xbe, a             ;f38d  45 be    Save A in 0x00be
+
+    ;Prepend packet header
 
     mov a, #0x81            ;f38f  04 81        0x00AC = Navi packet byte 0 = 0x81
     mov 0xac, a             ;f391  45 ac
@@ -3088,6 +3109,8 @@ lab_f38d:
 
     mov r0, #0x12           ;f39b  88 12        R0 = 0x12 bytes to count down
     movw ix, #0x00ac        ;f39d  e6 00 ac     IX = 0x00AC (Navi packet buffer)
+
+    ;Append packet checksum
 
     mov a, @ix+0x00         ;f3a0  06 00        A = read byte in Navi packet buffer
 lab_f3a2:
@@ -3102,6 +3125,7 @@ lab_f3a2:
     movw a, #0x00ac         ;f3ac  e4 00 ac
     movw 0xc0, a            ;f3af  d5 c0        ?? 0x00C0 = 0x81?
     ret                     ;f3b1  20
+
 
 sub_f3b2:
     bbc 0x00ab:1, lab_f3be  ;f3b2  b1 ab 09
