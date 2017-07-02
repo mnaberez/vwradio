@@ -105,11 +105,14 @@ Commands:
     0x83: Power off?
 
 Pictographs:
-    Bit 6: period
-    Bit 2: dolby
-    Bit 1: mix
-    Bit 0: metal
-
+    Bit 7 is unused
+    Bit 6 = PERIOD
+    Bit 5 = HIDDEN_MODE_TAPE
+    Bit 4 = HIDDEN_MODE_CD
+    Bit 3 = HIDDEN_MODE_AMFM
+    Bit 2 = DOLBY
+    Bit 1 = MIX
+    Bit 0 = METAL
 
 Command 0x01
                                P0 P1 P2
