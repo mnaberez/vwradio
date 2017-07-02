@@ -455,7 +455,8 @@ lab_e261:
 m2s_cmd_process:
 ;Process a Main-to-Sub command packet if one is ready
 ;
-    bbc 0x009a:3, m2s_cmd_done  ;e26e  b3 9a 0b  Branch "Main-MCU packet ready" flag is clear
+    bbc 0x009a:3, m2s_cmd_done  ;e26e  b3 9a 0b  Branch if "Main-MCU packet ready" flag is clear
+    ;A command packet is ready
     clrb 0x9a:3             ;e271  a3 9a         Clear "Main-MCU packet ready" flag for next time
     mov a, 0x0115           ;e273  60 01 15      A = first byte of Main-MCU packet (command byte)
     and a, #0xf0            ;e276  64 f0         Mask off low nibble
@@ -1174,27 +1175,27 @@ msgs_01_0f:
     jmp @a                  ;e63e  e0
 
 msgs_01_0f_jmp:
-    .word msg_01            ;e63f  e6 61       VECTOR   0x01  'CD...TR....'
-    .word msg_02            ;e641  e6 77       VECTOR   0x02  'CUE........'
-    .word msg_03            ;e643  e6 9e       VECTOR   0x03  'REV........'
-    .word msg_04            ;e645  e6 a1       VECTOR   0x04  'SCANCD.TR..'
-    .word msg_05            ;e647  e6 b7       VECTOR   0x05  'NO..CHANGER'
-    .word msg_06            ;e649  e6 ba       VECTOR   0x06  'NO  MAGAZIN'
-    .word msg_07            ;e64b  e6 bd       VECTOR   0x07  '....NO.DISC'
-    .word msg_08            ;e64d  e6 c0       VECTOR   0x08  'CD...ERROR.'
-    .word msg_09            ;e64f  e6 c9       VECTOR   0x09  'CD.........'
-    .word msg_0a            ;e651  e6 d2       VECTOR   0x0A  'CD....MAX..'
-    .word msg_0b            ;e653  e6 db       VECTOR   0x0B  'CD....MIN..'
-    .word msg_0c            ;e655  e6 de       VECTOR   0x0C  'CHK.MAGAZIN'
-    .word msg_0d            ;e657  e6 e1       VECTOR   0x0D  'CD..CD.ERR.'
-    .word msg_0e            ;e659  e6 ea       VECTOR   0x0E  'CD...ERROR.'
-    .word msg_0f            ;e65b  e6 ed       VECTOR   0x0F  'CD...NO.CD.'
+    .word msg_01_cd_tr       ;e63f  e6 61       VECTOR   0x01  'CD...TR....'
+    .word msg_02_cue         ;e641  e6 77       VECTOR   0x02  'CUE........'
+    .word msg_03_rev         ;e643  e6 9e       VECTOR   0x03  'REV........'
+    .word msg_04_scancd_tr   ;e645  e6 a1       VECTOR   0x04  'SCANCD.TR..'
+    .word msg_05_no_changer  ;e647  e6 b7       VECTOR   0x05  'NO..CHANGER'
+    .word msg_06_no_magazin  ;e649  e6 ba       VECTOR   0x06  'NO  MAGAZIN'
+    .word msg_07_no_disc     ;e64b  e6 bd       VECTOR   0x07  '....NO.DISC'
+    .word msg_08_cd_error    ;e64d  e6 c0       VECTOR   0x08  'CD...ERROR.'
+    .word msg_09_cd_         ;e64f  e6 c9       VECTOR   0x09  'CD.........'
+    .word msg_0a_cd_max      ;e651  e6 d2       VECTOR   0x0A  'CD....MAX..'
+    .word msg_0b_cd_min      ;e653  e6 db       VECTOR   0x0B  'CD....MIN..'
+    .word msg_0c_chk_magazin ;e655  e6 de       VECTOR   0x0C  'CHK.MAGAZIN'
+    .word msg_0d_cd_cd_err   ;e657  e6 e1       VECTOR   0x0D  'CD..CD.ERR.'
+    .word msg_0e_cd_error    ;e659  e6 ea       VECTOR   0x0E  'CD...ERROR.'
+    .word msg_0f_cd_no_cd    ;e65b  e6 ed       VECTOR   0x0F  'CD...NO.CD.'
 
 msgs_01_0f_done:
     call sub_ecce           ;e65d  31 ec ce
     ret                     ;e660  20
 
-msg_01:
+msg_01_cd_tr:
 ;'CD...TR....'
 ;Called with EP = 0x011d (pointer to Display Number in command packet)
     mov a, @ep              ;e661  07           A = Display Number
@@ -1209,7 +1210,7 @@ msg_01:
     mov @ix+0x09, a         ;e672  46 09
     jmp msgs_01_0f_done     ;e674  21 e6 5d
 
-msg_02:
+msg_02_cue:
 ;'CUE........'
 ;Called with EP = 0x011d (pointer to Display Number in command packet)
     incw ep                 ;e677  c3           EP = pointer to Display Param 0
@@ -1235,11 +1236,11 @@ lab_e688:
     mov @ix+0x08, a         ;e699  46 08
     jmp msgs_01_0f_done     ;e69b  21 e6 5d
 
-msg_03:
+msg_03_rev:
 ;'REV........'
-    jmp msg_02              ;e69e  21 e6 77
+    jmp msg_02_cue          ;e69e  21 e6 77
 
-msg_04:
+msg_04_scancd_tr:
 ;'SCANCD.TR..'
     mov a, @ep              ;e6a1  07
     call sub_ed92           ;e6a2  31 ed 92
@@ -1253,59 +1254,59 @@ msg_04:
     mov @ix+0x0a, a         ;e6b2  46 0a
     jmp msgs_01_0f_done     ;e6b4  21 e6 5d
 
-msg_05:
+msg_05_no_changer:
 ;'NO..CHANGER'
     jmp msgs_01_0f_done     ;e6b7  21 e6 5d
 
-msg_06:
+msg_06_no_magazin:
 ;'NO..MAGAZIN'
     jmp msgs_01_0f_done     ;e6ba  21 e6 5d
 
-msg_07:
+msg_07_no_disc:
 ;'....NO.DISC'
     jmp msgs_01_0f_done     ;e6bd  21 e6 5d
 
-msg_08:
+msg_08_cd_error:
 ;'CD...ERROR.'
     mov a, @ep              ;e6c0  07
     call sub_ed92           ;e6c1  31 ed 92
     mov @ix+0x03, a         ;e6c4  46 03
     jmp msgs_01_0f_done     ;e6c6  21 e6 5d
 
-msg_09:
+msg_09_cd_:
 ;'CD.........'
     mov a, @ep              ;e6c9  07
     call sub_ed92           ;e6ca  31 ed 92
     mov @ix+0x03, a         ;e6cd  46 03
-    jmp msg_02              ;e6cf  21 e6 77
+    jmp msg_02_cue          ;e6cf  21 e6 77
 
-msg_0a:
+msg_0a_cd_max:
 ;'CD....MAX..'
     mov a, @ep              ;e6d2  07
     call sub_ed92           ;e6d3  31 ed 92
     mov @ix+0x03, a         ;e6d6  46 03
     jmp msgs_01_0f_done     ;e6d8  21 e6 5d
 
-msg_0b:
+msg_0b_cd_min:
 ;'CD....MIN..'
-    jmp msg_0a              ;e6db  21 e6 d2
+    jmp msg_0a_cd_max       ;e6db  21 e6 d2
 
-msg_0c:
+msg_0c_chk_magazin:
 ;'CHK.MAGAZIN'
-    jmp msgs_01_0f_done      ;e6de  21 e6 5d
+    jmp msgs_01_0f_done     ;e6de  21 e6 5d
 
-msg_0d:
+msg_0d_cd_cd_err:
 ;'CD..CD.ERR.'
     mov a, @ep              ;e6e1  07
     call sub_ed92           ;e6e2  31 ed 92
     mov @ix+0x02, a         ;e6e5  46 02
     jmp msgs_01_0f_done     ;e6e7  21 e6 5d
 
-msg_0e:
+msg_0e_cd_error:
 ;'CD...ERROR.'
     jmp msgs_01_0f_done     ;e6ea  21 e6 5d
 
-msg_0f:
+msg_0f_cd_no_cd:
 ;'CD...NO.CD.'
     mov a, @ep              ;e6ed  07
     call sub_ed92           ;e6ee  31 ed 92
@@ -1344,27 +1345,27 @@ msgs_10_1f:
     jmp @a                  ;e725  e0
 
 msgs_10_1f_jmp:
-    .word msg_10            ;e726  e7 38       VECTOR   0x10  'SET.ONVOL.Y'
-    .word msg_11            ;e728  e7 3b       VECTOR   0x11  'SET.ONVOL.N'
-    .word msg_12            ;e72a  e7 3e       VECTOR   0x12  'SET.ONVOL..'
-    .word msg_13            ;e72c  e7 55       VECTOR   0x13  'SET.CD.MIX1'
-    .word msg_14            ;e72e  e7 58       VECTOR   0x14  'SET.CD.MIX6'
-    .word msg_15            ;e730  e7 5b       VECTOR   0x15  'TAPE.SKIP.Y'
-    .word msg_16            ;e732  e7 5e       VECTOR   0x16  'TAPE.SKIP.N'
+    .word msg_10_set_onvol_y ;e726  e7 38       VECTOR   0x10  'SET.ONVOL.Y'
+    .word msg_11_set_onvol_n ;e728  e7 3b       VECTOR   0x11  'SET.ONVOL.N'
+    .word msg_12_set_onvol_  ;e72a  e7 3e       VECTOR   0x12  'SET.ONVOL..'
+    .word msg_13_set_cdmix1  ;e72c  e7 55       VECTOR   0x13  'SET.CD.MIX1'
+    .word msg_14_set_cd_mix6 ;e72e  e7 58       VECTOR   0x14  'SET.CD.MIX6'
+    .word msg_15_tape_skip_y ;e730  e7 5b       VECTOR   0x15  'TAPE.SKIP.Y'
+    .word msg_16_tape_skip_n ;e732  e7 5e       VECTOR   0x16  'TAPE.SKIP.N'
 
 msgs_10_1f_done:
     call sub_ecce           ;e734  31 ec ce
     ret                     ;e737  20
 
-msg_10:
+msg_10_set_onvol_y:
 ;'SET.ONVOL.Y'
     jmp msgs_10_1f_done     ;e738  21 e7 34
 
-msg_11:
+msg_11_set_onvol_n:
 ;'SET.ONVOL.N'
     jmp msgs_10_1f_done     ;e73b  21 e7 34
 
-msg_12:
+msg_12_set_onvol_:
 ;'SET.ONVOL..'
     mov a, @ep              ;e73e  07
     call sub_ed5d           ;e73f  31 ed 5d
@@ -1379,19 +1380,19 @@ lab_e74c:
     mov @ix+0x0a, a         ;e750  46 0a
     jmp msgs_10_1f_done     ;e752  21 e7 34
 
-msg_13:
+msg_13_set_cdmix1:
 ;'SET.CD.MIX1'
     jmp msgs_10_1f_done     ;e755  21 e7 34
 
-msg_14:
+msg_14_set_cd_mix6:
 ;'SET.CD.MIX6'
     jmp msgs_10_1f_done     ;e758  21 e7 34
 
-msg_15:
+msg_15_tape_skip_y:
 ;'TAPE.SKIP.Y'
     jmp msgs_10_1f_done     ;e75b  21 e7 34
 
-msg_16:
+msg_16_tape_skip_n:
 ;'TAPE.SKIP.N'
     jmp msgs_10_1f_done     ;e75e  21 e7 34
 
@@ -1427,40 +1428,40 @@ msgs_20_3f:
     jmp @a                  ;e790  e0
 
 msgs_20_3f_jmp:
-    .word msg_20            ;e791  e7 c5       VECTOR   0x20  'RAD.3CP.T7.'
-    .word msg_21            ;e793  e7 c8       VECTOR   0x21  'VER........'
-    .word msg_22            ;e795  e7 e9       VECTOR   0x22  '...........'
-    .word msg_23            ;e797  e8 28       VECTOR   0x23  'HC.........'
-    .word msg_24            ;e799  e8 31       VECTOR   0x24  'V..........'
-    .word msg_25            ;e79b  e8 80       VECTOR   0x25  'SEEKSET.M..'
-    .word msg_26            ;e79d  e8 89       VECTOR   0x26  'SEEKSET.N..'
-    .word msg_27            ;e79f  e8 8c       VECTOR   0x27  'SEEKSET.M1.'
-    .word msg_28            ;e7a1  e8 95       VECTOR   0x28  'SEEKSET.M2.'
-    .word msg_29            ;e7a3  e8 98       VECTOR   0x29  'SEEKSET.M3.'
-    .word msg_2a            ;e7a5  e8 9b       VECTOR   0x2A  'SEEKSET.N1.'
-    .word msg_2b            ;e7a7  e8 9e       VECTOR   0x2B  'SEEKSET.N2.'
-    .word msg_2c            ;e7a9  e8 a1       VECTOR   0x2C  'SEEKSET.N3.'
-    .word msg_2d            ;e7ab  e8 a4       VECTOR   0x2D  'SEEKSET.X..'
-    .word msg_2e            ;e7ad  e8 b7       VECTOR   0x2E  'SEEKSET.Y..'
-    .word msg_2f            ;e7af  e8 ba       VECTOR   0x2F  'SEEKSET.Z..'
-    .word msg_30            ;e7b1  e8 bd       VECTOR   0x30  'FERN...ON..'
-    .word msg_31            ;e7b3  e8 c0       VECTOR   0x31  'FERN...OFF.'
-    .word msg_32            ;e7b5  e8 c3       VECTOR   0x32  'TESTTUN.ON.'
-    .word msg_33            ;e7b7  e8 c6       VECTOR   0x33  'TEST..Q....'
-    .word msg_34            ;e7b9  e9 0a       VECTOR   0x34  'TESTBASS...'
-    .word msg_35            ;e7bb  e9 28       VECTOR   0x35  'TESTTREB...'
-    .word msg_36            ;e7bd  e9 2b       VECTOR   0x36  'TESTTUN.OFF'
-    .word msg_37            ;e7bf  e9 2e       VECTOR   0x37  '.ON.TUNING.'
+    .word msg_20_rad_3cp_t7  ;e791  e7 c5       VECTOR   0x20  'RAD.3CP.T7.'
+    .word msg_21_ver         ;e793  e7 c8       VECTOR   0x21  'VER........'
+    .word msg_22_            ;e795  e7 e9       VECTOR   0x22  '...........'
+    .word msg_23_hc          ;e797  e8 28       VECTOR   0x23  'HC.........'
+    .word msg_24_v           ;e799  e8 31       VECTOR   0x24  'V..........'
+    .word msg_25_seekset_m   ;e79b  e8 80       VECTOR   0x25  'SEEKSET.M..'
+    .word msg_26_seekset_n   ;e79d  e8 89       VECTOR   0x26  'SEEKSET.N..'
+    .word msg_27_seekset_m1  ;e79f  e8 8c       VECTOR   0x27  'SEEKSET.M1.'
+    .word msg_28_seekset_m2  ;e7a1  e8 95       VECTOR   0x28  'SEEKSET.M2.'
+    .word msg_29_seekset_m3  ;e7a3  e8 98       VECTOR   0x29  'SEEKSET.M3.'
+    .word msg_2a_seekset_n1  ;e7a5  e8 9b       VECTOR   0x2A  'SEEKSET.N1.'
+    .word msg_2b_seekset_n2  ;e7a7  e8 9e       VECTOR   0x2B  'SEEKSET.N2.'
+    .word msg_2c_seekset_n3  ;e7a9  e8 a1       VECTOR   0x2C  'SEEKSET.N3.'
+    .word msg_2d_seekset_x   ;e7ab  e8 a4       VECTOR   0x2D  'SEEKSET.X..'
+    .word msg_2e_seekset_y   ;e7ad  e8 b7       VECTOR   0x2E  'SEEKSET.Y..'
+    .word msg_2f_seekset_z   ;e7af  e8 ba       VECTOR   0x2F  'SEEKSET.Z..'
+    .word msg_30_fern_on     ;e7b1  e8 bd       VECTOR   0x30  'FERN...ON..'
+    .word msg_31_fern_off    ;e7b3  e8 c0       VECTOR   0x31  'FERN...OFF.'
+    .word msg_32_testtun_on  ;e7b5  e8 c3       VECTOR   0x32  'TESTTUN.ON.'
+    .word msg_33_test_q      ;e7b7  e8 c6       VECTOR   0x33  'TEST..Q....'
+    .word msg_34_testbass    ;e7b9  e9 0a       VECTOR   0x34  'TESTBASS...'
+    .word msg_35_testtreb    ;e7bb  e9 28       VECTOR   0x35  'TESTTREB...'
+    .word msg_36_testtun_off ;e7bd  e9 2b       VECTOR   0x36  'TESTTUN.OFF'
+    .word msg_37_on_tuning   ;e7bf  e9 2e       VECTOR   0x37  '.ON.TUNING.'
 
 msgs_20_3f_done:
     call sub_ecce           ;e7c1  31 ec ce
     ret                     ;e7c4  20
 
-msg_20:
+msg_20_rad_3cp_t7:
 ;'RAD.3CP.T7.'
     jmp msgs_20_3f_done     ;e7c5  21 e7 c1
 
-msg_21:
+msg_21_ver:
 ;'VER........'
     setb 0xa9:0             ;e7c8  a8 a9        Set "show period pictograph" flag
     incw ep                 ;e7ca  c3
@@ -1479,7 +1480,7 @@ msg_21:
     mov @ix+0x08, a         ;e7e4  46 08
     jmp msgs_20_3f_done     ;e7e6  21 e7 c1
 
-msg_22:
+msg_22_:
 ;'...........'
     mov a, @ep              ;e7e9  07
     call sub_ed33           ;e7ea  31 ed 33
@@ -1517,14 +1518,14 @@ lab_e80b:
     mov @ix+0x0a, a         ;e823  46 0a
     jmp msgs_20_3f_done     ;e825  21 e7 c1
 
-msg_23:
+msg_23_hc:
 ;'HC.........'
     mov a, @ep              ;e828  07
     call sub_ed92           ;e829  31 ed 92
     mov @ix+0x03, a         ;e82c  46 03
     jmp lab_e80b            ;e82e  21 e8 0b
 
-msg_24:
+msg_24_v:
 ;'V..........'
     mov a, @ep              ;e831  07
     and a, #0xf0            ;e832  64 f0
@@ -1572,45 +1573,45 @@ lab_e878:
     mov a, @ep              ;e87c  07
     jmp lab_e83e            ;e87d  21 e8 3e
 
-msg_25:
+msg_25_seekset_m:
 ;'SEEKSET.M..'
     mov a, @ep              ;e880  07
     call sub_ed92           ;e881  31 ed 92
     mov @ix+0x09, a         ;e884  46 09
     jmp msgs_20_3f_done     ;e886  21 e7 c1
 
-msg_26:
+msg_26_seekset_n:
 ;'SEEKSET.N..'
-    jmp msg_25              ;e889  21 e8 80
+    jmp msg_25_seekset_m    ;e889  21 e8 80
 
-msg_27:
+msg_27_seekset_m1:
 ;'SEEKSET.M1.'
     mov a, @ep              ;e88c  07
     call sub_ed92           ;e88d  31 ed 92
     mov @ix+0x0a, a         ;e890  46 0a
     jmp msgs_20_3f_done     ;e892  21 e7 c1
 
-msg_28:
+msg_28_seekset_m2:
 ;'SEEKSET.M2.'
-    jmp msg_27              ;e895  21 e8 8c
+    jmp msg_27_seekset_m1   ;e895  21 e8 8c
 
-msg_29:
+msg_29_seekset_m3:
 ;'SEEKSET.M3.'
-    jmp msg_27              ;e898  21 e8 8c
+    jmp msg_27_seekset_m1   ;e898  21 e8 8c
 
-msg_2a:
+msg_2a_seekset_n1:
 ;'SEEKSET.N1.'
-    jmp msg_27              ;e89b  21 e8 8c
+    jmp msg_27_seekset_m1   ;e89b  21 e8 8c
 
-msg_2b:
+msg_2b_seekset_n2:
 ;'SEEKSET.N2.'
-    jmp msg_27              ;e89e  21 e8 8c
+    jmp msg_27_seekset_m1   ;e89e  21 e8 8c
 
-msg_2c:
+msg_2c_seekset_n3:
 ;'SEEKSET.N3.'
-    jmp msg_27              ;e8a1  21 e8 8c
+    jmp msg_27_seekset_m1   ;e8a1  21 e8 8c
 
-msg_2d:
+msg_2d_seekset_x:
 ;'SEEKSET.X..'
     mov a, @ep              ;e8a4  07
     and a, #0xf0            ;e8a5  64 f0
@@ -1623,27 +1624,27 @@ lab_e8ae:
     mov @ix+0x0a, a         ;e8b2  46 0a
     jmp msgs_20_3f_done     ;e8b4  21 e7 c1
 
-msg_2e:
+msg_2e_seekset_y:
 ;'SEEKSET.Y..'
-    jmp msg_2d              ;e8b7  21 e8 a4
+    jmp msg_2d_seekset_x    ;e8b7  21 e8 a4
 
-msg_2f:
+msg_2f_seekset_z:
 ;'SEEKSET.Z..'
-    jmp msg_2d              ;e8ba  21 e8 a4
+    jmp msg_2d_seekset_x    ;e8ba  21 e8 a4
 
-msg_30:
+msg_30_fern_on:
 ;'FERN...ON..'
     jmp msgs_20_3f_done     ;e8bd  21 e7 c1
 
-msg_31:
+msg_31_fern_off:
 ;'FERN...OFF.'
     jmp msgs_20_3f_done     ;e8c0  21 e7 c1
 
-msg_32:
+msg_32_testtun_on:
 ;'TESTTUN.ON.'
     jmp msgs_20_3f_done     ;e8c3  21 e7 c1
 
-msg_33:
+msg_33_test_q:
 ;'TEST..Q....'
     mov a, @ep              ;e8c6  07
     and a, #0xf0            ;e8c7  64 f0
@@ -1687,7 +1688,7 @@ lab_e902:
     mov a, @ep              ;e906  07
     jmp lab_e8eb            ;e907  21 e8 eb
 
-msg_34:
+msg_34_testbass:
 ;'TESTBASS...'
     mov a, @ep              ;e90a  07
     mov r0, a               ;e90b  48
@@ -1709,15 +1710,15 @@ lab_e91e:
     mov a, #'-              ;e923  04 2d
     jmp lab_e913            ;e925  21 e9 13
 
-msg_35:
+msg_35_testtreb:
 ;'TESTTREB...'
-    jmp msg_34              ;e928  21 e9 0a
+    jmp msg_34_testbass     ;e928  21 e9 0a
 
-msg_36:
+msg_36_testtun_off:
 ;'TESTTUN.OFF'
     jmp msgs_20_3f_done     ;e92b  21 e7 c1
 
-msg_37:
+msg_37_on_tuning:
 ;'.ON.TUNING.'
     jmp msgs_20_3f_done     ;e92e  21 e7 c1
 
@@ -1753,20 +1754,20 @@ msgs_40_4f:
     jmp @a                  ;e960  e0
 
 msgs_40_4f_jmp:
-    .word msg_40            ;e961  e9 75       VECTOR   0x40  'FM......MHZ'
-    .word msg_41            ;e963  e9 af       VECTOR   0x41  'AM......KHZ'
-    .word msg_42            ;e965  e9 c1       VECTOR   0x42  'SCAN....MHZ'
-    .word msg_43            ;e967  e9 c6       VECTOR   0x43  'SCAN....KHZ'
-    .word msg_44            ;e969  e9 c9       VECTOR   0x44  'FM....MAX..'
-    .word msg_45            ;e96b  e9 de       VECTOR   0x45  'FM....MIN..'
-    .word msg_46            ;e96d  e9 e1       VECTOR   0x46  'AM....MAX..'
-    .word msg_47            ;e96f  e9 ee       VECTOR   0x47  'AM....MIN..'
+    .word msg_40_fm_mhz     ;e961  e9 75       VECTOR   0x40  'FM......MHZ'
+    .word msg_41_am_khz     ;e963  e9 af       VECTOR   0x41  'AM......KHZ'
+    .word msg_42_scan_mhz   ;e965  e9 c1       VECTOR   0x42  'SCAN....MHZ'
+    .word msg_43_scan_khz   ;e967  e9 c6       VECTOR   0x43  'SCAN....KHZ'
+    .word msg_44_fm_max     ;e969  e9 c9       VECTOR   0x44  'FM....MAX..'
+    .word msg_45_fm_min     ;e96b  e9 de       VECTOR   0x45  'FM....MIN..'
+    .word msg_46_am_max     ;e96d  e9 e1       VECTOR   0x46  'AM....MAX..'
+    .word msg_47_am_min     ;e96f  e9 ee       VECTOR   0x47  'AM....MIN..'
 
 msgs_40_4f_done:
     call sub_ecce           ;e971  31 ec ce
     ret                     ;e974  20
 
-msg_40:
+msg_40_fm_mhz:
 ;'FM......MHZ'
     setb 0xa9:0             ;e975  a8 a9        Set "show period pictograph" flag
     setb 0xa9:1             ;e977  a9 a9
@@ -1802,7 +1803,7 @@ lab_e99a:
     mov @ix+0x07, a         ;e9aa  46 07
     jmp msgs_40_4f_done     ;e9ac  21 e9 71
 
-msg_41:
+msg_41_am_khz:
 ;'AM......KHZ'
     mov a, @ep              ;e9af  07
     call sub_ed92           ;e9b0  31 ed 92
@@ -1815,16 +1816,16 @@ lab_e9b9:
     call sub_ed53           ;e9bb  31 ed 53
     jmp lab_e98e            ;e9be  21 e9 8e
 
-msg_42:
+msg_42_scan_mhz:
 ;'SCAN....MHZ'
     setb 0xa9:0             ;e9c1  a8 a9        Set "show period pictograph" flag
     jmp lab_e989            ;e9c3  21 e9 89
 
-msg_43:
+msg_43_scan_khz:
 ;'SCAN....KHZ'
     jmp lab_e9b9            ;e9c6  21 e9 b9
 
-msg_44:
+msg_44_fm_max:
 ;'FM....MAX..'
     setb 0xa9:1             ;e9c9  a9 a9
     mov a, @ep              ;e9cb  07
@@ -1838,11 +1839,11 @@ msg_44:
 lab_e9db:
     jmp msgs_40_4f_done     ;e9db  21 e9 71
 
-msg_45:
+msg_45_fm_min:
 ;'FM....MIN..'
-    jmp msg_44              ;e9de  21 e9 c9
+    jmp msg_44_fm_max       ;e9de  21 e9 c9
 
-msg_46:
+msg_46_am_max:
 ;'AM....MAX..'
     mov a, @ep              ;e9e1  07
     call sub_ed92           ;e9e2  31 ed 92
@@ -1853,9 +1854,9 @@ msg_46:
 lab_e9eb:
     jmp msgs_40_4f_done     ;e9eb  21 e9 71
 
-msg_47:
+msg_47_am_min:
 ;'AM....MIN..'
-    jmp msg_46              ;e9ee  21 e9 e1
+    jmp msg_46_am_max       ;e9ee  21 e9 e1
 
 msgs_50_5f:
 ;Called if A >= 50 and A <= 0x5F (tape messages)
@@ -1889,78 +1890,78 @@ msgs_50_5f:
     jmp @a                  ;ea20  e0
 
 msgs_50_5f_jmp:
-    .word msg_50            ;ea21  ea 41       VECTOR   0x50  'TAPE.PLAY.A'
-    .word msg_51            ;ea23  ea 44       VECTOR   0x51  'TAPE.PLAY.B'
-    .word msg_52            ;ea25  ea 47       VECTOR   0x52  'TAPE..FF...'
-    .word msg_53            ;ea27  ea 4a       VECTOR   0x53  'TAPE..REW..'
-    .word msg_54            ;ea29  ea 4d       VECTOR   0x54  'TAPEMSS.FF.'
-    .word msg_55            ;ea2b  ea 50       VECTOR   0x55  'TAPEMSS.REW'
-    .word msg_56            ;ea2d  ea 53       VECTOR   0x56  'TAPE.SCAN.A'
-    .word msg_57            ;ea2f  ea 56       VECTOR   0x57  'TAPE.SCAN.B'
-    .word msg_58            ;ea31  ea 59       VECTOR   0x58  'TAPE.METAL.'
-    .word msg_59            ;ea33  ea 5c       VECTOR   0x59  'TAPE..BLS..'
-    .word msg_5a            ;ea35  ea 5f       VECTOR   0x5A  '....NO.TAPE'
-    .word msg_5b            ;ea37  ea 62       VECTOR   0x5B  'TAPE.ERROR.'
-    .word msg_5c            ;ea39  ea 65       VECTOR   0x5C  'TAPE..MAX..'
-    .word msg_5d            ;ea3b  ea 68       VECTOR   0x5D  'TAPE..MIN..'
+    .word msg_50_tape_play_a  ;ea21  ea 41       VECTOR   0x50  'TAPE.PLAY.A'
+    .word msg_51_tape_play_b  ;ea23  ea 44       VECTOR   0x51  'TAPE.PLAY.B'
+    .word msg_52_tape_ff      ;ea25  ea 47       VECTOR   0x52  'TAPE..FF...'
+    .word msg_53_tape_rew     ;ea27  ea 4a       VECTOR   0x53  'TAPE..REW..'
+    .word msg_54_tape_mss_ff  ;ea29  ea 4d       VECTOR   0x54  'TAPEMSS.FF.'
+    .word msg_55_tape_mss_rew ;ea2b  ea 50       VECTOR   0x55  'TAPEMSS.REW'
+    .word msg_56_tape_scan_a  ;ea2d  ea 53       VECTOR   0x56  'TAPE.SCAN.A'
+    .word msg_57_tape_scan_b  ;ea2f  ea 56       VECTOR   0x57  'TAPE.SCAN.B'
+    .word msg_58_tape_metal   ;ea31  ea 59       VECTOR   0x58  'TAPE.METAL.'
+    .word msg_59_tape_bls     ;ea33  ea 5c       VECTOR   0x59  'TAPE..BLS..'
+    .word msg_5a_no_tape      ;ea35  ea 5f       VECTOR   0x5A  '....NO.TAPE'
+    .word msg_5b_tape_error   ;ea37  ea 62       VECTOR   0x5B  'TAPE.ERROR.'
+    .word msg_5c_tape_max     ;ea39  ea 65       VECTOR   0x5C  'TAPE..MAX..'
+    .word msg_5d_tape_min     ;ea3b  ea 68       VECTOR   0x5D  'TAPE..MIN..'
 
 msgs_50_5f_done:
     call sub_ecce           ;ea3d  31 ec ce
     ret                     ;ea40  20
 
-msg_50:
+msg_50_tape_play_a:
 ;'TAPE.PLAY.A'
     jmp msgs_50_5f_done     ;ea41  21 ea 3d
 
-msg_51:
+msg_51_tape_play_b:
 ;'TAPE.PLAY.B'
     jmp msgs_50_5f_done     ;ea44  21 ea 3d
 
-msg_52:
+msg_52_tape_ff:
 ;'TAPE..FF...'
     jmp msgs_50_5f_done     ;ea47  21 ea 3d
 
-msg_53:
+msg_53_tape_rew:
 ;'TAPE..REW..'
     jmp msgs_50_5f_done     ;ea4a  21 ea 3d
 
-msg_54:
+msg_54_tape_mss_ff:
 ;'TAPEMSS.FF.'
     jmp msgs_50_5f_done     ;ea4d  21 ea 3d
 
-msg_55:
+msg_55_tape_mss_rew:
 ;'TAPEMSS.REW'
     jmp msgs_50_5f_done     ;ea50  21 ea 3d
 
-msg_56:
+msg_56_tape_scan_a:
 ;'TAPE.SCAN.A'
     jmp msgs_50_5f_done     ;ea53  21 ea 3d
 
-msg_57:
+msg_57_tape_scan_b:
 ;'TAPE.SCAN.B'
     jmp msgs_50_5f_done     ;ea56  21 ea 3d
 
-msg_58:
+msg_58_tape_metal:
 ;'TAPE.METAL.'
     jmp msgs_50_5f_done     ;ea59  21 ea 3d
 
-msg_59:
+msg_59_tape_bls:
 ;'TAPE..BLS..'
     jmp msgs_50_5f_done     ;ea5c  21 ea 3d
 
-msg_5a:
+msg_5a_no_tape:
 ;'....NO.TAPE'
     jmp msgs_50_5f_done     ;ea5f  21 ea 3d
 
-msg_5b:
+msg_5b_tape_error:
 ;'TAPE.ERROR.'
     jmp msgs_50_5f_done     ;ea62  21 ea 3d
 
-msg_5c:
+msg_5c_tape_max:
 ;'TAPE..MAX..'
     jmp msgs_50_5f_done     ;ea65  21 ea 3d
 
-msg_5d:
+msg_5d_tape_min:
 ;'TAPE..MIN..'
     jmp msgs_50_5f_done     ;ea68  21 ea 3d
 
@@ -1999,22 +2000,22 @@ lab_ea88:
     jmp @a                  ;ea9e  e0
 
 msgs_60_7f_jmp:
-    .word msg_60            ;ea9f  ea b7       VECTOR   0x60  '.....MAX...'
-    .word msg_61            ;eaa1  ea d2       VECTOR   0x61  '.....MIN...'
-    .word msg_62            ;eaa3  ea ed       VECTOR   0x62  'BASS.......'
-    .word msg_63            ;eaa5  eb 0b       VECTOR   0x63  'TREB.......'
-    .word msg_64            ;eaa7  eb 0e       VECTOR   0x64  'BAL.LEFT...'
-    .word msg_65            ;eaa9  eb 3d       VECTOR   0x65  'BAL.RIGHT..'
-    .word msg_66            ;eaab  eb 6c       VECTOR   0x66  'BAL.CENTER.'
-    .word msg_67            ;eaad  eb 6f       VECTOR   0x67  'FADEFRONT..'
-    .word msg_68            ;eaaf  eb 72       VECTOR   0x68  'FADEREAR...'
-    .word msg_69            ;eab1  eb 75       VECTOR   0x69  'FADECENTER.'
+    .word msg_60_max        ;ea9f  ea b7       VECTOR   0x60  '.....MAX...'
+    .word msg_61_min        ;eaa1  ea d2       VECTOR   0x61  '.....MIN...'
+    .word msg_61_bass       ;eaa3  ea ed       VECTOR   0x62  'BASS.......'
+    .word msg_63_treb       ;eaa5  eb 0b       VECTOR   0x63  'TREB.......'
+    .word msg_64_bal_left   ;eaa7  eb 0e       VECTOR   0x64  'BAL.LEFT...'
+    .word msg_65_bal_right  ;eaa9  eb 3d       VECTOR   0x65  'BAL.RIGHT..'
+    .word msg_66_bal_center ;eaab  eb 6c       VECTOR   0x66  'BAL.CENTER.'
+    .word msg_67_fadefront  ;eaad  eb 6f       VECTOR   0x67  'FADEFRONT..'
+    .word msg_68_faderear   ;eaaf  eb 72       VECTOR   0x68  'FADEREAR...'
+    .word msg_69_fadecenter ;eab1  eb 75       VECTOR   0x69  'FADECENTER.'
 
 msgs_60_7f_done:
     call sub_ecce           ;eab3  31 ec ce
     ret                     ;eab6  20
 
-msg_60:
+msg_60_max:
 ;'.....MAX...'
     mov a, #0x00            ;eab7  04 00
     mov @ix+0x04, a         ;eab9  46 04
@@ -2030,7 +2031,7 @@ msg_60:
     mov @ix+0x0a, a         ;eacd  46 0a
     jmp msgs_60_7f_done     ;eacf  21 ea b3
 
-msg_61:
+msg_61_min:
 ;'.....MIN...'
     mov a, #0x00            ;ead2  04 00
     mov @ix+0x04, a         ;ead4  46 04
@@ -2046,7 +2047,7 @@ msg_61:
     mov @ix+0x0a, a         ;eae8  46 0a
     jmp msgs_60_7f_done     ;eaea  21 ea b3
 
-msg_62:
+msg_61_bass:
 ;'BASS.......'
     mov a, @ep              ;eaed  07
     mov r0, a               ;eaee  48
@@ -2070,10 +2071,10 @@ lab_eb01:
     mov r0, a               ;eb05  48
     mov a, #'-              ;eb06  04 2d
     jmp lab_eaf6            ;eb08  21 ea f6
-msg_63:
-    jmp msg_62              ;eb0b  21 ea ed
+msg_63_treb:
+    jmp msg_61_bass         ;eb0b  21 ea ed
 
-msg_64:
+msg_64_bal_left:
 ;'BAL.LEFT...'
     mov a, @ep              ;eb0e  07
     and a, #0xf0            ;eb0f  64 f0
@@ -2106,7 +2107,7 @@ lab_eb32:
     mov @ep, a              ;eb39  47
     jmp lab_eb1f            ;eb3a  21 eb 1f
 
-msg_65:
+msg_65_bal_right:
 ;'BAL.RIGHT..'
     mov a, @ep              ;eb3d  07
     and a, #0xf0            ;eb3e  64 f0
@@ -2139,19 +2140,19 @@ lab_eb61:
     mov @ep, a              ;eb68  47
     jmp lab_eb4e            ;eb69  21 eb 4e
 
-msg_66:
+msg_66_bal_center:
 ;'BAL.CENTER.'
     jmp msgs_60_7f_done     ;eb6c  21 ea b3
 
-msg_67:
+msg_67_fadefront:
 ;'FADEFRONT..'
-    jmp msg_65              ;eb6f  21 eb 3d
+    jmp msg_65_bal_right    ;eb6f  21 eb 3d
 
-msg_68:
+msg_68_faderear:
 ;'FADEREAR...'
-    jmp msg_64              ;eb72  21 eb 0e
+    jmp msg_64_bal_left     ;eb72  21 eb 0e
 
-msg_69:
+msg_69_fadecenter:
 ;'FADECENTER.'
     jmp msgs_60_7f_done     ;eb75  21 ea b3
 
@@ -2187,28 +2188,28 @@ msgs_80_af:
     jmp @a                  ;eba7  e0
 
 msgs_80_af_jmp:
-    .word msg_80            ;eba8  eb bc       VECTOR   0x80  '....NO.CODE'
-    .word msg_81            ;ebaa  eb bf       VECTOR   0x81  '.....CODE..'
-    .word msg_82            ;ebac  eb c2       VECTOR   0x82  '...........'
-    .word msg_83            ;ebae  eb e9       VECTOR   0x83  '.....SAFE..'
-    .word msg_84            ;ebb0  eb f6       VECTOR   0x84  '....INITIAL'
-    .word msg_85            ;ebb2  eb f9       VECTOR   0x85  '....NO.CODE'
-    .word msg_86            ;ebb4  eb fc       VECTOR   0x86  '.....SAFE..'
-    .word msg_87            ;ebb6  ec 0f       VECTOR   0x87  '....CLEAR..'
+    .word msg_80_no_code    ;eba8  eb bc       VECTOR   0x80  '....NO.CODE'
+    .word msg_81_code       ;ebaa  eb bf       VECTOR   0x81  '.....CODE..'
+    .word msg_82_           ;ebac  eb c2       VECTOR   0x82  '...........'
+    .word msg_83_safe       ;ebae  eb e9       VECTOR   0x83  '.....SAFE..'
+    .word msg_84_initial    ;ebb0  eb f6       VECTOR   0x84  '....INITIAL'
+    .word msg_85_no_code    ;ebb2  eb f9       VECTOR   0x85  '....NO.CODE'
+    .word msg_86_safe       ;ebb4  eb fc       VECTOR   0x86  '.....SAFE..'
+    .word msg_87_clear      ;ebb6  ec 0f       VECTOR   0x87  '....CLEAR..'
 
 msgs_80_af_done:
     call sub_ecce           ;ebb8  31 ec ce
     ret                     ;ebbb  20
 
-msg_80:
+msg_80_no_code:
 ;'....NO.CODE'
     jmp msgs_80_af_done     ;ebbc  21 eb b8
 
-msg_81:
+msg_81_code:
 ;'.....CODE..'
     jmp msgs_80_af_done     ;ebbf  21 eb b8
 
-msg_82:
+msg_82_:
 ;'...........'
     mov a, @ep              ;ebc2  07
     and a, #0x0f            ;ebc3  64 0f
@@ -2232,7 +2233,7 @@ lab_ebcc:
     mov @ix+0x08, a         ;ebe4  46 08
     jmp msgs_80_af_done     ;ebe6  21 eb b8
 
-msg_83:
+msg_83_safe:
 ;'.....SAFE..'
     mov a, @ep              ;ebe9  07
     and a, #0x0f            ;ebea  64 0f
@@ -2242,15 +2243,15 @@ msg_83:
 lab_ebf3:
     jmp msgs_80_af_done     ;ebf3  21 eb b8
 
-msg_84:
+msg_84_initial:
 ;'....INITIAL'
     jmp msgs_80_af_done     ;ebf6  21 eb b8
 
-msg_85:
+msg_85_no_code:
 ;'....NO.CODE'
     jmp msgs_80_af_done     ;ebf9  21 eb b8
 
-msg_86:
+msg_86_safe:
 ;'.....SAFE..'
     mov a, @ep              ;ebfc  07
     call sub_ed5d           ;ebfd  31 ed 5d
@@ -2262,7 +2263,7 @@ msg_86:
     mov @ix+0x01, a         ;ec0a  46 01
     jmp msgs_80_af_done     ;ec0c  21 eb b8
 
-msg_87:
+msg_87_clear:
 ;'....CLEAR..'
     jmp msgs_80_af_done     ;ec0f  21 eb b8
 
@@ -2298,18 +2299,18 @@ msgs_b0_bf:
     jmp @a                  ;ec41  e0
 
 msgs_b0_bf_jmp:
-    .word lab_ec4a          ;ec42  ec 4a       VECTOR   A=0x00  '.....DIAG..'
-    .word lab_ec4d          ;ec44  ec 4d       VECTOR   A=0x01 'TESTDISPLAY'
+    .word msg_b0_diag        ;ec42  ec 4a       VECTOR   A=0x00  '.....DIAG..'
+    .word msg_b1_testdisplay ;ec44  ec 4d       VECTOR   A=0x01 'TESTDISPLAY'
 
 msgs_b0_bf_done:
     call sub_ecce           ;ec46  31 ec ce
     ret                     ;ec49  20
 
-lab_ec4a:
+msg_b0_diag:
 ;'.....DIAG..'
     jmp msgs_b0_bf_done     ;ec4a  21 ec 46
 
-lab_ec4d:
+msg_b1_testdisplay:
 ;'TESTDISPLAY'
     jmp msgs_b0_bf_done     ;ec4d  21 ec 46
 
@@ -2345,18 +2346,18 @@ msgs_c0_cf:
     jmp @a                  ;ec7f  e0
 
 msgs_c0_cf_jmp:
-    .word lab_ec88          ;ec80  ec 88       VECTOR   0xC0  '.....BOSE..'
-    .word lab_ec8b          ;ec82  ec 8b       VECTOR   0xC1  '...........'
+    .word msg_c0_bose       ;ec80  ec 88       VECTOR   0xC0  '.....BOSE..'
+    .word msg_c1_           ;ec82  ec 8b       VECTOR   0xC1  '...........'
 
 msgs_c0_cf_done:
     call sub_ecce           ;ec84  31 ec ce
     ret                     ;ec87  20
 
-lab_ec88:
+msg_c0_bose:
 ;'.....BOSE..'
     jmp msgs_c0_cf_done     ;ec88  21 ec 84
 
-lab_ec8b:
+msg_c1_:
 ;'...........'
     jmp msgs_c0_cf_done     ;ec8b  21 ec 84
 
