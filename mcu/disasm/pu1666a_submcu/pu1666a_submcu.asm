@@ -94,8 +94,8 @@ lab_e06c:
 lab_e075:
     call sub_fa59           ;e075  31 fa 59
     call sub_e40c           ;e078  31 e4 0c
-    bbc 0x0088:0, lab_e086  ;e07b  b0 88 08     Branch if no key data is available
-    clrb 0x88:0             ;e07e  a0 88        Clear key data available flag
+    bbc 0x0088:0, lab_e086  ;e07b  b0 88 08     Branch if "key data ready" flag is clear
+    clrb 0x88:0             ;e07e  a0 88        Clear "key data ready" flag
     call parse_upd_key_data ;e080  31 f8 1c     Parse 4 bytes of key data from uPD16432B
     jmp lab_e089            ;e083  21 e0 89
 
@@ -109,26 +109,28 @@ lab_e089:
 lab_e08f:
     call sub_f3c7           ;e08f  31 f3 c7
     call sub_e20a           ;e092  31 e2 0a
-    call sub_e26e           ;e095  31 e2 6e
-    call sub_e55b           ;e098  31 e5 5b
+    call m2s_cmd_process    ;e095  31 e2 6e     Process a Main-to-Sub command packet if one is ready
+    call sub_e55b           ;e098  31 e5 5b     Process Main-to-Sub display update command if one was received
     call sub_f1ac           ;e09b  31 f1 ac
     call sub_f6df           ;e09e  31 f6 df
     call sub_f541           ;e0a1  31 f5 41
     call sub_e0aa           ;e0a4  31 e0 aa
     jmp lab_e06c            ;e0a7  21 e0 6c
 
+
 sub_e0aa:
-    mov a, 0x013a           ;e0aa  60 01 3a
-    bne lab_e0b2            ;e0ad  fc 03
-    bbc 0x009c:1, lab_e0b5  ;e0af  b1 9c 03
-
+    mov a, 0x013a           ;e0aa  60 01 3a     TODO what is 0x013a?
+    bnz lab_e0b2            ;e0ad  fc 03
+    bbc 0x009c:1, lab_e0b5  ;e0af  b1 9c 03     Branch if "play dead" flag is clear
 lab_e0b2:
-    clrb pdr0:3             ;e0b2  a3 00        /UPD_OE = low
+    ;Playing dead
+    clrb pdr0:3             ;e0b2  a3 00        UPD_OE = low (turn off uPD16432B LCD display)
     ret                     ;e0b4  20
-
 lab_e0b5:
-    setb pdr0:3             ;e0b5  ab 00        /UPD_OE = high
+    ;Not playing dead
+    setb pdr0:3             ;e0b5  ab 00        UPD_OE = high (turn on uPD16432B LCD display)
     ret                     ;e0b7  20
+
 
 sub_e0b8:
     movw a, ps              ;e0b8  70           Clear RP (register bank pointer) in PS
@@ -209,8 +211,10 @@ lab_e107:
     setb 0x9b:1             ;e11c  a9 9b
     mov a, #0x05            ;e11e  04 05
     mov 0xcb, a             ;e120  45 cb
-    mov a, #0x00            ;e122  04 00
+
+    mov a, #0x00            ;e122  04 00        Reset count of bytes received from Main-MCU
     mov 0x0122, a           ;e124  61 01 22
+
     clrb smr1:0             ;e127  a0 1c
     nop                     ;e129  00
     nop                     ;e12a  00
@@ -447,19 +451,24 @@ lab_e261:
     setb 0x9a:4             ;e269  ac 9a
     jmp lab_e260            ;e26b  21 e2 60
 
-sub_e26e:
-    bbc 0x009a:3, m2s_cmd_done  ;e26e  b3 9a 0b
-    clrb 0x9a:3             ;e271  a3 9a
-    mov a, 0x0115           ;e273  60 01 15
-    and a, #0xf0            ;e276  64 f0
-    cmp a, #0x80            ;e278  14 80
-    beq m2s_cmd_dispatch    ;e27a  fd 01
 
+m2s_cmd_process:
+;Process a Main-to-Sub command packet if one is ready
+;
+    bbc 0x009a:3, m2s_cmd_done  ;e26e  b3 9a 0b  Branch "Main-MCU packet ready" flag is clear
+    clrb 0x9a:3             ;e271  a3 9a         Clear "Main-MCU packet ready" flag for next time
+    mov a, 0x0115           ;e273  60 01 15      A = first byte of Main-MCU packet (command byte)
+    and a, #0xf0            ;e276  64 f0         Mask off low nibble
+    cmp a, #0x80            ;e278  14 80         High nibble = 0x80?
+    beq m2s_cmd_dispatch    ;e27a  fd 01         Yes: probably valid command, try to dispatch it
+                            ;                    No: not a valid command, do nothing
 m2s_cmd_done:
     ret                     ;e27c  20
 
 m2s_cmd_dispatch:
-    mov a, 0x0115           ;e27d  60 01 15
+;Try to dispatch a Main-to-Sub command from the current packet
+;
+    mov a, 0x0115           ;e27d  60 01 15     A = command byte from packet
 
     cmp a, #0x81            ;e280  14 81        0x81 = Write to both LCD and FIS
     beq m2s_cmd_81          ;e282  fd 0b
@@ -470,7 +479,7 @@ m2s_cmd_dispatch:
     cmp a, #0x83            ;e288  14 83        0x83 = Power off? TODO?
     beq m2s_cmd_83          ;e28a  fd 21
 
-    jmp m2s_cmd_done        ;e28c  21 e2 7c
+    jmp m2s_cmd_done        ;e28c  21 e2 7c     Other = invalid comment, do nothing
 
 m2s_cmd_81:
 ;Handle Main-to-Sub command 0x81 (Write to both LCD and FIS)
@@ -478,13 +487,15 @@ m2s_cmd_81:
     clrb 0xab:4             ;e28f  a4 ab        Clear "write to FIS only flag"
 
 lab_e291:
+    ;Copy 0x0116-0x011a to 0x011c-0x0120
     movw a, 0x0116          ;e291  c4 01 16
     movw 0x011c, a          ;e294  d4 01 1c     Copy 0x0116-0x0117 to 0x011c-0x011d
     movw a, 0x0118          ;e297  c4 01 18
     movw 0x011e, a          ;e29a  d4 01 1e     Copy 0x0118-0x0119 to 0x011e-0x011f
     mov a, 0x011a           ;e29d  60 01 1a
     mov 0x0120, a           ;e2a0  61 01 20     Copy 0x011a to 0x0120
-    setb 0x9a:7             ;e2a3  af 9a
+
+    setb 0x9a:7             ;e2a3  af 9a        Set "display command ready" flag
     jmp m2s_cmd_done        ;e2a5  21 e2 7c
 
 m2s_cmd_82:
@@ -494,10 +505,11 @@ m2s_cmd_82:
     jmp lab_e291            ;e2aa  21 e2 91
 
 m2s_cmd_83:
-;Handle Main-to-Sub command 0x83 = Power off? TODO?
+;Handle Main-to-Sub command 0x83 = Play dead (act like powered off)
 ;A = 0x83
-    setb 0x9c:1             ;e2ad  a9 9c
+    setb 0x9c:1             ;e2ad  a9 9c        Set "play dead" flag
     jmp m2s_cmd_done        ;e2af  21 e2 7c
+
 
 sub_e2b2:
     bbc 0x009a:0, lab_e2db  ;e2b2  b0 9a 26
@@ -524,12 +536,10 @@ sub_e2b2:
     rolc a                  ;e2d4  02
 
     mov @ix+0x00, a         ;e2d5  46 00
-    bhs lab_e2dc            ;e2d7  f8 03
+    bnc lab_e2dc            ;e2d7  f8 03
     setb pdr3:5             ;e2d9  ad 0c        S2M_DATA_OUT = high
-
 lab_e2db:
     ret                     ;e2db  20
-
 lab_e2dc:
     clrb pdr3:5             ;e2dc  a5 0c        S2M_DATA_OUT = low
     jmp lab_e2db            ;e2de  21 e2 db
@@ -553,10 +563,12 @@ lab_e2f8:
     setb 0x9c:2             ;e2fa  aa 9c
     jmp lab_e2db            ;e2fc  21 e2 db
 
+
 sub_e2ff:
 ;something to do with main-to-sub bus.  new byte received?
     bbc 0x009a:2, lab_e307  ;e2ff  b2 9a 05
-    mov a, #0x00            ;e302  04 00
+
+    mov a, #0x00            ;e302  04 00        Reset count of bytes received from Main-MCU
     mov 0x0122, a           ;e304  61 01 22
 
 lab_e307:
@@ -564,26 +576,32 @@ lab_e307:
     mov 0x0121, a           ;e309  61 01 21
     setb 0x9a:1             ;e30c  a9 9a
     clrb 0x9a:2             ;e30e  a2 9a
+
     movw ix, #0x0115        ;e310  e6 01 15
-    movw a, @ix+0x01        ;e313  c6 01
+
+    movw a, @ix+0x01        ;e313  c6 01        Shift existing buffer bytes to the left
     movw @ix+0x00, a        ;e315  d6 00
     movw a, @ix+0x03        ;e317  c6 03
     movw @ix+0x02, a        ;e319  d6 02
     mov a, @ix+0x05         ;e31b  06 05
     mov @ix+0x04, a         ;e31d  46 04
+
     mov a, sdr1             ;e31f  05 1d        A = byte from M2S_DATA_IN
-    mov @ix+0x05, a         ;e321  46 05
+    mov @ix+0x05, a         ;e321  46 05        Store as 6th byte in the buffer
+
     setb smr1:0             ;e323  a8 1c
-    mov a, 0x0122           ;e325  60 01 22
+
+    mov a, 0x0122           ;e325  60 01 22     Increment count of bytes received from Main-MCU
     incw a                  ;e328  c0
     mov 0x0122, a           ;e329  61 01 22
+
     mov a, #0x06            ;e32c  04 06
     cmp a                   ;e32e  12           6 bytes received from Main-MCU?
     bne lab_e339            ;e32f  fc 08        No: branch to lab_e339
-    setb 0x9a:3             ;e331  ab 9a
+    setb 0x9a:3             ;e331  ab 9a        Yes: set "Main-MCU packet ready" flag
 
 lab_e333:
-    mov a, #0x00            ;e333  04 00
+    mov a, #0x00            ;e333  04 00        Reset count of bytes received from Main-MCU
     mov 0x0122, a           ;e335  61 01 22
 
 lab_e338:
@@ -593,8 +611,11 @@ lab_e339:
     mov a, 0x0122           ;e339  60 01 22
     cmp a, #0x01            ;e33c  14 01        1 byte received from Main-MCU?
     bne lab_e338            ;e33e  fc f8        No: branch to return
+
+    ;1 byte received from Main-MCU
     movw ix, #0x0115        ;e340  e6 01 15
-    mov a, @ix+0x05         ;e343  06 05
+    mov a, @ix+0x05         ;e343  06 05        A = byte from Main-MCU
+
     and a, #0xf0            ;e345  64 f0
     cmp a, #0x80            ;e347  14 80
     beq lab_e338            ;e349  fd ed
@@ -783,8 +804,9 @@ sub_e437:
     mov 0x014a, a           ;e43b  61 01 4a
     ret                     ;e43e  20
 
+
 sub_e43f:
-;Convert buffer at 0x012f-0x139 from ASCII to uPD16432B codes
+;Convert buffer at 0x012f-0x139 from ASCII to uPD16432B chars
 ;
     movw ep, #0x012f        ;e43f  e7 01 2f
     call ascii_to_upd       ;e442  31 e4 9b     Replace ASCII char at 0x012f with uPD16432B char
@@ -794,22 +816,16 @@ sub_e43f:
     bbs 0x00a9:1, lab_e457  ;e44e  b9 a9 06
     call ascii_to_upd       ;e451  31 e4 9b     Replace ASCII char at 0x0131 with uPD16432B char
     jmp lab_e45a            ;e454  21 e4 5a
-
 lab_e457:
     call ascii_to_upd_fm12  ;e457  31 e5 15     Replace ASCII char at @ep for uPD16432B char for FM1/2
-
 lab_e45a:
     movw ep, #0x0132        ;e45a  e7 01 32
     bbs 0x00a9:1, lab_e466  ;e45d  b9 a9 06
     call ascii_to_upd       ;e460  31 e4 9b     Replace ASCII char at 0x0132 with uPD16432B char
     jmp lab_e469            ;e463  21 e4 69     Jump to convert buffer at 0x0133-0x139 from ASCII to uPD16432B
-
 lab_e466:
     call ascii_to_upd_preset ;e466  31 e5 36    Replace ASCII char at @ep with uPD16432B char for station presets
-
 lab_e469:
-;Convert buffer at 0x0133-0x139 from ASCII chars to uPD16432B chars
-;
     movw ep, #0x0133        ;e469  e7 01 33
     call ascii_to_upd       ;e46c  31 e4 9b     Replace ASCII char at 0x0133 with uPD16432B char
     movw ep, #0x0134        ;e46f  e7 01 34
@@ -828,9 +844,9 @@ lab_e469:
     bbs 0x00ab:4, lab_e49a  ;e493  bc ab 04     Branch if "write to FIS only" flag is set
     setb 0x87:2             ;e496  aa 87
     setb 0xab:5             ;e498  ad ab
-
 lab_e49a:
     ret                     ;e49a  20
+
 
 ascii_to_upd:
 ;Replace the ASCII char at @ep with its equivalent upd16432B char.
@@ -961,19 +977,32 @@ upd_presets:
 
 
 sub_e55b:
+;Process Main-to-Sub display update command (0x81 or 0x82) if one was received.
+;The command byte is not saved.  The 5 bytes after the command are in 0x011c-0x0120.
+;
+; none  Byte 0: Command byte was 0x81 or 0x82
+;0x011c Byte 1: Pictographs byte
+;0x011d Byte 2: Display Number
+;0x011e Byte 3: Display Param 0
+;0x011f Byte 4: Display Param 1
+;0x0120 Byte 5: Display Param 2
+;
+;Writes 11 bytes of uPD16432B display data to 0x012f-0x139.
+;Writes 8 bytes of uPD16432B pictograph data to 0x00a1-0x00a8.
+;
     movw a, ps              ;e55b  70           Clear RP (register bank pointer) in PS
     movw a, #0x00ff         ;e55c  e4 00 ff       R0=0x100, R1=0x101...
     andw a                  ;e55f  63
     movw ps, a              ;e560  71
 
-    bbc 0x009a:7, lab_e57f  ;e561  b7 9a 1b
-    clrb 0x9a:7             ;e564  a7 9a
+    bbc 0x009a:7, lab_e57f  ;e561  b7 9a 1b     Branch if "display command ready" flag is clear
+    clrb 0x9a:7             ;e564  a7 9a        Clear "display command ready" for next time
     setb 0x9c:3             ;e566  ab 9c
-    clrb 0xa9:0             ;e568  a0 a9
+    clrb 0xa9:0             ;e568  a0 a9        Clear "show period pictograph" flag
     clrb 0xa9:1             ;e56a  a1 a9
 
-    movw ep, #0x011d        ;e56c  e7 01 1d
-    mov a, @ep              ;e56f  07
+    movw ep, #0x011d        ;e56c  e7 01 1d     EP = pointer to Display Number in command packet
+    mov a, @ep              ;e56f  07           A = display number
 
     beq lab_e5d0            ;e570  fd 5e        Branch if A = 0 (vw-car message)
 
@@ -982,7 +1011,7 @@ sub_e55b:
     call msgs_01_0f         ;e576  31 e6 0f     Call if A >= 0x01 and A <= 0x0F (cd messages)
 
 lab_e579:
-    call sub_e5d6           ;e579  31 e5 d6
+    call sub_e5d6           ;e579  31 e5 d6     Parse pictograph byte; set uPD16432B bytes at 0x00a1-0x00a8.
     call sub_e43f           ;e57c  31 e4 3f     Convert buffer at 0x012f-0x139 from ASCII to uPD16432B chars
 
 lab_e57f:
@@ -1049,59 +1078,75 @@ lab_e5d0:
     call msgs_00_or_gte_d0  ;e5d0  31 ec 8e     Call if A = 0 or A >= 0xD0 (vw-car message)
     jmp lab_e579            ;e5d3  21 e5 79
 
+
 sub_e5d6:
-    movw ix, #0x00a1        ;e5d6  e6 00 a1
-    movw a, #0x0000         ;e5d9  e4 00 00
-    movw @ix+0x00, a        ;e5dc  d6 00
+;Parse pictographs byte in command packet into 8 uPD16432B
+;pictograph bytes at 0x00a1-0x00a8
+;
+    ;Clear 8 uPD16432B pictograph bytes 0x00a1-0x00a8
+    movw ix, #0x00a1        ;e5d6  e6 00 a1     IX = pointer to uPD16432B pictograph data
+    movw a, #0x0000         ;e5d9  e4 00 00     A = 0x0000
+    movw @ix+0x00, a        ;e5dc  d6 00        Clear 8 pictograph bytes
     movw @ix+0x02, a        ;e5de  d6 02
     movw @ix+0x04, a        ;e5e0  d6 04
     movw @ix+0x06, a        ;e5e2  d6 06
-    movw ep, #0x011c        ;e5e4  e7 01 1c
-    mov a, @ep              ;e5e7  07
-    rorc a                  ;e5e8  03
-    bhs lab_e5ed            ;e5e9  f8 02
-    setb 0xa8:3             ;e5eb  ab a8
+
+    movw ep, #0x011c        ;e5e4  e7 01 1c     EP = pointer to pictographs byte in command packet
+    mov a, @ep              ;e5e7  07           A = pictographs byte
+
+    ;Pictograph byte bit 0 = METAL
+    rorc a                  ;e5e8  03           Pictograph byte bit 0
+    bnc lab_e5ed            ;e5e9  f8 02        Branch if not set
+    setb 0xa1+7:3           ;e5eb  ab a8        Set METAL bit in uPD16432B pictograph bytes
 
 lab_e5ed:
-    rorc a                  ;e5ed  03
-    bhs lab_e5f2            ;e5ee  f8 02
-    setb 0xa7:0             ;e5f0  a8 a7
+    ;Pictograph byte bit 1 = MIX
+    rorc a                  ;e5ed  03           Pictograph byte bit 1
+    bnc lab_e5f2            ;e5ee  f8 02        Branch if not set
+    setb 0xa1+6:0           ;e5f0  a8 a7        Set MIX bit in uPD16432B pictograph bytes
 
 lab_e5f2:
-    rorc a                  ;e5f2  03
-    bhs lab_e5f7            ;e5f3  f8 02
-    setb 0xa7:5             ;e5f5  ad a7
+    ;Pictograph byte bit 2 = DOLBY
+    rorc a                  ;e5f2  03           Pictograph byte bit 2
+    bnc lab_e5f7            ;e5f3  f8 02        Branch if not set
+    setb 0xa1+6:5           ;e5f5  ad a7        Set DOLBY bit in uPD16432B pictograph bytes
 
 lab_e5f7:
-    rorc a                  ;e5f7  03
-    bhs lab_e5fc            ;e5f8  f8 02
-    setb 0xa3:3             ;e5fa  ab a3
+    ;Pictograph byte bit 3 = HIDDEN MODE AM/FM
+    rorc a                  ;e5f7  03           Pictograph byte bit 3
+    bnc lab_e5fc            ;e5f8  f8 02        Branch if not set
+    setb 0xa1+2:3           ;e5fa  ab a3        Set HIDDEN MODE AM/FM bit in uPD16432B pictograph bytes
 
 lab_e5fc:
-    rorc a                  ;e5fc  03
-    bhs lab_e601            ;e5fd  f8 02
-    setb 0xa2:0             ;e5ff  a8 a2
+    ;Pictograph byte bit 4 = HIDDEN MODE CD
+    rorc a                  ;e5fc  03           Pictograph byte bit 4
+    bnc lab_e601            ;e5fd  f8 02        Branch if not set
+    setb 0xa1+1:0           ;e5ff  a8 a2        Set HIDDEN MODE CD bit in uPD16432B pictograph bytes
 
 lab_e601:
-    rorc a                  ;e601  03
-    bhs lab_e606            ;e602  f8 02
-    setb 0xa2:5             ;e604  ad a2
+    ;Pictograph byte bit 5 = HIDDEN MODE TAPE
+    rorc a                  ;e601  03           Pictograph byte bit 5
+    bnc lab_e606            ;e602  f8 02        Branch if not set
+    setb 0xa1+1:5           ;e604  ad a2        Set HIDDEN MODE TAPE bit in uPD16432B pictograph bytes
 
 lab_e606:
-    rorc a                  ;e606  03
-    blo lab_e60c            ;e607  f9 03
-    bbc 0x00a9:0, lab_e60e  ;e609  b0 a9 02
-
+    ;Pictograph byte bit 6 = PERIOD
+    ;Set if the byte in the pictograph is set or always set
+    ;if the "show period pictograph" flag is set
+    rorc a                  ;e606  03           Pictograph byte bit 6
+    bc lab_e60c             ;e607  f9 03        Branch to if set
+    bbc 0x00a9:0, lab_e60e  ;e609  b0 a9 02     Branch over if "show period pictograph" flag is clear
 lab_e60c:
-    setb 0xa4:6             ;e60c  ae a4
+    setb 0xa1+3:6           ;e60c  ae a4        Set PERIOD bit in uPD16432B pictograph bytes
 
 lab_e60e:
     ret                     ;e60e  20
 
 msgs_01_0f:
 ;Called if A >= 0x01 and A <= 0x0F (cd messages)
+;Called with EP = 0x011d (pointer to Display Number in command packet)
     movw a, #0x0000         ;e60f  e4 00 00
-    mov a, @ep              ;e612  07
+    mov a, @ep              ;e612  07           A = Display Number
     mov a, #0x01            ;e613  04 01
     clrc                    ;e615  81
     subc a                  ;e616  32
@@ -1151,7 +1196,8 @@ msgs_01_0f_done:
 
 msg_01:
 ;'CD...TR....'
-    mov a, @ep              ;e661  07
+;Called with EP = 0x011d (pointer to Display Number in command packet)
+    mov a, @ep              ;e661  07           A = Display Number
     call sub_ed92           ;e662  31 ed 92
     mov @ix+0x03, a         ;e665  46 03
     incw ep                 ;e667  c3
@@ -1165,7 +1211,8 @@ msg_01:
 
 msg_02:
 ;'CUE........'
-    incw ep                 ;e677  c3
+;Called with EP = 0x011d (pointer to Display Number in command packet)
+    incw ep                 ;e677  c3           EP = pointer to Display Param 0
     mov a, @ep              ;e678  07
     and a, #0xf0            ;e679  64 f0
     beq lab_e688            ;e67b  fd 0b
@@ -1267,6 +1314,7 @@ msg_0f:
 
 msgs_10_1f:
 ;Called if A >= 0x10 and A <= 0x1F ("set" messages)
+;Called with EP = 0x011d (pointer to Display Number in command packet)
     movw a, #0x0000         ;e6f6  e4 00 00
     mov a, @ep              ;e6f9  07
     mov a, #0x10            ;e6fa  04 10
@@ -1349,6 +1397,7 @@ msg_16:
 
 msgs_20_3f:
 ;Called if A >= 0x20 and A <= 0x3F (test mode messages)
+;Called with EP = 0x011d (pointer to Display Number in command packet)
     movw a, #0x0000         ;e761  e4 00 00
     mov a, @ep              ;e764  07
     mov a, #0x20            ;e765  04 20
@@ -1413,7 +1462,7 @@ msg_20:
 
 msg_21:
 ;'VER........'
-    setb 0xa9:0             ;e7c8  a8 a9
+    setb 0xa9:0             ;e7c8  a8 a9        Set "show period pictograph" flag
     incw ep                 ;e7ca  c3
     mov a, @ep              ;e7cb  07
     call sub_ed88           ;e7cc  31 ed 88
@@ -1674,6 +1723,7 @@ msg_37:
 
 msgs_40_4f:
 ;Called if A >= 0x40 and A <= 0x4F (tuner messages)
+;Called with EP = 0x011d (pointer to Display Number in command packet)
     movw a, #0x0000         ;e931  e4 00 00
     mov a, @ep              ;e934  07
     mov a, #0x40            ;e935  04 40
@@ -1718,7 +1768,7 @@ msgs_40_4f_done:
 
 msg_40:
 ;'FM......MHZ'
-    setb 0xa9:0             ;e975  a8 a9
+    setb 0xa9:0             ;e975  a8 a9        Set "show period pictograph" flag
     setb 0xa9:1             ;e977  a9 a9
     mov a, @ep              ;e979  07
     call sub_ed88           ;e97a  31 ed 88
@@ -1767,7 +1817,7 @@ lab_e9b9:
 
 msg_42:
 ;'SCAN....MHZ'
-    setb 0xa9:0             ;e9c1  a8 a9
+    setb 0xa9:0             ;e9c1  a8 a9        Set "show period pictograph" flag
     jmp lab_e989            ;e9c3  21 e9 89
 
 msg_43:
@@ -1809,6 +1859,7 @@ msg_47:
 
 msgs_50_5f:
 ;Called if A >= 50 and A <= 0x5F (tape messages)
+;Called with EP = 0x011d (pointer to Display Number in command packet)
     movw a, #0x0000         ;e9f1  e4 00 00
     mov a, @ep              ;e9f4  07
     mov a, #0x50            ;e9f5  04 50
@@ -1915,6 +1966,7 @@ msg_5d:
 
 msgs_60_7f:
 ;Called if A >= 0x60 and A <= 0x7F (sound messages)
+;Called with EP = 0x011d (pointer to Display Number in command packet)
     movw a, #0x0000         ;ea6b  e4 00 00
     mov a, @ep              ;ea6e  07
     mov a, #0x60            ;ea6f  04 60
@@ -2105,6 +2157,7 @@ msg_69:
 
 msgs_80_af:
 ;Called if A >= 0x80 and A < 0xB0 (code messages)
+;Called with EP = 0x011d (pointer to Display Number in command packet)
     movw a, #0x0000         ;eb78  e4 00 00
     mov a, @ep              ;eb7b  07
     mov a, #0x80            ;eb7c  04 80
@@ -2215,6 +2268,7 @@ msg_87:
 
 msgs_b0_bf:
 ;Called if A >= 0xB0 and A < 0xC0 (diag messages)
+;Called with EP = 0x011d (pointer to Display Number in command packet)
     movw a, #0x0000         ;ec12  e4 00 00
     mov a, @ep              ;ec15  07
     mov a, #0xb0            ;ec16  04 b0
@@ -2261,6 +2315,7 @@ lab_ec4d:
 
 msgs_c0_cf:
 ;Called if A >= 0xC0 and A <= 0xCF (bose messages)
+;Called with EP = 0x011d (pointer to Display Number in command packet)
     movw a, #0x0000         ;ec50  e4 00 00
     mov a, @ep              ;ec53  07
     mov a, #0xc0            ;ec54  04 c0
@@ -2307,6 +2362,7 @@ lab_ec8b:
 
 msgs_00_or_gte_d0:
 ;Called if A = 0 or A >= 0xD0 (vw-car message)
+;Called with EP = 0x011d (pointer to Display Number in command packet)
     movw a, #0x0000         ;ec8e  e4 00 00
     movw a, #msgs_00_or_gte_d0_text ;ec91  e4 f1 a1     A = pointer to vw-car message
     clrc                    ;ec94  81
@@ -2367,12 +2423,14 @@ lab_ecd6:
     incw ep                 ;ecdc  c3
     dec r0                  ;ecdd  d8
     bne lab_ecd6            ;ecde  fc f6
+
     movw ix, #0x00d7        ;ece0  e6 00 d7
     mov a, #0x00            ;ece3  04 00
     mov @ix+0x04, a         ;ece5  46 04
     mov @ix+0x05, a         ;ece7  46 05
     mov @ix+0x06, a         ;ece9  46 06
     mov @ix+0x07, a         ;eceb  46 07
+
     movw ix, #0x00df        ;eced  e6 00 df
     movw ep, #0x0133        ;ecf0  e7 01 33
     mov r0, #0x07           ;ecf3  88 07
@@ -2392,7 +2450,7 @@ lab_ecf5:
     mov a, 0x011c           ;ed09  60 01 1c
     and a, #0x40            ;ed0c  64 40
     bne lab_ed13            ;ed0e  fc 03
-    bbc 0x00a9:0, lab_ed27  ;ed10  b0 a9 14
+    bbc 0x00a9:0, lab_ed27  ;ed10  b0 a9 14     Branch if "show period pictograph" flag is clear
 
 lab_ed13:
     mov a, @ix+0x0e         ;ed13  06 0e
@@ -2889,33 +2947,34 @@ lab_f29c:
     ret                     ;f29c  20
 
 sub_f29d:
-;handle 0x00C4 = 0x06
-    bbs pdr4:7, lab_f2c3    ;f29d  bf 0e 23     ;Branch if DISP_ENA_IN = high
+;handle 0x00C3 = 0x06
+    bbs pdr4:7, lab_f2c3    ;f29d  bf 0e 23     Branch if DISP_ENA_IN = high
     mov a, 0xc8             ;f2a0  05 c8
     bne lab_f2c3            ;f2a2  fc 1f
-    clrb pdr4:3             ;f2a4  a3 0e        ;/DISP_ENA_OUT = low
+    clrb pdr4:3             ;f2a4  a3 0e        /DISP_ENA_OUT = low
 
-    movw a, #0x0007         ;f2a6  e4 00 07     ;Busy loop
+    movw a, #0x0007         ;f2a6  e4 00 07     Busy loop
 lab_f2a9:
     decw a                  ;f2a9  d0
     bne lab_f2a9            ;f2aa  fc fd
 
-    setb pdr4:3             ;f2ac  ab 0e        ;/DISP_ENA_OUT = high
+    setb pdr4:3             ;f2ac  ab 0e        /DISP_ENA_OUT = high
 
-    movw a, #0x0020         ;f2ae  e4 00 20     ;Busy loop
+    movw a, #0x0020         ;f2ae  e4 00 20     Busy loop
 lab_f2b1:
     decw a                  ;f2b1  d0
     bne lab_f2b1            ;f2b2  fc fd
 
-    call sub_f2fc           ;f2b4  31 f2 fc     ;Send data byte at pointer in 0x00C0 out 3LB SPI
+    call sub_f2fc           ;f2b4  31 f2 fc     Send byte at pointer in 0x00C0 out 3LB SPI
+
     mov a, #0x08            ;f2b7  04 08
+    mov 0xc3, a             ;f2b9  45 c3        Set 0xc3 = 8
 
-    mov 0xc3, a             ;f2b9  45 c3
-    movw a, 0xc0            ;f2bb  c5 c0        ;Set 0x00C3 = 0xC0
-
+    movw a, 0xc0            ;f2bb  c5 c0        Increment pointer at 0x00C0
     incw a                  ;f2bd  c0
     movw 0xc0, a            ;f2be  d5 c0
-    mov 0xc4, #0x00         ;f2c0  85 c4 00
+
+    mov 0xc4, #0x00         ;f2c0  85 c4 00     Set 0x00c4 = 0
 
 lab_f2c3:
     ret                     ;f2c3  20
@@ -2924,7 +2983,7 @@ sub_f2c4:
 ;handle 0x00C = 0x08
     mov a, 0xc4             ;f2c4  05 c4
     bne lab_f2f3            ;f2c6  fc 2b
-    bbc pdr4:7, lab_f2f3    ;f2c8  b7 0e 28     ;Branch if DISP_ENA_IN = low
+    bbc pdr4:7, lab_f2f3    ;f2c8  b7 0e 28     Branch if DISP_ENA_IN = low
     mov a, #0x00            ;f2cb  04 00
     mov 0xe7, a             ;f2cd  45 e7
     movw a, #0x0000         ;f2cf  e4 00 00
@@ -2933,20 +2992,23 @@ sub_f2c4:
     clrc                    ;f2d6  81
     addc a                  ;f2d7  22
     mov a, @a               ;f2d8  92
-    call sub_f2fc           ;f2d9  31 f2 fc     ;Send data byte at pointer in 0x00C0 out 3LB SPI
+    call sub_f2fc           ;f2d9  31 f2 fc     Send byte at pointer in 0x00C0 out 3LB SPI
     mov 0xc4, #0x00         ;f2dc  85 c4 00
     setb 0xab:1             ;f2df  a9 ab
-    movw a, 0xc0            ;f2e1  c5 c0
+
+    movw a, 0xc0            ;f2e1  c5 c0        Increment pointer at 0x00C0
     incw a                  ;f2e3  c0
     movw 0xc0, a            ;f2e4  d5 c0
+
     mov a, 0xc2             ;f2e6  05 c2
     incw a                  ;f2e8  c0
     mov 0xc2, a             ;f2e9  45 c2
+
     cmp a, #0x13            ;f2eb  14 13
     bne lab_f2f3            ;f2ed  fc 04
 
     mov a, #0x0a            ;f2ef  04 0a
-    mov 0xc3, a             ;f2f1  45 c3        ;Set 0x00C3 = 0x0A
+    mov 0xc3, a             ;f2f1  45 c3        Set 0x00C3 = 0x0A
 
 lab_f2f3:
     ret                     ;f2f3  20
@@ -2974,15 +3036,15 @@ sub_f2ff:
     nop                     ;f308  00
     nop                     ;f309  00
     nop                     ;f30a  00
-
 lab_f30b:
     bbc smr2:7, lab_f30b    ;f30b  b7 1e fd
     ret                     ;f30e  20
 
 
 build_navi_packet:
-;Reads message text in 0x00d7-0x00e6
-;Stores complete Navi protocol packet in 0x00ac-0x00bf
+;Reads message text in 0x00d7-0x00e6.
+;Stores complete Navi protocol packet in 0x00ac-0x00bf.
+;Sets pointer at 0x00c0 to start of packet (0x00ac).
 ;
     ;0x00d7 -> 0x00af
     mov a, 0xd7             ;f30f  05 d7    A = value from 0x00d7
@@ -3108,7 +3170,7 @@ lab_f38d:
     mov 0xae, a             ;f399  45 ae        0x00AE = Navi packet byte 2 = 0xF0
 
     mov r0, #0x12           ;f39b  88 12        R0 = 0x12 bytes to count down
-    movw ix, #0x00ac        ;f39d  e6 00 ac     IX = 0x00AC (Navi packet buffer)
+    movw ix, #0x00ac        ;f39d  e6 00 ac     IX = pointer to start of Navi packet buffer
 
     ;Append packet checksum
 
@@ -3121,9 +3183,10 @@ lab_f3a2:
     bne lab_f3a2            ;f3a7  fc f9        Loop until 0x12 bytes are done
 
     decw a                  ;f3a9  d0
-    mov 0xbf, a             ;f3aa  45 bf        move checksum into end of packet buffer
+    mov 0xac+19, a          ;f3aa  45 bf        Store checksum in last byte of packet buffer
+
     movw a, #0x00ac         ;f3ac  e4 00 ac
-    movw 0xc0, a            ;f3af  d5 c0        ?? 0x00C0 = 0x81?
+    movw 0xc0, a            ;f3af  d5 c0        0x00C0 = pointer to start of Navi packet buffer
     ret                     ;f3b1  20
 
 
@@ -3151,11 +3214,11 @@ lab_f3ca:
     setb 0x9b:2             ;f3cc  aa 9b
     mov a, #0x0a            ;f3ce  04 0a
     mov 0x9d, a             ;f3d0  45 9d
-    call read_bose          ;f3d2  31 f3 ef
-    call read_0xab_bit2     ;f3d5  31 f4 13
-    call read_0xe7          ;f3d8  31 f4 1f
-    call read_diag          ;f3db  31 f4 2e
-    call read_0xcd_bit0     ;f3de  31 f4 3f
+    call read_bose          ;f3d2  31 f3 ef     Read BOSE_SW1, BOSE_SW1 and set bits in 0x9e
+    call read_0xab_bit2     ;f3d5  31 f4 13     Read 0xab:2 and set a bit in 0x9e
+    call read_0xe7          ;f3d8  31 f4 1f     Read 0xe7 and set a bit in 0x9e
+    call read_diag          ;f3db  31 f4 2e     Read DIAG_SW1, DIAG_SW2 and set bits in 0x9e
+    call read_0xcd_bit0     ;f3de  31 f4 3f     Read 0xcd:0 and set a bit in 0x9e
     setb 0x9b:0             ;f3e1  a8 9b
 
 lab_f3e3:
@@ -3269,7 +3332,7 @@ read_diag_done:
 
 
 read_0xcd_bit0:
-;Read 0xcd:0 and put it in 0x09e:5
+;Read 0xcd:0 and put it in 0x9e:5
 ;TODO what is 0xcd:0?
 ;
     mov a, 0x9e             ;f43f  05 9e
@@ -3412,10 +3475,13 @@ lab_f510:
     mov 0x013b, a           ;f510  61 01 3b
     jmp lab_f4d8            ;f513  21 f4 d8
 
-sub_f516:
-    bbc 0x009c:1, lab_f520  ;f516  b1 9c 07
-    clrb 0x9c:3             ;f519  a3 9c
 
+sub_f516:
+;TODO unknown but related to illumination control
+    bbc 0x009c:1, lab_f520  ;f516  b1 9c 07     Branch if "play dead" flag is clear
+
+    ;Playing dead
+    clrb 0x9c:3             ;f519  a3 9c
 lab_f51b:
     clrb pdr3:6             ;f51b  a6 0c        ILL_CONT1 = low
     clrb pdr3:7             ;f51d  a7 0c        ILL_CONT2 = low
@@ -3424,17 +3490,14 @@ lab_f51b:
 lab_f520:
     bbc 0x009c:3, lab_f51b  ;f520  b3 9c f8
     bbc 0x00d2:4, lab_f532  ;f523  b4 d2 0c
-
 lab_f526:
     mov a, #0x14            ;f526  04 14
     mov 0x0145, a           ;f528  61 01 45
     clrb 0xd2:4             ;f52b  a4 d2
     setb pdr3:6             ;f52d  ae 0c        ILL_CONT1 = high
     clrb pdr3:7             ;f52f  a7 0c        ILL_CONT2 = low
-
 lab_f531:
     ret                     ;f531  20
-
 lab_f532:
     mov a, 0x0145           ;f532  60 01 45
     bne lab_f531            ;f535  fc fa
@@ -3443,13 +3506,14 @@ lab_f532:
     setb pdr3:7             ;f53c  af 0c        ILL_CONT2 = high
     jmp lab_f531            ;f53e  21 f5 31
 
+
 sub_f541:
     movw a, ps              ;f541  70           Clear RP (register bank pointer) in PS
     movw a, #0x00ff         ;f542  e4 00 ff       R0=0x100, R1=0x101...
     andw a                  ;f545  63
     movw ps, a              ;f546  71
 
-    call sub_f516           ;f547  31 f5 16
+    call sub_f516           ;f547  31 f5 16     TODO related to illumination control
     call sub_f571           ;f54a  31 f5 71
     mov a, 0x0148           ;f54d  60 01 48
     rorc a                  ;f550  03
@@ -3914,7 +3978,7 @@ lab_f7bd:
     movw a, 0x91            ;f7f8  c5 91          to   0x0093-0x0096
     movw 0x95, a            ;f7fa  d5 95
 
-    setb 0x88:0             ;f7fc  a8 88        Set key data available flag
+    setb 0x88:0             ;f7fc  a8 88        Set "key data ready" flag
     jmp lab_f81b            ;f7fe  21 f8 1b
 
 lab_f801:
@@ -3963,9 +4027,9 @@ lab_f82b:
     bne lab_f82b            ;f84d  fc dc        Keep going until 4 bytes have been processed
 
     mov a, 0x83             ;f84f  05 83
-    bne lab_f86e            ;f851  fc 1b
+    bne lab_f86e            ;f851  fc 1b        TODO what is 0x0083?
 
-    ;0x0083 is zero
+    ;0x0083 = 0
     movw a, #0x0000         ;f853  e4 00 00     Clear 0x008b-0x0096:
     movw 0x8f, a            ;f856  d5 8f            Clear 0x008f-0x0090
     movw 0x91, a            ;f858  d5 91            Clear 0x0091-0x0092
@@ -4155,6 +4219,11 @@ lab_f94d:
 upd_send_all_data:
 ;Send uPD16432B characters and pictographs
 ;
+;Reads 11 bytes of uPD16432B display data to 0x012f-0x139.  The faceplate LCD
+;has the characters in reverse order so the buffer is read backwards.
+;
+;Reads 8 bytes of uPD16432B pictograph data to 0x00a1-0x00a8.
+;
     pushw ix                ;f94e  41
 
     mov a, #0x40            ;f94f  04 40        Command byte = 0x40 (0b01000000)
@@ -4163,7 +4232,7 @@ upd_send_all_data:
                             ;                     Address increment mode: 0=increment
     call upd_send_cmd_byte  ;f951  31 f9 cd     Send single-byte command to uPD16432B
 
-    movw ix, #0x013a        ;f954  e6 01 3a
+    movw ix, #0x012f+11     ;f954  e6 01 3a     IX = first byte of display data to send
 
     mov a, #0x82            ;f957  04 82        Command byte = 0x82 (0b10000010)
                             ;                     Address Setting Command
@@ -4174,13 +4243,17 @@ upd_send_all_data:
     nop                     ;f95c  00
 
 lab_f95d:
+;Send 11 display data bytes
     call upd_send_byte      ;f95d  31 f9 db     Send byte in A to the uPD16432B
+
     movw a, ix              ;f960  f2
     movw a, #0x012f         ;f961  e4 01 2f
-    cmpw a                  ;f964  13
-    beq lab_f96d            ;f965  fd 06
-    decw ix                 ;f967  d2
-    mov a, @ix+0x00         ;f968  06 00
+    cmpw a                  ;f964  13           Last byte of display data sent?
+    beq lab_f96d            ;f965  fd 06        Yes: we're done, branch out
+
+    decw ix                 ;f967  d2           Move pointer to next display data byte
+    mov a, @ix+0x00         ;f968  06 00        A = display data byte to send
+
     jmp lab_f95d            ;f96a  21 f9 5d
 
 lab_f96d:
@@ -4194,7 +4267,8 @@ lab_f96d:
                             ;                     Address
     call upd_send_cmd_byte  ;f973  31 f9 cd     Send single-byte command to uPD16432B
 
-    movw ix, #0x00a0        ;f976  e6 00 a0
+
+    movw ix, #0x00a1-1      ;f976  e6 00 a0     IX = pointer to pictograph bytes - 1
 
     mov a, #0x80            ;f979  04 80        Command byte = 0x80 (0b10000000)
                             ;                   Address Setting Command
@@ -4205,14 +4279,18 @@ lab_f96d:
     nop                     ;f97e  00
 
 lab_f97f:
+;Send 8 pictograph bytes
     call upd_send_byte      ;f97f  31 f9 db     Send byte in A to the uPD16432B
-    movw a, ix              ;f982  f2
-    movw a, #0x00a8         ;f983  e4 00 a8
-    cmpw a                  ;f986  13
-    beq lab_f98f            ;f987  fd 06
-    incw ix                 ;f989  c2
-    mov a, @ix+0x00         ;f98a  06 00
-    jmp lab_f97f            ;f98c  21 f9 7f
+
+    movw a, ix              ;f982  f2           A = pointer to pictographs buffer
+    movw a, #0x00a8         ;f983  e4 00 a8     A = pointer to end of buffer + 1
+    cmpw a                  ;f986  13           Reached the end of the buffer?
+    beq lab_f98f            ;f987  fd 06        Yes: branch out
+
+    incw ix                 ;f989  c2           Increment pointer to pictographs buffer
+    mov a, @ix+0x00         ;f98a  06 00        A = pictograph byte from buffer
+
+    jmp lab_f97f            ;f98c  21 f9 7f     Jump to send the byte
 
 lab_f98f:
     clrb pdr0:2             ;f98f  a2 00        UPD_STB = low (deselect uPD16432B)
