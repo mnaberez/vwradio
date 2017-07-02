@@ -97,7 +97,7 @@ special power on command.
 Command Format
 --------------
 
-6 bytes: [Command, Pictographs, Param 0, Param 1, Param 2, Param 3]
+6 bytes: [Command, Pictographs, Display Number, Param 0, Param 1, Param 2]
 
 Commands:
     0x81: Write to both LCD and FIS
@@ -114,7 +114,7 @@ Pictographs:
     Bit 1 = MIX
     Bit 0 = METAL
 
-Command 0x01
+Display Number 0x01
                                P0 P1 P2
     CD 1 TR 12        81 10 01 01 12 00
 
@@ -126,7 +126,7 @@ Command 0x01
 
     Param 2: Ignored
 
-Command 0x40
+Display Number 0x40
                                P0 P1 P2
     FM1 1 87.9 MHZ    81 08 40 11 00 00
 
@@ -148,7 +148,7 @@ Command 0x40
     Ignores the Period pictograph in the pictographs byte.  The period is
     always displayed.  Other bits in the pictograph byte behave normally.
 
-Command 0x41
+Display Number 0x41
                                P0 P1 P2
     AM  1  530 KHZ    81 08 41 01 00 00
 
@@ -165,7 +165,7 @@ Command 0x41
 
     All pictograph bits behave normally.
 
-Command 0x82
+Display Number 0x82
                                P0 P1 P2
     1 2345            81 00 82 01 23 45
 
@@ -179,7 +179,7 @@ Command 0x82
     Param 2 High Nibble: SAFE Code Third Digit 0-F
                          SAFE Code Fourth Digit 0-F
 
-Command 0x83
+Display Number 0x83
 
                              P0 P1 P2
     2 SAFE          81 00 83 02 00 00
