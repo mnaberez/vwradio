@@ -2,10 +2,10 @@
     .area CODE1 (ABS)
     .org 0xe000
 
-;1  disp_data_out    P46/SO2    (3LB data out)
-;2  disp_ena_in      P47/SI2    (3LB enable in)
-;62 disp_ena_out     P43        (3LB enable out)
-;64 disp_clk_out     P45/SCK2   (3LB clock out)
+;1  disp_data_out    P46/SO2    (FIS 3LB data out)
+;2  disp_ena_in      P47/SI2    (FIS 3LB enable in)
+;62 disp_ena_out     P43        (FIS 3LB enable out)
+;64 disp_clk_out     P45/SCK2   (FIS 3LB clock out)
 
     pdr0 = 0x00             ;port 0 data register
     ddr0 = 0x01             ;port 0 data direction register
@@ -95,7 +95,7 @@ lab_e075:
     call sub_fa59           ;e075  31 fa 59
     call sub_e40c           ;e078  31 e4 0c
     bbc 0x0088:0, lab_e086  ;e07b  b0 88 08     Branch if "key data ready" flag is clear
-    clrb 0x88:0             ;e07e  a0 88        Clear "key data ready" flag
+    clrb 0x88:0             ;e07e  a0 88        Clear "key data ready" flag for next time
     call parse_upd_key_data ;e080  31 f8 1c     Parse 4 bytes of key data from uPD16432B
     jmp lab_e089            ;e083  21 e0 89
 
@@ -110,9 +110,9 @@ lab_e08f:
     call sub_f3c7           ;e08f  31 f3 c7
     call sub_e20a           ;e092  31 e2 0a
     call m2s_cmd_process    ;e095  31 e2 6e     Process a Main-to-Sub command packet if one is ready
-    call sub_e55b           ;e098  31 e5 5b     Process Main-to-Sub display update command if one was received
-    call sub_f1ac           ;e09b  31 f1 ac
-    call sub_f6df           ;e09e  31 f6 df
+    call m2s_update_display ;e098  31 e5 5b     Process Main-to-Sub display update command if one was received
+    call sub_f1ac           ;e09b  31 f1 ac     TODO seems FIS related
+    call sub_f6df           ;e09e  31 f6 df     TODO seems ADC related
     call sub_f541           ;e0a1  31 f5 41
     call sub_e0aa           ;e0a4  31 e0 aa
     jmp lab_e06c            ;e0a7  21 e0 6c
@@ -806,40 +806,40 @@ sub_e437:
     ret                     ;e43e  20
 
 
-sub_e43f:
-;Convert buffer at 0x012f-0x139 from ASCII to uPD16432B chars
+make_upd_text:
+;Convert 11 byte buffer at 0x012f-0x139 from ASCII to uPD16432B chars
 ;
-    movw ep, #0x012f        ;e43f  e7 01 2f
+    movw ep, #0x012f+0      ;e43f  e7 01 2f
     call ascii_to_upd       ;e442  31 e4 9b     Replace ASCII char at 0x012f with uPD16432B char
-    movw ep, #0x0130        ;e445  e7 01 30
+    movw ep, #0x012f+1      ;e445  e7 01 30
     call ascii_to_upd       ;e448  31 e4 9b     Replace ASCII char at 0x0130 with uPD16432B char
-    movw ep, #0x0131        ;e44b  e7 01 31
-    bbs 0x00a9:1, lab_e457  ;e44e  b9 a9 06
+    movw ep, #0x012f+2      ;e44b  e7 01 31
+    bbs 0x00a9:1, lab_e457  ;e44e  b9 a9 06     Branch if "mode or preset digits" flag is set
     call ascii_to_upd       ;e451  31 e4 9b     Replace ASCII char at 0x0131 with uPD16432B char
     jmp lab_e45a            ;e454  21 e4 5a
 lab_e457:
     call ascii_to_upd_fm12  ;e457  31 e5 15     Replace ASCII char at @ep for uPD16432B char for FM1/2
 lab_e45a:
-    movw ep, #0x0132        ;e45a  e7 01 32
-    bbs 0x00a9:1, lab_e466  ;e45d  b9 a9 06
+    movw ep, #0x012f+3      ;e45a  e7 01 32
+    bbs 0x00a9:1, lab_e466  ;e45d  b9 a9 06     Branch if "mode or preset digits" flag is set
     call ascii_to_upd       ;e460  31 e4 9b     Replace ASCII char at 0x0132 with uPD16432B char
     jmp lab_e469            ;e463  21 e4 69     Jump to convert buffer at 0x0133-0x139 from ASCII to uPD16432B
 lab_e466:
     call ascii_to_upd_preset ;e466  31 e5 36    Replace ASCII char at @ep with uPD16432B char for station presets
 lab_e469:
-    movw ep, #0x0133        ;e469  e7 01 33
+    movw ep, #0x012f+4      ;e469  e7 01 33
     call ascii_to_upd       ;e46c  31 e4 9b     Replace ASCII char at 0x0133 with uPD16432B char
-    movw ep, #0x0134        ;e46f  e7 01 34
+    movw ep, #0x012f+5      ;e46f  e7 01 34
     call ascii_to_upd       ;e472  31 e4 9b     Replace ASCII char at 0x0134 with uPD16432B char
-    movw ep, #0x0135        ;e475  e7 01 35
+    movw ep, #0x012f+6      ;e475  e7 01 35
     call ascii_to_upd       ;e478  31 e4 9b     Replace ASCII char at 0x0135 with uPD16432B char
-    movw ep, #0x0136        ;e47b  e7 01 36
+    movw ep, #0x012f+7      ;e47b  e7 01 36
     call ascii_to_upd       ;e47e  31 e4 9b     Replace ASCII char at 0x0136 with uPD16432B char
-    movw ep, #0x0137        ;e481  e7 01 37
+    movw ep, #0x012f+8      ;e481  e7 01 37
     call ascii_to_upd       ;e484  31 e4 9b     Replace ASCII char at 0x0137 with uPD16432B char
-    movw ep, #0x0138        ;e487  e7 01 38
+    movw ep, #0x012f+9      ;e487  e7 01 38
     call ascii_to_upd       ;e48a  31 e4 9b     Replace ASCII char at 0x0138 with uPD16432B char
-    movw ep, #0x0139        ;e48d  e7 01 39
+    movw ep, #0x012f+10     ;e48d  e7 01 39
     call ascii_to_upd       ;e490  31 e4 9b     Replace ASCII char at 0x0139 with uPD16432B char
 
     bbs 0x00ab:4, lab_e49a  ;e493  bc ab 04     Branch if "write to FIS only" flag is set
@@ -977,7 +977,7 @@ upd_presets:
     .byte 0xF2              ;e560  f2           uPD16432B char "6" for preset 6
 
 
-sub_e55b:
+m2s_update_display:
 ;Process Main-to-Sub display update command (0x81 or 0x82) if one was received.
 ;The command byte is not saved.  The 5 bytes after the command are in 0x011c-0x0120.
 ;
@@ -988,6 +988,7 @@ sub_e55b:
 ;0x011f Byte 4: Display Param 1
 ;0x0120 Byte 5: Display Param 2
 ;
+;Writes 16 bytes of FIS display data to 0x00d7-0x00e6.
 ;Writes 11 bytes of uPD16432B display data to 0x012f-0x139.
 ;Writes 8 bytes of uPD16432B pictograph data to 0x00a1-0x00a8.
 ;
@@ -999,21 +1000,21 @@ sub_e55b:
     bbc 0x009a:7, lab_e57f  ;e561  b7 9a 1b     Branch if "display command ready" flag is clear
     clrb 0x9a:7             ;e564  a7 9a        Clear "display command ready" for next time
     setb 0x9c:3             ;e566  ab 9c
-    clrb 0xa9:0             ;e568  a0 a9        Clear "show period pictograph" flag
-    clrb 0xa9:1             ;e56a  a1 a9
+    clrb 0xa9:0             ;e568  a0 a9        Clear "show period" flag
+    clrb 0xa9:1             ;e56a  a1 a9        Clear "mode or preset digits" flag
 
     movw ep, #0x011d        ;e56c  e7 01 1d     EP = pointer to Display Number in command packet
     mov a, @ep              ;e56f  07           A = display number
 
-    beq lab_e5d0            ;e570  fd 5e        Branch if A = 0 (vw-car message)
+    bz lab_e5d0             ;e570  fd 5e        Branch if A = 0 (vw-car message)
 
     cmp a, #0x10            ;e572  14 10
     bhs lab_e580            ;e574  f8 0a
     call msgs_01_0f         ;e576  31 e6 0f     Call if A >= 0x01 and A <= 0x0F (cd messages)
 
 lab_e579:
-    call sub_e5d6           ;e579  31 e5 d6     Parse pictograph byte; set uPD16432B bytes at 0x00a1-0x00a8.
-    call sub_e43f           ;e57c  31 e4 3f     Convert buffer at 0x012f-0x139 from ASCII to uPD16432B chars
+    call make_upd_picts     ;e579  31 e5 d6     Parse pictograph byte; set uPD16432B bytes at 0x00a1-0x00a8.
+    call make_upd_text      ;e57c  31 e4 3f     Convert buffer at 0x012f-0x139 from ASCII to uPD16432B chars
 
 lab_e57f:
     ret                     ;e57f  20
@@ -1080,7 +1081,7 @@ lab_e5d0:
     jmp lab_e579            ;e5d3  21 e5 79
 
 
-sub_e5d6:
+make_upd_picts:
 ;Parse pictographs byte in command packet into 8 uPD16432B
 ;pictograph bytes at 0x00a1-0x00a8
 ;
@@ -1133,10 +1134,10 @@ lab_e601:
 lab_e606:
     ;Pictograph byte bit 6 = PERIOD
     ;Set if the byte in the pictograph is set or always set
-    ;if the "show period pictograph" flag is set
+    ;if the "show period" flag is set
     rorc a                  ;e606  03           Pictograph byte bit 6
     bc lab_e60c             ;e607  f9 03        Branch to if set
-    bbc 0x00a9:0, lab_e60e  ;e609  b0 a9 02     Branch over if "show period pictograph" flag is clear
+    bbc 0x00a9:0, lab_e60e  ;e609  b0 a9 02     Branch over if "show period" flag is clear
 lab_e60c:
     setb 0xa1+3:6           ;e60c  ae a4        Set PERIOD bit in uPD16432B pictograph bytes
 
@@ -1192,32 +1193,41 @@ msgs_01_0f_jmp:
     .word msg_0f_cd_no_cd    ;e65b  e6 ed       VECTOR   0x0F  'CD...NO.CD.'
 
 msgs_01_0f_done:
-    call sub_ecce           ;e65d  31 ec ce
+    call make_fis_text      ;e65d  31 ec ce
     ret                     ;e660  20
 
 msg_01_cd_tr:
-;'CD...TR....'
-;Called with EP = 0x011d (pointer to Display Number in command packet)
-    mov a, @ep              ;e661  07           A = Display Number
-    call sub_ed92           ;e662  31 ed 92
-    mov @ix+0x03, a         ;e665  46 03
-    incw ep                 ;e667  c3
-    mov a, @ep              ;e668  07
-    call sub_ed88           ;e669  31 ed 88
+;Buffer:  'CD...TR....'
+;Example: 'CD 1 TR 03 ' (Param 0 = CD, Param 1 = Track)
+;
+;Param 0 High Nibble = Unused
+;Param 1 Low Nibble  = CD number
+;Param 1 Byte        = Track number
+;Param 2 Byte        = Unused
+    mov a, @ep              ;e661  07           A = Display Param 0 (CD)
+    call hex_nib_low        ;e662  31 ed 92     A = CD as hex digit
+    mov @ix+0x03, a         ;e665  46 03        Store in buffer
+
+    incw ep                 ;e667  c3           EP = pointer to Display Param 1
+    mov a, @ep              ;e668  07           A = Display Param 1 (Track)
+    call hex_nib_high       ;e669  31 ed 88
     mov @ix+0x08, a         ;e66c  46 08
+
     mov a, @ep              ;e66e  07
-    call sub_ed92           ;e66f  31 ed 92
+    call hex_nib_low        ;e66f  31 ed 92
     mov @ix+0x09, a         ;e672  46 09
     jmp msgs_01_0f_done     ;e674  21 e6 5d
 
 msg_02_cue:
-;'CUE........'
-;Called with EP = 0x011d (pointer to Display Number in command packet)
-    incw ep                 ;e677  c3           EP = pointer to Display Param 0
+;Buffer:  'CUE........'
+;Example: 'CUE   047  '
+;Example: 'CUE  -002  '
+;TODO finish me
+    incw ep                 ;e677  c3           EP = pointer to Display Param 1 (TODO)
     mov a, @ep              ;e678  07
     and a, #0xf0            ;e679  64 f0
     beq lab_e688            ;e67b  fd 0b
-    call sub_ed88           ;e67d  31 ed 88
+    call hex_nib_high       ;e67d  31 ed 88
     cmp a, #'A              ;e680  14 41
     bne lab_e686            ;e682  fc 02
     mov a, #'-              ;e684  04 2d
@@ -1225,97 +1235,153 @@ lab_e686:
     mov @ix+0x05, a         ;e686  46 05
 lab_e688:
     mov a, @ep              ;e688  07
-    call sub_ed92           ;e689  31 ed 92
+    call hex_nib_low        ;e689  31 ed 92
     mov @ix+0x06, a         ;e68c  46 06
     incw ep                 ;e68e  c3
     mov a, @ep              ;e68f  07
-    call sub_ed88           ;e690  31 ed 88
+    call hex_nib_high       ;e690  31 ed 88
     mov @ix+0x07, a         ;e693  46 07
     mov a, @ep              ;e695  07
-    call sub_ed92           ;e696  31 ed 92
+    call hex_nib_low        ;e696  31 ed 92
     mov @ix+0x08, a         ;e699  46 08
     jmp msgs_01_0f_done     ;e69b  21 e6 5d
 
 msg_03_rev:
-;'REV........'
+;Buffer:  'REV........'
+;Example: 'REV   133  '
+;Example: 'REV  -002  '
+;TODO finish me
     jmp msg_02_cue          ;e69e  21 e6 77
 
 msg_04_scancd_tr:
-;'SCANCD.TR..'
-    mov a, @ep              ;e6a1  07
-    call sub_ed92           ;e6a2  31 ed 92
+;Buffer:  'SCANCD.TR..'
+;Example: 'SCANCD1TR04' (Param 0 = CD, 1 = Track)
+;
+;Param 0 High Nibble = Unused
+;Param 0 Low Nibble  = CD number
+;Param 1 Byte        = Track number
+;Param 2 Byte        = Unused
+    mov a, @ep              ;e6a1  07           A = Param 0 (CD)
+    call hex_nib_low        ;e6a2  31 ed 92
     mov @ix+0x06, a         ;e6a5  46 06
-    incw ep                 ;e6a7  c3
-    mov a, @ep              ;e6a8  07
-    call sub_ed88           ;e6a9  31 ed 88
+
+    incw ep                 ;e6a7  c3           EP = pointer to Param 1
+    mov a, @ep              ;e6a8  07           A = Param 1 (Track)
+    call hex_nib_high       ;e6a9  31 ed 88
     mov @ix+0x09, a         ;e6ac  46 09
     mov a, @ep              ;e6ae  07
-    call sub_ed92           ;e6af  31 ed 92
+    call hex_nib_low        ;e6af  31 ed 92
     mov @ix+0x0a, a         ;e6b2  46 0a
     jmp msgs_01_0f_done     ;e6b4  21 e6 5d
 
 msg_05_no_changer:
-;'NO..CHANGER'
+;Buffer:  'NO..CHANGER'
+;Example: 'NO  CHANGER'
+;
+;No params
     jmp msgs_01_0f_done     ;e6b7  21 e6 5d
 
 msg_06_no_magazin:
-;'NO..MAGAZIN'
+;Buffer:  'NO..MAGAZIN'
+;Example: 'NO  MAGAZIN'
+;
+;No params
     jmp msgs_01_0f_done     ;e6ba  21 e6 5d
 
 msg_07_no_disc:
-;'....NO.DISC'
+;Buffer:  '....NO.DISC'
+;Example: '    NO DISC' (no params)
+;
+;No params
     jmp msgs_01_0f_done     ;e6bd  21 e6 5d
 
 msg_08_cd_error:
-;'CD...ERROR.'
-    mov a, @ep              ;e6c0  07
-    call sub_ed92           ;e6c1  31 ed 92
-    mov @ix+0x03, a         ;e6c4  46 03
+;Buffer:  'CD...ERROR.'
+;Example: 'CD 6 ERROR '
+;
+;Param 0 High Nibble = Unused
+;Param 0 Low Nibble  = CD number
+;Param 1 Byte        = Unused
+;Param 2 Byte        = Unused
+    mov a, @ep              ;e6c0  07           A = Display Param 0 (CD)
+    call hex_nib_low        ;e6c1  31 ed 92     A = ASCII digit for CD number
+    mov @ix+0x03, a         ;e6c4  46 03        Write digit into the buffer
     jmp msgs_01_0f_done     ;e6c6  21 e6 5d
 
 msg_09_cd_:
-;'CD.........'
+;Buffer:  'CD.........'
+;TODO finish me
     mov a, @ep              ;e6c9  07
-    call sub_ed92           ;e6ca  31 ed 92
+    call hex_nib_low        ;e6ca  31 ed 92
     mov @ix+0x03, a         ;e6cd  46 03
     jmp msg_02_cue          ;e6cf  21 e6 77
 
 msg_0a_cd_max:
-;'CD....MAX..'
-    mov a, @ep              ;e6d2  07
-    call sub_ed92           ;e6d3  31 ed 92
-    mov @ix+0x03, a         ;e6d6  46 03
+;Buffer:  'CD....MAX..'
+;Example: 'CD 5  MAX  '
+;
+;Param 0 High Nibble = Unused
+;Param 0 Low Nibble  = CD number
+;Param 1 Byte        = Unused
+;Param 2 Byte        = Unused
+    mov a, @ep              ;e6d2  07           A = Display Param 0 (CD)
+    call hex_nib_low        ;e6d3  31 ed 92     A = ASCII digit for CD number
+    mov @ix+0x03, a         ;e6d6  46 03        Write digit into the buffer
     jmp msgs_01_0f_done     ;e6d8  21 e6 5d
 
 msg_0b_cd_min:
-;'CD....MIN..'
+;Buffer:  'CD....MIN..'
+;Example: 'CD 5  MIN  '
+;
+;Param 0 High Nibble = Unused
+;Param 0 Low Nibble  = CD number
+;Param 1 Byte        = Unused
+;Param 2 Byte        = Unused
     jmp msg_0a_cd_max       ;e6db  21 e6 d2
 
 msg_0c_chk_magazin:
-;'CHK.MAGAZIN'
+;Buffer:  'CHK.MAGAZIN'
+;Example: 'CHK MAGAZIN'
+;
+;No params
     jmp msgs_01_0f_done     ;e6de  21 e6 5d
 
 msg_0d_cd_cd_err:
-;'CD..CD.ERR.'
-    mov a, @ep              ;e6e1  07
-    call sub_ed92           ;e6e2  31 ed 92
-    mov @ix+0x02, a         ;e6e5  46 02
+;Buffer:  'CD..CD.ERR.'
+;Example: 'CD6 CD ERR '
+;
+;Param 0 High Nibble = Unused
+;Param 0 Low Nibble  = CD number
+;Param 1 Byte        = Unused
+;Param 2 Byte        = Unused
+    mov a, @ep              ;e6e1  07           A = Display Param 0 (CD)
+    call hex_nib_low        ;e6e2  31 ed 92     A = ASCII digit for CD number
+    mov @ix+0x02, a         ;e6e5  46 02        Write digit into the buffer
     jmp msgs_01_0f_done     ;e6e7  21 e6 5d
 
 msg_0e_cd_error:
-;'CD...ERROR.'
+;Buffer:  'CD...ERROR.'
+;Example: 'CD   ERROR '
+;
+;No params
     jmp msgs_01_0f_done     ;e6ea  21 e6 5d
 
 msg_0f_cd_no_cd:
-;'CD...NO.CD.'
-    mov a, @ep              ;e6ed  07
-    call sub_ed92           ;e6ee  31 ed 92
-    mov @ix+0x03, a         ;e6f1  46 03
+;Buffer:  'CD...NO.CD.'
+;Example: 'CD 6 NO CD '
+;
+;Param 0 High Nibble = Unused
+;Param 0 Low Nibble  = CD number
+;Param 1 Byte        = Unused
+;Param 2 Byte        = Unused
+    mov a, @ep              ;e6ed  07           A = Display Param 0 (CD)
+    call hex_nib_low        ;e6ee  31 ed 92     A = ASCII digit for CD number
+    mov @ix+0x03, a         ;e6f1  46 03        Write digit into the buffer
     jmp msgs_01_0f_done     ;e6f3  21 e6 5d
 
 msgs_10_1f:
 ;Called if A >= 0x10 and A <= 0x1F ("set" messages)
-;Called with EP = 0x011d (pointer to Display Number in command packet)
+;EP = 0x011d (pointer to Display Number in command packet)
     movw a, #0x0000         ;e6f6  e4 00 00
     mov a, @ep              ;e6f9  07
     mov a, #0x10            ;e6fa  04 10
@@ -1354,51 +1420,75 @@ msgs_10_1f_jmp:
     .word msg_16_tape_skip_n ;e732  e7 5e       VECTOR   0x16  'TAPE.SKIP.N'
 
 msgs_10_1f_done:
-    call sub_ecce           ;e734  31 ec ce
-    ret                     ;e737  20
+    call make_fis_text       ;e734  31 ec ce
+    ret                      ;e737  20
 
 msg_10_set_onvol_y:
-;'SET.ONVOL.Y'
+;Buffer:  'SET.ONVOL.Y'
+;Example: 'SET ONVOL Y'
+;
+;No params
     jmp msgs_10_1f_done     ;e738  21 e7 34
 
 msg_11_set_onvol_n:
-;'SET.ONVOL.N'
+;Buffer:  'SET.ONVOL.N'
+;Example: 'SET ONVOL N'
+;
+;No params
     jmp msgs_10_1f_done     ;e73b  21 e7 34
 
 msg_12_set_onvol_:
-;'SET.ONVOL..'
-    mov a, @ep              ;e73e  07
-    call sub_ed5d           ;e73f  31 ed 5d
-    mov a, r7               ;e742  0f
-    and a, #0xf0            ;e743  64 f0
-    beq lab_e74c            ;e745  fd 05
-    call sub_ed88           ;e747  31 ed 88
-    mov @ix+0x09, a         ;e74a  46 09
+;Buffer:  'SET.ONVOL..'
+;Example: 'SET ONVOL63' (Param 0 = Level in binary)
+;
+;Param 0 Byte = Level in binary
+;Param 1 Byte = Unused
+;Param 2 Byte = Unused
+    mov a, @ep              ;e73e  07           A = Display Param 0 (Level)
+    call bin_to_bcd         ;e73f  31 ed 5d     R7 = Level in BCD
+
+    mov a, r7               ;e742  0f           A = Level in BCD
+    and a, #0xf0            ;e743  64 f0        Mask off all except ten's place
+    beq lab_e74c            ;e745  fd 05        Skip write if ten's place is 0
+    call hex_nib_high       ;e747  31 ed 88     A = ASCII digit for ten's place
+    mov @ix+0x09, a         ;e74a  46 09        Write one's place into buffer
 lab_e74c:
-    mov a, r7               ;e74c  0f
-    call sub_ed92           ;e74d  31 ed 92
-    mov @ix+0x0a, a         ;e750  46 0a
+    mov a, r7               ;e74c  0f           A = Level in BCD
+    call hex_nib_low        ;e74d  31 ed 92     A = ASCII digit for one's place
+    mov @ix+0x0a, a         ;e750  46 0a        Wriit one's place into buffer
     jmp msgs_10_1f_done     ;e752  21 e7 34
 
 msg_13_set_cdmix1:
-;'SET.CD.MIX1'
+;Buffer:  'SET.CD.MIX1'
+;Example: 'SET CD MIX1'
+;
+;No params
     jmp msgs_10_1f_done     ;e755  21 e7 34
 
 msg_14_set_cd_mix6:
-;'SET.CD.MIX6'
+;Buffer:  'SET.CD.MIX6'
+;Example: 'SET CD MIX6'
+;
+;No params
     jmp msgs_10_1f_done     ;e758  21 e7 34
 
 msg_15_tape_skip_y:
-;'TAPE.SKIP.Y'
+;Buffer:  'TAPE.SKIP.Y'
+;Example: 'TAPE SKIP Y'
+;
+;No params
     jmp msgs_10_1f_done     ;e75b  21 e7 34
 
 msg_16_tape_skip_n:
-;'TAPE.SKIP.N'
+;Buffer:  'TAPE.SKIP.N'
+;Example: 'TAPE SKIP N'
+;
+;No params
     jmp msgs_10_1f_done     ;e75e  21 e7 34
 
 msgs_20_3f:
 ;Called if A >= 0x20 and A <= 0x3F (test mode messages)
-;Called with EP = 0x011d (pointer to Display Number in command packet)
+;EP = 0x011d (pointer to Display Number in command packet)
     movw a, #0x0000         ;e761  e4 00 00
     mov a, @ep              ;e764  07
     mov a, #0x20            ;e765  04 20
@@ -1454,79 +1544,106 @@ msgs_20_3f_jmp:
     .word msg_37_on_tuning   ;e7bf  e9 2e       VECTOR   0x37  '.ON.TUNING.'
 
 msgs_20_3f_done:
-    call sub_ecce           ;e7c1  31 ec ce
-    ret                     ;e7c4  20
+    call make_fis_text       ;e7c1  31 ec ce
+    ret                      ;e7c4  20
 
 msg_20_rad_3cp_t7:
-;'RAD.3CP.T7.'
+;Buffer:  'RAD.3CP.T7.'
+;Example: 'RAD 3CP T7 '
+;
+;No params
     jmp msgs_20_3f_done     ;e7c5  21 e7 c1
 
 msg_21_ver:
-;'VER........'
-    setb 0xa9:0             ;e7c8  a8 a9        Set "show period pictograph" flag
-    incw ep                 ;e7ca  c3
+;Buffer:  'VER........'
+;Example: 'VER  0702  ' (Param 0 = None, Param 1 = First two digits)
+;TODO finish me
+    setb 0xa9:0             ;e7c8  a8 a9        Set "show period" flag
+
+    incw ep                 ;e7ca  c3           EP = Display Param 1 (First two digits)
     mov a, @ep              ;e7cb  07
-    call sub_ed88           ;e7cc  31 ed 88
+    call hex_nib_high       ;e7cc  31 ed 88
     mov @ix+0x05, a         ;e7cf  46 05
+
     mov a, @ep              ;e7d1  07
-    call sub_ed92           ;e7d2  31 ed 92
+    call hex_nib_low     ;e7d2  31 ed 92
     mov @ix+0x06, a         ;e7d5  46 06
-    movw ep, #table_e000+0x0b ;e7d7  e7 e0 0b
-    mov a, @ep              ;e7da  07
-    call sub_ed88           ;e7db  31 ed 88
+
+    movw ep, #table_e000+0x0b ;e7d7  e7 e0 0b   EP = constant byte from this ROM
+    mov a, @ep              ;e7da  07           A = constant 0x02
+    call hex_nib_high       ;e7db  31 ed 88
     mov @ix+0x07, a         ;e7de  46 07
+
     mov a, @ep              ;e7e0  07
-    call sub_ed92           ;e7e1  31 ed 92
+    call hex_nib_low     ;e7e1  31 ed 92
     mov @ix+0x08, a         ;e7e4  46 08
     jmp msgs_20_3f_done     ;e7e6  21 e7 c1
 
 msg_22_:
-;'...........'
-    mov a, @ep              ;e7e9  07
-    call sub_ed33           ;e7ea  31 ed 33
-    mov r1, a               ;e7ed  49
+;Buffer:  '...........'
+;Example: '1079A B C D' (param 0=freq index, param 1=0xAB, param 2=0xCD)
+    mov a, @ep              ;e7e9  07           A = FM frequency index
+    call num_to_mhz         ;e7ea  31 ed 33     A = BCD freq (word)
+    mov r1, a               ;e7ed  49           R1 = BCD freq low byte
     swap                    ;e7ee  10
-    mov r2, a               ;e7ef  4a
-    and a, #0xf0            ;e7f0  64 f0
-    beq lab_e7f9            ;e7f2  fd 05
-    call sub_ed88           ;e7f4  31 ed 88
-    mov @ix+0x00, a         ;e7f7  46 00
+    mov r2, a               ;e7ef  4a           R2 = BCD freq high byte
+
+    and a, #0xf0            ;e7f0  64 f0        Mask to leave only high nibble
+    bz lab_e7f9             ;e7f2  fd 05        Skip digit if it is 0
+
+    call hex_nib_high       ;e7f4  31 ed 88     A = ASCII digit for high nibble
+    mov @ix+0x00, a         ;e7f7  46 00        Write digit into buffer
+
 lab_e7f9:
-    mov a, r2               ;e7f9  0a
-    call sub_ed92           ;e7fa  31 ed 92
-    mov @ix+0x01, a         ;e7fd  46 01
-    mov a, r1               ;e7ff  09
-    call sub_ed88           ;e800  31 ed 88
-    mov @ix+0x02, a         ;e803  46 02
-    mov a, r1               ;e805  09
-    call sub_ed92           ;e806  31 ed 92
-    mov @ix+0x03, a         ;e809  46 03
-lab_e80b:
-    incw ep                 ;e80b  c3
-    mov a, @ep              ;e80c  07
-    call sub_ed88           ;e80d  31 ed 88
-    mov @ix+0x04, a         ;e810  46 04
-    mov a, @ep              ;e812  07
-    call sub_ed92           ;e813  31 ed 92
-    mov @ix+0x06, a         ;e816  46 06
-    incw ep                 ;e818  c3
-    mov a, @ep              ;e819  07
-    call sub_ed88           ;e81a  31 ed 88
-    mov @ix+0x08, a         ;e81d  46 08
-    mov a, @ep              ;e81f  07
-    call sub_ed92           ;e820  31 ed 92
-    mov @ix+0x0a, a         ;e823  46 0a
+    mov a, r2               ;e7f9  0a           A = BCD freq high byte
+    call hex_nib_low        ;e7fa  31 ed 92     A = ASCII digit for low nibble
+    mov @ix+0x01, a         ;e7fd  46 01        Write digit into buffer
+
+    mov a, r1               ;e7ff  09           A = BCD freq low byte
+    call hex_nib_high       ;e800  31 ed 88     A = ASCII digit for high nibble
+    mov @ix+0x02, a         ;e803  46 02        Write digit into buffer
+
+    mov a, r1               ;e805  09           A = BCD freq low byte
+    call hex_nib_low        ;e806  31 ed 92     A = ASCII digit for low nibble
+    mov @ix+0x03, a         ;e809  46 03        Write digit into buffer
+
+msg_spaced_digits:
+    incw ep                 ;e80b  c3           EP = pointer to Display Param 1
+
+    mov a, @ep              ;e80c  07           A = param 1
+    call hex_nib_high       ;e80d  31 ed 88     A = ASCII digit for param 1 high nibble
+    mov @ix+0x04, a         ;e810  46 04        Write digit into buffer
+
+    mov a, @ep              ;e812  07           A = param 1
+    call hex_nib_low        ;e813  31 ed 92     A = ASCII digit for param 1 low nibble
+    mov @ix+0x06, a         ;e816  46 06        Write digit into buffer
+
+    incw ep                 ;e818  c3           EP = pointer to Display Param 2
+
+    mov a, @ep              ;e819  07           A = param 2
+    call hex_nib_high       ;e81a  31 ed 88     A = ASCII digit for param 2 high nibble
+    mov @ix+0x08, a         ;e81d  46 08        Write digit into buffer
+
+    mov a, @ep              ;e81f  07           A = param 2
+    call hex_nib_low        ;e820  31 ed 92     A = ASCII digit for param 2 low nibble
+    mov @ix+0x0a, a         ;e823  46 0a        Write digit into buffer
     jmp msgs_20_3f_done     ;e825  21 e7 c1
 
 msg_23_hc:
-;'HC.........'
-    mov a, @ep              ;e828  07
-    call sub_ed92           ;e829  31 ed 92
+;Buffer:  'HC.........'
+;Example: 'HC 4A B C D' (param 0=0x04, param 1=0xAB, param2=0xCD)
+;EP = 0x011e (pointer to Display Param 0 in command packet)
+;IX = 0x012f (pointer to buffer for this message)
+    mov a, @ep              ;e828  07           A = Display Param 0 (number)
+    call hex_nib_low        ;e829  31 ed 92     A = Number as a hex digit
     mov @ix+0x03, a         ;e82c  46 03
-    jmp lab_e80b            ;e82e  21 e8 0b
+    jmp msg_spaced_digits   ;e82e  21 e8 0b
 
 msg_24_v:
 ;'V..........'
+;TODO finish me
+;EP = 0x011e (pointer to Display Param 0 in command packet)
+;IX = 0x012f (pointer to buffer for this message)
     mov a, @ep              ;e831  07
     and a, #0xf0            ;e832  64 f0
     beq lab_e878            ;e834  fd 42
@@ -1536,35 +1653,35 @@ msg_24_v:
     xor a, #0xff            ;e83b  54 ff
     incw a                  ;e83d  c0
 lab_e83e:
-    call sub_ed92           ;e83e  31 ed 92
+    call hex_nib_low        ;e83e  31 ed 92
     mov @ix+0x02, a         ;e841  46 02
     incw ep                 ;e843  c3
     mov a, @ep              ;e844  07
-    call sub_ed5d           ;e845  31 ed 5d
+    call bin_to_bcd         ;e845  31 ed 5d
     mov a, r6               ;e848  0e
     beq lab_e850            ;e849  fd 05
-    call sub_ed92           ;e84b  31 ed 92
+    call hex_nib_low        ;e84b  31 ed 92
     mov @ix+0x04, a         ;e84e  46 04
 lab_e850:
     mov a, r7               ;e850  0f
-    call sub_ed88           ;e851  31 ed 88
+    call hex_nib_high       ;e851  31 ed 88
     mov @ix+0x05, a         ;e854  46 05
     mov a, r7               ;e856  0f
-    call sub_ed92           ;e857  31 ed 92
+    call hex_nib_low        ;e857  31 ed 92
     mov @ix+0x06, a         ;e85a  46 06
     incw ep                 ;e85c  c3
     mov a, @ep              ;e85d  07
-    call sub_ed5d           ;e85e  31 ed 5d
+    call bin_to_bcd         ;e85e  31 ed 5d
     mov a, r6               ;e861  0e
     beq lab_e869            ;e862  fd 05
-    call sub_ed92           ;e864  31 ed 92
+    call hex_nib_low        ;e864  31 ed 92
     mov @ix+0x08, a         ;e867  46 08
 lab_e869:
     mov a, r7               ;e869  0f
-    call sub_ed88           ;e86a  31 ed 88
+    call hex_nib_high       ;e86a  31 ed 88
     mov @ix+0x09, a         ;e86d  46 09
     mov a, r7               ;e86f  0f
-    call sub_ed92           ;e870  31 ed 92
+    call hex_nib_low        ;e870  31 ed 92
     mov @ix+0x0a, a         ;e873  46 0a
     jmp msgs_20_3f_done     ;e875  21 e7 c1
 lab_e878:
@@ -1574,90 +1691,129 @@ lab_e878:
     jmp lab_e83e            ;e87d  21 e8 3e
 
 msg_25_seekset_m:
-;'SEEKSET.M..'
-    mov a, @ep              ;e880  07
-    call sub_ed92           ;e881  31 ed 92
+;Buffer:  'SEEKSET.M..'
+;Example: 'SEEKSET M5 ' (Param 0 = number)
+;EP = 0x011e (pointer to Display Param 0 in command packet)
+;IX = 0x012f (pointer to buffer for this message)
+    mov a, @ep              ;e880  07           A = Display Param 0 (number)
+    call hex_nib_low        ;e881  31 ed 92     A = number as hex digit
     mov @ix+0x09, a         ;e884  46 09
     jmp msgs_20_3f_done     ;e886  21 e7 c1
 
 msg_26_seekset_n:
-;'SEEKSET.N..'
+;Buffer:  'SEEKSET.N..'
+;Example: 'SEEKSET N5 ' (Param 0 = number)
+;EP = 0x011e (pointer to Display Param 0 in command packet)
+;IX = 0x012f (pointer to buffer for this message)
     jmp msg_25_seekset_m    ;e889  21 e8 80
 
 msg_27_seekset_m1:
-;'SEEKSET.M1.'
-    mov a, @ep              ;e88c  07
-    call sub_ed92           ;e88d  31 ed 92
+;Buffer:  'SEEKSET.M1.'
+;Example: 'SEEKSET M15' (Param 0 = number)
+;EP = 0x011e (pointer to Display Param 0 in command packet)
+;IX = 0x012f (pointer to buffer for this message)
+    mov a, @ep              ;e88c  07           A = Display Param 0 (number)
+    call hex_nib_low        ;e88d  31 ed 92     A = number as hex digit
     mov @ix+0x0a, a         ;e890  46 0a
     jmp msgs_20_3f_done     ;e892  21 e7 c1
 
 msg_28_seekset_m2:
-;'SEEKSET.M2.'
+;Buffer:  'SEEKSET.M2.'
+;Example: 'SEEKSET M25' (Param 0 = number)
+;EP = 0x011e (pointer to Display Param 0 in command packet)
+;IX = 0x012f (pointer to buffer for this message)
     jmp msg_27_seekset_m1   ;e895  21 e8 8c
 
 msg_29_seekset_m3:
-;'SEEKSET.M3.'
+;Buffer:  'SEEKSET.M3.'
+;Example: 'SEEKSET M35' (Param 0 = number)
+;EP = 0x011e (pointer to Display Param 0 in command packet)
+;IX = 0x012f (pointer to buffer for this message)
     jmp msg_27_seekset_m1   ;e898  21 e8 8c
 
 msg_2a_seekset_n1:
-;'SEEKSET.N1.'
+;Buffer:  'SEEKSET.N1.'
+;Example: 'SEEKSET N15' (Param 0 = number)
+;EP = 0x011e (pointer to Display Param 0 in command packet)
+;IX = 0x012f (pointer to buffer for this message)
     jmp msg_27_seekset_m1   ;e89b  21 e8 8c
 
 msg_2b_seekset_n2:
-;'SEEKSET.N2.'
+;Buffer:  'SEEKSET.N2.'
+;Example: 'SEEKSET N25' (Param 0 = number)
+;EP = 0x011e (pointer to Display Param 0 in command packet)
+;IX = 0x012f (pointer to buffer for this message)
     jmp msg_27_seekset_m1   ;e89e  21 e8 8c
 
 msg_2c_seekset_n3:
-;'SEEKSET.N3.'
+;Buffer:  'SEEKSET.N3.'
+;Example: 'SEEKSET N35' (Param 0 = number)
+;EP = 0x011e (pointer to Display Param 0 in command packet)
+;IX = 0x012f (pointer to buffer for this message)
     jmp msg_27_seekset_m1   ;e8a1  21 e8 8c
 
 msg_2d_seekset_x:
-;'SEEKSET.X..'
+;Buffer:  'SEEKSET.X..'
+;Example: 'SEEKSET X42' (Param 0 = number)
+;EP = 0x011e (pointer to Display Param 0 in command packet)
+;IX = 0x012f (pointer to buffer for this message)
     mov a, @ep              ;e8a4  07
     and a, #0xf0            ;e8a5  64 f0
     beq lab_e8ae            ;e8a7  fd 05
-    call sub_ed88           ;e8a9  31 ed 88
+    call hex_nib_high       ;e8a9  31 ed 88
     mov @ix+0x09, a         ;e8ac  46 09
 lab_e8ae:
     mov a, @ep              ;e8ae  07
-    call sub_ed92           ;e8af  31 ed 92
+    call hex_nib_low        ;e8af  31 ed 92
     mov @ix+0x0a, a         ;e8b2  46 0a
     jmp msgs_20_3f_done     ;e8b4  21 e7 c1
 
 msg_2e_seekset_y:
-;'SEEKSET.Y..'
+;Buffer:  'SEEKSET.Y..'
+;Example: 'SEEKSET Y42' (Param 0 = number)
+;EP = 0x011e (pointer to Display Param 0 in command packet)
+;IX = 0x012f (pointer to buffer for this message)
     jmp msg_2d_seekset_x    ;e8b7  21 e8 a4
 
 msg_2f_seekset_z:
-;'SEEKSET.Z..'
+;Buffer:  'SEEKSET.Z..'
+;Example: 'SEEKSET Z42' (Param 0 = number)
+;EP = 0x011e (pointer to Display Param 0 in command packet)
+;IX = 0x012f (pointer to buffer for this message)
     jmp msg_2d_seekset_x    ;e8ba  21 e8 a4
 
 msg_30_fern_on:
-;'FERN...ON..'
+;Buffer:  'FERN...ON..'
+;Example: 'FERN   ON  ' (no params)
     jmp msgs_20_3f_done     ;e8bd  21 e7 c1
 
 msg_31_fern_off:
-;'FERN...OFF.'
+;Buffer:  'FERN...OFF.'
+;Example: 'FERN   OFF ' (no params)
     jmp msgs_20_3f_done     ;e8c0  21 e7 c1
 
 msg_32_testtun_on:
-;'TESTTUN.ON.'
+;Buffer:  'TESTTUN.ON.'
+;Example: 'TESTTUN ON ' (no params)
     jmp msgs_20_3f_done     ;e8c3  21 e7 c1
 
 msg_33_test_q:
-;'TEST..Q....'
+;Buffer:  'TEST..Q....'
+;Example: TODO finish me
+;EP = 0x011e (pointer to Display Param 0 in command packet)
+;IX = 0x012f (pointer to buffer for this message)
     mov a, @ep              ;e8c6  07
     and a, #0xf0            ;e8c7  64 f0
     beq lab_e8d0            ;e8c9  fd 05
-    call sub_ed88           ;e8cb  31 ed 88
+    call hex_nib_high       ;e8cb  31 ed 88
     mov @ix+0x04, a         ;e8ce  46 04
 lab_e8d0:
     mov a, @ep              ;e8d0  07
-    call sub_ed92           ;e8d1  31 ed 92
+    call hex_nib_low        ;e8d1  31 ed 92
     mov @ix+0x05, a         ;e8d4  46 05
     incw ep                 ;e8d6  c3
     mov a, @ep              ;e8d7  07
-    call sub_ed92           ;e8d8  31 ed 92
+    call hex_nib_low        ;e8d8  31 ed 92
     mov @ix+0x07, a         ;e8db  46 07
     incw ep                 ;e8dd  c3
     mov a, @ep              ;e8de  07
@@ -1673,13 +1829,13 @@ lab_e8eb:
     addc a, #0x00           ;e8ec  24 00
     daa                     ;e8ee  84
     mov r0, a               ;e8ef  48
-    call sub_ed88           ;e8f0  31 ed 88
+    call hex_nib_high       ;e8f0  31 ed 88
     cmp a, #'0              ;e8f3  14 30
     beq lab_e8f9            ;e8f5  fd 02
     mov @ix+0x09, a         ;e8f7  46 09
 lab_e8f9:
     mov a, r0               ;e8f9  08
-    call sub_ed92           ;e8fa  31 ed 92
+    call hex_nib_low        ;e8fa  31 ed 92
     mov @ix+0x0a, a         ;e8fd  46 0a
     jmp msgs_20_3f_done     ;e8ff  21 e7 c1
 lab_e902:
@@ -1694,12 +1850,12 @@ msg_34_testbass:
     mov r0, a               ;e90b  48
     beq lab_e913            ;e90c  fd 05
     rolc a                  ;e90e  02
-    blo lab_e91e            ;e90f  f9 0d
+    bc lab_e91e            ;e90f  f9 0d
     mov a, #'+              ;e911  04 2b
 lab_e913:
     mov @ix+0x09, a         ;e913  46 09
     mov a, r0               ;e915  08
-    call sub_ed92           ;e916  31 ed 92
+    call hex_nib_low        ;e916  31 ed 92
     mov @ix+0x0a, a         ;e919  46 0a
     jmp msgs_20_3f_done     ;e91b  21 e7 c1
 lab_e91e:
@@ -1724,7 +1880,7 @@ msg_37_on_tuning:
 
 msgs_40_4f:
 ;Called if A >= 0x40 and A <= 0x4F (tuner messages)
-;Called with EP = 0x011d (pointer to Display Number in command packet)
+;EP = 0x011d (pointer to Display Number in command packet)
     movw a, #0x0000         ;e931  e4 00 00
     mov a, @ep              ;e934  07
     mov a, #0x40            ;e935  04 40
@@ -1764,75 +1920,111 @@ msgs_40_4f_jmp:
     .word msg_47_am_min     ;e96f  e9 ee       VECTOR   0x47  'AM....MIN..'
 
 msgs_40_4f_done:
-    call sub_ecce           ;e971  31 ec ce
+    call make_fis_text      ;e971  31 ec ce
     ret                     ;e974  20
 
 msg_40_fm_mhz:
-;'FM......MHZ'
-    setb 0xa9:0             ;e975  a8 a9        Set "show period pictograph" flag
-    setb 0xa9:1             ;e977  a9 a9
-    mov a, @ep              ;e979  07
-    call sub_ed88           ;e97a  31 ed 88
-    mov @ix+0x02, a         ;e97d  46 02
-    mov a, @ep              ;e97f  07
-    call sub_ed92           ;e980  31 ed 92
-    cmp a, #'0              ;e983  14 30
-    beq lab_e989            ;e985  fd 02
-    mov @ix+0x03, a         ;e987  46 03
+;Buffer:  'FM......MHZ'
+;Example: 'FM261389MHZ'
+;
+;Param 0 High Nibble = 1, 2 for FM1, FM2
+;Param 0 Low Nibble  = Preset number (0=none, 1-6)
+;Param 1 Byte        = FM Frequency Index (0=87.9 MHz, 0xFF=138.9 MHz)
+    setb 0xa9:0             ;e975  a8 a9        Set "show period" flag
+    setb 0xa9:1             ;e977  a9 a9        Set "mode or preset digits" flag
+
+    mov a, @ep              ;e979  07           A = display param 0 (high nib = FM1/2, low = preset)
+    call hex_nib_high       ;e97a  31 ed 88     A = ASCII digit for high nibble (FM "1" or "2")
+    mov @ix+0x02, a         ;e97d  46 02        Write 1/2 for FM1/2 into buffer
+
+    mov a, @ep              ;e97f  07           A = display param 0 (high nib = FM1/2, low = preset)
+    call hex_nib_low        ;e980  31 ed 92     A = ASCII digit for preset ("1" to "6", "0" if none)
+    cmp a, #'0              ;e983  14 30        Preset = 0 (no preset)?
+    beq lab_e989            ;e985  fd 02          Yes: branch to leave preset blank
+    mov @ix+0x03, a         ;e987  46 03        Write preset digit into buffer
+
 lab_e989:
-    incw ep                 ;e989  c3
-    mov a, @ep              ;e98a  07
-    call sub_ed33           ;e98b  31 ed 33
+    incw ep                 ;e989  c3           EP = pointer to display param 1 (FM frequency index)
+    mov a, @ep              ;e98a  07           A = FM frequency index
+    call num_to_mhz         ;e98b  31 ed 33     A = BCD freq (word)
+
 lab_e98e:
-    mov r1, a               ;e98e  49
+    mov r1, a               ;e98e  49           R1 = BCD freq low byte
     swap                    ;e98f  10
-    mov r2, a               ;e990  4a
-    and a, #0xf0            ;e991  64 f0
-    beq lab_e99a            ;e993  fd 05
-    call sub_ed88           ;e995  31 ed 88
-    mov @ix+0x04, a         ;e998  46 04
+    mov r2, a               ;e990  4a           R2 = BCD freq high byte
+
+    and a, #0xf0            ;e991  64 f0        Mask to leave only high nibble
+    bz lab_e99a             ;e993  fd 05        Skip digit if it is 0
+
+    call hex_nib_high       ;e995  31 ed 88     A = ASCII digit for high nibble
+    mov @ix+0x04, a         ;e998  46 04        Write digit into buffer
+
 lab_e99a:
-    mov a, r2               ;e99a  0a
-    call sub_ed92           ;e99b  31 ed 92
-    mov @ix+0x05, a         ;e99e  46 05
-    mov a, r1               ;e9a0  09
-    call sub_ed88           ;e9a1  31 ed 88
-    mov @ix+0x06, a         ;e9a4  46 06
-    mov a, r1               ;e9a6  09
-    call sub_ed92           ;e9a7  31 ed 92
-    mov @ix+0x07, a         ;e9aa  46 07
+    mov a, r2               ;e99a  0a           A = BCD freq high byte
+    call hex_nib_low        ;e99b  31 ed 92     A = ASCII digit for low nibble
+    mov @ix+0x05, a         ;e99e  46 05        Write digit into buffer
+
+    mov a, r1               ;e9a0  09           A = BCD freq low byte
+    call hex_nib_high       ;e9a1  31 ed 88     A = ASCII digit for high nibble
+    mov @ix+0x06, a         ;e9a4  46 06        Write digit into buffer
+
+    mov a, r1               ;e9a6  09           A = BCD freq low byte
+    call hex_nib_low        ;e9a7  31 ed 92     A = ASCII digit for low nibble
+    mov @ix+0x07, a         ;e9aa  46 07        Write digit into buffer
     jmp msgs_40_4f_done     ;e9ac  21 e9 71
 
 msg_41_am_khz:
-;'AM......KHZ'
-    mov a, @ep              ;e9af  07
-    call sub_ed92           ;e9b0  31 ed 92
-    cmp a, #'0              ;e9b3  14 30
-    beq lab_e9b9            ;e9b5  fd 02
-    mov @ix+0x03, a         ;e9b7  46 03
+;Buffer:  'AM......KHZ'
+;Example: 'AM 2 540KHZ'
+;
+;Param 0 High Nibble = Unused
+;Param 0 Low Nibble  = Preset number (0=none, 1-6)
+;Param 1 Byte        = AM Frequency Index (0=540 kHz, 3080 kHz)
+;Param 2 Byte        = Unused
+    mov a, @ep              ;e9af  07           A = display param 0 (preset number)
+    call hex_nib_low        ;e9b0  31 ed 92     A = ASCII digit for preset
+    cmp a, #'0              ;e9b3  14 30        Preset = 0 (no preset)?
+    beq lab_e9b9            ;e9b5  fd 02          Yes: branch to leave preset blank
+    mov @ix+0x03, a         ;e9b7  46 03        Write preset digit into buffer
 lab_e9b9:
-    incw ep                 ;e9b9  c3
-    mov a, @ep              ;e9ba  07
-    call sub_ed53           ;e9bb  31 ed 53
+    incw ep                 ;e9b9  c3           EP = pointer to display param 1 (AM frequency index)
+    mov a, @ep              ;e9ba  07           A = AM frequency index
+    call num_to_khz         ;e9bb  31 ed 53     A = BCD freq (word)
     jmp lab_e98e            ;e9be  21 e9 8e
 
 msg_42_scan_mhz:
-;'SCAN....MHZ'
-    setb 0xa9:0             ;e9c1  a8 a9        Set "show period pictograph" flag
+;Buffer:  'SCAN....MHZ'
+;Example: 'SCAN1079MHZ'
+;
+;Param 0 Byte        = Unused
+;Param 1 Byte        = FM Frequency Index (0=87.9 MHz, 0xFF=138.9 MHz)
+;Param 2 Byte        = Unused
+    setb 0xa9:0             ;e9c1  a8 a9        Set "show period" flag
     jmp lab_e989            ;e9c3  21 e9 89
 
 msg_43_scan_khz:
-;'SCAN....KHZ'
+;Buffer:  'SCAN....KHZ'
+;Example: 'SCAN1079KHZ'
+;
+;Param 0 Byte       = Unused
+;Param 1 Byte       = AM Frequency Index (0=540 kHz, 3080 kHz)
+;Param 2 Byte       = Unused
     jmp lab_e9b9            ;e9c6  21 e9 b9
 
 msg_44_fm_max:
-;'FM....MAX..'
-    setb 0xa9:1             ;e9c9  a9 a9
-    mov a, @ep              ;e9cb  07
-    call sub_ed88           ;e9cc  31 ed 88
+;Buffer:  'FM....MAX..'
+;Example: 'FM26  MAX  '
+;
+;Param 0 High Nibble = 1, 2 for FM1, FM2
+;Param 0 Low Nibble  = Preset number (0=none, 1-6)
+;Param 1 Byte        = Unused
+;Param 2 Byte        = Unused
+    setb 0xa9:1             ;e9c9  a9 a9        Set "mode or preset digits" flag
+    mov a, @ep              ;e9cb  07           A = display param 0
+    call hex_nib_high       ;e9cc  31 ed 88
     mov @ix+0x02, a         ;e9cf  46 02
     mov a, @ep              ;e9d1  07
-    call sub_ed92           ;e9d2  31 ed 92
+    call hex_nib_low        ;e9d2  31 ed 92
     cmp a, #'0              ;e9d5  14 30
     beq lab_e9db            ;e9d7  fd 02
     mov @ix+0x03, a         ;e9d9  46 03
@@ -1840,27 +2032,42 @@ lab_e9db:
     jmp msgs_40_4f_done     ;e9db  21 e9 71
 
 msg_45_fm_min:
-;'FM....MIN..'
+;Buffer:  'FM....MIN..'
+;Example: 'FM26  MIN  '
+;
+;Param 0 High Nibble = 1, 2 for FM1, FM2
+;Param 0 Low Nibble  = Preset number (0=none, 1-6)
+;Param 1 Byte        = Unused
+;Param 2 Byte        = Unused
     jmp msg_44_fm_max       ;e9de  21 e9 c9
 
 msg_46_am_max:
-;'AM....MAX..'
-    mov a, @ep              ;e9e1  07
-    call sub_ed92           ;e9e2  31 ed 92
-    cmp a, #'0              ;e9e5  14 30
-    beq lab_e9eb            ;e9e7  fd 02
-    mov @ix+0x03, a         ;e9e9  46 03
-
+;Buffer:  'AM....MAX..'
+;Example: 'AM 6  MAX  '
+;
+;Param 0 High Nibble = Unused
+;Param 1 Byte        = Preset number (0=none, 1-6)
+;Param 2 Byte        = Unused
+    mov a, @ep              ;e9e1  07           A = display param 0 (preset)
+    call hex_nib_low        ;e9e2  31 ed 92     A = ASCII digit for preset
+    cmp a, #'0              ;e9e5  14 30        Preset = 0 (no preset)?
+    beq lab_e9eb            ;e9e7  fd 02          Yes: branch to leave preset blank
+    mov @ix+0x03, a         ;e9e9  46 03        Write digit into buffer
 lab_e9eb:
     jmp msgs_40_4f_done     ;e9eb  21 e9 71
 
 msg_47_am_min:
-;'AM....MIN..'
+;Buffer:  'AM....MIN..'
+;Example: 'AM 6  MIN  '
+;
+;Param 0 High Nibble = Unused
+;Param 1 Byte        = Preset number (0=none, 1-6)
+;Param 2 Byte        = Unused
     jmp msg_46_am_max       ;e9ee  21 e9 e1
 
 msgs_50_5f:
 ;Called if A >= 50 and A <= 0x5F (tape messages)
-;Called with EP = 0x011d (pointer to Display Number in command packet)
+;EP = 0x011d (pointer to Display Number in command packet)
     movw a, #0x0000         ;e9f1  e4 00 00
     mov a, @ep              ;e9f4  07
     mov a, #0x50            ;e9f5  04 50
@@ -1906,11 +2113,14 @@ msgs_50_5f_jmp:
     .word msg_5d_tape_min     ;ea3b  ea 68       VECTOR   0x5D  'TAPE..MIN..'
 
 msgs_50_5f_done:
-    call sub_ecce           ;ea3d  31 ec ce
+    call make_fis_text      ;ea3d  31 ec ce
     ret                     ;ea40  20
 
 msg_50_tape_play_a:
-;'TAPE.PLAY.A'
+;Buffer:  'TAPE.PLAY.A'
+;Example: 'TAPE PLAY A'
+;
+;No params
     jmp msgs_50_5f_done     ;ea41  21 ea 3d
 
 msg_51_tape_play_b:
@@ -1967,7 +2177,7 @@ msg_5d_tape_min:
 
 msgs_60_7f:
 ;Called if A >= 0x60 and A <= 0x7F (sound messages)
-;Called with EP = 0x011d (pointer to Display Number in command packet)
+;EP = 0x011d (pointer to Display Number in command packet)
     movw a, #0x0000         ;ea6b  e4 00 00
     mov a, @ep              ;ea6e  07
     mov a, #0x60            ;ea6f  04 60
@@ -2012,7 +2222,7 @@ msgs_60_7f_jmp:
     .word msg_69_fadecenter ;eab1  eb 75       VECTOR   0x69  'FADECENTER.'
 
 msgs_60_7f_done:
-    call sub_ecce           ;eab3  31 ec ce
+    call make_fis_text      ;eab3  31 ec ce
     ret                     ;eab6  20
 
 msg_60_max:
@@ -2055,15 +2265,12 @@ msg_61_bass:
     rolc a                  ;eaf1  02
     blo lab_eb01            ;eaf2  f9 0d
     mov a, #'+              ;eaf4  04 2b
-
 lab_eaf6:
-;'TREB.......'
     mov @ix+0x06, a         ;eaf6  46 06
     mov a, r0               ;eaf8  08
-    call sub_ed92           ;eaf9  31 ed 92
+    call hex_nib_low        ;eaf9  31 ed 92
     mov @ix+0x08, a         ;eafc  46 08
     jmp msgs_60_7f_done     ;eafe  21 ea b3
-
 lab_eb01:
     mov a, r0               ;eb01  08
     xor a, #0xff            ;eb02  54 ff
@@ -2071,7 +2278,9 @@ lab_eb01:
     mov r0, a               ;eb05  48
     mov a, #'-              ;eb06  04 2d
     jmp lab_eaf6            ;eb08  21 ea f6
+
 msg_63_treb:
+;'TREB.......'
     jmp msg_61_bass         ;eb0b  21 ea ed
 
 msg_64_bal_left:
@@ -2091,11 +2300,11 @@ lab_eb1f:
     mov a, @ep              ;eb1f  07
     and a, #0xf0            ;eb20  64 f0
     beq lab_eb29            ;eb22  fd 05
-    call sub_ed88           ;eb24  31 ed 88
+    call hex_nib_high       ;eb24  31 ed 88
     mov @ix+0x09, a         ;eb27  46 09
 lab_eb29:
     mov a, @ep              ;eb29  07
-    call sub_ed92           ;eb2a  31 ed 92
+    call hex_nib_low        ;eb2a  31 ed 92
     mov @ix+0x0a, a         ;eb2d  46 0a
     jmp msgs_60_7f_done     ;eb2f  21 ea b3
 lab_eb32:
@@ -2124,11 +2333,11 @@ lab_eb4e:
     mov a, @ep              ;eb4e  07
     and a, #0xf0            ;eb4f  64 f0
     beq lab_eb58            ;eb51  fd 05
-    call sub_ed88           ;eb53  31 ed 88
+    call hex_nib_high       ;eb53  31 ed 88
     mov @ix+0x09, a         ;eb56  46 09
 lab_eb58:
     mov a, @ep              ;eb58  07
-    call sub_ed92           ;eb59  31 ed 92
+    call hex_nib_low        ;eb59  31 ed 92
     mov @ix+0x0a, a         ;eb5c  46 0a
     jmp msgs_60_7f_done     ;eb5e  21 ea b3
 lab_eb61:
@@ -2158,7 +2367,7 @@ msg_69_fadecenter:
 
 msgs_80_af:
 ;Called if A >= 0x80 and A < 0xB0 (code messages)
-;Called with EP = 0x011d (pointer to Display Number in command packet)
+;EP = 0x011d (pointer to Display Number in command packet)
     movw a, #0x0000         ;eb78  e4 00 00
     mov a, @ep              ;eb7b  07
     mov a, #0x80            ;eb7c  04 80
@@ -2198,7 +2407,7 @@ msgs_80_af_jmp:
     .word msg_87_clear      ;ebb6  ec 0f       VECTOR   0x87  '....CLEAR..'
 
 msgs_80_af_done:
-    call sub_ecce           ;ebb8  31 ec ce
+    call make_fis_text      ;ebb8  31 ec ce
     ret                     ;ebbb  20
 
 msg_80_no_code:
@@ -2210,36 +2419,39 @@ msg_81_code:
     jmp msgs_80_af_done     ;ebbf  21 eb b8
 
 msg_82_:
-;'...........'
-    mov a, @ep              ;ebc2  07
-    and a, #0x0f            ;ebc3  64 0f
-    beq lab_ebcc            ;ebc5  fd 05
-    call sub_ed92           ;ebc7  31 ed 92
-    mov @ix+0x00, a         ;ebca  46 00
+;Buffer:  '...........'
+;Example:
+    mov a, @ep              ;ebc2  07       A = Display Param 0 (Attempt)
+    and a, #0x0f            ;ebc3  64 0f    Mask to leave only low nibble
+    bz lab_ebcc             ;ebc5  fd 05    Skip writing attempt if it is 0
+    call hex_nib_low        ;ebc7  31 ed 92 A = ASCII digit for attempt
+    mov @ix+0x00, a         ;ebca  46 00    Write attempt into the buffer
 lab_ebcc:
-    incw ep                 ;ebcc  c3
+    incw ep                 ;ebcc  c3       A = Display Param 1
     mov a, @ep              ;ebcd  07
-    call sub_ed88           ;ebce  31 ed 88
+    call hex_nib_high       ;ebce  31 ed 88
     mov @ix+0x05, a         ;ebd1  46 05
     mov a, @ep              ;ebd3  07
-    call sub_ed92           ;ebd4  31 ed 92
+    call hex_nib_low        ;ebd4  31 ed 92
     mov @ix+0x06, a         ;ebd7  46 06
-    incw ep                 ;ebd9  c3
+
+    incw ep                 ;ebd9  c3       A = Display Param 2
     mov a, @ep              ;ebda  07
-    call sub_ed88           ;ebdb  31 ed 88
+    call hex_nib_high       ;ebdb  31 ed 88
     mov @ix+0x07, a         ;ebde  46 07
     mov a, @ep              ;ebe0  07
-    call sub_ed92           ;ebe1  31 ed 92
+    call hex_nib_low        ;ebe1  31 ed 92
     mov @ix+0x08, a         ;ebe4  46 08
     jmp msgs_80_af_done     ;ebe6  21 eb b8
 
 msg_83_safe:
-;'.....SAFE..'
-    mov a, @ep              ;ebe9  07
-    and a, #0x0f            ;ebea  64 0f
-    beq lab_ebf3            ;ebec  fd 05
-    call sub_ed92           ;ebee  31 ed 92
-    mov @ix+0x00, a         ;ebf1  46 00
+;Buffer:  '.....SAFE..'
+;Example: '2....SAFE..' (Param 0 = Attempt number)
+    mov a, @ep              ;ebe9  07       A = Display Param 0 (Attempt)
+    and a, #0x0f            ;ebea  64 0f    Mask off all except low nibble
+    bz lab_ebf3             ;ebec  fd 05    Skip if low nibble = 0
+    call hex_nib_low        ;ebee  31 ed 92 A = ASCII digit for attempt
+    mov @ix+0x00, a         ;ebf1  46 00    Write it into the buffer
 lab_ebf3:
     jmp msgs_80_af_done     ;ebf3  21 eb b8
 
@@ -2252,15 +2464,18 @@ msg_85_no_code:
     jmp msgs_80_af_done     ;ebf9  21 eb b8
 
 msg_86_safe:
-;'.....SAFE..'
-    mov a, @ep              ;ebfc  07
-    call sub_ed5d           ;ebfd  31 ed 5d
-    mov a, r7               ;ec00  0f
-    call sub_ed88           ;ec01  31 ed 88
-    mov @ix+0x00, a         ;ec04  46 00
-    mov a, r7               ;ec06  0f
-    call sub_ed92           ;ec07  31 ed 92
-    mov @ix+0x01, a         ;ec0a  46 01
+;Buffer:  '.....SAFE..'
+;Example: '05...SAFE..' (Param 0 = Attempt number)
+    mov a, @ep              ;ebfc  07       A = Display Param 0 (Attempt)
+    call bin_to_bcd         ;ebfd  31 ed 5d R7 = Attempt converted to BCD
+
+    mov a, r7               ;ec00  0f       A = ten's place and one's place
+    call hex_nib_high       ;ec01  31 ed 88 A = ASCII digit for ten's place
+    mov @ix+0x00, a         ;ec04  46 00    Write it in the buffer
+
+    mov a, r7               ;ec06  0f       A = ten's place and one's place
+    call hex_nib_low        ;ec07  31 ed 92 A = ASCII digit for one's place
+    mov @ix+0x01, a         ;ec0a  46 01    Write it in the buffer
     jmp msgs_80_af_done     ;ec0c  21 eb b8
 
 msg_87_clear:
@@ -2269,7 +2484,7 @@ msg_87_clear:
 
 msgs_b0_bf:
 ;Called if A >= 0xB0 and A < 0xC0 (diag messages)
-;Called with EP = 0x011d (pointer to Display Number in command packet)
+;EP = 0x011d (pointer to Display Number in command packet)
     movw a, #0x0000         ;ec12  e4 00 00
     mov a, @ep              ;ec15  07
     mov a, #0xb0            ;ec16  04 b0
@@ -2303,7 +2518,7 @@ msgs_b0_bf_jmp:
     .word msg_b1_testdisplay ;ec44  ec 4d       VECTOR   A=0x01 'TESTDISPLAY'
 
 msgs_b0_bf_done:
-    call sub_ecce           ;ec46  31 ec ce
+    call make_fis_text      ;ec46  31 ec ce
     ret                     ;ec49  20
 
 msg_b0_diag:
@@ -2316,7 +2531,7 @@ msg_b1_testdisplay:
 
 msgs_c0_cf:
 ;Called if A >= 0xC0 and A <= 0xCF (bose messages)
-;Called with EP = 0x011d (pointer to Display Number in command packet)
+;EP = 0x011d (pointer to Display Number in command packet)
     movw a, #0x0000         ;ec50  e4 00 00
     mov a, @ep              ;ec53  07
     mov a, #0xc0            ;ec54  04 c0
@@ -2350,7 +2565,7 @@ msgs_c0_cf_jmp:
     .word msg_c1_           ;ec82  ec 8b       VECTOR   0xC1  '...........'
 
 msgs_c0_cf_done:
-    call sub_ecce           ;ec84  31 ec ce
+    call make_fis_text      ;ec84  31 ec ce
     ret                     ;ec87  20
 
 msg_c0_bose:
@@ -2363,7 +2578,7 @@ msg_c1_:
 
 msgs_00_or_gte_d0:
 ;Called if A = 0 or A >= 0xD0 (vw-car message)
-;Called with EP = 0x011d (pointer to Display Number in command packet)
+;EP = 0x011d (pointer to Display Number in command packet)
     movw a, #0x0000         ;ec8e  e4 00 00
     movw a, #msgs_00_or_gte_d0_text ;ec91  e4 f1 a1     A = pointer to vw-car message
     clrc                    ;ec94  81
@@ -2371,7 +2586,7 @@ msgs_00_or_gte_d0:
     movw ix, a              ;ec96  e2
     movw ep, #0x012f        ;ec97  e7 01 2f
     call copy_11_ix_to_ep   ;ec9a  31 ec a1     Copy 11 bytes from @ix to @ep
-    call sub_ecce           ;ec9d  31 ec ce
+    call make_fis_text      ;ec9d  31 ec ce
     ret                     ;eca0  20
 
 copy_11_ix_to_ep:
@@ -2411,11 +2626,15 @@ copy_11_ix_to_ep:
     incw ep                 ;eccc  c3
     ret                     ;eccd  20
 
-sub_ecce:
-    movw ix, #0x00d7        ;ecce  e6 00 d7
-    movw ep, #0x012f        ;ecd1  e7 01 2f
-    mov r0, #0x04           ;ecd4  88 04
 
+make_fis_text:
+;Reads 11 bytes of ASCII display data from 0x012f-0x139.
+;Writes 16 bytes of FIS display data to 0x00d7-0x00e6.
+    movw ix, #0x00d7        ;ecce  e6 00 d7     IX = pointer to start of 16-byte FIS output buf
+    movw ep, #0x012f        ;ecd1  e7 01 2f     EP = pointer to start of 11-byte ASCII input buf
+
+    ;Copy 4 bytes from 0x012f-0x132 to 0x00d7-0x00da and mask for 7-bit ASCII
+    mov r0, #0x04           ;ecd4  88 04
 lab_ecd6:
     mov a, @ep              ;ecd6  07
     and a, #0x7f            ;ecd7  64 7f
@@ -2425,6 +2644,7 @@ lab_ecd6:
     dec r0                  ;ecdd  d8
     bne lab_ecd6            ;ecde  fc f6
 
+    ;Clear 4 bytes from 0x00db-0x00de
     movw ix, #0x00d7        ;ece0  e6 00 d7
     mov a, #0x00            ;ece3  04 00
     mov @ix+0x04, a         ;ece5  46 04
@@ -2432,10 +2652,10 @@ lab_ecd6:
     mov @ix+0x06, a         ;ece9  46 06
     mov @ix+0x07, a         ;eceb  46 07
 
-    movw ix, #0x00df        ;eced  e6 00 df
+    ;Copy 7 bytes from 0x0133-0x139 to 0x0df-0x0e5 and mask for 7-bit ASCII
+    movw ix, #0x00d7+8      ;eced  e6 00 df
     movw ep, #0x0133        ;ecf0  e7 01 33
     mov r0, #0x07           ;ecf3  88 07
-
 lab_ecf5:
     mov a, @ep              ;ecf5  07
     and a, #0x7f            ;ecf6  64 7f
@@ -2444,42 +2664,63 @@ lab_ecf5:
     incw ep                 ;ecfb  c3
     dec r0                  ;ecfc  d8
     bne lab_ecf5            ;ecfd  fc f6
+
+    ;Clear 1 byte at 0x00e6
     movw ix, #0x00d7        ;ecff  e6 00 d7
     mov a, #0x00            ;ed02  04 00
     mov @ix+0x0f, a         ;ed04  46 0f
+
     movw ix, #0x00d7        ;ed06  e6 00 d7
-    mov a, 0x011c           ;ed09  60 01 1c
-    and a, #0x40            ;ed0c  64 40
-    bne lab_ed13            ;ed0e  fc 03
-    bbc 0x00a9:0, lab_ed27  ;ed10  b0 a9 14     Branch if "show period pictograph" flag is clear
+
+    ;Decide if a period needs to be inserted
+    mov a, 0x011c           ;ed09  60 01 1c     A = pictographs byte in M2S command packet
+    and a, #0x40            ;ed0c  64 40        Mask of all except "period" pictograph bit
+    bnz lab_ed13            ;ed0e  fc 03        Branch if "period" pictograph is set
+    bbc 0x00a9:0, lab_ed27  ;ed10  b0 a9 14     Branch if "show period" flag is clear
 
 lab_ed13:
+    ;A period needs to be inserted.  Shift four characters to the right to
+    ;make room for the period and then write the period.
+
+    ;Copy 0x00e5 to 0x00e6
     mov a, @ix+0x0e         ;ed13  06 0e
     mov @ix+0x0f, a         ;ed15  46 0f
+    ;Copy 0x00e4 to 0x00e5
     mov a, @ix+0x0d         ;ed17  06 0d
     mov @ix+0x0e, a         ;ed19  46 0e
+    ;Copy 0x00e3 to 0x00e4
     mov a, @ix+0x0c         ;ed1b  06 0c
     mov @ix+0x0d, a         ;ed1d  46 0d
+    ;Copy 0x00e2 to 0x00e3
     mov a, @ix+0x0b         ;ed1f  06 0b
     mov @ix+0x0c, a         ;ed21  46 0c
-    mov a, #0x2e            ;ed23  04 2e
+    ;Put period char at 0x00e3
+    mov a, #'.              ;ed23  04 2e
     mov @ix+0x0b, a         ;ed25  46 0b
 
 lab_ed27:
-    bbc 0x00a9:1, lab_ed32  ;ed27  b1 a9 08
+    bbc 0x00a9:1, lab_ed32  ;ed27  b1 a9 08     Branch if "mode or preset digits" flag is clear
+
+    ;Copy byte from 0x00da to 0x00db
     mov a, @ix+0x03         ;ed2a  06 03
     mov @ix+0x04, a         ;ed2c  46 04
+
+    ;Clear byte at 0x00da
     mov a, #0x00            ;ed2e  04 00
     mov @ix+0x03, a         ;ed30  46 03
 
 lab_ed32:
     ret                     ;ed32  20
 
-sub_ed33:
+
+num_to_mhz:
+;Return a FM frequency in BCD for the index number in A
+;A=0x00 returns A=0x0879 (87.9 MHz)
+;A=0xFF returns A=0x1389 (138.9 MHz)
     mov r3, a               ;ed33  4b
-    mov r1, #0x79           ;ed34  89 79
+    mov r1, #0x79           ;ed34  89 79    R1, R2 = BCD 0x0879 (87.9 MHz)
     mov r2, #0x08           ;ed36  8a 08
-    mov r4, #0x02           ;ed38  8c 02
+    mov r4, #0x02           ;ed38  8c 02    R4 = Increment of BCD 0x02
 
 lab_ed3a:
     mov a, r3               ;ed3a  0b
@@ -2498,50 +2739,49 @@ lab_ed3a:
     daa                     ;ed4a  84
     mov r2, a               ;ed4b  4a
     jmp lab_ed3a            ;ed4c  21 ed 3a
-
 lab_ed4f:
     mov a, r2               ;ed4f  0a
     swap                    ;ed50  10
     mov a, r1               ;ed51  09
     ret                     ;ed52  20
 
-sub_ed53:
+num_to_khz:
+;Return a AM frequency in BCD for the index number in A
+;A=0x00 returns R2=0x05, R1=0x30 (530 kHz)
+;A=0xFF returns R2=0x30, R1=0x80 (3080 kHz)
     mov r3, a               ;ed53  4b
-    mov r1, #0x30           ;ed54  89 30
+    mov r1, #0x30           ;ed54  89 30    R1, R2 = BCD 0x0530 (530 KHz)
     mov r2, #0x05           ;ed56  8a 05
-    mov r4, #0x10           ;ed58  8c 10
+    mov r4, #0x10           ;ed58  8c 10    R4 = Increment of BCD 0x010
     jmp lab_ed3a            ;ed5a  21 ed 3a
 
-sub_ed5d:
-    mov r5, a               ;ed5d  4d
-    mov r6, #0x00           ;ed5e  8e 00
-    mov r7, #0x00           ;ed60  8f 00
-    mov a, r5               ;ed62  0d
 
+bin_to_bcd:
+    mov r5, a               ;ed5d  4d
+    mov r6, #0x00           ;ed5e  8e 00  Low nibble: hundred's place, High nibble: thousand's place
+    mov r7, #0x00           ;ed60  8f 00  Low nibble: one's place,     High nibble: ten's place
+    mov a, r5               ;ed62  0d
 lab_ed63:
     clrc                    ;ed63  81
-    subc a, #0x64           ;ed64  34 64
-    bhs lab_ed79            ;ed66  f8 11
+    subc a, #100            ;ed64  34 64
+    bnc lab_ed79            ;ed66  f8 11
     clrc                    ;ed68  81
-    addc a, #0x64           ;ed69  24 64
-
+    addc a, #100            ;ed69  24 64
 lab_ed6b:
     clrc                    ;ed6b  81
-    subc a, #0x0a           ;ed6c  34 0a
-    bhs lab_ed7d            ;ed6e  f8 0d
+    subc a, #10             ;ed6c  34 0a
+    bnc lab_ed7d            ;ed6e  f8 0d
     clrc                    ;ed70  81
-    addc a, #0x0a           ;ed71  24 0a
+    addc a, #10             ;ed71  24 0a
     mov a, r7               ;ed73  0f
     clrc                    ;ed74  81
     addc a                  ;ed75  22
     daa                     ;ed76  84
     mov r7, a               ;ed77  4f
     ret                     ;ed78  20
-
 lab_ed79:
     inc r6                  ;ed79  ce
     jmp lab_ed63            ;ed7a  21 ed 63
-
 lab_ed7d:
     mov r5, a               ;ed7d  4d
     mov a, r7               ;ed7e  0f
@@ -2552,7 +2792,10 @@ lab_ed7d:
     mov a, r5               ;ed84  0d
     jmp lab_ed6b            ;ed85  21 ed 6b
 
-sub_ed88:
+
+hex_nib_high:
+;Convert high nibble in A to an ASCII hex digit
+;Returns ASCII digit A
     movw a, #0x00f0         ;ed88  e4 00 f0
     andw a                  ;ed8b  63
     clrc                    ;ed8c  81
@@ -2562,7 +2805,9 @@ sub_ed88:
     rolc a                  ;ed90  02
     rolc a                  ;ed91  02
 
-sub_ed92:
+hex_nib_low:
+;Convert low nibble in A to an ASCII hex digit
+;Returns ASCII digit in A
     movw a, #0x000f         ;ed92  e4 00 0f
     andw a                  ;ed95  63
     movw a, #alphanum       ;ed96  e4 ed 9d
@@ -2776,11 +3021,14 @@ msgs_c0_cf_text:
     ;0xc1 '...........'
     .byte 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 
+
 msgs_00_or_gte_d0_text:
     ;0x00, 0xd0+ '....VW-CAR.'
     .byte 0x00, 0x00, 0x00, 0x00, 0x56, 0x57, 0x2d, 0x43, 0x41, 0x52, 0x00
 
+
 sub_f1ac:
+;TODO seems FIS related
     movw a, ps              ;f1ac  70           Clear RP (register bank pointer) in PS
     movw a, #0x00ff         ;f1ad  e4 00 ff       R0=0x100, R1=0x101...
     andw a                  ;f1b0  63
@@ -2934,7 +3182,7 @@ sub_f281:
     mov a, #0x06            ;f285  04 06
     mov 0xc3, a             ;f287  45 c3        ;Set 0x00C3 = 0x06
 
-    call build_navi_packet  ;f289  31 f3 0f
+    call build_fis_packet  ;f289  31 f3 0f
     mov 0xc2, #0x00         ;f28c  85 c2 00
     mov a, #0x03            ;f28f  04 03
     mov 0xc8, a             ;f291  45 c8
@@ -3042,9 +3290,9 @@ lab_f30b:
     ret                     ;f30e  20
 
 
-build_navi_packet:
-;Reads message text in 0x00d7-0x00e6.
-;Stores complete Navi protocol packet in 0x00ac-0x00bf.
+build_fis_packet:
+;Reads 16-byte FIS display buffer in 0x00d7-0x00e6.
+;Stores complete "Navi protocol" FIS packet in 0x00ac-0x00bf.
 ;Sets pointer at 0x00c0 to start of packet (0x00ac).
 ;
     ;0x00d7 -> 0x00af
@@ -3161,33 +3409,33 @@ lab_f38d:
 
     ;Prepend packet header
 
-    mov a, #0x81            ;f38f  04 81        0x00AC = Navi packet byte 0 = 0x81
+    mov a, #0x81            ;f38f  04 81    0x00AC = Navi packet byte 0 = 0x81
     mov 0xac, a             ;f391  45 ac
 
-    mov a, #0x12            ;f393  04 12        0x00AD = Navi packet byte 1 = Number of bytes (0x12)
+    mov a, #0x12            ;f393  04 12    0x00AD = Navi packet byte 1 = Number of bytes (0x12)
     mov 0xad, a             ;f395  45 ad
 
     mov a, #0xf0            ;f397  04 f0
-    mov 0xae, a             ;f399  45 ae        0x00AE = Navi packet byte 2 = 0xF0
-
-    mov r0, #0x12           ;f39b  88 12        R0 = 0x12 bytes to count down
-    movw ix, #0x00ac        ;f39d  e6 00 ac     IX = pointer to start of Navi packet buffer
+    mov 0xae, a             ;f399  45 ae    0x00AE = Navi packet byte 2 = 0xF0
 
     ;Append packet checksum
 
-    mov a, @ix+0x00         ;f3a0  06 00        A = read byte in Navi packet buffer
+    mov r0, #0x12           ;f39b  88 12     R0 = 0x12 bytes to count down
+    movw ix, #0x00ac        ;f39d  e6 00 ac  IX = pointer to start of Navi packet buffer
+
+    mov a, @ix+0x00         ;f3a0  06 00     A = read byte in Navi packet buffer
 lab_f3a2:
-    incw ix                 ;f3a2  c2           Increment pointer
-    mov a, @ix+0x00         ;f3a3  06 00        A = read next byte in buffer, T = previous byte
-    xor a                   ;f3a5  52           A = A ^ T
+    incw ix                 ;f3a2  c2        Increment pointer
+    mov a, @ix+0x00         ;f3a3  06 00     A = read next byte in buffer, T = previous byte
+    xor a                   ;f3a5  52        A = A ^ T
     dec r0                  ;f3a6  d8
-    bne lab_f3a2            ;f3a7  fc f9        Loop until 0x12 bytes are done
+    bne lab_f3a2            ;f3a7  fc f9     Loop until 0x12 bytes are done
 
     decw a                  ;f3a9  d0
-    mov 0xac+19, a          ;f3aa  45 bf        Store checksum in last byte of packet buffer
+    mov 0xac+19, a          ;f3aa  45 bf     Store checksum in last byte of packet buffer
 
     movw a, #0x00ac         ;f3ac  e4 00 ac
-    movw 0xc0, a            ;f3af  d5 c0        0x00C0 = pointer to start of Navi packet buffer
+    movw 0xc0, a            ;f3af  d5 c0     0x00C0 = pointer to start of Navi packet buffer
     ret                     ;f3b1  20
 
 
@@ -3785,7 +4033,9 @@ lab_f6d1:
 lab_f6de:
     ret                     ;f6de  20
 
+
 sub_f6df:
+;TODO seems ADC related
     mov a, 0xd1             ;f6df  05 d1
     bne lab_f711            ;f6e1  fc 2e
     bbc 0x00cd:7, lab_f707  ;f6e3  b7 cd 21
