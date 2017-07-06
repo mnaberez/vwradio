@@ -461,7 +461,7 @@ m2s_cmd_process:
     ;A command packet is ready
     clrb 0x9a:3             ;e271  a3 9a         Clear "Main-MCU packet ready" flag for next time
     mov a, 0x0115           ;e273  60 01 15      A = first byte of Main-MCU packet (command byte)
-    and a, #0xf0            ;e276  64 f0         Mask off low nibble
+    and a, #0xf0            ;e276  64 f0         Mask to leave only high nibble
     cmp a, #0x80            ;e278  14 80         High nibble = 0x80?
     beq m2s_cmd_dispatch    ;e27a  fd 01         Yes: probably valid command, try to dispatch it
                             ;                    No: not a valid command, do nothing
@@ -1224,8 +1224,8 @@ msg_01_cd_tr:
 msg_02_cue:
 ;Buffer:  'CUE........'
 ;Example: 'CUE   123  '
-;Example: 'CUE  1234  '
 ;Example: 'CUE  -123  '
+;Example: 'CUE  1234  '
 ;
 ;Param 0 Byte        = Unused
 ;Param 1 High Nibble = Minutes tens place BCD; 0 shows " ", 0xA shows "-"
@@ -1236,9 +1236,11 @@ msg_02_cue:
 
     and a, #0xf0            ;e679  64 f0        Mask to leave only high nibble
     bz lab_e688             ;e67b  fd 0b        Branch if it is zero
+
     call hex_nib_high       ;e67d  31 ed 88     A = ASCII digit for high nibble
     cmp a, #'A              ;e680  14 41        Is it ASCII "A"?
     bne lab_e686            ;e682  fc 02          No: Branch to skip changing to "-"
+
     mov a, #'-              ;e684  04 2d        A = ASCII "-"
 lab_e686:
     mov @ix+0x05, a         ;e686  46 05        Write minutes tens place or "-" into buffer
@@ -1261,8 +1263,8 @@ lab_e688:
 msg_03_rev:
 ;Buffer:  'REV........'
 ;Example: 'REV   123  '
-;Example: 'REV  1234  '
 ;Example: 'REV  -123  '
+;Example: 'REV  1234  '
 ;
 ;Param 0 Byte        = Unused
 ;Param 1 High Nibble = Minutes tens place BCD; 0 shows " ", 0xA shows "-"
@@ -1328,7 +1330,9 @@ msg_08_cd_error:
 
 msg_09_cd_:
 ;Buffer:  'CD.........'
-;Example: 'CD 6       '
+;Example: 'CD 6  123  '
+;Example: 'CD 6 -123  '
+;Example: 'CD 6 1234  '
 ;
 ;Param 0 High Nibble = Unused
 ;Param 0 Low Nibble  = CD number
@@ -1473,7 +1477,7 @@ msg_12_set_onvol_:
     call bin_to_bcd         ;e73f  31 ed 5d     R7 = Level in BCD
 
     mov a, r7               ;e742  0f           A = Level in BCD
-    and a, #0xf0            ;e743  64 f0        Mask off all except tens place
+    and a, #0xf0            ;e743  64 f0        Mask to leave only tens place
     beq lab_e74c            ;e745  fd 05        Skip write if tens place is 0
     call hex_nib_high       ;e747  31 ed 88     A = ASCII digit for tens place
     mov @ix+0x09, a         ;e74a  46 09        Write one's place into buffer
@@ -1623,7 +1627,6 @@ msg_22_:
 
     and a, #0xf0            ;e7f0  64 f0        Mask to leave only high nibble
     bz lab_e7f9             ;e7f2  fd 05        Skip digit if it is 0
-
     call hex_nib_high       ;e7f4  31 ed 88     A = ASCII digit for high nibble
     mov @ix+0x00, a         ;e7f7  46 00        Write digit into buffer
 
@@ -2379,29 +2382,47 @@ msg_61_min:
     jmp msgs_60_7f_done     ;eaea  21 ea b3
 
 msg_61_bass:
-;'BASS.......'
-    mov a, @ep              ;eaed  07
-    mov r0, a               ;eaee  48
-    beq lab_eaf6            ;eaef  fd 05
-    rolc a                  ;eaf1  02
-    blo lab_eb01            ;eaf2  f9 0d
-    mov a, #'+              ;eaf4  04 2b
+;Buffer:  'BASS.......'
+;Example: 'BASS  0    '
+;Example: 'BASS  +9   '
+;Example: 'BASS  -9   '
+;
+;Param 0 Byte = Level as a signed binary number
+;Param 1 Byte = Unused
+;Param 2 Byte = Unused
+    mov a, @ep              ;eaed  07           A = Display Param 0
+    mov r0, a               ;eaee  48           R0 = Display Param 0
+    bz lab_eaf6             ;eaef  fd 05        Branch if zero
+
+    rolc a                  ;eaf1  02           Rotate bit 7 into carry
+    bc lab_eb01             ;eaf2  f9 0d        Branch if carry set (negative number)
+    mov a, #'+              ;eaf4  04 2b        A = ASCII "+" sign
+
 lab_eaf6:
-    mov @ix+0x06, a         ;eaf6  46 06
-    mov a, r0               ;eaf8  08
-    call hex_nib_low        ;eaf9  31 ed 92
-    mov @ix+0x08, a         ;eafc  46 08
+    mov @ix+0x06, a         ;eaf6  46 06        Write sign into buffer
+
+    mov a, r0               ;eaf8  08           A = Display Param 0
+    call hex_nib_low        ;eaf9  31 ed 92     A = ASCII digit for display param 0
+    mov @ix+0x08, a         ;eafc  46 08        Write ASCII digit into the buffer
     jmp msgs_60_7f_done     ;eafe  21 ea b3
+
 lab_eb01:
-    mov a, r0               ;eb01  08
-    xor a, #0xff            ;eb02  54 ff
-    incw a                  ;eb04  c0
-    mov r0, a               ;eb05  48
-    mov a, #'-              ;eb06  04 2d
+    mov a, r0               ;eb01  08           A = Display Param 0
+    xor a, #0xff            ;eb02  54 ff        Flip all bits over,
+    incw a                  ;eb04  c0             then add one (two's complement)
+    mov r0, a               ;eb05  48           R0 = number converted to positive
+    mov a, #'-              ;eb06  04 2d        A = ASCII digit for "-" sign
     jmp lab_eaf6            ;eb08  21 ea f6
 
 msg_63_treb:
-;'TREB.......'
+;Buffer:  'TREB.......'
+;Example: 'TREB  0    '
+;Example: 'TREB  +9   '
+;Example: 'TREB  -9   '
+;
+;Param 0 Byte = Level as a signed binary number
+;Param 1 Byte = Unused
+;Param 2 Byte = Unused
     jmp msg_61_bass         ;eb0b  21 ea ed
 
 msg_64_bal_left:
@@ -3669,7 +3690,7 @@ read_bose:
     mov 0x9e, a             ;f3f3  45 9e
 
     mov a, pdr0             ;f3f5  05 00    Read port with BOSE switches
-    and a, #0b11000000      ;f3f7  64 c0    Mask off all except BOSE_SW2 (bit 7) and BOSE_SW1 (bit 6)
+    and a, #0b11000000      ;f3f7  64 c0    Mask to leave only BOSE_SW2 (bit 7) and BOSE_SW1 (bit 6)
     cmp a, #0b10000000      ;f3f9  14 80    Compare with BOSE_SW2=1, BOSE_SW1=0
     bne read_bose_case_2    ;f3fb  fc 08
 
