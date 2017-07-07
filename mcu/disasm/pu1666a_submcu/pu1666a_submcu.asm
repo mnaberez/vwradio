@@ -1681,8 +1681,12 @@ msg_23_hc:
 
 msg_24_v:
 ;Buffer:  'V..........'
+;
+;Param 0 Byte = Used; Unknown purpose
+;Param 1 Byte = Used; Unknown purpose
+;Param 2 Byte = Used; Unknown purpose
 ;TODO finish me
-    mov a, @ep
+    mov a, @ep             ;A = display param 0
     and a, #0xf0
     beq lab_e878
     mov a, #'-
@@ -1693,8 +1697,9 @@ msg_24_v:
 lab_e83e:
     call hex_nib_low
     mov @ix+0x02, a
-    incw ep
-    mov a, @ep
+
+    incw ep                ;EP = pointer to display param 1
+    mov a, @ep             ;A = display param 1
     call bin_to_bcd
     mov a, r6
     beq lab_e850
@@ -1707,8 +1712,9 @@ lab_e850:
     mov a, r7
     call hex_nib_low
     mov @ix+0x06, a
-    incw ep
-    mov a, @ep
+
+    incw ep                ;EP = pointer to display param 2
+    mov a, @ep             ;A = display param 2
     call bin_to_bcd
     mov a, r6
     beq lab_e869
@@ -1875,8 +1881,10 @@ msg_33_test_q:
 ;Buffer:  'TEST..Q....'
 ;Example: 'TEST42Q....'
 ;
-;Param 0 Byte        = Unknown binary value ("42" in example above)
-;Param 1 TODO finish me
+;Param 0 Byte = Used; Unknown binary value ("42" in example above)
+;Param 1 Byte = Used; Unknown purpose
+;Param 2 Byte = Used; Unknown purpose
+;TODO finish me
     mov a, @ep              ;A = Display Param 0
     and a, #0xf0            ;Mask to leave only high nibble
     beq lab_e8d0            ;Skip write if high nibble is 0
@@ -1892,8 +1900,8 @@ lab_e8d0:
     call hex_nib_low        ;A = ASCII digit for low nibble
     mov @ix+0x07, a         ;Write digit into buffer
 
-    incw ep
-    mov a, @ep
+    incw ep                 ;EP = pointer to Display Param 2
+    mov a, @ep              ;A = Display Param 2
     and a, #0xf0
     beq lab_e902
     mov a, #'-
@@ -1922,12 +1930,20 @@ lab_e902:
     jmp lab_e8eb
 
 msg_34_testbass:
-;'TESTBASS...'
-    mov a, @ep
+;Buffer:  'TESTBASS...'
+;Example: 'TESTBASS  0'
+;Example: 'TESTBASS +9'
+;Example: 'TESTBASS -9'
+;
+;Param 0 Byte = Level as a signed binary number
+;Param 1 Byte = Unused
+;Param 2 Byte = Unused
+;TODO finish me
+    mov a, @ep              ;A = Display Param 0
     mov r0, a
-    beq lab_e913
+    bz lab_e913
     rolc a
-    bc lab_e91e            ;
+    bc lab_e91e
     mov a, #'+
 lab_e913:
     mov @ix+0x09, a
@@ -1944,7 +1960,15 @@ lab_e91e:
     jmp lab_e913
 
 msg_35_testtreb:
-;'TESTTREB...'
+;Buffer:  'TESTTREB...'
+;Example: 'TESTTREB  0'
+;Example: 'TESTTREB +9'
+;Example: 'TESTTREB -9'
+;
+;Param 0 Byte = Level as a signed binary number
+;Param 1 Byte = Unused
+;Param 2 Byte = Unused
+;TODO finish me
     jmp msg_34_testbass
 
 msg_36_testtun_off:
