@@ -2006,7 +2006,7 @@ msg_40_fm_mhz:
 ;Buffer:  'FM......MHZ'
 ;Example: 'FM261389MHZ'
 ;
-;Param 0 High Nibble = 1, 2 for FM1, FM2
+;Param 0 High Nibble = FM mode number (1, 2 for FM1, FM2)
 ;Param 0 Low Nibble  = Preset number (0=none, 1-6)
 ;Param 1 Byte        = FM Frequency Index (0=87.9 MHz, 0xFF=138.9 MHz)
 ;Param 2 Byte        = Unused
@@ -2095,19 +2095,21 @@ msg_44_fm_max:
 ;Buffer:  'FM....MAX..'
 ;Example: 'FM26  MAX  '
 ;
-;Param 0 High Nibble = 1, 2 for FM1, FM2
+;Param 0 High Nibble = FM mode number (1, 2 for FM1, FM2)
 ;Param 0 Low Nibble  = Preset number (0=none, 1-6)
 ;Param 1 Byte        = Unused
 ;Param 2 Byte        = Unused
     setb 0xa9:1             ;Set "mode or preset digits" flag
+
     mov a, @ep              ;A = display param 0
-    call hex_nib_high
-    mov @ix+0x02, a
-    mov a, @ep
-    call hex_nib_low
-    cmp a, #'0
-    beq lab_e9db
-    mov @ix+0x03, a
+    call hex_nib_high       ;A = ASCII digit for high nibble (FM mode number)
+    mov @ix+0x02, a         ;Write digit into buffer
+
+    mov a, @ep              ;A = display param 0
+    call hex_nib_low        ;A = ASCII digit for low nibble (preset number)
+    cmp a, #'0              ;Preset 0 (no preset)?
+    beq lab_e9db            ;  Yes: branch to skip writing 0
+    mov @ix+0x03, a         ;Write digit into buffer
 lab_e9db:
     jmp msgs_40_4f_done
 
@@ -2115,7 +2117,7 @@ msg_45_fm_min:
 ;Buffer:  'FM....MIN..'
 ;Example: 'FM26  MIN  '
 ;
-;Param 0 High Nibble = 1, 2 for FM1, FM2
+;Param 0 High Nibble = FM mode number (1, 2 for FM1, FM2)
 ;Param 0 Low Nibble  = Preset number (0=none, 1-6)
 ;Param 1 Byte        = Unused
 ;Param 2 Byte        = Unused
@@ -2928,9 +2930,9 @@ num_to_mhz:
 ;Return a FM frequency in BCD for the index number in A
 ;A=0x00 returns A=0x0879 (87.9 MHz)
 ;A=0xFF returns A=0x1389 (138.9 MHz)
-    mov r3, a
-    mov r1, #0x79           ;R1, R2 = BCD 0x0879 (87.9 MHz)
-    mov r2, #0x08
+    mov r3, a               ;R3 = Index number of frequency
+    mov r1, #0x79           ;R1 = Initial BCD low byte  (the 0x79 in 0x0879)
+    mov r2, #0x08           ;R2 = Initial BCD high byte (the 0x08 in 0x0879)
     mov r4, #0x02           ;R4 = Increment of BCD 0x02
 
 lab_ed3a:
@@ -2960,17 +2962,17 @@ num_to_khz:
 ;Return a AM frequency in BCD for the index number in A
 ;A=0x00 returns R2=0x05, R1=0x30 (530 kHz)
 ;A=0xFF returns R2=0x30, R1=0x80 (3080 kHz)
-    mov r3, a
-    mov r1, #0x30           ;R1, R2 = BCD 0x0530 (530 KHz)
-    mov r2, #0x05
+    mov r3, a               ;R3 = Index number of frequency
+    mov r1, #0x30           ;R1 = Initial BCD low byte  (the 0x30 in 0x0530)
+    mov r2, #0x05           ;R2 = Initial BCD high byte (the 0x05 in 0x0530)
     mov r4, #0x10           ;R4 = Increment of BCD 0x010
     jmp lab_ed3a
 
 
 bin_to_bcd:
     mov r5, a
-    mov r6, #0x00           ;Low nibble: tens place, High nibble: thousands place
-    mov r7, #0x00           ;Low nibble: ones place,     High nibble: tens place
+    mov r6, #0x00           ;Low nibble: hundreds place, High nibble: thousands
+    mov r7, #0x00           ;Low nibble: ones place,     High nibble: tens
     mov a, r5
 lab_ed63:
     clrc
