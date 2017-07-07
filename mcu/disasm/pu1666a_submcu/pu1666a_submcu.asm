@@ -1480,11 +1480,11 @@ msg_12_set_onvol_:
     and a, #0xf0            ;e743  64 f0        Mask to leave only tens place
     beq lab_e74c            ;e745  fd 05        Skip write if tens place is 0
     call hex_nib_high       ;e747  31 ed 88     A = ASCII digit for tens place
-    mov @ix+0x09, a         ;e74a  46 09        Write one's place into buffer
+    mov @ix+0x09, a         ;e74a  46 09        Write ones place into buffer
 lab_e74c:
     mov a, r7               ;e74c  0f           A = Level in BCD
-    call hex_nib_low        ;e74d  31 ed 92     A = ASCII digit for one's place
-    mov @ix+0x0a, a         ;e750  46 0a        Wriit one's place into buffer
+    call hex_nib_low        ;e74d  31 ed 92     A = ASCII digit for ones place
+    mov @ix+0x0a, a         ;e750  46 0a        Wriit ones place into buffer
     jmp msgs_10_1f_done     ;e752  21 e7 34
 
 msg_13_set_cdmix1:
@@ -2387,7 +2387,7 @@ msg_61_bass:
 ;Example: 'BASS  +9   '
 ;Example: 'BASS  -9   '
 ;
-;Param 0 Byte = Level as a signed binary number
+;Param 0 Byte = Signed binary number
 ;Param 1 Byte = Unused
 ;Param 2 Byte = Unused
     mov a, @ep              ;eaed  07           A = Display Param 0
@@ -2420,35 +2420,47 @@ msg_63_treb:
 ;Example: 'TREB  +9   '
 ;Example: 'TREB  -9   '
 ;
-;Param 0 Byte = Level as a signed binary number
+;Param 0 Byte = Signed binary number
 ;Param 1 Byte = Unused
 ;Param 2 Byte = Unused
     jmp msg_61_bass         ;eb0b  21 ea ed
 
 msg_64_bal_left:
-;'BAL.LEFT...'
-    mov a, @ep              ;eb0e  07
-    and a, #0xf0            ;eb0f  64 f0
-    cmp a, #0xf0            ;eb11  14 f0
-    beq lab_eb32            ;eb13  fd 1d
-    mov a, @ep              ;eb15  07
-    cmp a, #0x09            ;eb16  14 09
-    blo lab_eb1f            ;eb18  f9 05
+;Buffer:  'BAL.LEFT...'
+;Example: 'BAL LEFT  9'
+;Example: 'BAL LEFT 12'
+;
+;Param 0 Byte = Signed binary number (TODO check range)
+;Param 1 Byte = Unused
+;Param 2 Byte = Unused
+    mov a, @ep              ;eb0e  07       A = Display Param 0
+    and a, #0xf0            ;eb0f  64 f0    Mask to leave only high nibble
+    cmp a, #0xf0            ;eb11  14 f0    Is high nibble = 0xf?
+    beq lab_eb32            ;eb13  fd 1d      Yes: branch to handle negative
+
+    mov a, @ep              ;eb15  07       A = Display Param 0
+    cmp a, #0x09            ;eb16  14 09    Compare to 9
+    blo lab_eb1f            ;eb18  f9 05    Branch if it is lower than 9
+
     clrc                    ;eb1a  81
     addc a, #0x00           ;eb1b  24 00
     daa                     ;eb1d  84
     mov @ep, a              ;eb1e  47
+
 lab_eb1f:
-    mov a, @ep              ;eb1f  07
-    and a, #0xf0            ;eb20  64 f0
-    beq lab_eb29            ;eb22  fd 05
-    call hex_nib_high       ;eb24  31 ed 88
-    mov @ix+0x09, a         ;eb27  46 09
+    mov a, @ep              ;eb1f  07       A = Display Param 0
+    and a, #0xf0            ;eb20  64 f0    Mask to leave only high nibble
+    bz lab_eb29             ;eb22  fd 05     Skip writing digit if it is zero
+
+    call hex_nib_high       ;eb24  31 ed 88 A = ASCII digit for high nibble
+    mov @ix+0x09, a         ;eb27  46 09    Write digit into buffer
+
 lab_eb29:
-    mov a, @ep              ;eb29  07
-    call hex_nib_low        ;eb2a  31 ed 92
-    mov @ix+0x0a, a         ;eb2d  46 0a
+    mov a, @ep              ;eb29  07       A = Display Param 0
+    call hex_nib_low        ;eb2a  31 ed 92 A = ASCII digit for low nibble
+    mov @ix+0x0a, a         ;eb2d  46 0a    Write digit into buffer
     jmp msgs_60_7f_done     ;eb2f  21 ea b3
+
 lab_eb32:
     mov a, @ep              ;eb32  07
     xor a, #0xff            ;eb33  54 ff
@@ -2652,12 +2664,12 @@ msg_86_safe:
     mov a, @ep              ;ebfc  07       A = Display Param 0 (Attempt)
     call bin_to_bcd         ;ebfd  31 ed 5d R7 = Attempt converted to BCD
 
-    mov a, r7               ;ec00  0f       A = tens place and one's place
+    mov a, r7               ;ec00  0f       A = tens place and ones place
     call hex_nib_high       ;ec01  31 ed 88 A = ASCII digit for tens place
     mov @ix+0x00, a         ;ec04  46 00    Write it in the buffer
 
-    mov a, r7               ;ec06  0f       A = tens place and one's place
-    call hex_nib_low        ;ec07  31 ed 92 A = ASCII digit for one's place
+    mov a, r7               ;ec06  0f       A = tens place and ones place
+    call hex_nib_low        ;ec07  31 ed 92 A = ASCII digit for ones place
     mov @ix+0x01, a         ;ec0a  46 01    Write digit in the buffer
     jmp msgs_80_af_done     ;ec0c  21 eb b8
 
@@ -2957,7 +2969,7 @@ num_to_khz:
 bin_to_bcd:
     mov r5, a               ;ed5d  4d
     mov r6, #0x00           ;ed5e  8e 00  Low nibble: tens place, High nibble: thousands place
-    mov r7, #0x00           ;ed60  8f 00  Low nibble: one's place,     High nibble: tens place
+    mov r7, #0x00           ;ed60  8f 00  Low nibble: ones place,     High nibble: tens place
     mov a, r5               ;ed62  0d
 lab_ed63:
     clrc                    ;ed63  81
@@ -4821,9 +4833,9 @@ upd_send_byte:
 
 lab_f9e2:
     rolc a                  ;f9e2  02
-    bhs lab_f9e9            ;f9e3  f8 04
+    bnc lab_f9e9            ;f9e3  f8 04
     setb pdr0:0             ;f9e5  a8 00        UPD_DATA = high
-    blo lab_f9eb            ;f9e7  f9 02
+    bc lab_f9eb             ;f9e7  f9 02
 
 lab_f9e9:
     clrb pdr0:0             ;f9e9  a0 00        UPD_DATA = low
