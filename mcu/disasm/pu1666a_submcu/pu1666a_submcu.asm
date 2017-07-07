@@ -115,11 +115,12 @@ lab_e08f:
     call sub_f1ac           ;TODO seems FIS related
     call sub_f6df           ;TODO seems ADC related
     call sub_f541
-    call sub_e0aa
+    call upd_lcd_on_off     ;Turn upD16432B LCD on or off based on flags
     jmp main_loop
 
 
-sub_e0aa:
+upd_lcd_on_off:
+;Turn uUP16432B LCD enable on or off based on flags
     mov a, 0x013a           ;TODO what is 0x013a?
     bnz lab_e0b2
     bbc 0x009c:1, lab_e0b5  ;Branch if "play dead" flag is clear
