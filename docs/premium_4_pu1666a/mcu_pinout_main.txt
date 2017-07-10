@@ -6,9 +6,9 @@ MB89677AR Main-MCU I/O Pin Usage
 38  P02/AD2     FM_SD           I   FM station detect. High = station detected
 37  P03/AD3     AM_SD           I   AM station detect. High = station detected
 36  P04/AD4     PLL_CE          O   Chip select output for LC72191
-35  P05/AD5     EEPROM_CS       O   Chip select for 93C46
+35  P05/AD5     EEPROM_CS       O   Chip select for 93C46 EEPROM
 34  P06/AD6     PLL_DI          I   Data input from LC72191
-33  P07/AD7     DO              O   Data output 93C46 and LC72911
+33  P07/AD7     DO              O   Data output 93C46 EEPROM and LC72911
 
 32  P10/A08     SK              O   Clock output to 93C46 and LC72191
 31  P11/A09     VOLUME_1        I   Volume knob rotary encoder input
@@ -76,5 +76,5 @@ MB89677AR Main-MCU I/O Pin Usage
 9   P81         Not used?
 8   P82         Not used?
 7   P83         /SCA_CLK_OUT    O   Clock output terminal to cassette mechanism
-60  P84         AMP_ON          O   Internal amplifier contrpl. High = Amp on.  Low when BOSE compliant
+60  P84         AMP_ON          O   Internal amplifier control. High = Amp on.  Low when BOSE compliant
 59  P85         /M2S_ENA_OUT    O   Main-to-Sub SPI bus enable output
