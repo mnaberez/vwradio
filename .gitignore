@@ -2,6 +2,7 @@
 .coverage
 .tox
 *~
+*.bin
 *.cof
 *.egg
 *.egg-info
