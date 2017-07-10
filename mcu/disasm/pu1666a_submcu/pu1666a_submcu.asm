@@ -148,8 +148,7 @@ sub_e0b8:
 
 irq7_e0cb:
 ;irq7 (8-bit serial I/O #1)
-;main-to-sub spi bus
-;Fires when a new byte has been received
+;Fires when a new byte has been received on Main-to-Sub SPI bus
     pushw a
     xchw a, t
     pushw a
@@ -516,6 +515,7 @@ m2s_cmd_83:
 
 
 sub_e2b2:
+;called from irq5_e0ef: irq5 (pulse width count timer)
     bbc 0x009a:0, lab_e2db
     bbc 0x009c:2, lab_e2f8
     bbc 0x009c:0, lab_e2e1
@@ -569,7 +569,8 @@ lab_e2f8:
 
 
 sub_e2ff:
-;New byte received on Main-to-Sub SPI bus
+;called from irq7 (8-bit serial I/O #1)
+;Fires when a new byte has been received on Main-to-Sub SPI bus
     bbc 0x009a:2, lab_e307
 
     mov a, #0x00            ;Reset count of bytes received from Main-MCU
@@ -626,6 +627,7 @@ lab_e339:
     jmp lab_e333
 
 sub_e34e:
+;called from irq0_e199: irq0 (external interrupt #0)
 ;mfsw input changed
     mov a, 0x0126
     bne lab_e35e
@@ -804,6 +806,7 @@ lab_e42f:
     jmp lab_e41c
 
 sub_e437:
+;called from irq6_e0dd: irq6 (16-bit timer/counter)
     mov a, 0x014a
     incw a
     mov 0x014a, a
@@ -3833,6 +3836,7 @@ read_0xcd_bit0_done:
 
 
 sub_f44b:
+;called from irq3_e175: irq3 (external interrupt #3) diag ill input
     movw a, tchr
     movw 0x013f, a
     mov a, 0x013c
@@ -4223,6 +4227,7 @@ lab_f68e:
     jmp lab_f672
 
 sub_f693:
+;called from irq2_e187: irq2 (external interrupt #2) clipping input
     mov a, 0xcc
     bne lab_f6a5
     mov 0xcc, #0x01
@@ -4250,6 +4255,7 @@ lab_f6b7:
     ret
 
 sub_f6c1:
+;called from irq4_e163: irq4 (8-bit pwm timer)
     mov a, 0xcc
     cmp a, #0x01
     bne lab_f6d1
@@ -4430,34 +4436,36 @@ lab_f7bd:
 ;
     clrb pdr0:2             ;UPD_STB = low (deselect uPD16432B)
 
+    ;Compare 0x008b-0x008e buffer with 0x008f-0x0092 buffer
     movw ix, #0x008b
     mov a, 0x8f             ;A = Byte 0 of 4-byte key data buffer
-    xor a, @ix+0x00
+    xor a, @ix+0x00         ;XOR with 0x008b
     mov a, 0x90             ;A = Byte 1 of 4-byte key data buffer
-    xor a, @ix+0x01
+    xor a, @ix+0x01         ;XOR with 0x008c
     or a
     mov a, 0x91             ;A = Byte 2 of 4-byte key data buffer
-    xor a, @ix+0x02
+    xor a, @ix+0x02         ;XOR with 0x008d
     or a
     mov a, 0x92             ;A = Byte 3 of 4-byte key data buffer
-    xor a, @ix+0x03
+    xor a, @ix+0x03         ;XOR with 0x008e
     or a
     bne lab_f80e
 
     mov a, 0x0108
     bne lab_f801
 
+    ;Compare 0x0093-0x0096 buffer with 0x008f-0x0092 buffer
     movw ix, #0x0093
     mov a, 0x8f             ;A = Byte 0 of 4-byte key data buffer
-    xor a, @ix+0x00
+    xor a, @ix+0x00         ;XOR with 0x0093
     mov a, 0x90             ;A = Byte 1 of 4-byte key data buffer
-    xor a, @ix+0x01
+    xor a, @ix+0x01         ;XOR with 0x0094
     or a
     mov a, 0x91             ;A = Byte 2 of 4-byte key data buffer
-    xor a, @ix+0x02
+    xor a, @ix+0x02         ;XOR with 0x0095
     or a
     mov a, 0x92             ;A = Byte 3 of 4-byte key data buffer
-    xor a, @ix+0x03
+    xor a, @ix+0x03         ;XOR with 0x0096
     or a
     beq lab_f81b
 
@@ -4477,10 +4485,11 @@ lab_f801:
     jmp lab_f81b
 
 lab_f80e:
-    movw a, 0x8f
-    movw 0x8b, a
-    movw a, 0x91
+    movw a, 0x8f            ;Copy 4-byte key data buffer
+    movw 0x8b, a            ;  from 0x008f-0x0092
+    movw a, 0x91            ;  to   0x008b-0x008e
     movw 0x8d, a
+
     mov a, #0x02
     mov 0x0108, a
 
@@ -4508,7 +4517,7 @@ lab_f82b:
 
     incw ep                 ;Move to next byte in key data buffer
 
-    movw a, #0x0000         ;Decrement count of key data bytes available
+    movw a, #0x0000         ;Decrement count of key data bytes to process
     mov a, 0x84
     decw a
     mov 0x84, a
