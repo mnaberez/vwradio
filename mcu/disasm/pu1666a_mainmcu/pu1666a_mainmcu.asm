@@ -23412,7 +23412,7 @@ mem_ff63:
     .word lab_8010          ;ffe8  80 10       VECTOR irq9 (8/16-bit updown counter)
     .word lab_810b          ;ffea  81 0b       VECTOR irq8 (uart)
     .word lab_8120          ;ffec  81 20       VECTOR irq7 (8-bit serial i/o)
-    .word lab_80fa          ;ffee  80 fa       VECTOR irq6 (8-bit pwm timer #3 (#4, #5, #6)
+    .word lab_80fa          ;ffee  80 fa       VECTOR irq6 (8-bit pwm timer #3 (#4, #5, #6))
     .word lab_80d7          ;fff0  80 d7       VECTOR irq5 (2ch 8-bit pwm timer)
     .word lab_8010          ;fff2  80 10       VECTOR irq4 (unused)
     .word lab_8010          ;fff4  80 10       VECTOR irq3 (8/16 bit timer #1, #2)
