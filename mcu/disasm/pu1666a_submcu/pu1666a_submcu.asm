@@ -2360,7 +2360,7 @@ lab_ea88:
 msgs_60_7f_jmp:
     .word msg_60_max        ;VECTOR   0x60  '.....MAX...'
     .word msg_61_min        ;VECTOR   0x61  '.....MIN...'
-    .word msg_61_bass       ;VECTOR   0x62  'BASS.......'
+    .word msg_62_bass       ;VECTOR   0x62  'BASS.......'
     .word msg_63_treb       ;VECTOR   0x63  'TREB.......'
     .word msg_64_bal_left   ;VECTOR   0x64  'BAL.LEFT...'
     .word msg_65_bal_right  ;VECTOR   0x65  'BAL.RIGHT..'
@@ -2411,7 +2411,7 @@ msg_61_min:
     mov @ix+0x0a, a
     jmp msgs_60_7f_done
 
-msg_61_bass:
+msg_62_bass:
 ;Buffer:  'BASS.......'
 ;Example: 'BASS  0    '
 ;Example: 'BASS  +9   '
@@ -2453,14 +2453,14 @@ msg_63_treb:
 ;Param 0 Byte = Signed binary number
 ;Param 1 Byte = Unused
 ;Param 2 Byte = Unused
-    jmp msg_61_bass
+    jmp msg_62_bass
 
 msg_64_bal_left:
 ;Buffer:  'BAL.LEFT...'
 ;Example: 'BAL LEFT  9'
-;Example: 'BAL LEFT 12'
+;Example: 'BAL LEFT  1'
 ;
-;Param 0 Byte = Signed binary number (TODO check range)
+;Param 0 Byte = Signed binary number (always positive)
 ;Param 1 Byte = Unused
 ;Param 2 Byte = Unused
     mov a, @ep              ;A = Display Param 0
@@ -2501,7 +2501,13 @@ lab_eb32:
     jmp lab_eb1f
 
 msg_65_bal_right:
-;'BAL.RIGHT..'
+;Buffer:  'BAL.RIGHT..'
+;Example: 'BAL RIGHT 9'
+;Example: 'BAL RIGHT 1'
+;
+;Param 0 Byte = Signed binary number (always negative)
+;Param 1 Byte = Unused
+;Param 2 Byte = Unused
     mov a, @ep
     and a, #0xf0
     cmp a, #0xf0
@@ -2542,16 +2548,20 @@ msg_66_bal_center:
 
 msg_67_fadefront:
 ;Buffer:  'FADEFRONT..'
-;Example: 'FADEFRONT  '
+;Example: 'FADEFRONT 9'
 ;
-;TODO params
+;Param 0 Byte = Level (signed number, always positive)
+;Param 1 Byte = Unused
+;Param 2 Byte = Unused
     jmp msg_65_bal_right
 
 msg_68_faderear:
 ;Buffer:  'FADEREAR...'
 ;Example: 'FADEREAR   '
 ;
-;TODO params
+;Param 0 Byte = Level (signed number, always negative)
+;Param 1 Byte = Unused
+;Param 2 Byte = Unused
     jmp msg_64_bal_left
 
 msg_69_fadecenter:
