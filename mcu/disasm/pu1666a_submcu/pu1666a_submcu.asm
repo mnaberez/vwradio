@@ -2269,7 +2269,7 @@ msg_55_tape_mss_rew:
 
 msg_56_tape_scan_a:
 ;Buffer:  'TAPE.SCAN.A'
-;Example:
+;Example: 'TAPE SCAN A'
 ;
 ;No params
     jmp msgs_50_5f_done
@@ -2605,7 +2605,7 @@ msgs_80_af:
 msgs_80_af_jmp:
     .word msg_80_no_code    ;VECTOR   0x80  '....NO.CODE'
     .word msg_81_code       ;VECTOR   0x81  '.....CODE..'
-    .word msg_82_           ;VECTOR   0x82  '...........'
+    .word msg_82_code_entry ;VECTOR   0x82  '...........'
     .word msg_83_safe       ;VECTOR   0x83  '.....SAFE..'
     .word msg_84_initial    ;VECTOR   0x84  '....INITIAL'
     .word msg_85_no_code    ;VECTOR   0x85  '....NO.CODE'
@@ -2630,7 +2630,7 @@ msg_81_code:
 ;No params
     jmp msgs_80_af_done
 
-msg_82_:
+msg_82_code_entry:
 ;Buffer:  '...........'
 ;Example: '2    1234  '
 ;
