@@ -619,7 +619,7 @@ mem_800a:
     .byte 0xDF              ;800e  df          DATA '\xdf'
     .byte 0xEF              ;800f  ef          DATA '\xef'
 
-lab_8010:
+reset_8010:
     movw a, #0x047f         ;8010  e4 04 7f
     movw sp, a              ;8013  e1
     movw a, #0x0030         ;8014  e4 00 30
@@ -656,14 +656,15 @@ lab_804b:
     movw a, #0x0212         ;805d  e4 02 12
     movw mem_01bf, a        ;8060  d4 01 bf
     call sub_8135           ;8063  31 81 35
-    jmp lab_8010            ;8066  21 80 10
+    jmp reset_8010          ;8066  21 80 10
 
     .byte 0x00              ;8069  00          DATA '\x00'
     .byte 0x21              ;806a  21          DATA '!'
     .byte 0x80              ;806b  80          DATA '\x80'
     .byte 0x69              ;806c  69          DATA 'i'
 
-lab_806d:
+irq0_806d:
+;irq0 (external interrupt 1)
     pushw a                 ;806d  40
     xchw a, t               ;806e  43
     pushw a                 ;806f  40
@@ -694,9 +695,10 @@ lab_8093:
     call sub_fa5d           ;8098  31 fa 5d
 
 lab_809b:
-    jmp lab_812e            ;809b  21 81 2e
+    jmp finish_isr          ;809b  21 81 2e
 
-lab_809e:
+irq1_809e:
+;irq1 (external interrupt 2)
     pushw a                 ;809e  40
     xchw a, t               ;809f  43
     pushw a                 ;80a0  40
@@ -720,9 +722,10 @@ lab_80b6:
     clrb eif2:3             ;80b9  a3 3b
 
 lab_80bb:
-    jmp lab_812e            ;80bb  21 81 2e
+    jmp finish_isr          ;80bb  21 81 2e
 
-lab_80be:
+irq2_80be:
+;irq2 (16-bit timer counter)
     pushw a                 ;80be  40
     xchw a, t               ;80bf  43
     pushw a                 ;80c0  40
@@ -735,9 +738,10 @@ lab_80be:
     movw a, ep              ;80cf  f3
     pushw a                 ;80d0  40
     call sub_a914           ;80d1  31 a9 14
-    jmp lab_812e            ;80d4  21 81 2e
+    jmp finish_isr          ;80d4  21 81 2e
 
-lab_80d7:
+irq5_80d7:
+;irq5 (2ch 8-bit pwm timer)
     pushw a                 ;80d7  40
     xchw a, t               ;80d8  43
     pushw a                 ;80d9  40
@@ -751,7 +755,7 @@ lab_80d7:
 lab_80e5:
     bbc cntr4:2, lab_80ed   ;80e5  b2 48 05
     clrb cntr4:2            ;80e8  a2 48
-    call sub_e83a           ;80ea  31 e8 3a
+    call submcu_send_packet           ;80ea  31 e8 3a
 
 lab_80ed:
     bbc cntr5:2, lab_80f2   ;80ed  b2 4a 02
@@ -762,21 +766,23 @@ lab_80f2:
     clrb cntr6:2            ;80f5  a2 4c
 
 lab_80f7:
-    jmp lab_812e            ;80f7  21 81 2e
+    jmp finish_isr          ;80f7  21 81 2e
 
-lab_80fa:
+irq6_80fa:
+;irq6 (8-bit pwm timer #3 (#4, #5, #6))
     pushw a                 ;80fa  40
     xchw a, t               ;80fb  43
     pushw a                 ;80fc  40
     pushw ix                ;80fd  41
     movw a, ep              ;80fe  f3
     pushw a                 ;80ff  40
-    bbc cntr2:3, lab_812e   ;8100  b3 29 2b
+    bbc cntr2:3, finish_isr ;8100  b3 29 2b
     clrb cntr2:3            ;8103  a3 29
     call sub_ef8b           ;8105  31 ef 8b
-    jmp lab_812e            ;8108  21 81 2e
+    jmp finish_isr          ;8108  21 81 2e
 
-lab_810b:
+irq8_810b:
+;irq8 (uart)
     pushw a                 ;810b  40
     xchw a, t               ;810c  43
     pushw a                 ;810d  40
@@ -785,24 +791,25 @@ lab_810b:
     pushw a                 ;8110  40
     bbc mem_008c:7, lab_811a ;8111  b7 8c 06
     call sub_b280           ;8114  31 b2 80
-    jmp lab_812e            ;8117  21 81 2e
+    jmp finish_isr          ;8117  21 81 2e
 
 lab_811a:
     call sub_e0f3           ;811a  31 e0 f3
-    jmp lab_812e            ;811d  21 81 2e
+    jmp finish_isr            ;811d  21 81 2e
 
-lab_8120:
+irq7_8120:
+;irq7 (8-bit serial i/o)
     pushw a                 ;8120  40
     xchw a, t               ;8121  43
     pushw a                 ;8122  40
     pushw ix                ;8123  41
     movw a, ep              ;8124  f3
     pushw a                 ;8125  40
-    bbc smr:7, lab_812e     ;8126  b7 1c 05
+    bbc smr:7, finish_isr   ;8126  b7 1c 05
     clrb smr:7              ;8129  a7 1c
     call sub_ef32           ;812b  31 ef 32
 
-lab_812e:
+finish_isr:
     popw a                  ;812e  50
     movw ep, a              ;812f  e3
     popw ix                 ;8130  51
@@ -817,8 +824,8 @@ sub_8135:
 lab_8138:
     call sub_8225           ;8138  31 82 25
     call sub_a526           ;813b  31 a5 26
-    call sub_e790           ;813e  31 e7 90
-    call sub_e81b           ;8141  31 e8 1b
+    call sub_e790           ;813e  31 e7 90    Build and schedule Main-to-Sub packet
+    call sub_e81b           ;8141  31 e8 1b    Process Sub-to-Main packet
     call sub_843f           ;8144  31 84 3f
     cmp mem_0096, #0x01     ;8147  95 96 01
     beq lab_816c            ;814a  fd 20
@@ -891,7 +898,7 @@ lab_81bc:
     mov a, mem_0330         ;81c6  60 03 30
     cmp a                   ;81c9  12
     beq lab_81d5            ;81ca  fd 09
-    callv #5                ;81cc  ed          CALLV #5 = sub_8d0d
+    callv #5                ;81cc  ed          CALLV #5 = callv5_8d0d
     mov a, mem_00f6         ;81cd  05 f6
     mov mem_0330, a         ;81cf  61 03 30
     jmp lab_81da            ;81d2  21 81 da
@@ -1753,7 +1760,7 @@ lab_8749:
     beq lab_87ad            ;8756  fd 55
     call sub_87c5           ;8758  31 87 c5
     bhs lab_8736            ;875b  f8 d9
-    callv #4                ;875d  ec          CALLV #4 = sub_8c84
+    callv #4                ;875d  ec          CALLV #4 = callv4_8c84
     setb mem_00af:2         ;875e  aa af
     mov a, mem_0095         ;8760  05 95
     beq lab_876d            ;8762  fd 09
@@ -1855,7 +1862,7 @@ lab_87d8:
     ret                     ;87ec  20
 
 lab_87ed:
-    callv #4                ;87ed  ec          CALLV #4 = sub_8c84
+    callv #4                ;87ed  ec          CALLV #4 = callv4_8c84
     setb mem_00af:2         ;87ee  aa af
     mov a, mem_0095         ;87f0  05 95
     beq lab_87fd            ;87f2  fd 09
@@ -1899,7 +1906,7 @@ lab_8820:
     ret                     ;882c  20
 
 lab_882d:
-    callv #4                ;882d  ec          CALLV #4 = sub_8c84
+    callv #4                ;882d  ec          CALLV #4 = callv4_8c84
     setb mem_00af:2         ;882e  aa af
     mov a, mem_0095         ;8830  05 95
     beq lab_883e            ;8832  fd 0a
@@ -1963,7 +1970,7 @@ lab_8876:
     beq lab_88b6            ;8883  fd 31
     cmp a, #0x63            ;8885  14 63
     beq lab_88b6            ;8887  fd 2d
-    callv #4                ;8889  ec          CALLV #4 = sub_8c84
+    callv #4                ;8889  ec          CALLV #4 = callv4_8c84
     call sub_8d00           ;888a  31 8d 00
     setb mem_00af:2         ;888d  aa af
     mov a, mem_0095         ;888f  05 95
@@ -2026,7 +2033,7 @@ lab_88de:
 lab_88df:
     cmp mem_0095, #0x01     ;88df  95 95 01
     beq lab_88e5            ;88e2  fd 01
-    callv #4                ;88e4  ec          CALLV #4 = sub_8c84
+    callv #4                ;88e4  ec          CALLV #4 = callv4_8c84
 
 lab_88e5:
     mov a, mem_0095         ;88e5  05 95
@@ -2124,7 +2131,7 @@ sub_895a:
     ret                     ;8962  20
 
 lab_8963:
-    callv #4                ;8963  ec          CALLV #4 = sub_8c84
+    callv #4                ;8963  ec          CALLV #4 = callv4_8c84
     setb mem_00d8:2         ;8964  aa d8
     mov mem_009e, #0x01     ;8966  85 9e 01
 
@@ -2194,7 +2201,7 @@ lab_89c2:
     ret                     ;89c2  20
 
 sub_89c3:
-    callv #4                ;89c3  ec          CALLV #4 = sub_8c84
+    callv #4                ;89c3  ec          CALLV #4 = callv4_8c84
     setb mem_00d8:3         ;89c4  ab d8
     mov mem_009e, #0x00     ;89c6  85 9e 00
     jmp lab_8969            ;89c9  21 89 69
@@ -2239,7 +2246,7 @@ lab_8a09:
     ret                     ;8a0c  20
 
 lab_8a0d:
-    callv #4                ;8a0d  ec          CALLV #4 = sub_8c84
+    callv #4                ;8a0d  ec          CALLV #4 = callv4_8c84
     bbc mem_00ca:7, lab_8a14 ;8a0e  b7 ca 03
     clrb mem_00ca:7         ;8a11  a7 ca
     ret                     ;8a13  20
@@ -2295,7 +2302,7 @@ lab_8a5e:
 lab_8a5f:
     cmp mem_0095, #0x02     ;8a5f  95 95 02
     bne lab_8a6a            ;8a62  fc 06
-    callv #4                ;8a64  ec          CALLV #4 = sub_8c84
+    callv #4                ;8a64  ec          CALLV #4 = callv4_8c84
     mov a, #0x09            ;8a65  04 09
     mov mem_01c6, a         ;8a67  61 01 c6
 
@@ -2313,7 +2320,7 @@ lab_8a70:
     bne lab_8a85            ;8a78  fc 0b
     call sub_9ea3           ;8a7a  31 9e a3
     blo lab_8a85            ;8a7d  f9 06
-    callv #4                ;8a7f  ec          CALLV #4 = sub_8c84
+    callv #4                ;8a7f  ec          CALLV #4 = callv4_8c84
     mov a, mem_009e         ;8a80  05 9e
     jmp lab_89ad            ;8a82  21 89 ad
 
@@ -2380,7 +2387,7 @@ lab_8ad6:
     mov a, mem_009e         ;8ad6  05 9e
     cmp a, mem_00b1         ;8ad8  15 b1
     bne lab_8ae0            ;8ada  fc 04
-    callv #4                ;8adc  ec          CALLV #4 = sub_8c84
+    callv #4                ;8adc  ec          CALLV #4 = callv4_8c84
     jmp lab_8b13            ;8add  21 8b 13
 
 lab_8ae0:
@@ -2542,7 +2549,7 @@ lab_8bc1:
     mov mem_01c6, a         ;8bcb  61 01 c6
 
 lab_8bce:
-    callv #4                ;8bce  ec          CALLV #4 = sub_8c84
+    callv #4                ;8bce  ec          CALLV #4 = callv4_8c84
 
 lab_8bcf:
     ret                     ;8bcf  20
@@ -2624,7 +2631,7 @@ lab_8c25:
     setb mem_0098:6         ;8c25  ae 98
     mov a, mem_00b1         ;8c27  05 b1
     beq lab_8c2e            ;8c29  fd 03
-    callv #4                ;8c2b  ec          CALLV #4 = sub_8c84
+    callv #4                ;8c2b  ec          CALLV #4 = callv4_8c84
     setb mem_0098:4         ;8c2c  ac 98
 
 lab_8c2e:
@@ -2695,16 +2702,16 @@ sub_8c79:
     mov mem_02af, a         ;8c7b  61 02 af
     setb mem_0099:4         ;8c7e  ac 99
     setb mem_00b2:4         ;8c80  ac b2
-    callv #5                ;8c82  ed          CALLV #5 = sub_8d0d
+    callv #5                ;8c82  ed          CALLV #5 = callv5_8d0d
     ret                     ;8c83  20
 
-sub_8c84:
+callv4_8c84:
     clrb mem_0099:4         ;8c84  a4 99
     mov mem_00b1, #0x00     ;8c86  85 b1 00
     mov a, #0xe2            ;8c89  04 e2
     and a, mem_00b2         ;8c8b  65 b2
     mov mem_00b2, a         ;8c8d  45 b2
-    callv #5                ;8c8f  ed          CALLV #5 = sub_8d0d
+    callv #5                ;8c8f  ed          CALLV #5 = callv5_8d0d
     ret                     ;8c90  20
 
 sub_8c91:
@@ -2791,7 +2798,7 @@ sub_8d00:
 lab_8d0c:
     ret                     ;8d0c  20
 
-sub_8d0d:
+callv5_8d0d:
     mov a, mem_0293         ;8d0d  60 02 93
     bne lab_8d19            ;8d10  fc 07
     mov a, #0x3c            ;8d12  04 3c
@@ -2903,7 +2910,7 @@ lab_8db0:
     ret                     ;8db3  20
 
 lab_8db4:
-    callv #7                ;8db4  ef          CALLV #7 = sub_e55c
+    callv #7                ;8db4  ef          CALLV #7 = callv7_e55c
     bbc mem_00cf:0, lab_8dca ;8db5  b0 cf 12
     mov a, mem_0336         ;8db8  60 03 36
     mov a, #0x00            ;8dbb  04 00
@@ -3105,7 +3112,7 @@ sub_8eda:
     mov mem_02c2, a         ;8ee9  61 02 c2
     mov a, mem_02c3         ;8eec  60 02 c3
     mov mem_0095, a         ;8eef  45 95
-    callv #4                ;8ef1  ec          CALLV #4 = sub_8c84
+    callv #4                ;8ef1  ec          CALLV #4 = callv4_8c84
     mov a, mem_02c2         ;8ef2  60 02 c2
     mov a, #0x0f            ;8ef5  04 0f
     cmp a                   ;8ef7  12
@@ -3125,7 +3132,7 @@ sub_8f06:
     mov mem_02c2, a         ;8f0e  61 02 c2
     mov a, #0x00            ;8f11  04 00
     mov mem_02c4, a         ;8f13  61 02 c4
-    callv #4                ;8f16  ec          CALLV #4 = sub_8c84
+    callv #4                ;8f16  ec          CALLV #4 = callv4_8c84
     cmp mem_0095, #0x01     ;8f17  95 95 01
     bne lab_8f28            ;8f1a  fc 0c
     mov a, mem_00f6         ;8f1c  05 f6
@@ -3486,13 +3493,13 @@ lab_91a8:
     clrb mem_00d7:5         ;91a8  a5 d7
     call sub_9265           ;91aa  31 92 65
     setb mem_00e9:6         ;91ad  ae e9
-    callv #5                ;91af  ed          CALLV #5 = sub_8d0d
+    callv #5                ;91af  ed          CALLV #5 = callv5_8d0d
     ret                     ;91b0  20
 
 sub_91b1:
     clrb mem_0099:7         ;91b1  a7 99
     clrb mem_00d7:4         ;91b3  a4 d7
-    callv #4                ;91b5  ec          CALLV #4 = sub_8c84
+    callv #4                ;91b5  ec          CALLV #4 = callv4_8c84
     mov a, #0x00            ;91b6  04 00
     mov mem_0096, a         ;91b8  45 96
     mov mem_01ef, a         ;91ba  61 01 ef
@@ -3543,7 +3550,7 @@ lab_91fa:
     bne lab_9234            ;9214  fc 1e
     mov a, #0x00            ;9216  04 00
     mov mem_0385, a         ;9218  61 03 85
-    callv #7                ;921b  ef          CALLV #7 = sub_e55c
+    callv #7                ;921b  ef          CALLV #7 = callv7_e55c
     call sub_ac7a           ;921c  31 ac 7a
     bbs mem_008c:7, lab_9234 ;921f  bf 8c 12
     movw a, #0xffff         ;9222  e4 ff ff
@@ -3945,7 +3952,7 @@ lab_9473:
 
 lab_9474:
     call sub_e38a           ;9474  31 e3 8a
-    callv #7                ;9477  ef          CALLV #7 = sub_e55c
+    callv #7                ;9477  ef          CALLV #7 = callv7_e55c
     mov a, #0x12            ;9478  04 12
     mov mem_0182, a         ;947a  61 01 82
     ret                     ;947d  20
@@ -3954,7 +3961,7 @@ lab_947e:
     mov a, #0x01            ;947e  04 01
     mov mem_031e, a         ;9480  61 03 1e
     call sub_e38a           ;9483  31 e3 8a
-    callv #7                ;9486  ef          CALLV #7 = sub_e55c
+    callv #7                ;9486  ef          CALLV #7 = callv7_e55c
     cmp mem_0095, #0x00     ;9487  95 95 00
     bne lab_949d            ;948a  fc 11
     call sub_9a02           ;948c  31 9a 02
@@ -4498,7 +4505,7 @@ lab_97d7:
     ret                     ;97d7  20
 
 lab_97d8:
-    callv #4                ;97d8  ec          CALLV #4 = sub_8c84
+    callv #4                ;97d8  ec          CALLV #4 = callv4_8c84
     call sub_99b1           ;97d9  31 99 b1
     mov mem_00c2, #0x26     ;97dc  85 c2 26
     ret                     ;97df  20
@@ -4510,7 +4517,7 @@ lab_97e0:
 
 lab_97e7:
     clrb mem_00e9:0         ;97e7  a0 e9
-    callv #4                ;97e9  ec          CALLV #4 = sub_8c84
+    callv #4                ;97e9  ec          CALLV #4 = callv4_8c84
     setb mem_0098:4         ;97ea  ac 98
     call sub_99cb           ;97ec  31 99 cb
     mov mem_00c2, #0x23     ;97ef  85 c2 23
@@ -4531,7 +4538,7 @@ lab_97ff:
     ret                     ;9804  20
 
 lab_9805:
-    callv #4                ;9805  ec          CALLV #4 = sub_8c84
+    callv #4                ;9805  ec          CALLV #4 = callv4_8c84
     setb mem_0098:4         ;9806  ac 98
     call sub_9954           ;9808  31 99 54
     clrb mem_00e9:0         ;980b  a0 e9
@@ -7517,7 +7524,7 @@ lab_a7db:
     bne lab_a7eb            ;a7e4  fc 05
     clrb mem_0099:4         ;a7e6  a4 99
     setb mem_0098:4         ;a7e8  ac 98
-    callv #4                ;a7ea  ec          CALLV #4 = sub_8c84
+    callv #4                ;a7ea  ec          CALLV #4 = callv4_8c84
 
 lab_a7eb:
     bbc mem_00d7:3, lab_a7fb ;a7eb  b3 d7 0d
@@ -7525,7 +7532,7 @@ lab_a7eb:
     call sub_e781           ;a7f1  31 e7 81
     bne lab_a7fb            ;a7f4  fc 05
     clrb mem_00d7:3         ;a7f6  a3 d7
-    callv #5                ;a7f8  ed          CALLV #5 = sub_8d0d
+    callv #5                ;a7f8  ed          CALLV #5 = callv5_8d0d
     setb mem_0098:4         ;a7f9  ac 98
 
 lab_a7fb:
@@ -7535,7 +7542,7 @@ lab_a7fb:
     decw a                  ;a803  d0
     mov mem_0313, a         ;a804  61 03 13
     bne lab_a80c            ;a807  fc 03
-    callv #5                ;a809  ed          CALLV #5 = sub_8d0d
+    callv #5                ;a809  ed          CALLV #5 = callv5_8d0d
     setb mem_0098:4         ;a80a  ac 98
 
 lab_a80c:
@@ -8207,23 +8214,23 @@ sub_abf6:
     ret                     ;ac02  20
 
 mem_ac03:
-    .word lab_b094          ;ac03  b0 94       VECTOR
-    .word lab_b310          ;ac05  b3 10       VECTOR
-    .word lab_b1da          ;ac07  b1 da       VECTOR
-    .word lab_b177          ;ac09  b1 77       VECTOR
-    .word lab_b45f          ;ac0b  b4 5f       VECTOR
-    .word lab_b59c          ;ac0d  b5 9c       VECTOR
-    .word lab_b654          ;ac0f  b6 54       VECTOR
-    .word lab_b75a          ;ac11  b7 5a       VECTOR
-    .word lab_b93a          ;ac13  b9 3a       VECTOR
-    .word lab_ba7a          ;ac15  ba 7a       VECTOR
-    .word lab_bb23          ;ac17  bb 23       VECTOR
-    .word lab_bb17          ;ac19  bb 17       VECTOR
-    .word lab_bb17          ;ac1b  bb 17       VECTOR
-    .word lab_b189          ;ac1d  b1 89       VECTOR
-    .word lab_b1ec          ;ac1f  b1 ec       VECTOR
-    .word lab_bb9e          ;ac21  bb 9e       VECTOR
-    .word lab_b2b9          ;ac23  b2 b9       VECTOR
+    .word mem_0080_is_00          ;ac03  b0 94       VECTOR
+    .word mem_0080_is_01          ;ac05  b3 10       VECTOR
+    .word mem_0080_is_02          ;ac07  b1 da       VECTOR
+    .word mem_0080_is_03          ;ac09  b1 77       VECTOR
+    .word mem_0080_is_04          ;ac0b  b4 5f       VECTOR
+    .word mem_0080_is_05          ;ac0d  b5 9c       VECTOR
+    .word mem_0080_is_06          ;ac0f  b6 54       VECTOR
+    .word mem_0080_is_07          ;ac11  b7 5a       VECTOR
+    .word mem_0080_is_08          ;ac13  b9 3a       VECTOR
+    .word mem_0080_is_09          ;ac15  ba 7a       VECTOR
+    .word mem_0080_is_0a          ;ac17  bb 23       VECTOR
+    .word mem_0080_is_0b_or_0c    ;ac19  bb 17       VECTOR
+    .word mem_0080_is_0b_or_0c    ;ac1b  bb 17       VECTOR
+    .word mem_0080_is_0d          ;ac1d  b1 89       VECTOR
+    .word mem_0080_is_0e          ;ac1f  b1 ec       VECTOR
+    .word mem_0080_is_0f          ;ac21  bb 9e       VECTOR
+    .word mem_0080_is_10          ;ac23  b2 b9       VECTOR
 
 sub_ac25:
     bbs mem_008b:2, lab_ac2e ;ac25  ba 8b 06
@@ -8594,13 +8601,16 @@ lab_adf6:
     mov mem_033e, a         ;adfd  61 03 3e
     call sub_b235           ;ae00  31 b2 35
     bbc mem_008b:6, lab_adec ;ae03  b6 8b e6
+
     mov a, mem_0118         ;ae06  60 01 18
     cmp a, #0x10            ;ae09  14 10
     bhs lab_ae35            ;ae0b  f8 28
+
     mov a, mem_0118         ;ae0d  60 01 18
     cmp a, mem_0082         ;ae10  15 82
     bhs lab_ae2a            ;ae12  f8 16
-    mov a, mem_0088         ;ae14  05 88
+
+    mov a, mem_0088         ;ae14  05 88        A = byte from UART
     cmp a, #0x03            ;ae16  14 03
     beq lab_ae1c            ;ae18  fd 02
     setb mem_008b:7         ;ae1a  af 8b
@@ -8634,9 +8644,11 @@ lab_ae35:
 lab_ae44:
     mov a, mem_032e         ;ae44  60 03 2e
     bne lab_adec            ;ae47  fc a3
-    mov a, mem_0088         ;ae49  05 88
+
+    mov a, mem_0088         ;ae49  05 88        A = byte from UART
     xor a, #0xff            ;ae4b  54 ff
-    mov mem_0089, a         ;ae4d  45 89
+    mov mem_0089, a         ;ae4d  45 89        mem_0089 = byte from UART inverted
+
     mov a, #0x02            ;ae4f  04 02
     mov mem_0114, a         ;ae51  61 01 14
     setb mem_008c:4         ;ae54  ac 8c
@@ -8645,7 +8657,7 @@ lab_ae44:
     mov rrdr, #0x0d         ;ae5a  85 45 0d
     mov usmr, #0x0b         ;ae5d  85 40 0b
     mov a, mem_0089         ;ae60  05 89
-    mov rxdr, a             ;ae62  45 43
+    mov rxdr, a             ;ae62  45 43        Send byte out UART
     mov a, #0x33            ;ae64  04 33
     mov mem_032e, a         ;ae66  61 03 2e
     ret                     ;ae69  20
@@ -8693,8 +8705,8 @@ lab_ae99:
     beq lab_af1a            ;aeb3  fd 65       BRANCH_ALWAYS_TAKEN
 
 lab_aeb5:
-    mov a, mem_0089         ;aeb5  05 89
-    mov a, mem_0088         ;aeb7  05 88
+    mov a, mem_0089         ;aeb5  05 89        A = byte from UART inverted
+    mov a, mem_0088         ;aeb7  05 88        A = byte from UART
     xor a                   ;aeb9  52
     cmp a, #0xff            ;aeba  14 ff
     bne lab_aec7            ;aebc  fc 09
@@ -8852,7 +8864,7 @@ lab_afa8:
     setb uscr:4             ;afae  ac 41
     setb uscr:3             ;afb0  ab 41
     mov a, mem_0089         ;afb2  05 89
-    mov rxdr, a             ;afb4  45 43
+    mov rxdr, a             ;afb4  45 43        Send byte out UART
     clrb mem_008b:6         ;afb6  a6 8b
     clrb mem_008b:7         ;afb8  a7 8b
     setb uscr:1             ;afba  a9 41
@@ -8984,19 +8996,20 @@ lab_b081:
     movw mem_0110, a        ;b090  d4 01 10
     ret                     ;b093  20
 
-lab_b094:
-    mov a, mem_0081         ;b094  05 81
-    cmp a, #0x01            ;b096  14 01
-    beq lab_b0a7            ;b098  fd 0d
-    cmp a, #0x02            ;b09a  14 02
-    beq lab_b0ba            ;b09c  fd 1c
-    cmp a, #0x03            ;b09e  14 03
-    beq lab_b0d2            ;b0a0  fd 30
-    cmp a, #0x04            ;b0a2  14 04
-    beq lab_b0ec            ;b0a4  fd 46
-    ret                     ;b0a6  20
+mem_0080_is_00:
+    mov a, mem_0081          ;b094  05 81
+    cmp a, #0x01             ;b096  14 01
+    beq mem_0080_is_00_00 ;b098  fd 0d
+    cmp a, #0x02             ;b09a  14 02
+    beq mem_0080_is_00_01 ;b09c  fd 1c
+    cmp a, #0x03             ;b09e  14 03
+    beq mem_0080_is_00_02 ;b0a0  fd 30
+    cmp a, #0x04             ;b0a2  14 04
+    beq mem_0080_is_00_03 ;b0a4  fd 46
+    ret                      ;b0a6  20
 
-lab_b0a7:
+mem_0080_is_00_00:
+;Branched to when mem_0081 = 0x01
     bbs mem_00e6:1, lab_b0d1 ;b0a7  b9 e6 27
     mov mem_0089, #0x55     ;b0aa  85 89 55
     mov a, #0x02            ;b0ad  04 02
@@ -9006,7 +9019,8 @@ lab_b0a7:
     mov a, #0x03            ;b0b6  04 03
     bne lab_b0ce            ;b0b8  fc 14       BRANCH_ALWAYS_TAKEN
 
-lab_b0ba:
+mem_0080_is_00_01:
+;Branched to when mem_0081 = 0x02
     bbs mem_00e6:1, lab_b0d1 ;b0ba  b9 e6 14
     bbc mem_008b:4, lab_b0d1 ;b0bd  b4 8b 11
     mov a, #0x01            ;b0c0  04 01
@@ -9022,7 +9036,8 @@ lab_b0ce:
 lab_b0d1:
     ret                     ;b0d1  20
 
-lab_b0d2:
+mem_0080_is_00_02:
+;Branched to when mem_0082 = 0x03
     bbs mem_00e6:1, lab_b0d1 ;b0d2  b9 e6 fc
     bbc mem_008b:4, lab_b0eb ;b0d5  b4 8b 13
     clrb mem_008b:4         ;b0d8  a4 8b
@@ -9037,11 +9052,12 @@ lab_b0d2:
 lab_b0eb:
     ret                     ;b0eb  20
 
-lab_b0ec:
+mem_0080_is_00_03:
+;Branched to when mem_0082 = 0x04
     bbc mem_00e6:1, lab_b10a ;b0ec  b1 e6 1b
     bbc mem_008b:4, lab_b0eb ;b0ef  b4 8b f9
     bbc mem_008b:6, lab_b0eb ;b0f2  b6 8b f6
-    mov a, mem_0088         ;b0f5  05 88
+    mov a, mem_0088         ;b0f5  05 88        A = byte from UART
     xor a, #0xff            ;b0f7  54 ff
     and a, #0x7f            ;b0f9  64 7f
     cmp a, #0x0a            ;b0fb  14 0a
@@ -9084,17 +9100,17 @@ lab_b12c:
 
 sub_b136:
     movw a, #0x012b         ;b136  e4 01 2b
-    movw mem_0086, a        ;b139  d5 86
+    movw mem_0086, a        ;b139  d5 86        mem_0086 = 0x012b
     jmp sub_b13e            ;b13b  21 b1 3e
 
 sub_b13e:
-    mov a, mem_00a5         ;b13e  05 a5
+    mov a, mem_00a5         ;b13e  05 a5        A = mem_00a5 number of bytes in response
     bne lab_b143            ;b140  fc 01
     ret                     ;b142  20
 
 lab_b143:
-    movw a, mem_0084        ;b143  c5 84
-    mov a, @a               ;b145  92
+    movw a, mem_0084        ;b143  c5 84        A = Pointer to message packet
+    mov a, @a               ;b145  92           A = byte in packet
     movw a, mem_0086        ;b146  c5 86
     mov @a, t               ;b148  82
     incw a                  ;b149  c0
@@ -9124,12 +9140,12 @@ sub_b166:
 
 sub_b16b:
     mov mem_00a5, #0x04     ;b16b  85 a5 04
-    movw a, #mem_ff40       ;b16e  e4 ff 40
+    movw a, #kwp_ack       ;b16e  e4 ff 40
     movw mem_0084, a        ;b171  d5 84
     call sub_bbab           ;b173  31 bb ab
     ret                     ;b176  20
 
-lab_b177:
+mem_0080_is_03:
     mov a, mem_0081         ;b177  05 81
     cmp a, #0x01            ;b179  14 01
     beq lab_b182            ;b17b  fd 05
@@ -9142,7 +9158,7 @@ lab_b182:
     mov mem_0081, #0x02     ;b185  85 81 02
     ret                     ;b188  20
 
-lab_b189:
+mem_0080_is_0d:
     mov a, mem_0081         ;b189  05 81
     cmp a, #0x01            ;b18b  14 01
     beq lab_b194            ;b18d  fd 05
@@ -9184,7 +9200,7 @@ sub_b1c1:
     mov mem_0116, a         ;b1d6  61 01 16
     ret                     ;b1d9  20
 
-lab_b1da:
+mem_0080_is_02:
     mov a, mem_0081         ;b1da  05 81
     cmp a, #0x01            ;b1dc  14 01
     beq lab_b1e5            ;b1de  fd 05
@@ -9197,7 +9213,7 @@ lab_b1e5:
     mov mem_0081, #0x02     ;b1e8  85 81 02
     ret                     ;b1eb  20
 
-lab_b1ec:
+mem_0080_is_0e:
     mov a, mem_0081         ;b1ec  05 81
     cmp a, #0x01            ;b1ee  14 01
     beq lab_b1f7            ;b1f0  fd 05
@@ -9224,7 +9240,7 @@ sub_b20c:
     clrb mem_008b:7         ;b20c  a7 8b
 
 sub_b20e:
-    movw a, #mem_ff3b       ;b20e  e4 ff 3b
+    movw a, #kwp_no_ack       ;b20e  e4 ff 3b
     movw mem_0084, a        ;b211  d5 84
     mov mem_00a5, #0x05     ;b213  85 a5 05
     call sub_b136           ;b216  31 b1 36
@@ -9232,7 +9248,7 @@ sub_b20e:
     jmp lab_b22e            ;b21c  21 b2 2e
 
 sub_b21f:
-    movw a, #mem_ff3b       ;b21f  e4 ff 3b
+    movw a, #kwp_no_ack       ;b21f  e4 ff 3b
     movw mem_0084, a        ;b222  d5 84
     mov mem_00a5, #0x05     ;b224  85 a5 05
     call sub_b136           ;b227  31 b1 36
@@ -9251,11 +9267,11 @@ sub_b235:
     incw a                  ;b23b  c0
     mov mem_0082, a         ;b23c  45 82
     popw a                  ;b23e  50
-    movw a, #0x0118         ;b23f  e4 01 18
+    movw a, #mem_0118       ;b23f  e4 01 18
     clrc                    ;b242  81
     addcw a                 ;b243  23
     pushw a                 ;b244  40
-    mov a, mem_0088         ;b245  05 88
+    mov a, mem_0088         ;b245  05 88        A = byte from UART
     xchw a, t               ;b247  43
     popw a                  ;b248  50
     mov @a, t               ;b249  82
@@ -9298,19 +9314,19 @@ sub_b26f:
     clrb mem_008c:4         ;b27d  a4 8c
     ret                     ;b27f  20
 
+
 sub_b280:
+;Called from UART ISR
     bbc mem_008c:4, lab_b28e ;b280  b4 8c 0b
     mov a, rxdr             ;b283  05 43
     mov mem_0088, a         ;b285  45 88
     clrb uscr:7             ;b287  a7 41
     clrb mem_008c:4         ;b289  a4 8c
     jmp lab_b2b6            ;b28b  21 b2 b6
-
 lab_b28e:
     mov a, ustr             ;b28e  05 42
     and a, #0xf0            ;b290  64 f0
     jmp lab_b2af            ;b292  21 b2 af
-
 lab_b295:
     mov a, rxdr             ;b295  05 43
     mov mem_0088, a         ;b297  45 88
@@ -9318,7 +9334,6 @@ lab_b295:
     setb mem_008b:4         ;b29b  ac 8b
     clrb uscr:7             ;b29d  a7 41
     jmp lab_b2b6            ;b29f  21 b2 b6
-
 lab_b2a2:
     mov a, rxdr             ;b2a2  05 43
     mov mem_0088, a         ;b2a4  45 88
@@ -9326,17 +9341,16 @@ lab_b2a2:
     clrb uscr:7             ;b2a8  a7 41
     setb mem_008b:4         ;b2aa  ac 8b
     jmp lab_b2b6            ;b2ac  21 b2 b6
-
 lab_b2af:
     cmp a, #0x10            ;b2af  14 10
     beq lab_b295            ;b2b1  fd e2
     jmp lab_b2a2            ;b2b3  21 b2 a2
-
 lab_b2b6:
     clrb mem_008c:5         ;b2b6  a5 8c
     ret                     ;b2b8  20
 
-lab_b2b9:
+
+mem_0080_is_10:
     mov a, mem_0081         ;b2b9  05 81
     cmp a, #0x01            ;b2bb  14 01
     beq lab_b2c4            ;b2bd  fd 05
@@ -9354,9 +9368,9 @@ lab_b2c4:
     ret                     ;b2d3  20
 
 lab_b2d4:
-    mov mem_00a5, #0x06     ;b2d4  85 a5 06
-    movw a, #mem_ff5d       ;b2d7  e4 ff 5d
-    movw mem_0084, a        ;b2da  d5 84
+    mov mem_00a5, #0x06     ;b2d4  85 a5 06     6 bytes in response
+    movw a, #kwp_login       ;b2d7  e4 ff 5d
+    movw mem_0084, a        ;b2da  d5 84        mem_0084 = Pointer to response
     call sub_b136           ;b2dc  31 b1 36
     movw a, mem_020f        ;b2df  c4 02 0f
     movw mem_012e, a        ;b2e2  d4 01 2e
@@ -9384,127 +9398,147 @@ lab_b30c:
     call sub_bbc3           ;b30c  31 bb c3
     ret                     ;b30f  20
 
-lab_b310:
+mem_0080_is_01:
     mov a, mem_0081         ;b310  05 81
     movw a, #mem_b318       ;b312  e4 b3 18
     jmp sub_e73c            ;b315  21 e7 3c
 
 mem_b318:
-    .word lab_b36c          ;b318  b3 6c       VECTOR
-    .word lab_b33a          ;b31a  b3 3a       VECTOR
-    .word lab_b36d          ;b31c  b3 6d       VECTOR
-    .word lab_b37f          ;b31e  b3 7f       VECTOR
-    .word lab_b38c          ;b320  b3 8c       VECTOR
-    .word lab_b371          ;b322  b3 71       VECTOR
-    .word lab_b39b          ;b324  b3 9b       VECTOR
-    .word lab_b3a8          ;b326  b3 a8       VECTOR
-    .word lab_b375          ;b328  b3 75       VECTOR
-    .word lab_b3b7          ;b32a  b3 b7       VECTOR
-    .word lab_b3c4          ;b32c  b3 c4       VECTOR
-    .word lab_b3c8          ;b32e  b3 c8       VECTOR
-    .word lab_b3cc          ;b330  b3 cc       VECTOR
-    .word lab_b379          ;b332  b3 79       VECTOR
-    .word lab_b3fe          ;b334  b3 fe       VECTOR
-    .word lab_b40b          ;b336  b4 0b       VECTOR
-    .word lab_b412          ;b338  b4 12       VECTOR
+    .word mem_0081_is_0x00  ;b318  b3 6c       VECTOR
+    .word mem_0081_is_0x01  ;b31a  b3 3a       VECTOR   "1J0035180   "
+    .word mem_0081_is_0x02  ;b31c  b3 6d       VECTOR
+    .word mem_0081_is_0x03  ;b31e  b3 7f       VECTOR
+    .word mem_0081_is_0x04  ;b320  b3 8c       VECTOR   " RADIO 3CP  "
+    .word mem_0081_is_0x05  ;b322  b3 71       VECTOR
+    .word mem_0081_is_0x06  ;b324  b3 9b       VECTOR
+    .word mem_0081_is_0x07  ;b326  b3 a8       VECTOR   "       0001"
+    .word mem_0081_is_0x08  ;b328  b3 75       VECTOR
+    .word mem_0081_is_0x09  ;b32a  b3 b7       VECTOR
+    .word mem_0081_is_0x0a  ;b32c  b3 c4       VECTOR
+    .word mem_0081_is_0x0b  ;b32e  b3 c8       VECTOR
+    .word mem_0081_is_0x0c  ;b330  b3 cc       VECTOR
+    .word mem_0081_is_0x0d  ;b332  b3 79       VECTOR
+    .word mem_0081_is_0x0e  ;b334  b3 fe       VECTOR
+    .word mem_0081_is_0x0f  ;b336  b4 0b       VECTOR
+    .word mem_0081_is_0x10  ;b338  b4 12       VECTOR
 
-lab_b33a:
+mem_0081_is_0x01:
     clrb mem_00e1:7         ;b33a  a7 e1
     clrb mem_008c:1         ;b33c  a1 8c
     mov a, #0x00            ;b33e  04 00
     mov mem_017c, a         ;b340  61 01 7c
-    mov mem_00a5, #0x10     ;b343  85 a5 10
+    mov mem_00a5, #0x10     ;b343  85 a5 10     0x10 bytes in response
+
     mov a, mem_00e8         ;b346  05 e8
-    and a, #0xc0            ;b348  64 c0
-    cmp a, #0x40            ;b34a  14 40
-    bne lab_b353            ;b34c  fc 05
-    movw a, #mem_ff0c       ;b34e  e4 ff 0c
-    bne lab_b35f            ;b351  fc 0c       BRANCH_ALWAYS_TAKEN
+    and a, #0b11000000      ;b348  64 c0
 
-lab_b353:
-    cmp a, #0x80            ;b353  14 80
-    bne lab_b35c            ;b355  fc 05
-    movw a, #mem_fefc       ;b357  e4 fe fc
-    bne lab_b35f            ;b35a  fc 03       BRANCH_ALWAYS_TAKEN
+    cmp a, #0b01000000      ;b34a  14 40
+    bne cmp_model_1         ;b34c  fc 05
 
-lab_b35c:
-    movw a, #mem_feec       ;b35c  e4 fe ec
+    ;Model is 1J0035180
+    movw a, #kwp_1j0035180  ;b34e  e4 ff 0c    "1J0035180   "
+    bne cmp_model_done      ;b351  fc 0c       BRANCH_ALWAYS_TAKEN
 
-lab_b35f:
-    movw mem_0084, a        ;b35f  d5 84
+cmp_model_1:
+    cmp a, #0b10000000      ;b353  14 80
+    bne cmp_model_2         ;b355  fc 05
+
+    ;Model is 1J0035180D
+    movw a, #kwp_1j0035180d ;b357  e4 fe fc    "1J0035180D  "
+    bne cmp_model_done      ;b35a  fc 03       BRANCH_ALWAYS_TAKEN
+
+cmp_model_2:
+    ;Model is 1C0035180E
+    movw a, #kwp_1c0035180e ;b35c  e4 fe ec    "1C0035180E  "
+
+cmp_model_done:
+    movw mem_0084, a        ;b35f  d5 84        mem_0084 = pointer to model string
     call sub_bbab           ;b361  31 bb ab
     mov a, #0x1a            ;b364  04 1a
     mov mem_032e, a         ;b366  61 03 2e
-    mov mem_0081, #0x02     ;b369  85 81 02
+    mov mem_0081, #0x02     ;b369  85 81 02     mem_0081 = 2
 
-lab_b36c:
+
+mem_0081_is_0x00:
     ret                     ;b36c  20
 
-lab_b36d:
+
+mem_0081_is_0x02:
     mov a, #0x03            ;b36d  04 03
     bne lab_b37b            ;b36f  fc 0a       BRANCH_ALWAYS_TAKEN
 
-lab_b371:
+
+mem_0081_is_0x05:
     mov a, #0x06            ;b371  04 06
     bne lab_b37b            ;b373  fc 06       BRANCH_ALWAYS_TAKEN
 
-lab_b375:
+
+mem_0081_is_0x08:
     mov a, #0x09            ;b375  04 09
     bne lab_b37b            ;b377  fc 02       BRANCH_ALWAYS_TAKEN
 
-lab_b379:
+
+mem_0081_is_0x0d:
     mov a, #0x0e            ;b379  04 0e
 
 lab_b37b:
     call sub_bbd3           ;b37b  31 bb d3
     ret                     ;b37e  20
 
-lab_b37f:
+
+mem_0081_is_0x03:
     mov mem_00a0, #0x02     ;b37f  85 a0 02
     mov mem_00a1, #0x02     ;b382  85 a1 02
     mov mem_00a2, #0x04     ;b385  85 a2 04
     call sub_bbe0           ;b388  31 bb e0
     ret                     ;b38b  20
 
-lab_b38c:
-    mov mem_00a5, #0x10     ;b38c  85 a5 10
-    movw a, #mem_ff1c       ;b38f  e4 ff 1c
-    movw mem_0084, a        ;b392  d5 84
+
+mem_0081_is_0x04:
+    mov mem_00a5, #0x10     ;b38c  85 a5 10     0x10 bytes in response
+    movw a, #kwp_radio_3cp  ;b38f  e4 ff 1c     " RADIO 3CP  "
+    movw mem_0084, a        ;b392  d5 84        mem_0084 = Pointer to message
     call sub_bbab           ;b394  31 bb ab
     mov mem_0081, #0x05     ;b397  85 81 05
     ret                     ;b39a  20
 
-lab_b39b:
+
+mem_0081_is_0x06:
     mov mem_00a0, #0x05     ;b39b  85 a0 05
     mov mem_00a1, #0x05     ;b39e  85 a1 05
     mov mem_00a2, #0x07     ;b3a1  85 a2 07
     call sub_bbe0           ;b3a4  31 bb e0
     ret                     ;b3a7  20
 
-lab_b3a8:
-    mov mem_00a5, #0x0f     ;b3a8  85 a5 0f
-    movw a, #mem_ff2c       ;b3ab  e4 ff 2c
-    movw mem_0084, a        ;b3ae  d5 84
+
+mem_0081_is_0x07:
+    mov mem_00a5, #0x0f     ;b3a8  85 a5 0f     0x0f bytes in response
+    movw a, #kwp_0001       ;b3ab  e4 ff 2c     "       0001"
+    movw mem_0084, a        ;b3ae  d5 84        mem_0084 = Pointer to message
     call sub_bbab           ;b3b0  31 bb ab
     mov mem_0081, #0x08     ;b3b3  85 81 08
     ret                     ;b3b6  20
 
-lab_b3b7:
+
+mem_0081_is_0x09:
     mov mem_00a0, #0x08     ;b3b7  85 a0 08
     mov mem_00a1, #0x08     ;b3ba  85 a1 08
     mov mem_00a2, #0x0a     ;b3bd  85 a2 0a
     call sub_bbe0           ;b3c0  31 bb e0
     ret                     ;b3c3  20
 
-lab_b3c4:
+
+mem_0081_is_0x0a:
     mov mem_0081, #0x0b     ;b3c4  85 81 0b
     ret                     ;b3c7  20
 
-lab_b3c8:
+
+mem_0081_is_0x0b:
     mov mem_0081, #0x0c     ;b3c8  85 81 0c
     ret                     ;b3cb  20
 
-lab_b3cc:
+
+mem_0081_is_0x0c:
     mov a, #0x08            ;b3cc  04 08
     mov mem_012b, a         ;b3ce  61 01 2b
     mov a, #0xf6            ;b3d1  04 f6
@@ -9516,31 +9550,37 @@ lab_b3cc:
     mov mem_012e, a         ;b3df  61 01 2e
     mov a, #0x03            ;b3e2  04 03
     mov mem_0133, a         ;b3e4  61 01 33
+
     movw a, #0x0175         ;b3e7  e4 01 75
-    movw mem_0084, a        ;b3ea  d5 84
+    movw mem_0084, a        ;b3ea  d5 84        mem_0084 = Pointer to message
+
     movw a, #0x012f         ;b3ec  e4 01 2f
     movw mem_0086, a        ;b3ef  d5 86
-    mov mem_00a5, #0x04     ;b3f1  85 a5 04
+    mov mem_00a5, #0x04     ;b3f1  85 a5 04     0x04 bytes in response
     call sub_b13e           ;b3f4  31 b1 3e
     call sub_bba4           ;b3f7  31 bb a4
     mov mem_0081, #0x0d     ;b3fa  85 81 0d
     ret                     ;b3fd  20
 
-lab_b3fe:
+
+mem_0081_is_0x0e:
     mov mem_00a0, #0x0d     ;b3fe  85 a0 0d
     mov mem_00a1, #0x0d     ;b401  85 a1 0d
     mov mem_00a2, #0x0f     ;b404  85 a2 0f
     call sub_bbe0           ;b407  31 bb e0
     ret                     ;b40a  20
 
-lab_b40b:
+
+mem_0081_is_0x0f:
     call sub_b16b           ;b40b  31 b1 6b
     mov mem_0081, #0x10     ;b40e  85 81 10
     ret                     ;b411  20
 
-lab_b412:
+
+mem_0081_is_0x10:
     call sub_bbc3           ;b412  31 bb c3
     ret                     ;b415  20
+
 
 sub_b416:
     movw ep, #pdr0          ;b416  e7 00 00
@@ -9601,7 +9641,7 @@ lab_b45b:
 lab_b45e:
     ret                     ;b45e  20
 
-lab_b45f:
+mem_0080_is_04:
     mov a, mem_0081         ;b45f  05 81
     movw a, #mem_b467       ;b461  e4 b4 67
     jmp sub_e73c            ;b464  21 e7 3c
@@ -9641,8 +9681,6 @@ lab_b480:
 
 lab_b4a3:
     cmp a, #0x03            ;b4a3  14 03
-
-lab_b4a5:
     bne lab_b4b9            ;b4a5  fc 12
     decw a                  ;b4a7  d0
     decw a                  ;b4a8  d0
@@ -9683,8 +9721,8 @@ lab_b4e0:
 
 lab_b4e9:
     mov mem_00a5, #0x07     ;b4e9  85 a5 07
-    movw a, #mem_ff44       ;b4ec  e4 ff 44
-    movw mem_0084, a        ;b4ef  d5 84
+    movw a, #kwp_fault_codes ;b4ec  e4 ff 44    0x07 bytes in response
+    movw mem_0084, a        ;b4ef  d5 84        mem_0084 = Pointer to message
     call sub_b136           ;b4f1  31 b1 36
     mov mem_0081, #0x03     ;b4f4  85 81 03
 
@@ -9751,9 +9789,9 @@ sub_b542:
     mov a, mem_0093         ;b542  05 93
     beq lab_b553            ;b544  fd 0d
     call sub_b554           ;b546  31 b5 54
-    movw mem_0084, a        ;b549  d5 84
+    movw mem_0084, a        ;b549  d5 84        mem_0084 = Pointer to message
     movw mem_0084, a        ;b54b  d5 84
-    mov mem_00a5, #0x03     ;b54d  85 a5 03
+    mov mem_00a5, #0x03     ;b54d  85 a5 03     0x03 bytes in response
     call sub_b13e           ;b550  31 b1 3e
 
 lab_b553:
@@ -9809,7 +9847,7 @@ lab_b593:
 lab_b59b:
     ret                     ;b59b  20
 
-lab_b59c:
+mem_0080_is_05:
     mov a, mem_0081         ;b59c  05 81
     movw a, #mem_b5a4       ;b59e  e4 b5 a4
     jmp sub_e73c            ;b5a1  21 e7 3c
@@ -9847,9 +9885,9 @@ lab_b5d3:
     ret                     ;b5d6  20
 
 lab_b5d7:
-    mov mem_00a5, #0x07     ;b5d7  85 a5 07
-    movw a, #mem_ff44       ;b5da  e4 ff 44
-    movw mem_0084, a        ;b5dd  d5 84
+    mov mem_00a5, #0x07     ;b5d7  85 a5 07     0x07 bytes in response
+    movw a, #kwp_fault_codes ;b5da  e4 ff 44
+    movw mem_0084, a        ;b5dd  d5 84        mem_0084 = Pointer to message
     call sub_bba1           ;b5df  31 bb a1
     mov mem_0081, #0x05     ;b5e2  85 81 05
     ret                     ;b5e5  20
@@ -9915,7 +9953,7 @@ sub_b64b:
     mov @ix+0x02, a         ;b651  46 02
     ret                     ;b653  20
 
-lab_b654:
+mem_0080_is_06:
     mov a, mem_0081         ;b654  05 81
     cmp a, #0x01            ;b656  14 01
     beq lab_b67d            ;b658  fd 23
@@ -9964,29 +10002,29 @@ lab_b697:
     mov mem_019c, a         ;b699  61 01 9c
 
 lab_b69c:
-    movw a, #mem_ff4b       ;b69c  e4 ff 4b
+    movw a, #kwp_actuator_1 ;b69c  e4 ff 4b
     bne lab_b6b1            ;b69f  fc 10       BRANCH_ALWAYS_TAKEN
 
 lab_b6a1:
     setb mem_00e1:7         ;b6a1  af e1
     setb mem_0098:4         ;b6a3  ac 98
-    movw a, #mem_ff51       ;b6a5  e4 ff 51
+    movw a, #kwp_actuator_2 ;b6a5  e4 ff 51
     bne lab_b6b1            ;b6a8  fc 07       BRANCH_ALWAYS_TAKEN
 
 lab_b6aa:
     clrb mem_00e1:7         ;b6aa  a7 e1
     setb mem_0098:4         ;b6ac  ac 98
-    movw a, #mem_ff57       ;b6ae  e4 ff 57
+    movw a, #kwp_actuator_3 ;b6ae  e4 ff 57
 
 lab_b6b1:
-    movw mem_0084, a        ;b6b1  d5 84
+    movw mem_0084, a        ;b6b1  d5 84        A = pointer to message
 
 lab_b6b3:
     mov mem_0081, #0x02     ;b6b3  85 81 02
     ret                     ;b6b6  20
 
 lab_b6b7:
-    mov mem_00a5, #0x06     ;b6b7  85 a5 06
+    mov mem_00a5, #0x06     ;b6b7  85 a5 06     0x06 bytes in response
     call sub_bbab           ;b6ba  31 bb ab
     mov mem_0081, #0x03     ;b6bd  85 81 03
     ret                     ;b6c0  20
@@ -10039,107 +10077,109 @@ lab_b700:
 lab_b703:
     ret                     ;b703  20
 
+
+;TODO looks like these are group reading responses
 mem_b704:
-    .byte 0x10              ;b704  10          DATA '\x10'
+    .byte 0x10              ;b704  10          DATA '\x10'  Block length
     .byte 0x0F              ;b705  0f          DATA '\x0f'
     .byte 0x00              ;b706  00          DATA '\x00'
-    .byte 0xE7              ;b707  e7          DATA '\xe7'
-    .byte 0x25              ;b708  25          DATA '%'
-    .byte 0x00              ;b709  00          DATA '\x00'
-    .byte 0x00              ;b70a  00          DATA '\x00'
-    .byte 0x06              ;b70b  06          DATA '\x06'
-    .byte 0x64              ;b70c  64          DATA 'd'
-    .byte 0x00              ;b70d  00          DATA '\x00'
-    .byte 0x17              ;b70e  17          DATA '\x17'
-    .byte 0xFF              ;b70f  ff          DATA '\xff'
-    .byte 0x00              ;b710  00          DATA '\x00'
-    .byte 0x25              ;b711  25          DATA '%'
-    .byte 0x00              ;b712  00          DATA '\x00'
-    .byte 0x00              ;b713  00          DATA '\x00'
-    .byte 0x03              ;b714  03          DATA '\x03'
+    .byte 0xE7              ;b707  e7          DATA '\xe7'  0xE7 = Response to group reading
+    .byte 0x25              ;b708  25          DATA '%'     type
+    .byte 0x00              ;b709  00          DATA '\x00'  value a
+    .byte 0x00              ;b70a  00          DATA '\x00'  value b
+    .byte 0x06              ;b70b  06          DATA '\x06'  type
+    .byte 0x64              ;b70c  64          DATA 'd'     value a
+    .byte 0x00              ;b70d  00          DATA '\x00'  value b
+    .byte 0x17              ;b70e  17          DATA '\x17'  type
+    .byte 0xFF              ;b70f  ff          DATA '\xff'  value a
+    .byte 0x00              ;b710  00          DATA '\x00'  value b
+    .byte 0x25              ;b711  25          DATA '%'     type
+    .byte 0x00              ;b712  00          DATA '\x00'  value a
+    .byte 0x00              ;b713  00          DATA '\x00'  value b
+    .byte 0x03              ;b714  03          DATA '\x03'  Block end
 
 mem_b715:
-    .byte 0x10              ;b715  10          DATA '\x10'
+    .byte 0x10              ;b715  10          DATA '\x10'  Block length
     .byte 0x0F              ;b716  0f          DATA '\x0f'
     .byte 0x00              ;b717  00          DATA '\x00'
-    .byte 0xE7              ;b718  e7          DATA '\xe7'
-    .byte 0x25              ;b719  25          DATA '%'
-    .byte 0x00              ;b71a  00          DATA '\x00'
-    .byte 0xF0              ;b71b  f0          DATA '\xf0'
-    .byte 0x25              ;b71c  25          DATA '%'
-    .byte 0x00              ;b71d  00          DATA '\x00'
-    .byte 0x00              ;b71e  00          DATA '\x00'
-    .byte 0x25              ;b71f  25          DATA '%'
-    .byte 0x00              ;b720  00          DATA '\x00'
-    .byte 0xF1              ;b721  f1          DATA '\xf1'
-    .byte 0x25              ;b722  25          DATA '%'
-    .byte 0x00              ;b723  00          DATA '\x00'
-    .byte 0x00              ;b724  00          DATA '\x00'
-    .byte 0x03              ;b725  03          DATA '\x03'
+    .byte 0xE7              ;b718  e7          DATA '\xe7'  0xE7 = Response to group reading
+    .byte 0x25              ;b719  25          DATA '%'     type
+    .byte 0x00              ;b71a  00          DATA '\x00'  value a
+    .byte 0xF0              ;b71b  f0          DATA '\xf0'  value b
+    .byte 0x25              ;b71c  25          DATA '%'     type
+    .byte 0x00              ;b71d  00          DATA '\x00'  value a
+    .byte 0x00              ;b71e  00          DATA '\x00'  value b
+    .byte 0x25              ;b71f  25          DATA '%'     type
+    .byte 0x00              ;b720  00          DATA '\x00'  value a
+    .byte 0xF1              ;b721  f1          DATA '\xf1'  value b
+    .byte 0x25              ;b722  25          DATA '%'     type
+    .byte 0x00              ;b723  00          DATA '\x00'  value a
+    .byte 0x00              ;b724  00          DATA '\x00'  value b
+    .byte 0x03              ;b725  03          DATA '\x03'  Block end
 
 mem_b726:
-    .byte 0x0D              ;b726  0d          DATA '\r'
+    .byte 0x0D              ;b726  0d          DATA '\r'    Block length
     .byte 0x0C              ;b727  0c          DATA '\x0c'
     .byte 0x00              ;b728  00          DATA '\x00'
-    .byte 0xE7              ;b729  e7          DATA '\xe7'
-    .byte 0x25              ;b72a  25          DATA '%'
-    .byte 0x01              ;b72b  01          DATA '\x01'
-    .byte 0x00              ;b72c  00          DATA '\x00'
-    .byte 0x25              ;b72d  25          DATA '%'
-    .byte 0x00              ;b72e  00          DATA '\x00'
-    .byte 0xF4              ;b72f  f4          DATA '\xf4'
-    .byte 0x25              ;b730  25          DATA '%'
-    .byte 0x00              ;b731  00          DATA '\x00'
-    .byte 0x00              ;b732  00          DATA '\x00'
-    .byte 0x03              ;b733  03          DATA '\x03'
+    .byte 0xE7              ;b729  e7          DATA '\xe7'  0xE7 = Response to group reading
+    .byte 0x25              ;b72a  25          DATA '%'     type
+    .byte 0x01              ;b72b  01          DATA '\x01'  value a
+    .byte 0x00              ;b72c  00          DATA '\x00'  value b
+    .byte 0x25              ;b72d  25          DATA '%'     type
+    .byte 0x00              ;b72e  00          DATA '\x00'  value a
+    .byte 0xF4              ;b72f  f4          DATA '\xf4'  value b
+    .byte 0x25              ;b730  25          DATA '%'     type
+    .byte 0x00              ;b731  00          DATA '\x00'  value a
+    .byte 0x00              ;b732  00          DATA '\x00'  value b
+    .byte 0x03              ;b733  03          DATA '\x03'  Block end
 
 mem_b734:
-    .byte 0x0A              ;b734  0a          DATA '\n'
+    .byte 0x0A              ;b734  0a          DATA '\n'    Block length
     .byte 0x09              ;b735  09          DATA '\t'
     .byte 0x00              ;b736  00          DATA '\x00'
-    .byte 0xE7              ;b737  e7          DATA '\xe7'
-    .byte 0x25              ;b738  25          DATA '%'
-    .byte 0x00              ;b739  00          DATA '\x00'
-    .byte 0xF6              ;b73a  f6          DATA '\xf6'
-    .byte 0x25              ;b73b  25          DATA '%'
-    .byte 0x00              ;b73c  00          DATA '\x00'
-    .byte 0x00              ;b73d  00          DATA '\x00'
-    .byte 0x03              ;b73e  03          DATA '\x03'
+    .byte 0xE7              ;b737  e7          DATA '\xe7'  0xE7 = Response to group reading
+    .byte 0x25              ;b738  25          DATA '%'     type
+    .byte 0x00              ;b739  00          DATA '\x00'  value a
+    .byte 0xF6              ;b73a  f6          DATA '\xf6'  value b
+    .byte 0x25              ;b73b  25          DATA '%'     type
+    .byte 0x00              ;b73c  00          DATA '\x00'  value a
+    .byte 0x00              ;b73d  00          DATA '\x00'  value b
+    .byte 0x03              ;b73e  03          DATA '\x03'  Block end
 
 mem_b73f:
-    .byte 0x0A              ;b73f  0a          DATA '\n'
+    .byte 0x0A              ;b73f  0a          DATA '\n'    Block length
     .byte 0x09              ;b740  09          DATA '\t'
     .byte 0x00              ;b741  00          DATA '\x00'
-    .byte 0xE7              ;b742  e7          DATA '\xe7'
-    .byte 0x25              ;b743  25          DATA '%'
-    .byte 0x00              ;b744  00          DATA '\x00'
-    .byte 0xF7              ;b745  f7          DATA '\xf7'
-    .byte 0x25              ;b746  25          DATA '%'
-    .byte 0x00              ;b747  00          DATA '\x00'
-    .byte 0x00              ;b748  00          DATA '\x00'
-    .byte 0x03              ;b749  03          DATA '\x03'
+    .byte 0xE7              ;b742  e7          DATA '\xe7'  0xE7 = Response to group reading
+    .byte 0x25              ;b743  25          DATA '%'     type
+    .byte 0x00              ;b744  00          DATA '\x00'  value a
+    .byte 0xF7              ;b745  f7          DATA '\xf7'  value b
+    .byte 0x25              ;b746  25          DATA '%'     type
+    .byte 0x00              ;b747  00          DATA '\x00'  value a
+    .byte 0x00              ;b748  00          DATA '\x00'  value b
+    .byte 0x03              ;b749  03          DATA '\x03'  Block end
 
 mem_b74a:
-    .byte 0x07              ;b74a  07          DATA '\x07'
+    .byte 0x07              ;b74a  07          DATA '\x07'  Block length
     .byte 0x06              ;b74b  06          DATA '\x06'
     .byte 0x00              ;b74c  00          DATA '\x00'
-    .byte 0xE7              ;b74d  e7          DATA '\xe7'
-    .byte 0x11              ;b74e  11          DATA '\x11'
-    .byte 0x20              ;b74f  20          DATA ' '
-    .byte 0x00              ;b750  00          DATA '\x00'
-    .byte 0x03              ;b751  03          DATA '\x03'
+    .byte 0xE7              ;b74d  e7          DATA '\xe7'  0xE7 = Response to group reading
+    .byte 0x11              ;b74e  11          DATA '\x11'  type
+    .byte 0x20              ;b74f  20          DATA ' '     value a
+    .byte 0x00              ;b750  00          DATA '\x00'  value b
+    .byte 0x03              ;b751  03          DATA '\x03'  Block end
 
 mem_b752:
-    .byte 0x07              ;b752  07          DATA '\x07'
+    .byte 0x07              ;b752  07          DATA '\x07'  Block length
     .byte 0x06              ;b753  06          DATA '\x06'
     .byte 0x00              ;b754  00          DATA '\x00'
-    .byte 0xE7              ;b755  e7          DATA '\xe7'
-    .byte 0x10              ;b756  10          DATA '\x10'
-    .byte 0x01              ;b757  01          DATA '\x01'
-    .byte 0x00              ;b758  00          DATA '\x00'
-    .byte 0x03              ;b759  03          DATA '\x03'
+    .byte 0xE7              ;b755  e7          DATA '\xe7'  0xE7 = Response to group reading
+    .byte 0x10              ;b756  10          DATA '\x10'  type
+    .byte 0x01              ;b757  01          DATA '\x01'  value a
+    .byte 0x00              ;b758  00          DATA '\x00'  value b
+    .byte 0x03              ;b759  03          DATA '\x03'  Block end
 
-lab_b75a:
+mem_0080_is_07:
     mov a, mem_0081         ;b75a  05 81
     cmp a, #0x01            ;b75c  14 01
     beq lab_b773            ;b75e  fd 13
@@ -10436,7 +10476,7 @@ lab_b937:
     mov a, #0xc3            ;b937  04 c3
     ret                     ;b939  20
 
-lab_b93a:
+mem_0080_is_08:
     mov a, mem_0081         ;b93a  05 81
     cmp a, #0x01            ;b93c  14 01
     beq lab_b945            ;b93e  fd 05
@@ -10573,7 +10613,7 @@ sub_ba0e:
 lab_ba14:
     movw a, #0xffff         ;ba14  e4 ff ff
     movw @ix+0x00, a        ;ba17  d6 00
-    movw a, #mem_ff14       ;ba19  e4 ff 14
+    movw a, #0xff14       ;ba19  e4 ff 14  TODO should this be mem_ff14?
     movw @ix+0x02, a        ;ba1c  d6 02
     incw ix                 ;ba1e  c2
     incw ix                 ;ba1f  c2
@@ -10626,7 +10666,7 @@ lab_ba6b:
     mov mem_0311, a         ;ba76  61 03 11
     ret                     ;ba79  20
 
-lab_ba7a:
+mem_0080_is_09:
     mov a, mem_0081         ;ba7a  05 81
     cmp a, #0x01            ;ba7c  14 01
     beq lab_ba88            ;ba7e  fd 08
@@ -10709,7 +10749,7 @@ lab_bb13:
     call sub_bbc3           ;bb13  31 bb c3
     ret                     ;bb16  20
 
-lab_bb17:
+mem_0080_is_0b_or_0c:
     mov a, mem_0081         ;bb17  05 81
     cmp a, #0x02            ;bb19  14 02
     beq lab_bb1f            ;bb1b  fd 02
@@ -10719,7 +10759,7 @@ lab_bb1f:
     mov a, #0xfd            ;bb1f  04 fd
     bne lab_bb4a            ;bb21  fc 27       BRANCH_ALWAYS_TAKEN
 
-lab_bb23:
+mem_0080_is_0a:
     mov a, mem_0081         ;bb23  05 81
     cmp a, #0x02            ;bb25  14 02
     beq lab_bb48            ;bb27  fd 1f
@@ -10798,7 +10838,7 @@ lab_bb9a:
     call sub_bbc3           ;bb9a  31 bb c3
     ret                     ;bb9d  20
 
-lab_bb9e:
+mem_0080_is_0f:
     setb mem_008c:6         ;bb9e  ae 8c
     ret                     ;bba0  20
 
@@ -11999,7 +12039,7 @@ sub_c2df:
 lab_c2ea:
     movw a, #0xffff         ;c2ea  e4 ff ff
     movw @ix+0x00, a        ;c2ed  d6 00
-    movw a, #mem_ff14       ;c2ef  e4 ff 14
+    movw a, #0xff14         ;c2ef  e4 ff 14     TODO should this be mem_ff14?
     movw @ix+0x02, a        ;c2f2  d6 02
     incw ix                 ;c2f4  c2
     incw ix                 ;c2f5  c2
@@ -12445,16 +12485,16 @@ sub_c5d2:
     setb mem_0097:2         ;c5d2  aa 97
     mov a, #0x00            ;c5d4  04 00
     movw ix, #mem_02b6      ;c5d6  e6 02 b6
-    call sub_e6ed           ;c5d9  31 e6 ed
+    call fill_ix_plus_0x05_downto_0           ;c5d9  31 e6 ed
     mov a, mem_0095         ;c5dc  05 95
     mov mem_02c8, a         ;c5de  61 02 c8
     movw ix, #mem_02b6      ;c5e1  e6 02 b6
     bbc mem_00d0:0, lab_c5f7 ;c5e4  b0 d0 10
     bbc mem_008c:7, lab_c5fc ;c5e7  b7 8c 12
     bbc mem_008e:7, lab_c5fc ;c5ea  b7 8e 0f
-    call sub_c839           ;c5ed  31 c8 39
+    call sub_c839           ;c5ed  31 c8 39     Maybe set display number to diag
     bbc mem_00e1:7, lab_c5f6 ;c5f0  b7 e1 03
-    call sub_c831           ;c5f3  31 c8 31
+    call sub_c831           ;c5f3  31 c8 31     Maybe set display number to testdisplay
 
 lab_c5f6:
     ret                     ;c5f6  20
@@ -12616,7 +12656,7 @@ lab_c6dd:
     ret                     ;c6e0  20
 
 lab_c6e1:
-    callv #5                ;c6e1  ed          CALLV #5 = sub_8d0d
+    callv #5                ;c6e1  ed          CALLV #5 = callv5_8d0d
     ret                     ;c6e2  20
 
 sub_c6e3:
@@ -12727,7 +12767,7 @@ lab_c766:
     beq lab_c78b            ;c76f  fd 1a
     cmp a, #0x03            ;c771  14 03
     beq lab_c793            ;c773  fd 1e
-    callv #5                ;c775  ed          CALLV #5 = sub_8d0d
+    callv #5                ;c775  ed          CALLV #5 = callv5_8d0d
     call sub_9e41           ;c776  31 9e 41
     ret                     ;c779  20
 
@@ -12827,7 +12867,7 @@ lab_c801:
     beq lab_c80c            ;c806  fd 04
 
 lab_c808:
-    callv #5                ;c808  ed          CALLV #5 = sub_8d0d
+    callv #5                ;c808  ed          CALLV #5 = callv5_8d0d
     jmp lab_c80f            ;c809  21 c8 0f
 
 lab_c80c:
@@ -13411,35 +13451,35 @@ mem_cb16:
 
 lab_cb22:
     movw a, #mem_8003       ;cb22  e4 80 03
-    callv #6                ;cb25  ee          CALLV #6 = sub_cb98
+    callv #6                ;cb25  ee          CALLV #6 = callv6_cb98
     movw a, #mem_8007       ;cb26  e4 80 07
-    callv #6                ;cb29  ee          CALLV #6 = sub_cb98
+    callv #6                ;cb29  ee          CALLV #6 = callv6_cb98
     jmp lab_cb62            ;cb2a  21 cb 62
 
 lab_cb2d:
     movw a, #mem_8003       ;cb2d  e4 80 03
-    callv #6                ;cb30  ee          CALLV #6 = sub_cb98
+    callv #6                ;cb30  ee          CALLV #6 = callv6_cb98
     movw a, #0xc007         ;cb31  e4 c0 07
-    callv #6                ;cb34  ee          CALLV #6 = sub_cb98
+    callv #6                ;cb34  ee          CALLV #6 = callv6_cb98
     jmp lab_cb6f            ;cb35  21 cb 6f
 
 lab_cb38:
     movw a, #mem_8003       ;cb38  e4 80 03
-    callv #6                ;cb3b  ee          CALLV #6 = sub_cb98
+    callv #6                ;cb3b  ee          CALLV #6 = callv6_cb98
     movw a, #0x0007         ;cb3c  e4 00 07
-    callv #6                ;cb3f  ee          CALLV #6 = sub_cb98
+    callv #6                ;cb3f  ee          CALLV #6 = callv6_cb98
     jmp lab_cb6f            ;cb40  21 cb 6f
 
 lab_cb43:
     movw a, #lab_c003       ;cb43  e4 c0 03
-    callv #6                ;cb46  ee          CALLV #6 = sub_cb98
+    callv #6                ;cb46  ee          CALLV #6 = callv6_cb98
     call sub_cb9c           ;cb47  31 cb 9c
     call sub_cbc6           ;cb4a  31 cb c6
     jmp lab_cb6f            ;cb4d  21 cb 6f
 
 lab_cb50:
     movw a, #lab_a003       ;cb50  e4 a0 03
-    callv #6                ;cb53  ee          CALLV #6 = sub_cb98
+    callv #6                ;cb53  ee          CALLV #6 = callv6_cb98
     call sub_cb9c           ;cb54  31 cb 9c
     mov a, mem_026b         ;cb57  60 02 6b
     mov mem_009f, a         ;cb5a  45 9f
@@ -13475,7 +13515,7 @@ lab_cb80:
 lab_cb84:
     setb pdr0:5             ;cb84  ad 00        EEPROM_CS
     movw a, #lab_c003       ;cb86  e4 c0 03
-    callv #6                ;cb89  ee          CALLV #6 = sub_cb98
+    callv #6                ;cb89  ee          CALLV #6 = callv6_cb98
     call sub_cb9c           ;cb8a  31 cb 9c
     call sub_cbc6           ;cb8d  31 cb c6
     clrb pdr0:5             ;cb90  a5 00        EEPROM_CS
@@ -13485,7 +13525,7 @@ lab_cb95:
     mov mem_0089, a         ;cb95  45 89
     ret                     ;cb97  20
 
-sub_cb98:
+callv6_cb98:
     movw mem_009f, a        ;cb98  d5 9f
     bne sub_cba6            ;cb9a  fc 0a
 
@@ -15249,12 +15289,9 @@ mem_d005:
     .byte 0x59              ;d2c0  59          DATA 'Y'
     .byte 0x89              ;d2c1  89          DATA '\x89'
     .byte 0x20              ;d2c2  20          DATA ' '
-
-lab_d2c3:
-    mov r7, a               ;d2c3  4f
-    daa                     ;d2c4  84
-    ret                     ;d2c5  20
-
+    .byte 0x4f
+    .byte 0x84
+    .byte 0x20
     .byte 0x0F              ;d2c6  0f          DATA '\x0f'
     .byte 0x85              ;d2c7  85          DATA '\x85'
     .byte 0x20              ;d2c8  20          DATA ' '
@@ -16801,7 +16838,7 @@ lab_db48:
     mov eif2, #0x00         ;db50  85 3b 00
     clrb mem_00d7:6         ;db53  a6 d7
     call sub_dcb5           ;db55  31 dc b5
-    callv #7                ;db58  ef          CALLV #7 = sub_e55c
+    callv #7                ;db58  ef          CALLV #7 = callv7_e55c
     movw a, #0x0802         ;db59  e4 08 02
 
 lab_db5c:
@@ -17144,7 +17181,7 @@ lab_dda5:
 lab_dda6:
     mov a, #0x01            ;dda6  04 01
     call sub_e3ac           ;dda8  31 e3 ac
-    callv #7                ;ddab  ef          CALLV #7 = sub_e55c
+    callv #7                ;ddab  ef          CALLV #7 = callv7_e55c
     ret                     ;ddac  20
 
 lab_ddad:
@@ -17383,7 +17420,7 @@ lab_df12:
     ret                     ;df1f  20
 
 lab_df20:
-    callv #7                ;df20  ef          CALLV #7 = sub_e55c
+    callv #7                ;df20  ef          CALLV #7 = callv7_e55c
     setc                    ;df21  91
     ret                     ;df22  20
 
@@ -17488,7 +17525,7 @@ lab_dfaf:
     mov usmr, #0x0b         ;dfc8  85 40 0b
     setb uscr:3             ;dfcb  ab 41
     mov a, mem_0089         ;dfcd  05 89
-    mov rxdr, a             ;dfcf  45 43
+    mov rxdr, a             ;dfcf  45 43        Send byte out UART
     mov a, #0x20            ;dfd1  04 20
     mov mem_0390, a         ;dfd3  61 03 90
     ret                     ;dfd6  20
@@ -17562,7 +17599,7 @@ sub_e037:
     beq lab_e033            ;e04b  fd e6       BRANCH_ALWAYS_TAKEN
 
 lab_e04d:
-    callv #7                ;e04d  ef          CALLV #7 = sub_e55c
+    callv #7                ;e04d  ef          CALLV #7 = callv7_e55c
     ret                     ;e04e  20
 
 lab_e04f:
@@ -17613,7 +17650,7 @@ lab_e092:
     setb uscr:4             ;e098  ac 41
     setb uscr:3             ;e09a  ab 41
     mov a, mem_0089         ;e09c  05 89
-    mov rxdr, a             ;e09e  45 43
+    mov rxdr, a             ;e09e  45 43        Send byte out UART
     clrb mem_00f9:6         ;e0a0  a6 f9
     clrb mem_00f9:7         ;e0a2  a7 f9
     setb uscr:1             ;e0a4  a9 41
@@ -17784,7 +17821,7 @@ lab_e1a1:
     ret                     ;e1a9  20
 
 lab_e1aa:
-    callv #7                ;e1aa  ef          CALLV #7 = sub_e55c
+    callv #7                ;e1aa  ef          CALLV #7 = callv7_e55c
     ret                     ;e1ab  20
 
 lab_e1ac:
@@ -17869,7 +17906,7 @@ lab_e231:
     bbc mem_00f9:4, lab_e256 ;e236  b4 f9 1d
     bbc mem_00f9:6, lab_e256 ;e239  b6 f9 1a
     mov a, mem_0088         ;e23c  05 88
-    cmp a, #0x55            ;e23e  14 55
+    cmp a, #0x55            ;e23e  14 55        KWP sync byte?
     bne lab_e256            ;e240  fc 14
 
 sub_e242:
@@ -17911,7 +17948,7 @@ lab_e278:
     mov mem_0395, a         ;e27c  61 03 95
 
 lab_e27f:
-    callv #7                ;e27f  ef          CALLV #7 = sub_e55c
+    callv #7                ;e27f  ef          CALLV #7 = callv7_e55c
     ret                     ;e280  20
 
 lab_e281:
@@ -17936,7 +17973,7 @@ lab_e29d:
 lab_e29e:
     mov a, mem_038c         ;e29e  60 03 8c
     bne lab_e2b6            ;e2a1  fc 13
-    mov mem_0089, #0x75     ;e2a3  85 89 75
+    mov mem_0089, #0x75     ;e2a3  85 89 75     0x75 = Complement of 0x8A KWP?
     mov a, #0x01            ;e2a6  04 01
     mov mem_00fb, a         ;e2a8  45 fb
     setb mem_00f9:3         ;e2aa  ab f9
@@ -18039,8 +18076,8 @@ sub_e338:
     mov a, #0x01            ;e338  04 01
     mov mem_0397, a         ;e33a  61 03 97
     movw a, #mem_dd5d       ;e33d  e4 dd 5d
-    movw mem_0084, a        ;e340  d5 84
-    mov mem_00a5, #0x05     ;e342  85 a5 05
+    movw mem_0084, a        ;e340  d5 84        mem_0084 = Pointer to message
+    mov mem_00a5, #0x05     ;e342  85 a5 05     0x05 bytes in response
     call sub_b136           ;e345  31 b1 36
     mov a, mem_0116         ;e348  60 01 16
     jmp lab_e35f            ;e34b  21 e3 5f
@@ -18048,8 +18085,8 @@ sub_e338:
 sub_e34e:
     clrb mem_00f9:7         ;e34e  a7 f9
     movw a, #mem_dd5d       ;e350  e4 dd 5d
-    movw mem_0084, a        ;e353  d5 84
-    mov mem_00a5, #0x05     ;e355  85 a5 05
+    movw mem_0084, a        ;e353  d5 84        mem_0084 = Pointer to message
+    mov mem_00a5, #0x05     ;e355  85 a5 05     0x05 bytes in response
     call sub_b136           ;e358  31 b1 36
     mov a, mem_0116         ;e35b  60 01 16
     incw a                  ;e35e  c0
@@ -18147,7 +18184,7 @@ mem_e3bd:
     .word lab_e502          ;e3cb  e5 02       VECTOR
     .word lab_e547          ;e3cd  e5 47       VECTOR
     .word lab_e552          ;e3cf  e5 52       VECTOR
-    .word sub_e55c          ;e3d1  e5 5c       VECTOR
+    .word callv7_e55c          ;e3d1  e5 5c       VECTOR
     .word lab_e41e          ;e3d3  e4 1e       VECTOR
     .word lab_e4a3          ;e3d5  e4 a3       VECTOR
     .word lab_e59c          ;e3d7  e5 9c       VECTOR
@@ -18167,8 +18204,8 @@ lab_e3d9:
     swap                    ;e3ea  10
     movw mem_03ad, a        ;e3eb  d4 03 ad
     movw a, #mem_dd66       ;e3ee  e4 dd 66
-    movw mem_0084, a        ;e3f1  d5 84
-    mov mem_00a5, #0x08     ;e3f3  85 a5 08
+    movw mem_0084, a        ;e3f1  d5 84        mem_0084 = Pointer to message
+    mov mem_00a5, #0x08     ;e3f3  85 a5 08     0x08 bytes in response
     call sub_b136           ;e3f6  31 b1 36
     mov a, mem_03ab         ;e3f9  60 03 ab
     mov mem_0131, a         ;e3fc  61 01 31
@@ -18312,9 +18349,9 @@ lab_e4eb:
     mov a, mem_038c         ;e4eb  60 03 8c
     bne lab_e4ea            ;e4ee  fc fa
     call sub_e3a2           ;e4f0  31 e3 a2
-    mov mem_00a5, #0x04     ;e4f3  85 a5 04
+    mov mem_00a5, #0x04     ;e4f3  85 a5 04     0x04 bytes in response
     movw a, #mem_dd6e       ;e4f6  e4 dd 6e
-    movw mem_0084, a        ;e4f9  d5 84
+    movw mem_0084, a        ;e4f9  d5 84        mem_0084 = Pointer to message
     call sub_e366           ;e4fb  31 e3 66
     mov a, #0x07            ;e4fe  04 07
     bne lab_e4e7            ;e500  fc e5       BRANCH_ALWAYS_TAKEN
@@ -18377,7 +18414,7 @@ lab_e558:
 lab_e55b:
     ret                     ;e55b  20
 
-sub_e55c:
+callv7_e55c:
     setb pdr7:2             ;e55c  aa 13
     setb pdr7:3             ;e55e  ab 13
     call sub_e38a           ;e560  31 e3 8a
@@ -18596,24 +18633,24 @@ lab_e6ce:
     bne lab_e6ce            ;e6de  fc ee
     ret                     ;e6e0  20
 
-sub_e6e1:
+fill_ix_plus_0x0b_downto_0:
     mov @ix+0x0b, a         ;e6e1  46 0b
     mov @ix+0x0a, a         ;e6e3  46 0a
     mov @ix+0x09, a         ;e6e5  46 09
     mov @ix+0x08, a         ;e6e7  46 08
 
-sub_e6e9:
+fill_ix_plus_0x07_downto_0:
     mov @ix+0x07, a         ;e6e9  46 07
     mov @ix+0x06, a         ;e6eb  46 06
 
-sub_e6ed:
+fill_ix_plus_0x05_downto_0:
     mov @ix+0x05, a         ;e6ed  46 05
 
-sub_e6ef:
+fill_ix_plus_0x04_downto_0:
     mov @ix+0x04, a         ;e6ef  46 04
     mov @ix+0x03, a         ;e6f1  46 03
 
-sub_e6f3:
+fill_ix_plus_0x02_downto_0:
     mov @ix+0x02, a         ;e6f3  46 02
     mov @ix+0x01, a         ;e6f5  46 01
     mov @ix+0x00, a         ;e6f7  46 00
@@ -18766,29 +18803,38 @@ sub_e790:
     bbc mem_00e7:4, lab_e7e8 ;e796  b4 e7 4f
     clrb mem_00e7:4         ;e799  a4 e7
     bbc mem_00e1:7, lab_e7e9 ;e79b  b7 e1 4b
-    mov a, #0x82            ;e79e  04 82
+
+    mov a, #0x82            ;e79e  04 82        0x82 = Write only to FIS (used during KWP1281 output tests)
     mov mem_0215, a         ;e7a0  61 02 15
 
 lab_e7a3:
     movw ix, #mem_02b6      ;e7a3  e6 02 b6
-    movw a, @ix+0x00        ;e7a6  c6 00
+
+    movw a, @ix+0x00        ;e7a6  c6 00        Copy 0x2b6,0x2b7 -> 0x216,0x217
     movw mem_0216, a        ;e7a8  d4 02 16
-    movw a, @ix+0x02        ;e7ab  c6 02
+
+    movw a, @ix+0x02        ;e7ab  c6 02        Copy 0x2b8,0x2b9 -> 0x218,0x219
     movw mem_0218, a        ;e7ad  d4 02 18
-    mov a, @ix+0x04         ;e7b0  06 04
+
+    mov a, @ix+0x04         ;e7b0  06 04        Copy 0x2ba,0x2bb -> 0x21a,0x21b
     mov mem_021a, a         ;e7b2  61 02 1a
 
 lab_e7b5:
-    movw a, mem_0215        ;e7b5  c4 02 15
+    movw a, mem_0215        ;e7b5  c4 02 15     Copy packet to send to Sub-MCU bytes 0, 1
     movw mem_0222, a        ;e7b8  d4 02 22
-    movw a, mem_0217        ;e7bb  c4 02 17
+
+    movw a, mem_0217        ;e7bb  c4 02 17     Copy packet to send to Sub-MCU bytes 2, 3
     movw mem_0224, a        ;e7be  d4 02 24
-    movw a, mem_0219        ;e7c1  c4 02 19
+
+    movw a, mem_0219        ;e7c1  c4 02 19     Copy packet to send to Sub-MCU bytes 4, 5
     movw mem_0226, a        ;e7c4  d4 02 26
+
     mov a, mem_021b         ;e7c7  60 02 1b
     mov mem_0228, a         ;e7ca  61 02 28
-    mov a, #0x06            ;e7cd  04 06
-    mov mem_022f, a         ;e7cf  61 02 2f     Count of bytes to send to Sub-MCU
+
+    mov a, #0x06            ;e7cd  04 06        6 bytes to send to Sub-MCU
+    mov mem_022f, a         ;e7cf  61 02 2f
+
     mov a, #0x00            ;e7d2  04 00
     mov mem_03b7, a         ;e7d4  61 03 b7
     setb mem_00e7:0         ;e7d7  a8 e7
@@ -18805,8 +18851,10 @@ lab_e7e8:
 lab_e7e9:
     bbc mem_00e2:0, lab_e802 ;e7e9  b0 e2 16
     clrb mem_00e2:0         ;e7ec  a0 e2
-    mov a, #0x83            ;e7ee  04 83
+
+    mov a, #0x83            ;e7ee  04 83        0x83 = Sub-MCU play dead
     mov mem_0215, a         ;e7f0  61 02 15
+
     movw a, #0x0000         ;e7f3  e4 00 00
     movw mem_0216, a        ;e7f6  d4 02 16
     movw mem_0218, a        ;e7f9  d4 02 18
@@ -18814,7 +18862,7 @@ lab_e7e9:
     jmp lab_e7b5            ;e7ff  21 e7 b5
 
 lab_e802:
-    mov a, #0x81            ;e802  04 81
+    mov a, #0x81            ;e802  04 81        0x81 = Write to both LCD and FIS
     mov mem_0215, a         ;e804  61 02 15
     jmp lab_e7a3            ;e807  21 e7 a3
 
@@ -18833,38 +18881,47 @@ lab_e815:
     ret                     ;e81a  20
 
 sub_e81b:
-    bbc mem_00e7:3, lab_e839 ;e81b  b3 e7 1b
+    bbc mem_00e7:3, lab_e839 ;e81b  b3 e7 1b    Bail out if Sub-to-Main packet not ready
     clrb mem_00e7:3         ;e81e  a3 e7
     setb mem_0098:1         ;e820  a9 98
-    mov a, mem_0230         ;e822  60 02 30
+
+    mov a, mem_0230         ;e822  60 02 30     Sub-to-Main Byte 0
     mov mem_0236, a         ;e825  61 02 36
-    mov a, mem_0231         ;e828  60 02 31
+
+    mov a, mem_0231         ;e828  60 02 31     Sub-to-Main Byte 1
     mov mem_00e8, a         ;e82b  45 e8
-    mov a, mem_0232         ;e82d  60 02 32
+
+    mov a, mem_0232         ;e82d  60 02 32     Sub-to-Main Byte 2
     mov mem_0255, a         ;e830  61 02 55
-    mov a, mem_0233         ;e833  60 02 33
+
+    mov a, mem_0233         ;e833  60 02 33     Sub-to-Main Byte 3
     mov mem_03b5, a         ;e836  61 03 b5
 
 lab_e839:
     ret                     ;e839  20
 
-sub_e83a:
+submcu_send_packet:
     bbc mem_00e7:0, lab_e86a ;e83a  b0 e7 2d
     bbc mem_00e7:7, lab_e86b ;e83d  b7 e7 2b
-    movw a, #0x0000         ;e840  e4 00 00
+
+    movw a, #0x0000         ;e840  e4 00 00     Packet offset = 0
     mov a, mem_03b7         ;e843  60 03 b7
-    movw a, #0x0222         ;e846  e4 02 22
+
+    movw a, #mem_0222       ;e846  e4 02 22     A = pointer to packet to send to Sub-MCU
     clrc                    ;e849  81
-    addcw a                 ;e84a  23
-    mov a, @a               ;e84b  92
-    call submcu_send_byte   ;e84c  31 e8 bb
-    mov a, mem_03b7         ;e84f  60 03 b7
+    addcw a                 ;e84a  23           Add offset into packet
+    mov a, @a               ;e84b  92           A = byte in packet
+    call submcu_send_byte   ;e84c  31 e8 bb     Send byte to Sub-MCU
+
+    mov a, mem_03b7         ;e84f  60 03 b7     Increment packet offset
     incw a                  ;e852  c0
     mov mem_03b7, a         ;e853  61 03 b7
+
     movw a, #0x0000         ;e856  e4 00 00
     mov a, mem_022f         ;e859  60 02 2f
     decw a                  ;e85c  d0           Decrement count of bytes left to send to Sub-MCU
     mov mem_022f, a         ;e85d  61 02 2f
+
     bne lab_e86a            ;e860  fc 08
     clrb mem_00e7:0         ;e862  a0 e7
     clrb cntr4:3            ;e864  a3 48
@@ -18890,12 +18947,12 @@ sub_e87b:
     mov mem_0238, a         ;e880  61 02 38
 
 lab_e883:
-    mov a, #0x04            ;e883  04 04
+    mov a, #0x04            ;e883  04 04        4 bytes to receive from Sub-MCU
     mov mem_0237, a         ;e885  61 02 37
     setb mem_00e7:1         ;e888  a9 e7
     clrb mem_00e7:2         ;e88a  a2 e7
     clrc                    ;e88c  81
-    bbc pdr4:1, lab_e891    ;e88d  b1 0e 01
+    bbc pdr4:1, lab_e891    ;e88d  b1 0e 01     S2M_DATA_IN DATA IN
     setc                    ;e890  91
 
 lab_e891:
@@ -18915,16 +18972,17 @@ lab_e891:
     mov a, mem_0238         ;e8a8  60 02 38
     incw a                  ;e8ab  c0
     mov mem_0238, a         ;e8ac  61 02 38
-    cmp a, #0x20            ;e8af  14 20
+    cmp a, #0x20            ;e8af  14 20        32 bits received? (4 bytes * 8)
     bne lab_e8ba            ;e8b1  fc 07
     mov a, #0x00            ;e8b3  04 00
     mov mem_0238, a         ;e8b5  61 02 38
-    setb mem_00e7:3         ;e8b8  ab e7
+    setb mem_00e7:3         ;e8b8  ab e7        Set Sub-to-Main packet ready flag
 
 lab_e8ba:
     ret                     ;e8ba  20
 
 submcu_send_byte:
+;Send a byte to the Sub-MCU
     movw ix, #0x0000        ;e8bb  e6 00 00
 lab_e8be:
     rolc a                  ;e8be  02
@@ -19212,7 +19270,7 @@ lab_ea79:
 lab_ea8a:
     mov a, #0x00            ;ea8a  04 00
     movw ix, #mem_01da      ;ea8c  e6 01 da
-    call sub_e6e9           ;ea8f  31 e6 e9
+    call fill_ix_plus_0x07_downto_0           ;ea8f  31 e6 e9
 
 lab_ea92:
     mov a, #0x00            ;ea92  04 00
@@ -19279,7 +19337,7 @@ lab_eaef:
     clrb mem_00e1:4         ;eaf2  a4 e1
     mov a, #0x00            ;eaf4  04 00
     movw ix, #mem_03b8      ;eaf6  e6 03 b8
-    call sub_e6e1           ;eaf9  31 e6 e1
+    call fill_ix_plus_0x0b_downto_0           ;eaf9  31 e6 e1
     ret                     ;eafc  20
 
 sub_eafd:
@@ -19469,22 +19527,22 @@ lab_ebe5:
     movw ix, #mem_02b6      ;ebf0  e6 02 b6
     bbc mem_00e0:6, lab_ec06 ;ebf3  b6 e0 10
     movw ep, #mem_03c7      ;ebf6  e7 03 c7
-    call sub_ef25           ;ebf9  31 ef 25
+    call copy_5_bytes_ep_to_ix ;ebf9  31 ef 25
 
 lab_ebfc:
     movw ix, #mem_03d4      ;ebfc  e6 03 d4
     movw ep, #mem_02b6      ;ebff  e7 02 b6
-    call sub_ef25           ;ec02  31 ef 25
+    call copy_5_bytes_ep_to_ix ;ec02  31 ef 25
     ret                     ;ec05  20
 
 lab_ec06:
     movw ix, #mem_02b6      ;ec06  e6 02 b6
     mov a, #0x00            ;ec09  04 00
-    call sub_e6ef           ;ec0b  31 e6 ef
+    call fill_ix_plus_0x04_downto_0  ;ec0b  31 e6 ef
     mov a, mem_00e0         ;ec0e  05 e0
     and a, #0x02            ;ec10  64 02
     bne lab_ec3b            ;ec12  fc 27
-    call sub_ed18           ;ec14  31 ed 18
+    call no_changer         ;ec14  31 ed 18     Set display number for "NO CHANGER"
     setb mem_00e0:6         ;ec17  ae e0
 
 lab_ec19:
@@ -19513,7 +19571,7 @@ sub_ec41:
     and a, #0xf0            ;ec44  64 f0
     cmp a, #0xb0            ;ec46  14 b0
     bne lab_ec50            ;ec48  fc 06
-    call sub_ed1c           ;ec4a  31 ed 1c
+    call no_magazin         ;ec4a  31 ed 1c     Set display number for "NO MAGAZIN"
     setb mem_00e0:6         ;ec4d  ae e0
     ret                     ;ec4f  20
 
@@ -19522,13 +19580,13 @@ lab_ec50:
     and a, #0x0e            ;ec53  64 0e
     cmp a, #0x08            ;ec55  14 08
     bne lab_ec5f            ;ec57  fc 06
-    call sub_ed26           ;ec59  31 ed 26
+    call no_disc           ;ec59  31 ed 26      Set display number for "NO DISC"
     setb mem_00e0:6         ;ec5c  ae e0
     ret                     ;ec5e  20
 
 lab_ec5f:
     bbc mem_00e1:5, lab_ec68 ;ec5f  b5 e1 06
-    call sub_ed2a           ;ec62  31 ed 2a
+    call cd_no_cd           ;ec62  31 ed 2a     Set display number for "CD x NO CD"
     setb mem_00e0:6         ;ec65  ae e0
     ret                     ;ec67  20
 
@@ -19544,7 +19602,7 @@ lab_ec75:
     mov a, mem_03ce         ;ec75  60 03 ce
     cmp a, #0x01            ;ec78  14 01
     bne lab_ec80            ;ec7a  fc 04
-    call sub_ed20           ;ec7c  31 ed 20
+    call chk_magazin        ;ec7c  31 ed 20     Set display number for "CHK MAGAZIN"
     ret                     ;ec7f  20
 
 lab_ec80:
@@ -19569,7 +19627,7 @@ lab_ec85:
 lab_eca0:
     dec r0                  ;eca0  d8
     beq lab_ecb3            ;eca1  fd 10
-    callv #5                ;eca3  ed          CALLV #5 = sub_8d0d
+    callv #5                ;eca3  ed          CALLV #5 = callv5_8d0d
 
 lab_eca4:
     bbc mem_00b2:2, lab_ecb5 ;eca4  b2 b2 0e
@@ -19648,26 +19706,26 @@ sub_ed0f:
     movw a, ix              ;ed0f  f2
     movw ep, a              ;ed10  e3
     movw ix, #mem_03c7      ;ed11  e6 03 c7
-    call sub_ef25           ;ed14  31 ef 25
+    call copy_5_bytes_ep_to_ix ;ed14  31 ef 25
     ret                     ;ed17  20
 
-sub_ed18:
+no_changer:
     mov @ix+0x01, #0x05     ;ed18  86 01 05     0x05 'NO..CHANGER'
     ret                     ;ed1b  20
 
-sub_ed1c:
+no_magazin:
     mov @ix+0x01, #0x06     ;ed1c  86 01 06     0x06 'NO..MAGAZIN'
     ret                     ;ed1f  20
 
-sub_ed20:
+chk_magazin:
     mov @ix+0x01, #0x0c     ;ed20  86 01 0c     0x0c 'CHK.MAGAZIN'
     jmp lab_ed32            ;ed23  21 ed 32
 
-sub_ed26:
+no_disc:
     mov @ix+0x01, #0x07     ;ed26  86 01 07     0x07 '....NO.DISC'
     ret                     ;ed29  20
 
-sub_ed2a:
+cd_no_cd:
     mov @ix+0x01, #0x0f     ;ed2a  86 01 0f     0x0f 'CD...NO.CD.'
     mov a, mem_03cc         ;ed2d  60 03 cc
     mov @ix+0x02, a         ;ed30  46 02
@@ -19695,7 +19753,7 @@ sub_ed4d:
 
 lab_ed50:
     mov a, mem_01db         ;ed50  60 01 db     CD number
-    and a, #0x0f            ;ed53  64 0f        mask to leave only low nibble (CD number
+    and a, #0x0f            ;ed53  64 0f        mask to leave only low nibble (CD number)
     mov @ix+0x02, a         ;ed55  46 02
     jmp lab_ed32            ;ed57  21 ed 32
 
@@ -19711,7 +19769,7 @@ sub_ed60:
     bne lab_ed76            ;ed6a  fc 0a
     movw ix, #mem_02b6      ;ed6c  e6 02 b6
     movw ep, #mem_03d4      ;ed6f  e7 03 d4
-    call sub_ef25           ;ed72  31 ef 25
+    call copy_5_bytes_ep_to_ix ;ed72  31 ef 25
     ret                     ;ed75  20
 
 lab_ed76:
@@ -19936,11 +19994,11 @@ mem_ee5b:
 
 lab_ee84:
     movw a, @ix+0x00        ;ee84  c6 00
-    callv #1                ;ee86  e9          CALLV #1 = sub_eed4
+    callv #1                ;ee86  e9          CALLV #1 = callv1_eed4
     ret                     ;ee87  20
 
 lab_ee88:
-    callv #2                ;ee88  ea          CALLV #2 = sub_eedb
+    callv #2                ;ee88  ea          CALLV #2 = callv2_eedb
     ret                     ;ee89  20
 
 lab_ee8a:
@@ -19957,7 +20015,7 @@ lab_ee90:
     clrc                    ;ee9b  81
     addcw a                 ;ee9c  23
     movw a, @a              ;ee9d  93
-    callv #1                ;ee9e  e9          CALLV #1 = sub_eed4
+    callv #1                ;ee9e  e9          CALLV #1 = callv1_eed4
     ret                     ;ee9f  20
 
 mem_eea0:
@@ -19979,11 +20037,11 @@ mem_eea0:
 lab_eeae:
     movw a, @ix+0x00        ;eeae  c6 00
     movw mem_00a6, a        ;eeb0  d5 a6
-    callv #1                ;eeb2  e9          CALLV #1 = sub_eed4
+    callv #1                ;eeb2  e9          CALLV #1 = callv1_eed4
     ret                     ;eeb3  20
 
 lab_eeb4:
-    callv #3                ;eeb4  eb          CALLV #3 = sub_eeeb
+    callv #3                ;eeb4  eb          CALLV #3 = callv3_eeeb
     ret                     ;eeb5  20
 
 lab_eeb6:
@@ -20003,7 +20061,7 @@ lab_eec5:
     bbc mem_00e0:0, lab_eece ;eec5  b0 e0 06
     clrb mem_00e0:0         ;eec8  a0 e0
     movw a, #sub_d827       ;eeca  e4 d8 27
-    callv #1                ;eecd  e9          CALLV #1 = sub_eed4
+    callv #1                ;eecd  e9          CALLV #1 = callv1_eed4
 
 lab_eece:
     ret                     ;eece  20
@@ -20013,15 +20071,15 @@ lab_eecf:
 
 lab_eed0:
     movw a, @ix+0x02        ;eed0  c6 02
-    callv #1                ;eed2  e9          CALLV #1 = sub_eed4
+    callv #1                ;eed2  e9          CALLV #1 = callv1_eed4
     ret                     ;eed3  20
 
-sub_eed4:
+callv1_eed4:
     movw mem_01c9, a        ;eed4  d4 01 c9
     mov a, #0x10            ;eed7  04 10
     bne lab_eeed            ;eed9  fc 12       BRANCH_ALWAYS_TAKEN
 
-sub_eedb:
+callv2_eedb:
     mov a, mem_01c8         ;eedb  60 01 c8
     cmp a, #0x70            ;eede  14 70
     bne lab_ef12            ;eee0  fc 30
@@ -20030,7 +20088,7 @@ sub_eedb:
     mov a, #0x00            ;eee7  04 00
     beq lab_ef08            ;eee9  fd 1d       BRANCH_ALWAYS_TAKEN
 
-sub_eeeb:
+callv3_eeeb:
     mov a, #0x20            ;eeeb  04 20
 
 lab_eeed:
@@ -20077,9 +20135,8 @@ sub_ef20:
     clrb mem_00da:7         ;ef22  a7 da
     ret                     ;ef24  20
 
-sub_ef25:
+copy_5_bytes_ep_to_ix:
     movw a, #0x0005         ;ef25  e4 00 05
-
 lab_ef28:
     mov a, @ep              ;ef28  07
     mov @ix+0x00, a         ;ef29  46 00
@@ -20426,7 +20483,7 @@ lab_f0f5:
 lab_f0f9:
     mov a, #0x00            ;f0f9  04 00
     movw ix, #mem_01f9      ;f0fb  e6 01 f9
-    call sub_e6e9           ;f0fe  31 e6 e9
+    call fill_ix_plus_0x07_downto_0           ;f0fe  31 e6 e9
     mov a, mem_00da         ;f101  05 da
     and a, #0xe0            ;f103  64 e0
     mov mem_00da, a         ;f105  45 da
@@ -20908,7 +20965,7 @@ lab_f39d:
     bne lab_f3ac            ;f3a2  fc 08
     movw ix, #mem_028c      ;f3a4  e6 02 8c
     mov a, #0x00            ;f3a7  04 00
-    call sub_e6f3           ;f3a9  31 e6 f3
+    call fill_ix_plus_0x02_downto_0           ;f3a9  31 e6 f3
 
 lab_f3ac:
     bbc mem_00dc:2, lab_f3fd ;f3ac  b2 dc 4e
@@ -21455,7 +21512,7 @@ lab_f626:
     clrc                    ;f62c  81
     addc a, #0x0d           ;f62d  24 0d
     mov a, #0x00            ;f62f  04 00
-    call sub_e6ef           ;f631  31 e6 ef
+    call fill_ix_plus_0x04_downto_0           ;f631  31 e6 ef
     xchw a, t               ;f634  43
     mov @ix+0x02, a         ;f635  46 02
     mov @ix+0x01, #0x12     ;f637  86 01 12 0x12 'SET.ONVOL..'
@@ -21507,7 +21564,7 @@ lab_f675:
 
 lab_f67a:
     mov a, #0x00            ;f67a  04 00
-    call sub_e6ef           ;f67c  31 e6 ef
+    call fill_ix_plus_0x04_downto_0           ;f67c  31 e6 ef
     xchw a, t               ;f67f  43
     mov @ix+0x01, a         ;f680  46 01
     ret                     ;f682  20
@@ -21531,7 +21588,7 @@ lab_f695:
 
 lab_f69a:
     mov a, #0x00            ;f69a  04 00
-    call sub_e6ef           ;f69c  31 e6 ef
+    call fill_ix_plus_0x04_downto_0           ;f69c  31 e6 ef
     xchw a, t               ;f69f  43
     mov @ix+0x01, a         ;f6a0  46 01
     ret                     ;f6a2  20
@@ -22964,41 +23021,44 @@ mem_fdef:
     .byte 0x24              ;fdff  24          DATA '$'
 
 mem_fe00:
-    .word lab_8b64          ;fe00  8b 64       VECTOR
-    .word lab_8b64          ;fe02  8b 64       VECTOR
-    .word lab_8b64          ;fe04  8b 64       VECTOR
-    .word lab_8b16          ;fe06  8b 16       VECTOR
-    .word lab_8b64          ;fe08  8b 64       VECTOR
-    .word lab_8b64          ;fe0a  8b 64       VECTOR
-    .word lab_8b64          ;fe0c  8b 64       VECTOR
-    .word lab_8aad          ;fe0e  8a ad       VECTOR
-    .word lab_8749          ;fe10  87 49       VECTOR
-    .word lab_87d8          ;fe12  87 d8       VECTOR
-    .word sub_895a          ;fe14  89 5a       VECTOR
-    .word lab_8b1d          ;fe16  8b 1d       VECTOR
-    .word lab_8820          ;fe18  88 20       VECTOR
-    .word lab_8861          ;fe1a  88 61       VECTOR
-    .word sub_89c3          ;fe1c  89 c3       VECTOR
-    .word lab_8b4b          ;fe1e  8b 4b       VECTOR
-    .word lab_8a85          ;fe20  8a 85       VECTOR
-    .word lab_8a85          ;fe22  8a 85       VECTOR
-    .word lab_8a8c          ;fe24  8a 8c       VECTOR
-    .word sub_88bd          ;fe26  88 bd       VECTOR
-    .word lab_8a5f          ;fe28  8a 5f       VECTOR
-    .word lab_8aa7          ;fe2a  8a a7       VECTOR
-    .word lab_89e9          ;fe2c  89 e9       VECTOR
-    .word sub_8936          ;fe2e  89 36       VECTOR
-    .word lab_8bf8          ;fe30  8b f8       VECTOR
-    .word lab_8bf6          ;fe32  8b f6       VECTOR
-    .word lab_8c76          ;fe34  8c 76       VECTOR
-    .word lab_8c76          ;fe36  8c 76       VECTOR
-    .word lab_8c01          ;fe38  8c 01       VECTOR
-    .word lab_8c0f          ;fe3a  8c 0f       VECTOR
-    .word lab_8c4c          ;fe3c  8c 4c       VECTOR
-    .word lab_8c37          ;fe3e  8c 37       VECTOR
-    .word lab_8c76          ;fe40  8c 76       VECTOR
+;mem_00ae case table
+;maybe kwp block title jump table?
+    .word lab_8b64          ;fe00  8b 64       VECTOR   0x00
+    .word lab_8b64          ;fe02  8b 64       VECTOR   0x01
+    .word lab_8b64          ;fe04  8b 64       VECTOR   0x02
+    .word lab_8b16          ;fe06  8b 16       VECTOR   0x03
+    .word lab_8b64          ;fe08  8b 64       VECTOR   0x04
+    .word lab_8b64          ;fe0a  8b 64       VECTOR   0x05
+    .word lab_8b64          ;fe0c  8b 64       VECTOR   0x06
+    .word lab_8aad          ;fe0e  8a ad       VECTOR   0x07
+    .word lab_8749          ;fe10  87 49       VECTOR   0x08
+    .word lab_87d8          ;fe12  87 d8       VECTOR   0x09
+    .word sub_895a          ;fe14  89 5a       VECTOR   0x10
+    .word lab_8b1d          ;fe16  8b 1d       VECTOR   0x11
+    .word lab_8820          ;fe18  88 20       VECTOR   0x12
+    .word lab_8861          ;fe1a  88 61       VECTOR   0x13
+    .word sub_89c3          ;fe1c  89 c3       VECTOR   0x14
+    .word lab_8b4b          ;fe1e  8b 4b       VECTOR   0x15
+    .word lab_8a85          ;fe20  8a 85       VECTOR   0x16
+    .word lab_8a85          ;fe22  8a 85       VECTOR   0x17
+    .word lab_8a8c          ;fe24  8a 8c       VECTOR   0x18 login maybe?
+    .word sub_88bd          ;fe26  88 bd       VECTOR   0x19
+    .word lab_8a5f          ;fe28  8a 5f       VECTOR   0x1a
+    .word lab_8aa7          ;fe2a  8a a7       VECTOR   0x1b
+    .word lab_89e9          ;fe2c  89 e9       VECTOR   0x1c
+    .word sub_8936          ;fe2e  89 36       VECTOR   0x1d
+    .word lab_8bf8          ;fe30  8b f8       VECTOR   0x1e
+    .word lab_8bf6          ;fe32  8b f6       VECTOR   0x1f
+    .word lab_8c76          ;fe34  8c 76       VECTOR   0x20
+    .word lab_8c76          ;fe36  8c 76       VECTOR   0x21
+    .word lab_8c01          ;fe38  8c 01       VECTOR   0x22
+    .word lab_8c0f          ;fe3a  8c 0f       VECTOR   0x23
+    .word lab_8c4c          ;fe3c  8c 4c       VECTOR   0x24
+    .word lab_8c37          ;fe3e  8c 37       VECTOR   0x25
+    .word lab_8c76          ;fe40  8c 76       VECTOR   0x26
 
 mem_fe42:
+;another mem_00ae case table
     .word lab_8bde          ;fe42  8b de       VECTOR
     .word lab_8bde          ;fe44  8b de       VECTOR
     .word lab_8bde          ;fe46  8b de       VECTOR
@@ -23149,10 +23209,10 @@ mem_fee1:
     .byte 0x0E              ;feea  0e          DATA '\x0e'
     .byte 0x10              ;feeb  10          DATA '\x10'
 
-mem_feec:
-    .byte 0x0F              ;feec  0f          DATA '\x0f'
-    .byte 0x00              ;feed  00          DATA '\x00'
-    .byte 0xF6              ;feee  f6          DATA '\xf6'
+kwp_1c0035180e:
+    .byte 0x0F              ;feec  0f          DATA '\x0f'  Block length
+    .byte 0x00              ;feed  00          DATA '\x00'  Block counter
+    .byte 0xF6              ;feee  f6          DATA '\xf6'  0xF6 - ASCII Data/ID code response
     .byte 0x31              ;feef  31          DATA '1'
     .byte 0x43              ;fef0  43          DATA 'C'
     .byte 0x30              ;fef1  30          DATA '0'
@@ -23165,12 +23225,12 @@ mem_feec:
     .byte 0x45              ;fef8  45          DATA 'E'
     .byte 0x20              ;fef9  20          DATA ' '
     .byte 0x20              ;fefa  20          DATA ' '
-    .byte 0x03              ;fefb  03          DATA '\x03'
+    .byte 0x03              ;fefb  03          DATA '\x03'  Block end
 
-mem_fefc:
-    .byte 0x0F              ;fefc  0f          DATA '\x0f'
-    .byte 0x00              ;fefd  00          DATA '\x00'
-    .byte 0xF6              ;fefe  f6          DATA '\xf6'
+kwp_1j0035180d:
+    .byte 0x0F              ;fefc  0f          DATA '\x0f'  Block length
+    .byte 0x00              ;fefd  00          DATA '\x00'  Block counter
+    .byte 0xF6              ;fefe  f6          DATA '\xf6'  0xF6 - ASCII Data/ID code response
     .byte 0x31              ;feff  31          DATA '1'
     .byte 0x4A              ;ff00  4a          DATA 'J'
     .byte 0x30              ;ff01  30          DATA '0'
@@ -23183,19 +23243,17 @@ mem_fefc:
     .byte 0x44              ;ff08  44          DATA 'D'
     .byte 0x20              ;ff09  20          DATA ' '
     .byte 0x20              ;ff0a  20          DATA ' '
-    .byte 0x03              ;ff0b  03          DATA '\x03'
+    .byte 0x03              ;ff0b  03          DATA '\x03'  Block end
 
-mem_ff0c:
-    .byte 0x0F              ;ff0c  0f          DATA '\x0f'
-    .byte 0x00              ;ff0d  00          DATA '\x00'
-    .byte 0xF6              ;ff0e  f6          DATA '\xf6'
+kwp_1j0035180:
+    .byte 0x0F              ;ff0c  0f          DATA '\x0f'  Block length
+    .byte 0x00              ;ff0d  00          DATA '\x00'  Block counter
+    .byte 0xF6              ;ff0e  f6          DATA '\xf6'  0xF6 - ASCII Data/ID code response
     .byte 0x31              ;ff0f  31          DATA '1'
     .byte 0x4A              ;ff10  4a          DATA 'J'
     .byte 0x30              ;ff11  30          DATA '0'
     .byte 0x30              ;ff12  30          DATA '0'
     .byte 0x33              ;ff13  33          DATA '3'
-
-mem_ff14:
     .byte 0x35              ;ff14  35          DATA '5'
     .byte 0x31              ;ff15  31          DATA '1'
     .byte 0x38              ;ff16  38          DATA '8'
@@ -23203,12 +23261,12 @@ mem_ff14:
     .byte 0x20              ;ff18  20          DATA ' '
     .byte 0x20              ;ff19  20          DATA ' '
     .byte 0x20              ;ff1a  20          DATA ' '
-    .byte 0x03              ;ff1b  03          DATA '\x03'
+    .byte 0x03              ;ff1b  03          DATA '\x03'  Block end
 
-mem_ff1c:
-    .byte 0x0F              ;ff1c  0f          DATA '\x0f'
-    .byte 0x00              ;ff1d  00          DATA '\x00'
-    .byte 0xF6              ;ff1e  f6          DATA '\xf6'
+kwp_radio_3cp:
+    .byte 0x0F              ;ff1c  0f          DATA '\x0f'  Block length
+    .byte 0x00              ;ff1d  00          DATA '\x00'  Block counter
+    .byte 0xF6              ;ff1e  f6          DATA '\xf6'  0xF6 - ASCII Data/ID code response
     .byte 0x20              ;ff1f  20          DATA ' '
     .byte 0x52              ;ff20  52          DATA 'R'
     .byte 0x41              ;ff21  41          DATA 'A'
@@ -23221,12 +23279,12 @@ mem_ff1c:
     .byte 0x50              ;ff28  50          DATA 'P'
     .byte 0x20              ;ff29  20          DATA ' '
     .byte 0x20              ;ff2a  20          DATA ' '
-    .byte 0x03              ;ff2b  03          DATA '\x03'
+    .byte 0x03              ;ff2b  03          DATA '\x03'  Block end
 
-mem_ff2c:
-    .byte 0x0E              ;ff2c  0e          DATA '\x0e'
-    .byte 0x00              ;ff2d  00          DATA '\x00'
-    .byte 0xF6              ;ff2e  f6          DATA '\xf6'
+kwp_0001:
+    .byte 0x0E              ;ff2c  0e          DATA '\x0e'  Block length
+    .byte 0x00              ;ff2d  00          DATA '\x00'  Block counter
+    .byte 0xF6              ;ff2e  f6          DATA '\xf6'  0xF6 - ASCII Data/ID code response
     .byte 0x20              ;ff2f  20          DATA ' '
     .byte 0x20              ;ff30  20          DATA ' '
     .byte 0x20              ;ff31  20          DATA ' '
@@ -23238,61 +23296,61 @@ mem_ff2c:
     .byte 0x30              ;ff37  30          DATA '0'
     .byte 0x30              ;ff38  30          DATA '0'
     .byte 0x31              ;ff39  31          DATA '1'
-    .byte 0x03              ;ff3a  03          DATA '\x03'
+    .byte 0x03              ;ff3a  03          DATA '\x03'  Block end
 
-mem_ff3b:
-    .byte 0x04              ;ff3b  04          DATA '\x04'
-    .byte 0x00              ;ff3c  00          DATA '\x00'
-    .byte 0x0A              ;ff3d  0a          DATA '\n'
+kwp_no_ack:
+    .byte 0x04              ;ff3b  04          DATA '\x04'  Block length
+    .byte 0x00              ;ff3c  00          DATA '\x00'  Block counter
+    .byte 0x0A              ;ff3d  0a          DATA '\n'    0x0A - No Acknowledge
     .byte 0x00              ;ff3e  00          DATA '\x00'
-    .byte 0x03              ;ff3f  03          DATA '\x03'
+    .byte 0x03              ;ff3f  03          DATA '\x03'  Block end
 
-mem_ff40:
-    .byte 0x03              ;ff40  03          DATA '\x03'
-    .byte 0x00              ;ff41  00          DATA '\x00'
-    .byte 0x09              ;ff42  09          DATA '\t'
-    .byte 0x03              ;ff43  03          DATA '\x03'
+kwp_ack:
+    .byte 0x03              ;ff40  03          DATA '\x03'  Block length
+    .byte 0x00              ;ff41  00          DATA '\x00'  Block counter
+    .byte 0x09              ;ff42  09          DATA '\t'    0x09 - Acknowledge
+    .byte 0x03              ;ff43  03          DATA '\x03'  Block end
 
-mem_ff44:
-    .byte 0x06              ;ff44  06          DATA '\x06'
-    .byte 0x00              ;ff45  00          DATA '\x00'
-    .byte 0xFC              ;ff46  fc          DATA '\xfc'
+kwp_fault_codes:
+    .byte 0x06              ;ff44  06          DATA '\x06'  Block length
+    .byte 0x00              ;ff45  00          DATA '\x00'  Block counter
+    .byte 0xFC              ;ff46  fc          DATA '\xfc'  0xFC - Response to get fault codes request
     .byte 0xFF              ;ff47  ff          DATA '\xff'
     .byte 0xFF              ;ff48  ff          DATA '\xff'
     .byte 0x88              ;ff49  88          DATA '\x88'
-    .byte 0x03              ;ff4a  03          DATA '\x03'
+    .byte 0x03              ;ff4a  03          DATA '\x03'  Block end
 
-mem_ff4b:
-    .byte 0x05              ;ff4b  05          DATA '\x05'
-    .byte 0x00              ;ff4c  00          DATA '\x00'
-    .byte 0xF5              ;ff4d  f5          DATA '\xf5'
+kwp_actuator_1:
+    .byte 0x05              ;ff4b  05          DATA '\x05'  Block length
+    .byte 0x00              ;ff4c  00          DATA '\x00'  Block counter
+    .byte 0xF5              ;ff4d  f5          DATA '\xf5'  0xF5 - Response to actuator test (?)
     .byte 0x03              ;ff4e  03          DATA '\x03'
     .byte 0x53              ;ff4f  53          DATA 'S'
-    .byte 0x03              ;ff50  03          DATA '\x03'
+    .byte 0x03              ;ff50  03          DATA '\x03'  Block end
 
-mem_ff51:
-    .byte 0x05              ;ff51  05          DATA '\x05'
-    .byte 0x00              ;ff52  00          DATA '\x00'
-    .byte 0xF5              ;ff53  f5          DATA '\xf5'
+kwp_actuator_2:
+    .byte 0x05              ;ff51  05          DATA '\x05'  Block length
+    .byte 0x00              ;ff52  00          DATA '\x00'  Block counter
+    .byte 0xF5              ;ff53  f5          DATA '\xf5'  0xF5 - Response to actuator test (?)
     .byte 0x03              ;ff54  03          DATA '\x03'
     .byte 0x56              ;ff55  56          DATA 'V'
-    .byte 0x03              ;ff56  03          DATA '\x03'
+    .byte 0x03              ;ff56  03          DATA '\x03'  Block end
 
-mem_ff57:
-    .byte 0x05              ;ff57  05          DATA '\x05'
-    .byte 0x00              ;ff58  00          DATA '\x00'
-    .byte 0xF5              ;ff59  f5          DATA '\xf5'
+kwp_actuator_3:
+    .byte 0x05              ;ff57  05          DATA '\x05'  Block length
+    .byte 0x00              ;ff58  00          DATA '\x00'  Block counter
+    .byte 0xF5              ;ff59  f5          DATA '\xf5'  0xF5 - Response to actuator test (?)
     .byte 0x04              ;ff5a  04          DATA '\x04'
     .byte 0xAB              ;ff5b  ab          DATA '\xab'
-    .byte 0x03              ;ff5c  03          DATA '\x03'
+    .byte 0x03              ;ff5c  03          DATA '\x03'  Block end
 
-mem_ff5d:
-    .byte 0x05              ;ff5d  05          DATA '\x05'
-    .byte 0x00              ;ff5e  00          DATA '\x00'
-    .byte 0xF0              ;ff5f  f0          DATA '\xf0'
+kwp_login:
+    .byte 0x05              ;ff5d  05          DATA '\x05'  Block length
+    .byte 0x00              ;ff5e  00          DATA '\x00'  Block counter
+    .byte 0xF0              ;ff5f  f0          DATA '\xf0'  0xF0 - Response to Login
     .byte 0x00              ;ff60  00          DATA '\x00'
     .byte 0x00              ;ff61  00          DATA '\x00'
-    .byte 0x03              ;ff62  03          DATA '\x03'
+    .byte 0x03              ;ff62  03          DATA '\x03'  Block end
 
 mem_ff63:
     .byte 0x01              ;ff63  01          DATA '\x01'
@@ -23389,36 +23447,36 @@ mem_ff63:
     .byte 0xFF              ;ffbe  ff          DATA '\xff'
     .byte 0xFF              ;ffbf  ff          DATA '\xff'
 
-    .word pdr0              ;ffc0  00 00       VECTOR callv #0
-    .word sub_eed4          ;ffc2  ee d4       VECTOR callv #1
-    .word sub_eedb          ;ffc4  ee db       VECTOR callv #2
-    .word sub_eeeb          ;ffc6  ee eb       VECTOR callv #3
-    .word sub_8c84          ;ffc8  8c 84       VECTOR callv #4
-    .word sub_8d0d          ;ffca  8d 0d       VECTOR callv #5
-    .word sub_cb98          ;ffcc  cb 98       VECTOR callv #6
-    .word sub_e55c          ;ffce  e5 5c       VECTOR callv #7
+    .word 0x0000            ;ffc0  00 00       VECTOR callv #0
+    .word callv1_eed4       ;ffc2  ee d4       VECTOR callv #1
+    .word callv2_eedb       ;ffc4  ee db       VECTOR callv #2
+    .word callv3_eeeb       ;ffc6  ee eb       VECTOR callv #3
+    .word callv4_8c84       ;ffc8  8c 84       VECTOR callv #4
+    .word callv5_8d0d       ;ffca  8d 0d       VECTOR callv #5
+    .word callv6_cb98       ;ffcc  cb 98       VECTOR callv #6
+    .word callv7_e55c       ;ffce  e5 5c       VECTOR callv #7
     .word 0xf0e1            ;ffd0  f0 e1       VECTOR irq15 (unused)
-    .word lab_d2c3          ;ffd2  d2 c3       VECTOR irq14 (unused)
-    .word lab_b4a5          ;ffd4  b4 a5       VECTOR irq13 (unused)
+    .word 0xd2c3            ;ffd2  d2 c3       VECTOR irq14 (unused)
+    .word 0xb4a5            ;ffd4  b4 a5       VECTOR irq13 (unused)
     .word 0x9687            ;ffd6  96 87       VECTOR irq12 (unused)
     .word 0x7869            ;ffd8  78 69       VECTOR irq11 (unused)
     .word 0x5a4b            ;ffda  5a 4b       VECTOR irq10 (unused)
     .word 0x3c2d            ;ffdc  3c 2d       VECTOR irqf (unused)
     .word 0x1e0f            ;ffde  1e 0f       VECTOR irqe (unused)
     .word 0x07f8            ;ffe0  07 f8       VECTOR irqd (unused)
-    .word pdr0              ;ffe2  00 00       VECTOR irqc (unused)
-    .word lab_8010          ;ffe4  80 10       VECTOR irqb (timebase timer)
-    .word lab_8010          ;ffe6  80 10       VECTOR irqa (a/d converter)
-    .word lab_8010          ;ffe8  80 10       VECTOR irq9 (8/16-bit updown counter)
-    .word lab_810b          ;ffea  81 0b       VECTOR irq8 (uart)
-    .word lab_8120          ;ffec  81 20       VECTOR irq7 (8-bit serial i/o)
-    .word lab_80fa          ;ffee  80 fa       VECTOR irq6 (8-bit pwm timer #3 (#4, #5, #6))
-    .word lab_80d7          ;fff0  80 d7       VECTOR irq5 (2ch 8-bit pwm timer)
-    .word lab_8010          ;fff2  80 10       VECTOR irq4 (unused)
-    .word lab_8010          ;fff4  80 10       VECTOR irq3 (8/16 bit timer #1, #2)
-    .word lab_80be          ;fff6  80 be       VECTOR irq2 (16-bit timer counter)
-    .word lab_809e          ;fff8  80 9e       VECTOR irq1 (external interrupt 2)
-    .word lab_806d          ;fffa  80 6d       VECTOR irq0 (external interrupt 1)
+    .word 0x0000            ;ffe2  00 00       VECTOR irqc (unused)
+    .word reset_8010        ;ffe4  80 10       VECTOR irqb (timebase timer)
+    .word reset_8010        ;ffe6  80 10       VECTOR irqa (a/d converter)
+    .word reset_8010        ;ffe8  80 10       VECTOR irq9 (8/16-bit updown counter)
+    .word irq8_810b         ;ffea  81 0b       VECTOR irq8 (uart)
+    .word irq7_8120         ;ffec  81 20       VECTOR irq7 (8-bit serial i/o)
+    .word irq6_80fa         ;ffee  80 fa       VECTOR irq6 (8-bit pwm timer #3 (#4, #5, #6))
+    .word irq5_80d7         ;fff0  80 d7       VECTOR irq5 (2ch 8-bit pwm timer)
+    .word reset_8010        ;fff2  80 10       VECTOR irq4 (unused)
+    .word reset_8010        ;fff4  80 10       VECTOR irq3 (8/16 bit timer #1, #2)
+    .word irq2_80be         ;fff6  80 be       VECTOR irq2 (16-bit timer counter)
+    .word irq1_809e         ;fff8  80 9e       VECTOR irq1 (external interrupt 2)
+    .word irq0_806d         ;fffa  80 6d       VECTOR irq0 (external interrupt 1)
     .byte 0xFF              ;fffc  ff          RESERVED
     .byte 0x00              ;fffd  00          MODE
-    .word lab_8010          ;fffe  80 10       VECTOR reset
+    .word reset_8010        ;fffe  80 10       VECTOR reset
