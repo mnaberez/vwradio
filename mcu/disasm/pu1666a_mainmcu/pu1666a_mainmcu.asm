@@ -878,6 +878,7 @@ lab_81a5:
     jmp lab_8138            ;81a5  21 81 38
 
 mem_81a8:
+;case table for mem_0303
     .word lab_81fa          ;81a8  81 fa       VECTOR
     .word lab_81b4          ;81aa  81 b4       VECTOR
     .word lab_81f7          ;81ac  81 f7       VECTOR
@@ -4129,57 +4130,57 @@ sub_9582:
     jmp sub_e73c            ;9587  21 e7 3c
 
 mem_958a:
-    .word lab_966a          ;958a  96 6a       VECTOR
-    .word lab_95f4          ;958c  95 f4       VECTOR
-    .word lab_966b          ;958e  96 6b       VECTOR
-    .word lab_967a          ;9590  96 7a       VECTOR
-    .word lab_9683          ;9592  96 83       VECTOR
-    .word sub_968c          ;9594  96 8c       VECTOR
-    .word lab_95f0          ;9596  95 f0       VECTOR
-    .word lab_982f          ;9598  98 2f       VECTOR
-    .word lab_9840          ;959a  98 40       VECTOR
-    .word lab_966a          ;959c  96 6a       VECTOR
-    .word lab_966a          ;959e  96 6a       VECTOR
-    .word lab_9697          ;95a0  96 97       VECTOR
-    .word lab_96a0          ;95a2  96 a0       VECTOR
-    .word lab_96b6          ;95a4  96 b6       VECTOR
-    .word lab_96cf          ;95a6  96 cf       VECTOR
-    .word lab_96e0          ;95a8  96 e0       VECTOR
-    .word lab_9723          ;95aa  97 23       VECTOR
-    .word lab_9730          ;95ac  97 30       VECTOR
-    .word lab_973b          ;95ae  97 3b       VECTOR
-    .word lab_975a          ;95b0  97 5a       VECTOR
-    .word lab_9763          ;95b2  97 63       VECTOR
-    .word sub_977c          ;95b4  97 7c       VECTOR
-    .word lab_9788          ;95b6  97 88       VECTOR
-    .word lab_978f          ;95b8  97 8f       VECTOR
-    .word lab_9795          ;95ba  97 95       VECTOR
-    .word lab_97a1          ;95bc  97 a1       VECTOR
-    .word lab_97ae          ;95be  97 ae       VECTOR
-    .word lab_97ba          ;95c0  97 ba       VECTOR
-    .word lab_97c3          ;95c2  97 c3       VECTOR
-    .word lab_966a          ;95c4  96 6a       VECTOR
-    .word lab_966a          ;95c6  96 6a       VECTOR
-    .word lab_97cc          ;95c8  97 cc       VECTOR
-    .word lab_97d8          ;95ca  97 d8       VECTOR
-    .word lab_97e0          ;95cc  97 e0       VECTOR
-    .word lab_97e7          ;95ce  97 e7       VECTOR
-    .word lab_97f3          ;95d0  97 f3       VECTOR
-    .word lab_97ff          ;95d2  97 ff       VECTOR
-    .word lab_9805          ;95d4  98 05       VECTOR
-    .word lab_9811          ;95d6  98 11       VECTOR
-    .word lab_966a          ;95d8  96 6a       VECTOR
-    .word lab_9821          ;95da  98 21       VECTOR
-    .word lab_9846          ;95dc  98 46       VECTOR
-    .word lab_9855          ;95de  98 55       VECTOR
-    .word lab_985f          ;95e0  98 5f       VECTOR
-    .word lab_986c          ;95e2  98 6c       VECTOR
-    .word lab_9878          ;95e4  98 78       VECTOR
-    .word lab_987f          ;95e6  98 7f       VECTOR
-    .word lab_98aa          ;95e8  98 aa       VECTOR
-    .word lab_98d4          ;95ea  98 d4       VECTOR
-    .word lab_98ef          ;95ec  98 ef       VECTOR
-    .word lab_966a          ;95ee  96 6a       VECTOR
+    .word lab_966a          ;958a  96 6a       VECTOR 00
+    .word lab_95f4          ;958c  95 f4       VECTOR 01
+    .word lab_966b          ;958e  96 6b       VECTOR 02
+    .word lab_967a          ;9590  96 7a       VECTOR 03
+    .word lab_9683          ;9592  96 83       VECTOR 04
+    .word sub_968c          ;9594  96 8c       VECTOR 05
+    .word lab_95f0          ;9596  95 f0       VECTOR 06
+    .word lab_982f          ;9598  98 2f       VECTOR 07
+    .word lab_9840          ;959a  98 40       VECTOR 08
+    .word lab_966a          ;959c  96 6a       VECTOR 09
+    .word lab_966a          ;959e  96 6a       VECTOR 0a
+    .word lab_9697          ;95a0  96 97       VECTOR 0b
+    .word lab_96a0          ;95a2  96 a0       VECTOR 0c
+    .word lab_96b6          ;95a4  96 b6       VECTOR 0d
+    .word lab_96cf          ;95a6  96 cf       VECTOR 0e
+    .word lab_96e0          ;95a8  96 e0       VECTOR 0f
+    .word lab_9723          ;95aa  97 23       VECTOR 10
+    .word lab_9730          ;95ac  97 30       VECTOR 11
+    .word lab_973b          ;95ae  97 3b       VECTOR 12
+    .word lab_975a          ;95b0  97 5a       VECTOR 13
+    .word lab_9763          ;95b2  97 63       VECTOR 14
+    .word sub_977c          ;95b4  97 7c       VECTOR 15
+    .word lab_9788          ;95b6  97 88       VECTOR 16
+    .word lab_978f          ;95b8  97 8f       VECTOR 17
+    .word lab_9795          ;95ba  97 95       VECTOR 18
+    .word lab_97a1          ;95bc  97 a1       VECTOR 19
+    .word lab_97ae          ;95be  97 ae       VECTOR 1a
+    .word lab_97ba          ;95c0  97 ba       VECTOR 1b
+    .word lab_97c3          ;95c2  97 c3       VECTOR 1c
+    .word lab_966a          ;95c4  96 6a       VECTOR 1d
+    .word lab_966a          ;95c6  96 6a       VECTOR 1e
+    .word lab_97cc          ;95c8  97 cc       VECTOR 1f
+    .word lab_97d8          ;95ca  97 d8       VECTOR 20
+    .word lab_97e0          ;95cc  97 e0       VECTOR 21
+    .word lab_97e7          ;95ce  97 e7       VECTOR 22
+    .word lab_97f3          ;95d0  97 f3       VECTOR 23
+    .word lab_97ff          ;95d2  97 ff       VECTOR 24
+    .word lab_9805          ;95d4  98 05       VECTOR 25
+    .word lab_9811          ;95d6  98 11       VECTOR 26
+    .word lab_966a          ;95d8  96 6a       VECTOR 27
+    .word lab_9821          ;95da  98 21       VECTOR 28
+    .word lab_9846          ;95dc  98 46       VECTOR 29
+    .word lab_9855          ;95de  98 55       VECTOR 2a
+    .word lab_985f          ;95e0  98 5f       VECTOR 2b
+    .word lab_986c          ;95e2  98 6c       VECTOR 2c
+    .word lab_9878          ;95e4  98 78       VECTOR 2d
+    .word lab_987f          ;95e6  98 7f       VECTOR 2e
+    .word lab_98aa          ;95e8  98 aa       VECTOR 2f
+    .word lab_98d4          ;95ea  98 d4       VECTOR 30
+    .word lab_98ef          ;95ec  98 ef       VECTOR 31
+    .word lab_966a          ;95ee  96 6a       VECTOR 32
 
 lab_95f0:
     mov a, mem_00cc         ;95f0  05 cc
@@ -5641,28 +5642,29 @@ sub_9e6e:
     jmp lab_9e7f            ;9e71  21 9e 7f
 
 sub_9e74:
+;TODO these are all guesses based on block titles
     mov a, mem_0369         ;9e74  60 03 69
-    cmp a, #0x03            ;9e77  14 03
+    cmp a, #0x03            ;9e77  14 03    Read eeprom, 8 bit byte count, 16 bit address
     beq lab_9ea1            ;9e79  fd 26
-    cmp a, #0x01            ;9e7b  14 01
+    cmp a, #0x01            ;9e7b  14 01    Read RAM, 8 bit byte count, 16 bit address
     beq lab_9ea1            ;9e7d  fd 22
 
 lab_9e7f:
-    cmp a, #0x05            ;9e7f  14 05
+    cmp a, #0x05            ;9e7f  14 05    clear fault codes?
     beq lab_9ea1            ;9e81  fd 1e
-    cmp a, #0x24            ;9e83  14 24
+    cmp a, #0x24            ;9e83  14 24    ?
     beq lab_9ea1            ;9e85  fd 1a
-    cmp a, #0x25            ;9e87  14 25
+    cmp a, #0x25            ;9e87  14 25    ?
     beq lab_9ea1            ;9e89  fd 16
-    cmp a, #0x29            ;9e8b  14 29
+    cmp a, #0x29            ;9e8b  14 29    Request group reading
     beq lab_9ea1            ;9e8d  fd 12
-    cmp a, #0x30            ;9e8f  14 30
+    cmp a, #0x30            ;9e8f  14 30    ?
     beq lab_9ea1            ;9e91  fd 0e
-    cmp a, #0x28            ;9e93  14 28
+    cmp a, #0x28            ;9e93  14 28    Basic Setting
     beq lab_9ea1            ;9e95  fd 0a
-    cmp a, #0x09            ;9e97  14 09
+    cmp a, #0x09            ;9e97  14 09    Acknowlege
     beq lab_9ea1            ;9e99  fd 06
-    cmp a, #0x71            ;9e9b  14 71
+    cmp a, #0x71            ;9e9b  14 71    ?
     beq lab_9ea1            ;9e9d  fd 02
 
 lab_9e9f:
@@ -7022,6 +7024,7 @@ sub_a497:
     jmp sub_e73c            ;a49d  21 e7 3c
 
 mem_a4a0:
+;case table for mem_0201
     .word lab_a4b9          ;a4a0  a4 b9       VECTOR
     .word lab_a4b6          ;a4a2  a4 b6       VECTOR   no code?
     .word lab_a4ba          ;a4a4  a4 ba       VECTOR   code?
@@ -9647,6 +9650,7 @@ mem_0080_is_04:
     jmp sub_e73c            ;b464  21 e7 3c
 
 mem_b467:
+;case table for mem_0081
     .word lab_b4fe          ;b467  b4 fe       VECTOR
     .word lab_b475          ;b469  b4 75       VECTOR
     .word lab_b480          ;b46b  b4 80       VECTOR
@@ -9720,8 +9724,8 @@ lab_b4e0:
     jmp lab_b4f7            ;b4e6  21 b4 f7
 
 lab_b4e9:
-    mov mem_00a5, #0x07     ;b4e9  85 a5 07
-    movw a, #kwp_fault_codes ;b4ec  e4 ff 44    0x07 bytes in response
+    mov mem_00a5, #0x07     ;b4e9  85 a5 07     0x07 bytes in response
+    movw a, #kwp_fault_codes ;b4ec  e4 ff 44
     movw mem_0084, a        ;b4ef  d5 84        mem_0084 = Pointer to message
     call sub_b136           ;b4f1  31 b1 36
     mov mem_0081, #0x03     ;b4f4  85 81 03
@@ -9853,13 +9857,14 @@ mem_0080_is_05:
     jmp sub_e73c            ;b5a1  21 e7 3c
 
 mem_b5a4:
-    .word lab_b5ca          ;b5a4  b5 ca       VECTOR
-    .word lab_b5b2          ;b5a6  b5 b2       VECTOR
-    .word lab_b5ca          ;b5a8  b5 ca       VECTOR
-    .word lab_b5cb          ;b5aa  b5 cb       VECTOR
-    .word lab_b5d7          ;b5ac  b5 d7       VECTOR
-    .word lab_b5e6          ;b5ae  b5 e6       VECTOR
-    .word lab_b5ea          ;b5b0  b5 ea       VECTOR
+;case table for mem_0081
+    .word lab_b5ca          ;b5a4  b5 ca       VECTOR   0
+    .word lab_b5b2          ;b5a6  b5 b2       VECTOR   1
+    .word lab_b5ca          ;b5a8  b5 ca       VECTOR   2
+    .word lab_b5cb          ;b5aa  b5 cb       VECTOR   3
+    .word lab_b5d7          ;b5ac  b5 d7       VECTOR   4   KW1281 Fault Codes
+    .word lab_b5e6          ;b5ae  b5 e6       VECTOR   5
+    .word lab_b5ea          ;b5b0  b5 ea       VECTOR   6
 
 lab_b5b2:
     call sub_c2c6           ;b5b2  31 c2 c6
@@ -10079,7 +10084,8 @@ lab_b703:
 
 
 ;TODO looks like these are group reading responses
-mem_b704:
+meas_blk_grp_1:
+;group 1?
     .byte 0x10              ;b704  10          DATA '\x10'  Block length
     .byte 0x0F              ;b705  0f          DATA '\x0f'
     .byte 0x00              ;b706  00          DATA '\x00'
@@ -10098,7 +10104,8 @@ mem_b704:
     .byte 0x00              ;b713  00          DATA '\x00'  value b
     .byte 0x03              ;b714  03          DATA '\x03'  Block end
 
-mem_b715:
+meas_blk_grp_2:
+;group 2?
     .byte 0x10              ;b715  10          DATA '\x10'  Block length
     .byte 0x0F              ;b716  0f          DATA '\x0f'
     .byte 0x00              ;b717  00          DATA '\x00'
@@ -10117,7 +10124,8 @@ mem_b715:
     .byte 0x00              ;b724  00          DATA '\x00'  value b
     .byte 0x03              ;b725  03          DATA '\x03'  Block end
 
-mem_b726:
+meas_blk_grp_3:
+;group 3?
     .byte 0x0D              ;b726  0d          DATA '\r'    Block length
     .byte 0x0C              ;b727  0c          DATA '\x0c'
     .byte 0x00              ;b728  00          DATA '\x00'
@@ -10133,7 +10141,8 @@ mem_b726:
     .byte 0x00              ;b732  00          DATA '\x00'  value b
     .byte 0x03              ;b733  03          DATA '\x03'  Block end
 
-mem_b734:
+meas_blk_grp_4:
+;group 4?
     .byte 0x0A              ;b734  0a          DATA '\n'    Block length
     .byte 0x09              ;b735  09          DATA '\t'
     .byte 0x00              ;b736  00          DATA '\x00'
@@ -10146,7 +10155,8 @@ mem_b734:
     .byte 0x00              ;b73d  00          DATA '\x00'  value b
     .byte 0x03              ;b73e  03          DATA '\x03'  Block end
 
-mem_b73f:
+meas_blk_grp_5:
+;group 5?
     .byte 0x0A              ;b73f  0a          DATA '\n'    Block length
     .byte 0x09              ;b740  09          DATA '\t'
     .byte 0x00              ;b741  00          DATA '\x00'
@@ -10159,7 +10169,8 @@ mem_b73f:
     .byte 0x00              ;b748  00          DATA '\x00'  value b
     .byte 0x03              ;b749  03          DATA '\x03'  Block end
 
-mem_b74a:
+meas_blk_grp_6:
+;group 6?
     .byte 0x07              ;b74a  07          DATA '\x07'  Block length
     .byte 0x06              ;b74b  06          DATA '\x06'
     .byte 0x00              ;b74c  00          DATA '\x00'
@@ -10169,7 +10180,8 @@ mem_b74a:
     .byte 0x00              ;b750  00          DATA '\x00'  value b
     .byte 0x03              ;b751  03          DATA '\x03'  Block end
 
-mem_b752:
+meas_blk_grp_7:
+;group 7?
     .byte 0x07              ;b752  07          DATA '\x07'  Block length
     .byte 0x06              ;b753  06          DATA '\x06'
     .byte 0x00              ;b754  00          DATA '\x00'
@@ -10205,21 +10217,21 @@ lab_b773:
 
 lab_b77c:
     mov a, mem_011b         ;b77c  60 01 1b
-    cmp a, #0x01            ;b77f  14 01
+    cmp a, #0x01            ;b77f  14 01        measuring block group 1?
     beq lab_b7a2            ;b781  fd 1f
-    cmp a, #0x02            ;b783  14 02
+    cmp a, #0x02            ;b783  14 02        measuring block group 2?
     beq lab_b7b2            ;b785  fd 2b
-    cmp a, #0x03            ;b787  14 03
+    cmp a, #0x03            ;b787  14 03        measuring block group 3?
     beq lab_b7d4            ;b789  fd 49
-    cmp a, #0x04            ;b78b  14 04
+    cmp a, #0x04            ;b78b  14 04        measuring block group 4?
     beq lab_b7ec            ;b78d  fd 5d
-    cmp a, #0x05            ;b78f  14 05
+    cmp a, #0x05            ;b78f  14 05        measuring block group 5?
     beq lab_b7f2            ;b791  fd 5f
-    cmp a, #0x06            ;b793  14 06
+    cmp a, #0x06            ;b793  14 06        measuring block group 6?
     beq lab_b804            ;b795  fd 6d
-    cmp a, #0x07            ;b797  14 07
+    cmp a, #0x07            ;b797  14 07        measuring block group 7?
     beq lab_b811            ;b799  fd 76
-    cmp a, #0x19            ;b79b  14 19
+    cmp a, #0x19            ;b79b  14 19        25 TODO what's group 0x19?
     beq lab_b81a            ;b79d  fd 7b
     jmp lab_b822            ;b79f  21 b8 22
 
@@ -10228,7 +10240,7 @@ lab_b7a2:
     call sub_bc02           ;b7a4  31 bc 02
     mov a, #0x00            ;b7a7  04 00
     mov mem_0265, a         ;b7a9  61 02 65
-    movw ix, #mem_b704      ;b7ac  e6 b7 04
+    movw ix, #meas_blk_grp_1      ;b7ac  e6 b7 04
     jmp lab_b7fc            ;b7af  21 b7 fc
 
 lab_b7b2:
@@ -10246,7 +10258,7 @@ lab_b7b2:
 
 lab_b7cc:
     setb mem_008e:4         ;b7cc  ac 8e
-    movw ix, #mem_b715      ;b7ce  e6 b7 15
+    movw ix, #meas_blk_grp_2      ;b7ce  e6 b7 15
     jmp lab_b7fc            ;b7d1  21 b7 fc
 
 lab_b7d4:
@@ -10259,18 +10271,18 @@ lab_b7d4:
 
 lab_b7e3:
     call sub_c10e           ;b7e3  31 c1 0e
-    movw ix, #mem_b726      ;b7e6  e6 b7 26
+    movw ix, #meas_blk_grp_3      ;b7e6  e6 b7 26
     jmp lab_b7fc            ;b7e9  21 b7 fc
 
 lab_b7ec:
-    movw ix, #mem_b752      ;b7ec  e6 b7 52
+    movw ix, #meas_blk_grp_7      ;b7ec  e6 b7 52
     jmp lab_b7fc            ;b7ef  21 b7 fc
 
 lab_b7f2:
     setb mem_008e:2         ;b7f2  aa 8e
     call sub_bc44           ;b7f4  31 bc 44
     clrb mem_008e:2         ;b7f7  a2 8e
-    movw ix, #mem_b734      ;b7f9  e6 b7 34
+    movw ix, #meas_blk_grp_4      ;b7f9  e6 b7 34
 
 lab_b7fc:
     mov a, #0x00            ;b7fc  04 00
@@ -10281,12 +10293,12 @@ lab_b804:
     setb mem_008e:2         ;b804  aa 8e
     call sub_c019           ;b806  31 c0 19
     clrb mem_008e:2         ;b809  a2 8e
-    movw ix, #mem_b73f      ;b80b  e6 b7 3f
+    movw ix, #meas_blk_grp_5      ;b80b  e6 b7 3f
     jmp lab_b7fc            ;b80e  21 b7 fc
 
 lab_b811:
     call sub_c08f           ;b811  31 c0 8f
-    movw ix, #mem_b74a      ;b814  e6 b7 4a
+    movw ix, #meas_blk_grp_6      ;b814  e6 b7 4a
     jmp lab_b82a            ;b817  21 b8 2a
 
 lab_b81a:
@@ -16076,7 +16088,7 @@ lab_d6e3:
     jmp lab_d4db            ;d6e6  21 d4 db
 
 lab_d6e9:
-    movw a, #0x0369         ;d6e9  e4 03 69
+    movw a, #mem_0369       ;d6e9  e4 03 69
     call sub_d827           ;d6ec  31 d8 27
     jmp lab_d4dd            ;d6ef  21 d4 dd
 
@@ -16345,7 +16357,7 @@ sub_d854:
     beq lab_d86c            ;d861  fd 09
     cmp a, #0x47            ;d863  14 47
     beq lab_d86c            ;d865  fd 05
-    movw a, #0x0367         ;d867  e4 03 67
+    movw a, #mem_0367         ;d867  e4 03 67
     bne lab_d86f            ;d86a  fc 03       BRANCH_ALWAYS_TAKEN
 
 lab_d86c:
@@ -16407,7 +16419,7 @@ sub_d8ba:
     mov mem_034a, a         ;d8c1  61 03 4a
     movw a, #0x0000         ;d8c4  e4 00 00
     mov a, mem_034c         ;d8c7  60 03 4c
-    movw a, #0x036e         ;d8ca  e4 03 6e
+    movw a, #mem_036e         ;d8ca  e4 03 6e
     clrc                    ;d8cd  81
     addcw a                 ;d8ce  23
     mov a, @a               ;d8cf  92
@@ -16433,7 +16445,7 @@ sub_d8e3:
     mov mem_034a, a         ;d8ed  61 03 4a
     movw a, #0x0000         ;d8f0  e4 00 00
     mov a, mem_034d         ;d8f3  60 03 4d
-    movw a, #0x036e         ;d8f6  e4 03 6e
+    movw a, #mem_036e         ;d8f6  e4 03 6e
     clrc                    ;d8f9  81
     addcw a                 ;d8fa  23
     pushw a                 ;d8fb  40
@@ -17455,7 +17467,7 @@ lab_df3d:
     mov a, mem_0082         ;df51  05 82
     bne lab_df68            ;df53  fc 13
     mov a, mem_0088         ;df55  05 88
-    mov a, #0x55            ;df57  04 55
+    mov a, #0x55            ;df57  04 55        KW1281 sync byte?
     cmp a                   ;df59  12
     bne lab_df68            ;df5a  fc 0c
     call sub_e1b8           ;df5c  31 e1 b8
@@ -17906,7 +17918,7 @@ lab_e231:
     bbc mem_00f9:4, lab_e256 ;e236  b4 f9 1d
     bbc mem_00f9:6, lab_e256 ;e239  b6 f9 1a
     mov a, mem_0088         ;e23c  05 88
-    cmp a, #0x55            ;e23e  14 55        KWP sync byte?
+    cmp a, #0x55            ;e23e  14 55        KW1281 sync byte?
     bne lab_e256            ;e240  fc 14
 
 sub_e242:
@@ -17973,7 +17985,7 @@ lab_e29d:
 lab_e29e:
     mov a, mem_038c         ;e29e  60 03 8c
     bne lab_e2b6            ;e2a1  fc 13
-    mov mem_0089, #0x75     ;e2a3  85 89 75     0x75 = Complement of 0x8A KWP?
+    mov mem_0089, #0x75     ;e2a3  85 89 75     0x75 = Complement of 0x8A KW1281?
     mov a, #0x01            ;e2a6  04 01
     mov mem_00fb, a         ;e2a8  45 fb
     setb mem_00f9:3         ;e2aa  ab f9
