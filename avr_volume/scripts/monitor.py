@@ -7,7 +7,6 @@ Receives packets of M62419FP data from the AVR's UART and displays them.
 
 import struct
 import sys
-import time
 import serial # pyserial
 
 def make_serial():
