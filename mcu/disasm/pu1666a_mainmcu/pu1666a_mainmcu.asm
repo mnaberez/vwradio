@@ -271,6 +271,8 @@
     mem_01cd = 0x1cd
     mem_01ce = 0x1ce
     mem_01cf = 0x1cf
+    mem_01d0 = 0x1d0
+    mem_01d1 = 0x1d1
     mem_01d2 = 0x1d2
     mem_01d3 = 0x1d3
     mem_01d4 = 0x1d4
@@ -626,7 +628,7 @@ reset_8010:
     movw ps, a              ;8017  71
     setb sycc:0             ;8018  a8 07
     setb sycc:1             ;801a  a9 07
-    clrb pdr2:4             ;801c  a4 04
+    clrb pdr2:4             ;801c  a4 04        audio mute = muted
     mov pdr2, #0x80         ;801e  85 04 80
     mov pdr4, #0x77         ;8021  85 0e 77
     mov ddr4, #0xb9         ;8024  85 0f b9
@@ -641,8 +643,8 @@ reset_8010:
     mov ppcr, #0x00         ;803f  85 12 00
     mov pdr7, #0x7e         ;8042  85 13 7e
     mov pdr8, #0x68         ;8045  85 14 68
-    movw ix, #mem_0080      ;8048  e6 00 80
 
+    movw ix, #mem_0080      ;8048  e6 00 80
 lab_804b:
     mov a, #0x00            ;804b  04 00
     mov @ix+0x00, a         ;804d  46 00
@@ -651,11 +653,13 @@ lab_804b:
     movw a, #0x047f         ;8051  e4 04 7f
     cmpw a                  ;8054  13
     bne lab_804b            ;8055  fc f4
+
     movw a, #0x010e         ;8057  e4 01 0e
     movw mem_01bd, a        ;805a  d4 01 bd
     movw a, #0x0212         ;805d  e4 02 12
     movw mem_01bf, a        ;8060  d4 01 bf
     call sub_8135           ;8063  31 81 35
+
     jmp reset_8010          ;8066  21 80 10
 
     .byte 0x00              ;8069  00          DATA '\x00'
@@ -1229,7 +1233,7 @@ sub_843f:
     call sub_8477           ;843f  31 84 77
     call sub_84b8           ;8442  31 84 b8
     clrc                    ;8445  81
-    bbc pdr4:2, lab_844a    ;8446  b2 0e 01
+    bbc pdr4:2, lab_844a    ;8446  b2 0e 01     /CONTROL+
     setc                    ;8449  91
 
 lab_844a:
@@ -1246,7 +1250,7 @@ sub_8457:
 lab_845d:
     mov a, mem_00c5         ;845d  05 c5
     bne lab_8471            ;845f  fc 10
-    bbc pdr0:3, lab_8470    ;8461  b3 00 0c
+    bbc pdr0:3, lab_8470    ;8461  b3 00 0c     AM_SD
 
 lab_8464:
     mov a, mem_00a2         ;8464  05 a2
@@ -1260,7 +1264,7 @@ lab_8470:
     ret                     ;8470  20
 
 lab_8471:
-    bbc pdr0:2, lab_8470    ;8471  b2 00 fc
+    bbc pdr0:2, lab_8470    ;8471  b2 00 fc     FM_SD
     jmp lab_8464            ;8474  21 84 64
 
 sub_8477:
@@ -1274,7 +1278,7 @@ sub_8477:
 lab_8484:
     mov a, mem_00ea         ;8484  05 ea
     mov a, pdr6             ;8486  05 11
-    and a, #0x40            ;8488  64 40
+    and a, #0x40            ;8488  64 40    mask off all except bit 6 (pdr6:6 = /ACC_IN)
     mov mem_00ea, a         ;848a  45 ea
     xor a                   ;848c  52
     beq lab_8497            ;848d  fd 08
@@ -1311,7 +1315,7 @@ sub_84b8:
 
 lab_84c5:
     clrc                    ;84c5  81
-    bbc pdr7:5, lab_84ca    ;84c6  b5 13 01
+    bbc pdr7:5, lab_84ca    ;84c6  b5 13 01     /POWER_OR_EJECT
     setc                    ;84c9  91
 
 lab_84ca:
@@ -1320,7 +1324,7 @@ lab_84ca:
     mov mem_009e, #0x03     ;84d0  85 9e 03
     call sub_852d           ;84d3  31 85 2d
     clrc                    ;84d6  81
-    bbc pdr6:7, lab_84db    ;84d7  b7 11 01
+    bbc pdr6:7, lab_84db    ;84d7  b7 11 01     /POWER_EJECT_SW
     setc                    ;84da  91
 
 lab_84db:
@@ -1581,7 +1585,7 @@ lab_8654:
     mov mem_00ae, a         ;8659  45 ae
     bbc mem_00e3:7, lab_866a ;865b  b7 e3 0c
     bbc mem_00e3:6, lab_8666 ;865e  b6 e3 05
-    cmp mem_00ae, #0x18     ;8661  95 ae 18
+    cmp mem_00ae, #0x18     ;8661  95 ae 18     TODO could this be key initial?
     beq lab_8689            ;8664  fd 23
 
 lab_8666:
@@ -1592,7 +1596,7 @@ lab_866a:
     cmp mem_0096, #0x02     ;866a  95 96 02
     bne lab_867a            ;866d  fc 0b
     mov a, mem_00ae         ;866f  05 ae
-    cmp a, #0x12            ;8671  14 12
+    cmp a, #0x12            ;8671  14 12       TODO could this be key tape side?
     beq lab_8689            ;8673  fd 14
     movw ix, #mem_868e      ;8675  e6 86 8e
     bne lab_8682            ;8678  fc 08       BRANCH_ALWAYS_TAKEN
@@ -1605,23 +1609,23 @@ lab_867a:
 lab_8682:
     mov a, mem_00ae         ;8682  05 ae
     call sub_e76c           ;8684  31 e7 6c
-    bhs lab_8666            ;8687  f8 dd
+    bhs lab_8666            ;8687  f8 dd       branch if not found in table
 
 lab_8689:
     jmp lab_86e5            ;8689  21 86 e5
 
 mem_868c:
-    .byte 0x0A              ;868c  0a          DATA '\n'
-    .byte 0x13              ;868d  13          DATA '\x13'
+    .byte 0x0A              ;868c  0a          DATA '\n'    tune up
+    .byte 0x13              ;868d  13          DATA '\x13'  seek up
 
 mem_868e:
-    .byte 0x19              ;868e  19          DATA '\x19'
+    .byte 0x19              ;868e  19          DATA '\x19'  todo what key is this?
 
 mem_868f:
-    .byte 0x02              ;868f  02          DATA '\x02'
-    .byte 0x04              ;8690  04          DATA '\x04'
-    .byte 0x05              ;8691  05          DATA '\x05'
-    .byte 0x06              ;8692  06          DATA '\x06'
+    .byte 0x02              ;868f  02          DATA '\x02'  preset 4
+    .byte 0x04              ;8690  04          DATA '\x04'  preset 3
+    .byte 0x05              ;8691  05          DATA '\x05'  preset 2
+    .byte 0x06              ;8692  06          DATA '\x06'  preset 1
     .byte 0xFF              ;8693  ff          DATA '\xff'
 
 lab_8694:
@@ -1733,22 +1737,31 @@ lab_8736:
     ret                     ;8736  20
 
 mem_8737:
+;table of byte pairs used with sub_e746
     .byte 0x0A              ;8737  0a          DATA '\n'
     .byte 0x11              ;8738  11          DATA '\x11'
+
     .byte 0x0E              ;8739  0e          DATA '\x0e'
     .byte 0x10              ;873a  10          DATA '\x10'
+
     .byte 0x13              ;873b  13          DATA '\x13'
     .byte 0x0A              ;873c  0a          DATA '\n'
+
     .byte 0x17              ;873d  17          DATA '\x17'
     .byte 0x0E              ;873e  0e          DATA '\x0e'
+
     .byte 0x14              ;873f  14          DATA '\x14'
     .byte 0x15              ;8740  15          DATA '\x15'
+
     .byte 0x11              ;8741  11          DATA '\x11'
     .byte 0x20              ;8742  20          DATA ' '
+
     .byte 0x10              ;8743  10          DATA '\x10'
     .byte 0x20              ;8744  20          DATA ' '
+
     .byte 0x15              ;8745  15          DATA '\x15'
     .byte 0x20              ;8746  20          DATA ' '
+
     .byte 0xFF              ;8747  ff          DATA '\xff'
     .byte 0x00              ;8748  00          DATA '\x00'
 
@@ -2556,18 +2569,25 @@ lab_8bcf:
     ret                     ;8bcf  20
 
 mem_8bd0:
+;table of byte pairs used with sub_e746
     .byte 0x00              ;8bd0  00          DATA '\x00'
     .byte 0x06              ;8bd1  06          DATA '\x06'
+
     .byte 0x01              ;8bd2  01          DATA '\x01'
     .byte 0x05              ;8bd3  05          DATA '\x05'
+
     .byte 0x02              ;8bd4  02          DATA '\x02'
     .byte 0x04              ;8bd5  04          DATA '\x04'
+
     .byte 0x04              ;8bd6  04          DATA '\x04'
     .byte 0x03              ;8bd7  03          DATA '\x03'
+
     .byte 0x05              ;8bd8  05          DATA '\x05'
     .byte 0x02              ;8bd9  02          DATA '\x02'
+
     .byte 0x06              ;8bda  06          DATA '\x06'
     .byte 0x01              ;8bdb  01          DATA '\x01'
+
     .byte 0xFF              ;8bdc  ff          DATA '\xff'
     .byte 0x00              ;8bdd  00          DATA '\x00'
 
@@ -2603,7 +2623,7 @@ lab_8bfe:
     ret                     ;8c00  20
 
 lab_8c01:
-    bbs pdr2:4, lab_8c0a    ;8c01  bc 04 06
+    bbs pdr2:4, lab_8c0a    ;8c01  bc 04 06     branch if audio not muted
     mov a, mem_00e9         ;8c04  05 e9
     cmp a, #0xf7            ;8c06  14 f7
     bne lab_8c36            ;8c08  fc 2c
@@ -2613,7 +2633,7 @@ lab_8c0a:
     jmp lab_8c1a            ;8c0c  21 8c 1a
 
 lab_8c0f:
-    bbs pdr2:4, lab_8c18    ;8c0f  bc 04 06
+    bbs pdr2:4, lab_8c18    ;8c0f  bc 04 06     branch if audio not muted
     mov a, mem_00e9         ;8c12  05 e9
     cmp a, #0xf7            ;8c14  14 f7
     bne lab_8c36            ;8c16  fc 1e
@@ -3185,15 +3205,15 @@ lab_8f60:
     setb mem_00cf:0         ;8f60  a8 cf
     mov a, #0x14            ;8f62  04 14
     mov mem_02c1, a         ;8f64  61 02 c1
-    clrb pdr8:4             ;8f67  a4 14
-    clrb pdr2:5             ;8f69  a5 04
+    clrb pdr8:4             ;8f67  a4 14        AMP_ON
+    clrb pdr2:5             ;8f69  a5 04        REM_AMP_ON
     movw a, #0x0000         ;8f6b  e4 00 00
     mov mem_031e, a         ;8f6e  61 03 1e
     mov mem_031d, a         ;8f71  61 03 1d
     movw mem_0305, a        ;8f74  d4 03 05
-    setb pdr4:0             ;8f77  a8 0e
-    setb pdr2:7             ;8f79  af 04
-    setb pdr2:5             ;8f7b  ad 04
+    setb pdr4:0             ;8f77  a8 0e        CD_DATA_OUT
+    setb pdr2:7             ;8f79  af 04        MAIN_5V
+    setb pdr2:5             ;8f7b  ad 04        REM_AMP_ON
     bbs mem_00d0:1, lab_8f82 ;8f7d  b9 d0 02
     clrb pdr4:3             ;8f80  a3 0e        /SUB_RESET = low
 
@@ -3214,7 +3234,7 @@ lab_8f90:
     mov mem_02cb, a         ;8f9c  61 02 cb
     setb pdr4:4             ;8f9f  ac 0e        M2S_DAT_OUT = high
     setb pdr4:5             ;8fa1  ad 0e        /M2S_CLK_OUT = high
-    setb pdr2:6             ;8fa3  ae 04
+    setb pdr2:6             ;8fa3  ae 04        MAIN_14V
     setb pdr4:3             ;8fa5  ab 0e        /SUB_RESET = high
     movw a, #0x000a         ;8fa7  e4 00 0a
 
@@ -3274,7 +3294,7 @@ lab_9003:
     mov mem_0322, a         ;9008  61 03 22
     mov mem_0337, a         ;900b  61 03 37
     setb mem_00d7:6         ;900e  ae d7
-    setb pdr2:1             ;9010  a9 04
+    setb pdr2:1             ;9010  a9 04        /TAPE_ON
     call sub_c18a           ;9012  31 c1 8a
     movw a, #0x0a0d         ;9015  e4 0a 0d
     bne lab_8fb9            ;9018  fc 9f       BRANCH_ALWAYS_TAKEN
@@ -3328,7 +3348,7 @@ lab_906b:
     movw a, mem_0305        ;9074  c4 03 05
     bne lab_9080            ;9077  fc 07
     clrb mem_00cf:0         ;9079  a0 cf
-    clrb pdr2:6             ;907b  a6 04
+    clrb pdr2:6             ;907b  a6 04        MAIN_14V
     mov mem_00d2, #0x00     ;907d  85 d2 00
 
 lab_9080:
@@ -3336,7 +3356,7 @@ lab_9080:
 
 lab_9081:
     clrb mem_00e9:6         ;9081  a6 e9
-    setb pdr2:7             ;9083  af 04
+    setb pdr2:7             ;9083  af 04        MAIN_5V
     mov a, #0x28            ;9085  04 28
     mov mem_0213, a         ;9087  61 02 13
     mov mem_00d2, #0x0a     ;908a  85 d2 0a
@@ -3370,8 +3390,8 @@ lab_90b4:
 lab_90b5:
     mov a, mem_0213         ;90b5  60 02 13
     bne lab_90b4            ;90b8  fc fa
-    clrb pdr8:4             ;90ba  a4 14
-    clrb pdr2:5             ;90bc  a5 04
+    clrb pdr8:4             ;90ba  a4 14        AMP_ON
+    clrb pdr2:5             ;90bc  a5 04        REM_AMP_ON
     setb mem_00e2:0         ;90be  a8 e2
     clrb mem_00d0:0         ;90c0  a0 d0
     call sub_91b1           ;90c2  31 91 b1
@@ -3595,12 +3615,12 @@ sub_9250:
     cmp a, #0x02            ;9257  14 02
     beq lab_9260            ;9259  fd 05
     clrb mem_008d:0         ;925b  a0 8d
-    setb pdr8:4             ;925d  ac 14
+    setb pdr8:4             ;925d  ac 14        AMP_ON
     ret                     ;925f  20
 
 lab_9260:
     clrb mem_008d:0         ;9260  a0 8d
-    clrb pdr8:4             ;9262  a4 14
+    clrb pdr8:4             ;9262  a4 14        AMP_ON
     ret                     ;9264  20
 
 sub_9265:
@@ -3692,10 +3712,10 @@ lab_92f9:
     mov a, #0x00            ;92fc  04 00
     cmp a                   ;92fe  12
     beq lab_930a            ;92ff  fd 09
-    clrb pdr3:0             ;9301  a0 0c
-    clrb pdr3:3             ;9303  a3 0c
-    clrb pdr3:1             ;9305  a1 0c
-    clrb pdr3:2             ;9307  a2 0c
+    clrb pdr3:0             ;9301  a0 0c    FL_CLIP_ON
+    clrb pdr3:3             ;9303  a3 0c    FR_CLIP_ON
+    clrb pdr3:1             ;9305  a1 0c    RL_CLIP_ON
+    clrb pdr3:2             ;9307  a2 0c    RR_CLIP_ON
 
 lab_9309:
     ret                     ;9309  20
@@ -3705,44 +3725,44 @@ lab_930a:
     beq lab_9317            ;930d  fd 08
     and a, #0x3f            ;930f  64 3f
     bne lab_9319            ;9311  fc 06
-    clrb pdr3:0             ;9313  a0 0c
+    clrb pdr3:0             ;9313  a0 0c    FL_CLIP_ON
     beq lab_9319            ;9315  fd 02       BRANCH_ALWAYS_TAKEN
 
 lab_9317:
-    setb pdr3:0             ;9317  a8 0c
+    setb pdr3:0             ;9317  a8 0c    FL_CLIP_ON
 
 lab_9319:
     mov a, mem_0310         ;9319  60 03 10
     beq lab_9326            ;931c  fd 08
     and a, #0x3f            ;931e  64 3f
     bne lab_9328            ;9320  fc 06
-    clrb pdr3:3             ;9322  a3 0c
+    clrb pdr3:3             ;9322  a3 0c        FR_CLIP_ON
     beq lab_9328            ;9324  fd 02       BRANCH_ALWAYS_TAKEN
 
 lab_9326:
-    setb pdr3:3             ;9326  ab 0c
+    setb pdr3:3             ;9326  ab 0c        FR_CLIP_ON
 
 lab_9328:
     mov a, mem_030f         ;9328  60 03 0f
     beq lab_9335            ;932b  fd 08
     and a, #0x3f            ;932d  64 3f
     bne lab_9337            ;932f  fc 06
-    clrb pdr3:1             ;9331  a1 0c
+    clrb pdr3:1             ;9331  a1 0c        RL_CLIP_ON
     beq lab_9337            ;9333  fd 02       BRANCH_ALWAYS_TAKEN
 
 lab_9335:
-    setb pdr3:1             ;9335  a9 0c
+    setb pdr3:1             ;9335  a9 0c        RL_CLIP_ON
 
 lab_9337:
     mov a, mem_030e         ;9337  60 03 0e
     beq lab_9343            ;933a  fd 07
     and a, #0x3f            ;933c  64 3f
     bne lab_9345            ;933e  fc 05
-    clrb pdr3:2             ;9340  a2 0c
+    clrb pdr3:2             ;9340  a2 0c        RR_CLIP_ON
     ret                     ;9342  20
 
 lab_9343:
-    setb pdr3:2             ;9343  aa 0c
+    setb pdr3:2             ;9343  aa 0c        RR_CLIP_ON
 
 lab_9345:
     ret                     ;9345  20
@@ -4007,15 +4027,15 @@ sub_94b6:
     ret                     ;94d6  20
 
 lab_94d7:
-    setb pdr2:1             ;94d7  a9 04
+    setb pdr2:1             ;94d7  a9 04        /TAPE_ON
     mulu a                  ;94d9  01
     mulu a                  ;94da  01
     mulu a                  ;94db  01
     setb mem_00d7:6         ;94dc  ae d7
-    clrb pdr8:4             ;94de  a4 14
-    clrb pdr2:5             ;94e0  a5 04
+    clrb pdr8:4             ;94de  a4 14        AMP_ON
+    clrb pdr2:5             ;94e0  a5 04        REM_AMP_ON
     clrb mem_00e9:4         ;94e2  a4 e9
-    bbc pdr2:4, lab_94e9    ;94e4  b4 04 02
+    bbc pdr2:4, lab_94e9    ;94e4  b4 04 02     branch if audio muted
     setb mem_00e9:4         ;94e7  ac e9
 
 lab_94e9:
@@ -4052,17 +4072,17 @@ lab_9511:
     jmp lab_94f3            ;9511  21 94 f3
 
 lab_9514:
-    clrb pdr8:4             ;9514  a4 14
-    setb pdr2:5             ;9516  ad 04
+    clrb pdr8:4             ;9514  a4 14        AMP_ON
+    setb pdr2:5             ;9516  ad 04        REM_AMP_ON
     clrb mem_00e9:4         ;9518  a4 e9
     movw a, #0x1e05         ;951a  e4 1e 05
     bne lab_94ec            ;951d  fc cd       BRANCH_ALWAYS_TAKEN
 
 lab_951f:
-    clrb pdr8:4             ;951f  a4 14
+    clrb pdr8:4             ;951f  a4 14        AMP_ON
     mov a, mem_030a         ;9521  60 03 0a
     bne lab_9528            ;9524  fc 02
-    setb pdr8:4             ;9526  ac 14
+    setb pdr8:4             ;9526  ac 14        AMP_ON
 
 lab_9528:
     movw a, #0x1406         ;9528  e4 14 06
@@ -4628,19 +4648,19 @@ lab_987e:
 lab_987f:
     mov a, mem_01bc         ;987f  60 01 bc
     beq lab_98a1            ;9882  fd 1d
-    bbs pdr0:6, lab_98a0    ;9884  be 00 19
+    bbs pdr0:6, lab_98a0    ;9884  be 00 19     PLL_DI
     nop                     ;9887  00
     nop                     ;9888  00
     nop                     ;9889  00
-    bbs pdr0:6, lab_98a0    ;988a  be 00 13
+    bbs pdr0:6, lab_98a0    ;988a  be 00 13     PLL_DI
     nop                     ;988d  00
     nop                     ;988e  00
     nop                     ;988f  00
-    bbs pdr0:6, lab_98a0    ;9890  be 00 0d
+    bbs pdr0:6, lab_98a0    ;9890  be 00 0d     PLL_DI
     nop                     ;9893  00
     nop                     ;9894  00
     nop                     ;9895  00
-    bbs pdr0:6, lab_98a0    ;9896  be 00 07
+    bbs pdr0:6, lab_98a0    ;9896  be 00 07     PLL_DI
     setb mem_0098:7         ;9899  af 98
     clrb mem_00c9:3         ;989b  a3 c9
     mov mem_00c2, #0x2f     ;989d  85 c2 2f
@@ -5158,7 +5178,7 @@ lab_9b8e:
     mov mem_0349, a         ;9b90  61 03 49
 
 lab_9b93:
-    setb pdr3:5             ;9b93  ad 0c
+    setb pdr3:5             ;9b93  ad 0c        /TAPE_DOLBY_ON
     mov a, mem_0095         ;9b95  05 95
     cmp a, #0x01            ;9b97  14 01
     bne lab_9b9f            ;9b99  fc 04
@@ -5340,14 +5360,14 @@ lab_9c91:
 
 lab_9ca3:
     bbc mem_00f7:1, lab_9cad ;9ca3  b1 f7 07
-    bbc pdr3:6, lab_9c55    ;9ca6  b6 0c ac
+    bbc pdr3:6, lab_9c55    ;9ca6  b6 0c ac     TAPE_TRACK_SW
 
 lab_9ca9:
     mov a, #0x08            ;9ca9  04 08
     bne lab_9c42            ;9cab  fc 95       BRANCH_ALWAYS_TAKEN
 
 lab_9cad:
-    bbs pdr3:6, lab_9c55    ;9cad  be 0c a5
+    bbs pdr3:6, lab_9c55    ;9cad  be 0c a5     TAPE_TRACK_SW
     jmp lab_9ca9            ;9cb0  21 9c a9
 
 lab_9cb3:
@@ -5502,7 +5522,7 @@ lab_9d94:
     bbs mem_00d0:1, lab_9da4 ;9d99  b9 d0 08
     setb mem_00d7:5         ;9d9c  ad d7
     mov mem_00d2, #0x01     ;9d9e  85 d2 01
-    setb pdr2:7             ;9da1  af 04
+    setb pdr2:7             ;9da1  af 04        MAIN_5V
     ret                     ;9da3  20
 
 lab_9da4:
@@ -5518,11 +5538,11 @@ sub_9da9:
     mov mem_028a, a         ;9dae  61 02 8a
     call sub_9ece           ;9db1  31 9e ce
     bbc mem_00f7:3, lab_9dbc ;9db4  b3 f7 05
-    clrb pdr3:5             ;9db7  a5 0c
+    clrb pdr3:5             ;9db7  a5 0c        /TAPE_DOLBY_ON
     jmp lab_9dbe            ;9db9  21 9d be
 
 lab_9dbc:
-    setb pdr3:5             ;9dbc  ad 0c
+    setb pdr3:5             ;9dbc  ad 0c        /TAPE_DOLBY_ON
 
 lab_9dbe:
     mov a, #0x06            ;9dbe  04 06
@@ -6993,7 +7013,7 @@ sub_a460:
     and a, #0xf0            ;a467  64 f0
     bne lab_a493            ;a469  fc 28
     setc                    ;a46b  91
-    bbc pdr4:6, lab_a470    ;a46c  b6 0e 01
+    bbc pdr4:6, lab_a470    ;a46c  b6 0e 01     branch if /EE_INITIAL = low
     clrc                    ;a46f  81
 
 lab_a470:
@@ -7198,7 +7218,7 @@ lab_a594:
     movw ix, #mem_0213      ;a5af  e6 02 13
     call sub_e77d           ;a5b2  31 e7 7d
     clrc                    ;a5b5  81
-    bbc pdr6:4, lab_a5ba    ;a5b6  b4 11 01
+    bbc pdr6:4, lab_a5ba    ;a5b6  b4 11 01     SCA_SWITCH
     setc                    ;a5b9  91
 
 lab_a5ba:
@@ -7259,7 +7279,7 @@ lab_a61d:
     mov mem_032b, a         ;a623  61 03 2b
     cmp a, #0x00            ;a626  14 00
     bne lab_a62c            ;a628  fc 02
-    setb pdr2:1             ;a62a  a9 04
+    setb pdr2:1             ;a62a  a9 04        /TAPE_ON
 
 lab_a62c:
     mov a, mem_032a         ;a62c  60 03 2a
@@ -7703,14 +7723,14 @@ lab_a91d:
 
 lab_a930:
     bbc mem_00ee:7, lab_a936 ;a930  b7 ee 03
-    bbc pdr7:0, lab_a93b    ;a933  b0 13 05
+    bbc pdr7:0, lab_a93b    ;a933  b0 13 05     BEEP
 
 lab_a936:
-    clrb pdr7:0             ;a936  a0 13
+    clrb pdr7:0             ;a936  a0 13        BEEP
     jmp lab_a93d            ;a938  21 a9 3d
 
 lab_a93b:
-    setb pdr7:0             ;a93b  a8 13
+    setb pdr7:0             ;a93b  a8 13        BEEP
 
 lab_a93d:
     mov a, mem_009c         ;a93d  05 9c
@@ -8087,38 +8107,38 @@ lab_ab4e:
     swap                    ;ab50  10
     rorc a                  ;ab51  03
     bhs lab_ab58            ;ab52  f8 04
-    setb pdr2:3             ;ab54  ab 04
+    setb pdr2:3             ;ab54  ab 04        VOL_DATA
     blo lab_ab5a            ;ab56  f9 02       BRANCH_ALWAYS_TAKEN
 
 lab_ab58:
-    clrb pdr2:3             ;ab58  a3 04
+    clrb pdr2:3             ;ab58  a3 04        VOL_DATA
 
 lab_ab5a:
     cmpw a                  ;ab5a  13
     cmpw a                  ;ab5b  13
-    setb pdr2:2             ;ab5c  aa 04
+    setb pdr2:2             ;ab5c  aa 04        /VOL_CLK
     cmpw a                  ;ab5e  13
     cmpw a                  ;ab5f  13
     cmp r4, #0x0d           ;ab60  9c 0d
     bne lab_ab68            ;ab62  fc 04
-    setb pdr2:3             ;ab64  ab 04
+    setb pdr2:3             ;ab64  ab 04        VOL_DATA
     beq lab_ab6a            ;ab66  fd 02       BRANCH_ALWAYS_TAKEN
 
 lab_ab68:
-    clrb pdr2:3             ;ab68  a3 04
+    clrb pdr2:3             ;ab68  a3 04        VOL_DATA
 
 lab_ab6a:
     nop                     ;ab6a  00
     nop                     ;ab6b  00
     nop                     ;ab6c  00
     nop                     ;ab6d  00
-    clrb pdr2:2             ;ab6e  a2 04
+    clrb pdr2:2             ;ab6e  a2 04        /VOL_CLK
     inc r4                  ;ab70  cc
     cmp r4, #0x0e           ;ab71  9c 0e
     blo lab_ab4e            ;ab73  f9 d9
     cmpw a                  ;ab75  13
     cmpw a                  ;ab76  13
-    clrb pdr2:3             ;ab77  a3 04
+    clrb pdr2:3             ;ab77  a3 04        VOL_DATA
     ret                     ;ab79  20
 
 sub_ab7a:
@@ -8143,7 +8163,7 @@ lab_ab90:
     bne lab_ab83            ;ab92  fc ef
 
 lab_ab94:
-    bbs pdr2:4, lab_ab9d    ;ab94  bc 04 06
+    bbs pdr2:4, lab_ab9d    ;ab94  bc 04 06     branch if audio not muted
     mov a, mem_00e9         ;ab97  05 e9
     cmp a, #0xf7            ;ab99  14 f7
     bne lab_ab83            ;ab9b  fc e6
@@ -8887,7 +8907,7 @@ sub_afca:
 
 lab_afce:
     clrb mem_008b:3         ;afce  a3 8b
-    bbc pdr7:3, lab_afd5    ;afd0  b3 13 02
+    bbc pdr7:3, lab_afd5    ;afd0  b3 13 02     /RX
     setb mem_008b:3         ;afd3  ab 8b
 
 lab_afd5:
@@ -11004,7 +11024,7 @@ sub_bc64:
     ret                     ;bc73  20
 
 lab_bc74:
-    clrb pdr8:4             ;bc74  a4 14
+    clrb pdr8:4             ;bc74  a4 14        AMP_ON
     mov a, #0x02            ;bc76  04 02
     mov a, #0xc8            ;bc78  04 c8
 
@@ -11021,7 +11041,7 @@ lab_bc81:
 lab_bc82:
     mov a, mem_02d3         ;bc82  60 02 d3
     bne lab_bc81            ;bc85  fc fa
-    setb pdr8:4             ;bc87  ac 14
+    setb pdr8:4             ;bc87  ac 14        AMP_ON
     mov a, #0x03            ;bc89  04 03
     mov a, #0x46            ;bc8b  04 46
     bne lab_bc7a            ;bc8d  fc eb       BRANCH_ALWAYS_TAKEN
@@ -11352,7 +11372,7 @@ lab_be87:
     ret                     ;be87  20
 
 lab_be88:
-    clrb pdr8:4             ;be88  a4 14
+    clrb pdr8:4             ;be88  a4 14        AMP_ON
     mov a, #0xc8            ;be8a  04 c8
     mov mem_02d3, a         ;be8c  61 02 d3
 
@@ -11366,7 +11386,7 @@ lab_be91:
 lab_be95:
     mov a, mem_02d3         ;be95  60 02 d3
     bne lab_be8f            ;be98  fc f5
-    setb pdr8:4             ;be9a  ac 14
+    setb pdr8:4             ;be9a  ac 14        AMP_ON
     mov a, #0x50            ;be9c  04 50
     mov mem_02d3, a         ;be9e  61 02 d3
 
@@ -11756,7 +11776,7 @@ sub_c10e:
     ret                     ;c119  20
 
 lab_c11a:
-    setb pdr2:0             ;c11a  a8 04
+    setb pdr2:0             ;c11a  a8 04        PHANTOM_ON
     mov a, #0x05            ;c11c  04 05
     mov mem_02d3, a         ;c11e  61 02 d3
 
@@ -12043,7 +12063,7 @@ sub_c2c6:
     ret                     ;c2de  20
 
 sub_c2df:
-    setb pdr2:0             ;c2df  a8 04
+    setb pdr2:0             ;c2df  a8 04        PHANTOM_ON
     call sub_c2c6           ;c2e1  31 c2 c6
     mov mem_00a2, #0x09     ;c2e4  85 a2 09
     movw ix, #mem_02d6      ;c2e7  e6 02 d6
@@ -12221,7 +12241,7 @@ lab_c411:
     jmp lab_c372            ;c413  21 c3 72
 
 lab_c416:
-    bbc pdr2:0, lab_c462    ;c416  b0 04 49
+    bbc pdr2:0, lab_c462    ;c416  b0 04 49     PHANTOM_ON
     call sub_c432           ;c419  31 c4 32
     call sub_c133           ;c41c  31 c1 33
     bbs mem_008d:1, lab_c42a ;c41f  b9 8d 08
@@ -12256,7 +12276,7 @@ lab_c449:
     mov a, #0x03            ;c456  04 03
     cmp a                   ;c458  12
     beq lab_c462            ;c459  fd 07
-    clrb pdr2:0             ;c45b  a0 04
+    clrb pdr2:0             ;c45b  a0 04        PHANTOM_ON
     mov a, #0x14            ;c45d  04 14
     mov mem_02e1, a         ;c45f  61 02 e1
 
@@ -12890,34 +12910,49 @@ lab_c80f:
     ret                     ;c812  20
 
 mem_c813:
+;table of byte pairs used with sub_e746
     .byte 0x01              ;c813  01          DATA '\x01'
     .byte 0x50              ;c814  50          DATA 'P'
+
     .byte 0x41              ;c815  41          DATA 'A'
     .byte 0x51              ;c816  51          DATA 'Q'
+
     .byte 0x02              ;c817  02          DATA '\x02'
     .byte 0x52              ;c818  52          DATA 'R'
+
     .byte 0x42              ;c819  42          DATA 'B'
     .byte 0x52              ;c81a  52          DATA 'R'
+
     .byte 0x03              ;c81b  03          DATA '\x03'
     .byte 0x53              ;c81c  53          DATA 'S'
+
     .byte 0x43              ;c81d  43          DATA 'C'
     .byte 0x53              ;c81e  53          DATA 'S'
+
     .byte 0x12              ;c81f  12          DATA '\x12'
     .byte 0x54              ;c820  54          DATA 'T'
+
     .byte 0x52              ;c821  52          DATA 'R'
     .byte 0x54              ;c822  54          DATA 'T'
+
     .byte 0x13              ;c823  13          DATA '\x13'
     .byte 0x55              ;c824  55          DATA 'U'
+
     .byte 0x53              ;c825  53          DATA 'S'
     .byte 0x55              ;c826  55          DATA 'U'
+
     .byte 0x32              ;c827  32          DATA '2'
     .byte 0x59              ;c828  59          DATA 'Y'
+
     .byte 0x72              ;c829  72          DATA 'r'
     .byte 0x59              ;c82a  59          DATA 'Y'
+
     .byte 0x04              ;c82b  04          DATA '\x04'
     .byte 0x50              ;c82c  50          DATA 'P'
+
     .byte 0x44              ;c82d  44          DATA 'D'
     .byte 0x51              ;c82e  51          DATA 'Q'
+
     .byte 0xFF              ;c82f  ff          DATA '\xff'
     .byte 0x00              ;c830  00          DATA '\x00'
 
@@ -12994,8 +13029,8 @@ lab_c893:
     xor a, #0x7f            ;c895  54 7f
     mov mem_00bd, a         ;c897  45 bd
     mov mem_00bb, #0x00     ;c899  85 bb 00
-    clrb pdr0:4             ;c89c  a4 00
-    clrb pdr1:0             ;c89e  a0 02
+    clrb pdr0:4             ;c89c  a4 00        PLL_CE
+    clrb pdr1:0             ;c89e  a0 02        SK
     clrb pdr0:5             ;c8a0  a5 00        EEPROM_CS
     mov a, mem_00c1         ;c8a2  05 c1
     cmp a, #0x01            ;c8a4  14 01
@@ -13016,7 +13051,7 @@ lab_c8b8:
     mov a, #0x04            ;c8b8  04 04
     xch a, t                ;c8ba  42
     call sub_c928           ;c8bb  31 c9 28
-    setb pdr0:4             ;c8be  ac 00
+    setb pdr0:4             ;c8be  ac 00        PLL_CE
     mov mem_00a2, #0x00     ;c8c0  85 a2 00
     movw ix, #mem_00be      ;c8c3  e6 00 be
     incw ix                 ;c8c6  c2
@@ -13041,7 +13076,7 @@ lab_c8d3:
     mov a, mem_00a3         ;c8de  05 a3
     cmp a                   ;c8e0  12
     bne lab_c8c7            ;c8e1  fc e4
-    clrb pdr0:4             ;c8e3  a4 00
+    clrb pdr0:4             ;c8e3  a4 00        PLL_CE
     setb mem_00c9:7         ;c8e5  af c9
     ret                     ;c8e7  20
 
@@ -13111,25 +13146,25 @@ lab_c92f:
 lab_c931:
     xch a, t                ;c931  42
     dec r0                  ;c932  d8
-    setb pdr1:0             ;c933  a8 02
+    setb pdr1:0             ;c933  a8 02        SK
     decw a                  ;c935  d0
     cmp a, #0x00            ;c936  14 00
     xch a, t                ;c938  42
     xch a, t                ;c939  42
     nop                     ;c93a  00
-    clrb pdr1:0             ;c93b  a0 02
+    clrb pdr1:0             ;c93b  a0 02        SK
     xch a, t                ;c93d  42
     bne sub_c928            ;c93e  fc e8
     ret                     ;c940  20
 
 sub_c941:
-    clrb pdr0:4             ;c941  a4 00
+    clrb pdr0:4             ;c941  a4 00        PLL_CE
     clrb pdr0:5             ;c943  a5 00        EEPROM_CS
     mov a, #0x04            ;c945  04 04
     mov a, #0x03            ;c947  04 03
     call sub_c928           ;c949  31 c9 28
     movw ix, #mem_0281      ;c94c  e6 02 81
-    setb pdr0:4             ;c94f  ac 00
+    setb pdr0:4             ;c94f  ac 00        PLL_CE
     mov a, #0x04            ;c951  04 04
     mov mem_00a2, a         ;c953  45 a2
 
@@ -13152,7 +13187,7 @@ lab_c960:
     decw a                  ;c96d  d0
     mov mem_00a2, a         ;c96e  45 a2
     bne lab_c955            ;c970  fc e3
-    clrb pdr0:4             ;c972  a4 00
+    clrb pdr0:4             ;c972  a4 00        PLL_CE
     setb mem_00c9:3         ;c974  ab c9
     ret                     ;c976  20
 
@@ -13160,13 +13195,13 @@ sub_c977:
     movw a, #0x0000         ;c977  e4 00 00
 
 lab_c97a:
-    setb pdr1:0             ;c97a  a8 02
+    setb pdr1:0             ;c97a  a8 02        SK
     dec r0                  ;c97c  d8
     cmp a, r0               ;c97d  18
-    clrb pdr1:0             ;c97e  a0 02
+    clrb pdr1:0             ;c97e  a0 02        SK
     inc r0                  ;c980  c8
     clrc                    ;c981  81
-    bbc pdr0:6, lab_c986    ;c982  b6 00 01
+    bbc pdr0:6, lab_c986    ;c982  b6 00 01     PLL_DI
     setc                    ;c985  91
 
 lab_c986:
@@ -13178,7 +13213,7 @@ lab_c986:
     ret                     ;c98c  20
 
 sub_c98d:
-    clrb pdr0:4             ;c98d  a4 00
+    clrb pdr0:4             ;c98d  a4 00        PLL_CE
     clrb pdr0:5             ;c98f  a5 00        EEPROM_CS
     mov a, #0x04            ;c991  04 04
     mov a, #0x03            ;c993  04 03
@@ -13447,7 +13482,7 @@ lab_cb01:
     ret                     ;cb08  20
 
 sub_cb09:
-    clrb pdr0:4             ;cb09  a4 00
+    clrb pdr0:4             ;cb09  a4 00        PLL_CE
     setb pdr0:5             ;cb0b  ad 00        EEPROM_CS
     mov a, mem_0272         ;cb0d  60 02 72
     movw a, #mem_cb16       ;cb10  e4 cb 16
@@ -13549,7 +13584,7 @@ sub_cb9c:
     mov mem_00a0, #0x07     ;cba3  85 a0 07
 
 sub_cba6:
-    clrb pdr1:0             ;cba6  a0 02
+    clrb pdr1:0             ;cba6  a0 02        SK
     mov a, mem_009f         ;cba8  05 9f
     clrc                    ;cbaa  81
     rolc a                  ;cbab  02
@@ -13564,23 +13599,23 @@ lab_cbb4:
 lab_cbb6:
     nop                     ;cbb6  00
     nop                     ;cbb7  00
-    setb pdr1:0             ;cbb8  a8 02
+    setb pdr1:0             ;cbb8  a8 02        SK
     mov a, mem_00a0         ;cbba  05 a0
     decw a                  ;cbbc  d0
     mov mem_00a0, a         ;cbbd  45 a0
     cmp a, #0x00            ;cbbf  14 00
     bne sub_cba6            ;cbc1  fc e3
-    clrb pdr1:0             ;cbc3  a0 02
+    clrb pdr1:0             ;cbc3  a0 02        SK
     ret                     ;cbc5  20
 
 sub_cbc6:
-    clrb pdr1:0             ;cbc6  a0 02
+    clrb pdr1:0             ;cbc6  a0 02        SK
     mov mem_00a0, #0x08     ;cbc8  85 a0 08
 
 lab_cbcb:
-    setb pdr1:0             ;cbcb  a8 02
+    setb pdr1:0             ;cbcb  a8 02        SK
     cmpw a                  ;cbcd  13
-    clrb pdr1:0             ;cbce  a0 02
+    clrb pdr1:0             ;cbce  a0 02        SK
     cmpw a                  ;cbd0  13
     clrc                    ;cbd1  81
     bbc pdr0:0, lab_cbd6    ;cbd2  b0 00 01     EEPROM_DI
@@ -13896,7 +13931,7 @@ sub_cd1f:
     movw a, ep              ;cd31  f3
     mov mem_00f3, a         ;cd32  45 f3
     clrb mem_00c0:1         ;cd34  a1 c0
-    movw a, #mem_f000       ;cd36  e4 f0 00
+    movw a, #0xf000         ;cd36  e4 f0 00
     andw a                  ;cd39  63
     bne lab_cd3e            ;cd3a  fc 02
     setb mem_00c0:1         ;cd3c  a9 c0
@@ -15709,7 +15744,7 @@ lab_d456:
     setb mem_00f8:1         ;d461  a9 f8
 
 lab_d463:
-    bbc pdr0:1, lab_d491    ;d463  b1 00 2b
+    bbc pdr0:1, lab_d491    ;d463  b1 00 2b     /SCA_ENABLE
     mov a, mem_0182         ;d466  60 01 82
     and a, #0x0f            ;d469  64 0f
     bne lab_d491            ;d46b  fc 24
@@ -15918,11 +15953,11 @@ lab_d5ce:
     mov a, mem_00f7         ;d5ce  05 f7
     and a, #0x02            ;d5d0  64 02
     beq lab_d5d9            ;d5d2  fd 05
-    setb pdr3:6             ;d5d4  ae 0c
+    setb pdr3:6             ;d5d4  ae 0c        TAPE_TRACK_SW
     jmp lab_d4db            ;d5d6  21 d4 db
 
 lab_d5d9:
-    clrb pdr3:6             ;d5d9  a6 0c
+    clrb pdr3:6             ;d5d9  a6 0c        TAPE_TRACK_SW
     jmp lab_d4db            ;d5db  21 d4 db
 
 lab_d5de:
@@ -15931,33 +15966,33 @@ lab_d5de:
     mov mem_00f7, a         ;d5e2  45 f7
     and a, #0x08            ;d5e4  64 08
     beq lab_d5ed            ;d5e6  fd 05
-    clrb pdr3:5             ;d5e8  a5 0c
+    clrb pdr3:5             ;d5e8  a5 0c        /TAPE_DOLBY_ON
     jmp lab_d4db            ;d5ea  21 d4 db
 
 lab_d5ed:
-    setb pdr3:5             ;d5ed  ad 0c
+    setb pdr3:5             ;d5ed  ad 0c        /TAPE_DOLBY_ON
     jmp lab_d4db            ;d5ef  21 d4 db
 
 lab_d5f2:
-    bbs pdr6:4, lab_d5fb    ;d5f2  bc 11 06
-    bbs pdr6:4, lab_d5fb    ;d5f5  bc 11 03
+    bbs pdr6:4, lab_d5fb    ;d5f2  bc 11 06     SCA_SWITCH
+    bbs pdr6:4, lab_d5fb    ;d5f5  bc 11 03     SCA_SWITCH
 
 lab_d5f8:
     jmp lab_d57a            ;d5f8  21 d5 7a
 
 lab_d5fb:
-    bbc pdr6:4, lab_d5f2    ;d5fb  b4 11 f4
-    bbc pdr6:4, lab_d5f2    ;d5fe  b4 11 f1
+    bbc pdr6:4, lab_d5f2    ;d5fb  b4 11 f4     SCA_SWITCH
+    bbc pdr6:4, lab_d5f2    ;d5fe  b4 11 f1     SCA_SWITCH
     jmp lab_d61c            ;d601  21 d6 1c
 
 lab_d604:
-    bbc pdr6:4, lab_d60d    ;d604  b4 11 06
-    bbc pdr6:4, lab_d60d    ;d607  b4 11 03
+    bbc pdr6:4, lab_d60d    ;d604  b4 11 06     SCA_SWITCH
+    bbc pdr6:4, lab_d60d    ;d607  b4 11 03     SCA_SWITCH
     jmp lab_d57a            ;d60a  21 d5 7a
 
 lab_d60d:
-    bbs pdr6:4, lab_d604    ;d60d  bc 11 f4
-    bbs pdr6:4, lab_d604    ;d610  bc 11 f1
+    bbs pdr6:4, lab_d604    ;d60d  bc 11 f4     SCA_SWITCH
+    bbs pdr6:4, lab_d604    ;d610  bc 11 f1     SCA_SWITCH
     jmp lab_d61c            ;d613  21 d6 1c
 
 lab_d616:
@@ -16018,7 +16053,7 @@ lab_d676:
     mov a, mem_00f7         ;d676  05 f7
     and a, #0xfb            ;d678  64 fb
     mov mem_00f7, a         ;d67a  45 f7
-    bbc pdr3:7, lab_d685    ;d67c  b7 0c 06
+    bbc pdr3:7, lab_d685    ;d67c  b7 0c 06     SCA_METAL
     mov a, mem_00f7         ;d67f  05 f7
     or a, #0x04             ;d681  74 04
     mov mem_00f7, a         ;d683  45 f7
@@ -16376,8 +16411,8 @@ sub_d87b:
     clrb eic2:4             ;d87b  a4 39
     pushw a                 ;d87d  40
     mov mem_0355, a         ;d87e  61 03 55
-    setb pdr8:3             ;d881  ab 14
-    clrb pdr0:1             ;d883  a1 00
+    setb pdr8:3             ;d881  ab 14        /SCA_CLK_OUT
+    clrb pdr0:1             ;d883  a1 00        /SCA_ENABLE
     mov a, #0x08            ;d885  04 08
     mov mem_0358, a         ;d887  61 03 58
 
@@ -16386,29 +16421,29 @@ lab_d88a:
     rorc a                  ;d88d  03
     mov mem_0355, a         ;d88e  61 03 55
     bhs lab_d8b5            ;d891  f8 22
-    setb pdr7:1             ;d893  a9 13
+    setb pdr7:1             ;d893  a9 13        SCA_DATA
     jmp lab_d898            ;d895  21 d8 98
 
 lab_d898:
     mulu a                  ;d898  01
-    clrb pdr8:3             ;d899  a3 14
+    clrb pdr8:3             ;d899  a3 14        /SCA_CLK_OUT
     mulu a                  ;d89b  01
     mov a, mem_0358         ;d89c  60 03 58
     decw a                  ;d89f  d0
     mov mem_0358, a         ;d8a0  61 03 58
-    setb pdr8:3             ;d8a3  ab 14
+    setb pdr8:3             ;d8a3  ab 14        /SCA_CLK_OUT
     mov a, mem_0358         ;d8a5  60 03 58
     bne lab_d88a            ;d8a8  fc e0
-    setb pdr0:1             ;d8aa  a9 00
+    setb pdr0:1             ;d8aa  a9 00        /SCA_ENABLE
     mulu a                  ;d8ac  01
     popw a                  ;d8ad  50
-    setb pdr7:1             ;d8ae  a9 13
+    setb pdr7:1             ;d8ae  a9 13        SCA_DATA
     clrb eic2:7             ;d8b0  a7 39
     setb eic2:4             ;d8b2  ac 39
     ret                     ;d8b4  20
 
 lab_d8b5:
-    clrb pdr7:1             ;d8b5  a1 13
+    clrb pdr7:1             ;d8b5  a1 13        SCA_DATA
     jmp lab_d898            ;d8b7  21 d8 98
 
 sub_d8ba:
@@ -16494,7 +16529,7 @@ lab_d936:
     mov mem_036a, a         ;d93e  61 03 6a
 
 lab_d941:
-    bbc pdr3:4, lab_d95f    ;d941  b4 0c 1b
+    bbc pdr3:4, lab_d95f    ;d941  b4 0c 1b     APC_DET
     mov a, #0x00            ;d944  04 00
     mov mem_0352, a         ;d946  61 03 52
     mov a, mem_0351         ;d949  60 03 51
@@ -16534,8 +16569,8 @@ lab_d97a:
 
 sub_d97c:
     pushw a                 ;d97c  40
-    setb pdr7:1             ;d97d  a9 13
-    bbs pdr7:1, lab_d990    ;d97f  b9 13 0e
+    setb pdr7:1             ;d97d  a9 13        SCA_DATA
+    bbs pdr7:1, lab_d990    ;d97f  b9 13 0e     SCA_DATA
     mov a, mem_0350         ;d982  60 03 50
     cmp a, #0x0a            ;d985  14 0a
     beq lab_d99f            ;d987  fd 16
@@ -16601,7 +16636,7 @@ sub_d9d0:
 sub_d9d3:
     cmp mem_0095, #0x01     ;d9d3  95 95 01
     beq lab_d9da            ;d9d6  fd 02
-    clrb pdr3:5             ;d9d8  a5 0c
+    clrb pdr3:5             ;d9d8  a5 0c        /TAPE_DOLBY_ON
 
 lab_d9da:
     call sub_daae           ;d9da  31 da ae
@@ -16615,7 +16650,7 @@ lab_d9da:
     bne lab_d9f5            ;d9f0  fc 03
 
 lab_d9f2:
-    setb pdr2:4             ;d9f2  ac 04
+    setb pdr2:4             ;d9f2  ac 04        unmute audio
     ret                     ;d9f4  20
 
 lab_d9f5:
@@ -16624,7 +16659,7 @@ lab_d9f5:
 
 lab_d9fb:
     bbs mem_00af:1, lab_d9f2 ;d9fb  b9 af f4
-    clrb pdr2:4             ;d9fe  a4 04
+    clrb pdr2:4             ;d9fe  a4 04        mute audio
     ret                     ;da00  20
 
 sub_da01:
@@ -16687,7 +16722,7 @@ lab_da57:
     mov a, mem_031d         ;da57  60 03 1d
     bne lab_da6b            ;da5a  fc 0f
     clrb mem_00e9:1         ;da5c  a1 e9
-    setb pdr2:1             ;da5e  a9 04
+    setb pdr2:1             ;da5e  a9 04        /TAPE_ON
     ret                     ;da60  20
 
 lab_da61:
@@ -16716,7 +16751,7 @@ lab_da7d:
 
 lab_da86:
     bbs mem_00d7:6, lab_da96 ;da86  be d7 0d
-    clrb pdr2:1             ;da89  a1 04
+    clrb pdr2:1             ;da89  a1 04        /TAPE_ON
     mov a, mem_032a         ;da8b  60 03 2a
     bne lab_da95            ;da8e  fc 05
     mov a, #0x0a            ;da90  04 0a
@@ -16726,7 +16761,7 @@ lab_da95:
     ret                     ;da95  20
 
 lab_da96:
-    setb pdr2:1             ;da96  a9 04
+    setb pdr2:1             ;da96  a9 04        /TAPE_ON
     setb mem_00e9:1         ;da98  a9 e9
     ret                     ;da9a  20
 
@@ -16785,7 +16820,7 @@ lab_dadc:
 
 lab_dadf:
     setb mem_00eb:6         ;dadf  ae eb
-    bbs pdr6:6, lab_daf5    ;dae1  be 11 11
+    bbs pdr6:6, lab_daf5    ;dae1  be 11 11     branch if /ACC_IN = high
     clrb mem_00eb:6         ;dae4  a6 eb
     bbc mem_00ed:2, lab_daf5 ;dae6  b2 ed 0c
     setb mem_00eb:0         ;dae9  a8 eb
@@ -16843,7 +16878,7 @@ lab_db43:
     mov mem_02ff, a         ;db45  61 02 ff
 
 lab_db48:
-    setb pdr2:7             ;db48  af 04
+    setb pdr2:7             ;db48  af 04        MAIN_5V
     mov sycc, #0x17         ;db4a  85 07 17
     cmpw a                  ;db4d  13
     clrb eic2:3             ;db4e  a3 39
@@ -16894,7 +16929,7 @@ sub_db91:
     bbc mem_00eb:6, lab_dbbc ;dba4  b6 eb 15
     movw a, #0x00bb         ;dba7  e4 00 bb
     movw mem_02b2, a        ;dbaa  d4 02 b2
-    setb pdr4:7             ;dbad  af 0e
+    setb pdr4:7             ;dbad  af 0e        CATS_LED = on
 
 lab_dbaf:
     cmp a                   ;dbaf  12
@@ -16905,7 +16940,7 @@ lab_dbaf:
     bne lab_dbaf            ;dbb8  fc f5
 
 sub_dbba:
-    clrb pdr4:7             ;dbba  a7 0e
+    clrb pdr4:7             ;dbba  a7 0e        CATS_LED = off
 
 lab_dbbc:
     ret                     ;dbbc  20
@@ -17009,7 +17044,7 @@ sub_dc4e:
     mov ilr3, #0x3f         ;dc71  85 7e 3f
     mov eic1, #0x00         ;dc74  85 38 00
     mov eic2, #0x00         ;dc77  85 39 00
-    bbs pdr6:6, lab_dc80    ;dc7a  be 11 03
+    bbs pdr6:6, lab_dc80    ;dc7a  be 11 03     branch if /ACC_IN = high
     mov eic2, #0x05         ;dc7d  85 39 05
 
 lab_dc80:
@@ -17018,7 +17053,7 @@ lab_dc80:
     clrb mem_009e:2         ;dc84  a2 9e
     clrb mem_009e:6         ;dc86  a6 9e
     setb mem_009e:1         ;dc88  a9 9e
-    bbc pdr6:4, lab_dc8f    ;dc8a  b4 11 02
+    bbc pdr6:4, lab_dc8f    ;dc8a  b4 11 02     SCA_SWITCH
     clrb mem_009e:1         ;dc8d  a1 9e
 
 lab_dc8f:
@@ -17035,7 +17070,7 @@ lab_dc96:
 
 lab_dca0:
     setb mem_009e:3         ;dca0  ab 9e
-    bbc pdr6:5, lab_dca7    ;dca2  b5 11 02
+    bbc pdr6:5, lab_dca7    ;dca2  b5 11 02     /SUB_ENABLE_IN
     clrb mem_009e:3         ;dca5  a3 9e
 
 lab_dca7:
@@ -17048,7 +17083,7 @@ lab_dca7:
     ret                     ;dcb4  20
 
 sub_dcb5:
-    setb pdr0:1             ;dcb5  a9 00
+    setb pdr0:1             ;dcb5  a9 00        /SCA_ENABLE
     mov ilr1, #0xe0         ;dcb7  85 7c e0
     mov ilr2, #0x0b         ;dcba  85 7d 0b
     mov ilr3, #0xbc         ;dcbd  85 7e bc
@@ -17065,11 +17100,11 @@ sub_dcb5:
     ret                     ;dcdd  20
 
 sub_dcde:
-    clrb pdr2:5             ;dcde  a5 04
-    clrb pdr8:4             ;dce0  a4 14
+    clrb pdr2:5             ;dcde  a5 04        REM_AMP_ON
+    clrb pdr8:4             ;dce0  a4 14        AMP_ON
     mulu a                  ;dce2  01
     mulu a                  ;dce3  01
-    setb pdr2:1             ;dce4  a9 04
+    setb pdr2:1             ;dce4  a9 04        /TAPE_ON
     mov pdr0, #0x4d         ;dce6  85 00 4d
     mov ddr0, #0xb2         ;dce9  85 01 b2
     mov pdr1, #0x86         ;dcec  85 02 86
@@ -17082,10 +17117,10 @@ sub_dcde:
     mov pdr7, #0x7e         ;dd01  85 13 7e
     call sub_acdb           ;dd04  31 ac db
     mulu a                  ;dd07  01
-    clrb pdr2:4             ;dd08  a4 04
+    clrb pdr2:4             ;dd08  a4 04        mute audio
     mulu a                  ;dd0a  01
     mulu a                  ;dd0b  01
-    clrb pdr2:1             ;dd0c  a1 04
+    clrb pdr2:1             ;dd0c  a1 04        /TAPE_ON
     mulu a                  ;dd0e  01
     mulu a                  ;dd0f  01
     mov pdr2, #0x00         ;dd10  85 04 00
@@ -17249,11 +17284,11 @@ sub_de01:
     and a, #0xf0            ;de03  64 f0
     cmp a, #0x20            ;de05  14 20
     blo lab_de0c            ;de07  f9 03
-    setb pdr1:6             ;de09  ae 02
+    setb pdr1:6             ;de09  ae 02    BOSE_ON
     ret                     ;de0b  20
 
 lab_de0c:
-    clrb pdr1:6             ;de0c  a6 02
+    clrb pdr1:6             ;de0c  a6 02    BOSE_ON
     ret                     ;de0e  20
 
 sub_de0f:
@@ -17264,7 +17299,7 @@ sub_de0f:
     movw a, mem_038d        ;de19  c4 03 8d
     incw a                  ;de1c  c0
     movw mem_038d, a        ;de1d  d4 03 8d
-    bbc pdr7:3, lab_de26    ;de20  b3 13 03
+    bbc pdr7:3, lab_de26    ;de20  b3 13 03     /RX
     bbc eic2:3, lab_de2e    ;de23  b3 39 08
 
 lab_de26:
@@ -17798,13 +17833,13 @@ lab_e158:
     mov a, mem_0398         ;e170  60 03 98
     rolc a                  ;e173  02
     bhs lab_e180            ;e174  f8 0a
-    setb pdr7:2             ;e176  aa 13
+    setb pdr7:2             ;e176  aa 13        TX
     mov a, mem_0392         ;e178  60 03 92
     or a, #0x01             ;e17b  74 01
     jmp lab_e187            ;e17d  21 e1 87
 
 lab_e180:
-    clrb pdr7:2             ;e180  a2 13
+    clrb pdr7:2             ;e180  a2 13        TX
     mov a, mem_0392         ;e182  60 03 92
     and a, #0xfe            ;e185  64 fe
 
@@ -17822,7 +17857,7 @@ lab_e187:
 
 lab_e19a:
     mov a, #0x01            ;e19a  04 01
-    bbs pdr7:3, lab_e1a1    ;e19c  bb 13 02
+    bbs pdr7:3, lab_e1a1    ;e19c  bb 13 02     /RX
     mov a, #0x00            ;e19f  04 00
 
 lab_e1a1:
@@ -18427,8 +18462,8 @@ lab_e55b:
     ret                     ;e55b  20
 
 callv7_e55c:
-    setb pdr7:2             ;e55c  aa 13
-    setb pdr7:3             ;e55e  ab 13
+    setb pdr7:2             ;e55c  aa 13        TX
+    setb pdr7:3             ;e55e  ab 13        /RX
     call sub_e38a           ;e560  31 e3 8a
     movw a, #0xffff         ;e563  e4 ff ff
     movw mem_0398, a        ;e566  d4 03 98
@@ -19026,7 +19061,7 @@ lab_e8db:
     jmp lab_e8c3            ;e8dd  21 e8 c3
 
 sub_e8e0:
-    bbc pdr6:5, lab_e8ed    ;e8e0  b5 11 0a
+    bbc pdr6:5, lab_e8ed    ;e8e0  b5 11 0a     /SCA_CLOCK_IN
     clrb eie2:3             ;e8e3  a3 3a
     clrb eic1:4             ;e8e5  a4 38
     clrb eic1:7             ;e8e7  a7 38
@@ -20031,6 +20066,7 @@ lab_ee90:
     ret                     ;ee9f  20
 
 mem_eea0:
+;unknown data table
     .byte 0xC6              ;eea0  c6          DATA '\xc6'
     .byte 0x39              ;eea1  39          DATA '9'
     .byte 0xCF              ;eea2  cf          DATA '\xcf'
@@ -20112,7 +20148,7 @@ lab_eeed:
     mov cntr1, #0x0f        ;eef9  85 28 0f
     mov cntr3, #0x00        ;eefc  85 2a 00
     mov comr1, #0xff        ;eeff  85 2c ff
-    clrb pdr4:0             ;ef02  a0 0e
+    clrb pdr4:0             ;ef02  a0 0e        CD_DATA_OUT
     mov cntr2, #0x82        ;ef04  85 29 82
     xchw a, t               ;ef07  43
 
@@ -20215,7 +20251,7 @@ sub_ef8b:
     mov a, mem_01c8         ;ef8e  60 01 c8
     cmp a, #0x70            ;ef91  14 70
     bne lab_ef98            ;ef93  fc 03
-    setb pdr4:0             ;ef95  a8 0e
+    setb pdr4:0             ;ef95  a8 0e        CD_DATA_OUT
     ret                     ;ef97  20
 
 lab_ef98:
@@ -20253,134 +20289,98 @@ lab_efbb:
 
 mem_efbc:
     .byte 0x10              ;efbc  10          DATA '\x10'
-    .byte 0xEF              ;efbd  ef          DATA '\xef'
-    .byte 0xDA              ;efbe  da          DATA '\xda'
+    .word lab_efda          ;                                    VECTOR
     .byte 0x8C              ;efbf  8c          DATA '\x8c'
     .byte 0x11              ;efc0  11          DATA '\x11'
+
     .byte 0x11              ;efc1  11          DATA '\x11'
-    .byte 0xEF              ;efc2  ef          DATA '\xef'
-    .byte 0xDF              ;efc3  df          DATA '\xdf'
+    .word lab_efdf          ;                                    VECTOR
     .byte 0x0F              ;efc4  0f          DATA '\x0f'
     .byte 0x30              ;efc5  30          DATA '0'
+
     .byte 0x20              ;efc6  20          DATA ' '
-    .byte 0xEF              ;efc7  ef          DATA '\xef'
-    .byte 0xDA              ;efc8  da          DATA '\xda'
+    .word lab_efda          ;                                    VECTOR
     .byte 0x44              ;efc9  44          DATA 'D'
     .byte 0x21              ;efca  21          DATA '!'
+
     .byte 0x21              ;efcb  21          DATA '!'
-    .byte 0xEF              ;efcc  ef          DATA '\xef'
-    .byte 0xE5              ;efcd  e5          DATA '\xe5'
+    .word lab_efe5          ;                                    VECTOR
     .byte 0x0F              ;efce  0f          DATA '\x0f'
     .byte 0x22              ;efcf  22          DATA '"'
+
     .byte 0x22              ;efd0  22          DATA '"'
-    .byte 0xEF              ;efd1  ef          DATA '\xef'
-    .byte 0xF1              ;efd2  f1          DATA '\xf1'
+    .word lab_eff1          ;                                    VECTOR
     .byte 0x0C              ;efd3  0c          DATA '\x0c'
     .byte 0x70              ;efd4  70          DATA 'p'
+
     .byte 0x00              ;efd5  00          DATA '\x00'
-    .byte 0xEF              ;efd6  ef          DATA '\xef'
-    .byte 0xF8              ;efd7  f8          DATA '\xf8'
+    .word lab_eff8          ;                                    VECTOR
     .byte 0x70              ;efd8  70          DATA 'p'
     .byte 0x50              ;efd9  50          DATA 'P'
-    .byte 0xA8              ;efda  a8          DATA '\xa8'
-    .byte 0x0E              ;efdb  0e          DATA '\x0e'
-    .byte 0x21              ;efdc  21          DATA '!'
-    .byte 0xEF              ;efdd  ef          DATA '\xef'
-    .byte 0xE7              ;efde  e7          DATA '\xe7'
-    .byte 0xE4              ;efdf  e4          DATA '\xe4'
-    .byte 0x34              ;efe0  34          DATA '4'
-    .byte 0xCA              ;efe1  ca          DATA '\xca'
-    .byte 0xD4              ;efe2  d4          DATA '\xd4'
-    .byte 0x01              ;efe3  01          DATA '\x01'
-    .byte 0xD0              ;efe4  d0          DATA '\xd0'
-    .byte 0xA0              ;efe5  a0          DATA '\xa0'
-    .byte 0x0E              ;efe6  0e          DATA '\x0e'
-    .byte 0x06              ;efe7  06          DATA '\x06'
-    .byte 0x03              ;efe8  03          DATA '\x03'
-    .byte 0x45              ;efe9  45          DATA 'E'
-    .byte 0x2C              ;efea  2c          DATA ','
-    .byte 0x06              ;efeb  06          DATA '\x06'
-    .byte 0x04              ;efec  04          DATA '\x04'
-    .byte 0x61              ;efed  61          DATA 'a'
-    .byte 0x01              ;efee  01          DATA '\x01'
-    .byte 0xC8              ;efef  c8          DATA '\xc8'
-    .byte 0x20              ;eff0  20          DATA ' '
-    .byte 0xA8              ;eff1  a8          DATA '\xa8'
-    .byte 0x0E              ;eff2  0e          DATA '\x0e'
-    .byte 0xA9              ;eff3  a9          DATA '\xa9'
-    .byte 0x29              ;eff4  29          DATA ')'
-    .byte 0x21              ;eff5  21          DATA '!'
-    .byte 0xEF              ;eff6  ef          DATA '\xef'
-    .byte 0xEB              ;eff7  eb          DATA '\xeb'
-    .byte 0x60              ;eff8  60          DATA '`'
-    .byte 0x01              ;eff9  01          DATA '\x01'
-    .byte 0xC8              ;effa  c8          DATA '\xc8'
-    .byte 0x03              ;effb  03          DATA '\x03'
-    .byte 0xF9              ;effc  f9          DATA '\xf9'
-    .byte 0x35              ;effd  35          DATA '5'
-    .byte 0x81              ;effe  81          DATA '\x81'
-    .byte 0x60              ;efff  60          DATA '`'
 
-mem_f000:
-    .byte 0x01              ;f000  01          DATA '\x01'
-    .byte 0xD0              ;f001  d0          DATA '\xd0'
-    .byte 0x03              ;f002  03          DATA '\x03'
-    .byte 0x61              ;f003  61          DATA 'a'
-    .byte 0x01              ;f004  01          DATA '\x01'
-    .byte 0xD0              ;f005  d0          DATA '\xd0'
-    .byte 0x60              ;f006  60          DATA '`'
-    .byte 0x01              ;f007  01          DATA '\x01'
-    .byte 0xD1              ;f008  d1          DATA '\xd1'
-    .byte 0x03              ;f009  03          DATA '\x03'
-    .byte 0x61              ;f00a  61          DATA 'a'
-    .byte 0x01              ;f00b  01          DATA '\x01'
-    .byte 0xD1              ;f00c  d1          DATA '\xd1'
-    .byte 0xF9              ;f00d  f9          DATA '\xf9'
-    .byte 0x1C              ;f00e  1c          DATA '\x1c'
-    .byte 0x85              ;f00f  85          DATA '\x85'
-    .byte 0x2C              ;f010  2c          DATA ','
-    .byte 0x0F              ;f011  0f          DATA '\x0f'
-    .byte 0xA8              ;f012  a8          DATA '\xa8'
-    .byte 0x0E              ;f013  0e          DATA '\x0e'
-    .byte 0x60              ;f014  60          DATA '`'
-    .byte 0x01              ;f015  01          DATA '\x01'
-    .byte 0xC8              ;f016  c8          DATA '\xc8'
-    .byte 0xC0              ;f017  c0          DATA '\xc0'
-    .byte 0x61              ;f018  61          DATA 'a'
-    .byte 0x01              ;f019  01          DATA '\x01'
-    .byte 0xC8              ;f01a  c8          DATA '\xc8'
-    .byte 0x16              ;f01b  16          DATA '\x16'
-    .byte 0x03              ;f01c  03          DATA '\x03'
-    .byte 0xFC              ;f01d  fc          DATA '\xfc'
-    .byte 0x0B              ;f01e  0b          DATA '\x0b'
-    .byte 0x85              ;f01f  85          DATA '\x85'
-    .byte 0x2C              ;f020  2c          DATA ','
-    .byte 0x0F              ;f021  0f          DATA '\x0f'
-    .byte 0xA0              ;f022  a0          DATA '\xa0'
-    .byte 0x0E              ;f023  0e          DATA '\x0e'
-    .byte 0xC4              ;f024  c4          DATA '\xc4'
-    .byte 0x01              ;f025  01          DATA '\x01'
-    .byte 0xC9              ;f026  c9          DATA '\xc9'
-    .byte 0xD4              ;f027  d4          DATA '\xd4'
-    .byte 0x01              ;f028  01          DATA '\x01'
-    .byte 0xD0              ;f029  d0          DATA '\xd0'
-    .byte 0x20              ;f02a  20          DATA ' '
-    .byte 0x85              ;f02b  85          DATA '\x85'
-    .byte 0x2C              ;f02c  2c          DATA ','
-    .byte 0x32              ;f02d  32          DATA '2'
-    .byte 0xA8              ;f02e  a8          DATA '\xa8'
-    .byte 0x0E              ;f02f  0e          DATA '\x0e'
-    .byte 0x21              ;f030  21          DATA '!'
-    .byte 0xF0              ;f031  f0          DATA '\xf0'
-    .byte 0x14              ;f032  14          DATA '\x14'
-    .byte 0x85              ;f033  85          DATA '\x85'
-    .byte 0x2C              ;f034  2c          DATA ','
-    .byte 0x0F              ;f035  0f          DATA '\x0f'
-    .byte 0xA0              ;f036  a0          DATA '\xa0'
-    .byte 0x0E              ;f037  0e          DATA '\x0e'
-    .byte 0x21              ;f038  21          DATA '!'
-    .byte 0xF0              ;f039  f0          DATA '\xf0'
-    .byte 0x14              ;f03a  14          DATA '\x14'
+lab_efda:
+    setb pdr4:0             ;efda  a8 0e        CD_DATA_OUT
+    jmp lab_efe7            ;efdc  21 ef e7
+
+lab_efdf:
+    movw a, #0x34ca         ;efdf  e4 34 ca
+    movw mem_01d0, a        ;efe2  d4 01 d0
+
+lab_efe5:
+    clrb pdr4:0             ;efe5  a0 0e        CD_DATA_OUT
+
+lab_efe7:
+    mov a, @ix+0x03         ;efe7  06 03
+    mov comr1, a            ;efe9  45 2c
+
+lab_efeb:
+    mov a, @ix+0x04         ;efeb  06 04
+    mov mem_01c8, a         ;efed  61 01 c8
+    ret                     ;eff0  20
+
+lab_eff1:
+    setb pdr4:0             ;eff1  a8 0e        CD_DATA_OUT
+    setb cntr2:1            ;eff3  a9 29
+    jmp lab_efeb            ;eff5  21 ef eb
+
+lab_eff8:
+    mov a, mem_01c8         ;eff8  60 01 c8
+    rorc a                  ;effb  03
+    blo lab_f033            ;effc  f9 35
+    clrc                    ;effe  81
+    mov a, mem_01d0         ;efff  60 01 d0
+    rorc a                  ;f002  03
+    mov mem_01d0, a         ;f003  61 01 d0
+    mov a, mem_01d1         ;f006  60 01 d1
+    rorc a                  ;f009  03
+    mov mem_01d1, a         ;f00a  61 01 d1
+    blo lab_f02b            ;f00d  f9 1c
+    mov comr1, #0x0f        ;f00f  85 2c 0f
+    setb pdr4:0             ;f012  a8 0e        CD_DATA_OUT
+
+lab_f014:
+    mov a, mem_01c8         ;f014  60 01 c8
+    incw a                  ;f017  c0
+    mov mem_01c8, a         ;f018  61 01 c8
+    cmp a, @ix+0x03         ;f01b  16 03
+    bne lab_f02a            ;f01d  fc 0b
+    mov comr1, #0x0f        ;f01f  85 2c 0f
+    clrb pdr4:0             ;f022  a0 0e        CD_DATA_OUT
+    movw a, mem_01c9        ;f024  c4 01 c9
+    movw mem_01d0, a        ;f027  d4 01 d0
+
+lab_f02a:
+    ret                     ;f02a  20
+
+lab_f02b:
+    mov comr1, #0x32        ;f02b  85 2c 32
+    setb pdr4:0             ;f02e  a8 0e        CD_DATA_OUT
+    jmp lab_f014            ;f030  21 f0 14
+
+lab_f033:
+    mov comr1, #0x0f        ;f033  85 2c 0f
+    clrb pdr4:0             ;f036  a0 0e        CD_DATA_OUT
+    jmp lab_f014            ;f038  21 f0 14
 
 sub_f03b:
     bbc mem_0099:7, lab_f045 ;f03b  b7 99 07
@@ -20430,7 +20430,7 @@ lab_f075:
     ret                     ;f07e  20
 
 lab_f07f:
-    bbc pdr2:4, lab_f0a1    ;f07f  b4 04 1f
+    bbc pdr2:4, lab_f0a1    ;f07f  b4 04 1f     branch if audio muted
     mov a, mem_00e8         ;f082  05 e8
     and a, #0x20            ;f084  64 20
     beq lab_f06c            ;f086  fd e4
@@ -22295,7 +22295,7 @@ sub_fa5d:
     bne lab_fa98            ;fa60  fc 36
     mov a, mem_00b1         ;fa62  05 b1
     bne lab_fa98            ;fa64  fc 32
-    bbs pdr2:4, lab_fa6f    ;fa66  bc 04 06
+    bbs pdr2:4, lab_fa6f    ;fa66  bc 04 06     branch if audio not muted
     mov a, mem_00e9         ;fa69  05 e9
     cmp a, #0xf7            ;fa6b  14 f7
     bne lab_fa98            ;fa6d  fc 29
@@ -22411,7 +22411,7 @@ sub_fb1f:
 
 lab_fb22:
     setc                    ;fb22  91
-    bbc pdr6:0, lab_fb27    ;fb23  b0 11 01
+    bbc pdr6:0, lab_fb27    ;fb23  b0 11 01     /VOLUME_IN
     clrc                    ;fb26  81
 
 lab_fb27:
@@ -22500,15 +22500,15 @@ lab_fb95:
     jmp lab_fb82            ;fba0  21 fb 82
 
 sub_fba3:
-    clrb pdr1:5             ;fba3  a5 02
-    clrb pdr1:3             ;fba5  a3 02
-    clrb pdr1:4             ;fba7  a4 02
+    clrb pdr1:5             ;fba3  a5 02        EQ_CE
+    clrb pdr1:3             ;fba5  a3 02        /EQ_BOSE_CLOCK
+    clrb pdr1:4             ;fba7  a4 02        EQ_BOSE_DATA
     mov mem_00a1, #0x61     ;fba9  85 a1 61
     mov mem_00a2, #0x08     ;fbac  85 a2 08
     call sub_fbdf           ;fbaf  31 fb df
     inc r0                  ;fbb2  c8
     dec r0                  ;fbb3  d8
-    setb pdr1:5             ;fbb4  ad 02
+    setb pdr1:5             ;fbb4  ad 02        EQ_CE
     inc r0                  ;fbb6  c8
     dec r0                  ;fbb7  d8
     mov a, mem_009e         ;fbb8  05 9e
@@ -22525,9 +22525,9 @@ sub_fba3:
     call sub_fbdf           ;fbd3  31 fb df
     inc r0                  ;fbd6  c8
     dec r0                  ;fbd7  d8
-    clrb pdr1:5             ;fbd8  a5 02
-    clrb pdr1:3             ;fbda  a3 02
-    clrb pdr1:4             ;fbdc  a4 02
+    clrb pdr1:5             ;fbd8  a5 02        EQ_CE
+    clrb pdr1:3             ;fbda  a3 02        /EQ_BOSE_CLOCK
+    clrb pdr1:4             ;fbdc  a4 02        EQ_BOSE_DATA
     ret                     ;fbde  20
 
 sub_fbdf:
@@ -22536,19 +22536,19 @@ sub_fbdf:
     rorc a                  ;fbe2  03
     mov mem_00a1, a         ;fbe3  45 a1
     bhs lab_fbec            ;fbe5  f8 05
-    setb pdr1:4             ;fbe7  ac 02
+    setb pdr1:4             ;fbe7  ac 02        EQ_BOSE_DATA
     jmp lab_fbf0            ;fbe9  21 fb f0
 
 lab_fbec:
-    clrb pdr1:4             ;fbec  a4 02
+    clrb pdr1:4             ;fbec  a4 02        EQ_BOSE_DATA
     incw a                  ;fbee  c0
     decw a                  ;fbef  d0
 
 lab_fbf0:
-    setb pdr1:3             ;fbf0  ab 02
+    setb pdr1:3             ;fbf0  ab 02        /EQ_BOSE_CLOCK
     incw a                  ;fbf2  c0
     decw a                  ;fbf3  d0
-    clrb pdr1:3             ;fbf4  a3 02
+    clrb pdr1:3             ;fbf4  a3 02        /EQ_BOSE_CLOCK
     mov a, mem_00a2         ;fbf6  05 a2
     decw a                  ;fbf8  d0
     mov mem_00a2, a         ;fbf9  45 a2
@@ -23035,25 +23035,26 @@ mem_fdef:
 mem_fe00:
 ;mem_00ae case table
 ;maybe kwp block title jump table?
-    .word lab_8b64          ;fe00  8b 64       VECTOR   0x00
-    .word lab_8b64          ;fe02  8b 64       VECTOR   0x01
-    .word lab_8b64          ;fe04  8b 64       VECTOR   0x02
-    .word lab_8b16          ;fe06  8b 16       VECTOR   0x03
-    .word lab_8b64          ;fe08  8b 64       VECTOR   0x04
-    .word lab_8b64          ;fe0a  8b 64       VECTOR   0x05
-    .word lab_8b64          ;fe0c  8b 64       VECTOR   0x06
-    .word lab_8aad          ;fe0e  8a ad       VECTOR   0x07
-    .word lab_8749          ;fe10  87 49       VECTOR   0x08
-    .word lab_87d8          ;fe12  87 d8       VECTOR   0x09
-    .word sub_895a          ;fe14  89 5a       VECTOR   0x10
-    .word lab_8b1d          ;fe16  8b 1d       VECTOR   0x11
+;maybe key codes (too long though?)
+    .word lab_8b64          ;fe00  8b 64       VECTOR   0x00 1
+    .word lab_8b64          ;fe02  8b 64       VECTOR   0x01 2
+    .word lab_8b64          ;fe04  8b 64       VECTOR   0x02 3
+    .word lab_8b16          ;fe06  8b 16       VECTOR   0x03 bass
+    .word lab_8b64          ;fe08  8b 64       VECTOR   0x04 4
+    .word lab_8b64          ;fe0a  8b 64       VECTOR   0x05 5
+    .word lab_8b64          ;fe0c  8b 64       VECTOR   0x06 6
+    .word lab_8aad          ;fe0e  8a ad       VECTOR   0x07 treb
+    .word lab_8749          ;fe10  87 49       VECTOR   0x08 fm
+    .word lab_87d8          ;fe12  87 d8       VECTOR   0x09 am
+    .word sub_895a          ;fe14  89 5a       VECTOR   0x10 tune up
+    .word lab_8b1d          ;fe16  8b 1d       VECTOR   0x11 bal
     .word lab_8820          ;fe18  88 20       VECTOR   0x12
     .word lab_8861          ;fe1a  88 61       VECTOR   0x13
     .word sub_89c3          ;fe1c  89 c3       VECTOR   0x14
     .word lab_8b4b          ;fe1e  8b 4b       VECTOR   0x15
     .word lab_8a85          ;fe20  8a 85       VECTOR   0x16
     .word lab_8a85          ;fe22  8a 85       VECTOR   0x17
-    .word lab_8a8c          ;fe24  8a 8c       VECTOR   0x18 login maybe?
+    .word lab_8a8c          ;fe24  8a 8c       VECTOR   0x18
     .word sub_88bd          ;fe26  88 bd       VECTOR   0x19
     .word lab_8a5f          ;fe28  8a 5f       VECTOR   0x1a
     .word lab_8aa7          ;fe2a  8a a7       VECTOR   0x1b
@@ -23070,82 +23071,65 @@ mem_fe00:
     .word lab_8c76          ;fe40  8c 76       VECTOR   0x26
 
 mem_fe42:
+;key codes?
 ;another mem_00ae case table
-    .word lab_8bde          ;fe42  8b de       VECTOR
-    .word lab_8bde          ;fe44  8b de       VECTOR
-    .word lab_8bde          ;fe46  8b de       VECTOR
-    .word lab_8b17          ;fe48  8b 17       VECTOR
-    .word lab_8bde          ;fe4a  8b de       VECTOR
-    .word lab_8bde          ;fe4c  8b de       VECTOR
-    .word lab_8bde          ;fe4e  8b de       VECTOR
-    .word lab_8ab0          ;fe50  8a b0       VECTOR
-    .word lab_8b52          ;fe52  8b 52       VECTOR
-    .word lab_8b52          ;fe54  8b 52       VECTOR
-    .word sub_89cc          ;fe56  89 cc       VECTOR
-    .word lab_8b3d          ;fe58  8b 3d       VECTOR
-    .word lab_8b52          ;fe5a  8b 52       VECTOR
-    .word lab_8b52          ;fe5c  8b 52       VECTOR
-    .word sub_89cc          ;fe5e  89 cc       VECTOR
-    .word lab_8b4c          ;fe60  8b 4c       VECTOR
-    .word lab_8a86          ;fe62  8a 86       VECTOR
-    .word lab_8a6b          ;fe64  8a 6b       VECTOR
-    .word lab_8a90          ;fe66  8a 90       VECTOR
-    .word sub_893c          ;fe68  89 3c       VECTOR
-    .word lab_8b52          ;fe6a  8b 52       VECTOR
-    .word lab_8b52          ;fe6c  8b 52       VECTOR
-    .word lab_8a0d          ;fe6e  8a 0d       VECTOR
-    .word sub_893c          ;fe70  89 3c       VECTOR
-    .word lab_8bfe          ;fe72  8b fe       VECTOR
-    .word lab_8bfc          ;fe74  8b fc       VECTOR
-    .word lab_8c76          ;fe76  8c 76       VECTOR
-    .word lab_8c76          ;fe78  8c 76       VECTOR
-    .word lab_8b52          ;fe7a  8b 52       VECTOR
-    .word lab_8b52          ;fe7c  8b 52       VECTOR
-    .word lab_8c61          ;fe7e  8c 61       VECTOR
-    .word lab_8c61          ;fe80  8c 61       VECTOR
-    .word lab_8c76          ;fe82  8c 76       VECTOR
+    .word lab_8bde          ;fe42  8b de       VECTOR   0x00 Preset 6
+    .word lab_8bde          ;fe44  8b de       VECTOR   0x01 Preset 5
+    .word lab_8bde          ;fe46  8b de       VECTOR   0x02 Preset 4
+    .word lab_8b17          ;fe48  8b 17       VECTOR   0x03 Bass
+    .word lab_8bde          ;fe4a  8b de       VECTOR   0x04 Preset 3
+    .word lab_8bde          ;fe4c  8b de       VECTOR   0x05 Preset 2
+    .word lab_8bde          ;fe4e  8b de       VECTOR   0x06 Preset 1
+    .word lab_8ab0          ;fe50  8a b0       VECTOR   0x07 Treb
+    .word lab_8b52          ;fe52  8b 52       VECTOR   0x08 FM
+    .word lab_8b52          ;fe54  8b 52       VECTOR   0x09 AM
+    .word sub_89cc          ;fe56  89 cc       VECTOR   0x0a Tune Up
+    .word lab_8b3d          ;fe58  8b 3d       VECTOR   0x0b Bal
+    .word lab_8b52          ;fe5a  8b 52       VECTOR   0x0c CD
+    .word lab_8b52          ;fe5c  8b 52       VECTOR   0x0d Tape
+    .word sub_89cc          ;fe5e  89 cc       VECTOR   0x0e Tune Down
+    .word lab_8b4c          ;fe60  8b 4c       VECTOR   0x0f Fade
+    .word lab_8a86          ;fe62  8a 86       VECTOR   0x10 ?
+    .word lab_8a6b          ;fe64  8a 6b       VECTOR   0x11 ?
+    .word lab_8a90          ;fe66  8a 90       VECTOR   0x12 Tape Side
+    .word sub_893c          ;fe68  89 3c       VECTOR   0x13 Seek Up
+    .word lab_8b52          ;fe6a  8b 52       VECTOR   0x14 Mix/Dolby
+    .word lab_8b52          ;fe6c  8b 52       VECTOR   0x15 ?
+    .word lab_8a0d          ;fe6e  8a 0d       VECTOR   0x16 Scan
+    .word sub_893c          ;fe70  89 3c       VECTOR   0x17 Seek Down
+    .word lab_8bfe          ;fe72  8b fe       VECTOR   0x18 ?
+    .word lab_8bfc          ;fe74  8b fc       VECTOR   0x19 ?
+    .word lab_8c76          ;fe76  8c 76       VECTOR   0x1a ? unused?
+    .word lab_8c76          ;fe78  8c 76       VECTOR   0x1b ? unused?
+    .word lab_8b52          ;fe7a  8b 52       VECTOR   0x1c MFSW:41E850AF VOL DOWN
+    .word lab_8b52          ;fe7c  8b 52       VECTOR   0x1d MFSW:41E8807F VOL UP
+    .word lab_8c61          ;fe7e  8c 61       VECTOR   0x1e MFSW:41E850AF DOWN
+    .word lab_8c61          ;fe80  8c 61       VECTOR   0x1f MFSW:41E8D02F UP
+    .word lab_8c76          ;fe82  8c 76       VECTOR   0x20   unused?
 
 mem_fe84:
-    .byte 0x01              ;fe84  01          DATA '\x01'
-    .byte 0xA6              ;fe85  a6          DATA '\xa6'
-    .byte 0x01              ;fe86  01          DATA '\x01'
-    .byte 0xA7              ;fe87  a7          DATA '\xa7'
-    .byte 0x01              ;fe88  01          DATA '\x01'
-    .byte 0xA8              ;fe89  a8          DATA '\xa8'
-    .byte 0x01              ;fe8a  01          DATA '\x01'
-    .byte 0xA9              ;fe8b  a9          DATA '\xa9'
-    .byte 0x01              ;fe8c  01          DATA '\x01'
-    .byte 0xAA              ;fe8d  aa          DATA '\xaa'
-    .byte 0x01              ;fe8e  01          DATA '\x01'
-    .byte 0xAB              ;fe8f  ab          DATA '\xab'
+    .word 0x01a6
+    .word 0x01a7
+    .word 0x01a8
+    .word 0x01a9
+    .word 0x01aa
+    .word 0x01ab
 
 mem_fe90:
-    .byte 0x01              ;fe90  01          DATA '\x01'
-    .byte 0xAD              ;fe91  ad          DATA '\xad'
-    .byte 0x01              ;fe92  01          DATA '\x01'
-    .byte 0xAE              ;fe93  ae          DATA '\xae'
-    .byte 0x01              ;fe94  01          DATA '\x01'
-    .byte 0xAF              ;fe95  af          DATA '\xaf'
-    .byte 0x01              ;fe96  01          DATA '\x01'
-    .byte 0xB0              ;fe97  b0          DATA '\xb0'
-    .byte 0x01              ;fe98  01          DATA '\x01'
-    .byte 0xB1              ;fe99  b1          DATA '\xb1'
-    .byte 0x01              ;fe9a  01          DATA '\x01'
-    .byte 0xB2              ;fe9b  b2          DATA '\xb2'
+    .word 0x01ad
+    .word 0x01ae
+    .word 0x01af
+    .word 0x01b0
+    .word 0x01b1
+    .word 0x01b2
 
 mem_fe9c:
-    .byte 0x01              ;fe9c  01          DATA '\x01'
-    .byte 0xB4              ;fe9d  b4          DATA '\xb4'
-    .byte 0x01              ;fe9e  01          DATA '\x01'
-    .byte 0xB5              ;fe9f  b5          DATA '\xb5'
-    .byte 0x01              ;fea0  01          DATA '\x01'
-    .byte 0xB6              ;fea1  b6          DATA '\xb6'
-    .byte 0x01              ;fea2  01          DATA '\x01'
-    .byte 0xB7              ;fea3  b7          DATA '\xb7'
-    .byte 0x01              ;fea4  01          DATA '\x01'
-    .byte 0xB8              ;fea5  b8          DATA '\xb8'
-    .byte 0x01              ;fea6  01          DATA '\x01'
-    .byte 0xB9              ;fea7  b9          DATA '\xb9'
+    .word 0x1b4
+    .word 0x1b5
+    .word 0x1b6
+    .word 0x1b7
+    .word 0x1b8
+    .word 0x1b9
 
 mem_fea8:
     .byte 0x00              ;fea8  00          DATA '\x00'
@@ -23413,6 +23397,7 @@ mem_ff63:
     .byte 0x00              ;ff90  00          DATA '\x00'
     .byte 0x01              ;ff91  01          DATA '\x01'
     .byte 0x03              ;ff92  03          DATA '\x03'
+
     .byte 0xFF              ;ff93  ff          DATA '\xff'
     .byte 0xFF              ;ff94  ff          DATA '\xff'
     .byte 0xFF              ;ff95  ff          DATA '\xff'
