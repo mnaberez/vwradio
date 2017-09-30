@@ -68,7 +68,7 @@ def display_command(command):
         att1_db = att1_to_db[att1_code]
 
         att2_code = int(b[7:9], 2)
-        att2_db = att2_to_db[int(b[7:9], 2)]
+        att2_db = att2_to_db[att2_code]
 
         att_sum_db = att1_db + att2_db
 
