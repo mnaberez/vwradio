@@ -1498,11 +1498,11 @@ sub_85c5:
     xor a                   ;85cf  52
     bne lab_85ff            ;85d0  fc 2d
     mov a, mem_00ae         ;85d2  05 ae
-    cmp a, #0x1c            ;85d4  14 1c
+    cmp a, #0x1c            ;85d4  14 1c    0x1c = mfsw vol down key
     beq lab_85e6            ;85d6  fd 0e
-    cmp a, #0x1d            ;85d8  14 1d
+    cmp a, #0x1d            ;85d8  14 1d    0x1d = mfsw vol up key
     beq lab_85e6            ;85da  fd 0a
-    cmp a, #0x20            ;85dc  14 20
+    cmp a, #0x20            ;85dc  14 20    0x20 = no key?
     beq lab_85e5            ;85de  fd 05
     mov a, #0x3c            ;85e0  04 3c
     mov mem_02fa, a         ;85e2  61 02 fa
@@ -1548,7 +1548,7 @@ lab_8616:
 
 lab_8620:
     mov a, mem_00ae         ;8620  05 ae
-    cmp a, #0x20            ;8622  14 20
+    cmp a, #0x20            ;8622  14 20        0x20 = no key?
     bne lab_8629            ;8624  fc 03
     jmp lab_8636            ;8626  21 86 36
 
@@ -1585,7 +1585,7 @@ lab_8654:
     mov mem_00ae, a         ;8659  45 ae
     bbc mem_00e3:7, lab_866a ;865b  b7 e3 0c
     bbc mem_00e3:6, lab_8666 ;865e  b6 e3 05
-    cmp mem_00ae, #0x18     ;8661  95 ae 18     TODO could this be key initial?
+    cmp mem_00ae, #0x18     ;8661  95 ae 18     0x18 = no code key
     beq lab_8689            ;8664  fd 23
 
 lab_8666:
@@ -1596,7 +1596,7 @@ lab_866a:
     cmp mem_0096, #0x02     ;866a  95 96 02
     bne lab_867a            ;866d  fc 0b
     mov a, mem_00ae         ;866f  05 ae
-    cmp a, #0x12            ;8671  14 12       TODO could this be key tape side?
+    cmp a, #0x12            ;8671  14 12       0x12 = tape side key
     beq lab_8689            ;8673  fd 14
     movw ix, #mem_868e      ;8675  e6 86 8e
     bne lab_8682            ;8678  fc 08       BRANCH_ALWAYS_TAKEN
@@ -1615,17 +1615,17 @@ lab_8689:
     jmp lab_86e5            ;8689  21 86 e5
 
 mem_868c:
-    .byte 0x0A              ;868c  0a          DATA '\n'    tune up
-    .byte 0x13              ;868d  13          DATA '\x13'  seek up
+    .byte 0x0A              ;868c  0a          DATA '\n'    0x0a = tune up key
+    .byte 0x13              ;868d  13          DATA '\x13'  0x0b = seek up key
 
 mem_868e:
-    .byte 0x19              ;868e  19          DATA '\x19'  todo what key is this?
+    .byte 0x19              ;868e  19          DATA '\x19'  0x19 = initial key
 
 mem_868f:
-    .byte 0x02              ;868f  02          DATA '\x02'  preset 4
-    .byte 0x04              ;8690  04          DATA '\x04'  preset 3
-    .byte 0x05              ;8691  05          DATA '\x05'  preset 2
-    .byte 0x06              ;8692  06          DATA '\x06'  preset 1
+    .byte 0x02              ;868f  02          DATA '\x02'  0x02 = preset 4 key
+    .byte 0x04              ;8690  04          DATA '\x04'  0x04 = preset 3 key
+    .byte 0x05              ;8691  05          DATA '\x05'  0x05 = preset 2 key
+    .byte 0x06              ;8692  06          DATA '\x06'  0x06 = preset 1 key
     .byte 0xFF              ;8693  ff          DATA '\xff'
 
 lab_8694:
@@ -1665,9 +1665,9 @@ lab_86b3:
     cmp mem_0095, #0x02     ;86bf  95 95 02
     bne lab_86d4            ;86c2  fc 10
     mov a, mem_00ae         ;86c4  05 ae
-    cmp a, #0x0a            ;86c6  14 0a
+    cmp a, #0x0a            ;86c6  14 0a        0x0a = tune up key
     beq lab_86d0            ;86c8  fd 06
-    cmp a, #0x0e            ;86ca  14 0e
+    cmp a, #0x0e            ;86ca  14 0e        0x0e = tune down key
     beq lab_86d0            ;86cc  fd 02
     bne lab_86e5            ;86ce  fc 15       BRANCH_ALWAYS_TAKEN
 
@@ -1704,7 +1704,7 @@ lab_86e5:
     bne lab_8715            ;8705  fc 0e
 
 lab_8707:
-    cmp mem_00ae, #0x20     ;8707  95 ae 20
+    cmp mem_00ae, #0x20     ;8707  95 ae 20     0x20 = no key (unsure)
     beq lab_8715            ;870a  fd 09
     mov a, mem_00cb         ;870c  05 cb
     mov a, mem_00ae         ;870e  05 ae
@@ -1766,6 +1766,7 @@ mem_8737:
     .byte 0x00              ;8748  00          DATA '\x00'
 
 lab_8749:
+;mem_fe00 table case for fm
     mov a, mem_0331         ;8749  60 03 31
     bne lab_87ad            ;874c  fc 5f
     mov a, mem_02cc         ;874e  60 02 cc
@@ -1865,6 +1866,7 @@ lab_87d6:
     ret                     ;87d7  20
 
 lab_87d8:
+;mem_fe00 table case for am
     mov a, mem_0331         ;87d8  60 03 31
     bne lab_881f            ;87db  fc 42
     mov a, mem_02cc         ;87dd  60 02 cc
@@ -1912,6 +1914,7 @@ lab_881f:
     ret                     ;881f  20
 
 lab_8820:
+;mem_fe00 table case for cd
     call sub_87c5           ;8820  31 87 c5
     bhs lab_8841            ;8823  f8 1c
     cmp mem_0096, #0x0b     ;8825  95 96 0b
@@ -1963,6 +1966,7 @@ lab_885b:
     bne lab_8851            ;885f  fc f0       BRANCH_ALWAYS_TAKEN
 
 lab_8861:
+;mem_fe00 table case for tape
     mov a, mem_00cc         ;8861  05 cc
     bne lab_88b6            ;8863  fc 51
     mov a, mem_0322         ;8865  60 03 22
@@ -2019,6 +2023,7 @@ lab_88b7:
     ret                     ;88bc  20
 
 sub_88bd:
+;mem_fe00 table case for seek up
     mov mem_009e, #0x01     ;88bd  85 9e 01
 
 lab_88c0:
@@ -2111,10 +2116,12 @@ lab_8932:
     bne lab_892a            ;8934  fc f4       BRANCH_ALWAYS_TAKEN
 
 sub_8936:
+;mem_fe00 table case for seek down
     mov mem_009e, #0x00     ;8936  85 9e 00
     jmp lab_88c0            ;8939  21 88 c0
 
 sub_893c:
+;mem_fe42 table case for seek up, seek down
     mov a, mem_0096         ;893c  05 96
     cmp a, #0x0b            ;893e  14 0b
     bne lab_8945            ;8940  fc 03
@@ -2139,6 +2146,7 @@ lab_8959:
     ret                     ;8959  20
 
 sub_895a:
+;mem_fe00 table case for tune up
     cmp mem_0096, #0x03     ;895a  95 96 03
     bne lab_8963            ;895d  fc 04
     call sub_8cee           ;895f  31 8c ee
@@ -2215,12 +2223,14 @@ lab_89c2:
     ret                     ;89c2  20
 
 sub_89c3:
+;mem_fe00 table case for tune down
     callv #4                ;89c3  ec          CALLV #4 = callv4_8c84
     setb mem_00d8:3         ;89c4  ab d8
     mov mem_009e, #0x00     ;89c6  85 9e 00
     jmp lab_8969            ;89c9  21 89 69
 
 sub_89cc:
+;mem_fe42 table case for tune up, tune down
     mov a, mem_0096         ;89cc  05 96
     cmp a, #0x0b            ;89ce  14 0b
     beq lab_89e8            ;89d0  fd 16
@@ -2238,6 +2248,7 @@ lab_89e8:
     ret                     ;89e8  20
 
 lab_89e9:
+;mem_fe00 table case for scan
     bbs mem_00e4:3, lab_89fa ;89e9  bb e4 0e
     bbc mem_00de:7, lab_89fa ;89ec  b7 de 0b
     bbs mem_00de:6, lab_89fa ;89ef  be de 08
@@ -2314,6 +2325,7 @@ lab_8a5e:
     ret                     ;8a5e  20
 
 lab_8a5f:
+;mem_fe00 table case for mix/dolby
     cmp mem_0095, #0x02     ;8a5f  95 95 02
     bne lab_8a6a            ;8a62  fc 06
     callv #4                ;8a64  ec          CALLV #4 = callv4_8c84
@@ -2324,6 +2336,7 @@ lab_8a6a:
     ret                     ;8a6a  20
 
 lab_8a6b:
+;mem_fe42 table case for 0x11
     clrb mem_0099:3         ;8a6b  a3 99
     mov mem_009e, #0x0f     ;8a6d  85 9e 0f
 
@@ -2339,17 +2352,21 @@ lab_8a70:
     jmp lab_89ad            ;8a82  21 89 ad
 
 lab_8a85:
+;mem_fe00 table case for 0x10, 0x11
     ret                     ;8a85  20
 
 lab_8a86:
+;mem_fe42 table case for 0x10
     mov mem_009e, #0x10     ;8a86  85 9e 10
     jmp lab_8a70            ;8a89  21 8a 70
 
 lab_8a8c:
+;mem_fe00 table case for tape side
     call sub_8cee           ;8a8c  31 8c ee
     ret                     ;8a8f  20
 
 lab_8a90:
+;mem_fe42 table case for tape side
     bbc mem_00e4:2, lab_8a96 ;8a90  b2 e4 03
     clrb mem_00e4:2         ;8a93  a2 e4
     ret                     ;8a95  20
@@ -2366,14 +2383,17 @@ lab_8aa1:
     jmp lab_8a70            ;8aa4  21 8a 70
 
 lab_8aa7:
+;mem_fe00 table case for 0x15
     mov mem_009e, #0x13     ;8aa7  85 9e 13
     jmp lab_8a70            ;8aaa  21 8a 70
 
 lab_8aad:
+;mem_fe00 table case for treb
     setb mem_00d8:4         ;8aad  ac d8
     ret                     ;8aaf  20
 
 lab_8ab0:
+;mem_fe42 table case for treb
     mov mem_009e, #0x02     ;8ab0  85 9e 02
 
 lab_8ab3:
@@ -2440,13 +2460,16 @@ lab_8b15:
     ret                     ;8b15  20
 
 lab_8b16:
+;mem_fe00 table case for bass
     ret                     ;8b16  20
 
 lab_8b17:
+;mem_fe42 table case for bass
     mov mem_009e, #0x01     ;8b17  85 9e 01
     jmp lab_8ab3            ;8b1a  21 8a b3
 
 lab_8b1d:
+;mem_fe00 table case for bal
     cmp mem_0096, #0x0b     ;8b1d  95 96 0b
     beq lab_8b39            ;8b20  fd 17
     mov a, mem_0095         ;8b22  05 95
@@ -2473,6 +2496,7 @@ lab_8b39:
     ret                     ;8b3c  20
 
 lab_8b3d:
+;mem_fe42 table case for bal
     bbc mem_00af:6, lab_8b43 ;8b3d  b6 af 03
     clrb mem_00af:6         ;8b40  a6 af
     ret                     ;8b42  20
@@ -2483,13 +2507,16 @@ lab_8b43:
     jmp lab_8ab3            ;8b48  21 8a b3
 
 lab_8b4b:
+;mem_fe00 table case for fade
     ret                     ;8b4b  20
 
 lab_8b4c:
+;mem_fe42 table case for fade
     mov mem_009e, #0x04     ;8b4c  85 9e 04
     jmp lab_8ab3            ;8b4f  21 8a b3
 
 lab_8b52:
+;mem_fe42 table case for fm, am, cd, tape, mix/dolby, 0x15, mfsw vol up, mfsw vol down
     clrb mem_0099:3         ;8b52  a3 99
     mov a, #0x20            ;8b54  04 20
     mov mem_0205, a         ;8b56  61 02 05
@@ -2500,6 +2527,7 @@ lab_8b52:
     ret                     ;8b63  20
 
 lab_8b64:
+;mem_fe00 table case presets 1-6
     mov a, mem_0096         ;8b64  05 96
     cmp a, #0x02            ;8b66  14 02
     beq lab_8b78            ;8b68  fd 0e
@@ -2524,11 +2552,11 @@ lab_8b82:
 
 lab_8b8a:
     mov a, mem_00ae         ;8b8a  05 ae
-    cmp a, #0x00            ;8b8c  14 00
+    cmp a, #0x00            ;8b8c  14 00    preset 6 key
     beq lab_8b82            ;8b8e  fd f2
-    cmp a, #0x04            ;8b90  14 04
+    cmp a, #0x04            ;8b90  14 04    preset 4 key
     beq lab_8b82            ;8b92  fd ee
-    cmp a, #0x06            ;8b94  14 06
+    cmp a, #0x06            ;8b94  14 06    preset 1 key
     beq lab_8b82            ;8b96  fd ea
 
 lab_8b98:
@@ -2592,6 +2620,7 @@ mem_8bd0:
     .byte 0x00              ;8bdd  00          DATA '\x00'
 
 lab_8bde:
+;mem_fe42 table case for presets 1-6
     mov a, mem_0095         ;8bde  05 95
     bne lab_8bec            ;8be0  fc 0a
     mov a, mem_0096         ;8be2  05 96
@@ -2609,20 +2638,25 @@ lab_8bed:
     ret                     ;8bf5  20
 
 lab_8bf6:
+;mem_fe00 table case for initial
     setb mem_00b2:1         ;8bf6  a9 b2
 
 lab_8bf8:
+;mem_fe00 table case for no code
     call sub_8ce9           ;8bf8  31 8c e9
     ret                     ;8bfb  20
 
 lab_8bfc:
+;mem_fe42 table case for initial
     clrb mem_00b2:1         ;8bfc  a1 b2
 
 lab_8bfe:
+;mem_fe42 table case for no code
     clrb mem_0099:3         ;8bfe  a3 99
     ret                     ;8c00  20
 
 lab_8c01:
+;mem_fe00 table case for mfsw vol down
     bbs pdr2:4, lab_8c0a    ;8c01  bc 04 06     branch if audio not muted
     mov a, mem_00e9         ;8c04  05 e9
     cmp a, #0xf7            ;8c06  14 f7
@@ -2633,6 +2667,7 @@ lab_8c0a:
     jmp lab_8c1a            ;8c0c  21 8c 1a
 
 lab_8c0f:
+;mem_fe00 table case for mfsw vol up
     bbs pdr2:4, lab_8c18    ;8c0f  bc 04 06     branch if audio not muted
     mov a, mem_00e9         ;8c12  05 e9
     cmp a, #0xf7            ;8c14  14 f7
@@ -2664,6 +2699,7 @@ lab_8c36:
     ret                     ;8c36  20
 
 lab_8c37:
+;mem_fe00 table case for up
     mov a, mem_0095         ;8c37  05 95
     beq lab_8c44            ;8c39  fd 09
     cmp a, #0x01            ;8c3b  14 01
@@ -2681,6 +2717,7 @@ lab_8c48:
     ret                     ;8c4b  20
 
 lab_8c4c:
+;mem_fe00 table case for down
     mov a, mem_0095         ;8c4c  05 95
     beq lab_8c59            ;8c4e  fd 09
     cmp a, #0x01            ;8c50  14 01
@@ -2698,6 +2735,7 @@ lab_8c5d:
     ret                     ;8c60  20
 
 lab_8c61:
+;mem_fe42 table case for mfsw up, mfsw down
     mov a, mem_0095         ;8c61  05 95
     beq lab_8c6e            ;8c63  fd 09
     cmp a, #0x01            ;8c65  14 01
@@ -2715,6 +2753,8 @@ lab_8c72:
     ret                     ;8c75  20
 
 lab_8c76:
+;mem_fe00 table case for 0x1a, 0x1b, 0x20
+;mem_fe42 table case for 0x1a, 0x1b, 0x20
     clrb mem_0099:3         ;8c76  a3 99
     ret                     ;8c78  20
 
@@ -7333,26 +7373,26 @@ lab_a67a:
 
 sub_a68d:
     mov a, mem_00ae         ;a68d  05 ae
-    cmp a, #0x0b            ;a68f  14 0b
+    cmp a, #0x0b            ;a68f  14 0b    bal key
     beq lab_a6bb            ;a691  fd 28
-    cmp a, #0x16            ;a693  14 16
+    cmp a, #0x16            ;a693  14 16    scan key
     beq lab_a6e1            ;a695  fd 4a
-    cmp a, #0x12            ;a697  14 12
+    cmp a, #0x12            ;a697  14 12    tape side key
     bne lab_a69e            ;a699  fc 03
     jmp lab_a72b            ;a69b  21 a7 2b
 
 lab_a69e:
-    cmp a, #0x18            ;a69e  14 18
+    cmp a, #0x18            ;a69e  14 18    no code key
     bne lab_a6a5            ;a6a0  fc 03
     jmp lab_a73b            ;a6a2  21 a7 3b
 
 lab_a6a5:
-    cmp a, #0x19            ;a6a5  14 19
+    cmp a, #0x19            ;a6a5  14 19    initial key
     bne lab_a6ac            ;a6a7  fc 03
     jmp lab_a74d            ;a6a9  21 a7 4d
 
 lab_a6ac:
-    cmp a, #0x0a            ;a6ac  14 0a
+    cmp a, #0x0a            ;a6ac  14 0a    tune up key
     bne lab_a6b3            ;a6ae  fc 03
     jmp lab_a754            ;a6b0  21 a7 54
 
@@ -23033,46 +23073,43 @@ mem_fdef:
     .byte 0x24              ;fdff  24          DATA '$'
 
 mem_fe00:
-;mem_00ae case table
-;maybe kwp block title jump table?
-;maybe key codes (too long though?)
-    .word lab_8b64          ;fe00  8b 64       VECTOR   0x00 1
-    .word lab_8b64          ;fe02  8b 64       VECTOR   0x01 2
-    .word lab_8b64          ;fe04  8b 64       VECTOR   0x02 3
-    .word lab_8b16          ;fe06  8b 16       VECTOR   0x03 bass
-    .word lab_8b64          ;fe08  8b 64       VECTOR   0x04 4
-    .word lab_8b64          ;fe0a  8b 64       VECTOR   0x05 5
-    .word lab_8b64          ;fe0c  8b 64       VECTOR   0x06 6
-    .word lab_8aad          ;fe0e  8a ad       VECTOR   0x07 treb
-    .word lab_8749          ;fe10  87 49       VECTOR   0x08 fm
-    .word lab_87d8          ;fe12  87 d8       VECTOR   0x09 am
-    .word sub_895a          ;fe14  89 5a       VECTOR   0x10 tune up
-    .word lab_8b1d          ;fe16  8b 1d       VECTOR   0x11 bal
-    .word lab_8820          ;fe18  88 20       VECTOR   0x12
-    .word lab_8861          ;fe1a  88 61       VECTOR   0x13
-    .word sub_89c3          ;fe1c  89 c3       VECTOR   0x14
-    .word lab_8b4b          ;fe1e  8b 4b       VECTOR   0x15
-    .word lab_8a85          ;fe20  8a 85       VECTOR   0x16
-    .word lab_8a85          ;fe22  8a 85       VECTOR   0x17
-    .word lab_8a8c          ;fe24  8a 8c       VECTOR   0x18
-    .word sub_88bd          ;fe26  88 bd       VECTOR   0x19
-    .word lab_8a5f          ;fe28  8a 5f       VECTOR   0x1a
-    .word lab_8aa7          ;fe2a  8a a7       VECTOR   0x1b
-    .word lab_89e9          ;fe2c  89 e9       VECTOR   0x1c
-    .word sub_8936          ;fe2e  89 36       VECTOR   0x1d
-    .word lab_8bf8          ;fe30  8b f8       VECTOR   0x1e
-    .word lab_8bf6          ;fe32  8b f6       VECTOR   0x1f
-    .word lab_8c76          ;fe34  8c 76       VECTOR   0x20
-    .word lab_8c76          ;fe36  8c 76       VECTOR   0x21
-    .word lab_8c01          ;fe38  8c 01       VECTOR   0x22
-    .word lab_8c0f          ;fe3a  8c 0f       VECTOR   0x23
-    .word lab_8c4c          ;fe3c  8c 4c       VECTOR   0x24
-    .word lab_8c37          ;fe3e  8c 37       VECTOR   0x25
-    .word lab_8c76          ;fe40  8c 76       VECTOR   0x26
+;mem_00ae case table for key codes
+    .word lab_8b64          ;fe00  8b 64       VECTOR   0x00 Preset 6
+    .word lab_8b64          ;fe02  8b 64       VECTOR   0x01 Preset 5
+    .word lab_8b64          ;fe04  8b 64       VECTOR   0x02 Preset 4
+    .word lab_8b16          ;fe06  8b 16       VECTOR   0x03 Bass
+    .word lab_8b64          ;fe08  8b 64       VECTOR   0x04 Preset 3
+    .word lab_8b64          ;fe0a  8b 64       VECTOR   0x05 Preset 2
+    .word lab_8b64          ;fe0c  8b 64       VECTOR   0x06 Preset 1
+    .word lab_8aad          ;fe0e  8a ad       VECTOR   0x07 Treb
+    .word lab_8749          ;fe10  87 49       VECTOR   0x08 FM
+    .word lab_87d8          ;fe12  87 d8       VECTOR   0x09 AM
+    .word sub_895a          ;fe14  89 5a       VECTOR   0x0a Tune Up
+    .word lab_8b1d          ;fe16  8b 1d       VECTOR   0x0b Bal
+    .word lab_8820          ;fe18  88 20       VECTOR   0x0c CD
+    .word lab_8861          ;fe1a  88 61       VECTOR   0x0d Tape
+    .word sub_89c3          ;fe1c  89 c3       VECTOR   0x0e Tune Down
+    .word lab_8b4b          ;fe1e  8b 4b       VECTOR   0x0f Fade
+    .word lab_8a85          ;fe20  8a 85       VECTOR   0x10 ?
+    .word lab_8a85          ;fe22  8a 85       VECTOR   0x11 ?
+    .word lab_8a8c          ;fe24  8a 8c       VECTOR   0x12 Tape Side
+    .word sub_88bd          ;fe26  88 bd       VECTOR   0x13 Seek Up
+    .word lab_8a5f          ;fe28  8a 5f       VECTOR   0x14 Mix/Dolby
+    .word lab_8aa7          ;fe2a  8a a7       VECTOR   0x15 ?
+    .word lab_89e9          ;fe2c  89 e9       VECTOR   0x16 Scan
+    .word sub_8936          ;fe2e  89 36       VECTOR   0x17 Seek Down
+    .word lab_8bf8          ;fe30  8b f8       VECTOR   0x18 no code
+    .word lab_8bf6          ;fe32  8b f6       VECTOR   0x19 initial
+    .word lab_8c76          ;fe34  8c 76       VECTOR   0x1a ?
+    .word lab_8c76          ;fe36  8c 76       VECTOR   0x1b ?
+    .word lab_8c01          ;fe38  8c 01       VECTOR   0x1c MFSW:41E850AF VOL DOWN
+    .word lab_8c0f          ;fe3a  8c 0f       VECTOR   0x1d MFSW:41E8807F VOL UP
+    .word lab_8c4c          ;fe3c  8c 4c       VECTOR   0x1e MFSW:41E850AF DOWN
+    .word lab_8c37          ;fe3e  8c 37       VECTOR   0x1f MFSW:41E8D02F UP
+    .word lab_8c76          ;fe40  8c 76       VECTOR   0x20 no key?
 
 mem_fe42:
-;key codes?
-;another mem_00ae case table
+;another mem_00ae case table for key codes
     .word lab_8bde          ;fe42  8b de       VECTOR   0x00 Preset 6
     .word lab_8bde          ;fe44  8b de       VECTOR   0x01 Preset 5
     .word lab_8bde          ;fe46  8b de       VECTOR   0x02 Preset 4
@@ -23097,15 +23134,15 @@ mem_fe42:
     .word lab_8b52          ;fe6c  8b 52       VECTOR   0x15 ?
     .word lab_8a0d          ;fe6e  8a 0d       VECTOR   0x16 Scan
     .word sub_893c          ;fe70  89 3c       VECTOR   0x17 Seek Down
-    .word lab_8bfe          ;fe72  8b fe       VECTOR   0x18 ?
-    .word lab_8bfc          ;fe74  8b fc       VECTOR   0x19 ?
-    .word lab_8c76          ;fe76  8c 76       VECTOR   0x1a ? unused?
-    .word lab_8c76          ;fe78  8c 76       VECTOR   0x1b ? unused?
+    .word lab_8bfe          ;fe72  8b fe       VECTOR   0x18 no code
+    .word lab_8bfc          ;fe74  8b fc       VECTOR   0x19 initial
+    .word lab_8c76          ;fe76  8c 76       VECTOR   0x1a ?
+    .word lab_8c76          ;fe78  8c 76       VECTOR   0x1b ?
     .word lab_8b52          ;fe7a  8b 52       VECTOR   0x1c MFSW:41E850AF VOL DOWN
     .word lab_8b52          ;fe7c  8b 52       VECTOR   0x1d MFSW:41E8807F VOL UP
     .word lab_8c61          ;fe7e  8c 61       VECTOR   0x1e MFSW:41E850AF DOWN
     .word lab_8c61          ;fe80  8c 61       VECTOR   0x1f MFSW:41E8D02F UP
-    .word lab_8c76          ;fe82  8c 76       VECTOR   0x20   unused?
+    .word lab_8c76          ;fe82  8c 76       VECTOR   0x20 no key?
 
 mem_fe84:
     .word 0x01a6
