@@ -48,12 +48,12 @@ Key Codes:
     01110 (0x0e)    byte 1 bit 1    TUNE_DOWN
     01111 (0x0f)    byte 1 bit 0    SOUND_FADE
 
-    10000 (0x10)    byte 2 bit 7    ?
-    10001 (0x11)    byte 2 bit 6    ?
+    10000 (0x10)    byte 2 bit 7    BEETLE_TAPE_REW
+    10001 (0x11)    byte 2 bit 6    BEETLE_TAPE_FF
     10010 (0x12)    byte 2 bit 5    TAPE_SIDE
     10011 (0x13)    byte 2 bit 4    SEEK_UP
     10100 (0x14)    byte 2 bit 3    MIX_DOLBY
-    10101 (0x15)    byte 2 bit 2    ?
+    10101 (0x15)    byte 2 bit 2    BEETLE_DOLBY
     10110 (0x16)    byte 2 bit 1    SCAN
     10111 (0x17)    byte 2 bit 0    SEEK_DOWN
 

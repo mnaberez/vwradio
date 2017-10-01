@@ -239,13 +239,17 @@ class Premium4(Faceplate):
         # (byte, bit)
         (3, 7): Keys.HIDDEN_NO_CODE,
         (3, 6): Keys.HIDDEN_INITIAL,
+
         (3, 3): Keys.HIDDEN_VOL_DOWN,
         (3, 2): Keys.HIDDEN_VOL_UP,
         (3, 1): Keys.HIDDEN_SEEK_DOWN,
         (3, 0): Keys.HIDDEN_SEEK_UP,
-        (2, 5): Keys.TAPE_SIDE,
+        (2, 7): Keys.BEETLE_TAPE_REW,   # Beetle only
+        (2, 6): Keys.BEETLE_TAPE_FF,    # Beetle only
+        (2, 5): Keys.TAPE_SIDE,         # "PROG" on Beetle, same function
         (2, 4): Keys.SEEK_UP,
-        (2, 3): Keys.MIX_DOLBY,
+        (2, 3): Keys.MIX_DOLBY,         # "MIX" on Beetle
+        (2, 2): Keys.BEETLE_DOLBY,      # Beetle only
         (2, 1): Keys.SCAN,
         (2, 0): Keys.SEEK_DOWN,
         (1, 7): Keys.MODE_FM,
