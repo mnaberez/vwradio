@@ -10,6 +10,7 @@ transmit them even if the Main-MCU is not in the circuit.  Holding a key down
 does not seem to increase the packet rate.
 
 Format:
+
     10010000 01001000 00000000 00101010 (0x9048002a)    No key pressed
     11000011 01001000 00000000 00101010 (0xc348002a)    Preset 1 pressed
     AB  CCCC CIJ DE H G FF  F   AAAAAAA
@@ -26,38 +27,44 @@ Format:
      J = KWP1281 P04 (Pin 44)
 
 Key Codes:
-    00000 (0x00)  Preset 6
-    00001 (0x01)  Preset 5
-    00010 (0x02)  Preset 4
-    00011 (0x03)  Bass
-    00100 (0x04)  Preset 3
-    00101 (0x05)  Preset 2
-    00110 (0x06)  Preset 1
-    00111 (0x07)  Treb
-    01000 (0x08)  FM
-    01001 (0x09)  AM
-    01010 (0x0a)  Tune Up
-    01011 (0x0b)  Bal
-    01100 (0x0c)  CD
-    01101 (0x0d)  Tape
-    01110 (0x0e)  Tune Down
-    01111 (0x0f)  Fade
-    10000 (0x10)  ?
-    10001 (0x11)  ?
-    10010 (0x12)  Tape Side
-    10011 (0x13)  Seek Up
-    10100 (0x14)  Mix/Dolby
-    10101 (0x15)  ?
-    10110 (0x16)  Scan
-    10111 (0x17)  Seek Down
-    11000 (0x18)  ?
-    11001 (0x19)  ?
-    11010 (0x1a)  ?
-    11011 (0x1b)  ?
-    11100 (0x1c)  MFSW:41E850AF VOL DOWN
-    11101 (0x1d)  MFSW:41E8807F VOL UP
-    11110 (0x1e)  MFSW:41E850AF DOWN
-    11111 (0x1f)  MFSW:41E8D02F UP
+
+    Sub-MCU         uPD16432B       Description         MFSW
+    -----------     ------------    -----------         ----
+    00000 (0x00)    byte 0 bit 7    PRESET_6
+    00001 (0x01)    byte 0 bit 6    PRESET_5
+    00010 (0x02)    byte 0 bit 5    PRESET_4
+    00011 (0x03)    byte 0 bit 4    SOUND_BASS
+    00100 (0x04)    byte 0 bit 3    PRESET_3
+    00101 (0x05)    byte 0 bit 2    PRESET_2
+    00110 (0x06)    byte 0 bit 1    PRESET_1
+    00111 (0x07)    byte 0 bit 0    SOUND_TREB
+
+    01000 (0x08)    byte 1 bit 7    MODE_FM
+    01001 (0x09)    byte 1 bit 6    MODE_AM
+    01010 (0x0a)    byte 1 bit 5    TUNE_UP
+    01011 (0x0b)    byte 1 bit 4    SOUND_BAL
+    01100 (0x0c)    byte 1 bit 3    MODE_CD
+    01101 (0x0d)    byte 1 bit 2    MODE_TAPE
+    01110 (0x0e)    byte 1 bit 1    TUNE_DOWN
+    01111 (0x0f)    byte 1 bit 0    SOUND_FADE
+
+    10000 (0x10)    byte 2 bit 7    ?
+    10001 (0x11)    byte 2 bit 6    ?
+    10010 (0x12)    byte 2 bit 5    TAPE_SIDE
+    10011 (0x13)    byte 2 bit 4    SEEK_UP
+    10100 (0x14)    byte 2 bit 3    MIX_DOLBY
+    10101 (0x15)    byte 2 bit 2    ?
+    10110 (0x16)    byte 2 bit 1    SCAN
+    10111 (0x17)    byte 2 bit 0    SEEK_DOWN
+
+    11000 (0x18)    byte 3 bit 7    HIDDEN_NO_CODE
+    11001 (0x19)    byte 3 bit 6    HIDDEN_INITIAL
+    11010 (0x1a)    byte 3 bit 5    ?
+    11011 (0x1b)    byte 3 bit 4    ?
+    11100 (0x1c)    byte 3 bit 3    HIDDEN_VOL_DOWN     MFSW:41E850AF VOL DOWN
+    11101 (0x1d)    byte 3 bit 2    HIDDEN_VOL_UP       MFSW:41E8807F VOL UP
+    11110 (0x1e)    byte 3 bit 1    HIDDEN_SEEK_DOWN    MFSW:41E850AF DOWN
+    11111 (0x1f)    byte 3 bit 0    HIDDEN_SEEK_UP      MFSW:41E8D02F UP
 
 A unique 5-bit code identifies each key.  This one set of codes is used to
 indicate keys on the radio's own faceplate and also when the radio receives
