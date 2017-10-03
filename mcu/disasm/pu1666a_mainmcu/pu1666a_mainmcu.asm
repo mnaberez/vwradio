@@ -672,10 +672,10 @@ lab_804b:
 
     jmp reset_8010          ;8066  21 80 10
 
-    .byte 0x00              ;8069  00          DATA '\x00'
-    .byte 0x21              ;806a  21          DATA '!'
-    .byte 0x80              ;806b  80          DATA '\x80'
-    .byte 0x69              ;806c  69          DATA 'i'
+;XXX 8069 looks unreachable
+lab_8069:
+    nop                     ;8069  00
+    jmp lab_8069            ;806a  21 80 69
 
 irq0_806d:
 ;irq0 (external interrupt 1)
@@ -1519,7 +1519,7 @@ lab_85f8:
 
 lab_85ff:
     mov a, mem_0236         ;85ff  60 02 36
-    bbs mem_00b2:1, lab_8612 ;8602  b9 b2 0d
+    bbs mem_00b2:1, lab_8612 ;8602  b9 b2 0d    bit set means "initial"
     and a, #0x7f            ;8605  64 7f
     cmp a, #0x19            ;8607  14 19
     bne lab_8612            ;8609  fc 07
@@ -4915,8 +4915,8 @@ sub_99cb:
     mov a, #0x05            ;99cb  04 05
     bne lab_99d1            ;99cd  fc 02       BRANCH_ALWAYS_TAKEN
 
-    .byte 0x04              ;99cf  04          DATA '\x04'
-    .byte 0x03              ;99d0  03          DATA '\x03'
+    ;XXX 99cf looks unreachable
+    mov a, #0x03            ;99cf  04 03
 
 lab_99d1:
     movw a, #0x0000         ;99d1  e4 00 00
@@ -5688,7 +5688,7 @@ lab_9e5e:
     mov a, #0x00            ;9e5e  04 00
     mov mem_0308, a         ;9e60  61 03 08
     movw ix, #mem_02b6      ;9e63  e6 02 b6
-    mov @ix+0x01, #0x5b     ;9e66  86 01 5b     0x5b = 'TAPE.ERROR.'
+    mov @ix+0x01, #0x5b     ;9e66  86 01 5b     0x5b 'TAPE.ERROR.'
     mov a, #0x20            ;9e69  04 20
     mov @ix+0x00, a         ;9e6b  46 00
     ret                     ;9e6d  20
@@ -6003,8 +6003,8 @@ lab_a046:
     bne lab_a038            ;a04b  fc eb       BRANCH_ALWAYS_TAKEN
 
 mem_a04d:
-    .word lab_a06d          ;VECTOR
-    .word lab_a072          ;VECTOR
+    .word lab_a06d          ;a04d VECTOR
+    .word lab_a072          ;a04e VECTOR
 
 ;TODO appears to be jump table of jump tables
     .word lab_a12b          ;VECTOR     jump table
@@ -6610,7 +6610,7 @@ lab_a3e9:
 
 ;lab_a3e9 case 1
 lab_a3f3:
-    mov a, #0x0a            ;a3f3  04 0a        0a = clear in mem_a4a0 table
+    mov a, #0x0a            ;a3f3  04 0a
     mov mem_0201, a         ;a3f5  61 02 01
     setb mem_0098:4         ;a3f8  ac 98
     mov a, #0x1e            ;a3fa  04 1e
@@ -6710,53 +6710,53 @@ sub_a497:
 mem_a4a0:
 ;case table for mem_0201
     .word lab_a4b9          ;a4a0  a4 b9       VECTOR   0
-    .word lab_a4b6          ;a4a2  a4 b6       VECTOR   1 no code?
-    .word lab_a4ba          ;a4a4  a4 ba       VECTOR   2 code?
-    .word lab_a4c1          ;a4a6  a4 c1       VECTOR   3 initial?
-    .word lab_a4be          ;a4a8  a4 be       VECTOR   4 blank or initial?
-    .word lab_a4cc          ;a4aa  a4 cc       VECTOR   5 safe?
-    .word lab_a4c9          ;a4ac  a4 c9       VECTOR   6 blank or safe?
-    .word lab_a4d9          ;a4ae  a4 d9       VECTOR   7 blank?
-    .word lab_a4e8          ;a4b0  a4 e8       VECTOR   8 safe?
-    .word lab_a4f1          ;a4b2  a4 f1       VECTOR   9
-    .word lab_a4f5          ;a4b4  a4 f5       VECTOR   a clear?
+    .word lab_a4b6          ;a4a2  a4 b6       VECTOR   1 no code
+    .word lab_a4ba          ;a4a4  a4 ba       VECTOR   2 code
+    .word lab_a4c1          ;a4a6  a4 c1       VECTOR   3 initial
+    .word lab_a4be          ;a4a8  a4 be       VECTOR   4 blank or initial
+    .word lab_a4cc          ;a4aa  a4 cc       VECTOR   5 safe
+    .word lab_a4c9          ;a4ac  a4 c9       VECTOR   6 blank or safe
+    .word lab_a4d9          ;a4ae  a4 d9       VECTOR   7 blank
+    .word lab_a4e8          ;a4b0  a4 e8       VECTOR   8 safe
+    .word lab_a4f1          ;a4b2  a4 f1       VECTOR   9 ver
+    .word lab_a4f5          ;a4b4  a4 f5       VECTOR   a clear
 
 lab_a4b6:
-    mov @ix+0x01, #0x80     ;a4b6  86 01 80     no code?
+    mov @ix+0x01, #0x80     ;a4b6  86 01 80     0x80 '....NO.CODE'
 
 lab_a4b9:
     ret                     ;a4b9  20
 
 lab_a4ba:
-    mov @ix+0x01, #0x81     ;a4ba  86 01 81     code?
+    mov @ix+0x01, #0x81     ;a4ba  86 01 81     0x81 '.....CODE..'
     ret                     ;a4bd  20
 
 lab_a4be:
     bbs mem_00e4:0, lab_a4c5 ;a4be  b8 e4 04
 
 lab_a4c1:
-    mov @ix+0x01, #0x84     ;a4c1  86 01 84     initial?
+    mov @ix+0x01, #0x84     ;a4c1  86 01 84     0x84 '....INITIAL'
     ret                     ;a4c4  20
 
 lab_a4c5:
-    mov @ix+0x01, #0xc1     ;a4c5  86 01 c1     blank?
+    mov @ix+0x01, #0xc1     ;a4c5  86 01 c1     0xC1 '...........'
     ret                     ;a4c8  20
 
 lab_a4c9:
     bbs mem_00e4:0, lab_a4d5 ;a4c9  b8 e4 09    blank or safe?
 
 lab_a4cc:
-    mov @ix+0x01, #0x83     ;a4cc  86 01 83     safe?
+    mov @ix+0x01, #0x83     ;a4cc  86 01 83     0x83 '.....SAFE..'
     mov a, mem_020e         ;a4cf  60 02 0e
     mov @ix+0x02, a         ;a4d2  46 02
     ret                     ;a4d4  20
 
 lab_a4d5:
-    mov @ix+0x01, #0xc1     ;a4d5  86 01 c1     blank?
+    mov @ix+0x01, #0xc1     ;a4d5  86 01 c1     0xC1 '...........'
     ret                     ;a4d8  20
 
 lab_a4d9:
-    mov a, #0x82            ;a4d9  04 82        blank?
+    mov a, #0x82            ;a4d9  04 82        0x82 '...........'
     mov @ix+0x01, a         ;a4db  46 01
     mov a, mem_020e         ;a4dd  60 02 0e
     mov @ix+0x02, a         ;a4e0  46 02
@@ -6765,17 +6765,17 @@ lab_a4d9:
     ret                     ;a4e7  20
 
 lab_a4e8:
-    mov @ix+0x01, #0x86     ;a4e8  86 01 86     safe?
+    mov @ix+0x01, #0x86     ;a4e8  86 01 86     0x86 '.....SAFE..'
     mov a, mem_0208         ;a4eb  60 02 08
     mov @ix+0x02, a         ;a4ee  46 02
     ret                     ;a4f0  20
 
 lab_a4f1:
-    call sub_fd7d           ;a4f1  31 fd 7d
+    call sub_fd7d           ;a4f1  31 fd 7d     0x21 'VER........'
     ret                     ;a4f4  20
 
 lab_a4f5:
-    mov @ix+0x01, #0x87     ;a4f5  86 01 87     clear?
+    mov @ix+0x01, #0x87     ;a4f5  86 01 87     0x87 '....CLEAR..'
     ret                     ;a4f8  20
 
 sub_a4f9:
@@ -7531,14 +7531,17 @@ mem_a9fe:
     .byte 0xB3              ;a9ff  b3          DATA '\xb3'
     .byte 0x08              ;aa00  08          DATA '\x08'
     .byte 0x80              ;aa01  80          DATA '\x80'
+
     .byte 0x00              ;aa02  00          DATA '\x00'
     .byte 0xB4              ;aa03  b4          DATA '\xb4'
     .byte 0x08              ;aa04  08          DATA '\x08'
     .byte 0x80              ;aa05  80          DATA '\x80'
+
     .byte 0x00              ;aa06  00          DATA '\x00'
     .byte 0xB5              ;aa07  b5          DATA '\xb5'
     .byte 0x10              ;aa08  10          DATA '\x10'
     .byte 0x20              ;aa09  20          DATA ' '
+
     .byte 0x00              ;aa0a  00          DATA '\x00'
     .byte 0xB6              ;aa0b  b6          DATA '\xb6'
     .byte 0x08              ;aa0c  08          DATA '\x08'
@@ -8219,13 +8222,13 @@ lab_adc1:
     beq lab_add3            ;adc9  fd 08
 
 lab_adcb:
-    clrb pdr2:0             ;adcb  a0 04
+    clrb pdr2:0             ;adcb  a0 04        PHANTON_ON
     mov a, #0x14            ;adcd  04 14
     mov mem_02e1, a         ;adcf  61 02 e1
     ret                     ;add2  20
 
 lab_add3:
-    setb pdr2:0             ;add3  a8 04
+    setb pdr2:0             ;add3  a8 04        PHANTON_ON
     ret                     ;add5  20
 
 lab_add6:
@@ -10727,24 +10730,19 @@ lab_bcea:
     mov a, #0x00            ;bcea  04 00
     beq lab_bc7e            ;bcec  fd 90       BRANCH_ALWAYS_TAKEN
 
-    .byte 0x45              ;bcee  45          DATA 'E'
-    .byte 0x9F              ;bcef  9f          DATA '\x9f'
-    .byte 0x14              ;bcf0  14          DATA '\x14'
-    .byte 0x01              ;bcf1  01          DATA '\x01'
-    .byte 0xFC              ;bcf2  fc          DATA '\xfc'
-    .byte 0x09              ;bcf3  09          DATA '\t'
-    .byte 0x60              ;bcf4  60          DATA '`'
-    .byte 0x03              ;bcf5  03          DATA '\x03'
-    .byte 0x0A              ;bcf6  0a          DATA '\n'
-    .byte 0xFD              ;bcf7  fd          DATA '\xfd'
-    .byte 0x04              ;bcf8  04          DATA '\x04'
-    .byte 0x04              ;bcf9  04          DATA '\x04'
-    .byte 0x00              ;bcfa  00          DATA '\x00'
-    .byte 0x45              ;bcfb  45          DATA 'E'
-    .byte 0x9F              ;bcfc  9f          DATA '\x9f'
-    .byte 0x05              ;bcfd  05          DATA '\x05'
-    .byte 0x9F              ;bcfe  9f          DATA '\x9f'
-    .byte 0x20              ;bcff  20          DATA ' '
+;XXX bcee looks unreachable
+lab_bcee:
+    mov mem_009f, a         ;bcee  45 9f
+    cmp a, #0x01            ;bcf0  14 01
+    bne lab_bcfd            ;bcf2  fc 09
+    mov a, mem_030a         ;bcf4  60 03 0a
+    beq lab_bcfd            ;bcf7  fd 04
+    mov a, #0x00            ;bcf9  04 00
+    mov mem_009f, a         ;bcfb  45 9f
+
+lab_bcfd:
+    mov a, mem_009f         ;bcfd  05 9f
+    ret                     ;bcff  20
 
 sub_bd00:
     mov a, mem_03b5         ;bd00  60 03 b5
@@ -12165,7 +12163,7 @@ lab_c5f6:
     ret                     ;c5f6  20
 
 lab_c5f7:
-    mov a, #0xc1            ;c5f7  04 c1    blank?
+    mov a, #0xc1            ;c5f7  04 c1        0xC1  '...........'
     mov @ix+0x01, a         ;c5f9  46 01
     ret                     ;c5fb  20
 
@@ -12591,23 +12589,22 @@ mem_c813:
 
 sub_c831:
     movw ix, #mem_02b6      ;c831  e6 02 b6
-    mov a, #0xb1            ;c834  04 b1        testdisplay?
+    mov a, #0xb1            ;c834  04 b1        0xB1 'TESTDISPLAY'
     mov @ix+0x01, a         ;c836  46 01
     ret                     ;c838  20
 
 sub_c839:
-    mov a, #0xb0            ;c839  04 b0        diag?
+    mov a, #0xb0            ;c839  04 b0        0xB0 '.....DIAG..'
+
+lab_c83b:
     mov @ix+0x01, a         ;c83b  46 01
     ret                     ;c83d  20
 
-    .byte 0x04              ;c83e  04          DATA '\x04'
-    .byte 0x5A              ;c83f  5a          DATA 'Z'
-    .byte 0xFC              ;c840  fc          DATA '\xfc'
-    .byte 0xF9              ;c841  f9          DATA '\xf9'
-    .byte 0x04              ;c842  04          DATA '\x04'
-    .byte 0x58              ;c843  58          DATA 'X'
-    .byte 0xFC              ;c844  fc          DATA '\xfc'
-    .byte 0xF5              ;c845  f5          DATA '\xf5'
+    ;XXX c83e-c844 look unreachable
+    mov a, #0x5a            ;c83e  04 5a        0x5A '....NO.TAPE'
+    bne lab_c83b            ;c840  fc f9       BRANCH_ALWAYS_TAKEN
+    mov a, #0x58            ;c842  04 58        0x5B 'TAPE.ERROR.'
+    bne lab_c83b            ;c844  fc f5       BRANCH_ALWAYS_TAKEN
 
 sub_c846:
     mov a, mem_00c5         ;c846  05 c5
@@ -13334,218 +13331,272 @@ mem_cc43:
     .byte 0x00              ;cc44  00          DATA '\x00'
     .byte 0x00              ;cc45  00          DATA '\x00'
     .byte 0x00              ;cc46  00          DATA '\x00'
+
     .byte 0x00              ;cc47  00          DATA '\x00'
     .byte 0x27              ;cc48  27          DATA "'"
     .byte 0xCD              ;cc49  cd          DATA '\xcd'
     .byte 0x67              ;cc4a  67          DATA 'g'
+
     .byte 0xF0              ;cc4b  f0          DATA '\xf0'
     .byte 0x03              ;cc4c  03          DATA '\x03'
     .byte 0xCD              ;cc4d  cd          DATA '\xcd'
     .byte 0x53              ;cc4e  53          DATA 'S'
+
     .byte 0xF0              ;cc4f  f0          DATA '\xf0'
     .byte 0x04              ;cc50  04          DATA '\x04'
     .byte 0xCD              ;cc51  cd          DATA '\xcd'
     .byte 0x87              ;cc52  87          DATA '\x87'
+
     .byte 0x00              ;cc53  00          DATA '\x00'
     .byte 0x00              ;cc54  00          DATA '\x00'
     .byte 0x00              ;cc55  00          DATA '\x00'
     .byte 0x00              ;cc56  00          DATA '\x00'
+
     .byte 0x00              ;cc57  00          DATA '\x00'
     .byte 0x04              ;cc58  04          DATA '\x04'
     .byte 0xCD              ;cc59  cd          DATA '\xcd'
     .byte 0x7F              ;cc5a  7f          DATA '\x7f'
+
     .byte 0x00              ;cc5b  00          DATA '\x00'
     .byte 0x07              ;cc5c  07          DATA '\x07'
     .byte 0xCD              ;cc5d  cd          DATA '\xcd'
     .byte 0x53              ;cc5e  53          DATA 'S'
+
     .byte 0x00              ;cc5f  00          DATA '\x00'
     .byte 0x08              ;cc60  08          DATA '\x08'
     .byte 0xCD              ;cc61  cd          DATA '\xcd'
     .byte 0x87              ;cc62  87          DATA '\x87'
+
     .byte 0x00              ;cc63  00          DATA '\x00'
     .byte 0x09              ;cc64  09          DATA '\t'
     .byte 0xCD              ;cc65  cd          DATA '\xcd'
     .byte 0x3F              ;cc66  3f          DATA '?'
+
     .byte 0x00              ;cc67  00          DATA '\x00'
     .byte 0x0A              ;cc68  0a          DATA '\n'
     .byte 0xCD              ;cc69  cd          DATA '\xcd'
     .byte 0x5B              ;cc6a  5b          DATA '['
+
     .byte 0x00              ;cc6b  00          DATA '\x00'
     .byte 0x0B              ;cc6c  0b          DATA '\x0b'
     .byte 0xCD              ;cc6d  cd          DATA '\xcd'
     .byte 0x63              ;cc6e  63          DATA 'c'
+
     .byte 0x00              ;cc6f  00          DATA '\x00'
     .byte 0x0C              ;cc70  0c          DATA '\x0c'
     .byte 0xCD              ;cc71  cd          DATA '\xcd'
     .byte 0x5F              ;cc72  5f          DATA '_'
+
     .byte 0x00              ;cc73  00          DATA '\x00'
     .byte 0x30              ;cc74  30          DATA '0'
     .byte 0xCD              ;cc75  cd          DATA '\xcd'
     .byte 0x67              ;cc76  67          DATA 'g'
+
     .byte 0x00              ;cc77  00          DATA '\x00'
     .byte 0x0E              ;cc78  0e          DATA '\x0e'
     .byte 0xCD              ;cc79  cd          DATA '\xcd'
     .byte 0x43              ;cc7a  43          DATA 'C'
+
     .byte 0x00              ;cc7b  00          DATA '\x00'
     .byte 0x04              ;cc7c  04          DATA '\x04'
     .byte 0xCD              ;cc7d  cd          DATA '\xcd'
     .byte 0x47              ;cc7e  47          DATA 'G'
+
     .byte 0x00              ;cc7f  00          DATA '\x00'
     .byte 0x04              ;cc80  04          DATA '\x04'
     .byte 0xCD              ;cc81  cd          DATA '\xcd'
     .byte 0x5F              ;cc82  5f          DATA '_'
+
     .byte 0x00              ;cc83  00          DATA '\x00'
     .byte 0x13              ;cc84  13          DATA '\x13'
     .byte 0xCD              ;cc85  cd          DATA '\xcd'
     .byte 0x6F              ;cc86  6f          DATA 'o'
+
     .byte 0x00              ;cc87  00          DATA '\x00'
     .byte 0x24              ;cc88  24          DATA '$'
     .byte 0xCD              ;cc89  cd          DATA '\xcd'
     .byte 0x6F              ;cc8a  6f          DATA 'o'
+
     .byte 0x00              ;cc8b  00          DATA '\x00'
     .byte 0x0D              ;cc8c  0d          DATA '\r'
     .byte 0xCD              ;cc8d  cd          DATA '\xcd'
     .byte 0x6B              ;cc8e  6b          DATA 'k'
+
     .byte 0x00              ;cc8f  00          DATA '\x00'
     .byte 0x34              ;cc90  34          DATA '4'
     .byte 0xCD              ;cc91  cd          DATA '\xcd'
     .byte 0x7B              ;cc92  7b          DATA '{'
+
     .byte 0xF0              ;cc93  f0          DATA '\xf0'
     .byte 0x15              ;cc94  15          DATA '\x15'
     .byte 0xCD              ;cc95  cd          DATA '\xcd'
     .byte 0x3F              ;cc96  3f          DATA '?'
+
     .byte 0xF0              ;cc97  f0          DATA '\xf0'
     .byte 0x16              ;cc98  16          DATA '\x16'
     .byte 0xCD              ;cc99  cd          DATA '\xcd'
     .byte 0x5B              ;cc9a  5b          DATA '['
+
     .byte 0xF0              ;cc9b  f0          DATA '\xf0'
     .byte 0x17              ;cc9c  17          DATA '\x17'
     .byte 0xCD              ;cc9d  cd          DATA '\xcd'
     .byte 0x63              ;cc9e  63          DATA 'c'
+
     .byte 0xF0              ;cc9f  f0          DATA '\xf0'
     .byte 0x18              ;cca0  18          DATA '\x18'
     .byte 0xCD              ;cca1  cd          DATA '\xcd'
     .byte 0x5F              ;cca2  5f          DATA '_'
+
     .byte 0xF0              ;cca3  f0          DATA '\xf0'
     .byte 0x19              ;cca4  19          DATA '\x19'
     .byte 0xCD              ;cca5  cd          DATA '\xcd'
     .byte 0x67              ;cca6  67          DATA 'g'
+
     .byte 0xF0              ;cca7  f0          DATA '\xf0'
     .byte 0x1A              ;cca8  1a          DATA '\x1a'
     .byte 0xCD              ;cca9  cd          DATA '\xcd'
     .byte 0x43              ;ccaa  43          DATA 'C'
+
     .byte 0xF0              ;ccab  f0          DATA '\xf0'
     .byte 0x1B              ;ccac  1b          DATA '\x1b'
     .byte 0xCD              ;ccad  cd          DATA '\xcd'
     .byte 0x47              ;ccae  47          DATA 'G'
+
     .byte 0xF0              ;ccaf  f0          DATA '\xf0'
     .byte 0x31              ;ccb0  31          DATA '1'
     .byte 0xCD              ;ccb1  cd          DATA '\xcd'
     .byte 0x57              ;ccb2  57          DATA 'W'
+
     .byte 0xF0              ;ccb3  f0          DATA '\xf0'
     .byte 0x1D              ;ccb4  1d          DATA '\x1d'
     .byte 0xCD              ;ccb5  cd          DATA '\xcd'
     .byte 0x6F              ;ccb6  6f          DATA 'o'
+
     .byte 0xF0              ;ccb7  f0          DATA '\xf0'
     .byte 0x35              ;ccb8  35          DATA '5'
     .byte 0xCD              ;ccb9  cd          DATA '\xcd'
     .byte 0x6B              ;ccba  6b          DATA 'k'
+
     .byte 0x00              ;ccbb  00          DATA '\x00'
     .byte 0x26              ;ccbc  26          DATA '&'
     .byte 0xCD              ;ccbd  cd          DATA '\xcd'
     .byte 0x57              ;ccbe  57          DATA 'W'
+
     .byte 0x00              ;ccbf  00          DATA '\x00'
     .byte 0x04              ;ccc0  04          DATA '\x04'
     .byte 0xCD              ;ccc1  cd          DATA '\xcd'
     .byte 0x4F              ;ccc2  4f          DATA 'O'
+
     .byte 0x00              ;ccc3  00          DATA '\x00'
     .byte 0x2E              ;ccc4  2e          DATA '.'
     .byte 0xCD              ;ccc5  cd          DATA '\xcd'
     .byte 0x6B              ;ccc6  6b          DATA 'k'
+
     .byte 0x00              ;ccc7  00          DATA '\x00'
     .byte 0x04              ;ccc8  04          DATA '\x04'
     .byte 0xCD              ;ccc9  cd          DATA '\xcd'
     .byte 0x53              ;ccca  53          DATA 'S'
+
     .byte 0xF0              ;cccb  f0          DATA '\xf0'
     .byte 0x23              ;cccc  23          DATA '#'
     .byte 0xCD              ;cccd  cd          DATA '\xcd'
     .byte 0x4F              ;ccce  4f          DATA 'O'
+
     .byte 0xF0              ;cccf  f0          DATA '\xf0'
     .byte 0x2A              ;ccd0  2a          DATA '*'
     .byte 0xCD              ;ccd1  cd          DATA '\xcd'
     .byte 0x7B              ;ccd2  7b          DATA '{'
+
     .byte 0x00              ;ccd3  00          DATA '\x00'
     .byte 0x28              ;ccd4  28          DATA '('
     .byte 0xCD              ;ccd5  cd          DATA '\xcd'
     .byte 0x7B              ;ccd6  7b          DATA '{'
+
     .byte 0xF0              ;ccd7  f0          DATA '\xf0'
     .byte 0x04              ;ccd8  04          DATA '\x04'
     .byte 0xCD              ;ccd9  cd          DATA '\xcd'
     .byte 0x4B              ;ccda  4b          DATA 'K'
+
     .byte 0x00              ;ccdb  00          DATA '\x00'
     .byte 0x27              ;ccdc  27          DATA "'"
     .byte 0xCD              ;ccdd  cd          DATA '\xcd'
     .byte 0x43              ;ccde  43          DATA 'C'
+
     .byte 0x00              ;ccdf  00          DATA '\x00'
     .byte 0x04              ;cce0  04          DATA '\x04'
     .byte 0xCD              ;cce1  cd          DATA '\xcd'
     .byte 0x4B              ;cce2  4b          DATA 'K'
+
     .byte 0x00              ;cce3  00          DATA '\x00'
     .byte 0x12              ;cce4  12          DATA '\x12'
     .byte 0xCD              ;cce5  cd          DATA '\xcd'
     .byte 0x77              ;cce6  77          DATA 'w'
+
     .byte 0x00              ;cce7  00          DATA '\x00'
     .byte 0x04              ;cce8  04          DATA '\x04'
     .byte 0xCD              ;cce9  cd          DATA '\xcd'
     .byte 0x77              ;ccea  77          DATA 'w'
+
     .byte 0xF0              ;cceb  f0          DATA '\xf0'
     .byte 0x25              ;ccec  25          DATA '%'
     .byte 0xCD              ;cced  cd          DATA '\xcd'
     .byte 0x77              ;ccee  77          DATA 'w'
+
     .byte 0x00              ;ccef  00          DATA '\x00'
     .byte 0x2C              ;ccf0  2c          DATA ','
     .byte 0xCD              ;ccf1  cd          DATA '\xcd'
     .byte 0x8B              ;ccf2  8b          DATA '\x8b'
+
     .byte 0xF0              ;ccf3  f0          DATA '\xf0'
     .byte 0x04              ;ccf4  04          DATA '\x04'
     .byte 0xCD              ;ccf5  cd          DATA '\xcd'
     .byte 0x8B              ;ccf6  8b          DATA '\x8b'
+
     .byte 0x00              ;ccf7  00          DATA '\x00'
     .byte 0x26              ;ccf8  26          DATA '&'
     .byte 0xCD              ;ccf9  cd          DATA '\xcd'
     .byte 0x6B              ;ccfa  6b          DATA 'k'
+
     .byte 0x00              ;ccfb  00          DATA '\x00'
     .byte 0x04              ;ccfc  04          DATA '\x04'
     .byte 0xCD              ;ccfd  cd          DATA '\xcd'
     .byte 0x73              ;ccfe  73          DATA 's'
+
     .byte 0x00              ;ccff  00          DATA '\x00'
     .byte 0x04              ;cd00  04          DATA '\x04'
     .byte 0xCD              ;cd01  cd          DATA '\xcd'
     .byte 0x67              ;cd02  67          DATA 'g'
+
     .byte 0x00              ;cd03  00          DATA '\x00'
     .byte 0x36              ;cd04  36          DATA '6'
     .byte 0xCD              ;cd05  cd          DATA '\xcd'
     .byte 0x83              ;cd06  83          DATA '\x83'
+
     .byte 0xF0              ;cd07  f0          DATA '\xf0'
     .byte 0x1C              ;cd08  1c          DATA '\x1c'
     .byte 0xCD              ;cd09  cd          DATA '\xcd'
     .byte 0x83              ;cd0a  83          DATA '\x83'
+
     .byte 0x00              ;cd0b  00          DATA '\x00'
     .byte 0x04              ;cd0c  04          DATA '\x04'
     .byte 0xCD              ;cd0d  cd          DATA '\xcd'
     .byte 0x83              ;cd0e  83          DATA '\x83'
+
     .byte 0xF0              ;cd0f  f0          DATA '\xf0'
     .byte 0x04              ;cd10  04          DATA '\x04'
     .byte 0xCD              ;cd11  cd          DATA '\xcd'
     .byte 0x83              ;cd12  83          DATA '\x83'
+
     .byte 0x00              ;cd13  00          DATA '\x00'
     .byte 0x29              ;cd14  29          DATA ')'
     .byte 0xCD              ;cd15  cd          DATA '\xcd'
     .byte 0x7F              ;cd16  7f          DATA '\x7f'
+
     .byte 0xF0              ;cd17  f0          DATA '\xf0'
     .byte 0x22              ;cd18  22          DATA '"'
     .byte 0xCD              ;cd19  cd          DATA '\xcd'
     .byte 0x7F              ;cd1a  7f          DATA '\x7f'
+
     .byte 0x00              ;cd1b  00          DATA '\x00'
     .byte 0x11              ;cd1c  11          DATA '\x11'
     .byte 0xCD              ;cd1d  cd          DATA '\xcd'
@@ -17177,9 +17228,8 @@ lab_df99:
 lab_df9c:
     ret                     ;df9c  20
 
-    .byte 0x21              ;df9d  21          DATA '!'
-    .byte 0xE0              ;df9e  e0          DATA '\xe0'
-    .byte 0x4D              ;df9f  4d          DATA 'M'
+    ;df9d looks unreachable
+    jmp lab_e04d              ;df9d 21 e0 4d
 
 lab_dfa0:
     mov mem_0082, #0x00     ;dfa0  85 82 00
@@ -17787,24 +17837,17 @@ sub_e369:
     mov mem_012c, a         ;e372  61 01 2c
     jmp sub_e0b8            ;e375  21 e0 b8
 
-    .byte 0xB1              ;e378  b1          DATA '\xb1'
-    .byte 0xF9              ;e379  f9          DATA '\xf9'
-    .byte 0x0E              ;e37a  0e          DATA '\x0e'
-    .byte 0xA1              ;e37b  a1          DATA '\xa1'
-    .byte 0xF9              ;e37c  f9          DATA '\xf9'
-    .byte 0x04              ;e37d  04          DATA '\x04'
-    .byte 0x02              ;e37e  02          DATA '\x02'
-    .byte 0x61              ;e37f  61          DATA 'a'
-    .byte 0x03              ;e380  03          DATA '\x03'
-    .byte 0x89              ;e381  89          DATA '\x89'
-    .byte 0x04              ;e382  04          DATA '\x04'
-    .byte 0x00              ;e383  00          DATA '\x00'
-    .byte 0x61              ;e384  61          DATA 'a'
-    .byte 0x03              ;e385  03          DATA '\x03'
-    .byte 0x8B              ;e386  8b          DATA '\x8b'
-    .byte 0xA2              ;e387  a2          DATA '\xa2'
-    .byte 0xF9              ;e388  f9          DATA '\xf9'
-    .byte 0x20              ;e389  20          DATA ' '
+    ;XXX e378-e389 looks unreachable
+    bbc mem_00f9:1, lab_e389 ;e378  b1 f9 0e
+    clrb mem_00f9:1         ;e37b  a1 f9
+    mov a, #0x02            ;e37d  04 02
+    mov mem_0389, a         ;e37f  61 03 89
+    mov a, #0x00            ;e382  04 00
+    mov mem_038b, a         ;e384  61 03 8b
+    clrb mem_00f9:2         ;e387  a2 f9
+
+lab_e389:
+    ret                     ;e389  20
 
 sub_e38a:
     mov a, #0x00            ;e38a  04 00
@@ -18336,25 +18379,18 @@ fill_ix_plus_0x02_downto_0:
     mov @ix+0x00, a         ;e6f7  46 00
     ret                     ;e6f9  20
 
-    .byte 0x81              ;e6fa  81          DATA '\x81'
-    .byte 0x23              ;e6fb  23          DATA '#'
-    .byte 0xE2              ;e6fc  e2          DATA '\xe2'
-    .byte 0x06              ;e6fd  06          DATA '\x06'
-    .byte 0x00              ;e6fe  00          DATA '\x00'
-    .byte 0x45              ;e6ff  45          DATA 'E'
-    .byte 0x9E              ;e700  9e          DATA '\x9e'
-    .byte 0x06              ;e701  06          DATA '\x06'
-    .byte 0x01              ;e702  01          DATA '\x01'
-    .byte 0x45              ;e703  45          DATA 'E'
-    .byte 0x9F              ;e704  9f          DATA '\x9f'
-    .byte 0x06              ;e705  06          DATA '\x06'
-    .byte 0x02              ;e706  02          DATA '\x02'
-    .byte 0x45              ;e707  45          DATA 'E'
-    .byte 0xA0              ;e708  a0          DATA '\xa0'
-    .byte 0x31              ;e709  31          DATA '1'
-    .byte 0xFB              ;e70a  fb          DATA '\xfb'
-    .byte 0xA3              ;e70b  a3          DATA '\xa3'
-    .byte 0x20              ;e70c  20          DATA ' '
+    ;XXX e6fa-e70c looks unreachable
+    clrc                    ;e6fa  81
+    addcw a                 ;e6fb  23
+    movw ix, a              ;e6fc  e2
+    mov a, @ix+0x00         ;e6fd  06 00
+    mov mem_009e, a         ;e6ff  45 9e
+    mov a, @ix+0x01         ;e701  06 01
+    mov mem_009f, a         ;e703  45 9f
+    mov a, @ix+0x02         ;e705  06 02
+    mov mem_00a0, a         ;e707  45 a0
+    call sub_fba3           ;e709  31 fb a3
+    ret                     ;e70c  20
 
 sub_e70d:
     clrb mem_00e5:1         ;e70d  a1 e5
@@ -18801,9 +18837,8 @@ lab_e988:
     mov mem_01c6, a         ;e996  61 01 c6
     bne lab_e97d            ;e999  fc e2       BRANCH_ALWAYS_TAKEN
 
-    .byte 0x21              ;e99b  21          DATA '!'
-    .byte 0xE9              ;e99c  e9          DATA '\xe9'
-    .byte 0x7D              ;e99d  7d          DATA '}'
+    ;XXX e99b looks unreachable
+    jmp lab_e97d              ;e99b 21 e9 7d
 
 lab_e99e:
     mov a, mem_00b1         ;e99e  05 b1
@@ -18883,8 +18918,6 @@ lab_ea0e:
     mov a, mem_01e0         ;ea0e  60 01 e0
     and a, #0x0e            ;ea11  64 0e
     bne lab_ea07            ;ea13  fc f2
-
-lab_ea15:
     call sub_ef17           ;ea15  31 ef 17
     ret                     ;ea18  20
 
@@ -19421,7 +19454,7 @@ lab_ed48:
     bne lab_ed50            ;ed4b  fc 03       BRANCH_ALWAYS_TAKEN
 
 sub_ed4d:
-    mov @ix+0x01, #0x0b     ;ed4d  86 01 0b     CD MIN
+    mov @ix+0x01, #0x0b     ;ed4d  86 01 0b     0x0b 'CD....MIN..'
 
 lab_ed50:
     mov a, mem_01db         ;ed50  60 01 db     CD number
@@ -19511,102 +19544,82 @@ lab_edd5:
     jmp @a                  ;edd7  e0
 
 mem_edd8:
-    .word lab_ea15          ;edd8  ea 15       VECTOR
+    .word 0xea15            ;edd8  ea 15
     .word lab_ee4b          ;edda  ee 4b       VECTOR
 
-    .word 0xe916            ;eddc  e9 16       VECTOR ;XXX middle of instruction
-
+    .word 0xe916            ;eddc  e9 16
     .word lab_ee4b          ;edde  ee 4b       VECTOR
 
-    .byte 0xD8              ;ede0  d8          DATA '\xd8'
-    .byte 0x27              ;ede1  27          DATA "'"
-    .byte 0xEE              ;ede2  ee          DATA '\xee'
-    .byte 0x10              ;ede3  10          DATA '\x10'
-    .byte 0x00              ;ede4  00          DATA '\x00'
-    .byte 0x00              ;ede5  00          DATA '\x00'
-    .byte 0xEE              ;ede6  ee          DATA '\xee'
-    .byte 0x83              ;ede7  83          DATA '\x83'
-    .byte 0xF7              ;ede8  f7          DATA '\xf7'
-    .byte 0x08              ;ede9  08          DATA '\x08'
-    .byte 0xEE              ;edea  ee          DATA '\xee'
-    .byte 0x10              ;edeb  10          DATA '\x10'
-    .byte 0xF8              ;edec  f8          DATA '\xf8'
-    .byte 0x07              ;eded  07          DATA '\x07'
-    .byte 0xEE              ;edee  ee          DATA '\xee'
-    .byte 0x10              ;edef  10          DATA '\x10'
-    .byte 0xF9              ;edf0  f9          DATA '\xf9'
-    .byte 0x06              ;edf1  06          DATA '\x06'
-    .byte 0xEE              ;edf2  ee          DATA '\xee'
-    .byte 0x10              ;edf3  10          DATA '\x10'
-    .byte 0xFA              ;edf4  fa          DATA '\xfa'
-    .byte 0x05              ;edf5  05          DATA '\x05'
-    .byte 0xEE              ;edf6  ee          DATA '\xee'
-    .byte 0x10              ;edf7  10          DATA '\x10'
-    .byte 0xE5              ;edf8  e5          DATA '\xe5'
-    .byte 0x1A              ;edf9  1a          DATA '\x1a'
-    .byte 0xEE              ;edfa  ee          DATA '\xee'
-    .byte 0x67              ;edfb  67          DATA 'g'
-    .byte 0xE4              ;edfc  e4          DATA '\xe4'
-    .byte 0x1B              ;edfd  1b          DATA '\x1b'
-    .byte 0xEE              ;edfe  ee          DATA '\xee'
-    .byte 0x67              ;edff  67          DATA 'g'
-    .byte 0xE1              ;ee00  e1          DATA '\xe1'
-    .byte 0x1E              ;ee01  1e          DATA '\x1e'
-    .byte 0xEE              ;ee02  ee          DATA '\xee'
-    .byte 0x10              ;ee03  10          DATA '\x10'
-    .byte 0xE0              ;ee04  e0          DATA '\xe0'
-    .byte 0x1F              ;ee05  1f          DATA '\x1f'
-    .byte 0xEE              ;ee06  ee          DATA '\xee'
-    .byte 0x10              ;ee07  10          DATA '\x10'
-    .byte 0x00              ;ee08  00          DATA '\x00'
-    .byte 0x00              ;ee09  00          DATA '\x00'
-    .byte 0xEE              ;ee0a  ee          DATA '\xee'
-    .byte 0x26              ;ee0b  26          DATA '&'
-    .byte 0x00              ;ee0c  00          DATA '\x00'
-    .byte 0x00              ;ee0d  00          DATA '\x00'
-    .byte 0xEE              ;ee0e  ee          DATA '\xee'
-    .byte 0x83              ;ee0f  83          DATA '\x83'
-    .byte 0x60              ;ee10  60          DATA '`'
-    .byte 0x01              ;ee11  01          DATA '\x01'
-    .byte 0xCE              ;ee12  ce          DATA '\xce'
-    .byte 0x04              ;ee13  04          DATA '\x04'
-    .byte 0x02              ;ee14  02          DATA '\x02'
-    .byte 0x12              ;ee15  12          DATA '\x12'
-    .byte 0xF8              ;ee16  f8          DATA '\xf8'
-    .byte 0x01              ;ee17  01          DATA '\x01'
-    .byte 0x43              ;ee18  43          DATA 'C'
-    .byte 0xE4              ;ee19  e4          DATA '\xe4'
-    .byte 0xEE              ;ee1a  ee          DATA '\xee'
-    .byte 0x20              ;ee1b  20          DATA ' '
-    .byte 0x31              ;ee1c  31          DATA '1'
-    .byte 0xE7              ;ee1d  e7          DATA '\xe7'
-    .byte 0x3C              ;ee1e  3c          DATA '<'
-    .byte 0x20              ;ee1f  20          DATA ' '
+    .word 0xd827
+    .word lab_ee10          ;VECTOR
 
+    .word 0x0000
+    .word lab_ee83          ;VECTOR
+
+    .word 0xf708
+    .word lab_ee10          ;VECTOR
+
+    .word 0xf807
+    .word lab_ee10          ;VECTOR
+
+    .word 0xf906
+    .word lab_ee10          ;VECTOR
+
+    .word 0xfa05
+    .word lab_ee10          ;VECTOR
+
+    .word 0xe51a
+    .word lab_ee67          ;VECTOR
+
+    .word 0xe41b
+    .word lab_ee67          ;VECTOR
+
+    .word 0xe11e
+    .word lab_ee10          ;VECTOR
+
+    .word 0xe01f
+    .word lab_ee10          ;VECTOR
+
+    .word 0
+    .word lab_ee26          ;VECTOR
+
+    .word 0
+    .word lab_ee83          ;VECTOR
+
+
+;XXX ee10-ee1f looks unreachable
+lab_ee10:
+    mov a, mem_01ce         ;ee10  60 01 ce
+    mov a, #0x02            ;ee13  04 02
+    cmp a                   ;ee15  12
+    bhs lab_ee19            ;ee16  f8 01
+    xchw a, t               ;ee18  43
+
+lab_ee19:
+    movw a, #mem_ee20       ;ee19  e4 ee 20
+    call sub_e73c           ;ee1c  31 e7 3c
+    ret                     ;ee1f  20
+
+mem_ee20:
     .word lab_ee84          ;ee20  ee 84       VECTOR
     .word lab_ee88          ;ee22  ee 88       VECTOR
     .word lab_ee8a          ;ee24  ee 8a       VECTOR
 
-    .byte 0xE6              ;ee26  e6          DATA '\xe6'
-    .byte 0xEE              ;ee27  ee          DATA '\xee'
-    .byte 0x47              ;ee28  47          DATA 'G'
-    .byte 0x60              ;ee29  60          DATA '`'
-    .byte 0x01              ;ee2a  01          DATA '\x01'
-    .byte 0xCE              ;ee2b  ce          DATA '\xce'
-    .byte 0x04              ;ee2c  04          DATA '\x04'
-    .byte 0x06              ;ee2d  06          DATA '\x06'
-    .byte 0x12              ;ee2e  12          DATA '\x12'
-    .byte 0xF8              ;ee2f  f8          DATA '\xf8'
-    .byte 0x01              ;ee30  01          DATA '\x01'
-    .byte 0x43              ;ee31  43          DATA 'C'
-    .byte 0xE4              ;ee32  e4          DATA '\xe4'
-    .byte 0xEE              ;ee33  ee          DATA '\xee'
-    .byte 0x39              ;ee34  39          DATA '9'
-    .byte 0x31              ;ee35  31          DATA '1'
-    .byte 0xE7              ;ee36  e7          DATA '\xe7'
-    .byte 0x3C              ;ee37  3c          DATA '<'
-    .byte 0x20              ;ee38  20          DATA ' '
+    ;XXX ee26-ee38 looks unreachable
+lab_ee26:
+    movw ix, #mem_ee47      ;ee26  e6 ee 47
+    mov a, mem_01ce         ;ee29  60 01 ce
+    mov a, #0x06            ;ee2c  04 06
+    cmp a                   ;ee2e  12
+    bhs lab_ee32            ;ee2f  f8 01
+    xchw a, t               ;ee31  43
 
+lab_ee32:
+    movw a, #mem_ee39       ;ee32  e4 ee 39
+    call sub_e73c           ;ee35  31 e7 3c
+    ret                     ;ee38  20
+
+mem_ee39:
     .word lab_ee90          ;ee39  ee 90       VECTOR
     .word lab_ee88          ;ee3b  ee 88       VECTOR
     .word lab_ee84          ;ee3d  ee 84       VECTOR
@@ -19615,6 +19628,7 @@ mem_edd8:
     .word lab_ee88          ;ee43  ee 88       VECTOR
     .word lab_ee8a          ;ee45  ee 8a       VECTOR
 
+mem_ee47:
     .byte 0xD7              ;ee47  d7          DATA '\xd7'
     .byte 0x28              ;ee48  28          DATA '('
     .byte 0xE3              ;ee49  e3          DATA '\xe3'
@@ -19640,23 +19654,20 @@ mem_ee5b:
     .word lab_eeb6          ;ee63  ee b6       VECTOR
     .word lab_eecf          ;ee65  ee cf       VECTOR
 
-    .byte 0x60              ;ee67  60          DATA '`'
-    .byte 0x01              ;ee68  01          DATA '\x01'
-    .byte 0xCE              ;ee69  ce          DATA '\xce'
-    .byte 0x04              ;ee6a  04          DATA '\x04'
-    .byte 0x05              ;ee6b  05          DATA '\x05'
-    .byte 0x12              ;ee6c  12          DATA '\x12'
-    .byte 0xF8              ;ee6d  f8          DATA '\xf8'
-    .byte 0x01              ;ee6e  01          DATA '\x01'
-    .byte 0x43              ;ee6f  43          DATA 'C'
-    .byte 0xE4              ;ee70  e4          DATA '\xe4'
-    .byte 0xEE              ;ee71  ee          DATA '\xee'
-    .byte 0x77              ;ee72  77          DATA 'w'
-    .byte 0x31              ;ee73  31          DATA '1'
-    .byte 0xE7              ;ee74  e7          DATA '\xe7'
-    .byte 0x3C              ;ee75  3c          DATA '<'
-    .byte 0x20              ;ee76  20          DATA ' '
+    ;XXX ee67-ee76 looks unreachable
+lab_ee67:
+    mov a, mem_01ce         ;ee67  60 01 ce
+    mov a, #0x05            ;ee6a  04 05
+    cmp a                   ;ee6c  12
+    bhs lab_ee70            ;ee6d  f8 01
+    xchw a, t               ;ee6f  43
 
+lab_ee70:
+    movw a, #mem_ee77       ;ee70  e4 ee 77
+    call sub_e73c           ;ee73  31 e7 3c
+    ret                     ;ee76  20
+
+mem_ee77:
     .word lab_ee84          ;ee77  ee 84       VECTOR
     .word lab_ee88          ;ee79  ee 88       VECTOR
     .word lab_eec5          ;ee7b  ee c5       VECTOR
@@ -19664,7 +19675,9 @@ mem_ee5b:
     .word lab_ee8a          ;ee7f  ee 8a       VECTOR
     .word lab_eecf          ;ee81  ee cf       VECTOR
 
-    .byte 0x20              ;ee83  20          DATA ' '
+    ;XXX ee83 looks unreachable
+lab_ee83:
+    ret                     ;ee83 20
 
 lab_ee84:
     movw a, @ix+0x00        ;ee84  c6 00
@@ -21910,7 +21923,7 @@ sub_fb2d:
 
 lab_fb30:
     clrc                    ;fb30  81
-    bbc pdr1:1, lab_fb35    ;fb31  b1 02 01
+    bbc pdr1:1, lab_fb35    ;fb31  b1 02 01     VOLUME_1
     setc                    ;fb34  91
 
 lab_fb35:
@@ -22209,38 +22222,47 @@ mem_fcaf:
     .byte 0x14              ;fcb0  14          DATA '\x14'
     .byte 0x00              ;fcb1  00          DATA '\x00'
     .byte 0x00              ;fcb2  00          DATA '\x00'
+
     .byte 0x31              ;fcb3  31          DATA '1'
     .byte 0x14              ;fcb4  14          DATA '\x14'
     .byte 0x09              ;fcb5  09          DATA '\t'
     .byte 0x00              ;fcb6  00          DATA '\x00'
+
     .byte 0x31              ;fcb7  31          DATA '1'
     .byte 0x14              ;fcb8  14          DATA '\x14'
     .byte 0x09              ;fcb9  09          DATA '\t'
     .byte 0x00              ;fcba  00          DATA '\x00'
+
     .byte 0x31              ;fcbb  31          DATA '1'
     .byte 0x24              ;fcbc  24          DATA '$'
     .byte 0x09              ;fcbd  09          DATA '\t'
     .byte 0x00              ;fcbe  00          DATA '\x00'
+
     .byte 0x31              ;fcbf  31          DATA '1'
     .byte 0x13              ;fcc0  13          DATA '\x13'
     .byte 0x02              ;fcc1  02          DATA '\x02'
     .byte 0x00              ;fcc2  00          DATA '\x00'
+
     .byte 0x31              ;fcc3  31          DATA '1'
     .byte 0x13              ;fcc4  13          DATA '\x13'
     .byte 0x02              ;fcc5  02          DATA '\x02'
     .byte 0x00              ;fcc6  00          DATA '\x00'
+
     .byte 0x31              ;fcc7  31          DATA '1'
     .byte 0x13              ;fcc8  13          DATA '\x13'
     .byte 0x03              ;fcc9  03          DATA '\x03'
     .byte 0x00              ;fcca  00          DATA '\x00'
+
     .byte 0x31              ;fccb  31          DATA '1'
     .byte 0x14              ;fccc  14          DATA '\x14'
     .byte 0x03              ;fccd  03          DATA '\x03'
     .byte 0x00              ;fcce  00          DATA '\x00'
+
     .byte 0x31              ;fccf  31          DATA '1'
     .byte 0x53              ;fcd0  53          DATA 'S'
     .byte 0x02              ;fcd1  02          DATA '\x02'
     .byte 0x00              ;fcd2  00          DATA '\x00'
+
     .byte 0x31              ;fcd3  31          DATA '1'
     .byte 0x22              ;fcd4  22          DATA '"'
     .byte 0x03              ;fcd5  03          DATA '\x03'
@@ -22276,7 +22298,7 @@ lab_fcf9:
     mov a, mem_01ef         ;fd07  60 01 ef
     cmp a, #0x10            ;fd0a  14 10
     bne lab_fd18            ;fd0c  fc 0a
-    mov @ix+0x01, #0x20     ;fd0e  86 01 20     0x20 = 'RAD.3CP.T7.'
+    mov @ix+0x01, #0x20     ;fd0e  86 01 20     0x20 'RAD.3CP.T7.'
 
 lab_fd11:
     mov a, mem_00d8         ;fd11  05 d8
@@ -22287,18 +22309,18 @@ lab_fd11:
 lab_fd18:
     cmp a, #0x20            ;fd18  14 20
     bne lab_fd22            ;fd1a  fc 06
-    call sub_fd7d           ;fd1c  31 fd 7d
+    call sub_fd7d           ;fd1c  31 fd 7d     0x21 'VER........'
     jmp lab_fd11            ;fd1f  21 fd 11
 
 lab_fd22:
     cmp a, #0x50            ;fd22  14 50
     bne lab_fd11            ;fd24  fc eb
-    bbc pdr2:0, lab_fd2d    ;fd26  b0 04 04
-    mov @ix+0x01, #0x30     ;fd29  86 01 30     0x30 = 'FERN...ON..'
+    bbc pdr2:0, lab_fd2d    ;fd26  b0 04 04     PHANTOM_ON
+    mov @ix+0x01, #0x30     ;fd29  86 01 30     0x30 'FERN...ON..'
     ret                     ;fd2c  20
 
 lab_fd2d:
-    mov @ix+0x01, #0x31     ;fd2d  86 01 31     0x31 = 'FERN...OFF.'
+    mov @ix+0x01, #0x31     ;fd2d  86 01 31     0x31 'FERN...OFF.'
     ret                     ;fd30  20
 
 sub_fd31:
@@ -22358,7 +22380,7 @@ lab_fd7c:
     ret                     ;fd7c  20
 
 sub_fd7d:
-    mov @ix+0x01, #0x21     ;fd7d  86 01 21     0x21 = 'VER........'
+    mov @ix+0x01, #0x21     ;fd7d  86 01 21     0x21 'VER........'
     movw a, #mem_800a       ;fd80  e4 80 0a
     movw a, @a              ;fd83  93
     movw @ix+0x02, a        ;fd84  d6 02
