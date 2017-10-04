@@ -524,19 +524,19 @@ sub_e2b2:
     clrc
 
     movw ix, #0x010e
-    mov a, @ix+0x03
+    mov a, @ix+0x03         ;0x0111
     rolc a
 
     mov @ix+0x03, a
-    mov a, @ix+0x02
+    mov a, @ix+0x02         ;0x0110
     rolc a
 
     mov @ix+0x02, a
-    mov a, @ix+0x01
+    mov a, @ix+0x01         ;0x010f
     rolc a
 
     mov @ix+0x01, a
-    mov a, @ix+0x00
+    mov a, @ix+0x00         ;0x010e
     rolc a
 
     mov @ix+0x00, a
