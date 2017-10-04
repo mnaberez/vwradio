@@ -1521,7 +1521,7 @@ lab_85ff:
     mov a, mem_0236         ;85ff  60 02 36
     bbs mem_00b2:1, lab_8612 ;8602  b9 b2 0d    bit set means "initial"
     and a, #0x7f            ;8605  64 7f
-    cmp a, #0x19            ;8607  14 19
+    cmp a, #0x19            ;8607  14 19        0x19 = INITIAL key
     bne lab_8612            ;8609  fc 07
     mov a, #0x20            ;860b  04 20
     mov mem_00ae, a         ;860d  45 ae
@@ -1648,7 +1648,7 @@ mem_86ac:
     .byte 0x13              ;86ae  13          DATA '\x13'  0x13 = SEEK_UP
     .byte 0x17              ;86af  17          DATA '\x17'  0x17 = SEEK_DOWN
     .byte 0x16              ;86b0  16          DATA '\x16'  0x16 = SCAN
-    .byte 0x19              ;86b1  19          DATA '\x19'  HIDDEN_INITIAL
+    .byte 0x19              ;86b1  19          DATA '\x19'  0x19 = HIDDEN_INITIAL
     .byte 0xFF              ;86b2  ff          DATA '\xff'
 
 lab_86b3:
@@ -3219,25 +3219,27 @@ sub_8f3b:
     call sub_e73c           ;8f40  31 e7 3c
 
 lab_8f43:
+;mem_8f44 table case 0
     ret                     ;8f43  20
 
 mem_8f44:
-    .word lab_8f43          ;8f44  8f 43       VECTOR
-    .word lab_8f60          ;8f46  8f 60       VECTOR
-    .word lab_8f90          ;8f48  8f 90       VECTOR
-    .word lab_8fc0          ;8f4a  8f c0       VECTOR
-    .word lab_8fdd          ;8f4c  8f dd       VECTOR
-    .word lab_8fee          ;8f4e  8f ee       VECTOR
-    .word lab_901a          ;8f50  90 1a       VECTOR
-    .word lab_902b          ;8f52  90 2b       VECTOR
-    .word lab_906b          ;8f54  90 6b       VECTOR
-    .word lab_9081          ;8f56  90 81       VECTOR
-    .word lab_9091          ;8f58  90 91       VECTOR
-    .word lab_909a          ;8f5a  90 9a       VECTOR
-    .word lab_90ad          ;8f5c  90 ad       VECTOR
-    .word lab_90b5          ;8f5e  90 b5       VECTOR
+    .word lab_8f43          ;8f44  8f 43       VECTOR 0
+    .word lab_8f60          ;8f46  8f 60       VECTOR 1
+    .word lab_8f90          ;8f48  8f 90       VECTOR 2
+    .word lab_8fc0          ;8f4a  8f c0       VECTOR 3
+    .word lab_8fdd          ;8f4c  8f dd       VECTOR 4
+    .word lab_8fee          ;8f4e  8f ee       VECTOR 5
+    .word lab_901a          ;8f50  90 1a       VECTOR 6
+    .word lab_902b          ;8f52  90 2b       VECTOR 7
+    .word lab_906b          ;8f54  90 6b       VECTOR 8
+    .word lab_9081          ;8f56  90 81       VECTOR 9
+    .word lab_9091          ;8f58  90 91       VECTOR 0
+    .word lab_909a          ;8f5a  90 9a       VECTOR a
+    .word lab_90ad          ;8f5c  90 ad       VECTOR b
+    .word lab_90b5          ;8f5e  90 b5       VECTOR c
 
 lab_8f60:
+;mem_8f44 table case 1
     setb mem_00cf:0         ;8f60  a8 cf
     mov a, #0x14            ;8f62  04 14
     mov mem_02c1, a         ;8f64  61 02 c1
@@ -3262,6 +3264,7 @@ lab_8f82:
     bne lab_8fb9            ;8f8e  fc 29       BRANCH_ALWAYS_TAKEN
 
 lab_8f90:
+;mem_8f44 table case 2
     mov a, mem_0213         ;8f90  60 02 13
     bne lab_8fed            ;8f93  fc 58
     mov a, #0x20            ;8f95  04 20
@@ -3290,6 +3293,7 @@ lab_8fb9:
     ret                     ;8fbf  20
 
 lab_8fc0:
+;mem_8f44 table case 3
     mov a, mem_0213         ;8fc0  60 02 13
     bne lab_8fed            ;8fc3  fc 28
     clrb mem_00e2:0         ;8fc5  a0 e2
@@ -3303,6 +3307,7 @@ lab_8fc0:
     mov mem_0238, a         ;8fda  61 02 38
 
 lab_8fdd:
+;mem_8f44 table case 5
     call sub_911e           ;8fdd  31 91 1e
     mov a, #0x05            ;8fe0  04 05
     mov mem_02c1, a         ;8fe2  61 02 c1
@@ -3314,6 +3319,7 @@ lab_8fed:
     ret                     ;8fed  20
 
 lab_8fee:
+;mem_8f44 table case 6
     clrb mem_00d0:1         ;8fee  a1 d0
     call sub_9e34           ;8ff0  31 9e 34
     mov a, #0x0f            ;8ff3  04 0f
@@ -3336,6 +3342,7 @@ lab_9003:
     bne lab_8fb9            ;9018  fc 9f       BRANCH_ALWAYS_TAKEN
 
 lab_901a:
+;mem_8f44 table case 7
     mov a, mem_0213         ;901a  60 02 13
     bne lab_9080            ;901d  fc 61
     clrb mem_00e9:6         ;901f  a6 e9
@@ -3346,6 +3353,7 @@ lab_901a:
     ret                     ;902a  20
 
 lab_902b:
+;mem_8f44 table case 8
     mov a, mem_00f1         ;902b  05 f1
     bne lab_9080            ;902d  fc 51
     mov mem_00f1, #0x8f     ;902f  85 f1 8f
@@ -3377,6 +3385,7 @@ lab_9053:
     jmp lab_8fb9            ;9068  21 8f b9
 
 lab_906b:
+;mem_8f44 table case 9
     mov a, mem_0213         ;906b  60 02 13
     bne lab_9080            ;906e  fc 10
     mov a, mem_00f1         ;9070  05 f1
@@ -3391,6 +3400,7 @@ lab_9080:
     ret                     ;9080  20
 
 lab_9081:
+;mem_8f44 table case 0x0a
     clrb mem_00e9:6         ;9081  a6 e9
     setb pdr2:7             ;9083  af 04        MAIN_5V
     mov a, #0x28            ;9085  04 28
@@ -3400,12 +3410,14 @@ lab_9081:
     ret                     ;9090  20
 
 lab_9091:
+;mem_8f44 table case 0x0b
     mov a, mem_0213         ;9091  60 02 13
     bne lab_9080            ;9094  fc ea
     mov mem_00d2, #0x00     ;9096  85 d2 00
     ret                     ;9099  20
 
 lab_909a:
+;mem_8f44 table case 0x0c
     mov mem_0096, #0x00     ;909a  85 96 00
     clrb mem_00e9:6         ;909d  a6 e9
     clrb mem_00de:5         ;909f  a5 de
@@ -3416,6 +3428,7 @@ lab_909a:
     ret                     ;90ac  20
 
 lab_90ad:
+;mem_8f44 table case 0x0d
     mov a, mem_00f1         ;90ad  05 f1
     bne lab_90b4            ;90af  fc 03
     mov mem_00d2, #0x05     ;90b1  85 d2 05
@@ -3424,6 +3437,7 @@ lab_90b4:
     ret                     ;90b4  20
 
 lab_90b5:
+;mem_8f44 table case 0x0e
     mov a, mem_0213         ;90b5  60 02 13
     bne lab_90b4            ;90b8  fc fa
     clrb pdr8:4             ;90ba  a4 14        AMP_ON
