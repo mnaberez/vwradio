@@ -24,14 +24,14 @@ static const uint8_t _premium4_key_decode[4][8] PROGMEM = {
         KEY_MODE_FM,      // byte 1, bit 7
     },
     {
-        KEY_SEEK_DOWN,    // byte 2, bit 0
-        KEY_SCAN,         // byte 2, bit 1
-        KEY_NONE,         // byte 2, bit 2
-        KEY_MIX_DOLBY,    // byte 2, bit 3
-        KEY_SEEK_UP,      // byte 2, bit 4
-        KEY_TAPE_SIDE,    // byte 2, bit 5
-        KEY_NONE,         // byte 2, bit 6
-        KEY_NONE,         // byte 2, bit 7
+        KEY_SEEK_DOWN,        // byte 2, bit 0
+        KEY_SCAN,             // byte 2, bit 1
+        KEY_BEETLE_DOLBY,     // byte 2, bit 2
+        KEY_MIX_DOLBY,        // byte 2, bit 3
+        KEY_SEEK_UP,          // byte 2, bit 4
+        KEY_TAPE_SIDE,        // byte 2, bit 5
+        KEY_BEETLE_TAPE_FF,   // byte 2, bit 6
+        KEY_BEETLE_TAPE_REW,  // byte 2, bit 7
     },
     {
         KEY_HIDDEN_SEEK_UP,   // byte 3, bit 0
@@ -44,6 +44,7 @@ static const uint8_t _premium4_key_decode[4][8] PROGMEM = {
         KEY_HIDDEN_NO_CODE,   // byte 3, bit 7
     }
 };
+
 
 // premium 4 encode: our arbitrary key codes -> upd16432b key data
 static const uint8_t _premium4_key_encode[256][4] PROGMEM = {
@@ -107,9 +108,18 @@ static const uint8_t _premium4_key_encode[256][4] PROGMEM = {
     {   0,    0,    0,    0}, // 0x39
     {   0,    0,    0,    0}, // 0x3a
     {   0,    0,    0,    0}, // 0x3b
-    {   0,    0,    0,    0}, // 0x3c
-    {   0,    0,    0,    0}, // 0x3d
-    {   0,    0,    0,    0}, // 0x3e
+
+    // #define KEY_BEETLE_TAPE_REW 60  /* Beetle only */
+    // #define KEY_BEETLE_TAPE_FF 61   /* Beetle only */
+    // #define KEY_BEETLE_DOLBY 62     /* Beetle only */
+
+    // 10000 (0x10)    byte 2 bit 7    BEETLE_TAPE_REW
+    // 10001 (0x11)    byte 2 bit 6    BEETLE_TAPE_FF
+    // 10101 (0x15)    byte 2 bit 2    BEETLE_DOLBY
+
+    {   0,    0, 0x80,    0}, // 0x3c KEY_BEETLE_TAPE_REW
+    {   0,    0, 0x40,    0}, // 0x3d KEY_BEETLE_TAPE_FF
+    {   0,    0, 0x04,    0}, // 0x3e KEY_BEETLE_DOLBY
     {   0,    0,    0,    0}, // 0x3f
     {   0,    0,    0,    0}, // 0x40
     {   0,    0,    0,    0}, // 0x41

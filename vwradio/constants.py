@@ -87,15 +87,18 @@ class Keys(Enum):
     MODE_AM = 31
     MODE_FM = 32
     MODE_TAPE = 33
-    TAPE_SIDE = 40
+    TAPE_SIDE = 40  # "PROG" on Beetle, same function
     STOP_EJECT = 41
-    MIX_DOLBY = 42
+    MIX_DOLBY = 42  # "MIX" on Beetle
     HIDDEN_INITIAL = 50
     HIDDEN_NO_CODE = 51
     HIDDEN_VOL_UP = 52
     HIDDEN_VOL_DOWN = 53
     HIDDEN_SEEK_UP = 54
     HIDDEN_SEEK_DOWN = 55
+    BEETLE_TAPE_REW = 60  # Beetle only
+    BEETLE_TAPE_FF = 61  # Beetle only
+    BEETLE_DOLBY = 62  # Beetle only
 
 class Pictographs(Enum):
     NONE = 0

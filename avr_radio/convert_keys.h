@@ -35,6 +35,9 @@
 #define KEY_HIDDEN_VOL_DOWN 53
 #define KEY_HIDDEN_SEEK_UP 54
 #define KEY_HIDDEN_SEEK_DOWN 55
+#define KEY_BEETLE_TAPE_REW 60  /* Beetle only */
+#define KEY_BEETLE_TAPE_FF 61   /* Beetle only */
+#define KEY_BEETLE_DOLBY 62     /* Beetle only */
 
 uint8_t convert_upd_key_data_to_codes(uint8_t *key_data_in, uint8_t *key_codes_out);
 uint8_t convert_code_to_upd_key_data(uint8_t key_code, uint8_t *key_data_out);
