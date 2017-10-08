@@ -28,7 +28,7 @@ clean:
 	find . -depth -name '*.pyc' -print -delete
 
 test:
-	cd .. && $(PYTHON) -u setup.py test -q
+	cd ../host && $(PYTHON) -u setup.py test -q
 
 _sleep:
 	sleep 0.5
