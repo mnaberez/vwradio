@@ -383,7 +383,7 @@ sub_e1c0:
     mov smr2, #0x3a
     mov bzcr, #0x00
     mov eic1, #0x01
-    bbs pdr6:1, lab_e1f6
+    bbs pdr6:1, lab_e1f6        ;CLIPPING
     mov eic1, #0x21
 
 lab_e1f6:
@@ -3868,7 +3868,7 @@ lab_f465:
     jmp lab_f458
 
 sub_f46b:
-    bbc pdr6:3, lab_f47c
+    bbc pdr6:3, lab_f47c    ;DIAG ILL
     movw a, 0x013f
     movw 0x013d, a
     mov a, #0x01
@@ -3884,7 +3884,7 @@ lab_f47c:
     jmp lab_f478
 
 sub_f483:
-    bbs pdr6:3, lab_f49f
+    bbs pdr6:3, lab_f49f    ;DIAG ILL
     clrc
     movw a, 0x013f
     movw a, 0x013d
@@ -3905,7 +3905,7 @@ lab_f49f:
     jmp lab_f49b
 
 sub_f4a6:
-    bbc pdr6:3, lab_f4c6
+    bbc pdr6:3, lab_f4c6    ;DIAG ILL
     clrc
     movw a, 0x013f
     movw a, 0x013d
@@ -3929,7 +3929,7 @@ lab_f4c6:
 
 sub_f4cd:
     bbs 0x00d2:0, lab_f4e6
-    bbc pdr6:3, lab_f4e1
+    bbc pdr6:3, lab_f4e1            ;DIAG ILL
     mov a, #0x64
 
 lab_f4d5:
