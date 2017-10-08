@@ -8,6 +8,30 @@
  * SPI Master Interface to Faceplate
  *************************************************************************/
 
+// Start or stop SPI communication with the faceplate depending on the state
+// of the /LOF signal (LCD OFF).  The radio controls the /LOF signal.  When the
+// Premium 4 radio asserts /LOF, it also shuts off MAIN5V.  We must stop
+// driving the SPI lines or else ~4V will leak into MAIN5V when it's supposed
+// to be off, the effect of which is a malfunction where teh radio can't be
+// turned back on after being turned off.
+void faceplate_service_lof()
+{
+    if (faceplate_lof_asserted()) {
+        if (faceplate_online) {
+            // radio has just turned off the faceplate so we must release it
+            faceplate_spi_release();
+        }
+    } else {
+        if (! faceplate_online) {
+            // radio has just turned on the faceplate so we must (re)init it
+            faceplate_spi_init();
+            faceplate_clear_display();
+        }
+    }
+}
+
+// Start SPI communication with the faceplate.  Don't use this directly;
+// call faceplate_service_lof() instead.
 void faceplate_spi_init()
 {
     // PD2/RXD1 MISO as input (from faceplate's DAT)
@@ -18,6 +42,8 @@ void faceplate_spi_init()
     DDRD |= _BV(PD4);
     // PD5 as output (to faceplate's STB)
     DDRD |= _BV(PD5);
+    // PD6 as input (from faceplate's /BUS)
+    DDRD &= ~_BV(PD6);
     // PD5 initially low (faceplate STB = not selected)
     PORTD &= ~_BV(PD5);
 
@@ -32,6 +58,26 @@ void faceplate_spi_init()
     // must be done last
     // spi clock (9 = 1mhz for 20mhz clock)
     UBRR1 = 9;
+
+    faceplate_online = 1;
+}
+
+// Stop SPI communication with the faceplate.  Don't use this directly;
+// call faceplate_service_lof() instead.
+void faceplate_spi_release()
+{
+    DDRD &= ~(_BV(PD2) | _BV(PD3) | _BV(PD4) | _BV(PD5) | _BV(PD6));
+    UCSR1C = 0;
+    UCSR1B = 0;
+
+    faceplate_online = 0;
+}
+
+// Returns true if the radio is asserting /LOF to the faceplate's
+// uPD16432B meaning it has shut the faceplate off.
+uint8_t faceplate_lof_asserted()
+{
+    return (PINA & _BV(PA1)) == 0;
 }
 
 uint8_t faceplate_spi_xfer_byte(uint8_t c)

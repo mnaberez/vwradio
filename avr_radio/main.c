@@ -79,12 +79,9 @@ int main()
     uart_init();
     cmd_init();
     radio_spi_init();
-    faceplate_spi_init();
     upd_init(&emulated_upd_state);
     upd_init(&faceplate_upd_state);
     sei();
-
-    faceplate_clear_display();
 
     while (1)
     {
@@ -101,12 +98,6 @@ int main()
             continue;
         }
 
-        if (auto_key_passthru)
-        {
-            // read keys from faceplate and send to radio
-            faceplate_read_key_data(upd_tx_key_data);
-        }
-
         // process a command from the radio if one is available
         if (upd_rx_buf.read_index != upd_rx_buf.write_index)
         {
@@ -117,14 +108,26 @@ int main()
             upd_process_command(&emulated_upd_state, &cmd);
         }
 
-        // update radio state and faceplate as needed
-        radio_state_update_from_upd_if_dirty(&radio_state, &emulated_upd_state);
-        if (auto_display_passthru)
-        {
-            faceplate_update_from_upd_if_dirty(&emulated_upd_state);
-        }
+        // handle faceplate turn on or turn off
+        faceplate_service_lof();
 
-        // clear dirty state for next time
-        emulated_upd_state.dirty_flags = UPD_DIRTY_NONE;
+        if (faceplate_online) {
+            // read keys from faceplate, schedule them to be sent to radio
+            if (auto_key_passthru)
+            {
+                faceplate_read_key_data(upd_tx_key_data);
+            }
+
+            // update radio state and faceplate as needed
+            radio_state_update_from_upd_if_dirty(&radio_state, &emulated_upd_state);
+            if (auto_display_passthru)
+            {
+                faceplate_update_from_upd_if_dirty(&emulated_upd_state);
+            }
+
+            // clear dirty state for next time
+            emulated_upd_state.dirty_flags = UPD_DIRTY_NONE;
+        }
     }
+
 }
