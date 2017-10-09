@@ -39,7 +39,7 @@
  * Pin 37: PA3 /POWER_EJECT from radio
  * Pin 38: PA2 EJECT from radio
  * Pin 39: PA1 /LOF in (from radio, also tied to faceplate's /LOF in)
- * Pin 40: PA0 /RST in (from radio, also tied to faceplate's /RST in)
+ * Pin 40: PA0 (unused)
  */
 
 #include "main.h"

@@ -7,7 +7,6 @@ x    /BUS(to faceplate)
 x    CLK(to faceplate)
 x    DAT(to faceplate)
 x    STB(to faceplate)
-x    /RST(to radio+faceplate)
 x    /LOF(to radio+faceplate)
 x    /POWER_EJECT
 x    EJECT
@@ -18,7 +17,7 @@ Header Pinout
                   24 pin
                  +------+
                  | o  o |
-/RST(radio+face) | o  o | /LOF(radio+face)
+                 | o  o | /LOF(radio+face)
      /BUS(radio) | o  o | /BUS(face)
       CLK(radio) | o  o | CLK(face)
       DAT(radio) | o  o | DAT(face)
