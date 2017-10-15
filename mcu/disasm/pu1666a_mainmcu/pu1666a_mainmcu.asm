@@ -13341,280 +13341,170 @@ lab_cc3f:
     beq lab_cc0c            ;cc41  fd c9       BRANCH_ALWAYS_TAKEN
 
 mem_cc43:
-    .byte 0x00              ;cc43  00          DATA '\x00'
-    .byte 0x00              ;cc44  00          DATA '\x00'
-    .byte 0x00              ;cc45  00          DATA '\x00'
-    .byte 0x00              ;cc46  00          DATA '\x00'
+    .word 0
+    .word 0
 
-    .byte 0x00              ;cc47  00          DATA '\x00'
-    .byte 0x27              ;cc48  27          DATA "'"
-    .byte 0xCD              ;cc49  cd          DATA '\xcd'
-    .byte 0x67              ;cc4a  67          DATA 'g'
+    .word 0x0027
+    .word mem_cd67
 
-    .byte 0xF0              ;cc4b  f0          DATA '\xf0'
-    .byte 0x03              ;cc4c  03          DATA '\x03'
-    .byte 0xCD              ;cc4d  cd          DATA '\xcd'
-    .byte 0x53              ;cc4e  53          DATA 'S'
+    .word 0xf003
+    .word mem_cd53
 
-    .byte 0xF0              ;cc4f  f0          DATA '\xf0'
-    .byte 0x04              ;cc50  04          DATA '\x04'
-    .byte 0xCD              ;cc51  cd          DATA '\xcd'
-    .byte 0x87              ;cc52  87          DATA '\x87'
+    .word 0xf004
+    .word mem_cd87
 
-    .byte 0x00              ;cc53  00          DATA '\x00'
-    .byte 0x00              ;cc54  00          DATA '\x00'
-    .byte 0x00              ;cc55  00          DATA '\x00'
-    .byte 0x00              ;cc56  00          DATA '\x00'
+    .word 0
+    .word 0
 
-    .byte 0x00              ;cc57  00          DATA '\x00'
-    .byte 0x04              ;cc58  04          DATA '\x04'
-    .byte 0xCD              ;cc59  cd          DATA '\xcd'
-    .byte 0x7F              ;cc5a  7f          DATA '\x7f'
+    .word 0x0004
+    .word mem_cd7f
 
-    .byte 0x00              ;cc5b  00          DATA '\x00'
-    .byte 0x07              ;cc5c  07          DATA '\x07'
-    .byte 0xCD              ;cc5d  cd          DATA '\xcd'
-    .byte 0x53              ;cc5e  53          DATA 'S'
+    .word 0x0007
+    .word mem_cd53
 
-    .byte 0x00              ;cc5f  00          DATA '\x00'
-    .byte 0x08              ;cc60  08          DATA '\x08'
-    .byte 0xCD              ;cc61  cd          DATA '\xcd'
-    .byte 0x87              ;cc62  87          DATA '\x87'
+    .word 0x0008
+    .word mem_cd87
 
-    .byte 0x00              ;cc63  00          DATA '\x00'
-    .byte 0x09              ;cc64  09          DATA '\t'
-    .byte 0xCD              ;cc65  cd          DATA '\xcd'
-    .byte 0x3F              ;cc66  3f          DATA '?'
+    .word 0x0009
+    .word mem_cd3f
 
-    .byte 0x00              ;cc67  00          DATA '\x00'
-    .byte 0x0A              ;cc68  0a          DATA '\n'
-    .byte 0xCD              ;cc69  cd          DATA '\xcd'
-    .byte 0x5B              ;cc6a  5b          DATA '['
+    .word 0x000a
+    .word mem_cd5b
 
-    .byte 0x00              ;cc6b  00          DATA '\x00'
-    .byte 0x0B              ;cc6c  0b          DATA '\x0b'
-    .byte 0xCD              ;cc6d  cd          DATA '\xcd'
-    .byte 0x63              ;cc6e  63          DATA 'c'
+    .word 0x000b
+    .word mem_cd63
 
-    .byte 0x00              ;cc6f  00          DATA '\x00'
-    .byte 0x0C              ;cc70  0c          DATA '\x0c'
-    .byte 0xCD              ;cc71  cd          DATA '\xcd'
-    .byte 0x5F              ;cc72  5f          DATA '_'
+    .word 0x000c
+    .word mem_cd5f
 
-    .byte 0x00              ;cc73  00          DATA '\x00'
-    .byte 0x30              ;cc74  30          DATA '0'
-    .byte 0xCD              ;cc75  cd          DATA '\xcd'
-    .byte 0x67              ;cc76  67          DATA 'g'
+    .word 0x0030
+    .word mem_cd67
 
-    .byte 0x00              ;cc77  00          DATA '\x00'
-    .byte 0x0E              ;cc78  0e          DATA '\x0e'
-    .byte 0xCD              ;cc79  cd          DATA '\xcd'
-    .byte 0x43              ;cc7a  43          DATA 'C'
+    .word 0x000e
+    .word mem_cd43
 
-    .byte 0x00              ;cc7b  00          DATA '\x00'
-    .byte 0x04              ;cc7c  04          DATA '\x04'
-    .byte 0xCD              ;cc7d  cd          DATA '\xcd'
-    .byte 0x47              ;cc7e  47          DATA 'G'
+    .word 0x0004
+    .word mem_cd47
 
-    .byte 0x00              ;cc7f  00          DATA '\x00'
-    .byte 0x04              ;cc80  04          DATA '\x04'
-    .byte 0xCD              ;cc81  cd          DATA '\xcd'
-    .byte 0x5F              ;cc82  5f          DATA '_'
+    .word 0x0004
+    .word mem_cd5f
 
-    .byte 0x00              ;cc83  00          DATA '\x00'
-    .byte 0x13              ;cc84  13          DATA '\x13'
-    .byte 0xCD              ;cc85  cd          DATA '\xcd'
-    .byte 0x6F              ;cc86  6f          DATA 'o'
+    .word 0x0013
+    .word mem_cd6f
 
-    .byte 0x00              ;cc87  00          DATA '\x00'
-    .byte 0x24              ;cc88  24          DATA '$'
-    .byte 0xCD              ;cc89  cd          DATA '\xcd'
-    .byte 0x6F              ;cc8a  6f          DATA 'o'
+    .word 0x0024
+    .word mem_cd6f
 
-    .byte 0x00              ;cc8b  00          DATA '\x00'
-    .byte 0x0D              ;cc8c  0d          DATA '\r'
-    .byte 0xCD              ;cc8d  cd          DATA '\xcd'
-    .byte 0x6B              ;cc8e  6b          DATA 'k'
+    .word 0x000d
+    .word mem_cd6b
 
-    .byte 0x00              ;cc8f  00          DATA '\x00'
-    .byte 0x34              ;cc90  34          DATA '4'
-    .byte 0xCD              ;cc91  cd          DATA '\xcd'
-    .byte 0x7B              ;cc92  7b          DATA '{'
+    .word 0x0034
+    .word mem_cd7b
 
-    .byte 0xF0              ;cc93  f0          DATA '\xf0'
-    .byte 0x15              ;cc94  15          DATA '\x15'
-    .byte 0xCD              ;cc95  cd          DATA '\xcd'
-    .byte 0x3F              ;cc96  3f          DATA '?'
+    .word 0xf015
+    .word mem_cd3f
 
-    .byte 0xF0              ;cc97  f0          DATA '\xf0'
-    .byte 0x16              ;cc98  16          DATA '\x16'
-    .byte 0xCD              ;cc99  cd          DATA '\xcd'
-    .byte 0x5B              ;cc9a  5b          DATA '['
+    .word 0xf016
+    .word mem_cd5b
 
-    .byte 0xF0              ;cc9b  f0          DATA '\xf0'
-    .byte 0x17              ;cc9c  17          DATA '\x17'
-    .byte 0xCD              ;cc9d  cd          DATA '\xcd'
-    .byte 0x63              ;cc9e  63          DATA 'c'
+    .word 0xf017
+    .word mem_cd63
 
-    .byte 0xF0              ;cc9f  f0          DATA '\xf0'
-    .byte 0x18              ;cca0  18          DATA '\x18'
-    .byte 0xCD              ;cca1  cd          DATA '\xcd'
-    .byte 0x5F              ;cca2  5f          DATA '_'
+    .word 0xf018
+    .word mem_cd5f
 
-    .byte 0xF0              ;cca3  f0          DATA '\xf0'
-    .byte 0x19              ;cca4  19          DATA '\x19'
-    .byte 0xCD              ;cca5  cd          DATA '\xcd'
-    .byte 0x67              ;cca6  67          DATA 'g'
+    .word 0xf019
+    .word mem_cd67
 
-    .byte 0xF0              ;cca7  f0          DATA '\xf0'
-    .byte 0x1A              ;cca8  1a          DATA '\x1a'
-    .byte 0xCD              ;cca9  cd          DATA '\xcd'
-    .byte 0x43              ;ccaa  43          DATA 'C'
+    .word 0xf01a
+    .word mem_cd43
 
-    .byte 0xF0              ;ccab  f0          DATA '\xf0'
-    .byte 0x1B              ;ccac  1b          DATA '\x1b'
-    .byte 0xCD              ;ccad  cd          DATA '\xcd'
-    .byte 0x47              ;ccae  47          DATA 'G'
+    .word 0xf01b
+    .word mem_cd47
 
-    .byte 0xF0              ;ccaf  f0          DATA '\xf0'
-    .byte 0x31              ;ccb0  31          DATA '1'
-    .byte 0xCD              ;ccb1  cd          DATA '\xcd'
-    .byte 0x57              ;ccb2  57          DATA 'W'
+    .word 0xf031
+    .word mem_cd57
 
-    .byte 0xF0              ;ccb3  f0          DATA '\xf0'
-    .byte 0x1D              ;ccb4  1d          DATA '\x1d'
-    .byte 0xCD              ;ccb5  cd          DATA '\xcd'
-    .byte 0x6F              ;ccb6  6f          DATA 'o'
+    .word 0xf01d
+    .word mem_cd6f
 
-    .byte 0xF0              ;ccb7  f0          DATA '\xf0'
-    .byte 0x35              ;ccb8  35          DATA '5'
-    .byte 0xCD              ;ccb9  cd          DATA '\xcd'
-    .byte 0x6B              ;ccba  6b          DATA 'k'
+    .word 0xf035
+    .word mem_cd6b
 
-    .byte 0x00              ;ccbb  00          DATA '\x00'
-    .byte 0x26              ;ccbc  26          DATA '&'
-    .byte 0xCD              ;ccbd  cd          DATA '\xcd'
-    .byte 0x57              ;ccbe  57          DATA 'W'
+    .word 0x0026
+    .word mem_cd57
 
-    .byte 0x00              ;ccbf  00          DATA '\x00'
-    .byte 0x04              ;ccc0  04          DATA '\x04'
-    .byte 0xCD              ;ccc1  cd          DATA '\xcd'
-    .byte 0x4F              ;ccc2  4f          DATA 'O'
+    .word 0x0004
+    .word mem_cd4f
 
-    .byte 0x00              ;ccc3  00          DATA '\x00'
-    .byte 0x2E              ;ccc4  2e          DATA '.'
-    .byte 0xCD              ;ccc5  cd          DATA '\xcd'
-    .byte 0x6B              ;ccc6  6b          DATA 'k'
+    .word 0x002e
+    .word mem_cd6b
 
-    .byte 0x00              ;ccc7  00          DATA '\x00'
-    .byte 0x04              ;ccc8  04          DATA '\x04'
-    .byte 0xCD              ;ccc9  cd          DATA '\xcd'
-    .byte 0x53              ;ccca  53          DATA 'S'
+    .word 0x0004
+    .word mem_cd53
 
-    .byte 0xF0              ;cccb  f0          DATA '\xf0'
-    .byte 0x23              ;cccc  23          DATA '#'
-    .byte 0xCD              ;cccd  cd          DATA '\xcd'
-    .byte 0x4F              ;ccce  4f          DATA 'O'
+    .word 0xf023
+    .word mem_cd4f
 
-    .byte 0xF0              ;cccf  f0          DATA '\xf0'
-    .byte 0x2A              ;ccd0  2a          DATA '*'
-    .byte 0xCD              ;ccd1  cd          DATA '\xcd'
-    .byte 0x7B              ;ccd2  7b          DATA '{'
+    .word 0xf02a
+    .word mem_cd7b
 
-    .byte 0x00              ;ccd3  00          DATA '\x00'
-    .byte 0x28              ;ccd4  28          DATA '('
-    .byte 0xCD              ;ccd5  cd          DATA '\xcd'
-    .byte 0x7B              ;ccd6  7b          DATA '{'
+    .word 0x0028
+    .word mem_cd7b
 
-    .byte 0xF0              ;ccd7  f0          DATA '\xf0'
-    .byte 0x04              ;ccd8  04          DATA '\x04'
-    .byte 0xCD              ;ccd9  cd          DATA '\xcd'
-    .byte 0x4B              ;ccda  4b          DATA 'K'
+    .word 0xf004
+    .word mem_cd4b
 
-    .byte 0x00              ;ccdb  00          DATA '\x00'
-    .byte 0x27              ;ccdc  27          DATA "'"
-    .byte 0xCD              ;ccdd  cd          DATA '\xcd'
-    .byte 0x43              ;ccde  43          DATA 'C'
+    .word 0x0027
+    .word mem_cd43
 
-    .byte 0x00              ;ccdf  00          DATA '\x00'
-    .byte 0x04              ;cce0  04          DATA '\x04'
-    .byte 0xCD              ;cce1  cd          DATA '\xcd'
-    .byte 0x4B              ;cce2  4b          DATA 'K'
+    .word 0x0004
+    .word mem_cd4b
 
-    .byte 0x00              ;cce3  00          DATA '\x00'
-    .byte 0x12              ;cce4  12          DATA '\x12'
-    .byte 0xCD              ;cce5  cd          DATA '\xcd'
-    .byte 0x77              ;cce6  77          DATA 'w'
+    .word 0x0012
+    .word mem_cd77
 
-    .byte 0x00              ;cce7  00          DATA '\x00'
-    .byte 0x04              ;cce8  04          DATA '\x04'
-    .byte 0xCD              ;cce9  cd          DATA '\xcd'
-    .byte 0x77              ;ccea  77          DATA 'w'
+    .word 0x0004
+    .word mem_cd77
 
-    .byte 0xF0              ;cceb  f0          DATA '\xf0'
-    .byte 0x25              ;ccec  25          DATA '%'
-    .byte 0xCD              ;cced  cd          DATA '\xcd'
-    .byte 0x77              ;ccee  77          DATA 'w'
+    .word 0xf025
+    .word mem_cd77
 
-    .byte 0x00              ;ccef  00          DATA '\x00'
-    .byte 0x2C              ;ccf0  2c          DATA ','
-    .byte 0xCD              ;ccf1  cd          DATA '\xcd'
-    .byte 0x8B              ;ccf2  8b          DATA '\x8b'
+    .word 0x002c
+    .word mem_cd8b
 
-    .byte 0xF0              ;ccf3  f0          DATA '\xf0'
-    .byte 0x04              ;ccf4  04          DATA '\x04'
-    .byte 0xCD              ;ccf5  cd          DATA '\xcd'
-    .byte 0x8B              ;ccf6  8b          DATA '\x8b'
+    .word 0xf004
+    .word mem_cd8b
 
-    .byte 0x00              ;ccf7  00          DATA '\x00'
-    .byte 0x26              ;ccf8  26          DATA '&'
-    .byte 0xCD              ;ccf9  cd          DATA '\xcd'
-    .byte 0x6B              ;ccfa  6b          DATA 'k'
+    .word 0x0026
+    .word mem_cd6b
 
-    .byte 0x00              ;ccfb  00          DATA '\x00'
-    .byte 0x04              ;ccfc  04          DATA '\x04'
-    .byte 0xCD              ;ccfd  cd          DATA '\xcd'
-    .byte 0x73              ;ccfe  73          DATA 's'
+    .word 0x0004
+    .word mem_cd73
 
-    .byte 0x00              ;ccff  00          DATA '\x00'
-    .byte 0x04              ;cd00  04          DATA '\x04'
-    .byte 0xCD              ;cd01  cd          DATA '\xcd'
-    .byte 0x67              ;cd02  67          DATA 'g'
+    .word 0x0004
+    .word mem_cd67
 
-    .byte 0x00              ;cd03  00          DATA '\x00'
-    .byte 0x36              ;cd04  36          DATA '6'
-    .byte 0xCD              ;cd05  cd          DATA '\xcd'
-    .byte 0x83              ;cd06  83          DATA '\x83'
+    .word 0x0036
+    .word mem_cd83
 
-    .byte 0xF0              ;cd07  f0          DATA '\xf0'
-    .byte 0x1C              ;cd08  1c          DATA '\x1c'
-    .byte 0xCD              ;cd09  cd          DATA '\xcd'
-    .byte 0x83              ;cd0a  83          DATA '\x83'
+    .word 0xf01c
+    .word mem_cd83
 
-    .byte 0x00              ;cd0b  00          DATA '\x00'
-    .byte 0x04              ;cd0c  04          DATA '\x04'
-    .byte 0xCD              ;cd0d  cd          DATA '\xcd'
-    .byte 0x83              ;cd0e  83          DATA '\x83'
+    .word 0x0004
+    .word mem_cd83
 
-    .byte 0xF0              ;cd0f  f0          DATA '\xf0'
-    .byte 0x04              ;cd10  04          DATA '\x04'
-    .byte 0xCD              ;cd11  cd          DATA '\xcd'
-    .byte 0x83              ;cd12  83          DATA '\x83'
+    .word 0xf004
+    .word mem_cd83
 
-    .byte 0x00              ;cd13  00          DATA '\x00'
-    .byte 0x29              ;cd14  29          DATA ')'
-    .byte 0xCD              ;cd15  cd          DATA '\xcd'
-    .byte 0x7F              ;cd16  7f          DATA '\x7f'
+    .word 0x0029
+    .word mem_cd7f
 
-    .byte 0xF0              ;cd17  f0          DATA '\xf0'
-    .byte 0x22              ;cd18  22          DATA '"'
-    .byte 0xCD              ;cd19  cd          DATA '\xcd'
-    .byte 0x7F              ;cd1a  7f          DATA '\x7f'
+    .word 0xf022
+    .word mem_cd7f
 
-    .byte 0x00              ;cd1b  00          DATA '\x00'
-    .byte 0x11              ;cd1c  11          DATA '\x11'
-    .byte 0xCD              ;cd1d  cd          DATA '\xcd'
-    .byte 0x7F              ;cd1e  7f          DATA '\x7f'
+    .word 0x0011
+    .word mem_cd7f
 
 sub_cd1f:
     movw ix, a              ;cd1f  e2
@@ -13637,82 +13527,121 @@ sub_cd1f:
 lab_cd3e:
     ret                     ;cd3e  20
 
+mem_cd3f:
     .byte 0x01              ;cd3f  01          DATA '\x01'
     .byte 0xAD              ;cd40  ad          DATA '\xad'
     .byte 0x00              ;cd41  00          DATA '\x00'
     .byte 0x06              ;cd42  06          DATA '\x06'
+
+mem_cd43:
     .byte 0x00              ;cd43  00          DATA '\x00'
     .byte 0xDE              ;cd44  de          DATA '\xde'
     .byte 0x06              ;cd45  06          DATA '\x06'
     .byte 0x01              ;cd46  01          DATA '\x01'
+
+mem_cd47:
     .byte 0x02              ;cd47  02          DATA '\x02'
     .byte 0x90              ;cd48  90          DATA '\x90'
     .byte 0x07              ;cd49  07          DATA '\x07'
     .byte 0x01              ;cd4a  01          DATA '\x01'
+
+mem_cd4b:
     .byte 0x02              ;cd4b  02          DATA '\x02'
     .byte 0x0E              ;cd4c  0e          DATA '\x0e'
     .byte 0x0A              ;cd4d  0a          DATA '\n'
     .byte 0x01              ;cd4e  01          DATA '\x01'
+
+mem_cd4f:
     .byte 0x02              ;cd4f  02          DATA '\x02'
     .byte 0x08              ;cd50  08          DATA '\x08'
     .byte 0x0B              ;cd51  0b          DATA '\x0b'
     .byte 0x01              ;cd52  01          DATA '\x01'
+
+mem_cd53:
     .byte 0x02              ;cd53  02          DATA '\x02'
     .byte 0x75              ;cd54  75          DATA 'u'
     .byte 0x0C              ;cd55  0c          DATA '\x0c'
     .byte 0x02              ;cd56  02          DATA '\x02'
+
+mem_cd57:
     .byte 0x02              ;cd57  02          DATA '\x02'
     .byte 0x0F              ;cd58  0f          DATA '\x0f'
     .byte 0x0E              ;cd59  0e          DATA '\x0e'
     .byte 0x02              ;cd5a  02          DATA '\x02'
+
+mem_cd5b:
     .byte 0x01              ;cd5b  01          DATA '\x01'
     .byte 0xB4              ;cd5c  b4          DATA '\xb4'
     .byte 0x10              ;cd5d  10          DATA '\x10'
     .byte 0x06              ;cd5e  06          DATA '\x06'
+
+mem_cd5f:
     .byte 0x02              ;cd5f  02          DATA '\x02'
     .byte 0x96              ;cd60  96          DATA '\x96'
     .byte 0x16              ;cd61  16          DATA '\x16'
     .byte 0x08              ;cd62  08          DATA '\x08'
+
+mem_cd63:
     .byte 0x01              ;cd63  01          DATA '\x01'
     .byte 0xA6              ;cd64  a6          DATA '\xa6'
     .byte 0x20              ;cd65  20          DATA ' '
     .byte 0x06              ;cd66  06          DATA '\x06'
+
+mem_cd67:
     .byte 0x03              ;cd67  03          DATA '\x03'
     .byte 0xAF              ;cd68  af          DATA '\xaf'
     .byte 0x2B              ;cd69  2b          DATA '+'
     .byte 0x05              ;cd6a  05          DATA '\x05'
+
+mem_cd6b:
     .byte 0x01              ;cd6b  01          DATA '\x01'
     .byte 0x75              ;cd6c  75          DATA 'u'
     .byte 0x3C              ;cd6d  3c          DATA '<'
     .byte 0x04              ;cd6e  04          DATA '\x04'
+
+mem_cd6f:
     .byte 0x01              ;cd6f  01          DATA '\x01'
     .byte 0x49              ;cd70  49          DATA 'I'
     .byte 0x40              ;cd71  40          DATA '@'
     .byte 0x20              ;cd72  20          DATA ' '
+
+mem_cd73:
     .byte 0x01              ;cd73  01          DATA '\x01'
     .byte 0x65              ;cd74  65          DATA 'e'
     .byte 0x5C              ;cd75  5c          DATA '\\'
     .byte 0x04              ;cd76  04          DATA '\x04'
+
+mem_cd77:
     .byte 0x03              ;cd77  03          DATA '\x03'
     .byte 0x0C              ;cd78  0c          DATA '\x0c'
     .byte 0x60              ;cd79  60          DATA '`'
     .byte 0x06              ;cd7a  06          DATA '\x06'
+
+mem_cd7b:
     .byte 0x01              ;cd7b  01          DATA '\x01'
     .byte 0x69              ;cd7c  69          DATA 'i'
     .byte 0x6C              ;cd7d  6c          DATA 'l'
     .byte 0x04              ;cd7e  04          DATA '\x04'
+
+mem_cd7f:
     .byte 0x01              ;cd7f  01          DATA '\x01'
     .byte 0x6D              ;cd80  6d          DATA 'm'
     .byte 0x70              ;cd81  70          DATA 'p'
     .byte 0x04              ;cd82  04          DATA '\x04'
+
+mem_cd83:
     .byte 0x03              ;cd83  03          DATA '\x03'
     .byte 0x47              ;cd84  47          DATA 'G'
     .byte 0x74              ;cd85  74          DATA 't'
     .byte 0x02              ;cd86  02          DATA '\x02'
+
+mem_cd87:
     .byte 0x02              ;cd87  02          DATA '\x02'
     .byte 0x77              ;cd88  77          DATA 'w'
     .byte 0x7C              ;cd89  7c          DATA '|'
     .byte 0x02              ;cd8a  02          DATA '\x02'
+
+mem_cd8b:
     .byte 0x02              ;cd8b  02          DATA '\x02'
     .byte 0x75              ;cd8c  75          DATA 'u'
     .byte 0x7F              ;cd8d  7f          DATA '\x7f'
