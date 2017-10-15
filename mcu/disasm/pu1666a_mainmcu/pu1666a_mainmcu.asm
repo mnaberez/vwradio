@@ -5712,29 +5712,37 @@ sub_9e6e:
     jmp lab_9e7f            ;9e71  21 9e 7f
 
 sub_9e74:
-;TODO these are all guesses based on block titles
     mov a, mem_0369         ;9e74  60 03 69
-    cmp a, #0x03            ;9e77  14 03    Read eeprom, 8 bit byte count, 16 bit address
+
+    cmp a, #0x03            ;9e77  14 03
     beq lab_9ea1            ;9e79  fd 26
-    cmp a, #0x01            ;9e7b  14 01    Read RAM, 8 bit byte count, 16 bit address
+
+    cmp a, #0x01            ;9e7b  14 01
     beq lab_9ea1            ;9e7d  fd 22
 
 lab_9e7f:
-    cmp a, #0x05            ;9e7f  14 05    clear fault codes?
+    cmp a, #0x05            ;9e7f  14 05
     beq lab_9ea1            ;9e81  fd 1e
-    cmp a, #0x24            ;9e83  14 24    ?
+
+    cmp a, #0x24            ;9e83  14 24
     beq lab_9ea1            ;9e85  fd 1a
-    cmp a, #0x25            ;9e87  14 25    ?
+
+    cmp a, #0x25            ;9e87  14 25
     beq lab_9ea1            ;9e89  fd 16
-    cmp a, #0x29            ;9e8b  14 29    Request group reading
+
+    cmp a, #0x29            ;9e8b  14 29
     beq lab_9ea1            ;9e8d  fd 12
-    cmp a, #0x30            ;9e8f  14 30    ?
+
+    cmp a, #0x30            ;9e8f  14 30
     beq lab_9ea1            ;9e91  fd 0e
-    cmp a, #0x28            ;9e93  14 28    Basic Setting
+
+    cmp a, #0x28            ;9e93  14 28
     beq lab_9ea1            ;9e95  fd 0a
-    cmp a, #0x09            ;9e97  14 09    Acknowlege
+
+    cmp a, #0x09            ;9e97  14 09
     beq lab_9ea1            ;9e99  fd 06
-    cmp a, #0x71            ;9e9b  14 71    ?
+
+    cmp a, #0x71            ;9e9b  14 71
     beq lab_9ea1            ;9e9d  fd 02
 
 lab_9e9f:
@@ -16323,24 +16331,33 @@ sub_da24:
     mov a, mem_00cc         ;da24  05 cc
     cmp a, #0x01            ;da26  14 01
     beq lab_da57            ;da28  fd 2d
+
     cmp a, #0x02            ;da2a  14 02
     beq lab_da57            ;da2c  fd 29
+
     cmp a, #0x03            ;da2e  14 03
     beq lab_da57            ;da30  fd 25
+
     cmp mem_0095, #0x01     ;da32  95 95 01
     bne lab_da7d            ;da35  fc 46
     bbs mem_00f7:6, lab_da57 ;da37  be f7 1d
+
     mov a, mem_00cc         ;da3a  05 cc
     cmp a, #0x04            ;da3c  14 04
     beq lab_da86            ;da3e  fd 46
+
     cmp a, #0x05            ;da40  14 05
     beq lab_da86            ;da42  fd 42
+
     cmp a, #0x15            ;da44  14 15
     beq lab_da86            ;da46  fd 3e
+
     cmp a, #0x1d            ;da48  14 1d
     beq lab_da86            ;da4a  fd 3a
+
     cmp a, #0x1e            ;da4c  14 1e
     beq lab_da86            ;da4e  fd 36
+
     mov a, mem_0369         ;da50  60 03 69
     cmp a, #0x05            ;da53  14 05
     beq lab_da6c            ;da55  fd 15
