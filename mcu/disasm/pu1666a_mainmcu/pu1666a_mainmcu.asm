@@ -1195,8 +1195,10 @@ sub_83f8:
 
 sub_8402:
     call sub_ba0e           ;8402  31 ba 0e
-    movw a, #0x0414         ;8405  e4 04 14
+
+    movw a, #0x0414         ;8405  e4 04 14     Maybe Fault 01044 Control Module Incorrectly Coded?
     movw mem_0165, a        ;8408  d4 01 65
+
     movw a, #0x2332         ;840b  e4 23 32
     movw mem_0167, a        ;840e  d4 01 67
     mov mem_0091, #0x08     ;8411  85 91 08
@@ -6538,8 +6540,10 @@ lab_a36d:
     call sub_c2a2           ;a370  31 c2 a2
     mov a, #0x00            ;a373  04 00
     mov mem_03af, a         ;a375  61 03 af
-    movw a, #0x0414         ;a378  e4 04 14
+
+    movw a, #0x0414         ;a378  e4 04 14     Maybe Fault 01044 Control Module Incorrectly Coded?
     movw mem_0165, a        ;a37b  d4 01 65
+
     movw a, #0x2332         ;a37e  e4 23 32
     movw mem_0167, a        ;a381  d4 01 67
     mov mem_00f1, #0x86     ;a384  85 f1 86
@@ -8821,7 +8825,7 @@ sub_b166:
     ret                     ;b16a  20
 
 sub_b16b:
-    mov mem_00a5, #0x04     ;b16b  85 a5 04
+    mov mem_00a5, #0x04     ;b16b  85 a5 04     4 bytes in response
     movw a, #kwp_ack       ;b16e  e4 ff 40
     movw mem_0084, a        ;b171  d5 84
     call sub_bbab           ;b173  31 bb ab
@@ -8924,7 +8928,7 @@ sub_b20c:
 sub_b20e:
     movw a, #kwp_no_ack       ;b20e  e4 ff 3b
     movw mem_0084, a        ;b211  d5 84
-    mov mem_00a5, #0x05     ;b213  85 a5 05
+    mov mem_00a5, #0x05     ;b213  85 a5 05     5 bytes in response
     call sub_b136           ;b216  31 b1 36
     mov a, mem_0116         ;b219  60 01 16
     jmp lab_b22e            ;b21c  21 b2 2e
@@ -8932,7 +8936,7 @@ sub_b20e:
 sub_b21f:
     movw a, #kwp_no_ack       ;b21f  e4 ff 3b
     movw mem_0084, a        ;b222  d5 84
-    mov mem_00a5, #0x05     ;b224  85 a5 05
+    mov mem_00a5, #0x05     ;b224  85 a5 05     5 bytes in response
     call sub_b136           ;b227  31 b1 36
     mov a, mem_0116         ;b22a  60 01 16
     incw a                  ;b22d  c0
@@ -9238,7 +9242,7 @@ mem_0081_is_0x0c:
 
     movw a, #0x012f         ;b3ec  e4 01 2f
     movw mem_0086, a        ;b3ef  d5 86
-    mov mem_00a5, #0x04     ;b3f1  85 a5 04     0x04 bytes in response
+    mov mem_00a5, #0x04     ;b3f1  85 a5 04     4 bytes in response
     call sub_b13e           ;b3f4  31 b1 3e
     call sub_bba4           ;b3f7  31 bb a4
     mov mem_0081, #0x0d     ;b3fa  85 81 0d
@@ -9403,7 +9407,7 @@ lab_b4e0:
     jmp lab_b4f7            ;b4e6  21 b4 f7
 
 lab_b4e9:
-    mov mem_00a5, #0x07     ;b4e9  85 a5 07     0x07 bytes in response
+    mov mem_00a5, #0x07     ;b4e9  85 a5 07     7 bytes in response
     movw a, #kwp_fault_codes ;b4ec  e4 ff 44
     movw mem_0084, a        ;b4ef  d5 84        mem_0084 = Pointer to message
     call sub_b136           ;b4f1  31 b1 36
@@ -9474,7 +9478,7 @@ sub_b542:
     call sub_b554           ;b546  31 b5 54
     movw mem_0084, a        ;b549  d5 84        mem_0084 = Pointer to message
     movw mem_0084, a        ;b54b  d5 84
-    mov mem_00a5, #0x03     ;b54d  85 a5 03     0x03 bytes in response
+    mov mem_00a5, #0x03     ;b54d  85 a5 03     3 bytes in response
     call sub_b13e           ;b550  31 b1 3e
 
 lab_b553:
@@ -9569,7 +9573,7 @@ lab_b5d3:
     ret                     ;b5d6  20
 
 lab_b5d7:
-    mov mem_00a5, #0x07     ;b5d7  85 a5 07     0x07 bytes in response
+    mov mem_00a5, #0x07     ;b5d7  85 a5 07     7 bytes in response
     movw a, #kwp_fault_codes ;b5da  e4 ff 44
     movw mem_0084, a        ;b5dd  d5 84        mem_0084 = Pointer to message
     call sub_bba1           ;b5df  31 bb a1
@@ -9588,7 +9592,7 @@ lab_b5ea:
 sub_b5f1:
     call sub_bc02           ;b5f1  31 bc 02
     call sub_b64b           ;b5f4  31 b6 4b
-    call sub_c4fe           ;b5f7  31 c4 fe
+    call sub_c4fe_fault_terminal_30 ;b5f7  31 c4 fe
     mov a, mem_0335         ;b5fa  60 03 35
     beq lab_b604            ;b5fd  fd 05
     cmp a, #0x01            ;b5ff  14 01
@@ -9598,7 +9602,7 @@ sub_b5f1:
 lab_b604:
     call sub_c034           ;b604  31 c0 34
     call sub_b64b           ;b607  31 b6 4b
-    call sub_c50c           ;b60a  31 c5 0c
+    call sub_c50c_fault_amplifier ;b60a  31 c5 0c
     call sub_bd48           ;b60d  31 bd 48
     mov a, mem_013f         ;b610  60 01 3f
     mov a, #0x01            ;b613  04 01
@@ -9611,7 +9615,7 @@ lab_b604:
 
 lab_b621:
     call sub_b64b           ;b621  31 b6 4b
-    call sub_c55d           ;b624  31 c5 5d
+    call sub_c55d_fault_speakers_front ;b624  31 c5 5d
     call sub_bdbe           ;b627  31 bd be
     mov a, mem_0140         ;b62a  60 01 40
     mov a, #0x01            ;b62d  04 01
@@ -9624,10 +9628,10 @@ lab_b621:
 
 lab_b63b:
     call sub_b64b           ;b63b  31 b6 4b
-    call sub_c574           ;b63e  31 c5 74
+    call sub_c574_fault_speakers_rear ;b63e  31 c5 74
     call sub_bc44           ;b641  31 bc 44
     call sub_b64b           ;b644  31 b6 4b
-    call sub_c51a           ;b647  31 c5 1a
+    call sub_c51a_fault_cd_changer ;b647  31 c5 1a
     ret                     ;b64a  20
 
 sub_b64b:
@@ -9708,7 +9712,7 @@ lab_b6b3:
     ret                     ;b6b6  20
 
 lab_b6b7:
-    mov mem_00a5, #0x06     ;b6b7  85 a5 06     0x06 bytes in response
+    mov mem_00a5, #0x06     ;b6b7  85 a5 06     6 bytes in response
     call sub_bbab           ;b6ba  31 bb ab
     mov mem_0081, #0x03     ;b6bd  85 81 03
     ret                     ;b6c0  20
@@ -10341,10 +10345,12 @@ lab_ba34:
     mov mem_0092, #0x00     ;ba57  85 92 00
     mov a, #0x00            ;ba5a  04 00
     mov mem_0091, a         ;ba5c  45 91
+
     movw a, mem_0165        ;ba5e  c4 01 65
-    movw a, #0x0414         ;ba61  e4 04 14
+    movw a, #0x0414         ;ba61  e4 04 14     Maybe Fault 01044 Control Module Incorrectly Coded?
     cmpw a                  ;ba64  13
     bne lab_ba6b            ;ba65  fc 04
+
     mov a, #0x08            ;ba67  04 08
     mov mem_0091, a         ;ba69  45 91
 
@@ -12004,54 +12010,54 @@ sub_c4c0:
     jmp sub_e73c            ;c4c6  21 e7 3c
 
 mem_c4c9:
-    .word lab_c552          ;c4c9  c5 52       VECTOR
-    .word lab_c4dd          ;c4cb  c4 dd       VECTOR
-    .word sub_c4fe          ;c4cd  c4 fe       VECTOR
-    .word sub_c50c          ;c4cf  c5 0c       VECTOR
-    .word sub_c51a          ;c4d1  c5 1a       VECTOR
-    .word sub_c55d          ;c4d3  c5 5d       VECTOR
-    .word sub_c574          ;c4d5  c5 74       VECTOR
-    .word lab_c592          ;c4d7  c5 92       VECTOR
-    .word lab_c5cc          ;c4d9  c5 cc       VECTOR
-    .word lab_c5cf          ;c4db  c5 cf       VECTOR
+    .word lab_c552                      ;VECTOR 0  Does nothing
+    .word lab_c4dd_fault_antenna        ;VECTOR 1  Fault 00856 Antenna
+    .word sub_c4fe_fault_terminal_30    ;VECTOR 2  Fault 00668 Supply terminal 30
+    .word sub_c50c_fault_amplifier      ;VECTOR 3  Fault 00850 Radio amplifier
+    .word sub_c51a_fault_cd_changer     ;VECTOR 4  Fault 00855 CD changer
+    .word sub_c55d_fault_speakers_front ;VECTOR 5  Fault 00852 Loudspeaker(s) Front
+    .word sub_c574_fault_speakers_rear  ;VECTOR 6  Fault 00853 Loudspeaker(s) Rear
+    .word lab_c592_fault_internal_mem   ;VECTOR 7  Fault 65535 Internal Memory Error
+    .word lab_c5cc                      ;VECTOR 8
+    .word lab_c5cf                      ;VECTOR 9
 
-lab_c4dd:
+lab_c4dd_fault_antenna:
     movw ix, #mem_0149      ;c4dd  e6 01 49
     bbc mem_0091:0, lab_c528 ;c4e0  b0 91 45
     mov a, mem_0141         ;c4e3  60 01 41
     cmp a, #0x02            ;c4e6  14 02
     bne lab_c4f2            ;c4e8  fc 08
-    movw a, #0x0358         ;c4ea  e4 03 58
+    movw a, #0x0358         ;c4ea  e4 03 58     Fault 00856 - Radio Antenna
     movw a, #0x1d32         ;c4ed  e4 1d 32
-    bne lab_c53c            ;c4f0  fc 4a       BRANCH_ALWAYS_TAKEN
+    bne lab_c53c            ;c4f0  fc 4a        BRANCH_ALWAYS_TAKEN
 
 lab_c4f2:
     cmp a, #0x01            ;c4f2  14 01
     bne lab_c552            ;c4f4  fc 5c
-    movw a, #0x0358         ;c4f6  e4 03 58
+    movw a, #0x0358         ;c4f6  e4 03 58     Fault 00856 - Radio Antenna
     movw a, #0x2432         ;c4f9  e4 24 32
-    bne lab_c53c            ;c4fc  fc 3e       BRANCH_ALWAYS_TAKEN
+    bne lab_c53c            ;c4fc  fc 3e        BRANCH_ALWAYS_TAKEN
 
-sub_c4fe:
+sub_c4fe_fault_terminal_30:
     movw ix, #mem_014d      ;c4fe  e6 01 4d
     bbc mem_0091:1, lab_c528 ;c501  b1 91 24
-    movw a, #0x029c         ;c504  e4 02 9c
+    movw a, #0x029c         ;c504  e4 02 9c     Fault 00668 - Supply Voltage Terminal 30
     movw a, #0x0732         ;c507  e4 07 32
-    bne lab_c53c            ;c50a  fc 30       BRANCH_ALWAYS_TAKEN
+    bne lab_c53c            ;c50a  fc 30        BRANCH_ALWAYS_TAKEN
 
-sub_c50c:
+sub_c50c_fault_amplifier:
     movw ix, #mem_0151      ;c50c  e6 01 51
     bbc mem_0091:2, lab_c528 ;c50f  b2 91 16
-    movw a, #0x0352         ;c512  e4 03 52
+    movw a, #0x0352         ;c512  e4 03 52     Fault 00850 - Control Output Active: Radio Amplifier
     movw a, #0x1d32         ;c515  e4 1d 32
-    bne lab_c53c            ;c518  fc 22       BRANCH_ALWAYS_TAKEN
+    bne lab_c53c            ;c518  fc 22        BRANCH_ALWAYS_TAKEN
 
-sub_c51a:
+sub_c51a_fault_cd_changer:
     movw ix, #mem_0155      ;c51a  e6 01 55
     bbc mem_0091:4, lab_c528 ;c51d  b4 91 08
-    movw a, #0x0357         ;c520  e4 03 57
+    movw a, #0x0357         ;c520  e4 03 57     Fault 00855 - Connection to CD changer
     movw a, #0x3132         ;c523  e4 31 32
-    bne lab_c53c            ;c526  fc 14       BRANCH_ALWAYS_TAKEN
+    bne lab_c53c            ;c526  fc 14        BRANCH_ALWAYS_TAKEN
 
 lab_c528:
     mov a, mem_02d5         ;c528  60 02 d5
@@ -12093,26 +12099,26 @@ lab_c553:
     bne lab_c549            ;c558  fc ef
     jmp lab_c536            ;c55a  21 c5 36
 
-sub_c55d:
+sub_c55d_fault_speakers_front:
     movw ix, #mem_0159      ;c55d  e6 01 59
     bbc mem_0091:5, lab_c528 ;c560  b5 91 c5
     mov a, mem_013f         ;c563  60 01 3f
     cmp a, #0x01            ;c566  14 01
     bne lab_c56f            ;c568  fc 05
-    movw a, #0x0354         ;c56a  e4 03 54
-    bne lab_c584            ;c56d  fc 15       BRANCH_ALWAYS_TAKEN
+    movw a, #0x0354         ;c56a  e4 03 54     Fault 00852 - Loudspeaker(s) Front
+    bne lab_c584            ;c56d  fc 15        BRANCH_ALWAYS_TAKEN
 
 lab_c56f:
-    movw a, #0x0354         ;c56f  e4 03 54
-    bne lab_c58d            ;c572  fc 19       BRANCH_ALWAYS_TAKEN
+    movw a, #0x0354         ;c56f  e4 03 54     Fault 00852 - Loudspeaker(s) Front
+    bne lab_c58d            ;c572  fc 19        BRANCH_ALWAYS_TAKEN
 
-sub_c574:
+sub_c574_fault_speakers_rear:
     movw ix, #mem_015d      ;c574  e6 01 5d
     bbc mem_0091:6, lab_c528 ;c577  b6 91 ae
     mov a, mem_0140         ;c57a  60 01 40
     cmp a, #0x01            ;c57d  14 01
     bne lab_c58a            ;c57f  fc 09
-    movw a, #0x0355         ;c581  e4 03 55
+    movw a, #0x0355         ;c581  e4 03 55     Fault 00853 - Loudspeaker(s) Rear
 
 lab_c584:
     movw a, #0x2432         ;c584  e4 24 32
@@ -12121,18 +12127,18 @@ lab_c587:
     jmp lab_c53c            ;c587  21 c5 3c
 
 lab_c58a:
-    movw a, #0x0355         ;c58a  e4 03 55
+    movw a, #0x0355         ;c58a  e4 03 55     Fault 00853 - Loudspeaker(s) Rear
 
 lab_c58d:
     movw a, #0x2c32         ;c58d  e4 2c 32
-    bne lab_c587            ;c590  fc f5       BRANCH_ALWAYS_TAKEN
+    bne lab_c587            ;c590  fc f5        BRANCH_ALWAYS_TAKEN
 
-lab_c592:
+lab_c592_fault_internal_mem:
     movw ix, #mem_0161      ;c592  e6 01 61
     bbc mem_0091:7, lab_c5a0 ;c595  b7 91 08
-    movw a, #0xffff         ;c598  e4 ff ff
+    movw a, #0xffff         ;c598  e4 ff ff     Fault 65535 - Internal Control Module Memory Error
     movw a, #0x0032         ;c59b  e4 00 32
-    bne lab_c587            ;c59e  fc e7       BRANCH_ALWAYS_TAKEN
+    bne lab_c587            ;c59e  fc e7        BRANCH_ALWAYS_TAKEN
 
 lab_c5a0:
     mov a, mem_02d5         ;c5a0  60 02 d5
@@ -12170,7 +12176,7 @@ sub_c5d2:
     setb mem_0097:2         ;c5d2  aa 97
     mov a, #0x00            ;c5d4  04 00
     movw ix, #mem_02b6      ;c5d6  e6 02 b6
-    call fill_ix_plus_0x05_downto_0           ;c5d9  31 e6 ed
+    call fill_ix_plus_0x05_downto_0 ;c5d9  31 e6 ed
     mov a, mem_0095         ;c5dc  05 95
     mov mem_02c8, a         ;c5de  61 02 c8
     movw ix, #mem_02b6      ;c5e1  e6 02 b6
@@ -17767,7 +17773,7 @@ sub_e338:
     mov mem_0397, a         ;e33a  61 03 97
     movw a, #mem_dd5d       ;e33d  e4 dd 5d
     movw mem_0084, a        ;e340  d5 84        mem_0084 = Pointer to message
-    mov mem_00a5, #0x05     ;e342  85 a5 05     0x05 bytes in response
+    mov mem_00a5, #0x05     ;e342  85 a5 05     5 bytes in response
     call sub_b136           ;e345  31 b1 36
     mov a, mem_0116         ;e348  60 01 16
     jmp lab_e35f            ;e34b  21 e3 5f
@@ -17776,7 +17782,7 @@ sub_e34e:
     clrb mem_00f9:7         ;e34e  a7 f9
     movw a, #mem_dd5d       ;e350  e4 dd 5d
     movw mem_0084, a        ;e353  d5 84        mem_0084 = Pointer to message
-    mov mem_00a5, #0x05     ;e355  85 a5 05     0x05 bytes in response
+    mov mem_00a5, #0x05     ;e355  85 a5 05     5 bytes in response
     call sub_b136           ;e358  31 b1 36
     mov a, mem_0116         ;e35b  60 01 16
     incw a                  ;e35e  c0
@@ -17888,7 +17894,7 @@ lab_e3d9:
     movw mem_03ad, a        ;e3eb  d4 03 ad
     movw a, #mem_dd66       ;e3ee  e4 dd 66
     movw mem_0084, a        ;e3f1  d5 84        mem_0084 = Pointer to message
-    mov mem_00a5, #0x08     ;e3f3  85 a5 08     0x08 bytes in response
+    mov mem_00a5, #0x08     ;e3f3  85 a5 08     8 bytes in response
     call sub_b136           ;e3f6  31 b1 36
     mov a, mem_03ab         ;e3f9  60 03 ab
     mov mem_0131, a         ;e3fc  61 01 31
@@ -18032,7 +18038,7 @@ lab_e4eb:
     mov a, mem_038c         ;e4eb  60 03 8c
     bne lab_e4ea            ;e4ee  fc fa
     call sub_e3a2           ;e4f0  31 e3 a2
-    mov mem_00a5, #0x04     ;e4f3  85 a5 04    0x04 bytes in response
+    mov mem_00a5, #0x04     ;e4f3  85 a5 04    4 bytes in response
     movw a, #mem_dd6e       ;e4f6  e4 dd 6e
     movw mem_0084, a        ;e4f9  d5 84       mem_0084 = Pointer to message
     call sub_e366           ;e4fb  31 e3 66
