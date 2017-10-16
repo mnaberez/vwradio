@@ -89,6 +89,10 @@ It will leave the current Test Mode display but the faceplate keys won't work.
 After exiting diagnostics mode, the Test Mode will continue to work as it was
 before it was interrupted.
 
+Coding: The Premium 4 will control a CD changer regardless if the soft coding
+is set for a CD changer or not.  However, it appears that the Premium 4 will
+only set the 00855 fault code for CD changer communication if it has been soft
+coded for a CD changer.
 
 Power
 -----
