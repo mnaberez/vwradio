@@ -10,7 +10,6 @@
     sycc = 0x07             ;system clock control register
     stbc = 0x08             ;standby control register
     tbtc = 0x0a             ;timebase timer control register
-    mem_000b = 0x0b
     pdr3 = 0x0c             ;port 3 data register
     ddr3 = 0x0d             ;port 3 data direction register
     pdr4 = 0x0e             ;port 4 data register
@@ -47,17 +46,13 @@
     usmr = 0x40             ;uart mode register
     uscr = 0x41             ;uart control register
     ustr = 0x42             ;uart status register
-    rxdr = 0x43             ;read: uart receive data register, write: uart transmit data register
+    rxdr = 0x43             ;read: uart receive data register
+    txdr = 0x43             ;write: uart transmit data register
     rrdr = 0x45             ;baud-rate generate reload data register
     cntr4 = 0x48            ;pwm-control register 4
     comp4 = 0x49            ;pwm-compare register 4
     cntr5 = 0x4a            ;pwm-control register 5
     cntr6 = 0x4c            ;pwm-control register 6
-    mem_004f = 0x4f
-    mem_0050 = 0x50
-    mem_0054 = 0x54
-    mem_0061 = 0x61
-    mem_006d = 0x6d
     ilr1 = 0x7c             ;interrupt-level setting register 1
     ilr2 = 0x7d             ;interrupt-level setting register 2
     ilr3 = 0x7e             ;interrupt-level setting register 3
@@ -1196,7 +1191,7 @@ sub_83f8:
 sub_8402:
     call sub_ba0e           ;8402  31 ba 0e
 
-    movw a, #0x0414         ;8405  e4 04 14     Maybe Fault 01044 Control Module Incorrectly Coded?
+    movw a, #0x0414         ;8405  e4 04 14     Maybe KW1281 Fault 01044 Control Module Incorrectly Coded?
     movw mem_0165, a        ;8408  d4 01 65
 
     movw a, #0x2332         ;840b  e4 23 32
@@ -6541,7 +6536,7 @@ lab_a36d:
     mov a, #0x00            ;a373  04 00
     mov mem_03af, a         ;a375  61 03 af
 
-    movw a, #0x0414         ;a378  e4 04 14     Maybe Fault 01044 Control Module Incorrectly Coded?
+    movw a, #0x0414         ;a378  e4 04 14     Maybe KW1281 Fault 01044 Control Module Incorrectly Coded?
     movw mem_0165, a        ;a37b  d4 01 65
 
     movw a, #0x2332         ;a37e  e4 23 32
@@ -8014,7 +8009,7 @@ lab_ac79:
 sub_ac7a:
     call sub_e0b8           ;ac7a  31 e0 b8
     movw a, #0x0000         ;ac7d  e4 00 00
-    movw mem_0088, a        ;ac80  d5 88
+    movw mem_0088, a        ;ac80  d5 88        KW1281 byte received
     ret                     ;ac82  20
 
 sub_ac83:
@@ -8063,7 +8058,7 @@ lab_acda:
 
 sub_acdb:
     mov uscr, #0x30         ;acdb  85 41 30
-    mov rxdr, #0xff         ;acde  85 43 ff
+    mov txdr, #0xff         ;acde  85 43 ff     Send KW1281 byte 0xFF (sync byte?) out UART
     ret                     ;ace1  20
 
 sub_ace2:
@@ -8296,7 +8291,7 @@ lab_adf6:
     cmp a, mem_0082         ;ae10  15 82
     bhs lab_ae2a            ;ae12  f8 16
 
-    mov a, mem_0088         ;ae14  05 88        A = byte from UART
+    mov a, mem_0088         ;ae14  05 88        A = KW1281 byte received
     cmp a, #0x03            ;ae16  14 03
     beq lab_ae1c            ;ae18  fd 02
     setb mem_008b:7         ;ae1a  af 8b
@@ -8331,9 +8326,9 @@ lab_ae44:
     mov a, mem_032e         ;ae44  60 03 2e
     bne lab_adec            ;ae47  fc a3
 
-    mov a, mem_0088         ;ae49  05 88        A = byte from UART
-    xor a, #0xff            ;ae4b  54 ff
-    mov mem_0089, a         ;ae4d  45 89        mem_0089 = byte from UART inverted
+    mov a, mem_0088         ;ae49  05 88        A = KW1281 byte received
+    xor a, #0xff            ;ae4b  54 ff        Invert it
+    mov mem_0089, a         ;ae4d  45 89        Save as KW1281 byte to send
 
     mov a, #0x02            ;ae4f  04 02
     mov mem_0114, a         ;ae51  61 01 14
@@ -8342,8 +8337,10 @@ lab_ae44:
     clrb mem_008b:7         ;ae58  a7 8b
     mov rrdr, #0x0d         ;ae5a  85 45 0d
     mov usmr, #0x0b         ;ae5d  85 40 0b
-    mov a, mem_0089         ;ae60  05 89
-    mov rxdr, a             ;ae62  45 43        Send byte out UART
+
+    mov a, mem_0089         ;ae60  05 89        A = KW1281 byte to send
+    mov txdr, a             ;ae62  45 43        Send KW1281 byte out UART
+
     mov a, #0x33            ;ae64  04 33
     mov mem_032e, a         ;ae66  61 03 2e
     ret                     ;ae69  20
@@ -8391,8 +8388,8 @@ lab_ae99:
     beq lab_af1a            ;aeb3  fd 65       BRANCH_ALWAYS_TAKEN
 
 lab_aeb5:
-    mov a, mem_0089         ;aeb5  05 89        A = byte from UART inverted
-    mov a, mem_0088         ;aeb7  05 88        A = byte from UART
+    mov a, mem_0089         ;aeb5  05 89        A = KW1281 byte to send
+    mov a, mem_0088         ;aeb7  05 88        A = KW1281 byte received
     xor a                   ;aeb9  52
     cmp a, #0xff            ;aeba  14 ff
     bne lab_aec7            ;aebc  fc 09
@@ -8488,7 +8485,7 @@ lab_af46:
     movw mem_0086, a        ;af49  d5 86
     movw a, mem_0086        ;af4b  c5 86
     mov a, @a               ;af4d  92
-    mov mem_0089, a         ;af4e  45 89
+    mov mem_0089, a         ;af4e  45 89        KW1281 byte to send = A
 
 lab_af50:
     mov a, mem_0083         ;af50  05 83
@@ -8535,7 +8532,7 @@ sub_af89:
 lab_af95:
     mov rrdr, #0x0d         ;af95  85 45 0d
     mov usmr, #0x63         ;af98  85 40 63
-    mov a, rxdr             ;af9b  05 43
+    mov a, rxdr             ;af9b  05 43        A = KW1281 byte received from UART
     mov mem_009e, a         ;af9d  45 9e
     jmp lab_afa8            ;af9f  21 af a8
 
@@ -8549,8 +8546,8 @@ lab_afa8:
     setb uscr:5             ;afac  ad 41
     setb uscr:4             ;afae  ac 41
     setb uscr:3             ;afb0  ab 41
-    mov a, mem_0089         ;afb2  05 89
-    mov rxdr, a             ;afb4  45 43        Send byte out UART
+    mov a, mem_0089         ;afb2  05 89        A = KW1281 byte to send
+    mov txdr, a             ;afb4  45 43        Send KW1281 byte out UART
     clrb mem_008b:6         ;afb6  a6 8b
     clrb mem_008b:7         ;afb8  a7 8b
     setb uscr:1             ;afba  a9 41
@@ -8639,7 +8636,7 @@ lab_b02c:
     cmpw a                  ;b035  13
     bne lab_b07f            ;b036  fc 47
     clrb uscr:7             ;b038  a7 41
-    mov a, rxdr             ;b03a  05 43
+    mov a, rxdr             ;b03a  05 43        A = KW1281 byte from UART
     mov a, #0x00            ;b03c  04 00
     mov mem_01a1, a         ;b03e  61 01 a1
     bbs mem_00cf:5, lab_b052 ;b041  bd cf 0e
@@ -8697,20 +8694,20 @@ mem_0080_is_00:
 mem_0080_is_00_00:
 ;Branched to when mem_0081 = 0x01
     bbs mem_00e6:1, lab_b0d1 ;b0a7  b9 e6 27
-    mov mem_0089, #0x55     ;b0aa  85 89 55
+    mov mem_0089, #0x55     ;b0aa  85 89 55     KW1281 byte to send = 0x55
     mov a, #0x02            ;b0ad  04 02
     mov mem_0112, a         ;b0af  61 01 12
     clrb mem_008c:4         ;b0b2  a4 8c
     mov mem_0081, a         ;b0b4  45 81
     mov a, #0x03            ;b0b6  04 03
-    bne lab_b0ce            ;b0b8  fc 14       BRANCH_ALWAYS_TAKEN
+    bne lab_b0ce            ;b0b8  fc 14        BRANCH_ALWAYS_TAKEN
 
 mem_0080_is_00_01:
 ;Branched to when mem_0081 = 0x02
     bbs mem_00e6:1, lab_b0d1 ;b0ba  b9 e6 14
     bbc mem_008b:4, lab_b0d1 ;b0bd  b4 8b 11
     mov a, #0x01            ;b0c0  04 01
-    mov mem_0089, a         ;b0c2  45 89
+    mov mem_0089, a         ;b0c2  45 89        KW1281 byte to send = 0x55
     mov mem_0112, a         ;b0c4  61 01 12
     clrb mem_008c:4         ;b0c7  a4 8c
     mov mem_0081, #0x03     ;b0c9  85 81 03
@@ -8727,7 +8724,7 @@ mem_0080_is_00_02:
     bbs mem_00e6:1, lab_b0d1 ;b0d2  b9 e6 fc
     bbc mem_008b:4, lab_b0eb ;b0d5  b4 8b 13
     clrb mem_008b:4         ;b0d8  a4 8b
-    mov mem_0089, #0x0a     ;b0da  85 89 0a
+    mov mem_0089, #0x0a     ;b0da  85 89 0a     KW1281 byte to send = 0x0a
     mov a, #0x01            ;b0dd  04 01
     mov mem_0112, a         ;b0df  61 01 12
     setb mem_008c:4         ;b0e2  ac 8c
@@ -8743,7 +8740,7 @@ mem_0080_is_00_03:
     bbc mem_00e6:1, lab_b10a ;b0ec  b1 e6 1b
     bbc mem_008b:4, lab_b0eb ;b0ef  b4 8b f9
     bbc mem_008b:6, lab_b0eb ;b0f2  b6 8b f6
-    mov a, mem_0088         ;b0f5  05 88        A = byte from UART
+    mov a, mem_0088         ;b0f5  05 88        A = KW1281 byte received
     xor a, #0xff            ;b0f7  54 ff
     and a, #0x7f            ;b0f9  64 7f
     cmp a, #0x0a            ;b0fb  14 0a
@@ -8785,17 +8782,17 @@ lab_b12c:
     ret                     ;b135  20
 
 sub_b136:
-    movw a, #0x012b         ;b136  e4 01 2b
+    movw a, #mem_012b       ;b136  e4 01 2b
     movw mem_0086, a        ;b139  d5 86        mem_0086 = 0x012b
     jmp sub_b13e            ;b13b  21 b1 3e
 
 sub_b13e:
-    mov a, mem_00a5         ;b13e  05 a5        A = mem_00a5 number of bytes in response
+    mov a, mem_00a5         ;b13e  05 a5        A = number of bytes in KW1281 packet
     bne lab_b143            ;b140  fc 01
     ret                     ;b142  20
 
 lab_b143:
-    movw a, mem_0084        ;b143  c5 84        A = Pointer to message packet
+    movw a, mem_0084        ;b143  c5 84        A = Pointer to KW1281 packet bytes
     mov a, @a               ;b145  92           A = byte in packet
     movw a, mem_0086        ;b146  c5 86
     mov @a, t               ;b148  82
@@ -8803,8 +8800,8 @@ lab_b143:
     movw mem_0086, a        ;b14a  d5 86
     movw a, mem_0084        ;b14c  c5 84
     incw a                  ;b14e  c0
-    movw mem_0084, a        ;b14f  d5 84
-    mov a, mem_00a5         ;b151  05 a5
+    movw mem_0084, a        ;b14f  d5 84        Pointer to KW1281 packet bytes
+    mov a, mem_00a5         ;b151  05 a5        A = number of bytes in KW1281 packet
     decw a                  ;b153  d0
     mov mem_00a5, a         ;b154  45 a5
     jmp sub_b13e            ;b156  21 b1 3e
@@ -8815,19 +8812,19 @@ lab_b159:
     incw ix                 ;b15c  c2
     incw ep                 ;b15d  c3
     movw a, #0x0000         ;b15e  e4 00 00
-    mov a, mem_00a5         ;b161  05 a5
+    mov a, mem_00a5         ;b161  05 a5        A = number of bytes in KW1281 packet
     decw a                  ;b163  d0
     mov mem_00a5, a         ;b164  45 a5
 
 sub_b166:
-    mov a, mem_00a5         ;b166  05 a5
+    mov a, mem_00a5         ;b166  05 a5        A = number of bytes in KW1281 packet
     bne lab_b159            ;b168  fc ef
     ret                     ;b16a  20
 
 sub_b16b:
-    mov mem_00a5, #0x04     ;b16b  85 a5 04     4 bytes in response
-    movw a, #kwp_ack       ;b16e  e4 ff 40
-    movw mem_0084, a        ;b171  d5 84
+    mov mem_00a5, #0x04     ;b16b  85 a5 04     4 bytes in KW1281 packet
+    movw a, #kw_ack         ;b16e  e4 ff 40
+    movw mem_0084, a        ;b171  d5 84        Pointer to KW1281 packet bytes
     call sub_bbab           ;b173  31 bb ab
     ret                     ;b176  20
 
@@ -8926,17 +8923,17 @@ sub_b20c:
     clrb mem_008b:7         ;b20c  a7 8b
 
 sub_b20e:
-    movw a, #kwp_no_ack       ;b20e  e4 ff 3b
-    movw mem_0084, a        ;b211  d5 84
-    mov mem_00a5, #0x05     ;b213  85 a5 05     5 bytes in response
+    movw a, #kw_no_ack      ;b20e  e4 ff 3b
+    movw mem_0084, a        ;b211  d5 84        Pointer to KW1281 packet bytes
+    mov mem_00a5, #0x05     ;b213  85 a5 05     5 bytes in KW1281 packet
     call sub_b136           ;b216  31 b1 36
     mov a, mem_0116         ;b219  60 01 16
     jmp lab_b22e            ;b21c  21 b2 2e
 
 sub_b21f:
-    movw a, #kwp_no_ack       ;b21f  e4 ff 3b
-    movw mem_0084, a        ;b222  d5 84
-    mov mem_00a5, #0x05     ;b224  85 a5 05     5 bytes in response
+    movw a, #kw_no_ack      ;b21f  e4 ff 3b
+    movw mem_0084, a        ;b222  d5 84        Pointer to KW1281 packet bytes
+    mov mem_00a5, #0x05     ;b224  85 a5 05     5 bytes in KW1281 packet
     call sub_b136           ;b227  31 b1 36
     mov a, mem_0116         ;b22a  60 01 16
     incw a                  ;b22d  c0
@@ -8957,7 +8954,7 @@ sub_b235:
     clrc                    ;b242  81
     addcw a                 ;b243  23
     pushw a                 ;b244  40
-    mov a, mem_0088         ;b245  05 88        A = byte from UART
+    mov a, mem_0088         ;b245  05 88        A = KW1281 byte received
     xchw a, t               ;b247  43
     popw a                  ;b248  50
     mov @a, t               ;b249  82
@@ -8977,6 +8974,7 @@ lab_b258:
     clrb mem_008b:4         ;b258  a4 8b
 
 lab_b25a:
+;TODO looks like sending a KW1281 packet
     setb uscr:1             ;b25a  a9 41
     movw a, #0x0000         ;b25c  e4 00 00
     mov a, mem_0083         ;b25f  05 83
@@ -8984,7 +8982,7 @@ lab_b25a:
     clrc                    ;b264  81
     addcw a                 ;b265  23
     mov a, @a               ;b266  92
-    mov mem_0089, a         ;b267  45 89
+    mov mem_0089, a         ;b267  45 89        KW1281 byte to send = A
     mov a, mem_0083         ;b269  05 83
     incw a                  ;b26b  c0
     mov mem_0083, a         ;b26c  45 83
@@ -9004,8 +9002,10 @@ sub_b26f:
 sub_b280:
 ;Called from UART ISR
     bbc mem_008c:4, lab_b28e ;b280  b4 8c 0b
+
     mov a, rxdr             ;b283  05 43
-    mov mem_0088, a         ;b285  45 88
+    mov mem_0088, a         ;b285  45 88        KW1281 byte received
+
     clrb uscr:7             ;b287  a7 41
     clrb mem_008c:4         ;b289  a4 8c
     jmp lab_b2b6            ;b28b  21 b2 b6
@@ -9015,14 +9015,16 @@ lab_b28e:
     jmp lab_b2af            ;b292  21 b2 af
 lab_b295:
     mov a, rxdr             ;b295  05 43
-    mov mem_0088, a         ;b297  45 88
+    mov mem_0088, a         ;b297  45 88        KW1281 byte received
+
     setb mem_008b:6         ;b299  ae 8b
     setb mem_008b:4         ;b29b  ac 8b
     clrb uscr:7             ;b29d  a7 41
     jmp lab_b2b6            ;b29f  21 b2 b6
 lab_b2a2:
     mov a, rxdr             ;b2a2  05 43
-    mov mem_0088, a         ;b2a4  45 88
+    mov mem_0088, a         ;b2a4  45 88        KW1281 byte received
+
     setb mem_008b:7         ;b2a6  af 8b
     clrb uscr:7             ;b2a8  a7 41
     setb mem_008b:4         ;b2aa  ac 8b
@@ -9054,9 +9056,9 @@ lab_b2c4:
     ret                     ;b2d3  20
 
 lab_b2d4:
-    mov mem_00a5, #0x06     ;b2d4  85 a5 06     6 bytes in response
-    movw a, #kwp_login       ;b2d7  e4 ff 5d
-    movw mem_0084, a        ;b2da  d5 84        mem_0084 = Pointer to response
+    mov mem_00a5, #0x06     ;b2d4  85 a5 06     6 bytes in KW1281 packet
+    movw a, #kw_login       ;b2d7  e4 ff 5d
+    movw mem_0084, a        ;b2da  d5 84        Pointer to KW1281 packet bytes
     call sub_b136           ;b2dc  31 b1 36
     movw a, mem_020f        ;b2df  c4 02 0f
     movw mem_012e, a        ;b2e2  d4 01 2e
@@ -9113,7 +9115,7 @@ mem_0081_is_0x01:
     clrb mem_008c:1         ;b33c  a1 8c
     mov a, #0x00            ;b33e  04 00
     mov mem_017c, a         ;b340  61 01 7c
-    mov mem_00a5, #0x10     ;b343  85 a5 10     0x10 bytes in response
+    mov mem_00a5, #0x10     ;b343  85 a5 10     16 bytes in KW1281 packet
 
     mov a, mem_00e8         ;b346  05 e8
     and a, #0b11000000      ;b348  64 c0
@@ -9122,7 +9124,7 @@ mem_0081_is_0x01:
     bne cmp_model_1         ;b34c  fc 05
 
     ;Model is 1J0035180
-    movw a, #kwp_1j0035180  ;b34e  e4 ff 0c    "1J0035180   "
+    movw a, #kw_asc_1j0035180   ;b34e  e4 ff 0c    "1J0035180   "
     bne cmp_model_done      ;b351  fc 0c       BRANCH_ALWAYS_TAKEN
 
 cmp_model_1:
@@ -9130,15 +9132,15 @@ cmp_model_1:
     bne cmp_model_2         ;b355  fc 05
 
     ;Model is 1J0035180D
-    movw a, #kwp_1j0035180d ;b357  e4 fe fc    "1J0035180D  "
+    movw a, #kw_asc_1j0035180d  ;b357  e4 fe fc    "1J0035180D  "
     bne cmp_model_done      ;b35a  fc 03       BRANCH_ALWAYS_TAKEN
 
 cmp_model_2:
     ;Model is 1C0035180E
-    movw a, #kwp_1c0035180e ;b35c  e4 fe ec    "1C0035180E  "
+    movw a, #kw_asc_1c0035180e  ;b35c  e4 fe ec    "1C0035180E  "
 
 cmp_model_done:
-    movw mem_0084, a        ;b35f  d5 84        mem_0084 = pointer to model string
+    movw mem_0084, a        ;b35f  d5 84        Pointer to KW1281 packet bytes
     call sub_bbab           ;b361  31 bb ab
     mov a, #0x1a            ;b364  04 1a
     mov mem_032e, a         ;b366  61 03 2e
@@ -9181,9 +9183,9 @@ mem_0081_is_0x03:
 
 
 mem_0081_is_0x04:
-    mov mem_00a5, #0x10     ;b38c  85 a5 10     0x10 bytes in response
-    movw a, #kwp_radio_3cp  ;b38f  e4 ff 1c     " RADIO 3CP  "
-    movw mem_0084, a        ;b392  d5 84        mem_0084 = Pointer to message
+    mov mem_00a5, #0x10     ;b38c  85 a5 10     16 bytes in KW1281 packet
+    movw a, #kw_asc_radio_3cp   ;b38f  e4 ff 1c     " RADIO 3CP  "
+    movw mem_0084, a        ;b392  d5 84        Pointer to KW1281 packet bytes
     call sub_bbab           ;b394  31 bb ab
     mov mem_0081, #0x05     ;b397  85 81 05
     ret                     ;b39a  20
@@ -9198,9 +9200,9 @@ mem_0081_is_0x06:
 
 
 mem_0081_is_0x07:
-    mov mem_00a5, #0x0f     ;b3a8  85 a5 0f     0x0f bytes in response
-    movw a, #kwp_0001       ;b3ab  e4 ff 2c     "       0001"
-    movw mem_0084, a        ;b3ae  d5 84        mem_0084 = Pointer to message
+    mov mem_00a5, #0x0f     ;b3a8  85 a5 0f     15 bytes in KW1281 packet
+    movw a, #kw_asc_0001        ;b3ab  e4 ff 2c     "       0001"
+    movw mem_0084, a        ;b3ae  d5 84        Pointer to KW1281 packet bytes
     call sub_bbab           ;b3b0  31 bb ab
     mov mem_0081, #0x08     ;b3b3  85 81 08
     ret                     ;b3b6  20
@@ -9237,12 +9239,12 @@ mem_0081_is_0x0c:
     mov a, #0x03            ;b3e2  04 03
     mov mem_0133, a         ;b3e4  61 01 33
 
-    movw a, #0x0175         ;b3e7  e4 01 75
-    movw mem_0084, a        ;b3ea  d5 84        mem_0084 = Pointer to message
+    movw a, #mem_0175       ;b3e7  e4 01 75
+    movw mem_0084, a        ;b3ea  d5 84        Pointer to KW1281 packet bytes
 
     movw a, #0x012f         ;b3ec  e4 01 2f
     movw mem_0086, a        ;b3ef  d5 86
-    mov mem_00a5, #0x04     ;b3f1  85 a5 04     4 bytes in response
+    mov mem_00a5, #0x04     ;b3f1  85 a5 04     4 bytes in KW1281 packet
     call sub_b13e           ;b3f4  31 b1 3e
     call sub_bba4           ;b3f7  31 bb a4
     mov mem_0081, #0x0d     ;b3fa  85 81 0d
@@ -9407,9 +9409,9 @@ lab_b4e0:
     jmp lab_b4f7            ;b4e6  21 b4 f7
 
 lab_b4e9:
-    mov mem_00a5, #0x07     ;b4e9  85 a5 07     7 bytes in response
-    movw a, #kwp_fault_codes ;b4ec  e4 ff 44
-    movw mem_0084, a        ;b4ef  d5 84        mem_0084 = Pointer to message
+    mov mem_00a5, #0x07     ;b4e9  85 a5 07     7 bytes in KW1281 packet
+    movw a, #kw_fault_codes ;b4ec  e4 ff 44
+    movw mem_0084, a        ;b4ef  d5 84        Pointer to KW1281 packet bytes
     call sub_b136           ;b4f1  31 b1 36
     mov mem_0081, #0x03     ;b4f4  85 81 03
 
@@ -9476,63 +9478,57 @@ sub_b542:
     mov a, mem_0093         ;b542  05 93
     beq lab_b553            ;b544  fd 0d
     call sub_b554           ;b546  31 b5 54
-    movw mem_0084, a        ;b549  d5 84        mem_0084 = Pointer to message
-    movw mem_0084, a        ;b54b  d5 84
-    mov mem_00a5, #0x03     ;b54d  85 a5 03     3 bytes in response
+    movw mem_0084, a        ;b549  d5 84        Pointer to KW1281 packet bytes
+    movw mem_0084, a        ;b54b  d5 84        Pointer to KW1281 packet bytes
+    mov mem_00a5, #0x03     ;b54d  85 a5 03     3 bytes in KW1281 packet
     call sub_b13e           ;b550  31 b1 3e
 
 lab_b553:
     ret                     ;b553  20
 
+
 sub_b554:
     bbc mem_0093:0, lab_b55d ;b554  b0 93 06
     clrb mem_0093:0         ;b557  a0 93
-    movw a, #0x0149         ;b559  e4 01 49
+    movw a, #mem_0149       ;b559  e4 01 49     A = Address of KW1281 packet bytes
     ret                     ;b55c  20
-
 lab_b55d:
     bbc mem_0093:1, lab_b566 ;b55d  b1 93 06
     clrb mem_0093:1         ;b560  a1 93
-    movw a, #0x014d         ;b562  e4 01 4d
+    movw a, #mem_014d       ;b562  e4 01 4d     A = Address of KW1281 packet bytes
     ret                     ;b565  20
-
 lab_b566:
     bbc mem_0093:2, lab_b56f ;b566  b2 93 06
     clrb mem_0093:2         ;b569  a2 93
-    movw a, #0x0151         ;b56b  e4 01 51
+    movw a, #mem_0151       ;b56b  e4 01 51   A = Address of KW1281 packet bytes
     ret                     ;b56e  20
-
 lab_b56f:
     bbc mem_0093:3, lab_b578 ;b56f  b3 93 06
     clrb mem_0093:3         ;b572  a3 93
-    movw a, #0x0165         ;b574  e4 01 65
+    movw a, #mem_0165       ;b574  e4 01 65   A = Address of KW1281 packet bytes
     ret                     ;b577  20
-
 lab_b578:
     bbc mem_0093:4, lab_b581 ;b578  b4 93 06
     clrb mem_0093:4         ;b57b  a4 93
-    movw a, #0x0155         ;b57d  e4 01 55
+    movw a, #mem_0155       ;b57d  e4 01 55   A = Address of KW1281 packet bytes
     ret                     ;b580  20
-
 lab_b581:
     bbc mem_0093:5, lab_b58a ;b581  b5 93 06
     clrb mem_0093:5         ;b584  a5 93
-    movw a, #0x0159         ;b586  e4 01 59
+    movw a, #mem_0159       ;b586  e4 01 59   A = Address of KW1281 packet bytes
     ret                     ;b589  20
-
 lab_b58a:
     bbc mem_0093:6, lab_b593 ;b58a  b6 93 06
     clrb mem_0093:6         ;b58d  a6 93
-    movw a, #0x015d         ;b58f  e4 01 5d
+    movw a, #mem_015d       ;b58f  e4 01 5d   A = Address of KW1281 packet bytes
     ret                     ;b592  20
-
 lab_b593:
     bbc mem_0093:7, lab_b59b ;b593  b7 93 05
     clrb mem_0093:7         ;b596  a7 93
-    movw a, #0x0161         ;b598  e4 01 61
-
+    movw a, #mem_0161       ;b598  e4 01 61   A = Address of KW1281 packet bytes
 lab_b59b:
     ret                     ;b59b  20
+
 
 mem_0080_is_05:
     mov a, mem_0081         ;b59c  05 81
@@ -9573,9 +9569,9 @@ lab_b5d3:
     ret                     ;b5d6  20
 
 lab_b5d7:
-    mov mem_00a5, #0x07     ;b5d7  85 a5 07     7 bytes in response
-    movw a, #kwp_fault_codes ;b5da  e4 ff 44
-    movw mem_0084, a        ;b5dd  d5 84        mem_0084 = Pointer to message
+    mov mem_00a5, #0x07     ;b5d7  85 a5 07     7 bytes in KW1281 packet
+    movw a, #kw_fault_codes ;b5da  e4 ff 44
+    movw mem_0084, a        ;b5dd  d5 84        Pointer to KW1281 packet bytes
     call sub_bba1           ;b5df  31 bb a1
     mov mem_0081, #0x05     ;b5e2  85 81 05
     ret                     ;b5e5  20
@@ -9690,29 +9686,29 @@ lab_b697:
     mov mem_019c, a         ;b699  61 01 9c
 
 lab_b69c:
-    movw a, #kwp_actuator_1 ;b69c  e4 ff 4b
+    movw a, #kw_actuator_1  ;b69c  e4 ff 4b
     bne lab_b6b1            ;b69f  fc 10       BRANCH_ALWAYS_TAKEN
 
 lab_b6a1:
     setb mem_00e1:7         ;b6a1  af e1
     setb mem_0098:4         ;b6a3  ac 98
-    movw a, #kwp_actuator_2 ;b6a5  e4 ff 51
+    movw a, #kw_actuator_2  ;b6a5  e4 ff 51
     bne lab_b6b1            ;b6a8  fc 07       BRANCH_ALWAYS_TAKEN
 
 lab_b6aa:
     clrb mem_00e1:7         ;b6aa  a7 e1
     setb mem_0098:4         ;b6ac  ac 98
-    movw a, #kwp_actuator_3 ;b6ae  e4 ff 57
+    movw a, #kw_actuator_3  ;b6ae  e4 ff 57
 
 lab_b6b1:
-    movw mem_0084, a        ;b6b1  d5 84        A = pointer to message
+    movw mem_0084, a        ;b6b1  d5 84        Pointer to KW1281 packet bytes
 
 lab_b6b3:
     mov mem_0081, #0x02     ;b6b3  85 81 02
     ret                     ;b6b6  20
 
 lab_b6b7:
-    mov mem_00a5, #0x06     ;b6b7  85 a5 06     6 bytes in response
+    mov mem_00a5, #0x06     ;b6b7  85 a5 06     6 bytes in KW1281 packet
     call sub_bbab           ;b6ba  31 bb ab
     mov mem_0081, #0x03     ;b6bd  85 81 03
     ret                     ;b6c0  20
@@ -9998,7 +9994,7 @@ lab_b82a:
     mov a, mem_0194         ;b82a  60 01 94
     bne lab_b844            ;b82d  fc 15
     mov a, @ix+0x00         ;b82f  06 00
-    mov mem_00a5, a         ;b831  45 a5
+    mov mem_00a5, a         ;b831  45 a5        Number of bytes in KW1281 packet
     incw ix                 ;b833  c2
     movw ep, #mem_012b      ;b834  e7 01 2b
     call sub_b166           ;b837  31 b1 66
@@ -10347,7 +10343,7 @@ lab_ba34:
     mov mem_0091, a         ;ba5c  45 91
 
     movw a, mem_0165        ;ba5e  c4 01 65
-    movw a, #0x0414         ;ba61  e4 04 14     Maybe Fault 01044 Control Module Incorrectly Coded?
+    movw a, #0x0414         ;ba61  e4 04 14     Maybe KW1281 Fault 01044 Control Module Incorrectly Coded?
     cmpw a                  ;ba64  13
     bne lab_ba6b            ;ba65  fc 04
 
@@ -12011,13 +12007,13 @@ sub_c4c0:
 
 mem_c4c9:
     .word lab_c552                      ;VECTOR 0  Does nothing
-    .word lab_c4dd_fault_antenna        ;VECTOR 1  Fault 00856 Antenna
-    .word sub_c4fe_fault_terminal_30    ;VECTOR 2  Fault 00668 Supply terminal 30
-    .word sub_c50c_fault_amplifier      ;VECTOR 3  Fault 00850 Radio amplifier
-    .word sub_c51a_fault_cd_changer     ;VECTOR 4  Fault 00855 CD changer
-    .word sub_c55d_fault_speakers_front ;VECTOR 5  Fault 00852 Loudspeaker(s) Front
-    .word sub_c574_fault_speakers_rear  ;VECTOR 6  Fault 00853 Loudspeaker(s) Rear
-    .word lab_c592_fault_internal_mem   ;VECTOR 7  Fault 65535 Internal Memory Error
+    .word lab_c4dd_fault_antenna        ;VECTOR 1  KW1281 Fault 00856 Antenna
+    .word sub_c4fe_fault_terminal_30    ;VECTOR 2  KW1281 Fault 00668 Supply terminal 30
+    .word sub_c50c_fault_amplifier      ;VECTOR 3  KW1281 Fault 00850 Radio amplifier
+    .word sub_c51a_fault_cd_changer     ;VECTOR 4  KW1281 Fault 00855 CD changer
+    .word sub_c55d_fault_speakers_front ;VECTOR 5  KW1281 Fault 00852 Loudspeaker(s) Front
+    .word sub_c574_fault_speakers_rear  ;VECTOR 6  KW1281 Fault 00853 Loudspeaker(s) Rear
+    .word lab_c592_fault_internal_mem   ;VECTOR 7  KW1281 Fault 65535 Internal Memory Error
     .word lab_c5cc                      ;VECTOR 8
     .word lab_c5cf                      ;VECTOR 9
 
@@ -12027,35 +12023,35 @@ lab_c4dd_fault_antenna:
     mov a, mem_0141         ;c4e3  60 01 41
     cmp a, #0x02            ;c4e6  14 02
     bne lab_c4f2            ;c4e8  fc 08
-    movw a, #0x0358         ;c4ea  e4 03 58     Fault 00856 - Radio Antenna
+    movw a, #0x0358         ;c4ea  e4 03 58     KW1281 Fault 00856 - Radio Antenna
     movw a, #0x1d32         ;c4ed  e4 1d 32
     bne lab_c53c            ;c4f0  fc 4a        BRANCH_ALWAYS_TAKEN
 
 lab_c4f2:
     cmp a, #0x01            ;c4f2  14 01
     bne lab_c552            ;c4f4  fc 5c
-    movw a, #0x0358         ;c4f6  e4 03 58     Fault 00856 - Radio Antenna
+    movw a, #0x0358         ;c4f6  e4 03 58     KW1281 Fault 00856 - Radio Antenna
     movw a, #0x2432         ;c4f9  e4 24 32
     bne lab_c53c            ;c4fc  fc 3e        BRANCH_ALWAYS_TAKEN
 
 sub_c4fe_fault_terminal_30:
     movw ix, #mem_014d      ;c4fe  e6 01 4d
     bbc mem_0091:1, lab_c528 ;c501  b1 91 24
-    movw a, #0x029c         ;c504  e4 02 9c     Fault 00668 - Supply Voltage Terminal 30
+    movw a, #0x029c         ;c504  e4 02 9c     KW1281 Fault 00668 - Supply Voltage Terminal 30
     movw a, #0x0732         ;c507  e4 07 32
     bne lab_c53c            ;c50a  fc 30        BRANCH_ALWAYS_TAKEN
 
 sub_c50c_fault_amplifier:
     movw ix, #mem_0151      ;c50c  e6 01 51
     bbc mem_0091:2, lab_c528 ;c50f  b2 91 16
-    movw a, #0x0352         ;c512  e4 03 52     Fault 00850 - Control Output Active: Radio Amplifier
+    movw a, #0x0352         ;c512  e4 03 52     KW1281 Fault 00850 - Control Output Active: Radio Amplifier
     movw a, #0x1d32         ;c515  e4 1d 32
     bne lab_c53c            ;c518  fc 22        BRANCH_ALWAYS_TAKEN
 
 sub_c51a_fault_cd_changer:
     movw ix, #mem_0155      ;c51a  e6 01 55
     bbc mem_0091:4, lab_c528 ;c51d  b4 91 08
-    movw a, #0x0357         ;c520  e4 03 57     Fault 00855 - Connection to CD changer
+    movw a, #0x0357         ;c520  e4 03 57     KW1281 Fault 00855 - Connection to CD changer
     movw a, #0x3132         ;c523  e4 31 32
     bne lab_c53c            ;c526  fc 14        BRANCH_ALWAYS_TAKEN
 
@@ -12105,11 +12101,11 @@ sub_c55d_fault_speakers_front:
     mov a, mem_013f         ;c563  60 01 3f
     cmp a, #0x01            ;c566  14 01
     bne lab_c56f            ;c568  fc 05
-    movw a, #0x0354         ;c56a  e4 03 54     Fault 00852 - Loudspeaker(s) Front
+    movw a, #0x0354         ;c56a  e4 03 54     KW1281 Fault 00852 - Loudspeaker(s) Front
     bne lab_c584            ;c56d  fc 15        BRANCH_ALWAYS_TAKEN
 
 lab_c56f:
-    movw a, #0x0354         ;c56f  e4 03 54     Fault 00852 - Loudspeaker(s) Front
+    movw a, #0x0354         ;c56f  e4 03 54     KW1281 Fault 00852 - Loudspeaker(s) Front
     bne lab_c58d            ;c572  fc 19        BRANCH_ALWAYS_TAKEN
 
 sub_c574_fault_speakers_rear:
@@ -12118,7 +12114,7 @@ sub_c574_fault_speakers_rear:
     mov a, mem_0140         ;c57a  60 01 40
     cmp a, #0x01            ;c57d  14 01
     bne lab_c58a            ;c57f  fc 09
-    movw a, #0x0355         ;c581  e4 03 55     Fault 00853 - Loudspeaker(s) Rear
+    movw a, #0x0355         ;c581  e4 03 55     KW1281 Fault 00853 - Loudspeaker(s) Rear
 
 lab_c584:
     movw a, #0x2432         ;c584  e4 24 32
@@ -12127,7 +12123,7 @@ lab_c587:
     jmp lab_c53c            ;c587  21 c5 3c
 
 lab_c58a:
-    movw a, #0x0355         ;c58a  e4 03 55     Fault 00853 - Loudspeaker(s) Rear
+    movw a, #0x0355         ;c58a  e4 03 55     KW1281 Fault 00853 - Loudspeaker(s) Rear
 
 lab_c58d:
     movw a, #0x2c32         ;c58d  e4 2c 32
@@ -12136,7 +12132,7 @@ lab_c58d:
 lab_c592_fault_internal_mem:
     movw ix, #mem_0161      ;c592  e6 01 61
     bbc mem_0091:7, lab_c5a0 ;c595  b7 91 08
-    movw a, #0xffff         ;c598  e4 ff ff     Fault 65535 - Internal Control Module Memory Error
+    movw a, #0xffff         ;c598  e4 ff ff     KW1281 Fault 65535 - Internal Control Module Memory Error
     movw a, #0x0032         ;c59b  e4 00 32
     bne lab_c587            ;c59e  fc e7        BRANCH_ALWAYS_TAKEN
 
@@ -13227,7 +13223,7 @@ lab_cb84:
     mov a, mem_026b         ;cb92  60 02 6b
 
 lab_cb95:
-    mov mem_0089, a         ;cb95  45 89
+    mov mem_0089, a         ;cb95  45 89        KW1281 byte to send = A
     ret                     ;cb97  20
 
 callv6_cb98:
@@ -16820,32 +16816,39 @@ lab_dd51:
     bne lab_dd2c            ;dd5a  fc d0
     ret                     ;dd5c  20
 
-mem_dd5d:
-    .byte 0x04              ;dd5d  04          DATA '\x04'
-    .byte 0x00              ;dd5e  00          DATA '\x00'
-    .byte 0x0A              ;dd5f  0a          DATA '\n'
+kw_unknown_dd5d:
+;Unknown KW1281 packet
+    .byte 0x04              ;dd5d  04          DATA '\x04'  Block length
+    .byte 0x00              ;dd5e  00          DATA '\x00'  Block counter
+    .byte 0x0A              ;dd5f  0a          DATA '\n'    Block title (0x0a = No Acknowledge?)
     .byte 0x00              ;dd60  00          DATA '\x00'
-    .byte 0x03              ;dd61  03          DATA '\x03'
-    .byte 0x03              ;dd62  03          DATA '\x03'
-    .byte 0x00              ;dd63  00          DATA '\x00'
-    .byte 0x09              ;dd64  09          DATA '\t'
-    .byte 0x03              ;dd65  03          DATA '\x03'
+    .byte 0x03              ;dd61  03          DATA '\x03'  Block end
 
-mem_dd66:
-    .byte 0x07              ;dd66  07          DATA '\x07'
-    .byte 0x00              ;dd67  00          DATA '\x00'
-    .byte 0xD7              ;dd68  d7          DATA '\xd7'
+kw_unknown_dd62:
+;Unknown KW1281 packet
+;Appears unused
+    .byte 0x03              ;dd62  03          DATA '\x03'  Block length
+    .byte 0x00              ;dd63  00          DATA '\x00'  Block counter
+    .byte 0x09              ;dd64  09          DATA '\t'    Block title (0x09 = Acknowledge?)
+    .byte 0x03              ;dd65  03          DATA '\x03'  Block end
+
+kw_unknown_dd66:
+;Unknown KW1281 packet
+    .byte 0x07              ;dd66  07          DATA '\x07'  Block length
+    .byte 0x00              ;dd67  00          DATA '\x00'  Block counter
+    .byte 0xD7              ;dd68  d7          DATA '\xd7'  Block title (0xd7 = Security access?)
     .byte 0x00              ;dd69  00          DATA '\x00'
     .byte 0x00              ;dd6a  00          DATA '\x00'
     .byte 0x00              ;dd6b  00          DATA '\x00'
     .byte 0x00              ;dd6c  00          DATA '\x00'
-    .byte 0x03              ;dd6d  03          DATA '\x03'
+    .byte 0x03              ;dd6d  03          DATA '\x03'  Block end
 
-mem_dd6e:
-    .byte 0x03              ;dd6e  03          DATA '\x03'
-    .byte 0x00              ;dd6f  00          DATA '\x00'
-    .byte 0x06              ;dd70  06          DATA '\x06'
-    .byte 0x03              ;dd71  03          DATA '\x03'
+kw_unknown_dd6e:
+;Unknown KW1281 packet
+    .byte 0x03              ;dd6e  03          DATA '\x03'  Block length
+    .byte 0x00              ;dd6f  00          DATA '\x00'  Block counter
+    .byte 0x06              ;dd70  06          DATA '\x06'  Block title (0x06 = End Output?)
+    .byte 0x03              ;dd71  03          DATA '\x03'  Block end
 
 sub_dd72:
     cmp mem_0096, #0x09     ;dd72  95 96 09
@@ -16991,14 +16994,14 @@ lab_de53:
 sub_de60:
     mov a, mem_009e         ;de60  05 9e
     pushw a                 ;de62  40
-    mov a, mem_00a5         ;de63  05 a5
+    mov a, mem_00a5         ;de63  05 a5        A = number of bytes in KW1281 packet
     pushw a                 ;de65  40
     call sub_dece           ;de66  31 de ce
     call sub_df28           ;de69  31 df 28
     call sub_dfd7           ;de6c  31 df d7
     call sub_e074           ;de6f  31 e0 74
     popw a                  ;de72  50
-    mov mem_00a5, a         ;de73  45 a5
+    mov mem_00a5, a         ;de73  45 a5        Number of bytes in KW1281 packet
     popw a                  ;de75  50
     mov mem_009e, a         ;de76  45 9e
     ret                     ;de78  20
@@ -17151,10 +17154,12 @@ lab_df3d:
     mov mem_0396, a         ;df4e  61 03 96
     mov a, mem_0082         ;df51  05 82
     bne lab_df68            ;df53  fc 13
-    mov a, mem_0088         ;df55  05 88
-    mov a, #0x55            ;df57  04 55        KW1281 sync byte?
+
+    mov a, mem_0088         ;df55  05 88        A = KW1281 byte received
+    mov a, #0x55            ;df57  04 55        Is it the KW1281 sync byte?
     cmp a                   ;df59  12
     bne lab_df68            ;df5a  fc 0c
+
     call sub_e1b8           ;df5c  31 e1 b8
     call sub_e242           ;df5f  31 e2 42
     mov a, #0x00            ;df62  04 00
@@ -17170,7 +17175,7 @@ lab_df68:
     mov a, mem_0118         ;df75  60 01 18
     cmp a, mem_0082         ;df78  15 82
     bhs lab_df92            ;df7a  f8 16
-    mov a, mem_0088         ;df7c  05 88
+    mov a, mem_0088         ;df7c  05 88        A = KW1281 byte received
     cmp a, #0x03            ;df7e  14 03
     beq lab_df84            ;df80  fd 02
     setb mem_00f9:7         ;df82  af f9
@@ -17209,9 +17214,11 @@ lab_dfa0:
 lab_dfaf:
     mov a, mem_0390         ;dfaf  60 03 90
     bne lab_df9c            ;dfb2  fc e8
-    mov a, mem_0088         ;dfb4  05 88
+
+    mov a, mem_0088         ;dfb4  05 88        A = KW1281 byte received
     xor a, #0xff            ;dfb6  54 ff
-    mov mem_0089, a         ;dfb8  45 89
+    mov mem_0089, a         ;dfb8  45 89        KW1281 byte to send = A
+
     mov a, #0x02            ;dfba  04 02
     mov mem_0389, a         ;dfbc  61 03 89
     setb mem_00f9:3         ;dfbf  ab f9
@@ -17220,8 +17227,10 @@ lab_dfaf:
     mov rrdr, #0x0c         ;dfc5  85 45 0c
     mov usmr, #0x0b         ;dfc8  85 40 0b
     setb uscr:3             ;dfcb  ab 41
-    mov a, mem_0089         ;dfcd  05 89
-    mov rxdr, a             ;dfcf  45 43        Send byte out UART
+
+    mov a, mem_0089         ;dfcd  05 89        A = KW1281 byte to send
+    mov txdr, a             ;dfcf  45 43        Send KW1281 byte out UART
+
     mov a, #0x20            ;dfd1  04 20
     mov mem_0390, a         ;dfd3  61 03 90
     ret                     ;dfd6  20
@@ -17267,14 +17276,15 @@ lab_e001:
     mov mem_0082, #0x00     ;e01a  85 82 00
     setb mem_00f9:1         ;e01d  a9 f9
     mov a, #0x00            ;e01f  04 00
-    beq lab_e033            ;e021  fd 10       BRANCH_ALWAYS_TAKEN
+    beq lab_e033            ;e021  fd 10        BRANCH_ALWAYS_TAKEN
 
 lab_e023:
-    mov a, mem_0089         ;e023  05 89
-    mov a, mem_0088         ;e025  05 88
+    mov a, mem_0089         ;e023  05 89        A = KW1281 byte to send
+    mov a, mem_0088         ;e025  05 88        A = KW1281 byte received
     xor a                   ;e027  52
     cmp a, #0xff            ;e028  14 ff
     bne lab_e04f            ;e02a  fc 23
+
     mov a, #0x02            ;e02c  04 02
     mov mem_0390, a         ;e02e  61 03 90
     mov a, #0x01            ;e031  04 01
@@ -17331,7 +17341,7 @@ sub_e074:
 lab_e07f:
     mov rrdr, #0x0c         ;e07f  85 45 0c
     mov usmr, #0x63         ;e082  85 40 63
-    mov a, rxdr             ;e085  05 43
+    mov a, rxdr             ;e085  05 43        A = KW1281 byte from UART
     mov mem_009e, a         ;e087  45 9e
     jmp lab_e092            ;e089  21 e0 92
 
@@ -17345,8 +17355,8 @@ lab_e092:
     setb uscr:5             ;e096  ad 41
     setb uscr:4             ;e098  ac 41
     setb uscr:3             ;e09a  ab 41
-    mov a, mem_0089         ;e09c  05 89
-    mov rxdr, a             ;e09e  45 43        Send byte out UART
+    mov a, mem_0089         ;e09c  05 89        A = KW1281 byte to send
+    mov txdr, a             ;e09e  45 43        Send KW1281 byte out UART
     clrb mem_00f9:6         ;e0a0  a6 f9
     clrb mem_00f9:7         ;e0a2  a7 f9
     setb uscr:1             ;e0a4  a9 41
@@ -17370,7 +17380,7 @@ sub_e0b8:
 sub_e0bf:
     mov rrdr, #0x0c         ;e0bf  85 45 0c
     mov usmr, #0x63         ;e0c2  85 40 63
-    mov a, rxdr             ;e0c5  05 43
+    mov a, rxdr             ;e0c5  05 43        A = KW1281 byte from UART
     jmp lab_e0d0            ;e0c7  21 e0 d0
 
 sub_e0ca:
@@ -17385,7 +17395,7 @@ lab_e0d0:
     clrb mem_00f9:6         ;e0d8  a6 f9
     clrb mem_00f9:7         ;e0da  a7 f9
     setb uscr:1             ;e0dc  a9 41
-    mov a, rxdr             ;e0de  05 43
+    mov a, rxdr             ;e0de  05 43        A = KW1281 byte from UART
     ret                     ;e0e0  20
 
 sub_e0e1:
@@ -17405,7 +17415,7 @@ lab_e0ee:
 sub_e0f3:
     bbc mem_00f9:3, lab_e101 ;e0f3  b3 f9 0b
     mov a, rxdr             ;e0f6  05 43
-    mov mem_0088, a         ;e0f8  45 88
+    mov mem_0088, a         ;e0f8  45 88        KW1281 byte received
     clrb uscr:7             ;e0fa  a7 41
     clrb mem_00f9:3         ;e0fc  a3 f9
     jmp lab_e12b            ;e0fe  21 e1 2b
@@ -17417,7 +17427,7 @@ lab_e101:
 
 lab_e108:
     mov a, rxdr             ;e108  05 43
-    mov mem_0088, a         ;e10a  45 88
+    mov mem_0088, a         ;e10a  45 88        KW1281 byte received
     setb mem_00f9:6         ;e10c  ae f9
     setb mem_00f9:4         ;e10e  ac f9
     clrb uscr:7             ;e110  a7 41
@@ -17426,7 +17436,7 @@ lab_e108:
 
 lab_e118:
     mov a, rxdr             ;e118  05 43
-    mov mem_0088, a         ;e11a  45 88
+    mov mem_0088, a         ;e11a  45 88        KW1281 byte received
     setb mem_00f9:7         ;e11c  af f9
     clrb uscr:7             ;e11e  a7 41
     setb mem_00f9:4         ;e120  ac f9
@@ -17552,7 +17562,7 @@ sub_e1d6:
 lab_e1e2:
     mov a, mem_038c         ;e1e2  60 03 8c
     beq lab_e1fe            ;e1e5  fd 17
-    mov a, mem_0088         ;e1e7  05 88
+    mov a, mem_0088         ;e1e7  05 88        A = KW1281 byte received
     and a, #0x7f            ;e1e9  64 7f
     cmp a, #0x01            ;e1eb  14 01
     bne lab_e1fe            ;e1ed  fc 0f
@@ -17571,7 +17581,7 @@ lab_e1fe:
 lab_e1ff:
     mov a, mem_038c         ;e1ff  60 03 8c
     beq lab_e1fe            ;e202  fd fa
-    mov a, mem_0088         ;e204  05 88
+    mov a, mem_0088         ;e204  05 88        A = KW1281 byte received
     and a, #0x7f            ;e206  64 7f
     cmp a, #0x0a            ;e208  14 0a
     bne lab_e1fe            ;e20a  fc f2
@@ -17580,7 +17590,7 @@ lab_e1ff:
     mov a, #0x06            ;e211  04 06
     mov mem_038b, a         ;e213  61 03 8b
     mov a, #0x00            ;e216  04 00
-    beq lab_e1fb            ;e218  fd e1       BRANCH_ALWAYS_TAKEN
+    beq lab_e1fb            ;e218  fd e1        BRANCH_ALWAYS_TAKEN
 
 lab_e21a:
     mov a, mem_038b         ;e21a  60 03 8b
@@ -17601,8 +17611,8 @@ lab_e231:
     beq lab_e268            ;e234  fd 32
     bbc mem_00f9:4, lab_e256 ;e236  b4 f9 1d
     bbc mem_00f9:6, lab_e256 ;e239  b6 f9 1a
-    mov a, mem_0088         ;e23c  05 88
-    cmp a, #0x55            ;e23e  14 55        KW1281 sync byte?
+    mov a, mem_0088         ;e23c  05 88        A = KW1281 byte received
+    cmp a, #0x55            ;e23e  14 55        Is it the KW1281 sync byte?
     bne lab_e256            ;e240  fc 14
 
 sub_e242:
@@ -17669,7 +17679,7 @@ lab_e29d:
 lab_e29e:
     mov a, mem_038c         ;e29e  60 03 8c
     bne lab_e2b6            ;e2a1  fc 13
-    mov mem_0089, #0x75     ;e2a3  85 89 75     0x75 = Complement of 0x8A KW1281?
+    mov mem_0089, #0x75     ;e2a3  85 89 75     KW1281 byte to send = 0x75 (complement of 0x8A)
     mov a, #0x01            ;e2a6  04 01
     mov mem_00fb, a         ;e2a8  45 fb
     setb mem_00f9:3         ;e2aa  ab f9
@@ -17771,18 +17781,18 @@ lab_e336:
 sub_e338:
     mov a, #0x01            ;e338  04 01
     mov mem_0397, a         ;e33a  61 03 97
-    movw a, #mem_dd5d       ;e33d  e4 dd 5d
-    movw mem_0084, a        ;e340  d5 84        mem_0084 = Pointer to message
-    mov mem_00a5, #0x05     ;e342  85 a5 05     5 bytes in response
+    movw a, #kw_unknown_dd5d ;e33d  e4 dd 5d
+    movw mem_0084, a        ;e340  d5 84        Pointer to KW1281 packet bytes
+    mov mem_00a5, #0x05     ;e342  85 a5 05     5 bytes in KW1281 packet
     call sub_b136           ;e345  31 b1 36
     mov a, mem_0116         ;e348  60 01 16
     jmp lab_e35f            ;e34b  21 e3 5f
 
 sub_e34e:
     clrb mem_00f9:7         ;e34e  a7 f9
-    movw a, #mem_dd5d       ;e350  e4 dd 5d
-    movw mem_0084, a        ;e353  d5 84        mem_0084 = Pointer to message
-    mov mem_00a5, #0x05     ;e355  85 a5 05     5 bytes in response
+    movw a, #kw_unknown_dd5d ;e350  e4 dd 5d
+    movw mem_0084, a        ;e353  d5 84        Pointer to KW1281 packet bytes
+    mov mem_00a5, #0x05     ;e355  85 a5 05     5 bytes in KW1281 packet
     call sub_b136           ;e358  31 b1 36
     mov a, mem_0116         ;e35b  60 01 16
     incw a                  ;e35e  c0
@@ -17863,22 +17873,23 @@ lab_e3b4:
     jmp sub_e73c            ;e3ba  21 e7 3c
 
 mem_e3bd:
-    .word lab_e480          ;e3bd  e4 80       VECTOR
-    .word lab_e3d9          ;e3bf  e3 d9       VECTOR
-    .word lab_e42a          ;e3c1  e4 2a       VECTOR
-    .word lab_e442          ;e3c3  e4 42       VECTOR
-    .word lab_e4b5          ;e3c5  e4 b5       VECTOR
-    .word lab_e4e0          ;e3c7  e4 e0       VECTOR
-    .word lab_e4eb          ;e3c9  e4 eb       VECTOR
-    .word lab_e502          ;e3cb  e5 02       VECTOR
-    .word lab_e547          ;e3cd  e5 47       VECTOR
-    .word lab_e552          ;e3cf  e5 52       VECTOR
-    .word callv7_e55c       ;e3d1  e5 5c       VECTOR
-    .word lab_e41e          ;e3d3  e4 1e       VECTOR
-    .word lab_e4a3          ;e3d5  e4 a3       VECTOR
-    .word lab_e59c          ;e3d7  e5 9c       VECTOR
+    .word lab_e480          ;e3bd  e4 80       VECTOR 0
+    .word lab_e3d9          ;e3bf  e3 d9       VECTOR 1
+    .word lab_e42a          ;e3c1  e4 2a       VECTOR 2
+    .word lab_e442          ;e3c3  e4 42       VECTOR 3
+    .word lab_e4b5          ;e3c5  e4 b5       VECTOR 4
+    .word lab_e4e0          ;e3c7  e4 e0       VECTOR 5
+    .word lab_e4eb          ;e3c9  e4 eb       VECTOR 6
+    .word lab_e502          ;e3cb  e5 02       VECTOR 7
+    .word lab_e547          ;e3cd  e5 47       VECTOR 8
+    .word lab_e552          ;e3cf  e5 52       VECTOR 9
+    .word callv7_e55c       ;e3d1  e5 5c       VECTOR 0x0a
+    .word lab_e41e          ;e3d3  e4 1e       VECTOR 0x0b
+    .word lab_e4a3          ;e3d5  e4 a3       VECTOR 0x0c
+    .word lab_e59c          ;e3d7  e5 9c       VECTOR 0x0d
 
 lab_e3d9:
+;mem_038b case 1
     call sub_e39a           ;e3d9  31 e3 9a
     movw a, tchr            ;e3dc  c5 19
     rolc a                  ;e3de  02
@@ -17892,9 +17903,9 @@ lab_e3d9:
     rorc a                  ;e3e9  03
     swap                    ;e3ea  10
     movw mem_03ad, a        ;e3eb  d4 03 ad
-    movw a, #mem_dd66       ;e3ee  e4 dd 66
-    movw mem_0084, a        ;e3f1  d5 84        mem_0084 = Pointer to message
-    mov mem_00a5, #0x08     ;e3f3  85 a5 08     8 bytes in response
+    movw a, #kw_unknown_dd66 ;e3ee  e4 dd 66
+    movw mem_0084, a        ;e3f1  d5 84        Pointer to KW1281 packet bytes
+    mov mem_00a5, #0x08     ;e3f3  85 a5 08     8 bytes in KW1281 packet
     call sub_b136           ;e3f6  31 b1 36
     mov a, mem_03ab         ;e3f9  60 03 ab
     mov mem_0131, a         ;e3fc  61 01 31
@@ -17915,6 +17926,7 @@ lab_e3d9:
     .byte 0x5F              ;e41d  5f          DATA '_'
 
 lab_e41e:
+;mem_038b case 0x0b
     mov a, mem_038c         ;e41e  60 03 8c
     bne lab_e480            ;e421  fc 5d
     call sub_e369           ;e423  31 e3 69
@@ -17922,6 +17934,7 @@ lab_e41e:
     bne lab_e47d            ;e428  fc 53       BRANCH_ALWAYS_TAKEN
 
 lab_e42a:
+;mem_038b case 2
     bbc mem_00f9:1, lab_e480 ;e42a  b1 f9 53
     clrb mem_00f9:1         ;e42d  a1 f9
     mov a, #0x02            ;e42f  04 02
@@ -17934,6 +17947,7 @@ lab_e42a:
     bne lab_e47d            ;e440  fc 3b       BRANCH_ALWAYS_TAKEN
 
 lab_e442:
+;mem_038b case 3
     mov a, mem_0391         ;e442  60 03 91
     beq lab_e44c            ;e445  fd 05
     mov a, mem_038c         ;e447  60 03 8c
@@ -17994,6 +18008,7 @@ lab_e49a:
     bne lab_e47d            ;e4a1  fc da       BRANCH_ALWAYS_TAKEN
 
 lab_e4a3:
+;mem_038b case 0x0c
     mov a, mem_038c         ;e4a3  60 03 8c
     bne lab_e480            ;e4a6  fc d8
     call sub_e037           ;e4a8  31 e0 37
@@ -18003,6 +18018,7 @@ lab_e4a3:
     beq lab_e47d            ;e4b3  fd c8       BRANCH_ALWAYS_TAKEN
 
 lab_e4b5:
+;mem_038b case 4
     mov a, mem_011e         ;e4b5  60 01 1e
     mov mem_03ab, a         ;e4b8  61 03 ab
     mov a, mem_011d         ;e4bb  60 01 1d
@@ -18022,6 +18038,7 @@ sub_e4d3:
     ret                     ;e4df  20
 
 lab_e4e0:
+;mem_038b case 5
     mov a, #0x01            ;e4e0  04 01
     call sub_e3ac           ;e4e2  31 e3 ac
 
@@ -18035,17 +18052,19 @@ lab_e4ea:
     ret                     ;e4ea  20
 
 lab_e4eb:
+;mem_038b case 6
     mov a, mem_038c         ;e4eb  60 03 8c
     bne lab_e4ea            ;e4ee  fc fa
     call sub_e3a2           ;e4f0  31 e3 a2
-    mov mem_00a5, #0x04     ;e4f3  85 a5 04    4 bytes in response
-    movw a, #mem_dd6e       ;e4f6  e4 dd 6e
-    movw mem_0084, a        ;e4f9  d5 84       mem_0084 = Pointer to message
+    mov mem_00a5, #0x04     ;e4f3  85 a5 04    4 bytes in KW1281 packet
+    movw a, #kw_unknown_dd6e ;e4f6  e4 dd 6e
+    movw mem_0084, a        ;e4f9  d5 84       Pointer to KW1281 packet bytes
     call sub_e366           ;e4fb  31 e3 66
     mov a, #0x07            ;e4fe  04 07
     bne lab_e4e7            ;e500  fc e5       BRANCH_ALWAYS_TAKEN
 
 lab_e502:
+;mem_038b case 7
     bbc mem_00f9:1, lab_e55b ;e502  b1 f9 56
     clrb mem_00f9:1         ;e505  a1 f9
     mov a, #0x02            ;e507  04 02
@@ -18084,6 +18103,7 @@ lab_e544:
     jmp lab_e556            ;e544  21 e5 56
 
 lab_e547:
+;mem_038b case 8
     mov a, mem_00f1         ;e547  05 f1
     bne lab_e55b            ;e549  fc 10
     mov mem_00f1, #0x81     ;e54b  85 f1 81
@@ -18091,6 +18111,7 @@ lab_e547:
     bne lab_e558            ;e550  fc 06       BRANCH_ALWAYS_TAKEN
 
 lab_e552:
+;mem_038b case 9
     mov a, mem_00f1         ;e552  05 f1
     bne lab_e55b            ;e554  fc 05
 
@@ -18104,6 +18125,7 @@ lab_e55b:
     ret                     ;e55b  20
 
 callv7_e55c:
+;mem_038b case 0x0a
     setb pdr7:2             ;e55c  aa 13        TX
     setb pdr7:3             ;e55e  ab 13        /RX
     call sub_e38a           ;e560  31 e3 8a
@@ -18130,6 +18152,7 @@ callv7_e55c:
     ret                     ;e59b  20
 
 lab_e59c:
+;mem_038b case 0x0d
     mov a, mem_00f1         ;e59c  05 f1
     bne lab_e55b            ;e59e  fc bb
     call sub_a239           ;e5a0  31 a2 39
@@ -20068,7 +20091,7 @@ sub_f0a8:
     mov a, #0x01            ;f0bb  04 01
     mov mem_0200, a         ;f0bd  61 02 00
     mov a, mem_01ff         ;f0c0  60 01 ff
-    mov mem_00a5, a         ;f0c3  45 a5
+    mov mem_00a5, a         ;f0c3  45 a5        Number of bytes in KW1281 packet
     call sub_fd87           ;f0c5  31 fd 87
     call sub_f10e           ;f0c8  31 f1 0e
     call sub_f126           ;f0cb  31 f1 26
@@ -20086,7 +20109,7 @@ sub_f0a8:
 
 lab_f0ea:
     mov mem_01ff, a         ;f0ea  61 01 ff
-    mov a, mem_00a5         ;f0ed  05 a5
+    mov a, mem_00a5         ;f0ed  05 a5        A = number of bytes in KW1281 packet
     cmp a                   ;f0ef  12
     beq lab_f0f4            ;f0f0  fd 02
     setb mem_00da:0         ;f0f2  a8 da
@@ -22353,6 +22376,7 @@ sub_fd7d:
     ret                     ;fd86  20
 
 sub_fd87:
+;Called with A = number of bytes in KW1281 packet
     movw a, mem_0245        ;fd87  c4 02 45
     jmp lab_fd90            ;fd8a  21 fd 90
 
@@ -22626,10 +22650,10 @@ mem_fee1:
     .byte 0x0E              ;feea  0e          DATA '\x0e'
     .byte 0x10              ;feeb  10          DATA '\x10'
 
-kwp_1c0035180e:
+kw_asc_1c0035180e:
     .byte 0x0F              ;feec  0f          DATA '\x0f'  Block length
     .byte 0x00              ;feed  00          DATA '\x00'  Block counter
-    .byte 0xF6              ;feee  f6          DATA '\xf6'  0xF6 - ASCII Data/ID code response
+    .byte 0xF6              ;feee  f6          DATA '\xf6'  Block title (0xF6 = ASCII Data/ID code response)
     .byte 0x31              ;feef  31          DATA '1'
     .byte 0x43              ;fef0  43          DATA 'C'
     .byte 0x30              ;fef1  30          DATA '0'
@@ -22644,10 +22668,10 @@ kwp_1c0035180e:
     .byte 0x20              ;fefa  20          DATA ' '
     .byte 0x03              ;fefb  03          DATA '\x03'  Block end
 
-kwp_1j0035180d:
+kw_asc_1j0035180d:
     .byte 0x0F              ;fefc  0f          DATA '\x0f'  Block length
     .byte 0x00              ;fefd  00          DATA '\x00'  Block counter
-    .byte 0xF6              ;fefe  f6          DATA '\xf6'  0xF6 - ASCII Data/ID code response
+    .byte 0xF6              ;fefe  f6          DATA '\xf6'  Block title (0xF6 = ASCII Data/ID code response)
     .byte 0x31              ;feff  31          DATA '1'
     .byte 0x4A              ;ff00  4a          DATA 'J'
     .byte 0x30              ;ff01  30          DATA '0'
@@ -22662,10 +22686,10 @@ kwp_1j0035180d:
     .byte 0x20              ;ff0a  20          DATA ' '
     .byte 0x03              ;ff0b  03          DATA '\x03'  Block end
 
-kwp_1j0035180:
+kw_asc_1j0035180:
     .byte 0x0F              ;ff0c  0f          DATA '\x0f'  Block length
     .byte 0x00              ;ff0d  00          DATA '\x00'  Block counter
-    .byte 0xF6              ;ff0e  f6          DATA '\xf6'  0xF6 - ASCII Data/ID code response
+    .byte 0xF6              ;ff0e  f6          DATA '\xf6'  Block title (0xF6 = ASCII Data/ID code response)
     .byte 0x31              ;ff0f  31          DATA '1'
     .byte 0x4A              ;ff10  4a          DATA 'J'
     .byte 0x30              ;ff11  30          DATA '0'
@@ -22680,10 +22704,10 @@ kwp_1j0035180:
     .byte 0x20              ;ff1a  20          DATA ' '
     .byte 0x03              ;ff1b  03          DATA '\x03'  Block end
 
-kwp_radio_3cp:
+kw_asc_radio_3cp:
     .byte 0x0F              ;ff1c  0f          DATA '\x0f'  Block length
     .byte 0x00              ;ff1d  00          DATA '\x00'  Block counter
-    .byte 0xF6              ;ff1e  f6          DATA '\xf6'  0xF6 - ASCII Data/ID code response
+    .byte 0xF6              ;ff1e  f6          DATA '\xf6'  Block title (0xF6 = ASCII Data/ID code response)
     .byte 0x20              ;ff1f  20          DATA ' '
     .byte 0x52              ;ff20  52          DATA 'R'
     .byte 0x41              ;ff21  41          DATA 'A'
@@ -22698,10 +22722,10 @@ kwp_radio_3cp:
     .byte 0x20              ;ff2a  20          DATA ' '
     .byte 0x03              ;ff2b  03          DATA '\x03'  Block end
 
-kwp_0001:
+kw_asc_0001:
     .byte 0x0E              ;ff2c  0e          DATA '\x0e'  Block length
     .byte 0x00              ;ff2d  00          DATA '\x00'  Block counter
-    .byte 0xF6              ;ff2e  f6          DATA '\xf6'  0xF6 - ASCII Data/ID code response
+    .byte 0xF6              ;ff2e  f6          DATA '\xf6'  Block title (0xF6 = ASCII Data/ID code response)
     .byte 0x20              ;ff2f  20          DATA ' '
     .byte 0x20              ;ff30  20          DATA ' '
     .byte 0x20              ;ff31  20          DATA ' '
@@ -22715,56 +22739,56 @@ kwp_0001:
     .byte 0x31              ;ff39  31          DATA '1'
     .byte 0x03              ;ff3a  03          DATA '\x03'  Block end
 
-kwp_no_ack:
+kw_no_ack:
     .byte 0x04              ;ff3b  04          DATA '\x04'  Block length
     .byte 0x00              ;ff3c  00          DATA '\x00'  Block counter
-    .byte 0x0A              ;ff3d  0a          DATA '\n'    0x0A - No Acknowledge
+    .byte 0x0A              ;ff3d  0a          DATA '\n'    Block title (0x0A = No Acknowledge)
     .byte 0x00              ;ff3e  00          DATA '\x00'
     .byte 0x03              ;ff3f  03          DATA '\x03'  Block end
 
-kwp_ack:
+kw_ack:
     .byte 0x03              ;ff40  03          DATA '\x03'  Block length
     .byte 0x00              ;ff41  00          DATA '\x00'  Block counter
-    .byte 0x09              ;ff42  09          DATA '\t'    0x09 - Acknowledge
+    .byte 0x09              ;ff42  09          DATA '\t'    Block title (0x09 = Acknowledge)
     .byte 0x03              ;ff43  03          DATA '\x03'  Block end
 
-kwp_fault_codes:
+kw_fault_codes:
     .byte 0x06              ;ff44  06          DATA '\x06'  Block length
     .byte 0x00              ;ff45  00          DATA '\x00'  Block counter
-    .byte 0xFC              ;ff46  fc          DATA '\xfc'  0xFC - Response to get fault codes request
+    .byte 0xFC              ;ff46  fc          DATA '\xfc'  Block title (0xFC = Response to get fault codes request)
     .byte 0xFF              ;ff47  ff          DATA '\xff'
     .byte 0xFF              ;ff48  ff          DATA '\xff'
     .byte 0x88              ;ff49  88          DATA '\x88'
     .byte 0x03              ;ff4a  03          DATA '\x03'  Block end
 
-kwp_actuator_1:
+kw_actuator_1:
     .byte 0x05              ;ff4b  05          DATA '\x05'  Block length
     .byte 0x00              ;ff4c  00          DATA '\x00'  Block counter
-    .byte 0xF5              ;ff4d  f5          DATA '\xf5'  0xF5 - Response to actuator test (?)
+    .byte 0xF5              ;ff4d  f5          DATA '\xf5'  Block title (0xF5 = Response to actuator test?)
     .byte 0x03              ;ff4e  03          DATA '\x03'
     .byte 0x53              ;ff4f  53          DATA 'S'
     .byte 0x03              ;ff50  03          DATA '\x03'  Block end
 
-kwp_actuator_2:
+kw_actuator_2:
     .byte 0x05              ;ff51  05          DATA '\x05'  Block length
     .byte 0x00              ;ff52  00          DATA '\x00'  Block counter
-    .byte 0xF5              ;ff53  f5          DATA '\xf5'  0xF5 - Response to actuator test (?)
+    .byte 0xF5              ;ff53  f5          DATA '\xf5'  Block title (0xF5 = Response to actuator test?)
     .byte 0x03              ;ff54  03          DATA '\x03'
     .byte 0x56              ;ff55  56          DATA 'V'
     .byte 0x03              ;ff56  03          DATA '\x03'  Block end
 
-kwp_actuator_3:
+kw_actuator_3:
     .byte 0x05              ;ff57  05          DATA '\x05'  Block length
     .byte 0x00              ;ff58  00          DATA '\x00'  Block counter
-    .byte 0xF5              ;ff59  f5          DATA '\xf5'  0xF5 - Response to actuator test (?)
+    .byte 0xF5              ;ff59  f5          DATA '\xf5'  Block title (0xF5 = Response to actuator test?)
     .byte 0x04              ;ff5a  04          DATA '\x04'
     .byte 0xAB              ;ff5b  ab          DATA '\xab'
     .byte 0x03              ;ff5c  03          DATA '\x03'  Block end
 
-kwp_login:
+kw_login:
     .byte 0x05              ;ff5d  05          DATA '\x05'  Block length
     .byte 0x00              ;ff5e  00          DATA '\x00'  Block counter
-    .byte 0xF0              ;ff5f  f0          DATA '\xf0'  0xF0 - Response to Login
+    .byte 0xF0              ;ff5f  f0          DATA '\xf0'  Block title (0xF0 = Response to Login)
     .byte 0x00              ;ff60  00          DATA '\x00'
     .byte 0x00              ;ff61  00          DATA '\x00'
     .byte 0x03              ;ff62  03          DATA '\x03'  Block end
