@@ -9271,7 +9271,7 @@ mem_0081_is_0x10:
 
 
 sub_b416:
-    movw ep, #pdr0          ;b416  e7 00 00
+    movw ep, #0             ;b416  e7 00 00
     mov mem_0093, #0x00     ;b419  85 93 00
     mov mem_0094, #0x00     ;b41c  85 94 00
     movw ix, #mem_0149      ;b41f  e6 01 49
@@ -11303,7 +11303,7 @@ lab_c048:
     ret                     ;c04d  20
 
 sub_c04e:
-    movw ep, #pdr0          ;c04e  e7 00 00
+    movw ep, #0             ;c04e  e7 00 00
     movw ix, #mem_016d      ;c051  e6 01 6d
     call sub_c268           ;c054  31 c2 68
     movw ix, #mem_016e      ;c057  e6 01 6e
@@ -11558,7 +11558,7 @@ sub_c1f1:
     pushw ix                ;c1f8  41
     movw a, ep              ;c1f9  f3
     pushw a                 ;c1fa  40
-    movw ep, #pdr0          ;c1fb  e7 00 00
+    movw ep, #0             ;c1fb  e7 00 00
     movw ix, #0xffdf        ;c1fe  e6 ff df
 
 lab_c201:
