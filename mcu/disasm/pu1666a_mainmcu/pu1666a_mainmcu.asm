@@ -1090,11 +1090,14 @@ sub_826e:
     call sub_8421           ;830d  31 84 21
     call sub_b9dd           ;8310  31 b9 dd
     call sub_ba0e           ;8313  31 ba 0e
+
     mov mem_0091, #0x08     ;8316  85 91 08
-    movw a, #0x0000         ;8319  e4 00 00
+
+    movw a, #0x0000         ;8319  e4 00 00     TODO what KW1281 fault is this?
     movw mem_0161, a        ;831c  d4 01 61
     movw a, #0x8800         ;831f  e4 88 00
     movw mem_0163, a        ;8322  d4 01 63
+
     mov a, #0x00            ;8325  04 00
     mov mem_0307, a         ;8327  61 03 07
     movw a, #0x0000         ;832a  e4 00 00
@@ -1142,6 +1145,7 @@ sub_8380:
     mov @ix+0x04, #0x34     ;838f  86 04 34
     mov @ix+0x05, #0x57     ;8392  86 05 57
     mov @ix+0x06, #0x76     ;8395  86 06 76
+
     movw ix, #mem_01ac      ;8398  e6 01 ac
     mov @ix+0x00, #0x02     ;839b  86 00 02
     mov @ix+0x01, #0x06     ;839e  86 01 06
@@ -1150,6 +1154,7 @@ sub_8380:
     mov @ix+0x04, #0x5b     ;83a7  86 04 5b
     mov @ix+0x05, #0x64     ;83aa  86 05 64
     mov @ix+0x06, #0x64     ;83ad  86 06 64
+
     movw ix, #mem_01b3      ;83b0  e6 01 b3
     mov @ix+0x00, #0x00     ;83b3  86 00 00
     mov @ix+0x01, #0x00     ;83b6  86 01 00
@@ -1158,6 +1163,7 @@ sub_8380:
     mov @ix+0x04, #0x51     ;83bf  86 04 51
     mov @ix+0x05, #0x64     ;83c2  86 05 64
     mov @ix+0x06, #0x64     ;83c5  86 06 64
+
     mov a, mem_01ac         ;83c8  60 01 ac
     mov mem_00c7, a         ;83cb  45 c7
     call sub_c2a2           ;83cd  31 c2 a2
@@ -1191,16 +1197,18 @@ sub_83f8:
 sub_8402:
     call sub_ba0e           ;8402  31 ba 0e
 
-    movw a, #0x0414         ;8405  e4 04 14     Maybe KW1281 Fault 01044 Control Module Incorrectly Coded?
+    movw a, #0x0414         ;8405  e4 04 14     KW1281 Fault 01044 Control Module Incorrectly Coded
     movw mem_0165, a        ;8408  d4 01 65
-
     movw a, #0x2332         ;840b  e4 23 32
     movw mem_0167, a        ;840e  d4 01 67
+
     mov mem_0091, #0x08     ;8411  85 91 08
-    movw a, #0xffff         ;8414  e4 ff ff
+
+    movw a, #0xffff         ;8414  e4 ff ff     KW1281 Fault 65535 Internal Memory Error
     movw mem_0161, a        ;8417  d4 01 61
-    movw a, #0x8800       ;841a  e4 88 00
+    movw a, #0x8800         ;841a  e4 88 00
     movw mem_0163, a        ;841d  d4 01 63
+
     ret                     ;8420  20
 
 sub_8421:
@@ -1603,16 +1611,21 @@ lab_8689:
     jmp lab_86e5            ;8689  21 86 e5
 
 mem_868c:
-;used when mem_0096 = 03
+;Used when mem_0096 = 03
+;Lookup table used with sub_e76c
+;Falls through into next table
     .byte 0x0A              ;868c  0a          DATA '\n'    0x0a = tune up key
     .byte 0x13              ;868d  13          DATA '\x13'  0x0b = seek up key
 
 mem_868e:
-;used when mem_0096 = 0x02
+;Lookup table used with sub_e76c
+;Used when mem_0096 = 0x02
+;Falls through into next table
     .byte 0x19              ;868e  19          DATA '\x19'  0x19 = initial key
 
 mem_868f:
-;used when mem_0096 = 0x02 or 0x03
+;Lookup table used with sub_e76c
+;Used when mem_0096 = 0x02 or 0x03
     .byte 0x02              ;868f  02          DATA '\x02'  0x02 = preset 4 key
     .byte 0x04              ;8690  04          DATA '\x04'  0x04 = preset 3 key
     .byte 0x05              ;8691  05          DATA '\x05'  0x05 = preset 2 key
@@ -1626,7 +1639,8 @@ lab_8694:
     beq lab_8682            ;869c  fd e4       BRANCH_ALWAYS_TAKEN
 
 mem_869e:
-;used when mem_0096 = 0x04
+;Lookup table used with sub_e76c
+;Used when mem_0096 = 0x04
     .byte 0x19              ;869e  19          DATA '\x19'  0x19 = HIDDEN_INITIAL
     .byte 0x08              ;869f  08          DATA '\x08'  0x08 = MODE_FM
     .byte 0x09              ;86a0  09          DATA '\t'    0x09 = MODE_AM
@@ -1639,7 +1653,8 @@ lab_86a2:
     beq lab_8682            ;86aa  fd d6       BRANCH_ALWAYS_TAKEN
 
 mem_86ac:
-;used when mem_0096 = 0x0a
+;Lookup table used with sub_e76c
+;Used when mem_0096 = 0x0a
     .byte 0x0A              ;86ac  0a          DATA '\n'    0x0A = TUNE_UP
     .byte 0x0E              ;86ad  0e          DATA '\x0e'  0x0E = TUNE_DOWN
     .byte 0x13              ;86ae  13          DATA '\x13'  0x13 = SEEK_UP
@@ -3107,6 +3122,7 @@ sub_8e83:
     jmp sub_e76c            ;8e89  21 e7 6c
 
 mem_8e8c:
+;Lookup table used with sub_e76c
     .byte 0x03              ;8e8c  03          DATA '\x03'
     .byte 0x01              ;8e8d  01          DATA '\x01'
     .byte 0x09              ;8e8e  09          DATA '\t'
@@ -6243,13 +6259,13 @@ sub_a18c:
     ret                     ;a1a3  20
 
 lab_a1a4:
-    movw ep, #0xf00f      ;a1a4  e7 f0 0f     TODO should it be mem_f00f?
+    movw ep, #0xf00f        ;a1a4  e7 f0 0f
     mov r0, #0x0a           ;a1a7  88 0a
     mov a, #0x01            ;a1a9  04 01
     bne lab_a1b4            ;a1ab  fc 07       BRANCH_ALWAYS_TAKEN
 
 lab_a1ad:
-    movw ep, #0x0ff0      ;a1ad  e7 0f f0     TODO should it be mem_0ff0?
+    movw ep, #0x0ff0      ;a1ad  e7 0f f0
     mov r0, #0xa0           ;a1b0  88 a0
     mov a, #0x10            ;a1b2  04 10
 
@@ -6536,11 +6552,11 @@ lab_a36d:
     mov a, #0x00            ;a373  04 00
     mov mem_03af, a         ;a375  61 03 af
 
-    movw a, #0x0414         ;a378  e4 04 14     Maybe KW1281 Fault 01044 Control Module Incorrectly Coded?
+    movw a, #0x0414         ;a378  e4 04 14     KW1281 Fault 01044 Control Module Incorrectly Coded?
     movw mem_0165, a        ;a37b  d4 01 65
-
     movw a, #0x2332         ;a37e  e4 23 32
     movw mem_0167, a        ;a381  d4 01 67
+
     mov mem_00f1, #0x86     ;a384  85 f1 86
     mov a, #0x08            ;a387  04 08
     bne lab_a337            ;a389  fc ac       BRANCH_ALWAYS_TAKEN
@@ -7888,7 +7904,7 @@ lab_abaf:
     and a, #0x3c            ;abbe  64 3c
     or a                    ;abc0  72
     mov mem_0285, a         ;abc1  61 02 85
-    cmp a, #0x38            ;abc4  14 38
+    cmp a, #0x38            ;abc4  14 38        ;TODO 0x38 = 56 is this KW1281 radio address?
     beq lab_abcc            ;abc6  fd 04
     cmp a, #0x07            ;abc8  14 07
     bne lab_abe3            ;abca  fc 17
@@ -9410,7 +9426,7 @@ lab_b4e0:
 
 lab_b4e9:
     mov mem_00a5, #0x07     ;b4e9  85 a5 07     7 bytes in KW1281 packet
-    movw a, #kw_fault_codes ;b4ec  e4 ff 44
+    movw a, #kw_faults_none ;b4ec  e4 ff 44
     movw mem_0084, a        ;b4ef  d5 84        Pointer to KW1281 packet bytes
     call sub_b136           ;b4f1  31 b1 36
     mov mem_0081, #0x03     ;b4f4  85 81 03
@@ -9490,41 +9506,49 @@ lab_b553:
 sub_b554:
     bbc mem_0093:0, lab_b55d ;b554  b0 93 06
     clrb mem_0093:0         ;b557  a0 93
+    ;KW1281 Fault 00856 Antenna
     movw a, #mem_0149       ;b559  e4 01 49     A = Address of KW1281 packet bytes
     ret                     ;b55c  20
 lab_b55d:
     bbc mem_0093:1, lab_b566 ;b55d  b1 93 06
     clrb mem_0093:1         ;b560  a1 93
+    ;KW1281 Fault 00668 Supply terminal 30
     movw a, #mem_014d       ;b562  e4 01 4d     A = Address of KW1281 packet bytes
     ret                     ;b565  20
 lab_b566:
     bbc mem_0093:2, lab_b56f ;b566  b2 93 06
     clrb mem_0093:2         ;b569  a2 93
+    ;KW1281 Fault 00850 Radio amplifier
     movw a, #mem_0151       ;b56b  e4 01 51   A = Address of KW1281 packet bytes
     ret                     ;b56e  20
 lab_b56f:
     bbc mem_0093:3, lab_b578 ;b56f  b3 93 06
     clrb mem_0093:3         ;b572  a3 93
+    ;KW1281 Fault 01044 Control Module Incorrectly Coded
     movw a, #mem_0165       ;b574  e4 01 65   A = Address of KW1281 packet bytes
     ret                     ;b577  20
 lab_b578:
     bbc mem_0093:4, lab_b581 ;b578  b4 93 06
+    ;KW1281 Fault 00855 CD changer
     clrb mem_0093:4         ;b57b  a4 93
     movw a, #mem_0155       ;b57d  e4 01 55   A = Address of KW1281 packet bytes
     ret                     ;b580  20
 lab_b581:
     bbc mem_0093:5, lab_b58a ;b581  b5 93 06
+    ;KW1281 Fault 00852 Loudspeaker(s) Front
     clrb mem_0093:5         ;b584  a5 93
     movw a, #mem_0159       ;b586  e4 01 59   A = Address of KW1281 packet bytes
     ret                     ;b589  20
 lab_b58a:
     bbc mem_0093:6, lab_b593 ;b58a  b6 93 06
+    ;KW1281 Fault 00853 Loudspeaker(s) Rear
     clrb mem_0093:6         ;b58d  a6 93
     movw a, #mem_015d       ;b58f  e4 01 5d   A = Address of KW1281 packet bytes
     ret                     ;b592  20
 lab_b593:
     bbc mem_0093:7, lab_b59b ;b593  b7 93 05
     clrb mem_0093:7         ;b596  a7 93
+    ;KW1281 Fault 65535 Internal Memory Error
     movw a, #mem_0161       ;b598  e4 01 61   A = Address of KW1281 packet bytes
 lab_b59b:
     ret                     ;b59b  20
@@ -9570,7 +9594,7 @@ lab_b5d3:
 
 lab_b5d7:
     mov mem_00a5, #0x07     ;b5d7  85 a5 07     7 bytes in KW1281 packet
-    movw a, #kw_fault_codes ;b5da  e4 ff 44
+    movw a, #kw_faults_none ;b5da  e4 ff 44
     movw mem_0084, a        ;b5dd  d5 84        Pointer to KW1281 packet bytes
     call sub_bba1           ;b5df  31 bb a1
     mov mem_0081, #0x05     ;b5e2  85 81 05
@@ -9762,13 +9786,12 @@ lab_b703:
     ret                     ;b703  20
 
 
-;TODO looks like these are group reading responses
-meas_blk_grp_1:
-;group 1?
-    .byte 0x10              ;b704  10          DATA '\x10'  Block length
-    .byte 0x0F              ;b705  0f          DATA '\x0f'
-    .byte 0x00              ;b706  00          DATA '\x00'
-    .byte 0xE7              ;b707  e7          DATA '\xe7'  0xE7 = Response to group reading
+kw_group_1:
+;KW1281 measuring blocks group 1?
+    .byte 0x10              ;b704  10          DATA '\x10'  Total size of KW1281 packet (block length + 1)
+    .byte 0x0F              ;b705  0f          DATA '\x0f'  Block length
+    .byte 0x00              ;b706  00          DATA '\x00'  Block counter
+    .byte 0xE7              ;b707  e7          DATA '\xe7'  Block title (0xE7 = Response to group reading)
     .byte 0x25              ;b708  25          DATA '%'     type
     .byte 0x00              ;b709  00          DATA '\x00'  value a
     .byte 0x00              ;b70a  00          DATA '\x00'  value b
@@ -9783,12 +9806,12 @@ meas_blk_grp_1:
     .byte 0x00              ;b713  00          DATA '\x00'  value b
     .byte 0x03              ;b714  03          DATA '\x03'  Block end
 
-meas_blk_grp_2:
-;group 2?
-    .byte 0x10              ;b715  10          DATA '\x10'  Block length
-    .byte 0x0F              ;b716  0f          DATA '\x0f'
-    .byte 0x00              ;b717  00          DATA '\x00'
-    .byte 0xE7              ;b718  e7          DATA '\xe7'  0xE7 = Response to group reading
+kw_group_2:
+;KW1281 measuring blocks group 2?
+    .byte 0x10              ;b715  10          DATA '\x10'  Number of bytes in KW1281 packet (block length + 1)
+    .byte 0x0F              ;b716  0f          DATA '\x0f'  Block length
+    .byte 0x00              ;b717  00          DATA '\x00'  Block counter
+    .byte 0xE7              ;b718  e7          DATA '\xe7'  Block title (0xE7 = Response to group reading)
     .byte 0x25              ;b719  25          DATA '%'     type
     .byte 0x00              ;b71a  00          DATA '\x00'  value a
     .byte 0xF0              ;b71b  f0          DATA '\xf0'  value b
@@ -9803,12 +9826,12 @@ meas_blk_grp_2:
     .byte 0x00              ;b724  00          DATA '\x00'  value b
     .byte 0x03              ;b725  03          DATA '\x03'  Block end
 
-meas_blk_grp_3:
-;group 3?
-    .byte 0x0D              ;b726  0d          DATA '\r'    Block length
-    .byte 0x0C              ;b727  0c          DATA '\x0c'
-    .byte 0x00              ;b728  00          DATA '\x00'
-    .byte 0xE7              ;b729  e7          DATA '\xe7'  0xE7 = Response to group reading
+kw_group_3:
+;KW1281 measuring blocks group 3?
+    .byte 0x0D              ;b726  0d          DATA '\r'    Number of bytes in KW1281 packet (block length + 1)
+    .byte 0x0C              ;b727  0c          DATA '\x0c'  Block length
+    .byte 0x00              ;b728  00          DATA '\x00'  Block counter
+    .byte 0xE7              ;b729  e7          DATA '\xe7'  Block title (0xE7 = Response to group reading)
     .byte 0x25              ;b72a  25          DATA '%'     type
     .byte 0x01              ;b72b  01          DATA '\x01'  value a
     .byte 0x00              ;b72c  00          DATA '\x00'  value b
@@ -9820,12 +9843,12 @@ meas_blk_grp_3:
     .byte 0x00              ;b732  00          DATA '\x00'  value b
     .byte 0x03              ;b733  03          DATA '\x03'  Block end
 
-meas_blk_grp_4:
-;group 4?
-    .byte 0x0A              ;b734  0a          DATA '\n'    Block length
-    .byte 0x09              ;b735  09          DATA '\t'
-    .byte 0x00              ;b736  00          DATA '\x00'
-    .byte 0xE7              ;b737  e7          DATA '\xe7'  0xE7 = Response to group reading
+kw_group_4:
+;KW1281 measuring blocks group 4?
+    .byte 0x0A              ;b734  0a          DATA '\n'    Number of bytes in KW1281 packet (block length + 1)
+    .byte 0x09              ;b735  09          DATA '\t'    Block length
+    .byte 0x00              ;b736  00          DATA '\x00'  Block counter
+    .byte 0xE7              ;b737  e7          DATA '\xe7'  Block title (0xE7 = Response to group reading)
     .byte 0x25              ;b738  25          DATA '%'     type
     .byte 0x00              ;b739  00          DATA '\x00'  value a
     .byte 0xF6              ;b73a  f6          DATA '\xf6'  value b
@@ -9834,12 +9857,12 @@ meas_blk_grp_4:
     .byte 0x00              ;b73d  00          DATA '\x00'  value b
     .byte 0x03              ;b73e  03          DATA '\x03'  Block end
 
-meas_blk_grp_5:
-;group 5?
-    .byte 0x0A              ;b73f  0a          DATA '\n'    Block length
-    .byte 0x09              ;b740  09          DATA '\t'
-    .byte 0x00              ;b741  00          DATA '\x00'
-    .byte 0xE7              ;b742  e7          DATA '\xe7'  0xE7 = Response to group reading
+kw_group_5:
+;KW1281 measuring blocks group 5?
+    .byte 0x0A              ;b73f  0a          DATA '\n'    Number of bytes in KW1281 packet (block length + 1)
+    .byte 0x09              ;b740  09          DATA '\t'    Block length
+    .byte 0x00              ;b741  00          DATA '\x00'  Block counter
+    .byte 0xE7              ;b742  e7          DATA '\xe7'  Block title (0xE7 = Response to group reading)
     .byte 0x25              ;b743  25          DATA '%'     type
     .byte 0x00              ;b744  00          DATA '\x00'  value a
     .byte 0xF7              ;b745  f7          DATA '\xf7'  value b
@@ -9848,23 +9871,23 @@ meas_blk_grp_5:
     .byte 0x00              ;b748  00          DATA '\x00'  value b
     .byte 0x03              ;b749  03          DATA '\x03'  Block end
 
-meas_blk_grp_6:
-;group 6?
-    .byte 0x07              ;b74a  07          DATA '\x07'  Block length
-    .byte 0x06              ;b74b  06          DATA '\x06'
-    .byte 0x00              ;b74c  00          DATA '\x00'
-    .byte 0xE7              ;b74d  e7          DATA '\xe7'  0xE7 = Response to group reading
+kw_group_6:
+;KW1281 measuring blocks group 6?
+    .byte 0x07              ;b74a  07          DATA '\x07'  Number of bytes in KW1281 packet (block length + 1)
+    .byte 0x06              ;b74b  06          DATA '\x06'  Block length
+    .byte 0x00              ;b74c  00          DATA '\x00'  Block counter
+    .byte 0xE7              ;b74d  e7          DATA '\xe7'  Block title (0xE7 = Response to group reading)
     .byte 0x11              ;b74e  11          DATA '\x11'  type
     .byte 0x20              ;b74f  20          DATA ' '     value a
     .byte 0x00              ;b750  00          DATA '\x00'  value b
     .byte 0x03              ;b751  03          DATA '\x03'  Block end
 
-meas_blk_grp_7:
-;group 7?
-    .byte 0x07              ;b752  07          DATA '\x07'  Block length
-    .byte 0x06              ;b753  06          DATA '\x06'
-    .byte 0x00              ;b754  00          DATA '\x00'
-    .byte 0xE7              ;b755  e7          DATA '\xe7'  0xE7 = Response to group reading
+kw_group_7:
+;KW1281 measuring blocks group 7?
+    .byte 0x07              ;b752  07          DATA '\x07'  Number of bytes in KW1281 packet (block length + 1)
+    .byte 0x06              ;b753  06          DATA '\x06'  Block length
+    .byte 0x00              ;b754  00          DATA '\x00'  Block counter
+    .byte 0xE7              ;b755  e7          DATA '\xe7'  Block title (0xE7 = Response to group reading)
     .byte 0x10              ;b756  10          DATA '\x10'  type
     .byte 0x01              ;b757  01          DATA '\x01'  value a
     .byte 0x00              ;b758  00          DATA '\x00'  value b
@@ -9896,22 +9919,30 @@ lab_b773:
 
 lab_b77c:
     mov a, mem_011b         ;b77c  60 01 1b
-    cmp a, #0x01            ;b77f  14 01        measuring block group 1?
+    cmp a, #0x01            ;b77f  14 01
     beq lab_b7a2            ;b781  fd 1f
-    cmp a, #0x02            ;b783  14 02        measuring block group 2?
+
+    cmp a, #0x02            ;b783  14 02
     beq lab_b7b2            ;b785  fd 2b
-    cmp a, #0x03            ;b787  14 03        measuring block group 3?
+
+    cmp a, #0x03            ;b787  14 03
     beq lab_b7d4            ;b789  fd 49
-    cmp a, #0x04            ;b78b  14 04        measuring block group 4?
+
+    cmp a, #0x04            ;b78b  14 04
     beq lab_b7ec            ;b78d  fd 5d
-    cmp a, #0x05            ;b78f  14 05        measuring block group 5?
+
+    cmp a, #0x05            ;b78f  14 05
     beq lab_b7f2            ;b791  fd 5f
-    cmp a, #0x06            ;b793  14 06        measuring block group 6?
+
+    cmp a, #0x06            ;b793  14 06
     beq lab_b804            ;b795  fd 6d
-    cmp a, #0x07            ;b797  14 07        measuring block group 7?
+
+    cmp a, #0x07            ;b797  14 07
     beq lab_b811            ;b799  fd 76
-    cmp a, #0x19            ;b79b  14 19        25 TODO what's group 0x19?
+
+    cmp a, #0x19            ;b79b  14 19
     beq lab_b81a            ;b79d  fd 7b
+
     jmp lab_b822            ;b79f  21 b8 22
 
 lab_b7a2:
@@ -9919,7 +9950,7 @@ lab_b7a2:
     call sub_bc02           ;b7a4  31 bc 02
     mov a, #0x00            ;b7a7  04 00
     mov mem_0265, a         ;b7a9  61 02 65
-    movw ix, #meas_blk_grp_1      ;b7ac  e6 b7 04
+    movw ix, #kw_group_1      ;b7ac  e6 b7 04
     jmp lab_b7fc            ;b7af  21 b7 fc
 
 lab_b7b2:
@@ -9934,10 +9965,9 @@ lab_b7b2:
     blo lab_b7cc            ;b7c5  f9 05
     mov a, #0x02            ;b7c7  04 02
     mov mem_019b, a         ;b7c9  61 01 9b
-
 lab_b7cc:
     setb mem_008e:4         ;b7cc  ac 8e
-    movw ix, #meas_blk_grp_2      ;b7ce  e6 b7 15
+    movw ix, #kw_group_2      ;b7ce  e6 b7 15
     jmp lab_b7fc            ;b7d1  21 b7 fc
 
 lab_b7d4:
@@ -9947,21 +9977,20 @@ lab_b7d4:
     bne lab_b7e3            ;b7dc  fc 05
     mov a, #0x01            ;b7de  04 01
     mov mem_02d4, a         ;b7e0  61 02 d4
-
 lab_b7e3:
     call sub_c10e           ;b7e3  31 c1 0e
-    movw ix, #meas_blk_grp_3      ;b7e6  e6 b7 26
+    movw ix, #kw_group_3      ;b7e6  e6 b7 26
     jmp lab_b7fc            ;b7e9  21 b7 fc
 
 lab_b7ec:
-    movw ix, #meas_blk_grp_7      ;b7ec  e6 b7 52
+    movw ix, #kw_group_7      ;b7ec  e6 b7 52
     jmp lab_b7fc            ;b7ef  21 b7 fc
 
 lab_b7f2:
     setb mem_008e:2         ;b7f2  aa 8e
     call sub_bc44           ;b7f4  31 bc 44
     clrb mem_008e:2         ;b7f7  a2 8e
-    movw ix, #meas_blk_grp_4      ;b7f9  e6 b7 34
+    movw ix, #kw_group_4      ;b7f9  e6 b7 34
 
 lab_b7fc:
     mov a, #0x00            ;b7fc  04 00
@@ -9972,12 +10001,12 @@ lab_b804:
     setb mem_008e:2         ;b804  aa 8e
     call sub_c019           ;b806  31 c0 19
     clrb mem_008e:2         ;b809  a2 8e
-    movw ix, #meas_blk_grp_5      ;b80b  e6 b7 3f
+    movw ix, #kw_group_5      ;b80b  e6 b7 3f
     jmp lab_b7fc            ;b80e  21 b7 fc
 
 lab_b811:
     call sub_c08f           ;b811  31 c0 8f
-    movw ix, #meas_blk_grp_6      ;b814  e6 b7 4a
+    movw ix, #kw_group_6      ;b814  e6 b7 4a
     jmp lab_b82a            ;b817  21 b8 2a
 
 lab_b81a:
@@ -10124,8 +10153,10 @@ lab_b8ff:
 lab_b906:
     cmp a, #0x07            ;b906  14 07
     beq lab_b8b4            ;b908  fd aa
+
     cmp a, #0x19            ;b90a  14 19
     beq lab_b8d5            ;b90c  fd c7
+
     cmp a, #0x04            ;b90e  14 04
     beq lab_b8c6            ;b910  fd b4
 
@@ -10334,16 +10365,18 @@ lab_ba34:
     mov mem_00a0, a         ;ba45  45 a0
     cmp a, #0x00            ;ba47  14 00
     bne lab_ba34            ;ba49  fc e9
+
     movw a, #0xffff         ;ba4b  e4 ff ff
-    movw mem_0161, a        ;ba4e  d4 01 61
+    movw mem_0161, a        ;ba4e  d4 01 61     KW1281 Fault 65535 Internal Memory Error
     movw a, #0x8800         ;ba51  e4 88 00
     movw mem_0163, a        ;ba54  d4 01 63
+
     mov mem_0092, #0x00     ;ba57  85 92 00
     mov a, #0x00            ;ba5a  04 00
     mov mem_0091, a         ;ba5c  45 91
 
     movw a, mem_0165        ;ba5e  c4 01 65
-    movw a, #0x0414         ;ba61  e4 04 14     Maybe KW1281 Fault 01044 Control Module Incorrectly Coded?
+    movw a, #0x0414         ;ba61  e4 04 14     KW1281 Fault 01044 Control Module Incorrectly Coded
     cmpw a                  ;ba64  13
     bne lab_ba6b            ;ba65  fc 04
 
@@ -15419,11 +15452,14 @@ lab_d49f:
     mov a, mem_0095         ;d4a4  05 95
     cmp a, #0x01            ;d4a6  14 01
     beq lab_d4bf            ;d4a8  fd 15
+
     mov a, mem_0369         ;d4aa  60 03 69
     cmp a, #0x03            ;d4ad  14 03
     beq lab_d4b9            ;d4af  fd 08
+
     cmp a, #0x28            ;d4b1  14 28
     beq lab_d4b9            ;d4b3  fd 04
+
     cmp a, #0x09            ;d4b5  14 09
     bne lab_d4c4            ;d4b7  fc 0b
 
@@ -15827,7 +15863,7 @@ lab_d74d:
 
 lab_d75e:
     mov a, mem_0369         ;d75e  60 03 69
-    cmp a, #0x38            ;d761  14 38
+    cmp a, #0x38            ;d761  14 38        ;TODO 0x38 = 56 is this KW1281 address?
     beq lab_d776            ;d763  fd 11
     cmp a, #0x50            ;d765  14 50
     beq lab_d776            ;d767  fd 0d
@@ -16331,6 +16367,7 @@ lab_da21:
 
 sub_da24:
     mov a, mem_00cc         ;da24  05 cc
+
     cmp a, #0x01            ;da26  14 01
     beq lab_da57            ;da28  fd 2d
 
@@ -16342,9 +16379,11 @@ sub_da24:
 
     cmp mem_0095, #0x01     ;da32  95 95 01
     bne lab_da7d            ;da35  fc 46
+
     bbs mem_00f7:6, lab_da57 ;da37  be f7 1d
 
     mov a, mem_00cc         ;da3a  05 cc
+
     cmp a, #0x04            ;da3c  14 04
     beq lab_da86            ;da3e  fd 46
 
@@ -16361,6 +16400,7 @@ sub_da24:
     beq lab_da86            ;da4e  fd 36
 
     mov a, mem_0369         ;da50  60 03 69
+
     cmp a, #0x05            ;da53  14 05
     beq lab_da6c            ;da55  fd 15
 
@@ -16448,6 +16488,7 @@ lab_dacb:
     ret                     ;dacb  20
 
 mem_dacc:
+;Lookup table used with sub_e76c
     .byte 0x03              ;dacc  03          DATA '\x03'
     .byte 0x02              ;dacd  02          DATA '\x02'
     .byte 0x04              ;dace  04          DATA '\x04'
@@ -16816,38 +16857,35 @@ lab_dd51:
     bne lab_dd2c            ;dd5a  fc d0
     ret                     ;dd5c  20
 
-kw_unknown_dd5d:
-;Unknown KW1281 packet
+kw_no_ack_2:
     .byte 0x04              ;dd5d  04          DATA '\x04'  Block length
     .byte 0x00              ;dd5e  00          DATA '\x00'  Block counter
-    .byte 0x0A              ;dd5f  0a          DATA '\n'    Block title (0x0a = No Acknowledge?)
+    .byte 0x0A              ;dd5f  0a          DATA '\n'    Block title (0x0a = No Acknowledge)
     .byte 0x00              ;dd60  00          DATA '\x00'
     .byte 0x03              ;dd61  03          DATA '\x03'  Block end
 
-kw_unknown_dd62:
-;Unknown KW1281 packet
+kw_ack_2:
 ;Appears unused
     .byte 0x03              ;dd62  03          DATA '\x03'  Block length
     .byte 0x00              ;dd63  00          DATA '\x00'  Block counter
-    .byte 0x09              ;dd64  09          DATA '\t'    Block title (0x09 = Acknowledge?)
+    .byte 0x09              ;dd64  09          DATA '\t'    Block title (0x09 = Acknowledge)
     .byte 0x03              ;dd65  03          DATA '\x03'  Block end
 
-kw_unknown_dd66:
+kw_unknown_title_d7:
 ;Unknown KW1281 packet
     .byte 0x07              ;dd66  07          DATA '\x07'  Block length
     .byte 0x00              ;dd67  00          DATA '\x00'  Block counter
-    .byte 0xD7              ;dd68  d7          DATA '\xd7'  Block title (0xd7 = Security access?)
+    .byte 0xD7              ;dd68  d7          DATA '\xd7'  Block title (0xd7 = Security access? TODO what is this?)
     .byte 0x00              ;dd69  00          DATA '\x00'
     .byte 0x00              ;dd6a  00          DATA '\x00'
     .byte 0x00              ;dd6b  00          DATA '\x00'
     .byte 0x00              ;dd6c  00          DATA '\x00'
     .byte 0x03              ;dd6d  03          DATA '\x03'  Block end
 
-kw_unknown_dd6e:
-;Unknown KW1281 packet
+kw_end:
     .byte 0x03              ;dd6e  03          DATA '\x03'  Block length
     .byte 0x00              ;dd6f  00          DATA '\x00'  Block counter
-    .byte 0x06              ;dd70  06          DATA '\x06'  Block title (0x06 = End Output?)
+    .byte 0x06              ;dd70  06          DATA '\x06'  Block title (0x06 = End Output)
     .byte 0x03              ;dd71  03          DATA '\x03'  Block end
 
 sub_dd72:
@@ -17781,7 +17819,7 @@ lab_e336:
 sub_e338:
     mov a, #0x01            ;e338  04 01
     mov mem_0397, a         ;e33a  61 03 97
-    movw a, #kw_unknown_dd5d ;e33d  e4 dd 5d
+    movw a, #kw_no_ack_2 ;e33d  e4 dd 5d
     movw mem_0084, a        ;e340  d5 84        Pointer to KW1281 packet bytes
     mov mem_00a5, #0x05     ;e342  85 a5 05     5 bytes in KW1281 packet
     call sub_b136           ;e345  31 b1 36
@@ -17790,7 +17828,7 @@ sub_e338:
 
 sub_e34e:
     clrb mem_00f9:7         ;e34e  a7 f9
-    movw a, #kw_unknown_dd5d ;e350  e4 dd 5d
+    movw a, #kw_no_ack_2 ;e350  e4 dd 5d
     movw mem_0084, a        ;e353  d5 84        Pointer to KW1281 packet bytes
     mov mem_00a5, #0x05     ;e355  85 a5 05     5 bytes in KW1281 packet
     call sub_b136           ;e358  31 b1 36
@@ -17845,10 +17883,9 @@ sub_e39a:
     mov a, #0x90            ;e39a  04 90
     bne sub_e3a4            ;e39c  fc 06       BRANCH_ALWAYS_TAKEN
 
-    .byte 0x04              ;e39e  04          DATA '\x04'
-    .byte 0xA0              ;e39f  a0          DATA '\xa0'
-    .byte 0xFC              ;e3a0  fc          DATA '\xfc'
-    .byte 0x02              ;e3a1  02          DATA '\x02'
+    ;0xe39e looks unreachable
+    mov a, #0xa0            ;e39e  04 a0
+    bne sub_e3a4            ;e3a0  fc 02       BRANCH_ALWAYS_TAKEN
 
 sub_e3a2:
     mov a, #0xb0            ;e3a2  04 b0
@@ -17903,7 +17940,7 @@ lab_e3d9:
     rorc a                  ;e3e9  03
     swap                    ;e3ea  10
     movw mem_03ad, a        ;e3eb  d4 03 ad
-    movw a, #kw_unknown_dd66 ;e3ee  e4 dd 66
+    movw a, #kw_unknown_title_d7 ;e3ee  e4 dd 66
     movw mem_0084, a        ;e3f1  d5 84        Pointer to KW1281 packet bytes
     mov mem_00a5, #0x08     ;e3f3  85 a5 08     8 bytes in KW1281 packet
     call sub_b136           ;e3f6  31 b1 36
@@ -17919,11 +17956,9 @@ lab_e3d9:
     mov mem_038c, a         ;e413  61 03 8c
     mov a, #0x0b            ;e416  04 0b
     bne lab_e47d            ;e418  fc 63       BRANCH_ALWAYS_TAKEN
-
-    .byte 0x04              ;e41a  04          DATA '\x04'
-    .byte 0x0A              ;e41b  0a          DATA '\n'
-    .byte 0xFC              ;e41c  fc          DATA '\xfc'
-    .byte 0x5F              ;e41d  5f          DATA '_'
+    ;0xea41 looks unreachable
+    mov a, #0x0a            ;e41a  04 0a
+    bne lab_e47d            ;e41c  fc 5f       BRANCH_ALWAYS_TAKEN
 
 lab_e41e:
 ;mem_038b case 0x0b
@@ -18057,7 +18092,7 @@ lab_e4eb:
     bne lab_e4ea            ;e4ee  fc fa
     call sub_e3a2           ;e4f0  31 e3 a2
     mov mem_00a5, #0x04     ;e4f3  85 a5 04    4 bytes in KW1281 packet
-    movw a, #kw_unknown_dd6e ;e4f6  e4 dd 6e
+    movw a, #kw_end ;e4f6  e4 dd 6e
     movw mem_0084, a        ;e4f9  d5 84       Pointer to KW1281 packet bytes
     call sub_e366           ;e4fb  31 e3 66
     mov a, #0x07            ;e4fe  04 07
@@ -21222,98 +21257,52 @@ sub_f744:
     ret                     ;f757  20
 
 mem_f758:
-    .byte 0x00              ;f758  00          DATA '\x00'
-    .byte 0x00              ;f759  00          DATA '\x00'
-    .byte 0x00              ;f75a  00          DATA '\x00'
-    .byte 0x01              ;f75b  01          DATA '\x01'
-    .byte 0x00              ;f75c  00          DATA '\x00'
-    .byte 0x02              ;f75d  02          DATA '\x02'
-    .byte 0x00              ;f75e  00          DATA '\x00'
-    .byte 0x03              ;f75f  03          DATA '\x03'
-    .byte 0x00              ;f760  00          DATA '\x00'
-    .byte 0x04              ;f761  04          DATA '\x04'
-    .byte 0x00              ;f762  00          DATA '\x00'
-    .byte 0x05              ;f763  05          DATA '\x05'
-    .byte 0x00              ;f764  00          DATA '\x00'
-    .byte 0x06              ;f765  06          DATA '\x06'
-    .byte 0x00              ;f766  00          DATA '\x00'
-    .byte 0x07              ;f767  07          DATA '\x07'
-    .byte 0x00              ;f768  00          DATA '\x00'
-    .byte 0x08              ;f769  08          DATA '\x08'
-    .byte 0x00              ;f76a  00          DATA '\x00'
-    .byte 0x09              ;f76b  09          DATA '\t'
-    .byte 0x00              ;f76c  00          DATA '\x00'
-    .byte 0x0A              ;f76d  0a          DATA '\n'
-    .byte 0x00              ;f76e  00          DATA '\x00'
-    .byte 0x0B              ;f76f  0b          DATA '\x0b'
-    .byte 0x00              ;f770  00          DATA '\x00'
-    .byte 0x0C              ;f771  0c          DATA '\x0c'
-    .byte 0x00              ;f772  00          DATA '\x00'
-    .byte 0x0D              ;f773  0d          DATA '\r'
-    .byte 0x00              ;f774  00          DATA '\x00'
-    .byte 0x0E              ;f775  0e          DATA '\x0e'
-    .byte 0x00              ;f776  00          DATA '\x00'
-    .byte 0x0F              ;f777  0f          DATA '\x0f'
-    .byte 0x00              ;f778  00          DATA '\x00'
-    .byte 0x10              ;f779  10          DATA '\x10'
-    .byte 0x00              ;f77a  00          DATA '\x00'
-    .byte 0x11              ;f77b  11          DATA '\x11'
-    .byte 0x00              ;f77c  00          DATA '\x00'
-    .byte 0x12              ;f77d  12          DATA '\x12'
-    .byte 0x00              ;f77e  00          DATA '\x00'
-    .byte 0x13              ;f77f  13          DATA '\x13'
-    .byte 0x00              ;f780  00          DATA '\x00'
-    .byte 0x14              ;f781  14          DATA '\x14'
-    .byte 0x00              ;f782  00          DATA '\x00'
-    .byte 0x15              ;f783  15          DATA '\x15'
-    .byte 0x00              ;f784  00          DATA '\x00'
-    .byte 0x16              ;f785  16          DATA '\x16'
-    .byte 0x00              ;f786  00          DATA '\x00'
-    .byte 0x17              ;f787  17          DATA '\x17'
-    .byte 0x00              ;f788  00          DATA '\x00'
-    .byte 0x18              ;f789  18          DATA '\x18'
-    .byte 0x00              ;f78a  00          DATA '\x00'
-    .byte 0x19              ;f78b  19          DATA '\x19'
-    .byte 0x00              ;f78c  00          DATA '\x00'
-    .byte 0x1A              ;f78d  1a          DATA '\x1a'
-    .byte 0x00              ;f78e  00          DATA '\x00'
-    .byte 0x1B              ;f78f  1b          DATA '\x1b'
-    .byte 0x00              ;f790  00          DATA '\x00'
-    .byte 0x1C              ;f791  1c          DATA '\x1c'
-    .byte 0x00              ;f792  00          DATA '\x00'
-    .byte 0x1D              ;f793  1d          DATA '\x1d'
-    .byte 0x00              ;f794  00          DATA '\x00'
-    .byte 0x1E              ;f795  1e          DATA '\x1e'
-    .byte 0x00              ;f796  00          DATA '\x00'
-    .byte 0x1F              ;f797  1f          DATA '\x1f'
-    .byte 0x01              ;f798  01          DATA '\x01'
-    .byte 0x1F              ;f799  1f          DATA '\x1f'
-    .byte 0x00              ;f79a  00          DATA '\x00'
-    .byte 0x21              ;f79b  21          DATA '!'
-    .byte 0x01              ;f79c  01          DATA '\x01'
-    .byte 0x21              ;f79d  21          DATA '!'
-    .byte 0x00              ;f79e  00          DATA '\x00'
-    .byte 0x23              ;f79f  23          DATA '#'
-    .byte 0x01              ;f7a0  01          DATA '\x01'
-    .byte 0x23              ;f7a1  23          DATA '#'
-    .byte 0x00              ;f7a2  00          DATA '\x00'
-    .byte 0x25              ;f7a3  25          DATA '%'
-    .byte 0x01              ;f7a4  01          DATA '\x01'
-    .byte 0x25              ;f7a5  25          DATA '%'
-    .byte 0x00              ;f7a6  00          DATA '\x00'
-    .byte 0x27              ;f7a7  27          DATA "'"
-    .byte 0x01              ;f7a8  01          DATA '\x01'
-    .byte 0x27              ;f7a9  27          DATA "'"
-    .byte 0x00              ;f7aa  00          DATA '\x00'
-    .byte 0x29              ;f7ab  29          DATA ')'
-    .byte 0x01              ;f7ac  01          DATA '\x01'
-    .byte 0x29              ;f7ad  29          DATA ')'
-    .byte 0x00              ;f7ae  00          DATA '\x00'
-    .byte 0x2B              ;f7af  2b          DATA '+'
-    .byte 0x01              ;f7b0  01          DATA '\x01'
-    .byte 0x2B              ;f7b1  2b          DATA '+'
-    .byte 0x00              ;f7b2  00          DATA '\x00'
-    .byte 0x2D              ;f7b3  2d          DATA '-'
+    .word 0x0000            ;DATA
+    .word 0x0001            ;DATA
+    .word 0x0002            ;DATA
+    .word 0x0003            ;DATA
+    .word 0x0004            ;DATA
+    .word 0x0005            ;DATA
+    .word 0x0006            ;DATA
+    .word 0x0007            ;DATA
+    .word 0x0008            ;DATA
+    .word 0x0009            ;DATA
+    .word 0x000a            ;DATA
+    .word 0x000b            ;DATA
+    .word 0x000c            ;DATA
+    .word 0x000d            ;DATA
+    .word 0x000e            ;DATA
+    .word 0x000f            ;DATA
+    .word 0x0010            ;DATA
+    .word 0x0011            ;DATA
+    .word 0x0012            ;DATA
+    .word 0x0013            ;DATA
+    .word 0x0014            ;DATA
+    .word 0x0015            ;DATA
+    .word 0x0016            ;DATA
+    .word 0x0017            ;DATA
+    .word 0x0018            ;DATA
+    .word 0x0019            ;DATA
+    .word 0x001a            ;DATA
+    .word 0x001b            ;DATA
+    .word 0x001c            ;DATA
+    .word 0x001d            ;DATA
+    .word 0x001e            ;DATA
+    .word 0x001f            ;DATA
+    .word 0x011f            ;DATA
+    .word 0x0021            ;DATA
+    .word 0x0121            ;DATA
+    .word 0x0023            ;DATA
+    .word 0x0123            ;DATA
+    .word 0x0025            ;DATA
+    .word 0x0125            ;DATA
+    .word 0x0027            ;DATA
+    .word 0x0127            ;DATA
+    .word 0x0029            ;DATA
+    .word 0x0129            ;DATA
+    .word 0x002b            ;DATA
+    .word 0x012b            ;DATA
+    .word 0x002d            ;DATA
 
 sub_f7b4:
     movw a, #0x0000         ;f7b4  e4 00 00
@@ -21330,108 +21319,57 @@ sub_f7b4:
     ret                     ;f7c7  20
 
 mem_f7c8:
-    .byte 0x00              ;f7c8  00          DATA '\x00'
-    .byte 0x0D              ;f7c9  0d          DATA '\r'
-    .byte 0x01              ;f7ca  01          DATA '\x01'
-    .byte 0x0D              ;f7cb  0d          DATA '\r'
-    .byte 0x00              ;f7cc  00          DATA '\x00'
-    .byte 0x0E              ;f7cd  0e          DATA '\x0e'
-    .byte 0x01              ;f7ce  01          DATA '\x01'
-    .byte 0x0E              ;f7cf  0e          DATA '\x0e'
-    .byte 0x00              ;f7d0  00          DATA '\x00'
-    .byte 0x0F              ;f7d1  0f          DATA '\x0f'
-    .byte 0x01              ;f7d2  01          DATA '\x01'
-    .byte 0x0F              ;f7d3  0f          DATA '\x0f'
-    .byte 0x00              ;f7d4  00          DATA '\x00'
-    .byte 0x10              ;f7d5  10          DATA '\x10'
-    .byte 0x01              ;f7d6  01          DATA '\x01'
-    .byte 0x10              ;f7d7  10          DATA '\x10'
-    .byte 0x00              ;f7d8  00          DATA '\x00'
-    .byte 0x11              ;f7d9  11          DATA '\x11'
-    .byte 0x01              ;f7da  01          DATA '\x01'
-    .byte 0x11              ;f7db  11          DATA '\x11'
-    .byte 0x00              ;f7dc  00          DATA '\x00'
-    .byte 0x12              ;f7dd  12          DATA '\x12'
-    .byte 0x01              ;f7de  01          DATA '\x01'
-    .byte 0x12              ;f7df  12          DATA '\x12'
-    .byte 0x00              ;f7e0  00          DATA '\x00'
-    .byte 0x13              ;f7e1  13          DATA '\x13'
-    .byte 0x01              ;f7e2  01          DATA '\x01'
-    .byte 0x13              ;f7e3  13          DATA '\x13'
-    .byte 0x00              ;f7e4  00          DATA '\x00'
-    .byte 0x14              ;f7e5  14          DATA '\x14'
-    .byte 0x01              ;f7e6  01          DATA '\x01'
-    .byte 0x14              ;f7e7  14          DATA '\x14'
-    .byte 0x00              ;f7e8  00          DATA '\x00'
-    .byte 0x15              ;f7e9  15          DATA '\x15'
-    .byte 0x01              ;f7ea  01          DATA '\x01'
-    .byte 0x15              ;f7eb  15          DATA '\x15'
-    .byte 0x00              ;f7ec  00          DATA '\x00'
-    .byte 0x16              ;f7ed  16          DATA '\x16'
-    .byte 0x01              ;f7ee  01          DATA '\x01'
-    .byte 0x16              ;f7ef  16          DATA '\x16'
-    .byte 0x00              ;f7f0  00          DATA '\x00'
-    .byte 0x17              ;f7f1  17          DATA '\x17'
-    .byte 0x01              ;f7f2  01          DATA '\x01'
-    .byte 0x17              ;f7f3  17          DATA '\x17'
-    .byte 0x00              ;f7f4  00          DATA '\x00'
-    .byte 0x18              ;f7f5  18          DATA '\x18'
-    .byte 0x01              ;f7f6  01          DATA '\x01'
-    .byte 0x18              ;f7f7  18          DATA '\x18'
-    .byte 0x00              ;f7f8  00          DATA '\x00'
-    .byte 0x19              ;f7f9  19          DATA '\x19'
-    .byte 0x01              ;f7fa  01          DATA '\x01'
-    .byte 0x19              ;f7fb  19          DATA '\x19'
-    .byte 0x00              ;f7fc  00          DATA '\x00'
-    .byte 0x1A              ;f7fd  1a          DATA '\x1a'
-    .byte 0x01              ;f7fe  01          DATA '\x01'
-    .byte 0x1A              ;f7ff  1a          DATA '\x1a'
-    .byte 0x00              ;f800  00          DATA '\x00'
-    .byte 0x1B              ;f801  1b          DATA '\x1b'
-    .byte 0x01              ;f802  01          DATA '\x01'
-    .byte 0x1B              ;f803  1b          DATA '\x1b'
-    .byte 0x00              ;f804  00          DATA '\x00'
-    .byte 0x1C              ;f805  1c          DATA '\x1c'
-    .byte 0x01              ;f806  01          DATA '\x01'
-    .byte 0x1C              ;f807  1c          DATA '\x1c'
-    .byte 0x00              ;f808  00          DATA '\x00'
-    .byte 0x1D              ;f809  1d          DATA '\x1d'
-    .byte 0x01              ;f80a  01          DATA '\x01'
-    .byte 0x1D              ;f80b  1d          DATA '\x1d'
-    .byte 0x00              ;f80c  00          DATA '\x00'
-    .byte 0x1E              ;f80d  1e          DATA '\x1e'
-    .byte 0x01              ;f80e  01          DATA '\x01'
-    .byte 0x1E              ;f80f  1e          DATA '\x1e'
-    .byte 0x00              ;f810  00          DATA '\x00'
-    .byte 0x1F              ;f811  1f          DATA '\x1f'
-    .byte 0x01              ;f812  01          DATA '\x01'
-    .byte 0x1F              ;f813  1f          DATA '\x1f'
-    .byte 0x00              ;f814  00          DATA '\x00'
-    .byte 0x21              ;f815  21          DATA '!'
-    .byte 0x01              ;f816  01          DATA '\x01'
-    .byte 0x21              ;f817  21          DATA '!'
-    .byte 0x00              ;f818  00          DATA '\x00'
-    .byte 0x23              ;f819  23          DATA '#'
-    .byte 0x01              ;f81a  01          DATA '\x01'
-    .byte 0x23              ;f81b  23          DATA '#'
-    .byte 0x00              ;f81c  00          DATA '\x00'
-    .byte 0x25              ;f81d  25          DATA '%'
-    .byte 0x01              ;f81e  01          DATA '\x01'
-    .byte 0x25              ;f81f  25          DATA '%'
-    .byte 0x00              ;f820  00          DATA '\x00'
-    .byte 0x27              ;f821  27          DATA "'"
-    .byte 0x01              ;f822  01          DATA '\x01'
-    .byte 0x27              ;f823  27          DATA "'"
-    .byte 0x00              ;f824  00          DATA '\x00'
-    .byte 0x29              ;f825  29          DATA ')'
-    .byte 0x01              ;f826  01          DATA '\x01'
-    .byte 0x29              ;f827  29          DATA ')'
-    .byte 0x00              ;f828  00          DATA '\x00'
-    .byte 0x2B              ;f829  2b          DATA '+'
-    .byte 0x01              ;f82a  01          DATA '\x01'
-    .byte 0x2B              ;f82b  2b          DATA '+'
-    .byte 0x00              ;f82c  00          DATA '\x00'
-    .byte 0x2D              ;f82d  2d          DATA '-'
+    .word 0x000d            ;DATA
+    .word 0x010d            ;DATA
+    .word 0x000e            ;DATA
+    .word 0x010e            ;DATA
+    .word 0x000f            ;DATA
+    .word 0x010f            ;DATA
+    .word 0x0010            ;DATA
+    .word 0x0110            ;DATA
+    .word 0x0011            ;DATA
+    .word 0x0111            ;DATA
+    .word 0x0012            ;DATA
+    .word 0x0112            ;DATA
+    .word 0x0013            ;DATA
+    .word 0x0113            ;DATA
+    .word 0x0014            ;DATA
+    .word 0x0114            ;DATA
+    .word 0x0015            ;DATA
+    .word 0x0115            ;DATA
+    .word 0x0016            ;DATA
+    .word 0x0116            ;DATA
+    .word 0x0017            ;DATA
+    .word 0x0117            ;DATA
+    .word 0x0018            ;DATA
+    .word 0x0118            ;DATA
+    .word 0x0019            ;DATA
+    .word 0x0119            ;DATA
+    .word 0x001a            ;DATA
+    .word 0x011a            ;DATA
+    .word 0x001b            ;DATA
+    .word 0x011b            ;DATA
+    .word 0x001c            ;DATA
+    .word 0x011c            ;DATA
+    .word 0x001d            ;DATA
+    .word 0x011d            ;DATA
+    .word 0x001e            ;DATA
+    .word 0x011e            ;DATA
+    .word 0x001f            ;DATA
+    .word 0x011f            ;DATA
+    .word 0x0021            ;DATA
+    .word 0x0121            ;DATA
+    .word 0x0023            ;DATA
+    .word 0x0123            ;DATA
+    .word 0x0025            ;DATA
+    .word 0x0125            ;DATA
+    .word 0x0027            ;DATA
+    .word 0x0127            ;DATA
+    .word 0x0029            ;DATA
+    .word 0x0129            ;DATA
+    .word 0x002b            ;DATA
+    .word 0x012b            ;DATA
+    .word 0x002d            ;DATA
 
 sub_f82e:
     mov a, #0x07            ;f82e  04 07
@@ -22752,19 +22690,19 @@ kw_ack:
     .byte 0x09              ;ff42  09          DATA '\t'    Block title (0x09 = Acknowledge)
     .byte 0x03              ;ff43  03          DATA '\x03'  Block end
 
-kw_fault_codes:
+kw_faults_none:
     .byte 0x06              ;ff44  06          DATA '\x06'  Block length
     .byte 0x00              ;ff45  00          DATA '\x00'  Block counter
-    .byte 0xFC              ;ff46  fc          DATA '\xfc'  Block title (0xFC = Response to get fault codes request)
-    .byte 0xFF              ;ff47  ff          DATA '\xff'
-    .byte 0xFF              ;ff48  ff          DATA '\xff'
-    .byte 0x88              ;ff49  88          DATA '\x88'
+    .byte 0xFC              ;ff46  fc          DATA '\xfc'  Block title (0xFC = Response to get fault codes)
+    .byte 0xFF              ;ff47  ff          DATA '\xff'  Fault code high byte    \
+    .byte 0xFF              ;ff48  ff          DATA '\xff'  Fault code low byte      | [0xFF, 0xFF, 0x88] means no faults
+    .byte 0x88              ;ff49  88          DATA '\x88'  Fault code status byte  /
     .byte 0x03              ;ff4a  03          DATA '\x03'  Block end
 
 kw_actuator_1:
     .byte 0x05              ;ff4b  05          DATA '\x05'  Block length
     .byte 0x00              ;ff4c  00          DATA '\x00'  Block counter
-    .byte 0xF5              ;ff4d  f5          DATA '\xf5'  Block title (0xF5 = Response to actuator test?)
+    .byte 0xF5              ;ff4d  f5          DATA '\xf5'  Block title (0xF5 = Response to actuator test)
     .byte 0x03              ;ff4e  03          DATA '\x03'
     .byte 0x53              ;ff4f  53          DATA 'S'
     .byte 0x03              ;ff50  03          DATA '\x03'  Block end
@@ -22772,7 +22710,7 @@ kw_actuator_1:
 kw_actuator_2:
     .byte 0x05              ;ff51  05          DATA '\x05'  Block length
     .byte 0x00              ;ff52  00          DATA '\x00'  Block counter
-    .byte 0xF5              ;ff53  f5          DATA '\xf5'  Block title (0xF5 = Response to actuator test?)
+    .byte 0xF5              ;ff53  f5          DATA '\xf5'  Block title (0xF5 = Response to actuator test)
     .byte 0x03              ;ff54  03          DATA '\x03'
     .byte 0x56              ;ff55  56          DATA 'V'
     .byte 0x03              ;ff56  03          DATA '\x03'  Block end
@@ -22780,7 +22718,7 @@ kw_actuator_2:
 kw_actuator_3:
     .byte 0x05              ;ff57  05          DATA '\x05'  Block length
     .byte 0x00              ;ff58  00          DATA '\x00'  Block counter
-    .byte 0xF5              ;ff59  f5          DATA '\xf5'  Block title (0xF5 = Response to actuator test?)
+    .byte 0xF5              ;ff59  f5          DATA '\xf5'  Block title (0xF5 = Response to actuator test)
     .byte 0x04              ;ff5a  04          DATA '\x04'
     .byte 0xAB              ;ff5b  ab          DATA '\xab'
     .byte 0x03              ;ff5c  03          DATA '\x03'  Block end
