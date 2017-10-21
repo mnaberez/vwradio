@@ -9889,24 +9889,28 @@ lab_b703:
 
 
 kw_group_1:
-;KW1281 Group Reading: Group 1
+;KW1281 Group Reading: Group 1 (General)
     .byte 0x10              ;b704  10          DATA '\x10'  Total size of KW1281 packet (block length + 1)
     .byte 0x0F              ;b705  0f          DATA '\x0f'  Block length
     .byte 0x00              ;b706  00          DATA '\x00'  Block counter
     .byte 0xE7              ;b707  e7          DATA '\xe7'  Block title (0xE7 = Response to group reading)
 
+    ;GALA-Signal
     .byte 0x25              ;b708  25          DATA '%'     type
     .byte 0x00              ;b709  00          DATA '\x00'  value a
     .byte 0x00              ;b70a  00          DATA '\x00'  value b
 
+    ;Supply Voltage (Terminal 30)
     .byte 0x06              ;b70b  06          DATA '\x06'  type
     .byte 0x64              ;b70c  64          DATA 'd'     value a
     .byte 0x00              ;b70d  00          DATA '\x00'  value b
 
+    ;Illumination % (Terminal 5d)
     .byte 0x17              ;b70e  17          DATA '\x17'  type
     .byte 0xFF              ;b70f  ff          DATA '\xff'  value a
     .byte 0x00              ;b710  00          DATA '\x00'  value b
 
+    ;S-Contact Status
     .byte 0x25              ;b711  25          DATA '%'     type
     .byte 0x00              ;b712  00          DATA '\x00'  value a
     .byte 0x00              ;b713  00          DATA '\x00'  value b
@@ -9914,24 +9918,28 @@ kw_group_1:
     .byte 0x03              ;b714  03          DATA '\x03'  Block end
 
 kw_group_2:
-;KW1281 Group Reading: Group 2
+;KW1281 Group Reading: Group 2 (Speakers)
     .byte 0x10              ;b715  10          DATA '\x10'  Number of bytes in KW1281 packet (block length + 1)
     .byte 0x0F              ;b716  0f          DATA '\x0f'  Block length
     .byte 0x00              ;b717  00          DATA '\x00'  Block counter
     .byte 0xE7              ;b718  e7          DATA '\xe7'  Block title (0xE7 = Response to group reading)
 
+    ;Location/Type (Front)
     .byte 0x25              ;b719  25          DATA '%'     type
     .byte 0x00              ;b71a  00          DATA '\x00'  value a
     .byte 0xF0              ;b71b  f0          DATA '\xf0'  value b
 
+    ;Status
     .byte 0x25              ;b71c  25          DATA '%'     type
     .byte 0x00              ;b71d  00          DATA '\x00'  value a
     .byte 0x00              ;b71e  00          DATA '\x00'  value b
 
+    ;Location/Type (Rear)
     .byte 0x25              ;b71f  25          DATA '%'     type
     .byte 0x00              ;b720  00          DATA '\x00'  value a
     .byte 0xF1              ;b721  f1          DATA '\xf1'  value b
 
+    ;Status
     .byte 0x25              ;b722  25          DATA '%'     type
     .byte 0x00              ;b723  00          DATA '\x00'  value a
     .byte 0x00              ;b724  00          DATA '\x00'  value b
@@ -9939,20 +9947,23 @@ kw_group_2:
     .byte 0x03              ;b725  03          DATA '\x03'  Block end
 
 kw_group_3:
-;KW1281 Group Reading: Group 3
+;KW1281 Group Reading: Group 3 (Antenna)
     .byte 0x0D              ;b726  0d          DATA '\r'    Number of bytes in KW1281 packet (block length + 1)
     .byte 0x0C              ;b727  0c          DATA '\x0c'  Block length
     .byte 0x00              ;b728  00          DATA '\x00'  Block counter
     .byte 0xE7              ;b729  e7          DATA '\xe7'  Block title (0xE7 = Response to group reading)
 
+    ;Antenna Type
     .byte 0x25              ;b72a  25          DATA '%'     type
     .byte 0x01              ;b72b  01          DATA '\x01'  value a
     .byte 0x00              ;b72c  00          DATA '\x00'  value b
 
+    ;Antenna
     .byte 0x25              ;b72d  25          DATA '%'     type
     .byte 0x00              ;b72e  00          DATA '\x00'  value a
     .byte 0xF4              ;b72f  f4          DATA '\xf4'  value b
 
+    ;Status
     .byte 0x25              ;b730  25          DATA '%'     type
     .byte 0x00              ;b731  00          DATA '\x00'  value a
     .byte 0x00              ;b732  00          DATA '\x00'  value b
@@ -9960,16 +9971,18 @@ kw_group_3:
     .byte 0x03              ;b733  03          DATA '\x03'  Block end
 
 kw_group_5:
-;KW1281 Group Reading: Group 5
+;KW1281 Group Reading: Group 5 (CD Changer)
     .byte 0x0A              ;b734  0a          DATA '\n'    Number of bytes in KW1281 packet (block length + 1)
     .byte 0x09              ;b735  09          DATA '\t'    Block length
     .byte 0x00              ;b736  00          DATA '\x00'  Block counter
     .byte 0xE7              ;b737  e7          DATA '\xe7'  Block title (0xE7 = Response to group reading)
 
+    ;Component
     .byte 0x25              ;b738  25          DATA '%'     type
     .byte 0x00              ;b739  00          DATA '\x00'  value a
     .byte 0xF6              ;b73a  f6          DATA '\xf6'  value b
 
+    ;Status
     .byte 0x25              ;b73b  25          DATA '%'     type
     .byte 0x00              ;b73c  00          DATA '\x00'  value a
     .byte 0x00              ;b73d  00          DATA '\x00'  value b
@@ -9977,16 +9990,18 @@ kw_group_5:
     .byte 0x03              ;b73e  03          DATA '\x03'  Block end
 
 kw_group_6:
-;KW1281 Group Reading: Group 6
+;KW1281 Group Reading: Group 6 (External Display)
     .byte 0x0A              ;b73f  0a          DATA '\n'    Number of bytes in KW1281 packet (block length + 1)
     .byte 0x09              ;b740  09          DATA '\t'    Block length
     .byte 0x00              ;b741  00          DATA '\x00'  Block counter
     .byte 0xE7              ;b742  e7          DATA '\xe7'  Block title (0xE7 = Response to group reading)
 
+    ;Component
     .byte 0x25              ;b743  25          DATA '%'     type
     .byte 0x00              ;b744  00          DATA '\x00'  value a
     .byte 0xF7              ;b745  f7          DATA '\xf7'  value b
 
+    ;Status
     .byte 0x25              ;b746  25          DATA '%'     type
     .byte 0x00              ;b747  00          DATA '\x00'  value a
     .byte 0x00              ;b748  00          DATA '\x00'  value b
@@ -9994,12 +10009,13 @@ kw_group_6:
     .byte 0x03              ;b749  03          DATA '\x03'  Block end
 
 kw_group_7:
-;KW1281 Group Reading: Group 7
+;KW1281 Group Reading: Group 7 (Steering Wheel Control)
     .byte 0x07              ;b74a  07          DATA '\x07'  Number of bytes in KW1281 packet (block length + 1)
     .byte 0x06              ;b74b  06          DATA '\x06'  Block length
     .byte 0x00              ;b74c  00          DATA '\x00'  Block counter
     .byte 0xE7              ;b74d  e7          DATA '\xe7'  Block title (0xE7 = Response to group reading)
 
+    ;Steering Wheel Buttons
     .byte 0x11              ;b74e  11          DATA '\x11'  type
     .byte 0x20              ;b74f  20          DATA ' '     value a
     .byte 0x00              ;b750  00          DATA '\x00'  value b
@@ -10007,12 +10023,13 @@ kw_group_7:
     .byte 0x03              ;b751  03          DATA '\x03'  Block end
 
 kw_group_4:
-;KW1281 Group Reading: Group 4
+;KW1281 Group Reading: Group 4 (Amplifier)
     .byte 0x07              ;b752  07          DATA '\x07'  Number of bytes in KW1281 packet (block length + 1)
     .byte 0x06              ;b753  06          DATA '\x06'  Block length
     .byte 0x00              ;b754  00          DATA '\x00'  Block counter
     .byte 0xE7              ;b755  e7          DATA '\xe7'  Block title (0xE7 = Response to group reading)
 
+    ;Amplifier Output
     .byte 0x10              ;b756  10          DATA '\x10'  type
     .byte 0x01              ;b757  01          DATA '\x01'  value a
     .byte 0x00              ;b758  00          DATA '\x00'  value b
@@ -10081,7 +10098,10 @@ lab_b77c:
 
 lab_b7a2:
 ;Group Reading related
-;Group 1
+;Group 1 (General:
+
+;KW1281 Group Reading: Group 1 (General)
+;GALA-Signal, Supply Voltage Terminal 30, Illumumination %, S-Contact)
     setb mem_008e:3         ;b7a2  ab 8e
     call sub_bc02           ;b7a4  31 bc 02
     mov a, #0x00            ;b7a7  04 00
@@ -10090,8 +10110,7 @@ lab_b7a2:
     jmp lab_b7fc            ;b7af  21 b7 fc
 
 lab_b7b2:
-;Group Reading related
-;Group 2
+;Group Reading related: Group 2 (Speakers)
     mov a, mem_02d2         ;b7b2  60 02 d2
     bne lab_b7cc            ;b7b5  fc 15
     mov a, #0x01            ;b7b7  04 01
@@ -10109,8 +10128,7 @@ lab_b7cc:
     jmp lab_b7fc            ;b7d1  21 b7 fc
 
 lab_b7d4:
-;Group Reading related
-;Group 3
+;Group Reading related: Group 3 (Antenna)
     mov a, #0x03            ;b7d4  04 03
     mov mem_033f, a         ;b7d6  61 03 3f
     mov a, mem_02d4         ;b7d9  60 02 d4
@@ -10123,14 +10141,12 @@ lab_b7e3:
     jmp lab_b7fc            ;b7e9  21 b7 fc
 
 lab_b7ec:
-;Group Reading related
-;Group 4
+;Group Reading related: Group 4 (Amplifier)
     movw ix, #kw_group_4    ;b7ec  e6 b7 52
     jmp lab_b7fc            ;b7ef  21 b7 fc
 
 lab_b7f2:
-;Group Reading related
-;Group 5
+;Group Reading related: Group 5 (CD Changer)
     setb mem_008e:2         ;b7f2  aa 8e
     call sub_bc44           ;b7f4  31 bc 44
     clrb mem_008e:2         ;b7f7  a2 8e
@@ -10142,8 +10158,7 @@ lab_b7fc:
     jmp lab_b82a            ;b801  21 b8 2a
 
 lab_b804:
-;Group Reading related
-;Group 6
+;Group Reading related: Group 6 (External Display)
     setb mem_008e:2         ;b804  aa 8e
     call sub_c019           ;b806  31 c0 19
     clrb mem_008e:2         ;b809  a2 8e
@@ -10151,22 +10166,19 @@ lab_b804:
     jmp lab_b7fc            ;b80e  21 b7 fc
 
 lab_b811:
-;Group Reading related
-;Group 7
+;Group Reading related: Group 7 (Steering Wheel Control)
     call sub_c08f           ;b811  31 c0 8f
     movw ix, #kw_group_7    ;b814  e6 b7 4a
     jmp lab_b82a            ;b817  21 b8 2a
 
 lab_b81a:
-;Group Reading related
-;Group 25
+;Group Reading related: Group 25: ??? TODO What is group 25?
     mov a, #0x00            ;b81a  04 00
     mov mem_0194, a         ;b81c  61 01 94
     jmp lab_b841            ;b81f  21 b8 41
 
 lab_b822:
-;Group Reading related
-;Unrecognized Group
+;Group Reading related: Unrecognized Group
     mov a, #0x00            ;b822  04 00
     mov mem_0194, a         ;b824  61 01 94
     jmp lab_b8dd            ;b827  21 b8 dd
@@ -10272,11 +10284,11 @@ lab_b8cf:
 
 lab_b8d5:
     setb mem_008c:3         ;b8d5  ab 8c
-    call sub_b16b_ack           ;b8d7  31 b1 6b
+    call sub_b16b_ack       ;b8d7  31 b1 6b
     jmp lab_b912            ;b8da  21 b9 12
 
 lab_b8dd:
-    call sub_b21f_no_ack           ;b8dd  31 b2 1f
+    call sub_b21f_no_ack    ;b8dd  31 b2 1f
     jmp lab_b912            ;b8e0  21 b9 12
 
 lab_b8e3:
@@ -10491,7 +10503,7 @@ sub_ba0e:
 lab_ba14:
     movw a, #0xffff         ;ba14  e4 ff ff
     movw @ix+0x00, a        ;ba17  d6 00
-    movw a, #0xff14       ;ba19  e4 ff 14  TODO should this be mem_ff14?
+    movw a, #0xff14         ;ba19  e4 ff 14  TODO should this be mem_ff14?
     movw @ix+0x02, a        ;ba1c  d6 02
     incw ix                 ;ba1e  c2
     incw ix                 ;ba1f  c2
