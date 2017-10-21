@@ -1,6 +1,6 @@
 Main-MCU
     CD Changer
-    KWP1281
+    KW1281
     SCA4.4
     M62419FP
     TC9212F
