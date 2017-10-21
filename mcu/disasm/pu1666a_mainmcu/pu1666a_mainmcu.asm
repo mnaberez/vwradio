@@ -8027,7 +8027,7 @@ lab_ac79:
     ret                     ;ac79  20
 
 sub_ac7a:
-    call clr_mem_0082_0083  ;ac7a  31 e0 b8     Zeroes mem_0082 and mem_0083
+    call clr_82_83          ;ac7a  31 e0 b8     Zeroes mem_0082 and mem_0083
     movw a, #0x0000         ;ac7d  e4 00 00
     movw mem_0088, a        ;ac80  d5 88        KW1281 byte received
     ret                     ;ac82  20
@@ -8083,9 +8083,9 @@ sub_acdb:
 
 sub_ace2:
     bbc mem_008b:0, lab_aced ;ace2  b0 8b 08
-    clrb mem_008b:0         ;ace5  a0 8b
+    clrb mem_008b:0          ;ace5  a0 8b
     bbc mem_008b:7, lab_acee ;ace7  b7 8b 04
-    call sub_b20c_no_ack           ;acea  31 b2 0c
+    call sub_b20c_no_ack     ;acea  31 b2 0c
 
 lab_aced:
     ret                     ;aced  20
@@ -8117,7 +8117,7 @@ lab_ad02:
 sub_ad15:
 ;KW1281 block title request dispatch
     movw ix, #mem_ad1f      ;ad15  e6 ad 1f
-    mov a, mem_011a         ;ad18  60 01 1a
+    mov a, mem_011a         ;ad18  60 01 1a     A = KW1281 Block title received
     call sub_e757           ;ad1b  31 e7 57
     ret                     ;ad1e  20
 
@@ -8135,7 +8135,7 @@ mem_ad1f:
 ;0x09        0x2B            Login
 ;0x0A        0x01            ??? Protected: Read RAM ???
 ;0x0B        0x03            ??? Protected: Read ROM ???
-;0x0C        0x19            ??? Protected: Read EEPROM ???
+;0x0C        0x19            Protected: Read EEPROM
 ;0x0D        0x0A            No Acknowledge
 ;0x0F        0x06            End Session
 ;0x10        0xF0            ??? Another Login ???
@@ -8185,7 +8185,7 @@ mem_ad1f:
     .byte 0x08              ;ad40  08          DATA '\x08'  mem_0080 = 0x03
     .word lab_ad9f
 
-    ;??? Protected: Read EEPROM ???
+    ;Protected: Read EEPROM
     .byte 0x19              ;ad43  19          DATA '\x19'  Block title 0x19
     .byte 0x0C              ;ad44  0c          DATA '\x0c'  mem_0080 = 0x0c
     .word lab_ada4
@@ -8293,7 +8293,7 @@ lab_ada4:
 ;Table mem_ad1f case for:
 ;  Block title 0x01: ??? Protected: Read RAM ???
 ;  Block title 0x03: ??? Protected: Read ROM ???
-;  Block title 0x19: ??? Protected: Read EEPROM ???
+;  Block title 0x19: Protected: Read EEPROM
     bbc mem_008c:3, lab_ada1 ;ada4  b3 8c fa
     bbc mem_00e4:6, lab_ada1 ;ada7  b6 e4 f7
     xchw a, t               ;adaa  43
@@ -8537,7 +8537,7 @@ lab_af1e:
     cmp a, mem_0083         ;af21  15 83
     bne lab_af34            ;af23  fc 0f
     clrb mem_008c:4         ;af25  a4 8c
-    movw a, #0x012e         ;af27  e4 01 2e
+    movw a, #mem_012e       ;af27  e4 01 2e
     movw mem_0147, a        ;af2a  d4 01 47
     mov a, #0x0a            ;af2d  04 0a        0x0A = mem_0080 value for KW1281 ??? Protected: Read RAM ???
     mov mem_0080, a         ;af2f  45 80
@@ -8550,12 +8550,14 @@ lab_af36:
     clrb mem_008b:4         ;af36  a4 8b
     setb uscr:1             ;af38  a9 41
     mov a, mem_0080         ;af3a  05 80
-    cmp a, #0x0c            ;af3c  14 0c        0x0C = mem_0080 value for KW1281 ??? Protected: Read EEPROM ???
+    cmp a, #0x0c            ;af3c  14 0c        0x0C = mem_0080 value for KW1281 Protected: Read EEPROM
     bne lab_af46            ;af3e  fc 06
+    ;mem_0080 = 0x0c read eeprom
     call sub_cb72           ;af40  31 cb 72     Read byte from EEPROM, store it in mem_0089
     jmp lab_af50            ;af43  21 af 50
 
 lab_af46:
+;mem_0080 != 0x0c
     movw a, mem_0147        ;af46  c4 01 47
     movw mem_0086, a        ;af49  d5 86
     movw a, mem_0086        ;af4b  c5 86
@@ -8592,7 +8594,7 @@ lab_af79:
 lab_af7d:
     mov a, mem_032e         ;af7d  60 03 2e
     beq lab_af1d            ;af80  fd 9b
-    call clr_mem_0082_0083  ;af82  31 e0 b8     Zeroes mem_0082 and mem_0083
+    call clr_82_83  ;af82  31 e0 b8     Zeroes mem_0082 and mem_0083
     mov a, #0x01            ;af85  04 01
     bne lab_af1a            ;af87  fc 91       BRANCH_ALWAYS_TAKEN
 
@@ -8754,7 +8756,9 @@ lab_b081:
     movw mem_0110, a        ;b090  d4 01 10
     ret                     ;b093  20
 
+
 mem_0080_is_00:
+;KW1281 Initial Sync(?)
     mov a, mem_0081         ;b094  05 81
     cmp a, #0x01            ;b096  14 01
     beq lab_b0a7            ;b098  fd 0d
@@ -8918,6 +8922,8 @@ mem_0080_is_03:
     ret                     ;b181  20
 
 lab_b182:
+;Acknowledge related
+;(mem_0080=0x03, mem_0081=1)
     call sub_b16b_ack       ;b182  31 b1 6b
     mov mem_0081, #0x02     ;b185  85 81 02
     ret                     ;b188  20
@@ -8933,8 +8939,8 @@ mem_0080_is_0d:
     ret                     ;b193  20
 
 lab_b194:
-;(mem_0080=0x0d, mem_0081=1)
 ;No Acknowledge related
+;(mem_0080=0x0d, mem_0081=1)
     mov a, mem_033d         ;b194  60 03 3d
     incw a                  ;b197  c0
     mov mem_033d, a         ;b198  61 03 3d
@@ -8958,7 +8964,7 @@ sub_b1b2:
 
 sub_b1c1:
     mov mem_0081, a         ;b1c1  45 81
-    call sub_bbbf           ;b1c3  31 bb bf
+    call call_sub_bbbf      ;b1c3  31 bb bf     Zeroes mem_0082 and mem_0083
     mov a, #0x03            ;b1c6  04 03
     mov mem_012e, a         ;b1c8  61 01 2e
     mov a, #0x03            ;b1cb  04 03
@@ -8993,12 +8999,16 @@ mem_0080_is_0e:
     ret                     ;b1f6  20
 
 lab_b1f7:
+;Unrecognized Block Title related
+;(mem_0080=0x0e, mem_0081=1)
     call sub_b21f_no_ack    ;b1f7  31 b2 1f
     mov mem_0081, #0x02     ;b1fa  85 81 02
     ret                     ;b1fd  20
 
 
 lab_b1fe:
+;Unrecognized Block Title related
+;(mem_0080=0x0e, mem_0081=2)
     bbc mem_008b:1, lab_b20b ;b1fe  b1 8b 0a
     clrb mem_008b:1         ;b201  a1 8b
     mov mem_0081, #0x00     ;b203  85 81 00
@@ -9007,6 +9017,7 @@ lab_b1fe:
 
 lab_b20b:
     ret                     ;b20b  20
+
 
 sub_b20c_no_ack:
     clrb mem_008b:7         ;b20c  a7 8b
@@ -9080,7 +9091,7 @@ lab_b25a:
 sub_b26f:
     mov a, #0x02            ;b26f  04 02
     mov mem_0114, a         ;b271  61 01 14
-    call clr_mem_0082_0083  ;b274  31 e0 b8     Zeroes mem_0082 and mem_0083
+    call clr_82_83  ;b274  31 e0 b8     Zeroes mem_0082 and mem_0083
     clrb mem_008b:6         ;b277  a6 8b
     clrb mem_008b:7         ;b279  a7 8b
     clrb mem_008b:4         ;b27b  a4 8b
@@ -9582,8 +9593,8 @@ lab_b505:
     ret                     ;b513  20
 
 lab_b514:
-    mov a, mem_011a         ;b514  60 01 1a
-    cmp a, #0x0a            ;b517  14 0a
+    mov a, mem_011a         ;b514  60 01 1a     A = KW1281 Block title received
+    cmp a, #0x0a            ;b517  14 0a        Is it 0x0a (No Acknowledge)?
     bne lab_b521            ;b519  fc 06
     mov a, #0x04            ;b51b  04 04
     call sub_b1b2           ;b51d  31 b1 b2
@@ -9700,6 +9711,7 @@ mem_b5a4:
 
 lab_b5b2:
 ;Clear Faults related
+;(mem_0080=0x05, mem_0081=1)
     call sub_c2c6           ;b5b2  31 c2 c6
     mov mem_0196, a         ;b5b5  61 01 96
     movw mem_0159, a        ;b5b8  d4 01 59
@@ -9711,10 +9723,12 @@ lab_b5b2:
 
 lab_b5ca:
 ;Clear Faults related
+;(mem_0080=0x05, mem_0081=0,2)
     ret                     ;b5ca  20
 
 lab_b5cb:
 ;Clear Faults related
+;(mem_0080=0x05, mem_0081=3)
     mov a, mem_0091         ;b5cb  05 91
     bne lab_b5d3            ;b5cd  fc 04
     mov mem_0081, #0x04     ;b5cf  85 81 04
@@ -9726,6 +9740,7 @@ lab_b5d3:
 
 lab_b5d7:
 ;Clear Faults related
+;(mem_0080=0x05, mem_0081=4)
     mov mem_00a5, #0x07     ;b5d7  85 a5 07     7 bytes in KW1281 packet
     movw a, #kw_faults_none ;b5da  e4 ff 44
     movw mem_0084, a        ;b5dd  d5 84        Pointer to KW1281 packet bytes
@@ -9735,11 +9750,13 @@ lab_b5d7:
 
 lab_b5e6:
 ;Clear Faults related
+;(mem_0080=0x05, mem_0081=5)
     call sub_bbc3           ;b5e6  31 bb c3
     ret                     ;b5e9  20
 
 lab_b5ea:
 ;Clear Faults related
+;(mem_0080=0x05, mem_0081=6)
     mov mem_0080, #0x04     ;b5ea  85 80 04
     mov mem_0081, #0x01     ;b5ed  85 81 01
     ret                     ;b5f0  20
@@ -9893,8 +9910,8 @@ lab_b6c7:
     ret                     ;b6d5  20
 
 lab_b6d6:
-    mov a, mem_011a         ;b6d6  60 01 1a
-    cmp a, #0x0a            ;b6d9  14 0a
+    mov a, mem_011a         ;b6d6  60 01 1a     A = KW1281 Block title received
+    cmp a, #0x0a            ;b6d9  14 0a        Is it 0x0a (No Acknowledge)?
     bne lab_b6e3            ;b6db  fc 06
     mov a, #0x03            ;b6dd  04 03
     call sub_b1b2           ;b6df  31 b1 b2
@@ -10079,6 +10096,14 @@ kw_group_4:
 
 mem_0080_is_07:
 ;KW1281 Group Reading
+;
+;Group Reading request block:
+;   0x04 Block length                   mem_0118?
+;   0x2A Block counter                  mem_0119?
+;   0x29 Block title (Group Reading)    mem_011a
+;   0x01 Group Number                   mem_011b
+;   0x03 Block end                      mem_011c
+;
     mov a, mem_0081         ;b75a  05 81
     cmp a, #0x01            ;b75c  14 01
     beq lab_b773            ;b75e  fd 13
@@ -10415,6 +10440,7 @@ mem_0080_is_08:
 
 lab_b945:
 ;Recoding related
+;(mem_0080=0x08, mem_0081=1)
     movw a, mem_011b        ;b945  c4 01 1b
     call sub_b977           ;b948  31 b9 77
     bhs lab_b970            ;b94b  f8 23
@@ -10434,6 +10460,7 @@ lab_b945:
 
 lab_b970:
 ;Recoding related
+;(mem_0080=0x08, mem_0081=2)
     call sub_b123           ;b970  31 b1 23
     ret                     ;b973  20
 
@@ -10612,10 +10639,12 @@ mem_0080_is_09:
 
 lab_ba87:
 ;Login related
+;(mem_0080=0x01, mem_0081 != 1,2)
     ret                     ;ba87  20
 
 lab_ba88:
 ;Login related
+;(mem_0080=0x01, mem_0081=1)
     bbs mem_00de:3, lab_bacc ;ba88  bb de 41
 
     mov a, mem_011b         ;ba8b  60 01 1b
@@ -10688,6 +10717,7 @@ lab_bb0c:
 
 lab_bb13:
 ;Login related
+;(mem_0080=0x01, mem_0081=2)
     call sub_bbc3           ;bb13  31 bb c3
     ret                     ;bb16  20
 
@@ -10702,6 +10732,7 @@ mem_0080_is_0b_or_0c:
 lab_bb1f:
     mov a, #0xfd            ;bb1f  04 fd        0xFD = KW1281 Block title: Response to Read EEPROM
     bne lab_bb4a            ;bb21  fc 27        BRANCH_ALWAYS_TAKEN
+
 
 mem_0080_is_0a:
 ;KW1281 Read RAM
@@ -10727,6 +10758,7 @@ lab_bb29:
 lab_bb3e:
 ;Read RAM related
 ;Read EEPROM related
+;(mem_0080=x, mem_0081=1)
     movw a, mem_011e        ;bb3e  c4 01 1e
     movw mem_0147, a        ;bb41  d4 01 47
     mov mem_0081, #0x02     ;bb44  85 81 02
@@ -10734,6 +10766,7 @@ lab_bb3e:
 
 lab_bb48:
 ;Read RAM related
+;(mem_0080=x, mem_0081=2)
     mov a, #0xfe            ;bb48  04 fe        0xFE = KW1281 Block title: Response to Read RAM
 
 lab_bb4a:
@@ -10757,6 +10790,7 @@ lab_bb4a:
 lab_bb6d:
 ;Read RAM related
 ;Read EEPROM related
+;(mem_0080=x, mem_0081=3)
     mov a, #0x04            ;bb6d  04 04
     call sub_bbd3           ;bb6f  31 bb d3
     ret                     ;bb72  20
@@ -10764,6 +10798,7 @@ lab_bb6d:
 lab_bb73:
 ;Read RAM related
 ;Read EEPROM related
+;(mem_0080=x, mem_0081=4)
     bbc mem_008b:0, lab_bb81 ;bb73  b0 8b 0b
     clrb mem_008b:0         ;bb76  a0 8b
     bbc mem_008b:7, lab_bb82 ;bb78  b7 8b 07
@@ -10774,8 +10809,8 @@ lab_bb81:
     ret                     ;bb81  20
 
 lab_bb82:
-    mov a, mem_011a         ;bb82  60 01 1a
-    cmp a, #0x0a            ;bb85  14 0a
+    mov a, mem_011a         ;bb82  60 01 1a     A = KW1281 block title received
+    cmp a, #0x0a            ;bb85  14 0a        Is it 0x0A (No Acknowledge)?
     bne lab_bb8f            ;bb87  fc 06
     mov a, #0x03            ;bb89  04 03
     call sub_b1c1           ;bb8b  31 b1 c1
@@ -10788,6 +10823,7 @@ lab_bb8f:
 lab_bb93:
 ;Read RAM related
 ;Read EEPROM related
+;(mem_0080=x, mem_0081=5)
     call sub_b16b_ack       ;bb93  31 b1 6b
     mov mem_0081, #0x06     ;bb96  85 81 06
     ret                     ;bb99  20
@@ -10795,12 +10831,16 @@ lab_bb93:
 lab_bb9a:
 ;Read RAM related
 ;Read EEPROM related
+;(mem_0080=x, mem_0081=6)
     call sub_bbc3           ;bb9a  31 bb c3
     ret                     ;bb9d  20
 
+
 mem_0080_is_0f:
+;KW1281 End Session
     setb mem_008c:6         ;bb9e  ae 8c
     ret                     ;bba0  20
+
 
 sub_bba1:
     call sub_b136           ;bba1  31 b1 36
@@ -10808,7 +10848,7 @@ sub_bba1:
 sub_bba4:
     mov a, #0x01            ;bba4  04 01
     mov mem_0115, a         ;bba6  61 01 15
-    bne sub_bbbf            ;bba9  fc 14       BRANCH_ALWAYS_TAKEN
+    bne call_sub_bbbf       ;bba9  fc 14       BRANCH_ALWAYS_TAKEN
 
 sub_bbab:
     call sub_b136           ;bbab  31 b1 36
@@ -10824,8 +10864,8 @@ sub_bbb8:
     incw a                  ;bbbb  c0
     mov mem_012c, a         ;bbbc  61 01 2c
 
-sub_bbbf:
-    call clr_mem_0082_0083  ;bbbf  31 e0 b8     Zeroes mem_0082 and mem_0083
+call_sub_bbbf:
+    call clr_82_83          ;bbbf  31 e0 b8     Zeroes mem_0082 and mem_0083
     ret                     ;bbc2  20
 
 sub_bbc3:
@@ -10859,8 +10899,8 @@ sub_bbe0:
     ret                     ;bbef  20
 
 lab_bbf0:
-    mov a, mem_011a         ;bbf0  60 01 1a
-    cmp a, #0x0a            ;bbf3  14 0a
+    mov a, mem_011a         ;bbf0  60 01 1a     A = KW1281 Block Title received
+    cmp a, #0x0a            ;bbf3  14 0a        Is it 0x0A (No Acknowledge)?
     bne lab_bbfd            ;bbf5  fc 06
     mov a, mem_00a1         ;bbf7  05 a1
     call sub_b1b2           ;bbf9  31 b1 b2
@@ -17193,7 +17233,7 @@ sub_ddca:
     and a, #0xf0            ;dde4  64 f0
     or a, #0x04             ;dde6  74 04
     mov eic2, a             ;dde8  45 39
-    call clr_mem_0082_0083  ;ddea  31 e0 b8     Zeroes mem_0082 and mem_0083
+    call clr_82_83  ;ddea  31 e0 b8     Zeroes mem_0082 and mem_0083
     ret                     ;dded  20
 
 sub_ddee:
@@ -17316,14 +17356,14 @@ lab_deab:
     ret                     ;deab  20
 
 sub_deac:
-    mov a, mem_011a         ;deac  60 01 1a
-    cmp a, #0x00            ;deaf  14 00
+    mov a, mem_011a         ;deac  60 01 1a     A = KW1281 Block Title received
+    cmp a, #0x00            ;deaf  14 00        Is it 0x00 (ID code request/ECU Info)?
     beq lab_dec2            ;deb1  fd 0f
-    cmp a, #0x0a            ;deb3  14 0a
+    cmp a, #0x0a            ;deb3  14 0a        Is it 0x0a (No Acknowledge)?
     beq lab_dec5            ;deb5  fd 0e
-    cmp a, #0x09            ;deb7  14 09
+    cmp a, #0x09            ;deb7  14 09        Is it 0x09 (Acknowledge)?
     beq lab_dec8            ;deb9  fd 0d
-    cmp a, #0xf6            ;debb  14 f6
+    cmp a, #0xf6            ;debb  14 f6        Is it 0xF6 (ASCII)?
     beq lab_decb            ;debd  fd 0c
     mov a, #0x08            ;debf  04 08
     ret                     ;dec1  20
@@ -17602,7 +17642,7 @@ lab_e063:
     mov mem_0394, a         ;e06a  61 03 94
 
 lab_e06d:
-    call clr_mem_0082_0083 ;e06d  31 e0 b8     Zeroes mem_0082 and mem_0083
+    call clr_82_83 ;e06d  31 e0 b8     Zeroes mem_0082 and mem_0083
     mov a, #0x01            ;e070  04 01
     bne lab_e033            ;e072  fc bf       BRANCH_ALWAYS_TAKEN
 
@@ -17648,7 +17688,7 @@ sub_e0ab:
     clrb mem_00f9:4         ;e0b4  a4 f9
     clrb mem_00f9:3         ;e0b6  a3 f9
 
-clr_mem_0082_0083:
+clr_82_83:
     mov mem_0082, #0x00     ;e0b8  85 82 00
     mov mem_0083, #0x00     ;e0bb  85 83 00
     ret                     ;e0be  20
@@ -18087,7 +18127,7 @@ sub_e369:
     mov a, mem_0116         ;e36e  60 01 16
     incw a                  ;e371  c0
     mov mem_012c, a         ;e372  61 01 2c
-    jmp clr_mem_0082_0083   ;e375  21 e0 b8     Zeroes mem_0082 and mem_0083
+    jmp clr_82_83   ;e375  21 e0 b8     Zeroes mem_0082 and mem_0083
 
     ;XXX e378-e389 looks unreachable
     bbc mem_00f9:1, lab_e389 ;e378  b1 f9 0e
@@ -18185,16 +18225,22 @@ lab_e3d9:
     movw mem_0084, a        ;e3f1  d5 84        Pointer to KW1281 packet bytes
     mov mem_00a5, #0x08     ;e3f3  85 a5 08     8 bytes in KW1281 packet
     call sub_b136           ;e3f6  31 b1 36
+
     mov a, mem_03ab         ;e3f9  60 03 ab
     mov mem_0131, a         ;e3fc  61 01 31
+
     mov a, mem_03ac         ;e3ff  60 03 ac
     mov mem_0130, a         ;e402  61 01 30
+
     mov a, mem_03ad         ;e405  60 03 ad
     mov mem_012f, a         ;e408  61 01 2f
+
     mov a, mem_03ae         ;e40b  60 03 ae
     mov mem_012e, a         ;e40e  61 01 2e
+
     mov a, #0x11            ;e411  04 11
     mov mem_038c, a         ;e413  61 03 8c
+
     mov a, #0x0b            ;e416  04 0b
     bne lab_e47d            ;e418  fc 63       BRANCH_ALWAYS_TAKEN
 
@@ -18243,10 +18289,10 @@ lab_e45c:
     bne lab_e47d            ;e45e  fc 1d       BRANCH_ALWAYS_TAKEN
 
 lab_e460:
-    mov a, mem_011a         ;e460  60 01 1a
-    cmp a, #0x3d            ;e463  14 3d
+    mov a, mem_011a         ;e460  60 01 1a     A = KW1281 Block Title received
+    cmp a, #0x3d            ;e463  14 3d        Is it 0x3d (??? Security access)?
     beq lab_e47b            ;e465  fd 14
-    cmp a, #0x0a            ;e467  14 0a
+    cmp a, #0x0a            ;e467  14 0a        Is it 0x0a (No Acknowledge)?
     beq lab_e481            ;e469  fd 16
 
 lab_e46b:
@@ -18298,12 +18344,16 @@ lab_e4b5:
 ;mem_038b case 4
     mov a, mem_011e         ;e4b5  60 01 1e
     mov mem_03ab, a         ;e4b8  61 03 ab
+
     mov a, mem_011d         ;e4bb  60 01 1d
     mov mem_03ac, a         ;e4be  61 03 ac
+
     mov a, mem_011c         ;e4c1  60 01 1c
     mov mem_03ad, a         ;e4c4  61 03 ad
+
     mov a, mem_011b         ;e4c7  60 01 1b
     mov mem_03ae, a         ;e4ca  61 03 ae
+
     call sub_e61f           ;e4cd  31 e6 1f
     jmp lab_e4e5            ;e4d0  21 e4 e5
 
