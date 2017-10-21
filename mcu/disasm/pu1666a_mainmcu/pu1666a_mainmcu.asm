@@ -1105,7 +1105,9 @@ sub_826e:
     mov mem_0307, a         ;8327  61 03 07
     movw a, #0x0000         ;832a  e4 00 00
     movw mem_039f, a        ;832d  d4 03 9f
-    call sub_e5ae           ;8330  31 e5 ae
+
+    call sub_e5ae           ;8330  31 e5 ae     Unknown, uses mem_e5aa table
+
     movw a, mem_03ab        ;8333  c4 03 ab
     movw mem_03b0, a        ;8336  d4 03 b0
     movw a, mem_03ad        ;8339  c4 03 ad
@@ -6181,7 +6183,9 @@ lab_a10b:
     movw mem_03ab, a        ;a113  d4 03 ab
     movw a, mem_03b2        ;a116  c4 03 b2
     movw mem_03ad, a        ;a119  d4 03 ad
-    call sub_e61f           ;a11c  31 e6 1f
+
+    call sub_e61f           ;a11c  31 e6 1f     Unknown, uses mem_e5aa table
+
     movw a, mem_03a1        ;a11f  c4 03 a1
     movw mem_039f, a        ;a122  d4 03 9f
     call sub_dd72           ;a125  31 dd 72
@@ -18354,7 +18358,7 @@ lab_e4b5:
     mov a, mem_011b         ;e4c7  60 01 1b
     mov mem_03ae, a         ;e4ca  61 03 ae
 
-    call sub_e61f           ;e4cd  31 e6 1f
+    call sub_e61f           ;e4cd  31 e6 1f     Unknown, uses mem_e5aa table
     jmp lab_e4e5            ;e4d0  21 e4 e5
 
 sub_e4d3:
@@ -18487,14 +18491,16 @@ lab_e59c:
     mov a, #0x09            ;e5a6  04 09
     bne lab_e558            ;e5a8  fc ae       BRANCH_ALWAYS_TAKEN
 
+mem_e5aa:
+;Table used by sub_e5ae and sub_e61f
+;Note: this table is read backwards starting at 0xe5ad
     .byte 0x00              ;e5aa  00          DATA '\x00'
     .byte 0x18              ;e5ab  18          DATA '\x18'
     .byte 0xBD              ;e5ac  bd          DATA '\xbd'
-
-mem_e5ad:
     .byte 0xE7              ;e5ad  e7          DATA '\xe7'
 
 sub_e5ae:
+;Unknown, uses mem_e5aa table
     movw a, mem_039f        ;e5ae  c4 03 9f
     movw mem_03a1, a        ;e5b1  d4 03 a1
     movw a, #0x0000         ;e5b4  e4 00 00
@@ -18524,7 +18530,7 @@ sub_e5ae:
     movw a, mem_03a9        ;e5f6  c4 03 a9
     movw mem_03ad, a        ;e5f9  d4 03 ad
     movw ix, #mem_03ae      ;e5fc  e6 03 ae
-    movw ep, #mem_e5ad      ;e5ff  e7 e5 ad
+    movw ep, #mem_e5aa+3    ;e5ff  e7 e5 ad
     call sub_e6ca           ;e602  31 e6 ca
     ret                     ;e605  20
 
@@ -18552,6 +18558,7 @@ lab_e613:
     ret                     ;e61e  20
 
 sub_e61f:
+;Unknown, uses e5aa table
     movw a, #0x0000         ;e61f  e4 00 00
     movw mem_03a1, a        ;e622  d4 03 a1
     movw mem_03a3, a        ;e625  d4 03 a3
@@ -18564,7 +18571,7 @@ sub_e61f:
     movw a, mem_03ad        ;e63a  c4 03 ad
     movw mem_03b2, a        ;e63d  d4 03 b2
     movw ix, #mem_03ae      ;e640  e6 03 ae
-    movw ep, #mem_e5ad      ;e643  e7 e5 ad
+    movw ep, #mem_e5aa+3    ;e643  e7 e5 ad
     call sub_e6b3           ;e646  31 e6 b3
     movw a, mem_03ab        ;e649  c4 03 ab
     movw mem_03a7, a        ;e64c  d4 03 a7
