@@ -36,7 +36,7 @@ BlockTitles = {
     0x04: "Actuator/Output Test",
     0x05: "Clear Errors",
     0x06: "End Session",
-    0x07: "Get All Faults",
+    0x07: "Read Faults",
     0x08: "Single Reading",         # always NAKs
     0x09: "Acknowlege",
     0x0A: "No Acknowledge",
@@ -50,7 +50,7 @@ BlockTitles = {
     0xF0: "Response to Login",
     0xF5: "Response to Actuator/Output Tests",
     0xF6: "Response with ASCII Data/ID code",
-    0xFC: "Response to Get All Faults",
+    0xFC: "Response to Read Faults",
 }
 
 
