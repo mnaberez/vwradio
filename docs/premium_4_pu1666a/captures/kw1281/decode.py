@@ -34,7 +34,7 @@ class States(object):
 
 BlockTitles = {
     0x04: "Actuator/Output Test",
-    0x05: "Clear Errors",
+    0x05: "Clear Faults",
     0x06: "End Session",
     0x07: "Read Faults",
     0x08: "Single Reading",         # always NAKs
