@@ -6555,7 +6555,7 @@ lab_a36d:
     mov a, #0x00            ;a373  04 00
     mov mem_03af, a         ;a375  61 03 af
 
-    movw a, #0x0414         ;a378  e4 04 14     KW1281 Fault 01044 Control Module Incorrectly Coded?
+    movw a, #0x0414         ;a378  e4 04 14     KW1281 Fault 01044 Control Module Incorrectly Coded
     movw mem_0165, a        ;a37b  d4 01 65
     movw a, #0x2332         ;a37e  e4 23 32
     movw mem_0167, a        ;a381  d4 01 67
@@ -8767,6 +8767,7 @@ mem_0080_is_00:
     ret                     ;b0a6  20
 
 lab_b0a7:
+;Initial Sync(?) related
 ;(mem_0080=0, mem_0081=1)
     bbs mem_00e6:1, lab_b0d1 ;b0a7  b9 e6 27
     mov mem_0089, #0x55     ;b0aa  85 89 55     KW1281 byte to send = 0x55
@@ -8778,6 +8779,7 @@ lab_b0a7:
     bne lab_b0ce            ;b0b8  fc 14        BRANCH_ALWAYS_TAKEN
 
 lab_b0ba:
+;Initial Sync(?) related
 ;(mem_0080=0, mem_0081=2)
     bbs mem_00e6:1, lab_b0d1 ;b0ba  b9 e6 14
     bbc mem_008b:4, lab_b0d1 ;b0bd  b4 8b 11
@@ -8795,6 +8797,7 @@ lab_b0d1:
     ret                     ;b0d1  20
 
 lab_b0d2:
+;Initial Sync(?) related
 ;(mem_0080=0, mem_0081=3)
     bbs mem_00e6:1, lab_b0d1 ;b0d2  b9 e6 fc
     bbc mem_008b:4, lab_b0eb ;b0d5  b4 8b 13
@@ -8811,6 +8814,7 @@ lab_b0eb:
     ret                     ;b0eb  20
 
 lab_b0ec:
+;Initial Sync(?) related
 ;(mem_0080=0, mem_0081=4)
     bbc mem_00e6:1, lab_b10a ;b0ec  b1 e6 1b
     bbc mem_008b:4, lab_b0eb ;b0ef  b4 8b f9
@@ -9187,25 +9191,27 @@ mem_0080_is_01:
     jmp sub_e73c            ;b315  21 e7 3c
 
 mem_b318:
-    .word lab_b36c  ;b318  b3 6c       VECTOR
-    .word lab_b33a  ;b31a  b3 3a       VECTOR   "1J0035180   "
-    .word lab_b36d  ;b31c  b3 6d       VECTOR
-    .word lab_b37f  ;b31e  b3 7f       VECTOR
-    .word lab_b38c  ;b320  b3 8c       VECTOR   " RADIO 3CP  "
-    .word lab_b371  ;b322  b3 71       VECTOR
-    .word lab_b39b  ;b324  b3 9b       VECTOR
-    .word lab_b3a8  ;b326  b3 a8       VECTOR   "       0001"
-    .word lab_b375  ;b328  b3 75       VECTOR
-    .word lab_b3b7  ;b32a  b3 b7       VECTOR
-    .word lab_b3c4  ;b32c  b3 c4       VECTOR
-    .word lab_b3c8  ;b32e  b3 c8       VECTOR
-    .word lab_b3cc  ;b330  b3 cc       VECTOR
-    .word lab_b379  ;b332  b3 79       VECTOR
-    .word lab_b3fe  ;b334  b3 fe       VECTOR
-    .word lab_b40b  ;b336  b4 0b       VECTOR
-    .word lab_b412  ;b338  b4 12       VECTOR
+    .word lab_b36c  ;b318  b3 6c       VECTOR 0x00
+    .word lab_b33a  ;b31a  b3 3a       VECTOR 0x01  "1J0035180   "
+    .word lab_b36d  ;b31c  b3 6d       VECTOR 0x02
+    .word lab_b37f  ;b31e  b3 7f       VECTOR 0x03
+    .word lab_b38c  ;b320  b3 8c       VECTOR 0x04  " RADIO 3CP  "
+    .word lab_b371  ;b322  b3 71       VECTOR 0x05
+    .word lab_b39b  ;b324  b3 9b       VECTOR 0x06
+    .word lab_b3a8  ;b326  b3 a8       VECTOR 0x07  "       0001"
+    .word lab_b375  ;b328  b3 75       VECTOR 0x08
+    .word lab_b3b7  ;b32a  b3 b7       VECTOR 0x09
+    .word lab_b3c4  ;b32c  b3 c4       VECTOR 0x0a
+    .word lab_b3c8  ;b32e  b3 c8       VECTOR 0x0b
+    .word lab_b3cc  ;b330  b3 cc       VECTOR 0x0c
+    .word lab_b379  ;b332  b3 79       VECTOR 0x0d
+    .word lab_b3fe  ;b334  b3 fe       VECTOR 0x0e
+    .word lab_b40b  ;b336  b4 0b       VECTOR 0x0f
+    .word lab_b412  ;b338  b4 12       VECTOR 0x10
 
 lab_b33a:
+;KW1281 ID code request/ECU info related
+;(mem_0080=0x00, mem_0081=1)
     clrb mem_00e1:7         ;b33a  a7 e1
     clrb mem_008c:1         ;b33c  a1 8c
     mov a, #0x00            ;b33e  04 00
@@ -9243,25 +9249,35 @@ cmp_model_done:
 
 
 lab_b36c:
+;KW1281 ID code request/ECU info related
+;(mem_0080=0x01, mem_0081=0)
     ret                     ;b36c  20
 
 
 lab_b36d:
+;KW1281 ID code request/ECU info related
+;(mem_0080=0x01, mem_0081=2)
     mov a, #0x03            ;b36d  04 03
     bne lab_b37b            ;b36f  fc 0a       BRANCH_ALWAYS_TAKEN
 
 
 lab_b371:
+;KW1281 ID code request/ECU info related
+;(mem_0080=0x01, mem_0081=5)
     mov a, #0x06            ;b371  04 06
     bne lab_b37b            ;b373  fc 06       BRANCH_ALWAYS_TAKEN
 
 
 lab_b375:
+;KW1281 ID code request/ECU info related
+;(mem_0080=0x01, mem_0081=8)
     mov a, #0x09            ;b375  04 09
     bne lab_b37b            ;b377  fc 02       BRANCH_ALWAYS_TAKEN
 
 
 lab_b379:
+;KW1281 ID code request/ECU info related
+;(mem_0080=0x01, mem_0081=0x0d)
     mov a, #0x0e            ;b379  04 0e
 
 lab_b37b:
@@ -9270,6 +9286,8 @@ lab_b37b:
 
 
 lab_b37f:
+;KW1281 ID code request/ECU info related
+;(mem_0080=0x01, mem_0081=3)
     mov mem_00a0, #0x02     ;b37f  85 a0 02
     mov mem_00a1, #0x02     ;b382  85 a1 02
     mov mem_00a2, #0x04     ;b385  85 a2 04
@@ -9278,6 +9296,8 @@ lab_b37f:
 
 
 lab_b38c:
+;KW1281 ID code request/ECU info related
+;(mem_0080=0x01, mem_0081=4)
     mov mem_00a5, #0x10     ;b38c  85 a5 10     16 bytes in KW1281 packet
     movw a, #kw_asc_radio_3cp   ;b38f  e4 ff 1c     " RADIO 3CP  "
     movw mem_0084, a        ;b392  d5 84        Pointer to KW1281 packet bytes
@@ -9287,6 +9307,8 @@ lab_b38c:
 
 
 lab_b39b:
+;KW1281 ID code request/ECU info related
+;(mem_0080=0x01, mem_0081=6)
     mov mem_00a0, #0x05     ;b39b  85 a0 05
     mov mem_00a1, #0x05     ;b39e  85 a1 05
     mov mem_00a2, #0x07     ;b3a1  85 a2 07
@@ -9295,6 +9317,8 @@ lab_b39b:
 
 
 lab_b3a8:
+;KW1281 ID code request/ECU info related
+;(mem_0080=0x01, mem_0081=7)
     mov mem_00a5, #0x0f     ;b3a8  85 a5 0f     15 bytes in KW1281 packet
     movw a, #kw_asc_0001    ;b3ab  e4 ff 2c     "       0001"
     movw mem_0084, a        ;b3ae  d5 84        Pointer to KW1281 packet bytes
@@ -9304,6 +9328,8 @@ lab_b3a8:
 
 
 lab_b3b7:
+;KW1281 ID code request/ECU info related
+;(mem_0080=0x01, mem_0081=9)
     mov mem_00a0, #0x08     ;b3b7  85 a0 08
     mov mem_00a1, #0x08     ;b3ba  85 a1 08
     mov mem_00a2, #0x0a     ;b3bd  85 a2 0a
@@ -9312,16 +9338,22 @@ lab_b3b7:
 
 
 lab_b3c4:
+;KW1281 ID code request/ECU info related
+;(mem_0080=0x01, mem_0081=0x0a)
     mov mem_0081, #0x0b     ;b3c4  85 81 0b
     ret                     ;b3c7  20
 
 
 lab_b3c8:
+;KW1281 ID code request/ECU info related
+;(mem_0080=0x01, mem_0081=0x0b)
     mov mem_0081, #0x0c     ;b3c8  85 81 0c
     ret                     ;b3cb  20
 
 
 lab_b3cc:
+;KW1281 ID code request/ECU info related
+;(mem_0080=0x01, mem_0081=0x0c)
     mov a, #0x08            ;b3cc  04 08
     mov mem_012b, a         ;b3ce  61 01 2b
 
@@ -9349,6 +9381,8 @@ lab_b3cc:
 
 
 lab_b3fe:
+;KW1281 ID code request/ECU info related
+;(mem_0080=0x01, mem_0081=0x0e)
     mov mem_00a0, #0x0d     ;b3fe  85 a0 0d
     mov mem_00a1, #0x0d     ;b401  85 a1 0d
     mov mem_00a2, #0x0f     ;b404  85 a2 0f
@@ -9357,12 +9391,16 @@ lab_b3fe:
 
 
 lab_b40b:
+;KW1281 ID code request/ECU info related
+;(mem_0080=0x01, mem_0081=0x0f)
     call sub_b16b_ack           ;b40b  31 b1 6b
     mov mem_0081, #0x10     ;b40e  85 81 10
     ret                     ;b411  20
 
 
 lab_b412:
+;KW1281 ID code request/ECU info related
+;(mem_0080=0x01, mem_0081=0x10)
     call sub_bbc3           ;b412  31 bb c3
     ret                     ;b415  20
 
@@ -9425,6 +9463,7 @@ lab_b45b:
 
 lab_b45e:
     ret                     ;b45e  20
+
 
 mem_0080_is_04:
 ;KW1281 Read Faults
@@ -9757,6 +9796,7 @@ sub_b64b:
     mov @ix+0x02, a         ;b651  46 02
     ret                     ;b653  20
 
+
 mem_0080_is_06:
 ;KW1281 Actuator/Output Tests
     mov a, mem_0081         ;b654  05 81
@@ -9809,19 +9849,19 @@ lab_b697:
     mov mem_019c, a         ;b699  61 01 9c
 
 lab_b69c:
-    movw a, #kw_actuator_1  ;b69c  e4 ff 4b
-    bne lab_b6b1            ;b69f  fc 10       BRANCH_ALWAYS_TAKEN
+    movw a, #kw_actuator_1  ;b69c  e4 ff 4b     KW1281 Response to Actuator/Output Tests: Speakers
+    bne lab_b6b1            ;b69f  fc 10        BRANCH_ALWAYS_TAKEN
 
 lab_b6a1:
     setb mem_00e1:7         ;b6a1  af e1
     setb mem_0098:4         ;b6a3  ac 98
-    movw a, #kw_actuator_2  ;b6a5  e4 ff 51
+    movw a, #kw_actuator_2  ;b6a5  e4 ff 51    KW1281 Response to Actuator/Output Tests: External Display
     bne lab_b6b1            ;b6a8  fc 07       BRANCH_ALWAYS_TAKEN
 
 lab_b6aa:
     clrb mem_00e1:7         ;b6aa  a7 e1
     setb mem_0098:4         ;b6ac  ac 98
-    movw a, #kw_actuator_3  ;b6ae  e4 ff 57
+    movw a, #kw_actuator_3  ;b6ae  e4 ff 57     KW1281 Response to Actuator/Output Tests: End of Tests
 
 lab_b6b1:
     movw mem_0084, a        ;b6b1  d5 84        Pointer to KW1281 packet bytes
@@ -22900,6 +22940,7 @@ kw_faults_none:
     .byte 0x03              ;ff4a  03          DATA '\x03'  Block end
 
 kw_actuator_1:
+;Response to Actuator/Output Tests: Speakers
     .byte 0x05              ;ff4b  05          DATA '\x05'  Block length
     .byte 0x00              ;ff4c  00          DATA '\x00'  Block counter
     .byte 0xF5              ;ff4d  f5          DATA '\xf5'  Block title (0xF5 = Response to actuator test)
@@ -22908,6 +22949,7 @@ kw_actuator_1:
     .byte 0x03              ;ff50  03          DATA '\x03'  Block end
 
 kw_actuator_2:
+;Response to Actuator/Output Tests: External Display
     .byte 0x05              ;ff51  05          DATA '\x05'  Block length
     .byte 0x00              ;ff52  00          DATA '\x00'  Block counter
     .byte 0xF5              ;ff53  f5          DATA '\xf5'  Block title (0xF5 = Response to actuator test)
@@ -22916,6 +22958,7 @@ kw_actuator_2:
     .byte 0x03              ;ff56  03          DATA '\x03'  Block end
 
 kw_actuator_3:
+;Response to Actuator/Output Tests: End of Tests
     .byte 0x05              ;ff57  05          DATA '\x05'  Block length
     .byte 0x00              ;ff58  00          DATA '\x00'  Block counter
     .byte 0xF5              ;ff59  f5          DATA '\xf5'  Block title (0xF5 = Response to actuator test)
