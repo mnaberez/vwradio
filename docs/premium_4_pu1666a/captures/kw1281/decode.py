@@ -50,7 +50,7 @@ BlockTitles = {
     0xF0: "Response to Login",
     0xF5: "Response to Actuator/Output Tests",
     0xF6: "Response with ASCII Data/ID code",
-    0xFC: "Response to Read Faults",
+    0xFC: "Response to Read or Clear Faults",
 }
 
 

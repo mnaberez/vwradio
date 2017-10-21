@@ -22988,6 +22988,7 @@ kw_ack:
     .byte 0x03              ;ff43  03          DATA '\x03'  Block end
 
 kw_faults_none:
+;Response to Read Faults or Clear Faults
     .byte 0x06              ;ff44  06          DATA '\x06'  Block length
     .byte 0x00              ;ff45  00          DATA '\x00'  Block counter
     .byte 0xFC              ;ff46  fc          DATA '\xfc'  Block title (0xFC = Response to get fault codes)
