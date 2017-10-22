@@ -8550,7 +8550,7 @@ lab_af1e:
     bne lab_af34            ;af23  fc 0f
 
     clrb mem_008c:4         ;af25  a4 8c
-    movw a, #mem_012b+3     ;af27  e4 01 2e     KW1281 Response byte 3
+    movw a, #mem_012b+3     ;af27  e4 01 2e     KW1281 Response bytes 3 and 4
     movw mem_0147, a        ;af2a  d4 01 47
     mov a, #0x0a            ;af2d  04 0a        0x0A = mem_0080 value for KW1281 ??? Protected: Read RAM ???
     mov mem_0080, a         ;af2f  45 80
@@ -10507,12 +10507,12 @@ mem_0080_is_08:
 lab_b945:
 ;Recoding related
 ;(mem_0080=0x08, mem_0081=1)
-    movw a, mem_0118+3      ;b945  c4 01 1b     KW1281 Request byte 3
+    movw a, mem_0118+3      ;b945  c4 01 1b     KW1281 Request bytes 3 and 4
     call sub_b977           ;b948  31 b9 77     Uses mem_ff63 table
     bhs lab_b970            ;b94b  f8 23
-    movw a, mem_0118+3      ;b94d  c4 01 1b     KW1281 Request byte 3
+    movw a, mem_0118+3      ;b94d  c4 01 1b     KW1281 Request bytes 3 and 4
     movw mem_0175, a        ;b950  d4 01 75
-    movw a, mem_0118+5      ;b953  c4 01 1d     KW1281 Request byte 5
+    movw a, mem_0118+5      ;b953  c4 01 1d     KW1281 Request bytes 5 and 6
     movw mem_0177, a        ;b956  d4 01 77
     setb mem_00b2:7         ;b959  af b2
     call sub_9ed3           ;b95b  31 9e d3
@@ -10849,7 +10849,7 @@ lab_bb3e:
 ;Read RAM related
 ;Read EEPROM related
 ;(mem_0080=x, mem_0081=1)
-    movw a, mem_0118+6      ;bb3e  c4 01 1e     KW1281 Request byte 6
+    movw a, mem_0118+6      ;bb3e  c4 01 1e     KW1281 Request bytes 6 and 7
     movw mem_0147, a        ;bb41  d4 01 47
     mov mem_0081, #0x02     ;bb44  85 81 02
     ret                     ;bb47  20
@@ -10862,8 +10862,8 @@ lab_bb48:
 lab_bb4a:
 ;Read EEPROM related
 ;Read RAM related
-    mov mem_012b+2, a       ;bb4a  61 01 2d     KW1281 Response byte 2
-    movw a, mem_0118+4      ;bb4d  c4 01 1c     KW1281 Request byte 4
+    mov mem_012b+2, a       ;bb4a  61 01 2d     KW1281 Response byte 2: Block title
+    movw a, mem_0118+4      ;bb4d  c4 01 1c     KW1281 Request bytes 4 and 5
     movw mem_0147, a        ;bb50  d4 01 47
     mov a, mem_0118+3       ;bb53  60 01 1b     KW1281 Request byte 3
     clrc                    ;bb56  81
