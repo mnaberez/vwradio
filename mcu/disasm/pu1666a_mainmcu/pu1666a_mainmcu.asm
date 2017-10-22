@@ -22886,6 +22886,7 @@ mem_fee1:
     .byte 0x10              ;feeb  10          DATA '\x10'
 
 kw_asc_1c0035180e:
+;Response to initial connection and recoding
     .byte 0x0F              ;feec  0f          DATA '\x0f'  Block length
     .byte 0x00              ;feed  00          DATA '\x00'  Block counter
     .byte 0xF6              ;feee  f6          DATA '\xf6'  Block title (0xF6 = ASCII Data/ID code response)
@@ -22904,6 +22905,7 @@ kw_asc_1c0035180e:
     .byte 0x03              ;fefb  03          DATA '\x03'  Block end
 
 kw_asc_1j0035180d:
+;Response to initial connection and recoding
     .byte 0x0F              ;fefc  0f          DATA '\x0f'  Block length
     .byte 0x00              ;fefd  00          DATA '\x00'  Block counter
     .byte 0xF6              ;fefe  f6          DATA '\xf6'  Block title (0xF6 = ASCII Data/ID code response)
@@ -22922,6 +22924,7 @@ kw_asc_1j0035180d:
     .byte 0x03              ;ff0b  03          DATA '\x03'  Block end
 
 kw_asc_1j0035180:
+;Response to initial connection and recoding
     .byte 0x0F              ;ff0c  0f          DATA '\x0f'  Block length
     .byte 0x00              ;ff0d  00          DATA '\x00'  Block counter
     .byte 0xF6              ;ff0e  f6          DATA '\xf6'  Block title (0xF6 = ASCII Data/ID code response)
@@ -22940,6 +22943,7 @@ kw_asc_1j0035180:
     .byte 0x03              ;ff1b  03          DATA '\x03'  Block end
 
 kw_asc_radio_3cp:
+;Response to initial connection and recoding
     .byte 0x0F              ;ff1c  0f          DATA '\x0f'  Block length
     .byte 0x00              ;ff1d  00          DATA '\x00'  Block counter
     .byte 0xF6              ;ff1e  f6          DATA '\xf6'  Block title (0xF6 = ASCII Data/ID code response)
@@ -22958,6 +22962,7 @@ kw_asc_radio_3cp:
     .byte 0x03              ;ff2b  03          DATA '\x03'  Block end
 
 kw_asc_0001:
+;Response to initial connection and recoding
     .byte 0x0E              ;ff2c  0e          DATA '\x0e'  Block length
     .byte 0x00              ;ff2d  00          DATA '\x00'  Block counter
     .byte 0xF6              ;ff2e  f6          DATA '\xf6'  Block title (0xF6 = ASCII Data/ID code response)
