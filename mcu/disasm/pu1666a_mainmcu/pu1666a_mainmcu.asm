@@ -7971,7 +7971,7 @@ mem_ac03:
     .word mem_0080_is_0d          ;ac1d  b1 89       VECTOR     No Acknowledge
     .word mem_0080_is_0e          ;ac1f  b1 ec       VECTOR     Unrecognized Block Title
     .word mem_0080_is_0f          ;ac21  bb 9e       VECTOR     End Session
-    .word mem_0080_is_10          ;ac23  b2 b9       VECTOR     ? Another Login ?
+    .word mem_0080_is_10          ;ac23  b2 b9       VECTOR     Read or write RAM word related to login
 
 sub_ac25:
     bbs mem_008b:2, lab_ac2e ;ac25  ba 8b 06
@@ -8144,7 +8144,7 @@ mem_ad1f:
 ;0x0C        0x19            Protected: Read EEPROM
 ;0x0D        0x0A            No Acknowledge
 ;0x0F        0x06            End Session
-;0x10        0xF0            ??? Another Login ???
+;0x10        0xF0            Read or write RAM word related to login
 ;
     ;ID code request/ECU Info
     .byte 0x00              ;ad1f  00          DATA '\x00'  Block title 0x00
@@ -8211,7 +8211,7 @@ mem_ad1f:
     .byte 0x0D              ;ad50  0d          DATA '\r'    mem_0080 = 0x0d
     .word lab_ad9f
 
-    ;??? Another Login ???
+    ;Read or write RAM word related to login
     .byte 0xF0              ;ad53  f0          DATA '\xf0'  Block title 0x0f
     .byte 0x10              ;ad54  10          DATA '\x10'  mem_0080 = 0x10
     .word lab_ad9f
@@ -8288,7 +8288,7 @@ lab_ad9f:
 ;  Block title 0x10: Recoding
 ;  Block title 0x2b: Login
 ;  Block title 0x0a: No Acknowledge
-;  Block title 0xf0: ??? Another Login ???
+;  Block title 0xf0: Read or write RAM word related to login
 ;
     xchw a, t               ;ad9f  43
     ret                     ;ada0  20
@@ -8604,7 +8604,7 @@ lab_af79:
 lab_af7d:
     mov a, mem_032e         ;af7d  60 03 2e
     beq lab_af1d            ;af80  fd 9b
-    call clr_82_83  ;af82  31 e0 b8     Zeroes mem_0082 and mem_0083
+    call clr_82_83          ;af82  31 e0 b8     Zeroes mem_0082 and mem_0083
     mov a, #0x01            ;af85  04 01
     bne lab_af1a            ;af87  fc 91       BRANCH_ALWAYS_TAKEN
 
@@ -8875,8 +8875,13 @@ lab_b12c:
     ret                     ;b135  20
 
 sub_b136:
-    movw a, #mem_012b       ;b136  e4 01 2b
-    movw mem_0086, a        ;b139  d5 86        mem_0086 = 0x012b
+;Copy a template into the KW1281 response buffer at mem_012b
+;
+;A = Pointer to template
+;mem_00a5 = Number of byte to copy
+;
+    movw a, #mem_012b       ;b136  e4 01 2b     A = Pointer to first byte of KW1281 response buffer
+    movw mem_0086, a        ;b139  d5 86        Store pointer in mem_0086
     jmp sub_b13e            ;b13b  21 b1 3e
 
 sub_b13e:
@@ -9036,7 +9041,7 @@ sub_b20e_no_ack:
     movw a, #kw_no_ack      ;b20e  e4 ff 3b
     movw mem_0084, a        ;b211  d5 84        Pointer to KW1281 packet bytes
     mov mem_00a5, #0x05     ;b213  85 a5 05     5 bytes in KW1281 packet
-    call sub_b136           ;b216  31 b1 36
+    call sub_b136           ;b216  31 b1 36     Copy into KW1281 response buffer at mem_012b
     mov a, mem_0116         ;b219  60 01 16
     jmp lab_b22e            ;b21c  21 b2 2e
 
@@ -9044,7 +9049,7 @@ sub_b21f_no_ack:
     movw a, #kw_no_ack      ;b21f  e4 ff 3b
     movw mem_0084, a        ;b222  d5 84        Pointer to KW1281 packet bytes
     mov mem_00a5, #0x05     ;b224  85 a5 05     5 bytes in KW1281 packet
-    call sub_b136           ;b227  31 b1 36
+    call sub_b136           ;b227  31 b1 36     Copy into KW1281 response buffer at mem_012b
     mov a, mem_0116         ;b22a  60 01 16
     incw a                  ;b22d  c0
 
@@ -9101,7 +9106,7 @@ lab_b25a:
 sub_b26f:
     mov a, #0x02            ;b26f  04 02
     mov mem_0114, a         ;b271  61 01 14
-    call clr_82_83  ;b274  31 e0 b8     Zeroes mem_0082 and mem_0083
+    call clr_82_83          ;b274  31 e0 b8     Zeroes mem_0082 and mem_0083
     clrb mem_008b:6         ;b277  a6 8b
     clrb mem_008b:7         ;b279  a7 8b
     clrb mem_008b:4         ;b27b  a4 8b
@@ -9149,16 +9154,24 @@ lab_b2b6:
 
 
 mem_0080_is_10:
-;KW1281 ? Another Login ?
+;KW1281 Read or write RAM word related to login
 ;
-;Request block format is unknown:
+;Request block format:
 ;  0x08 Block length                    mem_0118?
 ;  0x3E Block counter                   mem_0119?
-;  0xF0 Block title                     mem_011a
-;  0x00 Constant value 0x01             mem_011b    Checked but not stored
-;  0x00 Unknown byte 0                  mem_011c    Stored in mem_020f
-;  0x00 Unknown byte 1                  mem_011d    Stored in mem_0210
+;  0xF0 Block title (0xF0)              mem_011a
+;  0x00 Mode byte                       mem_011b    0=Read, 1=Write
+;  0x00 Unknown byte 0                  mem_011c    Reads/writes mem_020f
+;  0x00 Unknown byte 1                  mem_011d    Reads/writes mem_0210
 ;  0x03 Block end                       mem_011e
+;
+;Response block format:
+;  0x05 Block length                    mem_012b
+;  0x3F Block counter                   mem_012c
+;  0xF0 Block title (0xF0)              mem_012d
+;  0x00 Unknown byte 0                  mem_012e    Reads byte at mem_020f
+;  0x01 Unknown byte 1                  mem_012f    Reads byte at mem_0210
+;  0x03 Block end                       mem_0130
 ;
     mov a, mem_0081         ;b2b9  05 81
     cmp a, #0x01            ;b2bb  14 01
@@ -9169,48 +9182,54 @@ mem_0080_is_10:
 
 lab_b2c4:
 ;(mem_0080=0x10, mem_0081=1)
-;Another Login ? related
-    mov a, mem_011b         ;b2c4  60 01 1b     A = Unknown byte 0
-    beq lab_b2d4_login      ;b2c7  fd 0b
+;Read mode byte and dispatch to handle that mode.
+;
+    mov a, mem_011b         ;b2c4  60 01 1b     A = Mode byte
+    beq lab_b2d4_read       ;b2c7  fd 0b        If Mode=0, branch to do read
+
     cmp a, #0x01            ;b2c9  14 01
-    beq lab_b2ec            ;b2cb  fd 1f
-    call sub_b20c_no_ack    ;b2cd  31 b2 0c
+    beq lab_b2d4_write      ;b2cb  fd 1f        If Mode=1, branch to do write
+
+    call sub_b20c_no_ack    ;b2cd  31 b2 0c     Anything else is no ack
     mov mem_0081, #0x01     ;b2d0  85 81 01
     ret                     ;b2d3  20
 
-lab_b2d4_login:
-;Another Login ? related
+lab_b2d4_read:
+;Mode 0: Read word at mem_020f and put it in the KW1281 response buffer
+;
     mov mem_00a5, #0x06     ;b2d4  85 a5 06     6 bytes in KW1281 packet
-    movw a, #kw_login       ;b2d7  e4 ff 5d
+    movw a, #kw_rw_login    ;b2d7  e4 ff 5d
     movw mem_0084, a        ;b2da  d5 84        Pointer to KW1281 packet bytes
-    call sub_b136           ;b2dc  31 b1 36
-    movw a, mem_020f        ;b2df  c4 02 0f
-    movw mem_012e, a        ;b2e2  d4 01 2e
+    call sub_b136           ;b2dc  31 b1 36     Copy into KW1281 response buffer at mem_012b
+
+    movw a, mem_020f        ;b2df  c4 02 0f     Read word at mem_020f
+    movw mem_012e, a        ;b2e2  d4 01 2e     Put it into the KW1281 response buffer
     call sub_bbae           ;b2e5  31 bb ae
     mov mem_0081, #0x02     ;b2e8  85 81 02
     ret                     ;b2eb  20
 
-lab_b2ec:
-;Another Login ? related
+lab_b2d4_write:
+;Mode 1: Write word at mem_020f from the value in the KW1281 requst buffer
+;
     bbs mem_00de:7, lab_b305 ;b2ec  bf de 16
     bbs mem_00e3:7, lab_b305 ;b2ef  bf e3 13
-    movw a, mem_011c        ;b2f2  c4 01 1c     A = Unknown byte 0, Unknown byte 1
-    movw mem_020f, a        ;b2f5  d4 02 0f
-    mov a, #0x00            ;b2f8  04 00
-    mov mem_020e, a         ;b2fa  61 02 0e
-    setb mem_00de:7         ;b2fd  af de
-    mov mem_00f1, #0x9e     ;b2ff  85 f1 9e
-    jmp lab_b2d4_login      ;b302  21 b2 d4
+    movw a, mem_011c         ;b2f2  c4 01 1c    Read word from KW1281 request buffer
+    movw mem_020f, a         ;b2f5  d4 02 0f    Store word in mem_020f
+    mov a, #0x00             ;b2f8  04 00
+    mov mem_020e, a          ;b2fa  61 02 0e
+    setb mem_00de:7          ;b2fd  af de
+    mov mem_00f1, #0x9e      ;b2ff  85 f1 9e
+    jmp lab_b2d4_read        ;b302  21 b2 d4    Response will be same as read mode
 
 lab_b305:
-;Another Login ? related
+;Mode Unknown: Send No Acknowledge
+;
     call sub_b21f_no_ack    ;b305  31 b2 1f
     mov mem_0081, #0x02     ;b308  85 81 02
     ret                     ;b30b  20
 
 lab_b30c:
 ;(mem_0080=0x10, mem_0081=2)
-;Another Login ? related
     call sub_bbc3           ;b30c  31 bb c3
     ret                     ;b30f  20
 
@@ -9583,7 +9602,7 @@ lab_b4e9:
     mov mem_00a5, #0x07     ;b4e9  85 a5 07     7 bytes in KW1281 packet
     movw a, #kw_faults_none ;b4ec  e4 ff 44
     movw mem_0084, a        ;b4ef  d5 84        Pointer to KW1281 packet bytes
-    call sub_b136           ;b4f1  31 b1 36
+    call sub_b136           ;b4f1  31 b1 36     Copy into KW1281 response buffer at mem_012b
     mov mem_0081, #0x03     ;b4f4  85 81 03
 
 lab_b4f7:
@@ -10896,15 +10915,15 @@ mem_0080_is_0f:
 
 
 sub_bba1:
-    call sub_b136           ;bba1  31 b1 36
+    call sub_b136           ;bba1  31 b1 36     Copy into KW1281 response buffer at mem_012b
 
 sub_bba4:
     mov a, #0x01            ;bba4  04 01
     mov mem_0115, a         ;bba6  61 01 15
-    bne call_sub_bbbf       ;bba9  fc 14       BRANCH_ALWAYS_TAKEN
+    bne call_sub_bbbf       ;bba9  fc 14        BRANCH_ALWAYS_TAKEN
 
 sub_bbab:
-    call sub_b136           ;bbab  31 b1 36
+    call sub_b136           ;bbab  31 b1 36     Copy into KW1281 response buffer at mem_012b
 
 sub_bbae:
     mov a, #0x01            ;bbae  04 01
@@ -18153,7 +18172,7 @@ sub_e338_no_ack_2:
     movw a, #kw_no_ack_2    ;e33d  e4 dd 5d
     movw mem_0084, a        ;e340  d5 84        Pointer to KW1281 packet bytes
     mov mem_00a5, #0x05     ;e342  85 a5 05     5 bytes in KW1281 packet
-    call sub_b136           ;e345  31 b1 36
+    call sub_b136           ;e345  31 b1 36     Copy into KW1281 response buffer at mem_012b
     mov a, mem_0116         ;e348  60 01 16
     jmp lab_e35f            ;e34b  21 e3 5f
 
@@ -18162,7 +18181,7 @@ sub_e34e_no_ack_2:
     movw a, #kw_no_ack_2    ;e350  e4 dd 5d
     movw mem_0084, a        ;e353  d5 84        Pointer to KW1281 packet bytes
     mov mem_00a5, #0x05     ;e355  85 a5 05     5 bytes in KW1281 packet
-    call sub_b136           ;e358  31 b1 36
+    call sub_b136           ;e358  31 b1 36     Copy into KW1281 response buffer at mem_012b
     mov a, mem_0116         ;e35b  60 01 16
     incw a                  ;e35e  c0
 
@@ -18172,7 +18191,7 @@ lab_e35f:
     ret                     ;e365  20
 
 sub_e366:
-    call sub_b136           ;e366  31 b1 36
+    call sub_b136           ;e366  31 b1 36     Copy into KW1281 response buffer at mem_012b
 
 sub_e369:
     mov a, #0x01            ;e369  04 01
@@ -18275,9 +18294,9 @@ lab_e3d9:
     movw mem_03ad, a        ;e3eb  d4 03 ad
 
     movw a, #kw_unknown_title_d7 ;e3ee  e4 dd 66
-    movw mem_0084, a        ;e3f1  d5 84        Pointer to KW1281 packet bytes
-    mov mem_00a5, #0x08     ;e3f3  85 a5 08     8 bytes in KW1281 packet
-    call sub_b136           ;e3f6  31 b1 36
+    movw mem_0084, a             ;e3f1  d5 84        Pointer to KW1281 packet bytes
+    mov mem_00a5, #0x08          ;e3f3  85 a5 08     8 bytes in KW1281 packet
+    call sub_b136                ;e3f6  31 b1 36     Copy into KW1281 response buffer at mem_012b
 
     mov a, mem_03ab         ;e3f9  60 03 ab
     mov mem_0131, a         ;e3fc  61 01 31
@@ -23078,7 +23097,8 @@ kw_actuator_3:
     .byte 0xAB              ;ff5b  ab          DATA '\xab'
     .byte 0x03              ;ff5c  03          DATA '\x03'  Block end
 
-kw_login:
+kw_rw_login:
+;Response to Read or write RAM word related to login
     .byte 0x05              ;ff5d  05          DATA '\x05'  Block length
     .byte 0x00              ;ff5e  00          DATA '\x00'  Block counter
     .byte 0xF0              ;ff5f  f0          DATA '\xf0'  Block title (0xF0 = Response to Login)
