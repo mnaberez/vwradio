@@ -7967,7 +7967,7 @@ mem_ac03:
     .word mem_0080_is_09          ;ac15  ba 7a       VECTOR     Login
     .word mem_0080_is_0a          ;ac17  bb 23       VECTOR     Read RAM
     .word mem_0080_is_0b_or_0c    ;ac19  bb 17       VECTOR     ? Read ROM ?
-    .word mem_0080_is_0b_or_0c    ;ac1b  bb 17       VECTOR     ? Read EEPROM ?
+    .word mem_0080_is_0b_or_0c    ;ac1b  bb 17       VECTOR     Read EEPROM
     .word mem_0080_is_0d          ;ac1d  b1 89       VECTOR     No Acknowledge
     .word mem_0080_is_0e          ;ac1f  b1 ec       VECTOR     Unrecognized Block Title
     .word mem_0080_is_0f          ;ac21  bb 9e       VECTOR     End Session
@@ -7980,16 +7980,18 @@ sub_ac25:
 
 lab_ac2e:
     mov a, mem_0080         ;ac2e  05 80
-    cmp a, #0x10            ;ac30  14 10        0x10 = ? Another Login ?
+    cmp a, #0x10            ;ac30  14 10        0x10 = Last index in mem_ac03 table
     beq lab_ac36            ;ac32  fd 02
     bhs lab_ac3e            ;ac34  f8 08
 
 lab_ac36:
+;mem_0080 is 0x00 - 0x10
     mov a, mem_0080         ;ac36  05 80
     movw a, #mem_ac03       ;ac38  e4 ac 03
     call sub_e73c           ;ac3b  31 e7 3c
 
 lab_ac3e:
+;mem_0080 is > 0x010
     bbc mem_008c:6, lab_ac6f ;ac3e  b6 8c 2e
     call sub_ac83           ;ac41  31 ac 83
     mov smr, #0x4f          ;ac44  85 1c 4f
@@ -8277,7 +8279,8 @@ lab_ad99:
     ret                     ;ad9e  20
 
 lab_ad9f:
-;Table mem_ad1f case for:
+;Table mem_ad1f case for unprotected functions:
+;
 ;  Block title 0x00: ID code request/ECU Info
 ;  Block title 0x05: Clear Faults
 ;  Block title 0x06: End Session
@@ -8286,6 +8289,7 @@ lab_ad9f:
 ;  Block title 0x2b: Login
 ;  Block title 0x0a: No Acknowledge
 ;  Block title 0xf0: ??? Another Login ???
+;
     xchw a, t               ;ad9f  43
     ret                     ;ada0  20
 
@@ -8294,14 +8298,16 @@ lab_ada1:
     ret                     ;ada3  20
 
 lab_ada4:
-;Table mem_ad1f case for:
+;Table mem_ad1f case for protected functions:
+;
 ;  Block title 0x01: ??? Protected: Read RAM ???
 ;  Block title 0x03: ??? Protected: Read ROM ???
 ;  Block title 0x19: Protected: Read EEPROM
-    bbc mem_008c:3, lab_ada1 ;ada4  b3 8c fa
-    bbc mem_00e4:6, lab_ada1 ;ada7  b6 e4 f7
-    xchw a, t               ;adaa  43
-    ret                     ;adab  20
+;
+    bbc mem_008c:3, lab_ada1 ;ada4  b3 8c fa    Bit is set after Group Reading of Group 25 (0x19)
+    bbc mem_00e4:6, lab_ada1 ;ada7  b6 e4 f7    Bit is set after successful KW1281 Login
+    xchw a, t                ;adaa  43
+    ret                      ;adab  20
 
 sub_adac:
     bbs mem_008d:1, lab_add6 ;adac  b9 8d 27
@@ -9144,6 +9150,16 @@ lab_b2b6:
 
 mem_0080_is_10:
 ;KW1281 ? Another Login ?
+;
+;Request block format is unknown:
+;  0x08 Block length                    mem_0118?
+;  0x3E Block counter                   mem_0119?
+;  0xF0 Block title                     mem_011a
+;  0x00 Constant value 0x01             mem_011b    Checked but not stored
+;  0x00 Unknown byte 0                  mem_011c    Stored in mem_020f
+;  0x00 Unknown byte 1                  mem_011d    Stored in mem_0210
+;  0x03 Block end                       mem_011e
+;
     mov a, mem_0081         ;b2b9  05 81
     cmp a, #0x01            ;b2bb  14 01
     beq lab_b2c4            ;b2bd  fd 05
@@ -9154,7 +9170,7 @@ mem_0080_is_10:
 lab_b2c4:
 ;(mem_0080=0x10, mem_0081=1)
 ;Another Login ? related
-    mov a, mem_011b         ;b2c4  60 01 1b
+    mov a, mem_011b         ;b2c4  60 01 1b     A = Unknown byte 0
     beq lab_b2d4_login      ;b2c7  fd 0b
     cmp a, #0x01            ;b2c9  14 01
     beq lab_b2ec            ;b2cb  fd 1f
@@ -9178,7 +9194,7 @@ lab_b2ec:
 ;Another Login ? related
     bbs mem_00de:7, lab_b305 ;b2ec  bf de 16
     bbs mem_00e3:7, lab_b305 ;b2ef  bf e3 13
-    movw a, mem_011c        ;b2f2  c4 01 1c
+    movw a, mem_011c        ;b2f2  c4 01 1c     A = Unknown byte 0, Unknown byte 1
     movw mem_020f, a        ;b2f5  d4 02 0f
     mov a, #0x00            ;b2f8  04 00
     mov mem_020e, a         ;b2fa  61 02 0e
@@ -10138,7 +10154,7 @@ lab_b773:
 lab_b77c:
 ;(mem_0080=0x07, mem_0081=2)
 ;Group Reading related
-    mov a, mem_011b         ;b77c  60 01 1b
+    mov a, mem_011b         ;b77c  60 01 1b     A = Group Number
     cmp a, #0x01            ;b77f  14 01
     beq lab_b7a2            ;b781  fd 1f        ;Group 1
 
@@ -10175,7 +10191,7 @@ lab_b7a2:
     call sub_bc02           ;b7a4  31 bc 02
     mov a, #0x00            ;b7a7  04 00
     mov mem_0265, a         ;b7a9  61 02 65
-    movw ix, #kw_group_1      ;b7ac  e6 b7 04
+    movw ix, #kw_group_1    ;b7ac  e6 b7 04
     jmp lab_b7fc            ;b7af  21 b7 fc
 
 lab_b7b2:
@@ -10273,10 +10289,11 @@ lab_b844:
 lab_b845:
 ;(mem_0080=0x07, mem_0081=3)
 ;Group Reading related
-    mov a, mem_011b         ;b845  60 01 1b
+    mov a, mem_011b         ;b845  60 01 1b     A = Group Number
     jmp lab_b8e3            ;b848  21 b8 e3
 
 lab_b84b:
+;Group 1 (General)
     mov a, mem_013e         ;b84b  60 01 3e
     mov mem_0133, a         ;b84e  61 01 33
     mov a, mem_0255         ;b851  60 02 55
@@ -10292,6 +10309,7 @@ lab_b862:
     jmp lab_b912            ;b865  21 b9 12
 
 lab_b868:
+;Group 2 (Speakers)
     mov a, mem_019b         ;b868  60 01 9b
     cmp a, #0x02            ;b86b  14 02
     blo lab_b881            ;b86d  f9 12
@@ -10306,6 +10324,7 @@ lab_b881:
     jmp lab_b912            ;b881  21 b9 12
 
 lab_b884:
+;Group 3 (Antenna)
     bbs mem_008d:1, lab_b88b ;b884  b9 8d 04
     mov a, #0x11            ;b887  04 11
     bne lab_b88d            ;b889  fc 02       BRANCH_ALWAYS_TAKEN
@@ -10321,18 +10340,21 @@ lab_b88d:
     jmp lab_b912            ;b899  21 b9 12
 
 lab_b89c:
+;Group 5 (CD Changer)
     mov a, mem_0142         ;b89c  60 01 42
     call sub_b930           ;b89f  31 b9 30
     mov mem_0133, a         ;b8a2  61 01 33
     jmp lab_b912            ;b8a5  21 b9 12
 
 lab_b8a8:
+;Group 6 (External Display)
     mov a, mem_0143         ;b8a8  60 01 43
     call sub_b930           ;b8ab  31 b9 30
     mov mem_0133, a         ;b8ae  61 01 33
     jmp lab_b912            ;b8b1  21 b9 12
 
 lab_b8b4:
+;Group 7 (Steering Wheel Control)
     mov a, mem_02cb         ;b8b4  60 02 cb
     mov mem_0130, a         ;b8b7  61 01 30
     cmp a, #0x20            ;b8ba  14 20
@@ -10342,6 +10364,7 @@ lab_b8b4:
     jmp lab_b912            ;b8c3  21 b9 12
 
 lab_b8c6:
+;Group 4 (Amplifier)
     mov a, mem_0145         ;b8c6  60 01 45
     cmp a, #0x02            ;b8c9  14 02
     bne lab_b8cf            ;b8cb  fc 02
@@ -10352,7 +10375,8 @@ lab_b8cf:
     jmp lab_b912            ;b8d2  21 b9 12
 
 lab_b8d5:
-    setb mem_008c:3         ;b8d5  ab 8c
+;Group 25 (Protection)
+    setb mem_008c:3         ;b8d5  ab 8c        Set bit to unlock protected functions
     call sub_b16b_ack       ;b8d7  31 b1 6b
     jmp lab_b912            ;b8da  21 b9 12
 
@@ -10361,39 +10385,40 @@ lab_b8dd:
     jmp lab_b912            ;b8e0  21 b9 12
 
 lab_b8e3:
+;Called with A = Group Number
     cmp a, #0x01            ;b8e3  14 01
     bne lab_b8ea            ;b8e5  fc 03
-    jmp lab_b84b            ;b8e7  21 b8 4b
+    jmp lab_b84b            ;b8e7  21 b8 4b     Group 1 (General)
 
 lab_b8ea:
     cmp a, #0x02            ;b8ea  14 02
     bne lab_b8f1            ;b8ec  fc 03
-    jmp lab_b868            ;b8ee  21 b8 68
+    jmp lab_b868            ;b8ee  21 b8 68     Group 2 (Speakers)
 
 lab_b8f1:
     cmp a, #0x03            ;b8f1  14 03
     bne lab_b8f8            ;b8f3  fc 03
-    jmp lab_b884            ;b8f5  21 b8 84
+    jmp lab_b884            ;b8f5  21 b8 84     Group 3 (Antenna)
 
 lab_b8f8:
     cmp a, #0x05            ;b8f8  14 05
     bne lab_b8ff            ;b8fa  fc 03
-    jmp lab_b89c            ;b8fc  21 b8 9c
+    jmp lab_b89c            ;b8fc  21 b8 9c     Group 5 (CD Changer)
 
 lab_b8ff:
     cmp a, #0x06            ;b8ff  14 06
     bne lab_b906            ;b901  fc 03
-    jmp lab_b8a8            ;b903  21 b8 a8
+    jmp lab_b8a8            ;b903  21 b8 a8     Group 6 (External Display)?
 
 lab_b906:
     cmp a, #0x07            ;b906  14 07
-    beq lab_b8b4            ;b908  fd aa
+    beq lab_b8b4            ;b908  fd aa        Group 7 (Steering Wheel Control)
 
     cmp a, #0x19            ;b90a  14 19
-    beq lab_b8d5            ;b90c  fd c7
+    beq lab_b8d5            ;b90c  fd c7        Group 25 (Protection)
 
     cmp a, #0x04            ;b90e  14 04
-    beq lab_b8c6            ;b910  fd b4
+    beq lab_b8c6            ;b910  fd b4        Group 4 (Amplifier)
 
 lab_b912:
     call sub_bba4           ;b912  31 bb a4
@@ -10446,7 +10471,7 @@ lab_b945:
 ;Recoding related
 ;(mem_0080=0x08, mem_0081=1)
     movw a, mem_011b        ;b945  c4 01 1b
-    call sub_b977           ;b948  31 b9 77
+    call sub_b977           ;b948  31 b9 77     Uses mem_ff63 table
     bhs lab_b970            ;b94b  f8 23
     movw a, mem_011b        ;b94d  c4 01 1b
     movw mem_0175, a        ;b950  d4 01 75
@@ -10472,6 +10497,7 @@ sub_b974:
     movw a, mem_0175        ;b974  c4 01 75
 
 sub_b977:
+;Recoding related, uses mem_ff63 table
     swap                    ;b977  10
     clrc                    ;b978  81
     rorc a                  ;b979  03
@@ -10634,6 +10660,18 @@ lab_ba6b:
 
 mem_0080_is_09:
 ;KW1281 Login
+;
+;Login request block (code 12345 = 0x31d4):
+;  0x08 Block length                    mem_0118?
+;  0x3E Block counter                   mem_0119?
+;  0x2B Block title (Login)             mem_011a
+;  0x31 Login code high byte            mem_011b
+;  0xD4 Login code low byte             mem_011c
+;  0x01 Unknown byte 0                  mem_011d
+;  0x86 Unknown byte 1                  mem_011e
+;  0x9F Unknown byte 2                  mem_011f
+;  0x03 Block end                       mem_0120
+;
     mov a, mem_0081         ;ba7a  05 81
     cmp a, #0x01            ;ba7c  14 01
     beq lab_ba88            ;ba7e  fd 08
@@ -10651,10 +10689,12 @@ lab_ba88:
 ;(mem_0080=0x01, mem_0081=1)
     bbs mem_00de:3, lab_bacc ;ba88  bb de 41
 
-    mov a, mem_011b         ;ba8b  60 01 1b
+    mov a, mem_011b         ;ba8b  60 01 1b     Login code high byte
     mov mem_00a3, a         ;ba8e  45 a3
-    mov a, mem_011c         ;ba90  60 01 1c
+
+    mov a, mem_011c         ;ba90  60 01 1c     Login code low byte
     mov mem_00a4, a         ;ba93  45 a4
+
     call sub_dd1d           ;ba95  31 dd 1d     Uses mem_ff63 table
 
     mov a, mem_020f         ;ba98  60 02 0f
@@ -10668,6 +10708,9 @@ lab_ba88:
     beq lab_bad3            ;baa6  fd 2b
 
 lab_baa8:
+;mem_020f and mem_009f are not equal
+;or
+;mem_0210 and mem_00a0 are not equal
     mov a, mem_031b         ;baa8  60 03 1b
     incw a                  ;baab  c0
     mov mem_031b, a         ;baac  61 03 1b
@@ -10690,6 +10733,8 @@ lab_bacc:
     ret                     ;bad2  20
 
 lab_bad3:
+;mem_020f and mem_009f are equal
+;mem_0210 and mem_00a0 are equal
     bbc mem_00de:7, lab_baed ;bad3  b7 de 17
     bbs mem_00de:4, lab_baed ;bad6  bc de 14
     bbc mem_00de:5, lab_baed ;bad9  b5 de 11
@@ -10702,16 +10747,20 @@ lab_bad3:
 
 lab_baed:
     setb mem_00e4:6         ;baed  ae e4
-    mov a, mem_011d         ;baef  60 01 1d
+
+    mov a, mem_011d         ;baef  60 01 1d     A = Unknown byte 0
     and a, #0x01            ;baf2  64 01
     mov a, mem_0176         ;baf4  60 01 76
     and a, #0xfe            ;baf7  64 fe
     or a                    ;baf9  72
     mov mem_0176, a         ;bafa  61 01 76
-    mov a, mem_011e         ;bafd  60 01 1e
+
+    mov a, mem_011e         ;bafd  60 01 1e     A = Unknown byte 1
     mov mem_0177, a         ;bb00  61 01 77
-    mov a, mem_011f         ;bb03  60 01 1f
+
+    mov a, mem_011f         ;bb03  60 01 1f     A = Unknown byte 2
     mov mem_0178, a         ;bb06  61 01 78
+
     mov mem_00f1, #0xad     ;bb09  85 f1 ad
 
 lab_bb0c:
@@ -10895,12 +10944,12 @@ lab_bbdf:
 
 sub_bbe0:
     bbc mem_008b:0, lab_bc01 ;bbe0  b0 8b 1e
-    clrb mem_008b:0         ;bbe3  a0 8b
+    clrb mem_008b:0          ;bbe3  a0 8b
     bbc mem_008b:7, lab_bbf0 ;bbe5  b7 8b 08
-    call sub_b20c_no_ack           ;bbe8  31 b2 0c
-    mov a, mem_00a0         ;bbeb  05 a0
-    mov mem_0081, a         ;bbed  45 81
-    ret                     ;bbef  20
+    call sub_b20c_no_ack     ;bbe8  31 b2 0c
+    mov a, mem_00a0          ;bbeb  05 a0
+    mov mem_0081, a          ;bbed  45 81
+    ret                      ;bbef  20
 
 lab_bbf0:
     mov a, mem_011a         ;bbf0  60 01 1a     A = KW1281 Block Title received
@@ -23038,6 +23087,7 @@ kw_login:
     .byte 0x03              ;ff62  03          DATA '\x03'  Block end
 
 mem_ff63:
+;Used by sub_b977 (Recording) and sub_dd1d (Login)
     .byte 0x01              ;ff63  01          DATA '\x01'
     .byte 0x02              ;ff64  02          DATA '\x02'
     .byte 0x04              ;ff65  04          DATA '\x04'
