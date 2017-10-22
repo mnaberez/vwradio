@@ -8123,7 +8123,7 @@ lab_ad02:
 sub_ad15:
 ;KW1281 block title request dispatch
     movw ix, #mem_ad1f      ;ad15  e6 ad 1f
-    mov a, mem_011a         ;ad18  60 01 1a     A = KW1281 Block title received
+    mov a, mem_0118+2       ;ad18  60 01 1a     KW1281 Request byte 2: Block title
     call sub_e757           ;ad1b  31 e7 57
     ret                     ;ad1e  20
 
@@ -8266,7 +8266,7 @@ lab_ad8b:
 ;  Block title 0x29: Group Reading
     xchw a, t               ;ad8b  43
     pushw a                 ;ad8c  40
-    mov a, mem_011b         ;ad8d  60 01 1b
+    mov a, mem_0118+3       ;ad8d  60 01 1b     KW1281 Request byte 3
     cmp a, #0x02            ;ad90  14 02
     beq lab_ad99            ;ad92  fd 05
     mov a, #0x00            ;ad94  04 00
@@ -8368,11 +8368,11 @@ lab_adf6:
     call sub_b235           ;ae00  31 b2 35
     bbc mem_008b:6, lab_adec ;ae03  b6 8b e6
 
-    mov a, mem_0118         ;ae06  60 01 18
+    mov a, mem_0118+0       ;ae06  60 01 18     KW1281 Request byte 0: Block length
     cmp a, #0x10            ;ae09  14 10
     bhs lab_ae35            ;ae0b  f8 28
 
-    mov a, mem_0118         ;ae0d  60 01 18
+    mov a, mem_0118+0       ;ae0d  60 01 18     KW1281 Request byte 0: Block length
     cmp a, mem_0082         ;ae10  15 82
     bhs lab_ae2a            ;ae12  f8 16
 
@@ -8383,7 +8383,7 @@ lab_adf6:
 
 lab_ae1c:
     clrb uscr:1             ;ae1c  a1 41
-    mov a, mem_0119         ;ae1e  60 01 19
+    mov a, mem_0118+1       ;ae1e  60 01 19     KW1281 Request byte 1: Block counter
     mov mem_0116, a         ;ae21  61 01 16
     setb mem_008b:0         ;ae24  a8 8b
     mov a, #0x00            ;ae26  04 00
@@ -8964,11 +8964,11 @@ lab_b194:
     mov a, mem_033d         ;b194  60 03 3d
     incw a                  ;b197  c0
     mov mem_033d, a         ;b198  61 03 3d
-    mov a, mem_0119         ;b19b  60 01 19
-    mov a, mem_011b         ;b19e  60 01 1b
+    mov a, mem_0118+1       ;b19b  60 01 19     KW1281 Request byte 0: Block counter
+    mov a, mem_0118+3       ;b19e  60 01 1b     KW1281 Request byte 3
     xor a                   ;b1a1  52
     call sub_bbae           ;b1a2  31 bb ae
-    mov a, mem_011b         ;b1a5  60 01 1b
+    mov a, mem_0118+3       ;b1a5  60 01 1b     KW1281 Request byte 3
     mov mem_012b+1, a       ;b1a8  61 01 2c     KW1281 Response byte 1: Block counter
     mov mem_0116, a         ;b1ab  61 01 16
     mov mem_0081, #0x02     ;b1ae  85 81 02
@@ -8977,7 +8977,7 @@ lab_b194:
 sub_b1b2:
     mov mem_0081, a         ;b1b2  45 81
     call sub_bbae           ;b1b4  31 bb ae
-    mov a, mem_011b         ;b1b7  60 01 1b
+    mov a, mem_0118+3       ;b1b7  60 01 1b     KW1281 Request byte 3
     mov mem_012b+1, a       ;b1ba  61 01 2c     KW1281 Response byte 1: Block counter
     mov mem_0116, a         ;b1bd  61 01 16
     ret                     ;b1c0  20
@@ -8989,7 +8989,7 @@ sub_b1c1:
     mov mem_012b+3, a       ;b1c8  61 01 2e     KW1281 Response byte 3
     mov a, #0x03            ;b1cb  04 03
     mov mem_0115, a         ;b1cd  61 01 15
-    mov a, mem_011b         ;b1d0  60 01 1b
+    mov a, mem_0118+3       ;b1d0  60 01 1b     KW1281 Request byte 3
     mov mem_012b+1, a       ;b1d3  61 01 2c     KW1281 Response byte 1: Block counter
     mov mem_0116, a         ;b1d6  61 01 16
     ret                     ;b1d9  20
@@ -9070,7 +9070,7 @@ sub_b235:
     incw a                  ;b23b  c0
     mov mem_0082, a         ;b23c  45 82
     popw a                  ;b23e  50
-    movw a, #mem_0118       ;b23f  e4 01 18
+    movw a, #mem_0118+0     ;b23f  e4 01 18     KW1281 Request byte 0: Block length
     clrc                    ;b242  81
     addcw a                 ;b243  23
     pushw a                 ;b244  40
@@ -9163,13 +9163,13 @@ mem_0080_is_10:
 ;KW1281 Read or write RAM word related to login
 ;
 ;Request block format:
-;  0x08 Block length                    mem_0118?
-;  0x3E Block counter                   mem_0119?
-;  0xF0 Block title (0xF0)              mem_011a
-;  0x00 Mode byte                       mem_011b    0=Read, 1=Write
-;  0x00 Unknown byte 0                  mem_011c    Reads/writes mem_020f
-;  0x00 Unknown byte 1                  mem_011d    Reads/writes mem_0210
-;  0x03 Block end                       mem_011e
+;  0x08 Block length                    mem_0118+0
+;  0x3E Block counter                   mem_0118+1
+;  0xF0 Block title (0xF0)              mem_0118+2
+;  0x00 Mode byte                       mem_0118+3  0=Read, 1=Write
+;  0x00 Unknown byte 0                  mem_0118+4  Reads/writes mem_020f
+;  0x00 Unknown byte 1                  mem_0118+5  Reads/writes mem_0210
+;  0x03 Block end                       mem_0118+6
 ;
 ;Response block format:
 ;  0x05 Block length                    mem_012b+0
@@ -9190,7 +9190,7 @@ lab_b2c4:
 ;(mem_0080=0x10, mem_0081=1)
 ;Read mode byte and dispatch to handle that mode.
 ;
-    mov a, mem_011b         ;b2c4  60 01 1b     A = Mode byte
+    mov a, mem_0118+3       ;b2c4  60 01 1b     A = Mode byte
     beq lab_b2d4_read       ;b2c7  fd 0b        If Mode=0, branch to do read
 
     cmp a, #0x01            ;b2c9  14 01
@@ -9219,7 +9219,7 @@ lab_b2d4_write:
 ;
     bbs mem_00de:7, lab_b305 ;b2ec  bf de 16
     bbs mem_00e3:7, lab_b305 ;b2ef  bf e3 13
-    movw a, mem_011c         ;b2f2  c4 01 1c    Read word from KW1281 request buffer
+    movw a, mem_0118+4       ;b2f2  c4 01 1c    KW1281 Response buffer bytes 4 and 5
     movw mem_020f, a         ;b2f5  d4 02 0f    Store word in mem_020f
     mov a, #0x00             ;b2f8  04 00
     mov mem_020e, a          ;b2fa  61 02 0e
@@ -9649,7 +9649,7 @@ lab_b505:
     ret                     ;b513  20
 
 lab_b514:
-    mov a, mem_011a         ;b514  60 01 1a     A = KW1281 Block title received
+    mov a, mem_0118+2       ;b514  60 01 1a     KW1281 Request byte 2: Block title
     cmp a, #0x0a            ;b517  14 0a        Is it 0x0a (No Acknowledge)?
     bne lab_b521            ;b519  fc 06
     mov a, #0x04            ;b51b  04 04
@@ -9966,7 +9966,7 @@ lab_b6c7:
     ret                     ;b6d5  20
 
 lab_b6d6:
-    mov a, mem_011a         ;b6d6  60 01 1a     A = KW1281 Block title received
+    mov a, mem_0118+2       ;b6d6  60 01 1a     A = KW1281 Request byte 2: Block title
     cmp a, #0x0a            ;b6d9  14 0a        Is it 0x0a (No Acknowledge)?
     bne lab_b6e3            ;b6db  fc 06
     mov a, #0x03            ;b6dd  04 03
@@ -10154,11 +10154,11 @@ mem_0080_is_07:
 ;KW1281 Group Reading
 ;
 ;Group Reading request block:
-;   0x04 Block length                   mem_0118?
-;   0x2A Block counter                  mem_0119?
-;   0x29 Block title (Group Reading)    mem_011a
-;   0x01 Group Number                   mem_011b
-;   0x03 Block end                      mem_011c
+;   0x04 Block length                   mem_0118+0
+;   0x2A Block counter                  mem_0118+1
+;   0x29 Block title (Group Reading)    mem_0118+2
+;   0x01 Group Number                   mem_0118+3
+;   0x03 Block end                      mem_0118+4
 ;
     mov a, mem_0081         ;b75a  05 81
     cmp a, #0x01            ;b75c  14 01
@@ -10190,7 +10190,7 @@ lab_b773:
 lab_b77c:
 ;(mem_0080=0x07, mem_0081=2)
 ;Group Reading related
-    mov a, mem_011b         ;b77c  60 01 1b     A = Group Number
+    mov a, mem_0118+3       ;b77c  60 01 1b     KW1281 Request byte 3: Group number
     cmp a, #0x01            ;b77f  14 01
     beq lab_b7a2            ;b781  fd 1f        ;Group 1
 
@@ -10326,7 +10326,7 @@ lab_b844:
 lab_b845:
 ;(mem_0080=0x07, mem_0081=3)
 ;Group Reading related
-    mov a, mem_011b         ;b845  60 01 1b     A = Group Number
+    mov a, mem_0118+3       ;b845  60 01 1b     KW1281 Request byte 3: Group number
     jmp lab_b8e3            ;b848  21 b8 e3
 
 lab_b84b:
@@ -10507,12 +10507,12 @@ mem_0080_is_08:
 lab_b945:
 ;Recoding related
 ;(mem_0080=0x08, mem_0081=1)
-    movw a, mem_011b        ;b945  c4 01 1b
+    movw a, mem_0118+3      ;b945  c4 01 1b     KW1281 Request byte 3
     call sub_b977           ;b948  31 b9 77     Uses mem_ff63 table
     bhs lab_b970            ;b94b  f8 23
-    movw a, mem_011b        ;b94d  c4 01 1b
+    movw a, mem_0118+3      ;b94d  c4 01 1b     KW1281 Request byte 3
     movw mem_0175, a        ;b950  d4 01 75
-    movw a, mem_011d        ;b953  c4 01 1d
+    movw a, mem_0118+5      ;b953  c4 01 1d     KW1281 Request byte 5
     movw mem_0177, a        ;b956  d4 01 77
     setb mem_00b2:7         ;b959  af b2
     call sub_9ed3           ;b95b  31 9e d3
@@ -10699,15 +10699,15 @@ mem_0080_is_09:
 ;KW1281 Login
 ;
 ;Login request block (code 12345 = 0x31d4):
-;  0x08 Block length                    mem_0118?
-;  0x3E Block counter                   mem_0119?
-;  0x2B Block title (Login)             mem_011a
-;  0x31 Login code high byte            mem_011b
-;  0xD4 Login code low byte             mem_011c
-;  0x01 Unknown byte 0                  mem_011d
-;  0x86 Unknown byte 1                  mem_011e
-;  0x9F Unknown byte 2                  mem_011f
-;  0x03 Block end                       mem_0120
+;  0x08 Block length                    mem_0118+0
+;  0x3E Block counter                   mem_0118+1
+;  0x2B Block title (Login)             mem_0118+2
+;  0x31 Login code high byte            mem_0118+3
+;  0xD4 Login code low byte             mem_0118+4
+;  0x01 Unknown byte 0                  mem_0118+5
+;  0x86 Unknown byte 1                  mem_0118+6
+;  0x9F Unknown byte 2                  mem_0118+7
+;  0x03 Block end                       mem_0118+8
 ;
     mov a, mem_0081         ;ba7a  05 81
     cmp a, #0x01            ;ba7c  14 01
@@ -10726,10 +10726,10 @@ lab_ba88:
 ;(mem_0080=0x01, mem_0081=1)
     bbs mem_00de:3, lab_bacc ;ba88  bb de 41
 
-    mov a, mem_011b         ;ba8b  60 01 1b     Login code high byte
+    mov a, mem_0118+3       ;ba8b  60 01 1b     KW1281 Request byte 3: Login code high byte
     mov mem_00a3, a         ;ba8e  45 a3
 
-    mov a, mem_011c         ;ba90  60 01 1c     Login code low byte
+    mov a, mem_0118+4       ;ba90  60 01 1c     KW1281 Request byte 4: Login code low byte
     mov mem_00a4, a         ;ba93  45 a4
 
     call sub_dd1d           ;ba95  31 dd 1d     Uses mem_ff63 table
@@ -10785,17 +10785,17 @@ lab_bad3:
 lab_baed:
     setb mem_00e4:6         ;baed  ae e4
 
-    mov a, mem_011d         ;baef  60 01 1d     A = Unknown byte 0
+    mov a, mem_0118+5       ;baef  60 01 1d     KW1281 Request byte 5: Unknown byte 0
     and a, #0x01            ;baf2  64 01
     mov a, mem_0176         ;baf4  60 01 76
     and a, #0xfe            ;baf7  64 fe
     or a                    ;baf9  72
     mov mem_0176, a         ;bafa  61 01 76
 
-    mov a, mem_011e         ;bafd  60 01 1e     A = Unknown byte 1
+    mov a, mem_0118+6       ;bafd  60 01 1e     KW1281 Request byte 6: Unknown byte 1
     mov mem_0177, a         ;bb00  61 01 77
 
-    mov a, mem_011f         ;bb03  60 01 1f     A = Unknown byte 2
+    mov a, mem_0118+7       ;bb03  60 01 1f     KW1281 Request byte 7: Unknown byte 2
     mov mem_0178, a         ;bb06  61 01 78
 
     mov mem_00f1, #0xad     ;bb09  85 f1 ad
@@ -10849,7 +10849,7 @@ lab_bb3e:
 ;Read RAM related
 ;Read EEPROM related
 ;(mem_0080=x, mem_0081=1)
-    movw a, mem_011e        ;bb3e  c4 01 1e
+    movw a, mem_0118+6      ;bb3e  c4 01 1e     KW1281 Request byte 6
     movw mem_0147, a        ;bb41  d4 01 47
     mov mem_0081, #0x02     ;bb44  85 81 02
     ret                     ;bb47  20
@@ -10863,9 +10863,9 @@ lab_bb4a:
 ;Read EEPROM related
 ;Read RAM related
     mov mem_012b+2, a       ;bb4a  61 01 2d     KW1281 Response byte 2
-    movw a, mem_011c        ;bb4d  c4 01 1c
+    movw a, mem_0118+4      ;bb4d  c4 01 1c     KW1281 Request byte 4
     movw mem_0147, a        ;bb50  d4 01 47
-    mov a, mem_011b         ;bb53  60 01 1b
+    mov a, mem_0118+3       ;bb53  60 01 1b     KW1281 Request byte 3
     clrc                    ;bb56  81
     addc a, #0x03           ;bb57  24 03
     mov mem_012b+0, a       ;bb59  61 01 2b     KW1281 Response byte 0: Block length
@@ -10899,7 +10899,7 @@ lab_bb81:
     ret                     ;bb81  20
 
 lab_bb82:
-    mov a, mem_011a         ;bb82  60 01 1a     A = KW1281 Block title received
+    mov a, mem_0118+2       ;bb82  60 01 1a     KW1281 Request byte 2: Block title
     cmp a, #0x0a            ;bb85  14 0a        Is it 0x0A (No Acknowledge)?
     bne lab_bb8f            ;bb87  fc 06
     mov a, #0x03            ;bb89  04 03
@@ -10989,7 +10989,7 @@ sub_bbe0:
     ret                      ;bbef  20
 
 lab_bbf0:
-    mov a, mem_011a         ;bbf0  60 01 1a     A = KW1281 block title received
+    mov a, mem_0118+2       ;bbf0  60 01 1a     KW1281 Request byte 2: Block title
     cmp a, #0x0a            ;bbf3  14 0a        Is it 0x0A (No Acknowledge)?
     bne lab_bbfd            ;bbf5  fc 06
     mov a, mem_00a1         ;bbf7  05 a1
@@ -17446,7 +17446,7 @@ lab_deab:
     ret                     ;deab  20
 
 sub_deac:
-    mov a, mem_011a         ;deac  60 01 1a     A = KW1281 Block Title received
+    mov a, mem_0118+2       ;deac  60 01 1a     KW1281 Request byte 2: Block title
     cmp a, #0x00            ;deaf  14 00        Is it 0x00 (ID code request/ECU Info)?
     beq lab_dec2            ;deb1  fd 0f
     cmp a, #0x0a            ;deb3  14 0a        Is it 0x0a (No Acknowledge)?
@@ -17579,12 +17579,15 @@ lab_df3d:
 lab_df68:
     call sub_b235           ;df68  31 b2 35
     bbc mem_00f9:6, lab_df9c ;df6b  b6 f9 2e
-    mov a, mem_0118         ;df6e  60 01 18
+
+    mov a, mem_0118+0       ;df6e  60 01 18     KW1281 Request byte 0: Block length
     cmp a, #0x10            ;df71  14 10
     bhs lab_dfa0            ;df73  f8 2b
-    mov a, mem_0118         ;df75  60 01 18
+
+    mov a, mem_0118+0       ;df75  60 01 18     KW1281 Request byte 0: Block length
     cmp a, mem_0082         ;df78  15 82
     bhs lab_df92            ;df7a  f8 16
+
     mov a, mem_0088         ;df7c  05 88        A = KW1281 byte received
     cmp a, #0x03            ;df7e  14 03
     beq lab_df84            ;df80  fd 02
@@ -17592,11 +17595,11 @@ lab_df68:
 
 lab_df84:
     clrb uscr:1             ;df84  a1 41
-    mov a, mem_0119         ;df86  60 01 19
+    mov a, mem_0118+1       ;df86  60 01 19     KW1281 Request byte 1: Block counter
     mov mem_0116, a         ;df89  61 01 16
     setb mem_00f9:0         ;df8c  a8 f9
     mov a, #0x00            ;df8e  04 00
-    beq lab_df99            ;df90  fd 07       BRANCH_ALWAYS_TAKEN
+    beq lab_df99            ;df90  fd 07        BRANCH_ALWAYS_TAKEN
 
 lab_df92:
     mov a, #0x03            ;df92  04 03
@@ -18382,10 +18385,10 @@ lab_e44c:
 
 lab_e45c:
     mov a, #0x02            ;e45c  04 02
-    bne lab_e47d            ;e45e  fc 1d       BRANCH_ALWAYS_TAKEN
+    bne lab_e47d            ;e45e  fc 1d        BRANCH_ALWAYS_TAKEN
 
 lab_e460:
-    mov a, mem_011a         ;e460  60 01 1a     A = KW1281 Block Title received
+    mov a, mem_0118+2       ;e460  60 01 1a     KW1281 Request byte 2: Block title
     cmp a, #0x3d            ;e463  14 3d        Is it 0x3d (??? Security access)?
     beq lab_e47b            ;e465  fd 14
     cmp a, #0x0a            ;e467  14 0a        Is it 0x0a (No Acknowledge)?
@@ -18411,12 +18414,12 @@ lab_e480:
 
 lab_e481:
 ;Block title 0x0a (No Acknowledge)
-    mov a, mem_0119         ;e481  60 01 19
-    mov a, mem_011b         ;e484  60 01 1b
+    mov a, mem_0118+1       ;e481  60 01 19     KW1281 Request byte 1: Block counter
+    mov a, mem_0118+3       ;e484  60 01 1b     KW1281 Request byte 3
     xor a                   ;e487  52
     beq lab_e46b            ;e488  fd e1
     call sub_e369           ;e48a  31 e3 69
-    mov a, mem_011b         ;e48d  60 01 1b
+    mov a, mem_0118+3       ;e48d  60 01 1b     KW1281 Request byte 3
     mov mem_012b+1, a       ;e490  61 01 2c     KW1281 Response byte 1: Block counter
     mov mem_0116, a         ;e493  61 01 16
     mov a, #0x02            ;e496  04 02
@@ -18440,16 +18443,16 @@ lab_e4a3:
 
 lab_e4b5:
 ;mem_038b case 4
-    mov a, mem_011e         ;e4b5  60 01 1e
+    mov a, mem_0118+6       ;e4b5  60 01 1e     KW1281 Request byte 6
     mov mem_03ab, a         ;e4b8  61 03 ab
 
-    mov a, mem_011d         ;e4bb  60 01 1d
+    mov a, mem_0118+5       ;e4bb  60 01 1d     KW1281 Request byte 5
     mov mem_03ac, a         ;e4be  61 03 ac
 
-    mov a, mem_011c         ;e4c1  60 01 1c
+    mov a, mem_0118+4       ;e4c1  60 01 1c     KW1281 Request byte 4
     mov mem_03ad, a         ;e4c4  61 03 ad
 
-    mov a, mem_011b         ;e4c7  60 01 1b
+    mov a, mem_0118+3       ;e4c7  60 01 1b     KW1281 Request byte 3
     mov mem_03ae, a         ;e4ca  61 03 ae
 
     call sub_e61f           ;e4cd  31 e6 1f     Unknown, uses mem_e5aa table
