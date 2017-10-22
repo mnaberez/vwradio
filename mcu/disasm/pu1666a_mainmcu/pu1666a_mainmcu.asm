@@ -17250,10 +17250,10 @@ kw_unknown_title_d7:
     .byte 0x00              ;dd6c  00          DATA '\x00'
     .byte 0x03              ;dd6d  03          DATA '\x03'  Block end
 
-kw_end:
+kw_end_session:
     .byte 0x03              ;dd6e  03          DATA '\x03'  Block length
     .byte 0x00              ;dd6f  00          DATA '\x00'  Block counter
-    .byte 0x06              ;dd70  06          DATA '\x06'  Block title (0x06 = End Output)
+    .byte 0x06              ;dd70  06          DATA '\x06'  Block title (0x06 = End Session)
     .byte 0x03              ;dd71  03          DATA '\x03'  Block end
 
 sub_dd72:
@@ -18399,7 +18399,7 @@ lab_e46b:
     mov mem_0391, a         ;e46d  61 03 91
     mov a, #0x11            ;e470  04 11
     mov mem_038c, a         ;e472  61 03 8c
-    call sub_e34e_no_ack_2           ;e475  31 e3 4e
+    call sub_e34e_no_ack_2  ;e475  31 e3 4e
     jmp lab_e45c            ;e478  21 e4 5c
 
 lab_e47b:
@@ -18442,7 +18442,7 @@ lab_e4a3:
     beq lab_e47d            ;e4b3  fd c8        BRANCH_ALWAYS_TAKEN
 
 lab_e4b5:
-;mem_038b case 4
+;mem_038b case 0x04 (Block title 0x3d: Security access?)
     mov a, mem_0118+6       ;e4b5  60 01 1e     KW1281 Request byte 6
     mov mem_03ab, a         ;e4b8  61 03 ab
 
@@ -18485,7 +18485,7 @@ lab_e4eb:
     bne lab_e4ea            ;e4ee  fc fa
     call sub_e3a2           ;e4f0  31 e3 a2
     mov mem_00a5, #0x04     ;e4f3  85 a5 04    4 bytes in KW1281 packet
-    movw a, #kw_end ;e4f6  e4 dd 6e
+    movw a, #kw_end_session ;e4f6  e4 dd 6e
     movw mem_0084, a        ;e4f9  d5 84       Pointer to KW1281 packet bytes
     call sub_e366           ;e4fb  31 e3 66
     mov a, #0x07            ;e4fe  04 07
@@ -18656,6 +18656,8 @@ lab_e613:
 
 sub_e61f:
 ;Unknown, uses e5aa table
+;Called from e4cd (Block title 0x3d security related)
+;Also called from a11c (unknown)
     movw a, #0x0000         ;e61f  e4 00 00
     movw mem_03a1, a        ;e622  d4 03 a1
     movw mem_03a3, a        ;e625  d4 03 a3
