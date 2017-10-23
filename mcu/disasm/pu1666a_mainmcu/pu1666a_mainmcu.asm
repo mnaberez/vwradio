@@ -9099,7 +9099,7 @@ lab_b25a:
     setb uscr:1             ;b25a  a9 41
     movw a, #0x0000         ;b25c  e4 00 00
     mov a, mem_0083         ;b25f  05 83
-    movw a, #0x012b         ;b261  e4 01 2b
+    movw a, #mem_012b       ;b261  e4 01 2b     KW1281 response byte 0
     clrc                    ;b264  81
     addcw a                 ;b265  23
     mov a, @a               ;b266  92
@@ -9429,7 +9429,7 @@ lab_b3cc:
     movw a, #mem_0175       ;b3e7  e4 01 75
     movw mem_0084, a        ;b3ea  d5 84        Pointer to KW1281 packet bytes
 
-    movw a, #0x012b+4       ;b3ec  e4 01 2f
+    movw a, #mem_012b+4     ;b3ec  e4 01 2f     KW1281 Response byte 4
     movw mem_0086, a        ;b3ef  d5 86
     mov mem_00a5, #0x04     ;b3f1  85 a5 04     4 bytes in KW1281 packet
     call sub_b13e           ;b3f4  31 b1 3e     TODO probably a buffer copy
@@ -9551,9 +9551,9 @@ lab_b475:
 lab_b480:
 ;Read Faults related
     mov a, #0xfc            ;b480  04 fc        0xFC = KW1281 Block title: Response to Read Faults
-    mov mem_012b+2, a       ;b482  61 01 2d     KW1281 response byte 2: Block title
+    mov mem_012b+2, a       ;b482  61 01 2d     KW1281 Response byte 2: Block title
 
-    movw a, #0x012b+3       ;b485  e4 01 2e
+    movw a, #mem_012b+3     ;b485  e4 01 2e     KW1281 Response byte 3
     movw mem_0086, a        ;b488  d5 86
     mov a, mem_0146         ;b48a  60 01 46
     cmp a, #0x04            ;b48d  14 04
