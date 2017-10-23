@@ -7965,9 +7965,9 @@ mem_ac03:
     .word mem_0080_is_07          ;ac11  b7 5a       VECTOR     Group Reading
     .word mem_0080_is_08          ;ac13  b9 3a       VECTOR     Recoding
     .word mem_0080_is_09          ;ac15  ba 7a       VECTOR     Login
-    .word mem_0080_is_0a          ;ac17  bb 23       VECTOR     Read RAM
-    .word mem_0080_is_0b_or_0c    ;ac19  bb 17       VECTOR     ? Read ROM ?
-    .word mem_0080_is_0b_or_0c    ;ac1b  bb 17       VECTOR     Read EEPROM
+    .word mem_0080_is_0a          ;ac17  bb 23       VECTOR     Protected: Read RAM
+    .word mem_0080_is_0b_or_0c    ;ac19  bb 17       VECTOR     Protected: Read ROM
+    .word mem_0080_is_0b_or_0c    ;ac1b  bb 17       VECTOR     Protected: Read EEPROM
     .word mem_0080_is_0d          ;ac1d  b1 89       VECTOR     No Acknowledge
     .word mem_0080_is_0e          ;ac1f  b1 ec       VECTOR     Unrecognized Block Title
     .word mem_0080_is_0f          ;ac21  bb 9e       VECTOR     End Session
@@ -8139,8 +8139,8 @@ mem_ad1f:
 ;0x07        0x29            Group Reading
 ;0x08        0x10            Recoding
 ;0x09        0x2B            Login
-;0x0A        0x01            ??? Protected: Read RAM ???
-;0x0B        0x03            ??? Protected: Read ROM ???
+;0x0A        0x01            Protected: Read RAM
+;0x0B        0x03            Protected: Read ROM
 ;0x0C        0x19            Protected: Read EEPROM
 ;0x0D        0x0A            No Acknowledge
 ;0x0F        0x06            End Session
@@ -8151,12 +8151,12 @@ mem_ad1f:
     .byte 0x01              ;ad20  01          DATA '\x01'  mem_0080 = 0x01
     .word lab_ad9f
 
-    ;??? Protected: Read RAM ???
+    ;Protected: Read RAM
     .byte 0x01              ;ad23  01          DATA '\x01'  Block title 0x01
     .byte 0x0A              ;ad24  0a          DATA '\n'    mem_0080 = 0x0a
     .word lab_ada4
 
-    ;??? Protected: Read ROM ???
+    ;Protected: Read ROM
     .byte 0x03              ;ad27  03          DATA '\x03'  Block title 0x03
     .byte 0x0B              ;ad28  0b          DATA '\x0b'  mem_0080 = 0x0b
     .word lab_ada4
@@ -8300,8 +8300,8 @@ lab_ada1:
 lab_ada4:
 ;Table mem_ad1f case for protected functions:
 ;
-;  Block title 0x01: ??? Protected: Read RAM ???
-;  Block title 0x03: ??? Protected: Read ROM ???
+;  Block title 0x01: Protected: Read RAM
+;  Block title 0x03: Protected: Read ROM
 ;  Block title 0x19: Protected: Read EEPROM
 ;
     bbc mem_008c:3, lab_ada1 ;ada4  b3 8c fa    Bit is set after Group Reading of Group 25 (0x19)
@@ -8552,7 +8552,7 @@ lab_af1e:
     clrb mem_008c:4         ;af25  a4 8c
     movw a, #mem_012b+3     ;af27  e4 01 2e     KW1281 Response bytes 3 and 4
     movw mem_0147, a        ;af2a  d4 01 47
-    mov a, #0x0a            ;af2d  04 0a        0x0A = mem_0080 value for KW1281 ??? Protected: Read RAM ???
+    mov a, #0x0a            ;af2d  04 0a        0x0A = mem_0080 value for KW1281 Protected: Read RAM
     mov mem_0080, a         ;af2f  45 80
     jmp lab_af36            ;af31  21 af 36
 
@@ -8609,7 +8609,7 @@ lab_af79:
 lab_af7d:
     mov a, mem_032e         ;af7d  60 03 2e
     beq lab_af1d            ;af80  fd 9b
-    call clr_82_83          ;af82  31 e0 b8     Zeroes mem_0082 and mem_0083
+    call clr_82_83          ;af82  31 e0 b8    Zeroes mem_0082 and mem_0083
     mov a, #0x01            ;af85  04 01
     bne lab_af1a            ;af87  fc 91       BRANCH_ALWAYS_TAKEN
 
@@ -9175,8 +9175,8 @@ mem_0080_is_10:
 ;  0x05 Block length                    mem_012b+0
 ;  0x3F Block counter                   mem_012b+1
 ;  0xF0 Block title (0xF0)              mem_012b+2
-;  0x00 Unknown byte 0                  mem_012b+3    Reads byte at mem_020f
-;  0x01 Unknown byte 1                  mem_012b+4    Reads byte at mem_0210
+;  0x00 Unknown byte 0                  mem_012b+3  Reads byte at mem_020f
+;  0x01 Unknown byte 1                  mem_012b+4  Reads byte at mem_0210
 ;  0x03 Block end                       mem_012b+5
 ;
     mov a, mem_0081         ;b2b9  05 81
@@ -10510,10 +10510,13 @@ lab_b945:
     movw a, mem_0118+3      ;b945  c4 01 1b     KW1281 Request bytes 3 and 4
     call sub_b977           ;b948  31 b9 77     Uses mem_ff63 table
     bhs lab_b970            ;b94b  f8 23
+
     movw a, mem_0118+3      ;b94d  c4 01 1b     KW1281 Request bytes 3 and 4
     movw mem_0175, a        ;b950  d4 01 75
+
     movw a, mem_0118+5      ;b953  c4 01 1d     KW1281 Request bytes 5 and 6
     movw mem_0177, a        ;b956  d4 01 77
+
     setb mem_00b2:7         ;b959  af b2
     call sub_9ed3           ;b95b  31 9e d3
     movw a, #0x0000         ;b95e  e4 00 00
@@ -10540,12 +10543,17 @@ sub_b977:
     rorc a                  ;b979  03
     swap                    ;b97a  10
     rorc a                  ;b97b  03
+
     movw mem_00a8, a        ;b97c  d5 a8
+
     mov a, mem_00a8         ;b97e  05 a8
     mov mem_00a3, a         ;b980  45 a3
+
     mov a, mem_00a9         ;b982  05 a9
     mov mem_00a4, a         ;b984  45 a4
+
     call sub_dd1d           ;b986  31 dd 1d     Uses mem_ff63 table
+
     mov a, mem_009e         ;b989  05 9e
     bne lab_b9db            ;b98b  fc 4e
     mov a, mem_009f         ;b98d  05 9f
@@ -10813,7 +10821,17 @@ lab_bb13:
 
 
 mem_0080_is_0b_or_0c:
-;KW1281 Read ROM? and Read EEPROM? entry point
+;KW1281 Read ROM or Read EEPROM entry point
+;
+;Request block format:
+;  0x06 Block length                    mem_0118+0
+;  0x3E Block counter                   mem_0118+1
+;  0x03 Block title (0x03 or 0x19)      mem_0118+2
+;  0x00 Number of bytes to read         mem_0118+3
+;  0x00 Address high                    mem_0118+4
+;  0x00 Address low                     mem_0118+5
+;  0x03 Block end                       mem_0119+6
+;
     mov a, mem_0081         ;bb17  05 81
     cmp a, #0x02            ;bb19  14 02
     beq lab_bb1f            ;bb1b  fd 02
@@ -10826,6 +10844,16 @@ lab_bb1f:
 
 mem_0080_is_0a:
 ;KW1281 Read RAM
+;
+;Request block format:
+;  0x06 Block length                    mem_0118+0
+;  0x3E Block counter                   mem_0118+1
+;  0x01 Block title (0x01)              mem_0118+2
+;  0x00 Number of bytes to read         mem_0118+3
+;  0x00 Address high                    mem_0118+4
+;  0x00 Address low                     mem_0118+5
+;  0x03 Block end                       mem_0119+6
+;
     mov a, mem_0081         ;bb23  05 81
     cmp a, #0x02            ;bb25  14 02
     beq lab_bb48            ;bb27  fd 1f
@@ -10850,28 +10878,35 @@ lab_bb3e:
 ;Read EEPROM related
 ;(mem_0080=x, mem_0081=1)
     movw a, mem_0118+6      ;bb3e  c4 01 1e     KW1281 Request bytes 6 and 7
-    movw mem_0147, a        ;bb41  d4 01 47
+    movw mem_0147, a        ;bb41  d4 01 47     XXX mem_0147 will be overwritten lab_bb4a,
+                            ;                       so request bytes 6 and 7 are thrown away.
+                            ;                       Is this a bug?
     mov mem_0081, #0x02     ;bb44  85 81 02
     ret                     ;bb47  20
 
 lab_bb48:
 ;Read RAM related
-;(mem_0080=x, mem_0081=2)
+;(mem_0080=0x0a, mem_0081=2)
     mov a, #0xfe            ;bb48  04 fe        0xFE = KW1281 Block title: Response to Read RAM
 
 lab_bb4a:
 ;Read EEPROM related
 ;Read RAM related
     mov mem_012b+2, a       ;bb4a  61 01 2d     KW1281 Response byte 2: Block title
-    movw a, mem_0118+4      ;bb4d  c4 01 1c     KW1281 Request bytes 4 and 5
+
+    movw a, mem_0118+4      ;bb4d  c4 01 1c     KW1281 Request bytes 4 and 5 (Address to read)
     movw mem_0147, a        ;bb50  d4 01 47
-    mov a, mem_0118+3       ;bb53  60 01 1b     KW1281 Request byte 3
+
+    mov a, mem_0118+3       ;bb53  60 01 1b     KW1281 Request byte 3 (Number of bytes to read)
     clrc                    ;bb56  81
-    addc a, #0x03           ;bb57  24 03
+    addc a, #0x03           ;bb57  24 03        Add 3 for Block counter, Block title, Block end
     mov mem_012b+0, a       ;bb59  61 01 2b     KW1281 Response byte 0: Block length
-    call sub_bbb8           ;bb5c  31 bb b8
-    mov a, #0x03            ;bb5f  04 03
+
+    call sub_bbb8           ;bb5c  31 bb b8     Sets KW1281 Response byte 1: Block counter
+
+    mov a, #0x03            ;bb5f  04 03        0x03 = Block end? TODO
     mov mem_012b+3, a       ;bb61  61 01 2e     KW1281 Response byte 3
+
     mov mem_0081, #0x03     ;bb64  85 81 03
     mov a, #0x03            ;bb67  04 03
     mov mem_0115, a         ;bb69  61 01 15
@@ -10952,7 +10987,7 @@ sub_bbae:
 sub_bbb8:
     mov a, mem_0116         ;bbb8  60 01 16
     incw a                  ;bbbb  c0
-    mov mem_012b+1, a       ;bbbc  61 01 2c     KW1281 Response buffer byte 1: Block length
+    mov mem_012b+1, a       ;bbbc  61 01 2c     KW1281 Response buffer byte 1: Block counter
 
 call_sub_bbbf:
     call clr_82_83          ;bbbf  31 e0 b8     Zeroes mem_0082 and mem_0083
@@ -17184,31 +17219,43 @@ sub_dcde:
 
 
 sub_dd1d:
+;Inputs:
+;  mem_00a3, mem_00a4
+;
+;Outputs:
+;  mem_009f, mem_00a0
+;
     mov mem_009e, #0x00     ;dd1d  85 9e 00
     mov mem_009f, #0x00     ;dd20  85 9f 00
     mov mem_00a0, #0x00     ;dd23  85 a0 00
     mov mem_00a1, #0x10     ;dd26  85 a1 10
+
     movw ix, #mem_ff63      ;dd29  e6 ff 63
 
 lab_dd2c:
     mov a, mem_00a3         ;dd2c  05 a3
     rorc a                  ;dd2e  03
     mov mem_00a3, a         ;dd2f  45 a3
+
     mov a, mem_00a4         ;dd31  05 a4
     rorc a                  ;dd33  03
     mov mem_00a4, a         ;dd34  45 a4
+
     bhs lab_dd51            ;dd36  f8 19
+
     mov a, @ix+0x00         ;dd38  06 00
     mov a, mem_00a0         ;dd3a  05 a0
     clrc                    ;dd3c  81
     addc a                  ;dd3d  22
     daa                     ;dd3e  84
     mov mem_00a0, a         ;dd3f  45 a0
+
     mov a, @ix+0x10         ;dd41  06 10
     mov a, mem_009f         ;dd43  05 9f
     addc a                  ;dd45  22
     daa                     ;dd46  84
     mov mem_009f, a         ;dd47  45 9f
+
     mov a, @ix+0x20         ;dd49  06 20
     mov a, mem_009e         ;dd4b  05 9e
     addc a                  ;dd4d  22
@@ -23138,7 +23185,10 @@ kw_rw_login:
     .byte 0x03              ;ff62  03          DATA '\x03'  Block end
 
 mem_ff63:
-;Used by sub_b977 (Recording) and sub_dd1d (Login)
+;Used by:
+;  sub_b977 (Recording)
+;  sub_dd1d (Login)
+;  sub_fda6 (???)
     .byte 0x01              ;ff63  01          DATA '\x01'
     .byte 0x02              ;ff64  02          DATA '\x02'
     .byte 0x04              ;ff65  04          DATA '\x04'
