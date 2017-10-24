@@ -767,7 +767,7 @@ irq5_80d7:
 lab_80e5:
     bbc cntr4:2, lab_80ed   ;80e5  b2 48 05
     clrb cntr4:2            ;80e8  a2 48
-    call submcu_send_packet           ;80ea  31 e8 3a
+    call submcu_send_packet ;80ea  31 e8 3a
 
 lab_80ed:
     bbc cntr5:2, lab_80f2   ;80ed  b2 4a 02
@@ -8099,7 +8099,7 @@ lab_aced:
 lab_acee:
     call sub_ad15           ;acee  31 ad 15     KW1281 block title request dispatch
     mov mem_0080, a         ;acf1  45 80
-    cmp a, #0x0d            ;acf3  14 0d        Block title = NAK?
+    cmp a, #0x0d            ;acf3  14 0d        Block title = No Acknowledge?
     beq lab_ad02            ;acf5  fd 0b
     mov a, #0x00            ;acf7  04 00
     mov mem_033d, a         ;acf9  61 03 3d
@@ -8110,7 +8110,7 @@ lab_acfc:
     ret                     ;ad01  20
 
 lab_ad02:
-;Handle NAK
+;Handle No Acknowledge
     mov a, mem_033d         ;ad02  60 03 3d
     cmp a, #0x05            ;ad05  14 05
     blo lab_acfc            ;ad07  f9 f3
@@ -8266,13 +8266,14 @@ lab_ad8b:
 ;  Block title 0x29: Group Reading
     xchw a, t               ;ad8b  43
     pushw a                 ;ad8c  40
-    mov a, mem_0118+3       ;ad8d  60 01 1b     KW1281 Request byte 3
+    mov a, mem_0118+3       ;ad8d  60 01 1b     KW1281 Request byte 3: Group number
     cmp a, #0x02            ;ad90  14 02
     beq lab_ad99            ;ad92  fd 05
     mov a, #0x00            ;ad94  04 00
     mov mem_019b, a         ;ad96  61 01 9b
 
 lab_ad99:
+;Group 2 (Speakers)
     setb mem_008d:4         ;ad99  ac 8d
     clrb mem_008e:1         ;ad9b  a1 8e
     popw a                  ;ad9d  50
@@ -8384,10 +8385,10 @@ lab_adf6:
 lab_ae1c:
     clrb uscr:1             ;ae1c  a1 41
     mov a, mem_0118+1       ;ae1e  60 01 19     KW1281 Request byte 1: Block counter
-    mov mem_0116, a         ;ae21  61 01 16
+    mov mem_0116, a         ;ae21  61 01 16     Copy block counter into mem_0116
     setb mem_008b:0         ;ae24  a8 8b
     mov a, #0x00            ;ae26  04 00
-    beq lab_ae31            ;ae28  fd 07       BRANCH_ALWAYS_TAKEN
+    beq lab_ae31            ;ae28  fd 07        BRANCH_ALWAYS_TAKEN
 
 lab_ae2a:
     mov a, #0x05            ;ae2a  04 05
@@ -8465,7 +8466,7 @@ lab_ae99:
     clrb mem_008b:4         ;aea1  a4 8b
     call sub_b235           ;aea3  31 b2 35
 
-    mov a, mem_012b+0       ;aea6  60 01 2b     KW1281 response byte 0: Block length
+    mov a, mem_012b+0       ;aea6  60 01 2b     KW1281 Response byte 0: Block length
     cmp a, mem_0083         ;aea9  15 83
     bhs lab_aeb5            ;aeab  f8 08
 
@@ -8545,7 +8546,7 @@ lab_af1d:
     ret                     ;af1d  20
 
 lab_af1e:
-    mov a, mem_012b+0       ;af1e  60 01 2b     KW1281 response byte 0: Block length
+    mov a, mem_012b+0       ;af1e  60 01 2b     KW1281 Response byte 0: Block length
     cmp a, mem_0083         ;af21  15 83
     bne lab_af34            ;af23  fc 0f
 
@@ -8593,7 +8594,7 @@ lab_af65:
     bbc mem_008b:4, lab_af1d ;af65  b4 8b b5
     clrb mem_008b:4         ;af68  a4 8b
 
-    mov a, mem_012b         ;af6a  60 01 2b     KW1281 response byte 0: Block length
+    mov a, mem_012b         ;af6a  60 01 2b     KW1281 Response byte 0: Block length
     cmp a, mem_0083         ;af6d  15 83
     bhs lab_af79            ;af6f  f8 08
 
@@ -8880,12 +8881,12 @@ lab_b12c:
     ret                     ;b135  20
 
 sub_b136:
-;Copy a template into the KW1281 response buffer at mem_012b
+;Copy a template into the KW1281 Response buffer at mem_012b
 ;
 ;A = Pointer to template
 ;mem_00a5 = Number of byte to copy
 ;
-    movw a, #mem_012b       ;b136  e4 01 2b     A = Pointer to first byte of KW1281 response buffer
+    movw a, #mem_012b       ;b136  e4 01 2b     A = Pointer to first byte of KW1281 Response buffer
     movw mem_0086, a        ;b139  d5 86        Store pointer in mem_0086
     jmp sub_b13e            ;b13b  21 b1 3e
 
@@ -8964,13 +8965,13 @@ lab_b194:
     mov a, mem_033d         ;b194  60 03 3d
     incw a                  ;b197  c0
     mov mem_033d, a         ;b198  61 03 3d
-    mov a, mem_0118+1       ;b19b  60 01 19     KW1281 Request byte 0: Block counter
+    mov a, mem_0118+1       ;b19b  60 01 19     KW1281 Request byte 1: Block counter
     mov a, mem_0118+3       ;b19e  60 01 1b     KW1281 Request byte 3
     xor a                   ;b1a1  52
     call sub_bbae           ;b1a2  31 bb ae
     mov a, mem_0118+3       ;b1a5  60 01 1b     KW1281 Request byte 3
-    mov mem_012b+1, a       ;b1a8  61 01 2c     KW1281 Response byte 1: Block counter
-    mov mem_0116, a         ;b1ab  61 01 16
+    mov mem_012b+1, a       ;b1a8  61 01 2c     Store it in KW1281 Response byte 1: Block counter
+    mov mem_0116, a         ;b1ab  61 01 16     Copy block counter into mem_0116
     mov mem_0081, #0x02     ;b1ae  85 81 02
     ret                     ;b1b1  20
 
@@ -8978,8 +8979,8 @@ sub_b1b2:
     mov mem_0081, a         ;b1b2  45 81
     call sub_bbae           ;b1b4  31 bb ae
     mov a, mem_0118+3       ;b1b7  60 01 1b     KW1281 Request byte 3
-    mov mem_012b+1, a       ;b1ba  61 01 2c     KW1281 Response byte 1: Block counter
-    mov mem_0116, a         ;b1bd  61 01 16
+    mov mem_012b+1, a       ;b1ba  61 01 2c     Store it in KW1281 Response byte 1: Block counter
+    mov mem_0116, a         ;b1bd  61 01 16     Copy block counter into mem_0116
     ret                     ;b1c0  20
 
 sub_b1c1:
@@ -8990,8 +8991,8 @@ sub_b1c1:
     mov a, #0x03            ;b1cb  04 03
     mov mem_0115, a         ;b1cd  61 01 15
     mov a, mem_0118+3       ;b1d0  60 01 1b     KW1281 Request byte 3
-    mov mem_012b+1, a       ;b1d3  61 01 2c     KW1281 Response byte 1: Block counter
-    mov mem_0116, a         ;b1d6  61 01 16
+    mov mem_012b+1, a       ;b1d3  61 01 2c     Store it in KW1281 Response byte 1: Block counter
+    mov mem_0116, a         ;b1d6  61 01 16     Copy block counter into mem_0116
     ret                     ;b1d9  20
 
 
@@ -9046,20 +9047,21 @@ sub_b20e_no_ack:
     movw a, #kw_no_ack      ;b20e  e4 ff 3b
     movw mem_0084, a        ;b211  d5 84        Pointer to KW1281 packet bytes
     mov mem_00a5, #0x05     ;b213  85 a5 05     5 bytes in KW1281 packet
-    call sub_b136           ;b216  31 b1 36     Copy into KW1281 response buffer at mem_012b
-    mov a, mem_0116         ;b219  60 01 16
+    call sub_b136           ;b216  31 b1 36     Copy into KW1281 Response buffer at mem_012b
+    mov a, mem_0116         ;b219  60 01 16     A = Block counter copied from KW1281 request packet
     jmp lab_b22e            ;b21c  21 b2 2e
 
 sub_b21f_no_ack:
     movw a, #kw_no_ack      ;b21f  e4 ff 3b
     movw mem_0084, a        ;b222  d5 84        Pointer to KW1281 packet bytes
     mov mem_00a5, #0x05     ;b224  85 a5 05     5 bytes in KW1281 packet
-    call sub_b136           ;b227  31 b1 36     Copy into KW1281 response buffer at mem_012b
-    mov a, mem_0116         ;b22a  60 01 16
-    incw a                  ;b22d  c0
+    call sub_b136           ;b227  31 b1 36     Copy into KW1281 Response buffer at mem_012b
+
+    mov a, mem_0116         ;b22a  60 01 16     A = Block counter copied from KW1281 request packet
+    incw a                  ;b22d  c0           Increment block counter
 
 lab_b22e:
-    mov mem_012b+3, a       ;b22e  61 01 2e     KW1281 response byte 3
+    mov mem_012b+3, a       ;b22e  61 01 2e     Store block counter in KW1281 Response byte 3
     call sub_bbae           ;b231  31 bb ae
     ret                     ;b234  20
 
@@ -9081,7 +9083,7 @@ sub_b235:
     ret                     ;b24a  20
 
 sub_b24b:
-    mov a, mem_012b+0       ;b24b  60 01 2b     KW1281 response byte 0: Block length
+    mov a, mem_012b+0       ;b24b  60 01 2b     KW1281 Response byte 0: Block length
     cmp a, mem_0083         ;b24e  15 83
     bne lab_b256            ;b250  fc 04
 
@@ -9099,7 +9101,7 @@ lab_b25a:
     setb uscr:1             ;b25a  a9 41
     movw a, #0x0000         ;b25c  e4 00 00
     mov a, mem_0083         ;b25f  05 83
-    movw a, #mem_012b       ;b261  e4 01 2b     KW1281 response byte 0
+    movw a, #mem_012b       ;b261  e4 01 2b     KW1281 Response byte 0
     clrc                    ;b264  81
     addcw a                 ;b265  23
     mov a, @a               ;b266  92
@@ -9201,12 +9203,12 @@ lab_b2c4:
     ret                     ;b2d3  20
 
 lab_b2d4_read:
-;Mode 0: Read word at mem_020f and put it in the KW1281 response buffer
+;Mode 0: Read word at mem_020f and put it in the KW1281 Response buffer
 ;
     mov mem_00a5, #0x06     ;b2d4  85 a5 06     6 bytes in KW1281 packet
     movw a, #kw_rw_login    ;b2d7  e4 ff 5d
     movw mem_0084, a        ;b2da  d5 84        Pointer to KW1281 packet bytes
-    call sub_b136           ;b2dc  31 b1 36     Copy into KW1281 response buffer at mem_012b
+    call sub_b136           ;b2dc  31 b1 36     Copy into KW1281 Response buffer at mem_012b
 
     movw a, mem_020f        ;b2df  c4 02 0f     Read word at mem_020f
     movw mem_012b+3, a      ;b2e2  d4 01 2e     Put it into KW1281 Response bytes 3 and 4
@@ -9410,21 +9412,21 @@ lab_b3c8:
 lab_b3cc:
 ;KW1281 ID code request/ECU info related
 ;(mem_0080=0x01, mem_0081=0x0c)
-    mov a, #0x08            ;b3cc  04 08        8 bytes in KW1281 response
-    mov mem_012b+0, a       ;b3ce  61 01 2b     KW1281 response byte 0: Block length
+    mov a, #0x08            ;b3cc  04 08        8 bytes in KW1281 Response
+    mov mem_012b+0, a       ;b3ce  61 01 2b     KW1281 Response byte 0: Block length
 
     mov a, #0xf6            ;b3d1  04 f6        0xF6 = KW1281 Block title: ASCII Data/ID code response
-    mov mem_012b+2, a       ;b3d3  61 01 2d     KW1281 response byte 2: Block title
+    mov mem_012b+2, a       ;b3d3  61 01 2d     KW1281 Response byte 2: Block title
 
-    mov a, mem_0116         ;b3d6  60 01 16
-    incw a                  ;b3d9  c0
-    mov mem_012b+1, a       ;b3da  61 01 2c     KW1281 response byte 1: Block counter
+    mov a, mem_0116         ;b3d6  60 01 16     A = Block counter copied from KW1281 request packet
+    incw a                  ;b3d9  c0           Increment block counter
+    mov mem_012b+1, a       ;b3da  61 01 2c     Store it in KW1281 Response byte 1: Block counter
 
     mov a, #0x00            ;b3dd  04 00
-    mov mem_012b+3, a       ;b3df  61 01 2e     KW1281 response byte 3: ? TODO
+    mov mem_012b+3, a       ;b3df  61 01 2e     KW1281 Response byte 3: ? TODO
 
     mov a, #0x03            ;b3e2  04 03
-    mov mem_012b+8, a       ;b3e4  61 01 33     KW1281 response byte 8: ? TODO probably block end
+    mov mem_012b+8, a       ;b3e4  61 01 33     KW1281 Response byte 8: ? TODO probably block end
 
     movw a, #mem_0175       ;b3e7  e4 01 75
     movw mem_0084, a        ;b3ea  d5 84        Pointer to KW1281 packet bytes
@@ -9611,7 +9613,7 @@ lab_b4ce:
     mov a, #0x06            ;b4de  04 06        A = Block length of 6 bytes
 
 lab_b4e0:
-    mov mem_012b+0, a       ;b4e0  61 01 2b     KW1281 response byte 0: Block length
+    mov mem_012b+0, a       ;b4e0  61 01 2b     KW1281 Response byte 0: Block length
     mov mem_0081, #0x04     ;b4e3  85 81 04
     jmp lab_b4f7            ;b4e6  21 b4 f7
 
@@ -9619,7 +9621,7 @@ lab_b4e9:
     mov mem_00a5, #0x07     ;b4e9  85 a5 07     7 bytes in KW1281 packet
     movw a, #kw_faults_none ;b4ec  e4 ff 44
     movw mem_0084, a        ;b4ef  d5 84        Pointer to KW1281 packet bytes
-    call sub_b136           ;b4f1  31 b1 36     Copy into KW1281 response buffer at mem_012b
+    call sub_b136           ;b4f1  31 b1 36     Copy into KW1281 Response buffer at mem_012b
     mov mem_0081, #0x03     ;b4f4  85 81 03
 
 lab_b4f7:
@@ -10061,44 +10063,44 @@ kw_group_2:
 
 kw_group_3:
 ;KW1281 Group Reading: Group 3 (Antenna)
-    .byte 0x0D              ;b726  0d          DATA '\r'    Number of bytes in KW1281 packet (block length + 1)
-    .byte 0x0C              ;b727  0c          DATA '\x0c'  Block length
-    .byte 0x00              ;b728  00          DATA '\x00'  Block counter
-    .byte 0xE7              ;b729  e7          DATA '\xe7'  Block title (0xE7 = Response to group reading)
+    .byte 0x0D              ;b726  0d          DATA '\r'    Number of bytes in KW1281 packet (block length + 1) mem_012b    mem_012b+0
+    .byte 0x0C              ;b727  0c          DATA '\x0c'  Block length                                        mem_012c    mem_012b+1
+    .byte 0x00              ;b728  00          DATA '\x00'  Block counter                                       mem_012d    mem_012b+2
+    .byte 0xE7              ;b729  e7          DATA '\xe7'  Block title (0xE7 = Response to group reading)      mem_012e    mem_012b+3
 
     ;Antenna Type
-    .byte 0x25              ;b72a  25          DATA '%'     type
-    .byte 0x01              ;b72b  01          DATA '\x01'  value a
-    .byte 0x00              ;b72c  00          DATA '\x00'  value b
+    .byte 0x25              ;b72a  25          DATA '%'     type                                                mem_012f    mem_012b+4
+    .byte 0x01              ;b72b  01          DATA '\x01'  value a                                             mem_0130    mem_012b+5
+    .byte 0x00              ;b72c  00          DATA '\x00'  value b                                             mem_0131    mem_012b+6
 
     ;Antenna
-    .byte 0x25              ;b72d  25          DATA '%'     type
-    .byte 0x00              ;b72e  00          DATA '\x00'  value a
-    .byte 0xF4              ;b72f  f4          DATA '\xf4'  value b
+    .byte 0x25              ;b72d  25          DATA '%'     type                                                mem_0132    mem_012b+7
+    .byte 0x00              ;b72e  00          DATA '\x00'  value a                                             mem_0133    mem_012b+8
+    .byte 0xF4              ;b72f  f4          DATA '\xf4'  value b                                             mem_0134    mem_012b+9
 
     ;Status
-    .byte 0x25              ;b730  25          DATA '%'     type
-    .byte 0x00              ;b731  00          DATA '\x00'  value a
-    .byte 0x00              ;b732  00          DATA '\x00'  value b
+    .byte 0x25              ;b730  25          DATA '%'     type                                                mem_0135    mem_012b+0xa
+    .byte 0x00              ;b731  00          DATA '\x00'  value a                                             mem_0136    mem_012b+0xb
+    .byte 0x00              ;b732  00          DATA '\x00'  value b                                             mem_0137    mem_012b+0xc
 
     .byte 0x03              ;b733  03          DATA '\x03'  Block end
 
 kw_group_5:
 ;KW1281 Group Reading: Group 5 (CD Changer)
-    .byte 0x0A              ;b734  0a          DATA '\n'    Number of bytes in KW1281 packet (block length + 1)
-    .byte 0x09              ;b735  09          DATA '\t'    Block length
-    .byte 0x00              ;b736  00          DATA '\x00'  Block counter
-    .byte 0xE7              ;b737  e7          DATA '\xe7'  Block title (0xE7 = Response to group reading)
+    .byte 0x0A              ;b734  0a          DATA '\n'    Number of bytes in KW1281 packet (block length + 1) mem_012b    mem_012b+0
+    .byte 0x09              ;b735  09          DATA '\t'    Block length                                        mem_012c    mem_012b+1
+    .byte 0x00              ;b736  00          DATA '\x00'  Block counter                                       mem_012d    mem_012b+2
+    .byte 0xE7              ;b737  e7          DATA '\xe7'  Block title (0xE7 = Response to group reading)      mem_012e    mem_012b+3
 
     ;Component
-    .byte 0x25              ;b738  25          DATA '%'     type
-    .byte 0x00              ;b739  00          DATA '\x00'  value a
-    .byte 0xF6              ;b73a  f6          DATA '\xf6'  value b
+    .byte 0x25              ;b738  25          DATA '%'     type                                                mem_012f    mem_012b+4
+    .byte 0x00              ;b739  00          DATA '\x00'  value a                                             mem_0130    mem_012b+5
+    .byte 0xF6              ;b73a  f6          DATA '\xf6'  value b                                             mem_0131    mem_012b+6
 
     ;Status
-    .byte 0x25              ;b73b  25          DATA '%'     type
-    .byte 0x00              ;b73c  00          DATA '\x00'  value a
-    .byte 0x00              ;b73d  00          DATA '\x00'  value b
+    .byte 0x25              ;b73b  25          DATA '%'     type                                                mem_0132    mem_012b+7
+    .byte 0x00              ;b73c  00          DATA '\x00'  value a                                             mem_0133    mem_012b+8
+    .byte 0x00              ;b73d  00          DATA '\x00'  value b                                             mem_0134    mem_012b+9
 
     .byte 0x03              ;b73e  03          DATA '\x03'  Block end
 
@@ -10192,35 +10194,34 @@ lab_b77c:
 ;Group Reading related
     mov a, mem_0118+3       ;b77c  60 01 1b     KW1281 Request byte 3: Group number
     cmp a, #0x01            ;b77f  14 01
-    beq lab_b7a2            ;b781  fd 1f        ;Group 1
+    beq lab_b7a2            ;b781  fd 1f        Group 1 (General)
 
     cmp a, #0x02            ;b783  14 02
-    beq lab_b7b2            ;b785  fd 2b        ;Group 2
+    beq lab_b7b2            ;b785  fd 2b        Group 2 (Speakers)
 
     cmp a, #0x03            ;b787  14 03
-    beq lab_b7d4            ;b789  fd 49        ;Group 3
+    beq lab_b7d4            ;b789  fd 49        Group 3 (Antenna)
 
     cmp a, #0x04            ;b78b  14 04
-    beq lab_b7ec            ;b78d  fd 5d        ;Group 4
+    beq lab_b7ec            ;b78d  fd 5d        Group 4 (Amplifier)
 
     cmp a, #0x05            ;b78f  14 05
-    beq lab_b7f2            ;b791  fd 5f        ;Group 5
+    beq lab_b7f2            ;b791  fd 5f        Group 5 (CD Changer)
 
     cmp a, #0x06            ;b793  14 06
-    beq lab_b804            ;b795  fd 6d        ;Group 6
+    beq lab_b804            ;b795  fd 6d        Group 6 (External Display)
 
     cmp a, #0x07            ;b797  14 07
-    beq lab_b811            ;b799  fd 76        ;Group 7
+    beq lab_b811            ;b799  fd 76        Group 7 (Steering Wheel Control)
 
     cmp a, #0x19            ;b79b  14 19
-    beq lab_b81a            ;b79d  fd 7b        ;Group 25
+    beq lab_b81a            ;b79d  fd 7b        Group 25 (Protection)
 
     jmp lab_b822            ;b79f  21 b8 22
 
 lab_b7a2:
 ;Group Reading related
-;Group 1 (General:
-
+;Group 1 (General)
 ;KW1281 Group Reading: Group 1 (General)
 ;GALA-Signal, Supply Voltage Terminal 30, Illumumination %, S-Contact)
     setb mem_008e:3         ;b7a2  ab 8e
@@ -10245,7 +10246,7 @@ lab_b7b2:
     mov mem_019b, a         ;b7c9  61 01 9b
 lab_b7cc:
     setb mem_008e:4         ;b7cc  ac 8e
-    movw ix, #kw_group_2      ;b7ce  e6 b7 15
+    movw ix, #kw_group_2    ;b7ce  e6 b7 15
     jmp lab_b7fc            ;b7d1  21 b7 fc
 
 lab_b7d4:
@@ -10293,7 +10294,7 @@ lab_b811:
     jmp lab_b82a            ;b817  21 b8 2a
 
 lab_b81a:
-;Group Reading related: Group 25: ??? TODO What is group 25?
+;Group Reading related: Group 25 (Protection)
     mov a, #0x00            ;b81a  04 00
     mov mem_0194, a         ;b81c  61 01 94
     jmp lab_b841            ;b81f  21 b8 41
@@ -10305,17 +10306,19 @@ lab_b822:
     jmp lab_b8dd            ;b827  21 b8 dd
 
 lab_b82a:
+;Called with IX pointing to a KW1281 Response template (e.g. kw_group_7)
     mov a, mem_0194         ;b82a  60 01 94
     bne lab_b844            ;b82d  fc 15
-    mov a, @ix+0x00         ;b82f  06 00
+    mov a, @ix+0x00         ;b82f  06 00        A = number of bytes from template
     mov mem_00a5, a         ;b831  45 a5        Number of bytes in KW1281 packet
-    incw ix                 ;b833  c2
-    movw ep, #mem_012b      ;b834  e7 01 2b
+
+    incw ix                 ;b833  c2           Incrment IX to second byte in template (Block length)
+    movw ep, #mem_012b      ;b834  e7 01 2b     EP = Pointer to KW1281 Response buffer
     call sub_b166           ;b837  31 b1 66
 
-    mov a, mem_0116         ;b83a  60 01 16
-    incw a                  ;b83d  c0
-    mov mem_012b+1, a       ;b83e  61 01 2c     KW1281 response byte 1: Block counter
+    mov a, mem_0116         ;b83a  60 01 16     A = Block counter copied from KW1281 request packet
+    incw a                  ;b83d  c0           Increment block counter
+    mov mem_012b+1, a       ;b83e  61 01 2c     Store it in KW1281 Response byte 1: Block counter
 
 lab_b841:
     mov mem_0081, #0x03     ;b841  85 81 03
@@ -10329,12 +10332,13 @@ lab_b845:
     mov a, mem_0118+3       ;b845  60 01 1b     KW1281 Request byte 3: Group number
     jmp lab_b8e3            ;b848  21 b8 e3
 
+
 lab_b84b:
 ;Group 1 (General)
     mov a, mem_013e         ;b84b  60 01 3e
-    mov mem_0133, a         ;b84e  61 01 33
+    mov mem_012b+8, a       ;b84e  61 01 33     KW1281 Response byte 8: Supply Voltage (Terminal 30): value b
     mov a, mem_0255         ;b851  60 02 55
-    mov mem_0136, a         ;b854  61 01 36
+    mov mem_012b+0x0b, a    ;b854  61 01 36     KW1281 Response byte 11: Illumination % (Terminal 5d): value b
     clrb mem_008e:0         ;b857  a0 8e
     mov a, #0x87            ;b859  04 87
     bbc mem_00eb:6, lab_b862 ;b85b  b6 eb 04
@@ -10342,8 +10346,9 @@ lab_b84b:
     mov a, #0x88            ;b860  04 88
 
 lab_b862:
-    mov mem_0139, a         ;b862  61 01 39
+    mov mem_012b+0xe, a     ;b862  61 01 39     KW1281 Response byte 14: S-Contact Status: value b
     jmp lab_b912            ;b865  21 b9 12
+
 
 lab_b868:
 ;Group 2 (Speakers)
@@ -10352,13 +10357,14 @@ lab_b868:
     blo lab_b881            ;b86d  f9 12
     mov a, mem_02fb         ;b86f  60 02 fb
     call sub_b91d           ;b872  31 b9 1d
-    mov mem_0133, a         ;b875  61 01 33
+    mov mem_012b+8, a       ;b875  61 01 33     KW1281 Response byte 8: Front Status: value b
     mov a, mem_02fc         ;b878  60 02 fc
     call sub_b91d           ;b87b  31 b9 1d
-    mov mem_0139, a         ;b87e  61 01 39
+    mov mem_012b+0xe, a     ;b87e  61 01 39     KW1281 Response byte 14: Rear Status: value b
 
 lab_b881:
     jmp lab_b912            ;b881  21 b9 12
+
 
 lab_b884:
 ;Group 3 (Antenna)
@@ -10370,35 +10376,39 @@ lab_b88b:
     mov a, #0x12            ;b88b  04 12
 
 lab_b88d:
-    mov mem_0130, a         ;b88d  61 01 30
+    mov mem_012b+5, a       ;b88d  61 01 30     KW1281 Response byte 5: Antenna Type: value b
     mov a, mem_0141         ;b890  60 01 41
     call sub_b91d           ;b893  31 b9 1d
-    mov mem_0136, a         ;b896  61 01 36
+    mov mem_012b+0x0b, a    ;b896  61 01 36     KW1281 Response byte 11: Antenna Status: value b
     jmp lab_b912            ;b899  21 b9 12
+
 
 lab_b89c:
 ;Group 5 (CD Changer)
     mov a, mem_0142         ;b89c  60 01 42
     call sub_b930           ;b89f  31 b9 30
-    mov mem_0133, a         ;b8a2  61 01 33
+    mov mem_012b+8, a       ;b8a2  61 01 33     KW1281 Response byte 8: Status: value b
     jmp lab_b912            ;b8a5  21 b9 12
+
 
 lab_b8a8:
 ;Group 6 (External Display)
     mov a, mem_0143         ;b8a8  60 01 43
     call sub_b930           ;b8ab  31 b9 30
-    mov mem_0133, a         ;b8ae  61 01 33
+    mov mem_012b+8, a       ;b8ae  61 01 33     KW1281 Response byte 8: Status: value b
     jmp lab_b912            ;b8b1  21 b9 12
+
 
 lab_b8b4:
 ;Group 7 (Steering Wheel Control)
     mov a, mem_02cb         ;b8b4  60 02 cb
-    mov mem_0130, a         ;b8b7  61 01 30
+    mov mem_012b+5, a       ;b8b7  61 01 30     KW1281 Response byte 5: Steering Wheel Buttons: value b
     cmp a, #0x20            ;b8ba  14 20
     beq lab_b912            ;b8bc  fd 54
     mov a, #0x30            ;b8be  04 30
-    mov mem_012b+4, a       ;b8c0  61 01 2f     KW 1281 Response byte 4
+    mov mem_012b+4, a       ;b8c0  61 01 2f     KW1281 Response byte 4: Steering Wheel Buttons: value a
     jmp lab_b912            ;b8c3  21 b9 12
+
 
 lab_b8c6:
 ;Group 4 (Amplifier)
@@ -10408,8 +10418,9 @@ lab_b8c6:
     mov a, #0x01            ;b8cd  04 01
 
 lab_b8cf:
-    mov mem_0130, a         ;b8cf  61 01 30
+    mov mem_012b+5, a       ;b8cf  61 01 30     KW1281 Response byte 5: Amplifier Output: value b
     jmp lab_b912            ;b8d2  21 b9 12
+
 
 lab_b8d5:
 ;Group 25 (Protection)
@@ -10418,8 +10429,10 @@ lab_b8d5:
     jmp lab_b912            ;b8da  21 b9 12
 
 lab_b8dd:
+;Unrecognized Group
     call sub_b21f_no_ack    ;b8dd  31 b2 1f
     jmp lab_b912            ;b8e0  21 b9 12
+
 
 lab_b8e3:
 ;Called with A = Group Number
@@ -10968,7 +10981,7 @@ mem_0080_is_0f:
 
 
 sub_bba1:
-    call sub_b136           ;bba1  31 b1 36     Copy into KW1281 response buffer at mem_012b
+    call sub_b136           ;bba1  31 b1 36     Copy into KW1281 Response buffer at mem_012b
 
 sub_bba4:
     mov a, #0x01            ;bba4  04 01
@@ -10976,7 +10989,7 @@ sub_bba4:
     bne call_sub_bbbf       ;bba9  fc 14        BRANCH_ALWAYS_TAKEN
 
 sub_bbab:
-    call sub_b136           ;bbab  31 b1 36     Copy into KW1281 response buffer at mem_012b
+    call sub_b136           ;bbab  31 b1 36     Copy into KW1281 Response buffer at mem_012b
 
 sub_bbae:
     mov a, #0x01            ;bbae  04 01
@@ -10985,9 +10998,9 @@ sub_bbae:
     mov mem_032e, a         ;bbb5  61 03 2e
 
 sub_bbb8:
-    mov a, mem_0116         ;bbb8  60 01 16
-    incw a                  ;bbbb  c0
-    mov mem_012b+1, a       ;bbbc  61 01 2c     KW1281 Response buffer byte 1: Block counter
+    mov a, mem_0116         ;bbb8  60 01 16     A = Block counter copied from KW1281 request packet
+    incw a                  ;bbbb  c0           Increment block counter
+    mov mem_012b+1, a       ;bbbc  61 01 2c     Store it in KW1281 Response buffer byte 1: Block counter
 
 call_sub_bbbf:
     call clr_82_83          ;bbbf  31 e0 b8     Zeroes mem_0082 and mem_0083
@@ -17460,15 +17473,17 @@ sub_de60:
     ret                     ;de78  20
 
 mem_de79:
-    .word lab_e21a          ;de79  e2 1a       VECTOR
-    .word lab_e2df          ;de7b  e2 df       VECTOR
-    .word lab_e3b4          ;de7d  e3 b4       VECTOR
-    .word lab_e328          ;de7f  e3 28       VECTOR
-    .word lab_e328          ;de81  e3 28       VECTOR
-    .word lab_e328          ;de83  e3 28       VECTOR
-    .word lab_e301          ;de85  e3 01       VECTOR
-    .word lab_e328          ;de87  e3 28       VECTOR
-    .word lab_e316          ;de89  e3 16       VECTOR
+;Table used with mem_0388
+    .word lab_e21a          ;de79  e2 1a       VECTOR 0
+    .word lab_e2df          ;de7b  e2 df       VECTOR 1
+    .word lab_e3b4          ;de7d  e3 b4       VECTOR 2  Block title = 0x09 (Acknowledge)
+    .word lab_e328          ;de7f  e3 28       VECTOR 3  Block title = 0x00 (ID code request/ECU Info)
+                            ;                            or Block title = 0xF6 (ASCII)
+    .word lab_e328          ;de81  e3 28       VECTOR 4
+    .word lab_e328          ;de83  e3 28       VECTOR 5
+    .word lab_e301          ;de85  e3 01       VECTOR 6
+    .word lab_e328          ;de87  e3 28       VECTOR 7  Block title = 0x0a (No Acknowledge)
+    .word lab_e316          ;de89  e3 16       VECTOR 8
 
 sub_de8b:
     bbc mem_00f9:0, lab_de98 ;de8b  b0 f9 0a
@@ -17502,27 +17517,27 @@ sub_deac:
     beq lab_dec8            ;deb9  fd 0d
     cmp a, #0xf6            ;debb  14 f6        Is it 0xF6 (ASCII)?
     beq lab_decb            ;debd  fd 0c
-    mov a, #0x08            ;debf  04 08
+    mov a, #0x08            ;debf  04 08        A = value to be stored in mem_0388
     ret                     ;dec1  20
 
 lab_dec2:
 ;Block title = 0x00 (ID code request/ECU Info)
-    mov a, #0x03            ;dec2  04 03
+    mov a, #0x03            ;dec2  04 03        A = value to be stored in mem_0388
     ret                     ;dec4  20
 
 lab_dec5:
 ;Block title = 0x0a (No Acknowledge)
-    mov a, #0x07            ;dec5  04 07
+    mov a, #0x07            ;dec5  04 07        A = value to be stored in mem_0388
     ret                     ;dec7  20
 
 lab_dec8:
 ;Block title = 0x09 (Acknowledge)
-    mov a, #0x02            ;dec8  04 02
+    mov a, #0x02            ;dec8  04 02        A = value to be stored in mem_0388
     ret                     ;deca  20
 
 lab_decb:
 ;Block title = 0xF6 (ASCII)
-    mov a, #0x03            ;decb  04 03
+    mov a, #0x03            ;decb  04 03        A = value to be stored in mem_0388
     ret                     ;decd  20
 
 sub_dece:
@@ -17531,12 +17546,13 @@ sub_dece:
     jmp lab_dee9            ;ded4  21 de e9
 
 lab_ded7:
-    mov a, mem_0388         ;ded7  60 03 88
-    cmp a, #0x08            ;deda  14 08
+    mov a, mem_0388         ;ded7  60 03 88     A = mem_0388 (value derived from block title)
+    cmp a, #0x08            ;deda  14 08        Is in range of mem_de79 table?
     beq lab_dee0            ;dedc  fd 02
     bhs lab_dee9            ;dede  f8 09
 
 lab_dee0:
+;mem_0388 is 0 - 0x08
     mov a, mem_0388         ;dee0  60 03 88
     movw a, #mem_de79       ;dee3  e4 de 79
     call sub_e73c           ;dee6  31 e7 3c
@@ -17643,12 +17659,13 @@ lab_df68:
 lab_df84:
     clrb uscr:1             ;df84  a1 41
     mov a, mem_0118+1       ;df86  60 01 19     KW1281 Request byte 1: Block counter
-    mov mem_0116, a         ;df89  61 01 16
+    mov mem_0116, a         ;df89  61 01 16     Copy block counter into mem_0116
     setb mem_00f9:0         ;df8c  a8 f9
     mov a, #0x00            ;df8e  04 00
     beq lab_df99            ;df90  fd 07        BRANCH_ALWAYS_TAKEN
 
 lab_df92:
+;Block length >= mem_0082
     mov a, #0x03            ;df92  04 03
     mov mem_0390, a         ;df94  61 03 90
     mov a, #0x03            ;df97  04 03
@@ -17663,6 +17680,7 @@ lab_df9c:
     jmp lab_e04d              ;df9d 21 e0 4d
 
 lab_dfa0:
+;Block length >= 16
     mov mem_0082, #0x00     ;dfa0  85 82 00
     clrb mem_00f9:3         ;dfa3  a3 f9
     clrb mem_00f9:6         ;dfa5  a6 f9
@@ -17859,7 +17877,7 @@ lab_e0d0:
     ret                     ;e0e0  20
 
 sub_e0e1:
-    mov a, mem_012b+0       ;e0e1  60 01 2b     KW1281 response byte 0: Block length
+    mov a, mem_012b+0       ;e0e1  60 01 2b     KW1281 Response byte 0: Block length
     cmp a, mem_0083         ;e0e4  15 83
     bne lab_e0ec            ;e0e6  fc 04
     clrb mem_00f9:3         ;e0e8  a3 f9
@@ -18244,8 +18262,8 @@ sub_e338_no_ack_2:
     movw a, #kw_no_ack_2    ;e33d  e4 dd 5d
     movw mem_0084, a        ;e340  d5 84        Pointer to KW1281 packet bytes
     mov mem_00a5, #0x05     ;e342  85 a5 05     5 bytes in KW1281 packet
-    call sub_b136           ;e345  31 b1 36     Copy into KW1281 response buffer at mem_012b
-    mov a, mem_0116         ;e348  60 01 16
+    call sub_b136           ;e345  31 b1 36     Copy into KW1281 Response buffer at mem_012b
+    mov a, mem_0116         ;e348  60 01 16     A = Block counter copied from KW1281 request packet
     jmp lab_e35f            ;e34b  21 e3 5f
 
 sub_e34e_no_ack_2:
@@ -18253,25 +18271,25 @@ sub_e34e_no_ack_2:
     movw a, #kw_no_ack_2    ;e350  e4 dd 5d
     movw mem_0084, a        ;e353  d5 84        Pointer to KW1281 packet bytes
     mov mem_00a5, #0x05     ;e355  85 a5 05     5 bytes in KW1281 packet
-    call sub_b136           ;e358  31 b1 36     Copy into KW1281 response buffer at mem_012b
-    mov a, mem_0116         ;e35b  60 01 16
+    call sub_b136           ;e358  31 b1 36     Copy into KW1281 Response buffer at mem_012b
+    mov a, mem_0116         ;e35b  60 01 16     A = Block counter copied from KW1281 request packet
     incw a                  ;e35e  c0
 
 lab_e35f:
-    mov mem_012b+3, a       ;e35f  61 01 2e     KW1281 response buffer byte 3
+    mov mem_012b+3, a       ;e35f  61 01 2e     KW1281 Response buffer byte 3
     call sub_e369           ;e362  31 e3 69
     ret                     ;e365  20
 
 sub_e366:
-    call sub_b136           ;e366  31 b1 36     Copy into KW1281 response buffer at mem_012b
+    call sub_b136           ;e366  31 b1 36     Copy into KW1281 Response buffer at mem_012b
 
 sub_e369:
     mov a, #0x01            ;e369  04 01
     mov mem_038a, a         ;e36b  61 03 8a
 
-    mov a, mem_0116         ;e36e  60 01 16
-    incw a                  ;e371  c0
-    mov mem_012b+1, a       ;e372  61 01 2c     KW1281 response buffer byte 1: Block counter
+    mov a, mem_0116         ;e36e  60 01 16     A = Block counter copied from KW1281 request packet
+    incw a                  ;e371  c0           Increment block counter
+    mov mem_012b+1, a       ;e372  61 01 2c     Store it in KW1281 Response buffer byte 1: Block counter
 
     jmp clr_82_83           ;e375  21 e0 b8     Zeroes mem_0082 and mem_0083
 
@@ -18370,7 +18388,7 @@ lab_e3d9:
     movw a, #kw_unknown_title_d7 ;e3ee  e4 dd 66
     movw mem_0084, a             ;e3f1  d5 84        Pointer to KW1281 packet bytes
     mov mem_00a5, #0x08          ;e3f3  85 a5 08     8 bytes in KW1281 packet
-    call sub_b136                ;e3f6  31 b1 36     Copy into KW1281 response buffer at mem_012b
+    call sub_b136                ;e3f6  31 b1 36     Copy into KW1281 Response buffer at mem_012b
 
     mov a, mem_03ab         ;e3f9  60 03 ab
     mov mem_012b+6, a       ;e3fc  61 01 31     KW1281 Response byte 6
@@ -18387,20 +18405,20 @@ lab_e3d9:
     mov a, #0x11            ;e411  04 11
     mov mem_038c, a         ;e413  61 03 8c
 
-    mov a, #0x0b            ;e416  04 0b
-    bne lab_e47d            ;e418  fc 63       BRANCH_ALWAYS_TAKEN
+    mov a, #0x0b            ;e416  04 0b        A = value to store mem_038b
+    bne lab_e47d            ;e418  fc 63        BRANCH_ALWAYS_TAKEN
 
     ;0xea41 looks unreachable
-    mov a, #0x0a            ;e41a  04 0a
-    bne lab_e47d            ;e41c  fc 5f       BRANCH_ALWAYS_TAKEN
+    mov a, #0x0a            ;e41a  04 0a        A = value to store in mem_038b
+    bne lab_e47d            ;e41c  fc 5f        BRANCH_ALWAYS_TAKEN
 
 lab_e41e:
 ;mem_038b case 0x0b
     mov a, mem_038c         ;e41e  60 03 8c
     bne lab_e480            ;e421  fc 5d
     call sub_e369           ;e423  31 e3 69
-    mov a, #0x02            ;e426  04 02
-    bne lab_e47d            ;e428  fc 53       BRANCH_ALWAYS_TAKEN
+    mov a, #0x02            ;e426  04 02        A = value to store in mem_038b
+    bne lab_e47d            ;e428  fc 53        BRANCH_ALWAYS_TAKEN
 
 lab_e42a:
 ;mem_038b case 2
@@ -18412,8 +18430,8 @@ lab_e42a:
     mov mem_0391, a         ;e436  61 03 91
     mov a, #0x19            ;e439  04 19
     mov mem_038c, a         ;e43b  61 03 8c
-    mov a, #0x03            ;e43e  04 03
-    bne lab_e47d            ;e440  fc 3b       BRANCH_ALWAYS_TAKEN
+    mov a, #0x03            ;e43e  04 03        A = value to store in mem_038b
+    bne lab_e47d            ;e440  fc 3b        BRANCH_ALWAYS_TAKEN
 
 lab_e442:
 ;mem_038b case 3
@@ -18431,7 +18449,7 @@ lab_e44c:
     call sub_e32b           ;e459  31 e3 2b
 
 lab_e45c:
-    mov a, #0x02            ;e45c  04 02
+    mov a, #0x02            ;e45c  04 02        A = value to store in mem_038b
     bne lab_e47d            ;e45e  fc 1d        BRANCH_ALWAYS_TAKEN
 
 lab_e460:
@@ -18451,7 +18469,7 @@ lab_e46b:
 
 lab_e47b:
 ;Block title 0x3d (??? Security access)
-    mov a, #0x04            ;e47b  04 04
+    mov a, #0x04            ;e47b  04 04        A = value to store in mem_038b
 
 lab_e47d:
     mov mem_038b, a         ;e47d  61 03 8b
@@ -18467,15 +18485,15 @@ lab_e481:
     beq lab_e46b            ;e488  fd e1
     call sub_e369           ;e48a  31 e3 69
     mov a, mem_0118+3       ;e48d  60 01 1b     KW1281 Request byte 3
-    mov mem_012b+1, a       ;e490  61 01 2c     KW1281 Response byte 1: Block counter
-    mov mem_0116, a         ;e493  61 01 16
-    mov a, #0x02            ;e496  04 02
+    mov mem_012b+1, a       ;e490  61 01 2c     Store it in KW1281 Response byte 1: Block counter
+    mov mem_0116, a         ;e493  61 01 16     Copy block counter into mem_0116
+    mov a, #0x02            ;e496  04 02        A = value to store in mem_038b
     bne lab_e47d            ;e498  fc e3        BRANCH_ALWAYS_TAKEN
 
 lab_e49a:
     mov a, #0x64            ;e49a  04 64
     mov mem_038c, a         ;e49c  61 03 8c
-    mov a, #0x0c            ;e49f  04 0c
+    mov a, #0x0c            ;e49f  04 0c        A = value to store in mem_038b
     bne lab_e47d            ;e4a1  fc da        BRANCH_ALWAYS_TAKEN
 
 lab_e4a3:
@@ -18484,7 +18502,7 @@ lab_e4a3:
     bne lab_e480            ;e4a6  fc d8
     call sub_e037           ;e4a8  31 e0 37
     call sub_de42           ;e4ab  31 de 42
-    mov a, #0x00            ;e4ae  04 00
+    mov a, #0x00            ;e4ae  04 00        A = value to store in mem_0389 and mem_038b
     mov mem_0389, a         ;e4b0  61 03 89
     beq lab_e47d            ;e4b3  fd c8        BRANCH_ALWAYS_TAKEN
 
