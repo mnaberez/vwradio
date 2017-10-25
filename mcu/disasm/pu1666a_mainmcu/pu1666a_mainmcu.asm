@@ -743,7 +743,7 @@ irq2_80be:
     pushw a                 ;80c0  40
     mov tmcr, #0x00         ;80c1  85 18 00
     movw a, #0xf855         ;80c4  e4 f8 55
-    movw tchr, a            ;80c7  d5 19
+    movw tchr, a            ;80c7  d5 19        16-bit timer count register high
     mov tmcr, #0x23         ;80c9  85 18 23
     clrb tmcr:2             ;80cc  a2 18
     pushw ix                ;80ce  41
@@ -1032,13 +1032,14 @@ sub_826e:
     mov ilr2, #0x0b         ;8271  85 7d 0b
     mov ilr3, #0xbc         ;8274  85 7e bc
     movw a, #0xf855         ;8277  e4 f8 55
-    movw tchr, a            ;827a  d5 19
+    movw tchr, a            ;827a  d5 19        16-bit timer count register high
     mov tmcr, #0x23         ;827c  85 18 23
     mov eic1, #0x37         ;827f  85 38 37
     mov eic2, #0x40         ;8282  85 39 40
     mov eie2, #0x02         ;8285  85 3a 02
     mov eif2, #0x00         ;8288  85 3b 00
-    mov uscr, #0x08         ;828b  85 41 08
+    mov uscr, #0b00001000   ;828b  85 41 08     Set UART's TXOE to serial data output enabled,
+                            ;                   everything else diabled
     movw a, #0xffff         ;828e  e4 ff ff
     movw mem_008f, a        ;8291  d5 8f
     movw mem_0398, a        ;8293  d4 03 98
@@ -6179,8 +6180,10 @@ lab_a104:
 lab_a10b:
     bhs lab_a09c            ;a10b  f8 8f
     call sub_b974           ;a10d  31 b9 74
+
     movw a, mem_03b0        ;a110  c4 03 b0
     movw mem_03ab, a        ;a113  d4 03 ab
+
     movw a, mem_03b2        ;a116  c4 03 b2
     movw mem_03ad, a        ;a119  d4 03 ad
 
@@ -7971,7 +7974,7 @@ mem_ac03:
     .word mem_0080_is_0d          ;ac1d  b1 89       VECTOR     No Acknowledge
     .word mem_0080_is_0e          ;ac1f  b1 ec       VECTOR     Unrecognized Block Title
     .word mem_0080_is_0f          ;ac21  bb 9e       VECTOR     End Session
-    .word mem_0080_is_10          ;ac23  b2 b9       VECTOR     Read or write RAM word related to login
+    .word mem_0080_is_10          ;ac23  b2 b9       VECTOR     Read or write login word
 
 sub_ac25:
     bbs mem_008b:2, lab_ac2e ;ac25  ba 8b 06
@@ -8144,7 +8147,7 @@ mem_ad1f:
 ;0x0C        0x19            Protected: Read EEPROM
 ;0x0D        0x0A            No Acknowledge
 ;0x0F        0x06            End Session
-;0x10        0xF0            Read or write RAM word related to login
+;0x10        0xF0            Read or write login word
 ;
     ;ID code request/ECU Info
     .byte 0x00              ;ad1f  00          DATA '\x00'  Block title 0x00
@@ -8211,7 +8214,7 @@ mem_ad1f:
     .byte 0x0D              ;ad50  0d          DATA '\r'    mem_0080 = 0x0d
     .word lab_ad9f
 
-    ;Read or write RAM word related to login
+    ;Read or write login word
     .byte 0xF0              ;ad53  f0          DATA '\xf0'  Block title 0x0f
     .byte 0x10              ;ad54  10          DATA '\x10'  mem_0080 = 0x10
     .word lab_ad9f
@@ -8289,7 +8292,7 @@ lab_ad9f:
 ;  Block title 0x10: Recoding
 ;  Block title 0x2b: Login
 ;  Block title 0x0a: No Acknowledge
-;  Block title 0xf0: Read or write RAM word related to login
+;  Block title 0xf0: Read or write login word
 ;
     xchw a, t               ;ad9f  43
     ret                     ;ada0  20
@@ -8383,7 +8386,7 @@ lab_adf6:
     setb mem_008b:7         ;ae1a  af 8b
 
 lab_ae1c:
-    clrb uscr:1             ;ae1c  a1 41
+    clrb uscr:1             ;ae1c  a1 41        Disable UART receive interrupt
     mov a, mem_0118+1       ;ae1e  60 01 19     KW1281 Request byte 1: Block counter
     mov mem_0116, a         ;ae21  61 01 16     Copy block counter into mem_0116
     setb mem_008b:0         ;ae24  a8 8b
@@ -8562,7 +8565,7 @@ lab_af34:
 
 lab_af36:
     clrb mem_008b:4         ;af36  a4 8b
-    setb uscr:1             ;af38  a9 41
+    setb uscr:1             ;af38  a9 41        Enable UART receive interrupt
     mov a, mem_0080         ;af3a  05 80
     cmp a, #0x0c            ;af3c  14 0c        0x0C = mem_0080 value for KW1281 Protected: Read EEPROM
     bne lab_af46            ;af3e  fc 06
@@ -8643,7 +8646,7 @@ lab_afa8:
     mov txdr, a             ;afb4  45 43        Send KW1281 byte out UART
     clrb mem_008b:6         ;afb6  a6 8b
     clrb mem_008b:7         ;afb8  a7 8b
-    setb uscr:1             ;afba  a9 41
+    setb uscr:1             ;afba  a9 41        Enable UART receive interrupt
     mov a, #0x00            ;afbc  04 00
     mov mem_0112, a         ;afbe  61 01 12
     ret                     ;afc1  20
@@ -9098,14 +9101,17 @@ lab_b258:
 
 lab_b25a:
 ;TODO looks like sending a KW1281 packet
-    setb uscr:1             ;b25a  a9 41
+    setb uscr:1             ;b25a  a9 41        Enable UART receive interrupt
+
     movw a, #0x0000         ;b25c  e4 00 00
     mov a, mem_0083         ;b25f  05 83
+
     movw a, #mem_012b       ;b261  e4 01 2b     KW1281 Response byte 0
     clrc                    ;b264  81
     addcw a                 ;b265  23
     mov a, @a               ;b266  92
     mov mem_0089, a         ;b267  45 89        KW1281 byte to send = A
+
     mov a, mem_0083         ;b269  05 83
     incw a                  ;b26b  c0
     mov mem_0083, a         ;b26c  45 83
@@ -9129,7 +9135,8 @@ sub_b280:
     mov a, rxdr             ;b283  05 43
     mov mem_0088, a         ;b285  45 88        KW1281 byte received
 
-    clrb uscr:7             ;b287  a7 41
+    clrb uscr:7             ;b287  a7 41        Clear all UART receive error flags
+
     clrb mem_008c:4         ;b289  a4 8c
     jmp lab_b2b6            ;b28b  21 b2 b6
 lab_b28e:
@@ -9142,14 +9149,18 @@ lab_b295:
 
     setb mem_008b:6         ;b299  ae 8b
     setb mem_008b:4         ;b29b  ac 8b
-    clrb uscr:7             ;b29d  a7 41
+
+    clrb uscr:7             ;b29d  a7 41        Clear all UART receive error flags
+
     jmp lab_b2b6            ;b29f  21 b2 b6
 lab_b2a2:
     mov a, rxdr             ;b2a2  05 43
     mov mem_0088, a         ;b2a4  45 88        KW1281 byte received
 
     setb mem_008b:7         ;b2a6  af 8b
-    clrb uscr:7             ;b2a8  a7 41
+
+    clrb uscr:7             ;b2a8  a7 41        Clear all UART receive error flags
+
     setb mem_008b:4         ;b2aa  ac 8b
     jmp lab_b2b6            ;b2ac  21 b2 b6
 lab_b2af:
@@ -9162,7 +9173,7 @@ lab_b2b6:
 
 
 mem_0080_is_10:
-;KW1281 Read or write RAM word related to login
+;KW1281 Read or write login word
 ;
 ;Request block format:
 ;  0x08 Block length                    mem_0118+0
@@ -9198,7 +9209,7 @@ lab_b2c4:
     cmp a, #0x01            ;b2c9  14 01
     beq lab_b2d4_write      ;b2cb  fd 1f        If Mode=1, branch to do write
 
-    call sub_b20c_no_ack    ;b2cd  31 b2 0c     Anything else is no ack
+    call sub_b20c_no_ack    ;b2cd  31 b2 0c     If anything else, branch to do No Acknowledge
     mov mem_0081, #0x01     ;b2d0  85 81 01
     ret                     ;b2d3  20
 
@@ -10745,54 +10756,57 @@ lab_ba87:
 lab_ba88:
 ;Login related
 ;(mem_0080=0x01, mem_0081=1)
-    bbs mem_00de:3, lab_bacc ;ba88  bb de 41
+    bbs mem_00de:3, lab_bb0c_no_ack ;If locked out from too many login attempts
+                                    ;branch to No Acknowledge
 
-    mov a, mem_0118+3       ;ba8b  60 01 1b     KW1281 Request byte 3: Login code high byte
-    mov mem_00a3, a         ;ba8e  45 a3
+    mov a, mem_0118+3       ;KW1281 Request byte 3: Login code high byte
+    mov mem_00a3, a
 
-    mov a, mem_0118+4       ;ba90  60 01 1c     KW1281 Request byte 4: Login code low byte
-    mov mem_00a4, a         ;ba93  45 a4
+    mov a, mem_0118+4       ;KW1281 Request byte 4: Login code low byte
+    mov mem_00a4, a
 
-    call sub_dd1d           ;ba95  31 dd 1d     Uses mem_ff63 table
+    call sub_dd1d           ;Uses mem_ff63 table
+                            ;Inputs:  mem_00a3, mem_00a4
+                            ;Outputs: mem_009f, mem_00a0
 
-    mov a, mem_020f         ;ba98  60 02 0f
-    mov a, mem_009f         ;ba9b  05 9f
-    cmp a                   ;ba9d  12
-    bne lab_baa8            ;ba9e  fc 08
+    mov a, mem_020f         ;mem_020f and mem_009f must match or login fails
+    mov a, mem_009f
+    cmp a
+    bne lab_baa8_failed
 
-    mov a, mem_0210         ;baa0  60 02 10
-    mov a, mem_00a0         ;baa3  05 a0
-    cmp a                   ;baa5  12
-    beq lab_bad3            ;baa6  fd 2b
+    mov a, mem_0210         ;mem_0210 and mem_00a0 must match or login fails
+    mov a, mem_00a0
+    cmp a
+    beq lab_baa8_success
 
-lab_baa8:
-;mem_020f and mem_009f are not equal
-;or
-;mem_0210 and mem_00a0 are not equal
-    mov a, mem_031b         ;baa8  60 03 1b
-    incw a                  ;baab  c0
-    mov mem_031b, a         ;baac  61 03 1b
-    cmp a, #0x02            ;baaf  14 02
-    blo lab_bb0c            ;bab1  f9 59
-    mov a, #0x00            ;bab3  04 00
-    mov mem_031b, a         ;bab5  61 03 1b
-    movw a, #0x04e2         ;bab8  e4 04 e2
-    movw mem_0305, a        ;babb  d4 03 05
-    setb mem_008c:6         ;babe  ae 8c
-    movw a, #0x0e10         ;bac0  e4 0e 10
-    movw mem_0325, a        ;bac3  d4 03 25
-    setb mem_00de:3         ;bac6  ab de
-    mov mem_00f1, #0x8d     ;bac8  85 f1 8d
-    ret                     ;bacb  20
+lab_baa8_failed:
+;Login failed
+    mov a, mem_031b         ;Increment login attempt count
+    incw a
+    mov mem_031b, a
 
-lab_bacc:
-    call sub_b21f_no_ack    ;bacc  31 b2 1f
-    mov mem_0081, #0x02     ;bacf  85 81 02
-    ret                     ;bad2  20
+    cmp a, #0x02            ;If less than 2 attempts,
+    blo lab_bb0c_ack        ;branch to do nothing and reply with Acknowledge.
 
-lab_bad3:
-;mem_020f and mem_009f are equal
-;mem_0210 and mem_00a0 are equal
+    mov a, #0x00            ;Time limited lock out
+    mov mem_031b, a
+    movw a, #0x04e2
+    movw mem_0305, a
+    setb mem_008c:6
+    movw a, #0x0e10
+    movw mem_0325, a
+    setb mem_00de:3         ;Set bit to indicate locked out
+    mov mem_00f1, #0x8d
+    ret
+
+lab_bb0c_no_ack:
+;Login failed from too many attempts
+    call sub_b21f_no_ack
+    mov mem_0081, #0x02
+    ret
+
+lab_baa8_success:
+;Login succeeded
     bbc mem_00de:7, lab_baed ;bad3  b7 de 17
     bbs mem_00de:4, lab_baed ;bad6  bc de 14
     bbc mem_00de:5, lab_baed ;bad9  b5 de 11
@@ -10821,7 +10835,7 @@ lab_baed:
 
     mov mem_00f1, #0xad     ;bb09  85 f1 ad
 
-lab_bb0c:
+lab_bb0c_ack:
     call sub_b16b_ack       ;bb0c  31 b1 6b
     mov mem_0081, #0x02     ;bb0f  85 81 02
     ret                     ;bb12  20
@@ -10938,10 +10952,10 @@ lab_bb73:
 ;Read EEPROM related
 ;(mem_0080=x, mem_0081=4)
     bbc mem_008b:0, lab_bb81 ;bb73  b0 8b 0b
-    clrb mem_008b:0         ;bb76  a0 8b
+    clrb mem_008b:0          ;bb76  a0 8b
     bbc mem_008b:7, lab_bb82 ;bb78  b7 8b 07
-    call sub_b20c_no_ack           ;bb7b  31 b2 0c
-    mov mem_0081, #0x03     ;bb7e  85 81 03
+    call sub_b20c_no_ack     ;bb7b  31 b2 0c
+    mov mem_0081, #0x03      ;bb7e  85 81 03
 
 lab_bb81:
     ret                     ;bb81  20
@@ -17190,7 +17204,7 @@ sub_dcb5:
     mov ilr3, #0xbc         ;dcbd  85 7e bc
     mov tbtc, #0x00         ;dcc0  85 0a 00
     movw a, #0xf855         ;dcc3  e4 f8 55
-    movw tchr, a            ;dcc6  d5 19
+    movw tchr, a            ;dcc6  d5 19        16-bit timer count register high
     mov tmcr, #0x23         ;dcc8  85 18 23
     mov eic1, #0x37         ;dccb  85 38 37
     mov eic2, #0x40         ;dcce  85 39 40
@@ -17379,11 +17393,13 @@ sub_ddca:
     mov mem_00fc, a         ;ddda  45 fc
     movw mem_038d, a        ;dddc  d4 03 8d
     movw mem_039d, a        ;dddf  d4 03 9d
+
     mov a, eic2             ;dde2  05 39
-    and a, #0xf0            ;dde4  64 f0
-    or a, #0x04             ;dde6  74 04
+    and a, #0b11110000      ;dde4  64 f0
+    or a,  #0b00000100      ;dde6  74 04
     mov eic2, a             ;dde8  45 39
-    call clr_82_83  ;ddea  31 e0 b8     Zeroes mem_0082 and mem_0083
+
+    call clr_82_83          ;ddea  31 e0 b8     Zeroes mem_0082 and mem_0083
     ret                     ;dded  20
 
 sub_ddee:
@@ -17395,7 +17411,9 @@ lab_ddf6:
     call sub_e38e           ;ddf6  31 e3 8e
     mov a, #0x01            ;ddf9  04 01
     mov mem_0385, a         ;ddfb  61 03 85
-    clrb uscr:3             ;ddfe  a3 41
+
+    clrb uscr:3             ;ddfe  a3 41        Set TXOE to serial data input
+
     ret                     ;de00  20
 
 sub_de01:
@@ -17657,7 +17675,7 @@ lab_df68:
     setb mem_00f9:7         ;df82  af f9
 
 lab_df84:
-    clrb uscr:1             ;df84  a1 41
+    clrb uscr:1             ;df84  a1 41        Disable UART receive interrupt
     mov a, mem_0118+1       ;df86  60 01 19     KW1281 Request byte 1: Block counter
     mov mem_0116, a         ;df89  61 01 16     Copy block counter into mem_0116
     setb mem_00f9:0         ;df8c  a8 f9
@@ -17704,7 +17722,8 @@ lab_dfaf:
     clrb mem_00f9:7         ;dfc3  a7 f9
     mov rrdr, #0x0c         ;dfc5  85 45 0c
     mov usmr, #0x0b         ;dfc8  85 40 0b
-    setb uscr:3             ;dfcb  ab 41
+
+    setb uscr:3             ;dfcb  ab 41        Set TXOE to serial data output enabled
 
     mov a, mem_0089         ;dfcd  05 89        A = KW1281 byte to send
     mov txdr, a             ;dfcf  45 43        Send KW1281 byte out UART
@@ -17804,7 +17823,7 @@ lab_e063:
     mov mem_0394, a         ;e06a  61 03 94
 
 lab_e06d:
-    call clr_82_83 ;e06d  31 e0 b8     Zeroes mem_0082 and mem_0083
+    call clr_82_83          ;e06d  31 e0 b8     Zeroes mem_0082 and mem_0083
     mov a, #0x01            ;e070  04 01
     bne lab_e033            ;e072  fc bf       BRANCH_ALWAYS_TAKEN
 
@@ -17828,16 +17847,19 @@ lab_e08c:
     mov usmr, #0x0b         ;e08f  85 40 0b
 
 lab_e092:
-    clrb uscr:7             ;e092  a7 41
-    setb uscr:6             ;e094  ae 41
-    setb uscr:5             ;e096  ad 41
-    setb uscr:4             ;e098  ac 41
-    setb uscr:3             ;e09a  ab 41
+    clrb uscr:7             ;e092  a7 41        Clear all UART receive errors
+    setb uscr:6             ;e094  ae 41        Enable UART receiving
+    setb uscr:5             ;e096  ad 41        Enable UART transmitting
+    setb uscr:4             ;e098  ac 41        Start UART baud rate generator
+    setb uscr:3             ;e09a  ab 41        Set UART's TXOE to serial data output enabled
+
     mov a, mem_0089         ;e09c  05 89        A = KW1281 byte to send
     mov txdr, a             ;e09e  45 43        Send KW1281 byte out UART
+
     clrb mem_00f9:6         ;e0a0  a6 f9
     clrb mem_00f9:7         ;e0a2  a7 f9
-    setb uscr:1             ;e0a4  a9 41
+
+    setb uscr:1             ;e0a4  a9 41        Enable UART receive interrupt
     mov a, #0x00            ;e0a6  04 00
     mov mem_00fb, a         ;e0a8  45 fb
     ret                     ;e0aa  20
@@ -17872,7 +17894,7 @@ lab_e0d0:
     setb uscr:3             ;e0d6  ab 41
     clrb mem_00f9:6         ;e0d8  a6 f9
     clrb mem_00f9:7         ;e0da  a7 f9
-    setb uscr:1             ;e0dc  a9 41
+    setb uscr:1             ;e0dc  a9 41        Enable UART receive interrupt
     mov a, rxdr             ;e0de  05 43        A = KW1281 byte from UART
     ret                     ;e0e0  20
 
@@ -18110,7 +18132,7 @@ lab_e256:
 
 sub_e257:
     clrb uscr:6             ;e257  a6 41
-    clrb uscr:1             ;e259  a1 41
+    clrb uscr:1             ;e259  a1 41        Disable UART receive interrupt
     setb mem_00f9:2         ;e25b  aa f9
     mov a, #0x00            ;e25d  04 00
     mov mem_0389, a         ;e25f  61 03 89
@@ -18307,27 +18329,27 @@ lab_e389:
 
 sub_e38a:
     mov a, #0x00            ;e38a  04 00
-    beq sub_e3a4            ;e38c  fd 16       BRANCH_ALWAYS_TAKEN
+    beq sub_e3a4            ;e38c  fd 16        BRANCH_ALWAYS_TAKEN
 
 sub_e38e:
     mov a, #0x10            ;e38e  04 10
-    bne sub_e3a4            ;e390  fc 12       BRANCH_ALWAYS_TAKEN
+    bne sub_e3a4            ;e390  fc 12        BRANCH_ALWAYS_TAKEN
 
 sub_e392:
     mov a, #0x20            ;e392  04 20
-    bne sub_e3a4            ;e394  fc 0e       BRANCH_ALWAYS_TAKEN
+    bne sub_e3a4            ;e394  fc 0e        BRANCH_ALWAYS_TAKEN
 
 sub_e396:
     mov a, #0x30            ;e396  04 30
-    bne sub_e3a4            ;e398  fc 0a       BRANCH_ALWAYS_TAKEN
+    bne sub_e3a4            ;e398  fc 0a        BRANCH_ALWAYS_TAKEN
 
 sub_e39a:
     mov a, #0x90            ;e39a  04 90
-    bne sub_e3a4            ;e39c  fc 06       BRANCH_ALWAYS_TAKEN
+    bne sub_e3a4            ;e39c  fc 06        BRANCH_ALWAYS_TAKEN
 
     ;0xe39e looks unreachable
     mov a, #0xa0            ;e39e  04 a0
-    bne sub_e3a4            ;e3a0  fc 02       BRANCH_ALWAYS_TAKEN
+    bne sub_e3a4            ;e3a0  fc 02        BRANCH_ALWAYS_TAKEN
 
 sub_e3a2:
     mov a, #0xb0            ;e3a2  04 b0
@@ -18371,14 +18393,14 @@ lab_e3d9:
 ;mem_038b case 1
     call sub_e39a           ;e3d9  31 e3 9a
 
-    movw a, tchr            ;e3dc  c5 19
+    movw a, tchr            ;e3dc  c5 19        16-bit timer count register high
     rolc a                  ;e3de  02
     swap                    ;e3df  10
     rolc a                  ;e3e0  02
     swap                    ;e3e1  10
     movw mem_03ab, a        ;e3e2  d4 03 ab
 
-    movw a, tchr            ;e3e5  c5 19
+    movw a, tchr            ;e3e5  c5 19        16-bit timer count register high
     rorc a                  ;e3e7  03
     swap                    ;e3e8  10
     rorc a                  ;e3e9  03
@@ -18560,11 +18582,15 @@ lab_e502:
 ;mem_038b case 7
     bbc mem_00f9:1, lab_e55b ;e502  b1 f9 56
     clrb mem_00f9:1         ;e505  a1 f9
+
     mov a, #0x02            ;e507  04 02
     mov mem_0389, a         ;e509  61 03 89
+
     mov a, mem_03af         ;e50c  60 03 af
     bne lab_e517            ;e50f  fc 06
+
     call sub_e4d3           ;e511  31 e4 d3
+
     jmp lab_e536            ;e514  21 e5 36
 
 lab_e517:
@@ -18572,10 +18598,12 @@ lab_e517:
     mov a, mem_039f         ;e51a  60 03 9f
     cmp a                   ;e51d  12
     bne lab_e52b            ;e51e  fc 0b
+
     mov a, mem_03a2         ;e520  60 03 a2
     mov a, mem_03a0         ;e523  60 03 a0
     cmp a                   ;e526  12
     bne lab_e52b            ;e527  fc 02
+
     beq lab_e536            ;e529  fd 0b       BRANCH_ALWAYS_TAKEN
 
 lab_e52b:
@@ -18665,6 +18693,7 @@ sub_e5ae:
 ;Unknown, uses mem_e5aa table
     movw a, mem_039f        ;e5ae  c4 03 9f
     movw mem_03a1, a        ;e5b1  d4 03 a1
+
     movw a, #0x0000         ;e5b4  e4 00 00
     movw mem_03a3, a        ;e5b7  d4 03 a3
     movw mem_03a5, a        ;e5ba  d4 03 a5
@@ -18673,24 +18702,32 @@ sub_e5ae:
     movw mem_03ab, a        ;e5c3  d4 03 ab
     movw mem_03ad, a        ;e5c6  d4 03 ad
     mov mem_03b4, a         ;e5c9  61 03 b4
-    movw a, tchr            ;e5cc  c5 19
+
+    movw a, tchr            ;e5cc  c5 19        16-bit timer count register high
     movw mem_03a3, a        ;e5ce  d4 03 a3
+
     movw a, mem_03a1        ;e5d1  c4 03 a1
     movw a, mem_03a3        ;e5d4  c4 03 a3
     xorw a                  ;e5d7  53
     movw mem_03a5, a        ;e5d8  d4 03 a5
+
     mov r3, #0x00           ;e5db  8b 00
     call sub_e672           ;e5dd  31 e6 72
+
     movw a, mem_03a5        ;e5e0  c4 03 a5
     movw mem_03a7, a        ;e5e3  d4 03 a7
+
     movw a, mem_03a3        ;e5e6  c4 03 a3
     movw a, mem_03a7        ;e5e9  c4 03 a7
     xorw a                  ;e5ec  53
     movw mem_03a9, a        ;e5ed  d4 03 a9
+
     movw a, mem_03a7        ;e5f0  c4 03 a7
     movw mem_03ab, a        ;e5f3  d4 03 ab
+
     movw a, mem_03a9        ;e5f6  c4 03 a9
     movw mem_03ad, a        ;e5f9  d4 03 ad
+
     movw ix, #mem_03ae      ;e5fc  e6 03 ae
     movw ep, #mem_e5aa+3    ;e5ff  e7 e5 ad
     call sub_e6ca           ;e602  31 e6 ca
@@ -18706,7 +18743,7 @@ lab_e60d:
 
 lab_e60f:
     rolc a                  ;e60f  02
-    blo lab_e613            ;e610  f9 01
+    bc lab_e613             ;e610  f9 01
     inc r1                  ;e612  c9
 
 lab_e613:
@@ -18723,6 +18760,10 @@ sub_e61f:
 ;Unknown, uses e5aa table
 ;Called from e4cd (Block title 0x3d security related)
 ;Also called from a11c (unknown)
+;
+;Inputs:
+;  mem_03ab - mem_03ae
+;
     movw a, #0x0000         ;e61f  e4 00 00
     movw mem_03a1, a        ;e622  d4 03 a1
     movw mem_03a3, a        ;e625  d4 03 a3
@@ -18730,33 +18771,42 @@ sub_e61f:
     movw mem_03a7, a        ;e62b  d4 03 a7
     movw mem_03a9, a        ;e62e  d4 03 a9
     mov mem_03b4, a         ;e631  61 03 b4
+
     movw a, mem_03ab        ;e634  c4 03 ab
     movw mem_03b0, a        ;e637  d4 03 b0
+
     movw a, mem_03ad        ;e63a  c4 03 ad
     movw mem_03b2, a        ;e63d  d4 03 b2
+
     movw ix, #mem_03ae      ;e640  e6 03 ae
     movw ep, #mem_e5aa+3    ;e643  e7 e5 ad
     call sub_e6b3           ;e646  31 e6 b3
+
     movw a, mem_03ab        ;e649  c4 03 ab
     movw mem_03a7, a        ;e64c  d4 03 a7
+
     movw a, mem_03ad        ;e64f  c4 03 ad
     movw mem_03a9, a        ;e652  d4 03 a9
+
     movw a, mem_03a9        ;e655  c4 03 a9
     movw a, mem_03a7        ;e658  c4 03 a7
     xorw a                  ;e65b  53
     movw mem_03a3, a        ;e65c  d4 03 a3
+
     mov r3, #0x01           ;e65f  8b 01
     call sub_e672           ;e661  31 e6 72
+
     movw a, mem_03a7        ;e664  c4 03 a7
     movw mem_03a5, a        ;e667  d4 03 a5
+
     movw a, mem_03a3        ;e66a  c4 03 a3
     xorw a                  ;e66d  53
     movw mem_03a1, a        ;e66e  d4 03 a1
     ret                     ;e671  20
 
+
 sub_e672:
     call sub_e606           ;e672  31 e6 06
-
 lab_e675:
     mov a, mem_03b4         ;e675  60 03 b4
     beq lab_e690            ;e678  fd 16
@@ -18764,18 +18814,16 @@ lab_e675:
     bne lab_e683            ;e67b  fc 06
     call sub_e6a3           ;e67d  31 e6 a3
     jmp lab_e686            ;e680  21 e6 86
-
 lab_e683:
     call sub_e691           ;e683  31 e6 91
-
 lab_e686:
     mov a, mem_03b4         ;e686  60 03 b4
     decw a                  ;e689  d0
     mov mem_03b4, a         ;e68a  61 03 b4
     jmp lab_e675            ;e68d  21 e6 75
-
 lab_e690:
     ret                     ;e690  20
+
 
 sub_e691:
     movw a, mem_03a7        ;e691  c4 03 a7
@@ -18784,14 +18832,14 @@ sub_e691:
     rorc a                  ;e696  03
     swap                    ;e697  10
     rorc a                  ;e698  03
-    bhs lab_e69f            ;e699  f8 04
+    bnc lab_e69f            ;e699  f8 04
     swap                    ;e69b  10
-    or a, #0x80             ;e69c  74 80
+    or a, #0b10000000       ;e69c  74 80
     swap                    ;e69e  10
-
 lab_e69f:
     movw mem_03a7, a        ;e69f  d4 03 a7
     ret                     ;e6a2  20
+
 
 sub_e6a3:
     movw a, mem_03a5        ;e6a3  c4 03 a5
@@ -18800,17 +18848,16 @@ sub_e6a3:
     swap                    ;e6a8  10
     rolc a                  ;e6a9  02
     swap                    ;e6aa  10
-    bhs lab_e6af            ;e6ab  f8 02
-    or a, #0x01             ;e6ad  74 01
-
+    bnc lab_e6af            ;e6ab  f8 02
+    or a, #0b00000001       ;e6ad  74 01
 lab_e6af:
     movw mem_03a5, a        ;e6af  d4 03 a5
     ret                     ;e6b2  20
 
+
 sub_e6b3:
     mov mem_009e, #0x04     ;e6b3  85 9e 04
     clrc                    ;e6b6  81
-
 lab_e6b7:
     mov a, @ix+0x00         ;e6b7  06 00
     mov a, @ep              ;e6b9  07
@@ -18825,10 +18872,10 @@ lab_e6b7:
     bne lab_e6b7            ;e6c7  fc ee
     ret                     ;e6c9  20
 
+
 sub_e6ca:
     mov mem_009e, #0x04     ;e6ca  85 9e 04
     clrc                    ;e6cd  81
-
 lab_e6ce:
     mov a, @ix+0x00         ;e6ce  06 00
     mov a, @ep              ;e6d0  07
@@ -18842,6 +18889,7 @@ lab_e6ce:
     mov mem_009e, a         ;e6dc  45 9e
     bne lab_e6ce            ;e6de  fc ee
     ret                     ;e6e0  20
+
 
 fill_ix_plus_0x0b_downto_0:
     mov @ix+0x0b, a         ;e6e1  46 0b
@@ -18866,6 +18914,7 @@ fill_ix_plus_0x02_downto_0:
     mov @ix+0x00, a         ;e6f7  46 00
     ret                     ;e6f9  20
 
+
     ;XXX e6fa-e70c looks unreachable
     clrc                    ;e6fa  81
     addcw a                 ;e6fb  23
@@ -18878,6 +18927,7 @@ fill_ix_plus_0x02_downto_0:
     mov mem_00a0, a         ;e707  45 a0
     call sub_fba3           ;e709  31 fb a3
     ret                     ;e70c  20
+
 
 sub_e70d:
     clrb mem_00e5:1         ;e70d  a1 e5
@@ -23194,7 +23244,7 @@ kw_actuator_3:
     .byte 0x03              ;ff5c  03          DATA '\x03'  Block end
 
 kw_rw_login:
-;Response to Read or write RAM word related to login
+;Response to Read or write login word
     .byte 0x05              ;ff5d  05          DATA '\x05'  Block length
     .byte 0x00              ;ff5e  00          DATA '\x00'  Block counter
     .byte 0xF0              ;ff5f  f0          DATA '\xf0'  Block title (0xF0 = Response to Login)
