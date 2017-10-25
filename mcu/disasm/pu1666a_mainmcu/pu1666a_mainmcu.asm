@@ -6202,7 +6202,7 @@ lab_a12b:
     .word lab_a183          ;a133  a1 83       VECTOR
 
 lab_a135:
-    mov a, #0x02            ;a135  04 02
+    mov a, #0x02            ;a135  04 02        A = mem_0201 value for CODE
     mov mem_0201, a         ;a137  61 02 01
     mov a, #0x1e            ;a13a  04 1e
     mov mem_0202, a         ;a13c  61 02 02
@@ -6225,7 +6225,7 @@ lab_a150:
     bne lab_a14f            ;a150  fc fd
     movw a, #0x1000         ;a152  e4 10 00
     movw mem_0203, a        ;a155  d4 02 03
-    mov a, #0x07            ;a158  04 07
+    mov a, #0x07            ;a158  04 07        A = mem_0201 value for BLANK
     mov mem_0201, a         ;a15a  61 02 01
     mov a, #0x03            ;a15d  04 03
     bne lab_a14b            ;a15f  fc ea       BRANCH_ALWAYS_TAKEN
@@ -6308,7 +6308,7 @@ lab_a1c7:
     .word sub_a239          ;a1d5  a2 39       VECTOR
 
 lab_a1d7:
-    mov a, #0x05            ;a1d7  04 05
+    mov a, #0x05            ;a1d7  04 05        A = mem_0021 value for SAFE
     mov mem_0201, a         ;a1d9  61 02 01
     mov a, #0x1e            ;a1dc  04 1e
     mov mem_0202, a         ;a1de  61 02 02
@@ -6330,7 +6330,7 @@ lab_a1e8:
     bne lab_a1e7            ;a1ee  fc f7
     movw a, #0x1000         ;a1f0  e4 10 00
     movw mem_0203, a        ;a1f3  d4 02 03
-    mov a, #0x07            ;a1f6  04 07
+    mov a, #0x07            ;a1f6  04 07        A = mem_0021 value for BLANK
     mov mem_0201, a         ;a1f8  61 02 01
     mov a, #0x03            ;a1fb  04 03
     bne lab_a1e3            ;a1fd  fc e4       BRANCH_ALWAYS_TAKEN
@@ -6408,7 +6408,7 @@ lab_a269:
 
 lab_a286:
     bhs lab_a2b5            ;a286  f8 2d
-    mov a, #0x06            ;a288  04 06
+    mov a, #0x06            ;a288  04 06        A = mem_0021 value for BLANK or SAFE
     mov mem_0201, a         ;a28a  61 02 01
     mov a, #0x05            ;a28d  04 05
     mov mem_020d, a         ;a28f  61 02 0d
@@ -6422,7 +6422,7 @@ lab_a29b:
 
 lab_a29e:
     bne lab_a2b5            ;a29e  fc 15
-    mov a, #0x05            ;a2a0  04 05
+    mov a, #0x05            ;a2a0  04 05        A = mem_0021 value for SAFE
     mov mem_0201, a         ;a2a2  61 02 01
     mov a, mem_020e         ;a2a5  60 02 0e
     mov a, #0x02            ;a2a8  04 02
@@ -6454,7 +6454,7 @@ lab_a2c5:
 lab_a2ce:
     movw mem_0206, a        ;a2ce  d4 02 06
     setb mem_00de:5         ;a2d1  ad de
-    mov a, #0x05            ;a2d3  04 05
+    mov a, #0x05            ;a2d3  04 05        A = mem_0021 value for SAFE
     mov mem_0201, a         ;a2d5  61 02 01
     setb mem_0098:4         ;a2d8  ac 98
     mov mem_00f1, #0x9e     ;a2da  85 f1 9e
@@ -6504,7 +6504,7 @@ lab_a303:
     .word lab_a39d          ;a317  a3 9d       VECTOR
 
 lab_a319:
-    mov a, #0x03            ;a319  04 03
+    mov a, #0x03            ;a319  04 03        A = mem_0021 value for INITIAL
     mov mem_0201, a         ;a31b  61 02 01
     clrb mem_00de:7         ;a31e  a7 de
     clrb mem_00de:6         ;a320  a6 de
@@ -6538,7 +6538,7 @@ lab_a343:
 
 lab_a34a:
     bhs lab_a33b            ;a34a  f8 ef
-    mov a, #0x01            ;a34c  04 01
+    mov a, #0x01            ;a34c  04 01        A = mem_0021 value for NO CODE
     mov mem_0201, a         ;a34e  61 02 01
     mov a, #0x1e            ;a351  04 1e
     mov mem_0202, a         ;a353  61 02 02
@@ -6598,7 +6598,7 @@ lab_a3a7:
     .word lab_a3be          ;a3ab  a3 be       VECTOR
 
 lab_a3ad:
-    mov a, #0x08            ;a3ad  04 08
+    mov a, #0x08            ;a3ad  04 08        A = mem_0021 value for SAFE
     mov mem_0201, a         ;a3af  61 02 01
     movw a, #0x0384         ;a3b2  e4 03 84
     movw mem_0206, a        ;a3b5  d4 02 06
@@ -6621,7 +6621,7 @@ lab_a3c4:
 lab_a3ca:
     setb mem_0099:7         ;a3ca  af 99
     setb mem_00d7:4         ;a3cc  ac d7
-    mov a, #0x09            ;a3ce  04 09
+    mov a, #0x09            ;a3ce  04 09        A = mem_0021 value for VER
     mov mem_0201, a         ;a3d0  61 02 01
 
 lab_a3d3:
@@ -6657,7 +6657,7 @@ lab_a3e9:
 
 ;lab_a3e9 case 1
 lab_a3f3:
-    mov a, #0x0a            ;a3f3  04 0a
+    mov a, #0x0a            ;a3f3  04 0a        A = mem_0021 value for CLEAR
     mov mem_0201, a         ;a3f5  61 02 01
     setb mem_0098:4         ;a3f8  ac 98
     mov a, #0x1e            ;a3fa  04 1e
@@ -19995,7 +19995,7 @@ sub_ed4d:
 
 lab_ed50:
     mov a, mem_01db         ;ed50  60 01 db     CD number
-    and a, #0x0f            ;ed53  64 0f        mask to leave only low nibble (CD number)
+    and a, #0x0f            ;ed53  64 0f        Mask to leave only low nibble (CD number)
     mov @ix+0x02, a         ;ed55  46 02
     jmp lab_ed32            ;ed57  21 ed 32
 
@@ -20042,7 +20042,7 @@ sub_ed97:
 sub_ed9d:
     mov @ix+0x01, #0x09     ;ed9d  86 01 09     0x09 'CD 6 1234  '
     mov a, mem_01db         ;eda0  60 01 db     A = CD number
-    and a, #0x0f            ;eda3  64 0f        Mask to leave only low byte
+    and a, #0x0f            ;eda3  64 0f        Mask to leave only low nibble (CD number)
     mov @ix+0x02, a         ;eda5  46 02        Write CD number into buffer
     jmp lab_ed84            ;eda7  21 ed 84
 
