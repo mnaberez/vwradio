@@ -8554,7 +8554,7 @@ lab_af1e:
     bne lab_af34            ;af23  fc 0f
 
     clrb mem_008c:4         ;af25  a4 8c
-    movw a, #mem_012b+3     ;af27  e4 01 2e     KW1281 Response bytes 3 and 4
+    movw a, #mem_012b+3     ;af27  e4 01 2e     A = Pointer to KW1281 Response byte 0
     movw mem_0147, a        ;af2a  d4 01 47
     mov a, #0x0a            ;af2d  04 0a        0x0A = mem_0080 value for KW1281 Protected: Read RAM
     mov mem_0080, a         ;af2f  45 80
@@ -8889,7 +8889,7 @@ sub_b136:
 ;A = Pointer to template
 ;mem_00a5 = Number of byte to copy
 ;
-    movw a, #mem_012b       ;b136  e4 01 2b     A = Pointer to first byte of KW1281 Response buffer
+    movw a, #mem_012b       ;b136  e4 01 2b     A = Pointer to KW1281 Response byte 0
     movw mem_0086, a        ;b139  d5 86        Store pointer in mem_0086
     jmp sub_b13e            ;b13b  21 b1 3e
 
@@ -9075,7 +9075,7 @@ sub_b235:
     incw a                  ;b23b  c0
     mov mem_0082, a         ;b23c  45 82
     popw a                  ;b23e  50
-    movw a, #mem_0118+0     ;b23f  e4 01 18     KW1281 Request byte 0: Block length
+    movw a, #mem_0118+0     ;b23f  e4 01 18     A = Pointer to KW1281 Request byte 0: Block length
     clrc                    ;b242  81
     addcw a                 ;b243  23
     pushw a                 ;b244  40
@@ -9106,7 +9106,7 @@ lab_b25a:
     movw a, #0x0000         ;b25c  e4 00 00
     mov a, mem_0083         ;b25f  05 83
 
-    movw a, #mem_012b       ;b261  e4 01 2b     KW1281 Response byte 0
+    movw a, #mem_012b       ;b261  e4 01 2b     A = Pointer to KW1281 Response byte 0
     clrc                    ;b264  81
     addcw a                 ;b265  23
     mov a, @a               ;b266  92
@@ -9439,11 +9439,12 @@ lab_b3cc:
     mov a, #0x03            ;b3e2  04 03
     mov mem_012b+8, a       ;b3e4  61 01 33     KW1281 Response byte 8: ? TODO probably block end
 
-    movw a, #mem_0175       ;b3e7  e4 01 75
-    movw mem_0084, a        ;b3ea  d5 84        Pointer to KW1281 packet bytes
+    movw a, #mem_0175       ;b3e7  e4 01 75     A = Pointer to KW1281 packet bytes
+    movw mem_0084, a        ;b3ea  d5 84
 
-    movw a, #mem_012b+4     ;b3ec  e4 01 2f     KW1281 Response byte 4
+    movw a, #mem_012b+4     ;b3ec  e4 01 2f     A = Pointer to KW1281 Response byte 4
     movw mem_0086, a        ;b3ef  d5 86
+
     mov mem_00a5, #0x04     ;b3f1  85 a5 04     4 bytes in KW1281 packet
     call sub_b13e           ;b3f4  31 b1 3e     TODO probably a buffer copy
 
@@ -9566,11 +9567,13 @@ lab_b480:
     mov a, #0xfc            ;b480  04 fc        0xFC = KW1281 Block title: Response to Read Faults
     mov mem_012b+2, a       ;b482  61 01 2d     KW1281 Response byte 2: Block title
 
-    movw a, #mem_012b+3     ;b485  e4 01 2e     KW1281 Response byte 3
+    movw a, #mem_012b+3     ;b485  e4 01 2e     A = Pointer to KW1281 Response byte 3
     movw mem_0086, a        ;b488  d5 86
+
     mov a, mem_0146         ;b48a  60 01 46
     cmp a, #0x04            ;b48d  14 04
     blo lab_b4a3            ;b48f  f9 12
+
     clrc                    ;b491  81
     subc a, #0x04           ;b492  34 04
     mov mem_0146, a         ;b494  61 01 46
@@ -10324,7 +10327,7 @@ lab_b82a:
     mov mem_00a5, a         ;b831  45 a5        Number of bytes in KW1281 packet
 
     incw ix                 ;b833  c2           Incrment IX to second byte in template (Block length)
-    movw ep, #mem_012b      ;b834  e7 01 2b     EP = Pointer to KW1281 Response buffer
+    movw ep, #mem_012b      ;b834  e7 01 2b     EP = Pointer to KW1281 Response byte 0
     call sub_b166           ;b837  31 b1 66
 
     mov a, mem_0116         ;b83a  60 01 16     A = Block counter copied from KW1281 request packet
@@ -23018,12 +23021,12 @@ mem_fe90:
     .word 0x01b2
 
 mem_fe9c:
-    .word 0x1b4
-    .word 0x1b5
-    .word 0x1b6
-    .word 0x1b7
-    .word 0x1b8
-    .word 0x1b9
+    .word 0x01b4
+    .word 0x01b5
+    .word 0x01b6
+    .word 0x01b7
+    .word 0x01b8
+    .word 0x01b9
 
 mem_fea8:
     .byte 0x00              ;fea8  00          DATA '\x00'
