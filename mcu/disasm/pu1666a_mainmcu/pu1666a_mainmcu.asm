@@ -8450,6 +8450,7 @@ mem_ae73:
     .word lab_af7d          ;ae81  af 7d       VECTOR
 
 lab_ae83:
+;(mem_0115 = 1)
     mov a, mem_032e         ;ae83  60 03 2e
     bne lab_ae98            ;ae86  fc 10
     call sub_b24b           ;ae88  31 b2 4b
@@ -8460,9 +8461,11 @@ lab_ae83:
     mov mem_0115, a         ;ae95  61 01 15
 
 lab_ae98:
+;(mem_0115 = 0)
     ret                     ;ae98  20
 
 lab_ae99:
+;(mem_0115 = 2)
     mov a, mem_032e         ;ae99  60 03 2e
     beq lab_aed6            ;ae9c  fd 38
     bbc mem_008b:4, lab_ae98 ;ae9e  b4 8b f7
@@ -8474,9 +8477,9 @@ lab_ae99:
     bhs lab_aeb5            ;aeab  f8 08
 
     setb mem_008b:1         ;aead  a9 8b
-    mov a, #0x00            ;aeaf  04 00
+    mov a, #0x00            ;aeaf  04 00        A = value to store in mem_0082 and mem_0115
     mov mem_0082, a         ;aeb1  45 82
-    beq lab_af1a            ;aeb3  fd 65       BRANCH_ALWAYS_TAKEN
+    beq lab_af1a            ;aeb3  fd 65        BRANCH_ALWAYS_TAKEN
 
 lab_aeb5:
     mov a, mem_0089         ;aeb5  05 89        A = KW1281 byte to send
@@ -8486,8 +8489,8 @@ lab_aeb5:
     bne lab_aec7            ;aebc  fc 09
     mov a, #0x05            ;aebe  04 05
     mov mem_032e, a         ;aec0  61 03 2e
-    mov a, #0x01            ;aec3  04 01
-    bne lab_af1a            ;aec5  fc 53       BRANCH_ALWAYS_TAKEN
+    mov a, #0x01            ;aec3  04 01        A = value to store in mem_0115
+    bne lab_af1a            ;aec5  fc 53        BRANCH_ALWAYS_TAKEN
 
 lab_aec7:
     mov a, mem_033e         ;aec7  60 03 3e
@@ -8515,8 +8518,8 @@ lab_aee2:
 
 lab_aeef:
     mov mem_032e, a         ;aeef  61 03 2e
-    mov a, #0x07            ;aef2  04 07
-    bne lab_af1a            ;aef4  fc 24       BRANCH_ALWAYS_TAKEN
+    mov a, #0x07            ;aef2  04 07        A = value to store in mem_0115
+    bne lab_af1a            ;aef4  fc 24        BRANCH_ALWAYS_TAKEN
 
 lab_aef6:
     mov a, #0x00            ;aef6  04 00
@@ -8525,22 +8528,24 @@ lab_aef6:
     ret                     ;aefd  20
 
 lab_aefe:
+;(mem_0115 = 3)
     call sub_b24b           ;aefe  31 b2 4b
     mov a, #0x02            ;af01  04 02
     mov mem_0112, a         ;af03  61 01 12
-    mov a, #0x04            ;af06  04 04
-    bne lab_af1a            ;af08  fc 10       BRANCH_ALWAYS_TAKEN
+    mov a, #0x04            ;af06  04 04        A = value to store in mem_0115
+    bne lab_af1a            ;af08  fc 10        BRANCH_ALWAYS_TAKEN
 
 lab_af0a:
+;(mem_0115 = 4)
     bbc mem_008b:4, lab_af1d ;af0a  b4 8b 10
     clrb mem_008b:4         ;af0d  a4 8b
     cmp mem_0083, #0x03     ;af0f  95 83 03
     bne lab_af18            ;af12  fc 04
-    mov a, #0x05            ;af14  04 05
-    bne lab_af1a            ;af16  fc 02       BRANCH_ALWAYS_TAKEN
+    mov a, #0x05            ;af14  04 05        A = value to store in mem_0115
+    bne lab_af1a            ;af16  fc 02        BRANCH_ALWAYS_TAKEN
 
 lab_af18:
-    mov a, #0x03            ;af18  04 03
+    mov a, #0x03            ;af18  04 03        A = value to store in mem_0115
 
 lab_af1a:
     mov mem_0115, a         ;af1a  61 01 15
@@ -8549,13 +8554,16 @@ lab_af1d:
     ret                     ;af1d  20
 
 lab_af1e:
+;(mem_0115 = 5)
     mov a, mem_012b+0       ;af1e  60 01 2b     KW1281 Response byte 0: Block length
     cmp a, mem_0083         ;af21  15 83
     bne lab_af34            ;af23  fc 0f
 
     clrb mem_008c:4         ;af25  a4 8c
-    movw a, #mem_012b+3     ;af27  e4 01 2e     A = Pointer to KW1281 Response byte 0
-    movw mem_0147, a        ;af2a  d4 01 47
+
+    movw a, #mem_012b+3     ;af27  e4 01 2e     A = Pointer to KW1281 Response byte 3
+    movw mem_0147, a        ;af2a  d4 01 47     Store pointer in mem_0147
+
     mov a, #0x0a            ;af2d  04 0a        0x0A = mem_0080 value for KW1281 Protected: Read RAM
     mov mem_0080, a         ;af2f  45 80
     jmp lab_af36            ;af31  21 af 36
@@ -8566,34 +8574,41 @@ lab_af34:
 lab_af36:
     clrb mem_008b:4         ;af36  a4 8b
     setb uscr:1             ;af38  a9 41        Enable UART receive interrupt
+
     mov a, mem_0080         ;af3a  05 80
     cmp a, #0x0c            ;af3c  14 0c        0x0C = mem_0080 value for KW1281 Protected: Read EEPROM
     bne lab_af46            ;af3e  fc 06
+
     ;mem_0080 = 0x0c read eeprom
     call sub_cb72           ;af40  31 cb 72     Read byte from EEPROM, store it in mem_0089
     jmp lab_af50            ;af43  21 af 50
 
 lab_af46:
-;mem_0080 != 0x0c
-    movw a, mem_0147        ;af46  c4 01 47
-    movw mem_0086, a        ;af49  d5 86
-    movw a, mem_0086        ;af4b  c5 86
-    mov a, @a               ;af4d  92
+;mem_0080 != 0x0c read eeprom
+    movw a, mem_0147        ;af46  c4 01 47     A = pointer into KW1281 Response buffer
+    movw mem_0086, a        ;af49  d5 86        Store pointer in mem_0086
+    movw a, mem_0086        ;af4b  c5 86        A = Reload pointer again
+
+    mov a, @a               ;af4d  92           A = Read memory at pointer
     mov mem_0089, a         ;af4e  45 89        KW1281 byte to send = A
 
 lab_af50:
     mov a, mem_0083         ;af50  05 83
     incw a                  ;af52  c0
     mov mem_0083, a         ;af53  45 83
-    movw a, mem_0147        ;af55  c4 01 47
+
+    movw a, mem_0147        ;af55  c4 01 47     Increment pointer
     incw a                  ;af58  c0
     movw mem_0147, a        ;af59  d4 01 47
+
     mov a, #0x02            ;af5c  04 02
     mov mem_0112, a         ;af5e  61 01 12
-    mov a, #0x06            ;af61  04 06
-    bne lab_af1a            ;af63  fc b5       BRANCH_ALWAYS_TAKEN
+
+    mov a, #0x06            ;af61  04 06        A = value to store in mem_0115
+    bne lab_af1a            ;af63  fc b5        BRANCH_ALWAYS_TAKEN
 
 lab_af65:
+;(mem_0115 = 6)
     bbc mem_008b:4, lab_af1d ;af65  b4 8b b5
     clrb mem_008b:4         ;af68  a4 8b
 
@@ -8601,21 +8616,22 @@ lab_af65:
     cmp a, mem_0083         ;af6d  15 83
     bhs lab_af79            ;af6f  f8 08
 
-    mov a, #0x00            ;af71  04 00
+    mov a, #0x00            ;af71  04 00        A = value to store in mem_0082 and mem_0115
     mov mem_0082, a         ;af73  45 82
     setb mem_008b:1         ;af75  a9 8b
-    beq lab_af1a            ;af77  fd a1       BRANCH_ALWAYS_TAKEN
+    beq lab_af1a            ;af77  fd a1        BRANCH_ALWAYS_TAKEN
 
 lab_af79:
-    mov a, #0x05            ;af79  04 05
-    bne lab_af1a            ;af7b  fc 9d       BRANCH_ALWAYS_TAKEN
+    mov a, #0x05            ;af79  04 05        A = value to store in mem_0115
+    bne lab_af1a            ;af7b  fc 9d        BRANCH_ALWAYS_TAKEN
 
 lab_af7d:
+;(mem_0115 = 7)
     mov a, mem_032e         ;af7d  60 03 2e
     beq lab_af1d            ;af80  fd 9b
-    call clr_82_83          ;af82  31 e0 b8    Zeroes mem_0082 and mem_0083
-    mov a, #0x01            ;af85  04 01
-    bne lab_af1a            ;af87  fc 91       BRANCH_ALWAYS_TAKEN
+    call clr_82_83          ;af82  31 e0 b8     Zeroes mem_0082 and mem_0083
+    mov a, #0x01            ;af85  04 01        A = value to store in mem_0115
+    bne lab_af1a            ;af87  fc 91        BRANCH_ALWAYS_TAKEN
 
 sub_af89:
     mov a, mem_0112         ;af89  60 01 12
@@ -8753,7 +8769,7 @@ lab_b052:
     mov mem_031b, a         ;b063  61 03 1b
     mov a, #0x02            ;b066  04 02
     mov mem_031c, a         ;b068  61 03 1c
-    mov a, #0x41            ;b06b  04 41
+    mov a, #0x41            ;b06b  04 41        A = value to store in mem_02c7
     call sub_afc2           ;b06d  31 af c2
     mov mem_00cc, #0x0a     ;b070  85 cc 0a
     mov a, mem_0095         ;b073  05 95
@@ -8798,7 +8814,7 @@ lab_b0a7:
     mov mem_0112, a         ;b0af  61 01 12
     clrb mem_008c:4         ;b0b2  a4 8c
     mov mem_0081, a         ;b0b4  45 81
-    mov a, #0x03            ;b0b6  04 03
+    mov a, #0x03            ;b0b6  04 03        A = value to store in mem_02c7
     bne lab_b0ce            ;b0b8  fc 14        BRANCH_ALWAYS_TAKEN
 
 lab_b0ba:
@@ -8811,7 +8827,7 @@ lab_b0ba:
     mov mem_0112, a         ;b0c4  61 01 12
     clrb mem_008c:4         ;b0c7  a4 8c
     mov mem_0081, #0x03     ;b0c9  85 81 03
-    mov a, #0x03            ;b0cc  04 03
+    mov a, #0x03            ;b0cc  04 03        A = value to store in mem_02c7
 
 lab_b0ce:
     call sub_afc2           ;b0ce  31 af c2
@@ -8830,8 +8846,8 @@ lab_b0d2:
     mov mem_0112, a         ;b0df  61 01 12
     setb mem_008c:4         ;b0e2  ac 8c
     mov mem_0081, #0x04     ;b0e4  85 81 04
-    mov a, #0x0c            ;b0e7  04 0c
-    bne lab_b0ce            ;b0e9  fc e3       BRANCH_ALWAYS_TAKEN
+    mov a, #0x0c            ;b0e7  04 0c        A = value to store in mem_02c7
+    bne lab_b0ce            ;b0e9  fc e3        BRANCH_ALWAYS_TAKEN
 
 lab_b0eb:
     ret                     ;b0eb  20
@@ -8861,8 +8877,8 @@ lab_b10a:
     mov mem_031c, a         ;b111  61 03 1c
     beq lab_b11d            ;b114  fd 07
     call sub_b129           ;b116  31 b1 29
-    mov a, #0x34            ;b119  04 34
-    bne lab_b0ce            ;b11b  fc b1       BRANCH_ALWAYS_TAKEN
+    mov a, #0x34            ;b119  04 34        A = value to stoer in mem_02c7
+    bne lab_b0ce            ;b11b  fc b1        BRANCH_ALWAYS_TAKEN
 
 lab_b11d:
     setb mem_008c:6         ;b11d  ae 8c
@@ -10821,7 +10837,7 @@ lab_baa8_success:
     movw mem_0206, a        ;baea  d4 02 06
 
 lab_baed:
-    setb mem_00e4:6         ;baed  ae e4
+    setb mem_00e4:6         ;baed  ae e4        Set bit to indicate successful login
 
     mov a, mem_0118+5       ;baef  60 01 1d     KW1281 Request byte 5: Unknown byte 0
     and a, #0x01            ;baf2  64 01
@@ -13255,7 +13271,7 @@ sub_c928:
     rorc a                  ;c928  03
     bhs lab_c92f            ;c929  f8 04
     setb pdr0:7             ;c92b  af 00        EEPROM_DO
-    blo lab_c931            ;c92d  f9 02       BRANCH_ALWAYS_TAKEN
+    blo lab_c931            ;c92d  f9 02        BRANCH_ALWAYS_TAKEN
 
 lab_c92f:
     clrb pdr0:7             ;c92f  a7 00        EEPROM_DO
@@ -13506,7 +13522,7 @@ lab_ca65:
 lab_ca70:
     bbs mem_00c0:7, lab_cab4 ;ca70  bf c0 41
     bbs mem_00c0:0, lab_ca79 ;ca73  b8 c0 03
-    bbc pdr0:0, lab_cab4    ;ca76  b0 00 3b    EEPROM_DI
+    bbc pdr0:0, lab_cab4     ;ca76  b0 00 3b    EEPROM_DI
 
 lab_ca79:
     clrb pdr0:5             ;ca79  a5 00        EEPROM_CS
@@ -13709,7 +13725,7 @@ sub_cba6:
     mov mem_009f, a         ;cbac  45 9f
     blo lab_cbb4            ;cbae  f9 04
     clrb pdr0:7             ;cbb0  a7 00        EEPROM_DO
-    bhs lab_cbb6            ;cbb2  f8 02       BRANCH_ALWAYS_TAKEN
+    bhs lab_cbb6            ;cbb2  f8 02        BRANCH_ALWAYS_TAKEN
 
 lab_cbb4:
     setb pdr0:7             ;cbb4  af 00        EEPROM_DO
@@ -17250,7 +17266,8 @@ sub_dcde:
 
 sub_dd1d:
 ;Inputs:
-;  mem_00a3, mem_00a4
+;  mem_00a3 (MSB)
+;  mem_00a4 (LSB)
 ;
 ;Outputs:
 ;  mem_009f, mem_00a0
@@ -17258,8 +17275,8 @@ sub_dd1d:
     mov mem_009e, #0x00     ;dd1d  85 9e 00
     mov mem_009f, #0x00     ;dd20  85 9f 00
     mov mem_00a0, #0x00     ;dd23  85 a0 00
-    mov mem_00a1, #0x10     ;dd26  85 a1 10
 
+    mov mem_00a1, #16       ;dd26  85 a1 10
     movw ix, #mem_ff63      ;dd29  e6 ff 63
 
 lab_dd2c:
@@ -17271,22 +17288,22 @@ lab_dd2c:
     rorc a                  ;dd33  03
     mov mem_00a4, a         ;dd34  45 a4
 
-    bhs lab_dd51            ;dd36  f8 19
+    bnc lab_dd51            ;dd36  f8 19
 
-    mov a, @ix+0x00         ;dd38  06 00
+    mov a, @ix+0            ;dd38  06 00
     mov a, mem_00a0         ;dd3a  05 a0
     clrc                    ;dd3c  81
     addc a                  ;dd3d  22
     daa                     ;dd3e  84
     mov mem_00a0, a         ;dd3f  45 a0
 
-    mov a, @ix+0x10         ;dd41  06 10
+    mov a, @ix+16           ;dd41  06 10
     mov a, mem_009f         ;dd43  05 9f
     addc a                  ;dd45  22
     daa                     ;dd46  84
     mov mem_009f, a         ;dd47  45 9f
 
-    mov a, @ix+0x20         ;dd49  06 20
+    mov a, @ix+32           ;dd49  06 20
     mov a, mem_009e         ;dd4b  05 9e
     addc a                  ;dd4d  22
     daa                     ;dd4e  84
@@ -17294,10 +17311,12 @@ lab_dd2c:
 
 lab_dd51:
     incw ix                 ;dd51  c2
+
     movw a, #0x0000         ;dd52  e4 00 00
     mov a, mem_00a1         ;dd55  05 a1
     decw a                  ;dd57  d0
     mov mem_00a1, a         ;dd58  45 a1
+
     bne lab_dd2c            ;dd5a  fc d0
     ret                     ;dd5c  20
 
@@ -23256,104 +23275,25 @@ kw_rw_login:
     .byte 0x03              ;ff62  03          DATA '\x03'  Block end
 
 mem_ff63:
-;Used by:
-;  sub_b977 (Recording)
-;  sub_dd1d (Login)
-;  sub_fda6 (???)
-    .byte 0x01              ;ff63  01          DATA '\x01'
-    .byte 0x02              ;ff64  02          DATA '\x02'
-    .byte 0x04              ;ff65  04          DATA '\x04'
-    .byte 0x08              ;ff66  08          DATA '\x08'
-    .byte 0x16              ;ff67  16          DATA '\x16'
-    .byte 0x32              ;ff68  32          DATA '2'
-    .byte 0x64              ;ff69  64          DATA 'd'
-    .byte 0x28              ;ff6a  28          DATA '('
-    .byte 0x56              ;ff6b  56          DATA 'V'
-    .byte 0x12              ;ff6c  12          DATA '\x12'
-    .byte 0x24              ;ff6d  24          DATA '$'
-    .byte 0x48              ;ff6e  48          DATA 'H'
-    .byte 0x96              ;ff6f  96          DATA '\x96'
-    .byte 0x92              ;ff70  92          DATA '\x92'
-    .byte 0x84              ;ff71  84          DATA '\x84'
-    .byte 0x68              ;ff72  68          DATA 'h'
-    .byte 0x00              ;ff73  00          DATA '\x00'
-    .byte 0x00              ;ff74  00          DATA '\x00'
-    .byte 0x00              ;ff75  00          DATA '\x00'
-    .byte 0x00              ;ff76  00          DATA '\x00'
-    .byte 0x00              ;ff77  00          DATA '\x00'
-    .byte 0x00              ;ff78  00          DATA '\x00'
-    .byte 0x00              ;ff79  00          DATA '\x00'
-    .byte 0x01              ;ff7a  01          DATA '\x01'
-    .byte 0x02              ;ff7b  02          DATA '\x02'
-    .byte 0x05              ;ff7c  05          DATA '\x05'
-    .byte 0x10              ;ff7d  10          DATA '\x10'
-    .byte 0x20              ;ff7e  20          DATA ' '
-    .byte 0x40              ;ff7f  40          DATA '@'
-    .byte 0x81              ;ff80  81          DATA '\x81'
-    .byte 0x63              ;ff81  63          DATA 'c'
-    .byte 0x27              ;ff82  27          DATA "'"
-    .byte 0x00              ;ff83  00          DATA '\x00'
-    .byte 0x00              ;ff84  00          DATA '\x00'
-    .byte 0x00              ;ff85  00          DATA '\x00'
-    .byte 0x00              ;ff86  00          DATA '\x00'
-    .byte 0x00              ;ff87  00          DATA '\x00'
-    .byte 0x00              ;ff88  00          DATA '\x00'
-    .byte 0x00              ;ff89  00          DATA '\x00'
-    .byte 0x00              ;ff8a  00          DATA '\x00'
-    .byte 0x00              ;ff8b  00          DATA '\x00'
-    .byte 0x00              ;ff8c  00          DATA '\x00'
-    .byte 0x00              ;ff8d  00          DATA '\x00'
-    .byte 0x00              ;ff8e  00          DATA '\x00'
-    .byte 0x00              ;ff8f  00          DATA '\x00'
-    .byte 0x00              ;ff90  00          DATA '\x00'
-    .byte 0x01              ;ff91  01          DATA '\x01'
-    .byte 0x03              ;ff92  03          DATA '\x03'
+;Used by: sub_b977 (Recording)
+;         sub_dd1d (Login)
+;         sub_fda6 (???)
+    .byte 0x01, 0x02, 0x04, 0x08, 0x16, 0x32, 0x64, 0x28, 0x56, 0x12, 0x24
+    .byte 0x48, 0x96, 0x92, 0x84, 0x68
 
-    .byte 0xFF              ;ff93  ff          DATA '\xff'
-    .byte 0xFF              ;ff94  ff          DATA '\xff'
-    .byte 0xFF              ;ff95  ff          DATA '\xff'
-    .byte 0xFF              ;ff96  ff          DATA '\xff'
-    .byte 0xFF              ;ff97  ff          DATA '\xff'
-    .byte 0xFF              ;ff98  ff          DATA '\xff'
-    .byte 0xFF              ;ff99  ff          DATA '\xff'
-    .byte 0xFF              ;ff9a  ff          DATA '\xff'
-    .byte 0xFF              ;ff9b  ff          DATA '\xff'
-    .byte 0xFF              ;ff9c  ff          DATA '\xff'
-    .byte 0xFF              ;ff9d  ff          DATA '\xff'
-    .byte 0xFF              ;ff9e  ff          DATA '\xff'
-    .byte 0xFF              ;ff9f  ff          DATA '\xff'
-    .byte 0xFF              ;ffa0  ff          DATA '\xff'
-    .byte 0xFF              ;ffa1  ff          DATA '\xff'
-    .byte 0xFF              ;ffa2  ff          DATA '\xff'
-    .byte 0xFF              ;ffa3  ff          DATA '\xff'
-    .byte 0xFF              ;ffa4  ff          DATA '\xff'
-    .byte 0xFF              ;ffa5  ff          DATA '\xff'
-    .byte 0xFF              ;ffa6  ff          DATA '\xff'
-    .byte 0xFF              ;ffa7  ff          DATA '\xff'
-    .byte 0xFF              ;ffa8  ff          DATA '\xff'
-    .byte 0xFF              ;ffa9  ff          DATA '\xff'
-    .byte 0xFF              ;ffaa  ff          DATA '\xff'
-    .byte 0xFF              ;ffab  ff          DATA '\xff'
-    .byte 0xFF              ;ffac  ff          DATA '\xff'
-    .byte 0xFF              ;ffad  ff          DATA '\xff'
-    .byte 0xFF              ;ffae  ff          DATA '\xff'
-    .byte 0xFF              ;ffaf  ff          DATA '\xff'
-    .byte 0xFF              ;ffb0  ff          DATA '\xff'
-    .byte 0xFF              ;ffb1  ff          DATA '\xff'
-    .byte 0xFF              ;ffb2  ff          DATA '\xff'
-    .byte 0xFF              ;ffb3  ff          DATA '\xff'
-    .byte 0xFF              ;ffb4  ff          DATA '\xff'
-    .byte 0xFF              ;ffb5  ff          DATA '\xff'
-    .byte 0xFF              ;ffb6  ff          DATA '\xff'
-    .byte 0xFF              ;ffb7  ff          DATA '\xff'
-    .byte 0xFF              ;ffb8  ff          DATA '\xff'
-    .byte 0xFF              ;ffb9  ff          DATA '\xff'
-    .byte 0xFF              ;ffba  ff          DATA '\xff'
-    .byte 0xFF              ;ffbb  ff          DATA '\xff'
-    .byte 0xFF              ;ffbc  ff          DATA '\xff'
-    .byte 0xFF              ;ffbd  ff          DATA '\xff'
-    .byte 0xFF              ;ffbe  ff          DATA '\xff'
-    .byte 0xFF              ;ffbf  ff          DATA '\xff'
+    .byte 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x02, 0x05, 0x10
+    .byte 0x20, 0x40, 0x81, 0x63, 0x27
+
+    .byte 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+    .byte 0x00, 0x00, 0x00, 0x01, 0x03
+
+filler:
+;Unused space at the end of the ROM
+    .byte 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
+    .byte 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
+    .byte 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
+    .byte 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
+    .byte 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
 
     .word 0x0000            ;ffc0  00 00       VECTOR callv #0
     .word callv1_eed4       ;ffc2  ee d4       VECTOR callv #1
