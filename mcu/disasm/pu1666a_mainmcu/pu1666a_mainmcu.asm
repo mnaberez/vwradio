@@ -4039,8 +4039,8 @@ lab_9473:
     ret                     ;9473  20
 
 lab_9474:
-    call sub_e38a           ;9474  31 e3 8a
-    callv #7                ;9477  ef          CALLV #7 = callv7_e55c
+    call set_00fd_hi_nib_0  ;9474  31 e3 8a     Store 0x0 in mem_00fd high nibble
+    callv #7                ;9477  ef           CALLV #7 = callv7_e55c
     mov a, #0x12            ;9478  04 12
     mov mem_0182, a         ;947a  61 01 82
     ret                     ;947d  20
@@ -4048,8 +4048,8 @@ lab_9474:
 lab_947e:
     mov a, #0x01            ;947e  04 01
     mov mem_031e, a         ;9480  61 03 1e
-    call sub_e38a           ;9483  31 e3 8a
-    callv #7                ;9486  ef          CALLV #7 = callv7_e55c
+    call set_00fd_hi_nib_0  ;9483  31 e3 8a     Store 0x0 in mem_00fd high nibble
+    callv #7                ;9486  ef           CALLV #7 = callv7_e55c
     cmp mem_0095, #0x00     ;9487  95 95 00
     bne lab_949d            ;948a  fc 11
     call sub_9a02           ;948c  31 9a 02
@@ -6387,8 +6387,8 @@ lab_a254:
     and a, #0x0f            ;a25b  64 0f
     cmp a, #0x03            ;a25d  14 03
     bne lab_a269            ;a25f  fc 08
-    mov a, #0x02            ;a261  04 02
-    call sub_e3ac           ;a263  31 e3 ac
+    mov a, #0x02            ;a261  04 02        A = value to store in mem_00fd low nibble
+    call set_00fd_lo_nib    ;a263  31 e3 ac     Store low nibble of A in mem_00fd low nibble
     mov mem_00f1, #0x81     ;a266  85 f1 81
 
 lab_a269:
@@ -8367,7 +8367,7 @@ lab_adf6:
     clrb mem_008b:4         ;adf9  a4 8b
     mov a, #0x00            ;adfb  04 00
     mov mem_033e, a         ;adfd  61 03 3e
-    call sub_b235           ;ae00  31 b2 35
+    call sub_b235           ;ae00  31 b2 35     Store KW1281 byte received in KW1281 Request buffer
     bbc mem_008b:6, lab_adec ;ae03  b6 8b e6
 
     mov a, mem_0118+0       ;ae06  60 01 18     KW1281 Request byte 0: Block length
@@ -8468,7 +8468,7 @@ lab_ae99:
     beq lab_aed6            ;ae9c  fd 38
     bbc mem_008b:4, lab_ae98 ;ae9e  b4 8b f7
     clrb mem_008b:4         ;aea1  a4 8b
-    call sub_b235           ;aea3  31 b2 35
+    call sub_b235           ;aea3  31 b2 35     Store KW1281 byte received in KW1281 Request buffer
 
     mov a, mem_012b+0       ;aea6  60 01 2b     KW1281 Response byte 0: Block length
     cmp a, mem_0083         ;aea9  15 83
@@ -9084,20 +9084,24 @@ lab_b22e:
     ret                     ;b234  20
 
 sub_b235:
+;Store KW1281 byte received (mem_0088) in KW1281 Request buffer
+;Increment buffer position (mem_0082)
     movw a, #0x0000         ;b235  e4 00 00
-    mov a, mem_0082         ;b238  05 82
-    pushw a                 ;b23a  40
-    incw a                  ;b23b  c0
-    mov mem_0082, a         ;b23c  45 82
-    popw a                  ;b23e  50
+    mov a, mem_0082         ;b238  05 82        A = mem_0082
+    pushw a                 ;b23a  40           Push unmodified mem_0082 on stack
+    incw a                  ;b23b  c0           Increment it
+    mov mem_0082, a         ;b23c  45 82        Save incremented value in mem_0082
+
+    popw a                  ;b23e  50           Pop original value of mem_0082
     movw a, #mem_0118+0     ;b23f  e4 01 18     A = Pointer to KW1281 Request byte 0: Block length
     clrc                    ;b242  81
-    addcw a                 ;b243  23
-    pushw a                 ;b244  40
+    addcw a                 ;b243  23           A = buffer #mem_0018 + offset specified in mem_0082
+    pushw a                 ;b244  40           Save buffer address on the stack
+
     mov a, mem_0088         ;b245  05 88        A = KW1281 byte received
-    xchw a, t               ;b247  43
-    popw a                  ;b248  50
-    mov @a, t               ;b249  82
+    xchw a, t               ;b247  43           Move it to T
+    popw a                  ;b248  50           A = Pop buffer address
+    mov @a, t               ;b249  82           Store byte received in buffer
     ret                     ;b24a  20
 
 sub_b24b:
@@ -17401,13 +17405,13 @@ lab_dda5:
     ret                     ;dda5  20
 
 lab_dda6:
-    mov a, #0x01            ;dda6  04 01
-    call sub_e3ac           ;dda8  31 e3 ac
-    callv #7                ;ddab  ef          CALLV #7 = callv7_e55c
+    mov a, #0x01            ;dda6  04 01        A = value to store in mem_00fd low nibble
+    call set_00fd_lo_nib    ;dda8  31 e3 ac     Store low nibble of A in mem_00fd low nibble
+    callv #7                ;ddab  ef           CALLV #7 = callv7_e55c
     ret                     ;ddac  20
 
 lab_ddad:
-    call sub_e38a           ;ddad  31 e3 8a
+    call set_00fd_hi_nib_0  ;ddad  31 e3 8a     Store 0x0 in mem_00fd high nibble
     ret                     ;ddb0  20
 
 lab_ddb1:
@@ -17450,7 +17454,7 @@ sub_ddee:
     mov mem_038f, a         ;ddf3  61 03 8f
 
 lab_ddf6:
-    call sub_e38e           ;ddf6  31 e3 8e
+    call set_00fd_hi_nib_1  ;ddf6  31 e3 8e     Store 0x1 in mem_00fd high nibble
     mov a, #0x01            ;ddf9  04 01
     mov mem_0385, a         ;ddfb  61 03 85
 
@@ -17495,13 +17499,13 @@ lab_de2e:
     movw a, #0x1389         ;de3a  e4 13 89
     cmpw a                  ;de3d  13
     blo lab_de52            ;de3e  f9 12
-    bhs lab_de53            ;de40  f8 11       BRANCH_ALWAYS_TAKEN
+    bhs lab_de53            ;de40  f8 11        BRANCH_ALWAYS_TAKEN
 
 sub_de42:
     clrb eic2:2             ;de42  a2 39
     mov a, #0x02            ;de44  04 02
     mov mem_0385, a         ;de46  61 03 85
-    call sub_e392           ;de49  31 e3 92
+    call set_00fd_hi_nib_2  ;de49  31 e3 92     Store 0x2 in mem_00fd high nibble
 
 lab_de4c:
     movw a, #0x0000         ;de4c  e4 00 00
@@ -17514,7 +17518,7 @@ lab_de53:
     clrb eic2:2             ;de53  a2 39
     mov a, #0x00            ;de55  04 00
     mov mem_0385, a         ;de57  61 03 85
-    call sub_e38a           ;de5a  31 e3 8a
+    call set_00fd_hi_nib_0  ;de5a  31 e3 8a     Store 0x0 in mem_00fd high nibble
     jmp lab_de4c            ;de5d  21 de 4c
 
 sub_de60:
@@ -17700,7 +17704,7 @@ lab_df3d:
     ret                     ;df67  20
 
 lab_df68:
-    call sub_b235           ;df68  31 b2 35
+    call sub_b235           ;df68  31 b2 35     Store KW1281 byte received in KW1281 Request buffer
     bbc mem_00f9:6, lab_df9c ;df6b  b6 f9 2e
 
     mov a, mem_0118+0       ;df6e  60 01 18     KW1281 Request byte 0: Block length
@@ -17808,7 +17812,7 @@ lab_e001:
     clrb mem_00f9:4         ;e009  a4 f9
     mov a, #0x00            ;e00b  04 00
     mov mem_0394, a         ;e00d  61 03 94
-    call sub_b235           ;e010  31 b2 35
+    call sub_b235           ;e010  31 b2 35     Store KW1281 byte received in KW1281 Request buffer
     mov a, mem_012b+0       ;e013  60 01 2b     KW1281 Response byte 0: Block length
     cmp a, mem_0083         ;e016  15 83
     bhs lab_e023            ;e018  f8 09
@@ -18085,7 +18089,7 @@ sub_e1b8:
     setb mem_00f9:2         ;e1bd  aa f9
     mov a, #0x01            ;e1bf  04 01
     mov mem_038b, a         ;e1c1  61 03 8b
-    call sub_e396           ;e1c4  31 e3 96
+    call set_00fd_hi_nib_3  ;e1c4  31 e3 96     Store 0x3 in mem_00fd high nibble
     call sub_e0ca           ;e1c7  31 e0 ca
     clrb mem_00f9:3         ;e1ca  a3 f9
     mov a, #0x50            ;e1cc  04 50
@@ -18207,8 +18211,8 @@ lab_e282:
     bne lab_e29d            ;e285  fc 16
     mov a, #0x02            ;e287  04 02
     mov mem_0385, a         ;e289  61 03 85
-    mov a, #0x20            ;e28c  04 20
-    call sub_e3a4           ;e28e  31 e3 a4
+    mov a, #0x20            ;e28c  04 20        A = value to store in mem_00fd high nibble
+    call set_00fd_hi_nib    ;e28e  31 e3 a4     Store high nibble of A in mem_00fd high nibble
     mov a, #0x00            ;e291  04 00
     mov mem_0388, a         ;e293  61 03 88
     mov mem_038b, a         ;e296  61 03 8b
@@ -18369,41 +18373,50 @@ sub_e369:
 lab_e389:
     ret                     ;e389  20
 
-sub_e38a:
-    mov a, #0x00            ;e38a  04 00
-    beq sub_e3a4            ;e38c  fd 16        BRANCH_ALWAYS_TAKEN
+set_00fd_hi_nib_0:
+;Store 0x0 in mem_00fd high nibble
+    mov a, #0x00            ;e38a  04 00        A = value to store in mem_00fd high nibble
+    beq set_00fd_hi_nib     ;e38c  fd 16        BRANCH_ALWAYS_TAKEN
 
-sub_e38e:
-    mov a, #0x10            ;e38e  04 10
-    bne sub_e3a4            ;e390  fc 12        BRANCH_ALWAYS_TAKEN
+set_00fd_hi_nib_1:
+;Store 0x1 in mem_00fd high nibble
+    mov a, #0x10            ;e38e  04 10        A = value to store in mem_00fd high nibble
+    bne set_00fd_hi_nib     ;e390  fc 12        BRANCH_ALWAYS_TAKEN
 
-sub_e392:
-    mov a, #0x20            ;e392  04 20
-    bne sub_e3a4            ;e394  fc 0e        BRANCH_ALWAYS_TAKEN
+set_00fd_hi_nib_2:
+;Store 0x2 in mem_00fd high nibble
+    mov a, #0x20            ;e392  04 20        A = value to store in mem_00fd high nibble
+    bne set_00fd_hi_nib     ;e394  fc 0e        BRANCH_ALWAYS_TAKEN
 
-sub_e396:
-    mov a, #0x30            ;e396  04 30
-    bne sub_e3a4            ;e398  fc 0a        BRANCH_ALWAYS_TAKEN
+set_00fd_hi_nib_3:
+;Store 0x3 in mem_00fd high nibble
+    mov a, #0x30            ;e396  04 30        A = value to store in mem_00fd high nibble
+    bne set_00fd_hi_nib     ;e398  fc 0a        BRANCH_ALWAYS_TAKEN
 
-sub_e39a:
-    mov a, #0x90            ;e39a  04 90
-    bne sub_e3a4            ;e39c  fc 06        BRANCH_ALWAYS_TAKEN
+set_00fd_hi_nib_9:
+;Store 0x9 in mem_00fd high nibble
+    mov a, #0x90            ;e39a  04 90        A = value to store in mem_00fd high nibble
+    bne set_00fd_hi_nib     ;e39c  fc 06        BRANCH_ALWAYS_TAKEN
 
-    ;0xe39e looks unreachable
-    mov a, #0xa0            ;e39e  04 a0
-    bne sub_e3a4            ;e3a0  fc 02        BRANCH_ALWAYS_TAKEN
+;0xe39e looks unreachable
+;Store 0xA in mem_00fd high nibble
+    mov a, #0xa0            ;e39e  04 a0        A = value to store in mem_00fd high nibble
+    bne set_00fd_hi_nib     ;e3a0  fc 02        BRANCH_ALWAYS_TAKEN
 
-sub_e3a2:
-    mov a, #0xb0            ;e3a2  04 b0
+set_00fd_hi_nib_b:
+;Store 0xB in mem_00fd high nibble
+    mov a, #0xb0            ;e3a2  04 b0        A = value to store in mem_00fd high nibble
 
-sub_e3a4:
+set_00fd_hi_nib:
+;Store high nibble of A in mem_00fd
     mov a, mem_00fd         ;e3a4  05 fd
     and a, #0x0f            ;e3a6  64 0f
     or a                    ;e3a8  72
     mov mem_00fd, a         ;e3a9  45 fd
     ret                     ;e3ab  20
 
-sub_e3ac:
+set_00fd_lo_nib:
+;Store low nibble of A in mem_00fd
     mov a, mem_00fd         ;e3ac  05 fd
     and a, #0xf0            ;e3ae  64 f0
     or a                    ;e3b0  72
@@ -18433,7 +18446,7 @@ mem_e3bd:
 
 lab_e3d9:
 ;mem_038b case 1
-    call sub_e39a           ;e3d9  31 e3 9a
+    call set_00fd_hi_nib_9  ;e3d9  31 e3 9a     Store 0x9 in mem_00fd high nibble
 
     movw a, tchr            ;e3dc  c5 19        16-bit timer count register high
     rolc a                  ;e3de  02
@@ -18596,8 +18609,8 @@ sub_e4d3:
 
 lab_e4e0:
 ;mem_038b case 5
-    mov a, #0x01            ;e4e0  04 01
-    call sub_e3ac           ;e4e2  31 e3 ac
+    mov a, #0x01            ;e4e0  04 01        A = value to store in mem_00fd low nibble
+    call set_00fd_lo_nib    ;e4e2  31 e3 ac     Store low nibble of A in mem_00fd low nibble
 
 lab_e4e5:
     mov a, #0x06            ;e4e5  04 06
@@ -18612,13 +18625,13 @@ lab_e4eb:
 ;mem_038b case 6
     mov a, mem_038c         ;e4eb  60 03 8c
     bne lab_e4ea            ;e4ee  fc fa
-    call sub_e3a2           ;e4f0  31 e3 a2
-    mov mem_00a5, #0x04     ;e4f3  85 a5 04    4 bytes in KW1281 packet
+    call set_00fd_hi_nib_b  ;e4f0  31 e3 a2     Store 0xb in mem_00fd high nibble
+    mov mem_00a5, #0x04     ;e4f3  85 a5 04     4 bytes in KW1281 packet
     movw a, #kw_end_session ;e4f6  e4 dd 6e
-    movw mem_0084, a        ;e4f9  d5 84       Pointer to KW1281 packet bytes
+    movw mem_0084, a        ;e4f9  d5 84        Pointer to KW1281 packet bytes
     call sub_e366           ;e4fb  31 e3 66
     mov a, #0x07            ;e4fe  04 07
-    bne lab_e4e7            ;e500  fc e5       BRANCH_ALWAYS_TAKEN
+    bne lab_e4e7            ;e500  fc e5        BRANCH_ALWAYS_TAKEN
 
 lab_e502:
 ;mem_038b case 7
@@ -18650,13 +18663,13 @@ lab_e517:
 
 lab_e52b:
     call sub_e4d3           ;e52b  31 e4 d3
-    mov a, #0x03            ;e52e  04 03
-    call sub_e3ac           ;e530  31 e3 ac
+    mov a, #0x03            ;e52e  04 03        A = value to store in mem_00fd low nibble
+    call set_00fd_lo_nib    ;e530  31 e3 ac     Store low nibble of A in mem_00fd low nibble
     bbc mem_00de:6, lab_e544 ;e533  b6 de 0e
 
 lab_e536:
-    mov a, #0x02            ;e536  04 02
-    call sub_e3ac           ;e538  31 e3 ac
+    mov a, #0x02            ;e536  04 02        A = value to store in mem_00fd low nibble
+    call set_00fd_lo_nib    ;e538  31 e3 ac     Store low nibble of A in mem_00fd low nibble
     mov a, #0x01            ;e53b  04 01
     mov mem_03af, a         ;e53d  61 03 af
     mov a, #0x08            ;e540  04 08
@@ -18692,7 +18705,7 @@ callv7_e55c:
 ;mem_038b case 0x0a
     setb pdr7:2             ;e55c  aa 13        TX
     setb pdr7:3             ;e55e  ab 13        /RX
-    call sub_e38a           ;e560  31 e3 8a
+    call set_00fd_hi_nib_0  ;e560  31 e3 8a     Store 0x0 in mem_00fd high nibble
     movw a, #0xffff         ;e563  e4 ff ff
     movw mem_0398, a        ;e566  d4 03 98
     movw a, #0x0000         ;e569  e4 00 00
@@ -18773,7 +18786,7 @@ sub_e5ae:
 
     movw ix, #mem_03ae      ;e5fc  e6 03 ae
     movw ep, #mem_e5aa+3    ;e5ff  e7 e5 ad
-    call sub_e6ca           ;e602  31 e6 ca
+    call sub_e6ca           ;e602  31 e6 ca     Unknown add 4 bytes IX/EP
     ret                     ;e605  20
 
 sub_e606:
@@ -18823,7 +18836,7 @@ sub_e61f:
 
     movw ix, #mem_03ae      ;e640  e6 03 ae
     movw ep, #mem_e5aa+3    ;e643  e7 e5 ad
-    call sub_e6b3           ;e646  31 e6 b3
+    call sub_e6b3           ;e646  31 e6 b3     Unknown subtract 4 bytes IX/EP
 
     movw a, mem_03ab        ;e649  c4 03 ab
     movw mem_03a7, a        ;e64c  d4 03 a7
@@ -18899,6 +18912,7 @@ lab_e6af:
 
 
 sub_e6b3:
+;Unknown subtract 4 bytes IX/EP
     mov mem_009e, #0x04     ;e6b3  85 9e 04
     clrc                    ;e6b6  81
 lab_e6b7:
@@ -18906,17 +18920,21 @@ lab_e6b7:
     mov a, @ep              ;e6b9  07
     subc a                  ;e6ba  32
     mov @ix+0x00, a         ;e6bb  46 00
+
     decw ix                 ;e6bd  d2
     decw ep                 ;e6be  d3
+
     movw a, #0x0000         ;e6bf  e4 00 00
     mov a, mem_009e         ;e6c2  05 9e
     decw a                  ;e6c4  d0
     mov mem_009e, a         ;e6c5  45 9e
+
     bne lab_e6b7            ;e6c7  fc ee
     ret                     ;e6c9  20
 
 
 sub_e6ca:
+;Unknown add 4 bytes IX/EP
     mov mem_009e, #0x04     ;e6ca  85 9e 04
     clrc                    ;e6cd  81
 lab_e6ce:
@@ -18924,12 +18942,15 @@ lab_e6ce:
     mov a, @ep              ;e6d0  07
     addc a                  ;e6d1  22
     mov @ix+0x00, a         ;e6d2  46 00
+
     decw ix                 ;e6d4  d2
     decw ep                 ;e6d5  d3
+
     movw a, #0x0000         ;e6d6  e4 00 00
     mov a, mem_009e         ;e6d9  05 9e
     decw a                  ;e6db  d0
     mov mem_009e, a         ;e6dc  45 9e
+
     bne lab_e6ce            ;e6de  fc ee
     ret                     ;e6e0  20
 
