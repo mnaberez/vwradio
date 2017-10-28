@@ -8034,9 +8034,9 @@ lab_ac79:
     ret                     ;ac79  20
 
 sub_ac7a:
-    call clr_82_83          ;ac7a  31 e0 b8     Zeroes mem_0082 and mem_0083
+    call reset_kw_counts    ;ac7a  31 e0 b8     Reset counts of KW1281 bytes received, sent
     movw a, #0x0000         ;ac7d  e4 00 00
-    movw mem_0088, a        ;ac80  d5 88        KW1281 byte received
+    movw mem_0088, a        ;ac80  d5 88        Clear KW1281 byte received, KW1281 byte to send
     ret                     ;ac82  20
 
 sub_ac83:
@@ -8357,7 +8357,7 @@ lab_adec:
     ret                     ;adec  20
 
 lab_aded:
-    mov a, mem_0082         ;aded  05 82
+    mov a, mem_0082         ;aded  05 82        A = count of KW1281 bytes received
     beq lab_adf6            ;adef  fd 05
     mov a, mem_032e         ;adf1  60 03 2e
     beq lab_ae35            ;adf4  fd 3f
@@ -8375,7 +8375,7 @@ lab_adf6:
     bhs lab_ae35            ;ae0b  f8 28
 
     mov a, mem_0118+0       ;ae0d  60 01 18     KW1281 Request byte 0: Block length
-    cmp a, mem_0082         ;ae10  15 82
+    cmp a, mem_0082         ;ae10  15 82        Compare to count of KW1281 bytes received
     bhs lab_ae2a            ;ae12  f8 16
 
     mov a, mem_0088         ;ae14  05 88        A = KW1281 byte received
@@ -8401,7 +8401,7 @@ lab_ae31:
     ret                     ;ae34  20
 
 lab_ae35:
-    mov mem_0082, #0x00     ;ae35  85 82 00
+    mov mem_0082, #0x00     ;ae35  85 82 00     Reset count of KW1281 bytes received
     clrb mem_008c:4         ;ae38  a4 8c
     clrb mem_008b:6         ;ae3a  a6 8b
     clrb mem_008b:7         ;ae3c  a7 8b
@@ -8471,12 +8471,12 @@ lab_ae99:
     call sub_b235           ;aea3  31 b2 35     Store KW1281 byte received in KW1281 Request buffer
 
     mov a, mem_012b+0       ;aea6  60 01 2b     KW1281 Response byte 0: Block length
-    cmp a, mem_0083         ;aea9  15 83
+    cmp a, mem_0083         ;aea9  15 83        Compare to count of KW1281 bytes sent
     bhs lab_aeb5            ;aeab  f8 08
 
     setb mem_008b:1         ;aead  a9 8b
     mov a, #0x00            ;aeaf  04 00        A = value to store in mem_0082 and mem_0115
-    mov mem_0082, a         ;aeb1  45 82
+    mov mem_0082, a         ;aeb1  45 82        Reset count of KW1281 bytes received
     beq lab_af1a            ;aeb3  fd 65        BRANCH_ALWAYS_TAKEN
 
 lab_aeb5:
@@ -8485,12 +8485,14 @@ lab_aeb5:
     xor a                   ;aeb9  52
     cmp a, #0xff            ;aeba  14 ff
     bne lab_aec7            ;aebc  fc 09
+
     mov a, #0x05            ;aebe  04 05
     mov mem_032e, a         ;aec0  61 03 2e
     mov a, #0x01            ;aec3  04 01        A = value to store in mem_0115
     bne lab_af1a            ;aec5  fc 53        BRANCH_ALWAYS_TAKEN
 
 lab_aec7:
+;KW1281 byte check error
     mov a, mem_033e         ;aec7  60 03 3e
     incw a                  ;aeca  c0
     mov mem_033e, a         ;aecb  61 03 3e
@@ -8537,7 +8539,7 @@ lab_af0a:
 ;(mem_0115 = 4)
     bbc mem_008b:4, lab_af1d ;af0a  b4 8b 10
     clrb mem_008b:4         ;af0d  a4 8b
-    cmp mem_0083, #0x03     ;af0f  95 83 03
+    cmp mem_0083, #0x03     ;af0f  95 83 03     Count of KW1281 bytes sent = 3?
     bne lab_af18            ;af12  fc 04
     mov a, #0x05            ;af14  04 05        A = value to store in mem_0115
     bne lab_af1a            ;af16  fc 02        BRANCH_ALWAYS_TAKEN
@@ -8554,7 +8556,7 @@ lab_af1d:
 lab_af1e:
 ;(mem_0115 = 5)
     mov a, mem_012b+0       ;af1e  60 01 2b     KW1281 Response byte 0: Block length
-    cmp a, mem_0083         ;af21  15 83
+    cmp a, mem_0083         ;af21  15 83        Compare to count of KW1281 bytes sent
     bne lab_af34            ;af23  fc 0f
 
     clrb mem_008c:4         ;af25  a4 8c
@@ -8592,7 +8594,7 @@ lab_af46:
     mov mem_0089, a         ;af4e  45 89        KW1281 byte to send = A
 
 lab_af50:
-    mov a, mem_0083         ;af50  05 83
+    mov a, mem_0083         ;af50  05 83        Increment count of KW1281 bytes sent
     incw a                  ;af52  c0
     mov mem_0083, a         ;af53  45 83
 
@@ -8612,11 +8614,11 @@ lab_af65:
     clrb mem_008b:4         ;af68  a4 8b
 
     mov a, mem_012b         ;af6a  60 01 2b     KW1281 Response byte 0: Block length
-    cmp a, mem_0083         ;af6d  15 83
+    cmp a, mem_0083         ;af6d  15 83        Compare to count of KW1281 bytes sent
     bhs lab_af79            ;af6f  f8 08
 
     mov a, #0x00            ;af71  04 00        A = value to store in mem_0082 and mem_0115
-    mov mem_0082, a         ;af73  45 82
+    mov mem_0082, a         ;af73  45 82        Reset count of KW1281 bytes received
     setb mem_008b:1         ;af75  a9 8b
     beq lab_af1a            ;af77  fd a1        BRANCH_ALWAYS_TAKEN
 
@@ -8628,7 +8630,7 @@ lab_af7d:
 ;(mem_0115 = 7)
     mov a, mem_032e         ;af7d  60 03 2e
     beq lab_af1d            ;af80  fd 9b
-    call clr_82_83          ;af82  31 e0 b8     Zeroes mem_0082 and mem_0083
+    call reset_kw_counts    ;af82  31 e0 b8     Reset counts of KW1281 bytes received, sent
     mov a, #0x01            ;af85  04 01        A = value to store in mem_0115
     bne lab_af1a            ;af87  fc 91        BRANCH_ALWAYS_TAKEN
 
@@ -8857,11 +8859,13 @@ lab_b0ec:
     bbc mem_00e6:1, lab_b10a ;b0ec  b1 e6 1b
     bbc mem_008b:4, lab_b0eb ;b0ef  b4 8b f9
     bbc mem_008b:6, lab_b0eb ;b0f2  b6 8b f6
+
     mov a, mem_0088         ;b0f5  05 88        A = KW1281 byte received
     xor a, #0xff            ;b0f7  54 ff
     and a, #0x7f            ;b0f9  64 7f
     cmp a, #0x0a            ;b0fb  14 0a
     bne lab_b10a            ;b0fd  fc 0b
+
     setb mem_008e:7         ;b0ff  af 8e
     setb mem_0098:4         ;b101  ac 98
     mov a, #0x01            ;b103  04 01
@@ -9003,7 +9007,7 @@ sub_b1b2:
 
 sub_b1c1:
     mov mem_0081, a         ;b1c1  45 81
-    call call_sub_bbbf      ;b1c3  31 bb bf     Zeroes mem_0082 and mem_0083
+    call call_sub_bbbf      ;b1c3  31 bb bf     Zeroes counts of KW1281 bytes received, sent
     mov a, #0x03            ;b1c6  04 03
     mov mem_012b+3, a       ;b1c8  61 01 2e     KW1281 Response byte 3
     mov a, #0x03            ;b1cb  04 03
@@ -9087,26 +9091,26 @@ sub_b235:
 ;Store KW1281 byte received (mem_0088) in KW1281 Request buffer
 ;Increment buffer position (mem_0082)
     movw a, #0x0000         ;b235  e4 00 00
-    mov a, mem_0082         ;b238  05 82        A = mem_0082
-    pushw a                 ;b23a  40           Push unmodified mem_0082 on stack
+    mov a, mem_0082         ;b238  05 82        A = count of KW1281 bytes received
+    pushw a                 ;b23a  40           Push unmodified count on stack
     incw a                  ;b23b  c0           Increment it
-    mov mem_0082, a         ;b23c  45 82        Save incremented value in mem_0082
+    mov mem_0082, a         ;b23c  45 82        Save incremented count
 
-    popw a                  ;b23e  50           Pop original value of mem_0082
-    movw a, #mem_0118+0     ;b23f  e4 01 18     A = Pointer to KW1281 Request byte 0: Block length
+    popw a                  ;b23e  50           Pop original value
+    movw a, #mem_0118+0     ;b23f  e4 01 18     A = Pointer to KW1281 Request byte 0
     clrc                    ;b242  81
-    addcw a                 ;b243  23           A = buffer #mem_0018 + offset specified in mem_0082
-    pushw a                 ;b244  40           Save buffer address on the stack
+    addcw a                 ;b243  23           Add bytes received count to pointer
+    pushw a                 ;b244  40           Save buffer pointer on the stack
 
     mov a, mem_0088         ;b245  05 88        A = KW1281 byte received
     xchw a, t               ;b247  43           Move it to T
-    popw a                  ;b248  50           A = Pop buffer address
+    popw a                  ;b248  50           A = Pop buffer pointer
     mov @a, t               ;b249  82           Store byte received in buffer
     ret                     ;b24a  20
 
 sub_b24b:
     mov a, mem_012b+0       ;b24b  60 01 2b     KW1281 Response byte 0: Block length
-    cmp a, mem_0083         ;b24e  15 83
+    cmp a, mem_0083         ;b24e  15 83        Compare to count of KW1281 bytes sent
     bne lab_b256            ;b250  fc 04
 
     clrb mem_008c:4         ;b252  a4 8c
@@ -9123,15 +9127,15 @@ lab_b25a:
     setb uscr:1             ;b25a  a9 41        Enable UART receive interrupt
 
     movw a, #0x0000         ;b25c  e4 00 00
-    mov a, mem_0083         ;b25f  05 83
-
+    mov a, mem_0083         ;b25f  05 83        A = count of KW1281 bytes sent
     movw a, #mem_012b       ;b261  e4 01 2b     A = Pointer to KW1281 Response byte 0
     clrc                    ;b264  81
-    addcw a                 ;b265  23
-    mov a, @a               ;b266  92
+    addcw a                 ;b265  23           Add bytes sent count to pointer
+
+    mov a, @a               ;b266  92           A = current byte to send from buffer
     mov mem_0089, a         ;b267  45 89        KW1281 byte to send = A
 
-    mov a, mem_0083         ;b269  05 83
+    mov a, mem_0083         ;b269  05 83        Increment count of KW1281 bytes sent
     incw a                  ;b26b  c0
     mov mem_0083, a         ;b26c  45 83
     ret                     ;b26e  20
@@ -9139,7 +9143,7 @@ lab_b25a:
 sub_b26f:
     mov a, #0x02            ;b26f  04 02
     mov mem_0114, a         ;b271  61 01 14
-    call clr_82_83          ;b274  31 e0 b8     Zeroes mem_0082 and mem_0083
+    call reset_kw_counts    ;b274  31 e0 b8     Reset counts of KW1281 bytes received, sent
     clrb mem_008b:6         ;b277  a6 8b
     clrb mem_008b:7         ;b279  a7 8b
     clrb mem_008b:4         ;b27b  a4 8b
@@ -11039,7 +11043,7 @@ sub_bbb8:
     mov mem_012b+1, a       ;bbbc  61 01 2c     Store it in KW1281 Response buffer byte 1: Block counter
 
 call_sub_bbbf:
-    call clr_82_83          ;bbbf  31 e0 b8     Zeroes mem_0082 and mem_0083
+    call reset_kw_counts    ;bbbf  31 e0 b8     Reset counts of KW1281 bytes received, sent
     ret                     ;bbc2  20
 
 sub_bbc3:
@@ -13694,7 +13698,7 @@ lab_cb6f:
 
 
 sub_cb72:
-;Read byte from EEPROM, store it in mem_0089
+;Read byte from EEPROM, store it in mem_0089 (KW1281 byte to send)
 ;Used only for KW1281 Block title 0x19 Read EEPROM (mem_0080 = 0xc0)
     mov a, mem_0147+1       ;cb72  60 01 48     A = EEPROM address to read
     mov mem_026d, a         ;cb75  61 02 6d     Copy address into mem_026d
@@ -17445,7 +17449,7 @@ sub_ddca:
     or a,  #0b00000100      ;dde6  74 04
     mov eic2, a             ;dde8  45 39
 
-    call clr_82_83          ;ddea  31 e0 b8     Zeroes mem_0082 and mem_0083
+    call reset_kw_counts    ;ddea  31 e0 b8     Reset counts of KW1281 bytes received, sent
     ret                     ;dded  20
 
 sub_ddee:
@@ -17689,7 +17693,8 @@ lab_df3d:
     mov mem_039c, a         ;df49  61 03 9c
     mov a, #0x00            ;df4c  04 00
     mov mem_0396, a         ;df4e  61 03 96
-    mov a, mem_0082         ;df51  05 82
+
+    mov a, mem_0082         ;df51  05 82        A = count of KW1281 bytes received
     bne lab_df68            ;df53  fc 13
 
     mov a, mem_0088         ;df55  05 88        A = KW1281 byte received
@@ -17712,7 +17717,7 @@ lab_df68:
     bhs lab_dfa0            ;df73  f8 2b
 
     mov a, mem_0118+0       ;df75  60 01 18     KW1281 Request byte 0: Block length
-    cmp a, mem_0082         ;df78  15 82
+    cmp a, mem_0082         ;df78  15 82        Compare with count of KW1281 bytes received
     bhs lab_df92            ;df7a  f8 16
 
     mov a, mem_0088         ;df7c  05 88        A = KW1281 byte received
@@ -17745,7 +17750,7 @@ lab_df9c:
 
 lab_dfa0:
 ;Block length >= 16
-    mov mem_0082, #0x00     ;dfa0  85 82 00
+    mov mem_0082, #0x00     ;dfa0  85 82 00     Reset count of KW1281 bytes received
     clrb mem_00f9:3         ;dfa3  a3 f9
     clrb mem_00f9:6         ;dfa5  a6 f9
     clrb mem_00f9:7         ;dfa7  a7 f9
@@ -17813,10 +17818,12 @@ lab_e001:
     mov a, #0x00            ;e00b  04 00
     mov mem_0394, a         ;e00d  61 03 94
     call sub_b235           ;e010  31 b2 35     Store KW1281 byte received in KW1281 Request buffer
+
     mov a, mem_012b+0       ;e013  60 01 2b     KW1281 Response byte 0: Block length
-    cmp a, mem_0083         ;e016  15 83
+    cmp a, mem_0083         ;e016  15 83        Compare to count of KW1281 bytes sent
     bhs lab_e023            ;e018  f8 09
-    mov mem_0082, #0x00     ;e01a  85 82 00
+
+    mov mem_0082, #0x00     ;e01a  85 82 00     Reset count of KW1281 bytes received
     setb mem_00f9:1         ;e01d  a9 f9
     mov a, #0x00            ;e01f  04 00
     beq lab_e033            ;e021  fd 10        BRANCH_ALWAYS_TAKEN
@@ -17852,6 +17859,7 @@ lab_e04d:
     ret                     ;e04e  20
 
 lab_e04f:
+;KW1281 byte check error
     mov a, mem_0396         ;e04f  60 03 96
     incw a                  ;e052  c0
     mov mem_0396, a         ;e053  61 03 96
@@ -17869,9 +17877,9 @@ lab_e063:
     mov mem_0394, a         ;e06a  61 03 94
 
 lab_e06d:
-    call clr_82_83          ;e06d  31 e0 b8     Zeroes mem_0082 and mem_0083
+    call reset_kw_counts    ;e06d  31 e0 b8     Reset counts of KW1281 bytes received, sent
     mov a, #0x01            ;e070  04 01
-    bne lab_e033            ;e072  fc bf       BRANCH_ALWAYS_TAKEN
+    bne lab_e033            ;e072  fc bf        BRANCH_ALWAYS_TAKEN
 
 sub_e074:
     mov a, mem_00fb         ;e074  05 fb
@@ -17918,9 +17926,10 @@ sub_e0ab:
     clrb mem_00f9:4         ;e0b4  a4 f9
     clrb mem_00f9:3         ;e0b6  a3 f9
 
-clr_82_83:
-    mov mem_0082, #0x00     ;e0b8  85 82 00
-    mov mem_0083, #0x00     ;e0bb  85 83 00
+reset_kw_counts:
+;Reset counts of KW1281 bytes received and sent
+    mov mem_0082, #0x00     ;e0b8  85 82 00     Reset count of KW1281 bytes received
+    mov mem_0083, #0x00     ;e0bb  85 83 00     Reset count of KW1281 bytes sent
     ret                     ;e0be  20
 
 sub_e0bf:
@@ -17946,7 +17955,7 @@ lab_e0d0:
 
 sub_e0e1:
     mov a, mem_012b+0       ;e0e1  60 01 2b     KW1281 Response byte 0: Block length
-    cmp a, mem_0083         ;e0e4  15 83
+    cmp a, mem_0083         ;e0e4  15 83        Compare to count of KW1281 bytes sent
     bne lab_e0ec            ;e0e6  fc 04
     clrb mem_00f9:3         ;e0e8  a3 f9
     beq lab_e0ee            ;e0ea  fd 02        BRANCH_ALWAYS_TAKEN
@@ -18359,7 +18368,7 @@ sub_e369:
     incw a                  ;e371  c0           Increment block counter
     mov mem_012b+1, a       ;e372  61 01 2c     Store it in KW1281 Response buffer byte 1: Block counter
 
-    jmp clr_82_83           ;e375  21 e0 b8     Zeroes mem_0082 and mem_0083
+    jmp reset_kw_counts     ;e375  21 e0 b8     Reset counts of KW1281 bytes received, sent
 
     ;XXX e378-e389 looks unreachable
     bbc mem_00f9:1, lab_e389 ;e378  b1 f9 0e
