@@ -609,14 +609,10 @@
     .byte 0xFF              ;8000  ff          DATA '\xff'
     .byte 0xFF              ;8001  ff          DATA '\xff'
     .byte 0xFF              ;8002  ff          DATA '\xff'
-
-mem_8003:
     .byte 0xFF              ;8003  ff          DATA '\xff'
     .byte 0xFF              ;8004  ff          DATA '\xff'
     .byte 0xFF              ;8005  ff          DATA '\xff'
     .byte 0xFF              ;8006  ff          DATA '\xff'
-
-mem_8007:
     .byte 0x98              ;8007  98          DATA '\x98'
     .byte 0x12              ;8008  12          DATA '\x12'
     .byte 0x18              ;8009  18          DATA '\x18'
@@ -2781,6 +2777,7 @@ sub_8c79:
     ret                     ;8c83  20
 
 callv4_8c84:
+;CALLV #4
     clrb mem_0099:4         ;8c84  a4 99
     mov mem_00b1, #0x00     ;8c86  85 b1 00
     mov a, #0xe2            ;8c89  04 e2
@@ -2874,6 +2871,7 @@ lab_8d0c:
     ret                     ;8d0c  20
 
 callv5_8d0d:
+;CALLV #5
     mov a, mem_0293         ;8d0d  60 02 93
     bne lab_8d19            ;8d10  fc 07
     mov a, #0x3c            ;8d12  04 3c
@@ -8579,17 +8577,18 @@ lab_af36:
     cmp a, #0x0c            ;af3c  14 0c        0x0C = mem_0080 value for KW1281 Protected: Read EEPROM
     bne lab_af46            ;af3e  fc 06
 
-    ;mem_0080 = 0x0c read eeprom
+    ;mem_0080 = 0x0c: read eeprom
     call sub_cb72           ;af40  31 cb 72     Read byte from EEPROM, store it in mem_0089
     jmp lab_af50            ;af43  21 af 50
 
 lab_af46:
-;mem_0080 != 0x0c read eeprom
-    movw a, mem_0147        ;af46  c4 01 47     A = pointer into KW1281 Response buffer
-    movw mem_0086, a        ;af49  d5 86        Store pointer in mem_0086
-    movw a, mem_0086        ;af4b  c5 86        A = Reload pointer again
+    ;mem_0080 != 0x0c: read memory
+    movw a, mem_0147        ;af46  c4 01 47     A = pointer to memory to dump
 
-    mov a, @a               ;af4d  92           A = Read memory at pointer
+    movw mem_0086, a        ;af49  d5 86        Store pointer in mem_0086
+    movw a, mem_0086        ;af4b  c5 86        A = Reload pointer again (why?)
+
+    mov a, @a               ;af4d  92           A = Read memory to dump at pointer
     mov mem_0089, a         ;af4e  45 89        KW1281 byte to send = A
 
 lab_af50:
@@ -8597,7 +8596,7 @@ lab_af50:
     incw a                  ;af52  c0
     mov mem_0083, a         ;af53  45 83
 
-    movw a, mem_0147        ;af55  c4 01 47     Increment pointer
+    movw a, mem_0147        ;af55  c4 01 47     Increment pointer to memory being dumped
     incw a                  ;af58  c0
     movw mem_0147, a        ;af59  d4 01 47
 
@@ -10093,44 +10092,44 @@ kw_group_2:
 
 kw_group_3:
 ;KW1281 Group Reading: Group 3 (Antenna)
-    .byte 0x0D              ;b726  0d          DATA '\r'    Number of bytes in KW1281 packet (block length + 1) mem_012b    mem_012b+0
-    .byte 0x0C              ;b727  0c          DATA '\x0c'  Block length                                        mem_012c    mem_012b+1
-    .byte 0x00              ;b728  00          DATA '\x00'  Block counter                                       mem_012d    mem_012b+2
-    .byte 0xE7              ;b729  e7          DATA '\xe7'  Block title (0xE7 = Response to group reading)      mem_012e    mem_012b+3
+    .byte 0x0D              ;b726  0d          DATA '\r'    Number of bytes in KW1281 packet (block length + 1)
+    .byte 0x0C              ;b727  0c          DATA '\x0c'  Block length
+    .byte 0x00              ;b728  00          DATA '\x00'  Block counter
+    .byte 0xE7              ;b729  e7          DATA '\xe7'  Block title (0xE7 = Response to group reading)
 
     ;Antenna Type
-    .byte 0x25              ;b72a  25          DATA '%'     type                                                mem_012f    mem_012b+4
-    .byte 0x01              ;b72b  01          DATA '\x01'  value a                                             mem_0130    mem_012b+5
-    .byte 0x00              ;b72c  00          DATA '\x00'  value b                                             mem_0131    mem_012b+6
+    .byte 0x25              ;b72a  25          DATA '%'     type
+    .byte 0x01              ;b72b  01          DATA '\x01'  value a
+    .byte 0x00              ;b72c  00          DATA '\x00'  value b
 
     ;Antenna
-    .byte 0x25              ;b72d  25          DATA '%'     type                                                mem_0132    mem_012b+7
-    .byte 0x00              ;b72e  00          DATA '\x00'  value a                                             mem_0133    mem_012b+8
-    .byte 0xF4              ;b72f  f4          DATA '\xf4'  value b                                             mem_0134    mem_012b+9
+    .byte 0x25              ;b72d  25          DATA '%'     type
+    .byte 0x00              ;b72e  00          DATA '\x00'  value a
+    .byte 0xF4              ;b72f  f4          DATA '\xf4'  value b
 
     ;Status
-    .byte 0x25              ;b730  25          DATA '%'     type                                                mem_0135    mem_012b+0xa
-    .byte 0x00              ;b731  00          DATA '\x00'  value a                                             mem_0136    mem_012b+0xb
-    .byte 0x00              ;b732  00          DATA '\x00'  value b                                             mem_0137    mem_012b+0xc
+    .byte 0x25              ;b730  25          DATA '%'     type
+    .byte 0x00              ;b731  00          DATA '\x00'  value a
+    .byte 0x00              ;b732  00          DATA '\x00'  value b
 
     .byte 0x03              ;b733  03          DATA '\x03'  Block end
 
 kw_group_5:
 ;KW1281 Group Reading: Group 5 (CD Changer)
-    .byte 0x0A              ;b734  0a          DATA '\n'    Number of bytes in KW1281 packet (block length + 1) mem_012b    mem_012b+0
-    .byte 0x09              ;b735  09          DATA '\t'    Block length                                        mem_012c    mem_012b+1
-    .byte 0x00              ;b736  00          DATA '\x00'  Block counter                                       mem_012d    mem_012b+2
-    .byte 0xE7              ;b737  e7          DATA '\xe7'  Block title (0xE7 = Response to group reading)      mem_012e    mem_012b+3
+    .byte 0x0A              ;b734  0a          DATA '\n'    Number of bytes in KW1281 packet (block length + 1)
+    .byte 0x09              ;b735  09          DATA '\t'    Block length
+    .byte 0x00              ;b736  00          DATA '\x00'  Block counter
+    .byte 0xE7              ;b737  e7          DATA '\xe7'  Block title (0xE7 = Response to group reading)
 
     ;Component
-    .byte 0x25              ;b738  25          DATA '%'     type                                                mem_012f    mem_012b+4
-    .byte 0x00              ;b739  00          DATA '\x00'  value a                                             mem_0130    mem_012b+5
-    .byte 0xF6              ;b73a  f6          DATA '\xf6'  value b                                             mem_0131    mem_012b+6
+    .byte 0x25              ;b738  25          DATA '%'     type
+    .byte 0x00              ;b739  00          DATA '\x00'  value a
+    .byte 0xF6              ;b73a  f6          DATA '\xf6'  value b
 
     ;Status
-    .byte 0x25              ;b73b  25          DATA '%'     type                                                mem_0132    mem_012b+7
-    .byte 0x00              ;b73c  00          DATA '\x00'  value a                                             mem_0133    mem_012b+8
-    .byte 0x00              ;b73d  00          DATA '\x00'  value b                                             mem_0134    mem_012b+9
+    .byte 0x25              ;b73b  25          DATA '%'     type
+    .byte 0x00              ;b73c  00          DATA '\x00'  value a
+    .byte 0x00              ;b73d  00          DATA '\x00'  value b
 
     .byte 0x03              ;b73e  03          DATA '\x03'  Block end
 
@@ -10872,10 +10871,10 @@ mem_0080_is_0b_or_0c:
 ;Request block format:
 ;  0x06 Block length                    mem_0118+0
 ;  0x3E Block counter                   mem_0118+1
-;  0x03 Block title (0x03 or 0x19)      mem_0118+2
+;  0x03 Block title (0x03 or 0x19)      mem_0118+2  (0x03=ROM, 0x19=EEPROM)
 ;  0x00 Number of bytes to read         mem_0118+3
-;  0x00 Address high                    mem_0118+4
-;  0x00 Address low                     mem_0118+5
+;  0x00 Address high                    mem_0118+4  (Only address low byte is
+;  0x00 Address low                     mem_0118+5   used in case of EEPROM)
 ;  0x03 Block end                       mem_0119+6
 ;
     mov a, mem_0081         ;bb17  05 81
@@ -10906,7 +10905,7 @@ mem_0080_is_0a:
 
 lab_bb29:
 ;Read RAM related
-;Read EEPROM related
+;Read ROM or Read EEPROM related
     cmp a, #0x01            ;bb29  14 01
     beq lab_bb3e            ;bb2b  fd 11
     cmp a, #0x03            ;bb2d  14 03
@@ -10921,7 +10920,7 @@ lab_bb29:
 
 lab_bb3e:
 ;Read RAM related
-;Read EEPROM related
+;Read ROM or Read EEPROM related
 ;(mem_0080=x, mem_0081=1)
     movw a, mem_0118+6      ;bb3e  c4 01 1e     KW1281 Request bytes 6 and 7
     movw mem_0147, a        ;bb41  d4 01 47     XXX mem_0147 will be overwritten lab_bb4a,
@@ -10936,8 +10935,8 @@ lab_bb48:
     mov a, #0xfe            ;bb48  04 fe        0xFE = KW1281 Block title: Response to Read RAM
 
 lab_bb4a:
-;Read EEPROM related
 ;Read RAM related
+;Read ROM or Read EEPROM related
     mov mem_012b+2, a       ;bb4a  61 01 2d     KW1281 Response byte 2: Block title
 
     movw a, mem_0118+4      ;bb4d  c4 01 1c     KW1281 Request bytes 4 and 5 (Address to read)
@@ -10960,7 +10959,7 @@ lab_bb4a:
 
 lab_bb6d:
 ;Read RAM related
-;Read EEPROM related
+;Read ROM or Read EEPROM related
 ;(mem_0080=x, mem_0081=3)
     mov a, #0x04            ;bb6d  04 04
     call sub_bbd3           ;bb6f  31 bb d3
@@ -10968,7 +10967,7 @@ lab_bb6d:
 
 lab_bb73:
 ;Read RAM related
-;Read EEPROM related
+;Read ROM or Read EEPROM related
 ;(mem_0080=x, mem_0081=4)
     bbc mem_008b:0, lab_bb81 ;bb73  b0 8b 0b
     clrb mem_008b:0          ;bb76  a0 8b
@@ -13267,6 +13266,7 @@ lab_c925:
 lab_c927:
     ret                     ;c927  20
 
+
 sub_c928:
     rorc a                  ;c928  03
     bhs lab_c92f            ;c929  f8 04
@@ -13476,6 +13476,9 @@ lab_ca24:
     mov mem_0273, a         ;ca29  61 02 73
 
 lab_ca2c:
+;mem_cb16 table case 0
+;also
+;mem_c9ec table case 0
     ret                     ;ca2c  20
 
 lab_ca2d:
@@ -13622,49 +13625,54 @@ sub_cb09:
     jmp sub_e73c            ;cb13  21 e7 3c
 
 mem_cb16:
-    .word lab_ca2c          ;cb16  ca 2c       VECTOR
-    .word lab_cb50          ;cb18  cb 50       VECTOR
-    .word lab_cb43          ;cb1a  cb 43       VECTOR
-    .word lab_cb2d          ;cb1c  cb 2d       VECTOR
-    .word lab_cb38          ;cb1e  cb 38       VECTOR
-    .word lab_cb22          ;cb20  cb 22       VECTOR
+    .word lab_ca2c          ;cb16  ca 2c       VECTOR 0
+    .word lab_cb50          ;cb18  cb 50       VECTOR 1
+    .word lab_cb43          ;cb1a  cb 43       VECTOR 2
+    .word lab_cb2d          ;cb1c  cb 2d       VECTOR 3
+    .word lab_cb38          ;cb1e  cb 38       VECTOR 4
+    .word lab_cb22          ;cb20  cb 22       VECTOR 5
 
 lab_cb22:
-    movw a, #mem_8003       ;cb22  e4 80 03
-    callv #6                ;cb25  ee          CALLV #6 = callv6_cb98
-    movw a, #mem_8007       ;cb26  e4 80 07
-    callv #6                ;cb29  ee          CALLV #6 = callv6_cb98
+;mem_cb16 table case 5
+    movw a, #0x8003         ;cb22  e4 80 03
+    callv #6                ;cb25  ee           EEPROM related (CALLV #6 = callv6_cb98)
+    movw a, #0x8007         ;cb26  e4 80 07
+    callv #6                ;cb29  ee           EEPROM related (CALLV #6 = callv6_cb98)
     jmp lab_cb62            ;cb2a  21 cb 62
 
 lab_cb2d:
-    movw a, #mem_8003       ;cb2d  e4 80 03
-    callv #6                ;cb30  ee          CALLV #6 = callv6_cb98
+;mem_cb16 table case 3
+    movw a, #0x8003         ;cb2d  e4 80 03
+    callv #6                ;cb30  ee           EEPROM related (CALLV #6 = callv6_cb98)
     movw a, #0xc007         ;cb31  e4 c0 07
-    callv #6                ;cb34  ee          CALLV #6 = callv6_cb98
+    callv #6                ;cb34  ee           EEPROM related (CALLV #6 = callv6_cb98)
     jmp lab_cb6f            ;cb35  21 cb 6f
 
 lab_cb38:
-    movw a, #mem_8003       ;cb38  e4 80 03
-    callv #6                ;cb3b  ee          CALLV #6 = callv6_cb98
+;mem_cb16 table case 4
+    movw a, #0x8003         ;cb38  e4 80 03
+    callv #6                ;cb3b  ee           EEPROM related (CALLV #6 = callv6_cb98)
     movw a, #0x0007         ;cb3c  e4 00 07
-    callv #6                ;cb3f  ee          CALLV #6 = callv6_cb98
+    callv #6                ;cb3f  ee           EEPROM related (CALLV #6 = callv6_cb98)
     jmp lab_cb6f            ;cb40  21 cb 6f
 
 lab_cb43:
-    movw a, #lab_c003       ;cb43  e4 c0 03
-    callv #6                ;cb46  ee          CALLV #6 = callv6_cb98
-    call sub_cb9c           ;cb47  31 cb 9c
-    call sub_cbc6           ;cb4a  31 cb c6
+;mem_cb16 table case 2
+    movw a, #0xc003         ;cb43  e4 c0 03
+    callv #6                ;cb46  ee           EEPROM related (CALLV #6 = callv6_cb98)
+    call sub_cb9c           ;cb47  31 cb 9c     EEPROM related
+    call sub_cbc6           ;cb4a  31 cb c6     Read byte from EEPROM, store it in mem_026b
     jmp lab_cb6f            ;cb4d  21 cb 6f
 
 lab_cb50:
-    movw a, #lab_a003       ;cb50  e4 a0 03
-    callv #6                ;cb53  ee          CALLV #6 = callv6_cb98
-    call sub_cb9c           ;cb54  31 cb 9c
+;mem_cb16 table case 1
+    movw a, #0xa003         ;cb50  e4 a0 03
+    callv #6                ;cb53  ee           EEPROM related (CALLV #6 = callv6_cb98)
+    call sub_cb9c           ;cb54  31 cb 9c     EEPROM related
     mov a, mem_026b         ;cb57  60 02 6b
     mov mem_009f, a         ;cb5a  45 9f
     mov mem_00a0, #0x08     ;cb5c  85 a0 08
-    call sub_cba6           ;cb5f  31 cb a6
+    call sub_cba6           ;cb5f  31 cb a6     EEPROM related
 
 lab_cb62:
     clrb pdr0:5             ;cb62  a5 00        EEPROM_CS
@@ -13680,35 +13688,45 @@ lab_cb6f:
     clrb pdr0:5             ;cb6f  a5 00        EEPROM_CS
     ret                     ;cb71  20
 
+
 sub_cb72:
 ;Read byte from EEPROM, store it in mem_0089
-    mov a, mem_0148         ;cb72  60 01 48
-    mov mem_026d, a         ;cb75  61 02 6d
+;Used only for KW1281 Block title 0x19 Read EEPROM (mem_0080 = 0xc0)
+    mov a, mem_0147+1       ;cb72  60 01 48     A = EEPROM address to read
+    mov mem_026d, a         ;cb75  61 02 6d     Copy address into mem_026d
+
+    ;EEPROM addresses 0x0E-0x0F are special and can't be read
     cmp a, #0x0e            ;cb78  14 0e
     beq lab_cb80            ;cb7a  fd 04
     cmp a, #0x0f            ;cb7c  14 0f
     bne lab_cb84            ;cb7e  fc 04
 
 lab_cb80:
+;EEPROM address is 0x0E-0x0F
+;Do nothing and return 0 as the data byte read
     mov a, #0x00            ;cb80  04 00
-    beq lab_cb95            ;cb82  fd 11       BRANCH_ALWAYS_TAKEN
+    beq lab_cb95            ;cb82  fd 11        BRANCH_ALWAYS_TAKEN
 
 lab_cb84:
+;EEPROM address is not 0x0E-0x0F
+;Read the data byte from the EEPROM
     setb pdr0:5             ;cb84  ad 00        EEPROM_CS
-    movw a, #lab_c003       ;cb86  e4 c0 03
-    callv #6                ;cb89  ee          CALLV #6 = callv6_cb98
-    call sub_cb9c           ;cb8a  31 cb 9c
-    call sub_cbc6           ;cb8d  31 cb c6
+    movw a, #0xc003         ;cb86  e4 c0 03
+    callv #6                ;cb89  ee           EEPROM related (CALLV #6 = callv6_cb98)
+    call sub_cb9c           ;cb8a  31 cb 9c     EEPROM related
+    call sub_cbc6           ;cb8d  31 cb c6     Read byte from EEPROM, store it in mem_026b
     clrb pdr0:5             ;cb90  a5 00        EEPROM_CS
-    mov a, mem_026b         ;cb92  60 02 6b
+    mov a, mem_026b         ;cb92  60 02 6b     A = byte read from EEPROM
 
 lab_cb95:
     mov mem_0089, a         ;cb95  45 89        KW1281 byte to send = A
     ret                     ;cb97  20
 
+
 callv6_cb98:
+;CALLV #6
     movw mem_009f, a        ;cb98  d5 9f
-    bne sub_cba6            ;cb9a  fc 0a
+    bne sub_cba6            ;cb9a  fc 0a        EEPROM related
 
 sub_cb9c:
     mov a, mem_026d         ;cb9c  60 02 6d
@@ -13723,14 +13741,14 @@ sub_cba6:
     clrc                    ;cbaa  81
     rolc a                  ;cbab  02
     mov mem_009f, a         ;cbac  45 9f
-    blo lab_cbb4            ;cbae  f9 04
+    bc lab_cbb4_carry       ;cbae  f9 04
     clrb pdr0:7             ;cbb0  a7 00        EEPROM_DO
-    bhs lab_cbb6            ;cbb2  f8 02        BRANCH_ALWAYS_TAKEN
+    bnc lab_cbb4_no_carry   ;cbb2  f8 02        BRANCH_ALWAYS_TAKEN
 
-lab_cbb4:
+lab_cbb4_carry:
     setb pdr0:7             ;cbb4  af 00        EEPROM_DO
 
-lab_cbb6:
+lab_cbb4_no_carry:
     nop                     ;cbb6  00
     nop                     ;cbb7  00
     setb pdr1:0             ;cbb8  a8 02        SK
@@ -13738,11 +13756,12 @@ lab_cbb6:
     decw a                  ;cbbc  d0
     mov mem_00a0, a         ;cbbd  45 a0
     cmp a, #0x00            ;cbbf  14 00
-    bne sub_cba6            ;cbc1  fc e3
+    bne sub_cba6            ;cbc1  fc e3        EEPROM related
     clrb pdr1:0             ;cbc3  a0 02        SK
     ret                     ;cbc5  20
 
 sub_cbc6:
+;Read byte from EEPROM, store it in mem_026b
     clrb pdr1:0             ;cbc6  a0 02        SK
     mov mem_00a0, #0x08     ;cbc8  85 a0 08
 
@@ -13767,6 +13786,7 @@ lab_cbd6:
     mov a, mem_00a1         ;cbe4  05 a1
     mov mem_026b, a         ;cbe6  61 02 6b
     ret                     ;cbe9  20
+
 
 sub_cbea:
     mov a, mem_00f5         ;cbea  05 f5
@@ -18668,6 +18688,7 @@ lab_e55b:
     ret                     ;e55b  20
 
 callv7_e55c:
+;CALLV #7
 ;mem_038b case 0x0a
     setb pdr7:2             ;e55c  aa 13        TX
     setb pdr7:3             ;e55e  ab 13        /RX
@@ -20321,12 +20342,16 @@ lab_eed0:
     callv #1                ;eed2  e9          CALLV #1 = callv1_eed4
     ret                     ;eed3  20
 
+
 callv1_eed4:
+;CALLV #1
     movw mem_01c9, a        ;eed4  d4 01 c9
     mov a, #0x10            ;eed7  04 10
     bne lab_eeed            ;eed9  fc 12       BRANCH_ALWAYS_TAKEN
 
+
 callv2_eedb:
+;CALLV #2
     mov a, mem_01c8         ;eedb  60 01 c8
     cmp a, #0x70            ;eede  14 70
     bne lab_ef12            ;eee0  fc 30
@@ -20335,7 +20360,9 @@ callv2_eedb:
     mov a, #0x00            ;eee7  04 00
     beq lab_ef08            ;eee9  fd 1d       BRANCH_ALWAYS_TAKEN
 
+
 callv3_eeeb:
+;CALLV #3
     mov a, #0x20            ;eeeb  04 20
 
 lab_eeed:
