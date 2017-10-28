@@ -1,0 +1,65 @@
+;KW1281 Login
+;
+;Login request block (code 12345 = 0x31d4):
+;  0x08 Block length                    mem_0118+0
+;  0x3E Block counter                   mem_0118+1
+;  0x2B Block title (Login)             mem_0118+2
+;  0x31 Login code high byte            mem_0118+3
+;  0xD4 Login code low byte             mem_0118+4
+;  0x01 Unknown byte 0                  mem_0118+5
+;  0x86 Unknown byte 1                  mem_0118+6
+;  0x9F Unknown byte 2                  mem_0118+7
+;  0x03 Block end                       mem_0118+8
+
+
+;KW1281 Read or write login word
+;
+;Request block format:
+;  0x08 Block length                    mem_0118+0
+;  0x3E Block counter                   mem_0118+1
+;  0xF0 Block title (0xF0)              mem_0118+2
+;  0x00 Mode byte                       mem_0118+3  0=Read, 1=Write
+;  0x00 Unknown byte 0                  mem_0118+4  Reads/writes mem_020f
+;  0x00 Unknown byte 1                  mem_0118+5  Reads/writes mem_0210
+;  0x03 Block end                       mem_0118+6
+;
+;Response block format:
+;  0x05 Block length                    mem_012b+0
+;  0x3F Block counter                   mem_012b+1
+;  0xF0 Block title (0xF0)              mem_012b+2
+;  0x00 Unknown byte 0                  mem_012b+3  Reads byte at mem_020f
+;  0x01 Unknown byte 1                  mem_012b+4  Reads byte at mem_0210
+;  0x03 Block end                       mem_012b+5
+
+
+;KW1281 Read ROM or Read EEPROM entry point
+;
+;Request block format:
+;  0x06 Block length                    mem_0118+0
+;  0x3E Block counter                   mem_0118+1
+;  0x03 Block title (0x03 or 0x19)      mem_0118+2
+;  0x00 Number of bytes to read         mem_0118+3
+;  0x00 Address high                    mem_0118+4
+;  0x00 Address low                     mem_0118+5
+;  0x03 Block end                       mem_0119+6
+
+
+
+Cracking
+========
+
+Write new login word:
+    TX: 08 xx F0 01 00 00 03           (Mode=1/Write, Word=0x0000)
+    RX: 05 xx F0 00 00 03              ("Login word is 0x0000")
+
+Login using that word:
+    TX: 08 xx 2B 00 00 01 86 9F 03     (Login with code 0x0000)
+    RX: 03 xx 09 03                    (Acknowledge)
+
+Read secret group 0x19:
+    TX: 04 xx 29 19 03                 (Read group 0x19)
+    RX: 03 xx 09 03                    (Acknowledge)
+
+Read EEPROM:
+    TX: 03 xx 19 20 00 00 30           (Read 0x20 bytes starting at address 0)
+    RX: 23 xx FD   ...    03           (EEPROM Data)
