@@ -255,9 +255,26 @@
     mem_01a1 = 0x1a1
     mem_01a4 = 0x1a4
     mem_01a5 = 0x1a5
+    mem_01a6 = 0x1a6
+    mem_01a7 = 0x1a7
+    mem_01a8 = 0x1a8
+    mem_01a9 = 0x1a9
+    mem_01aa = 0x1aa
+    mem_01ab = 0x1ab
     mem_01ac = 0x1ac
     mem_01ad = 0x1ad
+    mem_01ae = 0x1ae
+    mem_01af = 0x1af
+    mem_01b0 = 0x1b0
+    mem_01b1 = 0x1b1
+    mem_01b2 = 0x1b2
     mem_01b3 = 0x1b3
+    mem_01b4 = 0x1b4
+    mem_01b5 = 0x1b5
+    mem_01b6 = 0x1b6
+    mem_01b7 = 0x1b7
+    mem_01b8 = 0x1b8
+    mem_01b9 = 0x1b9
     mem_01ba = 0x1ba
     mem_01bb = 0x1bb
     mem_01bc = 0x1bc
@@ -13169,9 +13186,9 @@ lab_c893:
     xor a, #0x7f            ;c895  54 7f
     mov mem_00bd, a         ;c897  45 bd
     mov mem_00bb, #0x00     ;c899  85 bb 00
-    clrb pdr0:4             ;c89c  a4 00        PLL_CE
+    clrb pdr0:4             ;c89c  a4 00        PLL_CE=low (disabled)
     clrb pdr1:0             ;c89e  a0 02        SK
-    clrb pdr0:5             ;c8a0  a5 00        EEPROM_CS
+    clrb pdr0:5             ;c8a0  a5 00        EEPROM_CS=low (diabled)
     mov a, mem_00c1         ;c8a2  05 c1
     cmp a, #0x01            ;c8a4  14 01
     beq lab_c8ac            ;c8a6  fd 04
@@ -13191,7 +13208,7 @@ lab_c8b8:
     mov a, #0x04            ;c8b8  04 04
     xch a, t                ;c8ba  42
     call sub_c928           ;c8bb  31 c9 28
-    setb pdr0:4             ;c8be  ac 00        PLL_CE
+    setb pdr0:4             ;c8be  ac 00        PLL_CE=high (enabled)
     mov mem_00a2, #0x00     ;c8c0  85 a2 00
     movw ix, #mem_00be      ;c8c3  e6 00 be
     incw ix                 ;c8c6  c2
@@ -13216,7 +13233,7 @@ lab_c8d3:
     mov a, mem_00a3         ;c8de  05 a3
     cmp a                   ;c8e0  12
     bne lab_c8c7            ;c8e1  fc e4
-    clrb pdr0:4             ;c8e3  a4 00        PLL_CE
+    clrb pdr0:4             ;c8e3  a4 00        PLL_CE=low (disabled)
     setb mem_00c9:7         ;c8e5  af c9
     ret                     ;c8e7  20
 
@@ -13299,13 +13316,13 @@ lab_c931:
     ret                     ;c940  20
 
 sub_c941:
-    clrb pdr0:4             ;c941  a4 00        PLL_CE
-    clrb pdr0:5             ;c943  a5 00        EEPROM_CS
+    clrb pdr0:4             ;c941  a4 00        PLL_CE=low (disabled)
+    clrb pdr0:5             ;c943  a5 00        EEPROM_CS=low (disabled)
     mov a, #0x04            ;c945  04 04
     mov a, #0x03            ;c947  04 03
     call sub_c928           ;c949  31 c9 28
     movw ix, #mem_0281      ;c94c  e6 02 81
-    setb pdr0:4             ;c94f  ac 00        PLL_CE
+    setb pdr0:4             ;c94f  ac 00        PLL_CE=high (enabled)
     mov a, #0x04            ;c951  04 04
     mov mem_00a2, a         ;c953  45 a2
 
@@ -13328,7 +13345,7 @@ lab_c960:
     decw a                  ;c96d  d0
     mov mem_00a2, a         ;c96e  45 a2
     bne lab_c955            ;c970  fc e3
-    clrb pdr0:4             ;c972  a4 00        PLL_CE
+    clrb pdr0:4             ;c972  a4 00        PLL_CE=low (disabled)
     setb mem_00c9:3         ;c974  ab c9
     ret                     ;c976  20
 
@@ -13354,8 +13371,8 @@ lab_c986:
     ret                     ;c98c  20
 
 sub_c98d:
-    clrb pdr0:4             ;c98d  a4 00        PLL_CE
-    clrb pdr0:5             ;c98f  a5 00        EEPROM_CS
+    clrb pdr0:4             ;c98d  a4 00        PLL_CE=low (disabled)
+    clrb pdr0:5             ;c98f  a5 00        EEPROM_CS=low (disabled)
     mov a, #0x04            ;c991  04 04
     mov a, #0x03            ;c993  04 03
     call sub_c928           ;c995  31 c9 28
@@ -13363,78 +13380,77 @@ sub_c98d:
     ret                     ;c99a  20
 
 mem_c99b:
-    .byte 0x01              ;c99b  01          DATA '\x01'
-    .byte 0xAD              ;c99c  ad          DATA '\xad'
-    .byte 0x00              ;c99d  00          DATA '\x00'
-    .byte 0x01              ;c99e  01          DATA '\x01'
-    .byte 0x01              ;c99f  01          DATA '\x01'
-    .byte 0xAE              ;c9a0  ae          DATA '\xae'
-    .byte 0x01              ;c9a1  01          DATA '\x01'
-    .byte 0x01              ;c9a2  01          DATA '\x01'
-    .byte 0x01              ;c9a3  01          DATA '\x01'
-    .byte 0xAF              ;c9a4  af          DATA '\xaf'
-    .byte 0x02              ;c9a5  02          DATA '\x02'
-    .byte 0x01              ;c9a6  01          DATA '\x01'
-    .byte 0x01              ;c9a7  01          DATA '\x01'
-    .byte 0xB0              ;c9a8  b0          DATA '\xb0'
-    .byte 0x03              ;c9a9  03          DATA '\x03'
-    .byte 0x01              ;c9aa  01          DATA '\x01'
-    .byte 0x01              ;c9ab  01          DATA '\x01'
-    .byte 0xB1              ;c9ac  b1          DATA '\xb1'
-    .byte 0x04              ;c9ad  04          DATA '\x04'
-    .byte 0x01              ;c9ae  01          DATA '\x01'
-    .byte 0x01              ;c9af  01          DATA '\x01'
-    .byte 0xB2              ;c9b0  b2          DATA '\xb2'
-    .byte 0x05              ;c9b1  05          DATA '\x05'
-    .byte 0x01              ;c9b2  01          DATA '\x01'
-    .byte 0x01              ;c9b3  01          DATA '\x01'
-    .byte 0xB4              ;c9b4  b4          DATA '\xb4'
-    .byte 0x10              ;c9b5  10          DATA '\x10'
-    .byte 0x01              ;c9b6  01          DATA '\x01'
-    .byte 0x01              ;c9b7  01          DATA '\x01'
-    .byte 0xB5              ;c9b8  b5          DATA '\xb5'
-    .byte 0x11              ;c9b9  11          DATA '\x11'
-    .byte 0x01              ;c9ba  01          DATA '\x01'
-    .byte 0x01              ;c9bb  01          DATA '\x01'
-    .byte 0xB6              ;c9bc  b6          DATA '\xb6'
-    .byte 0x12              ;c9bd  12          DATA '\x12'
-    .byte 0x01              ;c9be  01          DATA '\x01'
-    .byte 0x01              ;c9bf  01          DATA '\x01'
-    .byte 0xB7              ;c9c0  b7          DATA '\xb7'
-    .byte 0x13              ;c9c1  13          DATA '\x13'
-    .byte 0x01              ;c9c2  01          DATA '\x01'
-    .byte 0x01              ;c9c3  01          DATA '\x01'
-    .byte 0xB8              ;c9c4  b8          DATA '\xb8'
-    .byte 0x14              ;c9c5  14          DATA '\x14'
-    .byte 0x01              ;c9c6  01          DATA '\x01'
-    .byte 0x01              ;c9c7  01          DATA '\x01'
-    .byte 0xB9              ;c9c8  b9          DATA '\xb9'
-    .byte 0x15              ;c9c9  15          DATA '\x15'
-    .byte 0x01              ;c9ca  01          DATA '\x01'
-    .byte 0x01              ;c9cb  01          DATA '\x01'
-    .byte 0xA6              ;c9cc  a6          DATA '\xa6'
-    .byte 0x20              ;c9cd  20          DATA ' '
-    .byte 0x01              ;c9ce  01          DATA '\x01'
-    .byte 0x01              ;c9cf  01          DATA '\x01'
-    .byte 0xA7              ;c9d0  a7          DATA '\xa7'
-    .byte 0x21              ;c9d1  21          DATA '!'
-    .byte 0x01              ;c9d2  01          DATA '\x01'
-    .byte 0x01              ;c9d3  01          DATA '\x01'
-    .byte 0xA8              ;c9d4  a8          DATA '\xa8'
-    .byte 0x22              ;c9d5  22          DATA '"'
-    .byte 0x01              ;c9d6  01          DATA '\x01'
-    .byte 0x01              ;c9d7  01          DATA '\x01'
-    .byte 0xA9              ;c9d8  a9          DATA '\xa9'
-    .byte 0x23              ;c9d9  23          DATA '#'
-    .byte 0x01              ;c9da  01          DATA '\x01'
-    .byte 0x01              ;c9db  01          DATA '\x01'
-    .byte 0xAA              ;c9dc  aa          DATA '\xaa'
-    .byte 0x24              ;c9dd  24          DATA '$'
-    .byte 0x01              ;c9de  01          DATA '\x01'
-    .byte 0x01              ;c9df  01          DATA '\x01'
-    .byte 0xAB              ;c9e0  ab          DATA '\xab'
-    .byte 0x25              ;c9e1  25          DATA '%'
-    .byte 0x01              ;c9e2  01          DATA '\x01'
+    .word mem_01ad          ;DATA
+    .byte 0x00              ;DATA
+    .byte 0x01              ;DATA
+
+    .word mem_01ae          ;DATA
+    .byte 0x01              ;DATA
+    .byte 0x01              ;DATA
+
+    .word mem_01af          ;DATA
+    .byte 0x02              ;DATA
+    .byte 0x01              ;DATA
+
+    .word mem_01b0          ;DATA
+    .byte 0x03              ;DATA
+    .byte 0x01              ;DATA
+
+    .word mem_01b1          ;DATA
+    .byte 0x04              ;DATA
+    .byte 0x01              ;DATA
+
+    .word mem_01b2          ;DATA
+    .byte 0x05              ;DATA
+    .byte 0x01              ;DATA
+
+    .word mem_01b4          ;DATA
+    .byte 0x10              ;DATA
+    .byte 0x01              ;DATA
+
+    .word mem_01b5          ;DATA
+    .byte 0x11              ;DATA
+    .byte 0x01              ;DATA
+
+    .word mem_01b6          ;DATA
+    .byte 0x12              ;DATA
+    .byte 0x01              ;DATA
+
+    .word mem_01b7          ;DATA
+    .byte 0x13              ;DATA
+    .byte 0x01              ;DATA
+
+    .word mem_01b8          ;DATA
+    .byte 0x14              ;DATA
+    .byte 0x01              ;DATA
+
+    .word mem_01b9          ;DATA
+    .byte 0x15              ;DATA
+    .byte 0x01              ;DATA
+
+    .word mem_01a6          ;DATA
+    .byte 0x20              ;DATA
+    .byte 0x01              ;DATA
+
+    .word mem_01a7          ;DATA
+    .byte 0x21              ;DATA
+    .byte 0x01              ;DATA
+
+    .word mem_01a8          ;DATA
+    .byte 0x22              ;DATA
+    .byte 0x01              ;DATA
+
+    .word mem_01a9          ;DATA
+    .byte 0x23              ;DATA
+    .byte 0x01              ;DATA
+
+    .word mem_01aa          ;DATA
+    .byte 0x24              ;DATA
+    .byte 0x01              ;DATA
+
+    .word mem_01ab          ;DATA
+    .byte 0x25              ;DATA
+    .byte 0x01              ;DATA
 
 sub_c9e3:
     mov a, mem_0274         ;c9e3  60 02 74
@@ -13536,7 +13552,7 @@ lab_ca70:
     bbc pdr0:0, lab_cab4     ;ca76  b0 00 3b    EEPROM_DI
 
 lab_ca79:
-    clrb pdr0:5             ;ca79  a5 00        EEPROM_CS
+    clrb pdr0:5             ;ca79  a5 00        EEPROM_CS=low(disabled)
     mov a, mem_0270         ;ca7b  60 02 70
     decw a                  ;ca7e  d0
     mov mem_0270, a         ;ca7f  61 02 70
@@ -13626,8 +13642,8 @@ lab_cb01:
     ret                     ;cb08  20
 
 sub_cb09:
-    clrb pdr0:4             ;cb09  a4 00        PLL_CE
-    setb pdr0:5             ;cb0b  ad 00        EEPROM_CS
+    clrb pdr0:4             ;cb09  a4 00        PLL_CE=low (disabled)
+    setb pdr0:5             ;cb0b  ad 00        EEPROM_CS=high (enabled)
     mov a, mem_0272         ;cb0d  60 02 72
     movw a, #mem_cb16       ;cb10  e4 cb 16
     jmp sub_e73c            ;cb13  21 e7 3c
@@ -13683,17 +13699,17 @@ lab_cb50:
     call sub_cba6           ;cb5f  31 cb a6     EEPROM related
 
 lab_cb62:
-    clrb pdr0:5             ;cb62  a5 00        EEPROM_CS
+    clrb pdr0:5             ;cb62  a5 00        EEPROM_CS=low (disabled)
     nop                     ;cb64  00
     nop                     ;cb65  00
     nop                     ;cb66  00
-    setb pdr0:5             ;cb67  ad 00        EEPROM_CS
+    setb pdr0:5             ;cb67  ad 00        EEPROM_CS=high (enabled)
     mov a, #0x04            ;cb69  04 04
     mov mem_0271, a         ;cb6b  61 02 71
     ret                     ;cb6e  20
 
 lab_cb6f:
-    clrb pdr0:5             ;cb6f  a5 00        EEPROM_CS
+    clrb pdr0:5             ;cb6f  a5 00        EEPROM_CS=low (disabled)
     ret                     ;cb71  20
 
 
@@ -13718,12 +13734,12 @@ lab_cb80:
 lab_cb84:
 ;EEPROM address is not 0x0E-0x0F
 ;Read the data byte from the EEPROM
-    setb pdr0:5             ;cb84  ad 00        EEPROM_CS
+    setb pdr0:5             ;cb84  ad 00        EEPROM_CS=high (enabled)
     movw a, #0xc003         ;cb86  e4 c0 03
     callv #6                ;cb89  ee           EEPROM related (CALLV #6 = callv6_cb98)
     call sub_cb9c           ;cb8a  31 cb 9c     EEPROM related
     call sub_cbc6           ;cb8d  31 cb c6     Read byte from EEPROM, store it in mem_026b
-    clrb pdr0:5             ;cb90  a5 00        EEPROM_CS
+    clrb pdr0:5             ;cb90  a5 00        EEPROM_CS=low (disabled)
     mov a, mem_026b         ;cb92  60 02 6b     A = byte read from EEPROM
 
 lab_cb95:
@@ -16602,7 +16618,7 @@ sub_d8ba:
     mov mem_034a, a         ;d8c1  61 03 4a
     movw a, #0x0000         ;d8c4  e4 00 00
     mov a, mem_034c         ;d8c7  60 03 4c
-    movw a, #mem_036e         ;d8ca  e4 03 6e
+    movw a, #mem_036e       ;d8ca  e4 03 6e
     clrc                    ;d8cd  81
     addcw a                 ;d8ce  23
     mov a, @a               ;d8cf  92
@@ -19772,32 +19788,32 @@ lab_eb8a:
     bne lab_eb7e            ;eb95  fc e7
 
 mem_eb97:
-    .byte 0x0B              ;eb97  0b          DATA '\x0b'
-    .word lab_eb7b ;VECTOR
+    .byte 0x0B              ;DATA '\x0b'
+    .word lab_eb7b
 
-    .byte 0x06              ;eb9a  06          DATA '\x06'
-    .word lab_eb7b ;VECTOR
+    .byte 0x06              ;DATA '\x06'
+    .word lab_eb7b
 
-    .byte 0x08              ;eb9d  08          DATA '\x08'
-    .word lab_eb82 ;VECTOR
+    .byte 0x08              ;DATA '\x08'
+    .word lab_eb82
 
-    .byte 0x02              ;eba0  02          DATA '\x02'
-    .word lab_eb7b ;VECTOR
+    .byte 0x02              ;DATA '\x02'
+    .word lab_eb7b
 
-    .byte 0x03              ;eba3  03          DATA '\x03'
-    .word lab_eb7b ;VECTOR
+    .byte 0x03              ;DATA '\x03'
+    .word lab_eb7b
 
-    .byte 0x04              ;eba6  04          DATA '\x04'
-    .word lab_eb8a ;VECTOR
+    .byte 0x04              ;DATA '\x04'
+    .word lab_eb8a
 
-    .byte 0x05              ;eba9  05          DATA '\x05'
-    .word lab_eb8a ;VECTOR
+    .byte 0x05              ;DATA '\x05'
+    .word lab_eb8a
 
-    .byte 0x0C              ;ebac  0c          DATA '\x0c'
-    .word lab_eb79 ;VECTOR
+    .byte 0x0C              ;DATA '\x0c'
+    .word lab_eb79
 
-    .byte 0x0D              ;ebaf  0d          DATA '\r'
-    .word lab_eb79 ;VECTOR
+    .byte 0x0D              ;DATA '\r'
+    .word lab_eb79
 
 sub_ebb2:
     movw a, #0x0000         ;ebb2  e4 00 00
@@ -19806,7 +19822,7 @@ sub_ebb2:
     decw a                  ;ebbb  d0
     clrc                    ;ebbc  81
     rolc a                  ;ebbd  02
-    movw a, #0x03b8         ;ebbe  e4 03 b8
+    movw a, #mem_03b8       ;ebbe  e4 03 b8
     addcw a                 ;ebc1  23
     mov a, @a               ;ebc2  92
     and a, #0x40            ;ebc3  64 40
