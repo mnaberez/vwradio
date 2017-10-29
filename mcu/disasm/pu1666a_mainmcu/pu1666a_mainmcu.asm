@@ -8920,16 +8920,22 @@ lab_b12c:
     ret                     ;b135  20
 
 sub_b136:
-;Copy a template into the KW1281 Response buffer at mem_012b
+;Copy mem_00a5 bytes from @mem_0084 to KW1281 Response buffer
 ;
-;A = Pointer to template
-;mem_00a5 = Number of byte to copy
+;mem_0084 = Pointer to buffer to read
+;mem_00a5 = Number of bytes to copy
 ;
     movw a, #mem_012b       ;b136  e4 01 2b     A = Pointer to KW1281 Response byte 0
     movw mem_0086, a        ;b139  d5 86        Store pointer in mem_0086
-    jmp sub_b13e            ;b13b  21 b1 3e
+    jmp sub_b13e            ;b13b  21 b1 3e     Copy mem_00a5 bytes from @mem_0084 to @mem_0086
 
 sub_b13e:
+;Copy mem_00a5 bytes from @mem_0084 to @mem_0086
+;
+;mem_0084 = Pointer to buffer to read
+;mem_0086 = Pointer to buffer to write
+;mem_00a5 = Number of bytes to copy
+;
     mov a, mem_00a5         ;b13e  05 a5        A = number of bytes in KW1281 packet
     bne lab_b143            ;b140  fc 01
     ret                     ;b142  20
@@ -8941,13 +8947,16 @@ lab_b143:
     mov @a, t               ;b148  82
     incw a                  ;b149  c0
     movw mem_0086, a        ;b14a  d5 86
+
     movw a, mem_0084        ;b14c  c5 84
     incw a                  ;b14e  c0
     movw mem_0084, a        ;b14f  d5 84        Pointer to KW1281 packet bytes
+
     mov a, mem_00a5         ;b151  05 a5        A = number of bytes in KW1281 packet
     decw a                  ;b153  d0
     mov mem_00a5, a         ;b154  45 a5
-    jmp sub_b13e            ;b156  21 b1 3e
+
+    jmp sub_b13e            ;b156  21 b1 3e     Copy mem_00a5 bytes from @mem_0084 to @mem_0086
 
 lab_b159:
     mov a, @ix+0x00         ;b159  06 00
@@ -9086,7 +9095,8 @@ sub_b20e_no_ack:
     movw a, #kw_no_ack      ;b20e  e4 ff 3b
     movw mem_0084, a        ;b211  d5 84        Pointer to KW1281 packet bytes
     mov mem_00a5, #0x05     ;b213  85 a5 05     5 bytes in KW1281 packet
-    call sub_b136           ;b216  31 b1 36     Copy into KW1281 Response buffer at mem_012b
+    call sub_b136           ;b216  31 b1 36     Copy mem_00a5 bytes from @mem_0084 to KW1281 Response buffer
+
     mov a, mem_0116         ;b219  60 01 16     A = Block counter copied from KW1281 request packet
     jmp lab_b22e            ;b21c  21 b2 2e
 
@@ -9094,7 +9104,7 @@ sub_b21f_no_ack:
     movw a, #kw_no_ack      ;b21f  e4 ff 3b
     movw mem_0084, a        ;b222  d5 84        Pointer to KW1281 packet bytes
     mov mem_00a5, #0x05     ;b224  85 a5 05     5 bytes in KW1281 packet
-    call sub_b136           ;b227  31 b1 36     Copy into KW1281 Response buffer at mem_012b
+    call sub_b136           ;b227  31 b1 36     Copy mem_00a5 bytes from @mem_0084 to KW1281 Response buffer
 
     mov a, mem_0116         ;b22a  60 01 16     A = Block counter copied from KW1281 request packet
     incw a                  ;b22d  c0           Increment block counter
@@ -9259,10 +9269,11 @@ lab_b2d4_read:
     mov mem_00a5, #0x06     ;b2d4  85 a5 06     6 bytes in KW1281 packet
     movw a, #kw_rw_login    ;b2d7  e4 ff 5d
     movw mem_0084, a        ;b2da  d5 84        Pointer to KW1281 packet bytes
-    call sub_b136           ;b2dc  31 b1 36     Copy into KW1281 Response buffer at mem_012b
+    call sub_b136           ;b2dc  31 b1 36     Copy mem_00a5 bytes from @mem_0084 to KW1281 Response buffer
 
     movw a, mem_020f        ;b2df  c4 02 0f     Read word at mem_020f
     movw mem_012b+3, a      ;b2e2  d4 01 2e     Put it into KW1281 Response bytes 3 and 4
+
     call sub_bbae           ;b2e5  31 bb ae
     mov mem_0081, #0x02     ;b2e8  85 81 02
     ret                     ;b2eb  20
@@ -9335,7 +9346,7 @@ lab_b33a:
 
     ;Model is 1J0035180
     movw a, #kw_asc_1j0035180   ;b34e  e4 ff 0c    "1J0035180   "
-    bne cmp_model_done      ;b351  fc 0c       BRANCH_ALWAYS_TAKEN
+    bne cmp_model_done          ;b351  fc 0c       BRANCH_ALWAYS_TAKEN
 
 cmp_model_1:
     cmp a, #0b10000000      ;b353  14 80
@@ -9343,7 +9354,7 @@ cmp_model_1:
 
     ;Model is 1J0035180D
     movw a, #kw_asc_1j0035180d  ;b357  e4 fe fc    "1J0035180D  "
-    bne cmp_model_done      ;b35a  fc 03       BRANCH_ALWAYS_TAKEN
+    bne cmp_model_done          ;b35a  fc 03       BRANCH_ALWAYS_TAKEN
 
 cmp_model_2:
     ;Model is 1C0035180E
@@ -9407,12 +9418,12 @@ lab_b37f:
 lab_b38c:
 ;KW1281 ID code request/ECU info related
 ;(mem_0080=0x01, mem_0081=4)
-    mov mem_00a5, #0x10     ;b38c  85 a5 10     16 bytes in KW1281 packet
+    mov mem_00a5, #0x10         ;b38c  85 a5 10     16 bytes in KW1281 packet
     movw a, #kw_asc_radio_3cp   ;b38f  e4 ff 1c     " RADIO 3CP  "
-    movw mem_0084, a        ;b392  d5 84        Pointer to KW1281 packet bytes
-    call sub_bbab           ;b394  31 bb ab
-    mov mem_0081, #0x05     ;b397  85 81 05
-    ret                     ;b39a  20
+    movw mem_0084, a            ;b392  d5 84        Pointer to KW1281 packet bytes
+    call sub_bbab               ;b394  31 bb ab
+    mov mem_0081, #0x05         ;b397  85 81 05
+    ret                         ;b39a  20
 
 
 lab_b39b:
@@ -9481,12 +9492,10 @@ lab_b3cc:
 
     movw a, #mem_0175       ;b3e7  e4 01 75     A = Pointer to KW1281 packet bytes
     movw mem_0084, a        ;b3ea  d5 84
-
     movw a, #mem_012b+4     ;b3ec  e4 01 2f     A = Pointer to KW1281 Response byte 4
     movw mem_0086, a        ;b3ef  d5 86
-
     mov mem_00a5, #0x04     ;b3f1  85 a5 04     4 bytes in KW1281 packet
-    call sub_b13e           ;b3f4  31 b1 3e     TODO probably a buffer copy
+    call sub_b13e           ;b3f4  31 b1 3e     Copy mem_00a5 bytes from @mem_0084 to @mem_0086
 
     call sub_bba4           ;b3f7  31 bb a4
     mov mem_0081, #0x0d     ;b3fa  85 81 0d
@@ -9675,7 +9684,8 @@ lab_b4e9:
     mov mem_00a5, #0x07     ;b4e9  85 a5 07     7 bytes in KW1281 packet
     movw a, #kw_faults_none ;b4ec  e4 ff 44
     movw mem_0084, a        ;b4ef  d5 84        Pointer to KW1281 packet bytes
-    call sub_b136           ;b4f1  31 b1 36     Copy into KW1281 Response buffer at mem_012b
+    call sub_b136           ;b4f1  31 b1 36     Copy mem_00a5 bytes from @mem_0084 to KW1281 Response buffer
+
     mov mem_0081, #0x03     ;b4f4  85 81 03
 
 lab_b4f7:
@@ -9745,10 +9755,11 @@ sub_b542:
     mov a, mem_0093         ;b542  05 93
     beq lab_b553            ;b544  fd 0d
     call sub_b554           ;b546  31 b5 54
+
     movw mem_0084, a        ;b549  d5 84        Pointer to KW1281 packet bytes
-    movw mem_0084, a        ;b54b  d5 84        Pointer to KW1281 packet bytes
+    movw mem_0084, a        ;b54b  d5 84        Pointer to KW1281 packet bytes (why?)
     mov mem_00a5, #0x03     ;b54d  85 a5 03     3 bytes in KW1281 packet
-    call sub_b13e           ;b550  31 b1 3e
+    call sub_b13e           ;b550  31 b1 3e     Copy mem_00a5 bytes from @mem_0084 to @mem_0086
 
 lab_b553:
     ret                     ;b553  20
@@ -9857,6 +9868,7 @@ lab_b5d7:
     movw a, #kw_faults_none ;b5da  e4 ff 44
     movw mem_0084, a        ;b5dd  d5 84        Pointer to KW1281 packet bytes
     call sub_bba1           ;b5df  31 bb a1
+
     mov mem_0081, #0x05     ;b5e2  85 81 05
     ret                     ;b5e5  20
 
@@ -11038,7 +11050,7 @@ mem_0080_is_0f:
 
 
 sub_bba1:
-    call sub_b136           ;bba1  31 b1 36     Copy into KW1281 Response buffer at mem_012b
+    call sub_b136           ;bba1  31 b1 36     Copy mem_00a5 bytes from @mem_0084 to KW1281 Response buffer
 
 sub_bba4:
     mov a, #0x01            ;bba4  04 01
@@ -11046,7 +11058,7 @@ sub_bba4:
     bne call_sub_bbbf       ;bba9  fc 14        BRANCH_ALWAYS_TAKEN
 
 sub_bbab:
-    call sub_b136           ;bbab  31 b1 36     Copy into KW1281 Response buffer at mem_012b
+    call sub_b136           ;bbab  31 b1 36     Copy mem_00a5 bytes from @mem_0084 to KW1281 Response buffer
 
 sub_bbae:
     mov a, #0x01            ;bbae  04 01
@@ -18352,19 +18364,23 @@ lab_e336:
 sub_e338_no_ack_2:
     mov a, #0x01            ;e338  04 01
     mov mem_0397, a         ;e33a  61 03 97
+
     movw a, #kw_no_ack_2    ;e33d  e4 dd 5d
     movw mem_0084, a        ;e340  d5 84        Pointer to KW1281 packet bytes
     mov mem_00a5, #0x05     ;e342  85 a5 05     5 bytes in KW1281 packet
-    call sub_b136           ;e345  31 b1 36     Copy into KW1281 Response buffer at mem_012b
+    call sub_b136           ;e345  31 b1 36     Copy mem_00a5 bytes from @mem_0084 to KW1281 Response buffer
+
     mov a, mem_0116         ;e348  60 01 16     A = Block counter copied from KW1281 request packet
     jmp lab_e35f            ;e34b  21 e3 5f
 
 sub_e34e_no_ack_2:
     clrb mem_00f9:7         ;e34e  a7 f9
+
     movw a, #kw_no_ack_2    ;e350  e4 dd 5d
     movw mem_0084, a        ;e353  d5 84        Pointer to KW1281 packet bytes
     mov mem_00a5, #0x05     ;e355  85 a5 05     5 bytes in KW1281 packet
-    call sub_b136           ;e358  31 b1 36     Copy into KW1281 Response buffer at mem_012b
+    call sub_b136           ;e358  31 b1 36     Copy mem_00a5 bytes from @mem_0084 to KW1281 Response buffer
+
     mov a, mem_0116         ;e35b  60 01 16     A = Block counter copied from KW1281 request packet
     incw a                  ;e35e  c0
 
@@ -18374,7 +18390,7 @@ lab_e35f:
     ret                     ;e365  20
 
 sub_e366:
-    call sub_b136           ;e366  31 b1 36     Copy into KW1281 Response buffer at mem_012b
+    call sub_b136           ;e366  31 b1 36     Copy mem_00a5 bytes from @mem_0084 to KW1281 Response buffer
 
 sub_e369:
     mov a, #0x01            ;e369  04 01
@@ -18490,7 +18506,7 @@ lab_e3d9:
     movw a, #kw_unknown_title_d7 ;e3ee  e4 dd 66
     movw mem_0084, a             ;e3f1  d5 84        Pointer to KW1281 packet bytes
     mov mem_00a5, #0x08          ;e3f3  85 a5 08     8 bytes in KW1281 packet
-    call sub_b136                ;e3f6  31 b1 36     Copy into KW1281 Response buffer at mem_012b
+    call sub_b136                ;e3f6  31 b1 36     Copy mem_00a5 bytes from @mem_0084 to KW1281 Response buffer
 
     mov a, mem_03ab         ;e3f9  60 03 ab
     mov mem_012b+6, a       ;e3fc  61 01 31     KW1281 Response byte 6
@@ -18651,10 +18667,12 @@ lab_e4eb:
     mov a, mem_038c         ;e4eb  60 03 8c
     bne lab_e4ea            ;e4ee  fc fa
     call set_00fd_hi_nib_b  ;e4f0  31 e3 a2     Store 0xb in mem_00fd high nibble
+
     mov mem_00a5, #0x04     ;e4f3  85 a5 04     4 bytes in KW1281 packet
     movw a, #kw_end_session ;e4f6  e4 dd 6e
     movw mem_0084, a        ;e4f9  d5 84        Pointer to KW1281 packet bytes
     call sub_e366           ;e4fb  31 e3 66
+
     mov a, #0x07            ;e4fe  04 07
     bne lab_e4e7            ;e500  fc e5        BRANCH_ALWAYS_TAKEN
 
