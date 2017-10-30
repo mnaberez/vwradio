@@ -846,7 +846,8 @@ finish_isr:
 sub_8135:
     call sub_826e           ;8135  31 82 6e
 
-lab_8138:
+
+main_loop:
     call sub_8225           ;8138  31 82 25
     call sub_a526           ;813b  31 a5 26
     call sub_e790           ;813e  31 e7 90    Build and schedule Main-to-Sub packet
@@ -900,7 +901,8 @@ lab_819d:
     call sub_dad3           ;81a2  31 da d3
 
 lab_81a5:
-    jmp lab_8138            ;81a5  21 81 38
+    jmp main_loop            ;81a5  21 81 38
+
 
 mem_81a8:
 ;case table for mem_0303
@@ -8827,7 +8829,9 @@ lab_b0a7:
 ;Initial Sync(?) related
 ;(mem_0080=0, mem_0081=1)
     bbs mem_00e6:1, lab_b0d1 ;b0a7  b9 e6 27
+
     mov mem_0089, #0x55     ;b0aa  85 89 55     KW1281 byte to send = 0x55
+
     mov a, #0x02            ;b0ad  04 02
     mov mem_0112, a         ;b0af  61 01 12
     clrb mem_008c:4         ;b0b2  a4 8c
@@ -8840,8 +8844,10 @@ lab_b0ba:
 ;(mem_0080=0, mem_0081=2)
     bbs mem_00e6:1, lab_b0d1 ;b0ba  b9 e6 14
     bbc mem_008b:4, lab_b0d1 ;b0bd  b4 8b 11
-    mov a, #0x01            ;b0c0  04 01
-    mov mem_0089, a         ;b0c2  45 89        KW1281 byte to send = 0x55
+
+    mov a, #0x01            ;b0c0  04 01        KW1281 byte to send = 0x01
+    mov mem_0089, a         ;b0c2  45 89
+
     mov mem_0112, a         ;b0c4  61 01 12
     clrb mem_008c:4         ;b0c7  a4 8c
     mov mem_0081, #0x03     ;b0c9  85 81 03
@@ -8859,7 +8865,9 @@ lab_b0d2:
     bbs mem_00e6:1, lab_b0d1 ;b0d2  b9 e6 fc
     bbc mem_008b:4, lab_b0eb ;b0d5  b4 8b 13
     clrb mem_008b:4         ;b0d8  a4 8b
+
     mov mem_0089, #0x0a     ;b0da  85 89 0a     KW1281 byte to send = 0x0a
+
     mov a, #0x01            ;b0dd  04 01
     mov mem_0112, a         ;b0df  61 01 12
     setb mem_008c:4         ;b0e2  ac 8c
@@ -8897,7 +8905,7 @@ lab_b10a:
     mov mem_031c, a         ;b111  61 03 1c
     beq lab_b11d            ;b114  fd 07
     call sub_b129           ;b116  31 b1 29
-    mov a, #0x34            ;b119  04 34        A = value to stoer in mem_02c7
+    mov a, #0x34            ;b119  04 34        A = value to store in mem_02c7
     bne lab_b0ce            ;b11b  fc b1        BRANCH_ALWAYS_TAKEN
 
 lab_b11d:
@@ -9515,7 +9523,7 @@ lab_b3fe:
 lab_b40b:
 ;KW1281 ID code request/ECU info related
 ;(mem_0080=0x01, mem_0081=0x0f)
-    call sub_b16b_ack           ;b40b  31 b1 6b
+    call sub_b16b_ack       ;b40b  31 b1 6b
     mov mem_0081, #0x10     ;b40e  85 81 10
     ret                     ;b411  20
 
@@ -9736,7 +9744,7 @@ lab_b52d:
 
 lab_b52e:
 ;Read Faults related
-    call sub_b16b_ack           ;b52e  31 b1 6b
+    call sub_b16b_ack       ;b52e  31 b1 6b
     mov mem_0081, #0x03     ;b531  85 81 03
     ret                     ;b534  20
 
@@ -10058,7 +10066,7 @@ lab_b6f8:
     ret                     ;b6f8  20
 
 lab_b6f9:
-    call sub_b16b_ack           ;b6f9  31 b1 6b
+    call sub_b16b_ack       ;b6f9  31 b1 6b
     mov mem_0081, #0x08     ;b6fc  85 81 08
     ret                     ;b6ff  20
 
@@ -16376,10 +16384,12 @@ lab_d75e:
     bne lab_d77c            ;d76f  fc 0b
 
 lab_d771:
+;(mem_0369 = 0x42)
     movw a, #0x0190         ;d771  e4 01 90
     bne lab_d779            ;d774  fc 03       BRANCH_ALWAYS_TAKEN
 
 lab_d776:
+;(mem_0369 = 0x38, #0x50)
     movw a, #0x0190         ;d776  e4 01 90
 
 lab_d779:
@@ -17596,7 +17606,7 @@ lab_de99:
     mov mem_0388, a         ;de9c  61 03 88
     call sub_df07           ;de9f  31 df 07
     blo lab_deab            ;dea2  f9 07
-    mov a, #0x01            ;dea4  04 01
+    mov a, #0x01            ;dea4  04 01        A = value to store in mem_038b
     mov mem_038b, a         ;dea6  61 03 8b
     setb mem_00f9:2         ;dea9  aa f9
 
@@ -18124,7 +18134,7 @@ sub_e1b8:
     mov a, #0x00            ;e1b8  04 00
     mov mem_0388, a         ;e1ba  61 03 88
     setb mem_00f9:2         ;e1bd  aa f9
-    mov a, #0x01            ;e1bf  04 01
+    mov a, #0x01            ;e1bf  04 01        A = value to store in mem_038b
     mov mem_038b, a         ;e1c1  61 03 8b
     call set_00fd_hi_nib_3  ;e1c4  31 e3 96     Store 0x3 in mem_00fd high nibble
     call sub_e0ca           ;e1c7  31 e0 ca
@@ -18181,15 +18191,17 @@ lab_e21a:
     jmp sub_e73c            ;e220  21 e7 3c
 
 mem_e223:
-    .word lab_e256          ;e223  e2 56       VECTOR
-    .word lab_e231          ;e225  e2 31       VECTOR
-    .word lab_e281          ;e227  e2 81       VECTOR
-    .word lab_e281          ;e229  e2 81       VECTOR
-    .word lab_e2b7          ;e22b  e2 b7       VECTOR
-    .word lab_e282          ;e22d  e2 82       VECTOR
-    .word lab_e29e          ;e22f  e2 9e       VECTOR
+;case table for mem_038b
+    .word lab_e256          ;e223  e2 56       VECTOR   0
+    .word lab_e231          ;e225  e2 31       VECTOR   1
+    .word lab_e281          ;e227  e2 81       VECTOR   2
+    .word lab_e281          ;e229  e2 81       VECTOR   3
+    .word lab_e2b7          ;e22b  e2 b7       VECTOR   4
+    .word lab_e282          ;e22d  e2 82       VECTOR   5
+    .word lab_e29e          ;e22f  e2 9e       VECTOR   6
 
 lab_e231:
+;mem_038b case 1
     mov a, mem_038c         ;e231  60 03 8c
     beq lab_e268            ;e234  fd 32
     bbc mem_00f9:4, lab_e256 ;e236  b4 f9 1d
@@ -18205,12 +18217,13 @@ sub_e242:
     mov mem_038c, a         ;e249  61 03 8c
     mov a, #0x01            ;e24c  04 01
     mov mem_0393, a         ;e24e  61 03 93
-    mov a, #0x00            ;e251  04 00
+    mov a, #0x00            ;e251  04 00        A = value to store in mem_038b
 
 lab_e253:
     mov mem_038b, a         ;e253  61 03 8b
 
 lab_e256:
+;mem_038b case 0
     ret                     ;e256  20
 
 sub_e257:
@@ -18241,16 +18254,18 @@ lab_e27f:
     ret                     ;e280  20
 
 lab_e281:
+;mem_038b case 2, case 3
     ret                     ;e281  20
 
 lab_e282:
+;mem_038b case 5
     mov a, mem_038c         ;e282  60 03 8c
     bne lab_e29d            ;e285  fc 16
     mov a, #0x02            ;e287  04 02
     mov mem_0385, a         ;e289  61 03 85
     mov a, #0x20            ;e28c  04 20        A = value to store in mem_00fd high nibble
     call set_00fd_hi_nib    ;e28e  31 e3 a4     Store high nibble of A in mem_00fd high nibble
-    mov a, #0x00            ;e291  04 00
+    mov a, #0x00            ;e291  04 00        A = value to store in mem_0388 and mem_038b
     mov mem_0388, a         ;e293  61 03 88
     mov mem_038b, a         ;e296  61 03 8b
     clrb mem_00f9:2         ;e299  a2 f9
@@ -18260,6 +18275,7 @@ lab_e29d:
     ret                     ;e29d  20
 
 lab_e29e:
+;mem_038b case 6
     mov a, mem_038c         ;e29e  60 03 8c
     bne lab_e2b6            ;e2a1  fc 13
     mov mem_0089, #0x75     ;e2a3  85 89 75     KW1281 byte to send = 0x75 (complement of 0x8A)
@@ -18268,7 +18284,7 @@ lab_e29e:
     setb mem_00f9:3         ;e2aa  ab f9
     mov a, #0x0c            ;e2ac  04 0c
     mov mem_038c, a         ;e2ae  61 03 8c
-    mov a, #0x04            ;e2b1  04 04
+    mov a, #0x04            ;e2b1  04 04        A = value to store in mem_038b
 
 lab_e2b3:
     mov mem_038b, a         ;e2b3  61 03 8b
@@ -18277,6 +18293,7 @@ lab_e2b6:
     ret                     ;e2b6  20
 
 lab_e2b7:
+;mem_038b case 4
     mov a, mem_038c         ;e2b7  60 03 8c
     beq lab_e27f            ;e2ba  fd c3
     bbc mem_00f9:4, lab_e2b6 ;e2bc  b4 f9 f7
@@ -18294,8 +18311,8 @@ lab_e2c4:
     clrb mem_00f9:2         ;e2d4  a2 f9
     mov a, #0x35            ;e2d6  04 35
     mov mem_039c, a         ;e2d8  61 03 9c
-    mov a, #0x00            ;e2db  04 00
-    beq lab_e2b3            ;e2dd  fd d4       BRANCH_ALWAYS_TAKEN
+    mov a, #0x00            ;e2db  04 00        A = value to store in mem_038b
+    beq lab_e2b3            ;e2dd  fd d4        BRANCH_ALWAYS_TAKEN
 
 lab_e2df:
     mov a, mem_038b         ;e2df  60 03 8b
@@ -18306,7 +18323,7 @@ lab_e2df:
     ret                     ;e2ea  20
 
 lab_e2eb:
-    call sub_b16b_ack           ;e2eb  31 b1 6b
+    call sub_b16b_ack       ;e2eb  31 b1 6b
     jmp lab_e310            ;e2ee  21 e3 10
 
 lab_e2f1:
