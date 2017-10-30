@@ -56,6 +56,7 @@
     ilr1 = 0x7c             ;interrupt-level setting register 1
     ilr2 = 0x7d             ;interrupt-level setting register 2
     ilr3 = 0x7e             ;interrupt-level setting register 3
+
     mem_0080 = 0x80
     mem_0081 = 0x81
     mem_0082 = 0x82
@@ -1401,9 +1402,9 @@ lab_8527:
     bne lab_8523            ;852b  fc f6       BRANCH_ALWAYS_TAKEN
 
 sub_852d:
-    bhs lab_853f            ;852d  f8 10
+    bnc lab_853f            ;852d  f8 10
     rolc a                  ;852f  02
-    blo lab_8538            ;8530  f9 06
+    bc lab_8538             ;8530  f9 06
     rorc a                  ;8532  03
     decw a                  ;8533  d0
     cmp a, #0xff            ;8534  14 ff
@@ -8075,7 +8076,7 @@ sub_ac86:
     movw mem_008b, a        ;ac9d  d5 8b
     mov mem_017c, a         ;ac9f  61 01 7c
     mov mem_0112, a         ;aca2  61 01 12
-    movw mem_0080, a        ;aca5  d5 80
+    movw mem_0080, a        ;aca5  d5 80        New KW1281 state = Initial Sync
     movw mem_0114, a        ;aca7  d4 01 14
     mov mem_02d2, a         ;acaa  61 02 d2
     mov mem_033e, a         ;acad  61 03 3e
@@ -8135,7 +8136,7 @@ lab_ad02:
     cmp a, #0x05            ;ad05  14 05
     blo lab_acfc            ;ad07  f9 f3
     movw a, #0x0000         ;ad09  e4 00 00
-    movw mem_0080, a        ;ad0c  d5 80
+    movw mem_0080, a        ;ad0c  d5 80        New KW1281 state = Initial Sync
     movw mem_0114, a        ;ad0e  d4 01 14
     mov mem_033d, a         ;ad11  61 03 3d
     ret                     ;ad14  20
@@ -8542,7 +8543,7 @@ lab_aeef:
 
 lab_aef6:
     mov a, #0x00            ;aef6  04 00
-    mov mem_0080, a         ;aef8  45 80
+    mov mem_0080, a         ;aef8  45 80        New KW1281 state = Initial Sync
     mov mem_0115, a         ;aefa  61 01 15
     ret                     ;aefd  20
 
@@ -8583,8 +8584,9 @@ lab_af1e:
     movw a, #mem_012b+3     ;af27  e4 01 2e     A = Pointer to KW1281 Response byte 3
     movw mem_0147, a        ;af2a  d4 01 47     Store pointer in mem_0147
 
-    mov a, #0x0a            ;af2d  04 0a        0x0A = mem_0080 value for KW1281 Protected: Read RAM
+    mov a, #0x0a            ;af2d  04 0a        New KW1281 state = Protected: Read RAM
     mov mem_0080, a         ;af2f  45 80
+
     jmp lab_af36            ;af31  21 af 36
 
 lab_af34:
@@ -8779,7 +8781,7 @@ lab_b02c:
     mov mem_01a1, a         ;b04f  61 01 a1
 
 lab_b052:
-    mov mem_0080, #0x00     ;b052  85 80 00
+    mov mem_0080, #0x00     ;b052  85 80 00     New KW1281 state = Initial Sync
     setb mem_008c:7         ;b055  af 8c
     mov a, #0x00            ;b057  04 00
     mov mem_017c, a         ;b059  61 01 7c
@@ -8896,7 +8898,7 @@ lab_b0ec:
     ;Response 0x75 received, initial sync is complete
     setb mem_008e:7         ;b0ff  af 8e
     setb mem_0098:4         ;b101  ac 98
-    mov a, #0x01            ;b103  04 01        New state = ID code request/ECU Info
+    mov a, #0x01            ;b103  04 01        New KW1281 state = ID code request/ECU Info
     mov mem_0080, a         ;b105  45 80
     mov mem_0081, a         ;b107  45 81
     ret                     ;b109  20
@@ -8908,7 +8910,7 @@ lab_b10a:
     decw a                  ;b110  d0
     mov mem_031c, a         ;b111  61 03 1c
     beq lab_b11d            ;b114  fd 07
-    call sub_b129           ;b116  31 b1 29
+    call sub_b129           ;b116  31 b1 29     New KW1281 state = Initial sync
     mov a, #0x34            ;b119  04 34        A = value to store in mem_02c7
     bne lab_b0ce            ;b11b  fc b1        BRANCH_ALWAYS_TAKEN
 
@@ -8918,11 +8920,11 @@ lab_b11d:
     ret                     ;b122  20
 
 sub_b123:
-    mov mem_0080, #0x01     ;b123  85 80 01
+    mov mem_0080, #0x01     ;b123  85 80 01     New KW1281 state = ID code request/ECU Info
     jmp lab_b12c            ;b126  21 b1 2c
 
 sub_b129:
-    mov mem_0080, #0x00     ;b129  85 80 00
+    mov mem_0080, #0x00     ;b129  85 80 00     New KW1281 state = Initial sync
 
 lab_b12c:
     mov mem_0081, #0x01     ;b12c  85 81 01
@@ -9893,7 +9895,7 @@ lab_b5e6:
 lab_b5ea:
 ;Clear Faults related
 ;(mem_0080=0x05, mem_0081=6)
-    mov mem_0080, #0x04     ;b5ea  85 80 04
+    mov mem_0080, #0x04     ;b5ea  85 80 04     New KW1281 state = Read Faults
     mov mem_0081, #0x01     ;b5ed  85 81 01
     ret                     ;b5f0  20
 
@@ -10599,8 +10601,9 @@ lab_b945:
 ;Recoding related
 ;(mem_0080=0x08, mem_0081=1)
     movw a, mem_0118+3      ;b945  c4 01 1b     KW1281 Request bytes 3 and 4
-    call sub_b977           ;b948  31 b9 77     Uses mem_ff63 table
-    bhs lab_b970            ;b94b  f8 23
+    call sub_b977           ;b948  31 b9 77     Unknown, uses mem_ff63 table
+                            ;                   Returns carry set/clear for unknown conditions
+    bnc lab_b970            ;b94b  f8 23
 
     movw a, mem_0118+3      ;b94d  c4 01 1b     KW1281 Request bytes 3 and 4
     movw mem_0175, a        ;b950  d4 01 75
@@ -10621,7 +10624,7 @@ lab_b945:
 lab_b970:
 ;Recoding related
 ;(mem_0080=0x08, mem_0081=2)
-    call sub_b123           ;b970  31 b1 23
+    call sub_b123           ;b970  31 b1 23     New KW1281 state = ID code request/ECU Info
     ret                     ;b973  20
 
 sub_b974:
@@ -10629,6 +10632,8 @@ sub_b974:
 
 sub_b977:
 ;Recoding related, uses mem_ff63 table
+;Returns carry set for some condition, carry clear for another
+;
     swap                    ;b977  10
     clrc                    ;b978  81
     rorc a                  ;b979  03
