@@ -7975,7 +7975,7 @@ sub_abf6:
 
 mem_ac03:
 ;KW1281 block title entry points
-    .word mem_0080_is_00          ;ac03  b0 94       VECTOR     Initial Sync(?)
+    .word mem_0080_is_00          ;ac03  b0 94       VECTOR     Initial Sync
     .word mem_0080_is_01          ;ac05  b3 10       VECTOR     ID code request/ECU Info
     .word mem_0080_is_02          ;ac07  b1 da       VECTOR     ? Sends No Acknowledge
     .word mem_0080_is_03          ;ac09  b1 77       VECTOR     Acknowledge
@@ -8813,20 +8813,20 @@ lab_b081:
 
 
 mem_0080_is_00:
-;KW1281 Initial Sync(?)
+;KW1281 Initial Sync
     mov a, mem_0081         ;b094  05 81
-    cmp a, #0x01            ;b096  14 01
+    cmp a, #0x01            ;b096  14 01        Send 0x55
     beq lab_b0a7            ;b098  fd 0d
-    cmp a, #0x02            ;b09a  14 02
+    cmp a, #0x02            ;b09a  14 02        Send 0x01
     beq lab_b0ba            ;b09c  fd 1c
-    cmp a, #0x03            ;b09e  14 03
+    cmp a, #0x03            ;b09e  14 03        Send 0x0A
     beq lab_b0d2            ;b0a0  fd 30
-    cmp a, #0x04            ;b0a2  14 04
+    cmp a, #0x04            ;b0a2  14 04        Check if 0x75 received
     beq lab_b0ec            ;b0a4  fd 46
     ret                     ;b0a6  20
 
 lab_b0a7:
-;Initial Sync(?) related
+;Initial Sync related
 ;(mem_0080=0, mem_0081=1)
     bbs mem_00e6:1, lab_b0d1 ;b0a7  b9 e6 27
 
@@ -8840,7 +8840,7 @@ lab_b0a7:
     bne lab_b0ce            ;b0b8  fc 14        BRANCH_ALWAYS_TAKEN
 
 lab_b0ba:
-;Initial Sync(?) related
+;Initial Sync related
 ;(mem_0080=0, mem_0081=2)
     bbs mem_00e6:1, lab_b0d1 ;b0ba  b9 e6 14
     bbc mem_008b:4, lab_b0d1 ;b0bd  b4 8b 11
@@ -8860,7 +8860,7 @@ lab_b0d1:
     ret                     ;b0d1  20
 
 lab_b0d2:
-;Initial Sync(?) related
+;Initial Sync related
 ;(mem_0080=0, mem_0081=3)
     bbs mem_00e6:1, lab_b0d1 ;b0d2  b9 e6 fc
     bbc mem_008b:4, lab_b0eb ;b0d5  b4 8b 13
@@ -8879,26 +8879,30 @@ lab_b0eb:
     ret                     ;b0eb  20
 
 lab_b0ec:
-;Initial Sync(?) related
+;Initial Sync
 ;(mem_0080=0, mem_0081=4)
     bbc mem_00e6:1, lab_b10a ;b0ec  b1 e6 1b
     bbc mem_008b:4, lab_b0eb ;b0ef  b4 8b f9
     bbc mem_008b:6, lab_b0eb ;b0f2  b6 8b f6
 
+    ;Check for 0x75 response during initial sync
+    ;hex( 0x0a ^ (0xff & 0x7f) ) #=> 0x75
     mov a, mem_0088         ;b0f5  05 88        A = KW1281 byte received
     xor a, #0xff            ;b0f7  54 ff
     and a, #0x7f            ;b0f9  64 7f
     cmp a, #0x0a            ;b0fb  14 0a
-    bne lab_b10a            ;b0fd  fc 0b
+    bne lab_b10a            ;b0fd  fc 0b        Initial sync error
 
+    ;Response 0x75 received, initial sync is complete
     setb mem_008e:7         ;b0ff  af 8e
     setb mem_0098:4         ;b101  ac 98
-    mov a, #0x01            ;b103  04 01
+    mov a, #0x01            ;b103  04 01        New state = ID code request/ECU Info
     mov mem_0080, a         ;b105  45 80
     mov mem_0081, a         ;b107  45 81
     ret                     ;b109  20
 
 lab_b10a:
+;Initial sync error
     movw a, #0x0000         ;b10a  e4 00 00
     mov a, mem_031c         ;b10d  60 03 1c
     decw a                  ;b110  d0
