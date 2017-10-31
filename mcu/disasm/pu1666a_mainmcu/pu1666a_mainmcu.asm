@@ -9729,23 +9729,29 @@ lab_b505:
     ret                     ;b513  20
 
 lab_b514:
+;Read Faults related
     mov a, mem_0118+2       ;b514  60 01 1a     KW1281 Request byte 2: Block title
     cmp a, #0x0a            ;b517  14 0a        Is it 0x0a (No Acknowledge)?
     bne lab_b521            ;b519  fc 06
-    mov a, #0x04            ;b51b  04 04
+    ;Block title = 0x0a (No Acknowledge)
+    mov a, #0x04            ;b51b  04 04        A = value to store in mem_0081
     call sub_b1b2           ;b51d  31 b1 b2
     ret                     ;b520  20
 
 lab_b521:
+;Read Faults related
+;Block title != 0x0a (No Acknowledge)
     mov a, mem_0146         ;b521  60 01 46
     bne lab_b52a            ;b524  fc 04
     mov mem_0081, #0x06     ;b526  85 81 06
     ret                     ;b529  20
 
 lab_b52a:
+;Read Faults related
     mov mem_0081, #0x02     ;b52a  85 81 02
 
 lab_b52d:
+;Read Faults related
     ret                     ;b52d  20
 
 lab_b52e:
@@ -9970,16 +9976,19 @@ lab_b665:
     jmp lab_b6c7            ;b669  21 b6 c7
 
 lab_b66c:
+;Actuator/Output Tests related
     cmp a, #0x05            ;b66c  14 05
     bne lab_b673            ;b66e  fc 03
     jmp lab_b6f9            ;b670  21 b6 f9
 
 lab_b673:
+;Actuator/Output Tests related
     cmp a, #0x08            ;b673  14 08
     bne lab_b67a            ;b675  fc 03
     jmp lab_b700            ;b677  21 b7 00
 
 lab_b67a:
+;Actuator/Output Tests related
     jmp lab_b703            ;b67a  21 b7 03
 
 lab_b67d:
@@ -9993,6 +10002,7 @@ lab_b67d:
     bne lab_b6b3            ;b68a  fc 27       BRANCH_ALWAYS_TAKEN
 
 lab_b68c:
+;Actuator/Output Tests related
     mov a, mem_0335         ;b68c  60 03 35
     beq lab_b697            ;b68f  fd 06
     cmp a, #0x01            ;b691  14 01
@@ -10000,28 +10010,34 @@ lab_b68c:
     bne lab_b69c            ;b695  fc 05       BRANCH_ALWAYS_TAKEN
 
 lab_b697:
+;Actuator/Output Tests related
     mov a, #0x01            ;b697  04 01
     mov mem_019c, a         ;b699  61 01 9c
 
 lab_b69c:
+;Actuator/Output Tests related
     movw a, #kw_actuator_1  ;b69c  e4 ff 4b     KW1281 Response to Actuator/Output Tests: Speakers
     bne lab_b6b1            ;b69f  fc 10        BRANCH_ALWAYS_TAKEN
 
 lab_b6a1:
+;Actuator/Output Tests related
     setb mem_00e1:7         ;b6a1  af e1
     setb mem_0098:4         ;b6a3  ac 98
     movw a, #kw_actuator_2  ;b6a5  e4 ff 51    KW1281 Response to Actuator/Output Tests: External Display
     bne lab_b6b1            ;b6a8  fc 07       BRANCH_ALWAYS_TAKEN
 
 lab_b6aa:
+;Actuator/Output Tests related
     clrb mem_00e1:7         ;b6aa  a7 e1
     setb mem_0098:4         ;b6ac  ac 98
     movw a, #kw_actuator_3  ;b6ae  e4 ff 57     KW1281 Response to Actuator/Output Tests: End of Tests
 
 lab_b6b1:
+;Actuator/Output Tests related
     movw mem_0084, a        ;b6b1  d5 84        Pointer to KW1281 packet bytes
 
 lab_b6b3:
+;Actuator/Output Tests related
     mov mem_0081, #0x02     ;b6b3  85 81 02
     ret                     ;b6b6  20
 
@@ -10048,14 +10064,18 @@ lab_b6c7:
     ret                     ;b6d5  20
 
 lab_b6d6:
+;Actuator/Output Tests related
     mov a, mem_0118+2       ;b6d6  60 01 1a     A = KW1281 Request byte 2: Block title
     cmp a, #0x0a            ;b6d9  14 0a        Is it 0x0a (No Acknowledge)?
     bne lab_b6e3            ;b6db  fc 06
-    mov a, #0x03            ;b6dd  04 03
+    ;Block title = 0x0a (No Acknowledge)
+    mov a, #0x03            ;b6dd  04 03        A = value to store in mem_0081
     call sub_b1b2           ;b6df  31 b1 b2
     ret                     ;b6e2  20
 
 lab_b6e3:
+;Actuator/Output Tests related
+;Block title != 0x0a (No Acknowledge)
     mov a, mem_017c         ;b6e3  60 01 7c
     incw a                  ;b6e6  c0
     mov mem_017c, a         ;b6e7  61 01 7c
@@ -10066,20 +10086,25 @@ lab_b6e3:
     mov mem_017c, a         ;b6f2  61 01 7c
 
 lab_b6f5:
+;Actuator/Output Tests related
     mov mem_0081, #0x05     ;b6f5  85 81 05
 
 lab_b6f8:
+;Actuator/Output Tests related
     ret                     ;b6f8  20
 
 lab_b6f9:
+;Actuator/Output Tests related
     call sub_b16b_ack       ;b6f9  31 b1 6b
     mov mem_0081, #0x08     ;b6fc  85 81 08
     ret                     ;b6ff  20
 
 lab_b700:
+;Actuator/Output Tests related
     call sub_bbc3           ;b700  31 bb c3
 
 lab_b703:
+;Actuator/Output Tests related
     ret                     ;b703  20
 
 
@@ -11036,11 +11061,13 @@ lab_bb82:
     mov a, mem_0118+2       ;bb82  60 01 1a     KW1281 Request byte 2: Block title
     cmp a, #0x0a            ;bb85  14 0a        Is it 0x0A (No Acknowledge)?
     bne lab_bb8f            ;bb87  fc 06
-    mov a, #0x03            ;bb89  04 03
+    ;Block title = 0x0a (No Acknowledge)
+    mov a, #0x03            ;bb89  04 03        A = value to store in mem_0081
     call sub_b1c1           ;bb8b  31 b1 c1
     ret                     ;bb8e  20
 
 lab_bb8f:
+;Block title != 0x0a (No Acknowledge)
     mov mem_0081, #0x05     ;bb8f  85 81 05
     ret                     ;bb92  20
 
@@ -11118,7 +11145,7 @@ sub_bbe0:
     clrb mem_008b:0          ;bbe3  a0 8b
     bbc mem_008b:7, lab_bbf0 ;bbe5  b7 8b 08
     call sub_b20c_no_ack     ;bbe8  31 b2 0c
-    mov a, mem_00a0          ;bbeb  05 a0
+    mov a, mem_00a0          ;bbeb  05 a0       A = value to store in mem_0081
     mov mem_0081, a          ;bbed  45 81
     ret                      ;bbef  20
 
@@ -11126,12 +11153,14 @@ lab_bbf0:
     mov a, mem_0118+2       ;bbf0  60 01 1a     KW1281 Request byte 2: Block title
     cmp a, #0x0a            ;bbf3  14 0a        Is it 0x0A (No Acknowledge)?
     bne lab_bbfd            ;bbf5  fc 06
-    mov a, mem_00a1         ;bbf7  05 a1
+    ;Block title = 0x0a (No Acknowledge)
+    mov a, mem_00a1         ;bbf7  05 a1        A = value to store in mem_0081
     call sub_b1b2           ;bbf9  31 b1 b2
     ret                     ;bbfc  20
 
 lab_bbfd:
-    mov a, mem_00a2         ;bbfd  05 a2
+;Block title != 0x0a (No Acknowledge)
+    mov a, mem_00a2         ;bbfd  05 a2        A = value to store in mem_0081
     mov mem_0081, a         ;bbff  45 81
 
 lab_bc01:
@@ -17598,7 +17627,7 @@ mem_de79:
     .word lab_e328          ;de83  e3 28       VECTOR 5
     .word lab_e301          ;de85  e3 01       VECTOR 6
     .word lab_e328          ;de87  e3 28       VECTOR 7  Block title = 0x0a (No Acknowledge)
-    .word lab_e316          ;de89  e3 16       VECTOR 8
+    .word lab_e316          ;de89  e3 16       VECTOR 8  Unrecognized block title
 
 sub_de8b:
     bbc mem_00f9:0, lab_de98 ;de8b  b0 f9 0a
@@ -17611,18 +17640,32 @@ lab_de98:
     ret                     ;de98  20
 
 lab_de99:
-    call sub_deac           ;de99  31 de ac
+    call sub_deac           ;de99  31 de ac     A = value derived from KW1281 request block title
     mov mem_0388, a         ;de9c  61 03 88
+
     call sub_df07           ;de9f  31 df 07
-    blo lab_deab            ;dea2  f9 07
+    bc lab_deab             ;dea2  f9 07
+
     mov a, #0x01            ;dea4  04 01        A = value to store in mem_038b
+                            ;                   In lab_e3d9, this value causes KW1281 response
+                            ;                   block title 0xD7 to be sent
     mov mem_038b, a         ;dea6  61 03 8b
     setb mem_00f9:2         ;dea9  aa f9
 
 lab_deab:
     ret                     ;deab  20
 
+
 sub_deac:
+;Read block title in KW1281 request, return a value in A that will
+;later be stored in mem_0388.
+;
+;Block title    A       Description
+;0x00           0x03    ID code request/ECU Info
+;0x0A           0x07    No Acknowledge
+;0x09           0x02    Acknowledge
+;0xF6           0x03    ASCII
+;All others     0x08
     mov a, mem_0118+2       ;deac  60 01 1a     KW1281 Request byte 2: Block title
     cmp a, #0x00            ;deaf  14 00        Is it 0x00 (ID code request/ECU Info)?
     beq lab_dec2            ;deb1  fd 0f
@@ -17634,26 +17677,23 @@ sub_deac:
     beq lab_decb            ;debd  fd 0c
     mov a, #0x08            ;debf  04 08        A = value to be stored in mem_0388
     ret                     ;dec1  20
-
 lab_dec2:
 ;Block title = 0x00 (ID code request/ECU Info)
     mov a, #0x03            ;dec2  04 03        A = value to be stored in mem_0388
     ret                     ;dec4  20
-
 lab_dec5:
 ;Block title = 0x0a (No Acknowledge)
     mov a, #0x07            ;dec5  04 07        A = value to be stored in mem_0388
     ret                     ;dec7  20
-
 lab_dec8:
 ;Block title = 0x09 (Acknowledge)
     mov a, #0x02            ;dec8  04 02        A = value to be stored in mem_0388
     ret                     ;deca  20
-
 lab_decb:
 ;Block title = 0xF6 (ASCII)
     mov a, #0x03            ;decb  04 03        A = value to be stored in mem_0388
     ret                     ;decd  20
+
 
 sub_dece:
     bbs mem_00f9:2, lab_ded7 ;dece  ba f9 06
@@ -17667,7 +17707,6 @@ lab_ded7:
     bhs lab_dee9            ;dede  f8 09
 
 lab_dee0:
-;mem_0388 is 0 - 0x08
     mov a, mem_0388         ;dee0  60 03 88
     movw a, #mem_de79       ;dee3  e4 de 79
     call sub_e73c           ;dee6  31 e7 3c
@@ -17691,14 +17730,17 @@ lab_def9:
 lab_df06:
     ret                     ;df06  20
 
+
 sub_df07:
     mov a, mem_0388         ;df07  60 03 88
     cmp a, #0xff            ;df0a  14 ff
     beq lab_df12            ;df0c  fd 04
+
     mov a, #0x00            ;df0e  04 00
     beq lab_df23            ;df10  fd 11       BRANCH_ALWAYS_TAKEN
 
 lab_df12:
+;(mem_0388=0xff)
     mov a, mem_0397         ;df12  60 03 97
     cmp a, #0x01            ;df15  14 01
     beq lab_df20            ;df17  fd 07
@@ -17709,6 +17751,7 @@ lab_df12:
 
 lab_df20:
     callv #7                ;df20  ef          CALLV #7 = callv7_e55c
+                            ;                  Resets many KW1281 state variables
     setc                    ;df21  91
     ret                     ;df22  20
 
@@ -17716,6 +17759,7 @@ lab_df23:
     mov mem_0397, a         ;df23  61 03 97
     clrc                    ;df26  81
     ret                     ;df27  20
+
 
 sub_df28:
     mov a, mem_0389         ;df28  60 03 89
@@ -17742,13 +17786,15 @@ lab_df3d:
     mov mem_0396, a         ;df4e  61 03 96
 
     mov a, mem_0082         ;df51  05 82        A = count of KW1281 bytes received
-    bne lab_df68            ;df53  fc 13
+    bne lab_df68            ;df53  fc 13        Branch if not first byte in packet
 
+    ;First byte: might be 0x55 or first byte of packet (block length)
     mov a, mem_0088         ;df55  05 88        A = KW1281 byte received
-    mov a, #0x55            ;df57  04 55        Is it the KW1281 sync byte?
+    mov a, #0x55            ;df57  04 55        TODO what does is 0x55 received mean?
     cmp a                   ;df59  12
-    bne lab_df68            ;df5a  fc 0c
+    bne lab_df68            ;df5a  fc 0c        No: branch to receive block length
 
+    ;First byte: 0x55 byte
     call sub_e1b8           ;df5c  31 e1 b8
     call sub_e242           ;df5f  31 e2 42
     mov a, #0x00            ;df62  04 00
@@ -17756,6 +17802,7 @@ lab_df3d:
     ret                     ;df67  20
 
 lab_df68:
+;Receiving a new KW1281 packet byte
     call sub_b235           ;df68  31 b2 35     Store KW1281 byte received in KW1281 Request buffer
     bbc mem_00f9:6, lab_df9c ;df6b  b6 f9 2e
 
@@ -17777,14 +17824,14 @@ lab_df84:
     mov a, mem_0118+1       ;df86  60 01 19     KW1281 Request byte 1: Block counter
     mov mem_0116, a         ;df89  61 01 16     Copy block counter into mem_0116
     setb mem_00f9:0         ;df8c  a8 f9
-    mov a, #0x00            ;df8e  04 00
+    mov a, #0x00            ;df8e  04 00        A = value to store in mem_0389
     beq lab_df99            ;df90  fd 07        BRANCH_ALWAYS_TAKEN
 
 lab_df92:
 ;Block length >= mem_0082
     mov a, #0x03            ;df92  04 03
     mov mem_0390, a         ;df94  61 03 90
-    mov a, #0x03            ;df97  04 03
+    mov a, #0x03            ;df97  04 03        A = value to store in mem_0389
 
 lab_df99:
     mov mem_0389, a         ;df99  61 03 89
@@ -18074,7 +18121,7 @@ lab_e142:
     mov mem_0387, a         ;e149  61 03 87
     movw a, #0x7ec0         ;e14c  e4 7e c0
     movw mem_0398, a        ;e14f  d4 03 98
-    mov a, #0x03            ;e152  04 03
+    mov a, #0x03            ;e152  04 03        A = value to store in mem_0385
 
 lab_e154:
     mov mem_0385, a         ;e154  61 03 85
@@ -18151,7 +18198,7 @@ sub_e1b8:
     mov a, #0x50            ;e1cc  04 50
     mov mem_038c, a         ;e1ce  61 03 8c
     mov a, #0x00            ;e1d1  04 00
-    jmp lab_e154            ;e1d3  21 e1 54
+    jmp lab_e154            ;e1d3  21 e1 54     A = value to store in mem_0385
 
 sub_e1d6:
     mov a, mem_0393         ;e1d6  60 03 93
@@ -18195,6 +18242,7 @@ lab_e1ff:
     beq lab_e1fb            ;e218  fd e1        BRANCH_ALWAYS_TAKEN
 
 lab_e21a:
+;(mem_0388=0)
     mov a, mem_038b         ;e21a  60 03 8b
     movw a, #mem_e223       ;e21d  e4 e2 23
     jmp sub_e73c            ;e220  21 e7 3c
@@ -18324,6 +18372,7 @@ lab_e2c4:
     beq lab_e2b3            ;e2dd  fd d4        BRANCH_ALWAYS_TAKEN
 
 lab_e2df:
+;(mem_0388=1)
     mov a, mem_038b         ;e2df  60 03 8b
     cmp a, #0x01            ;e2e2  14 01
     beq lab_e2eb            ;e2e4  fd 05
@@ -18363,6 +18412,7 @@ lab_e310:
     ret                     ;e315  20
 
 lab_e316:
+;(mem_0388=8: Unrecognized block title)
     mov a, mem_038b         ;e316  60 03 8b
     cmp a, #0x01            ;e319  14 01
     beq lab_e322            ;e31b  fd 05
@@ -18375,6 +18425,9 @@ lab_e322:
     jmp lab_e310            ;e325  21 e3 10
 
 lab_e328:
+;(mem_0388 = 3, 4, 5, 7)
+;Block title = 0x00 (ID code request/ECU Info)
+;or Block title = 0xF6 (ASCII)
     jmp lab_e2df            ;e328  21 e2 df
 
 sub_e32b:
@@ -18491,6 +18544,7 @@ set_00fd_lo_nib:
     ret                     ;e3b3  20
 
 lab_e3b4:
+;(mem_0388=2: Block title = 0x09 (Acknowledge))
     mov a, mem_038b         ;e3b4  60 03 8b
     movw a, #mem_e3bd       ;e3b7  e4 e3 bd
     jmp sub_e73c            ;e3ba  21 e7 3c
@@ -18512,7 +18566,7 @@ mem_e3bd:
     .word lab_e59c          ;e3d7  e5 9c       VECTOR 0x0d
 
 lab_e3d9:
-;mem_038b case 1
+;(mem_0388=2, mem_038b=1)
     call set_00fd_hi_nib_9  ;e3d9  31 e3 9a     Store 0x9 in mem_00fd high nibble
 
     movw a, tchr            ;e3dc  c5 19        16-bit timer count register high
@@ -18557,7 +18611,7 @@ lab_e3d9:
     bne lab_e47d            ;e41c  fc 5f        BRANCH_ALWAYS_TAKEN
 
 lab_e41e:
-;mem_038b case 0x0b
+;(mem_0388=2, mem_038b=0x0b)
     mov a, mem_038c         ;e41e  60 03 8c
     bne lab_e480            ;e421  fc 5d
     call sub_e369           ;e423  31 e3 69
@@ -18565,7 +18619,7 @@ lab_e41e:
     bne lab_e47d            ;e428  fc 53        BRANCH_ALWAYS_TAKEN
 
 lab_e42a:
-;mem_038b case 2
+;(mem_0388=2, mem_038b=2)
     bbc mem_00f9:1, lab_e480 ;e42a  b1 f9 53
     clrb mem_00f9:1         ;e42d  a1 f9
     mov a, #0x02            ;e42f  04 02
@@ -18578,7 +18632,7 @@ lab_e42a:
     bne lab_e47d            ;e440  fc 3b        BRANCH_ALWAYS_TAKEN
 
 lab_e442:
-;mem_038b case 3
+;(mem_0388=2, mem_038b=3)
     mov a, mem_0391         ;e442  60 03 91
     beq lab_e44c            ;e445  fd 05
     mov a, mem_038c         ;e447  60 03 8c
@@ -18619,6 +18673,7 @@ lab_e47d:
     mov mem_038b, a         ;e47d  61 03 8b
 
 lab_e480:
+;(mem_0388=2, mem_038b=0) and other callers
     ret                     ;e480  20
 
 lab_e481:
@@ -18641,7 +18696,7 @@ lab_e49a:
     bne lab_e47d            ;e4a1  fc da        BRANCH_ALWAYS_TAKEN
 
 lab_e4a3:
-;mem_038b case 0x0c
+;(mem_0388=2, mem_038b=0x0c)
     mov a, mem_038c         ;e4a3  60 03 8c
     bne lab_e480            ;e4a6  fc d8
     call sub_e037           ;e4a8  31 e0 37
@@ -18651,7 +18706,7 @@ lab_e4a3:
     beq lab_e47d            ;e4b3  fd c8        BRANCH_ALWAYS_TAKEN
 
 lab_e4b5:
-;mem_038b case 0x04 (Block title 0x3d: Security access?)
+;(mem_0388=2, mem_038b=4) (Block title 0x3d: Security access?)
     mov a, mem_0118+6       ;e4b5  60 01 1e     KW1281 Request byte 6
     mov mem_03ab, a         ;e4b8  61 03 ab
 
@@ -18675,7 +18730,7 @@ sub_e4d3:
     ret                     ;e4df  20
 
 lab_e4e0:
-;mem_038b case 5
+;(mem_0388=2, mem_038b=5)
     mov a, #0x01            ;e4e0  04 01        A = value to store in mem_00fd low nibble
     call set_00fd_lo_nib    ;e4e2  31 e3 ac     Store low nibble of A in mem_00fd low nibble
 
@@ -18689,7 +18744,7 @@ lab_e4ea:
     ret                     ;e4ea  20
 
 lab_e4eb:
-;mem_038b case 6
+;(mem_0388=2, mem_038b=6)
     mov a, mem_038c         ;e4eb  60 03 8c
     bne lab_e4ea            ;e4ee  fc fa
     call set_00fd_hi_nib_b  ;e4f0  31 e3 a2     Store 0xb in mem_00fd high nibble
@@ -18703,7 +18758,7 @@ lab_e4eb:
     bne lab_e4e7            ;e500  fc e5        BRANCH_ALWAYS_TAKEN
 
 lab_e502:
-;mem_038b case 7
+;(mem_0388=2, mem_038b=7)
     bbc mem_00f9:1, lab_e55b ;e502  b1 f9 56
     clrb mem_00f9:1         ;e505  a1 f9
 
@@ -18748,7 +18803,7 @@ lab_e544:
     jmp lab_e556            ;e544  21 e5 56
 
 lab_e547:
-;mem_038b case 8
+;(mem_0388=2, mem_038b=8)
     mov a, mem_00f1         ;e547  05 f1
     bne lab_e55b            ;e549  fc 10
     mov mem_00f1, #0x81     ;e54b  85 f1 81
@@ -18756,7 +18811,7 @@ lab_e547:
     bne lab_e558            ;e550  fc 06       BRANCH_ALWAYS_TAKEN
 
 lab_e552:
-;mem_038b case 9
+;(mem_0388=2, mem_038b=9)
     mov a, mem_00f1         ;e552  05 f1
     bne lab_e55b            ;e554  fc 05
 
@@ -18771,7 +18826,7 @@ lab_e55b:
 
 callv7_e55c:
 ;CALLV #7
-;mem_038b case 0x0a
+;(mem_0388=2, mem_038b=0x0a)
     setb pdr7:2             ;e55c  aa 13        TX
     setb pdr7:3             ;e55e  ab 13        /RX
     call set_00fd_hi_nib_0  ;e560  31 e3 8a     Store 0x0 in mem_00fd high nibble
@@ -18798,7 +18853,7 @@ callv7_e55c:
     ret                     ;e59b  20
 
 lab_e59c:
-;mem_038b case 0x0d
+;(mem_0388=2, mem_038b=0x0d)
     mov a, mem_00f1         ;e59c  05 f1
     bne lab_e55b            ;e59e  fc bb
     call sub_a239           ;e5a0  31 a2 39
