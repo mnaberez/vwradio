@@ -8766,7 +8766,7 @@ lab_b02c:
     movw a, mem_008f        ;b02c  c5 8f
     movw a, #0xffc0         ;b02e  e4 ff c0
     andw a                  ;b031  63
-    movw a, #mem_eb00       ;b032  e4 eb 00
+    movw a, #0xeb00         ;b032  e4 eb 00
     cmpw a                  ;b035  13
     bne lab_b07f            ;b036  fc 47
     clrb uscr:7             ;b038  a7 41
@@ -19725,8 +19725,6 @@ lab_eaef:
 
 sub_eafd:
     bbc mem_00e1:2, lab_eb1f ;eafd  b2 e1 1f
-
-mem_eb00:
     mov a, mem_03c6         ;eb00  60 03 c6
     cmp a, #0x06            ;eb03  14 06
     bne lab_eb0e            ;eb05  fc 07
