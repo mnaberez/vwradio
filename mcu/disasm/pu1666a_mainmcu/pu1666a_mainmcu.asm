@@ -7976,7 +7976,7 @@ sub_abf6:
 
 mem_ac03:
 ;KW1281 block title entry points
-    .word mem_0080_is_00          ;ac03  b0 94       VECTOR     Initial Sync
+    .word mem_0080_is_00          ;ac03  b0 94       VECTOR     Initial Connection
     .word mem_0080_is_01          ;ac05  b3 10       VECTOR     ID code request/ECU Info
     .word mem_0080_is_02          ;ac07  b1 da       VECTOR     ? Sends No Acknowledge
     .word mem_0080_is_03          ;ac09  b1 77       VECTOR     Acknowledge
@@ -8076,7 +8076,7 @@ sub_ac86:
     movw mem_008b, a        ;ac9d  d5 8b
     mov mem_017c, a         ;ac9f  61 01 7c
     mov mem_0112, a         ;aca2  61 01 12
-    movw mem_0080, a        ;aca5  d5 80        New KW1281 state = Initial Sync
+    movw mem_0080, a        ;aca5  d5 80        New KW1281 state = Initial Connection
     movw mem_0114, a        ;aca7  d4 01 14
     mov mem_02d2, a         ;acaa  61 02 d2
     mov mem_033e, a         ;acad  61 03 3e
@@ -8136,7 +8136,7 @@ lab_ad02:
     cmp a, #0x05            ;ad05  14 05
     blo lab_acfc            ;ad07  f9 f3
     movw a, #0x0000         ;ad09  e4 00 00
-    movw mem_0080, a        ;ad0c  d5 80        New KW1281 state = Initial Sync
+    movw mem_0080, a        ;ad0c  d5 80        New KW1281 state = Initial Connection
     movw mem_0114, a        ;ad0e  d4 01 14
     mov mem_033d, a         ;ad11  61 03 3d
     ret                     ;ad14  20
@@ -8543,7 +8543,7 @@ lab_aeef:
 
 lab_aef6:
     mov a, #0x00            ;aef6  04 00
-    mov mem_0080, a         ;aef8  45 80        New KW1281 state = Initial Sync
+    mov mem_0080, a         ;aef8  45 80        New KW1281 state = Initial Connection
     mov mem_0115, a         ;aefa  61 01 15
     ret                     ;aefd  20
 
@@ -8781,7 +8781,7 @@ lab_b02c:
     mov mem_01a1, a         ;b04f  61 01 a1
 
 lab_b052:
-    mov mem_0080, #0x00     ;b052  85 80 00     New KW1281 state = Initial Sync
+    mov mem_0080, #0x00     ;b052  85 80 00     New KW1281 state = Initial Connection
     setb mem_008c:7         ;b055  af 8c
     mov a, #0x00            ;b057  04 00
     mov mem_017c, a         ;b059  61 01 7c
@@ -8815,7 +8815,7 @@ lab_b081:
 
 
 mem_0080_is_00:
-;KW1281 Initial Sync
+;KW1281 Initial Connection
     mov a, mem_0081         ;b094  05 81
     cmp a, #0x01            ;b096  14 01        Send 0x55
     beq lab_b0a7_tx_0x55    ;b098  fd 0d
@@ -8828,7 +8828,7 @@ mem_0080_is_00:
     ret                     ;b0a6  20
 
 lab_b0a7_tx_0x55:
-;Initial Sync related: Send 0x55
+;Initial Connection related: Send 0x55
 ;(mem_0080=0, mem_0081=1)
     bbs mem_00e6:1, lab_b0d1 ;b0a7  b9 e6 27
 
@@ -8842,7 +8842,7 @@ lab_b0a7_tx_0x55:
     bne lab_b0ce            ;b0b8  fc 14        BRANCH_ALWAYS_TAKEN
 
 lab_b0a7_tx_0x01:
-;Initial Sync related: Send 0x01
+;Initial Connection related: Send 0x01
 ;(mem_0080=0, mem_0081=2)
     bbs mem_00e6:1, lab_b0d1 ;b0ba  b9 e6 14
     bbc mem_008b:4, lab_b0d1 ;b0bd  b4 8b 11
@@ -8862,7 +8862,7 @@ lab_b0d1:
     ret                     ;b0d1  20
 
 lab_b0a7_tx_0x0a:
-;Initial Sync related: Send 0x0A
+;Initial Connection related: Send 0x0A
 ;(mem_0080=0, mem_0081=3)
     bbs mem_00e6:1, lab_b0d1 ;b0d2  b9 e6 fc
     bbc mem_008b:4, lab_b0eb ;b0d5  b4 8b 13
@@ -8881,21 +8881,21 @@ lab_b0eb:
     ret                     ;b0eb  20
 
 lab_b0a7_rx_0x75:
-;Initial Sync related: Check if 0x75 received
+;Initial Connection related: Check if 0x75 received
 ;(mem_0080=0, mem_0081=4)
     bbc mem_00e6:1, lab_b10a ;b0ec  b1 e6 1b
     bbc mem_008b:4, lab_b0eb ;b0ef  b4 8b f9
     bbc mem_008b:6, lab_b0eb ;b0f2  b6 8b f6
 
-    ;Check for 0x75 response during initial sync
+    ;Check for 0x75 response during Initial Connection
     ;hex( 0x0a ^ (0xff & 0x7f) ) #=> 0x75
     mov a, mem_0088         ;b0f5  05 88        A = KW1281 byte received
     xor a, #0xff            ;b0f7  54 ff
     and a, #0x7f            ;b0f9  64 7f
     cmp a, #0x0a            ;b0fb  14 0a
-    bne lab_b10a            ;b0fd  fc 0b        Initial sync error
+    bne lab_b10a            ;b0fd  fc 0b        Initial Connection error
 
-    ;Response 0x75 received, initial sync is complete
+    ;Response 0x75 received, Initial Connection is complete
     setb mem_008e:7         ;b0ff  af 8e
     setb mem_0098:4         ;b101  ac 98
     mov a, #0x01            ;b103  04 01        New KW1281 state = ID code request/ECU Info
@@ -8904,13 +8904,13 @@ lab_b0a7_rx_0x75:
     ret                     ;b109  20
 
 lab_b10a:
-;Initial sync error
+;Initial Connection error
     movw a, #0x0000         ;b10a  e4 00 00
     mov a, mem_031c         ;b10d  60 03 1c
     decw a                  ;b110  d0
     mov mem_031c, a         ;b111  61 03 1c
     beq lab_b11d            ;b114  fd 07
-    call sub_b129           ;b116  31 b1 29     New KW1281 state = Initial sync
+    call sub_b129           ;b116  31 b1 29     New KW1281 state = Initial Connection
     mov a, #0x34            ;b119  04 34        A = value to store in mem_02c7
     bne lab_b0ce            ;b11b  fc b1        BRANCH_ALWAYS_TAKEN
 
@@ -8924,7 +8924,7 @@ sub_b123:
     jmp lab_b12c            ;b126  21 b1 2c
 
 sub_b129:
-    mov mem_0080, #0x00     ;b129  85 80 00     New KW1281 state = Initial sync
+    mov mem_0080, #0x00     ;b129  85 80 00     New KW1281 state = Initial Connection
 
 lab_b12c:
     mov mem_0081, #0x01     ;b12c  85 81 01
