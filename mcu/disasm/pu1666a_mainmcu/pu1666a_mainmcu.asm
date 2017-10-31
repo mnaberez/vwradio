@@ -6113,7 +6113,7 @@ lab_a08d:
     bhs lab_a09c            ;a08d  f8 0d
     mov a, #0x00            ;a08f  04 00
     mov mem_0275, a         ;a091  61 02 75
-    movw a, #mem_ac03       ;a094  e4 ac 03
+    movw a, #0xac03         ;a094  e4 ac 03
 
 lab_a097:
     mov mem_00cd, a         ;a097  45 cd
