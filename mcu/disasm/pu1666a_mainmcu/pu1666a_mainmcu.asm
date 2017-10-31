@@ -8818,17 +8818,17 @@ mem_0080_is_00:
 ;KW1281 Initial Sync
     mov a, mem_0081         ;b094  05 81
     cmp a, #0x01            ;b096  14 01        Send 0x55
-    beq lab_b0a7            ;b098  fd 0d
+    beq lab_b0a7_tx_0x55    ;b098  fd 0d
     cmp a, #0x02            ;b09a  14 02        Send 0x01
-    beq lab_b0ba            ;b09c  fd 1c
+    beq lab_b0a7_tx_0x01    ;b09c  fd 1c
     cmp a, #0x03            ;b09e  14 03        Send 0x0A
-    beq lab_b0d2            ;b0a0  fd 30
+    beq lab_b0a7_tx_0x0a    ;b0a0  fd 30
     cmp a, #0x04            ;b0a2  14 04        Check if 0x75 received
-    beq lab_b0ec            ;b0a4  fd 46
+    beq lab_b0a7_rx_0x75    ;b0a4  fd 46
     ret                     ;b0a6  20
 
-lab_b0a7:
-;Initial Sync related
+lab_b0a7_tx_0x55:
+;Initial Sync related: Send 0x55
 ;(mem_0080=0, mem_0081=1)
     bbs mem_00e6:1, lab_b0d1 ;b0a7  b9 e6 27
 
@@ -8841,8 +8841,8 @@ lab_b0a7:
     mov a, #0x03            ;b0b6  04 03        A = value to store in mem_02c7
     bne lab_b0ce            ;b0b8  fc 14        BRANCH_ALWAYS_TAKEN
 
-lab_b0ba:
-;Initial Sync related
+lab_b0a7_tx_0x01:
+;Initial Sync related: Send 0x01
 ;(mem_0080=0, mem_0081=2)
     bbs mem_00e6:1, lab_b0d1 ;b0ba  b9 e6 14
     bbc mem_008b:4, lab_b0d1 ;b0bd  b4 8b 11
@@ -8861,8 +8861,8 @@ lab_b0ce:
 lab_b0d1:
     ret                     ;b0d1  20
 
-lab_b0d2:
-;Initial Sync related
+lab_b0a7_tx_0x0a:
+;Initial Sync related: Send 0x0A
 ;(mem_0080=0, mem_0081=3)
     bbs mem_00e6:1, lab_b0d1 ;b0d2  b9 e6 fc
     bbc mem_008b:4, lab_b0eb ;b0d5  b4 8b 13
@@ -8880,8 +8880,8 @@ lab_b0d2:
 lab_b0eb:
     ret                     ;b0eb  20
 
-lab_b0ec:
-;Initial Sync
+lab_b0a7_rx_0x75:
+;Initial Sync related: Check if 0x75 received
 ;(mem_0080=0, mem_0081=4)
     bbc mem_00e6:1, lab_b10a ;b0ec  b1 e6 1b
     bbc mem_008b:4, lab_b0eb ;b0ef  b4 8b f9
