@@ -757,7 +757,7 @@ irq2_80be:
     pushw a                 ;80c0  40
     mov tmcr, #0x00         ;80c1  85 18 00
     movw a, #0xf855         ;80c4  e4 f8 55
-    movw tchr, a            ;80c7  d5 19        16-bit timer count register high
+    movw tchr, a            ;80c7  d5 19        16-bit timer count register
     mov tmcr, #0x23         ;80c9  85 18 23
     clrb tmcr:2             ;80cc  a2 18
     pushw ix                ;80ce  41
@@ -1048,7 +1048,7 @@ sub_826e:
     mov ilr2, #0x0b         ;8271  85 7d 0b
     mov ilr3, #0xbc         ;8274  85 7e bc
     movw a, #0xf855         ;8277  e4 f8 55
-    movw tchr, a            ;827a  d5 19        16-bit timer count register high
+    movw tchr, a            ;827a  d5 19        16-bit timer count register
     mov tmcr, #0x23         ;827c  85 18 23
     mov eic1, #0x37         ;827f  85 38 37
     mov eic2, #0x40         ;8282  85 39 40
@@ -17327,7 +17327,7 @@ sub_dcb5:
     mov ilr3, #0xbc         ;dcbd  85 7e bc
     mov tbtc, #0x00         ;dcc0  85 0a 00
     movw a, #0xf855         ;dcc3  e4 f8 55
-    movw tchr, a            ;dcc6  d5 19        16-bit timer count register high
+    movw tchr, a            ;dcc6  d5 19        16-bit timer count register
     mov tmcr, #0x23         ;dcc8  85 18 23
     mov eic1, #0x37         ;dccb  85 38 37
     mov eic2, #0x40         ;dcce  85 39 40
@@ -18211,10 +18211,12 @@ sub_e1d6:
 lab_e1e2:
     mov a, mem_038c         ;e1e2  60 03 8c
     beq lab_e1fe            ;e1e5  fd 17
+
     mov a, mem_0088         ;e1e7  05 88        A = KW1281 byte received
     and a, #0x7f            ;e1e9  64 7f
     cmp a, #0x01            ;e1eb  14 01
     bne lab_e1fe            ;e1ed  fc 0f
+
     call sub_e0bf           ;e1ef  31 e0 bf
     clrb mem_00f9:3         ;e1f2  a3 f9
     mov a, #0x05            ;e1f4  04 05
@@ -18230,10 +18232,12 @@ lab_e1fe:
 lab_e1ff:
     mov a, mem_038c         ;e1ff  60 03 8c
     beq lab_e1fe            ;e202  fd fa
+
     mov a, mem_0088         ;e204  05 88        A = KW1281 byte received
     and a, #0x7f            ;e206  64 7f
     cmp a, #0x0a            ;e208  14 0a
     bne lab_e1fe            ;e20a  fc f2
+
     mov a, #0x09            ;e20c  04 09
     mov mem_038c, a         ;e20e  61 03 8c
     mov a, #0x06            ;e211  04 06
@@ -18263,6 +18267,7 @@ lab_e231:
     beq lab_e268            ;e234  fd 32
     bbc mem_00f9:4, lab_e256 ;e236  b4 f9 1d
     bbc mem_00f9:6, lab_e256 ;e239  b6 f9 1a
+
     mov a, mem_0088         ;e23c  05 88        A = KW1281 byte received
     cmp a, #0x55            ;e23e  14 55        Is it the KW1281 sync byte?
     bne lab_e256            ;e240  fc 14
@@ -18569,14 +18574,14 @@ lab_e3d9:
 ;(mem_0388=2, mem_038b=1)
     call set_00fd_hi_nib_9  ;e3d9  31 e3 9a     Store 0x9 in mem_00fd high nibble
 
-    movw a, tchr            ;e3dc  c5 19        16-bit timer count register high
+    movw a, tchr            ;e3dc  c5 19        16-bit timer count register
     rolc a                  ;e3de  02
     swap                    ;e3df  10
     rolc a                  ;e3e0  02
     swap                    ;e3e1  10
     movw mem_03ab, a        ;e3e2  d4 03 ab
 
-    movw a, tchr            ;e3e5  c5 19        16-bit timer count register high
+    movw a, tchr            ;e3e5  c5 19        16-bit timer count register
     rorc a                  ;e3e7  03
     swap                    ;e3e8  10
     rorc a                  ;e3e9  03
@@ -18883,7 +18888,7 @@ sub_e5ae:
     movw mem_03ad, a        ;e5c6  d4 03 ad
     mov mem_03b4, a         ;e5c9  61 03 b4
 
-    movw a, tchr            ;e5cc  c5 19        16-bit timer count register high
+    movw a, tchr            ;e5cc  c5 19        16-bit timer count register
     movw mem_03a3, a        ;e5ce  d4 03 a3
 
     movw a, mem_03a1        ;e5d1  c4 03 a1
