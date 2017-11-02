@@ -7971,7 +7971,7 @@ sub_abf6:
     call sub_ac25           ;abf6  31 ac 25
     call sub_ade1           ;abf9  31 ad e1
     call sub_ae6a           ;abfc  31 ae 6a
-    call sub_af89           ;abff  31 af 89
+    call sub_af89           ;abff  31 af 89     Send KW1281 byte at 9615.38 bps or do nothing
     ret                     ;ac02  20
 
 mem_ac03:
@@ -8075,7 +8075,7 @@ sub_ac86:
     mov mem_033f, a         ;ac9a  61 03 3f
     movw mem_008b, a        ;ac9d  d5 8b
     mov mem_017c, a         ;ac9f  61 01 7c
-    mov mem_0112, a         ;aca2  61 01 12
+    mov mem_0112, a         ;aca2  61 01 12     KW1281 9615.38 bps transmit state = Do nothing
     movw mem_0080, a        ;aca5  d5 80        New KW1281 state = Initial Connection
     movw mem_0114, a        ;aca7  d4 01 14
     mov mem_02d2, a         ;acaa  61 02 d2
@@ -8435,8 +8435,8 @@ lab_ae44:
     bne lab_adec            ;ae47  fc a3
 
     mov a, mem_0088         ;ae49  05 88        A = KW1281 byte received
-    xor a, #0xff            ;ae4b  54 ff        Invert it
-    mov mem_0089, a         ;ae4d  45 89        Save as KW1281 byte to send
+    xor a, #0xff            ;ae4b  54 ff        Complement it
+    mov mem_0089, a         ;ae4d  45 89        KW1281 byte to send = A
 
     mov a, #0x02            ;ae4f  04 02
     mov mem_0114, a         ;ae51  61 01 14
@@ -8484,8 +8484,10 @@ lab_ae83:
     call sub_b24b           ;ae88  31 b2 4b
     mov a, #0x36            ;ae8b  04 36
     mov mem_032e, a         ;ae8d  61 03 2e
+
     mov a, #0x02            ;ae90  04 02
-    mov mem_0112, a         ;ae92  61 01 12
+    mov mem_0112, a         ;ae92  61 01 12     KW1281 9615.38 bps transmit state = Send byte, 8-N-1
+
     mov mem_0115, a         ;ae95  61 01 15
 
 lab_ae98:
@@ -8513,9 +8515,10 @@ lab_aeb5:
     mov a, mem_0089         ;aeb5  05 89        A = KW1281 byte to send
     mov a, mem_0088         ;aeb7  05 88        A = KW1281 byte received
     xor a                   ;aeb9  52
-    cmp a, #0xff            ;aeba  14 ff
-    bne lab_aec7            ;aebc  fc 09
+    cmp a, #0xff            ;aeba  14 ff        Is mem_0089 the complement of mem_0088?
+    bne lab_aec7            ;aebc  fc 09          No: KW1281 byte check error
 
+    ;KW1281 byte check passed
     mov a, #0x05            ;aebe  04 05
     mov mem_032e, a         ;aec0  61 03 2e
     mov a, #0x01            ;aec3  04 01        A = value to store in mem_0115
@@ -8560,8 +8563,10 @@ lab_aef6:
 lab_aefe:
 ;(mem_0115 = 3)
     call sub_b24b           ;aefe  31 b2 4b
+
     mov a, #0x02            ;af01  04 02
-    mov mem_0112, a         ;af03  61 01 12
+    mov mem_0112, a         ;af03  61 01 12     KW1281 9615.38 bps transmit state = Send byte, 8-N-1
+
     mov a, #0x04            ;af06  04 04        A = value to store in mem_0115
     bne lab_af1a            ;af08  fc 10        BRANCH_ALWAYS_TAKEN
 
@@ -8634,7 +8639,7 @@ lab_af50:
     movw mem_0147, a        ;af59  d4 01 47
 
     mov a, #0x02            ;af5c  04 02
-    mov mem_0112, a         ;af5e  61 01 12
+    mov mem_0112, a         ;af5e  61 01 12     KW1281 9615.38 bps transmit state = Send byte, 8-N-1
 
     mov a, #0x06            ;af61  04 06        A = value to store in mem_0115
     bne lab_af1a            ;af63  fc b5        BRANCH_ALWAYS_TAKEN
@@ -8644,7 +8649,7 @@ lab_af65:
     bbc mem_008b:4, lab_af1d ;af65  b4 8b b5
     clrb mem_008b:4         ;af68  a4 8b
 
-    mov a, mem_012b         ;af6a  60 01 2b     KW1281 Response byte 0: Block length
+    mov a, mem_012b+0       ;af6a  60 01 2b     KW1281 Response byte 0: Block length
     cmp a, mem_0083         ;af6d  15 83        Compare to count of KW1281 bytes sent
     bhs lab_af79            ;af6f  f8 08
 
@@ -8666,14 +8671,16 @@ lab_af7d:
     bne lab_af1a            ;af87  fc 91        BRANCH_ALWAYS_TAKEN
 
 sub_af89:
+;Send KW1281 byte at 9615.38 bps or do nothing
     mov a, mem_0112         ;af89  60 01 12
-    cmp a, #0x01            ;af8c  14 01
+    cmp a, #0x01            ;af8c  14 01        Send byte at 9615.38 bps, 7-O-1
     beq lab_af95            ;af8e  fd 05
-    cmp a, #0x02            ;af90  14 02
+    cmp a, #0x02            ;af90  14 02        Send byte at 9615.38 bps, 8-N-1
     beq lab_afa2            ;af92  fd 0e
-    ret                     ;af94  20
+    ret                     ;af94  20           Otherwise, do nothing
 
 lab_af95:
+;(mem_0112=1)
     mov rrdr, #0x0d         ;af95  85 45 0d     UART Baud Rate = 9615.38 bps @ 8.0 MHz
 
     mov usmr, #0b01100011   ;af98  85 40 63     UART Parameters = 7-O-1
@@ -8690,6 +8697,7 @@ lab_af95:
     jmp lab_afa8            ;af9f  21 af a8
 
 lab_afa2:
+;(mem_0112=2)
     mov rrdr, #0x0d         ;afa2  85 45 0d     UART Baud Rate = 9615.38 bps @ 8.0 MHz
 
     mov usmr, #0b00001011   ;afa5  85 40 0b     UART Parameters = 8-N-1
@@ -8707,13 +8715,17 @@ lab_afa8:
     setb uscr:5             ;afac  ad 41        Enable UART transmitting
     setb uscr:4             ;afae  ac 41        Start baud rate generator
     setb uscr:3             ;afb0  ab 41        UART TXOE = Serial data output enabled
+
     mov a, mem_0089         ;afb2  05 89        A = KW1281 byte to send
     mov txdr, a             ;afb4  45 43        Send KW1281 byte out UART
+
     clrb mem_008b:6         ;afb6  a6 8b
     clrb mem_008b:7         ;afb8  a7 8b
     setb uscr:1             ;afba  a9 41        Enable UART receive interrupt
+
     mov a, #0x00            ;afbc  04 00
-    mov mem_0112, a         ;afbe  61 01 12
+    mov mem_0112, a         ;afbe  61 01 12     KW1281 9615.38 bps transmit state = Do nothing
+
     ret                     ;afc1  20
 
 sub_afc2:
@@ -8862,7 +8874,8 @@ lab_b0a7_tx_0x55:
     mov mem_0089, #0x55     ;b0aa  85 89 55     KW1281 byte to send = 0x55
 
     mov a, #0x02            ;b0ad  04 02
-    mov mem_0112, a         ;b0af  61 01 12
+    mov mem_0112, a         ;b0af  61 01 12     KW1281 9615.38 bps transmit state = Send byte, 8-N-1
+
     clrb mem_008c:4         ;b0b2  a4 8c
     mov mem_0081, a         ;b0b4  45 81
     mov a, #0x03            ;b0b6  04 03        A = value to store in mem_02c7
@@ -8874,10 +8887,10 @@ lab_b0a7_tx_0x01:
     bbs mem_00e6:1, lab_b0d1 ;b0ba  b9 e6 14
     bbc mem_008b:4, lab_b0d1 ;b0bd  b4 8b 11
 
-    mov a, #0x01            ;b0c0  04 01        KW1281 byte to send = 0x01
-    mov mem_0089, a         ;b0c2  45 89
+    mov a, #0x01            ;b0c0  04 01
+    mov mem_0089, a         ;b0c2  45 89        KW1281 byte to send = 0x01
+    mov mem_0112, a         ;b0c4  61 01 12     KW1281 9615.38 bps transmit state = Send byte, 7-O-1
 
-    mov mem_0112, a         ;b0c4  61 01 12
     clrb mem_008c:4         ;b0c7  a4 8c
     mov mem_0081, #0x03     ;b0c9  85 81 03
     mov a, #0x03            ;b0cc  04 03        A = value to store in mem_02c7
@@ -8898,7 +8911,8 @@ lab_b0a7_tx_0x0a:
     mov mem_0089, #0x0a     ;b0da  85 89 0a     KW1281 byte to send = 0x0a
 
     mov a, #0x01            ;b0dd  04 01
-    mov mem_0112, a         ;b0df  61 01 12
+    mov mem_0112, a         ;b0df  61 01 12     KW1281 9615.38 bps transmit state = Send byte, 7-O-1
+
     setb mem_008c:4         ;b0e2  ac 8c
     mov mem_0081, #0x04     ;b0e4  85 81 04
     mov a, #0x0c            ;b0e7  04 0c        A = value to store in mem_02c7
@@ -17549,7 +17563,7 @@ sub_ddca:
     mov mem_0388, a         ;ddcf  61 03 88
     mov mem_0385, a         ;ddd2  61 03 85
     mov mem_038b, a         ;ddd5  61 03 8b
-    mov mem_00fb, a         ;ddd8  45 fb
+    mov mem_00fb, a         ;ddd8  45 fb        KW1281 10416.67 bps transmit state = Do nothing
     mov mem_00fc, a         ;ddda  45 fc
     movw mem_038d, a        ;dddc  d4 03 8d
     movw mem_039d, a        ;dddf  d4 03 9d
@@ -17643,7 +17657,7 @@ sub_de60:
     call sub_dece           ;de66  31 de ce
     call sub_df28           ;de69  31 df 28
     call sub_dfd7           ;de6c  31 df d7
-    call sub_e074           ;de6f  31 e0 74
+    call sub_e074           ;de6f  31 e0 74     Send KW1281 byte at 10416.67 bps or do nothing
     popw a                  ;de72  50
     mov mem_00a5, a         ;de73  45 a5        Number of bytes in KW1281 packet
     popw a                  ;de75  50
@@ -17891,7 +17905,7 @@ lab_dfaf:
     bne lab_df9c            ;dfb2  fc e8
 
     mov a, mem_0088         ;dfb4  05 88        A = KW1281 byte received
-    xor a, #0xff            ;dfb6  54 ff
+    xor a, #0xff            ;dfb6  54 ff        Complement it
     mov mem_0089, a         ;dfb8  45 89        KW1281 byte to send = A
 
     mov a, #0x02            ;dfba  04 02
@@ -17931,16 +17945,22 @@ sub_dfd7:
     jmp lab_e063            ;dfe6  21 e0 63
 
 lab_dfe9:
+;(mem_038a=3)
     ret                     ;dfe9  20
 
 lab_dfea:
+;(mem_038a=1)
     mov a, mem_0390         ;dfea  60 03 90
     bne lab_e000            ;dfed  fc 11
+
     call sub_e0e1           ;dfef  31 e0 e1
+
     mov a, #0x18            ;dff2  04 18
     mov mem_0390, a         ;dff4  61 03 90
+
     mov a, #0x02            ;dff7  04 02
-    mov mem_00fb, a         ;dff9  45 fb
+    mov mem_00fb, a         ;dff9  45 fb        KW1281 10416.67 bps transmit state = Send byte, 8-N-1
+
     mov a, #0x02            ;dffb  04 02
     mov mem_038a, a         ;dffd  61 03 8a
 
@@ -17948,6 +17968,7 @@ lab_e000:
     ret                     ;e000  20
 
 lab_e001:
+;(mem_038a=2)
     mov a, mem_0390         ;e001  60 03 90
     beq lab_e04f            ;e004  fd 49
     bbc mem_00f9:4, lab_e000 ;e006  b4 f9 f7
@@ -17969,9 +17990,10 @@ lab_e023:
     mov a, mem_0089         ;e023  05 89        A = KW1281 byte to send
     mov a, mem_0088         ;e025  05 88        A = KW1281 byte received
     xor a                   ;e027  52
-    cmp a, #0xff            ;e028  14 ff
-    bne lab_e04f            ;e02a  fc 23
+    cmp a, #0xff            ;e028  14 ff        Is mem_0088 the complement of mem_0089?
+    bne lab_e04f            ;e02a  fc 23          No: branch to KW1281 byte check error
 
+    ;KW1281 byte check passed
     mov a, #0x02            ;e02c  04 02
     mov mem_0390, a         ;e02e  61 03 90
     mov a, #0x01            ;e031  04 01
@@ -18008,6 +18030,7 @@ lab_e04f:
     bne lab_e033            ;e061  fc d0       BRANCH_ALWAYS_TAKEN
 
 lab_e063:
+;(mem_038a != 1, 2, 3)
     mov a, mem_0394         ;e063  60 03 94
     bne lab_e06d            ;e066  fc 05
     mov a, #0xff            ;e068  04 ff
@@ -18019,14 +18042,16 @@ lab_e06d:
     bne lab_e033            ;e072  fc bf        BRANCH_ALWAYS_TAKEN
 
 sub_e074:
+;Send KW1281 byte at 10416.67 bps, 7-O-1 or 8-N-1 depending on mem_00fb
     mov a, mem_00fb         ;e074  05 fb
-    cmp a, #0x01            ;e076  14 01
+    cmp a, #0x01            ;e076  14 01        Send KW1281 byte at 10416.67 bps, 7-O-1
     beq lab_e07f            ;e078  fd 05
-    cmp a, #0x02            ;e07a  14 02
+    cmp a, #0x02            ;e07a  14 02        Send KW1281 byte at 10416.67 bps, 8-N-1
     beq lab_e08c            ;e07c  fd 0e
-    ret                     ;e07e  20
+    ret                     ;e07e  20           Otherwise, do nothing
 
 lab_e07f:
+;(mem_00fb=1)
     mov rrdr, #0x0c         ;e07f  85 45 0c     UART Baud Rate = 10416.67 bps @ 8.0 MHz
 
     mov usmr, #0b01100011   ;e082  85 40 63     UART Parameters = 7-O-1
@@ -18043,6 +18068,7 @@ lab_e07f:
     jmp lab_e092            ;e089  21 e0 92
 
 lab_e08c:
+;(mem_00fb=2)
     mov rrdr, #0x0c         ;e08c  85 45 0c     UART Baud Rate = 10416.67 bps @ 8.0 MHz
 
     mov usmr, #0b00001011   ;e08f  85 40 0b     UART Parameters = 8-N-1
@@ -18068,8 +18094,10 @@ lab_e092:
     clrb mem_00f9:7         ;e0a2  a7 f9
 
     setb uscr:1             ;e0a4  a9 41        Enable UART receive interrupt
+
     mov a, #0x00            ;e0a6  04 00
-    mov mem_00fb, a         ;e0a8  45 fb
+    mov mem_00fb, a         ;e0a8  45 fb        KW1281 10416.67 bps transmit state = Do nothing
+
     ret                     ;e0aa  20
 
 sub_e0ab:
@@ -18417,9 +18445,11 @@ lab_e29e:
 ;mem_038b case 6
     mov a, mem_038c         ;e29e  60 03 8c
     bne lab_e2b6            ;e2a1  fc 13
-    mov mem_0089, #0x75     ;e2a3  85 89 75     KW1281 byte to send = 0x75 (complement of 0x8A)
+    mov mem_0089, #0x75     ;e2a3  85 89 75     KW1281 byte to send = 0x75 (TODO what does sending 0x75 mean?)
+
     mov a, #0x01            ;e2a6  04 01
-    mov mem_00fb, a         ;e2a8  45 fb
+    mov mem_00fb, a         ;e2a8  45 fb        KW1281 10416.67 bps transmit state = Send byte, 7-O-1
+
     setb mem_00f9:3         ;e2aa  ab f9
     mov a, #0x0c            ;e2ac  04 0c
     mov mem_038c, a         ;e2ae  61 03 8c
@@ -18486,7 +18516,7 @@ lab_e301:
     ret                     ;e30c  20
 
 lab_e30d:
-    call sub_e338_no_ack_2           ;e30d  31 e3 38
+    call sub_e338_no_ack_2  ;e30d  31 e3 38
 
 lab_e310:
     mov a, #0x02            ;e310  04 02
@@ -18926,7 +18956,7 @@ callv7_e55c:
     mov mem_0390, a         ;e584  61 03 90
     mov mem_038b, a         ;e587  61 03 8b
     mov mem_00f9, a         ;e58a  45 f9
-    mov mem_00fb, a         ;e58c  45 fb
+    mov mem_00fb, a         ;e58c  45 fb        KW1281 10416.67 bps transmit state = Do nothing
     mov mem_00fc, a         ;e58e  45 fc
     mov mem_0391, a         ;e590  61 03 91
     mov mem_0393, a         ;e593  61 03 93
