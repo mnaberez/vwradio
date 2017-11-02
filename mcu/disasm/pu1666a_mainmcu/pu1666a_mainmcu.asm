@@ -8442,8 +8442,17 @@ lab_ae44:
     setb mem_008c:4         ;ae54  ac 8c
     clrb mem_008b:6         ;ae56  a6 8b
     clrb mem_008b:7         ;ae58  a7 8b
-    mov rrdr, #0x0d         ;ae5a  85 45 0d
-    mov usmr, #0x0b         ;ae5d  85 40 0b
+
+    mov rrdr, #0x0d         ;ae5a  85 45 0d     UART Baud Rate = 9615.38 bps @ 8.0 MHz
+
+    mov usmr, #0b00001011   ;ae5d  85 40 0b     UART Parameters = 8-N-1
+                            ;
+                            ;                   7   Mode control    = 0   Clock asynchronous mode
+                            ;                   6   Parity control  = 0   Parity unavailable
+                            ;                   5   Parity polarity = 0   Even parity (don't care)
+                            ;                   4   Stop-bit length = 0   1-bit length
+                            ;                   3   Character len   = 1   8-bit length
+                            ;                   210 Clock select    = 011 Dedicated baud rate generator
 
     mov a, mem_0089         ;ae60  05 89        A = KW1281 byte to send
     mov txdr, a             ;ae62  45 43        Send KW1281 byte out UART
@@ -8664,15 +8673,32 @@ sub_af89:
     ret                     ;af94  20
 
 lab_af95:
-    mov rrdr, #0x0d         ;af95  85 45 0d
-    mov usmr, #0x63         ;af98  85 40 63
+    mov rrdr, #0x0d         ;af95  85 45 0d     UART Baud Rate = 9615.38 bps @ 8.0 MHz
+
+    mov usmr, #0b01100011   ;af98  85 40 63     UART Parameters = 7-O-1
+                            ;
+                            ;                   7   Mode control    = 0   Clock asynchronous mode
+                            ;                   6   Parity control  = 1   Parity available
+                            ;                   5   Parity polarity = 1   Odd parity
+                            ;                   4   Stop-bit length = 0   1-bit length
+                            ;                   3   Character len   = 0   7-bit length
+                            ;                   210 Clock select    = 011 Dedicated baud rate generator
+
     mov a, rxdr             ;af9b  05 43        A = KW1281 byte received from UART
     mov mem_009e, a         ;af9d  45 9e
     jmp lab_afa8            ;af9f  21 af a8
 
 lab_afa2:
-    mov rrdr, #0x0d         ;afa2  85 45 0d
-    mov usmr, #0x0b         ;afa5  85 40 0b
+    mov rrdr, #0x0d         ;afa2  85 45 0d     UART Baud Rate = 9615.38 bps @ 8.0 MHz
+
+    mov usmr, #0b00001011   ;afa5  85 40 0b     UART Parameters = 8-N-1
+                            ;
+                            ;                   7   Mode control    = 0   Clock asynchronous mode
+                            ;                   6   Parity control  = 0   Parity unavailable
+                            ;                   5   Parity polarity = 0   Even parity (don't care)
+                            ;                   4   Stop-bit length = 0   1-bit length
+                            ;                   3   Character len   = 1   8-bit length
+                            ;                   210 Clock select    = 011 Dedicated baud rate generator
 
 lab_afa8:
     clrb uscr:7             ;afa8  a7 41
@@ -8701,7 +8727,7 @@ sub_afca:
 
 lab_afce:
     clrb mem_008b:3         ;afce  a3 8b
-    bbc pdr7:3, lab_afd5    ;afd0  b3 13 02     /RX
+    bbc pdr7:3, lab_afd5    ;afd0  b3 13 02     UART RX
     setb mem_008b:3         ;afd3  ab 8b
 
 lab_afd5:
@@ -8770,7 +8796,7 @@ lab_b02c:
     cmpw a                  ;b035  13
     bne lab_b07f            ;b036  fc 47
     clrb uscr:7             ;b038  a7 41
-    mov a, rxdr             ;b03a  05 43        A = KW1281 byte from UART
+    mov a, rxdr             ;b03a  05 43        A = KW1281 byte received from UART
     mov a, #0x00            ;b03c  04 00
     mov mem_01a1, a         ;b03e  61 01 a1
     bbs mem_00cf:5, lab_b052 ;b041  bd cf 0e
@@ -10677,28 +10703,34 @@ sub_b977:
 
     mov a, mem_009e         ;b989  05 9e
     bne lab_b9db            ;b98b  fc 4e
+
     mov a, mem_009f         ;b98d  05 9f
     and a, #0xf0            ;b98f  64 f0
     cmp a, #0xa0            ;b991  14 a0
     bhs lab_b9db            ;b993  f8 46
+
     mov a, mem_009f         ;b995  05 9f
     and a, #0x0f            ;b997  64 0f
     cmp a, #0x05            ;b999  14 05
     bhs lab_b9db            ;b99b  f8 3e
+
     mov a, mem_00a0         ;b99d  05 a0
     and a, #0xf0            ;b99f  64 f0
     cmp a, #0x30            ;b9a1  14 30
     bhs lab_b9db            ;b9a3  f8 36
+
     mov a, mem_00a0         ;b9a5  05 a0
     and a, #0x0f            ;b9a7  64 0f
     cmp a, #0x08            ;b9a9  14 08
     bhs lab_b9db            ;b9ab  f8 2e
+
     mov a, mem_009e         ;b9ad  05 9e
     mov mem_019d, a         ;b9af  61 01 9d
     mov a, mem_009f         ;b9b2  05 9f
     mov mem_019e, a         ;b9b4  61 01 9e
     mov a, mem_00a0         ;b9b7  05 a0
     mov mem_019f, a         ;b9b9  61 01 9f
+
     call sub_9235           ;b9bc  31 92 35
     cmp mem_0096, #0x01     ;b9bf  95 96 01
     beq lab_b9c7            ;b9c2  fd 03
@@ -17538,7 +17570,7 @@ lab_ddf6:
     mov a, #0x01            ;ddf9  04 01
     mov mem_0385, a         ;ddfb  61 03 85
 
-    clrb uscr:3             ;ddfe  a3 41        Set TXOE to serial data input
+    clrb uscr:3             ;ddfe  a3 41        UART TXOE = serial data input
 
     ret                     ;de00  20
 
@@ -17562,7 +17594,7 @@ sub_de0f:
     movw a, mem_038d        ;de19  c4 03 8d
     incw a                  ;de1c  c0
     movw mem_038d, a        ;de1d  d4 03 8d
-    bbc pdr7:3, lab_de26    ;de20  b3 13 03     /RX
+    bbc pdr7:3, lab_de26    ;de20  b3 13 03     UART RX
     bbc eic2:3, lab_de2e    ;de23  b3 39 08
 
 lab_de26:
@@ -17790,7 +17822,7 @@ lab_df3d:
 
     ;First byte: might be 0x55 or first byte of packet (block length)
     mov a, mem_0088         ;df55  05 88        A = KW1281 byte received
-    mov a, #0x55            ;df57  04 55        TODO what does is 0x55 received mean?
+    mov a, #0x55            ;df57  04 55        TODO what does 0x55 received mean?
     cmp a                   ;df59  12
     bne lab_df68            ;df5a  fc 0c        No: branch to receive block length
 
@@ -17865,10 +17897,19 @@ lab_dfaf:
     setb mem_00f9:3         ;dfbf  ab f9
     clrb mem_00f9:6         ;dfc1  a6 f9
     clrb mem_00f9:7         ;dfc3  a7 f9
-    mov rrdr, #0x0c         ;dfc5  85 45 0c
-    mov usmr, #0x0b         ;dfc8  85 40 0b
 
-    setb uscr:3             ;dfcb  ab 41        Set TXOE to serial data output enabled
+    mov rrdr, #0x0c         ;dfc5  85 45 0c     UART Baud Rate = 10416.67 bps @ 8.0 MHz
+
+    mov usmr, #0b00001011   ;dfc8  85 40 0b     UART Parameters = 8-N-1
+                            ;
+                            ;                   7   Mode control    = 0   Clock asynchronous mode
+                            ;                   6   Parity control  = 0   Parity unavailable
+                            ;                   5   Parity polarity = 0   Even parity (don't care)
+                            ;                   4   Stop-bit length = 0   1-bit length
+                            ;                   3   Character len   = 1   8-bit length
+                            ;                   210 Clock select    = 011 Dedicated baud rate generator
+
+    setb uscr:3             ;dfcb  ab 41        UART TXOE = serial data output enabled
 
     mov a, mem_0089         ;dfcd  05 89        A = KW1281 byte to send
     mov txdr, a             ;dfcf  45 43        Send KW1281 byte out UART
@@ -17984,15 +18025,32 @@ sub_e074:
     ret                     ;e07e  20
 
 lab_e07f:
-    mov rrdr, #0x0c         ;e07f  85 45 0c
-    mov usmr, #0x63         ;e082  85 40 63
-    mov a, rxdr             ;e085  05 43        A = KW1281 byte from UART
+    mov rrdr, #0x0c         ;e07f  85 45 0c     UART Baud Rate = 10416.67 bps @ 8.0 MHz
+
+    mov usmr, #0b01100011   ;e082  85 40 63     UART Parameters = 7-O-1
+                            ;
+                            ;                   7   Mode control    = 0   Clock asynchronous mode
+                            ;                   6   Parity control  = 1   Parity available
+                            ;                   5   Parity polarity = 1   Odd parity
+                            ;                   4   Stop-bit length = 0   1-bit length
+                            ;                   3   Character len   = 0   7-bit length
+                            ;                   210 Clock select    = 011 Dedicated baud rate generator
+
+    mov a, rxdr             ;e085  05 43        A = KW1281 byte received from UART
     mov mem_009e, a         ;e087  45 9e
     jmp lab_e092            ;e089  21 e0 92
 
 lab_e08c:
-    mov rrdr, #0x0c         ;e08c  85 45 0c
-    mov usmr, #0x0b         ;e08f  85 40 0b
+    mov rrdr, #0x0c         ;e08c  85 45 0c     UART Baud Rate = 10416.67 bps @ 8.0 MHz
+
+    mov usmr, #0b00001011   ;e08f  85 40 0b     UART Parameters = 8-N-1
+                            ;
+                            ;                   7   Mode control    = 0   Clock asynchronous mode
+                            ;                   6   Parity control  = 0   Parity unavailable
+                            ;                   5   Parity polarity = 0   Even parity (don't care)
+                            ;                   4   Stop-bit length = 0   1-bit length
+                            ;                   3   Character len   = 1   8-bit length
+                            ;                   210 Clock select    = 011 Dedicated baud rate generator
 
 lab_e092:
     clrb uscr:7             ;e092  a7 41        Clear all UART receive errors
@@ -18027,14 +18085,31 @@ reset_kw_counts:
     ret                     ;e0be  20
 
 sub_e0bf:
-    mov rrdr, #0x0c         ;e0bf  85 45 0c
-    mov usmr, #0x63         ;e0c2  85 40 63
-    mov a, rxdr             ;e0c5  05 43        A = KW1281 byte from UART
+    mov rrdr, #0x0c         ;e0bf  85 45 0c     UART Baud Rate = 10416.67 bps @ 8.0 MHz
+
+    mov usmr, #0b01100011   ;e0c2  85 40 63     UART Parameters = 7-O-1
+                            ;
+                            ;                   7   Mode control    = 0   Clock asynchronous mode
+                            ;                   6   Parity control  = 1   Parity available
+                            ;                   5   Parity polarity = 1   Odd parity
+                            ;                   4   Stop-bit length = 0   1-bit length
+                            ;                   3   Character len   = 0   7-bit length
+                            ;                   210 Clock select    = 011 Dedicated baud rate generator
+
+    mov a, rxdr             ;e0c5  05 43        A = KW1281 byte received from UART
     jmp lab_e0d0            ;e0c7  21 e0 d0
 
 sub_e0ca:
-    mov rrdr, #0x0c         ;e0ca  85 45 0c
-    mov usmr, #0x0b         ;e0cd  85 40 0b
+    mov rrdr, #0x0c         ;e0ca  85 45 0c     UART Baud Rate = 10416.67 bps @ 8.0 MHz
+
+    mov usmr, #0b00001011   ;e0cd  85 40 0b     UART Parameters = 8-N-1
+                            ;
+                            ;                   7   Mode control    = 0   Clock asynchronous mode
+                            ;                   6   Parity control  = 0   Parity unavailable
+                            ;                   5   Parity polarity = 0   Even parity (don't care)
+                            ;                   4   Stop-bit length = 0   1-bit length
+                            ;                   3   Character len   = 1   8-bit length
+                            ;                   210 Clock select    = 011 Dedicated baud rate generator
 
 lab_e0d0:
     clrb uscr:7             ;e0d0  a7 41
@@ -18044,7 +18119,7 @@ lab_e0d0:
     clrb mem_00f9:6         ;e0d8  a6 f9
     clrb mem_00f9:7         ;e0da  a7 f9
     setb uscr:1             ;e0dc  a9 41        Enable UART receive interrupt
-    mov a, rxdr             ;e0de  05 43        A = KW1281 byte from UART
+    mov a, rxdr             ;e0de  05 43        A = KW1281 byte received from UART
     ret                     ;e0e0  20
 
 sub_e0e1:
@@ -18141,13 +18216,13 @@ lab_e158:
     mov a, mem_0398         ;e170  60 03 98
     rolc a                  ;e173  02
     bhs lab_e180            ;e174  f8 0a
-    setb pdr7:2             ;e176  aa 13        TX
+    setb pdr7:2             ;e176  aa 13        UART TX
     mov a, mem_0392         ;e178  60 03 92
     or a, #0x01             ;e17b  74 01
     jmp lab_e187            ;e17d  21 e1 87
 
 lab_e180:
-    clrb pdr7:2             ;e180  a2 13        TX
+    clrb pdr7:2             ;e180  a2 13        UART TX
     mov a, mem_0392         ;e182  60 03 92
     and a, #0xfe            ;e185  64 fe
 
@@ -18165,7 +18240,7 @@ lab_e187:
 
 lab_e19a:
     mov a, #0x01            ;e19a  04 01
-    bbs pdr7:3, lab_e1a1    ;e19c  bb 13 02     /RX
+    bbs pdr7:3, lab_e1a1    ;e19c  bb 13 02     UART RX
     mov a, #0x00            ;e19f  04 00
 
 lab_e1a1:
@@ -18832,8 +18907,8 @@ lab_e55b:
 callv7_e55c:
 ;CALLV #7
 ;(mem_0388=2, mem_038b=0x0a)
-    setb pdr7:2             ;e55c  aa 13        TX
-    setb pdr7:3             ;e55e  ab 13        /RX
+    setb pdr7:2             ;e55c  aa 13        UART TX
+    setb pdr7:3             ;e55e  ab 13        UART RX
     call set_00fd_hi_nib_0  ;e560  31 e3 8a     Store 0x0 in mem_00fd high nibble
     movw a, #0xffff         ;e563  e4 ff ff
     movw mem_0398, a        ;e566  d4 03 98
