@@ -8104,7 +8104,8 @@ lab_acda:
     ret                     ;acda  20
 
 sub_acdb:
-    mov uscr, #0x30         ;acdb  85 41 30
+    mov uscr, #0b00110000   ;acdb  85 41 30     UART transmit enabled, baud rate generator started
+                            ;                   everything else disabled
     mov txdr, #0xff         ;acde  85 43 ff     TODO what does sending 0xFF mean?
     ret                     ;ace1  20
 
@@ -8701,11 +8702,11 @@ lab_afa2:
                             ;                   210 Clock select    = 011 Dedicated baud rate generator
 
 lab_afa8:
-    clrb uscr:7             ;afa8  a7 41
-    setb uscr:6             ;afaa  ae 41
-    setb uscr:5             ;afac  ad 41
-    setb uscr:4             ;afae  ac 41
-    setb uscr:3             ;afb0  ab 41
+    clrb uscr:7             ;afa8  a7 41        Clear all UART receive error flags
+    setb uscr:6             ;afaa  ae 41        Enable UART receiving
+    setb uscr:5             ;afac  ad 41        Enable UART transmitting
+    setb uscr:4             ;afae  ac 41        Start baud rate generator
+    setb uscr:3             ;afb0  ab 41        UART TXOE = Serial data output enabled
     mov a, mem_0089         ;afb2  05 89        A = KW1281 byte to send
     mov txdr, a             ;afb4  45 43        Send KW1281 byte out UART
     clrb mem_008b:6         ;afb6  a6 8b
@@ -8795,7 +8796,7 @@ lab_b02c:
     movw a, #0xeb00         ;b032  e4 eb 00
     cmpw a                  ;b035  13
     bne lab_b07f            ;b036  fc 47
-    clrb uscr:7             ;b038  a7 41
+    clrb uscr:7             ;b038  a7 41        Clear all UART receive error flags
     mov a, rxdr             ;b03a  05 43        A = KW1281 byte received from UART
     mov a, #0x00            ;b03c  04 00
     mov mem_01a1, a         ;b03e  61 01 a1
@@ -17571,7 +17572,7 @@ lab_ddf6:
     mov a, #0x01            ;ddf9  04 01
     mov mem_0385, a         ;ddfb  61 03 85
 
-    clrb uscr:3             ;ddfe  a3 41        UART TXOE = serial data input
+    clrb uscr:3             ;ddfe  a3 41        UART TXOE = serial data input (can be used as port)
 
     ret                     ;de00  20
 
@@ -18058,7 +18059,7 @@ lab_e092:
     setb uscr:6             ;e094  ae 41        Enable UART receiving
     setb uscr:5             ;e096  ad 41        Enable UART transmitting
     setb uscr:4             ;e098  ac 41        Start UART baud rate generator
-    setb uscr:3             ;e09a  ab 41        Set UART's TXOE to serial data output enabled
+    setb uscr:3             ;e09a  ab 41        UART TXOE = serial data output enabled
 
     mov a, mem_0089         ;e09c  05 89        A = KW1281 byte to send
     mov txdr, a             ;e09e  45 43        Send KW1281 byte out UART
@@ -18113,10 +18114,10 @@ sub_e0ca:
                             ;                   210 Clock select    = 011 Dedicated baud rate generator
 
 lab_e0d0:
-    clrb uscr:7             ;e0d0  a7 41
-    setb uscr:6             ;e0d2  ae 41
-    setb uscr:4             ;e0d4  ac 41
-    setb uscr:3             ;e0d6  ab 41
+    clrb uscr:7             ;e0d0  a7 41        Clear all UART receive error flags
+    setb uscr:6             ;e0d2  ae 41        Enable UART receiving
+    setb uscr:4             ;e0d4  ac 41        Start baud rate generator
+    setb uscr:3             ;e0d6  ab 41        UART TXOE = serial data output enabled
     clrb mem_00f9:6         ;e0d8  a6 f9
     clrb mem_00f9:7         ;e0da  a7 f9
     setb uscr:1             ;e0dc  a9 41        Enable UART receive interrupt
@@ -18141,7 +18142,7 @@ sub_e0f3:
     bbc mem_00f9:3, lab_e101 ;e0f3  b3 f9 0b
     mov a, rxdr             ;e0f6  05 43
     mov mem_0088, a         ;e0f8  45 88        KW1281 byte received
-    clrb uscr:7             ;e0fa  a7 41
+    clrb uscr:7             ;e0fa  a7 41        Clear all UART receive error flags
     clrb mem_00f9:3         ;e0fc  a3 f9
     jmp lab_e12b            ;e0fe  21 e1 2b
 
@@ -18155,7 +18156,7 @@ lab_e108:
     mov mem_0088, a         ;e10a  45 88        KW1281 byte received
     setb mem_00f9:6         ;e10c  ae f9
     setb mem_00f9:4         ;e10e  ac f9
-    clrb uscr:7             ;e110  a7 41
+    clrb uscr:7             ;e110  a7 41        Clear all UART receive error flags
     call sub_e1d6           ;e112  31 e1 d6
     jmp lab_e12b            ;e115  21 e1 2b
 
@@ -18163,7 +18164,7 @@ lab_e118:
     mov a, rxdr             ;e118  05 43
     mov mem_0088, a         ;e11a  45 88        KW1281 byte received
     setb mem_00f9:7         ;e11c  af f9
-    clrb uscr:7             ;e11e  a7 41
+    clrb uscr:7             ;e11e  a7 41        Clear all UART receive error flags
     setb mem_00f9:4         ;e120  ac f9
     jmp lab_e12b            ;e122  21 e1 2b
 
@@ -18365,7 +18366,7 @@ lab_e256:
     ret                     ;e256  20
 
 sub_e257:
-    clrb uscr:6             ;e257  a6 41
+    clrb uscr:6             ;e257  a6 41        Disable UART receiving
     clrb uscr:1             ;e259  a1 41        Disable UART receive interrupt
     setb mem_00f9:2         ;e25b  aa f9
     mov a, #0x00            ;e25d  04 00
@@ -18407,7 +18408,7 @@ lab_e282:
     mov mem_0388, a         ;e293  61 03 88
     mov mem_038b, a         ;e296  61 03 8b
     clrb mem_00f9:2         ;e299  a2 f9
-    clrb uscr:3             ;e29b  a3 41
+    clrb uscr:3             ;e29b  a3 41        UART TXOE = serial data input (can be used as port)
 
 lab_e29d:
     ret                     ;e29d  20
