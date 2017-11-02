@@ -8914,7 +8914,8 @@ lab_b0a7_rx_0x75:
     bbc mem_008b:6, lab_b0eb ;b0f2  b6 8b f6
 
     ;Check for 0x75 response during Initial Connection
-    ;hex( 0x0a ^ (0xff & 0x7f) ) #=> 0x75
+    ;  mem_0088 = 0x75
+    ;  hex((mem_0088 ^ 0xFF) & 0x7F) #=> 0x0A
     mov a, mem_0088         ;b0f5  05 88        A = KW1281 byte received
     xor a, #0xff            ;b0f7  54 ff
     and a, #0x7f            ;b0f9  64 7f
