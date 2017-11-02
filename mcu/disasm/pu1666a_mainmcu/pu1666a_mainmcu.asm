@@ -8105,7 +8105,7 @@ lab_acda:
 
 sub_acdb:
     mov uscr, #0x30         ;acdb  85 41 30
-    mov txdr, #0xff         ;acde  85 43 ff     Send KW1281 byte 0xFF (sync byte?) out UART
+    mov txdr, #0xff         ;acde  85 43 ff     TODO what does sending 0xFF mean?
     ret                     ;ace1  20
 
 sub_ace2:
@@ -18345,7 +18345,7 @@ lab_e231:
     bbc mem_00f9:6, lab_e256 ;e239  b6 f9 1a
 
     mov a, mem_0088         ;e23c  05 88        A = KW1281 byte received
-    cmp a, #0x55            ;e23e  14 55        Is it the KW1281 sync byte?
+    cmp a, #0x55            ;e23e  14 55        TODO what does 0x55 received mean?
     bne lab_e256            ;e240  fc 14
 
 sub_e242:
