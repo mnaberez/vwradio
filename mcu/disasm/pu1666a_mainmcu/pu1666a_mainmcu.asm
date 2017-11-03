@@ -9693,10 +9693,12 @@ lab_b480:
 lab_b4a3:
     cmp a, #0x03            ;b4a3  14 03
     bne lab_b4b9            ;b4a5  fc 12
-    decw a                  ;b4a7  d0
-    decw a                  ;b4a8  d0
-    decw a                  ;b4a9  d0
-    mov mem_0146, a         ;b4aa  61 01 46
+
+    decw a                  ;b4a7  d0           3->2
+    decw a                  ;b4a8  d0           2->1
+    decw a                  ;b4a9  d0           1->0
+    mov mem_0146, a         ;b4aa  61 01 46     Set mem_0146 = 0
+
     call sub_b538           ;b4ad  31 b5 38
 
     mov a, #0x03            ;b4b0  04 03
@@ -9708,9 +9710,11 @@ lab_b4a3:
 lab_b4b9:
     cmp a, #0x02            ;b4b9  14 02
     bne lab_b4ce            ;b4bb  fc 11
-    decw a                  ;b4bd  d0
-    decw a                  ;b4be  d0
-    mov mem_0146, a         ;b4bf  61 01 46
+
+    decw a                  ;b4bd  d0           2->1
+    decw a                  ;b4be  d0           1->0
+    mov mem_0146, a         ;b4bf  61 01 46     Set mem_0146 = 0
+
     call sub_b53b           ;b4c2  31 b5 3b
 
     mov a, #0x03            ;b4c5  04 03
@@ -9722,8 +9726,10 @@ lab_b4b9:
 lab_b4ce:
     cmp a, #0x01            ;b4ce  14 01
     bne lab_b4e9            ;b4d0  fc 17
-    decw a                  ;b4d2  d0
-    mov mem_0146, a         ;b4d3  61 01 46
+
+    decw a                  ;b4d2  d0           1->0
+    mov mem_0146, a         ;b4d3  61 01 46     Set mem_0146 = 0
+
     call sub_b542           ;b4d6  31 b5 42
 
     mov a, #0x03            ;b4d9  04 03
@@ -18115,6 +18121,7 @@ reset_kw_counts:
     ret                     ;e0be  20
 
 sub_e0bf:
+;Set up for KW1281 10416.67 bps, 7-O-1 receive
     mov rrdr, #0x0c         ;e0bf  85 45 0c     UART Baud Rate = 10416.67 bps @ 8.0 MHz
 
     mov usmr, #0b01100011   ;e0c2  85 40 63     UART Parameters = 7-O-1
@@ -18126,10 +18133,11 @@ sub_e0bf:
                             ;                   3   Character len   = 0   7-bit length
                             ;                   210 Clock select    = 011 Dedicated baud rate generator
 
-    mov a, rxdr             ;e0c5  05 43        A = KW1281 byte received from UART
+    mov a, rxdr             ;e0c5  05 43        A = KW1281 byte received from UART (thrown away)
     jmp lab_e0d0            ;e0c7  21 e0 d0
 
 sub_e0ca:
+;Set up for KW1281 10416.67 bps, 8-N-1 receive
     mov rrdr, #0x0c         ;e0ca  85 45 0c     UART Baud Rate = 10416.67 bps @ 8.0 MHz
 
     mov usmr, #0b00001011   ;e0cd  85 40 0b     UART Parameters = 8-N-1
@@ -18149,7 +18157,7 @@ lab_e0d0:
     clrb mem_00f9:6         ;e0d8  a6 f9
     clrb mem_00f9:7         ;e0da  a7 f9
     setb uscr:1             ;e0dc  a9 41        Enable UART receive interrupt
-    mov a, rxdr             ;e0de  05 43        A = KW1281 byte received from UART
+    mov a, rxdr             ;e0de  05 43        A = KW1281 byte received from UART (thrown away)
     ret                     ;e0e0  20
 
 sub_e0e1:
@@ -18298,12 +18306,12 @@ sub_e1b8:
     mov a, #0x01            ;e1bf  04 01        A = value to store in mem_038b
     mov mem_038b, a         ;e1c1  61 03 8b
     call set_00fd_hi_nib_3  ;e1c4  31 e3 96     Store 0x3 in mem_00fd high nibble
-    call sub_e0ca           ;e1c7  31 e0 ca
+    call sub_e0ca           ;e1c7  31 e0 ca     Set up for KW1281 10416.67 bps, 8-N-1 receive
     clrb mem_00f9:3         ;e1ca  a3 f9
     mov a, #0x50            ;e1cc  04 50
     mov mem_038c, a         ;e1ce  61 03 8c
-    mov a, #0x00            ;e1d1  04 00
-    jmp lab_e154            ;e1d3  21 e1 54     A = value to store in mem_0385
+    mov a, #0x00            ;e1d1  04 00        A = value to store in mem_0385
+    jmp lab_e154            ;e1d3  21 e1 54
 
 sub_e1d6:
     mov a, mem_0393         ;e1d6  60 03 93
@@ -18322,7 +18330,7 @@ lab_e1e2:
     cmp a, #0x01            ;e1eb  14 01
     bne lab_e1fe            ;e1ed  fc 0f
 
-    call sub_e0bf           ;e1ef  31 e0 bf
+    call sub_e0bf           ;e1ef  31 e0 bf     Set up for KW1281 10416.67 bps, 7-O-1 receive
     clrb mem_00f9:3         ;e1f2  a3 f9
     mov a, #0x05            ;e1f4  04 05
     mov mem_038c, a         ;e1f6  61 03 8c
@@ -18367,7 +18375,7 @@ mem_e223:
     .word lab_e29e          ;e22f  e2 9e       VECTOR   6
 
 lab_e231:
-;mem_038b case 1
+;(mem_0388=0, mem_038b=1)
     mov a, mem_038c         ;e231  60 03 8c
     beq lab_e268            ;e234  fd 32
     bbc mem_00f9:4, lab_e256 ;e236  b4 f9 1d
@@ -18378,7 +18386,8 @@ lab_e231:
     bne lab_e256            ;e240  fc 14
 
 sub_e242:
-    call sub_e0bf           ;e242  31 e0 bf
+;KW1281 byte received = 0x55
+    call sub_e0bf           ;e242  31 e0 bf     Set up for KW1281 10416.67 bps, 7-O-1 receive
     clrb mem_00f9:3         ;e245  a3 f9
     mov a, #0x05            ;e247  04 05
     mov mem_038c, a         ;e249  61 03 8c
@@ -18390,7 +18399,7 @@ lab_e253:
     mov mem_038b, a         ;e253  61 03 8b
 
 lab_e256:
-;mem_038b case 0
+;(mem_0388=0, mem_038b=0)
     ret                     ;e256  20
 
 sub_e257:
@@ -18421,11 +18430,11 @@ lab_e27f:
     ret                     ;e280  20
 
 lab_e281:
-;mem_038b case 2, case 3
+;(mem_0388=0, mem_038b=2 or 3)
     ret                     ;e281  20
 
 lab_e282:
-;mem_038b case 5
+;(mem_0388=0, mem_038b=5)
     mov a, mem_038c         ;e282  60 03 8c
     bne lab_e29d            ;e285  fc 16
     mov a, #0x02            ;e287  04 02
@@ -18442,7 +18451,7 @@ lab_e29d:
     ret                     ;e29d  20
 
 lab_e29e:
-;mem_038b case 6
+;(mem_0388=0, mem_038b=6)
     mov a, mem_038c         ;e29e  60 03 8c
     bne lab_e2b6            ;e2a1  fc 13
     mov mem_0089, #0x75     ;e2a3  85 89 75     KW1281 byte to send = 0x75 (TODO what does sending 0x75 mean?)
@@ -18462,17 +18471,18 @@ lab_e2b6:
     ret                     ;e2b6  20
 
 lab_e2b7:
-;mem_038b case 4
+;(mem_0388=0, mem_038b=4)
     mov a, mem_038c         ;e2b7  60 03 8c
     beq lab_e27f            ;e2ba  fd c3
     bbc mem_00f9:4, lab_e2b6 ;e2bc  b4 f9 f7
     clrb mem_00f9:4         ;e2bf  a4 f9
-    movw a, #0x003c         ;e2c1  e4 00 3c
 
+    movw a, #0x003c         ;e2c1  e4 00 3c     Delay loop
 lab_e2c4:
     decw a                  ;e2c4  d0
     bne lab_e2c4            ;e2c5  fc fd
-    call sub_e0ca           ;e2c7  31 e0 ca
+
+    call sub_e0ca           ;e2c7  31 e0 ca     Set up for KW1281 10416.67 bps, 8-N-1 receive
     mov a, #0xff            ;e2ca  04 ff
     mov mem_0390, a         ;e2cc  61 03 90
     mov a, #0x01            ;e2cf  04 01
@@ -18487,12 +18497,13 @@ lab_e2df:
 ;(mem_0388=1)
     mov a, mem_038b         ;e2df  60 03 8b
     cmp a, #0x01            ;e2e2  14 01
-    beq lab_e2eb            ;e2e4  fd 05
+    beq lab_e2eb            ;e2e4  fd 05        Calls sub_b16b_ack
     cmp a, #0x02            ;e2e6  14 02
     beq lab_e2f1            ;e2e8  fd 07
     ret                     ;e2ea  20
 
 lab_e2eb:
+;(mem_0388=1, mem_038b=1)
     call sub_b16b_ack       ;e2eb  31 b1 6b
     jmp lab_e310            ;e2ee  21 e3 10
 
@@ -18508,14 +18519,16 @@ lab_e300:
     ret                     ;e300  20
 
 lab_e301:
+;(mem_0388=6)
     mov a, mem_038b         ;e301  60 03 8b
-    cmp a, #0x01            ;e304  14 01
+    cmp a, #0x01            ;e304  14 01        Calls sub_e338_no_ack_2
     beq lab_e30d            ;e306  fd 05
     cmp a, #0x02            ;e308  14 02
     beq lab_e2f1            ;e30a  fd e5
     ret                     ;e30c  20
 
 lab_e30d:
+;(mem_0388=6, mem_038b=1)
     call sub_e338_no_ack_2  ;e30d  31 e3 38
 
 lab_e310:
@@ -18527,12 +18540,13 @@ lab_e316:
 ;(mem_0388=8: Unrecognized block title)
     mov a, mem_038b         ;e316  60 03 8b
     cmp a, #0x01            ;e319  14 01
-    beq lab_e322            ;e31b  fd 05
+    beq lab_e322            ;e31b  fd 05        Calls sub_e34e_no_ack_2
     cmp a, #0x02            ;e31d  14 02
     beq lab_e2f1            ;e31f  fd d0
     ret                     ;e321  20
 
 lab_e322:
+;(mem_0388=8, mem_038b=1)
     call sub_e34e_no_ack_2  ;e322  31 e3 4e
     jmp lab_e310            ;e325  21 e3 10
 
