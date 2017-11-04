@@ -1113,8 +1113,8 @@ sub_826e:
 
     mov mem_0091, #0x08     ;8316  85 91 08
 
-    movw a, #0x0000         ;8319  e4 00 00     TODO what KW1281 fault is this?
-    movw mem_0161, a        ;831c  d4 01 61
+    movw a, #0x0000         ;8319  e4 00 00     Clear fault:
+    movw mem_0161, a        ;831c  d4 01 61     KW1281 Fault 65535 Internal Memory Error
     movw a, #0x8800         ;831f  e4 88 00
     movw mem_0163, a        ;8322  d4 01 63
 
@@ -9543,8 +9543,8 @@ lab_b3cc:
     mov a, #0x00            ;b3dd  04 00
     mov mem_012b+3, a       ;b3df  61 01 2e     KW1281 Response byte 3: ? TODO
 
-    mov a, #0x03            ;b3e2  04 03
-    mov mem_012b+8, a       ;b3e4  61 01 33     KW1281 Response byte 8: ? TODO probably block end
+    mov a, #0x03            ;b3e2  04 03        0x03 = Block End
+    mov mem_012b+8, a       ;b3e4  61 01 33     KW1281 Response byte 8: Block End
 
     movw a, #mem_0175       ;b3e7  e4 01 75     A = Pointer to KW1281 packet bytes
     movw mem_0084, a        ;b3ea  d5 84
@@ -9584,60 +9584,72 @@ lab_b412:
 
 
 sub_b416:
-    movw ep, #0             ;b416  e7 00 00
-    mov mem_0093, #0x00     ;b419  85 93 00
-    mov mem_0094, #0x00     ;b41c  85 94 00
+;Determine faults and set fault bits in mem_0093
+;Returns EP = number of faults
+;
+    movw ep, #0             ;b416  e7 00 00     Number of faults = 0
+    mov mem_0093, #0x00     ;b419  85 93 00     Clear all fault bits
+    mov mem_0094, #0x00     ;b41c  85 94 00     XXX mem_0094 appears unused
     movw ix, #mem_0149      ;b41f  e6 01 49
+
+    ;Check for Fault 00856 Antenna
     mov a, @ix+0x02         ;b422  06 02
-    beq lab_b429            ;b424  fd 03
-    setb mem_0093:0         ;b426  a8 93
-    incw ep                 ;b428  c3
+    beq lab_b429            ;b424  fd 03        Branch if no fault
+    setb mem_0093:0         ;b426  a8 93        KW1281 Fault 00856 Antenna
+    incw ep                 ;b428  c3           Increment number of faults
 
 lab_b429:
+    ;Check for Fault 00668 Supply terminal 30
     mov a, @ix+0x06         ;b429  06 06
-    beq lab_b430            ;b42b  fd 03
-    setb mem_0093:1         ;b42d  a9 93
-    incw ep                 ;b42f  c3
+    beq lab_b430            ;b42b  fd 03        Branch if no fault
+    setb mem_0093:1         ;b42d  a9 93        KW1281 Fault 00668 Supply terminal 30
+    incw ep                 ;b42f  c3           Increment number of faults
 
 lab_b430:
+    ;Check for Fault 00850 Radio amplifier
     mov a, @ix+0x0a         ;b430  06 0a
-    beq lab_b437            ;b432  fd 03
-    setb mem_0093:2         ;b434  aa 93
-    incw ep                 ;b436  c3
+    beq lab_b437            ;b432  fd 03        Branch if no fault
+    setb mem_0093:2         ;b434  aa 93        KW1281 Fault 00850 Radio amplifier
+    incw ep                 ;b436  c3           Increment number of faults
 
 lab_b437:
+    ;Check for Fault 01044 Control Module Incorrectly Coded
     mov a, @ix+0x1e         ;b437  06 1e
-    beq lab_b43e            ;b439  fd 03
-    setb mem_0093:3         ;b43b  ab 93
-    incw ep                 ;b43d  c3
+    beq lab_b43e            ;b439  fd 03        Branch if no fault
+    setb mem_0093:3         ;b43b  ab 93        KW1281 Fault 01044 Control Module Incorrectly Coded
+    incw ep                 ;b43d  c3           Increment number of faults
 
 lab_b43e:
+    ;Check for Fault 00855 CD changer
     mov a, @ix+0x0e         ;b43e  06 0e
-    beq lab_b445            ;b440  fd 03
-    setb mem_0093:4         ;b442  ac 93
-    incw ep                 ;b444  c3
+    beq lab_b445            ;b440  fd 03        Branch if no fault
+    setb mem_0093:4         ;b442  ac 93        KW1281 Fault 00855 CD changer
+    incw ep                 ;b444  c3           Increment number of faults
 
 lab_b445:
+    ;Check for Fault 00852 Loudspeaker(s) Front
     mov a, @ix+0x12         ;b445  06 12
-    beq lab_b44c            ;b447  fd 03
-    setb mem_0093:5         ;b449  ad 93
-    incw ep                 ;b44b  c3
+    beq lab_b44c            ;b447  fd 03        Branch if no fault
+    setb mem_0093:5         ;b449  ad 93        KW1281 Fault 00852 Loudspeaker(s) Front
+    incw ep                 ;b44b  c3           Increment number of faults
 
 lab_b44c:
+    ;Check for Fault 00853 Loudspeaker(s) Rear
     mov a, @ix+0x16         ;b44c  06 16
-    beq lab_b453            ;b44e  fd 03
-    setb mem_0093:6         ;b450  ae 93
-    incw ep                 ;b452  c3
+    beq lab_b453            ;b44e  fd 03        Branch if no fault
+    setb mem_0093:6         ;b450  ae 93        KW1281 Fault 00853 Loudspeaker(s) Rear
+    incw ep                 ;b452  c3           Increment number of faults
 
 lab_b453:
+    ;Check for Fault 65535 Internal Memory Error
     mov a, @ix+0x1a         ;b453  06 1a
-    beq lab_b45b            ;b455  fd 04
+    beq lab_b45b            ;b455  fd 04        Branch if no fault
     cmp a, #0x80            ;b457  14 80
-    bne lab_b45e            ;b459  fc 03
+    bne lab_b45e            ;b459  fc 03        Branch if no fault, case 2 (TODO what's 0x80?)
 
 lab_b45b:
-    setb mem_0093:7         ;b45b  af 93
-    incw ep                 ;b45d  c3
+    setb mem_0093:7         ;b45b  af 93        KW1281 Fault 65535 Internal Memory Error
+    incw ep                 ;b45d  c3           Increment number of faults
 
 lab_b45e:
     ret                     ;b45e  20
@@ -9661,9 +9673,9 @@ mem_b467:
 
 lab_b475:
 ;Read Faults related
-    call sub_b416           ;b475  31 b4 16
-    movw a, ep              ;b478  f3
-    mov mem_0146, a         ;b479  61 01 46
+    call sub_b416           ;b475  31 b4 16     Determine faults, set fault bits in mem_0093
+    movw a, ep              ;b478  f3           A = number of faults
+    mov mem_0146, a         ;b479  61 01 46     Store number of faults in mem_0146
     mov mem_0081, #0x02     ;b47c  85 81 02
     ret                     ;b47f  20
 
@@ -9675,64 +9687,69 @@ lab_b480:
     movw a, #mem_012b+3     ;b485  e4 01 2e     A = Pointer to KW1281 Response byte 3
     movw mem_0086, a        ;b488  d5 86
 
-    mov a, mem_0146         ;b48a  60 01 46
-    cmp a, #0x04            ;b48d  14 04
-    blo lab_b4a3            ;b48f  f9 12
+    mov a, mem_0146         ;b48a  60 01 46     A = number of faults
+    cmp a, #0x04            ;b48d  14 04        Compare number of faults with 4
+    blo lab_b4a3            ;b48f  f9 12        Branch if < 4
 
+    ;4 Faults
     clrc                    ;b491  81
-    subc a, #0x04           ;b492  34 04
-    mov mem_0146, a         ;b494  61 01 46
-    call sub_b535           ;b497  31 b5 35
+    subc a, #0x04           ;b492  34 04        4 - 4 = 0
+    mov mem_0146, a         ;b494  61 01 46     Set number of faults = 0
 
-    mov a, #0x03            ;b49a  04 03
+    call sub_b535           ;b497  31 b5 35     Build KW1281 fragment for 4 faults
+
+    mov a, #0x03            ;b49a  04 03        0x03 = Block end
     mov mem_012b+15, a      ;b49c  61 01 3a     KW1281 Response byte 15: Block end
 
     mov a, #0x0f            ;b49f  04 0f        A = Block length of 15 bytes
     bne lab_b4e0            ;b4a1  fc 3d        BRANCH_ALWAYS_TAKEN
 
 lab_b4a3:
-    cmp a, #0x03            ;b4a3  14 03
-    bne lab_b4b9            ;b4a5  fc 12
+    cmp a, #0x03            ;b4a3  14 03        Compare number of faults with 3
+    bne lab_b4b9            ;b4a5  fc 12        Branch if != 3
 
+    ;3 Faults
     decw a                  ;b4a7  d0           3->2
     decw a                  ;b4a8  d0           2->1
     decw a                  ;b4a9  d0           1->0
-    mov mem_0146, a         ;b4aa  61 01 46     Set mem_0146 = 0
+    mov mem_0146, a         ;b4aa  61 01 46     Set number of faults = 0
 
-    call sub_b538           ;b4ad  31 b5 38
+    call sub_b538           ;b4ad  31 b5 38     Build KW1281 fragment for 3 faults
 
-    mov a, #0x03            ;b4b0  04 03
+    mov a, #0x03            ;b4b0  04 03        0x03 = Block end
     mov mem_012b+12, a      ;b4b2  61 01 37     KW1281 Response byte 12: Block end
 
     mov a, #0x0c            ;b4b5  04 0c        A = Block length of 12 bytes
     bne lab_b4e0            ;b4b7  fc 27        BRANCH_ALWAYS_TAKEN
 
 lab_b4b9:
-    cmp a, #0x02            ;b4b9  14 02
-    bne lab_b4ce            ;b4bb  fc 11
+    cmp a, #0x02            ;b4b9  14 02        Compare number of faults with 2
+    bne lab_b4ce            ;b4bb  fc 11        Branch if != 2
 
+    ;2 Faults
     decw a                  ;b4bd  d0           2->1
     decw a                  ;b4be  d0           1->0
-    mov mem_0146, a         ;b4bf  61 01 46     Set mem_0146 = 0
+    mov mem_0146, a         ;b4bf  61 01 46     Set number of faults = 0
 
-    call sub_b53b           ;b4c2  31 b5 3b
+    call sub_b53b           ;b4c2  31 b5 3b     Build KW1281 fragment for 2 faults
 
-    mov a, #0x03            ;b4c5  04 03
+    mov a, #0x03            ;b4c5  04 03        0x03 = Block end
     mov mem_012b+9, a       ;b4c7  61 01 34     KW1281 Response byte 9: Block end
 
     mov a, #0x09            ;b4ca  04 09        A = Block length of 9 bytes
     bne lab_b4e0            ;b4cc  fc 12        BRANCH_ALWAYS_TAKEN
 
 lab_b4ce:
-    cmp a, #0x01            ;b4ce  14 01
-    bne lab_b4e9            ;b4d0  fc 17
+    cmp a, #0x01            ;b4ce  14 01        Compare number of faults with 1
+    bne lab_b4e9            ;b4d0  fc 17        Branch if != 1
 
+    ;1 Fault
     decw a                  ;b4d2  d0           1->0
-    mov mem_0146, a         ;b4d3  61 01 46     Set mem_0146 = 0
+    mov mem_0146, a         ;b4d3  61 01 46     Set number of faults = 0
 
-    call sub_b542           ;b4d6  31 b5 42
+    call sub_b542           ;b4d6  31 b5 42     Build KW1281 fragment for 2 faults
 
-    mov a, #0x03            ;b4d9  04 03
+    mov a, #0x03            ;b4d9  04 03        0x03 = Block end
     mov mem_012b+6, a       ;b4db  61 01 31     KW1281 Response byte 6: Block end
 
     mov a, #0x06            ;b4de  04 06        A = Block length of 6 bytes
@@ -9809,23 +9826,28 @@ lab_b52e:
     ret                     ;b534  20
 
 sub_b535:
-    call sub_b542           ;b535  31 b5 42
+;Build KW1281 fragment for 4 Faults
+    call sub_b542           ;b535  31 b5 42     Build KW1281 fragment for 1 Fault
 
 sub_b538:
-    call sub_b542           ;b538  31 b5 42
+;Build KW1281 fragment for 3 Faults
+    call sub_b542           ;b538  31 b5 42     Build KW1281 fragment for 1 Fault
 
 sub_b53b:
-    call sub_b542           ;b53b  31 b5 42
+;Build KW1281 fragment for 2 Faults
+    call sub_b542           ;b53b  31 b5 42     Build KW1281 fragment for 1 Fault
     call sub_b542           ;b53e  31 b5 42
     ret                     ;b541  20
 
 sub_b542:
-    mov a, mem_0093         ;b542  05 93
-    beq lab_b553            ;b544  fd 0d
-    call sub_b554           ;b546  31 b5 54
+;Build KW1281 fragment for 1 Fault
+    mov a, mem_0093         ;b542  05 93        A = fault bits
+    beq lab_b553            ;b544  fd 0d        Branch to do nothing if no faults
+
+    call sub_b554           ;b546  31 b5 54     Read/clear fault bits, returns A = pointer to KW1281 packet
 
     movw mem_0084, a        ;b549  d5 84        Pointer to KW1281 packet bytes
-    movw mem_0084, a        ;b54b  d5 84        Pointer to KW1281 packet bytes (why?)
+    movw mem_0084, a        ;b54b  d5 84        Pointer to KW1281 packet bytes (XXX why?)
     mov mem_00a5, #0x03     ;b54d  85 a5 03     3 bytes in KW1281 packet
     call sub_b13e           ;b550  31 b1 3e     Copy mem_00a5 bytes from @mem_0084 to @mem_0086
 
@@ -9834,52 +9856,71 @@ lab_b553:
 
 
 sub_b554:
+;Read fault bits in mem_0093.  For the first fault bit set, clear the bit
+;and return a pointer in A to KW1281 packet bytes for that fault.
+;
     bbc mem_0093:0, lab_b55d ;b554  b0 93 06
-    clrb mem_0093:0         ;b557  a0 93
+
     ;KW1281 Fault 00856 Antenna
+    clrb mem_0093:0         ;b557  a0 93        Clear fault 00856 bit
     movw a, #mem_0149       ;b559  e4 01 49     A = Address of KW1281 packet bytes
     ret                     ;b55c  20
+
 lab_b55d:
     bbc mem_0093:1, lab_b566 ;b55d  b1 93 06
-    clrb mem_0093:1         ;b560  a1 93
+
     ;KW1281 Fault 00668 Supply terminal 30
+    clrb mem_0093:1         ;b560  a1 93        Clear fault 00668 bit
     movw a, #mem_014d       ;b562  e4 01 4d     A = Address of KW1281 packet bytes
     ret                     ;b565  20
+
 lab_b566:
     bbc mem_0093:2, lab_b56f ;b566  b2 93 06
-    clrb mem_0093:2         ;b569  a2 93
+
     ;KW1281 Fault 00850 Radio amplifier
-    movw a, #mem_0151       ;b56b  e4 01 51   A = Address of KW1281 packet bytes
+    clrb mem_0093:2         ;b569  a2 93        Clear fault 00850 bit
+    movw a, #mem_0151       ;b56b  e4 01 51     A = Address of KW1281 packet bytes
     ret                     ;b56e  20
+
 lab_b56f:
     bbc mem_0093:3, lab_b578 ;b56f  b3 93 06
-    clrb mem_0093:3         ;b572  a3 93
+
     ;KW1281 Fault 01044 Control Module Incorrectly Coded
-    movw a, #mem_0165       ;b574  e4 01 65   A = Address of KW1281 packet bytes
+    clrb mem_0093:3         ;b572  a3 93        Clear fault 01044 bit
+    movw a, #mem_0165       ;b574  e4 01 65     A = Address of KW1281 packet bytes
     ret                     ;b577  20
+
 lab_b578:
     bbc mem_0093:4, lab_b581 ;b578  b4 93 06
+
     ;KW1281 Fault 00855 CD changer
-    clrb mem_0093:4         ;b57b  a4 93
-    movw a, #mem_0155       ;b57d  e4 01 55   A = Address of KW1281 packet bytes
+    clrb mem_0093:4         ;b57b  a4 93        Clear fault 00855 bit
+    movw a, #mem_0155       ;b57d  e4 01 55     A = Address of KW1281 packet bytes
     ret                     ;b580  20
+
 lab_b581:
     bbc mem_0093:5, lab_b58a ;b581  b5 93 06
+
     ;KW1281 Fault 00852 Loudspeaker(s) Front
-    clrb mem_0093:5         ;b584  a5 93
-    movw a, #mem_0159       ;b586  e4 01 59   A = Address of KW1281 packet bytes
+    clrb mem_0093:5         ;b584  a5 93        Clear fault 00852 bit
+    movw a, #mem_0159       ;b586  e4 01 59     A = Address of KW1281 packet bytes
     ret                     ;b589  20
+
 lab_b58a:
     bbc mem_0093:6, lab_b593 ;b58a  b6 93 06
+
     ;KW1281 Fault 00853 Loudspeaker(s) Rear
-    clrb mem_0093:6         ;b58d  a6 93
-    movw a, #mem_015d       ;b58f  e4 01 5d   A = Address of KW1281 packet bytes
+    clrb mem_0093:6         ;b58d  a6 93        Clear fault 00853 bit
+    movw a, #mem_015d       ;b58f  e4 01 5d     A = Address of KW1281 packet bytes
     ret                     ;b592  20
+
 lab_b593:
     bbc mem_0093:7, lab_b59b ;b593  b7 93 05
-    clrb mem_0093:7         ;b596  a7 93
+
     ;KW1281 Fault 65535 Internal Memory Error
-    movw a, #mem_0161       ;b598  e4 01 61   A = Address of KW1281 packet bytes
+    clrb mem_0093:7         ;b596  a7 93        Clear fault 65535 bit
+    movw a, #mem_0161       ;b598  e4 01 61     A = Address of KW1281 packet bytes
+
 lab_b59b:
     ret                     ;b59b  20
 
@@ -10686,9 +10727,11 @@ lab_b945:
 
     setb mem_00b2:7         ;b959  af b2
     call sub_9ed3           ;b95b  31 9e d3
-    movw a, #0x0000         ;b95e  e4 00 00
-    movw mem_0165, a        ;b961  d4 01 65
+
+    movw a, #0x0000         ;b95e  e4 00 00     Clear 4 bytes to clear fault:
+    movw mem_0165, a        ;b961  d4 01 65     KW1281 Fault 01044 Control Module Incorrectly Coded
     movw mem_0167, a        ;b964  d4 01 67
+
     clrb mem_0091:3         ;b967  a3 91
     mov mem_00f1, #0xa0     ;b969  85 f1 a0
     mov mem_0081, #0x02     ;b96c  85 81 02
@@ -10820,7 +10863,7 @@ sub_ba0e:
 lab_ba14:
     movw a, #0xffff         ;ba14  e4 ff ff
     movw @ix+0x00, a        ;ba17  d6 00
-    movw a, #0xff14         ;ba19  e4 ff 14  TODO should this be mem_ff14?
+    movw a, #0xff14         ;ba19  e4 ff 14
     movw @ix+0x02, a        ;ba1c  d6 02
     incw ix                 ;ba1e  c2
     incw ix                 ;ba1f  c2
@@ -10835,22 +10878,25 @@ lab_ba14:
 
 lab_ba2e:
     mov mem_00a0, #0x07     ;ba2e  85 a0 07
-    movw ix, #mem_0149      ;ba31  e6 01 49
+    movw ix, #mem_0149      ;ba31  e6 01 49     IX = pointer to first fault
 
 lab_ba34:
-    movw a, #0x0000         ;ba34  e4 00 00
+    movw a, #0x0000         ;ba34  e4 00 00     Clear 4 bytes at pointer for current fault
     movw @ix+0x00, a        ;ba37  d6 00
     movw @ix+0x02, a        ;ba39  d6 02
-    incw ix                 ;ba3b  c2
+
+    incw ix                 ;ba3b  c2           Increment pointer 4 bytes to next fault
     incw ix                 ;ba3c  c2
     incw ix                 ;ba3d  c2
     incw ix                 ;ba3e  c2
-    movw a, #0x0000         ;ba3f  e4 00 00
+
+    movw a, #0x0000         ;ba3f  e4 00 00     Decrement mem_00a0
     mov a, mem_00a0         ;ba42  05 a0
     decw a                  ;ba44  d0
     mov mem_00a0, a         ;ba45  45 a0
+
     cmp a, #0x00            ;ba47  14 00
-    bne lab_ba34            ;ba49  fc e9
+    bne lab_ba34            ;ba49  fc e9        Keep going until 8 fault areas are cleared
 
     movw a, #0xffff         ;ba4b  e4 ff ff
     movw mem_0161, a        ;ba4e  d4 01 61     KW1281 Fault 65535 Internal Memory Error
@@ -12341,7 +12387,7 @@ sub_c2df:
 lab_c2ea:
     movw a, #0xffff         ;c2ea  e4 ff ff
     movw @ix+0x00, a        ;c2ed  d6 00
-    movw a, #0xff14         ;c2ef  e4 ff 14     TODO should this be mem_ff14?
+    movw a, #0xff14         ;c2ef  e4 ff 14
     movw @ix+0x02, a        ;c2f2  d6 02
     incw ix                 ;c2f4  c2
     incw ix                 ;c2f5  c2
