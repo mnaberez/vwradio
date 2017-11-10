@@ -17621,7 +17621,7 @@ sub_ddca:
     mov mem_0385, a         ;ddd2  61 03 85
     mov mem_038b, a         ;ddd5  61 03 8b
     mov mem_00fb, a         ;ddd8  45 fb        KW1281 10416.67 bps transmit state = Do nothing
-    mov mem_00fc, a         ;ddda  45 fc
+    mov mem_00fc, a         ;ddda  45 fc        XXX appears unused
     movw mem_038d, a        ;dddc  d4 03 8d
     movw mem_039d, a        ;dddf  d4 03 9d
 
@@ -19022,7 +19022,7 @@ callv7_e55c:
     mov mem_038b, a         ;e587  61 03 8b
     mov mem_00f9, a         ;e58a  45 f9
     mov mem_00fb, a         ;e58c  45 fb        KW1281 10416.67 bps transmit state = Do nothing
-    mov mem_00fc, a         ;e58e  45 fc
+    mov mem_00fc, a         ;e58e  45 fc        XXX appears unused
     mov mem_0391, a         ;e590  61 03 91
     mov mem_0393, a         ;e593  61 03 93
     mov mem_00fa, a         ;e596  45 fa
