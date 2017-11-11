@@ -887,9 +887,11 @@ lab_8179:
     mov a, mem_0303         ;8179  60 03 03
     incw a                  ;817c  c0
     mov mem_0303, a         ;817d  61 03 03
-    mov a, mem_0303         ;8180  60 03 03
-    movw a, #mem_81a8       ;8183  e4 81 a8
-    call sub_e73c           ;8186  31 e7 3c
+
+    mov a, mem_0303         ;8180  60 03 03     A = table index
+    movw a, #mem_81a8       ;8183  e4 81 a8     A = table base address
+    call sub_e73c           ;8186  31 e7 3c     Call address in table
+
     bbc mem_008c:7, lab_818f ;8189  b7 8c 03
     call sub_abf6           ;818c  31 ab f6
 
@@ -1723,9 +1725,11 @@ lab_86e3:
 lab_86e5:
     clrb mem_0099:2         ;86e5  a2 99
     clrb mem_0099:3         ;86e7  a3 99
-    mov a, mem_00ae         ;86e9  05 ae
-    movw a, #mem_fe00       ;86eb  e4 fe 00
-    call sub_e73c           ;86ee  31 e7 3c
+
+    mov a, mem_00ae         ;86e9  05 ae        A = table index
+    movw a, #mem_fe00       ;86eb  e4 fe 00     A = table base address
+    call sub_e73c           ;86ee  31 e7 3c     Call address in table
+
     mov a, mem_030b         ;86f1  60 03 0b
     mov a, #0x00            ;86f4  04 00
     cmp a                   ;86f6  12
@@ -1759,9 +1763,11 @@ lab_871f:
     mov a, mem_00ae         ;871f  05 ae
     and a, #0x7f            ;8721  64 7f
     mov mem_00ae, a         ;8723  45 ae
-    mov a, mem_00ae         ;8725  05 ae
-    movw a, #mem_fe42       ;8727  e4 fe 42
-    call sub_e73c           ;872a  31 e7 3c
+
+    mov a, mem_00ae         ;8725  05 ae        A = table index
+    movw a, #mem_fe42       ;8727  e4 fe 42     A = table base address
+    call sub_e73c           ;872a  31 e7 3c     Call address in table
+
     mov a, #0x20            ;872d  04 20
     mov mem_00ae, a         ;872f  45 ae
     mov mem_00cb, a         ;8731  45 cb
@@ -3255,9 +3261,9 @@ lab_8f28:
     ret                     ;8f3a  20
 
 sub_8f3b:
-    mov a, mem_00d2         ;8f3b  05 d2
-    movw a, #mem_8f44       ;8f3d  e4 8f 44
-    call sub_e73c           ;8f40  31 e7 3c
+    mov a, mem_00d2         ;8f3b  05 d2        A = table index
+    movw a, #mem_8f44       ;8f3d  e4 8f 44     A = table base address
+    call sub_e73c           ;8f40  31 e7 3c     Call address in table
 
 lab_8f43:
 ;mem_8f44 table case 0
@@ -4233,12 +4239,12 @@ lab_957a:
 
 lab_957e:
     mov a, #0x01            ;957e  04 01
-    bne lab_957a            ;9580  fc f8       BRANCH_ALWAYS_TAKEN
+    bne lab_957a            ;9580  fc f8        BRANCH_ALWAYS_TAKEN
 
 sub_9582:
-    mov a, mem_00c2         ;9582  05 c2
-    movw a, #mem_958a       ;9584  e4 95 8a
-    jmp sub_e73c            ;9587  21 e7 3c
+    mov a, mem_00c2         ;9582  05 c2        A = table index
+    movw a, #mem_958a       ;9584  e4 95 8a     A = table base address
+    jmp sub_e73c            ;9587  21 e7 3c     Jump to address in table
 
 mem_958a:
     .word lab_966a          ;958a  96 6a       VECTOR 00
@@ -5058,16 +5064,17 @@ lab_9a38:
 lab_9a39:
     mov a, #0x76            ;9a39  04 76
     movw a, #0x64ff         ;9a3b  e4 64 ff
-    bne lab_9a0e            ;9a3e  fc ce       BRANCH_ALWAYS_TAKEN
+    bne lab_9a0e            ;9a3e  fc ce        BRANCH_ALWAYS_TAKEN
 
 sub_9a40:
     call sub_9eb0           ;9a40  31 9e b0
     mov a, mem_00cc         ;9a43  05 cc
     cmp a, #0x21            ;9a45  14 21
     bhs lab_9a93            ;9a47  f8 4a
-    mov a, mem_00cc         ;9a49  05 cc
-    movw a, #mem_9a51       ;9a4b  e4 9a 51
-    jmp sub_e73c            ;9a4e  21 e7 3c
+
+    mov a, mem_00cc         ;9a49  05 cc        A = table index
+    movw a, #mem_9a51       ;9a4b  e4 9a 51     A = table base address
+    jmp sub_e73c            ;9a4e  21 e7 3c     Jump to address in table
 
 mem_9a51:
     .word lab_9a93          ;9a51  9a 93       VECTOR
@@ -5836,9 +5843,9 @@ sub_9ed3:
     ret                     ;9ed7  20
 
 sub_9ed8:
-    mov a, mem_00ce         ;9ed8  05 ce
-    movw a, #mem_9ee0       ;9eda  e4 9e e0
-    jmp sub_e73c            ;9edd  21 e7 3c
+    mov a, mem_00ce         ;9ed8  05 ce        A = table index
+    movw a, #mem_9ee0       ;9eda  e4 9e e0     A = table base address
+    jmp sub_e73c            ;9edd  21 e7 3c     Jump to address in table
 
 mem_9ee0:
     .word lab_9f06          ;9ee0  9f 06       VECTOR
@@ -6772,9 +6779,9 @@ lab_a494:
     ret                     ;a496  20
 
 sub_a497:
-    mov a, mem_0201         ;a497  60 02 01
-    movw a, #mem_a4a0       ;a49a  e4 a4 a0
-    jmp sub_e73c            ;a49d  21 e7 3c
+    mov a, mem_0201         ;a497  60 02 01     A = table index
+    movw a, #mem_a4a0       ;a49a  e4 a4 a0     A = table base address
+    jmp sub_e73c            ;a49d  21 e7 3c     Jump to address in table
 
 mem_a4a0:
 ;case table for mem_0201
@@ -8011,9 +8018,9 @@ lab_ac2e:
 
 lab_ac36:
 ;mem_0080 is 0x00 - 0x10
-    mov a, mem_0080         ;ac36  05 80
-    movw a, #mem_ac03       ;ac38  e4 ac 03
-    call sub_e73c           ;ac3b  31 e7 3c
+    mov a, mem_0080         ;ac36  05 80        A = table index
+    movw a, #mem_ac03       ;ac38  e4 ac 03     A = table base address
+    call sub_e73c           ;ac3b  31 e7 3c     Call address in table
 
 lab_ac3e:
 ;mem_0080 is > 0x010
@@ -8467,9 +8474,9 @@ lab_ae44:
     ret                     ;ae69  20
 
 sub_ae6a:
-    mov a, mem_0115         ;ae6a  60 01 15
-    movw a, #mem_ae73       ;ae6d  e4 ae 73
-    jmp sub_e73c            ;ae70  21 e7 3c
+    mov a, mem_0115         ;ae6a  60 01 15     A = table index
+    movw a, #mem_ae73       ;ae6d  e4 ae 73     A = table base address
+    jmp sub_e73c            ;ae70  21 e7 3c     Jump to address in table
 
 mem_ae73:
     .word lab_ae98          ;ae73  ae 98       VECTOR
@@ -9366,9 +9373,9 @@ lab_b30c:
 
 mem_0080_is_01:
 ;KW1281 ID code request/ECU info
-    mov a, mem_0081         ;b310  05 81
-    movw a, #mem_b318       ;b312  e4 b3 18
-    jmp sub_e73c            ;b315  21 e7 3c
+    mov a, mem_0081         ;b310  05 81        A = table index
+    movw a, #mem_b318       ;b312  e4 b3 18     A = table base address
+    jmp sub_e73c            ;b315  21 e7 3c     Jump to address in table
 
 mem_b318:
     .word lab_b36c  ;b318  b3 6c       VECTOR 0x00
@@ -9661,9 +9668,9 @@ lab_b45e:
 
 mem_0080_is_04:
 ;KW1281 Read Faults
-    mov a, mem_0081         ;b45f  05 81
-    movw a, #mem_b467       ;b461  e4 b4 67
-    jmp sub_e73c            ;b464  21 e7 3c
+    mov a, mem_0081         ;b45f  05 81        A = table index
+    movw a, #mem_b467       ;b461  e4 b4 67     A = table base address
+    jmp sub_e73c            ;b464  21 e7 3c     Jump to address in table
 
 mem_b467:
 ;case table for mem_0081
@@ -9931,9 +9938,9 @@ lab_b59b:
 
 mem_0080_is_05:
 ;KW1281 Clear Faults
-    mov a, mem_0081         ;b59c  05 81
-    movw a, #mem_b5a4       ;b59e  e4 b5 a4
-    jmp sub_e73c            ;b5a1  21 e7 3c
+    mov a, mem_0081         ;b59c  05 81        A = table index
+    movw a, #mem_b5a4       ;b59e  e4 b5 a4     A = table base address
+    jmp sub_e73c            ;b5a1  21 e7 3c     Jump to address in table
 
 mem_b5a4:
 ;case table for mem_0081
@@ -11663,9 +11670,10 @@ sub_be52:
     mov a, mem_019c         ;be52  60 01 9c
     cmp a, #0x08            ;be55  14 08
     bhs lab_be87            ;be57  f8 2e
-    mov a, mem_019c         ;be59  60 01 9c
-    movw a, #mem_be62       ;be5c  e4 be 62
-    jmp sub_e73c            ;be5f  21 e7 3c
+
+    mov a, mem_019c         ;be59  60 01 9c     A = table index
+    movw a, #mem_be62       ;be5c  e4 be 62     A = table base address
+    jmp sub_e73c            ;be5f  21 e7 3c     Jump to address in table
 
 mem_be62:
     .word lab_be87          ;be62  be 87       VECTOR
@@ -12442,9 +12450,9 @@ lab_c33b:
     bne lab_c37c            ;c349  fc 31
 
 lab_c34b:
-    mov a, mem_02d1         ;c34b  60 02 d1
-    movw a, #mem_c354       ;c34e  e4 c3 54
-    jmp sub_e73c            ;c351  21 e7 3c
+    mov a, mem_02d1         ;c34b  60 02 d1     A = table index
+    movw a, #mem_c354       ;c34e  e4 c3 54     A = table base address
+    jmp sub_e73c            ;c351  21 e7 3c     Jump to address in table
 
 mem_c354:
     .word lab_c37c          ;c354  c3 7c       VECTOR
@@ -12667,9 +12675,9 @@ lab_c4be:
     ret                     ;c4bf  20
 
 sub_c4c0:
-    mov a, mem_0186         ;c4c0  60 01 86
-    movw a, #mem_c4c9       ;c4c3  e4 c4 c9
-    jmp sub_e73c            ;c4c6  21 e7 3c
+    mov a, mem_0186         ;c4c0  60 01 86     A = table index
+    movw a, #mem_c4c9       ;c4c3  e4 c4 c9     A = table base address
+    jmp sub_e73c            ;c4c6  21 e7 3c     Jump to address in table
 
 mem_c4c9:
     .word lab_c552                      ;VECTOR 0  Does nothing
@@ -13616,9 +13624,9 @@ mem_c99b:
     .byte 0x01              ;DATA
 
 sub_c9e3:
-    mov a, mem_0274         ;c9e3  60 02 74
-    movw a, #mem_c9ec       ;c9e6  e4 c9 ec
-    jmp sub_e73c            ;c9e9  21 e7 3c
+    mov a, mem_0274         ;c9e3  60 02 74     A = table index
+    movw a, #mem_c9ec       ;c9e6  e4 c9 ec     A = table base address
+    jmp sub_e73c            ;c9e9  21 e7 3c     Jump to address in table
 
 mem_c9ec:
     .word lab_ca2c          ;c9ec  ca 2c       VECTOR
@@ -13669,10 +13677,10 @@ lab_ca2c:
     ret                     ;ca2c  20
 
 lab_ca2d:
-    mov a, mem_0273         ;ca2d  60 02 73
-    mov a, mem_0273         ;ca30  60 02 73
-    movw a, #mem_ca39       ;ca33  e4 ca 39
-    jmp sub_e73c            ;ca36  21 e7 3c
+    mov a, mem_0273         ;ca2d  60 02 73     A = table index
+    mov a, mem_0273         ;ca30  60 02 73     A = table index again (XXX useless)
+    movw a, #mem_ca39       ;ca33  e4 ca 39     A = table base address
+    jmp sub_e73c            ;ca36  21 e7 3c     Jump to address in table
 
 mem_ca39:
     .word lab_ca2c          ;ca39  ca 2c       VECTOR
@@ -13807,9 +13815,10 @@ lab_cb01:
 sub_cb09:
     clrb pdr0:4             ;cb09  a4 00        PLL_CE=low (disabled)
     setb pdr0:5             ;cb0b  ad 00        EEPROM_CS=high (enabled)
-    mov a, mem_0272         ;cb0d  60 02 72
-    movw a, #mem_cb16       ;cb10  e4 cb 16
-    jmp sub_e73c            ;cb13  21 e7 3c
+
+    mov a, mem_0272         ;cb0d  60 02 72     A = table index
+    movw a, #mem_cb16       ;cb10  e4 cb 16     A = pointer to table
+    jmp sub_e73c            ;cb13  21 e7 3c     Jump to address in table
 
 mem_cb16:
     .word lab_ca2c          ;cb16  ca 2c       VECTOR 0
@@ -17561,6 +17570,7 @@ kw_end_session:
     .byte 0x06              ;dd70  06          DATA '\x06'  Block title (0x06 = End Session)
     .byte 0x03              ;dd71  03          DATA '\x03'  Block end
 
+
 sub_dd72:
     cmp mem_0096, #0x09     ;dd72  95 96 09
     beq lab_dda5            ;dd75  fd 2e
@@ -17812,9 +17822,9 @@ lab_ded7:
     bhs lab_dee9            ;dede  f8 09
 
 lab_dee0:
-    mov a, mem_0388         ;dee0  60 03 88
-    movw a, #mem_de79       ;dee3  e4 de 79
-    call sub_e73c           ;dee6  31 e7 3c
+    mov a, mem_0388         ;dee0  60 03 88     A = table index
+    movw a, #mem_de79       ;dee3  e4 de 79     A = table base address
+    call sub_e73c           ;dee6  31 e7 3c     Call address in table
 
 lab_dee9:
     mov a, mem_039c         ;dee9  60 03 9c
@@ -18411,9 +18421,9 @@ lab_e1ff:
 
 lab_e21a:
 ;(mem_0388=0)
-    mov a, mem_038b         ;e21a  60 03 8b
-    movw a, #mem_e223       ;e21d  e4 e2 23
-    jmp sub_e73c            ;e220  21 e7 3c
+    mov a, mem_038b         ;e21a  60 03 8b     A = table index
+    movw a, #mem_e223       ;e21d  e4 e2 23     A = table base address
+    jmp sub_e73c            ;e220  21 e7 3c     Jump to address in table
 
 mem_e223:
 ;case table for mem_038b
@@ -18642,13 +18652,14 @@ sub_e34e_no_ack_2:
 
 lab_e35f:
     mov mem_012b+3, a       ;e35f  61 01 2e     KW1281 Response buffer byte 3
-    call sub_e369           ;e362  31 e3 69
+    call sub_e369           ;e362  31 e3 69     Set mem_038a=1, increment block counter, reset KW1281 tx/rx counts
     ret                     ;e365  20
 
 sub_e366:
     call sub_b136           ;e366  31 b1 36     Copy mem_00a5 bytes from @mem_0084 to KW1281 Response buffer
 
 sub_e369:
+;Set mem_038a=1, increment block counter, reset KW1281 tx/rx counts
     mov a, #0x01            ;e369  04 01
     mov mem_038a, a         ;e36b  61 03 8a
 
@@ -18722,9 +18733,9 @@ set_00fd_lo_nib:
 
 lab_e3b4:
 ;(mem_0388=2: Block title = 0x09 (Acknowledge))
-    mov a, mem_038b         ;e3b4  60 03 8b
-    movw a, #mem_e3bd       ;e3b7  e4 e3 bd
-    jmp sub_e73c            ;e3ba  21 e7 3c
+    mov a, mem_038b         ;e3b4  60 03 8b     A = table index
+    movw a, #mem_e3bd       ;e3b7  e4 e3 bd     A = table base address
+    jmp sub_e73c            ;e3ba  21 e7 3c     Jump to address in table
 
 mem_e3bd:
     .word lab_e480          ;e3bd  e4 80       VECTOR 0
@@ -18791,7 +18802,7 @@ lab_e41e:
 ;(mem_0388=2, mem_038b=0x0b)
     mov a, mem_038c         ;e41e  60 03 8c
     bne lab_e480            ;e421  fc 5d
-    call sub_e369           ;e423  31 e3 69
+    call sub_e369           ;e423  31 e3 69     Set mem_038a=1, increment block counter, reset KW1281 tx/rx counts
     mov a, #0x02            ;e426  04 02        A = value to store in mem_038b
     bne lab_e47d            ;e428  fc 53        BRANCH_ALWAYS_TAKEN
 
@@ -18859,7 +18870,7 @@ lab_e481:
     mov a, mem_0118+3       ;e484  60 01 1b     KW1281 Request byte 3
     xor a                   ;e487  52
     beq lab_e46b            ;e488  fd e1
-    call sub_e369           ;e48a  31 e3 69
+    call sub_e369           ;e48a  31 e3 69     Set mem_038a=1, increment block counter, reset KW1281 tx/rx counts
     mov a, mem_0118+3       ;e48d  60 01 1b     KW1281 Request byte 3
     mov mem_012b+1, a       ;e490  61 01 2c     Store it in KW1281 Response byte 1: Block counter
     mov mem_0116, a         ;e493  61 01 16     Copy block counter into mem_0116
@@ -19334,16 +19345,30 @@ sub_e730:
 lab_e73b:
     ret                     ;e73b  20
 
+
 sub_e73c:
-    xchw a, t               ;e73c  43
-    swap                    ;e73d  10
-    and a, #0x00            ;e73e  64 00
-    swap                    ;e740  10
+;Jump to address in table
+;
+;A = pointer to table
+;T = table index
+;
+    xchw a, t               ;e73c  43       A=table index, T=pointer to table
+
+    ;Clear AH (table index high byte)
+    swap                    ;e73d  10       AH <-> AL
+    and a, #0x00            ;e73e  64 00    Clear AL
+    swap                    ;e740  10       AH <-> AL
+
+    ;Compute address of table entry from the index
     clrc                    ;e741  81
-    rolc a                  ;e742  02
-    addcw a                 ;e743  23
-    movw a, @a              ;e744  93
-    jmp @a                  ;e745  e0
+    rolc a                  ;e742  02       Multiply table index by 2 since each
+                            ;                 entry is a 2-byte pointer
+    addcw a                 ;e743  23       Add to table base address
+
+    ;Jump to address in table
+    movw a, @a              ;e744  93       A = value stored at address computed above
+    jmp @a                  ;e745  e0       Jump to that address
+
 
 sub_e746:
     mov a, @ix+0x00         ;e746  06 00
@@ -20493,11 +20518,11 @@ lab_ee10:
     mov a, #0x02            ;ee13  04 02
     cmp a                   ;ee15  12
     bhs lab_ee19            ;ee16  f8 01
-    xchw a, t               ;ee18  43
+    xchw a, t               ;ee18  43           A = table index (from mem_01ce)
 
 lab_ee19:
-    movw a, #mem_ee20       ;ee19  e4 ee 20
-    call sub_e73c           ;ee1c  31 e7 3c
+    movw a, #mem_ee20       ;ee19  e4 ee 20     A = table base address
+    call sub_e73c           ;ee1c  31 e7 3c     Call address in table
     ret                     ;ee1f  20
 
 mem_ee20:
@@ -20512,14 +20537,15 @@ lab_ee26:
     mov a, #0x06            ;ee2c  04 06
     cmp a                   ;ee2e  12
     bhs lab_ee32            ;ee2f  f8 01
-    xchw a, t               ;ee31  43
+    xchw a, t               ;ee31  43           A = table index (from mem_01ce)
 
 lab_ee32:
-    movw a, #mem_ee39       ;ee32  e4 ee 39
-    call sub_e73c           ;ee35  31 e7 3c
+    movw a, #mem_ee39       ;ee32  e4 ee 39     A = table address
+    call sub_e73c           ;ee35  31 e7 3c     Call address in table
     ret                     ;ee38  20
 
 mem_ee39:
+;Table used with mem_01ce
     .word lab_ee90          ;ee39  ee 90       VECTOR
     .word lab_ee88          ;ee3b  ee 88       VECTOR
     .word lab_ee84          ;ee3d  ee 84       VECTOR
@@ -20539,11 +20565,11 @@ lab_ee4b:
     mov a, #0x05            ;ee4e  04 05
     cmp a                   ;ee50  12
     bhs lab_ee54            ;ee51  f8 01
-    xchw a, t               ;ee53  43
+    xchw a, t               ;ee53  43           A = table index (from mem_01ce)
 
 lab_ee54:
-    movw a, #mem_ee5b       ;ee54  e4 ee 5b
-    call sub_e73c           ;ee57  31 e7 3c
+    movw a, #mem_ee5b       ;ee54  e4 ee 5b     A = table address
+    call sub_e73c           ;ee57  31 e7 3c     Call address in table
     ret                     ;ee5a  20
 
 mem_ee5b:
@@ -20560,11 +20586,11 @@ lab_ee67:
     mov a, #0x05            ;ee6a  04 05
     cmp a                   ;ee6c  12
     bhs lab_ee70            ;ee6d  f8 01
-    xchw a, t               ;ee6f  43
+    xchw a, t               ;ee6f  43           A = table index (from mem_01ce)
 
 lab_ee70:
-    movw a, #mem_ee77       ;ee70  e4 ee 77
-    call sub_e73c           ;ee73  31 e7 3c
+    movw a, #mem_ee77       ;ee70  e4 ee 77     A = table address
+    call sub_e73c           ;ee73  31 e7 3c     Call address in table
     ret                     ;ee76  20
 
 mem_ee77:
@@ -21681,12 +21707,12 @@ lab_f490:
     call sub_f52b           ;f49a  31 f5 2b
 
 lab_f49d:
-    mov a, mem_01ed         ;f49d  60 01 ed
+    mov a, mem_01ed         ;f49d  60 01 ed     A = table index
     beq lab_f4ac            ;f4a0  fd 0a
     cmp a, #0x06            ;f4a2  14 06
     bhs lab_f4ac            ;f4a4  f8 06
-    movw a, #mem_f4b7       ;f4a6  e4 f4 b7
-    call sub_e73c           ;f4a9  31 e7 3c
+    movw a, #mem_f4b7       ;f4a6  e4 f4 b7     A = table base address
+    call sub_e73c           ;f4a9  31 e7 3c     Call address in table
 
 lab_f4ac:
     mov a, mem_00d8         ;f4ac  05 d8
