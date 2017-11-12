@@ -654,7 +654,7 @@ reset_8010:
     movw ps, a              ;8017  71
     setb sycc:0             ;8018  a8 07
     setb sycc:1             ;801a  a9 07
-    clrb pdr2:4             ;801c  a4 04        audio mute = muted
+    clrb pdr2:4             ;801c  a4 04        audio mute = low (muted)
     mov pdr2, #0x80         ;801e  85 04 80
     mov pdr4, #0x77         ;8021  85 0e 77
     mov ddr4, #0xb9         ;8024  85 0f b9
@@ -693,22 +693,24 @@ lab_8069:
     nop                     ;8069  00
     jmp lab_8069            ;806a  21 80 69
 
+
 irq0_806d:
 ;irq0 (external interrupt 1)
+;edge-detect pins INT0-3
     pushw a                 ;806d  40
     xchw a, t               ;806e  43
     pushw a                 ;806f  40
     pushw ix                ;8070  41
     movw a, ep              ;8071  f3
     pushw a                 ;8072  40
-    bbc eic2:7, lab_807e    ;8073  b7 39 08
-    clrb eic2:7             ;8076  a7 39
+    bbc eic2:7, lab_807e    ;8073  b7 39 08     Branch if edge not detected on INT3 pin (/SCA_CLK_IN)
+    clrb eic2:7             ;8076  a7 39        Clear INT3 pin edge detect status (/SCA_CLK_IN)
     call sub_d9c4           ;8078  31 d9 c4
     call sub_c259           ;807b  31 c2 59
 
 lab_807e:
-    bbc eic1:7, lab_8086    ;807e  b7 38 05
-    clrb eic1:7             ;8081  a7 38
+    bbc eic1:7, lab_8086    ;807e  b7 38 05     Branch if edge not detected on INT1 pin (/S2M_CLK_IN)
+    clrb eic1:7             ;8081  a7 38        Clear INT1 pin edge detect status (/S2M_CLK_IN)
     call sub_e87b           ;8083  31 e8 7b
 
 lab_8086:
@@ -716,43 +718,46 @@ lab_8086:
     mov a, #0x01            ;8089  04 01
     cmp a                   ;808b  12
     beq lab_8093            ;808c  fd 05
-    bbc eic2:3, lab_8093    ;808e  b3 39 02
-    clrb eic2:3             ;8091  a3 39
+    bbc eic2:3, lab_8093    ;808e  b3 39 02     Branch if edge not detected on INT2 pin (/DIAG_RX)
+    clrb eic2:3             ;8091  a3 39        Clear INT2 pin edge detect status (/DIAG_RX)
 
 lab_8093:
-    bbc eic1:3, lab_809b    ;8093  b3 38 05
-    clrb eic1:3             ;8096  a3 38
+    bbc eic1:3, lab_809b    ;8093  b3 38 05     Branch if edge not detected on INT0 pin (/VOLUME_IN)
+    clrb eic1:3             ;8096  a3 38        Clear INT0 pin edge detect status (/VOLUME_IN)
     call sub_fa5d           ;8098  31 fa 5d
 
 lab_809b:
     jmp finish_isr          ;809b  21 81 2e
 
+
 irq1_809e:
 ;irq1 (external interrupt 2)
+;level-detect pins INT4-7
     pushw a                 ;809e  40
     xchw a, t               ;809f  43
     pushw a                 ;80a0  40
     pushw ix                ;80a1  41
     movw a, ep              ;80a2  f3
     pushw a                 ;80a3  40
-    bbc eif2:0, lab_80a9    ;80a4  b0 3b 02
-    clrb eif2:0             ;80a7  a0 3b
+    bbc eif2:0, lab_80a9    ;80a4  b0 3b 02     Branch if level not detected on INT4 pin (SCA_SWITCH)
+    clrb eif2:0             ;80a7  a0 3b        Clear INT4 level detect status (SCA_SWITCH)
 
 lab_80a9:
-    bbc eif2:1, lab_80b1    ;80a9  b1 3b 05
-    clrb eif2:1             ;80ac  a1 3b
+    bbc eif2:1, lab_80b1    ;80a9  b1 3b 05     Branch if level not detected on INT5 pin (/S2M_ENABLE)
+    clrb eif2:1             ;80ac  a1 3b        Clear INT5 level detect status (/S2M_ENABLE)
     call sub_e8e0           ;80ae  31 e8 e0
 
 lab_80b1:
-    bbc eif2:2, lab_80b6    ;80b1  b2 3b 02
-    clrb eif2:2             ;80b4  a2 3b
+    bbc eif2:2, lab_80b6    ;80b1  b2 3b 02     Branch if level not detected on INT6 pin (/ACC_IN)
+    clrb eif2:2             ;80b4  a2 3b        Clear INT6 level detect status (/ACC_IN)
 
 lab_80b6:
-    bbc eif2:3, lab_80bb    ;80b6  b3 3b 02
-    clrb eif2:3             ;80b9  a3 3b
+    bbc eif2:3, lab_80bb    ;80b6  b3 3b 02     Branch if level not detected on INT7 pin (/POWER_OR_EJECT)
+    clrb eif2:3             ;80b9  a3 3b        Clear INT7 level detect status (/POWER_OR_EJECT)
 
 lab_80bb:
     jmp finish_isr          ;80bb  21 81 2e
+
 
 irq2_80be:
 ;irq2 (16-bit timer counter)
@@ -769,6 +774,7 @@ irq2_80be:
     pushw a                 ;80d0  40
     call sub_a914           ;80d1  31 a9 14
     jmp finish_isr          ;80d4  21 81 2e
+
 
 irq5_80d7:
 ;irq5 (2ch 8-bit pwm timer)
@@ -798,6 +804,7 @@ lab_80f2:
 lab_80f7:
     jmp finish_isr          ;80f7  21 81 2e
 
+
 irq6_80fa:
 ;irq6 (8-bit pwm timer #3 (#4, #5, #6))
     pushw a                 ;80fa  40
@@ -810,6 +817,7 @@ irq6_80fa:
     clrb cntr2:3            ;8103  a3 29
     call sub_ef8b           ;8105  31 ef 8b
     jmp finish_isr          ;8108  21 81 2e
+
 
 irq8_810b:
 ;irq8 (uart)
@@ -827,6 +835,7 @@ lab_811a:
     call sub_e0f3           ;811a  31 e0 f3
     jmp finish_isr            ;811d  21 81 2e
 
+
 irq7_8120:
 ;irq7 (8-bit serial i/o)
     pushw a                 ;8120  40
@@ -838,6 +847,7 @@ irq7_8120:
     bbc smr:7, finish_isr   ;8126  b7 1c 05
     clrb smr:7              ;8129  a7 1c
     call sub_ef32           ;812b  31 ef 32
+
 
 finish_isr:
     popw a                  ;812e  50
@@ -1057,16 +1067,20 @@ sub_826e:
     movw tchr, a            ;827a  d5 19        16-bit timer count register
     mov tmcr, #0x23         ;827c  85 18 23
     mov eic1, #0x37         ;827f  85 38 37
-    mov eic2, #0x40         ;8282  85 39 40
-    mov eie2, #0x02         ;8285  85 3a 02
+    mov eic2, #0b01000000   ;8282  85 39 40
+    mov eie2, #0b00000010   ;8285  85 3a 02
     mov eif2, #0x00         ;8288  85 3b 00
     mov uscr, #0b00001000   ;828b  85 41 08     Set UART's TXOE to serial data output enabled,
                             ;                   everything else diabled
+
     movw a, #0xffff         ;828e  e4 ff ff
     movw mem_008f, a        ;8291  d5 8f
+
     movw mem_0398, a        ;8293  d4 03 98
+
     mov a, #0x01            ;8296  04 01
     mov mem_0113, a         ;8298  61 01 13
+
     mov smr, #0x4f          ;829b  85 1c 4f
     mov a, #0x00            ;829e  04 00
     mov mem_0095, a         ;82a0  45 95
@@ -1302,7 +1316,7 @@ sub_8477:
 lab_8484:
     mov a, mem_00ea         ;8484  05 ea
     mov a, pdr6             ;8486  05 11
-    and a, #0x40            ;8488  64 40    mask off all except bit 6 (pdr6:6 = /ACC_IN)
+    and a, #0b01000000      ;8488  64 40    mask off all except bit 6 (pdr6:6 = /ACC_IN)
     mov mem_00ea, a         ;848a  45 ea
     xor a                   ;848c  52
     beq lab_8497            ;848d  fd 08
@@ -2830,25 +2844,25 @@ sub_8c9b:
     bne lab_8cab            ;8ca2  fc 07
     setb mem_00af:1         ;8ca4  a9 af
     movw a, #0x0a02         ;8ca6  e4 0a 02
-    bne lab_8cd7            ;8ca9  fc 2c       BRANCH_ALWAYS_TAKEN
+    bne lab_8cd7            ;8ca9  fc 2c        BRANCH_ALWAYS_TAKEN
 
 lab_8cab:
-    movw ix, #mem_02ac      ;8cab  e6 02 ac
-    call sub_e781           ;8cae  31 e7 81
+    movw ix, #mem_02ac      ;8cab  e6 02 ac     IX = pointer to 8-bit value to decrement
+    call dec8_at_ix         ;8cae  31 e7 81     Decrement 8-bit value @IX.  Wraps from 0 to 0xFF.
     bne lab_8cde            ;8cb1  fc 2b
     mov a, mem_02cc         ;8cb3  60 02 cc
     cmp a, #0x02            ;8cb6  14 02
     bne lab_8cc2            ;8cb8  fc 08
     mov mem_00ee, #0x80     ;8cba  85 ee 80
     movw a, #0x0a03         ;8cbd  e4 0a 03
-    bne lab_8cd7            ;8cc0  fc 15       BRANCH_ALWAYS_TAKEN
+    bne lab_8cd7            ;8cc0  fc 15        BRANCH_ALWAYS_TAKEN
 
 lab_8cc2:
     cmp a, #0x03            ;8cc2  14 03
     bne lab_8cce            ;8cc4  fc 08
     mov mem_00ee, #0x00     ;8cc6  85 ee 00
     movw a, #0x0a04         ;8cc9  e4 0a 04
-    bne lab_8cd7            ;8ccc  fc 09       BRANCH_ALWAYS_TAKEN
+    bne lab_8cd7            ;8ccc  fc 09        BRANCH_ALWAYS_TAKEN
 
 lab_8cce:
     cmp a, #0x04            ;8cce  14 04
@@ -3014,6 +3028,7 @@ lab_8db0:
 
 lab_8db4:
     callv #7                ;8db4  ef          CALLV #7 = callv7_e55c
+                            ;                  Resets many KW1281 state variables
     bbc mem_00cf:0, lab_8dca ;8db5  b0 cf 12
     mov a, mem_0336         ;8db8  60 03 36
     mov a, #0x00            ;8dbb  04 00
@@ -3290,15 +3305,15 @@ lab_8f60:
     setb mem_00cf:0         ;8f60  a8 cf
     mov a, #0x14            ;8f62  04 14
     mov mem_02c1, a         ;8f64  61 02 c1
-    clrb pdr8:4             ;8f67  a4 14        AMP_ON
-    clrb pdr2:5             ;8f69  a5 04        REM_AMP_ON
+    clrb pdr8:4             ;8f67  a4 14        AMP_ON=low
+    clrb pdr2:5             ;8f69  a5 04        REM_AMP_ON=low
     movw a, #0x0000         ;8f6b  e4 00 00
     mov mem_031e, a         ;8f6e  61 03 1e
     mov mem_031d, a         ;8f71  61 03 1d
     movw mem_0305, a        ;8f74  d4 03 05
-    setb pdr4:0             ;8f77  a8 0e        CD_DATA_OUT
-    setb pdr2:7             ;8f79  af 04        MAIN_5V
-    setb pdr2:5             ;8f7b  ad 04        REM_AMP_ON
+    setb pdr4:0             ;8f77  a8 0e        CD_DATA_OUT=high
+    setb pdr2:7             ;8f79  af 04        MAIN_5V=high
+    setb pdr2:5             ;8f7b  ad 04        REM_AMP_ON=high
     bbs mem_00d0:1, lab_8f82 ;8f7d  b9 d0 02
     clrb pdr4:3             ;8f80  a3 0e        /SUB_RESET = low
 
@@ -3320,7 +3335,7 @@ lab_8f90:
     mov mem_02cb, a         ;8f9c  61 02 cb
     setb pdr4:4             ;8f9f  ac 0e        M2S_DAT_OUT = high
     setb pdr4:5             ;8fa1  ad 0e        /M2S_CLK_OUT = high
-    setb pdr2:6             ;8fa3  ae 04        MAIN_14V
+    setb pdr2:6             ;8fa3  ae 04        MAIN_14V = high
     setb pdr4:3             ;8fa5  ab 0e        /SUB_RESET = high
     movw a, #0x000a         ;8fa7  e4 00 0a
 
@@ -3383,7 +3398,7 @@ lab_9003:
     mov mem_0322, a         ;9008  61 03 22
     mov mem_0337, a         ;900b  61 03 37
     setb mem_00d7:6         ;900e  ae d7
-    setb pdr2:1             ;9010  a9 04        /TAPE_ON
+    setb pdr2:1             ;9010  a9 04        /TAPE_ON=high
     call sub_c18a           ;9012  31 c1 8a
     movw a, #0x0a0d         ;9015  e4 0a 0d
     bne lab_8fb9            ;9018  fc 9f       BRANCH_ALWAYS_TAKEN
@@ -3440,7 +3455,7 @@ lab_906b:
     movw a, mem_0305        ;9074  c4 03 05
     bne lab_9080            ;9077  fc 07
     clrb mem_00cf:0         ;9079  a0 cf
-    clrb pdr2:6             ;907b  a6 04        MAIN_14V
+    clrb pdr2:6             ;907b  a6 04        MAIN_14V=low
     mov mem_00d2, #0x00     ;907d  85 d2 00
 
 lab_9080:
@@ -3449,7 +3464,7 @@ lab_9080:
 lab_9081:
 ;mem_8f44 table case 0x0a
     clrb mem_00e9:6         ;9081  a6 e9
-    setb pdr2:7             ;9083  af 04        MAIN_5V
+    setb pdr2:7             ;9083  af 04        MAIN_5V=high
     mov a, #0x28            ;9085  04 28
     mov mem_0213, a         ;9087  61 02 13
     mov mem_00d2, #0x0a     ;908a  85 d2 0a
@@ -3487,8 +3502,8 @@ lab_90b5:
 ;mem_8f44 table case 0x0e
     mov a, mem_0213         ;90b5  60 02 13
     bne lab_90b4            ;90b8  fc fa
-    clrb pdr8:4             ;90ba  a4 14        AMP_ON
-    clrb pdr2:5             ;90bc  a5 04        REM_AMP_ON
+    clrb pdr8:4             ;90ba  a4 14        AMP_ON=low
+    clrb pdr2:5             ;90bc  a5 04        REM_AMP_ON=low
     setb mem_00e2:0         ;90be  a8 e2
     clrb mem_00d0:0         ;90c0  a0 d0
     call sub_91b1           ;90c2  31 91 b1
@@ -3669,13 +3684,17 @@ lab_91fa:
     mov a, #0x00            ;9216  04 00
     mov mem_0385, a         ;9218  61 03 85
     callv #7                ;921b  ef          CALLV #7 = callv7_e55c
+                            ;                  Resets many KW1281 state variables
     call sub_ac7a           ;921c  31 ac 7a
     bbs mem_008c:7, lab_9234 ;921f  bf 8c 12
+
     movw a, #0xffff         ;9222  e4 ff ff
     movw mem_008f, a        ;9225  d5 8f
+
     mov a, #0x00            ;9227  04 00
     mov mem_0110, a         ;9229  61 01 10
     mov mem_0111, a         ;922c  61 01 11
+
     mov a, #0x01            ;922f  04 01
     mov mem_0113, a         ;9231  61 01 13
 
@@ -3712,12 +3731,12 @@ sub_9250:
     cmp a, #0x02            ;9257  14 02
     beq lab_9260            ;9259  fd 05
     clrb mem_008d:0         ;925b  a0 8d
-    setb pdr8:4             ;925d  ac 14        AMP_ON
+    setb pdr8:4             ;925d  ac 14        AMP_ON=high
     ret                     ;925f  20
 
 lab_9260:
     clrb mem_008d:0         ;9260  a0 8d
-    clrb pdr8:4             ;9262  a4 14        AMP_ON
+    clrb pdr8:4             ;9262  a4 14        AMP_ON=low
     ret                     ;9264  20
 
 sub_9265:
@@ -3748,7 +3767,7 @@ lab_9296:
     mov a, #0x02            ;9299  04 02
     mov mem_020e, a         ;929b  61 02 0e
     mov a, #0x04            ;929e  04 04
-    bne lab_92b8            ;92a0  fc 16       BRANCH_ALWAYS_TAKEN
+    bne lab_92b8            ;92a0  fc 16        BRANCH_ALWAYS_TAKEN
 
 lab_92a2:
     bbs mem_00de:6, lab_92bd ;92a2  be de 18
@@ -3778,7 +3797,7 @@ lab_92be:
     cmp a                   ;92c3  12
     bne lab_92ca            ;92c4  fc 04
     mov a, #0x0c            ;92c6  04 0c
-    bne lab_92b8            ;92c8  fc ee       BRANCH_ALWAYS_TAKEN
+    bne lab_92b8            ;92c8  fc ee        BRANCH_ALWAYS_TAKEN
 
 lab_92ca:
     mov mem_0096, #0x05     ;92ca  85 96 05
@@ -3809,10 +3828,10 @@ lab_92f9:
     mov a, #0x00            ;92fc  04 00
     cmp a                   ;92fe  12
     beq lab_930a            ;92ff  fd 09
-    clrb pdr3:0             ;9301  a0 0c    FL_CLIP_ON
-    clrb pdr3:3             ;9303  a3 0c    FR_CLIP_ON
-    clrb pdr3:1             ;9305  a1 0c    RL_CLIP_ON
-    clrb pdr3:2             ;9307  a2 0c    RR_CLIP_ON
+    clrb pdr3:0             ;9301  a0 0c        FL_CLIP_ON=low
+    clrb pdr3:3             ;9303  a3 0c        FR_CLIP_ON=low
+    clrb pdr3:1             ;9305  a1 0c        RL_CLIP_ON=low
+    clrb pdr3:2             ;9307  a2 0c        RR_CLIP_ON=low
 
 lab_9309:
     ret                     ;9309  20
@@ -3822,44 +3841,44 @@ lab_930a:
     beq lab_9317            ;930d  fd 08
     and a, #0x3f            ;930f  64 3f
     bne lab_9319            ;9311  fc 06
-    clrb pdr3:0             ;9313  a0 0c    FL_CLIP_ON
-    beq lab_9319            ;9315  fd 02       BRANCH_ALWAYS_TAKEN
+    clrb pdr3:0             ;9313  a0 0c        FL_CLIP_ON=low
+    beq lab_9319            ;9315  fd 02        BRANCH_ALWAYS_TAKEN
 
 lab_9317:
-    setb pdr3:0             ;9317  a8 0c    FL_CLIP_ON
+    setb pdr3:0             ;9317  a8 0c        FL_CLIP_ON=high
 
 lab_9319:
     mov a, mem_0310         ;9319  60 03 10
     beq lab_9326            ;931c  fd 08
     and a, #0x3f            ;931e  64 3f
     bne lab_9328            ;9320  fc 06
-    clrb pdr3:3             ;9322  a3 0c        FR_CLIP_ON
-    beq lab_9328            ;9324  fd 02       BRANCH_ALWAYS_TAKEN
+    clrb pdr3:3             ;9322  a3 0c        FR_CLIP_ON=low
+    beq lab_9328            ;9324  fd 02        BRANCH_ALWAYS_TAKEN
 
 lab_9326:
-    setb pdr3:3             ;9326  ab 0c        FR_CLIP_ON
+    setb pdr3:3             ;9326  ab 0c        FR_CLIP_ON=high
 
 lab_9328:
     mov a, mem_030f         ;9328  60 03 0f
     beq lab_9335            ;932b  fd 08
     and a, #0x3f            ;932d  64 3f
     bne lab_9337            ;932f  fc 06
-    clrb pdr3:1             ;9331  a1 0c        RL_CLIP_ON
-    beq lab_9337            ;9333  fd 02       BRANCH_ALWAYS_TAKEN
+    clrb pdr3:1             ;9331  a1 0c        RL_CLIP_ON=low
+    beq lab_9337            ;9333  fd 02        BRANCH_ALWAYS_TAKEN
 
 lab_9335:
-    setb pdr3:1             ;9335  a9 0c        RL_CLIP_ON
+    setb pdr3:1             ;9335  a9 0c        RL_CLIP_ON=high
 
 lab_9337:
     mov a, mem_030e         ;9337  60 03 0e
     beq lab_9343            ;933a  fd 07
     and a, #0x3f            ;933c  64 3f
     bne lab_9345            ;933e  fc 05
-    clrb pdr3:2             ;9340  a2 0c        RR_CLIP_ON
+    clrb pdr3:2             ;9340  a2 0c        RR_CLIP_ON=low
     ret                     ;9342  20
 
 lab_9343:
-    setb pdr3:2             ;9343  aa 0c        RR_CLIP_ON
+    setb pdr3:2             ;9343  aa 0c        RR_CLIP_ON=high
 
 lab_9345:
     ret                     ;9345  20
@@ -4069,8 +4088,9 @@ lab_9473:
     ret                     ;9473  20
 
 lab_9474:
-    call set_00fd_hi_nib_0  ;9474  31 e3 8a     Store 0x0 in mem_00fd high nibble
-    callv #7                ;9477  ef           CALLV #7 = callv7_e55c
+    call set_00fd_hi_nib_0  ;9474  31 e3 8a    Store 0x0 in mem_00fd high nibble
+    callv #7                ;9477  ef          CALLV #7 = callv7_e55c
+                            ;                  Resets many KW1281 state variables
     mov a, #0x12            ;9478  04 12
     mov mem_0182, a         ;947a  61 01 82
     ret                     ;947d  20
@@ -4078,8 +4098,9 @@ lab_9474:
 lab_947e:
     mov a, #0x01            ;947e  04 01
     mov mem_031e, a         ;9480  61 03 1e
-    call set_00fd_hi_nib_0  ;9483  31 e3 8a     Store 0x0 in mem_00fd high nibble
-    callv #7                ;9486  ef           CALLV #7 = callv7_e55c
+    call set_00fd_hi_nib_0  ;9483  31 e3 8a    Store 0x0 in mem_00fd high nibble
+    callv #7                ;9486  ef          CALLV #7 = callv7_e55c
+                            ;                  Resets many KW1281 state variables
     cmp mem_0095, #0x00     ;9487  95 95 00
     bne lab_949d            ;948a  fc 11
     call sub_9a02           ;948c  31 9a 02
@@ -4124,13 +4145,13 @@ sub_94b6:
     ret                     ;94d6  20
 
 lab_94d7:
-    setb pdr2:1             ;94d7  a9 04        /TAPE_ON
+    setb pdr2:1             ;94d7  a9 04        /TAPE_ON=high
     mulu a                  ;94d9  01
     mulu a                  ;94da  01
     mulu a                  ;94db  01
     setb mem_00d7:6         ;94dc  ae d7
-    clrb pdr8:4             ;94de  a4 14        AMP_ON
-    clrb pdr2:5             ;94e0  a5 04        REM_AMP_ON
+    clrb pdr8:4             ;94de  a4 14        AMP_ON=low
+    clrb pdr2:5             ;94e0  a5 04        REM_AMP_ON=low
     clrb mem_00e9:4         ;94e2  a4 e9
     bbc pdr2:4, lab_94e9    ;94e4  b4 04 02     branch if audio muted
     setb mem_00e9:4         ;94e7  ac e9
@@ -4169,17 +4190,17 @@ lab_9511:
     jmp lab_94f3            ;9511  21 94 f3
 
 lab_9514:
-    clrb pdr8:4             ;9514  a4 14        AMP_ON
-    setb pdr2:5             ;9516  ad 04        REM_AMP_ON
+    clrb pdr8:4             ;9514  a4 14        AMP_ON=low
+    setb pdr2:5             ;9516  ad 04        REM_AMP_ON=high
     clrb mem_00e9:4         ;9518  a4 e9
     movw a, #0x1e05         ;951a  e4 1e 05
     bne lab_94ec            ;951d  fc cd       BRANCH_ALWAYS_TAKEN
 
 lab_951f:
-    clrb pdr8:4             ;951f  a4 14        AMP_ON
+    clrb pdr8:4             ;951f  a4 14        AMP_ON=low
     mov a, mem_030a         ;9521  60 03 0a
     bne lab_9528            ;9524  fc 02
-    setb pdr8:4             ;9526  ac 14        AMP_ON
+    setb pdr8:4             ;9526  ac 14        AMP_ON=high
 
 lab_9528:
     movw a, #0x1406         ;9528  e4 14 06
@@ -5276,7 +5297,7 @@ lab_9b8e:
     mov mem_0349, a         ;9b90  61 03 49
 
 lab_9b93:
-    setb pdr3:5             ;9b93  ad 0c        /TAPE_DOLBY_ON
+    setb pdr3:5             ;9b93  ad 0c        /TAPE_DOLBY_ON=high
     mov a, mem_0095         ;9b95  05 95
     cmp a, #0x01            ;9b97  14 01
     bne lab_9b9f            ;9b99  fc 04
@@ -5620,7 +5641,7 @@ lab_9d94:
     bbs mem_00d0:1, lab_9da4 ;9d99  b9 d0 08
     setb mem_00d7:5         ;9d9c  ad d7
     mov mem_00d2, #0x01     ;9d9e  85 d2 01
-    setb pdr2:7             ;9da1  af 04        MAIN_5V
+    setb pdr2:7             ;9da1  af 04        MAIN_5V=high
     ret                     ;9da3  20
 
 lab_9da4:
@@ -5636,11 +5657,11 @@ sub_9da9:
     mov mem_028a, a         ;9dae  61 02 8a
     call sub_9ece           ;9db1  31 9e ce
     bbc mem_00f7:3, lab_9dbc ;9db4  b3 f7 05
-    clrb pdr3:5             ;9db7  a5 0c        /TAPE_DOLBY_ON
+    clrb pdr3:5             ;9db7  a5 0c        /TAPE_DOLBY_ON=low
     jmp lab_9dbe            ;9db9  21 9d be
 
 lab_9dbc:
-    setb pdr3:5             ;9dbc  ad 0c        /TAPE_DOLBY_ON
+    setb pdr3:5             ;9dbc  ad 0c        /TAPE_DOLBY_ON=high
 
 lab_9dbe:
     mov a, #0x06            ;9dbe  04 06
@@ -6856,8 +6877,8 @@ lab_a4f5:
 
 sub_a4f9:
     bbc mem_00e4:1, lab_a515 ;a4f9  b1 e4 19
-    movw ix, #mem_020d      ;a4fc  e6 02 0d
-    call sub_e781           ;a4ff  31 e7 81
+    movw ix, #mem_020d      ;a4fc  e6 02 0d     IX = pointer to 8-bit value to decrement
+    call dec8_at_ix         ;a4ff  31 e7 81     Decrement 8-bit value @IX.  Wraps from 0 to 0xFF.
     bne lab_a515            ;a502  fc 11
     bbc mem_00e4:0, lab_a50c ;a504  b0 e4 05
     clrb mem_00e4:0         ;a507  a0 e4
@@ -6910,20 +6931,20 @@ lab_a542:
     jmp lab_a547            ;a544  21 a5 47
 
 lab_a547:
-    movw ix, #mem_02a9      ;a547  e6 02 a9
-    call sub_e781           ;a54a  31 e7 81
+    movw ix, #mem_02a9      ;a547  e6 02 a9     IX = pointer to 8-bit value to decrement
+    call dec8_at_ix         ;a54a  31 e7 81     Decrement 8-bit value @IX.  Wraps from 0 to 0xFF.
     bne lab_a574            ;a54d  fc 25
     mov a, #0x05            ;a54f  04 05
     mov mem_02a9, a         ;a551  61 02 a9
     setb mem_00dd:1         ;a554  a9 dd
-    movw ix, #mem_02aa      ;a556  e6 02 aa
-    call sub_e781           ;a559  31 e7 81
+    movw ix, #mem_02aa      ;a556  e6 02 aa     IX = pointer to 8-bit value to decrement
+    call dec8_at_ix         ;a559  31 e7 81     Decrement 8-bit value @IX.  Wraps from 0 to 0xFF.
     bne lab_a574            ;a55c  fc 16
     mov a, #0x02            ;a55e  04 02
     mov mem_02aa, a         ;a560  61 02 aa
     setb mem_00dd:2         ;a563  aa dd
-    movw ix, #mem_02ab      ;a565  e6 02 ab
-    call sub_e781           ;a568  31 e7 81
+    movw ix, #mem_02ab      ;a565  e6 02 ab     IX = pointer to 8-bit value to decrement
+    call dec8_at_ix         ;a568  31 e7 81     Decrement 8-bit value @IX.  Wraps from 0 to 0xFF.
     bne lab_a574            ;a56b  fc 07
     mov a, #0x0a            ;a56d  04 0a
     mov mem_02ab, a         ;a56f  61 02 ab
@@ -6931,32 +6952,32 @@ lab_a547:
 
 lab_a574:
     bbc mem_0099:3, lab_a586 ;a574  b3 99 0f
-    movw ix, #mem_02ad      ;a577  e6 02 ad
-    call sub_e78a           ;a57a  31 e7 8a
+    movw ix, #mem_02ad      ;a577  e6 02 ad     IX = pointer to 16-bit value to decrement
+    call dec16_at_ix        ;a57a  31 e7 8a     Decrement 16-bit value @IX.  Wraps from 0 to 0xFFFF.
     bne lab_a586            ;a57d  fc 07
     clrb mem_0099:3         ;a57f  a3 99
     setb mem_0099:2         ;a581  aa 99
     call sub_a68d           ;a583  31 a6 8d
 
 lab_a586:
-    movw ix, #mem_02ce      ;a586  e6 02 ce
-    call sub_e77d           ;a589  31 e7 7d
+    movw ix, #mem_02ce      ;a586  e6 02 ce     IX = pointer to 8-bit value to decrement
+    call dec8_at_ix_nowrap  ;a589  31 e7 7d     Decrement 8-bit value @IX.  No wrap past 0.
     bne lab_a594            ;a58c  fc 06
-    movw ix, #mem_02cd      ;a58e  e6 02 cd
-    call sub_e77d           ;a591  31 e7 7d
+    movw ix, #mem_02cd      ;a58e  e6 02 cd     IX = pointer to 8-bit value to decrement
+    call dec8_at_ix_nowrap  ;a591  31 e7 7d     Decrement 8-bit value @IX.  No wrap past 0.
 
 lab_a594:
     call sub_8c9b           ;a594  31 8c 9b
     call sub_854d           ;a597  31 85 4d
-    movw ix, #mem_031d      ;a59a  e6 03 1d
-    call sub_e77d           ;a59d  31 e7 7d
+    movw ix, #mem_031d      ;a59a  e6 03 1d     IX = pointer to 8-bit value to decrement
+    call dec8_at_ix_nowrap  ;a59d  31 e7 7d     Decrement 8-bit value @IX.  No wrap past 0.
     call sub_93cc           ;a5a0  31 93 cc
     call sub_93fe           ;a5a3  31 93 fe
     call sub_94b6           ;a5a6  31 94 b6
     call sub_9532           ;a5a9  31 95 32
     call sub_9558           ;a5ac  31 95 58
-    movw ix, #mem_0213      ;a5af  e6 02 13
-    call sub_e77d           ;a5b2  31 e7 7d
+    movw ix, #mem_0213      ;a5af  e6 02 13     IX = pointer to 8-bit value to decrement
+    call dec8_at_ix_nowrap  ;a5b2  31 e7 7d     Decrement 8-bit value @IX.  No wrap past 0.
     clrc                    ;a5b5  81
     bbc pdr6:4, lab_a5ba    ;a5b6  b4 11 01     SCA_SWITCH
     setc                    ;a5b9  91
@@ -6976,39 +6997,39 @@ lab_a5ba:
 
 lab_a5d6:
     bbc mem_00df:5, lab_a5e5 ;a5d6  b5 df 0c
-    movw ix, #mem_01cb      ;a5d9  e6 01 cb
-    call sub_e781           ;a5dc  31 e7 81
+    movw ix, #mem_01cb      ;a5d9  e6 01 cb     IX = pointer to 8-bit value to decrement
+    call dec8_at_ix         ;a5dc  31 e7 81     Decrement 8-bit value @IX.  Wraps from 0 to 0xFF.
     bne lab_a5e5            ;a5df  fc 04
     clrb mem_00df:5         ;a5e1  a5 df
     setb mem_00df:6         ;a5e3  ae df
 
 lab_a5e5:
     bbc mem_00df:3, lab_a5f4 ;a5e5  b3 df 0c
-    movw ix, #mem_01cc      ;a5e8  e6 01 cc
-    call sub_e781           ;a5eb  31 e7 81
+    movw ix, #mem_01cc      ;a5e8  e6 01 cc     IX = pointer to 8-bit value to decrement
+    call dec8_at_ix         ;a5eb  31 e7 81     Decrement 8-bit value @IX.  Wraps from 0 to 0xFF.
     bne lab_a5f4            ;a5ee  fc 04
     clrb mem_00df:3         ;a5f0  a3 df
     setb mem_00df:4         ;a5f2  ac df
 
 lab_a5f4:
     bbc mem_00e1:0, lab_a603 ;a5f4  b0 e1 0c
-    movw ix, #mem_01eb      ;a5f7  e6 01 eb
-    call sub_e781           ;a5fa  31 e7 81
+    movw ix, #mem_01eb      ;a5f7  e6 01 eb     IX = pointer to 8-bit value to decrement
+    call dec8_at_ix         ;a5fa  31 e7 81     Decrement 8-bit value @IX.  Wraps from 0 to 0xFF.
     bne lab_a603            ;a5fd  fc 04
     clrb mem_00e1:0         ;a5ff  a0 e1
     setb mem_00e1:1         ;a601  a9 e1
 
 lab_a603:
     bbs mem_00c9:0, lab_a610 ;a603  b8 c9 0a
-    movw ix, #mem_00c3      ;a606  e6 00 c3
-    call sub_e78a           ;a609  31 e7 8a
+    movw ix, #mem_00c3      ;a606  e6 00 c3     IX = pointer to 16-bit value to decrement
+    call dec16_at_ix        ;a609  31 e7 8a     Decrement 16-bit value @IX.  Wraps from 0 to 0xFFFF.
     bne lab_a610            ;a60c  fc 02
     setb mem_00c9:0         ;a60e  a8 c9
 
 lab_a610:
     bbs mem_0099:0, lab_a61d ;a610  b8 99 0a
-    movw ix, #mem_02b0      ;a613  e6 02 b0
-    call sub_e78a           ;a616  31 e7 8a
+    movw ix, #mem_02b0      ;a613  e6 02 b0     IX = pointer to 16-bit value to decrement
+    call dec16_at_ix        ;a616  31 e7 8a     Decrement 16-bit value @IX.  Wraps from 0 to 0xFFFF.
     bne lab_a61d            ;a619  fc 02
     setb mem_0099:0         ;a61b  a8 99
 
@@ -7019,7 +7040,7 @@ lab_a61d:
     mov mem_032b, a         ;a623  61 03 2b
     cmp a, #0x00            ;a626  14 00
     bne lab_a62c            ;a628  fc 02
-    setb pdr2:1             ;a62a  a9 04        /TAPE_ON
+    setb pdr2:1             ;a62a  a9 04        /TAPE_ON=high
 
 lab_a62c:
     mov a, mem_032a         ;a62c  60 03 2a
@@ -7038,37 +7059,39 @@ lab_a63b:
 lab_a644:
     call sub_f6fe           ;a644  31 f6 fe
     bbc mem_00e5:6, lab_a656 ;a647  b6 e5 0c
-    movw ix, #mem_02a0      ;a64a  e6 02 a0
-    call sub_e781           ;a64d  31 e7 81
+    movw ix, #mem_02a0      ;a64a  e6 02 a0     IX = pointer to 8-bit value to decrement
+    call dec8_at_ix         ;a64d  31 e7 81     Decrement 8-bit value @IX.  Wraps from 0 to 0xFF.
     bne lab_a656            ;a650  fc 04
     clrb mem_00e5:6         ;a652  a6 e5
     setb mem_00e5:7         ;a654  af e5
 
 lab_a656:
     bbc mem_00e2:6, lab_a665 ;a656  b6 e2 0c
-    movw ix, #mem_02a1      ;a659  e6 02 a1
-    call sub_e781           ;a65c  31 e7 81
+    movw ix, #mem_02a1      ;a659  e6 02 a1     IX = pointer to 8-bit value to decrement
+    call dec8_at_ix         ;a65c  31 e7 81     Decrement 8-bit value @IX.  Wraps from 0 to 0xFF.
     bne lab_a665            ;a65f  fc 04
     clrb mem_00e2:6         ;a661  a6 e2
     setb mem_00e2:7         ;a663  af e2
 
 lab_a665:
-    movw ix, #mem_0200      ;a665  e6 02 00
-    call sub_e77d           ;a668  31 e7 7d
+    movw ix, #mem_0200      ;a665  e6 02 00     IX = pointer to 8-bit value to decrement
+    call dec8_at_ix_nowrap  ;a668  31 e7 7d     Decrement 8-bit value @IX.  No wrap past 0.
     bbc mem_00e7:1, lab_a67a ;a66b  b1 e7 0c
-    movw ix, #mem_0237      ;a66e  e6 02 37
-    call sub_e781           ;a671  31 e7 81
+    movw ix, #mem_0237      ;a66e  e6 02 37     IX = pointer to 8-bit value to decrement
+    call dec8_at_ix         ;a671  31 e7 81     Decrement 8-bit value @IX.  Wraps from 0 to 0xFF.
     bne lab_a67a            ;a674  fc 04
     clrb mem_00e7:1         ;a676  a1 e7
     setb mem_00e7:2         ;a678  aa e7
 
 lab_a67a:
-    movw ix, #mem_02d3      ;a67a  e6 02 d3
-    call sub_e77d           ;a67d  31 e7 7d
-    movw ix, #mem_0187      ;a680  e6 01 87
-    call sub_e77d           ;a683  31 e7 7d
-    movw ix, #mem_0312      ;a686  e6 03 12
-    call sub_e77d           ;a689  31 e7 7d
+    movw ix, #mem_02d3      ;a67a  e6 02 d3     IX = pointer to 8-bit value to decrement
+    call dec8_at_ix_nowrap  ;a67d  31 e7 7d     Decrement 8-bit value @IX.  No wrap past 0.
+
+    movw ix, #mem_0187      ;a680  e6 01 87     IX = pointer to 8-bit value to decrement
+    call dec8_at_ix_nowrap  ;a683  31 e7 7d     Decrement 8-bit value @IX.  No wrap past 0.
+
+    movw ix, #mem_0312      ;a686  e6 03 12     IX = pointer to 8-bit value to decrement
+    call dec8_at_ix_nowrap  ;a689  31 e7 7d     Decrement 8-bit value @IX.  No wrap past 0.
     ret                     ;a68c  20
 
 sub_a68d:
@@ -7232,35 +7255,37 @@ lab_a75f:
     mov a, #0x00            ;a75f  04 00
     mov mem_02cf, a         ;a761  61 02 cf
     bbc mem_00dc:1, lab_a773 ;a764  b1 dc 0c
-    movw ix, #mem_0289      ;a767  e6 02 89
-    call sub_e781           ;a76a  31 e7 81
+    movw ix, #mem_0289      ;a767  e6 02 89     IX = pointer to 8-bit value to decrement
+    call dec8_at_ix         ;a76a  31 e7 81     Decrement 8-bit value @IX.  Wraps from 0 to 0xFF.
     bne lab_a773            ;a76d  fc 04
     clrb mem_00dc:1         ;a76f  a1 dc
     setb mem_00dc:2         ;a771  aa dc
 
 lab_a773:
     bbc mem_00da:1, lab_a782 ;a773  b1 da 0c
-    movw ix, #mem_02a3      ;a776  e6 02 a3
-    call sub_e781           ;a779  31 e7 81
+    movw ix, #mem_02a3      ;a776  e6 02 a3     IX = pointer to 8-bit value to decrement
+    call dec8_at_ix         ;a779  31 e7 81     Decrement 8-bit value @IX.  Wraps from 0 to 0xFF.
     bne lab_a782            ;a77c  fc 04
     clrb mem_00da:1         ;a77e  a1 da
     setb mem_00da:2         ;a780  aa da
 
 lab_a782:
-    movw ix, #mem_03de      ;a782  e6 03 de
-    call sub_e77d           ;a785  31 e7 7d
-    movw ix, #mem_03cd      ;a788  e6 03 cd
-    call sub_e77d           ;a78b  31 e7 7d
+    movw ix, #mem_03de      ;a782  e6 03 de     IX = pointer to 8-bit value to decrement
+    call dec8_at_ix_nowrap  ;a785  31 e7 7d     Decrement 8-bit value @IX.  No wrap past 0.
+
+    movw ix, #mem_03cd      ;a788  e6 03 cd     IX = pointer to 8-bit value to decrement
+    call dec8_at_ix_nowrap  ;a78b  31 e7 7d     Decrement 8-bit value @IX.  No wrap past 0.
+
     bbc mem_00da:3, lab_a79d ;a78e  b3 da 0c
-    movw ix, #mem_02a4      ;a791  e6 02 a4
-    call sub_e781           ;a794  31 e7 81
+    movw ix, #mem_02a4      ;a791  e6 02 a4     IX = pointer to 8-bit value to decrement
+    call dec8_at_ix         ;a794  31 e7 81     Decrement 8-bit value @IX.  Wraps from 0 to 0xFF.
     bne lab_a79d            ;a797  fc 04
     clrb mem_00da:3         ;a799  a3 da
     setb mem_00da:4         ;a79b  ac da
 
 lab_a79d:
-    movw ix, #mem_03e4      ;a79d  e6 03 e4
-    call sub_e77d           ;a7a0  31 e7 7d
+    movw ix, #mem_03e4      ;a79d  e6 03 e4     IX = pointer to 8-bit value to decrement
+    call dec8_at_ix_nowrap  ;a7a0  31 e7 7d     Decrement 8-bit value @IX.  No wrap past 0.
     call sub_a4f9           ;a7a3  31 a4 f9
     mov a, mem_0292         ;a7a6  60 02 92
     bne lab_a7c5            ;a7a9  fc 1a
@@ -7277,31 +7302,34 @@ lab_a79d:
     setb mem_0098:4         ;a7c3  ac 98
 
 lab_a7c5:
-    movw ix, #mem_02ff      ;a7c5  e6 02 ff
-    call sub_e77d           ;a7c8  31 e7 7d
+    movw ix, #mem_02ff      ;a7c5  e6 02 ff     IX = pointer to 8-bit value to decrement
+    call dec8_at_ix_nowrap  ;a7c8  31 e7 7d     Decrement 8-bit value @IX.  No wrap past 0.
+
     call sub_a460           ;a7cb  31 a4 60
-    movw ix, #mem_0327      ;a7ce  e6 03 27
-    call sub_e77d           ;a7d1  31 e7 7d
-    movw ix, #mem_0331      ;a7d4  e6 03 31
-    call sub_e77d           ;a7d7  31 e7 7d
+
+    movw ix, #mem_0327      ;a7ce  e6 03 27     IX = pointer to 8-bit value to decrement
+    call dec8_at_ix_nowrap  ;a7d1  31 e7 7d     Decrement 8-bit value @IX.  No wrap past 0.
+
+    movw ix, #mem_0331      ;a7d4  e6 03 31     IX = pointer to 8-bit value to decrement
+    call dec8_at_ix_nowrap  ;a7d7  31 e7 7d     Decrement 8-bit value @IX.  No wrap past 0.
     ret                     ;a7da  20
 
 lab_a7db:
     bbc mem_0099:4, lab_a7eb ;a7db  b4 99 0d
-    movw ix, #mem_02af      ;a7de  e6 02 af
-    call sub_e781           ;a7e1  31 e7 81
+    movw ix, #mem_02af      ;a7de  e6 02 af     IX = pointer to 8-bit value to decrement
+    call dec8_at_ix         ;a7e1  31 e7 81     Decrement 8-bit value @IX.  Wraps from 0 to 0xFF.
     bne lab_a7eb            ;a7e4  fc 05
     clrb mem_0099:4         ;a7e6  a4 99
     setb mem_0098:4         ;a7e8  ac 98
-    callv #4                ;a7ea  ec          CALLV #4 = callv4_8c84
+    callv #4                ;a7ea  ec           CALLV #4 = callv4_8c84
 
 lab_a7eb:
     bbc mem_00d7:3, lab_a7fb ;a7eb  b3 d7 0d
-    movw ix, #mem_01c5      ;a7ee  e6 01 c5
-    call sub_e781           ;a7f1  31 e7 81
+    movw ix, #mem_01c5      ;a7ee  e6 01 c5     IX = pointer to 8-bit value to decrement
+    call dec8_at_ix         ;a7f1  31 e7 81     Decrement 8-bit value @IX.  Wraps from 0 to 0xFF.
     bne lab_a7fb            ;a7f4  fc 05
     clrb mem_00d7:3         ;a7f6  a3 d7
-    callv #5                ;a7f8  ed          CALLV #5 = callv5_8d0d
+    callv #5                ;a7f8  ed           CALLV #5 = callv5_8d0d
     setb mem_0098:4         ;a7f9  ac 98
 
 lab_a7fb:
@@ -7311,14 +7339,14 @@ lab_a7fb:
     decw a                  ;a803  d0
     mov mem_0313, a         ;a804  61 03 13
     bne lab_a80c            ;a807  fc 03
-    callv #5                ;a809  ed          CALLV #5 = callv5_8d0d
+    callv #5                ;a809  ed           CALLV #5 = callv5_8d0d
     setb mem_0098:4         ;a80a  ac 98
 
 lab_a80c:
     bbc mem_008c:7, lab_a81e ;a80c  b7 8c 0f
     bbc mem_008c:5, lab_a81e ;a80f  b5 8c 0c
-    movw ix, #mem_0117      ;a812  e6 01 17
-    call sub_e781           ;a815  31 e7 81
+    movw ix, #mem_0117      ;a812  e6 01 17     IX = pointer to 8-bit value to decrement
+    call dec8_at_ix         ;a815  31 e7 81     Decrement 8-bit value @IX.  Wraps from 0 to 0xFF.
     bne lab_a81e            ;a818  fc 04
     clrb mem_008c:5         ;a81a  a5 8c
     setb mem_008c:6         ;a81c  ae 8c
@@ -7330,34 +7358,34 @@ lab_a81e:
     cmp a, #0x30            ;a824  14 30
     blo lab_a837            ;a826  f9 0f
     bbc mem_00f9:5, lab_a837 ;a828  b5 f9 0c
-    movw ix, #mem_039b      ;a82b  e6 03 9b
-    call sub_e781           ;a82e  31 e7 81
+    movw ix, #mem_039b      ;a82b  e6 03 9b     IX = pointer to 8-bit value to decrement
+    call dec8_at_ix         ;a82e  31 e7 81     Decrement 8-bit value @IX.  Wraps from 0 to 0xFF.
     bne lab_a837            ;a831  fc 04
     clrb mem_00f9:5         ;a833  a5 f9
     setb mem_00fa:0         ;a835  a8 fa
 
 lab_a837:
     bbc mem_00e0:2, lab_a846 ;a837  b2 e0 0c
-    movw ix, #mem_01cd      ;a83a  e6 01 cd
-    call sub_e781           ;a83d  31 e7 81
+    movw ix, #mem_01cd      ;a83a  e6 01 cd     IX = pointer to 8-bit value to decrement
+    call dec8_at_ix         ;a83d  31 e7 81     Decrement 8-bit value @IX.  Wraps from 0 to 0xFF.
     bne lab_a846            ;a840  fc 04
     clrb mem_00e0:2         ;a842  a2 e0
     setb mem_00e0:3         ;a844  ab e0
 
 lab_a846:
-    movw ix, #mem_0202      ;a846  e6 02 02
-    call sub_e77d           ;a849  31 e7 7d
+    movw ix, #mem_0202      ;a846  e6 02 02     IX = pointer to 8-bit value to decrement
+    call dec8_at_ix_nowrap  ;a849  31 e7 7d     Decrement 8-bit value @IX.  No wrap past 0.
     bbc mem_00e5:4, lab_a85b ;a84c  b4 e5 0c
-    movw ix, #mem_029e      ;a84f  e6 02 9e
-    call sub_e781           ;a852  31 e7 81
+    movw ix, #mem_029e      ;a84f  e6 02 9e     IX = pointer to 8-bit value to decrement
+    call dec8_at_ix         ;a852  31 e7 81     Decrement 8-bit value @IX.  Wraps from 0 to 0xFF.
     bne lab_a85b            ;a855  fc 04
     clrb mem_00e5:4         ;a857  a4 e5
     setb mem_00e5:5         ;a859  ad e5
 
 lab_a85b:
     bbc mem_00da:6, lab_a86a ;a85b  b6 da 0c
-    movw ix, #mem_01ec      ;a85e  e6 01 ec
-    call sub_e781           ;a861  31 e7 81
+    movw ix, #mem_01ec      ;a85e  e6 01 ec     IX = pointer to 8-bit value to decrement
+    call dec8_at_ix         ;a861  31 e7 81     Decrement 8-bit value @IX.  Wraps from 0 to 0xFF.
     bne lab_a86a            ;a864  fc 04
     clrb mem_00da:6         ;a866  a6 da
     setb mem_00da:7         ;a868  af da
@@ -7367,17 +7395,18 @@ lab_a86a:
     mov a, mem_018e         ;a86d  60 01 8e
     cmp a, #0x01            ;a870  14 01
     bne lab_a881            ;a872  fc 0d
-    movw ix, #mem_018d      ;a874  e6 01 8d
-    call sub_e781           ;a877  31 e7 81
+    movw ix, #mem_018d      ;a874  e6 01 8d     IX = pointer to 8-bit value to decrement
+    call dec8_at_ix         ;a877  31 e7 81     Decrement 8-bit value @IX.  Wraps from 0 to 0xFF.
     bne lab_a881            ;a87a  fc 05
     mov a, #0x00            ;a87c  04 00
     mov mem_018e, a         ;a87e  61 01 8e
 
 lab_a881:
-    movw ix, #mem_02c1      ;a881  e6 02 c1
-    call sub_e77d           ;a884  31 e7 7d
-    movw ix, #mem_03c5      ;a887  e6 03 c5
-    call sub_e77d           ;a88a  31 e7 7d
+    movw ix, #mem_02c1      ;a881  e6 02 c1     IX = pointer to 8-bit value to decrement
+    call dec8_at_ix_nowrap  ;a884  31 e7 7d     Decrement 8-bit value @IX.  No wrap past 0.
+
+    movw ix, #mem_03c5      ;a887  e6 03 c5     IX = pointer to 8-bit value to decrement
+    call dec8_at_ix_nowrap  ;a88a  31 e7 7d     Decrement 8-bit value @IX.  No wrap past 0.
     ret                     ;a88d  20
 
 lab_a88e:
@@ -7385,8 +7414,8 @@ lab_a88e:
     call sub_c229           ;a891  31 c2 29
     bbs mem_008c:7, lab_a8a6 ;a894  bf 8c 0f
     bbc mem_00db:6, lab_a8a6 ;a897  b6 db 0c
-    movw ix, #mem_01ee      ;a89a  e6 01 ee
-    call sub_e781           ;a89d  31 e7 81
+    movw ix, #mem_01ee      ;a89a  e6 01 ee     IX = pointer to 8-bit value to decrement
+    call dec8_at_ix         ;a89d  31 e7 81     Decrement 8-bit value @IX.  Wraps from 0 to 0xFF.
     bne lab_a8a6            ;a8a0  fc 04
     clrb mem_00db:6         ;a8a2  a6 db
     setb mem_00db:7         ;a8a4  af db
@@ -7432,8 +7461,8 @@ lab_a8e6:
 lab_a8eb:
     bbs mem_00d0:3, lab_a913 ;a8eb  bb d0 25
     bbc mem_00cf:5, lab_a913 ;a8ee  b5 cf 22
-    movw ix, #mem_0211      ;a8f1  e6 02 11
-    call sub_e78a           ;a8f4  31 e7 8a
+    movw ix, #mem_0211      ;a8f1  e6 02 11     IX = pointer to 16-bit value to decrement
+    call dec16_at_ix        ;a8f4  31 e7 8a     Decrement 16-bit value @IX.  Wraps from 0 to 0xFFFF.
     bne lab_a913            ;a8f7  fc 1a
     clrb mem_00cf:5         ;a8f9  a5 cf
     setb mem_00d0:3         ;a8fb  ab d0
@@ -7451,7 +7480,9 @@ lab_a910:
 lab_a913:
     ret                     ;a913  20
 
+
 sub_a914:
+;Called from ISR for IRQ2 (16-bit timer counter)
     mov a, mem_03df         ;a914  60 03 df
     beq lab_a91d            ;a917  fd 04
     decw a                  ;a919  d0
@@ -7472,11 +7503,11 @@ lab_a930:
     bbc pdr7:0, lab_a93b    ;a933  b0 13 05     BEEP
 
 lab_a936:
-    clrb pdr7:0             ;a936  a0 13        BEEP
+    clrb pdr7:0             ;a936  a0 13        BEEP=low
     jmp lab_a93d            ;a938  21 a9 3d
 
 lab_a93b:
-    setb pdr7:0             ;a93b  a8 13        BEEP
+    setb pdr7:0             ;a93b  a8 13        BEEP=high
 
 lab_a93d:
     mov a, mem_009c         ;a93d  05 9c
@@ -7587,9 +7618,11 @@ lab_a9da:
 lab_a9e3:
     bbc mem_00e6:1, lab_a9f4 ;a9e3  b1 e6 0e
     movw a, #0x0000         ;a9e6  e4 00 00
+
     mov a, mem_02c7         ;a9e9  60 02 c7
     decw a                  ;a9ec  d0
     mov mem_02c7, a         ;a9ed  61 02 c7
+
     bne lab_a9f4            ;a9f0  fc 02
     clrb mem_00e6:1         ;a9f2  a1 e6
 
@@ -7856,38 +7889,38 @@ lab_ab4e:
     swap                    ;ab50  10
     rorc a                  ;ab51  03
     bhs lab_ab58            ;ab52  f8 04
-    setb pdr2:3             ;ab54  ab 04        VOL_DATA
+    setb pdr2:3             ;ab54  ab 04        VOL_DATA=high
     blo lab_ab5a            ;ab56  f9 02       BRANCH_ALWAYS_TAKEN
 
 lab_ab58:
-    clrb pdr2:3             ;ab58  a3 04        VOL_DATA
+    clrb pdr2:3             ;ab58  a3 04        VOL_DATA=low
 
 lab_ab5a:
     cmpw a                  ;ab5a  13
     cmpw a                  ;ab5b  13
-    setb pdr2:2             ;ab5c  aa 04        /VOL_CLK
+    setb pdr2:2             ;ab5c  aa 04        /VOL_CLK=high
     cmpw a                  ;ab5e  13
     cmpw a                  ;ab5f  13
     cmp r4, #0x0d           ;ab60  9c 0d
     bne lab_ab68            ;ab62  fc 04
-    setb pdr2:3             ;ab64  ab 04        VOL_DATA
+    setb pdr2:3             ;ab64  ab 04        VOL_DATA=high
     beq lab_ab6a            ;ab66  fd 02       BRANCH_ALWAYS_TAKEN
 
 lab_ab68:
-    clrb pdr2:3             ;ab68  a3 04        VOL_DATA
+    clrb pdr2:3             ;ab68  a3 04        VOL_DATA=low
 
 lab_ab6a:
     nop                     ;ab6a  00
     nop                     ;ab6b  00
     nop                     ;ab6c  00
     nop                     ;ab6d  00
-    clrb pdr2:2             ;ab6e  a2 04        /VOL_CLK
+    clrb pdr2:2             ;ab6e  a2 04        /VOL_CLK=low
     inc r4                  ;ab70  cc
     cmp r4, #0x0e           ;ab71  9c 0e
     blo lab_ab4e            ;ab73  f9 d9
     cmpw a                  ;ab75  13
     cmpw a                  ;ab76  13
-    clrb pdr2:3             ;ab77  a3 04        VOL_DATA
+    clrb pdr2:3             ;ab77  a3 04        VOL_DATA=low
     ret                     ;ab79  20
 
 sub_ab7a:
@@ -8100,10 +8133,13 @@ sub_ac86:
 
 lab_acbf:
     setb mem_008b:3         ;acbf  ab 8b
+
     mov a, #0x01            ;acc1  04 01
     mov mem_0113, a         ;acc3  61 01 13
+
     movw a, #0xffff         ;acc6  e4 ff ff
     movw mem_008f, a        ;acc9  d5 8f
+
     mov mem_008a, a         ;accb  45 8a
     bbs mem_00e4:3, lab_acda ;accd  bb e4 0a
     bbc mem_00de:5, lab_acda ;acd0  b5 de 07
@@ -8362,13 +8398,13 @@ lab_adc1:
     beq lab_add3            ;adc9  fd 08
 
 lab_adcb:
-    clrb pdr2:0             ;adcb  a0 04        PHANTON_ON
+    clrb pdr2:0             ;adcb  a0 04        PHANTON_ON=low
     mov a, #0x14            ;adcd  04 14
     mov mem_02e1, a         ;adcf  61 02 e1
     ret                     ;add2  20
 
 lab_add3:
-    setb pdr2:0             ;add3  a8 04        PHANTON_ON
+    setb pdr2:0             ;add3  a8 04        PHANTON_ON=high
     ret                     ;add5  20
 
 lab_add6:
@@ -8751,7 +8787,7 @@ sub_afca:
 
 lab_afce:
     clrb mem_008b:3         ;afce  a3 8b
-    bbc pdr7:3, lab_afd5    ;afd0  b3 13 02     UART RX
+    bbc pdr7:3, lab_afd5    ;afd0  b3 13 02     Branch if UART RX=low
     setb mem_008b:3         ;afd3  ab 8b
 
 lab_afd5:
@@ -8771,6 +8807,7 @@ lab_afe6:
     ret                     ;afea  20
 
 lab_afeb:
+;(mem_0113 = 1)
     bbs mem_008b:3, lab_affd ;afeb  bb 8b 0f
     mov a, #0x09            ;afee  04 09
     mov mem_0110, a         ;aff0  61 01 10
@@ -8783,29 +8820,37 @@ lab_affd:
     ret                     ;affd  20
 
 lab_affe:
+;(mem_0113 = 2)
     mov a, mem_0110         ;affe  60 01 10
     decw a                  ;b001  d0
     mov mem_0110, a         ;b002  61 01 10
+
     cmp a, #0x00            ;b005  14 00
     bne lab_b02b            ;b007  fc 22
+
     mov a, #0x19            ;b009  04 19
     mov mem_0110, a         ;b00b  61 01 10
+
     clrc                    ;b00e  81
     bbc mem_008b:3, lab_b013 ;b00f  b3 8b 01
     setc                    ;b012  91
 
 lab_b013:
+    ;16-bit rotate right from carry into word at mem_008f
     movw a, mem_008f        ;b013  c5 8f
-    swap                    ;b015  10
-    rorc a                  ;b016  03
-    swap                    ;b017  10
-    rorc a                  ;b018  03
+    swap                    ;b015  10       Swap:   AH<->AL
+    rorc a                  ;b016  03       Rotate: carry -> AL -> carry
+    swap                    ;b017  10       Swap:   AH<->AL
+    rorc a                  ;b018  03       Rotate: carry -> AL -> carry
     movw mem_008f, a        ;b019  d5 8f
+
     mov a, mem_0111         ;b01b  60 01 11
     decw a                  ;b01e  d0
     mov mem_0111, a         ;b01f  61 01 11
+
     cmp a, #0x00            ;b022  14 00
     bne lab_b02b            ;b024  fc 05
+
     mov a, #0x03            ;b026  04 03
     mov mem_0113, a         ;b028  61 01 13
 
@@ -8813,16 +8858,20 @@ lab_b02b:
     ret                     ;b02b  20
 
 lab_b02c:
+;(mem_0113=3)
     movw a, mem_008f        ;b02c  c5 8f
     movw a, #0xffc0         ;b02e  e4 ff c0
     andw a                  ;b031  63
     movw a, #0xeb00         ;b032  e4 eb 00
     cmpw a                  ;b035  13
     bne lab_b07f            ;b036  fc 47
+
     clrb uscr:7             ;b038  a7 41        Clear all UART receive error flags
-    mov a, rxdr             ;b03a  05 43        A = KW1281 byte received from UART
+    mov a, rxdr             ;b03a  05 43        A = KW1281 byte received from UART (thrown away)
+
     mov a, #0x00            ;b03c  04 00
     mov mem_01a1, a         ;b03e  61 01 a1
+
     bbs mem_00cf:5, lab_b052 ;b041  bd cf 0e
     bbs mem_00eb:6, lab_b081 ;b044  be eb 3a
     bbs mem_00ed:2, lab_b052 ;b047  ba ed 08
@@ -8841,12 +8890,16 @@ lab_b052:
     mov mem_031b, a         ;b063  61 03 1b
     mov a, #0x02            ;b066  04 02
     mov mem_031c, a         ;b068  61 03 1c
+
     mov a, #0x41            ;b06b  04 41        A = value to store in mem_02c7
     call sub_afc2           ;b06d  31 af c2
+
     mov mem_00cc, #0x0a     ;b070  85 cc 0a
+
     mov a, mem_0095         ;b073  05 95
     cmp a, #0x02            ;b075  14 02
     bne lab_b081            ;b077  fc 08
+
     mov mem_00ce, #0x04     ;b079  85 ce 04
     jmp lab_b081            ;b07c  21 b0 81
 
@@ -8856,11 +8909,15 @@ lab_b07f:
 lab_b081:
     mov a, #0x01            ;b081  04 01
     mov mem_0113, a         ;b083  61 01 13
+
     movw a, #0xffff         ;b086  e4 ff ff
     movw mem_008f, a        ;b089  d5 8f
+
     setb mem_008b:3         ;b08b  ab 8b
+
     movw a, #0x0000         ;b08d  e4 00 00
     movw mem_0110, a        ;b090  d4 01 10
+
     ret                     ;b093  20
 
 
@@ -8888,7 +8945,9 @@ lab_b0a7_tx_0x55:
     mov mem_0112, a         ;b0af  61 01 12     KW1281 9615.38 bps transmit state = Send byte, 8-N-1
 
     clrb mem_008c:4         ;b0b2  a4 8c
-    mov mem_0081, a         ;b0b4  45 81
+
+    mov mem_0081, a         ;b0b4  45 81        Set mem_0081 = 2
+
     mov a, #0x03            ;b0b6  04 03        A = value to store in mem_02c7
     bne lab_b0ce            ;b0b8  fc 14        BRANCH_ALWAYS_TAKEN
 
@@ -8903,7 +8962,9 @@ lab_b0a7_tx_0x01:
     mov mem_0112, a         ;b0c4  61 01 12     KW1281 9615.38 bps transmit state = Send byte, 7-O-1
 
     clrb mem_008c:4         ;b0c7  a4 8c
-    mov mem_0081, #0x03     ;b0c9  85 81 03
+
+    mov mem_0081, #0x03     ;b0c9  85 81 03     Set mem_0081 = 3
+
     mov a, #0x03            ;b0cc  04 03        A = value to store in mem_02c7
 
 lab_b0ce:
@@ -8925,7 +8986,9 @@ lab_b0a7_tx_0x0a:
     mov mem_0112, a         ;b0df  61 01 12     KW1281 9615.38 bps transmit state = Send byte, 7-O-1
 
     setb mem_008c:4         ;b0e2  ac 8c
-    mov mem_0081, #0x04     ;b0e4  85 81 04
+
+    mov mem_0081, #0x04     ;b0e4  85 81 04     Set mem_0081 = 4
+
     mov a, #0x0c            ;b0e7  04 0c        A = value to store in mem_02c7
     bne lab_b0ce            ;b0e9  fc e3        BRANCH_ALWAYS_TAKEN
 
@@ -9246,7 +9309,8 @@ sub_b26f:
 
 
 sub_b280:
-;Called from UART ISR
+;Called from ISR for IRQ8 (UART)
+;only if mem_008c:7 = 1
     bbc mem_008c:4, lab_b28e ;b280  b4 8c 0b
 
     mov a, rxdr             ;b283  05 43
@@ -11357,7 +11421,7 @@ sub_bc64:
     ret                     ;bc73  20
 
 lab_bc74:
-    clrb pdr8:4             ;bc74  a4 14        AMP_ON
+    clrb pdr8:4             ;bc74  a4 14        AMP_ON=low
     mov a, #0x02            ;bc76  04 02
     mov a, #0xc8            ;bc78  04 c8
 
@@ -11374,7 +11438,7 @@ lab_bc81:
 lab_bc82:
     mov a, mem_02d3         ;bc82  60 02 d3
     bne lab_bc81            ;bc85  fc fa
-    setb pdr8:4             ;bc87  ac 14        AMP_ON
+    setb pdr8:4             ;bc87  ac 14        AMP_ON=high
     mov a, #0x03            ;bc89  04 03
     mov a, #0x46            ;bc8b  04 46
     bne lab_bc7a            ;bc8d  fc eb       BRANCH_ALWAYS_TAKEN
@@ -11701,7 +11765,7 @@ lab_be87:
     ret                     ;be87  20
 
 lab_be88:
-    clrb pdr8:4             ;be88  a4 14        AMP_ON
+    clrb pdr8:4             ;be88  a4 14        AMP_ON=low
     mov a, #0xc8            ;be8a  04 c8
     mov mem_02d3, a         ;be8c  61 02 d3
 
@@ -11715,7 +11779,7 @@ lab_be91:
 lab_be95:
     mov a, mem_02d3         ;be95  60 02 d3
     bne lab_be8f            ;be98  fc f5
-    setb pdr8:4             ;be9a  ac 14        AMP_ON
+    setb pdr8:4             ;be9a  ac 14        AMP_ON=high
     mov a, #0x50            ;be9c  04 50
     mov mem_02d3, a         ;be9e  61 02 d3
 
@@ -12105,7 +12169,7 @@ sub_c10e:
     ret                     ;c119  20
 
 lab_c11a:
-    setb pdr2:0             ;c11a  a8 04        PHANTOM_ON
+    setb pdr2:0             ;c11a  a8 04        PHANTOM_ON=high
     mov a, #0x05            ;c11c  04 05
     mov mem_02d3, a         ;c11e  61 02 d3
 
@@ -12274,8 +12338,8 @@ sub_c229:
     cmp mem_0095, #0x01     ;c22c  95 95 01
     bne lab_c256            ;c22f  fc 25
     bbc mem_00f2:0, lab_c247 ;c231  b0 f2 13
-    movw ix, #mem_0344      ;c234  e6 03 44
-    call sub_e781           ;c237  31 e7 81
+    movw ix, #mem_0344      ;c234  e6 03 44     IX = pointer to 8-bit value to decrement
+    call dec8_at_ix         ;c237  31 e7 81     Decrement 8-bit value @IX.  Wraps from 0 to 0xFF.
     bne lab_c258            ;c23a  fc 1c
     mov a, #0x04            ;c23c  04 04
     movw a, mem_0345        ;c23e  c4 03 45
@@ -12299,15 +12363,18 @@ lab_c256:
 lab_c258:
     ret                     ;c258  20
 
+
 sub_c259:
+;Called from ISR for IRQ0 (external interrupt 1)
+;when INT3 pin edge detect status changes (/SCA_CLK_IN)
     bbc mem_00f2:0, lab_c267 ;c259  b0 f2 0b
     movw a, mem_0345        ;c25c  c4 03 45
     beq lab_c267            ;c25f  fd 06
-    movw ix, #mem_0345      ;c261  e6 03 45
-    call sub_e78a           ;c264  31 e7 8a
-
+    movw ix, #mem_0345      ;c261  e6 03 45     IX = pointer to 16-bit value to decrement
+    call dec16_at_ix        ;c264  31 e7 8a     Decrement 16-bit value @IX.  Wraps from 0 to 0xFFFF.
 lab_c267:
     ret                     ;c267  20
+
 
 sub_c268:
     movw a, #0x0000         ;c268  e4 00 00
@@ -12392,7 +12459,7 @@ sub_c2c6:
     ret                     ;c2de  20
 
 sub_c2df:
-    setb pdr2:0             ;c2df  a8 04        PHANTOM_ON
+    setb pdr2:0             ;c2df  a8 04        PHANTOM_ON=high
     call sub_c2c6           ;c2e1  31 c2 c6
     mov mem_00a2, #0x09     ;c2e4  85 a2 09
     movw ix, #mem_02d6      ;c2e7  e6 02 d6
@@ -12605,7 +12672,7 @@ lab_c449:
     mov a, #0x03            ;c456  04 03
     cmp a                   ;c458  12
     beq lab_c462            ;c459  fd 07
-    clrb pdr2:0             ;c45b  a0 04        PHANTOM_ON
+    clrb pdr2:0             ;c45b  a0 04        PHANTOM_ON=low
     mov a, #0x14            ;c45d  04 14
     mov mem_02e1, a         ;c45f  61 02 e1
 
@@ -13358,7 +13425,7 @@ lab_c893:
     mov mem_00bd, a         ;c897  45 bd
     mov mem_00bb, #0x00     ;c899  85 bb 00
     clrb pdr0:4             ;c89c  a4 00        PLL_CE=low (disabled)
-    clrb pdr1:0             ;c89e  a0 02        SK
+    clrb pdr1:0             ;c89e  a0 02        SK=low
     clrb pdr0:5             ;c8a0  a5 00        EEPROM_CS=low (diabled)
     mov a, mem_00c1         ;c8a2  05 c1
     cmp a, #0x01            ;c8a4  14 01
@@ -13466,22 +13533,22 @@ lab_c927:
 sub_c928:
     rorc a                  ;c928  03
     bhs lab_c92f            ;c929  f8 04
-    setb pdr0:7             ;c92b  af 00        EEPROM_DO
+    setb pdr0:7             ;c92b  af 00        EEPROM_DO=high
     blo lab_c931            ;c92d  f9 02        BRANCH_ALWAYS_TAKEN
 
 lab_c92f:
-    clrb pdr0:7             ;c92f  a7 00        EEPROM_DO
+    clrb pdr0:7             ;c92f  a7 00        EEPROM_DO=low
 
 lab_c931:
     xch a, t                ;c931  42
     dec r0                  ;c932  d8
-    setb pdr1:0             ;c933  a8 02        SK
+    setb pdr1:0             ;c933  a8 02        SK=high
     decw a                  ;c935  d0
     cmp a, #0x00            ;c936  14 00
     xch a, t                ;c938  42
     xch a, t                ;c939  42
     nop                     ;c93a  00
-    clrb pdr1:0             ;c93b  a0 02        SK
+    clrb pdr1:0             ;c93b  a0 02        SK=low
     xch a, t                ;c93d  42
     bne sub_c928            ;c93e  fc e8
     ret                     ;c940  20
@@ -13524,10 +13591,10 @@ sub_c977:
     movw a, #0x0000         ;c977  e4 00 00
 
 lab_c97a:
-    setb pdr1:0             ;c97a  a8 02        SK
+    setb pdr1:0             ;c97a  a8 02        SK=high
     dec r0                  ;c97c  d8
     cmp a, r0               ;c97d  18
-    clrb pdr1:0             ;c97e  a0 02        SK
+    clrb pdr1:0             ;c97e  a0 02        SK=low
     inc r0                  ;c980  c8
     clrc                    ;c981  81
     bbc pdr0:6, lab_c986    ;c982  b6 00 01     PLL_DI
@@ -13938,33 +14005,33 @@ sub_cba6:
     rolc a                  ;cbab  02
     mov mem_009f, a         ;cbac  45 9f
     bc lab_cbb4_carry       ;cbae  f9 04
-    clrb pdr0:7             ;cbb0  a7 00        EEPROM_DO
+    clrb pdr0:7             ;cbb0  a7 00        EEPROM_DO=low
     bnc lab_cbb4_no_carry   ;cbb2  f8 02        BRANCH_ALWAYS_TAKEN
 
 lab_cbb4_carry:
-    setb pdr0:7             ;cbb4  af 00        EEPROM_DO
+    setb pdr0:7             ;cbb4  af 00        EEPROM_DO=high
 
 lab_cbb4_no_carry:
     nop                     ;cbb6  00
     nop                     ;cbb7  00
-    setb pdr1:0             ;cbb8  a8 02        SK
+    setb pdr1:0             ;cbb8  a8 02        SK=high
     mov a, mem_00a0         ;cbba  05 a0
     decw a                  ;cbbc  d0
     mov mem_00a0, a         ;cbbd  45 a0
     cmp a, #0x00            ;cbbf  14 00
     bne sub_cba6            ;cbc1  fc e3        EEPROM related
-    clrb pdr1:0             ;cbc3  a0 02        SK
+    clrb pdr1:0             ;cbc3  a0 02        SK=low
     ret                     ;cbc5  20
 
 sub_cbc6:
 ;Read byte from EEPROM, store it in mem_026b
-    clrb pdr1:0             ;cbc6  a0 02        SK
+    clrb pdr1:0             ;cbc6  a0 02        SK=low
     mov mem_00a0, #0x08     ;cbc8  85 a0 08
 
 lab_cbcb:
-    setb pdr1:0             ;cbcb  a8 02        SK
+    setb pdr1:0             ;cbcb  a8 02        SK=high
     cmpw a                  ;cbcd  13
-    clrb pdr1:0             ;cbce  a0 02        SK
+    clrb pdr1:0             ;cbce  a0 02        SK=low
     cmpw a                  ;cbd0  13
     clrc                    ;cbd1  81
     bbc pdr0:0, lab_cbd6    ;cbd2  b0 00 01     EEPROM_DI
@@ -16289,11 +16356,11 @@ lab_d5ce:
     mov a, mem_00f7         ;d5ce  05 f7
     and a, #0x02            ;d5d0  64 02
     beq lab_d5d9            ;d5d2  fd 05
-    setb pdr3:6             ;d5d4  ae 0c        TAPE_TRACK_SW
+    setb pdr3:6             ;d5d4  ae 0c        TAPE_TRACK_SW=high
     jmp lab_d4db            ;d5d6  21 d4 db
 
 lab_d5d9:
-    clrb pdr3:6             ;d5d9  a6 0c        TAPE_TRACK_SW
+    clrb pdr3:6             ;d5d9  a6 0c        TAPE_TRACK_SW=low
     jmp lab_d4db            ;d5db  21 d4 db
 
 lab_d5de:
@@ -16302,11 +16369,11 @@ lab_d5de:
     mov mem_00f7, a         ;d5e2  45 f7
     and a, #0x08            ;d5e4  64 08
     beq lab_d5ed            ;d5e6  fd 05
-    clrb pdr3:5             ;d5e8  a5 0c        /TAPE_DOLBY_ON
+    clrb pdr3:5             ;d5e8  a5 0c        /TAPE_DOLBY_ON=low
     jmp lab_d4db            ;d5ea  21 d4 db
 
 lab_d5ed:
-    setb pdr3:5             ;d5ed  ad 0c        /TAPE_DOLBY_ON
+    setb pdr3:5             ;d5ed  ad 0c        /TAPE_DOLBY_ON=high
     jmp lab_d4db            ;d5ef  21 d4 db
 
 lab_d5f2:
@@ -16746,10 +16813,10 @@ lab_d86f:
     ret                     ;d87a  20
 
 sub_d87b:
-    clrb eic2:4             ;d87b  a4 39
+    clrb eic2:4             ;d87b  a4 39        Disable INT3 pin edge detect interrupt (/SCA_CLK_IN)
     pushw a                 ;d87d  40
     mov mem_0355, a         ;d87e  61 03 55
-    setb pdr8:3             ;d881  ab 14        /SCA_CLK_OUT
+    setb pdr8:3             ;d881  ab 14        /SCA_CLK_OUT=high
     clrb pdr0:1             ;d883  a1 00        /SCA_ENABLE
     mov a, #0x08            ;d885  04 08
     mov mem_0358, a         ;d887  61 03 58
@@ -16759,29 +16826,29 @@ lab_d88a:
     rorc a                  ;d88d  03
     mov mem_0355, a         ;d88e  61 03 55
     bhs lab_d8b5            ;d891  f8 22
-    setb pdr7:1             ;d893  a9 13        SCA_DATA
+    setb pdr7:1             ;d893  a9 13        SCA_DATA=high
     jmp lab_d898            ;d895  21 d8 98
 
 lab_d898:
     mulu a                  ;d898  01
-    clrb pdr8:3             ;d899  a3 14        /SCA_CLK_OUT
+    clrb pdr8:3             ;d899  a3 14        /SCA_CLK_OUT=low
     mulu a                  ;d89b  01
     mov a, mem_0358         ;d89c  60 03 58
     decw a                  ;d89f  d0
     mov mem_0358, a         ;d8a0  61 03 58
-    setb pdr8:3             ;d8a3  ab 14        /SCA_CLK_OUT
+    setb pdr8:3             ;d8a3  ab 14        /SCA_CLK_OUT=high
     mov a, mem_0358         ;d8a5  60 03 58
     bne lab_d88a            ;d8a8  fc e0
-    setb pdr0:1             ;d8aa  a9 00        /SCA_ENABLE
+    setb pdr0:1             ;d8aa  a9 00        /SCA_ENABLE=high
     mulu a                  ;d8ac  01
     popw a                  ;d8ad  50
-    setb pdr7:1             ;d8ae  a9 13        SCA_DATA
-    clrb eic2:7             ;d8b0  a7 39
-    setb eic2:4             ;d8b2  ac 39
+    setb pdr7:1             ;d8ae  a9 13        SCA_DATA=high
+    clrb eic2:7             ;d8b0  a7 39        Clear INT3 pin edge detect status (/SCA_CLK_IN)
+    setb eic2:4             ;d8b2  ac 39        Enable INT3 pin edge detect interrupt (/SCA_CLK_IN)
     ret                     ;d8b4  20
 
 lab_d8b5:
-    clrb pdr7:1             ;d8b5  a1 13        SCA_DATA
+    clrb pdr7:1             ;d8b5  a1 13        SCA_DATA=low
     jmp lab_d898            ;d8b7  21 d8 98
 
 sub_d8ba:
@@ -16907,7 +16974,7 @@ lab_d97a:
 
 sub_d97c:
     pushw a                 ;d97c  40
-    setb pdr7:1             ;d97d  a9 13        SCA_DATA
+    setb pdr7:1             ;d97d  a9 13        SCA_DATA=high
     bbs pdr7:1, lab_d990    ;d97f  b9 13 0e     SCA_DATA
     mov a, mem_0350         ;d982  60 03 50
     cmp a, #0x0a            ;d985  14 0a
@@ -16956,16 +17023,19 @@ lab_d9c2:
     popw a                  ;d9c2  50
     ret                     ;d9c3  20
 
+
 sub_d9c4:
+;Called from ISR for IRQ0 (external interrupt 1)
+;when INT3 pin edge detect status changes (/SCA_CLK_IN)
     pushw a                 ;d9c4  40
     mov a, mem_034e         ;d9c5  60 03 4e
     beq lab_d9ce            ;d9c8  fd 04
     decw a                  ;d9ca  d0
     mov mem_034e, a         ;d9cb  61 03 4e
-
 lab_d9ce:
     popw a                  ;d9ce  50
     ret                     ;d9cf  20
+
 
 sub_d9d0:
     clrb mem_00f8:0         ;d9d0  a0 f8
@@ -16974,7 +17044,7 @@ sub_d9d0:
 sub_d9d3:
     cmp mem_0095, #0x01     ;d9d3  95 95 01
     beq lab_d9da            ;d9d6  fd 02
-    clrb pdr3:5             ;d9d8  a5 0c        /TAPE_DOLBY_ON
+    clrb pdr3:5             ;d9d8  a5 0c        /TAPE_DOLBY_ON=low
 
 lab_d9da:
     call sub_daae           ;d9da  31 da ae
@@ -16988,7 +17058,7 @@ lab_d9da:
     bne lab_d9f5            ;d9f0  fc 03
 
 lab_d9f2:
-    setb pdr2:4             ;d9f2  ac 04        unmute audio
+    setb pdr2:4             ;d9f2  ac 04        unmute audio=high
     ret                     ;d9f4  20
 
 lab_d9f5:
@@ -16997,7 +17067,7 @@ lab_d9f5:
 
 lab_d9fb:
     bbs mem_00af:1, lab_d9f2 ;d9fb  b9 af f4
-    clrb pdr2:4             ;d9fe  a4 04        mute audio
+    clrb pdr2:4             ;d9fe  a4 04        mute audio=low
     ret                     ;da00  20
 
 sub_da01:
@@ -17073,7 +17143,7 @@ lab_da57:
     mov a, mem_031d         ;da57  60 03 1d
     bne lab_da6b            ;da5a  fc 0f
     clrb mem_00e9:1         ;da5c  a1 e9
-    setb pdr2:1             ;da5e  a9 04        /TAPE_ON
+    setb pdr2:1             ;da5e  a9 04        /TAPE_ON=high
     ret                     ;da60  20
 
 lab_da61:
@@ -17102,7 +17172,7 @@ lab_da7d:
 
 lab_da86:
     bbs mem_00d7:6, lab_da96 ;da86  be d7 0d
-    clrb pdr2:1             ;da89  a1 04        /TAPE_ON
+    clrb pdr2:1             ;da89  a1 04        /TAPE_ON=low
     mov a, mem_032a         ;da8b  60 03 2a
     bne lab_da95            ;da8e  fc 05
     mov a, #0x0a            ;da90  04 0a
@@ -17112,7 +17182,7 @@ lab_da95:
     ret                     ;da95  20
 
 lab_da96:
-    setb pdr2:1             ;da96  a9 04        /TAPE_ON
+    setb pdr2:1             ;da96  a9 04        /TAPE_ON=high
     setb mem_00e9:1         ;da98  a9 e9
     ret                     ;da9a  20
 
@@ -17208,16 +17278,17 @@ lab_db1a:
     cmpw a                  ;db20  13
     mov a, #0x00            ;db21  04 00
     mov mem_0308, a         ;db23  61 03 08
-    bbc eic1:3, lab_db31    ;db26  b3 38 08
-    clrb eic1:3             ;db29  a3 38
+
+    bbc eic1:3, lab_db31    ;db26  b3 38 08     Branch if edge not detected on INT0 pin (/VOLUME_IN)
+    clrb eic1:3             ;db29  a3 38        Clear INT0 edge detect status (/VOLUME_IN)
     call sub_db91           ;db2b  31 db 91
     jmp lab_dadc            ;db2e  21 da dc
 
 lab_db31:
-    bbc eic2:3, lab_db3b    ;db31  b3 39 07
+    bbc eic2:3, lab_db3b    ;db31  b3 39 07     Branch if edge not detected on INT2 pin (/DIAG_RX)
     mov a, #0x3c            ;db34  04 3c
     mov mem_02ff, a         ;db36  61 02 ff
-    bne lab_db48            ;db39  fc 0d       BRANCH_ALWAYS_TAKEN
+    bne lab_db48            ;db39  fc 0d        BRANCH_ALWAYS_TAKEN
 
 lab_db3b:
     mov a, eif2             ;db3b  05 3b
@@ -17230,14 +17301,15 @@ lab_db43:
     mov mem_02ff, a         ;db45  61 02 ff
 
 lab_db48:
-    setb pdr2:7             ;db48  af 04        MAIN_5V
+    setb pdr2:7             ;db48  af 04        MAIN_5V=high
     mov sycc, #0x17         ;db4a  85 07 17
     cmpw a                  ;db4d  13
-    clrb eic2:3             ;db4e  a3 39
+    clrb eic2:3             ;db4e  a3 39        Clear INT2 pin edge detect status (/DIAG_RX)
     mov eif2, #0x00         ;db50  85 3b 00
     clrb mem_00d7:6         ;db53  a6 d7
     call sub_dcb5           ;db55  31 dc b5
     callv #7                ;db58  ef          CALLV #7 = callv7_e55c
+                            ;                  Resets many KW1281 state variables
     movw a, #0x0802         ;db59  e4 08 02
 
 lab_db5c:
@@ -17281,7 +17353,7 @@ sub_db91:
     bbc mem_00eb:6, lab_dbbc ;dba4  b6 eb 15
     movw a, #0x00bb         ;dba7  e4 00 bb
     movw mem_02b2, a        ;dbaa  d4 02 b2
-    setb pdr4:7             ;dbad  af 0e        CATS_LED = on
+    setb pdr4:7             ;dbad  af 0e        CATS_LED = high (led on)
 
 lab_dbaf:
     cmp a                   ;dbaf  12
@@ -17355,6 +17427,7 @@ lab_dc23:
     movw a, #0xffff         ;dc25  e4 ff ff
     cmpw a                  ;dc28  13
     bne lab_dc4d            ;dc29  fc 22
+
     mov a, mem_00d2         ;dc2b  05 d2
     bne lab_dc20            ;dc2d  fc f1
     .byte 0x60, 0x00, 0xfd  ;dc2f  60 00 fd    EXTENDED_ADDRESS_PAGE_0  mov a, mem_00fd
@@ -17397,7 +17470,7 @@ sub_dc4e:
     mov eic1, #0x00         ;dc74  85 38 00
     mov eic2, #0x00         ;dc77  85 39 00
     bbs pdr6:6, lab_dc80    ;dc7a  be 11 03     branch if /ACC_IN = high
-    mov eic2, #0x05         ;dc7d  85 39 05
+    mov eic2, #0b00000101   ;dc7d  85 39 05
 
 lab_dc80:
     clrb mem_009e:0         ;dc80  a0 9e
@@ -17435,7 +17508,7 @@ lab_dca7:
     ret                     ;dcb4  20
 
 sub_dcb5:
-    setb pdr0:1             ;dcb5  a9 00        /SCA_ENABLE
+    setb pdr0:1             ;dcb5  a9 00        /SCA_ENABLE=high
     mov ilr1, #0xe0         ;dcb7  85 7c e0
     mov ilr2, #0x0b         ;dcba  85 7d 0b
     mov ilr3, #0xbc         ;dcbd  85 7e bc
@@ -17444,19 +17517,19 @@ sub_dcb5:
     movw tchr, a            ;dcc6  d5 19        16-bit timer count register
     mov tmcr, #0x23         ;dcc8  85 18 23
     mov eic1, #0x37         ;dccb  85 38 37
-    mov eic2, #0x40         ;dcce  85 39 40
-    mov eie2, #0x02         ;dcd1  85 3a 02
+    mov eic2, #0b01000000   ;dcce  85 39 40
+    mov eie2, #0b00000010   ;dcd1  85 3a 02
     mov eif2, #0x00         ;dcd4  85 3b 00
     mov smr, #0x4f          ;dcd7  85 1c 4f
     call sub_acdb           ;dcda  31 ac db
     ret                     ;dcdd  20
 
 sub_dcde:
-    clrb pdr2:5             ;dcde  a5 04        REM_AMP_ON
-    clrb pdr8:4             ;dce0  a4 14        AMP_ON
+    clrb pdr2:5             ;dcde  a5 04        REM_AMP_ON=low
+    clrb pdr8:4             ;dce0  a4 14        AMP_ON=low
     mulu a                  ;dce2  01
     mulu a                  ;dce3  01
-    setb pdr2:1             ;dce4  a9 04        /TAPE_ON
+    setb pdr2:1             ;dce4  a9 04        /TAPE_ON=high
     mov pdr0, #0x4d         ;dce6  85 00 4d
     mov ddr0, #0xb2         ;dce9  85 01 b2
     mov pdr1, #0x86         ;dcec  85 02 86
@@ -17469,10 +17542,10 @@ sub_dcde:
     mov pdr7, #0x7e         ;dd01  85 13 7e
     call sub_acdb           ;dd04  31 ac db
     mulu a                  ;dd07  01
-    clrb pdr2:4             ;dd08  a4 04        mute audio
+    clrb pdr2:4             ;dd08  a4 04        mute audio=low
     mulu a                  ;dd0a  01
     mulu a                  ;dd0b  01
-    clrb pdr2:1             ;dd0c  a1 04        /TAPE_ON
+    clrb pdr2:1             ;dd0c  a1 04        /TAPE_ON=low
     mulu a                  ;dd0e  01
     mulu a                  ;dd0f  01
     mov pdr2, #0x00         ;dd10  85 04 00
@@ -17553,7 +17626,7 @@ kw_ack_2:
     .byte 0x09              ;dd64  09          DATA '\t'    Block title (0x09 = Acknowledge)
     .byte 0x03              ;dd65  03          DATA '\x03'  Block end
 
-kw_unknown_title_d7:
+kw_title_d7:
 ;Unknown KW1281 packet
     .byte 0x07              ;dd66  07          DATA '\x07'  Block length
     .byte 0x00              ;dd67  00          DATA '\x00'  Block counter
@@ -17603,6 +17676,7 @@ lab_dda6:
     mov a, #0x01            ;dda6  04 01        A = value to store in mem_00fd low nibble
     call set_00fd_lo_nib    ;dda8  31 e3 ac     Store low nibble of A in mem_00fd low nibble
     callv #7                ;ddab  ef           CALLV #7 = callv7_e55c
+                            ;                   Resets many KW1281 state variables
     ret                     ;ddac  20
 
 lab_ddad:
@@ -17662,26 +17736,29 @@ sub_de01:
     and a, #0xf0            ;de03  64 f0
     cmp a, #0x20            ;de05  14 20
     blo lab_de0c            ;de07  f9 03
-    setb pdr1:6             ;de09  ae 02    BOSE_ON
+    setb pdr1:6             ;de09  ae 02    BOSE_ON=high
     ret                     ;de0b  20
 
 lab_de0c:
-    clrb pdr1:6             ;de0c  a6 02    BOSE_ON
+    clrb pdr1:6             ;de0c  a6 02    BOSE_ON=low
     ret                     ;de0e  20
 
 sub_de0f:
     bbs mem_008c:7, lab_de53 ;de0f  bf 8c 41
+
     movw a, mem_039d        ;de12  c4 03 9d
     incw a                  ;de15  c0
     movw mem_039d, a        ;de16  d4 03 9d
+
     movw a, mem_038d        ;de19  c4 03 8d
     incw a                  ;de1c  c0
     movw mem_038d, a        ;de1d  d4 03 8d
-    bbc pdr7:3, lab_de26    ;de20  b3 13 03     UART RX
-    bbc eic2:3, lab_de2e    ;de23  b3 39 08
+
+    bbc pdr7:3, lab_de26    ;de20  b3 13 03     Branch if UART RX=low
+    bbc eic2:3, lab_de2e    ;de23  b3 39 08     Branch if edge not detected on INT2 pin (/DIAG_RX)
 
 lab_de26:
-    clrb eic2:3             ;de26  a3 39
+    clrb eic2:3             ;de26  a3 39        Clear INT2 pin edge detect status (/DIAG_RX)
     movw a, #0x0000         ;de28  e4 00 00
     movw mem_038d, a        ;de2b  d4 03 8d
 
@@ -17690,6 +17767,7 @@ lab_de2e:
     movw a, #0x0bb9         ;de31  e4 0b b9
     cmpw a                  ;de34  13
     bhs sub_de42            ;de35  f8 0b
+
     movw a, mem_039d        ;de37  c4 03 9d
     movw a, #0x1389         ;de3a  e4 13 89
     cmpw a                  ;de3d  13
@@ -17852,21 +17930,21 @@ sub_df07:
     beq lab_df12            ;df0c  fd 04
 
     mov a, #0x00            ;df0e  04 00
-    beq lab_df23            ;df10  fd 11       BRANCH_ALWAYS_TAKEN
+    beq lab_df23            ;df10  fd 11        BRANCH_ALWAYS_TAKEN
 
 lab_df12:
 ;(mem_0388=0xff)
     mov a, mem_0397         ;df12  60 03 97
     cmp a, #0x01            ;df15  14 01
     beq lab_df20            ;df17  fd 07
-    mov a, #0x06            ;df19  04 06
+    mov a, #0x06            ;df19  04 06        A = value to store in mem_0388
     mov mem_0388, a         ;df1b  61 03 88
     clrc                    ;df1e  81
     ret                     ;df1f  20
 
 lab_df20:
-    callv #7                ;df20  ef          CALLV #7 = callv7_e55c
-                            ;                  Resets many KW1281 state variables
+    callv #7                ;df20  ef           CALLV #7 = callv7_e55c
+                            ;                   Resets many KW1281 state variables
     setc                    ;df21  91
     ret                     ;df22  20
 
@@ -18082,6 +18160,7 @@ sub_e037:
 
 lab_e04d:
     callv #7                ;e04d  ef          CALLV #7 = callv7_e55c
+                            ;                  Resets many KW1281 state variables
     ret                     ;e04e  20
 
 lab_e04f:
@@ -18168,8 +18247,10 @@ lab_e092:
     ret                     ;e0aa  20
 
 sub_e0ab:
+;Set mem_0389=2, clear unknown bits, reset KW1281 counts
     mov a, #0x02            ;e0ab  04 02
-    mov mem_0389, a         ;e0ad  61 03 89
+    mov mem_0389, a         ;e0ad  61 03 89     Set mem_0389=2
+
     clrb mem_00f9:6         ;e0b0  a6 f9
     clrb mem_00f9:7         ;e0b2  a7 f9
     clrb mem_00f9:4         ;e0b4  a4 f9
@@ -18235,7 +18316,10 @@ lab_e0ee:
     clrb mem_00f9:4         ;e0ee  a4 f9
     jmp lab_b25a            ;e0f0  21 b2 5a
 
+
 sub_e0f3:
+;Called from ISR for IRQ8 (UART)
+;only if mem_008c:7 = 0
     bbc mem_00f9:3, lab_e101 ;e0f3  b3 f9 0b
     mov a, rxdr             ;e0f6  05 43
     mov mem_0088, a         ;e0f8  45 88        KW1281 byte received
@@ -18315,13 +18399,13 @@ lab_e158:
     mov a, mem_0398         ;e170  60 03 98
     rolc a                  ;e173  02
     bhs lab_e180            ;e174  f8 0a
-    setb pdr7:2             ;e176  aa 13        UART TX
+    setb pdr7:2             ;e176  aa 13        UART TX=high
     mov a, mem_0392         ;e178  60 03 92
     or a, #0x01             ;e17b  74 01
     jmp lab_e187            ;e17d  21 e1 87
 
 lab_e180:
-    clrb pdr7:2             ;e180  a2 13        UART TX
+    clrb pdr7:2             ;e180  a2 13        UART TX=low
     mov a, mem_0392         ;e182  60 03 92
     and a, #0xfe            ;e185  64 fe
 
@@ -18339,7 +18423,7 @@ lab_e187:
 
 lab_e19a:
     mov a, #0x01            ;e19a  04 01
-    bbs pdr7:3, lab_e1a1    ;e19c  bb 13 02     UART RX
+    bbs pdr7:3, lab_e1a1    ;e19c  bb 13 02     Branch if UART RX=high
     mov a, #0x00            ;e19f  04 00
 
 lab_e1a1:
@@ -18351,6 +18435,7 @@ lab_e1a1:
 
 lab_e1aa:
     callv #7                ;e1aa  ef          CALLV #7 = callv7_e55c
+                            ;                  Resets many KW1281 state variables
     ret                     ;e1ab  20
 
 lab_e1ac:
@@ -18361,8 +18446,9 @@ lab_e1ac:
     mov mem_038f, a         ;e1b5  61 03 8f
 
 sub_e1b8:
-    mov a, #0x00            ;e1b8  04 00
+    mov a, #0x00            ;e1b8  04 00        A = value to store in mem_0388
     mov mem_0388, a         ;e1ba  61 03 88
+
     setb mem_00f9:2         ;e1bd  aa f9
     mov a, #0x01            ;e1bf  04 01        A = value to store in mem_038b
     mov mem_038b, a         ;e1c1  61 03 8b
@@ -18427,13 +18513,13 @@ lab_e21a:
 
 mem_e223:
 ;case table for mem_038b
-    .word lab_e256          ;e223  e2 56       VECTOR   0
-    .word lab_e231          ;e225  e2 31       VECTOR   1
-    .word lab_e281          ;e227  e2 81       VECTOR   2
-    .word lab_e281          ;e229  e2 81       VECTOR   3
-    .word lab_e2b7          ;e22b  e2 b7       VECTOR   4
-    .word lab_e282          ;e22d  e2 82       VECTOR   5
-    .word lab_e29e          ;e22f  e2 9e       VECTOR   6
+    .word lab_e256          ;VECTOR   0     Does nothing
+    .word lab_e231          ;VECTOR   1
+    .word lab_e281          ;VECTOR   2
+    .word lab_e281          ;VECTOR   3
+    .word lab_e2b7          ;VECTOR   4
+    .word lab_e282          ;VECTOR   5
+    .word lab_e29e          ;VECTOR   6
 
 lab_e231:
 ;(mem_0388=0, mem_038b=1)
@@ -18488,6 +18574,7 @@ lab_e278:
 
 lab_e27f:
     callv #7                ;e27f  ef          CALLV #7 = callv7_e55c
+                            ;                  Resets many KW1281 state variables
     ret                     ;e280  20
 
 lab_e281:
@@ -18502,9 +18589,11 @@ lab_e282:
     mov mem_0385, a         ;e289  61 03 85
     mov a, #0x20            ;e28c  04 20        A = value to store in mem_00fd high nibble
     call set_00fd_hi_nib    ;e28e  31 e3 a4     Store high nibble of A in mem_00fd high nibble
+
     mov a, #0x00            ;e291  04 00        A = value to store in mem_0388 and mem_038b
     mov mem_0388, a         ;e293  61 03 88
     mov mem_038b, a         ;e296  61 03 8b
+
     clrb mem_00f9:2         ;e299  a2 f9
     clrb uscr:3             ;e29b  a3 41        UART TXOE = serial data input (can be used as port)
 
@@ -18557,24 +18646,29 @@ lab_e2c4:
 lab_e2df:
 ;(mem_0388=1)
     mov a, mem_038b         ;e2df  60 03 8b
+
     cmp a, #0x01            ;e2e2  14 01
-    beq lab_e2eb            ;e2e4  fd 05        Calls sub_b16b_ack
+    beq lab_e2eb            ;e2e4  fd 05        Calls sub_b16b_ack, sets mem_038b=2
+
     cmp a, #0x02            ;e2e6  14 02
-    beq lab_e2f1            ;e2e8  fd 07
+    beq lab_e2f1            ;e2e8  fd 07        Set mem_038b=0, set mem_0389=2, clear unknown bits, reset KW1281 counts
+
     ret                     ;e2ea  20
 
 lab_e2eb:
 ;(mem_0388=1, mem_038b=1)
     call sub_b16b_ack       ;e2eb  31 b1 6b
-    jmp lab_e310            ;e2ee  21 e3 10
+    jmp lab_e310            ;e2ee  21 e3 10     Set mem_038b=2 and return
 
 lab_e2f1:
     bbc mem_00f9:1, lab_e300 ;e2f1  b1 f9 0c
     clrb mem_00f9:1         ;e2f4  a1 f9
+
     mov a, #0x00            ;e2f6  04 00
-    mov mem_038b, a         ;e2f8  61 03 8b
+    mov mem_038b, a         ;e2f8  61 03 8b     Set mem_038b=0
+
     clrb mem_00f9:2         ;e2fb  a2 f9
-    call sub_e0ab           ;e2fd  31 e0 ab
+    call sub_e0ab           ;e2fd  31 e0 ab     Set mem_0389=2, clear unknown bits, reset KW1281 counts
 
 lab_e300:
     ret                     ;e300  20
@@ -18585,7 +18679,7 @@ lab_e301:
     cmp a, #0x01            ;e304  14 01        Calls sub_e338_no_ack_2
     beq lab_e30d            ;e306  fd 05
     cmp a, #0x02            ;e308  14 02
-    beq lab_e2f1            ;e30a  fd e5
+    beq lab_e2f1            ;e30a  fd e5        Set mem_038b=0, set mem_0389=2, clear unknown bits, reset KW1281 counts
     ret                     ;e30c  20
 
 lab_e30d:
@@ -18593,7 +18687,8 @@ lab_e30d:
     call sub_e338_no_ack_2  ;e30d  31 e3 38
 
 lab_e310:
-    mov a, #0x02            ;e310  04 02
+;Set mem_038b=2 and return
+    mov a, #0x02            ;e310  04 02        A = value to store in mem_038b
     mov mem_038b, a         ;e312  61 03 8b
     ret                     ;e315  20
 
@@ -18603,13 +18698,13 @@ lab_e316:
     cmp a, #0x01            ;e319  14 01
     beq lab_e322            ;e31b  fd 05        Calls sub_e34e_no_ack_2
     cmp a, #0x02            ;e31d  14 02
-    beq lab_e2f1            ;e31f  fd d0
+    beq lab_e2f1            ;e31f  fd d0        Set mem_038b=0, set mem_0389=2, clear unknown bits, reset KW1281 counts
     ret                     ;e321  20
 
 lab_e322:
 ;(mem_0388=8, mem_038b=1)
     call sub_e34e_no_ack_2  ;e322  31 e3 4e
-    jmp lab_e310            ;e325  21 e3 10
+    jmp lab_e310            ;e325  21 e3 10     Set mem_038b=2 and return
 
 lab_e328:
 ;(mem_0388 = 3, 4, 5, 7)
@@ -18738,20 +18833,22 @@ lab_e3b4:
     jmp sub_e73c            ;e3ba  21 e7 3c     Jump to address in table
 
 mem_e3bd:
-    .word lab_e480          ;e3bd  e4 80       VECTOR 0
-    .word lab_e3d9          ;e3bf  e3 d9       VECTOR 1
-    .word lab_e42a          ;e3c1  e4 2a       VECTOR 2
-    .word lab_e442          ;e3c3  e4 42       VECTOR 3
-    .word lab_e4b5          ;e3c5  e4 b5       VECTOR 4
-    .word lab_e4e0          ;e3c7  e4 e0       VECTOR 5
-    .word lab_e4eb          ;e3c9  e4 eb       VECTOR 6
-    .word lab_e502          ;e3cb  e5 02       VECTOR 7
-    .word lab_e547          ;e3cd  e5 47       VECTOR 8
-    .word lab_e552          ;e3cf  e5 52       VECTOR 9
-    .word callv7_e55c       ;e3d1  e5 5c       VECTOR 0x0a
-    .word lab_e41e          ;e3d3  e4 1e       VECTOR 0x0b
-    .word lab_e4a3          ;e3d5  e4 a3       VECTOR 0x0c
-    .word lab_e59c          ;e3d7  e5 9c       VECTOR 0x0d
+    .word lab_e480          ;VECTOR 0       Does nothing
+    .word lab_e3d9          ;VECTOR 1       Reads tchr, send kw_title_d7 response, set mem_038b=0x0a
+    .word lab_e42a          ;VECTOR 2       Sets unknown values, set mem_038b=0x03
+    .word lab_e442          ;VECTOR 3       If request block title 0x3d (security access), set mem_038b=0x04
+                            ;               If request block title 0x0a (no acknowledge, set mem_038b=0x02
+                            ;               If other request block title, send no acknowledge response
+    .word lab_e4b5          ;VECTOR 4       Read 4 security bytes from request, call sub_e61f, set mem_038b=0x06
+    .word lab_e4e0          ;VECTOR 5       Change mem_00fd, set mem_038b=0x06
+    .word lab_e4eb          ;VECTOR 6       Change mem_00fd, send kw_end_session
+    .word lab_e502          ;VECTOR 7
+    .word lab_e547          ;VECTOR 8
+    .word lab_e552          ;VECTOR 9
+    .word callv7_e55c       ;VECTOR 0x0a    Reset many KW1281 state variables
+    .word lab_e41e          ;VECTOR 0x0b
+    .word lab_e4a3          ;VECTOR 0x0c
+    .word lab_e59c          ;VECTOR 0x0d
 
 lab_e3d9:
 ;(mem_0388=2, mem_038b=1)
@@ -18771,10 +18868,10 @@ lab_e3d9:
     swap                    ;e3ea  10
     movw mem_03ad, a        ;e3eb  d4 03 ad
 
-    movw a, #kw_unknown_title_d7 ;e3ee  e4 dd 66
-    movw mem_0084, a             ;e3f1  d5 84        Pointer to KW1281 packet bytes
-    mov mem_00a5, #0x08          ;e3f3  85 a5 08     8 bytes in KW1281 packet
-    call sub_b136                ;e3f6  31 b1 36     Copy mem_00a5 bytes from @mem_0084 to KW1281 Response buffer
+    movw a, #kw_title_d7    ;e3ee  e4 dd 66
+    movw mem_0084, a        ;e3f1  d5 84        Pointer to KW1281 packet bytes
+    mov mem_00a5, #0x08     ;e3f3  85 a5 08     8 bytes in KW1281 packet
+    call sub_b136           ;e3f6  31 b1 36     Copy mem_00a5 bytes from @mem_0084 to KW1281 Response buffer
 
     mov a, mem_03ab         ;e3f9  60 03 ab
     mov mem_012b+6, a       ;e3fc  61 01 31     KW1281 Response byte 6
@@ -18923,7 +19020,7 @@ lab_e4e0:
     call set_00fd_lo_nib    ;e4e2  31 e3 ac     Store low nibble of A in mem_00fd low nibble
 
 lab_e4e5:
-    mov a, #0x06            ;e4e5  04 06
+    mov a, #0x06            ;e4e5  04 06        A = value to store in mem_038b
 
 lab_e4e7:
     mov mem_038b, a         ;e4e7  61 03 8b
@@ -18942,7 +19039,7 @@ lab_e4eb:
     movw mem_0084, a        ;e4f9  d5 84        Pointer to KW1281 packet bytes
     call sub_e366           ;e4fb  31 e3 66
 
-    mov a, #0x07            ;e4fe  04 07
+    mov a, #0x07            ;e4fe  04 07        A = value to store in mem_038b
     bne lab_e4e7            ;e500  fc e5        BRANCH_ALWAYS_TAKEN
 
 lab_e502:
@@ -18984,8 +19081,8 @@ lab_e536:
     call set_00fd_lo_nib    ;e538  31 e3 ac     Store low nibble of A in mem_00fd low nibble
     mov a, #0x01            ;e53b  04 01
     mov mem_03af, a         ;e53d  61 03 af
-    mov a, #0x08            ;e540  04 08
-    bne lab_e4e7            ;e542  fc a3       BRANCH_ALWAYS_TAKEN
+    mov a, #0x08            ;e540  04 08        A = value to store in mem_038b
+    bne lab_e4e7            ;e542  fc a3        BRANCH_ALWAYS_TAKEN
 
 lab_e544:
     jmp lab_e556            ;e544  21 e5 56
@@ -19013,10 +19110,11 @@ lab_e55b:
     ret                     ;e55b  20
 
 callv7_e55c:
+;Reset many KW1281 state variables
 ;CALLV #7
 ;(mem_0388=2, mem_038b=0x0a)
-    setb pdr7:2             ;e55c  aa 13        UART TX
-    setb pdr7:3             ;e55e  ab 13        UART RX
+    setb pdr7:2             ;e55c  aa 13        UART TX=high
+    setb pdr7:3             ;e55e  ab 13        UART RX=high
     call set_00fd_hi_nib_0  ;e560  31 e3 8a     Store 0x0 in mem_00fd high nibble
     movw a, #0xffff         ;e563  e4 ff ff
     movw mem_0398, a        ;e566  d4 03 98
@@ -19322,9 +19420,9 @@ sub_e714:
     cmp a, #0x00            ;e722  14 00
     beq lab_e728            ;e724  fd 02
     setb mem_00d9:4         ;e726  ac d9
-
 lab_e728:
     ret                     ;e728  20
+
 
 sub_e729:
     rolc a                  ;e729  02
@@ -19334,6 +19432,7 @@ sub_e729:
     swap                    ;e72e  10
     ret                     ;e72f  20
 
+
 sub_e730:
     mov a, mem_0292         ;e730  60 02 92
     clrc                    ;e733  81
@@ -19341,7 +19440,6 @@ sub_e730:
     cmp a, #0x2d            ;e735  14 2d
     blo lab_e73b            ;e737  f9 02
     mov a, #0x2d            ;e739  04 2d
-
 lab_e73b:
     ret                     ;e73b  20
 
@@ -19380,10 +19478,10 @@ sub_e746:
     incw ix                 ;e750  c2
     xchw a, t               ;e751  43
     bne sub_e746            ;e752  fc f2       BRANCH_ALWAYS_TAKEN
-
 lab_e754:
     mov a, @ix+0x01         ;e754  06 01
     ret                     ;e756  20
+
 
 sub_e757:
     mov a, @ix+0x00         ;e757  06 00
@@ -19397,11 +19495,11 @@ sub_e757:
     incw ix                 ;e763  c2
     xchw a, t               ;e764  43
     bne sub_e757            ;e765  fc f0       BRANCH_ALWAYS_TAKEN
-
 lab_e767:
     mov a, @ix+0x01         ;e767  06 01
     movw a, @ix+0x02        ;e769  c6 02
     jmp @a                  ;e76b  e0
+
 
 sub_e76c:
     mov a, @ix+0x00         ;e76c  06 00
@@ -19412,7 +19510,6 @@ sub_e76c:
     incw ix                 ;e775  c2
     xchw a, t               ;e776  43
     bne sub_e76c            ;e777  fc f3       BRANCH_ALWAYS_TAKEN
-
 lab_e779:
     clrc                    ;e779  81
     ret                     ;e77a  20
@@ -19421,11 +19518,16 @@ lab_e77b:
     setc                    ;e77b  91
     ret                     ;e77c  20
 
-sub_e77d:
+
+dec8_at_ix_nowrap:
+;Decrement 8-bit value @IX.  No wrap past 0.
+;Returns decremented value in A.
     mov a, @ix+0x00         ;e77d  06 00
     beq lab_e789            ;e77f  fd 08
 
-sub_e781:
+dec8_at_ix:
+;Decrement 8-bit value @IX.  Wraps from 0 to 0xFF.
+;Returns decremented value in A.
     movw a, #0x0000         ;e781  e4 00 00
     mov a, @ix+0x00         ;e784  06 00
     decw a                  ;e786  d0
@@ -19434,11 +19536,14 @@ sub_e781:
 lab_e789:
     ret                     ;e789  20
 
-sub_e78a:
+dec16_at_ix:
+;Decrement 16-bit value @IX.  Wraps from 0 to 0xFFFF.
+;Returns decremented value in A.
     movw a, @ix+0x00        ;e78a  c6 00
     decw a                  ;e78c  d0
     movw @ix+0x00, a        ;e78d  d6 00
     ret                     ;e78f  20
+
 
 sub_e790:
     call sub_e80a           ;e790  31 e8 0a
@@ -19543,7 +19648,9 @@ sub_e81b:
 lab_e839:
     ret                     ;e839  20
 
+
 submcu_send_packet:
+;Called from ISR for IRQ5 (2ch 8-bit pwm timer)
     bbc mem_00e7:0, lab_e86a ;e83a  b0 e7 2d
     bbc mem_00e7:7, lab_e86b ;e83d  b7 e7 2b
 
@@ -19595,7 +19702,7 @@ lab_e883:
     setb mem_00e7:1         ;e888  a9 e7
     clrb mem_00e7:2         ;e88a  a2 e7
     clrc                    ;e88c  81
-    bbc pdr4:1, lab_e891    ;e88d  b1 0e 01     S2M_DATA_IN DATA IN
+    bbc pdr4:1, lab_e891    ;e88d  b1 0e 01     S2M_DATA_IN
     setc                    ;e890  91
 
 lab_e891:
@@ -19656,11 +19763,14 @@ lab_e8db:
     clrb pdr4:4             ;e8db  a4 0e        M2S_DAT_OUT = low
     jmp lab_e8c3            ;e8dd  21 e8 c3
 
+
 sub_e8e0:
-    bbc pdr6:5, lab_e8ed    ;e8e0  b5 11 0a     /SCA_CLOCK_IN
+;Called from ISR for IRQ1 (external interrupt 2)
+;when INT5 level detect status changes (/S2M_ENABLE)
+    bbc pdr6:5, lab_e8ed    ;e8e0  b5 11 0a     /SCA_CLK_IN
     clrb eie2:3             ;e8e3  a3 3a
     clrb eic1:4             ;e8e5  a4 38
-    clrb eic1:7             ;e8e7  a7 38
+    clrb eic1:7             ;e8e7  a7 38        Clear INT1 pin edge detect status (/S2M_CLK_IN)
 
 lab_e8e9:
     nop                     ;e8e9  00
@@ -19672,7 +19782,7 @@ lab_e8ed:
     mov a, #0x00            ;e8ef  04 00
     mov mem_0238, a         ;e8f1  61 02 38
     setb eic1:4             ;e8f4  ac 38
-    clrb eic1:7             ;e8f6  a7 38
+    clrb eic1:7             ;e8f6  a7 38        Clear INT1 edge detect status (/S2M_CLK_IN)
     jmp lab_e8e9            ;e8f8  21 e8 e9
 
 sub_e8fb:
@@ -20608,6 +20718,7 @@ lab_ee83:
 lab_ee84:
     movw a, @ix+0x00        ;ee84  c6 00
     callv #1                ;ee86  e9          CALLV #1 = callv1_eed4
+                            ;                  (Stores word A in mem_01c9, other unknown functions)
     ret                     ;ee87  20
 
 lab_ee88:
@@ -20629,29 +20740,24 @@ lab_ee90:
     addcw a                 ;ee9c  23
     movw a, @a              ;ee9d  93
     callv #1                ;ee9e  e9          CALLV #1 = callv1_eed4
+                            ;                  (Stores word A in mem_01c9, other unknown functions)
     ret                     ;ee9f  20
 
 mem_eea0:
 ;unknown data table
-    .byte 0xC6              ;eea0  c6          DATA '\xc6'
-    .byte 0x39              ;eea1  39          DATA '9'
-    .byte 0xCF              ;eea2  cf          DATA '\xcf'
-    .byte 0x30              ;eea3  30          DATA '0'
-    .byte 0xCE              ;eea4  ce          DATA '\xce'
-    .byte 0x31              ;eea5  31          DATA '1'
-    .byte 0xCD              ;eea6  cd          DATA '\xcd'
-    .byte 0x32              ;eea7  32          DATA '2'
-    .byte 0xCC              ;eea8  cc          DATA '\xcc'
-    .byte 0x33              ;eea9  33          DATA '3'
-    .byte 0xCB              ;eeaa  cb          DATA '\xcb'
-    .byte 0x34              ;eeab  34          DATA '4'
-    .byte 0xCA              ;eeac  ca          DATA '\xca'
-    .byte 0x35              ;eead  35          DATA '5'
+    .word 0xC639            ;eea0  DATA         Word stored in mem_01c9 by callv1_eed4
+    .word 0xCF30            ;eea2  DATA         Word stored in mem_01c9 by callv1_eed4
+    .word 0xCE31            ;eea4  DATA         Word stored in mem_01c9 by callv1_eed4
+    .word 0xCD32            ;eea6  DATA         Word stored in mem_01c9 by callv1_eed4
+    .word 0xCC33            ;eea8  DATA         Word stored in mem_01c9 by callv1_eed4
+    .word 0xCB34            ;eeaa  DATA         Word stored in mem_01c9 by callv1_eed4
+    .word 0xCA35            ;eeac  DATA         Word stored in mem_01c9 by callv1_eed4
 
 lab_eeae:
     movw a, @ix+0x00        ;eeae  c6 00
     movw mem_00a6, a        ;eeb0  d5 a6
     callv #1                ;eeb2  e9          CALLV #1 = callv1_eed4
+                            ;                  (Stores word A in mem_01c9, other unknown functions)
     ret                     ;eeb3  20
 
 lab_eeb4:
@@ -20675,7 +20781,8 @@ lab_eec5:
     bbc mem_00e0:0, lab_eece ;eec5  b0 e0 06
     clrb mem_00e0:0         ;eec8  a0 e0
     movw a, #sub_d827       ;eeca  e4 d8 27
-    callv #1                ;eecd  e9          CALLV #1 = callv1_eed4
+    callv #1                ;ee86  e9          CALLV #1 = callv1_eed4
+                            ;                  (Stores word A in mem_01c9, other unknown functions)
 
 lab_eece:
     ret                     ;eece  20
@@ -20686,6 +20793,7 @@ lab_eecf:
 lab_eed0:
     movw a, @ix+0x02        ;eed0  c6 02
     callv #1                ;eed2  e9          CALLV #1 = callv1_eed4
+                            ;                  (Stores word A in mem_01c9, other unknown functions)
     ret                     ;eed3  20
 
 
@@ -20711,6 +20819,7 @@ callv3_eeeb:
 ;CALLV #3
     mov a, #0x20            ;eeeb  04 20
 
+
 lab_eeed:
     mov a, #0x0b            ;eeed  04 0b
     mov mem_01cb, a         ;eeef  61 01 cb
@@ -20720,7 +20829,7 @@ lab_eeed:
     mov cntr1, #0x0f        ;eef9  85 28 0f
     mov cntr3, #0x00        ;eefc  85 2a 00
     mov comr1, #0xff        ;eeff  85 2c ff
-    clrb pdr4:0             ;ef02  a0 0e        CD_DATA_OUT
+    clrb pdr4:0             ;ef02  a0 0e        CD_DATA_OUT=low
     mov cntr2, #0x82        ;ef04  85 29 82
     xchw a, t               ;ef07  43
 
@@ -20767,7 +20876,9 @@ lab_ef28:
     bne lab_ef28            ;ef2f  fc f7
     ret                     ;ef31  20
 
+
 sub_ef32:
+;Called from ISR for IRQ7 (8-bit serial i/o)
     setb smr:0              ;ef32  a8 1c
     mov a, mem_01d3         ;ef34  60 01 d3
     mov mem_01d2, a         ;ef37  61 01 d2
@@ -20786,7 +20897,9 @@ sub_ef32:
 lab_ef55:
     ret                     ;ef55  20
 
+
 sub_ef56:
+;Called from ISR for IRQ5 (2ch 8-bit pwm timer)
     mov a, mem_01d3         ;ef56  60 01 d3
     and a, #0x80            ;ef59  64 80
     bne lab_ef6b            ;ef5b  fc 0e
@@ -20818,21 +20931,23 @@ sub_ef7b:
     movw @ix+0x06, a        ;ef88  d6 06
     ret                     ;ef8a  20
 
+
 sub_ef8b:
+;TODO ISR
     mov cntr2, #0x00        ;ef8b  85 29 00
     mov a, mem_01c8         ;ef8e  60 01 c8
     cmp a, #0x70            ;ef91  14 70
     bne lab_ef98            ;ef93  fc 03
-    setb pdr4:0             ;ef95  a8 0e        CD_DATA_OUT
+    setb pdr4:0             ;ef95  a8 0e        CD_DATA_OUT=high
     ret                     ;ef97  20
-
 lab_ef98:
     call sub_ef9f           ;ef98  31 ef 9f
     mov cntr2, #0x82        ;ef9b  85 29 82
     ret                     ;ef9e  20
 
+
 sub_ef9f:
-    movw ix, #mem_efbc      ;ef9f  e6 ef bc
+    movw ix, #mem_efbc     ;ef9f  e6 ef bc
 
 lab_efa2:
     mov a, mem_01c8         ;efa2  60 01 c8
@@ -20859,39 +20974,42 @@ lab_efb6:
 lab_efbb:
     jmp @a                  ;efbb  e0
 
+
 mem_efbc:
-    .byte 0x10              ;efbc  10          DATA '\x10'
-    .word lab_efda          ;                                    VECTOR
-    .byte 0x8C              ;efbf  8c          DATA '\x8c'
-    .byte 0x11              ;efc0  11          DATA '\x11'
+;CD-related table used by sub_ef9f
+    .byte 0x10              ;DATA
+    .word lab_efda          ;VECTOR
+    .byte 0x8C              ;DATA
+    .byte 0x11              ;DATA
 
-    .byte 0x11              ;efc1  11          DATA '\x11'
-    .word lab_efdf          ;                                    VECTOR
-    .byte 0x0F              ;efc4  0f          DATA '\x0f'
-    .byte 0x30              ;efc5  30          DATA '0'
+    .byte 0x11              ;DATA
+    .word lab_efdf          ;VECTOR
+    .byte 0x0F              ;DATA
+    .byte 0x30              ;DATA
 
-    .byte 0x20              ;efc6  20          DATA ' '
-    .word lab_efda          ;                                    VECTOR
-    .byte 0x44              ;efc9  44          DATA 'D'
-    .byte 0x21              ;efca  21          DATA '!'
+    .byte 0x20              ;DATA
+    .word lab_efda          ;VECTOR
+    .byte 0x44              ;DATA
+    .byte 0x21              ;DATA
 
-    .byte 0x21              ;efcb  21          DATA '!'
-    .word lab_efe5          ;                                    VECTOR
-    .byte 0x0F              ;efce  0f          DATA '\x0f'
-    .byte 0x22              ;efcf  22          DATA '"'
+    .byte 0x21              ;DATA
+    .word lab_efe5          ;VECTOR
+    .byte 0x0F              ;DATA
+    .byte 0x22              ;DATA
 
-    .byte 0x22              ;efd0  22          DATA '"'
-    .word lab_eff1          ;                                    VECTOR
-    .byte 0x0C              ;efd3  0c          DATA '\x0c'
-    .byte 0x70              ;efd4  70          DATA 'p'
+    .byte 0x22              ;DATA
+    .word lab_eff1          ;VECTOR
+    .byte 0x0C              ;DATA
+    .byte 0x70              ;DATA
 
-    .byte 0x00              ;efd5  00          DATA '\x00'
-    .word lab_eff8          ;                                    VECTOR
-    .byte 0x70              ;efd8  70          DATA 'p'
-    .byte 0x50              ;efd9  50          DATA 'P'
+    .byte 0x00              ;DATA
+    .word lab_eff8          ;VECTOR
+    .byte 0x70              ;DATA
+    .byte 0x50              ;DATA
+
 
 lab_efda:
-    setb pdr4:0             ;efda  a8 0e        CD_DATA_OUT
+    setb pdr4:0             ;efda  a8 0e        CD_DATA_OUT=high
     jmp lab_efe7            ;efdc  21 ef e7
 
 lab_efdf:
@@ -20899,7 +21017,7 @@ lab_efdf:
     movw mem_01d0, a        ;efe2  d4 01 d0
 
 lab_efe5:
-    clrb pdr4:0             ;efe5  a0 0e        CD_DATA_OUT
+    clrb pdr4:0             ;efe5  a0 0e        CD_DATA_OUT=low
 
 lab_efe7:
     mov a, @ix+0x03         ;efe7  06 03
@@ -20911,7 +21029,7 @@ lab_efeb:
     ret                     ;eff0  20
 
 lab_eff1:
-    setb pdr4:0             ;eff1  a8 0e        CD_DATA_OUT
+    setb pdr4:0             ;eff1  a8 0e        CD_DATA_OUT=high
     setb cntr2:1            ;eff3  a9 29
     jmp lab_efeb            ;eff5  21 ef eb
 
@@ -20928,7 +21046,7 @@ lab_eff8:
     mov mem_01d1, a         ;f00a  61 01 d1
     blo lab_f02b            ;f00d  f9 1c
     mov comr1, #0x0f        ;f00f  85 2c 0f
-    setb pdr4:0             ;f012  a8 0e        CD_DATA_OUT
+    setb pdr4:0             ;f012  a8 0e        CD_DATA_OUT=high
 
 lab_f014:
     mov a, mem_01c8         ;f014  60 01 c8
@@ -20937,7 +21055,7 @@ lab_f014:
     cmp a, @ix+0x03         ;f01b  16 03
     bne lab_f02a            ;f01d  fc 0b
     mov comr1, #0x0f        ;f01f  85 2c 0f
-    clrb pdr4:0             ;f022  a0 0e        CD_DATA_OUT
+    clrb pdr4:0             ;f022  a0 0e        CD_DATA_OUT=low
     movw a, mem_01c9        ;f024  c4 01 c9
     movw mem_01d0, a        ;f027  d4 01 d0
 
@@ -20946,12 +21064,12 @@ lab_f02a:
 
 lab_f02b:
     mov comr1, #0x32        ;f02b  85 2c 32
-    setb pdr4:0             ;f02e  a8 0e        CD_DATA_OUT
+    setb pdr4:0             ;f02e  a8 0e        CD_DATA_OUT=high
     jmp lab_f014            ;f030  21 f0 14
 
 lab_f033:
     mov comr1, #0x0f        ;f033  85 2c 0f
-    clrb pdr4:0             ;f036  a0 0e        CD_DATA_OUT
+    clrb pdr4:0             ;f036  a0 0e        CD_DATA_OUT=low
     jmp lab_f014            ;f038  21 f0 14
 
 sub_f03b:
@@ -22622,7 +22740,11 @@ lab_fa58:
     subc a, #0x01           ;fa58  34 01
     jmp lab_fa34            ;fa5a  21 fa 34
 
+
 sub_fa5d:
+;Called from ISR for irq0 (external interrupt 1)
+;when INT0 /VOLUME_IN changes
+;Also called from 0xfade
     mov a, mem_01ed         ;fa5d  60 01 ed
     bne lab_fa98            ;fa60  fc 36
     mov a, mem_00b1         ;fa62  05 b1
@@ -22701,7 +22823,7 @@ lab_fad5:
 lab_fad9:
     mov a, #0x00            ;fad9  04 00
     mov mem_03e2, a         ;fadb  61 03 e2
-    jmp sub_fa5d            ;fade  21 fa 5d
+    jmp sub_fa5d            ;fade  21 fa 5d     Volume related; also called from ISR if /VOLUME_IN changed
 
 lab_fae1:
     mov a, mem_03e3         ;fae1  60 03 e3
@@ -22832,15 +22954,15 @@ lab_fb95:
     jmp lab_fb82            ;fba0  21 fb 82
 
 sub_fba3:
-    clrb pdr1:5             ;fba3  a5 02        EQ_CE
-    clrb pdr1:3             ;fba5  a3 02        /EQ_BOSE_CLOCK
-    clrb pdr1:4             ;fba7  a4 02        EQ_BOSE_DATA
+    clrb pdr1:5             ;fba3  a5 02        EQ_CE=low
+    clrb pdr1:3             ;fba5  a3 02        /EQ_BOSE_CLOCK=low
+    clrb pdr1:4             ;fba7  a4 02        EQ_BOSE_DATA=low
     mov mem_00a1, #0x61     ;fba9  85 a1 61
     mov mem_00a2, #0x08     ;fbac  85 a2 08
     call sub_fbdf           ;fbaf  31 fb df
     inc r0                  ;fbb2  c8
     dec r0                  ;fbb3  d8
-    setb pdr1:5             ;fbb4  ad 02        EQ_CE
+    setb pdr1:5             ;fbb4  ad 02        EQ_CE=high
     inc r0                  ;fbb6  c8
     dec r0                  ;fbb7  d8
     mov a, mem_009e         ;fbb8  05 9e
@@ -22857,9 +22979,9 @@ sub_fba3:
     call sub_fbdf           ;fbd3  31 fb df
     inc r0                  ;fbd6  c8
     dec r0                  ;fbd7  d8
-    clrb pdr1:5             ;fbd8  a5 02        EQ_CE
-    clrb pdr1:3             ;fbda  a3 02        /EQ_BOSE_CLOCK
-    clrb pdr1:4             ;fbdc  a4 02        EQ_BOSE_DATA
+    clrb pdr1:5             ;fbd8  a5 02        EQ_CE=low
+    clrb pdr1:3             ;fbda  a3 02        /EQ_BOSE_CLOCK=low
+    clrb pdr1:4             ;fbdc  a4 02        EQ_BOSE_DATA=low
     ret                     ;fbde  20
 
 sub_fbdf:
@@ -22868,19 +22990,19 @@ sub_fbdf:
     rorc a                  ;fbe2  03
     mov mem_00a1, a         ;fbe3  45 a1
     bhs lab_fbec            ;fbe5  f8 05
-    setb pdr1:4             ;fbe7  ac 02        EQ_BOSE_DATA
+    setb pdr1:4             ;fbe7  ac 02        EQ_BOSE_DATA=high
     jmp lab_fbf0            ;fbe9  21 fb f0
 
 lab_fbec:
-    clrb pdr1:4             ;fbec  a4 02        EQ_BOSE_DATA
+    clrb pdr1:4             ;fbec  a4 02        EQ_BOSE_DATA=low
     incw a                  ;fbee  c0
     decw a                  ;fbef  d0
 
 lab_fbf0:
-    setb pdr1:3             ;fbf0  ab 02        /EQ_BOSE_CLOCK
+    setb pdr1:3             ;fbf0  ab 02        /EQ_BOSE_CLOCK=high
     incw a                  ;fbf2  c0
     decw a                  ;fbf3  d0
-    clrb pdr1:3             ;fbf4  a3 02        /EQ_BOSE_CLOCK
+    clrb pdr1:3             ;fbf4  a3 02        /EQ_BOSE_CLOCK=low
     mov a, mem_00a2         ;fbf6  05 a2
     decw a                  ;fbf8  d0
     mov mem_00a2, a         ;fbf9  45 a2
