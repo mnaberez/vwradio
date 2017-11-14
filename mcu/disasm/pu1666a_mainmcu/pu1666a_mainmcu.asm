@@ -346,7 +346,6 @@
     mem_020d = 0x20d
     mem_020e = 0x20e
     mem_020f = 0x20f
-    mem_0210 = 0x210
     mem_0211 = 0x211
     mem_0213 = 0x213
     mem_0214 = 0x214
@@ -3483,8 +3482,10 @@ lab_909a:
     mov mem_0096, #0x00     ;909a  85 96 00
     clrb mem_00e9:6         ;909d  a6 e9
     clrb mem_00de:5         ;909f  a5 de
-    mov a, #0x00            ;90a1  04 00
-    mov mem_020e, a         ;90a3  61 02 0e
+
+    mov a, #0x00            ;90a1  04 00        A = 0 attempts
+    mov mem_020e, a         ;90a3  61 02 0e     Store SAFE attempts
+
     mov mem_00f1, #0xa6     ;90a6  85 f1 a6
     mov mem_00d2, #0x0c     ;90a9  85 d2 0c
     ret                     ;90ac  20
@@ -3750,13 +3751,16 @@ sub_9265:
     mov mem_0205, a         ;9275  61 02 05
     bbs mem_00de:6, lab_92bd ;9278  be de 42
     bbs mem_00de:4, lab_9296 ;927b  bc de 18
+
     mov a, mem_0208         ;927e  60 02 08
     mov a, #0x32            ;9281  04 32
     cmp a                   ;9283  12
     beq lab_9296            ;9284  fd 10
+
     mov a, mem_0208         ;9286  60 02 08
     incw a                  ;9289  c0
     mov mem_0208, a         ;928a  61 02 08
+
     setb mem_00e4:3         ;928d  ab e4
     mov mem_0096, #0x06     ;928f  85 96 06
     mov mem_00cd, #0x01     ;9292  85 cd 01
@@ -3764,8 +3768,10 @@ sub_9265:
 
 lab_9296:
     bbc mem_00de:5, lab_92a2 ;9296  b5 de 09
-    mov a, #0x02            ;9299  04 02
-    mov mem_020e, a         ;929b  61 02 0e
+
+    mov a, #0x02            ;9299  04 02        A = 2 attempts
+    mov mem_020e, a         ;929b  61 02 0e     Store SAFE attempts
+
     mov a, #0x04            ;929e  04 04
     bne lab_92b8            ;92a0  fc 16        BRANCH_ALWAYS_TAKEN
 
@@ -5772,7 +5778,7 @@ lab_9e5e:
     mov mem_0308, a         ;9e60  61 03 08
     movw ix, #mem_02b6      ;9e63  e6 02 b6
     mov @ix+0x01, #0x5b     ;9e66  86 01 5b     0x5b 'TAPE.ERROR.'
-    mov a, #0x20            ;9e69  04 20
+    mov a, #0b00100000      ;9e69  04 20        Pictographs = Bit 5 only (HIDDEN_MODE_TAPE)
     mov @ix+0x00, a         ;9e6b  46 00
     ret                     ;9e6d  20
 
@@ -6258,8 +6264,10 @@ lab_a135:
     mov mem_0202, a         ;a13c  61 02 02
     mov a, #0xff            ;a13f  04 ff
     mov mem_0205, a         ;a141  61 02 05
-    mov a, #0x00            ;a144  04 00
-    mov mem_020e, a         ;a146  61 02 0e
+
+    mov a, #0x00            ;a144  04 00        A = 0 attempts
+    mov mem_020e, a         ;a146  61 02 0e     Store SAFE attempts
+
     mov a, #0x02            ;a149  04 02
 
 lab_a14b:
@@ -6273,12 +6281,14 @@ lab_a14f:
 
 lab_a150:
     bne lab_a14f            ;a150  fc fd
-    movw a, #0x1000         ;a152  e4 10 00
-    movw mem_0203, a        ;a155  d4 02 03
+
+    movw a, #0x1000         ;a152  e4 10 00     A = 1000 for SAFE code (16-bit BCD)
+    movw mem_0203, a        ;a155  d4 02 03     Store entered SAFE code
+
     mov a, #0x07            ;a158  04 07        A = mem_0201 value for BLANK
     mov mem_0201, a         ;a15a  61 02 01
     mov a, #0x03            ;a15d  04 03
-    bne lab_a14b            ;a15f  fc ea       BRANCH_ALWAYS_TAKEN
+    bne lab_a14b            ;a15f  fc ea        BRANCH_ALWAYS_TAKEN
 
 lab_a161:
     mov a, mem_0205         ;a161  60 02 05
@@ -6288,11 +6298,12 @@ lab_a161:
     mov a, #0xff            ;a16b  04 ff
     mov mem_0205, a         ;a16d  61 02 05
     mov a, #0x03            ;a170  04 03
-    bne lab_a14d            ;a172  fc d9       BRANCH_ALWAYS_TAKEN
+    bne lab_a14d            ;a172  fc d9        BRANCH_ALWAYS_TAKEN
 
 lab_a174:
-    movw a, mem_0203        ;a174  c4 02 03
-    movw mem_020f, a        ;a177  d4 02 0f
+    movw a, mem_0203        ;a174  c4 02 03     A = entered SAFE code (16-bit BCD)
+    movw mem_020f, a        ;a177  d4 02 0f     Store as actual SAFE code
+
     setb mem_00de:7         ;a17a  af de
     mov mem_00f1, #0x9e     ;a17c  85 f1 9e
     mov a, #0x04            ;a17f  04 04
@@ -6305,7 +6316,7 @@ lab_a183:
     ret                     ;a18b  20
 
 sub_a18c:
-    movw ix, #mem_0203      ;a18c  e6 02 03
+    movw ix, #mem_0203      ;a18c  e6 02 03     IX = pointer to entered SAFE code (16-bit BCD)
     mov a, mem_0205         ;a18f  60 02 05
     cmp a, #0x06            ;a192  14 06
     beq lab_a1ad            ;a194  fd 17
@@ -6358,11 +6369,11 @@ lab_a1c7:
     .word sub_a239          ;a1d5  a2 39       VECTOR
 
 lab_a1d7:
-    mov a, #0x05            ;a1d7  04 05        A = mem_0021 value for SAFE
+    mov a, #0x05            ;a1d7  04 05        A = mem_0201 value for SAFE
     mov mem_0201, a         ;a1d9  61 02 01
     mov a, #0x1e            ;a1dc  04 1e
     mov mem_0202, a         ;a1de  61 02 02
-    mov a, #0x02            ;a1e1  04 02
+    mov a, #0x02            ;a1e1  04 02        A = value to store in mem_00cd
 
 lab_a1e3:
     setb mem_0098:4         ;a1e3  ac 98
@@ -6378,12 +6389,15 @@ lab_a1e8:
     mov a, mem_00fd         ;a1ea  05 fd
     and a, #0xf0            ;a1ec  64 f0
     bne lab_a1e7            ;a1ee  fc f7
-    movw a, #0x1000         ;a1f0  e4 10 00
-    movw mem_0203, a        ;a1f3  d4 02 03
-    mov a, #0x07            ;a1f6  04 07        A = mem_0021 value for BLANK
+
+    movw a, #0x1000         ;a1f0  e4 10 00     A = 1000 for SAFE code (16-bit BCD)
+    movw mem_0203, a        ;a1f3  d4 02 03     Store as entered SAFE code
+
+    mov a, #0x07            ;a1f6  04 07        A = mem_0201 value for BLANK
     mov mem_0201, a         ;a1f8  61 02 01
-    mov a, #0x03            ;a1fb  04 03
-    bne lab_a1e3            ;a1fd  fc e4       BRANCH_ALWAYS_TAKEN
+
+    mov a, #0x03            ;a1fb  04 03        A = value to store in mem_00cd
+    bne lab_a1e3            ;a1fd  fc e4        BRANCH_ALWAYS_TAKEN
 
 lab_a1ff:
     mov a, mem_0205         ;a1ff  60 02 05
@@ -6392,45 +6406,50 @@ lab_a1ff:
     call sub_a18c           ;a206  31 a1 8c
     mov a, #0xff            ;a209  04 ff
     mov mem_0205, a         ;a20b  61 02 05
-    mov a, #0x03            ;a20e  04 03
-    bne lab_a1e5            ;a210  fc d3       BRANCH_ALWAYS_TAKEN
+    mov a, #0x03            ;a20e  04 03        A = value ot store in mem_00cd
+    bne lab_a1e5            ;a210  fc d3        BRANCH_ALWAYS_TAKEN
 
 lab_a212:
     mov a, #0xff            ;a212  04 ff
     mov mem_0205, a         ;a214  61 02 05
     mov a, #0x01            ;a217  04 01
     mov mem_02cc, a         ;a219  61 02 cc
-    mov a, mem_020e         ;a21c  60 02 0e
-    incw a                  ;a21f  c0
-    mov mem_020e, a         ;a220  61 02 0e
-    mov a, mem_020e         ;a223  60 02 0e
-    mov a, #0x02            ;a226  04 02
-    cmp a                   ;a228  12
-    blo lab_a22d            ;a229  f9 02
+
+    mov a, mem_020e         ;a21c  60 02 0e     A = SAFE attempts
+    incw a                  ;a21f  c0           Increment attempts
+    mov mem_020e, a         ;a220  61 02 0e     Store incremented attempts
+
+    mov a, mem_020e         ;a223  60 02 0e     A = SAFE attempts
+    mov a, #0x02            ;a226  04 02        A = 2 maximum attempts
+    cmp a                   ;a228  12           Compare attempts with max
+    blo lab_a22d            ;a229  f9 02        Branch if fewer attempts than max
+
     setb mem_00de:5         ;a22b  ad de
 
 lab_a22d:
     mov mem_00f1, #0xa6     ;a22d  85 f1 a6
-    movw a, mem_020f        ;a230  c4 02 0f
-    movw a, mem_0203        ;a233  c4 02 03
+    movw a, mem_020f        ;a230  c4 02 0f     A = actual SAFE code
+    movw a, mem_0203        ;a233  c4 02 03     A = entered SAFE code (16-bit BCD)
     cmpw a                  ;a236  13
     bne lab_a250            ;a237  fc 17
 
 sub_a239:
     mov a, #0x0a            ;a239  04 0a
     mov mem_02c1, a         ;a23b  61 02 c1
-    mov a, #0x00            ;a23e  04 00
-    mov mem_020e, a         ;a240  61 02 0e
+
+    mov a, #0x00            ;a23e  04 00        A = 0 attempts
+    mov mem_020e, a         ;a240  61 02 0e     Store SAFE attempts
+
     clrb mem_00de:5         ;a243  a5 de
     setb mem_00de:6         ;a245  ae de
     setb mem_00de:4         ;a247  ac de
     mov mem_00f1, #0xa6     ;a249  85 f1 a6
-    mov a, #0x04            ;a24c  04 04
-    bne lab_a1e5            ;a24e  fc 95       BRANCH_ALWAYS_TAKEN
+    mov a, #0x04            ;a24c  04 04        A = value to store in mem_00cd
+    bne lab_a1e5            ;a24e  fc 95        BRANCH_ALWAYS_TAKEN
 
 lab_a250:
-    mov a, #0x05            ;a250  04 05
-    bne lab_a1e3            ;a252  fc 8f       BRANCH_ALWAYS_TAKEN
+    mov a, #0x05            ;a250  04 05        A = value to store in mem_00cd
+    bne lab_a1e3            ;a252  fc 8f        BRANCH_ALWAYS_TAKEN
 
 lab_a254:
     bhs lab_a1e7            ;a254  f8 91
@@ -6458,26 +6477,28 @@ lab_a269:
 
 lab_a286:
     bhs lab_a2b5            ;a286  f8 2d
-    mov a, #0x06            ;a288  04 06        A = mem_0021 value for BLANK or SAFE
+    mov a, #0x06            ;a288  04 06        A = mem_0201 value for BLANK or SAFE
     mov mem_0201, a         ;a28a  61 02 01
     mov a, #0x05            ;a28d  04 05
     mov mem_020d, a         ;a28f  61 02 0d
     setb mem_00e4:1         ;a292  a9 e4
     mov a, #0x1e            ;a294  04 1e
     mov mem_0202, a         ;a296  61 02 02
-    mov a, #0x06            ;a299  04 06
+    mov a, #0x06            ;a299  04 06        A = value to store in mem_00cd
 
 lab_a29b:
     jmp lab_a1e3            ;a29b  21 a1 e3
 
 lab_a29e:
     bne lab_a2b5            ;a29e  fc 15
-    mov a, #0x05            ;a2a0  04 05        A = mem_0021 value for SAFE
+    mov a, #0x05            ;a2a0  04 05        A = mem_0201 value for SAFE
     mov mem_0201, a         ;a2a2  61 02 01
-    mov a, mem_020e         ;a2a5  60 02 0e
+
+    mov a, mem_020e         ;a2a5  60 02 0e     A = SAFE attempts
     mov a, #0x02            ;a2a8  04 02
     cmp a                   ;a2aa  12
     blo lab_a2b6            ;a2ab  f9 09
+
     clrb mem_00e4:1         ;a2ad  a1 e4
     mov mem_0096, #0x04     ;a2af  85 96 04
     mov mem_00cd, #0x01     ;a2b2  85 cd 01
@@ -6486,7 +6507,7 @@ lab_a2b5:
     ret                     ;a2b5  20
 
 lab_a2b6:
-    mov a, #0x02            ;a2b6  04 02
+    mov a, #0x02            ;a2b6  04 02        A = value to store in mem_00cd
     jmp lab_a1e5            ;a2b8  21 a1 e5
 
 lab_a2bb:
@@ -6504,7 +6525,7 @@ lab_a2c5:
 lab_a2ce:
     movw mem_0206, a        ;a2ce  d4 02 06
     setb mem_00de:5         ;a2d1  ad de
-    mov a, #0x05            ;a2d3  04 05        A = mem_0021 value for SAFE
+    mov a, #0x05            ;a2d3  04 05        A = mem_0201 value for SAFE
     mov mem_0201, a         ;a2d5  61 02 01
     setb mem_0098:4         ;a2d8  ac 98
     mov mem_00f1, #0x9e     ;a2da  85 f1 9e
@@ -6529,8 +6550,10 @@ lab_a2e8:
     movw a, mem_0206        ;a2e8  c4 02 06
     bne lab_a2e4            ;a2eb  fc f7
     clrb mem_00de:5         ;a2ed  a5 de
-    mov a, #0x00            ;a2ef  04 00
-    mov mem_020e, a         ;a2f1  61 02 0e
+
+    mov a, #0x00            ;a2ef  04 00        A = 0 attempts
+    mov mem_020e, a         ;a2f1  61 02 0e     Store SAFE attempts
+
     mov mem_00f1, #0xa6     ;a2f4  85 f1 a6
     mov a, #0x04            ;a2f7  04 04
     bne lab_a2df            ;a2f9  fc e4       BRANCH_ALWAYS_TAKEN
@@ -6554,12 +6577,14 @@ lab_a303:
     .word lab_a39d          ;a317  a3 9d       VECTOR
 
 lab_a319:
-    mov a, #0x03            ;a319  04 03        A = mem_0021 value for INITIAL
+    mov a, #0x03            ;a319  04 03        A = mem_0201 value for INITIAL
     mov mem_0201, a         ;a31b  61 02 01
     clrb mem_00de:7         ;a31e  a7 de
     clrb mem_00de:6         ;a320  a6 de
-    movw a, #0xffff         ;a322  e4 ff ff
-    movw mem_020f, a        ;a325  d4 02 0f
+
+    movw a, #0xffff         ;a322  e4 ff ff     A = 0xFFFF (no code)
+    movw mem_020f, a        ;a325  d4 02 0f     Store as actual SAFE code
+
     mov mem_00f1, #0xa1     ;a328  85 f1 a1
     mov a, #0x0a            ;a32b  04 0a
     mov mem_0202, a         ;a32d  61 02 02
@@ -6588,7 +6613,7 @@ lab_a343:
 
 lab_a34a:
     bhs lab_a33b            ;a34a  f8 ef
-    mov a, #0x01            ;a34c  04 01        A = mem_0021 value for NO CODE
+    mov a, #0x01            ;a34c  04 01        A = mem_0201 value for NO CODE
     mov mem_0201, a         ;a34e  61 02 01
     mov a, #0x1e            ;a351  04 1e
     mov mem_0202, a         ;a353  61 02 02
@@ -6648,7 +6673,7 @@ lab_a3a7:
     .word lab_a3be          ;a3ab  a3 be       VECTOR
 
 lab_a3ad:
-    mov a, #0x08            ;a3ad  04 08        A = mem_0021 value for SAFE
+    mov a, #0x08            ;a3ad  04 08        A = mem_0201 value for SAFE
     mov mem_0201, a         ;a3af  61 02 01
     movw a, #0x0384         ;a3b2  e4 03 84
     movw mem_0206, a        ;a3b5  d4 02 06
@@ -6671,7 +6696,7 @@ lab_a3c4:
 lab_a3ca:
     setb mem_0099:7         ;a3ca  af 99
     setb mem_00d7:4         ;a3cc  ac d7
-    mov a, #0x09            ;a3ce  04 09        A = mem_0021 value for VER
+    mov a, #0x09            ;a3ce  04 09        A = mem_0201 value for VER
     mov mem_0201, a         ;a3d0  61 02 01
 
 lab_a3d3:
@@ -6707,7 +6732,7 @@ lab_a3e9:
 
 ;lab_a3e9 case 1
 lab_a3f3:
-    mov a, #0x0a            ;a3f3  04 0a        A = mem_0021 value for CLEAR
+    mov a, #0x0a            ;a3f3  04 0a        A = mem_0201 value for CLEAR
     mov mem_0201, a         ;a3f5  61 02 01
     setb mem_0098:4         ;a3f8  ac 98
     mov a, #0x1e            ;a3fa  04 1e
@@ -6719,7 +6744,7 @@ lab_a3f3:
     call sub_8402           ;a40b  31 84 02
     movw a, #0x0000         ;a40e  e4 00 00
     movw mem_0206, a        ;a411  d4 02 06
-    mov mem_020e, a         ;a414  61 02 0e
+    mov mem_020e, a         ;a414  61 02 0e     Reset SAFE attempts
     mov mem_0208, a         ;a417  61 02 08
     movw mem_0325, a        ;a41a  d4 03 25
     clrb mem_00de:3         ;a41d  a3 de
@@ -6819,60 +6844,62 @@ mem_a4a0:
     .word lab_a4f5          ;a4b4  a4 f5       VECTOR   a clear
 
 lab_a4b6:
-    mov @ix+0x01, #0x80     ;a4b6  86 01 80     0x80 '....NO.CODE'
+    mov @ix+0x01, #0x80     ;a4b6  86 01 80     Display number = 0x80 '....NO.CODE'
 
 lab_a4b9:
     ret                     ;a4b9  20
 
 lab_a4ba:
-    mov @ix+0x01, #0x81     ;a4ba  86 01 81     0x81 '.....CODE..'
+    mov @ix+0x01, #0x81     ;a4ba  86 01 81     Display number = 0x81 '.....CODE..'
     ret                     ;a4bd  20
 
 lab_a4be:
     bbs mem_00e4:0, lab_a4c5 ;a4be  b8 e4 04
 
 lab_a4c1:
-    mov @ix+0x01, #0x84     ;a4c1  86 01 84     0x84 '....INITIAL'
+    mov @ix+0x01, #0x84     ;a4c1  86 01 84     Display number = 0x84 '....INITIAL'
     ret                     ;a4c4  20
 
 lab_a4c5:
-    mov @ix+0x01, #0xc1     ;a4c5  86 01 c1     0xC1 '...........'
+    mov @ix+0x01, #0xc1     ;a4c5  86 01 c1     Display number = 0xC1 '...........'
     ret                     ;a4c8  20
 
 lab_a4c9:
     bbs mem_00e4:0, lab_a4d5 ;a4c9  b8 e4 09    blank or safe?
 
 lab_a4cc:
-    mov @ix+0x01, #0x83     ;a4cc  86 01 83     0x83 '.....SAFE..'
-    mov a, mem_020e         ;a4cf  60 02 0e
-    mov @ix+0x02, a         ;a4d2  46 02
+    mov @ix+0x01, #0x83     ;a4cc  86 01 83     Display number = 0x83 '.....SAFE..'
+    mov a, mem_020e         ;a4cf  60 02 0e     A = SAFE attempts
+    mov @ix+0x02, a         ;a4d2  46 02        Display param 0 = SAFE attampt number
     ret                     ;a4d4  20
 
 lab_a4d5:
-    mov @ix+0x01, #0xc1     ;a4d5  86 01 c1     0xC1 '...........'
+    mov @ix+0x01, #0xc1     ;a4d5  86 01 c1     Display number = 0xC1 '...........'
     ret                     ;a4d8  20
 
 lab_a4d9:
-    mov a, #0x82            ;a4d9  04 82        0x82 '...........'
-    mov @ix+0x01, a         ;a4db  46 01
-    mov a, mem_020e         ;a4dd  60 02 0e
-    mov @ix+0x02, a         ;a4e0  46 02
-    movw a, mem_0203        ;a4e2  c4 02 03
-    movw @ix+0x03, a        ;a4e5  d6 03
+    mov a, #0x82            ;a4d9  04 82
+    mov @ix+0x01, a         ;a4db  46 01        Display number = 0x82 '...........' (code entry)
+
+    mov a, mem_020e         ;a4dd  60 02 0e     A = SAFE attempts
+    mov @ix+0x02, a         ;a4e0  46 02        Display param 0 = SAFE attempts
+
+    movw a, mem_0203        ;a4e2  c4 02 03     A = entered SAFE code (16-bit BCD)
+    movw @ix+0x03, a        ;a4e5  d6 03        Display param 1, 2 = SAFE code BCD
     ret                     ;a4e7  20
 
 lab_a4e8:
-    mov @ix+0x01, #0x86     ;a4e8  86 01 86     0x86 '.....SAFE..'
+    mov @ix+0x01, #0x86     ;a4e8  86 01 86     Display number = 0x86 '.....SAFE..'
     mov a, mem_0208         ;a4eb  60 02 08
-    mov @ix+0x02, a         ;a4ee  46 02
+    mov @ix+0x02, a         ;a4ee  46 02        Display param 0 = SAFE attempts (binary)
     ret                     ;a4f0  20
 
 lab_a4f1:
-    call sub_fd7d           ;a4f1  31 fd 7d     0x21 'VER........'
+    call sub_fd7d           ;a4f1  31 fd 7d     Display number = 0x21 'VER........'
     ret                     ;a4f4  20
 
 lab_a4f5:
-    mov @ix+0x01, #0x87     ;a4f5  86 01 87     0x87 '....CLEAR..'
+    mov @ix+0x01, #0x87     ;a4f5  86 01 87     Display number = 0x87 '....CLEAR..'
     ret                     ;a4f8  20
 
 sub_a4f9:
@@ -8036,7 +8063,7 @@ mem_ac03:
     .word mem_0080_is_0d          ;ac1d  b1 89       VECTOR     No Acknowledge
     .word mem_0080_is_0e          ;ac1f  b1 ec       VECTOR     Unrecognized Block Title
     .word mem_0080_is_0f          ;ac21  bb 9e       VECTOR     End Session
-    .word mem_0080_is_10          ;ac23  b2 b9       VECTOR     Read or write login word
+    .word mem_0080_is_10          ;ac23  b2 b9       VECTOR     Read or write SAFE code word
 
 sub_ac25:
     bbs mem_008b:2, lab_ac2e ;ac25  ba 8b 06
@@ -8213,7 +8240,7 @@ mem_ad1f:
 ;0x0C        0x19            Protected: Read EEPROM
 ;0x0D        0x0A            No Acknowledge
 ;0x0F        0x06            End Session
-;0x10        0xF0            Read or write login word
+;0x10        0xF0            Read or write SAFE code word
 ;
     ;ID code request/ECU Info
     .byte 0x00              ;ad1f  00          DATA '\x00'  Block title 0x00
@@ -8280,7 +8307,7 @@ mem_ad1f:
     .byte 0x0D              ;ad50  0d          DATA '\r'    mem_0080 = 0x0d
     .word lab_ad9f
 
-    ;Read or write login word
+    ;Read or write SAFE code word
     .byte 0xF0              ;ad53  f0          DATA '\xf0'  Block title 0x0f
     .byte 0x10              ;ad54  10          DATA '\x10'  mem_0080 = 0x10
     .word lab_ad9f
@@ -8358,7 +8385,7 @@ lab_ad9f:
 ;  Block title 0x10: Recoding
 ;  Block title 0x2b: Login
 ;  Block title 0x0a: No Acknowledge
-;  Block title 0xf0: Read or write login word
+;  Block title 0xf0: Read or write SAFE code word
 ;
     xchw a, t               ;ad9f  43
     ret                     ;ada0  20
@@ -9354,23 +9381,30 @@ lab_b2b6:
 
 
 mem_0080_is_10:
-;KW1281 Read or write login word
+;KW1281 Read or write SAFE code word (16-bit BCD)
 ;
-;Request block format:
-;  0x08 Block length                    mem_0118+0
+;Request block format for read:
+;  0x04 Block length                    mem_0118+0
 ;  0x3E Block counter                   mem_0118+1
 ;  0xF0 Block title (0xF0)              mem_0118+2
-;  0x00 Mode byte                       mem_0118+3  0=Read, 1=Write
-;  0x00 Unknown byte 0                  mem_0118+4  Reads/writes mem_020f
-;  0x00 Unknown byte 1                  mem_0118+5  Reads/writes mem_0210
+;  0x00 Mode byte (0=Read)              mem_0118+3
+;  0x03 Block end                       mem_0118+4
+;
+;Request block format for write:
+;  0x06 Block length                    mem_0118+0
+;  0x3E Block counter                   mem_0118+1
+;  0xF0 Block title (0xF0)              mem_0118+2
+;  0x01 Mode byte (1=Write)             mem_0118+3
+;  0x00 SAFE code high byte (BCD)       mem_0118+4  Writes mem_020f
+;  0x00 SAFE code low byte (BCD)        mem_0118+5  Writes mem_020f+1
 ;  0x03 Block end                       mem_0118+6
 ;
-;Response block format:
+;Response block format for either:
 ;  0x05 Block length                    mem_012b+0
 ;  0x3F Block counter                   mem_012b+1
 ;  0xF0 Block title (0xF0)              mem_012b+2
-;  0x00 Unknown byte 0                  mem_012b+3  Reads byte at mem_020f
-;  0x01 Unknown byte 1                  mem_012b+4  Reads byte at mem_0210
+;  0x00 SAFE code high byte (BCD)       mem_012b+3  Reads mem_020f
+;  0x01 SAFE code low byte (BCD)        mem_012b+4  Reads mem_020f+1
 ;  0x03 Block end                       mem_012b+5
 ;
     mov a, mem_0081         ;b2b9  05 81
@@ -9395,14 +9429,14 @@ lab_b2c4:
     ret                     ;b2d3  20
 
 lab_b2d4_read:
-;Mode 0: Read word at mem_020f and put it in the KW1281 Response buffer
+;Mode 0: Read SAFE code word at mem_020f and put it in KW1281 Response buffer
 ;
     mov mem_00a5, #0x06     ;b2d4  85 a5 06     6 bytes in KW1281 packet
-    movw a, #kw_rw_login    ;b2d7  e4 ff 5d
+    movw a, #kw_rw_safe     ;b2d7  e4 ff 5d
     movw mem_0084, a        ;b2da  d5 84        Pointer to KW1281 packet bytes
     call sub_b136           ;b2dc  31 b1 36     Copy mem_00a5 bytes from @mem_0084 to KW1281 Response buffer
 
-    movw a, mem_020f        ;b2df  c4 02 0f     Read word at mem_020f
+    movw a, mem_020f        ;b2df  c4 02 0f     Read actual SAFE code word
     movw mem_012b+3, a      ;b2e2  d4 01 2e     Put it into KW1281 Response bytes 3 and 4
 
     call sub_bbae           ;b2e5  31 bb ae
@@ -9410,14 +9444,17 @@ lab_b2d4_read:
     ret                     ;b2eb  20
 
 lab_b2d4_write:
-;Mode 1: Write word at mem_020f from the value in the KW1281 requst buffer
+;Mode 1: Write SAFE code word at mem_020f from value in KW1281 request buffer
 ;
     bbs mem_00de:7, lab_b305 ;b2ec  bf de 16
     bbs mem_00e3:7, lab_b305 ;b2ef  bf e3 13
-    movw a, mem_0118+4       ;b2f2  c4 01 1c    KW1281 Response buffer bytes 4 and 5
-    movw mem_020f, a         ;b2f5  d4 02 0f    Store word in mem_020f
-    mov a, #0x00             ;b2f8  04 00
-    mov mem_020e, a          ;b2fa  61 02 0e
+
+    movw a, mem_0118+4       ;b2f2  c4 01 1c    KW1281 Request buffer bytes 4 and 5
+    movw mem_020f, a         ;b2f5  d4 02 0f    Store word as actual SAFE code
+
+    mov a, #0x00             ;b2f8  04 00       A = 0 attempts for SAFE code
+    mov mem_020e, a          ;b2fa  61 02 0e    Reset SAFE attempts to 0
+
     setb mem_00de:7          ;b2fd  af de
     mov mem_00f1, #0x9e      ;b2ff  85 f1 9e
     jmp lab_b2d4_read        ;b302  21 b2 d4    Response will be same as read mode
@@ -10070,53 +10107,58 @@ lab_b5ea:
     ret                     ;b5f0  20
 
 sub_b5f1:
-    call sub_bc02           ;b5f1  31 bc 02
-    call sub_b64b           ;b5f4  31 b6 4b
-    call sub_c4fe_fault_terminal_30 ;b5f7  31 c4 fe
-    mov a, mem_0335         ;b5fa  60 03 35
-    beq lab_b604            ;b5fd  fd 05
-    cmp a, #0x01            ;b5ff  14 01
-    beq lab_b604            ;b601  fd 01
-    ret                     ;b603  20
+    call sub_bc02                       ;b5f1  31 bc 02
+    call copy_ix_to_ix1_ix2             ;b5f4  31 b6 4b     Copy byte @IX+0 into @IX+1 and @IX+2
+    call sub_c4fe_fault_terminal_30     ;b5f7  31 c4 fe
+    mov a, mem_0335                     ;b5fa  60 03 35
+    beq lab_b604                        ;b5fd  fd 05
+    cmp a, #0x01                        ;b5ff  14 01
+    beq lab_b604                        ;b601  fd 01
+    ret                                 ;b603  20
 
 lab_b604:
-    call sub_c034           ;b604  31 c0 34
-    call sub_b64b           ;b607  31 b6 4b
-    call sub_c50c_fault_amplifier ;b60a  31 c5 0c
-    call sub_bd48           ;b60d  31 bd 48
-    mov a, mem_013f         ;b610  60 01 3f
-    mov a, #0x01            ;b613  04 01
-    cmp a                   ;b615  12
-    bne lab_b621            ;b616  fc 09
-    mov a, #0x00            ;b618  04 00
-    mov mem_013f, a         ;b61a  61 01 3f
-    mov @ix+0x00, a         ;b61d  46 00
-    clrb mem_0091:5         ;b61f  a5 91        KW1281 Fault 00852 - Loudspeaker(s) Front
+    call sub_c034                       ;b604  31 c0 34
+    call copy_ix_to_ix1_ix2             ;b607  31 b6 4b     Copy byte @IX+0 into @IX+1 and @IX+2
+    call sub_c50c_fault_amplifier       ;b60a  31 c5 0c
+    call sub_bd48                       ;b60d  31 bd 48
+    mov a, mem_013f                     ;b610  60 01 3f
+    mov a, #0x01                        ;b613  04 01
+    cmp a                               ;b615  12
+    bne lab_b621                        ;b616  fc 09
+    mov a, #0x00                        ;b618  04 00
+    mov mem_013f, a                     ;b61a  61 01 3f
+    mov @ix+0x00, a                     ;b61d  46 00
+    clrb mem_0091:5                     ;b61f  a5 91        KW1281 Fault 00852 - Loudspeaker(s) Front
 
 lab_b621:
-    call sub_b64b           ;b621  31 b6 4b
-    call sub_c55d_fault_speakers_front ;b624  31 c5 5d
-    call sub_bdbe           ;b627  31 bd be
-    mov a, mem_0140         ;b62a  60 01 40
-    mov a, #0x01            ;b62d  04 01
-    cmp a                   ;b62f  12
-    bne lab_b63b            ;b630  fc 09
-    mov a, #0x00            ;b632  04 00
-    mov mem_0140, a         ;b634  61 01 40
-    mov @ix+0x00, a         ;b637  46 00
-    clrb mem_0091:6         ;b639  a6 91        KW1281 Fault 00853 - Loudspeaker(s) Rear
+    call copy_ix_to_ix1_ix2             ;b621  31 b6 4b     Copy byte @IX+0 into @IX+1 and @IX+2
+    call sub_c55d_fault_speakers_front  ;b624  31 c5 5d
+    call sub_bdbe                       ;b627  31 bd be
+    mov a, mem_0140                     ;b62a  60 01 40
+    mov a, #0x01                        ;b62d  04 01
+    cmp a                               ;b62f  12
+    bne lab_b63b                        ;b630  fc 09
+    mov a, #0x00                        ;b632  04 00
+    mov mem_0140, a                     ;b634  61 01 40
+    mov @ix+0x00, a                     ;b637  46 00
+    clrb mem_0091:6                     ;b639  a6 91        KW1281 Fault 00853 - Loudspeaker(s) Rear
 
 lab_b63b:
-    call sub_b64b           ;b63b  31 b6 4b
-    call sub_c574_fault_speakers_rear ;b63e  31 c5 74
-    call sub_bc44           ;b641  31 bc 44
-    call sub_b64b           ;b644  31 b6 4b
-    call sub_c51a_fault_cd_changer ;b647  31 c5 1a
-    ret                     ;b64a  20
+    call copy_ix_to_ix1_ix2             ;b63b  31 b6 4b     Copy byte @IX+0 into @IX+1 and @IX+2
+    call sub_c574_fault_speakers_rear   ;b63e  31 c5 74
+    call sub_bc44                       ;b641  31 bc 44
+    call copy_ix_to_ix1_ix2             ;b644  31 b6 4b     Copy byte @IX+0 into @IX+1 and @IX+2
+    call sub_c51a_fault_cd_changer      ;b647  31 c5 1a
+    ret                                 ;b64a  20
 
-sub_b64b:
+copy_ix_to_ix1_ix2:
+;Copy byte @IX+0 into @IX+1 and @IX+2
+;
+    ;Copy byte @IX+0 into @IX+1
     mov a, @ix+0x00         ;b64b  06 00
     mov @ix+0x01, a         ;b64d  46 01
+
+    ;Copy byte @IX+0 into @IX+2
     mov a, @ix+0x00         ;b64f  06 00
     mov @ix+0x02, a         ;b651  46 02
     ret                     ;b653  20
@@ -11042,12 +11084,14 @@ lab_ba88:
                             ;Inputs:  mem_00a3, mem_00a4
                             ;Outputs: mem_009f, mem_00a0
 
+    ;Word at mem_020f (actual SAFE code) must match word at mem_009f
+
     mov a, mem_020f         ;mem_020f and mem_009f must match or login fails
     mov a, mem_009f
     cmp a
     bne lab_baa8_failed
 
-    mov a, mem_0210         ;mem_0210 and mem_00a0 must match or login fails
+    mov a, mem_020f+1       ;mem_020f+1 and mem_00a0 must match or login fails
     mov a, mem_00a0
     cmp a
     beq lab_baa8_success
@@ -11086,8 +11130,9 @@ lab_baa8_success:
     mov mem_0096, #0x03     ;badc  85 96 03
     mov mem_00cd, #0x01     ;badf  85 cd 01
     clrb mem_00de:5         ;bae2  a5 de
+
     movw a, #0x0000         ;bae4  e4 00 00
-    mov mem_020e, a         ;bae7  61 02 0e
+    mov mem_020e, a         ;bae7  61 02 0e     Reset SAFE attempts
     movw mem_0206, a        ;baea  d4 02 06
 
 lab_baed:
@@ -12913,34 +12958,38 @@ sub_c5d2:
     setb mem_0097:2         ;c5d2  aa 97
     mov a, #0x00            ;c5d4  04 00
     movw ix, #mem_02b6      ;c5d6  e6 02 b6
-    call fill_ix_plus_0x05_downto_0 ;c5d9  31 e6 ed
+    call fill_6_bytes_at_ix ;c5d9  31 e6 ed
     mov a, mem_0095         ;c5dc  05 95
     mov mem_02c8, a         ;c5de  61 02 c8
     movw ix, #mem_02b6      ;c5e1  e6 02 b6
     bbc mem_00d0:0, lab_c5f7 ;c5e4  b0 d0 10
     bbc mem_008c:7, lab_c5fc ;c5e7  b7 8c 12
     bbc mem_008e:7, lab_c5fc ;c5ea  b7 8e 0f
-    call sub_c839           ;c5ed  31 c8 39     Maybe set display number to diag
+    call sub_c839           ;c5ed  31 c8 39     Set display number to 0xB0 '.....DIAG..'
     bbc mem_00e1:7, lab_c5f6 ;c5f0  b7 e1 03
-    call sub_c831           ;c5f3  31 c8 31     Maybe set display number to testdisplay
+    call sub_c831           ;c5f3  31 c8 31     Set display number to 0xB1 'TESTDISPLAY'
 
 lab_c5f6:
     ret                     ;c5f6  20
 
 lab_c5f7:
-    mov a, #0xc1            ;c5f7  04 c1        0xC1  '...........'
-    mov @ix+0x01, a         ;c5f9  46 01
+    mov a, #0xc1            ;c5f7  04 c1
+    mov @ix+0x01, a         ;c5f9  46 01        Display number = 0xC1  '...........'
     ret                     ;c5fb  20
 
 lab_c5fc:
     cmp mem_0096, #0x00     ;c5fc  95 96 00
     beq lab_c60d            ;c5ff  fd 0c
+
     mov a, mem_0201         ;c601  60 02 01
     mov a, #0x00            ;c604  04 00
     cmp a                   ;c606  12
     beq lab_c60c            ;c607  fd 03
-    call sub_a497           ;c609  31 a4 97
 
+    ;(mem_0201=0)
+    call sub_a497           ;c609  31 a4 97     Set display number based on mem_0201:
+                            ;                     NO CODE, CODE, INITIAL, BLANK, SAFE
+                            ;                     VER, CLEAR
 lab_c60c:
     ret                     ;c60c  20
 
@@ -12952,22 +13001,27 @@ lab_c60d:
     jmp lab_c679            ;c617  21 c6 79
 
 lab_c61a:
+;(mem_00b2:4 = 1)
     mov a, mem_00b1         ;c61a  05 b1
     cmp a, #0x01            ;c61c  14 01
     bne lab_c62d            ;c61e  fc 0d
+
+    ;(mem_00b1=1)
     mov a, mem_00b3         ;c620  05 b3
     call sub_c744           ;c622  31 c7 44
-    mov @ix+0x02, a         ;c625  46 02
-    mov @ix+0x01, #0x62     ;c627  86 01 62     0x62 'BASS.......'
+    mov @ix+0x02, a         ;c625  46 02        Display param 1 = Signed binary number for bass
+    mov @ix+0x01, #0x62     ;c627  86 01 62     Display number = 0x62 'BASS.......'
     jmp lab_c63b            ;c62a  21 c6 3b
 
 lab_c62d:
     cmp a, #0x02            ;c62d  14 02
     bne lab_c63f            ;c62f  fc 0e
+
+    ;(mem_00b1=2)
     mov a, mem_00b4         ;c631  05 b4
     call sub_c744           ;c633  31 c7 44
-    mov @ix+0x02, a         ;c636  46 02
-    mov @ix+0x01, #0x63     ;c638  86 01 63     0x63 'TREB.......'
+    mov @ix+0x02, a         ;c636  46 02        Display param 1 = Signed binary number for treble
+    mov @ix+0x01, #0x63     ;c638  86 01 63     Display number = 0x63 'TREB.......'
 
 lab_c63b:
     mov mem_00f1, #0x8f     ;c63b  85 f1 8f
@@ -12976,42 +13030,47 @@ lab_c63b:
 lab_c63f:
     cmp a, #0x03            ;c63f  14 03
     bne lab_c65b            ;c641  fc 18
+
+    ;(mem_00b1=3)
     mov a, mem_00b5         ;c643  05 b5
     call sub_c744           ;c645  31 c7 44
     bne lab_c64e            ;c648  fc 04
-    mov @ix+0x01, #0x66     ;c64a  86 01 66     0x66 'BAL.CENTER.'
+    mov @ix+0x01, #0x66     ;c64a  86 01 66     Display number = 0x66 'BAL.CENTER.'
     ret                     ;c64d  20
 
 lab_c64e:
-    mov @ix+0x01, #0x64     ;c64e  86 01 64     0x64 'BAL.LEFT...'
+    mov @ix+0x01, #0x64     ;c64e  86 01 64     Display number = 0x64 'BAL.LEFT...'
     cmp a, #0x7f            ;c651  14 7f
     blo lab_c658            ;c653  f9 03
-    mov @ix+0x01, #0x65     ;c655  86 01 65     0x65 'BAL.RIGHT..'
+    mov @ix+0x01, #0x65     ;c655  86 01 65     Display number = 0x65 'BAL.RIGHT..'
 
 lab_c658:
-    mov @ix+0x02, a         ;c658  46 02
+    mov @ix+0x02, a         ;c658  46 02        Display param 1 = Signed binary number for balance
     ret                     ;c65a  20
 
 lab_c65b:
     cmp a, #0x04            ;c65b  14 04
     bne lab_c677            ;c65d  fc 18
+
+    ;(mem_00b1=4)
     mov a, mem_00b6         ;c65f  05 b6
     call sub_c744           ;c661  31 c7 44
     bne lab_c66a            ;c664  fc 04
-    mov @ix+0x01, #0x69     ;c666  86 01 69     0x69 'FADECENTER.'
+    mov @ix+0x01, #0x69     ;c666  86 01 69     Display number = 0x69 'FADECENTER.'
     ret                     ;c669  20
 
 lab_c66a:
-    mov @ix+0x01, #0x67     ;c66a  86 01 67     0x67 'FADEFRONT..'
+    mov @ix+0x01, #0x67     ;c66a  86 01 67     Display number = 0x67 'FADEFRONT..'
     cmp a, #0x7f            ;c66d  14 7f
     blo lab_c674            ;c66f  f9 03
-    mov @ix+0x01, #0x68     ;c671  86 01 68     0x68 'FADEREAR...'
+    mov @ix+0x01, #0x68     ;c671  86 01 68     Display number = 0x68 'FADEREAR...'
 
 lab_c674:
-    mov @ix+0x02, a         ;c674  46 02
+    mov @ix+0x02, a         ;c674  46 02        Display param 1 = Signed binary number for fade
     ret                     ;c676  20
 
 lab_c677:
+    ;(mem_00b1 != 1,2,3,4)
     clrb mem_00b2:4         ;c677  a4 b2
 
 lab_c679:
@@ -13080,7 +13139,8 @@ lab_c6d8:
     beq lab_c6e1            ;c6db  fd 04
 
 lab_c6dd:
-    call sub_c71c           ;c6dd  31 c7 1c
+    call sub_c71c           ;c6dd  31 c7 1c     'FM....MAX..', 'FM....MIN..',
+                            ;                   'AM....MAX..', 'AM....MIN..'
     ret                     ;c6e0  20
 
 lab_c6e1:
@@ -13132,46 +13192,45 @@ lab_c717:
     ret                     ;c71b  20
 
 sub_c71c:
-    mov a, mem_00c5         ;c71c  05 c5
-    beq lab_c72b            ;c71e  fd 0b
-    mov a, #0x44            ;c720  04 44
+    mov a, mem_00c5          ;c71c  05 c5
+    beq lab_c72b             ;c71e  fd 0b
+    mov a, #0x44             ;c720  04 44       0x44  'FM....MAX..'
     bbs mem_00b2:2, lab_c736 ;c722  ba b2 11
-    mov a, #0x45            ;c725  04 45
+    mov a, #0x45             ;c725  04 45       0x45  'FM....MIN..'
     bbs mem_00b2:3, lab_c736 ;c727  bb b2 0c
-    ret                     ;c72a  20
+    ret                      ;c72a  20
 
 lab_c72b:
-    mov a, #0x46            ;c72b  04 46
+    mov a, #0x46             ;c72b  04 46       0x46  'AM....MAX..'
     bbs mem_00b2:2, lab_c736 ;c72d  ba b2 06
-    mov a, #0x47            ;c730  04 47
+    mov a, #0x47             ;c730  04 47       0x47  'AM....MIN..'
     bbs mem_00b2:3, lab_c736 ;c732  bb b2 01
-    ret                     ;c735  20
+    ret                      ;c735  20
 
 lab_c736:
-    mov @ix+0x01, a         ;c736  46 01
+    mov @ix+0x01, a         ;c736  46 01        Store display number
     ret                     ;c738  20
 
 sub_c739:
-    mov a, #0x5c            ;c739  04 5c
+    mov a, #0x5c             ;c739  04 5c       0x5C  'TAPE..MAX..'
     bbs mem_00b2:2, lab_c736 ;c73b  ba b2 f8
-    mov a, #0x5d            ;c73e  04 5d
+    mov a, #0x5d             ;c73e  04 5d       0x5D  'TAPE..MIN..'
     bbs mem_00b2:3, lab_c736 ;c740  bb b2 f3
-    ret                     ;c743  20
+    ret                      ;c743  20
+
 
 sub_c744:
     beq lab_c74f            ;c744  fd 09
     bp lab_c74c             ;c746  fa 04
     incw a                  ;c748  c0
     jmp lab_c74d            ;c749  21 c7 4d
-
 lab_c74c:
     decw a                  ;c74c  d0
-
 lab_c74d:
     cmp a, #0x00            ;c74d  14 00
-
 lab_c74f:
     ret                     ;c74f  20
+
 
 lab_c750:
     mov a, mem_00cc         ;c750  05 cc
@@ -13184,7 +13243,7 @@ lab_c750:
     bne lab_c766            ;c75e  fc 06       BRANCH_ALWAYS_TAKEN
 
 lab_c760:
-    mov @ix+0x01, #0x5a     ;c760  86 01 5a     0x5a '....NO.TAPE'
+    mov @ix+0x01, #0x5a     ;c760  86 01 5a     Display number = 0x5a '....NO.TAPE'
     jmp lab_c80f            ;c763  21 c8 0f
 
 lab_c766:
@@ -13208,7 +13267,7 @@ lab_c77a:
 
 lab_c786:
     mov a, #0x58            ;c786  04 58
-    mov @ix+0x01, a         ;c788  46 01        0x58 'TAPE.METAL.'
+    mov @ix+0x01, a         ;c788  46 01        Display number = 0x58 'TAPE.METAL.'
     ret                     ;c78a  20
 
 lab_c78b:
@@ -13223,15 +13282,15 @@ lab_c793:
     beq lab_c7a1            ;c799  fd 06
     cmp a, #0x60            ;c79b  14 60
     beq lab_c7a5            ;c79d  fd 06
-    bne lab_c7a9            ;c79f  fc 08       BRANCH_ALWAYS_TAKEN
+    bne lab_c7a9            ;c79f  fc 08        BRANCH_ALWAYS_TAKEN
 
 lab_c7a1:
-    mov a, #0x56            ;c7a1  04 56        0x56 'TAPE.SCAN.A'
-    bne lab_c7c4            ;c7a3  fc 1f       BRANCH_ALWAYS_TAKEN
+    mov a, #0x56            ;c7a1  04 56        Display number = 0x56 'TAPE.SCAN.A'
+    bne lab_c7c4            ;c7a3  fc 1f        BRANCH_ALWAYS_TAKEN
 
 lab_c7a5:
-    mov a, #0x57            ;c7a5  04 57        0x57 'TAPE.SCAN.B'
-    bne lab_c7c4            ;c7a7  fc 1b       BRANCH_ALWAYS_TAKEN
+    mov a, #0x57            ;c7a5  04 57        Display number = 0x57 'TAPE.SCAN.B'
+    bne lab_c7c4            ;c7a7  fc 1b        BRANCH_ALWAYS_TAKEN
 
 lab_c7a9:
     mov a, mem_00f6         ;c7a9  05 f6
@@ -13250,35 +13309,39 @@ lab_c7b8:
     mov a, mem_00f6         ;c7bc  05 f6
     call sub_e746           ;c7be  31 e7 46
     popw ix                 ;c7c1  51
-    beq lab_c7c6            ;c7c2  fd 02
+    beq lab_c7c6            ;c7c2  fd 02        Branch if mem_00f6 value not found in table
 
 lab_c7c4:
-    mov @ix+0x01, a         ;c7c4  46 01
+    mov @ix+0x01, a         ;c7c4  46 01        Store Display number
 
 lab_c7c6:
     mov a, mem_02fd         ;c7c6  60 02 fd
     cmp a, #0x03            ;c7c9  14 03
     bne lab_c7d6            ;c7cb  fc 09
     bbc mem_00f7:2, lab_c7d6 ;c7cd  b2 f7 06
-    mov a, @ix+0x00         ;c7d0  06 00
-    or a, #0x01             ;c7d2  74 01
-    mov @ix+0x00, a         ;c7d4  46 00
+
+    mov a, @ix+0x00         ;c7d0  06 00        A = Pictograph bits
+    or a, #0b00000001       ;c7d2  74 01        Turn on Bit 0 (METAL)
+    mov @ix+0x00, a         ;c7d4  46 00        Store updated pictographs
 
 lab_c7d6:
     bbc mem_00f7:3, lab_c7df ;c7d6  b3 f7 06
-    mov a, @ix+0x00         ;c7d9  06 00
-    or a, #0x04             ;c7db  74 04
-    mov @ix+0x00, a         ;c7dd  46 00
+
+    mov a, @ix+0x00         ;c7d9  06 00        A = Pictograph bits
+    or a, #0b00000100       ;c7db  74 04        Turn on Bit 2 (DOLBY)
+    mov @ix+0x00, a         ;c7dd  46 00        Store updated pictographs
 
 lab_c7df:
-    mov a, @ix+0x00         ;c7df  06 00
-    or a, #0x20             ;c7e1  74 20
-    mov @ix+0x00, a         ;c7e3  46 00
+    mov a, @ix+0x00         ;c7df  06 00        A = Pictograph bits
+    or a, #0b00100000       ;c7e1  74 20        Turn on Bit 5 (HIDDEN_MODE_TAPE)
+    mov @ix+0x00, a         ;c7e3  46 00        Store updated pictographs
+
     mov a, @ix+0x01         ;c7e5  06 01
-    cmp a, #0x50            ;c7e7  14 50
+    cmp a, #0x50            ;c7e7  14 50        0x50  'TAPE.PLAY.A'
     beq lab_c80c            ;c7e9  fd 21
-    cmp a, #0x51            ;c7eb  14 51
+    cmp a, #0x51            ;c7eb  14 51        0x51  'TAPE.PLAY.B'
     beq lab_c80c            ;c7ed  fd 1d
+
     mov a, mem_00f6         ;c7ef  05 f6
     cmp a, #0x22            ;c7f1  14 22
     beq lab_c808            ;c7f3  fd 13
@@ -13299,7 +13362,7 @@ lab_c808:
     jmp lab_c80f            ;c809  21 c8 0f
 
 lab_c80c:
-    call sub_c739           ;c80c  31 c7 39
+    call sub_c739           ;c80c  31 c7 39     'TAPE..MIN..' or 'TAPE..MAX..'
 
 lab_c80f:
     call sub_9e41           ;c80f  31 9e 41
@@ -13307,69 +13370,69 @@ lab_c80f:
 
 mem_c813:
 ;table of byte pairs used with sub_e746
-    .byte 0x01              ;c813  01          DATA '\x01'
-    .byte 0x50              ;c814  50          DATA 'P'
+    .byte 0x01              ;DATA       mem_00f6 = 0x01
+    .byte 0x50              ;DATA       0x50  'TAPE.PLAY.A'
 
-    .byte 0x41              ;c815  41          DATA 'A'
-    .byte 0x51              ;c816  51          DATA 'Q'
+    .byte 0x41              ;DATA       mem_00f6 = 0x41
+    .byte 0x51              ;DATA       0x51  'TAPE.PLAY.B'
 
-    .byte 0x02              ;c817  02          DATA '\x02'
-    .byte 0x52              ;c818  52          DATA 'R'
+    .byte 0x02              ;DATA       mem_00f6 = 0x02
+    .byte 0x52              ;DATA       0x52  'TAPE..FF...'
 
-    .byte 0x42              ;c819  42          DATA 'B'
-    .byte 0x52              ;c81a  52          DATA 'R'
+    .byte 0x42              ;DATA       mem_00f6 = 0x42
+    .byte 0x52              ;DATA       0x52  'TAPE..FF...'
 
-    .byte 0x03              ;c81b  03          DATA '\x03'
-    .byte 0x53              ;c81c  53          DATA 'S'
+    .byte 0x03              ;DATA       mem_00f6 = 0x03
+    .byte 0x53              ;DATA       0x53  'TAPE..REW..'
 
-    .byte 0x43              ;c81d  43          DATA 'C'
-    .byte 0x53              ;c81e  53          DATA 'S'
+    .byte 0x43              ;DATA       mem_00f6 = 0x43
+    .byte 0x53              ;DATA       0x53  'TAPE..REW..'
 
-    .byte 0x12              ;c81f  12          DATA '\x12'
-    .byte 0x54              ;c820  54          DATA 'T'
+    .byte 0x12              ;DATA       mem_00f6 = 0x12
+    .byte 0x54              ;DATA       0x54  'TAPEMSS.FF.'
 
-    .byte 0x52              ;c821  52          DATA 'R'
-    .byte 0x54              ;c822  54          DATA 'T'
+    .byte 0x52              ;DATA       mem_00f6 = 0x52
+    .byte 0x54              ;DATA       0x54  'TAPEMSS.FF.'
 
-    .byte 0x13              ;c823  13          DATA '\x13'
-    .byte 0x55              ;c824  55          DATA 'U'
+    .byte 0x13              ;DATA       mem_00f6 = 0x13
+    .byte 0x55              ;DATA       0x55  'TAPEMSS.REW'
 
-    .byte 0x53              ;c825  53          DATA 'S'
-    .byte 0x55              ;c826  55          DATA 'U'
+    .byte 0x53              ;DATA       mem_00f6 = 0x53
+    .byte 0x55              ;DATA       0x55  'TAPEMSS.REW'
 
-    .byte 0x32              ;c827  32          DATA '2'
-    .byte 0x59              ;c828  59          DATA 'Y'
+    .byte 0x32              ;DATA       mem_00f6 = 0x32
+    .byte 0x59              ;DATA       0x59  'TAPE..BLS..'
 
-    .byte 0x72              ;c829  72          DATA 'r'
-    .byte 0x59              ;c82a  59          DATA 'Y'
+    .byte 0x72              ;DATA       mem_00f6 = 0x72
+    .byte 0x59              ;DATA       0x59  'TAPE..BLS..'
 
-    .byte 0x04              ;c82b  04          DATA '\x04'
-    .byte 0x50              ;c82c  50          DATA 'P'
+    .byte 0x04              ;DATA       mem_00f6 = 0x04
+    .byte 0x50              ;DATA       0x50  'TAPE.PLAY.A'
 
-    .byte 0x44              ;c82d  44          DATA 'D'
-    .byte 0x51              ;c82e  51          DATA 'Q'
+    .byte 0x44              ;DATA       mem_00f6 = 0x44
+    .byte 0x51              ;DATA       0x51  'TAPE.PLAY.B'
 
-    .byte 0xFF              ;c82f  ff          DATA '\xff'
-    .byte 0x00              ;c830  00          DATA '\x00'
+    .byte 0xFF              ;DATA
+    .byte 0x00              ;DATA
 
 sub_c831:
     movw ix, #mem_02b6      ;c831  e6 02 b6
-    mov a, #0xb1            ;c834  04 b1        0xB1 'TESTDISPLAY'
+    mov a, #0xb1            ;c834  04 b1        Display number = 0xB1 'TESTDISPLAY'
     mov @ix+0x01, a         ;c836  46 01
     ret                     ;c838  20
 
 sub_c839:
-    mov a, #0xb0            ;c839  04 b0        0xB0 '.....DIAG..'
+    mov a, #0xb0            ;c839  04 b0        Display number = 0xB0 '.....DIAG..'
 
 lab_c83b:
-    mov @ix+0x01, a         ;c83b  46 01
+    mov @ix+0x01, a         ;c83b  46 01        Store display number
     ret                     ;c83d  20
 
     ;XXX c83e-c844 look unreachable
     mov a, #0x5a            ;c83e  04 5a        0x5A '....NO.TAPE'
-    bne lab_c83b            ;c840  fc f9       BRANCH_ALWAYS_TAKEN
+    bne lab_c83b            ;c840  fc f9        BRANCH_ALWAYS_TAKEN
     mov a, #0x58            ;c842  04 58        0x5B 'TAPE.ERROR.'
-    bne lab_c83b            ;c844  fc f5       BRANCH_ALWAYS_TAKEN
+    bne lab_c83b            ;c844  fc f5        BRANCH_ALWAYS_TAKEN
 
 sub_c846:
     mov a, mem_00c5         ;c846  05 c5
@@ -19365,24 +19428,24 @@ lab_e6ce:
     ret                     ;e6e0  20
 
 
-fill_ix_plus_0x0b_downto_0:
+fill_12_bytes_at_ix:
     mov @ix+0x0b, a         ;e6e1  46 0b
     mov @ix+0x0a, a         ;e6e3  46 0a
     mov @ix+0x09, a         ;e6e5  46 09
     mov @ix+0x08, a         ;e6e7  46 08
 
-fill_ix_plus_0x07_downto_0:
+fill_8_bytes_at_ix:
     mov @ix+0x07, a         ;e6e9  46 07
     mov @ix+0x06, a         ;e6eb  46 06
 
-fill_ix_plus_0x05_downto_0:
+fill_6_bytes_at_ix:
     mov @ix+0x05, a         ;e6ed  46 05
 
-fill_ix_plus_0x04_downto_0:
+fill_5_bytes_at_ix:
     mov @ix+0x04, a         ;e6ef  46 04
     mov @ix+0x03, a         ;e6f1  46 03
 
-fill_ix_plus_0x02_downto_0:
+fill_3_bytes_at_ix:
     mov @ix+0x02, a         ;e6f3  46 02
     mov @ix+0x01, a         ;e6f5  46 01
     mov @ix+0x00, a         ;e6f7  46 00
@@ -20020,7 +20083,7 @@ lab_ea79:
 lab_ea8a:
     mov a, #0x00            ;ea8a  04 00
     movw ix, #mem_01da      ;ea8c  e6 01 da
-    call fill_ix_plus_0x07_downto_0           ;ea8f  31 e6 e9
+    call fill_8_bytes_at_ix ;ea8f  31 e6 e9
 
 lab_ea92:
     mov a, #0x00            ;ea92  04 00
@@ -20084,11 +20147,11 @@ lab_eaee:
 
 lab_eaef:
     bbc mem_00e1:4, lab_eaee ;eaef  b4 e1 fc
-    clrb mem_00e1:4         ;eaf2  a4 e1
-    mov a, #0x00            ;eaf4  04 00
-    movw ix, #mem_03b8      ;eaf6  e6 03 b8
-    call fill_ix_plus_0x0b_downto_0           ;eaf9  31 e6 e1
-    ret                     ;eafc  20
+    clrb mem_00e1:4          ;eaf2  a4 e1
+    mov a, #0x00             ;eaf4  04 00
+    movw ix, #mem_03b8       ;eaf6  e6 03 b8
+    call fill_12_bytes_at_ix ;eaf9  31 e6 e1
+    ret                      ;eafc  20
 
 sub_eafd:
     bbc mem_00e1:2, lab_eb1f ;eafd  b2 e1 1f
@@ -20278,7 +20341,7 @@ lab_ebfc:
 lab_ec06:
     movw ix, #mem_02b6      ;ec06  e6 02 b6
     mov a, #0x00            ;ec09  04 00
-    call fill_ix_plus_0x04_downto_0  ;ec0b  31 e6 ef
+    call fill_5_bytes_at_ix ;ec0b  31 e6 ef
     mov a, mem_00e0         ;ec0e  05 e0
     and a, #0x02            ;ec10  64 02
     bne lab_ec3b            ;ec12  fc 27
@@ -20286,20 +20349,23 @@ lab_ec06:
     setb mem_00e0:6         ;ec17  ae e0
 
 lab_ec19:
-    mov a, mem_01db         ;ec19  60 01 db
+    mov a, mem_01db         ;ec19  60 01 db     A = CD number
     mov mem_03d2, a         ;ec1c  61 03 d2
-    mov a, mem_01dc         ;ec1f  60 01 dc
+
+    mov a, mem_01dc         ;ec1f  60 01 dc     A = track number
     mov mem_03d3, a         ;ec22  61 03 d3
+
     mov a, mem_01df         ;ec25  60 01 df
     and a, #0x24            ;ec28  64 24
     beq lab_ec32            ;ec2a  fd 06
-    mov a, @ix+0x00         ;ec2c  06 00
-    or a, #0x02             ;ec2e  74 02
-    mov @ix+0x00, a         ;ec30  46 00
+
+    mov a, @ix+0x00         ;ec2c  06 00        A = Pictograph bits
+    or a, #0b0000010        ;ec2e  74 02        Turn on Bit 1 (MIX)
+    mov @ix+0x00, a         ;ec30  46 00        Store updated pictographs
 
 lab_ec32:
     bbc mem_00e0:6, lab_ebfc ;ec32  b6 e0 c7
-    call sub_ed0f           ;ec35  31 ed 0f
+    call sub_ed0f           ;ec35  31 ed 0f     Copy 5 bytes from IX to mem_03c7+
     jmp lab_ebfc            ;ec38  21 eb fc
 
 lab_ec3b:
@@ -20350,18 +20416,18 @@ lab_ec80:
     mov r0, #0x00           ;ec83  88 00
 
 lab_ec85:
-    mov a, mem_01db         ;ec85  60 01 db
+    mov a, mem_01db         ;ec85  60 01 db     A = CD number
     mov a, mem_03d2         ;ec88  60 03 d2
     xor a                   ;ec8b  52
-    and a, #0x0f            ;ec8c  64 0f
+    and a, #0x0f            ;ec8c  64 0f        Mask to leave only low nibble (CD number)
     bne lab_eca0            ;ec8e  fc 10
-    mov a, mem_01dc         ;ec90  60 01 dc
+    mov a, mem_01dc         ;ec90  60 01 dc     A = track number
     mov a, mem_03d3         ;ec93  60 03 d3
     xor a                   ;ec96  52
     bne lab_eca0            ;ec97  fc 07
     dec r0                  ;ec99  d8
-    beq lab_ecaf            ;ec9a  fd 13
-    call sub_ed4d           ;ec9c  31 ed 4d
+    beq lab_ecaf            ;ec9a  fd 13        0x0a 'CD....MAX..'
+    call sub_ed4d           ;ec9c  31 ed 4d     0x0b 'CD....MIN..'
     ret                     ;ec9f  20
 
 lab_eca0:
@@ -20376,7 +20442,7 @@ lab_eca4:
     jmp lab_ec85            ;ecac  21 ec 85
 
 lab_ecaf:
-    call sub_ed5a           ;ecaf  31 ed 5a
+    call sub_ed5a           ;ecaf  31 ed 5a     0x0a 'CD....MAX..'
     ret                     ;ecb2  20
 
 lab_ecb3:
@@ -20443,37 +20509,39 @@ lab_ed0b:
     ret                     ;ed0e  20
 
 sub_ed0f:
-    movw a, ix              ;ed0f  f2
-    movw ep, a              ;ed10  e3
-    movw ix, #mem_03c7      ;ed11  e6 03 c7
-    call copy_5_bytes_ep_to_ix ;ed14  31 ef 25
-    ret                     ;ed17  20
+;Copy 5 bytes from IX to mem_03c7+
+;Destroys A
+    movw a, ix                  ;ed0f  f2           A = IX
+    movw ep, a                  ;ed10  e3           EP = A
+    movw ix, #mem_03c7          ;ed11  e6 03 c7     IX = #mem_03c7
+    call copy_5_bytes_ep_to_ix  ;ed14  31 ef 25
+    ret                         ;ed17  20
 
 no_changer:
-    mov @ix+0x01, #0x05     ;ed18  86 01 05     0x05 'NO..CHANGER'
+    mov @ix+0x01, #0x05     ;ed18  86 01 05     Display number = 0x05 'NO..CHANGER'
     ret                     ;ed1b  20
 
 no_magazin:
-    mov @ix+0x01, #0x06     ;ed1c  86 01 06     0x06 'NO..MAGAZIN'
+    mov @ix+0x01, #0x06     ;ed1c  86 01 06     Display number = 0x06 'NO..MAGAZIN'
     ret                     ;ed1f  20
 
 chk_magazin:
-    mov @ix+0x01, #0x0c     ;ed20  86 01 0c     0x0c 'CHK.MAGAZIN'
+    mov @ix+0x01, #0x0c     ;ed20  86 01 0c     Display number = 0x0c 'CHK.MAGAZIN'
     jmp lab_ed32            ;ed23  21 ed 32
 
 no_disc:
-    mov @ix+0x01, #0x07     ;ed26  86 01 07     0x07 '....NO.DISC'
+    mov @ix+0x01, #0x07     ;ed26  86 01 07     Display number = 0x07 '....NO.DISC'
     ret                     ;ed29  20
 
 cd_no_cd:
-    mov @ix+0x01, #0x0f     ;ed2a  86 01 0f     0x0f 'CD...NO.CD.'
-    mov a, mem_03cc         ;ed2d  60 03 cc
-    mov @ix+0x02, a         ;ed30  46 02
+    mov @ix+0x01, #0x0f     ;ed2a  86 01 0f     Display number = 0x0f 'CD...NO.CD.'
+    mov a, mem_03cc         ;ed2d  60 03 cc     A = CD number
+    mov @ix+0x02, a         ;ed30  46 02        Display param 0 = CD number
 
 lab_ed32:
-    mov a, @ix+0x00         ;ed32  06 00
-    or a, #0x10             ;ed34  74 10
-    mov @ix+0x00, a         ;ed36  46 00
+    mov a, @ix+0x00         ;ed32  06 00        A = Pictograph bits
+    or a, #0b00010000       ;ed34  74 10        Turn on Bit 4 (HIDDEN_MODE_CD)
+    mov @ix+0x00, a         ;ed36  46 00        Store updated pictographs
     ret                     ;ed38  20
 
 sub_ed39:
@@ -20481,67 +20549,74 @@ sub_ed39:
     and a, #0x0e            ;ed3c  64 0e
     cmp a, #0x06            ;ed3e  14 06
     bne lab_ed48            ;ed40  fc 06
-    mov @ix+0x01, #0x0e     ;ed42  86 01 0e     0x0e 'CD...ERROR.'
+    mov @ix+0x01, #0x0e     ;ed42  86 01 0e     Display number = 0x0e 'CD...ERROR.'
     jmp lab_ed32            ;ed45  21 ed 32
 
 lab_ed48:
-    mov @ix+0x01, #0x0d     ;ed48  86 01 0d     0x0d 'CD..CD.ERR.'
-    bne lab_ed50            ;ed4b  fc 03       BRANCH_ALWAYS_TAKEN
+    mov @ix+0x01, #0x0d     ;ed48  86 01 0d     Display number = 0x0d 'CD..CD.ERR.'
+    bne lab_ed50            ;ed4b  fc 03        BRANCH_ALWAYS_TAKEN
 
 sub_ed4d:
-    mov @ix+0x01, #0x0b     ;ed4d  86 01 0b     0x0b 'CD....MIN..'
+    mov @ix+0x01, #0x0b     ;ed4d  86 01 0b     Display number = 0x0b 'CD....MIN..'
 
 lab_ed50:
-    mov a, mem_01db         ;ed50  60 01 db     CD number
+    mov a, mem_01db         ;ed50  60 01 db     A = CD number
     and a, #0x0f            ;ed53  64 0f        Mask to leave only low nibble (CD number)
-    mov @ix+0x02, a         ;ed55  46 02
+    mov @ix+0x02, a         ;ed55  46 02        Display param 0 = CD number
     jmp lab_ed32            ;ed57  21 ed 32
 
 sub_ed5a:
-    mov @ix+0x01, #0x0a     ;ed5a  86 01 0a     0x0a 'CD....MAX..'
+    mov @ix+0x01, #0x0a     ;ed5a  86 01 0a     Display number = 0x0a 'CD....MAX..'
     jmp lab_ed50            ;ed5d  21 ed 50
 
 sub_ed60:
-    mov a, mem_01dc         ;ed60  60 01 dc
-    bne lab_ed76            ;ed63  fc 11
-    mov a, mem_01db         ;ed65  60 01 db
-    and a, #0x0f            ;ed68  64 0f
-    bne lab_ed76            ;ed6a  fc 0a
+    mov a, mem_01dc         ;ed60  60 01 dc     A = track number
+    bne lab_ed76            ;ed63  fc 11        Branch if track number is non-zero
+
+    ;(track number = 0)
+    mov a, mem_01db         ;ed65  60 01 db     A = CD number
+    and a, #0x0f            ;ed68  64 0f        Mask to leave only low nibble (CD number)
+    bne lab_ed76            ;ed6a  fc 0a        Branch if CD number is non-zero
+
+    ;(CD number = 0)
     movw ix, #mem_02b6      ;ed6c  e6 02 b6
     movw ep, #mem_03d4      ;ed6f  e7 03 d4
     call copy_5_bytes_ep_to_ix ;ed72  31 ef 25
     ret                     ;ed75  20
 
 lab_ed76:
-    mov @ix+0x01, #0x01     ;ed76  86 01 01     0x01 'CD...TR....'
-    mov a, mem_01dc         ;ed79  60 01 dc
-    mov @ix+0x03, a         ;ed7c  46 03
+    ;(track number = non-zero)
+    ;or
+    ;(CD number = non-zero)
+    mov @ix+0x01, #0x01     ;ed76  86 01 01     Display number = 0x01 'CD...TR....'
+    mov a, mem_01dc         ;ed79  60 01 dc     A = track number
+    mov @ix+0x03, a         ;ed7c  46 03        Display param 1 = track number
     jmp lab_ed50            ;ed7e  21 ed 50
 
 sub_ed81:
     mov @ix+0x01, #0x02     ;ed81  86 01 02     0x02 'CUE........'
 
 lab_ed84:
-    mov a, mem_01dd         ;ed84  60 01 dd
-    mov @ix+0x03, a         ;ed87  46 03
-    mov a, mem_01de         ;ed89  60 01 de
-    mov @ix+0x04, a         ;ed8c  46 04
+    mov a, mem_01dd         ;ed84  60 01 dd     A = minutes
+    mov @ix+0x03, a         ;ed87  46 03        Display param 1 = minutes
+    mov a, mem_01de         ;ed89  60 01 de     A = seconds
+    mov @ix+0x04, a         ;ed8c  46 04        Display param 2 = seconds
 
 lab_ed8e:
-    mov a, @ix+0x00         ;ed8e  06 00
-    or a, #0x40             ;ed90  74 40
-    mov @ix+0x00, a         ;ed92  46 00
+    mov a, @ix+0x00         ;ed8e  06 00        A = Pictograph bits
+    or a, #0b01000000       ;ed90  74 40        Turn on Bit 6 (PERIOD)
+    mov @ix+0x00, a         ;ed92  46 00        Store updated pictographs
     jmp lab_ed32            ;ed94  21 ed 32
 
 sub_ed97:
-    mov @ix+0x01, #0x03     ;ed97  86 01 03     0x03 'REV........'
+    mov @ix+0x01, #0x03     ;ed97  86 01 03     Display number = 0x03 'REV........'
     jmp lab_ed84            ;ed9a  21 ed 84
 
 sub_ed9d:
-    mov @ix+0x01, #0x09     ;ed9d  86 01 09     0x09 'CD 6 1234  '
+    mov @ix+0x01, #0x09     ;ed9d  86 01 09     Display number = 0x09 'CD 6 1234  '
     mov a, mem_01db         ;eda0  60 01 db     A = CD number
     and a, #0x0f            ;eda3  64 0f        Mask to leave only low nibble (CD number)
-    mov @ix+0x02, a         ;eda5  46 02        Write CD number into buffer
+    mov @ix+0x02, a         ;eda5  46 02        Display param 0 = Store CD number
     jmp lab_ed84            ;eda7  21 ed 84
 
 sub_edaa:
@@ -20549,12 +20624,12 @@ sub_edaa:
     ret                     ;edad  20
 
 sub_edae:
-    mov @ix+0x01, #0x04     ;edae  86 01 04     0x04 'SCANCD.TR..'
-    mov a, mem_01db         ;edb1  60 01 db
-    and a, #0x0f            ;edb4  64 0f
-    mov @ix+0x02, a         ;edb6  46 02
-    mov a, mem_01dc         ;edb8  60 01 dc
-    mov @ix+0x03, a         ;edbb  46 03
+    mov @ix+0x01, #0x04     ;edae  86 01 04     Display number = 0x04 'SCANCD.TR..'
+    mov a, mem_01db         ;edb1  60 01 db     A = CD number
+    and a, #0x0f            ;edb4  64 0f        Mask to leave only low nibble (CD number)
+    mov @ix+0x02, a         ;edb6  46 02        Display param 0 = CD number
+    mov a, mem_01dc         ;edb8  60 01 dc     A = track number
+    mov @ix+0x03, a         ;edbb  46 03        Display param 1 = track number
     jmp lab_ed8e            ;edbd  21 ed 8e
 
 sub_edc0:
@@ -20579,46 +20654,46 @@ lab_edd5:
     jmp @a                  ;edd7  e0
 
 mem_edd8:
-    .word 0xea15            ;edd8  ea 15
-    .word lab_ee4b          ;edda  ee 4b       VECTOR
+    .word 0xea15            ;DATA
+    .word lab_ee4b          ;VECTOR
 
-    .word 0xe916            ;eddc  e9 16
-    .word lab_ee4b          ;edde  ee 4b       VECTOR
+    .word 0xe916            ;DATA
+    .word lab_ee4b          ;VECTOR
 
-    .word 0xd827
+    .word 0xd827            ;DATA
     .word lab_ee10          ;VECTOR
 
-    .word 0x0000
+    .word 0x0000            ;DATA
     .word lab_ee83          ;VECTOR
 
-    .word 0xf708
+    .word 0xf708            ;DATA
     .word lab_ee10          ;VECTOR
 
-    .word 0xf807
+    .word 0xf807            ;DATA
     .word lab_ee10          ;VECTOR
 
-    .word 0xf906
+    .word 0xf906            ;DATA
     .word lab_ee10          ;VECTOR
 
-    .word 0xfa05
+    .word 0xfa05            ;DATA
     .word lab_ee10          ;VECTOR
 
-    .word 0xe51a
+    .word 0xe51a            ;DATA
     .word lab_ee67          ;VECTOR
 
-    .word 0xe41b
+    .word 0xe41b            ;DATA
     .word lab_ee67          ;VECTOR
 
     .word 0xe11e
     .word lab_ee10          ;VECTOR
 
-    .word 0xe01f
+    .word 0xe01f            ;DATA
     .word lab_ee10          ;VECTOR
 
-    .word 0
+    .word 0                 ;DATA
     .word lab_ee26          ;VECTOR
 
-    .word 0
+    .word 0                 ;DATA
     .word lab_ee83          ;VECTOR
 
 
@@ -21185,7 +21260,7 @@ lab_f0f5:
 lab_f0f9:
     mov a, #0x00            ;f0f9  04 00
     movw ix, #mem_01f9      ;f0fb  e6 01 f9
-    call fill_ix_plus_0x07_downto_0           ;f0fe  31 e6 e9
+    call fill_8_bytes_at_ix ;f0fe  31 e6 e9
     mov a, mem_00da         ;f101  05 da
     and a, #0xe0            ;f103  64 e0
     mov mem_00da, a         ;f105  45 da
@@ -21667,7 +21742,7 @@ lab_f39d:
     bne lab_f3ac            ;f3a2  fc 08
     movw ix, #mem_028c      ;f3a4  e6 02 8c
     mov a, #0x00            ;f3a7  04 00
-    call fill_ix_plus_0x02_downto_0           ;f3a9  31 e6 f3
+    call fill_3_bytes_at_ix ;f3a9  31 e6 f3
 
 lab_f3ac:
     bbc mem_00dc:2, lab_f3fd ;f3ac  b2 dc 4e
@@ -22073,7 +22148,7 @@ lab_f626:
     clrc                    ;f62c  81
     addc a, #0x0d           ;f62d  24 0d
     mov a, #0x00            ;f62f  04 00
-    call fill_ix_plus_0x04_downto_0           ;f631  31 e6 ef
+    call fill_5_bytes_at_ix ;f631  31 e6 ef
     xchw a, t               ;f634  43
     mov @ix+0x02, a         ;f635  46 02
     mov @ix+0x01, #0x12     ;f637  86 01 12     0x12 'SET.ONVOL..'
@@ -22125,7 +22200,7 @@ lab_f675:
 
 lab_f67a:
     mov a, #0x00            ;f67a  04 00
-    call fill_ix_plus_0x04_downto_0 ;f67c  31 e6 ef
+    call fill_5_bytes_at_ix ;f67c  31 e6 ef
     xchw a, t               ;f67f  43
     mov @ix+0x01, a         ;f680  46 01
     ret                     ;f682  20
@@ -22149,7 +22224,7 @@ lab_f695:
 
 lab_f69a:
     mov a, #0x00            ;f69a  04 00
-    call fill_ix_plus_0x04_downto_0 ;f69c  31 e6 ef
+    call fill_5_bytes_at_ix ;f69c  31 e6 ef
     xchw a, t               ;f69f  43
     mov @ix+0x01, a         ;f6a0  46 01
     ret                     ;f6a2  20
@@ -23249,10 +23324,13 @@ lab_fcf9:
     call sub_fd4d           ;fcfc  31 fd 4d
     bbc mem_0097:2, lab_fd11 ;fcff  b2 97 0f
     mov a, #0x00            ;fd02  04 00
-    call fill_ix_plus_0x04_downto_0 ;fd04  31 e6 ef
+    call fill_5_bytes_at_ix ;fd04  31 e6 ef
+
     mov a, mem_01ef         ;fd07  60 01 ef
     cmp a, #0x10            ;fd0a  14 10
     bne lab_fd18            ;fd0c  fc 0a
+
+    ;(mem_01ef=0x10)
     mov @ix+0x01, #0x20     ;fd0e  86 01 20     0x20 'RAD.3CP.T7.'
 
 lab_fd11:
@@ -23264,12 +23342,16 @@ lab_fd11:
 lab_fd18:
     cmp a, #0x20            ;fd18  14 20
     bne lab_fd22            ;fd1a  fc 06
+
+    ;(mem_01ef=0x20)
     call sub_fd7d           ;fd1c  31 fd 7d     0x21 'VER........'
     jmp lab_fd11            ;fd1f  21 fd 11
 
 lab_fd22:
     cmp a, #0x50            ;fd22  14 50
     bne lab_fd11            ;fd24  fc eb
+
+    ;(mem_01ef=0x50)
     bbc pdr2:0, lab_fd2d    ;fd26  b0 04 04     PHANTOM_ON
     mov @ix+0x01, #0x30     ;fd29  86 01 30     0x30 'FERN...ON..'
     ret                     ;fd2c  20
@@ -23760,11 +23842,11 @@ kw_actuator_3:
     .byte 0xAB              ;ff5b  ab          DATA '\xab'
     .byte 0x03              ;ff5c  03          DATA '\x03'  Block end
 
-kw_rw_login:
-;Response to Read or write login word
+kw_rw_safe:
+;Response to Read or write SAFE code word
     .byte 0x05              ;ff5d  05          DATA '\x05'  Block length
     .byte 0x00              ;ff5e  00          DATA '\x00'  Block counter
-    .byte 0xF0              ;ff5f  f0          DATA '\xf0'  Block title (0xF0 = Response to Login)
+    .byte 0xF0              ;ff5f  f0          DATA '\xf0'  Block title (0xF0 = Response to R/W SAFE code word)
     .byte 0x00              ;ff60  00          DATA '\x00'
     .byte 0x00              ;ff61  00          DATA '\x00'
     .byte 0x03              ;ff62  03          DATA '\x03'  Block end

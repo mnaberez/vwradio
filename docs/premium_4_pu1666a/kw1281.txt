@@ -12,23 +12,30 @@
 ;  0x03 Block end                       mem_0118+8
 
 
-;KW1281 Read or write login word
+;KW1281 Read or write SAFE code word (16-bit BCD)
 ;
-;Request block format:
-;  0x08 Block length                    mem_0118+0
+;Request block format for read:
+;  0x04 Block length                    mem_0118+0
 ;  0x3E Block counter                   mem_0118+1
 ;  0xF0 Block title (0xF0)              mem_0118+2
-;  0x00 Mode byte                       mem_0118+3  0=Read, 1=Write
-;  0x00 Unknown byte 0                  mem_0118+4  Reads/writes mem_020f
-;  0x00 Unknown byte 1                  mem_0118+5  Reads/writes mem_0210
+;  0x00 Mode byte (0=Read)              mem_0118+3
+;  0x03 Block end                       mem_0118+4
+;
+;Request block format for write:
+;  0x06 Block length                    mem_0118+0
+;  0x3E Block counter                   mem_0118+1
+;  0xF0 Block title (0xF0)              mem_0118+2
+;  0x01 Mode byte (1=Write)             mem_0118+3
+;  0x00 SAFE code high byte (BCD)       mem_0118+4  Writes mem_020f
+;  0x00 SAFE code low byte (BCD)        mem_0118+5  Writes mem_020f+1
 ;  0x03 Block end                       mem_0118+6
 ;
-;Response block format:
+;Response block format for either:
 ;  0x05 Block length                    mem_012b+0
 ;  0x3F Block counter                   mem_012b+1
 ;  0xF0 Block title (0xF0)              mem_012b+2
-;  0x00 Unknown byte 0                  mem_012b+3  Reads byte at mem_020f
-;  0x01 Unknown byte 1                  mem_012b+4  Reads byte at mem_0210
+;  0x00 SAFE code high byte (BCD)       mem_012b+3  Reads mem_020f
+;  0x01 SAFE code low byte (BCD)        mem_012b+4  Reads mem_020f+1
 ;  0x03 Block end                       mem_012b+5
 
 
