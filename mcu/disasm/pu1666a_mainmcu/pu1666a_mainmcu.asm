@@ -18032,10 +18032,12 @@ sub_df28:
     ret                     ;df37  20
 
 lab_df38:
+;(mem_0389=2)
     mov a, mem_0390         ;df38  60 03 90
     beq lab_dfa0            ;df3b  fd 63
 
 lab_df3d:
+;(mem_0389=1)
     bbc mem_00f9:4, lab_df9c ;df3d  b4 f9 5c
     clrb mem_00f9:4         ;df40  a4 f9
     mov a, #0x00            ;df42  04 00
@@ -18113,6 +18115,7 @@ lab_dfa0:
     ret                     ;dfae  20
 
 lab_dfaf:
+;(mem_0389=3)
     mov a, mem_0390         ;dfaf  60 03 90
     bne lab_df9c            ;dfb2  fc e8
 
@@ -18385,8 +18388,8 @@ lab_e0ee:
 
 
 sub_e0f3:
-;Called from ISR for IRQ8 (UART)
-;only if mem_008c:7 = 0
+;Called only from ISR for IRQ8 (UART)
+;Only called if mem_008c:7 = 0
     bbc mem_00f9:3, lab_e101 ;e0f3  b3 f9 0b
     mov a, rxdr             ;e0f6  05 43
     mov mem_0088, a         ;e0f8  45 88        KW1281 byte received
@@ -18527,15 +18530,22 @@ sub_e1b8:
     mov a, #0x00            ;e1d1  04 00        A = value to store in mem_0385
     jmp lab_e154            ;e1d3  21 e1 54
 
+
 sub_e1d6:
+;Called only from sub_e0f3, which itself is called only from UART ISR
+;TODO what do 0x01 and 0x0a received mean?
     mov a, mem_0393         ;e1d6  60 03 93
-    cmp a, #0x01            ;e1d9  14 01
-    beq lab_e1e2            ;e1db  fd 05
-    cmp a, #0x02            ;e1dd  14 02
-    beq lab_e1ff            ;e1df  fd 1e
+
+    cmp a, #0x01            ;e1d9  14 01        mem_0393 case 1:
+    beq lab_e1e2            ;e1db  fd 05          Check if (KW1281 byte received & 0x7f) = 0x01
+
+    cmp a, #0x02            ;e1dd  14 02        mem_0393 case 2:
+    beq lab_e1ff            ;e1df  fd 1e          Check if (KW1281 byte received & 0x7f) = 0x0a
+
     ret                     ;e1e1  20
 
 lab_e1e2:
+;(mem_0393=1)
     mov a, mem_038c         ;e1e2  60 03 8c
     beq lab_e1fe            ;e1e5  fd 17
 
@@ -18548,7 +18558,7 @@ lab_e1e2:
     clrb mem_00f9:3         ;e1f2  a3 f9
     mov a, #0x05            ;e1f4  04 05
     mov mem_038c, a         ;e1f6  61 03 8c
-    mov a, #0x02            ;e1f9  04 02
+    mov a, #0x02            ;e1f9  04 02        A = value to store in mem_0393
 
 lab_e1fb:
     mov mem_0393, a         ;e1fb  61 03 93
@@ -18557,12 +18567,13 @@ lab_e1fe:
     ret                     ;e1fe  20
 
 lab_e1ff:
+;(mem_0393=2)
     mov a, mem_038c         ;e1ff  60 03 8c
     beq lab_e1fe            ;e202  fd fa
 
     mov a, mem_0088         ;e204  05 88        A = KW1281 byte received
     and a, #0x7f            ;e206  64 7f
-    cmp a, #0x0a            ;e208  14 0a
+    cmp a, #0x0a            ;e208  14 0a        A = value to store in mem_0393
     bne lab_e1fe            ;e20a  fc f2
 
     mov a, #0x09            ;e20c  04 09
@@ -18571,6 +18582,7 @@ lab_e1ff:
     mov mem_038b, a         ;e213  61 03 8b
     mov a, #0x00            ;e216  04 00
     beq lab_e1fb            ;e218  fd e1        BRANCH_ALWAYS_TAKEN
+
 
 lab_e21a:
 ;(mem_0388=0)
@@ -23012,7 +23024,6 @@ lab_fb5e:
     mov a, mem_00b4         ;fb7b  05 b4
     subc a, #0xf6           ;fb7d  34 f6
     movw a, #mem_fc57       ;fb7f  e4 fc 57
-
 lab_fb82:
     clrc                    ;fb82  81
     addcw a                 ;fb83  23
@@ -23093,6 +23104,7 @@ lab_fbf0:
     .byte 0x02              ;fc02  02          DATA '\x02'
 
 mem_fc03:
+;Table used with sub_fcd7
     .byte 0x30              ;fc03  30          DATA '0'
     .byte 0x24              ;fc04  24          DATA '$'
     .byte 0x0C              ;fc05  0c          DATA '\x0c'
@@ -23252,6 +23264,7 @@ lab_fcae:
     ret                     ;fcae  20
 
 mem_fcaf:
+;Table used with sub_fcd7
     .byte 0x31              ;fcaf  31          DATA '1'
     .byte 0x14              ;fcb0  14          DATA '\x14'
     .byte 0x00              ;fcb1  00          DATA '\x00'
