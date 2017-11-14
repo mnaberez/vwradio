@@ -1379,12 +1379,12 @@ lab_84db:
     bbs mem_008c:7, lab_8511 ;84f7  bf 8c 17
     setb mem_00ed:1         ;84fa  a9 ed
     mov a, #0x02            ;84fc  04 02
-    bne lab_850e            ;84fe  fc 0e       BRANCH_ALWAYS_TAKEN
+    bne lab_850e            ;84fe  fc 0e        BRANCH_ALWAYS_TAKEN
 
 lab_8500:
     setb mem_00ed:0         ;8500  a8 ed
     mov a, #0x01            ;8502  04 01
-    bne lab_850e            ;8504  fc 08       BRANCH_ALWAYS_TAKEN
+    bne lab_850e            ;8504  fc 08        BRANCH_ALWAYS_TAKEN
 
 lab_8506:
     bbs mem_00ed:1, lab_8511 ;8506  b9 ed 08
@@ -1418,7 +1418,7 @@ lab_8525:
 lab_8527:
     cmp a, #0x01            ;8527  14 01
     beq lab_8525            ;8529  fd fa
-    bne lab_8523            ;852b  fc f6       BRANCH_ALWAYS_TAKEN
+    bne lab_8523            ;852b  fc f6        BRANCH_ALWAYS_TAKEN
 
 sub_852d:
     bnc lab_853f            ;852d  f8 10
@@ -1561,7 +1561,7 @@ lab_85f0:
 lab_85f8:
     mov a, mem_02ce         ;85f8  60 02 ce
     bne lab_85e5            ;85fb  fc e8
-    beq lab_85f0            ;85fd  fd f1       BRANCH_ALWAYS_TAKEN
+    beq lab_85f0            ;85fd  fd f1        BRANCH_ALWAYS_TAKEN
 
 lab_85ff:
     mov a, mem_0236         ;85ff  60 02 36
@@ -1595,7 +1595,7 @@ lab_8629:
     mov a, mem_00ae         ;862f  05 ae
     xorw a                  ;8631  53
     beq lab_8648            ;8632  fd 14
-    bne lab_8616            ;8634  fc e0       BRANCH_ALWAYS_TAKEN
+    bne lab_8616            ;8634  fc e0        BRANCH_ALWAYS_TAKEN
 
 lab_8636:
     movw a, #0x0000         ;8636  e4 00 00
@@ -1636,7 +1636,7 @@ lab_866a:
     cmp a, #0x12            ;8671  14 12       0x12 = tape side key
     beq lab_8689            ;8673  fd 14
     movw ix, #mem_868e      ;8675  e6 86 8e
-    bne lab_8682            ;8678  fc 08       BRANCH_ALWAYS_TAKEN
+    bne lab_8682            ;8678  fc 08        BRANCH_ALWAYS_TAKEN
 
 lab_867a:
     cmp mem_0096, #0x03     ;867a  95 96 03
@@ -1677,7 +1677,7 @@ lab_8694:
     cmp mem_0096, #0x04     ;8694  95 96 04
     bne lab_86a2            ;8697  fc 09
     movw ix, #mem_869e      ;8699  e6 86 9e
-    beq lab_8682            ;869c  fd e4       BRANCH_ALWAYS_TAKEN
+    beq lab_8682            ;869c  fd e4        BRANCH_ALWAYS_TAKEN
 
 mem_869e:
 ;Lookup table used with sub_e76c
@@ -1691,7 +1691,7 @@ lab_86a2:
     cmp mem_0096, #0x0a     ;86a2  95 96 0a
     bne lab_86b3            ;86a5  fc 0c
     movw ix, #mem_86ac      ;86a7  e6 86 ac
-    beq lab_8682            ;86aa  fd d6       BRANCH_ALWAYS_TAKEN
+    beq lab_8682            ;86aa  fd d6        BRANCH_ALWAYS_TAKEN
 
 mem_86ac:
 ;Lookup table used with sub_e76c
@@ -1718,11 +1718,11 @@ lab_86b3:
     beq lab_86d0            ;86c8  fd 06
     cmp a, #0x0e            ;86ca  14 0e        0x0e = tune down key
     beq lab_86d0            ;86cc  fd 02
-    bne lab_86e5            ;86ce  fc 15       BRANCH_ALWAYS_TAKEN
+    bne lab_86e5            ;86ce  fc 15        BRANCH_ALWAYS_TAKEN
 
 lab_86d0:
     mov a, #0x20            ;86d0  04 20
-    bne lab_86e3            ;86d2  fc 0f       BRANCH_ALWAYS_TAKEN
+    bne lab_86e3            ;86d2  fc 0f        BRANCH_ALWAYS_TAKEN
 
 lab_86d4:
     cmp mem_0095, #0x01     ;86d4  95 95 01
@@ -2016,7 +2016,7 @@ lab_885a:
 lab_885b:
     cmp r0, #0x00           ;885b  98 00
     beq lab_885a            ;885d  fd fb
-    bne lab_8851            ;885f  fc f0       BRANCH_ALWAYS_TAKEN
+    bne lab_8851            ;885f  fc f0        BRANCH_ALWAYS_TAKEN
 
 lab_8861:
 ;mem_fe00 table case for tape
@@ -2121,7 +2121,7 @@ lab_88ee:
     beq lab_88fd            ;88f5  fd 06
     cmp a, #0x02            ;88f7  14 02
     beq lab_890a            ;88f9  fd 0f
-    bne lab_890d            ;88fb  fc 10       BRANCH_ALWAYS_TAKEN
+    bne lab_890d            ;88fb  fc 10        BRANCH_ALWAYS_TAKEN
 
 lab_88fd:
     bbc mem_009e:0, lab_8907 ;88fd  b0 9e 07
@@ -2166,7 +2166,7 @@ lab_892e:
 
 lab_8932:
     mov a, #0x0e            ;8932  04 0e
-    bne lab_892a            ;8934  fc f4       BRANCH_ALWAYS_TAKEN
+    bne lab_892a            ;8934  fc f4        BRANCH_ALWAYS_TAKEN
 
 sub_8936:
 ;mem_fe00 table case for seek down
@@ -2233,7 +2233,7 @@ lab_897f:
     beq lab_898b            ;8983  fd 06
     cmp a, #0x02            ;8985  14 02
     beq lab_898b            ;8987  fd 02
-    bne lab_898e            ;8989  fc 03       BRANCH_ALWAYS_TAKEN
+    bne lab_898e            ;8989  fc 03        BRANCH_ALWAYS_TAKEN
 
 lab_898b:
     call sub_9a02           ;898b  31 9a 02
@@ -2458,7 +2458,7 @@ lab_8ab3:
     beq lab_8ac5            ;8abd  fd 06
     cmp a, #0x05            ;8abf  14 05
     beq lab_8ac5            ;8ac1  fd 02
-    bne lab_8b15            ;8ac3  fc 50       BRANCH_ALWAYS_TAKEN
+    bne lab_8b15            ;8ac3  fc 50        BRANCH_ALWAYS_TAKEN
 
 lab_8ac5:
     cmp mem_0096, #0x0b     ;8ac5  95 96 0b
@@ -2529,7 +2529,7 @@ lab_8b1d:
     bne lab_8b2c            ;8b24  fc 06
     mov a, mem_00c5         ;8b26  05 c5
     beq lab_8b38            ;8b28  fd 0e
-    bne lab_8b31            ;8b2a  fc 05       BRANCH_ALWAYS_TAKEN
+    bne lab_8b31            ;8b2a  fc 05        BRANCH_ALWAYS_TAKEN
 
 lab_8b2c:
     cmp a, #0x02            ;8b2c  14 02
@@ -2590,7 +2590,7 @@ lab_8b64:
     beq lab_8b8a            ;8b70  fd 18
     cmp a, #0x0b            ;8b72  14 0b
     bne lab_8b99            ;8b74  fc 23
-    beq lab_8bc1            ;8b76  fd 49       BRANCH_ALWAYS_TAKEN
+    beq lab_8bc1            ;8b76  fd 49        BRANCH_ALWAYS_TAKEN
 
 lab_8b78:
     movw ix, #mem_868f      ;8b78  e6 86 8f
@@ -2879,19 +2879,19 @@ lab_8cde:
 
 sub_8cdf:
     movw a, #0x03e8         ;8cdf  e4 03 e8
-    bne lab_8cf6            ;8ce2  fc 12       BRANCH_ALWAYS_TAKEN
+    bne lab_8cf6            ;8ce2  fc 12        BRANCH_ALWAYS_TAKEN
 
 sub_8ce4:
     movw a, #0x01f4         ;8ce4  e4 01 f4
-    bne lab_8cf6            ;8ce7  fc 0d       BRANCH_ALWAYS_TAKEN
+    bne lab_8cf6            ;8ce7  fc 0d        BRANCH_ALWAYS_TAKEN
 
 sub_8ce9:
     movw a, #0x012c         ;8ce9  e4 01 2c
-    bne lab_8cf6            ;8cec  fc 08       BRANCH_ALWAYS_TAKEN
+    bne lab_8cf6            ;8cec  fc 08        BRANCH_ALWAYS_TAKEN
 
 sub_8cee:
     movw a, #0x00c8         ;8cee  e4 00 c8
-    bne lab_8cf6            ;8cf1  fc 03       BRANCH_ALWAYS_TAKEN
+    bne lab_8cf6            ;8cf1  fc 03        BRANCH_ALWAYS_TAKEN
 
 sub_8cf3:
     movw a, #0x001e         ;8cf3  e4 00 1e
@@ -3083,7 +3083,7 @@ lab_8dfe:
     movw a, #0x0e10         ;8e00  e4 0e 10
     movw mem_0211, a        ;8e03  d4 02 11
     clrb mem_00d0:3         ;8e06  a3 d0
-    bne lab_8deb            ;8e08  fc e1       BRANCH_ALWAYS_TAKEN
+    bne lab_8deb            ;8e08  fc e1        BRANCH_ALWAYS_TAKEN
 
 sub_8e0a:
     clrb mem_00ed:1         ;8e0a  a1 ed
@@ -3104,7 +3104,7 @@ lab_8e26:
     mov a, #0x00            ;8e29  04 00
     mov mem_033a, a         ;8e2b  61 03 3a
     mov a, #0x0b            ;8e2e  04 0b
-    bne lab_8e34            ;8e30  fc 02       BRANCH_ALWAYS_TAKEN
+    bne lab_8e34            ;8e30  fc 02        BRANCH_ALWAYS_TAKEN
 
 lab_8e32:
     mov a, #0x0a            ;8e32  04 0a
@@ -3218,7 +3218,7 @@ lab_8ecd:
     and a, #0xe0            ;8ed2  64 e0
     cmp a, #0xc0            ;8ed4  14 c0
     beq lab_8eca            ;8ed6  fd f2
-    bne lab_8ec7            ;8ed8  fc ed       BRANCH_ALWAYS_TAKEN
+    bne lab_8ec7            ;8ed8  fc ed        BRANCH_ALWAYS_TAKEN
 
 sub_8eda:
     mov a, mem_02c3         ;8eda  60 02 c3
@@ -3322,7 +3322,7 @@ lab_8f82:
     clrb mem_00e9:6         ;8f86  a6 e9
     call sub_90cb           ;8f88  31 90 cb
     movw a, #0x0a02         ;8f8b  e4 0a 02
-    bne lab_8fb9            ;8f8e  fc 29       BRANCH_ALWAYS_TAKEN
+    bne lab_8fb9            ;8f8e  fc 29        BRANCH_ALWAYS_TAKEN
 
 lab_8f90:
 ;mem_8f44 table case 2
@@ -3400,7 +3400,7 @@ lab_9003:
     setb pdr2:1             ;9010  a9 04        /TAPE_ON=high
     call sub_c18a           ;9012  31 c1 8a
     movw a, #0x0a0d         ;9015  e4 0a 0d
-    bne lab_8fb9            ;9018  fc 9f       BRANCH_ALWAYS_TAKEN
+    bne lab_8fb9            ;9018  fc 9f        BRANCH_ALWAYS_TAKEN
 
 lab_901a:
 ;mem_8f44 table case 7
@@ -3706,7 +3706,7 @@ sub_9235:
     mov a, mem_00e8         ;9235  05 e8
     and a, #0x03            ;9237  64 03
     beq lab_923d            ;9239  fd 02
-    bne lab_924a            ;923b  fc 0d       BRANCH_ALWAYS_TAKEN
+    bne lab_924a            ;923b  fc 0d        BRANCH_ALWAYS_TAKEN
 
 lab_923d:
     mov a, mem_019f         ;923d  60 01 9f
@@ -3901,11 +3901,11 @@ sub_9346:
 
 lab_9355:
     mov a, #0x00            ;9355  04 00
-    beq lab_935f            ;9357  fd 06       BRANCH_ALWAYS_TAKEN
+    beq lab_935f            ;9357  fd 06        BRANCH_ALWAYS_TAKEN
 
 lab_9359:
     mov a, #0x01            ;9359  04 01
-    bne lab_935f            ;935b  fc 02       BRANCH_ALWAYS_TAKEN
+    bne lab_935f            ;935b  fc 02        BRANCH_ALWAYS_TAKEN
 
 lab_935d:
     mov a, #0x02            ;935d  04 02
@@ -4009,11 +4009,11 @@ sub_93cf:
     cmpw a                  ;93e4  13
     bhs lab_93eb            ;93e5  f8 04
     mov a, #0x02            ;93e7  04 02
-    bne lab_93f1            ;93e9  fc 06       BRANCH_ALWAYS_TAKEN
+    bne lab_93f1            ;93e9  fc 06        BRANCH_ALWAYS_TAKEN
 
 lab_93eb:
     mov a, #0x01            ;93eb  04 01
-    bne lab_93f1            ;93ed  fc 02       BRANCH_ALWAYS_TAKEN
+    bne lab_93f1            ;93ed  fc 02        BRANCH_ALWAYS_TAKEN
 
 lab_93ef:
     mov a, #0x00            ;93ef  04 00
@@ -4065,7 +4065,7 @@ lab_9420:
     beq lab_944d            ;9445  fd 06
     cmp a, #0x0f            ;9447  14 0f
     bne lab_945a            ;9449  fc 0f
-    beq lab_9462            ;944b  fd 15       BRANCH_ALWAYS_TAKEN
+    beq lab_9462            ;944b  fd 15        BRANCH_ALWAYS_TAKEN
 
 lab_944d:
     clrb mem_00d7:6         ;944d  a6 d7
@@ -4181,11 +4181,11 @@ lab_94f4:
 
 lab_94fe:
     movw a, #0x0a03         ;94fe  e4 0a 03
-    bne lab_94ec            ;9501  fc e9       BRANCH_ALWAYS_TAKEN
+    bne lab_94ec            ;9501  fc e9        BRANCH_ALWAYS_TAKEN
 
 lab_9503:
     movw a, #0x0000         ;9503  e4 00 00
-    beq lab_94ec            ;9506  fd e4       BRANCH_ALWAYS_TAKEN
+    beq lab_94ec            ;9506  fd e4        BRANCH_ALWAYS_TAKEN
 
 lab_9508:
     bbs mem_00cf:5, lab_9514 ;9508  bd cf 09
@@ -4200,7 +4200,7 @@ lab_9514:
     setb pdr2:5             ;9516  ad 04        REM_AMP_ON=high
     clrb mem_00e9:4         ;9518  a4 e9
     movw a, #0x1e05         ;951a  e4 1e 05
-    bne lab_94ec            ;951d  fc cd       BRANCH_ALWAYS_TAKEN
+    bne lab_94ec            ;951d  fc cd        BRANCH_ALWAYS_TAKEN
 
 lab_951f:
     clrb pdr8:4             ;951f  a4 14        AMP_ON=low
@@ -4210,7 +4210,7 @@ lab_951f:
 
 lab_9528:
     movw a, #0x1406         ;9528  e4 14 06
-    bne lab_94ec            ;952b  fc bf       BRANCH_ALWAYS_TAKEN
+    bne lab_94ec            ;952b  fc bf        BRANCH_ALWAYS_TAKEN
 
 lab_952d:
     setb mem_00e9:4         ;952d  ac e9
@@ -4229,11 +4229,11 @@ sub_9532:
     cmpw a                  ;9547  13
     bhs lab_954e            ;9548  f8 04
     mov a, #0x02            ;954a  04 02
-    bne lab_9554            ;954c  fc 06       BRANCH_ALWAYS_TAKEN
+    bne lab_9554            ;954c  fc 06        BRANCH_ALWAYS_TAKEN
 
 lab_954e:
     mov a, #0x01            ;954e  04 01
-    bne lab_9554            ;9550  fc 02       BRANCH_ALWAYS_TAKEN
+    bne lab_9554            ;9550  fc 02        BRANCH_ALWAYS_TAKEN
 
 lab_9552:
     mov a, #0x00            ;9552  04 00
@@ -4339,7 +4339,7 @@ lab_95f4:
     bne lab_960b            ;9601  fc 08
     movw a, mem_0296        ;9603  c4 02 96
     movw a, #0x0c00         ;9606  e4 0c 00
-    bne lab_961a            ;9609  fc 0f       BRANCH_ALWAYS_TAKEN
+    bne lab_961a            ;9609  fc 0f        BRANCH_ALWAYS_TAKEN
 
 lab_960b:
     clrb mem_00dc:0         ;960b  a0 dc
@@ -4361,12 +4361,12 @@ lab_961a:
     beq lab_9634            ;962c  fd 06
     setb mem_00dc:0         ;962e  a8 dc
     setb mem_00dc:5         ;9630  ad dc
-    bne lab_9642            ;9632  fc 0e       BRANCH_ALWAYS_TAKEN
+    bne lab_9642            ;9632  fc 0e        BRANCH_ALWAYS_TAKEN
 
 lab_9634:
     mov a, mem_00c5         ;9634  05 c5
     beq lab_9647            ;9636  fd 0f
-    bne lab_963e            ;9638  fc 04       BRANCH_ALWAYS_TAKEN
+    bne lab_963e            ;9638  fc 04        BRANCH_ALWAYS_TAKEN
 
 lab_963a:
     mov a, mem_00c5         ;963a  05 c5
@@ -4721,12 +4721,12 @@ lab_982f:
     mov mem_00c2, #0x08     ;9837  85 c2 08
     mov a, #0xb2            ;983a  04 b2
     mov mem_00f1, a         ;983c  45 f1
-    bne lab_9820            ;983e  fc e0       BRANCH_ALWAYS_TAKEN
+    bne lab_9820            ;983e  fc e0        BRANCH_ALWAYS_TAKEN
 
 lab_9840:
     mov a, mem_00f1         ;9840  05 f1
     bne lab_982e            ;9842  fc ea
-    beq lab_981a            ;9844  fd d4       BRANCH_ALWAYS_TAKEN
+    beq lab_981a            ;9844  fd d4        BRANCH_ALWAYS_TAKEN
 
 lab_9846:
     movw a, #0x0000         ;9846  e4 00 00
@@ -4829,7 +4829,7 @@ lab_98d4:
     cmp a, #0x02            ;98d7  14 02
     blo lab_98df            ;98d9  f9 04
     clrb mem_00c9:2         ;98db  a2 c9
-    bhs lab_98ea            ;98dd  f8 0b       BRANCH_ALWAYS_TAKEN
+    bhs lab_98ea            ;98dd  f8 0b        BRANCH_ALWAYS_TAKEN
 
 lab_98df:
     mov a, mem_01ba         ;98df  60 01 ba
@@ -4971,11 +4971,11 @@ lab_9993:
 
 sub_99a7:
     movw a, #0x01f4         ;99a7  e4 01 f4
-    bne lab_99b4            ;99aa  fc 08       BRANCH_ALWAYS_TAKEN
+    bne lab_99b4            ;99aa  fc 08        BRANCH_ALWAYS_TAKEN
 
 sub_99ac:
     movw a, #0x006e         ;99ac  e4 00 6e
-    bne lab_99b4            ;99af  fc 03       BRANCH_ALWAYS_TAKEN
+    bne lab_99b4            ;99af  fc 03        BRANCH_ALWAYS_TAKEN
 
 sub_99b1:
     movw a, #0x0003         ;99b1  e4 00 03
@@ -4989,19 +4989,19 @@ sub_99ba:
     bbc mem_00c9:4, sub_99cb ;99ba  b4 c9 0e
     clrb mem_00c9:4         ;99bd  a4 c9
     mov a, #0x14            ;99bf  04 14
-    bne lab_99d1            ;99c1  fc 0e       BRANCH_ALWAYS_TAKEN
+    bne lab_99d1            ;99c1  fc 0e        BRANCH_ALWAYS_TAKEN
 
 sub_99c3:
     mov a, #0x19            ;99c3  04 19
-    bne lab_99d1            ;99c5  fc 0a       BRANCH_ALWAYS_TAKEN
+    bne lab_99d1            ;99c5  fc 0a        BRANCH_ALWAYS_TAKEN
 
 sub_99c7:
     mov a, #0x0a            ;99c7  04 0a
-    bne lab_99d1            ;99c9  fc 06       BRANCH_ALWAYS_TAKEN
+    bne lab_99d1            ;99c9  fc 06        BRANCH_ALWAYS_TAKEN
 
 sub_99cb:
     mov a, #0x05            ;99cb  04 05
-    bne lab_99d1            ;99cd  fc 02       BRANCH_ALWAYS_TAKEN
+    bne lab_99d1            ;99cd  fc 02        BRANCH_ALWAYS_TAKEN
 
     ;XXX 99cf looks unreachable
     mov a, #0x03            ;99cf  04 03
@@ -5020,13 +5020,13 @@ lab_99dc:
     mov a, mem_00c5         ;99dc  05 c5
     bne lab_99e5            ;99de  fc 05
     movw ep, #mem_01a5      ;99e0  e7 01 a5
-    beq lab_99f5            ;99e3  fd 10       BRANCH_ALWAYS_TAKEN
+    beq lab_99f5            ;99e3  fd 10        BRANCH_ALWAYS_TAKEN
 
 lab_99e5:
     cmp a, #0x01            ;99e5  14 01
     bne lab_99ee            ;99e7  fc 05
     movw ep, #mem_01ac      ;99e9  e7 01 ac
-    beq lab_99f5            ;99ec  fd 07       BRANCH_ALWAYS_TAKEN
+    beq lab_99f5            ;99ec  fd 07        BRANCH_ALWAYS_TAKEN
 
 lab_99ee:
     cmp a, #0x02            ;99ee  14 02
@@ -5050,7 +5050,7 @@ lab_9a01:
 
 sub_9a02:
     mov a, #0x01            ;9a02  04 01
-    bne lab_99dc            ;9a04  fc d6       BRANCH_ALWAYS_TAKEN
+    bne lab_99dc            ;9a04  fc d6        BRANCH_ALWAYS_TAKEN
 
 sub_9a06:
     bbc mem_00c9:5, lab_9a39 ;9a06  b5 c9 30
@@ -5173,14 +5173,14 @@ lab_9ab8:
     call sub_9d61           ;9ab8  31 9d 61
     call sub_9ec3           ;9abb  31 9e c3
     mov a, #0x16            ;9abe  04 16
-    bne lab_9ab5            ;9ac0  fc f3       BRANCH_ALWAYS_TAKEN
+    bne lab_9ab5            ;9ac0  fc f3        BRANCH_ALWAYS_TAKEN
 
 lab_9ac2:
     mov a, mem_0312         ;9ac2  60 03 12
     bne lab_9af3            ;9ac5  fc 2c
     call sub_9da9           ;9ac7  31 9d a9
     mov a, #0x08            ;9aca  04 08
-    bne lab_9ab5            ;9acc  fc e7       BRANCH_ALWAYS_TAKEN
+    bne lab_9ab5            ;9acc  fc e7        BRANCH_ALWAYS_TAKEN
 
 lab_9ace:
     mov a, mem_0312         ;9ace  60 03 12
@@ -5235,7 +5235,7 @@ lab_9b18:
     jmp lab_9b8a            ;9b23  21 9b 8a
 
 lab_9b26:
-    .byte 0x60, 0x00, 0xf6  ;9b26  60 00 f6    EXTENDED_ADDRESS_PAGE_0  mov a, mem_00f6
+    .byte 0x60, 0x00, 0xf6  ;9b26  60 00 f6     EXTENDED_ADDRESS_PAGE_0  mov a, mem_00f6
     and a, #0x0f            ;9b29  64 0f
     cmp a, #0x05            ;9b2b  14 05
     bhs lab_9b42            ;9b2d  f8 13
@@ -5256,7 +5256,7 @@ lab_9b42:
 lab_9b45:
     mov a, #0x07            ;9b45  04 07
     mov mem_0349, a         ;9b47  61 03 49
-    .byte 0x60, 0x00, 0xf6  ;9b4a  60 00 f6    EXTENDED_ADDRESS_PAGE_0  mov a, mem_00f6
+    .byte 0x60, 0x00, 0xf6  ;9b4a  60 00 f6     EXTENDED_ADDRESS_PAGE_0  mov a, mem_00f6
     and a, #0x0f            ;9b4d  64 0f
     cmp a, #0x01            ;9b4f  14 01
     beq lab_9b93            ;9b51  fd 40
@@ -5284,7 +5284,7 @@ lab_9b70:
     beq lab_9b93            ;9b78  fd 19
     mov a, #0x02            ;9b7a  04 02
     mov mem_0308, a         ;9b7c  61 03 08
-    bne lab_9b8a            ;9b7f  fc 09       BRANCH_ALWAYS_TAKEN
+    bne lab_9b8a            ;9b7f  fc 09        BRANCH_ALWAYS_TAKEN
 
 lab_9b81:
     call sub_9e41           ;9b81  31 9e 41
@@ -5340,20 +5340,20 @@ lab_9bc0:
 
 lab_9bcc:
     mov mem_00c2, #0x01     ;9bcc  85 c2 01
-    bne lab_9be5            ;9bcf  fc 14       BRANCH_NEVER_TAKEN
+    bne lab_9be5            ;9bcf  fc 14        BRANCH_NEVER_TAKEN
 
 lab_9bd1:
     cmp a, #0x02            ;9bd1  14 02
     bne lab_9bdc            ;9bd3  fc 07
     clrb mem_00ca:6         ;9bd5  a6 ca
     mov mem_00ce, #0x01     ;9bd7  85 ce 01
-    beq lab_9be5            ;9bda  fd 09       BRANCH_ALWAYS_TAKEN
+    beq lab_9be5            ;9bda  fd 09        BRANCH_ALWAYS_TAKEN
 
 lab_9bdc:
     cmp a, #0x0f            ;9bdc  14 0f
     bne lab_9be5            ;9bde  fc 05
     mov mem_0095, #0x00     ;9be0  85 95 00
-    bne lab_9bcc            ;9be3  fc e7       BRANCH_NEVER_TAKEN
+    bne lab_9bcc            ;9be3  fc e7        BRANCH_NEVER_TAKEN
 
 lab_9be5:
     jmp lab_9c55            ;9be5  21 9c 55
@@ -5368,7 +5368,7 @@ lab_9be8:
     bne lab_9bff            ;9bf7  fc 06
     mov a, #0x00            ;9bf9  04 00
     mov a, #0x14            ;9bfb  04 14
-    bne lab_9c21            ;9bfd  fc 22       BRANCH_ALWAYS_TAKEN
+    bne lab_9c21            ;9bfd  fc 22        BRANCH_ALWAYS_TAKEN
 
 lab_9bff:
     mov a, #0x01            ;9bff  04 01
@@ -5376,7 +5376,7 @@ lab_9bff:
     call sub_8eda           ;9c04  31 8e da
     mov a, #0x05            ;9c07  04 05
     mov a, #0x1d            ;9c09  04 1d
-    bne lab_9c21            ;9c0b  fc 14       BRANCH_ALWAYS_TAKEN
+    bne lab_9c21            ;9c0b  fc 14        BRANCH_ALWAYS_TAKEN
 
 lab_9c0d:
     mov a, mem_0312         ;9c0d  60 03 12
@@ -5407,7 +5407,7 @@ lab_9c28:
 lab_9c37:
     mov a, #0x00            ;9c37  04 00
     mov a, #0x00            ;9c39  04 00
-    beq lab_9c21            ;9c3b  fd e4       BRANCH_ALWAYS_TAKEN
+    beq lab_9c21            ;9c3b  fd e4        BRANCH_ALWAYS_TAKEN
 
 lab_9c3d:
     call sub_9c7b           ;9c3d  31 9c 7b
@@ -5435,23 +5435,23 @@ lab_9c55:
 lab_9c59:
     call sub_9c7b           ;9c59  31 9c 7b
     mov a, #0x03            ;9c5c  04 03
-    bne lab_9c42            ;9c5e  fc e2       BRANCH_ALWAYS_TAKEN
+    bne lab_9c42            ;9c5e  fc e2        BRANCH_ALWAYS_TAKEN
 
 lab_9c60:
     mov a, #0x04            ;9c60  04 04
-    bne lab_9c42            ;9c62  fc de       BRANCH_ALWAYS_TAKEN
+    bne lab_9c42            ;9c62  fc de        BRANCH_ALWAYS_TAKEN
 
 lab_9c64:
     mov a, #0x05            ;9c64  04 05
-    bne lab_9c42            ;9c66  fc da       BRANCH_ALWAYS_TAKEN
+    bne lab_9c42            ;9c66  fc da        BRANCH_ALWAYS_TAKEN
 
 lab_9c68:
     call sub_9c6f           ;9c68  31 9c 6f
     mov a, #0x06            ;9c6b  04 06
-    bne lab_9c42            ;9c6d  fc d3       BRANCH_ALWAYS_TAKEN
+    bne lab_9c42            ;9c6d  fc d3        BRANCH_ALWAYS_TAKEN
 
 sub_9c6f:
-    .byte 0x60, 0x00, 0xf6  ;9c6f  60 00 f6    EXTENDED_ADDRESS_PAGE_0  mov a, mem_00f6
+    .byte 0x60, 0x00, 0xf6  ;9c6f  60 00 f6     EXTENDED_ADDRESS_PAGE_0  mov a, mem_00f6
     cmp a, #0x12            ;9c72  14 12
     beq lab_9c90            ;9c74  fd 1a
     cmp a, #0x52            ;9c76  14 52
@@ -5459,7 +5459,7 @@ sub_9c6f:
     ret                     ;9c7a  20
 
 sub_9c7b:
-    .byte 0x60, 0x00, 0xf6  ;9c7b  60 00 f6    EXTENDED_ADDRESS_PAGE_0  mov a, mem_00f6
+    .byte 0x60, 0x00, 0xf6  ;9c7b  60 00 f6     EXTENDED_ADDRESS_PAGE_0  mov a, mem_00f6
     cmp a, #0x02            ;9c7e  14 02
     beq lab_9c90            ;9c80  fd 0e
     cmp a, #0x42            ;9c82  14 42
@@ -5489,7 +5489,7 @@ lab_9ca3:
 
 lab_9ca9:
     mov a, #0x08            ;9ca9  04 08
-    bne lab_9c42            ;9cab  fc 95       BRANCH_ALWAYS_TAKEN
+    bne lab_9c42            ;9cab  fc 95        BRANCH_ALWAYS_TAKEN
 
 lab_9cad:
     bbs pdr3:6, lab_9c55    ;9cad  be 0c a5     TAPE_TRACK_SW
@@ -5497,7 +5497,7 @@ lab_9cad:
 
 lab_9cb3:
     mov a, #0x09            ;9cb3  04 09
-    bne lab_9c4e            ;9cb5  fc 97       BRANCH_ALWAYS_TAKEN
+    bne lab_9c4e            ;9cb5  fc 97        BRANCH_ALWAYS_TAKEN
 
 lab_9cb7:
     mov a, mem_034b         ;9cb7  60 03 4b
@@ -5513,7 +5513,7 @@ lab_9cb7:
     bne lab_9cf1            ;9ccf  fc 20
 
 lab_9cd1:
-    .byte 0x60, 0x00, 0xf6  ;9cd1  60 00 f6    EXTENDED_ADDRESS_PAGE_0  mov a, mem_00f6
+    .byte 0x60, 0x00, 0xf6  ;9cd1  60 00 f6     EXTENDED_ADDRESS_PAGE_0  mov a, mem_00f6
     cmp a, #0x22            ;9cd4  14 22
     beq lab_9cdc            ;9cd6  fd 04
     cmp a, #0x62            ;9cd8  14 62
@@ -5578,7 +5578,7 @@ lab_9d1e:
 lab_9d27:
     call sub_9d61           ;9d27  31 9d 61
     mov a, #0x1b            ;9d2a  04 1b
-    bne lab_9d02            ;9d2c  fc d4       BRANCH_ALWAYS_TAKEN
+    bne lab_9d02            ;9d2c  fc d4        BRANCH_ALWAYS_TAKEN
 
 lab_9d2e:
     jmp lab_9b3d            ;9d2e  21 9b 3d
@@ -5588,14 +5588,14 @@ lab_9d31:
     and a, #0xe0            ;9d33  64 e0
     cmp a, #0xc0            ;9d35  14 c0
     bne lab_9d2e            ;9d37  fc f5
-    beq lab_9d27            ;9d39  fd ec       BRANCH_ALWAYS_TAKEN
+    beq lab_9d27            ;9d39  fd ec        BRANCH_ALWAYS_TAKEN
 
 lab_9d3b:
     mov a, mem_0312         ;9d3b  60 03 12
     bne lab_9d04            ;9d3e  fc c4
     call sub_9da9           ;9d40  31 9d a9
     mov a, #0x1c            ;9d43  04 1c
-    bne lab_9d02            ;9d45  fc bb       BRANCH_ALWAYS_TAKEN
+    bne lab_9d02            ;9d45  fc bb        BRANCH_ALWAYS_TAKEN
 
 lab_9d47:
     mov a, mem_0312         ;9d47  60 03 12
@@ -5682,7 +5682,7 @@ sub_9dc4:
     beq lab_9df4            ;9dcd  fd 25
     bbs mem_00d7:0, lab_9de2 ;9dcf  b8 d7 10
     bbs mem_00f7:7, lab_9dec ;9dd2  bf f7 17
-    .byte 0x60, 0x00, 0xf6  ;9dd5  60 00 f6    EXTENDED_ADDRESS_PAGE_0  mov a, mem_00f6
+    .byte 0x60, 0x00, 0xf6  ;9dd5  60 00 f6     EXTENDED_ADDRESS_PAGE_0  mov a, mem_00f6
     and a, #0xf0            ;9dd8  64 f0
     cmp a, #0x20            ;9dda  14 20
     beq lab_9dec            ;9ddc  fd 0e
@@ -5728,7 +5728,7 @@ lab_9e13:
     ret                     ;9e1c  20
 
 sub_9e1d:
-    .byte 0x60, 0x00, 0xf6  ;9e1d  60 00 f6    EXTENDED_ADDRESS_PAGE_0  mov a, mem_00f6
+    .byte 0x60, 0x00, 0xf6  ;9e1d  60 00 f6     EXTENDED_ADDRESS_PAGE_0  mov a, mem_00f6
     cmp a, #0x02            ;9e20  14 02
     beq lab_9e30            ;9e22  fd 0c
     cmp a, #0x03            ;9e24  14 03
@@ -5834,7 +5834,7 @@ sub_9ea3:
     beq lab_9ea1            ;9ea8  fd f7
     cmp a, #0x01            ;9eaa  14 01
     beq lab_9ea1            ;9eac  fd f3
-    bne lab_9e9f            ;9eae  fc ef       BRANCH_ALWAYS_TAKEN
+    bne lab_9e9f            ;9eae  fc ef        BRANCH_ALWAYS_TAKEN
 
 sub_9eb0:
     mov a, mem_0095         ;9eb0  05 95
@@ -5991,7 +5991,7 @@ lab_9f98:
     setb mem_00b2:7         ;9fa0  af b2
     mov a, #0x08            ;9fa2  04 08
     mov a, #0x05            ;9fa4  04 05
-    bne lab_9f91            ;9fa6  fc e9       BRANCH_ALWAYS_TAKEN
+    bne lab_9f91            ;9fa6  fc e9        BRANCH_ALWAYS_TAKEN
 
 lab_9fa8:
     mov a, mem_0312         ;9fa8  60 03 12
@@ -6005,7 +6005,7 @@ lab_9fa8:
     clrb mem_00df:3         ;9fbb  a3 df
     clrb mem_00df:4         ;9fbd  a4 df
     mov a, #0x09            ;9fbf  04 09
-    bne lab_9f95            ;9fc1  fc d2       BRANCH_ALWAYS_TAKEN
+    bne lab_9f95            ;9fc1  fc d2        BRANCH_ALWAYS_TAKEN
 
 lab_9fc3:
     bbc mem_00df:2, lab_9f97 ;9fc3  b2 df d1
@@ -6013,7 +6013,7 @@ lab_9fc3:
     clrb mem_00df:2         ;9fc8  a2 df
     mov a, #0x0a            ;9fca  04 0a
     mov a, #0x14            ;9fcc  04 14
-    bne lab_9f91            ;9fce  fc c1       BRANCH_ALWAYS_TAKEN
+    bne lab_9f91            ;9fce  fc c1        BRANCH_ALWAYS_TAKEN
 
 lab_9fd0:
     mov a, mem_0312         ;9fd0  60 03 12
@@ -6021,7 +6021,7 @@ lab_9fd0:
     setb mem_00df:0         ;9fd5  a8 df
     mov a, #0x02            ;9fd7  04 02
     mov a, #0x14            ;9fd9  04 14
-    bne lab_9f91            ;9fdb  fc b4       BRANCH_ALWAYS_TAKEN
+    bne lab_9f91            ;9fdb  fc b4        BRANCH_ALWAYS_TAKEN
 
 sub_9fdd:
     mov a, mem_00fd         ;9fdd  05 fd
@@ -6037,7 +6037,7 @@ sub_9fdd:
     beq lab_a00b            ;9ff0  fd 19
     cmp a, #0x04            ;9ff2  14 04
     beq lab_a00b            ;9ff4  fd 15
-    bne lab_a003            ;9ff6  fc 0b       BRANCH_ALWAYS_TAKEN
+    bne lab_a003            ;9ff6  fc 0b        BRANCH_ALWAYS_TAKEN
 
 lab_9ff8:
     mov a, mem_0096         ;9ff8  05 96
@@ -6097,7 +6097,7 @@ lab_a046:
     clrc                    ;a046  81
     rolc a                  ;a047  02
     movw a, #mem_a04d       ;a048  e4 a0 4d
-    bne lab_a038            ;a04b  fc eb       BRANCH_ALWAYS_TAKEN
+    bne lab_a038            ;a04b  fc eb        BRANCH_ALWAYS_TAKEN
 
 mem_a04d:
     .word lab_a06d          ;a04d VECTOR
@@ -6145,7 +6145,7 @@ lab_a083:
     mov a, #0x59            ;a083  04 59
     mov mem_0275, a         ;a085  61 02 75
     movw a, #0xab02         ;a088  e4 ab 02
-    bne lab_a097            ;a08b  fc 0a       BRANCH_ALWAYS_TAKEN
+    bne lab_a097            ;a08b  fc 0a        BRANCH_ALWAYS_TAKEN
 
 lab_a08d:
     bhs lab_a09c            ;a08d  f8 0d
@@ -6179,7 +6179,7 @@ lab_a0b5:
     movw mem_0275, a        ;a0b8  d4 02 75
     movw mem_0277, a        ;a0bb  d4 02 77
     movw a, #0x8204         ;a0be  e4 82 04
-    bne lab_a097            ;a0c1  fc d4       BRANCH_ALWAYS_TAKEN
+    bne lab_a097            ;a0c1  fc d4        BRANCH_ALWAYS_TAKEN
 
 lab_a0c3:
     setb mem_00e3:7         ;a0c3  af e3
@@ -6189,7 +6189,7 @@ lab_a0c3:
 sub_a0ca:
     bne lab_a0d0            ;a0ca  fc 04
     mov a, #0x01            ;a0cc  04 01
-    bne lab_a0d2            ;a0ce  fc 02       BRANCH_ALWAYS_TAKEN
+    bne lab_a0d2            ;a0ce  fc 02        BRANCH_ALWAYS_TAKEN
 
 lab_a0d0:
     mov a, #0x02            ;a0d0  04 02
@@ -6216,7 +6216,7 @@ lab_a0ea:
     cmp a, #0x01            ;a0ef  14 01
     bne lab_a0f8            ;a0f1  fc 05
     movw a, #0x9405         ;a0f3  e4 94 05
-    bne lab_a097            ;a0f6  fc 9f       BRANCH_ALWAYS_TAKEN
+    bne lab_a097            ;a0f6  fc 9f        BRANCH_ALWAYS_TAKEN
 
 lab_a0f8:
     setb mem_00e3:7         ;a0f8  af e3
@@ -6307,7 +6307,7 @@ lab_a174:
     setb mem_00de:7         ;a17a  af de
     mov mem_00f1, #0x9e     ;a17c  85 f1 9e
     mov a, #0x04            ;a17f  04 04
-    bne lab_a14b            ;a181  fc c8       BRANCH_ALWAYS_TAKEN
+    bne lab_a14b            ;a181  fc c8        BRANCH_ALWAYS_TAKEN
 
 lab_a183:
     bhs lab_a14f            ;a183  f8 ca
@@ -6333,7 +6333,7 @@ lab_a1a4:
     movw ep, #0xf00f        ;a1a4  e7 f0 0f
     mov r0, #0x0a           ;a1a7  88 0a
     mov a, #0x01            ;a1a9  04 01
-    bne lab_a1b4            ;a1ab  fc 07       BRANCH_ALWAYS_TAKEN
+    bne lab_a1b4            ;a1ab  fc 07        BRANCH_ALWAYS_TAKEN
 
 lab_a1ad:
     movw ep, #0x0ff0      ;a1ad  e7 0f f0
@@ -6473,7 +6473,7 @@ lab_a269:
     call sub_8eda           ;a27d  31 8e da
     mov a, #0x00            ;a280  04 00
     mov mem_0096, a         ;a282  45 96
-    beq lab_a29b            ;a284  fd 15       BRANCH_ALWAYS_TAKEN
+    beq lab_a29b            ;  BRANCH_ALWAYS_TAKEN
 
 lab_a286:
     bhs lab_a2b5            ;a286  f8 2d
@@ -6544,7 +6544,7 @@ lab_a2e2:
 
 lab_a2e4:
     mov a, #0x03            ;a2e4  04 03
-    bne lab_a2df            ;a2e6  fc f7       BRANCH_ALWAYS_TAKEN
+    bne lab_a2df            ;a2e6  fc f7        BRANCH_ALWAYS_TAKEN
 
 lab_a2e8:
     movw a, mem_0206        ;a2e8  c4 02 06
@@ -6556,7 +6556,7 @@ lab_a2e8:
 
     mov mem_00f1, #0xa6     ;a2f4  85 f1 a6
     mov a, #0x04            ;a2f7  04 04
-    bne lab_a2df            ;a2f9  fc e4       BRANCH_ALWAYS_TAKEN
+    bne lab_a2df            ;a2f9  fc e4        BRANCH_ALWAYS_TAKEN
 
 lab_a2fb:
     bhs lab_a2e1            ;a2fb  f8 e4
@@ -6609,7 +6609,7 @@ lab_a33c:
 lab_a343:
     mov mem_00f1, #0x82     ;a343  85 f1 82
     mov a, #0x06            ;a346  04 06
-    bne lab_a339            ;a348  fc ef       BRANCH_ALWAYS_TAKEN
+    bne lab_a339            ;a348  fc ef        BRANCH_ALWAYS_TAKEN
 
 lab_a34a:
     bhs lab_a33b            ;a34a  f8 ef
@@ -6625,11 +6625,11 @@ lab_a34a:
     cmpw a                  ;a362  13
     bne lab_a369            ;a363  fc 04
     mov a, #0x04            ;a365  04 04
-    bne lab_a337            ;a367  fc ce       BRANCH_ALWAYS_TAKEN
+    bne lab_a337            ;a367  fc ce        BRANCH_ALWAYS_TAKEN
 
 lab_a369:
     mov a, #0x07            ;a369  04 07
-    bne lab_a337            ;a36b  fc ca       BRANCH_ALWAYS_TAKEN
+    bne lab_a337            ;a36b  fc ca        BRANCH_ALWAYS_TAKEN
 
 lab_a36d:
     call sub_c1a7           ;a36d  31 c1 a7
@@ -6644,19 +6644,19 @@ lab_a36d:
 
     mov mem_00f1, #0x86     ;a384  85 f1 86
     mov a, #0x08            ;a387  04 08
-    bne lab_a337            ;a389  fc ac       BRANCH_ALWAYS_TAKEN
+    bne lab_a337            ;a389  fc ac        BRANCH_ALWAYS_TAKEN
 
 lab_a38b:
     bhs lab_a33b            ;a38b  f8 ae
     mov mem_00f1, #0xa7     ;a38d  85 f1 a7
     mov a, #0x09            ;a390  04 09
-    bne lab_a339            ;a392  fc a5       BRANCH_ALWAYS_TAKEN
+    bne lab_a339            ;a392  fc a5        BRANCH_ALWAYS_TAKEN
 
 lab_a394:
     bhs lab_a33b            ;a394  f8 a5
     mov mem_00f1, #0x9f     ;a396  85 f1 9f
     mov a, #0x0a            ;a399  04 0a
-    bne lab_a339            ;a39b  fc 9c       BRANCH_ALWAYS_TAKEN
+    bne lab_a339            ;a39b  fc 9c        BRANCH_ALWAYS_TAKEN
 
 lab_a39d:
     bhs lab_a33b            ;a39d  f8 9c
@@ -6665,7 +6665,7 @@ lab_a39f:
     bne lab_a33b            ;a39f  fc 9a
     mov a, #0x00            ;a3a1  04 00
     mov mem_0096, a         ;a3a3  45 96
-    beq lab_a339            ;a3a5  fd 92       BRANCH_ALWAYS_TAKEN
+    beq lab_a339            ;a3a5  fd 92        BRANCH_ALWAYS_TAKEN
 
 lab_a3a7:
     .word lab_a3bd          ;a3a7  a3 bd       VECTOR
@@ -6678,7 +6678,7 @@ lab_a3ad:
     movw a, #0x0384         ;a3b2  e4 03 84
     movw mem_0206, a        ;a3b5  d4 02 06
     mov mem_00f1, #0x9f     ;a3b8  85 f1 9f
-    bne lab_a3d3            ;a3bb  fc 16       BRANCH_ALWAYS_TAKEN
+    bne lab_a3d3            ;a3bb  fc 16        BRANCH_ALWAYS_TAKEN
 
 lab_a3bd:
     ret                     ;a3bd  20
@@ -6686,7 +6686,7 @@ lab_a3bd:
 lab_a3be:
     bne lab_a3da            ;a3be  fc 1a
     bhs lab_a3da            ;a3c0  f8 18
-    blo lab_a3e1            ;a3c2  f9 1d       BRANCH_ALWAYS_TAKEN
+    blo lab_a3e1            ;a3c2  f9 1d        BRANCH_ALWAYS_TAKEN
 
 lab_a3c4:
     .word lab_a3de          ;a3c4  a3 de       VECTOR
@@ -6721,7 +6721,7 @@ lab_a3e1:
     setb mem_0098:4         ;a3e1  ac 98
     mov a, #0x00            ;a3e3  04 00
     mov mem_0096, a         ;a3e5  45 96
-    beq lab_a3dc            ;a3e7  fd f3       BRANCH_ALWAYS_TAKEN
+    beq lab_a3dc            ;a3e7  fd f3        BRANCH_ALWAYS_TAKEN
 
 lab_a3e9:
     .word lab_a437          ;a3e9  a4 37       VECTOR
@@ -6770,14 +6770,14 @@ lab_a438:
     bhs lab_a437            ;a438  f8 fd
     mov mem_00f1, #0x9e     ;a43a  85 f1 9e
     mov a, #0x03            ;a43d  04 03
-    bne lab_a435            ;a43f  fc f4       BRANCH_ALWAYS_TAKEN
+    bne lab_a435            ;a43f  fc f4        BRANCH_ALWAYS_TAKEN
 
 ;lab_a438 case 3
 lab_a441:
     bhs lab_a437            ;a441  f8 f4
     mov mem_00f1, #0x9f     ;a443  85 f1 9f
     mov a, #0x04            ;a446  04 04
-    bne lab_a435            ;a448  fc eb       BRANCH_ALWAYS_TAKEN
+    bne lab_a435            ;a448  fc eb        BRANCH_ALWAYS_TAKEN
 
 ;lab_a438 case 4
 lab_a44a:
@@ -7173,7 +7173,7 @@ lab_a6cf:
     bne lab_a6d9            ;a6d1  fc 06
     mov a, mem_00c5         ;a6d3  05 c5
     beq lab_a6e0            ;a6d5  fd 09
-    bne lab_a6dd            ;a6d7  fc 04       BRANCH_ALWAYS_TAKEN
+    bne lab_a6dd            ;a6d7  fc 04        BRANCH_ALWAYS_TAKEN
 
 lab_a6d9:
     cmp a, #0x02            ;a6d9  14 02
@@ -7226,7 +7226,7 @@ lab_a70e:
 lab_a720:
     mov a, #0x0a            ;a720  04 0a
     mov mem_0313, a         ;a722  61 03 13
-    bne lab_a72a            ;a725  fc 03       BRANCH_ALWAYS_TAKEN
+    bne lab_a72a            ;a725  fc 03        BRANCH_ALWAYS_TAKEN
 
 lab_a727:
     mov mem_00cc, #0x17     ;a727  85 cc 17
@@ -7475,7 +7475,7 @@ lab_a8d7:
     call sub_9363           ;a8d7  31 93 63
     bbc mem_00de:5, lab_a8e1 ;a8da  b5 de 04
     mov a, #0x04            ;a8dd  04 04
-    bne lab_a8e6            ;a8df  fc 05       BRANCH_ALWAYS_TAKEN
+    bne lab_a8e6            ;a8df  fc 05        BRANCH_ALWAYS_TAKEN
 
 lab_a8e1:
     bbs mem_00de:6, lab_a8eb ;a8e1  be de 07
@@ -7586,7 +7586,7 @@ lab_a98b:
     mov a, mem_0302         ;a98b  60 03 02
     beq lab_a994            ;a98e  fd 04
     setb mem_00f7:7         ;a990  af f7
-    bne lab_a9a1            ;a992  fc 0d       BRANCH_ALWAYS_TAKEN
+    bne lab_a9a1            ;a992  fc 0d        BRANCH_ALWAYS_TAKEN
 
 lab_a994:
     mov a, mem_0369         ;a994  60 03 69
@@ -7607,12 +7607,12 @@ lab_a9a7:
     and a, #0x03            ;a9a9  64 03
     cmp a, #0x03            ;a9ab  14 03
     bne lab_a9b1            ;a9ad  fc 02
-    beq lab_a9ca            ;a9af  fd 19       BRANCH_ALWAYS_TAKEN
+    beq lab_a9ca            ;a9af  fd 19        BRANCH_ALWAYS_TAKEN
 
 lab_a9b1:
     rorc a                  ;a9b1  03
     blo lab_a9c9            ;a9b2  f9 15
-    bhs lab_a9b6            ;a9b4  f8 00       BRANCH_ALWAYS_TAKEN
+    bhs lab_a9b6            ;a9b4  f8 00        BRANCH_ALWAYS_TAKEN
 
 lab_a9b6:
     movw a, #0x0000         ;a9b6  e4 00 00
@@ -7745,7 +7745,7 @@ lab_aa5f:
     and a, mem_0097         ;aa62  65 97
     beq lab_aa54            ;aa64  fd ee
     mov a, #0xff            ;aa66  04 ff
-    bne lab_aa31            ;aa68  fc c7       BRANCH_ALWAYS_TAKEN
+    bne lab_aa31            ;aa68  fc c7        BRANCH_ALWAYS_TAKEN
 
 sub_aa6a:
     movw a, mem_00b3        ;aa6a  c5 b3
@@ -7917,7 +7917,7 @@ lab_ab4e:
     rorc a                  ;ab51  03
     bhs lab_ab58            ;ab52  f8 04
     setb pdr2:3             ;ab54  ab 04        VOL_DATA=high
-    blo lab_ab5a            ;ab56  f9 02       BRANCH_ALWAYS_TAKEN
+    blo lab_ab5a            ;ab56  f9 02        BRANCH_ALWAYS_TAKEN
 
 lab_ab58:
     clrb pdr2:3             ;ab58  a3 04        VOL_DATA=low
@@ -7931,7 +7931,7 @@ lab_ab5a:
     cmp r4, #0x0d           ;ab60  9c 0d
     bne lab_ab68            ;ab62  fc 04
     setb pdr2:3             ;ab64  ab 04        VOL_DATA=high
-    beq lab_ab6a            ;ab66  fd 02       BRANCH_ALWAYS_TAKEN
+    beq lab_ab6a            ;ab66  fd 02        BRANCH_ALWAYS_TAKEN
 
 lab_ab68:
     clrb pdr2:3             ;ab68  a3 04        VOL_DATA=low
@@ -8036,7 +8036,7 @@ lab_abeb:
     cmp mem_0096, #0x0a     ;abed  95 96 0a
     beq lab_abe2            ;abf0  fd f0
     setb mem_00d3:5         ;abf2  ad d3
-    bne lab_abd5            ;abf4  fc df       BRANCH_ALWAYS_TAKEN
+    bne lab_abd5            ;abf4  fc df        BRANCH_ALWAYS_TAKEN
 
 sub_abf6:
     call sub_ac25           ;abf6  31 ac 25
@@ -8098,13 +8098,13 @@ lab_ac53:
     mov a, mem_0095         ;ac53  05 95
     bne lab_ac5c            ;ac55  fc 05
     mov mem_00c2, #0x01     ;ac57  85 c2 01
-    beq lab_ac6c            ;ac5a  fd 10       BRANCH_ALWAYS_TAKEN
+    beq lab_ac6c            ;ac5a  fd 10        BRANCH_ALWAYS_TAKEN
 
 lab_ac5c:
     cmp a, #0x01            ;ac5c  14 01
     bne lab_ac65            ;ac5e  fc 05
     mov mem_00cc, #0x06     ;ac60  85 cc 06
-    beq lab_ac6c            ;ac63  fd 07       BRANCH_ALWAYS_TAKEN
+    beq lab_ac6c            ;ac63  fd 07        BRANCH_ALWAYS_TAKEN
 
 lab_ac65:
     cmp a, #0x02            ;ac65  14 02
@@ -8439,7 +8439,7 @@ lab_add6:
     beq lab_add3            ;add9  fd f8
     cmp a, #0xff            ;addb  14 ff
     beq lab_add3            ;addd  fd f4
-    bne lab_adcb            ;addf  fc ea       BRANCH_ALWAYS_TAKEN
+    bne lab_adcb            ;addf  fc ea        BRANCH_ALWAYS_TAKEN
 
 sub_ade1:
     mov a, mem_0114         ;ade1  60 01 14
@@ -8606,7 +8606,7 @@ lab_aec7:
     cmp a, #0x0b            ;aece  14 0b
     bhs lab_aef6            ;aed0  f8 24
     mov a, #0x61            ;aed2  04 61
-    bne lab_aeef            ;aed4  fc 19       BRANCH_ALWAYS_TAKEN
+    bne lab_aeef            ;aed4  fc 19        BRANCH_ALWAYS_TAKEN
 
 lab_aed6:
     mov a, mem_033e         ;aed6  60 03 3e
@@ -9514,7 +9514,7 @@ lab_b33a:
 
     ;Model is 1J0035180
     movw a, #kw_asc_1j0035180   ;b34e  e4 ff 0c    "1J0035180   "
-    bne cmp_model_done          ;b351  fc 0c       BRANCH_ALWAYS_TAKEN
+    bne cmp_model_done          ;b351  fc 0c        BRANCH_ALWAYS_TAKEN
 
 cmp_model_1:
     cmp a, #0b10000000      ;b353  14 80
@@ -9522,7 +9522,7 @@ cmp_model_1:
 
     ;Model is 1J0035180D
     movw a, #kw_asc_1j0035180d  ;b357  e4 fe fc    "1J0035180D  "
-    bne cmp_model_done          ;b35a  fc 03       BRANCH_ALWAYS_TAKEN
+    bne cmp_model_done          ;b35a  fc 03        BRANCH_ALWAYS_TAKEN
 
 cmp_model_2:
     ;Model is 1C0035180E
@@ -9546,21 +9546,21 @@ lab_b36d:
 ;KW1281 ID code request/ECU info related
 ;(mem_0080=0x01, mem_0081=2)
     mov a, #0x03            ;b36d  04 03
-    bne lab_b37b            ;b36f  fc 0a       BRANCH_ALWAYS_TAKEN
+    bne lab_b37b            ;b36f  fc 0a        BRANCH_ALWAYS_TAKEN
 
 
 lab_b371:
 ;KW1281 ID code request/ECU info related
 ;(mem_0080=0x01, mem_0081=5)
     mov a, #0x06            ;b371  04 06
-    bne lab_b37b            ;b373  fc 06       BRANCH_ALWAYS_TAKEN
+    bne lab_b37b            ;b373  fc 06        BRANCH_ALWAYS_TAKEN
 
 
 lab_b375:
 ;KW1281 ID code request/ECU info related
 ;(mem_0080=0x01, mem_0081=8)
     mov a, #0x09            ;b375  04 09
-    bne lab_b37b            ;b377  fc 02       BRANCH_ALWAYS_TAKEN
+    bne lab_b37b            ;b377  fc 02        BRANCH_ALWAYS_TAKEN
 
 
 lab_b379:
@@ -10205,7 +10205,7 @@ lab_b67d:
     beq lab_b6a1            ;b684  fd 1b
     cmp a, #0x02            ;b686  14 02
     beq lab_b6aa            ;b688  fd 20
-    bne lab_b6b3            ;b68a  fc 27       BRANCH_ALWAYS_TAKEN
+    bne lab_b6b3            ;b68a  fc 27        BRANCH_ALWAYS_TAKEN
 
 lab_b68c:
 ;Actuator/Output Tests related
@@ -10213,7 +10213,7 @@ lab_b68c:
     beq lab_b697            ;b68f  fd 06
     cmp a, #0x01            ;b691  14 01
     beq lab_b697            ;b693  fd 02
-    bne lab_b69c            ;b695  fc 05       BRANCH_ALWAYS_TAKEN
+    bne lab_b69c            ;b695  fc 05        BRANCH_ALWAYS_TAKEN
 
 lab_b697:
 ;Actuator/Output Tests related
@@ -10230,7 +10230,7 @@ lab_b6a1:
     setb mem_00e1:7         ;b6a1  af e1
     setb mem_0098:4         ;b6a3  ac 98
     movw a, #kw_actuator_2  ;b6a5  e4 ff 51    KW1281 Response to Actuator/Output Tests: External Display
-    bne lab_b6b1            ;b6a8  fc 07       BRANCH_ALWAYS_TAKEN
+    bne lab_b6b1            ;b6a8  fc 07        BRANCH_ALWAYS_TAKEN
 
 lab_b6aa:
 ;Actuator/Output Tests related
@@ -10681,7 +10681,7 @@ lab_b884:
 ;Group 3 (Antenna)
     bbs mem_008d:1, lab_b88b ;b884  b9 8d 04
     mov a, #0x11            ;b887  04 11
-    bne lab_b88d            ;b889  fc 02       BRANCH_ALWAYS_TAKEN
+    bne lab_b88d            ;b889  fc 02        BRANCH_ALWAYS_TAKEN
 
 lab_b88b:
     mov a, #0x12            ;b88b  04 12
@@ -10971,7 +10971,7 @@ sub_b9f9:
     mov @ix+0x13, a         ;ba06  46 13
     mov @ix+0x17, a         ;ba08  46 17
     mov @ix+0x1b, a         ;ba0a  46 1b
-    bne lab_ba2e            ;ba0c  fc 20       BRANCH_ALWAYS_TAKEN
+    bne lab_ba2e            ;ba0c  fc 20        BRANCH_ALWAYS_TAKEN
 
 sub_ba0e:
     mov mem_00a0, #0x09     ;ba0e  85 a0 09
@@ -11486,7 +11486,7 @@ lab_bc82:
     setb pdr8:4             ;bc87  ac 14        AMP_ON=high
     mov a, #0x03            ;bc89  04 03
     mov a, #0x46            ;bc8b  04 46
-    bne lab_bc7a            ;bc8d  fc eb       BRANCH_ALWAYS_TAKEN
+    bne lab_bc7a            ;bc8d  fc eb        BRANCH_ALWAYS_TAKEN
 
 lab_bc8f:
     mov a, mem_02d3         ;bc8f  60 02 d3
@@ -11506,7 +11506,7 @@ lab_bc8f:
     mov mem_0341, a         ;bcb3  61 03 41
     mov a, #0x14            ;bcb6  04 14
     mov mem_02e5, a         ;bcb8  61 02 e5
-    bne lab_bcc5            ;bcbb  fc 08       BRANCH_ALWAYS_TAKEN
+    bne lab_bcc5            ;bcbb  fc 08        BRANCH_ALWAYS_TAKEN
 
 lab_bcbd:
     mov a, mem_0341         ;bcbd  60 03 41
@@ -11525,7 +11525,7 @@ lab_bcc5:
     mov mem_0341, a         ;bcd8  61 03 41
     mov a, #0x14            ;bcdb  04 14
     mov mem_02e9, a         ;bcdd  61 02 e9
-    bne lab_bcea            ;bce0  fc 08       BRANCH_ALWAYS_TAKEN
+    bne lab_bcea            ;bce0  fc 08        BRANCH_ALWAYS_TAKEN
 
 lab_bce2:
     mov a, mem_0341         ;bce2  60 03 41
@@ -11534,7 +11534,7 @@ lab_bce2:
 
 lab_bcea:
     mov a, #0x00            ;bcea  04 00
-    beq lab_bc7e            ;bcec  fd 90       BRANCH_ALWAYS_TAKEN
+    beq lab_bc7e            ;bcec  fd 90        BRANCH_ALWAYS_TAKEN
 
 ;XXX bcee looks unreachable
 lab_bcee:
@@ -11830,7 +11830,7 @@ lab_be95:
 
 lab_bea1:
     mov a, #0x04            ;bea1  04 04
-    bne lab_be91            ;bea3  fc ec       BRANCH_ALWAYS_TAKEN
+    bne lab_be91            ;bea3  fc ec        BRANCH_ALWAYS_TAKEN
 
 lab_bea5:
     mov a, mem_02d3         ;bea5  60 02 d3
@@ -11886,7 +11886,7 @@ lab_bef1:
 
 lab_befc:
     mov a, #0x05            ;befc  04 05
-    bne lab_be91            ;befe  fc 91       BRANCH_ALWAYS_TAKEN
+    bne lab_be91            ;befe  fc 91        BRANCH_ALWAYS_TAKEN
 
 lab_bf00:
     movw a, mem_032c        ;bf00  c4 03 2c
@@ -11894,7 +11894,7 @@ lab_bf00:
     setb mem_0098:6         ;bf06  ae 98
     setb mem_00b2:5         ;bf08  ad b2
     mov a, #0x00            ;bf0a  04 00
-    beq lab_be91            ;bf0c  fd 83       BRANCH_ALWAYS_TAKEN
+    beq lab_be91            ;bf0c  fd 83        BRANCH_ALWAYS_TAKEN
 
 lab_bf0e:
     mov a, mem_02d3         ;bf0e  60 02 d3
@@ -12057,7 +12057,7 @@ lab_c023:
 lab_c026:
     clrb mem_0092:0         ;c026  a0 92
     mov a, #0x00            ;c028  04 00
-    beq lab_c030            ;c02a  fd 04       BRANCH_ALWAYS_TAKEN
+    beq lab_c030            ;c02a  fd 04        BRANCH_ALWAYS_TAKEN
 
 lab_c02c:
     setb mem_0092:0         ;c02c  a8 92
@@ -12154,25 +12154,25 @@ sub_c0bc:
     cmp a, #0x9c            ;c0bf  14 9c
     bne lab_c0c7            ;c0c1  fc 04
     mov a, #0x30            ;c0c3  04 30
-    bne lab_c0e5            ;c0c5  fc 1e       BRANCH_ALWAYS_TAKEN
+    bne lab_c0e5            ;c0c5  fc 1e        BRANCH_ALWAYS_TAKEN
 
 lab_c0c7:
     cmp a, #0x9d            ;c0c7  14 9d
     bne lab_c0cf            ;c0c9  fc 04
     mov a, #0x31            ;c0cb  04 31
-    bne lab_c0e5            ;c0cd  fc 16       BRANCH_ALWAYS_TAKEN
+    bne lab_c0e5            ;c0cd  fc 16        BRANCH_ALWAYS_TAKEN
 
 lab_c0cf:
     cmp a, #0x9e            ;c0cf  14 9e
     bne lab_c0d7            ;c0d1  fc 04
     mov a, #0x41            ;c0d3  04 41
-    bne lab_c0e5            ;c0d5  fc 0e       BRANCH_ALWAYS_TAKEN
+    bne lab_c0e5            ;c0d5  fc 0e        BRANCH_ALWAYS_TAKEN
 
 lab_c0d7:
     cmp a, #0x9f            ;c0d7  14 9f
     bne lab_c0df            ;c0d9  fc 04
     mov a, #0x42            ;c0db  04 42
-    bne lab_c0e5            ;c0dd  fc 06       BRANCH_ALWAYS_TAKEN
+    bne lab_c0e5            ;c0dd  fc 06        BRANCH_ALWAYS_TAKEN
 
 lab_c0df:
     cmp a, #0x20            ;c0df  14 20
@@ -12230,7 +12230,7 @@ lab_c127:
     bne lab_c121            ;c12a  fc f5
     call sub_c133           ;c12c  31 c1 33
     mov a, #0x00            ;c12f  04 00
-    beq lab_c123            ;c131  fd f0       BRANCH_ALWAYS_TAKEN
+    beq lab_c123            ;c131  fd f0        BRANCH_ALWAYS_TAKEN
 
 sub_c133:
     mov a, #0x70            ;c133  04 70
@@ -12318,12 +12318,12 @@ sub_c1b6:
     bne lab_c1de            ;c1d5  fc 07
     mov a, #0x00            ;c1d7  04 00
     mov mem_0171, a         ;c1d9  61 01 71
-    beq lab_c1ea            ;c1dc  fd 0c       BRANCH_ALWAYS_TAKEN
+    beq lab_c1ea            ;c1dc  fd 0c        BRANCH_ALWAYS_TAKEN
 
 lab_c1de:
     mov a, #0x01            ;c1de  04 01
     mov mem_0171, a         ;c1e0  61 01 71
-    bne lab_c1ea            ;c1e3  fc 05       BRANCH_ALWAYS_TAKEN
+    bne lab_c1ea            ;c1e3  fc 05        BRANCH_ALWAYS_TAKEN
 
 lab_c1e5:
     mov a, #0x78            ;c1e5  04 78
@@ -12364,7 +12364,7 @@ lab_c201:
     cmpw a                  ;c219  13
     beq lab_c220            ;c21a  fd 04
     mov a, #0x02            ;c21c  04 02
-    bne lab_c222            ;c21e  fc 02       BRANCH_ALWAYS_TAKEN
+    bne lab_c222            ;c21e  fc 02        BRANCH_ALWAYS_TAKEN
 
 lab_c220:
     mov a, #0x00            ;c220  04 00
@@ -12400,7 +12400,7 @@ lab_c247:
     mov mem_0344, a         ;c24b  61 03 44
     movw a, #0x05dc         ;c24e  e4 05 dc
     movw mem_0345, a        ;c251  d4 03 45
-    bne lab_c258            ;c254  fc 02       BRANCH_ALWAYS_TAKEN
+    bne lab_c258            ;c254  fc 02        BRANCH_ALWAYS_TAKEN
 
 lab_c256:
     clrb mem_00f2:0         ;c256  a0 f2
@@ -12481,7 +12481,7 @@ sub_c2a9:
     bne lab_c2c0            ;c2b7  fc 07
     bbc mem_00e3:6, lab_c2c0 ;c2b9  b6 e3 04
     mov a, #0x00            ;c2bc  04 00
-    beq lab_c2c2            ;c2be  fd 02       BRANCH_ALWAYS_TAKEN
+    beq lab_c2c2            ;c2be  fd 02        BRANCH_ALWAYS_TAKEN
 
 lab_c2c0:
     mov a, #0x03            ;c2c0  04 03
@@ -12599,7 +12599,7 @@ lab_c37d:
     call sub_bc02           ;c37d  31 bc 02
     call sub_c490           ;c380  31 c4 90
     mov a, #0x02            ;c383  04 02
-    bne lab_c372            ;c385  fc eb       BRANCH_ALWAYS_TAKEN
+    bne lab_c372            ;c385  fc eb        BRANCH_ALWAYS_TAKEN
 
 lab_c387:
     bbc mem_008d:2, lab_c390 ;c387  b2 8d 06
@@ -12639,7 +12639,7 @@ lab_c3c7:
 
 lab_c3ca:
     mov a, #0x05            ;c3ca  04 05
-    bne lab_c372            ;c3cc  fc a4       BRANCH_ALWAYS_TAKEN
+    bne lab_c372            ;c3cc  fc a4        BRANCH_ALWAYS_TAKEN
 
 lab_c3ce:
     bbc mem_008d:3, lab_c3d7 ;c3ce  b3 8d 06
@@ -13158,13 +13158,13 @@ sub_c6eb:
     mov a, mem_00c5         ;c6eb  05 c5
     bne lab_c6f4            ;c6ed  fc 05
     movw a, #0x01a6         ;c6ef  e4 01 a6
-    bne lab_c700            ;c6f2  fc 0c       BRANCH_ALWAYS_TAKEN
+    bne lab_c700            ;c6f2  fc 0c        BRANCH_ALWAYS_TAKEN
 
 lab_c6f4:
     cmp a, #0x01            ;c6f4  14 01
     bne lab_c6fd            ;c6f6  fc 05
     movw a, #0x01ad         ;c6f8  e4 01 ad
-    bne lab_c700            ;c6fb  fc 03       BRANCH_ALWAYS_TAKEN
+    bne lab_c700            ;c6fb  fc 03        BRANCH_ALWAYS_TAKEN
 
 lab_c6fd:
     movw a, #0x01b4         ;c6fd  e4 01 b4
@@ -13240,7 +13240,7 @@ lab_c750:
     beq lab_c760            ;c758  fd 06
     cmp a, #0x1f            ;c75a  14 1f
     beq lab_c760            ;c75c  fd 02
-    bne lab_c766            ;c75e  fc 06       BRANCH_ALWAYS_TAKEN
+    bne lab_c766            ;c75e  fc 06        BRANCH_ALWAYS_TAKEN
 
 lab_c760:
     mov @ix+0x01, #0x5a     ;c760  86 01 5a     Display number = 0x5a '....NO.TAPE'
@@ -13499,7 +13499,7 @@ lab_c893:
 lab_c8ac:
     mov mem_00a3, #0x03     ;c8ac  85 a3 03
     mov a, #0x02            ;c8af  04 02
-    bne lab_c8b8            ;c8b1  fc 05       BRANCH_ALWAYS_TAKEN
+    bne lab_c8b8            ;c8b1  fc 05        BRANCH_ALWAYS_TAKEN
 
 lab_c8b3:
     mov mem_00a3, #0x05     ;c8b3  85 a3 05
@@ -13519,7 +13519,7 @@ lab_c8c7:
     cmp a, #0x04            ;c8c9  14 04
     beq lab_c8d1            ;c8cb  fd 04
     mov a, #0x08            ;c8cd  04 08
-    bne lab_c8d3            ;c8cf  fc 02       BRANCH_ALWAYS_TAKEN
+    bne lab_c8d3            ;c8cf  fc 02        BRANCH_ALWAYS_TAKEN
 
 lab_c8d1:
     mov a, #0x04            ;c8d1  04 04
@@ -13825,14 +13825,14 @@ lab_ca45:
     mov mem_0272, a         ;ca47  61 02 72
     setb mem_00c0:7         ;ca4a  af c0
     mov a, #0x02            ;ca4c  04 02
-    bne lab_cab1            ;ca4e  fc 61       BRANCH_ALWAYS_TAKEN
+    bne lab_cab1            ;ca4e  fc 61        BRANCH_ALWAYS_TAKEN
 
 lab_ca50:
     bbs mem_00c0:7, lab_cab4 ;ca50  bf c0 61
     bbc mem_00c0:2, lab_ca5c ;ca53  b2 c0 06
     clrb mem_00c0:2         ;ca56  a2 c0
     mov a, #0x05            ;ca58  04 05
-    bne lab_ca65            ;ca5a  fc 09       BRANCH_ALWAYS_TAKEN
+    bne lab_ca65            ;ca5a  fc 09        BRANCH_ALWAYS_TAKEN
 
 lab_ca5c:
     movw a, mem_026e        ;ca5c  c4 02 6e
@@ -13845,7 +13845,7 @@ lab_ca65:
     setb mem_00c0:7         ;ca68  af c0
     clrb mem_00c0:0         ;ca6a  a0 c0
     mov a, #0x03            ;ca6c  04 03
-    bne lab_cab1            ;ca6e  fc 41       BRANCH_ALWAYS_TAKEN
+    bne lab_cab1            ;ca6e  fc 41        BRANCH_ALWAYS_TAKEN
 
 lab_ca70:
     bbs mem_00c0:7, lab_cab4 ;ca70  bf c0 41
@@ -13860,24 +13860,26 @@ lab_ca79:
     cmp a, #0x00            ;ca82  14 00
     bne lab_ca8a            ;ca84  fc 04
     mov a, #0x04            ;ca86  04 04
-    bne lab_cab1            ;ca88  fc 27       BRANCH_ALWAYS_TAKEN
+    bne lab_cab1            ;ca88  fc 27        BRANCH_ALWAYS_TAKEN
 
 lab_ca8a:
     mov a, mem_026d         ;ca8a  60 02 6d
     incw a                  ;ca8d  c0
     mov mem_026d, a         ;ca8e  61 02 6d
+
     movw a, mem_026e        ;ca91  c4 02 6e
     incw a                  ;ca94  c0
     movw mem_026e, a        ;ca95  d4 02 6e
+
     mov a, #0x02            ;ca98  04 02
-    bne lab_cab1            ;ca9a  fc 15       BRANCH_ALWAYS_TAKEN
+    bne lab_cab1            ;ca9a  fc 15        BRANCH_ALWAYS_TAKEN
 
 lab_ca9c:
     mov a, #0x04            ;ca9c  04 04
     mov mem_0272, a         ;ca9e  61 02 72
     setb mem_00c0:7         ;caa1  af c0
     mov a, #0x05            ;caa3  04 05
-    bne lab_cab1            ;caa5  fc 0a       BRANCH_ALWAYS_TAKEN
+    bne lab_cab1            ;caa5  fc 0a        BRANCH_ALWAYS_TAKEN
 
 lab_caa7:
     bbs mem_00c0:7, lab_cab4 ;caa7  bf c0 0a
@@ -13929,9 +13931,11 @@ lab_caed:
     mov a, mem_026d         ;caed  60 02 6d
     incw a                  ;caf0  c0
     mov mem_026d, a         ;caf1  61 02 6d
+
     movw a, mem_026e        ;caf4  c4 02 6e
     incw a                  ;caf7  c0
     movw mem_026e, a        ;caf8  d4 02 6e
+
     mov a, #0x01            ;cafb  04 01
     mov mem_0273, a         ;cafd  61 02 73
     ret                     ;cb00  20
@@ -14162,7 +14166,7 @@ lab_cc2b:
 
 lab_cc2f:
     movw a, #0xffff         ;cc2f  e4 ff ff
-    bne lab_cc37            ;cc32  fc 03       BRANCH_ALWAYS_TAKEN
+    bne lab_cc37            ;cc32  fc 03        BRANCH_ALWAYS_TAKEN
 
 lab_cc34:
     movw a, #0x5a5a         ;cc34  e4 5a 5a
@@ -14170,11 +14174,11 @@ lab_cc34:
 lab_cc37:
     movw mem_0275, a        ;cc37  d4 02 75
     movw mem_0277, a        ;cc3a  d4 02 77
-    bne lab_cc0c            ;cc3d  fc cd       BRANCH_ALWAYS_TAKEN
+    bne lab_cc0c            ;cc3d  fc cd        BRANCH_ALWAYS_TAKEN
 
 lab_cc3f:
     clrb mem_00de:6         ;cc3f  a6 de
-    beq lab_cc0c            ;cc41  fd c9       BRANCH_ALWAYS_TAKEN
+    beq lab_cc0c            ;cc41  fd c9        BRANCH_ALWAYS_TAKEN
 
 mem_cc43:
     .word 0
@@ -14517,7 +14521,7 @@ sub_cdb6:
     movw a, #0x0064         ;cdb6  e4 00 64
     movw mem_0360, a        ;cdb9  d4 03 60
     xchw a, t               ;cdbc  43
-    bne lab_cdd1            ;cdbd  fc 12       BRANCH_ALWAYS_TAKEN
+    bne lab_cdd1            ;cdbd  fc 12        BRANCH_ALWAYS_TAKEN
 
 sub_cdbf:
     movw a, #0x0064         ;cdbf  e4 00 64
@@ -16619,7 +16623,7 @@ lab_d706:
     bbs mem_00f8:3, lab_d73d ;d71c  bb f8 1e
     mov a, #0x01            ;d71f  04 01
     mov mem_036a, a         ;d721  61 03 6a
-    bne lab_d73d            ;d724  fc 17       BRANCH_ALWAYS_TAKEN
+    bne lab_d73d            ;d724  fc 17        BRANCH_ALWAYS_TAKEN
 
 lab_d726:
     cmp a, #0x01            ;d726  14 01
@@ -16668,7 +16672,7 @@ lab_d75e:
 lab_d771:
 ;(mem_0369 = 0x42)
     movw a, #0x0190         ;d771  e4 01 90
-    bne lab_d779            ;d774  fc 03       BRANCH_ALWAYS_TAKEN
+    bne lab_d779            ;d774  fc 03        BRANCH_ALWAYS_TAKEN
 
 lab_d776:
 ;(mem_0369 = 0x38, #0x50)
@@ -16692,7 +16696,7 @@ lab_d788:
 lab_d78b:
     mov a, #0x02            ;d78b  04 02
     mov mem_0368, a         ;d78d  61 03 68
-    bne lab_d7a3            ;d790  fc 11       BRANCH_ALWAYS_TAKEN
+    bne lab_d7a3            ;d790  fc 11        BRANCH_ALWAYS_TAKEN
 
 lab_d792:
     mov a, mem_036d         ;d792  60 03 6d
@@ -16861,7 +16865,7 @@ sub_d854:
     cmp a, #0x47            ;d863  14 47
     beq lab_d86c            ;d865  fd 05
     movw a, #mem_0367       ;d867  e4 03 67
-    bne lab_d86f            ;d86a  fc 03       BRANCH_ALWAYS_TAKEN
+    bne lab_d86f            ;d86a  fc 03        BRANCH_ALWAYS_TAKEN
 
 lab_d86c:
     movw a, #0x02c1         ;d86c  e4 02 c1
@@ -17225,13 +17229,13 @@ lab_da6c:
     call sub_9e34           ;da73  31 9e 34
     mov a, #0x00            ;da76  04 00
     mov mem_033a, a         ;da78  61 03 3a
-    beq lab_da86            ;da7b  fd 09       BRANCH_ALWAYS_TAKEN
+    beq lab_da86            ;da7b  fd 09        BRANCH_ALWAYS_TAKEN
 
 lab_da7d:
     cmp mem_0095, #0x0f     ;da7d  95 95 0f
     beq lab_da86            ;da80  fd 04
     setb mem_00e9:1         ;da82  a9 e9
-    bne lab_da61            ;da84  fc db       BRANCH_ALWAYS_TAKEN
+    bne lab_da61            ;da84  fc db        BRANCH_ALWAYS_TAKEN
 
 lab_da86:
     bbs mem_00d7:6, lab_da96 ;da86  be d7 0d
@@ -17493,7 +17497,7 @@ lab_dc23:
 
     mov a, mem_00d2         ;dc2b  05 d2
     bne lab_dc20            ;dc2d  fc f1
-    .byte 0x60, 0x00, 0xfd  ;dc2f  60 00 fd    EXTENDED_ADDRESS_PAGE_0  mov a, mem_00fd
+    .byte 0x60, 0x00, 0xfd  ;dc2f  60 00 fd     EXTENDED_ADDRESS_PAGE_0  mov a, mem_00fd
     and a, #0xf0            ;dc32  64 f0
     bne lab_dc20            ;dc34  fc ea
     mov a, mem_00cf         ;dc36  05 cf
@@ -17753,7 +17757,7 @@ lab_ddb1:
     beq lab_dda5            ;ddb7  fd ec
     cmp a, #0x03            ;ddb9  14 03
     beq lab_dda5            ;ddbb  fd e8
-    bne lab_dd96            ;ddbd  fc d7       BRANCH_ALWAYS_TAKEN
+    bne lab_dd96            ;ddbd  fc d7        BRANCH_ALWAYS_TAKEN
 
 sub_ddbf:
     mov a, #0x01            ;ddbf  04 01
@@ -18219,7 +18223,7 @@ sub_e037:
     mov mem_0392, a         ;e043  61 03 92
     call sub_ddbf           ;e046  31 dd bf
     mov a, #0x00            ;e049  04 00
-    beq lab_e033            ;e04b  fd e6       BRANCH_ALWAYS_TAKEN
+    beq lab_e033            ;e04b  fd e6        BRANCH_ALWAYS_TAKEN
 
 lab_e04d:
     callv #7                ;e04d  ef          CALLV #7 = callv7_e55c
@@ -18236,7 +18240,7 @@ lab_e04f:
     mov a, #0x37            ;e05a  04 37
     mov mem_0390, a         ;e05c  61 03 90
     mov a, #0x03            ;e05f  04 03
-    bne lab_e033            ;e061  fc d0       BRANCH_ALWAYS_TAKEN
+    bne lab_e033            ;e061  fc d0        BRANCH_ALWAYS_TAKEN
 
 lab_e063:
 ;(mem_038a != 1, 2, 3)
@@ -18415,7 +18419,7 @@ lab_e118:
 lab_e125:
     cmp a, #0x10            ;e125  14 10
     beq lab_e108            ;e127  fd df
-    bne lab_e118            ;e129  fc ed       BRANCH_ALWAYS_TAKEN
+    bne lab_e118            ;e129  fc ed        BRANCH_ALWAYS_TAKEN
 
 lab_e12b:
     clrb mem_00f9:5         ;e12b  a5 f9
@@ -18628,7 +18632,7 @@ lab_e268:
     mov a, #0x64            ;e26f  04 64
     mov mem_038c, a         ;e271  61 03 8c
     mov a, #0x05            ;e274  04 05
-    bne lab_e253            ;e276  fc db       BRANCH_ALWAYS_TAKEN
+    bne lab_e253            ;e276  fc db        BRANCH_ALWAYS_TAKEN
 
 lab_e278:
     mov a, mem_0395         ;e278  60 03 95
@@ -18900,7 +18904,7 @@ mem_e3bd:
     .word lab_e3d9          ;VECTOR 1       Reads tchr, send kw_title_d7 response, set mem_038b=0x0a
     .word lab_e42a          ;VECTOR 2       Sets unknown values, set mem_038b=0x03
     .word lab_e442          ;VECTOR 3       If request block title 0x3d (security access), set mem_038b=0x04
-                            ;               If request block title 0x0a (no acknowledge, set mem_038b=0x02
+                            ;               If request block title 0x0a (no acknowledge), set mem_038b=0x02
                             ;               If other request block title, send no acknowledge response
     .word lab_e4b5          ;VECTOR 4       Read 4 security bytes from request, call sub_e61f, set mem_038b=0x06
     .word lab_e4e0          ;VECTOR 5       Change mem_00fd, set mem_038b=0x06
@@ -19131,7 +19135,7 @@ lab_e517:
     cmp a                   ;e526  12
     bne lab_e52b            ;e527  fc 02
 
-    beq lab_e536            ;e529  fd 0b       BRANCH_ALWAYS_TAKEN
+    beq lab_e536            ;e529  fd 0b        BRANCH_ALWAYS_TAKEN
 
 lab_e52b:
     call sub_e4d3           ;e52b  31 e4 d3
@@ -19156,7 +19160,7 @@ lab_e547:
     bne lab_e55b            ;e549  fc 10
     mov mem_00f1, #0x81     ;e54b  85 f1 81
     mov a, #0x0d            ;e54e  04 0d
-    bne lab_e558            ;e550  fc 06       BRANCH_ALWAYS_TAKEN
+    bne lab_e558            ;e550  fc 06        BRANCH_ALWAYS_TAKEN
 
 lab_e552:
 ;(mem_0388=2, mem_038b=9)
@@ -19208,7 +19212,7 @@ lab_e59c:
     call sub_a239           ;e5a0  31 a2 39
     mov mem_00cd, #0x00     ;e5a3  85 cd 00
     mov a, #0x09            ;e5a6  04 09
-    bne lab_e558            ;e5a8  fc ae       BRANCH_ALWAYS_TAKEN
+    bne lab_e558            ;e5a8  fc ae        BRANCH_ALWAYS_TAKEN
 
 mem_e5aa:
 ;Table used by sub_e5ae and sub_e61f
@@ -19540,7 +19544,7 @@ sub_e746:
     incw ix                 ;e74f  c2
     incw ix                 ;e750  c2
     xchw a, t               ;e751  43
-    bne sub_e746            ;e752  fc f2       BRANCH_ALWAYS_TAKEN
+    bne sub_e746            ;e752  fc f2        BRANCH_ALWAYS_TAKEN
 lab_e754:
     mov a, @ix+0x01         ;e754  06 01
     ret                     ;e756  20
@@ -19557,7 +19561,7 @@ sub_e757:
     incw ix                 ;e762  c2
     incw ix                 ;e763  c2
     xchw a, t               ;e764  43
-    bne sub_e757            ;e765  fc f0       BRANCH_ALWAYS_TAKEN
+    bne sub_e757            ;e765  fc f0        BRANCH_ALWAYS_TAKEN
 lab_e767:
     mov a, @ix+0x01         ;e767  06 01
     movw a, @ix+0x02        ;e769  c6 02
@@ -19572,7 +19576,7 @@ sub_e76c:
     beq lab_e77b            ;e773  fd 06
     incw ix                 ;e775  c2
     xchw a, t               ;e776  43
-    bne sub_e76c            ;e777  fc f3       BRANCH_ALWAYS_TAKEN
+    bne sub_e76c            ;e777  fc f3        BRANCH_ALWAYS_TAKEN
 lab_e779:
     clrc                    ;e779  81
     ret                     ;e77a  20
@@ -19893,7 +19897,7 @@ lab_e93f:
     mov a, #0x09            ;e944  04 09
 
 lab_e946:
-    bne lab_e92a            ;e946  fc e2       BRANCH_ALWAYS_TAKEN
+    bne lab_e92a            ;e946  fc e2        BRANCH_ALWAYS_TAKEN
 
 lab_e948:
     mov a, mem_01c6         ;e948  60 01 c6
@@ -19935,7 +19939,7 @@ lab_e988:
     beq lab_e99e            ;e992  fd 0a
     mov a, #0x09            ;e994  04 09
     mov mem_01c6, a         ;e996  61 01 c6
-    bne lab_e97d            ;e999  fc e2       BRANCH_ALWAYS_TAKEN
+    bne lab_e97d            ;e999  fc e2        BRANCH_ALWAYS_TAKEN
 
     ;XXX e99b looks unreachable
     jmp lab_e97d              ;e99b 21 e9 7d
@@ -19947,7 +19951,7 @@ lab_e99e:
     and a, #0x12            ;e9a5  64 12
     beq lab_e935            ;e9a7  fd 8c
     mov a, #0x06            ;e9a9  04 06
-    bne lab_e946            ;e9ab  fc 99       BRANCH_ALWAYS_TAKEN
+    bne lab_e946            ;e9ab  fc 99        BRANCH_ALWAYS_TAKEN
 
 sub_e9ad:
     bbc mem_00e2:1, lab_e9d9 ;e9ad  b1 e2 29
@@ -19980,7 +19984,7 @@ lab_e9d9:
     mov a, mem_03c5         ;e9d9  60 03 c5
     bne lab_e9b9            ;e9dc  fc db
     clrb mem_00e0:1         ;e9de  a1 e0
-    beq lab_e9b9            ;e9e0  fd d7       BRANCH_ALWAYS_TAKEN
+    beq lab_e9b9            ;e9e0  fd d7        BRANCH_ALWAYS_TAKEN
 
 lab_e9e2:
     cmp a, #0x70            ;e9e2  14 70
@@ -19997,7 +20001,7 @@ lab_e9ed:
 lab_e9f3:
     mov a, mem_03ce         ;e9f3  60 03 ce
     bne lab_e9c7            ;e9f6  fc cf
-    beq lab_e9ed            ;e9f8  fd f3       BRANCH_ALWAYS_TAKEN
+    beq lab_e9ed            ;e9f8  fd f3        BRANCH_ALWAYS_TAKEN
 
 sub_e9fa:
     bbc mem_00e0:3, lab_ea19 ;e9fa  b3 e0 1c
@@ -20053,7 +20057,7 @@ lab_ea38:
     bne lab_ea62            ;ea53  fc 0d
     mov a, #0x01            ;ea55  04 01
     mov mem_03d1, a         ;ea57  61 03 d1
-    bne lab_ea97            ;ea5a  fc 3b       BRANCH_ALWAYS_TAKEN
+    bne lab_ea97            ;ea5a  fc 3b        BRANCH_ALWAYS_TAKEN
 
 lab_ea5c:
     mov a, #0x00            ;ea5c  04 00
@@ -20103,7 +20107,7 @@ lab_ea9c:
     bne lab_ea38            ;eaaa  fc 8c
     mov a, #0x01            ;eaac  04 01
     mov mem_03ce, a         ;eaae  61 03 ce
-    bne lab_ea38            ;eab1  fc 85       BRANCH_ALWAYS_TAKEN
+    bne lab_ea38            ;eab1  fc 85        BRANCH_ALWAYS_TAKEN
 
 sub_eab3:
     bbc mem_00e0:1, lab_eac1 ;eab3  b1 e0 0b
@@ -20233,7 +20237,7 @@ lab_eb70:
     cmp a, #0x8c            ;eb71  14 8c
     bne lab_eb44            ;eb73  fc cf
     setb mem_00e0:0         ;eb75  a8 e0
-    beq lab_eb4c            ;eb77  fd d3       BRANCH_ALWAYS_TAKEN
+    beq lab_eb4c            ;eb77  fd d3        BRANCH_ALWAYS_TAKEN
 
 lab_eb79:
     clrb mem_00e0:0         ;eb79  a0 e0
@@ -20850,7 +20854,7 @@ lab_eebd:
 
 lab_eec1:
     mov a, #0x02            ;eec1  04 02
-    bne lab_eebd            ;eec3  fc f8       BRANCH_ALWAYS_TAKEN
+    bne lab_eebd            ;eec3  fc f8        BRANCH_ALWAYS_TAKEN
 
 lab_eec5:
     bbc mem_00e0:0, lab_eece ;eec5  b0 e0 06
@@ -20876,7 +20880,7 @@ callv1_eed4:
 ;CALLV #1
     movw mem_01c9, a        ;eed4  d4 01 c9
     mov a, #0x10            ;eed7  04 10
-    bne lab_eeed            ;eed9  fc 12       BRANCH_ALWAYS_TAKEN
+    bne lab_eeed            ;eed9  fc 12        BRANCH_ALWAYS_TAKEN
 
 
 callv2_eedb:
@@ -20887,7 +20891,7 @@ callv2_eedb:
     bbc mem_00df:6, lab_ef12 ;eee2  b6 df 2d
     clrb mem_00df:6         ;eee5  a6 df
     mov a, #0x00            ;eee7  04 00
-    beq lab_ef08            ;eee9  fd 1d       BRANCH_ALWAYS_TAKEN
+    beq lab_ef08            ;eee9  fd 1d        BRANCH_ALWAYS_TAKEN
 
 
 callv3_eeeb:
@@ -21035,7 +21039,7 @@ lab_efa2:
     incw ix                 ;efae  c2
     incw ix                 ;efaf  c2
     incw ix                 ;efb0  c2
-    bne lab_efa2            ;efb1  fc ef       BRANCH_ALWAYS_TAKEN
+    bne lab_efa2            ;efb1  fc ef        BRANCH_ALWAYS_TAKEN
 
 lab_efb3:
     xchw a, t               ;efb3  43
@@ -21205,7 +21209,7 @@ lab_f07f:
     mov mem_029f, a         ;f090  61 02 9f
     mov mem_0291, a         ;f093  61 02 91
     mov a, mem_028a         ;f096  60 02 8a
-    .byte 0x61, 0x00, 0xfe  ;f099  61 00 fe    EXTENDED_ADDRESS_PAGE_0  mov mem_00fe, a
+    .byte 0x61, 0x00, 0xfe  ;f099  61 00 fe     EXTENDED_ADDRESS_PAGE_0  mov mem_00fe, a
     setb mem_00e5:1         ;f09c  a9 e5
     jmp lab_f058            ;f09e  21 f0 58
 
@@ -21671,7 +21675,7 @@ lab_f32b:
     mov a, #0x47            ;f32b  04 47
     mov mem_028b, a         ;f32d  61 02 8b
     setb mem_00dc:0         ;f330  a8 dc
-    bne lab_f31c            ;f332  fc e8       BRANCH_ALWAYS_TAKEN
+    bne lab_f31c            ;f332  fc e8        BRANCH_ALWAYS_TAKEN
 
 sub_f334:
     bbc mem_00dc:2, lab_f37b ;f334  b2 dc 44
@@ -21881,7 +21885,7 @@ sub_f479:
     incw ix                 ;f480  c2
     incw ix                 ;f481  c2
     xchw a, t               ;f482  43
-    blo sub_f479            ;f483  f9 f4       BRANCH_ALWAYS_TAKEN
+    blo sub_f479            ;f483  f9 f4        BRANCH_ALWAYS_TAKEN
 
 lab_f485:
     mov a, @ix+0x01         ;f485  06 01
@@ -22016,7 +22020,7 @@ lab_f551:
     cmp a, #0x01            ;f552  14 01
     bhs lab_f53f            ;f554  f8 e9
     mov a, #0x03            ;f556  04 03
-    bne lab_f53f            ;f558  fc e5       BRANCH_ALWAYS_TAKEN
+    bne lab_f53f            ;f558  fc e5        BRANCH_ALWAYS_TAKEN
 
 lab_f55a:
     bbc mem_00db:7, lab_f565 ;f55a  b7 db 08
@@ -22025,7 +22029,7 @@ lab_f55d:
     clrb mem_00db:6         ;f55d  a6 db
     clrb mem_00db:7         ;f55f  a7 db
     mov a, #0x04            ;f561  04 04
-    bne lab_f53f            ;f563  fc da       BRANCH_ALWAYS_TAKEN
+    bne lab_f53f            ;f563  fc da        BRANCH_ALWAYS_TAKEN
 
 lab_f565:
     bbc mem_00af:2, lab_f547 ;f565  b2 af df
@@ -22058,7 +22062,7 @@ lab_f582:
 lab_f593:
     mov a, #0xff            ;f593  04 ff
     clrb mem_00e2:3         ;f595  a3 e2
-    bne lab_f5f4            ;f597  fc 5b       BRANCH_ALWAYS_TAKEN
+    bne lab_f5f4            ;f597  fc 5b        BRANCH_ALWAYS_TAKEN
 
 lab_f599:
     setb mem_00e2:4         ;f599  ac e2
@@ -22107,7 +22111,7 @@ lab_f5da:
     mov a, mem_03dd         ;f5e4  60 03 dd
     and a, #0x20            ;f5e7  64 20
     beq lab_f5ae            ;f5e9  fd c3
-    bne lab_f5ac            ;f5eb  fc bf       BRANCH_ALWAYS_TAKEN
+    bne lab_f5ac            ;f5eb  fc bf        BRANCH_ALWAYS_TAKEN
 
 lab_f5ed:
     mov a, mem_03db         ;f5ed  60 03 db
@@ -22615,7 +22619,7 @@ lab_f90b:
     cmp a, #0x06            ;f915  14 06
     bhs lab_f91d            ;f917  f8 04
     clrb mem_00b2:5         ;f919  a5 b2
-    blo lab_f939            ;f91b  f9 1c       BRANCH_ALWAYS_TAKEN
+    blo lab_f939            ;f91b  f9 1c        BRANCH_ALWAYS_TAKEN
 
 lab_f91d:
     decw a                  ;f91d  d0
@@ -22647,10 +22651,10 @@ lab_f940:
 sub_f946:
     mov a, mem_0292         ;f946  60 02 92
     mov mem_0293, a         ;f949  61 02 93
-    .byte 0x60, 0x00, 0xfe  ;f94c  60 00 fe    EXTENDED_ADDRESS_PAGE_0  mov a, mem_00fe
+    .byte 0x60, 0x00, 0xfe  ;f94c  60 00 fe     EXTENDED_ADDRESS_PAGE_0  mov a, mem_00fe
     rolc a                  ;f94f  02
     blo lab_f95c            ;f950  f9 0a
-    .byte 0x60, 0x00, 0xfe  ;f952  60 00 fe    EXTENDED_ADDRESS_PAGE_0  mov a, mem_00fe
+    .byte 0x60, 0x00, 0xfe  ;f952  60 00 fe     EXTENDED_ADDRESS_PAGE_0  mov a, mem_00fe
     call sub_fb3b           ;f955  31 fb 3b
 
 lab_f958:
@@ -22658,7 +22662,7 @@ lab_f958:
     ret                     ;f95b  20
 
 lab_f95c:
-    .byte 0x60, 0x00, 0xfe  ;f95c  60 00 fe    EXTENDED_ADDRESS_PAGE_0  mov a, mem_00fe
+    .byte 0x60, 0x00, 0xfe  ;f95c  60 00 fe     EXTENDED_ADDRESS_PAGE_0  mov a, mem_00fe
     xor a, #0xff            ;f95f  54 ff
     incw a                  ;f961  c0
     call sub_e730           ;f962  31 e7 30
@@ -22866,7 +22870,7 @@ lab_fa98:
 
 lab_faa6:
     mov a, #0x08            ;faa6  04 08
-    bne lab_fa7d            ;faa8  fc d3       BRANCH_ALWAYS_TAKEN
+    bne lab_fa7d            ;faa8  fc d3        BRANCH_ALWAYS_TAKEN
 
 lab_faaa:
     cmp a, #0x01            ;faaa  14 01
@@ -22927,13 +22931,13 @@ lab_faf4:
     mov a, mem_03e3         ;fb0d  60 03 e3
     and a, #0x01            ;fb10  64 01
     bne lab_fad9            ;fb12  fc c5
-    beq lab_fae8            ;fb14  fd d2       BRANCH_ALWAYS_TAKEN
+    beq lab_fae8            ;fb14  fd d2        BRANCH_ALWAYS_TAKEN
 
 lab_fb16:
     mov a, mem_03e3         ;fb16  60 03 e3
     and a, #0x01            ;fb19  64 01
     beq lab_fad9            ;fb1b  fd bc
-    bne lab_facc            ;fb1d  fc ad       BRANCH_ALWAYS_TAKEN
+    bne lab_facc            ;fb1d  fc ad        BRANCH_ALWAYS_TAKEN
 
 sub_fb1f:
     movw a, #0x0000         ;fb1f  e4 00 00
@@ -23393,13 +23397,13 @@ sub_fd4d:
 
 lab_fd5e:
     mov a, #0x50            ;fd5e  04 50
-    bne lab_fd79            ;fd60  fc 17       BRANCH_ALWAYS_TAKEN
+    bne lab_fd79            ;fd60  fc 17        BRANCH_ALWAYS_TAKEN
 
 lab_fd62:
     cmp a, #0x60            ;fd62  14 60
     bne lab_fd79            ;fd64  fc 13
     mov a, #0x10            ;fd66  04 10
-    bne lab_fd79            ;fd68  fc 0f       BRANCH_ALWAYS_TAKEN
+    bne lab_fd79            ;fd68  fc 0f        BRANCH_ALWAYS_TAKEN
 
 lab_fd6a:
     bbc mem_00d9:5, lab_fd7c ;fd6a  b5 d9 0f
