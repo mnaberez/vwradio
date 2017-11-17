@@ -1,11 +1,15 @@
 ;KW1281 Login
 ;
-;Login request block (code 12345 = 0x31d4):
+;The password for login is the same as the SAFE code, except it is binary
+;instead of BCD.  For example, if the SAFE code is 1234 (BCD 0x1234) then
+;the password for login is 0x04D2.
+;
+;Login request block:
 ;  0x08 Block length                    mem_0118+0
 ;  0x3E Block counter                   mem_0118+1
 ;  0x2B Block title (Login)             mem_0118+2
-;  0x31 Login code high byte            mem_0118+3
-;  0xD4 Login code low byte             mem_0118+4
+;  0x04 SAFE code high byte (binary)    mem_0118+3
+;  0xD2 SAFE code low byte (binary)     mem_0118+4
 ;  0x01 Unknown byte 0                  mem_0118+5
 ;  0x86 Unknown byte 1                  mem_0118+6
 ;  0x9F Unknown byte 2                  mem_0118+7
@@ -55,12 +59,14 @@
 Cracking
 ========
 
-Write new login word:
-    TX: 08 xx F0 01 00 00 03           (Mode=1/Write, Word=0x0000)
-    RX: 05 xx F0 00 00 03              ("Login word is 0x0000")
+Read the SAFE code:
+    TX: 04 xx F0 00 03                  (Mode=0/Read)
+    RX: 05 xx F0 12 34 03               ("SAFE code word is BCD 0x1234")
 
-Login using that word:
-    TX: 08 xx 2B 00 00 01 86 9F 03     (Login with code 0x0000)
+Covert SAFE code BCD (0x1234) to binary (0x04D2).
+
+Login using the binary value:
+    TX: 08 xx 2B 04 D2 01 86 9F 03     (Login with SAFE code binary 0x04D2)
     RX: 03 xx 09 03                    (Acknowledge)
 
 Read secret group 0x19:
