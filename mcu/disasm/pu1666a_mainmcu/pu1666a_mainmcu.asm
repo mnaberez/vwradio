@@ -8156,7 +8156,7 @@ sub_ac86:
     mov a, mem_00fd         ;acb6  05 fd
     and a, #0xf0            ;acb8  64 f0
     bne lab_acbf            ;acba  fc 03
-    call sub_acdb           ;acbc  31 ac db
+    call sub_acdb           ;acbc  31 ac db     UART transmit enabled, BRG enabled, rest disabled, send 0xFF
 
 lab_acbf:
     setb mem_008b:3         ;acbf  ab 8b
@@ -10832,7 +10832,7 @@ lab_b945:
 ;Recoding related
 ;(mem_0080=0x08, mem_0081=1)
     movw a, mem_0118+3      ;b945  c4 01 1b     KW1281 RX Buffer bytes 3 and 4
-    call sub_b977           ;b948  31 b9 77     Unknown, uses mem_ff63 table
+    call sub_b977           ;b948  31 b9 77     Unknown, uses bin_bcd_table table
                             ;                   Returns carry set/clear for unknown conditions
     bnc lab_b970            ;b94b  f8 23
 
@@ -10864,7 +10864,7 @@ sub_b974:
     movw a, mem_0175        ;b974  c4 01 75
 
 sub_b977:
-;Recoding related, uses mem_ff63 table
+;Recoding related
 ;Returns carry set for some condition, carry clear for another
 ;
     swap                    ;b977  10
@@ -10881,7 +10881,9 @@ sub_b977:
     mov a, mem_00a9         ;b982  05 a9
     mov mem_00a4, a         ;b984  45 a4
 
-    call sub_dd1d           ;b986  31 dd 1d     Uses mem_ff63 table
+    call bin16_to_bcd16     ;Convert 16-bit binary number to BCD.
+                            ;  Input word:  mem_00a3
+                            ;  Output word: mem_009f
 
     mov a, mem_009e         ;b989  05 9e
     bne lab_b9db            ;b98b  fc 4e
@@ -11045,12 +11047,16 @@ lab_ba6b:
 mem_0080_is_09:
 ;KW1281 Login
 ;
-;Login request block (code 12345 = 0x31d4):
+;The password for login is the same as the SAFE code, except it is binary
+;instead of BCD.  For example, if the SAFE code is 1234 (BCD 0x1234) then
+;the password for login is 0x04D2.
+;
+;Login request block:
 ;  0x08 Block length                    mem_0118+0
 ;  0x3E Block counter                   mem_0118+1
 ;  0x2B Block title (Login)             mem_0118+2
-;  0x31 Login code high byte            mem_0118+3
-;  0xD4 Login code low byte             mem_0118+4
+;  0x04 SAFE code high byte (binary)    mem_0118+3
+;  0xD2 SAFE code low byte (binary)     mem_0118+4
 ;  0x01 Unknown byte 0                  mem_0118+5
 ;  0x86 Unknown byte 1                  mem_0118+6
 ;  0x9F Unknown byte 2                  mem_0118+7
@@ -11074,17 +11080,18 @@ lab_ba88:
     bbs mem_00de:3, lab_bb0c_no_ack ;If locked out from too many login attempts
                                     ;branch to No Acknowledge
 
-    mov a, mem_0118+3       ;KW1281 RX Buffer byte 3: Login code high byte
+    mov a, mem_0118+3       ;KW1281 RX Buffer byte 3: SAFE code high byte (bin)
     mov mem_00a3, a
 
-    mov a, mem_0118+4       ;KW1281 RX Buffer byte 4: Login code low byte
+    mov a, mem_0118+4       ;KW1281 RX Buffer byte 4: SAFE code low byte (bin)
     mov mem_00a4, a
 
-    call sub_dd1d           ;Uses mem_ff63 table
-                            ;Inputs:  mem_00a3, mem_00a4
-                            ;Outputs: mem_009f, mem_00a0
+    call bin16_to_bcd16     ;Convert 16-bit binary number to BCD.
+                            ;  Input word:  mem_00a3
+                            ;  Output word: mem_009f
 
-    ;Word at mem_020f (actual SAFE code) must match word at mem_009f
+    ;Word at mem_020f (actual SAFE code) must match word at
+    ;mem_009f (from KW1281 RX buffer after BCD conversion)
 
     mov a, mem_020f         ;mem_020f and mem_009f must match or login fails
     mov a, mem_009f
@@ -11105,7 +11112,8 @@ lab_baa8_failed:
     cmp a, #0x02            ;If less than 2 attempts,
     blo lab_bb0c_ack        ;branch to do nothing and reply with Acknowledge.
 
-    mov a, #0x00            ;Time limited lock out
+    ;Time limited lock out
+    mov a, #0x00
     mov mem_031b, a
     movw a, #0x04e2
     movw mem_0305, a
@@ -17588,7 +17596,7 @@ sub_dcb5:
     mov eie2, #0b00000010   ;dcd1  85 3a 02
     mov eif2, #0x00         ;dcd4  85 3b 00
     mov smr, #0x4f          ;dcd7  85 1c 4f
-    call sub_acdb           ;dcda  31 ac db
+    call sub_acdb           ;dcda  31 ac db     UART transmit enabled, BRG enabled, rest disabled, send 0xFF
     ret                     ;dcdd  20
 
 sub_dcde:
@@ -17607,7 +17615,7 @@ sub_dcde:
     mov ddr4, #0xb9         ;dcfb  85 0f b9
     mov pdr5, #0xff         ;dcfe  85 10 ff
     mov pdr7, #0x7e         ;dd01  85 13 7e
-    call sub_acdb           ;dd04  31 ac db
+    call sub_acdb           ;dd04  31 ac db     UART transmit enabled, BRG enabled, rest disabled, send 0xFF
     mulu a                  ;dd07  01
     clrb pdr2:4             ;dd08  a4 04        mute audio=low
     mulu a                  ;dd0a  01
@@ -17622,20 +17630,18 @@ sub_dcde:
     ret                     ;dd1c  20
 
 
-sub_dd1d:
-;Inputs:
-;  mem_00a3 (MSB)
-;  mem_00a4 (LSB)
+bin16_to_bcd16:
+;Convert 16-bit binary number to BCD.
 ;
-;Outputs:
-;  mem_009f, mem_00a0
+;Input word:  mem_00a3
+;Output word: mem_009f
 ;
     mov mem_009e, #0x00     ;dd1d  85 9e 00
     mov mem_009f, #0x00     ;dd20  85 9f 00
     mov mem_00a0, #0x00     ;dd23  85 a0 00
 
     mov mem_00a1, #16       ;dd26  85 a1 10
-    movw ix, #mem_ff63      ;dd29  e6 ff 63
+    movw ix, #bin_bcd_table ;dd29  e6 ff 63
 
 lab_dd2c:
     mov a, mem_00a3         ;dd2c  05 a3
@@ -18912,15 +18918,24 @@ lab_e3b4:
     jmp sub_e73c            ;e3ba  21 e7 3c     Jump to address in table
 
 mem_e3bd:
+;
+;Flow of mem_038b:
+;  0x01 sends kw_title_d7 ->
+;  0x0b set unknown counters ->
+;  0x02 set unknown values ->
+;  0x03 if block title is 0x3d security access ->
+;  0x04 read 4 bytes from 4x buffer, call sub_e61f ->
+;  0x06 end session
+;
     .word lab_e480          ;VECTOR 0       Does nothing
-    .word lab_e3d9          ;VECTOR 1       Reads tchr, send kw_title_d7 response, set mem_038b=0x0a
+    .word lab_e3d9          ;VECTOR 1       Reads tchr, send kw_title_d7, set mem_038b=0x0b
     .word lab_e42a          ;VECTOR 2       Sets unknown values, set mem_038b=0x03
     .word lab_e442          ;VECTOR 3       If received block title 0x3d (security access), set mem_038b=0x04
                             ;               If received block title 0x0a (no acknowledge), set mem_038b=0x02
-                            ;               If other received block title, send no acknowledge response
-    .word lab_e4b5          ;VECTOR 4       Read 4 security bytes from RX buffer, call sub_e61f, set mem_038b=0x06
+                            ;               If other received block title, send no acknowledge, set mem_038b=0x02
+    .word lab_e4b5          ;VECTOR 4       Read 4 bytes from RX buffer, call sub_e61f, set mem_038b=0x06
     .word lab_e4e0          ;VECTOR 5       Change mem_00fd, set mem_038b=0x06
-    .word lab_e4eb          ;VECTOR 6       Change mem_00fd, send kw_end_session
+    .word lab_e4eb          ;VECTOR 6       Change mem_00fd, send kw_end_session, set mem_038b=0x07
     .word lab_e502          ;VECTOR 7
     .word lab_e547          ;VECTOR 8
     .word lab_e552          ;VECTOR 9
@@ -19087,6 +19102,7 @@ lab_e4b5:
     jmp lab_e4e5            ;e4d0  21 e4 e5
 
 sub_e4d3:
+;Copy mem_03a1->mem_039f, mem_03a2->mem_03a0
     mov a, mem_03a1         ;e4d3  60 03 a1
     mov mem_039f, a         ;e4d6  61 03 9f
     mov a, mem_03a2         ;e4d9  60 03 a2
@@ -19132,7 +19148,7 @@ lab_e502:
     mov a, mem_03af         ;e50c  60 03 af
     bne lab_e517            ;e50f  fc 06
 
-    call sub_e4d3           ;e511  31 e4 d3
+    call sub_e4d3           ;e511  31 e4 d3     Copy mem_03a1->mem_039f, mem_03a2->mem_03a0
 
     jmp lab_e536            ;e514  21 e5 36
 
@@ -19150,7 +19166,7 @@ lab_e517:
     beq lab_e536            ;e529  fd 0b        BRANCH_ALWAYS_TAKEN
 
 lab_e52b:
-    call sub_e4d3           ;e52b  31 e4 d3
+    call sub_e4d3           ;e52b  31 e4 d3     Copy mem_03a1->mem_039f, mem_03a2->mem_03a0
     mov a, #0x03            ;e52e  04 03        A = value to store in mem_00fd low nibble
     call set_00fd_lo_nib    ;e530  31 e3 ac     Store low nibble of A in mem_00fd low nibble
     bbc mem_00de:6, lab_e544 ;e533  b6 de 0e
@@ -23493,7 +23509,11 @@ sub_fda6:
     xchw a, t               ;fdc3  43
     mov mem_00a4, a         ;fdc4  45 a4
     mov mem_00a3, #0x00     ;fdc6  85 a3 00
-    call sub_dd1d           ;fdc9  31 dd 1d     Uses mem_ff63 table
+
+    call bin16_to_bcd16     ;Convert 16-bit binary number to BCD.
+                            ;  Input word:  mem_00a3
+                            ;  Output word: mem_009f
+
     mov a, #0x01            ;fdcc  04 01
     cmp a, r0               ;fdce  18
     mov a, #0x25            ;fdcf  04 25
@@ -23868,10 +23888,8 @@ kw_rw_safe:
     .byte 0x00              ;ff61  00          DATA '\x00'
     .byte 0x03              ;ff62  03          DATA '\x03'  Block end
 
-mem_ff63:
-;Used by: sub_b977 (Recording)
-;         sub_dd1d (Login)
-;         sub_fda6 (???)
+bin_bcd_table:
+;Table used by bin16_to_bcd16
     .byte 0x01, 0x02, 0x04, 0x08, 0x16, 0x32, 0x64, 0x28, 0x56, 0x12, 0x24
     .byte 0x48, 0x96, 0x92, 0x84, 0x68
 
