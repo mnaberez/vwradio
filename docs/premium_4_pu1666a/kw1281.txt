@@ -70,3 +70,31 @@ Read secret group 0x19:
 Read EEPROM:
     TX: 03 xx 19 20 00 00 30           (Read 0x20 bytes starting at address 0)
     RX: 23 xx FD   ...    03           (EEPROM Data)
+
+
+Radio as Tester
+===============
+
+mem_e223:
+;case table for mem_038b
+
+in lab_e231:
+    if byte received = 0x55 then:
+        set up for KW1281 10416.67 bps, 7-O-1 receive
+        set mem_0393 = 1
+
+in sub_e1d6:
+    if mem_0393 = 1:
+        if (byte received & 0x7f) = 0x01 then:
+            set up for KW1281 10416.67 bps, 7-O-1 receive
+            set mem_0393 = 2
+
+    if mem_0393 = 2:
+        if (byte received & 0x7f) = 0x0a then:
+            set mem_038b = 6
+
+if mem_038b = 6 (lab_e29e):
+    (reached if mem_038b = 6)
+    next byte to send = 0x75
+    KW1281 10416.67 bps transmit state = Send byte, 7-O-1
+    mem_038b = 4
