@@ -3670,7 +3670,8 @@ sub_91f1:
     movw mem_0305, a        ;91f7  d4 03 05
 
 lab_91fa:
-    clrb mem_008c:3         ;91fa  a3 8c
+    clrb mem_008c:3         ;91fa  a3 8c        Clear bit that indicates Group 25 (0x19) was read
+                            ;                   (locks protected KW1281 commands)
     call sub_ac86           ;91fc  31 ac 86
     mov a, #0x00            ;91ff  04 00
     mov mem_02d1, a         ;9201  61 02 d1
@@ -4404,7 +4405,7 @@ lab_966a:
 lab_966b:
     bbc mem_00c9:0, lab_966a ;966b  b0 c9 fc
     setb mem_0097:0         ;966e  a8 97
-    call sub_9ed1           ;9670  31 9e d1
+    call sub_9ed1           ;9670  31 9e d1     Sets mem_00b2:6, mem_00b2:5, mem_0098:6
     call sub_99cb           ;9673  31 99 cb
     mov mem_00c2, #0x03     ;9676  85 c2 03
     ret                     ;9679  20
@@ -5384,7 +5385,7 @@ lab_9c0d:
     call sub_9ebd           ;9c12  31 9e bd
     mov a, #0x00            ;9c15  04 00
     mov mem_028a, a         ;9c17  61 02 8a
-    call sub_9ed1           ;9c1a  31 9e d1
+    call sub_9ed1           ;9c1a  31 9e d1     Sets mem_00b2:6, mem_00b2:5, mem_0098:6
     mov a, #0x06            ;9c1d  04 06
     mov a, #0x1e            ;9c1f  04 1e
 
@@ -8139,7 +8140,8 @@ sub_ac86:
     mov a, #0x6c            ;ac8a  04 6c
     and a, mem_008e         ;ac8c  65 8e
     mov mem_008e, a         ;ac8e  45 8e
-    clrb mem_00e4:6         ;ac90  a6 e4
+    clrb mem_00e4:6         ;ac90  a6 e4        Clear bit that indicates successful KW1281 login
+                            ;                   (locks protected KW1281 commands)
     clrb mem_00e6:1         ;ac92  a1 e6
     movw a, #0x0000         ;ac94  e4 00 00
     mov mem_019b, a         ;ac97  61 01 9b
@@ -8376,7 +8378,7 @@ lab_ad99:
     ret                     ;ad9e  20
 
 lab_ad9f:
-;Table mem_ad1f case for unprotected functions:
+;Table mem_ad1f case for unprotected KW1281 commands:
 ;
 ;  Block title 0x00: ID code request/ECU Info
 ;  Block title 0x05: Clear Faults
@@ -8395,7 +8397,7 @@ lab_ada1:
     ret                     ;ada3  20
 
 lab_ada4:
-;Table mem_ad1f case for protected functions:
+;Table mem_ad1f case for protected KW1281 commands:
 ;
 ;  Block title 0x01: Protected: Read RAM
 ;  Block title 0x03: Protected: Read ROM
@@ -10735,7 +10737,8 @@ lab_b8cf:
 
 lab_b8d5:
 ;Group 25 (Protection)
-    setb mem_008c:3         ;b8d5  ab 8c        Set bit to unlock protected functions
+    setb mem_008c:3         ;b8d5  ab 8c        Set bit that indicates Group 25 (0x19) was read
+                            ;                   (unlocks protected KW1281 commands)
     call sub_b16b_ack       ;b8d7  31 b1 6b
     jmp lab_b912            ;b8da  21 b9 12
 
@@ -10832,8 +10835,7 @@ lab_b945:
 ;Recoding related
 ;(mem_0080=0x08, mem_0081=1)
     movw a, mem_0118+3      ;b945  c4 01 1b     KW1281 RX Buffer bytes 3 and 4
-    call sub_b977           ;b948  31 b9 77     Unknown, uses bin_bcd_table table
-                            ;                   Returns carry set/clear for unknown conditions
+    call sub_b977           ;b948  31 b9 77     Returns carry set/clear for unknown conditions
     bnc lab_b970            ;b94b  f8 23
 
     movw a, mem_0118+3      ;b94d  c4 01 1b     KW1281 RX Buffer bytes 3 and 4
@@ -10843,7 +10845,7 @@ lab_b945:
     movw mem_0177, a        ;b956  d4 01 77
 
     setb mem_00b2:7         ;b959  af b2
-    call sub_9ed3           ;b95b  31 9e d3
+    call sub_9ed3           ;b95b  31 9e d3     Sets mem_00b2:5 and mem_0098:6
 
     movw a, #0x0000         ;b95e  e4 00 00     Clear 4 bytes to clear fault:
     movw mem_0165, a        ;b961  d4 01 65     KW1281 Fault 01044 Control Module Incorrectly Coded
@@ -10872,7 +10874,6 @@ sub_b977:
     rorc a                  ;b979  03
     swap                    ;b97a  10
     rorc a                  ;b97b  03
-
     movw mem_00a8, a        ;b97c  d5 a8
 
     mov a, mem_00a8         ;b97e  05 a8
@@ -10881,9 +10882,9 @@ sub_b977:
     mov a, mem_00a9         ;b982  05 a9
     mov mem_00a4, a         ;b984  45 a4
 
-    call bin16_to_bcd16     ;Convert 16-bit binary number to BCD.
-                            ;  Input word:  mem_00a3
-                            ;  Output word: mem_009f
+    call bin16_to_bcd24     ;Convert 16-bit binary number to 24-bit BCD.
+                            ;  Input:  mem_00a3 - mem_00a4
+                            ;  Output: mem_009e - mem_00a0
 
     mov a, mem_009e         ;b989  05 9e
     bne lab_b9db            ;b98b  fc 4e
@@ -11086,9 +11087,9 @@ lab_ba88:
     mov a, mem_0118+4       ;KW1281 RX Buffer byte 4: SAFE code low byte (bin)
     mov mem_00a4, a
 
-    call bin16_to_bcd16     ;Convert 16-bit binary number to BCD.
-                            ;  Input word:  mem_00a3
-                            ;  Output word: mem_009f
+    call bin16_to_bcd24     ;Convert 16-bit binary number to 24-bit BCD.
+                            ;  Input:  mem_00a3 - mem_00a4
+                            ;  Output: mem_009e - mem_00a0
 
     ;Word at mem_020f (actual SAFE code) must match word at
     ;mem_009f (from KW1281 RX buffer after BCD conversion)
@@ -17630,11 +17631,19 @@ sub_dcde:
     ret                     ;dd1c  20
 
 
-bin16_to_bcd16:
-;Convert 16-bit binary number to BCD.
+bin16_to_bcd24:
+;Convert 16-bit binary number to 24-bit BCD.
 ;
-;Input word:  mem_00a3
-;Output word: mem_009f
+;Input:  mem_00a3 - mem_00a4
+;Output: mem_009e - mem_00a0
+;
+;Example:
+;  mem_00a3 = 0x30
+;  mem_00a4 = 0x39
+;  ->
+;  mem_009e = 0x01
+;  mem_009f = 0x23
+;  mem_00a0 = 0x45
 ;
     mov mem_009e, #0x00     ;dd1d  85 9e 00
     mov mem_009f, #0x00     ;dd20  85 9f 00
@@ -23510,9 +23519,9 @@ sub_fda6:
     mov mem_00a4, a         ;fdc4  45 a4
     mov mem_00a3, #0x00     ;fdc6  85 a3 00
 
-    call bin16_to_bcd16     ;Convert 16-bit binary number to BCD.
-                            ;  Input word:  mem_00a3
-                            ;  Output word: mem_009f
+    call bin16_to_bcd24     ;Convert 16-bit binary number to 24-bit BCD.
+                            ;  Input:  mem_00a3 - mem_00a4
+                            ;  Output: mem_009e - mem_00a0
 
     mov a, #0x01            ;fdcc  04 01
     cmp a, r0               ;fdce  18
@@ -23889,7 +23898,7 @@ kw_rw_safe:
     .byte 0x03              ;ff62  03          DATA '\x03'  Block end
 
 bin_bcd_table:
-;Table used by bin16_to_bcd16
+;Table used by bin16_to_bcd24
     .byte 0x01, 0x02, 0x04, 0x08, 0x16, 0x32, 0x64, 0x28, 0x56, 0x12, 0x24
     .byte 0x48, 0x96, 0x92, 0x84, 0x68
 
