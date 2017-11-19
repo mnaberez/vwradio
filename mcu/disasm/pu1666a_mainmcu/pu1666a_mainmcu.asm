@@ -3318,7 +3318,7 @@ lab_8f60:
 
 lab_8f82:
     clrb mem_00d0:1         ;8f82  a1 d0
-    clrb mem_00e1:7         ;8f84  a7 e1
+    clrb mem_00e1:7         ;8f84  a7 e1        Clear bit that indicates External Display test active
     clrb mem_00e9:6         ;8f86  a6 e9
     call sub_90cb           ;8f88  31 90 cb
     movw a, #0x0a02         ;8f8b  e4 0a 02
@@ -3646,8 +3646,10 @@ sub_91b1:
     mov a, #0x20            ;91cf  04 20
     mov mem_0205, a         ;91d1  61 02 05
     bbc mem_00e4:3, lab_91df ;91d4  b3 e4 08
+
     movw a, #0x0000         ;91d7  e4 00 00
     movw mem_0206, a        ;91da  d4 02 06
+
     clrb mem_00e4:3         ;91dd  a3 e4
 
 lab_91df:
@@ -6407,7 +6409,7 @@ lab_a1ff:
     call sub_a18c           ;a206  31 a1 8c
     mov a, #0xff            ;a209  04 ff
     mov mem_0205, a         ;a20b  61 02 05
-    mov a, #0x03            ;a20e  04 03        A = value ot store in mem_00cd
+    mov a, #0x03            ;a20e  04 03        A = value to store in mem_00cd
     bne lab_a1e5            ;a210  fc d3        BRANCH_ALWAYS_TAKEN
 
 lab_a212:
@@ -6519,7 +6521,7 @@ lab_a2bb:
     .word lab_a2fb          ;a2c3  a2 fb       VECTOR
 
 lab_a2c5:
-    movw a, #0x0e10         ;a2c5  e4 0e 10
+    movw a, #0x0e10         ;a2c5  e4 0e 10     A = value to store in mem_0206
     bbc mem_00cf:5, lab_a2ce ;a2c8  b5 cf 03
     movw mem_0211, a        ;a2cb  d4 02 11
 
@@ -7463,6 +7465,7 @@ lab_a8b6:
     decw a                  ;a8bb  d0
     movw mem_0206, a        ;a8bc  d4 02 06
     bne lab_a8eb            ;a8bf  fc 2a
+
     bbc mem_00e4:3, lab_a8eb ;a8c1  b3 e4 27
     clrb mem_00e4:3         ;a8c4  a3 e4
     mov mem_00cc, #0x0a     ;a8c6  85 cc 0a
@@ -7475,7 +7478,7 @@ lab_a8b6:
 lab_a8d7:
     call sub_9363           ;a8d7  31 93 63
     bbc mem_00de:5, lab_a8e1 ;a8da  b5 de 04
-    mov a, #0x04            ;a8dd  04 04
+    mov a, #0x04            ;a8dd  04 04        A = value to store in mem_0096
     bne lab_a8e6            ;a8df  fc 05        BRANCH_ALWAYS_TAKEN
 
 lab_a8e1:
@@ -7494,8 +7497,10 @@ lab_a8eb:
     bne lab_a913            ;a8f7  fc 1a
     clrb mem_00cf:5         ;a8f9  a5 cf
     setb mem_00d0:3         ;a8fb  ab d0
+
     movw a, mem_0206        ;a8fd  c4 02 06
     bne lab_a910            ;a900  fc 0e
+
     cmp mem_0096, #0x04     ;a902  95 96 04
     bne lab_a910            ;a905  fc 09
     mov mem_0096, #0x00     ;a907  85 96 00
@@ -8135,7 +8140,7 @@ sub_ac83:
     call sub_ac7a           ;ac83  31 ac 7a
 
 sub_ac86:
-    clrb mem_00e1:7         ;ac86  a7 e1
+    clrb mem_00e1:7         ;ac86  a7 e1        Clear bit that indicates External Display test active
     clrb mem_008d:4         ;ac88  a4 8d
     mov a, #0x6c            ;ac8a  04 6c
     and a, mem_008e         ;ac8c  65 8e
@@ -9502,7 +9507,7 @@ mem_b318:
 lab_b33a:
 ;KW1281 ID code request/ECU info related
 ;(mem_0080=0x00, mem_0081=1)
-    clrb mem_00e1:7         ;b33a  a7 e1
+    clrb mem_00e1:7         ;b33a  a7 e1        Clear bit that indicates External Display test active
     clrb mem_008c:1         ;b33c  a1 8c
     mov a, #0x00            ;b33e  04 00
     mov mem_017c, a         ;b340  61 01 7c
@@ -10229,14 +10234,14 @@ lab_b69c:
 
 lab_b6a1:
 ;Actuator/Output Tests related
-    setb mem_00e1:7         ;b6a1  af e1
+    setb mem_00e1:7         ;b6a1  af e1        Set bit that indicates External Display test active
     setb mem_0098:4         ;b6a3  ac 98
-    movw a, #kw_actuator_2  ;b6a5  e4 ff 51    KW1281 TX Buffer to Actuator/Output Tests: External Display
+    movw a, #kw_actuator_2  ;b6a5  e4 ff 51     KW1281 TX Buffer to Actuator/Output Tests: External Display
     bne lab_b6b1            ;b6a8  fc 07        BRANCH_ALWAYS_TAKEN
 
 lab_b6aa:
 ;Actuator/Output Tests related
-    clrb mem_00e1:7         ;b6aa  a7 e1
+    clrb mem_00e1:7         ;b6aa  a7 e1        Clear bit that indicates External Display test active
     setb mem_0098:4         ;b6ac  ac 98
     movw a, #kw_actuator_3  ;b6ae  e4 ff 57     KW1281 TX Buffer to Actuator/Output Tests: End of Tests
 
@@ -11810,7 +11815,7 @@ lab_be72:
     movw mem_0294, a        ;be7b  d4 02 94
     setb mem_0098:6         ;be7e  ae 98
     setb mem_00b2:5         ;be80  ad b2
-    mov a, #0x02            ;be82  04 02
+    mov a, #0x02            ;be82  04 02        A = value to store in mem_019c
 
 lab_be84:
     mov mem_019c, a         ;be84  61 01 9c
@@ -11991,7 +11996,7 @@ lab_bfa4:
     call sub_c4c0           ;bfaf  31 c4 c0
 
 lab_bfb2:
-    mov a, #0x00            ;bfb2  04 00
+    mov a, #0x00            ;bfb2  04 00        A = value to store in mem_019c
     jmp lab_be84            ;bfb4  21 be 84
 
 lab_bfb7:
@@ -12971,11 +12976,14 @@ sub_c5d2:
     mov a, mem_0095         ;c5dc  05 95
     mov mem_02c8, a         ;c5de  61 02 c8
     movw ix, #mem_02b6      ;c5e1  e6 02 b6
+
     bbc mem_00d0:0, lab_c5f7 ;c5e4  b0 d0 10
     bbc mem_008c:7, lab_c5fc ;c5e7  b7 8c 12
     bbc mem_008e:7, lab_c5fc ;c5ea  b7 8e 0f
+
     call sub_c839           ;c5ed  31 c8 39     Set display number to 0xB0 '.....DIAG..'
-    bbc mem_00e1:7, lab_c5f6 ;c5f0  b7 e1 03
+
+    bbc mem_00e1:7, lab_c5f6 ;c5f0  b7 e1 03    Branch if External Display test not active
     call sub_c831           ;c5f3  31 c8 31     Set display number to 0xB1 'TESTDISPLAY'
 
 lab_c5f6:
@@ -19654,8 +19662,9 @@ sub_e790:
     bbs mem_00e7:0, lab_e7e8 ;e793  b8 e7 52
     bbc mem_00e7:4, lab_e7e8 ;e796  b4 e7 4f
     clrb mem_00e7:4         ;e799  a4 e7
-    bbc mem_00e1:7, lab_e7e9 ;e79b  b7 e1 4b
+    bbc mem_00e1:7, lab_e7e9 ;e79b  b7 e1 4b    Branch if external display test not active
 
+    ;External Display test is active
     mov a, #0x82            ;e79e  04 82        0x82 = Write only to FIS (used during KW1281 output tests)
     mov mem_0215, a         ;e7a0  61 02 15
 
