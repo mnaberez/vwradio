@@ -63,22 +63,22 @@
 
     mem_0080 = 0x80
     mem_0081 = 0x81
-    mem_0082 = 0x82
-    mem_0083 = 0x83
-    mem_0084 = 0x84
-    mem_0086 = 0x86
-    mem_0088 = 0x88
-    mem_0089 = 0x89
+    mem_0082 = 0x82         ;KW1281 Count of bytes received
+    mem_0083 = 0x83         ;KW1281 Count of bytes sent
+    mem_0084 = 0x84         ;KW1281 Pointer: source for buffer copy (2 bytes)
+    mem_0086 = 0x86         ;KW1281 Pointer: destination for buffer copy (2 bytes)
+    mem_0088 = 0x88         ;KW1281 byte received
+    mem_0089 = 0x89         ;KW1281 byte to send
     mem_008a = 0x8a
     mem_008b = 0x8b
     mem_008c = 0x8c
     mem_008d = 0x8d
     mem_008e = 0x8e
     mem_008f = 0x8f
-    mem_0091 = 0x91
+    mem_0091 = 0x91         ;KW1281 Fault bits
     mem_0092 = 0x92
-    mem_0093 = 0x93
-    mem_0094 = 0x94
+    mem_0093 = 0x93         ;KW1281 Fault bits
+    mem_0094 = 0x94         ;KW1281 Fault related, appears unused
     mem_0095 = 0x95
     mem_0096 = 0x96
     mem_0097 = 0x97
@@ -93,7 +93,7 @@
     mem_00a2 = 0xa2
     mem_00a3 = 0xa3
     mem_00a4 = 0xa4
-    mem_00a5 = 0xa5
+    mem_00a5 = 0xa5     
     mem_00a6 = 0xa6
     mem_00a8 = 0xa8
     mem_00a9 = 0xa9
@@ -171,39 +171,20 @@
     mem_00f8 = 0xf8
     mem_00f9 = 0xf9
     mem_00fa = 0xfa
-    mem_00fb = 0xfb
+    mem_00fb = 0xfb         ;KW1281 10416.67 bps transmit state
     mem_00fc = 0xfc
     mem_00fd = 0xfd
     mem_00fe = 0xfe
     mem_0110 = 0x110
     mem_0111 = 0x111
-    mem_0112 = 0x112
+    mem_0112 = 0x112        ;KW1281 9615.38 bps transmit state
     mem_0113 = 0x113
     mem_0114 = 0x114
     mem_0115 = 0x115
-    mem_0116 = 0x116
+    mem_0116 = 0x116        ;KW1281 Block counter
     mem_0117 = 0x117
-    mem_0118 = 0x118
-    mem_0119 = 0x119
-    mem_011a = 0x11a
-    mem_011b = 0x11b
-    mem_011c = 0x11c
-    mem_011d = 0x11d
-    mem_011e = 0x11e
-    mem_011f = 0x11f
-    mem_012b = 0x12b
-    mem_012c = 0x12c
-    mem_012d = 0x12d
-    mem_012e = 0x12e
-    mem_012f = 0x12f
-    mem_0130 = 0x130
-    mem_0131 = 0x131
-    mem_0133 = 0x133
-    mem_0134 = 0x134
-    mem_0136 = 0x136
-    mem_0137 = 0x137
-    mem_0139 = 0x139
-    mem_013a = 0x13a
+    mem_0118 = 0x118        ;KW1281 RX buffer (0x0118 - 0x012a)
+    mem_012b = 0x12b        ;KW1281 TX buffer (0x012b - 0x013d)
     mem_013e = 0x13e
     mem_013f = 0x13f
     mem_0140 = 0x140
@@ -212,21 +193,16 @@
     mem_0143 = 0x143
     mem_0144 = 0x144
     mem_0145 = 0x145
-    mem_0146 = 0x146
-    mem_0147 = 0x147
-    mem_0148 = 0x148
-    mem_0149 = 0x149
-    mem_014d = 0x14d
-    mem_0151 = 0x151
-    mem_0155 = 0x155
-    mem_0159 = 0x159
-    mem_015b = 0x15b
-    mem_015d = 0x15d
-    mem_015f = 0x15f
-    mem_0161 = 0x161
-    mem_0163 = 0x163
-    mem_0165 = 0x165
-    mem_0167 = 0x167
+    mem_0146 = 0x146        ;KW1281 Number of Faults
+    mem_0147 = 0x147        ;KW1281 Pointer: memory address to dump (2 bytes)
+    mem_0149 = 0x149        ;KW1281 4-byte buffer for Fault 00856 Radio Antenna
+    mem_014d = 0x14d        ;KW1281 4-byte buffer for Fault 00668 Supply terminal 30
+    mem_0151 = 0x151        ;KW1281 4-byte buffer for Fault 00850 Radio amplifier
+    mem_0155 = 0x155        ;KW1281 4-byte buffer for Fault 00855 CD changer
+    mem_0159 = 0x159        ;KW1281 4-byte buffer for Fault 00852 Loudspeaker(s) Front
+    mem_015d = 0x15d        ;KW1281 4-byte buffer for Fault 00853 Loudspeaker(s) Rear
+    mem_0161 = 0x161        ;KW1281 4-byte buffer for Fault 65535 Internal Memory Error
+    mem_0165 = 0x165        ;KW1281 4-byte buffer for Fault 01044 Control Module Incorrectly Coded
     mem_016d = 0x16d
     mem_016e = 0x16e
     mem_016f = 0x16f
@@ -339,13 +315,13 @@
     mem_0200 = 0x200
     mem_0201 = 0x201
     mem_0202 = 0x202
-    mem_0203 = 0x203
+    mem_0203 = 0x203    ;Entered SAFE code (2 bytes)
     mem_0205 = 0x205
     mem_0206 = 0x206
     mem_0208 = 0x208
     mem_020d = 0x20d
-    mem_020e = 0x20e
-    mem_020f = 0x20f
+    mem_020e = 0x20e    ;Number of SAFE code attempts
+    mem_020f = 0x20f    ;Actual SAFE code (2 bytes)
     mem_0211 = 0x211
     mem_0213 = 0x213
     mem_0214 = 0x214
@@ -1135,7 +1111,7 @@ sub_826e:
     movw a, #0x0000         ;8319  e4 00 00     Clear fault:
     movw mem_0161, a        ;831c  d4 01 61     KW1281 Fault 65535 Internal Memory Error
     movw a, #0x8800         ;831f  e4 88 00
-    movw mem_0163, a        ;8322  d4 01 63
+    movw mem_0161+2, a      ;8322  d4 01 63
 
     mov a, #0x00            ;8325  04 00
     mov mem_0307, a         ;8327  61 03 07
@@ -1241,14 +1217,14 @@ sub_8402:
     movw a, #0x0414         ;8405  e4 04 14     KW1281 Fault 01044 Control Module Incorrectly Coded
     movw mem_0165, a        ;8408  d4 01 65
     movw a, #0x2332         ;840b  e4 23 32
-    movw mem_0167, a        ;840e  d4 01 67
+    movw mem_0165+2, a      ;840e  d4 01 67
 
     mov mem_0091, #0b00001000     ;8411  85 91 08
 
     movw a, #0xffff         ;8414  e4 ff ff     KW1281 Fault 65535 Internal Memory Error
     movw mem_0161, a        ;8417  d4 01 61
     movw a, #0x8800         ;841a  e4 88 00
-    movw mem_0163, a        ;841d  d4 01 63
+    movw mem_0161+2, a      ;841d  d4 01 63
 
     ret                     ;8420  20
 
@@ -6425,7 +6401,7 @@ lab_a212:
     mov a, mem_020e         ;a223  60 02 0e     A = SAFE attempts
     mov a, #0x02            ;a226  04 02        A = 2 maximum attempts
     cmp a                   ;a228  12           Compare attempts with max
-    blo lab_a22d            ;a229  f9 02        Branch if fewer attempts than max
+    blo lab_a22d            ;a229  f9 02        Branch if more attempts remaining
 
     setb mem_00de:5         ;a22b  ad de
 
@@ -6498,9 +6474,9 @@ lab_a29e:
     mov mem_0201, a         ;a2a2  61 02 01
 
     mov a, mem_020e         ;a2a5  60 02 0e     A = SAFE attempts
-    mov a, #0x02            ;a2a8  04 02
-    cmp a                   ;a2aa  12
-    blo lab_a2b6            ;a2ab  f9 09
+    mov a, #0x02            ;a2a8  04 02        A = 2 maximum attempts
+    cmp a                   ;a2aa  12           Compare attempts with max
+    blo lab_a2b6            ;a2ab  f9 09        Branch if more attempts remaining
 
     clrb mem_00e4:1         ;a2ad  a1 e4
     mov mem_0096, #0x04     ;a2af  85 96 04
@@ -6643,7 +6619,7 @@ lab_a36d:
     movw a, #0x0414         ;a378  e4 04 14     KW1281 Fault 01044 Control Module Incorrectly Coded
     movw mem_0165, a        ;a37b  d4 01 65
     movw a, #0x2332         ;a37e  e4 23 32
-    movw mem_0167, a        ;a381  d4 01 67
+    movw mem_0165+2, a      ;a381  d4 01 67
 
     mov mem_00f1, #0x86     ;a384  85 f1 86
     mov a, #0x08            ;a387  04 08
@@ -8694,17 +8670,17 @@ lab_af36:
 
     mov a, mem_0080         ;af3a  05 80
     cmp a, #0x0c            ;af3c  14 0c        0x0C = mem_0080 value for KW1281 Protected: Read EEPROM
-    bne lab_af46            ;af3e  fc 06
+    bne lab_af46            ;af3e  fc 06        Branch if not reading EEPROM
 
-    ;mem_0080 = 0x0c: read eeprom
+    ;Reading EEPROM
     call sub_cb72           ;af40  31 cb 72     Read byte from EEPROM, store it in mem_0089
     jmp lab_af50            ;af43  21 af 50
 
 lab_af46:
-    ;mem_0080 != 0x0c: read memory
+    ;Reading RAM
     movw a, mem_0147        ;af46  c4 01 47     A = pointer to memory to dump
 
-    movw mem_0086, a        ;af49  d5 86        Store pointer in mem_0086
+    movw mem_0086, a        ;af49  d5 86        Pointer: destination for KW1281 buffer copy
     movw a, mem_0086        ;af4b  c5 86        A = Reload pointer again (why?)
 
     mov a, @a               ;af4d  92           A = Read memory to dump at pointer
@@ -9090,7 +9066,7 @@ sub_b136:
 ;mem_00a5 = Number of bytes to copy
 ;
     movw a, #mem_012b       ;b136  e4 01 2b     A = Pointer to KW1281 TX Buffer byte 0
-    movw mem_0086, a        ;b139  d5 86        Store pointer in mem_0086
+    movw mem_0086, a        ;b139  d5 86        Pointer: destination for KW1281 buffer copy
     jmp sub_b13e            ;b13b  21 b1 3e     Copy mem_00a5 bytes from @mem_0084 to @mem_0086
 
 sub_b13e:
@@ -9105,16 +9081,16 @@ sub_b13e:
     ret                     ;b142  20
 
 lab_b143:
-    movw a, mem_0084        ;b143  c5 84        A = Pointer to KW1281 packet bytes
+    movw a, mem_0084        ;b143  c5 84        A = Pointer: source for KW1281 buffer copy
     mov a, @a               ;b145  92           A = byte in packet
-    movw a, mem_0086        ;b146  c5 86
+    movw a, mem_0086        ;b146  c5 86        Pointer: destination for KW1281 buffer copy
     mov @a, t               ;b148  82
     incw a                  ;b149  c0
-    movw mem_0086, a        ;b14a  d5 86
+    movw mem_0086, a        ;b14a  d5 86        Pointer: destination for KW1281 buffer copy
 
     movw a, mem_0084        ;b14c  c5 84
     incw a                  ;b14e  c0
-    movw mem_0084, a        ;b14f  d5 84        Pointer to KW1281 packet bytes
+    movw mem_0084, a        ;b14f  d5 84        Pointer: source for KW1281 buffer copy
 
     mov a, mem_00a5         ;b151  05 a5        A = number of bytes in KW1281 packet
     decw a                  ;b153  d0
@@ -9140,7 +9116,7 @@ sub_b166:
 sub_b16b_ack:
     mov mem_00a5, #0x04     ;b16b  85 a5 04     4 bytes in KW1281 packet
     movw a, #kw_ack         ;b16e  e4 ff 40
-    movw mem_0084, a        ;b171  d5 84        Pointer to KW1281 packet bytes
+    movw mem_0084, a        ;b171  d5 84        Pointer: source for KW1281 buffer copy
     call sub_bbab           ;b173  31 bb ab
     ret                     ;b176  20
 
@@ -9257,7 +9233,7 @@ sub_b20c_no_ack:
 
 sub_b20e_no_ack:
     movw a, #kw_no_ack      ;b20e  e4 ff 3b
-    movw mem_0084, a        ;b211  d5 84        Pointer to KW1281 packet bytes
+    movw mem_0084, a        ;b211  d5 84        Pointer: source for KW1281 buffer copy
     mov mem_00a5, #0x05     ;b213  85 a5 05     5 bytes in KW1281 packet
     call sub_b136           ;b216  31 b1 36     Copy mem_00a5 bytes from @mem_0084 to KW1281 TX Buffer
 
@@ -9266,7 +9242,7 @@ sub_b20e_no_ack:
 
 sub_b21f_no_ack:
     movw a, #kw_no_ack      ;b21f  e4 ff 3b
-    movw mem_0084, a        ;b222  d5 84        Pointer to KW1281 packet bytes
+    movw mem_0084, a        ;b222  d5 84        Pointer: source for KW1281 buffer copy
     mov mem_00a5, #0x05     ;b224  85 a5 05     5 bytes in KW1281 packet
     call sub_b136           ;b227  31 b1 36     Copy mem_00a5 bytes from @mem_0084 to KW1281 TX Buffer
 
@@ -9440,7 +9416,7 @@ lab_b2d4_read:
 ;
     mov mem_00a5, #0x06     ;b2d4  85 a5 06     6 bytes in KW1281 packet
     movw a, #kw_rw_safe     ;b2d7  e4 ff 5d
-    movw mem_0084, a        ;b2da  d5 84        Pointer to KW1281 packet bytes
+    movw mem_0084, a        ;b2da  d5 84        Pointer: source for KW1281 buffer copy
     call sub_b136           ;b2dc  31 b1 36     Copy mem_00a5 bytes from @mem_0084 to KW1281 TX Buffer
 
     movw a, mem_020f        ;b2df  c4 02 0f     Read actual SAFE code word
@@ -9536,7 +9512,7 @@ cmp_model_2:
     movw a, #kw_asc_1c0035180e  ;b35c  e4 fe ec    "1C0035180E  "
 
 cmp_model_done:
-    movw mem_0084, a        ;b35f  d5 84        Pointer to KW1281 packet bytes
+    movw mem_0084, a        ;b35f  d5 84        Pointer: source for KW1281 buffer copy
     call sub_bbab           ;b361  31 bb ab
     mov a, #0x1a            ;b364  04 1a
     mov mem_032e, a         ;b366  61 03 2e
@@ -9595,7 +9571,7 @@ lab_b38c:
 ;(mem_0080=0x01, mem_0081=4)
     mov mem_00a5, #0x10         ;b38c  85 a5 10     16 bytes in KW1281 packet
     movw a, #kw_asc_radio_3cp   ;b38f  e4 ff 1c     " RADIO 3CP  "
-    movw mem_0084, a            ;b392  d5 84        Pointer to KW1281 packet bytes
+    movw mem_0084, a            ;b392  d5 84        Pointer: source for KW1281 buffer copy
     call sub_bbab               ;b394  31 bb ab
     mov mem_0081, #0x05         ;b397  85 81 05
     ret                         ;b39a  20
@@ -9616,7 +9592,7 @@ lab_b3a8:
 ;(mem_0080=0x01, mem_0081=7)
     mov mem_00a5, #0x0f     ;b3a8  85 a5 0f     15 bytes in KW1281 packet
     movw a, #kw_asc_0001    ;b3ab  e4 ff 2c     "       0001"
-    movw mem_0084, a        ;b3ae  d5 84        Pointer to KW1281 packet bytes
+    movw mem_0084, a        ;b3ae  d5 84        Pointer: source for KW1281 buffer copy
     call sub_bbab           ;b3b0  31 bb ab
     mov mem_0081, #0x08     ;b3b3  85 81 08
     ret                     ;b3b6  20
@@ -9665,10 +9641,10 @@ lab_b3cc:
     mov a, #0x03            ;b3e2  04 03        0x03 = Block End
     mov mem_012b+8, a       ;b3e4  61 01 33     KW1281 TX Buffer byte 8: Block End
 
-    movw a, #mem_0175       ;b3e7  e4 01 75     A = Pointer to KW1281 packet bytes
-    movw mem_0084, a        ;b3ea  d5 84
+    movw a, #mem_0175       ;b3e7  e4 01 75
+    movw mem_0084, a        ;b3ea  d5 84        Pointer: source for KW1281 buffer copy
     movw a, #mem_012b+4     ;b3ec  e4 01 2f     A = Pointer to KW1281 TX Buffer byte 4
-    movw mem_0086, a        ;b3ef  d5 86
+    movw mem_0086, a        ;b3ef  d5 86        Pointer: destination for KW1281 buffer copy
     mov mem_00a5, #0x04     ;b3f1  85 a5 04     4 bytes in KW1281 packet
     call sub_b13e           ;b3f4  31 b1 3e     Copy mem_00a5 bytes from @mem_0084 to @mem_0086
 
@@ -9709,7 +9685,7 @@ sub_b416:
     movw ep, #0             ;b416  e7 00 00     Number of faults = 0
     mov mem_0093, #0x00     ;b419  85 93 00     Clear all fault bits
     mov mem_0094, #0x00     ;b41c  85 94 00     XXX mem_0094 appears unused
-    movw ix, #mem_0149      ;b41f  e6 01 49
+    movw ix, #mem_0149      ;b41f  e6 01 49     IX = pointer to KW1281 4-byte buffer for Fault 00856 Radio Antenna
 
     ;Check for Fault 00856 Antenna
     mov a, @ix+0x02         ;b422  06 02
@@ -9804,7 +9780,7 @@ lab_b480:
     mov mem_012b+2, a       ;b482  61 01 2d     KW1281 TX Buffer byte 2: Block title
 
     movw a, #mem_012b+3     ;b485  e4 01 2e     A = Pointer to KW1281 TX Buffer byte 3
-    movw mem_0086, a        ;b488  d5 86
+    movw mem_0086, a        ;b488  d5 86        Pointer: destination for KW1281 buffer copy
 
     mov a, mem_0146         ;b48a  60 01 46     A = number of faults
     cmp a, #0x04            ;b48d  14 04        Compare number of faults with 4
@@ -9881,7 +9857,7 @@ lab_b4e0:
 lab_b4e9:
     mov mem_00a5, #0x07     ;b4e9  85 a5 07     7 bytes in KW1281 packet
     movw a, #kw_faults_none ;b4ec  e4 ff 44
-    movw mem_0084, a        ;b4ef  d5 84        Pointer to KW1281 packet bytes
+    movw mem_0084, a        ;b4ef  d5 84        Pointer: source for KW1281 buffer copy
     call sub_b136           ;b4f1  31 b1 36     Copy mem_00a5 bytes from @mem_0084 to KW1281 TX Buffer
 
     mov mem_0081, #0x03     ;b4f4  85 81 03
@@ -9965,8 +9941,8 @@ sub_b542:
 
     call sub_b554           ;b546  31 b5 54     Read/clear fault bits, returns A = pointer to KW1281 packet
 
-    movw mem_0084, a        ;b549  d5 84        Pointer to KW1281 packet bytes
-    movw mem_0084, a        ;b54b  d5 84        Pointer to KW1281 packet bytes (XXX why?)
+    movw mem_0084, a        ;b549  d5 84        Pointer: source for KW1281 buffer copy
+    movw mem_0084, a        ;b54b  d5 84        Pointer: source for KW1281 buffer copy (XXX why?)
     mov mem_00a5, #0x03     ;b54d  85 a5 03     3 bytes in KW1281 packet
     call sub_b13e           ;b550  31 b1 3e     Copy mem_00a5 bytes from @mem_0084 to @mem_0086
 
@@ -9982,7 +9958,7 @@ sub_b554:
 
     ;KW1281 Fault 00856 Antenna
     clrb mem_0093:0         ;b557  a0 93        Clear fault 00856 bit
-    movw a, #mem_0149       ;b559  e4 01 49     A = Address of KW1281 packet bytes
+    movw a, #mem_0149       ;b559  e4 01 49     A = Pointer to KW1281 4-byte buffer for Fault 00856 Radio Antenna
     ret                     ;b55c  20
 
 lab_b55d:
@@ -9990,7 +9966,7 @@ lab_b55d:
 
     ;KW1281 Fault 00668 Supply terminal 30
     clrb mem_0093:1         ;b560  a1 93        Clear fault 00668 bit
-    movw a, #mem_014d       ;b562  e4 01 4d     A = Address of KW1281 packet bytes
+    movw a, #mem_014d       ;b562  e4 01 4d     A = Pointer to KW1281 4-byte buffer for Fault 00668 Supply terminal 30
     ret                     ;b565  20
 
 lab_b566:
@@ -9998,7 +9974,7 @@ lab_b566:
 
     ;KW1281 Fault 00850 Radio amplifier
     clrb mem_0093:2         ;b569  a2 93        Clear fault 00850 bit
-    movw a, #mem_0151       ;b56b  e4 01 51     A = Address of KW1281 packet bytes
+    movw a, #mem_0151       ;b56b  e4 01 51     A = Pointer to KW1281 4-byte buffer for Fault 00850 Radio amplifier
     ret                     ;b56e  20
 
 lab_b56f:
@@ -10006,7 +9982,7 @@ lab_b56f:
 
     ;KW1281 Fault 01044 Control Module Incorrectly Coded
     clrb mem_0093:3         ;b572  a3 93        Clear fault 01044 bit
-    movw a, #mem_0165       ;b574  e4 01 65     A = Address of KW1281 packet bytes
+    movw a, #mem_0165       ;b574  e4 01 65     A = Pointer to KW1281 4-byte buffer for Fault 01044 Control Module Incorrectly Coded
     ret                     ;b577  20
 
 lab_b578:
@@ -10014,7 +9990,7 @@ lab_b578:
 
     ;KW1281 Fault 00855 CD changer
     clrb mem_0093:4         ;b57b  a4 93        Clear fault 00855 bit
-    movw a, #mem_0155       ;b57d  e4 01 55     A = Address of KW1281 packet bytes
+    movw a, #mem_0155       ;b57d  e4 01 55     A = Pointer to KW1281 4-byte buffer for Fault 00855 CD changer
     ret                     ;b580  20
 
 lab_b581:
@@ -10022,7 +9998,7 @@ lab_b581:
 
     ;KW1281 Fault 00852 Loudspeaker(s) Front
     clrb mem_0093:5         ;b584  a5 93        Clear fault 00852 bit
-    movw a, #mem_0159       ;b586  e4 01 59     A = Address of KW1281 packet bytes
+    movw a, #mem_0159       ;b586  e4 01 59     A = Pointer to KW1281 4-byte buffer for Fault 00852 Loudspeaker(s) Front
     ret                     ;b589  20
 
 lab_b58a:
@@ -10030,7 +10006,7 @@ lab_b58a:
 
     ;KW1281 Fault 00853 Loudspeaker(s) Rear
     clrb mem_0093:6         ;b58d  a6 93        Clear fault 00853 bit
-    movw a, #mem_015d       ;b58f  e4 01 5d     A = Address of KW1281 packet bytes
+    movw a, #mem_015d       ;b58f  e4 01 5d     A = Pointer to KW1281 4-byte buffer for Fault 00853 Loudspeaker(s) Rear
     ret                     ;b592  20
 
 lab_b593:
@@ -10038,7 +10014,7 @@ lab_b593:
 
     ;KW1281 Fault 65535 Internal Memory Error
     clrb mem_0093:7         ;b596  a7 93        Clear fault 65535 bit
-    movw a, #mem_0161       ;b598  e4 01 61     A = Address of KW1281 packet bytes
+    movw a, #mem_0161       ;b598  e4 01 61     A = Pointer to KW1281 4-byte buffer for Fault 65535 Internal Memory Error
 
 lab_b59b:
     ret                     ;b59b  20
@@ -10094,7 +10070,7 @@ lab_b5d7:
 ;(mem_0080=0x05, mem_0081=4)
     mov mem_00a5, #0x07     ;b5d7  85 a5 07     7 bytes in KW1281 packet
     movw a, #kw_faults_none ;b5da  e4 ff 44
-    movw mem_0084, a        ;b5dd  d5 84        Pointer to KW1281 packet bytes
+    movw mem_0084, a        ;b5dd  d5 84        Pointer: source for KW1281 buffer copy
     call sub_bba1           ;b5df  31 bb a1
 
     mov mem_0081, #0x05     ;b5e2  85 81 05
@@ -10247,7 +10223,7 @@ lab_b6aa:
 
 lab_b6b1:
 ;Actuator/Output Tests related
-    movw mem_0084, a        ;b6b1  d5 84        Pointer to KW1281 packet bytes
+    movw mem_0084, a        ;b6b1  d5 84        Pointer: source for KW1281 buffer copy
 
 lab_b6b3:
 ;Actuator/Output Tests related
@@ -10854,7 +10830,7 @@ lab_b945:
 
     movw a, #0x0000         ;b95e  e4 00 00     Clear 4 bytes to clear fault:
     movw mem_0165, a        ;b961  d4 01 65     KW1281 Fault 01044 Control Module Incorrectly Coded
-    movw mem_0167, a        ;b964  d4 01 67
+    movw mem_0165+2, a      ;b964  d4 01 67
 
     clrb mem_0091:3         ;b967  a3 91
     mov mem_00f1, #0xa0     ;b969  85 f1 a0
@@ -11004,7 +10980,7 @@ lab_ba14:
 lab_ba2e:
     mov mem_00a0, #0x07     ;ba2e  85 a0 07
     movw ix, #mem_0149      ;ba31  e6 01 49     IX = pointer to first fault
-
+                            ;                        (KW1281 4-byte buffer for Fault 00856 Radio Antenna)
 lab_ba34:
     movw a, #0x0000         ;ba34  e4 00 00     Clear 4 bytes at pointer for current fault
     movw @ix+0x00, a        ;ba37  d6 00
@@ -11026,7 +11002,7 @@ lab_ba34:
     movw a, #0xffff         ;ba4b  e4 ff ff
     movw mem_0161, a        ;ba4e  d4 01 61     KW1281 Fault 65535 Internal Memory Error
     movw a, #0x8800         ;ba51  e4 88 00
-    movw mem_0163, a        ;ba54  d4 01 63
+    movw mem_0161+2, a      ;ba54  d4 01 63
 
     mov mem_0092, #0x00     ;ba57  85 92 00
 
@@ -11189,7 +11165,7 @@ mem_0080_is_0b_or_0c:
 ;  0x00 Number of bytes to read         mem_0118+3
 ;  0x00 Address high                    mem_0118+4  (Only address low byte is
 ;  0x00 Address low                     mem_0118+5   used in case of EEPROM)
-;  0x03 Block end                       mem_0119+6
+;  0x03 Block end                       mem_0118+6
 ;
     mov a, mem_0081         ;bb17  05 81
     cmp a, #0x02            ;bb19  14 02
@@ -11211,7 +11187,7 @@ mem_0080_is_0a:
 ;  0x00 Number of bytes to read         mem_0118+3
 ;  0x00 Address high                    mem_0118+4
 ;  0x00 Address low                     mem_0118+5
-;  0x03 Block end                       mem_0119+6
+;  0x03 Block end                       mem_0118+6
 ;
     mov a, mem_0081         ;bb23  05 81
     cmp a, #0x02            ;bb25  14 02
@@ -12006,7 +11982,7 @@ lab_bfb7:
     bne lab_bfc7            ;bfbe  fc 07
 
 lab_bfc0:
-    mov a, mem_015b         ;bfc0  60 01 5b
+    mov a, mem_0159+2       ;bfc0  60 01 5b
     cmp a, #0x24            ;bfc3  14 24
     beq lab_bf88            ;bfc5  fd c1
 
@@ -12017,7 +11993,7 @@ lab_bfc7:
     call sub_c011           ;bfce  31 c0 11
     movw a, #0x0000         ;bfd1  e4 00 00
     movw mem_0159, a        ;bfd4  d4 01 59
-    movw mem_015b, a        ;bfd7  d4 01 5b
+    movw mem_0159+2, a      ;bfd7  d4 01 5b
 
 lab_bfda:
     movw a, #0x0000         ;bfda  e4 00 00
@@ -12030,7 +12006,7 @@ lab_bfe0:
     bne lab_bff0            ;bfe7  fc 07
 
 lab_bfe9:
-    mov a, mem_015f         ;bfe9  60 01 5f
+    mov a, mem_015d+2       ;bfe9  60 01 5f
     cmp a, #0x24            ;bfec  14 24
     beq lab_bfb2            ;bfee  fd c2
 
@@ -12041,7 +12017,7 @@ lab_bff0:
     call sub_c009           ;bff7  31 c0 09
     movw a, #0x0000         ;bffa  e4 00 00
     movw mem_015d, a        ;bffd  d4 01 5d
-    movw mem_015f, a        ;c000  d4 01 5f
+    movw mem_015d+2, a      ;c000  d4 01 5f
 
 lab_c003:
     movw a, #0x0000         ;c003  e4 00 00
@@ -12266,19 +12242,19 @@ sub_c133:
     mov a, #0x01            ;c159  04 01
     mov mem_031f, a         ;c15b  61 03 1f
     bbc mem_008d:1, lab_c172 ;c15e  b1 8d 11
-    setb mem_0091:0         ;c161  a8 91        KW1281 Fault 00856 - Radio Antenna
+    setb mem_0091:0         ;c161  a8 91        KW1281 Fault 00856 Radio Antenna
     mov a, #0x01            ;c163  04 01
     bne lab_c176            ;c165  fc 0f        BRANCH_ALWAYS_TAKEN
 
 lab_c167:
     mov a, #0x02            ;c167  04 02
     mov mem_031f, a         ;c169  61 03 1f
-    setb mem_0091:0         ;c16c  a8 91        KW1281 Fault 00856 - Radio Antenna
+    setb mem_0091:0         ;c16c  a8 91        KW1281 Fault 00856 Radio Antenna
     mov a, #0x02            ;c16e  04 02
     bne lab_c176            ;c170  fc 04        BRANCH_ALWAYS_TAKEN
 
 lab_c172:
-    clrb mem_0091:0         ;c172  a0 91        KW1281 Fault 00856 - Radio Antenna
+    clrb mem_0091:0         ;c172  a0 91        KW1281 Fault 00856 Radio Antenna
     mov a, #0x00            ;c174  04 00
 
 lab_c176:
@@ -12631,7 +12607,7 @@ lab_c390:
     bne lab_c3b5            ;c39f  fc 14
     cmp @ix+0x00, #0x01     ;c3a1  96 00 01
     beq lab_c37c            ;c3a4  fd d6
-    mov a, mem_015b         ;c3a6  60 01 5b
+    mov a, mem_0159+2       ;c3a6  60 01 5b
     cmp a, #0x24            ;c3a9  14 24
     bne lab_c3b5            ;c3ab  fc 08
     cmp @ix+0x00, #0x02     ;c3ad  96 00 02
@@ -12671,7 +12647,7 @@ lab_c3d7:
     bne lab_c3fc            ;c3e6  fc 14
     cmp @ix+0x00, #0x01     ;c3e8  96 00 01
     beq lab_c37c            ;c3eb  fd 8f
-    mov a, mem_015f         ;c3ed  60 01 5f
+    mov a, mem_015d+2       ;c3ed  60 01 5f
     cmp a, #0x24            ;c3f0  14 24
     bne lab_c3fc            ;c3f2  fc 08
     cmp @ix+0x00, #0x02     ;c3f4  96 00 02
@@ -12818,38 +12794,38 @@ mem_c4c9:
     .word lab_c5cf                      ;VECTOR 9
 
 lab_c4dd_fault_antenna:
-    movw ix, #mem_0149      ;c4dd  e6 01 49
+    movw ix, #mem_0149      ;c4dd  e6 01 49     IX = pointer to KW1281 4-byte buffer for Fault 00856 Radio Antenna
     bbc mem_0091:0, lab_c528 ;c4e0  b0 91 45
     mov a, mem_0141         ;c4e3  60 01 41
     cmp a, #0x02            ;c4e6  14 02
     bne lab_c4f2            ;c4e8  fc 08
-    movw a, #0x0358         ;c4ea  e4 03 58     KW1281 Fault 00856 - Radio Antenna
+    movw a, #0x0358         ;c4ea  e4 03 58     KW1281 Fault 00856 Radio Antenna
     movw a, #0x1d32         ;c4ed  e4 1d 32
     bne lab_c53c            ;c4f0  fc 4a        BRANCH_ALWAYS_TAKEN
 
 lab_c4f2:
     cmp a, #0x01            ;c4f2  14 01
     bne lab_c552            ;c4f4  fc 5c
-    movw a, #0x0358         ;c4f6  e4 03 58     KW1281 Fault 00856 - Radio Antenna
+    movw a, #0x0358         ;c4f6  e4 03 58     KW1281 Fault 00856 Radio Antenna
     movw a, #0x2432         ;c4f9  e4 24 32
     bne lab_c53c            ;c4fc  fc 3e        BRANCH_ALWAYS_TAKEN
 
 sub_c4fe_fault_terminal_30:
-    movw ix, #mem_014d      ;c4fe  e6 01 4d
+    movw ix, #mem_014d      ;c4fe  e6 01 4d     IX = pointer to KW1281 4-byte buffer for Fault 00668 Supply terminal 30
     bbc mem_0091:1, lab_c528 ;c501  b1 91 24
     movw a, #0x029c         ;c504  e4 02 9c     KW1281 Fault 00668 - Supply Voltage Terminal 30
     movw a, #0x0732         ;c507  e4 07 32
     bne lab_c53c            ;c50a  fc 30        BRANCH_ALWAYS_TAKEN
 
 sub_c50c_fault_amplifier:
-    movw ix, #mem_0151      ;c50c  e6 01 51
+    movw ix, #mem_0151      ;c50c  e6 01 51     IX = pointer to KW1281 4-byte buffer for Fault 00850 Radio amplifier
     bbc mem_0091:2, lab_c528 ;c50f  b2 91 16
     movw a, #0x0352         ;c512  e4 03 52     KW1281 Fault 00850 - Control Output Active: Radio Amplifier
     movw a, #0x1d32         ;c515  e4 1d 32
     bne lab_c53c            ;c518  fc 22        BRANCH_ALWAYS_TAKEN
 
 sub_c51a_fault_cd_changer:
-    movw ix, #mem_0155      ;c51a  e6 01 55
+    movw ix, #mem_0155      ;c51a  e6 01 55     IX = pointer to KW1281 4-byte buffer for Fault 00855 CD changer
     bbc mem_0091:4, lab_c528 ;c51d  b4 91 08
     movw a, #0x0357         ;c520  e4 03 57     KW1281 Fault 00855 - Connection to CD changer
     movw a, #0x3132         ;c523  e4 31 32
@@ -12896,7 +12872,7 @@ lab_c553:
     jmp lab_c536            ;c55a  21 c5 36
 
 sub_c55d_fault_speakers_front:
-    movw ix, #mem_0159      ;c55d  e6 01 59
+    movw ix, #mem_0159      ;c55d  e6 01 59     A = KW1281 4-byte buffer for Fault 00852 Loudspeaker(s) Front
     bbc mem_0091:5, lab_c528 ;c560  b5 91 c5
     mov a, mem_013f         ;c563  60 01 3f
     cmp a, #0x01            ;c566  14 01
@@ -12909,7 +12885,7 @@ lab_c56f:
     bne lab_c58d            ;c572  fc 19        BRANCH_ALWAYS_TAKEN
 
 sub_c574_fault_speakers_rear:
-    movw ix, #mem_015d      ;c574  e6 01 5d
+    movw ix, #mem_015d      ;c574  e6 01 5d     IX = Pointer to KW1281 4-byte buffer for Fault 00853 Loudspeaker(s) Rear
     bbc mem_0091:6, lab_c528 ;c577  b6 91 ae
     mov a, mem_0140         ;c57a  60 01 40
     cmp a, #0x01            ;c57d  14 01
@@ -12930,7 +12906,7 @@ lab_c58d:
     bne lab_c587            ;c590  fc f5        BRANCH_ALWAYS_TAKEN
 
 lab_c592_fault_internal_mem:
-    movw ix, #mem_0161      ;c592  e6 01 61
+    movw ix, #mem_0161      ;c592  e6 01 61     IX = Pointer to KW1281 4-byte buffer for Fault 65535 Internal Memory Error
     bbc mem_0091:7, lab_c5a0 ;c595  b7 91 08
     movw a, #0xffff         ;c598  e4 ff ff     KW1281 Fault 65535 - Internal Control Module Memory Error
     movw a, #0x0032         ;c59b  e4 00 32
@@ -18829,7 +18805,7 @@ sub_e338_no_ack_2:
     mov mem_0397, a         ;e33a  61 03 97
 
     movw a, #kw_no_ack_2    ;e33d  e4 dd 5d
-    movw mem_0084, a        ;e340  d5 84        Pointer to KW1281 packet bytes
+    movw mem_0084, a        ;e340  d5 84        Pointer: source for KW1281 buffer copy
     mov mem_00a5, #0x05     ;e342  85 a5 05     5 bytes in KW1281 packet
     call sub_b136           ;e345  31 b1 36     Copy mem_00a5 bytes from @mem_0084 to KW1281 TX Buffer
 
@@ -18840,7 +18816,7 @@ sub_e34e_no_ack_2:
     clrb mem_00f9:7         ;e34e  a7 f9
 
     movw a, #kw_no_ack_2    ;e350  e4 dd 5d
-    movw mem_0084, a        ;e353  d5 84        Pointer to KW1281 packet bytes
+    movw mem_0084, a        ;e353  d5 84        Pointer: source for KW1281 buffer copy
     mov mem_00a5, #0x05     ;e355  85 a5 05     5 bytes in KW1281 packet
     call sub_b136           ;e358  31 b1 36     Copy mem_00a5 bytes from @mem_0084 to KW1281 TX Buffer
 
@@ -18980,7 +18956,7 @@ lab_e3d9:
     movw mem_03ad, a        ;e3eb  d4 03 ad
 
     movw a, #kw_title_d7    ;e3ee  e4 dd 66
-    movw mem_0084, a        ;e3f1  d5 84        Pointer to KW1281 packet bytes
+    movw mem_0084, a        ;e3f1  d5 84        Pointer: source for KW1281 buffer copy
     mov mem_00a5, #0x08     ;e3f3  85 a5 08     8 bytes in KW1281 packet
     call sub_b136           ;e3f6  31 b1 36     Copy mem_00a5 bytes from @mem_0084 to KW1281 TX Buffer
 
@@ -19148,7 +19124,7 @@ lab_e4eb:
 
     mov mem_00a5, #0x04     ;e4f3  85 a5 04     4 bytes in KW1281 packet
     movw a, #kw_end_session ;e4f6  e4 dd 6e
-    movw mem_0084, a        ;e4f9  d5 84        Pointer to KW1281 packet bytes
+    movw mem_0084, a        ;e4f9  d5 84        Pointer: source for KW1281 buffer copy
     call sub_e366           ;e4fb  31 e3 66
 
     mov a, #0x07            ;e4fe  04 07        A = value to store in mem_038b
@@ -21058,7 +21034,7 @@ sub_ef7b:
 
 
 sub_ef8b:
-;TODO ISR
+;Called from IRQ6 (8-bit pwm timer #3 (#4, #5, #6))
     mov cntr2, #0x00        ;ef8b  85 29 00
     mov a, mem_01c8         ;ef8e  60 01 c8
     cmp a, #0x70            ;ef91  14 70
