@@ -93,7 +93,7 @@
     mem_00a2 = 0xa2
     mem_00a3 = 0xa3
     mem_00a4 = 0xa4
-    mem_00a5 = 0xa5     
+    mem_00a5 = 0xa5
     mem_00a6 = 0xa6
     mem_00a8 = 0xa8
     mem_00a9 = 0xa9
@@ -282,10 +282,10 @@
     mem_01d8 = 0x1d8
     mem_01d9 = 0x1d9
     mem_01da = 0x1da
-    mem_01db = 0x1db
-    mem_01dc = 0x1dc
-    mem_01dd = 0x1dd
-    mem_01de = 0x1de
+    mem_01db = 0x1db    ;CD disc number
+    mem_01dc = 0x1dc    ;CD track number
+    mem_01dd = 0x1dd    ;CD track time minutes
+    mem_01de = 0x1de    ;CD track time seconds
     mem_01df = 0x1df
     mem_01e0 = 0x1e0
     mem_01e1 = 0x1e1
@@ -325,25 +325,13 @@
     mem_0211 = 0x211
     mem_0213 = 0x213
     mem_0214 = 0x214
-    mem_0215 = 0x215
-    mem_0216 = 0x216
-    mem_0217 = 0x217
-    mem_0218 = 0x218
-    mem_0219 = 0x219
-    mem_021a = 0x21a
-    mem_021b = 0x21b
-    mem_0222 = 0x222
-    mem_0224 = 0x224
-    mem_0226 = 0x226
-    mem_0228 = 0x228
-    mem_022f = 0x22f
-    mem_0230 = 0x230
-    mem_0231 = 0x231
-    mem_0232 = 0x232
-    mem_0233 = 0x233
+    mem_0215 = 0x215    ;Main-to-Sub work buffer #1 (6 bytes)
+    mem_0222 = 0x222    ;Main-to-Sub TX buffer (6 bytes)
+    mem_022f = 0x22f    ;Main-to-Sub number of bytes left to send
+    mem_0230 = 0x230    ;Sub-to-Main RX buffer (4 bytes)
     mem_0236 = 0x236
-    mem_0237 = 0x237
-    mem_0238 = 0x238
+    mem_0237 = 0x237    ;Sub-to-Main number of bytes left to receive
+    mem_0238 = 0x238    ;Sub-to-Main number of bits received
     mem_023e = 0x23e
     mem_0242 = 0x242
     mem_0243 = 0x243
@@ -411,8 +399,7 @@
     mem_02af = 0x2af
     mem_02b0 = 0x2b0
     mem_02b2 = 0x2b2
-    mem_02b6 = 0x2b6
-    mem_02b7 = 0x2b7
+    mem_02b6 = 0x2b6    ;Main-to-Sub work buffer #2 (5 bytes)
     mem_02c1 = 0x2c1
     mem_02c2 = 0x2c2
     mem_02c3 = 0x2c3
@@ -936,7 +923,7 @@ lab_81da:
 
 lab_81e7:
     call sub_c5d2           ;81e7  31 c5 d2
-    mov a, mem_02b7         ;81ea  60 02 b7
+    mov a, mem_02b6+1       ;81ea  60 02 b7 A = Main-to-Sub work buffer #2 byte 1 (Display Number)
     bne lab_81f1            ;81ed  fc 02
     clrb mem_0097:2         ;81ef  a2 97
 
@@ -1524,6 +1511,7 @@ lab_85e5:
     ret                     ;85e5  20
 
 lab_85e6:
+;(mem_00ae = 0x1c, 0x1d mfsw vol up/down keys)
     mov a, mem_02cd         ;85e6  60 02 cd
     bne lab_85e5            ;85e9  fc fa
     bbs mem_00af:7, lab_85f8 ;85eb  bf af 0a
@@ -3340,8 +3328,9 @@ lab_8fc0:
     call sub_92d1           ;8fcf  31 92 d1
     call sub_90f7           ;8fd2  31 90 f7
     call sub_9346           ;8fd5  31 93 46
+
     mov a, #0x00            ;8fd8  04 00
-    mov mem_0238, a         ;8fda  61 02 38
+    mov mem_0238, a         ;8fda  61 02 38     Sub-to-Main number of bits received = 0
 
 lab_8fdd:
 ;mem_8f44 table case 5
@@ -5688,8 +5677,8 @@ sub_9df8:
     clrb mem_00af:4         ;9df8  a4 af
     call sub_8e91           ;9dfa  31 8e 91
     bbc mem_00f7:7, lab_9e13 ;9dfd  b7 f7 13
-    mov a, mem_02b7         ;9e00  60 02 b7
-    cmp a, #0x5a            ;9e03  14 5a
+    mov a, mem_02b6+1       ;9e00  60 02 b7     A = Main-to-Sub work buffer #2 byte 1 (Display Number)
+    cmp a, #0x5a            ;9e03  14 5a        Compare to 0x5A  '....NO.TAPE'
     bne lab_9e0a            ;9e05  fc 03
     call sub_9b02           ;9e07  31 9b 02
 
@@ -5755,7 +5744,7 @@ lab_9e59:
 lab_9e5e:
     mov a, #0x00            ;9e5e  04 00
     mov mem_0308, a         ;9e60  61 03 08
-    movw ix, #mem_02b6      ;9e63  e6 02 b6
+    movw ix, #mem_02b6      ;9e63  e6 02 b6     IX = pointer to Main-to-Sub work buffer #1
     mov @ix+0x01, #0x5b     ;9e66  86 01 5b     0x5b 'TAPE.ERROR.'
     mov a, #0b00100000      ;9e69  04 20        Pictographs = Bit 5 only (HIDDEN_MODE_TAPE)
     mov @ix+0x00, a         ;9e6b  46 00
@@ -6247,7 +6236,7 @@ lab_a135:
     mov a, #0x00            ;a144  04 00        A = 0 attempts
     mov mem_020e, a         ;a146  61 02 0e     Store SAFE attempts
 
-    mov a, #0x02            ;a149  04 02
+    mov a, #0x02            ;a149  04 02        A = value to store in mem_00cd
 
 lab_a14b:
     setb mem_0098:4         ;a14b  ac 98
@@ -6266,7 +6255,8 @@ lab_a150:
 
     mov a, #0x07            ;a158  04 07        A = mem_0201 value for BLANK
     mov mem_0201, a         ;a15a  61 02 01
-    mov a, #0x03            ;a15d  04 03
+
+    mov a, #0x03            ;a15d  04 03        A = value to store in mem_00cd
     bne lab_a14b            ;a15f  fc ea        BRANCH_ALWAYS_TAKEN
 
 lab_a161:
@@ -6276,7 +6266,7 @@ lab_a161:
     call sub_a18c           ;a168  31 a1 8c
     mov a, #0xff            ;a16b  04 ff
     mov mem_0205, a         ;a16d  61 02 05
-    mov a, #0x03            ;a170  04 03
+    mov a, #0x03            ;a170  04 03        A = value to store in mem_00cd
     bne lab_a14d            ;a172  fc d9        BRANCH_ALWAYS_TAKEN
 
 lab_a174:
@@ -6285,7 +6275,8 @@ lab_a174:
 
     setb mem_00de:7         ;a17a  af de
     mov mem_00f1, #0x9e     ;a17c  85 f1 9e
-    mov a, #0x04            ;a17f  04 04
+
+    mov a, #0x04            ;a17f  04 04        A = value to store in mem_00cd
     bne lab_a14b            ;a181  fc c8        BRANCH_ALWAYS_TAKEN
 
 lab_a183:
@@ -6315,7 +6306,7 @@ lab_a1a4:
     bne lab_a1b4            ;a1ab  fc 07        BRANCH_ALWAYS_TAKEN
 
 lab_a1ad:
-    movw ep, #0x0ff0      ;a1ad  e7 0f f0
+    movw ep, #0x0ff0        ;a1ad  e7 0f f0
     mov r0, #0xa0           ;a1b0  88 a0
     mov a, #0x10            ;a1b2  04 10
 
@@ -6382,9 +6373,12 @@ lab_a1ff:
     mov a, mem_0205         ;a1ff  60 02 05
     cmp a, #0x19            ;a202  14 19
     beq lab_a212            ;a204  fd 0c
+
     call sub_a18c           ;a206  31 a1 8c
+
     mov a, #0xff            ;a209  04 ff
     mov mem_0205, a         ;a20b  61 02 05
+
     mov a, #0x03            ;a20e  04 03        A = value to store in mem_00cd
     bne lab_a1e5            ;a210  fc d3        BRANCH_ALWAYS_TAKEN
 
@@ -6735,7 +6729,7 @@ lab_a3f3:
     movw mem_03b0, a        ;a42a  d4 03 b0
     movw mem_03b2, a        ;a42d  d4 03 b2
     mov mem_00f1, #0x88     ;a430  85 f1 88
-    mov a, #0x02            ;a433  04 02
+    mov a, #0x02            ;a433  04 02        A = value to store in mem_00cd
 
 lab_a435:
     mov mem_00cd, a         ;a435  45 cd
@@ -6748,14 +6742,14 @@ lab_a437:
 lab_a438:
     bhs lab_a437            ;a438  f8 fd
     mov mem_00f1, #0x9e     ;a43a  85 f1 9e
-    mov a, #0x03            ;a43d  04 03
+    mov a, #0x03            ;a43d  04 03        A = value to store in mem_00cd
     bne lab_a435            ;a43f  fc f4        BRANCH_ALWAYS_TAKEN
 
 ;lab_a438 case 3
 lab_a441:
     bhs lab_a437            ;a441  f8 f4
     mov mem_00f1, #0x9f     ;a443  85 f1 9f
-    mov a, #0x04            ;a446  04 04
+    mov a, #0x04            ;a446  04 04        A = value to store in mem_00cd
     bne lab_a435            ;a448  fc eb        BRANCH_ALWAYS_TAKEN
 
 ;lab_a438 case 4
@@ -7083,13 +7077,17 @@ lab_a665:
     movw ix, #mem_0200      ;a665  e6 02 00     IX = pointer to 8-bit value to decrement
     call dec8_at_ix_nowrap  ;a668  31 e7 7d     Decrement 8-bit value @IX.  No wrap past 0.
     bbc mem_00e7:1, lab_a67a ;a66b  b1 e7 0c
-    movw ix, #mem_0237      ;a66e  e6 02 37     IX = pointer to 8-bit value to decrement
+
+    movw ix, #mem_0237      ;a66e  e6 02 37     IX = pointer to Sub-to-Main number of bytes left to receive
     call dec8_at_ix         ;a671  31 e7 81     Decrement 8-bit value @IX.  Wraps from 0 to 0xFF.
-    bne lab_a67a            ;a674  fc 04
+    bne lab_a67a            ;a674  fc 04        Branch if more Sub-to-Main bytes left to receive
+
+    ;Received a complete 4-byte Sub-to-Main packet
     clrb mem_00e7:1         ;a676  a1 e7
     setb mem_00e7:2         ;a678  aa e7
 
 lab_a67a:
+    ;More Sub-to-Main bytes left to receive
     movw ix, #mem_02d3      ;a67a  e6 02 d3     IX = pointer to 8-bit value to decrement
     call dec8_at_ix_nowrap  ;a67d  31 e7 7d     Decrement 8-bit value @IX.  No wrap past 0.
 
@@ -12946,12 +12944,15 @@ lab_c5cf:
 
 sub_c5d2:
     setb mem_0097:2         ;c5d2  aa 97
-    mov a, #0x00            ;c5d4  04 00
-    movw ix, #mem_02b6      ;c5d6  e6 02 b6
-    call fill_6_bytes_at_ix ;c5d9  31 e6 ed
+
+    mov a, #0x00            ;c5d4  04 00        A = value to fill
+    movw ix, #mem_02b6      ;c5d6  e6 02 b6     IX = pointer to Main-to-Sub work buffer #2
+    call fill_6_bytes_at_ix ;c5d9  31 e6 ed     Fill buffer
+
     mov a, mem_0095         ;c5dc  05 95
     mov mem_02c8, a         ;c5de  61 02 c8
-    movw ix, #mem_02b6      ;c5e1  e6 02 b6
+
+    movw ix, #mem_02b6      ;c5e1  e6 02 b6     IX = pointer to Main-to-Sub work buffer #2
 
     bbc mem_00d0:0, lab_c5f7 ;c5e4  b0 d0 10
     bbc mem_008c:7, lab_c5fc ;c5e7  b7 8c 12
@@ -13086,7 +13087,7 @@ lab_c691:
     ret                     ;c691  20
 
 lab_c692:
-    movw ix, #mem_02b6      ;c692  e6 02 b6
+    movw ix, #mem_02b6      ;c692  e6 02 b6     IX = pointer to Main-to-Sub work buffer #2
     mov a, mem_00c7         ;c695  05 c7
     mov @ix+0x03, a         ;c697  46 03
     mov mem_009e, #0x41     ;c699  85 9e 41
@@ -13409,7 +13410,7 @@ mem_c813:
     .byte 0x00              ;DATA
 
 sub_c831:
-    movw ix, #mem_02b6      ;c831  e6 02 b6
+    movw ix, #mem_02b6      ;c831  e6 02 b6     IX = pointer to Main-to-Sub work buffer #2
     mov a, #0xb1            ;c834  04 b1        Display number = 0xB1 'TESTDISPLAY'
     mov @ix+0x01, a         ;c836  46 01
     ret                     ;c838  20
@@ -19642,38 +19643,39 @@ sub_e790:
 
     ;External Display test is active
     mov a, #0x82            ;e79e  04 82        0x82 = Write only to FIS (used during KW1281 output tests)
-    mov mem_0215, a         ;e7a0  61 02 15
+    mov mem_0215, a         ;e7a0  61 02 15     Main-to-Sub work buffer #1 byte 0
 
 lab_e7a3:
-    movw ix, #mem_02b6      ;e7a3  e6 02 b6
+    movw ix, #mem_02b6      ;e7a3  e6 02 b6     IX = pointer to Main-to-Sub work buffer #2
 
     movw a, @ix+0x00        ;e7a6  c6 00        Copy 0x2b6,0x2b7 -> 0x216,0x217
-    movw mem_0216, a        ;e7a8  d4 02 16
+    movw mem_0215+1, a      ;e7a8  d4 02 16     Main-to-Sub work buffer #1 bytes 1, 2
 
     movw a, @ix+0x02        ;e7ab  c6 02        Copy 0x2b8,0x2b9 -> 0x218,0x219
-    movw mem_0218, a        ;e7ad  d4 02 18
+    movw mem_0215+3, a      ;e7ad  d4 02 18     Main-to-Sub work buffer #2 bytes 3, 4
 
     mov a, @ix+0x04         ;e7b0  06 04        Copy 0x2ba,0x2bb -> 0x21a,0x21b
-    mov mem_021a, a         ;e7b2  61 02 1a
+    mov mem_0215+5, a       ;e7b2  61 02 1a     Main-to-Sub work buffer #2 byte 5
 
 lab_e7b5:
     movw a, mem_0215        ;e7b5  c4 02 15     Copy packet to send to Sub-MCU bytes 0, 1
     movw mem_0222, a        ;e7b8  d4 02 22
 
-    movw a, mem_0217        ;e7bb  c4 02 17     Copy packet to send to Sub-MCU bytes 2, 3
-    movw mem_0224, a        ;e7be  d4 02 24
+    movw a, mem_0215+2      ;e7bb  c4 02 17     Copy packet to send to Sub-MCU bytes 2, 3
+    movw mem_0222+2, a      ;e7be  d4 02 24
 
-    movw a, mem_0219        ;e7c1  c4 02 19     Copy packet to send to Sub-MCU bytes 4, 5
-    movw mem_0226, a        ;e7c4  d4 02 26
+    movw a, mem_0215+4      ;e7c1  c4 02 19     Copy packet to send to Sub-MCU bytes 4, 5
+    movw mem_0222+4, a      ;e7c4  d4 02 26
 
-    mov a, mem_021b         ;e7c7  60 02 1b
-    mov mem_0228, a         ;e7ca  61 02 28
+    mov a, mem_0215+6       ;e7c7  60 02 1b     Copy packet to send to Sub-MCU byte 6
+    mov mem_0222+6, a       ;e7ca  61 02 28
 
-    mov a, #0x06            ;e7cd  04 06        6 bytes to send to Sub-MCU
-    mov mem_022f, a         ;e7cf  61 02 2f
+    mov a, #0x06            ;e7cd  04 06
+    mov mem_022f, a         ;e7cf  61 02 2f     Main-to-Sub number of bytes left to send = 6
 
     mov a, #0x00            ;e7d2  04 00
     mov mem_03b7, a         ;e7d4  61 03 b7
+
     setb mem_00e7:0         ;e7d7  a8 e7
     mov comp4, #0x7d        ;e7d9  85 49 7d
     mov cntr4, #0x1c        ;e7dc  85 48 1c
@@ -19693,9 +19695,9 @@ lab_e7e9:
     mov mem_0215, a         ;e7f0  61 02 15
 
     movw a, #0x0000         ;e7f3  e4 00 00
-    movw mem_0216, a        ;e7f6  d4 02 16
-    movw mem_0218, a        ;e7f9  d4 02 18
-    mov mem_021a, a         ;e7fc  61 02 1a
+    movw mem_0215+1, a      ;e7f6  d4 02 16
+    movw mem_0215+3, a      ;e7f9  d4 02 18
+    mov mem_0215+5, a       ;e7fc  61 02 1a
     jmp lab_e7b5            ;e7ff  21 e7 b5
 
 lab_e802:
@@ -19722,16 +19724,18 @@ sub_e81b:
     clrb mem_00e7:3         ;e81e  a3 e7
     setb mem_0098:1         ;e820  a9 98
 
-    mov a, mem_0230         ;e822  60 02 30     Sub-to-Main Byte 0
+    ;A new Sub-to-Main packet is ready
+
+    mov a, mem_0230         ;e822  60 02 30     Sub-to-Main RX Buffer Byte 0
     mov mem_0236, a         ;e825  61 02 36
 
-    mov a, mem_0231         ;e828  60 02 31     Sub-to-Main Byte 1
+    mov a, mem_0230+1       ;e828  60 02 31     Sub-to-Main RX Buffer Byte 1
     mov mem_00e8, a         ;e82b  45 e8
 
-    mov a, mem_0232         ;e82d  60 02 32     Sub-to-Main Byte 2
+    mov a, mem_0230+2       ;e82d  60 02 32     Sub-to-Main RX Buffer Byte 2
     mov mem_0255, a         ;e830  61 02 55
 
-    mov a, mem_0233         ;e833  60 02 33     Sub-to-Main Byte 3
+    mov a, mem_0230+3       ;e833  60 02 33     Sub-to-Main RX Buffer Byte 3
     mov mem_03b5, a         ;e836  61 03 b5
 
 lab_e839:
@@ -19743,8 +19747,8 @@ submcu_send_packet:
     bbc mem_00e7:0, lab_e86a ;e83a  b0 e7 2d
     bbc mem_00e7:7, lab_e86b ;e83d  b7 e7 2b
 
-    movw a, #0x0000         ;e840  e4 00 00     Packet offset = 0
-    mov a, mem_03b7         ;e843  60 03 b7
+    movw a, #0x0000         ;e840  e4 00 00
+    mov a, mem_03b7         ;e843  60 03 b7     Packet offset = 0
 
     movw a, #mem_0222       ;e846  e4 02 22     A = pointer to packet to send to Sub-MCU
     clrc                    ;e849  81
@@ -19756,12 +19760,15 @@ submcu_send_packet:
     incw a                  ;e852  c0
     mov mem_03b7, a         ;e853  61 03 b7
 
-    movw a, #0x0000         ;e856  e4 00 00
+    movw a, #0x0000         ;e856  e4 00 00     Decrement count of bytes left to send to Sub-MCU
     mov a, mem_022f         ;e859  60 02 2f
-    decw a                  ;e85c  d0           Decrement count of bytes left to send to Sub-MCU
+    decw a                  ;e85c  d0
     mov mem_022f, a         ;e85d  61 02 2f
 
-    bne lab_e86a            ;e860  fc 08
+    bne lab_e86a            ;e860  fc 08        Branch if more bytes left to send to Sub-MCU
+
+    ;Complete 6-byte packet has been send to Sub-MCU
+
     clrb mem_00e7:0         ;e862  a0 e7
     clrb cntr4:3            ;e864  a3 48
     clrb cntr4:0            ;e866  a0 48
@@ -19782,46 +19789,65 @@ lab_e86b:
 
 sub_e87b:
     bbc mem_00e7:2, lab_e883 ;e87b  b2 e7 05
+
     mov a, #0x00            ;e87e  04 00
-    mov mem_0238, a         ;e880  61 02 38
+    mov mem_0238, a         ;e880  61 02 38     Sub-to-Main number of bits received = 0
 
 lab_e883:
-    mov a, #0x04            ;e883  04 04        4 bytes to receive from Sub-MCU
-    mov mem_0237, a         ;e885  61 02 37
+    mov a, #0x04            ;e883  04 04
+    mov mem_0237, a         ;e885  61 02 37     Number of bytes left to receive from Sub-MCU = 4
+
     setb mem_00e7:1         ;e888  a9 e7
     clrb mem_00e7:2         ;e88a  a2 e7
+
+    ;Set/clear carry flag for new bit from Sub-to-Main SPI
     clrc                    ;e88c  81
     bbc pdr4:1, lab_e891    ;e88d  b1 0e 01     S2M_DATA_IN
     setc                    ;e890  91
 
 lab_e891:
-    movw ix, #mem_0230      ;e891  e6 02 30
-    mov a, @ix+0x03         ;e894  06 03
+    movw ix, #mem_0230      ;e891  e6 02 30     IX = pointer to Sub-to-Main RX buffer
+
+    ;Rotate new bit into the 4-byte Sub-to-Main RX buffer
+
+    mov a, @ix+0x03         ;e894  06 03        Byte 3
     rolc a                  ;e896  02
     mov @ix+0x03, a         ;e897  46 03
-    mov a, @ix+0x02         ;e899  06 02
+
+    mov a, @ix+0x02         ;e899  06 02        Byte 2
     rolc a                  ;e89b  02
     mov @ix+0x02, a         ;e89c  46 02
-    mov a, @ix+0x01         ;e89e  06 01
+
+    mov a, @ix+0x01         ;e89e  06 01        Byte 1
     rolc a                  ;e8a0  02
     mov @ix+0x01, a         ;e8a1  46 01
-    mov a, @ix+0x00         ;e8a3  06 00
+
+    mov a, @ix+0x00         ;e8a3  06 00        Byte 0
     rolc a                  ;e8a5  02
     mov @ix+0x00, a         ;e8a6  46 00
-    mov a, mem_0238         ;e8a8  60 02 38
-    incw a                  ;e8ab  c0
-    mov mem_0238, a         ;e8ac  61 02 38
+
+    ;Increment number of bits received, check for complete packet
+
+    mov a, mem_0238         ;e8a8  60 02 38     A = Sub-to-Main number of bits received
+    incw a                  ;e8ab  c0           Increment it
+    mov mem_0238, a         ;e8ac  61 02 38     Save incremented count
+
     cmp a, #0x20            ;e8af  14 20        32 bits received? (4 bytes * 8)
     bne lab_e8ba            ;e8b1  fc 07
+
+    ;All 32 bits received on Sub-to-Main SPI (complete packet received)
+
     mov a, #0x00            ;e8b3  04 00
-    mov mem_0238, a         ;e8b5  61 02 38
+    mov mem_0238, a         ;e8b5  61 02 38     Sub-to-Main number of bits received = 0
+
     setb mem_00e7:3         ;e8b8  ab e7        Set Sub-to-Main packet ready flag
 
 lab_e8ba:
     ret                     ;e8ba  20
 
+
 submcu_send_byte:
-;Send a byte to the Sub-MCU
+;Send a byte on the Main-to-Sub SPI bus
     movw ix, #0x0000        ;e8bb  e6 00 00
 lab_e8be:
     rolc a                  ;e8be  02
@@ -19868,8 +19894,10 @@ lab_e8e9:
 
 lab_e8ed:
     setb eie2:3             ;e8ed  ab 3a
+
     mov a, #0x00            ;e8ef  04 00
-    mov mem_0238, a         ;e8f1  61 02 38
+    mov mem_0238, a         ;e8f1  61 02 38     Sub-to-Main number of bits received = 0
+
     setb eic1:4             ;e8f4  ac 38
     clrb eic1:7             ;e8f6  a7 38        Clear INT1 edge detect status (/S2M_CLK_IN)
     jmp lab_e8e9            ;e8f8  21 e8 e9
@@ -20353,19 +20381,19 @@ lab_ebe5:
     setb mem_00df:3         ;ebe9  ab df
     mov a, #0x0b            ;ebeb  04 0b
     mov mem_01cc, a         ;ebed  61 01 cc
-    movw ix, #mem_02b6      ;ebf0  e6 02 b6
+    movw ix, #mem_02b6      ;ebf0  e6 02 b6     IX = pointer to Main-to-Sub work buffer #2
     bbc mem_00e0:6, lab_ec06 ;ebf3  b6 e0 10
     movw ep, #mem_03c7      ;ebf6  e7 03 c7
     call copy_5_bytes_ep_to_ix ;ebf9  31 ef 25
 
 lab_ebfc:
     movw ix, #mem_03d4      ;ebfc  e6 03 d4
-    movw ep, #mem_02b6      ;ebff  e7 02 b6
+    movw ep, #mem_02b6      ;ebff  e7 02 b6     IX = pointer to Main-to-Sub work buffer #2
     call copy_5_bytes_ep_to_ix ;ec02  31 ef 25
     ret                     ;ec05  20
 
 lab_ec06:
-    movw ix, #mem_02b6      ;ec06  e6 02 b6
+    movw ix, #mem_02b6      ;ec06  e6 02 b6     IX = pointer to Main-to-Sub work buffer #2
     mov a, #0x00            ;ec09  04 00
     call fill_5_bytes_at_ix ;ec0b  31 e6 ef
     mov a, mem_00e0         ;ec0e  05 e0
@@ -20375,10 +20403,10 @@ lab_ec06:
     setb mem_00e0:6         ;ec17  ae e0
 
 lab_ec19:
-    mov a, mem_01db         ;ec19  60 01 db     A = CD number
+    mov a, mem_01db         ;ec19  60 01 db     A = CD disc number
     mov mem_03d2, a         ;ec1c  61 03 d2
 
-    mov a, mem_01dc         ;ec1f  60 01 dc     A = track number
+    mov a, mem_01dc         ;ec1f  60 01 dc     A = CD track number
     mov mem_03d3, a         ;ec22  61 03 d3
 
     mov a, mem_01df         ;ec25  60 01 df
@@ -20442,12 +20470,12 @@ lab_ec80:
     mov r0, #0x00           ;ec83  88 00
 
 lab_ec85:
-    mov a, mem_01db         ;ec85  60 01 db     A = CD number
+    mov a, mem_01db         ;ec85  60 01 db     A = CD disc number
     mov a, mem_03d2         ;ec88  60 03 d2
     xor a                   ;ec8b  52
-    and a, #0x0f            ;ec8c  64 0f        Mask to leave only low nibble (CD number)
+    and a, #0x0f            ;ec8c  64 0f        Mask to leave only low nibble (CD disc number)
     bne lab_eca0            ;ec8e  fc 10
-    mov a, mem_01dc         ;ec90  60 01 dc     A = track number
+    mov a, mem_01dc         ;ec90  60 01 dc     A = CD track number
     mov a, mem_03d3         ;ec93  60 03 d3
     xor a                   ;ec96  52
     bne lab_eca0            ;ec97  fc 07
@@ -20561,8 +20589,8 @@ no_disc:
 
 cd_no_cd:
     mov @ix+0x01, #0x0f     ;ed2a  86 01 0f     Display number = 0x0f 'CD...NO.CD.'
-    mov a, mem_03cc         ;ed2d  60 03 cc     A = CD number
-    mov @ix+0x02, a         ;ed30  46 02        Display param 0 = CD number
+    mov a, mem_03cc         ;ed2d  60 03 cc     A = CD disc number
+    mov @ix+0x02, a         ;ed30  46 02        Display param 0 = CD disc number
 
 lab_ed32:
     mov a, @ix+0x00         ;ed32  06 00        A = Pictograph bits
@@ -20586,9 +20614,9 @@ sub_ed4d:
     mov @ix+0x01, #0x0b     ;ed4d  86 01 0b     Display number = 0x0b 'CD....MIN..'
 
 lab_ed50:
-    mov a, mem_01db         ;ed50  60 01 db     A = CD number
-    and a, #0x0f            ;ed53  64 0f        Mask to leave only low nibble (CD number)
-    mov @ix+0x02, a         ;ed55  46 02        Display param 0 = CD number
+    mov a, mem_01db         ;ed50  60 01 db     A = CD disc number
+    and a, #0x0f            ;ed53  64 0f        Mask to leave only low nibble (CD disc number)
+    mov @ix+0x02, a         ;ed55  46 02        Display param 0 = CD disc number
     jmp lab_ed32            ;ed57  21 ed 32
 
 sub_ed5a:
@@ -20596,16 +20624,16 @@ sub_ed5a:
     jmp lab_ed50            ;ed5d  21 ed 50
 
 sub_ed60:
-    mov a, mem_01dc         ;ed60  60 01 dc     A = track number
+    mov a, mem_01dc         ;ed60  60 01 dc     A = Cd track number
     bne lab_ed76            ;ed63  fc 11        Branch if track number is non-zero
 
     ;(track number = 0)
-    mov a, mem_01db         ;ed65  60 01 db     A = CD number
-    and a, #0x0f            ;ed68  64 0f        Mask to leave only low nibble (CD number)
-    bne lab_ed76            ;ed6a  fc 0a        Branch if CD number is non-zero
+    mov a, mem_01db         ;ed65  60 01 db     A = CD disc number
+    and a, #0x0f            ;ed68  64 0f        Mask to leave only low nibble (CD disc number)
+    bne lab_ed76            ;ed6a  fc 0a        Branch if CD disc number is non-zero
 
-    ;(CD number = 0)
-    movw ix, #mem_02b6      ;ed6c  e6 02 b6
+    ;(CD disc number = 0)
+    movw ix, #mem_02b6      ;ed6c  e6 02 b6     IX = pointer to Main-to-Sub work buffer #2
     movw ep, #mem_03d4      ;ed6f  e7 03 d4
     call copy_5_bytes_ep_to_ix ;ed72  31 ef 25
     ret                     ;ed75  20
@@ -20613,9 +20641,9 @@ sub_ed60:
 lab_ed76:
     ;(track number = non-zero)
     ;or
-    ;(CD number = non-zero)
+    ;(CD disc number = non-zero)
     mov @ix+0x01, #0x01     ;ed76  86 01 01     Display number = 0x01 'CD...TR....'
-    mov a, mem_01dc         ;ed79  60 01 dc     A = track number
+    mov a, mem_01dc         ;ed79  60 01 dc     A = CD track number
     mov @ix+0x03, a         ;ed7c  46 03        Display param 1 = track number
     jmp lab_ed50            ;ed7e  21 ed 50
 
@@ -20623,9 +20651,9 @@ sub_ed81:
     mov @ix+0x01, #0x02     ;ed81  86 01 02     0x02 'CUE........'
 
 lab_ed84:
-    mov a, mem_01dd         ;ed84  60 01 dd     A = minutes
+    mov a, mem_01dd         ;ed84  60 01 dd     A = CD track time minutes
     mov @ix+0x03, a         ;ed87  46 03        Display param 1 = minutes
-    mov a, mem_01de         ;ed89  60 01 de     A = seconds
+    mov a, mem_01de         ;ed89  60 01 de     A = CD track time seconds
     mov @ix+0x04, a         ;ed8c  46 04        Display param 2 = seconds
 
 lab_ed8e:
@@ -20640,9 +20668,9 @@ sub_ed97:
 
 sub_ed9d:
     mov @ix+0x01, #0x09     ;ed9d  86 01 09     Display number = 0x09 'CD 6 1234  '
-    mov a, mem_01db         ;eda0  60 01 db     A = CD number
-    and a, #0x0f            ;eda3  64 0f        Mask to leave only low nibble (CD number)
-    mov @ix+0x02, a         ;eda5  46 02        Display param 0 = Store CD number
+    mov a, mem_01db         ;eda0  60 01 db     A = CD disc number
+    and a, #0x0f            ;eda3  64 0f        Mask to leave only low nibble (CD disc number)
+    mov @ix+0x02, a         ;eda5  46 02        Display param 0 = Store CD disc number
     jmp lab_ed84            ;eda7  21 ed 84
 
 sub_edaa:
@@ -20651,10 +20679,10 @@ sub_edaa:
 
 sub_edae:
     mov @ix+0x01, #0x04     ;edae  86 01 04     Display number = 0x04 'SCANCD.TR..'
-    mov a, mem_01db         ;edb1  60 01 db     A = CD number
-    and a, #0x0f            ;edb4  64 0f        Mask to leave only low nibble (CD number)
-    mov @ix+0x02, a         ;edb6  46 02        Display param 0 = CD number
-    mov a, mem_01dc         ;edb8  60 01 dc     A = track number
+    mov a, mem_01db         ;edb1  60 01 db     A = CD disc number
+    and a, #0x0f            ;edb4  64 0f        Mask to leave only low nibble (CD disc number)
+    mov @ix+0x02, a         ;edb6  46 02        Display param 0 = CD disc number
+    mov a, mem_01dc         ;edb8  60 01 dc     A = CD track number
     mov @ix+0x03, a         ;edbb  46 03        Display param 1 = track number
     jmp lab_ed8e            ;edbd  21 ed 8e
 
@@ -22169,7 +22197,7 @@ lab_f622:
     setb mem_00b2:5         ;f624  ad b2
 
 lab_f626:
-    movw ix, #mem_02b6      ;f626  e6 02 b6
+    movw ix, #mem_02b6      ;f626  e6 02 b6     IX = pointer to Main-to-Sub work buffer #2
     mov a, mem_03d9         ;f629  60 03 d9
     clrc                    ;f62c  81
     addc a, #0x0d           ;f62d  24 0d
@@ -22213,7 +22241,7 @@ lab_f660:
     jmp lab_f65c            ;f668  21 f6 5c
 
 lab_f66b:
-    movw ix, #mem_02b6      ;f66b  e6 02 b6
+    movw ix, #mem_02b6      ;f66b  e6 02 b6     IX = pointer to Main-to-Sub work buffer #2
     bbc mem_00d8:0, lab_f683 ;f66e  b0 d8 12
     clrb mem_00e2:2         ;f671  a2 e2
 
