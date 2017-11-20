@@ -281,14 +281,7 @@
     mem_01d6 = 0x1d6
     mem_01d8 = 0x1d8
     mem_01d9 = 0x1d9
-    mem_01da = 0x1da
-    mem_01db = 0x1db    ;CD disc number
-    mem_01dc = 0x1dc    ;CD track number
-    mem_01dd = 0x1dd    ;CD track time minutes
-    mem_01de = 0x1de    ;CD track time seconds
-    mem_01df = 0x1df
-    mem_01e0 = 0x1e0
-    mem_01e1 = 0x1e1
+    mem_01da = 0x1da    ;CD Changer (CDC) RX Buffer (8 bytes)
     mem_01e2 = 0x1e2
     mem_01e3 = 0x1e3
     mem_01eb = 0x1eb
@@ -11525,7 +11518,6 @@ lab_bcea:
     beq lab_bc7e            ;bcec  fd 90        BRANCH_ALWAYS_TAKEN
 
 ;XXX bcee looks unreachable
-lab_bcee:
     mov mem_009f, a         ;bcee  45 9f
     cmp a, #0x01            ;bcf0  14 01
     bne lab_bcfd            ;bcf2  fc 09
@@ -19984,9 +19976,11 @@ lab_e97d:
 lab_e988:
     bbc mem_00d9:3, lab_e99e ;e988  b3 d9 13
     clrb mem_00d9:3         ;e98b  a3 d9
-    mov a, mem_01df         ;e98d  60 01 df
+
+    mov a, mem_01da+5       ;e98d  60 01 df     A = CDC RX buffer byte 5 (mode)
     and a, #0x24            ;e990  64 24
     beq lab_e99e            ;e992  fd 0a
+
     mov a, #0x09            ;e994  04 09
     mov mem_01c6, a         ;e996  61 01 c6
     bne lab_e97d            ;e999  fc e2        BRANCH_ALWAYS_TAKEN
@@ -19997,9 +19991,11 @@ lab_e988:
 lab_e99e:
     mov a, mem_00b1         ;e99e  05 b1
     beq lab_e935            ;e9a0  fd 93
-    mov a, mem_01df         ;e9a2  60 01 df
+
+    mov a, mem_01da+5       ;e9a2  60 01 df     A = CDC RX buffer byte 5 (mode)
     and a, #0x12            ;e9a5  64 12
     beq lab_e935            ;e9a7  fd 8c
+
     mov a, #0x06            ;e9a9  04 06
     bne lab_e946            ;e9ab  fc 99        BRANCH_ALWAYS_TAKEN
 
@@ -20011,10 +20007,11 @@ sub_e9ad:
     mov mem_03c5, a         ;e9b6  61 03 c5
 
 lab_e9b9:
-    mov a, mem_01e0         ;e9b9  60 01 e0
+    mov a, mem_01da+6       ;e9b9  60 01 e0     A = CDC RX buffer byte 6
     and a, #0xf0            ;e9bc  64 f0
     cmp a, #0xb0            ;e9be  14 b0
     bne lab_e9e2            ;e9c0  fc 20
+
     mov a, #0x00            ;e9c2  04 00
     mov mem_03ce, a         ;e9c4  61 03 ce
 
@@ -20069,9 +20066,10 @@ lab_ea08:
     ret                     ;ea0d  20
 
 lab_ea0e:
-    mov a, mem_01e0         ;ea0e  60 01 e0
+    mov a, mem_01da+6       ;ea0e  60 01 e0     A = CDC RX buffer byte 6
     and a, #0x0e            ;ea11  64 0e
     bne lab_ea07            ;ea13  fc f2
+
     call sub_ef17           ;ea15  31 ef 17
     ret                     ;ea18  20
 
@@ -20083,10 +20081,11 @@ lab_ea19:
     bbc mem_00df:7, lab_ea07 ;ea24  b7 df e0
 
 lab_ea27:
-    mov a, mem_01e0         ;ea27  60 01 e0
+    mov a, mem_01da+6       ;ea27  60 01 e0     A = CDC RX buffer byte 6
     and a, #0xf0            ;ea2a  64 f0
     cmp a, #0x30            ;ea2c  14 30
     bne lab_ea9c            ;ea2e  fc 6c
+
     mov a, #0x02            ;ea30  04 02
     mov mem_03ce, a         ;ea32  61 03 ce
     mov mem_03cf, a         ;ea35  61 03 cf
@@ -20095,14 +20094,18 @@ lab_ea38:
     mov a, mem_00e0         ;ea38  05 e0
     and a, #0x02            ;ea3a  64 02
     beq lab_ea8a            ;ea3c  fd 4c
-    mov a, mem_01e0         ;ea3e  60 01 e0
+
+    mov a, mem_01da+6       ;ea3e  60 01 e0     A = CDC RX buffer byte 6
     and a, #0xf0            ;ea41  64 f0
     cmp a, #0xb0            ;ea43  14 b0
     beq lab_ea92            ;ea45  fd 4b
+
     bbs mem_00e1:5, lab_ea62 ;ea47  bd e1 18
-    mov a, mem_01e0         ;ea4a  60 01 e0
+
+    mov a, mem_01da+6       ;ea4a  60 01 e0     A = CDC RX buffer byte 6
     and a, #0x0e            ;ea4d  64 0e
     beq lab_ea5c            ;ea4f  fd 0b
+
     cmp a, #0x08            ;ea51  14 08
     bne lab_ea62            ;ea53  fc 0d
     mov a, #0x01            ;ea55  04 01
@@ -20119,9 +20122,11 @@ lab_ea62:
     bbs mem_00e1:2, lab_ea07 ;ea65  ba e1 9f
     setb mem_00e1:6         ;ea68  ae e1
     bbs mem_00e1:5, lab_ea79 ;ea6a  bd e1 0c
-    mov a, mem_01e0         ;ea6d  60 01 e0
+
+    mov a, mem_01da+6       ;ea6d  60 01 e0     A = CDC RX buffer byte 6
     and a, #0x06            ;ea70  64 06
     beq lab_ea79            ;ea72  fd 05
+
     mov mem_03c6, a         ;ea74  61 03 c6
     setb mem_00e1:2         ;ea77  aa e1
 
@@ -20163,7 +20168,8 @@ sub_eab3:
     bbc mem_00e0:1, lab_eac1 ;eab3  b1 e0 0b
     mov a, mem_03ce         ;eab6  60 03 ce
     beq lab_eac1            ;eab9  fd 06
-    mov a, mem_01e1         ;eabb  60 01 e1
+
+    mov a, mem_01da+7       ;eabb  60 01 e1     A = CDC RX buffer byte 7
     rolc a                  ;eabe  02
     blo lab_eac4            ;eabf  f9 03
 
@@ -20403,13 +20409,13 @@ lab_ec06:
     setb mem_00e0:6         ;ec17  ae e0
 
 lab_ec19:
-    mov a, mem_01db         ;ec19  60 01 db     A = CD disc number
+    mov a, mem_01da+1       ;ec19  60 01 db     A = CDC RX buffer byte 1 (CD disc number)
     mov mem_03d2, a         ;ec1c  61 03 d2
 
-    mov a, mem_01dc         ;ec1f  60 01 dc     A = CD track number
+    mov a, mem_01da+2       ;ec1f  60 01 dc     A = CDC RX buffer byte 2 (CD track number)
     mov mem_03d3, a         ;ec22  61 03 d3
 
-    mov a, mem_01df         ;ec25  60 01 df
+    mov a, mem_01da+5       ;ec25  60 01 df     A = CDC RX buffer byte 5 (mode)
     and a, #0x24            ;ec28  64 24
     beq lab_ec32            ;ec2a  fd 06
 
@@ -20427,20 +20433,22 @@ lab_ec3b:
     jmp lab_ec19            ;ec3e  21 ec 19
 
 sub_ec41:
-    mov a, mem_01e0         ;ec41  60 01 e0
+    mov a, mem_01da+6       ;ec41  60 01 e0     A = CDC RX buffer byte 6
     and a, #0xf0            ;ec44  64 f0
     cmp a, #0xb0            ;ec46  14 b0
     bne lab_ec50            ;ec48  fc 06
+
     call no_magazin         ;ec4a  31 ed 1c     Set display number for "NO MAGAZIN"
     setb mem_00e0:6         ;ec4d  ae e0
     ret                     ;ec4f  20
 
 lab_ec50:
-    mov a, mem_01e0         ;ec50  60 01 e0
+    mov a, mem_01da+6       ;ec50  60 01 e0     A = CDC RX buffer byte 6
     and a, #0x0e            ;ec53  64 0e
     cmp a, #0x08            ;ec55  14 08
     bne lab_ec5f            ;ec57  fc 06
-    call no_disc           ;ec59  31 ed 26      Set display number for "NO DISC"
+
+    call no_disc            ;ec59  31 ed 26     Set display number for "NO DISC"
     setb mem_00e0:6         ;ec5c  ae e0
     ret                     ;ec5e  20
 
@@ -20451,9 +20459,10 @@ lab_ec5f:
     ret                     ;ec67  20
 
 lab_ec68:
-    mov a, mem_01e0         ;ec68  60 01 e0
+    mov a, mem_01da+6       ;ec68  60 01 e0     A = CDC RX buffer byte 6
     and a, #0x0e            ;ec6b  64 0e
     beq lab_ec75            ;ec6d  fd 06
+
     call sub_ed39           ;ec6f  31 ed 39
     setb mem_00e0:6         ;ec72  ae e0
     ret                     ;ec74  20
@@ -20470,15 +20479,17 @@ lab_ec80:
     mov r0, #0x00           ;ec83  88 00
 
 lab_ec85:
-    mov a, mem_01db         ;ec85  60 01 db     A = CD disc number
+    mov a, mem_01da+1       ;ec85  60 01 db     A = CDC RX buffer byte 1 (CD disc number)
     mov a, mem_03d2         ;ec88  60 03 d2
     xor a                   ;ec8b  52
     and a, #0x0f            ;ec8c  64 0f        Mask to leave only low nibble (CD disc number)
     bne lab_eca0            ;ec8e  fc 10
-    mov a, mem_01dc         ;ec90  60 01 dc     A = CD track number
+
+    mov a, mem_01da+2       ;ec90  60 01 dc     A = CDC RX buffer byte 2 (CD track number)
     mov a, mem_03d3         ;ec93  60 03 d3
     xor a                   ;ec96  52
     bne lab_eca0            ;ec97  fc 07
+
     dec r0                  ;ec99  d8
     beq lab_ecaf            ;ec9a  fd 13        0x0a 'CD....MAX..'
     call sub_ed4d           ;ec9c  31 ed 4d     0x0b 'CD....MIN..'
@@ -20508,10 +20519,11 @@ lab_ecb5:
     ret                     ;ecbb  20
 
 lab_ecbc:
-    mov a, mem_01e0         ;ecbc  60 01 e0
+    mov a, mem_01da+6       ;ecbc  60 01 e0     A = CDC RX buffer byte 6
     and a, #0xf0            ;ecbf  64 f0
     cmp a, #0x40            ;ecc1  14 40
     bne lab_ecee            ;ecc3  fc 29
+
     mov a, mem_01c7         ;ecc5  60 01 c7
     cmp a, #0x04            ;ecc8  14 04
     beq lab_ecd0            ;ecca  fd 04
@@ -20545,16 +20557,18 @@ lab_ecee:
     ret                     ;ecf4  20
 
 lab_ecf5:
-    mov a, mem_01df         ;ecf5  60 01 df
+    mov a, mem_01da+5       ;ecf5  60 01 df     A = CDC RX buffer byte 5 (mode)
     and a, #0x10            ;ecf8  64 10
     beq lab_ed00            ;ecfa  fd 04
+
     call sub_edae           ;ecfc  31 ed ae
     ret                     ;ecff  20
 
 lab_ed00:
-    mov a, mem_01df         ;ed00  60 01 df
+    mov a, mem_01da+5       ;ed00  60 01 df     A = CDC RX buffer byte 5 (mode)
     and a, #0x24            ;ed03  64 24
     beq lab_ed0b            ;ed05  fd 04
+
     call sub_edaa           ;ed07  31 ed aa
     ret                     ;ed0a  20
 
@@ -20581,7 +20595,7 @@ no_magazin:
 
 chk_magazin:
     mov @ix+0x01, #0x0c     ;ed20  86 01 0c     Display number = 0x0c 'CHK.MAGAZIN'
-    jmp lab_ed32            ;ed23  21 ed 32
+    jmp lab_ed32            ;ed23  21 ed 32     Turn on HIDDEN_MODE_CD pictograph and return
 
 no_disc:
     mov @ix+0x01, #0x07     ;ed26  86 01 07     Display number = 0x07 '....NO.DISC'
@@ -20593,18 +20607,20 @@ cd_no_cd:
     mov @ix+0x02, a         ;ed30  46 02        Display param 0 = CD disc number
 
 lab_ed32:
+;Turn on HIDDEN_MODE_CD pictograph and return
     mov a, @ix+0x00         ;ed32  06 00        A = Pictograph bits
     or a, #0b00010000       ;ed34  74 10        Turn on Bit 4 (HIDDEN_MODE_CD)
     mov @ix+0x00, a         ;ed36  46 00        Store updated pictographs
     ret                     ;ed38  20
 
 sub_ed39:
-    mov a, mem_01e0         ;ed39  60 01 e0
+    mov a, mem_01da+6       ;ed39  60 01 e0     A = CDC RX buffer byte 6
     and a, #0x0e            ;ed3c  64 0e
     cmp a, #0x06            ;ed3e  14 06
     bne lab_ed48            ;ed40  fc 06
+
     mov @ix+0x01, #0x0e     ;ed42  86 01 0e     Display number = 0x0e 'CD...ERROR.'
-    jmp lab_ed32            ;ed45  21 ed 32
+    jmp lab_ed32            ;ed45  21 ed 32     Turn on HIDDEN_MODE_CD pictograph and return
 
 lab_ed48:
     mov @ix+0x01, #0x0d     ;ed48  86 01 0d     Display number = 0x0d 'CD..CD.ERR.'
@@ -20614,21 +20630,21 @@ sub_ed4d:
     mov @ix+0x01, #0x0b     ;ed4d  86 01 0b     Display number = 0x0b 'CD....MIN..'
 
 lab_ed50:
-    mov a, mem_01db         ;ed50  60 01 db     A = CD disc number
+    mov a, mem_01da+1       ;ed50  60 01 db     A = CDC RX buffer byte 1 (CD disc number)
     and a, #0x0f            ;ed53  64 0f        Mask to leave only low nibble (CD disc number)
     mov @ix+0x02, a         ;ed55  46 02        Display param 0 = CD disc number
-    jmp lab_ed32            ;ed57  21 ed 32
+    jmp lab_ed32            ;ed57  21 ed 32     Turn on HIDDEN_MODE_CD pictograph and return
 
 sub_ed5a:
     mov @ix+0x01, #0x0a     ;ed5a  86 01 0a     Display number = 0x0a 'CD....MAX..'
     jmp lab_ed50            ;ed5d  21 ed 50
 
 sub_ed60:
-    mov a, mem_01dc         ;ed60  60 01 dc     A = Cd track number
+    mov a, mem_01da+2       ;ed60  60 01 dc     A = CDC RX buffer byte 2 (CD track number)
     bne lab_ed76            ;ed63  fc 11        Branch if track number is non-zero
 
     ;(track number = 0)
-    mov a, mem_01db         ;ed65  60 01 db     A = CD disc number
+    mov a, mem_01da+1       ;ed65  60 01 db     A = CDC RX buffer byte 1 (CD disc number)
     and a, #0x0f            ;ed68  64 0f        Mask to leave only low nibble (CD disc number)
     bne lab_ed76            ;ed6a  fc 0a        Branch if CD disc number is non-zero
 
@@ -20643,7 +20659,7 @@ lab_ed76:
     ;or
     ;(CD disc number = non-zero)
     mov @ix+0x01, #0x01     ;ed76  86 01 01     Display number = 0x01 'CD...TR....'
-    mov a, mem_01dc         ;ed79  60 01 dc     A = CD track number
+    mov a, mem_01da+2       ;ed79  60 01 dc     A = CDC RX buffer byte 2 (CD track number)
     mov @ix+0x03, a         ;ed7c  46 03        Display param 1 = track number
     jmp lab_ed50            ;ed7e  21 ed 50
 
@@ -20651,16 +20667,17 @@ sub_ed81:
     mov @ix+0x01, #0x02     ;ed81  86 01 02     0x02 'CUE........'
 
 lab_ed84:
-    mov a, mem_01dd         ;ed84  60 01 dd     A = CD track time minutes
+    mov a, mem_01da+3       ;ed84  60 01 dd     A = CDC RX buffer byte 3 (CD track time minutes)
     mov @ix+0x03, a         ;ed87  46 03        Display param 1 = minutes
-    mov a, mem_01de         ;ed89  60 01 de     A = CD track time seconds
+
+    mov a, mem_01da+4       ;ed89  60 01 de     A = CDC RX buffer byte 4 (CD track time seconds)
     mov @ix+0x04, a         ;ed8c  46 04        Display param 2 = seconds
 
 lab_ed8e:
     mov a, @ix+0x00         ;ed8e  06 00        A = Pictograph bits
     or a, #0b01000000       ;ed90  74 40        Turn on Bit 6 (PERIOD)
     mov @ix+0x00, a         ;ed92  46 00        Store updated pictographs
-    jmp lab_ed32            ;ed94  21 ed 32
+    jmp lab_ed32            ;ed94  21 ed 32     Turn on HIDDEN_MODE_CD pictograph and return
 
 sub_ed97:
     mov @ix+0x01, #0x03     ;ed97  86 01 03     Display number = 0x03 'REV........'
@@ -20668,9 +20685,11 @@ sub_ed97:
 
 sub_ed9d:
     mov @ix+0x01, #0x09     ;ed9d  86 01 09     Display number = 0x09 'CD 6 1234  '
-    mov a, mem_01db         ;eda0  60 01 db     A = CD disc number
+
+    mov a, mem_01da+1       ;eda0  60 01 db     A = CDC RX buffer byte 1 (CD disc number)
     and a, #0x0f            ;eda3  64 0f        Mask to leave only low nibble (CD disc number)
     mov @ix+0x02, a         ;eda5  46 02        Display param 0 = Store CD disc number
+
     jmp lab_ed84            ;eda7  21 ed 84
 
 sub_edaa:
@@ -20679,11 +20698,14 @@ sub_edaa:
 
 sub_edae:
     mov @ix+0x01, #0x04     ;edae  86 01 04     Display number = 0x04 'SCANCD.TR..'
-    mov a, mem_01db         ;edb1  60 01 db     A = CD disc number
+
+    mov a, mem_01da+1       ;edb1  60 01 db     A = CDC RX buffer byte 1 (CD disc number)
     and a, #0x0f            ;edb4  64 0f        Mask to leave only low nibble (CD disc number)
     mov @ix+0x02, a         ;edb6  46 02        Display param 0 = CD disc number
-    mov a, mem_01dc         ;edb8  60 01 dc     A = CD track number
+
+    mov a, mem_01da+2       ;edb8  60 01 dc     A = CDC RX buffer byte 2 (CD track number)
     mov @ix+0x03, a         ;edbb  46 03        Display param 1 = track number
+
     jmp lab_ed8e            ;edbd  21 ed 8e
 
 sub_edc0:
@@ -20751,7 +20773,6 @@ mem_edd8:
     .word lab_ee83          ;VECTOR
 
 
-;XXX ee10-ee1f looks unreachable
 lab_ee10:
     mov a, mem_01ce         ;ee10  60 01 ce
     mov a, #0x02            ;ee13  04 02
@@ -20769,7 +20790,6 @@ mem_ee20:
     .word lab_ee88          ;ee22  ee 88       VECTOR
     .word lab_ee8a          ;ee24  ee 8a       VECTOR
 
-    ;XXX ee26-ee38 looks unreachable
 lab_ee26:
     movw ix, #mem_ee47      ;ee26  e6 ee 47
     mov a, mem_01ce         ;ee29  60 01 ce
@@ -20819,7 +20839,6 @@ mem_ee5b:
     .word lab_eeb6          ;ee63  ee b6       VECTOR
     .word lab_eecf          ;ee65  ee cf       VECTOR
 
-    ;XXX ee67-ee76 looks unreachable
 lab_ee67:
     mov a, mem_01ce         ;ee67  60 01 ce
     mov a, #0x05            ;ee6a  04 05
@@ -20840,7 +20859,6 @@ mem_ee77:
     .word lab_ee8a          ;ee7f  ee 8a       VECTOR
     .word lab_eecf          ;ee81  ee cf       VECTOR
 
-    ;XXX ee83 looks unreachable
 lab_ee83:
     ret                     ;ee83 20
 
@@ -21014,8 +21032,10 @@ sub_ef32:
     movw ix, #mem_01d2      ;ef3a  e6 01 d2
     decw ix                 ;ef3d  d2
     call sub_ef7b           ;ef3e  31 ef 7b
+
     mov a, sdr              ;ef41  05 1d
     mov mem_01d9, a         ;ef43  61 01 d9
+
     mov cntr, #0x20         ;ef46  85 16 20
     and a, #0x03            ;ef49  64 03
     cmp a, #0x03            ;ef4b  14 03
