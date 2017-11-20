@@ -154,7 +154,7 @@
     mem_00e5 = 0xe5
     mem_00e6 = 0xe6
     mem_00e7 = 0xe7
-    mem_00e8 = 0xe8
+    mem_00e8 = 0xe8         ;Copy of Sub-to-Main Byte 1
     mem_00e9 = 0xe9
     mem_00ea = 0xea
     mem_00eb = 0xeb
@@ -322,7 +322,7 @@
     mem_0222 = 0x222    ;Main-to-Sub TX buffer (6 bytes)
     mem_022f = 0x22f    ;Main-to-Sub number of bytes left to send
     mem_0230 = 0x230    ;Sub-to-Main RX buffer (4 bytes)
-    mem_0236 = 0x236
+    mem_0236 = 0x236    ;Copy of Sub-to-Main Byte 0
     mem_0237 = 0x237    ;Sub-to-Main number of bytes left to receive
     mem_0238 = 0x238    ;Sub-to-Main number of bits received
     mem_023e = 0x23e
@@ -338,7 +338,7 @@
     mem_0251 = 0x251
     mem_0253 = 0x253
     mem_0254 = 0x254
-    mem_0255 = 0x255    ;KW1281 Measurement Illumination % (Terminal 5d)
+    mem_0255 = 0x255    ;Copy of Sub-to-Main Byte 2 (KW1281 Measurement Illumination % (Terminal 5d))
     mem_0265 = 0x265
     mem_026b = 0x26b
     mem_026c = 0x26c
@@ -437,7 +437,7 @@
     mem_0308 = 0x308
     mem_0309 = 0x309
     mem_030a = 0x30a
-    mem_030b = 0x30b
+    mem_030b = 0x30b    ;Radio model: 0=1C0035180E, 1=1J0035180, 2=1J0035180D
     mem_030c = 0x30c
     mem_030d = 0x30d
     mem_030e = 0x30e
@@ -554,7 +554,7 @@
     mem_03b0 = 0x3b0
     mem_03b2 = 0x3b2
     mem_03b4 = 0x3b4
-    mem_03b5 = 0x3b5
+    mem_03b5 = 0x3b5    ;Copy of Sub-to-Main Byte 3
     mem_03b6 = 0x3b6
     mem_03b7 = 0x3b7
     mem_03b8 = 0x3b8
@@ -832,7 +832,7 @@ main_loop:
     jmp lab_8160            ;8157  21 81 60
 
 lab_815a:
-    mov a, mem_0236         ;815a  60 02 36
+    mov a, mem_0236         ;815a  60 02 36     A = Copy of Sub-to-Main Byte 0
     mov mem_0323, a         ;815d  61 03 23
 
 lab_8160:
@@ -1484,7 +1484,7 @@ lab_85a2:
     ret                     ;85c4  20
 
 sub_85c5:
-    mov a, mem_0236         ;85c5  60 02 36
+    mov a, mem_0236         ;85c5  60 02 36 A = Copy of Sub-to-Main Byte 0
     mov mem_0323, a         ;85c8  61 03 23
     and a, #0x7f            ;85cb  64 7f
     mov a, mem_00ae         ;85cd  05 ae
@@ -1521,7 +1521,7 @@ lab_85f8:
     beq lab_85f0            ;85fd  fd f1        BRANCH_ALWAYS_TAKEN
 
 lab_85ff:
-    mov a, mem_0236         ;85ff  60 02 36
+    mov a, mem_0236         ;85ff  60 02 36     A = Copy of Sub-to-Main Byte 0
     bbs mem_00b2:1, lab_8612 ;8602  b9 b2 0d    bit set means "initial"
     and a, #0x7f            ;8605  64 7f
     cmp a, #0x19            ;8607  14 19        0x19 = INITIAL key
@@ -1537,7 +1537,7 @@ lab_8612:
 lab_8616:
     mov a, mem_00ae         ;8616  05 ae
     and a, #0x7f            ;8618  64 7f
-    mov mem_0236, a         ;861a  61 02 36
+    mov mem_0236, a         ;861a  61 02 36     A = Copy of Sub-to-Main Byte 0
     jmp lab_8636            ;861d  21 86 36
 
 lab_8620:
@@ -1548,7 +1548,7 @@ lab_8620:
 
 lab_8629:
     movw a, #0x0000         ;8629  e4 00 00
-    mov a, mem_0236         ;862c  60 02 36
+    mov a, mem_0236         ;862c  60 02 36     A = Copy of Sub-to-Main Byte 0
     mov a, mem_00ae         ;862f  05 ae
     xorw a                  ;8631  53
     beq lab_8648            ;8632  fd 14
@@ -1556,7 +1556,7 @@ lab_8629:
 
 lab_8636:
     movw a, #0x0000         ;8636  e4 00 00
-    mov a, mem_0236         ;8639  60 02 36
+    mov a, mem_0236         ;8639  60 02 36     A = Copy of Sub-to-Main Byte 0
     movw a, #0x007f         ;863c  e4 00 7f
     andw a                  ;863f  63
     movw a, #0x0020         ;8640  e4 00 20
@@ -1569,12 +1569,12 @@ lab_8648:
 
 lab_8649:
     movw a, #0x0000         ;8649  e4 00 00
-    mov a, mem_0236         ;864c  60 02 36
+    mov a, mem_0236         ;864c  60 02 36     A = Copy of Sub-to-Main Byte 0
     bn lab_8654             ;864f  fb 03
     jmp lab_8716            ;8651  21 87 16
 
 lab_8654:
-    mov a, mem_0236         ;8654  60 02 36
+    mov a, mem_0236         ;8654  60 02 36     A = Copy of Sub-to-Main Byte 0
     and a, #0x7f            ;8657  64 7f
     mov mem_00ae, a         ;8659  45 ae
     bbc mem_00e3:7, lab_866a ;865b  b7 e3 0c
@@ -1590,7 +1590,7 @@ lab_866a:
     cmp mem_0096, #0x02     ;866a  95 96 02
     bne lab_867a            ;866d  fc 0b
     mov a, mem_00ae         ;866f  05 ae
-    cmp a, #0x12            ;8671  14 12       0x12 = tape side key
+    cmp a, #0x12            ;8671  14 12        0x12 = tape side key
     beq lab_8689            ;8673  fd 14
     movw ix, #mem_868e      ;8675  e6 86 8e
     bne lab_8682            ;8678  fc 08        BRANCH_ALWAYS_TAKEN
@@ -1603,7 +1603,7 @@ lab_867a:
 lab_8682:
     mov a, mem_00ae         ;8682  05 ae
     call sub_e76c           ;8684  31 e7 6c
-    bhs lab_8666            ;8687  f8 dd       branch if not found in table
+    bnc lab_8666            ;8687  f8 dd       branch if not found in table
 
 lab_8689:
     jmp lab_86e5            ;8689  21 86 e5
@@ -1662,10 +1662,12 @@ mem_86ac:
     .byte 0xFF              ;86b2  ff          DATA '\xff'
 
 lab_86b3:
-    mov a, mem_030b         ;86b3  60 03 0b
+    mov a, mem_030b         ;86b3  60 03 0b     A = Radio model
     mov a, #0x00            ;86b6  04 00
     cmp a                   ;86b8  12
-    beq lab_86e5            ;86b9  fd 2a
+    beq lab_86e5            ;86b9  fd 2a        Branch if model = 1C0035180E (Beetle)
+
+    ;Radio model is not Beetle
     mov a, mem_00ae         ;86bb  05 ae
     mov mem_00cb, a         ;86bd  45 cb
     cmp mem_0095, #0x02     ;86bf  95 95 02
@@ -1678,7 +1680,7 @@ lab_86b3:
     bne lab_86e5            ;86ce  fc 15        BRANCH_ALWAYS_TAKEN
 
 lab_86d0:
-    mov a, #0x20            ;86d0  04 20
+    mov a, #0x20            ;86d0  04 20        A = value to store in mem_00ae
     bne lab_86e3            ;86d2  fc 0f        BRANCH_ALWAYS_TAKEN
 
 lab_86d4:
@@ -1700,10 +1702,12 @@ lab_86e5:
     movw a, #mem_fe00       ;86eb  e4 fe 00     A = table base address
     call sub_e73c           ;86ee  31 e7 3c     Call address in table
 
-    mov a, mem_030b         ;86f1  60 03 0b
+    mov a, mem_030b         ;86f1  60 03 0b     A = Radio model
     mov a, #0x00            ;86f4  04 00
     cmp a                   ;86f6  12
-    beq lab_8715            ;86f7  fd 1c
+    beq lab_8715            ;86f7  fd 1c        Branch if model = 1C0035180E (Beetle)
+
+    ;Radio model is not Beetle
     mov a, mem_0096         ;86f9  05 96
     bne lab_8715            ;86fb  fc 18
     cmp mem_0095, #0x01     ;86fd  95 95 01
@@ -1741,39 +1745,39 @@ lab_871f:
     mov a, #0x20            ;872d  04 20
     mov mem_00ae, a         ;872f  45 ae
     mov mem_00cb, a         ;8731  45 cb
-    mov mem_0236, a         ;8733  61 02 36
+    mov mem_0236, a         ;8733  61 02 36     Copy of Sub-to-Main Byte 0 = 0x20
 
 lab_8736:
     ret                     ;8736  20
 
 mem_8737:
 ;table of byte pairs used with sub_e746
-    .byte 0x0A              ;8737  0a          DATA '\n'
-    .byte 0x11              ;8738  11          DATA '\x11'
+    .byte 0x0A              ;8737  0a          DATA '\n'        TUNE_UP
+    .byte 0x11              ;8738  11          DATA '\x11'      BEETLE_TAPE_FF
 
-    .byte 0x0E              ;8739  0e          DATA '\x0e'
-    .byte 0x10              ;873a  10          DATA '\x10'
+    .byte 0x0E              ;8739  0e          DATA '\x0e'      TUNE_DOWN
+    .byte 0x10              ;873a  10          DATA '\x10'      BEETLE_TAPE_REW
 
-    .byte 0x13              ;873b  13          DATA '\x13'
-    .byte 0x0A              ;873c  0a          DATA '\n'
+    .byte 0x13              ;873b  13          DATA '\x13'      SEEK_UP
+    .byte 0x0A              ;873c  0a          DATA '\n'        TUNE_UP
 
-    .byte 0x17              ;873d  17          DATA '\x17'
-    .byte 0x0E              ;873e  0e          DATA '\x0e'
+    .byte 0x17              ;873d  17          DATA '\x17'      SEEK_DOWN
+    .byte 0x0E              ;873e  0e          DATA '\x0e'      TUNE_DOWN
 
-    .byte 0x14              ;873f  14          DATA '\x14'
-    .byte 0x15              ;8740  15          DATA '\x15'
+    .byte 0x14              ;873f  14          DATA '\x14'      MIX_DOLBY
+    .byte 0x15              ;8740  15          DATA '\x15'      BEETLE_DOLBY
 
-    .byte 0x11              ;8741  11          DATA '\x11'
-    .byte 0x20              ;8742  20          DATA ' '
+    .byte 0x11              ;8741  11          DATA '\x11'      BEETLE_TAPE_FF
+    .byte 0x20              ;8742  20          DATA ' '         (no key)
 
-    .byte 0x10              ;8743  10          DATA '\x10'
-    .byte 0x20              ;8744  20          DATA ' '
+    .byte 0x10              ;8743  10          DATA '\x10'      BEETLE_TAPE_REW
+    .byte 0x20              ;8744  20          DATA ' '         (no key)
 
-    .byte 0x15              ;8745  15          DATA '\x15'
-    .byte 0x20              ;8746  20          DATA ' '
+    .byte 0x15              ;8745  15          DATA '\x15'      BEETLE_DOLBY
+    .byte 0x20              ;8746  20          DATA ' '         (no key)
 
-    .byte 0xFF              ;8747  ff          DATA '\xff'
-    .byte 0x00              ;8748  00          DATA '\x00'
+    .byte 0xFF              ;8747  ff          DATA '\xff'      End of table
+    .byte 0x00              ;8748  00          DATA '\x00'      0
 
 lab_8749:
 ;mem_fe00 table case for fm
@@ -2107,10 +2111,12 @@ lab_8914:
     ret                     ;891f  20
 
 lab_8920:
-    mov a, mem_030b         ;8920  60 03 0b
+    mov a, mem_030b         ;8920  60 03 0b     A = Radio model
     mov a, #0x00            ;8923  04 00
     cmp a                   ;8925  12
-    bne lab_8932            ;8926  fc 0a
+    bne lab_8932            ;8926  fc 0a        Branch if model is not Beetle
+
+    ;Radio model is Beetle
     mov a, #0x0c            ;8928  04 0c
 
 lab_892a:
@@ -2553,7 +2559,7 @@ lab_8b78:
     movw ix, #mem_868f      ;8b78  e6 86 8f
     mov a, mem_00ae         ;8b7b  05 ae
     call sub_e76c           ;8b7d  31 e7 6c
-    bhs lab_8b98            ;8b80  f8 16
+    bnc lab_8b98            ;8b80  f8 16        Branch if not found in table
 
 lab_8b82:
     mov a, mem_00ae         ;8b82  05 ae
@@ -2835,23 +2841,26 @@ lab_8cde:
     ret                     ;8cde  20
 
 sub_8cdf:
-    movw a, #0x03e8         ;8cdf  e4 03 e8
+;TODO possible timer countdown value for bal
+    movw a, #0x03e8         ;8cdf  e4 03 e8     A = value to store in mem_02ad
     bne lab_8cf6            ;8ce2  fc 12        BRANCH_ALWAYS_TAKEN
 
 sub_8ce4:
-    movw a, #0x01f4         ;8ce4  e4 01 f4
+;TODO possible timer countdown value for bal
+    movw a, #0x01f4         ;8ce4  e4 01 f4     A = value to store in mem_02ad
     bne lab_8cf6            ;8ce7  fc 0d        BRANCH_ALWAYS_TAKEN
 
 sub_8ce9:
-    movw a, #0x012c         ;8ce9  e4 01 2c
+;TODO possible timer countdown value for no code or initial
+    movw a, #0x012c         ;8ce9  e4 01 2c     A = value to store in mem_02ad
     bne lab_8cf6            ;8cec  fc 08        BRANCH_ALWAYS_TAKEN
 
 sub_8cee:
-    movw a, #0x00c8         ;8cee  e4 00 c8
+    movw a, #0x00c8         ;8cee  e4 00 c8     A = value to store in mem_02ad
     bne lab_8cf6            ;8cf1  fc 03        BRANCH_ALWAYS_TAKEN
 
 sub_8cf3:
-    movw a, #0x001e         ;8cf3  e4 00 1e
+    movw a, #0x001e         ;8cf3  e4 00 1e     A = value to store in mem_02ad
 
 lab_8cf6:
     clrb mem_0099:3         ;8cf6  a3 99
@@ -3113,7 +3122,7 @@ sub_8e6e:
     bne lab_8e82            ;8e71  fc 0f
     bbs mem_00cf:0, lab_8e82 ;8e73  b8 cf 0c
     call sub_8e83           ;8e76  31 8e 83
-    blo lab_8e82            ;8e79  f9 07
+    bc lab_8e82             ;8e79  f9 07        Branch if found in table
     mov a, mem_00cc         ;8e7b  05 cc
     bne lab_8e82            ;8e7d  fc 03
     mov mem_00cc, #0x0a     ;8e7f  85 cc 0a
@@ -3122,6 +3131,7 @@ lab_8e82:
     ret                     ;8e82  20
 
 sub_8e83:
+;TODO comment callers of this subroutine
     movw ix, #mem_8e8c      ;8e83  e6 8e 8c
     mov a, mem_0369         ;8e86  60 03 69
     jmp sub_e76c            ;8e89  21 e7 6c
@@ -3320,7 +3330,7 @@ lab_8fc0:
     call sub_9250           ;8fcc  31 92 50
     call sub_92d1           ;8fcf  31 92 d1
     call sub_90f7           ;8fd2  31 90 f7
-    call sub_9346           ;8fd5  31 93 46
+    call sub_9346           ;8fd5  31 93 46     Set mem_030b (radio model) from mem_00e8 (Sub-to-Main byte 1)
 
     mov a, #0x00            ;8fd8  04 00
     mov mem_0238, a         ;8fda  61 02 38     Sub-to-Main number of bits received = 0
@@ -3385,7 +3395,7 @@ lab_902b:
     mov a, mem_00ce         ;903f  05 ce
     bne lab_9080            ;9041  fc 3d
     call sub_8e83           ;9043  31 8e 83
-    blo lab_9053            ;9046  f9 0b
+    bc lab_9053             ;9046  f9 0b        Branch if found in table
     setb mem_00f7:7         ;9048  af f7
     mov mem_00cc, #0x0a     ;904a  85 cc 0a
     mov a, #0x32            ;904d  04 32
@@ -3474,14 +3484,16 @@ sub_90cb:
     clrb mem_00e5:1         ;90cd  a1 e5
     clrb mem_00e5:2         ;90cf  a2 e5
     clrb mem_00e5:3         ;90d1  a3 e5
+
     mov a, #0x20            ;90d3  04 20
-    mov mem_0236, a         ;90d5  61 02 36
+    mov mem_0236, a         ;90d5  61 02 36     Copy of Sub-to-Main Byte 0 = 0x20
+
     mov a, #0x00            ;90d8  04 00
     mov mem_0096, a         ;90da  45 96
     mov mem_01ef, a         ;90dc  61 01 ef
-    mov mem_00e8, a         ;90df  45 e8
-    mov mem_0255, a         ;90e1  61 02 55     KW1281 Measurement Illumination % (Terminal 5d)
-    mov mem_03b5, a         ;90e4  61 03 b5
+    mov mem_00e8, a         ;90df  45 e8        Copy of Sub-to-Main Byte 1 = 0
+    mov mem_0255, a         ;90e1  61 02 55     Copy of Sub-to-Main Byte 2 = 0
+    mov mem_03b5, a         ;90e4  61 03 b5     Copy of Sub-to-Main Byte 3 = 0
     mov mem_0313, a         ;90e7  61 03 13
     mov mem_0183, a         ;90ea  61 01 83
     mov mem_0182, a         ;90ed  61 01 82
@@ -3664,8 +3676,8 @@ lab_9234:
     ret                     ;9234  20
 
 sub_9235:
-    mov a, mem_00e8         ;9235  05 e8
-    and a, #0x03            ;9237  64 03
+    mov a, mem_00e8         ;9235  05 e8        A = Copy of Sub-to-Main Byte 1
+    and a, #0b0000011       ;9237  64 03
     beq lab_923d            ;9239  fd 02
     bne lab_924a            ;923b  fc 0d        BRANCH_ALWAYS_TAKEN
 
@@ -3850,30 +3862,38 @@ lab_9343:
 lab_9345:
     ret                     ;9345  20
 
+
 sub_9346:
+;Set mem_030b (radio model) from mem_00e8 (Copy of Sub-to-Main Byte 1)
+;
+;mem_00e8=0b00xxxxxx -> mem_030b=0              1C0035180E (Beetle)
+;mem_00e8=0b01000000 -> mem_030b=1              1J0035180
+;mem_00e8=0b10000000 -> mem_030b=2              1J0035180D
+;mem_00e8=0b11000000 -> mem_030b=unchanged
+;
     mov a, mem_00e8         ;9346  05 e8
-    and a, #0xc0            ;9348  64 c0
+    and a, #0b11000000      ;9348  64 c0
     beq lab_9355            ;934a  fd 09
-    cmp a, #0x40            ;934c  14 40
+    cmp a, #0b01000000      ;934c  14 40
     beq lab_9359            ;934e  fd 09
-    cmp a, #0x80            ;9350  14 80
+    cmp a, #0b10000000      ;9350  14 80
     beq lab_935d            ;9352  fd 09
     ret                     ;9354  20
-
 lab_9355:
+;(mem_00e8 = 0b00xxxxxx)
     mov a, #0x00            ;9355  04 00
     beq lab_935f            ;9357  fd 06        BRANCH_ALWAYS_TAKEN
-
 lab_9359:
+;(mem_00e8 = 0b01xxxxxx)
     mov a, #0x01            ;9359  04 01
     bne lab_935f            ;935b  fc 02        BRANCH_ALWAYS_TAKEN
-
 lab_935d:
+;(mem_00e8 = 0b10xxxxxx)
     mov a, #0x02            ;935d  04 02
-
 lab_935f:
     mov mem_030b, a         ;935f  61 03 0b
     ret                     ;9362  20
+
 
 sub_9363:
     mov a, mem_0095         ;9363  05 95
@@ -3904,22 +3924,22 @@ lab_9384:
 
 sub_9385:
     movw ix, #mem_030e      ;9385  e6 03 0e
-    mov a, mem_03b5         ;9388  60 03 b5
+    mov a, mem_03b5         ;9388  60 03 b5     A = Copy of Sub-to-Main Byte 3
     jmp lab_93ac            ;938b  21 93 ac
 
 sub_938e:
     movw ix, #mem_030f      ;938e  e6 03 0f
-    mov a, mem_03b5         ;9391  60 03 b5
+    mov a, mem_03b5         ;9391  60 03 b5     A = Copy of Sub-to-Main Byte 3
     jmp lab_93aa            ;9394  21 93 aa
 
 sub_9397:
     movw ix, #mem_0310      ;9397  e6 03 10
-    mov a, mem_03b5         ;939a  60 03 b5
+    mov a, mem_03b5         ;939a  60 03 b5     A = Copy of Sub-to-Main Byte 3
     jmp lab_93a8            ;939d  21 93 a8
 
 sub_93a0:
     movw ix, #mem_0311      ;93a0  e6 03 11
-    mov a, mem_03b5         ;93a3  60 03 b5
+    mov a, mem_03b5         ;93a3  60 03 b5     A = Copy of Sub-to-Main Byte 3
     rolc a                  ;93a6  02
     rolc a                  ;93a7  02
 
@@ -4137,7 +4157,7 @@ lab_94f3:
 lab_94f4:
     clrb mem_00e9:4         ;94f4  a4 e9
     call sub_8e83           ;94f6  31 8e 83
-    blo lab_94fe            ;94f9  f9 03
+    bc lab_94fe             ;94f9  f9 03        Branch if found in table
     mov mem_00cc, #0x0a     ;94fb  85 cc 0a
 
 lab_94fe:
@@ -8926,11 +8946,11 @@ lab_b081:
 mem_0080_is_00:
 ;KW1281 Initial Connection
     mov a, mem_0081         ;b094  05 81
-    cmp a, #0x01            ;b096  14 01        Send 0x55
+    cmp a, #0x01            ;b096  14 01        Send 0x55 @ 9615.38 bps, 8-N-1
     beq lab_b0a7_tx_0x55    ;b098  fd 0d
-    cmp a, #0x02            ;b09a  14 02        Send 0x01
+    cmp a, #0x02            ;b09a  14 02        Send 0x01 @ 9615.38 bps, 7-O-1
     beq lab_b0a7_tx_0x01    ;b09c  fd 1c
-    cmp a, #0x03            ;b09e  14 03        Send 0x0A
+    cmp a, #0x03            ;b09e  14 03        Send 0x0A @ 9615.38 bps, 7-O-1
     beq lab_b0a7_tx_0x0a    ;b0a0  fd 30
     cmp a, #0x04            ;b0a2  14 04        Check if 0x75 received
     beq lab_b0a7_rx_0x75    ;b0a4  fd 46
@@ -9481,27 +9501,30 @@ lab_b33a:
     mov mem_017c, a         ;b340  61 01 7c
     mov mem_00a5, #0x10     ;b343  85 a5 10     16 bytes in KW1281 packet
 
-    mov a, mem_00e8         ;b346  05 e8
-    and a, #0b11000000      ;b348  64 c0
+    mov a, mem_00e8         ;b346  05 e8        A = Copy of Sub-to-Main byte 1
+    and a, #0b11000000      ;b348  64 c0        Mask to leave only radio model bits
 
     cmp a, #0b01000000      ;b34a  14 40
     bne cmp_model_1         ;b34c  fc 05
 
+    ;mem_00e8=0b01xxxxxx
     ;Model is 1J0035180
-    movw a, #kw_asc_1j0035180   ;b34e  e4 ff 0c    "1J0035180   "
+    movw a, #kw_asc_1j0035180   ;b34e  e4 ff 0c     "1J0035180   "
     bne cmp_model_done          ;b351  fc 0c        BRANCH_ALWAYS_TAKEN
 
 cmp_model_1:
     cmp a, #0b10000000      ;b353  14 80
     bne cmp_model_2         ;b355  fc 05
 
+    ;mem_00e8=0b10xxxxxx
     ;Model is 1J0035180D
-    movw a, #kw_asc_1j0035180d  ;b357  e4 fe fc    "1J0035180D  "
+    movw a, #kw_asc_1j0035180d  ;b357  e4 fe fc     "1J0035180D  "
     bne cmp_model_done          ;b35a  fc 03        BRANCH_ALWAYS_TAKEN
 
 cmp_model_2:
-    ;Model is 1C0035180E
-    movw a, #kw_asc_1c0035180e  ;b35c  e4 fe ec    "1C0035180E  "
+    ;mem_00e8=0b00xxxxxx or mem_00e8=0b11xxxxxx
+    ;Model is 1C0035180E (Beetle)
+    movw a, #kw_asc_1c0035180e  ;b35c  e4 fe ec     "1C0035180E  " (Beetle)
 
 cmp_model_done:
     movw mem_0084, a        ;b35f  d5 84        Pointer: source for KW1281 buffer copy
@@ -10633,7 +10656,8 @@ lab_b84b:
     mov a, mem_013e         ;b84b  60 01 3e     A = KW1281 Measurement Supply Voltage (Terminal 30)
     mov mem_012b+8, a       ;b84e  61 01 33     KW1281 TX Buffer byte 8: Supply Voltage (Terminal 30): value b
 
-    mov a, mem_0255         ;b851  60 02 55     A = KW1281 Measurement Illumination % (Terminal 5d)
+    mov a, mem_0255         ;b851  60 02 55     A = Copy of Sub-to-Main Byte 2
+                            ;                   (KW1281 Measurement Illumination % (Terminal 5d))
     mov mem_012b+0x0b, a    ;b854  61 01 36     KW1281 TX Buffer byte 11: Illumination % (Terminal 5d): value b
 
     clrb mem_008e:0         ;b857  a0 8e
@@ -11549,7 +11573,7 @@ lab_bcfd:
     ret                     ;bcff  20
 
 sub_bd00:
-    mov a, mem_03b5         ;bd00  60 03 b5
+    mov a, mem_03b5         ;bd00  60 03 b5     A = Copy of Sub-to-Main Byte 3
 
 lab_bd03:
     movw a, #0x000f         ;bd03  e4 00 0f
@@ -11561,7 +11585,7 @@ lab_bd03:
     ret                     ;bd0d  20
 
 sub_bd0e:
-    mov a, mem_03b5         ;bd0e  60 03 b5
+    mov a, mem_03b5         ;bd0e  60 03 b5     A = Copy of Sub-to-Main Byte 3
 
 lab_bd11:
     rorc a                  ;bd11  03
@@ -11571,12 +11595,12 @@ lab_bd11:
     jmp lab_bd03            ;bd15  21 bd 03
 
 sub_bd18:
-    mov a, mem_03b5         ;bd18  60 03 b5
+    mov a, mem_03b5         ;bd18  60 03 b5     A = Copy of Sub-to-Main Byte 3
     andw a                  ;bd1b  63
     jmp lab_bd03            ;bd1c  21 bd 03
 
 sub_bd1f:
-    mov a, mem_03b5         ;bd1f  60 03 b5
+    mov a, mem_03b5         ;bd1f  60 03 b5     A = Copy of Sub-to-Main Byte 3
     andw a                  ;bd22  63
     jmp lab_bd11            ;bd23  21 bd 11
 
@@ -11615,7 +11639,7 @@ mem_bd38:
     .byte 0x00              ;bd47  00          DATA '\x00'
 
 sub_bd48:
-    mov a, mem_03b5         ;bd48  60 03 b5
+    mov a, mem_03b5         ;bd48  60 03 b5     A = Copy of Sub-to-Main Byte 3
     mov mem_0307, a         ;bd4b  61 03 07
     movw ix, #mem_02e2      ;bd4e  e6 02 e2
     bbs mem_008e:6, lab_bd66 ;bd51  be 8e 12
@@ -11938,7 +11962,7 @@ lab_bf5d:
     bne lab_bf58            ;bf60  fc f6
     bbc mem_00d6:1, lab_bf88 ;bf62  b1 d6 23
     movw a, #0x0000         ;bf65  e4 00 00
-    mov a, mem_03b5         ;bf68  60 03 b5
+    mov a, mem_03b5         ;bf68  60 03 b5     A = Copy of Sub-to-Main Byte 3
     mov mem_0342, a         ;bf6b  61 03 42
     and a, #0x0f            ;bf6e  64 0f
     movw a, #mem_be42       ;bf70  e4 be 42
@@ -11958,7 +11982,7 @@ lab_bf7a:
 lab_bf88:
     bbc mem_00d6:0, lab_bfb2 ;bf88  b0 d6 27
     movw a, #0x0000         ;bf8b  e4 00 00
-    mov a, mem_03b5         ;bf8e  60 03 b5
+    mov a, mem_03b5         ;bf8e  60 03 b5     A = Copy to Sub-to-Main Byte 3
     mov mem_0343, a         ;bf91  61 03 43
     rorc a                  ;bf94  03
     rorc a                  ;bf95  03
@@ -12128,8 +12152,10 @@ sub_c08f:
     bbc mem_008d:5, lab_c0ac ;c092  b5 8d 17
     mov a, mem_0191         ;c095  60 01 91
     bne lab_c0a6            ;c098  fc 0c
+
     mov a, #0x20            ;c09a  04 20
-    mov mem_0236, a         ;c09c  61 02 36
+    mov mem_0236, a         ;c09c  61 02 36     Copy of Sub-to-Main Byte 0 = 0x20
+
     mov a, #0x20            ;c09f  04 20
     mov mem_02cb, a         ;c0a1  61 02 cb
     clrb mem_008d:5         ;c0a4  a5 8d
@@ -12140,15 +12166,17 @@ lab_c0a6:
     ret                     ;c0ab  20
 
 lab_c0ac:
-    mov a, mem_0236         ;c0ac  60 02 36
+    mov a, mem_0236         ;c0ac  60 02 36     A = Copy of Sub-to-Main Byte 0
     cmp a, #0x20            ;c0af  14 20
     beq lab_c0a6            ;c0b1  fd f3
-    mov a, mem_0236         ;c0b3  60 02 36
+
+    mov a, mem_0236         ;c0b3  60 02 36     A = Copy of Sub-to-Main Byte 0
     mov mem_02cb, a         ;c0b6  61 02 cb
+
     jmp lab_c0a6            ;c0b9  21 c0 a6
 
 sub_c0bc:
-    mov a, mem_0236         ;c0bc  60 02 36
+    mov a, mem_0236         ;c0bc  60 02 36     A = Copy of Sub-to-Main Byte 0
     cmp a, #0x9c            ;c0bf  14 9c
     bne lab_c0c7            ;c0c1  fc 04
     mov a, #0x30            ;c0c3  04 30
@@ -17289,7 +17317,7 @@ sub_daba:
     movw ix, #mem_dacc      ;dabf  e6 da cc
     mov a, mem_0096         ;dac2  05 96
     call sub_e76c           ;dac4  31 e7 6c
-    blo lab_dacb            ;dac7  f9 02
+    bc lab_dacb             ;dac7  f9 02        Branch if found in table
     setb mem_00e9:7         ;dac9  af e9
 
 lab_dacb:
@@ -19739,16 +19767,17 @@ sub_e81b:
     ;A new Sub-to-Main packet is ready
 
     mov a, mem_0230         ;e822  60 02 30     Sub-to-Main RX Buffer Byte 0
-    mov mem_0236, a         ;e825  61 02 36
+    mov mem_0236, a         ;e825  61 02 36     Save Copy of Sub-to-Main Byte 0
 
     mov a, mem_0230+1       ;e828  60 02 31     Sub-to-Main RX Buffer Byte 1
-    mov mem_00e8, a         ;e82b  45 e8
+    mov mem_00e8, a         ;e82b  45 e8        Save Copy of Sub-to-Main Byte 1
 
     mov a, mem_0230+2       ;e82d  60 02 32     Sub-to-Main RX Buffer Byte 2
-    mov mem_0255, a         ;e830  61 02 55     A = KW1281 Measurement Illumination % (Terminal 5d)
+    mov mem_0255, a         ;e830  61 02 55     Save Copy of Sub-to-Main Byte 2
+                            ;                   (KW1281 Measurement Illumination % (Terminal 5d))
 
     mov a, mem_0230+3       ;e833  60 02 33     Sub-to-Main RX Buffer Byte 3
-    mov mem_03b5, a         ;e836  61 03 b5
+    mov mem_03b5, a         ;e836  61 03 b5     Save Copy of Sub-to-Main Byte 3
 
 lab_e839:
     ret                     ;e839  20
@@ -21256,8 +21285,8 @@ lab_f045:
     bbc mem_00e5:1, lab_f07f ;f04a  b1 e5 32
     bbc mem_00e5:7, lab_f06d ;f04d  b7 e5 1d
     clrb mem_00e5:7         ;f050  a7 e5
-    mov a, mem_00e8         ;f052  05 e8
-    and a, #0x20            ;f054  64 20
+    mov a, mem_00e8         ;f052  05 e8        A = Copy of Sub-to-Main Byte 1
+    and a, #0b00100000      ;f054  64 20
     beq lab_f06c            ;f056  fd 14
 
 lab_f058:
@@ -21282,16 +21311,16 @@ lab_f06d:
     jmp lab_f063            ;f072  21 f0 63
 
 lab_f075:
-    mov a, mem_00e8         ;f075  05 e8
-    and a, #0x20            ;f077  64 20
+    mov a, mem_00e8         ;f075  05 e8        A = Copy of Sub-to-Main Byte 1
+    and a, #0b00100000      ;f077  64 20
     beq lab_f06c            ;f079  fd f1
     bbc mem_00e5:6, lab_f058 ;f07b  b6 e5 da
     ret                     ;f07e  20
 
 lab_f07f:
     bbc pdr2:4, lab_f0a1    ;f07f  b4 04 1f     branch if audio muted
-    mov a, mem_00e8         ;f082  05 e8
-    and a, #0x20            ;f084  64 20
+    mov a, mem_00e8         ;f082  05 e8        A = Copy of Sub-to-Main Byte 1
+    and a, #0b00100000      ;f084  64 20
     beq lab_f06c            ;f086  fd e4
     setb mem_00e2:4         ;f088  ac e2
     mov a, mem_0293         ;f08a  60 02 93
@@ -21304,8 +21333,8 @@ lab_f07f:
     jmp lab_f058            ;f09e  21 f0 58
 
 lab_f0a1:
-    mov a, mem_00e8         ;f0a1  05 e8
-    and a, #0xdf            ;f0a3  64 df
+    mov a, mem_00e8         ;f0a1  05 e8        A = Copy of Sub-to-Main Byte 1
+    and a, #0b11011111      ;f0a3  64 df
     mov mem_00e8, a         ;f0a5  45 e8
     ret                     ;f0a7  20
 
