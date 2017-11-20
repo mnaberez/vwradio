@@ -6044,27 +6044,38 @@ lab_a003:
 lab_a00b:
     movw a, #0x0000         ;a00b  e4 00 00
     movw a, #0x0000         ;a00e  e4 00 00
+
+    ;if (mem_0096 == 0) then branch to lab_a06d
     mov a, mem_0096         ;a011  05 96
     beq lab_a06d            ;a013  fd 58
+
     movw ix, #mem_a04d      ;a015  e6 a0 4d
+
+    ;if (mem_0096 & 0x0A == 0x0A) then branch to lab_a046
     mov a, #0x0a            ;a018  04 0a
     and a                   ;a01a  62
     cmp a, #0x0a            ;a01b  14 0a
-    xchw a, t               ;a01d  43
+    xchw a, t               ;a01d  43       A<->T so A contains mem_0096 again
     beq lab_a046            ;a01e  fd 26
+
+    ;if (mem_0096 == 0x07) or (mem_0096 == 0x08) then branch to lab_a046
     cmp a, #0x07            ;a020  14 07
     beq lab_a046            ;a022  fd 22
     cmp a, #0x08            ;a024  14 08
     beq lab_a046            ;a026  fd 1e
+
+    ;IX = (mem_0096 * 2) + #mem_a04d
     clrc                    ;a028  81
     rolc a                  ;a029  02
     movw a, #mem_a04d       ;a02a  e4 a0 4d
     addcw a                 ;a02d  23
     movw ix, a              ;a02e  e2
+
     movw a, #0x0000         ;a02f  e4 00 00
     mov a, mem_00cd         ;a032  05 cd
     clrc                    ;a034  81
     rolc a                  ;a035  02
+
     movw a, @ix+0x00        ;a036  c6 00
 
 lab_a038:
@@ -6088,36 +6099,38 @@ lab_a046:
     bne lab_a038            ;a04b  fc eb        BRANCH_ALWAYS_TAKEN
 
 mem_a04d:
-    .word lab_a06d          ;a04d VECTOR
-    .word lab_a072          ;a04e VECTOR
-
-;TODO appears to be jump table of jump tables
-    .word lab_a12b          ;VECTOR     jump table
-    .word lab_a1c7          ;VECTOR     jump table
-    .word lab_a2bb          ;VECTOR     jump table
-    .word lab_a303          ;VECTOR     jump table
-    .word lab_a3a7          ;VECTOR     jump table
-
-    .word lab_a06d          ;VECTOR
-    .word lab_a06d          ;VECTOR
-    .word lab_a3e9          ;VECTOR     jump table
-
-    .word lab_a067          ;VECTOR
-    .word lab_a06e          ;VECTOR
-    .word lab_a3c4          ;VECTOR     jump table
+;Table used with mem_0096
+;Some entries point to code, some point to jump tables
+    .word lab_a06d          ;VECTOR     mem_0096=0x00   code
+    .word lab_a072          ;VECTOR     mem_0096=0x01   jump table
+    .word lab_a12b          ;VECTOR     mem_0096=0x02   jump table
+    .word lab_a1c7          ;VECTOR     mem_0096=0x03   jump table
+    .word lab_a2bb          ;VECTOR     mem_0096=0x04   jump table
+    .word lab_a303          ;VECTOR     mem_0096=0x05   jump table
+    .word lab_a3a7          ;VECTOR     mem_0096=0x06   jump table
+    .word lab_a06d          ;VECTOR     mem_0096=0x07   code
+    .word lab_a06d          ;VECTOR     mem_0096=0x08   code
+    .word lab_a3e9          ;VECTOR     mem_0096=0x09   jump table
+    .word lab_a067          ;VECTOR     mem_0096=0x0a   code
+    .word lab_a06e          ;VECTOR     mem_0096=0x0b   code
+    .word lab_a3c4          ;VECTOR     mem_0096=0x0c   jump table
 
 lab_a067:
+;(mem_0096=0x0a)
     bbs mem_008c:7, lab_a06d ;a067  bf 8c 03
     call sub_f488           ;a06a  31 f4 88
 
 lab_a06d:
+;(mem_0096=0x00, 0x07, 0x08)
     ret                     ;a06d  20
 
 lab_a06e:
+;(mem_0096=0x0b)
     call sub_fcea           ;a06e  31 fc ea
     ret                     ;a071  20
 
 lab_a072:
+;(mem_0096=0x01)
     .word lab_a09c          ;a072  a0 9c       VECTOR
     .word lab_a07e          ;a074  a0 7e       VECTOR
     .word lab_a08d          ;a076  a0 8d       VECTOR
@@ -6239,6 +6252,7 @@ lab_a10b:
     jmp lab_a0fa            ;a128  21 a0 fa
 
 lab_a12b:
+;(mem_0096=0x02)
     .word lab_a14f          ;a12b  a1 4f       VECTOR
     .word lab_a135          ;a12d  a1 35       VECTOR
     .word lab_a150          ;a12f  a1 50       VECTOR
@@ -6349,6 +6363,7 @@ lab_a1c4:
     ret                     ;a1c6  20
 
 lab_a1c7:
+;(mem_0096=0x03)
     .word lab_a1e7          ;a1c7  a1 e7       VECTOR
     .word lab_a1d7          ;a1c9  a1 d7       VECTOR
     .word lab_a1e8          ;a1cb  a1 e8       VECTOR
@@ -6504,6 +6519,7 @@ lab_a2b6:
     jmp lab_a1e5            ;a2b8  21 a1 e5
 
 lab_a2bb:
+;(mem_0096=0x04)
     .word lab_a2e1          ;a2bb  a2 e1       VECTOR
     .word lab_a2c5          ;a2bd  a2 c5       VECTOR
     .word lab_a2e2          ;a2bf  a2 e2       VECTOR
@@ -6557,6 +6573,7 @@ lab_a2fb:
     jmp lab_a2dd            ;a300  21 a2 dd
 
 lab_a303:
+;(mem_0096=0x05)
     .word lab_a33b          ;a303  a3 3b       VECTOR
     .word lab_a319          ;a305  a3 19       VECTOR
     .word lab_a33c          ;a307  a3 3c       VECTOR
@@ -6661,6 +6678,7 @@ lab_a39f:
     beq lab_a339            ;a3a5  fd 92        BRANCH_ALWAYS_TAKEN
 
 lab_a3a7:
+;(mem_0096=0x06)
     .word lab_a3bd          ;a3a7  a3 bd       VECTOR
     .word lab_a3ad          ;a3a9  a3 ad       VECTOR
     .word lab_a3be          ;a3ab  a3 be       VECTOR
@@ -6682,6 +6700,7 @@ lab_a3be:
     blo lab_a3e1            ;a3c2  f9 1d        BRANCH_ALWAYS_TAKEN
 
 lab_a3c4:
+;(mem_0096=0x0c)
     .word lab_a3de          ;a3c4  a3 de       VECTOR
     .word lab_a3ca          ;a3c6  a3 ca       VECTOR
     .word lab_a3df          ;a3c8  a3 df       VECTOR
@@ -6717,6 +6736,7 @@ lab_a3e1:
     beq lab_a3dc            ;a3e7  fd f3        BRANCH_ALWAYS_TAKEN
 
 lab_a3e9:
+;(mem_0096=0x09)
     .word lab_a437          ;a3e9  a4 37       VECTOR
     .word lab_a3f3          ;a3eb  a3 f3       VECTOR
     .word lab_a438          ;a3ed  a4 38       VECTOR
@@ -22355,7 +22375,7 @@ lab_f683:
     jmp lab_f675            ;f688  21 f6 75
 
 lab_f68b:
-    movw ix, #mem_02b6      ;f68b  e6 02 b6
+    movw ix, #mem_02b6      ;f68b  e6 02 b6     IX = pointer to Main-to-Sub work buffer #2
     bbc mem_00d8:0, lab_f6a3 ;f68e  b0 d8 12
     clrb mem_00e4:5         ;f691  a5 e4
 
@@ -23457,7 +23477,7 @@ sub_fcd7:
     ret                     ;fce9  20
 
 sub_fcea:
-    movw ix, #mem_02b6      ;fcea  e6 02 b6
+    movw ix, #mem_02b6      ;fcea  e6 02 b6     IX = pointer to Main-to-Sub work buffer #2
     mov a, mem_01ef         ;fced  60 01 ef
     bne lab_fcf9            ;fcf0  fc 07
     mov a, #0x10            ;fcf2  04 10
