@@ -388,7 +388,7 @@
     mem_02aa = 0x2aa
     mem_02ab = 0x2ab
     mem_02ac = 0x2ac
-    mem_02ad = 0x2ad
+    mem_02ad = 0x2ad    ;Counter used to detect if a key is held down (2 bytes)
     mem_02af = 0x2af
     mem_02b0 = 0x2b0
     mem_02b2 = 0x2b2
@@ -2254,8 +2254,10 @@ sub_89cc:
     beq lab_89e8            ;89d4  fd 12
     mov a, mem_0095         ;89d6  05 95
     bne lab_89e8            ;89d8  fc 0e
+
     movw a, #0x0001         ;89da  e4 00 01
-    movw mem_02ad, a        ;89dd  d4 02 ad
+    movw mem_02ad, a        ;89dd  d4 02 ad     Countdown for detecting key held down = 1
+
     clrb mem_00af:4         ;89e0  a4 af
     bbc mem_0099:2, lab_89e8 ;89e2  b2 99 03
     mov mem_00c2, #0x1b     ;89e5  85 c2 1b
@@ -2502,13 +2504,13 @@ lab_8b2c:
 lab_8b31:
     mov a, mem_0096         ;8b31  05 96
     bne lab_8b38            ;8b33  fc 03
-    call sub_8cdf           ;8b35  31 8c df
+    call sub_8cdf           ;8b35  31 8c df     Set countdown to detect SOUND_BAL key held down #1
 
 lab_8b38:
     ret                     ;8b38  20
 
 lab_8b39:
-    call sub_8ce4           ;8b39  31 8c e4
+    call sub_8ce4           ;8b39  31 8c e4     Set countdown to detect SOUND_BAL key held down #2
     ret                     ;8b3c  20
 
 lab_8b3d:
@@ -2659,7 +2661,7 @@ lab_8bf6:
 
 lab_8bf8:
 ;mem_fe00 table case for HIDDEN_NO_CODE
-    call sub_8ce9           ;8bf8  31 8c e9
+    call sub_8ce9           ;8bf8  31 8c e9     Set countdown to detect HIDDEN_NO_CODE or HIDDEN_INITIAL key held down
     ret                     ;8bfb  20
 
 lab_8bfc:
@@ -2840,27 +2842,30 @@ lab_8cd7:
 lab_8cde:
     ret                     ;8cde  20
 
+
 sub_8cdf:
-;TODO possible timer countdown value for SOUND_BAL
-    movw a, #0x03e8         ;8cdf  e4 03 e8     A = value to store in mem_02ad
+;Set countdown to detect SOUND_BAL key held down #1
+    movw a, #0x03e8         ;8cdf  e4 03 e8     A = value to store in mem_02ad (key hold countdown)
     bne lab_8cf6            ;8ce2  fc 12        BRANCH_ALWAYS_TAKEN
 
 sub_8ce4:
-;TODO possible timer countdown value for SOUND_BAL
-    movw a, #0x01f4         ;8ce4  e4 01 f4     A = value to store in mem_02ad
+;Set countdown to detect SOUND_BAL key held down #2
+    movw a, #0x01f4         ;8ce4  e4 01 f4     A = value to store in mem_02ad (key hold countdown)
     bne lab_8cf6            ;8ce7  fc 0d        BRANCH_ALWAYS_TAKEN
 
 sub_8ce9:
-;TODO possible timer countdown value for HIDDEN_NO_CODE or HIDDEN_INITIAL
-    movw a, #0x012c         ;8ce9  e4 01 2c     A = value to store in mem_02ad
+;Set countdown to detect HIDDEN_NO_CODE or HIDDEN_INITIAL key held down
+    movw a, #0x012c         ;8ce9  e4 01 2c     A = value to store in mem_02ad (key hold countdown)
     bne lab_8cf6            ;8cec  fc 08        BRANCH_ALWAYS_TAKEN
 
 sub_8cee:
-    movw a, #0x00c8         ;8cee  e4 00 c8     A = value to store in mem_02ad
+;Set countdown to detect (TODO unclear) key held down
+    movw a, #0x00c8         ;8cee  e4 00 c8     A = value to store in mem_02ad (key hold countdown)
     bne lab_8cf6            ;8cf1  fc 03        BRANCH_ALWAYS_TAKEN
 
 sub_8cf3:
-    movw a, #0x001e         ;8cf3  e4 00 1e     A = value to store in mem_02ad
+;Set countdown to detect (TODO unclear) key held down
+    movw a, #0x001e         ;8cf3  e4 00 1e     A = value to store in mem_02ad (key hold countdown)
 
 lab_8cf6:
     clrb mem_0099:3         ;8cf6  a3 99
@@ -2868,6 +2873,7 @@ lab_8cf6:
     movw mem_02ad, a        ;8cfa  d4 02 ad
     setb mem_0099:3         ;8cfd  ab 99
     ret                     ;8cff  20
+
 
 sub_8d00:
     cmp mem_0096, #0x0b     ;8d00  95 96 0b
@@ -2878,6 +2884,7 @@ sub_8d00:
 
 lab_8d0c:
     ret                     ;8d0c  20
+
 
 callv5_8d0d:
 ;CALLV #5
@@ -6966,11 +6973,14 @@ lab_a547:
 lab_a574:
     bbc mem_0099:3, lab_a586 ;a574  b3 99 0f
     movw ix, #mem_02ad      ;a577  e6 02 ad     IX = pointer to 16-bit value to decrement
+                            ;                        (Counter used to detect if a key is held down)
     call dec16_at_ix        ;a57a  31 e7 8a     Decrement 16-bit value @IX.  Wraps from 0 to 0xFFFF.
-    bne lab_a586            ;a57d  fc 07
+    bne lab_a586            ;a57d  fc 07        Branch if countdown hasn't reached zero yet
+
+    ;Key was held down until countdown reached zero
     clrb mem_0099:3         ;a57f  a3 99
     setb mem_0099:2         ;a581  aa 99
-    call sub_a68d           ;a583  31 a6 8d
+    call sub_a68d           ;a583  31 a6 8d     Handle a key that was held down
 
 lab_a586:
     movw ix, #mem_02ce      ;a586  e6 02 ce     IX = pointer to 8-bit value to decrement
@@ -7111,42 +7121,47 @@ lab_a67a:
     call dec8_at_ix_nowrap  ;a689  31 e7 7d     Decrement 8-bit value @IX.  No wrap past 0.
     ret                     ;a68c  20
 
+
 sub_a68d:
-;TODO handle a key that has been held down
-    mov a, mem_00ae         ;a68d  05 ae
-    cmp a, #0x0b            ;a68f  14 0b    0x0b = SOUND_BAL key
+;Handle a key that was held down
+    mov a, mem_00ae         ;a68d  05 ae        A = key code
+
+    cmp a, #0x0b            ;a68f  14 0b        0x0b = SOUND_BAL key
     beq lab_a6bb            ;a691  fd 28
-    cmp a, #0x16            ;a693  14 16    0x16 = SCAN key
+
+    cmp a, #0x16            ;a693  14 16        0x16 = SCAN key
     beq lab_a6e1            ;a695  fd 4a
-    cmp a, #0x12            ;a697  14 12    0x12 = TAPE_SIDE key
+
+    cmp a, #0x12            ;a697  14 12        0x12 = TAPE_SIDE key
     bne lab_a69e            ;a699  fc 03
     jmp lab_a72b            ;a69b  21 a7 2b
 
 lab_a69e:
-    cmp a, #0x18            ;a69e  14 18    0x18 = HIDDEN_NO_CODE key
+    cmp a, #0x18            ;a69e  14 18        0x18 = HIDDEN_NO_CODE key
     bne lab_a6a5            ;a6a0  fc 03
     jmp lab_a73b            ;a6a2  21 a7 3b
 
 lab_a6a5:
-    cmp a, #0x19            ;a6a5  14 19    0x19 = HIDDEN_INITIAL key
+    cmp a, #0x19            ;a6a5  14 19        0x19 = HIDDEN_INITIAL key
     bne lab_a6ac            ;a6a7  fc 03
     jmp lab_a74d            ;a6a9  21 a7 4d
 
 lab_a6ac:
-    cmp a, #0x0a            ;a6ac  14 0a    0x0a = TUNE_UP key
+    cmp a, #0x0a            ;a6ac  14 0a        0x0a = TUNE_UP key
     bne lab_a6b3            ;a6ae  fc 03
     jmp lab_a754            ;a6b0  21 a7 54
 
 lab_a6b3:
-    cmp a, #0x13            ;a6b3  14 13    0x13 = SEEK_UP key
+    cmp a, #0x13            ;a6b3  14 13        0x13 = SEEK_UP key
     bne lab_a6ba            ;a6b5  fc 03
     jmp lab_a754            ;a6b7  21 a7 54
 
 lab_a6ba:
     ret                     ;a6ba  20
 
+
 lab_a6bb:
-;SOUND_BAL key
+;Handle SOUND_BAL key that was held down
     cmp mem_0096, #0x0b     ;a6bb  95 96 0b
     bne lab_a6cf            ;a6be  fc 0f
     call sub_8d00           ;a6c0  31 8d 00
@@ -7176,8 +7191,9 @@ lab_a6dd:
 lab_a6e0:
     ret                     ;a6e0  20
 
+
 lab_a6e1:
-;SCAN key
+;Handle SCAN key that was held down
     cmp mem_0096, #0x0a     ;a6e1  95 96 0a
     bne lab_a6eb            ;a6e4  fc 05
     setb mem_00af:2         ;a6e6  aa af
@@ -7225,8 +7241,9 @@ lab_a727:
 lab_a72a:
     ret                     ;a72a  20
 
+
 lab_a72b:
-;TAPE_SIDE key
+;Handle TAPE_SIDE key that was held down
     mov a, mem_0096         ;a72b  05 96
     bne lab_a73a            ;a72d  fc 0b
     bbs mem_00de:7, lab_a73a ;a72f  bf de 08
@@ -7237,8 +7254,9 @@ lab_a72b:
 lab_a73a:
     ret                     ;a73a  20
 
+
 lab_a73b:
-;HIDDEN_NO_CODE key
+;Handle HIDDEN_NO_CODE key that was held down
     mov a, mem_0096         ;a73b  05 96
     bne lab_a74c            ;a73d  fc 0d
     bbc mem_00de:7, lab_a743 ;a73f  b7 de 01
@@ -7253,14 +7271,15 @@ lab_a743:
 lab_a74c:
     ret                     ;a74c  20
 
+
 lab_a74d:
-;HIDDEN_INITIAL key
+;Handle HIDDEN_INITIAL key that was held down
     mov mem_0096, #0x05     ;a74d  85 96 05
     mov mem_00cd, #0x01     ;a750  85 cd 01
     ret                     ;a753  20
 
 lab_a754:
-;TUNE_UP key or SEEK_UP key
+;Handle TUNE_UP or SEEK_UP key that was held down
     cmp mem_0096, #0x03     ;a754  95 96 03
     bne lab_a75e            ;a757  fc 05
     mov a, #0x19            ;a759  04 19
@@ -7268,6 +7287,7 @@ lab_a754:
 
 lab_a75e:
     ret                     ;a75e  20
+
 
 lab_a75f:
     mov a, #0x00            ;a75f  04 00
