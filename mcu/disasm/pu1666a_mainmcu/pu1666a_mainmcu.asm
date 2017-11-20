@@ -69,7 +69,7 @@
     mem_0086 = 0x86         ;KW1281 Pointer: destination for buffer copy (2 bytes)
     mem_0088 = 0x88         ;KW1281 byte received
     mem_0089 = 0x89         ;KW1281 byte to send
-    mem_008a = 0x8a
+    mem_008a = 0x8a         ;KW1281 related, set to 0xFF, appears unused
     mem_008b = 0x8b
     mem_008c = 0x8c
     mem_008d = 0x8d
@@ -185,14 +185,14 @@
     mem_0117 = 0x117
     mem_0118 = 0x118        ;KW1281 RX buffer (0x0118 - 0x012a)
     mem_012b = 0x12b        ;KW1281 TX buffer (0x012b - 0x013d)
-    mem_013e = 0x13e
-    mem_013f = 0x13f
-    mem_0140 = 0x140
-    mem_0141 = 0x141
-    mem_0142 = 0x142
-    mem_0143 = 0x143
-    mem_0144 = 0x144
-    mem_0145 = 0x145
+    mem_013e = 0x13e        ;KW1281 Measurement Supply Voltage (Terminal 30)
+    mem_013f = 0x13f        ;KW1281 Measurement Loudspeaker(s) Front
+    mem_0140 = 0x140        ;KW1281 Measurement Loadspeaker(s) Rear
+    mem_0141 = 0x141        ;KW1281 Measurement Antenna Type
+    mem_0142 = 0x142        ;KW1281 Measurement CD Changer
+    mem_0143 = 0x143        ;KW1281 Measurement External Display
+    mem_0144 = 0x144        ;KW1281 Measurement, appears unused
+    mem_0145 = 0x145        ;KW1281 Measurement Amplifier
     mem_0146 = 0x146        ;KW1281 Number of Faults
     mem_0147 = 0x147        ;KW1281 Pointer: memory address to dump (2 bytes)
     mem_0149 = 0x149        ;KW1281 4-byte buffer for Fault 00856 Radio Antenna
@@ -338,7 +338,7 @@
     mem_0251 = 0x251
     mem_0253 = 0x253
     mem_0254 = 0x254
-    mem_0255 = 0x255
+    mem_0255 = 0x255    ;KW1281 Measurement Illumination % (Terminal 5d)
     mem_0265 = 0x265
     mem_026b = 0x26b
     mem_026c = 0x26c
@@ -3480,7 +3480,7 @@ sub_90cb:
     mov mem_0096, a         ;90da  45 96
     mov mem_01ef, a         ;90dc  61 01 ef
     mov mem_00e8, a         ;90df  45 e8
-    mov mem_0255, a         ;90e1  61 02 55
+    mov mem_0255, a         ;90e1  61 02 55     KW1281 Measurement Illumination % (Terminal 5d)
     mov mem_03b5, a         ;90e4  61 03 b5
     mov mem_0313, a         ;90e7  61 03 13
     mov mem_0183, a         ;90ea  61 01 83
@@ -6598,7 +6598,7 @@ lab_a369:
     bne lab_a337            ;a36b  fc ca        BRANCH_ALWAYS_TAKEN
 
 lab_a36d:
-    call sub_c1a7           ;a36d  31 c1 a7
+    call sub_c1a7           ;a36d  31 c1 a7     Clear mem_016d - mem-0170
     call sub_c2a2           ;a370  31 c2 a2
     mov a, #0x00            ;a373  04 00
     mov mem_03af, a         ;a375  61 03 af
@@ -8141,7 +8141,8 @@ lab_acbf:
     movw a, #0xffff         ;acc6  e4 ff ff
     movw mem_008f, a        ;acc9  d5 8f
 
-    mov mem_008a, a         ;accb  45 8a
+    mov mem_008a, a         ;accb  45 8a        XXX appears unused
+
     bbs mem_00e4:3, lab_acda ;accd  bb e4 0a
     bbc mem_00de:5, lab_acda ;acd0  b5 de 07
     mov a, #0x04            ;acd3  04 04
@@ -10095,27 +10096,31 @@ lab_b604:
     call copy_ix_to_ix1_ix2             ;b607  31 b6 4b     Copy byte @IX+0 into @IX+1 and @IX+2
     call sub_c50c_fault_amplifier       ;b60a  31 c5 0c
     call sub_bd48                       ;b60d  31 bd 48
-    mov a, mem_013f                     ;b610  60 01 3f
+
+    mov a, mem_013f                     ;b610  60 01 3f     KW1281 Measurement Loudspeaker(s) Front
     mov a, #0x01                        ;b613  04 01
     cmp a                               ;b615  12
     bne lab_b621                        ;b616  fc 09
+
     mov a, #0x00                        ;b618  04 00
-    mov mem_013f, a                     ;b61a  61 01 3f
+    mov mem_013f, a                     ;b61a  61 01 3f     KW1281 Measurement Loudspeaker(s) Front
     mov @ix+0x00, a                     ;b61d  46 00
-    clrb mem_0091:5                     ;b61f  a5 91        KW1281 Fault 00852 - Loudspeaker(s) Front
+    clrb mem_0091:5                     ;b61f  a5 91        KW1281 Fault 00852 Loudspeaker(s) Front
 
 lab_b621:
     call copy_ix_to_ix1_ix2             ;b621  31 b6 4b     Copy byte @IX+0 into @IX+1 and @IX+2
     call sub_c55d_fault_speakers_front  ;b624  31 c5 5d
     call sub_bdbe                       ;b627  31 bd be
-    mov a, mem_0140                     ;b62a  60 01 40
+
+    mov a, mem_0140                     ;b62a  60 01 40     KW1281 Measurement Loudspeaker(s) Rear
     mov a, #0x01                        ;b62d  04 01
     cmp a                               ;b62f  12
     bne lab_b63b                        ;b630  fc 09
+
     mov a, #0x00                        ;b632  04 00
-    mov mem_0140, a                     ;b634  61 01 40
+    mov mem_0140, a                     ;b634  61 01 40     KW1281 Measurement Loudspeaker(s) Rear
     mov @ix+0x00, a                     ;b637  46 00
-    clrb mem_0091:6                     ;b639  a6 91        KW1281 Fault 00853 - Loudspeaker(s) Rear
+    clrb mem_0091:6                     ;b639  a6 91        KW1281 Fault 00853 Loudspeaker(s) Rear
 
 lab_b63b:
     call copy_ix_to_ix1_ix2             ;b63b  31 b6 4b     Copy byte @IX+0 into @IX+1 and @IX+2
@@ -10520,15 +10525,20 @@ lab_b7b2:
 ;Group Reading related: Group 2 (Speakers)
     mov a, mem_02d2         ;b7b2  60 02 d2
     bne lab_b7cc            ;b7b5  fc 15
+
     mov a, #0x01            ;b7b7  04 01
     mov mem_02d2, a         ;b7b9  61 02 d2
+
     mov a, mem_019b         ;b7bc  60 01 9b
     incw a                  ;b7bf  c0
     mov mem_019b, a         ;b7c0  61 01 9b
+
     cmp a, #0x03            ;b7c3  14 03
     blo lab_b7cc            ;b7c5  f9 05
+
     mov a, #0x02            ;b7c7  04 02
     mov mem_019b, a         ;b7c9  61 01 9b
+
 lab_b7cc:
     setb mem_008e:4         ;b7cc  ac 8e
     movw ix, #kw_group_2    ;b7ce  e6 b7 15
@@ -10620,10 +10630,12 @@ lab_b845:
 
 lab_b84b:
 ;Group 1 (General)
-    mov a, mem_013e         ;b84b  60 01 3e
+    mov a, mem_013e         ;b84b  60 01 3e     A = KW1281 Measurement Supply Voltage (Terminal 30)
     mov mem_012b+8, a       ;b84e  61 01 33     KW1281 TX Buffer byte 8: Supply Voltage (Terminal 30): value b
-    mov a, mem_0255         ;b851  60 02 55
+
+    mov a, mem_0255         ;b851  60 02 55     A = KW1281 Measurement Illumination % (Terminal 5d)
     mov mem_012b+0x0b, a    ;b854  61 01 36     KW1281 TX Buffer byte 11: Illumination % (Terminal 5d): value b
+
     clrb mem_008e:0         ;b857  a0 8e
     mov a, #0x87            ;b859  04 87
     bbc mem_00eb:6, lab_b862 ;b85b  b6 eb 04
@@ -10640,11 +10652,13 @@ lab_b868:
     mov a, mem_019b         ;b868  60 01 9b
     cmp a, #0x02            ;b86b  14 02
     blo lab_b881            ;b86d  f9 12
-    mov a, mem_02fb         ;b86f  60 02 fb
-    call sub_b91d           ;b872  31 b9 1d
+
+    mov a, mem_02fb         ;b86f  60 02 fb     KW1281 Measurement Speakers Front Status
+    call sub_b91d           ;b872  31 b9 1d     Change A: 0=0xc2, 1=0xf3, 2=0xf2, else=0xc2
     mov mem_012b+8, a       ;b875  61 01 33     KW1281 TX Buffer byte 8: Front Status: value b
-    mov a, mem_02fc         ;b878  60 02 fc
-    call sub_b91d           ;b87b  31 b9 1d
+
+    mov a, mem_02fc         ;b878  60 02 fc     KW1281 Measurement Speakers Rear Status
+    call sub_b91d           ;b87b  31 b9 1d     Change A: 0=0xc2, 1=0xf3, 2=0xf2, else=0xc2
     mov mem_012b+0xe, a     ;b87e  61 01 39     KW1281 TX Buffer byte 14: Rear Status: value b
 
 lab_b881:
@@ -10662,24 +10676,24 @@ lab_b88b:
 
 lab_b88d:
     mov mem_012b+5, a       ;b88d  61 01 30     KW1281 TX Buffer byte 5: Antenna Type: value b
-    mov a, mem_0141         ;b890  60 01 41
-    call sub_b91d           ;b893  31 b9 1d
+    mov a, mem_0141         ;b890  60 01 41     A = KW1281 Measurement Antenna Type
+    call sub_b91d           ;b893  31 b9 1d     Change A: 0=0xc2, 1=0xf3, 2=0xf2, else=0xc2
     mov mem_012b+0x0b, a    ;b896  61 01 36     KW1281 TX Buffer byte 11: Antenna Status: value b
     jmp lab_b912            ;b899  21 b9 12
 
 
 lab_b89c:
 ;Group 5 (CD Changer)
-    mov a, mem_0142         ;b89c  60 01 42
-    call sub_b930           ;b89f  31 b9 30
+    mov a, mem_0142         ;b89c  60 01 42     A = KW1281 Measurement CD Changer
+    call sub_b930           ;b89f  31 b9 30     Change A: 0=0xc2, 3=0xc3, else=unchanged
     mov mem_012b+8, a       ;b8a2  61 01 33     KW1281 TX Buffer byte 8: Status: value b
     jmp lab_b912            ;b8a5  21 b9 12
 
 
 lab_b8a8:
 ;Group 6 (External Display)
-    mov a, mem_0143         ;b8a8  60 01 43
-    call sub_b930           ;b8ab  31 b9 30
+    mov a, mem_0143         ;b8a8  60 01 43     A = KW1281 Measurement External Display
+    call sub_b930           ;b8ab  31 b9 30     Change A: 0=0xc2, 3=0xc3, else=unchanged
     mov mem_012b+8, a       ;b8ae  61 01 33     KW1281 TX Buffer byte 8: Status: value b
     jmp lab_b912            ;b8b1  21 b9 12
 
@@ -10697,7 +10711,7 @@ lab_b8b4:
 
 lab_b8c6:
 ;Group 4 (Amplifier)
-    mov a, mem_0145         ;b8c6  60 01 45
+    mov a, mem_0145         ;b8c6  60 01 45     A = KW1281 Measurement Amplifier
     cmp a, #0x02            ;b8c9  14 02
     bne lab_b8cf            ;b8cb  fc 02
     mov a, #0x01            ;b8cd  04 01
@@ -10765,34 +10779,38 @@ lab_b919:
     call sub_bbc3           ;b919  31 bb c3
     ret                     ;b91c  20
 
+
 sub_b91d:
+;Change A: 0=0xc2, 1=0xf3, 2=0xf2, else=0xc2
     beq lab_b927            ;b91d  fd 08
     cmp a, #0x01            ;b91f  14 01
     beq lab_b92d            ;b921  fd 0a
     cmp a, #0x02            ;b923  14 02
     beq lab_b92a            ;b925  fd 03
-
 lab_b927:
+;(A=0 or A != 1,2)
     mov a, #0xc2            ;b927  04 c2
     ret                     ;b929  20
-
 lab_b92a:
+;(A=2)
     mov a, #0xf2            ;b92a  04 f2
     ret                     ;b92c  20
-
 lab_b92d:
+;(A=1)
     mov a, #0xf3            ;b92d  04 f3
     ret                     ;b92f  20
 
+
 sub_b930:
+;Change A: 0=0xc2, 3=0xc3, else=unchanged
     beq lab_b927            ;b930  fd f5
     cmp a, #0x03            ;b932  14 03
     beq lab_b937            ;b934  fd 01
     ret                     ;b936  20
-
 lab_b937:
     mov a, #0xc3            ;b937  04 c3
     ret                     ;b939  20
+
 
 mem_0080_is_08:
 ;KW1281 Recoding
@@ -11372,13 +11390,13 @@ sub_bc02:
     mov a, #0x40            ;bc02  04 40
     movw ix, #mem_0249      ;bc04  e6 02 49
     call sub_8571           ;bc07  31 85 71
-    setb mem_0091:1         ;bc0a  a9 91        KW1281 Fault 00668 - Supply Voltage Terminal 30
+    setb mem_0091:1         ;bc0a  a9 91        KW1281 Fault 00668 Supply Voltage Terminal 30
     movw ix, #mem_02da      ;bc0c  e6 02 da
     movw a, mem_0249        ;bc0f  c4 02 49
     movw a, #0x01ad         ;bc12  e4 01 ad
     cmpw a                  ;bc15  13
     blo lab_bc1e            ;bc16  f9 06
-    clrb mem_0091:1         ;bc18  a1 91        KW1281 Fault 00668 - Supply Voltage Terminal 30
+    clrb mem_0091:1         ;bc18  a1 91        KW1281 Fault 00668 Supply Voltage Terminal 30
     mov a, #0x00            ;bc1a  04 00
     beq lab_bc31            ;bc1c  fd 13        BRANCH_ALWAYS_TAKEN
 
@@ -11393,7 +11411,7 @@ lab_bc1e:
 lab_bc29:
     mov a, #0x14            ;bc29  04 14
     mov @ix+0x03, a         ;bc2b  46 03
-    clrb mem_0091:1         ;bc2d  a1 91        KW1281 Fault 00668 - Supply Voltage Terminal 30
+    clrb mem_0091:1         ;bc2d  a1 91        KW1281 Fault 00668 Supply Voltage Terminal 30
     mov a, #0x01            ;bc2f  04 01
 
 lab_bc31:
@@ -11409,7 +11427,7 @@ lab_bc31:
     rorc a                  ;bc3d  03
     swap                    ;bc3e  10
     rorc a                  ;bc3f  03
-    mov mem_013e, a         ;bc40  61 01 3e
+    mov mem_013e, a         ;bc40  61 01 3e     KW1281 Measurement Supply Voltage (Terminal 30)
     ret                     ;bc43  20
 
 sub_bc44:
@@ -11423,17 +11441,17 @@ lab_bc51:
     bbc mem_00e0:1, lab_bc5a ;bc51  b1 e0 06
 
 lab_bc54:
-    clrb mem_0091:4         ;bc54  a4 91        KW1281 Fault 00855 - Connection to CD changer
+    clrb mem_0091:4         ;bc54  a4 91        KW1281 Fault 00855 Connection to CD changer
     mov a, #0x00            ;bc56  04 00
     beq lab_bc5e            ;bc58  fd 04        BRANCH_ALWAYS_TAKEN
 
 lab_bc5a:
-    setb mem_0091:4         ;bc5a  ac 91        KW1281 Fault 00855 - Connection to CD changer
+    setb mem_0091:4         ;bc5a  ac 91        KW1281 Fault 00855 Connection to CD changer
     mov a, #0x03            ;bc5c  04 03
 
 lab_bc5e:
     mov @ix+0x00, a         ;bc5e  46 00
-    mov mem_0142, a         ;bc60  61 01 42
+    mov mem_0142, a         ;bc60  61 01 42     KW1281 Measurement CD Changer
     ret                     ;bc63  20
 
 sub_bc64:
@@ -11473,10 +11491,10 @@ lab_bc8f:
     mov a, mem_02d3         ;bc8f  60 02 d3
     bne lab_bc81            ;bc92  fc ed
     call sub_bd00           ;bc94  31 bd 00
-    mov mem_02fb, a         ;bc97  61 02 fb
+    mov mem_02fb, a         ;bc97  61 02 fb     KW1281 Measurement Speakers Front Status
     call sub_bd0e           ;bc9a  31 bd 0e
-    mov mem_02fc, a         ;bc9d  61 02 fc
-    mov a, mem_02fb         ;bca0  60 02 fb
+    mov mem_02fc, a         ;bc9d  61 02 fc     KW1281 Measurement Speakers Rear Status
+    mov a, mem_02fb         ;bca0  60 02 fb     KW1281 Measurement Speakers Front Status
     cmp a, #0x02            ;bca3  14 02
     bne lab_bcbd            ;bca5  fc 16
     mov a, mem_0341         ;bca7  60 03 41
@@ -11495,7 +11513,7 @@ lab_bcbd:
     mov mem_0341, a         ;bcc2  61 03 41
 
 lab_bcc5:
-    mov a, mem_02fc         ;bcc5  60 02 fc
+    mov a, mem_02fc         ;bcc5  60 02 fc     KW1281 Measurement Speakers Rear Status
     cmp a, #0x02            ;bcc8  14 02
     bne lab_bce2            ;bcca  fc 16
     mov a, mem_0341         ;bccc  60 03 41
@@ -11605,9 +11623,9 @@ sub_bd48:
     beq lab_bd66            ;bd57  fd 0d
     mov a, #0x00            ;bd59  04 00
     mov mem_030c, a         ;bd5b  61 03 0c
-    mov mem_013f, a         ;bd5e  61 01 3f
+    mov mem_013f, a         ;bd5e  61 01 3f     KW1281 Measurement Loudspeaker(s) Front
     mov @ix+0x00, a         ;bd61  46 00
-    clrb mem_0091:5         ;bd63  a5 91        KW1281 Fault 00852 - Loudspeaker(s) Front
+    clrb mem_0091:5         ;bd63  a5 91        KW1281 Fault 00852 Loudspeaker(s) Front
     ret                     ;bd65  20
 
 lab_bd66:
@@ -11630,20 +11648,20 @@ lab_bd75:
 
 lab_bd88:
     mov @ix+0x00, a         ;bd88  46 00
-    mov mem_013f, a         ;bd8a  61 01 3f
-    mov a, mem_013f         ;bd8d  60 01 3f
+    mov mem_013f, a         ;bd8a  61 01 3f     KW1281 Measurement Loudspeaker(s) Front
+    mov a, mem_013f         ;bd8d  60 01 3f     KW1281 Measurement Loudspeaker(s) Front
     bne lab_bda6            ;bd90  fc 14
-    clrb mem_0091:5         ;bd92  a5 91        KW1281 Fault 00852 - Loudspeaker(s) Front
+    clrb mem_0091:5         ;bd92  a5 91        KW1281 Fault 00852 Loudspeaker(s) Front
     mov a, mem_030c         ;bd94  60 03 0c
     beq lab_bdbd            ;bd97  fd 24
     bbs mem_008e:6, lab_bdbd ;bd99  be 8e 21
     mov @ix+0x00, a         ;bd9c  46 00
-    mov mem_013f, a         ;bd9e  61 01 3f
-    setb mem_0091:5         ;bda1  ad 91        KW1281 Fault 00852 - Loudspeaker(s) Front
+    mov mem_013f, a         ;bd9e  61 01 3f     KW1281 Measurement Loudspeaker(s) Front
+    setb mem_0091:5         ;bda1  ad 91        KW1281 Fault 00852 Loudspeaker(s) Front
     jmp lab_bdbd            ;bda3  21 bd bd
 
 lab_bda6:
-    setb mem_0091:5         ;bda6  ad 91        KW1281 Fault 00852 - Loudspeaker(s) Front
+    setb mem_0091:5         ;bda6  ad 91        KW1281 Fault 00852 Loudspeaker(s) Front
     mov a, mem_02e5         ;bda8  60 02 e5
     bne lab_bdbd            ;bdab  fc 10
     mov a, mem_02e4         ;bdad  60 02 e4
@@ -11666,9 +11684,9 @@ sub_bdbe:
     beq lab_bdd6            ;bdc7  fd 0d
     mov a, #0x00            ;bdc9  04 00
     mov mem_030d, a         ;bdcb  61 03 0d
-    mov mem_0140, a         ;bdce  61 01 40
+    mov mem_0140, a         ;bdce  61 01 40     KW1281 Measurement Loudspeaker(s) Rear
     mov @ix+0x00, a         ;bdd1  46 00
-    clrb mem_0091:6         ;bdd3  a6 91        KW1281 Fault 00853 - Loudspeaker(s) Rear
+    clrb mem_0091:6         ;bdd3  a6 91        KW1281 Fault 00853 Loudspeaker(s) Rear
     ret                     ;bdd5  20
 
 lab_bdd6:
@@ -11691,20 +11709,20 @@ lab_bde5:
 
 lab_bdf8:
     mov @ix+0x00, a         ;bdf8  46 00
-    mov mem_0140, a         ;bdfa  61 01 40
-    mov a, mem_0140         ;bdfd  60 01 40
+    mov mem_0140, a         ;bdfa  61 01 40     KW1281 Measurement Loudspeaker(s) Rear
+    mov a, mem_0140         ;bdfd  60 01 40     KW1281 Measurement Loudspeaker(s) Rear
     bne lab_be16            ;be00  fc 14
-    clrb mem_0091:6         ;be02  a6 91        KW1281 Fault 00853 - Loudspeaker(s) Rear
+    clrb mem_0091:6         ;be02  a6 91        KW1281 Fault 00853 Loudspeaker(s) Rear
     mov a, mem_030d         ;be04  60 03 0d
     beq lab_be2d            ;be07  fd 24
     bbs mem_008e:6, lab_be2d ;be09  be 8e 21
     mov @ix+0x00, a         ;be0c  46 00
-    mov mem_0140, a         ;be0e  61 01 40
-    setb mem_0091:6         ;be11  ae 91        KW1281 Fault 00853 - Loudspeaker(s) Rear
+    mov mem_0140, a         ;be0e  61 01 40     KW1281 Measurement Loudspeaker(s) Rear
+    setb mem_0091:6         ;be11  ae 91        KW1281 Fault 00853 Loudspeaker(s) Rear
     jmp lab_be2d            ;be13  21 be 2d
 
 lab_be16:
-    setb mem_0091:6         ;be16  ae 91        KW1281 Fault 00853 - Loudspeaker(s) Rear
+    setb mem_0091:6         ;be16  ae 91        KW1281 Fault 00853 Loudspeaker(s) Rear
     mov a, mem_02e9         ;be18  60 02 e9
     bne lab_be2d            ;be1b  fc 10
     mov a, mem_02e8         ;be1d  60 02 e8
@@ -11820,7 +11838,7 @@ lab_bea5:
     call sub_bdbe           ;beaf  31 bd be
     clrb mem_008e:6         ;beb2  a6 8e
     mov mem_00d6, #0x03     ;beb4  85 d6 03
-    mov a, mem_013f         ;beb7  60 01 3f
+    mov a, mem_013f         ;beb7  60 01 3f     KW1281 Measurement Loudspeaker(s) Front
     beq lab_bed4            ;beba  fd 18
     clrb mem_00d6:1         ;bebc  a1 d6
     mov a, mem_02e2         ;bebe  60 02 e2
@@ -11839,7 +11857,7 @@ lab_becf:
     mov mem_030c, a         ;bed1  61 03 0c
 
 lab_bed4:
-    mov a, mem_0140         ;bed4  60 01 40
+    mov a, mem_0140         ;bed4  60 01 40     KW1281 Measurement Loudspeaker(s) Rear
     beq lab_bef1            ;bed7  fd 18
     clrb mem_00d6:0         ;bed9  a0 d6
     mov a, mem_02e6         ;bedb  60 02 e6
@@ -11928,10 +11946,10 @@ lab_bf5d:
     addcw a                 ;bf74  23
     mov a, @a               ;bf75  92
     beq lab_bfb7            ;bf76  fd 3f
-    setb mem_0091:5         ;bf78  ad 91        KW1281 Fault 00852 - Loudspeaker(s) Front
+    setb mem_0091:5         ;bf78  ad 91        KW1281 Fault 00852 Loudspeaker(s) Front
 
 lab_bf7a:
-    mov mem_013f, a         ;bf7a  61 01 3f
+    mov mem_013f, a         ;bf7a  61 01 3f     KW1281 Measurement Loudspeaker(s) Front
     mov mem_030c, a         ;bf7d  61 03 0c
     mov a, #0x05            ;bf80  04 05
     mov mem_0186, a         ;bf82  61 01 86
@@ -11952,10 +11970,10 @@ lab_bf88:
     addcw a                 ;bf9e  23
     mov a, @a               ;bf9f  92
     beq lab_bfe0            ;bfa0  fd 3e
-    setb mem_0091:6         ;bfa2  ae 91        KW1281 Fault 00853 - Loudspeaker(s) Rear
+    setb mem_0091:6         ;bfa2  ae 91        KW1281 Fault 00853 Loudspeaker(s) Rear
 
 lab_bfa4:
-    mov mem_0140, a         ;bfa4  61 01 40
+    mov mem_0140, a         ;bfa4  61 01 40     KW1281 Measurement Loudspeaker(s) Rear
     mov mem_030d, a         ;bfa7  61 03 0d
     mov a, #0x06            ;bfaa  04 06
     mov mem_0186, a         ;bfac  61 01 86
@@ -11977,7 +11995,7 @@ lab_bfc0:
     beq lab_bf88            ;bfc5  fd c1
 
 lab_bfc7:
-    clrb mem_0091:5         ;bfc7  a5 91        KW1281 Fault 00852 - Loudspeaker(s) Front
+    clrb mem_0091:5         ;bfc7  a5 91        KW1281 Fault 00852 Loudspeaker(s) Front
     mov a, mem_030c         ;bfc9  60 03 0c
     beq lab_bfda            ;bfcc  fd 0c
     call sub_c011           ;bfce  31 c0 11
@@ -12001,7 +12019,7 @@ lab_bfe9:
     beq lab_bfb2            ;bfee  fd c2
 
 lab_bff0:
-    clrb mem_0091:6         ;bff0  a6 91        KW1281 Fault 00853 - Loudspeaker(s) Rear
+    clrb mem_0091:6         ;bff0  a6 91        KW1281 Fault 00853 Loudspeaker(s) Rear
     mov a, mem_030d         ;bff2  60 03 0d
     beq lab_c003            ;bff5  fd 0c
     call sub_c009           ;bff7  31 c0 09
@@ -12044,7 +12062,7 @@ lab_c02c:
     mov a, #0x03            ;c02e  04 03
 
 lab_c030:
-    mov mem_0143, a         ;c030  61 01 43
+    mov mem_0143, a         ;c030  61 01 43     KW1281 Measurement External Display
     ret                     ;c033  20
 
 sub_c034:
@@ -12052,17 +12070,17 @@ sub_c034:
     mov a, mem_0242         ;c037  60 02 42
     and a, #0x80            ;c03a  64 80
     bne lab_c044            ;c03c  fc 06
-    setb mem_0091:2         ;c03e  aa 91        KW1281 Fault 00850 - Control Output Active: Radio Amplifier
+    setb mem_0091:2         ;c03e  aa 91        KW1281 Fault 00850 Control Output Active: Radio Amplifier
     mov a, #0x02            ;c040  04 02
     bne lab_c048            ;c042  fc 04        BRANCH_ALWAYS_TAKEN
 
 lab_c044:
-    clrb mem_0091:2         ;c044  a2 91        KW1281 Fault 00850 - Control Output Active: Radio Amplifier
+    clrb mem_0091:2         ;c044  a2 91        KW1281 Fault 00850 Control Output Active: Radio Amplifier
     mov a, #0x00            ;c046  04 00
 
 lab_c048:
     mov @ix+0x00, a         ;c048  46 00
-    mov mem_0145, a         ;c04a  61 01 45
+    mov mem_0145, a         ;c04a  61 01 45     KW1281 Measurement Amplifier
     ret                     ;c04d  20
 
 sub_c04e:
@@ -12093,12 +12111,12 @@ lab_c071:
     ret                     ;c081  20
 
 lab_c082:
-    clrb mem_0091:7         ;c082  a7 91        KW1281 Fault 65535 - Internal Control Module Memory Error
+    clrb mem_0091:7         ;c082  a7 91        KW1281 Fault 65535 Internal Control Module Memory Error
     mov a, #0x00            ;c084  04 00
     beq lab_c08c            ;c086  fd 04        BRANCH_ALWAYS_TAKEN
 
 lab_c088:
-    setb mem_0091:7         ;c088  af 91        KW1281 Fault 65535 - Internal Control Module Memory Error
+    setb mem_0091:7         ;c088  af 91        KW1281 Fault 65535 Internal Control Module Memory Error
     mov a, #0x03            ;c08a  04 03
 
 lab_c08c:
@@ -12249,7 +12267,7 @@ lab_c172:
 
 lab_c176:
     mov @ix+0x00, a         ;c176  46 00
-    mov mem_0141, a         ;c178  61 01 41
+    mov mem_0141, a         ;c178  61 01 41     KW1281 Measurement Antenna Type
     mov a, mem_0328         ;c17b  60 03 28
     mov a, mem_031f         ;c17e  60 03 1f
     cmp a                   ;c181  12
@@ -12274,6 +12292,7 @@ sub_c18a:
     ret                     ;c1a6  20
 
 sub_c1a7:
+;Clear mem_016d-mem-0170
     mov a, #0x00            ;c1a7  04 00
     mov mem_016d, a         ;c1a9  61 01 6d
     mov mem_016e, a         ;c1ac  61 01 6e
@@ -12474,12 +12493,13 @@ lab_c2c5:
 
 sub_c2c6:
     movw a, #0x0000         ;c2c6  e4 00 00
-    movw mem_013f, a        ;c2c9  d4 01 3f
-    mov mem_013e, a         ;c2cc  61 01 3e
-    mov mem_0142, a         ;c2cf  61 01 42
-    mov mem_0143, a         ;c2d2  61 01 43
-    mov mem_0144, a         ;c2d5  61 01 44
-    mov mem_0141, a         ;c2d8  61 01 41
+    movw mem_013f, a        ;c2c9  d4 01 3f     KW1281 Measurement Loudspeaker(s) Front
+                            ;                   KW1281 Measurement Loudspeaker(s) Rear
+    mov mem_013e, a         ;c2cc  61 01 3e     KW1281 Measurement Supply Voltage (Terminal 30)
+    mov mem_0142, a         ;c2cf  61 01 42     KW1281 Measurement CD Changer
+    mov mem_0143, a         ;c2d2  61 01 43     KW1281 Measurement External Display
+    mov mem_0144, a         ;c2d5  61 01 44     KW1281 Measurement, appears unused
+    mov mem_0141, a         ;c2d8  61 01 41     KW1281 Measurement Antenna Type
     movw mem_0197, a        ;c2db  d4 01 97
     ret                     ;c2de  20
 
@@ -12786,7 +12806,7 @@ mem_c4c9:
 lab_c4dd_fault_antenna:
     movw ix, #mem_0149      ;c4dd  e6 01 49     IX = pointer to KW1281 4-byte buffer for Fault 00856 Radio Antenna
     bbc mem_0091:0, lab_c528 ;c4e0  b0 91 45
-    mov a, mem_0141         ;c4e3  60 01 41
+    mov a, mem_0141         ;c4e3  60 01 41     A = KW1281 Measurement Antenna Type
     cmp a, #0x02            ;c4e6  14 02
     bne lab_c4f2            ;c4e8  fc 08
     movw a, #0x0358         ;c4ea  e4 03 58     KW1281 Fault 00856 Radio Antenna
@@ -12803,21 +12823,21 @@ lab_c4f2:
 sub_c4fe_fault_terminal_30:
     movw ix, #mem_014d      ;c4fe  e6 01 4d     IX = pointer to KW1281 4-byte buffer for Fault 00668 Supply terminal 30
     bbc mem_0091:1, lab_c528 ;c501  b1 91 24
-    movw a, #0x029c         ;c504  e4 02 9c     KW1281 Fault 00668 - Supply Voltage Terminal 30
+    movw a, #0x029c         ;c504  e4 02 9c     KW1281 Fault 00668 Supply Voltage Terminal 30
     movw a, #0x0732         ;c507  e4 07 32
     bne lab_c53c            ;c50a  fc 30        BRANCH_ALWAYS_TAKEN
 
 sub_c50c_fault_amplifier:
     movw ix, #mem_0151      ;c50c  e6 01 51     IX = pointer to KW1281 4-byte buffer for Fault 00850 Radio amplifier
     bbc mem_0091:2, lab_c528 ;c50f  b2 91 16
-    movw a, #0x0352         ;c512  e4 03 52     KW1281 Fault 00850 - Control Output Active: Radio Amplifier
+    movw a, #0x0352         ;c512  e4 03 52     KW1281 Fault 00850 Control Output Active: Radio Amplifier
     movw a, #0x1d32         ;c515  e4 1d 32
     bne lab_c53c            ;c518  fc 22        BRANCH_ALWAYS_TAKEN
 
 sub_c51a_fault_cd_changer:
     movw ix, #mem_0155      ;c51a  e6 01 55     IX = pointer to KW1281 4-byte buffer for Fault 00855 CD changer
     bbc mem_0091:4, lab_c528 ;c51d  b4 91 08
-    movw a, #0x0357         ;c520  e4 03 57     KW1281 Fault 00855 - Connection to CD changer
+    movw a, #0x0357         ;c520  e4 03 57     KW1281 Fault 00855 Connection to CD changer
     movw a, #0x3132         ;c523  e4 31 32
     bne lab_c53c            ;c526  fc 14        BRANCH_ALWAYS_TAKEN
 
@@ -12867,20 +12887,20 @@ sub_c55d_fault_speakers_front:
     mov a, mem_013f         ;c563  60 01 3f
     cmp a, #0x01            ;c566  14 01
     bne lab_c56f            ;c568  fc 05
-    movw a, #0x0354         ;c56a  e4 03 54     KW1281 Fault 00852 - Loudspeaker(s) Front
+    movw a, #0x0354         ;c56a  e4 03 54     KW1281 Fault 00852 Loudspeaker(s) Front
     bne lab_c584            ;c56d  fc 15        BRANCH_ALWAYS_TAKEN
 
 lab_c56f:
-    movw a, #0x0354         ;c56f  e4 03 54     KW1281 Fault 00852 - Loudspeaker(s) Front
+    movw a, #0x0354         ;c56f  e4 03 54     KW1281 Fault 00852 Loudspeaker(s) Front
     bne lab_c58d            ;c572  fc 19        BRANCH_ALWAYS_TAKEN
 
 sub_c574_fault_speakers_rear:
     movw ix, #mem_015d      ;c574  e6 01 5d     IX = Pointer to KW1281 4-byte buffer for Fault 00853 Loudspeaker(s) Rear
     bbc mem_0091:6, lab_c528 ;c577  b6 91 ae
-    mov a, mem_0140         ;c57a  60 01 40
+    mov a, mem_0140         ;c57a  60 01 40     KW1281 Measurement Loudspeaker(s) Rear
     cmp a, #0x01            ;c57d  14 01
     bne lab_c58a            ;c57f  fc 09
-    movw a, #0x0355         ;c581  e4 03 55     KW1281 Fault 00853 - Loudspeaker(s) Rear
+    movw a, #0x0355         ;c581  e4 03 55     KW1281 Fault 00853 Loudspeaker(s) Rear
 
 lab_c584:
     movw a, #0x2432         ;c584  e4 24 32
@@ -12889,7 +12909,7 @@ lab_c587:
     jmp lab_c53c            ;c587  21 c5 3c
 
 lab_c58a:
-    movw a, #0x0355         ;c58a  e4 03 55     KW1281 Fault 00853 - Loudspeaker(s) Rear
+    movw a, #0x0355         ;c58a  e4 03 55     KW1281 Fault 00853 Loudspeaker(s) Rear
 
 lab_c58d:
     movw a, #0x2c32         ;c58d  e4 2c 32
@@ -12898,7 +12918,7 @@ lab_c58d:
 lab_c592_fault_internal_mem:
     movw ix, #mem_0161      ;c592  e6 01 61     IX = Pointer to KW1281 4-byte buffer for Fault 65535 Internal Memory Error
     bbc mem_0091:7, lab_c5a0 ;c595  b7 91 08
-    movw a, #0xffff         ;c598  e4 ff ff     KW1281 Fault 65535 - Internal Control Module Memory Error
+    movw a, #0xffff         ;c598  e4 ff ff     KW1281 Fault 65535 Internal Control Module Memory Error
     movw a, #0x0032         ;c59b  e4 00 32
     bne lab_c587            ;c59e  fc e7        BRANCH_ALWAYS_TAKEN
 
@@ -12911,8 +12931,8 @@ lab_c5a0:
     bne lab_c5c4            ;c5ac  fc 16
 
 lab_c5ae:
-    call sub_c1a7           ;c5ae  31 c1 a7
-    movw a, #0xffff         ;c5b1  e4 ff ff
+    call sub_c1a7           ;c5ae  31 c1 a7     Clear mem_016d - mem-0170
+    movw a, #0xffff         ;c5b1  e4 ff ff     KW1281 Fault 65535 Internal Control Module Memory Error
     movw a, #0x8800         ;c5b4  e4 88 00
     jmp lab_c53c            ;c5b7  21 c5 3c
 
@@ -19725,7 +19745,7 @@ sub_e81b:
     mov mem_00e8, a         ;e82b  45 e8
 
     mov a, mem_0230+2       ;e82d  60 02 32     Sub-to-Main RX Buffer Byte 2
-    mov mem_0255, a         ;e830  61 02 55
+    mov mem_0255, a         ;e830  61 02 55     A = KW1281 Measurement Illumination % (Terminal 5d)
 
     mov a, mem_0230+3       ;e833  60 02 33     Sub-to-Main RX Buffer Byte 3
     mov mem_03b5, a         ;e836  61 03 b5
