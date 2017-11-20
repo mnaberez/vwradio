@@ -8258,9 +8258,13 @@ lab_ad02:
 
 sub_ad15:
 ;KW1281 block title request dispatch
+;
+;Read block title from RX buffer, call a handler routine for it,
+;return a value in A that will eventually be stored in mem_0080.
+;
     movw ix, #mem_ad1f      ;ad15  e6 ad 1f
     mov a, mem_0118+2       ;ad18  60 01 1a     KW1281 RX Buffer byte 2: Block title
-    call sub_e757           ;ad1b  31 e7 57
+    call sub_e757           ;ad1b  31 e7 57     Find A in table, set T from table, then jump to address in table
     ret                     ;ad1e  20
 
 mem_ad1f:
@@ -8283,83 +8287,83 @@ mem_ad1f:
 ;0x10        0xF0            Read or write SAFE code word
 ;
     ;ID code request/ECU Info
-    .byte 0x00              ;ad1f  00          DATA '\x00'  Block title 0x00
-    .byte 0x01              ;ad20  01          DATA '\x01'  mem_0080 = 0x01
+    .byte 0x00              ;A = Block title 0x00
+    .byte 0x01              ;T = 0x01 (eventually stored in mem_0080)
     .word lab_ad9f
 
     ;Protected: Read RAM
-    .byte 0x01              ;ad23  01          DATA '\x01'  Block title 0x01
-    .byte 0x0A              ;ad24  0a          DATA '\n'    mem_0080 = 0x0a
+    .byte 0x01              ;A = Block title 0x01
+    .byte 0x0A              ;T = 0x0a (eventually stored in mem_0080)
     .word lab_ada4
 
     ;Protected: Read ROM
-    .byte 0x03              ;ad27  03          DATA '\x03'  Block title 0x03
-    .byte 0x0B              ;ad28  0b          DATA '\x0b'  mem_0080 = 0x0b
+    .byte 0x03              ;A = Block title 0x03
+    .byte 0x0B              ;T = 0x0b (eventually stored in mem_0080)
     .word lab_ada4
 
     ;Actuator/Output Tests
-    .byte 0x04              ;ad2b  04          DATA '\x04'  Block title 0x04
-    .byte 0x06              ;ad2c  06          DATA '\x06'  mem_0080 = 0x06
+    .byte 0x04              ;A = Block title 0x04
+    .byte 0x06              ;T = 0x06 (eventually stored in mem_0080)
     .word lab_ad82
 
     ;Clear Faults
-    .byte 0x05              ;ad2f  05          DATA '\x05'  Block title 0x05
-    .byte 0x05              ;ad30  05          DATA '\x05'  mem_0080 = 0x05
+    .byte 0x05              ;A = Block title 0x05
+    .byte 0x05              ;T = 0x05 (eventually stored in mem_0080)
     .word lab_ad9f
 
     ;End Session
-    .byte 0x06              ;ad33  06          DATA '\x06'  Block title 0x06
-    .byte 0x0F              ;ad34  0f          DATA '\x0f'  mem_0080 = 0x0f
+    .byte 0x06              ;A = Block title 0x06
+    .byte 0x0F              ;T = 0x0f (eventually stored in mem_0080)
     .word lab_ad9f
 
     ;Read Faults
-    .byte 0x07              ;ad37  07          DATA '\x07'  Block title 0x07
-    .byte 0x04              ;ad38  04          DATA '\x04'  mem_0080 = 0x04
+    .byte 0x07              ;A = Block title 0x07
+    .byte 0x04              ;T = 0x04 (eventually stored in mem_0080)
     .word lab_ad9f
 
     ;Acknowledge
-    .byte 0x09              ;ad3b  09          DATA '\t'    Block title 0x09
-    .byte 0x03              ;ad3c  03          DATA '\x03'  mem_0080 = 0x03
+    .byte 0x09              ;A = Block title 0x09
+    .byte 0x03              ;T = 0x03 (eventually stored in mem_0080)
     .word lab_ad5e
 
     ;Recoding
-    .byte 0x10              ;ad3f  10          DATA '\x10'  Block title 0x10
-    .byte 0x08              ;ad40  08          DATA '\x08'  mem_0080 = 0x03
+    .byte 0x10              ;A = Block title 0x10
+    .byte 0x08              ;T = 0x03 (eventually stored in mem_0080)
     .word lab_ad9f
 
     ;Protected: Read EEPROM
-    .byte 0x19              ;ad43  19          DATA '\x19'  Block title 0x19
-    .byte 0x0C              ;ad44  0c          DATA '\x0c'  mem_0080 = 0x0c
+    .byte 0x19              ;A = Block title 0x19
+    .byte 0x0C              ;T = 0x0c (eventually stored in mem_0080)
     .word lab_ada4
 
     ;Group Reading
-    .byte 0x29              ;ad47  29          DATA ')'     Block title 0x29
-    .byte 0x07              ;ad48  07          DATA '\x07'  mem_0080 = 0x07
+    .byte 0x29              ;A = Block title 0x29
+    .byte 0x07              ;T = 0x07 (eventually stored in mem_0080)
     .word lab_ad8b
 
     ;Login
-    .byte 0x2B              ;ad4b  2b          DATA '+'     Block title 0x2b
-    .byte 0x09              ;ad4c  09          DATA '\t'    mem_0080 = 0x09
+    .byte 0x2B              ;A = Block title 0x2b
+    .byte 0x09              ;T = 0x09 (eventually stored in mem_0080)
     .word lab_ad9f
 
     ;No Acknowledge
-    .byte 0x0A              ;ad4f  0a          DATA '\n'    Block title 0x0a
-    .byte 0x0D              ;ad50  0d          DATA '\r'    mem_0080 = 0x0d
+    .byte 0x0A              ;A = Block title 0x0a
+    .byte 0x0D              ;T = 0x0d (eventually stored in mem_0080)
     .word lab_ad9f
 
     ;Read or write SAFE code word
-    .byte 0xF0              ;ad53  f0          DATA '\xf0'  Block title 0x0f
-    .byte 0x10              ;ad54  10          DATA '\x10'  mem_0080 = 0x10
+    .byte 0xF0              ;A = Block title 0x0f
+    .byte 0x10              ;T = 0x10 (eventually stored in mem_0080)
     .word lab_ad9f
 
-    ;End of table (Not a block title)
-    .byte 0xFF              ;ad57  ff          DATA '\xff'  0xFF = End of table marker
-    .byte 0x0E              ;ad58  0e          DATA '\x0e'  mem_0080 = 0x0E
+    ;End of table (Unrecognized block title)
+    .byte 0xFF              ;0xFF = End of table marker
+    .byte 0x0E              ;T = 0x0E (eventually stored in mem_0080)
     .word lab_ad5b
 
 lab_ad5b:
 ;Table mem_ad1f case for end of table
-    mov a, #0x0e            ;ad5b  04 0e
+    mov a, #0x0e            ;ad5b  04 0e    A = value to store in mem_0080 (Unrecognized block title)
     ret                     ;ad5d  20
 
 lab_ad5e:
@@ -8383,16 +8387,16 @@ lab_ad69:
     setb mem_008e:1         ;ad7d  a9 8e
 
 lab_ad7f:
-    mov a, #0x03            ;ad7f  04 03
+    mov a, #0x03            ;ad7f  04 03        A = value to store in mem_0080 (Acknowledge)
     ret                     ;ad81  20
 
 lab_ad82:
 ;Table mem_ad1f case for:
 ;  Block title 0x04: Actuator/Output Tests
-    xchw a, t               ;ad82  43
+    xchw a, t                ;ad82  43          A<->T so A contains value to store in mem_0080
     bbc mem_008c:1, lab_ad8a ;ad83  b1 8c 04
-    clrb mem_008c:1         ;ad86  a1 8c
-    mov a, #0x03            ;ad88  04 03
+    clrb mem_008c:1          ;ad86  a1 8c
+    mov a, #0x03             ;ad88  04 03       A = value to store in mem_0080 (Acknowledge)
 
 lab_ad8a:
     ret                     ;ad8a  20
@@ -8400,7 +8404,7 @@ lab_ad8a:
 lab_ad8b:
 ;Table mem_ad1f case for:
 ;  Block title 0x29: Group Reading
-    xchw a, t               ;ad8b  43
+    xchw a, t               ;ad8b  43           A<->T so A contains value to store in mem_0080
     pushw a                 ;ad8c  40
     mov a, mem_0118+3       ;ad8d  60 01 1b     KW1281 RX Buffer byte 3: Group number
     cmp a, #0x02            ;ad90  14 02
@@ -8427,11 +8431,11 @@ lab_ad9f:
 ;  Block title 0x0a: No Acknowledge
 ;  Block title 0xf0: Read or write SAFE code word
 ;
-    xchw a, t               ;ad9f  43
+    xchw a, t               ;ad9f  43           A<->T so A contains value to store in mem_0080
     ret                     ;ada0  20
 
 lab_ada1:
-    mov a, #0x0e            ;ada1  04 0e        0x0E = mem_0080 value for No Acknowledge
+    mov a, #0x0e            ;ada1  04 0e        A = value to store in mem_0080 (No Acknowledge)
     ret                     ;ada3  20
 
 lab_ada4:
@@ -8443,7 +8447,7 @@ lab_ada4:
 ;
     bbc mem_008c:3, lab_ada1 ;ada4  b3 8c fa    Bit is set after Group Reading of Group 25 (0x19)
     bbc mem_00e4:6, lab_ada1 ;ada7  b6 e4 f7    Bit is set after successful KW1281 Login
-    xchw a, t                ;adaa  43
+    xchw a, t                ;adaa  43          A<->T so A contains value to store in mem_0080
     ret                      ;adab  20
 
 sub_adac:
@@ -19664,21 +19668,32 @@ lab_e754:
 
 
 sub_e757:
-    mov a, @ix+0x00         ;e757  06 00
+;Find A in table, set T from table, then jump to address in table
+;
+;IX = pointer to table
+;A = value to find
+;
+    mov a, @ix+0x00         ;e757  06 00        A = value from table
+
     cmp a, #0xff            ;e759  14 ff
-    beq lab_e767            ;e75b  fd 0a
+    beq lab_e767            ;e75b  fd 0a        Branch if end of table
+
     cmp a                   ;e75d  12
-    beq lab_e767            ;e75e  fd 07
-    incw ix                 ;e760  c2
-    incw ix                 ;e761  c2
-    incw ix                 ;e762  c2
-    incw ix                 ;e763  c2
-    xchw a, t               ;e764  43
+    beq lab_e767            ;e75e  fd 07        Branch if match
+
+    ;Increment to next entry in table
+    incw ix                 ;e760  c2           Skip value to compare with A
+    incw ix                 ;e761  c2           Skip value to return in T
+    incw ix                 ;e762  c2           Skip memory address high byte
+    incw ix                 ;e763  c2           Skip memory address low byte
+
+    xchw a, t               ;e764  43           A<->T so A contains value to find again
     bne sub_e757            ;e765  fc f0        BRANCH_ALWAYS_TAKEN
+
 lab_e767:
-    mov a, @ix+0x01         ;e767  06 01
-    movw a, @ix+0x02        ;e769  c6 02
-    jmp @a                  ;e76b  e0
+    mov a, @ix+0x01         ;e767  06 01        A = value to return in T
+    movw a, @ix+0x02        ;e769  c6 02        A = memory address
+    jmp @a                  ;e76b  e0           Jump to address
 
 
 sub_e76c:
