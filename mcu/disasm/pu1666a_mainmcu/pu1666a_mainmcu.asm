@@ -1602,8 +1602,8 @@ lab_867a:
 
 lab_8682:
     mov a, mem_00ae         ;8682  05 ae
-    call sub_e76c           ;8684  31 e7 6c
-    bnc lab_8666            ;8687  f8 dd       branch if not found in table
+    call sub_e76c           ;8684  31 e7 6c     Check for A in a table; setc if found, else clrc
+    bnc lab_8666            ;8687  f8 dd        Branch if not found in table
 
 lab_8689:
     jmp lab_86e5            ;8689  21 86 e5
@@ -1688,7 +1688,7 @@ lab_86d4:
     bne lab_86e5            ;86d7  fc 0c
     movw ix, #mem_8737      ;86d9  e6 87 37
     mov a, mem_00ae         ;86dc  05 ae
-    call sub_e746           ;86de  31 e7 46
+    call sub_e746           ;86de  31 e7 46     Change A to another byte using a table of pairs
     beq lab_86e5            ;86e1  fd 02
 
 lab_86e3:
@@ -2560,7 +2560,7 @@ lab_8b64:
 lab_8b78:
     movw ix, #mem_868f      ;8b78  e6 86 8f
     mov a, mem_00ae         ;8b7b  05 ae
-    call sub_e76c           ;8b7d  31 e7 6c
+    call sub_e76c           ;8b7d  31 e7 6c     Check for A in a table; setc if found, else clrc
     bnc lab_8b98            ;8b80  f8 16        Branch if not found in table
 
 lab_8b82:
@@ -2592,7 +2592,7 @@ lab_8ba2:
     mov mem_00c1, #0x00     ;8ba5  85 c1 00
     movw ix, #mem_8bd0      ;8ba8  e6 8b d0
     mov a, mem_00ae         ;8bab  05 ae
-    call sub_e746           ;8bad  31 e7 46
+    call sub_e746           ;8bad  31 e7 46     Change A to another byte using a table of pairs
     beq lab_8bcf            ;8bb0  fd 1d
     mov mem_00c8, a         ;8bb2  45 c8
     mov mem_02fe, a         ;8bb4  61 02 fe
@@ -2602,10 +2602,13 @@ lab_8ba2:
     ret                     ;8bc0  20
 
 lab_8bc1:
-    movw ix, #mem_8bd0      ;8bc1  e6 8b d0
-    mov a, mem_00ae         ;8bc4  05 ae
-    call sub_e746           ;8bc6  31 e7 46
-    beq lab_8bcf            ;8bc9  fd 04
+    movw ix, #mem_8bd0      ;8bc1  e6 8b d0     IX = pointer to PRESET_x lookup table
+    mov a, mem_00ae         ;8bc4  05 ae        A = key code
+    call sub_e746           ;8bc6  31 e7 46     Change A to another byte using a table of pairs
+                            ;                   (Convert PRESET_x key code into number 1-6)
+    beq lab_8bcf            ;8bc9  fd 04        Branch if not a preset key
+
+    ;Preset key was pressed, A contains a number 1-6
     mov mem_01c6, a         ;8bcb  61 01 c6
 
 lab_8bce:
@@ -2615,27 +2618,28 @@ lab_8bcf:
     ret                     ;8bcf  20
 
 mem_8bd0:
+;Lookup table to convert PRESET_x key code into a number 1-6
 ;table of byte pairs used with sub_e746
-    .byte 0x00              ;8bd0  00          DATA '\x00'
-    .byte 0x06              ;8bd1  06          DATA '\x06'
+    .byte 0x00              ;8bd0  00          DATA '\x00'      PRESET_6
+    .byte 0x06              ;8bd1  06          DATA '\x06'      6
 
-    .byte 0x01              ;8bd2  01          DATA '\x01'
-    .byte 0x05              ;8bd3  05          DATA '\x05'
+    .byte 0x01              ;8bd2  01          DATA '\x01'      PRESET_5
+    .byte 0x05              ;8bd3  05          DATA '\x05'      5
 
-    .byte 0x02              ;8bd4  02          DATA '\x02'
-    .byte 0x04              ;8bd5  04          DATA '\x04'
+    .byte 0x02              ;8bd4  02          DATA '\x02'      PRESET_4
+    .byte 0x04              ;8bd5  04          DATA '\x04'      4
 
-    .byte 0x04              ;8bd6  04          DATA '\x04'
-    .byte 0x03              ;8bd7  03          DATA '\x03'
+    .byte 0x04              ;8bd6  04          DATA '\x04'      PRESET_3
+    .byte 0x03              ;8bd7  03          DATA '\x03'      3
 
-    .byte 0x05              ;8bd8  05          DATA '\x05'
-    .byte 0x02              ;8bd9  02          DATA '\x02'
+    .byte 0x05              ;8bd8  05          DATA '\x05'      PRESET_2
+    .byte 0x02              ;8bd9  02          DATA '\x02'      2
 
-    .byte 0x06              ;8bda  06          DATA '\x06'
-    .byte 0x01              ;8bdb  01          DATA '\x01'
+    .byte 0x06              ;8bda  06          DATA '\x06'      PRESET_1
+    .byte 0x01              ;8bdb  01          DATA '\x01'      1
 
-    .byte 0xFF              ;8bdc  ff          DATA '\xff'
-    .byte 0x00              ;8bdd  00          DATA '\x00'
+    .byte 0xFF              ;8bdc  ff          DATA '\xff'      End of table
+    .byte 0x00              ;8bdd  00          DATA '\x00'      0
 
 lab_8bde:
 ;mem_fe42 table case for presets 1-6
@@ -3141,7 +3145,7 @@ sub_8e83:
 ;TODO comment callers of this subroutine
     movw ix, #mem_8e8c      ;8e83  e6 8e 8c
     mov a, mem_0369         ;8e86  60 03 69
-    jmp sub_e76c            ;8e89  21 e7 6c
+    jmp sub_e76c            ;8e89  21 e7 6c     Check for A in a table; setc if found, else clrc
 
 mem_8e8c:
 ;Lookup table used with sub_e76c
@@ -13382,7 +13386,7 @@ lab_c7b8:
     pushw ix                ;c7b8  41
     movw ix, #mem_c813      ;c7b9  e6 c8 13
     mov a, mem_00f6         ;c7bc  05 f6
-    call sub_e746           ;c7be  31 e7 46
+    call sub_e746           ;c7be  31 e7 46     Change A to another byte using a table of pairs
     popw ix                 ;c7c1  51
     beq lab_c7c6            ;c7c2  fd 02        Branch if mem_00f6 value not found in table
 
@@ -17357,7 +17361,7 @@ sub_daba:
     bbs mem_00e3:7, lab_dacb ;dabc  bf e3 0c
     movw ix, #mem_dacc      ;dabf  e6 da cc
     mov a, mem_0096         ;dac2  05 96
-    call sub_e76c           ;dac4  31 e7 6c
+    call sub_e76c           ;dac4  31 e7 6c     Check for A in a table; setc if found, else clrc
     bc lab_dacb             ;dac7  f9 02        Branch if found in table
     setb mem_00e9:7         ;dac9  af e9
 
@@ -19639,6 +19643,12 @@ sub_e73c:
 
 
 sub_e746:
+;Change A to another byte using a table of pairs
+;Entry of 0xFF indicates end of table
+;
+;IX = pointer to table
+;A = byte to change (will be overwritten)
+;
     mov a, @ix+0x00         ;e746  06 00
     cmp a, #0xff            ;e748  14 ff
     beq lab_e754            ;e74a  fd 08
@@ -19672,19 +19682,31 @@ lab_e767:
 
 
 sub_e76c:
-    mov a, @ix+0x00         ;e76c  06 00
+;Check for A in a table; setc if found, else clrc
+;Entry of 0xFF indicates end of table
+;
+;IX = pointer to table
+;A = byte to find
+;
+    mov a, @ix+0x00         ;e76c  06 00        A = value from table
+
     cmp a, #0xff            ;e76e  14 ff
-    beq lab_e779            ;e770  fd 07
+    beq lab_e779            ;e770  fd 07        Branch if end of table
+
     cmp a                   ;e772  12
-    beq lab_e77b            ;e773  fd 06
-    incw ix                 ;e775  c2
-    xchw a, t               ;e776  43
+    beq lab_e77b            ;e773  fd 06        Branch if match
+
+    incw ix                 ;e775  c2           Move to next value in table
+    xchw a, t               ;e776  43           A<->T so A contains value to find again
     bne sub_e76c            ;e777  fc f3        BRANCH_ALWAYS_TAKEN
+
 lab_e779:
+;Not found in table
     clrc                    ;e779  81
     ret                     ;e77a  20
 
 lab_e77b:
+;Found in table
     setc                    ;e77b  91
     ret                     ;e77c  20
 
