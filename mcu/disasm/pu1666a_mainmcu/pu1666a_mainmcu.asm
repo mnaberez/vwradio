@@ -23807,28 +23807,28 @@ mem_fe42:
     .word lab_8c76          ;fe82  8c 76       VECTOR   0x20 no key?
 
 mem_fe84:
-    .word 0x01a6
-    .word 0x01a7
-    .word 0x01a8
-    .word 0x01a9
-    .word 0x01aa
-    .word 0x01ab
+    .word mem_01a6
+    .word mem_01a7
+    .word mem_01a8
+    .word mem_01a9
+    .word mem_01aa
+    .word mem_01ab
 
 mem_fe90:
-    .word 0x01ad
-    .word 0x01ae
-    .word 0x01af
-    .word 0x01b0
-    .word 0x01b1
-    .word 0x01b2
+    .word mem_01ad
+    .word mem_01ae
+    .word mem_01af
+    .word mem_01b0
+    .word mem_01b1
+    .word mem_01b2
 
 mem_fe9c:
-    .word 0x01b4
-    .word 0x01b5
-    .word 0x01b6
-    .word 0x01b7
-    .word 0x01b8
-    .word 0x01b9
+    .word mem_01b4
+    .word mem_01b5
+    .word mem_01b6
+    .word mem_01b7
+    .word mem_01b8
+    .word mem_01b9
 
 mem_fea8:
     .byte 0x00              ;fea8  00          DATA '\x00'
