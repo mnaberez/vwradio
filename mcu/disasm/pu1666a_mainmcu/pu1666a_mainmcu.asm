@@ -1006,10 +1006,10 @@ lab_8256:
 
 lab_825f:
     bbc mem_0097:1, lab_826d ;825f  b1 97 0b
-    call sub_c9e3           ;8262  31 c9 e3
+    call sub_c9e3            ;8262  31 c9 e3    Dispatch mem_0274
     bbc mem_00c0:7, lab_826d ;8265  b7 c0 05
-    call sub_cb09           ;8268  31 cb 09
-    clrb mem_00c0:7         ;826b  a7 c0
+    call sub_cb09            ;8268  31 cb 09
+    clrb mem_00c0:7          ;826b  a7 c0
 
 lab_826d:
     ret                     ;826d  20
@@ -13842,14 +13842,16 @@ sub_c9e3:
     jmp sub_e73c            ;c9e9  21 e7 3c     Jump to address in table
 
 mem_c9ec:
-    .word lab_ca2c          ;c9ec  ca 2c       VECTOR
-    .word lab_c9f8          ;c9ee  c9 f8       VECTOR
-    .word lab_ca1d          ;c9f0  ca 1d       VECTOR
-    .word lab_ca2d          ;c9f2  ca 2d       VECTOR
-    .word lab_cab5          ;c9f4  ca b5       VECTOR
-    .word lab_cb01          ;c9f6  cb 01       VECTOR
+;Table used with mem_0274
+    .word lab_ca2c          ;c9ec  ca 2c       VECTOR   0
+    .word lab_c9f8          ;c9ee  c9 f8       VECTOR   1
+    .word lab_ca1d          ;c9f0  ca 1d       VECTOR   2
+    .word lab_ca2d          ;c9f2  ca 2d       VECTOR   3
+    .word lab_cab5          ;c9f4  ca b5       VECTOR   4
+    .word lab_cb01          ;c9f6  cb 01       VECTOR   5
 
 lab_c9f8:
+;(mem_0274=1)
     movw a, #0x0000         ;c9f8  e4 00 00
     mov a, mem_026c         ;c9fb  60 02 6c
     clrc                    ;c9fe  81
@@ -13874,6 +13876,7 @@ lab_c9f8:
     mov mem_0270, a         ;ca1a  61 02 70
 
 lab_ca1d:
+;(mem_0274=2)
     mov a, #0x04            ;ca1d  04 04
     bbc mem_00c0:1, lab_ca24 ;ca1f  b1 c0 02
     mov a, #0x03            ;ca22  04 03
@@ -13884,26 +13887,29 @@ lab_ca24:
     mov mem_0273, a         ;ca29  61 02 73
 
 lab_ca2c:
-;mem_cb16 table case 0
+;(mem_0274=0)
 ;also
-;mem_c9ec table case 0
+;(mem_0274=0)
     ret                     ;ca2c  20
 
 lab_ca2d:
+;(mem_0274=3)
     mov a, mem_0273         ;ca2d  60 02 73     A = table index
     mov a, mem_0273         ;ca30  60 02 73     A = table index again (XXX useless)
     movw a, #mem_ca39       ;ca33  e4 ca 39     A = table base address
     jmp sub_e73c            ;ca36  21 e7 3c     Jump to address in table
 
 mem_ca39:
-    .word lab_ca2c          ;ca39  ca 2c       VECTOR
-    .word lab_ca45          ;ca3b  ca 45       VECTOR
-    .word lab_ca50          ;ca3d  ca 50       VECTOR
-    .word lab_ca70          ;ca3f  ca 70       VECTOR
-    .word lab_ca9c          ;ca41  ca 9c       VECTOR
-    .word lab_caa7          ;ca43  ca a7       VECTOR
+;Table used with mem_0273
+    .word lab_ca2c          ;ca39  ca 2c       VECTOR 0
+    .word lab_ca45          ;ca3b  ca 45       VECTOR 1
+    .word lab_ca50          ;ca3d  ca 50       VECTOR 2
+    .word lab_ca70          ;ca3f  ca 70       VECTOR 3
+    .word lab_ca9c          ;ca41  ca 9c       VECTOR 4
+    .word lab_caa7          ;ca43  ca a7       VECTOR 5
 
 lab_ca45:
+;(mem_0273=1)
     mov a, #0x03            ;ca45  04 03
     mov mem_0272, a         ;ca47  61 02 72
     setb mem_00c0:7         ;ca4a  af c0
@@ -13911,6 +13917,7 @@ lab_ca45:
     bne lab_cab1            ;ca4e  fc 61        BRANCH_ALWAYS_TAKEN
 
 lab_ca50:
+;(mem_0273=2)
     bbs mem_00c0:7, lab_cab4 ;ca50  bf c0 61
     bbc mem_00c0:2, lab_ca5c ;ca53  b2 c0 06
     clrb mem_00c0:2         ;ca56  a2 c0
@@ -13931,6 +13938,7 @@ lab_ca65:
     bne lab_cab1            ;ca6e  fc 41        BRANCH_ALWAYS_TAKEN
 
 lab_ca70:
+;(mem_0273=3)
     bbs mem_00c0:7, lab_cab4 ;ca70  bf c0 41
     bbs mem_00c0:0, lab_ca79 ;ca73  b8 c0 03
     bbc pdr0:0, lab_cab4     ;ca76  b0 00 3b    EEPROM_DI
@@ -13958,6 +13966,7 @@ lab_ca8a:
     bne lab_cab1            ;ca9a  fc 15        BRANCH_ALWAYS_TAKEN
 
 lab_ca9c:
+;(mem_0273=4)
     mov a, #0x04            ;ca9c  04 04
     mov mem_0272, a         ;ca9e  61 02 72
     setb mem_00c0:7         ;caa1  af c0
@@ -13965,6 +13974,7 @@ lab_ca9c:
     bne lab_cab1            ;caa5  fc 0a        BRANCH_ALWAYS_TAKEN
 
 lab_caa7:
+;(mem_0273=5)
     bbs mem_00c0:7, lab_cab4 ;caa7  bf c0 0a
     mov a, #0x05            ;caaa  04 05
     mov mem_0274, a         ;caac  61 02 74
@@ -13977,6 +13987,7 @@ lab_cab4:
     ret                     ;cab4  20
 
 lab_cab5:
+;(mem_0274=4)
     mov a, mem_0273         ;cab5  60 02 73
     cmp a, #0x01            ;cab8  14 01
     beq lab_cac1            ;caba  fd 05
@@ -14024,6 +14035,7 @@ lab_caed:
     ret                     ;cb00  20
 
 lab_cb01:
+;(mem_0274=5)
     mov a, #0x00            ;cb01  04 00
     mov mem_0274, a         ;cb03  61 02 74
     clrb mem_0097:1         ;cb06  a1 97
