@@ -908,15 +908,15 @@ lab_81d5:
     bne lab_81f6            ;81d8  fc 1c
 
 lab_81da:
-    cmp mem_0096, #0x0b     ;81da  95 96 0b
+    cmp mem_0096, #0x0b     ;81da  95 96 0b     SOUND_BAL menu?
     beq lab_81f6            ;81dd  fd 17
-    cmp mem_0096, #0x0a     ;81df  95 96 0a
+    cmp mem_0096, #0x0a     ;81df  95 96 0a     SCAN menu?
     bne lab_81e7            ;81e2  fc 03
     bbc mem_008c:7, lab_81f6 ;81e4  b7 8c 0f
 
 lab_81e7:
     call sub_c5d2           ;81e7  31 c5 d2
-    mov a, mem_02b6+1       ;81ea  60 02 b7 A = Main-to-Sub work buffer #2 byte 1 (Display Number)
+    mov a, mem_02b6+1       ;81ea  60 02 b7     A = Main-to-Sub work buffer #2 byte 1 (Display Number)
     bne lab_81f1            ;81ed  fc 02
     clrb mem_0097:2         ;81ef  a2 97
 
@@ -1355,7 +1355,7 @@ lab_8511:
 
 sub_8512:
     mov a, mem_0096         ;8512  05 96
-    cmp mem_0096, #0x05     ;8514  95 96 05
+    cmp mem_0096, #0x05     ;8514  95 96 05     INITIAL mode?
     bne lab_8527            ;8517  fc 0e
     mov a, mem_00cd         ;8519  05 cd
     cmp a, #0x01            ;851b  14 01
@@ -1587,7 +1587,7 @@ lab_8666:
     ret                     ;8669  20
 
 lab_866a:
-    cmp mem_0096, #0x02     ;866a  95 96 02
+    cmp mem_0096, #0x02     ;866a  95 96 02     TAPE_SIDE mode?
     bne lab_867a            ;866d  fc 0b
     mov a, mem_00ae         ;866f  05 ae
     cmp a, #0x12            ;8671  14 12        0x12 = TAPE_SIDE key
@@ -1645,7 +1645,7 @@ mem_869e:
     .byte 0xFF              ;86a1  ff          DATA '\xff'
 
 lab_86a2:
-    cmp mem_0096, #0x0a     ;86a2  95 96 0a
+    cmp mem_0096, #0x0a     ;86a2  95 96 0a     SCAN menu?
     bne lab_86b3            ;86a5  fc 0c
     movw ix, #mem_86ac      ;86a7  e6 86 ac
     beq lab_8682            ;86aa  fd d6        BRANCH_ALWAYS_TAKEN
@@ -1785,11 +1785,11 @@ lab_8749:
     bne lab_87ad            ;874c  fc 5f
     mov a, mem_02cc         ;874e  60 02 cc
     bne lab_87ad            ;8751  fc 5a
-    cmp mem_0096, #0x0b     ;8753  95 96 0b
+    cmp mem_0096, #0x0b     ;8753  95 96 0b     SOUND_BAL menu?
     beq lab_87ad            ;8756  fd 55
     call sub_87c5           ;8758  31 87 c5
     bhs lab_8736            ;875b  f8 d9
-    callv #4                ;875d  ec          CALLV #4 = callv4_8c84
+    callv #4                ;875d  ec           CALLV #4 = callv4_8c84
     setb mem_00af:2         ;875e  aa af
     mov a, mem_0095         ;8760  05 95
     beq lab_876d            ;8762  fd 09
@@ -1887,12 +1887,12 @@ lab_87d8:
     bne lab_881f            ;87e0  fc 3d
     call sub_87c5           ;87e2  31 87 c5
     bhs lab_881f            ;87e5  f8 38
-    cmp mem_0096, #0x0b     ;87e7  95 96 0b
+    cmp mem_0096, #0x0b     ;87e7  95 96 0b     SOUND_BAL menu?
     bne lab_87ed            ;87ea  fc 01
     ret                     ;87ec  20
 
 lab_87ed:
-    callv #4                ;87ed  ec          CALLV #4 = callv4_8c84
+    callv #4                ;87ed  ec           CALLV #4 = callv4_8c84
     setb mem_00af:2         ;87ee  aa af
     mov a, mem_0095         ;87f0  05 95
     beq lab_87fd            ;87f2  fd 09
@@ -1931,13 +1931,13 @@ lab_8820:
 ;mem_fe00 table case for cd
     call sub_87c5           ;8820  31 87 c5
     bhs lab_8841            ;8823  f8 1c
-    cmp mem_0096, #0x0b     ;8825  95 96 0b
+    cmp mem_0096, #0x0b     ;8825  95 96 0b     SOUND_BAL menu?
     bne lab_882d            ;8828  fc 03
     setb mem_00d9:2         ;882a  aa d9
     ret                     ;882c  20
 
 lab_882d:
-    callv #4                ;882d  ec          CALLV #4 = callv4_8c84
+    callv #4                ;882d  ec           CALLV #4 = callv4_8c84
     setb mem_00af:2         ;882e  aa af
     mov a, mem_0095         ;8830  05 95
     beq lab_883e            ;8832  fd 0a
@@ -1987,7 +1987,7 @@ lab_8861:
     mov a, mem_0321         ;8868  60 03 21
     and a                   ;886b  62
     bne lab_88b6            ;886c  fc 48
-    cmp mem_0096, #0x0b     ;886e  95 96 0b
+    cmp mem_0096, #0x0b     ;886e  95 96 0b     SOUND_BAL menu?
     bne lab_8876            ;8871  fc 03
     setb mem_00d9:5         ;8873  ad d9
     ret                     ;8875  20
@@ -2042,7 +2042,7 @@ sub_88bd:
 
 lab_88c0:
     mov a, mem_0096         ;88c0  05 96
-    cmp a, #0x0a            ;88c2  14 0a
+    cmp a, #0x0a            ;88c2  14 0a        SCAN menu?
     bne lab_88cf            ;88c4  fc 09
     bbc mem_009e:0, lab_88cc ;88c6  b0 9e 03
     setb mem_00d9:0         ;88c9  a8 d9
@@ -2139,7 +2139,7 @@ sub_8936:
 sub_893c:
 ;mem_fe42 table case for SEEK_UP, SEEK_DOWN
     mov a, mem_0096         ;893c  05 96
-    cmp a, #0x0b            ;893e  14 0b
+    cmp a, #0x0b            ;893e  14 0b        SOUND_BAL menu?
     bne lab_8945            ;8940  fc 03
     clrb mem_00af:5         ;8942  a5 af
     ret                     ;8944  20
@@ -2169,15 +2169,15 @@ sub_895a:
     ret                     ;8962  20
 
 lab_8963:
-    callv #4                ;8963  ec          CALLV #4 = callv4_8c84
+    callv #4                ;8963  ec           CALLV #4 = callv4_8c84
     setb mem_00d8:2         ;8964  aa d8
     mov mem_009e, #0x01     ;8966  85 9e 01
 
 lab_8969:
     mov a, mem_0096         ;8969  05 96
-    cmp a, #0x0a            ;896b  14 0a
+    cmp a, #0x0a            ;896b  14 0a        SCAN menu?
     beq lab_8973            ;896d  fd 04
-    cmp a, #0x0b            ;896f  14 0b
+    cmp a, #0x0b            ;896f  14 0b        SOUND_BAL menu?
     bne lab_8974            ;8971  fc 01
 
 lab_8973:
@@ -2248,9 +2248,9 @@ sub_89c3:
 sub_89cc:
 ;mem_fe42 table case for TUNE_UP, TUNE_DOWN
     mov a, mem_0096         ;89cc  05 96
-    cmp a, #0x0b            ;89ce  14 0b
+    cmp a, #0x0b            ;89ce  14 0b        SOUND_BAL menu?
     beq lab_89e8            ;89d0  fd 16
-    cmp a, #0x0a            ;89d2  14 0a
+    cmp a, #0x0a            ;89d2  14 0a        SCAN menu?
     beq lab_89e8            ;89d4  fd 12
     mov a, mem_0095         ;89d6  05 95
     bne lab_89e8            ;89d8  fc 0e
@@ -2271,6 +2271,7 @@ lab_89e9:
     bbc mem_00de:7, lab_89fa ;89ec  b7 de 0b
     bbs mem_00de:6, lab_89fa ;89ef  be de 08
     setb mem_00ca:7         ;89f2  af ca
+
     mov a, mem_00ae         ;89f4  05 ae
     mov mem_0205, a         ;89f6  61 02 05
     ret                     ;89f9  20
@@ -2280,6 +2281,7 @@ lab_89fa:
     mov a, mem_00d2         ;89fd  05 d2
     beq lab_8a09            ;89ff  fd 08
     setb mem_00ca:7         ;8a01  af ca
+
     mov a, #0x30            ;8a03  04 30
     mov mem_0205, a         ;8a05  61 02 05
     ret                     ;8a08  20
@@ -2346,7 +2348,7 @@ lab_8a5f:
 ;mem_fe00 table case for MIX_DOLBY
     cmp mem_0095, #0x02     ;8a5f  95 95 02
     bne lab_8a6a            ;8a62  fc 06
-    callv #4                ;8a64  ec          CALLV #4 = callv4_8c84
+    callv #4                ;8a64  ec           CALLV #4 = callv4_8c84
     mov a, #0x09            ;8a65  04 09
     mov mem_01c6, a         ;8a67  61 01 c6
 
@@ -2359,13 +2361,13 @@ lab_8a6b:
     mov mem_009e, #0x0f     ;8a6d  85 9e 0f
 
 lab_8a70:
-    cmp mem_0096, #0x0b     ;8a70  95 96 0b
+    cmp mem_0096, #0x0b     ;8a70  95 96 0b     SOUND_BAL menu?
     beq lab_8a85            ;8a73  fd 10
     cmp mem_0095, #0x01     ;8a75  95 95 01
     bne lab_8a85            ;8a78  fc 0b
     call sub_9ea3           ;8a7a  31 9e a3
     blo lab_8a85            ;8a7d  f9 06
-    callv #4                ;8a7f  ec          CALLV #4 = callv4_8c84
+    callv #4                ;8a7f  ec           CALLV #4 = callv4_8c84
     mov a, mem_009e         ;8a80  05 9e
     jmp lab_89ad            ;8a82  21 89 ad
 
@@ -2390,8 +2392,9 @@ lab_8a90:
     ret                     ;8a95  20
 
 lab_8a96:
-    cmp mem_0096, #0x02     ;8a96  95 96 02
+    cmp mem_0096, #0x02     ;8a96  95 96 02     TAPE_SIDE mode?
     bne lab_8aa1            ;8a99  fc 06
+
     mov a, mem_00ae         ;8a9b  05 ae
     mov mem_0205, a         ;8a9d  61 02 05
     ret                     ;8aa0  20
@@ -2426,7 +2429,7 @@ lab_8ab3:
     bne lab_8b15            ;8ac3  fc 50        BRANCH_ALWAYS_TAKEN
 
 lab_8ac5:
-    cmp mem_0096, #0x0b     ;8ac5  95 96 0b
+    cmp mem_0096, #0x0b     ;8ac5  95 96 0b     SOUND_BAL menu?
     beq lab_8b15            ;8ac8  fd 4b
     mov a, mem_0095         ;8aca  05 95
     beq lab_8ad6            ;8acc  fd 08
@@ -2488,7 +2491,7 @@ lab_8b17:
 
 lab_8b1d:
 ;mem_fe00 table case for SOUND_BAL
-    cmp mem_0096, #0x0b     ;8b1d  95 96 0b
+    cmp mem_0096, #0x0b     ;8b1d  95 96 0b     SOUND_BAL menu?
     beq lab_8b39            ;8b20  fd 17
     mov a, mem_0095         ;8b22  05 95
     bne lab_8b2c            ;8b24  fc 06
@@ -2536,8 +2539,10 @@ lab_8b4c:
 lab_8b52:
 ;mem_fe42 table case for MODE_FM, MODE_AM, MODE_CD, MODE_TAPE, MIX_DOLBY, BEETLE_DOLBY, HIDDEN_VOL_UP, HIDDEN_VOL_DOWN
     clrb mem_0099:3         ;8b52  a3 99
+
     mov a, #0x20            ;8b54  04 20
     mov mem_0205, a         ;8b56  61 02 05
+
     mov a, #0x00            ;8b59  04 00
     mov mem_02ce, a         ;8b5b  61 02 ce
     mov mem_02cd, a         ;8b5e  61 02 cd
@@ -2547,11 +2552,11 @@ lab_8b52:
 lab_8b64:
 ;mem_fe00 table case PRESET_1 - PRESET_6
     mov a, mem_0096         ;8b64  05 96
-    cmp a, #0x02            ;8b66  14 02
+    cmp a, #0x02            ;8b66  14 02        TAPE_SIDE mode?
     beq lab_8b78            ;8b68  fd 0e
-    cmp a, #0x03            ;8b6a  14 03
+    cmp a, #0x03            ;8b6a  14 03        TODO?
     beq lab_8b78            ;8b6c  fd 0a
-    cmp a, #0x05            ;8b6e  14 05
+    cmp a, #0x05            ;8b6e  14 05        INITIAL mode?
     beq lab_8b8a            ;8b70  fd 18
     cmp a, #0x0b            ;8b72  14 0b
     bne lab_8b99            ;8b74  fc 23
@@ -2880,7 +2885,7 @@ lab_8cf6:
 
 
 sub_8d00:
-    cmp mem_0096, #0x0b     ;8d00  95 96 0b
+    cmp mem_0096, #0x0b     ;8d00  95 96 0b     SOUND_BAL menu?
     bne lab_8d0c            ;8d03  fc 07
     mov a, #0x00            ;8d05  04 00
     mov mem_0096, a         ;8d07  45 96
@@ -3069,7 +3074,7 @@ sub_8e0a:
     and a, #0x0f            ;8e11  64 0f
     cmp a, #0x05            ;8e13  14 05
     beq lab_8e37            ;8e15  fd 20
-    cmp mem_0096, #0x0a     ;8e17  95 96 0a
+    cmp mem_0096, #0x0a     ;8e17  95 96 0a     SCAN menu?
     beq lab_8e37            ;8e1a  fd 1b
     cmp mem_0095, #0x01     ;8e1c  95 95 01
     beq lab_8e26            ;8e1f  fd 05
@@ -3160,15 +3165,15 @@ sub_8e91:
     bbs mem_00e3:7, lab_8ec7 ;8e94  bf e3 30
     bbs mem_008c:7, lab_8ec7 ;8e97  bf 8c 2d
     mov a, mem_0096         ;8e9a  05 96
-    cmp a, #0x0b            ;8e9c  14 0b
+    cmp a, #0x0b            ;8e9c  14 0b        SOUND_BAL menu?
     beq lab_8ec7            ;8e9e  fd 27
-    cmp a, #0x03            ;8ea0  14 03
+    cmp a, #0x03            ;8ea0  14 03        TODO?
     beq lab_8ec7            ;8ea2  fd 23
-    cmp a, #0x02            ;8ea4  14 02
+    cmp a, #0x02            ;8ea4  14 02        TAPE_SIDE menu?
     beq lab_8ec7            ;8ea6  fd 1f
-    cmp a, #0x04            ;8ea8  14 04
+    cmp a, #0x04            ;8ea8  14 04        TODO?
     beq lab_8ec7            ;8eaa  fd 1b
-    cmp a, #0x01            ;8eac  14 01
+    cmp a, #0x01            ;8eac  14 01        TODO?
     beq lab_8ec7            ;8eae  fd 17
     bbs mem_00cf:5, lab_8eb6 ;8eb0  bd cf 03
     bbs mem_00eb:6, lab_8ec7 ;8eb3  be eb 11
@@ -3624,8 +3629,10 @@ sub_91b1:
     mov mem_00ce, #0x04     ;91c6  85 ce 04
     mov mem_00c8, #0x00     ;91c9  85 c8 00
     call sub_91f1           ;91cc  31 91 f1
+
     mov a, #0x20            ;91cf  04 20
     mov mem_0205, a         ;91d1  61 02 05
+
     bbc mem_00e4:3, lab_91df ;91d4  b3 e4 08
 
     movw a, #0x0000         ;91d7  e4 00 00
@@ -3731,8 +3738,10 @@ sub_9265:
     mov a, #0x16            ;926e  04 16
     cmp a                   ;9270  12
     bne lab_9296            ;9271  fc 23
+
     mov a, #0x20            ;9273  04 20
     mov mem_0205, a         ;9275  61 02 05
+
     bbs mem_00de:6, lab_92bd ;9278  be de 42
     bbs mem_00de:4, lab_9296 ;927b  bc de 18
 
@@ -3756,7 +3765,7 @@ lab_9296:
     mov a, #0x02            ;9299  04 02        A = 2 attempts
     mov mem_020e, a         ;929b  61 02 0e     Store SAFE attempts
 
-    mov a, #0x04            ;929e  04 04
+    mov a, #0x04            ;929e  04 04        A = value to store in mem_0096
     bne lab_92b8            ;92a0  fc 16        BRANCH_ALWAYS_TAKEN
 
 lab_92a2:
@@ -3772,7 +3781,7 @@ lab_92a2:
     ret                     ;92b5  20
 
 lab_92b6:
-    mov a, #0x03            ;92b6  04 03
+    mov a, #0x03            ;92b6  04 03        A = value to store in mem_0096
 
 lab_92b8:
     mov mem_0096, a         ;92b8  45 96
@@ -3786,7 +3795,7 @@ lab_92be:
     mov a, #0x30            ;92c1  04 30
     cmp a                   ;92c3  12
     bne lab_92ca            ;92c4  fc 04
-    mov a, #0x0c            ;92c6  04 0c
+    mov a, #0x0c            ;92c6  04 0c        A = value to store in mem_0096
     bne lab_92b8            ;92c8  fc ee        BRANCH_ALWAYS_TAKEN
 
 lab_92ca:
@@ -6266,8 +6275,10 @@ lab_a12b:
 lab_a135:
     mov a, #0x02            ;a135  04 02        A = mem_0201 value for CODE
     mov mem_0201, a         ;a137  61 02 01
+
     mov a, #0x1e            ;a13a  04 1e
     mov mem_0202, a         ;a13c  61 02 02
+
     mov a, #0xff            ;a13f  04 ff
     mov mem_0205, a         ;a141  61 02 05
 
@@ -6301,9 +6312,12 @@ lab_a161:
     mov a, mem_0205         ;a161  60 02 05
     cmp a, #0x12            ;a164  14 12
     beq lab_a174            ;a166  fd 0c
-    call sub_a18c           ;a168  31 a1 8c
+
+    call safe_code_keypress ;a168  31 a1 8c     Update entered SAFE code from keypress
+
     mov a, #0xff            ;a16b  04 ff
     mov mem_0205, a         ;a16d  61 02 05
+
     mov a, #0x03            ;a170  04 03        A = value to store in mem_00cd
     bne lab_a14d            ;a172  fc d9        BRANCH_ALWAYS_TAKEN
 
@@ -6323,31 +6337,35 @@ lab_a183:
     mov mem_00cd, #0x01     ;a188  85 cd 01
     ret                     ;a18b  20
 
-sub_a18c:
+
+safe_code_keypress:
+;Update the entered SAFE code from a keypress
+;
+;Read a key code in mem_0205 and update the entered SAFE code.  A keypress of
+;preset 1 increments the thousands place, preset 2 increments hundreds, etc.
+;Only key codes for presets 1-4 are handled, others are ignored.
+;
     movw ix, #mem_0203      ;a18c  e6 02 03     IX = pointer to entered SAFE code (16-bit BCD)
-    mov a, mem_0205         ;a18f  60 02 05
-    cmp a, #0x06            ;a192  14 06
+    mov a, mem_0205         ;a18f  60 02 05     A = key code
+    cmp a, #0x06            ;a192  14 06        PRESET_1    (Thousands place)
     beq lab_a1ad            ;a194  fd 17
-    cmp a, #0x05            ;a196  14 05
+    cmp a, #0x05            ;a196  14 05        PRESET_2    (Hundreds place)
     beq lab_a1a4            ;a198  fd 0a
     incw ix                 ;a19a  c2
-    cmp a, #0x04            ;a19b  14 04
+    cmp a, #0x04            ;a19b  14 04        PRESET_3    (Tens place)
     beq lab_a1ad            ;a19d  fd 0e
-    cmp a, #0x02            ;a19f  14 02
+    cmp a, #0x02            ;a19f  14 02        PRESET_4    (Ones place)
     beq lab_a1a4            ;a1a1  fd 01
     ret                     ;a1a3  20
-
 lab_a1a4:
     movw ep, #0xf00f        ;a1a4  e7 f0 0f
     mov r0, #0x0a           ;a1a7  88 0a
     mov a, #0x01            ;a1a9  04 01
     bne lab_a1b4            ;a1ab  fc 07        BRANCH_ALWAYS_TAKEN
-
 lab_a1ad:
     movw ep, #0x0ff0        ;a1ad  e7 0f f0
     mov r0, #0xa0           ;a1b0  88 a0
     mov a, #0x10            ;a1b2  04 10
-
 lab_a1b4:
     mov a, @ix+0x00         ;a1b4  06 00
     clrc                    ;a1b6  81
@@ -6361,10 +6379,10 @@ lab_a1b4:
     swap                    ;a1c0  10
     and a                   ;a1c1  62
     mov @ix+0x00, a         ;a1c2  46 00
-
 lab_a1c4:
     setb mem_0098:4         ;a1c4  ac 98
     ret                     ;a1c6  20
+
 
 lab_a1c7:
 ;(mem_0096=0x03)
@@ -6413,7 +6431,7 @@ lab_a1ff:
     cmp a, #0x19            ;a202  14 19
     beq lab_a212            ;a204  fd 0c
 
-    call sub_a18c           ;a206  31 a1 8c
+    call safe_code_keypress ;a206  31 a1 8c     Update entered SAFE code from keypress
 
     mov a, #0xff            ;a209  04 ff
     mov mem_0205, a         ;a20b  61 02 05
@@ -6424,6 +6442,7 @@ lab_a1ff:
 lab_a212:
     mov a, #0xff            ;a212  04 ff
     mov mem_0205, a         ;a214  61 02 05
+
     mov a, #0x01            ;a217  04 01
     mov mem_02cc, a         ;a219  61 02 cc
 
@@ -6485,7 +6504,7 @@ lab_a269:
     call sub_8eda           ;a27d  31 8e da
     mov a, #0x00            ;a280  04 00
     mov mem_0096, a         ;a282  45 96
-    beq lab_a29b            ;  BRANCH_ALWAYS_TAKEN
+    beq lab_a29b            ;                   BRANCH_ALWAYS_TAKEN
 
 lab_a286:
     bhs lab_a2b5            ;a286  f8 2d
@@ -6601,8 +6620,10 @@ lab_a319:
 
     mov mem_00f1, #0xa1     ;a328  85 f1 a1
     mov a, #0x0a            ;a32b  04 0a
+
     mov mem_0202, a         ;a32d  61 02 02
     mov a, #0xff            ;a330  04 ff
+
     mov mem_0205, a         ;a332  61 02 05
     mov a, #0x02            ;a335  04 02
 
@@ -7306,6 +7327,7 @@ lab_a754:
 ;Handle TUNE_UP or SEEK_UP key that was held down
     cmp mem_0096, #0x03     ;a754  95 96 03
     bne lab_a75e            ;a757  fc 05
+
     mov a, #0x19            ;a759  04 19
     mov mem_0205, a         ;a75b  61 02 05
 
@@ -7508,14 +7530,14 @@ lab_a8b6:
     mov mem_0095, #0x00     ;a8d4  85 95 00
 
 lab_a8d7:
-    call sub_9363           ;a8d7  31 93 63
+    call sub_9363            ;a8d7  31 93 63
     bbc mem_00de:5, lab_a8e1 ;a8da  b5 de 04
-    mov a, #0x04            ;a8dd  04 04        A = value to store in mem_0096
-    bne lab_a8e6            ;a8df  fc 05        BRANCH_ALWAYS_TAKEN
+    mov a, #0x04             ;a8dd  04 04       A = value to store in mem_0096
+    bne lab_a8e6             ;a8df  fc 05       BRANCH_ALWAYS_TAKEN
 
 lab_a8e1:
     bbs mem_00de:6, lab_a8eb ;a8e1  be de 07
-    mov a, #0x03            ;a8e4  04 03
+    mov a, #0x03             ;a8e4  04 03       A = value to store in mem_0096
 
 lab_a8e6:
     mov mem_0096, a         ;a8e6  45 96
