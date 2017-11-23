@@ -6653,12 +6653,13 @@ lab_a319:
     movw mem_020f, a        ;a325  d4 02 0f     Store as actual SAFE code
 
     mov mem_00f1, #0xa1     ;a328  85 f1 a1
+
     mov a, #0x0a            ;a32b  04 0a
-
     mov mem_0202, a         ;a32d  61 02 02
-    mov a, #0xff            ;a330  04 ff
 
+    mov a, #0xff            ;a330  04 ff
     mov mem_0205, a         ;a332  61 02 05
+
     mov a, #0x02            ;a335  04 02
 
 lab_a337:
