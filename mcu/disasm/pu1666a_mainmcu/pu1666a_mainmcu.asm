@@ -2577,7 +2577,7 @@ lab_8b8a:
     mov a, mem_00ae         ;8b8a  05 ae
     cmp a, #0x00            ;8b8c  14 00    0x00 = PRESET_6 key
     beq lab_8b82            ;8b8e  fd f2
-    cmp a, #0x04            ;8b90  14 04    0x04 = PRESET_4 key
+    cmp a, #0x04            ;8b90  14 04    0x04 = PRESET_3 key
     beq lab_8b82            ;8b92  fd ee
     cmp a, #0x06            ;8b94  14 06    0x06 = PRESET_1 key
     beq lab_8b82            ;8b96  fd ea
