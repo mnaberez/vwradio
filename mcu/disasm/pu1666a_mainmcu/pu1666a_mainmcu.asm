@@ -1376,6 +1376,7 @@ lab_8527:
     beq lab_8525            ;8529  fd fa
     bne lab_8523            ;852b  fc f6        BRANCH_ALWAYS_TAKEN
 
+
 sub_852d:
     bnc lab_853f            ;852d  f8 10
     rolc a                  ;852f  02
@@ -1392,7 +1393,7 @@ lab_8538:
 
 lab_853f:
     rolc a                  ;853f  02
-    bhs lab_8548            ;8540  f8 06
+    bnc lab_8548            ;8540  f8 06
     rorc a                  ;8542  03
     incw a                  ;8543  c0
     cmp a, #0x00            ;8544  14 00
@@ -1404,6 +1405,7 @@ lab_8548:
 lab_854a:
     mov @ix+0x00, a         ;854a  46 00
     ret                     ;854c  20
+
 
 sub_854d:
     mov adc2, #0x01         ;854d  85 21 01
@@ -1504,7 +1506,7 @@ lab_85e5:
     ret                     ;85e5  20
 
 lab_85e6:
-;(mem_00ae = 0x1c, 0x1d HIDDEN_VOL_UP / HIDDEN_VOL_DOWN keys)
+;(mem_00ae = 0x1c HIDDEN_VOL_UP, 0x1d HIDDEN_VOL_DOWN keys)
     mov a, mem_02cd         ;85e6  60 02 cd
     bne lab_85e5            ;85e9  fc fa
     bbs mem_00af:7, lab_85f8 ;85eb  bf af 0a
@@ -1575,10 +1577,12 @@ lab_8649:
 
 lab_8654:
     mov a, mem_0236         ;8654  60 02 36     A = Copy of Sub-to-Main Byte 0
-    and a, #0x7f            ;8657  64 7f
+    and a, #0b01111111      ;8657  64 7f
     mov mem_00ae, a         ;8659  45 ae
+
     bbc mem_00e3:7, lab_866a ;865b  b7 e3 0c
     bbc mem_00e3:6, lab_8666 ;865e  b6 e3 05
+
     cmp mem_00ae, #0x18     ;8661  95 ae 18     0x18 = HIDDEN_NO_CODE key
     beq lab_8689            ;8664  fd 23
 
@@ -1589,19 +1593,26 @@ lab_8666:
 lab_866a:
     cmp mem_0096, #0x02     ;866a  95 96 02     TAPE_SIDE mode?
     bne lab_867a            ;866d  fc 0b
-    mov a, mem_00ae         ;866f  05 ae
+
+    ;(mem_0096 = 0x02 TAPE_SIDE mode)
+    mov a, mem_00ae         ;866f  05 ae        A = key code
     cmp a, #0x12            ;8671  14 12        0x12 = TAPE_SIDE key
     beq lab_8689            ;8673  fd 14
-    movw ix, #mem_868e      ;8675  e6 86 8e
+
+    ;(mem_00ae != 0x12 TAPE_SIDE key)
+    movw ix, #mem_868e      ;8675  e6 86 8e     IX = pointer to table containing key codes:
+                            ;                        HIDDEN_INITIAL, PRESET_1..4
     bne lab_8682            ;8678  fc 08        BRANCH_ALWAYS_TAKEN
 
 lab_867a:
     cmp mem_0096, #0x03     ;867a  95 96 03
     bne lab_8694            ;867d  fc 15
-    movw ix, #mem_868c      ;867f  e6 86 8c
 
+    ;(mem_0096 = 0x03)
+    movw ix, #mem_868c      ;867f  e6 86 8c     IX = pointer to table containing key codes:
+                            ;                        TUNE_UP, SEEK_UP, HIDDEN_INITIAL, PRESET_1..4
 lab_8682:
-    mov a, mem_00ae         ;8682  05 ae
+    mov a, mem_00ae         ;8682  05 ae        A = key code
     call sub_e76c           ;8684  31 e7 6c     Check for A in a table; setc if found, else clrc
     bnc lab_8666            ;8687  f8 dd        Branch if not found in table
 
@@ -1633,7 +1644,10 @@ mem_868f:
 lab_8694:
     cmp mem_0096, #0x04     ;8694  95 96 04
     bne lab_86a2            ;8697  fc 09
-    movw ix, #mem_869e      ;8699  e6 86 9e
+
+    ;(mem_0096 = 0x04)
+    movw ix, #mem_869e      ;8699  e6 86 9e     IX = pointer to table containing key codes:
+                            ;                        HIDDEN_INITIAL, MODE_FM, MODE_AM
     beq lab_8682            ;869c  fd e4        BRANCH_ALWAYS_TAKEN
 
 mem_869e:
@@ -1647,7 +1661,11 @@ mem_869e:
 lab_86a2:
     cmp mem_0096, #0x0a     ;86a2  95 96 0a     SCAN menu?
     bne lab_86b3            ;86a5  fc 0c
-    movw ix, #mem_86ac      ;86a7  e6 86 ac
+
+    ;(mem_0096 = 0x0a SCAN menu)
+    movw ix, #mem_86ac      ;86a7  e6 86 ac     IX = pointer to table containing key codes:
+                            ;                        TUNE_UP, TUNE_DOWN, SEEK_UP, SEEK_DOWN,
+                            ;                        SCAN, HIDDEN_INITIAL
     beq lab_8682            ;86aa  fd d6        BRANCH_ALWAYS_TAKEN
 
 mem_86ac:
@@ -1686,10 +1704,11 @@ lab_86d0:
 lab_86d4:
     cmp mem_0095, #0x01     ;86d4  95 95 01
     bne lab_86e5            ;86d7  fc 0c
+
     movw ix, #mem_8737      ;86d9  e6 87 37
-    mov a, mem_00ae         ;86dc  05 ae
+    mov a, mem_00ae         ;86dc  05 ae        A = key code
     call sub_e746           ;86de  31 e7 46     Change A to another byte using a table of pairs
-    beq lab_86e5            ;86e1  fd 02
+    beq lab_86e5            ;86e1  fd 02        Branch if not found in table
 
 lab_86e3:
     mov mem_00ae, a         ;86e3  45 ae
@@ -1698,7 +1717,7 @@ lab_86e5:
     clrb mem_0099:2         ;86e5  a2 99
     clrb mem_0099:3         ;86e7  a3 99
 
-    mov a, mem_00ae         ;86e9  05 ae        A = table index
+    mov a, mem_00ae         ;86e9  05 ae        A = key code (table index)
     movw a, #mem_fe00       ;86eb  e4 fe 00     A = table base address
     call sub_e73c           ;86ee  31 e7 3c     Call address in table
 
@@ -1738,7 +1757,7 @@ lab_871f:
     and a, #0x7f            ;8721  64 7f
     mov mem_00ae, a         ;8723  45 ae
 
-    mov a, mem_00ae         ;8725  05 ae        A = table index
+    mov a, mem_00ae         ;8725  05 ae        A = key code (table index)
     movw a, #mem_fe42       ;8727  e4 fe 42     A = table base address
     call sub_e73c           ;872a  31 e7 3c     Call address in table
 
@@ -1928,7 +1947,7 @@ lab_881f:
     ret                     ;881f  20
 
 lab_8820:
-;mem_fe00 table case for cd
+;mem_fe00 table case for MODE_CD
     call sub_87c5           ;8820  31 87 c5
     bhs lab_8841            ;8823  f8 1c
     cmp mem_0096, #0x0b     ;8825  95 96 0b     SOUND_BAL menu?
@@ -2552,28 +2571,36 @@ lab_8b52:
 lab_8b64:
 ;mem_fe00 table case PRESET_1 - PRESET_6
     mov a, mem_0096         ;8b64  05 96
+
     cmp a, #0x02            ;8b66  14 02        TAPE_SIDE mode?
     beq lab_8b78            ;8b68  fd 0e
+
     cmp a, #0x03            ;8b6a  14 03        TODO?
     beq lab_8b78            ;8b6c  fd 0a
+
     cmp a, #0x05            ;8b6e  14 05        INITIAL mode?
     beq lab_8b8a            ;8b70  fd 18
-    cmp a, #0x0b            ;8b72  14 0b
+
+    cmp a, #0x0b            ;8b72  14 0b        TODO?
     bne lab_8b99            ;8b74  fc 23
+
     beq lab_8bc1            ;8b76  fd 49        BRANCH_ALWAYS_TAKEN
 
 lab_8b78:
-    movw ix, #mem_868f      ;8b78  e6 86 8f
-    mov a, mem_00ae         ;8b7b  05 ae
+;(mem_0096 = 2, 3)
+    movw ix, #mem_868f      ;8b78  e6 86 8f     IX = pointer to table containing key codes:
+                            ;                        PRESET_1..4
+    mov a, mem_00ae         ;8b7b  05 ae        A = key code
     call sub_e76c           ;8b7d  31 e7 6c     Check for A in a table; setc if found, else clrc
     bnc lab_8b98            ;8b80  f8 16        Branch if not found in table
 
 lab_8b82:
     mov a, mem_00ae         ;8b82  05 ae
     mov mem_0205, a         ;8b84  61 02 05
-    jmp lab_8bce            ;8b87  21 8b ce
+    jmp lab_8bce            ;8b87  21 8b ce     Performs callv #4 then ret
 
 lab_8b8a:
+;(mem_0096 = 5)
     mov a, mem_00ae         ;8b8a  05 ae
     cmp a, #0x00            ;8b8c  14 00    0x00 = PRESET_6 key
     beq lab_8b82            ;8b8e  fd f2
@@ -2586,6 +2613,7 @@ lab_8b98:
     ret                     ;8b98  20
 
 lab_8b99:
+;(mem_0096 = 0x0b)
     mov a, mem_0095         ;8b99  05 95
     beq lab_8ba2            ;8b9b  fd 05
     cmp a, #0x02            ;8b9d  14 02
@@ -2593,6 +2621,7 @@ lab_8b99:
     ret                     ;8ba1  20
 
 lab_8ba2:
+;(mem_0096 = 0x0b, mem_0095 = 0)
     call sub_9a02           ;8ba2  31 9a 02
     mov mem_00c1, #0x00     ;8ba5  85 c1 00
 
@@ -2611,6 +2640,7 @@ lab_8ba2:
     ret                     ;8bc0  20
 
 lab_8bc1:
+;(mem_0096 = 0x0b, mem_0095 = 2)
     movw ix, #mem_8bd0      ;8bc1  e6 8b d0     IX = pointer to PRESET_x lookup table
     mov a, mem_00ae         ;8bc4  05 ae        A = key code
     call sub_e746           ;8bc6  31 e7 46     Change A to another byte using a table of pairs
@@ -22127,6 +22157,7 @@ lab_f485:
     ret                     ;f487  20
 
 sub_f488:
+;(mem_0096=0x0a)
     mov a, mem_01ed         ;f488  60 01 ed
     bne lab_f490            ;f48b  fc 03
     call sub_f4c3           ;f48d  31 f4 c3
