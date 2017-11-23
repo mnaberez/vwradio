@@ -2595,10 +2595,14 @@ lab_8b99:
 lab_8ba2:
     call sub_9a02           ;8ba2  31 9a 02
     mov mem_00c1, #0x00     ;8ba5  85 c1 00
-    movw ix, #mem_8bd0      ;8ba8  e6 8b d0
-    mov a, mem_00ae         ;8bab  05 ae
+
+    movw ix, #mem_8bd0      ;8ba8  e6 8b d0     IX = pointer to PRESET_x lookup table
+    mov a, mem_00ae         ;8bab  05 ae        A = key code
     call sub_e746           ;8bad  31 e7 46     Change A to another byte using a table of pairs
-    beq lab_8bcf            ;8bb0  fd 1d
+                            ;                   (Convert PRESET_x key code into number 1-6)
+    beq lab_8bcf            ;8bb0  fd 1d        Branch if not a preset key
+
+    ;Preset key was pressed, A contains a number 1-6
     mov mem_00c8, a         ;8bb2  45 c8
     mov mem_02fe, a         ;8bb4  61 02 fe
     call sub_8cee           ;8bb7  31 8c ee
