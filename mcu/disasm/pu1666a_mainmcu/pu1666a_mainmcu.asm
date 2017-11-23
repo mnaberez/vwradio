@@ -104,10 +104,10 @@
     mem_00b0 = 0xb0
     mem_00b1 = 0xb1
     mem_00b2 = 0xb2
-    mem_00b3 = 0xb3
-    mem_00b4 = 0xb4
-    mem_00b5 = 0xb5
-    mem_00b6 = 0xb6
+    mem_00b3 = 0xb3     ;Bass level
+    mem_00b4 = 0xb4     ;Treb level
+    mem_00b5 = 0xb5     ;Balance level
+    mem_00b6 = 0xb6     ;Fade level
     mem_00b7 = 0xb7
     mem_00b8 = 0xb8
     mem_00b9 = 0xb9
@@ -1168,11 +1168,11 @@ sub_8380:
 
 sub_83d1:
     mov a, #0x00            ;83d1  04 00
-    mov mem_00b1, a         ;83d3  45 b1
-    mov mem_00b3, a         ;83d5  45 b3
-    mov mem_00b4, a         ;83d7  45 b4
-    mov mem_00b5, a         ;83d9  45 b5
-    mov mem_00b6, a         ;83db  45 b6
+    mov mem_00b1, a         ;83d3  45 b1        1=Bass, 2=Treb, 3=Bal, 4=Fade
+    mov mem_00b3, a         ;83d5  45 b3        Bass level
+    mov mem_00b4, a         ;83d7  45 b4        Treb level
+    mov mem_00b5, a         ;83d9  45 b5        Balance level
+    mov mem_00b6, a         ;83db  45 b6        Fade level
     mov a, #0x00            ;83dd  04 00
     mov mem_0296, a         ;83df  61 02 96
     mov mem_0297, a         ;83e2  61 02 97
@@ -4387,7 +4387,7 @@ lab_960b:
 lab_961a:
     movw mem_0294, a        ;961a  d4 02 94
     xchw a, t               ;961d  43
-    movw mem_00b3, a        ;961e  d5 b3
+    movw mem_00b3, a        ;961e  d5 b3        Bass level
     mov a, mem_02c2         ;9620  60 02 c2
     bne lab_963a            ;9623  fc 15
     mov a, mem_01a4         ;9625  60 01 a4
@@ -5888,9 +5888,9 @@ sub_9ebd:
 
 sub_9ec3:
     mov a, mem_029a         ;9ec3  60 02 9a
-    mov mem_00b3, a         ;9ec6  45 b3
+    mov mem_00b3, a         ;9ec6  45 b3        Bass level
     mov a, mem_029b         ;9ec8  60 02 9b
-    mov mem_00b4, a         ;9ecb  45 b4
+    mov mem_00b4, a         ;9ecb  45 b4        Treb level
     ret                     ;9ecd  20
 
 sub_9ece:
@@ -6002,9 +6002,9 @@ lab_9f56:
     movw a, #0x0000         ;9f7b  e4 00 00
     movw mem_0294, a        ;9f7e  d4 02 94
     mov a, mem_029c         ;9f81  60 02 9c
-    mov mem_00b3, a         ;9f84  45 b3
+    mov mem_00b3, a         ;9f84  45 b3        Bass level
     mov a, mem_029d         ;9f86  60 02 9d
-    mov mem_00b4, a         ;9f89  45 b4
+    mov mem_00b4, a         ;9f89  45 b4        Treb level
     setb mem_0098:4         ;9f8b  ac 98
     mov a, #0x07            ;9f8d  04 07
     mov a, #0x08            ;9f8f  04 08
@@ -6271,9 +6271,9 @@ lab_a0f8:
 
 lab_a0fa:
     mov a, mem_0298         ;a0fa  60 02 98
-    mov mem_00b3, a         ;a0fd  45 b3
+    mov mem_00b3, a         ;a0fd  45 b3        Bass level
     mov a, mem_0299         ;a0ff  60 02 99
-    mov mem_00b4, a         ;a102  45 b4
+    mov mem_00b4, a         ;a102  45 b4        Treb level
 
 lab_a104:
     mov a, #0x00            ;a104  04 00
@@ -7842,7 +7842,7 @@ lab_aa5f:
     bne lab_aa31            ;aa68  fc c7        BRANCH_ALWAYS_TAKEN
 
 sub_aa6a:
-    movw a, mem_00b3        ;aa6a  c5 b3
+    movw a, mem_00b3        ;aa6a  c5 b3        Bass level
     mov a, mem_0095         ;aa6c  05 95
     bne lab_aa7e            ;aa6e  fc 0e
     xch a, t                ;aa70  42
@@ -7925,7 +7925,7 @@ lab_aad0:
     mov mem_00b7, a         ;aad0  45 b7
     mov mem_00b8, a         ;aad2  45 b8
     mov r4, a               ;aad4  4c
-    mov a, mem_00b5         ;aad5  05 b5
+    mov a, mem_00b5         ;aad5  05 b5        Balance level
     movw ep, #mem_fee1      ;aad7  e7 fe e1
     call sub_aa98           ;aada  31 aa 98
     mov a, r4               ;aadd  0c
@@ -7941,7 +7941,7 @@ lab_aae9:
     mov a, #0x00            ;aae9  04 00
 
 lab_aaeb:
-    bbc mem_00b5:7, lab_aaf2 ;aaeb  b7 b5 04
+    bbc mem_00b5:7, lab_aaf2 ;aaeb  b7 b5 04    Balance level
     mov mem_00b8, a         ;aaee  45 b8
     bne lab_aaf4            ;aaf0  fc 02
 
@@ -7965,13 +7965,13 @@ lab_aaf4:
 lab_ab12:
     bbc mem_00b2:6, lab_ab30 ;ab12  b6 b2 1b
     clrb mem_00b2:6         ;ab15  a6 b2
-    mov a, mem_00b6         ;ab17  05 b6
+    mov a, mem_00b6         ;ab17  05 b6        Fade level
     movw ep, #mem_fed6      ;ab19  e7 fe d6
     call sub_aa98           ;ab1c  31 aa 98
     swap                    ;ab1f  10
     mov a, #0x00            ;ab20  04 00
     movw a, #0x3099         ;ab22  e4 30 99
-    bbc mem_00b6:7, lab_ab2c ;ab25  b7 b6 04
+    bbc mem_00b6:7, lab_ab2c ;ab25  b7 b6 04    Fade level
     xchw a, t               ;ab28  43
     movw a, #0x2099         ;ab29  e4 20 99
 
@@ -13146,7 +13146,7 @@ lab_c61a:
     bne lab_c62d            ;c61e  fc 0d
 
     ;(mem_00b1=1)
-    mov a, mem_00b3         ;c620  05 b3
+    mov a, mem_00b3         ;c620  05 b3        A = Bass level
     call sub_c744           ;c622  31 c7 44
     mov @ix+0x02, a         ;c625  46 02        Display param 1 = Signed binary number for bass
     mov @ix+0x01, #0x62     ;c627  86 01 62     Display number = 0x62 'BASS.......'
@@ -13157,7 +13157,7 @@ lab_c62d:
     bne lab_c63f            ;c62f  fc 0e
 
     ;(mem_00b1=2)
-    mov a, mem_00b4         ;c631  05 b4
+    mov a, mem_00b4         ;c631  05 b4        A = Treb level
     call sub_c744           ;c633  31 c7 44
     mov @ix+0x02, a         ;c636  46 02        Display param 1 = Signed binary number for treble
     mov @ix+0x01, #0x63     ;c638  86 01 63     Display number = 0x63 'TREB.......'
@@ -13171,7 +13171,7 @@ lab_c63f:
     bne lab_c65b            ;c641  fc 18
 
     ;(mem_00b1=3)
-    mov a, mem_00b5         ;c643  05 b5
+    mov a, mem_00b5         ;c643  05 b5        Balance level
     call sub_c744           ;c645  31 c7 44
     bne lab_c64e            ;c648  fc 04
     mov @ix+0x01, #0x66     ;c64a  86 01 66     Display number = 0x66 'BAL.CENTER.'
@@ -13192,7 +13192,7 @@ lab_c65b:
     bne lab_c677            ;c65d  fc 18
 
     ;(mem_00b1=4)
-    mov a, mem_00b6         ;c65f  05 b6
+    mov a, mem_00b6         ;c65f  05 b6        Fade level
     call sub_c744           ;c661  31 c7 44
     bne lab_c66a            ;c664  fc 04
     mov @ix+0x01, #0x69     ;c666  86 01 69     Display number = 0x69 'FADECENTER.'
@@ -13359,6 +13359,7 @@ sub_c739:
 
 
 sub_c744:
+;Conversion used for displaying bass, treb, bal, fade
     beq lab_c74f            ;c744  fd 09
     bp lab_c74c             ;c746  fa 04
     incw a                  ;c748  c0
@@ -23262,7 +23263,7 @@ lab_fb52:
 lab_fb5e:
     clrc                    ;fb5e  81
     movw a, #0x0000         ;fb5f  e4 00 00
-    mov a, mem_00b3         ;fb62  05 b3
+    mov a, mem_00b3         ;fb62  05 b3        Bass level
     subc a, #0xf6           ;fb64  34 f6
     clrc                    ;fb66  81
     rolc a                  ;fb67  02
@@ -23275,7 +23276,7 @@ lab_fb5e:
     beq lab_fb95            ;fb75  fd 1e
     clrc                    ;fb77  81
     movw a, #0x0000         ;fb78  e4 00 00
-    mov a, mem_00b4         ;fb7b  05 b4
+    mov a, mem_00b4         ;fb7b  05 b4        Treb level
     subc a, #0xf6           ;fb7d  34 f6
     movw a, #mem_fc57       ;fb7f  e4 fc 57
 lab_fb82:
@@ -23292,7 +23293,7 @@ lab_fb82:
 lab_fb95:
     clrc                    ;fb95  81
     movw a, #0x0000         ;fb96  e4 00 00
-    mov a, mem_00b4         ;fb99  05 b4
+    mov a, mem_00b4         ;fb99  05 b4        Treb level
     subc a, #0xf6           ;fb9b  34 f6
     movw a, #mem_fc6c       ;fb9d  e4 fc 6c
     jmp lab_fb82            ;fba0  21 fb 82
