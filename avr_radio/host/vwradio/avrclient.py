@@ -166,6 +166,19 @@ class Client(object):
         self.load_keys([]) # release all keys
         time.sleep(secs)
 
+    def read_lcd(self):
+        '''TODO implement this on the AVR side instead'''
+        from vwradio.faceplates import Premium4 # XXX hack, premium 4 only
+        faceplate = Premium4()
+        display_ram = self.emulated_upd_dump_state().display_ram
+        text = ''
+
+        for addr in faceplate.VISIBLE_DISPLAY_ADDRESSES:
+            char_code = display_ram[addr]
+            char = faceplate.CHARACTERS[char_code]
+            text += char
+        return text
+
     # Low level ===============================================================
 
     def command(self, data, ignore_error=False):

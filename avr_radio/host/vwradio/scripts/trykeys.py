@@ -2,18 +2,9 @@
 import time
 import sys
 from vwradio import avrclient
-from vwradio.faceplates import Keys, Premium4
+from vwradio.constants import Keys
 
 client = avrclient.make_client()
-
-def read_display():
-    display_ram = client.emulated_upd_dump_state().display_ram
-    lcd_text = ''
-    for addr in Premium4.VISIBLE_DISPLAY_ADDRESSES:
-        code_code = display_ram[addr]
-        char = Premium4.CHARACTERS.get(code_code, '?')
-        lcd_text += char
-    return lcd_text
 
 if __name__ == '__main__':
     # build list of keycodes to try (one bit per key, max 32 bits)
@@ -51,10 +42,10 @@ if __name__ == '__main__':
             sys.stdout.flush()
             client.emulated_upd_load_key_data(key_data)
             time.sleep(20)
-            reading_1 = read_display()
+            reading_1 = client.read_lcd()
             client.emulated_upd_load_key_data([0, 0, 0, 0])
             time.sleep(0.25)
-            reading_2 = read_display()
+            reading_2 = client.read_lcd()
 
             if (reading_1 != 'FM11 891MHZ') or (reading_2 != 'FM11 891MHZ'):
                 sys.stdout.write("\r%r down:%r up:%r\n" %
