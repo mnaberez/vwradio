@@ -6148,19 +6148,19 @@ lab_a046:
 mem_a04d:
 ;Table used with mem_0096
 ;Some entries point to code, some point to jump tables
-    .word lab_a06d          ;VECTOR     mem_0096=0x00   code
+    .word lab_a06d          ;VECTOR     mem_0096=0x00   code            nop
     .word lab_a072          ;VECTOR     mem_0096=0x01   jump table
-    .word lab_a12b          ;VECTOR     mem_0096=0x02   jump table
-    .word lab_a1c7          ;VECTOR     mem_0096=0x03   jump table
-    .word lab_a2bb          ;VECTOR     mem_0096=0x04   jump table
-    .word lab_a303          ;VECTOR     mem_0096=0x05   jump table
-    .word lab_a3a7          ;VECTOR     mem_0096=0x06   jump table
-    .word lab_a06d          ;VECTOR     mem_0096=0x07   code
-    .word lab_a06d          ;VECTOR     mem_0096=0x08   code
-    .word lab_a3e9          ;VECTOR     mem_0096=0x09   jump table
-    .word lab_a067          ;VECTOR     mem_0096=0x0a   code
-    .word lab_a06e          ;VECTOR     mem_0096=0x0b   code
-    .word lab_a3c4          ;VECTOR     mem_0096=0x0c   jump table
+    .word lab_a12b          ;VECTOR     mem_0096=0x02   jump table      CODE entry
+    .word lab_a1c7          ;VECTOR     mem_0096=0x03   jump table      SAFE entry
+    .word lab_a2bb          ;VECTOR     mem_0096=0x04   jump table      SAFE locked out?
+    .word lab_a303          ;VECTOR     mem_0096=0x05   jump table      INITIAL mode
+    .word lab_a3a7          ;VECTOR     mem_0096=0x06   jump table      SAFE different?
+    .word lab_a06d          ;VECTOR     mem_0096=0x07   code            nop
+    .word lab_a06d          ;VECTOR     mem_0096=0x08   code            nop
+    .word lab_a3e9          ;VECTOR     mem_0096=0x09   jump table      CLEAR
+    .word lab_a067          ;VECTOR     mem_0096=0x0a   code            SCAN menu (sub_f488)
+    .word lab_a06e          ;VECTOR     mem_0096=0x0b   code            BAL menu (sub_fcea)
+    .word lab_a3c4          ;VECTOR     mem_0096=0x0c   jump table      VER only, might be unused?
 
 lab_a067:
 ;(mem_0096=0x0a)
@@ -6660,7 +6660,7 @@ lab_a319:
     mov a, #0xff            ;a330  04 ff
     mov mem_0205, a         ;a332  61 02 05
 
-    mov a, #0x02            ;a335  04 02
+    mov a, #0x02            ;a335  04 02        A = value to store in mem_00cd
 
 lab_a337:
     setb mem_0098:4         ;a337  ac 98
@@ -6674,11 +6674,11 @@ lab_a33b:
 lab_a33c:
     bne lab_a33b            ;a33c  fc fd
     bhs lab_a33b            ;a33e  f8 fb
-    jmp reset_8010            ;a340  21 80 10
+    jmp reset_8010          ;a340  21 80 10
 
 lab_a343:
     mov mem_00f1, #0x82     ;a343  85 f1 82
-    mov a, #0x06            ;a346  04 06
+    mov a, #0x06            ;a346  04 06        A = value to store in mem_00cd
     bne lab_a339            ;a348  fc ef        BRANCH_ALWAYS_TAKEN
 
 lab_a34a:
@@ -6719,13 +6719,13 @@ lab_a36d:
 lab_a38b:
     bhs lab_a33b            ;a38b  f8 ae
     mov mem_00f1, #0xa7     ;a38d  85 f1 a7
-    mov a, #0x09            ;a390  04 09
+    mov a, #0x09            ;a390  04 09        A = value to store in mem_00cd
     bne lab_a339            ;a392  fc a5        BRANCH_ALWAYS_TAKEN
 
 lab_a394:
     bhs lab_a33b            ;a394  f8 a5
     mov mem_00f1, #0x9f     ;a396  85 f1 9f
-    mov a, #0x0a            ;a399  04 0a
+    mov a, #0x0a            ;a399  04 0a        A = value to store in mem_00cd
     bne lab_a339            ;a39b  fc 9c        BRANCH_ALWAYS_TAKEN
 
 lab_a39d:
@@ -6733,7 +6733,7 @@ lab_a39d:
 
 lab_a39f:
     bne lab_a33b            ;a39f  fc 9a
-    mov a, #0x00            ;a3a1  04 00
+    mov a, #0x00            ;a3a1  04 00        A = value to store in mem_0096 and mem_00cd
     mov mem_0096, a         ;a3a3  45 96
     beq lab_a339            ;a3a5  fd 92        BRANCH_ALWAYS_TAKEN
 
@@ -6777,7 +6777,7 @@ lab_a3d3:
     mov mem_0202, a         ;a3d7  61 02 02
 
 lab_a3da:
-    mov a, #0x02            ;a3da  04 02
+    mov a, #0x02            ;a3da  04 02        A = value to store in mem_00cd
 
 lab_a3dc:
     mov mem_00cd, a         ;a3dc  45 cd
@@ -18037,17 +18037,23 @@ sub_de60:
 
 mem_de79:
 ;Table used with mem_0388
-    .word lab_e21a          ;de79  e2 1a       VECTOR 0
-    .word lab_e2df          ;de7b  e2 df       VECTOR 1
-    .word lab_e3b4          ;de7d  e3 b4       VECTOR 2  Block title = 0x09 (Acknowledge)
-    .word lab_e328          ;de7f  e3 28       VECTOR 3  Block title = 0x00 (ID code request/ECU Info)
-                            ;                            or Block title = 0xF6 (ASCII)
-    .word lab_e328          ;de81  e3 28       VECTOR 4
-    .word lab_e328          ;de83  e3 28       VECTOR 5
-    .word lab_e301          ;de85  e3 01       VECTOR 6
-    .word lab_e328          ;de87  e3 28       VECTOR 7  Block title = 0x0a (No Acknowledge)
-    .word lab_e316          ;de89  e3 16       VECTOR 8  Unrecognized block title
-
+    .word lab_e21a          ;de79  e2 1a       VECTOR 0  Initial Connection
+    .word lab_e2df          ;de7b  e2 df       VECTOR 1  Send Acknowledge (sub_b16b_ack)
+    .word lab_e3b4          ;de7d  e3 b4       VECTOR 2  Received Block title 0x09 (Acknowledge)
+                            ;                               -> Send Block title 0xD7 / receive 0x3D
+    .word lab_e328          ;de7f  e3 28       VECTOR 3  Received Block title 0x00 (ID code request/ECU Info)
+                            ;                                  or Block title 0xF6 (ASCII)
+                            ;                               -> Send Acknowledge (sub_b16b_ack)
+    .word lab_e328          ;de81  e3 28       VECTOR 4  (unknown, appears unused)
+                            ;                               -> Send Acknowledge (sub_b16b_ack)
+    .word lab_e328          ;de83  e3 28       VECTOR 5  (unknown, appears unused)
+                            ;                               -> Send Acknowledge (sub_b16b_ack)
+    .word lab_e301          ;de85  e3 01       VECTOR 6  (mem_0388=0xff, unknown how that happens)
+                            ;                               -> Send No Acknowledge (sub_e338_no_ack_2)
+    .word lab_e328          ;de87  e3 28       VECTOR 7  Received Block title 0x0a (No Acknowledge)
+                            ;                               -> Send Acknowledge (sub_b16b_ack)
+    .word lab_e316          ;de89  e3 16       VECTOR 8  Received Unrecognized block title
+                            ;                               -> Send No Acknowledge (sub_e34e_no_ack_2)
 sub_de8b:
     bbc mem_00f9:0, lab_de98 ;de8b  b0 f9 0a
     clrb mem_00f9:0         ;de8e  a0 f9
@@ -18060,14 +18066,12 @@ lab_de98:
 
 lab_de99:
     call sub_deac           ;de99  31 de ac     A = value derived from KW1281 RX Buffer block title
-    mov mem_0388, a         ;de9c  61 03 88
+    mov mem_0388, a         ;de9c  61 03 88     Store it in mem_0388
 
     call sub_df07           ;de9f  31 df 07
     bc lab_deab             ;dea2  f9 07
 
     mov a, #0x01            ;dea4  04 01        A = value to store in mem_038b
-                            ;                   In lab_e3d9, this value causes KW1281 TX Buffer
-                            ;                   block title 0xD7 to be sent
     mov mem_038b, a         ;dea6  61 03 8b
     setb mem_00f9:2         ;dea9  aa f9
 
@@ -18163,7 +18167,7 @@ lab_df12:
     mov a, mem_0397         ;df12  60 03 97
     cmp a, #0x01            ;df15  14 01
     beq lab_df20            ;df17  fd 07
-    mov a, #0x06            ;df19  04 06        A = value to store in mem_0388
+    mov a, #0x06            ;df19  04 06        A = value to store in mem_0388 (will send No Acknowledge)
     mov mem_0388, a         ;df1b  61 03 88
     clrc                    ;df1e  81
     ret                     ;df1f  20
@@ -18750,7 +18754,10 @@ lab_e21a:
     jmp sub_e73c            ;e220  21 e7 3c     Jump to address in table
 
 mem_e223:
-;case table for mem_038b
+;Table used with mem_038b (table 1/2)
+;This table is used only when mem_0388=0
+;Other table is at mem_e3bd
+;
     .word lab_e256          ;VECTOR   0     Does nothing
     .word lab_e231          ;VECTOR   1
     .word lab_e281          ;VECTOR   2
@@ -18842,7 +18849,7 @@ lab_e29e:
 ;(mem_0388=0, mem_038b=6)
     mov a, mem_038c         ;e29e  60 03 8c
     bne lab_e2b6            ;e2a1  fc 13
-    mov mem_0089, #0x75     ;e2a3  85 89 75     KW1281 byte to send = 0x75 (TODO what does sending 0x75 mean?)
+    mov mem_0089, #0x75     ;e2a3  85 89 75     KW1281 byte to send = 0x75
 
     mov a, #0x01            ;e2a6  04 01
     mov mem_00fb, a         ;e2a8  45 fb        KW1281 10416.67 bps transmit state = Send byte, 7-O-1
@@ -19071,6 +19078,9 @@ lab_e3b4:
     jmp sub_e73c            ;e3ba  21 e7 3c     Jump to address in table
 
 mem_e3bd:
+;Table used with mem_038b (table 2/2)
+;This table is used only when mem_0388=2
+;Other table is at mem_e223
 ;
 ;Flow of mem_038b:
 ;  0x01 sends kw_title_d7 ->
