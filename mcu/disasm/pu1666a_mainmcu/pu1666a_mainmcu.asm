@@ -1950,12 +1950,16 @@ lab_8820:
 ;mem_fe00 table case for MODE_CD
     call sub_87c5           ;8820  31 87 c5
     bhs lab_8841            ;8823  f8 1c
+
     cmp mem_0096, #0x0b     ;8825  95 96 0b     SOUND_BAL menu?
     bne lab_882d            ;8828  fc 03
-    setb mem_00d9:2         ;882a  aa d9
+
+    ;SOUND_BAL menu
+    setb mem_00d9:2         ;882a  aa d9        Set bit to indicate MODE_CD pressed in SOUND_BAL menu
     ret                     ;882c  20
 
 lab_882d:
+    ;Not in SOUND_BAL menu
     callv #4                ;882d  ec           CALLV #4 = callv4_8c84
     setb mem_00af:2         ;882e  aa af
     mov a, mem_0095         ;8830  05 95
@@ -2006,12 +2010,16 @@ lab_8861:
     mov a, mem_0321         ;8868  60 03 21
     and a                   ;886b  62
     bne lab_88b6            ;886c  fc 48
+
     cmp mem_0096, #0x0b     ;886e  95 96 0b     SOUND_BAL menu?
     bne lab_8876            ;8871  fc 03
-    setb mem_00d9:5         ;8873  ad d9
+
+    ;SOUND_BAL menu
+    setb mem_00d9:5         ;8873  ad d9        Set bit to indicate MODE_TAPE pressed in SOUND_BAL menu
     ret                     ;8875  20
 
 lab_8876:
+    ;Not SOUND_BAL menu
     mov a, mem_0369         ;8876  60 03 69
     cmp a, #0x02            ;8879  14 02
     beq lab_88b6            ;887b  fd 39
@@ -23603,23 +23611,26 @@ sub_fcd7:
     call sub_fba3           ;fce6  31 fb a3
     ret                     ;fce9  20
 
+
 sub_fcea:
     movw ix, #mem_02b6      ;fcea  e6 02 b6     IX = pointer to Main-to-Sub work buffer #2
     mov a, mem_01ef         ;fced  60 01 ef
     bne lab_fcf9            ;fcf0  fc 07
+
     mov a, #0x10            ;fcf2  04 10
     mov mem_01ef, a         ;fcf4  61 01 ef
+
     setb mem_0097:2         ;fcf7  aa 97
 
 lab_fcf9:
     call sub_fd31           ;fcf9  31 fd 31
-    call sub_fd4d           ;fcfc  31 fd 4d
+    call sub_fd4d           ;fcfc  31 fd 4d     Change SOUND_BAL menu display if MODE_CD or MODE_TAPE pressed.
     bbc mem_0097:2, lab_fd11 ;fcff  b2 97 0f
     mov a, #0x00            ;fd02  04 00
     call fill_5_bytes_at_ix ;fd04  31 e6 ef
 
-    mov a, mem_01ef         ;fd07  60 01 ef
-    cmp a, #0x10            ;fd0a  14 10
+    mov a, mem_01ef         ;fd07  60 01 ef     A = SOUND_BAL menu display state
+    cmp a, #0x10            ;fd0a  14 10        Compare to state for 'RAD.3CP.T7.'
     bne lab_fd18            ;fd0c  fc 0a
 
     ;(mem_01ef=0x10)
@@ -23632,15 +23643,15 @@ lab_fd11:
     ret                     ;fd17  20
 
 lab_fd18:
-    cmp a, #0x20            ;fd18  14 20
+    cmp a, #0x20            ;fd18  14 20        Compare to state for 'VER........'
     bne lab_fd22            ;fd1a  fc 06
 
     ;(mem_01ef=0x20)
-    call sub_fd7d           ;fd1c  31 fd 7d     0x21 'VER........'
+    call sub_fd7d           ;fd1c  31 fd 7d     Write 0x21 'VER........' and version number into display buffer
     jmp lab_fd11            ;fd1f  21 fd 11
 
 lab_fd22:
-    cmp a, #0x50            ;fd22  14 50
+    cmp a, #0x50            ;fd22  14 50        Compare to state for 'FERN...'
     bne lab_fd11            ;fd24  fc eb
 
     ;(mem_01ef=0x50)
@@ -23651,6 +23662,7 @@ lab_fd22:
 lab_fd2d:
     mov @ix+0x01, #0x31     ;fd2d  86 01 31     0x31 'FERN...OFF.'
     ret                     ;fd30  20
+
 
 sub_fd31:
     mov a, mem_00d8         ;fd31  05 d8
@@ -23673,34 +23685,62 @@ lab_fd40:
     mov mem_03e4, a         ;fd47  61 03 e4
     jmp lab_fd3d            ;fd4a  21 fd 3d
 
+
 sub_fd4d:
+;Change SOUND_BAL menu display if MODE_CD or MODE_TAPE pressed.
+;
+;Inputs:
+;  mem_00d9:2 set = MODE_CD was pressed    (will be cleared if set)
+;  mem_00d9:5 set = MODE_TAPE was pressed  (will be cleared if set)
+;
+;Output:
+;  MODE_CD moves mem_01ef forward:
+;    0x10 ('RAD...'),  0x20 ('VER...'), 0x50 ('FERN...'), wrap around to 0x10
+;
+;  MODE_TAPE moves mem_01ef backward:
+;    0x50 ('FERN...'), 0x20 ('VER...'), 0x10 ('RAD...'), wrap around to 0x50
+;
     mov a, mem_01ef         ;fd4d  60 01 ef
     and a, #0xf0            ;fd50  64 f0
     clrc                    ;fd52  81
-    bbc mem_00d9:2, lab_fd6a ;fd53  b2 d9 14
-    clrb mem_00d9:2         ;fd56  a2 d9
-    addc a, #0x10           ;fd58  24 10
+
+    bbc mem_00d9:2, lab_fd6a ;fd53  b2 d9 14    Branch if MODE_CD button was not pressed
+
+    ;MODE_CD pressed
+    clrb mem_00d9:2         ;fd56  a2 d9        Clear bit indicating MODE_CD pressed
+
+    addc a, #0x10           ;fd58  24 10        Add 0x10 to value from mem_01ef
     cmp a, #0x30            ;fd5a  14 30
     bne lab_fd62            ;fd5c  fc 04
 
 lab_fd5e:
-    mov a, #0x50            ;fd5e  04 50
+;(A = 0x30 or A = 0)
+    mov a, #0x50            ;fd5e  04 50        A = mem_01ef value for 'FERN'
     bne lab_fd79            ;fd60  fc 17        BRANCH_ALWAYS_TAKEN
 
 lab_fd62:
+;(A != 0x30)
     cmp a, #0x60            ;fd62  14 60
     bne lab_fd79            ;fd64  fc 13
-    mov a, #0x10            ;fd66  04 10
+
+    ;(A = 0x60)
+    mov a, #0x10            ;fd66  04 10        A = mem_01ef value for 'RAD.3CP.T7.'
     bne lab_fd79            ;fd68  fc 0f        BRANCH_ALWAYS_TAKEN
 
 lab_fd6a:
-    bbc mem_00d9:5, lab_fd7c ;fd6a  b5 d9 0f
-    clrb mem_00d9:5         ;fd6d  a5 d9
-    subc a, #0x10           ;fd6f  34 10
+    bbc mem_00d9:5, lab_fd7c ;fd6a  b5 d9 0f    Branch if MODE_TAPE was not pressed
+
+    ;MODE_TAPE pressed
+    clrb mem_00d9:5         ;fd6d  a5 d9        Clear bit indicating MODE_TAPE pressed
+
+    subc a, #0x10           ;fd6f  34 10        Subtract 0x10 from value from mem_01ef
     beq lab_fd5e            ;fd71  fd eb
+
     cmp a, #0x40            ;fd73  14 40
     bne lab_fd79            ;fd75  fc 02
-    mov a, #0x20            ;fd77  04 20
+
+    ;(A = 0x40)
+    mov a, #0x20            ;fd77  04 20        A = mem_01ef value for 'VER........'
 
 lab_fd79:
     mov mem_01ef, a         ;fd79  61 01 ef
@@ -23708,12 +23748,15 @@ lab_fd79:
 lab_fd7c:
     ret                     ;fd7c  20
 
+
 sub_fd7d:
+;Write VER and version number into display buffer
     mov @ix+0x01, #0x21     ;fd7d  86 01 21     0x21 'VER........'
     movw a, #mem_800a       ;fd80  e4 80 0a
     movw a, @a              ;fd83  93
     movw @ix+0x02, a        ;fd84  d6 02
     ret                     ;fd86  20
+
 
 sub_fd87:
 ;Called with A = number of bytes in KW1281 packet
