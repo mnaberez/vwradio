@@ -528,7 +528,7 @@
     mem_0390 = 0x390
     mem_0391 = 0x391
     mem_0392 = 0x392
-    mem_0393 = 0x393
+    mem_0393 = 0x393    ;KW1281 10416.67 bps receiving init state
     mem_0394 = 0x394
     mem_0395 = 0x395
     mem_0396 = 0x396
@@ -18571,7 +18571,7 @@ lab_e108:
     setb mem_00f9:6         ;e10c  ae f9
     setb mem_00f9:4         ;e10e  ac f9
     clrb uscr:7             ;e110  a7 41        Clear all UART receive error flags
-    call sub_e1d6           ;e112  31 e1 d6
+    call sub_e1d6           ;e112  31 e1 d6     Check KW1281 response byte based on state in mem_0393
     jmp lab_e12b            ;e115  21 e1 2b
 
 lab_e118:
@@ -18696,7 +18696,7 @@ sub_e1b8:
 
 sub_e1d6:
 ;Called only from sub_e0f3, which itself is called only from UART ISR
-;TODO what do 0x01 and 0x0a received mean?
+;Check KW1281 response byte based on state in mem_0393, advances mem_0393
     mov a, mem_0393         ;e1d6  60 03 93
 
     cmp a, #0x01            ;e1d9  14 01        mem_0393 case 1:
@@ -18709,6 +18709,7 @@ sub_e1d6:
 
 lab_e1e2:
 ;(mem_0393=1)
+;Check if (KW1281 byte received & 0x7f) = 0x01
     mov a, mem_038c         ;e1e2  60 03 8c
     beq lab_e1fe            ;e1e5  fd 17
 
@@ -18729,20 +18730,24 @@ lab_e1fb:
 lab_e1fe:
     ret                     ;e1fe  20
 
+
 lab_e1ff:
 ;(mem_0393=2)
+;Check if (KW1281 byte received & 0x7f) = 0x0a
     mov a, mem_038c         ;e1ff  60 03 8c
     beq lab_e1fe            ;e202  fd fa
 
     mov a, mem_0088         ;e204  05 88        A = KW1281 byte received
     and a, #0x7f            ;e206  64 7f
-    cmp a, #0x0a            ;e208  14 0a        A = value to store in mem_0393
+    cmp a, #0x0a            ;e208  14 0a
     bne lab_e1fe            ;e20a  fc f2
 
     mov a, #0x09            ;e20c  04 09
     mov mem_038c, a         ;e20e  61 03 8c
-    mov a, #0x06            ;e211  04 06
+
+    mov a, #0x06            ;e211  04 06        A = value to store in mem_038b
     mov mem_038b, a         ;e213  61 03 8b
+
     mov a, #0x00            ;e216  04 00
     beq lab_e1fb            ;e218  fd e1        BRANCH_ALWAYS_TAKEN
 
@@ -18758,13 +18763,13 @@ mem_e223:
 ;This table is used only when mem_0388=0
 ;Other table is at mem_e3bd
 ;
-    .word lab_e256          ;VECTOR   0     Does nothing
-    .word lab_e231          ;VECTOR   1
+    .word lab_e256          ;VECTOR   0
+    .word lab_e231          ;VECTOR   1     Receive KW1281 init: 0x55, 0x01, 0x8A
     .word lab_e281          ;VECTOR   2
     .word lab_e281          ;VECTOR   3
     .word lab_e2b7          ;VECTOR   4
     .word lab_e282          ;VECTOR   5
-    .word lab_e29e          ;VECTOR   6
+    .word lab_e29e          ;VECTOR   6     Send KW1281 init response: 0x75
 
 lab_e231:
 ;(mem_0388=0, mem_038b=1)
@@ -18774,7 +18779,7 @@ lab_e231:
     bbc mem_00f9:6, lab_e256 ;e239  b6 f9 1a
 
     mov a, mem_0088         ;e23c  05 88        A = KW1281 byte received
-    cmp a, #0x55            ;e23e  14 55        TODO what does 0x55 received mean?
+    cmp a, #0x55            ;e23e  14 55        Check if KW1281 (first byte in KW1281 init response from a module)
     bne lab_e256            ;e240  fc 14
 
 sub_e242:
@@ -18783,8 +18788,10 @@ sub_e242:
     clrb mem_00f9:3         ;e245  a3 f9
     mov a, #0x05            ;e247  04 05
     mov mem_038c, a         ;e249  61 03 8c
-    mov a, #0x01            ;e24c  04 01
+
+    mov a, #0x01            ;e24c  04 01        Set up mem_0393 so sub_e1d6 checks the next bytes to be 0x01, 0x8A
     mov mem_0393, a         ;e24e  61 03 93
+
     mov a, #0x00            ;e251  04 00        A = value to store in mem_038b
 
 lab_e253:
@@ -18849,6 +18856,7 @@ lab_e29e:
 ;(mem_0388=0, mem_038b=6)
     mov a, mem_038c         ;e29e  60 03 8c
     bne lab_e2b6            ;e2a1  fc 13
+
     mov mem_0089, #0x75     ;e2a3  85 89 75     KW1281 byte to send = 0x75
 
     mov a, #0x01            ;e2a6  04 01
@@ -18857,8 +18865,8 @@ lab_e29e:
     setb mem_00f9:3         ;e2aa  ab f9
     mov a, #0x0c            ;e2ac  04 0c
     mov mem_038c, a         ;e2ae  61 03 8c
-    mov a, #0x04            ;e2b1  04 04        A = value to store in mem_038b
 
+    mov a, #0x04            ;e2b1  04 04        A = value to store in mem_038b
 lab_e2b3:
     mov mem_038b, a         ;e2b3  61 03 8b
 
@@ -18869,6 +18877,7 @@ lab_e2b7:
 ;(mem_0388=0, mem_038b=4)
     mov a, mem_038c         ;e2b7  60 03 8c
     beq lab_e27f            ;e2ba  fd c3
+
     bbc mem_00f9:4, lab_e2b6 ;e2bc  b4 f9 f7
     clrb mem_00f9:4         ;e2bf  a4 f9
 
@@ -19391,7 +19400,7 @@ callv7_e55c:
     mov mem_00fb, a         ;e58c  45 fb        KW1281 10416.67 bps transmit state = Do nothing
     mov mem_00fc, a         ;e58e  45 fc        XXX appears unused
     mov mem_0391, a         ;e590  61 03 91
-    mov mem_0393, a         ;e593  61 03 93
+    mov mem_0393, a         ;e593  61 03 93     KW1281 10416.67 bps receiving init state = Do nothing
     mov mem_00fa, a         ;e596  45 fa
     mov mem_039b, a         ;e598  61 03 9b
     ret                     ;e59b  20
