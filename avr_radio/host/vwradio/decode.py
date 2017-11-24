@@ -298,46 +298,48 @@ def parse_analyzer_file(filename, emulator, visualizer):
 
     opener = gzip.open if filename.endswith('.gz') else open
     with opener(filename, 'r') as f:
-        headings = [ col.strip() for col in f.next().split(',') ]
-        reader = csv.DictReader(f, headings)
+        lines = f.read().decode('utf-8').splitlines()
 
-        for row in reader:
-            stb = int(row['STB'])
-            dat = int(row['DAT'])
-            clk = int(row['CLK'])
+    headings = [ col.strip() for col in lines.pop(0).split(',') ]
+    reader = csv.DictReader(lines, headings)
 
-            # strobe low->high starts session
-            if (old_stb == 0) and (stb == 1):
-                spi_command = bytearray()
+    for row in reader:
+        stb = int(row['STB'])
+        dat = int(row['DAT'])
+        clk = int(row['CLK'])
+
+        # strobe low->high starts session
+        if (old_stb == 0) and (stb == 1):
+            spi_command = bytearray()
+            byte = 0
+            bit = 7
+
+        # clock low->high latches data from radio to lcd
+        if (old_clk == 0) and (clk == 1):
+            if dat == 1:
+                byte += (2 ** bit)
+
+            bit -= 1
+            if bit < 0: # got all bits of byte
+                spi_command.append(byte)
                 byte = 0
                 bit = 7
 
-            # clock low->high latches data from radio to lcd
-            if (old_clk == 0) and (clk == 1):
-                if dat == 1:
-                    byte += (2 ** bit)
+        # strobe high->low ends session
+        if (old_stb == 1) and (stb == 0):
+            # process command
+            emulator.process(spi_command)
+            print('')
+            # print state
+            visualizer.print_state()
+            print('')
+            # prepare for next comnand
+            spi_command = bytearray()
+            byte = 0
+            bit = 7
 
-                bit -= 1
-                if bit < 0: # got all bits of byte
-                    spi_command.append(byte)
-                    byte = 0
-                    bit = 7
-
-            # strobe high->low ends session
-            if (old_stb == 1) and (stb == 0):
-                # process command
-                emulator.process(spi_command)
-                print('')
-                # print state
-                visualizer.print_state()
-                print('')
-                # prepare for next comnand
-                spi_command = bytearray()
-                byte = 0
-                bit = 7
-
-            old_stb = stb
-            old_clk = clk
+        old_stb = stb
+        old_clk = clk
 
 
 def main():
