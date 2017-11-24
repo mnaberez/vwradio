@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import csv
 import gzip
 import sys
@@ -248,7 +250,7 @@ class Visualizer(object):
             for charnum in range(len(addresses)):
                 byte = data[(charnum * 7) + row]
                 line += (format(byte, '#010b')[5:].
-                          replace('0', '.').replace('1', 'O') + '  ')
+                          replace('0', '.').replace('1', '▊') + '  ')
             lines.append(line)
         return lines
 
