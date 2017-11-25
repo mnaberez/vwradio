@@ -3,7 +3,6 @@ import sys
 from vwradio.avrclient import make_client
 
 client = make_client()
-ser = client.serial
 
 while True:
     text = client.read_lcd()
