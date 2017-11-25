@@ -6712,17 +6712,17 @@ lab_a2fb:
 
 lab_a303:
 ;(mem_0096=0x05)
-    .word lab_a33b          ;a303  a3 3b       VECTOR
-    .word lab_a319          ;a305  a3 19       VECTOR
-    .word lab_a33c          ;a307  a3 3c       VECTOR
-    .word lab_a33b          ;a309  a3 3b       VECTOR
-    .word lab_a39f          ;a30b  a3 9f       VECTOR
-    .word lab_a343          ;a30d  a3 43       VECTOR
-    .word lab_a34a          ;a30f  a3 4a       VECTOR
-    .word lab_a36d          ;a311  a3 6d       VECTOR
-    .word lab_a38b          ;a313  a3 8b       VECTOR
-    .word lab_a394          ;a315  a3 94       VECTOR
-    .word lab_a39d          ;a317  a3 9d       VECTOR
+    .word lab_a33b          ;a303  a3 3b       VECTOR 0
+    .word lab_a319          ;a305  a3 19       VECTOR 1
+    .word lab_a33c          ;a307  a3 3c       VECTOR 2
+    .word lab_a33b          ;a309  a3 3b       VECTOR 3
+    .word lab_a39f          ;a30b  a3 9f       VECTOR 4
+    .word lab_a343          ;a30d  a3 43       VECTOR 5
+    .word lab_a34a          ;a30f  a3 4a       VECTOR 6
+    .word lab_a36d          ;a311  a3 6d       VECTOR 7
+    .word lab_a38b          ;a313  a3 8b       VECTOR 8
+    .word lab_a394          ;a315  a3 94       VECTOR 9
+    .word lab_a39d          ;a317  a3 9d       VECTOR a
 
 lab_a319:
     mov a, #0x03            ;a319  04 03        A = mem_0201 value for initial
@@ -6764,22 +6764,27 @@ lab_a343:
 
 lab_a34a:
     bhs lab_a33b            ;a34a  f8 ef
+
     mov a, #0x01            ;a34c  04 01        A = mem_0201 value for NO CODE
     mov mem_0201, a         ;a34e  61 02 01
+
     mov a, #0x1e            ;a351  04 1e
     mov mem_0202, a         ;a353  61 02 02
+
     movw a, mem_0275        ;a356  c4 02 75
     movw a, #0x5a5a         ;a359  e4 5a 5a
     cmpw a                  ;a35c  13
     bne lab_a369            ;a35d  fc 0a
+
     movw a, mem_0277        ;a35f  c4 02 77
     cmpw a                  ;a362  13
     bne lab_a369            ;a363  fc 04
-    mov a, #0x04            ;a365  04 04
+
+    mov a, #0x04            ;a365  04 04        A = value to store in mem_00cd
     bne lab_a337            ;a367  fc ce        BRANCH_ALWAYS_TAKEN
 
 lab_a369:
-    mov a, #0x07            ;a369  04 07
+    mov a, #0x07            ;a369  04 07        A = value to store in mem_00cd
     bne lab_a337            ;a36b  fc ca        BRANCH_ALWAYS_TAKEN
 
 lab_a36d:
@@ -6794,7 +6799,7 @@ lab_a36d:
     movw mem_0165+2, a      ;a381  d4 01 67
 
     mov mem_00f1, #0x86     ;a384  85 f1 86
-    mov a, #0x08            ;a387  04 08
+    mov a, #0x08            ;a387  04 08        A = value to store in mem_00cd
     bne lab_a337            ;a389  fc ac        BRANCH_ALWAYS_TAKEN
 
 lab_a38b:
