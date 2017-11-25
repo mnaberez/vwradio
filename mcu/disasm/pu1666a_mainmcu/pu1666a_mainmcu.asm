@@ -21073,50 +21073,65 @@ lab_edd5:
     jmp @a                  ;edd7  e0
 
 mem_edd8:
+    ;mem_01c7 = 0x0d
     .word 0xea15            ;DATA
     .word lab_ee4b          ;VECTOR
 
+    ;mem_01c7 = 0x0c
     .word 0xe916            ;DATA
     .word lab_ee4b          ;VECTOR
 
+    ;mem_01c7 = 0x0b
     .word 0xd827            ;DATA
     .word lab_ee10          ;VECTOR
 
-    .word 0x0000            ;DATA
+    ;mem_01c7 = 0x0a
+    .word 0                 ;DATA
     .word lab_ee83          ;VECTOR
 
+    ;mem_01c7 = 0x09
     .word 0xf708            ;DATA
     .word lab_ee10          ;VECTOR
 
+    ;mem_01c7 = 0x08
     .word 0xf807            ;DATA
     .word lab_ee10          ;VECTOR
 
+    ;mem_01c7 = 0x07
     .word 0xf906            ;DATA
     .word lab_ee10          ;VECTOR
 
+    ;mem_01c7 = 0x06
     .word 0xfa05            ;DATA
     .word lab_ee10          ;VECTOR
 
+    ;mem_01c7 = 0x05
     .word 0xe51a            ;DATA
     .word lab_ee67          ;VECTOR
 
+    ;mem_01c7 = 0x04
     .word 0xe41b            ;DATA
     .word lab_ee67          ;VECTOR
 
+    ;mem_01c7 = 0x03
     .word 0xe11e
     .word lab_ee10          ;VECTOR
 
+    ;mem_01c7 = 0x02
     .word 0xe01f            ;DATA
     .word lab_ee10          ;VECTOR
 
+    ;mem_01c7 = 0x01
     .word 0                 ;DATA
     .word lab_ee26          ;VECTOR
 
+    ;mem_01c7 = 0x00
     .word 0                 ;DATA
     .word lab_ee83          ;VECTOR
 
 
 lab_ee10:
+;(mem_01c7 = 0x02, 0x03, 0x06, 0x07, 0x08, 0x09, 0x0b)
     mov a, mem_01ce         ;ee10  60 01 ce
     mov a, #0x02            ;ee13  04 02
     cmp a                   ;ee15  12
@@ -21129,11 +21144,12 @@ lab_ee19:
     ret                     ;ee1f  20
 
 mem_ee20:
-    .word lab_ee84          ;ee20  ee 84       VECTOR
-    .word lab_ee88          ;ee22  ee 88       VECTOR
-    .word lab_ee8a          ;ee24  ee 8a       VECTOR
+    .word lab_ee84          ;ee20  ee 84       VECTOR 0
+    .word lab_ee88          ;ee22  ee 88       VECTOR 1
+    .word lab_ee8a          ;ee24  ee 8a       VECTOR 2
 
 lab_ee26:
+;(mem_01c7 = 0x01)
     movw ix, #mem_ee47      ;ee26  e6 ee 47
     mov a, mem_01ce         ;ee29  60 01 ce
     mov a, #0x06            ;ee2c  04 06
@@ -21148,13 +21164,13 @@ lab_ee32:
 
 mem_ee39:
 ;Table used with mem_01ce
-    .word lab_ee90          ;ee39  ee 90       VECTOR
-    .word lab_ee88          ;ee3b  ee 88       VECTOR
-    .word lab_ee84          ;ee3d  ee 84       VECTOR
-    .word lab_ee88          ;ee3f  ee 88       VECTOR
-    .word lab_eed0          ;ee41  ee d0       VECTOR
-    .word lab_ee88          ;ee43  ee 88       VECTOR
-    .word lab_ee8a          ;ee45  ee 8a       VECTOR
+    .word lab_ee90          ;ee39  ee 90       VECTOR 0
+    .word lab_ee88          ;ee3b  ee 88       VECTOR 1
+    .word lab_ee84          ;ee3d  ee 84       VECTOR 2
+    .word lab_ee88          ;ee3f  ee 88       VECTOR 3
+    .word lab_eed0          ;ee41  ee d0       VECTOR 4
+    .word lab_ee88          ;ee43  ee 88       VECTOR 5
+    .word lab_ee8a          ;ee45  ee 8a       VECTOR 6
 
 mem_ee47:
     .byte 0xD7              ;ee47  d7          DATA '\xd7'
@@ -21163,6 +21179,7 @@ mem_ee47:
     .byte 0x1C              ;ee4a  1c          DATA '\x1c'
 
 lab_ee4b:
+;(mem_01c7 = 0x0d, 0x0c)
     mov a, mem_01ce         ;ee4b  60 01 ce
     mov a, #0x05            ;ee4e  04 05
     cmp a                   ;ee50  12
@@ -21175,12 +21192,12 @@ lab_ee54:
     ret                     ;ee5a  20
 
 mem_ee5b:
-    .word lab_eeae          ;ee5b  ee ae       VECTOR
-    .word lab_ee88          ;ee5d  ee 88       VECTOR
-    .word lab_eeb4          ;ee5f  ee b4       VECTOR
-    .word lab_ee88          ;ee61  ee 88       VECTOR
-    .word lab_eeb6          ;ee63  ee b6       VECTOR
-    .word lab_eecf          ;ee65  ee cf       VECTOR
+    .word lab_eeae          ;ee5b  ee ae       VECTOR 0
+    .word lab_ee88          ;ee5d  ee 88       VECTOR 1
+    .word lab_eeb4          ;ee5f  ee b4       VECTOR 2
+    .word lab_ee88          ;ee61  ee 88       VECTOR 3
+    .word lab_eeb6          ;ee63  ee b6       VECTOR 4
+    .word lab_eecf          ;ee65  ee cf       VECTOR 5
 
 lab_ee67:
     mov a, mem_01ce         ;ee67  60 01 ce
@@ -21195,14 +21212,15 @@ lab_ee70:
     ret                     ;ee76  20
 
 mem_ee77:
-    .word lab_ee84          ;ee77  ee 84       VECTOR
-    .word lab_ee88          ;ee79  ee 88       VECTOR
-    .word lab_eec5          ;ee7b  ee c5       VECTOR
-    .word lab_ee88          ;ee7d  ee 88       VECTOR
-    .word lab_ee8a          ;ee7f  ee 8a       VECTOR
-    .word lab_eecf          ;ee81  ee cf       VECTOR
+    .word lab_ee84          ;ee77  ee 84       VECTOR 0
+    .word lab_ee88          ;ee79  ee 88       VECTOR 1
+    .word lab_eec5          ;ee7b  ee c5       VECTOR 2
+    .word lab_ee88          ;ee7d  ee 88       VECTOR 3
+    .word lab_ee8a          ;ee7f  ee 8a       VECTOR 4
+    .word lab_eecf          ;ee81  ee cf       VECTOR 5
 
 lab_ee83:
+;(mem_01c7 = 0x00, 0x0a)
     ret                     ;ee83 20
 
 lab_ee84:
