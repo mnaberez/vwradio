@@ -288,7 +288,7 @@
     mem_01ec = 0x1ec
     mem_01ed = 0x1ed
     mem_01ee = 0x1ee
-    mem_01ef = 0x1ef
+    mem_01ef = 0x1ef    ;SOUND_BAL menu state: 0=None, 0x10='RAD', 0x20='VER', 0x50='FERN'
     mem_01f0 = 0x1f0
     mem_01f1 = 0x1f1
     mem_01f2 = 0x1f2
@@ -2983,7 +2983,7 @@ sub_8d00:
     ;SOUND_BAL menu
     mov a, #0x00            ;8d05  04 00
     mov mem_0096, a         ;8d07  45 96
-    mov mem_01ef, a         ;8d09  61 01 ef
+    mov mem_01ef, a         ;8d09  61 01 ef     SOUND_BAL menu state = None
 
 lab_8d0c:
     ret                     ;8d0c  20
@@ -3611,7 +3611,7 @@ sub_90cb:
 
     mov a, #0x00            ;90d8  04 00
     mov mem_0096, a         ;90da  45 96
-    mov mem_01ef, a         ;90dc  61 01 ef
+    mov mem_01ef, a         ;90dc  61 01 ef     SOUND_BAL menu state
     mov mem_00e8, a         ;90df  45 e8        Copy of Sub-to-Main Byte 1 = 0
     mov mem_0255, a         ;90e1  61 02 55     Copy of Sub-to-Main Byte 2 = 0
     mov mem_03b5, a         ;90e4  61 03 b5     Copy of Sub-to-Main Byte 3 = 0
@@ -3718,16 +3718,16 @@ lab_91a8:
     clrb mem_00d7:5         ;91a8  a5 d7
     call sub_9265           ;91aa  31 92 65
     setb mem_00e9:6         ;91ad  ae e9
-    callv #5                ;91af  ed          CALLV #5 = callv5_8d0d
+    callv #5                ;91af  ed           CALLV #5 = callv5_8d0d
     ret                     ;91b0  20
 
 sub_91b1:
     clrb mem_0099:7         ;91b1  a7 99
     clrb mem_00d7:4         ;91b3  a4 d7
-    callv #4                ;91b5  ec          CALLV #4 = callv4_8c84
+    callv #4                ;91b5  ec           CALLV #4 = callv4_8c84
     mov a, #0x00            ;91b6  04 00
     mov mem_0096, a         ;91b8  45 96
-    mov mem_01ef, a         ;91ba  61 01 ef
+    mov mem_01ef, a         ;91ba  61 01 ef     SOUND_BAL menu state
     mov mem_00c2, #0x00     ;91bd  85 c2 00
     call sub_8d22           ;91c0  31 8d 22
     call sub_8d1a           ;91c3  31 8d 1a
@@ -17718,7 +17718,7 @@ sub_dbbd:
     mov mem_0183, a         ;dbca  61 01 83
     mov mem_00cc, a         ;dbcd  45 cc
     mov mem_0096, a         ;dbcf  45 96
-    mov mem_01ef, a         ;dbd1  61 01 ef
+    mov mem_01ef, a         ;dbd1  61 01 ef     SOUND_BAL menu state
     mov mem_00d2, a         ;dbd4  45 d2
     call sub_d9d0           ;dbd6  31 d9 d0
     call sub_87ae           ;dbd9  31 87 ae
@@ -20236,8 +20236,9 @@ lab_e8ed:
 
 sub_e8fb:
     call sub_e9ad           ;e8fb  31 e9 ad
-    mov a, mem_01ef         ;e8fe  60 01 ef
+    mov a, mem_01ef         ;e8fe  60 01 ef     A = SOUND_BAL_menu state
     bne lab_e93b            ;e901  fc 38
+    ;SOUND_BAL menu state is zero
     bbc mem_00df:0, lab_e93f ;e903  b0 df 39
     call sub_ef15           ;e906  31 ef 15
     mov a, #0x0a            ;e909  04 0a
@@ -23236,8 +23237,9 @@ lab_fa3d:
     mov a, #0x00            ;fa3d  04 00
     mov mem_0292, a         ;fa3f  61 02 92
     bbs mem_00b2:3, lab_fa4f ;fa42  bb b2 0a
-    mov a, mem_01ef         ;fa45  60 01 ef
+    mov a, mem_01ef         ;fa45  60 01 ef     A = SOUND_BAL menu state
     bne lab_fa4f            ;fa48  fc 05
+    ;SOUND_BAL menu state is zero
     mov a, #0x01            ;fa4a  04 01
     mov mem_02cc, a         ;fa4c  61 02 cc
 
@@ -23751,26 +23753,27 @@ sub_fcd7:
 
 sub_fcea:
     movw ix, #mem_02b6      ;fcea  e6 02 b6     IX = pointer to Main-to-Sub work buffer #2
-    mov a, mem_01ef         ;fced  60 01 ef
-    bne lab_fcf9            ;fcf0  fc 07
+    mov a, mem_01ef         ;fced  60 01 ef     A = SOUND_BAL menu state
+    bne lab_fcf9            ;fcf0  fc 07        Branch if SOUND_BAL menu state is nonzero
 
-    mov a, #0x10            ;fcf2  04 10
-    mov mem_01ef, a         ;fcf4  61 01 ef
+    ;SOUND_BAL menu state is zero
+    mov a, #0x10            ;fcf2  04 10        0x10 = SOUND_BAL menu state for 'RAD.3CP.T7.'
+    mov mem_01ef, a         ;fcf4  61 01 ef     Store SOUND_BAL menu state
 
     setb mem_0097:2         ;fcf7  aa 97
 
 lab_fcf9:
     call sub_fd31           ;fcf9  31 fd 31
-    call sub_fd4d           ;fcfc  31 fd 4d     Change SOUND_BAL menu display if MODE_CD or MODE_TAPE pressed.
+    call sub_fd4d           ;fcfc  31 fd 4d     Change SOUND_BAL menu state if MODE_CD or MODE_TAPE pressed.
     bbc mem_0097:2, lab_fd11 ;fcff  b2 97 0f
     mov a, #0x00            ;fd02  04 00
     call fill_5_bytes_at_ix ;fd04  31 e6 ef
 
-    mov a, mem_01ef         ;fd07  60 01 ef     A = SOUND_BAL menu display state
+    mov a, mem_01ef         ;fd07  60 01 ef     A = SOUND_BAL menu state
     cmp a, #0x10            ;fd0a  14 10        Compare to state for 'RAD.3CP.T7.'
     bne lab_fd18            ;fd0c  fc 0a
 
-    ;(mem_01ef=0x10)
+    ;(mem_01ef=0x10 'RAD.3CP.T7.')
     mov @ix+0x01, #0x20     ;fd0e  86 01 20     0x20 'RAD.3CP.T7.'
 
 lab_fd11:
@@ -23783,7 +23786,7 @@ lab_fd18:
     cmp a, #0x20            ;fd18  14 20        Compare to state for 'VER........'
     bne lab_fd22            ;fd1a  fc 06
 
-    ;(mem_01ef=0x20)
+    ;(mem_01ef=0x20 'VER........')
     call sub_fd7d           ;fd1c  31 fd 7d     Write 0x21 'VER........' and version number into display buffer
     jmp lab_fd11            ;fd1f  21 fd 11
 
@@ -23791,7 +23794,7 @@ lab_fd22:
     cmp a, #0x50            ;fd22  14 50        Compare to state for 'FERN...'
     bne lab_fd11            ;fd24  fc eb
 
-    ;(mem_01ef=0x50)
+    ;(mem_01ef=0x50 'FERN...xxx.')
     bbc pdr2:0, lab_fd2d    ;fd26  b0 04 04     PHANTOM_ON
     mov @ix+0x01, #0x30     ;fd29  86 01 30     0x30 'FERN...ON..'
     ret                     ;fd2c  20
@@ -23824,7 +23827,7 @@ lab_fd40:
 
 
 sub_fd4d:
-;Change SOUND_BAL menu display if MODE_CD or MODE_TAPE pressed.
+;Change SOUND_BAL menu state if MODE_CD or MODE_TAPE pressed.
 ;
 ;Inputs:
 ;  mem_00d9:2 set = MODE_CD was pressed    (will be cleared if set)
@@ -23880,7 +23883,7 @@ lab_fd6a:
     mov a, #0x20            ;fd77  04 20        A = mem_01ef value for 'VER........'
 
 lab_fd79:
-    mov mem_01ef, a         ;fd79  61 01 ef
+    mov mem_01ef, a         ;fd79  61 01 ef     Store new SOUND_BAL menu state
 
 lab_fd7c:
     ret                     ;fd7c  20
