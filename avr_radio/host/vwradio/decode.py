@@ -250,7 +250,7 @@ class Visualizer(object):
             for charnum in range(len(addresses)):
                 byte = data[(charnum * 7) + row]
                 line += (format(byte, '#010b')[5:].
-                          replace('0', '.').replace('1', '▊') + '  ')
+                          replace('0', u'·').replace('1', u'▊') + '  ')
             lines.append(line)
         return lines
 
