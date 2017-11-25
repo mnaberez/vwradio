@@ -5963,6 +5963,7 @@ sub_9ebd:
 sub_9ec3:
     mov a, mem_029a         ;9ec3  60 02 9a
     mov mem_00b3, a         ;9ec6  45 b3        Bass level
+
     mov a, mem_029b         ;9ec8  60 02 9b
     mov mem_00b4, a         ;9ecb  45 b4        Treb level
     ret                     ;9ecd  20
@@ -6073,15 +6074,19 @@ lab_9f56:
     mov mem_0331, a         ;9f74  61 03 31
     clrb mem_00df:2         ;9f77  a2 df
     clrb mem_00df:1         ;9f79  a1 df
+
     movw a, #0x0000         ;9f7b  e4 00 00
     movw mem_0294, a        ;9f7e  d4 02 94
+
     mov a, mem_029c         ;9f81  60 02 9c
     mov mem_00b3, a         ;9f84  45 b3        Bass level
+
     mov a, mem_029d         ;9f86  60 02 9d
     mov mem_00b4, a         ;9f89  45 b4        Treb level
+
     setb mem_0098:4         ;9f8b  ac 98
-    mov a, #0x07            ;9f8d  04 07
-    mov a, #0x08            ;9f8f  04 08
+    mov a, #0x07            ;9f8d  04 07        A = value to store in mem_00ce
+    mov a, #0x08            ;9f8f  04 08        A = value to store in mem_0312
 
 lab_9f91:
     mov mem_0312, a         ;9f91  61 03 12
@@ -6098,8 +6103,8 @@ lab_9f98:
     bne lab_9f97            ;9f9b  fc fa
     call sub_9ece           ;9f9d  31 9e ce
     setb mem_00b2:7         ;9fa0  af b2
-    mov a, #0x08            ;9fa2  04 08
-    mov a, #0x05            ;9fa4  04 05
+    mov a, #0x08            ;9fa2  04 08        A = value to store in mem_00ce
+    mov a, #0x05            ;9fa4  04 05        A = value to store in mem_0312
     bne lab_9f91            ;9fa6  fc e9        BRANCH_ALWAYS_TAKEN
 
 lab_9fa8:
@@ -6113,23 +6118,23 @@ lab_9fa8:
     setb mem_00df:1         ;9fb9  a9 df
     clrb mem_00df:3         ;9fbb  a3 df
     clrb mem_00df:4         ;9fbd  a4 df
-    mov a, #0x09            ;9fbf  04 09
+    mov a, #0x09            ;9fbf  04 09        A = value to store in mem_00ce
     bne lab_9f95            ;9fc1  fc d2        BRANCH_ALWAYS_TAKEN
 
 lab_9fc3:
     bbc mem_00df:2, lab_9f97 ;9fc3  b2 df d1
     clrb mem_00df:1         ;9fc6  a1 df
     clrb mem_00df:2         ;9fc8  a2 df
-    mov a, #0x0a            ;9fca  04 0a
-    mov a, #0x14            ;9fcc  04 14
+    mov a, #0x0a            ;9fca  04 0a        A = value to store in mem_00ce
+    mov a, #0x14            ;9fcc  04 14        A = value to store in mem_0312
     bne lab_9f91            ;9fce  fc c1        BRANCH_ALWAYS_TAKEN
 
 lab_9fd0:
     mov a, mem_0312         ;9fd0  60 03 12
     bne lab_9f97            ;9fd3  fc c2
     setb mem_00df:0         ;9fd5  a8 df
-    mov a, #0x02            ;9fd7  04 02
-    mov a, #0x14            ;9fd9  04 14
+    mov a, #0x02            ;9fd7  04 02        A = value to store in mem_00ce
+    mov a, #0x14            ;9fd9  04 14        A = value to store in mem_0312
     bne lab_9f91            ;9fdb  fc b4        BRANCH_ALWAYS_TAKEN
 
 sub_9fdd:
@@ -6230,7 +6235,7 @@ mem_a04d:
 ;Table used with mem_0096
 ;Some entries point to code, some point to jump tables
     .word lab_a06d          ;VECTOR     mem_0096=0x00   code            nop
-    .word lab_a072          ;VECTOR     mem_0096=0x01   jump table
+    .word lab_a072          ;VECTOR     mem_0096=0x01   jump table      ? menu
     .word lab_a12b          ;VECTOR     mem_0096=0x02   jump table      CODE entry
     .word lab_a1c7          ;VECTOR     mem_0096=0x03   jump table      SAFE entry
     .word lab_a2bb          ;VECTOR     mem_0096=0x04   jump table      SAFE locked out?
@@ -6240,31 +6245,31 @@ mem_a04d:
     .word lab_a06d          ;VECTOR     mem_0096=0x08   code            nop
     .word lab_a3e9          ;VECTOR     mem_0096=0x09   jump table      CLEAR
     .word lab_a067          ;VECTOR     mem_0096=0x0a   code            SCAN menu (sub_f488)
-    .word lab_a06e          ;VECTOR     mem_0096=0x0b   code            BAL menu (sub_fcea)
+    .word lab_a06e          ;VECTOR     mem_0096=0x0b   code            SOUND_BAL menu (sub_fcea)
     .word lab_a3c4          ;VECTOR     mem_0096=0x0c   jump table      VER only menu
 
 lab_a067:
-;(mem_0096=0x0a)
+;(mem_0096=0x0a SCAN menu)
     bbs mem_008c:7, lab_a06d ;a067  bf 8c 03
     call sub_f488           ;a06a  31 f4 88
 
 lab_a06d:
-;(mem_0096=0x00, 0x07, 0x08)
+;(mem_0096=0x00, 0x07, 0x08 all nops)
     ret                     ;a06d  20
 
 lab_a06e:
-;(mem_0096=0x0b)
-    call sub_fcea           ;a06e  31 fc ea
+;(mem_0096=0x0b SOUND_BAL menu)
+    call sub_fcea           ;a06e  31 fc ea     Write SOUND_BAL menu into Main-to-Sub work buffer #2
     ret                     ;a071  20
 
 lab_a072:
-;(mem_0096=0x01)
-    .word lab_a09c          ;a072  a0 9c       VECTOR
-    .word lab_a07e          ;a074  a0 7e       VECTOR
-    .word lab_a08d          ;a076  a0 8d       VECTOR
-    .word lab_a09d          ;a078  a0 9d       VECTOR
-    .word lab_a0db          ;a07a  a0 db       VECTOR
-    .word lab_a10b          ;a07c  a1 0b       VECTOR
+;(mem_0096=0x01 ? menu)
+    .word lab_a09c          ;a072  a0 9c       VECTOR 0
+    .word lab_a07e          ;a074  a0 7e       VECTOR 1
+    .word lab_a08d          ;a076  a0 8d       VECTOR 2
+    .word lab_a09d          ;a078  a0 9d       VECTOR 3
+    .word lab_a0db          ;a07a  a0 db       VECTOR 4
+    .word lab_a10b          ;a07c  a1 0b       VECTOR 5
 
 lab_a07e:
     mov a, #0x00            ;a07e  04 00
@@ -6273,14 +6278,16 @@ lab_a07e:
 lab_a083:
     mov a, #0x59            ;a083  04 59
     mov mem_0275, a         ;a085  61 02 75
-    movw a, #0xab02         ;a088  e4 ab 02
+    movw a, #0xab02         ;a088  e4 ab 02     A = value to store in mem_00cd (0x02)
+                            ;                       value to store in mem_00f1 (0xab)
     bne lab_a097            ;a08b  fc 0a        BRANCH_ALWAYS_TAKEN
 
 lab_a08d:
     bhs lab_a09c            ;a08d  f8 0d
     mov a, #0x00            ;a08f  04 00
     mov mem_0275, a         ;a091  61 02 75
-    movw a, #0xac03         ;a094  e4 ac 03
+    movw a, #0xac03         ;a094  e4 ac 03     A = value to store in mem_00cd (0x03)
+                            ;                       value to store in mem_00f1 (0xac)
 
 lab_a097:
     mov mem_00cd, a         ;a097  45 cd
@@ -6307,7 +6314,8 @@ lab_a0b5:
     movw a, #0x0000         ;a0b5  e4 00 00
     movw mem_0275, a        ;a0b8  d4 02 75
     movw mem_0277, a        ;a0bb  d4 02 77
-    movw a, #0x8204         ;a0be  e4 82 04
+    movw a, #0x8204         ;a0be  e4 82 04     A = value to store in mem_00cd (0x04)
+                            ;                       value to store in mem_00f1 (0x82)
     bne lab_a097            ;a0c1  fc d4        BRANCH_ALWAYS_TAKEN
 
 lab_a0c3:
@@ -6344,7 +6352,8 @@ lab_a0ea:
     bne lab_a0b5            ;a0ed  fc c6
     cmp a, #0x01            ;a0ef  14 01
     bne lab_a0f8            ;a0f1  fc 05
-    movw a, #0x9405         ;a0f3  e4 94 05
+    movw a, #0x9405         ;a0f3  e4 94 05     A = value to store in mem_00cd (0x05)
+                            ;                       value to store in mem_00f1 (0x94)
     bne lab_a097            ;a0f6  fc 9f        BRANCH_ALWAYS_TAKEN
 
 lab_a0f8:
@@ -6353,6 +6362,7 @@ lab_a0f8:
 lab_a0fa:
     mov a, mem_0298         ;a0fa  60 02 98
     mov mem_00b3, a         ;a0fd  45 b3        Bass level
+
     mov a, mem_0299         ;a0ff  60 02 99
     mov mem_00b4, a         ;a102  45 b4        Treb level
 
@@ -6380,7 +6390,7 @@ lab_a10b:
     jmp lab_a0fa            ;a128  21 a0 fa
 
 lab_a12b:
-;(mem_0096=0x02)
+;(mem_0096=0x02 CODE entry)
     .word lab_a14f          ;a12b  a1 4f       VECTOR
     .word lab_a135          ;a12d  a1 35       VECTOR
     .word lab_a150          ;a12f  a1 50       VECTOR
@@ -6500,7 +6510,7 @@ lab_a1c4:
 
 
 lab_a1c7:
-;(mem_0096=0x03)
+;(mem_0096=0x03 SAFE entry)
     .word lab_a1e7          ;a1c7  a1 e7       VECTOR
     .word lab_a1d7          ;a1c9  a1 d7       VECTOR
     .word lab_a1e8          ;a1cb  a1 e8       VECTOR
@@ -6657,7 +6667,7 @@ lab_a2b6:
     jmp lab_a1e5            ;a2b8  21 a1 e5
 
 lab_a2bb:
-;(mem_0096=0x04)
+;(mem_0096=0x04 SAFE locked out?)
     .word lab_a2e1          ;a2bb  a2 e1       VECTOR
     .word lab_a2c5          ;a2bd  a2 c5       VECTOR
     .word lab_a2e2          ;a2bf  a2 e2       VECTOR
@@ -6711,7 +6721,7 @@ lab_a2fb:
     jmp lab_a2dd            ;a300  21 a2 dd
 
 lab_a303:
-;(mem_0096=0x05)
+;(mem_0096=0x05 INITIAL mode)
     .word lab_a33b          ;a303  a3 3b       VECTOR 0
     .word lab_a319          ;a305  a3 19       VECTOR 1
     .word lab_a33c          ;a307  a3 3c       VECTOR 2
@@ -6824,7 +6834,7 @@ lab_a39f:
     beq lab_a339            ;a3a5  fd 92        BRANCH_ALWAYS_TAKEN
 
 lab_a3a7:
-;(mem_0096=0x06)
+;(mem_0096=0x06 SAFE different?)
     .word lab_a3bd          ;a3a7  a3 bd       VECTOR
     .word lab_a3ad          ;a3a9  a3 ad       VECTOR
     .word lab_a3be          ;a3ab  a3 be       VECTOR
@@ -6846,7 +6856,7 @@ lab_a3be:
     blo lab_a3e1            ;a3c2  f9 1d        BRANCH_ALWAYS_TAKEN
 
 lab_a3c4:
-;(mem_0096=0x0c)
+;(mem_0096=0x0c VER only menu)
     .word lab_a3de          ;a3c4  a3 de       VECTOR
     .word lab_a3ca          ;a3c6  a3 ca       VECTOR
     .word lab_a3df          ;a3c8  a3 df       VECTOR
@@ -6882,7 +6892,7 @@ lab_a3e1:
     beq lab_a3dc            ;a3e7  fd f3        BRANCH_ALWAYS_TAKEN
 
 lab_a3e9:
-;(mem_0096=0x09)
+;(mem_0096=0x09 CLEAR)
     .word lab_a437          ;a3e9  a4 37       VECTOR
     .word lab_a3f3          ;a3eb  a3 f3       VECTOR
     .word lab_a438          ;a3ed  a4 38       VECTOR
@@ -22324,7 +22334,7 @@ lab_f485:
     ret                     ;f487  20
 
 sub_f488:
-;(mem_0096=0x0a)
+;(mem_0096=0x0a SCAN menu)
     mov a, mem_01ed         ;f488  60 01 ed
     bne lab_f490            ;f48b  fc 03
     call sub_f4c3           ;f48d  31 f4 c3
@@ -23752,6 +23762,8 @@ sub_fcd7:
 
 
 sub_fcea:
+;Write SOUND_BAL menu into Main-to-Sub work buffer #2
+;
     movw ix, #mem_02b6      ;fcea  e6 02 b6     IX = pointer to Main-to-Sub work buffer #2
     mov a, mem_01ef         ;fced  60 01 ef     A = SOUND_BAL menu state
     bne lab_fcf9            ;fcf0  fc 07        Branch if SOUND_BAL menu state is nonzero
