@@ -19558,9 +19558,12 @@ lab_e517:
     cmp a                   ;e526  12
     bne lab_e52b            ;e527  fc 02
 
+    ;Word at mem_03a1 == Word at mem_039f
+
     beq lab_e536            ;e529  fd 0b        BRANCH_ALWAYS_TAKEN
 
 lab_e52b:
+    ;Word at mem_03a1 != Word at mem_039f
     call sub_e4d3           ;e52b  31 e4 d3     Copy mem_03a1->mem_039f, mem_03a2->mem_03a0
     mov a, #0x03            ;e52e  04 03        A = value to store in mem_00fd low nibble
     call set_00fd_lo_nib    ;e530  31 e3 ac     Store low nibble of A in mem_00fd low nibble
@@ -19591,7 +19594,7 @@ lab_e552:
     bne lab_e55b            ;e554  fc 05
 
 lab_e556:
-    mov a, #0x0a            ;e556  04 0a
+    mov a, #0x0a            ;e556  04 0a        A = value to store in mem_038b
 
 lab_e558:
     mov mem_038b, a         ;e558  61 03 8b
@@ -19647,6 +19650,8 @@ mem_e5aa:
 
 sub_e5ae:
 ;Unknown, uses mem_e5aa table
+;Called only from sub_826e
+;
     movw a, mem_039f        ;e5ae  c4 03 9f
     movw mem_03a1, a        ;e5b1  d4 03 a1
 
@@ -19686,10 +19691,16 @@ sub_e5ae:
 
     movw ix, #mem_03ab+3    ;e5fc  e6 03 ae
     movw ep, #mem_e5aa+3    ;e5ff  e7 e5 ad
-    call sub_e6ca           ;e602  31 e6 ca     Unknown add 4 bytes @IX/@EP, overwrites @IX
+    call sub_e6ca           ;e602  31 e6 ca     Add 4 bytes @EP to 4 bytes @IX (overwrites @IX)
+                            ;                   @IX = ((@IX + 0x0018BDE7) & 0xFFFFFFFF)
     ret                     ;e605  20
 
+
 sub_e606:
+;Unknown, does something to mem_03a3/mem_03a4
+;Stores result in mem_03b4
+;Called only from sub_e672
+;
     mov r1, #0x00           ;e606  89 00
     mov r2, #0x02           ;e608  8a 02
     movw a, mem_03a3        ;e60a  c4 03 a3
@@ -19711,6 +19722,7 @@ lab_e613:
     mov a, r1               ;e61a  09
     mov mem_03b4, a         ;e61b  61 03 b4
     ret                     ;e61e  20
+
 
 sub_e61f:
 ;Unknown, uses e5aa table
@@ -19736,7 +19748,8 @@ sub_e61f:
 
     movw ix, #mem_03ab+3    ;e640  e6 03 ae
     movw ep, #mem_e5aa+3    ;e643  e7 e5 ad
-    call sub_e6b3           ;e646  31 e6 b3     Unknown subtract 4 bytes @IX/@EP, overwrites @IX
+    call sub_e6b3           ;e646  31 e6 b3     Subtract 4 bytes @EP from 4 bytes @IX (overwrites @IX)
+                            ;                   @IX = ((@IX - 0x0018BDE7) & 0xFFFFFFFF)
 
     ;Copy 4 bytes at mem_03ab- to mem_03a7-
     movw a, mem_03ab        ;e649  c4 03 ab
@@ -19744,17 +19757,17 @@ sub_e61f:
     movw a, mem_03ad        ;e64f  c4 03 ad
     movw mem_03a9, a        ;e652  d4 03 a9
 
-    ;mem_03a3 = mem_03a9 XOR mem_03a7
+    ;mem_03a3- = mem_03a9- XORW mem_03a7-
     movw a, mem_03a9        ;e655  c4 03 a9
     movw a, mem_03a7        ;e658  c4 03 a7
     xorw a                  ;e65b  53
     movw mem_03a3, a        ;e65c  d4 03 a3
 
     ;At this point:
-    ;  4 bytes at mem_03b0- contain original bytes from KW1281 block title 0x3d response
-    ;  4 bytes at mem_03ab- contain those bytes after sub_e6b3 addition
-    ;  4 bytes at mem_03a7- also contain those bytes after sub_e6b3 addition
-    ;  1 byte at mem_03a3 contains mem_03a9 XOR mem_03a7
+    ;  4 bytes at mem_03b0-mem_03b3 contain original bytes from KW1281 block title 0x3d response
+    ;  4 bytes at mem_03ab-mem_03ae contain those bytes after sub_e6b3 subtraction
+    ;  4 bytes at mem_03a7-mem_03a9 also contain those bytes after sub_e6b3 subtraction
+    ;  2 bytes at mem_03a3-mem_03a4 contain XOR of 2 bytes at mem_03a9 with 2 bytes at mem_03a7
 
     mov r3, #0x01           ;e65f  8b 01
     call sub_e672           ;e661  31 e6 72
@@ -19769,16 +19782,26 @@ sub_e61f:
 
 
 sub_e672:
-    call sub_e606           ;e672  31 e6 06
+;Called only from:
+;  sub_e61f with R3=1
+;  sub_e5ae with R3=0
+;
+    call sub_e606           ;e672  31 e6 06     Unknown, does something to mem_03a3/mem_03a4
+                            ;                   Stores result in mem_03b4
 lab_e675:
     mov a, mem_03b4         ;e675  60 03 b4
     beq lab_e690            ;e678  fd 16
+
     mov a, r3               ;e67a  0b
     bne lab_e683            ;e67b  fc 06
-    call sub_e6a3           ;e67d  31 e6 a3
+
+    ;(R3 = 0)
+    call sub_e6a3           ;e67d  31 e6 a3     Rotate mem_03a5 one bit to the left
     jmp lab_e686            ;e680  21 e6 86
 lab_e683:
-    call sub_e691           ;e683  31 e6 91
+    ;(R3 != 0)
+    call sub_e691           ;e683  31 e6 91     Rotate mem_03a7 one bit to the right
+
 lab_e686:
     mov a, mem_03b4         ;e686  60 03 b4
     decw a                  ;e689  d0
@@ -19789,6 +19812,9 @@ lab_e690:
 
 
 sub_e691:
+;Rotate mem_03a7 one bit to the right
+;Called only from sub_e672 when R3 != 1
+;
     movw a, mem_03a7        ;e691  c4 03 a7
     clrc                    ;e694  81
     swap                    ;e695  10
@@ -19805,6 +19831,9 @@ lab_e69f:
 
 
 sub_e6a3:
+;Rotate mem_03a5 one bit to the left
+;Called only from sub_e672 when R3 = 0
+;
     movw a, mem_03a5        ;e6a3  c4 03 a5
     clrc                    ;e6a6  81
     rolc a                  ;e6a7  02
@@ -19819,12 +19848,14 @@ lab_e6af:
 
 
 sub_e6b3:
-;Unknown subtract 4 bytes @IX / @EP
-;Overwrites the 4 bytes @IX
+;Subtract 4 bytes @EP from 4 bytes @IX (overwrites @IX)
 ;
 ;Called only from sub_e61f with:
 ;  IX = #mem_03ab+3
-;  IX = #mem_e5aa+3
+;  IX = #mem_e5aa+3     (mem_e5aa contains 0x0018BDE7)
+;
+;Equivalent to:
+;  @IX = ((@IX - 0x0018BDE7) & 0xFFFFFFFF)
 ;
     mov mem_009e, #0x04     ;e6b3  85 9e 04
     clrc                    ;e6b6  81
@@ -19847,12 +19878,14 @@ lab_e6b7:
 
 
 sub_e6ca:
-;Unknown subtract 4 bytes @IX / @EP
-;Overwrites the 4 bytes @IX
+;Add 4 bytes @EP to 4 bytes @IX (overwrites @IX)
 ;
 ;Called only from sub_e5ae with:
 ;  IX = #mem_03ab+3
-;  EP = #mem_e5aa+3
+;  EP = #mem_e5aa+3     (mem_e5aa contains 0x0018BDE7)
+;
+;Equivalent to:
+;  @IX = ((@IX + 0x0018BDE7) & 0xFFFFFFFF)
 ;
     mov mem_009e, #0x04     ;e6ca  85 9e 04
     clrc                    ;e6cd  81
