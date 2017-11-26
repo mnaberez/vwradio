@@ -211,10 +211,8 @@
     mem_0172 = 0x172
     mem_0173 = 0x173
     mem_0174 = 0x174
-    mem_0175 = 0x175
-    mem_0176 = 0x176
-    mem_0177 = 0x177
-    mem_0178 = 0x178
+    mem_0175 = 0x175    ;Soft Coding (2 bytes, binary)
+    mem_0177 = 0x177    ;Workshop Code (2 bytes, binary)
     mem_017c = 0x17c
     mem_0182 = 0x182
     mem_0183 = 0x183
@@ -230,9 +228,7 @@
     mem_0197 = 0x197
     mem_019b = 0x19b
     mem_019c = 0x19c
-    mem_019d = 0x19d
-    mem_019e = 0x19e
-    mem_019f = 0x19f
+    mem_019d = 0x19d    ;Soft Coding (3 bytes, BCD)
     mem_01a1 = 0x1a1
     mem_01a4 = 0x1a4
     mem_01a5 = 0x1a5
@@ -1092,7 +1088,7 @@ sub_826e:
     setb mem_00ca:6         ;8307  ae ca
     clrb mem_00e9:6         ;8309  a6 e9
     clrb mem_008d:0         ;830b  a0 8d
-    call sub_8421           ;830d  31 84 21
+    call sub_8421           ;830d  31 84 21     Set default Soft Coding, Workshop Code, Not Active Antenna
     call sub_b9dd           ;8310  31 b9 dd
     call sub_ba0e           ;8313  31 ba 0e
 
@@ -1114,6 +1110,7 @@ sub_826e:
     movw mem_03b0, a        ;8336  d4 03 b0
     movw a, mem_03ad        ;8339  c4 03 ad
     movw mem_03b2, a        ;833c  d4 03 b2
+
     mov a, #0x20            ;833f  04 20
     mov mem_00ae, a         ;8341  45 ae
     mov mem_00cb, a         ;8343  45 cb
@@ -1221,17 +1218,21 @@ sub_8402:
     ret                     ;8420  20
 
 sub_8421:
-    movw a, #0x0320         ;8421  e4 03 20
-    movw mem_0175, a        ;8424  d4 01 75
+    ;Set default Soft Coding (0400) and Workshop Code (0000)
+    movw a, #0x0320         ;8421  e4 03 20     hex(400 * 2) = 0x0320
+    movw mem_0175, a        ;8424  d4 01 75     Soft Coding (2 bytes, binary) = 0400
     movw a, #0x0000         ;8427  e4 00 00
-    movw mem_0177, a        ;842a  d4 01 77
+    movw mem_0177, a        ;842a  d4 01 77     Workshop Code (2 bytes, binary) = 0
+
+    ;Set default Soft Coding BCD (0400)
     mov a, #0x00            ;842d  04 00
-    mov mem_019d, a         ;842f  61 01 9d
+    mov mem_019d, a         ;842f  61 01 9d     Soft Coding BCD hundred thousands, ten thousands place
     mov a, #0x04            ;8432  04 04
-    mov mem_019e, a         ;8434  61 01 9e
+    mov mem_019d+1, a       ;8434  61 01 9e     Soft Coding BCD thousands, hundreds place
     mov a, #0x00            ;8437  04 00
-    mov mem_019f, a         ;8439  61 01 9f
-    clrb mem_008d:1         ;843c  a1 8d
+    mov mem_019d+2, a       ;8439  61 01 9f     Soft Coding BCD tens, ones place
+
+    clrb mem_008d:1         ;843c  a1 8d        Bit clear = Not Active Antenna
     ret                     ;843e  20
 
 sub_843f:
@@ -3805,14 +3806,18 @@ sub_9235:
     bne lab_924a            ;923b  fc 0d        BRANCH_ALWAYS_TAKEN
 
 lab_923d:
-    mov a, mem_019f         ;923d  60 01 9f
-    rorc a                  ;9240  03
+    mov a, mem_019d+2       ;923d  60 01 9f     A = Soft Coding tens place, ones place
+
+    rorc a                  ;9240  03           Rotate tens place into low nibble
     rorc a                  ;9241  03
     rorc a                  ;9242  03
     rorc a                  ;9243  03
-    and a, #0x0f            ;9244  64 0f
-    cmp a, #0x01            ;9246  14 01
-    bne lab_924c            ;9248  fc 02
+
+    and a, #0x0f            ;9244  64 0f        Mask to leave only low nibble
+    cmp a, #0x01            ;9246  14 01        BOSE Amplifier coded?
+    bne lab_924c            ;9248  fc 02        Branch if BOSE Amplifier not coded
+
+    ;BOSE Amplifier coded
 
 lab_924a:
     mov a, #0x00            ;924a  04 00
@@ -6374,7 +6379,7 @@ lab_a104:
 
 lab_a10b:
     bhs lab_a09c            ;a10b  f8 8f
-    call sub_b974           ;a10d  31 b9 74
+    call sub_b974           ;a10d  31 b9 74     Recoding related with mem_0175
 
     movw a, mem_03b0        ;a110  c4 03 b0
     movw mem_03ab, a        ;a113  d4 03 ab
@@ -6909,7 +6914,7 @@ lab_a3f3:
     call sub_8380           ;a3ff  31 83 80
     call sub_83d1           ;a402  31 83 d1
     call sub_83f8           ;a405  31 83 f8
-    call sub_8421           ;a408  31 84 21
+    call sub_8421           ;a408  31 84 21     Set default Soft Coding, Workshop Code, Not Active Antenna
     call sub_8402           ;a40b  31 84 02
     movw a, #0x0000         ;a40e  e4 00 00
     movw mem_0206, a        ;a411  d4 02 06
@@ -8632,39 +8637,45 @@ lab_ada4:
     ret                      ;adab  20
 
 sub_adac:
-    bbs mem_008d:1, lab_add6 ;adac  b9 8d 27
+    bbs mem_008d:1, lab_add6 ;adac  b9 8d 27    Branch if Active Antenna
+
+    ;Not Active Antenna
     mov a, mem_02e0         ;adaf  60 02 e0
     beq lab_adc1            ;adb2  fd 0d
     cmp a, #0xff            ;adb4  14 ff
-    beq lab_add3            ;adb6  fd 1b
+    beq lab_add3            ;adb6  fd 1b        Branch to set PHANTON_ON=high and return
     cmp a, #0x02            ;adb8  14 02
     beq lab_adcb            ;adba  fd 0f
     cmp a, #0x01            ;adbc  14 01
-    beq lab_adcb            ;adbe  fd 0b
+    beq lab_adcb            ;adbe  fd 0b        Branch to set PHANTOM_ON=low, mem_02e1=0x14, and return
     ret                     ;adc0  20
 
 lab_adc1:
     mov a, mem_0329         ;adc1  60 03 29
-    bne lab_add3            ;adc4  fc 0d
+    bne lab_add3            ;adc4  fc 0d        Branch to set PHANTON_ON=high and return
     mov a, mem_031f         ;adc6  60 03 1f
-    beq lab_add3            ;adc9  fd 08
+    beq lab_add3            ;adc9  fd 08        Branch to set PHANTON_ON=high and return
 
 lab_adcb:
+;Set PHANTOM_ON=low, mem_02e1=0x14, and return
     clrb pdr2:0             ;adcb  a0 04        PHANTON_ON=low
     mov a, #0x14            ;adcd  04 14
     mov mem_02e1, a         ;adcf  61 02 e1
     ret                     ;add2  20
 
 lab_add3:
+;Set PHANTON_ON=high and return
     setb pdr2:0             ;add3  a8 04        PHANTON_ON=high
     ret                     ;add5  20
 
 lab_add6:
+    ;Active Antenna
     mov a, mem_02e0         ;add6  60 02 e0
-    beq lab_add3            ;add9  fd f8
+    beq lab_add3            ;add9  fd f8        Branch to set PHANTON_ON=high and return
     cmp a, #0xff            ;addb  14 ff
-    beq lab_add3            ;addd  fd f4
+    beq lab_add3            ;addd  fd f4        Branch to set PHANTON_ON=high and return
     bne lab_adcb            ;addf  fc ea        BRANCH_ALWAYS_TAKEN
+                            ;                   Branch to set PHANTOM_ON=low, mem_02e1=0x14, and return
 
 sub_ade1:
     mov a, mem_0114         ;ade1  60 01 14
@@ -9705,21 +9716,21 @@ mem_0080_is_01:
 
 mem_b318:
     .word lab_b36c  ;b318  b3 6c       VECTOR 0x00
-    .word lab_b33a  ;b31a  b3 3a       VECTOR 0x01  "1J0035180   "
+    .word lab_b33a  ;b31a  b3 3a       VECTOR 0x01  Send "1J0035180   "
     .word lab_b36d  ;b31c  b3 6d       VECTOR 0x02
     .word lab_b37f  ;b31e  b3 7f       VECTOR 0x03
-    .word lab_b38c  ;b320  b3 8c       VECTOR 0x04  " RADIO 3CP  "
+    .word lab_b38c  ;b320  b3 8c       VECTOR 0x04  Send " RADIO 3CP  "
     .word lab_b371  ;b322  b3 71       VECTOR 0x05
     .word lab_b39b  ;b324  b3 9b       VECTOR 0x06
-    .word lab_b3a8  ;b326  b3 a8       VECTOR 0x07  "       0001"
+    .word lab_b3a8  ;b326  b3 a8       VECTOR 0x07  Send "       0001"
     .word lab_b375  ;b328  b3 75       VECTOR 0x08
     .word lab_b3b7  ;b32a  b3 b7       VECTOR 0x09
     .word lab_b3c4  ;b32c  b3 c4       VECTOR 0x0a
     .word lab_b3c8  ;b32e  b3 c8       VECTOR 0x0b
-    .word lab_b3cc  ;b330  b3 cc       VECTOR 0x0c
+    .word lab_b3cc  ;b330  b3 cc       VECTOR 0x0c  Send Soft Coding and Workshop Code
     .word lab_b379  ;b332  b3 79       VECTOR 0x0d
     .word lab_b3fe  ;b334  b3 fe       VECTOR 0x0e
-    .word lab_b40b  ;b336  b4 0b       VECTOR 0x0f
+    .word lab_b40b  ;b336  b4 0b       VECTOR 0x0f  Send Acknowledge (sub_b16b_ack)
     .word lab_b412  ;b338  b4 12       VECTOR 0x10
 
 lab_b33a:
@@ -9773,28 +9784,28 @@ lab_b36c:
 lab_b36d:
 ;KW1281 ID code request/ECU info related
 ;(mem_0080=0x01, mem_0081=2)
-    mov a, #0x03            ;b36d  04 03
+    mov a, #0x03            ;b36d  04 03        A = value to store in mem_0081
     bne lab_b37b            ;b36f  fc 0a        BRANCH_ALWAYS_TAKEN
 
 
 lab_b371:
 ;KW1281 ID code request/ECU info related
 ;(mem_0080=0x01, mem_0081=5)
-    mov a, #0x06            ;b371  04 06
+    mov a, #0x06            ;b371  04 06        A = value to store in mem_0081
     bne lab_b37b            ;b373  fc 06        BRANCH_ALWAYS_TAKEN
 
 
 lab_b375:
 ;KW1281 ID code request/ECU info related
 ;(mem_0080=0x01, mem_0081=8)
-    mov a, #0x09            ;b375  04 09
+    mov a, #0x09            ;b375  04 09        A = value to store in mem_0081
     bne lab_b37b            ;b377  fc 02        BRANCH_ALWAYS_TAKEN
 
 
 lab_b379:
 ;KW1281 ID code request/ECU info related
 ;(mem_0080=0x01, mem_0081=0x0d)
-    mov a, #0x0e            ;b379  04 0e
+    mov a, #0x0e            ;b379  04 0e        A = value to store in mem_0081
 
 lab_b37b:
     call sub_bbd3           ;b37b  31 bb d3
@@ -9886,11 +9897,12 @@ lab_b3cc:
     mov a, #0x03            ;b3e2  04 03        0x03 = Block End
     mov mem_012b+8, a       ;b3e4  61 01 33     KW1281 TX Buffer byte 8: Block End
 
-    movw a, #mem_0175       ;b3e7  e4 01 75
+    ;Copy Soft Coding and Workshop Code into TX buffer
+    movw a, #mem_0175       ;b3e7  e4 01 75     A = Soft Coding (binary, 2 bytes)
     movw mem_0084, a        ;b3ea  d5 84        Pointer: source for KW1281 buffer copy
     movw a, #mem_012b+4     ;b3ec  e4 01 2f     A = Pointer to KW1281 TX Buffer byte 4
     movw mem_0086, a        ;b3ef  d5 86        Pointer: destination for KW1281 buffer copy
-    mov mem_00a5, #0x04     ;b3f1  85 a5 04     4 bytes in KW1281 packet
+    mov mem_00a5, #0x04     ;b3f1  85 a5 04     4 bytes in KW1281 packet (Soft Coding + Workshop Code)
     call sub_b13e           ;b3f4  31 b1 3e     Copy mem_00a5 bytes from @mem_0084 to @mem_0086
 
     call sub_bba4           ;b3f7  31 bb a4
@@ -10120,7 +10132,7 @@ lab_b4fe:
 
 lab_b4ff:
 ;Read Faults related
-    mov a, #0x05            ;b4ff  04 05
+    mov a, #0x05            ;b4ff  04 05        A = value to store in mem_0081
     call sub_bbd3           ;b501  31 bb d3
     ret                     ;b504  20
 
@@ -10488,7 +10500,7 @@ lab_b6b7:
 
 lab_b6c1:
 ;Actuator/Output Tests related
-    mov a, #0x04            ;b6c1  04 04
+    mov a, #0x04            ;b6c1  04 04        A = value to store in mem_0081
     call sub_bbd3           ;b6c3  31 bb d3
     ret                     ;b6c6  20
 
@@ -10921,11 +10933,14 @@ lab_b881:
 
 lab_b884:
 ;Group 3 (Antenna)
-    bbs mem_008d:1, lab_b88b ;b884  b9 8d 04
+    bbs mem_008d:1, lab_b88b ;b884  b9 8d 04    Branch if Active Antenna
+
+    ;Not Active Antenna
     mov a, #0x11            ;b887  04 11
     bne lab_b88d            ;b889  fc 02        BRANCH_ALWAYS_TAKEN
 
 lab_b88b:
+    ;Active Antenna
     mov a, #0x12            ;b88b  04 12
 
 lab_b88d:
@@ -11068,6 +11083,26 @@ lab_b937:
 
 mem_0080_is_08:
 ;KW1281 Recoding
+;
+;Soft Coding 01404 (decimal):
+;  hex(01404 * 2) => 0x0AF9 in request bytes 3, 4
+;
+;Workshop Code 12345 (decimal):
+;  hex(12345 & 0xFFFF) => 0x3039 in request bytes 5, 6
+;
+;Recoding request block:
+;  0x07 Block length                        mem_0118+0
+;  0x3E Block counter                       mem_0118+1
+;  0x10 Block title (Recoding)              mem_0118+2
+;  0x0A Soft Coding high byte (binary)      mem_0118+3
+;  0xF9 Soft Coding low byte (binary)       mem_0118+4
+;  0x30 Workshop Code high byte (binary)    mem_0118+5
+;  0x39 Workshop Code low byte (binary)     mem_0118+6
+;  0x03 Block end                           mem_0118+7
+;
+;After recoding, regardless of success or failure, the response for
+;KW1281 request block title 0x00 ID code request/ECU info is returned.
+;
     mov a, mem_0081         ;b93a  05 81
     cmp a, #0x01            ;b93c  14 01
     beq lab_b945            ;b93e  fd 05
@@ -11079,14 +11114,14 @@ lab_b945:
 ;Recoding related
 ;(mem_0080=0x08, mem_0081=1)
     movw a, mem_0118+3      ;b945  c4 01 1b     KW1281 RX Buffer bytes 3 and 4
-    call sub_b977           ;b948  31 b9 77     Returns carry set/clear for unknown conditions
-    bnc lab_b970            ;b94b  f8 23
+    call sub_b977           ;b948  31 b9 77     Returns setc for valid coding, clrc for invalid
+    bnc lab_b970            ;b94b  f8 23        Branch if invalid coding
 
     movw a, mem_0118+3      ;b94d  c4 01 1b     KW1281 RX Buffer bytes 3 and 4
-    movw mem_0175, a        ;b950  d4 01 75
+    movw mem_0175, a        ;b950  d4 01 75     Store as Soft Coding (2 bytes, binary)
 
     movw a, mem_0118+5      ;b953  c4 01 1d     KW1281 RX Buffer bytes 5 and 6
-    movw mem_0177, a        ;b956  d4 01 77
+    movw mem_0177, a        ;b956  d4 01 77     Store as Workshop Code (2 bytes, binary)
 
     setb mem_00b2:7         ;b959  af b2
     call sub_9ed3           ;b95b  31 9e d3     Sets mem_00b2:5 and mem_0098:6
@@ -11107,12 +11142,19 @@ lab_b970:
     ret                     ;b973  20
 
 sub_b974:
-    movw a, mem_0175        ;b974  c4 01 75
+    movw a, mem_0175        ;b974  c4 01 75     A = Soft Coding (2 bytes, binary)
 
 sub_b977:
 ;Recoding related
-;Returns carry set for some condition, carry clear for another
+;Returns setc for valid coding, clrc for invalid coding
 ;
+;Callers:
+;   lab_b945 with A = mem_0118+3 (KW1281 RX Buffer bytes 3 and 4)
+;   sub_b974 with A = mem_0175 (Soft Coding address)
+;
+    ;A = A / 2
+    ;16-bit integer division, remainder dropped
+    ;Store word result in mem_00a8
     swap                    ;b977  10
     clrc                    ;b978  81
     rorc a                  ;b979  03
@@ -11120,9 +11162,9 @@ sub_b977:
     rorc a                  ;b97b  03
     movw mem_00a8, a        ;b97c  d5 a8
 
+    ;Copy result of divide by 2 into word at mem_00a3
     mov a, mem_00a8         ;b97e  05 a8
     mov mem_00a3, a         ;b980  45 a3
-
     mov a, mem_00a9         ;b982  05 a9
     mov mem_00a4, a         ;b984  45 a4
 
@@ -11130,35 +11172,59 @@ sub_b977:
                             ;  Input:  mem_00a3 - mem_00a4
                             ;  Output: mem_009e - mem_00a0
 
+    ;BCD result:
+    ;   mem_009e high nibble   Hundred thousands place
+    ;            low nibble    Ten Thousands place
+    ;   mem_009f high nibble   Thousands place
+    ;            low nibble    Hundreds place
+    ;   mem_00a0 high nibble   Tens place
+    ;            low nibble    Ones place
+
+    ;Branch if hundred thousands place != 0
+    ;Branch if ten thousands place != 0
     mov a, mem_009e         ;b989  05 9e
     bne lab_b9db            ;b98b  fc 4e
 
+    ;Branch if thousands place >= 0x0a
     mov a, mem_009f         ;b98d  05 9f
-    and a, #0xf0            ;b98f  64 f0
+    and a, #0xf0            ;b98f  64 f0    Mask to leave only thousands place
     cmp a, #0xa0            ;b991  14 a0
     bhs lab_b9db            ;b993  f8 46
 
+    ;Branch if hundreds place >= 5
     mov a, mem_009f         ;b995  05 9f
-    and a, #0x0f            ;b997  64 0f
+    and a, #0x0f            ;b997  64 0f    Mask to leave only hundreds place
     cmp a, #0x05            ;b999  14 05
     bhs lab_b9db            ;b99b  f8 3e
 
+    ;Branch if tens place >= 2
     mov a, mem_00a0         ;b99d  05 a0
-    and a, #0xf0            ;b99f  64 f0
+    and a, #0xf0            ;b99f  64 f0    Mask to leave only tens place
     cmp a, #0x30            ;b9a1  14 30
     bhs lab_b9db            ;b9a3  f8 36
 
+    ;Branch if ones place >= 8
     mov a, mem_00a0         ;b9a5  05 a0
-    and a, #0x0f            ;b9a7  64 0f
+    and a, #0x0f            ;b9a7  64 0f    Mask to leave only ones place
     cmp a, #0x08            ;b9a9  14 08
     bhs lab_b9db            ;b9ab  f8 2e
 
+    ;If we got this far, coding is valid
+
+    ;Copy valid coding from mem_009e-mem_00a0 into mem_019d-mem_019f
     mov a, mem_009e         ;b9ad  05 9e
     mov mem_019d, a         ;b9af  61 01 9d
     mov a, mem_009f         ;b9b2  05 9f
-    mov mem_019e, a         ;b9b4  61 01 9e
+    mov mem_019d+1, a       ;b9b4  61 01 9e
     mov a, mem_00a0         ;b9b7  05 a0
-    mov mem_019f, a         ;b9b9  61 01 9f
+    mov mem_019d+2, a       ;b9b9  61 01 9f
+
+    ;mem_009e->mem_019d     high nibble   hundred thousands place = 0
+    ;                       low nibble    ten thousands place     = 0
+    ;mem_009f->mem_019d+1   high nibble   thousands place         = 0-9   Car Model
+    ;                       low nibble    hundreds place          = 0-4   Speakers
+    ;mem_00a0->mem_019d+2   high nibble   tens place              = 0-1   Amplifier System
+    ;                       low nibble    ones place              = 0-7   Antenna/CD/FIS
 
     call sub_9235           ;b9bc  31 92 35
 
@@ -11169,34 +11235,43 @@ sub_b977:
     call sub_9250           ;b9c4  31 92 50
 
 lab_b9c7:
-    mov a, mem_00a0         ;b9c7  05 a0
-    and a, #0x01            ;b9c9  64 01
-    cmp a, #0x01            ;b9cb  14 01
-    bne lab_b9d4            ;b9cd  fc 05
-    setb mem_008d:1         ;b9cf  a9 8d
+    mov a, mem_00a0         ;b9c7  05 a0        A = Coding tens place, ones place
+    and a, #0x01            ;b9c9  64 01        Mask to leave only bit 1 (Active Antenna)
+    cmp a, #0x01            ;b9cb  14 01        Is Active Antenna coded?
+    bne lab_b9d4            ;b9cd  fc 05            No: branch to Not Active Antenna
+
+    ;Active Antenna coded
+    setb mem_008d:1         ;b9cf  a9 8d        Bit set = Active Antenna
     jmp lab_b9d6            ;b9d1  21 b9 d6
 
 lab_b9d4:
-    clrb mem_008d:1         ;b9d4  a1 8d
+    ;Not Active Antenna coded
+    clrb mem_008d:1         ;b9d4  a1 8d        Bit clear = Not Active Antenna
 
 lab_b9d6:
+;Valid coding, return setc
     call sub_b9dd           ;b9d6  31 b9 dd
     setc                    ;b9d9  91
     ret                     ;b9da  20
 
 lab_b9db:
+;Invalid coding, return clrc
     clrc                    ;b9db  81
     ret                     ;b9dc  20
 
 sub_b9dd:
     movw a, #0x0000         ;b9dd  e4 00 00
-    mov a, mem_019e         ;b9e0  60 01 9e
-    and a, #0x0f            ;b9e3  64 0f
+
+    mov a, mem_019d+1       ;b9e0  60 01 9e     A = Soft Coding thousands place, hundreds place
+    and a, #0x0f            ;b9e3  64 0f        Mask to leave only hundreds place (Speakers)
     cmp a, #0x05            ;b9e5  14 05
-    blo lab_b9eb            ;b9e7  f9 02
+    blo lab_b9eb            ;b9e7  f9 02        Branch if Speaker coding < 5
+
+    ;Speaker coding >= 5
     mov a, #0x00            ;b9e9  04 00
 
 lab_b9eb:
+    ;Speaker coding = 0-4
     movw a, #mem_b9f4       ;b9eb  e4 b9 f4
     clrc                    ;b9ee  81
     addcw a                 ;b9ef  23
@@ -11300,15 +11375,15 @@ mem_0080_is_09:
 ;the password for login is 0x04D2.
 ;
 ;Login request block:
-;  0x08 Block length                    mem_0118+0
-;  0x3E Block counter                   mem_0118+1
-;  0x2B Block title (Login)             mem_0118+2
-;  0x04 SAFE code high byte (binary)    mem_0118+3
-;  0xD2 SAFE code low byte (binary)     mem_0118+4
-;  0x01 Unknown byte 0                  mem_0118+5
-;  0x86 Unknown byte 1                  mem_0118+6
-;  0x9F Unknown byte 2                  mem_0118+7
-;  0x03 Block end                       mem_0118+8
+;  0x08 Block length                        mem_0118+0
+;  0x3E Block counter                       mem_0118+1
+;  0x2B Block title (Login)                 mem_0118+2
+;  0x04 SAFE code high byte (binary)        mem_0118+3
+;  0xD2 SAFE code low byte (binary)         mem_0118+4
+;  0x01 Unknown byte 0                      mem_0118+5
+;  0x86 Workshop Code high byte (binary)    mem_0118+6
+;  0x9F Workshop Code low byte (binary)     mem_0118+7
+;  0x03 Block end                           mem_0118+8
 ;
     mov a, mem_0081         ;ba7a  05 81
     cmp a, #0x01            ;ba7c  14 01
@@ -11398,16 +11473,18 @@ lab_baed:
 
     mov a, mem_0118+5       ;baef  60 01 1d     KW1281 RX Buffer byte 5: Unknown byte 0
     and a, #0x01            ;baf2  64 01
-    mov a, mem_0176         ;baf4  60 01 76
+    mov a, mem_0175+1       ;baf4  60 01 76     A = Soft Coding low byte (binary)
     and a, #0xfe            ;baf7  64 fe
     or a                    ;baf9  72
-    mov mem_0176, a         ;bafa  61 01 76
+    mov mem_0175+1, a       ;bafa  61 01 76
 
-    mov a, mem_0118+6       ;bafd  60 01 1e     KW1281 RX Buffer byte 6: Unknown byte 1
-    mov mem_0177, a         ;bb00  61 01 77
+    ;Set Workshop Code (word at mem_0177) from KW1281 RX Buffer bytes 6 & 7
 
-    mov a, mem_0118+7       ;bb03  60 01 1f     KW1281 RX Buffer byte 7: Unknown byte 2
-    mov mem_0178, a         ;bb06  61 01 78
+    mov a, mem_0118+6       ;bafd  60 01 1e     KW1281 RX Buffer byte 6
+    mov mem_0177, a         ;bb00  61 01 77     Store as Workshop Code high byte (binary)
+
+    mov a, mem_0118+7       ;bb03  60 01 1f     KW1281 RX Buffer byte 7
+    mov mem_0177+1, a       ;bb06  61 01 78     Store as Workshop Code low byte (binary)
 
     mov mem_00f1, #0xad     ;bb09  85 f1 ad
 
@@ -11519,7 +11596,7 @@ lab_bb6d:
 ;Read RAM related
 ;Read ROM or Read EEPROM related
 ;(mem_0080=x, mem_0081=3)
-    mov a, #0x04            ;bb6d  04 04
+    mov a, #0x04            ;bb6d  04 04        A = value to store in mem_0081
     call sub_bbd3           ;bb6f  31 bb d3
     ret                     ;bb72  20
 
@@ -11692,9 +11769,12 @@ lab_bc31:
 sub_bc44:
     movw ix, #mem_02ee      ;bc44  e6 02 ee
     bbs mem_008e:2, lab_bc51 ;bc47  ba 8e 07
-    mov a, mem_019f         ;bc4a  60 01 9f
-    and a, #0x02            ;bc4d  64 02
-    beq lab_bc54            ;bc4f  fd 03
+
+    mov a, mem_019d+2       ;bc4a  60 01 9f     A = Soft Coding BCD tens place, ones place
+    and a, #0x02            ;bc4d  64 02        Mask to leave only CD changer bit
+    beq lab_bc54            ;bc4f  fd 03        Branch if CD changer not coded
+
+    ;CD changer coded
 
 lab_bc51:
     bbc mem_00e0:1, lab_bc5a ;bc51  b1 e0 06
@@ -12304,9 +12384,11 @@ sub_c011:
 
 sub_c019:
     bbs mem_008e:2, lab_c023 ;c019  ba 8e 07
-    mov a, mem_019f         ;c01c  60 01 9f
-    and a, #0x04            ;c01f  64 04
-    beq lab_c026            ;c021  fd 03
+    mov a, mem_019d+2       ;c01c  60 01 9f     A = Soft Coding BCD tens place, ones place
+    and a, #0x04            ;c01f  64 04        Mask to leave only FIS bit
+    beq lab_c026            ;c021  fd 03        Branch if FIS not coded
+
+    ;External Display (FIS) coded
 
 lab_c023:
     bbc mem_00e8:3, lab_c02c ;c023  b3 e8 06
@@ -12512,7 +12594,10 @@ sub_c133:
     blo lab_c167            ;c157  f9 0e
     mov a, #0x01            ;c159  04 01
     mov mem_031f, a         ;c15b  61 03 1f
-    bbc mem_008d:1, lab_c172 ;c15e  b1 8d 11
+
+    bbc mem_008d:1, lab_c172 ;c15e  b1 8d 11    Branch if Not Active Antenna
+
+    ;Active Antenna
     setb mem_0091:0         ;c161  a8 91        KW1281 Fault 00856 Radio Antenna
     mov a, #0x01            ;c163  04 01
     bne lab_c176            ;c165  fc 0f        BRANCH_ALWAYS_TAKEN
@@ -12525,6 +12610,7 @@ lab_c167:
     bne lab_c176            ;c170  fc 04        BRANCH_ALWAYS_TAKEN
 
 lab_c172:
+    ;Not Active Antenna
     clrb mem_0091:0         ;c172  a0 91        KW1281 Fault 00856 Radio Antenna
     mov a, #0x00            ;c174  04 00
 
@@ -12948,13 +13034,16 @@ lab_c416:
     bbc pdr2:0, lab_c462    ;c416  b0 04 49     PHANTOM_ON
     call sub_c432           ;c419  31 c4 32
     call sub_c133           ;c41c  31 c1 33
-    bbs mem_008d:1, lab_c42a ;c41f  b9 8d 08
+    bbs mem_008d:1, lab_c42a ;c41f  b9 8d 08    Branch if Active Antenna
+
+    ;Not Active Antenna
     mov a, mem_02e0         ;c422  60 02 e0
     mov a, #0xff            ;c425  04 ff
     cmp a                   ;c427  12
     bne lab_c462            ;c428  fc 38
 
 lab_c42a:
+    ;Active Antenna
     call sub_c490           ;c42a  31 c4 90
     mov a, #0x01            ;c42d  04 01
     jmp lab_c372            ;c42f  21 c3 72
@@ -19229,7 +19318,7 @@ mem_e3bd:
 ;  0x01 sends kw_title_d7 ->
 ;  0x0b set unknown counters ->
 ;  0x02 set unknown values ->
-;  0x03 if block title is 0x3d security access ->
+;  0x03 if block title received is 0x3d security access ->
 ;  0x04 read 4 bytes from 4x buffer, call sub_e61f ->
 ;  0x06 end session
 ;
@@ -19595,9 +19684,9 @@ sub_e5ae:
     movw a, mem_03a9        ;e5f6  c4 03 a9
     movw mem_03ad, a        ;e5f9  d4 03 ad
 
-    movw ix, #mem_03ae      ;e5fc  e6 03 ae
+    movw ix, #mem_03ab+3    ;e5fc  e6 03 ae
     movw ep, #mem_e5aa+3    ;e5ff  e7 e5 ad
-    call sub_e6ca           ;e602  31 e6 ca     Unknown add 4 bytes IX/EP
+    call sub_e6ca           ;e602  31 e6 ca     Unknown add 4 bytes @IX/@EP, overwrites @IX
     ret                     ;e605  20
 
 sub_e606:
@@ -19639,26 +19728,33 @@ sub_e61f:
     movw mem_03a9, a        ;e62e  d4 03 a9
     mov mem_03b4, a         ;e631  61 03 b4
 
+    ;Copy 4 bytes at mem_03ab- to mem_03b0-
     movw a, mem_03ab        ;e634  c4 03 ab
     movw mem_03b0, a        ;e637  d4 03 b0
-
     movw a, mem_03ad        ;e63a  c4 03 ad
     movw mem_03b2, a        ;e63d  d4 03 b2
 
-    movw ix, #mem_03ae      ;e640  e6 03 ae
+    movw ix, #mem_03ab+3    ;e640  e6 03 ae
     movw ep, #mem_e5aa+3    ;e643  e7 e5 ad
-    call sub_e6b3           ;e646  31 e6 b3     Unknown subtract 4 bytes IX/EP
+    call sub_e6b3           ;e646  31 e6 b3     Unknown subtract 4 bytes @IX/@EP, overwrites @IX
 
+    ;Copy 4 bytes at mem_03ab- to mem_03a7-
     movw a, mem_03ab        ;e649  c4 03 ab
     movw mem_03a7, a        ;e64c  d4 03 a7
-
     movw a, mem_03ad        ;e64f  c4 03 ad
     movw mem_03a9, a        ;e652  d4 03 a9
 
+    ;mem_03a3 = mem_03a9 XOR mem_03a7
     movw a, mem_03a9        ;e655  c4 03 a9
     movw a, mem_03a7        ;e658  c4 03 a7
     xorw a                  ;e65b  53
     movw mem_03a3, a        ;e65c  d4 03 a3
+
+    ;At this point:
+    ;  4 bytes at mem_03b0- contain original bytes from KW1281 block title 0x3d response
+    ;  4 bytes at mem_03ab- contain those bytes after sub_e6b3 addition
+    ;  4 bytes at mem_03a7- also contain those bytes after sub_e6b3 addition
+    ;  1 byte at mem_03a3 contains mem_03a9 XOR mem_03a7
 
     mov r3, #0x01           ;e65f  8b 01
     call sub_e672           ;e661  31 e6 72
@@ -19723,7 +19819,13 @@ lab_e6af:
 
 
 sub_e6b3:
-;Unknown subtract 4 bytes IX/EP
+;Unknown subtract 4 bytes @IX / @EP
+;Overwrites the 4 bytes @IX
+;
+;Called only from sub_e61f with:
+;  IX = #mem_03ab+3
+;  IX = #mem_e5aa+3
+;
     mov mem_009e, #0x04     ;e6b3  85 9e 04
     clrc                    ;e6b6  81
 lab_e6b7:
@@ -19745,7 +19847,13 @@ lab_e6b7:
 
 
 sub_e6ca:
-;Unknown add 4 bytes IX/EP
+;Unknown subtract 4 bytes @IX / @EP
+;Overwrites the 4 bytes @IX
+;
+;Called only from sub_e5ae with:
+;  IX = #mem_03ab+3
+;  EP = #mem_e5aa+3
+;
     mov mem_009e, #0x04     ;e6ca  85 9e 04
     clrc                    ;e6cd  81
 lab_e6ce:
@@ -23671,12 +23779,12 @@ mem_fc6c:
 sub_fc81:
     mov a, mem_030a         ;fc81  60 03 0a
     bne lab_fca2            ;fc84  fc 1c
-    mov a, mem_019d         ;fc86  60 01 9d
+    mov a, mem_019d         ;fc86  60 01 9d     TODO Soft Coding BCD related
     and a, #0x0f            ;fc89  64 0f
     cmp a, #0x00            ;fc8b  14 00
     bne lab_fcae            ;fc8d  fc 1f
     movw a, #0x0000         ;fc8f  e4 00 00
-    mov a, mem_019e         ;fc92  60 01 9e
+    mov a, mem_019d+1       ;fc92  60 01 9e     TODO Soft Coding BCD related
     and a, #0xf0            ;fc95  64 f0
     clrc                    ;fc97  81
     rorc a                  ;fc98  03
