@@ -72,10 +72,10 @@ display "SAFE" and then prompt for a code.  The radio can now be unlocked with
 the new code.
 
 
-Diagnostics (KW1281)
+Diagnostics (KWP1281)
 ---------------------
 
-The radio is address 56 on KW1281.  Connecting to the radio on KW1281 will
+The radio is address 56 on KWP1281.  Connecting to the radio on KWP1281 will
 cause it to stop whatever it is doing and enter diagnostics mode.  No faceplate
 keys seem to work in diagnostics mode.  The radio returns to its previous
 operation after exiting diagnostics mode.
@@ -84,7 +84,7 @@ Diagnostics displays:
   '     DIAG  '
 
 Special case: if the radio is in Test Mode at the time it is accessed on
-KW1281, it will enter diagnostics mode but it will not show the "DIAG" display.
+KWP1281, it will enter diagnostics mode but it will not show the "DIAG" display.
 It will leave the current Test Mode display but the faceplate keys won't work.
 After exiting diagnostics mode, the Test Mode will continue to work as it was
 before it was interrupted.

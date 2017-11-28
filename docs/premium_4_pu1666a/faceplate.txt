@@ -272,7 +272,7 @@ Code Change
   Decoded Display RAM: '     CODE  '
   Decoded Display RAM: '     1000  '
 
-Diagnostics (KW1281)
+Diagnostics (KWP1281)
   Decoded Display RAM: '     DIAG  '
 
 Test Mode

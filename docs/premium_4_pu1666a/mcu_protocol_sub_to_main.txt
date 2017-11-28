@@ -15,7 +15,7 @@ Format:
     11000011 01001000 00000000 00101010 (0xc348002a)    Preset 1 pressed
     AB  CCCC CIJ DE H G FF  F   AAAAAAA
 
-     A = Unknown; changes during KW1281 speaker test
+     A = Unknown; changes during KWP1281 speaker test
      B = 1 when a key is pressed
      C = Unique 5-bit code for each key
      D = 1 if an FIS cluster is connected
@@ -23,8 +23,8 @@ Format:
      F = Unknown; 1 when radio is illuminated
      G = BOSE    P07 (Pin 41)
      H = BOSE    P06 (Pin 42)
-     I = KW1281  P05 (Pin 43)
-     J = KW1281  P04 (Pin 44)
+     I = KWP1281  P05 (Pin 43)
+     J = KWP1281  P04 (Pin 44)
 
 Key Codes:
 

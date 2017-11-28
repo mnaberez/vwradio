@@ -480,7 +480,7 @@ m2s_cmd_dispatch:
     cmp a, #0x81            ;0x81 = Write to both LCD and FIS
     beq m2s_cmd_81
 
-    cmp a, #0x82            ;0x82 = Write only to FIS (used during KW1281 output tests)
+    cmp a, #0x82            ;0x82 = Write only to FIS (used during KWP1281 output tests)
     beq m2s_cmd_82
 
     cmp a, #0x83            ;0x83 = Power off? TODO?
@@ -506,7 +506,7 @@ lab_e291:
     jmp m2s_cmd_done
 
 m2s_cmd_82:
-;Handle Main-to-Sub command 0x82 = Write only to FIS (used during KW1281 output tests)
+;Handle Main-to-Sub command 0x82 = Write only to FIS (used during KWP1281 output tests)
 ;A = 0x82
     setb 0xab:4             ;Set "write to FIS only" flag
     jmp lab_e291

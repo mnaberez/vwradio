@@ -246,7 +246,7 @@ Initializing
 Code Change
   TODO
 
-Diagnostics (KW1281)
+Diagnostics (KWP1281)
   Decoded Display RAM: '     DIAG  '
 
 Test Mode

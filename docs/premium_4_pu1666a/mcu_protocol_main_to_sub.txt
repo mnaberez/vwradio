@@ -101,7 +101,7 @@ Command Format
 
 Commands:
     0x81: Write to both LCD and FIS
-    0x82: Write only to FIS (used during KW1281 output tests)
+    0x82: Write only to FIS (used during KWP1281 output tests)
     0x83: Power off?
 
 Pictographs:
