@@ -13,8 +13,8 @@
  * Pin 11: GND (connect to radio's GND)
  * Pin 12: XTAL2 (to 20 MHz crystal with 18pF cap to GND)
  * Pin 13: XTAL1 (to 20 MHz crystal and 18pF cap to GND)
- * Pin 14: PD0/RXD (to PC's serial TXD)
- * Pin 15: PD1/TXD (to PC's serial RXD)
+ * Pin 14: PD0/RXD0 (to PC's serial TXD)
+ * Pin 15: PD1/TXD0 (to PC's serial RXD)
  * Pin 16: PD2/RXD1 (unused)
  * Pin 17: PD3/TXD1 (unused)
  * Pin 18: PD4 to GND through pushbutton, 10K pullup to Vcc
