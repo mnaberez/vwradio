@@ -1,7 +1,6 @@
 #include "main.h"
 #include <stdint.h>
 #include <avr/interrupt.h>
-#include <util/setbaud.h>
 #include "uart.h"
 
 /*************************************************************************
@@ -37,6 +36,8 @@ uint8_t buf_has_byte(volatile ringbuffer_t *buf)
 void uart_init()
 {
     // Baud Rate
+#define BAUD 115200
+#include <util/setbaud.h>
     UBRR0H = UBRRH_VALUE;
     UBRR0L = UBRRL_VALUE;
 #if USE_2X
