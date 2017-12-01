@@ -15,8 +15,8 @@
  * Pin 13: XTAL1 (to 20 MHz crystal and 18pF cap to GND)
  * Pin 14: PD0/RXD0 (to PC's serial TXD)
  * Pin 15: PD1/TXD0 (to PC's serial RXD)
- * Pin 16: PD2/RXD1 (unused)
- * Pin 17: PD3/TXD1 (unused)
+ * Pin 16: PD2/RXD1 (to L9637D pin 1 RX)
+ * Pin 17: PD3/TXD1 (to L9637D pin 4 TX)
  * Pin 18: PD4 (unused)
  * Pin 19: PD5 (unused)
  * Pin 20: PD6 (unused)
@@ -44,6 +44,7 @@
 
 #include "main.h"
 #include "uart0.h"
+#include "uart1.h"
 
 #include <stdint.h>
 #include <avr/interrupt.h>
@@ -57,9 +58,15 @@
 int main()
 {
     uart0_init();
+    uart1_init();
     sei();
-    uart0_puts((uint8_t*)"RESET!\n\n");
-    uart0_flush_tx();
+    while(1) {
+        uart0_puts((uint8_t*)"Hello from UART0\n");
+        uart1_puts((uint8_t*)"Hi from UART1\n");
+        uart0_flush_tx();
+        uart1_flush_tx();
+        _delay_ms(100);
+    }
 
     DDRB = 0xFF;
     while(1) {
