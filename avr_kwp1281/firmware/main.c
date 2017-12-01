@@ -58,5 +58,12 @@ int main()
 {
     uart_init();
     sei();
-    while(1);
+    uart_puts((uint8_t*)"RESET!\n\n");
+    uart_flush_tx();
+
+    DDRB = 0xFF;
+    while(1) {
+        PORTB = 0;
+        PORTB = 0xff;
+    }
 }
