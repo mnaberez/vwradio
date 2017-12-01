@@ -43,7 +43,7 @@
  */
 
 #include "main.h"
-#include "uart.h"
+#include "uart0.h"
 
 #include <stdint.h>
 #include <avr/interrupt.h>
@@ -56,10 +56,10 @@
 
 int main()
 {
-    uart_init();
+    uart0_init();
     sei();
-    uart_puts((uint8_t*)"RESET!\n\n");
-    uart_flush_tx();
+    uart0_puts((uint8_t*)"RESET!\n\n");
+    uart0_flush_tx();
 
     DDRB = 0xFF;
     while(1) {
