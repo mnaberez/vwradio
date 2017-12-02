@@ -60,17 +60,18 @@ int main()
     uart0_init();
     uart1_init();
     sei();
+
     while(1) {
-        uart0_puts((uint8_t*)"Hello from UART0\n");
-        uart1_puts((uint8_t*)"Hi from UART1\n");
-        uart0_flush_tx();
-        uart1_flush_tx();
-        _delay_ms(100);
+
+        if (buf_has_byte(&uart1_rx_buffer))
+        {
+            uint8_t c;
+            c = buf_read_byte(&uart1_rx_buffer);
+
+            uart0_puthex_byte(c);
+            uart0_put('\n');
+        }
+
     }
 
-    DDRB = 0xFF;
-    while(1) {
-        PORTB = 0;
-        PORTB = 0xff;
-    }
 }
