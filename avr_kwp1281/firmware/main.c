@@ -102,7 +102,7 @@ void wait_for_55_01_8a()
 
 void receive_block()
 {
-    uart0_puts((uint8_t*)"RECV START\n");
+    uart0_puts((uint8_t*)"BEGIN RECEIVE BLOCK\n");
 
     uint8_t done = 0;
     uint8_t i = 0;
@@ -140,187 +140,229 @@ void receive_block()
         i++;
 
         if (done) {
-            uart0_puts((uint8_t*)"RECV DONE\n\n");
+            uart0_puts((uint8_t*)"END RECEIVE BLOCK\n\n");
             return;
         }
     }
 }
 
-void send_ack_block()
+
+// Send byte only
+void send_byte(uint8_t c)
+{
+    _delay_ms(1);
+    uart1_put(c);
+    uart0_puts((uint8_t*)"TX: ");
+    uart0_puthex_byte(c);
+    uart0_put('\n');
+    // consume byte we sent
+    while (!buf_has_byte(&uart1_rx_buffer));
+    buf_read_byte(&uart1_rx_buffer);
+}
+
+
+// Send byte and receive its complement
+void send_byte_recv_compl(uint8_t c)
+{
+    send_byte(c);
+    // read byte from radio
+    while (!buf_has_byte(&uart1_rx_buffer));
+    c = buf_read_byte(&uart1_rx_buffer);
+    uart0_puts((uint8_t*)"R_: ");
+    uart0_puthex_byte(c);
+    uart0_put('\n');
+}
+
+
+// Receive byte only
+uint8_t recv_byte()
 {
     uint8_t c;
-    uart0_puts((uint8_t*)"SEND ACK START\n");
-
-    // block length
-    _delay_ms(1);
-    uart1_put(0x03);
-    uart0_puts((uint8_t*)"TX: ");
-    uart0_puthex_byte(0x03);
+    while (!buf_has_byte(&uart1_rx_buffer));
+    c = buf_read_byte(&uart1_rx_buffer);
+    uart0_puts((uint8_t*)"RX: ");
+    uart0_puthex_byte(c);
     uart0_put('\n');
+    return c;
+}
+
+
+// Receive byte and send its complement
+uint8_t recv_byte_send_compl()
+{
+    uint8_t c, complement;
+    c = recv_byte();
+
+    // send complement
+    complement = c ^ 0xFF;
+    _delay_ms(1);
+    uart1_put(complement);
+    uart0_puts((uint8_t*)"T_: ");
+    uart0_puthex_byte(complement);
+    uart0_put('\n');
+
     // consume byte we sent
     while (!buf_has_byte(&uart1_rx_buffer));
     buf_read_byte(&uart1_rx_buffer);
-    // read byte from radio
-    while (!buf_has_byte(&uart1_rx_buffer));
-    c = buf_read_byte(&uart1_rx_buffer);
-    uart0_puts((uint8_t*)"R_: ");
-    uart0_puthex_byte(c);
-    uart0_put('\n');
 
-    // block counter
-    _delay_ms(1);
-    uart1_put(++block_counter);
-    uart0_puts((uint8_t*)"TX: ");
-    uart0_puthex_byte(block_counter);
-    uart0_put('\n');
-    // consume byte we sent
-    while (!buf_has_byte(&uart1_rx_buffer));
-    buf_read_byte(&uart1_rx_buffer);
-    // read byte from radio
-    while (!buf_has_byte(&uart1_rx_buffer));
-    c = buf_read_byte(&uart1_rx_buffer);
-    uart0_puts((uint8_t*)"R_: ");
-    uart0_puthex_byte(c);
-    uart0_put('\n');
+    return c;
+}
 
-    // ack
-    _delay_ms(1);
-    uart1_put(0x09);
-    uart0_puts((uint8_t*)"TX: ");
-    uart0_puthex_byte(0x09);
-    uart0_put('\n');
-    // consume byte we sent
-    while (!buf_has_byte(&uart1_rx_buffer));
-    buf_read_byte(&uart1_rx_buffer);
-    // read byte from radio
-    while (!buf_has_byte(&uart1_rx_buffer));
-    c = buf_read_byte(&uart1_rx_buffer);
-    uart0_puts((uint8_t*)"R_: ");
-    uart0_puthex_byte(c);
-    uart0_put('\n');
 
-    // block end
-    _delay_ms(1);
-    uart1_put(0x03);
-    uart0_puts((uint8_t*)"TX: ");
-    uart0_puthex_byte(0x03);
-    uart0_put('\n');
-    // consume byte we sent
-    while (!buf_has_byte(&uart1_rx_buffer));
-    buf_read_byte(&uart1_rx_buffer);
-    // read byte from radio
-    while (!buf_has_byte(&uart1_rx_buffer));
-    c = buf_read_byte(&uart1_rx_buffer);
-    uart0_puts((uint8_t*)"R_: ");
-    uart0_puthex_byte(c);
-    uart0_put('\n');
 
-    uart0_puts((uint8_t*)"SEND ACK DONE\n\n");
+void send_ack_block()
+{
+    uart0_puts((uint8_t*)"BEGIN SEND BLOCK: ACK\n");
+
+    send_byte_recv_compl(0x03);                // block length
+    send_byte_recv_compl(++block_counter);     // block counter
+    send_byte_recv_compl(0x09);                // ack
+    send_byte_recv_compl(0x03);                // block end
+
+    uart0_puts((uint8_t*)"END SEND BLOCK: ACK\n\n");
 }
 
 
 void send_f0_block()
 {
-    uint8_t c;
-    uart0_puts((uint8_t*)"SEND F0 START\n");
+    uart0_puts((uint8_t*)"BEGIN SEND BLOCK: F0\n");
 
-    // block length
-    _delay_ms(1);
-    uart1_put(0x04);
-    uart0_puts((uint8_t*)"TX: ");
-    uart0_puthex_byte(0x04);
-    uart0_put('\n');
-    // consume byte we sent
-    while (!buf_has_byte(&uart1_rx_buffer));
-    buf_read_byte(&uart1_rx_buffer);
-    // read byte from radio
-    while (!buf_has_byte(&uart1_rx_buffer));
-    c = buf_read_byte(&uart1_rx_buffer);
-    uart0_puts((uint8_t*)"R_: ");
-    uart0_puthex_byte(c);
-    uart0_put('\n');
+    send_byte_recv_compl(0x04);                // block length
+    send_byte_recv_compl(++block_counter);     // block counter
+    send_byte_recv_compl(0xf0);                // block title 0xf0
+    send_byte_recv_compl(0x00);                // 0=read
+    send_byte_recv_compl(0x03);                // block end
 
-    // block counter
-    _delay_ms(1);
-    uart1_put(++block_counter);
-    uart0_puts((uint8_t*)"TX: ");
-    uart0_puthex_byte(block_counter);
-    uart0_put('\n');
-    // consume byte we sent
-    while (!buf_has_byte(&uart1_rx_buffer));
-    buf_read_byte(&uart1_rx_buffer);
-    // read byte from radio
-    while (!buf_has_byte(&uart1_rx_buffer));
-    c = buf_read_byte(&uart1_rx_buffer);
-    uart0_puts((uint8_t*)"R_: ");
-    uart0_puthex_byte(c);
-    uart0_put('\n');
-
-    // block title 0xf0
-    _delay_ms(1);
-    uart1_put(0xf0);
-    uart0_puts((uint8_t*)"TX: ");
-    uart0_puthex_byte(0xf0);
-    uart0_put('\n');
-    // consume byte we sent
-    while (!buf_has_byte(&uart1_rx_buffer));
-    buf_read_byte(&uart1_rx_buffer);
-    // read byte from radio
-    while (!buf_has_byte(&uart1_rx_buffer));
-    c = buf_read_byte(&uart1_rx_buffer);
-    uart0_puts((uint8_t*)"R_: ");
-    uart0_puthex_byte(c);
-    uart0_put('\n');
-
-    // 0=read
-    _delay_ms(1);
-    uart1_put(0);
-    uart0_puts((uint8_t*)"TX: ");
-    uart0_puthex_byte(0);
-    uart0_put('\n');
-    // consume byte we sent
-    while (!buf_has_byte(&uart1_rx_buffer));
-    buf_read_byte(&uart1_rx_buffer);
-    // read byte from radio
-    while (!buf_has_byte(&uart1_rx_buffer));
-    c = buf_read_byte(&uart1_rx_buffer);
-    uart0_puts((uint8_t*)"R_: ");
-    uart0_puthex_byte(c);
-    uart0_put('\n');
-
-    // block end
-    _delay_ms(1);
-    uart1_put(0x03);
-    uart0_puts((uint8_t*)"TX: ");
-    uart0_puthex_byte(0x03);
-    uart0_put('\n');
-    // consume byte we sent
-    while (!buf_has_byte(&uart1_rx_buffer));
-    buf_read_byte(&uart1_rx_buffer);
-    // read byte from radio
-    while (!buf_has_byte(&uart1_rx_buffer));
-    c = buf_read_byte(&uart1_rx_buffer);
-    uart0_puts((uint8_t*)"R_: ");
-    uart0_puthex_byte(c);
-    uart0_put('\n');
-
-    uart0_puts((uint8_t*)"SEND F0 DONE\n\n");
+    uart0_puts((uint8_t*)"END SEND BLOCK: F0\n\n");
 }
 
-int main()
-{
-    uart0_init();
-    uart1_init();
-    sei();
 
+void send_login_block()
+{
+    uart0_puts((uint8_t*)"BEGIN SEND BLOCK: LOGIN\n");
+
+    send_byte_recv_compl(0x08);                // block length
+    send_byte_recv_compl(++block_counter);     // block counter
+    send_byte_recv_compl(0x2b);                // login
+    send_byte_recv_compl(0x10);
+    send_byte_recv_compl(0xe1);
+    send_byte_recv_compl(0x01);
+    send_byte_recv_compl(0x86);
+    send_byte_recv_compl(0x9f);
+    send_byte_recv_compl(0x03);
+
+    uart0_puts((uint8_t*)"END SEND BLOCK: LOGIN\n\n");
+}
+
+
+void send_group_reading_0x25()
+{
+    uart0_puts((uint8_t*)"BEGIN SEND BLOCK: GROUP READ 0x19\n");
+
+    send_byte_recv_compl(0x04);                // block length
+    send_byte_recv_compl(++block_counter);     // block counter
+    send_byte_recv_compl(0x29);                // group reading
+    send_byte_recv_compl(0x19);                // group number 0x19
+    send_byte_recv_compl(0x03);
+
+    uart0_puts((uint8_t*)"END SEND BLOCK: GROUP READ 0x19\n\n");
+}
+
+
+uint8_t send_read_ram(uint16_t address, uint8_t length)
+{
+    uart0_puts((uint8_t*)"BEGIN SEND BLOCK: READ RAM\n");
+
+    send_byte_recv_compl(0x06);                // block length
+    send_byte_recv_compl(++block_counter);     // block counter
+    send_byte_recv_compl(0x01);                // read ram
+    send_byte_recv_compl(length);                // number of bytes to read
+    send_byte_recv_compl((uint8_t)(address >> 8));                // address high
+    send_byte_recv_compl((uint8_t)(address & 0xff));                // address low
+    send_byte(0x03);                           // send block end
+
+    // read ram block length byte from radio
+    uint8_t ram_block_length = recv_byte_send_compl();
+
+    uart0_puts((uint8_t*)"END SEND BLOCK: READ RAM\n\n");
+
+    return ram_block_length;
+}
+
+
+void receive_ram(uint8_t block_length)
+{
+    uart0_puts((uint8_t*)"BEGIN RECEIVE RAM\n");
+
+    uint8_t done = 0;
+    uint8_t i = 1;
+    uint8_t c = 0;
+
+    while (!done) {
+        // read byte from radio
+        while (!buf_has_byte(&uart1_rx_buffer));
+        c = buf_read_byte(&uart1_rx_buffer);
+
+        uart0_puts((uint8_t*)"RX: ");
+        uart0_puthex_byte(c);
+        uart0_put('\n');
+
+        if (i == 1) { block_counter = c; }
+        block_length--;
+        if (block_length == 0) { done = 1; }
+
+        _delay_ms(1);
+        uart1_put(c ^ 0xFF);
+
+        uart0_puts((uint8_t*)"T_: ");
+        uart0_puthex_byte(c ^ 0xFF);
+        uart0_put('\n');
+
+        // consume byte we sent
+        while (!buf_has_byte(&uart1_rx_buffer));
+        buf_read_byte(&uart1_rx_buffer);
+
+        i++;
+
+        if (done) {
+            uart0_puts((uint8_t*)"END RECEIVE RAM\n\n");
+            return;
+        }
+    }
+}
+
+
+void read_all_ram()
+{
+    send_login_block();
+    receive_block();
+
+    send_group_reading_0x25();
+    receive_block();
+
+    uint16_t address = 0xF000;
+    while(1) {
+        uart0_puts((uint8_t*)"ADDRESS = ");
+        uart0_puthex_16(address);
+        uart0_puts((uint8_t*)"\n\n");
+
+        uint8_t size = 0x80;
+        if (address == 0xFFF0) { size = 15; }
+        uint8_t ram_block_length = send_read_ram(address, size);
+        receive_ram(ram_block_length);
+        address += 80;
+        if (address < 0x8000) { break; }
+    }
+}
+
+
+void connect()
+{
     send_5_baud_init();
     wait_for_55_01_8a();
 
     _delay_ms(30);
-    uart1_put(0x75);
-    // consume byte we sent
-    while (!buf_has_byte(&uart1_rx_buffer));
-    buf_read_byte(&uart1_rx_buffer);
+    send_byte(0x75);
 
     uart0_puts((uint8_t*)"BLOCK 1\n\n");
     receive_block();
@@ -340,11 +382,20 @@ int main()
 
     uart0_puts((uint8_t*)"BLOCK 5\n\n");
     receive_block();
+}
+
+
+int main()
+{
+    uart0_init();
+    uart1_init();
+    sei();
+
+    connect();
 
     send_f0_block();
     receive_block();
 
     uart0_puts((uint8_t*)"END\n\n");
     while(1);
-
 }
