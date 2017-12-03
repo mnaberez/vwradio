@@ -269,17 +269,33 @@ void send_group_reading_0x25()
 }
 
 
+void send_read_eeprom(uint16_t address, uint8_t length)
+{
+    uart0_puts((uint8_t*)"BEGIN SEND BLOCK: READ EEPROM\n");
+
+    send_byte_recv_compl(0x06);                         // block length
+    send_byte_recv_compl(++block_counter);              // block counter
+    send_byte_recv_compl(0x19);                         // read eeprom
+    send_byte_recv_compl(length);                       // number of bytes to read
+    send_byte_recv_compl((uint8_t)(address >> 8));      // address high
+    send_byte_recv_compl((uint8_t)(address & 0xff));    // address low
+    send_byte(0x03);                                    // send block end
+
+    uart0_puts((uint8_t*)"END SEND BLOCK: READ EEPROM\n\n");
+}
+
+
 void send_read_ram(uint16_t address, uint8_t length)
 {
     uart0_puts((uint8_t*)"BEGIN SEND BLOCK: READ RAM\n");
 
-    send_byte_recv_compl(0x06);                // block length
-    send_byte_recv_compl(++block_counter);     // block counter
-    send_byte_recv_compl(0x01);                // read ram
-    send_byte_recv_compl(length);                // number of bytes to read
-    send_byte_recv_compl((uint8_t)(address >> 8));                // address high
-    send_byte_recv_compl((uint8_t)(address & 0xff));                // address low
-    send_byte(0x03);                           // send block end
+    send_byte_recv_compl(0x06);                         // block length
+    send_byte_recv_compl(++block_counter);              // block counter
+    send_byte_recv_compl(0x01);                         // read ram
+    send_byte_recv_compl(length);                       // number of bytes to read
+    send_byte_recv_compl((uint8_t)(address >> 8));      // address high
+    send_byte_recv_compl((uint8_t)(address & 0xff));    // address low
+    send_byte(0x03);                                    // send block end
 
     uart0_puts((uint8_t*)"END SEND BLOCK: READ RAM\n\n");
 }
@@ -287,12 +303,6 @@ void send_read_ram(uint16_t address, uint8_t length)
 
 void read_all_ram()
 {
-    send_login_block();
-    receive_block();
-
-    send_group_reading_0x25();
-    receive_block();
-
     uint16_t address = 0xF000;
     while(1) {
         uart0_puts((uint8_t*)"ADDRESS = ");
@@ -347,6 +357,15 @@ int main()
     connect();
 
     send_f0_block();
+    receive_block();
+
+    send_login_block();
+    receive_block();
+
+    send_group_reading_0x25();
+    receive_block();
+
+    send_read_eeprom(0x0000, 0x80);
     receive_block();
 
     uart0_puts((uint8_t*)"END\n\n");
