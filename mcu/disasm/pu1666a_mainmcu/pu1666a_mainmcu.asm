@@ -9682,8 +9682,8 @@ lab_b2d4_read:
 lab_b2d4_write:
 ;Mode 1: Write SAFE code word from value in KWP1281 RX Buffer
 ;
-    bbs mem_00de:7, lab_b305 ;b2ec  bf de 16
-    bbs mem_00e3:7, lab_b305 ;b2ef  bf e3 13
+    bbs mem_00de:7, lab_b305 ;b2ec  bf de 16    Branch to Send No Acknowledge
+    bbs mem_00e3:7, lab_b305 ;b2ef  bf e3 13    Branch to Send No Acknowledge
 
     movw a, mem_0118+4       ;b2f2  c4 01 1c    KWP1281 RX Buffer bytes 4 and 5
     movw mem_020f, a         ;b2f5  d4 02 0f    Store word as actual SAFE code
