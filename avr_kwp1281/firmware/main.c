@@ -84,16 +84,71 @@ void send_5_baud_init()
     UCSR1B |= _BV(RXEN1);   // Enable RX (PD2/TXD1)
 }
 
+
+// Send byte only
+void send_byte(uint8_t c)
+{
+    _delay_ms(1);
+    uart1_put(c);
+    uart0_puts((uint8_t*)"TX: ");
+    uart0_puthex_byte(c);
+    uart0_put('\n');
+    // consume byte we sent
+    c = uart1_blocking_get();
+}
+
+
+// Send byte and receive its complement
+void send_byte_recv_compl(uint8_t c)
+{
+    send_byte(c);
+    // read byte from radio
+    c = uart1_blocking_get();
+    uart0_puts((uint8_t*)"R_: ");
+    uart0_puthex_byte(c);
+    uart0_put('\n');
+}
+
+
+// Receive byte only
+uint8_t recv_byte()
+{
+    uint8_t c = uart1_blocking_get();
+    uart0_puts((uint8_t*)"RX: ");
+    uart0_puthex_byte(c);
+    uart0_put('\n');
+    return c;
+}
+
+
+// Receive byte and send its complement
+uint8_t recv_byte_send_compl()
+{
+    uint8_t c = recv_byte();
+
+    // send complement
+    uint8_t complement = c ^ 0xFF;
+    _delay_ms(1);
+    uart1_put(complement);
+
+    uart0_puts((uint8_t*)"T_: ");
+    uart0_puthex_byte(complement);
+    uart0_put('\n');
+
+    // consume byte we sent
+    uart1_blocking_get();
+
+    return c;
+}
+
+
+
 void wait_for_55_01_8a()
 {
     uint8_t i = 0;
     uint8_t c = 0;
     while (1) {
-        c = uart1_blocking_get();
-
-        uart0_puts((uint8_t*)"RX: ");
-        uart0_puthex_byte(c);
-        uart0_put('\n');
+        c = recv_byte();
 
         if ((i == 0) && (c == 0x55)) { i = 1; }
         if ((i == 1) && (c == 0x01)) { i = 2; }
@@ -102,6 +157,7 @@ void wait_for_55_01_8a()
     }
     uart0_puts((uint8_t*)"\nGOT KW\n\n");
 }
+
 
 void receive_block()
 {
@@ -146,64 +202,6 @@ void receive_block()
         }
     }
 }
-
-
-// Send byte only
-void send_byte(uint8_t c)
-{
-    _delay_ms(1);
-    uart1_put(c);
-    uart0_puts((uint8_t*)"TX: ");
-    uart0_puthex_byte(c);
-    uart0_put('\n');
-    // consume byte we sent
-    c = uart1_blocking_get();
-}
-
-
-// Send byte and receive its complement
-void send_byte_recv_compl(uint8_t c)
-{
-    send_byte(c);
-    // read byte from radio
-    c = uart1_blocking_get();
-    uart0_puts((uint8_t*)"R_: ");
-    uart0_puthex_byte(c);
-    uart0_put('\n');
-}
-
-
-// Receive byte only
-uint8_t recv_byte()
-{
-    uint8_t c = uart1_blocking_get();
-    uart0_puts((uint8_t*)"RX: ");
-    uart0_puthex_byte(c);
-    uart0_put('\n');
-    return c;
-}
-
-
-// Receive byte and send its complement
-uint8_t recv_byte_send_compl()
-{
-    uint8_t c, complement;
-    c = recv_byte();
-
-    // send complement
-    complement = c ^ 0xFF;
-    _delay_ms(1);
-    uart1_put(complement);
-    uart0_puts((uint8_t*)"T_: ");
-    uart0_puthex_byte(complement);
-    uart0_put('\n');
-
-    // consume byte we sent
-    uart1_blocking_get();
-
-    return c;
-}
-
 
 
 void send_ack_block()
