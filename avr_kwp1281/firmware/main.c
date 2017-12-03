@@ -170,11 +170,7 @@ void receive_block()
 
     while (!done) {
         // read byte from radio
-        c = uart1_blocking_get();
-
-        uart0_puts((uint8_t*)"RX: ");
-        uart0_puthex_byte(c);
-        uart0_put('\n');
+        c = recv_byte_send_compl();
 
         if (i == 0) {
             block_length = c;
@@ -183,16 +179,6 @@ void receive_block()
             block_length--;
             if (block_length == 0) { done = 1; }
         }
-
-        _delay_ms(1);
-        uart1_put(c ^ 0xFF);
-
-        uart0_puts((uint8_t*)"T_: ");
-        uart0_puthex_byte(c ^ 0xFF);
-        uart0_put('\n');
-
-        // consume byte we sent
-        c = uart1_blocking_get();
 
         i++;
 
