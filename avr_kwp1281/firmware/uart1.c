@@ -50,6 +50,12 @@ void uart1_puts(uint8_t *str)
     }
 }
 
+uint8_t uart1_blocking_get()
+{
+    while (!buf_has_byte(&uart1_rx_buffer));
+    return buf_read_byte(&uart1_rx_buffer);
+}
+
 // USART Receive Complete
 ISR(USART1_RX_vect)
 {
