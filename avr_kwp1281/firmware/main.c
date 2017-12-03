@@ -193,7 +193,7 @@ void send_ack_block()
 
     send_byte_recv_compl(0x03);                // block length
     send_byte_recv_compl(++block_counter);     // block counter
-    send_byte_recv_compl(0x09);                // ack
+    send_byte_recv_compl(0x09);                // block title (ack)
     send_byte_recv_compl(0x03);                // block end
 
     uart0_puts((uint8_t*)"END SEND BLOCK: ACK\n\n");
@@ -206,7 +206,7 @@ void send_f0_block()
 
     send_byte_recv_compl(0x04);                // block length
     send_byte_recv_compl(++block_counter);     // block counter
-    send_byte_recv_compl(0xf0);                // block title 0xf0
+    send_byte_recv_compl(0xf0);                // block title (0xf0)
     send_byte_recv_compl(0x00);                // 0=read
     send_byte_recv_compl(0x03);                // block end
 
@@ -214,65 +214,65 @@ void send_f0_block()
 }
 
 
-void send_login_block()
+void send_login_block(uint16_t safe_code, uint8_t fern, uint16_t workshop)
 {
     uart0_puts((uint8_t*)"BEGIN SEND BLOCK: LOGIN\n");
 
-    send_byte_recv_compl(0x08);                // block length
-    send_byte_recv_compl(++block_counter);     // block counter
-    send_byte_recv_compl(0x2b);                // login
-    send_byte_recv_compl(0x10);
-    send_byte_recv_compl(0xe1);
-    send_byte_recv_compl(0x01);
-    send_byte_recv_compl(0x86);
-    send_byte_recv_compl(0x9f);
-    send_byte_recv_compl(0x03);
+    send_byte_recv_compl(0x08);                 // block length
+    send_byte_recv_compl(++block_counter);      // block counter
+    send_byte_recv_compl(0x2b);                 // block title (login)
+    send_byte_recv_compl(HIGH(safe_code));      // safe code high byte
+    send_byte_recv_compl(LOW(safe_code));       // safe code low byte
+    send_byte_recv_compl(fern);                 // fern byte
+    send_byte_recv_compl(HIGH(workshop));       // workshop code high byte
+    send_byte_recv_compl(LOW(workshop));        // workshop code low byte
+    send_byte_recv_compl(0x03);                 // block end
 
     uart0_puts((uint8_t*)"END SEND BLOCK: LOGIN\n\n");
 }
 
 
-void send_group_reading_0x25()
+void send_group_reading_block(uint8_t group)
 {
-    uart0_puts((uint8_t*)"BEGIN SEND BLOCK: GROUP READ 0x19\n");
+    uart0_puts((uint8_t*)"BEGIN SEND BLOCK: GROUP READ\n");
 
     send_byte_recv_compl(0x04);                // block length
     send_byte_recv_compl(++block_counter);     // block counter
-    send_byte_recv_compl(0x29);                // group reading
-    send_byte_recv_compl(0x19);                // group number 0x19
+    send_byte_recv_compl(0x29);                // block title (group reading)
+    send_byte_recv_compl(group);               // group number
     send_byte_recv_compl(0x03);
 
-    uart0_puts((uint8_t*)"END SEND BLOCK: GROUP READ 0x19\n\n");
+    uart0_puts((uint8_t*)"END SEND BLOCK: GROUP READ\n\n");
 }
 
 
-void send_read_eeprom(uint16_t address, uint8_t length)
+void send_read_eeprom_block(uint16_t address, uint8_t length)
 {
     uart0_puts((uint8_t*)"BEGIN SEND BLOCK: READ EEPROM\n");
 
-    send_byte_recv_compl(0x06);                         // block length
-    send_byte_recv_compl(++block_counter);              // block counter
-    send_byte_recv_compl(0x19);                         // read eeprom
-    send_byte_recv_compl(length);                       // number of bytes to read
-    send_byte_recv_compl((uint8_t)(address >> 8));      // address high
-    send_byte_recv_compl((uint8_t)(address & 0xff));    // address low
-    send_byte(0x03);                                    // block end
+    send_byte_recv_compl(0x06);                 // block length
+    send_byte_recv_compl(++block_counter);      // block counter
+    send_byte_recv_compl(0x19);                 // block title (read eeprom)
+    send_byte_recv_compl(length);               // number of bytes to read
+    send_byte_recv_compl(HIGH(address));        // address high
+    send_byte_recv_compl(LOW(address));         // address low
+    send_byte(0x03);                            // block end
 
     uart0_puts((uint8_t*)"END SEND BLOCK: READ EEPROM\n\n");
 }
 
 
-void send_read_ram(uint16_t address, uint8_t length)
+void send_read_ram_block(uint16_t address, uint8_t length)
 {
     uart0_puts((uint8_t*)"BEGIN SEND BLOCK: READ RAM\n");
 
-    send_byte_recv_compl(0x06);                         // block length
-    send_byte_recv_compl(++block_counter);              // block counter
-    send_byte_recv_compl(0x01);                         // read ram
-    send_byte_recv_compl(length);                       // number of bytes to read
-    send_byte_recv_compl((uint8_t)(address >> 8));      // address high
-    send_byte_recv_compl((uint8_t)(address & 0xff));    // address low
-    send_byte(0x03);                                    // block end
+    send_byte_recv_compl(0x06);                 // block length
+    send_byte_recv_compl(++block_counter);      // block counter
+    send_byte_recv_compl(0x01);                 // block title (read ram)
+    send_byte_recv_compl(length);               // number of bytes to read
+    send_byte_recv_compl(HIGH(address));        // address high
+    send_byte_recv_compl(LOW(address));         // address low
+    send_byte(0x03);                            // block end
 
     uart0_puts((uint8_t*)"END SEND BLOCK: READ RAM\n\n");
 }
@@ -288,7 +288,7 @@ void read_all_ram()
 
         uint8_t size = 0x80;
         if (address == 0xFFF0) { size = 15; }
-        send_read_ram(address, size);
+        send_read_ram_block(address, size);
         receive_block();
         address += 80;
         if (address < 0x8000) { break; }
@@ -329,13 +329,13 @@ int main()
     send_f0_block();
     receive_block();
 
-    send_login_block();
+    send_login_block(0x10e1, 0x01, 0x869f);
     receive_block();
 
-    send_group_reading_0x25();
+    send_group_reading_block(0x19);
     receive_block();
 
-    send_read_eeprom(0x0000, 0x80);
+    send_read_eeprom_block(0x0000, 0x80);
     receive_block();
 
     uart0_puts((uint8_t*)"END\n\n");
