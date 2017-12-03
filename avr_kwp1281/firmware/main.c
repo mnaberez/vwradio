@@ -327,27 +327,20 @@ void connect()
 {
     send_5_baud_init();
     wait_for_55_01_8a();
-
     _delay_ms(30);
     send_byte(0x75);
 
-    uart0_puts((uint8_t*)"BLOCK 1\n\n");
-    receive_block();
-    send_ack_block();
+    // Receive and acknowledge:
+    //   0. 0xF6 (ASCII/Data): "1J0035180D  "
+    //   1. 0xF6 (ASCII/Data): " RADIO 3CP  "
+    //   2. 0xF6 (ASCII/Data): "        0001"
+    //   3. 0xF6 (ASCII/Data): 0x00 0x0A 0xF8 0x00 0x00
+    for (uint8_t i=0; i<4; i++) {
+        receive_block();
+        send_ack_block();
+    }
 
-    uart0_puts((uint8_t*)"BLOCK 2\n\n");
-    receive_block();
-    send_ack_block();
-
-    uart0_puts((uint8_t*)"BLOCK 3\n\n");
-    receive_block();
-    send_ack_block();
-
-    uart0_puts((uint8_t*)"BLOCK 4\n\n");
-    receive_block();
-    send_ack_block();
-
-    uart0_puts((uint8_t*)"BLOCK 5\n\n");
+    // Receive 0x09 (Acknowledge)
     receive_block();
 }
 
