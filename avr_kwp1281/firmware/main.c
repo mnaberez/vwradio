@@ -163,30 +163,27 @@ void receive_block()
 {
     uart0_puts((uint8_t*)"BEGIN RECEIVE BLOCK\n");
 
-    uint8_t done = 0;
-    uint8_t i = 0;
-    uint8_t block_length = 0;
-    uint8_t c = 0;
+    uint8_t bytes_received = 0;
+    uint8_t bytes_remaining = 1;
 
-    while (!done) {
-        // read byte from radio
-        c = recv_byte_send_compl();
+    while (bytes_remaining) {
+        uint8_t c = recv_byte_send_compl();
+        bytes_received++;
 
-        if (i == 0) {
-            block_length = c;
-        } else {
-            if (i == 1) { block_counter = c; }
-            block_length--;
-            if (block_length == 0) { done = 1; }
-        }
-
-        i++;
-
-        if (done) {
-            uart0_puts((uint8_t*)"END RECEIVE BLOCK\n\n");
-            return;
+        switch (bytes_received) {
+            case 1:  // block length
+                bytes_remaining = c;
+                break;
+            case 2:
+                block_counter = c;
+                // fall through
+            default:
+                bytes_remaining--;
         }
     }
+
+    uart0_puts((uint8_t*)"END RECEIVE BLOCK\n\n");
+    return;
 }
 
 
