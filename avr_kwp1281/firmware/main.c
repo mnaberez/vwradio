@@ -89,12 +89,13 @@ void send_5_baud_init()
 void send_byte(uint8_t c)
 {
     _delay_ms(1);
+
     uart1_put(c);
+    uart1_blocking_get();  // consume echo
+
     uart0_puts((uint8_t*)"TX: ");
     uart0_puthex_byte(c);
     uart0_put('\n');
-    // consume byte we sent
-    c = uart1_blocking_get();
 }
 
 
@@ -102,10 +103,10 @@ void send_byte(uint8_t c)
 void send_byte_recv_compl(uint8_t c)
 {
     send_byte(c);
-    // read byte from radio
-    c = uart1_blocking_get();
+    uint8_t complement = uart1_blocking_get();
+
     uart0_puts((uint8_t*)"R_: ");
-    uart0_puthex_byte(c);
+    uart0_puthex_byte(complement);
     uart0_put('\n');
 }
 
@@ -114,6 +115,7 @@ void send_byte_recv_compl(uint8_t c)
 uint8_t recv_byte()
 {
     uint8_t c = uart1_blocking_get();
+
     uart0_puts((uint8_t*)"RX: ");
     uart0_puthex_byte(c);
     uart0_put('\n');
@@ -125,18 +127,16 @@ uint8_t recv_byte()
 uint8_t recv_byte_send_compl()
 {
     uint8_t c = recv_byte();
-
-    // send complement
     uint8_t complement = c ^ 0xFF;
+
     _delay_ms(1);
+
     uart1_put(complement);
+    uart1_blocking_get();  // consume echo
 
     uart0_puts((uint8_t*)"T_: ");
     uart0_puthex_byte(complement);
     uart0_put('\n');
-
-    // consume byte we sent
-    uart1_blocking_get();
 
     return c;
 }
