@@ -86,18 +86,22 @@ void send_5_baud_init()
 
 void wait_for_55_01_8a()
 {
-    uint8_t connected = 0;
     uint8_t i = 0;
     uint8_t c = 0;
-    while (connected == 0) {
+    while (1) {
         while (!buf_has_byte(&uart1_rx_buffer));
         c = buf_read_byte(&uart1_rx_buffer);
-        if (i == 0) { if (c == 0x55) { i = 1; } }
-        if (i == 1) { if (c == 0x01) { i = 2; } }
-        if (i == 2) { if (c == 0x8A) { i = 3; } }
-        if (i == 3) { connected = 1; }
+
+        uart0_puts((uint8_t*)"RX: ");
+        uart0_puthex_byte(c);
+        uart0_put('\n');
+
+        if ((i == 0) && (c == 0x55)) { i = 1; }
+        if ((i == 1) && (c == 0x01)) { i = 2; }
+        if ((i == 2) && (c == 0x8A)) { i = 3; }
+        if (i == 3) { break; }
     }
-    uart0_puts((uint8_t*)"GOT KW\n\n");
+    uart0_puts((uint8_t*)"\nGOT KW\n\n");
 }
 
 void receive_block()
@@ -279,7 +283,7 @@ void send_read_eeprom(uint16_t address, uint8_t length)
     send_byte_recv_compl(length);                       // number of bytes to read
     send_byte_recv_compl((uint8_t)(address >> 8));      // address high
     send_byte_recv_compl((uint8_t)(address & 0xff));    // address low
-    send_byte(0x03);                                    // send block end
+    send_byte(0x03);                                    // block end
 
     uart0_puts((uint8_t*)"END SEND BLOCK: READ EEPROM\n\n");
 }
@@ -295,7 +299,7 @@ void send_read_ram(uint16_t address, uint8_t length)
     send_byte_recv_compl(length);                       // number of bytes to read
     send_byte_recv_compl((uint8_t)(address >> 8));      // address high
     send_byte_recv_compl((uint8_t)(address & 0xff));    // address low
-    send_byte(0x03);                                    // send block end
+    send_byte(0x03);                                    // block end
 
     uart0_puts((uint8_t*)"END SEND BLOCK: READ RAM\n\n");
 }
