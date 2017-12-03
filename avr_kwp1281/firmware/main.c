@@ -269,7 +269,7 @@ void send_group_reading_0x25()
 }
 
 
-uint8_t send_read_ram(uint16_t address, uint8_t length)
+void send_read_ram(uint16_t address, uint8_t length)
 {
     uart0_puts((uint8_t*)"BEGIN SEND BLOCK: READ RAM\n");
 
@@ -281,54 +281,7 @@ uint8_t send_read_ram(uint16_t address, uint8_t length)
     send_byte_recv_compl((uint8_t)(address & 0xff));                // address low
     send_byte(0x03);                           // send block end
 
-    // read ram block length byte from radio
-    uint8_t ram_block_length = recv_byte_send_compl();
-
     uart0_puts((uint8_t*)"END SEND BLOCK: READ RAM\n\n");
-
-    return ram_block_length;
-}
-
-
-void receive_ram(uint8_t block_length)
-{
-    uart0_puts((uint8_t*)"BEGIN RECEIVE RAM\n");
-
-    uint8_t done = 0;
-    uint8_t i = 1;
-    uint8_t c = 0;
-
-    while (!done) {
-        // read byte from radio
-        while (!buf_has_byte(&uart1_rx_buffer));
-        c = buf_read_byte(&uart1_rx_buffer);
-
-        uart0_puts((uint8_t*)"RX: ");
-        uart0_puthex_byte(c);
-        uart0_put('\n');
-
-        if (i == 1) { block_counter = c; }
-        block_length--;
-        if (block_length == 0) { done = 1; }
-
-        _delay_ms(1);
-        uart1_put(c ^ 0xFF);
-
-        uart0_puts((uint8_t*)"T_: ");
-        uart0_puthex_byte(c ^ 0xFF);
-        uart0_put('\n');
-
-        // consume byte we sent
-        while (!buf_has_byte(&uart1_rx_buffer));
-        buf_read_byte(&uart1_rx_buffer);
-
-        i++;
-
-        if (done) {
-            uart0_puts((uint8_t*)"END RECEIVE RAM\n\n");
-            return;
-        }
-    }
 }
 
 
@@ -348,8 +301,8 @@ void read_all_ram()
 
         uint8_t size = 0x80;
         if (address == 0xFFF0) { size = 15; }
-        uint8_t ram_block_length = send_read_ram(address, size);
-        receive_ram(ram_block_length);
+        send_read_ram(address, size);
+        receive_block();
         address += 80;
         if (address < 0x8000) { break; }
     }
