@@ -165,9 +165,17 @@ void receive_block()
 
     uint8_t bytes_received = 0;
     uint8_t bytes_remaining = 1;
+    uint8_t c;
 
     while (bytes_remaining) {
-        uint8_t c = recv_byte_send_compl();
+        if ((bytes_received == 0) || (bytes_remaining > 1)) {
+            c = recv_byte_send_compl();
+        } else {
+            // do not send complement for last byte in block (0x03 block end)
+            c = recv_byte();
+            _delay_ms(2);
+        }
+
         bytes_received++;
 
         switch (bytes_received) {
