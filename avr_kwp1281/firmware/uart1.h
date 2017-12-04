@@ -7,7 +7,7 @@
  * UART1
  *************************************************************************/
 
-void uart1_init();
+void uart1_init(uint32_t baud);
 void uart1_flush_tx();
 void uart1_put(uint8_t c);
 void uart1_puts(uint8_t *str);

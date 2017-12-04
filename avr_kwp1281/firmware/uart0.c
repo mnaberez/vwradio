@@ -7,16 +7,20 @@
  * UART0
  *************************************************************************/
 
-void uart0_init()
+void uart0_init(uint32_t baud)
 {
-    // Baud Rate
-#define BAUD 115200
-#include <util/setbaud.h>
-    UBRR0H = UBRRH_VALUE;
-    UBRR0L = UBRRL_VALUE;
-#if USE_2X
-#error USE_2X is not supported
-#endif
+    // Baud Rate (assumes 20 MHz system clock)
+    UBRR0H = 0;
+    switch (baud) {
+        case 115200:
+            UBRR0L = 0x0A; break;
+        case 10400:
+            UBRR0L = 0x77; break;
+        case 9600:
+            UBRR0L = 0x81; break;
+        default:
+            while(1);
+    }
 
     UCSR0A &= ~(_BV(U2X0));             // Do not use 2X
     UCSR0C = _BV(UCSZ01) | _BV(UCSZ00); // N-8-1

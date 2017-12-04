@@ -7,16 +7,20 @@
  * UART1
  *************************************************************************/
 
-void uart1_init()
+void uart1_init(uint32_t baud)
 {
-    // Baud Rate
-#define BAUD 9600
-#include <util/setbaud.h>
-    UBRR1H = UBRRH_VALUE;
-    UBRR1L = UBRRL_VALUE;
-#if USE_2X
-#error USE_2X is not supported
-#endif
+    // Baud Rate (assumes 20 MHz system clock)
+    UBRR1H = 0;
+    switch (baud) {
+        case 115200:
+            UBRR1L = 0x0A; break;
+        case 10400:
+            UBRR1L = 0x77; break;
+        case 9600:
+            UBRR1L = 0x81; break;
+        default:
+            while(1);
+    }
 
     UCSR1A &= ~(_BV(U2X1));             // Do not use 2X
     UCSR1C = _BV(UCSZ11) | _BV(UCSZ10); // N-8-1

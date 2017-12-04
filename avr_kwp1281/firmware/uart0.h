@@ -7,7 +7,7 @@
  * UART0
  *************************************************************************/
 
-void uart0_init();
+void uart0_init(uint32_t baud);
 void uart0_flush_tx();
 void uart0_put(uint8_t c);
 void uart0_put16(uint16_t w);

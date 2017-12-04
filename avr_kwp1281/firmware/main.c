@@ -58,8 +58,8 @@
 
 int main()
 {
-    uart0_init();
-    uart1_init();
+    uart0_init(115200);  // debug
+    uart1_init(9600);    // obd-ii kwp-1281
     sei();
 
     connect();
