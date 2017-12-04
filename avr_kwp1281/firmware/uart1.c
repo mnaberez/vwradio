@@ -4,7 +4,7 @@
 #include "uart1.h"
 
 /*************************************************************************
- * UART
+ * UART1
  *************************************************************************/
 
 void uart1_init()
@@ -15,15 +15,13 @@ void uart1_init()
     UBRR1H = UBRRH_VALUE;
     UBRR1L = UBRRL_VALUE;
 #if USE_2X
-    UCSR1A |= _BV(U2X1);
-#else
-    UCSR1A &= ~(_BV(U2X1));
+#error USE_2X is not supported
 #endif
 
+    UCSR1A &= ~(_BV(U2X1));             // Do not use 2X
     UCSR1C = _BV(UCSZ11) | _BV(UCSZ10); // N-8-1
     UCSR1B = _BV(RXEN1) | _BV(TXEN1);   // Enable RX and TX
-    // Enable the USART Recieve Complete
-    UCSR1B |= _BV(RXCIE1);
+    UCSR1B |= _BV(RXCIE1);              // Enable Recieve Complete interrupt
 
     buf_init(&uart1_rx_buffer);
     buf_init(&uart1_tx_buffer);
