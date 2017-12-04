@@ -7,13 +7,16 @@
 uint8_t block_counter = 0;
 
 
-void send_5_baud_init()
+void send_address(uint8_t address)
 {
     uart_puts(UART0, (uint8_t*)"SEND 5 BAUD\n\n");
 
     UCSR1B &= ~_BV(RXEN1);  // Disable RX (PD2/TXD1)
     UCSR1B &= ~_BV(TXEN1);  // Disable TX (PD3/TXD1)
     DDRD |= _BV(PD3);       // PD3 = output
+
+    // TODO add support for sending any address
+    if (address != 0x56) { while(1); }
 
     PORTD |= _BV(PD3);      // initially high
     _delay_ms(250);
@@ -255,7 +258,7 @@ void read_all_ram()
 
 void connect()
 {
-    send_5_baud_init();
+    send_address(0x56);
     wait_for_55_01_8a();
     _delay_ms(30);
     send_byte(0x75);

@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include "main.h"
 
-void send_5_baud_init();
+void send_address(uint8_t address);
 void send_byte(uint8_t c);
 void send_byte_recv_compl(uint8_t c);
 uint8_t recv_byte();
