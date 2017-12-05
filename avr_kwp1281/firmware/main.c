@@ -57,8 +57,8 @@
 
 int main()
 {
-    uart_init(UART0, 115200);  // debug
-    uart_init(UART1, 9600);    // obd-ii kwp-1281
+    uart_init(UART_DEBUG, 115200);  // debug messages
+    uart_init(UART_KWP,   9600);    // obd-ii kwp-1281
     sei();
 
     connect();
@@ -75,6 +75,6 @@ int main()
     send_read_eeprom_block(0x0000, 0x80);
     receive_block();
 
-    uart_puts(UART0, (uint8_t*)"END\n\n");
+    uart_puts(UART_DEBUG, (uint8_t*)"END\n\n");
     while(1);
 }

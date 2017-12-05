@@ -9,7 +9,7 @@ uint8_t block_counter = 0;
 
 void send_address(uint8_t address)
 {
-    uart_puts(UART0, (uint8_t*)"SEND 5 BAUD\n\n");
+    uart_puts(UART_DEBUG, (uint8_t*)"SEND 5 BAUD\n\n");
 
     UCSR1B &= ~_BV(RXEN1);  // Disable RX (PD2/TXD1)
     UCSR1B &= ~_BV(TXEN1);  // Disable TX (PD3/TXD1)
@@ -43,12 +43,12 @@ void send_byte(uint8_t c)
 {
     _delay_ms(1);
 
-    uart_put(UART1, c);
-    uart_blocking_get(UART1);  // consume echo
+    uart_put(UART_KWP, c);
+    uart_blocking_get(UART_KWP);  // consume echo
 
-    uart_puts(UART0, (uint8_t*)"TX: ");
-    uart_puthex_byte(UART0, c);
-    uart_put(UART0, '\n');
+    uart_puts(UART_DEBUG, (uint8_t*)"TX: ");
+    uart_puthex_byte(UART_DEBUG, c);
+    uart_put(UART_DEBUG, '\n');
 }
 
 
@@ -56,22 +56,22 @@ void send_byte(uint8_t c)
 void send_byte_recv_compl(uint8_t c)
 {
     send_byte(c);
-    uint8_t complement = uart_blocking_get(UART1);
+    uint8_t complement = uart_blocking_get(UART_KWP);
 
-    uart_puts(UART0, (uint8_t*)"R_: ");
-    uart_puthex_byte(UART0, complement);
-    uart_put(UART0, '\n');
+    uart_puts(UART_DEBUG, (uint8_t*)"R_: ");
+    uart_puthex_byte(UART_DEBUG, complement);
+    uart_put(UART_DEBUG, '\n');
 }
 
 
 // Receive byte only
 uint8_t recv_byte()
 {
-    uint8_t c = uart_blocking_get(UART1);
+    uint8_t c = uart_blocking_get(UART_KWP);
 
-    uart_puts(UART0, (uint8_t*)"RX: ");
-    uart_puthex_byte(UART0, c);
-    uart_put(UART0, '\n');
+    uart_puts(UART_DEBUG, (uint8_t*)"RX: ");
+    uart_puthex_byte(UART_DEBUG, c);
+    uart_put(UART_DEBUG, '\n');
     return c;
 }
 
@@ -84,12 +84,12 @@ uint8_t recv_byte_send_compl()
 
     _delay_ms(1);
 
-    uart_put(UART1, complement);
-    uart_blocking_get(UART1);  // consume echo
+    uart_put(UART_KWP, complement);
+    uart_blocking_get(UART_KWP);  // consume echo
 
-    uart_puts(UART0, (uint8_t*)"T_: ");
-    uart_puthex_byte(UART0, complement);
-    uart_put(UART0, '\n');
+    uart_puts(UART_DEBUG, (uint8_t*)"T_: ");
+    uart_puthex_byte(UART_DEBUG, complement);
+    uart_put(UART_DEBUG, '\n');
 
     return c;
 }
@@ -107,13 +107,13 @@ void wait_for_55_01_8a()
         if ((i == 2) && (c == 0x8A)) { i = 3; }
         if (i == 3) { break; }
     }
-    uart_puts(UART0, (uint8_t*)"\nGOT KW\n\n");
+    uart_puts(UART_DEBUG, (uint8_t*)"\nGOT KW\n\n");
 }
 
 
 void receive_block()
 {
-    uart_puts(UART0, (uint8_t*)"BEGIN RECEIVE BLOCK\n");
+    uart_puts(UART_DEBUG, (uint8_t*)"BEGIN RECEIVE BLOCK\n");
 
     uint8_t bytes_received = 0;
     uint8_t bytes_remaining = 1;
@@ -142,27 +142,27 @@ void receive_block()
         }
     }
 
-    uart_puts(UART0, (uint8_t*)"END RECEIVE BLOCK\n\n");
+    uart_puts(UART_DEBUG, (uint8_t*)"END RECEIVE BLOCK\n\n");
     return;
 }
 
 
 void send_ack_block()
 {
-    uart_puts(UART0, (uint8_t*)"BEGIN SEND BLOCK: ACK\n");
+    uart_puts(UART_DEBUG, (uint8_t*)"BEGIN SEND BLOCK: ACK\n");
 
     send_byte_recv_compl(0x03);                // block length
     send_byte_recv_compl(++block_counter);     // block counter
     send_byte_recv_compl(0x09);                // block title (ack)
     send_byte_recv_compl(0x03);                // block end
 
-    uart_puts(UART0, (uint8_t*)"END SEND BLOCK: ACK\n\n");
+    uart_puts(UART_DEBUG, (uint8_t*)"END SEND BLOCK: ACK\n\n");
 }
 
 
 void send_f0_block()
 {
-    uart_puts(UART0, (uint8_t*)"BEGIN SEND BLOCK: F0\n");
+    uart_puts(UART_DEBUG, (uint8_t*)"BEGIN SEND BLOCK: F0\n");
 
     send_byte_recv_compl(0x04);                // block length
     send_byte_recv_compl(++block_counter);     // block counter
@@ -170,13 +170,13 @@ void send_f0_block()
     send_byte_recv_compl(0x00);                // 0=read
     send_byte_recv_compl(0x03);                // block end
 
-    uart_puts(UART0, (uint8_t*)"END SEND BLOCK: F0\n\n");
+    uart_puts(UART_DEBUG, (uint8_t*)"END SEND BLOCK: F0\n\n");
 }
 
 
 void send_login_block(uint16_t safe_code, uint8_t fern, uint16_t workshop)
 {
-    uart_puts(UART0, (uint8_t*)"BEGIN SEND BLOCK: LOGIN\n");
+    uart_puts(UART_DEBUG, (uint8_t*)"BEGIN SEND BLOCK: LOGIN\n");
 
     send_byte_recv_compl(0x08);                 // block length
     send_byte_recv_compl(++block_counter);      // block counter
@@ -188,13 +188,13 @@ void send_login_block(uint16_t safe_code, uint8_t fern, uint16_t workshop)
     send_byte_recv_compl(LOW(workshop));        // workshop code low byte
     send_byte_recv_compl(0x03);                 // block end
 
-    uart_puts(UART0, (uint8_t*)"END SEND BLOCK: LOGIN\n\n");
+    uart_puts(UART_DEBUG, (uint8_t*)"END SEND BLOCK: LOGIN\n\n");
 }
 
 
 void send_group_reading_block(uint8_t group)
 {
-    uart_puts(UART0, (uint8_t*)"BEGIN SEND BLOCK: GROUP READ\n");
+    uart_puts(UART_DEBUG, (uint8_t*)"BEGIN SEND BLOCK: GROUP READ\n");
 
     send_byte_recv_compl(0x04);                // block length
     send_byte_recv_compl(++block_counter);     // block counter
@@ -202,13 +202,13 @@ void send_group_reading_block(uint8_t group)
     send_byte_recv_compl(group);               // group number
     send_byte_recv_compl(0x03);
 
-    uart_puts(UART0, (uint8_t*)"END SEND BLOCK: GROUP READ\n\n");
+    uart_puts(UART_DEBUG, (uint8_t*)"END SEND BLOCK: GROUP READ\n\n");
 }
 
 
 void send_read_eeprom_block(uint16_t address, uint8_t length)
 {
-    uart_puts(UART0, (uint8_t*)"BEGIN SEND BLOCK: READ EEPROM\n");
+    uart_puts(UART_DEBUG, (uint8_t*)"BEGIN SEND BLOCK: READ EEPROM\n");
 
     send_byte_recv_compl(0x06);                 // block length
     send_byte_recv_compl(++block_counter);      // block counter
@@ -218,13 +218,13 @@ void send_read_eeprom_block(uint16_t address, uint8_t length)
     send_byte_recv_compl(LOW(address));         // address low
     send_byte(0x03);                            // block end
 
-    uart_puts(UART0, (uint8_t*)"END SEND BLOCK: READ EEPROM\n\n");
+    uart_puts(UART_DEBUG, (uint8_t*)"END SEND BLOCK: READ EEPROM\n\n");
 }
 
 
 void send_read_ram_block(uint16_t address, uint8_t length)
 {
-    uart_puts(UART0, (uint8_t*)"BEGIN SEND BLOCK: READ RAM\n");
+    uart_puts(UART_DEBUG, (uint8_t*)"BEGIN SEND BLOCK: READ RAM\n");
 
     send_byte_recv_compl(0x06);                 // block length
     send_byte_recv_compl(++block_counter);      // block counter
@@ -234,7 +234,7 @@ void send_read_ram_block(uint16_t address, uint8_t length)
     send_byte_recv_compl(LOW(address));         // address low
     send_byte(0x03);                            // block end
 
-    uart_puts(UART0, (uint8_t*)"END SEND BLOCK: READ RAM\n\n");
+    uart_puts(UART_DEBUG, (uint8_t*)"END SEND BLOCK: READ RAM\n\n");
 }
 
 
@@ -242,9 +242,9 @@ void read_all_ram()
 {
     uint16_t address = 0xF000;
     while(1) {
-        uart_puts(UART0, (uint8_t*)"ADDRESS = ");
-        uart_puthex_16(UART0, address);
-        uart_puts(UART0, (uint8_t*)"\n\n");
+        uart_puts(UART_DEBUG, (uint8_t*)"ADDRESS = ");
+        uart_puthex_16(UART_DEBUG, address);
+        uart_puts(UART_DEBUG, (uint8_t*)"\n\n");
 
         uint8_t size = 0x80;
         if (address == 0xFFF0) { size = 15; }
