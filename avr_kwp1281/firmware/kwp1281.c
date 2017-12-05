@@ -112,7 +112,7 @@ static void wait_for_55_01_8a()
 }
 
 
-void receive_block()
+void kwp_receive_block()
 {
     uart_puts(UART_DEBUG, (uint8_t*)"BEGIN RECEIVE BLOCK\n");
 
@@ -148,7 +148,7 @@ void receive_block()
 }
 
 
-void send_ack_block()
+void kwp_send_ack_block()
 {
     uart_puts(UART_DEBUG, (uint8_t*)"BEGIN SEND BLOCK: ACK\n");
 
@@ -161,7 +161,7 @@ void send_ack_block()
 }
 
 
-void send_f0_block()
+void kwp_send_f0_block()
 {
     uart_puts(UART_DEBUG, (uint8_t*)"BEGIN SEND BLOCK: F0\n");
 
@@ -175,7 +175,7 @@ void send_f0_block()
 }
 
 
-void send_login_block(uint16_t safe_code, uint8_t fern, uint16_t workshop)
+void kwp_send_login_block(uint16_t safe_code, uint8_t fern, uint16_t workshop)
 {
     uart_puts(UART_DEBUG, (uint8_t*)"BEGIN SEND BLOCK: LOGIN\n");
 
@@ -193,7 +193,7 @@ void send_login_block(uint16_t safe_code, uint8_t fern, uint16_t workshop)
 }
 
 
-void send_group_reading_block(uint8_t group)
+void kwp_send_group_reading_block(uint8_t group)
 {
     uart_puts(UART_DEBUG, (uint8_t*)"BEGIN SEND BLOCK: GROUP READ\n");
 
@@ -207,7 +207,7 @@ void send_group_reading_block(uint8_t group)
 }
 
 
-void send_read_eeprom_block(uint16_t address, uint8_t length)
+void kwp_send_read_eeprom_block(uint16_t address, uint8_t length)
 {
     uart_puts(UART_DEBUG, (uint8_t*)"BEGIN SEND BLOCK: READ EEPROM\n");
 
@@ -223,7 +223,7 @@ void send_read_eeprom_block(uint16_t address, uint8_t length)
 }
 
 
-void send_read_ram_block(uint16_t address, uint8_t length)
+void kwp_send_read_ram_block(uint16_t address, uint8_t length)
 {
     uart_puts(UART_DEBUG, (uint8_t*)"BEGIN SEND BLOCK: READ RAM\n");
 
@@ -239,7 +239,7 @@ void send_read_ram_block(uint16_t address, uint8_t length)
 }
 
 
-void read_all_ram()
+void kwp_read_all_ram()
 {
     uint16_t address = 0xF000;
     while(1) {
@@ -249,15 +249,15 @@ void read_all_ram()
 
         uint8_t size = 0x80;
         if (address == 0xFFF0) { size = 15; }
-        send_read_ram_block(address, size);
-        receive_block();
+        kwp_send_read_ram_block(address, size);
+        kwp_receive_block();
         address += 80;
         if (address < 0x8000) { break; }
     }
 }
 
 
-void connect(uint8_t address)
+void kwp_connect(uint8_t address)
 {
     send_address(address);
     wait_for_55_01_8a();
@@ -270,10 +270,10 @@ void connect(uint8_t address)
     //   2. 0xF6 (ASCII/Data): "        0001"
     //   3. 0xF6 (ASCII/Data): 0x00 0x0A 0xF8 0x00 0x00
     for (uint8_t i=0; i<4; i++) {
-        receive_block();
-        send_ack_block();
+        kwp_receive_block();
+        kwp_send_ack_block();
     }
 
     // Receive 0x09 (Acknowledge)
-    receive_block();
+    kwp_receive_block();
 }
