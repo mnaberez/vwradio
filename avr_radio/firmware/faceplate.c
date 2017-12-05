@@ -12,7 +12,7 @@
 // of the /LOF signal (LCD OFF).  The radio controls the /LOF signal.  When the
 // Premium 4 radio asserts /LOF, it also shuts off MAIN5V.  We must stop
 // driving the SPI lines or else ~4V will leak into MAIN5V when it's supposed
-// to be off, the effect of which is a malfunction where teh radio can't be
+// to be off, the effect of which is a malfunction where the radio can't be
 // turned back on after being turned off.
 void faceplate_service_lof()
 {
