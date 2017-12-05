@@ -13,4 +13,8 @@ void kwp_send_ack_block();
 void kwp_receive_block();
 void kwp_read_all_ram();
 
+uint8_t kwp_block_counter;
+uint8_t kwp_rx_buf[256];
+uint8_t kwp_rx_size;
+
 #endif

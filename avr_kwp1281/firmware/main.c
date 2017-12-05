@@ -66,6 +66,11 @@ int main()
     kwp_send_f0_block();
     kwp_receive_block();
 
+    uint16_t safe_code = (kwp_rx_buf[3] << 8) + kwp_rx_buf[4];
+    uart_puts(UART_DEBUG, (uint8_t*)"SAFE CODE = ");
+    uart_puthex_16(UART_DEBUG, safe_code);
+    uart_puts(UART_DEBUG, (uint8_t*)"\n");
+
     // kwp_send_login_block(0x10e1, 0x01, 0x869f);
     // kwp_receive_block();
     //
@@ -75,6 +80,5 @@ int main()
     // kwp_send_read_eeprom_block(0x0000, 0x80);
     // kwp_receive_block();
 
-    uart_puts(UART_DEBUG, (uint8_t*)"END\n\n");
     while(1);
 }

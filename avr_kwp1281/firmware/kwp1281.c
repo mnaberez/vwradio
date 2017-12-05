@@ -1,11 +1,9 @@
 #include "main.h"
 #include "kwp1281.h"
 #include "uart.h"
+#include <string.h>
 #include <avr/io.h>
 #include <util/delay.h>
-
-uint8_t block_counter = 0;
-
 
 // Send module address at 5 baud
 static void send_address(uint8_t address)
@@ -116,12 +114,14 @@ void kwp_receive_block()
 {
     uart_puts(UART_DEBUG, (uint8_t*)"BEGIN RECEIVE BLOCK\n");
 
-    uint8_t bytes_received = 0;
+    kwp_rx_size = 0;
+    memset(kwp_rx_buf, 0, sizeof(kwp_rx_buf));
+
     uint8_t bytes_remaining = 1;
     uint8_t c;
 
     while (bytes_remaining) {
-        if ((bytes_received == 0) || (bytes_remaining > 1)) {
+        if ((kwp_rx_size == 0) || (bytes_remaining > 1)) {
             c = recv_byte_send_compl();
         } else {
             // do not send complement for last byte in block (0x03 block end)
@@ -129,14 +129,14 @@ void kwp_receive_block()
             _delay_ms(2);
         }
 
-        bytes_received++;
+        kwp_rx_buf[kwp_rx_size++] = c;
 
-        switch (bytes_received) {
+        switch (kwp_rx_size) {
             case 1:  // block length
                 bytes_remaining = c;
                 break;
             case 2:
-                block_counter = c;
+                kwp_block_counter = c;
                 // fall through
             default:
                 bytes_remaining--;
@@ -153,7 +153,7 @@ void kwp_send_ack_block()
     uart_puts(UART_DEBUG, (uint8_t*)"BEGIN SEND BLOCK: ACK\n");
 
     send_byte_recv_compl(0x03);                // block length
-    send_byte_recv_compl(++block_counter);     // block counter
+    send_byte_recv_compl(++kwp_block_counter); // block counter
     send_byte_recv_compl(0x09);                // block title (ack)
     send_byte_recv_compl(0x03);                // block end
 
@@ -166,7 +166,7 @@ void kwp_send_f0_block()
     uart_puts(UART_DEBUG, (uint8_t*)"BEGIN SEND BLOCK: F0\n");
 
     send_byte_recv_compl(0x04);                // block length
-    send_byte_recv_compl(++block_counter);     // block counter
+    send_byte_recv_compl(++kwp_block_counter); // block counter
     send_byte_recv_compl(0xf0);                // block title (0xf0)
     send_byte_recv_compl(0x00);                // 0=read
     send_byte_recv_compl(0x03);                // block end
@@ -180,7 +180,7 @@ void kwp_send_login_block(uint16_t safe_code, uint8_t fern, uint16_t workshop)
     uart_puts(UART_DEBUG, (uint8_t*)"BEGIN SEND BLOCK: LOGIN\n");
 
     send_byte_recv_compl(0x08);                 // block length
-    send_byte_recv_compl(++block_counter);      // block counter
+    send_byte_recv_compl(++kwp_block_counter);  // block counter
     send_byte_recv_compl(0x2b);                 // block title (login)
     send_byte_recv_compl(HIGH(safe_code));      // safe code high byte
     send_byte_recv_compl(LOW(safe_code));       // safe code low byte
@@ -198,7 +198,7 @@ void kwp_send_group_reading_block(uint8_t group)
     uart_puts(UART_DEBUG, (uint8_t*)"BEGIN SEND BLOCK: GROUP READ\n");
 
     send_byte_recv_compl(0x04);                // block length
-    send_byte_recv_compl(++block_counter);     // block counter
+    send_byte_recv_compl(++kwp_block_counter); // block counter
     send_byte_recv_compl(0x29);                // block title (group reading)
     send_byte_recv_compl(group);               // group number
     send_byte_recv_compl(0x03);
@@ -212,7 +212,7 @@ void kwp_send_read_eeprom_block(uint16_t address, uint8_t length)
     uart_puts(UART_DEBUG, (uint8_t*)"BEGIN SEND BLOCK: READ EEPROM\n");
 
     send_byte_recv_compl(0x06);                 // block length
-    send_byte_recv_compl(++block_counter);      // block counter
+    send_byte_recv_compl(++kwp_block_counter);  // block counter
     send_byte_recv_compl(0x19);                 // block title (read eeprom)
     send_byte_recv_compl(length);               // number of bytes to read
     send_byte_recv_compl(HIGH(address));        // address high
@@ -228,7 +228,7 @@ void kwp_send_read_ram_block(uint16_t address, uint8_t length)
     uart_puts(UART_DEBUG, (uint8_t*)"BEGIN SEND BLOCK: READ RAM\n");
 
     send_byte_recv_compl(0x06);                 // block length
-    send_byte_recv_compl(++block_counter);      // block counter
+    send_byte_recv_compl(++kwp_block_counter);  // block counter
     send_byte_recv_compl(0x01);                 // block title (read ram)
     send_byte_recv_compl(length);               // number of bytes to read
     send_byte_recv_compl(HIGH(address));        // address high
