@@ -7,7 +7,8 @@
 uint8_t block_counter = 0;
 
 
-void send_address(uint8_t address)
+// Send module address at 5 baud
+static void send_address(uint8_t address)
 {
     uart_puts(UART_DEBUG, (uint8_t*)"SEND 5 BAUD\n\n");
 
@@ -39,7 +40,7 @@ void send_address(uint8_t address)
 
 
 // Send byte only
-void send_byte(uint8_t c)
+static void send_byte(uint8_t c)
 {
     _delay_ms(1);
 
@@ -53,7 +54,7 @@ void send_byte(uint8_t c)
 
 
 // Send byte and receive its complement
-void send_byte_recv_compl(uint8_t c)
+static void send_byte_recv_compl(uint8_t c)
 {
     send_byte(c);
     uint8_t complement = uart_blocking_get(UART_KWP);
@@ -65,7 +66,7 @@ void send_byte_recv_compl(uint8_t c)
 
 
 // Receive byte only
-uint8_t recv_byte()
+static uint8_t recv_byte()
 {
     uint8_t c = uart_blocking_get(UART_KWP);
 
@@ -77,7 +78,7 @@ uint8_t recv_byte()
 
 
 // Receive byte and send its complement
-uint8_t recv_byte_send_compl()
+static uint8_t recv_byte_send_compl()
 {
     uint8_t c = recv_byte();
     uint8_t complement = c ^ 0xFF;
@@ -95,7 +96,7 @@ uint8_t recv_byte_send_compl()
 }
 
 
-void wait_for_55_01_8a()
+static void wait_for_55_01_8a()
 {
     uint8_t i = 0;
     uint8_t c = 0;
@@ -256,9 +257,9 @@ void read_all_ram()
 }
 
 
-void connect()
+void connect(uint8_t address)
 {
-    send_address(0x56);
+    send_address(address);
     wait_for_55_01_8a();
     _delay_ms(30);
     send_byte(0x75);

@@ -61,19 +61,19 @@ int main()
     uart_init(UART_KWP,   9600);    // obd-ii kwp-1281
     sei();
 
-    connect();
+    connect(0x56);
 
     send_f0_block();
     receive_block();
 
-    send_login_block(0x10e1, 0x01, 0x869f);
-    receive_block();
-
-    send_group_reading_block(0x19);
-    receive_block();
-
-    send_read_eeprom_block(0x0000, 0x80);
-    receive_block();
+    // send_login_block(0x10e1, 0x01, 0x869f);
+    // receive_block();
+    //
+    // send_group_reading_block(0x19);
+    // receive_block();
+    //
+    // send_read_eeprom_block(0x0000, 0x80);
+    // receive_block();
 
     uart_puts(UART_DEBUG, (uint8_t*)"END\n\n");
     while(1);

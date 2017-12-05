@@ -4,6 +4,31 @@
 #include "uart.h"
 
 /*************************************************************************
+ * Ring Buffers for UART
+ *************************************************************************/
+
+static void buf_init(volatile ringbuffer_t *buf)
+{
+    buf->read_index = 0;
+    buf->write_index = 0;
+}
+
+static void buf_write_byte(volatile ringbuffer_t *buf, uint8_t c)
+{
+    buf->data[buf->write_index++] = c;
+}
+
+static uint8_t buf_read_byte(volatile ringbuffer_t *buf)
+{
+    return buf->data[buf->read_index++];
+}
+
+static uint8_t buf_has_byte(volatile ringbuffer_t *buf)
+{
+    return buf->read_index != buf->write_index;
+}
+
+/*************************************************************************
  * UART
  *************************************************************************/
 
@@ -69,8 +94,7 @@ void uart_put16(uint8_t uartnum, uint16_t w)
 
 void uart_puts(uint8_t uartnum, uint8_t *str)
 {
-    while (*str != '\0')
-    {
+    while (*str != '\0') {
         uart_put(uartnum, *str);
         str++;
     }
@@ -78,12 +102,9 @@ void uart_puts(uint8_t uartnum, uint8_t *str)
 
 void uart_puthex_nib(uint8_t uartnum, uint8_t c)
 {
-    if (c < 10) // 0-9
-    {
+    if (c < 10) { // 0-9
         uart_put(uartnum, c + 0x30);
-    }
-    else // A-F
-    {
+    } else { // A-F
         uart_put(uartnum, c + 0x37);
     }
 }
@@ -106,6 +127,9 @@ uint8_t uart_blocking_get(uint8_t uartnum)
     return buf_read_byte(&uart_rx_buffers[uartnum]);
 }
 
+/*************************************************************************
+ * UART Interrupt Service Routines
+ *************************************************************************/
 
 // USART0 Receive Complete
 ISR(USART0_RX_vect)
