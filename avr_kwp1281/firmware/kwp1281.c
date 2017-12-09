@@ -8,7 +8,9 @@
 // Send module address at 5 baud
 static void send_address(uint8_t address)
 {
-    uart_puts(UART_DEBUG, "SEND 5 BAUD\n\n");
+    uart_puts(UART_DEBUG, "INIT 0x");
+    uart_puthex(UART_DEBUG, address);
+    uart_puts(UART_DEBUG, "\n\n");
 
     UCSR1B &= ~_BV(RXEN1);  // Disable RX (PD2/TXD1)
     UCSR1B &= ~_BV(TXEN1);  // Disable TX (PD3/TXD1)
@@ -46,7 +48,7 @@ static void send_byte(uint8_t c)
     uart_blocking_get(UART_KWP);  // consume echo
 
     uart_puts(UART_DEBUG, "TX: ");
-    uart_puthex_byte(UART_DEBUG, c);
+    uart_puthex(UART_DEBUG, c);
     uart_put(UART_DEBUG, '\n');
 }
 
@@ -58,7 +60,7 @@ static void send_byte_recv_compl(uint8_t c)
     uint8_t complement = uart_blocking_get(UART_KWP);
 
     uart_puts(UART_DEBUG, "R_: ");
-    uart_puthex_byte(UART_DEBUG, complement);
+    uart_puthex(UART_DEBUG, complement);
     uart_put(UART_DEBUG, '\n');
 }
 
@@ -69,7 +71,7 @@ static uint8_t recv_byte()
     uint8_t c = uart_blocking_get(UART_KWP);
 
     uart_puts(UART_DEBUG, "RX: ");
-    uart_puthex_byte(UART_DEBUG, c);
+    uart_puthex(UART_DEBUG, c);
     uart_put(UART_DEBUG, '\n');
     return c;
 }
@@ -87,7 +89,7 @@ static uint8_t recv_byte_send_compl()
     uart_blocking_get(UART_KWP);  // consume echo
 
     uart_puts(UART_DEBUG, "T_: ");
-    uart_puthex_byte(UART_DEBUG, complement);
+    uart_puthex(UART_DEBUG, complement);
     uart_put(UART_DEBUG, '\n');
 
     return c;
@@ -244,7 +246,7 @@ void kwp_read_all_ram()
     uint16_t address = 0xF000;
     while(1) {
         uart_puts(UART_DEBUG, "ADDRESS = ");
-        uart_puthex_16(UART_DEBUG, address);
+        uart_puthex16(UART_DEBUG, address);
         uart_puts(UART_DEBUG, "\n\n");
 
         uint8_t size = 0x80;

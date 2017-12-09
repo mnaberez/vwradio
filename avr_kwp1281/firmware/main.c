@@ -86,7 +86,7 @@ void print_radio_info()
 void print_safe_code(uint16_t safe_code_bcd)
 {
     uart_puts(UART_DEBUG, "SAFE Code:  ");
-    uart_puthex_16(UART_DEBUG, safe_code_bcd);
+    uart_puthex16(UART_DEBUG, safe_code_bcd);
     uart_puts(UART_DEBUG, "\n");
 }
 

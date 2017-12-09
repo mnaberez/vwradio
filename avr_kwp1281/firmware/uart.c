@@ -100,7 +100,7 @@ void uart_puts(uint8_t uartnum, char *str)
     }
 }
 
-void uart_puthex_nib(uint8_t uartnum, uint8_t c)
+static void _puthex_nib(uint8_t uartnum, uint8_t c)
 {
     if (c < 10) { // 0-9
         uart_put(uartnum, c + 0x30);
@@ -109,16 +109,16 @@ void uart_puthex_nib(uint8_t uartnum, uint8_t c)
     }
 }
 
-void uart_puthex_byte(uint8_t uartnum, uint8_t c)
+void uart_puthex(uint8_t uartnum, uint8_t c)
 {
-    uart_puthex_nib(uartnum, (c & 0xf0) >> 4);
-    uart_puthex_nib(uartnum, c & 0x0f);
+    _puthex_nib(uartnum, (c & 0xf0) >> 4);
+    _puthex_nib(uartnum, c & 0x0f);
 }
 
-void uart_puthex_16(uint8_t uartnum, uint16_t w)
+void uart_puthex16(uint8_t uartnum, uint16_t w)
 {
-    uart_puthex_byte(uartnum, (w & 0xff00) >> 8);
-    uart_puthex_byte(uartnum, (w & 0x00ff));
+    uart_puthex(uartnum, (w & 0xff00) >> 8);
+    uart_puthex(uartnum, (w & 0x00ff));
 }
 
 uint8_t uart_blocking_get(uint8_t uartnum)
