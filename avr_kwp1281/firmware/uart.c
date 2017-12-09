@@ -4,26 +4,29 @@
 #include "uart.h"
 
 /*************************************************************************
- * Ring Buffers for UART
+ * UART Ring Buffers
  *************************************************************************/
 
-static void buf_init(volatile ringbuffer_t *buf)
+volatile uart_ringbuffer_t _rx_buffers[2];
+volatile uart_ringbuffer_t _tx_buffers[2];
+
+static void _buf_init(volatile uart_ringbuffer_t *buf)
 {
     buf->read_index = 0;
     buf->write_index = 0;
 }
 
-static void buf_write_byte(volatile ringbuffer_t *buf, uint8_t c)
+static void _buf_write_byte(volatile uart_ringbuffer_t *buf, uint8_t c)
 {
     buf->data[buf->write_index++] = c;
 }
 
-static uint8_t buf_read_byte(volatile ringbuffer_t *buf)
+static uint8_t _buf_read_byte(volatile uart_ringbuffer_t *buf)
 {
     return buf->data[buf->read_index++];
 }
 
-static uint8_t buf_has_byte(volatile ringbuffer_t *buf)
+static uint8_t _buf_has_byte(volatile uart_ringbuffer_t *buf)
 {
     return buf->read_index != buf->write_index;
 }
@@ -32,7 +35,7 @@ static uint8_t buf_has_byte(volatile ringbuffer_t *buf)
  * UART
  *************************************************************************/
 
-static uint8_t baud_to_UBRRxL(uint32_t baud)
+static uint8_t _baud_to_UBBRxL(uint32_t baud)
 {
     // assumes 20 MHz system clock, UBBRxH=0
     switch (baud) {
@@ -48,7 +51,7 @@ void uart_init(uint8_t uartnum, uint32_t baud)
     switch (uartnum) {
         case UART0:
             UBRR0H = 0;                         // Baud Rate high
-            UBRR0L = baud_to_UBRRxL(baud);      // Baud Rate low
+            UBRR0L = _baud_to_UBBRxL(baud);     // Baud Rate low
             UCSR0A &= ~(_BV(U2X0));             // Do not use 2X
             UCSR0C = _BV(UCSZ01) | _BV(UCSZ00); // N-8-1
             UCSR0B = _BV(RXEN0) | _BV(TXEN0);   // Enable RX and TX
@@ -56,7 +59,7 @@ void uart_init(uint8_t uartnum, uint32_t baud)
             break;
         case UART1:
             UBRR1H = 0;                         // Baud Rate high
-            UBRR1L = baud_to_UBRRxL(baud);      // Baud Rate low
+            UBRR1L = _baud_to_UBBRxL(baud);     // Baud Rate low
             UCSR1A &= ~(_BV(U2X1));             // Do not use 2X
             UCSR1C = _BV(UCSZ11) | _BV(UCSZ10); // N-8-1
             UCSR1B = _BV(RXEN1) | _BV(TXEN1);   // Enable RX and TX
@@ -66,18 +69,18 @@ void uart_init(uint8_t uartnum, uint32_t baud)
             while(1);
     }
 
-    buf_init(&uart_rx_buffers[uartnum]);
-    buf_init(&uart_tx_buffers[uartnum]);
+    _buf_init(&_rx_buffers[uartnum]);
+    _buf_init(&_tx_buffers[uartnum]);
 }
 
 void uart_flush_tx(uint8_t uartnum)
 {
-    while (buf_has_byte(&uart_tx_buffers[uartnum]));
+    while (_buf_has_byte(&_tx_buffers[uartnum]));
 }
 
 void uart_put(uint8_t uartnum, uint8_t c)
 {
-    buf_write_byte(&uart_tx_buffers[uartnum], c);
+    _buf_write_byte(&_tx_buffers[uartnum], c);
     // Enable UDRE interrupt
     switch (uartnum) {
         case UART0: UCSR0B |= _BV(UDRIE0); break;
@@ -123,8 +126,8 @@ void uart_puthex16(uint8_t uartnum, uint16_t w)
 
 uint8_t uart_blocking_get(uint8_t uartnum)
 {
-    while (!buf_has_byte(&uart_rx_buffers[uartnum]));
-    return buf_read_byte(&uart_rx_buffers[uartnum]);
+    while (!_buf_has_byte(&_rx_buffers[uartnum]));
+    return _buf_read_byte(&_rx_buffers[uartnum]);
 }
 
 /*************************************************************************
@@ -134,20 +137,20 @@ uint8_t uart_blocking_get(uint8_t uartnum)
 // USART0 Receive Complete
 ISR(USART0_RX_vect)
 {
-    buf_write_byte(&uart_rx_buffers[UART0], UDR0);
+    _buf_write_byte(&_rx_buffers[UART0], UDR0);
 }
 
 // USART1 Receive Complete
 ISR(USART1_RX_vect)
 {
-    buf_write_byte(&uart_rx_buffers[UART1], UDR1);
+    _buf_write_byte(&_rx_buffers[UART1], UDR1);
 }
 
 // USART0 Data Register Empty (USART0 is ready to transmit a byte)
 ISR(USART0_UDRE_vect)
 {
-    if (buf_has_byte(&uart_tx_buffers[UART0])) {
-        UDR0 = buf_read_byte(&uart_tx_buffers[UART0]);
+    if (_buf_has_byte(&_tx_buffers[UART0])) {
+        UDR0 = _buf_read_byte(&_tx_buffers[UART0]);
     } else {
         // No more data to send; disable UDRE interrupts
         UCSR0B &= ~_BV(UDRE0);
@@ -157,8 +160,8 @@ ISR(USART0_UDRE_vect)
 // USART1 Data Register Empty (USART1 is ready to transmit a byte)
 ISR(USART1_UDRE_vect)
 {
-    if (buf_has_byte(&uart_tx_buffers[UART1])) {
-        UDR1 = buf_read_byte(&uart_tx_buffers[UART1]);
+    if (_buf_has_byte(&_tx_buffers[UART1])) {
+        UDR1 = _buf_read_byte(&_tx_buffers[UART1]);
     } else {
         // No more data to send; disable UDRE interrupts
         UCSR1B &= ~_BV(UDRE1);

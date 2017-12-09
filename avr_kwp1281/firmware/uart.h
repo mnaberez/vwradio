@@ -32,9 +32,6 @@ typedef struct
     uint8_t data[256];
     uint8_t write_index;
     uint8_t read_index;
-} ringbuffer_t;
-
-volatile ringbuffer_t uart_rx_buffers[2];
-volatile ringbuffer_t uart_tx_buffers[2];
+} uart_ringbuffer_t;
 
 #endif

@@ -6,7 +6,7 @@
 #include <util/delay.h>
 
 // Send module address at 5 baud
-static void send_address(uint8_t address)
+static void _send_address(uint8_t address)
 {
     uart_puts(UART_DEBUG, "INIT 0x");
     uart_puthex(UART_DEBUG, address);
@@ -40,7 +40,7 @@ static void send_address(uint8_t address)
 
 
 // Send byte only
-static void send_byte(uint8_t c)
+static void _send_byte(uint8_t c)
 {
     _delay_ms(1);
 
@@ -54,9 +54,9 @@ static void send_byte(uint8_t c)
 
 
 // Send byte and receive its complement
-static void send_byte_recv_compl(uint8_t c)
+static void _send_byte_recv_compl(uint8_t c)
 {
-    send_byte(c);
+    _send_byte(c);
     uint8_t complement = uart_blocking_get(UART_KWP);
 
     uart_puts(UART_DEBUG, "R_: ");
@@ -66,7 +66,7 @@ static void send_byte_recv_compl(uint8_t c)
 
 
 // Receive byte only
-static uint8_t recv_byte()
+static uint8_t _recv_byte()
 {
     uint8_t c = uart_blocking_get(UART_KWP);
 
@@ -78,9 +78,9 @@ static uint8_t recv_byte()
 
 
 // Receive byte and send its complement
-static uint8_t recv_byte_send_compl()
+static uint8_t _recv_byte_send_compl()
 {
-    uint8_t c = recv_byte();
+    uint8_t c = _recv_byte();
     uint8_t complement = c ^ 0xFF;
 
     _delay_ms(1);
@@ -96,12 +96,12 @@ static uint8_t recv_byte_send_compl()
 }
 
 
-static void wait_for_55_01_8a()
+static void _wait_for_55_01_8a()
 {
     uint8_t i = 0;
     uint8_t c = 0;
     while (1) {
-        c = recv_byte();
+        c = _recv_byte();
 
         if ((i == 0) && (c == 0x55)) { i = 1; }
         if ((i == 1) && (c == 0x01)) { i = 2; }
@@ -124,10 +124,10 @@ void kwp_receive_block()
 
     while (bytes_remaining) {
         if ((kwp_rx_size == 0) || (bytes_remaining > 1)) {
-            c = recv_byte_send_compl();
+            c = _recv_byte_send_compl();
         } else {
             // do not send complement for last byte in block (0x03 block end)
-            c = recv_byte();
+            c = _recv_byte();
             _delay_ms(2);
         }
 
@@ -154,10 +154,10 @@ void kwp_send_ack_block()
 {
     uart_puts(UART_DEBUG, "BEGIN SEND BLOCK: ACK\n");
 
-    send_byte_recv_compl(0x03);                // block length
-    send_byte_recv_compl(++kwp_block_counter); // block counter
-    send_byte_recv_compl(0x09);                // block title (ack)
-    send_byte_recv_compl(0x03);                // block end
+    _send_byte_recv_compl(0x03);                // block length
+    _send_byte_recv_compl(++kwp_block_counter); // block counter
+    _send_byte_recv_compl(0x09);                // block title (ack)
+    _send_byte_recv_compl(0x03);                // block end
 
     uart_puts(UART_DEBUG, "END SEND BLOCK: ACK\n\n");
 }
@@ -167,11 +167,11 @@ void kwp_send_f0_block()
 {
     uart_puts(UART_DEBUG, "BEGIN SEND BLOCK: F0\n");
 
-    send_byte_recv_compl(0x04);                // block length
-    send_byte_recv_compl(++kwp_block_counter); // block counter
-    send_byte_recv_compl(0xf0);                // block title (0xf0)
-    send_byte_recv_compl(0x00);                // 0=read
-    send_byte_recv_compl(0x03);                // block end
+    _send_byte_recv_compl(0x04);                // block length
+    _send_byte_recv_compl(++kwp_block_counter); // block counter
+    _send_byte_recv_compl(0xf0);                // block title (0xf0)
+    _send_byte_recv_compl(0x00);                // 0=read
+    _send_byte_recv_compl(0x03);                // block end
 
     uart_puts(UART_DEBUG, "END SEND BLOCK: F0\n\n");
 }
@@ -181,15 +181,15 @@ void kwp_send_login_block(uint16_t safe_code, uint8_t fern, uint16_t workshop)
 {
     uart_puts(UART_DEBUG, "BEGIN SEND BLOCK: LOGIN\n");
 
-    send_byte_recv_compl(0x08);                 // block length
-    send_byte_recv_compl(++kwp_block_counter);  // block counter
-    send_byte_recv_compl(0x2b);                 // block title (login)
-    send_byte_recv_compl(HIGH(safe_code));      // safe code high byte
-    send_byte_recv_compl(LOW(safe_code));       // safe code low byte
-    send_byte_recv_compl(fern);                 // fern byte
-    send_byte_recv_compl(HIGH(workshop));       // workshop code high byte
-    send_byte_recv_compl(LOW(workshop));        // workshop code low byte
-    send_byte_recv_compl(0x03);                 // block end
+    _send_byte_recv_compl(0x08);                 // block length
+    _send_byte_recv_compl(++kwp_block_counter);  // block counter
+    _send_byte_recv_compl(0x2b);                 // block title (login)
+    _send_byte_recv_compl(HIGH(safe_code));      // safe code high byte
+    _send_byte_recv_compl(LOW(safe_code));       // safe code low byte
+    _send_byte_recv_compl(fern);                 // fern byte
+    _send_byte_recv_compl(HIGH(workshop));       // workshop code high byte
+    _send_byte_recv_compl(LOW(workshop));        // workshop code low byte
+    _send_byte_recv_compl(0x03);                 // block end
 
     uart_puts(UART_DEBUG, "END SEND BLOCK: LOGIN\n\n");
 }
@@ -199,11 +199,11 @@ void kwp_send_group_reading_block(uint8_t group)
 {
     uart_puts(UART_DEBUG, "BEGIN SEND BLOCK: GROUP READ\n");
 
-    send_byte_recv_compl(0x04);                // block length
-    send_byte_recv_compl(++kwp_block_counter); // block counter
-    send_byte_recv_compl(0x29);                // block title (group reading)
-    send_byte_recv_compl(group);               // group number
-    send_byte_recv_compl(0x03);
+    _send_byte_recv_compl(0x04);                // block length
+    _send_byte_recv_compl(++kwp_block_counter); // block counter
+    _send_byte_recv_compl(0x29);                // block title (group reading)
+    _send_byte_recv_compl(group);               // group number
+    _send_byte_recv_compl(0x03);
 
     uart_puts(UART_DEBUG, "END SEND BLOCK: GROUP READ\n\n");
 }
@@ -213,13 +213,13 @@ void kwp_send_read_eeprom_block(uint16_t address, uint8_t length)
 {
     uart_puts(UART_DEBUG, "BEGIN SEND BLOCK: READ EEPROM\n");
 
-    send_byte_recv_compl(0x06);                 // block length
-    send_byte_recv_compl(++kwp_block_counter);  // block counter
-    send_byte_recv_compl(0x19);                 // block title (read eeprom)
-    send_byte_recv_compl(length);               // number of bytes to read
-    send_byte_recv_compl(HIGH(address));        // address high
-    send_byte_recv_compl(LOW(address));         // address low
-    send_byte(0x03);                            // block end
+    _send_byte_recv_compl(0x06);                 // block length
+    _send_byte_recv_compl(++kwp_block_counter);  // block counter
+    _send_byte_recv_compl(0x19);                 // block title (read eeprom)
+    _send_byte_recv_compl(length);               // number of bytes to read
+    _send_byte_recv_compl(HIGH(address));        // address high
+    _send_byte_recv_compl(LOW(address));         // address low
+    _send_byte(0x03);                            // block end
 
     uart_puts(UART_DEBUG, "END SEND BLOCK: READ EEPROM\n\n");
 }
@@ -229,13 +229,13 @@ void kwp_send_read_ram_block(uint16_t address, uint8_t length)
 {
     uart_puts(UART_DEBUG, "BEGIN SEND BLOCK: READ RAM\n");
 
-    send_byte_recv_compl(0x06);                 // block length
-    send_byte_recv_compl(++kwp_block_counter);  // block counter
-    send_byte_recv_compl(0x01);                 // block title (read ram)
-    send_byte_recv_compl(length);               // number of bytes to read
-    send_byte_recv_compl(HIGH(address));        // address high
-    send_byte_recv_compl(LOW(address));         // address low
-    send_byte(0x03);                            // block end
+    _send_byte_recv_compl(0x06);                 // block length
+    _send_byte_recv_compl(++kwp_block_counter);  // block counter
+    _send_byte_recv_compl(0x01);                 // block title (read ram)
+    _send_byte_recv_compl(length);               // number of bytes to read
+    _send_byte_recv_compl(HIGH(address));        // address high
+    _send_byte_recv_compl(LOW(address));         // address low
+    _send_byte(0x03);                            // block end
 
     uart_puts(UART_DEBUG, "END SEND BLOCK: READ RAM\n\n");
 }
@@ -261,10 +261,10 @@ void kwp_read_all_ram()
 
 void kwp_connect(uint8_t address)
 {
-    send_address(address);
-    wait_for_55_01_8a();
+    _send_address(address);
+    _wait_for_55_01_8a();
     _delay_ms(30);
-    send_byte(0x75);
+    _send_byte(0x75);
 
     for (uint8_t i=0; i<4; i++) {
         kwp_receive_block();
