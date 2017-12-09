@@ -1,0 +1,22 @@
+ATMega1284 PDIP
+
+Pin  9: /RESET to GND through pushbutton, 10K pullup to Vcc
+               also connect to Atmel-ICE AVR port pin 6 nSRST
+Pin 10: Vcc (connect to radio's 5V)
+Pin 11: GND (connect to radio's GND)
+Pin 12: XTAL2 (to 20 MHz crystal with 18pF cap to GND)
+Pin 13: XTAL1 (to 20 MHz crystal and 18pF cap to GND)
+...
+Pin 15: PD1/TXD (to PC's serial RXD)
+...
+Pin 24: PC2 JTAG TCK (to Atmel-ICE AVR port pin 1 TCK)
+Pin 25: PC3 JTAG TMS (to Atmel-ICE AVR port pin 5 TMS)
+Pin 26: PC4 JTAG TDO (to Atmel-ICE AVR port pin 3 TDO)
+Pin 27: PC5 JTAG TDI (to Atmel-ICE AVR port pin 9 TDI)
+...
+Pin 30: AVCC connect directly to Vcc (also to Atmel-ICE AVR port pin 4 VTG)
+Pin 31: GND (also to Atmel-ICE AVR port pins 2 GND and 10 GND)
+Pin 32: AREF connect to GND through 0.1 uF cap
+...
+Pin 39: PA1 M62419FP Clock
+Pin 40: PA0 M62419FP Data

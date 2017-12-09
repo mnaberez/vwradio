@@ -1,0 +1,47 @@
+ATMega1284 PDIP
+
+Pin  1: PB0 CLOCK in/out: connect to radio's CLOCK and to PB7
+Pin  2: PB1 SWITCH out to radio, needs 3.3K pull-down to GND
+Pin  3: PB2 /ENABLE in from radio, needs 3.3K pull-up to 5V
+Pin  4: PB3 /SS out: connect to PB4
+Pin  5: PB4 /SS in:  connect to PB3 (/SS out)
+Pin  6: PB5 MOSI in: connect to radio's DAT
+Pin  7: PB6 MISO (unused)
+pin  8: PB7 SCK in: connect to PB0 (CLOCK in/out)
+pin  9: /RESET to GND through pushbutton, 10K pullup to Vcc
+               also connect to Atmel-ICE AVR port pin 6 nSRST
+pin 10: Vcc (connect to unswitched 5V)
+Pin 11: GND (connect to radio's GND)
+Pin 12: XTAL2 (to 20 MHz crystal with 18pF cap to GND)
+Pin 13: XTAL1 (to 20 MHz crystal and 18pF cap to GND)
+Pin 14: PD0/RXD0 (to PC's serial TXD)
+Pin 15: PD1/TXD0 (to PC's serial RXD)
+Pin 16: PD2/RXD1 (unused)
+Pin 17: PD3/TXD1 (unused)
+Pin 18: PD4 to GND through pushbutton, 10K pullup to Vcc
+Pin 19: PD5 Green LED anode through 180 ohm resistor
+Pin 20: PD6 Red LED anode through 180 ohm resistor
+Pin 21: PD7 (unused)
+Pin 22: PC0 I2C SDA (unused)
+Pin 23: PC1 I2C SCL (unused)
+Pin 24: PC2 JTAG TCK (to Atmel-ICE AVR port pin 1 TCK)
+Pin 25: PC3 JTAG TMS (to Atmel-ICE AVR port pin 5 TMS)
+Pin 26: PC4 JTAG TDO (to Atmel-ICE AVR port pin 3 TDO)
+Pin 27: PC5 JTAG TDI (to Atmel-ICE AVR port pin 9 TDI)
+Pin 28: PC6 TOSC1 (unused)
+Pin 29: PC7 TOSC2 (unused)
+Pin 30: AVCC connect directly to Vcc (also to Atmel-ICE AVR port pin 4 VTG)
+Pin 31: GND (also to Atmel-ICE AVR port pins 2 GND and 10 GND)
+Pin 32: AREF connect to GND through 0.1 uF cap
+Pin 33: PA7 (unused)
+Pin 34: PA6 (unused)
+Pin 35: PA5 (unused)
+Pin 36: PA4 (unused)
+Pin 37: PA3 (unused)
+Pin 38: PA2 (unused)
+Pin 39: PA1 (unused)
+Pin 40: PA0 (unused)
+
+Tie FE/ME out permanently low (means non-metal tape)
+Tie MONITOR out permanently high (means no error condition)
+
