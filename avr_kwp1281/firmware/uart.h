@@ -28,7 +28,7 @@ void uart_init(uint8_t uartnum, uint32_t baud);
 void uart_flush_tx(uint8_t uartnum);
 void uart_put(uint8_t uartnum, uint8_t c);
 void uart_put16(uint8_t uartnum, uint16_t w);
-void uart_puts(uint8_t uartnum, uint8_t *str);
+void uart_puts(uint8_t uartnum, char *str);
 void uart_puthex_nib(uint8_t uartnum, uint8_t c);
 void uart_puthex_byte(uint8_t uartnum, uint8_t c);
 void uart_puthex_16(uint8_t uartnum, uint16_t w);

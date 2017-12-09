@@ -67,27 +67,27 @@ uint16_t bcd_to_bin(uint16_t bcd)
 
 void print_radio_info()
 {
-    uart_puts(UART_DEBUG, (uint8_t*)"VAG Number: \"");
+    uart_puts(UART_DEBUG, "VAG Number: \"");
     for (uint8_t i=0; i<12; i++) {
         uart_put(UART_DEBUG, kwp_vag_number[i]);
     }
-    uart_puts(UART_DEBUG, (uint8_t*)"\"\n");
+    uart_puts(UART_DEBUG, "\"\n");
 
-    uart_puts(UART_DEBUG, (uint8_t*)"Component:  \"");
+    uart_puts(UART_DEBUG, "Component:  \"");
     for (uint8_t i=0; i<12; i++) {
         uart_put(UART_DEBUG, kwp_component_1[i]);
     }
     for (uint8_t i=0; i<12; i++) {
         uart_put(UART_DEBUG, kwp_component_2[i]);
     }
-    uart_puts(UART_DEBUG, (uint8_t*)"\"\n");
+    uart_puts(UART_DEBUG, "\"\n");
 }
 
 void print_safe_code(uint16_t safe_code_bcd)
 {
-    uart_puts(UART_DEBUG, (uint8_t*)"SAFE Code:  ");
+    uart_puts(UART_DEBUG, "SAFE Code:  ");
     uart_puthex_16(UART_DEBUG, safe_code_bcd);
-    uart_puts(UART_DEBUG, (uint8_t*)"\n");
+    uart_puts(UART_DEBUG, "\n");
 }
 
 int main()

@@ -92,7 +92,7 @@ void uart_put16(uint8_t uartnum, uint16_t w)
     uart_put(uartnum, (w & 0xFF00) >> 8);
 }
 
-void uart_puts(uint8_t uartnum, uint8_t *str)
+void uart_puts(uint8_t uartnum, char *str)
 {
     while (*str != '\0') {
         uart_put(uartnum, *str);
