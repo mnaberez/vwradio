@@ -5,7 +5,7 @@
 #include <avr/io.h>
 #include <util/delay.h>
 
-// Send module address at 5 baud
+// Send module address at 5bps
 static void _send_address(uint8_t address)
 {
     uart_puts(UART_DEBUG, "INIT 0x");
@@ -16,26 +16,35 @@ static void _send_address(uint8_t address)
     UCSR1B &= ~_BV(TXEN1);  // Disable TX (PD3/TXD1)
     DDRD |= _BV(PD3);       // PD3 = output
 
-    // TODO add support for sending any address
-    if (address != 0x56) { while(1); }
+    uint8_t parity = 1;
+    for (uint8_t i=0; i<10; i++) {
+        uint8_t bit;
+        switch (i) {
+            case 0:     // start bit
+                bit = 0;
+                break;
+            case 8:     // parity bit
+                bit = parity;
+                break;
+            case 9:     // stop bit
+                bit = 1;
+                break;
+            default:    // 7 data bits
+                bit = (uint8_t)((address & (1 << (i - 1))) != 0);
+                parity ^= bit;
+        }
 
-    PORTD |= _BV(PD3);      // initially high
-    _delay_ms(250);
+        if (bit == 1) {
+          PORTD |= _BV(PD3);    // high
+        } else {
+          PORTD &= ~_BV(PD3);   // low
+        }
+        _delay_ms(200);         // 1000ms / 5bps = 200ms per bit
+    }
 
-    PORTD &= ~_BV(PD3);     // low 400ms
-    _delay_ms(400);
-    PORTD |= _BV(PD3);      // high 400ms
-    _delay_ms(400);
-    PORTD &= ~_BV(PD3);     // low 200ms
-    _delay_ms(200);
-    PORTD |= _BV(PD3);      // high 200ms
-    _delay_ms(200);
-    PORTD &= ~_BV(PD3);     // low 200ms
-    _delay_ms(200);
-
-    PORTD |= _BV(PD3);      // return high
     UCSR1B |= _BV(TXEN1);   // Enable TX (PD3/TXD1)
     UCSR1B |= _BV(RXEN1);   // Enable RX (PD2/TXD1)
+    DDRD &= ~_BV(PD3);      // PD3 = input
 }
 
 
