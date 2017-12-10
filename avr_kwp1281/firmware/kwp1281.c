@@ -288,21 +288,25 @@ void kwp_connect(uint8_t address)
     _delay_ms(30);
     _send_byte(0x75);
 
+    memset(kwp_vag_number,  0, sizeof(kwp_vag_number));
+    memset(kwp_component_1, 0, sizeof(kwp_component_1));
+    memset(kwp_component_2, 0, sizeof(kwp_component_2));
+
     for (uint8_t i=0; i<4; i++) {
         kwp_receive_block();
         kwp_send_ack_block();
 
         switch (i) {
-            case 0:  // 0xF6 (ASCII/Data): "1J0035180D  "
-                memcpy(&kwp_vag_number[0],  &kwp_rx_buf[3], 12);
+            case 0:     // 0xF6 (ASCII/Data): "1J0035180D  "
+                memcpy(&kwp_vag_number,  &kwp_rx_buf[3], 12);
                 break;
-            case 1:  // 0xF6 (ASCII/Data): " RADIO 3CP  "
-                memcpy(&kwp_component_1[0], &kwp_rx_buf[3], 12);
+            case 1:     // 0xF6 (ASCII/Data): " RADIO 3CP  "
+                memcpy(&kwp_component_1, &kwp_rx_buf[3], 12);
                 break;
-            case 2:  // 0xF6 (ASCII/Data): "        0001"
-                memcpy(&kwp_component_2[0], &kwp_rx_buf[3], 12);
+            case 2:     // 0xF6 (ASCII/Data): "        0001"
+                memcpy(&kwp_component_2, &kwp_rx_buf[3], 12);
                 break;
-            default:  // 0xF6 (ASCII/Data): 0x00 0x0A 0xF8 0x00 0x00
+            default:    // 0xF6 (ASCII/Data): 0x00 0x0A 0xF8 0x00 0x00
                 break;
         }
     }
