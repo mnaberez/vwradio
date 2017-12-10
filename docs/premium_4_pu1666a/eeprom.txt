@@ -10,8 +10,13 @@ Fade and Balance do not seem affect the EEPROM.
 0x03    FM1 Preset 4
 0x04    FM1 Preset 5
 0x05    FM1 Preset 6
-0x06    Flags for CD MIX, TAPE SKIP
+0x06    Flags: CD MIX, TAPE SKIP, SAFE mode
 0x07    ONVOL
+
+0x0a    SAFE attempts (0, 1, 2)
+
+0x0e    Protected by firmware, always returns 0x00
+0x0f    Protected by firmware, always returns 0x00
 
 0x10    FM2 Preset 1 (0x00=87.9 MHz, 0x64=107.9 MHz)
 0x11    FM2 Preset 2
@@ -29,3 +34,24 @@ Fade and Balance do not seem affect the EEPROM.
 0x23    AM Preset 4
 0x24    AM Preset 5
 0x25    AM Preset 6
+
+0x50    0x03    Fault code: 0x0354 Loudspeaker(s) Front
+0x51    0x54
+0x52    0x24    Fault sub-code
+0x53    0x32
+
+0x54    0x03    Fault code: Loudspeaker(s) Rear
+0x55    0x55
+0x56    0x24
+0x57    0x32    Fault sub-code
+
+0x58    0xFF    Fault code: Internal memory (??)
+0x59    0xFF
+0x5A    0x80    Fault sub code (??)
+0x5B    0x25
+
+0x5C    0x04    Fault code: 0x0414 Control Module Incorrectly Coded
+0x5D    0x14
+0x5E    0x23    Fault sub-code 0x2332
+0x5F    0x24
+
