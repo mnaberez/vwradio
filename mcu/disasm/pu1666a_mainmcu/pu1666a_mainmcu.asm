@@ -144,7 +144,7 @@
     mem_00db = 0xdb
     mem_00dc = 0xdc
     mem_00dd = 0xdd
-    mem_00de = 0xde
+    mem_00de = 0xde         ;Flags: Bit 3 indicates KWP1281 login locked out
     mem_00df = 0xdf
     mem_00e0 = 0xe0
     mem_00e1 = 0xe1
@@ -442,7 +442,7 @@
     mem_0311 = 0x311
     mem_0312 = 0x312
     mem_0313 = 0x313
-    mem_031b = 0x31b
+    mem_031b = 0x31b    ;Number of KWP1281 Login attempts
     mem_031c = 0x31c
     mem_031d = 0x31d
     mem_031e = 0x31e
@@ -3642,7 +3642,9 @@ sub_90f7:
     ret                     ;911d  20
 
 sub_911e:
-    bbc mem_00de:3, lab_9130 ;911e  b3 de 0f
+    bbc mem_00de:3, lab_9130 ;911e  b3 de 0f    Branch if KWP1281 login is not locked out
+
+    ;KWP1281 login is locked out
     movw a, #0x0e10         ;9121  e4 0e 10
     movw mem_0325, a        ;9124  d4 03 25
     bbc mem_00cf:5, lab_9130 ;9127  b5 cf 06
@@ -6921,7 +6923,7 @@ lab_a3f3:
     mov mem_020e, a         ;a414  61 02 0e     Reset SAFE attempts
     mov mem_0208, a         ;a417  61 02 08
     movw mem_0325, a        ;a41a  d4 03 25
-    clrb mem_00de:3         ;a41d  a3 de
+    clrb mem_00de:3         ;a41d  a3 de        Bit clear = KWP1281 login not locked out
     clrb mem_00de:4         ;a41f  a4 de
     clrb mem_00de:5         ;a421  a5 de
     clrb mem_00de:6         ;a423  a6 de
@@ -7664,7 +7666,9 @@ lab_a8a6:
     decw a                  ;a8ab  d0
     movw mem_0325, a        ;a8ac  d4 03 25
     bne lab_a8b6            ;a8af  fc 05
-    clrb mem_00de:3         ;a8b1  a3 de
+
+    clrb mem_00de:3         ;a8b1  a3 de        Bit clear = KWP1281 Login not locked out
+
     mov mem_00f1, #0x8d     ;a8b3  85 f1 8d
 
 lab_a8b6:
@@ -9149,8 +9153,10 @@ lab_b052:
     mov mem_017c, a         ;b059  61 01 7c
     setb mem_008b:2         ;b05c  aa 8b
     mov mem_0081, #0x01     ;b05e  85 81 01
+
     mov a, #0x00            ;b061  04 00
-    mov mem_031b, a         ;b063  61 03 1b
+    mov mem_031b, a         ;b063  61 03 1b     Reset login attempt count
+
     mov a, #0x02            ;b066  04 02
     mov mem_031c, a         ;b068  61 03 1c
 
@@ -11433,17 +11439,22 @@ lab_baa8_failed:
     mov mem_031b, a
 
     cmp a, #0x02            ;If less than 2 attempts,
-    blo lab_bb0c_ack        ;branch to do nothing and reply with Acknowledge.
+    blo lab_bb0c_ack        ;  skip lock out and reply with No Acknowledge.
 
     ;Time limited lock out
     mov a, #0x00
-    mov mem_031b, a
+    mov mem_031b, a         ;Reset login attempt count
+
     movw a, #0x04e2
     movw mem_0305, a
+
     setb mem_008c:6
+
     movw a, #0x0e10
     movw mem_0325, a
-    setb mem_00de:3         ;Set bit to indicate locked out
+
+    setb mem_00de:3         ;Bit set = KWP1281 login locked out
+
     mov mem_00f1, #0x8d
     ret
 
