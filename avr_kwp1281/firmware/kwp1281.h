@@ -11,7 +11,7 @@ void kwp_send_login_block(uint16_t safe_code, uint8_t fern, uint16_t workshop);
 void kwp_send_f0_block();
 void kwp_send_ack_block();
 void kwp_receive_block();
-void kwp_read_all_ram();
+void kwp_read_ram(uint16_t start_address, uint16_t size);
 
 uint8_t kwp_block_counter;
 uint8_t kwp_rx_buf[256];

@@ -154,6 +154,7 @@ void kwp_receive_block()
         }
     }
 
+    _delay_ms(5);
     uart_puts(UART_DEBUG, "END RECEIVE BLOCK\n\n");
     return;
 }
@@ -250,20 +251,32 @@ void kwp_send_read_ram_block(uint16_t address, uint8_t length)
 }
 
 
-void kwp_read_all_ram()
+void kwp_read_ram(uint16_t start_address, uint16_t size)
 {
-    uint16_t address = 0xF000;
-    while(1) {
-        uart_puts(UART_DEBUG, "ADDRESS = ");
+    uint16_t address = start_address;
+    uint16_t remaining = size;
+
+    while (remaining != 0) {
+        uint8_t chunksize = 32;
+        if (remaining < chunksize) { chunksize = remaining; }
+
+        kwp_send_read_ram_block(address, chunksize);
+        kwp_receive_block();
+
+        uart_puts(UART_DEBUG, "RAM: ");
         uart_puthex16(UART_DEBUG, address);
+        uart_puts(UART_DEBUG, ": ");
+        for (uint8_t i=0; i<chunksize; i++) {
+            uart_puthex(UART_DEBUG, kwp_rx_buf[3 + i]);
+            uart_put(UART_DEBUG, ' ');
+        }
         uart_puts(UART_DEBUG, "\n\n");
 
-        uint8_t size = 0x80;
-        if (address == 0xFFF0) { size = 15; }
-        kwp_send_read_ram_block(address, size);
+        address += chunksize;
+        remaining -= chunksize;
+
+        kwp_send_ack_block(address, chunksize);
         kwp_receive_block();
-        address += 80;
-        if (address < 0x8000) { break; }
     }
 }
 
@@ -283,7 +296,6 @@ void kwp_connect(uint8_t address)
             case 0:  // 0xF6 (ASCII/Data): "1J0035180D  "
                 memcpy(&kwp_vag_number[0],  &kwp_rx_buf[3], 12);
                 break;
-
             case 1:  // 0xF6 (ASCII/Data): " RADIO 3CP  "
                 memcpy(&kwp_component_1[0], &kwp_rx_buf[3], 12);
                 break;

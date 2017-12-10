@@ -61,15 +61,19 @@ int main()
     print_radio_info();
     print_safe_code(safe_code_bcd);
 
-    // uint16_t safe_code_bin = bcd_to_bin(safe_code_bcd);
-    // kwp_send_login_block(safe_code_bin, 0x01, 0x869f);
-    // kwp_receive_block();
-    //
-    // kwp_send_group_reading_block(0x19);
-    // kwp_receive_block();
-    //
-    // kwp_send_read_eeprom_block(0x0000, 0x80);
-    // kwp_receive_block();
+    uint16_t safe_code_bin = bcd_to_bin(safe_code_bcd);
+    kwp_send_login_block(safe_code_bin, 0x01, 0x869f);
+    kwp_receive_block();
+
+    kwp_send_group_reading_block(0x19);
+    kwp_receive_block();
+
+    for (uint8_t i=0; i<100; i++) {
+        uart_puts(UART_DEBUG, "\n\nRAM ITERATION ");
+        uart_puthex(UART_DEBUG, i);
+        uart_puts(UART_DEBUG, "\n\n");
+        kwp_read_ram(0x8000, 32768);
+    }
 
     while(1);
 }
