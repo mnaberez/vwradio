@@ -272,6 +272,15 @@ void kwp_send_read_ram_block(uint16_t address, uint8_t length)
 }
 
 
+uint16_t kwp_read_safe_code_bcd()
+{
+    kwp_send_f0_block();
+    kwp_receive_block_expect(KWP_SAFE_CODE);
+    uint16_t safe_code_bcd = (kwp_rx_buf[3] << 8) + kwp_rx_buf[4];
+    return safe_code_bcd;
+}
+
+
 void kwp_read_ram(uint16_t start_address, uint16_t size)
 {
     uint16_t address = start_address;

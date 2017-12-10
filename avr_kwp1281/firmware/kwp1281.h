@@ -13,6 +13,7 @@ void kwp_send_ack_block();
 void kwp_receive_block();
 void kwp_receive_block_expect(uint8_t title);
 void kwp_read_ram(uint16_t start_address, uint16_t size);
+uint16_t kwp_read_safe_code_bcd();
 
 uint8_t kwp_block_counter;
 uint8_t kwp_rx_buf[256];

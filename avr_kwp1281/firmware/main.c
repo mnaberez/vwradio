@@ -53,12 +53,9 @@ int main()
     sei();
 
     kwp_connect(KWP_RADIO, 9600);
-
-    kwp_send_f0_block();
-    kwp_receive_block_expect(KWP_SAFE_CODE);
-    uint16_t safe_code_bcd = (kwp_rx_buf[3] << 8) + kwp_rx_buf[4];
-
     print_radio_info();
+
+    uint16_t safe_code_bcd = kwp_read_safe_code_bcd();
     print_safe_code(safe_code_bcd);
 
     uint16_t safe_code_bin = bcd_to_bin(safe_code_bcd);
