@@ -52,10 +52,10 @@ int main()
     uart_init(UART_KWP,   9600);    // obd-ii kwp1281
     sei();
 
-    kwp_connect(0x56, 9600);
+    kwp_connect(KWP_RADIO, 9600);
 
     kwp_send_f0_block();
-    kwp_receive_block();
+    kwp_receive_block_expect(KWP_SAFE_CODE);
     uint16_t safe_code_bcd = (kwp_rx_buf[3] << 8) + kwp_rx_buf[4];
 
     print_radio_info();
@@ -63,10 +63,10 @@ int main()
 
     uint16_t safe_code_bin = bcd_to_bin(safe_code_bcd);
     kwp_send_login_block(safe_code_bin, 0x01, 0x869f);
-    kwp_receive_block();
+    kwp_receive_block_expect(KWP_ACK);
 
     kwp_send_group_reading_block(0x19);
-    kwp_receive_block();
+    kwp_receive_block_expect(KWP_ACK);
 
     for (uint8_t i=0; i<100; i++) {
         uart_puts(UART_DEBUG, "\n\nRAM ITERATION ");

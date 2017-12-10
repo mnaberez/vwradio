@@ -105,6 +105,7 @@ static uint8_t _recv_byte_send_compl()
 }
 
 
+// Wait for the 0x55 0x01 0x8A sequence during initial connection
 static void _wait_for_55_01_8a()
 {
     uint8_t i = 0;
@@ -121,6 +122,7 @@ static void _wait_for_55_01_8a()
 }
 
 
+// Receive a block
 void kwp_receive_block()
 {
     uart_puts(UART_DEBUG, "BEGIN RECEIVE BLOCK\n");
@@ -142,6 +144,9 @@ void kwp_receive_block()
 
         kwp_rx_buf[kwp_rx_size++] = c;
 
+        // detect buffer overflow
+        if (kwp_rx_size == sizeof(kwp_rx_buf)) { while(1); }
+
         switch (kwp_rx_size) {
             case 1:  // block length
                 bytes_remaining = c;
@@ -152,14 +157,27 @@ void kwp_receive_block()
             default:
                 bytes_remaining--;
         }
-
-        // detect buffer overflow
-        if (kwp_rx_size == sizeof(kwp_rx_buf)) { while(1); }
     }
 
     _delay_ms(5);
     uart_puts(UART_DEBUG, "END RECEIVE BLOCK\n\n");
     return;
+}
+
+
+// Receive a block; halt unless it has the expected title
+void kwp_receive_block_expect(uint8_t title)
+{
+    kwp_receive_block();
+    if (kwp_rx_buf[2] == title) { return; }
+
+    uart_flush_tx(UART_DEBUG);
+    uart_puts(UART_DEBUG, "\n\n*** KWP ERROR: Expected to receive title 0x");
+    uart_puthex(UART_DEBUG, title);
+    uart_puts(UART_DEBUG, ", got 0x");
+    uart_puthex(UART_DEBUG, kwp_rx_buf[2]);
+    uart_put(UART_DEBUG, '\n');
+    while(1);
 }
 
 
@@ -169,7 +187,7 @@ void kwp_send_ack_block()
 
     _send_byte_recv_compl(0x03);                // block length
     _send_byte_recv_compl(++kwp_block_counter); // block counter
-    _send_byte_recv_compl(0x09);                // block title (ack)
+    _send_byte_recv_compl(KWP_ACK);             // block title
     _send_byte_recv_compl(0x03);                // block end
 
     uart_puts(UART_DEBUG, "END SEND BLOCK: ACK\n\n");
@@ -182,7 +200,7 @@ void kwp_send_f0_block()
 
     _send_byte_recv_compl(0x04);                // block length
     _send_byte_recv_compl(++kwp_block_counter); // block counter
-    _send_byte_recv_compl(0xf0);                // block title (0xf0)
+    _send_byte_recv_compl(KWP_SAFE_CODE);       // block title
     _send_byte_recv_compl(0x00);                // 0=read
     _send_byte_recv_compl(0x03);                // block end
 
@@ -196,7 +214,7 @@ void kwp_send_login_block(uint16_t safe_code, uint8_t fern, uint16_t workshop)
 
     _send_byte_recv_compl(0x08);                 // block length
     _send_byte_recv_compl(++kwp_block_counter);  // block counter
-    _send_byte_recv_compl(0x2b);                 // block title (login)
+    _send_byte_recv_compl(KWP_LOGIN);            // block title
     _send_byte_recv_compl(HIGH(safe_code));      // safe code high byte
     _send_byte_recv_compl(LOW(safe_code));       // safe code low byte
     _send_byte_recv_compl(fern);                 // fern byte
@@ -214,7 +232,7 @@ void kwp_send_group_reading_block(uint8_t group)
 
     _send_byte_recv_compl(0x04);                // block length
     _send_byte_recv_compl(++kwp_block_counter); // block counter
-    _send_byte_recv_compl(0x29);                // block title (group reading)
+    _send_byte_recv_compl(KWP_GROUP_READING);   // block title
     _send_byte_recv_compl(group);               // group number
     _send_byte_recv_compl(0x03);
 
@@ -228,7 +246,7 @@ void kwp_send_read_eeprom_block(uint16_t address, uint8_t length)
 
     _send_byte_recv_compl(0x06);                 // block length
     _send_byte_recv_compl(++kwp_block_counter);  // block counter
-    _send_byte_recv_compl(0x19);                 // block title (read eeprom)
+    _send_byte_recv_compl(KWP_READ_EEPROM);      // block title (read eeprom)
     _send_byte_recv_compl(length);               // number of bytes to read
     _send_byte_recv_compl(HIGH(address));        // address high
     _send_byte_recv_compl(LOW(address));         // address low
@@ -244,7 +262,7 @@ void kwp_send_read_ram_block(uint16_t address, uint8_t length)
 
     _send_byte_recv_compl(0x06);                 // block length
     _send_byte_recv_compl(++kwp_block_counter);  // block counter
-    _send_byte_recv_compl(0x01);                 // block title (read ram)
+    _send_byte_recv_compl(KWP_READ_RAM);         // block title
     _send_byte_recv_compl(length);               // number of bytes to read
     _send_byte_recv_compl(HIGH(address));        // address high
     _send_byte_recv_compl(LOW(address));         // address low
@@ -264,7 +282,7 @@ void kwp_read_ram(uint16_t start_address, uint16_t size)
         if (remaining < chunksize) { chunksize = remaining; }
 
         kwp_send_read_ram_block(address, chunksize);
-        kwp_receive_block();
+        kwp_receive_block_expect(KWP_R_READ_RAM);
 
         uart_puts(UART_DEBUG, "RAM: ");
         uart_puthex16(UART_DEBUG, address);
@@ -279,7 +297,7 @@ void kwp_read_ram(uint16_t start_address, uint16_t size)
         remaining -= chunksize;
 
         kwp_send_ack_block(address, chunksize);
-        kwp_receive_block();
+        kwp_receive_block_expect(KWP_ACK);
     }
 }
 
@@ -298,7 +316,7 @@ void kwp_connect(uint8_t address, uint32_t baud)
     memset(kwp_component_2, 0, sizeof(kwp_component_2));
 
     for (uint8_t i=0; i<4; i++) {
-        kwp_receive_block();
+        kwp_receive_block_expect(KWP_R_ASCII_DATA);
         kwp_send_ack_block();
 
         switch (i) {
@@ -317,5 +335,5 @@ void kwp_connect(uint8_t address, uint32_t baud)
     }
 
     // Receive 0x09 (Acknowledge)
-    kwp_receive_block();
+    kwp_receive_block_expect(KWP_ACK);
 }

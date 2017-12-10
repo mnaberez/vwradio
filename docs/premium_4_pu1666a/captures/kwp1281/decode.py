@@ -32,7 +32,9 @@ class States(object):
     READING_BLOCK_DATA = 3
     READING_BLOCK_END = 4
 
+
 BlockTitles = {
+    0x01: "Read RAM",
     0x04: "Actuator/Output Test",
     0x05: "Clear Faults",
     0x06: "End Session",
@@ -41,16 +43,19 @@ BlockTitles = {
     0x09: "Acknowlege",
     0x0A: "No Acknowledge",
     0x10: "Recoding",
+    0x19: "Read EEPROM",
     0x21: "Adaptation",             # always NAKs
     0x28: "Basic Setting",          # always NAKs
     0x29: "Group Reading",
     0x2B: "Login",
 
     0xE7: "Response to Group Reading",
-    0xF0: "Response to Login",
+    0xF0: "Request or Response to R/W SAFE Code",
     0xF5: "Response to Actuator/Output Tests",
     0xF6: "Response with ASCII Data/ID code",
     0xFC: "Response to Read or Clear Faults",
+    0xFD: "Response to Read EEPROM",
+    0xFE: "Response to Read RAM",
 }
 
 
