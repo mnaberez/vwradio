@@ -281,8 +281,10 @@ void kwp_read_ram(uint16_t start_address, uint16_t size)
 }
 
 
-void kwp_connect(uint8_t address)
+void kwp_connect(uint8_t address, uint32_t baud)
 {
+    uart_init(UART_KWP, baud);
+
     _send_address(address);
     _wait_for_55_01_8a();
     _delay_ms(30);

@@ -52,7 +52,7 @@ int main()
     uart_init(UART_KWP,   9600);    // obd-ii kwp1281
     sei();
 
-    kwp_connect(0x56);
+    kwp_connect(0x56, 9600);
 
     kwp_send_f0_block();
     kwp_receive_block();
