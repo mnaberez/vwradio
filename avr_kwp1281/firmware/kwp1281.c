@@ -152,6 +152,9 @@ void kwp_receive_block()
             default:
                 bytes_remaining--;
         }
+
+        // detect buffer overflow
+        if (kwp_rx_size == sizeof(kwp_rx_buf)) { while(1); }
     }
 
     _delay_ms(5);
