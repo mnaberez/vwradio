@@ -11439,7 +11439,7 @@ lab_baa8_failed:
     mov mem_031b, a
 
     cmp a, #0x02            ;If less than 2 attempts,
-    blo lab_bb0c_ack        ;  skip lock out and reply with No Acknowledge.
+    blo lab_bb0c_ack        ;  skip lock out and reply with Acknowledge.
 
     ;Time limited lock out
     mov a, #0x00
