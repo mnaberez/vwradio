@@ -35,6 +35,7 @@ class States(object):
 
 BlockTitles = {
     0x01: "Read RAM",
+    0x03: "Read ROM",
     0x04: "Actuator/Output Test",
     0x05: "Clear Faults",
     0x06: "End Session",
@@ -54,7 +55,7 @@ BlockTitles = {
     0xF5: "Response to Actuator/Output Tests",
     0xF6: "Response with ASCII Data/ID code",
     0xFC: "Response to Read or Clear Faults",
-    0xFD: "Response to Read EEPROM",
+    0xFD: "Response to Read ROM or Read EEPROM",
     0xFE: "Response to Read RAM",
 }
 

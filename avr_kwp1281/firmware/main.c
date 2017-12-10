@@ -65,12 +65,14 @@ int main()
     kwp_send_group_reading_block(0x19);
     kwp_receive_block_expect(KWP_ACK);
 
-    for (uint8_t i=0; i<100; i++) {
-        uart_puts(UART_DEBUG, "\n\nRAM ITERATION ");
-        uart_puthex(UART_DEBUG, i);
-        uart_puts(UART_DEBUG, "\n\n");
-        kwp_read_ram(0x8000, 32768);
-    }
+    kwp_read_eeprom();
+
+    // for (uint8_t i=0; i<100; i++) {
+    //     uart_puts(UART_DEBUG, "\n\nRAM ITERATION ");
+    //     uart_puthex(UART_DEBUG, i);
+    //     uart_puts(UART_DEBUG, "\n\n");
+    //     kwp_read_ram(0x8000, 32768);
+    // }
 
     while(1);
 }

@@ -13,6 +13,7 @@ void kwp_send_ack_block();
 void kwp_receive_block();
 void kwp_receive_block_expect(uint8_t title);
 void kwp_read_ram(uint16_t start_address, uint16_t size);
+void kwp_read_eeprom();
 uint16_t kwp_read_safe_code_bcd();
 
 uint8_t kwp_block_counter;
@@ -46,7 +47,7 @@ uint8_t kwp_component_2[16];    // "        0001"
 #define KWP_R_OUTPUT_TEST   0xF5  /* Response to Actuator/Output Tests */
 #define KWP_R_ASCII_DATA    0xF6  /* Response with ASCII Data/ID code */
 #define KWP_R_FAULTS        0xFC  /* Response to Read or Clear Faults */
-#define KWP_R_READ_EEPROM   0xFD  /* Response to Read EEPROM */
+#define KWP_R_READ_EEPROM   0xFD  /* Response to Read ROM or Read EEPROM */
 #define KWP_R_READ_RAM      0xFE  /* Response to Read RAM */
 
 #endif

@@ -311,6 +311,36 @@ void kwp_read_ram(uint16_t start_address, uint16_t size)
 }
 
 
+void kwp_read_eeprom()
+{
+    uint16_t address = 0;
+    uint16_t remaining = 0x80;
+
+    while (remaining != 0) {
+        uint8_t chunksize = 32;
+        if (remaining < chunksize) { chunksize = remaining; }
+
+        kwp_send_read_eeprom_block(address, chunksize);
+        kwp_receive_block_expect(KWP_R_READ_EEPROM);
+
+        uart_puts(UART_DEBUG, "EEPROM: ");
+        uart_puthex16(UART_DEBUG, address);
+        uart_puts(UART_DEBUG, ": ");
+        for (uint8_t i=0; i<chunksize; i++) {
+            uart_puthex(UART_DEBUG, kwp_rx_buf[3 + i]);
+            uart_put(UART_DEBUG, ' ');
+        }
+        uart_puts(UART_DEBUG, "\n\n");
+
+        address += chunksize;
+        remaining -= chunksize;
+
+        kwp_send_ack_block(address, chunksize);
+        kwp_receive_block_expect(KWP_ACK);
+    }
+}
+
+
 void kwp_connect(uint8_t address, uint32_t baud)
 {
     uart_init(UART_KWP, baud);
