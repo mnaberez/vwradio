@@ -35,9 +35,9 @@ static void _send_address(uint8_t address)
         }
 
         if (bit == 1) {
-          PORTD |= _BV(PD3);    // high
+            PORTD |= _BV(PD3);    // high
         } else {
-          PORTD &= ~_BV(PD3);   // low
+            PORTD &= ~_BV(PD3);   // low
         }
         _delay_ms(200);         // 1000ms / 5bps = 200ms per bit
     }
