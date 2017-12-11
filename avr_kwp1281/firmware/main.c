@@ -67,12 +67,12 @@ int main()
 
     kwp_read_eeprom();
 
-    // for (uint8_t i=0; i<100; i++) {
-    //     uart_puts(UART_DEBUG, "\n\nRAM ITERATION ");
-    //     uart_puthex(UART_DEBUG, i);
-    //     uart_puts(UART_DEBUG, "\n\n");
-    //     kwp_read_ram(0x8000, 32768);
-    // }
+    for (uint8_t i=0; i<100; i++) {
+        uart_puts(UART_DEBUG, "\n\nRAM ITERATION ");
+        uart_puthex(UART_DEBUG, i);
+        uart_puts(UART_DEBUG, "\n\n");
+        kwp_read_ram(0x8000, 32768);
+    }
 
     while(1);
 }

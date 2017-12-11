@@ -73,11 +73,6 @@ void uart_init(uint8_t uartnum, uint32_t baud)
     _buf_init(&_tx_buffers[uartnum]);
 }
 
-void uart_flush_tx(uint8_t uartnum)
-{
-    while (_buf_has_byte(&_tx_buffers[uartnum]));
-}
-
 void uart_put(uint8_t uartnum, uint8_t c)
 {
     _buf_write_byte(&_tx_buffers[uartnum], c);
@@ -124,6 +119,21 @@ void uart_puthex16(uint8_t uartnum, uint16_t w)
     uart_puthex(uartnum, (w & 0x00ff));
 }
 
+// Block until the TX buffer is empty
+void uart_flush_tx(uint8_t uartnum)
+{
+    while (_buf_has_byte(&_tx_buffers[uartnum]));
+}
+
+// Send a byte; block until it has been transmitted
+void uart_blocking_put(uint8_t uartnum, uint8_t c)
+{
+    uart_flush_tx(uartnum);
+    uart_put(uartnum, c);
+    uart_flush_tx(uartnum);
+}
+
+// Receive a byte; block until one is available
 uint8_t uart_blocking_get(uint8_t uartnum)
 {
     while (!_buf_has_byte(&_rx_buffers[uartnum]));

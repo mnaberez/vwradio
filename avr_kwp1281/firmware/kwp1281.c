@@ -53,7 +53,7 @@ static void _send_byte(uint8_t c)
 {
     _delay_ms(1);
 
-    uart_put(UART_KWP, c);
+    uart_blocking_put(UART_KWP, c);
     uart_blocking_get(UART_KWP);  // consume echo
 
     uart_puts(UART_DEBUG, "TX: ");
@@ -94,7 +94,7 @@ static uint8_t _recv_byte_send_compl()
 
     _delay_ms(1);
 
-    uart_put(UART_KWP, complement);
+    uart_blocking_put(UART_KWP, complement);
     uart_blocking_get(UART_KWP);  // consume echo
 
     uart_puts(UART_DEBUG, "T_: ");

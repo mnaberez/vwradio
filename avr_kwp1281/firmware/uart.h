@@ -22,6 +22,7 @@ void uart_puts(uint8_t uartnum, char *str);
 void uart_puthex(uint8_t uartnum, uint8_t c);
 void uart_puthex16(uint8_t uartnum, uint16_t w);
 uint8_t uart_blocking_get(uint8_t uartnum);
+void uart_blocking_put(uint8_t uartnum, uint8_t c);
 
 /*************************************************************************
  * UART Ring Buffers
