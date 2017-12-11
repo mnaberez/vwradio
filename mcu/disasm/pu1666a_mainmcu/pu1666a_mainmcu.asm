@@ -11380,6 +11380,15 @@ mem_0080_is_09:
 ;instead of BCD.  For example, if the SAFE code is 1234 (BCD 0x1234) then
 ;the password for login is 0x04D2.
 ;
+;Login attempts are rate limited using the EEPROM, similar to SAFE mode on the
+;faceplate, but separate from it.  Two login attempts are given.  If the first
+;login attempt fails, Acknowledge will be returned (so there's no indication
+;it failed) but the attempt counter will be incremented.  If the next login
+;attempt also fails, the KWP1281 connection will be dropped without a response
+;block being sent and a lockout period of about 1 hour will start.  Any
+;attempt to login during the lockout period will return No Acknowledge.  When
+;the lockout period expires, the process starts over.
+;
 ;Login request block:
 ;  0x08 Block length                        mem_0118+0
 ;  0x3E Block counter                       mem_0118+1
@@ -11406,8 +11415,7 @@ lab_ba87:
 lab_ba88:
 ;Login related
 ;(mem_0080=0x01, mem_0081=1)
-    bbs mem_00de:3, lab_bb0c_no_ack ;If locked out from too many login attempts
-                                    ;branch to No Acknowledge
+    bbs mem_00de:3, lab_bb0c_no_ack ;If locked out, branch to No Acknowledge
 
     mov a, mem_0118+3       ;KWP1281 RX Buffer byte 3: SAFE code high byte (bin)
     mov mem_00a3, a
@@ -11435,13 +11443,15 @@ lab_ba88:
 lab_baa8_failed:
 ;Login failed
     mov a, mem_031b         ;Increment login attempt count
-    incw a
-    mov mem_031b, a
+    incw a                  ;  First incorrect attempt increments 0->1
+    mov mem_031b, a         ;  Second incorrect attempt increments 1->2
 
-    cmp a, #0x02            ;If less than 2 attempts,
-    blo lab_bb0c_ack        ;  skip lock out and reply with Acknowledge.
+    cmp a, #0x02
+    blo lab_bb0c_ack        ;If this is the first incorrect login attempt,
+                            ;  branch to reply with Acknowledge.
 
-    ;Time limited lock out
+    ;Second incorrect login attempt
+    ;Start lockout period
     mov a, #0x00
     mov mem_031b, a         ;Reset login attempt count
 
@@ -11459,8 +11469,8 @@ lab_baa8_failed:
     ret
 
 lab_bb0c_no_ack:
-;Login failed from too many attempts
-    call sub_b21f_no_ack
+;Lockout period in effect
+    call sub_b21f_no_ack    ;Send No Acknowledge
     mov mem_0081, #0x02
     ret
 
@@ -11500,7 +11510,8 @@ lab_baed:
     mov mem_00f1, #0xad     ;bb09  85 f1 ad
 
 lab_bb0c_ack:
-    call sub_b16b_ack       ;bb0c  31 b1 6b
+;First incorrect login attempt
+    call sub_b16b_ack       ;bb0c  31 b1 6b     Send Acknowledge
     mov mem_0081, #0x02     ;bb0f  85 81 02
     ret                     ;bb12  20
 
