@@ -64,8 +64,8 @@ static void _send_byte(uint8_t c)
 {
     _delay_ms(1);
 
-    uart_blocking_put(UART_KWP, c);             // send byte
-    uint8_t echo = uart_blocking_get(UART_KWP); // consume its echo
+    uart_blocking_put(UART_KLINE, c);             // send byte
+    uint8_t echo = uart_blocking_get(UART_KLINE); // consume its echo
     if (echo != c) { _panic("echo wrong"); }
 
     uart_puts(UART_DEBUG, "TX: ");
@@ -79,7 +79,7 @@ static void _send_byte_recv_compl(uint8_t c)
 {
     _send_byte(c);
 
-    uint8_t complement = uart_blocking_get(UART_KWP);
+    uint8_t complement = uart_blocking_get(UART_KLINE);
     if (complement != (c ^ 0xff)) { _panic("rx complement wrong"); }
 
     uart_puts(UART_DEBUG, "R_: ");
@@ -91,7 +91,7 @@ static void _send_byte_recv_compl(uint8_t c)
 // Receive byte only
 static uint8_t _recv_byte()
 {
-    uint8_t c = uart_blocking_get(UART_KWP);
+    uint8_t c = uart_blocking_get(UART_KLINE);
 
     uart_puts(UART_DEBUG, "RX: ");
     uart_puthex(UART_DEBUG, c);
@@ -108,8 +108,8 @@ static uint8_t _recv_byte_send_compl()
 
     _delay_ms(1);
 
-    uart_blocking_put(UART_KWP, complement);    // send complement byte
-    uint8_t echo = uart_blocking_get(UART_KWP); // consume its echo
+    uart_blocking_put(UART_KLINE, complement);      // send complement byte
+    uint8_t echo = uart_blocking_get(UART_KLINE);   // consume its echo
     if (echo != complement) { _panic("complement echo wrong"); }
 
     uart_puts(UART_DEBUG, "T_: ");
@@ -363,7 +363,7 @@ void kwp_read_eeprom()
 
 void kwp_connect(uint8_t address, uint32_t baud)
 {
-    uart_init(UART_KWP, baud);
+    uart_init(UART_KLINE, baud);
 
     _send_address(address);
     _wait_for_55_01_8a();

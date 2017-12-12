@@ -8,6 +8,6 @@
 
 #include "uart.h"
 #define UART_DEBUG UART0
-#define UART_KWP   UART1
+#define UART_KLINE UART1
 
 #endif
