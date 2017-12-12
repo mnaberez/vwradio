@@ -53,8 +53,9 @@ static void _send_byte(uint8_t c)
 {
     _delay_ms(1);
 
-    uart_blocking_put(UART_KWP, c);
-    uart_blocking_get(UART_KWP);  // consume echo
+    uart_blocking_put(UART_KWP, c);             // send byte
+    uint8_t echo = uart_blocking_get(UART_KWP); // consume its echo
+    if (echo != c) { while(1); }                // detect error on the wire
 
     uart_puts(UART_DEBUG, "TX: ");
     uart_puthex(UART_DEBUG, c);
@@ -66,7 +67,9 @@ static void _send_byte(uint8_t c)
 static void _send_byte_recv_compl(uint8_t c)
 {
     _send_byte(c);
+
     uint8_t complement = uart_blocking_get(UART_KWP);
+    if (complement != (c ^ 0xff)) { while(1); } // detect error on the wire
 
     uart_puts(UART_DEBUG, "R_: ");
     uart_puthex(UART_DEBUG, complement);
@@ -94,8 +97,9 @@ static uint8_t _recv_byte_send_compl()
 
     _delay_ms(1);
 
-    uart_blocking_put(UART_KWP, complement);
-    uart_blocking_get(UART_KWP);  // consume echo
+    uart_blocking_put(UART_KWP, complement);    // send complement byte
+    uint8_t echo = uart_blocking_get(UART_KWP); // consume its echo
+    if (echo != complement) { while(1); }       // detect error on the wire
 
     uart_puts(UART_DEBUG, "T_: ");
     uart_puthex(UART_DEBUG, complement);
@@ -110,6 +114,7 @@ static void _wait_for_55_01_8a()
 {
     uint8_t i = 0;
     uint8_t c = 0;
+
     while (1) {
         c = _recv_byte();
 
@@ -150,15 +155,20 @@ void kwp_receive_block()
             case 1:  // block length
                 bytes_remaining = c;
                 break;
-            case 2:
-                kwp_block_counter = c;
+            case 2:  // block counter
+                if (kwp_is_first_block) {   // set initial value
+                    kwp_block_counter = c;
+                    kwp_is_first_block = 0;
+                } else {                    // increment; detect mismatch
+                    if (++kwp_block_counter != c) { while(1); }
+                }
                 // fall through
             default:
                 bytes_remaining--;
         }
     }
 
-    _delay_ms(5);
+    _delay_ms(10);
     uart_puts(UART_DEBUG, "END RECEIVE BLOCK\n\n");
     return;
 }
@@ -187,7 +197,7 @@ void kwp_send_ack_block()
     _send_byte_recv_compl(0x03);                // block length
     _send_byte_recv_compl(++kwp_block_counter); // block counter
     _send_byte_recv_compl(KWP_ACK);             // block title
-    _send_byte_recv_compl(0x03);                // block end
+    _send_byte(0x03);                           // block end
 
     uart_puts(UART_DEBUG, "END SEND BLOCK: ACK\n\n");
 }
@@ -201,7 +211,7 @@ void kwp_send_f0_block()
     _send_byte_recv_compl(++kwp_block_counter); // block counter
     _send_byte_recv_compl(KWP_SAFE_CODE);       // block title
     _send_byte_recv_compl(0x00);                // 0=read
-    _send_byte_recv_compl(0x03);                // block end
+    _send_byte(0x03);                           // block end
 
     uart_puts(UART_DEBUG, "END SEND BLOCK: F0\n\n");
 }
@@ -219,7 +229,7 @@ void kwp_send_login_block(uint16_t safe_code, uint8_t fern, uint16_t workshop)
     _send_byte_recv_compl(fern);                 // fern byte
     _send_byte_recv_compl(HIGH(workshop));       // workshop code high byte
     _send_byte_recv_compl(LOW(workshop));        // workshop code low byte
-    _send_byte_recv_compl(0x03);                 // block end
+    _send_byte(0x03);                            // block end
 
     uart_puts(UART_DEBUG, "END SEND BLOCK: LOGIN\n\n");
 }
@@ -233,7 +243,7 @@ void kwp_send_group_reading_block(uint8_t group)
     _send_byte_recv_compl(++kwp_block_counter); // block counter
     _send_byte_recv_compl(KWP_GROUP_READING);   // block title
     _send_byte_recv_compl(group);               // group number
-    _send_byte_recv_compl(0x03);
+    _send_byte(0x03);                           // block end
 
     uart_puts(UART_DEBUG, "END SEND BLOCK: GROUP READ\n\n");
 }
@@ -348,6 +358,8 @@ void kwp_connect(uint8_t address, uint32_t baud)
     _wait_for_55_01_8a();
     _delay_ms(30);
     _send_byte(0x75);
+
+    kwp_is_first_block = 1;
 
     memset(kwp_vag_number,  0, sizeof(kwp_vag_number));
     memset(kwp_component_1, 0, sizeof(kwp_component_1));

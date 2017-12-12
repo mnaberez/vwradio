@@ -16,9 +16,10 @@ void kwp_read_ram(uint16_t start_address, uint16_t size);
 void kwp_read_eeprom();
 uint16_t kwp_read_safe_code_bcd();
 
-uint8_t kwp_block_counter;
-uint8_t kwp_rx_buf[256];
-uint8_t kwp_rx_size;
+uint8_t kwp_is_first_block;     // flag: 0=no blocks received, 1=otherwise
+uint8_t kwp_block_counter;      // block counter; valid after first rx block
+uint8_t kwp_rx_buf[256];        // all bytes received for the current block
+uint8_t kwp_rx_size;            // number of bytes used in kwp_rx_buf
 
 uint8_t kwp_vag_number[16];     // "1J0035180D  "
 uint8_t kwp_component_1[16];    // " RADIO 3CP  "
