@@ -35,9 +35,9 @@ static void _send_address(uint8_t address)
         }
 
         if (bit == 1) {
-            PORTD |= _BV(PD3);    // high
+            PORTD |= _BV(PD3);  // high
         } else {
-            PORTD &= ~_BV(PD3);   // low
+            PORTD &= ~_BV(PD3); // low
         }
         _delay_ms(200);         // 1000ms / 5bps = 200ms per bit
     }
@@ -139,7 +139,6 @@ void kwp_receive_block()
         } else {
             // do not send complement for last byte in block (0x03 block end)
             c = _recv_byte();
-            _delay_ms(2);
         }
 
         kwp_rx_buf[kwp_rx_size++] = c;
