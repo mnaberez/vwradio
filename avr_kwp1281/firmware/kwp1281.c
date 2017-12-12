@@ -5,6 +5,17 @@
 #include <avr/io.h>
 #include <util/delay.h>
 
+// Report unrecoverable error and halt
+void _panic(char *msg)
+{
+    uart_flush_tx(UART_DEBUG);
+    uart_puts(UART_DEBUG, "\n\n*** KWP ERROR: ");
+    uart_puts(UART_DEBUG, msg);
+    uart_puts(UART_DEBUG, "\n");
+    while(1);
+}
+
+
 // Send module address at 5bps
 static void _send_address(uint8_t address)
 {
@@ -55,7 +66,7 @@ static void _send_byte(uint8_t c)
 
     uart_blocking_put(UART_KWP, c);             // send byte
     uint8_t echo = uart_blocking_get(UART_KWP); // consume its echo
-    if (echo != c) { while(1); }                // detect error on the wire
+    if (echo != c) { _panic("echo wrong"); }
 
     uart_puts(UART_DEBUG, "TX: ");
     uart_puthex(UART_DEBUG, c);
@@ -69,7 +80,7 @@ static void _send_byte_recv_compl(uint8_t c)
     _send_byte(c);
 
     uint8_t complement = uart_blocking_get(UART_KWP);
-    if (complement != (c ^ 0xff)) { while(1); } // detect error on the wire
+    if (complement != (c ^ 0xff)) { _panic("rx complement wrong"); }
 
     uart_puts(UART_DEBUG, "R_: ");
     uart_puthex(UART_DEBUG, complement);
@@ -99,7 +110,7 @@ static uint8_t _recv_byte_send_compl()
 
     uart_blocking_put(UART_KWP, complement);    // send complement byte
     uint8_t echo = uart_blocking_get(UART_KWP); // consume its echo
-    if (echo != complement) { while(1); }       // detect error on the wire
+    if (echo != complement) { _panic("complement echo wrong"); }
 
     uart_puts(UART_DEBUG, "T_: ");
     uart_puthex(UART_DEBUG, complement);
@@ -149,7 +160,7 @@ void kwp_receive_block()
         kwp_rx_buf[kwp_rx_size++] = c;
 
         // detect buffer overflow
-        if (kwp_rx_size == sizeof(kwp_rx_buf)) { while(1); }
+        if (kwp_rx_size == sizeof(kwp_rx_buf)) { _panic("rx buf overflow"); }
 
         switch (kwp_rx_size) {
             case 1:  // block length
@@ -160,7 +171,7 @@ void kwp_receive_block()
                     kwp_block_counter = c;
                     kwp_is_first_block = 0;
                 } else {                    // increment; detect mismatch
-                    if (++kwp_block_counter != c) { while(1); }
+                    if (++kwp_block_counter != c) { _panic("block counter wrong"); }
                 }
                 // fall through
             default:
@@ -181,12 +192,12 @@ void kwp_receive_block_expect(uint8_t title)
     if (kwp_rx_buf[2] == title) { return; }
 
     uart_flush_tx(UART_DEBUG);
-    uart_puts(UART_DEBUG, "\n\n*** KWP ERROR: Expected to receive title 0x");
+    uart_puts(UART_DEBUG, "\n\nExpected to receive title 0x");
     uart_puthex(UART_DEBUG, title);
     uart_puts(UART_DEBUG, ", got 0x");
     uart_puthex(UART_DEBUG, kwp_rx_buf[2]);
     uart_put(UART_DEBUG, '\n');
-    while(1);
+    _panic("rx block title wrong");
 }
 
 
