@@ -1,0 +1,15 @@
+Premium 5 KWP1281
+-----------------
+
+The radio validates the length of the data payload.  If a block is sent with
+a payload that is too long or too short for the title, NAK will be returned.
+
+These were found by fuzzing:
+
+Title 0x00, Data Length=0                   Read identification
+Title 0x04, Data Length=1, Data=0x00-FF     Actuator/Output Tests
+Title 0x05, Data Length=0                   Clear Faults
+Title 0x07, Data Length=0                   Read Faults
+Title 0x09, Data Length=0                   ACK
+Title 0x10, Data Length=4, Data=0x00-0xFF   Recoding
+Title 0x29, Data Length=1, Data=0x01-0x07   Group Reading
