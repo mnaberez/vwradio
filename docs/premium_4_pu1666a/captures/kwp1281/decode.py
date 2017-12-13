@@ -34,6 +34,7 @@ class States(object):
 
 
 BlockTitles = {
+    0x00: "Read Identification",
     0x01: "Read RAM",
     0x03: "Read ROM",
     0x04: "Actuator/Output Test",

@@ -29,6 +29,7 @@ uint8_t kwp_component_2[16];    // "        0001"
 #define KWP_RADIO 0x56
 
 // Block Titles
+#define KWP_READ_ID         0x00  /* Read Identification */
 #define KWP_READ_RAM        0x01  /* Read RAM */
 #define KWP_OUTPUT_TESTS    0x04  /* Actuator/Output Tests */
 #define KWP_CLEAR_FAULTS    0x05  /* Clear Faults */
