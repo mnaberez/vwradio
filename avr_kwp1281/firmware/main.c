@@ -49,7 +49,7 @@ void print_safe_code(uint16_t safe_code_bcd)
 int main()
 {
     uart_init(UART_DEBUG, 115200);  // debug messages
-    uart_init(UART_KWP,   9600);    // obd-ii kwp1281
+    uart_init(UART_KLINE,   9600);  // obd-ii kwp1281
     sei();
 
     kwp_connect(KWP_RADIO, 9600);
