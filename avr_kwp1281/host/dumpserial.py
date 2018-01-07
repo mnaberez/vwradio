@@ -15,6 +15,11 @@ if __name__ == '__main__':
     while True:
         numbytes = ser.in_waiting
         if numbytes:
-            sys.stdout.write(ser.read(numbytes).decode('utf-8'))
+            try:
+                text = ser.read(numbytes).decode('utf-8')
+            except UnicodeDecodeError:
+                text = '?'
+            sys.stdout.write(text)
+            sys.stdout.flush()
         else:
             time.sleep(0.05)
