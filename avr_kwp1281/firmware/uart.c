@@ -133,10 +133,16 @@ void uart_blocking_put(uint8_t uartnum, uint8_t c)
     uart_flush_tx(uartnum);
 }
 
+// Returns true if a newly received byte is available
+uint8_t uart_rx_ready(uint8_t uartnum)
+{
+    return _buf_has_byte(&_rx_buffers[uartnum]);
+}
+
 // Receive a byte; block until one is available
 uint8_t uart_blocking_get(uint8_t uartnum)
 {
-    while (!_buf_has_byte(&_rx_buffers[uartnum]));
+    while (!uart_rx_ready(uartnum));
     return _buf_read_byte(&_rx_buffers[uartnum]);
 }
 
