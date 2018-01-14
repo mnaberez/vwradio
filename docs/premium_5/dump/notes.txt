@@ -1,0 +1,41 @@
+Experiment with FL-PR3
+----------------------
+
+Performed chip erase.
+Loaded 60K image of all 0x00
+Verify fails, address = 0xEFFF.
+Loaded 60K image of all 0xFF
+Verify passes.
+
+Chip is still erased.
+Wrote file with offset 0 = 0x00, all others = 0xFF
+Verify fails, address = 0xEFFF.
+It should have failed verify at 0x0000.  Verify can't be used to check individual bytes.
+
+Chip is still erased.
+Programmed image with all 0xFF.
+Program OK, verify OK.
+
+Programmed again with all 0xFF.
+Program OK, verify OK.
+
+Programmed image with byte 0 = 0x7F, all others = 0xFF
+Program OK, verify OK.
+
+Programmed image with byte 0 = 0x3F, all others = 0xFF
+Program OK, verify OK.
+
+Verified against image with all 0xFF.
+Verify failed. (expected)
+Programmed image with all 0xFF.
+Program failed, address = 0x00FF.  (unexpected address; only offset 0 was different)
+
+Programmed image with byte 0 = 0x00, all others = 0xFF
+Program OK, verify OK.
+
+Observations:
+ - Chip erase sets all bytes to 0xFF.
+ - Any bit can be changed from 1 to 0 without chip erase.
+ - Chip verify address is unreliable (says 0xEFFF when difference was at 0x0000)
+ - Program verify address is unreliable (says 0x00FF when difference was at 0x0000)
+ - FL-PR3 doesn't seem to allow writing to only part of flash
