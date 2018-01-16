@@ -13,6 +13,7 @@
 *.o
 *.obj
 *.rel
+*.p
 *.pyc
 *.pyo
 *.retry
