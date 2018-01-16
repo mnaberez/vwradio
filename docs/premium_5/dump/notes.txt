@@ -39,3 +39,10 @@ Observations:
  - Chip verify address is unreliable (says 0xEFFF when difference was at 0x0000)
  - Program verify address is unreliable (says 0x00FF when difference was at 0x0000)
  - FL-PR3 doesn't seem to allow writing to only part of flash
+
+Instruction Set
+---------------
+
+78K0S is not binary compatible with 78K0:
+ - 78K0S "NOP" encodes to 0x08
+ - 78K0  "NOP" encodes to 0x00
