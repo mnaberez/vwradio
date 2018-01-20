@@ -1,0 +1,63 @@
+Flash Connections
+-----------------
+
+With a completely unmodified radio, FL-PR3 will not recognize the
+78F0831Y.  However, it works fine if only the HEF40160B is removed
+from the radio (near the L9637D).
+
+Note: on a different radio, the HEF40160B is marked 16181209 but the
+boards appear the same.
+
+Parameter File Hack
+-------------------
+
+Normal 78f0831Y.PRC file:
+    TYP=03 00 000000 00EFFF 0100 0100
+
+Changing it to this writes one byte at a time:
+    TYP=03 00 000000 00EFFF 0001 0100
+
+When writing to flash with the default chunk size of 0x100, the FL-PR3
+does not show the exact address of the failure.  It always shows the
+address of the last byte in the chunk.
+
+With the hack above, writing becomes many times slower but a write error
+shows the exact address where the error occurred.
+
+Attempt to Find 0xFF Locations
+------------------------------
+
+I attempted to find all locations with 0xFF by writing 0xFF to every
+location and recording which locations did not fail.  Since a "1" can
+only be changed to a "0", this should nondestructively identify which
+locations can be overwritten with trojan code.
+
+Radio is serial number VWZ4Z7X040815, had sticker "SOFTWARE 21" on top
+Tacked on resistor legs for FL-PR3, removed HEF40160B.
+Radio powered up to SAFE mode and seemed to be working fine.
+Connected to the FL-PR3 and ran the `ff_find.py` program over it.
+Many locations of 0xFF were found.
+The radio no longer works.  Reinstalling the HEF40160B made no difference.
+It appears that the flash has been corrupted.
+
+I manually tested writing to a few locations.  The results were consistent
+with the `ff_find.py` script.  It seems that 0xFF locations are still 0xFF,
+the non-0xFF locations are still non-0xFF.  Perhaps some bits were flipped
+somehow.
+
+Thoughts
+--------
+
+The FL-PR3 is probably retrying every write many times which may
+aggravate the possibility of corruption.  Maybe retries can be disabled
+or something can be built that doesn't retry.
+
+Perhaps 0xFF can be found without Vpp at all, which should eliminate
+any possibility of corruption.
+
+Try flashing a program that dumps all flash out a port, then run the 0xFF
+finder over it to see if corruption can be observed.
+
+If corruption by detecting 0xFF can't be avoided, perhaps multiple chips
+could be used.  One chip could be used to find the 0xFF areas and the actual
+dump performed on the other.
