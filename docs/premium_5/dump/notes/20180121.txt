@@ -1,0 +1,27 @@
+Attempt to Corrupt with 0xFF Finder
+-----------------------------------
+
+I burned a test program (16 bytes) into a sample.  The test program dumps all
+memory out a port.  Ran the 0xFF finder over just those 16 bytes repeatedly
+all night.  The program still ran afterward and there was no evidence of
+corruption.  There were no 0xFF areas in these bytes, perhaps that matters.
+
+Reset Weirdness
+---------------
+
+I noticed that the dumping program did not start consistently on power up but
+that touching a ground wire to the reset pin brought it to life.  I installed
+a DS1813 on the reset line which seems to have cured this.  However, the DS1813
+seems to interfere with the FL-PR3, so it needs to be disconnected during flash
+programming.
+
+FL-PR3 Cable Weirdness
+----------------------
+
+I noticed that the dumping prgoram doesn't start at all if the FL-PR3 cable
+is plugged in, even if there's nothing at the end of the cable.  It happens
+with my homemade cable and the one that came with the FL-PR3.  Both are
+straight cables with nothing on the other end.  It seems completely repeatable:
+board works with cable unplugged, doesn't work with cable plugged in.  Just a
+guess: it might have something to do with Vpp floating on the board.  The
+datasheet says Vpp is supposed to be tied to 5V or GND when not in use.
