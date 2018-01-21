@@ -19,4 +19,4 @@ loop:
     mov p4, a       ;write it to the port
     clr1 p5.0       ;/strobe = low
     incw hl         ;increment to next memory address
-    br loop         ;loop forever
+    br !loop        ;loop forever ("!" forces absolute address)
