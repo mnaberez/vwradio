@@ -1,10 +1,11 @@
 Attempt to Corrupt with 0xFF Finder
 -----------------------------------
 
-I burned a test program (16 bytes) into a sample.  The test program dumps all
-memory out a port.  Ran the 0xFF finder over just those 16 bytes repeatedly
-all night.  The program still ran afterward and there was no evidence of
-corruption.  There were no 0xFF areas in these bytes, perhaps that matters.
+I burned a test program (16 bytes) into a China Surplus #1.  The test program
+dumps all memory out a port.  Ran the 0xFF finder over just those 16 bytes
+repeatedly all night.  The program still ran afterward and there was no
+evidence of corruption.  There were no 0xFF areas in these bytes, perhaps that
+matters.
 
 Reset Weirdness
 ---------------

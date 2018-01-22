@@ -72,8 +72,8 @@ def main():
 
     ffs = []
     last_failed_address = None
-    start = 0x10
-    while start < 0xEFFF:
+    start = 0x162
+    while start < 0xf000:
         failed_address = fp.program(start, 0xEFFF)
         if failed_address is not None:
             if last_failed_address is not None:
