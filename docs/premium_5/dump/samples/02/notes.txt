@@ -25,3 +25,10 @@ patch = {
       0xb4c9: [0x86,],              # incw hl
       0xb502: [0x9B, 0x9a, 0xb4],   # br !loop
       }
+
+Gaps
+----
+
+These areas are missing from the dump because they were patched over:
+
+0x0000 - 0xB504

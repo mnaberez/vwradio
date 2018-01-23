@@ -33,3 +33,11 @@ patch = {
 
 Note: it would have been possible to patch "BR 0xA0FF" instead and this would
 have given the data from 0xA000-0xA0FF.
+
+Gaps
+----
+
+These areas are missing from the dump because they were patched over:
+
+0x0000 - 0x02e8
+0xa000 - 0xb49b
