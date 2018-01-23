@@ -11,7 +11,7 @@ pm5 equ 0ff25h      ;port mode register 5 (0=output, 1=input)
     nop
 
     mov pm4, #0     ;port 4 = all bits output   (8 data bits)
-    clr1 pm5.0      ;port 5 bit 0 = output      (/strobe)
+    mov pm5, #0     ;port 5 = all bits output   (/strobe on bit 0)
 
 loop:
     set1 p5.0       ;/strobe = high

@@ -38,7 +38,7 @@ def read_file(filename):
 def find_image_offsets(data):
     '''Find the starting offset of every 64K memory image in the data.'''
 
-    hello = bytes(bytearray([0x00,0x71,0x0b,0x25,0x0a,0x05,0x87,0xf2,0x04,0x00]))
+    hello = bytes(bytearray([0, 0, 0x9B, 0x97, 0xb4]))
     offsets = []
     index = 0
     while True:
@@ -46,7 +46,7 @@ def find_image_offsets(data):
         if index == -1:
             break
         else:
-            offset = index - 0xb496  # hello is address 0x12, image starts from 0
+            offset = index - 0xb4c5  # subtract hello address to find address 0
             if offset >= 0:  # might be negative if start of capture
                 offsets.append(offset)
             index += len(hello)
@@ -84,8 +84,6 @@ def main():
         size = 0xF000
 
     data = read_file(csv_filename)
-    with open('/users/mnaberez/desktop/crap.bin', 'wb') as f:
-        f.write(data)
     offsets = find_image_offsets(data)
     images = extract_64k_images(data, offsets)
     write_image_files(images, output_directory, size)
