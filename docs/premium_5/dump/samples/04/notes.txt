@@ -1,0 +1,54 @@
+Sample #4 "SOFTWARE 23"
+=======================
+
+0xFF Bytes
+----------
+
+Didn't run the full scan but spot checked many and they matched Sample #3
+(radio also said "SOFTWARE 23").
+
+Fake ROM
+--------
+
+fakerom.hex was used to test the patches before applying them to the real
+ROM.
+
+Attempt 1
+---------
+
+Patch 0
+    02F0H - 98DBH   0x00 NOP
+    98DC            0x9B (becomes BR 0xE19E)
+
+    => Select 78f0831y-1.prc
+    => Load patch0.hex
+    => PRG 02F0 EFFF
+    Should fail at 0x98DD
+
+Patch 1
+    B497 : F2 04                mov p4, a
+    B499 : 9B EC EF             br !0ecefh
+
+    B49C - B501                 NOP
+
+    B502 : 9B E0 EF             br !0efe0h
+
+    B505 - EFDF                 NOP
+
+    EFE0 : 13 24 00                mov pm4, #0     ;port 4 = all bits output   (8 data bits)
+    EFE3 : 13 25 00                mov pm5, #0     ;port 5 = all bits output   (/strobe on bit 0)
+    EFE6 : 0A 05                   set1 p5.0       ;/strobe = high
+    EFE8 : 87                      mov a, [hl]     ;read byte from memory
+    EFE9 : 9B 97 B4                br !0b497h      ;jump to "mov p4, a"; it jumps to next inst
+    EFEC : 0B 05                   clr1 p5.0       ;/strobe = low
+    EFEE : 86                      incw hl         ;increment to next memory address
+    EFEF : 9B 02 B5                br !0b502       ;jump to jump to loop
+
+    => Select 78f0831y-1.prc
+    => Load patch1.hex
+    => PRG B497 EFFF
+    Should fail at 0xEFF2
+
+Attempt 1 did not produce the expected results.  It runs but the images that it
+outputs are inconsistent.  The timing of the strobe line is also inconsistent.
+It's likely that some interrupt or the watchdog is interfering.

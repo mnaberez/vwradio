@@ -14,41 +14,48 @@ for address in range(0xf000):
         x = 0x55
     data.append(x)
 
-for address in range(0x2e6):
+data[0x98DD] = 0x9e
+data[0x98De] = 0xe1
+
+for address in range(0x02f0):
     data[address] = 0
-data[0x2e6] = 0x9b
-data[0x2e7] = 0x00
-data[0x2e8] = 0xa0
 
-data = bytearray([0xFF] * (60*1024))
+for address in range(0xefe0, 0xf000):
+    data[address] = 0xbf
 
-patch = {
-      0xa000: [0x00],               # start of nop slide
-      0xb29f: [0x13, 0x24, 0x00],   # mov pm4, #0
-      0xb3a9: [0x13, 0x25, 0x00],   # mov pm5, #0
-      0xb497: [0x0A, 0x05],         # set1 p5.0     loop
-      0xb499: [0x87,],              # mov a, [hl]
-      0xb49a: [0xF2, 0x04],         # mov p4, a
-      0xb49c: [0x0B, 0x05],         # clr1 p5.0
-      0xb49e: [0x86,],              # incw hl
-      0xb4c7: [0x9B, 0x97, 0xb4],   # br !loop
-      }
+# for address in range(0x2e6):
+#     data[address] = 0
+# data[0x2e6] = 0x9b
+# data[0x2e7] = 0x00
+# data[0x2e8] = 0xa0
 
-# prefill patch area with NOPs to cover gaps between instructions
-start = min(patch.keys())
-end = max(patch.keys()) + len(patch[max(patch.keys())])
-for address in range(start, end):
-    data[address] = 0 # nop
-
-# write the patch
-for address_base, patch_bytes in patch.items():
-    for i, x in enumerate(patch_bytes):
-        address = address_base + i
-        data[address] = x
-
-# fill area after the patch with 0xFF
-for address in range(end, 0xf000):
-    data[address] = 0xff
+# patch = {
+#       0xa000: [0x00],               # start of nop slide
+#       0xb29f: [0x13, 0x24, 0x00],   # mov pm4, #0
+#       0xb3a9: [0x13, 0x25, 0x00],   # mov pm5, #0
+#       0xb497: [0x0A, 0x05],         # set1 p5.0     loop
+#       0xb499: [0x87,],              # mov a, [hl]
+#       0xb49a: [0xF2, 0x04],         # mov p4, a
+#       0xb49c: [0x0B, 0x05],         # clr1 p5.0
+#       0xb49e: [0x86,],              # incw hl
+#       0xb4c7: [0x9B, 0x97, 0xb4],   # br !loop
+#       }
+#
+# # prefill patch area with NOPs to cover gaps between instructions
+# start = min(patch.keys())
+# end = max(patch.keys()) + len(patch[max(patch.keys())])
+# for address in range(start, end):
+#     data[address] = 0 # nop
+#
+# # write the patch
+# for address_base, patch_bytes in patch.items():
+#     for i, x in enumerate(patch_bytes):
+#         address = address_base + i
+#         data[address] = x
+#
+# # fill area after the patch with 0xFF
+# for address in range(end, 0xf000):
+#     data[address] = 0xff
 
 with open('rom.bin', 'wb') as f:
     f.write(data)

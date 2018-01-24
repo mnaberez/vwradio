@@ -38,7 +38,7 @@ def read_file(filename):
 def find_image_offsets(data):
     '''Find the starting offset of every 64K memory image in the data.'''
 
-    hello = bytes(bytearray([0, 0, 0x9B, 0x97, 0xb4]))
+    hello = bytes(bytearray([0x13, 0x24, 0x00, 0x13, 0x25, 0x00, 0x0A, 0x05, 0x87, 0x9B, 0x97, 0xB4, 0x0B, 0x05, 0x86, 0x9B, 0x02, 0xB5, 0xBF, 0xBF, 0xBF, 0xBF, 0xBF, 0xBF, 0xBF, 0xBF, 0xBF, 0xBF, 0xBF, 0xBF, 0x1B, 0x4E]))
     offsets = []
     index = 0
     while True:
@@ -46,7 +46,7 @@ def find_image_offsets(data):
         if index == -1:
             break
         else:
-            offset = index - 0xb4c5  # subtract hello address to find address 0
+            offset = index - 0xefe0  # subtract hello address to find address 0
             if offset >= 0:  # might be negative if start of capture
                 offsets.append(offset)
             index += len(hello)
