@@ -52,3 +52,22 @@ Patch 1
 Attempt 1 did not produce the expected results.  It runs but the images that it
 outputs are inconsistent.  The timing of the strobe line is also inconsistent.
 It's likely that some interrupt or the watchdog is interfering.
+
+There is no activity on the /RESET pin so it's not the watchdog's /RESET mode.
+
+Attempt 2
+---------
+
+This is an attempt to recover more data after the failed attempt 1.  By putting
+a NOP slide in 0x000-0x02EF, the area of 0xa000 - 0xb49b can be recovered.  It
+will NOP slide into 0x98DC, where it then BR 0xE19E into the dumper.
+
+Patch 2:
+    0000H - 02DFH   0x00 NOP
+
+    => Select 78f0831y-1.prc
+    => Load patch2.hex
+    => PRG 0000 EFFF
+    Should fail at 0x2F0
+
+This attempt worked and the data from 0xa000 - 0xb49b was in the dump.
