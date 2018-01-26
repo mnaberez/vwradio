@@ -77,3 +77,12 @@ Patch 2:
     Should fail at 0x2F0
 
 This attempt worked and the data from 0xa000 - 0xb49b was in the dump.
+
+Gaps
+----
+
+After both attempts, these areas are missing from the dump because they
+were patched over:
+
+    0x0000-0x98DC
+    0xB497-0xEFFF

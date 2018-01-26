@@ -20,3 +20,10 @@ Patch
 
     => PRG 0300 EFFF
     Should fail at EFF2
+
+Gaps
+----
+
+This area is missing from the dump because it was patched over:
+
+    0x0300 - 0xefff

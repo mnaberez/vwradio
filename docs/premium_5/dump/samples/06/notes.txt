@@ -1,6 +1,17 @@
 Sample #6 (SOFTWARE 23)
 =======================
 
+Radio
+-----
+
+VWZ4Z7Y7112884
+10/00
+
+0xFF Bytes
+----------
+
+Didn't run the 0xFF scan at all -- immediately ran the patch and it succeeded.
+
 Patch 0
 -------
 
@@ -15,3 +26,12 @@ Patch 0
 
     => PRG E000 EFFF
     Should fail at 0xEFF2
+
+Gaps
+----
+
+These areas are missing from the dump because they were patched over:
+
+    0x0d00 - 0x2a3a
+    0xb497 - 0xb504
+    0xe000 - 0xefff
