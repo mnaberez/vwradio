@@ -1,0 +1,17 @@
+Sample #6 (SOFTWARE 23)
+=======================
+
+Patch 0
+-------
+
+    => Select 78f0831y-1.prc
+    => Load patch0.hex
+
+    => PRG 0D00 EFFF
+    Should fail at 2a3b
+
+    => PRG B497 EFFF
+    Should fail at 0xB506
+
+    => PRG E000 EFFF
+    Should fail at 0xEFF2

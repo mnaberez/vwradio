@@ -4,7 +4,8 @@ Sample #5 "SOFTWARE 24" (Beetle Radio)
 Radio
 -----
 
-TODO
+VWZ4Z7A1034131
+26/01
 
 0xFF Bytes
 ----------
