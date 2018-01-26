@@ -20,3 +20,9 @@ loop:
     clr1 p5.0       ;/strobe = low
     incw hl         ;increment to next memory address
     br !loop        ;loop forever ("!" forces absolute address)
+
+    di
+    set1 0fff9h.1
+
+    mov 0ff42h, #7    ;wdcs = watchdog interval 250ms
+    mov 0fff9h,  #80h ;wdtm = watchdog timer mode register

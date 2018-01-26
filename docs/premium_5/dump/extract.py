@@ -38,10 +38,18 @@ def read_file(filename):
 def find_image_offsets(data):
     '''Find the starting offset of every 64K memory image in the data.'''
 
-    hello = bytes(bytearray([0x13, 0x24, 0x00, 0x13, 0x25, 0x00, 0x0A, 0x05,
-                             0x87, 0x9B, 0x97, 0xB4, 0x0B, 0x05, 0x86, 0x9B,
-                             0x02, 0xB5, 0xBF, 0xBF, 0xBF, 0xBF, 0xBF, 0xBF,
-                             0xBF, 0xBF, 0xBF, 0xBF, 0xBF, 0xBF, 0x1B, 0x4E]))
+    hello = bytes(bytearray([
+        0x13, 0x24, 0x00,           # EFE0 mov pm4, #0     ;port 4 = all bits output   (8 data bits)
+        0x13, 0x25, 0x00,           # EFE3 mov pm5, #0     ;port 5 = all bits output   (/strobe on bit 0)
+        0x0A, 0x05,                 # EFE6 set1 p5.0       ;/strobe = high
+        0x87,                       # EFE8 mov a, [hl]     ;read byte from memory
+        0x9B, 0x98, 0xB4,           # EFE9 br !0xb498      ;jump to "mov p4, a"; it jumps to next inst
+        0x0B, 0x05,                 # EFEC clr1 p5.0       ;/strobe = low
+        0x86,                       # EFEE incw hl         ;increment to next memory address
+        0x9B, 0xaa, 0xB3,           # EFEF br !0xb3aa      ;jump to jump to loop
+        ]))
+
+
     offsets = []
     index = 0
     while True:
