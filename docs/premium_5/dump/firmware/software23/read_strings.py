@@ -43,9 +43,10 @@ def print_msgs(msgs):
 def main():
     print('')
     with open('combined.bin', 'rb') as f:
-        msgs = read_fixed_length_msgs(f, {0x2655: 12, 0x2662: 12,
-                                          0x266f: 12, 0x267c: 12,
-                                          0x2689: 11, 0x2696: 32})
+        msgs = read_fixed_length_msgs(f, OrderedDict({0x2655: 12, 0x2662: 12,
+                                                      0x266f: 12, 0x267c: 12,
+                                                      0x2689: 11, 0x2696: 16,
+                                                      0x26a6: 16}))
         print_msgs(msgs)
         print('')
 
