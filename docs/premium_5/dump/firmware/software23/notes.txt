@@ -6,7 +6,7 @@ Building
 
 Sample 3:
 
-    Has everything except:
+    Take everything except:
 
     0x0000 - 0x02e8
     0xa000 - 0xb49b
@@ -30,6 +30,9 @@ Put back the 0xFF areas:
 Results
 -------
 
-Erased and flashed a radio with the combined firmware.  SAFE mode works
-(code entry, lockout, unlocks after 1 hour).  KWP1281 also works as expected.
-Unable to test further because I don't have the code for the radio.
+Erased and flashed a couple radios with the combined firmware.  The radios
+completely work except for one oddity.  In cassette tape mode, the display
+does not work.  It continues to say whatever was on it before entering tape
+mode.  However, tape functions work as expected, and the display works again
+after exiting tape mode.  It's not known if this is a problem in the dumps or
+if this is an actual bug in SOFTWARE 23.
