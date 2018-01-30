@@ -1,0 +1,14 @@
+
+Delco       Actual              Description
+----------  ------------------  ---------------------------------------------
+
+16181209    Philips HEF40160B   4-bit sync decade counter with aync reset [1]
+
+N60 FLASH   NEC uPD78F0831Y     78K0 Microcontroller similar to uPD78F0833Y
+09370082
+
+9355092     ST M24C04           512 Byte I2C EEPROM
+
+Note 1:
+  In one radio, serial number VWZ4Z7X7040815, a chip was found with the real
+  part number on the package (HEF40160B).  All others had the Delco number.
