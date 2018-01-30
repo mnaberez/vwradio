@@ -73,18 +73,22 @@ def main():
     ffs = []
     last_failed_address = None
     start = 0
+
     while start < 0xf000:
         failed_address = fp.program(start, 0xEFFF)
+
         if failed_address is not None:
             if last_failed_address is not None:
                 i = last_failed_address + 1
                 while i < failed_address:
                     ffs.append(i)
                     i += 1
-            print("\nFOUND FFs = %r" % ['%04X' % x for x in ffs])
+
+            csv = ', '.join(['0x%04x' % x for x in ffs])
+            print("\nFOUND FFs = [%s]" % csv)
+
             last_failed_address = failed_address
             start = failed_address + 1
 
 if __name__ == '__main__':
     main()
-
