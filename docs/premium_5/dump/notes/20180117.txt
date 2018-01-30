@@ -32,7 +32,7 @@ location and recording which locations did not fail.  Since a "1" can
 only be changed to a "0", this should nondestructively identify which
 locations can be overwritten with trojan code.
 
-Radio is serial number VWZ4Z7X040815, had sticker "SOFTWARE 21" on top
+Radio is serial number VWZ4Z7X7040815, had sticker "SOFTWARE 21" on top
 Tacked on resistor legs for FL-PR3, removed HEF40160B.
 Radio powered up to SAFE mode and seemed to be working fine.
 Connected to the FL-PR3 and ran the `ff_find.py` program over it.
