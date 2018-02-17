@@ -1,6 +1,10 @@
 EEPROM Layout
 -------------
 
+This information came from studying the PU-1666A firmware.  However, EEPROMs
+were removed from PU-1582A, PU-1634A, PU-1635A, PU-1666A, PU-1667A and the
+SAFE code location was the same in all of them.
+
 Mode (FM1/FM2/AM) do not seem to affect the EEPROM.
 Fade and Balance do not seem affect the EEPROM.
 
