@@ -138,7 +138,6 @@ Messages
 --------
 
 SAFE mode
-  TODO "NO CODE"?
   Decoded Display RAM: '    1000   '
   Decoded Display RAM: '1    SAFE  ' (note extra space before SAFE)
   Decoded Display RAM: '1   1000   '
@@ -187,8 +186,6 @@ Tape
   Decoded Display RAM: 'TAPE ERROR '
   Decoded Display RAM: 'TAPE  FF   '
   Decoded Display RAM: 'TAPE  REW  '
-
-  TODO BLS
 
 Balance
   Decoded Display RAM: 'BAL CENTER '
@@ -239,12 +236,6 @@ Setting Options
 
 Monsoon
   Decoded Display RAM: '    MONSOON'
-
-Initializing
-  TODO
-
-Code Change
-  TODO
 
 Diagnostics (KWP1281)
   Decoded Display RAM: '     DIAG  '
