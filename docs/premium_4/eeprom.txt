@@ -15,8 +15,8 @@ Fade and Balance do not seem affect the EEPROM.
 
 0x0a    SAFE attempts (0, 1, 2)
 
-0x0e    Protected by firmware, always returns 0x00
-0x0f    Protected by firmware, always returns 0x00
+0x0e    SAFE code BCD high byte (protected by firmware, always returns 0x00)
+0x0f    SAFE code BCD low byte  (protected by firmware, always returns 0x00)
 
 0x10    FM2 Preset 1 (0x00=87.9 MHz, 0x64=107.9 MHz)
 0x11    FM2 Preset 2

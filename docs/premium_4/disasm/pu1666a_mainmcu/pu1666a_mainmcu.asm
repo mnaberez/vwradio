@@ -11525,6 +11525,12 @@ lab_bb13:
 mem_0080_is_0b_or_0c:
 ;KWP1281 Read ROM or Read EEPROM entry point
 ;
+;For Read ROM, there are no restrictions and the entire address space
+;(0x0000-0xFFFF) can be read.
+;
+;For Read EEPROM, offsets 0x0E-0x0F are special and can't be read.  These
+;locations contain the SAFE code word and will always be returned as 0.
+;
 ;Request block format:
 ;  0x06 Block length                    mem_0118+0
 ;  0x3E Block counter                   mem_0118+1
@@ -11546,6 +11552,9 @@ lab_bb1f:
 
 mem_0080_is_0a:
 ;KWP1281 Read RAM
+;
+;For Read RAM, there are no restrictions and the entire address space
+;(0x0000-0xFFFF) can be read.
 ;
 ;Request block format:
 ;  0x06 Block length                    mem_0118+0
@@ -14419,13 +14428,14 @@ sub_cb72:
     mov mem_026d, a         ;cb75  61 02 6d     Copy address into mem_026d
 
     ;EEPROM addresses 0x0E-0x0F are special and can't be read
+    ;0x0E = SAFE code BCD high byte, 0x0F = SAFE code BCD low byte
     cmp a, #0x0e            ;cb78  14 0e
     beq lab_cb80            ;cb7a  fd 04
     cmp a, #0x0f            ;cb7c  14 0f
     bne lab_cb84            ;cb7e  fc 04
 
 lab_cb80:
-;EEPROM address is 0x0E-0x0F
+;EEPROM address is 0x0E-0x0F (SAFE code word)
 ;Do nothing and return 0 as the data byte read
     mov a, #0x00            ;cb80  04 00
     beq lab_cb95            ;cb82  fd 11        BRANCH_ALWAYS_TAKEN
