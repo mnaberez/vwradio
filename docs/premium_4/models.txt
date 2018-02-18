@@ -1,6 +1,9 @@
 Premium 4 Models
 ----------------
 
+PU-1569A
+  Beetle.  TODO finish me
+
 PU-1582A
   Segment display driven by NEC uPD16431A
   Footprint for Toshiba TC9212F (not usually populated)
