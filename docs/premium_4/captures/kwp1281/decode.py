@@ -90,7 +90,7 @@ entries = list(filter(lambda e: not e.reflection, entries))
 # find the sync sequence
 sync_index = None
 for i, entry in enumerate(entries):
-    seq = map(lambda e: (e.txrx, e.byte), entries[i:i+4])
+    seq = list(map(lambda e: (e.txrx, e.byte), entries[i:i+4]))
     if seq == [('TX', 0x55), ('TX', 0x01), ('TX', 0x8a), ('RX', 0x75)]:
         sync_index = i
         break
@@ -164,4 +164,4 @@ for direction, entries in blocks:
         if entry.comment is not None:
             line += ' %s' % entry.comment
 
-        print line
+        print(line)
