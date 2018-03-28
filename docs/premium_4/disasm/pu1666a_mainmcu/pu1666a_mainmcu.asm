@@ -10221,7 +10221,8 @@ sub_b554:
 
     ;KWP1281 Fault 00856 Antenna
     clrb mem_0093:0         ;b557  a0 93        Clear fault 00856 bit
-    movw a, #mem_0149       ;b559  e4 01 49     A = Pointer to KWP1281 4-byte buffer for Fault 00856 Radio Antenna
+    movw a, #mem_0149       ;b559  e4 01 49     A = Pointer to KWP1281 4-byte buffer for
+                            ;                         Fault 00856 Radio Antenna
     ret                     ;b55c  20
 
 lab_b55d:
@@ -10229,7 +10230,8 @@ lab_b55d:
 
     ;KWP1281 Fault 00668 Supply terminal 30
     clrb mem_0093:1         ;b560  a1 93        Clear fault 00668 bit
-    movw a, #mem_014d       ;b562  e4 01 4d     A = Pointer to KWP1281 4-byte buffer for Fault 00668 Supply terminal 30
+    movw a, #mem_014d       ;b562  e4 01 4d     A = Pointer to KWP1281 4-byte buffer for
+                            ;                         Fault 00668 Supply terminal 30
     ret                     ;b565  20
 
 lab_b566:
@@ -10237,7 +10239,8 @@ lab_b566:
 
     ;KWP1281 Fault 00850 Radio amplifier
     clrb mem_0093:2         ;b569  a2 93        Clear fault 00850 bit
-    movw a, #mem_0151       ;b56b  e4 01 51     A = Pointer to KWP1281 4-byte buffer for Fault 00850 Radio amplifier
+    movw a, #mem_0151       ;b56b  e4 01 51     A = Pointer to KWP1281 4-byte buffer for
+                            ;                         Fault 00850 Radio amplifier
     ret                     ;b56e  20
 
 lab_b56f:
@@ -10245,7 +10248,8 @@ lab_b56f:
 
     ;KWP1281 Fault 01044 Control Module Incorrectly Coded
     clrb mem_0093:3         ;b572  a3 93        Clear fault 01044 bit
-    movw a, #mem_0165       ;b574  e4 01 65     A = Pointer to KWP1281 4-byte buffer for Fault 01044 Control Module Incorrectly Coded
+    movw a, #mem_0165       ;b574  e4 01 65     A = Pointer to KWP1281 4-byte buffer for
+                            ;                         Fault 01044 Control Module Incorrectly Coded
     ret                     ;b577  20
 
 lab_b578:
@@ -10253,7 +10257,8 @@ lab_b578:
 
     ;KWP1281 Fault 00855 CD changer
     clrb mem_0093:4         ;b57b  a4 93        Clear fault 00855 bit
-    movw a, #mem_0155       ;b57d  e4 01 55     A = Pointer to KWP1281 4-byte buffer for Fault 00855 CD changer
+    movw a, #mem_0155       ;b57d  e4 01 55     A = Pointer to KWP1281 4-byte buffer for
+                            ;                         Fault 00855 CD changer
     ret                     ;b580  20
 
 lab_b581:
@@ -10261,7 +10266,8 @@ lab_b581:
 
     ;KWP1281 Fault 00852 Loudspeaker(s) Front
     clrb mem_0093:5         ;b584  a5 93        Clear fault 00852 bit
-    movw a, #mem_0159       ;b586  e4 01 59     A = Pointer to KWP1281 4-byte buffer for Fault 00852 Loudspeaker(s) Front
+    movw a, #mem_0159       ;b586  e4 01 59     A = Pointer to KWP1281 4-byte buffer for
+                            ;                         Fault 00852 Loudspeaker(s) Front
     ret                     ;b589  20
 
 lab_b58a:
@@ -10269,7 +10275,8 @@ lab_b58a:
 
     ;KWP1281 Fault 00853 Loudspeaker(s) Rear
     clrb mem_0093:6         ;b58d  a6 93        Clear fault 00853 bit
-    movw a, #mem_015d       ;b58f  e4 01 5d     A = Pointer to KWP1281 4-byte buffer for Fault 00853 Loudspeaker(s) Rear
+    movw a, #mem_015d       ;b58f  e4 01 5d     A = Pointer to KWP1281 4-byte buffer for
+                            ;                         Fault 00853 Loudspeaker(s) Rear
     ret                     ;b592  20
 
 lab_b593:
@@ -10277,7 +10284,8 @@ lab_b593:
 
     ;KWP1281 Fault 65535 Internal Memory Error
     clrb mem_0093:7         ;b596  a7 93        Clear fault 65535 bit
-    movw a, #mem_0161       ;b598  e4 01 61     A = Pointer to KWP1281 4-byte buffer for Fault 65535 Internal Memory Error
+    movw a, #mem_0161       ;b598  e4 01 61     A = Pointer to KWP1281 4-byte buffer for
+                            ;                         Fault 65535 Internal Memory Error
 
 lab_b59b:
     ret                     ;b59b  20
