@@ -13,7 +13,8 @@ def parse_listing(lines):
     last_address = 0
     for line in lines:
         # ignore header lines
-        if ('ASxxxx Assembler') in line or ('Hexadecimal [16-Bits]') in line:
+        # second line says "Hexidecimal" in asf2mc8 v5.05, "Hexadecimal" in v5.20
+        if ('ASxxxx Assembler' in line) or ('decimal [16-Bits]' in line):
             continue
 
         # symbol table indicates listing is complete
