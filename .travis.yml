@@ -1,0 +1,30 @@
+sudo: true
+
+before_install:
+  # gcc-avr, avr-libc
+  - sudo add-apt-repository -y ppa:pmjdebruijn/gcc-avr-release
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq -y gcc-avr avr-libc
+
+  # avra
+  - git clone https://github.com/mnaberez/avra.git
+  - make -C avra/src -f makefiles/Makefile.linux
+  - export PATH=$PATH:$PWD/avra/src
+
+  # asf2mc8
+  - wget -q -U travis http://6502.org/tools/asm/av5p00.zip
+  - wget -q -U travis http://6502.org/tools/asm/u05500.zip
+  - unzip -q av5p00.zip
+  - unzip -q -o u05500.zip
+  - make -C asxv5pxx/asxmak/linux/build asf2mc8
+  - export PATH=$PATH:$PWD/asxv5pxx/asxmak/linux/build
+
+language: python
+
+script:
+  - make -C avr_kwp1281/firmware
+  - make -C avr_radio/firmware
+  - make -C avr_tape/firmware
+  - make -C avr_volume/firmware
+  - make -C docs/premium_4/disasm/pu1666a_mainmcu
+  - make -C docs/premium_4/disasm/pu1666a_submcu
