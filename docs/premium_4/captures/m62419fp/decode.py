@@ -32,8 +32,8 @@ fade_to_db = (-100, -10, -20, -3, -45, -6, -14, -1,  # -100 = infinity
 
 def read_file(filename):
     opener = gzip.open if filename.endswith('.gz') else open
-    with opener(filename, 'r') as f:
-        headings = [ col.strip() for col in f.next().split(',') ]
+    with opener(filename, 'rt') as f:
+        headings = [ col.strip() for col in f.readline().split(',') ]
         reader = csv.DictReader(f, headings)
 
         command, bit = 0, 0

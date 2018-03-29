@@ -16,7 +16,8 @@ class SubMCU(object):
         self.screen_num = packet[2]
         self.message = bytearray(self.messages[self.screen_num])
         self._dispatch()
-        sys.stdout.write(self.message + "\n")
+        sys.stdout.write(self.message.decode('utf-8'))
+        sys.stdout.write("\n")
 
     def _dispatch(self):
         prefix = '_msg_%02x_' % self.screen_num
@@ -442,79 +443,79 @@ class SubMCU(object):
         pass
 
     messages = {
-        0x01: 'CD...TR....',
-        0x02: 'CUE........',
-        0x03: 'REV........',
-        0x04: 'SCANCD.TR..',
-        0x05: 'NO..CHANGER',
-        0x06: 'NO..MAGAZIN',
-        0x07: '....NO.DISC',
-        0x08: 'CD...ERROR.',
-        0x09: 'CD.........',
-        0x0a: 'CD....MAX..',
-        0x0b: 'CD....MIN..',
-        0x0c: 'CHK.MAGAZIN',
-        0x0d: 'CD..CD.ERR.',
-        0x0e: 'CD...ERROR.',
-        0x0f: 'CD...NO.CD.',
+        0x01: b'CD...TR....',
+        0x02: b'CUE........',
+        0x03: b'REV........',
+        0x04: b'SCANCD.TR..',
+        0x05: b'NO..CHANGER',
+        0x06: b'NO..MAGAZIN',
+        0x07: b'....NO.DISC',
+        0x08: b'CD...ERROR.',
+        0x09: b'CD.........',
+        0x0a: b'CD....MAX..',
+        0x0b: b'CD....MIN..',
+        0x0c: b'CHK.MAGAZIN',
+        0x0d: b'CD..CD.ERR.',
+        0x0e: b'CD...ERROR.',
+        0x0f: b'CD...NO.CD.',
 
-        0x10: 'SET.ONVOL.Y', #
-        0x11: 'SET.ONVOL.N', #
-        0x12: 'SET.ONVOL..', #
-        0x13: 'SET.CD.MIX1', #
-        0x14: 'SET.CD.MIX6', #
-        0x15: 'TAPE.SKIP.Y', #
-        0x16: 'TAPE.SKIP.N', #
+        0x10: b'SET.ONVOL.Y', #
+        0x11: b'SET.ONVOL.N', #
+        0x12: b'SET.ONVOL..', #
+        0x13: b'SET.CD.MIX1', #
+        0x14: b'SET.CD.MIX6', #
+        0x15: b'TAPE.SKIP.Y', #
+        0x16: b'TAPE.SKIP.N', #
 
-        0x40: 'FM......MHZ', #
-        0x41: 'AM......KHZ', #
-        0x42: 'SCAN....MHZ', #
-        0x43: 'SCAN....KHZ', #
-        0x44: 'FM....MAX..', #
-        0x45: 'FM....MIN..', #
-        0x46: 'AM....MAX..', #
-        0x47: 'AM....MIN..', #
+        0x40: b'FM......MHZ', #
+        0x41: b'AM......KHZ', #
+        0x42: b'SCAN....MHZ', #
+        0x43: b'SCAN....KHZ', #
+        0x44: b'FM....MAX..', #
+        0x45: b'FM....MIN..', #
+        0x46: b'AM....MAX..', #
+        0x47: b'AM....MIN..', #
 
-        0x50: 'TAPE.PLAY.A', #
-        0x51: 'TAPE.PLAY.B', #
-        0x52: 'TAPE..FF...', #
-        0x53: 'TAPE..REW..', #
-        0x54: 'TAPEMSS.FF.', #
-        0x55: 'TAPEMSS.REW', #
-        0x56: 'TAPE.SCAN.A', #
-        0x57: 'TAPE.SCAN.B', #
-        0x58: 'TAPE.METAL.', #
-        0x59: 'TAPE..BLS..', #
-        0x5a: '....NO.TAPE', #
-        0x5b: 'TAPE.ERROR.', #
-        0x5c: 'TAPE..MAX..', #
-        0x5d: 'TAPE..MIN..', #
+        0x50: b'TAPE.PLAY.A', #
+        0x51: b'TAPE.PLAY.B', #
+        0x52: b'TAPE..FF...', #
+        0x53: b'TAPE..REW..', #
+        0x54: b'TAPEMSS.FF.', #
+        0x55: b'TAPEMSS.REW', #
+        0x56: b'TAPE.SCAN.A', #
+        0x57: b'TAPE.SCAN.B', #
+        0x58: b'TAPE.METAL.', #
+        0x59: b'TAPE..BLS..', #
+        0x5a: b'....NO.TAPE', #
+        0x5b: b'TAPE.ERROR.', #
+        0x5c: b'TAPE..MAX..', #
+        0x5d: b'TAPE..MIN..', #
 
-        0x60: '.....MAX...', #
-        0x61: '.....MIN...', #
-        0x62: 'BASS.......', #
-        0x63: 'TREB.......', #
-        0x64: 'BAL.LEFT...', #
-        0x65: 'BAL.RIGHT..', #
-        0x66: 'BAL.CENTER.', #
-        0x67: 'FADEFRONT..', #
-        0x68: 'FADEREAR...', #
-        0x69: 'FADECENTER.', #
+        0x60: b'.....MAX...', #
+        0x61: b'.....MIN...', #
+        0x62: b'BASS.......', #
+        0x63: b'TREB.......', #
+        0x64: b'BAL.LEFT...', #
+        0x65: b'BAL.RIGHT..', #
+        0x66: b'BAL.CENTER.', #
+        0x67: b'FADEFRONT..', #
+        0x68: b'FADEREAR...', #
+        0x69: b'FADECENTER.', #
 
-        0x80: '....NO.CODE', #
-        0x81: '.....CODE..', #
-        0x82: '...........', #
-        0x83: '.....SAFE..', #
-        0x84: '....INITIAL', #
-        0x85: '....NO.CODE', #
-        0x86: '.....SAFE..',
-        0x87: '....CLEAR..', #
+        0x80: b'....NO.CODE', #
+        0x81: b'.....CODE..', #
+        0x82: b'...........', #
+        0x83: b'.....SAFE..', #
+        0x84: b'....INITIAL', #
+        0x85: b'....NO.CODE', #
+        0x86: b'.....SAFE..',
+        0x87: b'....CLEAR..', #
 
-        0xb0: '.....DIAG..', #
-        0xb1: 'TESTDISPLAY', #
+        0xb0: b'.....DIAG..', #
+        0xb1: b'TESTDISPLAY', #
 
-        0xc0: '.....BOSE..',
-        0xc1: '...........',
+        0xc0: b'.....BOSE..',
+        0xc1: b'...........',
         }
 
 
@@ -533,8 +534,8 @@ def parse_analyzer_file(filename):
     old_clk = 0
 
     opener = gzip.open if filename.endswith('.gz') else open
-    with opener(filename, 'r') as f:
-        headings = [ col.strip() for col in f.next().split(',') ]
+    with opener(filename, 'rt') as f:
+        headings = [ col.strip() for col in f.readline().split(',') ]
         reader = csv.DictReader(f, headings)
 
         for row in reader:
