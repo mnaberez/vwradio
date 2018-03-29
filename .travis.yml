@@ -1,4 +1,6 @@
-sudo: true
+dist: trusty
+sudo: required
+language: python
 
 before_install:
   # gcc-avr, avr-libc
@@ -18,8 +20,6 @@ before_install:
   - unzip -q -o u05500.zip
   - make -C asxv5pxx/asxmak/linux/build asf2mc8
   - export PATH=$PATH:$PWD/asxv5pxx/asxmak/linux/build
-
-language: python
 
 script:
   - make -C avr_kwp1281/firmware
