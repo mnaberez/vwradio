@@ -1,3 +1,4 @@
+import gzip
 import sys
 
 filenames = sys.argv[1:3]
@@ -64,7 +65,8 @@ BlockTitles = {
 # parse files into entries
 entries = []
 for filename in filenames:
-    with open(filename) as f:
+    opener = gzip.open if filename.endswith('.gz') else open
+    with opener(filename, 'rt') as f:
         for line in f.readlines()[1:]:
             if "error" not in line.lower():
                 cols = line.split(",")
