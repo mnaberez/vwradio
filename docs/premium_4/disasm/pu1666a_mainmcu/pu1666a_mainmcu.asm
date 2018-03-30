@@ -1,7 +1,23 @@
-;MB89677AR
-;   175
-;9911  K10
+;Volkswagen Premium IV radio (Clarion PU-1666A)
+;Reverse engineered source code
 ;
+;This source code is for one of two microcontrollers used in
+;the radio.  It is the "main" microcontroller that is responsible
+;for the core logic and most functions including radio tuners,
+;sound control, and cassette playback.  It also handles the
+;diagnostics interface (KWP1281) and CD changer interface.
+;
+;QFP-80 package markings:
+;
+;  Fujitsu  MB89677AR
+;              175
+;           9911  K10
+;
+;No rights are claimed on the executable object code as found
+;in the internal ROM of the MB89677AR chip.  The SHA-1 hash of
+;that binary is: 8031fdd917ce7dd7debb6fd2c9d70cd12a02e9d4.
+;
+
     .F2MC8L
     .area CODE1 (ABS)
     .org 0x8000

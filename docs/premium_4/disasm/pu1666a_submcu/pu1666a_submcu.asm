@@ -1,6 +1,22 @@
-;MB89623R
-;  628
-;9910 Z18
+;Volkswagen Premium IV radio (Clarion PU-1666A)
+;Reverse engineered source code
+;
+;This source code is for one of two microcontrollers used in
+;the radio.  It is the "sub" microcontroller that is primarily
+;responsible for user interface functions: faceplate (uPD16432B),
+;steering wheel (MFSW), and instrument cluster (FIS).  It has
+;some other responsibilities as well, such as illumination.
+;
+;QFP-64 package markings:
+;
+;  Fujitsu  MB89623R
+;             628
+;           9910 Z18
+;
+;No rights are claimed on the executable object code as found
+;in the internal ROM of the MB89623R chip.  The SHA-1 hash of
+;that binary is: 75a3ff5357beb1d59ddaff0d1bd3293a6ca4dfc9.
+;
 
     .F2MC8L
     .area CODE1 (ABS)
