@@ -7,7 +7,13 @@ from vwradio.constants import DisplayModes, OperationModes, TunerBands, Keys, Pi
 from vwradio.faceplates import Premium4
 from vwradio import avrclient
 
-class TestAvr(unittest.TestCase):
+# only test against real hardware when asked
+if 'HARDWARE_TEST' in os.environ:
+    BaseTestCase = unittest.TestCase
+else:
+    BaseTestCase = object
+
+class TestAvr(BaseTestCase):
     serial = None # serial.Serial instance
 
     def setUp(self):
