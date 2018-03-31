@@ -1,6 +1,12 @@
 dist: trusty
 sudo: required
+
 language: python
+python:
+  - "2.7"
+  - "3.4"
+  - "3.5"
+  - "3.6"
 
 before_install:
   # gcc-avr, avr-libc
@@ -24,6 +30,7 @@ before_install:
 script:
   - make -C avr_kwp1281/firmware
   - make -C avr_radio/firmware
+  - python avr_radio/host/setup.py test -q
   - make -C avr_tape/firmware
   - make -C avr_volume/firmware
   - make -C docs/premium_4/disasm/pu1666a_mainmcu
