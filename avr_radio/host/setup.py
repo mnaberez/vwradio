@@ -23,7 +23,7 @@ setup(
     maintainer="Mike Naberezny",
     maintainer_email="mike@naberezny.com",
     packages=find_packages(),
-    install_requires=[],
+    install_requires=['pyserial'],
     extras_require={},
     tests_require=[],
     include_package_data=True,
