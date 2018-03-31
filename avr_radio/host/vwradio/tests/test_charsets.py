@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import re
 import unittest
 from vwradio import charsets
@@ -10,15 +12,15 @@ class _TestCharsetMixin():
         self.assertEqual(len(matches), 256)
 
     def test_text_patterns_have_expected_format(self):
-        lines = [ l for l in self.TEXT.splitlines() if ('.' or 'O') in l ]
+        lines = [ l for l in self.TEXT.splitlines() if ('·' or '▊') in l ]
         for line in lines:
             groups = line.split()
             self.assertEqual(len(groups), 8)
             for charline in groups:
-                subbed = re.sub('[^\.O]', '', charline)
+                subbed = re.sub('[^\·▊]', '', charline)
                 self.assertEqual(subbed, charline)
                 self.assertEqual(len(charline), 5)
-        self.assertEqual(len(lines), (256 * 7) / 8)
+        self.assertEqual(len(lines), (256 * 7) // 8)
 
     def test_charset_has_exact_size(self):
         self.assertEqual(len(self.CHARSET), 7 * 256)
