@@ -12,12 +12,12 @@ class _TestCharsetMixin():
         self.assertEqual(len(matches), 256)
 
     def test_text_patterns_have_expected_format(self):
-        lines = [ l for l in self.TEXT.splitlines() if ('·' or '▊') in l ]
+        lines = [ l for l in self.TEXT.splitlines() if (u'·' or u'▊') in l ]
         for line in lines:
             groups = line.split()
             self.assertEqual(len(groups), 8)
             for charline in groups:
-                subbed = re.sub('[^\·▊]', '', charline)
+                subbed = re.sub(u'[^\·▊]', '', charline)
                 self.assertEqual(subbed, charline)
                 self.assertEqual(len(charline), 5)
         self.assertEqual(len(lines), (256 * 7) // 8)
