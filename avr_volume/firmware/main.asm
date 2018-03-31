@@ -13,7 +13,7 @@
 .equ packet_bitcount = ram      ;Counts down bits remaining to rx in packet
 .equ packet_isr_buf  = ram+$01  ;2 bytes to accumulate SPI packet bits in ISR
 .equ packet_rx_buf   = ram+$03  ;2 bytes for complete SPI packet received
-.equ packet_work_buf = ram+$05 	;2 bytes for SPI packet used during parsing
+.equ packet_work_buf = ram+$05  ;2 bytes for SPI packet used during parsing
 ;Buffer used to track M62419FP state across commands
 .equ m62419fp_buf    = ram+$07  ;12 byte buffer for M62419FP state
 
@@ -40,20 +40,20 @@
     rjmp reset
 
 .org PCI0addr
-	rjmp spi_isr_pcint0
+    rjmp spi_isr_pcint0
 
 .org 0+INT_VECTORS_SIZE
 
 
 reset:
-	ldi r16, low(RAMEND) 		;Initialize the stack pointer
-	out SPL, r16
-	ldi r16, high(RAMEND)
-	out SPH, r16
+    ldi r16, low(RAMEND)        ;Initialize the stack pointer
+    out SPL, r16
+    ldi r16, high(RAMEND)
+    out SPH, r16
 
-	rcall uart_init 			;15200 bps, N-8-1
-	rcall spi_init              ;Set up for M62419FP receive on interrupt
-	sei                         ;Enable interrupts
+    rcall uart_init             ;15200 bps, N-8-1
+    rcall spi_init              ;Set up for M62419FP receive on interrupt
+    sei                         ;Enable interrupts
 
 loop:
     ;Set Y-pointer to a buffer that will receive a packet
