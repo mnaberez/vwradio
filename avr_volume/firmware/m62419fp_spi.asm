@@ -49,7 +49,7 @@ spi_init:
 
 spi_isr_pcint0:
 ;PCINT0 Pin Change Group 0 Interrupt Service Routine
-;Fires for any change on PCINT1 (M62419FP CLK).
+;Fires for any change on PA1 (M62419FP CLK).
 ;R21 and R22 are destroyed by this ISR.
 ;
     in r21, PINA                ;Read port immediately (SREG unaffected)
