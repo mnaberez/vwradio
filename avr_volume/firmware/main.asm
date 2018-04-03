@@ -66,7 +66,7 @@ loop:
 
 wait:
     ;Wait for an M62419FP command packet
-    rcall spi_get_packet        ;Try to get a new packet into bufer at Y
+    rcall spi_get_packet        ;Try to get a new packet into buffer at Y
     brcc wait                   ;Loop until one is ready
 
     rcall cmd_parse             ;Parse command at Y into registers at Z
