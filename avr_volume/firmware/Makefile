@@ -4,6 +4,7 @@ ISPFLAGS=-c atmelice
 
 $(PROJECT).hex: main.asm
 	# requires patched avra for atmega1284 support
+	# https://github.com/mnaberez/avra
 	avra -l $(PROJECT).lst main.asm
 	mv main.hex $(PROJECT).hex
 	rm -f *.cof
