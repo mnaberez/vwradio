@@ -10,13 +10,14 @@ Please note that VW used different radios in Europe for the same years.  Those r
 
 ## Projects
 
-- [`avr_kwp1281`](./avr_kwp1281/): Atmel ATmega1284 project (GCC) with two serial ports: one for KWP1281 (OBD-II port) and one for a PC.  It can be used to send any KWP1281 blocks to a radio.  It is reliable with both the Premium 4 and 5 radios and will likely work with other KWP1281 devices as well.  
+- [`avr_kwp1281`](./avr_kwp1281/):  Diagnostics protocol tool (Volkswagen [KWP1281](https://translate.google.com/translate?hl=en&sl=de&tl=en&u=https%3A%2F%2Fde.wikipedia.org%2Fwiki%2FKWP1281)).  It can send arbitrary KWP1281 commands to a module.  It is reliable with both the Premium 4 and 5 radios and probably works with other modules as well.
 
-- [`avr_radio`](./avr_radio/): Atmel ATmega1284 project (GCC) that emulates a radio faceplate (NEC [uPD16432B](https://web.archive.org/web/20180328161019/https://www.renesas.com/en-us/doc/DocumentServer/021/U13892EJ2V0UM00.pdf)).  It plugs into the radio in place of the original faceplate.  It has a serial port that allows the radio to be remotely controlled via a PC.  It can also simultaneously control a real faceplate (man-in-the-middle).  It has been tested on the Premium 4 only.
+- [`avr_radio`](./avr_radio/): Faceplate emulator (NEC [uPD16432B](https://web.archive.org/web/20180328161019/https://www.renesas.com/en-us/doc/DocumentServer/021/U13892EJ2V0UM00.pdf)).  It plugs into the Premium 4 radio in place of the faceplate and allows the radio to be controlled over serial.  It can also simultaneously control a real faceplate.
 
-- [`avr_tape`](./avr_tape/): Atmel ATmega1284 project (GCC) that emulates the undocumented TDA3612 cassette tape controller found in the Premium 4.  It plugs into the radio in place of the original cassette daughterboard.  Play and Stop are both working.  Fast Forward and Rewind are not implemented.
+- [`avr_tape`](./avr_tape/): Cassette tape emulator (Philips TDA3612).  It plugs into the Premium 4 radio in place of the SCA4.4/TDA3612 cassette tape assembly and fools the radio into thinking a tape is playing.
 
-- [`avr_volume`](./avr_volume/): Atmel ATmega1284 project (assembly) that monitors the Mitsubishi [M62419FP](https://web.archive.org/web/20180328173343/http://pdf.datasheetcatalog.com/datasheet/MitsubishiElectricCorporation/mXrwwyx.pdf) sound controller in the Premium 4.  It connects in parallel to the M62419FP's SPI lines and has a serial port to connect to a PC.  It sends updates out its serial port whenever the M62419FP state is changed.
+- [`avr_volume`](./avr_volume/): Volume monitor (Mitsubishi [M62419FP](https://web.archive.org/web/20180328173343/http://pdf.datasheetcatalog.com/datasheet/MitsubishiElectricCorporation/mXrwwyx.pdf)).
+It connects in parallel with the M62419FP sound controller used in the Premium 4 radio and sends updates over serial whenever the sound registers are changed.
 
 - [`docs`](./docs/): Notes about the Premium 4 and 5 radios from reverse engineering.  This includes commented disassembly listings of radio firmware.  The original binaries extracted from the chips are not in this repository.
 
