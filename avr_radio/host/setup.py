@@ -31,7 +31,6 @@ setup(
     test_suite="vwradio.tests",
     entry_points={
         'console_scripts': [
-            'vwcrack = vwradio.crack:main',
             'vwdecode = vwradio.decode:main',
             'vwdemo = vwradio.demo:main',
         ],
