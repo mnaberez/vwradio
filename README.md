@@ -12,7 +12,7 @@ Please note that VW used different radios in Europe for the same years.  Those r
 
 - [`avr_kwp1281`](./avr_kwp1281/):  Diagnostics protocol tool (Volkswagen [KWP1281](https://translate.google.com/translate?hl=en&sl=de&tl=en&u=https%3A%2F%2Fde.wikipedia.org%2Fwiki%2FKWP1281)).  It can send arbitrary KWP1281 commands to a module.  It is reliable with both the Premium 4 and 5 radios and probably works with other modules as well.
 
-- [`avr_radio`](./avr_radio/): Faceplate emulator (NEC [µPD16432B](https://web.archive.org/web/20180328161019/https://www.renesas.com/en-us/doc/DocumentServer/021/U13892EJ2V0UM00.pdf)).  It plugs into the Premium 4 radio in place of the faceplate and allows the radio to be controlled over serial.  It can also simultaneously control a real faceplate.
+- [`avr_radio`](./avr_radio/): Faceplate emulator (NEC [µPD16432B](http://6502.org/documents/datasheets/nec/nec_upd16432b_2000_dec.pdf)).  It plugs into the Premium 4 radio in place of the faceplate and allows the radio to be controlled over serial.  It can also simultaneously control a real faceplate.
 
 - [`avr_tape`](./avr_tape/): Cassette tape emulator (Philips TDA3612).  It plugs into the Premium 4 radio in place of the SCA4.4/TDA3612 cassette tape assembly and fools the radio into thinking a tape is playing.
 
