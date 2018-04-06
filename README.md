@@ -12,7 +12,7 @@ Please note that VW used different radios in Europe for the same years.  Those r
 
 - [`avr_kwp1281`](./avr_kwp1281/):  Diagnostics protocol tool (Volkswagen [KWP1281](https://translate.google.com/translate?hl=en&sl=de&tl=en&u=https%3A%2F%2Fde.wikipedia.org%2Fwiki%2FKWP1281)).  It can send arbitrary KWP1281 commands to a module.  It is reliable with both the Premium 4 and 5 radios and probably works with other modules as well.
 
-- [`avr_radio`](./avr_radio/): Faceplate emulator (NEC [uPD16432B](https://web.archive.org/web/20180328161019/https://www.renesas.com/en-us/doc/DocumentServer/021/U13892EJ2V0UM00.pdf)).  It plugs into the Premium 4 radio in place of the faceplate and allows the radio to be controlled over serial.  It can also simultaneously control a real faceplate.
+- [`avr_radio`](./avr_radio/): Faceplate emulator (NEC [µPD16432B](https://web.archive.org/web/20180328161019/https://www.renesas.com/en-us/doc/DocumentServer/021/U13892EJ2V0UM00.pdf)).  It plugs into the Premium 4 radio in place of the faceplate and allows the radio to be controlled over serial.  It can also simultaneously control a real faceplate.
 
 - [`avr_tape`](./avr_tape/): Cassette tape emulator (Philips TDA3612).  It plugs into the Premium 4 radio in place of the SCA4.4/TDA3612 cassette tape assembly and fools the radio into thinking a tape is playing.
 
@@ -29,7 +29,7 @@ Here are some of the more interesting discoveries I made about the radios:
 
 - Premium 4 contains a hidden mode where the SAFE code can be changed via the faceplate.  The SAFE code can also be disabled so no code is required at all.  Entering this mode requires pressing keys that do not exist on the faceplate.  I assume this is a manufacturing function and a special faceplate was used in the factory.  The mode can be entered even if the radio is locked in SAFE mode.  
 
-- Premium 5 microcontroller, Delco "N60 Flash", is actually an NEC uPD78F0831Y.  This part is undocumented but seems very similar to the [uPD78F0833Y](https://web.archive.org/web/20180328161019/https://www.renesas.com/en-us/doc/DocumentServer/021/U13892EJ2V0UM00.pdf).  It has flash for program memory.  I have successfully dumped the firmware, made changes to it, and reprogrammed it.
+- Premium 5 microcontroller, Delco "N60 Flash", is actually an NEC µPD78F0831Y.  This part is undocumented but seems very similar to the [µPD78F0833Y](https://web.archive.org/web/20180328161019/https://www.renesas.com/en-us/doc/DocumentServer/021/U13892EJ2V0UM00.pdf).  It has flash for program memory.  I have successfully dumped the firmware, made changes to it, and reprogrammed it.
 
 - Both the Premium 4 and 5 radios can be cracked using brute force by entering all SAFE codes on the faceplate.  VW only [seems to use](https://gist.github.com/mnaberez/1d1b206e0b585b1b89d1) codes 0000-1999, which takes a maximum of 42 days at 2 tries per hour.
 
