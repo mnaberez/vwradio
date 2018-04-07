@@ -13,7 +13,7 @@ I built two versions of this project: an external one (shown above) and one that
 
 ## Features
 
-- Fully emulates µPD16432B display and key matrix scan
+- Fully emulates µPD16432B display and key scan registers
 - Provides remote control of the Premium 4 radio over serial with a Python API
 - Parses radio state from display (mode, tuner frequency, CD track, etc.)
 - Simultaneously controls a real faceplate, either as pass-through or independently
@@ -25,6 +25,36 @@ The µPD16432B is an SPI peripheral.  Using the AVR's hardware SPI and careful p
 One of the AVR's two USARTs is used for a serial connection to a host computer.  A binary protocol is implemented where the host can send multi-byte requests and the AVR will respond with multi-byte responses.  Both transmit and receive are buffered and happen on  interrupt.  All commands are processed in the main loop.  Commands can read or change the state of the emulated µPD16432B.  The operating state of the radio (e.g. tuner frequency) is continuously parsed from the display data and can also be read on command.  
 
 The other USART is used as an SPI master connected to a real faceplate.  By default, the behavior is pass-through.  Whenever the state of the emulated µPD16432B is changed, code running in the main loop sends an update to the real faceplate.  If pass-through is disabled, the real faceplate can be controlled by the host while the emulated µPD16432B independently controls the radio.
+
+## Usage
+
+Build the device as described in [`hardware/`](./hardware/) and flash the firmware.  With the device installed between the radio and the faceplate, power up the radio and try to use it.  The radio should work as it did before.
+
+Install the Python host software:
+
+```
+$ python3 host/setup.py install
+```
+
+With a serial cable connected to the host, you can now interact with the radio:
+
+```
+$ python3
+>>> from vwradio.avrclient import make_client
+>>> from vwradio.constants import Keys
+>>> c = make_client()
+>>> c.read_lcd()
+'FM1  883MHZ'
+>>> c.set_auto_key_passthru(False)
+>>> c.hit_key(Keys.MODE_AM)
+>>> c.hit_key(Keys.PRESET_2)
+>>> c.read_lcd()
+'AM 2 630KHZ'
+>>> c.radio_state_dump().tuner_freq
+630
+```
+
+Refer to the source code for all available capabilities.
 
 ## Notes
 
