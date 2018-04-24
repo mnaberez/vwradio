@@ -11547,10 +11547,10 @@ lab_bb13:
 
 
 mem_0080_is_0b_or_0c:
-;KWP1281 Read ROM or Read EEPROM entry point
+;KWP1281 Read ROM (MB89677AR) or Read EEPROM (93C46) entry point
 ;
-;For Read ROM, there are no restrictions and the entire address space
-;(0x0000-0xFFFF) can be read.
+;For Read ROM, the input parameters are not sanitized so the
+;entire address space (0x0000-0xFFFF) can be read.
 ;
 ;For Read EEPROM, offsets 0x0E-0x0F are special and can't be read.  These
 ;locations contain the SAFE code word and will always be returned as 0.
@@ -11577,8 +11577,8 @@ lab_bb1f:
 mem_0080_is_0a:
 ;KWP1281 Read RAM
 ;
-;For Read RAM, there are no restrictions and the entire address space
-;(0x0000-0xFFFF) can be read.
+;Note: the input parameters are not sanitized so the
+;entire address space (0x0000-0xFFFF) can be read.
 ;
 ;Request block format:
 ;  0x06 Block length                    mem_0118+0
