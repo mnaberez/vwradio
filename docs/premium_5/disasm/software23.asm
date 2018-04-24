@@ -1,3 +1,23 @@
+;Volkswagen Premium V radio (Delphi/Delco 09351369)
+;Reverse engineered source code
+;
+;This source code is for the microcontroller in the radio.  It is a
+;QFP-80 package and has the Delco markings "N60 FLASH" and "09370082"
+;on the outside.  It was decapsulated and the die markings identified
+;it as an NEC uPD78F0831Y.  There is no documentation for this chip
+;but it is very similar to the uPD78F0833Y, which is documented.
+;
+;The flash ROM contents were extracted using chips from three different
+;radios, all of which had a sticker "SOFTWARE 23" on the case.  Each
+;chip provided a different area of the flash ROM.  Those were then combined
+;to make a complete binary.  The extracted binary was flashed into a radio
+;and the radio was functional.
+;
+;No rights are claimed on the executable object code as found
+;in the internal flash ROM of the "N60 FLASH" chip.  The SHA-1
+;hash of that binary is: 46f6adab9b1d1872452ae9accca029663b5de15b.
+;
+
     org 00000h
 
     RXB0_TXS0 equ 0ff18h
