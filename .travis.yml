@@ -28,10 +28,10 @@ before_install:
   - export PATH=$PATH:$PWD/asxv5pxx/asxmak/linux/build
 
 script:
-  - make -C avr_kwp1281/firmware
-  - make -C avr_radio/firmware
-  - python avr_radio/host/setup.py test -q
-  - make -C avr_tape/firmware
-  - make -C avr_volume/firmware
-  - make -C docs/premium_4/disasm/pu1666a_mainmcu
-  - make -C docs/premium_4/disasm/pu1666a_submcu
+  - make -C faceplate_emulator/firmware
+  - python faceplate_emulator/host/setup.py test -q
+  - make -C kwp1281_tool/firmware
+  - make -C reverse_engineering/premium_4/disasm/pu1666a_mainmcu
+  - make -C reverse_engineering/premium_4/disasm/pu1666a_submcu
+  - make -C volume_monitor/firmware
+  - make -C tape_emulator/firmware

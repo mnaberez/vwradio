@@ -10,16 +10,16 @@ Please note that VW used different radios in Europe for the same years.  Those r
 
 ## Projects
 
-- [`avr_kwp1281`](./avr_kwp1281/):  Diagnostics protocol tool (Volkswagen [KWP1281](https://translate.google.com/translate?hl=en&sl=de&tl=en&u=https%3A%2F%2Fde.wikipedia.org%2Fwiki%2FKWP1281)).  It can send arbitrary KWP1281 commands to a module.  It is reliable with both the Premium 4 and 5 radios and probably works with other modules as well.
+- [`faceplate_emulator`](./faceplate_emulator/): Faceplate emulator (NEC [µPD16432B](http://6502.org/documents/datasheets/nec/nec_upd16432b_2000_dec.pdf)).  It plugs into the Premium 4 radio in place of the faceplate and allows the radio to be controlled over serial.  It can also simultaneously control a real faceplate.
 
-- [`avr_radio`](./avr_radio/): Faceplate emulator (NEC [µPD16432B](http://6502.org/documents/datasheets/nec/nec_upd16432b_2000_dec.pdf)).  It plugs into the Premium 4 radio in place of the faceplate and allows the radio to be controlled over serial.  It can also simultaneously control a real faceplate.
+- [`kwp1281_tool`](./kwp1281_tool/):  Diagnostics protocol tool (Volkswagen [KWP1281](https://translate.google.com/translate?hl=en&sl=de&tl=en&u=https%3A%2F%2Fde.wikipedia.org%2Fwiki%2FKWP1281)).  It can send arbitrary KWP1281 commands to a module.  It is reliable with both the Premium 4 and 5 radios and probably works with other modules as well.
 
-- [`avr_tape`](./avr_tape/): Cassette tape emulator (Philips TDA3612).  It plugs into the Premium 4 radio in place of the SCA4.4/TDA3612 cassette tape assembly and fools the radio into thinking a tape is playing.
+- [`reverse_engineering`](./reverse_engineering/): Notes about the Premium 4 and 5 radios from reverse engineering.  This includes commented disassembly listings of radio firmware.  The original binaries extracted from the chips are not in this repository.
 
-- [`avr_volume`](./avr_volume/): Volume monitor (Mitsubishi [M62419FP](https://web.archive.org/web/20180328173343/http://pdf.datasheetcatalog.com/datasheet/MitsubishiElectricCorporation/mXrwwyx.pdf)).
+- [`tape_emulator`](./tape_emulator/): Cassette tape emulator (Philips TDA3612).  It plugs into the Premium 4 radio in place of the SCA4.4/TDA3612 cassette tape assembly and fools the radio into thinking a tape is playing.
+
+- [`volume_monitor`](./volume_monitor/): Volume monitor (Mitsubishi [M62419FP](https://web.archive.org/web/20180328173343/http://pdf.datasheetcatalog.com/datasheet/MitsubishiElectricCorporation/mXrwwyx.pdf)).
 It connects in parallel with the M62419FP sound controller used in the Premium 4 radio and sends updates over serial whenever the sound registers are changed.
-
-- [`docs`](./docs/): Notes about the Premium 4 and 5 radios from reverse engineering.  This includes commented disassembly listings of radio firmware.  The original binaries extracted from the chips are not in this repository.
 
 ## Discoveries
 
