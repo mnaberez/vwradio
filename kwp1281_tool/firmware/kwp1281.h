@@ -31,6 +31,7 @@ uint8_t kwp_component_2[16];    // "        0001"
 // Block Titles
 #define KWP_READ_ID         0x00  /* Read Identification */
 #define KWP_READ_RAM        0x01  /* Read RAM */
+#define KWP_READ_ROM        0x03  /* Read ROM */
 #define KWP_OUTPUT_TESTS    0x04  /* Actuator/Output Tests */
 #define KWP_CLEAR_FAULTS    0x05  /* Clear Faults */
 #define KWP_END_SESSION     0x06  /* End Session */
