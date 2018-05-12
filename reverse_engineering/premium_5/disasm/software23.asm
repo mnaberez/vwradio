@@ -20,17 +20,83 @@
 
     org 00000h
 
-    RXB0_TXS0 equ 0ff18h
+    P0_ equ 0ff00h          ;Port 0
+    P2_ equ 0ff02h          ;Port 2
+    P3_ equ 0ff03h          ;Port 3
+    P4_ equ 0ff04h          ;Port 4
+    P5_ equ 0ff05h          ;Port 5
+    P6_ equ 0ff06h          ;Port 6
+    P7_ equ 0ff07h          ;Port 7
+    P8_ equ 0ff08h          ;Port 8
+    P9_ equ 0ff09h          ;Port 9
+    CR000_ equ 0ff0ah       ;16-bit timer capture/compare register 000
+    CR010_ equ 0ff0ch       ;16-bit timer capture/compare register 010
+    CR011_ equ 0ff12h       ;16-bit timer capture/compare register 011
+    TM01_ equ 0ff14h        ;16-bit timer counter 01
+    ADCR00_ equ 0ff17h      ;A/D conversion result register 00
+    RXB0_TXS0_ equ 0ff18h   ;Transmit shift register 0 / Receive buffer register 0
+    SIO30_ equ 0ff1ah       ;Serial shift register 30
+    SIO31_ equ 0ff1bh       ;Serial shift register 31
+    IIC0_ equ 0ff1fh        ;IIC shift register 0
+    PM0_ equ 0ff20h         ;Port mode register 0
+    PM2_ equ 0ff22h         ;Port mode register 2
+    PM3_ equ 0ff23h         ;Port mode register 3
+    PM4_ equ 0ff24h         ;Port mode register 4
+    PM5_ equ 0ff25h         ;Port mode register 5
+    PM7_ equ 0ff27h         ;Port mode register 7
+    PM8_ equ 0ff28h         ;Port mode register 8
+    PM9_ equ 0ff29h         ;Port mode register 9
+    PU0_ equ 0ff30h         ;Pull-up resistor option register 0
+    PU2_ equ 0ff32h         ;Pull-up resistor option register 2
+    PU3_ equ 0ff33h         ;Pull-up resistor option register 3
+    PU4_ equ 0ff34h         ;Pull-up resistor option register 4
+    PU5_ equ 0ff35h         ;Pull-up resistor option register 5
+    PU7_ equ 0ff37h         ;Pull-up resistor option register 7
+    WTNM0_ equ 0ff41h       ;Watch timer mode control register 0
+    WDCS_ equ 0ff42h        ;Watchdog timer clock selection register
+    EGP_ equ 0ff48h         ;External interrupt rising edge enable register
+    EGN_ equ 0ff49h         ;External interrupt falling edge enable register
+    TMC00_ equ 0ff60h       ;16-bit timer mode control register 00
+    PRM00_ equ 0ff61h       ;Prescaler mode register 00
+    CRC00_ equ 0ff62h       ;Capture/compare control register 00
+    TOC00_ equ 0ff63h       ;16-bit timer output control register 00
+    TMC01_ equ 0ff68h       ;16-bit timer mode control register 01
+    ADM00_ equ 0ff80h       ;A/D converter mode register 00
+    ADS00_ equ 0ff81h       ;Analog input channel specification register 00
+    ADM01_ equ 0ff88h       ;A/D converter mode register 01
+    ADS01_ equ 0ff89h       ;Analog input channel specification register 01
+    ADCR01_ equ 0ff8bh      ;A/D conversion result register 01
+    ASIM0_ equ 0ffa0h       ;Asynchronous serial interface mode register 0
+    ASIS0_ equ 0ffa1h       ;Asynchronous serial interface status register 0
+    BRGC0_ equ 0ffa2h       ;Baud rate generator control register 0
+    IICC0_ equ 0ffa8h       ;IIC control register 0
+    IICS0_ equ 0ffa9h       ;IIC status register 0
+    IICCL0_ equ 0ffaah      ;IIC transfer clock selection register 0
+    CSIM30_ equ 0ffb0h      ;Serial operation mode register 30
+    CSIM31_ equ 0ffb8h      ;Serial operation mode register 31
+    IF0H_ equ 0ffe1h        ;Interrupt request flag register 0H
+    IF1L_ equ 0ffe2h        ;Interrupt request flag register 1L
+    MK0L_ equ 0ffe4h        ;Interrupt mask flag register 0L
+    MK0H_ equ 0ffe5h        ;Interrupt mask flag register 0H
+    MK1L_ equ 0ffe6h        ;Interrupt mask flag register 1L
+    MK1H_ equ 0ffe7h        ;Internal mask flag register 1H
+    PR0L_ equ 0ffe8h        ;Priority level specification flag register 0L
+    PR0H_ equ 0ffe9h        ;Priority level specification flag register 0H
+    PR1L_ equ 0ffeah        ;Priority level specification flag register 1L
+    IMS_ equ 0fff0h         ;Memory size switching register
+    IXS_ equ 0fff4h         ;Internal expansion RAM size switching register
+    WDTM_ equ 0fff9h        ;Watchdog timer mode register
+    PCC_ equ 0fffbh         ;Processor clock control register
 
     dw lab_0d88             ;0000  88 0d       VECTOR RST
-    dw lab_0d75             ;0002  75 0d       VECTOR (unused)
-    dw lab_0d75             ;0004  75 0d       VECTOR INTWDT
+    dw sub_0d75             ;0002  75 0d       VECTOR (unused)
+    dw sub_0d75             ;0004  75 0d       VECTOR INTWDT
     dw lab_5993             ;0006  93 59       VECTOR INTP0
     dw lab_3ecc             ;0008  cc 3e       VECTOR INTP1
     dw lab_3acc             ;000a  cc 3a       VECTOR INTP2
-    dw lab_0d75             ;000c  75 0d       VECTOR INTP3
+    dw sub_0d75             ;000c  75 0d       VECTOR INTP3
     dw lab_5904             ;000e  04 59       VECTOR INTP4
-    dw lab_0d75             ;0010  75 0d       VECTOR INTP5
+    dw sub_0d75             ;0010  75 0d       VECTOR INTP5
     dw lab_593b             ;0012  3b 59       VECTOR INTP6
     dw lab_883a             ;0014  3a 88       VECTOR INTP7
     dw lab_32df             ;0016  df 32       VECTOR INTSER0
@@ -38,54 +104,54 @@
     dw lab_307e             ;001a  7e 30       VECTOR INTST0
     dw lab_08a9             ;001c  a9 08       VECTOR INTCSI30
     dw lab_08f7             ;001e  f7 08       VECTOR INTCSI31
-    dw lab_0d75             ;0020  75 0d       VECTOR INTIIC0
-    dw lab_0d75             ;0022  75 0d       VECTOR INTC2
+    dw sub_0d75             ;0020  75 0d       VECTOR INTIIC0
+    dw sub_0d75             ;0022  75 0d       VECTOR INTC2
     dw lab_0135             ;0024  35 01       VECTOR INTWTNI0
     dw lab_3b2b             ;0026  2b 3b       VECTOR INTTM000
-    dw lab_0d75             ;0028  75 0d       VECTOR INTTM010
-    dw lab_0d75             ;002a  75 0d       VECTOR INTTM001
+    dw sub_0d75             ;0028  75 0d       VECTOR INTTM010
+    dw sub_0d75             ;002a  75 0d       VECTOR INTTM001
     dw lab_5b60             ;002c  60 5b       VECTOR INTTM011
-    dw lab_0d75             ;002e  75 0d       VECTOR INTAD00
-    dw lab_0d75             ;0030  75 0d       VECTOR INTAD01
-    dw lab_0d75             ;0032  75 0d       VECTOR (unused)
-    dw lab_0d75             ;0034  75 0d       VECTOR INTWTN0
-    dw lab_0d75             ;0036  75 0d       VECTOR INTKR
-    dw lab_0d75             ;0038  75 0d       VECTOR (unused)
-    dw lab_0d75             ;003a  75 0d       VECTOR (unused)
-    dw lab_0d75             ;003c  75 0d       VECTOR (unused)
-    dw lab_0d75             ;003e  75 0d       VECTOR BRK_I
+    dw sub_0d75             ;002e  75 0d       VECTOR INTAD00
+    dw sub_0d75             ;0030  75 0d       VECTOR INTAD01
+    dw sub_0d75             ;0032  75 0d       VECTOR (unused)
+    dw sub_0d75             ;0034  75 0d       VECTOR INTWTN0
+    dw sub_0d75             ;0036  75 0d       VECTOR INTKR
+    dw sub_0d75             ;0038  75 0d       VECTOR (unused)
+    dw sub_0d75             ;003a  75 0d       VECTOR (unused)
+    dw sub_0d75             ;003c  75 0d       VECTOR (unused)
+    dw sub_0d75             ;003e  75 0d       VECTOR BRK_I
     dw sub_0994             ;0040  94 09       VECTOR CALLT #0
     dw sub_09b9             ;0042  b9 09       VECTOR CALLT #1
     dw lab_09c6             ;0044  c6 09       VECTOR CALLT #2
     dw lab_096c             ;0046  6c 09       VECTOR CALLT #3
     dw sub_09a7             ;0048  a7 09       VECTOR CALLT #4
-    dw lab_0d75             ;004a  75 0d       VECTOR CALLT #5
-    dw lab_0d75             ;004c  75 0d       VECTOR CALLT #6
-    dw lab_0d75             ;004e  75 0d       VECTOR CALLT #7
-    dw lab_0d75             ;0050  75 0d       VECTOR CALLT #8
-    dw lab_0d75             ;0052  75 0d       VECTOR CALLT #9
-    dw lab_0d75             ;0054  75 0d       VECTOR CALLT #10
-    dw lab_0d75             ;0056  75 0d       VECTOR CALLT #11
-    dw lab_0d75             ;0058  75 0d       VECTOR CALLT #12
-    dw lab_0d75             ;005a  75 0d       VECTOR CALLT #13
-    dw lab_0d75             ;005c  75 0d       VECTOR CALLT #14
-    dw lab_0d75             ;005e  75 0d       VECTOR CALLT #15
-    dw lab_0d75             ;0060  75 0d       VECTOR CALLT #16
-    dw lab_0d75             ;0062  75 0d       VECTOR CALLT #17
-    dw lab_0d75             ;0064  75 0d       VECTOR CALLT #18
-    dw lab_0d75             ;0066  75 0d       VECTOR CALLT #19
-    dw lab_0d75             ;0068  75 0d       VECTOR CALLT #20
-    dw lab_0d75             ;006a  75 0d       VECTOR CALLT #21
-    dw lab_0d75             ;006c  75 0d       VECTOR CALLT #22
-    dw lab_0d75             ;006e  75 0d       VECTOR CALLT #23
-    dw lab_0d75             ;0070  75 0d       VECTOR CALLT #24
-    dw lab_0d75             ;0072  75 0d       VECTOR CALLT #25
-    dw lab_0d75             ;0074  75 0d       VECTOR CALLT #26
-    dw lab_0d75             ;0076  75 0d       VECTOR CALLT #27
-    dw lab_0d75             ;0078  75 0d       VECTOR CALLT #28
-    dw lab_0d75             ;007a  75 0d       VECTOR CALLT #29
-    dw lab_0d75             ;007c  75 0d       VECTOR CALLT #30
-    dw lab_0d75             ;007e  75 0d       VECTOR CALLT #31
+    dw sub_0d75             ;004a  75 0d       VECTOR CALLT #5
+    dw sub_0d75             ;004c  75 0d       VECTOR CALLT #6
+    dw sub_0d75             ;004e  75 0d       VECTOR CALLT #7
+    dw sub_0d75             ;0050  75 0d       VECTOR CALLT #8
+    dw sub_0d75             ;0052  75 0d       VECTOR CALLT #9
+    dw sub_0d75             ;0054  75 0d       VECTOR CALLT #10
+    dw sub_0d75             ;0056  75 0d       VECTOR CALLT #11
+    dw sub_0d75             ;0058  75 0d       VECTOR CALLT #12
+    dw sub_0d75             ;005a  75 0d       VECTOR CALLT #13
+    dw sub_0d75             ;005c  75 0d       VECTOR CALLT #14
+    dw sub_0d75             ;005e  75 0d       VECTOR CALLT #15
+    dw sub_0d75             ;0060  75 0d       VECTOR CALLT #16
+    dw sub_0d75             ;0062  75 0d       VECTOR CALLT #17
+    dw sub_0d75             ;0064  75 0d       VECTOR CALLT #18
+    dw sub_0d75             ;0066  75 0d       VECTOR CALLT #19
+    dw sub_0d75             ;0068  75 0d       VECTOR CALLT #20
+    dw sub_0d75             ;006a  75 0d       VECTOR CALLT #21
+    dw sub_0d75             ;006c  75 0d       VECTOR CALLT #22
+    dw sub_0d75             ;006e  75 0d       VECTOR CALLT #23
+    dw sub_0d75             ;0070  75 0d       VECTOR CALLT #24
+    dw sub_0d75             ;0072  75 0d       VECTOR CALLT #25
+    dw sub_0d75             ;0074  75 0d       VECTOR CALLT #26
+    dw sub_0d75             ;0076  75 0d       VECTOR CALLT #27
+    dw sub_0d75             ;0078  75 0d       VECTOR CALLT #28
+    dw sub_0d75             ;007a  75 0d       VECTOR CALLT #29
+    dw sub_0d75             ;007c  75 0d       VECTOR CALLT #30
+    dw sub_0d75             ;007e  75 0d       VECTOR CALLT #31
 
     db 1dh                  ;0080  1d          DATA 0x1d
     db 1dh                  ;0081  1d          DATA 0x1d
@@ -272,23 +338,23 @@
 lab_0135:
     sel rb1                 ;0135  61 d8
     bf 0fe2bh.7,$lab_0148   ;0137  31 73 2b 0d
-    mov WTNM0,#73h          ;013b  13 41 73
-    clr1 MK1L.0             ;013e  71 0b e6
-    clr1 PR1L.0             ;0141  71 0b ea
+    mov WTNM0_,#73h         ;013b  13 41 73
+    clr1 MK1L_.0            ;013e  71 0b e6
+    clr1 PR1L_.0            ;0141  71 0b ea
     call !sub_251a          ;0144  9a 1a 25
     reti                    ;0147  8f
 
 lab_0148:
-    mov WTNM0,#13h          ;0148  13 41 13
-    clr1 MK1L.0             ;014b  71 0b e6
-    clr1 PR1L.0             ;014e  71 0b ea
+    mov WTNM0_,#13h         ;0148  13 41 13
+    clr1 MK1L_.0            ;014b  71 0b e6
+    clr1 PR1L_.0            ;014e  71 0b ea
     inc 0fe28h              ;0151  81 28
     btclr 0fe28h.7,$lab_015a ;0153  31 71 28 03
     br !lab_0265            ;0157  9b 65 02
 
 lab_015a:
-    clr1 IF1L.0             ;015a  71 0b e2
-    set1 MK1H.0             ;015d  71 0a e7
+    clr1 IF1L_.0            ;015a  71 0b e2
+    set1 MK1H_.0            ;015d  71 0a e7
 
 lab_0160:
     ei                      ;0160  7a 1e
@@ -300,10 +366,10 @@ lab_0160:
     inc a                   ;016e  41
     mov !0fb79h,a           ;016f  9e 79 fb
     bt 0fe60h.6,$lab_018b   ;0172  ec 60 16
-    clr1 PU4.5              ;0175  71 5b 34
-    set1 PM4.5              ;0178  71 5a 24
+    clr1 PU4_.5             ;0175  71 5b 34
+    set1 PM4_.5             ;0178  71 5a 24
     set1 0fe60h.5           ;017b  5a 60
-    bf P4.5,$lab_01a0       ;017d  31 53 04 1f
+    bf P4_.5,$lab_01a0      ;017d  31 53 04 1f
     clr1 0fe60h.5           ;0181  5b 60
     set1 0fe60h.4           ;0183  4a 60
     set1 0fe61h.2           ;0185  2a 61
@@ -314,9 +380,9 @@ lab_018b:
     mov a,!0f066h           ;018b  8e 66 f0
     cmp a,#01h              ;018e  4d 01
     bz $lab_019c            ;0190  ad 0a
-    clr1 PU4.5              ;0192  71 5b 34
-    set1 PM4.5              ;0195  71 5a 24
-    bf P4.5,$lab_01a0       ;0198  31 53 04 04
+    clr1 PU4_.5             ;0192  71 5b 34
+    set1 PM4_.5             ;0195  71 5a 24
+    bf P4_.5,$lab_01a0      ;0198  31 53 04 04
 
 lab_019c:
     set1 0fe61h.2           ;019c  2a 61
@@ -415,7 +481,7 @@ lab_025a:
     di                      ;025a  7b 1e
     dbnz 0fe28h,$lab_0266   ;025c  04 28 07
     mov 0fe28h,#80h         ;025f  11 28 80
-    set1 MK1H.0             ;0262  71 0a e7
+    set1 MK1H_.0            ;0262  71 0a e7
 
 lab_0265:
     reti                    ;0265  8f
@@ -458,36 +524,33 @@ lab_028b:
     db 84h                  ;028e  84          DATA 0x84
     db 0fah                 ;028f  fa          DATA 0xfa
     db 03h                  ;0290  03          DATA 0x03
-    db 96h                  ;0291  96          DATA 0x96
-    db 87h                  ;0292  87          DATA 0x87
-    db 86h                  ;0293  86          DATA 0x86
-    db 51h                  ;0294  51          DATA 0x51 'Q'
-    db 72h                  ;0295  72          DATA 0x72 'r'
-    db 9ah                  ;0296  9a          DATA 0x9a
-    db 14h                  ;0297  14          DATA 0x14
-    db 03h                  ;0298  03          DATA 0x03
-    db 22h                  ;0299  22          DATA 0x22 '"'
-    db 63h                  ;029a  63          DATA 0x63 'c'
-    db 26h                  ;029b  26          DATA 0x26 '&'
-    db 0b5h                 ;029c  b5          DATA 0xb5
-    db 0b6h                 ;029d  b6          DATA 0xb6
-    db 5ch                  ;029e  5c          DATA 0x5c '\'
-    db 67h                  ;029f  67          DATA 0x67 'g'
-    db 87h                  ;02a0  87          DATA 0x87
-    db 70h                  ;02a1  70          DATA 0x70 'p'
-    db 0aeh                 ;02a2  ae          DATA 0xae
-    db 01h                  ;02a3  01          DATA 0x01
-    db 23h                  ;02a4  23          DATA 0x23 '#'
-    db 9dh                  ;02a5  9d          DATA 0x9d
-    db 01h                  ;02a6  01          DATA 0x01
-    db 0afh                 ;02a7  af          DATA 0xaf
-    db 0d4h                 ;02a8  d4          DATA 0xd4
-    db 0aeh                 ;02a9  ae          DATA 0xae
-    db 02h                  ;02aa  02          DATA 0x02
-    db 70h                  ;02ab  70          DATA 0x70 'p'
-    db 0aeh                 ;02ac  ae          DATA 0xae
-    db 03h                  ;02ad  03          DATA 0x03
-    db 0d6h                 ;02ae  d6          DATA 0xd6
+
+sub_0291:
+    decw hl                 ;0291  96
+    mov a,[hl]              ;0292  87
+    incw hl                 ;0293  86
+    dec a                   ;0294  51
+    mov c,a                 ;0295  72
+    call !sub_0314          ;0296  9a 14 03
+    push psw                ;0299  22
+    mov a,b                 ;029a  63
+    rol a,1                 ;029b  26
+    push de                 ;029c  b5
+    pop hl                  ;029d  b6
+    callf !sub_0d67         ;029e  5c 67
+    mov a,[hl]              ;02a0  87
+    mov x,a                 ;02a1  70
+    mov a,[hl+01h]          ;02a2  ae 01
+    pop psw                 ;02a4  23
+    bnc $lab_02a8           ;02a5  9d 01
+    ret                     ;02a7  af
+
+lab_02a8:
+    movw de,ax              ;02a8  d4
+    mov a,[hl+02h]          ;02a9  ae 02
+    mov x,a                 ;02ab  70
+    mov a,[hl+03h]          ;02ac  ae 03
+    movw hl,ax              ;02ae  d6
 
 sub_02af:
     mov a,0fed6h            ;02af  f0 d6
@@ -596,114 +659,1237 @@ lab_0328:
     clr1 cy                 ;032f  21
     ret                     ;0330  af
 
-unused_1:
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-
+    db 0bfh                 ;0331  bf          DATA 0xbf
+    db 0bfh                 ;0332  bf          DATA 0xbf
+    db 0bfh                 ;0333  bf          DATA 0xbf
+    db 0bfh                 ;0334  bf          DATA 0xbf
+    db 0bfh                 ;0335  bf          DATA 0xbf
+    db 0bfh                 ;0336  bf          DATA 0xbf
+    db 0bfh                 ;0337  bf          DATA 0xbf
+    db 0bfh                 ;0338  bf          DATA 0xbf
+    db 0bfh                 ;0339  bf          DATA 0xbf
+    db 0bfh                 ;033a  bf          DATA 0xbf
+    db 0bfh                 ;033b  bf          DATA 0xbf
+    db 0bfh                 ;033c  bf          DATA 0xbf
+    db 0bfh                 ;033d  bf          DATA 0xbf
+    db 0bfh                 ;033e  bf          DATA 0xbf
+    db 0bfh                 ;033f  bf          DATA 0xbf
+    db 0bfh                 ;0340  bf          DATA 0xbf
+    db 0bfh                 ;0341  bf          DATA 0xbf
+    db 0bfh                 ;0342  bf          DATA 0xbf
+    db 0bfh                 ;0343  bf          DATA 0xbf
+    db 0bfh                 ;0344  bf          DATA 0xbf
+    db 0bfh                 ;0345  bf          DATA 0xbf
+    db 0bfh                 ;0346  bf          DATA 0xbf
+    db 0bfh                 ;0347  bf          DATA 0xbf
+    db 0bfh                 ;0348  bf          DATA 0xbf
+    db 0bfh                 ;0349  bf          DATA 0xbf
+    db 0bfh                 ;034a  bf          DATA 0xbf
+    db 0bfh                 ;034b  bf          DATA 0xbf
+    db 0bfh                 ;034c  bf          DATA 0xbf
+    db 0bfh                 ;034d  bf          DATA 0xbf
+    db 0bfh                 ;034e  bf          DATA 0xbf
+    db 0bfh                 ;034f  bf          DATA 0xbf
+    db 0bfh                 ;0350  bf          DATA 0xbf
+    db 0bfh                 ;0351  bf          DATA 0xbf
+    db 0bfh                 ;0352  bf          DATA 0xbf
+    db 0bfh                 ;0353  bf          DATA 0xbf
+    db 0bfh                 ;0354  bf          DATA 0xbf
+    db 0bfh                 ;0355  bf          DATA 0xbf
+    db 0bfh                 ;0356  bf          DATA 0xbf
+    db 0bfh                 ;0357  bf          DATA 0xbf
+    db 0bfh                 ;0358  bf          DATA 0xbf
+    db 0bfh                 ;0359  bf          DATA 0xbf
+    db 0bfh                 ;035a  bf          DATA 0xbf
+    db 0bfh                 ;035b  bf          DATA 0xbf
+    db 0bfh                 ;035c  bf          DATA 0xbf
+    db 0bfh                 ;035d  bf          DATA 0xbf
+    db 0bfh                 ;035e  bf          DATA 0xbf
+    db 0bfh                 ;035f  bf          DATA 0xbf
+    db 0bfh                 ;0360  bf          DATA 0xbf
+    db 0bfh                 ;0361  bf          DATA 0xbf
+    db 0bfh                 ;0362  bf          DATA 0xbf
+    db 0bfh                 ;0363  bf          DATA 0xbf
+    db 0bfh                 ;0364  bf          DATA 0xbf
+    db 0bfh                 ;0365  bf          DATA 0xbf
+    db 0bfh                 ;0366  bf          DATA 0xbf
+    db 0bfh                 ;0367  bf          DATA 0xbf
+    db 0bfh                 ;0368  bf          DATA 0xbf
+    db 0bfh                 ;0369  bf          DATA 0xbf
+    db 0bfh                 ;036a  bf          DATA 0xbf
+    db 0bfh                 ;036b  bf          DATA 0xbf
+    db 0bfh                 ;036c  bf          DATA 0xbf
+    db 0bfh                 ;036d  bf          DATA 0xbf
+    db 0bfh                 ;036e  bf          DATA 0xbf
+    db 0bfh                 ;036f  bf          DATA 0xbf
+    db 0bfh                 ;0370  bf          DATA 0xbf
+    db 0bfh                 ;0371  bf          DATA 0xbf
+    db 0bfh                 ;0372  bf          DATA 0xbf
+    db 0bfh                 ;0373  bf          DATA 0xbf
+    db 0bfh                 ;0374  bf          DATA 0xbf
+    db 0bfh                 ;0375  bf          DATA 0xbf
+    db 0bfh                 ;0376  bf          DATA 0xbf
+    db 0bfh                 ;0377  bf          DATA 0xbf
+    db 0bfh                 ;0378  bf          DATA 0xbf
+    db 0bfh                 ;0379  bf          DATA 0xbf
+    db 0bfh                 ;037a  bf          DATA 0xbf
+    db 0bfh                 ;037b  bf          DATA 0xbf
+    db 0bfh                 ;037c  bf          DATA 0xbf
+    db 0bfh                 ;037d  bf          DATA 0xbf
+    db 0bfh                 ;037e  bf          DATA 0xbf
+    db 0bfh                 ;037f  bf          DATA 0xbf
+    db 0bfh                 ;0380  bf          DATA 0xbf
+    db 0bfh                 ;0381  bf          DATA 0xbf
+    db 0bfh                 ;0382  bf          DATA 0xbf
+    db 0bfh                 ;0383  bf          DATA 0xbf
+    db 0bfh                 ;0384  bf          DATA 0xbf
+    db 0bfh                 ;0385  bf          DATA 0xbf
+    db 0bfh                 ;0386  bf          DATA 0xbf
+    db 0bfh                 ;0387  bf          DATA 0xbf
+    db 0bfh                 ;0388  bf          DATA 0xbf
+    db 0bfh                 ;0389  bf          DATA 0xbf
+    db 0bfh                 ;038a  bf          DATA 0xbf
+    db 0bfh                 ;038b  bf          DATA 0xbf
+    db 0bfh                 ;038c  bf          DATA 0xbf
+    db 0bfh                 ;038d  bf          DATA 0xbf
+    db 0bfh                 ;038e  bf          DATA 0xbf
+    db 0bfh                 ;038f  bf          DATA 0xbf
+    db 0bfh                 ;0390  bf          DATA 0xbf
+    db 0bfh                 ;0391  bf          DATA 0xbf
+    db 0bfh                 ;0392  bf          DATA 0xbf
+    db 0bfh                 ;0393  bf          DATA 0xbf
+    db 0bfh                 ;0394  bf          DATA 0xbf
+    db 0bfh                 ;0395  bf          DATA 0xbf
+    db 0bfh                 ;0396  bf          DATA 0xbf
+    db 0bfh                 ;0397  bf          DATA 0xbf
+    db 0bfh                 ;0398  bf          DATA 0xbf
+    db 0bfh                 ;0399  bf          DATA 0xbf
+    db 0bfh                 ;039a  bf          DATA 0xbf
+    db 0bfh                 ;039b  bf          DATA 0xbf
+    db 0bfh                 ;039c  bf          DATA 0xbf
+    db 0bfh                 ;039d  bf          DATA 0xbf
+    db 0bfh                 ;039e  bf          DATA 0xbf
+    db 0bfh                 ;039f  bf          DATA 0xbf
+    db 0bfh                 ;03a0  bf          DATA 0xbf
+    db 0bfh                 ;03a1  bf          DATA 0xbf
+    db 0bfh                 ;03a2  bf          DATA 0xbf
+    db 0bfh                 ;03a3  bf          DATA 0xbf
+    db 0bfh                 ;03a4  bf          DATA 0xbf
+    db 0bfh                 ;03a5  bf          DATA 0xbf
+    db 0bfh                 ;03a6  bf          DATA 0xbf
+    db 0bfh                 ;03a7  bf          DATA 0xbf
+    db 0bfh                 ;03a8  bf          DATA 0xbf
+    db 0bfh                 ;03a9  bf          DATA 0xbf
+    db 0bfh                 ;03aa  bf          DATA 0xbf
+    db 0bfh                 ;03ab  bf          DATA 0xbf
+    db 0bfh                 ;03ac  bf          DATA 0xbf
+    db 0bfh                 ;03ad  bf          DATA 0xbf
+    db 0bfh                 ;03ae  bf          DATA 0xbf
+    db 0bfh                 ;03af  bf          DATA 0xbf
+    db 0bfh                 ;03b0  bf          DATA 0xbf
+    db 0bfh                 ;03b1  bf          DATA 0xbf
+    db 0bfh                 ;03b2  bf          DATA 0xbf
+    db 0bfh                 ;03b3  bf          DATA 0xbf
+    db 0bfh                 ;03b4  bf          DATA 0xbf
+    db 0bfh                 ;03b5  bf          DATA 0xbf
+    db 0bfh                 ;03b6  bf          DATA 0xbf
+    db 0bfh                 ;03b7  bf          DATA 0xbf
+    db 0bfh                 ;03b8  bf          DATA 0xbf
+    db 0bfh                 ;03b9  bf          DATA 0xbf
+    db 0bfh                 ;03ba  bf          DATA 0xbf
+    db 0bfh                 ;03bb  bf          DATA 0xbf
+    db 0bfh                 ;03bc  bf          DATA 0xbf
+    db 0bfh                 ;03bd  bf          DATA 0xbf
+    db 0bfh                 ;03be  bf          DATA 0xbf
+    db 0bfh                 ;03bf  bf          DATA 0xbf
+    db 0bfh                 ;03c0  bf          DATA 0xbf
+    db 0bfh                 ;03c1  bf          DATA 0xbf
+    db 0bfh                 ;03c2  bf          DATA 0xbf
+    db 0bfh                 ;03c3  bf          DATA 0xbf
+    db 0bfh                 ;03c4  bf          DATA 0xbf
+    db 0bfh                 ;03c5  bf          DATA 0xbf
+    db 0bfh                 ;03c6  bf          DATA 0xbf
+    db 0bfh                 ;03c7  bf          DATA 0xbf
+    db 0bfh                 ;03c8  bf          DATA 0xbf
+    db 0bfh                 ;03c9  bf          DATA 0xbf
+    db 0bfh                 ;03ca  bf          DATA 0xbf
+    db 0bfh                 ;03cb  bf          DATA 0xbf
+    db 0bfh                 ;03cc  bf          DATA 0xbf
+    db 0bfh                 ;03cd  bf          DATA 0xbf
+    db 0bfh                 ;03ce  bf          DATA 0xbf
+    db 0bfh                 ;03cf  bf          DATA 0xbf
+    db 0bfh                 ;03d0  bf          DATA 0xbf
+    db 0bfh                 ;03d1  bf          DATA 0xbf
+    db 0bfh                 ;03d2  bf          DATA 0xbf
+    db 0bfh                 ;03d3  bf          DATA 0xbf
+    db 0bfh                 ;03d4  bf          DATA 0xbf
+    db 0bfh                 ;03d5  bf          DATA 0xbf
+    db 0bfh                 ;03d6  bf          DATA 0xbf
+    db 0bfh                 ;03d7  bf          DATA 0xbf
+    db 0bfh                 ;03d8  bf          DATA 0xbf
+    db 0bfh                 ;03d9  bf          DATA 0xbf
+    db 0bfh                 ;03da  bf          DATA 0xbf
+    db 0bfh                 ;03db  bf          DATA 0xbf
+    db 0bfh                 ;03dc  bf          DATA 0xbf
+    db 0bfh                 ;03dd  bf          DATA 0xbf
+    db 0bfh                 ;03de  bf          DATA 0xbf
+    db 0bfh                 ;03df  bf          DATA 0xbf
+    db 0bfh                 ;03e0  bf          DATA 0xbf
+    db 0bfh                 ;03e1  bf          DATA 0xbf
+    db 0bfh                 ;03e2  bf          DATA 0xbf
+    db 0bfh                 ;03e3  bf          DATA 0xbf
+    db 0bfh                 ;03e4  bf          DATA 0xbf
+    db 0bfh                 ;03e5  bf          DATA 0xbf
+    db 0bfh                 ;03e6  bf          DATA 0xbf
+    db 0bfh                 ;03e7  bf          DATA 0xbf
+    db 0bfh                 ;03e8  bf          DATA 0xbf
+    db 0bfh                 ;03e9  bf          DATA 0xbf
+    db 0bfh                 ;03ea  bf          DATA 0xbf
+    db 0bfh                 ;03eb  bf          DATA 0xbf
+    db 0bfh                 ;03ec  bf          DATA 0xbf
+    db 0bfh                 ;03ed  bf          DATA 0xbf
+    db 0bfh                 ;03ee  bf          DATA 0xbf
+    db 0bfh                 ;03ef  bf          DATA 0xbf
+    db 0bfh                 ;03f0  bf          DATA 0xbf
+    db 0bfh                 ;03f1  bf          DATA 0xbf
+    db 0bfh                 ;03f2  bf          DATA 0xbf
+    db 0bfh                 ;03f3  bf          DATA 0xbf
+    db 0bfh                 ;03f4  bf          DATA 0xbf
+    db 0bfh                 ;03f5  bf          DATA 0xbf
+    db 0bfh                 ;03f6  bf          DATA 0xbf
+    db 0bfh                 ;03f7  bf          DATA 0xbf
+    db 0bfh                 ;03f8  bf          DATA 0xbf
+    db 0bfh                 ;03f9  bf          DATA 0xbf
+    db 0bfh                 ;03fa  bf          DATA 0xbf
+    db 0bfh                 ;03fb  bf          DATA 0xbf
+    db 0bfh                 ;03fc  bf          DATA 0xbf
+    db 0bfh                 ;03fd  bf          DATA 0xbf
+    db 0bfh                 ;03fe  bf          DATA 0xbf
+    db 0bfh                 ;03ff  bf          DATA 0xbf
+    db 0bfh                 ;0400  bf          DATA 0xbf
+    db 0bfh                 ;0401  bf          DATA 0xbf
+    db 0bfh                 ;0402  bf          DATA 0xbf
+    db 0bfh                 ;0403  bf          DATA 0xbf
+    db 0bfh                 ;0404  bf          DATA 0xbf
+    db 0bfh                 ;0405  bf          DATA 0xbf
+    db 0bfh                 ;0406  bf          DATA 0xbf
+    db 0bfh                 ;0407  bf          DATA 0xbf
+    db 0bfh                 ;0408  bf          DATA 0xbf
+    db 0bfh                 ;0409  bf          DATA 0xbf
+    db 0bfh                 ;040a  bf          DATA 0xbf
+    db 0bfh                 ;040b  bf          DATA 0xbf
+    db 0bfh                 ;040c  bf          DATA 0xbf
+    db 0bfh                 ;040d  bf          DATA 0xbf
+    db 0bfh                 ;040e  bf          DATA 0xbf
+    db 0bfh                 ;040f  bf          DATA 0xbf
+    db 0bfh                 ;0410  bf          DATA 0xbf
+    db 0bfh                 ;0411  bf          DATA 0xbf
+    db 0bfh                 ;0412  bf          DATA 0xbf
+    db 0bfh                 ;0413  bf          DATA 0xbf
+    db 0bfh                 ;0414  bf          DATA 0xbf
+    db 0bfh                 ;0415  bf          DATA 0xbf
+    db 0bfh                 ;0416  bf          DATA 0xbf
+    db 0bfh                 ;0417  bf          DATA 0xbf
+    db 0bfh                 ;0418  bf          DATA 0xbf
+    db 0bfh                 ;0419  bf          DATA 0xbf
+    db 0bfh                 ;041a  bf          DATA 0xbf
+    db 0bfh                 ;041b  bf          DATA 0xbf
+    db 0bfh                 ;041c  bf          DATA 0xbf
+    db 0bfh                 ;041d  bf          DATA 0xbf
+    db 0bfh                 ;041e  bf          DATA 0xbf
+    db 0bfh                 ;041f  bf          DATA 0xbf
+    db 0bfh                 ;0420  bf          DATA 0xbf
+    db 0bfh                 ;0421  bf          DATA 0xbf
+    db 0bfh                 ;0422  bf          DATA 0xbf
+    db 0bfh                 ;0423  bf          DATA 0xbf
+    db 0bfh                 ;0424  bf          DATA 0xbf
+    db 0bfh                 ;0425  bf          DATA 0xbf
+    db 0bfh                 ;0426  bf          DATA 0xbf
+    db 0bfh                 ;0427  bf          DATA 0xbf
+    db 0bfh                 ;0428  bf          DATA 0xbf
+    db 0bfh                 ;0429  bf          DATA 0xbf
+    db 0bfh                 ;042a  bf          DATA 0xbf
+    db 0bfh                 ;042b  bf          DATA 0xbf
+    db 0bfh                 ;042c  bf          DATA 0xbf
+    db 0bfh                 ;042d  bf          DATA 0xbf
+    db 0bfh                 ;042e  bf          DATA 0xbf
+    db 0bfh                 ;042f  bf          DATA 0xbf
+    db 0bfh                 ;0430  bf          DATA 0xbf
+    db 0bfh                 ;0431  bf          DATA 0xbf
+    db 0bfh                 ;0432  bf          DATA 0xbf
+    db 0bfh                 ;0433  bf          DATA 0xbf
+    db 0bfh                 ;0434  bf          DATA 0xbf
+    db 0bfh                 ;0435  bf          DATA 0xbf
+    db 0bfh                 ;0436  bf          DATA 0xbf
+    db 0bfh                 ;0437  bf          DATA 0xbf
+    db 0bfh                 ;0438  bf          DATA 0xbf
+    db 0bfh                 ;0439  bf          DATA 0xbf
+    db 0bfh                 ;043a  bf          DATA 0xbf
+    db 0bfh                 ;043b  bf          DATA 0xbf
+    db 0bfh                 ;043c  bf          DATA 0xbf
+    db 0bfh                 ;043d  bf          DATA 0xbf
+    db 0bfh                 ;043e  bf          DATA 0xbf
+    db 0bfh                 ;043f  bf          DATA 0xbf
+    db 0bfh                 ;0440  bf          DATA 0xbf
+    db 0bfh                 ;0441  bf          DATA 0xbf
+    db 0bfh                 ;0442  bf          DATA 0xbf
+    db 0bfh                 ;0443  bf          DATA 0xbf
+    db 0bfh                 ;0444  bf          DATA 0xbf
+    db 0bfh                 ;0445  bf          DATA 0xbf
+    db 0bfh                 ;0446  bf          DATA 0xbf
+    db 0bfh                 ;0447  bf          DATA 0xbf
+    db 0bfh                 ;0448  bf          DATA 0xbf
+    db 0bfh                 ;0449  bf          DATA 0xbf
+    db 0bfh                 ;044a  bf          DATA 0xbf
+    db 0bfh                 ;044b  bf          DATA 0xbf
+    db 0bfh                 ;044c  bf          DATA 0xbf
+    db 0bfh                 ;044d  bf          DATA 0xbf
+    db 0bfh                 ;044e  bf          DATA 0xbf
+    db 0bfh                 ;044f  bf          DATA 0xbf
+    db 0bfh                 ;0450  bf          DATA 0xbf
+    db 0bfh                 ;0451  bf          DATA 0xbf
+    db 0bfh                 ;0452  bf          DATA 0xbf
+    db 0bfh                 ;0453  bf          DATA 0xbf
+    db 0bfh                 ;0454  bf          DATA 0xbf
+    db 0bfh                 ;0455  bf          DATA 0xbf
+    db 0bfh                 ;0456  bf          DATA 0xbf
+    db 0bfh                 ;0457  bf          DATA 0xbf
+    db 0bfh                 ;0458  bf          DATA 0xbf
+    db 0bfh                 ;0459  bf          DATA 0xbf
+    db 0bfh                 ;045a  bf          DATA 0xbf
+    db 0bfh                 ;045b  bf          DATA 0xbf
+    db 0bfh                 ;045c  bf          DATA 0xbf
+    db 0bfh                 ;045d  bf          DATA 0xbf
+    db 0bfh                 ;045e  bf          DATA 0xbf
+    db 0bfh                 ;045f  bf          DATA 0xbf
+    db 0bfh                 ;0460  bf          DATA 0xbf
+    db 0bfh                 ;0461  bf          DATA 0xbf
+    db 0bfh                 ;0462  bf          DATA 0xbf
+    db 0bfh                 ;0463  bf          DATA 0xbf
+    db 0bfh                 ;0464  bf          DATA 0xbf
+    db 0bfh                 ;0465  bf          DATA 0xbf
+    db 0bfh                 ;0466  bf          DATA 0xbf
+    db 0bfh                 ;0467  bf          DATA 0xbf
+    db 0bfh                 ;0468  bf          DATA 0xbf
+    db 0bfh                 ;0469  bf          DATA 0xbf
+    db 0bfh                 ;046a  bf          DATA 0xbf
+    db 0bfh                 ;046b  bf          DATA 0xbf
+    db 0bfh                 ;046c  bf          DATA 0xbf
+    db 0bfh                 ;046d  bf          DATA 0xbf
+    db 0bfh                 ;046e  bf          DATA 0xbf
+    db 0bfh                 ;046f  bf          DATA 0xbf
+    db 0bfh                 ;0470  bf          DATA 0xbf
+    db 0bfh                 ;0471  bf          DATA 0xbf
+    db 0bfh                 ;0472  bf          DATA 0xbf
+    db 0bfh                 ;0473  bf          DATA 0xbf
+    db 0bfh                 ;0474  bf          DATA 0xbf
+    db 0bfh                 ;0475  bf          DATA 0xbf
+    db 0bfh                 ;0476  bf          DATA 0xbf
+    db 0bfh                 ;0477  bf          DATA 0xbf
+    db 0bfh                 ;0478  bf          DATA 0xbf
+    db 0bfh                 ;0479  bf          DATA 0xbf
+    db 0bfh                 ;047a  bf          DATA 0xbf
+    db 0bfh                 ;047b  bf          DATA 0xbf
+    db 0bfh                 ;047c  bf          DATA 0xbf
+    db 0bfh                 ;047d  bf          DATA 0xbf
+    db 0bfh                 ;047e  bf          DATA 0xbf
+    db 0bfh                 ;047f  bf          DATA 0xbf
+    db 0bfh                 ;0480  bf          DATA 0xbf
+    db 0bfh                 ;0481  bf          DATA 0xbf
+    db 0bfh                 ;0482  bf          DATA 0xbf
+    db 0bfh                 ;0483  bf          DATA 0xbf
+    db 0bfh                 ;0484  bf          DATA 0xbf
+    db 0bfh                 ;0485  bf          DATA 0xbf
+    db 0bfh                 ;0486  bf          DATA 0xbf
+    db 0bfh                 ;0487  bf          DATA 0xbf
+    db 0bfh                 ;0488  bf          DATA 0xbf
+    db 0bfh                 ;0489  bf          DATA 0xbf
+    db 0bfh                 ;048a  bf          DATA 0xbf
+    db 0bfh                 ;048b  bf          DATA 0xbf
+    db 0bfh                 ;048c  bf          DATA 0xbf
+    db 0bfh                 ;048d  bf          DATA 0xbf
+    db 0bfh                 ;048e  bf          DATA 0xbf
+    db 0bfh                 ;048f  bf          DATA 0xbf
+    db 0bfh                 ;0490  bf          DATA 0xbf
+    db 0bfh                 ;0491  bf          DATA 0xbf
+    db 0bfh                 ;0492  bf          DATA 0xbf
+    db 0bfh                 ;0493  bf          DATA 0xbf
+    db 0bfh                 ;0494  bf          DATA 0xbf
+    db 0bfh                 ;0495  bf          DATA 0xbf
+    db 0bfh                 ;0496  bf          DATA 0xbf
+    db 0bfh                 ;0497  bf          DATA 0xbf
+    db 0bfh                 ;0498  bf          DATA 0xbf
+    db 0bfh                 ;0499  bf          DATA 0xbf
+    db 0bfh                 ;049a  bf          DATA 0xbf
+    db 0bfh                 ;049b  bf          DATA 0xbf
+    db 0bfh                 ;049c  bf          DATA 0xbf
+    db 0bfh                 ;049d  bf          DATA 0xbf
+    db 0bfh                 ;049e  bf          DATA 0xbf
+    db 0bfh                 ;049f  bf          DATA 0xbf
+    db 0bfh                 ;04a0  bf          DATA 0xbf
+    db 0bfh                 ;04a1  bf          DATA 0xbf
+    db 0bfh                 ;04a2  bf          DATA 0xbf
+    db 0bfh                 ;04a3  bf          DATA 0xbf
+    db 0bfh                 ;04a4  bf          DATA 0xbf
+    db 0bfh                 ;04a5  bf          DATA 0xbf
+    db 0bfh                 ;04a6  bf          DATA 0xbf
+    db 0bfh                 ;04a7  bf          DATA 0xbf
+    db 0bfh                 ;04a8  bf          DATA 0xbf
+    db 0bfh                 ;04a9  bf          DATA 0xbf
+    db 0bfh                 ;04aa  bf          DATA 0xbf
+    db 0bfh                 ;04ab  bf          DATA 0xbf
+    db 0bfh                 ;04ac  bf          DATA 0xbf
+    db 0bfh                 ;04ad  bf          DATA 0xbf
+    db 0bfh                 ;04ae  bf          DATA 0xbf
+    db 0bfh                 ;04af  bf          DATA 0xbf
+    db 0bfh                 ;04b0  bf          DATA 0xbf
+    db 0bfh                 ;04b1  bf          DATA 0xbf
+    db 0bfh                 ;04b2  bf          DATA 0xbf
+    db 0bfh                 ;04b3  bf          DATA 0xbf
+    db 0bfh                 ;04b4  bf          DATA 0xbf
+    db 0bfh                 ;04b5  bf          DATA 0xbf
+    db 0bfh                 ;04b6  bf          DATA 0xbf
+    db 0bfh                 ;04b7  bf          DATA 0xbf
+    db 0bfh                 ;04b8  bf          DATA 0xbf
+    db 0bfh                 ;04b9  bf          DATA 0xbf
+    db 0bfh                 ;04ba  bf          DATA 0xbf
+    db 0bfh                 ;04bb  bf          DATA 0xbf
+    db 0bfh                 ;04bc  bf          DATA 0xbf
+    db 0bfh                 ;04bd  bf          DATA 0xbf
+    db 0bfh                 ;04be  bf          DATA 0xbf
+    db 0bfh                 ;04bf  bf          DATA 0xbf
+    db 0bfh                 ;04c0  bf          DATA 0xbf
+    db 0bfh                 ;04c1  bf          DATA 0xbf
+    db 0bfh                 ;04c2  bf          DATA 0xbf
+    db 0bfh                 ;04c3  bf          DATA 0xbf
+    db 0bfh                 ;04c4  bf          DATA 0xbf
+    db 0bfh                 ;04c5  bf          DATA 0xbf
+    db 0bfh                 ;04c6  bf          DATA 0xbf
+    db 0bfh                 ;04c7  bf          DATA 0xbf
+    db 0bfh                 ;04c8  bf          DATA 0xbf
+    db 0bfh                 ;04c9  bf          DATA 0xbf
+    db 0bfh                 ;04ca  bf          DATA 0xbf
+    db 0bfh                 ;04cb  bf          DATA 0xbf
+    db 0bfh                 ;04cc  bf          DATA 0xbf
+    db 0bfh                 ;04cd  bf          DATA 0xbf
+    db 0bfh                 ;04ce  bf          DATA 0xbf
+    db 0bfh                 ;04cf  bf          DATA 0xbf
+    db 0bfh                 ;04d0  bf          DATA 0xbf
+    db 0bfh                 ;04d1  bf          DATA 0xbf
+    db 0bfh                 ;04d2  bf          DATA 0xbf
+    db 0bfh                 ;04d3  bf          DATA 0xbf
+    db 0bfh                 ;04d4  bf          DATA 0xbf
+    db 0bfh                 ;04d5  bf          DATA 0xbf
+    db 0bfh                 ;04d6  bf          DATA 0xbf
+    db 0bfh                 ;04d7  bf          DATA 0xbf
+    db 0bfh                 ;04d8  bf          DATA 0xbf
+    db 0bfh                 ;04d9  bf          DATA 0xbf
+    db 0bfh                 ;04da  bf          DATA 0xbf
+    db 0bfh                 ;04db  bf          DATA 0xbf
+    db 0bfh                 ;04dc  bf          DATA 0xbf
+    db 0bfh                 ;04dd  bf          DATA 0xbf
+    db 0bfh                 ;04de  bf          DATA 0xbf
+    db 0bfh                 ;04df  bf          DATA 0xbf
+    db 0bfh                 ;04e0  bf          DATA 0xbf
+    db 0bfh                 ;04e1  bf          DATA 0xbf
+    db 0bfh                 ;04e2  bf          DATA 0xbf
+    db 0bfh                 ;04e3  bf          DATA 0xbf
+    db 0bfh                 ;04e4  bf          DATA 0xbf
+    db 0bfh                 ;04e5  bf          DATA 0xbf
+    db 0bfh                 ;04e6  bf          DATA 0xbf
+    db 0bfh                 ;04e7  bf          DATA 0xbf
+    db 0bfh                 ;04e8  bf          DATA 0xbf
+    db 0bfh                 ;04e9  bf          DATA 0xbf
+    db 0bfh                 ;04ea  bf          DATA 0xbf
+    db 0bfh                 ;04eb  bf          DATA 0xbf
+    db 0bfh                 ;04ec  bf          DATA 0xbf
+    db 0bfh                 ;04ed  bf          DATA 0xbf
+    db 0bfh                 ;04ee  bf          DATA 0xbf
+    db 0bfh                 ;04ef  bf          DATA 0xbf
+    db 0bfh                 ;04f0  bf          DATA 0xbf
+    db 0bfh                 ;04f1  bf          DATA 0xbf
+    db 0bfh                 ;04f2  bf          DATA 0xbf
+    db 0bfh                 ;04f3  bf          DATA 0xbf
+    db 0bfh                 ;04f4  bf          DATA 0xbf
+    db 0bfh                 ;04f5  bf          DATA 0xbf
+    db 0bfh                 ;04f6  bf          DATA 0xbf
+    db 0bfh                 ;04f7  bf          DATA 0xbf
+    db 0bfh                 ;04f8  bf          DATA 0xbf
+    db 0bfh                 ;04f9  bf          DATA 0xbf
+    db 0bfh                 ;04fa  bf          DATA 0xbf
+    db 0bfh                 ;04fb  bf          DATA 0xbf
+    db 0bfh                 ;04fc  bf          DATA 0xbf
+    db 0bfh                 ;04fd  bf          DATA 0xbf
+    db 0bfh                 ;04fe  bf          DATA 0xbf
+    db 0bfh                 ;04ff  bf          DATA 0xbf
+    db 0bfh                 ;0500  bf          DATA 0xbf
+    db 0bfh                 ;0501  bf          DATA 0xbf
+    db 0bfh                 ;0502  bf          DATA 0xbf
+    db 0bfh                 ;0503  bf          DATA 0xbf
+    db 0bfh                 ;0504  bf          DATA 0xbf
+    db 0bfh                 ;0505  bf          DATA 0xbf
+    db 0bfh                 ;0506  bf          DATA 0xbf
+    db 0bfh                 ;0507  bf          DATA 0xbf
+    db 0bfh                 ;0508  bf          DATA 0xbf
+    db 0bfh                 ;0509  bf          DATA 0xbf
+    db 0bfh                 ;050a  bf          DATA 0xbf
+    db 0bfh                 ;050b  bf          DATA 0xbf
+    db 0bfh                 ;050c  bf          DATA 0xbf
+    db 0bfh                 ;050d  bf          DATA 0xbf
+    db 0bfh                 ;050e  bf          DATA 0xbf
+    db 0bfh                 ;050f  bf          DATA 0xbf
+    db 0bfh                 ;0510  bf          DATA 0xbf
+    db 0bfh                 ;0511  bf          DATA 0xbf
+    db 0bfh                 ;0512  bf          DATA 0xbf
+    db 0bfh                 ;0513  bf          DATA 0xbf
+    db 0bfh                 ;0514  bf          DATA 0xbf
+    db 0bfh                 ;0515  bf          DATA 0xbf
+    db 0bfh                 ;0516  bf          DATA 0xbf
+    db 0bfh                 ;0517  bf          DATA 0xbf
+    db 0bfh                 ;0518  bf          DATA 0xbf
+    db 0bfh                 ;0519  bf          DATA 0xbf
+    db 0bfh                 ;051a  bf          DATA 0xbf
+    db 0bfh                 ;051b  bf          DATA 0xbf
+    db 0bfh                 ;051c  bf          DATA 0xbf
+    db 0bfh                 ;051d  bf          DATA 0xbf
+    db 0bfh                 ;051e  bf          DATA 0xbf
+    db 0bfh                 ;051f  bf          DATA 0xbf
+    db 0bfh                 ;0520  bf          DATA 0xbf
+    db 0bfh                 ;0521  bf          DATA 0xbf
+    db 0bfh                 ;0522  bf          DATA 0xbf
+    db 0bfh                 ;0523  bf          DATA 0xbf
+    db 0bfh                 ;0524  bf          DATA 0xbf
+    db 0bfh                 ;0525  bf          DATA 0xbf
+    db 0bfh                 ;0526  bf          DATA 0xbf
+    db 0bfh                 ;0527  bf          DATA 0xbf
+    db 0bfh                 ;0528  bf          DATA 0xbf
+    db 0bfh                 ;0529  bf          DATA 0xbf
+    db 0bfh                 ;052a  bf          DATA 0xbf
+    db 0bfh                 ;052b  bf          DATA 0xbf
+    db 0bfh                 ;052c  bf          DATA 0xbf
+    db 0bfh                 ;052d  bf          DATA 0xbf
+    db 0bfh                 ;052e  bf          DATA 0xbf
+    db 0bfh                 ;052f  bf          DATA 0xbf
+    db 0bfh                 ;0530  bf          DATA 0xbf
+    db 0bfh                 ;0531  bf          DATA 0xbf
+    db 0bfh                 ;0532  bf          DATA 0xbf
+    db 0bfh                 ;0533  bf          DATA 0xbf
+    db 0bfh                 ;0534  bf          DATA 0xbf
+    db 0bfh                 ;0535  bf          DATA 0xbf
+    db 0bfh                 ;0536  bf          DATA 0xbf
+    db 0bfh                 ;0537  bf          DATA 0xbf
+    db 0bfh                 ;0538  bf          DATA 0xbf
+    db 0bfh                 ;0539  bf          DATA 0xbf
+    db 0bfh                 ;053a  bf          DATA 0xbf
+    db 0bfh                 ;053b  bf          DATA 0xbf
+    db 0bfh                 ;053c  bf          DATA 0xbf
+    db 0bfh                 ;053d  bf          DATA 0xbf
+    db 0bfh                 ;053e  bf          DATA 0xbf
+    db 0bfh                 ;053f  bf          DATA 0xbf
+    db 0bfh                 ;0540  bf          DATA 0xbf
+    db 0bfh                 ;0541  bf          DATA 0xbf
+    db 0bfh                 ;0542  bf          DATA 0xbf
+    db 0bfh                 ;0543  bf          DATA 0xbf
+    db 0bfh                 ;0544  bf          DATA 0xbf
+    db 0bfh                 ;0545  bf          DATA 0xbf
+    db 0bfh                 ;0546  bf          DATA 0xbf
+    db 0bfh                 ;0547  bf          DATA 0xbf
+    db 0bfh                 ;0548  bf          DATA 0xbf
+    db 0bfh                 ;0549  bf          DATA 0xbf
+    db 0bfh                 ;054a  bf          DATA 0xbf
+    db 0bfh                 ;054b  bf          DATA 0xbf
+    db 0bfh                 ;054c  bf          DATA 0xbf
+    db 0bfh                 ;054d  bf          DATA 0xbf
+    db 0bfh                 ;054e  bf          DATA 0xbf
+    db 0bfh                 ;054f  bf          DATA 0xbf
+    db 0bfh                 ;0550  bf          DATA 0xbf
+    db 0bfh                 ;0551  bf          DATA 0xbf
+    db 0bfh                 ;0552  bf          DATA 0xbf
+    db 0bfh                 ;0553  bf          DATA 0xbf
+    db 0bfh                 ;0554  bf          DATA 0xbf
+    db 0bfh                 ;0555  bf          DATA 0xbf
+    db 0bfh                 ;0556  bf          DATA 0xbf
+    db 0bfh                 ;0557  bf          DATA 0xbf
+    db 0bfh                 ;0558  bf          DATA 0xbf
+    db 0bfh                 ;0559  bf          DATA 0xbf
+    db 0bfh                 ;055a  bf          DATA 0xbf
+    db 0bfh                 ;055b  bf          DATA 0xbf
+    db 0bfh                 ;055c  bf          DATA 0xbf
+    db 0bfh                 ;055d  bf          DATA 0xbf
+    db 0bfh                 ;055e  bf          DATA 0xbf
+    db 0bfh                 ;055f  bf          DATA 0xbf
+    db 0bfh                 ;0560  bf          DATA 0xbf
+    db 0bfh                 ;0561  bf          DATA 0xbf
+    db 0bfh                 ;0562  bf          DATA 0xbf
+    db 0bfh                 ;0563  bf          DATA 0xbf
+    db 0bfh                 ;0564  bf          DATA 0xbf
+    db 0bfh                 ;0565  bf          DATA 0xbf
+    db 0bfh                 ;0566  bf          DATA 0xbf
+    db 0bfh                 ;0567  bf          DATA 0xbf
+    db 0bfh                 ;0568  bf          DATA 0xbf
+    db 0bfh                 ;0569  bf          DATA 0xbf
+    db 0bfh                 ;056a  bf          DATA 0xbf
+    db 0bfh                 ;056b  bf          DATA 0xbf
+    db 0bfh                 ;056c  bf          DATA 0xbf
+    db 0bfh                 ;056d  bf          DATA 0xbf
+    db 0bfh                 ;056e  bf          DATA 0xbf
+    db 0bfh                 ;056f  bf          DATA 0xbf
+    db 0bfh                 ;0570  bf          DATA 0xbf
+    db 0bfh                 ;0571  bf          DATA 0xbf
+    db 0bfh                 ;0572  bf          DATA 0xbf
+    db 0bfh                 ;0573  bf          DATA 0xbf
+    db 0bfh                 ;0574  bf          DATA 0xbf
+    db 0bfh                 ;0575  bf          DATA 0xbf
+    db 0bfh                 ;0576  bf          DATA 0xbf
+    db 0bfh                 ;0577  bf          DATA 0xbf
+    db 0bfh                 ;0578  bf          DATA 0xbf
+    db 0bfh                 ;0579  bf          DATA 0xbf
+    db 0bfh                 ;057a  bf          DATA 0xbf
+    db 0bfh                 ;057b  bf          DATA 0xbf
+    db 0bfh                 ;057c  bf          DATA 0xbf
+    db 0bfh                 ;057d  bf          DATA 0xbf
+    db 0bfh                 ;057e  bf          DATA 0xbf
+    db 0bfh                 ;057f  bf          DATA 0xbf
+    db 0bfh                 ;0580  bf          DATA 0xbf
+    db 0bfh                 ;0581  bf          DATA 0xbf
+    db 0bfh                 ;0582  bf          DATA 0xbf
+    db 0bfh                 ;0583  bf          DATA 0xbf
+    db 0bfh                 ;0584  bf          DATA 0xbf
+    db 0bfh                 ;0585  bf          DATA 0xbf
+    db 0bfh                 ;0586  bf          DATA 0xbf
+    db 0bfh                 ;0587  bf          DATA 0xbf
+    db 0bfh                 ;0588  bf          DATA 0xbf
+    db 0bfh                 ;0589  bf          DATA 0xbf
+    db 0bfh                 ;058a  bf          DATA 0xbf
+    db 0bfh                 ;058b  bf          DATA 0xbf
+    db 0bfh                 ;058c  bf          DATA 0xbf
+    db 0bfh                 ;058d  bf          DATA 0xbf
+    db 0bfh                 ;058e  bf          DATA 0xbf
+    db 0bfh                 ;058f  bf          DATA 0xbf
+    db 0bfh                 ;0590  bf          DATA 0xbf
+    db 0bfh                 ;0591  bf          DATA 0xbf
+    db 0bfh                 ;0592  bf          DATA 0xbf
+    db 0bfh                 ;0593  bf          DATA 0xbf
+    db 0bfh                 ;0594  bf          DATA 0xbf
+    db 0bfh                 ;0595  bf          DATA 0xbf
+    db 0bfh                 ;0596  bf          DATA 0xbf
+    db 0bfh                 ;0597  bf          DATA 0xbf
+    db 0bfh                 ;0598  bf          DATA 0xbf
+    db 0bfh                 ;0599  bf          DATA 0xbf
+    db 0bfh                 ;059a  bf          DATA 0xbf
+    db 0bfh                 ;059b  bf          DATA 0xbf
+    db 0bfh                 ;059c  bf          DATA 0xbf
+    db 0bfh                 ;059d  bf          DATA 0xbf
+    db 0bfh                 ;059e  bf          DATA 0xbf
+    db 0bfh                 ;059f  bf          DATA 0xbf
+    db 0bfh                 ;05a0  bf          DATA 0xbf
+    db 0bfh                 ;05a1  bf          DATA 0xbf
+    db 0bfh                 ;05a2  bf          DATA 0xbf
+    db 0bfh                 ;05a3  bf          DATA 0xbf
+    db 0bfh                 ;05a4  bf          DATA 0xbf
+    db 0bfh                 ;05a5  bf          DATA 0xbf
+    db 0bfh                 ;05a6  bf          DATA 0xbf
+    db 0bfh                 ;05a7  bf          DATA 0xbf
+    db 0bfh                 ;05a8  bf          DATA 0xbf
+    db 0bfh                 ;05a9  bf          DATA 0xbf
+    db 0bfh                 ;05aa  bf          DATA 0xbf
+    db 0bfh                 ;05ab  bf          DATA 0xbf
+    db 0bfh                 ;05ac  bf          DATA 0xbf
+    db 0bfh                 ;05ad  bf          DATA 0xbf
+    db 0bfh                 ;05ae  bf          DATA 0xbf
+    db 0bfh                 ;05af  bf          DATA 0xbf
+    db 0bfh                 ;05b0  bf          DATA 0xbf
+    db 0bfh                 ;05b1  bf          DATA 0xbf
+    db 0bfh                 ;05b2  bf          DATA 0xbf
+    db 0bfh                 ;05b3  bf          DATA 0xbf
+    db 0bfh                 ;05b4  bf          DATA 0xbf
+    db 0bfh                 ;05b5  bf          DATA 0xbf
+    db 0bfh                 ;05b6  bf          DATA 0xbf
+    db 0bfh                 ;05b7  bf          DATA 0xbf
+    db 0bfh                 ;05b8  bf          DATA 0xbf
+    db 0bfh                 ;05b9  bf          DATA 0xbf
+    db 0bfh                 ;05ba  bf          DATA 0xbf
+    db 0bfh                 ;05bb  bf          DATA 0xbf
+    db 0bfh                 ;05bc  bf          DATA 0xbf
+    db 0bfh                 ;05bd  bf          DATA 0xbf
+    db 0bfh                 ;05be  bf          DATA 0xbf
+    db 0bfh                 ;05bf  bf          DATA 0xbf
+    db 0bfh                 ;05c0  bf          DATA 0xbf
+    db 0bfh                 ;05c1  bf          DATA 0xbf
+    db 0bfh                 ;05c2  bf          DATA 0xbf
+    db 0bfh                 ;05c3  bf          DATA 0xbf
+    db 0bfh                 ;05c4  bf          DATA 0xbf
+    db 0bfh                 ;05c5  bf          DATA 0xbf
+    db 0bfh                 ;05c6  bf          DATA 0xbf
+    db 0bfh                 ;05c7  bf          DATA 0xbf
+    db 0bfh                 ;05c8  bf          DATA 0xbf
+    db 0bfh                 ;05c9  bf          DATA 0xbf
+    db 0bfh                 ;05ca  bf          DATA 0xbf
+    db 0bfh                 ;05cb  bf          DATA 0xbf
+    db 0bfh                 ;05cc  bf          DATA 0xbf
+    db 0bfh                 ;05cd  bf          DATA 0xbf
+    db 0bfh                 ;05ce  bf          DATA 0xbf
+    db 0bfh                 ;05cf  bf          DATA 0xbf
+    db 0bfh                 ;05d0  bf          DATA 0xbf
+    db 0bfh                 ;05d1  bf          DATA 0xbf
+    db 0bfh                 ;05d2  bf          DATA 0xbf
+    db 0bfh                 ;05d3  bf          DATA 0xbf
+    db 0bfh                 ;05d4  bf          DATA 0xbf
+    db 0bfh                 ;05d5  bf          DATA 0xbf
+    db 0bfh                 ;05d6  bf          DATA 0xbf
+    db 0bfh                 ;05d7  bf          DATA 0xbf
+    db 0bfh                 ;05d8  bf          DATA 0xbf
+    db 0bfh                 ;05d9  bf          DATA 0xbf
+    db 0bfh                 ;05da  bf          DATA 0xbf
+    db 0bfh                 ;05db  bf          DATA 0xbf
+    db 0bfh                 ;05dc  bf          DATA 0xbf
+    db 0bfh                 ;05dd  bf          DATA 0xbf
+    db 0bfh                 ;05de  bf          DATA 0xbf
+    db 0bfh                 ;05df  bf          DATA 0xbf
+    db 0bfh                 ;05e0  bf          DATA 0xbf
+    db 0bfh                 ;05e1  bf          DATA 0xbf
+    db 0bfh                 ;05e2  bf          DATA 0xbf
+    db 0bfh                 ;05e3  bf          DATA 0xbf
+    db 0bfh                 ;05e4  bf          DATA 0xbf
+    db 0bfh                 ;05e5  bf          DATA 0xbf
+    db 0bfh                 ;05e6  bf          DATA 0xbf
+    db 0bfh                 ;05e7  bf          DATA 0xbf
+    db 0bfh                 ;05e8  bf          DATA 0xbf
+    db 0bfh                 ;05e9  bf          DATA 0xbf
+    db 0bfh                 ;05ea  bf          DATA 0xbf
+    db 0bfh                 ;05eb  bf          DATA 0xbf
+    db 0bfh                 ;05ec  bf          DATA 0xbf
+    db 0bfh                 ;05ed  bf          DATA 0xbf
+    db 0bfh                 ;05ee  bf          DATA 0xbf
+    db 0bfh                 ;05ef  bf          DATA 0xbf
+    db 0bfh                 ;05f0  bf          DATA 0xbf
+    db 0bfh                 ;05f1  bf          DATA 0xbf
+    db 0bfh                 ;05f2  bf          DATA 0xbf
+    db 0bfh                 ;05f3  bf          DATA 0xbf
+    db 0bfh                 ;05f4  bf          DATA 0xbf
+    db 0bfh                 ;05f5  bf          DATA 0xbf
+    db 0bfh                 ;05f6  bf          DATA 0xbf
+    db 0bfh                 ;05f7  bf          DATA 0xbf
+    db 0bfh                 ;05f8  bf          DATA 0xbf
+    db 0bfh                 ;05f9  bf          DATA 0xbf
+    db 0bfh                 ;05fa  bf          DATA 0xbf
+    db 0bfh                 ;05fb  bf          DATA 0xbf
+    db 0bfh                 ;05fc  bf          DATA 0xbf
+    db 0bfh                 ;05fd  bf          DATA 0xbf
+    db 0bfh                 ;05fe  bf          DATA 0xbf
+    db 0bfh                 ;05ff  bf          DATA 0xbf
+    db 0bfh                 ;0600  bf          DATA 0xbf
+    db 0bfh                 ;0601  bf          DATA 0xbf
+    db 0bfh                 ;0602  bf          DATA 0xbf
+    db 0bfh                 ;0603  bf          DATA 0xbf
+    db 0bfh                 ;0604  bf          DATA 0xbf
+    db 0bfh                 ;0605  bf          DATA 0xbf
+    db 0bfh                 ;0606  bf          DATA 0xbf
+    db 0bfh                 ;0607  bf          DATA 0xbf
+    db 0bfh                 ;0608  bf          DATA 0xbf
+    db 0bfh                 ;0609  bf          DATA 0xbf
+    db 0bfh                 ;060a  bf          DATA 0xbf
+    db 0bfh                 ;060b  bf          DATA 0xbf
+    db 0bfh                 ;060c  bf          DATA 0xbf
+    db 0bfh                 ;060d  bf          DATA 0xbf
+    db 0bfh                 ;060e  bf          DATA 0xbf
+    db 0bfh                 ;060f  bf          DATA 0xbf
+    db 0bfh                 ;0610  bf          DATA 0xbf
+    db 0bfh                 ;0611  bf          DATA 0xbf
+    db 0bfh                 ;0612  bf          DATA 0xbf
+    db 0bfh                 ;0613  bf          DATA 0xbf
+    db 0bfh                 ;0614  bf          DATA 0xbf
+    db 0bfh                 ;0615  bf          DATA 0xbf
+    db 0bfh                 ;0616  bf          DATA 0xbf
+    db 0bfh                 ;0617  bf          DATA 0xbf
+    db 0bfh                 ;0618  bf          DATA 0xbf
+    db 0bfh                 ;0619  bf          DATA 0xbf
+    db 0bfh                 ;061a  bf          DATA 0xbf
+    db 0bfh                 ;061b  bf          DATA 0xbf
+    db 0bfh                 ;061c  bf          DATA 0xbf
+    db 0bfh                 ;061d  bf          DATA 0xbf
+    db 0bfh                 ;061e  bf          DATA 0xbf
+    db 0bfh                 ;061f  bf          DATA 0xbf
+    db 0bfh                 ;0620  bf          DATA 0xbf
+    db 0bfh                 ;0621  bf          DATA 0xbf
+    db 0bfh                 ;0622  bf          DATA 0xbf
+    db 0bfh                 ;0623  bf          DATA 0xbf
+    db 0bfh                 ;0624  bf          DATA 0xbf
+    db 0bfh                 ;0625  bf          DATA 0xbf
+    db 0bfh                 ;0626  bf          DATA 0xbf
+    db 0bfh                 ;0627  bf          DATA 0xbf
+    db 0bfh                 ;0628  bf          DATA 0xbf
+    db 0bfh                 ;0629  bf          DATA 0xbf
+    db 0bfh                 ;062a  bf          DATA 0xbf
+    db 0bfh                 ;062b  bf          DATA 0xbf
+    db 0bfh                 ;062c  bf          DATA 0xbf
+    db 0bfh                 ;062d  bf          DATA 0xbf
+    db 0bfh                 ;062e  bf          DATA 0xbf
+    db 0bfh                 ;062f  bf          DATA 0xbf
+    db 0bfh                 ;0630  bf          DATA 0xbf
+    db 0bfh                 ;0631  bf          DATA 0xbf
+    db 0bfh                 ;0632  bf          DATA 0xbf
+    db 0bfh                 ;0633  bf          DATA 0xbf
+    db 0bfh                 ;0634  bf          DATA 0xbf
+    db 0bfh                 ;0635  bf          DATA 0xbf
+    db 0bfh                 ;0636  bf          DATA 0xbf
+    db 0bfh                 ;0637  bf          DATA 0xbf
+    db 0bfh                 ;0638  bf          DATA 0xbf
+    db 0bfh                 ;0639  bf          DATA 0xbf
+    db 0bfh                 ;063a  bf          DATA 0xbf
+    db 0bfh                 ;063b  bf          DATA 0xbf
+    db 0bfh                 ;063c  bf          DATA 0xbf
+    db 0bfh                 ;063d  bf          DATA 0xbf
+    db 0bfh                 ;063e  bf          DATA 0xbf
+    db 0bfh                 ;063f  bf          DATA 0xbf
+    db 0bfh                 ;0640  bf          DATA 0xbf
+    db 0bfh                 ;0641  bf          DATA 0xbf
+    db 0bfh                 ;0642  bf          DATA 0xbf
+    db 0bfh                 ;0643  bf          DATA 0xbf
+    db 0bfh                 ;0644  bf          DATA 0xbf
+    db 0bfh                 ;0645  bf          DATA 0xbf
+    db 0bfh                 ;0646  bf          DATA 0xbf
+    db 0bfh                 ;0647  bf          DATA 0xbf
+    db 0bfh                 ;0648  bf          DATA 0xbf
+    db 0bfh                 ;0649  bf          DATA 0xbf
+    db 0bfh                 ;064a  bf          DATA 0xbf
+    db 0bfh                 ;064b  bf          DATA 0xbf
+    db 0bfh                 ;064c  bf          DATA 0xbf
+    db 0bfh                 ;064d  bf          DATA 0xbf
+    db 0bfh                 ;064e  bf          DATA 0xbf
+    db 0bfh                 ;064f  bf          DATA 0xbf
+    db 0bfh                 ;0650  bf          DATA 0xbf
+    db 0bfh                 ;0651  bf          DATA 0xbf
+    db 0bfh                 ;0652  bf          DATA 0xbf
+    db 0bfh                 ;0653  bf          DATA 0xbf
+    db 0bfh                 ;0654  bf          DATA 0xbf
+    db 0bfh                 ;0655  bf          DATA 0xbf
+    db 0bfh                 ;0656  bf          DATA 0xbf
+    db 0bfh                 ;0657  bf          DATA 0xbf
+    db 0bfh                 ;0658  bf          DATA 0xbf
+    db 0bfh                 ;0659  bf          DATA 0xbf
+    db 0bfh                 ;065a  bf          DATA 0xbf
+    db 0bfh                 ;065b  bf          DATA 0xbf
+    db 0bfh                 ;065c  bf          DATA 0xbf
+    db 0bfh                 ;065d  bf          DATA 0xbf
+    db 0bfh                 ;065e  bf          DATA 0xbf
+    db 0bfh                 ;065f  bf          DATA 0xbf
+    db 0bfh                 ;0660  bf          DATA 0xbf
+    db 0bfh                 ;0661  bf          DATA 0xbf
+    db 0bfh                 ;0662  bf          DATA 0xbf
+    db 0bfh                 ;0663  bf          DATA 0xbf
+    db 0bfh                 ;0664  bf          DATA 0xbf
+    db 0bfh                 ;0665  bf          DATA 0xbf
+    db 0bfh                 ;0666  bf          DATA 0xbf
+    db 0bfh                 ;0667  bf          DATA 0xbf
+    db 0bfh                 ;0668  bf          DATA 0xbf
+    db 0bfh                 ;0669  bf          DATA 0xbf
+    db 0bfh                 ;066a  bf          DATA 0xbf
+    db 0bfh                 ;066b  bf          DATA 0xbf
+    db 0bfh                 ;066c  bf          DATA 0xbf
+    db 0bfh                 ;066d  bf          DATA 0xbf
+    db 0bfh                 ;066e  bf          DATA 0xbf
+    db 0bfh                 ;066f  bf          DATA 0xbf
+    db 0bfh                 ;0670  bf          DATA 0xbf
+    db 0bfh                 ;0671  bf          DATA 0xbf
+    db 0bfh                 ;0672  bf          DATA 0xbf
+    db 0bfh                 ;0673  bf          DATA 0xbf
+    db 0bfh                 ;0674  bf          DATA 0xbf
+    db 0bfh                 ;0675  bf          DATA 0xbf
+    db 0bfh                 ;0676  bf          DATA 0xbf
+    db 0bfh                 ;0677  bf          DATA 0xbf
+    db 0bfh                 ;0678  bf          DATA 0xbf
+    db 0bfh                 ;0679  bf          DATA 0xbf
+    db 0bfh                 ;067a  bf          DATA 0xbf
+    db 0bfh                 ;067b  bf          DATA 0xbf
+    db 0bfh                 ;067c  bf          DATA 0xbf
+    db 0bfh                 ;067d  bf          DATA 0xbf
+    db 0bfh                 ;067e  bf          DATA 0xbf
+    db 0bfh                 ;067f  bf          DATA 0xbf
+    db 0bfh                 ;0680  bf          DATA 0xbf
+    db 0bfh                 ;0681  bf          DATA 0xbf
+    db 0bfh                 ;0682  bf          DATA 0xbf
+    db 0bfh                 ;0683  bf          DATA 0xbf
+    db 0bfh                 ;0684  bf          DATA 0xbf
+    db 0bfh                 ;0685  bf          DATA 0xbf
+    db 0bfh                 ;0686  bf          DATA 0xbf
+    db 0bfh                 ;0687  bf          DATA 0xbf
+    db 0bfh                 ;0688  bf          DATA 0xbf
+    db 0bfh                 ;0689  bf          DATA 0xbf
+    db 0bfh                 ;068a  bf          DATA 0xbf
+    db 0bfh                 ;068b  bf          DATA 0xbf
+    db 0bfh                 ;068c  bf          DATA 0xbf
+    db 0bfh                 ;068d  bf          DATA 0xbf
+    db 0bfh                 ;068e  bf          DATA 0xbf
+    db 0bfh                 ;068f  bf          DATA 0xbf
+    db 0bfh                 ;0690  bf          DATA 0xbf
+    db 0bfh                 ;0691  bf          DATA 0xbf
+    db 0bfh                 ;0692  bf          DATA 0xbf
+    db 0bfh                 ;0693  bf          DATA 0xbf
+    db 0bfh                 ;0694  bf          DATA 0xbf
+    db 0bfh                 ;0695  bf          DATA 0xbf
+    db 0bfh                 ;0696  bf          DATA 0xbf
+    db 0bfh                 ;0697  bf          DATA 0xbf
+    db 0bfh                 ;0698  bf          DATA 0xbf
+    db 0bfh                 ;0699  bf          DATA 0xbf
+    db 0bfh                 ;069a  bf          DATA 0xbf
+    db 0bfh                 ;069b  bf          DATA 0xbf
+    db 0bfh                 ;069c  bf          DATA 0xbf
+    db 0bfh                 ;069d  bf          DATA 0xbf
+    db 0bfh                 ;069e  bf          DATA 0xbf
+    db 0bfh                 ;069f  bf          DATA 0xbf
+    db 0bfh                 ;06a0  bf          DATA 0xbf
+    db 0bfh                 ;06a1  bf          DATA 0xbf
+    db 0bfh                 ;06a2  bf          DATA 0xbf
+    db 0bfh                 ;06a3  bf          DATA 0xbf
+    db 0bfh                 ;06a4  bf          DATA 0xbf
+    db 0bfh                 ;06a5  bf          DATA 0xbf
+    db 0bfh                 ;06a6  bf          DATA 0xbf
+    db 0bfh                 ;06a7  bf          DATA 0xbf
+    db 0bfh                 ;06a8  bf          DATA 0xbf
+    db 0bfh                 ;06a9  bf          DATA 0xbf
+    db 0bfh                 ;06aa  bf          DATA 0xbf
+    db 0bfh                 ;06ab  bf          DATA 0xbf
+    db 0bfh                 ;06ac  bf          DATA 0xbf
+    db 0bfh                 ;06ad  bf          DATA 0xbf
+    db 0bfh                 ;06ae  bf          DATA 0xbf
+    db 0bfh                 ;06af  bf          DATA 0xbf
+    db 0bfh                 ;06b0  bf          DATA 0xbf
+    db 0bfh                 ;06b1  bf          DATA 0xbf
+    db 0bfh                 ;06b2  bf          DATA 0xbf
+    db 0bfh                 ;06b3  bf          DATA 0xbf
+    db 0bfh                 ;06b4  bf          DATA 0xbf
+    db 0bfh                 ;06b5  bf          DATA 0xbf
+    db 0bfh                 ;06b6  bf          DATA 0xbf
+    db 0bfh                 ;06b7  bf          DATA 0xbf
+    db 0bfh                 ;06b8  bf          DATA 0xbf
+    db 0bfh                 ;06b9  bf          DATA 0xbf
+    db 0bfh                 ;06ba  bf          DATA 0xbf
+    db 0bfh                 ;06bb  bf          DATA 0xbf
+    db 0bfh                 ;06bc  bf          DATA 0xbf
+    db 0bfh                 ;06bd  bf          DATA 0xbf
+    db 0bfh                 ;06be  bf          DATA 0xbf
+    db 0bfh                 ;06bf  bf          DATA 0xbf
+    db 0bfh                 ;06c0  bf          DATA 0xbf
+    db 0bfh                 ;06c1  bf          DATA 0xbf
+    db 0bfh                 ;06c2  bf          DATA 0xbf
+    db 0bfh                 ;06c3  bf          DATA 0xbf
+    db 0bfh                 ;06c4  bf          DATA 0xbf
+    db 0bfh                 ;06c5  bf          DATA 0xbf
+    db 0bfh                 ;06c6  bf          DATA 0xbf
+    db 0bfh                 ;06c7  bf          DATA 0xbf
+    db 0bfh                 ;06c8  bf          DATA 0xbf
+    db 0bfh                 ;06c9  bf          DATA 0xbf
+    db 0bfh                 ;06ca  bf          DATA 0xbf
+    db 0bfh                 ;06cb  bf          DATA 0xbf
+    db 0bfh                 ;06cc  bf          DATA 0xbf
+    db 0bfh                 ;06cd  bf          DATA 0xbf
+    db 0bfh                 ;06ce  bf          DATA 0xbf
+    db 0bfh                 ;06cf  bf          DATA 0xbf
+    db 0bfh                 ;06d0  bf          DATA 0xbf
+    db 0bfh                 ;06d1  bf          DATA 0xbf
+    db 0bfh                 ;06d2  bf          DATA 0xbf
+    db 0bfh                 ;06d3  bf          DATA 0xbf
+    db 0bfh                 ;06d4  bf          DATA 0xbf
+    db 0bfh                 ;06d5  bf          DATA 0xbf
+    db 0bfh                 ;06d6  bf          DATA 0xbf
+    db 0bfh                 ;06d7  bf          DATA 0xbf
+    db 0bfh                 ;06d8  bf          DATA 0xbf
+    db 0bfh                 ;06d9  bf          DATA 0xbf
+    db 0bfh                 ;06da  bf          DATA 0xbf
+    db 0bfh                 ;06db  bf          DATA 0xbf
+    db 0bfh                 ;06dc  bf          DATA 0xbf
+    db 0bfh                 ;06dd  bf          DATA 0xbf
+    db 0bfh                 ;06de  bf          DATA 0xbf
+    db 0bfh                 ;06df  bf          DATA 0xbf
+    db 0bfh                 ;06e0  bf          DATA 0xbf
+    db 0bfh                 ;06e1  bf          DATA 0xbf
+    db 0bfh                 ;06e2  bf          DATA 0xbf
+    db 0bfh                 ;06e3  bf          DATA 0xbf
+    db 0bfh                 ;06e4  bf          DATA 0xbf
+    db 0bfh                 ;06e5  bf          DATA 0xbf
+    db 0bfh                 ;06e6  bf          DATA 0xbf
+    db 0bfh                 ;06e7  bf          DATA 0xbf
+    db 0bfh                 ;06e8  bf          DATA 0xbf
+    db 0bfh                 ;06e9  bf          DATA 0xbf
+    db 0bfh                 ;06ea  bf          DATA 0xbf
+    db 0bfh                 ;06eb  bf          DATA 0xbf
+    db 0bfh                 ;06ec  bf          DATA 0xbf
+    db 0bfh                 ;06ed  bf          DATA 0xbf
+    db 0bfh                 ;06ee  bf          DATA 0xbf
+    db 0bfh                 ;06ef  bf          DATA 0xbf
+    db 0bfh                 ;06f0  bf          DATA 0xbf
+    db 0bfh                 ;06f1  bf          DATA 0xbf
+    db 0bfh                 ;06f2  bf          DATA 0xbf
+    db 0bfh                 ;06f3  bf          DATA 0xbf
+    db 0bfh                 ;06f4  bf          DATA 0xbf
+    db 0bfh                 ;06f5  bf          DATA 0xbf
+    db 0bfh                 ;06f6  bf          DATA 0xbf
+    db 0bfh                 ;06f7  bf          DATA 0xbf
+    db 0bfh                 ;06f8  bf          DATA 0xbf
+    db 0bfh                 ;06f9  bf          DATA 0xbf
+    db 0bfh                 ;06fa  bf          DATA 0xbf
+    db 0bfh                 ;06fb  bf          DATA 0xbf
+    db 0bfh                 ;06fc  bf          DATA 0xbf
+    db 0bfh                 ;06fd  bf          DATA 0xbf
+    db 0bfh                 ;06fe  bf          DATA 0xbf
+    db 0bfh                 ;06ff  bf          DATA 0xbf
+    db 0bfh                 ;0700  bf          DATA 0xbf
+    db 0bfh                 ;0701  bf          DATA 0xbf
+    db 0bfh                 ;0702  bf          DATA 0xbf
+    db 0bfh                 ;0703  bf          DATA 0xbf
+    db 0bfh                 ;0704  bf          DATA 0xbf
+    db 0bfh                 ;0705  bf          DATA 0xbf
+    db 0bfh                 ;0706  bf          DATA 0xbf
+    db 0bfh                 ;0707  bf          DATA 0xbf
+    db 0bfh                 ;0708  bf          DATA 0xbf
+    db 0bfh                 ;0709  bf          DATA 0xbf
+    db 0bfh                 ;070a  bf          DATA 0xbf
+    db 0bfh                 ;070b  bf          DATA 0xbf
+    db 0bfh                 ;070c  bf          DATA 0xbf
+    db 0bfh                 ;070d  bf          DATA 0xbf
+    db 0bfh                 ;070e  bf          DATA 0xbf
+    db 0bfh                 ;070f  bf          DATA 0xbf
+    db 0bfh                 ;0710  bf          DATA 0xbf
+    db 0bfh                 ;0711  bf          DATA 0xbf
+    db 0bfh                 ;0712  bf          DATA 0xbf
+    db 0bfh                 ;0713  bf          DATA 0xbf
+    db 0bfh                 ;0714  bf          DATA 0xbf
+    db 0bfh                 ;0715  bf          DATA 0xbf
+    db 0bfh                 ;0716  bf          DATA 0xbf
+    db 0bfh                 ;0717  bf          DATA 0xbf
+    db 0bfh                 ;0718  bf          DATA 0xbf
+    db 0bfh                 ;0719  bf          DATA 0xbf
+    db 0bfh                 ;071a  bf          DATA 0xbf
+    db 0bfh                 ;071b  bf          DATA 0xbf
+    db 0bfh                 ;071c  bf          DATA 0xbf
+    db 0bfh                 ;071d  bf          DATA 0xbf
+    db 0bfh                 ;071e  bf          DATA 0xbf
+    db 0bfh                 ;071f  bf          DATA 0xbf
+    db 0bfh                 ;0720  bf          DATA 0xbf
+    db 0bfh                 ;0721  bf          DATA 0xbf
+    db 0bfh                 ;0722  bf          DATA 0xbf
+    db 0bfh                 ;0723  bf          DATA 0xbf
+    db 0bfh                 ;0724  bf          DATA 0xbf
+    db 0bfh                 ;0725  bf          DATA 0xbf
+    db 0bfh                 ;0726  bf          DATA 0xbf
+    db 0bfh                 ;0727  bf          DATA 0xbf
+    db 0bfh                 ;0728  bf          DATA 0xbf
+    db 0bfh                 ;0729  bf          DATA 0xbf
+    db 0bfh                 ;072a  bf          DATA 0xbf
+    db 0bfh                 ;072b  bf          DATA 0xbf
+    db 0bfh                 ;072c  bf          DATA 0xbf
+    db 0bfh                 ;072d  bf          DATA 0xbf
+    db 0bfh                 ;072e  bf          DATA 0xbf
+    db 0bfh                 ;072f  bf          DATA 0xbf
+    db 0bfh                 ;0730  bf          DATA 0xbf
+    db 0bfh                 ;0731  bf          DATA 0xbf
+    db 0bfh                 ;0732  bf          DATA 0xbf
+    db 0bfh                 ;0733  bf          DATA 0xbf
+    db 0bfh                 ;0734  bf          DATA 0xbf
+    db 0bfh                 ;0735  bf          DATA 0xbf
+    db 0bfh                 ;0736  bf          DATA 0xbf
+    db 0bfh                 ;0737  bf          DATA 0xbf
+    db 0bfh                 ;0738  bf          DATA 0xbf
+    db 0bfh                 ;0739  bf          DATA 0xbf
+    db 0bfh                 ;073a  bf          DATA 0xbf
+    db 0bfh                 ;073b  bf          DATA 0xbf
+    db 0bfh                 ;073c  bf          DATA 0xbf
+    db 0bfh                 ;073d  bf          DATA 0xbf
+    db 0bfh                 ;073e  bf          DATA 0xbf
+    db 0bfh                 ;073f  bf          DATA 0xbf
+    db 0bfh                 ;0740  bf          DATA 0xbf
+    db 0bfh                 ;0741  bf          DATA 0xbf
+    db 0bfh                 ;0742  bf          DATA 0xbf
+    db 0bfh                 ;0743  bf          DATA 0xbf
+    db 0bfh                 ;0744  bf          DATA 0xbf
+    db 0bfh                 ;0745  bf          DATA 0xbf
+    db 0bfh                 ;0746  bf          DATA 0xbf
+    db 0bfh                 ;0747  bf          DATA 0xbf
+    db 0bfh                 ;0748  bf          DATA 0xbf
+    db 0bfh                 ;0749  bf          DATA 0xbf
+    db 0bfh                 ;074a  bf          DATA 0xbf
+    db 0bfh                 ;074b  bf          DATA 0xbf
+    db 0bfh                 ;074c  bf          DATA 0xbf
+    db 0bfh                 ;074d  bf          DATA 0xbf
+    db 0bfh                 ;074e  bf          DATA 0xbf
+    db 0bfh                 ;074f  bf          DATA 0xbf
+    db 0bfh                 ;0750  bf          DATA 0xbf
+    db 0bfh                 ;0751  bf          DATA 0xbf
+    db 0bfh                 ;0752  bf          DATA 0xbf
+    db 0bfh                 ;0753  bf          DATA 0xbf
+    db 0bfh                 ;0754  bf          DATA 0xbf
+    db 0bfh                 ;0755  bf          DATA 0xbf
+    db 0bfh                 ;0756  bf          DATA 0xbf
+    db 0bfh                 ;0757  bf          DATA 0xbf
+    db 0bfh                 ;0758  bf          DATA 0xbf
+    db 0bfh                 ;0759  bf          DATA 0xbf
+    db 0bfh                 ;075a  bf          DATA 0xbf
+    db 0bfh                 ;075b  bf          DATA 0xbf
+    db 0bfh                 ;075c  bf          DATA 0xbf
+    db 0bfh                 ;075d  bf          DATA 0xbf
+    db 0bfh                 ;075e  bf          DATA 0xbf
+    db 0bfh                 ;075f  bf          DATA 0xbf
+    db 0bfh                 ;0760  bf          DATA 0xbf
+    db 0bfh                 ;0761  bf          DATA 0xbf
+    db 0bfh                 ;0762  bf          DATA 0xbf
+    db 0bfh                 ;0763  bf          DATA 0xbf
+    db 0bfh                 ;0764  bf          DATA 0xbf
+    db 0bfh                 ;0765  bf          DATA 0xbf
+    db 0bfh                 ;0766  bf          DATA 0xbf
+    db 0bfh                 ;0767  bf          DATA 0xbf
+    db 0bfh                 ;0768  bf          DATA 0xbf
+    db 0bfh                 ;0769  bf          DATA 0xbf
+    db 0bfh                 ;076a  bf          DATA 0xbf
+    db 0bfh                 ;076b  bf          DATA 0xbf
+    db 0bfh                 ;076c  bf          DATA 0xbf
+    db 0bfh                 ;076d  bf          DATA 0xbf
+    db 0bfh                 ;076e  bf          DATA 0xbf
+    db 0bfh                 ;076f  bf          DATA 0xbf
+    db 0bfh                 ;0770  bf          DATA 0xbf
+    db 0bfh                 ;0771  bf          DATA 0xbf
+    db 0bfh                 ;0772  bf          DATA 0xbf
+    db 0bfh                 ;0773  bf          DATA 0xbf
+    db 0bfh                 ;0774  bf          DATA 0xbf
+    db 0bfh                 ;0775  bf          DATA 0xbf
+    db 0bfh                 ;0776  bf          DATA 0xbf
+    db 0bfh                 ;0777  bf          DATA 0xbf
+    db 0bfh                 ;0778  bf          DATA 0xbf
+    db 0bfh                 ;0779  bf          DATA 0xbf
+    db 0bfh                 ;077a  bf          DATA 0xbf
+    db 0bfh                 ;077b  bf          DATA 0xbf
+    db 0bfh                 ;077c  bf          DATA 0xbf
+    db 0bfh                 ;077d  bf          DATA 0xbf
+    db 0bfh                 ;077e  bf          DATA 0xbf
+    db 0bfh                 ;077f  bf          DATA 0xbf
+    db 0bfh                 ;0780  bf          DATA 0xbf
+    db 0bfh                 ;0781  bf          DATA 0xbf
+    db 0bfh                 ;0782  bf          DATA 0xbf
+    db 0bfh                 ;0783  bf          DATA 0xbf
+    db 0bfh                 ;0784  bf          DATA 0xbf
+    db 0bfh                 ;0785  bf          DATA 0xbf
+    db 0bfh                 ;0786  bf          DATA 0xbf
+    db 0bfh                 ;0787  bf          DATA 0xbf
+    db 0bfh                 ;0788  bf          DATA 0xbf
+    db 0bfh                 ;0789  bf          DATA 0xbf
+    db 0bfh                 ;078a  bf          DATA 0xbf
+    db 0bfh                 ;078b  bf          DATA 0xbf
+    db 0bfh                 ;078c  bf          DATA 0xbf
+    db 0bfh                 ;078d  bf          DATA 0xbf
+    db 0bfh                 ;078e  bf          DATA 0xbf
+    db 0bfh                 ;078f  bf          DATA 0xbf
+    db 0bfh                 ;0790  bf          DATA 0xbf
+    db 0bfh                 ;0791  bf          DATA 0xbf
+    db 0bfh                 ;0792  bf          DATA 0xbf
+    db 0bfh                 ;0793  bf          DATA 0xbf
+    db 0bfh                 ;0794  bf          DATA 0xbf
+    db 0bfh                 ;0795  bf          DATA 0xbf
+    db 0bfh                 ;0796  bf          DATA 0xbf
+    db 0bfh                 ;0797  bf          DATA 0xbf
+    db 0bfh                 ;0798  bf          DATA 0xbf
+    db 0bfh                 ;0799  bf          DATA 0xbf
+    db 0bfh                 ;079a  bf          DATA 0xbf
+    db 0bfh                 ;079b  bf          DATA 0xbf
+    db 0bfh                 ;079c  bf          DATA 0xbf
+    db 0bfh                 ;079d  bf          DATA 0xbf
+    db 0bfh                 ;079e  bf          DATA 0xbf
+    db 0bfh                 ;079f  bf          DATA 0xbf
+    db 0bfh                 ;07a0  bf          DATA 0xbf
+    db 0bfh                 ;07a1  bf          DATA 0xbf
+    db 0bfh                 ;07a2  bf          DATA 0xbf
+    db 0bfh                 ;07a3  bf          DATA 0xbf
     db 0ffh                 ;07a4  ff          DATA 0xff
-
-unused_2:
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
+    db 0bfh                 ;07a5  bf          DATA 0xbf
+    db 0bfh                 ;07a6  bf          DATA 0xbf
+    db 0bfh                 ;07a7  bf          DATA 0xbf
+    db 0bfh                 ;07a8  bf          DATA 0xbf
+    db 0bfh                 ;07a9  bf          DATA 0xbf
+    db 0bfh                 ;07aa  bf          DATA 0xbf
+    db 0bfh                 ;07ab  bf          DATA 0xbf
+    db 0bfh                 ;07ac  bf          DATA 0xbf
+    db 0bfh                 ;07ad  bf          DATA 0xbf
+    db 0bfh                 ;07ae  bf          DATA 0xbf
+    db 0bfh                 ;07af  bf          DATA 0xbf
+    db 0bfh                 ;07b0  bf          DATA 0xbf
+    db 0bfh                 ;07b1  bf          DATA 0xbf
+    db 0bfh                 ;07b2  bf          DATA 0xbf
+    db 0bfh                 ;07b3  bf          DATA 0xbf
+    db 0bfh                 ;07b4  bf          DATA 0xbf
+    db 0bfh                 ;07b5  bf          DATA 0xbf
+    db 0bfh                 ;07b6  bf          DATA 0xbf
+    db 0bfh                 ;07b7  bf          DATA 0xbf
+    db 0bfh                 ;07b8  bf          DATA 0xbf
+    db 0bfh                 ;07b9  bf          DATA 0xbf
+    db 0bfh                 ;07ba  bf          DATA 0xbf
+    db 0bfh                 ;07bb  bf          DATA 0xbf
+    db 0bfh                 ;07bc  bf          DATA 0xbf
+    db 0bfh                 ;07bd  bf          DATA 0xbf
+    db 0bfh                 ;07be  bf          DATA 0xbf
+    db 0bfh                 ;07bf  bf          DATA 0xbf
+    db 0bfh                 ;07c0  bf          DATA 0xbf
+    db 0bfh                 ;07c1  bf          DATA 0xbf
+    db 0bfh                 ;07c2  bf          DATA 0xbf
+    db 0bfh                 ;07c3  bf          DATA 0xbf
+    db 0bfh                 ;07c4  bf          DATA 0xbf
+    db 0bfh                 ;07c5  bf          DATA 0xbf
+    db 0bfh                 ;07c6  bf          DATA 0xbf
+    db 0bfh                 ;07c7  bf          DATA 0xbf
+    db 0bfh                 ;07c8  bf          DATA 0xbf
+    db 0bfh                 ;07c9  bf          DATA 0xbf
+    db 0bfh                 ;07ca  bf          DATA 0xbf
+    db 0bfh                 ;07cb  bf          DATA 0xbf
+    db 0bfh                 ;07cc  bf          DATA 0xbf
+    db 0bfh                 ;07cd  bf          DATA 0xbf
+    db 0bfh                 ;07ce  bf          DATA 0xbf
+    db 0bfh                 ;07cf  bf          DATA 0xbf
+    db 0bfh                 ;07d0  bf          DATA 0xbf
+    db 0bfh                 ;07d1  bf          DATA 0xbf
+    db 0bfh                 ;07d2  bf          DATA 0xbf
+    db 0bfh                 ;07d3  bf          DATA 0xbf
+    db 0bfh                 ;07d4  bf          DATA 0xbf
+    db 0bfh                 ;07d5  bf          DATA 0xbf
+    db 0bfh                 ;07d6  bf          DATA 0xbf
+    db 0bfh                 ;07d7  bf          DATA 0xbf
+    db 0bfh                 ;07d8  bf          DATA 0xbf
+    db 0bfh                 ;07d9  bf          DATA 0xbf
+    db 0bfh                 ;07da  bf          DATA 0xbf
+    db 0bfh                 ;07db  bf          DATA 0xbf
+    db 0bfh                 ;07dc  bf          DATA 0xbf
+    db 0bfh                 ;07dd  bf          DATA 0xbf
+    db 0bfh                 ;07de  bf          DATA 0xbf
+    db 0bfh                 ;07df  bf          DATA 0xbf
+    db 0bfh                 ;07e0  bf          DATA 0xbf
+    db 0bfh                 ;07e1  bf          DATA 0xbf
+    db 0bfh                 ;07e2  bf          DATA 0xbf
+    db 0bfh                 ;07e3  bf          DATA 0xbf
+    db 0bfh                 ;07e4  bf          DATA 0xbf
+    db 0bfh                 ;07e5  bf          DATA 0xbf
+    db 0bfh                 ;07e6  bf          DATA 0xbf
+    db 0bfh                 ;07e7  bf          DATA 0xbf
+    db 0bfh                 ;07e8  bf          DATA 0xbf
+    db 0bfh                 ;07e9  bf          DATA 0xbf
+    db 0bfh                 ;07ea  bf          DATA 0xbf
+    db 0bfh                 ;07eb  bf          DATA 0xbf
+    db 0bfh                 ;07ec  bf          DATA 0xbf
+    db 0bfh                 ;07ed  bf          DATA 0xbf
+    db 0bfh                 ;07ee  bf          DATA 0xbf
+    db 0bfh                 ;07ef  bf          DATA 0xbf
+    db 0bfh                 ;07f0  bf          DATA 0xbf
+    db 0bfh                 ;07f1  bf          DATA 0xbf
+    db 0bfh                 ;07f2  bf          DATA 0xbf
+    db 0bfh                 ;07f3  bf          DATA 0xbf
+    db 0bfh                 ;07f4  bf          DATA 0xbf
+    db 0bfh                 ;07f5  bf          DATA 0xbf
+    db 0bfh                 ;07f6  bf          DATA 0xbf
+    db 0bfh                 ;07f7  bf          DATA 0xbf
+    db 0bfh                 ;07f8  bf          DATA 0xbf
+    db 0bfh                 ;07f9  bf          DATA 0xbf
+    db 0bfh                 ;07fa  bf          DATA 0xbf
+    db 0bfh                 ;07fb  bf          DATA 0xbf
+    db 0bfh                 ;07fc  bf          DATA 0xbf
+    db 0bfh                 ;07fd  bf          DATA 0xbf
+    db 0bfh                 ;07fe  bf          DATA 0xbf
+    db 0bfh                 ;07ff  bf          DATA 0xbf
 
 sub_0800:
     mov a,!0f253h           ;0800  8e 53 f2
@@ -793,20 +1979,20 @@ sub_0879:
     ret                     ;0879  af
 
 sub_087a:
-    clr1 IF0H.4             ;087a  71 4b e1
+    clr1 IF0H_.4            ;087a  71 4b e1
     set1 0fe5fh.0           ;087d  0a 5f
-    mov SIO30,a             ;087f  f2 1a
+    mov SIO30_,a            ;087f  f2 1a
     push bc                 ;0881  b3
     mov b,#00h              ;0882  a3 00
 
 lab_0884:
-    bt IF0H.4,$lab_088d     ;0884  31 46 e1 05
+    bt IF0H_.4,$lab_088d    ;0884  31 46 e1 05
     dbnz b,$lab_0884        ;0888  8b fa
     nop                     ;088a  00
     clr1 0fe5fh.0           ;088b  0b 5f
 
 lab_088d:
-    mov a,SIO30             ;088d  f0 1a
+    mov a,SIO30_            ;088d  f0 1a
     pop bc                  ;088f  b2
     ret                     ;0890  af
 
@@ -814,17 +2000,17 @@ sub_0891:
     set1 0fecdh.2           ;0891  2a cd
     set1 0fecdh.1           ;0893  1a cd
     mov a,0fecdh            ;0895  f0 cd
-    mov P3,a                ;0897  f2 03
-    mov CSIM30,#00h         ;0899  13 b0 00
-    clr1 PM3.2              ;089c  71 2b 23
-    clr1 PM3.1              ;089f  71 1b 23
-    clr1 PU3.0              ;08a2  71 0b 33
-    set1 PM3.0              ;08a5  71 0a 23
+    mov P3_,a               ;0897  f2 03
+    mov CSIM30_,#00h        ;0899  13 b0 00
+    clr1 PM3_.2             ;089c  71 2b 23
+    clr1 PM3_.1             ;089f  71 1b 23
+    clr1 PU3_.0             ;08a2  71 0b 33
+    set1 PM3_.0             ;08a5  71 0a 23
     ret                     ;08a8  af
 
 lab_08a9:
     sel rb2                 ;08a9  61 f0
-    mov a,SIO30             ;08ab  f0 1a
+    mov a,SIO30_            ;08ab  f0 1a
     bt 0fe5fh.1,$lab_08b1   ;08ad  9c 5f 01
     mov [hl],a              ;08b0  97
 
@@ -835,12 +2021,12 @@ lab_08b1:
     incw hl                 ;08b6  86
     inc c                   ;08b7  42
     mov a,[hl]              ;08b8  87
-    mov SIO30,a             ;08b9  f2 1a
+    mov SIO30_,a            ;08b9  f2 1a
     br $lab_08c9            ;08bb  fa 0c
 
 lab_08bd:
     set1 0fe5fh.0           ;08bd  0a 5f
-    set1 MK0H.4             ;08bf  71 4a e5
+    set1 MK0H_.4            ;08bf  71 4a e5
     bf 0fe60h.7,$lab_08c9   ;08c2  31 73 60 03
     call !sub_2f48          ;08c6  9a 48 2f
 
@@ -849,18 +2035,18 @@ lab_08c9:
     reti                    ;08cb  8f
 
 sub_08cc:
-    clr1 IF0H.5             ;08cc  71 5b e1
-    mov SIO31,a             ;08cf  f2 1b
+    clr1 IF0H_.5            ;08cc  71 5b e1
+    mov SIO31_,a            ;08cf  f2 1b
     push bc                 ;08d1  b3
     mov b,#00h              ;08d2  a3 00
 
 lab_08d4:
-    bt IF0H.5,$lab_08db     ;08d4  31 56 e1 03
+    bt IF0H_.5,$lab_08db    ;08d4  31 56 e1 03
     dbnz b,$lab_08d4        ;08d8  8b fa
     nop                     ;08da  00
 
 lab_08db:
-    mov a,SIO31             ;08db  f0 1b
+    mov a,SIO31_            ;08db  f0 1b
     pop bc                  ;08dd  b2
     ret                     ;08de  af
 
@@ -868,12 +2054,12 @@ sub_08df:
     set1 0fecch.2           ;08df  2a cc
     set1 0fecch.1           ;08e1  1a cc
     mov a,0fecch            ;08e3  f0 cc
-    mov P2,a                ;08e5  f2 02
-    mov CSIM31,#00h         ;08e7  13 b8 00
-    clr1 PM2.2              ;08ea  71 2b 22
-    clr1 PM2.1              ;08ed  71 1b 22
-    clr1 PU2.0              ;08f0  71 0b 32
-    set1 PM2.0              ;08f3  71 0a 22
+    mov P2_,a               ;08e5  f2 02
+    mov CSIM31_,#00h        ;08e7  13 b8 00
+    clr1 PM2_.2             ;08ea  71 2b 22
+    clr1 PM2_.1             ;08ed  71 1b 22
+    clr1 PU2_.0             ;08f0  71 0b 32
+    set1 PM2_.0             ;08f3  71 0a 22
     ret                     ;08f6  af
 
 lab_08f7:
@@ -889,7 +2075,7 @@ lab_08f7:
     mov b,#00h              ;0906  a3 00
 
 lab_0908:
-    xch a,SIO31             ;0908  83 1b
+    xch a,SIO31_            ;0908  83 1b
     movw hl,#0f033h         ;090a  16 33 f0
     mov [hl+b],a            ;090d  bb
     inc b                   ;090e  43
@@ -1062,15 +2248,11 @@ lab_09db:
     mov 0fe2dh,a            ;09e3  f2 2d
     ret                     ;09e5  af
 
-    db 16h                  ;09e6  16          DATA 0x16
-    db 0b3h                 ;09e7  b3          DATA 0xb3
-    db 0f1h                 ;09e8  f1          DATA 0xf1
-    db 14h                  ;09e9  14          DATA 0x14
-    db 02h                  ;09ea  02          DATA 0x02
-    db 0f2h                 ;09eb  f2          DATA 0xf2
-    db 1ch                  ;09ec  1c          DATA 0x1c
-    db 0efh                 ;09ed  ef          DATA 0xef
-    db 0afh                 ;09ee  af          DATA 0xaf
+lab_09e6:
+    movw hl,#0f1b3h         ;09e6  16 b3 f1
+    movw de,#0f202h         ;09e9  14 02 f2
+    callf !sub_09ef         ;09ec  1c ef
+    ret                     ;09ee  af
 
 sub_09ef:
     movw ax,de              ;09ef  c4
@@ -1190,37 +2372,27 @@ sub_0a60:
 lab_0a7e:
     ret                     ;0a7e  af
 
-    db 0eeh                 ;0a7f  ee          DATA 0xee
-    db 0d4h                 ;0a80  d4          DATA 0xd4
-    db 00h                  ;0a81  00          DATA 0x00
-    db 00h                  ;0a82  00          DATA 0x00
-    db 0a3h                 ;0a83  a3          DATA 0xa3
-    db 10h                  ;0a84  10          DATA 0x10
-    db 30h                  ;0a85  30          DATA 0x30 '0'
-    db 27h                  ;0a86  27          DATA 0x27 '''
-    db 30h                  ;0a87  30          DATA 0x30 '0'
-    db 27h                  ;0a88  27          DATA 0x27 '''
-    db 0b1h                 ;0a89  b1          DATA 0xb1
-    db 0f0h                 ;0a8a  f0          DATA 0xf0
-    db 0d4h                 ;0a8b  d4          DATA 0xd4
-    db 2eh                  ;0a8c  2e          DATA 0x2e '.'
-    db 0d4h                 ;0a8d  d4          DATA 0xd4
-    db 61h                  ;0a8e  61          DATA 0x61 'a'
-    db 80h                  ;0a8f  80          DATA 0x80
-    db 0f2h                 ;0a90  f2          DATA 0xf2
-    db 0d4h                 ;0a91  d4          DATA 0xd4
-    db 0f0h                 ;0a92  f0          DATA 0xf0
-    db 0d5h                 ;0a93  d5          DATA 0xd5
-    db 2eh                  ;0a94  2e          DATA 0x2e '.'
-    db 0d5h                 ;0a95  d5          DATA 0xd5
-    db 61h                  ;0a96  61          DATA 0x61 'a'
-    db 80h                  ;0a97  80          DATA 0x80
-    db 0f2h                 ;0a98  f2          DATA 0xf2
-    db 0d5h                 ;0a99  d5          DATA 0xd5
-    db 0b0h                 ;0a9a  b0          DATA 0xb0
-    db 8bh                  ;0a9b  8b          DATA 0x8b
-    db 0e8h                 ;0a9c  e8          DATA 0xe8
-    db 0afh                 ;0a9d  af          DATA 0xaf
+sub_0a7f:
+    movw 0fed4h,#0000h      ;0a7f  ee d4 00 00
+    mov b,#10h              ;0a83  a3 10
+
+lab_0a85:
+    xch a,x                 ;0a85  30
+    rolc a,1                ;0a86  27
+    xch a,x                 ;0a87  30
+    rolc a,1                ;0a88  27
+    push ax                 ;0a89  b1
+    mov a,0fed4h            ;0a8a  f0 d4
+    addc a,0fed4h           ;0a8c  2e d4
+    adjba                   ;0a8e  61 80
+    mov 0fed4h,a            ;0a90  f2 d4
+    mov a,0fed5h            ;0a92  f0 d5
+    addc a,0fed5h           ;0a94  2e d5
+    adjba                   ;0a96  61 80
+    mov 0fed5h,a            ;0a98  f2 d5
+    pop ax                  ;0a9a  b0
+    dbnz b,$lab_0a85        ;0a9b  8b e8
+    ret                     ;0a9d  af
 
 sub_0a9e:
     ror a,1                 ;0a9e  24
@@ -1471,18 +2643,17 @@ lab_0b8e:
     pop bc                  ;0b8e  b2
     ret                     ;0b8f  af
 
-    db 5dh                  ;0b90  5d          DATA 0x5d ']'
-    db 0fh                  ;0b91  0f          DATA 0x0f
-    db 4dh                  ;0b92  4d          DATA 0x4d 'M'
-    db 0ah                  ;0b93  0a          DATA 0x0a
-    db 9dh                  ;0b94  9d          DATA 0x9d
-    db 03h                  ;0b95  03          DATA 0x03
-    db 0dh                  ;0b96  0d          DATA 0x0d
-    db 30h                  ;0b97  30          DATA 0x30 '0'
-    db 0afh                 ;0b98  af          DATA 0xaf
-    db 0dh                  ;0b99  0d          DATA 0x0d
-    db 37h                  ;0b9a  37          DATA 0x37 '7'
-    db 0afh                 ;0b9b  af          DATA 0xaf
+sub_0b90:
+    and a,#0fh              ;0b90  5d 0f
+    cmp a,#0ah              ;0b92  4d 0a
+    bnc $lab_0b99           ;0b94  9d 03
+    add a,#30h              ;0b96  0d 30
+    ret                     ;0b98  af
+
+lab_0b99:
+    add a,#37h              ;0b99  0d 37
+    ret                     ;0b9b  af
+
     db 0c2h                 ;0b9c  c2          DATA 0xc2
     db 64h                  ;0b9d  64          DATA 0x64 'd'
     db 31h                  ;0b9e  31          DATA 0x31 '1'
@@ -1536,17 +2707,15 @@ sub_0bad:
     addc b,a                ;0be1  61 23
     ret                     ;0be3  af
 
-    db 70h                  ;0be4  70          DATA 0x70 'p'
-    db 3ch                  ;0be5  3c          DATA 0x3c '<'
-    db 90h                  ;0be6  90          DATA 0x90
-    db 30h                  ;0be7  30          DATA 0x30 '0'
-    db 24h                  ;0be8  24          DATA 0x24 '$'
-    db 24h                  ;0be9  24          DATA 0x24 '$'
-    db 24h                  ;0bea  24          DATA 0x24 '$'
-    db 24h                  ;0beb  24          DATA 0x24 '$'
-    db 9bh                  ;0bec  9b          DATA 0x9b
-    db 90h                  ;0bed  90          DATA 0x90
-    db 0bh                  ;0bee  0b          DATA 0x0b
+sub_0be4:
+    mov x,a                 ;0be4  70
+    callf !sub_0b90         ;0be5  3c 90
+    xch a,x                 ;0be7  30
+    ror a,1                 ;0be8  24
+    ror a,1                 ;0be9  24
+    ror a,1                 ;0bea  24
+    ror a,1                 ;0beb  24
+    br !sub_0b90            ;0bec  9b 90 0b
 
 sub_0bef:
     mov x,#55h              ;0bef  a0 55
@@ -1774,24 +2943,27 @@ lab_0caa:
     db 48h                  ;0cc7  48          DATA 0x48 'H'
     db 0b0h                 ;0cc8  b0          DATA 0xb0
     db 0afh                 ;0cc9  af          DATA 0xaf
-    db 0b3h                 ;0cca  b3          DATA 0xb3
-    db 73h                  ;0ccb  73          DATA 0x73 's'
-    db 4dh                  ;0ccc  4d          DATA 0x4d 'M'
-    db 00h                  ;0ccd  00          DATA 0x00
-    db 0adh                 ;0cce  ad          DATA 0xad
-    db 08h                  ;0ccf  08          DATA 0x08
-    db 85h                  ;0cd0  85          DATA 0x85
-    db 4fh                  ;0cd1  4f          DATA 0x4f 'O'
-    db 0bdh                 ;0cd2  bd          DATA 0xbd
-    db 04h                  ;0cd3  04          DATA 0x04
-    db 86h                  ;0cd4  86          DATA 0x86
-    db 84h                  ;0cd5  84          DATA 0x84
-    db 8bh                  ;0cd6  8b          DATA 0x8b
-    db 0f8h                 ;0cd7  f8          DATA 0xf8
-    db 0b2h                 ;0cd8  b2          DATA 0xb2
-    db 0afh                 ;0cd9  af          DATA 0xaf
-    db 0a1h                 ;0cda  a1          DATA 0xa1
-    db 00h                  ;0cdb  00          DATA 0x00
+
+sub_0cca:
+    push bc                 ;0cca  b3
+    mov b,a                 ;0ccb  73
+    cmp a,#00h              ;0ccc  4d 00
+    bz $lab_0cd8            ;0cce  ad 08
+
+lab_0cd0:
+    mov a,[de]              ;0cd0  85
+    cmp a,[hl]              ;0cd1  4f
+    bnz $lab_0cd8           ;0cd2  bd 04
+    incw hl                 ;0cd4  86
+    incw de                 ;0cd5  84
+    dbnz b,$lab_0cd0        ;0cd6  8b f8
+
+lab_0cd8:
+    pop bc                  ;0cd8  b2
+    ret                     ;0cd9  af
+
+sub_0cda:
+    mov a,#00h              ;0cda  a1 00
 
 sub_0cdc:
     xch a,b                 ;0cdc  33
@@ -1820,30 +2992,28 @@ lab_0ce7:
     db 0b0h                 ;0cf1  b0          DATA 0xb0
     db 01h                  ;0cf2  01          DATA 0x01
     db 0afh                 ;0cf3  af          DATA 0xaf
-    db 0b5h                 ;0cf4  b5          DATA 0xb5
-    db 14h                  ;0cf5  14          DATA 0x14
-    db 00h                  ;0cf6  00          DATA 0x00
-    db 00h                  ;0cf7  00          DATA 0x00
-    db 0a3h                 ;0cf8  a3          DATA 0xa3
-    db 08h                  ;0cf9  08          DATA 0x08
-    db 27h                  ;0cfa  27          DATA 0x27 '''
-    db 70h                  ;0cfb  70          DATA 0x70 'p'
-    db 64h                  ;0cfc  64          DATA 0x64 'd'
-    db 61h                  ;0cfd  61          DATA 0x61 'a'
-    db 2ch                  ;0cfe  2c          DATA 0x2c ','
-    db 61h                  ;0cff  61          DATA 0x61 'a'
-    db 80h                  ;0d00  80          DATA 0x80
-    db 74h                  ;0d01  74          DATA 0x74 't'
-    db 65h                  ;0d02  65          DATA 0x65 'e'
-    db 61h                  ;0d03  61          DATA 0x61 'a'
-    db 2dh                  ;0d04  2d          DATA 0x2d '-'
-    db 75h                  ;0d05  75          DATA 0x75 'u'
-    db 60h                  ;0d06  60          DATA 0x60 '`'
-    db 8bh                  ;0d07  8b          DATA 0x8b
-    db 0f1h                 ;0d08  f1          DATA 0xf1
-    db 0c4h                 ;0d09  c4          DATA 0xc4
-    db 0b4h                 ;0d0a  b4          DATA 0xb4
-    db 0afh                 ;0d0b  af          DATA 0xaf
+
+sub_0cf4:
+    push de                 ;0cf4  b5
+    movw de,#0000h          ;0cf5  14 00 00
+    mov b,#08h              ;0cf8  a3 08
+
+lab_0cfa:
+    rolc a,1                ;0cfa  27
+    mov x,a                 ;0cfb  70
+    mov a,e                 ;0cfc  64
+    addc a,e                ;0cfd  61 2c
+    adjba                   ;0cff  61 80
+    mov e,a                 ;0d01  74
+    mov a,d                 ;0d02  65
+    addc a,d                ;0d03  61 2d
+    mov d,a                 ;0d05  75
+    mov a,x                 ;0d06  60
+    dbnz b,$lab_0cfa        ;0d07  8b f1
+    movw ax,de              ;0d09  c4
+    pop de                  ;0d0a  b4
+    ret                     ;0d0b  af
+
     db 62h                  ;0d0c  62          DATA 0x62 'b'
     db 5dh                  ;0d0d  5d          DATA 0x5d ']'
     db 0fh                  ;0d0e  0f          DATA 0x0f
@@ -1935,12 +3105,14 @@ lab_0ce7:
     db 61h                  ;0d64  61          DATA 0x61 'a'
     db 27h                  ;0d65  27          DATA 0x27 '''
     db 0afh                 ;0d66  af          DATA 0xaf
-    db 61h                  ;0d67  61          DATA 0x61 'a'
-    db 06h                  ;0d68  06          DATA 0x06
-    db 9dh                  ;0d69  9d          DATA 0x9d
-    db 01h                  ;0d6a  01          DATA 0x01
-    db 47h                  ;0d6b  47          DATA 0x47 'G'
-    db 0afh                 ;0d6c  af          DATA 0xaf
+
+sub_0d67:
+    add l,a                 ;0d67  61 06
+    bnc $lab_0d6c           ;0d69  9d 01
+    inc h                   ;0d6b  47
+
+lab_0d6c:
+    ret                     ;0d6c  af
 
 sub_0d6d:
     xch a,b                 ;0d6d  33
@@ -1952,32 +3124,32 @@ lab_0d73:
     xch a,b                 ;0d73  33
     ret                     ;0d74  af
 
-lab_0d75:
+sub_0d75:
     clr1 0fed3h.7           ;0d75  7b d3
-    clr1 PM9.7              ;0d77  71 7b 29
+    clr1 PM9_.7             ;0d77  71 7b 29
     mov a,0fed3h            ;0d7a  f0 d3
-    mov P9,a                ;0d7c  f2 09
+    mov P9_,a               ;0d7c  f2 09
     mov a,#00h              ;0d7e  a1 00
     mov !0f18eh,a           ;0d80  9e 8e f1
-    mov WDTM,#98h           ;0d83  13 f9 98
+    mov WDTM_,#98h          ;0d83  13 f9 98
 
 lab_0d86:
     br $lab_0d86            ;0d86  fa fe
 
 lab_0d88:
     di                      ;0d88  7b 1e
-    mov WDCS,#07h           ;0d8a  13 42 07
-    mov WDTM,#90h           ;0d8d  13 f9 90
-    mov PCC,#00h            ;0d90  13 fb 00
+    mov WDCS_,#07h          ;0d8a  13 42 07
+    mov WDTM_,#90h          ;0d8d  13 f9 90
+    mov PCC_,#00h           ;0d90  13 fb 00
     movw sp,#0fe1fh         ;0d93  ee 1c 1f fe
     clr1 0fecdh.4           ;0d97  4b cd
-    clr1 PM3.4              ;0d99  71 4b 23
+    clr1 PM3_.4             ;0d99  71 4b 23
     mov a,0fecdh            ;0d9c  f0 cd
-    mov P3,a                ;0d9e  f2 03
+    mov P3_,a               ;0d9e  f2 03
     clr1 0feceh.6           ;0da0  6b ce
-    clr1 PM4.6              ;0da2  71 6b 24
+    clr1 PM4_.6             ;0da2  71 6b 24
     mov a,0feceh            ;0da5  f0 ce
-    mov P4,a                ;0da7  f2 04
+    mov P4_,a               ;0da7  f2 04
     mov a,#01h              ;0da9  a1 01
     callf !sub_09d7         ;0dab  1c d7
     call !sub_3781          ;0dad  9a 81 37
@@ -1986,33 +3158,33 @@ lab_0d88:
     mov !0f18bh,a           ;0db5  9e 8b f1
     set1 0fe7dh.1           ;0db8  1a 7d
     clr1 0fe69h.0           ;0dba  0b 69
-    clr1 PM7.0              ;0dbc  71 0b 27
+    clr1 PM7_.0             ;0dbc  71 0b 27
     clr1 0fed1h.0           ;0dbf  0b d1
     mov a,0fed1h            ;0dc1  f0 d1
-    mov P7,a                ;0dc3  f2 07
+    mov P7_,a               ;0dc3  f2 07
     call !sub_4076          ;0dc5  9a 76 40
     bz $lab_0dcf            ;0dc8  ad 05
     mov a,#00h              ;0dca  a1 00
     mov !0f18eh,a           ;0dcc  9e 8e f1
 
 lab_0dcf:
-    mov IXS,#08h            ;0dcf  13 f4 08
-    mov IMS,#0cfh           ;0dd2  13 f0 cf
+    mov IXS_,#08h           ;0dcf  13 f4 08
+    mov IMS_,#0cfh          ;0dd2  13 f0 cf
     movw sp,#0fe1fh         ;0dd5  ee 1c 1f fe
     mov a,#07h              ;0dd9  a1 07
-    mov WDCS,a              ;0ddb  f6 42
+    mov WDCS_,a             ;0ddb  f6 42
     mov a,#90h              ;0ddd  a1 90
-    mov WDTM,a              ;0ddf  f6 f9
+    mov WDTM_,a             ;0ddf  f6 f9
     clr1 0fed3h.7           ;0de1  7b d3
-    clr1 PM9.7              ;0de3  71 7b 29
+    clr1 PM9_.7             ;0de3  71 7b 29
     mov a,0fed3h            ;0de6  f0 d3
-    mov P9,a                ;0de8  f2 09
-    clr1 PU0.2              ;0dea  71 2b 30
-    set1 PM0.2              ;0ded  71 2a 20
-    clr1 MK0L.3             ;0df0  71 3b e4
-    clr1 PR0L.3             ;0df3  71 3b e8
-    clr1 EGN.2              ;0df6  71 2b 49
-    set1 EGP.2              ;0df9  71 2a 48
+    mov P9_,a               ;0de8  f2 09
+    clr1 PU0_.2             ;0dea  71 2b 30
+    set1 PM0_.2             ;0ded  71 2a 20
+    clr1 MK0L_.3            ;0df0  71 3b e4
+    clr1 PR0L_.3            ;0df3  71 3b e8
+    clr1 EGN_.2             ;0df6  71 2b 49
+    set1 EGP_.2             ;0df9  71 2a 48
     callf !sub_093c         ;0dfc  1c 3c
     bnz $lab_0e1b           ;0dfe  bd 1b
     mov a,#55h              ;0e00  a1 55
@@ -2030,9 +3202,9 @@ lab_0dcf:
 lab_0e1b:
     di                      ;0e1b  7b 1e
     mov a,#07h              ;0e1d  a1 07
-    mov WDCS,a              ;0e1f  f6 42
+    mov WDCS_,a             ;0e1f  f6 42
     mov a,#90h              ;0e21  a1 90
-    mov WDTM,a              ;0e23  f6 f9
+    mov WDTM_,a             ;0e23  f6 f9
     movw hl,#0fb00h         ;0e25  16 00 fb
     mov a,#00h              ;0e28  a1 00
 
@@ -2043,7 +3215,7 @@ lab_0e2a:
     cmpw ax,#0fecbh         ;0e2d  ea cb fe
     xchw ax,hl              ;0e30  e6
     bc $lab_0e2a            ;0e31  8d f7
-    mov WDTM,#90h           ;0e33  13 f9 90
+    mov WDTM_,#90h          ;0e33  13 f9 90
     movw hl,#0f000h         ;0e36  16 00 f0
 
 lab_0e39:
@@ -2053,27 +3225,27 @@ lab_0e39:
     cmpw ax,#0f800h         ;0e3c  ea 00 f8
     xchw ax,hl              ;0e3f  e6
     bc $lab_0e39            ;0e40  8d f7
-    mov WDTM,#90h           ;0e42  13 f9 90
+    mov WDTM_,#90h          ;0e42  13 f9 90
     call !sub_0a17          ;0e45  9a 17 0a
     mov b,#0bh              ;0e48  a3 0b
     mov a,#80h              ;0e4a  a1 80
     movw hl,#0fb86h         ;0e4c  16 86 fb
     callf !sub_0cdc         ;0e4f  4c dc
     callf !sub_093c         ;0e51  1c 3c
-    clr1 PU2.4              ;0e53  71 4b 32
-    set1 PM2.4              ;0e56  71 4a 22
-    clr1 PU2.5              ;0e59  71 5b 32
-    set1 PM2.5              ;0e5c  71 5a 22
-    clr1 PU2.6              ;0e5f  71 6b 32
-    set1 PM2.6              ;0e62  71 6a 22
-    mov ASIM0,#00h          ;0e65  13 a0 00
-    mov BRGC0,#39h          ;0e68  13 a2 39
+    clr1 PU2_.4             ;0e53  71 4b 32
+    set1 PM2_.4             ;0e56  71 4a 22
+    clr1 PU2_.5             ;0e59  71 5b 32
+    set1 PM2_.5             ;0e5c  71 5a 22
+    clr1 PU2_.6             ;0e5f  71 6b 32
+    set1 PM2_.6             ;0e62  71 6a 22
+    mov ASIM0_,#00h         ;0e65  13 a0 00
+    mov BRGC0_,#39h         ;0e68  13 a2 39
     set1 0fecch.5           ;0e6b  5a cc
     mov a,0fecch            ;0e6d  f0 cc
-    mov P2,a                ;0e6f  f2 02
+    mov P2_,a               ;0e6f  f2 02
     clr1 0fecch.6           ;0e71  6b cc
     mov a,0fecch            ;0e73  f0 cc
-    mov P2,a                ;0e75  f2 02
+    mov P2_,a               ;0e75  f2 02
     mov a,#0dbh             ;0e77  a1 db
     mov !0f077h,a           ;0e79  9e 77 f0
     mov a,#00h              ;0e7c  a1 00
@@ -2155,20 +3327,20 @@ lab_0f1b:
     mov a,#00h              ;0f2a  a1 00
     mov !0fb94h,a           ;0f2c  9e 94 fb
     mov !0fb95h,a           ;0f2f  9e 95 fb
-    clr1 PU7.5              ;0f32  71 5b 37
-    set1 PM7.5              ;0f35  71 5a 27
-    clr1 PU0.3              ;0f38  71 3b 30
-    set1 PM0.3              ;0f3b  71 3a 20
-    set1 PM8.3              ;0f3e  71 3a 28
-    set1 PM8.4              ;0f41  71 4a 28
-    set1 PM8.5              ;0f44  71 5a 28
-    set1 PM8.6              ;0f47  71 6a 28
-    clr1 PU4.2              ;0f4a  71 2b 34
-    set1 PM4.2              ;0f4d  71 2a 24
-    clr1 PU3.5              ;0f50  71 5b 33
-    set1 PM3.5              ;0f53  71 5a 23
-    set1 PM9.3              ;0f56  71 3a 29
-    set1 PM9.6              ;0f59  71 6a 29
+    clr1 PU7_.5             ;0f32  71 5b 37
+    set1 PM7_.5             ;0f35  71 5a 27
+    clr1 PU0_.3             ;0f38  71 3b 30
+    set1 PM0_.3             ;0f3b  71 3a 20
+    set1 PM8_.3             ;0f3e  71 3a 28
+    set1 PM8_.4             ;0f41  71 4a 28
+    set1 PM8_.5             ;0f44  71 5a 28
+    set1 PM8_.6             ;0f47  71 6a 28
+    clr1 PU4_.2             ;0f4a  71 2b 34
+    set1 PM4_.2             ;0f4d  71 2a 24
+    clr1 PU3_.5             ;0f50  71 5b 33
+    set1 PM3_.5             ;0f53  71 5a 23
+    set1 PM9_.3             ;0f56  71 3a 29
+    set1 PM9_.6             ;0f59  71 6a 29
     mov a,#00h              ;0f5c  a1 00
     mov !0fb68h,a           ;0f5e  9e 68 fb
     clr1 0fe5dh.7           ;0f61  7b 5d
@@ -2177,42 +3349,42 @@ lab_0f1b:
     set1 0fe5eh.7           ;0f68  7a 5e
     set1 0fe5fh.0           ;0f6a  0a 5f
     set1 0fe5fh.1           ;0f6c  1a 5f
-    clr1 IF0H.4             ;0f6e  71 4b e1
-    set1 MK0H.4             ;0f71  71 4a e5
+    clr1 IF0H_.4            ;0f6e  71 4b e1
+    set1 MK0H_.4            ;0f71  71 4a e5
     call !sub_08df          ;0f74  9a df 08
     clr1 0fe5fh.2           ;0f77  2b 5f
     mov a,#00h              ;0f79  a1 00
     mov !0f032h,a           ;0f7b  9e 32 f0
-    clr1 IF0H.5             ;0f7e  71 5b e1
-    set1 MK0H.5             ;0f81  71 5a e5
+    clr1 IF0H_.5            ;0f7e  71 5b e1
+    set1 MK0H_.5            ;0f81  71 5a e5
     mov a,#00h              ;0f84  a1 00
     mov !0f04eh,a           ;0f86  9e 4e f0
     clr1 0fe5fh.5           ;0f89  5b 5f
     call !sub_2d35          ;0f8b  9a 35 2d
     set1 0fecch.5           ;0f8e  5a cc
     mov a,0fecch            ;0f90  f0 cc
-    mov P2,a                ;0f92  f2 02
+    mov P2_,a               ;0f92  f2 02
     clr1 0fecch.6           ;0f94  6b cc
     mov a,0fecch            ;0f96  f0 cc
-    mov P2,a                ;0f98  f2 02
+    mov P2_,a               ;0f98  f2 02
     call !sub_3468          ;0f9a  9a 68 34
-    mov a,RXB0_TXS0         ;0f9d  f0 18
-    clr1 PU2.4              ;0f9f  71 4b 32
-    set1 PM2.4              ;0fa2  71 4a 22
-    clr1 PM2.5              ;0fa5  71 5b 22
-    clr1 PM2.6              ;0fa8  71 6b 22
-    clr1 MK0H.1             ;0fab  71 1b e5
-    set1 PR0H.1             ;0fae  71 1a e9
-    clr1 MK0H.2             ;0fb1  71 2b e5
-    set1 PR0H.2             ;0fb4  71 2a e9
-    clr1 MK0H.3             ;0fb7  71 3b e5
-    clr1 PR0H.3             ;0fba  71 3b e9
+    mov a,RXB0_TXS0_        ;0f9d  f0 18
+    clr1 PU2_.4             ;0f9f  71 4b 32
+    set1 PM2_.4             ;0fa2  71 4a 22
+    clr1 PM2_.5             ;0fa5  71 5b 22
+    clr1 PM2_.6             ;0fa8  71 6b 22
+    clr1 MK0H_.1            ;0fab  71 1b e5
+    set1 PR0H_.1            ;0fae  71 1a e9
+    clr1 MK0H_.2            ;0fb1  71 2b e5
+    set1 PR0H_.2            ;0fb4  71 2a e9
+    clr1 MK0H_.3            ;0fb7  71 3b e5
+    clr1 PR0H_.3            ;0fba  71 3b e9
     clr1 0fe7ah.3           ;0fbd  3b 7a
     set1 0fe7bh.0           ;0fbf  0a 7b
     clr1 0fe7ah.7           ;0fc1  7b 7a
-    mov WTNM0,#13h          ;0fc3  13 41 13
-    clr1 MK1L.0             ;0fc6  71 0b e6
-    clr1 PR1L.0             ;0fc9  71 0b ea
+    mov WTNM0_,#13h         ;0fc3  13 41 13
+    clr1 MK1L_.0            ;0fc6  71 0b e6
+    clr1 PR1L_.0            ;0fc9  71 0b ea
     mov a,#0ah              ;0fcc  a1 0a
     mov !0fb03h,a           ;0fce  9e 03 fb
     mov !0fb0bh,a           ;0fd1  9e 0b fb
@@ -2222,14 +3394,14 @@ lab_0f1b:
     mov !0fb50h,a           ;0fdc  9e 50 fb
     mov 0fe28h,#80h         ;0fdf  11 28 80
     movw ax,#8000h          ;0fe2  10 00 80
-    call !3ba2h             ;0fe5  9a a2 3b
+    call !sub_3ba2          ;0fe5  9a a2 3b
     call !sub_3b27          ;0fe8  9a 27 3b
     bt 0fe65h.1,$lab_0ff1   ;0feb  9c 65 03
     call !sub_3b3a          ;0fee  9a 3a 3b
 
 lab_0ff1:
-    clr1 PU0.1              ;0ff1  71 1b 30
-    set1 PM0.1              ;0ff4  71 1a 20
+    clr1 PU0_.1             ;0ff1  71 1b 30
+    set1 PM0_.1             ;0ff4  71 1a 20
     bf 0fe7dh.1,$lab_1012   ;0ff7  31 13 7d 17
     clr1 0fe7dh.1           ;0ffb  1b 7d
     clr1 0fe2ch.2           ;0ffd  2b 2c
@@ -2247,9 +3419,9 @@ lab_1012:
     mov !0f18dh,a           ;1014  9e 8d f1
     mov a,#7fh              ;1017  a1 7f
     mov !0fca2h,a           ;1019  9e a2 fc
-    clr1 MK0L.2             ;101c  71 2b e4
-    clr1 PR0L.2             ;101f  71 2b e8
-    set1 EGN.1              ;1022  71 1a 49
+    clr1 MK0L_.2            ;101c  71 2b e4
+    clr1 PR0L_.2            ;101f  71 2b e8
+    set1 EGN_.1             ;1022  71 1a 49
     mov a,#02h              ;1025  a1 02
     mov !0f18ch,a           ;1027  9e 8c f1
     call !sub_3bf7          ;102a  9a f7 3b
@@ -2272,20 +3444,20 @@ lab_1036:
     mov a,#00h              ;1048  a1 00
     mov !0fbcdh,a           ;104a  9e cd fb
     mov !0fbcch,a           ;104d  9e cc fb
-    clr1 MK0L.5             ;1050  71 5b e4
-    set1 PR0L.5             ;1053  71 5a e8
-    set1 EGN.4              ;1056  71 4a 49
-    set1 EGP.4              ;1059  71 4a 48
-    clr1 MK0L.7             ;105c  71 7b e4
-    set1 PR0L.7             ;105f  71 7a e8
-    set1 EGN.6              ;1062  71 6a 49
-    clr1 EGP.6              ;1065  71 6b 48
+    clr1 MK0L_.5            ;1050  71 5b e4
+    set1 PR0L_.5            ;1053  71 5a e8
+    set1 EGN_.4             ;1056  71 4a 49
+    set1 EGP_.4             ;1059  71 4a 48
+    clr1 MK0L_.7            ;105c  71 7b e4
+    set1 PR0L_.7            ;105f  71 7a e8
+    set1 EGN_.6             ;1062  71 6a 49
+    clr1 EGP_.6             ;1065  71 6b 48
     clr1 0fe66h.6           ;1068  6b 66
-    mov TMC01,#00h          ;106a  13 68 00
-    set1 MK1L.3             ;106d  71 3a e6
-    set1 MK1L.4             ;1070  71 4a e6
-    mov TMC01,#04h          ;1073  13 68 04
-    set1 MK0L.1             ;1076  71 1a e4
+    mov TMC01_,#00h         ;106a  13 68 00
+    set1 MK1L_.3            ;106d  71 3a e6
+    set1 MK1L_.4            ;1070  71 4a e6
+    mov TMC01_,#04h         ;1073  13 68 04
+    set1 MK0L_.1            ;1076  71 1a e4
     mov a,#00h              ;1079  a1 00
     mov 0fe34h,a            ;107b  f2 34
     mov !0f198h,a           ;107d  9e 98 f1
@@ -2295,26 +3467,26 @@ lab_1036:
     clr1 0fe67h.4           ;1087  4b 67
     clr1 0fe67h.7           ;1089  7b 67
     clr1 0fe68h.0           ;108b  0b 68
-    clr1 MK0L.1             ;108d  71 1b e4
-    clr1 PR0L.1             ;1090  71 1b e8
-    clr1 EGN.0              ;1093  71 0b 49
-    set1 EGP.0              ;1096  71 0a 48
-    set1 EGP.0              ;1099  71 0a 48
-    clr1 EGN.0              ;109c  71 0b 49
-    clr1 PM5.7              ;109f  71 7b 25
+    clr1 MK0L_.1            ;108d  71 1b e4
+    clr1 PR0L_.1            ;1090  71 1b e8
+    clr1 EGN_.0             ;1093  71 0b 49
+    set1 EGP_.0             ;1096  71 0a 48
+    set1 EGP_.0             ;1099  71 0a 48
+    clr1 EGN_.0             ;109c  71 0b 49
+    clr1 PM5_.7             ;109f  71 7b 25
     set1 0fecfh.7           ;10a2  7a cf
     mov a,0fecfh            ;10a4  f0 cf
-    mov P5,a                ;10a6  f2 05
+    mov P5_,a               ;10a6  f2 05
     mov a,#02h              ;10a8  a1 02
     callf !sub_09d7         ;10aa  1c d7
     call !sub_6947          ;10ac  9a 47 69
     set1 0fe6ah.2           ;10af  2a 6a
     clr1 0fe6ah.0           ;10b1  0b 6a
     clr1 0fe6ah.1           ;10b3  1b 6a
-    clr1 PM2.7              ;10b5  71 7b 22
+    clr1 PM2_.7             ;10b5  71 7b 22
     set1 0fecch.7           ;10b8  7a cc
     mov a,0fecch            ;10ba  f0 cc
-    mov P2,a                ;10bc  f2 02
+    mov P2_,a               ;10bc  f2 02
     mov 0fe40h,#00h         ;10be  11 40 00
     mov 0fe41h,#00h         ;10c1  11 41 00
     mov 0fe42h,#00h         ;10c4  11 42 00
@@ -2328,14 +3500,14 @@ lab_1036:
     mov a,#00h              ;10d6  a1 00
     mov !0fb13h,a           ;10d8  9e 13 fb
     call !sub_262f          ;10db  9a 2f 26
-    clr1 MK0H.5             ;10de  71 5b e5
-    clr1 PR0H.5             ;10e1  71 5b e9
+    clr1 MK0H_.5            ;10de  71 5b e5
+    clr1 PR0H_.5            ;10e1  71 5b e9
     callf !sub_08cc         ;10e4  0c cc
     call !sub_d16e          ;10e6  9a 6e d1
-    clr1 PM7.0              ;10e9  71 0b 27
+    clr1 PM7_.0             ;10e9  71 0b 27
     set1 0fed1h.0           ;10ec  0a d1
     mov a,0fed1h            ;10ee  f0 d1
-    mov P7,a                ;10f0  f2 07
+    mov P7_,a               ;10f0  f2 07
     mov a,#10h              ;10f2  a1 10
     mov !0fb1bh,a           ;10f4  9e 1b fb
     set1 0fe72h.0           ;10f7  0a 72
@@ -2353,7 +3525,7 @@ lab_1036:
     mov !0fb91h,a           ;1115  9e 91 fb
 
 lab_1118:
-    mov WDTM,#90h           ;1118  13 f9 90
+    mov WDTM_,#90h          ;1118  13 f9 90
     mov a,!0fb4eh           ;111b  8e 4e fb
     cmp a,#00h              ;111e  4d 00
     bnz $lab_1123           ;1120  bd 01
@@ -2362,42 +3534,42 @@ lab_1118:
 lab_1123:
     di                      ;1123  7b 1e
     mov a,0fecbh            ;1125  f0 cb
-    mov P0,a                ;1127  f2 00
+    mov P0_,a               ;1127  f2 00
     mov a,0fecch            ;1129  f0 cc
-    mov P2,a                ;112b  f2 02
+    mov P2_,a               ;112b  f2 02
     mov a,0fecdh            ;112d  f0 cd
-    mov P3,a                ;112f  f2 03
+    mov P3_,a               ;112f  f2 03
     mov a,0feceh            ;1131  f0 ce
-    mov P4,a                ;1133  f2 04
+    mov P4_,a               ;1133  f2 04
     mov a,0fecfh            ;1135  f0 cf
-    mov P5,a                ;1137  f2 05
+    mov P5_,a               ;1137  f2 05
     mov a,0fed0h            ;1139  f0 d0
-    mov P6,a                ;113b  f2 06
+    mov P6_,a               ;113b  f2 06
     mov a,0fed1h            ;113d  f0 d1
-    mov P7,a                ;113f  f2 07
+    mov P7_,a               ;113f  f2 07
     mov a,0fed2h            ;1141  f0 d2
-    mov P8,a                ;1143  f2 08
+    mov P8_,a               ;1143  f2 08
     mov a,0fed3h            ;1145  f0 d3
-    mov P9,a                ;1147  f2 09
+    mov P9_,a               ;1147  f2 09
     ei                      ;1149  7a 1e
-    mov WTNM0,#13h          ;114b  13 41 13
-    clr1 MK1L.0             ;114e  71 0b e6
-    clr1 PR1L.0             ;1151  71 0b ea
+    mov WTNM0_,#13h         ;114b  13 41 13
+    clr1 MK1L_.0            ;114e  71 0b e6
+    clr1 PR1L_.0            ;1151  71 0b ea
     btclr 0fe61h.7,$lab_115c ;1154  31 71 61 04
-    bf P0.2,$lab_118f       ;1158  31 23 00 33
+    bf P0_.2,$lab_118f      ;1158  31 23 00 33
 
 lab_115c:
     mov a,#02h              ;115c  a1 02
     mov !0fb4ch,a           ;115e  9e 4c fb
     set1 0fe7dh.2           ;1161  2a 7d
     clr1 0fed3h.7           ;1163  7b d3
-    clr1 PM9.7              ;1165  71 7b 29
+    clr1 PM9_.7             ;1165  71 7b 29
     mov a,0fed3h            ;1168  f0 d3
-    mov P9,a                ;116a  f2 09
+    mov P9_,a               ;116a  f2 09
     clr1 0fed3h.4           ;116c  4b d3
-    clr1 PM9.4              ;116e  71 4b 29
+    clr1 PM9_.4             ;116e  71 4b 29
     mov a,0fed3h            ;1171  f0 d3
-    mov P9,a                ;1173  f2 09
+    mov P9_,a               ;1173  f2 09
     set1 0fe2bh.7           ;1175  7a 2b
     call !sub_3acf          ;1177  9a cf 3a
     halt                    ;117a  71 10
@@ -2644,415 +3816,230 @@ lab_12d7:
     mov 0fe2fh,#0bh         ;12df  11 2f 0b
     ret                     ;12e2  af
 
-    db 9ah                  ;12e3  9a          DATA 0x9a
-    db 18h                  ;12e4  18          DATA 0x18
-    db 35h                  ;12e5  35          DATA 0x35 '5'
-    db 31h                  ;12e6  31          DATA 0x31 '1'
-    db 01h                  ;12e7  01          DATA 0x01
-    db 68h                  ;12e8  68          DATA 0x68 'h'
-    db 28h                  ;12e9  28          DATA 0x28 '('
-    db 0ech                 ;12ea  ec          DATA 0xec
-    db 67h                  ;12eb  67          DATA 0x67 'g'
-    db 39h                  ;12ec  39          DATA 0x39 '9'
-    db 31h                  ;12ed  31          DATA 0x31 '1'
-    db 43h                  ;12ee  43          DATA 0x43 'C'
-    db 67h                  ;12ef  67          DATA 0x67 'g'
-    db 07h                  ;12f0  07          DATA 0x07
-    db 8eh                  ;12f1  8e          DATA 0x8e
-    db 05h                  ;12f2  05          DATA 0x05
-    db 0fbh                 ;12f3  fb          DATA 0xfb
-    db 4dh                  ;12f4  4d          DATA 0x4d 'M'
-    db 00h                  ;12f5  00          DATA 0x00
-    db 0bdh                 ;12f6  bd          DATA 0xbd
-    db 26h                  ;12f7  26          DATA 0x26 '&'
-    db 4bh                  ;12f8  4b          DATA 0x4b 'K'
-    db 67h                  ;12f9  67          DATA 0x67 'g'
-    db 31h                  ;12fa  31          DATA 0x31 '1'
-    db 73h                  ;12fb  73          DATA 0x73 's'
-    db 67h                  ;12fc  67          DATA 0x67 'g'
-    db 0bh                  ;12fd  0b          DATA 0x0b
-    db 8eh                  ;12fe  8e          DATA 0x8e
-    db 0fh                  ;12ff  0f          DATA 0x0f
-    db 0fbh                 ;1300  fb          DATA 0xfb
-    db 4dh                  ;1301  4d          DATA 0x4d 'M'
-    db 00h                  ;1302  00          DATA 0x00
-    db 0bdh                 ;1303  bd          DATA 0xbd
-    db 53h                  ;1304  53          DATA 0x53 'S'
-    db 7bh                  ;1305  7b          DATA 0x7b '{'
-    db 67h                  ;1306  67          DATA 0x67 'g'
-    db 0fah                 ;1307  fa          DATA 0xfa
-    db 09h                  ;1308  09          DATA 0x09
-    db 7ah                  ;1309  7a          DATA 0x7a 'z'
-    db 67h                  ;130a  67          DATA 0x67 'g'
-    db 0a1h                 ;130b  a1          DATA 0xa1
-    db 0fh                  ;130c  0f          DATA 0x0f
-    db 9eh                  ;130d  9e          DATA 0x9e
-    db 0fh                  ;130e  0f          DATA 0x0f
-    db 0fbh                 ;130f  fb          DATA 0xfb
-    db 0fah                 ;1310  fa          DATA 0xfa
-    db 46h                  ;1311  46          DATA 0x46 'F'
-    db 0a1h                 ;1312  a1          DATA 0xa1
-    db 0ffh                 ;1313  ff          DATA 0xff
-    db 9eh                  ;1314  9e          DATA 0x9e
-    db 97h                  ;1315  97          DATA 0x97
-    db 0f1h                 ;1316  f1          DATA 0xf1
-    db 8eh                  ;1317  8e          DATA 0x8e
-    db 26h                  ;1318  26          DATA 0x26 '&'
-    db 0fch                 ;1319  fc          DATA 0xfc
-    db 61h                  ;131a  61          DATA 0x61 'a'
-    db 0fbh                 ;131b  fb          DATA 0xfb
-    db 0fah                 ;131c  fa          DATA 0xfa
-    db 20h                  ;131d  20          DATA 0x20 ' '
-    db 4dh                  ;131e  4d          DATA 0x4d 'M'
-    db 6fh                  ;131f  6f          DATA 0x6f 'o'
-    db 9dh                  ;1320  9d          DATA 0x9d
-    db 36h                  ;1321  36          DATA 0x36 '6'
-    db 31h                  ;1322  31          DATA 0x31 '1'
-    db 53h                  ;1323  53          DATA 0x53 'S'
-    db 67h                  ;1324  67          DATA 0x67 'g'
-    db 32h                  ;1325  32          DATA 0x32 '2'
-    db 6bh                  ;1326  6b          DATA 0x6b 'k'
-    db 67h                  ;1327  67          DATA 0x67 'g'
-    db 5bh                  ;1328  5b          DATA 0x5b '['
-    db 67h                  ;1329  67          DATA 0x67 'g'
-    db 8eh                  ;132a  8e          DATA 0x8e
-    db 97h                  ;132b  97          DATA 0x97
-    db 0f1h                 ;132c  f1          DATA 0xf1
-    db 16h                  ;132d  16          DATA 0x16
-    db 0adh                 ;132e  ad          DATA 0xad
-    db 0b3h                 ;132f  b3          DATA 0xb3
-    db 9ah                  ;1330  9a          DATA 0x9a
-    db 0dh                  ;1331  0d          DATA 0x0d
-    db 0bh                  ;1332  0b          DATA 0x0b
-    db 9dh                  ;1333  9d          DATA 0x9d
-    db 0c3h                 ;1334  c3          DATA 0xc3
-    db 16h                  ;1335  16          DATA 0x16
-    db 0b2h                 ;1336  b2          DATA 0xb2
-    db 0b3h                 ;1337  b3          DATA 0xb3
-    db 4ch                  ;1338  4c          DATA 0x4c 'L'
-    db 7dh                  ;1339  7d          DATA 0x7d '}'
-    db 8dh                  ;133a  8d          DATA 0x8d
-    db 0bch                 ;133b  bc          DATA 0xbc
-    db 61h                  ;133c  61          DATA 0x61 'a'
-    db 0fah                 ;133d  fa          DATA 0xfa
-    db 0dch                 ;133e  dc          DATA 0xdc
-    db 65h                  ;133f  65          DATA 0x65 'e'
-    db 08h                  ;1340  08          DATA 0x08
-    db 9eh                  ;1341  9e          DATA 0x9e
-    db 26h                  ;1342  26          DATA 0x26 '&'
-    db 0fch                 ;1343  fc          DATA 0xfc
-    db 0a3h                 ;1344  a3          DATA 0xa3
-    db 00h                  ;1345  00          DATA 0x00
-    db 0c1h                 ;1346  c1          DATA 0xc1
-    db 0fah                 ;1347  fa          DATA 0xfa
-    db 0fh                  ;1348  0f          DATA 0x0f
-    db 8eh                  ;1349  8e          DATA 0x8e
-    db 26h                  ;134a  26          DATA 0x26 '&'
-    db 0fch                 ;134b  fc          DATA 0xfc
-    db 4dh                  ;134c  4d          DATA 0x4d 'M'
-    db 00h                  ;134d  00          DATA 0x00
-    db 0adh                 ;134e  ad          DATA 0xad
-    db 08h                  ;134f  08          DATA 0x08
-    db 61h                  ;1350  61          DATA 0x61 'a'
-    db 0fbh                 ;1351  fb          DATA 0xfb
-    db 9eh                  ;1352  9e          DATA 0x9e
-    db 26h                  ;1353  26          DATA 0x26 '&'
-    db 0fch                 ;1354  fc          DATA 0xfc
-    db 0a3h                 ;1355  a3          DATA 0xa3
-    db 00h                  ;1356  00          DATA 0x00
-    db 0c1h                 ;1357  c1          DATA 0xc1
-    db 0dch                 ;1358  dc          DATA 0xdc
-    db 65h                  ;1359  65          DATA 0x65 'e'
-    db 2ah                  ;135a  2a          DATA 0x2a '*'
-    db 31h                  ;135b  31          DATA 0x31 '1'
-    db 53h                  ;135c  53          DATA 0x53 'S'
-    db 6bh                  ;135d  6b          DATA 0x6b 'k'
-    db 0eh                  ;135e  0e          DATA 0x0e
-    db 4bh                  ;135f  4b          DATA 0x4b 'K'
-    db 61h                  ;1360  61          DATA 0x61 'a'
-    db 5bh                  ;1361  5b          DATA 0x5b '['
-    db 6bh                  ;1362  6b          DATA 0x6b 'k'
-    db 6bh                  ;1363  6b          DATA 0x6b 'k'
-    db 40h                  ;1364  40          DATA 0x40 '@'
-    db 7bh                  ;1365  7b          DATA 0x7b '{'
-    db 40h                  ;1366  40          DATA 0x40 '@'
-    db 6bh                  ;1367  6b          DATA 0x6b 'k'
-    db 6ch                  ;1368  6c          DATA 0x6c 'l'
-    db 7bh                  ;1369  7b          DATA 0x7b '{'
-    db 6ch                  ;136a  6c          DATA 0x6c 'l'
-    db 6ah                  ;136b  6a          DATA 0x6a 'j'
-    db 6bh                  ;136c  6b          DATA 0x6b 'k'
-    db 0bch                 ;136d  bc          DATA 0xbc
-    db 2ch                  ;136e  2c          DATA 0x2c ','
-    db 41h                  ;136f  41          DATA 0x41 'A'
-    db 11h                  ;1370  11          DATA 0x11
-    db 40h                  ;1371  40          DATA 0x40 '@'
-    db 00h                  ;1372  00          DATA 0x00
-    db 11h                  ;1373  11          DATA 0x11
-    db 41h                  ;1374  41          DATA 0x41 'A'
-    db 00h                  ;1375  00          DATA 0x00
-    db 11h                  ;1376  11          DATA 0x11
-    db 42h                  ;1377  42          DATA 0x42 'B'
-    db 00h                  ;1378  00          DATA 0x00
-    db 11h                  ;1379  11          DATA 0x11
-    db 3fh                  ;137a  3f          DATA 0x3f '?'
-    db 00h                  ;137b  00          DATA 0x00
-    db 7bh                  ;137c  7b          DATA 0x7b '{'
-    db 6ch                  ;137d  6c          DATA 0x6c 'l'
-    db 6bh                  ;137e  6b          DATA 0x6b 'k'
-    db 6ch                  ;137f  6c          DATA 0x6c 'l'
-    db 6bh                  ;1380  6b          DATA 0x6b 'k'
-    db 6bh                  ;1381  6b          DATA 0x6b 'k'
-    db 9bh                  ;1382  9b          DATA 0x9b
-    db 79h                  ;1383  79          DATA 0x79 'y'
-    db 14h                  ;1384  14          DATA 0x14
-    db 31h                  ;1385  31          DATA 0x31 '1'
-    db 53h                  ;1386  53          DATA 0x53 'S'
-    db 6bh                  ;1387  6b          DATA 0x6b 'k'
-    db 05h                  ;1388  05          DATA 0x05
-    db 0bh                  ;1389  0b          DATA 0x0b
-    db 41h                  ;138a  41          DATA 0x41 'A'
-    db 9bh                  ;138b  9b          DATA 0x9b
-    db 4fh                  ;138c  4f          DATA 0x4f 'O'
-    db 14h                  ;138d  14          DATA 0x14
-    db 0ech                 ;138e  ec          DATA 0xec
-    db 6bh                  ;138f  6b          DATA 0x6b 'k'
-    db 16h                  ;1390  16          DATA 0x16
-    db 7bh                  ;1391  7b          DATA 0x7b '{'
-    db 0d3h                 ;1392  d3          DATA 0xd3
-    db 0f0h                 ;1393  f0          DATA 0xf0
-    db 0d3h                 ;1394  d3          DATA 0xd3
-    db 0f2h                 ;1395  f2          DATA 0xf2
-    db 09h                  ;1396  09          DATA 0x09
-    db 0a1h                 ;1397  a1          DATA 0xa1
-    db 0fh                  ;1398  0f          DATA 0x0f
-    db 9eh                  ;1399  9e          DATA 0x9e
-    db 14h                  ;139a  14          DATA 0x14
-    db 0fbh                 ;139b  fb          DATA 0xfb
-    db 4bh                  ;139c  4b          DATA 0x4b 'K'
-    db 0d3h                 ;139d  d3          DATA 0xd3
-    db 0f0h                 ;139e  f0          DATA 0xf0
-    db 0d3h                 ;139f  d3          DATA 0xd3
-    db 0f2h                 ;13a0  f2          DATA 0xf2
-    db 09h                  ;13a1  09          DATA 0x09
-    db 6ah                  ;13a2  6a          DATA 0x6a 'j'
-    db 6bh                  ;13a3  6b          DATA 0x6b 'k'
-    db 9bh                  ;13a4  9b          DATA 0x9b
-    db 79h                  ;13a5  79          DATA 0x79 'y'
-    db 14h                  ;13a6  14          DATA 0x14
-    db 8eh                  ;13a7  8e          DATA 0x8e
-    db 14h                  ;13a8  14          DATA 0x14
-    db 0fbh                 ;13a9  fb          DATA 0xfb
-    db 4dh                  ;13aa  4d          DATA 0x4d 'M'
-    db 00h                  ;13ab  00          DATA 0x00
-    db 0adh                 ;13ac  ad          DATA 0xad
-    db 0bh                  ;13ad  0b          DATA 0x0b
-    db 9bh                  ;13ae  9b          DATA 0x9b
-    db 79h                  ;13af  79          DATA 0x79 'y'
-    db 14h                  ;13b0  14          DATA 0x14
-    db 0fch                 ;13b1  fc          DATA 0xfc
-    db 41h                  ;13b2  41          DATA 0x41 'A'
-    db 51h                  ;13b3  51          DATA 0x51 'Q'
-    db 6ah                  ;13b4  6a          DATA 0x6a 'j'
-    db 6bh                  ;13b5  6b          DATA 0x6b 'k'
-    db 9ah                  ;13b6  9a          DATA 0x9a
-    db 51h                  ;13b7  51          DATA 0x51 'Q'
-    db 7ch                  ;13b8  7c          DATA 0x7c '|'
-    db 0a1h                 ;13b9  a1          DATA 0xa1
-    db 00h                  ;13ba  00          DATA 0x00
-    db 9eh                  ;13bb  9e          DATA 0x9e
-    db 16h                  ;13bc  16          DATA 0x16
-    db 0fch                 ;13bd  fc          DATA 0xfc
-    db 71h                  ;13be  71          DATA 0x71 'q'
-    db 7bh                  ;13bf  7b          DATA 0x7b '{'
-    db 22h                  ;13c0  22          DATA 0x22 '"'
-    db 0bh                  ;13c1  0b          DATA 0x0b
-    db 40h                  ;13c2  40          DATA 0x40 '@'
-    db 1bh                  ;13c3  1b          DATA 0x1b
-    db 40h                  ;13c4  40          DATA 0x40 '@'
-    db 7bh                  ;13c5  7b          DATA 0x7b '{'
-    db 0cch                 ;13c6  cc          DATA 0xcc
-    db 0f0h                 ;13c7  f0          DATA 0xf0
-    db 0cch                 ;13c8  cc          DATA 0xcc
-    db 0f2h                 ;13c9  f2          DATA 0xf2
-    db 02h                  ;13ca  02          DATA 0x02
-    db 0a1h                 ;13cb  a1          DATA 0xa1
-    db 06h                  ;13cc  06          DATA 0x06
-    db 9eh                  ;13cd  9e          DATA 0x9e
-    db 07h                  ;13ce  07          DATA 0x07
-    db 0fbh                 ;13cf  fb          DATA 0xfb
-    db 8eh                  ;13d0  8e          DATA 0x8e
-    db 07h                  ;13d1  07          DATA 0x07
-    db 0fbh                 ;13d2  fb          DATA 0xfb
-    db 4dh                  ;13d3  4d          DATA 0x4d 'M'
-    db 00h                  ;13d4  00          DATA 0x00
-    db 0bdh                 ;13d5  bd          DATA 0xbd
-    db 0f9h                 ;13d6  f9          DATA 0xf9
-    db 31h                  ;13d7  31          DATA 0x31 '1'
-    db 53h                  ;13d8  53          DATA 0x53 'S'
-    db 65h                  ;13d9  65          DATA 0x65 'e'
-    db 0ch                  ;13da  0c          DATA 0x0c
-    db 5ah                  ;13db  5a          DATA 0x5a 'Z'
-    db 6bh                  ;13dc  6b          DATA 0x6b 'k'
-    db 0a1h                 ;13dd  a1          DATA 0xa1
-    db 00h                  ;13de  00          DATA 0x00
-    db 9eh                  ;13df  9e          DATA 0x9e
-    db 38h                  ;13e0  38          DATA 0x38 '8'
-    db 0fbh                 ;13e1  fb          DATA 0xfb
-    db 9eh                  ;13e2  9e          DATA 0x9e
-    db 39h                  ;13e3  39          DATA 0x39 '9'
-    db 0fbh                 ;13e4  fb          DATA 0xfb
-    db 0fah                 ;13e5  fa          DATA 0xfa
-    db 02h                  ;13e6  02          DATA 0x02
-    db 7ah                  ;13e7  7a          DATA 0x7a 'z'
-    db 41h                  ;13e8  41          DATA 0x41 'A'
-    db 16h                  ;13e9  16          DATA 0x16
-    db 1ah                  ;13ea  1a          DATA 0x1a
-    db 0fch                 ;13eb  fc          DATA 0xfc
-    db 14h                  ;13ec  14          DATA 0x14
-    db 30h                  ;13ed  30          DATA 0x30 '0'
-    db 0fbh                 ;13ee  fb          DATA 0xfb
-    db 0a3h                 ;13ef  a3          DATA 0xa3
-    db 08h                  ;13f0  08          DATA 0x08
-    db 0a1h                 ;13f1  a1          DATA 0xa1
-    db 00h                  ;13f2  00          DATA 0x00
-    db 0bbh                 ;13f3  bb          DATA 0xbb
-    db 95h                  ;13f4  95          DATA 0x95
-    db 84h                  ;13f5  84          DATA 0x84
-    db 8bh                  ;13f6  8b          DATA 0x8b
-    db 0fbh                 ;13f7  fb          DATA 0xfb
-    db 0bbh                 ;13f8  bb          DATA 0xbb
-    db 9eh                  ;13f9  9e          DATA 0x9e
-    db 23h                  ;13fa  23          DATA 0x23 '#'
-    db 0fch                 ;13fb  fc          DATA 0xfc
-    db 9eh                  ;13fc  9e          DATA 0x9e
-    db 24h                  ;13fd  24          DATA 0x24 '$'
-    db 0fch                 ;13fe  fc          DATA 0xfc
-    db 7ah                  ;13ff  7a          DATA 0x7a 'z'
-    db 0cch                 ;1400  cc          DATA 0xcc
-    db 0f0h                 ;1401  f0          DATA 0xf0
-    db 0cch                 ;1402  cc          DATA 0xcc
-    db 0f2h                 ;1403  f2          DATA 0xf2
-    db 02h                  ;1404  02          DATA 0x02
-    db 31h                  ;1405  31          DATA 0x31 '1'
-    db 43h                  ;1406  43          DATA 0x43 'C'
-    db 0d3h                 ;1407  d3          DATA 0xd3
-    db 25h                  ;1408  25          DATA 0x25 '%'
-    db 31h                  ;1409  31          DATA 0x31 '1'
-    db 63h                  ;140a  63          DATA 0x63 'c'
-    db 6bh                  ;140b  6b          DATA 0x6b 'k'
-    db 09h                  ;140c  09          DATA 0x09
-    db 0a1h                 ;140d  a1          DATA 0xa1
-    db 0fh                  ;140e  0f          DATA 0x0f
-    db 9eh                  ;140f  9e          DATA 0x9e
-    db 14h                  ;1410  14          DATA 0x14
-    db 0fbh                 ;1411  fb          DATA 0xfb
-    db 6bh                  ;1412  6b          DATA 0x6b 'k'
-    db 6bh                  ;1413  6b          DATA 0x6b 'k'
-    db 0fah                 ;1414  fa          DATA 0xfa
-    db 63h                  ;1415  63          DATA 0x63 'c'
-    db 8eh                  ;1416  8e          DATA 0x8e
-    db 14h                  ;1417  14          DATA 0x14
-    db 0fbh                 ;1418  fb          DATA 0xfb
-    db 4dh                  ;1419  4d          DATA 0x4d 'M'
-    db 00h                  ;141a  00          DATA 0x00
-    db 0adh                 ;141b  ad          DATA 0xad
-    db 02h                  ;141c  02          DATA 0x02
-    db 0fah                 ;141d  fa          DATA 0xfa
-    db 5ah                  ;141e  5a          DATA 0x5a 'Z'
-    db 31h                  ;141f  31          DATA 0x31 '1'
-    db 43h                  ;1420  43          DATA 0x43 'C'
-    db 6bh                  ;1421  6b          DATA 0x6b 'k'
-    db 31h                  ;1422  31          DATA 0x31 '1'
-    db 0a1h                 ;1423  a1          DATA 0xa1
-    db 00h                  ;1424  00          DATA 0x00
-    db 9eh                  ;1425  9e          DATA 0x9e
-    db 16h                  ;1426  16          DATA 0x16
-    db 0fch                 ;1427  fc          DATA 0xfc
-    db 4bh                  ;1428  4b          DATA 0x4b 'K'
-    db 6bh                  ;1429  6b          DATA 0x6b 'k'
-    db 0bh                  ;142a  0b          DATA 0x0b
-    db 41h                  ;142b  41          DATA 0x41 'A'
-    db 0fah                 ;142c  fa          DATA 0xfa
-    db 26h                  ;142d  26          DATA 0x26 '&'
-    db 3ah                  ;142e  3a          DATA 0x3a ':'
-    db 41h                  ;142f  41          DATA 0x41 'A'
-    db 8eh                  ;1430  8e          DATA 0x8e
-    db 0ffh                 ;1431  ff          DATA 0xff
-    db 0f1h                 ;1432  f1          DATA 0xf1
-    db 4dh                  ;1433  4d          DATA 0x4d 'M'
-    db 00h                  ;1434  00          DATA 0x00
-    db 0adh                 ;1435  ad          DATA 0xad
-    db 42h                  ;1436  42          DATA 0x42 'B'
-    db 31h                  ;1437  31          DATA 0x31 '1'
-    db 33h                  ;1438  33          DATA 0x33 '3'
-    db 2ch                  ;1439  2c          DATA 0x2c ','
-    db 3eh                  ;143a  3e          DATA 0x3e '>'
-    db 8eh                  ;143b  8e          DATA 0x8e
-    db 0feh                 ;143c  fe          DATA 0xfe
-    db 0f1h                 ;143d  f1          DATA 0xf1
-    db 4dh                  ;143e  4d          DATA 0x4d 'M'
-    db 03h                  ;143f  03          DATA 0x03
-    db 0adh                 ;1440  ad          DATA 0xad
-    db 37h                  ;1441  37          DATA 0x37 '7'
-    db 4dh                  ;1442  4d          DATA 0x4d 'M'
-    db 03h                  ;1443  03          DATA 0x03
-    db 0adh                 ;1444  ad          DATA 0xad
-    db 33h                  ;1445  33          DATA 0x33 '3'
-    db 0ah                  ;1446  0a          DATA 0x0a
-    db 41h                  ;1447  41          DATA 0x41 'A'
-    db 8eh                  ;1448  8e          DATA 0x8e
-    db 16h                  ;1449  16          DATA 0x16
-    db 0fch                 ;144a  fc          DATA 0xfc
-    db 4dh                  ;144b  4d          DATA 0x4d 'M'
-    db 07h                  ;144c  07          DATA 0x07
-    db 9dh                  ;144d  9d          DATA 0x9d
-    db 2ah                  ;144e  2a          DATA 0x2a '*'
-    db 4ah                  ;144f  4a          DATA 0x4a 'J'
-    db 6bh                  ;1450  6b          DATA 0x6b 'k'
-    db 9ah                  ;1451  9a          DATA 0x9a
-    db 51h                  ;1452  51          DATA 0x51 'Q'
-    db 7ch                  ;1453  7c          DATA 0x7c '|'
-    db 31h                  ;1454  31          DATA 0x31 '1'
-    db 13h                  ;1455  13          DATA 0x13
-    db 62h                  ;1456  62          DATA 0x62 'b'
-    db 06h                  ;1457  06          DATA 0x06
-    db 1bh                  ;1458  1b          DATA 0x1b
-    db 40h                  ;1459  40          DATA 0x40 '@'
-    db 0bh                  ;145a  0b          DATA 0x0b
-    db 40h                  ;145b  40          DATA 0x40 '@'
-    db 0fah                 ;145c  fa          DATA 0xfa
-    db 1bh                  ;145d  1b          DATA 0x1b
-    db 8ch                  ;145e  8c          DATA 0x8c
-    db 40h                  ;145f  40          DATA 0x40 '@'
-    db 18h                  ;1460  18          DATA 0x18
-    db 8eh                  ;1461  8e          DATA 0x8e
-    db 13h                  ;1462  13          DATA 0x13
-    db 0fbh                 ;1463  fb          DATA 0xfb
-    db 4dh                  ;1464  4d          DATA 0x4d 'M'
-    db 00h                  ;1465  00          DATA 0x00
-    db 0bdh                 ;1466  bd          DATA 0xbd
-    db 11h                  ;1467  11          DATA 0x11
-    db 0a1h                 ;1468  a1          DATA 0xa1
-    db 14h                  ;1469  14          DATA 0x14
-    db 0dch                 ;146a  dc          DATA 0xdc
-    db 65h                  ;146b  65          DATA 0x65 'e'
-    db 06h                  ;146c  06          DATA 0x06
-    db 31h                  ;146d  31          DATA 0x31 '1'
-    db 43h                  ;146e  43          DATA 0x43 'C'
-    db 6bh                  ;146f  6b          DATA 0x6b 'k'
-    db 02h                  ;1470  02          DATA 0x02
-    db 0a1h                 ;1471  a1          DATA 0xa1
-    db 0fh                  ;1472  0f          DATA 0x0f
-    db 9eh                  ;1473  9e          DATA 0x9e
-    db 13h                  ;1474  13          DATA 0x13
-    db 0fbh                 ;1475  fb          DATA 0xfb
-    db 9ah                  ;1476  9a          DATA 0x9a
-    db 12h                  ;1477  12          DATA 0x12
-    db 77h                  ;1478  77          DATA 0x77 'w'
-    db 9bh                  ;1479  9b          DATA 0x9b
-    db 0d7h                 ;147a  d7          DATA 0xd7
-    db 12h                  ;147b  12          DATA 0x12
+lab_12e3:
+    call !sub_3518          ;12e3  9a 18 35
+    btclr 0fe68h.0,$lab_1312 ;12e6  31 01 68 28
+    bt 0fe67h.6,$lab_1326   ;12ea  ec 67 39
+    bf 0fe67h.4,$lab_12f8   ;12ed  31 43 67 07
+    mov a,!0fb05h           ;12f1  8e 05 fb
+    cmp a,#00h              ;12f4  4d 00
+    bnz $lab_131e           ;12f6  bd 26
+
+lab_12f8:
+    clr1 0fe67h.4           ;12f8  4b 67
+    bf 0fe67h.7,$lab_1309   ;12fa  31 73 67 0b
+    mov a,!0fb0fh           ;12fe  8e 0f fb
+    cmp a,#00h              ;1301  4d 00
+    bnz $lab_1358           ;1303  bd 53
+    clr1 0fe67h.7           ;1305  7b 67
+    br $lab_1312            ;1307  fa 09
+
+lab_1309:
+    set1 0fe67h.7           ;1309  7a 67
+    mov a,#0fh              ;130b  a1 0f
+    mov !0fb0fh,a           ;130d  9e 0f fb
+    br $lab_1358            ;1310  fa 46
+
+lab_1312:
+    mov a,#0ffh             ;1312  a1 ff
+    mov !0f197h,a           ;1314  9e 97 f1
+    mov a,!0fc26h           ;1317  8e 26 fc
+    clr1 a.7                ;131a  61 fb
+    br $lab_133e            ;131c  fa 20
+
+lab_131e:
+    cmp a,#6fh              ;131e  4d 6f
+    bnc $lab_1358           ;1320  9d 36
+    bf 0fe67h.5,$lab_1358   ;1322  31 53 67 32
+
+lab_1326:
+    clr1 0fe67h.6           ;1326  6b 67
+    clr1 0fe67h.5           ;1328  5b 67
+    mov a,!0f197h           ;132a  8e 97 f1
+    movw hl,#0b3adh         ;132d  16 ad b3
+    call !sub_0b0d          ;1330  9a 0d 0b
+    bnc $lab_12f8           ;1333  9d c3
+    movw hl,#0b3b2h         ;1335  16 b2 b3
+    callf !sub_0c7d         ;1338  4c 7d
+    bc $lab_12f8            ;133a  8d bc
+    set1 a.7                ;133c  61 fa
+
+lab_133e:
+    bt 0fe65h.5,$lab_1349   ;133e  dc 65 08
+    mov !0fc26h,a           ;1341  9e 26 fc
+    mov b,#00h              ;1344  a3 00
+    callt [0040h]           ;1346  c1
+    br $lab_1358            ;1347  fa 0f
+
+lab_1349:
+    mov a,!0fc26h           ;1349  8e 26 fc
+    cmp a,#00h              ;134c  4d 00
+    bz $lab_1358            ;134e  ad 08
+    clr1 a.7                ;1350  61 fb
+    mov !0fc26h,a           ;1352  9e 26 fc
+    mov b,#00h              ;1355  a3 00
+    callt [0040h]           ;1357  c1
+
+lab_1358:
+    bt 0fe65h.5,$lab_1385   ;1358  dc 65 2a
+    bf 0fe6bh.5,$lab_136d   ;135b  31 53 6b 0e
+    clr1 0fe61h.4           ;135f  4b 61
+    clr1 0fe6bh.5           ;1361  5b 6b
+    clr1 0fe40h.6           ;1363  6b 40
+    clr1 0fe40h.7           ;1365  7b 40
+    clr1 0fe6ch.6           ;1367  6b 6c
+    clr1 0fe6ch.7           ;1369  7b 6c
+    set1 0fe6bh.6           ;136b  6a 6b
+
+lab_136d:
+    bt 0fe2ch.3,$lab_13b1   ;136d  bc 2c 41
+    mov 0fe40h,#00h         ;1370  11 40 00
+    mov 0fe41h,#00h         ;1373  11 41 00
+    mov 0fe42h,#00h         ;1376  11 42 00
+    mov 0fe3fh,#00h         ;1379  11 3f 00
+    clr1 0fe6ch.7           ;137c  7b 6c
+    clr1 0fe6ch.6           ;137e  6b 6c
+    clr1 0fe6bh.6           ;1380  6b 6b
+    br !lab_1479            ;1382  9b 79 14
+
+lab_1385:
+    bf 0fe6bh.5,$lab_138e   ;1385  31 53 6b 05
+    clr1 0fe41h.0           ;1389  0b 41
+    br !lab_144f            ;138b  9b 4f 14
+
+lab_138e:
+    bt 0fe6bh.6,$lab_13a7   ;138e  ec 6b 16
+    clr1 0fed3h.7           ;1391  7b d3
+    mov a,0fed3h            ;1393  f0 d3
+    mov P9_,a               ;1395  f2 09
+    mov a,#0fh              ;1397  a1 0f
+    mov !0fb14h,a           ;1399  9e 14 fb
+    clr1 0fed3h.4           ;139c  4b d3
+    mov a,0fed3h            ;139e  f0 d3
+    mov P9_,a               ;13a0  f2 09
+    set1 0fe6bh.6           ;13a2  6a 6b
+    br !lab_1479            ;13a4  9b 79 14
+
+lab_13a7:
+    mov a,!0fb14h           ;13a7  8e 14 fb
+    cmp a,#00h              ;13aa  4d 00
+    bz $lab_13b9            ;13ac  ad 0b
+    br !lab_1479            ;13ae  9b 79 14
+
+lab_13b1:
+    bt 0fe41h.7,$lab_1405   ;13b1  fc 41 51
+    set1 0fe6bh.6           ;13b4  6a 6b
+    call !sub_7c51          ;13b6  9a 51 7c
+
+lab_13b9:
+    mov a,#00h              ;13b9  a1 00
+    mov !0fc16h,a           ;13bb  9e 16 fc
+    clr1 PM2_.7             ;13be  71 7b 22
+    clr1 0fe40h.0           ;13c1  0b 40
+    clr1 0fe40h.1           ;13c3  1b 40
+    clr1 0fecch.7           ;13c5  7b cc
+    mov a,0fecch            ;13c7  f0 cc
+    mov P2_,a               ;13c9  f2 02
+    mov a,#06h              ;13cb  a1 06
+    mov !0fb07h,a           ;13cd  9e 07 fb
+
+lab_13d0:
+    mov a,!0fb07h           ;13d0  8e 07 fb
+    cmp a,#00h              ;13d3  4d 00
+    bnz $lab_13d0           ;13d5  bd f9
+    bf 0fe65h.5,$lab_13e7   ;13d7  31 53 65 0c
+    set1 0fe6bh.5           ;13db  5a 6b
+    mov a,#00h              ;13dd  a1 00
+    mov !0fb38h,a           ;13df  9e 38 fb
+    mov !0fb39h,a           ;13e2  9e 39 fb
+    br $lab_13e9            ;13e5  fa 02
+
+lab_13e7:
+    set1 0fe41h.7           ;13e7  7a 41
+
+lab_13e9:
+    movw hl,#0fc1ah         ;13e9  16 1a fc
+    movw de,#0fb30h         ;13ec  14 30 fb
+    mov b,#08h              ;13ef  a3 08
+    mov a,#00h              ;13f1  a1 00
+
+lab_13f3:
+    mov [hl+b],a            ;13f3  bb
+    mov [de],a              ;13f4  95
+    incw de                 ;13f5  84
+    dbnz b,$lab_13f3        ;13f6  8b fb
+    mov [hl+b],a            ;13f8  bb
+    mov !0fc23h,a           ;13f9  9e 23 fc
+    mov !0fc24h,a           ;13fc  9e 24 fc
+    set1 0fecch.7           ;13ff  7a cc
+    mov a,0fecch            ;1401  f0 cc
+    mov P2_,a               ;1403  f2 02
+
+lab_1405:
+    bf 0fed3h.4,$lab_142e   ;1405  31 43 d3 25
+    bf 0fe6bh.6,$lab_1416   ;1409  31 63 6b 09
+    mov a,#0fh              ;140d  a1 0f
+    mov !0fb14h,a           ;140f  9e 14 fb
+    clr1 0fe6bh.6           ;1412  6b 6b
+    br $lab_1479            ;1414  fa 63
+
+lab_1416:
+    mov a,!0fb14h           ;1416  8e 14 fb
+    cmp a,#00h              ;1419  4d 00
+    bz $lab_141f            ;141b  ad 02
+    br $lab_1479            ;141d  fa 5a
+
+lab_141f:
+    bf 0fe6bh.4,$lab_1454   ;141f  31 43 6b 31
+    mov a,#00h              ;1423  a1 00
+    mov !0fc16h,a           ;1425  9e 16 fc
+    clr1 0fe6bh.4           ;1428  4b 6b
+    clr1 0fe41h.0           ;142a  0b 41
+    br $lab_1454            ;142c  fa 26
+
+lab_142e:
+    set1 0fe41h.3           ;142e  3a 41
+    mov a,!0f1ffh           ;1430  8e ff f1
+    cmp a,#00h              ;1433  4d 00
+    bz $lab_1479            ;1435  ad 42
+    bf 0fe2ch.3,$lab_1479   ;1437  31 33 2c 3e
+    mov a,!0f1feh           ;143b  8e fe f1
+    cmp a,#03h              ;143e  4d 03
+    bz $lab_1479            ;1440  ad 37
+    cmp a,#03h              ;1442  4d 03
+    bz $lab_1479            ;1444  ad 33
+    set1 0fe41h.0           ;1446  0a 41
+    mov a,!0fc16h           ;1448  8e 16 fc
+    cmp a,#07h              ;144b  4d 07
+    bnc $lab_1479           ;144d  9d 2a
+
+lab_144f:
+    set1 0fe6bh.4           ;144f  4a 6b
+    call !sub_7c51          ;1451  9a 51 7c
+
+lab_1454:
+    bf 0fe62h.1,$lab_145e   ;1454  31 13 62 06
+    clr1 0fe40h.1           ;1458  1b 40
+    clr1 0fe40h.0           ;145a  0b 40
+    br $lab_1479            ;145c  fa 1b
+
+lab_145e:
+    bt 0fe40h.0,$lab_1479   ;145e  8c 40 18
+    mov a,!0fb13h           ;1461  8e 13 fb
+    cmp a,#00h              ;1464  4d 00
+    bnz $lab_1479           ;1466  bd 11
+    mov a,#14h              ;1468  a1 14
+    bt 0fe65h.5,$lab_1473   ;146a  dc 65 06
+    bf 0fe6bh.4,$lab_1473   ;146d  31 43 6b 02
+    mov a,#0fh              ;1471  a1 0f
+
+lab_1473:
+    mov !0fb13h,a           ;1473  9e 13 fb
+    call !sub_7712          ;1476  9a 12 77
+
+lab_1479:
+    br !lab_12d7            ;1479  9b d7 12
+
     db 0dch                 ;147c  dc          DATA 0xdc
     db 65h                  ;147d  65          DATA 0x65 'e'
     db 10h                  ;147e  10          DATA 0x10
@@ -3464,7 +4451,7 @@ sub_1601:
     br $lab_167f            ;162f  fa 4e
 
 lab_1631:
-    movw de,#172eh          ;1631  14 2e 17
+    movw de,#lab_172e       ;1631  14 2e 17
     br $lab_167f            ;1634  fa 49
 
     db 5ah                  ;1636  5a          DATA 0x5a 'Z'
@@ -4978,7 +5965,7 @@ lab_1cb1:
     br !sub_1601            ;1cbc  9b 01 16
 
 lab_1cbf:
-    movw ax,#0823h          ;1cbf  10 23 08
+    movw ax,#sub_0823       ;1cbf  10 23 08
     push ax                 ;1cc2  b1
     movw ax,de              ;1cc3  c4
     br ax                   ;1cc4  31 98
@@ -6973,7 +7960,7 @@ lab_2521:
     dbnz 0fe24h,$lab_2532   ;2521  04 24 0e
     bt 0fe2ch.2,$lab_252f   ;2524  ac 2c 08
     bt 0fe2ch.3,$lab_252f   ;2527  bc 2c 05
-    clr1 PM3.3              ;252a  71 3b 23
+    clr1 PM3_.3             ;252a  71 3b 23
     clr1 0fecdh.3           ;252d  3b cd
 
 lab_252f:
@@ -6981,7 +7968,7 @@ lab_252f:
 
 lab_2532:
     mov a,0fecdh            ;2532  f0 cd
-    mov P3,a                ;2534  f2 03
+    mov P3_,a               ;2534  f2 03
     ret                     ;2536  af
 
     db 16h                  ;2537  16          DATA 0x16
@@ -7234,15 +8221,15 @@ lab_2532:
     db 0afh                 ;262e  af          DATA 0xaf
 
 sub_262f:
-    mov CSIM31,#84h         ;262f  13 b8 84
-    clr1 PU2.2              ;2632  71 2b 32
-    set1 PM2.2              ;2635  71 2a 22
-    clr1 PM2.1              ;2638  71 1b 22
-    clr1 PU2.0              ;263b  71 0b 32
-    set1 PM2.0              ;263e  71 0a 22
+    mov CSIM31_,#84h        ;262f  13 b8 84
+    clr1 PU2_.2             ;2632  71 2b 32
+    set1 PM2_.2             ;2635  71 2a 22
+    clr1 PM2_.1             ;2638  71 1b 22
+    clr1 PU2_.0             ;263b  71 0b 32
+    set1 PM2_.0             ;263e  71 0a 22
     clr1 0fecch.1           ;2641  1b cc
     mov a,0fecch            ;2643  f0 cc
-    mov P2,a                ;2645  f2 02
+    mov P2_,a               ;2645  f2 02
     ret                     ;2647  af
 
     db 4dh                  ;2648  4d          DATA 0x4d 'M'
@@ -7258,6 +8245,8 @@ sub_262f:
     db 0dh                  ;2652  0d          DATA 0x0d
     db 30h                  ;2653  30          DATA 0x30 '0'
     db 0afh                 ;2654  af          DATA 0xaf
+
+kwp_1j003b180b:
     db 31h                  ;2655  31          DATA 0x31 '1'
     db 4ah                  ;2656  4a          DATA 0x4a 'J'
     db 30h                  ;2657  30          DATA 0x30 '0'
@@ -7271,6 +8260,8 @@ sub_262f:
     db 42h                  ;265f  42          DATA 0x42 'B'
     db 20h                  ;2660  20          DATA 0x20 ' '
     db 03h                  ;2661  03          DATA 0x03
+
+kwp_1c0035180a:
     db 31h                  ;2662  31          DATA 0x31 '1'
     db 43h                  ;2663  43          DATA 0x43 'C'
     db 30h                  ;2664  30          DATA 0x30 '0'
@@ -7284,6 +8275,8 @@ sub_262f:
     db 41h                  ;266c  41          DATA 0x41 'A'
     db 20h                  ;266d  20          DATA 0x20 ' '
     db 03h                  ;266e  03          DATA 0x03
+
+kwp_radio_de2:
     db 20h                  ;266f  20          DATA 0x20 ' '
     db 52h                  ;2670  52          DATA 0x52 'R'
     db 61h                  ;2671  61          DATA 0x61 'a'
@@ -7297,6 +8290,8 @@ sub_262f:
     db 20h                  ;2679  20          DATA 0x20 ' '
     db 20h                  ;267a  20          DATA 0x20 ' '
     db 03h                  ;267b  03          DATA 0x03
+
+kwp_radio_delco:
     db 20h                  ;267c  20          DATA 0x20 ' '
     db 52h                  ;267d  52          DATA 0x52 'R'
     db 61h                  ;267e  61          DATA 0x61 'a'
@@ -7310,6 +8305,8 @@ sub_262f:
     db 43h                  ;2686  43          DATA 0x43 'C'
     db 4fh                  ;2687  4f          DATA 0x4f 'O'
     db 03h                  ;2688  03          DATA 0x03
+
+kwp_0001:
     db 20h                  ;2689  20          DATA 0x20 ' '
     db 20h                  ;268a  20          DATA 0x20 ' '
     db 20h                  ;268b  20          DATA 0x20 ' '
@@ -7323,6 +8320,8 @@ sub_262f:
     db 31h                  ;2693  31          DATA 0x31 '1'
     db 00h                  ;2694  00          DATA 0x00
     db 03h                  ;2695  03          DATA 0x03
+
+display_test:
     db 44h                  ;2696  44          DATA 0x44 'D'
     db 49h                  ;2697  49          DATA 0x49 'I'
     db 53h                  ;2698  53          DATA 0x53 'S'
@@ -7339,6 +8338,8 @@ sub_262f:
     db 54h                  ;26a3  54          DATA 0x54 'T'
     db 20h                  ;26a4  20          DATA 0x20 ' '
     db 20h                  ;26a5  20          DATA 0x20 ' '
+
+display_test_end:
     db 20h                  ;26a6  20          DATA 0x20 ' '
     db 20h                  ;26a7  20          DATA 0x20 ' '
     db 20h                  ;26a8  20          DATA 0x20 ' '
@@ -7355,26 +8356,22 @@ sub_262f:
     db 20h                  ;26b3  20          DATA 0x20 ' '
     db 20h                  ;26b4  20          DATA 0x20 ' '
     db 20h                  ;26b5  20          DATA 0x20 ' '
-    db 0a4h                 ;26b6  a4          DATA 0xa4
-    db 0c2h                 ;26b7  c2          DATA 0xc2
-    db 4dh                  ;26b8  4d          DATA 0x4d 'M'
-    db 00h                  ;26b9  00          DATA 0x00
-    db 0adh                 ;26ba  ad          DATA 0xad
-    db 0ch                  ;26bb  0c          DATA 0x0c
-    db 4dh                  ;26bc  4d          DATA 0x4d 'M'
-    db 88h                  ;26bd  88          DATA 0x88
-    db 0adh                 ;26be  ad          DATA 0xad
-    db 08h                  ;26bf  08          DATA 0x08
-    db 0a4h                 ;26c0  a4          DATA 0xa4
-    db 0f2h                 ;26c1  f2          DATA 0xf2
-    db 4dh                  ;26c2  4d          DATA 0x4d 'M'
-    db 2ch                  ;26c3  2c          DATA 0x2c ','
-    db 0adh                 ;26c4  ad          DATA 0xad
-    db 02h                  ;26c5  02          DATA 0x02
-    db 0a4h                 ;26c6  a4          DATA 0xa4
-    db 0f3h                 ;26c7  f3          DATA 0xf3
-    db 0afh                 ;26c8  af          DATA 0xaf
 
+lab_26b6:
+    mov e,#0c2h             ;26b6  a4 c2
+    cmp a,#00h              ;26b8  4d 00
+    bz $lab_26c8            ;26ba  ad 0c
+    cmp a,#88h              ;26bc  4d 88
+    bz $lab_26c8            ;26be  ad 08
+    mov e,#0f2h             ;26c0  a4 f2
+    cmp a,#2ch              ;26c2  4d 2c
+    bz $lab_26c8            ;26c4  ad 02
+    mov e,#0f3h             ;26c6  a4 f3
+
+lab_26c8:
+    ret                     ;26c8  af
+
+lab_26c9:
     mov e,#0c2h             ;26c9  a4 c2
     cmp a,#00h              ;26cb  4d 00
     bz $lab_26d5            ;26cd  ad 06
@@ -7384,12 +8381,16 @@ sub_262f:
 
 lab_26d5:
     ret                     ;26d5  af
+
+lab_26d6:
     call !sub_7697          ;26d6  9a 97 76
     mov a,#32h              ;26d9  a1 32
     mov !0fb2eh,a           ;26db  9e 2e fb
     mov a,#8fh              ;26de  a1 8f
     mov !0f1a6h,a           ;26e0  9e a6 f1
     ret                     ;26e3  af
+
+lab_26e4:
     movw hl,#0f1edh         ;26e4  16 ed f1
     movw de,#0f03bh         ;26e7  14 3b f0
     mov a,#0ch              ;26ea  a1 0c
@@ -7399,312 +8400,202 @@ lab_26d5:
     mov [hl+0ch],a          ;26f3  be 0c
     movw de,#0f03bh         ;26f5  14 3b f0
     ret                     ;26f8  af
-    movw de,#266fh          ;26f9  14 6f 26
+
+lab_26f9:
+    movw de,#kwp_radio_de2  ;26f9  14 6f 26
     mov a,!0f1e9h           ;26fc  8e e9 f1
     bf a.7,$lab_2705        ;26ff  31 7f 03
-    movw de,#267ch          ;2702  14 7c 26
+    movw de,#kwp_radio_delco ;2702  14 7c 26
 
 lab_2705:
     ret                     ;2705  af
 
-    db 16h                  ;2706  16          DATA 0x16
-    db 89h                  ;2707  89          DATA 0x89
-    db 26h                  ;2708  26          DATA 0x26 '&'
-    db 14h                  ;2709  14          DATA 0x14
-    db 3bh                  ;270a  3b          DATA 0x3b ';'
-    db 0f0h                 ;270b  f0          DATA 0xf0
-    db 0a1h                 ;270c  a1          DATA 0xa1
-    db 0dh                  ;270d  0d          DATA 0x0d
-    db 4ch                  ;270e  4c          DATA 0x4c 'L'
-    db 9eh                  ;270f  9e          DATA 0x9e
-    db 16h                  ;2710  16          DATA 0x16
-    db 3bh                  ;2711  3b          DATA 0x3b ';'
-    db 0f0h                 ;2712  f0          DATA 0xf0
-    db 8eh                  ;2713  8e          DATA 0x8e
-    db 0ech                 ;2714  ec          DATA 0xec
-    db 0f1h                 ;2715  f1          DATA 0xf1
-    db 5dh                  ;2716  5d          DATA 0x5d ']'
-    db 0f0h                 ;2717  f0          DATA 0xf0
-    db 24h                  ;2718  24          DATA 0x24 '$'
-    db 24h                  ;2719  24          DATA 0x24 '$'
-    db 24h                  ;271a  24          DATA 0x24 '$'
-    db 24h                  ;271b  24          DATA 0x24 '$'
-    db 0dh                  ;271c  0d          DATA 0x0d
-    db 30h                  ;271d  30          DATA 0x30 '0'
-    db 0beh                 ;271e  be          DATA 0xbe
-    db 07h                  ;271f  07          DATA 0x07
-    db 8eh                  ;2720  8e          DATA 0x8e
-    db 0ech                 ;2721  ec          DATA 0xec
-    db 0f1h                 ;2722  f1          DATA 0xf1
-    db 5dh                  ;2723  5d          DATA 0x5d ']'
-    db 0fh                  ;2724  0f          DATA 0x0f
-    db 0dh                  ;2725  0d          DATA 0x0d
-    db 30h                  ;2726  30          DATA 0x30 '0'
-    db 0beh                 ;2727  be          DATA 0xbe
-    db 08h                  ;2728  08          DATA 0x08
-    db 8eh                  ;2729  8e          DATA 0x8e
-    db 0ebh                 ;272a  eb          DATA 0xeb
-    db 0f1h                 ;272b  f1          DATA 0xf1
-    db 5dh                  ;272c  5d          DATA 0x5d ']'
-    db 0f0h                 ;272d  f0          DATA 0xf0
-    db 24h                  ;272e  24          DATA 0x24 '$'
-    db 24h                  ;272f  24          DATA 0x24 '$'
-    db 24h                  ;2730  24          DATA 0x24 '$'
-    db 24h                  ;2731  24          DATA 0x24 '$'
-    db 0dh                  ;2732  0d          DATA 0x0d
-    db 30h                  ;2733  30          DATA 0x30 '0'
-    db 0beh                 ;2734  be          DATA 0xbe
-    db 09h                  ;2735  09          DATA 0x09
-    db 8eh                  ;2736  8e          DATA 0x8e
-    db 0ebh                 ;2737  eb          DATA 0xeb
-    db 0f1h                 ;2738  f1          DATA 0xf1
-    db 5dh                  ;2739  5d          DATA 0x5d ']'
-    db 0fh                  ;273a  0f          DATA 0x0f
-    db 0dh                  ;273b  0d          DATA 0x0d
-    db 30h                  ;273c  30          DATA 0x30 '0'
-    db 0beh                 ;273d  be          DATA 0xbe
-    db 0ah                  ;273e  0a          DATA 0x0a
-    db 8eh                  ;273f  8e          DATA 0x8e
-    db 0e9h                 ;2740  e9          DATA 0xe9
-    db 0f1h                 ;2741  f1          DATA 0xf1
-    db 31h                  ;2742  31          DATA 0x31 '1'
-    db 7fh                  ;2743  7f          DATA 0x7f
-    db 05h                  ;2744  05          DATA 0x05
-    db 8eh                  ;2745  8e          DATA 0x8e
-    db 0eah                 ;2746  ea          DATA 0xea
-    db 0f1h                 ;2747  f1          DATA 0xf1
-    db 0beh                 ;2748  be          DATA 0xbe
-    db 07h                  ;2749  07          DATA 0x07
-    db 14h                  ;274a  14          DATA 0x14
-    db 3bh                  ;274b  3b          DATA 0x3b ';'
-    db 0f0h                 ;274c  f0          DATA 0xf0
-    db 0afh                 ;274d  af          DATA 0xaf
-    db 0bch                 ;274e  bc          DATA 0xbc
-    db 5fh                  ;274f  5f          DATA 0x5f '_'
-    db 11h                  ;2750  11          DATA 0x11
-    db 9ah                  ;2751  9a          DATA 0x9a
-    db 98h                  ;2752  98          DATA 0x98
-    db 2ch                  ;2753  2c          DATA 0x2c ','
-    db 8dh                  ;2754  8d          DATA 0x8d
-    db 06h                  ;2755  06          DATA 0x06
-    db 0a4h                 ;2756  a4          DATA 0xa4
-    db 88h                  ;2757  88          DATA 0x88
-    db 10h                  ;2758  10          DATA 0x10
-    db 0ffh                 ;2759  ff          DATA 0xff
-    db 0ffh                 ;275a  ff          DATA 0xff
-    db 0afh                 ;275b  af          DATA 0xaf
-    db 3ah                  ;275c  3a          DATA 0x3a ':'
-    db 5fh                  ;275d  5f          DATA 0x5f '_'
-    db 0c6h                 ;275e  c6          DATA 0xc6
-    db 03h                  ;275f  03          DATA 0x03
-    db 02h                  ;2760  02          DATA 0x02
-    db 0f0h                 ;2761  f0          DATA 0xf0
-    db 02h                  ;2762  02          DATA 0x02
-    db 02h                  ;2763  02          DATA 0x02
-    db 0f0h                 ;2764  f0          DATA 0xf0
-    db 0eah                 ;2765  ea          DATA 0xea
-    db 0dh                  ;2766  0d          DATA 0x0d
-    db 0f2h                 ;2767  f2          DATA 0xf2
-    db 8dh                  ;2768  8d          DATA 0x8d
-    db 22h                  ;2769  22          DATA 0x22 '"'
-    db 0eah                 ;276a  ea          DATA 0xea
-    db 19h                  ;276b  19          DATA 0x19
-    db 0f2h                 ;276c  f2          DATA 0xf2
-    db 9dh                  ;276d  9d          DATA 0x9d
-    db 1dh                  ;276e  1d          DATA 0x1d
-    db 0d4h                 ;276f  d4          DATA 0xd4
-    db 80h                  ;2770  80          DATA 0x80
-    db 03h                  ;2771  03          DATA 0x03
-    db 02h                  ;2772  02          DATA 0x02
-    db 0f0h                 ;2773  f0          DATA 0xf0
-    db 85h                  ;2774  85          DATA 0x85
-    db 4dh                  ;2775  4d          DATA 0x4d 'M'
-    db 88h                  ;2776  88          DATA 0x88
-    db 0adh                 ;2777  ad          DATA 0xad
-    db 0e9h                 ;2778  e9          DATA 0xe9
-    db 0b1h                 ;2779  b1          DATA 0xb1
-    db 16h                  ;277a  16          DATA 0x16
-    db 0dh                  ;277b  0d          DATA 0x0d
-    db 0f2h                 ;277c  f2          DATA 0xf2
-    db 9ah                  ;277d  9a          DATA 0x9a
-    db 0beh                 ;277e  be          DATA 0xbe
-    db 2ch                  ;277f  2c          DATA 0x2c ','
-    db 73h                  ;2780  73          DATA 0x73 's'
-    db 16h                  ;2781  16          DATA 0x16
-    db 0e9h                 ;2782  e9          DATA 0xe9
-    db 0afh                 ;2783  af          DATA 0xaf
-    db 4ch                  ;2784  4c          DATA 0x4c 'L'
-    db 48h                  ;2785  48          DATA 0x48 'H'
-    db 0b0h                 ;2786  b0          DATA 0xb0
-    db 8dh                  ;2787  8d          DATA 0x8d
-    db 03h                  ;2788  03          DATA 0x03
-    db 70h                  ;2789  70          DATA 0x70 'p'
-    db 0e4h                 ;278a  e4          DATA 0xe4
-    db 0afh                 ;278b  af          DATA 0xaf
-    db 3bh                  ;278c  3b          DATA 0x3b ';'
-    db 5fh                  ;278d  5f          DATA 0x5f '_'
-    db 20h                  ;278e  20          DATA 0x20 ' '
-    db 0afh                 ;278f  af          DATA 0xaf
-    db 9ah                  ;2790  9a          DATA 0x9a
-    db 35h                  ;2791  35          DATA 0x35 '5'
-    db 2dh                  ;2792  2d          DATA 0x2d '-'
-    db 16h                  ;2793  16          DATA 0x16
-    db 0ch                  ;2794  0c          DATA 0x0c
-    db 0f2h                 ;2795  f2          DATA 0xf2
-    db 14h                  ;2796  14          DATA 0x14
-    db 15h                  ;2797  15          DATA 0x15
-    db 0f2h                 ;2798  f2          DATA 0xf2
-    db 9ah                  ;2799  9a          DATA 0x9a
-    db 0beh                 ;279a  be          DATA 0xbe
-    db 2ch                  ;279b  2c          DATA 0x2c ','
-    db 4dh                  ;279c  4d          DATA 0x4d 'M'
-    db 00h                  ;279d  00          DATA 0x00
-    db 0adh                 ;279e  ad          DATA 0xad
-    db 2eh                  ;279f  2e          DATA 0x2e '.'
-    db 73h                  ;27a0  73          DATA 0x73 's'
-    db 14h                  ;27a1  14          DATA 0x14
-    db 1ah                  ;27a2  1a          DATA 0x1a
-    db 0fch                 ;27a3  fc          DATA 0xfc
-    db 16h                  ;27a4  16          DATA 0x16
-    db 0dh                  ;27a5  0d          DATA 0x0d
-    db 0f2h                 ;27a6  f2          DATA 0xf2
-    db 85h                  ;27a7  85          DATA 0x85
-    db 4fh                  ;27a8  4f          DATA 0x4f 'O'
-    db 0adh                 ;27a9  ad          DATA 0xad
-    db 05h                  ;27aa  05          DATA 0x05
-    db 0a1h                 ;27ab  a1          DATA 0xa1
-    db 88h                  ;27ac  88          DATA 0x88
-    db 9ah                  ;27ad  9a          DATA 0x9a
-    db 92h                  ;27ae  92          DATA 0x92
-    db 40h                  ;27af  40          DATA 0x40 '@'
-    db 86h                  ;27b0  86          DATA 0x86
-    db 84h                  ;27b1  84          DATA 0x84
-    db 8bh                  ;27b2  8b          DATA 0x8b
-    db 0f3h                 ;27b3  f3          DATA 0xf3
-    db 16h                  ;27b4  16          DATA 0x16
-    db 17h                  ;27b5  17          DATA 0x17
-    db 0f2h                 ;27b6  f2          DATA 0xf2
-    db 0a1h                 ;27b7  a1          DATA 0xa1
-    db 88h                  ;27b8  88          DATA 0x88
-    db 9ah                  ;27b9  9a          DATA 0x9a
-    db 92h                  ;27ba  92          DATA 0x92
-    db 40h                  ;27bb  40          DATA 0x40 '@'
-    db 16h                  ;27bc  16          DATA 0x16
-    db 18h                  ;27bd  18          DATA 0x18
-    db 0f2h                 ;27be  f2          DATA 0xf2
-    db 0a1h                 ;27bf  a1          DATA 0xa1
-    db 88h                  ;27c0  88          DATA 0x88
-    db 9ah                  ;27c1  9a          DATA 0x9a
-    db 92h                  ;27c2  92          DATA 0x92
-    db 40h                  ;27c3  40          DATA 0x40 '@'
-    db 16h                  ;27c4  16          DATA 0x16
-    db 19h                  ;27c5  19          DATA 0x19
-    db 0f2h                 ;27c6  f2          DATA 0xf2
-    db 0a1h                 ;27c7  a1          DATA 0xa1
-    db 00h                  ;27c8  00          DATA 0x00
-    db 9ah                  ;27c9  9a          DATA 0x9a
-    db 92h                  ;27ca  92          DATA 0x92
-    db 40h                  ;27cb  40          DATA 0x40 '@'
-    db 3bh                  ;27cc  3b          DATA 0x3b ';'
-    db 6dh                  ;27cd  6d          DATA 0x6d 'm'
-    db 0afh                 ;27ce  af          DATA 0xaf
-    db 0b7h                 ;27cf  b7          DATA 0xb7
-    db 0b3h                 ;27d0  b3          DATA 0xb3
-    db 9ah                  ;27d1  9a          DATA 0x9a
-    db 35h                  ;27d2  35          DATA 0x35 '5'
-    db 2dh                  ;27d3  2d          DATA 0x2d '-'
-    db 8eh                  ;27d4  8e          DATA 0x8e
-    db 4eh                  ;27d5  4e          DATA 0x4e 'N'
-    db 0f0h                 ;27d6  f0          DATA 0xf0
-    db 4dh                  ;27d7  4d          DATA 0x4d 'M'
-    db 03h                  ;27d8  03          DATA 0x03
-    db 8dh                  ;27d9  8d          DATA 0x8d
-    db 0bh                  ;27da  0b          DATA 0x0b
-    db 5bh                  ;27db  5b          DATA 0x5b '['
-    db 5fh                  ;27dc  5f          DATA 0x5f '_'
-    db 0a1h                 ;27dd  a1          DATA 0xa1
-    db 00h                  ;27de  00          DATA 0x00
-    db 9eh                  ;27df  9e          DATA 0x9e
-    db 4eh                  ;27e0  4e          DATA 0x4e 'N'
-    db 0f0h                 ;27e1  f0          DATA 0xf0
-    db 0b2h                 ;27e2  b2          DATA 0xb2
-    db 0b6h                 ;27e3  b6          DATA 0xb6
-    db 20h                  ;27e4  20          DATA 0x20 ' '
-    db 0afh                 ;27e5  af          DATA 0xaf
-    db 73h                  ;27e6  73          DATA 0x73 's'
-    db 41h                  ;27e7  41          DATA 0x41 'A'
-    db 9eh                  ;27e8  9e          DATA 0x9e
-    db 4eh                  ;27e9  4e          DATA 0x4e 'N'
-    db 0f0h                 ;27ea  f0          DATA 0xf0
-    db 16h                  ;27eb  16          DATA 0x16
-    db 02h                  ;27ec  02          DATA 0x02
-    db 0b0h                 ;27ed  b0          DATA 0xb0
-    db 4ch                  ;27ee  4c          DATA 0x4c 'L'
-    db 48h                  ;27ef  48          DATA 0x48 'H'
-    db 8dh                  ;27f0  8d          DATA 0x8d
-    db 26h                  ;27f1  26          DATA 0x26 '&'
-    db 0c4h                 ;27f2  c4          DATA 0xc4
-    db 0eah                 ;27f3  ea          DATA 0xea
-    db 53h                  ;27f4  53          DATA 0x53 'S'
-    db 03h                  ;27f5  03          DATA 0x03
-    db 0bdh                 ;27f6  bd          DATA 0xbd
-    db 07h                  ;27f7  07          DATA 0x07
-    db 0b1h                 ;27f8  b1          DATA 0xb1
-    db 9ah                  ;27f9  9a          DATA 0x9a
-    db 0bdh                 ;27fa  bd          DATA 0xbd
-    db 7bh                  ;27fb  7b          DATA 0x7b '{'
-    db 0b0h                 ;27fc  b0          DATA 0xb0
-    db 0fah                 ;27fd  fa          DATA 0xfa
-    db 19h                  ;27fe  19          DATA 0x19
-    db 0eah                 ;27ff  ea          DATA 0xea
-    db 56h                  ;2800  56          DATA 0x56 'V'
-    db 03h                  ;2801  03          DATA 0x03
-    db 0bdh                 ;2802  bd          DATA 0xbd
-    db 0ah                  ;2803  0a          DATA 0x0a
-    db 0b1h                 ;2804  b1          DATA 0xb1
-    db 9ah                  ;2805  9a          DATA 0x9a
-    db 0beh                 ;2806  be          DATA 0xbe
-    db 7bh                  ;2807  7b          DATA 0x7b '{'
-    db 9ah                  ;2808  9a          DATA 0x9a
-    db 21h                  ;2809  21          DATA 0x21 '!'
-    db 28h                  ;280a  28          DATA 0x28 '('
-    db 0b0h                 ;280b  b0          DATA 0xb0
-    db 0fah                 ;280c  fa          DATA 0xfa
-    db 0ah                  ;280d  0a          DATA 0x0a
-    db 0eah                 ;280e  ea          DATA 0xea
-    db 0abh                 ;280f  ab          DATA 0xab
-    db 04h                  ;2810  04          DATA 0x04
-    db 0bdh                 ;2811  bd          DATA 0xbd
-    db 05h                  ;2812  05          DATA 0x05
-    db 0b1h                 ;2813  b1          DATA 0xb1
-    db 9ah                  ;2814  9a          DATA 0x9a
-    db 1ch                  ;2815  1c          DATA 0x1c
-    db 28h                  ;2816  28          DATA 0x28 '('
-    db 0b0h                 ;2817  b0          DATA 0xb0
-    db 0b2h                 ;2818  b2          DATA 0xb2
-    db 0b6h                 ;2819  b6          DATA 0xb6
-    db 21h                  ;281a  21          DATA 0x21 '!'
-    db 0afh                 ;281b  af          DATA 0xaf
-    db 16h                  ;281c  16          DATA 0x16
-    db 0a6h                 ;281d  a6          DATA 0xa6
-    db 26h                  ;281e  26          DATA 0x26 '&'
-    db 0fah                 ;281f  fa          DATA 0xfa
-    db 03h                  ;2820  03          DATA 0x03
-    db 16h                  ;2821  16          DATA 0x16
-    db 96h                  ;2822  96          DATA 0x96
-    db 26h                  ;2823  26          DATA 0x26 '&'
-    db 14h                  ;2824  14          DATA 0x14
-    db 55h                  ;2825  55          DATA 0x55 'U'
-    db 0f0h                 ;2826  f0          DATA 0xf0
-    db 0a1h                 ;2827  a1          DATA 0xa1
-    db 10h                  ;2828  10          DATA 0x10
-    db 4ch                  ;2829  4c          DATA 0x4c 'L'
-    db 9eh                  ;282a  9e          DATA 0x9e
-    db 3ah                  ;282b  3a          DATA 0x3a ':'
-    db 60h                  ;282c  60          DATA 0x60 '`'
-    db 5ah                  ;282d  5a          DATA 0x5a 'Z'
-    db 5fh                  ;282e  5f          DATA 0x5f '_'
-    db 0afh                 ;282f  af          DATA 0xaf
+lab_2706:
+    movw hl,#kwp_0001       ;2706  16 89 26
+    movw de,#0f03bh         ;2709  14 3b f0
+    mov a,#0dh              ;270c  a1 0d
+    callf !sub_0c9e         ;270e  4c 9e
+    movw hl,#0f03bh         ;2710  16 3b f0
+    mov a,!0f1ech           ;2713  8e ec f1
+    and a,#0f0h             ;2716  5d f0
+    ror a,1                 ;2718  24
+    ror a,1                 ;2719  24
+    ror a,1                 ;271a  24
+    ror a,1                 ;271b  24
+    add a,#30h              ;271c  0d 30
+    mov [hl+07h],a          ;271e  be 07
+    mov a,!0f1ech           ;2720  8e ec f1
+    and a,#0fh              ;2723  5d 0f
+    add a,#30h              ;2725  0d 30
+    mov [hl+08h],a          ;2727  be 08
+    mov a,!0f1ebh           ;2729  8e eb f1
+    and a,#0f0h             ;272c  5d f0
+    ror a,1                 ;272e  24
+    ror a,1                 ;272f  24
+    ror a,1                 ;2730  24
+    ror a,1                 ;2731  24
+    add a,#30h              ;2732  0d 30
+    mov [hl+09h],a          ;2734  be 09
+    mov a,!0f1ebh           ;2736  8e eb f1
+    and a,#0fh              ;2739  5d 0f
+    add a,#30h              ;273b  0d 30
+    mov [hl+0ah],a          ;273d  be 0a
+    mov a,!0f1e9h           ;273f  8e e9 f1
+    bf a.7,$lab_274a        ;2742  31 7f 05
+    mov a,!0f1eah           ;2745  8e ea f1
+    mov [hl+07h],a          ;2748  be 07
+
+lab_274a:
+    movw de,#0f03bh         ;274a  14 3b f0
+    ret                     ;274d  af
+
+lab_274e:
+    bt 0fe5fh.3,$lab_2762   ;274e  bc 5f 11
+    call !sub_2c98          ;2751  9a 98 2c
+    bc $lab_275c            ;2754  8d 06
+    mov e,#88h              ;2756  a4 88
+    movw ax,#0ffffh         ;2758  10 ff ff
+    ret                     ;275b  af
+
+lab_275c:
+    set1 0fe5fh.3           ;275c  3a 5f
+    movw ax,hl              ;275e  c6
+    movw !0f002h,ax         ;275f  03 02 f0
+
+lab_2762:
+    movw ax,!0f002h         ;2762  02 02 f0
+    cmpw ax,#0f20dh         ;2765  ea 0d f2
+    bc $lab_278c            ;2768  8d 22
+    cmpw ax,#0f219h         ;276a  ea 19 f2
+    bnc $lab_278c           ;276d  9d 1d
+    movw de,ax              ;276f  d4
+    incw ax                 ;2770  80
+    movw !0f002h,ax         ;2771  03 02 f0
+    mov a,[de]              ;2774  85
+    cmp a,#88h              ;2775  4d 88
+    bz $lab_2762            ;2777  ad e9
+    push ax                 ;2779  b1
+    movw hl,#0f20dh         ;277a  16 0d f2
+    call !sub_2cbe          ;277d  9a be 2c
+    mov b,a                 ;2780  73
+    movw hl,#0afe9h         ;2781  16 e9 af
+
+lab_2784:
+    callf !sub_0c48         ;2784  4c 48
+    pop ax                  ;2786  b0
+    bc $lab_278c            ;2787  8d 03
+    mov x,a                 ;2789  70
+    xchw ax,de              ;278a  e4
+    ret                     ;278b  af
+
+lab_278c:
+    clr1 0fe5fh.3           ;278c  3b 5f
+    set1 cy                 ;278e  20
+    ret                     ;278f  af
+
+lab_2790:
+    call !sub_2d35          ;2790  9a 35 2d
+    movw hl,#0f20ch         ;2793  16 0c f2
+    movw de,#0f215h         ;2796  14 15 f2
+    call !sub_2cbe          ;2799  9a be 2c
+    cmp a,#00h              ;279c  4d 00
+    bz $lab_27ce            ;279e  ad 2e
+    mov b,a                 ;27a0  73
+    movw de,#0fc1ah         ;27a1  14 1a fc
+    movw hl,#0f20dh         ;27a4  16 0d f2
+
+lab_27a7:
+    mov a,[de]              ;27a7  85
+    cmp a,[hl]              ;27a8  4f
+    bz $lab_27b0            ;27a9  ad 05
+    mov a,#88h              ;27ab  a1 88
+    call !sub_4092          ;27ad  9a 92 40
+
+lab_27b0:
+    incw hl                 ;27b0  86
+    incw de                 ;27b1  84
+    dbnz b,$lab_27a7        ;27b2  8b f3
+    movw hl,#0f217h         ;27b4  16 17 f2
+    mov a,#88h              ;27b7  a1 88
+    call !sub_4092          ;27b9  9a 92 40
+    movw hl,#0f218h         ;27bc  16 18 f2
+    mov a,#88h              ;27bf  a1 88
+    call !sub_4092          ;27c1  9a 92 40
+    movw hl,#0f219h         ;27c4  16 19 f2
+    mov a,#00h              ;27c7  a1 00
+    call !sub_4092          ;27c9  9a 92 40
+    clr1 0fe6dh.3           ;27cc  3b 6d
+
+lab_27ce:
+    ret                     ;27ce  af
+
+lab_27cf:
+    push hl                 ;27cf  b7
+    push bc                 ;27d0  b3
+    call !sub_2d35          ;27d1  9a 35 2d
+    mov a,!0f04eh           ;27d4  8e 4e f0
+    cmp a,#03h              ;27d7  4d 03
+    bc $lab_27e6            ;27d9  8d 0b
+    clr1 0fe5fh.5           ;27db  5b 5f
+    mov a,#00h              ;27dd  a1 00
+    mov !0f04eh,a           ;27df  9e 4e f0
+    pop bc                  ;27e2  b2
+    pop hl                  ;27e3  b6
+    set1 cy                 ;27e4  20
+    ret                     ;27e5  af
+
+lab_27e6:
+    mov b,a                 ;27e6  73
+    inc a                   ;27e7  41
+    mov !0f04eh,a           ;27e8  9e 4e f0
+    movw hl,#0b002h         ;27eb  16 02 b0
+    callf !sub_0c48         ;27ee  4c 48
+    bc $lab_2818            ;27f0  8d 26
+    movw ax,de              ;27f2  c4
+    cmpw ax,#0353h          ;27f3  ea 53 03
+    bnz $lab_27ff           ;27f6  bd 07
+    push ax                 ;27f8  b1
+    call !sub_7bbd          ;27f9  9a bd 7b
+    pop ax                  ;27fc  b0
+    br $lab_2818            ;27fd  fa 19
+
+lab_27ff:
+    cmpw ax,#0356h          ;27ff  ea 56 03
+    bnz $lab_280e           ;2802  bd 0a
+    push ax                 ;2804  b1
+    call !sub_7bbe          ;2805  9a be 7b
+    call !sub_2821          ;2808  9a 21 28
+    pop ax                  ;280b  b0
+    br $lab_2818            ;280c  fa 0a
+
+lab_280e:
+    cmpw ax,#04abh          ;280e  ea ab 04
+    bnz $lab_2818           ;2811  bd 05
+    push ax                 ;2813  b1
+    call !sub_281c          ;2814  9a 1c 28
+    pop ax                  ;2817  b0
+
+lab_2818:
+    pop bc                  ;2818  b2
+    pop hl                  ;2819  b6
+    clr1 cy                 ;281a  21
+    ret                     ;281b  af
+
+sub_281c:
+    movw hl,#display_test_end ;281c  16 a6 26
+    br $lab_2824            ;281f  fa 03
+
+sub_2821:
+    movw hl,#display_test   ;2821  16 96 26
+
+lab_2824:
+    movw de,#0f055h         ;2824  14 55 f0
+    mov a,#10h              ;2827  a1 10
+    callf !sub_0c9e         ;2829  4c 9e
+    set1 0fe60h.3           ;282b  3a 60
+    set1 0fe5fh.5           ;282d  5a 5f
+    ret                     ;282f  af
+
     db 0cch                 ;2830  cc          DATA 0xcc
     db 5fh                  ;2831  5f          DATA 0x5f '_'
     db 47h                  ;2832  47          DATA 0x47 'G'
@@ -8833,53 +9724,46 @@ lab_2705:
     db 34h                  ;2c95  34          DATA 0x34 '4'
     db 0afh                 ;2c96  af          DATA 0xaf
     db 0afh                 ;2c97  af          DATA 0xaf
-    db 16h                  ;2c98  16          DATA 0x16
-    db 0dh                  ;2c99  0d          DATA 0x0d
-    db 0f2h                 ;2c9a  f2          DATA 0xf2
-    db 14h                  ;2c9b  14          DATA 0x14
-    db 19h                  ;2c9c  19          DATA 0x19
-    db 0f2h                 ;2c9d  f2          DATA 0xf2
-    db 9ah                  ;2c9e  9a          DATA 0x9a
-    db 0beh                 ;2c9f  be          DATA 0xbe
-    db 2ch                  ;2ca0  2c          DATA 0x2c ','
-    db 73h                  ;2ca1  73          DATA 0x73 's'
-    db 87h                  ;2ca2  87          DATA 0x87
-    db 4dh                  ;2ca3  4d          DATA 0x4d 'M'
-    db 88h                  ;2ca4  88          DATA 0x88
-    db 0bdh                 ;2ca5  bd          DATA 0xbd
-    db 05h                  ;2ca6  05          DATA 0x05
-    db 86h                  ;2ca7  86          DATA 0x86
-    db 8bh                  ;2ca8  8b          DATA 0x8b
-    db 0f8h                 ;2ca9  f8          DATA 0xf8
-    db 21h                  ;2caa  21          DATA 0x21 '!'
-    db 0afh                 ;2cab  af          DATA 0xaf
-    db 20h                  ;2cac  20          DATA 0x20 ' '
-    db 0afh                 ;2cad  af          DATA 0xaf
-    db 0a0h                 ;2cae  a0          DATA 0xa0
-    db 00h                  ;2caf  00          DATA 0x00
-    db 0b1h                 ;2cb0  b1          DATA 0xb1
-    db 30h                  ;2cb1  30          DATA 0x30 '0'
-    db 16h                  ;2cb2  16          DATA 0x16
-    db 18h                  ;2cb3  18          DATA 0x18
-    db 0f2h                 ;2cb4  f2          DATA 0xf2
-    db 9ah                  ;2cb5  9a          DATA 0x9a
-    db 92h                  ;2cb6  92          DATA 0x92
-    db 40h                  ;2cb7  40          DATA 0x40 '@'
-    db 86h                  ;2cb8  86          DATA 0x86
-    db 0b0h                 ;2cb9  b0          DATA 0xb0
-    db 9ah                  ;2cba  9a          DATA 0x9a
-    db 92h                  ;2cbb  92          DATA 0x92
-    db 40h                  ;2cbc  40          DATA 0x40 '@'
-    db 0afh                 ;2cbd  af          DATA 0xaf
-    db 0c4h                 ;2cbe  c4          DATA 0xc4
-    db 30h                  ;2cbf  30          DATA 0x30 '0'
-    db 61h                  ;2cc0  61          DATA 0x61 'a'
-    db 1eh                  ;2cc1  1e          DATA 0x1e
-    db 30h                  ;2cc2  30          DATA 0x30 '0'
-    db 61h                  ;2cc3  61          DATA 0x61 'a'
-    db 3fh                  ;2cc4  3f          DATA 0x3f '?'
-    db 30h                  ;2cc5  30          DATA 0x30 '0'
-    db 0afh                 ;2cc6  af          DATA 0xaf
+
+sub_2c98:
+    movw hl,#0f20dh         ;2c98  16 0d f2
+    movw de,#0f219h         ;2c9b  14 19 f2
+    call !sub_2cbe          ;2c9e  9a be 2c
+    mov b,a                 ;2ca1  73
+
+lab_2ca2:
+    mov a,[hl]              ;2ca2  87
+    cmp a,#88h              ;2ca3  4d 88
+    bnz $lab_2cac           ;2ca5  bd 05
+    incw hl                 ;2ca7  86
+    dbnz b,$lab_2ca2        ;2ca8  8b f8
+    clr1 cy                 ;2caa  21
+    ret                     ;2cab  af
+
+lab_2cac:
+    set1 cy                 ;2cac  20
+    ret                     ;2cad  af
+
+sub_2cae:
+    mov x,#00h              ;2cae  a0 00
+    push ax                 ;2cb0  b1
+    xch a,x                 ;2cb1  30
+    movw hl,#0f218h         ;2cb2  16 18 f2
+    call !sub_4092          ;2cb5  9a 92 40
+    incw hl                 ;2cb8  86
+    pop ax                  ;2cb9  b0
+    call !sub_4092          ;2cba  9a 92 40
+    ret                     ;2cbd  af
+
+sub_2cbe:
+    movw ax,de              ;2cbe  c4
+    xch a,x                 ;2cbf  30
+    sub a,l                 ;2cc0  61 1e
+    xch a,x                 ;2cc2  30
+    subc a,h                ;2cc3  61 3f
+    xch a,x                 ;2cc5  30
+    ret                     ;2cc6  af
+
     db 87h                  ;2cc7  87          DATA 0x87
     db 4dh                  ;2cc8  4d          DATA 0x4d 'M'
     db 32h                  ;2cc9  32          DATA 0x32 '2'
@@ -9520,13 +10404,13 @@ sub_2d35:
 
 sub_2f48:
     clr1 0feceh.3           ;2f48  3b ce
-    clr1 PM4.3              ;2f4a  71 3b 24
+    clr1 PM4_.3             ;2f4a  71 3b 24
     mov a,0feceh            ;2f4d  f0 ce
-    mov P4,a                ;2f4f  f2 04
+    mov P4_,a               ;2f4f  f2 04
     clr1 0feceh.4           ;2f51  4b ce
-    clr1 PM4.4              ;2f53  71 4b 24
+    clr1 PM4_.4             ;2f53  71 4b 24
     mov a,0feceh            ;2f56  f0 ce
-    mov P4,a                ;2f58  f2 04
+    mov P4_,a               ;2f58  f2 04
     callf !sub_0891         ;2f5a  0c 91
     set1 0fe5eh.7           ;2f5c  7a 5e
     clr1 0fe60h.7           ;2f5e  7b 60
@@ -9824,8 +10708,8 @@ lab_307e:
     clr1 0fe79h.0           ;3082  0b 79
     set1 0fecch.5           ;3084  5a cc
     mov a,0fecch            ;3086  f0 cc
-    mov P2,a                ;3088  f2 02
-    clr1 ASIM0.7            ;308a  71 7b a0
+    mov P2_,a               ;3088  f2 02
+    clr1 ASIM0_.7           ;308a  71 7b a0
 
 lab_308d:
     pop ax                  ;308d  b0
@@ -9834,7 +10718,7 @@ lab_308d:
 sub_308f:
     bf 0fe7ah.2,$lab_30e7   ;308f  31 23 7a 54
     bf 0fe79h.1,$lab_30e7   ;3093  31 13 79 50
-    bf P2.4,$lab_30e7       ;3097  31 43 02 4c
+    bf P2_.4,$lab_30e7      ;3097  31 43 02 4c
     mov a,!0f06eh           ;309b  8e 6e f0
     dec a                   ;309e  51
     mov !0f06eh,a           ;309f  9e 6e f0
@@ -9842,7 +10726,7 @@ sub_308f:
     clr1 0fe79h.1           ;30a4  1b 79
     clr1 0fecch.5           ;30a6  5b cc
     mov a,0fecch            ;30a8  f0 cc
-    mov P2,a                ;30aa  f2 02
+    mov P2_,a               ;30aa  f2 02
     bt 0fe79h.6,$lab_30d7   ;30ac  ec 79 28
     bt 0fe79h.3,$lab_30cb   ;30af  bc 79 19
     bt 0fe79h.4,$lab_30cf   ;30b2  cc 79 1a
@@ -9877,7 +10761,7 @@ lab_30d7:
 lab_30de:
     set1 0fe79h.0           ;30de  0a 79
     mov !0f06ah,a           ;30e0  9e 6a f0
-    mov RXB0_TXS0,a         ;30e3  f2 18
+    mov RXB0_TXS0_,a        ;30e3  f2 18
     br $lab_30e7            ;30e5  fa 00
 
 lab_30e7:
@@ -9888,7 +10772,7 @@ lab_30e8:
     push bc                 ;30e9  b3
     push hl                 ;30ea  b7
     push de                 ;30eb  b5
-    mov a,RXB0_TXS0         ;30ec  f0 18
+    mov a,RXB0_TXS0_        ;30ec  f0 18
     bf 0fe7ah.2,$lab_3148   ;30ee  31 23 7a 56
     btclr 0fe79h.0,$lab_313f ;30f2  31 01 79 49
     btclr 0fe79h.7,$lab_3142 ;30f6  31 71 79 48
@@ -9946,7 +10830,7 @@ lab_3148:
     br $lab_3153            ;314e  fa 03
 
 lab_3150:
-    clr1 ASIM0.6            ;3150  71 6b a0
+    clr1 ASIM0_.6           ;3150  71 6b a0
 
 lab_3153:
     pop de                  ;3153  b4
@@ -10164,7 +11048,7 @@ lab_32ba:
     mov a,!0f06dh           ;32c6  8e 6d f0
     mov b,a                 ;32c9  73
     mov a,[hl+b]            ;32ca  ab
-    mov ASIM0,a             ;32cb  f6 a0
+    mov ASIM0_,a            ;32cb  f6 a0
     movw hl,#0b03ch         ;32cd  16 3c b0
     mov a,!0f06dh           ;32d0  8e 6d f0
     mov b,a                 ;32d3  73
@@ -10181,10 +11065,10 @@ lab_32df:
     push bc                 ;32e0  b3
     push hl                 ;32e1  b7
     push de                 ;32e2  b5
-    mov a,ASIS0             ;32e3  f4 a1
+    mov a,ASIS0_            ;32e3  f4 a1
     mov x,a                 ;32e5  70
-    mov a,RXB0_TXS0         ;32e6  f0 18
-    clr1 IF0H.2             ;32e8  71 2b e1
+    mov a,RXB0_TXS0_        ;32e6  f0 18
+    clr1 IF0H_.2            ;32e8  71 2b e1
     bf 0fe7ah.2,$lab_3304   ;32eb  31 23 7a 15
     bt 0fecch.6,$lab_331c   ;32ef  ec cc 2a
     bt 0fe79h.0,$lab_3301   ;32f2  8c 79 0c
@@ -10220,7 +11104,7 @@ lab_331c:
     call !sub_3468          ;331e  9a 68 34
 
 lab_3321:
-    clr1 ASIM0.6            ;3321  71 6b a0
+    clr1 ASIM0_.6           ;3321  71 6b a0
 
 lab_3324:
     pop de                  ;3324  b4
@@ -10311,8 +11195,8 @@ lab_3370:
 lab_3392:
     set1 0fecch.5           ;3392  5a cc
     mov a,0fecch            ;3394  f0 cc
-    mov P2,a                ;3396  f2 02
-    mov ASIM0,#00h          ;3398  13 a0 00
+    mov P2_,a               ;3396  f2 02
+    mov ASIM0_,#00h         ;3398  13 a0 00
     br !sub_3468            ;339b  9b 68 34
 
 sub_339e:
@@ -10432,11 +11316,11 @@ sub_3468:
     clr1 0fe7ah.2           ;3468  2b 7a
     set1 0fecch.5           ;346a  5a cc
     mov a,0fecch            ;346c  f0 cc
-    mov P2,a                ;346e  f2 02
+    mov P2_,a               ;346e  f2 02
     btclr 0fe7bh.4,$lab_348b ;3470  31 41 7b 17
     clr1 0fecch.6           ;3474  6b cc
     mov a,0fecch            ;3476  f0 cc
-    mov P2,a                ;3478  f2 02
+    mov P2_,a               ;3478  f2 02
     bt 0fe2ch.2,$lab_3481   ;347a  ac 2c 04
     clr1 0fe7ah.4           ;347d  4b 7a
     clr1 0fe7ah.3           ;347f  3b 7a
@@ -10549,106 +11433,60 @@ lab_34f7:
     db 3ah                  ;3515  3a          DATA 0x3a ':'
     db 7ah                  ;3516  7a          DATA 0x7a 'z'
     db 0afh                 ;3517  af          DATA 0xaf
-    db 31h                  ;3518  31          DATA 0x31 '1'
-    db 33h                  ;3519  33          DATA 0x33 '3'
-    db 7ah                  ;351a  7a          DATA 0x7a 'z'
-    db 5fh                  ;351b  5f          DATA 0x5f '_'
-    db 0ach                 ;351c  ac          DATA 0xac
-    db 7ah                  ;351d  7a          DATA 0x7a 'z'
-    db 5ch                  ;351e  5c          DATA 0x5c '\'
-    db 0dch                 ;351f  dc          DATA 0xdc
-    db 7ah                  ;3520  7a          DATA 0x7a 'z'
-    db 59h                  ;3521  59          DATA 0x59 'Y'
-    db 9ch                  ;3522  9c          DATA 0x9c
-    db 62h                  ;3523  62          DATA 0x62 'b'
-    db 05h                  ;3524  05          DATA 0x05
-    db 0cch                 ;3525  cc          DATA 0xcc
-    db 02h                  ;3526  02          DATA 0x02
-    db 19h                  ;3527  19          DATA 0x19
-    db 6bh                  ;3528  6b          DATA 0x6b 'k'
-    db 7ah                  ;3529  7a          DATA 0x7a 'z'
-    db 6bh                  ;352a  6b          DATA 0x6b 'k'
-    db 0cch                 ;352b  cc          DATA 0xcc
-    db 0f0h                 ;352c  f0          DATA 0xf0
-    db 0cch                 ;352d  cc          DATA 0xcc
-    db 0f2h                 ;352e  f2          DATA 0xf2
-    db 02h                  ;352f  02          DATA 0x02
-    db 5ah                  ;3530  5a          DATA 0x5a 'Z'
-    db 0cch                 ;3531  cc          DATA 0xcc
-    db 0f0h                 ;3532  f0          DATA 0xf0
-    db 0cch                 ;3533  cc          DATA 0xcc
-    db 0f2h                 ;3534  f2          DATA 0xf2
-    db 02h                  ;3535  02          DATA 0x02
-    db 0a1h                 ;3536  a1          DATA 0xa1
-    db 0dbh                 ;3537  db          DATA 0xdb
-    db 9eh                  ;3538  9e          DATA 0x9e
-    db 77h                  ;3539  77          DATA 0x77 'w'
-    db 0f0h                 ;353a  f0          DATA 0xf0
-    db 4bh                  ;353b  4b          DATA 0x4b 'K'
-    db 7ah                  ;353c  7a          DATA 0x7a 'z'
-    db 6bh                  ;353d  6b          DATA 0x6b 'k'
-    db 65h                  ;353e  65          DATA 0x65 'e'
-    db 0fah                 ;353f  fa          DATA 0xfa
-    db 3ah                  ;3540  3a          DATA 0x3a ':'
-    db 6ah                  ;3541  6a          DATA 0x6a 'j'
-    db 7ah                  ;3542  7a          DATA 0x7a 'z'
-    db 6ah                  ;3543  6a          DATA 0x6a 'j'
-    db 65h                  ;3544  65          DATA 0x65 'e'
-    db 8eh                  ;3545  8e          DATA 0x8e
-    db 77h                  ;3546  77          DATA 0x77 'w'
-    db 0f0h                 ;3547  f0          DATA 0xf0
-    db 4dh                  ;3548  4d          DATA 0x4d 'M'
-    db 00h                  ;3549  00          DATA 0x00
-    db 0adh                 ;354a  ad          DATA 0xad
-    db 08h                  ;354b  08          DATA 0x08
-    db 51h                  ;354c  51          DATA 0x51 'Q'
-    db 9eh                  ;354d  9e          DATA 0x9e
-    db 77h                  ;354e  77          DATA 0x77 'w'
-    db 0f0h                 ;354f  f0          DATA 0xf0
-    db 4dh                  ;3550  4d          DATA 0x4d 'M'
-    db 00h                  ;3551  00          DATA 0x00
-    db 0bdh                 ;3552  bd          DATA 0xbd
-    db 27h                  ;3553  27          DATA 0x27 '''
-    db 13h                  ;3554  13          DATA 0x13
-    db 0a0h                 ;3555  a0          DATA 0xa0
-    db 00h                  ;3556  00          DATA 0x00
-    db 6ah                  ;3557  6a          DATA 0x6a 'j'
-    db 0cch                 ;3558  cc          DATA 0xcc
-    db 0f0h                 ;3559  f0          DATA 0xf0
-    db 0cch                 ;355a  cc          DATA 0xcc
-    db 0f2h                 ;355b  f2          DATA 0xf2
-    db 02h                  ;355c  02          DATA 0x02
-    db 5bh                  ;355d  5b          DATA 0x5b '['
-    db 0cch                 ;355e  cc          DATA 0xcc
-    db 0f0h                 ;355f  f0          DATA 0xf0
-    db 0cch                 ;3560  cc          DATA 0xcc
-    db 0f2h                 ;3561  f2          DATA 0xf2
-    db 02h                  ;3562  02          DATA 0x02
-    db 0a1h                 ;3563  a1          DATA 0xa1
-    db 00h                  ;3564  00          DATA 0x00
-    db 9eh                  ;3565  9e          DATA 0x9e
-    db 71h                  ;3566  71          DATA 0x71 'q'
-    db 0f0h                 ;3567  f0          DATA 0xf0
-    db 0a1h                 ;3568  a1          DATA 0xa1
-    db 00h                  ;3569  00          DATA 0x00
-    db 9eh                  ;356a  9e          DATA 0x9e
-    db 76h                  ;356b  76          DATA 0x76 'v'
-    db 0f0h                 ;356c  f0          DATA 0xf0
-    db 6bh                  ;356d  6b          DATA 0x6b 'k'
-    db 7ah                  ;356e  7a          DATA 0x7a 'z'
-    db 8eh                  ;356f  8e          DATA 0x8e
-    db 73h                  ;3570  73          DATA 0x73 's'
-    db 0f0h                 ;3571  f0          DATA 0xf0
-    db 9eh                  ;3572  9e          DATA 0x9e
-    db 74h                  ;3573  74          DATA 0x74 't'
-    db 0f0h                 ;3574  f0          DATA 0xf0
-    db 3bh                  ;3575  3b          DATA 0x3b ';'
-    db 7ah                  ;3576  7a          DATA 0x7a 'z'
-    db 4ah                  ;3577  4a          DATA 0x4a 'J'
-    db 7ah                  ;3578  7a          DATA 0x7a 'z'
-    db 5bh                  ;3579  5b          DATA 0x5b '['
-    db 7ah                  ;357a  7a          DATA 0x7a 'z'
-    db 0afh                 ;357b  af          DATA 0xaf
+
+sub_3518:
+    bf 0fe7ah.3,$lab_357b   ;3518  31 33 7a 5f
+    bt 0fe7ah.2,$lab_357b   ;351c  ac 7a 5c
+    bt 0fe7ah.5,$lab_357b   ;351f  dc 7a 59
+    bt 0fe62h.1,$lab_352a   ;3522  9c 62 05
+    bt P2_.4,$lab_3541      ;3525  cc 02 19
+    clr1 0fe7ah.6           ;3528  6b 7a
+
+lab_352a:
+    clr1 0fecch.6           ;352a  6b cc
+    mov a,0fecch            ;352c  f0 cc
+    mov P2_,a               ;352e  f2 02
+    set1 0fecch.5           ;3530  5a cc
+    mov a,0fecch            ;3532  f0 cc
+    mov P2_,a               ;3534  f2 02
+    mov a,#0dbh             ;3536  a1 db
+    mov !0f077h,a           ;3538  9e 77 f0
+    clr1 0fe7ah.4           ;353b  4b 7a
+    clr1 0fe65h.6           ;353d  6b 65
+    br $lab_357b            ;353f  fa 3a
+
+lab_3541:
+    set1 0fe7ah.6           ;3541  6a 7a
+    set1 0fe65h.6           ;3543  6a 65
+    mov a,!0f077h           ;3545  8e 77 f0
+    cmp a,#00h              ;3548  4d 00
+    bz $lab_3554            ;354a  ad 08
+    dec a                   ;354c  51
+    mov !0f077h,a           ;354d  9e 77 f0
+    cmp a,#00h              ;3550  4d 00
+    bnz $lab_357b           ;3552  bd 27
+
+lab_3554:
+    mov ASIM0_,#00h         ;3554  13 a0 00
+    set1 0fecch.6           ;3557  6a cc
+    mov a,0fecch            ;3559  f0 cc
+    mov P2_,a               ;355b  f2 02
+    clr1 0fecch.5           ;355d  5b cc
+    mov a,0fecch            ;355f  f0 cc
+    mov P2_,a               ;3561  f2 02
+    mov a,#00h              ;3563  a1 00
+    mov !0f071h,a           ;3565  9e 71 f0
+    mov a,#00h              ;3568  a1 00
+    mov !0f076h,a           ;356a  9e 76 f0
+    clr1 0fe7ah.6           ;356d  6b 7a
+    mov a,!0f073h           ;356f  8e 73 f0
+    mov !0f074h,a           ;3572  9e 74 f0
+    clr1 0fe7ah.3           ;3575  3b 7a
+    set1 0fe7ah.4           ;3577  4a 7a
+    clr1 0fe7ah.5           ;3579  5b 7a
+
+lab_357b:
+    ret                     ;357b  af
 
 sub_357c:
     bf 0fe7ah.4,$lab_35e8   ;357c  31 43 7a 68
@@ -10658,13 +11496,13 @@ sub_357c:
     cmp a,#0cdh             ;3587  4d cd
     bz $lab_35ab            ;3589  ad 20
     bf 0fe7ah.6,$lab_35e8   ;358b  31 63 7a 59
-    bt P2.4,$lab_35e8       ;358f  cc 02 56
+    bt P2_.4,$lab_35e8      ;358f  cc 02 56
     clr1 0fecch.6           ;3592  6b cc
     mov a,0fecch            ;3594  f0 cc
-    mov P2,a                ;3596  f2 02
+    mov P2_,a               ;3596  f2 02
     set1 0fecch.5           ;3598  5a cc
     mov a,0fecch            ;359a  f0 cc
-    mov P2,a                ;359c  f2 02
+    mov P2_,a               ;359c  f2 02
     mov a,#0dbh             ;359e  a1 db
     mov !0f077h,a           ;35a0  9e 77 f0
     clr1 0fe7ah.4           ;35a3  4b 7a
@@ -10688,14 +11526,14 @@ lab_35ab:
     mov1 0fe7ah.6,cy        ;35c6  71 61 7a
     mov1 0fecch.5,cy        ;35c9  71 51 cc
     mov a,0fecch            ;35cc  f0 cc
-    mov P2,a                ;35ce  f2 02
+    mov P2_,a               ;35ce  f2 02
     br $lab_35e8            ;35d0  fa 16
 
 lab_35d2:
     set1 0fe7ah.6           ;35d2  6a 7a
     set1 0fecch.5           ;35d4  5a cc
     mov a,0fecch            ;35d6  f0 cc
-    mov P2,a                ;35d8  f2 02
+    mov P2_,a               ;35d8  f2 02
     br $lab_35e8            ;35da  fa 0c
 
 lab_35dc:
@@ -10719,7 +11557,7 @@ lab_35f6:
     bt 0fe7ah.2,$lab_362d   ;35f6  ac 7a 34
     bt 0fe7ah.4,$lab_362d   ;35f9  cc 7a 31
     bt 0fe7ah.5,$lab_362f   ;35fc  dc 7a 30
-    bf P2.4,$lab_3607       ;35ff  31 43 02 04
+    bf P2_.4,$lab_3607      ;35ff  31 43 02 04
     clr1 0fe7bh.6           ;3603  6b 7b
     br $lab_362d            ;3605  fa 26
 
@@ -10727,10 +11565,10 @@ lab_3607:
     clr1 0fe65h.6           ;3607  6b 65
     clr1 0fecch.6           ;3609  6b cc
     mov a,0fecch            ;360b  f0 cc
-    mov P2,a                ;360d  f2 02
+    mov P2_,a               ;360d  f2 02
     set1 0fecch.5           ;360f  5a cc
     mov a,0fecch            ;3611  f0 cc
-    mov P2,a                ;3613  f2 02
+    mov P2_,a               ;3613  f2 02
     bt 0fe7bh.6,$lab_362d   ;3615  ec 7b 15
     set1 0fe7ah.5           ;3618  5a 7a
     clr1 0fe7ah.6           ;361a  6b 7a
@@ -10747,7 +11585,7 @@ lab_362d:
 
 lab_362f:
     bt 0fe7ah.6,$lab_3649   ;362f  ec 7a 17
-    bf P2.4,$lab_3650       ;3632  31 43 02 1a
+    bf P2_.4,$lab_3650      ;3632  31 43 02 1a
     set1 0fe7ah.6           ;3636  6a 7a
 
 lab_3638:
@@ -10761,7 +11599,7 @@ lab_3638:
     br $lab_36ab            ;3647  fa 62
 
 lab_3649:
-    bt P2.4,$lab_3650       ;3649  cc 02 04
+    bt P2_.4,$lab_3650      ;3649  cc 02 04
     clr1 0fe7ah.6           ;364c  6b 7a
     br $lab_3638            ;364e  fa e8
 
@@ -10965,21 +11803,21 @@ lab_3714:
     db 0edh                 ;375c  ed          DATA 0xed
 
 sub_375d:
-    clr1 PM8.0              ;375d  71 0b 28
+    clr1 PM8_.0             ;375d  71 0b 28
     mov a,0fed2h            ;3760  f0 d2
-    mov P8,a                ;3762  f2 08
-    clr1 PM9.7              ;3764  71 7b 29
+    mov P8_,a               ;3762  f2 08
+    clr1 PM9_.7             ;3764  71 7b 29
     mov a,0fed3h            ;3767  f0 d3
-    mov P9,a                ;3769  f2 09
-    clr1 PM9.4              ;376b  71 4b 29
+    mov P9_,a               ;3769  f2 09
+    clr1 PM9_.4             ;376b  71 4b 29
     mov a,0fed3h            ;376e  f0 d3
-    mov P9,a                ;3770  f2 09
-    clr1 PM8.2              ;3772  71 2b 28
+    mov P9_,a               ;3770  f2 09
+    clr1 PM8_.2             ;3772  71 2b 28
     mov a,0fed2h            ;3775  f0 d2
-    mov P8,a                ;3777  f2 08
-    clr1 PM8.1              ;3779  71 1b 28
+    mov P8_,a               ;3777  f2 08
+    clr1 PM8_.1             ;3779  71 1b 28
     mov a,0fed2h            ;377c  f0 d2
-    mov P8,a                ;377e  f2 08
+    mov P8_,a               ;377e  f2 08
     ret                     ;3780  af
 
 sub_3781:
@@ -10996,10 +11834,10 @@ sub_3781:
     ret                     ;3799  af
 
 lab_379a:
-    clr1 PM7.0              ;379a  71 0b 27
+    clr1 PM7_.0             ;379a  71 0b 27
     clr1 0fed1h.0           ;379d  0b d1
     mov a,0fed1h            ;379f  f0 d1
-    mov P7,a                ;37a1  f2 07
+    mov P7_,a               ;37a1  f2 07
     mov a,#01h              ;37a3  a1 01
     callf !sub_09d3         ;37a5  1c d3
     mov 0fe2ah,#02h         ;37a7  11 2a 02
@@ -11488,10 +12326,10 @@ lab_3924:
     db 0dh                  ;3a05  0d          DATA 0x0d
 
 sub_3a06:
-    clr1 PM8.0              ;3a06  71 0b 28
+    clr1 PM8_.0             ;3a06  71 0b 28
     set1 0fed2h.0           ;3a09  0a d2
     mov a,0fed2h            ;3a0b  f0 d2
-    mov P8,a                ;3a0d  f2 08
+    mov P8_,a               ;3a0d  f2 08
     ret                     ;3a0f  af
 
     db 71h                  ;3a10  71          DATA 0x71 'q'
@@ -11690,38 +12528,38 @@ lab_3acc:
 sub_3acf:
     call !sub_6078          ;3acf  9a 78 60
     call !sub_4d63          ;3ad2  9a 63 4d
-    clr1 PU2.4              ;3ad5  71 4b 32
-    set1 PM2.4              ;3ad8  71 4a 22
-    clr1 PU2.5              ;3adb  71 5b 32
-    set1 PM2.5              ;3ade  71 5a 22
-    clr1 PU2.6              ;3ae1  71 6b 32
-    set1 PM2.6              ;3ae4  71 6a 22
+    clr1 PU2_.4             ;3ad5  71 4b 32
+    set1 PM2_.4             ;3ad8  71 4a 22
+    clr1 PU2_.5             ;3adb  71 5b 32
+    set1 PM2_.5             ;3ade  71 5a 22
+    clr1 PU2_.6             ;3ae1  71 6b 32
+    set1 PM2_.6             ;3ae4  71 6a 22
     clr1 0fecch.7           ;3ae7  7b cc
     mov a,0fecch            ;3ae9  f0 cc
-    mov P2,a                ;3aeb  f2 02
-    clr1 PU5.7              ;3aed  71 7b 35
-    set1 PM5.7              ;3af0  71 7a 25
-    clr1 PU7.0              ;3af3  71 0b 37
-    set1 PM7.0              ;3af6  71 0a 27
-    clr1 PU5.0              ;3af9  71 0b 35
-    set1 PM5.0              ;3afc  71 0a 25
-    clr1 PU5.1              ;3aff  71 1b 35
-    set1 PM5.1              ;3b02  71 1a 25
-    clr1 PU5.2              ;3b05  71 2b 35
-    set1 PM5.2              ;3b08  71 2a 25
-    clr1 PU5.3              ;3b0b  71 3b 35
-    set1 PM5.3              ;3b0e  71 3a 25
-    clr1 PU5.4              ;3b11  71 4b 35
-    set1 PM5.4              ;3b14  71 4a 25
-    clr1 PU5.5              ;3b17  71 5b 35
-    set1 PM5.5              ;3b1a  71 5a 25
-    set1 PM8.7              ;3b1d  71 7a 28
-    clr1 PU3.6              ;3b20  71 6b 33
-    set1 PM3.6              ;3b23  71 6a 23
+    mov P2_,a               ;3aeb  f2 02
+    clr1 PU5_.7             ;3aed  71 7b 35
+    set1 PM5_.7             ;3af0  71 7a 25
+    clr1 PU7_.0             ;3af3  71 0b 37
+    set1 PM7_.0             ;3af6  71 0a 27
+    clr1 PU5_.0             ;3af9  71 0b 35
+    set1 PM5_.0             ;3afc  71 0a 25
+    clr1 PU5_.1             ;3aff  71 1b 35
+    set1 PM5_.1             ;3b02  71 1a 25
+    clr1 PU5_.2             ;3b05  71 2b 35
+    set1 PM5_.2             ;3b08  71 2a 25
+    clr1 PU5_.3             ;3b0b  71 3b 35
+    set1 PM5_.3             ;3b0e  71 3a 25
+    clr1 PU5_.4             ;3b11  71 4b 35
+    set1 PM5_.4             ;3b14  71 4a 25
+    clr1 PU5_.5             ;3b17  71 5b 35
+    set1 PM5_.5             ;3b1a  71 5a 25
+    set1 PM8_.7             ;3b1d  71 7a 28
+    clr1 PU3_.6             ;3b20  71 6b 33
+    set1 PM3_.6             ;3b23  71 6a 23
     ret                     ;3b26  af
 
 sub_3b27:
-    mov PRM00,#00h          ;3b27  13 61 00
+    mov PRM00_,#00h         ;3b27  13 61 00
     ret                     ;3b2a  af
 
 lab_3b2b:
@@ -11741,16 +12579,14 @@ lab_3b2b:
     db 23h                  ;3b39  23          DATA 0x23 '#'
 
 sub_3b3a:
-    mov TMC00,#00h          ;3b3a  13 60 00
-    mov TOC00,#00h          ;3b3d  13 63 00
-    set1 MK1L.1             ;3b40  71 1a e6
-    set1 MK1L.2             ;3b43  71 2a e6
+    mov TMC00_,#00h         ;3b3a  13 60 00
+    mov TOC00_,#00h         ;3b3d  13 63 00
+    set1 MK1L_.1            ;3b40  71 1a e6
+    set1 MK1L_.2            ;3b43  71 2a e6
     movw ax,#0000h          ;3b46  10 00 00
+    movw !0f00ah,ax         ;3b49  03 0a f0
+    ret                     ;3b4c  af
 
-    db 03h                  ;3b49  03          DATA 0x03
-    db 0ah                  ;3b4a  0a          DATA 0x0a
-    db 0f0h                 ;3b4b  f0          DATA 0xf0
-    db 0afh                 ;3b4c  af          DATA 0xaf
     db 99h                  ;3b4d  99          DATA 0x99
     db 0d4h                 ;3b4e  d4          DATA 0xd4
     db 02h                  ;3b4f  02          DATA 0x02
@@ -11804,39 +12640,24 @@ sub_3b3a:
     db 0afh                 ;3b7f  af          DATA 0xaf
 
 sub_3b80:
-    mov TMC00,#00h          ;3b80  13 60 00
-    set1 MK1L.1             ;3b83  71 1a e6
-    set1 MK1L.2             ;3b86  71 2a e6
+    mov TMC00_,#00h         ;3b80  13 60 00
+    set1 MK1L_.1            ;3b83  71 1a e6
+    set1 MK1L_.2            ;3b86  71 2a e6
+    movw ax,!0f00ah         ;3b89  02 0a f0
+    movw CR010_,ax          ;3b8c  99 0c
+    movw ax,!0f008h         ;3b8e  02 08 f0
+    movw CR000_,ax          ;3b91  99 0a
+    mov CRC00_,#00h         ;3b93  13 62 00
+    mov TOC00_,#1bh         ;3b96  13 63 1b
+    clr1 PM3_.4             ;3b99  71 4b 23
+    clr1 0fecdh.4           ;3b9c  4b cd
+    mov TMC00_,#0ch         ;3b9e  13 60 0c
+    ret                     ;3ba1  af
 
-    db 02h                  ;3b89  02          DATA 0x02
-    db 0ah                  ;3b8a  0a          DATA 0x0a
-    db 0f0h                 ;3b8b  f0          DATA 0xf0
-    db 99h                  ;3b8c  99          DATA 0x99
-    db 0ch                  ;3b8d  0c          DATA 0x0c
-    db 02h                  ;3b8e  02          DATA 0x02
-    db 08h                  ;3b8f  08          DATA 0x08
-    db 0f0h                 ;3b90  f0          DATA 0xf0
-    db 99h                  ;3b91  99          DATA 0x99
-    db 0ah                  ;3b92  0a          DATA 0x0a
-    db 13h                  ;3b93  13          DATA 0x13
-    db 62h                  ;3b94  62          DATA 0x62 'b'
-    db 00h                  ;3b95  00          DATA 0x00
-    db 13h                  ;3b96  13          DATA 0x13
-    db 63h                  ;3b97  63          DATA 0x63 'c'
-    db 1bh                  ;3b98  1b          DATA 0x1b
-    db 71h                  ;3b99  71          DATA 0x71 'q'
-    db 4bh                  ;3b9a  4b          DATA 0x4b 'K'
-    db 23h                  ;3b9b  23          DATA 0x23 '#'
-    db 4bh                  ;3b9c  4b          DATA 0x4b 'K'
-    db 0cdh                 ;3b9d  cd          DATA 0xcd
-    db 13h                  ;3b9e  13          DATA 0x13
-    db 60h                  ;3b9f  60          DATA 0x60 '`'
-    db 0ch                  ;3ba0  0c          DATA 0x0c
-    db 0afh                 ;3ba1  af          DATA 0xaf
-    db 03h                  ;3ba2  03          DATA 0x03
-    db 08h                  ;3ba3  08          DATA 0x08
-    db 0f0h                 ;3ba4  f0          DATA 0xf0
-    db 0afh                 ;3ba5  af          DATA 0xaf
+sub_3ba2:
+    movw !0f008h,ax         ;3ba2  03 08 f0
+    ret                     ;3ba5  af
+
     db 4dh                  ;3ba6  4d          DATA 0x4d 'M'
     db 0ah                  ;3ba7  0a          DATA 0x0a
     db 8dh                  ;3ba8  8d          DATA 0x8d
@@ -12383,7 +13204,7 @@ lab_3dd3:
 
 sub_3dd4:
     btclr 0fe62h.5,$lab_3df9 ;3dd4  31 51 62 21
-    bf P0.1,$lab_3df9       ;3dd8  31 13 00 1d
+    bf P0_.1,$lab_3df9      ;3dd8  31 13 00 1d
     bt 0fe62h.4,$lab_3df1   ;3ddc  cc 62 12
     mov a,#00h              ;3ddf  a1 00
     mov !0fb0dh,a           ;3de1  9e 0d fb
@@ -14905,45 +15726,32 @@ sub_461b:
     db 9bh                  ;47f8  9b          DATA 0x9b
     db 65h                  ;47f9  65          DATA 0x65 'e'
     db 41h                  ;47fa  41          DATA 0x41 'A'
-    db 0a1h                 ;47fb  a1          DATA 0xa1
-    db 04h                  ;47fc  04          DATA 0x04
-    db 9eh                  ;47fd  9e          DATA 0x9e
-    db 0afh                 ;47fe  af          DATA 0xaf
-    db 0fbh                 ;47ff  fb          DATA 0xfb
-    db 0a1h                 ;4800  a1          DATA 0xa1
-    db 02h                  ;4801  02          DATA 0x02
-    db 9ah                  ;4802  9a          DATA 0x9a
-    db 6fh                  ;4803  6f          DATA 0x6f 'o'
-    db 48h                  ;4804  48          DATA 0x48 'H'
-    db 16h                  ;4805  16          DATA 0x16
-    db 00h                  ;4806  00          DATA 0x00
-    db 00h                  ;4807  00          DATA 0x00
-    db 10h                  ;4808  10          DATA 0x10
-    db 55h                  ;4809  55          DATA 0x55 'U'
-    db 55h                  ;480a  55          DATA 0x55 'U'
-    db 0fh                  ;480b  0f          DATA 0x0f
-    db 9dh                  ;480c  9d          DATA 0x9d
-    db 04h                  ;480d  04          DATA 0x04
-    db 40h                  ;480e  40          DATA 0x40 '@'
-    db 13h                  ;480f  13          DATA 0x13
-    db 0f9h                 ;4810  f9          DATA 0xf9
-    db 80h                  ;4811  80          DATA 0x80
-    db 86h                  ;4812  86          DATA 0x86
-    db 0e6h                 ;4813  e6          DATA 0xe6
-    db 0eah                 ;4814  ea          DATA 0xea
-    db 0feh                 ;4815  fe          DATA 0xfe
-    db 0efh                 ;4816  ef          DATA 0xef
-    db 0e6h                 ;4817  e6          DATA 0xe6
-    db 8dh                  ;4818  8d          DATA 0x8d
-    db 0f1h                 ;4819  f1          DATA 0xf1
-    db 9eh                  ;481a  9e          DATA 0x9e
-    db 9eh                  ;481b  9e          DATA 0x9e
-    db 0fbh                 ;481c  fb          DATA 0xfb
-    db 30h                  ;481d  30          DATA 0x30 '0'
-    db 9eh                  ;481e  9e          DATA 0x9e
-    db 9dh                  ;481f  9d          DATA 0x9d
-    db 0fbh                 ;4820  fb          DATA 0xfb
-    db 0afh                 ;4821  af          DATA 0xaf
+
+sub_47fb:
+    mov a,#04h              ;47fb  a1 04
+    mov !0fbafh,a           ;47fd  9e af fb
+    mov a,#02h              ;4800  a1 02
+    call !sub_486f          ;4802  9a 6f 48
+    movw hl,#0000h          ;4805  16 00 00
+    movw ax,#5555h          ;4808  10 55 55
+
+lab_480b:
+    add a,[hl]              ;480b  0f
+    bnc $lab_4812           ;480c  9d 04
+    inc x                   ;480e  40
+    mov WDTM_,#80h          ;480f  13 f9 80
+
+lab_4812:
+    incw hl                 ;4812  86
+    xchw ax,hl              ;4813  e6
+    cmpw ax,#checksum       ;4814  ea fe ef
+    xchw ax,hl              ;4817  e6
+    bc $lab_480b            ;4818  8d f1
+    mov !0fb9eh,a           ;481a  9e 9e fb
+    xch a,x                 ;481d  30
+    mov !0fb9dh,a           ;481e  9e 9d fb
+    ret                     ;4821  af
+
     db 0a1h                 ;4822  a1          DATA 0xa1
     db 00h                  ;4823  00          DATA 0x00
     db 9eh                  ;4824  9e          DATA 0x9e
@@ -15021,19 +15829,17 @@ sub_461b:
     db 4ch                  ;486c  4c          DATA 0x4c 'L'
     db 9eh                  ;486d  9e          DATA 0x9e
     db 0afh                 ;486e  af          DATA 0xaf
-    db 0b5h                 ;486f  b5          DATA 0xb5
-    db 0b7h                 ;4870  b7          DATA 0xb7
-    db 16h                  ;4871  16          DATA 0x16
-    db 8dh                  ;4872  8d          DATA 0x8d
-    db 0f0h                 ;4873  f0          DATA 0xf0
-    db 14h                  ;4874  14          DATA 0x14
-    db 9bh                  ;4875  9b          DATA 0x9b
-    db 0fbh                 ;4876  fb          DATA 0xfb
-    db 4ch                  ;4877  4c          DATA 0x4c 'L'
-    db 9eh                  ;4878  9e          DATA 0x9e
-    db 0b6h                 ;4879  b6          DATA 0xb6
-    db 0b4h                 ;487a  b4          DATA 0xb4
-    db 0afh                 ;487b  af          DATA 0xaf
+
+sub_486f:
+    push de                 ;486f  b5
+    push hl                 ;4870  b7
+    movw hl,#0f08dh         ;4871  16 8d f0
+    movw de,#0fb9bh         ;4874  14 9b fb
+    callf !sub_0c9e         ;4877  4c 9e
+    pop hl                  ;4879  b6
+    pop de                  ;487a  b4
+    ret                     ;487b  af
+
     db 4dh                  ;487c  4d          DATA 0x4d 'M'
     db 0ah                  ;487d  0a          DATA 0x0a
     db 8dh                  ;487e  8d          DATA 0x8d
@@ -15151,23 +15957,21 @@ sub_461b:
     db 4dh                  ;48ee  4d          DATA 0x4d 'M'
     db 3bh                  ;48ef  3b          DATA 0x3b ';'
     db 0afh                 ;48f0  af          DATA 0xaf
-    db 31h                  ;48f1  31          DATA 0x31 '1'
-    db 13h                  ;48f2  13          DATA 0x13
-    db 65h                  ;48f3  65          DATA 0x65 'e'
-    db 05h                  ;48f4  05          DATA 0x05
-    db 8eh                  ;48f5  8e          DATA 0x8e
-    db 0b1h                 ;48f6  b1          DATA 0xb1
-    db 0fbh                 ;48f7  fb          DATA 0xfb
-    db 0fah                 ;48f8  fa          DATA 0xfa
-    db 02h                  ;48f9  02          DATA 0x02
-    db 0fah                 ;48fa  fa          DATA 0xfa
-    db 05h                  ;48fb  05          DATA 0x05
-    db 0f2h                 ;48fc  f2          DATA 0xf2
-    db 0d4h                 ;48fd  d4          DATA 0xd4
-    db 9ah                  ;48fe  9a          DATA 0x9a
-    db 91h                  ;48ff  91          DATA 0x91
-    db 02h                  ;4900  02          DATA 0x02
-    db 0afh                 ;4901  af          DATA 0xaf
+
+lab_48f1:
+    bf 0fe65h.1,$lab_48fa   ;48f1  31 13 65 05
+    mov a,!0fbb1h           ;48f5  8e b1 fb
+    br $lab_48fc            ;48f8  fa 02
+
+lab_48fa:
+    br $lab_4901            ;48fa  fa 05
+
+lab_48fc:
+    mov 0fed4h,a            ;48fc  f2 d4
+    call !sub_0291          ;48fe  9a 91 02
+
+lab_4901:
+    ret                     ;4901  af
 
 sub_4902:
     movw ax,#027fh          ;4902  10 7f 02
@@ -15181,6 +15985,7 @@ sub_4902:
 lab_4913:
     ret                     ;4913  af
 
+lab_4914:
     cmp a,#0ah              ;4914  4d 0a
     bc $lab_491e            ;4916  8d 06
     sub a,#0ah              ;4918  1d 0a
@@ -15193,17 +15998,88 @@ lab_491e:
 lab_4920:
     ret                     ;4920  af
 
-charset:
-    db 08h, 28h, 48h, 68h, 88h, 0a8h, 0c8h      ;DATA 4921 FM "1"
-    db 1ch, 24h, 44h, 7ch, 90h, 0b0h, 0dch      ;DATA 4928 FM "2"
-    db 01h, 21h, 41h, 61h, 81h, 0a1h, 0c1h      ;DATA 492f Preset "1"
-    db 07h, 21h, 41h, 67h, 84h, 0a4h, 0c7h      ;DATA 4936 Preset "2"
-    db 07h, 21h, 41h, 63h, 81h, 0a1h, 0c7h      ;DATA 493d Preset "3"
-    db 05h, 25h, 45h, 67h, 81h, 0a1h, 0c1h      ;DATA 4944 Preset "4"
-    db 07h, 24h, 44h, 66h, 81h, 0a1h, 0c6h      ;DATA 494b Preset "5"
-    db 07h, 24h, 44h, 67h, 85h, 0a5h, 0c7h      ;DATA 4952 Preset "6"
-    db 1fh, 3fh, 5fh, 7fh, 9fh, 0bfh, 0dfh      ;DATA 4959 Solid Block
+charset_fm1:
+    db 08h                  ;4921  08          DATA 0x08
+    db 28h                  ;4922  28          DATA 0x28 '('
+    db 48h                  ;4923  48          DATA 0x48 'H'
+    db 68h                  ;4924  68          DATA 0x68 'h'
+    db 88h                  ;4925  88          DATA 0x88
+    db 0a8h                 ;4926  a8          DATA 0xa8
+    db 0c8h                 ;4927  c8          DATA 0xc8
 
+charset_fm2:
+    db 1ch                  ;4928  1c          DATA 0x1c
+    db 24h                  ;4929  24          DATA 0x24 '$'
+    db 44h                  ;492a  44          DATA 0x44 'D'
+    db 7ch                  ;492b  7c          DATA 0x7c '|'
+    db 90h                  ;492c  90          DATA 0x90
+    db 0b0h                 ;492d  b0          DATA 0xb0
+    db 0dch                 ;492e  dc          DATA 0xdc
+
+charset_preset_1:
+    db 01h                  ;492f  01          DATA 0x01
+    db 21h                  ;4930  21          DATA 0x21 '!'
+    db 41h                  ;4931  41          DATA 0x41 'A'
+    db 61h                  ;4932  61          DATA 0x61 'a'
+    db 81h                  ;4933  81          DATA 0x81
+    db 0a1h                 ;4934  a1          DATA 0xa1
+    db 0c1h                 ;4935  c1          DATA 0xc1
+
+charset_preset_2:
+    db 07h                  ;4936  07          DATA 0x07
+    db 21h                  ;4937  21          DATA 0x21 '!'
+    db 41h                  ;4938  41          DATA 0x41 'A'
+    db 67h                  ;4939  67          DATA 0x67 'g'
+    db 84h                  ;493a  84          DATA 0x84
+    db 0a4h                 ;493b  a4          DATA 0xa4
+    db 0c7h                 ;493c  c7          DATA 0xc7
+
+charset_preset_3:
+    db 07h                  ;493d  07          DATA 0x07
+    db 21h                  ;493e  21          DATA 0x21 '!'
+    db 41h                  ;493f  41          DATA 0x41 'A'
+    db 63h                  ;4940  63          DATA 0x63 'c'
+    db 81h                  ;4941  81          DATA 0x81
+    db 0a1h                 ;4942  a1          DATA 0xa1
+    db 0c7h                 ;4943  c7          DATA 0xc7
+
+charset_preset_4:
+    db 05h                  ;4944  05          DATA 0x05
+    db 25h                  ;4945  25          DATA 0x25 '%'
+    db 45h                  ;4946  45          DATA 0x45 'E'
+    db 67h                  ;4947  67          DATA 0x67 'g'
+    db 81h                  ;4948  81          DATA 0x81
+    db 0a1h                 ;4949  a1          DATA 0xa1
+    db 0c1h                 ;494a  c1          DATA 0xc1
+
+charset_preset_5:
+    db 07h                  ;494b  07          DATA 0x07
+    db 24h                  ;494c  24          DATA 0x24 '$'
+    db 44h                  ;494d  44          DATA 0x44 'D'
+    db 66h                  ;494e  66          DATA 0x66 'f'
+    db 81h                  ;494f  81          DATA 0x81
+    db 0a1h                 ;4950  a1          DATA 0xa1
+    db 0c6h                 ;4951  c6          DATA 0xc6
+
+charset_preset_6:
+    db 07h                  ;4952  07          DATA 0x07
+    db 24h                  ;4953  24          DATA 0x24 '$'
+    db 44h                  ;4954  44          DATA 0x44 'D'
+    db 67h                  ;4955  67          DATA 0x67 'g'
+    db 85h                  ;4956  85          DATA 0x85
+    db 0a5h                 ;4957  a5          DATA 0xa5
+    db 0c7h                 ;4958  c7          DATA 0xc7
+
+charset_solid_block:
+    db 1fh                  ;4959  1f          DATA 0x1f
+    db 3fh                  ;495a  3f          DATA 0x3f '?'
+    db 5fh                  ;495b  5f          DATA 0x5f '_'
+    db 7fh                  ;495c  7f          DATA 0x7f
+    db 9fh                  ;495d  9f          DATA 0x9f
+    db 0bfh                 ;495e  bf          DATA 0xbf
+    db 0dfh                 ;495f  df          DATA 0xdf
+
+sub_4960:
     call !sub_4d1a          ;4960  9a 1a 4d
     clr1 cy                 ;4963  21
     btclr 0fe5eh.7,$lab_496b ;4964  31 71 5e 03
@@ -15212,18 +16088,18 @@ charset:
 
 lab_496b:
     clr1 0feceh.3           ;496b  3b ce
-    clr1 PM4.3              ;496d  71 3b 24
+    clr1 PM4_.3             ;496d  71 3b 24
     mov a,0feceh            ;4970  f0 ce
-    mov P4,a                ;4972  f2 04
-    mov CSIM30,#82h         ;4974  13 b0 82
-    clr1 PM3.2              ;4977  71 2b 23
-    clr1 PM3.1              ;497a  71 1b 23
-    clr1 PU3.0              ;497d  71 0b 33
-    set1 PM3.0              ;4980  71 0a 23
+    mov P4_,a               ;4972  f2 04
+    mov CSIM30_,#82h        ;4974  13 b0 82
+    clr1 PM3_.2             ;4977  71 2b 23
+    clr1 PM3_.1             ;497a  71 1b 23
+    clr1 PU3_.0             ;497d  71 0b 33
+    set1 PM3_.0             ;4980  71 0a 23
     clr1 0fecdh.2           ;4983  2b cd
     clr1 0fecdh.1           ;4985  1b cd
     mov a,0fecdh            ;4987  f0 cd
-    mov P3,a                ;4989  f2 03
+    mov P3_,a               ;4989  f2 03
 
 lab_498b:
     bnc $lab_4990           ;498b  9d 03
@@ -15233,22 +16109,22 @@ lab_4990:
     call !sub_4d2d          ;4990  9a 2d 4d
     mov 0fed4h,#80h         ;4993  11 d4 80
     clr1 0feceh.7           ;4996  7b ce
-    clr1 PM4.7              ;4998  71 7b 24
+    clr1 PM4_.7             ;4998  71 7b 24
     mov a,0feceh            ;499b  f0 ce
-    mov P4,a                ;499d  f2 04
+    mov P4_,a               ;499d  f2 04
     mov a,#4ah              ;499f  a1 4a
     call !sub_4d4d          ;49a1  9a 4d 4d
     clr1 0feceh.7           ;49a4  7b ce
     mov a,0feceh            ;49a6  f0 ce
-    mov P4,a                ;49a8  f2 04
-    mov b,#09h              ;49aa  a3 09        B = 9 characters to copy
-    movw de,#charset        ;49ac  14 21 49     DE = base address of charset
+    mov P4_,a               ;49a8  f2 04
+    mov b,#09h              ;49aa  a3 09
+    movw de,#charset_fm1    ;49ac  14 21 49
 
 lab_49af:
     clr1 0feceh.7           ;49af  7b ce
-    clr1 PM4.7              ;49b1  71 7b 24
+    clr1 PM4_.7             ;49b1  71 7b 24
     mov a,0feceh            ;49b4  f0 ce
-    mov P4,a                ;49b6  f2 04
+    mov P4_,a               ;49b6  f2 04
     mov a,0fed4h            ;49b8  f0 d4
     call !sub_4d4d          ;49ba  9a 4d 4d
     movw ax,de              ;49bd  c4
@@ -15276,10 +16152,10 @@ lab_49d8:
 lab_49db:
     set1 0feceh.7           ;49db  7a ce
     mov a,0feceh            ;49dd  f0 ce
-    mov P4,a                ;49df  f2 04
-    clr1 IF0H.4             ;49e1  71 4b e1
-    clr1 MK0H.4             ;49e4  71 4b e5
-    clr1 PR0H.4             ;49e7  71 4b e9
+    mov P4_,a               ;49df  f2 04
+    clr1 IF0H_.4            ;49e1  71 4b e1
+    clr1 MK0H_.4            ;49e4  71 4b e5
+    clr1 PR0H_.4            ;49e7  71 4b e9
     movw ax,hl              ;49ea  c6
     push ax                 ;49eb  b1
     mov a,#07h              ;49ec  a1 07
@@ -15291,7 +16167,7 @@ lab_49db:
     mov c,#01h              ;49f5  a2 01
     mov a,[hl]              ;49f7  87
     ei                      ;49f8  7a 1e
-    mov SIO30,a             ;49fa  f2 1a
+    mov SIO30_,a            ;49fa  f2 1a
     sel rb0                 ;49fc  61 d0
     inc 0fed4h              ;49fe  81 d4
     mov b,#0ffh             ;4a00  a3 ff
@@ -15314,20 +16190,20 @@ lab_4a0e:
     call !sub_4d4d          ;4a13  9a 4d 4d
     clr1 0feceh.7           ;4a16  7b ce
     mov a,0feceh            ;4a18  f0 ce
-    mov P4,a                ;4a1a  f2 04
+    mov P4_,a               ;4a1a  f2 04
     mov a,#04h              ;4a1c  a1 04
     call !sub_4d4d          ;4a1e  9a 4d 4d
     clr1 0feceh.7           ;4a21  7b ce
     mov a,0feceh            ;4a23  f0 ce
-    mov P4,a                ;4a25  f2 04
+    mov P4_,a               ;4a25  f2 04
     set1 0fecdh.1           ;4a27  1a cd
-    clr1 PM3.1              ;4a29  71 1b 23
+    clr1 PM3_.1             ;4a29  71 1b 23
     mov a,0fecdh            ;4a2c  f0 cd
-    mov P3,a                ;4a2e  f2 03
+    mov P3_,a               ;4a2e  f2 03
     clr1 0feceh.7           ;4a30  7b ce
-    clr1 PM4.7              ;4a32  71 7b 24
+    clr1 PM4_.7             ;4a32  71 7b 24
     mov a,0feceh            ;4a35  f0 ce
-    mov P4,a                ;4a37  f2 04
+    mov P4_,a               ;4a37  f2 04
     set1 0fe5eh.7           ;4a39  7a 5e
     clr1 cy                 ;4a3b  21
 
@@ -15525,582 +16401,360 @@ lab_4a3c:
     db 5eh                  ;4af9  5e          DATA 0x5e '^'
     db 0afh                 ;4afa  af          DATA 0xaf
     db 0afh                 ;4afb  af          DATA 0xaf
-    db 21h                  ;4afc  21          DATA 0x21 '!'
-    db 31h                  ;4afd  31          DATA 0x31 '1'
-    db 71h                  ;4afe  71          DATA 0x71 'q'
-    db 5eh                  ;4aff  5e          DATA 0x5e '^'
-    db 03h                  ;4b00  03          DATA 0x03
-    db 20h                  ;4b01  20          DATA 0x20 ' '
-    db 0fah                 ;4b02  fa          DATA 0xfa
-    db 20h                  ;4b03  20          DATA 0x20 ' '
-    db 3bh                  ;4b04  3b          DATA 0x3b ';'
-    db 0ceh                 ;4b05  ce          DATA 0xce
-    db 71h                  ;4b06  71          DATA 0x71 'q'
-    db 3bh                  ;4b07  3b          DATA 0x3b ';'
-    db 24h                  ;4b08  24          DATA 0x24 '$'
-    db 0f0h                 ;4b09  f0          DATA 0xf0
-    db 0ceh                 ;4b0a  ce          DATA 0xce
-    db 0f2h                 ;4b0b  f2          DATA 0xf2
-    db 04h                  ;4b0c  04          DATA 0x04
-    db 13h                  ;4b0d  13          DATA 0x13
-    db 0b0h                 ;4b0e  b0          DATA 0xb0
-    db 82h                  ;4b0f  82          DATA 0x82
-    db 71h                  ;4b10  71          DATA 0x71 'q'
-    db 2bh                  ;4b11  2b          DATA 0x2b '+'
-    db 23h                  ;4b12  23          DATA 0x23 '#'
-    db 71h                  ;4b13  71          DATA 0x71 'q'
-    db 1bh                  ;4b14  1b          DATA 0x1b
-    db 23h                  ;4b15  23          DATA 0x23 '#'
-    db 71h                  ;4b16  71          DATA 0x71 'q'
-    db 0bh                  ;4b17  0b          DATA 0x0b
-    db 33h                  ;4b18  33          DATA 0x33 '3'
-    db 71h                  ;4b19  71          DATA 0x71 'q'
-    db 0ah                  ;4b1a  0a          DATA 0x0a
-    db 23h                  ;4b1b  23          DATA 0x23 '#'
-    db 2bh                  ;4b1c  2b          DATA 0x2b '+'
-    db 0cdh                 ;4b1d  cd          DATA 0xcd
-    db 1bh                  ;4b1e  1b          DATA 0x1b
-    db 0cdh                 ;4b1f  cd          DATA 0xcd
-    db 0f0h                 ;4b20  f0          DATA 0xf0
-    db 0cdh                 ;4b21  cd          DATA 0xcd
-    db 0f2h                 ;4b22  f2          DATA 0xf2
-    db 03h                  ;4b23  03          DATA 0x03
-    db 9dh                  ;4b24  9d          DATA 0x9d
-    db 03h                  ;4b25  03          DATA 0x03
-    db 9bh                  ;4b26  9b          DATA 0x9b
-    db 19h                  ;4b27  19          DATA 0x19
-    db 4dh                  ;4b28  4d          DATA 0x4d 'M'
-    db 9ah                  ;4b29  9a          DATA 0x9a
-    db 2dh                  ;4b2a  2d          DATA 0x2d '-'
-    db 4dh                  ;4b2b  4d          DATA 0x4d 'M'
-    db 8eh                  ;4b2c  8e          DATA 0x8e
-    db 29h                  ;4b2d  29          DATA 0x29 ')'
-    db 0fbh                 ;4b2e  fb          DATA 0xfb
-    db 4dh                  ;4b2f  4d          DATA 0x4d 'M'
-    db 00h                  ;4b30  00          DATA 0x00
-    db 0adh                 ;4b31  ad          DATA 0xad
-    db 0ch                  ;4b32  0c          DATA 0x0c
-    db 14h                  ;4b33  14          DATA 0x14
-    db 0bdh                 ;4b34  bd          DATA 0xbd
-    db 0fbh                 ;4b35  fb          DATA 0xfb
-    db 16h                  ;4b36  16          DATA 0x16
-    db 35h                  ;4b37  35          DATA 0x35 '5'
-    db 0feh                 ;4b38  fe          DATA 0xfe
-    db 0a1h                 ;4b39  a1          DATA 0xa1
-    db 08h                  ;4b3a  08          DATA 0x08
-    db 4ch                  ;4b3b  4c          DATA 0x4c 'L'
-    db 0cah                 ;4b3c  ca          DATA 0xca
-    db 0adh                 ;4b3d  ad          DATA 0xad
-    db 6ah                  ;4b3e  6a          DATA 0x6a 'j'
-    db 14h                  ;4b3f  14          DATA 0x14
-    db 0bdh                 ;4b40  bd          DATA 0xbd
-    db 0fbh                 ;4b41  fb          DATA 0xfb
-    db 16h                  ;4b42  16          DATA 0x16
-    db 35h                  ;4b43  35          DATA 0x35 '5'
-    db 0feh                 ;4b44  fe          DATA 0xfe
-    db 0a1h                 ;4b45  a1          DATA 0xa1
-    db 08h                  ;4b46  08          DATA 0x08
-    db 4ch                  ;4b47  4c          DATA 0x4c 'L'
-    db 9eh                  ;4b48  9e          DATA 0x9e
-    db 0a1h                 ;4b49  a1          DATA 0xa1
-    db 14h                  ;4b4a  14          DATA 0x14
-    db 9eh                  ;4b4b  9e          DATA 0x9e
-    db 29h                  ;4b4c  29          DATA 0x29 ')'
-    db 0fbh                 ;4b4d  fb          DATA 0xfb
-    db 3ah                  ;4b4e  3a          DATA 0x3a ':'
-    db 60h                  ;4b4f  60          DATA 0x60 '`'
-    db 2ah                  ;4b50  2a          DATA 0x2a '*'
-    db 7ch                  ;4b51  7c          DATA 0x7c '|'
-    db 7bh                  ;4b52  7b          DATA 0x7b '{'
-    db 0ceh                 ;4b53  ce          DATA 0xce
-    db 71h                  ;4b54  71          DATA 0x71 'q'
-    db 7bh                  ;4b55  7b          DATA 0x7b '{'
-    db 24h                  ;4b56  24          DATA 0x24 '$'
-    db 0f0h                 ;4b57  f0          DATA 0xf0
-    db 0ceh                 ;4b58  ce          DATA 0xce
-    db 0f2h                 ;4b59  f2          DATA 0xf2
-    db 04h                  ;4b5a  04          DATA 0x04
-    db 0a1h                 ;4b5b  a1          DATA 0xa1
-    db 41h                  ;4b5c  41          DATA 0x41 'A'
-    db 9ah                  ;4b5d  9a          DATA 0x9a
-    db 4dh                  ;4b5e  4d          DATA 0x4d 'M'
-    db 4dh                  ;4b5f  4d          DATA 0x4d 'M'
-    db 7bh                  ;4b60  7b          DATA 0x7b '{'
-    db 0ceh                 ;4b61  ce          DATA 0xce
-    db 0f0h                 ;4b62  f0          DATA 0xf0
-    db 0ceh                 ;4b63  ce          DATA 0xce
-    db 0f2h                 ;4b64  f2          DATA 0xf2
-    db 04h                  ;4b65  04          DATA 0x04
-    db 0a1h                 ;4b66  a1          DATA 0xa1
-    db 80h                  ;4b67  80          DATA 0x80
-    db 9ah                  ;4b68  9a          DATA 0x9a
-    db 4dh                  ;4b69  4d          DATA 0x4d 'M'
-    db 4dh                  ;4b6a  4d          DATA 0x4d 'M'
-    db 0a1h                 ;4b6b  a1          DATA 0xa1
-    db 00h                  ;4b6c  00          DATA 0x00
-    db 4dh                  ;4b6d  4d          DATA 0x4d 'M'
-    db 01h                  ;4b6e  01          DATA 0x01
-    db 1ah                  ;4b6f  1a          DATA 0x1a
-    db 5fh                  ;4b70  5f          DATA 0x5f '_'
-    db 0bdh                 ;4b71  bd          DATA 0xbd
-    db 11h                  ;4b72  11          DATA 0x11
-    db 1bh                  ;4b73  1b          DATA 0x1b
-    db 5fh                  ;4b74  5f          DATA 0x5f '_'
-    db 10h                  ;4b75  10          DATA 0x10
-    db 35h                  ;4b76  35          DATA 0x35 '5'
-    db 0feh                 ;4b77  fe          DATA 0xfe
-    db 0d6h                 ;4b78  d6          DATA 0xd6
-    db 0a1h                 ;4b79  a1          DATA 0xa1
-    db 08h                  ;4b7a  08          DATA 0x08
-    db 73h                  ;4b7b  73          DATA 0x73 's'
-    db 96h                  ;4b7c  96          DATA 0x96
-    db 0a1h                 ;4b7d  a1          DATA 0xa1
-    db 0ffh                 ;4b7e  ff          DATA 0xff
-    db 7dh                  ;4b7f  7d          DATA 0x7d '}'
-    db 00h                  ;4b80  00          DATA 0x00
-    db 0bbh                 ;4b81  bb          DATA 0xbb
-    db 8bh                  ;4b82  8b          DATA 0x8b
-    db 0fdh                 ;4b83  fd          DATA 0xfd
-    db 7ah                  ;4b84  7a          DATA 0x7a 'z'
-    db 0ceh                 ;4b85  ce          DATA 0xce
-    db 0f0h                 ;4b86  f0          DATA 0xf0
-    db 0ceh                 ;4b87  ce          DATA 0xce
-    db 0f2h                 ;4b88  f2          DATA 0xf2
-    db 04h                  ;4b89  04          DATA 0x04
-    db 71h                  ;4b8a  71          DATA 0x71 'q'
-    db 4bh                  ;4b8b  4b          DATA 0x4b 'K'
-    db 0e1h                 ;4b8c  e1          DATA 0xe1
-    db 71h                  ;4b8d  71          DATA 0x71 'q'
-    db 4bh                  ;4b8e  4b          DATA 0x4b 'K'
-    db 0e5h                 ;4b8f  e5          DATA 0xe5
-    db 71h                  ;4b90  71          DATA 0x71 'q'
-    db 4bh                  ;4b91  4b          DATA 0x4b 'K'
-    db 0e9h                 ;4b92  e9          DATA 0xe9
-    db 10h                  ;4b93  10          DATA 0x10
-    db 35h                  ;4b94  35          DATA 0x35 '5'
-    db 0feh                 ;4b95  fe          DATA 0xfe
-    db 0b1h                 ;4b96  b1          DATA 0xb1
-    db 0a1h                 ;4b97  a1          DATA 0xa1
-    db 08h                  ;4b98  08          DATA 0x08
-    db 0b1h                 ;4b99  b1          DATA 0xb1
-    db 61h                  ;4b9a  61          DATA 0x61 'a'
-    db 0f0h                 ;4b9b  f0          DATA 0xf0
-    db 0b2h                 ;4b9c  b2          DATA 0xb2
-    db 0b6h                 ;4b9d  b6          DATA 0xb6
-    db 0bh                  ;4b9e  0b          DATA 0x0b
-    db 5fh                  ;4b9f  5f          DATA 0x5f '_'
-    db 0a2h                 ;4ba0  a2          DATA 0xa2
-    db 01h                  ;4ba1  01          DATA 0x01
-    db 87h                  ;4ba2  87          DATA 0x87
-    db 7ah                  ;4ba3  7a          DATA 0x7a 'z'
-    db 1eh                  ;4ba4  1e          DATA 0x1e
-    db 0f2h                 ;4ba5  f2          DATA 0xf2
-    db 1ah                  ;4ba6  1a          DATA 0x1a
-    db 61h                  ;4ba7  61          DATA 0x61 'a'
-    db 0d0h                 ;4ba8  d0          DATA 0xd0
-    db 8eh                  ;4ba9  8e          DATA 0x8e
-    db 2ah                  ;4baa  2a          DATA 0x2a '*'
-    db 0fbh                 ;4bab  fb          DATA 0xfb
-    db 4dh                  ;4bac  4d          DATA 0x4d 'M'
-    db 00h                  ;4bad  00          DATA 0x00
-    db 0bdh                 ;4bae  bd          DATA 0xbd
-    db 03h                  ;4baf  03          DATA 0x03
-    db 9bh                  ;4bb0  9b          DATA 0x9b
-    db 5eh                  ;4bb1  5e          DATA 0x5e '^'
-    db 4ch                  ;4bb2  4c          DATA 0x4c 'L'
-    db 14h                  ;4bb3  14          DATA 0x14
-    db 0b2h                 ;4bb4  b2          DATA 0xb2
-    db 0fbh                 ;4bb5  fb          DATA 0xfb
-    db 16h                  ;4bb6  16          DATA 0x16
-    db 9ah                  ;4bb7  9a          DATA 0x9a
-    db 0f1h                 ;4bb8  f1          DATA 0xf1
-    db 0a1h                 ;4bb9  a1          DATA 0xa1
-    db 0bh                  ;4bba  0b          DATA 0x0b
-    db 4ch                  ;4bbb  4c          DATA 0x4c 'L'
-    db 0cah                 ;4bbc  ca          DATA 0xca
-    db 0adh                 ;4bbd  ad          DATA 0xad
-    db 03h                  ;4bbe  03          DATA 0x03
-    db 9bh                  ;4bbf  9b          DATA 0x9b
-    db 5eh                  ;4bc0  5e          DATA 0x5e '^'
-    db 4ch                  ;4bc1  4c          DATA 0x4c 'L'
-    db 8eh                  ;4bc2  8e          DATA 0x8e
-    db 2bh                  ;4bc3  2b          DATA 0x2b '+'
-    db 0fbh                 ;4bc4  fb          DATA 0xfb
-    db 4dh                  ;4bc5  4d          DATA 0x4d 'M'
-    db 00h                  ;4bc6  00          DATA 0x00
-    db 0adh                 ;4bc7  ad          DATA 0xad
-    db 03h                  ;4bc8  03          DATA 0x03
-    db 9bh                  ;4bc9  9b          DATA 0x9b
-    db 0d5h                 ;4bca  d5          DATA 0xd5
-    db 4ch                  ;4bcb  4c          DATA 0x4c 'L'
-    db 0a3h                 ;4bcc  a3          DATA 0xa3
-    db 0ffh                 ;4bcd  ff          DATA 0xff
-    db 8ch                  ;4bce  8c          DATA 0x8c
-    db 5fh                  ;4bcf  5f          DATA 0x5f '_'
-    db 02h                  ;4bd0  02          DATA 0x02
-    db 8bh                  ;4bd1  8b          DATA 0x8b
-    db 0fbh                 ;4bd2  fb          DATA 0xfb
-    db 8ch                  ;4bd3  8c          DATA 0x8c
-    db 5fh                  ;4bd4  5f          DATA 0x5f '_'
-    db 03h                  ;4bd5  03          DATA 0x03
-    db 9bh                  ;4bd6  9b          DATA 0x9b
-    db 05h                  ;4bd7  05          DATA 0x05
-    db 4dh                  ;4bd8  4d          DATA 0x4d 'M'
-    db 0a1h                 ;4bd9  a1          DATA 0xa1
-    db 32h                  ;4bda  32          DATA 0x32 '2'
-    db 9eh                  ;4bdb  9e          DATA 0x9e
-    db 2bh                  ;4bdc  2b          DATA 0x2b '+'
-    db 0fbh                 ;4bdd  fb          DATA 0xfb
-    db 11h                  ;4bde  11          DATA 0x11
-    db 0d4h                 ;4bdf  d4          DATA 0xd4
-    db 80h                  ;4be0  80          DATA 0x80
-    db 7bh                  ;4be1  7b          DATA 0x7b '{'
-    db 0ceh                 ;4be2  ce          DATA 0xce
-    db 71h                  ;4be3  71          DATA 0x71 'q'
-    db 7bh                  ;4be4  7b          DATA 0x7b '{'
-    db 24h                  ;4be5  24          DATA 0x24 '$'
-    db 0f0h                 ;4be6  f0          DATA 0xf0
-    db 0ceh                 ;4be7  ce          DATA 0xce
-    db 0f2h                 ;4be8  f2          DATA 0xf2
-    db 04h                  ;4be9  04          DATA 0x04
-    db 0a1h                 ;4bea  a1          DATA 0xa1
-    db 4ah                  ;4beb  4a          DATA 0x4a 'J'
-    db 9ah                  ;4bec  9a          DATA 0x9a
-    db 4dh                  ;4bed  4d          DATA 0x4d 'M'
-    db 4dh                  ;4bee  4d          DATA 0x4d 'M'
-    db 7bh                  ;4bef  7b          DATA 0x7b '{'
-    db 0ceh                 ;4bf0  ce          DATA 0xce
-    db 0f0h                 ;4bf1  f0          DATA 0xf0
-    db 0ceh                 ;4bf2  ce          DATA 0xce
-    db 0f2h                 ;4bf3  f2          DATA 0xf2
-    db 04h                  ;4bf4  04          DATA 0x04
-    db 0a3h                 ;4bf5  a3          DATA 0xa3
-    db 09h                  ;4bf6  09          DATA 0x09
-    db 14h                  ;4bf7  14          DATA 0x14
-    db 21h                  ;4bf8  21          DATA 0x21 '!'
-    db 49h                  ;4bf9  49          DATA 0x49 'I'
-    db 7bh                  ;4bfa  7b          DATA 0x7b '{'
-    db 0ceh                 ;4bfb  ce          DATA 0xce
-    db 71h                  ;4bfc  71          DATA 0x71 'q'
-    db 7bh                  ;4bfd  7b          DATA 0x7b '{'
-    db 24h                  ;4bfe  24          DATA 0x24 '$'
-    db 0f0h                 ;4bff  f0          DATA 0xf0
-    db 0ceh                 ;4c00  ce          DATA 0xce
-    db 0f2h                 ;4c01  f2          DATA 0xf2
-    db 04h                  ;4c02  04          DATA 0x04
-    db 0f0h                 ;4c03  f0          DATA 0xf0
-    db 0d4h                 ;4c04  d4          DATA 0xd4
-    db 9ah                  ;4c05  9a          DATA 0x9a
-    db 4dh                  ;4c06  4d          DATA 0x4d 'M'
-    db 4dh                  ;4c07  4d          DATA 0x4d 'M'
-    db 0c4h                 ;4c08  c4          DATA 0xc4
-    db 0d6h                 ;4c09  d6          DATA 0xd6
-    db 0cah                 ;4c0a  ca          DATA 0xca
-    db 07h                  ;4c0b  07          DATA 0x07
-    db 00h                  ;4c0c  00          DATA 0x00
-    db 0d4h                 ;4c0d  d4          DATA 0xd4
-    db 0b3h                 ;4c0e  b3          DATA 0xb3
-    db 0a1h                 ;4c0f  a1          DATA 0xa1
-    db 00h                  ;4c10  00          DATA 0x00
-    db 4dh                  ;4c11  4d          DATA 0x4d 'M'
-    db 01h                  ;4c12  01          DATA 0x01
-    db 1ah                  ;4c13  1a          DATA 0x1a
-    db 5fh                  ;4c14  5f          DATA 0x5f '_'
-    db 0bdh                 ;4c15  bd          DATA 0xbd
-    db 0fh                  ;4c16  0f          DATA 0x0f
-    db 1bh                  ;4c17  1b          DATA 0x1b
-    db 5fh                  ;4c18  5f          DATA 0x5f '_'
-    db 0c6h                 ;4c19  c6          DATA 0xc6
-    db 0d6h                 ;4c1a  d6          DATA 0xd6
-    db 0a1h                 ;4c1b  a1          DATA 0xa1
-    db 07h                  ;4c1c  07          DATA 0x07
-    db 73h                  ;4c1d  73          DATA 0x73 's'
-    db 96h                  ;4c1e  96          DATA 0x96
-    db 0a1h                 ;4c1f  a1          DATA 0xa1
-    db 0ffh                 ;4c20  ff          DATA 0xff
-    db 7dh                  ;4c21  7d          DATA 0x7d '}'
-    db 00h                  ;4c22  00          DATA 0x00
-    db 0bbh                 ;4c23  bb          DATA 0xbb
-    db 8bh                  ;4c24  8b          DATA 0x8b
-    db 0fdh                 ;4c25  fd          DATA 0xfd
-    db 7ah                  ;4c26  7a          DATA 0x7a 'z'
-    db 0ceh                 ;4c27  ce          DATA 0xce
-    db 0f0h                 ;4c28  f0          DATA 0xf0
-    db 0ceh                 ;4c29  ce          DATA 0xce
-    db 0f2h                 ;4c2a  f2          DATA 0xf2
-    db 04h                  ;4c2b  04          DATA 0x04
-    db 71h                  ;4c2c  71          DATA 0x71 'q'
-    db 4bh                  ;4c2d  4b          DATA 0x4b 'K'
-    db 0e1h                 ;4c2e  e1          DATA 0xe1
-    db 71h                  ;4c2f  71          DATA 0x71 'q'
-    db 4bh                  ;4c30  4b          DATA 0x4b 'K'
-    db 0e5h                 ;4c31  e5          DATA 0xe5
-    db 71h                  ;4c32  71          DATA 0x71 'q'
-    db 4bh                  ;4c33  4b          DATA 0x4b 'K'
-    db 0e9h                 ;4c34  e9          DATA 0xe9
-    db 0c6h                 ;4c35  c6          DATA 0xc6
-    db 0b1h                 ;4c36  b1          DATA 0xb1
-    db 0a1h                 ;4c37  a1          DATA 0xa1
-    db 07h                  ;4c38  07          DATA 0x07
-    db 0b1h                 ;4c39  b1          DATA 0xb1
-    db 61h                  ;4c3a  61          DATA 0x61 'a'
-    db 0f0h                 ;4c3b  f0          DATA 0xf0
-    db 0b2h                 ;4c3c  b2          DATA 0xb2
-    db 0b6h                 ;4c3d  b6          DATA 0xb6
-    db 0bh                  ;4c3e  0b          DATA 0x0b
-    db 5fh                  ;4c3f  5f          DATA 0x5f '_'
-    db 0a2h                 ;4c40  a2          DATA 0xa2
-    db 01h                  ;4c41  01          DATA 0x01
-    db 87h                  ;4c42  87          DATA 0x87
-    db 7ah                  ;4c43  7a          DATA 0x7a 'z'
-    db 1eh                  ;4c44  1e          DATA 0x1e
-    db 0f2h                 ;4c45  f2          DATA 0xf2
-    db 1ah                  ;4c46  1a          DATA 0x1a
-    db 61h                  ;4c47  61          DATA 0x61 'a'
-    db 0d0h                 ;4c48  d0          DATA 0xd0
-    db 81h                  ;4c49  81          DATA 0x81
-    db 0d4h                 ;4c4a  d4          DATA 0xd4
-    db 0a3h                 ;4c4b  a3          DATA 0xa3
-    db 0ffh                 ;4c4c  ff          DATA 0xff
-    db 8ch                  ;4c4d  8c          DATA 0x8c
-    db 5fh                  ;4c4e  5f          DATA 0x5f '_'
-    db 02h                  ;4c4f  02          DATA 0x02
-    db 8bh                  ;4c50  8b          DATA 0x8b
-    db 0fbh                 ;4c51  fb          DATA 0xfb
-    db 0a3h                 ;4c52  a3          DATA 0xa3
-    db 0ffh                 ;4c53  ff          DATA 0xff
-    db 8ch                  ;4c54  8c          DATA 0x8c
-    db 5fh                  ;4c55  5f          DATA 0x5f '_'
-    db 02h                  ;4c56  02          DATA 0x02
-    db 8bh                  ;4c57  8b          DATA 0x8b
-    db 0fbh                 ;4c58  fb          DATA 0xfb
-    db 0b2h                 ;4c59  b2          DATA 0xb2
-    db 8bh                  ;4c5a  8b          DATA 0x8b
-    db 9eh                  ;4c5b  9e          DATA 0x9e
-    db 0fah                 ;4c5c  fa          DATA 0xfa
-    db 77h                  ;4c5d  77          DATA 0x77 'w'
-    db 14h                  ;4c5e  14          DATA 0x14
-    db 0b2h                 ;4c5f  b2          DATA 0xb2
-    db 0fbh                 ;4c60  fb          DATA 0xfb
-    db 16h                  ;4c61  16          DATA 0x16
-    db 9ah                  ;4c62  9a          DATA 0x9a
-    db 0f1h                 ;4c63  f1          DATA 0xf1
-    db 0a1h                 ;4c64  a1          DATA 0xa1
-    db 0bh                  ;4c65  0b          DATA 0x0b
-    db 4ch                  ;4c66  4c          DATA 0x4c 'L'
-    db 9eh                  ;4c67  9e          DATA 0x9e
-    db 0a1h                 ;4c68  a1          DATA 0xa1
-    db 14h                  ;4c69  14          DATA 0x14
-    db 9eh                  ;4c6a  9e          DATA 0x9e
-    db 2ah                  ;4c6b  2a          DATA 0x2a '*'
-    db 0fbh                 ;4c6c  fb          DATA 0xfb
-    db 3ah                  ;4c6d  3a          DATA 0x3a ':'
-    db 60h                  ;4c6e  60          DATA 0x60 '`'
-    db 2ah                  ;4c6f  2a          DATA 0x2a '*'
-    db 7ch                  ;4c70  7c          DATA 0x7c '|'
-    db 0a3h                 ;4c71  a3          DATA 0xa3
-    db 0ffh                 ;4c72  ff          DATA 0xff
-    db 8ch                  ;4c73  8c          DATA 0x8c
-    db 5fh                  ;4c74  5f          DATA 0x5f '_'
-    db 02h                  ;4c75  02          DATA 0x02
-    db 8bh                  ;4c76  8b          DATA 0x8b
-    db 0fbh                 ;4c77  fb          DATA 0xfb
-    db 8ch                  ;4c78  8c          DATA 0x8c
-    db 5fh                  ;4c79  5f          DATA 0x5f '_'
-    db 03h                  ;4c7a  03          DATA 0x03
-    db 9bh                  ;4c7b  9b          DATA 0x9b
-    db 05h                  ;4c7c  05          DATA 0x05
-    db 4dh                  ;4c7d  4d          DATA 0x4d 'M'
-    db 7bh                  ;4c7e  7b          DATA 0x7b '{'
-    db 0ceh                 ;4c7f  ce          DATA 0xce
-    db 71h                  ;4c80  71          DATA 0x71 'q'
-    db 7bh                  ;4c81  7b          DATA 0x7b '{'
-    db 24h                  ;4c82  24          DATA 0x24 '$'
-    db 0f0h                 ;4c83  f0          DATA 0xf0
-    db 0ceh                 ;4c84  ce          DATA 0xce
-    db 0f2h                 ;4c85  f2          DATA 0xf2
-    db 04h                  ;4c86  04          DATA 0x04
-    db 0a1h                 ;4c87  a1          DATA 0xa1
-    db 40h                  ;4c88  40          DATA 0x40 '@'
-    db 9ah                  ;4c89  9a          DATA 0x9a
-    db 4dh                  ;4c8a  4d          DATA 0x4d 'M'
-    db 4dh                  ;4c8b  4d          DATA 0x4d 'M'
-    db 7bh                  ;4c8c  7b          DATA 0x7b '{'
-    db 0ceh                 ;4c8d  ce          DATA 0xce
-    db 0f0h                 ;4c8e  f0          DATA 0xf0
-    db 0ceh                 ;4c8f  ce          DATA 0xce
-    db 0f2h                 ;4c90  f2          DATA 0xf2
-    db 04h                  ;4c91  04          DATA 0x04
-    db 0a1h                 ;4c92  a1          DATA 0xa1
-    db 80h                  ;4c93  80          DATA 0x80
-    db 9ah                  ;4c94  9a          DATA 0x9a
-    db 4dh                  ;4c95  4d          DATA 0x4d 'M'
-    db 4dh                  ;4c96  4d          DATA 0x4d 'M'
-    db 0a1h                 ;4c97  a1          DATA 0xa1
-    db 00h                  ;4c98  00          DATA 0x00
-    db 4dh                  ;4c99  4d          DATA 0x4d 'M'
-    db 01h                  ;4c9a  01          DATA 0x01
-    db 1ah                  ;4c9b  1a          DATA 0x1a
-    db 5fh                  ;4c9c  5f          DATA 0x5f '_'
-    db 0bdh                 ;4c9d  bd          DATA 0xbd
-    db 11h                  ;4c9e  11          DATA 0x11
-    db 1bh                  ;4c9f  1b          DATA 0x1b
-    db 5fh                  ;4ca0  5f          DATA 0x5f '_'
-    db 10h                  ;4ca1  10          DATA 0x10
-    db 9ah                  ;4ca2  9a          DATA 0x9a
-    db 0f1h                 ;4ca3  f1          DATA 0xf1
-    db 0d6h                 ;4ca4  d6          DATA 0xd6
-    db 0a1h                 ;4ca5  a1          DATA 0xa1
-    db 0bh                  ;4ca6  0b          DATA 0x0b
-    db 73h                  ;4ca7  73          DATA 0x73 's'
-    db 96h                  ;4ca8  96          DATA 0x96
-    db 0a1h                 ;4ca9  a1          DATA 0xa1
-    db 0ffh                 ;4caa  ff          DATA 0xff
-    db 7dh                  ;4cab  7d          DATA 0x7d '}'
-    db 00h                  ;4cac  00          DATA 0x00
-    db 0bbh                 ;4cad  bb          DATA 0xbb
-    db 8bh                  ;4cae  8b          DATA 0x8b
-    db 0fdh                 ;4caf  fd          DATA 0xfd
-    db 7ah                  ;4cb0  7a          DATA 0x7a 'z'
-    db 0ceh                 ;4cb1  ce          DATA 0xce
-    db 0f0h                 ;4cb2  f0          DATA 0xf0
-    db 0ceh                 ;4cb3  ce          DATA 0xce
-    db 0f2h                 ;4cb4  f2          DATA 0xf2
-    db 04h                  ;4cb5  04          DATA 0x04
-    db 71h                  ;4cb6  71          DATA 0x71 'q'
-    db 4bh                  ;4cb7  4b          DATA 0x4b 'K'
-    db 0e1h                 ;4cb8  e1          DATA 0xe1
-    db 71h                  ;4cb9  71          DATA 0x71 'q'
-    db 4bh                  ;4cba  4b          DATA 0x4b 'K'
-    db 0e5h                 ;4cbb  e5          DATA 0xe5
-    db 71h                  ;4cbc  71          DATA 0x71 'q'
-    db 4bh                  ;4cbd  4b          DATA 0x4b 'K'
-    db 0e9h                 ;4cbe  e9          DATA 0xe9
-    db 10h                  ;4cbf  10          DATA 0x10
-    db 9ah                  ;4cc0  9a          DATA 0x9a
-    db 0f1h                 ;4cc1  f1          DATA 0xf1
-    db 0b1h                 ;4cc2  b1          DATA 0xb1
-    db 0a1h                 ;4cc3  a1          DATA 0xa1
-    db 0bh                  ;4cc4  0b          DATA 0x0b
-    db 0b1h                 ;4cc5  b1          DATA 0xb1
-    db 61h                  ;4cc6  61          DATA 0x61 'a'
-    db 0f0h                 ;4cc7  f0          DATA 0xf0
-    db 0b2h                 ;4cc8  b2          DATA 0xb2
-    db 0b6h                 ;4cc9  b6          DATA 0xb6
-    db 0bh                  ;4cca  0b          DATA 0x0b
-    db 5fh                  ;4ccb  5f          DATA 0x5f '_'
-    db 0a2h                 ;4ccc  a2          DATA 0xa2
-    db 01h                  ;4ccd  01          DATA 0x01
-    db 87h                  ;4cce  87          DATA 0x87
-    db 7ah                  ;4ccf  7a          DATA 0x7a 'z'
-    db 1eh                  ;4cd0  1e          DATA 0x1e
-    db 0f2h                 ;4cd1  f2          DATA 0xf2
-    db 1ah                  ;4cd2  1a          DATA 0x1a
-    db 61h                  ;4cd3  61          DATA 0x61 'a'
-    db 0d0h                 ;4cd4  d0          DATA 0xd0
-    db 8eh                  ;4cd5  8e          DATA 0x8e
-    db 0a5h                 ;4cd6  a5          DATA 0xa5
-    db 0f1h                 ;4cd7  f1          DATA 0xf1
-    db 4dh                  ;4cd8  4d          DATA 0x4d 'M'
-    db 0ffh                 ;4cd9  ff          DATA 0xff
-    db 0adh                 ;4cda  ad          DATA 0xad
-    db 05h                  ;4cdb  05          DATA 0x05
-    db 8eh                  ;4cdc  8e          DATA 0x8e
-    db 2eh                  ;4cdd  2e          DATA 0x2e '.'
-    db 0fbh                 ;4cde  fb          DATA 0xfb
-    db 0adh                 ;4cdf  ad          DATA 0xad
-    db 00h                  ;4ce0  00          DATA 0x00
-    db 0a3h                 ;4ce1  a3          DATA 0xa3
-    db 0ffh                 ;4ce2  ff          DATA 0xff
-    db 8ch                  ;4ce3  8c          DATA 0x8c
-    db 5fh                  ;4ce4  5f          DATA 0x5f '_'
-    db 02h                  ;4ce5  02          DATA 0x02
-    db 8bh                  ;4ce6  8b          DATA 0x8b
-    db 0fbh                 ;4ce7  fb          DATA 0xfb
-    db 31h                  ;4ce8  31          DATA 0x31 '1'
-    db 03h                  ;4ce9  03          DATA 0x03
-    db 5fh                  ;4cea  5f          DATA 0x5f '_'
-    db 19h                  ;4ceb  19          DATA 0x19
-    db 7bh                  ;4cec  7b          DATA 0x7b '{'
-    db 0ceh                 ;4ced  ce          DATA 0xce
-    db 71h                  ;4cee  71          DATA 0x71 'q'
-    db 7bh                  ;4cef  7b          DATA 0x7b '{'
-    db 24h                  ;4cf0  24          DATA 0x24 '$'
-    db 0f0h                 ;4cf1  f0          DATA 0xf0
-    db 0ceh                 ;4cf2  ce          DATA 0xce
-    db 0f2h                 ;4cf3  f2          DATA 0xf2
-    db 04h                  ;4cf4  04          DATA 0x04
-    db 0a1h                 ;4cf5  a1          DATA 0xa1
-    db 4bh                  ;4cf6  4b          DATA 0x4b 'K'
-    db 9ah                  ;4cf7  9a          DATA 0x9a
-    db 4dh                  ;4cf8  4d          DATA 0x4d 'M'
-    db 4dh                  ;4cf9  4d          DATA 0x4d 'M'
-    db 0f0h                 ;4cfa  f0          DATA 0xf0
-    db 3eh                  ;4cfb  3e          DATA 0x3e '>'
-    db 9ah                  ;4cfc  9a          DATA 0x9a
-    db 4dh                  ;4cfd  4d          DATA 0x4d 'M'
-    db 4dh                  ;4cfe  4d          DATA 0x4d 'M'
-    db 7bh                  ;4cff  7b          DATA 0x7b '{'
-    db 0ceh                 ;4d00  ce          DATA 0xce
-    db 0f0h                 ;4d01  f0          DATA 0xf0
-    db 0ceh                 ;4d02  ce          DATA 0xce
-    db 0f2h                 ;4d03  f2          DATA 0xf2
-    db 04h                  ;4d04  04          DATA 0x04
-    db 1ah                  ;4d05  1a          DATA 0x1a
-    db 0cdh                 ;4d06  cd          DATA 0xcd
-    db 71h                  ;4d07  71          DATA 0x71 'q'
-    db 1bh                  ;4d08  1b          DATA 0x1b
-    db 23h                  ;4d09  23          DATA 0x23 '#'
-    db 0f0h                 ;4d0a  f0          DATA 0xf0
-    db 0cdh                 ;4d0b  cd          DATA 0xcd
-    db 0f2h                 ;4d0c  f2          DATA 0xf2
-    db 03h                  ;4d0d  03          DATA 0x03
-    db 7bh                  ;4d0e  7b          DATA 0x7b '{'
-    db 0ceh                 ;4d0f  ce          DATA 0xce
-    db 71h                  ;4d10  71          DATA 0x71 'q'
-    db 7bh                  ;4d11  7b          DATA 0x7b '{'
-    db 24h                  ;4d12  24          DATA 0x24 '$'
-    db 0f0h                 ;4d13  f0          DATA 0xf0
-    db 0ceh                 ;4d14  ce          DATA 0xce
-    db 0f2h                 ;4d15  f2          DATA 0xf2
-    db 04h                  ;4d16  04          DATA 0x04
-    db 7ah                  ;4d17  7a          DATA 0x7a 'z'
-    db 5eh                  ;4d18  5e          DATA 0x5e '^'
-    db 0afh                 ;4d19  af          DATA 0xaf
+
+sub_4afc:
+    clr1 cy                 ;4afc  21
+    btclr 0fe5eh.7,$lab_4b04 ;4afd  31 71 5e 03
+    set1 cy                 ;4b01  20
+    br $lab_4b24            ;4b02  fa 20
+
+lab_4b04:
+    clr1 0feceh.3           ;4b04  3b ce
+    clr1 PM4_.3             ;4b06  71 3b 24
+    mov a,0feceh            ;4b09  f0 ce
+    mov P4_,a               ;4b0b  f2 04
+    mov CSIM30_,#82h        ;4b0d  13 b0 82
+    clr1 PM3_.2             ;4b10  71 2b 23
+    clr1 PM3_.1             ;4b13  71 1b 23
+    clr1 PU3_.0             ;4b16  71 0b 33
+    set1 PM3_.0             ;4b19  71 0a 23
+    clr1 0fecdh.2           ;4b1c  2b cd
+    clr1 0fecdh.1           ;4b1e  1b cd
+    mov a,0fecdh            ;4b20  f0 cd
+    mov P3_,a               ;4b22  f2 03
+
+lab_4b24:
+    bnc $lab_4b29           ;4b24  9d 03
+    br !lab_4d19            ;4b26  9b 19 4d
+
+lab_4b29:
+    call !sub_4d2d          ;4b29  9a 2d 4d
+    mov a,!0fb29h           ;4b2c  8e 29 fb
+    cmp a,#00h              ;4b2f  4d 00
+    bz $lab_4b3f            ;4b31  ad 0c
+    movw de,#0fbbdh         ;4b33  14 bd fb
+    movw hl,#0fe35h         ;4b36  16 35 fe
+    mov a,#08h              ;4b39  a1 08
+    callf !sub_0cca         ;4b3b  4c ca
+    bz $lab_4ba9            ;4b3d  ad 6a
+
+lab_4b3f:
+    movw de,#0fbbdh         ;4b3f  14 bd fb
+    movw hl,#0fe35h         ;4b42  16 35 fe
+    mov a,#08h              ;4b45  a1 08
+    callf !sub_0c9e         ;4b47  4c 9e
+    mov a,#14h              ;4b49  a1 14
+    mov !0fb29h,a           ;4b4b  9e 29 fb
+    set1 0fe60h.3           ;4b4e  3a 60
+    set1 0fe7ch.2           ;4b50  2a 7c
+    clr1 0feceh.7           ;4b52  7b ce
+    clr1 PM4_.7             ;4b54  71 7b 24
+    mov a,0feceh            ;4b57  f0 ce
+    mov P4_,a               ;4b59  f2 04
+    mov a,#41h              ;4b5b  a1 41
+    call !sub_4d4d          ;4b5d  9a 4d 4d
+    clr1 0feceh.7           ;4b60  7b ce
+    mov a,0feceh            ;4b62  f0 ce
+    mov P4_,a               ;4b64  f2 04
+    mov a,#80h              ;4b66  a1 80
+    call !sub_4d4d          ;4b68  9a 4d 4d
+    mov a,#00h              ;4b6b  a1 00
+    cmp a,#01h              ;4b6d  4d 01
+    set1 0fe5fh.1           ;4b6f  1a 5f
+    bnz $lab_4b84           ;4b71  bd 11
+    clr1 0fe5fh.1           ;4b73  1b 5f
+    movw ax,#0fe35h         ;4b75  10 35 fe
+    movw hl,ax              ;4b78  d6
+    mov a,#08h              ;4b79  a1 08
+    mov b,a                 ;4b7b  73
+    decw hl                 ;4b7c  96
+    mov a,#0ffh             ;4b7d  a1 ff
+    xor a,#00h              ;4b7f  7d 00
+
+lab_4b81:
+    mov [hl+b],a            ;4b81  bb
+    dbnz b,$lab_4b81        ;4b82  8b fd
+
+lab_4b84:
+    set1 0feceh.7           ;4b84  7a ce
+    mov a,0feceh            ;4b86  f0 ce
+    mov P4_,a               ;4b88  f2 04
+    clr1 IF0H_.4            ;4b8a  71 4b e1
+    clr1 MK0H_.4            ;4b8d  71 4b e5
+    clr1 PR0H_.4            ;4b90  71 4b e9
+    movw ax,#0fe35h         ;4b93  10 35 fe
+    push ax                 ;4b96  b1
+    mov a,#08h              ;4b97  a1 08
+    push ax                 ;4b99  b1
+    sel rb2                 ;4b9a  61 f0
+    pop bc                  ;4b9c  b2
+    pop hl                  ;4b9d  b6
+    clr1 0fe5fh.0           ;4b9e  0b 5f
+    mov c,#01h              ;4ba0  a2 01
+    mov a,[hl]              ;4ba2  87
+    ei                      ;4ba3  7a 1e
+    mov SIO30_,a            ;4ba5  f2 1a
+    sel rb0                 ;4ba7  61 d0
+
+lab_4ba9:
+    mov a,!0fb2ah           ;4ba9  8e 2a fb
+    cmp a,#00h              ;4bac  4d 00
+    bnz $lab_4bb3           ;4bae  bd 03
+    br !lab_4c5e            ;4bb0  9b 5e 4c
+
+lab_4bb3:
+    movw de,#0fbb2h         ;4bb3  14 b2 fb
+    movw hl,#0f19ah         ;4bb6  16 9a f1
+    mov a,#0bh              ;4bb9  a1 0b
+    callf !sub_0cca         ;4bbb  4c ca
+    bz $lab_4bc2            ;4bbd  ad 03
+    br !lab_4c5e            ;4bbf  9b 5e 4c
+
+lab_4bc2:
+    mov a,!0fb2bh           ;4bc2  8e 2b fb
+    cmp a,#00h              ;4bc5  4d 00
+    bz $lab_4bcc            ;4bc7  ad 03
+    br !lab_4cd5            ;4bc9  9b d5 4c
+
+lab_4bcc:
+    mov b,#0ffh             ;4bcc  a3 ff
+
+lab_4bce:
+    bt 0fe5fh.0,$lab_4bd3   ;4bce  8c 5f 02
+    dbnz b,$lab_4bce        ;4bd1  8b fb
+
+lab_4bd3:
+    bt 0fe5fh.0,$lab_4bd9   ;4bd3  8c 5f 03
+    br !lab_4d05            ;4bd6  9b 05 4d
+
+lab_4bd9:
+    mov a,#32h              ;4bd9  a1 32
+    mov !0fb2bh,a           ;4bdb  9e 2b fb
+    mov 0fed4h,#80h         ;4bde  11 d4 80
+    clr1 0feceh.7           ;4be1  7b ce
+    clr1 PM4_.7             ;4be3  71 7b 24
+    mov a,0feceh            ;4be6  f0 ce
+    mov P4_,a               ;4be8  f2 04
+    mov a,#4ah              ;4bea  a1 4a
+    call !sub_4d4d          ;4bec  9a 4d 4d
+    clr1 0feceh.7           ;4bef  7b ce
+    mov a,0feceh            ;4bf1  f0 ce
+    mov P4_,a               ;4bf3  f2 04
+    mov b,#09h              ;4bf5  a3 09
+    movw de,#charset_fm1    ;4bf7  14 21 49
+
+lab_4bfa:
+    clr1 0feceh.7           ;4bfa  7b ce
+    clr1 PM4_.7             ;4bfc  71 7b 24
+    mov a,0feceh            ;4bff  f0 ce
+    mov P4_,a               ;4c01  f2 04
+    mov a,0fed4h            ;4c03  f0 d4
+    call !sub_4d4d          ;4c05  9a 4d 4d
+    movw ax,de              ;4c08  c4
+    movw hl,ax              ;4c09  d6
+    addw ax,#0007h          ;4c0a  ca 07 00
+    movw de,ax              ;4c0d  d4
+    push bc                 ;4c0e  b3
+    mov a,#00h              ;4c0f  a1 00
+    cmp a,#01h              ;4c11  4d 01
+    set1 0fe5fh.1           ;4c13  1a 5f
+    bnz $lab_4c26           ;4c15  bd 0f
+    clr1 0fe5fh.1           ;4c17  1b 5f
+    movw ax,hl              ;4c19  c6
+    movw hl,ax              ;4c1a  d6
+    mov a,#07h              ;4c1b  a1 07
+    mov b,a                 ;4c1d  73
+    decw hl                 ;4c1e  96
+    mov a,#0ffh             ;4c1f  a1 ff
+    xor a,#00h              ;4c21  7d 00
+
+lab_4c23:
+    mov [hl+b],a            ;4c23  bb
+    dbnz b,$lab_4c23        ;4c24  8b fd
+
+lab_4c26:
+    set1 0feceh.7           ;4c26  7a ce
+    mov a,0feceh            ;4c28  f0 ce
+    mov P4_,a               ;4c2a  f2 04
+    clr1 IF0H_.4            ;4c2c  71 4b e1
+    clr1 MK0H_.4            ;4c2f  71 4b e5
+    clr1 PR0H_.4            ;4c32  71 4b e9
+    movw ax,hl              ;4c35  c6
+    push ax                 ;4c36  b1
+    mov a,#07h              ;4c37  a1 07
+    push ax                 ;4c39  b1
+    sel rb2                 ;4c3a  61 f0
+    pop bc                  ;4c3c  b2
+    pop hl                  ;4c3d  b6
+    clr1 0fe5fh.0           ;4c3e  0b 5f
+    mov c,#01h              ;4c40  a2 01
+    mov a,[hl]              ;4c42  87
+    ei                      ;4c43  7a 1e
+    mov SIO30_,a            ;4c45  f2 1a
+    sel rb0                 ;4c47  61 d0
+    inc 0fed4h              ;4c49  81 d4
+    mov b,#0ffh             ;4c4b  a3 ff
+
+lab_4c4d:
+    bt 0fe5fh.0,$lab_4c52   ;4c4d  8c 5f 02
+    dbnz b,$lab_4c4d        ;4c50  8b fb
+
+lab_4c52:
+    mov b,#0ffh             ;4c52  a3 ff
+
+lab_4c54:
+    bt 0fe5fh.0,$lab_4c59   ;4c54  8c 5f 02
+    dbnz b,$lab_4c54        ;4c57  8b fb
+
+lab_4c59:
+    pop bc                  ;4c59  b2
+    dbnz b,$lab_4bfa        ;4c5a  8b 9e
+    br $lab_4cd5            ;4c5c  fa 77
+
+lab_4c5e:
+    movw de,#0fbb2h         ;4c5e  14 b2 fb
+    movw hl,#0f19ah         ;4c61  16 9a f1
+    mov a,#0bh              ;4c64  a1 0b
+    callf !sub_0c9e         ;4c66  4c 9e
+    mov a,#14h              ;4c68  a1 14
+    mov !0fb2ah,a           ;4c6a  9e 2a fb
+    set1 0fe60h.3           ;4c6d  3a 60
+    set1 0fe7ch.2           ;4c6f  2a 7c
+    mov b,#0ffh             ;4c71  a3 ff
+
+lab_4c73:
+    bt 0fe5fh.0,$lab_4c78   ;4c73  8c 5f 02
+    dbnz b,$lab_4c73        ;4c76  8b fb
+
+lab_4c78:
+    bt 0fe5fh.0,$lab_4c7e   ;4c78  8c 5f 03
+    br !lab_4d05            ;4c7b  9b 05 4d
+
+lab_4c7e:
+    clr1 0feceh.7           ;4c7e  7b ce
+    clr1 PM4_.7             ;4c80  71 7b 24
+    mov a,0feceh            ;4c83  f0 ce
+    mov P4_,a               ;4c85  f2 04
+    mov a,#40h              ;4c87  a1 40
+    call !sub_4d4d          ;4c89  9a 4d 4d
+    clr1 0feceh.7           ;4c8c  7b ce
+    mov a,0feceh            ;4c8e  f0 ce
+    mov P4_,a               ;4c90  f2 04
+    mov a,#80h              ;4c92  a1 80
+    call !sub_4d4d          ;4c94  9a 4d 4d
+    mov a,#00h              ;4c97  a1 00
+    cmp a,#01h              ;4c99  4d 01
+    set1 0fe5fh.1           ;4c9b  1a 5f
+    bnz $lab_4cb0           ;4c9d  bd 11
+    clr1 0fe5fh.1           ;4c9f  1b 5f
+    movw ax,#0f19ah         ;4ca1  10 9a f1
+    movw hl,ax              ;4ca4  d6
+    mov a,#0bh              ;4ca5  a1 0b
+    mov b,a                 ;4ca7  73
+    decw hl                 ;4ca8  96
+    mov a,#0ffh             ;4ca9  a1 ff
+    xor a,#00h              ;4cab  7d 00
+
+lab_4cad:
+    mov [hl+b],a            ;4cad  bb
+    dbnz b,$lab_4cad        ;4cae  8b fd
+
+lab_4cb0:
+    set1 0feceh.7           ;4cb0  7a ce
+    mov a,0feceh            ;4cb2  f0 ce
+    mov P4_,a               ;4cb4  f2 04
+    clr1 IF0H_.4            ;4cb6  71 4b e1
+    clr1 MK0H_.4            ;4cb9  71 4b e5
+    clr1 PR0H_.4            ;4cbc  71 4b e9
+    movw ax,#0f19ah         ;4cbf  10 9a f1
+    push ax                 ;4cc2  b1
+    mov a,#0bh              ;4cc3  a1 0b
+    push ax                 ;4cc5  b1
+    sel rb2                 ;4cc6  61 f0
+    pop bc                  ;4cc8  b2
+    pop hl                  ;4cc9  b6
+    clr1 0fe5fh.0           ;4cca  0b 5f
+    mov c,#01h              ;4ccc  a2 01
+    mov a,[hl]              ;4cce  87
+    ei                      ;4ccf  7a 1e
+    mov SIO30_,a            ;4cd1  f2 1a
+    sel rb0                 ;4cd3  61 d0
+
+lab_4cd5:
+    mov a,!0f1a5h           ;4cd5  8e a5 f1
+    cmp a,#0ffh             ;4cd8  4d ff
+    bz $lab_4ce1            ;4cda  ad 05
+    mov a,!0fb2eh           ;4cdc  8e 2e fb
+    bz $lab_4ce1            ;4cdf  ad 00
+
+lab_4ce1:
+    mov b,#0ffh             ;4ce1  a3 ff
+
+lab_4ce3:
+    bt 0fe5fh.0,$lab_4ce8   ;4ce3  8c 5f 02
+    dbnz b,$lab_4ce3        ;4ce6  8b fb
+
+lab_4ce8:
+    bf 0fe5fh.0,$lab_4d05   ;4ce8  31 03 5f 19
+    clr1 0feceh.7           ;4cec  7b ce
+    clr1 PM4_.7             ;4cee  71 7b 24
+    mov a,0feceh            ;4cf1  f0 ce
+    mov P4_,a               ;4cf3  f2 04
+    mov a,#4bh              ;4cf5  a1 4b
+    call !sub_4d4d          ;4cf7  9a 4d 4d
+    mov a,0fe3eh            ;4cfa  f0 3e
+    call !sub_4d4d          ;4cfc  9a 4d 4d
+    clr1 0feceh.7           ;4cff  7b ce
+    mov a,0feceh            ;4d01  f0 ce
+    mov P4_,a               ;4d03  f2 04
+
+lab_4d05:
+    set1 0fecdh.1           ;4d05  1a cd
+    clr1 PM3_.1             ;4d07  71 1b 23
+    mov a,0fecdh            ;4d0a  f0 cd
+    mov P3_,a               ;4d0c  f2 03
+    clr1 0feceh.7           ;4d0e  7b ce
+    clr1 PM4_.7             ;4d10  71 7b 24
+    mov a,0feceh            ;4d13  f0 ce
+    mov P4_,a               ;4d15  f2 04
+    set1 0fe5eh.7           ;4d17  7a 5e
+
+lab_4d19:
+    ret                     ;4d19  af
 
 sub_4d1a:
     clr1 0feceh.6           ;4d1a  6b ce
-    clr1 PM4.6              ;4d1c  71 6b 24
+    clr1 PM4_.6             ;4d1c  71 6b 24
     mov a,0feceh            ;4d1f  f0 ce
-    mov P4,a                ;4d21  f2 04
+    mov P4_,a               ;4d21  f2 04
     clr1 0feceh.7           ;4d23  7b ce
-    clr1 PM4.7              ;4d25  71 7b 24
+    clr1 PM4_.7             ;4d25  71 7b 24
     mov a,0feceh            ;4d28  f0 ce
-    mov P4,a                ;4d2a  f2 04
+    mov P4_,a               ;4d2a  f2 04
     ret                     ;4d2c  af
 
 sub_4d2d:
     clr1 0feceh.7           ;4d2d  7b ce
-    clr1 PM4.7              ;4d2f  71 7b 24
+    clr1 PM4_.7             ;4d2f  71 7b 24
     mov a,0feceh            ;4d32  f0 ce
-    mov P4,a                ;4d34  f2 04
+    mov P4_,a               ;4d34  f2 04
     mov a,#04h              ;4d36  a1 04
     call !sub_4d4d          ;4d38  9a 4d 4d
     clr1 0feceh.7           ;4d3b  7b ce
     mov a,0feceh            ;4d3d  f0 ce
-    mov P4,a                ;4d3f  f2 04
+    mov P4_,a               ;4d3f  f2 04
     mov a,#0ceh             ;4d41  a1 ce
     call !sub_4d4d          ;4d43  9a 4d 4d
     clr1 0feceh.7           ;4d46  7b ce
     mov a,0feceh            ;4d48  f0 ce
-    mov P4,a                ;4d4a  f2 04
+    mov P4_,a               ;4d4a  f2 04
     ret                     ;4d4c  af
 
 sub_4d4d:
     mov x,a                 ;4d4d  70
     set1 0feceh.7           ;4d4e  7a ce
     mov a,0feceh            ;4d50  f0 ce
-    mov P4,a                ;4d52  f2 04
+    mov P4_,a               ;4d52  f2 04
     mov a,x                 ;4d54  60
     callf !sub_087a         ;4d55  0c 7a
     ret                     ;4d57  af
@@ -16119,14 +16773,14 @@ sub_4d4d:
 
 sub_4d63:
     call !sub_3b3a          ;4d63  9a 3a 3b
-    clr1 PU3.2              ;4d66  71 2b 33
-    set1 PM3.2              ;4d69  71 2a 23
-    clr1 PU3.1              ;4d6c  71 1b 33
-    set1 PM3.1              ;4d6f  71 1a 23
-    clr1 PU4.7              ;4d72  71 7b 34
-    set1 PM4.7              ;4d75  71 7a 24
-    clr1 PU4.6              ;4d78  71 6b 34
-    set1 PM4.6              ;4d7b  71 6a 24
+    clr1 PU3_.2             ;4d66  71 2b 33
+    set1 PM3_.2             ;4d69  71 2a 23
+    clr1 PU3_.1             ;4d6c  71 1b 33
+    set1 PM3_.1             ;4d6f  71 1a 23
+    clr1 PU4_.7             ;4d72  71 7b 34
+    set1 PM4_.7             ;4d75  71 7a 24
+    clr1 PU4_.6             ;4d78  71 6b 34
+    set1 PM4_.6             ;4d7b  71 6a 24
     ret                     ;4d7e  af
 
     db 0fch                 ;4d7f  fc          DATA 0xfc
@@ -18386,14 +19040,14 @@ lab_5676:
     ret                     ;5676  af
 
 sub_5677:
-    clr1 PU4.1              ;5677  71 1b 34
-    set1 PM4.1              ;567a  71 1a 24
-    clr1 PU4.0              ;567d  71 0b 34
-    set1 PM4.0              ;5680  71 0a 24
+    clr1 PU4_.1             ;5677  71 1b 34
+    set1 PM4_.1             ;567a  71 1a 24
+    clr1 PU4_.0             ;567d  71 0b 34
+    set1 PM4_.0             ;5680  71 0a 24
     mov a,#00h              ;5683  a1 00
-    mov1 cy,P4.1            ;5685  71 14 04
+    mov1 cy,P4_.1           ;5685  71 14 04
     rorc a,1                ;5688  25
-    mov1 cy,P4.0            ;5689  71 04 04
+    mov1 cy,P4_.0           ;5689  71 04 04
     rorc a,1                ;568c  25
     mov x,a                 ;568d  70
     ret                     ;568e  af
@@ -19012,7 +19666,7 @@ lab_5904:
     push ax                 ;5906  b1
     mov a,!0f1e9h           ;5907  8e e9 f1
     bt a.0,$lab_5913        ;590a  31 0e 06
-    bt P0.4,$lab_5913       ;590d  cc 00 03
+    bt P0_.4,$lab_5913      ;590d  cc 00 03
     call !sub_5915          ;5910  9a 15 59
 
 lab_5913:
@@ -19049,92 +19703,56 @@ lab_593b:
 lab_5940:
     reti                    ;5940  8f
 
-    db 9bh                  ;5941  9b          DATA 0x9b
-    db 0fdh                 ;5942  fd          DATA 0xfd
-    db 59h                  ;5943  59          DATA 0x59 'Y'
-    db 0eah                 ;5944  ea          DATA 0xea
-    db 26h                  ;5945  26          DATA 0x26 '&'
-    db 31h                  ;5946  31          DATA 0x31 '1'
-    db 9dh                  ;5947  9d          DATA 0x9d
-    db 0f8h                 ;5948  f8          DATA 0xf8
-    db 0eah                 ;5949  ea          DATA 0xea
-    db 31h                  ;594a  31          DATA 0x31 '1'
-    db 08h                  ;594b  08          DATA 0x08
-    db 8dh                  ;594c  8d          DATA 0x8d
-    db 0f3h                 ;594d  f3          DATA 0xf3
-    db 0eah                 ;594e  ea          DATA 0xea
-    db 7dh                  ;594f  7d          DATA 0x7d '}'
-    db 1dh                  ;5950  1d          DATA 0x1d
-    db 01h                  ;5951  01          DATA 0x01
-    db 02h                  ;5952  02          DATA 0x02
-    db 0ch                  ;5953  0c          DATA 0x0c
-    db 0f0h                 ;5954  f0          DATA 0xf0
-    db 30h                  ;5955  30          DATA 0x30 '0'
-    db 25h                  ;5956  25          DATA 0x25 '%'
-    db 30h                  ;5957  30          DATA 0x30 '0'
-    db 25h                  ;5958  25          DATA 0x25 '%'
-    db 03h                  ;5959  03          DATA 0x03
-    db 0ch                  ;595a  0c          DATA 0x0c
-    db 0f0h                 ;595b  f0          DATA 0xf0
-    db 0c8h                 ;595c  c8          DATA 0xc8
-    db 34h                  ;595d  34          DATA 0x34 '4'
-    db 12h                  ;595e  12          DATA 0x12
-    db 0bdh                 ;595f  bd          DATA 0xbd
-    db 08h                  ;5960  08          DATA 0x08
-    db 0eah                 ;5961  ea          DATA 0xea
-    db 17h                  ;5962  17          DATA 0x17
-    db 82h                  ;5963  82          DATA 0x82
-    db 0adh                 ;5964  ad          DATA 0xad
-    db 08h                  ;5965  08          DATA 0x08
-    db 9bh                  ;5966  9b          DATA 0x9b
-    db 0fdh                 ;5967  fd          DATA 0xfd
-    db 59h                  ;5968  59          DATA 0x59 'Y'
-    db 0c8h                 ;5969  c8          DATA 0xc8
-    db 34h                  ;596a  34          DATA 0x34 '4'
-    db 22h                  ;596b  22          DATA 0x22 '"'
-    db 0adh                 ;596c  ad          DATA 0xad
-    db 0ah                  ;596d  0a          DATA 0x0a
-    db 81h                  ;596e  81          DATA 0x81
-    db 34h                  ;596f  34          DATA 0x34 '4'
-    db 0a1h                 ;5970  a1          DATA 0xa1
-    db 05h                  ;5971  05          DATA 0x05
-    db 9eh                  ;5972  9e          DATA 0x9e
-    db 05h                  ;5973  05          DATA 0x05
-    db 0fbh                 ;5974  fb          DATA 0xfb
-    db 9bh                  ;5975  9b          DATA 0x9b
-    db 0eh                  ;5976  0e          DATA 0x0e
-    db 5ah                  ;5977  5a          DATA 0x5a 'Z'
-    db 30h                  ;5978  30          DATA 0x30 '0'
-    db 7dh                  ;5979  7d          DATA 0x7d '}'
-    db 0ffh                 ;597a  ff          DATA 0xff
-    db 61h                  ;597b  61          DATA 0x61 'a'
-    db 48h                  ;597c  48          DATA 0x48 'H'
-    db 0bdh                 ;597d  bd          DATA 0xbd
-    db 7eh                  ;597e  7e          DATA 0x7e '~'
-    db 30h                  ;597f  30          DATA 0x30 '0'
-    db 9eh                  ;5980  9e          DATA 0x9e
-    db 97h                  ;5981  97          DATA 0x97
-    db 0f1h                 ;5982  f1          DATA 0xf1
-    db 4ah                  ;5983  4a          DATA 0x4a 'J'
-    db 67h                  ;5984  67          DATA 0x67 'g'
-    db 5ah                  ;5985  5a          DATA 0x5a 'Z'
-    db 67h                  ;5986  67          DATA 0x67 'g'
-    db 7bh                  ;5987  7b          DATA 0x7b '{'
-    db 67h                  ;5988  67          DATA 0x67 'g'
-    db 11h                  ;5989  11          DATA 0x11
-    db 34h                  ;598a  34          DATA 0x34 '4'
-    db 00h                  ;598b  00          DATA 0x00
-    db 0a1h                 ;598c  a1          DATA 0xa1
-    db 9fh                  ;598d  9f          DATA 0x9f
-    db 9eh                  ;598e  9e          DATA 0x9e
-    db 05h                  ;598f  05          DATA 0x05
-    db 0fbh                 ;5990  fb          DATA 0xfb
-    db 0fah                 ;5991  fa          DATA 0xfa
-    db 7bh                  ;5992  7b          DATA 0x7b '{'
+lab_5941:
+    br !lab_59fd            ;5941  9b fd 59
+
+lab_5944:
+    cmpw ax,#3126h          ;5944  ea 26 31
+    bnc $lab_5941           ;5947  9d f8
+    cmpw ax,#0831h          ;5949  ea 31 08
+    bc $lab_5941            ;594c  8d f3
+    cmpw ax,#1d7dh          ;594e  ea 7d 1d
+    not1 cy                 ;5951  01
+    movw ax,!0f00ch         ;5952  02 0c f0
+    xch a,x                 ;5955  30
+    rorc a,1                ;5956  25
+    xch a,x                 ;5957  30
+    rorc a,1                ;5958  25
+    movw !0f00ch,ax         ;5959  03 0c f0
+    cmp 0fe34h,#12h         ;595c  c8 34 12
+    bnz $lab_5969           ;595f  bd 08
+    cmpw ax,#8217h          ;5961  ea 17 82
+    bz $lab_596e            ;5964  ad 08
+    br !lab_59fd            ;5966  9b fd 59
+
+lab_5969:
+    cmp 0fe34h,#22h         ;5969  c8 34 22
+    bz $lab_5978            ;596c  ad 0a
+
+lab_596e:
+    inc 0fe34h              ;596e  81 34
+    mov a,#05h              ;5970  a1 05
+    mov !0fb05h,a           ;5972  9e 05 fb
+    br !lab_5a0e            ;5975  9b 0e 5a
+
+lab_5978:
+    xch a,x                 ;5978  30
+    xor a,#0ffh             ;5979  7d ff
+    cmp a,x                 ;597b  61 48
+    bnz $lab_59fd           ;597d  bd 7e
+    xch a,x                 ;597f  30
+    mov !0f197h,a           ;5980  9e 97 f1
+    set1 0fe67h.4           ;5983  4a 67
+    set1 0fe67h.5           ;5985  5a 67
+    clr1 0fe67h.7           ;5987  7b 67
+    mov 0fe34h,#00h         ;5989  11 34 00
+    mov a,#9fh              ;598c  a1 9f
+    mov !0fb05h,a           ;598e  9e 05 fb
+    br $lab_5a0e            ;5991  fa 7b
 
 lab_5993:
     push ax                 ;5993  b1
-    movw ax,TM01            ;5994  89 14
+    movw ax,TM01_           ;5994  89 14
     push bc                 ;5996  b3
     push de                 ;5997  b5
     push hl                 ;5998  b7
@@ -19143,11 +19761,11 @@ lab_5993:
     bnc $lab_59fd           ;599d  9d 5e
     cmp 0fe34h,#01h         ;599f  c8 34 01
     bz $lab_59a9            ;59a2  ad 05
-    bt P0.0,$lab_59c9       ;59a4  8c 00 22
+    bt P0_.0,$lab_59c9      ;59a4  8c 00 22
     br $lab_59ad            ;59a7  fa 04
 
 lab_59a9:
-    bf P0.0,$lab_59c9       ;59a9  31 03 00 1c
+    bf P0_.0,$lab_59c9      ;59a9  31 03 00 1c
 
 lab_59ad:
     mov a,#00h              ;59ad  a1 00
@@ -19184,26 +19802,14 @@ lab_59c9:
 
 lab_59e9:
     xchw ax,de              ;59e9  e4
-
-    db 03h                  ;59ea  03          DATA 0x03
-    db 0eh                  ;59eb  0e          DATA 0x0e
-    db 0f0h                 ;59ec  f0          DATA 0xf0
-    db 0e4h                 ;59ed  e4          DATA 0xe4
-    db 0c8h                 ;59ee  c8          DATA 0xc8
-    db 34h                  ;59ef  34          DATA 0x34 '4'
-    db 02h                  ;59f0  02          DATA 0x02
-    db 8dh                  ;59f1  8d          DATA 0x8d
-    db 4ah                  ;59f2  4a          DATA 0x4a 'J'
-    db 0adh                 ;59f3  ad          DATA 0xad
-    db 63h                  ;59f4  63          DATA 0x63 'c'
-    db 0c8h                 ;59f5  c8          DATA 0xc8
-    db 34h                  ;59f6  34          DATA 0x34 '4'
-    db 23h                  ;59f7  23          DATA 0x23 '#'
-    db 9dh                  ;59f8  9d          DATA 0x9d
-    db 03h                  ;59f9  03          DATA 0x03
-    db 9bh                  ;59fa  9b          DATA 0x9b
-    db 44h                  ;59fb  44          DATA 0x44 'D'
-    db 59h                  ;59fc  59          DATA 0x59 'Y'
+    movw !0f00eh,ax         ;59ea  03 0e f0
+    xchw ax,de              ;59ed  e4
+    cmp 0fe34h,#02h         ;59ee  c8 34 02
+    bc $lab_5a3d            ;59f1  8d 4a
+    bz $lab_5a58            ;59f3  ad 63
+    cmp 0fe34h,#23h         ;59f5  c8 34 23
+    bnc $lab_59fd           ;59f8  9d 03
+    br !lab_5944            ;59fa  9b 44 59
 
 lab_59fd:
     mov a,#00h              ;59fd  a1 00
@@ -19211,8 +19817,8 @@ lab_59fd:
     mov !0fb05h,a           ;5a01  9e 05 fb
     clr1 0fe67h.4           ;5a04  4b 67
     clr1 0fe67h.5           ;5a06  5b 67
-    set1 EGP.0              ;5a08  71 0a 48
-    clr1 EGN.0              ;5a0b  71 0b 49
+    set1 EGP_.0             ;5a08  71 0a 48
+    clr1 EGN_.0             ;5a0b  71 0b 49
 
 lab_5a0e:
     pop hl                  ;5a0e  b6
@@ -19237,94 +19843,51 @@ lab_5a23:
 
 lab_5a27:
     mov 0fe34h,#01h         ;5a27  11 34 01
-    set1 EGN.0              ;5a2a  71 0a 49
-    clr1 EGP.0              ;5a2d  71 0b 48
+    set1 EGN_.0             ;5a2a  71 0a 49
+    clr1 EGP_.0             ;5a2d  71 0b 48
     movw ax,de              ;5a30  c4
+    movw !0f00eh,ax         ;5a31  03 0e f0
+    mov a,#0eh              ;5a34  a1 0e
+    mov !0fb05h,a           ;5a36  9e 05 fb
+    br $lab_5a0e            ;5a39  fa d3
 
-    db 03h                  ;5a31  03          DATA 0x03
-    db 0eh                  ;5a32  0e          DATA 0x0e
-    db 0f0h                 ;5a33  f0          DATA 0xf0
-    db 0a1h                 ;5a34  a1          DATA 0xa1
-    db 0eh                  ;5a35  0e          DATA 0x0e
-    db 9eh                  ;5a36  9e          DATA 0x9e
-    db 05h                  ;5a37  05          DATA 0x05
-    db 0fbh                 ;5a38  fb          DATA 0xfb
-    db 0fah                 ;5a39  fa          DATA 0xfa
-    db 0d3h                 ;5a3a  d3          DATA 0xd3
     db 0fah                 ;5a3b  fa          DATA 0xfa
     db 0c0h                 ;5a3c  c0          DATA 0xc0
-    db 0eah                 ;5a3d  ea          DATA 0xea
-    db 9bh                  ;5a3e  9b          DATA 0x9b
-    db 62h                  ;5a3f  62          DATA 0x62 'b'
-    db 8dh                  ;5a40  8d          DATA 0x8d
-    db 0bbh                 ;5a41  bb          DATA 0xbb
-    db 0eah                 ;5a42  ea          DATA 0xea
-    db 9ch                  ;5a43  9c          DATA 0x9c
-    db 0c4h                 ;5a44  c4          DATA 0xc4
-    db 9dh                  ;5a45  9d          DATA 0x9d
-    db 0b6h                 ;5a46  b6          DATA 0xb6
-    db 11h                  ;5a47  11          DATA 0x11
-    db 34h                  ;5a48  34          DATA 0x34 '4'
-    db 02h                  ;5a49  02          DATA 0x02
-    db 71h                  ;5a4a  71          DATA 0x71 'q'
-    db 0ah                  ;5a4b  0a          DATA 0x0a
-    db 48h                  ;5a4c  48          DATA 0x48 'H'
-    db 71h                  ;5a4d  71          DATA 0x71 'q'
-    db 0bh                  ;5a4e  0b          DATA 0x0b
-    db 49h                  ;5a4f  49          DATA 0x49 'I'
-    db 0a1h                 ;5a50  a1          DATA 0xa1
-    db 07h                  ;5a51  07          DATA 0x07
-    db 9eh                  ;5a52  9e          DATA 0x9e
-    db 05h                  ;5a53  05          DATA 0x05
-    db 0fbh                 ;5a54  fb          DATA 0xfb
-    db 9bh                  ;5a55  9b          DATA 0x9b
-    db 0eh                  ;5a56  0e          DATA 0x0e
-    db 5ah                  ;5a57  5a          DATA 0x5a 'Z'
-    db 0eah                 ;5a58  ea          DATA 0xea
-    db 7dh                  ;5a59  7d          DATA 0x7d '}'
-    db 1dh                  ;5a5a  1d          DATA 0x1d
-    db 8dh                  ;5a5b  8d          DATA 0x8d
-    db 0a0h                 ;5a5c  a0          DATA 0xa0
-    db 0eah                 ;5a5d  ea          DATA 0xea
-    db 9bh                  ;5a5e  9b          DATA 0x9b
-    db 62h                  ;5a5f  62          DATA 0x62 'b'
-    db 9dh                  ;5a60  9d          DATA 0x9d
-    db 9bh                  ;5a61  9b          DATA 0x9b
-    db 0eah                 ;5a62  ea          DATA 0xea
-    db 26h                  ;5a63  26          DATA 0x26 '&'
-    db 31h                  ;5a64  31          DATA 0x31 '1'
-    db 8dh                  ;5a65  8d          DATA 0x8d
-    db 0dh                  ;5a66  0d          DATA 0x0d
-    db 11h                  ;5a67  11          DATA 0x11
-    db 34h                  ;5a68  34          DATA 0x34 '4'
-    db 03h                  ;5a69  03          DATA 0x03
-    db 0ah                  ;5a6a  0a          DATA 0x0a
-    db 68h                  ;5a6b  68          DATA 0x68 'h'
-    db 0a1h                 ;5a6c  a1          DATA 0xa1
-    db 05h                  ;5a6d  05          DATA 0x05
-    db 9eh                  ;5a6e  9e          DATA 0x9e
-    db 05h                  ;5a6f  05          DATA 0x05
-    db 0fbh                 ;5a70  fb          DATA 0xfb
-    db 9bh                  ;5a71  9b          DATA 0x9b
-    db 0eh                  ;5a72  0e          DATA 0x0e
-    db 5ah                  ;5a73  5a          DATA 0x5a 'Z'
-    db 11h                  ;5a74  11          DATA 0x11
-    db 34h                  ;5a75  34          DATA 0x34 '4'
-    db 00h                  ;5a76  00          DATA 0x00
-    db 4ah                  ;5a77  4a          DATA 0x4a 'J'
-    db 67h                  ;5a78  67          DATA 0x67 'g'
-    db 5ah                  ;5a79  5a          DATA 0x5a 'Z'
-    db 67h                  ;5a7a  67          DATA 0x67 'g'
-    db 7bh                  ;5a7b  7b          DATA 0x7b '{'
-    db 67h                  ;5a7c  67          DATA 0x67 'g'
-    db 0a1h                 ;5a7d  a1          DATA 0xa1
-    db 0d7h                 ;5a7e  d7          DATA 0xd7
-    db 9eh                  ;5a7f  9e          DATA 0x9e
-    db 05h                  ;5a80  05          DATA 0x05
-    db 0fbh                 ;5a81  fb          DATA 0xfb
-    db 9bh                  ;5a82  9b          DATA 0x9b
-    db 0eh                  ;5a83  0e          DATA 0x0e
-    db 5ah                  ;5a84  5a          DATA 0x5a 'Z'
+
+lab_5a3d:
+    cmpw ax,#629bh          ;5a3d  ea 9b 62
+    bc $lab_59fd            ;5a40  8d bb
+    cmpw ax,#0c49ch         ;5a42  ea 9c c4
+    bnc $lab_59fd           ;5a45  9d b6
+    mov 0fe34h,#02h         ;5a47  11 34 02
+    set1 EGP_.0             ;5a4a  71 0a 48
+    clr1 EGN_.0             ;5a4d  71 0b 49
+    mov a,#07h              ;5a50  a1 07
+    mov !0fb05h,a           ;5a52  9e 05 fb
+    br !lab_5a0e            ;5a55  9b 0e 5a
+
+lab_5a58:
+    cmpw ax,#1d7dh          ;5a58  ea 7d 1d
+    bc $lab_59fd            ;5a5b  8d a0
+    cmpw ax,#629bh          ;5a5d  ea 9b 62
+    bnc $lab_59fd           ;5a60  9d 9b
+    cmpw ax,#3126h          ;5a62  ea 26 31
+    bc $lab_5a74            ;5a65  8d 0d
+    mov 0fe34h,#03h         ;5a67  11 34 03
+    set1 0fe68h.0           ;5a6a  0a 68
+    mov a,#05h              ;5a6c  a1 05
+    mov !0fb05h,a           ;5a6e  9e 05 fb
+    br !lab_5a0e            ;5a71  9b 0e 5a
+
+lab_5a74:
+    mov 0fe34h,#00h         ;5a74  11 34 00
+    set1 0fe67h.4           ;5a77  4a 67
+    set1 0fe67h.5           ;5a79  5a 67
+    clr1 0fe67h.7           ;5a7b  7b 67
+    mov a,#0d7h             ;5a7d  a1 d7
+    mov !0fb05h,a           ;5a7f  9e 05 fb
+    br !lab_5a0e            ;5a82  9b 0e 5a
+
     db 30h                  ;5a85  30          DATA 0x30 '0'
     db 61h                  ;5a86  61          DATA 0x61 'a'
     db 0fch                 ;5a87  fc          DATA 0xfc
@@ -19401,149 +19964,85 @@ lab_5a27:
     db 0afh                 ;5ace  af          DATA 0xaf
     db 21h                  ;5acf  21          DATA 0x21 '!'
     db 0afh                 ;5ad0  af          DATA 0xaf
-    db 30h                  ;5ad1  30          DATA 0x30 '0'
-    db 4dh                  ;5ad2  4d          DATA 0x4d 'M'
-    db 00h                  ;5ad3  00          DATA 0x00
-    db 0adh                 ;5ad4  ad          DATA 0xad
-    db 12h                  ;5ad5  12          DATA 0x12
-    db 30h                  ;5ad6  30          DATA 0x30 '0'
-    db 03h                  ;5ad7  03          DATA 0x03
-    db 10h                  ;5ad8  10          DATA 0x10
-    db 0f0h                 ;5ad9  f0          DATA 0xf0
-    db 0c4h                 ;5ada  c4          DATA 0xc4
-    db 0cah                 ;5adb  ca          DATA 0xca
-    db 74h                  ;5adc  74          DATA 0x74 't'
-    db 93h                  ;5add  93          DATA 0x93
-    db 99h                  ;5ade  99          DATA 0x99
-    db 12h                  ;5adf  12          DATA 0x12
-    db 03h                  ;5ae0  03          DATA 0x03
-    db 18h                  ;5ae1  18          DATA 0x18
-    db 0f0h                 ;5ae2  f0          DATA 0xf0
-    db 2ah                  ;5ae3  2a          DATA 0x2a '*'
-    db 68h                  ;5ae4  68          DATA 0x68 'h'
-    db 9bh                  ;5ae5  9b          DATA 0x9b
-    db 0a0h                 ;5ae6  a0          DATA 0xa0
-    db 5bh                  ;5ae7  5b          DATA 0x5b '['
-    db 10h                  ;5ae8  10          DATA 0x10
-    db 08h                  ;5ae9  08          DATA 0x08
-    db 06h                  ;5aea  06          DATA 0x06
-    db 03h                  ;5aeb  03          DATA 0x03
-    db 10h                  ;5aec  10          DATA 0x10
-    db 0f0h                 ;5aed  f0          DATA 0xf0
-    db 0c4h                 ;5aee  c4          DATA 0xc4
-    db 0cah                 ;5aef  ca          DATA 0xca
-    db 0bah                 ;5af0  ba          DATA 0xba
-    db 49h                  ;5af1  49          DATA 0x49 'I'
-    db 99h                  ;5af2  99          DATA 0x99
-    db 12h                  ;5af3  12          DATA 0x12
-    db 03h                  ;5af4  03          DATA 0x03
-    db 18h                  ;5af5  18          DATA 0x18
-    db 0f0h                 ;5af6  f0          DATA 0xf0
-    db 2bh                  ;5af7  2b          DATA 0x2b '+'
-    db 68h                  ;5af8  68          DATA 0x68 'h'
-    db 9bh                  ;5af9  9b          DATA 0x9b
-    db 0a0h                 ;5afa  a0          DATA 0xa0
-    db 5bh                  ;5afb  5b          DATA 0x5b '['
-    db 30h                  ;5afc  30          DATA 0x30 '0'
-    db 4dh                  ;5afd  4d          DATA 0x4d 'M'
-    db 08h                  ;5afe  08          DATA 0x08
-    db 0bdh                 ;5aff  bd          DATA 0xbd
-    db 03h                  ;5b00  03          DATA 0x03
-    db 9bh                  ;5b01  9b          DATA 0x9b
-    db 04h                  ;5b02  04          DATA 0x04
-    db 5ch                  ;5b03  5c          DATA 0x5c '\'
-    db 4dh                  ;5b04  4d          DATA 0x4d 'M'
-    db 00h                  ;5b05  00          DATA 0x00
-    db 0adh                 ;5b06  ad          DATA 0xad
-    db 07h                  ;5b07  07          DATA 0x07
-    db 30h                  ;5b08  30          DATA 0x30 '0'
-    db 03h                  ;5b09  03          DATA 0x03
-    db 10h                  ;5b0a  10          DATA 0x10
-    db 0f0h                 ;5b0b  f0          DATA 0xf0
-    db 9bh                  ;5b0c  9b          DATA 0x9b
-    db 0a0h                 ;5b0d  a0          DATA 0xa0
-    db 5bh                  ;5b0e  5b          DATA 0x5b '['
-    db 10h                  ;5b0f  10          DATA 0x10
-    db 00h                  ;5b10  00          DATA 0x00
-    db 00h                  ;5b11  00          DATA 0x00
-    db 31h                  ;5b12  31          DATA 0x31 '1'
-    db 13h                  ;5b13  13          DATA 0x13
-    db 68h                  ;5b14  68          DATA 0x68 'h'
-    db 05h                  ;5b15  05          DATA 0x05
-    db 10h                  ;5b16  10          DATA 0x10
-    db 08h                  ;5b17  08          DATA 0x08
-    db 06h                  ;5b18  06          DATA 0x06
-    db 2bh                  ;5b19  2b          DATA 0x2b '+'
-    db 68h                  ;5b1a  68          DATA 0x68 'h'
-    db 03h                  ;5b1b  03          DATA 0x03
-    db 10h                  ;5b1c  10          DATA 0x10
-    db 0f0h                 ;5b1d  f0          DATA 0xf0
-    db 0c4h                 ;5b1e  c4          DATA 0xc4
-    db 0cah                 ;5b1f  ca          DATA 0xca
-    db 2ch                  ;5b20  2c          DATA 0x2c ','
-    db 31h                  ;5b21  31          DATA 0x31 '1'
-    db 99h                  ;5b22  99          DATA 0x99
-    db 12h                  ;5b23  12          DATA 0x12
-    db 03h                  ;5b24  03          DATA 0x03
-    db 18h                  ;5b25  18          DATA 0x18
-    db 0f0h                 ;5b26  f0          DATA 0xf0
-    db 9bh                  ;5b27  9b          DATA 0x9b
-    db 0a0h                 ;5b28  a0          DATA 0xa0
-    db 5bh                  ;5b29  5b          DATA 0x5b '['
-    db 8eh                  ;5b2a  8e          DATA 0x8e
-    db 99h                  ;5b2b  99          DATA 0x99
-    db 0f1h                 ;5b2c  f1          DATA 0xf1
-    db 4dh                  ;5b2d  4d          DATA 0x4d 'M'
-    db 00h                  ;5b2e  00          DATA 0x00
-    db 0adh                 ;5b2f  ad          DATA 0xad
-    db 5fh                  ;5b30  5f          DATA 0x5f '_'
-    db 51h                  ;5b31  51          DATA 0x51 'Q'
-    db 9eh                  ;5b32  9e          DATA 0x9e
-    db 99h                  ;5b33  99          DATA 0x99
-    db 0f1h                 ;5b34  f1          DATA 0xf1
-    db 73h                  ;5b35  73          DATA 0x73 's'
-    db 16h                  ;5b36  16          DATA 0x16
-    db 16h                  ;5b37  16          DATA 0x16
-    db 0f0h                 ;5b38  f0          DATA 0xf0
-    db 0abh                 ;5b39  ab          DATA 0xab
-    db 7dh                  ;5b3a  7d          DATA 0x7d '}'
-    db 0ffh                 ;5b3b  ff          DATA 0xff
-    db 30h                  ;5b3c  30          DATA 0x30 '0'
-    db 03h                  ;5b3d  03          DATA 0x03
-    db 12h                  ;5b3e  12          DATA 0x12
-    db 0f0h                 ;5b3f  f0          DATA 0xf0
-    db 10h                  ;5b40  10          DATA 0x10
-    db 34h                  ;5b41  34          DATA 0x34 '4'
-    db 0cah                 ;5b42  ca          DATA 0xca
-    db 03h                  ;5b43  03          DATA 0x03
-    db 14h                  ;5b44  14          DATA 0x14
-    db 0f0h                 ;5b45  f0          DATA 0xf0
-    db 10h                  ;5b46  10          DATA 0x10
-    db 02h                  ;5b47  02          DATA 0x02
-    db 01h                  ;5b48  01          DATA 0x01
-    db 03h                  ;5b49  03          DATA 0x03
-    db 10h                  ;5b4a  10          DATA 0x10
-    db 0f0h                 ;5b4b  f0          DATA 0xf0
-    db 89h                  ;5b4c  89          DATA 0x89
-    db 14h                  ;5b4d  14          DATA 0x14
-    db 0cah                 ;5b4e  ca          DATA 0xca
-    db 37h                  ;5b4f  37          DATA 0x37 '7'
-    db 09h                  ;5b50  09          DATA 0x09
-    db 99h                  ;5b51  99          DATA 0x99
-    db 12h                  ;5b52  12          DATA 0x12
-    db 03h                  ;5b53  03          DATA 0x03
-    db 18h                  ;5b54  18          DATA 0x18
-    db 0f0h                 ;5b55  f0          DATA 0xf0
-    db 2bh                  ;5b56  2b          DATA 0x2b '+'
-    db 68h                  ;5b57  68          DATA 0x68 'h'
-    db 0fah                 ;5b58  fa          DATA 0xfa
-    db 46h                  ;5b59  46          DATA 0x46 'F'
-    db 9bh                  ;5b5a  9b          DATA 0x9b
-    db 31h                  ;5b5b  31          DATA 0x31 '1'
-    db 5ch                  ;5b5c  5c          DATA 0x5c '\'
-    db 9bh                  ;5b5d  9b          DATA 0x9b
-    db 0d1h                 ;5b5e  d1          DATA 0xd1
-    db 5ah                  ;5b5f  5a          DATA 0x5a 'Z'
+
+lab_5ad1:
+    xch a,x                 ;5ad1  30
+    cmp a,#00h              ;5ad2  4d 00
+    bz $lab_5ae8            ;5ad4  ad 12
+    xch a,x                 ;5ad6  30
+    movw !0f010h,ax         ;5ad7  03 10 f0
+    movw ax,de              ;5ada  c4
+    addw ax,#9374h          ;5adb  ca 74 93
+    movw CR011_,ax          ;5ade  99 12
+    movw !0f018h,ax         ;5ae0  03 18 f0
+    set1 0fe68h.2           ;5ae3  2a 68
+    br !lab_5ba0            ;5ae5  9b a0 5b
+
+lab_5ae8:
+    movw ax,#0608h          ;5ae8  10 08 06
+    movw !0f010h,ax         ;5aeb  03 10 f0
+    movw ax,de              ;5aee  c4
+    addw ax,#49bah          ;5aef  ca ba 49
+    movw CR011_,ax          ;5af2  99 12
+    movw !0f018h,ax         ;5af4  03 18 f0
+    clr1 0fe68h.2           ;5af7  2b 68
+    br !lab_5ba0            ;5af9  9b a0 5b
+
+lab_5afc:
+    xch a,x                 ;5afc  30
+    cmp a,#08h              ;5afd  4d 08
+    bnz $lab_5b04           ;5aff  bd 03
+    br !lab_5c04            ;5b01  9b 04 5c
+
+lab_5b04:
+    cmp a,#00h              ;5b04  4d 00
+    bz $lab_5b0f            ;5b06  ad 07
+    xch a,x                 ;5b08  30
+    movw !0f010h,ax         ;5b09  03 10 f0
+    br !lab_5ba0            ;5b0c  9b a0 5b
+
+lab_5b0f:
+    movw ax,#0000h          ;5b0f  10 00 00
+    bf 0fe68h.1,$lab_5b1b   ;5b12  31 13 68 05
+    movw ax,#0608h          ;5b16  10 08 06
+    clr1 0fe68h.2           ;5b19  2b 68
+
+lab_5b1b:
+    movw !0f010h,ax         ;5b1b  03 10 f0
+    movw ax,de              ;5b1e  c4
+    addw ax,#lab_312c       ;5b1f  ca 2c 31
+    movw CR011_,ax          ;5b22  99 12
+    movw !0f018h,ax         ;5b24  03 18 f0
+    br !lab_5ba0            ;5b27  9b a0 5b
+
+lab_5b2a:
+    mov a,!0f199h           ;5b2a  8e 99 f1
+    cmp a,#00h              ;5b2d  4d 00
+    bz $lab_5b90            ;5b2f  ad 5f
+    dec a                   ;5b31  51
+    mov !0f199h,a           ;5b32  9e 99 f1
+    mov b,a                 ;5b35  73
+    movw hl,#0f016h         ;5b36  16 16 f0
+    mov a,[hl+b]            ;5b39  ab
+    xor a,#0ffh             ;5b3a  7d ff
+    xch a,x                 ;5b3c  30
+    movw !0f012h,ax         ;5b3d  03 12 f0
+    movw ax,#0ca34h         ;5b40  10 34 ca
+    movw !0f014h,ax         ;5b43  03 14 f0
+    movw ax,#0102h          ;5b46  10 02 01
+    movw !0f010h,ax         ;5b49  03 10 f0
+    movw ax,TM01_           ;5b4c  89 14
+    addw ax,#0937h          ;5b4e  ca 37 09
+    movw CR011_,ax          ;5b51  99 12
+    movw !0f018h,ax         ;5b53  03 18 f0
+    clr1 0fe68h.2           ;5b56  2b 68
+    br $lab_5ba0            ;5b58  fa 46
+
+lab_5b5a:
+    br !lab_5c31            ;5b5a  9b 31 5c
+
+lab_5b5d:
+    br !lab_5ad1            ;5b5d  9b d1 5a
 
 lab_5b60:
     push ax                 ;5b60  b1
@@ -19552,254 +20051,155 @@ lab_5b60:
     mov1 cy,0fe68h.2        ;5b63  71 24 68
     mov1 0fecfh.7,cy        ;5b66  71 71 cf
     mov a,0fecfh            ;5b69  f0 cf
-    mov P5,a                ;5b6b  f2 05
-    movw ax,TM01            ;5b6d  89 14
+    mov P5_,a               ;5b6b  f2 05
+    movw ax,TM01_           ;5b6d  89 14
     movw de,ax              ;5b6f  d4
+    movw ax,!0f010h         ;5b70  02 10 f0
+    dec x                   ;5b73  50
+    cmp a,#01h              ;5b74  4d 01
+    bc $lab_5b2a            ;5b76  8d b2
+    bz $lab_5ba4            ;5b78  ad 2a
+    cmp a,#03h              ;5b7a  4d 03
+    bc $lab_5bcf            ;5b7c  8d 51
+    bnz $lab_5b83           ;5b7e  bd 03
+    br !lab_5c16            ;5b80  9b 16 5c
 
-    db 02h                  ;5b70  02          DATA 0x02
-    db 10h                  ;5b71  10          DATA 0x10
-    db 0f0h                 ;5b72  f0          DATA 0xf0
-    db 50h                  ;5b73  50          DATA 0x50 'P'
-    db 4dh                  ;5b74  4d          DATA 0x4d 'M'
-    db 01h                  ;5b75  01          DATA 0x01
-    db 8dh                  ;5b76  8d          DATA 0x8d
-    db 0b2h                 ;5b77  b2          DATA 0xb2
-    db 0adh                 ;5b78  ad          DATA 0xad
-    db 2ah                  ;5b79  2a          DATA 0x2a '*'
-    db 4dh                  ;5b7a  4d          DATA 0x4d 'M'
-    db 03h                  ;5b7b  03          DATA 0x03
-    db 8dh                  ;5b7c  8d          DATA 0x8d
-    db 51h                  ;5b7d  51          DATA 0x51 'Q'
-    db 0bdh                 ;5b7e  bd          DATA 0xbd
-    db 03h                  ;5b7f  03          DATA 0x03
-    db 9bh                  ;5b80  9b          DATA 0x9b
-    db 16h                  ;5b81  16          DATA 0x16
-    db 5ch                  ;5b82  5c          DATA 0x5c '\'
-    db 4dh                  ;5b83  4d          DATA 0x4d 'M'
-    db 05h                  ;5b84  05          DATA 0x05
-    db 8dh                  ;5b85  8d          DATA 0x8d
-    db 0d3h                 ;5b86  d3          DATA 0xd3
-    db 0adh                 ;5b87  ad          DATA 0xad
-    db 0d4h                 ;5b88  d4          DATA 0xd4
-    db 4dh                  ;5b89  4d          DATA 0x4d 'M'
-    db 06h                  ;5b8a  06          DATA 0x06
-    db 0bdh                 ;5b8b  bd          DATA 0xbd
-    db 03h                  ;5b8c  03          DATA 0x03
-    db 9bh                  ;5b8d  9b          DATA 0x9b
-    db 0fch                 ;5b8e  fc          DATA 0xfc
-    db 5ah                  ;5b8f  5a          DATA 0x5a 'Z'
-    db 1bh                  ;5b90  1b          DATA 0x1b
-    db 68h                  ;5b91  68          DATA 0x68 'h'
-    db 3bh                  ;5b92  3b          DATA 0x3b ';'
-    db 68h                  ;5b93  68          DATA 0x68 'h'
-    db 71h                  ;5b94  71          DATA 0x71 'q'
-    db 7bh                  ;5b95  7b          DATA 0x7b '{'
-    db 25h                  ;5b96  25          DATA 0x25 '%'
-    db 7ah                  ;5b97  7a          DATA 0x7a 'z'
-    db 0cfh                 ;5b98  cf          DATA 0xcf
-    db 0f0h                 ;5b99  f0          DATA 0xf0
-    db 0cfh                 ;5b9a  cf          DATA 0xcf
-    db 0f2h                 ;5b9b  f2          DATA 0xf2
-    db 05h                  ;5b9c  05          DATA 0x05
-    db 71h                  ;5b9d  71          DATA 0x71 'q'
-    db 4ah                  ;5b9e  4a          DATA 0x4a 'J'
-    db 0e6h                 ;5b9f  e6          DATA 0xe6
-    db 0b6h                 ;5ba0  b6          DATA 0xb6
-    db 0b4h                 ;5ba1  b4          DATA 0xb4
-    db 0b0h                 ;5ba2  b0          DATA 0xb0
-    db 8fh                  ;5ba3  8f          DATA 0x8f
-    db 30h                  ;5ba4  30          DATA 0x30 '0'
-    db 4dh                  ;5ba5  4d          DATA 0x4d 'M'
-    db 00h                  ;5ba6  00          DATA 0x00
-    db 0adh                 ;5ba7  ad          DATA 0xad
-    db 12h                  ;5ba8  12          DATA 0x12
-    db 30h                  ;5ba9  30          DATA 0x30 '0'
-    db 03h                  ;5baa  03          DATA 0x03
-    db 10h                  ;5bab  10          DATA 0x10
-    db 0f0h                 ;5bac  f0          DATA 0xf0
-    db 0c4h                 ;5bad  c4          DATA 0xc4
-    db 0cah                 ;5bae  ca          DATA 0xca
-    db 74h                  ;5baf  74          DATA 0x74 't'
-    db 93h                  ;5bb0  93          DATA 0x93
-    db 99h                  ;5bb1  99          DATA 0x99
-    db 12h                  ;5bb2  12          DATA 0x12
-    db 03h                  ;5bb3  03          DATA 0x03
-    db 18h                  ;5bb4  18          DATA 0x18
-    db 0f0h                 ;5bb5  f0          DATA 0xf0
-    db 2ah                  ;5bb6  2a          DATA 0x2a '*'
-    db 68h                  ;5bb7  68          DATA 0x68 'h'
-    db 9bh                  ;5bb8  9b          DATA 0x9b
-    db 0a0h                 ;5bb9  a0          DATA 0xa0
-    db 5bh                  ;5bba  5b          DATA 0x5b '['
-    db 10h                  ;5bbb  10          DATA 0x10
-    db 20h                  ;5bbc  20          DATA 0x20 ' '
-    db 02h                  ;5bbd  02          DATA 0x02
-    db 03h                  ;5bbe  03          DATA 0x03
-    db 10h                  ;5bbf  10          DATA 0x10
-    db 0f0h                 ;5bc0  f0          DATA 0xf0
-    db 0c4h                 ;5bc1  c4          DATA 0xc4
-    db 0cah                 ;5bc2  ca          DATA 0xca
-    db 0bah                 ;5bc3  ba          DATA 0xba
-    db 49h                  ;5bc4  49          DATA 0x49 'I'
-    db 99h                  ;5bc5  99          DATA 0x99
-    db 12h                  ;5bc6  12          DATA 0x12
-    db 03h                  ;5bc7  03          DATA 0x03
-    db 18h                  ;5bc8  18          DATA 0x18
-    db 0f0h                 ;5bc9  f0          DATA 0xf0
-    db 2bh                  ;5bca  2b          DATA 0x2b '+'
-    db 68h                  ;5bcb  68          DATA 0x68 'h'
-    db 9bh                  ;5bcc  9b          DATA 0x9b
-    db 0a0h                 ;5bcd  a0          DATA 0xa0
-    db 5bh                  ;5bce  5b          DATA 0x5b '['
-    db 30h                  ;5bcf  30          DATA 0x30 '0'
-    db 31h                  ;5bd0  31          DATA 0x31 '1'
-    db 0eh                  ;5bd1  0e          DATA 0x0e
-    db 31h                  ;5bd2  31          DATA 0x31 '1'
-    db 4dh                  ;5bd3  4d          DATA 0x4d 'M'
-    db 00h                  ;5bd4  00          DATA 0x00
-    db 30h                  ;5bd5  30          DATA 0x30 '0'
-    db 0bdh                 ;5bd6  bd          DATA 0xbd
-    db 03h                  ;5bd7  03          DATA 0x03
-    db 10h                  ;5bd8  10          DATA 0x10
-    db 20h                  ;5bd9  20          DATA 0x20 ' '
-    db 03h                  ;5bda  03          DATA 0x03
-    db 03h                  ;5bdb  03          DATA 0x03
-    db 10h                  ;5bdc  10          DATA 0x10
-    db 0f0h                 ;5bdd  f0          DATA 0xf0
-    db 02h                  ;5bde  02          DATA 0x02
-    db 14h                  ;5bdf  14          DATA 0x14
-    db 0f0h                 ;5be0  f0          DATA 0xf0
-    db 30h                  ;5be1  30          DATA 0x30 '0'
-    db 25h                  ;5be2  25          DATA 0x25 '%'
-    db 30h                  ;5be3  30          DATA 0x30 '0'
-    db 25h                  ;5be4  25          DATA 0x25 '%'
-    db 03h                  ;5be5  03          DATA 0x03
-    db 14h                  ;5be6  14          DATA 0x14
-    db 0f0h                 ;5be7  f0          DATA 0xf0
-    db 2bh                  ;5be8  2b          DATA 0x2b '+'
-    db 68h                  ;5be9  68          DATA 0x68 'h'
-    db 8dh                  ;5bea  8d          DATA 0x8d
-    db 0ch                  ;5beb  0c          DATA 0x0c
-    db 0c4h                 ;5bec  c4          DATA 0xc4
-    db 0cah                 ;5bed  ca          DATA 0xca
-    db 37h                  ;5bee  37          DATA 0x37 '7'
-    db 09h                  ;5bef  09          DATA 0x09
-    db 99h                  ;5bf0  99          DATA 0x99
-    db 12h                  ;5bf1  12          DATA 0x12
-    db 03h                  ;5bf2  03          DATA 0x03
-    db 18h                  ;5bf3  18          DATA 0x18
-    db 0f0h                 ;5bf4  f0          DATA 0xf0
-    db 9bh                  ;5bf5  9b          DATA 0x9b
-    db 0a0h                 ;5bf6  a0          DATA 0xa0
-    db 5bh                  ;5bf7  5b          DATA 0x5b '['
-    db 0c4h                 ;5bf8  c4          DATA 0xc4
-    db 0cah                 ;5bf9  ca          DATA 0xca
-    db 0a5h                 ;5bfa  a5          DATA 0xa5
-    db 1bh                  ;5bfb  1b          DATA 0x1b
-    db 99h                  ;5bfc  99          DATA 0x99
-    db 12h                  ;5bfd  12          DATA 0x12
-    db 03h                  ;5bfe  03          DATA 0x03
-    db 18h                  ;5bff  18          DATA 0x18
-    db 0f0h                 ;5c00  f0          DATA 0xf0
-    db 9bh                  ;5c01  9b          DATA 0x9b
-    db 0a0h                 ;5c02  a0          DATA 0xa0
-    db 5bh                  ;5c03  5b          DATA 0x5b '['
-    db 30h                  ;5c04  30          DATA 0x30 '0'
-    db 03h                  ;5c05  03          DATA 0x03
-    db 10h                  ;5c06  10          DATA 0x10
-    db 0f0h                 ;5c07  f0          DATA 0xf0
-    db 0c4h                 ;5c08  c4          DATA 0xc4
-    db 0cah                 ;5c09  ca          DATA 0xca
-    db 37h                  ;5c0a  37          DATA 0x37 '7'
-    db 09h                  ;5c0b  09          DATA 0x09
-    db 99h                  ;5c0c  99          DATA 0x99
-    db 12h                  ;5c0d  12          DATA 0x12
-    db 03h                  ;5c0e  03          DATA 0x03
-    db 18h                  ;5c0f  18          DATA 0x18
-    db 0f0h                 ;5c10  f0          DATA 0xf0
-    db 2ah                  ;5c11  2a          DATA 0x2a '*'
-    db 68h                  ;5c12  68          DATA 0x68 'h'
-    db 9bh                  ;5c13  9b          DATA 0x9b
-    db 0a0h                 ;5c14  a0          DATA 0xa0
-    db 5bh                  ;5c15  5b          DATA 0x5b '['
-    db 30h                  ;5c16  30          DATA 0x30 '0'
-    db 31h                  ;5c17  31          DATA 0x31 '1'
-    db 0eh                  ;5c18  0e          DATA 0x0e
-    db 0eah                 ;5c19  ea          DATA 0xea
-    db 4dh                  ;5c1a  4d          DATA 0x4d 'M'
-    db 00h                  ;5c1b  00          DATA 0x00
-    db 30h                  ;5c1c  30          DATA 0x30 '0'
-    db 0bdh                 ;5c1d  bd          DATA 0xbd
-    db 03h                  ;5c1e  03          DATA 0x03
-    db 10h                  ;5c1f  10          DATA 0x10
-    db 04h                  ;5c20  04          DATA 0x04
-    db 04h                  ;5c21  04          DATA 0x04
-    db 03h                  ;5c22  03          DATA 0x03
-    db 10h                  ;5c23  10          DATA 0x10
-    db 0f0h                 ;5c24  f0          DATA 0xf0
-    db 02h                  ;5c25  02          DATA 0x02
-    db 12h                  ;5c26  12          DATA 0x12
-    db 0f0h                 ;5c27  f0          DATA 0xf0
-    db 30h                  ;5c28  30          DATA 0x30 '0'
-    db 25h                  ;5c29  25          DATA 0x25 '%'
-    db 30h                  ;5c2a  30          DATA 0x30 '0'
-    db 25h                  ;5c2b  25          DATA 0x25 '%'
-    db 03h                  ;5c2c  03          DATA 0x03
-    db 12h                  ;5c2d  12          DATA 0x12
-    db 0f0h                 ;5c2e  f0          DATA 0xf0
-    db 0fah                 ;5c2f  fa          DATA 0xfa
-    db 0b7h                 ;5c30  b7          DATA 0xb7
-    db 30h                  ;5c31  30          DATA 0x30 '0'
-    db 4dh                  ;5c32  4d          DATA 0x4d 'M'
-    db 03h                  ;5c33  03          DATA 0x03
-    db 0adh                 ;5c34  ad          DATA 0xad
-    db 0ceh                 ;5c35  ce          DATA 0xce
-    db 4dh                  ;5c36  4d          DATA 0x4d 'M'
-    db 00h                  ;5c37  00          DATA 0x00
-    db 0adh                 ;5c38  ad          DATA 0xad
-    db 07h                  ;5c39  07          DATA 0x07
-    db 30h                  ;5c3a  30          DATA 0x30 '0'
-    db 03h                  ;5c3b  03          DATA 0x03
-    db 10h                  ;5c3c  10          DATA 0x10
-    db 0f0h                 ;5c3d  f0          DATA 0xf0
-    db 9bh                  ;5c3e  9b          DATA 0x9b
-    db 0a0h                 ;5c3f  a0          DATA 0xa0
-    db 5bh                  ;5c40  5b          DATA 0x5b '['
-    db 31h                  ;5c41  31          DATA 0x31 '1'
-    db 13h                  ;5c42  13          DATA 0x13
-    db 68h                  ;5c43  68          DATA 0x68 'h'
-    db 08h                  ;5c44  08          DATA 0x08
-    db 10h                  ;5c45  10          DATA 0x10
-    db 02h                  ;5c46  02          DATA 0x02
-    db 05h                  ;5c47  05          DATA 0x05
-    db 2bh                  ;5c48  2b          DATA 0x2b '+'
-    db 68h                  ;5c49  68          DATA 0x68 'h'
-    db 9bh                  ;5c4a  9b          DATA 0x9b
-    db 58h                  ;5c4b  58          DATA 0x58 'X'
-    db 5ch                  ;5c4c  5c          DATA 0x5c '\'
-    db 10h                  ;5c4d  10          DATA 0x10
-    db 00h                  ;5c4e  00          DATA 0x00
-    db 00h                  ;5c4f  00          DATA 0x00
-    db 03h                  ;5c50  03          DATA 0x03
-    db 10h                  ;5c51  10          DATA 0x10
-    db 0f0h                 ;5c52  f0          DATA 0xf0
-    db 2ah                  ;5c53  2a          DATA 0x2a '*'
-    db 68h                  ;5c54  68          DATA 0x68 'h'
-    db 9bh                  ;5c55  9b          DATA 0x9b
-    db 0a0h                 ;5c56  a0          DATA 0xa0
-    db 5bh                  ;5c57  5b          DATA 0x5b '['
-    db 0c4h                 ;5c58  c4          DATA 0xc4
-    db 0cah                 ;5c59  ca          DATA 0xca
-    db 0fdh                 ;5c5a  fd          DATA 0xfd
-    db 0a9h                 ;5c5b  a9          DATA 0xa9
-    db 99h                  ;5c5c  99          DATA 0x99
-    db 12h                  ;5c5d  12          DATA 0x12
-    db 03h                  ;5c5e  03          DATA 0x03
-    db 18h                  ;5c5f  18          DATA 0x18
-    db 0f0h                 ;5c60  f0          DATA 0xf0
-    db 9bh                  ;5c61  9b          DATA 0x9b
-    db 0a0h                 ;5c62  a0          DATA 0xa0
-    db 5bh                  ;5c63  5b          DATA 0x5b '['
+lab_5b83:
+    cmp a,#05h              ;5b83  4d 05
+    bc $lab_5b5a            ;5b85  8d d3
+    bz $lab_5b5d            ;5b87  ad d4
+    cmp a,#06h              ;5b89  4d 06
+    bnz $lab_5b90           ;5b8b  bd 03
+    br !lab_5afc            ;5b8d  9b fc 5a
+
+lab_5b90:
+    clr1 0fe68h.1           ;5b90  1b 68
+    clr1 0fe68h.3           ;5b92  3b 68
+    clr1 PM5_.7             ;5b94  71 7b 25
+    set1 0fecfh.7           ;5b97  7a cf
+    mov a,0fecfh            ;5b99  f0 cf
+    mov P5_,a               ;5b9b  f2 05
+    set1 MK1L_.4            ;5b9d  71 4a e6
+
+lab_5ba0:
+    pop hl                  ;5ba0  b6
+    pop de                  ;5ba1  b4
+    pop ax                  ;5ba2  b0
+    reti                    ;5ba3  8f
+
+lab_5ba4:
+    xch a,x                 ;5ba4  30
+    cmp a,#00h              ;5ba5  4d 00
+    bz $lab_5bbb            ;5ba7  ad 12
+    xch a,x                 ;5ba9  30
+    movw !0f010h,ax         ;5baa  03 10 f0
+    movw ax,de              ;5bad  c4
+    addw ax,#9374h          ;5bae  ca 74 93
+    movw CR011_,ax          ;5bb1  99 12
+    movw !0f018h,ax         ;5bb3  03 18 f0
+    set1 0fe68h.2           ;5bb6  2a 68
+    br !lab_5ba0            ;5bb8  9b a0 5b
+
+lab_5bbb:
+    movw ax,#0220h          ;5bbb  10 20 02
+    movw !0f010h,ax         ;5bbe  03 10 f0
+    movw ax,de              ;5bc1  c4
+    addw ax,#49bah          ;5bc2  ca ba 49
+    movw CR011_,ax          ;5bc5  99 12
+    movw !0f018h,ax         ;5bc7  03 18 f0
+    clr1 0fe68h.2           ;5bca  2b 68
+    br !lab_5ba0            ;5bcc  9b a0 5b
+
+lab_5bcf:
+    xch a,x                 ;5bcf  30
+    bt a.0,$lab_5c04        ;5bd0  31 0e 31
+    cmp a,#00h              ;5bd3  4d 00
+    xch a,x                 ;5bd5  30
+    bnz $lab_5bdb           ;5bd6  bd 03
+    movw ax,#0320h          ;5bd8  10 20 03
+
+lab_5bdb:
+    movw !0f010h,ax         ;5bdb  03 10 f0
+    movw ax,!0f014h         ;5bde  02 14 f0
+    xch a,x                 ;5be1  30
+    rorc a,1                ;5be2  25
+    xch a,x                 ;5be3  30
+    rorc a,1                ;5be4  25
+    movw !0f014h,ax         ;5be5  03 14 f0
+
+lab_5be8:
+    clr1 0fe68h.2           ;5be8  2b 68
+    bc $lab_5bf8            ;5bea  8d 0c
+    movw ax,de              ;5bec  c4
+    addw ax,#0937h          ;5bed  ca 37 09
+    movw CR011_,ax          ;5bf0  99 12
+    movw !0f018h,ax         ;5bf2  03 18 f0
+    br !lab_5ba0            ;5bf5  9b a0 5b
+
+lab_5bf8:
+    movw ax,de              ;5bf8  c4
+    addw ax,#1ba5h          ;5bf9  ca a5 1b
+    movw CR011_,ax          ;5bfc  99 12
+    movw !0f018h,ax         ;5bfe  03 18 f0
+    br !lab_5ba0            ;5c01  9b a0 5b
+
+lab_5c04:
+    xch a,x                 ;5c04  30
+    movw !0f010h,ax         ;5c05  03 10 f0
+    movw ax,de              ;5c08  c4
+    addw ax,#0937h          ;5c09  ca 37 09
+    movw CR011_,ax          ;5c0c  99 12
+    movw !0f018h,ax         ;5c0e  03 18 f0
+    set1 0fe68h.2           ;5c11  2a 68
+    br !lab_5ba0            ;5c13  9b a0 5b
+
+lab_5c16:
+    xch a,x                 ;5c16  30
+    bt a.0,$lab_5c04        ;5c17  31 0e ea
+    cmp a,#00h              ;5c1a  4d 00
+    xch a,x                 ;5c1c  30
+    bnz $lab_5c22           ;5c1d  bd 03
+    movw ax,#0404h          ;5c1f  10 04 04
+
+lab_5c22:
+    movw !0f010h,ax         ;5c22  03 10 f0
+    movw ax,!0f012h         ;5c25  02 12 f0
+    xch a,x                 ;5c28  30
+    rorc a,1                ;5c29  25
+    xch a,x                 ;5c2a  30
+    rorc a,1                ;5c2b  25
+    movw !0f012h,ax         ;5c2c  03 12 f0
+    br $lab_5be8            ;5c2f  fa b7
+
+lab_5c31:
+    xch a,x                 ;5c31  30
+    cmp a,#03h              ;5c32  4d 03
+    bz $lab_5c04            ;5c34  ad ce
+    cmp a,#00h              ;5c36  4d 00
+    bz $lab_5c41            ;5c38  ad 07
+    xch a,x                 ;5c3a  30
+    movw !0f010h,ax         ;5c3b  03 10 f0
+    br !lab_5ba0            ;5c3e  9b a0 5b
+
+lab_5c41:
+    bf 0fe68h.1,$lab_5c4d   ;5c41  31 13 68 08
+    movw ax,#0502h          ;5c45  10 02 05
+    clr1 0fe68h.2           ;5c48  2b 68
+    br !lab_5c58            ;5c4a  9b 58 5c
+
+lab_5c4d:
+    movw ax,#0000h          ;5c4d  10 00 00
+    movw !0f010h,ax         ;5c50  03 10 f0
+    set1 0fe68h.2           ;5c53  2a 68
+    br !lab_5ba0            ;5c55  9b a0 5b
+
+lab_5c58:
+    movw ax,de              ;5c58  c4
+    addw ax,#0a9fdh         ;5c59  ca fd a9
+    movw CR011_,ax          ;5c5c  99 12
+    movw !0f018h,ax         ;5c5e  03 18 f0
+    br !lab_5ba0            ;5c61  9b a0 5b
+
     db 0f2h                 ;5c64  f2          DATA 0xf2
     db 0d4h                 ;5c65  d4          DATA 0xd4
     db 9ah                  ;5c66  9a          DATA 0x9a
@@ -20270,25 +20670,25 @@ lab_5e34:
 
 lab_5e3c:
     bf a.7,$lab_5e66        ;5e3c  31 7f 27
-    clr1 PU7.4              ;5e3f  71 4b 37
-    set1 PM7.4              ;5e42  71 4a 27
+    clr1 PU7_.4             ;5e3f  71 4b 37
+    set1 PM7_.4             ;5e42  71 4a 27
     clr1 0fed1h.4           ;5e45  4b d1
     push ax                 ;5e47  b1
     mov a,0fed1h            ;5e48  f0 d1
-    mov P7,a                ;5e4a  f2 07
-    clr1 PU7.3              ;5e4c  71 3b 37
-    set1 PM7.3              ;5e4f  71 3a 27
+    mov P7_,a               ;5e4a  f2 07
+    clr1 PU7_.3             ;5e4c  71 3b 37
+    set1 PM7_.3             ;5e4f  71 3a 27
     clr1 0fed1h.3           ;5e52  3b d1
     mov a,0fed1h            ;5e54  f0 d1
-    mov P7,a                ;5e56  f2 07
+    mov P7_,a               ;5e56  f2 07
     pop ax                  ;5e58  b0
-    clr1 PM7.4              ;5e59  71 4b 27
+    clr1 PM7_.4             ;5e59  71 4b 27
     cmp 0fefbh,#00h         ;5e5c  c8 fb 00
     nop                     ;5e5f  00
     nop                     ;5e60  00
     nop                     ;5e61  00
     nop                     ;5e62  00
-    clr1 PM7.3              ;5e63  71 3b 27
+    clr1 PM7_.3             ;5e63  71 3b 27
 
 lab_5e66:
     and a,#3fh              ;5e66  5d 3f
@@ -20302,33 +20702,33 @@ lab_5e6b:
 lab_5e6e:
     rolc a,1                ;5e6e  27
     bc $lab_5e76            ;5e6f  8d 05
-    clr1 PM7.4              ;5e71  71 4b 27
+    clr1 PM7_.4             ;5e71  71 4b 27
     br $lab_5e7c            ;5e74  fa 06
 
 lab_5e76:
-    clr1 PU7.4              ;5e76  71 4b 37
-    set1 PM7.4              ;5e79  71 4a 27
+    clr1 PU7_.4             ;5e76  71 4b 37
+    set1 PM7_.4             ;5e79  71 4a 27
 
 lab_5e7c:
     nop                     ;5e7c  00
-    clr1 PU7.3              ;5e7d  71 3b 37
-    set1 PM7.3              ;5e80  71 3a 27
+    clr1 PU7_.3             ;5e7d  71 3b 37
+    set1 PM7_.3             ;5e80  71 3a 27
     cmp 0fefbh,#00h         ;5e83  c8 fb 00
     cmp 0fefbh,#00h         ;5e86  c8 fb 00
     nop                     ;5e89  00
-    clr1 PM7.3              ;5e8a  71 3b 27
+    clr1 PM7_.3             ;5e8a  71 3b 27
     dbnz c,$lab_5e6e        ;5e8d  8a df
-    clr1 PU7.4              ;5e8f  71 4b 37
-    set1 PM7.4              ;5e92  71 4a 27
-    clr1 PU7.3              ;5e95  71 3b 37
-    set1 PM7.3              ;5e98  71 3a 27
+    clr1 PU7_.4             ;5e8f  71 4b 37
+    set1 PM7_.4             ;5e92  71 4a 27
+    clr1 PU7_.3             ;5e95  71 3b 37
+    set1 PM7_.3             ;5e98  71 3a 27
     cmp 0fefbh,#00h         ;5e9b  c8 fb 00
     cmp 0fefbh,#00h         ;5e9e  c8 fb 00
     nop                     ;5ea1  00
     nop                     ;5ea2  00
     nop                     ;5ea3  00
-    bt P7.4,$lab_5ec9       ;5ea4  cc 07 22
-    clr1 PM7.3              ;5ea7  71 3b 27
+    bt P7_.4,$lab_5ec9      ;5ea4  cc 07 22
+    clr1 PM7_.3             ;5ea7  71 3b 27
     incw hl                 ;5eaa  86
     dbnz b,$lab_5e6b        ;5eab  8b be
     pop bc                  ;5ead  b2
@@ -20337,30 +20737,30 @@ lab_5e7c:
     ret                     ;5eb2  af
 
 lab_5eb3:
-    clr1 PM7.4              ;5eb3  71 4b 27
-    clr1 PU7.3              ;5eb6  71 3b 37
-    set1 PM7.3              ;5eb9  71 3a 27
+    clr1 PM7_.4             ;5eb3  71 4b 27
+    clr1 PU7_.3             ;5eb6  71 3b 37
+    set1 PM7_.3             ;5eb9  71 3a 27
     cmp 0fefbh,#00h         ;5ebc  c8 fb 00
     nop                     ;5ebf  00
     nop                     ;5ec0  00
-    clr1 PU7.4              ;5ec1  71 4b 37
-    set1 PM7.4              ;5ec4  71 4a 27
+    clr1 PU7_.4             ;5ec1  71 4b 37
+    set1 PM7_.4             ;5ec4  71 4a 27
     clr1 cy                 ;5ec7  21
     ret                     ;5ec8  af
 
 lab_5ec9:
-    clr1 PM7.3              ;5ec9  71 3b 27
+    clr1 PM7_.3             ;5ec9  71 3b 27
     cmp 0fefbh,#00h         ;5ecc  c8 fb 00
     nop                     ;5ecf  00
     nop                     ;5ed0  00
-    clr1 PM7.4              ;5ed1  71 4b 27
-    clr1 PU7.3              ;5ed4  71 3b 37
-    set1 PM7.3              ;5ed7  71 3a 27
+    clr1 PM7_.4             ;5ed1  71 4b 27
+    clr1 PU7_.3             ;5ed4  71 3b 37
+    set1 PM7_.3             ;5ed7  71 3a 27
     cmp 0fefbh,#00h         ;5eda  c8 fb 00
     nop                     ;5edd  00
     nop                     ;5ede  00
-    clr1 PU7.4              ;5edf  71 4b 37
-    set1 PM7.4              ;5ee2  71 4a 27
+    clr1 PU7_.4             ;5edf  71 4b 37
+    set1 PM7_.4             ;5ee2  71 4a 27
     set1 cy                 ;5ee5  20
     pop bc                  ;5ee6  b2
     ret                     ;5ee7  af
@@ -20396,7 +20796,7 @@ lab_5f0d:
     and 0fefah,#3fh         ;5f0d  d8 fa 3f
     mov a,c                 ;5f10  62
     mov b,a                 ;5f11  73
-    set1 IICC0.2            ;5f12  71 2a a8
+    set1 IICC0_.2           ;5f12  71 2a a8
     decw hl                 ;5f15  96
 
 lab_5f16:
@@ -20405,26 +20805,26 @@ lab_5f16:
     bnz $lab_5f26           ;5f1a  bd 0a
     bf 0fe68h.5,$lab_5f26   ;5f1c  31 53 68 06
     bt 0fe69h.3,$lab_5f26   ;5f20  bc 69 03
-    clr1 IICC0.2            ;5f23  71 2b a8
+    clr1 IICC0_.2           ;5f23  71 2b a8
 
 lab_5f26:
-    set1 IICC0.5            ;5f26  71 5a a8
+    set1 IICC0_.5           ;5f26  71 5a a8
     inc b                   ;5f29  43
     incw hl                 ;5f2a  86
     mov c,#50h              ;5f2b  a2 50
 
 lab_5f2d:
-    bt IF0H.6,$lab_5f35     ;5f2d  31 66 e1 04
+    bt IF0H_.6,$lab_5f35    ;5f2d  31 66 e1 04
     dbnz c,$lab_5f2d        ;5f31  8a fa
     callf !sub_0879         ;5f33  0c 79
 
 lab_5f35:
-    clr1 IF0H.6             ;5f35  71 6b e1
-    mov a,IIC0              ;5f38  f0 1f
+    clr1 IF0H_.6            ;5f35  71 6b e1
+    mov a,IIC0_             ;5f38  f0 1f
     mov [hl],a              ;5f3a  97
     dbnz b,$lab_5f16        ;5f3b  8b d9
     bf 0fe68h.5,$lab_5f44   ;5f3d  31 53 68 03
-    set1 IICC0.0            ;5f41  71 0a a8
+    set1 IICC0_.0           ;5f41  71 0a a8
 
 lab_5f44:
     clr1 cy                 ;5f44  21
@@ -20456,7 +20856,7 @@ lab_5f5f:
 lab_5f64:
     mov1 cy,0fe69h.1        ;5f64  71 14 69
     not1 cy                 ;5f67  01
-    mov1 IICCL0.3,cy        ;5f68  71 39 aa
+    mov1 IICCL0_.3,cy       ;5f68  71 39 aa
     push ax                 ;5f6b  b1
     and a,#3fh              ;5f6c  5d 3f
     cmp a,#22h              ;5f6e  4d 22
@@ -20473,23 +20873,23 @@ lab_5f75:
     set1 0fe68h.5           ;5f7d  5a 68
 
 lab_5f7f:
-    set1 IICC0.3            ;5f7f  71 3a a8
+    set1 IICC0_.3           ;5f7f  71 3a a8
     bf a.7,$lab_5fa9        ;5f82  31 7f 24
     bf 0fe68h.6,$lab_5fa0   ;5f85  31 63 68 17
-    bt IICCL0.4,$lab_5f8f   ;5f89  31 46 aa 02
+    bt IICCL0_.4,$lab_5f8f  ;5f89  31 46 aa 02
     br $lab_5f93            ;5f8d  fa 04
 
 lab_5f8f:
-    bt IICCL0.5,$lab_5fa0   ;5f8f  31 56 aa 0d
+    bt IICCL0_.5,$lab_5fa0  ;5f8f  31 56 aa 0d
 
 lab_5f93:
     call !sub_5ff5          ;5f93  9a f5 5f
-    bt IICCL0.4,$lab_5fa0   ;5f96  31 46 aa 06
+    bt IICCL0_.4,$lab_5fa0  ;5f96  31 46 aa 06
     call !sub_602d          ;5f9a  9a 2d 60
     call !sub_5ff5          ;5f9d  9a f5 5f
 
 lab_5fa0:
-    set1 IICC0.1            ;5fa0  71 1a a8
+    set1 IICC0_.1           ;5fa0  71 1a a8
     push bc                 ;5fa3  b3
     mov b,#01h              ;5fa4  a3 01
 
@@ -20505,7 +20905,7 @@ lab_5fa9:
 lab_5fae:
     bt 0fe61h.7,$lab_5feb   ;5fae  fc 61 3a
     mov a,[hl]              ;5fb1  87
-    mov IIC0,a              ;5fb2  f2 1f
+    mov IIC0_,a             ;5fb2  f2 1f
     incw hl                 ;5fb4  86
     bf 0fe69h.2,$lab_5fbc   ;5fb5  31 23 69 03
     clr1 0fe69h.2           ;5fb9  2b 69
@@ -20519,18 +20919,18 @@ lab_5fc0:
     mov c,#50h              ;5fc0  a2 50
 
 lab_5fc2:
-    bt IF0H.6,$lab_5fca     ;5fc2  31 66 e1 04
+    bt IF0H_.6,$lab_5fca    ;5fc2  31 66 e1 04
     dbnz c,$lab_5fc2        ;5fc6  8a fa
     callf !sub_0879         ;5fc8  0c 79
 
 lab_5fca:
-    clr1 IF0H.6             ;5fca  71 6b e1
-    cmp a,IIC0              ;5fcd  4e 1f
+    clr1 IF0H_.6            ;5fca  71 6b e1
+    cmp a,IIC0_             ;5fcd  4e 1f
     bnz $lab_5feb           ;5fcf  bd 1a
-    mov1 cy,IICS0.2         ;5fd1  71 2c a9
+    mov1 cy,IICS0_.2        ;5fd1  71 2c a9
     dbnz b,$lab_5fae        ;5fd4  8b d8
     bf 0fe68h.5,$lab_5fdd   ;5fd6  31 53 68 03
-    set1 IICC0.0            ;5fda  71 0a a8
+    set1 IICC0_.0           ;5fda  71 0a a8
 
 lab_5fdd:
     mov1 cy,0fe68h.5        ;5fdd  71 54 68
@@ -20542,7 +20942,7 @@ lab_5fdd:
     ret                     ;5fea  af
 
 lab_5feb:
-    set1 IICC0.0            ;5feb  71 0a a8
+    set1 IICC0_.0           ;5feb  71 0a a8
     pop bc                  ;5fee  b2
 
 lab_5fef:
@@ -20554,47 +20954,47 @@ lab_5ff3:
     ret                     ;5ff4  af
 
 sub_5ff5:
-    mov IICCL0,#0ch         ;5ff5  13 aa 0c
+    mov IICCL0_,#0ch        ;5ff5  13 aa 0c
     bf 0fe69h.1,$lab_5fff   ;5ff8  31 13 69 03
-    clr1 IICCL0.3           ;5ffc  71 3b aa
+    clr1 IICCL0_.3          ;5ffc  71 3b aa
 
 lab_5fff:
-    mov IICC0,#0ch          ;5fff  13 a8 0c
+    mov IICC0_,#0ch         ;5fff  13 a8 0c
     push ax                 ;6002  b1
-    clr1 IICC0.7            ;6003  71 7b a8
+    clr1 IICC0_.7           ;6003  71 7b a8
     clr1 0fed1h.2           ;6006  2b d1
     mov a,0fed1h            ;6008  f0 d1
-    mov P7,a                ;600a  f2 07
+    mov P7_,a               ;600a  f2 07
     clr1 0fed1h.1           ;600c  1b d1
     mov a,0fed1h            ;600e  f0 d1
-    mov P7,a                ;6010  f2 07
-    set1 IICC0.7            ;6012  71 7a a8
-    clr1 PM7.2              ;6015  71 2b 27
-    clr1 PM7.1              ;6018  71 1b 27
-    set1 IICC0.0            ;601b  71 0a a8
+    mov P7_,a               ;6010  f2 07
+    set1 IICC0_.7           ;6012  71 7a a8
+    clr1 PM7_.2             ;6015  71 2b 27
+    clr1 PM7_.1             ;6018  71 1b 27
+    set1 IICC0_.0           ;601b  71 0a a8
     mov c,#50h              ;601e  a2 50
 
 lab_6020:
-    bt IF0H.6,$lab_6028     ;6020  31 66 e1 04
+    bt IF0H_.6,$lab_6028    ;6020  31 66 e1 04
     dbnz c,$lab_6020        ;6024  8a fa
     callf !sub_0879         ;6026  0c 79
 
 lab_6028:
-    clr1 IF0H.6             ;6028  71 6b e1
+    clr1 IF0H_.6            ;6028  71 6b e1
     pop ax                  ;602b  b0
     ret                     ;602c  af
 
 sub_602d:
     push ax                 ;602d  b1
     push bc                 ;602e  b3
-    clr1 IICC0.7            ;602f  71 7b a8
+    clr1 IICC0_.7           ;602f  71 7b a8
     mov c,#09h              ;6032  a2 09
     set1 0fed1h.1           ;6034  1a d1
-    set1 PM7.1              ;6036  71 1a 27
+    set1 PM7_.1             ;6036  71 1a 27
     clr1 0fed1h.2           ;6039  2b d1
     mov a,0fed1h            ;603b  f0 d1
-    mov P7,a                ;603d  f2 07
-    clr1 PM7.2              ;603f  71 2b 27
+    mov P7_,a               ;603d  f2 07
+    clr1 PM7_.2             ;603f  71 2b 27
 
 lab_6042:
     cmp 0fefbh,#00h         ;6042  c8 fb 00
@@ -20603,21 +21003,21 @@ lab_6042:
     nop                     ;6049  00
     nop                     ;604a  00
     set1 0fed1h.2           ;604b  2a d1
-    set1 PM7.2              ;604d  71 2a 27
+    set1 PM7_.2             ;604d  71 2a 27
     push bc                 ;6050  b3
     mov b,#01h              ;6051  a3 01
 
 lab_6053:
     dbnz b,$lab_6053        ;6053  8b fe
     pop bc                  ;6055  b2
-    clr1 PM7.2              ;6056  71 2b 27
+    clr1 PM7_.2             ;6056  71 2b 27
     dbnz c,$lab_6042        ;6059  8a e7
     clr1 0fed1h.1           ;605b  1b d1
     mov a,0fed1h            ;605d  f0 d1
-    mov P7,a                ;605f  f2 07
-    clr1 PM7.1              ;6061  71 1b 27
+    mov P7_,a               ;605f  f2 07
+    clr1 PM7_.1             ;6061  71 1b 27
     set1 0fed1h.2           ;6064  2a d1
-    set1 PM7.2              ;6066  71 2a 27
+    set1 PM7_.2             ;6066  71 2a 27
     push bc                 ;6069  b3
     mov b,#01h              ;606a  a3 01
 
@@ -20625,7 +21025,7 @@ lab_606c:
     dbnz b,$lab_606c        ;606c  8b fe
     pop bc                  ;606e  b2
     set1 0fed1h.1           ;606f  1a d1
-    set1 PM7.1              ;6071  71 1a 27
+    set1 PM7_.1             ;6071  71 1a 27
     clr1 cy                 ;6074  21
     pop bc                  ;6075  b2
     pop ax                  ;6076  b0
@@ -20633,11 +21033,11 @@ lab_606c:
 
 sub_6078:
     clr1 0fe69h.0           ;6078  0b 69
-    clr1 IICC0.7            ;607a  71 7b a8
+    clr1 IICC0_.7           ;607a  71 7b a8
     set1 0fed1h.2           ;607d  2a d1
-    set1 PM7.2              ;607f  71 2a 27
+    set1 PM7_.2             ;607f  71 2a 27
     set1 0fed1h.1           ;6082  1a d1
-    set1 PM7.1              ;6084  71 1a 27
+    set1 PM7_.1             ;6084  71 1a 27
     ret                     ;6087  af
 
     db 4ah                  ;6088  4a          DATA 0x4a 'J'
@@ -21003,206 +21403,129 @@ lab_6209:
     db 62h                  ;623a  62          DATA 0x62 'b'
     db 9dh                  ;623b  9d          DATA 0x9d
     db 0f9h                 ;623c  f9          DATA 0xf9
-    db 0b7h                 ;623d  b7          DATA 0xb7
-    db 0b3h                 ;623e  b3          DATA 0xb3
-    db 0b1h                 ;623f  b1          DATA 0xb1
-    db 0b5h                 ;6240  b5          DATA 0xb5
-    db 9ah                  ;6241  9a          DATA 0x9a
-    db 64h                  ;6242  64          DATA 0x64 'd'
-    db 63h                  ;6243  63          DATA 0x63 'c'
-    db 9dh                  ;6244  9d          DATA 0x9d
-    db 45h                  ;6245  45          DATA 0x45 'E'
-    db 0a1h                 ;6246  a1          DATA 0xa1
-    db 05h                  ;6247  05          DATA 0x05
-    db 9eh                  ;6248  9e          DATA 0x9e
-    db 12h                  ;6249  12          DATA 0x12
-    db 0fch                 ;624a  fc          DATA 0xfc
-    db 0c6h                 ;624b  c6          DATA 0xc6
-    db 03h                  ;624c  03          DATA 0x03
-    db 1ah                  ;624d  1a          DATA 0x1a
-    db 0f0h                 ;624e  f0          DATA 0xf0
-    db 66h                  ;624f  66          DATA 0x66 'f'
-    db 9eh                  ;6250  9e          DATA 0x9e
-    db 0dch                 ;6251  dc          DATA 0xdc
-    db 0fbh                 ;6252  fb          DATA 0xfb
-    db 67h                  ;6253  67          DATA 0x67 'g'
-    db 5dh                  ;6254  5d          DATA 0x5d ']'
-    db 07h                  ;6255  07          DATA 0x07
-    db 26h                  ;6256  26          DATA 0x26 '&'
-    db 6dh                  ;6257  6d          DATA 0x6d 'm'
-    db 0a0h                 ;6258  a0          DATA 0xa0
-    db 9eh                  ;6259  9e          DATA 0x9e
-    db 0dbh                 ;625a  db          DATA 0xdb
-    db 0fbh                 ;625b  fb          DATA 0xfb
-    db 0b1h                 ;625c  b1          DATA 0xb1
-    db 0a1h                 ;625d  a1          DATA 0xa1
-    db 82h                  ;625e  82          DATA 0x82
-    db 16h                  ;625f  16          DATA 0x16
-    db 0dbh                 ;6260  db          DATA 0xdb
-    db 0fbh                 ;6261  fb          DATA 0xfb
-    db 9ah                  ;6262  9a          DATA 0x9a
-    db 51h                  ;6263  51          DATA 0x51 'Q'
-    db 5fh                  ;6264  5f          DATA 0x5f '_'
-    db 0b0h                 ;6265  b0          DATA 0xb0
-    db 61h                  ;6266  61          DATA 0x61 'a'
-    db 8ah                  ;6267  8a          DATA 0x8a
-    db 70h                  ;6268  70          DATA 0x70 'p'
-    db 8eh                  ;6269  8e          DATA 0x8e
-    db 10h                  ;626a  10          DATA 0x10
-    db 0fch                 ;626b  fc          DATA 0xfc
-    db 6dh                  ;626c  6d          DATA 0x6d 'm'
-    db 0c0h                 ;626d  c0          DATA 0xc0
-    db 0b6h                 ;626e  b6          DATA 0xb6
-    db 0b7h                 ;626f  b7          DATA 0xb7
-    db 9ah                  ;6270  9a          DATA 0x9a
-    db 0e8h                 ;6271  e8          DATA 0xe8
-    db 5eh                  ;6272  5e          DATA 0x5e '^'
-    db 8dh                  ;6273  8d          DATA 0x8d
-    db 06h                  ;6274  06          DATA 0x06
-    db 20h                  ;6275  20          DATA 0x20 ' '
-    db 0b4h                 ;6276  b4          DATA 0xb4
-    db 0b0h                 ;6277  b0          DATA 0xb0
-    db 0b2h                 ;6278  b2          DATA 0xb2
-    db 0b6h                 ;6279  b6          DATA 0xb6
-    db 0afh                 ;627a  af          DATA 0xaf
-    db 8eh                  ;627b  8e          DATA 0x8e
-    db 12h                  ;627c  12          DATA 0x12
-    db 0fch                 ;627d  fc          DATA 0xfc
-    db 1dh                  ;627e  1d          DATA 0x1d
-    db 01h                  ;627f  01          DATA 0x01
-    db 8dh                  ;6280  8d          DATA 0x8d
-    db 09h                  ;6281  09          DATA 0x09
-    db 9eh                  ;6282  9e          DATA 0x9e
-    db 12h                  ;6283  12          DATA 0x12
-    db 0fch                 ;6284  fc          DATA 0xfc
-    db 02h                  ;6285  02          DATA 0x02
-    db 1ah                  ;6286  1a          DATA 0x1a
-    db 0f0h                 ;6287  f0          DATA 0xf0
-    db 0d6h                 ;6288  d6          DATA 0xd6
-    db 0fah                 ;6289  fa          DATA 0xfa
-    db 0c4h                 ;628a  c4          DATA 0xc4
-    db 21h                  ;628b  21          DATA 0x21 '!'
-    db 0fah                 ;628c  fa          DATA 0xfa
-    db 0e8h                 ;628d  e8          DATA 0xe8
+
+sub_623d:
+    push hl                 ;623d  b7
+    push bc                 ;623e  b3
+    push ax                 ;623f  b1
+    push de                 ;6240  b5
+    call !sub_6364          ;6241  9a 64 63
+    bnc $lab_628b           ;6244  9d 45
+    mov a,#05h              ;6246  a1 05
+    mov !0fc12h,a           ;6248  9e 12 fc
+    movw ax,hl              ;624b  c6
+    movw !0f01ah,ax         ;624c  03 1a f0
+
+lab_624f:
+    mov a,l                 ;624f  66
+    mov !0fbdch,a           ;6250  9e dc fb
+    mov a,h                 ;6253  67
+    and a,#07h              ;6254  5d 07
+    rol a,1                 ;6256  26
+    or a,#0a0h              ;6257  6d a0
+    mov !0fbdbh,a           ;6259  9e db fb
+    push ax                 ;625c  b1
+    mov a,#82h              ;625d  a1 82
+    movw hl,#0fbdbh         ;625f  16 db fb
+    call !sub_5f51          ;6262  9a 51 5f
+    pop ax                  ;6265  b0
+    set1 a.0                ;6266  61 8a
+    mov x,a                 ;6268  70
+    mov a,!0fc10h           ;6269  8e 10 fc
+    or a,#0c0h              ;626c  6d c0
+    pop hl                  ;626e  b6
+    push hl                 ;626f  b7
+    call !sub_5ee8          ;6270  9a e8 5e
+    bc $lab_627b            ;6273  8d 06
+
+lab_6275:
+    set1 cy                 ;6275  20
+
+lab_6276:
+    pop de                  ;6276  b4
+    pop ax                  ;6277  b0
+    pop bc                  ;6278  b2
+    pop hl                  ;6279  b6
+    ret                     ;627a  af
+
+lab_627b:
+    mov a,!0fc12h           ;627b  8e 12 fc
+    sub a,#01h              ;627e  1d 01
+    bc $lab_628b            ;6280  8d 09
+    mov !0fc12h,a           ;6282  9e 12 fc
+    movw ax,!0f01ah         ;6285  02 1a f0
+    movw hl,ax              ;6288  d6
+    br $lab_624f            ;6289  fa c4
+
+lab_628b:
+    clr1 cy                 ;628b  21
+    br $lab_6276            ;628c  fa e8
+
     db 9ah                  ;628e  9a          DATA 0x9a
     db 17h                  ;628f  17          DATA 0x17
     db 62h                  ;6290  62          DATA 0x62 'b'
     db 9dh                  ;6291  9d          DATA 0x9d
     db 0a3h                 ;6292  a3          DATA 0xa3
-    db 0b7h                 ;6293  b7          DATA 0xb7
-    db 0b3h                 ;6294  b3          DATA 0xb3
-    db 0b1h                 ;6295  b1          DATA 0xb1
-    db 0b5h                 ;6296  b5          DATA 0xb5
-    db 0e6h                 ;6297  e6          DATA 0xe6
-    db 0e4h                 ;6298  e4          DATA 0xe4
-    db 0e6h                 ;6299  e6          DATA 0xe6
-    db 9ah                  ;629a  9a          DATA 0x9a
-    db 64h                  ;629b  64          DATA 0x64 'd'
-    db 63h                  ;629c  63          DATA 0x63 'c'
-    db 9dh                  ;629d  9d          DATA 0x9d
-    db 0ech                 ;629e  ec          DATA 0xec
-    db 0c6h                 ;629f  c6          DATA 0xc6
-    db 03h                  ;62a0  03          DATA 0x03
-    db 1ah                  ;62a1  1a          DATA 0x1a
-    db 0f0h                 ;62a2  f0          DATA 0xf0
-    db 9ah                  ;62a3  9a          DATA 0x9a
-    db 7eh                  ;62a4  7e          DATA 0x7e '~'
-    db 63h                  ;62a5  63          DATA 0x63 'c'
-    db 0c4h                 ;62a6  c4          DATA 0xc4
-    db 0d6h                 ;62a7  d6          DATA 0xd6
-    db 14h                  ;62a8  14          DATA 0x14
-    db 00h                  ;62a9  00          DATA 0x00
-    db 0fch                 ;62aa  fc          DATA 0xfc
-    db 8eh                  ;62ab  8e          DATA 0x8e
-    db 10h                  ;62ac  10          DATA 0x10
-    db 0fch                 ;62ad  fc          DATA 0xfc
-    db 4ch                  ;62ae  4c          DATA 0x4c 'L'
-    db 9eh                  ;62af  9e          DATA 0x9e
-    db 8eh                  ;62b0  8e          DATA 0x8e
-    db 11h                  ;62b1  11          DATA 0x11
-    db 0fch                 ;62b2  fc          DATA 0xfc
-    db 73h                  ;62b3  73          DATA 0x73 's'
-    db 0c4h                 ;62b4  c4          DATA 0xc4
-    db 30h                  ;62b5  30          DATA 0x30 '0'
-    db 61h                  ;62b6  61          DATA 0x61 'a'
-    db 1bh                  ;62b7  1b          DATA 0x1b
-    db 30h                  ;62b8  30          DATA 0x30 '0'
-    db 3dh                  ;62b9  3d          DATA 0x3d '='
-    db 00h                  ;62ba  00          DATA 0x00
-    db 03h                  ;62bb  03          DATA 0x03
-    db 1eh                  ;62bc  1e          DATA 0x1e
-    db 0f0h                 ;62bd  f0          DATA 0xf0
-    db 8eh                  ;62be  8e          DATA 0x8e
-    db 10h                  ;62bf  10          DATA 0x10
-    db 0fch                 ;62c0  fc          DATA 0xfc
-    db 61h                  ;62c1  61          DATA 0x61 'a'
-    db 1bh                  ;62c2  1b          DATA 0x1b
-    db 9eh                  ;62c3  9e          DATA 0x9e
-    db 10h                  ;62c4  10          DATA 0x10
-    db 0fch                 ;62c5  fc          DATA 0xfc
-    db 16h                  ;62c6  16          DATA 0x16
-    db 00h                  ;62c7  00          DATA 0x00
-    db 0fch                 ;62c8  fc          DATA 0xfc
-    db 14h                  ;62c9  14          DATA 0x14
-    db 0ddh                 ;62ca  dd          DATA 0xdd
-    db 0fbh                 ;62cb  fb          DATA 0xfb
-    db 8eh                  ;62cc  8e          DATA 0x8e
-    db 10h                  ;62cd  10          DATA 0x10
-    db 0fch                 ;62ce  fc          DATA 0xfc
-    db 4ch                  ;62cf  4c          DATA 0x4c 'L'
-    db 9eh                  ;62d0  9e          DATA 0x9e
-    db 02h                  ;62d1  02          DATA 0x02
-    db 1ah                  ;62d2  1a          DATA 0x1a
-    db 0f0h                 ;62d3  f0          DATA 0xf0
-    db 5dh                  ;62d4  5d          DATA 0x5d ']'
-    db 07h                  ;62d5  07          DATA 0x07
-    db 26h                  ;62d6  26          DATA 0x26 '&'
-    db 6dh                  ;62d7  6d          DATA 0x6d 'm'
-    db 0a0h                 ;62d8  a0          DATA 0xa0
-    db 9eh                  ;62d9  9e          DATA 0x9e
-    db 0dbh                 ;62da  db          DATA 0xdb
-    db 0fbh                 ;62db  fb          DATA 0xfb
-    db 60h                  ;62dc  60          DATA 0x60 '`'
-    db 9eh                  ;62dd  9e          DATA 0x9e
-    db 0dch                 ;62de  dc          DATA 0xdc
-    db 0fbh                 ;62df  fb          DATA 0xfb
-    db 16h                  ;62e0  16          DATA 0x16
-    db 0dbh                 ;62e1  db          DATA 0xdb
-    db 0fbh                 ;62e2  fb          DATA 0xfb
-    db 8eh                  ;62e3  8e          DATA 0x8e
-    db 10h                  ;62e4  10          DATA 0x10
-    db 0fch                 ;62e5  fc          DATA 0xfc
-    db 0dh                  ;62e6  0d          DATA 0x0d
-    db 0c2h                 ;62e7  c2          DATA 0xc2
-    db 9ah                  ;62e8  9a          DATA 0x9a
-    db 51h                  ;62e9  51          DATA 0x51 'Q'
-    db 5fh                  ;62ea  5f          DATA 0x5f '_'
-    db 8dh                  ;62eb  8d          DATA 0x8d
-    db 9eh                  ;62ec  9e          DATA 0x9e
-    db 0a1h                 ;62ed  a1          DATA 0xa1
-    db 0bh                  ;62ee  0b          DATA 0x0b
-    db 9eh                  ;62ef  9e          DATA 0x9e
-    db 06h                  ;62f0  06          DATA 0x06
-    db 0fbh                 ;62f1  fb          DATA 0xfb
-    db 0a1h                 ;62f2  a1          DATA 0xa1
-    db 02h                  ;62f3  02          DATA 0x02
-    db 1ch                  ;62f4  1c          DATA 0x1c
-    db 0d7h                 ;62f5  d7          DATA 0xd7
-    db 8eh                  ;62f6  8e          DATA 0x8e
-    db 0ffh                 ;62f7  ff          DATA 0xff
-    db 0fbh                 ;62f8  fb          DATA 0xfb
-    db 4dh                  ;62f9  4d          DATA 0x4d 'M'
-    db 00h                  ;62fa  00          DATA 0x00
-    db 0bdh                 ;62fb  bd          DATA 0xbd
-    db 05h                  ;62fc  05          DATA 0x05
-    db 0a1h                 ;62fd  a1          DATA 0xa1
-    db 03h                  ;62fe  03          DATA 0x03
-    db 9eh                  ;62ff  9e          DATA 0x9e
-    db 0ffh                 ;6300  ff          DATA 0xff
-    db 0fbh                 ;6301  fb          DATA 0xfb
-    db 9bh                  ;6302  9b          DATA 0x9b
-    db 75h                  ;6303  75          DATA 0x75 'u'
-    db 62h                  ;6304  62          DATA 0x62 'b'
+
+sub_6293:
+    push hl                 ;6293  b7
+    push bc                 ;6294  b3
+    push ax                 ;6295  b1
+    push de                 ;6296  b5
+    xchw ax,hl              ;6297  e6
+    xchw ax,de              ;6298  e4
+    xchw ax,hl              ;6299  e6
+    call !sub_6364          ;629a  9a 64 63
+    bnc $lab_628b           ;629d  9d ec
+    movw ax,hl              ;629f  c6
+    movw !0f01ah,ax         ;62a0  03 1a f0
+    call !sub_637e          ;62a3  9a 7e 63
+    movw ax,de              ;62a6  c4
+    movw hl,ax              ;62a7  d6
+    movw de,#0fc00h         ;62a8  14 00 fc
+    mov a,!0fc10h           ;62ab  8e 10 fc
+    callf !sub_0c9e         ;62ae  4c 9e
+    mov a,!0fc11h           ;62b0  8e 11 fc
+    mov b,a                 ;62b3  73
+    movw ax,de              ;62b4  c4
+    xch a,x                 ;62b5  30
+    sub a,b                 ;62b6  61 1b
+    xch a,x                 ;62b8  30
+    subc a,#00h             ;62b9  3d 00
+    movw !0f01eh,ax         ;62bb  03 1e f0
+    mov a,!0fc10h           ;62be  8e 10 fc
+    sub a,b                 ;62c1  61 1b
+    mov !0fc10h,a           ;62c3  9e 10 fc
+
+lab_62c6:
+    movw hl,#0fc00h         ;62c6  16 00 fc
+    movw de,#0fbddh         ;62c9  14 dd fb
+    mov a,!0fc10h           ;62cc  8e 10 fc
+    callf !sub_0c9e         ;62cf  4c 9e
+    movw ax,!0f01ah         ;62d1  02 1a f0
+    and a,#07h              ;62d4  5d 07
+    rol a,1                 ;62d6  26
+    or a,#0a0h              ;62d7  6d a0
+    mov !0fbdbh,a           ;62d9  9e db fb
+    mov a,x                 ;62dc  60
+    mov !0fbdch,a           ;62dd  9e dc fb
+    movw hl,#0fbdbh         ;62e0  16 db fb
+    mov a,!0fc10h           ;62e3  8e 10 fc
+    add a,#0c2h             ;62e6  0d c2
+    call !sub_5f51          ;62e8  9a 51 5f
+    bc $lab_628b            ;62eb  8d 9e
+    mov a,#0bh              ;62ed  a1 0b
+    mov !0fb06h,a           ;62ef  9e 06 fb
+    mov a,#02h              ;62f2  a1 02
+    callf !sub_09d7         ;62f4  1c d7
+    mov a,!0fbffh           ;62f6  8e ff fb
+    cmp a,#00h              ;62f9  4d 00
+    bnz $lab_6302           ;62fb  bd 05
+    mov a,#03h              ;62fd  a1 03
+    mov !0fbffh,a           ;62ff  9e ff fb
+
+lab_6302:
+    br !lab_6275            ;6302  9b 75 62
 
 sub_6305:
     bt 0fe2dh.0,$lab_630d   ;6305  8c 2d 05
@@ -21217,54 +21540,34 @@ lab_630d:
     mov a,!0fb06h           ;6314  8e 06 fb
     cmp a,#00h              ;6317  4d 00
     bnz $lab_6363           ;6319  bd 48
+    movw ax,!0f01ah         ;631b  02 1a f0
+    movw hl,ax              ;631e  d6
+    movw de,#0fbdbh         ;631f  14 db fb
+    mov a,!0fc10h           ;6322  8e 10 fc
+    call !sub_623d          ;6325  9a 3d 62
+    bnc $lab_6334           ;6328  9d 0a
+    movw hl,#0fc00h         ;632a  16 00 fc
+    mov a,!0fc10h           ;632d  8e 10 fc
+    callf !sub_0cca         ;6330  4c ca
+    bz $lab_6345            ;6332  ad 11
 
-    db 02h                  ;631b  02          DATA 0x02
-    db 1ah                  ;631c  1a          DATA 0x1a
-    db 0f0h                 ;631d  f0          DATA 0xf0
-    db 0d6h                 ;631e  d6          DATA 0xd6
-    db 14h                  ;631f  14          DATA 0x14
-    db 0dbh                 ;6320  db          DATA 0xdb
-    db 0fbh                 ;6321  fb          DATA 0xfb
-    db 8eh                  ;6322  8e          DATA 0x8e
-    db 10h                  ;6323  10          DATA 0x10
-    db 0fch                 ;6324  fc          DATA 0xfc
-    db 9ah                  ;6325  9a          DATA 0x9a
-    db 3dh                  ;6326  3d          DATA 0x3d '='
-    db 62h                  ;6327  62          DATA 0x62 'b'
-    db 9dh                  ;6328  9d          DATA 0x9d
-    db 0ah                  ;6329  0a          DATA 0x0a
-    db 16h                  ;632a  16          DATA 0x16
-    db 00h                  ;632b  00          DATA 0x00
-    db 0fch                 ;632c  fc          DATA 0xfc
-    db 8eh                  ;632d  8e          DATA 0x8e
-    db 10h                  ;632e  10          DATA 0x10
-    db 0fch                 ;632f  fc          DATA 0xfc
-    db 4ch                  ;6330  4c          DATA 0x4c 'L'
-    db 0cah                 ;6331  ca          DATA 0xca
-    db 0adh                 ;6332  ad          DATA 0xad
-    db 11h                  ;6333  11          DATA 0x11
-    db 8eh                  ;6334  8e          DATA 0x8e
-    db 0ffh                 ;6335  ff          DATA 0xff
-    db 0fbh                 ;6336  fb          DATA 0xfb
-    db 51h                  ;6337  51          DATA 0x51 'Q'
-    db 9eh                  ;6338  9e          DATA 0x9e
-    db 0ffh                 ;6339  ff          DATA 0xff
-    db 0fbh                 ;633a  fb          DATA 0xfb
-    db 0adh                 ;633b  ad          DATA 0xad
-    db 06h                  ;633c  06          DATA 0x06
-    db 0b7h                 ;633d  b7          DATA 0xb7
-    db 0b3h                 ;633e  b3          DATA 0xb3
-    db 0b1h                 ;633f  b1          DATA 0xb1
-    db 0b5h                 ;6340  b5          DATA 0xb5
-    db 0fah                 ;6341  fa          DATA 0xfa
-    db 83h                  ;6342  83          DATA 0x83
-    db 0fah                 ;6343  fa          DATA 0xfa
-    db 00h                  ;6344  00          DATA 0x00
-    db 0a1h                 ;6345  a1          DATA 0xa1
-    db 00h                  ;6346  00          DATA 0x00
-    db 9eh                  ;6347  9e          DATA 0x9e
-    db 0ffh                 ;6348  ff          DATA 0xff
-    db 0fbh                 ;6349  fb          DATA 0xfb
+lab_6334:
+    mov a,!0fbffh           ;6334  8e ff fb
+    dec a                   ;6337  51
+    mov !0fbffh,a           ;6338  9e ff fb
+    bz $lab_6343            ;633b  ad 06
+    push hl                 ;633d  b7
+    push bc                 ;633e  b3
+    push ax                 ;633f  b1
+    push de                 ;6340  b5
+    br $lab_62c6            ;6341  fa 83
+
+lab_6343:
+    br $lab_6345            ;6343  fa 00
+
+lab_6345:
+    mov a,#00h              ;6345  a1 00
+    mov !0fbffh,a           ;6347  9e ff fb
 
 lab_634a:
     mov a,#02h              ;634a  a1 02
@@ -21272,176 +21575,540 @@ lab_634a:
     mov a,!0fc11h           ;634e  8e 11 fc
     cmp a,#00h              ;6351  4d 00
     bz $lab_6363            ;6353  ad 0e
-
-    db 02h                  ;6355  02          DATA 0x02
-    db 1ch                  ;6356  1c          DATA 0x1c
-    db 0f0h                 ;6357  f0          DATA 0xf0
-    db 0d4h                 ;6358  d4          DATA 0xd4
-    db 02h                  ;6359  02          DATA 0x02
-    db 1eh                  ;635a  1e          DATA 0x1e
-    db 0f0h                 ;635b  f0          DATA 0xf0
-    db 0d6h                 ;635c  d6          DATA 0xd6
-    db 8eh                  ;635d  8e          DATA 0x8e
-    db 11h                  ;635e  11          DATA 0x11
-    db 0fch                 ;635f  fc          DATA 0xfc
-    db 9ah                  ;6360  9a          DATA 0x9a
-    db 93h                  ;6361  93          DATA 0x93
-    db 62h                  ;6362  62          DATA 0x62 'b'
+    movw ax,!0f01ch         ;6355  02 1c f0
+    movw de,ax              ;6358  d4
+    movw ax,!0f01eh         ;6359  02 1e f0
+    movw hl,ax              ;635c  d6
+    mov a,!0fc11h           ;635d  8e 11 fc
+    call !sub_6293          ;6360  9a 93 62
 
 lab_6363:
     ret                     ;6363  af
 
-    db 4dh                  ;6364  4d          DATA 0x4d 'M'
-    db 00h                  ;6365  00          DATA 0x00
-    db 0adh                 ;6366  ad          DATA 0xad
-    db 15h                  ;6367  15          DATA 0x15
-    db 4dh                  ;6368  4d          DATA 0x4d 'M'
-    db 11h                  ;6369  11          DATA 0x11
-    db 9dh                  ;636a  9d          DATA 0x9d
-    db 11h                  ;636b  11          DATA 0x11
-    db 9eh                  ;636c  9e          DATA 0x9e
-    db 10h                  ;636d  10          DATA 0x10
-    db 0fch                 ;636e  fc          DATA 0xfc
-    db 0e6h                 ;636f  e6          DATA 0xe6
-    db 0dah                 ;6370  da          DATA 0xda
-    db 00h                  ;6371  00          DATA 0x00
-    db 00h                  ;6372  00          DATA 0x00
-    db 0e6h                 ;6373  e6          DATA 0xe6
-    db 61h                  ;6374  61          DATA 0x61 'a'
-    db 0eh                  ;6375  0e          DATA 0x0e
-    db 70h                  ;6376  70          DATA 0x70 'p'
-    db 67h                  ;6377  67          DATA 0x67 'g'
-    db 2dh                  ;6378  2d          DATA 0x2d '-'
-    db 00h                  ;6379  00          DATA 0x00
-    db 0eah                 ;637a  ea          DATA 0xea
-    db 01h                  ;637b  01          DATA 0x01
-    db 02h                  ;637c  02          DATA 0x02
-    db 0afh                 ;637d  af          DATA 0xaf
-    db 0b1h                 ;637e  b1          DATA 0xb1
-    db 8eh                  ;637f  8e          DATA 0x8e
-    db 10h                  ;6380  10          DATA 0x10
-    db 0fch                 ;6381  fc          DATA 0xfc
-    db 73h                  ;6382  73          DATA 0x73 's'
-    db 0b0h                 ;6383  b0          DATA 0xb0
-    db 03h                  ;6384  03          DATA 0x03
-    db 1ch                  ;6385  1c          DATA 0x1c
-    db 0f0h                 ;6386  f0          DATA 0xf0
-    db 60h                  ;6387  60          DATA 0x60 '`'
-    db 5dh                  ;6388  5d          DATA 0x5d ']'
-    db 0fh                  ;6389  0f          DATA 0x0f
-    db 61h                  ;638a  61          DATA 0x61 'a'
-    db 0bh                  ;638b  0b          DATA 0x0b
-    db 31h                  ;638c  31          DATA 0x31 '1'
-    db 4fh                  ;638d  4f          DATA 0x4f 'O'
-    db 17h                  ;638e  17          DATA 0x17
-    db 5dh                  ;638f  5d          DATA 0x5d ']'
-    db 0fh                  ;6390  0f          DATA 0x0f
-    db 61h                  ;6391  61          DATA 0x61 'a'
-    db 13h                  ;6392  13          DATA 0x13
-    db 0b1h                 ;6393  b1          DATA 0xb1
-    db 02h                  ;6394  02          DATA 0x02
-    db 1ch                  ;6395  1c          DATA 0x1c
-    db 0f0h                 ;6396  f0          DATA 0xf0
-    db 30h                  ;6397  30          DATA 0x30 '0'
-    db 61h                  ;6398  61          DATA 0x61 'a'
-    db 0bh                  ;6399  0b          DATA 0x0b
-    db 30h                  ;639a  30          DATA 0x30 '0'
-    db 2dh                  ;639b  2d          DATA 0x2d '-'
-    db 00h                  ;639c  00          DATA 0x00
-    db 0cah                 ;639d  ca          DATA 0xca
-    db 00h                  ;639e  00          DATA 0x00
-    db 00h                  ;639f  00          DATA 0x00
-    db 03h                  ;63a0  03          DATA 0x03
-    db 1ch                  ;63a1  1c          DATA 0x1c
-    db 0f0h                 ;63a2  f0          DATA 0xf0
-    db 0b0h                 ;63a3  b0          DATA 0xb0
-    db 0fah                 ;63a4  fa          DATA 0xfa
-    db 02h                  ;63a5  02          DATA 0x02
-    db 0a1h                 ;63a6  a1          DATA 0xa1
-    db 00h                  ;63a7  00          DATA 0x00
-    db 9eh                  ;63a8  9e          DATA 0x9e
-    db 11h                  ;63a9  11          DATA 0x11
-    db 0fch                 ;63aa  fc          DATA 0xfc
-    db 0afh                 ;63ab  af          DATA 0xaf
+sub_6364:
+    cmp a,#00h              ;6364  4d 00
+    bz $lab_637d            ;6366  ad 15
+    cmp a,#11h              ;6368  4d 11
+    bnc $lab_637d           ;636a  9d 11
+    mov !0fc10h,a           ;636c  9e 10 fc
+    xchw ax,hl              ;636f  e6
+    subw ax,#0000h          ;6370  da 00 00
+    xchw ax,hl              ;6373  e6
+    add a,l                 ;6374  61 0e
+    mov x,a                 ;6376  70
+    mov a,h                 ;6377  67
+    addc a,#00h             ;6378  2d 00
+    cmpw ax,#0201h          ;637a  ea 01 02
 
-    db 1,'M'                ;63ac
-    db 2,'U1'               ;63ae
-    db 2,'U2'               ;63b1
-    db 2,'ON'               ;63b4
-    db 3,'OFF'              ;63b7
-    db 2,'NO'               ;63bb
-    db 11,'E           '    ;63c0   Note: count is wrong, it's actually 12
-    db 3,'PSC'              ;63cb
+lab_637d:
+    ret                     ;637d  af
+
+sub_637e:
+    push ax                 ;637e  b1
+    mov a,!0fc10h           ;637f  8e 10 fc
+    mov b,a                 ;6382  73
+    pop ax                  ;6383  b0
+    movw !0f01ch,ax         ;6384  03 1c f0
+    mov a,x                 ;6387  60
+    and a,#0fh              ;6388  5d 0f
+    add a,b                 ;638a  61 0b
+    bf a.4,$lab_63a6        ;638c  31 4f 17
+    and a,#0fh              ;638f  5d 0f
+    sub b,a                 ;6391  61 13
+    push ax                 ;6393  b1
+    movw ax,!0f01ch         ;6394  02 1c f0
+    xch a,x                 ;6397  30
+    add a,b                 ;6398  61 0b
+    xch a,x                 ;639a  30
+    addc a,#00h             ;639b  2d 00
+    addw ax,#0000h          ;639d  ca 00 00
+    movw !0f01ch,ax         ;63a0  03 1c f0
+    pop ax                  ;63a3  b0
+    br $lab_63a8            ;63a4  fa 02
+
+lab_63a6:
+    mov a,#00h              ;63a6  a1 00
+
+lab_63a8:
+    mov !0fc11h,a           ;63a8  9e 11 fc
+    ret                     ;63ab  af
+
+m:
+    db 01h                  ;63ac  01          DATA 0x01
+    db 4dh                  ;63ad  4d          DATA 0x4d 'M'
+
+u1:
+    db 02h                  ;63ae  02          DATA 0x02
+    db 55h                  ;63af  55          DATA 0x55 'U'
+    db 31h                  ;63b0  31          DATA 0x31 '1'
+
+u2:
+    db 02h                  ;63b1  02          DATA 0x02
+    db 55h                  ;63b2  55          DATA 0x55 'U'
+    db 32h                  ;63b3  32          DATA 0x32 '2'
+
+on:
+    db 02h                  ;63b4  02          DATA 0x02
+    db 4fh                  ;63b5  4f          DATA 0x4f 'O'
+    db 4eh                  ;63b6  4e          DATA 0x4e 'N'
+
+off:
+    db 03h                  ;63b7  03          DATA 0x03
+    db 4fh                  ;63b8  4f          DATA 0x4f 'O'
+    db 46h                  ;63b9  46          DATA 0x46 'F'
+    db 46h                  ;63ba  46          DATA 0x46 'F'
+
+no:
+    db 02h                  ;63bb  02          DATA 0x02
+    db 4eh                  ;63bc  4e          DATA 0x4e 'N'
+    db 4fh                  ;63bd  4f          DATA 0x4f 'O'
+
+e__:
+    db 0bh                  ;63be  0b          DATA 0x0b
+    db 45h                  ;63bf  45          DATA 0x45 'E'
+    db 20h                  ;63c0  20          DATA 0x20 ' '
+    db 20h                  ;63c1  20          DATA 0x20 ' '
+    db 20h                  ;63c2  20          DATA 0x20 ' '
+    db 20h                  ;63c3  20          DATA 0x20 ' '
+    db 20h                  ;63c4  20          DATA 0x20 ' '
+    db 20h                  ;63c5  20          DATA 0x20 ' '
+    db 20h                  ;63c6  20          DATA 0x20 ' '
+    db 20h                  ;63c7  20          DATA 0x20 ' '
+    db 20h                  ;63c8  20          DATA 0x20 ' '
+    db 20h                  ;63c9  20          DATA 0x20 ' '
+    db 20h                  ;63ca  20          DATA 0x20 ' '
+
+psc:
+    db 03h                  ;63cb  03          DATA 0x03
+    db 50h                  ;63cc  50          DATA 0x50 'P'
+    db 53h                  ;63cd  53          DATA 0x53 'S'
+    db 43h                  ;63ce  43          DATA 0x43 'C'
 
 pscan:
-    db 5,'PSCAN'            ;63cf
+    db 05h                  ;63cf  05          DATA 0x05
+    db 50h                  ;63d0  50          DATA 0x50 'P'
+    db 53h                  ;63d1  53          DATA 0x53 'S'
+    db 43h                  ;63d2  43          DATA 0x43 'C'
+    db 41h                  ;63d3  41          DATA 0x41 'A'
+    db 4eh                  ;63d4  4e          DATA 0x4e 'N'
+
 preset_scan:
-    db 11,'PRESET SCAN'     ;63d5
-    db 4,'PSET'             ;63e1
+    db 0bh                  ;63d5  0b          DATA 0x0b
+    db 50h                  ;63d6  50          DATA 0x50 'P'
+    db 52h                  ;63d7  52          DATA 0x52 'R'
+    db 45h                  ;63d8  45          DATA 0x45 'E'
+    db 53h                  ;63d9  53          DATA 0x53 'S'
+    db 45h                  ;63da  45          DATA 0x45 'E'
+    db 54h                  ;63db  54          DATA 0x54 'T'
+    db 20h                  ;63dc  20          DATA 0x20 ' '
+    db 53h                  ;63dd  53          DATA 0x53 'S'
+    db 43h                  ;63de  43          DATA 0x43 'C'
+    db 41h                  ;63df  41          DATA 0x41 'A'
+    db 4eh                  ;63e0  4e          DATA 0x4e 'N'
+
+pset:
+    db 04h                  ;63e1  04          DATA 0x04
+    db 50h                  ;63e2  50          DATA 0x50 'P'
+    db 53h                  ;63e3  53          DATA 0x53 'S'
+    db 45h                  ;63e4  45          DATA 0x45 'E'
+    db 54h                  ;63e5  54          DATA 0x54 'T'
 
 scan:
-    db 4,'SCAN'             ;63e6
+    db 04h                  ;63e6  04          DATA 0x04
+    db 53h                  ;63e7  53          DATA 0x53 'S'
+    db 43h                  ;63e8  43          DATA 0x43 'C'
+    db 41h                  ;63e9  41          DATA 0x41 'A'
+    db 4eh                  ;63ea  4e          DATA 0x4e 'N'
 
-    db 6,'SEEK +'           ;63eb
-    db 6,'SEEK -'           ;63f2
-    db 13,'VOL          '   ;63f9
-    db 4,'FADE'             ;6407
+seek_plus:
+    db 06h                  ;63eb  06          DATA 0x06
+    db 53h                  ;63ec  53          DATA 0x53 'S'
+    db 45h                  ;63ed  45          DATA 0x45 'E'
+    db 45h                  ;63ee  45          DATA 0x45 'E'
+    db 4bh                  ;63ef  4b          DATA 0x4b 'K'
+    db 20h                  ;63f0  20          DATA 0x20 ' '
+    db 2bh                  ;63f1  2b          DATA 0x2b '+'
+
+seek_minus:
+    db 06h                  ;63f2  06          DATA 0x06
+    db 53h                  ;63f3  53          DATA 0x53 'S'
+    db 45h                  ;63f4  45          DATA 0x45 'E'
+    db 45h                  ;63f5  45          DATA 0x45 'E'
+    db 4bh                  ;63f6  4b          DATA 0x4b 'K'
+    db 20h                  ;63f7  20          DATA 0x20 ' '
+    db 2dh                  ;63f8  2d          DATA 0x2d '-'
+
+vol:
+    db 0dh                  ;63f9  0d          DATA 0x0d
+    db 56h                  ;63fa  56          DATA 0x56 'V'
+    db 4fh                  ;63fb  4f          DATA 0x4f 'O'
+    db 4ch                  ;63fc  4c          DATA 0x4c 'L'
+    db 20h                  ;63fd  20          DATA 0x20 ' '
+    db 20h                  ;63fe  20          DATA 0x20 ' '
+    db 20h                  ;63ff  20          DATA 0x20 ' '
+    db 20h                  ;6400  20          DATA 0x20 ' '
+    db 20h                  ;6401  20          DATA 0x20 ' '
+    db 20h                  ;6402  20          DATA 0x20 ' '
+    db 20h                  ;6403  20          DATA 0x20 ' '
+    db 20h                  ;6404  20          DATA 0x20 ' '
+    db 20h                  ;6405  20          DATA 0x20 ' '
+    db 20h                  ;6406  20          DATA 0x20 ' '
+
+fade:
+    db 04h                  ;6407  04          DATA 0x04
+    db 46h                  ;6408  46          DATA 0x46 'F'
+    db 41h                  ;6409  41          DATA 0x41 'A'
+    db 44h                  ;640a  44          DATA 0x44 'D'
+    db 45h                  ;640b  45          DATA 0x45 'E'
 
 fadefront:
-    db 11,'FADEFRONT  '     ;610c DATA
-fadecenter:
-    db 11,'FADECENTER '     ;6418 DATA
-faderear:
-    db 11,'FADEREAR   '     ;6424 DATA
+    db 0bh                  ;640c  0b          DATA 0x0b
+    db 46h                  ;640d  46          DATA 0x46 'F'
+    db 41h                  ;640e  41          DATA 0x41 'A'
+    db 44h                  ;640f  44          DATA 0x44 'D'
+    db 45h                  ;6410  45          DATA 0x45 'E'
+    db 46h                  ;6411  46          DATA 0x46 'F'
+    db 52h                  ;6412  52          DATA 0x52 'R'
+    db 4fh                  ;6413  4f          DATA 0x4f 'O'
+    db 4eh                  ;6414  4e          DATA 0x4e 'N'
+    db 54h                  ;6415  54          DATA 0x54 'T'
+    db 20h                  ;6416  20          DATA 0x20 ' '
+    db 20h                  ;6417  20          DATA 0x20 ' '
 
-    db 4,'BAL '             
+fadecenter:
+    db 0bh                  ;6418  0b          DATA 0x0b
+    db 46h                  ;6419  46          DATA 0x46 'F'
+    db 41h                  ;641a  41          DATA 0x41 'A'
+    db 44h                  ;641b  44          DATA 0x44 'D'
+    db 45h                  ;641c  45          DATA 0x45 'E'
+    db 43h                  ;641d  43          DATA 0x43 'C'
+    db 45h                  ;641e  45          DATA 0x45 'E'
+    db 4eh                  ;641f  4e          DATA 0x4e 'N'
+    db 54h                  ;6420  54          DATA 0x54 'T'
+    db 45h                  ;6421  45          DATA 0x45 'E'
+    db 52h                  ;6422  52          DATA 0x52 'R'
+    db 20h                  ;6423  20          DATA 0x20 ' '
+
+faderear:
+    db 0bh                  ;6424  0b          DATA 0x0b
+    db 46h                  ;6425  46          DATA 0x46 'F'
+    db 41h                  ;6426  41          DATA 0x41 'A'
+    db 44h                  ;6427  44          DATA 0x44 'D'
+    db 45h                  ;6428  45          DATA 0x45 'E'
+    db 52h                  ;6429  52          DATA 0x52 'R'
+    db 45h                  ;642a  45          DATA 0x45 'E'
+    db 41h                  ;642b  41          DATA 0x41 'A'
+    db 52h                  ;642c  52          DATA 0x52 'R'
+    db 20h                  ;642d  20          DATA 0x20 ' '
+    db 20h                  ;642e  20          DATA 0x20 ' '
+    db 20h                  ;642f  20          DATA 0x20 ' '
+
+bal:
+    db 04h                  ;6430  04          DATA 0x04
+    db 42h                  ;6431  42          DATA 0x42 'B'
+    db 41h                  ;6432  41          DATA 0x41 'A'
+    db 4ch                  ;6433  4c          DATA 0x4c 'L'
+    db 20h                  ;6434  20          DATA 0x20 ' '
 
 bal_left:
-    db 11,'BAL LEFT   '     ;6435 DATA
-bal_center:
-    db 11,'BAL CENTER '     ;6441 DATA
-bal_right:
-    db 11,'BAL RIGHT  '     ;644d DATA
-bass:
-    db 11,'BASS       '     ;6459 DATA
-mid:
-    db 11,'MID        '     ;6465 DATA
-treb:
-    db 11,'TREB       '     ;6471 DATA
+    db 0bh                  ;6435  0b          DATA 0x0b
+    db 42h                  ;6436  42          DATA 0x42 'B'
+    db 41h                  ;6437  41          DATA 0x41 'A'
+    db 4ch                  ;6438  4c          DATA 0x4c 'L'
+    db 20h                  ;6439  20          DATA 0x20 ' '
+    db 4ch                  ;643a  4c          DATA 0x4c 'L'
+    db 45h                  ;643b  45          DATA 0x45 'E'
+    db 46h                  ;643c  46          DATA 0x46 'F'
+    db 54h                  ;643d  54          DATA 0x54 'T'
+    db 20h                  ;643e  20          DATA 0x20 ' '
+    db 20h                  ;643f  20          DATA 0x20 ' '
+    db 20h                  ;6440  20          DATA 0x20 ' '
 
-    db 11,'TREB OUT16 '
+bal_center:
+    db 0bh                  ;6441  0b          DATA 0x0b
+    db 42h                  ;6442  42          DATA 0x42 'B'
+    db 41h                  ;6443  41          DATA 0x41 'A'
+    db 4ch                  ;6444  4c          DATA 0x4c 'L'
+    db 20h                  ;6445  20          DATA 0x20 ' '
+    db 43h                  ;6446  43          DATA 0x43 'C'
+    db 45h                  ;6447  45          DATA 0x45 'E'
+    db 4eh                  ;6448  4e          DATA 0x4e 'N'
+    db 54h                  ;6449  54          DATA 0x54 'T'
+    db 45h                  ;644a  45          DATA 0x45 'E'
+    db 52h                  ;644b  52          DATA 0x52 'R'
+    db 20h                  ;644c  20          DATA 0x20 ' '
+
+bal_right:
+    db 0bh                  ;644d  0b          DATA 0x0b
+    db 42h                  ;644e  42          DATA 0x42 'B'
+    db 41h                  ;644f  41          DATA 0x41 'A'
+    db 4ch                  ;6450  4c          DATA 0x4c 'L'
+    db 20h                  ;6451  20          DATA 0x20 ' '
+    db 52h                  ;6452  52          DATA 0x52 'R'
+    db 49h                  ;6453  49          DATA 0x49 'I'
+    db 47h                  ;6454  47          DATA 0x47 'G'
+    db 48h                  ;6455  48          DATA 0x48 'H'
+    db 54h                  ;6456  54          DATA 0x54 'T'
+    db 20h                  ;6457  20          DATA 0x20 ' '
+    db 20h                  ;6458  20          DATA 0x20 ' '
+
+bass:
+    db 0bh                  ;6459  0b          DATA 0x0b
+    db 42h                  ;645a  42          DATA 0x42 'B'
+    db 41h                  ;645b  41          DATA 0x41 'A'
+    db 53h                  ;645c  53          DATA 0x53 'S'
+    db 53h                  ;645d  53          DATA 0x53 'S'
+    db 20h                  ;645e  20          DATA 0x20 ' '
+    db 20h                  ;645f  20          DATA 0x20 ' '
+    db 20h                  ;6460  20          DATA 0x20 ' '
+    db 20h                  ;6461  20          DATA 0x20 ' '
+    db 20h                  ;6462  20          DATA 0x20 ' '
+    db 20h                  ;6463  20          DATA 0x20 ' '
+    db 20h                  ;6464  20          DATA 0x20 ' '
+
+mid:
+    db 0bh                  ;6465  0b          DATA 0x0b
+    db 4dh                  ;6466  4d          DATA 0x4d 'M'
+    db 49h                  ;6467  49          DATA 0x49 'I'
+    db 44h                  ;6468  44          DATA 0x44 'D'
+    db 20h                  ;6469  20          DATA 0x20 ' '
+    db 20h                  ;646a  20          DATA 0x20 ' '
+    db 20h                  ;646b  20          DATA 0x20 ' '
+    db 20h                  ;646c  20          DATA 0x20 ' '
+    db 20h                  ;646d  20          DATA 0x20 ' '
+    db 20h                  ;646e  20          DATA 0x20 ' '
+    db 20h                  ;646f  20          DATA 0x20 ' '
+    db 20h                  ;6470  20          DATA 0x20 ' '
+
+treb:
+    db 0bh                  ;6471  0b          DATA 0x0b
+    db 54h                  ;6472  54          DATA 0x54 'T'
+    db 52h                  ;6473  52          DATA 0x52 'R'
+    db 45h                  ;6474  45          DATA 0x45 'E'
+    db 42h                  ;6475  42          DATA 0x42 'B'
+    db 20h                  ;6476  20          DATA 0x20 ' '
+    db 20h                  ;6477  20          DATA 0x20 ' '
+    db 20h                  ;6478  20          DATA 0x20 ' '
+    db 20h                  ;6479  20          DATA 0x20 ' '
+    db 20h                  ;647a  20          DATA 0x20 ' '
+    db 20h                  ;647b  20          DATA 0x20 ' '
+    db 20h                  ;647c  20          DATA 0x20 ' '
+
+treb_out16:
+    db 0bh                  ;647d  0b          DATA 0x0b
+    db 54h                  ;647e  54          DATA 0x54 'T'
+    db 52h                  ;647f  52          DATA 0x52 'R'
+    db 45h                  ;6480  45          DATA 0x45 'E'
+    db 42h                  ;6481  42          DATA 0x42 'B'
+    db 20h                  ;6482  20          DATA 0x20 ' '
+    db 4fh                  ;6483  4f          DATA 0x4f 'O'
+    db 55h                  ;6484  55          DATA 0x55 'U'
+    db 54h                  ;6485  54          DATA 0x54 'T'
+    db 31h                  ;6486  31          DATA 0x31 '1'
+    db 36h                  ;6487  36          DATA 0x36 '6'
+    db 20h                  ;6488  20          DATA 0x20 ' '
 
 max:
-    db 7,'  MAX  '          ;6489 DATA
-min:
-    db 7,'  MIN  '          ;6491 DATA
-set_onvol:
-    db 11,'SET ONVOL  '     ;6499 DATA
-set_cd_mix:
-    db 11,'SET CD MIX '     ;64a5 DATA
-tape_skip:
-    db 11,'TAPE SKIP  '     ;64b1 DATA
-rad_de2:
-    db 11,'RAD   DE2  '     ;64bd DATA
-monsoon:
-    db 11,'    MONSOON'     ;64c9 DATA
-vers_a99:
-    db 11,'VersA99CZnn'     ;64d5 DATA
-fern_on:
-    db 11,'FERN   ON  '     ;64e1 DATA
-fern_off:
-    db 11,'FERN   OFF '     ;64ed DATA
-safe:
-    db 11,'     SAFE  '     ;64f9 DATA
-onethou:
-    db 11,'     1000  '     ;6505 DATA
-blank:
-    db 11,'           '     ;6511 DATA
-flat:
-    db 9,'FLAT     '        ;651d DATA
-select_eq:
-    db 13,'SELECT EQ #  '   ;6527 DATA
+    db 07h                  ;6489  07          DATA 0x07
+    db 20h                  ;648a  20          DATA 0x20 ' '
+    db 20h                  ;648b  20          DATA 0x20 ' '
+    db 4dh                  ;648c  4d          DATA 0x4d 'M'
+    db 41h                  ;648d  41          DATA 0x41 'A'
+    db 58h                  ;648e  58          DATA 0x58 'X'
+    db 20h                  ;648f  20          DATA 0x20 ' '
+    db 20h                  ;6490  20          DATA 0x20 ' '
 
+min:
+    db 07h                  ;6491  07          DATA 0x07
+    db 20h                  ;6492  20          DATA 0x20 ' '
+    db 20h                  ;6493  20          DATA 0x20 ' '
+    db 4dh                  ;6494  4d          DATA 0x4d 'M'
+    db 49h                  ;6495  49          DATA 0x49 'I'
+    db 4eh                  ;6496  4e          DATA 0x4e 'N'
+    db 20h                  ;6497  20          DATA 0x20 ' '
+    db 20h                  ;6498  20          DATA 0x20 ' '
+
+set_onvol:
+    db 0bh                  ;6499  0b          DATA 0x0b
+    db 53h                  ;649a  53          DATA 0x53 'S'
+    db 45h                  ;649b  45          DATA 0x45 'E'
+    db 54h                  ;649c  54          DATA 0x54 'T'
+    db 20h                  ;649d  20          DATA 0x20 ' '
+    db 4fh                  ;649e  4f          DATA 0x4f 'O'
+    db 4eh                  ;649f  4e          DATA 0x4e 'N'
+    db 56h                  ;64a0  56          DATA 0x56 'V'
+    db 4fh                  ;64a1  4f          DATA 0x4f 'O'
+    db 4ch                  ;64a2  4c          DATA 0x4c 'L'
+    db 20h                  ;64a3  20          DATA 0x20 ' '
+    db 20h                  ;64a4  20          DATA 0x20 ' '
+
+set_cd_mix:
+    db 0bh                  ;64a5  0b          DATA 0x0b
+    db 53h                  ;64a6  53          DATA 0x53 'S'
+    db 45h                  ;64a7  45          DATA 0x45 'E'
+    db 54h                  ;64a8  54          DATA 0x54 'T'
+    db 20h                  ;64a9  20          DATA 0x20 ' '
+    db 43h                  ;64aa  43          DATA 0x43 'C'
+    db 44h                  ;64ab  44          DATA 0x44 'D'
+    db 20h                  ;64ac  20          DATA 0x20 ' '
+    db 4dh                  ;64ad  4d          DATA 0x4d 'M'
+    db 49h                  ;64ae  49          DATA 0x49 'I'
+    db 58h                  ;64af  58          DATA 0x58 'X'
+    db 20h                  ;64b0  20          DATA 0x20 ' '
+
+tape_skip:
+    db 0bh                  ;64b1  0b          DATA 0x0b
+    db 54h                  ;64b2  54          DATA 0x54 'T'
+    db 41h                  ;64b3  41          DATA 0x41 'A'
+    db 50h                  ;64b4  50          DATA 0x50 'P'
+    db 45h                  ;64b5  45          DATA 0x45 'E'
+    db 20h                  ;64b6  20          DATA 0x20 ' '
+    db 53h                  ;64b7  53          DATA 0x53 'S'
+    db 4bh                  ;64b8  4b          DATA 0x4b 'K'
+    db 49h                  ;64b9  49          DATA 0x49 'I'
+    db 50h                  ;64ba  50          DATA 0x50 'P'
+    db 20h                  ;64bb  20          DATA 0x20 ' '
+    db 20h                  ;64bc  20          DATA 0x20 ' '
+
+rad_de2:
+    db 0bh                  ;64bd  0b          DATA 0x0b
+    db 52h                  ;64be  52          DATA 0x52 'R'
+    db 41h                  ;64bf  41          DATA 0x41 'A'
+    db 44h                  ;64c0  44          DATA 0x44 'D'
+    db 20h                  ;64c1  20          DATA 0x20 ' '
+    db 20h                  ;64c2  20          DATA 0x20 ' '
+    db 20h                  ;64c3  20          DATA 0x20 ' '
+    db 44h                  ;64c4  44          DATA 0x44 'D'
+    db 45h                  ;64c5  45          DATA 0x45 'E'
+    db 32h                  ;64c6  32          DATA 0x32 '2'
+    db 20h                  ;64c7  20          DATA 0x20 ' '
+    db 20h                  ;64c8  20          DATA 0x20 ' '
+
+monsoon:
+    db 0bh                  ;64c9  0b          DATA 0x0b
+    db 20h                  ;64ca  20          DATA 0x20 ' '
+    db 20h                  ;64cb  20          DATA 0x20 ' '
+    db 20h                  ;64cc  20          DATA 0x20 ' '
+    db 20h                  ;64cd  20          DATA 0x20 ' '
+    db 4dh                  ;64ce  4d          DATA 0x4d 'M'
+    db 4fh                  ;64cf  4f          DATA 0x4f 'O'
+    db 4eh                  ;64d0  4e          DATA 0x4e 'N'
+    db 53h                  ;64d1  53          DATA 0x53 'S'
+    db 4fh                  ;64d2  4f          DATA 0x4f 'O'
+    db 4fh                  ;64d3  4f          DATA 0x4f 'O'
+    db 4eh                  ;64d4  4e          DATA 0x4e 'N'
+
+vers_a99cznn:
+    db 0bh                  ;64d5  0b          DATA 0x0b
+    db 56h                  ;64d6  56          DATA 0x56 'V'
+    db 65h                  ;64d7  65          DATA 0x65 'e'
+    db 72h                  ;64d8  72          DATA 0x72 'r'
+    db 73h                  ;64d9  73          DATA 0x73 's'
+    db 41h                  ;64da  41          DATA 0x41 'A'
+    db 39h                  ;64db  39          DATA 0x39 '9'
+    db 39h                  ;64dc  39          DATA 0x39 '9'
+    db 43h                  ;64dd  43          DATA 0x43 'C'
+    db 5ah                  ;64de  5a          DATA 0x5a 'Z'
+    db 6eh                  ;64df  6e          DATA 0x6e 'n'
+    db 6eh                  ;64e0  6e          DATA 0x6e 'n'
+
+fern_on:
+    db 0bh                  ;64e1  0b          DATA 0x0b
+    db 46h                  ;64e2  46          DATA 0x46 'F'
+    db 45h                  ;64e3  45          DATA 0x45 'E'
+    db 52h                  ;64e4  52          DATA 0x52 'R'
+    db 4eh                  ;64e5  4e          DATA 0x4e 'N'
+    db 20h                  ;64e6  20          DATA 0x20 ' '
+    db 20h                  ;64e7  20          DATA 0x20 ' '
+    db 20h                  ;64e8  20          DATA 0x20 ' '
+    db 4fh                  ;64e9  4f          DATA 0x4f 'O'
+    db 4eh                  ;64ea  4e          DATA 0x4e 'N'
+    db 20h                  ;64eb  20          DATA 0x20 ' '
+    db 20h                  ;64ec  20          DATA 0x20 ' '
+
+fern_off:
+    db 0bh                  ;64ed  0b          DATA 0x0b
+    db 46h                  ;64ee  46          DATA 0x46 'F'
+    db 45h                  ;64ef  45          DATA 0x45 'E'
+    db 52h                  ;64f0  52          DATA 0x52 'R'
+    db 4eh                  ;64f1  4e          DATA 0x4e 'N'
+    db 20h                  ;64f2  20          DATA 0x20 ' '
+    db 20h                  ;64f3  20          DATA 0x20 ' '
+    db 20h                  ;64f4  20          DATA 0x20 ' '
+    db 4fh                  ;64f5  4f          DATA 0x4f 'O'
+    db 46h                  ;64f6  46          DATA 0x46 'F'
+    db 46h                  ;64f7  46          DATA 0x46 'F'
+    db 20h                  ;64f8  20          DATA 0x20 ' '
+
+safe:
+    db 0bh                  ;64f9  0b          DATA 0x0b
+    db 20h                  ;64fa  20          DATA 0x20 ' '
+    db 20h                  ;64fb  20          DATA 0x20 ' '
+    db 20h                  ;64fc  20          DATA 0x20 ' '
+    db 20h                  ;64fd  20          DATA 0x20 ' '
+    db 20h                  ;64fe  20          DATA 0x20 ' '
+    db 53h                  ;64ff  53          DATA 0x53 'S'
+    db 41h                  ;6500  41          DATA 0x41 'A'
+    db 46h                  ;6501  46          DATA 0x46 'F'
+    db 45h                  ;6502  45          DATA 0x45 'E'
+    db 20h                  ;6503  20          DATA 0x20 ' '
+    db 20h                  ;6504  20          DATA 0x20 ' '
+
+onethousand:
+    db 0bh                  ;6505  0b          DATA 0x0b
+    db 20h                  ;6506  20          DATA 0x20 ' '
+    db 20h                  ;6507  20          DATA 0x20 ' '
+    db 20h                  ;6508  20          DATA 0x20 ' '
+    db 20h                  ;6509  20          DATA 0x20 ' '
+    db 20h                  ;650a  20          DATA 0x20 ' '
+    db 31h                  ;650b  31          DATA 0x31 '1'
+    db 30h                  ;650c  30          DATA 0x30 '0'
+    db 30h                  ;650d  30          DATA 0x30 '0'
+    db 30h                  ;650e  30          DATA 0x30 '0'
+    db 20h                  ;650f  20          DATA 0x20 ' '
+    db 20h                  ;6510  20          DATA 0x20 ' '
+
+blank:
+    db 0bh                  ;6511  0b          DATA 0x0b
+    db 20h                  ;6512  20          DATA 0x20 ' '
+    db 20h                  ;6513  20          DATA 0x20 ' '
+    db 20h                  ;6514  20          DATA 0x20 ' '
+    db 20h                  ;6515  20          DATA 0x20 ' '
+    db 20h                  ;6516  20          DATA 0x20 ' '
+    db 20h                  ;6517  20          DATA 0x20 ' '
+    db 20h                  ;6518  20          DATA 0x20 ' '
+    db 20h                  ;6519  20          DATA 0x20 ' '
+    db 20h                  ;651a  20          DATA 0x20 ' '
+    db 20h                  ;651b  20          DATA 0x20 ' '
+    db 20h                  ;651c  20          DATA 0x20 ' '
+
+flat:
+    db 09h                  ;651d  09          DATA 0x09
+    db 46h                  ;651e  46          DATA 0x46 'F'
+    db 4ch                  ;651f  4c          DATA 0x4c 'L'
+    db 41h                  ;6520  41          DATA 0x41 'A'
+    db 54h                  ;6521  54          DATA 0x54 'T'
+    db 20h                  ;6522  20          DATA 0x20 ' '
+    db 20h                  ;6523  20          DATA 0x20 ' '
+    db 20h                  ;6524  20          DATA 0x20 ' '
+    db 20h                  ;6525  20          DATA 0x20 ' '
+    db 20h                  ;6526  20          DATA 0x20 ' '
+
+select_eq:
+    db 0dh                  ;6527  0d          DATA 0x0d
+    db 53h                  ;6528  53          DATA 0x53 'S'
+    db 45h                  ;6529  45          DATA 0x45 'E'
+    db 4ch                  ;652a  4c          DATA 0x4c 'L'
+    db 45h                  ;652b  45          DATA 0x45 'E'
+    db 43h                  ;652c  43          DATA 0x43 'C'
+    db 54h                  ;652d  54          DATA 0x54 'T'
+    db 20h                  ;652e  20          DATA 0x20 ' '
+    db 45h                  ;652f  45          DATA 0x45 'E'
+    db 51h                  ;6530  51          DATA 0x51 'Q'
+    db 20h                  ;6531  20          DATA 0x20 ' '
+    db 23h                  ;6532  23          DATA 0x23 '#'
+    db 20h                  ;6533  20          DATA 0x20 ' '
+    db 20h                  ;6534  20          DATA 0x20 ' '
     db 00h                  ;6535  00          DATA 0x00
     db 0dfh                 ;6536  df          DATA 0xdf
     db 00h                  ;6537  00          DATA 0x00
@@ -21525,124 +22192,688 @@ select_eq:
     db 0d2h                 ;6585  d2          DATA 0xd2
     db 0d1h                 ;6586  d1          DATA 0xd1
 
-    db 6,'NORMAL'           ;6587
-    db 4,'LOUD'             ;658e
+normal:
+    db 06h                  ;6587  06          DATA 0x06
+    db 4eh                  ;6588  4e          DATA 0x4e 'N'
+    db 4fh                  ;6589  4f          DATA 0x4f 'O'
+    db 52h                  ;658a  52          DATA 0x52 'R'
+    db 4dh                  ;658b  4d          DATA 0x4d 'M'
+    db 41h                  ;658c  41          DATA 0x41 'A'
+    db 4ch                  ;658d  4c          DATA 0x4c 'L'
+
+loud:
+    db 04h                  ;658e  04          DATA 0x04
+    db 4ch                  ;658f  4c          DATA 0x4c 'L'
+    db 4fh                  ;6590  4f          DATA 0x4f 'O'
+    db 55h                  ;6591  55          DATA 0x55 'U'
+    db 44h                  ;6592  44          DATA 0x44 'D'
 
 diag:
-    db 7,' DIAG  '          ;6593 DATA
+    db 07h                  ;6593  07          DATA 0x07
+    db 20h                  ;6594  20          DATA 0x20 ' '
+    db 44h                  ;6595  44          DATA 0x44 'D'
+    db 49h                  ;6596  49          DATA 0x49 'I'
+    db 41h                  ;6597  41          DATA 0x41 'A'
+    db 47h                  ;6598  47          DATA 0x47 'G'
+    db 20h                  ;6599  20          DATA 0x20 ' '
+    db 20h                  ;659a  20          DATA 0x20 ' '
 
-    db 10,'NONE FOUND'      ;659b DATA
+none_found:
+    db 0ah                  ;659b  0a          DATA 0x0a
+    db 4eh                  ;659c  4e          DATA 0x4e 'N'
+    db 4fh                  ;659d  4f          DATA 0x4f 'O'
+    db 4eh                  ;659e  4e          DATA 0x4e 'N'
+    db 45h                  ;659f  45          DATA 0x45 'E'
+    db 20h                  ;65a0  20          DATA 0x20 ' '
+    db 46h                  ;65a1  46          DATA 0x46 'F'
+    db 4fh                  ;65a2  4f          DATA 0x4f 'O'
+    db 55h                  ;65a3  55          DATA 0x55 'U'
+    db 4eh                  ;65a4  4e          DATA 0x4e 'N'
+    db 44h                  ;65a5  44          DATA 0x44 'D'
 
 tape:
-    db 4,'TAPE'
+    db 04h                  ;65a6  04          DATA 0x04
+    db 54h                  ;65a7  54          DATA 0x54 'T'
+    db 41h                  ;65a8  41          DATA 0x41 'A'
+    db 50h                  ;65a9  50          DATA 0x50 'P'
+    db 45h                  ;65aa  45          DATA 0x45 'E'
 
 tape_play:
-    db 11,'TAPE PLAY  '
-tape_ff:
-    db 11,'TAPE  FF   '     ;65b7
-tape_rew:
-    db 11,'TAPE  REW  '     ;65c3
-tapemss_ff:
-    db 11,'TAPEMSS FF '     ;65cf
-tapemss_rew:
-    db 11,'TAPEMSS REW'     ;65db
-skip_blank:
-    db 11,'SKIP BLANK '     ;65e7
-tape_scan:
-    db 11,'TAPE SCAN  '     ;65f3
-tape_metal:
-    db 11,'TAPE METAL '     ;65ff
-tape_load:
-    db 11,'TAPE LOAD  '     ;660b
-no_tape:
-    db 11,'    NO TAPE'     ;6617 DATA
-tape_error:
-    db 11,'TAPE ERROR '     ;6623
+    db 0bh                  ;65ab  0b          DATA 0x0b
+    db 54h                  ;65ac  54          DATA 0x54 'T'
+    db 41h                  ;65ad  41          DATA 0x41 'A'
+    db 50h                  ;65ae  50          DATA 0x50 'P'
+    db 45h                  ;65af  45          DATA 0x45 'E'
+    db 20h                  ;65b0  20          DATA 0x20 ' '
+    db 50h                  ;65b1  50          DATA 0x50 'P'
+    db 4ch                  ;65b2  4c          DATA 0x4c 'L'
+    db 41h                  ;65b3  41          DATA 0x41 'A'
+    db 59h                  ;65b4  59          DATA 0x59 'Y'
+    db 20h                  ;65b5  20          DATA 0x20 ' '
+    db 20h                  ;65b6  20          DATA 0x20 ' '
 
-    db 7, '  FF   '         ;662f
-    db 1, '>'               ;6637
-    db 7, '  REW  '         ;6639
-    db 1, '<'               ;6641
+tape_ff:
+    db 0bh                  ;65b7  0b          DATA 0x0b
+    db 54h                  ;65b8  54          DATA 0x54 'T'
+    db 41h                  ;65b9  41          DATA 0x41 'A'
+    db 50h                  ;65ba  50          DATA 0x50 'P'
+    db 45h                  ;65bb  45          DATA 0x45 'E'
+    db 20h                  ;65bc  20          DATA 0x20 ' '
+    db 20h                  ;65bd  20          DATA 0x20 ' '
+    db 46h                  ;65be  46          DATA 0x46 'F'
+    db 46h                  ;65bf  46          DATA 0x46 'F'
+    db 20h                  ;65c0  20          DATA 0x20 ' '
+    db 20h                  ;65c1  20          DATA 0x20 ' '
+    db 20h                  ;65c2  20          DATA 0x20 ' '
+
+tape_rew:
+    db 0bh                  ;65c3  0b          DATA 0x0b
+    db 54h                  ;65c4  54          DATA 0x54 'T'
+    db 41h                  ;65c5  41          DATA 0x41 'A'
+    db 50h                  ;65c6  50          DATA 0x50 'P'
+    db 45h                  ;65c7  45          DATA 0x45 'E'
+    db 20h                  ;65c8  20          DATA 0x20 ' '
+    db 20h                  ;65c9  20          DATA 0x20 ' '
+    db 52h                  ;65ca  52          DATA 0x52 'R'
+    db 45h                  ;65cb  45          DATA 0x45 'E'
+    db 57h                  ;65cc  57          DATA 0x57 'W'
+    db 20h                  ;65cd  20          DATA 0x20 ' '
+    db 20h                  ;65ce  20          DATA 0x20 ' '
+
+tapemss_ff:
+    db 0bh                  ;65cf  0b          DATA 0x0b
+    db 54h                  ;65d0  54          DATA 0x54 'T'
+    db 41h                  ;65d1  41          DATA 0x41 'A'
+    db 50h                  ;65d2  50          DATA 0x50 'P'
+    db 45h                  ;65d3  45          DATA 0x45 'E'
+    db 4dh                  ;65d4  4d          DATA 0x4d 'M'
+    db 53h                  ;65d5  53          DATA 0x53 'S'
+    db 53h                  ;65d6  53          DATA 0x53 'S'
+    db 20h                  ;65d7  20          DATA 0x20 ' '
+    db 46h                  ;65d8  46          DATA 0x46 'F'
+    db 46h                  ;65d9  46          DATA 0x46 'F'
+    db 20h                  ;65da  20          DATA 0x20 ' '
+
+tapemss_rew:
+    db 0bh                  ;65db  0b          DATA 0x0b
+    db 54h                  ;65dc  54          DATA 0x54 'T'
+    db 41h                  ;65dd  41          DATA 0x41 'A'
+    db 50h                  ;65de  50          DATA 0x50 'P'
+    db 45h                  ;65df  45          DATA 0x45 'E'
+    db 4dh                  ;65e0  4d          DATA 0x4d 'M'
+    db 53h                  ;65e1  53          DATA 0x53 'S'
+    db 53h                  ;65e2  53          DATA 0x53 'S'
+    db 20h                  ;65e3  20          DATA 0x20 ' '
+    db 52h                  ;65e4  52          DATA 0x52 'R'
+    db 45h                  ;65e5  45          DATA 0x45 'E'
+    db 57h                  ;65e6  57          DATA 0x57 'W'
+
+skip_blank:
+    db 0bh                  ;65e7  0b          DATA 0x0b
+    db 53h                  ;65e8  53          DATA 0x53 'S'
+    db 4bh                  ;65e9  4b          DATA 0x4b 'K'
+    db 49h                  ;65ea  49          DATA 0x49 'I'
+    db 50h                  ;65eb  50          DATA 0x50 'P'
+    db 20h                  ;65ec  20          DATA 0x20 ' '
+    db 42h                  ;65ed  42          DATA 0x42 'B'
+    db 4ch                  ;65ee  4c          DATA 0x4c 'L'
+    db 41h                  ;65ef  41          DATA 0x41 'A'
+    db 4eh                  ;65f0  4e          DATA 0x4e 'N'
+    db 4bh                  ;65f1  4b          DATA 0x4b 'K'
+    db 20h                  ;65f2  20          DATA 0x20 ' '
+
+tape_scan:
+    db 0bh                  ;65f3  0b          DATA 0x0b
+    db 54h                  ;65f4  54          DATA 0x54 'T'
+    db 41h                  ;65f5  41          DATA 0x41 'A'
+    db 50h                  ;65f6  50          DATA 0x50 'P'
+    db 45h                  ;65f7  45          DATA 0x45 'E'
+    db 20h                  ;65f8  20          DATA 0x20 ' '
+    db 53h                  ;65f9  53          DATA 0x53 'S'
+    db 43h                  ;65fa  43          DATA 0x43 'C'
+    db 41h                  ;65fb  41          DATA 0x41 'A'
+    db 4eh                  ;65fc  4e          DATA 0x4e 'N'
+    db 20h                  ;65fd  20          DATA 0x20 ' '
+    db 20h                  ;65fe  20          DATA 0x20 ' '
+
+tape_metal:
+    db 0bh                  ;65ff  0b          DATA 0x0b
+    db 54h                  ;6600  54          DATA 0x54 'T'
+    db 41h                  ;6601  41          DATA 0x41 'A'
+    db 50h                  ;6602  50          DATA 0x50 'P'
+    db 45h                  ;6603  45          DATA 0x45 'E'
+    db 20h                  ;6604  20          DATA 0x20 ' '
+    db 4dh                  ;6605  4d          DATA 0x4d 'M'
+    db 45h                  ;6606  45          DATA 0x45 'E'
+    db 54h                  ;6607  54          DATA 0x54 'T'
+    db 41h                  ;6608  41          DATA 0x41 'A'
+    db 4ch                  ;6609  4c          DATA 0x4c 'L'
+    db 20h                  ;660a  20          DATA 0x20 ' '
+
+tape_load:
+    db 0bh                  ;660b  0b          DATA 0x0b
+    db 54h                  ;660c  54          DATA 0x54 'T'
+    db 41h                  ;660d  41          DATA 0x41 'A'
+    db 50h                  ;660e  50          DATA 0x50 'P'
+    db 45h                  ;660f  45          DATA 0x45 'E'
+    db 20h                  ;6610  20          DATA 0x20 ' '
+    db 4ch                  ;6611  4c          DATA 0x4c 'L'
+    db 4fh                  ;6612  4f          DATA 0x4f 'O'
+    db 41h                  ;6613  41          DATA 0x41 'A'
+    db 44h                  ;6614  44          DATA 0x44 'D'
+    db 20h                  ;6615  20          DATA 0x20 ' '
+    db 20h                  ;6616  20          DATA 0x20 ' '
+
+no_tape:
+    db 0bh                  ;6617  0b          DATA 0x0b
+    db 20h                  ;6618  20          DATA 0x20 ' '
+    db 20h                  ;6619  20          DATA 0x20 ' '
+    db 20h                  ;661a  20          DATA 0x20 ' '
+    db 20h                  ;661b  20          DATA 0x20 ' '
+    db 4eh                  ;661c  4e          DATA 0x4e 'N'
+    db 4fh                  ;661d  4f          DATA 0x4f 'O'
+    db 20h                  ;661e  20          DATA 0x20 ' '
+    db 54h                  ;661f  54          DATA 0x54 'T'
+    db 41h                  ;6620  41          DATA 0x41 'A'
+    db 50h                  ;6621  50          DATA 0x50 'P'
+    db 45h                  ;6622  45          DATA 0x45 'E'
+
+tape_error:
+    db 0bh                  ;6623  0b          DATA 0x0b
+    db 54h                  ;6624  54          DATA 0x54 'T'
+    db 41h                  ;6625  41          DATA 0x41 'A'
+    db 50h                  ;6626  50          DATA 0x50 'P'
+    db 45h                  ;6627  45          DATA 0x45 'E'
+    db 20h                  ;6628  20          DATA 0x20 ' '
+    db 45h                  ;6629  45          DATA 0x45 'E'
+    db 52h                  ;662a  52          DATA 0x52 'R'
+    db 52h                  ;662b  52          DATA 0x52 'R'
+    db 4fh                  ;662c  4f          DATA 0x4f 'O'
+    db 52h                  ;662d  52          DATA 0x52 'R'
+    db 20h                  ;662e  20          DATA 0x20 ' '
+
+ff:
+    db 07h                  ;662f  07          DATA 0x07
+    db 20h                  ;6630  20          DATA 0x20 ' '
+    db 20h                  ;6631  20          DATA 0x20 ' '
+    db 46h                  ;6632  46          DATA 0x46 'F'
+    db 46h                  ;6633  46          DATA 0x46 'F'
+    db 20h                  ;6634  20          DATA 0x20 ' '
+    db 20h                  ;6635  20          DATA 0x20 ' '
+    db 20h                  ;6636  20          DATA 0x20 ' '
+
+right_arrow:
+    db 01h                  ;6637  01          DATA 0x01
+    db 3eh                  ;6638  3e          DATA 0x3e '>'
+
+rew:
+    db 07h                  ;6639  07          DATA 0x07
+    db 20h                  ;663a  20          DATA 0x20 ' '
+    db 20h                  ;663b  20          DATA 0x20 ' '
+    db 52h                  ;663c  52          DATA 0x52 'R'
+    db 45h                  ;663d  45          DATA 0x45 'E'
+    db 57h                  ;663e  57          DATA 0x57 'W'
+    db 20h                  ;663f  20          DATA 0x20 ' '
+    db 20h                  ;6640  20          DATA 0x20 ' '
+
+left_arrow:
+    db 01h                  ;6641  01          DATA 0x01
+    db 3ch                  ;6642  3c          DATA 0x3c '<'
 
 cut_tape:
-    db 8,'CUT TAPE'         ;6643 DATA
-disabled:
-    db 8,'DISABLED'         ;664c DATA
-comm_error:
-    db 10,'Comm Error'      ;6655 DATA
+    db 08h                  ;6643  08          DATA 0x08
+    db 43h                  ;6644  43          DATA 0x43 'C'
+    db 55h                  ;6645  55          DATA 0x55 'U'
+    db 54h                  ;6646  54          DATA 0x54 'T'
+    db 20h                  ;6647  20          DATA 0x20 ' '
+    db 54h                  ;6648  54          DATA 0x54 'T'
+    db 41h                  ;6649  41          DATA 0x41 'A'
+    db 50h                  ;664a  50          DATA 0x50 'P'
+    db 45h                  ;664b  45          DATA 0x45 'E'
 
-    db 11,'Broken Tape'     ;6660 DATA
+disabled:
+    db 08h                  ;664c  08          DATA 0x08
+    db 44h                  ;664d  44          DATA 0x44 'D'
+    db 49h                  ;664e  49          DATA 0x49 'I'
+    db 53h                  ;664f  53          DATA 0x53 'S'
+    db 41h                  ;6650  41          DATA 0x41 'A'
+    db 42h                  ;6651  42          DATA 0x42 'B'
+    db 4ch                  ;6652  4c          DATA 0x4c 'L'
+    db 45h                  ;6653  45          DATA 0x45 'E'
+    db 44h                  ;6654  44          DATA 0x44 'D'
+
+comm_error:
+    db 0ah                  ;6655  0a          DATA 0x0a
+    db 43h                  ;6656  43          DATA 0x43 'C'
+    db 6fh                  ;6657  6f          DATA 0x6f 'o'
+    db 6dh                  ;6658  6d          DATA 0x6d 'm'
+    db 6dh                  ;6659  6d          DATA 0x6d 'm'
+    db 20h                  ;665a  20          DATA 0x20 ' '
+    db 45h                  ;665b  45          DATA 0x45 'E'
+    db 72h                  ;665c  72          DATA 0x72 'r'
+    db 72h                  ;665d  72          DATA 0x72 'r'
+    db 6fh                  ;665e  6f          DATA 0x6f 'o'
+    db 72h                  ;665f  72          DATA 0x72 'r'
+
+broken_tape:
+    db 0bh                  ;6660  0b          DATA 0x0b
+    db 42h                  ;6661  42          DATA 0x42 'B'
+    db 72h                  ;6662  72          DATA 0x72 'r'
+    db 6fh                  ;6663  6f          DATA 0x6f 'o'
+    db 6bh                  ;6664  6b          DATA 0x6b 'k'
+    db 65h                  ;6665  65          DATA 0x65 'e'
+    db 6eh                  ;6666  6e          DATA 0x6e 'n'
+    db 20h                  ;6667  20          DATA 0x20 ' '
+    db 54h                  ;6668  54          DATA 0x54 'T'
+    db 61h                  ;6669  61          DATA 0x61 'a'
+    db 70h                  ;666a  70          DATA 0x70 'p'
+    db 65h                  ;666b  65          DATA 0x65 'e'
 
 tight_tape:
-    db 10,'Tight Tape'      ;666c DATA
-wrapped_tape:
-    db 12,'Wrapped Tape'    ;6677 DATA
-cd_blank:
-    db 11,'CD         '     ;6684 DATA
-cd_no_cd:
-    db 11,'CD   NO CD '     ;6690 DATA
-cd_tr:
-    db 11,'CD   TR    '     ;669c DATA
+    db 0ah                  ;666c  0a          DATA 0x0a
+    db 54h                  ;666d  54          DATA 0x54 'T'
+    db 69h                  ;666e  69          DATA 0x69 'i'
+    db 67h                  ;666f  67          DATA 0x67 'g'
+    db 68h                  ;6670  68          DATA 0x68 'h'
+    db 74h                  ;6671  74          DATA 0x74 't'
+    db 20h                  ;6672  20          DATA 0x20 ' '
+    db 54h                  ;6673  54          DATA 0x54 'T'
+    db 61h                  ;6674  61          DATA 0x61 'a'
+    db 70h                  ;6675  70          DATA 0x70 'p'
+    db 65h                  ;6676  65          DATA 0x65 'e'
 
-    db 11,'PLAYCD TR  '     ;66a8
+wrapped_tape:
+    db 0ch                  ;6677  0c          DATA 0x0c
+    db 57h                  ;6678  57          DATA 0x57 'W'
+    db 72h                  ;6679  72          DATA 0x72 'r'
+    db 61h                  ;667a  61          DATA 0x61 'a'
+    db 70h                  ;667b  70          DATA 0x70 'p'
+    db 70h                  ;667c  70          DATA 0x70 'p'
+    db 65h                  ;667d  65          DATA 0x65 'e'
+    db 64h                  ;667e  64          DATA 0x64 'd'
+    db 20h                  ;667f  20          DATA 0x20 ' '
+    db 54h                  ;6680  54          DATA 0x54 'T'
+    db 61h                  ;6681  61          DATA 0x61 'a'
+    db 70h                  ;6682  70          DATA 0x70 'p'
+    db 65h                  ;6683  65          DATA 0x65 'e'
+
+cd__:
+    db 0bh                  ;6684  0b          DATA 0x0b
+    db 43h                  ;6685  43          DATA 0x43 'C'
+    db 44h                  ;6686  44          DATA 0x44 'D'
+    db 20h                  ;6687  20          DATA 0x20 ' '
+    db 20h                  ;6688  20          DATA 0x20 ' '
+    db 20h                  ;6689  20          DATA 0x20 ' '
+    db 20h                  ;668a  20          DATA 0x20 ' '
+    db 20h                  ;668b  20          DATA 0x20 ' '
+    db 20h                  ;668c  20          DATA 0x20 ' '
+    db 20h                  ;668d  20          DATA 0x20 ' '
+    db 20h                  ;668e  20          DATA 0x20 ' '
+    db 20h                  ;668f  20          DATA 0x20 ' '
+
+cd_no_cd:
+    db 0bh                  ;6690  0b          DATA 0x0b
+    db 43h                  ;6691  43          DATA 0x43 'C'
+    db 44h                  ;6692  44          DATA 0x44 'D'
+    db 20h                  ;6693  20          DATA 0x20 ' '
+    db 20h                  ;6694  20          DATA 0x20 ' '
+    db 20h                  ;6695  20          DATA 0x20 ' '
+    db 4eh                  ;6696  4e          DATA 0x4e 'N'
+    db 4fh                  ;6697  4f          DATA 0x4f 'O'
+    db 20h                  ;6698  20          DATA 0x20 ' '
+    db 43h                  ;6699  43          DATA 0x43 'C'
+    db 44h                  ;669a  44          DATA 0x44 'D'
+    db 20h                  ;669b  20          DATA 0x20 ' '
+
+cd_tr:
+    db 0bh                  ;669c  0b          DATA 0x0b
+    db 43h                  ;669d  43          DATA 0x43 'C'
+    db 44h                  ;669e  44          DATA 0x44 'D'
+    db 20h                  ;669f  20          DATA 0x20 ' '
+    db 20h                  ;66a0  20          DATA 0x20 ' '
+    db 20h                  ;66a1  20          DATA 0x20 ' '
+    db 54h                  ;66a2  54          DATA 0x54 'T'
+    db 52h                  ;66a3  52          DATA 0x52 'R'
+    db 20h                  ;66a4  20          DATA 0x20 ' '
+    db 20h                  ;66a5  20          DATA 0x20 ' '
+    db 20h                  ;66a6  20          DATA 0x20 ' '
+    db 20h                  ;66a7  20          DATA 0x20 ' '
+
+playcd_tr:
+    db 0bh                  ;66a8  0b          DATA 0x0b
+    db 50h                  ;66a9  50          DATA 0x50 'P'
+    db 4ch                  ;66aa  4c          DATA 0x4c 'L'
+    db 41h                  ;66ab  41          DATA 0x41 'A'
+    db 59h                  ;66ac  59          DATA 0x59 'Y'
+    db 43h                  ;66ad  43          DATA 0x43 'C'
+    db 44h                  ;66ae  44          DATA 0x44 'D'
+    db 20h                  ;66af  20          DATA 0x20 ' '
+    db 54h                  ;66b0  54          DATA 0x54 'T'
+    db 52h                  ;66b1  52          DATA 0x52 'R'
+    db 20h                  ;66b2  20          DATA 0x20 ' '
+    db 20h                  ;66b3  20          DATA 0x20 ' '
 
 cue:
-    db 11,'CUE        '     ;66b4
-rev:
-    db 11,'REV        '     ;66c0
-scancd_tr:
-    db 11,'SCANCD TR  '     ;66cc
+    db 0bh                  ;66b4  0b          DATA 0x0b
+    db 43h                  ;66b5  43          DATA 0x43 'C'
+    db 55h                  ;66b6  55          DATA 0x55 'U'
+    db 45h                  ;66b7  45          DATA 0x45 'E'
+    db 20h                  ;66b8  20          DATA 0x20 ' '
+    db 20h                  ;66b9  20          DATA 0x20 ' '
+    db 20h                  ;66ba  20          DATA 0x20 ' '
+    db 20h                  ;66bb  20          DATA 0x20 ' '
+    db 20h                  ;66bc  20          DATA 0x20 ' '
+    db 20h                  ;66bd  20          DATA 0x20 ' '
+    db 20h                  ;66be  20          DATA 0x20 ' '
+    db 20h                  ;66bf  20          DATA 0x20 ' '
 
-    db 6,'TRACK '           ;66d8
-    db 3,'RDM'              ;66df
-    db 10,'RANDOM ONE'      ;66e3
-    db 10,'RANDOM ALL'      ;66ee
-    db 3,'REV'              ;66f9
-    db 3,'FWD'              ;66fd
-    db 2,'ET'               ;6701
-    db 4,'ELTM'             ;6704
+rev:
+    db 0bh                  ;66c0  0b          DATA 0x0b
+    db 52h                  ;66c1  52          DATA 0x52 'R'
+    db 45h                  ;66c2  45          DATA 0x45 'E'
+    db 56h                  ;66c3  56          DATA 0x56 'V'
+    db 20h                  ;66c4  20          DATA 0x20 ' '
+    db 20h                  ;66c5  20          DATA 0x20 ' '
+    db 20h                  ;66c6  20          DATA 0x20 ' '
+    db 20h                  ;66c7  20          DATA 0x20 ' '
+    db 20h                  ;66c8  20          DATA 0x20 ' '
+    db 20h                  ;66c9  20          DATA 0x20 ' '
+    db 20h                  ;66ca  20          DATA 0x20 ' '
+    db 20h                  ;66cb  20          DATA 0x20 ' '
+
+scan_tr:
+    db 0bh                  ;66cc  0b          DATA 0x0b
+    db 53h                  ;66cd  53          DATA 0x53 'S'
+    db 43h                  ;66ce  43          DATA 0x43 'C'
+    db 41h                  ;66cf  41          DATA 0x41 'A'
+    db 4eh                  ;66d0  4e          DATA 0x4e 'N'
+    db 43h                  ;66d1  43          DATA 0x43 'C'
+    db 44h                  ;66d2  44          DATA 0x44 'D'
+    db 20h                  ;66d3  20          DATA 0x20 ' '
+    db 54h                  ;66d4  54          DATA 0x54 'T'
+    db 52h                  ;66d5  52          DATA 0x52 'R'
+    db 20h                  ;66d6  20          DATA 0x20 ' '
+    db 20h                  ;66d7  20          DATA 0x20 ' '
+
+track:
+    db 06h                  ;66d8  06          DATA 0x06
+    db 54h                  ;66d9  54          DATA 0x54 'T'
+    db 52h                  ;66da  52          DATA 0x52 'R'
+    db 41h                  ;66db  41          DATA 0x41 'A'
+    db 43h                  ;66dc  43          DATA 0x43 'C'
+    db 4bh                  ;66dd  4b          DATA 0x4b 'K'
+    db 20h                  ;66de  20          DATA 0x20 ' '
+
+rdm:
+    db 03h                  ;66df  03          DATA 0x03
+    db 52h                  ;66e0  52          DATA 0x52 'R'
+    db 44h                  ;66e1  44          DATA 0x44 'D'
+    db 4dh                  ;66e2  4d          DATA 0x4d 'M'
+
+random_one:
+    db 0ah                  ;66e3  0a          DATA 0x0a
+    db 52h                  ;66e4  52          DATA 0x52 'R'
+    db 41h                  ;66e5  41          DATA 0x41 'A'
+    db 4eh                  ;66e6  4e          DATA 0x4e 'N'
+    db 44h                  ;66e7  44          DATA 0x44 'D'
+    db 4fh                  ;66e8  4f          DATA 0x4f 'O'
+    db 4dh                  ;66e9  4d          DATA 0x4d 'M'
+    db 20h                  ;66ea  20          DATA 0x20 ' '
+    db 4fh                  ;66eb  4f          DATA 0x4f 'O'
+    db 4eh                  ;66ec  4e          DATA 0x4e 'N'
+    db 45h                  ;66ed  45          DATA 0x45 'E'
+
+random_all:
+    db 0ah                  ;66ee  0a          DATA 0x0a
+    db 52h                  ;66ef  52          DATA 0x52 'R'
+    db 41h                  ;66f0  41          DATA 0x41 'A'
+    db 4eh                  ;66f1  4e          DATA 0x4e 'N'
+    db 44h                  ;66f2  44          DATA 0x44 'D'
+    db 4fh                  ;66f3  4f          DATA 0x4f 'O'
+    db 4dh                  ;66f4  4d          DATA 0x4d 'M'
+    db 20h                  ;66f5  20          DATA 0x20 ' '
+    db 41h                  ;66f6  41          DATA 0x41 'A'
+    db 4ch                  ;66f7  4c          DATA 0x4c 'L'
+    db 4ch                  ;66f8  4c          DATA 0x4c 'L'
+
+rev2:
+    db 03h                  ;66f9  03          DATA 0x03
+    db 52h                  ;66fa  52          DATA 0x52 'R'
+    db 45h                  ;66fb  45          DATA 0x45 'E'
+    db 56h                  ;66fc  56          DATA 0x56 'V'
+
+fwd:
+    db 03h                  ;66fd  03          DATA 0x03
+    db 46h                  ;66fe  46          DATA 0x46 'F'
+    db 57h                  ;66ff  57          DATA 0x57 'W'
+    db 44h                  ;6700  44          DATA 0x44 'D'
+
+et:
+    db 02h                  ;6701  02          DATA 0x02
+    db 45h                  ;6702  45          DATA 0x45 'E'
+    db 54h                  ;6703  54          DATA 0x54 'T'
+
+eltm:
+    db 04h                  ;6704  04          DATA 0x04
+    db 45h                  ;6705  45          DATA 0x45 'E'
+    db 4ch                  ;6706  4c          DATA 0x4c 'L'
+    db 54h                  ;6707  54          DATA 0x54 'T'
+    db 4dh                  ;6708  4d          DATA 0x4d 'M'
 
 track_scan:
-    db 13,'TRACK SCAN   '   ;6709 DATA
-disc_scan:
-    db 13,'DISC SCAN    '   ;6717 DATA
+    db 0dh                  ;6709  0d          DATA 0x0d
+    db 54h                  ;670a  54          DATA 0x54 'T'
+    db 52h                  ;670b  52          DATA 0x52 'R'
+    db 41h                  ;670c  41          DATA 0x41 'A'
+    db 43h                  ;670d  43          DATA 0x43 'C'
+    db 4bh                  ;670e  4b          DATA 0x4b 'K'
+    db 20h                  ;670f  20          DATA 0x20 ' '
+    db 53h                  ;6710  53          DATA 0x53 'S'
+    db 43h                  ;6711  43          DATA 0x43 'C'
+    db 41h                  ;6712  41          DATA 0x41 'A'
+    db 4eh                  ;6713  4e          DATA 0x4e 'N'
+    db 20h                  ;6714  20          DATA 0x20 ' '
+    db 20h                  ;6715  20          DATA 0x20 ' '
+    db 20h                  ;6716  20          DATA 0x20 ' '
 
-    db 8,'Check CD'         ;6725
+disc_scan:
+    db 0dh                  ;6717  0d          DATA 0x0d
+    db 44h                  ;6718  44          DATA 0x44 'D'
+    db 49h                  ;6719  49          DATA 0x49 'I'
+    db 53h                  ;671a  53          DATA 0x53 'S'
+    db 43h                  ;671b  43          DATA 0x43 'C'
+    db 20h                  ;671c  20          DATA 0x20 ' '
+    db 53h                  ;671d  53          DATA 0x53 'S'
+    db 43h                  ;671e  43          DATA 0x43 'C'
+    db 41h                  ;671f  41          DATA 0x41 'A'
+    db 4eh                  ;6720  4e          DATA 0x4e 'N'
+    db 20h                  ;6721  20          DATA 0x20 ' '
+    db 20h                  ;6722  20          DATA 0x20 ' '
+    db 20h                  ;6723  20          DATA 0x20 ' '
+    db 20h                  ;6724  20          DATA 0x20 ' '
+
+check_cd:
+    db 08h                  ;6725  08          DATA 0x08
+    db 43h                  ;6726  43          DATA 0x43 'C'
+    db 68h                  ;6727  68          DATA 0x68 'h'
+    db 65h                  ;6728  65          DATA 0x65 'e'
+    db 63h                  ;6729  63          DATA 0x63 'c'
+    db 6bh                  ;672a  6b          DATA 0x6b 'k'
+    db 20h                  ;672b  20          DATA 0x20 ' '
+    db 43h                  ;672c  43          DATA 0x43 'C'
+    db 44h                  ;672d  44          DATA 0x44 'D'
 
 player_error:
-    db 12,'Player Error'    ;672e DATA
+    db 0ch                  ;672e  0c          DATA 0x0c
+    db 50h                  ;672f  50          DATA 0x50 'P'
+    db 6ch                  ;6730  6c          DATA 0x6c 'l'
+    db 61h                  ;6731  61          DATA 0x61 'a'
+    db 79h                  ;6732  79          DATA 0x79 'y'
+    db 65h                  ;6733  65          DATA 0x65 'e'
+    db 72h                  ;6734  72          DATA 0x72 'r'
+    db 20h                  ;6735  20          DATA 0x20 ' '
+    db 45h                  ;6736  45          DATA 0x45 'E'
+    db 72h                  ;6737  72          DATA 0x72 'r'
+    db 72h                  ;6738  72          DATA 0x72 'r'
+    db 6fh                  ;6739  6f          DATA 0x6f 'o'
+    db 72h                  ;673a  72          DATA 0x72 'r'
 
-    db 5,'FOCUS'            ;673b DATA
-    db 12,'CD Door Open'    ;6741 DATA
+focus:
+    db 05h                  ;673b  05          DATA 0x05
+    db 46h                  ;673c  46          DATA 0x46 'F'
+    db 4fh                  ;673d  4f          DATA 0x4f 'O'
+    db 43h                  ;673e  43          DATA 0x43 'C'
+    db 55h                  ;673f  55          DATA 0x55 'U'
+    db 53h                  ;6740  53          DATA 0x53 'S'
+
+cd_door_open:
+    db 0ch                  ;6741  0c          DATA 0x0c
+    db 43h                  ;6742  43          DATA 0x43 'C'
+    db 44h                  ;6743  44          DATA 0x44 'D'
+    db 20h                  ;6744  20          DATA 0x20 ' '
+    db 44h                  ;6745  44          DATA 0x44 'D'
+    db 6fh                  ;6746  6f          DATA 0x6f 'o'
+    db 6fh                  ;6747  6f          DATA 0x6f 'o'
+    db 72h                  ;6748  72          DATA 0x72 'r'
+    db 20h                  ;6749  20          DATA 0x20 ' '
+    db 4fh                  ;674a  4f          DATA 0x4f 'O'
+    db 70h                  ;674b  70          DATA 0x70 'p'
+    db 65h                  ;674c  65          DATA 0x65 'e'
+    db 6eh                  ;674d  6e          DATA 0x6e 'n'
 
 changer_error:
-    db 12,'Changer Error'       ;674e
+    db 0ch                  ;674e  0c          DATA 0x0c
+    db 43h                  ;674f  43          DATA 0x43 'C'
+    db 68h                  ;6750  68          DATA 0x68 'h'
+    db 61h                  ;6751  61          DATA 0x61 'a'
+    db 6eh                  ;6752  6e          DATA 0x6e 'n'
+    db 67h                  ;6753  67          DATA 0x67 'g'
+    db 65h                  ;6754  65          DATA 0x65 'e'
+    db 72h                  ;6755  72          DATA 0x72 'r'
+    db 20h                  ;6756  20          DATA 0x20 ' '
+    db 45h                  ;6757  45          DATA 0x45 'E'
+    db 72h                  ;6758  72          DATA 0x72 'r'
+    db 72h                  ;6759  72          DATA 0x72 'r'
+    db 6fh                  ;675a  6f          DATA 0x6f 'o'
+    db 72h                  ;675b  72          DATA 0x72 'r'
 
-    db 8,'MAGAZINE'         ;675c
+magazine:
+    db 08h                  ;675c  08          DATA 0x08
+    db 4dh                  ;675d  4d          DATA 0x4d 'M'
+    db 41h                  ;675e  41          DATA 0x41 'A'
+    db 47h                  ;675f  47          DATA 0x47 'G'
+    db 41h                  ;6760  41          DATA 0x41 'A'
+    db 5ah                  ;6761  5a          DATA 0x5a 'Z'
+    db 49h                  ;6762  49          DATA 0x49 'I'
+    db 4eh                  ;6763  4e          DATA 0x4e 'N'
+    db 45h                  ;6764  45          DATA 0x45 'E'
 
 no_magazin:
-    db 11,'NO  MAGAZIN'     ;6765 DATA
+    db 0bh                  ;6765  0b          DATA 0x0b
+    db 4eh                  ;6766  4e          DATA 0x4e 'N'
+    db 4fh                  ;6767  4f          DATA 0x4f 'O'
+    db 20h                  ;6768  20          DATA 0x20 ' '
+    db 20h                  ;6769  20          DATA 0x20 ' '
+    db 4dh                  ;676a  4d          DATA 0x4d 'M'
+    db 41h                  ;676b  41          DATA 0x41 'A'
+    db 47h                  ;676c  47          DATA 0x47 'G'
+    db 41h                  ;676d  41          DATA 0x41 'A'
+    db 5ah                  ;676e  5a          DATA 0x5a 'Z'
+    db 49h                  ;676f  49          DATA 0x49 'I'
+    db 4eh                  ;6770  4e          DATA 0x4e 'N'
+
 no_changer:
-    db 11,'NO  CHANGER'     ;6771 DATA
+    db 0bh                  ;6771  0b          DATA 0x0b
+    db 4eh                  ;6772  4e          DATA 0x4e 'N'
+    db 4fh                  ;6773  4f          DATA 0x4f 'O'
+    db 20h                  ;6774  20          DATA 0x20 ' '
+    db 20h                  ;6775  20          DATA 0x20 ' '
+    db 43h                  ;6776  43          DATA 0x43 'C'
+    db 48h                  ;6777  48          DATA 0x48 'H'
+    db 41h                  ;6778  41          DATA 0x41 'A'
+    db 4eh                  ;6779  4e          DATA 0x4e 'N'
+    db 47h                  ;677a  47          DATA 0x47 'G'
+    db 45h                  ;677b  45          DATA 0x45 'E'
+    db 52h                  ;677c  52          DATA 0x52 'R'
+
 no_disc:
-    db 11,'    NO DISC'     ;677d DATA
+    db 0bh                  ;677d  0b          DATA 0x0b
+    db 20h                  ;677e  20          DATA 0x20 ' '
+    db 20h                  ;677f  20          DATA 0x20 ' '
+    db 20h                  ;6780  20          DATA 0x20 ' '
+    db 20h                  ;6781  20          DATA 0x20 ' '
+    db 4eh                  ;6782  4e          DATA 0x4e 'N'
+    db 4fh                  ;6783  4f          DATA 0x4f 'O'
+    db 20h                  ;6784  20          DATA 0x20 ' '
+    db 44h                  ;6785  44          DATA 0x44 'D'
+    db 49h                  ;6786  49          DATA 0x49 'I'
+    db 53h                  ;6787  53          DATA 0x53 'S'
+    db 43h                  ;6788  43          DATA 0x43 'C'
+
 cd_cd_rom:
-    db 11,'CD  CD ROM '     ;6789 DATA
+    db 0bh                  ;6789  0b          DATA 0x0b
+    db 43h                  ;678a  43          DATA 0x43 'C'
+    db 44h                  ;678b  44          DATA 0x44 'D'
+    db 20h                  ;678c  20          DATA 0x20 ' '
+    db 20h                  ;678d  20          DATA 0x20 ' '
+    db 43h                  ;678e  43          DATA 0x43 'C'
+    db 44h                  ;678f  44          DATA 0x44 'D'
+    db 20h                  ;6790  20          DATA 0x20 ' '
+    db 52h                  ;6791  52          DATA 0x52 'R'
+    db 4fh                  ;6792  4f          DATA 0x4f 'O'
+    db 4dh                  ;6793  4d          DATA 0x4d 'M'
+    db 20h                  ;6794  20          DATA 0x20 ' '
+
 cd_cd_err:
-    db 11,'CD  CD ERR '     ;6795 DATA
+    db 0bh                  ;6795  0b          DATA 0x0b
+    db 43h                  ;6796  43          DATA 0x43 'C'
+    db 44h                  ;6797  44          DATA 0x44 'D'
+    db 20h                  ;6798  20          DATA 0x20 ' '
+    db 20h                  ;6799  20          DATA 0x20 ' '
+    db 43h                  ;679a  43          DATA 0x43 'C'
+    db 44h                  ;679b  44          DATA 0x44 'D'
+    db 20h                  ;679c  20          DATA 0x20 ' '
+    db 45h                  ;679d  45          DATA 0x45 'E'
+    db 52h                  ;679e  52          DATA 0x52 'R'
+    db 52h                  ;679f  52          DATA 0x52 'R'
+    db 20h                  ;67a0  20          DATA 0x20 ' '
+
 cd_error:
-    db 11,' CD  ERROR '     ;67A1 DATA
+    db 0bh                  ;67a1  0b          DATA 0x0b
+    db 20h                  ;67a2  20          DATA 0x20 ' '
+    db 43h                  ;67a3  43          DATA 0x43 'C'
+    db 44h                  ;67a4  44          DATA 0x44 'D'
+    db 20h                  ;67a5  20          DATA 0x20 ' '
+    db 20h                  ;67a6  20          DATA 0x20 ' '
+    db 45h                  ;67a7  45          DATA 0x45 'E'
+    db 52h                  ;67a8  52          DATA 0x52 'R'
+    db 52h                  ;67a9  52          DATA 0x52 'R'
+    db 4fh                  ;67aa  4f          DATA 0x4f 'O'
+    db 52h                  ;67ab  52          DATA 0x52 'R'
+    db 20h                  ;67ac  20          DATA 0x20 ' '
+
 chk_magazin:
-    db 11,'CHK MAGAZIN'     ;67AD DATA
+    db 0bh                  ;67ad  0b          DATA 0x0b
+    db 43h                  ;67ae  43          DATA 0x43 'C'
+    db 48h                  ;67af  48          DATA 0x48 'H'
+    db 4bh                  ;67b0  4b          DATA 0x4b 'K'
+    db 20h                  ;67b1  20          DATA 0x20 ' '
+    db 4dh                  ;67b2  4d          DATA 0x4d 'M'
+    db 41h                  ;67b3  41          DATA 0x41 'A'
+    db 47h                  ;67b4  47          DATA 0x47 'G'
+    db 41h                  ;67b5  41          DATA 0x41 'A'
+    db 5ah                  ;67b6  5a          DATA 0x5a 'Z'
+    db 49h                  ;67b7  49          DATA 0x49 'I'
+    db 4eh                  ;67b8  4e          DATA 0x4e 'N'
 
-    db 4,'LOCK'             ;67b9 DATA
+lab_67b9:
+    dbnz 0fe4ch,$lab_680b   ;67b9  04 4c 4f
+    inc b                   ;67bc  43
+    clr1 0fea1h.4           ;67bd  4b a1
+    callt [007eh]           ;67bf  ff
+    mov !0f1a6h,a           ;67c0  9e a6 f1
+    ret                     ;67c3  af
 
-    db 0a1h                 ;67be  a1          DATA 0xa1
-    db 0ffh                 ;67bf  ff          DATA 0xff
-    db 9eh                  ;67c0  9e          DATA 0x9e
-    db 0a6h                 ;67c1  a6          DATA 0xa6
-    db 0f1h                 ;67c2  f1          DATA 0xf1
-    db 0afh                 ;67c3  af          DATA 0xaf
     db 27h                  ;67c4  27          DATA 0x27 '''
     db 73h                  ;67c5  73          DATA 0x73 's'
     db 16h                  ;67c6  16          DATA 0x16
@@ -21664,43 +22895,36 @@ chk_magazin:
     db 0a3h                 ;67d6  a3          DATA 0xa3
     db 0ffh                 ;67d7  ff          DATA 0xff
     db 0afh                 ;67d8  af          DATA 0xaf
-    db 16h                  ;67d9  16          DATA 0x16
-    db 59h                  ;67da  59          DATA 0x59 'Y'
-    db 0f2h                 ;67db  f2          DATA 0xf2
-    db 0f0h                 ;67dc  f0          DATA 0xf0
-    db 30h                  ;67dd  30          DATA 0x30 '0'
-    db 41h                  ;67de  41          DATA 0x41 'A'
-    db 0c8h                 ;67df  c8          DATA 0xc8
-    db 30h                  ;67e0  30          DATA 0x30 '0'
-    db 01h                  ;67e1  01          DATA 0x01
-    db 0bdh                 ;67e2  bd          DATA 0xbd
-    db 10h                  ;67e3  10          DATA 0x10
-    db 0b1h                 ;67e4  b1          DATA 0xb1
-    db 0b3h                 ;67e5  b3          DATA 0xb3
-    db 9ah                  ;67e6  9a          DATA 0x9a
-    db 00h                  ;67e7  00          DATA 0x00
-    db 08h                  ;67e8  08          DATA 0x08
-    db 4dh                  ;67e9  4d          DATA 0x4d 'M'
-    db 01h                  ;67ea  01          DATA 0x01
-    db 0bdh                 ;67eb  bd          DATA 0xbd
-    db 05h                  ;67ec  05          DATA 0x05
-    db 0b2h                 ;67ed  b2          DATA 0xb2
-    db 0b0h                 ;67ee  b0          DATA 0xb0
-    db 51h                  ;67ef  51          DATA 0x51 'Q'
-    db 0fah                 ;67f0  fa          DATA 0xfa
-    db 02h                  ;67f1  02          DATA 0x02
-    db 0b2h                 ;67f2  b2          DATA 0xb2
-    db 0b0h                 ;67f3  b0          DATA 0xb0
-    db 0a0h                 ;67f4  a0          DATA 0xa0
-    db 03h                  ;67f5  03          DATA 0x03
-    db 31h                  ;67f6  31          DATA 0x31 '1'
-    db 88h                  ;67f7  88          DATA 0x88
-    db 60h                  ;67f8  60          DATA 0x60 '`'
-    db 61h                  ;67f9  61          DATA 0x61 'a'
-    db 0bh                  ;67fa  0b          DATA 0x0b
-    db 73h                  ;67fb  73          DATA 0x73 's'
-    db 0abh                 ;67fc  ab          DATA 0xab
-    db 0afh                 ;67fd  af          DATA 0xaf
+
+sub_67d9:
+    movw hl,#0f259h         ;67d9  16 59 f2
+    mov a,0fe30h            ;67dc  f0 30
+    inc a                   ;67de  41
+    cmp 0fe30h,#01h         ;67df  c8 30 01
+    bnz $lab_67f4           ;67e2  bd 10
+    push ax                 ;67e4  b1
+    push bc                 ;67e5  b3
+    call !sub_0800          ;67e6  9a 00 08
+    cmp a,#01h              ;67e9  4d 01
+    bnz $lab_67f2           ;67eb  bd 05
+    pop bc                  ;67ed  b2
+    pop ax                  ;67ee  b0
+    dec a                   ;67ef  51
+    br $lab_67f4            ;67f0  fa 02
+
+lab_67f2:
+    pop bc                  ;67f2  b2
+    pop ax                  ;67f3  b0
+
+lab_67f4:
+    mov x,#03h              ;67f4  a0 03
+    mulu x                  ;67f6  31 88
+    mov a,x                 ;67f8  60
+    add a,b                 ;67f9  61 0b
+    mov b,a                 ;67fb  73
+    mov a,[hl+b]            ;67fc  ab
+    ret                     ;67fd  af
+
     db 0a3h                 ;67fe  a3          DATA 0xa3
     db 0dh                  ;67ff  0d          DATA 0x0d
     db 16h                  ;6800  16          DATA 0x16
@@ -21712,19 +22936,22 @@ chk_magazin:
     db 0dch                 ;6806  dc          DATA 0xdc
     db 0ch                  ;6807  0c          DATA 0x0c
     db 0afh                 ;6808  af          DATA 0xaf
-    db 4dh                  ;6809  4d          DATA 0x4d 'M'
-    db 0ah                  ;680a  0a          DATA 0x0a
-    db 8dh                  ;680b  8d          DATA 0x8d
-    db 06h                  ;680c  06          DATA 0x06
-    db 1dh                  ;680d  1d          DATA 0x1d
-    db 0ah                  ;680e  0a          DATA 0x0a
-    db 0dh                  ;680f  0d          DATA 0x0d
-    db 41h                  ;6810  41          DATA 0x41 'A'
-    db 0fah                 ;6811  fa          DATA 0xfa
-    db 02h                  ;6812  02          DATA 0x02
-    db 0dh                  ;6813  0d          DATA 0x0d
-    db 30h                  ;6814  30          DATA 0x30 '0'
-    db 0afh                 ;6815  af          DATA 0xaf
+
+sub_6809:
+    cmp a,#0ah              ;6809  4d 0a
+
+lab_680b:
+    bc $lab_6813            ;680b  8d 06
+    sub a,#0ah              ;680d  1d 0a
+    add a,#41h              ;680f  0d 41
+    br $lab_6815            ;6811  fa 02
+
+lab_6813:
+    add a,#30h              ;6813  0d 30
+
+lab_6815:
+    ret                     ;6815  af
+
     db 16h                  ;6816  16          DATA 0x16
     db 9ah                  ;6817  9a          DATA 0x9a
     db 0f1h                 ;6818  f1          DATA 0xf1
@@ -21789,247 +23016,161 @@ chk_magazin:
     db 9ah                  ;6853  9a          DATA 0x9a
     db 0c9h                 ;6854  c9          DATA 0xc9
     db 6fh                  ;6855  6f          DATA 0x6f 'o'
-    db 9ah                  ;6856  9a          DATA 0x9a
-    db 78h                  ;6857  78          DATA 0x78 'x'
-    db 6fh                  ;6858  6f          DATA 0x6f 'o'
-    db 0b5h                 ;6859  b5          DATA 0xb5
-    db 3bh                  ;685a  3b          DATA 0x3b ';'
-    db 6ah                  ;685b  6a          DATA 0x6a 'j'
-    db 0f2h                 ;685c  f2          DATA 0xf2
-    db 0d4h                 ;685d  d4          DATA 0xd4
-    db 31h                  ;685e  31          DATA 0x31 '1'
-    db 7fh                  ;685f  7f          DATA 0x7f
-    db 02h                  ;6860  02          DATA 0x02
-    db 3ah                  ;6861  3a          DATA 0x3a ':'
-    db 6ah                  ;6862  6a          DATA 0x6a 'j'
-    db 33h                  ;6863  33          DATA 0x33 '3'
-    db 0f2h                 ;6864  f2          DATA 0xf2
-    db 0d5h                 ;6865  d5          DATA 0xd5
-    db 33h                  ;6866  33          DATA 0x33 '3'
-    db 5dh                  ;6867  5d          DATA 0x5d ']'
-    db 0c0h                 ;6868  c0          DATA 0xc0
-    db 0adh                 ;6869  ad          DATA 0xad
-    db 75h                  ;686a  75          DATA 0x75 'u'
-    db 7dh                  ;686b  7d          DATA 0x7d '}'
-    db 80h                  ;686c  80          DATA 0x80
-    db 0adh                 ;686d  ad          DATA 0xad
-    db 6bh                  ;686e  6b          DATA 0x6b 'k'
-    db 0b1h                 ;686f  b1          DATA 0xb1
-    db 10h                  ;6870  10          DATA 0x10
-    db 77h                  ;6871  77          DATA 0x77 'w'
-    db 68h                  ;6872  68          DATA 0x68 'h'
-    db 0b1h                 ;6873  b1          DATA 0xb1
-    db 0c6h                 ;6874  c6          DATA 0xc6
-    db 31h                  ;6875  31          DATA 0x31 '1'
-    db 98h                  ;6876  98          DATA 0x98
-    db 0b0h                 ;6877  b0          DATA 0xb0
-    db 7dh                  ;6878  7d          DATA 0x7d '}'
-    db 40h                  ;6879  40          DATA 0x40 '@'
-    db 0adh                 ;687a  ad          DATA 0xad
-    db 45h                  ;687b  45          DATA 0x45 'E'
-    db 7dh                  ;687c  7d          DATA 0x7d '}'
-    db 80h                  ;687d  80          DATA 0x80
-    db 0adh                 ;687e  ad          DATA 0xad
-    db 02h                  ;687f  02          DATA 0x02
-    db 0fah                 ;6880  fa          DATA 0xfa
-    db 5eh                  ;6881  5e          DATA 0x5e '^'
-    db 8eh                  ;6882  8e          DATA 0x8e
-    db 30h                  ;6883  30          DATA 0x30 '0'
-    db 0fch                 ;6884  fc          DATA 0xfc
-    db 4dh                  ;6885  4d          DATA 0x4d 'M'
-    db 00h                  ;6886  00          DATA 0x00
-    db 0bdh                 ;6887  bd          DATA 0xbd
-    db 07h                  ;6888  07          DATA 0x07
-    db 8eh                  ;6889  8e          DATA 0x8e
-    db 2dh                  ;688a  2d          DATA 0x2d '-'
-    db 0fbh                 ;688b  fb          DATA 0xfb
-    db 4dh                  ;688c  4d          DATA 0x4d 'M'
-    db 00h                  ;688d  00          DATA 0x00
-    db 0adh                 ;688e  ad          DATA 0xad
-    db 06h                  ;688f  06          DATA 0x06
-    db 9ah                  ;6890  9a          DATA 0x9a
-    db 0b9h                 ;6891  b9          DATA 0xb9
-    db 6fh                  ;6892  6f          DATA 0x6f 'o'
-    db 73h                  ;6893  73          DATA 0x73 's'
-    db 0fah                 ;6894  fa          DATA 0xfa
-    db 4eh                  ;6895  4e          DATA 0x4e 'N'
-    db 88h                  ;6896  88          DATA 0x88
-    db 0d4h                 ;6897  d4          DATA 0xd4
-    db 10h                  ;6898  10          DATA 0x10
-    db 9ah                  ;6899  9a          DATA 0x9a
-    db 0a9h                 ;689a  a9          DATA 0xa9
-    db 6fh                  ;689b  6f          DATA 0x6f 'o'
-    db 9ah                  ;689c  9a          DATA 0x9a
-    db 0b9h                 ;689d  b9          DATA 0xb9
-    db 6fh                  ;689e  6f          DATA 0x6f 'o'
-    db 9ah                  ;689f  9a          DATA 0x9a
-    db 34h                  ;68a0  34          DATA 0x34 '4'
-    db 69h                  ;68a1  69          DATA 0x69 'i'
-    db 0adh                 ;68a2  ad          DATA 0xad
-    db 2bh                  ;68a3  2b          DATA 0x2b '+'
-    db 0f0h                 ;68a4  f0          DATA 0xf0
-    db 0d4h                 ;68a5  d4          DATA 0xd4
-    db 5dh                  ;68a6  5d          DATA 0x5d ']'
-    db 30h                  ;68a7  30          DATA 0x30 '0'
-    db 4dh                  ;68a8  4d          DATA 0x4d 'M'
-    db 30h                  ;68a9  30          DATA 0x30 '0'
-    db 0bdh                 ;68aa  bd          DATA 0xbd
-    db 38h                  ;68ab  38          DATA 0x38 '8'
-    db 33h                  ;68ac  33          DATA 0x33 '3'
-    db 0f2h                 ;68ad  f2          DATA 0xf2
-    db 0d4h                 ;68ae  d4          DATA 0xd4
-    db 33h                  ;68af  33          DATA 0x33 '3'
-    db 9ah                  ;68b0  9a          DATA 0x9a
-    db 0a9h                 ;68b1  a9          DATA 0xa9
-    db 6fh                  ;68b2  6f          DATA 0x6f 'o'
-    db 0b6h                 ;68b3  b6          DATA 0xb6
-    db 9ah                  ;68b4  9a          DATA 0x9a
-    db 78h                  ;68b5  78          DATA 0x78 'x'
-    db 6fh                  ;68b6  6f          DATA 0x6f 'o'
-    db 0b5h                 ;68b7  b5          DATA 0xb5
-    db 10h                  ;68b8  10          DATA 0x10
-    db 0bfh                 ;68b9  bf          DATA 0xbf
-    db 68h                  ;68ba  68          DATA 0x68 'h'
-    db 0b1h                 ;68bb  b1          DATA 0xb1
-    db 0c6h                 ;68bc  c6          DATA 0xc6
-    db 31h                  ;68bd  31          DATA 0x31 '1'
-    db 98h                  ;68be  98          DATA 0x98
-    db 0fah                 ;68bf  fa          DATA 0xfa
-    db 0dbh                 ;68c0  db          DATA 0xdb
-    db 0d8h                 ;68c1  d8          DATA 0xd8
-    db 0d4h                 ;68c2  d4          DATA 0xd4
-    db 7fh                  ;68c3  7f          DATA 0x7f
-    db 9ah                  ;68c4  9a          DATA 0x9a
-    db 0a9h                 ;68c5  a9          DATA 0xa9
-    db 6fh                  ;68c6  6f          DATA 0x6f 'o'
-    db 9ah                  ;68c7  9a          DATA 0x9a
-    db 0b9h                 ;68c8  b9          DATA 0xb9
-    db 6fh                  ;68c9  6f          DATA 0x6f 'o'
-    db 9ah                  ;68ca  9a          DATA 0x9a
-    db 34h                  ;68cb  34          DATA 0x34 '4'
-    db 69h                  ;68cc  69          DATA 0x69 'i'
-    db 0bdh                 ;68cd  bd          DATA 0xbd
-    db 15h                  ;68ce  15          DATA 0x15
-    db 33h                  ;68cf  33          DATA 0x33 '3'
-    db 5dh                  ;68d0  5d          DATA 0x5d ']'
-    db 0fh                  ;68d1  0f          DATA 0x0f
-    db 0f2h                 ;68d2  f2          DATA 0xf2
-    db 0d4h                 ;68d3  d4          DATA 0xd4
-    db 33h                  ;68d4  33          DATA 0x33 '3'
-    db 9ah                  ;68d5  9a          DATA 0x9a
-    db 0a9h                 ;68d6  a9          DATA 0xa9
-    db 6fh                  ;68d7  6f          DATA 0x6f 'o'
-    db 0fah                 ;68d8  fa          DATA 0xfa
-    db 0ah                  ;68d9  0a          DATA 0x0a
-    db 0d8h                 ;68da  d8          DATA 0xd8
-    db 0d4h                 ;68db  d4          DATA 0xd4
-    db 7fh                  ;68dc  7f          DATA 0x7f
-    db 9ah                  ;68dd  9a          DATA 0x9a
-    db 0a9h                 ;68de  a9          DATA 0xa9
-    db 6fh                  ;68df  6f          DATA 0x6f 'o'
-    db 33h                  ;68e0  33          DATA 0x33 '3'
-    db 0f0h                 ;68e1  f0          DATA 0xf0
-    db 0d4h                 ;68e2  d4          DATA 0xd4
-    db 33h                  ;68e3  33          DATA 0x33 '3'
-    db 33h                  ;68e4  33          DATA 0x33 '3'
-    db 5dh                  ;68e5  5d          DATA 0x5d ']'
-    db 0fh                  ;68e6  0f          DATA 0x0f
-    db 33h                  ;68e7  33          DATA 0x33 '3'
-    db 0b6h                 ;68e8  b6          DATA 0xb6
-    db 4ch                  ;68e9  4c          DATA 0x4c 'L'
-    db 48h                  ;68ea  48          DATA 0x48 'H'
-    db 8dh                  ;68eb  8d          DATA 0x8d
-    db 46h                  ;68ec  46          DATA 0x46 'F'
-    db 10h                  ;68ed  10          DATA 0x10
-    db 0f4h                 ;68ee  f4          DATA 0xf4
-    db 68h                  ;68ef  68          DATA 0x68 'h'
-    db 0b1h                 ;68f0  b1          DATA 0xb1
-    db 0c4h                 ;68f1  c4          DATA 0xc4
-    db 31h                  ;68f2  31          DATA 0x31 '1'
-    db 98h                  ;68f3  98          DATA 0x98
-    db 9ah                  ;68f4  9a          DATA 0x9a
-    db 30h                  ;68f5  30          DATA 0x30 '0'
-    db 70h                  ;68f6  70          DATA 0x70 'p'
-    db 31h                  ;68f7  31          DATA 0x31 '1'
-    db 03h                  ;68f8  03          DATA 0x03
-    db 2dh                  ;68f9  2d          DATA 0x2d '-'
-    db 38h                  ;68fa  38          DATA 0x38 '8'
-    db 0dch                 ;68fb  dc          DATA 0xdc
-    db 65h                  ;68fc  65          DATA 0x65 'e'
-    db 17h                  ;68fd  17          DATA 0x17
-    db 0bch                 ;68fe  bc          DATA 0xbc
-    db 2ch                  ;68ff  2c          DATA 0x2c ','
-    db 11h                  ;6900  11          DATA 0x11
-    db 2ah                  ;6901  2a          DATA 0x2a '*'
-    db 6ah                  ;6902  6a          DATA 0x6a 'j'
-    db 31h                  ;6903  31          DATA 0x31 '1'
-    db 63h                  ;6904  63          DATA 0x63 'c'
-    db 0ceh                 ;6905  ce          DATA 0xce
-    db 1ch                  ;6906  1c          DATA 0x1c
-    db 6bh                  ;6907  6b          DATA 0x6b 'k'
-    db 0ceh                 ;6908  ce          DATA 0xce
-    db 71h                  ;6909  71          DATA 0x71 'q'
-    db 6bh                  ;690a  6b          DATA 0x6b 'k'
-    db 24h                  ;690b  24          DATA 0x24 '$'
-    db 0f0h                 ;690c  f0          DATA 0xf0
-    db 0ceh                 ;690d  ce          DATA 0xce
-    db 0f2h                 ;690e  f2          DATA 0xf2
-    db 04h                  ;690f  04          DATA 0x04
-    db 0fah                 ;6910  fa          DATA 0xfa
-    db 11h                  ;6911  11          DATA 0x11
-    db 9ch                  ;6912  9c          DATA 0x9c
-    db 62h                  ;6913  62          DATA 0x62 'b'
-    db 1eh                  ;6914  1e          DATA 0x1e
-    db 2bh                  ;6915  2b          DATA 0x2b '+'
-    db 6ah                  ;6916  6a          DATA 0x6a 'j'
-    db 0ech                 ;6917  ec          DATA 0xec
-    db 0ceh                 ;6918  ce          DATA 0xce
-    db 09h                  ;6919  09          DATA 0x09
-    db 6ah                  ;691a  6a          DATA 0x6a 'j'
-    db 0ceh                 ;691b  ce          DATA 0xce
-    db 71h                  ;691c  71          DATA 0x71 'q'
-    db 6bh                  ;691d  6b          DATA 0x6b 'k'
-    db 24h                  ;691e  24          DATA 0x24 '$'
-    db 0f0h                 ;691f  f0          DATA 0xf0
-    db 0ceh                 ;6920  ce          DATA 0xce
-    db 0f2h                 ;6921  f2          DATA 0xf2
-    db 04h                  ;6922  04          DATA 0x04
-    db 31h                  ;6923  31          DATA 0x31 '1'
-    db 23h                  ;6924  23          DATA 0x23 '#'
-    db 65h                  ;6925  65          DATA 0x65 'e'
-    db 07h                  ;6926  07          DATA 0x07
-    db 9ah                  ;6927  9a          DATA 0x9a
-    db 60h                  ;6928  60          DATA 0x60 '`'
-    db 49h                  ;6929  49          DATA 0x49 'I'
-    db 8dh                  ;692a  8d          DATA 0x8d
-    db 07h                  ;692b  07          DATA 0x07
-    db 2bh                  ;692c  2b          DATA 0x2b '+'
-    db 65h                  ;692d  65          DATA 0x65 'e'
-    db 9ah                  ;692e  9a          DATA 0x9a
-    db 0fch                 ;692f  fc          DATA 0xfc
-    db 4ah                  ;6930  4a          DATA 0x4a 'J'
-    db 1ah                  ;6931  1a          DATA 0x1a
-    db 6ah                  ;6932  6a          DATA 0x6a 'j'
-    db 0afh                 ;6933  af          DATA 0xaf
-    db 0b1h                 ;6934  b1          DATA 0xb1
-    db 5dh                  ;6935  5d          DATA 0x5d ']'
-    db 0f0h                 ;6936  f0          DATA 0xf0
-    db 24h                  ;6937  24          DATA 0x24 '$'
-    db 24h                  ;6938  24          DATA 0x24 '$'
-    db 24h                  ;6939  24          DATA 0x24 '$'
-    db 24h                  ;693a  24          DATA 0x24 '$'
-    db 0a0h                 ;693b  a0          DATA 0xa0
-    db 0ah                  ;693c  0a          DATA 0x0a
-    db 31h                  ;693d  31          DATA 0x31 '1'
-    db 88h                  ;693e  88          DATA 0x88
-    db 60h                  ;693f  60          DATA 0x60 '`'
-    db 73h                  ;6940  73          DATA 0x73 's'
-    db 0b0h                 ;6941  b0          DATA 0xb0
-    db 33h                  ;6942  33          DATA 0x33 '3'
-    db 9eh                  ;6943  9e          DATA 0x9e
-    db 2dh                  ;6944  2d          DATA 0x2d '-'
-    db 0fbh                 ;6945  fb          DATA 0xfb
-    db 0afh                 ;6946  af          DATA 0xaf
+
+lab_6856:
+    call !sub_6f78          ;6856  9a 78 6f
+    push de                 ;6859  b5
+    clr1 0fe6ah.3           ;685a  3b 6a
+    mov 0fed4h,a            ;685c  f2 d4
+    bf a.7,$lab_6863        ;685e  31 7f 02
+    set1 0fe6ah.3           ;6861  3a 6a
+
+lab_6863:
+    xch a,b                 ;6863  33
+    mov 0fed5h,a            ;6864  f2 d5
+    xch a,b                 ;6866  33
+    and a,#0c0h             ;6867  5d c0
+    bz $lab_68e0            ;6869  ad 75
+    xor a,#80h              ;686b  7d 80
+    bz $lab_68da            ;686d  ad 6b
+    push ax                 ;686f  b1
+    movw ax,#6877h          ;6870  10 77 68
+    push ax                 ;6873  b1
+    movw ax,hl              ;6874  c6
+    br ax                   ;6875  31 98
+    pop ax                  ;6877  b0
+    xor a,#40h              ;6878  7d 40
+    bz $lab_68c1            ;687a  ad 45
+    xor a,#80h              ;687c  7d 80
+    bz $lab_6882            ;687e  ad 02
+    br $lab_68e0            ;6880  fa 5e
+
+lab_6882:
+    mov a,!0fc30h           ;6882  8e 30 fc
+    cmp a,#00h              ;6885  4d 00
+    bnz $lab_6890           ;6887  bd 07
+    mov a,!0fb2dh           ;6889  8e 2d fb
+    cmp a,#00h              ;688c  4d 00
+    bz $lab_6896            ;688e  ad 06
+
+lab_6890:
+    call !sub_6fb9          ;6890  9a b9 6f
+    mov b,a                 ;6893  73
+    br $lab_68e4            ;6894  fa 4e
+
+lab_6896:
+    add 0fed4h,#10h         ;6896  88 d4 10
+    call !sub_6fa9          ;6899  9a a9 6f
+
+lab_689c:
+    call !sub_6fb9          ;689c  9a b9 6f
+    call !sub_6934          ;689f  9a 34 69
+    bz $lab_68cf            ;68a2  ad 2b
+    mov a,0fed4h            ;68a4  f0 d4
+    and a,#30h              ;68a6  5d 30
+    cmp a,#30h              ;68a8  4d 30
+    bnz $lab_68e4           ;68aa  bd 38
+    xch a,b                 ;68ac  33
+    mov 0fed4h,a            ;68ad  f2 d4
+    xch a,b                 ;68af  33
+
+lab_68b0:
+    call !sub_6fa9          ;68b0  9a a9 6f
+    pop hl                  ;68b3  b6
+    call !sub_6f78          ;68b4  9a 78 6f
+    push de                 ;68b7  b5
+    movw ax,#68bfh          ;68b8  10 bf 68
+    push ax                 ;68bb  b1
+    movw ax,hl              ;68bc  c6
+    br ax                   ;68bd  31 98
+    br $lab_689c            ;68bf  fa db
+
+lab_68c1:
+    and 0fed4h,#7fh         ;68c1  d8 d4 7f
+    call !sub_6fa9          ;68c4  9a a9 6f
+    call !sub_6fb9          ;68c7  9a b9 6f
+    call !sub_6934          ;68ca  9a 34 69
+    bnz $lab_68e4           ;68cd  bd 15
+
+lab_68cf:
+    xch a,b                 ;68cf  33
+    and a,#0fh              ;68d0  5d 0f
+    mov 0fed4h,a            ;68d2  f2 d4
+    xch a,b                 ;68d4  33
+    call !sub_6fa9          ;68d5  9a a9 6f
+    br $lab_68e4            ;68d8  fa 0a
+
+lab_68da:
+    and 0fed4h,#7fh         ;68da  d8 d4 7f
+    call !sub_6fa9          ;68dd  9a a9 6f
+
+lab_68e0:
+    xch a,b                 ;68e0  33
+    mov a,0fed4h            ;68e1  f0 d4
+    xch a,b                 ;68e3  33
+
+lab_68e4:
+    xch a,b                 ;68e4  33
+    and a,#0fh              ;68e5  5d 0f
+    xch a,b                 ;68e7  33
+    pop hl                  ;68e8  b6
+    callf !sub_0c48         ;68e9  4c 48
+    bc $lab_6933            ;68eb  8d 46
+    movw ax,#68f4h          ;68ed  10 f4 68
+    push ax                 ;68f0  b1
+    movw ax,de              ;68f1  c4
+    br ax                   ;68f2  31 98
+    call !sub_7030          ;68f4  9a 30 70
+    bf 0fe2dh.0,$lab_6933   ;68f7  31 03 2d 38
+    bt 0fe65h.5,$lab_6915   ;68fb  dc 65 17
+    bt 0fe2ch.3,$lab_6912   ;68fe  bc 2c 11
+    set1 0fe6ah.2           ;6901  2a 6a
+    bf 0feceh.6,$lab_6923   ;6903  31 63 ce 1c
+    clr1 0feceh.6           ;6907  6b ce
+    clr1 PM4_.6             ;6909  71 6b 24
+    mov a,0feceh            ;690c  f0 ce
+    mov P4_,a               ;690e  f2 04
+    br $lab_6923            ;6910  fa 11
+
+lab_6912:
+    bt 0fe62h.1,$lab_6933   ;6912  9c 62 1e
+
+lab_6915:
+    clr1 0fe6ah.2           ;6915  2b 6a
+    bt 0feceh.6,$lab_6923   ;6917  ec ce 09
+    set1 0feceh.6           ;691a  6a ce
+    clr1 PM4_.6             ;691c  71 6b 24
+    mov a,0feceh            ;691f  f0 ce
+    mov P4_,a               ;6921  f2 04
+
+lab_6923:
+    bf 0fe65h.2,$lab_692e   ;6923  31 23 65 07
+    call !sub_4960          ;6927  9a 60 49
+    bc $lab_6933            ;692a  8d 07
+    clr1 0fe65h.2           ;692c  2b 65
+
+lab_692e:
+    call !sub_4afc          ;692e  9a fc 4a
+    set1 0fe6ah.1           ;6931  1a 6a
+
+lab_6933:
+    ret                     ;6933  af
+
+sub_6934:
+    push ax                 ;6934  b1
+    and a,#0f0h             ;6935  5d f0
+    ror a,1                 ;6937  24
+    ror a,1                 ;6938  24
+    ror a,1                 ;6939  24
+    ror a,1                 ;693a  24
+    mov x,#0ah              ;693b  a0 0a
+    mulu x                  ;693d  31 88
+    mov a,x                 ;693f  60
+    mov b,a                 ;6940  73
+    pop ax                  ;6941  b0
+    xch a,b                 ;6942  33
+    mov !0fb2dh,a           ;6943  9e 2d fb
+    ret                     ;6946  af
 
 sub_6947:
     mov a,#80h              ;6947  a1 80
@@ -22053,15 +23194,13 @@ sub_6947:
     db 0b4h                 ;695b  b4          DATA 0xb4
     db 0fah                 ;695c  fa          DATA 0xfa
     db 33h                  ;695d  33          DATA 0x33 '3'
-    db 0a3h                 ;695e  a3          DATA 0xa3
-    db 01h                  ;695f  01          DATA 0x01
-    db 16h                  ;6960  16          DATA 0x16
-    db 67h                  ;6961  67          DATA 0x67 'g'
-    db 69h                  ;6962  69          DATA 0x69 'i'
-    db 14h                  ;6963  14          DATA 0x14
-    db 81h                  ;6964  81          DATA 0x81
-    db 0b4h                 ;6965  b4          DATA 0xb4
-    db 0afh                 ;6966  af          DATA 0xaf
+
+lab_695e:
+    mov b,#01h              ;695e  a3 01
+    movw hl,#6967h          ;6960  16 67 69
+    movw de,#0b481h         ;6963  14 81 b4
+    ret                     ;6966  af
+
     db 14h                  ;6967  14          DATA 0x14
     db 0a1h                 ;6968  a1          DATA 0xa1
     db 0b4h                 ;6969  b4          DATA 0xb4
@@ -22207,31 +23346,27 @@ sub_6947:
     db 0afh                 ;69f5  af          DATA 0xaf
     db 8eh                  ;69f6  8e          DATA 0x8e
     db 0afh                 ;69f7  af          DATA 0xaf
-    db 0f1h                 ;69f8  f1          DATA 0xf1
-    db 5dh                  ;69f9  5d          DATA 0x5d ']'
-    db 0fh                  ;69fa  0f          DATA 0x0f
-    db 73h                  ;69fb  73          DATA 0x73 's'
-    db 9eh                  ;69fc  9e          DATA 0x9e
-    db 0abh                 ;69fd  ab          DATA 0xab
-    db 0f1h                 ;69fe  f1          DATA 0xf1
-    db 16h                  ;69ff  16          DATA 0x16
-    db 81h                  ;6a00  81          DATA 0x81
-    db 0b4h                 ;6a01  b4          DATA 0xb4
-    db 4ch                  ;6a02  4c          DATA 0x4c 'L'
-    db 48h                  ;6a03  48          DATA 0x48 'H'
-    db 8dh                  ;6a04  8d          DATA 0x8d
-    db 03h                  ;6a05  03          DATA 0x03
-    db 0c4h                 ;6a06  c4          DATA 0xc4
-    db 31h                  ;6a07  31          DATA 0x31 '1'
-    db 98h                  ;6a08  98          DATA 0x98
-    db 0afh                 ;6a09  af          DATA 0xaf
-    db 0a1h                 ;6a0a  a1          DATA 0xa1
-    db 00h                  ;6a0b  00          DATA 0x00
-    db 9eh                  ;6a0c  9e          DATA 0x9e
-    db 2dh                  ;6a0d  2d          DATA 0x2d '-'
-    db 0fbh                 ;6a0e  fb          DATA 0xfb
-    db 0afh                 ;6a0f  af          DATA 0xaf
 
+lab_69f8:
+    callt [0070h]           ;69f8  f1
+    and a,#0fh              ;69f9  5d 0f
+    mov b,a                 ;69fb  73
+    mov !0f1abh,a           ;69fc  9e ab f1
+    movw hl,#0b481h         ;69ff  16 81 b4
+    callf !sub_0c48         ;6a02  4c 48
+    bc $lab_6a09            ;6a04  8d 03
+    movw ax,de              ;6a06  c4
+    br ax                   ;6a07  31 98
+
+lab_6a09:
+    ret                     ;6a09  af
+
+lab_6a0a:
+    mov a,#00h              ;6a0a  a1 00
+    mov !0fb2dh,a           ;6a0c  9e 2d fb
+    ret                     ;6a0f  af
+
+lab_6a10:
     mov a,!0f1feh           ;6a10  8e fe f1
     cmp a,#03h              ;6a13  4d 03
     bz $lab_6a1b            ;6a15  ad 04
@@ -22264,16 +23399,16 @@ lab_6a2f:
 
 lab_6a40:
     set1 0feceh.6           ;6a40  6a ce
-    clr1 PM4.6              ;6a42  71 6b 24
+    clr1 PM4_.6             ;6a42  71 6b 24
     mov a,0feceh            ;6a45  f0 ce
-    mov P4,a                ;6a47  f2 04
+    mov P4_,a               ;6a47  f2 04
     br $lab_6a5b            ;6a49  fa 10
 
 lab_6a4b:
     clr1 0feceh.6           ;6a4b  6b ce
-    clr1 PM4.6              ;6a4d  71 6b 24
+    clr1 PM4_.6             ;6a4d  71 6b 24
     mov a,0feceh            ;6a50  f0 ce
-    mov P4,a                ;6a52  f2 04
+    mov P4_,a               ;6a52  f2 04
     br $lab_6a5b            ;6a54  fa 05
 
 lab_6a56:
@@ -22283,11 +23418,13 @@ lab_6a56:
 lab_6a5b:
     ret                     ;6a5b  af
 
-;TODO label
+lab_6a5c:
     mov a,#87h              ;6a5c  a1 87
     mov b,#0ffh             ;6a5e  a3 ff
     mov b,#0ffh             ;6a60  a3 ff
     br $lab_6a75            ;6a62  fa 11
+
+lab_6a64:
     mov a,!0fb2eh           ;6a64  8e 2e fb
     cmp a,#00h              ;6a67  4d 00
     bnz $lab_6a71           ;6a69  bd 06
@@ -22299,26 +23436,28 @@ lab_6a71:
     mov b,#83h              ;6a73  a3 83
 
 lab_6a75:
-    call !6d61h             ;6a75  9a 61 6d     TODO sub_
-    br $6ad1h               ;6a78  fa 57        TODO lab_
+    call !sub_6d61          ;6a75  9a 61 6d
+    br $lab_6ad1            ;6a78  fa 57
+
+lab_6a7a:
     mov a,#87h              ;6a7a  a1 87
     mov b,#0ffh             ;6a7c  a3 ff
     call !sub_6e70          ;6a7e  9a 70 6e
     mov b,#03h              ;6a81  a3 03
     mov a,#0ffh             ;6a83  a1 ff
     movw hl,#scan           ;6a85  16 e6 63
-    call !6d61h             ;6a88  9a 61 6d     TODO sub_
-    br $6ad1h               ;6a8b  fa 44        TODO lab_
+    call !sub_6d61          ;6a88  9a 61 6d
+    br $lab_6ad1            ;6a8b  fa 44
 
-;TODO label
+lab_6a8d:
     mov a,#88h              ;6a8d  a1 88
     mov b,#03h              ;6a8f  a3 03
-    movw hl,#scan          ;6a91  16 e6 63
-    call !6d61h             ;6a94  9a 61 6d     TODO sub_
-    call !6d61h             ;6a97  9a 61 6d     TODO sub_
-    br $6ad1h               ;6a9a  fa 35    TODO lab_
+    movw hl,#scan           ;6a91  16 e6 63
+    call !sub_6d61          ;6a94  9a 61 6d
+    call !sub_6d61          ;6a97  9a 61 6d
+    br $lab_6ad1            ;6a9a  fa 35
 
-;TODO label
+lab_6a9c:
     mov a,#88h              ;6a9c  a1 88
     mov b,#0ffh             ;6a9e  a3 ff
     call !sub_6e70          ;6aa0  9a 70 6e
@@ -22328,23 +23467,23 @@ lab_6a75:
     movw hl,#pscan          ;6aab  16 cf 63
     mov b,#0fh              ;6aae  a3 0f
     mov a,#0ffh             ;6ab0  a1 ff
-    call !6d61h             ;6ab2  9a 61 6d     TODO sub_
-    br $6ad1h               ;6ab5  fa 1a      TODO lab_
+    call !sub_6d61          ;6ab2  9a 61 6d
+    br $lab_6ad1            ;6ab5  fa 1a
 
-;TODO label
+lab_6ab7:
     mov a,#0ffh             ;6ab7  a1 ff
     mov b,#83h              ;6ab9  a3 83
     call !sub_6e70          ;6abb  9a 70 6e
     mov a,#0ffh             ;6abe  a1 ff
     movw hl,#preset_scan    ;6ac0  16 d5 63
     mov b,#10h              ;6ac3  a3 10
-    call !6d61h             ;6ac5  9a 61 6d     TODO sub_
-    br $6ad1h               ;6ac8  fa 07        TODO lab_
+    call !sub_6d61          ;6ac5  9a 61 6d
+    br $lab_6ad1            ;6ac8  fa 07
 
-;TODO label
+lab_6aca:
     mov a,#87h              ;6aca  a1 87
     mov b,#0ffh             ;6acc  a3 ff
-    call !6d61h          ;6ace  9a 61 6d    TODO sub_
+    call !sub_6d61          ;6ace  9a 61 6d
 
 lab_6ad1:
     bf 0fe5ch.2,$lab_6af1   ;6ad1  31 23 5c 1c
@@ -22365,17 +23504,17 @@ lab_6ae2:
     mov !0f19dh,a           ;6aee  9e 9d f1
 
 lab_6af1:
-    call !6e6eh          ;6af1  9a 6e 6e    TODO sub_
+    call !sub_6e6e          ;6af1  9a 6e 6e
     ret                     ;6af4  af
 
-;TODO label
+lab_6af5:
     mov b,#0ffh             ;6af5  a3 ff
     mov a,#0ah              ;6af7  a1 0a
     movw hl,#tape_load      ;6af9  16 0b 66
     call !sub_6e70          ;6afc  9a 70 6e
     ret                     ;6aff  af
 
-;TODO label;
+lab_6b00:
     bf 0fe71h.4,$lab_6b0e   ;6b00  31 43 71 0a
     mov b,#0ffh             ;6b04  a3 ff
     mov a,#0ah              ;6b06  a1 0a
@@ -22385,76 +23524,73 @@ lab_6af1:
 lab_6b0e:
     ret                     ;6b0e  af
 
-;TODO label
+lab_6b0f:
     mov b,#0ffh             ;6b0f  a3 ff
     mov a,#0ah              ;6b11  a1 0a
     movw hl,#tape_play      ;6b13  16 ab 65
-    br $6b52h               ;6b16  fa 3a        TODO lab_
+    br $lab_6b52            ;6b16  fa 3a
 
-;TODO label
+lab_6b18:
     mov a,#0ffh             ;6b18  a1 ff
     mov b,#0ah              ;6b1a  a3 0a
     movw hl,#tape_ff        ;6b1c  16 b7 65
-    br $6b52h               ;6b1f  fa 31    TODO lab
+    br $lab_6b52            ;6b1f  fa 31
 
-;TODO label
+lab_6b21:
     mov a,#0ffh             ;6b21  a1 ff
     mov b,#0ah              ;6b23  a3 0a
     movw hl,#tape_rew       ;6b25  16 c3 65
     br $lab_6b52            ;6b28  fa 28
 
-;TODO label
+lab_6b2a:
     mov b,#0ffh             ;6b2a  a3 ff
     movw hl,#tape_scan      ;6b2c  16 f3 65
     mov a,#0ah              ;6b2f  a1 0a
     br $lab_6b52            ;6b31  fa 1f
 
-;TODO label
+lab_6b33:
     mov b,#0ffh             ;6b33  a3 ff
     mov a,#0ah              ;6b35  a1 0a
     movw hl,#skip_blank     ;6b37  16 e7 65
     call !sub_6e70          ;6b3a  9a 70 6e
     ret                     ;6b3d  af
 
-;TODO label
+lab_6b3e:
     mov b,#0ffh             ;6b3e  a3 ff
     movw hl,#tapemss_ff     ;6b40  16 cf 65
     mov a,#0ah              ;6b43  a1 0a
     br $lab_6b52            ;6b45  fa 0b
 
-;TODO label
-    ret                 ;6b47  af
+    db 0afh                 ;6b47  af          DATA 0xaf
 
-;TODO label
+lab_6b48:
     mov b,#0ffh             ;6b48  a3 ff
     movw hl,#tapemss_rew    ;6b4a  16 db 65
     mov a,#0ah              ;6b4d  a1 0a
     br $lab_6b52            ;6b4f  fa 01
 
-;TODO label
-    ret                 ;6b51  af
-
+    db 0afh                 ;6b51  af          DATA 0xaf
 
 lab_6b52:
     call !sub_6e70          ;6b52  9a 70 6e
-    call !6e40h          ;6b55  9a 40 6e    TODO sub_
-    call !6e6fh          ;6b58  9a 6f 6e    TODO sub_
+    call !sub_6e40          ;6b55  9a 40 6e
+    call !sub_6e6f          ;6b58  9a 6f 6e
     ret                     ;6b5b  af
 
-;TODO label
+lab_6b5c:
     call !sub_6e70          ;6b5c  9a 70 6e
-    call !6e6eh             ;6b5f  9a 6e 6e    TODO sub_
-    call !6e6fh             ;6b62  9a 6f 6e     TODO sub_
+    call !sub_6e6e          ;6b5f  9a 6e 6e
+    call !sub_6e6f          ;6b62  9a 6f 6e
     ret                     ;6b65  af
 
-;TODO label
+lab_6b66:
     mov a,#0ah              ;6b66  a1 0a
     movw hl,#chk_magazin    ;6b68  16 ad 67
     mov b,#0ffh             ;6b6b  a3 ff
     call !sub_6e70          ;6b6d  9a 70 6e
     br !lab_6ca5            ;6b70  9b a5 6c
 
-;TODO label
+lab_6b73:
     mov a,!0fc79h           ;6b73  8e 79 fc
     cmp a,#03h              ;6b76  4d 03
     bz $lab_6b90            ;6b78  ad 16
@@ -22477,7 +23613,7 @@ lab_6b90:
 lab_6b9a:
     br !lab_6ca5            ;6b9a  9b a5 6c
 
-;TODO label
+lab_6b9d:
     mov a,#0ah              ;6b9d  a1 0a
     mov b,#0ffh             ;6b9f  a3 ff
     movw hl,#cd_no_cd       ;6ba1  16 90 66
@@ -22488,48 +23624,33 @@ lab_6b9a:
     mov [hl+03h],a          ;6baf  be 03
     br !lab_6ca5            ;6bb1  9b a5 6c
 
-    db 8eh                  ;6bb4  8e          DATA 0x8e
-    db 0adh                 ;6bb5  ad          DATA 0xad
-    db 0f1h                 ;6bb6  f1          DATA 0xf1
-    db 5dh                  ;6bb7  5d          DATA 0x5d ']'
-    db 0fh                  ;6bb8  0f          DATA 0x0f
-    db 9eh                  ;6bb9  9e          DATA 0x9e
-    db 0b1h                 ;6bba  b1          DATA 0xb1
-    db 0f1h                 ;6bbb  f1          DATA 0xf1
-    db 0a1h                 ;6bbc  a1          DATA 0xa1
-    db 84h                  ;6bbd  84          DATA 0x84
-    db 9eh                  ;6bbe  9e          DATA 0x9e
-    db 0adh                 ;6bbf  ad          DATA 0xad
-    db 0f1h                 ;6bc0  f1          DATA 0xf1
-    db 0afh                 ;6bc1  af          DATA 0xaf
-    db 8eh                  ;6bc2  8e          DATA 0x8e
-    db 0b1h                 ;6bc3  b1          DATA 0xb1
-    db 0f1h                 ;6bc4  f1          DATA 0xf1
-    db 6dh                  ;6bc5  6d          DATA 0x6d 'm'
-    db 80h                  ;6bc6  80          DATA 0x80
-    db 9eh                  ;6bc7  9e          DATA 0x9e
-    db 0adh                 ;6bc8  ad          DATA 0xad
-    db 0f1h                 ;6bc9  f1          DATA 0xf1
-    db 0afh                 ;6bca  af          DATA 0xaf
-    db 31h                  ;6bcb  31          DATA 0x31 '1'
-    db 13h                  ;6bcc  13          DATA 0x13
-    db 3dh                  ;6bcd  3d          DATA 0x3d '='
-    db 0eh                  ;6bce  0e          DATA 0x0e
-    db 8eh                  ;6bcf  8e          DATA 0x8e
-    db 0b1h                 ;6bd0  b1          DATA 0xb1
-    db 0f1h                 ;6bd1  f1          DATA 0xf1
-    db 73h                  ;6bd2  73          DATA 0x73 's'
-    db 16h                  ;6bd3  16          DATA 0x16
-    db 0dfh                 ;6bd4  df          DATA 0xdf
-    db 0b4h                 ;6bd5  b4          DATA 0xb4
-    db 4ch                  ;6bd6  4c          DATA 0x4c 'L'
-    db 48h                  ;6bd7  48          DATA 0x48 'H'
-    db 8dh                  ;6bd8  8d          DATA 0x8d
-    db 03h                  ;6bd9  03          DATA 0x03
-    db 0c4h                 ;6bda  c4          DATA 0xc4
-    db 31h                  ;6bdb  31          DATA 0x31 '1'
-    db 98h                  ;6bdc  98          DATA 0x98
-    db 0afh                 ;6bdd  af          DATA 0xaf
+lab_6bb4:
+    mov a,!0f1adh           ;6bb4  8e ad f1
+    and a,#0fh              ;6bb7  5d 0f
+    mov !0f1b1h,a           ;6bb9  9e b1 f1
+    mov a,#84h              ;6bbc  a1 84
+    mov !0f1adh,a           ;6bbe  9e ad f1
+    ret                     ;6bc1  af
+
+lab_6bc2:
+    mov a,!0f1b1h           ;6bc2  8e b1 f1
+    or a,#80h               ;6bc5  6d 80
+    mov !0f1adh,a           ;6bc7  9e ad f1
+    ret                     ;6bca  af
+
+lab_6bcb:
+    bf 0fe3dh.1,$lab_6bdd   ;6bcb  31 13 3d 0e
+    mov a,!0f1b1h           ;6bcf  8e b1 f1
+    mov b,a                 ;6bd2  73
+    movw hl,#0b4dfh         ;6bd3  16 df b4
+    callf !sub_0c48         ;6bd6  4c 48
+    bc $lab_6bdd            ;6bd8  8d 03
+    movw ax,de              ;6bda  c4
+    br ax                   ;6bdb  31 98
+
+lab_6bdd:
+    ret                     ;6bdd  af
+
     db 8eh                  ;6bde  8e          DATA 0x8e
     db 0b1h                 ;6bdf  b1          DATA 0xb1
     db 0f1h                 ;6be0  f1          DATA 0xf1
@@ -22549,13 +23670,13 @@ lab_6b9a:
     db 98h                  ;6bee  98          DATA 0x98
     db 0afh                 ;6bef  af          DATA 0xaf
 
-;TODO label
+lab_6bf0:
     mov a,#0ffh             ;6bf0  a1 ff
     mov b,#0ah              ;6bf2  a3 0a
-    movw hl,#scancd_tr      ;6bf4  16 cc 66
-    br $6c5fh               ;6bf7  fa 66        TODO lab_
+    movw hl,#scan_tr        ;6bf4  16 cc 66
+    br $lab_6c5f            ;6bf7  fa 66
 
-;TODO label
+lab_6bf9:
     mov a,#0ah              ;6bf9  a1 0a
     movw hl,#cue            ;6bfb  16 b4 66
     mov b,#0ffh             ;6bfe  a3 ff
@@ -22565,12 +23686,12 @@ lab_6b9a:
 
 lab_6c07:
     call !sub_6e70          ;6c07  9a 70 6e
-    call !6cach             ;6c0a  9a ac 6c     TODO sub_
-    br !6ca5h               ;6c0d  9b a5 6c     TODO lab_
+    call !sub_6cac          ;6c0a  9a ac 6c
+    br !lab_6ca5            ;6c0d  9b a5 6c
 
-;TODO label
+lab_6c10:
     mov a,#0ah              ;6c10  a1 0a
-    movw hl,#cd_blank       ;6c12  16 84 66
+    movw hl,#cd__           ;6c12  16 84 66
     mov b,#0ffh             ;6c15  a3 ff
     set1 0fe3ah.1           ;6c17  1a 3a
     bt 0fe6eh.1,$lab_6c1e   ;6c19  9c 6e 02
@@ -22578,11 +23699,11 @@ lab_6c07:
 
 lab_6c1e:
     call !sub_6e70          ;6c1e  9a 70 6e
-    call !6d2fh             ;6c21  9a 2f 6d    TODO sub_
-    call !6cach             ;6c24  9a ac 6c    TODO sub_
-    br $6ca5h               ;6c27  fa 7c       TODO sub_
+    call !sub_6d2f          ;6c21  9a 2f 6d
+    call !sub_6cac          ;6c24  9a ac 6c
+    br $lab_6ca5            ;6c27  fa 7c
 
-;TODO label
+lab_6c29:
     mov a,#0ah              ;6c29  a1 0a
     movw hl,#rev            ;6c2b  16 c0 66
     mov b,#0ffh             ;6c2e  a3 ff
@@ -22592,12 +23713,12 @@ lab_6c1e:
 
 lab_6c37:
     call !sub_6e70          ;6c37  9a 70 6e
-    call !6cach             ;6c3a  9a ac 6c     TODO sub_
-    br $6ca5h               ;6c3d  fa 66        TODO lab_
+    call !sub_6cac          ;6c3a  9a ac 6c
+    br $lab_6ca5            ;6c3d  fa 66
 
-;TODO label
+lab_6c3f:
     mov a,#0ah              ;6c3f  a1 0a
-    movw hl,#cd_blank       ;6c41  16 84 66
+    movw hl,#cd__           ;6c41  16 84 66
     mov b,#0ffh             ;6c44  a3 ff
     set1 0fe3ah.1           ;6c46  1a 3a
     bt 0fe6eh.1,$lab_6c4d   ;6c48  9c 6e 02
@@ -22605,864 +23726,595 @@ lab_6c37:
 
 lab_6c4d:
     call !sub_6e70          ;6c4d  9a 70 6e
-    call !6d2fh             ;6c50  9a 2f 6d     TODO sub_
-    call !6cach             ;6c53  9a ac 6c     TODO sub_
-    br $6ca5h               ;6c56  fa 4d        TODO lab_
+    call !sub_6d2f          ;6c50  9a 2f 6d
+    call !sub_6cac          ;6c53  9a ac 6c
+    br $lab_6ca5            ;6c56  fa 4d
 
+lab_6c58:
     mov a,#0ah              ;6c58  a1 0a
     movw hl,#cd_tr          ;6c5a  16 9c 66
     mov b,#0ffh             ;6c5d  a3 ff
 
 lab_6c5f:
     call !sub_6e70          ;6c5f  9a 70 6e
-    call !6d2fh             ;6c62  9a 2f 6d     TODO sub_
-    call !6d01h             ;6c65  9a 01 6d     TODO sub_
-    br $6ca5h               ;6c68  fa 3b        TODO lab_
+    call !sub_6d2f          ;6c62  9a 2f 6d
+    call !sub_6d01          ;6c65  9a 01 6d
+    br $lab_6ca5            ;6c68  fa 3b
 
-;TODO label
+lab_6c6a:
     mov b,#83h              ;6c6a  a3 83
     mov a,#10h              ;6c6c  a1 10
     movw hl,#track_scan     ;6c6e  16 09 67
     call !sub_6e70          ;6c71  9a 70 6e
-    br $6ca5h               ;6c74  fa 2f        TODO lab_
+    br $lab_6ca5            ;6c74  fa 2f
 
-;TODO label
+lab_6c76:
     mov b,#83h              ;6c76  a3 83
     mov a,#10h              ;6c78  a1 10
     movw hl,#disc_scan      ;6c7a  16 17 67
     call !sub_6e70          ;6c7d  9a 70 6e
-    br $6ca5h               ;6c80  fa 23        TODO lab_
+    br $lab_6ca5            ;6c80  fa 23
 
-;TODO label
+lab_6c82:
     mov a,#0ffh             ;6c82  a1 ff
     mov b,#83h              ;6c84  a3 83
     call !sub_6e70          ;6c86  9a 70 6e
-    call !6cach             ;6c89  9a ac 6c     TODO sub_
-    br $6ca5h               ;6c8c  fa 17        TODO lab_
+    call !sub_6cac          ;6c89  9a ac 6c
+    br $lab_6ca5            ;6c8c  fa 17
 
-;TODO label
+lab_6c8e:
     mov a,#0ffh             ;6c8e  a1 ff
     mov b,#83h              ;6c90  a3 83
     call !sub_6e70          ;6c92  9a 70 6e
-    call !6d2fh             ;6c95  9a 2f 6d     TODO sub_
-    br $6ca5h               ;6c98  fa 0b        TODO lab_
+    call !sub_6d2f          ;6c95  9a 2f 6d
+    br $lab_6ca5            ;6c98  fa 0b
 
-;TODO label
+lab_6c9a:
     call !sub_6e70          ;6c9a  9a 70 6e
-    call !6e6fh             ;6c9d  9a 6f 6e     TODO sub_
-    br $6ca8h               ;6ca0  fa 06        TODO lab_
+    call !sub_6e6f          ;6c9d  9a 6f 6e
+    br $lab_6ca8            ;6ca0  fa 06
 
-;TODO label
+lab_6ca2:
     call !sub_6e70          ;6ca2  9a 70 6e
 
 lab_6ca5:
-    call !6e6fh          ;6ca5  9a 6f 6e TODO sub_
+    call !sub_6e6f          ;6ca5  9a 6f 6e
 
 lab_6ca8:
-    call !6e6eh          ;6ca8  9a 6e 6e TODO sub_
+    call !sub_6e6e          ;6ca8  9a 6e 6e
     ret                     ;6cab  af
 
-;TODO sub_6cac code
-    db 8eh                  ;6cac  8e          DATA 0x8e
-    db 77h                  ;6cad  77          DATA 0x77 'w'
-    db 0fch                 ;6cae  fc          DATA 0xfc
-    db 73h                  ;6caf  73          DATA 0x73 's'
-    db 8eh                  ;6cb0  8e          DATA 0x8e
-    db 78h                  ;6cb1  78          DATA 0x78 'x'
-    db 0fch                 ;6cb2  fc          DATA 0xfc
-    db 70h                  ;6cb3  70          DATA 0x70 'p'
-    db 63h                  ;6cb4  63          DATA 0x63 'c'
-    db 5dh                  ;6cb5  5d          DATA 0x5d ']'
-    db 0f0h                 ;6cb6  f0          DATA 0xf0
-    db 4dh                  ;6cb7  4d          DATA 0x4d 'M'
-    db 0a0h                 ;6cb8  a0          DATA 0xa0
-    db 0adh                 ;6cb9  ad          DATA 0xad
-    db 04h                  ;6cba  04          DATA 0x04
-    db 4dh                  ;6cbb  4d          DATA 0x4d 'M'
-    db 9ah                  ;6cbc  9a          DATA 0x9a
-    db 9dh                  ;6cbd  9d          DATA 0x9d
-    db 05h                  ;6cbe  05          DATA 0x05
-    db 60h                  ;6cbf  60          DATA 0x60 '`'
-    db 4dh                  ;6cc0  4d          DATA 0x4d 'M'
-    db 5ah                  ;6cc1  5a          DATA 0x5a 'Z'
-    db 8dh                  ;6cc2  8d          DATA 0x8d
-    db 02h                  ;6cc3  02          DATA 0x02
-    db 0a1h                 ;6cc4  a1          DATA 0xa1
-    db 59h                  ;6cc5  59          DATA 0x59 'Y'
-    db 70h                  ;6cc6  70          DATA 0x70 'p'
-    db 33h                  ;6cc7  33          DATA 0x33 '3'
-    db 72h                  ;6cc8  72          DATA 0x72 'r'
-    db 33h                  ;6cc9  33          DATA 0x33 '3'
-    db 0a3h                 ;6cca  a3          DATA 0xa3
-    db 08h                  ;6ccb  08          DATA 0x08
-    db 9ah                  ;6ccc  9a          DATA 0x9a
-    db 6ch                  ;6ccd  6c          DATA 0x6c 'l'
-    db 6fh                  ;6cce  6f          DATA 0x6f 'o'
-    db 60h                  ;6ccf  60          DATA 0x60 '`'
-    db 2ch                  ;6cd0  2c          DATA 0x2c ','
-    db 9eh                  ;6cd1  9e          DATA 0x9e
-    db 9ah                  ;6cd2  9a          DATA 0x9a
-    db 6ch                  ;6cd3  6c          DATA 0x6c 'l'
-    db 6fh                  ;6cd4  6f          DATA 0x6f 'o'
-    db 62h                  ;6cd5  62          DATA 0x62 'b'
-    db 5dh                  ;6cd6  5d          DATA 0x5d ']'
-    db 0f0h                 ;6cd7  f0          DATA 0xf0
-    db 4dh                  ;6cd8  4d          DATA 0x4d 'M'
-    db 0a0h                 ;6cd9  a0          DATA 0xa0
-    db 62h                  ;6cda  62          DATA 0x62 'b'
-    db 0bdh                 ;6cdb  bd          DATA 0xbd
-    db 02h                  ;6cdc  02          DATA 0x02
-    db 0fah                 ;6cdd  fa          DATA 0xfa
-    db 06h                  ;6cde  06          DATA 0x06
-    db 4dh                  ;6cdf  4d          DATA 0x4d 'M'
-    db 9ah                  ;6ce0  9a          DATA 0x9a
-    db 8dh                  ;6ce1  8d          DATA 0x8d
-    db 02h                  ;6ce2  02          DATA 0x02
-    db 0a2h                 ;6ce3  a2          DATA 0xa2
-    db 99h                  ;6ce4  99          DATA 0x99
-    db 5ah                  ;6ce5  5a          DATA 0x5a 'Z'
-    db 39h                  ;6ce6  39          DATA 0x39 '9'
-    db 0a3h                 ;6ce7  a3          DATA 0xa3
-    db 06h                  ;6ce8  06          DATA 0x06
-    db 62h                  ;6ce9  62          DATA 0x62 'b'
-    db 0b1h                 ;6cea  b1          DATA 0xb1
-    db 9ah                  ;6ceb  9a          DATA 0x9a
-    db 6ch                  ;6cec  6c          DATA 0x6c 'l'
-    db 6fh                  ;6ced  6f          DATA 0x6f 'o'
-    db 0b0h                 ;6cee  b0          DATA 0xb0
-    db 2ch                  ;6cef  2c          DATA 0x2c ','
-    db 9eh                  ;6cf0  9e          DATA 0x9e
-    db 5dh                  ;6cf1  5d          DATA 0x5d ']'
-    db 0fh                  ;6cf2  0f          DATA 0x0f
-    db 4dh                  ;6cf3  4d          DATA 0x4d 'M'
-    db 0ah                  ;6cf4  0a          DATA 0x0a
-    db 0bdh                 ;6cf5  bd          DATA 0xbd
-    db 07h                  ;6cf6  07          DATA 0x07
-    db 16h                  ;6cf7  16          DATA 0x16
-    db 9ah                  ;6cf8  9a          DATA 0x9a
-    db 0f1h                 ;6cf9  f1          DATA 0xf1
-    db 0a1h                 ;6cfa  a1          DATA 0xa1
-    db 2dh                  ;6cfb  2d          DATA 0x2d '-'
-    db 0bbh                 ;6cfc  bb          DATA 0xbb
-    db 0afh                 ;6cfd  af          DATA 0xaf
-    db 9bh                  ;6cfe  9b          DATA 0x9b
-    db 68h                  ;6cff  68          DATA 0x68 'h'
-    db 6fh                  ;6d00  6f          DATA 0x6f 'o'
-    db 8eh                  ;6d01  8e          DATA 0x8e
-    db 76h                  ;6d02  76          DATA 0x76 'v'
-    db 0fch                 ;6d03  fc          DATA 0xfc
-    db 4dh                  ;6d04  4d          DATA 0x4d 'M'
-    db 00h                  ;6d05  00          DATA 0x00
-    db 0adh                 ;6d06  ad          DATA 0xad
-    db 25h                  ;6d07  25          DATA 0x25 '%'
-    db 0b1h                 ;6d08  b1          DATA 0xb1
-    db 1bh                  ;6d09  1b          DATA 0x1b
-    db 3ah                  ;6d0a  3a          DATA 0x3a ':'
-    db 8eh                  ;6d0b  8e          DATA 0x8e
-    db 0adh                 ;6d0c  ad          DATA 0xad
-    db 0f1h                 ;6d0d  f1          DATA 0xf1
-    db 5dh                  ;6d0e  5d          DATA 0x5d ']'
-    db 0fh                  ;6d0f  0f          DATA 0x0f
-    db 4dh                  ;6d10  4d          DATA 0x4d 'M'
-    db 0ah                  ;6d11  0a          DATA 0x0a
-    db 0adh                 ;6d12  ad          DATA 0xad
-    db 07h                  ;6d13  07          DATA 0x07
-    db 1ah                  ;6d14  1a          DATA 0x1a
-    db 3ah                  ;6d15  3a          DATA 0x3a ':'
-    db 9ch                  ;6d16  9c          DATA 0x9c
-    db 6eh                  ;6d17  6e          DATA 0x6e 'n'
-    db 02h                  ;6d18  02          DATA 0x02
-    db 1bh                  ;6d19  1b          DATA 0x1b
-    db 3ah                  ;6d1a  3a          DATA 0x3a ':'
-    db 0a3h                 ;6d1b  a3          DATA 0xa3
-    db 09h                  ;6d1c  09          DATA 0x09
-    db 8eh                  ;6d1d  8e          DATA 0x8e
-    db 0adh                 ;6d1e  ad          DATA 0xad
-    db 0f1h                 ;6d1f  f1          DATA 0xf1
-    db 5dh                  ;6d20  5d          DATA 0x5d ']'
-    db 0fh                  ;6d21  0f          DATA 0x0f
-    db 4dh                  ;6d22  4d          DATA 0x4d 'M'
-    db 0ah                  ;6d23  0a          DATA 0x0a
-    db 0bdh                 ;6d24  bd          DATA 0xbd
-    db 04h                  ;6d25  04          DATA 0x04
-    db 0a3h                 ;6d26  a3          DATA 0xa3
-    db 0ah                  ;6d27  0a          DATA 0x0a
-    db 5ah                  ;6d28  5a          DATA 0x5a 'Z'
-    db 39h                  ;6d29  39          DATA 0x39 '9'
-    db 0b0h                 ;6d2a  b0          DATA 0xb0
-    db 0fah                 ;6d2b  fa          DATA 0xfa
-    db 29h                  ;6d2c  29          DATA 0x29 ')'
-    db 0fah                 ;6d2d  fa          DATA 0xfa
-    db 31h                  ;6d2e  31          DATA 0x31 '1'
-    db 8eh                  ;6d2f  8e          DATA 0x8e
-    db 75h                  ;6d30  75          DATA 0x75 'u'
-    db 0fch                 ;6d31  fc          DATA 0xfc
-    db 4dh                  ;6d32  4d          DATA 0x4d 'M'
-    db 00h                  ;6d33  00          DATA 0x00
-    db 0adh                 ;6d34  ad          DATA 0xad
-    db 2ah                  ;6d35  2a          DATA 0x2a '*'
-    db 4dh                  ;6d36  4d          DATA 0x4d 'M'
-    db 07h                  ;6d37  07          DATA 0x07
-    db 8dh                  ;6d38  8d          DATA 0x8d
-    db 02h                  ;6d39  02          DATA 0x02
-    db 0a1h                 ;6d3a  a1          DATA 0xa1
-    db 06h                  ;6d3b  06          DATA 0x06
-    db 0a3h                 ;6d3c  a3          DATA 0xa3
-    db 03h                  ;6d3d  03          DATA 0x03
-    db 0b1h                 ;6d3e  b1          DATA 0xb1
-    db 8eh                  ;6d3f  8e          DATA 0x8e
-    db 0adh                 ;6d40  ad          DATA 0xad
-    db 0f1h                 ;6d41  f1          DATA 0xf1
-    db 5dh                  ;6d42  5d          DATA 0x5d ']'
-    db 0fh                  ;6d43  0f          DATA 0x0f
-    db 4dh                  ;6d44  4d          DATA 0x4d 'M'
-    db 0ah                  ;6d45  0a          DATA 0x0a
-    db 0bdh                 ;6d46  bd          DATA 0xbd
-    db 02h                  ;6d47  02          DATA 0x02
-    db 0a3h                 ;6d48  a3          DATA 0xa3
-    db 06h                  ;6d49  06          DATA 0x06
-    db 0b0h                 ;6d4a  b0          DATA 0xb0
-    db 0b1h                 ;6d4b  b1          DATA 0xb1
-    db 9ah                  ;6d4c  9a          DATA 0x9a
-    db 6ch                  ;6d4d  6c          DATA 0x6c 'l'
-    db 6fh                  ;6d4e  6f          DATA 0x6f 'o'
-    db 0b0h                 ;6d4f  b0          DATA 0xb0
-    db 2ch                  ;6d50  2c          DATA 0x2c ','
-    db 9eh                  ;6d51  9e          DATA 0x9e
-    db 9ah                  ;6d52  9a          DATA 0x9a
-    db 68h                  ;6d53  68          DATA 0x68 'h'
-    db 6fh                  ;6d54  6f          DATA 0x6f 'o'
-    db 0afh                 ;6d55  af          DATA 0xaf
-    db 0b1h                 ;6d56  b1          DATA 0xb1
-    db 9ah                  ;6d57  9a          DATA 0x9a
-    db 6ch                  ;6d58  6c          DATA 0x6c 'l'
-    db 6fh                  ;6d59  6f          DATA 0x6f 'o'
-    db 0b0h                 ;6d5a  b0          DATA 0xb0
-    db 2ch                  ;6d5b  2c          DATA 0x2c ','
-    db 9eh                  ;6d5c  9e          DATA 0x9e
-    db 9ah                  ;6d5d  9a          DATA 0x9a
-    db 6ch                  ;6d5e  6c          DATA 0x6c 'l'
-    db 6fh                  ;6d5f  6f          DATA 0x6f 'o'
-    db 0afh                 ;6d60  af          DATA 0xaf
-    db 9ah                  ;6d61  9a          DATA 0x9a
-    db 70h                  ;6d62  70          DATA 0x70 'p'
-    db 6eh                  ;6d63  6e          DATA 0x6e 'n'
-    db 9ah                  ;6d64  9a          DATA 0x9a
-    db 00h                  ;6d65  00          DATA 0x00
-    db 08h                  ;6d66  08          DATA 0x08
-    db 4dh                  ;6d67  4d          DATA 0x4d 'M'
-    db 01h                  ;6d68  01          DATA 0x01
-    db 0adh                 ;6d69  ad          DATA 0xad
-    db 46h                  ;6d6a  46          DATA 0x46 'F'
-    db 8eh                  ;6d6b  8e          DATA 0x8e
-    db 0abh                 ;6d6c  ab          DATA 0xab
-    db 0f1h                 ;6d6d  f1          DATA 0xf1
-    db 5dh                  ;6d6e  5d          DATA 0x5d ']'
-    db 0fh                  ;6d6f  0f          DATA 0x0f
-    db 4dh                  ;6d70  4d          DATA 0x4d 'M'
-    db 00h                  ;6d71  00          DATA 0x00
-    db 0adh                 ;6d72  ad          DATA 0xad
-    db 13h                  ;6d73  13          DATA 0x13
-    db 0c8h                 ;6d74  c8          DATA 0xc8
-    db 20h                  ;6d75  20          DATA 0x20 ' '
-    db 03h                  ;6d76  03          DATA 0x03
-    db 0bdh                 ;6d77  bd          DATA 0xbd
-    db 0eh                  ;6d78  0e          DATA 0x0e
-    db 0c8h                 ;6d79  c8          DATA 0xc8
-    db 21h                  ;6d7a  21          DATA 0x21 '!'
-    db 0bh                  ;6d7b  0b          DATA 0x0b
-    db 0bdh                 ;6d7c  bd          DATA 0xbd
-    db 1fh                  ;6d7d  1f          DATA 0x1f
-    db 8eh                  ;6d7e  8e          DATA 0x8e
-    db 0abh                 ;6d7f  ab          DATA 0xab
-    db 0f1h                 ;6d80  f1          DATA 0xf1
-    db 5dh                  ;6d81  5d          DATA 0x5d ']'
-    db 0efh                 ;6d82  ef          DATA 0xef
-    db 4dh                  ;6d83  4d          DATA 0x4d 'M'
-    db 09h                  ;6d84  09          DATA 0x09
-    db 0bdh                 ;6d85  bd          DATA 0xbd
-    db 16h                  ;6d86  16          DATA 0x16
-    db 0a1h                 ;6d87  a1          DATA 0xa1
-    db 00h                  ;6d88  00          DATA 0x00
-    db 0a1h                 ;6d89  a1          DATA 0xa1
-    db 20h                  ;6d8a  20          DATA 0x20 ' '
-    db 9eh                  ;6d8b  9e          DATA 0x9e
-    db 9ch                  ;6d8c  9c          DATA 0x9c
-    db 0f1h                 ;6d8d  f1          DATA 0xf1
-    db 0a1h                 ;6d8e  a1          DATA 0xa1
-    db 20h                  ;6d8f  20          DATA 0x20 ' '
-    db 9eh                  ;6d90  9e          DATA 0x9e
-    db 9dh                  ;6d91  9d          DATA 0x9d
-    db 0f1h                 ;6d92  f1          DATA 0xf1
-    db 0a1h                 ;6d93  a1          DATA 0xa1
-    db 41h                  ;6d94  41          DATA 0x41 'A'
-    db 9eh                  ;6d95  9e          DATA 0x9e
-    db 9ah                  ;6d96  9a          DATA 0x9a
-    db 0f1h                 ;6d97  f1          DATA 0xf1
-    db 0a1h                 ;6d98  a1          DATA 0xa1
-    db 4dh                  ;6d99  4d          DATA 0x4d 'M'
-    db 9eh                  ;6d9a  9e          DATA 0x9e
-    db 9bh                  ;6d9b  9b          DATA 0x9b
-    db 0f1h                 ;6d9c  f1          DATA 0xf1
-    db 0a1h                 ;6d9d  a1          DATA 0xa1
-    db 6bh                  ;6d9e  6b          DATA 0x6b 'k'
-    db 9eh                  ;6d9f  9e          DATA 0x9e
-    db 0a2h                 ;6da0  a2          DATA 0xa2
-    db 0f1h                 ;6da1  f1          DATA 0xf1
-    db 0a1h                 ;6da2  a1          DATA 0xa1
-    db 48h                  ;6da3  48          DATA 0x48 'H'
-    db 9eh                  ;6da4  9e          DATA 0x9e
-    db 0a3h                 ;6da5  a3          DATA 0xa3
-    db 0f1h                 ;6da6  f1          DATA 0xf1
-    db 0a1h                 ;6da7  a1          DATA 0xa1
-    db 7ah                  ;6da8  7a          DATA 0x7a 'z'
-    db 9eh                  ;6da9  9e          DATA 0x9e
-    db 0a4h                 ;6daa  a4          DATA 0xa4
-    db 0f1h                 ;6dab  f1          DATA 0xf1
-    db 0a3h                 ;6dac  a3          DATA 0xa3
-    db 0ffh                 ;6dad  ff          DATA 0xff
-    db 9bh                  ;6dae  9b          DATA 0x9b
-    db 3ch                  ;6daf  3c          DATA 0x3c '<'
-    db 6eh                  ;6db0  6e          DATA 0x6e 'n'
-    db 9ah                  ;6db1  9a          DATA 0x9a
-    db 0bh                  ;6db2  0b          DATA 0x0b
-    db 08h                  ;6db3  08          DATA 0x08
-    db 4dh                  ;6db4  4d          DATA 0x4d 'M'
-    db 01h                  ;6db5  01          DATA 0x01
-    db 0adh                 ;6db6  ad          DATA 0xad
-    db 43h                  ;6db7  43          DATA 0x43 'C'
-    db 8eh                  ;6db8  8e          DATA 0x8e
-    db 0abh                 ;6db9  ab          DATA 0xab
-    db 0f1h                 ;6dba  f1          DATA 0xf1
-    db 5dh                  ;6dbb  5d          DATA 0x5d ']'
-    db 0fh                  ;6dbc  0f          DATA 0x0f
-    db 4dh                  ;6dbd  4d          DATA 0x4d 'M'
-    db 00h                  ;6dbe  00          DATA 0x00
-    db 0adh                 ;6dbf  ad          DATA 0xad
-    db 13h                  ;6dc0  13          DATA 0x13
-    db 0c8h                 ;6dc1  c8          DATA 0xc8
-    db 20h                  ;6dc2  20          DATA 0x20 ' '
-    db 03h                  ;6dc3  03          DATA 0x03
-    db 0bdh                 ;6dc4  bd          DATA 0xbd
-    db 0eh                  ;6dc5  0e          DATA 0x0e
-    db 0c8h                 ;6dc6  c8          DATA 0xc8
-    db 21h                  ;6dc7  21          DATA 0x21 '!'
-    db 0bh                  ;6dc8  0b          DATA 0x0b
-    db 0bdh                 ;6dc9  bd          DATA 0xbd
-    db 1dh                  ;6dca  1d          DATA 0x1d
-    db 8eh                  ;6dcb  8e          DATA 0x8e
-    db 0abh                 ;6dcc  ab          DATA 0xab
-    db 0f1h                 ;6dcd  f1          DATA 0xf1
-    db 5dh                  ;6dce  5d          DATA 0x5d ']'
-    db 0efh                 ;6dcf  ef          DATA 0xef
-    db 4dh                  ;6dd0  4d          DATA 0x4d 'M'
-    db 09h                  ;6dd1  09          DATA 0x09
-    db 0bdh                 ;6dd2  bd          DATA 0xbd
-    db 14h                  ;6dd3  14          DATA 0x14
-    db 0a1h                 ;6dd4  a1          DATA 0xa1
-    db 00h                  ;6dd5  00          DATA 0x00
-    db 9eh                  ;6dd6  9e          DATA 0x9e
-    db 9ch                  ;6dd7  9c          DATA 0x9c
-    db 0f1h                 ;6dd8  f1          DATA 0xf1
-    db 0a1h                 ;6dd9  a1          DATA 0xa1
-    db 20h                  ;6dda  20          DATA 0x20 ' '
-    db 9eh                  ;6ddb  9e          DATA 0x9e
-    db 9dh                  ;6ddc  9d          DATA 0x9d
-    db 0f1h                 ;6ddd  f1          DATA 0xf1
-    db 0a1h                 ;6dde  a1          DATA 0xa1
-    db 46h                  ;6ddf  46          DATA 0x46 'F'
-    db 9eh                  ;6de0  9e          DATA 0x9e
-    db 9ah                  ;6de1  9a          DATA 0x9a
-    db 0f1h                 ;6de2  f1          DATA 0xf1
-    db 0a1h                 ;6de3  a1          DATA 0xa1
-    db 4dh                  ;6de4  4d          DATA 0x4d 'M'
-    db 9eh                  ;6de5  9e          DATA 0x9e
-    db 9bh                  ;6de6  9b          DATA 0x9b
-    db 0f1h                 ;6de7  f1          DATA 0xf1
-    db 0a1h                 ;6de8  a1          DATA 0xa1
-    db 4dh                  ;6de9  4d          DATA 0x4d 'M'
-    db 9eh                  ;6dea  9e          DATA 0x9e
-    db 0a2h                 ;6deb  a2          DATA 0xa2
-    db 0f1h                 ;6dec  f1          DATA 0xf1
-    db 0a1h                 ;6ded  a1          DATA 0xa1
-    db 48h                  ;6dee  48          DATA 0x48 'H'
-    db 9eh                  ;6def  9e          DATA 0x9e
-    db 0a3h                 ;6df0  a3          DATA 0xa3
-    db 0f1h                 ;6df1  f1          DATA 0xf1
-    db 0a1h                 ;6df2  a1          DATA 0xa1
-    db 7ah                  ;6df3  7a          DATA 0x7a 'z'
-    db 9eh                  ;6df4  9e          DATA 0x9e
-    db 0a4h                 ;6df5  a4          DATA 0xa4
-    db 0f1h                 ;6df6  f1          DATA 0xf1
-    db 0a3h                 ;6df7  a3          DATA 0xa3
-    db 0ffh                 ;6df8  ff          DATA 0xff
-    db 0fah                 ;6df9  fa          DATA 0xfa
-    db 41h                  ;6dfa  41          DATA 0x41 'A'
-    db 8eh                  ;6dfb  8e          DATA 0x8e
-    db 0abh                 ;6dfc  ab          DATA 0xab
-    db 0f1h                 ;6dfd  f1          DATA 0xf1
-    db 5dh                  ;6dfe  5d          DATA 0x5d ']'
-    db 0fh                  ;6dff  0f          DATA 0x0f
-    db 4dh                  ;6e00  4d          DATA 0x4d 'M'
-    db 00h                  ;6e01  00          DATA 0x00
-    db 0adh                 ;6e02  ad          DATA 0xad
-    db 13h                  ;6e03  13          DATA 0x13
-    db 0c8h                 ;6e04  c8          DATA 0xc8
-    db 20h                  ;6e05  20          DATA 0x20 ' '
-    db 03h                  ;6e06  03          DATA 0x03
-    db 0bdh                 ;6e07  bd          DATA 0xbd
-    db 0eh                  ;6e08  0e          DATA 0x0e
-    db 0c8h                 ;6e09  c8          DATA 0xc8
-    db 21h                  ;6e0a  21          DATA 0x21 '!'
-    db 0bh                  ;6e0b  0b          DATA 0x0b
-    db 0bdh                 ;6e0c  bd          DATA 0xbd
-    db 1dh                  ;6e0d  1d          DATA 0x1d
-    db 8eh                  ;6e0e  8e          DATA 0x8e
-    db 0abh                 ;6e0f  ab          DATA 0xab
-    db 0f1h                 ;6e10  f1          DATA 0xf1
-    db 5dh                  ;6e11  5d          DATA 0x5d ']'
-    db 0efh                 ;6e12  ef          DATA 0xef
-    db 4dh                  ;6e13  4d          DATA 0x4d 'M'
-    db 09h                  ;6e14  09          DATA 0x09
-    db 0bdh                 ;6e15  bd          DATA 0xbd
-    db 14h                  ;6e16  14          DATA 0x14
-    db 0a1h                 ;6e17  a1          DATA 0xa1
-    db 01h                  ;6e18  01          DATA 0x01
-    db 9eh                  ;6e19  9e          DATA 0x9e
-    db 9ch                  ;6e1a  9c          DATA 0x9c
-    db 0f1h                 ;6e1b  f1          DATA 0xf1
-    db 0a1h                 ;6e1c  a1          DATA 0xa1
-    db 20h                  ;6e1d  20          DATA 0x20 ' '
-    db 9eh                  ;6e1e  9e          DATA 0x9e
-    db 9dh                  ;6e1f  9d          DATA 0x9d
-    db 0f1h                 ;6e20  f1          DATA 0xf1
-    db 0a1h                 ;6e21  a1          DATA 0xa1
-    db 46h                  ;6e22  46          DATA 0x46 'F'
-    db 9eh                  ;6e23  9e          DATA 0x9e
-    db 9ah                  ;6e24  9a          DATA 0x9a
-    db 0f1h                 ;6e25  f1          DATA 0xf1
-    db 0a1h                 ;6e26  a1          DATA 0xa1
-    db 4dh                  ;6e27  4d          DATA 0x4d 'M'
-    db 9eh                  ;6e28  9e          DATA 0x9e
-    db 9bh                  ;6e29  9b          DATA 0x9b
-    db 0f1h                 ;6e2a  f1          DATA 0xf1
-    db 0a1h                 ;6e2b  a1          DATA 0xa1
-    db 4dh                  ;6e2c  4d          DATA 0x4d 'M'
-    db 9eh                  ;6e2d  9e          DATA 0x9e
-    db 0a2h                 ;6e2e  a2          DATA 0xa2
-    db 0f1h                 ;6e2f  f1          DATA 0xf1
-    db 0a1h                 ;6e30  a1          DATA 0xa1
-    db 48h                  ;6e31  48          DATA 0x48 'H'
-    db 9eh                  ;6e32  9e          DATA 0x9e
-    db 0a3h                 ;6e33  a3          DATA 0xa3
-    db 0f1h                 ;6e34  f1          DATA 0xf1
-    db 0a1h                 ;6e35  a1          DATA 0xa1
-    db 7ah                  ;6e36  7a          DATA 0x7a 'z'
-    db 9eh                  ;6e37  9e          DATA 0x9e
-    db 0a4h                 ;6e38  a4          DATA 0xa4
-    db 0f1h                 ;6e39  f1          DATA 0xf1
-    db 0a3h                 ;6e3a  a3          DATA 0xa3
-    db 0ffh                 ;6e3b  ff          DATA 0xff
-    db 9ah                  ;6e3c  9a          DATA 0x9a
-    db 0ebh                 ;6e3d  eb          DATA 0xeb
-    db 6fh                  ;6e3e  6f          DATA 0x6f 'o'
-    db 0afh                 ;6e3f  af          DATA 0xaf
-    db 8eh                  ;6e40  8e          DATA 0x8e
-    db 0ach                 ;6e41  ac          DATA 0xac
-    db 0f1h                 ;6e42  f1          DATA 0xf1
-    db 4dh                  ;6e43  4d          DATA 0x4d 'M'
-    db 03h                  ;6e44  03          DATA 0x03
-    db 0adh                 ;6e45  ad          DATA 0xad
-    db 17h                  ;6e46  17          DATA 0x17
-    db 4dh                  ;6e47  4d          DATA 0x4d 'M'
-    db 02h                  ;6e48  02          DATA 0x02
-    db 0adh                 ;6e49  ad          DATA 0xad
-    db 13h                  ;6e4a  13          DATA 0x13
-    db 4dh                  ;6e4b  4d          DATA 0x4d 'M'
-    db 05h                  ;6e4c  05          DATA 0x05
-    db 0adh                 ;6e4d  ad          DATA 0xad
-    db 0fh                  ;6e4e  0f          DATA 0x0f
-    db 4dh                  ;6e4f  4d          DATA 0x4d 'M'
-    db 06h                  ;6e50  06          DATA 0x06
-    db 0adh                 ;6e51  ad          DATA 0xad
-    db 0bh                  ;6e52  0b          DATA 0x0b
-    db 0a1h                 ;6e53  a1          DATA 0xa1
-    db 41h                  ;6e54  41          DATA 0x41 'A'
-    db 31h                  ;6e55  31          DATA 0x31 '1'
-    db 63h                  ;6e56  63          DATA 0x63 'c'
-    db 4dh                  ;6e57  4d          DATA 0x4d 'M'
-    db 02h                  ;6e58  02          DATA 0x02
-    db 0a1h                 ;6e59  a1          DATA 0xa1
-    db 42h                  ;6e5a  42          DATA 0x42 'B'
-    db 9eh                  ;6e5b  9e          DATA 0x9e
-    db 0a4h                 ;6e5c  a4          DATA 0xa4
-    db 0f1h                 ;6e5d  f1          DATA 0xf1
-    db 2bh                  ;6e5e  2b          DATA 0x2b '+'
-    db 36h                  ;6e5f  36          DATA 0x36 '6'
-    db 31h                  ;6e60  31          DATA 0x31 '1'
-    db 43h                  ;6e61  43          DATA 0x43 'C'
-    db 6fh                  ;6e62  6f          DATA 0x6f 'o'
-    db 02h                  ;6e63  02          DATA 0x02
-    db 2ah                  ;6e64  2a          DATA 0x2a '*'
-    db 36h                  ;6e65  36          DATA 0x36 '6'
-    db 7bh                  ;6e66  7b          DATA 0x7b '{'
-    db 37h                  ;6e67  37          DATA 0x37 '7'
-    db 31h                  ;6e68  31          DATA 0x31 '1'
-    db 43h                  ;6e69  43          DATA 0x43 'C'
-    db 71h                  ;6e6a  71          DATA 0x71 'q'
-    db 02h                  ;6e6b  02          DATA 0x02
-    db 7ah                  ;6e6c  7a          DATA 0x7a 'z'
-    db 37h                  ;6e6d  37          DATA 0x37 '7'
-    db 0afh                 ;6e6e  af          DATA 0xaf
-    db 0afh                 ;6e6f  af          DATA 0xaf
+sub_6cac:
+    mov a,!0fc77h           ;6cac  8e 77 fc
+    mov b,a                 ;6caf  73
+    mov a,!0fc78h           ;6cb0  8e 78 fc
+    mov x,a                 ;6cb3  70
+    mov a,b                 ;6cb4  63
+    and a,#0f0h             ;6cb5  5d f0
+    cmp a,#0a0h             ;6cb7  4d a0
+    bz $lab_6cbf            ;6cb9  ad 04
+    cmp a,#9ah              ;6cbb  4d 9a
+    bnc $lab_6cc4           ;6cbd  9d 05
+
+lab_6cbf:
+    mov a,x                 ;6cbf  60
+    cmp a,#5ah              ;6cc0  4d 5a
+    bc $lab_6cc6            ;6cc2  8d 02
+
+lab_6cc4:
+    mov a,#59h              ;6cc4  a1 59
+
+lab_6cc6:
+    mov x,a                 ;6cc6  70
+    xch a,b                 ;6cc7  33
+    mov c,a                 ;6cc8  72
+    xch a,b                 ;6cc9  33
+    mov b,#08h              ;6cca  a3 08
+    call !sub_6f6c          ;6ccc  9a 6c 6f
+    mov a,x                 ;6ccf  60
+    callf !sub_0a9e         ;6cd0  2c 9e
+    call !sub_6f6c          ;6cd2  9a 6c 6f
+    mov a,c                 ;6cd5  62
+    and a,#0f0h             ;6cd6  5d f0
+    cmp a,#0a0h             ;6cd8  4d a0
+    mov a,c                 ;6cda  62
+    bnz $lab_6cdf           ;6cdb  bd 02
+    br $lab_6ce5            ;6cdd  fa 06
+
+lab_6cdf:
+    cmp a,#9ah              ;6cdf  4d 9a
+    bc $lab_6ce5            ;6ce1  8d 02
+    mov c,#99h              ;6ce3  a2 99
+
+lab_6ce5:
+    set1 0fe39h.5           ;6ce5  5a 39
+    mov b,#06h              ;6ce7  a3 06
+    mov a,c                 ;6ce9  62
+    push ax                 ;6cea  b1
+    call !sub_6f6c          ;6ceb  9a 6c 6f
+    pop ax                  ;6cee  b0
+    callf !sub_0a9e         ;6cef  2c 9e
+    and a,#0fh              ;6cf1  5d 0f
+    cmp a,#0ah              ;6cf3  4d 0a
+    bnz $lab_6cfe           ;6cf5  bd 07
+    movw hl,#0f19ah         ;6cf7  16 9a f1
+    mov a,#2dh              ;6cfa  a1 2d
+    mov [hl+b],a            ;6cfc  bb
+    ret                     ;6cfd  af
+
+lab_6cfe:
+    br !sub_6f68            ;6cfe  9b 68 6f
+
+sub_6d01:
+    mov a,!0fc76h           ;6d01  8e 76 fc
+    cmp a,#00h              ;6d04  4d 00
+    bz $lab_6d2d            ;6d06  ad 25
+    push ax                 ;6d08  b1
+    clr1 0fe3ah.1           ;6d09  1b 3a
+    mov a,!0f1adh           ;6d0b  8e ad f1
+    and a,#0fh              ;6d0e  5d 0f
+    cmp a,#0ah              ;6d10  4d 0a
+    bz $lab_6d1b            ;6d12  ad 07
+    set1 0fe3ah.1           ;6d14  1a 3a
+    bt 0fe6eh.1,$lab_6d1b   ;6d16  9c 6e 02
+    clr1 0fe3ah.1           ;6d19  1b 3a
+
+lab_6d1b:
+    mov b,#09h              ;6d1b  a3 09
+    mov a,!0f1adh           ;6d1d  8e ad f1
+    and a,#0fh              ;6d20  5d 0f
+    cmp a,#0ah              ;6d22  4d 0a
+    bnz $lab_6d2a           ;6d24  bd 04
+    mov b,#0ah              ;6d26  a3 0a
+    set1 0fe39h.5           ;6d28  5a 39
+
+lab_6d2a:
+    pop ax                  ;6d2a  b0
+    br $lab_6d56            ;6d2b  fa 29
+
+lab_6d2d:
+    br $lab_6d60            ;6d2d  fa 31
+
+sub_6d2f:
+    mov a,!0fc75h           ;6d2f  8e 75 fc
+    cmp a,#00h              ;6d32  4d 00
+    bz $lab_6d60            ;6d34  ad 2a
+    cmp a,#07h              ;6d36  4d 07
+    bc $lab_6d3c            ;6d38  8d 02
+    mov a,#06h              ;6d3a  a1 06
+
+lab_6d3c:
+    mov b,#03h              ;6d3c  a3 03
+    push ax                 ;6d3e  b1
+    mov a,!0f1adh           ;6d3f  8e ad f1
+    and a,#0fh              ;6d42  5d 0f
+    cmp a,#0ah              ;6d44  4d 0a
+    bnz $lab_6d4a           ;6d46  bd 02
+    mov b,#06h              ;6d48  a3 06
+
+lab_6d4a:
+    pop ax                  ;6d4a  b0
+    push ax                 ;6d4b  b1
+    call !sub_6f6c          ;6d4c  9a 6c 6f
+    pop ax                  ;6d4f  b0
+    callf !sub_0a9e         ;6d50  2c 9e
+    call !sub_6f68          ;6d52  9a 68 6f
+    ret                     ;6d55  af
+
+lab_6d56:
+    push ax                 ;6d56  b1
+    call !sub_6f6c          ;6d57  9a 6c 6f
+    pop ax                  ;6d5a  b0
+    callf !sub_0a9e         ;6d5b  2c 9e
+    call !sub_6f6c          ;6d5d  9a 6c 6f
+
+lab_6d60:
+    ret                     ;6d60  af
+
+sub_6d61:
+    call !sub_6e70          ;6d61  9a 70 6e
+
+sub_6d64:
+    call !sub_0800          ;6d64  9a 00 08
+    cmp a,#01h              ;6d67  4d 01
+    bz $lab_6db1            ;6d69  ad 46
+    mov a,!0f1abh           ;6d6b  8e ab f1
+    and a,#0fh              ;6d6e  5d 0f
+    cmp a,#00h              ;6d70  4d 00
+    bz $lab_6d87            ;6d72  ad 13
+    cmp 0fe20h,#03h         ;6d74  c8 20 03
+    bnz $lab_6d87           ;6d77  bd 0e
+    cmp 0fe21h,#0bh         ;6d79  c8 21 0b
+    bnz $lab_6d9d           ;6d7c  bd 1f
+    mov a,!0f1abh           ;6d7e  8e ab f1
+    and a,#0efh             ;6d81  5d ef
+    cmp a,#09h              ;6d83  4d 09
+    bnz $lab_6d9d           ;6d85  bd 16
+
+lab_6d87:
+    mov a,#00h              ;6d87  a1 00
+    mov a,#20h              ;6d89  a1 20
+    mov !0f19ch,a           ;6d8b  9e 9c f1
+    mov a,#20h              ;6d8e  a1 20
+    mov !0f19dh,a           ;6d90  9e 9d f1
+    mov a,#41h              ;6d93  a1 41
+    mov !0f19ah,a           ;6d95  9e 9a f1
+    mov a,#4dh              ;6d98  a1 4d
+    mov !0f19bh,a           ;6d9a  9e 9b f1
+
+lab_6d9d:
+    mov a,#6bh              ;6d9d  a1 6b
+    mov !0f1a2h,a           ;6d9f  9e a2 f1
+    mov a,#48h              ;6da2  a1 48
+    mov !0f1a3h,a           ;6da4  9e a3 f1
+    mov a,#7ah              ;6da7  a1 7a
+    mov !0f1a4h,a           ;6da9  9e a4 f1
+    mov b,#0ffh             ;6dac  a3 ff
+    br !lab_6e3c            ;6dae  9b 3c 6e
+
+lab_6db1:
+    call !sub_080b          ;6db1  9a 0b 08
+    cmp a,#01h              ;6db4  4d 01
+    bz $lab_6dfb            ;6db6  ad 43
+    mov a,!0f1abh           ;6db8  8e ab f1
+    and a,#0fh              ;6dbb  5d 0f
+    cmp a,#00h              ;6dbd  4d 00
+    bz $lab_6dd4            ;6dbf  ad 13
+    cmp 0fe20h,#03h         ;6dc1  c8 20 03
+    bnz $lab_6dd4           ;6dc4  bd 0e
+    cmp 0fe21h,#0bh         ;6dc6  c8 21 0b
+    bnz $lab_6de8           ;6dc9  bd 1d
+    mov a,!0f1abh           ;6dcb  8e ab f1
+    and a,#0efh             ;6dce  5d ef
+    cmp a,#09h              ;6dd0  4d 09
+    bnz $lab_6de8           ;6dd2  bd 14
+
+lab_6dd4:
+    mov a,#00h              ;6dd4  a1 00
+    mov !0f19ch,a           ;6dd6  9e 9c f1
+    mov a,#20h              ;6dd9  a1 20
+    mov !0f19dh,a           ;6ddb  9e 9d f1
+    mov a,#46h              ;6dde  a1 46
+    mov !0f19ah,a           ;6de0  9e 9a f1
+    mov a,#4dh              ;6de3  a1 4d
+    mov !0f19bh,a           ;6de5  9e 9b f1
+
+lab_6de8:
+    mov a,#4dh              ;6de8  a1 4d
+    mov !0f1a2h,a           ;6dea  9e a2 f1
+    mov a,#48h              ;6ded  a1 48
+    mov !0f1a3h,a           ;6def  9e a3 f1
+    mov a,#7ah              ;6df2  a1 7a
+    mov !0f1a4h,a           ;6df4  9e a4 f1
+    mov b,#0ffh             ;6df7  a3 ff
+    br $lab_6e3c            ;6df9  fa 41
+
+lab_6dfb:
+    mov a,!0f1abh           ;6dfb  8e ab f1
+    and a,#0fh              ;6dfe  5d 0f
+    cmp a,#00h              ;6e00  4d 00
+    bz $lab_6e17            ;6e02  ad 13
+    cmp 0fe20h,#03h         ;6e04  c8 20 03
+    bnz $lab_6e17           ;6e07  bd 0e
+    cmp 0fe21h,#0bh         ;6e09  c8 21 0b
+    bnz $lab_6e2b           ;6e0c  bd 1d
+    mov a,!0f1abh           ;6e0e  8e ab f1
+    and a,#0efh             ;6e11  5d ef
+    cmp a,#09h              ;6e13  4d 09
+    bnz $lab_6e2b           ;6e15  bd 14
+
+lab_6e17:
+    mov a,#01h              ;6e17  a1 01
+    mov !0f19ch,a           ;6e19  9e 9c f1
+    mov a,#20h              ;6e1c  a1 20
+    mov !0f19dh,a           ;6e1e  9e 9d f1
+    mov a,#46h              ;6e21  a1 46
+    mov !0f19ah,a           ;6e23  9e 9a f1
+    mov a,#4dh              ;6e26  a1 4d
+    mov !0f19bh,a           ;6e28  9e 9b f1
+
+lab_6e2b:
+    mov a,#4dh              ;6e2b  a1 4d
+    mov !0f1a2h,a           ;6e2d  9e a2 f1
+    mov a,#48h              ;6e30  a1 48
+    mov !0f1a3h,a           ;6e32  9e a3 f1
+    mov a,#7ah              ;6e35  a1 7a
+    mov !0f1a4h,a           ;6e37  9e a4 f1
+    mov b,#0ffh             ;6e3a  a3 ff
+
+lab_6e3c:
+    call !sub_6feb          ;6e3c  9a eb 6f
+    ret                     ;6e3f  af
+
+sub_6e40:
+    mov a,!0f1ach           ;6e40  8e ac f1
+    cmp a,#03h              ;6e43  4d 03
+    bz $lab_6e5e            ;6e45  ad 17
+    cmp a,#02h              ;6e47  4d 02
+    bz $lab_6e5e            ;6e49  ad 13
+    cmp a,#05h              ;6e4b  4d 05
+    bz $lab_6e5e            ;6e4d  ad 0f
+    cmp a,#06h              ;6e4f  4d 06
+    bz $lab_6e5e            ;6e51  ad 0b
+    mov a,#41h              ;6e53  a1 41
+    bf 0fe4dh.6,$lab_6e5b   ;6e55  31 63 4d 02
+    mov a,#42h              ;6e59  a1 42
+
+lab_6e5b:
+    mov !0f1a4h,a           ;6e5b  9e a4 f1
+
+lab_6e5e:
+    clr1 0fe36h.2           ;6e5e  2b 36
+    bf 0fe6fh.4,$lab_6e66   ;6e60  31 43 6f 02
+    set1 0fe36h.2           ;6e64  2a 36
+
+lab_6e66:
+    clr1 0fe37h.7           ;6e66  7b 37
+    bf 0fe71h.4,$sub_6e6e   ;6e68  31 43 71 02
+    set1 0fe37h.7           ;6e6c  7a 37
+
+sub_6e6e:
+    ret                     ;6e6e  af
+
+sub_6e6f:
+    ret                     ;6e6f  af
 
 sub_6e70:
-;TODO code
-    db 31h                  ;6e70  31          DATA 0x31 '1'
-    db 7eh                  ;6e71  7e          DATA 0x7e '~'
-    db 14h                  ;6e72  14          DATA 0x14
-    db 0b1h                 ;6e73  b1          DATA 0xb1
-    db 63h                  ;6e74  63          DATA 0x63 'c'
-    db 5dh                  ;6e75  5d          DATA 0x5d ']'
-    db 80h                  ;6e76  80          DATA 0x80
-    db 4dh                  ;6e77  4d          DATA 0x4d 'M'
-    db 00h                  ;6e78  00          DATA 0x00
-    db 0b0h                 ;6e79  b0          DATA 0xb0
-    db 0bdh                 ;6e7a  bd          DATA 0xbd
-    db 1bh                  ;6e7b  1b          DATA 0x1b
-    db 0b1h                 ;6e7c  b1          DATA 0xb1
-    db 9ah                  ;6e7d  9a          DATA 0x9a
-    db 0ebh                 ;6e7e  eb          DATA 0xeb
-    db 6fh                  ;6e7f  6f          DATA 0x6f 'o'
-    db 0c4h                 ;6e80  c4          DATA 0xc4
-    db 0d6h                 ;6e81  d6          DATA 0xd6
-    db 0b0h                 ;6e82  b0          DATA 0xb0
-    db 73h                  ;6e83  73          DATA 0x73 's'
-    db 9bh                  ;6e84  9b          DATA 0x9b
-    db 0ebh                 ;6e85  eb          DATA 0xeb
-    db 6fh                  ;6e86  6f          DATA 0x6f 'o'
-    db 0b1h                 ;6e87  b1          DATA 0xb1
-    db 63h                  ;6e88  63          DATA 0x63 'c'
-    db 5dh                  ;6e89  5d          DATA 0x5d ']'
-    db 80h                  ;6e8a  80          DATA 0x80
-    db 4dh                  ;6e8b  4d          DATA 0x4d 'M'
-    db 00h                  ;6e8c  00          DATA 0x00
-    db 0b0h                 ;6e8d  b0          DATA 0xb0
-    db 0bdh                 ;6e8e  bd          DATA 0xbd
-    db 10h                  ;6e8f  10          DATA 0x10
-    db 0b1h                 ;6e90  b1          DATA 0xb1
-    db 9ah                  ;6e91  9a          DATA 0x9a
-    db 0ebh                 ;6e92  eb          DATA 0xeb
-    db 6fh                  ;6e93  6f          DATA 0x6f 'o'
-    db 0b0h                 ;6e94  b0          DATA 0xb0
-    db 0fah                 ;6e95  fa          DATA 0xfa
-    db 11h                  ;6e96  11          DATA 0x11
-    db 0b1h                 ;6e97  b1          DATA 0xb1
-    db 9ah                  ;6e98  9a          DATA 0x9a
-    db 0a7h                 ;6e99  a7          DATA 0xa7
-    db 6eh                  ;6e9a  6e          DATA 0x6e 'n'
-    db 0b0h                 ;6e9b  b0          DATA 0xb0
-    db 73h                  ;6e9c  73          DATA 0x73 's'
-    db 9bh                  ;6e9d  9b          DATA 0x9b
-    db 0ebh                 ;6e9e  eb          DATA 0xeb
-    db 6fh                  ;6e9f  6f          DATA 0x6f 'o'
-    db 0b1h                 ;6ea0  b1          DATA 0xb1
-    db 9ah                  ;6ea1  9a          DATA 0x9a
-    db 0a7h                 ;6ea2  a7          DATA 0xa7
-    db 6eh                  ;6ea3  6e          DATA 0x6e 'n'
-    db 0b0h                 ;6ea4  b0          DATA 0xb0
-    db 0fah                 ;6ea5  fa          DATA 0xfa
-    db 01h                  ;6ea6  01          DATA 0x01
-    db 0afh                 ;6ea7  af          DATA 0xaf
-    db 4dh                  ;6ea8  4d          DATA 0x4d 'M'
-    db 0ffh                 ;6ea9  ff          DATA 0xff
-    db 0adh                 ;6eaa  ad          DATA 0xad
-    db 05h                  ;6eab  05          DATA 0x05
-    db 5dh                  ;6eac  5d          DATA 0x5d ']'
-    db 7fh                  ;6ead  7f          DATA 0x7f
-    db 9ah                  ;6eae  9a          DATA 0x9a
-    db 0b2h                 ;6eaf  b2          DATA 0xb2
-    db 6eh                  ;6eb0  6e          DATA 0x6e 'n'
-    db 0afh                 ;6eb1  af          DATA 0xaf
-    db 0b1h                 ;6eb2  b1          DATA 0xb1
-    db 9ah                  ;6eb3  9a          DATA 0x9a
-    db 0bbh                 ;6eb4  bb          DATA 0xbb
-    db 6eh                  ;6eb5  6e          DATA 0x6e 'n'
-    db 0b0h                 ;6eb6  b0          DATA 0xb0
-    db 73h                  ;6eb7  73          DATA 0x73 's'
-    db 9bh                  ;6eb8  9b          DATA 0x9b
-    db 40h                  ;6eb9  40          DATA 0x40 '@'
-    db 6fh                  ;6eba  6f          DATA 0x6f 'o'
-    db 9ah                  ;6ebb  9a          DATA 0x9a
-    db 00h                  ;6ebc  00          DATA 0x00
-    db 08h                  ;6ebd  08          DATA 0x08
-    db 0f2h                 ;6ebe  f2          DATA 0xf2
-    db 0d6h                 ;6ebf  d6          DATA 0xd6
-    db 8eh                  ;6ec0  8e          DATA 0x8e
-    db 0e7h                 ;6ec1  e7          DATA 0xe7
-    db 0f1h                 ;6ec2  f1          DATA 0xf1
-    db 70h                  ;6ec3  70          DATA 0x70 'p'
-    db 8eh                  ;6ec4  8e          DATA 0x8e
-    db 56h                  ;6ec5  56          DATA 0x56 'V'
-    db 0fbh                 ;6ec6  fb          DATA 0xfb
-    db 51h                  ;6ec7  51          DATA 0x51 'Q'
-    db 0c8h                 ;6ec8  c8          DATA 0xc8
-    db 0d6h                 ;6ec9  d6          DATA 0xd6
-    db 02h                  ;6eca  02          DATA 0x02
-    db 0adh                 ;6ecb  ad          DATA 0xad
-    db 39h                  ;6ecc  39          DATA 0x39 '9'
-    db 30h                  ;6ecd  30          DATA 0x30 '0'
-    db 4dh                  ;6ece  4d          DATA 0x4d 'M'
-    db 01h                  ;6ecf  01          DATA 0x01
-    db 30h                  ;6ed0  30          DATA 0x30 '0'
-    db 0adh                 ;6ed1  ad          DATA 0xad
-    db 2bh                  ;6ed2  2b          DATA 0x2b '+'
-    db 30h                  ;6ed3  30          DATA 0x30 '0'
-    db 4dh                  ;6ed4  4d          DATA 0x4d 'M'
-    db 02h                  ;6ed5  02          DATA 0x02
-    db 30h                  ;6ed6  30          DATA 0x30 '0'
-    db 0adh                 ;6ed7  ad          DATA 0xad
-    db 1dh                  ;6ed8  1d          DATA 0x1d
-    db 30h                  ;6ed9  30          DATA 0x30 '0'
-    db 4dh                  ;6eda  4d          DATA 0x4d 'M'
-    db 03h                  ;6edb  03          DATA 0x03
-    db 30h                  ;6edc  30          DATA 0x30 '0'
-    db 0adh                 ;6edd  ad          DATA 0xad
-    db 17h                  ;6ede  17          DATA 0x17
-    db 30h                  ;6edf  30          DATA 0x30 '0'
-    db 4dh                  ;6ee0  4d          DATA 0x4d 'M'
-    db 07h                  ;6ee1  07          DATA 0x07
-    db 30h                  ;6ee2  30          DATA 0x30 '0'
-    db 0bdh                 ;6ee3  bd          DATA 0xbd
-    db 05h                  ;6ee4  05          DATA 0x05
-    db 12h                  ;6ee5  12          DATA 0x12
-    db 0f7h                 ;6ee6  f7          DATA 0xf7
-    db 02h                  ;6ee7  02          DATA 0x02
-    db 0fah                 ;6ee8  fa          DATA 0xfa
-    db 03h                  ;6ee9  03          DATA 0x03
-    db 12h                  ;6eea  12          DATA 0x12
-    db 6dh                  ;6eeb  6d          DATA 0x6d 'm'
-    db 03h                  ;6eec  03          DATA 0x03
-    db 21h                  ;6eed  21          DATA 0x21 '!'
-    db 27h                  ;6eee  27          DATA 0x27 '''
-    db 70h                  ;6eef  70          DATA 0x70 'p'
-    db 0a1h                 ;6ef0  a1          DATA 0xa1
-    db 00h                  ;6ef1  00          DATA 0x00
-    db 2dh                  ;6ef2  2d          DATA 0x2d '-'
-    db 00h                  ;6ef3  00          DATA 0x00
-    db 0fah                 ;6ef4  fa          DATA 0xfa
-    db 41h                  ;6ef5  41          DATA 0x41 'A'
-    db 12h                  ;6ef6  12          DATA 0x12
-    db 6bh                  ;6ef7  6b          DATA 0x6b 'k'
-    db 03h                  ;6ef8  03          DATA 0x03
-    db 70h                  ;6ef9  70          DATA 0x70 'p'
-    db 0a1h                 ;6efa  a1          DATA 0xa1
-    db 00h                  ;6efb  00          DATA 0x00
-    db 0fah                 ;6efc  fa          DATA 0xfa
-    db 39h                  ;6efd  39          DATA 0x39 '9'
-    db 12h                  ;6efe  12          DATA 0x12
-    db 0f8h                 ;6eff  f8          DATA 0xf8
-    db 02h                  ;6f00  02          DATA 0x02
-    db 70h                  ;6f01  70          DATA 0x70 'p'
-    db 0a1h                 ;6f02  a1          DATA 0xa1
-    db 00h                  ;6f03  00          DATA 0x00
-    db 0fah                 ;6f04  fa          DATA 0xfa
-    db 31h                  ;6f05  31          DATA 0x31 '1'
-    db 12h                  ;6f06  12          DATA 0x12
-    db 0ah                  ;6f07  0a          DATA 0x0a
-    db 02h                  ;6f08  02          DATA 0x02
-    db 30h                  ;6f09  30          DATA 0x30 '0'
-    db 4dh                  ;6f0a  4d          DATA 0x4d 'M'
-    db 01h                  ;6f0b  01          DATA 0x01
-    db 30h                  ;6f0c  30          DATA 0x30 '0'
-    db 0adh                 ;6f0d  ad          DATA 0xad
-    db 24h                  ;6f0e  24          DATA 0x24 '$'
-    db 12h                  ;6f0f  12          DATA 0x12
-    db 13h                  ;6f10  13          DATA 0x13
-    db 02h                  ;6f11  02          DATA 0x02
-    db 30h                  ;6f12  30          DATA 0x30 '0'
-    db 4dh                  ;6f13  4d          DATA 0x4d 'M'
-    db 02h                  ;6f14  02          DATA 0x02
-    db 30h                  ;6f15  30          DATA 0x30 '0'
-    db 0adh                 ;6f16  ad          DATA 0xad
-    db 1bh                  ;6f17  1b          DATA 0x1b
-    db 12h                  ;6f18  12          DATA 0x12
-    db 13h                  ;6f19  13          DATA 0x13
-    db 02h                  ;6f1a  02          DATA 0x02
-    db 30h                  ;6f1b  30          DATA 0x30 '0'
-    db 4dh                  ;6f1c  4d          DATA 0x4d 'M'
-    db 03h                  ;6f1d  03          DATA 0x03
-    db 30h                  ;6f1e  30          DATA 0x30 '0'
-    db 0adh                 ;6f1f  ad          DATA 0xad
-    db 12h                  ;6f20  12          DATA 0x12
-    db 12h                  ;6f21  12          DATA 0x12
-    db 08h                  ;6f22  08          DATA 0x08
-    db 02h                  ;6f23  02          DATA 0x02
-    db 30h                  ;6f24  30          DATA 0x30 '0'
-    db 4dh                  ;6f25  4d          DATA 0x4d 'M'
-    db 07h                  ;6f26  07          DATA 0x07
-    db 30h                  ;6f27  30          DATA 0x30 '0'
-    db 0adh                 ;6f28  ad          DATA 0xad
-    db 03h                  ;6f29  03          DATA 0x03
-    db 12h                  ;6f2a  12          DATA 0x12
-    db 12h                  ;6f2b  12          DATA 0x12
-    db 02h                  ;6f2c  02          DATA 0x02
-    db 0a0h                 ;6f2d  a0          DATA 0xa0
-    db 0ah                  ;6f2e  0a          DATA 0x0a
-    db 31h                  ;6f2f  31          DATA 0x31 '1'
-    db 88h                  ;6f30  88          DATA 0x88
-    db 0fah                 ;6f31  fa          DATA 0xfa
-    db 04h                  ;6f32  04          DATA 0x04
-    db 0a0h                 ;6f33  a0          DATA 0xa0
-    db 09h                  ;6f34  09          DATA 0x09
-    db 31h                  ;6f35  31          DATA 0x31 '1'
-    db 88h                  ;6f36  88          DATA 0x88
-    db 30h                  ;6f37  30          DATA 0x30 '0'
-    db 61h                  ;6f38  61          DATA 0x61 'a'
-    db 0ah                  ;6f39  0a          DATA 0x0a
-    db 30h                  ;6f3a  30          DATA 0x30 '0'
-    db 61h                  ;6f3b  61          DATA 0x61 'a'
-    db 2bh                  ;6f3c  2b          DATA 0x2b '+'
-    db 2ch                  ;6f3d  2c          DATA 0x2c ','
-    db 7fh                  ;6f3e  7f          DATA 0x7f
-    db 0afh                 ;6f3f  af          DATA 0xaf
-    db 0b7h                 ;6f40  b7          DATA 0xb7
-    db 0f0h                 ;6f41  f0          DATA 0xf0
-    db 0d4h                 ;6f42  d4          DATA 0xd4
-    db 9ah                  ;6f43  9a          DATA 0x9a
-    db 6ch                  ;6f44  6c          DATA 0x6c 'l'
-    db 6fh                  ;6f45  6f          DATA 0x6f 'o'
-    db 9ah                  ;6f46  9a          DATA 0x9a
-    db 00h                  ;6f47  00          DATA 0x00
-    db 08h                  ;6f48  08          DATA 0x08
-    db 4dh                  ;6f49  4d          DATA 0x4d 'M'
-    db 02h                  ;6f4a  02          DATA 0x02
-    db 0adh                 ;6f4b  ad          DATA 0xad
-    db 02h                  ;6f4c  02          DATA 0x02
-    db 5ah                  ;6f4d  5a          DATA 0x5a 'Z'
-    db 39h                  ;6f4e  39          DATA 0x39 '9'
-    db 0f0h                 ;6f4f  f0          DATA 0xf0
-    db 0d4h                 ;6f50  d4          DATA 0xd4
-    db 2ch                  ;6f51  2c          DATA 0x2c ','
-    db 9eh                  ;6f52  9e          DATA 0x9e
-    db 9ah                  ;6f53  9a          DATA 0x9a
-    db 6ch                  ;6f54  6c          DATA 0x6c 'l'
-    db 6fh                  ;6f55  6f          DATA 0x6f 'o'
-    db 0f0h                 ;6f56  f0          DATA 0xf0
-    db 0d5h                 ;6f57  d5          DATA 0xd5
-    db 9ah                  ;6f58  9a          DATA 0x9a
-    db 6ch                  ;6f59  6c          DATA 0x6c 'l'
-    db 6fh                  ;6f5a  6f          DATA 0x6f 'o'
-    db 0f0h                 ;6f5b  f0          DATA 0xf0
-    db 0d5h                 ;6f5c  d5          DATA 0xd5
-    db 2ch                  ;6f5d  2c          DATA 0x2c ','
-    db 9eh                  ;6f5e  9e          DATA 0x9e
-    db 5dh                  ;6f5f  5d          DATA 0x5d ']'
-    db 0fh                  ;6f60  0f          DATA 0x0f
-    db 0adh                 ;6f61  ad          DATA 0xad
-    db 03h                  ;6f62  03          DATA 0x03
-    db 9ah                  ;6f63  9a          DATA 0x9a
-    db 6ch                  ;6f64  6c          DATA 0x6c 'l'
-    db 6fh                  ;6f65  6f          DATA 0x6f 'o'
-    db 0b6h                 ;6f66  b6          DATA 0xb6
-    db 0afh                 ;6f67  af          DATA 0xaf
-    db 5dh                  ;6f68  5d          DATA 0x5d ']'
-    db 0fh                  ;6f69  0f          DATA 0x0f
-    db 0adh                 ;6f6a  ad          DATA 0xad
-    db 0ah                  ;6f6b  0a          DATA 0x0a
-    db 5dh                  ;6f6c  5d          DATA 0x5d ']'
-    db 0fh                  ;6f6d  0f          DATA 0x0f
-    db 0dh                  ;6f6e  0d          DATA 0x0d
-    db 30h                  ;6f6f  30          DATA 0x30 '0'
-    db 0b7h                 ;6f70  b7          DATA 0xb7
-    db 16h                  ;6f71  16          DATA 0x16
-    db 9ah                  ;6f72  9a          DATA 0x9a
-    db 0f1h                 ;6f73  f1          DATA 0xf1
-    db 0bbh                 ;6f74  bb          DATA 0xbb
-    db 0b6h                 ;6f75  b6          DATA 0xb6
-    db 53h                  ;6f76  53          DATA 0x53 'S'
-    db 0afh                 ;6f77  af          DATA 0xaf
-    db 0f0h                 ;6f78  f0          DATA 0xf0
-    db 30h                  ;6f79  30          DATA 0x30 '0'
-    db 73h                  ;6f7a  73          DATA 0x73 's'
-    db 4dh                  ;6f7b  4d          DATA 0x4d 'M'
-    db 04h                  ;6f7c  04          DATA 0x04
-    db 8dh                  ;6f7d  8d          DATA 0x8d
-    db 02h                  ;6f7e  02          DATA 0x02
-    db 0a3h                 ;6f7f  a3          DATA 0xa3
-    db 00h                  ;6f80  00          DATA 0x00
-    db 16h                  ;6f81  16          DATA 0x16
-    db 6fh                  ;6f82  6f          DATA 0x6f 'o'
-    db 0b4h                 ;6f83  b4          DATA 0xb4
-    db 4ch                  ;6f84  4c          DATA 0x4c 'L'
-    db 48h                  ;6f85  48          DATA 0x48 'H'
-    db 9dh                  ;6f86  9d          DATA 0x9d
-    db 03h                  ;6f87  03          DATA 0x03
-    db 9bh                  ;6f88  9b          DATA 0x9b
-    db 90h                  ;6f89  90          DATA 0x90
-    db 76h                  ;6f8a  76          DATA 0x76 'v'
-    db 10h                  ;6f8b  10          DATA 0x10
-    db 92h                  ;6f8c  92          DATA 0x92
-    db 6fh                  ;6f8d  6f          DATA 0x6f 'o'
-    db 0b1h                 ;6f8e  b1          DATA 0xb1
-    db 0c4h                 ;6f8f  c4          DATA 0xc4
-    db 31h                  ;6f90  31          DATA 0x31 '1'
-    db 98h                  ;6f91  98          DATA 0x98
-    db 0b7h                 ;6f92  b7          DATA 0xb7
-    db 16h                  ;6f93  16          DATA 0x16
-    db 31h                  ;6f94  31          DATA 0x31 '1'
-    db 0b5h                 ;6f95  b5          DATA 0xb5
-    db 0abh                 ;6f96  ab          DATA 0xab
-    db 0f2h                 ;6f97  f2          DATA 0xf2
-    db 0deh                 ;6f98  de          DATA 0xde
-    db 16h                  ;6f99  16          DATA 0x16
-    db 0aah                 ;6f9a  aa          DATA 0xaa
-    db 0f1h                 ;6f9b  f1          DATA 0xf1
-    db 0abh                 ;6f9c  ab          DATA 0xab
-    db 5dh                  ;6f9d  5d          DATA 0x5d ']'
-    db 0fh                  ;6f9e  0f          DATA 0x0f
-    db 4eh                  ;6f9f  4e          DATA 0x4e 'N'
-    db 0deh                 ;6fa0  de          DATA 0xde
-    db 8dh                  ;6fa1  8d          DATA 0x8d
-    db 03h                  ;6fa2  03          DATA 0x03
-    db 0a1h                 ;6fa3  a1          DATA 0xa1
-    db 00h                  ;6fa4  00          DATA 0x00
-    db 0bbh                 ;6fa5  bb          DATA 0xbb
-    db 0abh                 ;6fa6  ab          DATA 0xab
-    db 0b6h                 ;6fa7  b6          DATA 0xb6
-    db 0afh                 ;6fa8  af          DATA 0xaf
-    db 0b1h                 ;6fa9  b1          DATA 0xb1
-    db 0b3h                 ;6faa  b3          DATA 0xb3
-    db 0b7h                 ;6fab  b7          DATA 0xb7
-    db 0f0h                 ;6fac  f0          DATA 0xf0
-    db 0d5h                 ;6fad  d5          DATA 0xd5
-    db 73h                  ;6fae  73          DATA 0x73 's'
-    db 0f0h                 ;6faf  f0          DATA 0xf0
-    db 0d4h                 ;6fb0  d4          DATA 0xd4
-    db 16h                  ;6fb1  16          DATA 0x16
-    db 0aah                 ;6fb2  aa          DATA 0xaa
-    db 0f1h                 ;6fb3  f1          DATA 0xf1
-    db 0bbh                 ;6fb4  bb          DATA 0xbb
-    db 0b6h                 ;6fb5  b6          DATA 0xb6
-    db 0b2h                 ;6fb6  b2          DATA 0xb2
-    db 0b0h                 ;6fb7  b0          DATA 0xb0
-    db 0afh                 ;6fb8  af          DATA 0xaf
-    db 0f0h                 ;6fb9  f0          DATA 0xf0
-    db 0d4h                 ;6fba  d4          DATA 0xd4
-    db 5dh                  ;6fbb  5d          DATA 0x5d ']'
-    db 30h                  ;6fbc  30          DATA 0x30 '0'
-    db 24h                  ;6fbd  24          DATA 0x24 '$'
-    db 24h                  ;6fbe  24          DATA 0x24 '$'
-    db 24h                  ;6fbf  24          DATA 0x24 '$'
-    db 24h                  ;6fc0  24          DATA 0x24 '$'
-    db 73h                  ;6fc1  73          DATA 0x73 's'
-    db 4ch                  ;6fc2  4c          DATA 0x4c 'L'
-    db 7dh                  ;6fc3  7d          DATA 0x7d '}'
-    db 9dh                  ;6fc4  9d          DATA 0x9d
-    db 02h                  ;6fc5  02          DATA 0x02
-    db 0a1h                 ;6fc6  a1          DATA 0xa1
-    db 00h                  ;6fc7  00          DATA 0x00
-    db 0afh                 ;6fc8  af          DATA 0xaf
+    bt a.7,$lab_6e87        ;6e70  31 7e 14
+    push ax                 ;6e73  b1
+    mov a,b                 ;6e74  63
+    and a,#80h              ;6e75  5d 80
+    cmp a,#00h              ;6e77  4d 00
+    pop ax                  ;6e79  b0
+    bnz $lab_6e97           ;6e7a  bd 1b
+    push ax                 ;6e7c  b1
+    call !sub_6feb          ;6e7d  9a eb 6f
+    movw ax,de              ;6e80  c4
+    movw hl,ax              ;6e81  d6
+    pop ax                  ;6e82  b0
+    mov b,a                 ;6e83  73
+    br !sub_6feb            ;6e84  9b eb 6f
+
+lab_6e87:
+    push ax                 ;6e87  b1
+    mov a,b                 ;6e88  63
+    and a,#80h              ;6e89  5d 80
+    cmp a,#00h              ;6e8b  4d 00
+    pop ax                  ;6e8d  b0
+    bnz $lab_6ea0           ;6e8e  bd 10
+    push ax                 ;6e90  b1
+    call !sub_6feb          ;6e91  9a eb 6f
+    pop ax                  ;6e94  b0
+    br $lab_6ea8            ;6e95  fa 11
+
+lab_6e97:
+    push ax                 ;6e97  b1
+    call !sub_6ea7          ;6e98  9a a7 6e
+    pop ax                  ;6e9b  b0
+    mov b,a                 ;6e9c  73
+    br !sub_6feb            ;6e9d  9b eb 6f
+
+lab_6ea0:
+    push ax                 ;6ea0  b1
+    call !sub_6ea7          ;6ea1  9a a7 6e
+    pop ax                  ;6ea4  b0
+    br $lab_6ea8            ;6ea5  fa 01
+
+sub_6ea7:
+    ret                     ;6ea7  af
+
+lab_6ea8:
+    cmp a,#0ffh             ;6ea8  4d ff
+    bz $lab_6eb1            ;6eaa  ad 05
+    and a,#7fh              ;6eac  5d 7f
+    call !sub_6eb2          ;6eae  9a b2 6e
+
+lab_6eb1:
+    ret                     ;6eb1  af
+
+sub_6eb2:
+    push ax                 ;6eb2  b1
+    call !sub_6ebb          ;6eb3  9a bb 6e
+    pop ax                  ;6eb6  b0
+    mov b,a                 ;6eb7  73
+    br !lab_6f40            ;6eb8  9b 40 6f
+
+sub_6ebb:
+    call !sub_0800          ;6ebb  9a 00 08
+    mov 0fed6h,a            ;6ebe  f2 d6
+    mov a,!0f1e7h           ;6ec0  8e e7 f1
+    mov x,a                 ;6ec3  70
+    mov a,!0fb56h           ;6ec4  8e 56 fb
+    dec a                   ;6ec7  51
+    cmp 0fed6h,#02h         ;6ec8  c8 d6 02
+    bz $lab_6f06            ;6ecb  ad 39
+    xch a,x                 ;6ecd  30
+    cmp a,#01h              ;6ece  4d 01
+    xch a,x                 ;6ed0  30
+    bz $lab_6efe            ;6ed1  ad 2b
+    xch a,x                 ;6ed3  30
+    cmp a,#02h              ;6ed4  4d 02
+    xch a,x                 ;6ed6  30
+    bz $lab_6ef6            ;6ed7  ad 1d
+    xch a,x                 ;6ed9  30
+    cmp a,#03h              ;6eda  4d 03
+    xch a,x                 ;6edc  30
+    bz $lab_6ef6            ;6edd  ad 17
+    xch a,x                 ;6edf  30
+    cmp a,#07h              ;6ee0  4d 07
+    xch a,x                 ;6ee2  30
+    bnz $lab_6eea           ;6ee3  bd 05
+    movw bc,#02f7h          ;6ee5  12 f7 02
+    br $lab_6eed            ;6ee8  fa 03
+
+lab_6eea:
+    movw bc,#036dh          ;6eea  12 6d 03
+
+lab_6eed:
+    clr1 cy                 ;6eed  21
+    rolc a,1                ;6eee  27
+    mov x,a                 ;6eef  70
+    mov a,#00h              ;6ef0  a1 00
+    addc a,#00h             ;6ef2  2d 00
+    br $lab_6f37            ;6ef4  fa 41
+
+lab_6ef6:
+    movw bc,#036bh          ;6ef6  12 6b 03
+    mov x,a                 ;6ef9  70
+    mov a,#00h              ;6efa  a1 00
+    br $lab_6f37            ;6efc  fa 39
+
+lab_6efe:
+    movw bc,#02f8h          ;6efe  12 f8 02
+    mov x,a                 ;6f01  70
+    mov a,#00h              ;6f02  a1 00
+    br $lab_6f37            ;6f04  fa 31
+
+lab_6f06:
+    movw bc,#020ah          ;6f06  12 0a 02
+    xch a,x                 ;6f09  30
+    cmp a,#01h              ;6f0a  4d 01
+    xch a,x                 ;6f0c  30
+    bz $lab_6f33            ;6f0d  ad 24
+    movw bc,#0213h          ;6f0f  12 13 02
+    xch a,x                 ;6f12  30
+    cmp a,#02h              ;6f13  4d 02
+    xch a,x                 ;6f15  30
+    bz $lab_6f33            ;6f16  ad 1b
+    movw bc,#0213h          ;6f18  12 13 02
+    xch a,x                 ;6f1b  30
+    cmp a,#03h              ;6f1c  4d 03
+    xch a,x                 ;6f1e  30
+    bz $lab_6f33            ;6f1f  ad 12
+    movw bc,#0208h          ;6f21  12 08 02
+    xch a,x                 ;6f24  30
+    cmp a,#07h              ;6f25  4d 07
+    xch a,x                 ;6f27  30
+    bz $lab_6f2d            ;6f28  ad 03
+    movw bc,#0212h          ;6f2a  12 12 02
+
+lab_6f2d:
+    mov x,#0ah              ;6f2d  a0 0a
+    mulu x                  ;6f2f  31 88
+    br $lab_6f37            ;6f31  fa 04
+
+lab_6f33:
+    mov x,#09h              ;6f33  a0 09
+    mulu x                  ;6f35  31 88
+
+lab_6f37:
+    xch a,x                 ;6f37  30
+    add a,c                 ;6f38  61 0a
+    xch a,x                 ;6f3a  30
+    addc a,b                ;6f3b  61 2b
+    callf !sub_0a7f         ;6f3d  2c 7f
+    ret                     ;6f3f  af
+
+lab_6f40:
+    push hl                 ;6f40  b7
+    mov a,0fed4h            ;6f41  f0 d4
+    call !sub_6f6c          ;6f43  9a 6c 6f
+    call !sub_0800          ;6f46  9a 00 08
+    cmp a,#02h              ;6f49  4d 02
+    bz $lab_6f4f            ;6f4b  ad 02
+    set1 0fe39h.5           ;6f4d  5a 39
+
+lab_6f4f:
+    mov a,0fed4h            ;6f4f  f0 d4
+    callf !sub_0a9e         ;6f51  2c 9e
+    call !sub_6f6c          ;6f53  9a 6c 6f
+    mov a,0fed5h            ;6f56  f0 d5
+    call !sub_6f6c          ;6f58  9a 6c 6f
+    mov a,0fed5h            ;6f5b  f0 d5
+    callf !sub_0a9e         ;6f5d  2c 9e
+    and a,#0fh              ;6f5f  5d 0f
+    bz $lab_6f66            ;6f61  ad 03
+    call !sub_6f6c          ;6f63  9a 6c 6f
+
+lab_6f66:
+    pop hl                  ;6f66  b6
+    ret                     ;6f67  af
+
+sub_6f68:
+    and a,#0fh              ;6f68  5d 0f
+    bz $lab_6f76            ;6f6a  ad 0a
+
+sub_6f6c:
+    and a,#0fh              ;6f6c  5d 0f
+    add a,#30h              ;6f6e  0d 30
+    push hl                 ;6f70  b7
+    movw hl,#0f19ah         ;6f71  16 9a f1
+    mov [hl+b],a            ;6f74  bb
+    pop hl                  ;6f75  b6
+
+lab_6f76:
+    dec b                   ;6f76  53
+    ret                     ;6f77  af
+
+sub_6f78:
+    mov a,0fe30h            ;6f78  f0 30
+    mov b,a                 ;6f7a  73
+    cmp a,#04h              ;6f7b  4d 04
+    bc $lab_6f81            ;6f7d  8d 02
+    mov b,#00h              ;6f7f  a3 00
+
+lab_6f81:
+    movw hl,#0b46fh         ;6f81  16 6f b4
+    callf !sub_0c48         ;6f84  4c 48
+    bnc $lab_6f8b           ;6f86  9d 03
+    br !lab_7690            ;6f88  9b 90 76
+
+lab_6f8b:
+    movw ax,#6f92h          ;6f8b  10 92 6f
+    push ax                 ;6f8e  b1
+    movw ax,de              ;6f8f  c4
+    br ax                   ;6f90  31 98
+    push hl                 ;6f92  b7
+    movw hl,#0b531h         ;6f93  16 31 b5
+    mov a,[hl+b]            ;6f96  ab
+    mov 0fedeh,a            ;6f97  f2 de
+    movw hl,#0f1aah         ;6f99  16 aa f1
+    mov a,[hl+b]            ;6f9c  ab
+    and a,#0fh              ;6f9d  5d 0f
+    cmp a,0fedeh            ;6f9f  4e de
+    bc $lab_6fa6            ;6fa1  8d 03
+    mov a,#00h              ;6fa3  a1 00
+    mov [hl+b],a            ;6fa5  bb
+
+lab_6fa6:
+    mov a,[hl+b]            ;6fa6  ab
+    pop hl                  ;6fa7  b6
+    ret                     ;6fa8  af
+
+sub_6fa9:
+    push ax                 ;6fa9  b1
+    push bc                 ;6faa  b3
+    push hl                 ;6fab  b7
+    mov a,0fed5h            ;6fac  f0 d5
+    mov b,a                 ;6fae  73
+    mov a,0fed4h            ;6faf  f0 d4
+    movw hl,#0f1aah         ;6fb1  16 aa f1
+    mov [hl+b],a            ;6fb4  bb
+    pop hl                  ;6fb5  b6
+    pop bc                  ;6fb6  b2
+    pop ax                  ;6fb7  b0
+    ret                     ;6fb8  af
+
+sub_6fb9:
+    mov a,0fed4h            ;6fb9  f0 d4
+    and a,#30h              ;6fbb  5d 30
+    ror a,1                 ;6fbd  24
+    ror a,1                 ;6fbe  24
+    ror a,1                 ;6fbf  24
+    ror a,1                 ;6fc0  24
+    mov b,a                 ;6fc1  73
+    callf !sub_0c7d         ;6fc2  4c 7d
+    bnc $lab_6fc8           ;6fc4  9d 02
+    mov a,#00h              ;6fc6  a1 00
+
+lab_6fc8:
+    ret                     ;6fc8  af
+
     db 9ah                  ;6fc9  9a          DATA 0x9a
     db 0d0h                 ;6fca  d0          DATA 0xd0
     db 6fh                  ;6fcb  6f          DATA 0x6f 'o'
@@ -23470,66 +24322,61 @@ sub_6e70:
     db 0e1h                 ;6fcd  e1          DATA 0xe1
     db 6fh                  ;6fce  6f          DATA 0x6f 'o'
     db 0afh                 ;6fcf  af          DATA 0xaf
-    db 16h                  ;6fd0  16          DATA 0x16
-    db 9ah                  ;6fd1  9a          DATA 0x9a
-    db 0f1h                 ;6fd2  f1          DATA 0xf1
-    db 0a1h                 ;6fd3  a1          DATA 0xa1
-    db 0bh                  ;6fd4  0b          DATA 0x0b
-    db 4dh                  ;6fd5  4d          DATA 0x4d 'M'
-    db 00h                  ;6fd6  00          DATA 0x00
-    db 0fah                 ;6fd7  fa          DATA 0xfa
-    db 00h                  ;6fd8  00          DATA 0x00
-    db 0adh                 ;6fd9  ad          DATA 0xad
-    db 05h                  ;6fda  05          DATA 0x05
-    db 73h                  ;6fdb  73          DATA 0x73 's'
-    db 0a1h                 ;6fdc  a1          DATA 0xa1
-    db 20h                  ;6fdd  20          DATA 0x20 ' '
-    db 4ch                  ;6fde  4c          DATA 0x4c 'L'
-    db 0dch                 ;6fdf  dc          DATA 0xdc
-    db 0afh                 ;6fe0  af          DATA 0xaf
-    db 0a3h                 ;6fe1  a3          DATA 0xa3
-    db 08h                  ;6fe2  08          DATA 0x08
-    db 0adh                 ;6fe3  ad          DATA 0xad
-    db 05h                  ;6fe4  05          DATA 0x05
-    db 16h                  ;6fe5  16          DATA 0x16
-    db 35h                  ;6fe6  35          DATA 0x35 '5'
-    db 0feh                 ;6fe7  fe          DATA 0xfe
-    db 4ch                  ;6fe8  4c          DATA 0x4c 'L'
-    db 0dah                 ;6fe9  da          DATA 0xda
-    db 0afh                 ;6fea  af          DATA 0xaf
-    db 0b5h                 ;6feb  b5          DATA 0xb5
-    db 0b3h                 ;6fec  b3          DATA 0xb3
-    db 63h                  ;6fed  63          DATA 0x63 'c'
-    db 4dh                  ;6fee  4d          DATA 0x4d 'M'
-    db 0bh                  ;6fef  0b          DATA 0x0b
-    db 9dh                  ;6ff0  9d          DATA 0x9d
-    db 17h                  ;6ff1  17          DATA 0x17
-    db 87h                  ;6ff2  87          DATA 0x87
-    db 72h                  ;6ff3  72          DATA 0x72 'r'
-    db 61h                  ;6ff4  61          DATA 0x61 'a'
-    db 06h                  ;6ff5  06          DATA 0x06
-    db 37h                  ;6ff6  37          DATA 0x37 '7'
-    db 2dh                  ;6ff7  2d          DATA 0x2d '-'
-    db 00h                  ;6ff8  00          DATA 0x00
-    db 37h                  ;6ff9  37          DATA 0x37 '7'
-    db 0c6h                 ;6ffa  c6          DATA 0xc6
-    db 0d4h                 ;6ffb  d4          DATA 0xd4
-    db 16h                  ;6ffc  16          DATA 0x16
-    db 9ah                  ;6ffd  9a          DATA 0x9a
-    db 0f1h                 ;6ffe  f1          DATA 0xf1
-    db 85h                  ;6fff  85          DATA 0x85
-    db 0bbh                 ;7000  bb          DATA 0xbb
-    db 94h                  ;7001  94          DATA 0x94
-    db 53h                  ;7002  53          DATA 0x53 'S'
-    db 63h                  ;7003  63          DATA 0x63 'c'
-    db 31h                  ;7004  31          DATA 0x31 '1'
-    db 7eh                  ;7005  7e          DATA 0x7e '~'
-    db 02h                  ;7006  02          DATA 0x02
-    db 8ah                  ;7007  8a          DATA 0x8a
-    db 0f6h                 ;7008  f6          DATA 0xf6
-    db 0b2h                 ;7009  b2          DATA 0xb2
-    db 0b4h                 ;700a  b4          DATA 0xb4
-    db 0afh                 ;700b  af          DATA 0xaf
+
+sub_6fd0:
+    movw hl,#0f19ah         ;6fd0  16 9a f1
+    mov a,#0bh              ;6fd3  a1 0b
+    cmp a,#00h              ;6fd5  4d 00
+    br $lab_6fd9            ;6fd7  fa 00
+
+lab_6fd9:
+    bz $lab_6fe0            ;6fd9  ad 05
+    mov b,a                 ;6fdb  73
+    mov a,#20h              ;6fdc  a1 20
+    callf !sub_0cdc         ;6fde  4c dc
+
+lab_6fe0:
+    ret                     ;6fe0  af
+
+sub_6fe1:
+    mov b,#08h              ;6fe1  a3 08
+    bz $lab_6fea            ;6fe3  ad 05
+    movw hl,#0fe35h         ;6fe5  16 35 fe
+    callf !sub_0cda         ;6fe8  4c da
+
+lab_6fea:
+    ret                     ;6fea  af
+
+sub_6feb:
+    push de                 ;6feb  b5
+    push bc                 ;6fec  b3
+    mov a,b                 ;6fed  63
+    cmp a,#0bh              ;6fee  4d 0b
+    bnc $lab_7009           ;6ff0  9d 17
+    mov a,[hl]              ;6ff2  87
+    mov c,a                 ;6ff3  72
+    add l,a                 ;6ff4  61 06
+    xch a,h                 ;6ff6  37
+    addc a,#00h             ;6ff7  2d 00
+    xch a,h                 ;6ff9  37
+    movw ax,hl              ;6ffa  c6
+    movw de,ax              ;6ffb  d4
+    movw hl,#0f19ah         ;6ffc  16 9a f1
+
+lab_6fff:
+    mov a,[de]              ;6fff  85
+    mov [hl+b],a            ;7000  bb
+    decw de                 ;7001  94
+    dec b                   ;7002  53
+    mov a,b                 ;7003  63
+    bt a.7,$lab_7009        ;7004  31 7e 02
+    dbnz c,$lab_6fff        ;7007  8a f6
+
+lab_7009:
+    pop bc                  ;7009  b2
+    pop de                  ;700a  b4
+    ret                     ;700b  af
+
     db 85h                  ;700c  85          DATA 0x85
     db 84h                  ;700d  84          DATA 0x84
     db 0b1h                 ;700e  b1          DATA 0xb1
@@ -23566,101 +24413,69 @@ sub_6e70:
     db 7eh                  ;702d  7e          DATA 0x7e '~'
     db 0ddh                 ;702e  dd          DATA 0xdd
     db 0afh                 ;702f  af          DATA 0xaf
-    db 0a3h                 ;7030  a3          DATA 0xa3
-    db 05h                  ;7031  05          DATA 0x05
-    db 16h                  ;7032  16          DATA 0x16
-    db 0a4h                 ;7033  a4          DATA 0xa4
-    db 0f1h                 ;7034  f1          DATA 0xf1
-    db 0abh                 ;7035  ab          DATA 0xab
-    db 4dh                  ;7036  4d          DATA 0x4d 'M'
-    db 0ffh                 ;7037  ff          DATA 0xff
-    db 0bdh                 ;7038  bd          DATA 0xbd
-    db 07h                  ;7039  07          DATA 0x07
-    db 8bh                  ;703a  8b          DATA 0x8b
-    db 0f9h                 ;703b  f9          DATA 0xf9
-    db 0a1h                 ;703c  a1          DATA 0xa1
-    db 00h                  ;703d  00          DATA 0x00
-    db 9eh                  ;703e  9e          DATA 0x9e
-    db 2eh                  ;703f  2e          DATA 0x2e '.'
-    db 0fbh                 ;7040  fb          DATA 0xfb
-    db 63h                  ;7041  63          DATA 0x63 'c'
-    db 5dh                  ;7042  5d          DATA 0x5d ']'
-    db 0fh                  ;7043  0f          DATA 0x0f
-    db 51h                  ;7044  51          DATA 0x51 'Q'
-    db 73h                  ;7045  73          DATA 0x73 's'
-    db 4dh                  ;7046  4d          DATA 0x4d 'M'
-    db 0ffh                 ;7047  ff          DATA 0xff
-    db 0adh                 ;7048  ad          DATA 0xad
-    db 44h                  ;7049  44          DATA 0x44 'D'
-    db 16h                  ;704a  16          DATA 0x16
-    db 1ch                  ;704b  1c          DATA 0x1c
-    db 0b4h                 ;704c  b4          DATA 0xb4
-    db 4ch                  ;704d  4c          DATA 0x4c 'L'
-    db 48h                  ;704e  48          DATA 0x48 'H'
-    db 9dh                  ;704f  9d          DATA 0x9d
-    db 03h                  ;7050  03          DATA 0x03
-    db 9bh                  ;7051  9b          DATA 0x9b
-    db 90h                  ;7052  90          DATA 0x90
-    db 76h                  ;7053  76          DATA 0x76 'v'
-    db 5bh                  ;7054  5b          DATA 0x5b '['
-    db 39h                  ;7055  39          DATA 0x39 '9'
-    db 8eh                  ;7056  8e          DATA 0x8e
-    db 0a6h                 ;7057  a6          DATA 0xa6
-    db 0f1h                 ;7058  f1          DATA 0xf1
-    db 5dh                  ;7059  5d          DATA 0x5d ']'
-    db 0fh                  ;705a  0f          DATA 0x0f
-    db 4dh                  ;705b  4d          DATA 0x4d 'M'
-    db 0eh                  ;705c  0e          DATA 0x0e
-    db 0adh                 ;705d  ad          DATA 0xad
-    db 06h                  ;705e  06          DATA 0x06
-    db 7bh                  ;705f  7b          DATA 0x7b '{'
-    db 37h                  ;7060  37          DATA 0x37 '7'
-    db 2bh                  ;7061  2b          DATA 0x2b '+'
-    db 36h                  ;7062  36          DATA 0x36 '6'
-    db 1bh                  ;7063  1b          DATA 0x1b
-    db 3ah                  ;7064  3a          DATA 0x3a ':'
-    db 31h                  ;7065  31          DATA 0x31 '1'
-    db 33h                  ;7066  33          DATA 0x33 '3'
-    db 2ch                  ;7067  2c          DATA 0x2c ','
-    db 07h                  ;7068  07          DATA 0x07
-    db 0a1h                 ;7069  a1          DATA 0xa1
-    db 0c3h                 ;706a  c3          DATA 0xc3
-    db 48h                  ;706b  48          DATA 0x48 'H'
-    db 71h                  ;706c  71          DATA 0x71 'q'
-    db 0fbh                 ;706d  fb          DATA 0xfb
-    db 0adh                 ;706e  ad          DATA 0xad
-    db 17h                  ;706f  17          DATA 0x17
-    db 0dch                 ;7070  dc          DATA 0xdc
-    db 2ch                  ;7071  2c          DATA 0x2c ','
-    db 14h                  ;7072  14          DATA 0x14
-    db 0dch                 ;7073  dc          DATA 0xdc
-    db 65h                  ;7074  65          DATA 0x65 'e'
-    db 11h                  ;7075  11          DATA 0x11
-    db 0a1h                 ;7076  a1          DATA 0xa1
-    db 00h                  ;7077  00          DATA 0x00
-    db 9eh                  ;7078  9e          DATA 0x9e
-    db 2eh                  ;7079  2e          DATA 0x2e '.'
-    db 0fbh                 ;707a  fb          DATA 0xfb
-    db 0a1h                 ;707b  a1          DATA 0xa1
-    db 0ah                  ;707c  0a          DATA 0x0a
-    db 0a3h                 ;707d  a3          DATA 0xa3
-    db 0ffh                 ;707e  ff          DATA 0xff
-    db 16h                  ;707f  16          DATA 0x16
-    db 11h                  ;7080  11          DATA 0x11
-    db 65h                  ;7081  65          DATA 0x65 'e'
-    db 9ah                  ;7082  9a          DATA 0x9a
-    db 70h                  ;7083  70          DATA 0x70 'p'
-    db 6eh                  ;7084  6e          DATA 0x6e 'n'
-    db 0fah                 ;7085  fa          DATA 0xfa
-    db 07h                  ;7086  07          DATA 0x07
-    db 10h                  ;7087  10          DATA 0x10
-    db 8eh                  ;7088  8e          DATA 0x8e
-    db 70h                  ;7089  70          DATA 0x70 'p'
-    db 0b1h                 ;708a  b1          DATA 0xb1
-    db 0c4h                 ;708b  c4          DATA 0xc4
-    db 31h                  ;708c  31          DATA 0x31 '1'
-    db 98h                  ;708d  98          DATA 0x98
-    db 0afh                 ;708e  af          DATA 0xaf
+
+sub_7030:
+    mov b,#05h              ;7030  a3 05
+    movw hl,#0f1a4h         ;7032  16 a4 f1
+
+lab_7035:
+    mov a,[hl+b]            ;7035  ab
+    cmp a,#0ffh             ;7036  4d ff
+    bnz $lab_7041           ;7038  bd 07
+    dbnz b,$lab_7035        ;703a  8b f9
+    mov a,#00h              ;703c  a1 00
+    mov !0fb2eh,a           ;703e  9e 2e fb
+
+lab_7041:
+    mov a,b                 ;7041  63
+    and a,#0fh              ;7042  5d 0f
+    dec a                   ;7044  51
+    mov b,a                 ;7045  73
+    cmp a,#0ffh             ;7046  4d ff
+    bz $lab_708e            ;7048  ad 44
+    movw hl,#0b41ch         ;704a  16 1c b4
+
+lab_704d:
+    callf !sub_0c48         ;704d  4c 48
+    bnc $lab_7054           ;704f  9d 03
+    br !lab_7690            ;7051  9b 90 76
+
+lab_7054:
+    clr1 0fe39h.5           ;7054  5b 39
+    mov a,!0f1a6h           ;7056  8e a6 f1
+    and a,#0fh              ;7059  5d 0f
+    cmp a,#0eh              ;705b  4d 0e
+    bz $lab_7065            ;705d  ad 06
+    clr1 0fe37h.7           ;705f  7b 37
+    clr1 0fe36h.2           ;7061  2b 36
+    clr1 0fe3ah.1           ;7063  1b 3a
+
+lab_7065:
+    bf 0fe2ch.3,$lab_7070   ;7065  31 33 2c 07
+    mov a,#0c3h             ;7069  a1 c3
+    cmp a,!0fb71h           ;706b  48 71 fb
+    bz $lab_7087            ;706e  ad 17
+
+lab_7070:
+    bt 0fe2ch.5,$lab_7087   ;7070  dc 2c 14
+    bt 0fe65h.5,$lab_7087   ;7073  dc 65 11
+    mov a,#00h              ;7076  a1 00
+    mov !0fb2eh,a           ;7078  9e 2e fb
+    mov a,#0ah              ;707b  a1 0a
+    mov b,#0ffh             ;707d  a3 ff
+    movw hl,#blank          ;707f  16 11 65
+    call !sub_6e70          ;7082  9a 70 6e
+    br $lab_708e            ;7085  fa 07
+
+lab_7087:
+    movw ax,#lab_708e       ;7087  10 8e 70
+    push ax                 ;708a  b1
+    movw ax,de              ;708b  c4
+    br ax                   ;708c  31 98
+
+lab_708e:
+    ret                     ;708e  af
+
     db 8eh                  ;708f  8e          DATA 0x8e
     db 2eh                  ;7090  2e          DATA 0x2e '.'
     db 0fbh                 ;7091  fb          DATA 0xfb
@@ -23779,112 +24594,68 @@ sub_6e70:
     db 00h                  ;7102  00          DATA 0x00
     db 0bdh                 ;7103  bd          DATA 0xbd
     db 06h                  ;7104  06          DATA 0x06
-    db 0a1h                 ;7105  a1          DATA 0xa1
-    db 0ffh                 ;7106  ff          DATA 0xff
-    db 9eh                  ;7107  9e          DATA 0x9e
-    db 0a7h                 ;7108  a7          DATA 0xa7
-    db 0f1h                 ;7109  f1          DATA 0xf1
-    db 0afh                 ;710a  af          DATA 0xaf
 
-    db 64h                  ;710b  64          DATA 0x64 'd'
-    db 31h                  ;710c  31          DATA 0x31 '1'
-    db 7fh                  ;710d  7f          DATA 0x7f
-    db 0dh                  ;710e  0d          DATA 0x0d
-    db 5dh                  ;710f  5d          DATA 0x5d ']'
-    db 7fh                  ;7110  7f          DATA 0x7f
-    db 73h                  ;7111  73          DATA 0x73 's'
-    db 16h                  ;7112  16          DATA 0x16
-    db 51h                  ;7113  51          DATA 0x51 'Q'
-    db 0b5h                 ;7114  b5          DATA 0xb5
-    db 4ch                  ;7115  4c          DATA 0x4c 'L'
-    db 48h                  ;7116  48          DATA 0x48 'H'
-    db 8dh                  ;7117  8d          DATA 0x8d
-    db 0ech                 ;7118  ec          DATA 0xec
-    db 9bh                  ;7119  9b          DATA 0x9b
-    db 54h                  ;711a  54          DATA 0x54 'T'
-    db 70h                  ;711b  70          DATA 0x70 'p'
-    db 4ch                  ;711c  4c          DATA 0x4c 'L'
-    db 0f4h                 ;711d  f4          DATA 0xf4
-    db 0b1h                 ;711e  b1          DATA 0xb1
-    db 0b1h                 ;711f  b1          DATA 0xb1
-    db 0a3h                 ;7120  a3          DATA 0xa3
-    db 83h                  ;7121  83          DATA 0x83
-    db 0a1h                 ;7122  a1          DATA 0xa1
-    db 10h                  ;7123  10          DATA 0x10
-    db 16h                  ;7124  16          DATA 0x16
-    db 0beh                 ;7125  be          DATA 0xbe
-    db 63h                  ;7126  63          DATA 0x63 'c'
-    db 9ah                  ;7127  9a          DATA 0x9a
-    db 70h                  ;7128  70          DATA 0x70 'p'
-    db 6eh                  ;7129  6e          DATA 0x6e 'n'
-    db 0a1h                 ;712a  a1          DATA 0xa1
-    db 0ffh                 ;712b  ff          DATA 0xff
-    db 0a3h                 ;712c  a3          DATA 0xa3
-    db 07h                  ;712d  07          DATA 0x07
-    db 0b3h                 ;712e  b3          DATA 0xb3
-    db 0a3h                 ;712f  a3          DATA 0xa3
-    db 0ffh                 ;7130  ff          DATA 0xff
-    db 9ah                  ;7131  9a          DATA 0x9a
-    db 70h                  ;7132  70          DATA 0x70 'p'
-    db 6eh                  ;7133  6e          DATA 0x6e 'n'
-    db 0b2h                 ;7134  b2          DATA 0xb2
-    db 0b0h                 ;7135  b0          DATA 0xb0
-    db 0b1h                 ;7136  b1          DATA 0xb1
-    db 9ah                  ;7137  9a          DATA 0x9a
-    db 6ch                  ;7138  6c          DATA 0x6c 'l'
-    db 6fh                  ;7139  6f          DATA 0x6f 'o'
-    db 0b0h                 ;713a  b0          DATA 0xb0
-    db 2ch                  ;713b  2c          DATA 0x2c ','
-    db 9eh                  ;713c  9e          DATA 0x9e
-    db 9ah                  ;713d  9a          DATA 0x9a
-    db 68h                  ;713e  68          DATA 0x68 'h'
-    db 6fh                  ;713f  6f          DATA 0x6f 'o'
-    db 0b0h                 ;7140  b0          DATA 0xb0
-    db 0afh                 ;7141  af          DATA 0xaf
+lab_7105:
+    mov a,#0ffh             ;7105  a1 ff
+    mov !0f1a7h,a           ;7107  9e a7 f1
+    ret                     ;710a  af
 
-    db 8eh                  ;7142  8e          DATA 0x8e
-    db 0a8h                 ;7143  a8          DATA 0xa8
-    db 0f1h                 ;7144  f1          DATA 0xf1
-    db 5dh                  ;7145  5d          DATA 0x5d ']'
-    db 7fh                  ;7146  7f          DATA 0x7f
-    db 9eh                  ;7147  9e          DATA 0x9e
-    db 0a8h                 ;7148  a8          DATA 0xa8
-    db 0f1h                 ;7149  f1          DATA 0xf1
-    db 73h                  ;714a  73          DATA 0x73 's'
-    db 16h                  ;714b  16          DATA 0x16
-    db 57h                  ;714c  57          DATA 0x57 'W'
-    db 0b4h                 ;714d  b4          DATA 0xb4
-    db 9bh                  ;714e  9b          DATA 0x9b
-    db 4dh                  ;714f  4d          DATA 0x4d 'M'
-    db 70h                  ;7150  70          DATA 0x70 'p'
-    db 0fch                 ;7151  fc          DATA 0xfc
-    db 5dh                  ;7152  5d          DATA 0x5d ']'
-    db 08h                  ;7153  08          DATA 0x08
-    db 0a1h                 ;7154  a1          DATA 0xa1
-    db 0ffh                 ;7155  ff          DATA 0xff
-    db 9eh                  ;7156  9e          DATA 0x9e
-    db 0a9h                 ;7157  a9          DATA 0xa9
-    db 0f1h                 ;7158  f1          DATA 0xf1
-    db 9bh                  ;7159  9b          DATA 0x9b
-    db 8eh                  ;715a  8e          DATA 0x8e
-    db 70h                  ;715b  70          DATA 0x70 'p'
-    db 8eh                  ;715c  8e          DATA 0x8e
-    db 0a9h                 ;715d  a9          DATA 0xa9
-    db 0f1h                 ;715e  f1          DATA 0xf1
-    db 5dh                  ;715f  5d          DATA 0x5d ']'
-    db 7fh                  ;7160  7f          DATA 0x7f
-    db 9eh                  ;7161  9e          DATA 0x9e
-    db 0a9h                 ;7162  a9          DATA 0xa9
-    db 0f1h                 ;7163  f1          DATA 0xf1
-    db 73h                  ;7164  73          DATA 0x73 's'
-    db 16h                  ;7165  16          DATA 0x16
-    db 60h                  ;7166  60          DATA 0x60 '`'
-    db 0b4h                 ;7167  b4          DATA 0xb4
-    db 9bh                  ;7168  9b          DATA 0x9b
-    db 4dh                  ;7169  4d          DATA 0x4d 'M'
-    db 70h                  ;716a  70          DATA 0x70 'p'
+lab_710b:
+    mov a,e                 ;710b  64
+    bf a.7,$lab_711c        ;710c  31 7f 0d
+    and a,#7fh              ;710f  5d 7f
+    mov b,a                 ;7111  73
+    movw hl,#0b551h         ;7112  16 51 b5
+    callf !sub_0c48         ;7115  4c 48
+    bc $lab_7105            ;7117  8d ec
+    br !lab_7054            ;7119  9b 54 70
 
-;TODO label
+lab_711c:
+    callf !sub_0cf4         ;711c  4c f4
+    push ax                 ;711e  b1
+    push ax                 ;711f  b1
+    mov b,#83h              ;7120  a3 83
+    mov a,#10h              ;7122  a1 10
+    movw hl,#e__            ;7124  16 be 63
+    call !sub_6e70          ;7127  9a 70 6e
+    mov a,#0ffh             ;712a  a1 ff
+    mov b,#07h              ;712c  a3 07
+    push bc                 ;712e  b3
+    mov b,#0ffh             ;712f  a3 ff
+    call !sub_6e70          ;7131  9a 70 6e
+    pop bc                  ;7134  b2
+    pop ax                  ;7135  b0
+    push ax                 ;7136  b1
+    call !sub_6f6c          ;7137  9a 6c 6f
+    pop ax                  ;713a  b0
+    callf !sub_0a9e         ;713b  2c 9e
+    call !sub_6f68          ;713d  9a 68 6f
+    pop ax                  ;7140  b0
+    ret                     ;7141  af
+
+lab_7142:
+    mov a,!0f1a8h           ;7142  8e a8 f1
+    and a,#7fh              ;7145  5d 7f
+    mov !0f1a8h,a           ;7147  9e a8 f1
+    mov b,a                 ;714a  73
+    movw hl,#0b457h         ;714b  16 57 b4
+    br !lab_704d            ;714e  9b 4d 70
+
+lab_7151:
+    bt 0fe5dh.7,$lab_715c   ;7151  fc 5d 08
+    mov a,#0ffh             ;7154  a1 ff
+    mov !0f1a9h,a           ;7156  9e a9 f1
+    br !lab_708e            ;7159  9b 8e 70
+
+lab_715c:
+    mov a,!0f1a9h           ;715c  8e a9 f1
+    and a,#7fh              ;715f  5d 7f
+    mov !0f1a9h,a           ;7161  9e a9 f1
+    mov b,a                 ;7164  73
+    movw hl,#0b460h         ;7165  16 60 b4
+    br !lab_704d            ;7168  9b 4d 70
+
+lab_716b:
     mov b,#83h              ;716b  a3 83
     mov a,#0dh              ;716d  a1 0d
     movw hl,#comm_error     ;716f  16 55 66
@@ -23893,49 +24664,49 @@ lab_7172:
     call !sub_6e70          ;7172  9a 70 6e
     ret                     ;7175  af
 
-;TODO label
+lab_7176:
     mov a,#0ffh             ;7176  a1 ff
     mov b,#0ah              ;7178  a3 0a
     movw hl,#no_tape        ;717a  16 17 66
-    br $7172h               ;717d  fa f3        ;TODO lab_
+    br $lab_7172            ;717d  fa f3
 
-;TODO label
+lab_717f:
     mov a,#0ffh             ;717f  a1 ff
     mov b,#0ah              ;7181  a3 0a
     movw hl,#tape_error     ;7183  16 23 66
-    br $7172h               ;7186  fa ea        ;TODO lab_
+    br $lab_7172            ;7186  fa ea
 
-;TODO label
+lab_7188:
     mov b,#83h              ;7188  a3 83
     mov a,#0dh              ;718a  a1 0d
     movw hl,#tight_tape     ;718c  16 6c 66
-    br $7172h               ;718f  fa e1        ;TODO lab_
+    br $lab_7172            ;718f  fa e1
 
-;TODO label
+lab_7191:
     mov b,#83h              ;7191  a3 83
     mov a,#0fh              ;7193  a1 0f
     movw hl,#wrapped_tape   ;7195  16 77 66
-    br $7172h               ;7198  fa d8        ;TODO lab_
+    br $lab_7172            ;7198  fa d8
 
-;TODO label
+lab_719a:
     br $lab_71d6            ;719a  fa 3a
 
-;TODO label
+lab_719c:
     br $lab_71d6            ;719c  fa 38
 
-;TODO label
+lab_719e:
     mov b,#83h              ;719e  a3 83
     mov a,#0fh              ;71a0  a1 0f
     movw hl,#player_error   ;71a2  16 2e 67
     br $lab_71d6            ;71a5  fa 2f
 
-;TODO label
+lab_71a7:
     mov b,#0ffh             ;71a7  a3 ff
     mov a,#0ah              ;71a9  a1 0a
     movw hl,#no_changer     ;71ab  16 71 67
     br $lab_71d6            ;71ae  fa 26
 
-;TODO label
+lab_71b0:
     mov b,#0ffh             ;71b0  a3 ff
     mov a,#0ah              ;71b2  a1 0a
     movw hl,#cd_cd_rom      ;71b4  16 89 67
@@ -23947,13 +24718,13 @@ lab_7172:
     mov [hl+b],a            ;71c4  bb
     ret                     ;71c5  af
 
-;TODO label
+lab_71c6:
     mov b,#0ffh             ;71c6  a3 ff
     mov a,#0ah              ;71c8  a1 0a
     movw hl,#no_magazin     ;71ca  16 65 67
     br $lab_71d6            ;71cd  fa 07
 
-;TODO label
+lab_71cf:
     mov b,#0ffh             ;71cf  a3 ff
     mov a,#0ah              ;71d1  a1 0a
     movw hl,#no_disc        ;71d3  16 7d 67
@@ -23962,30 +24733,30 @@ lab_71d6:
     call !sub_6e70          ;71d6  9a 70 6e
     ret                     ;71d9  af
 
-;TODO label
+lab_71da:
     mov b,#83h              ;71da  a3 83
     mov a,#0fh              ;71dc  a1 0f
     movw hl,#changer_error  ;71de  16 4e 67
     br $lab_71d6            ;71e1  fa f3
 
-;TODO label
+lab_71e3:
     set1 0fe6ah.0           ;71e3  0a 6a
-    call !6fe1h             ;71e5  9a e1 6f         ;TODO sub_6fe1
+    call !sub_6fe1          ;71e5  9a e1 6f
     mov b,#0ah              ;71e8  a3 0a
     movw hl,#safe           ;71ea  16 f9 64
     mov a,#0ffh             ;71ed  a1 ff
-    br !7290h               ;71ef  9b 90 72        ;TODO lab_7290
+    br !lab_7290            ;71ef  9b 90 72
 
-;TODO label
+lab_71f2:
     set1 0fe6ah.0           ;71f2  0a 6a
-    call !6fe1h             ;71f4  9a e1 6f        ;TODO sub_6fe1
+    call !sub_6fe1          ;71f4  9a e1 6f
     mov b,#0ah              ;71f7  a3 0a
     movw hl,#safe           ;71f9  16 f9 64
     mov a,#0ffh             ;71fc  a1 ff
     call !sub_6e70          ;71fe  9a 70 6e
     movw hl,#0f19ah         ;7201  16 9a f1
     mov a,!0f206h           ;7204  8e 06 f2
-    call !0cf4h             ;7207  9a f4 0c         ;TODO sub_0cf4
+    call !sub_0cf4          ;7207  9a f4 0c
     mov a,x                 ;720a  60
     and a,#0fh              ;720b  5d 0f
     add a,#30h              ;720d  0d 30
@@ -24002,14 +24773,14 @@ lab_71d6:
     mov [hl+b],a            ;721d  bb
     mov a,#0ffh             ;721e  a1 ff
     mov b,#0ffh             ;7220  a3 ff
-    br $7290h               ;7222  fa 6c        ;TODO lab_7290
+    br $lab_7290            ;7222  fa 6c
 
-;TODO label
+lab_7224:
     mov a,!0fb2eh           ;7224  8e 2e fb
     cmp a,#00h              ;7227  4d 00
-    bnz $7249h              ;7229  bd 1e        ;TODO lab_7249
+    bnz $lab_7249           ;7229  bd 1e
     set1 0fe6ah.0           ;722b  0a 6a
-    call !6fe1h             ;722d  9a e1 6f     ;TODO sub_6fe1
+    call !sub_6fe1          ;722d  9a e1 6f
     mov b,#0ah              ;7230  a3 0a
     movw hl,#safe           ;7232  16 f9 64
     mov a,#0ffh             ;7235  a1 ff
@@ -24020,10 +24791,10 @@ lab_71d6:
     mov [hl],a              ;7242  97
     mov a,#0ffh             ;7243  a1 ff
     mov b,#0ffh             ;7245  a3 ff
-    br $7290h               ;7247  fa 47        ;TODO lab_7290
+    br $lab_7290            ;7247  fa 47
 
 lab_7249:
-    call !6fe1h             ;7249  9a e1 6f     ;TODO sub_6fe1
+    call !sub_6fe1          ;7249  9a e1 6f
     mov b,#0ah              ;724c  a3 0a
     movw hl,#safe           ;724e  16 f9 64
     mov a,#0ffh             ;7251  a1 ff
@@ -24045,23 +24816,23 @@ lab_7249:
 
 lab_7278:
     set1 0feceh.6           ;7278  6a ce
-    clr1 PM4.6              ;727a  71 6b 24
+    clr1 PM4_.6             ;727a  71 6b 24
     mov a,0feceh            ;727d  f0 ce
-    mov P4,a                ;727f  f2 04
-    br !6a5bh               ;7281  9b 5b 6a     ;TODO lab_6a5b
+    mov P4_,a               ;727f  f2 04
+    br !lab_6a5b            ;7281  9b 5b 6a
 
 lab_7284:
     clr1 0feceh.6           ;7284  6b ce
-    clr1 PM4.6              ;7286  71 6b 24
+    clr1 PM4_.6             ;7286  71 6b 24
     mov a,0feceh            ;7289  f0 ce
-    mov P4,a                ;728b  f2 04
-    br !6a5bh               ;728d  9b 5b 6a     ;TODO lab_6a5b
+    mov P4_,a               ;728b  f2 04
+    br !lab_6a5b            ;728d  9b 5b 6a
 
 lab_7290:
     call !sub_6e70          ;7290  9a 70 6e
     ret                     ;7293  af
 
-;TODO label
+lab_7294:
     mov a,#0ah              ;7294  a1 0a
     mov b,#0ffh             ;7296  a3 ff
     movw hl,#blank          ;7298  16 11 65
@@ -24109,19 +24880,20 @@ lab_72ad:
     mov [hl+b],a            ;72dc  bb
     ret                     ;72dd  af
 
-;TODO label
+lab_72de:
     mov b,#0ah              ;72de  a3 0a
     movw hl,#rad_de2        ;72e0  16 bd 64
     mov a,#0ffh             ;72e3  a1 ff
     call !sub_6e70          ;72e5  9a 70 6e
     ret                     ;72e8  af
 
+lab_72e9:
     mov a,#0ah              ;72e9  a1 0a
-    movw hl,#vers_a99       ;72eb  16 d5 64
+    movw hl,#vers_a99cznn   ;72eb  16 d5 64
     mov b,#0ffh             ;72ee  a3 ff
     call !sub_6e70          ;72f0  9a 70 6e
     mov a,#23h              ;72f3  a1 23
-    call !0be4h             ;72f5  9a e4 0b     ;TODO sub_0be4
+    call !sub_0be4          ;72f5  9a e4 0b
     movw hl,#0f19ah         ;72f8  16 9a f1
     mov b,#09h              ;72fb  a3 09
     mov [hl+b],a            ;72fd  bb
@@ -24130,7 +24902,7 @@ lab_72ad:
     mov [hl+b],a            ;7301  bb
     ret                     ;7302  af
 
-;TODO label
+lab_7303:
     mov a,#0ah              ;7303  a1 0a
     mov b,#0ffh             ;7305  a3 ff
     movw hl,#blank          ;7307  16 11 65
@@ -24142,23 +24914,23 @@ lab_72ad:
     mov b,#04h              ;7316  a3 04
     movw hl,#0f19ah         ;7318  16 9a f1
     mov a,!0fb69h           ;731b  8e 69 fb
-    call !6809h             ;731e  9a 09 68     ;TODO sub_6809
+    call !sub_6809          ;731e  9a 09 68
     mov [hl+b],a            ;7321  bb
     mov b,#06h              ;7322  a3 06
     mov a,!0fb6ah           ;7324  8e 6a fb
-    call !6809h             ;7327  9a 09 68     ;TODO sub_6809
+    call !sub_6809          ;7327  9a 09 68
     mov [hl+b],a            ;732a  bb
     mov b,#08h              ;732b  a3 08
     mov a,!0fb6bh           ;732d  8e 6b fb
-    call !6809h             ;7330  9a 09 68     ;TODO sub_6809
+    call !sub_6809          ;7330  9a 09 68
     mov [hl+b],a            ;7333  bb
     mov b,#0ah              ;7334  a3 0a
     mov a,!0fb6ch           ;7336  8e 6c fb
-    call !6809h             ;7339  9a 09 68     ;TODO sub_6809
+    call !sub_6809          ;7339  9a 09 68
     mov [hl+b],a            ;733c  bb
     ret                     ;733d  af
 
-;TODO label
+lab_733e:
     mov b,#0ah              ;733e  a3 0a
     movw hl,#fern_on        ;7340  16 e1 64
     mov1 cy,0fe5eh.1        ;7343  71 14 5e
@@ -24170,7 +24942,7 @@ lab_734b:
     call !sub_6e70          ;734d  9a 70 6e
     ret                     ;7350  af
 
-;TODO label
+lab_7351:
     mov a,#0ah              ;7351  a1 0a
     movw hl,#set_onvol      ;7353  16 99 64
     mov b,#0ffh             ;7356  a3 ff
@@ -24178,7 +24950,7 @@ lab_734b:
     mov a,!0f254h           ;735b  8e 54 f2
     clr1 a.0                ;735e  61 8b
     ror a,1                 ;7360  24
-    call !0cf4h             ;7361  9a f4 0c     ;TODO sub_0cf4
+    call !sub_0cf4          ;7361  9a f4 0c
     mov a,x                 ;7364  60
     and a,#0fh              ;7365  5d 0f
     add a,#30h              ;7367  0d 30
@@ -24205,7 +24977,7 @@ lab_7380:
     mov [hl+b],a            ;7385  bb
     ret                     ;7386  af
 
-;TODO label
+lab_7387:
     mov a,#0ah              ;7387  a1 0a
     mov b,#0ffh             ;7389  a3 ff
     movw hl,#set_cd_mix     ;738b  16 a5 64
@@ -24222,7 +24994,7 @@ lab_739c:
     mov [hl+b],a            ;73a1  bb
     ret                     ;73a2  af
 
-;TODO label
+lab_73a3:
     mov a,#0ah              ;73a3  a1 0a
     mov b,#0ffh             ;73a5  a3 ff
     movw hl,#tape_skip      ;73a7  16 b1 64
@@ -24239,7 +25011,7 @@ lab_73b8:
     mov [hl+b],a            ;73bd  bb
     ret                     ;73be  af
 
-;TODO label
+lab_73bf:
     mov b,#07h              ;73bf  a3 07
     movw hl,#cut_tape       ;73c1  16 43 66
     mov a,#0fh              ;73c4  a1 0f
@@ -24247,7 +25019,7 @@ lab_73b8:
     call !sub_6e70          ;73c9  9a 70 6e
     ret                     ;73cc  af
 
-;TODO label
+lab_73cd:
     mov a,!0fc9fh           ;73cd  8e 9f fc
     cmp a,#00h              ;73d0  4d 00
     bz $lab_73ec            ;73d2  ad 18
@@ -24282,16 +25054,16 @@ lab_7401:
     call !sub_6e70          ;7401  9a 70 6e
     ret                     ;7404  af
 
-;TODO label
+lab_7405:
     mov a,!0fc9fh           ;7405  8e 9f fc
     cmp a,#00h              ;7408  4d 00
     bz $lab_7414            ;740a  ad 08
     mov a,#80h              ;740c  a1 80
     mov !0f1abh,a           ;740e  9e ab f1
-    br !6856h            ;7411  9b 56 68        ;TODO lab_6856
+    br !lab_6856            ;7411  9b 56 68
 
 lab_7414:
-    call !6d64h          ;7414  9a 64 6d     ;TODO sub_6d64
+    call !sub_6d64          ;7414  9a 64 6d
     mov a,!0f1abh           ;7417  8e ab f1
     cmp a,#09h              ;741a  4d 09
     bz $lab_7424            ;741c  ad 06
@@ -24323,7 +25095,7 @@ lab_7441:
     call !sub_6e70          ;7448  9a 70 6e
     ret                     ;744b  af
 
-;TODO label
+lab_744c:
     mov b,#0ffh             ;744c  a3 ff
     movw hl,#tape           ;744e  16 a6 65
     mov a,#03h              ;7451  a1 03
@@ -24369,7 +25141,7 @@ lab_7492:
     call !sub_6e70          ;7499  9a 70 6e
     ret                     ;749c  af
 
-;TODO label
+lab_749d:
     mov a,#0ffh             ;749d  a1 ff
     mov b,#0ah              ;749f  a3 0a
     movw hl,#cd_tr          ;74a1  16 9c 66
@@ -24399,16 +25171,16 @@ lab_74ca:
     ret                     ;74d4  af
 
 lab_74d5:
-    call !6fd0h             ;74d5  9a d0 6f     ;TODO sub_6fd0
+    call !sub_6fd0          ;74d5  9a d0 6f
     mov a,#0ffh             ;74d8  a1 ff
     mov b,#0ah              ;74da  a3 0a
     movw hl,#diag           ;74dc  16 93 65
     call !sub_6e70          ;74df  9a 70 6e
     ret                     ;74e2  af
 
-;TODO label
+lab_74e3:
     mov b,#00h              ;74e3  a3 00
-    call !67d9h             ;74e5  9a d9 67     ;TODO sub_67d9
+    call !sub_67d9          ;74e5  9a d9 67
     push ax                 ;74e8  b1
     mov b,#0ffh             ;74e9  a3 ff
     mov a,#0ah              ;74eb  a1 0a
@@ -24452,13 +25224,13 @@ lab_7522:
 lab_7528:
     ret                     ;7528  af
 
-;TODO label
-    call !6d61h             ;7529  9a 61 6d        ;TODO sub_6d61
-    br !6af1h               ;752c  9b f1 6a        ;TODO lab_6af1
+lab_7529:
+    call !sub_6d61          ;7529  9a 61 6d
+    br !lab_6af1            ;752c  9b f1 6a
 
-;TODO label
+lab_752f:
     mov b,#01h              ;752f  a3 01
-    call !67d9h             ;7531  9a d9 67         ;TODO sub_67d9
+    call !sub_67d9          ;7531  9a d9 67
     push ax                 ;7534  b1
     mov b,#0ffh             ;7535  a3 ff
     mov a,#0ah              ;7537  a1 0a
@@ -24502,13 +25274,13 @@ lab_756e:
 lab_7574:
     ret                     ;7574  af
 
-;TODO label
+lab_7575:
     call !sub_6e70          ;7575  9a 70 6e
     ret                     ;7578  af
 
-;TODO label
+lab_7579:
     mov b,#02h              ;7579  a3 02
-    call !67d9h             ;757b  9a d9 67     ;TODO sub_67d9
+    call !sub_67d9          ;757b  9a d9 67
     push ax                 ;757e  b1
     mov b,#0ffh             ;757f  a3 ff
     mov a,#0ah              ;7581  a1 0a
@@ -24552,11 +25324,11 @@ lab_75b8:
 lab_75be:
     ret                     ;75be  af
 
-;TODO label
-    call !6d61h             ;75bf  9a 61 6d     ;TODO sub_6d61
-    br !6af1h               ;75c2  9b f1 6a     ;TODO lab_6af1
+lab_75bf:
+    call !sub_6d61          ;75bf  9a 61 6d
+    br !lab_6af1            ;75c2  9b f1 6a
 
-;TODO label
+lab_75c5:
     call !sub_aac7          ;75c5  9a c7 aa
     push ax                 ;75c8  b1
     cmp a,#09h              ;75c9  4d 09
@@ -24601,11 +25373,11 @@ lab_7600:
 lab_760b:
     ret                     ;760b  af
 
-;TODO label
-    call !6d61h             ;760c  9a 61 6d     ;TODO sub_6d61
-    br !6af1h               ;760f  9b f1 6a     ;TODO lab_6af1
+lab_760c:
+    call !sub_6d61          ;760c  9a 61 6d
+    br !lab_6af1            ;760f  9b f1 6a
 
-;TODO label
+lab_7612:
     call !sub_aaae          ;7612  9a ae aa
     push ax                 ;7615  b1
     cmp a,#09h              ;7616  4d 09
@@ -24650,57 +25422,45 @@ lab_764d:
 lab_7658:
     ret                     ;7658  af
 
-    call !6d61h             ;7659  9a 61 6d     TODO sub_
-    br !6af1h               ;765c  9b f1 6a     TODO lab_
+lab_7659:
+    call !sub_6d61          ;7659  9a 61 6d
+    br !lab_6af1            ;765c  9b f1 6a
 
-;TODO label
+lab_765f:
     mov b,#83h              ;765f  a3 83
-    movw hl,#flat          ;7661  16 1d 65
+    movw hl,#flat           ;7661  16 1d 65
     mov a,#0ch              ;7664  a1 0c
     call !sub_6e70          ;7666  9a 70 6e
     ret                     ;7669  af
 
-;TODO label
+lab_766a:
     mov b,#83h              ;766a  a3 83
     movw hl,#select_eq      ;766c  16 27 65
     mov a,#10h              ;766f  a1 10
     call !sub_6e70          ;7671  9a 70 6e
     ret                     ;7674  af
 
-    db 9ah                  ;7675  9a          DATA 0x9a
-    db 78h                  ;7676  78          DATA 0x78 'x'
-    db 6fh                  ;7677  6f          DATA 0x6f 'o'
-    db 31h                  ;7678  31          DATA 0x31 '1'
-    db 6fh                  ;7679  6f          DATA 0x6f 'o'
-    db 14h                  ;767a  14          DATA 0x14
-    db 0f2h                 ;767b  f2          DATA 0xf2
-    db 0d4h                 ;767c  d4          DATA 0xd4
-    db 63h                  ;767d  63          DATA 0x63 'c'
-    db 0f2h                 ;767e  f2          DATA 0xf2
-    db 0d5h                 ;767f  d5          DATA 0xd5
-    db 10h                  ;7680  10          DATA 0x10
-    db 87h                  ;7681  87          DATA 0x87
-    db 76h                  ;7682  76          DATA 0x76 'v'
-    db 0b1h                 ;7683  b1          DATA 0xb1
-    db 0c6h                 ;7684  c6          DATA 0xc6
-    db 31h                  ;7685  31          DATA 0x31 '1'
-    db 98h                  ;7686  98          DATA 0x98
-    db 0a1h                 ;7687  a1          DATA 0xa1
-    db 00h                  ;7688  00          DATA 0x00
-    db 9eh                  ;7689  9e          DATA 0x9e
-    db 2dh                  ;768a  2d          DATA 0x2d '-'
-    db 0fbh                 ;768b  fb          DATA 0xfb
-    db 9ah                  ;768c  9a          DATA 0x9a
-    db 0a9h                 ;768d  a9          DATA 0xa9
-    db 6fh                  ;768e  6f          DATA 0x6f 'o'
-    db 0afh                 ;768f  af          DATA 0xaf
-    db 9ah                  ;7690  9a          DATA 0x9a
-    db 97h                  ;7691  97          DATA 0x97
-    db 76h                  ;7692  76          DATA 0x76 'v'
-    db 9ah                  ;7693  9a          DATA 0x9a
-    db 0c9h                 ;7694  c9          DATA 0xc9
-    db 76h                  ;7695  76          DATA 0x76 'v'
-    db 0afh                 ;7696  af          DATA 0xaf
+lab_7675:
+    call !sub_6f78          ;7675  9a 78 6f
+    bf a.6,$lab_768f        ;7678  31 6f 14
+    mov 0fed4h,a            ;767b  f2 d4
+    mov a,b                 ;767d  63
+    mov 0fed5h,a            ;767e  f2 d5
+    movw ax,#7687h          ;7680  10 87 76
+    push ax                 ;7683  b1
+    movw ax,hl              ;7684  c6
+    br ax                   ;7685  31 98
+    mov a,#00h              ;7687  a1 00
+    mov !0fb2dh,a           ;7689  9e 2d fb
+    call !sub_6fa9          ;768c  9a a9 6f
+
+lab_768f:
+    ret                     ;768f  af
+
+lab_7690:
+    call !sub_7697          ;7690  9a 97 76
+    call !sub_76c9          ;7693  9a c9 76
+    ret                     ;7696  af
 
 sub_7697:
     bt 0fe5dh.7,$lab_76c2   ;7697  fc 5d 28
@@ -24802,14 +25562,11 @@ lab_76d0:
     db 04h                  ;770f  04          DATA 0x04
     db 08h                  ;7710  08          DATA 0x08
     db 02h                  ;7711  02          DATA 0x02
-    db 9ch                  ;7712  9c          DATA 0x9c
-    db 40h                  ;7713  40          DATA 0x40 '@'
-    db 1fh                  ;7714  1f          DATA 0x1f
-    db 0a1h                 ;7715  a1          DATA 0xa1
-    db 02h                  ;7716  02          DATA 0x02
-    db 9eh                  ;7717  9e          DATA 0x9e
-    db 14h                  ;7718  14          DATA 0x14
-    db 0fch                 ;7719  fc          DATA 0xfc
+
+sub_7712:
+    bt 0fe40h.1,$lab_7734   ;7712  9c 40 1f
+    mov a,#02h              ;7715  a1 02
+    mov !0fc14h,a           ;7717  9e 14 fc
 
 lab_771a:
     mov a,#0ch              ;771a  a1 0c
@@ -24918,7 +25675,7 @@ lab_77a4:
 lab_77d3:
     movw hl,#0b5c6h         ;77d3  16 c6 b5
     callf !sub_0c48         ;77d6  4c 48
-    movw ax,#77e2h          ;77d8  10 e2 77
+    movw ax,#lab_77e2       ;77d8  10 e2 77
     push ax                 ;77db  b1
     call !sub_77f9          ;77dc  9a f9 77
     movw ax,de              ;77df  c4
@@ -25902,421 +26659,246 @@ lab_7807:
     db 0afh                 ;7bba  af          DATA 0xaf
     db 0afh                 ;7bbb  af          DATA 0xaf
     db 0afh                 ;7bbc  af          DATA 0xaf
-    db 0afh                 ;7bbd  af          DATA 0xaf
-    db 31h                  ;7bbe  31          DATA 0x31 '1'
-    db 13h                  ;7bbf  13          DATA 0x13
-    db 62h                  ;7bc0  62          DATA 0x62 'b'
-    db 03h                  ;7bc1  03          DATA 0x03
-    db 9bh                  ;7bc2  9b          DATA 0x9b
-    db 50h                  ;7bc3  50          DATA 0x50 'P'
-    db 7ch                  ;7bc4  7c          DATA 0x7c '|'
-    db 5ah                  ;7bc5  5a          DATA 0x5a 'Z'
-    db 41h                  ;7bc6  41          DATA 0x41 'A'
-    db 0a1h                 ;7bc7  a1          DATA 0xa1
-    db 06h                  ;7bc8  06          DATA 0x06
-    db 0f2h                 ;7bc9  f2          DATA 0xf2
-    db 0d5h                 ;7bca  d5          DATA 0xd5
-    db 73h                  ;7bcb  73          DATA 0x73 's'
-    db 53h                  ;7bcc  53          DATA 0x53 'S'
-    db 16h                  ;7bcd  16          DATA 0x16
-    db 0ah                  ;7bce  0a          DATA 0x0a
-    db 77h                  ;7bcf  77          DATA 0x77 'w'
-    db 0abh                 ;7bd0  ab          DATA 0xab
-    db 0f2h                 ;7bd1  f2          DATA 0xf2
-    db 0d6h                 ;7bd2  d6          DATA 0xd6
-    db 72h                  ;7bd3  72          DATA 0x72 'r'
-    db 16h                  ;7bd4  16          DATA 0x16
-    db 0dh                  ;7bd5  0d          DATA 0x0d
-    db 0f2h                 ;7bd6  f2          DATA 0xf2
-    db 0aah                 ;7bd7  aa          DATA 0xaa
-    db 0f2h                 ;7bd8  f2          DATA 0xf2
-    db 0d9h                 ;7bd9  d9          DATA 0xd9
-    db 16h                  ;7bda  16          DATA 0x16
-    db 1ah                  ;7bdb  1a          DATA 0x1a
-    db 0f2h                 ;7bdc  f2          DATA 0xf2
-    db 0aah                 ;7bdd  aa          DATA 0xaa
-    db 0f2h                 ;7bde  f2          DATA 0xf2
-    db 0d8h                 ;7bdf  d8          DATA 0xd8
-    db 16h                  ;7be0  16          DATA 0x16
-    db 1ah                  ;7be1  1a          DATA 0x1a
-    db 0fch                 ;7be2  fc          DATA 0xfc
-    db 0aah                 ;7be3  aa          DATA 0xaa
-    db 0f2h                 ;7be4  f2          DATA 0xf2
-    db 0ddh                 ;7be5  dd          DATA 0xdd
-    db 0f2h                 ;7be6  f2          DATA 0xf2
-    db 0d7h                 ;7be7  d7          DATA 0xd7
-    db 71h                  ;7be8  71          DATA 0x71 'q'
-    db 14h                  ;7be9  14          DATA 0x14
-    db 3fh                  ;7bea  3f          DATA 0x3f '?'
-    db 71h                  ;7beb  71          DATA 0x71 'q'
-    db 41h                  ;7bec  41          DATA 0x41 'A'
-    db 6ah                  ;7bed  6a          DATA 0x6a 'j'
-    db 71h                  ;7bee  71          DATA 0x71 'q'
-    db 14h                  ;7bef  14          DATA 0x14
-    db 6bh                  ;7bf0  6b          DATA 0x6b 'k'
-    db 71h                  ;7bf1  71          DATA 0x71 'q'
-    db 71h                  ;7bf2  71          DATA 0x71 'q'
-    db 6ah                  ;7bf3  6a          DATA 0x6a 'j'
-    db 71h                  ;7bf4  71          DATA 0x71 'q'
-    db 14h                  ;7bf5  14          DATA 0x14
-    db 42h                  ;7bf6  42          DATA 0x42 'B'
-    db 71h                  ;7bf7  71          DATA 0x71 'q'
-    db 51h                  ;7bf8  51          DATA 0x51 'Q'
-    db 6ah                  ;7bf9  6a          DATA 0x6a 'j'
-    db 4dh                  ;7bfa  4d          DATA 0x4d 'M'
-    db 88h                  ;7bfb  88          DATA 0x88
-    db 0adh                 ;7bfc  ad          DATA 0xad
-    db 05h                  ;7bfd  05          DATA 0x05
-    db 4eh                  ;7bfe  4e          DATA 0x4e 'N'
-    db 0d9h                 ;7bff  d9          DATA 0xd9
-    db 0bdh                 ;7c00  bd          DATA 0xbd
-    db 08h                  ;7c01  08          DATA 0x08
-    db 0afh                 ;7c02  af          DATA 0xaf
-    db 2bh                  ;7c03  2b          DATA 0x2b '+'
-    db 41h                  ;7c04  41          DATA 0x41 'A'
-    db 31h                  ;7c05  31          DATA 0x31 '1'
-    db 73h                  ;7c06  73          DATA 0x73 's'
-    db 0d9h                 ;7c07  d9          DATA 0xd9
-    db 03h                  ;7c08  03          DATA 0x03
-    db 0afh                 ;7c09  af          DATA 0xaf
-    db 2ah                  ;7c0a  2a          DATA 0x2a '*'
-    db 41h                  ;7c0b  41          DATA 0x41 'A'
-    db 0ah                  ;7c0c  0a          DATA 0x0a
-    db 41h                  ;7c0d  41          DATA 0x41 'A'
-    db 9ah                  ;7c0e  9a          DATA 0x9a
-    db 7dh                  ;7c0f  7d          DATA 0x7d '}'
-    db 7ch                  ;7c10  7c          DATA 0x7c '|'
-    db 0dch                 ;7c11  dc          DATA 0xdc
-    db 41h                  ;7c12  41          DATA 0x41 'A'
-    db 14h                  ;7c13  14          DATA 0x14
-    db 71h                  ;7c14  71          DATA 0x71 'q'
-    db 44h                  ;7c15  44          DATA 0x44 'D'
-    db 6ah                  ;7c16  6a          DATA 0x6a 'j'
-    db 71h                  ;7c17  71          DATA 0x71 'q'
-    db 01h                  ;7c18  01          DATA 0x01
-    db 3fh                  ;7c19  3f          DATA 0x3f '?'
-    db 71h                  ;7c1a  71          DATA 0x71 'q'
-    db 74h                  ;7c1b  74          DATA 0x74 't'
-    db 6ah                  ;7c1c  6a          DATA 0x6a 'j'
-    db 71h                  ;7c1d  71          DATA 0x71 'q'
-    db 21h                  ;7c1e  21          DATA 0x21 '!'
-    db 6bh                  ;7c1f  6b          DATA 0x6b 'k'
-    db 71h                  ;7c20  71          DATA 0x71 'q'
-    db 54h                  ;7c21  54          DATA 0x54 'T'
-    db 6ah                  ;7c22  6a          DATA 0x6a 'j'
-    db 71h                  ;7c23  71          DATA 0x71 'q'
-    db 01h                  ;7c24  01          DATA 0x01
-    db 42h                  ;7c25  42          DATA 0x42 'B'
-    db 0fah                 ;7c26  fa          DATA 0xfa
-    db 12h                  ;7c27  12          DATA 0x12
-    db 71h                  ;7c28  71          DATA 0x71 'q'
-    db 44h                  ;7c29  44          DATA 0x44 'D'
-    db 6ah                  ;7c2a  6a          DATA 0x6a 'j'
-    db 71h                  ;7c2b  71          DATA 0x71 'q'
-    db 11h                  ;7c2c  11          DATA 0x11
-    db 3fh                  ;7c2d  3f          DATA 0x3f '?'
-    db 71h                  ;7c2e  71          DATA 0x71 'q'
-    db 74h                  ;7c2f  74          DATA 0x74 't'
-    db 6ah                  ;7c30  6a          DATA 0x6a 'j'
-    db 71h                  ;7c31  71          DATA 0x71 'q'
-    db 11h                  ;7c32  11          DATA 0x11
-    db 6bh                  ;7c33  6b          DATA 0x6b 'k'
-    db 71h                  ;7c34  71          DATA 0x71 'q'
-    db 54h                  ;7c35  54          DATA 0x54 'T'
-    db 6ah                  ;7c36  6a          DATA 0x6a 'j'
-    db 71h                  ;7c37  71          DATA 0x71 'q'
-    db 11h                  ;7c38  11          DATA 0x11
-    db 42h                  ;7c39  42          DATA 0x42 'B'
-    db 0f0h                 ;7c3a  f0          DATA 0xf0
-    db 0d6h                 ;7c3b  d6          DATA 0xd6
-    db 72h                  ;7c3c  72          DATA 0x72 'r'
-    db 0f0h                 ;7c3d  f0          DATA 0xf0
-    db 0ddh                 ;7c3e  dd          DATA 0xdd
-    db 16h                  ;7c3f  16          DATA 0x16
-    db 1ah                  ;7c40  1a          DATA 0x1a
-    db 0fch                 ;7c41  fc          DATA 0xfc
-    db 0bah                 ;7c42  ba          DATA 0xba
-    db 31h                  ;7c43  31          DATA 0x31 '1'
-    db 53h                  ;7c44  53          DATA 0x53 'S'
-    db 41h                  ;7c45  41          DATA 0x41 'A'
-    db 09h                  ;7c46  09          DATA 0x09
-    db 5bh                  ;7c47  5b          DATA 0x5b '['
-    db 41h                  ;7c48  41          DATA 0x41 'A'
-    db 0a1h                 ;7c49  a1          DATA 0xa1
-    db 05h                  ;7c4a  05          DATA 0x05
-    db 0f2h                 ;7c4b  f2          DATA 0xf2
-    db 0d5h                 ;7c4c  d5          DATA 0xd5
-    db 9bh                  ;7c4d  9b          DATA 0x9b
-    db 0cbh                 ;7c4e  cb          DATA 0xcb
-    db 7bh                  ;7c4f  7b          DATA 0x7b '{'
-    db 0afh                 ;7c50  af          DATA 0xaf
-    db 8eh                  ;7c51  8e          DATA 0x8e
-    db 0fdh                 ;7c52  fd          DATA 0xfd
-    db 0f1h                 ;7c53  f1          DATA 0xf1
-    db 61h                  ;7c54  61          DATA 0x61 'a'
-    db 8ch                  ;7c55  8c          DATA 0x8c
-    db 71h                  ;7c56  71          DATA 0x71 'q'
-    db 71h                  ;7c57  71          DATA 0x71 'q'
-    db 6bh                  ;7c58  6b          DATA 0x6b 'k'
-    db 1ah                  ;7c59  1a          DATA 0x1a
-    db 6ch                  ;7c5a  6c          DATA 0x6c 'l'
-    db 0ah                  ;7c5b  0a          DATA 0x0a
-    db 6ch                  ;7c5c  6c          DATA 0x6c 'l'
-    db 8eh                  ;7c5d  8e          DATA 0x8e
-    db 0ffh                 ;7c5e  ff          DATA 0xff
-    db 0f1h                 ;7c5f  f1          DATA 0xf1
-    db 4dh                  ;7c60  4d          DATA 0x4d 'M'
-    db 00h                  ;7c61  00          DATA 0x00
-    db 0adh                 ;7c62  ad          DATA 0xad
-    db 18h                  ;7c63  18          DATA 0x18
-    db 4dh                  ;7c64  4d          DATA 0x4d 'M'
-    db 04h                  ;7c65  04          DATA 0x04
-    db 0bdh                 ;7c66  bd          DATA 0xbd
-    db 06h                  ;7c67  06          DATA 0x06
-    db 0bh                  ;7c68  0b          DATA 0x0b
-    db 6ch                  ;7c69  6c          DATA 0x6c 'l'
-    db 1bh                  ;7c6a  1b          DATA 0x1b
-    db 6ch                  ;7c6b  6c          DATA 0x6c 'l'
-    db 0fah                 ;7c6c  fa          DATA 0xfa
-    db 0eh                  ;7c6d  0e          DATA 0x0e
-    db 4dh                  ;7c6e  4d          DATA 0x4d 'M'
-    db 02h                  ;7c6f  02          DATA 0x02
-    db 0bdh                 ;7c70  bd          DATA 0xbd
-    db 04h                  ;7c71  04          DATA 0x04
-    db 0bh                  ;7c72  0b          DATA 0x0b
-    db 6ch                  ;7c73  6c          DATA 0x6c 'l'
-    db 0fah                 ;7c74  fa          DATA 0xfa
-    db 06h                  ;7c75  06          DATA 0x06
-    db 4dh                  ;7c76  4d          DATA 0x4d 'M'
-    db 03h                  ;7c77  03          DATA 0x03
-    db 0bdh                 ;7c78  bd          DATA 0xbd
-    db 02h                  ;7c79  02          DATA 0x02
-    db 1bh                  ;7c7a  1b          DATA 0x1b
-    db 6ch                  ;7c7b  6c          DATA 0x6c 'l'
-    db 0afh                 ;7c7c  af          DATA 0xaf
-    db 31h                  ;7c7d  31          DATA 0x31 '1'
-    db 23h                  ;7c7e  23          DATA 0x23 '#'
-    db 41h                  ;7c7f  41          DATA 0x41 'A'
-    db 67h                  ;7c80  67          DATA 0x67 'g'
-    db 31h                  ;7c81  31          DATA 0x31 '1'
-    db 03h                  ;7c82  03          DATA 0x03
-    db 41h                  ;7c83  41          DATA 0x41 'A'
-    db 05h                  ;7c84  05          DATA 0x05
-    db 0bch                 ;7c85  bc          DATA 0xbc
-    db 6bh                  ;7c86  6b          DATA 0x6b 'k'
-    db 5bh                  ;7c87  5b          DATA 0x5b '['
-    db 0fah                 ;7c88  fa          DATA 0xfa
-    db 2dh                  ;7c89  2d          DATA 0x2d '-'
-    db 0c8h                 ;7c8a  c8          DATA 0xc8
-    db 0ddh                 ;7c8b  dd          DATA 0xdd
-    db 00h                  ;7c8c  00          DATA 0x00
-    db 0adh                 ;7c8d  ad          DATA 0xad
-    db 05h                  ;7c8e  05          DATA 0x05
-    db 0c8h                 ;7c8f  c8          DATA 0xc8
-    db 0ddh                 ;7c90  dd          DATA 0xdd
-    db 88h                  ;7c91  88          DATA 0x88
-    db 0bdh                 ;7c92  bd          DATA 0xbd
-    db 05h                  ;7c93  05          DATA 0x05
-    db 11h                  ;7c94  11          DATA 0x11
-    db 0dch                 ;7c95  dc          DATA 0xdc
-    db 64h                  ;7c96  64          DATA 0x64 'd'
-    db 0fah                 ;7c97  fa          DATA 0xfa
-    db 4ah                  ;7c98  4a          DATA 0x4a 'J'
-    db 0f0h                 ;7c99  f0          DATA 0xf0
-    db 0d7h                 ;7c9a  d7          DATA 0xd7
-    db 4eh                  ;7c9b  4e          DATA 0x4e 'N'
-    db 0ddh                 ;7c9c  dd          DATA 0xdd
-    db 0bdh                 ;7c9d  bd          DATA 0xbd
-    db 0f5h                 ;7c9e  f5          DATA 0xf5
-    db 0c8h                 ;7c9f  c8          DATA 0xc8
-    db 0dch                 ;7ca0  dc          DATA 0xdc
-    db 00h                  ;7ca1  00          DATA 0x00
-    db 0adh                 ;7ca2  ad          DATA 0xad
-    db 04h                  ;7ca3  04          DATA 0x04
-    db 7ah                  ;7ca4  7a          DATA 0x7a 'z'
-    db 6ah                  ;7ca5  6a          DATA 0x6a 'j'
-    db 0fah                 ;7ca6  fa          DATA 0xfa
-    db 3bh                  ;7ca7  3b          DATA 0x3b ';'
-    db 0f0h                 ;7ca8  f0          DATA 0xf0
-    db 0d9h                 ;7ca9  d9          DATA 0xd9
-    db 4eh                  ;7caa  4e          DATA 0x4e 'N'
-    db 0d7h                 ;7cab  d7          DATA 0xd7
-    db 0adh                 ;7cac  ad          DATA 0xad
-    db 31h                  ;7cad  31          DATA 0x31 '1'
-    db 0c8h                 ;7cae  c8          DATA 0xc8
-    db 0d9h                 ;7caf  d9          DATA 0xd9
-    db 88h                  ;7cb0  88          DATA 0x88
-    db 0adh                 ;7cb1  ad          DATA 0xad
-    db 04h                  ;7cb2  04          DATA 0x04
-    db 31h                  ;7cb3  31          DATA 0x31 '1'
-    db 73h                  ;7cb4  73          DATA 0x73 's'
-    db 6ah                  ;7cb5  6a          DATA 0x6a 'j'
-    db 0ddh                 ;7cb6  dd          DATA 0xdd
-    db 0cch                 ;7cb7  cc          DATA 0xcc
-    db 6ch                  ;7cb8  6c          DATA 0x6c 'l'
-    db 25h                  ;7cb9  25          DATA 0x25 '%'
-    db 16h                  ;7cba  16          DATA 0x16
-    db 1ah                  ;7cbb  1a          DATA 0x1a
-    db 0f2h                 ;7cbc  f2          DATA 0xf2
-    db 0f0h                 ;7cbd  f0          DATA 0xf0
-    db 0d6h                 ;7cbe  d6          DATA 0xd6
-    db 73h                  ;7cbf  73          DATA 0x73 's'
-    db 0a1h                 ;7cc0  a1          DATA 0xa1
-    db 00h                  ;7cc1  00          DATA 0x00
-    db 9ah                  ;7cc2  9a          DATA 0x9a
-    db 8fh                  ;7cc3  8f          DATA 0x8f
-    db 40h                  ;7cc4  40          DATA 0x40 '@'
-    db 0c8h                 ;7cc5  c8          DATA 0xc8
-    db 0d9h                 ;7cc6  d9          DATA 0xd9
-    db 88h                  ;7cc7  88          DATA 0x88
-    db 0adh                 ;7cc8  ad          DATA 0xad
-    db 0ah                  ;7cc9  0a          DATA 0x0a
-    db 31h                  ;7cca  31          DATA 0x31 '1'
-    db 73h                  ;7ccb  73          DATA 0x73 's'
-    db 0d9h                 ;7ccc  d9          DATA 0xd9
-    db 06h                  ;7ccd  06          DATA 0x06
-    db 31h                  ;7cce  31          DATA 0x31 '1'
-    db 53h                  ;7ccf  53          DATA 0x53 'S'
-    db 6ah                  ;7cd0  6a          DATA 0x6a 'j'
-    db 02h                  ;7cd1  02          DATA 0x02
-    db 4ah                  ;7cd2  4a          DATA 0x4a 'J'
-    db 6ah                  ;7cd3  6a          DATA 0x6a 'j'
-    db 16h                  ;7cd4  16          DATA 0x16
-    db 0dh                  ;7cd5  0d          DATA 0x0d
-    db 0f2h                 ;7cd6  f2          DATA 0xf2
-    db 0f0h                 ;7cd7  f0          DATA 0xf0
-    db 0d6h                 ;7cd8  d6          DATA 0xd6
-    db 73h                  ;7cd9  73          DATA 0x73 's'
-    db 0f0h                 ;7cda  f0          DATA 0xf0
-    db 0d7h                 ;7cdb  d7          DATA 0xd7
-    db 9ah                  ;7cdc  9a          DATA 0x9a
-    db 8fh                  ;7cdd  8f          DATA 0x8f
-    db 40h                  ;7cde  40          DATA 0x40 '@'
-    db 7bh                  ;7cdf  7b          DATA 0x7b '{'
-    db 6ah                  ;7ce0  6a          DATA 0x6a 'j'
-    db 5ah                  ;7ce1  5a          DATA 0x5a 'Z'
-    db 6ah                  ;7ce2  6a          DATA 0x6a 'j'
-    db 0f0h                 ;7ce3  f0          DATA 0xf0
-    db 0d7h                 ;7ce4  d7          DATA 0xd7
-    db 0f2h                 ;7ce5  f2          DATA 0xf2
-    db 0ddh                 ;7ce6  dd          DATA 0xdd
-    db 0afh                 ;7ce7  af          DATA 0xaf
-    db 31h                  ;7ce8  31          DATA 0x31 '1'
-    db 03h                  ;7ce9  03          DATA 0x03
-    db 41h                  ;7cea  41          DATA 0x41 'A'
-    db 05h                  ;7ceb  05          DATA 0x05
-    db 0bch                 ;7cec  bc          DATA 0xbc
-    db 6bh                  ;7ced  6b          DATA 0x6b 'k'
-    db 0f4h                 ;7cee  f4          DATA 0xf4
-    db 0fah                 ;7cef  fa          DATA 0xfa
-    db 16h                  ;7cf0  16          DATA 0x16
-    db 0c8h                 ;7cf1  c8          DATA 0xc8
-    db 0ddh                 ;7cf2  dd          DATA 0xdd
-    db 88h                  ;7cf3  88          DATA 0x88
-    db 0bdh                 ;7cf4  bd          DATA 0xbd
-    db 9eh                  ;7cf5  9e          DATA 0x9e
-    db 0c8h                 ;7cf6  c8          DATA 0xc8
-    db 0dch                 ;7cf7  dc          DATA 0xdc
-    db 00h                  ;7cf8  00          DATA 0x00
-    db 0bdh                 ;7cf9  bd          DATA 0xbd
-    db 0e8h                 ;7cfa  e8          DATA 0xe8
-    db 0dch                 ;7cfb  dc          DATA 0xdc
-    db 6ah                  ;7cfc  6a          DATA 0x6a 'j'
-    db 2dh                  ;7cfd  2d          DATA 0x2d '-'
-    db 0c8h                 ;7cfe  c8          DATA 0xc8
-    db 0d9h                 ;7cff  d9          DATA 0xd9
-    db 88h                  ;7d00  88          DATA 0x88
-    db 0bdh                 ;7d01  bd          DATA 0xbd
-    db 04h                  ;7d02  04          DATA 0x04
-    db 5ah                  ;7d03  5a          DATA 0x5a 'Z'
-    db 6ah                  ;7d04  6a          DATA 0x6a 'j'
-    db 0fah                 ;7d05  fa          DATA 0xfa
-    db 0dch                 ;7d06  dc          DATA 0xdc
-    db 0cch                 ;7d07  cc          DATA 0xcc
-    db 6ah                  ;7d08  6a          DATA 0x6a 'j'
-    db 0d9h                 ;7d09  d9          DATA 0xd9
-    db 0c8h                 ;7d0a  c8          DATA 0xc8
-    db 0d8h                 ;7d0b  d8          DATA 0xd8
-    db 00h                  ;7d0c  00          DATA 0x00
-    db 0bdh                 ;7d0d  bd          DATA 0xbd
-    db 05h                  ;7d0e  05          DATA 0x05
-    db 11h                  ;7d0f  11          DATA 0x11
-    db 0d8h                 ;7d10  d8          DATA 0xd8
-    db 32h                  ;7d11  32          DATA 0x32 '2'
-    db 0fah                 ;7d12  fa          DATA 0xfa
-    db 0ah                  ;7d13  0a          DATA 0x0a
-    db 91h                  ;7d14  91          DATA 0x91
-    db 0d8h                 ;7d15  d8          DATA 0xd8
-    db 0c8h                 ;7d16  c8          DATA 0xc8
-    db 0d8h                 ;7d17  d8          DATA 0xd8
-    db 00h                  ;7d18  00          DATA 0x00
-    db 0bdh                 ;7d19  bd          DATA 0xbd
-    db 03h                  ;7d1a  03          DATA 0x03
-    db 11h                  ;7d1b  11          DATA 0x11
-    db 0d9h                 ;7d1c  d9          DATA 0xd9
-    db 88h                  ;7d1d  88          DATA 0x88
-    db 16h                  ;7d1e  16          DATA 0x16
-    db 1ah                  ;7d1f  1a          DATA 0x1a
-    db 0f2h                 ;7d20  f2          DATA 0xf2
-    db 0f0h                 ;7d21  f0          DATA 0xf0
-    db 0d6h                 ;7d22  d6          DATA 0xd6
-    db 73h                  ;7d23  73          DATA 0x73 's'
-    db 0f0h                 ;7d24  f0          DATA 0xf0
-    db 0d8h                 ;7d25  d8          DATA 0xd8
-    db 9ah                  ;7d26  9a          DATA 0x9a
-    db 8fh                  ;7d27  8f          DATA 0x8f
-    db 40h                  ;7d28  40          DATA 0x40 '@'
-    db 5ah                  ;7d29  5a          DATA 0x5a 'Z'
-    db 6ah                  ;7d2a  6a          DATA 0x6a 'j'
-    db 0c8h                 ;7d2b  c8          DATA 0xc8
-    db 0d9h                 ;7d2c  d9          DATA 0xd9
-    db 88h                  ;7d2d  88          DATA 0x88
-    db 0adh                 ;7d2e  ad          DATA 0xad
-    db 1fh                  ;7d2f  1f          DATA 0x1f
-    db 0c8h                 ;7d30  c8          DATA 0xc8
-    db 0d5h                 ;7d31  d5          DATA 0xd5
-    db 06h                  ;7d32  06          DATA 0x06
-    db 0adh                 ;7d33  ad          DATA 0xad
-    db 05h                  ;7d34  05          DATA 0x05
-    db 0c8h                 ;7d35  c8          DATA 0xc8
-    db 0d5h                 ;7d36  d5          DATA 0xd5
-    db 05h                  ;7d37  05          DATA 0x05
-    db 0bdh                 ;7d38  bd          DATA 0xbd
-    db 0dh                  ;7d39  0d          DATA 0x0d
-    db 0dch                 ;7d3a  dc          DATA 0xdc
-    db 65h                  ;7d3b  65          DATA 0x65 'e'
-    db 0ah                  ;7d3c  0a          DATA 0x0a
-    db 0cch                 ;7d3d  cc          DATA 0xcc
-    db 6bh                  ;7d3e  6b          DATA 0x6b 'k'
-    db 07h                  ;7d3f  07          DATA 0x07
-    db 31h                  ;7d40  31          DATA 0x31 '1'
-    db 53h                  ;7d41  53          DATA 0x53 'S'
-    db 6ah                  ;7d42  6a          DATA 0x6a 'j'
-    db 03h                  ;7d43  03          DATA 0x03
-    db 0ech                 ;7d44  ec          DATA 0xec
-    db 6ah                  ;7d45  6a          DATA 0x6a 'j'
-    db 9ch                  ;7d46  9c          DATA 0x9c
-    db 0fch                 ;7d47  fc          DATA 0xfc
-    db 0d9h                 ;7d48  d9          DATA 0xd9
-    db 99h                  ;7d49  99          DATA 0x99
-    db 0cch                 ;7d4a  cc          DATA 0xcc
-    db 6ah                  ;7d4b  6a          DATA 0x6a 'j'
-    db 96h                  ;7d4c  96          DATA 0x96
-    db 7ah                  ;7d4d  7a          DATA 0x7a 'z'
-    db 0d9h                 ;7d4e  d9          DATA 0xd9
-    db 16h                  ;7d4f  16          DATA 0x16
-    db 0dh                  ;7d50  0d          DATA 0x0d
-    db 0f2h                 ;7d51  f2          DATA 0xf2
-    db 0f0h                 ;7d52  f0          DATA 0xf0
-    db 0d6h                 ;7d53  d6          DATA 0xd6
-    db 73h                  ;7d54  73          DATA 0x73 's'
-    db 0f0h                 ;7d55  f0          DATA 0xf0
-    db 0d9h                 ;7d56  d9          DATA 0xd9
-    db 9ah                  ;7d57  9a          DATA 0x9a
-    db 8fh                  ;7d58  8f          DATA 0x8f
-    db 40h                  ;7d59  40          DATA 0x40 '@'
-    db 0fah                 ;7d5a  fa          DATA 0xfa
-    db 87h                  ;7d5b  87          DATA 0x87
+
+sub_7bbd:
+    ret                     ;7bbd  af
+
+sub_7bbe:
+    bf 0fe62h.1,$lab_7bc5   ;7bbe  31 13 62 03
+    br !lab_7c50            ;7bc2  9b 50 7c
+
+lab_7bc5:
+    set1 0fe41h.5           ;7bc5  5a 41
+    mov a,#06h              ;7bc7  a1 06
+    mov 0fed5h,a            ;7bc9  f2 d5
+
+lab_7bcb:
+    mov b,a                 ;7bcb  73
+    dec b                   ;7bcc  53
+    movw hl,#770ah          ;7bcd  16 0a 77
+    mov a,[hl+b]            ;7bd0  ab
+    mov 0fed6h,a            ;7bd1  f2 d6
+    mov c,a                 ;7bd3  72
+    movw hl,#0f20dh         ;7bd4  16 0d f2
+    mov a,[hl+c]            ;7bd7  aa
+    mov 0fed9h,a            ;7bd8  f2 d9
+    movw hl,#0f21ah         ;7bda  16 1a f2
+    mov a,[hl+c]            ;7bdd  aa
+    mov 0fed8h,a            ;7bde  f2 d8
+    movw hl,#0fc1ah         ;7be0  16 1a fc
+    mov a,[hl+c]            ;7be3  aa
+    mov 0feddh,a            ;7be4  f2 dd
+    mov 0fed7h,a            ;7be6  f2 d7
+    mov1 cy,0fe3fh.1        ;7be8  71 14 3f
+    mov1 0fe6ah.4,cy        ;7beb  71 41 6a
+    mov1 cy,0fe6bh.1        ;7bee  71 14 6b
+    mov1 0fe6ah.7,cy        ;7bf1  71 71 6a
+    mov1 cy,0fe42h.1        ;7bf4  71 14 42
+    mov1 0fe6ah.5,cy        ;7bf7  71 51 6a
+    cmp a,#88h              ;7bfa  4d 88
+    bz $lab_7c03            ;7bfc  ad 05
+    cmp a,0fed9h            ;7bfe  4e d9
+    bnz $lab_7c0a           ;7c00  bd 08
+    ret                     ;7c02  af
+
+lab_7c03:
+    clr1 0fe41h.2           ;7c03  2b 41
+    bf 0fed9h.7,$lab_7c0c   ;7c05  31 73 d9 03
+    ret                     ;7c09  af
+
+lab_7c0a:
+    set1 0fe41h.2           ;7c0a  2a 41
+
+lab_7c0c:
+    set1 0fe41h.0           ;7c0c  0a 41
+    call !sub_7c7d          ;7c0e  9a 7d 7c
+    bt 0fe41h.5,$lab_7c28   ;7c11  dc 41 14
+    mov1 cy,0fe6ah.4        ;7c14  71 44 6a
+    mov1 0fe3fh.0,cy        ;7c17  71 01 3f
+    mov1 cy,0fe6ah.7        ;7c1a  71 74 6a
+    mov1 0fe6bh.2,cy        ;7c1d  71 21 6b
+    mov1 cy,0fe6ah.5        ;7c20  71 54 6a
+    mov1 0fe42h.0,cy        ;7c23  71 01 42
+    br $lab_7c3a            ;7c26  fa 12
+
+lab_7c28:
+    mov1 cy,0fe6ah.4        ;7c28  71 44 6a
+    mov1 0fe3fh.1,cy        ;7c2b  71 11 3f
+    mov1 cy,0fe6ah.7        ;7c2e  71 74 6a
+    mov1 0fe6bh.1,cy        ;7c31  71 11 6b
+    mov1 cy,0fe6ah.5        ;7c34  71 54 6a
+    mov1 0fe42h.1,cy        ;7c37  71 11 42
+
+lab_7c3a:
+    mov a,0fed6h            ;7c3a  f0 d6
+    mov c,a                 ;7c3c  72
+    mov a,0feddh            ;7c3d  f0 dd
+    movw hl,#0fc1ah         ;7c3f  16 1a fc
+    mov [hl+c],a            ;7c42  ba
+    bf 0fe41h.5,$lab_7c50   ;7c43  31 53 41 09
+    clr1 0fe41h.5           ;7c47  5b 41
+    mov a,#05h              ;7c49  a1 05
+    mov 0fed5h,a            ;7c4b  f2 d5
+    br !lab_7bcb            ;7c4d  9b cb 7b
+
+lab_7c50:
+    ret                     ;7c50  af
+
+sub_7c51:
+    mov a,!0f1fdh           ;7c51  8e fd f1
+    mov1 cy,a.0             ;7c54  61 8c
+    mov1 0fe6bh.7,cy        ;7c56  71 71 6b
+    set1 0fe6ch.1           ;7c59  1a 6c
+    set1 0fe6ch.0           ;7c5b  0a 6c
+    mov a,!0f1ffh           ;7c5d  8e ff f1
+    cmp a,#00h              ;7c60  4d 00
+    bz $lab_7c7c            ;7c62  ad 18
+    cmp a,#04h              ;7c64  4d 04
+    bnz $lab_7c6e           ;7c66  bd 06
+    clr1 0fe6ch.0           ;7c68  0b 6c
+    clr1 0fe6ch.1           ;7c6a  1b 6c
+    br $lab_7c7c            ;7c6c  fa 0e
+
+lab_7c6e:
+    cmp a,#02h              ;7c6e  4d 02
+    bnz $lab_7c76           ;7c70  bd 04
+    clr1 0fe6ch.0           ;7c72  0b 6c
+    br $lab_7c7c            ;7c74  fa 06
+
+lab_7c76:
+    cmp a,#03h              ;7c76  4d 03
+    bnz $lab_7c7c           ;7c78  bd 02
+    clr1 0fe6ch.1           ;7c7a  1b 6c
+
+lab_7c7c:
+    ret                     ;7c7c  af
+
+sub_7c7d:
+    bf 0fe41h.2,$lab_7ce8   ;7c7d  31 23 41 67
+    bf 0fe41h.0,$lab_7c8a   ;7c81  31 03 41 05
+    bt 0fe6bh.3,$lab_7ce3   ;7c85  bc 6b 5b
+    br $lab_7cb7            ;7c88  fa 2d
+
+lab_7c8a:
+    cmp 0feddh,#00h         ;7c8a  c8 dd 00
+    bz $lab_7c94            ;7c8d  ad 05
+    cmp 0feddh,#88h         ;7c8f  c8 dd 88
+    bnz $lab_7c99           ;7c92  bd 05
+
+lab_7c94:
+    mov 0fedch,#64h         ;7c94  11 dc 64
+    br $lab_7ce3            ;7c97  fa 4a
+
+lab_7c99:
+    mov a,0fed7h            ;7c99  f0 d7
+    cmp a,0feddh            ;7c9b  4e dd
+    bnz $lab_7c94           ;7c9d  bd f5
+    cmp 0fedch,#00h         ;7c9f  c8 dc 00
+    bz $lab_7ca8            ;7ca2  ad 04
+    set1 0fe6ah.7           ;7ca4  7a 6a
+    br $lab_7ce3            ;7ca6  fa 3b
+
+lab_7ca8:
+    mov a,0fed9h            ;7ca8  f0 d9
+    cmp a,0fed7h            ;7caa  4e d7
+    bz $lab_7cdf            ;7cac  ad 31
+    cmp 0fed9h,#88h         ;7cae  c8 d9 88
+    bz $lab_7cb7            ;7cb1  ad 04
+    bf 0fe6ah.7,$lab_7c94   ;7cb3  31 73 6a dd
+
+lab_7cb7:
+    bt 0fe6ch.4,$lab_7cdf   ;7cb7  cc 6c 25
+    movw hl,#0f21ah         ;7cba  16 1a f2
+    mov a,0fed6h            ;7cbd  f0 d6
+    mov b,a                 ;7cbf  73
+    mov a,#00h              ;7cc0  a1 00
+    call !sub_408f          ;7cc2  9a 8f 40
+    cmp 0fed9h,#88h         ;7cc5  c8 d9 88
+    bz $lab_7cd4            ;7cc8  ad 0a
+    bf 0fed9h.7,$lab_7cd4   ;7cca  31 73 d9 06
+    bf 0fe6ah.5,$lab_7cd4   ;7cce  31 53 6a 02
+    set1 0fe6ah.4           ;7cd2  4a 6a
+
+lab_7cd4:
+    movw hl,#0f20dh         ;7cd4  16 0d f2
+    mov a,0fed6h            ;7cd7  f0 d6
+    mov b,a                 ;7cd9  73
+    mov a,0fed7h            ;7cda  f0 d7
+    call !sub_408f          ;7cdc  9a 8f 40
+
+lab_7cdf:
+    clr1 0fe6ah.7           ;7cdf  7b 6a
+    set1 0fe6ah.5           ;7ce1  5a 6a
+
+lab_7ce3:
+    mov a,0fed7h            ;7ce3  f0 d7
+    mov 0feddh,a            ;7ce5  f2 dd
+    ret                     ;7ce7  af
+
+lab_7ce8:
+    bf 0fe41h.0,$lab_7cf1   ;7ce8  31 03 41 05
+    bt 0fe6bh.3,$lab_7ce3   ;7cec  bc 6b f4
+    br $lab_7d07            ;7cef  fa 16
+
+lab_7cf1:
+    cmp 0feddh,#88h         ;7cf1  c8 dd 88
+    bnz $lab_7c94           ;7cf4  bd 9e
+    cmp 0fedch,#00h         ;7cf6  c8 dc 00
+    bnz $lab_7ce3           ;7cf9  bd e8
+    bt 0fe6ah.5,$lab_7d2b   ;7cfb  dc 6a 2d
+    cmp 0fed9h,#88h         ;7cfe  c8 d9 88
+    bnz $lab_7d07           ;7d01  bd 04
+    set1 0fe6ah.5           ;7d03  5a 6a
+    br $lab_7ce3            ;7d05  fa dc
+
+lab_7d07:
+    bt 0fe6ah.4,$lab_7ce3   ;7d07  cc 6a d9
+    cmp 0fed8h,#00h         ;7d0a  c8 d8 00
+    bnz $lab_7d14           ;7d0d  bd 05
+    mov 0fed8h,#32h         ;7d0f  11 d8 32
+    br $lab_7d1e            ;7d12  fa 0a
+
+lab_7d14:
+    dec 0fed8h              ;7d14  91 d8
+    cmp 0fed8h,#00h         ;7d16  c8 d8 00
+    bnz $lab_7d1e           ;7d19  bd 03
+    mov 0fed9h,#88h         ;7d1b  11 d9 88
+
+lab_7d1e:
+    movw hl,#0f21ah         ;7d1e  16 1a f2
+    mov a,0fed6h            ;7d21  f0 d6
+    mov b,a                 ;7d23  73
+    mov a,0fed8h            ;7d24  f0 d8
+    call !sub_408f          ;7d26  9a 8f 40
+    set1 0fe6ah.5           ;7d29  5a 6a
+
+lab_7d2b:
+    cmp 0fed9h,#88h         ;7d2b  c8 d9 88
+    bz $lab_7d4f            ;7d2e  ad 1f
+    cmp 0fed5h,#06h         ;7d30  c8 d5 06
+    bz $lab_7d3a            ;7d33  ad 05
+    cmp 0fed5h,#05h         ;7d35  c8 d5 05
+    bnz $lab_7d47           ;7d38  bd 0d
+
+lab_7d3a:
+    bt 0fe65h.5,$lab_7d47   ;7d3a  dc 65 0a
+    bt 0fe6bh.4,$lab_7d47   ;7d3d  cc 6b 07
+    bf 0fe6ah.5,$lab_7d47   ;7d40  31 53 6a 03
+    bt 0fe6ah.6,$lab_7ce3   ;7d44  ec 6a 9c
+
+lab_7d47:
+    bt 0fed9h.7,$lab_7ce3   ;7d47  fc d9 99
+    bt 0fe6ah.4,$lab_7ce3   ;7d4a  cc 6a 96
+    set1 0fed9h.7           ;7d4d  7a d9
+
+lab_7d4f:
+    movw hl,#0f20dh         ;7d4f  16 0d f2
+    mov a,0fed6h            ;7d52  f0 d6
+    mov b,a                 ;7d54  73
+    mov a,0fed9h            ;7d55  f0 d9
+    call !sub_408f          ;7d57  9a 8f 40
+    br $lab_7ce3            ;7d5a  fa 87
+
     db 0fch                 ;7d5c  fc          DATA 0xfc
     db 0fbh                 ;7d5d  fb          DATA 0xfb
     db 0ah                  ;7d5e  0a          DATA 0x0a
@@ -27126,50 +27708,36 @@ lab_7807:
     db 3dh                  ;8082  3d          DATA 0x3d '='
     db 0fch                 ;8083  fc          DATA 0xfc
     db 0afh                 ;8084  af          DATA 0xaf
-    db 16h                  ;8085  16          DATA 0x16
-    db 3dh                  ;8086  3d          DATA 0x3d '='
-    db 0fch                 ;8087  fc          DATA 0xfc
-    db 0a3h                 ;8088  a3          DATA 0xa3
-    db 08h                  ;8089  08          DATA 0x08
-    db 14h                  ;808a  14          DATA 0x14
-    db 45h                  ;808b  45          DATA 0x45 'E'
-    db 0fch                 ;808c  fc          DATA 0xfc
-    db 9bh                  ;808d  9b          DATA 0x9b
-    db 0f4h                 ;808e  f4          DATA 0xf4
-    db 0bh                  ;808f  0b          DATA 0x0b
-    db 0bch                 ;8090  bc          DATA 0xbc
-    db 6dh                  ;8091  6d          DATA 0x6d 'm'
-    db 1dh                  ;8092  1d          DATA 0x1d
-    db 9ah                  ;8093  9a          DATA 0x9a
-    db 0fbh                 ;8094  fb          DATA 0xfb
-    db 47h                  ;8095  47          DATA 0x47 'G'
-    db 3ah                  ;8096  3a          DATA 0x3a ':'
-    db 6dh                  ;8097  6d          DATA 0x6d 'm'
-    db 30h                  ;8098  30          DATA 0x30 '0'
-    db 16h                  ;8099  16          DATA 0x16
-    db 0feh                 ;809a  fe          DATA 0xfe
-    db 0efh                 ;809b  ef          DATA 0xef
-    db 4fh                  ;809c  4f          DATA 0x4f 'O'
-    db 0bdh                 ;809d  bd          DATA 0xbd
-    db 05h                  ;809e  05          DATA 0x05
-    db 86h                  ;809f  86          DATA 0x86
-    db 30h                  ;80a0  30          DATA 0x30 '0'
-    db 4fh                  ;80a1  4f          DATA 0x4f 'O'
-    db 0adh                 ;80a2  ad          DATA 0xad
-    db 0ch                  ;80a3  0c          DATA 0x0c
-    db 8eh                  ;80a4  8e          DATA 0x8e
-    db 19h                  ;80a5  19          DATA 0x19
-    db 0f2h                 ;80a6  f2          DATA 0xf2
-    db 4dh                  ;80a7  4d          DATA 0x4d 'M'
-    db 03h                  ;80a8  03          DATA 0x03
-    db 0adh                 ;80a9  ad          DATA 0xad
-    db 05h                  ;80aa  05          DATA 0x05
-    db 0a1h                 ;80ab  a1          DATA 0xa1
-    db 02h                  ;80ac  02          DATA 0x02
-    db 9ah                  ;80ad  9a          DATA 0x9a
-    db 0aeh                 ;80ae  ae          DATA 0xae
-    db 2ch                  ;80af  2c          DATA 0x2c ','
-    db 0afh                 ;80b0  af          DATA 0xaf
+
+lab_8085:
+    movw hl,#0fc3dh         ;8085  16 3d fc
+    mov b,#08h              ;8088  a3 08
+    movw de,#0fc45h         ;808a  14 45 fc
+    br !lab_0bf4            ;808d  9b f4 0b
+
+lab_8090:
+    bt 0fe6dh.3,$lab_80b0   ;8090  bc 6d 1d
+    call !sub_47fb          ;8093  9a fb 47
+    set1 0fe6dh.3           ;8096  3a 6d
+    xch a,x                 ;8098  30
+    movw hl,#checksum       ;8099  16 fe ef
+    cmp a,[hl]              ;809c  4f
+    bnz $lab_80a4           ;809d  bd 05
+    incw hl                 ;809f  86
+    xch a,x                 ;80a0  30
+    cmp a,[hl]              ;80a1  4f
+    bz $lab_80b0            ;80a2  ad 0c
+
+lab_80a4:
+    mov a,!0f219h           ;80a4  8e 19 f2
+    cmp a,#03h              ;80a7  4d 03
+    bz $lab_80b0            ;80a9  ad 05
+    mov a,#02h              ;80ab  a1 02
+    call !sub_2cae          ;80ad  9a ae 2c
+
+lab_80b0:
+    ret                     ;80b0  af
+
     db 4dh                  ;80b1  4d          DATA 0x4d 'M'
     db 0ah                  ;80b2  0a          DATA 0x0a
     db 8dh                  ;80b3  8d          DATA 0x8d
@@ -27401,7 +27969,7 @@ lab_81ad:
     br $lab_81bd            ;81b4  fa 07
 
 lab_81b6:
-    movw ax,#81bdh          ;81b6  10 bd 81
+    movw ax,#lab_81bd       ;81b6  10 bd 81
     push ax                 ;81b9  b1
     movw ax,de              ;81ba  c4
     br ax                   ;81bb  31 98
@@ -29077,14 +29645,14 @@ lab_883a:
     bz $lab_884e            ;8840  ad 0c
     inc 0fe4ah              ;8842  81 4a
     bz $lab_884b            ;8844  ad 05
-    clr1 IF0H.0             ;8846  71 0b e1
+    clr1 IF0H_.0            ;8846  71 0b e1
     br $lab_8851            ;8849  fa 06
 
 lab_884b:
     mov 0fe4ah,#0ffh        ;884b  11 4a ff
 
 lab_884e:
-    set1 MK0H.0             ;884e  71 0a e5
+    set1 MK0H_.0            ;884e  71 0a e5
 
 lab_8851:
     pop ax                  ;8851  b0
@@ -31220,11 +31788,11 @@ lab_90b4:
 
 lab_90c7:
     bt 0fe4dh.4,$lab_90ce   ;90c7  cc 4d 04
-    cmpw ax,#0314h          ;90ca  ea 14 03
+    cmpw ax,#sub_0314       ;90ca  ea 14 03
     ret                     ;90cd  af
 
 lab_90ce:
-    cmpw ax,#0314h          ;90ce  ea 14 03
+    cmpw ax,#sub_0314       ;90ce  ea 14 03
     ret                     ;90d1  af
 
 sub_90d2:
@@ -33934,7 +34502,7 @@ lab_9c8b:
 
 lab_9c9f:
     bf 0fe73h.6,$lab_9d00   ;9c9f  31 63 73 5d
-    movw ax,#0800h          ;9ca3  10 00 08
+    movw ax,#sub_0800       ;9ca3  10 00 08
     mov !0fbdeh,a           ;9ca6  9e de fb
     mov !0fbe0h,a           ;9ca9  9e e0 fb
     mov !0fbe2h,a           ;9cac  9e e2 fb
@@ -34078,87 +34646,49 @@ lab_9d72:
 lab_9d80:
     callf !sub_0c48         ;9d80  4c 48
     movw ax,de              ;9d82  c4
+    movw !0f022h,ax         ;9d83  03 22 f0
+    pop bc                  ;9d86  b2
+    push bc                 ;9d87  b3
+    movw hl,#0c7b1h         ;9d88  16 b1 c7
+    bf 0fe74h.2,$lab_9d92   ;9d8b  31 23 74 03
+    movw hl,#0c807h         ;9d8f  16 07 c8
 
-    db 03h                  ;9d83  03          DATA 0x03
-    db 22h                  ;9d84  22          DATA 0x22 '"'
-    db 0f0h                 ;9d85  f0          DATA 0xf0
-    db 0b2h                 ;9d86  b2          DATA 0xb2
-    db 0b3h                 ;9d87  b3          DATA 0xb3
-    db 16h                  ;9d88  16          DATA 0x16
-    db 0b1h                 ;9d89  b1          DATA 0xb1
-    db 0c7h                 ;9d8a  c7          DATA 0xc7
-    db 31h                  ;9d8b  31          DATA 0x31 '1'
-    db 23h                  ;9d8c  23          DATA 0x23 '#'
-    db 74h                  ;9d8d  74          DATA 0x74 't'
-    db 03h                  ;9d8e  03          DATA 0x03
-    db 16h                  ;9d8f  16          DATA 0x16
-    db 07h                  ;9d90  07          DATA 0x07
-    db 0c8h                 ;9d91  c8          DATA 0xc8
-    db 31h                  ;9d92  31          DATA 0x31 '1'
-    db 63h                  ;9d93  63          DATA 0x63 'c'
-    db 74h                  ;9d94  74          DATA 0x74 't'
-    db 0ah                  ;9d95  0a          DATA 0x0a
-    db 16h                  ;9d96  16          DATA 0x16
-    db 88h                  ;9d97  88          DATA 0x88
-    db 0c8h                 ;9d98  c8          DATA 0xc8
-    db 31h                  ;9d99  31          DATA 0x31 '1'
-    db 23h                  ;9d9a  23          DATA 0x23 '#'
-    db 74h                  ;9d9b  74          DATA 0x74 't'
-    db 03h                  ;9d9c  03          DATA 0x03
-    db 16h                  ;9d9d  16          DATA 0x16
-    db 09h                  ;9d9e  09          DATA 0x09
-    db 0c9h                 ;9d9f  c9          DATA 0xc9
-    db 4ch                  ;9da0  4c          DATA 0x4c 'L'
-    db 48h                  ;9da1  48          DATA 0x48 'H'
-    db 0c4h                 ;9da2  c4          DATA 0xc4
-    db 03h                  ;9da3  03          DATA 0x03
-    db 24h                  ;9da4  24          DATA 0x24 '$'
-    db 0f0h                 ;9da5  f0          DATA 0xf0
-    db 0b2h                 ;9da6  b2          DATA 0xb2
-    db 0b3h                 ;9da7  b3          DATA 0xb3
-    db 16h                  ;9da8  16          DATA 0x16
-    db 30h                  ;9da9  30          DATA 0x30 '0'
-    db 0c7h                 ;9daa  c7          DATA 0xc7
-    db 31h                  ;9dab  31          DATA 0x31 '1'
-    db 63h                  ;9dac  63          DATA 0x63 'c'
-    db 74h                  ;9dad  74          DATA 0x74 't'
-    db 03h                  ;9dae  03          DATA 0x03
-    db 16h                  ;9daf  16          DATA 0x16
-    db 32h                  ;9db0  32          DATA 0x32 '2'
-    db 0c8h                 ;9db1  c8          DATA 0xc8
-    db 4ch                  ;9db2  4c          DATA 0x4c 'L'
-    db 48h                  ;9db3  48          DATA 0x48 'H'
-    db 0c4h                 ;9db4  c4          DATA 0xc4
-    db 03h                  ;9db5  03          DATA 0x03
-    db 2ah                  ;9db6  2a          DATA 0x2a '*'
-    db 0f0h                 ;9db7  f0          DATA 0xf0
-    db 0b2h                 ;9db8  b2          DATA 0xb2
-    db 0ech                 ;9db9  ec          DATA 0xec
-    db 74h                  ;9dba  74          DATA 0x74 't'
-    db 07h                  ;9dbb  07          DATA 0x07
-    db 16h                  ;9dbc  16          DATA 0x16
-    db 5bh                  ;9dbd  5b          DATA 0x5b '['
-    db 0c7h                 ;9dbe  c7          DATA 0xc7
-    db 4ch                  ;9dbf  4c          DATA 0x4c 'L'
-    db 48h                  ;9dc0  48          DATA 0x48 'H'
-    db 0fah                 ;9dc1  fa          DATA 0xfa
-    db 05h                  ;9dc2  05          DATA 0x05
-    db 16h                  ;9dc3  16          DATA 0x16
-    db 0b3h                 ;9dc4  b3          DATA 0xb3
-    db 0c8h                 ;9dc5  c8          DATA 0xc8
-    db 4ch                  ;9dc6  4c          DATA 0x4c 'L'
-    db 48h                  ;9dc7  48          DATA 0x48 'H'
-    db 0c4h                 ;9dc8  c4          DATA 0xc4
-    db 03h                  ;9dc9  03          DATA 0x03
-    db 26h                  ;9dca  26          DATA 0x26 '&'
-    db 0f0h                 ;9dcb  f0          DATA 0xf0
-    db 10h                  ;9dcc  10          DATA 0x10
-    db 00h                  ;9dcd  00          DATA 0x00
-    db 00h                  ;9dce  00          DATA 0x00
-    db 03h                  ;9dcf  03          DATA 0x03
-    db 28h                  ;9dd0  28          DATA 0x28 '('
-    db 0f0h                 ;9dd1  f0          DATA 0xf0
-    db 0afh                 ;9dd2  af          DATA 0xaf
+lab_9d92:
+    bf 0fe74h.6,$lab_9da0   ;9d92  31 63 74 0a
+    movw hl,#0c888h         ;9d96  16 88 c8
+    bf 0fe74h.2,$lab_9da0   ;9d99  31 23 74 03
+    movw hl,#0c909h         ;9d9d  16 09 c9
+
+lab_9da0:
+    callf !sub_0c48         ;9da0  4c 48
+    movw ax,de              ;9da2  c4
+    movw !0f024h,ax         ;9da3  03 24 f0
+    pop bc                  ;9da6  b2
+    push bc                 ;9da7  b3
+    movw hl,#0c730h         ;9da8  16 30 c7
+    bf 0fe74h.6,$lab_9db2   ;9dab  31 63 74 03
+    movw hl,#0c832h         ;9daf  16 32 c8
+
+lab_9db2:
+    callf !sub_0c48         ;9db2  4c 48
+    movw ax,de              ;9db4  c4
+    movw !0f02ah,ax         ;9db5  03 2a f0
+    pop bc                  ;9db8  b2
+    bt 0fe74h.6,$lab_9dc3   ;9db9  ec 74 07
+    movw hl,#0c75bh         ;9dbc  16 5b c7
+    callf !sub_0c48         ;9dbf  4c 48
+    br $lab_9dc8            ;9dc1  fa 05
+
+lab_9dc3:
+    movw hl,#0c8b3h         ;9dc3  16 b3 c8
+    callf !sub_0c48         ;9dc6  4c 48
+
+lab_9dc8:
+    movw ax,de              ;9dc8  c4
+    movw !0f026h,ax         ;9dc9  03 26 f0
+    movw ax,#0000h          ;9dcc  10 00 00
+    movw !0f028h,ax         ;9dcf  03 28 f0
+    ret                     ;9dd2  af
 
 sub_9dd3:
     mov b,#03h              ;9dd3  a3 03
@@ -34188,21 +34718,11 @@ lab_9dfa:
 lab_9dff:
     movw ax,de              ;9dff  c4
     call !sub_9e36          ;9e00  9a 36 9e
-
-    db 03h                  ;9e03  03          DATA 0x03
-    db 2eh                  ;9e04  2e          DATA 0x2e '.'
-    db 0f0h                 ;9e05  f0          DATA 0xf0
-    db 10h                  ;9e06  10          DATA 0x10
-    db 00h                  ;9e07  00          DATA 0x00
-    db 20h                  ;9e08  20          DATA 0x20 ' '
-    db 9ah                  ;9e09  9a          DATA 0x9a
-    db 36h                  ;9e0a  36          DATA 0x36 '6'
-    db 9eh                  ;9e0b  9e          DATA 0x9e
-    db 03h                  ;9e0c  03          DATA 0x03
-    db 2ch                  ;9e0d  2c          DATA 0x2c ','
-    db 0f0h                 ;9e0e  f0          DATA 0xf0
-    db 0fah                 ;9e0f  fa          DATA 0xfa
-    db 24h                  ;9e10  24          DATA 0x24 '$'
+    movw !0f02eh,ax         ;9e03  03 2e f0
+    movw ax,#2000h          ;9e06  10 00 20
+    call !sub_9e36          ;9e09  9a 36 9e
+    movw !0f02ch,ax         ;9e0c  03 2c f0
+    br $lab_9e35            ;9e0f  fa 24
 
 lab_9e11:
     mov a,#14h              ;9e11  a1 14
@@ -34220,20 +34740,13 @@ lab_9e20:
 lab_9e25:
     movw ax,de              ;9e25  c4
     call !sub_9e36          ;9e26  9a 36 9e
+    movw !0f02ch,ax         ;9e29  03 2c f0
+    movw ax,#2000h          ;9e2c  10 00 20
+    call !sub_9e36          ;9e2f  9a 36 9e
+    movw !0f02eh,ax         ;9e32  03 2e f0
 
-    db 03h                  ;9e29  03          DATA 0x03
-    db 2ch                  ;9e2a  2c          DATA 0x2c ','
-    db 0f0h                 ;9e2b  f0          DATA 0xf0
-    db 10h                  ;9e2c  10          DATA 0x10
-    db 00h                  ;9e2d  00          DATA 0x00
-    db 20h                  ;9e2e  20          DATA 0x20 ' '
-    db 9ah                  ;9e2f  9a          DATA 0x9a
-    db 36h                  ;9e30  36          DATA 0x36 '6'
-    db 9eh                  ;9e31  9e          DATA 0x9e
-    db 03h                  ;9e32  03          DATA 0x03
-    db 2eh                  ;9e33  2e          DATA 0x2e '.'
-    db 0f0h                 ;9e34  f0          DATA 0xf0
-    db 0afh                 ;9e35  af          DATA 0xaf
+lab_9e35:
+    ret                     ;9e35  af
 
 sub_9e36:
     movw 0fed6h,ax          ;9e36  99 d6
@@ -37115,58 +37628,58 @@ sub_abf5:
     and a,#07h              ;abf8  5d 07
     mov b,a                 ;abfa  73
     movw hl,#0af75h         ;abfb  16 75 af
-    mov a,PM9               ;abfe  f4 29
+    mov a,PM9_              ;abfe  f4 29
     or a,[hl+b]             ;ac00  31 6b
-    mov PM9,a               ;ac02  f6 29
+    mov PM9_,a              ;ac02  f6 29
     mov a,b                 ;ac04  63
-    mov ADS00,a             ;ac05  f6 81
-    mov ADM00,#00h          ;ac07  13 80 00
-    clr1 IF1L.5             ;ac0a  71 5b e2
-    set1 MK1L.5             ;ac0d  71 5a e6
-    set1 ADM00.7            ;ac10  71 7a 80
+    mov ADS00_,a            ;ac05  f6 81
+    mov ADM00_,#00h         ;ac07  13 80 00
+    clr1 IF1L_.5            ;ac0a  71 5b e2
+    set1 MK1L_.5            ;ac0d  71 5a e6
+    set1 ADM00_.7           ;ac10  71 7a 80
     mov b,#1eh              ;ac13  a3 1e
 
 lab_ac15:
-    bt IF1L.5,$lab_ac1e     ;ac15  31 56 e2 05
+    bt IF1L_.5,$lab_ac1e    ;ac15  31 56 e2 05
     dbnz b,$lab_ac15        ;ac19  8b fa
     set1 cy                 ;ac1b  20
     br $lab_ac21            ;ac1c  fa 03
 
 lab_ac1e:
-    mov a,ADCR00            ;ac1e  f0 17
+    mov a,ADCR00_           ;ac1e  f0 17
     clr1 cy                 ;ac20  21
 
 lab_ac21:
-    mov ADM00,#00h          ;ac21  13 80 00
+    mov ADM00_,#00h         ;ac21  13 80 00
     ret                     ;ac24  af
 
 lab_ac25:
     and a,#07h              ;ac25  5d 07
     mov b,a                 ;ac27  73
     movw hl,#0af75h         ;ac28  16 75 af
-    mov a,PM8               ;ac2b  f4 28
+    mov a,PM8_              ;ac2b  f4 28
     or a,[hl+b]             ;ac2d  31 6b
-    mov PM8,a               ;ac2f  f6 28
+    mov PM8_,a              ;ac2f  f6 28
     mov a,b                 ;ac31  63
-    mov ADS01,a             ;ac32  f6 89
-    mov ADM01,#00h          ;ac34  13 88 00
-    clr1 IF1L.6             ;ac37  71 6b e2
-    set1 MK1L.6             ;ac3a  71 6a e6
-    set1 ADM01.7            ;ac3d  71 7a 88
+    mov ADS01_,a            ;ac32  f6 89
+    mov ADM01_,#00h         ;ac34  13 88 00
+    clr1 IF1L_.6            ;ac37  71 6b e2
+    set1 MK1L_.6            ;ac3a  71 6a e6
+    set1 ADM01_.7           ;ac3d  71 7a 88
     mov b,#1eh              ;ac40  a3 1e
 
 lab_ac42:
-    bt IF1L.6,$lab_ac4b     ;ac42  31 66 e2 05
+    bt IF1L_.6,$lab_ac4b    ;ac42  31 66 e2 05
     dbnz b,$lab_ac42        ;ac46  8b fa
     set1 cy                 ;ac48  20
     br $lab_ac4e            ;ac49  fa 03
 
 lab_ac4b:
-    mov a,ADCR01            ;ac4b  f4 8b
+    mov a,ADCR01_           ;ac4b  f4 8b
     clr1 cy                 ;ac4d  21
 
 lab_ac4e:
-    mov ADM01,#00h          ;ac4e  13 88 00
+    mov ADM01_,#00h         ;ac4e  13 88 00
     ret                     ;ac51  af
 
     db 2bh                  ;ac52  2b          DATA 0x2b '+'
@@ -49312,428 +49825,5026 @@ sub_dadd:
     db 0fdh                 ;dc61  fd          DATA 0xfd
     db 0d8h                 ;dc62  d8          DATA 0xd8
     db 0afh                 ;dc63  af          DATA 0xaf
+    db 0bfh                 ;dc64  bf          DATA 0xbf
+    db 0bfh                 ;dc65  bf          DATA 0xbf
+    db 0bfh                 ;dc66  bf          DATA 0xbf
+    db 0bfh                 ;dc67  bf          DATA 0xbf
+    db 0bfh                 ;dc68  bf          DATA 0xbf
+    db 0bfh                 ;dc69  bf          DATA 0xbf
+    db 0bfh                 ;dc6a  bf          DATA 0xbf
+    db 0bfh                 ;dc6b  bf          DATA 0xbf
+    db 0bfh                 ;dc6c  bf          DATA 0xbf
+    db 0bfh                 ;dc6d  bf          DATA 0xbf
+    db 0bfh                 ;dc6e  bf          DATA 0xbf
+    db 0bfh                 ;dc6f  bf          DATA 0xbf
+    db 0bfh                 ;dc70  bf          DATA 0xbf
+    db 0bfh                 ;dc71  bf          DATA 0xbf
+    db 0bfh                 ;dc72  bf          DATA 0xbf
+    db 0bfh                 ;dc73  bf          DATA 0xbf
+    db 0bfh                 ;dc74  bf          DATA 0xbf
+    db 0bfh                 ;dc75  bf          DATA 0xbf
+    db 0bfh                 ;dc76  bf          DATA 0xbf
+    db 0bfh                 ;dc77  bf          DATA 0xbf
+    db 0bfh                 ;dc78  bf          DATA 0xbf
+    db 0bfh                 ;dc79  bf          DATA 0xbf
+    db 0bfh                 ;dc7a  bf          DATA 0xbf
+    db 0bfh                 ;dc7b  bf          DATA 0xbf
+    db 0bfh                 ;dc7c  bf          DATA 0xbf
+    db 0bfh                 ;dc7d  bf          DATA 0xbf
+    db 0bfh                 ;dc7e  bf          DATA 0xbf
+    db 0bfh                 ;dc7f  bf          DATA 0xbf
+    db 0bfh                 ;dc80  bf          DATA 0xbf
+    db 0bfh                 ;dc81  bf          DATA 0xbf
+    db 0bfh                 ;dc82  bf          DATA 0xbf
+    db 0bfh                 ;dc83  bf          DATA 0xbf
+    db 0bfh                 ;dc84  bf          DATA 0xbf
+    db 0bfh                 ;dc85  bf          DATA 0xbf
+    db 0bfh                 ;dc86  bf          DATA 0xbf
+    db 0bfh                 ;dc87  bf          DATA 0xbf
+    db 0bfh                 ;dc88  bf          DATA 0xbf
+    db 0bfh                 ;dc89  bf          DATA 0xbf
+    db 0bfh                 ;dc8a  bf          DATA 0xbf
+    db 0bfh                 ;dc8b  bf          DATA 0xbf
+    db 0bfh                 ;dc8c  bf          DATA 0xbf
+    db 0bfh                 ;dc8d  bf          DATA 0xbf
+    db 0bfh                 ;dc8e  bf          DATA 0xbf
+    db 0bfh                 ;dc8f  bf          DATA 0xbf
+    db 0bfh                 ;dc90  bf          DATA 0xbf
+    db 0bfh                 ;dc91  bf          DATA 0xbf
+    db 0bfh                 ;dc92  bf          DATA 0xbf
+    db 0bfh                 ;dc93  bf          DATA 0xbf
+    db 0bfh                 ;dc94  bf          DATA 0xbf
+    db 0bfh                 ;dc95  bf          DATA 0xbf
+    db 0bfh                 ;dc96  bf          DATA 0xbf
+    db 0bfh                 ;dc97  bf          DATA 0xbf
+    db 0bfh                 ;dc98  bf          DATA 0xbf
+    db 0bfh                 ;dc99  bf          DATA 0xbf
+    db 0bfh                 ;dc9a  bf          DATA 0xbf
+    db 0bfh                 ;dc9b  bf          DATA 0xbf
+    db 0bfh                 ;dc9c  bf          DATA 0xbf
+    db 0bfh                 ;dc9d  bf          DATA 0xbf
+    db 0bfh                 ;dc9e  bf          DATA 0xbf
+    db 0bfh                 ;dc9f  bf          DATA 0xbf
+    db 0bfh                 ;dca0  bf          DATA 0xbf
+    db 0bfh                 ;dca1  bf          DATA 0xbf
+    db 0bfh                 ;dca2  bf          DATA 0xbf
+    db 0bfh                 ;dca3  bf          DATA 0xbf
+    db 0bfh                 ;dca4  bf          DATA 0xbf
+    db 0bfh                 ;dca5  bf          DATA 0xbf
+    db 0bfh                 ;dca6  bf          DATA 0xbf
+    db 0bfh                 ;dca7  bf          DATA 0xbf
+    db 0bfh                 ;dca8  bf          DATA 0xbf
+    db 0bfh                 ;dca9  bf          DATA 0xbf
+    db 0bfh                 ;dcaa  bf          DATA 0xbf
+    db 0bfh                 ;dcab  bf          DATA 0xbf
+    db 0bfh                 ;dcac  bf          DATA 0xbf
+    db 0bfh                 ;dcad  bf          DATA 0xbf
+    db 0bfh                 ;dcae  bf          DATA 0xbf
+    db 0bfh                 ;dcaf  bf          DATA 0xbf
+    db 0bfh                 ;dcb0  bf          DATA 0xbf
+    db 0bfh                 ;dcb1  bf          DATA 0xbf
+    db 0bfh                 ;dcb2  bf          DATA 0xbf
+    db 0bfh                 ;dcb3  bf          DATA 0xbf
+    db 0bfh                 ;dcb4  bf          DATA 0xbf
+    db 0bfh                 ;dcb5  bf          DATA 0xbf
+    db 0bfh                 ;dcb6  bf          DATA 0xbf
+    db 0bfh                 ;dcb7  bf          DATA 0xbf
+    db 0bfh                 ;dcb8  bf          DATA 0xbf
+    db 0bfh                 ;dcb9  bf          DATA 0xbf
+    db 0bfh                 ;dcba  bf          DATA 0xbf
+    db 0bfh                 ;dcbb  bf          DATA 0xbf
+    db 0bfh                 ;dcbc  bf          DATA 0xbf
+    db 0bfh                 ;dcbd  bf          DATA 0xbf
+    db 0bfh                 ;dcbe  bf          DATA 0xbf
+    db 0bfh                 ;dcbf  bf          DATA 0xbf
+    db 0bfh                 ;dcc0  bf          DATA 0xbf
+    db 0bfh                 ;dcc1  bf          DATA 0xbf
+    db 0bfh                 ;dcc2  bf          DATA 0xbf
+    db 0bfh                 ;dcc3  bf          DATA 0xbf
+    db 0bfh                 ;dcc4  bf          DATA 0xbf
+    db 0bfh                 ;dcc5  bf          DATA 0xbf
+    db 0bfh                 ;dcc6  bf          DATA 0xbf
+    db 0bfh                 ;dcc7  bf          DATA 0xbf
+    db 0bfh                 ;dcc8  bf          DATA 0xbf
+    db 0bfh                 ;dcc9  bf          DATA 0xbf
+    db 0bfh                 ;dcca  bf          DATA 0xbf
+    db 0bfh                 ;dccb  bf          DATA 0xbf
+    db 0bfh                 ;dccc  bf          DATA 0xbf
+    db 0bfh                 ;dccd  bf          DATA 0xbf
+    db 0bfh                 ;dcce  bf          DATA 0xbf
+    db 0bfh                 ;dccf  bf          DATA 0xbf
+    db 0bfh                 ;dcd0  bf          DATA 0xbf
+    db 0bfh                 ;dcd1  bf          DATA 0xbf
+    db 0bfh                 ;dcd2  bf          DATA 0xbf
+    db 0bfh                 ;dcd3  bf          DATA 0xbf
+    db 0bfh                 ;dcd4  bf          DATA 0xbf
+    db 0bfh                 ;dcd5  bf          DATA 0xbf
+    db 0bfh                 ;dcd6  bf          DATA 0xbf
+    db 0bfh                 ;dcd7  bf          DATA 0xbf
+    db 0bfh                 ;dcd8  bf          DATA 0xbf
+    db 0bfh                 ;dcd9  bf          DATA 0xbf
+    db 0bfh                 ;dcda  bf          DATA 0xbf
+    db 0bfh                 ;dcdb  bf          DATA 0xbf
+    db 0bfh                 ;dcdc  bf          DATA 0xbf
+    db 0bfh                 ;dcdd  bf          DATA 0xbf
+    db 0bfh                 ;dcde  bf          DATA 0xbf
+    db 0bfh                 ;dcdf  bf          DATA 0xbf
+    db 0bfh                 ;dce0  bf          DATA 0xbf
+    db 0bfh                 ;dce1  bf          DATA 0xbf
+    db 0bfh                 ;dce2  bf          DATA 0xbf
+    db 0bfh                 ;dce3  bf          DATA 0xbf
+    db 0bfh                 ;dce4  bf          DATA 0xbf
+    db 0bfh                 ;dce5  bf          DATA 0xbf
+    db 0bfh                 ;dce6  bf          DATA 0xbf
+    db 0bfh                 ;dce7  bf          DATA 0xbf
+    db 0bfh                 ;dce8  bf          DATA 0xbf
+    db 0bfh                 ;dce9  bf          DATA 0xbf
+    db 0bfh                 ;dcea  bf          DATA 0xbf
+    db 0bfh                 ;dceb  bf          DATA 0xbf
+    db 0bfh                 ;dcec  bf          DATA 0xbf
+    db 0bfh                 ;dced  bf          DATA 0xbf
+    db 0bfh                 ;dcee  bf          DATA 0xbf
+    db 0bfh                 ;dcef  bf          DATA 0xbf
+    db 0bfh                 ;dcf0  bf          DATA 0xbf
+    db 0bfh                 ;dcf1  bf          DATA 0xbf
+    db 0bfh                 ;dcf2  bf          DATA 0xbf
+    db 0bfh                 ;dcf3  bf          DATA 0xbf
+    db 0bfh                 ;dcf4  bf          DATA 0xbf
+    db 0bfh                 ;dcf5  bf          DATA 0xbf
+    db 0bfh                 ;dcf6  bf          DATA 0xbf
+    db 0bfh                 ;dcf7  bf          DATA 0xbf
+    db 0bfh                 ;dcf8  bf          DATA 0xbf
+    db 0bfh                 ;dcf9  bf          DATA 0xbf
+    db 0bfh                 ;dcfa  bf          DATA 0xbf
+    db 0bfh                 ;dcfb  bf          DATA 0xbf
+    db 0bfh                 ;dcfc  bf          DATA 0xbf
+    db 0bfh                 ;dcfd  bf          DATA 0xbf
+    db 0bfh                 ;dcfe  bf          DATA 0xbf
+    db 0bfh                 ;dcff  bf          DATA 0xbf
+    db 0bfh                 ;dd00  bf          DATA 0xbf
+    db 0bfh                 ;dd01  bf          DATA 0xbf
+    db 0bfh                 ;dd02  bf          DATA 0xbf
+    db 0bfh                 ;dd03  bf          DATA 0xbf
+    db 0bfh                 ;dd04  bf          DATA 0xbf
+    db 0bfh                 ;dd05  bf          DATA 0xbf
+    db 0bfh                 ;dd06  bf          DATA 0xbf
+    db 0bfh                 ;dd07  bf          DATA 0xbf
+    db 0bfh                 ;dd08  bf          DATA 0xbf
+    db 0bfh                 ;dd09  bf          DATA 0xbf
+    db 0bfh                 ;dd0a  bf          DATA 0xbf
+    db 0bfh                 ;dd0b  bf          DATA 0xbf
+    db 0bfh                 ;dd0c  bf          DATA 0xbf
+    db 0bfh                 ;dd0d  bf          DATA 0xbf
+    db 0bfh                 ;dd0e  bf          DATA 0xbf
+    db 0bfh                 ;dd0f  bf          DATA 0xbf
+    db 0bfh                 ;dd10  bf          DATA 0xbf
+    db 0bfh                 ;dd11  bf          DATA 0xbf
+    db 0bfh                 ;dd12  bf          DATA 0xbf
+    db 0bfh                 ;dd13  bf          DATA 0xbf
+    db 0bfh                 ;dd14  bf          DATA 0xbf
+    db 0bfh                 ;dd15  bf          DATA 0xbf
+    db 0bfh                 ;dd16  bf          DATA 0xbf
+    db 0bfh                 ;dd17  bf          DATA 0xbf
+    db 0bfh                 ;dd18  bf          DATA 0xbf
+    db 0bfh                 ;dd19  bf          DATA 0xbf
+    db 0bfh                 ;dd1a  bf          DATA 0xbf
+    db 0bfh                 ;dd1b  bf          DATA 0xbf
+    db 0bfh                 ;dd1c  bf          DATA 0xbf
+    db 0bfh                 ;dd1d  bf          DATA 0xbf
+    db 0bfh                 ;dd1e  bf          DATA 0xbf
+    db 0bfh                 ;dd1f  bf          DATA 0xbf
+    db 0bfh                 ;dd20  bf          DATA 0xbf
+    db 0bfh                 ;dd21  bf          DATA 0xbf
+    db 0bfh                 ;dd22  bf          DATA 0xbf
+    db 0bfh                 ;dd23  bf          DATA 0xbf
+    db 0bfh                 ;dd24  bf          DATA 0xbf
+    db 0bfh                 ;dd25  bf          DATA 0xbf
+    db 0bfh                 ;dd26  bf          DATA 0xbf
+    db 0bfh                 ;dd27  bf          DATA 0xbf
+    db 0bfh                 ;dd28  bf          DATA 0xbf
+    db 0bfh                 ;dd29  bf          DATA 0xbf
+    db 0bfh                 ;dd2a  bf          DATA 0xbf
+    db 0bfh                 ;dd2b  bf          DATA 0xbf
+    db 0bfh                 ;dd2c  bf          DATA 0xbf
+    db 0bfh                 ;dd2d  bf          DATA 0xbf
+    db 0bfh                 ;dd2e  bf          DATA 0xbf
+    db 0bfh                 ;dd2f  bf          DATA 0xbf
+    db 0bfh                 ;dd30  bf          DATA 0xbf
+    db 0bfh                 ;dd31  bf          DATA 0xbf
+    db 0bfh                 ;dd32  bf          DATA 0xbf
+    db 0bfh                 ;dd33  bf          DATA 0xbf
+    db 0bfh                 ;dd34  bf          DATA 0xbf
+    db 0bfh                 ;dd35  bf          DATA 0xbf
+    db 0bfh                 ;dd36  bf          DATA 0xbf
+    db 0bfh                 ;dd37  bf          DATA 0xbf
+    db 0bfh                 ;dd38  bf          DATA 0xbf
+    db 0bfh                 ;dd39  bf          DATA 0xbf
+    db 0bfh                 ;dd3a  bf          DATA 0xbf
+    db 0bfh                 ;dd3b  bf          DATA 0xbf
+    db 0bfh                 ;dd3c  bf          DATA 0xbf
+    db 0bfh                 ;dd3d  bf          DATA 0xbf
+    db 0bfh                 ;dd3e  bf          DATA 0xbf
+    db 0bfh                 ;dd3f  bf          DATA 0xbf
+    db 0bfh                 ;dd40  bf          DATA 0xbf
+    db 0bfh                 ;dd41  bf          DATA 0xbf
+    db 0bfh                 ;dd42  bf          DATA 0xbf
+    db 0bfh                 ;dd43  bf          DATA 0xbf
+    db 0bfh                 ;dd44  bf          DATA 0xbf
+    db 0bfh                 ;dd45  bf          DATA 0xbf
+    db 0bfh                 ;dd46  bf          DATA 0xbf
+    db 0bfh                 ;dd47  bf          DATA 0xbf
+    db 0bfh                 ;dd48  bf          DATA 0xbf
+    db 0bfh                 ;dd49  bf          DATA 0xbf
+    db 0bfh                 ;dd4a  bf          DATA 0xbf
+    db 0bfh                 ;dd4b  bf          DATA 0xbf
+    db 0bfh                 ;dd4c  bf          DATA 0xbf
+    db 0bfh                 ;dd4d  bf          DATA 0xbf
+    db 0bfh                 ;dd4e  bf          DATA 0xbf
+    db 0bfh                 ;dd4f  bf          DATA 0xbf
+    db 0bfh                 ;dd50  bf          DATA 0xbf
+    db 0bfh                 ;dd51  bf          DATA 0xbf
+    db 0bfh                 ;dd52  bf          DATA 0xbf
+    db 0bfh                 ;dd53  bf          DATA 0xbf
+    db 0bfh                 ;dd54  bf          DATA 0xbf
+    db 0bfh                 ;dd55  bf          DATA 0xbf
+    db 0bfh                 ;dd56  bf          DATA 0xbf
+    db 0bfh                 ;dd57  bf          DATA 0xbf
+    db 0bfh                 ;dd58  bf          DATA 0xbf
+    db 0bfh                 ;dd59  bf          DATA 0xbf
+    db 0bfh                 ;dd5a  bf          DATA 0xbf
+    db 0bfh                 ;dd5b  bf          DATA 0xbf
+    db 0bfh                 ;dd5c  bf          DATA 0xbf
+    db 0bfh                 ;dd5d  bf          DATA 0xbf
+    db 0bfh                 ;dd5e  bf          DATA 0xbf
+    db 0bfh                 ;dd5f  bf          DATA 0xbf
+    db 0bfh                 ;dd60  bf          DATA 0xbf
+    db 0bfh                 ;dd61  bf          DATA 0xbf
+    db 0bfh                 ;dd62  bf          DATA 0xbf
+    db 0bfh                 ;dd63  bf          DATA 0xbf
+    db 0bfh                 ;dd64  bf          DATA 0xbf
+    db 0bfh                 ;dd65  bf          DATA 0xbf
+    db 0bfh                 ;dd66  bf          DATA 0xbf
+    db 0bfh                 ;dd67  bf          DATA 0xbf
+    db 0bfh                 ;dd68  bf          DATA 0xbf
+    db 0bfh                 ;dd69  bf          DATA 0xbf
+    db 0bfh                 ;dd6a  bf          DATA 0xbf
+    db 0bfh                 ;dd6b  bf          DATA 0xbf
+    db 0bfh                 ;dd6c  bf          DATA 0xbf
+    db 0bfh                 ;dd6d  bf          DATA 0xbf
+    db 0bfh                 ;dd6e  bf          DATA 0xbf
+    db 0bfh                 ;dd6f  bf          DATA 0xbf
+    db 0bfh                 ;dd70  bf          DATA 0xbf
+    db 0bfh                 ;dd71  bf          DATA 0xbf
+    db 0bfh                 ;dd72  bf          DATA 0xbf
+    db 0bfh                 ;dd73  bf          DATA 0xbf
+    db 0bfh                 ;dd74  bf          DATA 0xbf
+    db 0bfh                 ;dd75  bf          DATA 0xbf
+    db 0bfh                 ;dd76  bf          DATA 0xbf
+    db 0bfh                 ;dd77  bf          DATA 0xbf
+    db 0bfh                 ;dd78  bf          DATA 0xbf
+    db 0bfh                 ;dd79  bf          DATA 0xbf
+    db 0bfh                 ;dd7a  bf          DATA 0xbf
+    db 0bfh                 ;dd7b  bf          DATA 0xbf
+    db 0bfh                 ;dd7c  bf          DATA 0xbf
+    db 0bfh                 ;dd7d  bf          DATA 0xbf
+    db 0bfh                 ;dd7e  bf          DATA 0xbf
+    db 0bfh                 ;dd7f  bf          DATA 0xbf
+    db 0bfh                 ;dd80  bf          DATA 0xbf
+    db 0bfh                 ;dd81  bf          DATA 0xbf
+    db 0bfh                 ;dd82  bf          DATA 0xbf
+    db 0bfh                 ;dd83  bf          DATA 0xbf
+    db 0bfh                 ;dd84  bf          DATA 0xbf
+    db 0bfh                 ;dd85  bf          DATA 0xbf
+    db 0bfh                 ;dd86  bf          DATA 0xbf
+    db 0bfh                 ;dd87  bf          DATA 0xbf
+    db 0bfh                 ;dd88  bf          DATA 0xbf
+    db 0bfh                 ;dd89  bf          DATA 0xbf
+    db 0bfh                 ;dd8a  bf          DATA 0xbf
+    db 0bfh                 ;dd8b  bf          DATA 0xbf
+    db 0bfh                 ;dd8c  bf          DATA 0xbf
+    db 0bfh                 ;dd8d  bf          DATA 0xbf
+    db 0bfh                 ;dd8e  bf          DATA 0xbf
+    db 0bfh                 ;dd8f  bf          DATA 0xbf
+    db 0bfh                 ;dd90  bf          DATA 0xbf
+    db 0bfh                 ;dd91  bf          DATA 0xbf
+    db 0bfh                 ;dd92  bf          DATA 0xbf
+    db 0bfh                 ;dd93  bf          DATA 0xbf
+    db 0bfh                 ;dd94  bf          DATA 0xbf
+    db 0bfh                 ;dd95  bf          DATA 0xbf
+    db 0bfh                 ;dd96  bf          DATA 0xbf
+    db 0bfh                 ;dd97  bf          DATA 0xbf
+    db 0bfh                 ;dd98  bf          DATA 0xbf
+    db 0bfh                 ;dd99  bf          DATA 0xbf
+    db 0bfh                 ;dd9a  bf          DATA 0xbf
+    db 0bfh                 ;dd9b  bf          DATA 0xbf
+    db 0bfh                 ;dd9c  bf          DATA 0xbf
+    db 0bfh                 ;dd9d  bf          DATA 0xbf
+    db 0bfh                 ;dd9e  bf          DATA 0xbf
+    db 0bfh                 ;dd9f  bf          DATA 0xbf
+    db 0bfh                 ;dda0  bf          DATA 0xbf
+    db 0bfh                 ;dda1  bf          DATA 0xbf
+    db 0bfh                 ;dda2  bf          DATA 0xbf
+    db 0bfh                 ;dda3  bf          DATA 0xbf
+    db 0bfh                 ;dda4  bf          DATA 0xbf
+    db 0bfh                 ;dda5  bf          DATA 0xbf
+    db 0bfh                 ;dda6  bf          DATA 0xbf
+    db 0bfh                 ;dda7  bf          DATA 0xbf
+    db 0bfh                 ;dda8  bf          DATA 0xbf
+    db 0bfh                 ;dda9  bf          DATA 0xbf
+    db 0bfh                 ;ddaa  bf          DATA 0xbf
+    db 0bfh                 ;ddab  bf          DATA 0xbf
+    db 0bfh                 ;ddac  bf          DATA 0xbf
+    db 0bfh                 ;ddad  bf          DATA 0xbf
+    db 0bfh                 ;ddae  bf          DATA 0xbf
+    db 0bfh                 ;ddaf  bf          DATA 0xbf
+    db 0bfh                 ;ddb0  bf          DATA 0xbf
+    db 0bfh                 ;ddb1  bf          DATA 0xbf
+    db 0bfh                 ;ddb2  bf          DATA 0xbf
+    db 0bfh                 ;ddb3  bf          DATA 0xbf
+    db 0bfh                 ;ddb4  bf          DATA 0xbf
+    db 0bfh                 ;ddb5  bf          DATA 0xbf
+    db 0bfh                 ;ddb6  bf          DATA 0xbf
+    db 0bfh                 ;ddb7  bf          DATA 0xbf
+    db 0bfh                 ;ddb8  bf          DATA 0xbf
+    db 0bfh                 ;ddb9  bf          DATA 0xbf
+    db 0bfh                 ;ddba  bf          DATA 0xbf
+    db 0bfh                 ;ddbb  bf          DATA 0xbf
+    db 0bfh                 ;ddbc  bf          DATA 0xbf
+    db 0bfh                 ;ddbd  bf          DATA 0xbf
+    db 0bfh                 ;ddbe  bf          DATA 0xbf
+    db 0bfh                 ;ddbf  bf          DATA 0xbf
+    db 0bfh                 ;ddc0  bf          DATA 0xbf
+    db 0bfh                 ;ddc1  bf          DATA 0xbf
+    db 0bfh                 ;ddc2  bf          DATA 0xbf
+    db 0bfh                 ;ddc3  bf          DATA 0xbf
+    db 0bfh                 ;ddc4  bf          DATA 0xbf
+    db 0bfh                 ;ddc5  bf          DATA 0xbf
+    db 0bfh                 ;ddc6  bf          DATA 0xbf
+    db 0bfh                 ;ddc7  bf          DATA 0xbf
+    db 0bfh                 ;ddc8  bf          DATA 0xbf
+    db 0bfh                 ;ddc9  bf          DATA 0xbf
+    db 0bfh                 ;ddca  bf          DATA 0xbf
+    db 0bfh                 ;ddcb  bf          DATA 0xbf
+    db 0bfh                 ;ddcc  bf          DATA 0xbf
+    db 0bfh                 ;ddcd  bf          DATA 0xbf
+    db 0bfh                 ;ddce  bf          DATA 0xbf
+    db 0bfh                 ;ddcf  bf          DATA 0xbf
+    db 0bfh                 ;ddd0  bf          DATA 0xbf
+    db 0bfh                 ;ddd1  bf          DATA 0xbf
+    db 0bfh                 ;ddd2  bf          DATA 0xbf
+    db 0bfh                 ;ddd3  bf          DATA 0xbf
+    db 0bfh                 ;ddd4  bf          DATA 0xbf
+    db 0bfh                 ;ddd5  bf          DATA 0xbf
+    db 0bfh                 ;ddd6  bf          DATA 0xbf
+    db 0bfh                 ;ddd7  bf          DATA 0xbf
+    db 0bfh                 ;ddd8  bf          DATA 0xbf
+    db 0bfh                 ;ddd9  bf          DATA 0xbf
+    db 0bfh                 ;ddda  bf          DATA 0xbf
+    db 0bfh                 ;dddb  bf          DATA 0xbf
+    db 0bfh                 ;dddc  bf          DATA 0xbf
+    db 0bfh                 ;dddd  bf          DATA 0xbf
+    db 0bfh                 ;ddde  bf          DATA 0xbf
+    db 0bfh                 ;dddf  bf          DATA 0xbf
+    db 0bfh                 ;dde0  bf          DATA 0xbf
+    db 0bfh                 ;dde1  bf          DATA 0xbf
+    db 0bfh                 ;dde2  bf          DATA 0xbf
+    db 0bfh                 ;dde3  bf          DATA 0xbf
+    db 0bfh                 ;dde4  bf          DATA 0xbf
+    db 0bfh                 ;dde5  bf          DATA 0xbf
+    db 0bfh                 ;dde6  bf          DATA 0xbf
+    db 0bfh                 ;dde7  bf          DATA 0xbf
+    db 0bfh                 ;dde8  bf          DATA 0xbf
+    db 0bfh                 ;dde9  bf          DATA 0xbf
+    db 0bfh                 ;ddea  bf          DATA 0xbf
+    db 0bfh                 ;ddeb  bf          DATA 0xbf
+    db 0bfh                 ;ddec  bf          DATA 0xbf
+    db 0bfh                 ;dded  bf          DATA 0xbf
+    db 0bfh                 ;ddee  bf          DATA 0xbf
+    db 0bfh                 ;ddef  bf          DATA 0xbf
+    db 0bfh                 ;ddf0  bf          DATA 0xbf
+    db 0bfh                 ;ddf1  bf          DATA 0xbf
+    db 0bfh                 ;ddf2  bf          DATA 0xbf
+    db 0bfh                 ;ddf3  bf          DATA 0xbf
+    db 0bfh                 ;ddf4  bf          DATA 0xbf
+    db 0bfh                 ;ddf5  bf          DATA 0xbf
+    db 0bfh                 ;ddf6  bf          DATA 0xbf
+    db 0bfh                 ;ddf7  bf          DATA 0xbf
+    db 0bfh                 ;ddf8  bf          DATA 0xbf
+    db 0bfh                 ;ddf9  bf          DATA 0xbf
+    db 0bfh                 ;ddfa  bf          DATA 0xbf
+    db 0bfh                 ;ddfb  bf          DATA 0xbf
+    db 0bfh                 ;ddfc  bf          DATA 0xbf
+    db 0bfh                 ;ddfd  bf          DATA 0xbf
+    db 0bfh                 ;ddfe  bf          DATA 0xbf
+    db 0bfh                 ;ddff  bf          DATA 0xbf
+    db 0bfh                 ;de00  bf          DATA 0xbf
+    db 0bfh                 ;de01  bf          DATA 0xbf
+    db 0bfh                 ;de02  bf          DATA 0xbf
+    db 0bfh                 ;de03  bf          DATA 0xbf
+    db 0bfh                 ;de04  bf          DATA 0xbf
+    db 0bfh                 ;de05  bf          DATA 0xbf
+    db 0bfh                 ;de06  bf          DATA 0xbf
+    db 0bfh                 ;de07  bf          DATA 0xbf
+    db 0bfh                 ;de08  bf          DATA 0xbf
+    db 0bfh                 ;de09  bf          DATA 0xbf
+    db 0bfh                 ;de0a  bf          DATA 0xbf
+    db 0bfh                 ;de0b  bf          DATA 0xbf
+    db 0bfh                 ;de0c  bf          DATA 0xbf
+    db 0bfh                 ;de0d  bf          DATA 0xbf
+    db 0bfh                 ;de0e  bf          DATA 0xbf
+    db 0bfh                 ;de0f  bf          DATA 0xbf
+    db 0bfh                 ;de10  bf          DATA 0xbf
+    db 0bfh                 ;de11  bf          DATA 0xbf
+    db 0bfh                 ;de12  bf          DATA 0xbf
+    db 0bfh                 ;de13  bf          DATA 0xbf
+    db 0bfh                 ;de14  bf          DATA 0xbf
+    db 0bfh                 ;de15  bf          DATA 0xbf
+    db 0bfh                 ;de16  bf          DATA 0xbf
+    db 0bfh                 ;de17  bf          DATA 0xbf
+    db 0bfh                 ;de18  bf          DATA 0xbf
+    db 0bfh                 ;de19  bf          DATA 0xbf
+    db 0bfh                 ;de1a  bf          DATA 0xbf
+    db 0bfh                 ;de1b  bf          DATA 0xbf
+    db 0bfh                 ;de1c  bf          DATA 0xbf
+    db 0bfh                 ;de1d  bf          DATA 0xbf
+    db 0bfh                 ;de1e  bf          DATA 0xbf
+    db 0bfh                 ;de1f  bf          DATA 0xbf
+    db 0bfh                 ;de20  bf          DATA 0xbf
+    db 0bfh                 ;de21  bf          DATA 0xbf
+    db 0bfh                 ;de22  bf          DATA 0xbf
+    db 0bfh                 ;de23  bf          DATA 0xbf
+    db 0bfh                 ;de24  bf          DATA 0xbf
+    db 0bfh                 ;de25  bf          DATA 0xbf
+    db 0bfh                 ;de26  bf          DATA 0xbf
+    db 0bfh                 ;de27  bf          DATA 0xbf
+    db 0bfh                 ;de28  bf          DATA 0xbf
+    db 0bfh                 ;de29  bf          DATA 0xbf
+    db 0bfh                 ;de2a  bf          DATA 0xbf
+    db 0bfh                 ;de2b  bf          DATA 0xbf
+    db 0bfh                 ;de2c  bf          DATA 0xbf
+    db 0bfh                 ;de2d  bf          DATA 0xbf
+    db 0bfh                 ;de2e  bf          DATA 0xbf
+    db 0bfh                 ;de2f  bf          DATA 0xbf
+    db 0bfh                 ;de30  bf          DATA 0xbf
+    db 0bfh                 ;de31  bf          DATA 0xbf
+    db 0bfh                 ;de32  bf          DATA 0xbf
+    db 0bfh                 ;de33  bf          DATA 0xbf
+    db 0bfh                 ;de34  bf          DATA 0xbf
+    db 0bfh                 ;de35  bf          DATA 0xbf
+    db 0bfh                 ;de36  bf          DATA 0xbf
+    db 0bfh                 ;de37  bf          DATA 0xbf
+    db 0bfh                 ;de38  bf          DATA 0xbf
+    db 0bfh                 ;de39  bf          DATA 0xbf
+    db 0bfh                 ;de3a  bf          DATA 0xbf
+    db 0bfh                 ;de3b  bf          DATA 0xbf
+    db 0bfh                 ;de3c  bf          DATA 0xbf
+    db 0bfh                 ;de3d  bf          DATA 0xbf
+    db 0bfh                 ;de3e  bf          DATA 0xbf
+    db 0bfh                 ;de3f  bf          DATA 0xbf
+    db 0bfh                 ;de40  bf          DATA 0xbf
+    db 0bfh                 ;de41  bf          DATA 0xbf
+    db 0bfh                 ;de42  bf          DATA 0xbf
+    db 0bfh                 ;de43  bf          DATA 0xbf
+    db 0bfh                 ;de44  bf          DATA 0xbf
+    db 0bfh                 ;de45  bf          DATA 0xbf
+    db 0bfh                 ;de46  bf          DATA 0xbf
+    db 0bfh                 ;de47  bf          DATA 0xbf
+    db 0bfh                 ;de48  bf          DATA 0xbf
+    db 0bfh                 ;de49  bf          DATA 0xbf
+    db 0bfh                 ;de4a  bf          DATA 0xbf
+    db 0bfh                 ;de4b  bf          DATA 0xbf
+    db 0bfh                 ;de4c  bf          DATA 0xbf
+    db 0bfh                 ;de4d  bf          DATA 0xbf
+    db 0bfh                 ;de4e  bf          DATA 0xbf
+    db 0bfh                 ;de4f  bf          DATA 0xbf
+    db 0bfh                 ;de50  bf          DATA 0xbf
+    db 0bfh                 ;de51  bf          DATA 0xbf
+    db 0bfh                 ;de52  bf          DATA 0xbf
+    db 0bfh                 ;de53  bf          DATA 0xbf
+    db 0bfh                 ;de54  bf          DATA 0xbf
+    db 0bfh                 ;de55  bf          DATA 0xbf
+    db 0bfh                 ;de56  bf          DATA 0xbf
+    db 0bfh                 ;de57  bf          DATA 0xbf
+    db 0bfh                 ;de58  bf          DATA 0xbf
+    db 0bfh                 ;de59  bf          DATA 0xbf
+    db 0bfh                 ;de5a  bf          DATA 0xbf
+    db 0bfh                 ;de5b  bf          DATA 0xbf
+    db 0bfh                 ;de5c  bf          DATA 0xbf
+    db 0bfh                 ;de5d  bf          DATA 0xbf
+    db 0bfh                 ;de5e  bf          DATA 0xbf
+    db 0bfh                 ;de5f  bf          DATA 0xbf
+    db 0bfh                 ;de60  bf          DATA 0xbf
+    db 0bfh                 ;de61  bf          DATA 0xbf
+    db 0bfh                 ;de62  bf          DATA 0xbf
+    db 0bfh                 ;de63  bf          DATA 0xbf
+    db 0bfh                 ;de64  bf          DATA 0xbf
+    db 0bfh                 ;de65  bf          DATA 0xbf
+    db 0bfh                 ;de66  bf          DATA 0xbf
+    db 0bfh                 ;de67  bf          DATA 0xbf
+    db 0bfh                 ;de68  bf          DATA 0xbf
+    db 0bfh                 ;de69  bf          DATA 0xbf
+    db 0bfh                 ;de6a  bf          DATA 0xbf
+    db 0bfh                 ;de6b  bf          DATA 0xbf
+    db 0bfh                 ;de6c  bf          DATA 0xbf
+    db 0bfh                 ;de6d  bf          DATA 0xbf
+    db 0bfh                 ;de6e  bf          DATA 0xbf
+    db 0bfh                 ;de6f  bf          DATA 0xbf
+    db 0bfh                 ;de70  bf          DATA 0xbf
+    db 0bfh                 ;de71  bf          DATA 0xbf
+    db 0bfh                 ;de72  bf          DATA 0xbf
+    db 0bfh                 ;de73  bf          DATA 0xbf
+    db 0bfh                 ;de74  bf          DATA 0xbf
+    db 0bfh                 ;de75  bf          DATA 0xbf
+    db 0bfh                 ;de76  bf          DATA 0xbf
+    db 0bfh                 ;de77  bf          DATA 0xbf
+    db 0bfh                 ;de78  bf          DATA 0xbf
+    db 0bfh                 ;de79  bf          DATA 0xbf
+    db 0bfh                 ;de7a  bf          DATA 0xbf
+    db 0bfh                 ;de7b  bf          DATA 0xbf
+    db 0bfh                 ;de7c  bf          DATA 0xbf
+    db 0bfh                 ;de7d  bf          DATA 0xbf
+    db 0bfh                 ;de7e  bf          DATA 0xbf
+    db 0bfh                 ;de7f  bf          DATA 0xbf
+    db 0bfh                 ;de80  bf          DATA 0xbf
+    db 0bfh                 ;de81  bf          DATA 0xbf
+    db 0bfh                 ;de82  bf          DATA 0xbf
+    db 0bfh                 ;de83  bf          DATA 0xbf
+    db 0bfh                 ;de84  bf          DATA 0xbf
+    db 0bfh                 ;de85  bf          DATA 0xbf
+    db 0bfh                 ;de86  bf          DATA 0xbf
+    db 0bfh                 ;de87  bf          DATA 0xbf
+    db 0bfh                 ;de88  bf          DATA 0xbf
+    db 0bfh                 ;de89  bf          DATA 0xbf
+    db 0bfh                 ;de8a  bf          DATA 0xbf
+    db 0bfh                 ;de8b  bf          DATA 0xbf
+    db 0bfh                 ;de8c  bf          DATA 0xbf
+    db 0bfh                 ;de8d  bf          DATA 0xbf
+    db 0bfh                 ;de8e  bf          DATA 0xbf
+    db 0bfh                 ;de8f  bf          DATA 0xbf
+    db 0bfh                 ;de90  bf          DATA 0xbf
+    db 0bfh                 ;de91  bf          DATA 0xbf
+    db 0bfh                 ;de92  bf          DATA 0xbf
+    db 0bfh                 ;de93  bf          DATA 0xbf
+    db 0bfh                 ;de94  bf          DATA 0xbf
+    db 0bfh                 ;de95  bf          DATA 0xbf
+    db 0bfh                 ;de96  bf          DATA 0xbf
+    db 0bfh                 ;de97  bf          DATA 0xbf
+    db 0bfh                 ;de98  bf          DATA 0xbf
+    db 0bfh                 ;de99  bf          DATA 0xbf
+    db 0bfh                 ;de9a  bf          DATA 0xbf
+    db 0bfh                 ;de9b  bf          DATA 0xbf
+    db 0bfh                 ;de9c  bf          DATA 0xbf
+    db 0bfh                 ;de9d  bf          DATA 0xbf
+    db 0bfh                 ;de9e  bf          DATA 0xbf
+    db 0bfh                 ;de9f  bf          DATA 0xbf
+    db 0bfh                 ;dea0  bf          DATA 0xbf
+    db 0bfh                 ;dea1  bf          DATA 0xbf
+    db 0bfh                 ;dea2  bf          DATA 0xbf
+    db 0bfh                 ;dea3  bf          DATA 0xbf
+    db 0bfh                 ;dea4  bf          DATA 0xbf
+    db 0bfh                 ;dea5  bf          DATA 0xbf
+    db 0bfh                 ;dea6  bf          DATA 0xbf
+    db 0bfh                 ;dea7  bf          DATA 0xbf
+    db 0bfh                 ;dea8  bf          DATA 0xbf
+    db 0bfh                 ;dea9  bf          DATA 0xbf
+    db 0bfh                 ;deaa  bf          DATA 0xbf
+    db 0bfh                 ;deab  bf          DATA 0xbf
+    db 0bfh                 ;deac  bf          DATA 0xbf
+    db 0bfh                 ;dead  bf          DATA 0xbf
+    db 0bfh                 ;deae  bf          DATA 0xbf
+    db 0bfh                 ;deaf  bf          DATA 0xbf
+    db 0bfh                 ;deb0  bf          DATA 0xbf
+    db 0bfh                 ;deb1  bf          DATA 0xbf
+    db 0bfh                 ;deb2  bf          DATA 0xbf
+    db 0bfh                 ;deb3  bf          DATA 0xbf
+    db 0bfh                 ;deb4  bf          DATA 0xbf
+    db 0bfh                 ;deb5  bf          DATA 0xbf
+    db 0bfh                 ;deb6  bf          DATA 0xbf
+    db 0bfh                 ;deb7  bf          DATA 0xbf
+    db 0bfh                 ;deb8  bf          DATA 0xbf
+    db 0bfh                 ;deb9  bf          DATA 0xbf
+    db 0bfh                 ;deba  bf          DATA 0xbf
+    db 0bfh                 ;debb  bf          DATA 0xbf
+    db 0bfh                 ;debc  bf          DATA 0xbf
+    db 0bfh                 ;debd  bf          DATA 0xbf
+    db 0bfh                 ;debe  bf          DATA 0xbf
+    db 0bfh                 ;debf  bf          DATA 0xbf
+    db 0bfh                 ;dec0  bf          DATA 0xbf
+    db 0bfh                 ;dec1  bf          DATA 0xbf
+    db 0bfh                 ;dec2  bf          DATA 0xbf
+    db 0bfh                 ;dec3  bf          DATA 0xbf
+    db 0bfh                 ;dec4  bf          DATA 0xbf
+    db 0bfh                 ;dec5  bf          DATA 0xbf
+    db 0bfh                 ;dec6  bf          DATA 0xbf
+    db 0bfh                 ;dec7  bf          DATA 0xbf
+    db 0bfh                 ;dec8  bf          DATA 0xbf
+    db 0bfh                 ;dec9  bf          DATA 0xbf
+    db 0bfh                 ;deca  bf          DATA 0xbf
+    db 0bfh                 ;decb  bf          DATA 0xbf
+    db 0bfh                 ;decc  bf          DATA 0xbf
+    db 0bfh                 ;decd  bf          DATA 0xbf
+    db 0bfh                 ;dece  bf          DATA 0xbf
+    db 0bfh                 ;decf  bf          DATA 0xbf
+    db 0bfh                 ;ded0  bf          DATA 0xbf
+    db 0bfh                 ;ded1  bf          DATA 0xbf
+    db 0bfh                 ;ded2  bf          DATA 0xbf
+    db 0bfh                 ;ded3  bf          DATA 0xbf
+    db 0bfh                 ;ded4  bf          DATA 0xbf
+    db 0bfh                 ;ded5  bf          DATA 0xbf
+    db 0bfh                 ;ded6  bf          DATA 0xbf
+    db 0bfh                 ;ded7  bf          DATA 0xbf
+    db 0bfh                 ;ded8  bf          DATA 0xbf
+    db 0bfh                 ;ded9  bf          DATA 0xbf
+    db 0bfh                 ;deda  bf          DATA 0xbf
+    db 0bfh                 ;dedb  bf          DATA 0xbf
+    db 0bfh                 ;dedc  bf          DATA 0xbf
+    db 0bfh                 ;dedd  bf          DATA 0xbf
+    db 0bfh                 ;dede  bf          DATA 0xbf
+    db 0bfh                 ;dedf  bf          DATA 0xbf
+    db 0bfh                 ;dee0  bf          DATA 0xbf
+    db 0bfh                 ;dee1  bf          DATA 0xbf
+    db 0bfh                 ;dee2  bf          DATA 0xbf
+    db 0bfh                 ;dee3  bf          DATA 0xbf
+    db 0bfh                 ;dee4  bf          DATA 0xbf
+    db 0bfh                 ;dee5  bf          DATA 0xbf
+    db 0bfh                 ;dee6  bf          DATA 0xbf
+    db 0bfh                 ;dee7  bf          DATA 0xbf
+    db 0bfh                 ;dee8  bf          DATA 0xbf
+    db 0bfh                 ;dee9  bf          DATA 0xbf
+    db 0bfh                 ;deea  bf          DATA 0xbf
+    db 0bfh                 ;deeb  bf          DATA 0xbf
+    db 0bfh                 ;deec  bf          DATA 0xbf
+    db 0bfh                 ;deed  bf          DATA 0xbf
+    db 0bfh                 ;deee  bf          DATA 0xbf
+    db 0bfh                 ;deef  bf          DATA 0xbf
+    db 0bfh                 ;def0  bf          DATA 0xbf
+    db 0bfh                 ;def1  bf          DATA 0xbf
+    db 0bfh                 ;def2  bf          DATA 0xbf
+    db 0bfh                 ;def3  bf          DATA 0xbf
+    db 0bfh                 ;def4  bf          DATA 0xbf
+    db 0bfh                 ;def5  bf          DATA 0xbf
+    db 0bfh                 ;def6  bf          DATA 0xbf
+    db 0bfh                 ;def7  bf          DATA 0xbf
+    db 0bfh                 ;def8  bf          DATA 0xbf
+    db 0bfh                 ;def9  bf          DATA 0xbf
+    db 0bfh                 ;defa  bf          DATA 0xbf
+    db 0bfh                 ;defb  bf          DATA 0xbf
+    db 0bfh                 ;defc  bf          DATA 0xbf
+    db 0bfh                 ;defd  bf          DATA 0xbf
+    db 0bfh                 ;defe  bf          DATA 0xbf
+    db 0bfh                 ;deff  bf          DATA 0xbf
+    db 0bfh                 ;df00  bf          DATA 0xbf
+    db 0bfh                 ;df01  bf          DATA 0xbf
+    db 0bfh                 ;df02  bf          DATA 0xbf
+    db 0bfh                 ;df03  bf          DATA 0xbf
+    db 0bfh                 ;df04  bf          DATA 0xbf
+    db 0bfh                 ;df05  bf          DATA 0xbf
+    db 0bfh                 ;df06  bf          DATA 0xbf
+    db 0bfh                 ;df07  bf          DATA 0xbf
+    db 0bfh                 ;df08  bf          DATA 0xbf
+    db 0bfh                 ;df09  bf          DATA 0xbf
+    db 0bfh                 ;df0a  bf          DATA 0xbf
+    db 0bfh                 ;df0b  bf          DATA 0xbf
+    db 0bfh                 ;df0c  bf          DATA 0xbf
+    db 0bfh                 ;df0d  bf          DATA 0xbf
+    db 0bfh                 ;df0e  bf          DATA 0xbf
+    db 0bfh                 ;df0f  bf          DATA 0xbf
+    db 0bfh                 ;df10  bf          DATA 0xbf
+    db 0bfh                 ;df11  bf          DATA 0xbf
+    db 0bfh                 ;df12  bf          DATA 0xbf
+    db 0bfh                 ;df13  bf          DATA 0xbf
+    db 0bfh                 ;df14  bf          DATA 0xbf
+    db 0bfh                 ;df15  bf          DATA 0xbf
+    db 0bfh                 ;df16  bf          DATA 0xbf
+    db 0bfh                 ;df17  bf          DATA 0xbf
+    db 0bfh                 ;df18  bf          DATA 0xbf
+    db 0bfh                 ;df19  bf          DATA 0xbf
+    db 0bfh                 ;df1a  bf          DATA 0xbf
+    db 0bfh                 ;df1b  bf          DATA 0xbf
+    db 0bfh                 ;df1c  bf          DATA 0xbf
+    db 0bfh                 ;df1d  bf          DATA 0xbf
+    db 0bfh                 ;df1e  bf          DATA 0xbf
+    db 0bfh                 ;df1f  bf          DATA 0xbf
+    db 0bfh                 ;df20  bf          DATA 0xbf
+    db 0bfh                 ;df21  bf          DATA 0xbf
+    db 0bfh                 ;df22  bf          DATA 0xbf
+    db 0bfh                 ;df23  bf          DATA 0xbf
+    db 0bfh                 ;df24  bf          DATA 0xbf
+    db 0bfh                 ;df25  bf          DATA 0xbf
+    db 0bfh                 ;df26  bf          DATA 0xbf
+    db 0bfh                 ;df27  bf          DATA 0xbf
+    db 0bfh                 ;df28  bf          DATA 0xbf
+    db 0bfh                 ;df29  bf          DATA 0xbf
+    db 0bfh                 ;df2a  bf          DATA 0xbf
+    db 0bfh                 ;df2b  bf          DATA 0xbf
+    db 0bfh                 ;df2c  bf          DATA 0xbf
+    db 0bfh                 ;df2d  bf          DATA 0xbf
+    db 0bfh                 ;df2e  bf          DATA 0xbf
+    db 0bfh                 ;df2f  bf          DATA 0xbf
+    db 0bfh                 ;df30  bf          DATA 0xbf
+    db 0bfh                 ;df31  bf          DATA 0xbf
+    db 0bfh                 ;df32  bf          DATA 0xbf
+    db 0bfh                 ;df33  bf          DATA 0xbf
+    db 0bfh                 ;df34  bf          DATA 0xbf
+    db 0bfh                 ;df35  bf          DATA 0xbf
+    db 0bfh                 ;df36  bf          DATA 0xbf
+    db 0bfh                 ;df37  bf          DATA 0xbf
+    db 0bfh                 ;df38  bf          DATA 0xbf
+    db 0bfh                 ;df39  bf          DATA 0xbf
+    db 0bfh                 ;df3a  bf          DATA 0xbf
+    db 0bfh                 ;df3b  bf          DATA 0xbf
+    db 0bfh                 ;df3c  bf          DATA 0xbf
+    db 0bfh                 ;df3d  bf          DATA 0xbf
+    db 0bfh                 ;df3e  bf          DATA 0xbf
+    db 0bfh                 ;df3f  bf          DATA 0xbf
+    db 0bfh                 ;df40  bf          DATA 0xbf
+    db 0bfh                 ;df41  bf          DATA 0xbf
+    db 0bfh                 ;df42  bf          DATA 0xbf
+    db 0bfh                 ;df43  bf          DATA 0xbf
+    db 0bfh                 ;df44  bf          DATA 0xbf
+    db 0bfh                 ;df45  bf          DATA 0xbf
+    db 0bfh                 ;df46  bf          DATA 0xbf
+    db 0bfh                 ;df47  bf          DATA 0xbf
+    db 0bfh                 ;df48  bf          DATA 0xbf
+    db 0bfh                 ;df49  bf          DATA 0xbf
+    db 0bfh                 ;df4a  bf          DATA 0xbf
+    db 0bfh                 ;df4b  bf          DATA 0xbf
+    db 0bfh                 ;df4c  bf          DATA 0xbf
+    db 0bfh                 ;df4d  bf          DATA 0xbf
+    db 0bfh                 ;df4e  bf          DATA 0xbf
+    db 0bfh                 ;df4f  bf          DATA 0xbf
+    db 0bfh                 ;df50  bf          DATA 0xbf
+    db 0bfh                 ;df51  bf          DATA 0xbf
+    db 0bfh                 ;df52  bf          DATA 0xbf
+    db 0bfh                 ;df53  bf          DATA 0xbf
+    db 0bfh                 ;df54  bf          DATA 0xbf
+    db 0bfh                 ;df55  bf          DATA 0xbf
+    db 0bfh                 ;df56  bf          DATA 0xbf
+    db 0bfh                 ;df57  bf          DATA 0xbf
+    db 0bfh                 ;df58  bf          DATA 0xbf
+    db 0bfh                 ;df59  bf          DATA 0xbf
+    db 0bfh                 ;df5a  bf          DATA 0xbf
+    db 0bfh                 ;df5b  bf          DATA 0xbf
+    db 0bfh                 ;df5c  bf          DATA 0xbf
+    db 0bfh                 ;df5d  bf          DATA 0xbf
+    db 0bfh                 ;df5e  bf          DATA 0xbf
+    db 0bfh                 ;df5f  bf          DATA 0xbf
+    db 0bfh                 ;df60  bf          DATA 0xbf
+    db 0bfh                 ;df61  bf          DATA 0xbf
+    db 0bfh                 ;df62  bf          DATA 0xbf
+    db 0bfh                 ;df63  bf          DATA 0xbf
+    db 0bfh                 ;df64  bf          DATA 0xbf
+    db 0bfh                 ;df65  bf          DATA 0xbf
+    db 0bfh                 ;df66  bf          DATA 0xbf
+    db 0bfh                 ;df67  bf          DATA 0xbf
+    db 0bfh                 ;df68  bf          DATA 0xbf
+    db 0bfh                 ;df69  bf          DATA 0xbf
+    db 0bfh                 ;df6a  bf          DATA 0xbf
+    db 0bfh                 ;df6b  bf          DATA 0xbf
+    db 0bfh                 ;df6c  bf          DATA 0xbf
+    db 0bfh                 ;df6d  bf          DATA 0xbf
+    db 0bfh                 ;df6e  bf          DATA 0xbf
+    db 0bfh                 ;df6f  bf          DATA 0xbf
+    db 0bfh                 ;df70  bf          DATA 0xbf
+    db 0bfh                 ;df71  bf          DATA 0xbf
+    db 0bfh                 ;df72  bf          DATA 0xbf
+    db 0bfh                 ;df73  bf          DATA 0xbf
+    db 0bfh                 ;df74  bf          DATA 0xbf
+    db 0bfh                 ;df75  bf          DATA 0xbf
+    db 0bfh                 ;df76  bf          DATA 0xbf
+    db 0bfh                 ;df77  bf          DATA 0xbf
+    db 0bfh                 ;df78  bf          DATA 0xbf
+    db 0bfh                 ;df79  bf          DATA 0xbf
+    db 0bfh                 ;df7a  bf          DATA 0xbf
+    db 0bfh                 ;df7b  bf          DATA 0xbf
+    db 0bfh                 ;df7c  bf          DATA 0xbf
+    db 0bfh                 ;df7d  bf          DATA 0xbf
+    db 0bfh                 ;df7e  bf          DATA 0xbf
+    db 0bfh                 ;df7f  bf          DATA 0xbf
+    db 0bfh                 ;df80  bf          DATA 0xbf
+    db 0bfh                 ;df81  bf          DATA 0xbf
+    db 0bfh                 ;df82  bf          DATA 0xbf
+    db 0bfh                 ;df83  bf          DATA 0xbf
+    db 0bfh                 ;df84  bf          DATA 0xbf
+    db 0bfh                 ;df85  bf          DATA 0xbf
+    db 0bfh                 ;df86  bf          DATA 0xbf
+    db 0bfh                 ;df87  bf          DATA 0xbf
+    db 0bfh                 ;df88  bf          DATA 0xbf
+    db 0bfh                 ;df89  bf          DATA 0xbf
+    db 0bfh                 ;df8a  bf          DATA 0xbf
+    db 0bfh                 ;df8b  bf          DATA 0xbf
+    db 0bfh                 ;df8c  bf          DATA 0xbf
+    db 0bfh                 ;df8d  bf          DATA 0xbf
+    db 0bfh                 ;df8e  bf          DATA 0xbf
+    db 0bfh                 ;df8f  bf          DATA 0xbf
+    db 0bfh                 ;df90  bf          DATA 0xbf
+    db 0bfh                 ;df91  bf          DATA 0xbf
+    db 0bfh                 ;df92  bf          DATA 0xbf
+    db 0bfh                 ;df93  bf          DATA 0xbf
+    db 0bfh                 ;df94  bf          DATA 0xbf
+    db 0bfh                 ;df95  bf          DATA 0xbf
+    db 0bfh                 ;df96  bf          DATA 0xbf
+    db 0bfh                 ;df97  bf          DATA 0xbf
+    db 0bfh                 ;df98  bf          DATA 0xbf
+    db 0bfh                 ;df99  bf          DATA 0xbf
+    db 0bfh                 ;df9a  bf          DATA 0xbf
+    db 0bfh                 ;df9b  bf          DATA 0xbf
+    db 0bfh                 ;df9c  bf          DATA 0xbf
+    db 0bfh                 ;df9d  bf          DATA 0xbf
+    db 0bfh                 ;df9e  bf          DATA 0xbf
+    db 0bfh                 ;df9f  bf          DATA 0xbf
+    db 0bfh                 ;dfa0  bf          DATA 0xbf
+    db 0bfh                 ;dfa1  bf          DATA 0xbf
+    db 0bfh                 ;dfa2  bf          DATA 0xbf
+    db 0bfh                 ;dfa3  bf          DATA 0xbf
+    db 0bfh                 ;dfa4  bf          DATA 0xbf
+    db 0bfh                 ;dfa5  bf          DATA 0xbf
+    db 0bfh                 ;dfa6  bf          DATA 0xbf
+    db 0bfh                 ;dfa7  bf          DATA 0xbf
+    db 0bfh                 ;dfa8  bf          DATA 0xbf
+    db 0bfh                 ;dfa9  bf          DATA 0xbf
+    db 0bfh                 ;dfaa  bf          DATA 0xbf
+    db 0bfh                 ;dfab  bf          DATA 0xbf
+    db 0bfh                 ;dfac  bf          DATA 0xbf
+    db 0bfh                 ;dfad  bf          DATA 0xbf
+    db 0bfh                 ;dfae  bf          DATA 0xbf
+    db 0bfh                 ;dfaf  bf          DATA 0xbf
+    db 0bfh                 ;dfb0  bf          DATA 0xbf
+    db 0bfh                 ;dfb1  bf          DATA 0xbf
+    db 0bfh                 ;dfb2  bf          DATA 0xbf
+    db 0bfh                 ;dfb3  bf          DATA 0xbf
+    db 0bfh                 ;dfb4  bf          DATA 0xbf
+    db 0bfh                 ;dfb5  bf          DATA 0xbf
+    db 0bfh                 ;dfb6  bf          DATA 0xbf
+    db 0bfh                 ;dfb7  bf          DATA 0xbf
+    db 0bfh                 ;dfb8  bf          DATA 0xbf
+    db 0bfh                 ;dfb9  bf          DATA 0xbf
+    db 0bfh                 ;dfba  bf          DATA 0xbf
+    db 0bfh                 ;dfbb  bf          DATA 0xbf
+    db 0bfh                 ;dfbc  bf          DATA 0xbf
+    db 0bfh                 ;dfbd  bf          DATA 0xbf
+    db 0bfh                 ;dfbe  bf          DATA 0xbf
+    db 0bfh                 ;dfbf  bf          DATA 0xbf
+    db 0bfh                 ;dfc0  bf          DATA 0xbf
+    db 0bfh                 ;dfc1  bf          DATA 0xbf
+    db 0bfh                 ;dfc2  bf          DATA 0xbf
+    db 0bfh                 ;dfc3  bf          DATA 0xbf
+    db 0bfh                 ;dfc4  bf          DATA 0xbf
+    db 0bfh                 ;dfc5  bf          DATA 0xbf
+    db 0bfh                 ;dfc6  bf          DATA 0xbf
+    db 0bfh                 ;dfc7  bf          DATA 0xbf
+    db 0bfh                 ;dfc8  bf          DATA 0xbf
+    db 0bfh                 ;dfc9  bf          DATA 0xbf
+    db 0bfh                 ;dfca  bf          DATA 0xbf
+    db 0bfh                 ;dfcb  bf          DATA 0xbf
+    db 0bfh                 ;dfcc  bf          DATA 0xbf
+    db 0bfh                 ;dfcd  bf          DATA 0xbf
+    db 0bfh                 ;dfce  bf          DATA 0xbf
+    db 0bfh                 ;dfcf  bf          DATA 0xbf
+    db 0bfh                 ;dfd0  bf          DATA 0xbf
+    db 0bfh                 ;dfd1  bf          DATA 0xbf
+    db 0bfh                 ;dfd2  bf          DATA 0xbf
+    db 0bfh                 ;dfd3  bf          DATA 0xbf
+    db 0bfh                 ;dfd4  bf          DATA 0xbf
+    db 0bfh                 ;dfd5  bf          DATA 0xbf
+    db 0bfh                 ;dfd6  bf          DATA 0xbf
+    db 0bfh                 ;dfd7  bf          DATA 0xbf
+    db 0bfh                 ;dfd8  bf          DATA 0xbf
+    db 0bfh                 ;dfd9  bf          DATA 0xbf
+    db 0bfh                 ;dfda  bf          DATA 0xbf
+    db 0bfh                 ;dfdb  bf          DATA 0xbf
+    db 0bfh                 ;dfdc  bf          DATA 0xbf
+    db 0bfh                 ;dfdd  bf          DATA 0xbf
+    db 0bfh                 ;dfde  bf          DATA 0xbf
+    db 0bfh                 ;dfdf  bf          DATA 0xbf
+    db 0bfh                 ;dfe0  bf          DATA 0xbf
+    db 0bfh                 ;dfe1  bf          DATA 0xbf
+    db 0bfh                 ;dfe2  bf          DATA 0xbf
+    db 0bfh                 ;dfe3  bf          DATA 0xbf
+    db 0bfh                 ;dfe4  bf          DATA 0xbf
+    db 0bfh                 ;dfe5  bf          DATA 0xbf
+    db 0bfh                 ;dfe6  bf          DATA 0xbf
+    db 0bfh                 ;dfe7  bf          DATA 0xbf
+    db 0bfh                 ;dfe8  bf          DATA 0xbf
+    db 0bfh                 ;dfe9  bf          DATA 0xbf
+    db 0bfh                 ;dfea  bf          DATA 0xbf
+    db 0bfh                 ;dfeb  bf          DATA 0xbf
+    db 0bfh                 ;dfec  bf          DATA 0xbf
+    db 0bfh                 ;dfed  bf          DATA 0xbf
+    db 0bfh                 ;dfee  bf          DATA 0xbf
+    db 0bfh                 ;dfef  bf          DATA 0xbf
+    db 0bfh                 ;dff0  bf          DATA 0xbf
+    db 0bfh                 ;dff1  bf          DATA 0xbf
+    db 0bfh                 ;dff2  bf          DATA 0xbf
+    db 0bfh                 ;dff3  bf          DATA 0xbf
+    db 0bfh                 ;dff4  bf          DATA 0xbf
+    db 0bfh                 ;dff5  bf          DATA 0xbf
+    db 0bfh                 ;dff6  bf          DATA 0xbf
+    db 0bfh                 ;dff7  bf          DATA 0xbf
+    db 0bfh                 ;dff8  bf          DATA 0xbf
+    db 0bfh                 ;dff9  bf          DATA 0xbf
+    db 0bfh                 ;dffa  bf          DATA 0xbf
+    db 0bfh                 ;dffb  bf          DATA 0xbf
+    db 0bfh                 ;dffc  bf          DATA 0xbf
+    db 0bfh                 ;dffd  bf          DATA 0xbf
+    db 0bfh                 ;dffe  bf          DATA 0xbf
+    db 0bfh                 ;dfff  bf          DATA 0xbf
+    db 0bfh                 ;e000  bf          DATA 0xbf
+    db 0bfh                 ;e001  bf          DATA 0xbf
+    db 0bfh                 ;e002  bf          DATA 0xbf
+    db 0bfh                 ;e003  bf          DATA 0xbf
+    db 0bfh                 ;e004  bf          DATA 0xbf
+    db 0bfh                 ;e005  bf          DATA 0xbf
+    db 0bfh                 ;e006  bf          DATA 0xbf
+    db 0bfh                 ;e007  bf          DATA 0xbf
+    db 0bfh                 ;e008  bf          DATA 0xbf
+    db 0bfh                 ;e009  bf          DATA 0xbf
+    db 0bfh                 ;e00a  bf          DATA 0xbf
+    db 0bfh                 ;e00b  bf          DATA 0xbf
+    db 0bfh                 ;e00c  bf          DATA 0xbf
+    db 0bfh                 ;e00d  bf          DATA 0xbf
+    db 0bfh                 ;e00e  bf          DATA 0xbf
+    db 0bfh                 ;e00f  bf          DATA 0xbf
+    db 0bfh                 ;e010  bf          DATA 0xbf
+    db 0bfh                 ;e011  bf          DATA 0xbf
+    db 0bfh                 ;e012  bf          DATA 0xbf
+    db 0bfh                 ;e013  bf          DATA 0xbf
+    db 0bfh                 ;e014  bf          DATA 0xbf
+    db 0bfh                 ;e015  bf          DATA 0xbf
+    db 0bfh                 ;e016  bf          DATA 0xbf
+    db 0bfh                 ;e017  bf          DATA 0xbf
+    db 0bfh                 ;e018  bf          DATA 0xbf
+    db 0bfh                 ;e019  bf          DATA 0xbf
+    db 0bfh                 ;e01a  bf          DATA 0xbf
+    db 0bfh                 ;e01b  bf          DATA 0xbf
+    db 0bfh                 ;e01c  bf          DATA 0xbf
+    db 0bfh                 ;e01d  bf          DATA 0xbf
+    db 0bfh                 ;e01e  bf          DATA 0xbf
+    db 0bfh                 ;e01f  bf          DATA 0xbf
+    db 0bfh                 ;e020  bf          DATA 0xbf
+    db 0bfh                 ;e021  bf          DATA 0xbf
+    db 0bfh                 ;e022  bf          DATA 0xbf
+    db 0bfh                 ;e023  bf          DATA 0xbf
+    db 0bfh                 ;e024  bf          DATA 0xbf
+    db 0bfh                 ;e025  bf          DATA 0xbf
+    db 0bfh                 ;e026  bf          DATA 0xbf
+    db 0bfh                 ;e027  bf          DATA 0xbf
+    db 0bfh                 ;e028  bf          DATA 0xbf
+    db 0bfh                 ;e029  bf          DATA 0xbf
+    db 0bfh                 ;e02a  bf          DATA 0xbf
+    db 0bfh                 ;e02b  bf          DATA 0xbf
+    db 0bfh                 ;e02c  bf          DATA 0xbf
+    db 0bfh                 ;e02d  bf          DATA 0xbf
+    db 0bfh                 ;e02e  bf          DATA 0xbf
+    db 0bfh                 ;e02f  bf          DATA 0xbf
+    db 0bfh                 ;e030  bf          DATA 0xbf
+    db 0bfh                 ;e031  bf          DATA 0xbf
+    db 0bfh                 ;e032  bf          DATA 0xbf
+    db 0bfh                 ;e033  bf          DATA 0xbf
+    db 0bfh                 ;e034  bf          DATA 0xbf
+    db 0bfh                 ;e035  bf          DATA 0xbf
+    db 0bfh                 ;e036  bf          DATA 0xbf
+    db 0bfh                 ;e037  bf          DATA 0xbf
+    db 0bfh                 ;e038  bf          DATA 0xbf
+    db 0bfh                 ;e039  bf          DATA 0xbf
+    db 0bfh                 ;e03a  bf          DATA 0xbf
+    db 0bfh                 ;e03b  bf          DATA 0xbf
+    db 0bfh                 ;e03c  bf          DATA 0xbf
+    db 0bfh                 ;e03d  bf          DATA 0xbf
+    db 0bfh                 ;e03e  bf          DATA 0xbf
+    db 0bfh                 ;e03f  bf          DATA 0xbf
+    db 0bfh                 ;e040  bf          DATA 0xbf
+    db 0bfh                 ;e041  bf          DATA 0xbf
+    db 0bfh                 ;e042  bf          DATA 0xbf
+    db 0bfh                 ;e043  bf          DATA 0xbf
+    db 0bfh                 ;e044  bf          DATA 0xbf
+    db 0bfh                 ;e045  bf          DATA 0xbf
+    db 0bfh                 ;e046  bf          DATA 0xbf
+    db 0bfh                 ;e047  bf          DATA 0xbf
+    db 0bfh                 ;e048  bf          DATA 0xbf
+    db 0bfh                 ;e049  bf          DATA 0xbf
+    db 0bfh                 ;e04a  bf          DATA 0xbf
+    db 0bfh                 ;e04b  bf          DATA 0xbf
+    db 0bfh                 ;e04c  bf          DATA 0xbf
+    db 0bfh                 ;e04d  bf          DATA 0xbf
+    db 0bfh                 ;e04e  bf          DATA 0xbf
+    db 0bfh                 ;e04f  bf          DATA 0xbf
+    db 0bfh                 ;e050  bf          DATA 0xbf
+    db 0bfh                 ;e051  bf          DATA 0xbf
+    db 0bfh                 ;e052  bf          DATA 0xbf
+    db 0bfh                 ;e053  bf          DATA 0xbf
+    db 0bfh                 ;e054  bf          DATA 0xbf
+    db 0bfh                 ;e055  bf          DATA 0xbf
+    db 0bfh                 ;e056  bf          DATA 0xbf
+    db 0bfh                 ;e057  bf          DATA 0xbf
+    db 0bfh                 ;e058  bf          DATA 0xbf
+    db 0bfh                 ;e059  bf          DATA 0xbf
+    db 0bfh                 ;e05a  bf          DATA 0xbf
+    db 0bfh                 ;e05b  bf          DATA 0xbf
+    db 0bfh                 ;e05c  bf          DATA 0xbf
+    db 0bfh                 ;e05d  bf          DATA 0xbf
+    db 0bfh                 ;e05e  bf          DATA 0xbf
+    db 0bfh                 ;e05f  bf          DATA 0xbf
+    db 0bfh                 ;e060  bf          DATA 0xbf
+    db 0bfh                 ;e061  bf          DATA 0xbf
+    db 0bfh                 ;e062  bf          DATA 0xbf
+    db 0bfh                 ;e063  bf          DATA 0xbf
+    db 0bfh                 ;e064  bf          DATA 0xbf
+    db 0bfh                 ;e065  bf          DATA 0xbf
+    db 0bfh                 ;e066  bf          DATA 0xbf
+    db 0bfh                 ;e067  bf          DATA 0xbf
+    db 0bfh                 ;e068  bf          DATA 0xbf
+    db 0bfh                 ;e069  bf          DATA 0xbf
+    db 0bfh                 ;e06a  bf          DATA 0xbf
+    db 0bfh                 ;e06b  bf          DATA 0xbf
+    db 0bfh                 ;e06c  bf          DATA 0xbf
+    db 0bfh                 ;e06d  bf          DATA 0xbf
+    db 0bfh                 ;e06e  bf          DATA 0xbf
+    db 0bfh                 ;e06f  bf          DATA 0xbf
+    db 0bfh                 ;e070  bf          DATA 0xbf
+    db 0bfh                 ;e071  bf          DATA 0xbf
+    db 0bfh                 ;e072  bf          DATA 0xbf
+    db 0bfh                 ;e073  bf          DATA 0xbf
+    db 0bfh                 ;e074  bf          DATA 0xbf
+    db 0bfh                 ;e075  bf          DATA 0xbf
+    db 0bfh                 ;e076  bf          DATA 0xbf
+    db 0bfh                 ;e077  bf          DATA 0xbf
+    db 0bfh                 ;e078  bf          DATA 0xbf
+    db 0bfh                 ;e079  bf          DATA 0xbf
+    db 0bfh                 ;e07a  bf          DATA 0xbf
+    db 0bfh                 ;e07b  bf          DATA 0xbf
+    db 0bfh                 ;e07c  bf          DATA 0xbf
+    db 0bfh                 ;e07d  bf          DATA 0xbf
+    db 0bfh                 ;e07e  bf          DATA 0xbf
+    db 0bfh                 ;e07f  bf          DATA 0xbf
+    db 0bfh                 ;e080  bf          DATA 0xbf
+    db 0bfh                 ;e081  bf          DATA 0xbf
+    db 0bfh                 ;e082  bf          DATA 0xbf
+    db 0bfh                 ;e083  bf          DATA 0xbf
+    db 0bfh                 ;e084  bf          DATA 0xbf
+    db 0bfh                 ;e085  bf          DATA 0xbf
+    db 0bfh                 ;e086  bf          DATA 0xbf
+    db 0bfh                 ;e087  bf          DATA 0xbf
+    db 0bfh                 ;e088  bf          DATA 0xbf
+    db 0bfh                 ;e089  bf          DATA 0xbf
+    db 0bfh                 ;e08a  bf          DATA 0xbf
+    db 0bfh                 ;e08b  bf          DATA 0xbf
+    db 0bfh                 ;e08c  bf          DATA 0xbf
+    db 0bfh                 ;e08d  bf          DATA 0xbf
+    db 0bfh                 ;e08e  bf          DATA 0xbf
+    db 0bfh                 ;e08f  bf          DATA 0xbf
+    db 0bfh                 ;e090  bf          DATA 0xbf
+    db 0bfh                 ;e091  bf          DATA 0xbf
+    db 0bfh                 ;e092  bf          DATA 0xbf
+    db 0bfh                 ;e093  bf          DATA 0xbf
+    db 0bfh                 ;e094  bf          DATA 0xbf
+    db 0bfh                 ;e095  bf          DATA 0xbf
+    db 0bfh                 ;e096  bf          DATA 0xbf
+    db 0bfh                 ;e097  bf          DATA 0xbf
+    db 0bfh                 ;e098  bf          DATA 0xbf
+    db 0bfh                 ;e099  bf          DATA 0xbf
+    db 0bfh                 ;e09a  bf          DATA 0xbf
+    db 0bfh                 ;e09b  bf          DATA 0xbf
+    db 0bfh                 ;e09c  bf          DATA 0xbf
+    db 0bfh                 ;e09d  bf          DATA 0xbf
+    db 0bfh                 ;e09e  bf          DATA 0xbf
+    db 0bfh                 ;e09f  bf          DATA 0xbf
+    db 0bfh                 ;e0a0  bf          DATA 0xbf
+    db 0bfh                 ;e0a1  bf          DATA 0xbf
+    db 0bfh                 ;e0a2  bf          DATA 0xbf
+    db 0bfh                 ;e0a3  bf          DATA 0xbf
+    db 0bfh                 ;e0a4  bf          DATA 0xbf
+    db 0bfh                 ;e0a5  bf          DATA 0xbf
+    db 0bfh                 ;e0a6  bf          DATA 0xbf
+    db 0bfh                 ;e0a7  bf          DATA 0xbf
+    db 0bfh                 ;e0a8  bf          DATA 0xbf
+    db 0bfh                 ;e0a9  bf          DATA 0xbf
+    db 0bfh                 ;e0aa  bf          DATA 0xbf
+    db 0bfh                 ;e0ab  bf          DATA 0xbf
+    db 0bfh                 ;e0ac  bf          DATA 0xbf
+    db 0bfh                 ;e0ad  bf          DATA 0xbf
+    db 0bfh                 ;e0ae  bf          DATA 0xbf
+    db 0bfh                 ;e0af  bf          DATA 0xbf
+    db 0bfh                 ;e0b0  bf          DATA 0xbf
+    db 0bfh                 ;e0b1  bf          DATA 0xbf
+    db 0bfh                 ;e0b2  bf          DATA 0xbf
+    db 0bfh                 ;e0b3  bf          DATA 0xbf
+    db 0bfh                 ;e0b4  bf          DATA 0xbf
+    db 0bfh                 ;e0b5  bf          DATA 0xbf
+    db 0bfh                 ;e0b6  bf          DATA 0xbf
+    db 0bfh                 ;e0b7  bf          DATA 0xbf
+    db 0bfh                 ;e0b8  bf          DATA 0xbf
+    db 0bfh                 ;e0b9  bf          DATA 0xbf
+    db 0bfh                 ;e0ba  bf          DATA 0xbf
+    db 0bfh                 ;e0bb  bf          DATA 0xbf
+    db 0bfh                 ;e0bc  bf          DATA 0xbf
+    db 0bfh                 ;e0bd  bf          DATA 0xbf
+    db 0bfh                 ;e0be  bf          DATA 0xbf
+    db 0bfh                 ;e0bf  bf          DATA 0xbf
+    db 0bfh                 ;e0c0  bf          DATA 0xbf
+    db 0bfh                 ;e0c1  bf          DATA 0xbf
+    db 0bfh                 ;e0c2  bf          DATA 0xbf
+    db 0bfh                 ;e0c3  bf          DATA 0xbf
+    db 0bfh                 ;e0c4  bf          DATA 0xbf
+    db 0bfh                 ;e0c5  bf          DATA 0xbf
+    db 0bfh                 ;e0c6  bf          DATA 0xbf
+    db 0bfh                 ;e0c7  bf          DATA 0xbf
+    db 0bfh                 ;e0c8  bf          DATA 0xbf
+    db 0bfh                 ;e0c9  bf          DATA 0xbf
+    db 0bfh                 ;e0ca  bf          DATA 0xbf
+    db 0bfh                 ;e0cb  bf          DATA 0xbf
+    db 0bfh                 ;e0cc  bf          DATA 0xbf
+    db 0bfh                 ;e0cd  bf          DATA 0xbf
+    db 0bfh                 ;e0ce  bf          DATA 0xbf
+    db 0bfh                 ;e0cf  bf          DATA 0xbf
+    db 0bfh                 ;e0d0  bf          DATA 0xbf
+    db 0bfh                 ;e0d1  bf          DATA 0xbf
+    db 0bfh                 ;e0d2  bf          DATA 0xbf
+    db 0bfh                 ;e0d3  bf          DATA 0xbf
+    db 0bfh                 ;e0d4  bf          DATA 0xbf
+    db 0bfh                 ;e0d5  bf          DATA 0xbf
+    db 0bfh                 ;e0d6  bf          DATA 0xbf
+    db 0bfh                 ;e0d7  bf          DATA 0xbf
+    db 0bfh                 ;e0d8  bf          DATA 0xbf
+    db 0bfh                 ;e0d9  bf          DATA 0xbf
+    db 0bfh                 ;e0da  bf          DATA 0xbf
+    db 0bfh                 ;e0db  bf          DATA 0xbf
+    db 0bfh                 ;e0dc  bf          DATA 0xbf
+    db 0bfh                 ;e0dd  bf          DATA 0xbf
+    db 0bfh                 ;e0de  bf          DATA 0xbf
+    db 0bfh                 ;e0df  bf          DATA 0xbf
+    db 0bfh                 ;e0e0  bf          DATA 0xbf
+    db 0bfh                 ;e0e1  bf          DATA 0xbf
+    db 0bfh                 ;e0e2  bf          DATA 0xbf
+    db 0bfh                 ;e0e3  bf          DATA 0xbf
+    db 0bfh                 ;e0e4  bf          DATA 0xbf
+    db 0bfh                 ;e0e5  bf          DATA 0xbf
+    db 0bfh                 ;e0e6  bf          DATA 0xbf
+    db 0bfh                 ;e0e7  bf          DATA 0xbf
+    db 0bfh                 ;e0e8  bf          DATA 0xbf
+    db 0bfh                 ;e0e9  bf          DATA 0xbf
+    db 0bfh                 ;e0ea  bf          DATA 0xbf
+    db 0bfh                 ;e0eb  bf          DATA 0xbf
+    db 0bfh                 ;e0ec  bf          DATA 0xbf
+    db 0bfh                 ;e0ed  bf          DATA 0xbf
+    db 0bfh                 ;e0ee  bf          DATA 0xbf
+    db 0bfh                 ;e0ef  bf          DATA 0xbf
+    db 0bfh                 ;e0f0  bf          DATA 0xbf
+    db 0bfh                 ;e0f1  bf          DATA 0xbf
+    db 0bfh                 ;e0f2  bf          DATA 0xbf
+    db 0bfh                 ;e0f3  bf          DATA 0xbf
+    db 0bfh                 ;e0f4  bf          DATA 0xbf
+    db 0bfh                 ;e0f5  bf          DATA 0xbf
+    db 0bfh                 ;e0f6  bf          DATA 0xbf
+    db 0bfh                 ;e0f7  bf          DATA 0xbf
+    db 0bfh                 ;e0f8  bf          DATA 0xbf
+    db 0bfh                 ;e0f9  bf          DATA 0xbf
+    db 0bfh                 ;e0fa  bf          DATA 0xbf
+    db 0bfh                 ;e0fb  bf          DATA 0xbf
+    db 0bfh                 ;e0fc  bf          DATA 0xbf
+    db 0bfh                 ;e0fd  bf          DATA 0xbf
+    db 0bfh                 ;e0fe  bf          DATA 0xbf
+    db 0bfh                 ;e0ff  bf          DATA 0xbf
+    db 0bfh                 ;e100  bf          DATA 0xbf
+    db 0bfh                 ;e101  bf          DATA 0xbf
+    db 0bfh                 ;e102  bf          DATA 0xbf
+    db 0bfh                 ;e103  bf          DATA 0xbf
+    db 0bfh                 ;e104  bf          DATA 0xbf
+    db 0bfh                 ;e105  bf          DATA 0xbf
+    db 0bfh                 ;e106  bf          DATA 0xbf
+    db 0bfh                 ;e107  bf          DATA 0xbf
+    db 0bfh                 ;e108  bf          DATA 0xbf
+    db 0bfh                 ;e109  bf          DATA 0xbf
+    db 0bfh                 ;e10a  bf          DATA 0xbf
+    db 0bfh                 ;e10b  bf          DATA 0xbf
+    db 0bfh                 ;e10c  bf          DATA 0xbf
+    db 0bfh                 ;e10d  bf          DATA 0xbf
+    db 0bfh                 ;e10e  bf          DATA 0xbf
+    db 0bfh                 ;e10f  bf          DATA 0xbf
+    db 0bfh                 ;e110  bf          DATA 0xbf
+    db 0bfh                 ;e111  bf          DATA 0xbf
+    db 0bfh                 ;e112  bf          DATA 0xbf
+    db 0bfh                 ;e113  bf          DATA 0xbf
+    db 0bfh                 ;e114  bf          DATA 0xbf
+    db 0bfh                 ;e115  bf          DATA 0xbf
+    db 0bfh                 ;e116  bf          DATA 0xbf
+    db 0bfh                 ;e117  bf          DATA 0xbf
+    db 0bfh                 ;e118  bf          DATA 0xbf
+    db 0bfh                 ;e119  bf          DATA 0xbf
+    db 0bfh                 ;e11a  bf          DATA 0xbf
+    db 0bfh                 ;e11b  bf          DATA 0xbf
+    db 0bfh                 ;e11c  bf          DATA 0xbf
+    db 0bfh                 ;e11d  bf          DATA 0xbf
+    db 0bfh                 ;e11e  bf          DATA 0xbf
+    db 0bfh                 ;e11f  bf          DATA 0xbf
+    db 0bfh                 ;e120  bf          DATA 0xbf
+    db 0bfh                 ;e121  bf          DATA 0xbf
+    db 0bfh                 ;e122  bf          DATA 0xbf
+    db 0bfh                 ;e123  bf          DATA 0xbf
+    db 0bfh                 ;e124  bf          DATA 0xbf
+    db 0bfh                 ;e125  bf          DATA 0xbf
+    db 0bfh                 ;e126  bf          DATA 0xbf
+    db 0bfh                 ;e127  bf          DATA 0xbf
+    db 0bfh                 ;e128  bf          DATA 0xbf
+    db 0bfh                 ;e129  bf          DATA 0xbf
+    db 0bfh                 ;e12a  bf          DATA 0xbf
+    db 0bfh                 ;e12b  bf          DATA 0xbf
+    db 0bfh                 ;e12c  bf          DATA 0xbf
+    db 0bfh                 ;e12d  bf          DATA 0xbf
+    db 0bfh                 ;e12e  bf          DATA 0xbf
+    db 0bfh                 ;e12f  bf          DATA 0xbf
+    db 0bfh                 ;e130  bf          DATA 0xbf
+    db 0bfh                 ;e131  bf          DATA 0xbf
+    db 0bfh                 ;e132  bf          DATA 0xbf
+    db 0bfh                 ;e133  bf          DATA 0xbf
+    db 0bfh                 ;e134  bf          DATA 0xbf
+    db 0bfh                 ;e135  bf          DATA 0xbf
+    db 0bfh                 ;e136  bf          DATA 0xbf
+    db 0bfh                 ;e137  bf          DATA 0xbf
+    db 0bfh                 ;e138  bf          DATA 0xbf
+    db 0bfh                 ;e139  bf          DATA 0xbf
+    db 0bfh                 ;e13a  bf          DATA 0xbf
+    db 0bfh                 ;e13b  bf          DATA 0xbf
+    db 0bfh                 ;e13c  bf          DATA 0xbf
+    db 0bfh                 ;e13d  bf          DATA 0xbf
+    db 0bfh                 ;e13e  bf          DATA 0xbf
+    db 0bfh                 ;e13f  bf          DATA 0xbf
+    db 0bfh                 ;e140  bf          DATA 0xbf
+    db 0bfh                 ;e141  bf          DATA 0xbf
+    db 0bfh                 ;e142  bf          DATA 0xbf
+    db 0bfh                 ;e143  bf          DATA 0xbf
+    db 0bfh                 ;e144  bf          DATA 0xbf
+    db 0bfh                 ;e145  bf          DATA 0xbf
+    db 0bfh                 ;e146  bf          DATA 0xbf
+    db 0bfh                 ;e147  bf          DATA 0xbf
+    db 0bfh                 ;e148  bf          DATA 0xbf
+    db 0bfh                 ;e149  bf          DATA 0xbf
+    db 0bfh                 ;e14a  bf          DATA 0xbf
+    db 0bfh                 ;e14b  bf          DATA 0xbf
+    db 0bfh                 ;e14c  bf          DATA 0xbf
+    db 0bfh                 ;e14d  bf          DATA 0xbf
+    db 0bfh                 ;e14e  bf          DATA 0xbf
+    db 0bfh                 ;e14f  bf          DATA 0xbf
+    db 0bfh                 ;e150  bf          DATA 0xbf
+    db 0bfh                 ;e151  bf          DATA 0xbf
+    db 0bfh                 ;e152  bf          DATA 0xbf
+    db 0bfh                 ;e153  bf          DATA 0xbf
+    db 0bfh                 ;e154  bf          DATA 0xbf
+    db 0bfh                 ;e155  bf          DATA 0xbf
+    db 0bfh                 ;e156  bf          DATA 0xbf
+    db 0bfh                 ;e157  bf          DATA 0xbf
+    db 0bfh                 ;e158  bf          DATA 0xbf
+    db 0bfh                 ;e159  bf          DATA 0xbf
+    db 0bfh                 ;e15a  bf          DATA 0xbf
+    db 0bfh                 ;e15b  bf          DATA 0xbf
+    db 0bfh                 ;e15c  bf          DATA 0xbf
+    db 0bfh                 ;e15d  bf          DATA 0xbf
+    db 0bfh                 ;e15e  bf          DATA 0xbf
+    db 0bfh                 ;e15f  bf          DATA 0xbf
+    db 0bfh                 ;e160  bf          DATA 0xbf
+    db 0bfh                 ;e161  bf          DATA 0xbf
+    db 0bfh                 ;e162  bf          DATA 0xbf
+    db 0bfh                 ;e163  bf          DATA 0xbf
+    db 0bfh                 ;e164  bf          DATA 0xbf
+    db 0bfh                 ;e165  bf          DATA 0xbf
+    db 0bfh                 ;e166  bf          DATA 0xbf
+    db 0bfh                 ;e167  bf          DATA 0xbf
+    db 0bfh                 ;e168  bf          DATA 0xbf
+    db 0bfh                 ;e169  bf          DATA 0xbf
+    db 0bfh                 ;e16a  bf          DATA 0xbf
+    db 0bfh                 ;e16b  bf          DATA 0xbf
+    db 0bfh                 ;e16c  bf          DATA 0xbf
+    db 0bfh                 ;e16d  bf          DATA 0xbf
+    db 0bfh                 ;e16e  bf          DATA 0xbf
+    db 0bfh                 ;e16f  bf          DATA 0xbf
+    db 0bfh                 ;e170  bf          DATA 0xbf
+    db 0bfh                 ;e171  bf          DATA 0xbf
+    db 0bfh                 ;e172  bf          DATA 0xbf
+    db 0bfh                 ;e173  bf          DATA 0xbf
+    db 0bfh                 ;e174  bf          DATA 0xbf
+    db 0bfh                 ;e175  bf          DATA 0xbf
+    db 0bfh                 ;e176  bf          DATA 0xbf
+    db 0bfh                 ;e177  bf          DATA 0xbf
+    db 0bfh                 ;e178  bf          DATA 0xbf
+    db 0bfh                 ;e179  bf          DATA 0xbf
+    db 0bfh                 ;e17a  bf          DATA 0xbf
+    db 0bfh                 ;e17b  bf          DATA 0xbf
+    db 0bfh                 ;e17c  bf          DATA 0xbf
+    db 0bfh                 ;e17d  bf          DATA 0xbf
+    db 0bfh                 ;e17e  bf          DATA 0xbf
+    db 0bfh                 ;e17f  bf          DATA 0xbf
+    db 0bfh                 ;e180  bf          DATA 0xbf
+    db 0bfh                 ;e181  bf          DATA 0xbf
+    db 0bfh                 ;e182  bf          DATA 0xbf
+    db 0bfh                 ;e183  bf          DATA 0xbf
+    db 0bfh                 ;e184  bf          DATA 0xbf
+    db 0bfh                 ;e185  bf          DATA 0xbf
+    db 0bfh                 ;e186  bf          DATA 0xbf
+    db 0bfh                 ;e187  bf          DATA 0xbf
+    db 0bfh                 ;e188  bf          DATA 0xbf
+    db 0bfh                 ;e189  bf          DATA 0xbf
+    db 0bfh                 ;e18a  bf          DATA 0xbf
+    db 0bfh                 ;e18b  bf          DATA 0xbf
+    db 0bfh                 ;e18c  bf          DATA 0xbf
+    db 0bfh                 ;e18d  bf          DATA 0xbf
+    db 0bfh                 ;e18e  bf          DATA 0xbf
+    db 0bfh                 ;e18f  bf          DATA 0xbf
+    db 0bfh                 ;e190  bf          DATA 0xbf
+    db 0bfh                 ;e191  bf          DATA 0xbf
+    db 0bfh                 ;e192  bf          DATA 0xbf
+    db 0bfh                 ;e193  bf          DATA 0xbf
+    db 0bfh                 ;e194  bf          DATA 0xbf
+    db 0bfh                 ;e195  bf          DATA 0xbf
+    db 0bfh                 ;e196  bf          DATA 0xbf
+    db 0bfh                 ;e197  bf          DATA 0xbf
+    db 0bfh                 ;e198  bf          DATA 0xbf
+    db 0bfh                 ;e199  bf          DATA 0xbf
+    db 0bfh                 ;e19a  bf          DATA 0xbf
+    db 0bfh                 ;e19b  bf          DATA 0xbf
+    db 0bfh                 ;e19c  bf          DATA 0xbf
+    db 0bfh                 ;e19d  bf          DATA 0xbf
+    db 0bfh                 ;e19e  bf          DATA 0xbf
+    db 0bfh                 ;e19f  bf          DATA 0xbf
+    db 0bfh                 ;e1a0  bf          DATA 0xbf
+    db 0bfh                 ;e1a1  bf          DATA 0xbf
+    db 0bfh                 ;e1a2  bf          DATA 0xbf
+    db 0bfh                 ;e1a3  bf          DATA 0xbf
+    db 0bfh                 ;e1a4  bf          DATA 0xbf
+    db 0bfh                 ;e1a5  bf          DATA 0xbf
+    db 0bfh                 ;e1a6  bf          DATA 0xbf
+    db 0bfh                 ;e1a7  bf          DATA 0xbf
+    db 0bfh                 ;e1a8  bf          DATA 0xbf
+    db 0bfh                 ;e1a9  bf          DATA 0xbf
+    db 0bfh                 ;e1aa  bf          DATA 0xbf
+    db 0bfh                 ;e1ab  bf          DATA 0xbf
+    db 0bfh                 ;e1ac  bf          DATA 0xbf
+    db 0bfh                 ;e1ad  bf          DATA 0xbf
+    db 0bfh                 ;e1ae  bf          DATA 0xbf
+    db 0bfh                 ;e1af  bf          DATA 0xbf
+    db 0bfh                 ;e1b0  bf          DATA 0xbf
+    db 0bfh                 ;e1b1  bf          DATA 0xbf
+    db 0bfh                 ;e1b2  bf          DATA 0xbf
+    db 0bfh                 ;e1b3  bf          DATA 0xbf
+    db 0bfh                 ;e1b4  bf          DATA 0xbf
+    db 0bfh                 ;e1b5  bf          DATA 0xbf
+    db 0bfh                 ;e1b6  bf          DATA 0xbf
+    db 0bfh                 ;e1b7  bf          DATA 0xbf
+    db 0bfh                 ;e1b8  bf          DATA 0xbf
+    db 0bfh                 ;e1b9  bf          DATA 0xbf
+    db 0bfh                 ;e1ba  bf          DATA 0xbf
+    db 0bfh                 ;e1bb  bf          DATA 0xbf
+    db 0bfh                 ;e1bc  bf          DATA 0xbf
+    db 0bfh                 ;e1bd  bf          DATA 0xbf
+    db 0bfh                 ;e1be  bf          DATA 0xbf
+    db 0bfh                 ;e1bf  bf          DATA 0xbf
+    db 0bfh                 ;e1c0  bf          DATA 0xbf
+    db 0bfh                 ;e1c1  bf          DATA 0xbf
+    db 0bfh                 ;e1c2  bf          DATA 0xbf
+    db 0bfh                 ;e1c3  bf          DATA 0xbf
+    db 0bfh                 ;e1c4  bf          DATA 0xbf
+    db 0bfh                 ;e1c5  bf          DATA 0xbf
+    db 0bfh                 ;e1c6  bf          DATA 0xbf
+    db 0bfh                 ;e1c7  bf          DATA 0xbf
+    db 0bfh                 ;e1c8  bf          DATA 0xbf
+    db 0bfh                 ;e1c9  bf          DATA 0xbf
+    db 0bfh                 ;e1ca  bf          DATA 0xbf
+    db 0bfh                 ;e1cb  bf          DATA 0xbf
+    db 0bfh                 ;e1cc  bf          DATA 0xbf
+    db 0bfh                 ;e1cd  bf          DATA 0xbf
+    db 0bfh                 ;e1ce  bf          DATA 0xbf
+    db 0bfh                 ;e1cf  bf          DATA 0xbf
+    db 0bfh                 ;e1d0  bf          DATA 0xbf
+    db 0bfh                 ;e1d1  bf          DATA 0xbf
+    db 0bfh                 ;e1d2  bf          DATA 0xbf
+    db 0bfh                 ;e1d3  bf          DATA 0xbf
+    db 0bfh                 ;e1d4  bf          DATA 0xbf
+    db 0bfh                 ;e1d5  bf          DATA 0xbf
+    db 0bfh                 ;e1d6  bf          DATA 0xbf
+    db 0bfh                 ;e1d7  bf          DATA 0xbf
+    db 0bfh                 ;e1d8  bf          DATA 0xbf
+    db 0bfh                 ;e1d9  bf          DATA 0xbf
+    db 0bfh                 ;e1da  bf          DATA 0xbf
+    db 0bfh                 ;e1db  bf          DATA 0xbf
+    db 0bfh                 ;e1dc  bf          DATA 0xbf
+    db 0bfh                 ;e1dd  bf          DATA 0xbf
+    db 0bfh                 ;e1de  bf          DATA 0xbf
+    db 0bfh                 ;e1df  bf          DATA 0xbf
+    db 0bfh                 ;e1e0  bf          DATA 0xbf
+    db 0bfh                 ;e1e1  bf          DATA 0xbf
+    db 0bfh                 ;e1e2  bf          DATA 0xbf
+    db 0bfh                 ;e1e3  bf          DATA 0xbf
+    db 0bfh                 ;e1e4  bf          DATA 0xbf
+    db 0bfh                 ;e1e5  bf          DATA 0xbf
+    db 0bfh                 ;e1e6  bf          DATA 0xbf
+    db 0bfh                 ;e1e7  bf          DATA 0xbf
+    db 0bfh                 ;e1e8  bf          DATA 0xbf
+    db 0bfh                 ;e1e9  bf          DATA 0xbf
+    db 0bfh                 ;e1ea  bf          DATA 0xbf
+    db 0bfh                 ;e1eb  bf          DATA 0xbf
+    db 0bfh                 ;e1ec  bf          DATA 0xbf
+    db 0bfh                 ;e1ed  bf          DATA 0xbf
+    db 0bfh                 ;e1ee  bf          DATA 0xbf
+    db 0bfh                 ;e1ef  bf          DATA 0xbf
+    db 0bfh                 ;e1f0  bf          DATA 0xbf
+    db 0bfh                 ;e1f1  bf          DATA 0xbf
+    db 0bfh                 ;e1f2  bf          DATA 0xbf
+    db 0bfh                 ;e1f3  bf          DATA 0xbf
+    db 0bfh                 ;e1f4  bf          DATA 0xbf
+    db 0bfh                 ;e1f5  bf          DATA 0xbf
+    db 0bfh                 ;e1f6  bf          DATA 0xbf
+    db 0bfh                 ;e1f7  bf          DATA 0xbf
+    db 0bfh                 ;e1f8  bf          DATA 0xbf
+    db 0bfh                 ;e1f9  bf          DATA 0xbf
+    db 0bfh                 ;e1fa  bf          DATA 0xbf
+    db 0bfh                 ;e1fb  bf          DATA 0xbf
+    db 0bfh                 ;e1fc  bf          DATA 0xbf
+    db 0bfh                 ;e1fd  bf          DATA 0xbf
+    db 0bfh                 ;e1fe  bf          DATA 0xbf
+    db 0bfh                 ;e1ff  bf          DATA 0xbf
+    db 0bfh                 ;e200  bf          DATA 0xbf
+    db 0bfh                 ;e201  bf          DATA 0xbf
+    db 0bfh                 ;e202  bf          DATA 0xbf
+    db 0bfh                 ;e203  bf          DATA 0xbf
+    db 0bfh                 ;e204  bf          DATA 0xbf
+    db 0bfh                 ;e205  bf          DATA 0xbf
+    db 0bfh                 ;e206  bf          DATA 0xbf
+    db 0bfh                 ;e207  bf          DATA 0xbf
+    db 0bfh                 ;e208  bf          DATA 0xbf
+    db 0bfh                 ;e209  bf          DATA 0xbf
+    db 0bfh                 ;e20a  bf          DATA 0xbf
+    db 0bfh                 ;e20b  bf          DATA 0xbf
+    db 0bfh                 ;e20c  bf          DATA 0xbf
+    db 0bfh                 ;e20d  bf          DATA 0xbf
+    db 0bfh                 ;e20e  bf          DATA 0xbf
+    db 0bfh                 ;e20f  bf          DATA 0xbf
+    db 0bfh                 ;e210  bf          DATA 0xbf
+    db 0bfh                 ;e211  bf          DATA 0xbf
+    db 0bfh                 ;e212  bf          DATA 0xbf
+    db 0bfh                 ;e213  bf          DATA 0xbf
+    db 0bfh                 ;e214  bf          DATA 0xbf
+    db 0bfh                 ;e215  bf          DATA 0xbf
+    db 0bfh                 ;e216  bf          DATA 0xbf
+    db 0bfh                 ;e217  bf          DATA 0xbf
+    db 0bfh                 ;e218  bf          DATA 0xbf
+    db 0bfh                 ;e219  bf          DATA 0xbf
+    db 0bfh                 ;e21a  bf          DATA 0xbf
+    db 0bfh                 ;e21b  bf          DATA 0xbf
+    db 0bfh                 ;e21c  bf          DATA 0xbf
+    db 0bfh                 ;e21d  bf          DATA 0xbf
+    db 0bfh                 ;e21e  bf          DATA 0xbf
+    db 0bfh                 ;e21f  bf          DATA 0xbf
+    db 0bfh                 ;e220  bf          DATA 0xbf
+    db 0bfh                 ;e221  bf          DATA 0xbf
+    db 0bfh                 ;e222  bf          DATA 0xbf
+    db 0bfh                 ;e223  bf          DATA 0xbf
+    db 0bfh                 ;e224  bf          DATA 0xbf
+    db 0bfh                 ;e225  bf          DATA 0xbf
+    db 0bfh                 ;e226  bf          DATA 0xbf
+    db 0bfh                 ;e227  bf          DATA 0xbf
+    db 0bfh                 ;e228  bf          DATA 0xbf
+    db 0bfh                 ;e229  bf          DATA 0xbf
+    db 0bfh                 ;e22a  bf          DATA 0xbf
+    db 0bfh                 ;e22b  bf          DATA 0xbf
+    db 0bfh                 ;e22c  bf          DATA 0xbf
+    db 0bfh                 ;e22d  bf          DATA 0xbf
+    db 0bfh                 ;e22e  bf          DATA 0xbf
+    db 0bfh                 ;e22f  bf          DATA 0xbf
+    db 0bfh                 ;e230  bf          DATA 0xbf
+    db 0bfh                 ;e231  bf          DATA 0xbf
+    db 0bfh                 ;e232  bf          DATA 0xbf
+    db 0bfh                 ;e233  bf          DATA 0xbf
+    db 0bfh                 ;e234  bf          DATA 0xbf
+    db 0bfh                 ;e235  bf          DATA 0xbf
+    db 0bfh                 ;e236  bf          DATA 0xbf
+    db 0bfh                 ;e237  bf          DATA 0xbf
+    db 0bfh                 ;e238  bf          DATA 0xbf
+    db 0bfh                 ;e239  bf          DATA 0xbf
+    db 0bfh                 ;e23a  bf          DATA 0xbf
+    db 0bfh                 ;e23b  bf          DATA 0xbf
+    db 0bfh                 ;e23c  bf          DATA 0xbf
+    db 0bfh                 ;e23d  bf          DATA 0xbf
+    db 0bfh                 ;e23e  bf          DATA 0xbf
+    db 0bfh                 ;e23f  bf          DATA 0xbf
+    db 0bfh                 ;e240  bf          DATA 0xbf
+    db 0bfh                 ;e241  bf          DATA 0xbf
+    db 0bfh                 ;e242  bf          DATA 0xbf
+    db 0bfh                 ;e243  bf          DATA 0xbf
+    db 0bfh                 ;e244  bf          DATA 0xbf
+    db 0bfh                 ;e245  bf          DATA 0xbf
+    db 0bfh                 ;e246  bf          DATA 0xbf
+    db 0bfh                 ;e247  bf          DATA 0xbf
+    db 0bfh                 ;e248  bf          DATA 0xbf
+    db 0bfh                 ;e249  bf          DATA 0xbf
+    db 0bfh                 ;e24a  bf          DATA 0xbf
+    db 0bfh                 ;e24b  bf          DATA 0xbf
+    db 0bfh                 ;e24c  bf          DATA 0xbf
+    db 0bfh                 ;e24d  bf          DATA 0xbf
+    db 0bfh                 ;e24e  bf          DATA 0xbf
+    db 0bfh                 ;e24f  bf          DATA 0xbf
+    db 0bfh                 ;e250  bf          DATA 0xbf
+    db 0bfh                 ;e251  bf          DATA 0xbf
+    db 0bfh                 ;e252  bf          DATA 0xbf
+    db 0bfh                 ;e253  bf          DATA 0xbf
+    db 0bfh                 ;e254  bf          DATA 0xbf
+    db 0bfh                 ;e255  bf          DATA 0xbf
+    db 0bfh                 ;e256  bf          DATA 0xbf
+    db 0bfh                 ;e257  bf          DATA 0xbf
+    db 0bfh                 ;e258  bf          DATA 0xbf
+    db 0bfh                 ;e259  bf          DATA 0xbf
+    db 0bfh                 ;e25a  bf          DATA 0xbf
+    db 0bfh                 ;e25b  bf          DATA 0xbf
+    db 0bfh                 ;e25c  bf          DATA 0xbf
+    db 0bfh                 ;e25d  bf          DATA 0xbf
+    db 0bfh                 ;e25e  bf          DATA 0xbf
+    db 0bfh                 ;e25f  bf          DATA 0xbf
+    db 0bfh                 ;e260  bf          DATA 0xbf
+    db 0bfh                 ;e261  bf          DATA 0xbf
+    db 0bfh                 ;e262  bf          DATA 0xbf
+    db 0bfh                 ;e263  bf          DATA 0xbf
+    db 0bfh                 ;e264  bf          DATA 0xbf
+    db 0bfh                 ;e265  bf          DATA 0xbf
+    db 0bfh                 ;e266  bf          DATA 0xbf
+    db 0bfh                 ;e267  bf          DATA 0xbf
+    db 0bfh                 ;e268  bf          DATA 0xbf
+    db 0bfh                 ;e269  bf          DATA 0xbf
+    db 0bfh                 ;e26a  bf          DATA 0xbf
+    db 0bfh                 ;e26b  bf          DATA 0xbf
+    db 0bfh                 ;e26c  bf          DATA 0xbf
+    db 0bfh                 ;e26d  bf          DATA 0xbf
+    db 0bfh                 ;e26e  bf          DATA 0xbf
+    db 0bfh                 ;e26f  bf          DATA 0xbf
+    db 0bfh                 ;e270  bf          DATA 0xbf
+    db 0bfh                 ;e271  bf          DATA 0xbf
+    db 0bfh                 ;e272  bf          DATA 0xbf
+    db 0bfh                 ;e273  bf          DATA 0xbf
+    db 0bfh                 ;e274  bf          DATA 0xbf
+    db 0bfh                 ;e275  bf          DATA 0xbf
+    db 0bfh                 ;e276  bf          DATA 0xbf
+    db 0bfh                 ;e277  bf          DATA 0xbf
+    db 0bfh                 ;e278  bf          DATA 0xbf
+    db 0bfh                 ;e279  bf          DATA 0xbf
+    db 0bfh                 ;e27a  bf          DATA 0xbf
+    db 0bfh                 ;e27b  bf          DATA 0xbf
+    db 0bfh                 ;e27c  bf          DATA 0xbf
+    db 0bfh                 ;e27d  bf          DATA 0xbf
+    db 0bfh                 ;e27e  bf          DATA 0xbf
+    db 0bfh                 ;e27f  bf          DATA 0xbf
+    db 0bfh                 ;e280  bf          DATA 0xbf
+    db 0bfh                 ;e281  bf          DATA 0xbf
+    db 0bfh                 ;e282  bf          DATA 0xbf
+    db 0bfh                 ;e283  bf          DATA 0xbf
+    db 0bfh                 ;e284  bf          DATA 0xbf
+    db 0bfh                 ;e285  bf          DATA 0xbf
+    db 0bfh                 ;e286  bf          DATA 0xbf
+    db 0bfh                 ;e287  bf          DATA 0xbf
+    db 0bfh                 ;e288  bf          DATA 0xbf
+    db 0bfh                 ;e289  bf          DATA 0xbf
+    db 0bfh                 ;e28a  bf          DATA 0xbf
+    db 0bfh                 ;e28b  bf          DATA 0xbf
+    db 0bfh                 ;e28c  bf          DATA 0xbf
+    db 0bfh                 ;e28d  bf          DATA 0xbf
+    db 0bfh                 ;e28e  bf          DATA 0xbf
+    db 0bfh                 ;e28f  bf          DATA 0xbf
+    db 0bfh                 ;e290  bf          DATA 0xbf
+    db 0bfh                 ;e291  bf          DATA 0xbf
+    db 0bfh                 ;e292  bf          DATA 0xbf
+    db 0bfh                 ;e293  bf          DATA 0xbf
+    db 0bfh                 ;e294  bf          DATA 0xbf
+    db 0bfh                 ;e295  bf          DATA 0xbf
+    db 0bfh                 ;e296  bf          DATA 0xbf
+    db 0bfh                 ;e297  bf          DATA 0xbf
+    db 0bfh                 ;e298  bf          DATA 0xbf
+    db 0bfh                 ;e299  bf          DATA 0xbf
+    db 0bfh                 ;e29a  bf          DATA 0xbf
+    db 0bfh                 ;e29b  bf          DATA 0xbf
+    db 0bfh                 ;e29c  bf          DATA 0xbf
+    db 0bfh                 ;e29d  bf          DATA 0xbf
+    db 0bfh                 ;e29e  bf          DATA 0xbf
+    db 0bfh                 ;e29f  bf          DATA 0xbf
+    db 0bfh                 ;e2a0  bf          DATA 0xbf
+    db 0bfh                 ;e2a1  bf          DATA 0xbf
+    db 0bfh                 ;e2a2  bf          DATA 0xbf
+    db 0bfh                 ;e2a3  bf          DATA 0xbf
+    db 0bfh                 ;e2a4  bf          DATA 0xbf
+    db 0bfh                 ;e2a5  bf          DATA 0xbf
+    db 0bfh                 ;e2a6  bf          DATA 0xbf
+    db 0bfh                 ;e2a7  bf          DATA 0xbf
+    db 0bfh                 ;e2a8  bf          DATA 0xbf
+    db 0bfh                 ;e2a9  bf          DATA 0xbf
+    db 0bfh                 ;e2aa  bf          DATA 0xbf
+    db 0bfh                 ;e2ab  bf          DATA 0xbf
+    db 0bfh                 ;e2ac  bf          DATA 0xbf
+    db 0bfh                 ;e2ad  bf          DATA 0xbf
+    db 0bfh                 ;e2ae  bf          DATA 0xbf
+    db 0bfh                 ;e2af  bf          DATA 0xbf
+    db 0bfh                 ;e2b0  bf          DATA 0xbf
+    db 0bfh                 ;e2b1  bf          DATA 0xbf
+    db 0bfh                 ;e2b2  bf          DATA 0xbf
+    db 0bfh                 ;e2b3  bf          DATA 0xbf
+    db 0bfh                 ;e2b4  bf          DATA 0xbf
+    db 0bfh                 ;e2b5  bf          DATA 0xbf
+    db 0bfh                 ;e2b6  bf          DATA 0xbf
+    db 0bfh                 ;e2b7  bf          DATA 0xbf
+    db 0bfh                 ;e2b8  bf          DATA 0xbf
+    db 0bfh                 ;e2b9  bf          DATA 0xbf
+    db 0bfh                 ;e2ba  bf          DATA 0xbf
+    db 0bfh                 ;e2bb  bf          DATA 0xbf
+    db 0bfh                 ;e2bc  bf          DATA 0xbf
+    db 0bfh                 ;e2bd  bf          DATA 0xbf
+    db 0bfh                 ;e2be  bf          DATA 0xbf
+    db 0bfh                 ;e2bf  bf          DATA 0xbf
+    db 0bfh                 ;e2c0  bf          DATA 0xbf
+    db 0bfh                 ;e2c1  bf          DATA 0xbf
+    db 0bfh                 ;e2c2  bf          DATA 0xbf
+    db 0bfh                 ;e2c3  bf          DATA 0xbf
+    db 0bfh                 ;e2c4  bf          DATA 0xbf
+    db 0bfh                 ;e2c5  bf          DATA 0xbf
+    db 0bfh                 ;e2c6  bf          DATA 0xbf
+    db 0bfh                 ;e2c7  bf          DATA 0xbf
+    db 0bfh                 ;e2c8  bf          DATA 0xbf
+    db 0bfh                 ;e2c9  bf          DATA 0xbf
+    db 0bfh                 ;e2ca  bf          DATA 0xbf
+    db 0bfh                 ;e2cb  bf          DATA 0xbf
+    db 0bfh                 ;e2cc  bf          DATA 0xbf
+    db 0bfh                 ;e2cd  bf          DATA 0xbf
+    db 0bfh                 ;e2ce  bf          DATA 0xbf
+    db 0bfh                 ;e2cf  bf          DATA 0xbf
+    db 0bfh                 ;e2d0  bf          DATA 0xbf
+    db 0bfh                 ;e2d1  bf          DATA 0xbf
+    db 0bfh                 ;e2d2  bf          DATA 0xbf
+    db 0bfh                 ;e2d3  bf          DATA 0xbf
+    db 0bfh                 ;e2d4  bf          DATA 0xbf
+    db 0bfh                 ;e2d5  bf          DATA 0xbf
+    db 0bfh                 ;e2d6  bf          DATA 0xbf
+    db 0bfh                 ;e2d7  bf          DATA 0xbf
+    db 0bfh                 ;e2d8  bf          DATA 0xbf
+    db 0bfh                 ;e2d9  bf          DATA 0xbf
+    db 0bfh                 ;e2da  bf          DATA 0xbf
+    db 0bfh                 ;e2db  bf          DATA 0xbf
+    db 0bfh                 ;e2dc  bf          DATA 0xbf
+    db 0bfh                 ;e2dd  bf          DATA 0xbf
+    db 0bfh                 ;e2de  bf          DATA 0xbf
+    db 0bfh                 ;e2df  bf          DATA 0xbf
+    db 0bfh                 ;e2e0  bf          DATA 0xbf
+    db 0bfh                 ;e2e1  bf          DATA 0xbf
+    db 0bfh                 ;e2e2  bf          DATA 0xbf
+    db 0bfh                 ;e2e3  bf          DATA 0xbf
+    db 0bfh                 ;e2e4  bf          DATA 0xbf
+    db 0bfh                 ;e2e5  bf          DATA 0xbf
+    db 0bfh                 ;e2e6  bf          DATA 0xbf
+    db 0bfh                 ;e2e7  bf          DATA 0xbf
+    db 0bfh                 ;e2e8  bf          DATA 0xbf
+    db 0bfh                 ;e2e9  bf          DATA 0xbf
+    db 0bfh                 ;e2ea  bf          DATA 0xbf
+    db 0bfh                 ;e2eb  bf          DATA 0xbf
+    db 0bfh                 ;e2ec  bf          DATA 0xbf
+    db 0bfh                 ;e2ed  bf          DATA 0xbf
+    db 0bfh                 ;e2ee  bf          DATA 0xbf
+    db 0bfh                 ;e2ef  bf          DATA 0xbf
+    db 0bfh                 ;e2f0  bf          DATA 0xbf
+    db 0bfh                 ;e2f1  bf          DATA 0xbf
+    db 0bfh                 ;e2f2  bf          DATA 0xbf
+    db 0bfh                 ;e2f3  bf          DATA 0xbf
+    db 0bfh                 ;e2f4  bf          DATA 0xbf
+    db 0bfh                 ;e2f5  bf          DATA 0xbf
+    db 0bfh                 ;e2f6  bf          DATA 0xbf
+    db 0bfh                 ;e2f7  bf          DATA 0xbf
+    db 0bfh                 ;e2f8  bf          DATA 0xbf
+    db 0bfh                 ;e2f9  bf          DATA 0xbf
+    db 0bfh                 ;e2fa  bf          DATA 0xbf
+    db 0bfh                 ;e2fb  bf          DATA 0xbf
+    db 0bfh                 ;e2fc  bf          DATA 0xbf
+    db 0bfh                 ;e2fd  bf          DATA 0xbf
+    db 0bfh                 ;e2fe  bf          DATA 0xbf
+    db 0bfh                 ;e2ff  bf          DATA 0xbf
+    db 0bfh                 ;e300  bf          DATA 0xbf
+    db 0bfh                 ;e301  bf          DATA 0xbf
+    db 0bfh                 ;e302  bf          DATA 0xbf
+    db 0bfh                 ;e303  bf          DATA 0xbf
+    db 0bfh                 ;e304  bf          DATA 0xbf
+    db 0bfh                 ;e305  bf          DATA 0xbf
+    db 0bfh                 ;e306  bf          DATA 0xbf
+    db 0bfh                 ;e307  bf          DATA 0xbf
+    db 0bfh                 ;e308  bf          DATA 0xbf
+    db 0bfh                 ;e309  bf          DATA 0xbf
+    db 0bfh                 ;e30a  bf          DATA 0xbf
+    db 0bfh                 ;e30b  bf          DATA 0xbf
+    db 0bfh                 ;e30c  bf          DATA 0xbf
+    db 0bfh                 ;e30d  bf          DATA 0xbf
+    db 0bfh                 ;e30e  bf          DATA 0xbf
+    db 0bfh                 ;e30f  bf          DATA 0xbf
+    db 0bfh                 ;e310  bf          DATA 0xbf
+    db 0bfh                 ;e311  bf          DATA 0xbf
+    db 0bfh                 ;e312  bf          DATA 0xbf
+    db 0bfh                 ;e313  bf          DATA 0xbf
+    db 0bfh                 ;e314  bf          DATA 0xbf
+    db 0bfh                 ;e315  bf          DATA 0xbf
+    db 0bfh                 ;e316  bf          DATA 0xbf
+    db 0bfh                 ;e317  bf          DATA 0xbf
+    db 0bfh                 ;e318  bf          DATA 0xbf
+    db 0bfh                 ;e319  bf          DATA 0xbf
+    db 0bfh                 ;e31a  bf          DATA 0xbf
+    db 0bfh                 ;e31b  bf          DATA 0xbf
+    db 0bfh                 ;e31c  bf          DATA 0xbf
+    db 0bfh                 ;e31d  bf          DATA 0xbf
+    db 0bfh                 ;e31e  bf          DATA 0xbf
+    db 0bfh                 ;e31f  bf          DATA 0xbf
+    db 0bfh                 ;e320  bf          DATA 0xbf
+    db 0bfh                 ;e321  bf          DATA 0xbf
+    db 0bfh                 ;e322  bf          DATA 0xbf
+    db 0bfh                 ;e323  bf          DATA 0xbf
+    db 0bfh                 ;e324  bf          DATA 0xbf
+    db 0bfh                 ;e325  bf          DATA 0xbf
+    db 0bfh                 ;e326  bf          DATA 0xbf
+    db 0bfh                 ;e327  bf          DATA 0xbf
+    db 0bfh                 ;e328  bf          DATA 0xbf
+    db 0bfh                 ;e329  bf          DATA 0xbf
+    db 0bfh                 ;e32a  bf          DATA 0xbf
+    db 0bfh                 ;e32b  bf          DATA 0xbf
+    db 0bfh                 ;e32c  bf          DATA 0xbf
+    db 0bfh                 ;e32d  bf          DATA 0xbf
+    db 0bfh                 ;e32e  bf          DATA 0xbf
+    db 0bfh                 ;e32f  bf          DATA 0xbf
+    db 0bfh                 ;e330  bf          DATA 0xbf
+    db 0bfh                 ;e331  bf          DATA 0xbf
+    db 0bfh                 ;e332  bf          DATA 0xbf
+    db 0bfh                 ;e333  bf          DATA 0xbf
+    db 0bfh                 ;e334  bf          DATA 0xbf
+    db 0bfh                 ;e335  bf          DATA 0xbf
+    db 0bfh                 ;e336  bf          DATA 0xbf
+    db 0bfh                 ;e337  bf          DATA 0xbf
+    db 0bfh                 ;e338  bf          DATA 0xbf
+    db 0bfh                 ;e339  bf          DATA 0xbf
+    db 0bfh                 ;e33a  bf          DATA 0xbf
+    db 0bfh                 ;e33b  bf          DATA 0xbf
+    db 0bfh                 ;e33c  bf          DATA 0xbf
+    db 0bfh                 ;e33d  bf          DATA 0xbf
+    db 0bfh                 ;e33e  bf          DATA 0xbf
+    db 0bfh                 ;e33f  bf          DATA 0xbf
+    db 0bfh                 ;e340  bf          DATA 0xbf
+    db 0bfh                 ;e341  bf          DATA 0xbf
+    db 0bfh                 ;e342  bf          DATA 0xbf
+    db 0bfh                 ;e343  bf          DATA 0xbf
+    db 0bfh                 ;e344  bf          DATA 0xbf
+    db 0bfh                 ;e345  bf          DATA 0xbf
+    db 0bfh                 ;e346  bf          DATA 0xbf
+    db 0bfh                 ;e347  bf          DATA 0xbf
+    db 0bfh                 ;e348  bf          DATA 0xbf
+    db 0bfh                 ;e349  bf          DATA 0xbf
+    db 0bfh                 ;e34a  bf          DATA 0xbf
+    db 0bfh                 ;e34b  bf          DATA 0xbf
+    db 0bfh                 ;e34c  bf          DATA 0xbf
+    db 0bfh                 ;e34d  bf          DATA 0xbf
+    db 0bfh                 ;e34e  bf          DATA 0xbf
+    db 0bfh                 ;e34f  bf          DATA 0xbf
+    db 0bfh                 ;e350  bf          DATA 0xbf
+    db 0bfh                 ;e351  bf          DATA 0xbf
+    db 0bfh                 ;e352  bf          DATA 0xbf
+    db 0bfh                 ;e353  bf          DATA 0xbf
+    db 0bfh                 ;e354  bf          DATA 0xbf
+    db 0bfh                 ;e355  bf          DATA 0xbf
+    db 0bfh                 ;e356  bf          DATA 0xbf
+    db 0bfh                 ;e357  bf          DATA 0xbf
+    db 0bfh                 ;e358  bf          DATA 0xbf
+    db 0bfh                 ;e359  bf          DATA 0xbf
+    db 0bfh                 ;e35a  bf          DATA 0xbf
+    db 0bfh                 ;e35b  bf          DATA 0xbf
+    db 0bfh                 ;e35c  bf          DATA 0xbf
+    db 0bfh                 ;e35d  bf          DATA 0xbf
+    db 0bfh                 ;e35e  bf          DATA 0xbf
+    db 0bfh                 ;e35f  bf          DATA 0xbf
+    db 0bfh                 ;e360  bf          DATA 0xbf
+    db 0bfh                 ;e361  bf          DATA 0xbf
+    db 0bfh                 ;e362  bf          DATA 0xbf
+    db 0bfh                 ;e363  bf          DATA 0xbf
+    db 0bfh                 ;e364  bf          DATA 0xbf
+    db 0bfh                 ;e365  bf          DATA 0xbf
+    db 0bfh                 ;e366  bf          DATA 0xbf
+    db 0bfh                 ;e367  bf          DATA 0xbf
+    db 0bfh                 ;e368  bf          DATA 0xbf
+    db 0bfh                 ;e369  bf          DATA 0xbf
+    db 0bfh                 ;e36a  bf          DATA 0xbf
+    db 0bfh                 ;e36b  bf          DATA 0xbf
+    db 0bfh                 ;e36c  bf          DATA 0xbf
+    db 0bfh                 ;e36d  bf          DATA 0xbf
+    db 0bfh                 ;e36e  bf          DATA 0xbf
+    db 0bfh                 ;e36f  bf          DATA 0xbf
+    db 0bfh                 ;e370  bf          DATA 0xbf
+    db 0bfh                 ;e371  bf          DATA 0xbf
+    db 0bfh                 ;e372  bf          DATA 0xbf
+    db 0bfh                 ;e373  bf          DATA 0xbf
+    db 0bfh                 ;e374  bf          DATA 0xbf
+    db 0bfh                 ;e375  bf          DATA 0xbf
+    db 0bfh                 ;e376  bf          DATA 0xbf
+    db 0bfh                 ;e377  bf          DATA 0xbf
+    db 0bfh                 ;e378  bf          DATA 0xbf
+    db 0bfh                 ;e379  bf          DATA 0xbf
+    db 0bfh                 ;e37a  bf          DATA 0xbf
+    db 0bfh                 ;e37b  bf          DATA 0xbf
+    db 0bfh                 ;e37c  bf          DATA 0xbf
+    db 0bfh                 ;e37d  bf          DATA 0xbf
+    db 0bfh                 ;e37e  bf          DATA 0xbf
+    db 0bfh                 ;e37f  bf          DATA 0xbf
+    db 0bfh                 ;e380  bf          DATA 0xbf
+    db 0bfh                 ;e381  bf          DATA 0xbf
+    db 0bfh                 ;e382  bf          DATA 0xbf
+    db 0bfh                 ;e383  bf          DATA 0xbf
+    db 0bfh                 ;e384  bf          DATA 0xbf
+    db 0bfh                 ;e385  bf          DATA 0xbf
+    db 0bfh                 ;e386  bf          DATA 0xbf
+    db 0bfh                 ;e387  bf          DATA 0xbf
+    db 0bfh                 ;e388  bf          DATA 0xbf
+    db 0bfh                 ;e389  bf          DATA 0xbf
+    db 0bfh                 ;e38a  bf          DATA 0xbf
+    db 0bfh                 ;e38b  bf          DATA 0xbf
+    db 0bfh                 ;e38c  bf          DATA 0xbf
+    db 0bfh                 ;e38d  bf          DATA 0xbf
+    db 0bfh                 ;e38e  bf          DATA 0xbf
+    db 0bfh                 ;e38f  bf          DATA 0xbf
+    db 0bfh                 ;e390  bf          DATA 0xbf
+    db 0bfh                 ;e391  bf          DATA 0xbf
+    db 0bfh                 ;e392  bf          DATA 0xbf
+    db 0bfh                 ;e393  bf          DATA 0xbf
+    db 0bfh                 ;e394  bf          DATA 0xbf
+    db 0bfh                 ;e395  bf          DATA 0xbf
+    db 0bfh                 ;e396  bf          DATA 0xbf
+    db 0bfh                 ;e397  bf          DATA 0xbf
+    db 0bfh                 ;e398  bf          DATA 0xbf
+    db 0bfh                 ;e399  bf          DATA 0xbf
+    db 0bfh                 ;e39a  bf          DATA 0xbf
+    db 0bfh                 ;e39b  bf          DATA 0xbf
+    db 0bfh                 ;e39c  bf          DATA 0xbf
+    db 0bfh                 ;e39d  bf          DATA 0xbf
+    db 0bfh                 ;e39e  bf          DATA 0xbf
+    db 0bfh                 ;e39f  bf          DATA 0xbf
+    db 0bfh                 ;e3a0  bf          DATA 0xbf
+    db 0bfh                 ;e3a1  bf          DATA 0xbf
+    db 0bfh                 ;e3a2  bf          DATA 0xbf
+    db 0bfh                 ;e3a3  bf          DATA 0xbf
+    db 0bfh                 ;e3a4  bf          DATA 0xbf
+    db 0bfh                 ;e3a5  bf          DATA 0xbf
+    db 0bfh                 ;e3a6  bf          DATA 0xbf
+    db 0bfh                 ;e3a7  bf          DATA 0xbf
+    db 0bfh                 ;e3a8  bf          DATA 0xbf
+    db 0bfh                 ;e3a9  bf          DATA 0xbf
+    db 0bfh                 ;e3aa  bf          DATA 0xbf
+    db 0bfh                 ;e3ab  bf          DATA 0xbf
+    db 0bfh                 ;e3ac  bf          DATA 0xbf
+    db 0bfh                 ;e3ad  bf          DATA 0xbf
+    db 0bfh                 ;e3ae  bf          DATA 0xbf
+    db 0bfh                 ;e3af  bf          DATA 0xbf
+    db 0bfh                 ;e3b0  bf          DATA 0xbf
+    db 0bfh                 ;e3b1  bf          DATA 0xbf
+    db 0bfh                 ;e3b2  bf          DATA 0xbf
+    db 0bfh                 ;e3b3  bf          DATA 0xbf
+    db 0bfh                 ;e3b4  bf          DATA 0xbf
+    db 0bfh                 ;e3b5  bf          DATA 0xbf
+    db 0bfh                 ;e3b6  bf          DATA 0xbf
+    db 0bfh                 ;e3b7  bf          DATA 0xbf
+    db 0bfh                 ;e3b8  bf          DATA 0xbf
+    db 0bfh                 ;e3b9  bf          DATA 0xbf
+    db 0bfh                 ;e3ba  bf          DATA 0xbf
+    db 0bfh                 ;e3bb  bf          DATA 0xbf
+    db 0bfh                 ;e3bc  bf          DATA 0xbf
+    db 0bfh                 ;e3bd  bf          DATA 0xbf
+    db 0bfh                 ;e3be  bf          DATA 0xbf
+    db 0bfh                 ;e3bf  bf          DATA 0xbf
+    db 0bfh                 ;e3c0  bf          DATA 0xbf
+    db 0bfh                 ;e3c1  bf          DATA 0xbf
+    db 0bfh                 ;e3c2  bf          DATA 0xbf
+    db 0bfh                 ;e3c3  bf          DATA 0xbf
+    db 0bfh                 ;e3c4  bf          DATA 0xbf
+    db 0bfh                 ;e3c5  bf          DATA 0xbf
+    db 0bfh                 ;e3c6  bf          DATA 0xbf
+    db 0bfh                 ;e3c7  bf          DATA 0xbf
+    db 0bfh                 ;e3c8  bf          DATA 0xbf
+    db 0bfh                 ;e3c9  bf          DATA 0xbf
+    db 0bfh                 ;e3ca  bf          DATA 0xbf
+    db 0bfh                 ;e3cb  bf          DATA 0xbf
+    db 0bfh                 ;e3cc  bf          DATA 0xbf
+    db 0bfh                 ;e3cd  bf          DATA 0xbf
+    db 0bfh                 ;e3ce  bf          DATA 0xbf
+    db 0bfh                 ;e3cf  bf          DATA 0xbf
+    db 0bfh                 ;e3d0  bf          DATA 0xbf
+    db 0bfh                 ;e3d1  bf          DATA 0xbf
+    db 0bfh                 ;e3d2  bf          DATA 0xbf
+    db 0bfh                 ;e3d3  bf          DATA 0xbf
+    db 0bfh                 ;e3d4  bf          DATA 0xbf
+    db 0bfh                 ;e3d5  bf          DATA 0xbf
+    db 0bfh                 ;e3d6  bf          DATA 0xbf
+    db 0bfh                 ;e3d7  bf          DATA 0xbf
+    db 0bfh                 ;e3d8  bf          DATA 0xbf
+    db 0bfh                 ;e3d9  bf          DATA 0xbf
+    db 0bfh                 ;e3da  bf          DATA 0xbf
+    db 0bfh                 ;e3db  bf          DATA 0xbf
+    db 0bfh                 ;e3dc  bf          DATA 0xbf
+    db 0bfh                 ;e3dd  bf          DATA 0xbf
+    db 0bfh                 ;e3de  bf          DATA 0xbf
+    db 0bfh                 ;e3df  bf          DATA 0xbf
+    db 0bfh                 ;e3e0  bf          DATA 0xbf
+    db 0bfh                 ;e3e1  bf          DATA 0xbf
+    db 0bfh                 ;e3e2  bf          DATA 0xbf
+    db 0bfh                 ;e3e3  bf          DATA 0xbf
+    db 0bfh                 ;e3e4  bf          DATA 0xbf
+    db 0bfh                 ;e3e5  bf          DATA 0xbf
+    db 0bfh                 ;e3e6  bf          DATA 0xbf
+    db 0bfh                 ;e3e7  bf          DATA 0xbf
+    db 0bfh                 ;e3e8  bf          DATA 0xbf
+    db 0bfh                 ;e3e9  bf          DATA 0xbf
+    db 0bfh                 ;e3ea  bf          DATA 0xbf
+    db 0bfh                 ;e3eb  bf          DATA 0xbf
+    db 0bfh                 ;e3ec  bf          DATA 0xbf
+    db 0bfh                 ;e3ed  bf          DATA 0xbf
+    db 0bfh                 ;e3ee  bf          DATA 0xbf
+    db 0bfh                 ;e3ef  bf          DATA 0xbf
+    db 0bfh                 ;e3f0  bf          DATA 0xbf
+    db 0bfh                 ;e3f1  bf          DATA 0xbf
+    db 0bfh                 ;e3f2  bf          DATA 0xbf
+    db 0bfh                 ;e3f3  bf          DATA 0xbf
+    db 0bfh                 ;e3f4  bf          DATA 0xbf
+    db 0bfh                 ;e3f5  bf          DATA 0xbf
+    db 0bfh                 ;e3f6  bf          DATA 0xbf
+    db 0bfh                 ;e3f7  bf          DATA 0xbf
+    db 0bfh                 ;e3f8  bf          DATA 0xbf
+    db 0bfh                 ;e3f9  bf          DATA 0xbf
+    db 0bfh                 ;e3fa  bf          DATA 0xbf
+    db 0bfh                 ;e3fb  bf          DATA 0xbf
+    db 0bfh                 ;e3fc  bf          DATA 0xbf
+    db 0bfh                 ;e3fd  bf          DATA 0xbf
+    db 0bfh                 ;e3fe  bf          DATA 0xbf
+    db 0bfh                 ;e3ff  bf          DATA 0xbf
+    db 0bfh                 ;e400  bf          DATA 0xbf
+    db 0bfh                 ;e401  bf          DATA 0xbf
+    db 0bfh                 ;e402  bf          DATA 0xbf
+    db 0bfh                 ;e403  bf          DATA 0xbf
+    db 0bfh                 ;e404  bf          DATA 0xbf
+    db 0bfh                 ;e405  bf          DATA 0xbf
+    db 0bfh                 ;e406  bf          DATA 0xbf
+    db 0bfh                 ;e407  bf          DATA 0xbf
+    db 0bfh                 ;e408  bf          DATA 0xbf
+    db 0bfh                 ;e409  bf          DATA 0xbf
+    db 0bfh                 ;e40a  bf          DATA 0xbf
+    db 0bfh                 ;e40b  bf          DATA 0xbf
+    db 0bfh                 ;e40c  bf          DATA 0xbf
+    db 0bfh                 ;e40d  bf          DATA 0xbf
+    db 0bfh                 ;e40e  bf          DATA 0xbf
+    db 0bfh                 ;e40f  bf          DATA 0xbf
+    db 0bfh                 ;e410  bf          DATA 0xbf
+    db 0bfh                 ;e411  bf          DATA 0xbf
+    db 0bfh                 ;e412  bf          DATA 0xbf
+    db 0bfh                 ;e413  bf          DATA 0xbf
+    db 0bfh                 ;e414  bf          DATA 0xbf
+    db 0bfh                 ;e415  bf          DATA 0xbf
+    db 0bfh                 ;e416  bf          DATA 0xbf
+    db 0bfh                 ;e417  bf          DATA 0xbf
+    db 0bfh                 ;e418  bf          DATA 0xbf
+    db 0bfh                 ;e419  bf          DATA 0xbf
+    db 0bfh                 ;e41a  bf          DATA 0xbf
+    db 0bfh                 ;e41b  bf          DATA 0xbf
+    db 0bfh                 ;e41c  bf          DATA 0xbf
+    db 0bfh                 ;e41d  bf          DATA 0xbf
+    db 0bfh                 ;e41e  bf          DATA 0xbf
+    db 0bfh                 ;e41f  bf          DATA 0xbf
+    db 0bfh                 ;e420  bf          DATA 0xbf
+    db 0bfh                 ;e421  bf          DATA 0xbf
+    db 0bfh                 ;e422  bf          DATA 0xbf
+    db 0bfh                 ;e423  bf          DATA 0xbf
+    db 0bfh                 ;e424  bf          DATA 0xbf
+    db 0bfh                 ;e425  bf          DATA 0xbf
+    db 0bfh                 ;e426  bf          DATA 0xbf
+    db 0bfh                 ;e427  bf          DATA 0xbf
+    db 0bfh                 ;e428  bf          DATA 0xbf
+    db 0bfh                 ;e429  bf          DATA 0xbf
+    db 0bfh                 ;e42a  bf          DATA 0xbf
+    db 0bfh                 ;e42b  bf          DATA 0xbf
+    db 0bfh                 ;e42c  bf          DATA 0xbf
+    db 0bfh                 ;e42d  bf          DATA 0xbf
+    db 0bfh                 ;e42e  bf          DATA 0xbf
+    db 0bfh                 ;e42f  bf          DATA 0xbf
+    db 0bfh                 ;e430  bf          DATA 0xbf
+    db 0bfh                 ;e431  bf          DATA 0xbf
+    db 0bfh                 ;e432  bf          DATA 0xbf
+    db 0bfh                 ;e433  bf          DATA 0xbf
+    db 0bfh                 ;e434  bf          DATA 0xbf
+    db 0bfh                 ;e435  bf          DATA 0xbf
+    db 0bfh                 ;e436  bf          DATA 0xbf
+    db 0bfh                 ;e437  bf          DATA 0xbf
+    db 0bfh                 ;e438  bf          DATA 0xbf
+    db 0bfh                 ;e439  bf          DATA 0xbf
+    db 0bfh                 ;e43a  bf          DATA 0xbf
+    db 0bfh                 ;e43b  bf          DATA 0xbf
+    db 0bfh                 ;e43c  bf          DATA 0xbf
+    db 0bfh                 ;e43d  bf          DATA 0xbf
+    db 0bfh                 ;e43e  bf          DATA 0xbf
+    db 0bfh                 ;e43f  bf          DATA 0xbf
+    db 0bfh                 ;e440  bf          DATA 0xbf
+    db 0bfh                 ;e441  bf          DATA 0xbf
+    db 0bfh                 ;e442  bf          DATA 0xbf
+    db 0bfh                 ;e443  bf          DATA 0xbf
+    db 0bfh                 ;e444  bf          DATA 0xbf
+    db 0bfh                 ;e445  bf          DATA 0xbf
+    db 0bfh                 ;e446  bf          DATA 0xbf
+    db 0bfh                 ;e447  bf          DATA 0xbf
+    db 0bfh                 ;e448  bf          DATA 0xbf
+    db 0bfh                 ;e449  bf          DATA 0xbf
+    db 0bfh                 ;e44a  bf          DATA 0xbf
+    db 0bfh                 ;e44b  bf          DATA 0xbf
+    db 0bfh                 ;e44c  bf          DATA 0xbf
+    db 0bfh                 ;e44d  bf          DATA 0xbf
+    db 0bfh                 ;e44e  bf          DATA 0xbf
+    db 0bfh                 ;e44f  bf          DATA 0xbf
+    db 0bfh                 ;e450  bf          DATA 0xbf
+    db 0bfh                 ;e451  bf          DATA 0xbf
+    db 0bfh                 ;e452  bf          DATA 0xbf
+    db 0bfh                 ;e453  bf          DATA 0xbf
+    db 0bfh                 ;e454  bf          DATA 0xbf
+    db 0bfh                 ;e455  bf          DATA 0xbf
+    db 0bfh                 ;e456  bf          DATA 0xbf
+    db 0bfh                 ;e457  bf          DATA 0xbf
+    db 0bfh                 ;e458  bf          DATA 0xbf
+    db 0bfh                 ;e459  bf          DATA 0xbf
+    db 0bfh                 ;e45a  bf          DATA 0xbf
+    db 0bfh                 ;e45b  bf          DATA 0xbf
+    db 0bfh                 ;e45c  bf          DATA 0xbf
+    db 0bfh                 ;e45d  bf          DATA 0xbf
+    db 0bfh                 ;e45e  bf          DATA 0xbf
+    db 0bfh                 ;e45f  bf          DATA 0xbf
+    db 0bfh                 ;e460  bf          DATA 0xbf
+    db 0bfh                 ;e461  bf          DATA 0xbf
+    db 0bfh                 ;e462  bf          DATA 0xbf
+    db 0bfh                 ;e463  bf          DATA 0xbf
+    db 0bfh                 ;e464  bf          DATA 0xbf
+    db 0bfh                 ;e465  bf          DATA 0xbf
+    db 0bfh                 ;e466  bf          DATA 0xbf
+    db 0bfh                 ;e467  bf          DATA 0xbf
+    db 0bfh                 ;e468  bf          DATA 0xbf
+    db 0bfh                 ;e469  bf          DATA 0xbf
+    db 0bfh                 ;e46a  bf          DATA 0xbf
+    db 0bfh                 ;e46b  bf          DATA 0xbf
+    db 0bfh                 ;e46c  bf          DATA 0xbf
+    db 0bfh                 ;e46d  bf          DATA 0xbf
+    db 0bfh                 ;e46e  bf          DATA 0xbf
+    db 0bfh                 ;e46f  bf          DATA 0xbf
+    db 0bfh                 ;e470  bf          DATA 0xbf
+    db 0bfh                 ;e471  bf          DATA 0xbf
+    db 0bfh                 ;e472  bf          DATA 0xbf
+    db 0bfh                 ;e473  bf          DATA 0xbf
+    db 0bfh                 ;e474  bf          DATA 0xbf
+    db 0bfh                 ;e475  bf          DATA 0xbf
+    db 0bfh                 ;e476  bf          DATA 0xbf
+    db 0bfh                 ;e477  bf          DATA 0xbf
+    db 0bfh                 ;e478  bf          DATA 0xbf
+    db 0bfh                 ;e479  bf          DATA 0xbf
+    db 0bfh                 ;e47a  bf          DATA 0xbf
+    db 0bfh                 ;e47b  bf          DATA 0xbf
+    db 0bfh                 ;e47c  bf          DATA 0xbf
+    db 0bfh                 ;e47d  bf          DATA 0xbf
+    db 0bfh                 ;e47e  bf          DATA 0xbf
+    db 0bfh                 ;e47f  bf          DATA 0xbf
+    db 0bfh                 ;e480  bf          DATA 0xbf
+    db 0bfh                 ;e481  bf          DATA 0xbf
+    db 0bfh                 ;e482  bf          DATA 0xbf
+    db 0bfh                 ;e483  bf          DATA 0xbf
+    db 0bfh                 ;e484  bf          DATA 0xbf
+    db 0bfh                 ;e485  bf          DATA 0xbf
+    db 0bfh                 ;e486  bf          DATA 0xbf
+    db 0bfh                 ;e487  bf          DATA 0xbf
+    db 0bfh                 ;e488  bf          DATA 0xbf
+    db 0bfh                 ;e489  bf          DATA 0xbf
+    db 0bfh                 ;e48a  bf          DATA 0xbf
+    db 0bfh                 ;e48b  bf          DATA 0xbf
+    db 0bfh                 ;e48c  bf          DATA 0xbf
+    db 0bfh                 ;e48d  bf          DATA 0xbf
+    db 0bfh                 ;e48e  bf          DATA 0xbf
+    db 0bfh                 ;e48f  bf          DATA 0xbf
+    db 0bfh                 ;e490  bf          DATA 0xbf
+    db 0bfh                 ;e491  bf          DATA 0xbf
+    db 0bfh                 ;e492  bf          DATA 0xbf
+    db 0bfh                 ;e493  bf          DATA 0xbf
+    db 0bfh                 ;e494  bf          DATA 0xbf
+    db 0bfh                 ;e495  bf          DATA 0xbf
+    db 0bfh                 ;e496  bf          DATA 0xbf
+    db 0bfh                 ;e497  bf          DATA 0xbf
+    db 0bfh                 ;e498  bf          DATA 0xbf
+    db 0bfh                 ;e499  bf          DATA 0xbf
+    db 0bfh                 ;e49a  bf          DATA 0xbf
+    db 0bfh                 ;e49b  bf          DATA 0xbf
+    db 0bfh                 ;e49c  bf          DATA 0xbf
+    db 0bfh                 ;e49d  bf          DATA 0xbf
+    db 0bfh                 ;e49e  bf          DATA 0xbf
+    db 0bfh                 ;e49f  bf          DATA 0xbf
+    db 0bfh                 ;e4a0  bf          DATA 0xbf
+    db 0bfh                 ;e4a1  bf          DATA 0xbf
+    db 0bfh                 ;e4a2  bf          DATA 0xbf
+    db 0bfh                 ;e4a3  bf          DATA 0xbf
+    db 0bfh                 ;e4a4  bf          DATA 0xbf
+    db 0bfh                 ;e4a5  bf          DATA 0xbf
+    db 0bfh                 ;e4a6  bf          DATA 0xbf
+    db 0bfh                 ;e4a7  bf          DATA 0xbf
+    db 0bfh                 ;e4a8  bf          DATA 0xbf
+    db 0bfh                 ;e4a9  bf          DATA 0xbf
+    db 0bfh                 ;e4aa  bf          DATA 0xbf
+    db 0bfh                 ;e4ab  bf          DATA 0xbf
+    db 0bfh                 ;e4ac  bf          DATA 0xbf
+    db 0bfh                 ;e4ad  bf          DATA 0xbf
+    db 0bfh                 ;e4ae  bf          DATA 0xbf
+    db 0bfh                 ;e4af  bf          DATA 0xbf
+    db 0bfh                 ;e4b0  bf          DATA 0xbf
+    db 0bfh                 ;e4b1  bf          DATA 0xbf
+    db 0bfh                 ;e4b2  bf          DATA 0xbf
+    db 0bfh                 ;e4b3  bf          DATA 0xbf
+    db 0bfh                 ;e4b4  bf          DATA 0xbf
+    db 0bfh                 ;e4b5  bf          DATA 0xbf
+    db 0bfh                 ;e4b6  bf          DATA 0xbf
+    db 0bfh                 ;e4b7  bf          DATA 0xbf
+    db 0bfh                 ;e4b8  bf          DATA 0xbf
+    db 0bfh                 ;e4b9  bf          DATA 0xbf
+    db 0bfh                 ;e4ba  bf          DATA 0xbf
+    db 0bfh                 ;e4bb  bf          DATA 0xbf
+    db 0bfh                 ;e4bc  bf          DATA 0xbf
+    db 0bfh                 ;e4bd  bf          DATA 0xbf
+    db 0bfh                 ;e4be  bf          DATA 0xbf
+    db 0bfh                 ;e4bf  bf          DATA 0xbf
+    db 0bfh                 ;e4c0  bf          DATA 0xbf
+    db 0bfh                 ;e4c1  bf          DATA 0xbf
+    db 0bfh                 ;e4c2  bf          DATA 0xbf
+    db 0bfh                 ;e4c3  bf          DATA 0xbf
+    db 0bfh                 ;e4c4  bf          DATA 0xbf
+    db 0bfh                 ;e4c5  bf          DATA 0xbf
+    db 0bfh                 ;e4c6  bf          DATA 0xbf
+    db 0bfh                 ;e4c7  bf          DATA 0xbf
+    db 0bfh                 ;e4c8  bf          DATA 0xbf
+    db 0bfh                 ;e4c9  bf          DATA 0xbf
+    db 0bfh                 ;e4ca  bf          DATA 0xbf
+    db 0bfh                 ;e4cb  bf          DATA 0xbf
+    db 0bfh                 ;e4cc  bf          DATA 0xbf
+    db 0bfh                 ;e4cd  bf          DATA 0xbf
+    db 0bfh                 ;e4ce  bf          DATA 0xbf
+    db 0bfh                 ;e4cf  bf          DATA 0xbf
+    db 0bfh                 ;e4d0  bf          DATA 0xbf
+    db 0bfh                 ;e4d1  bf          DATA 0xbf
+    db 0bfh                 ;e4d2  bf          DATA 0xbf
+    db 0bfh                 ;e4d3  bf          DATA 0xbf
+    db 0bfh                 ;e4d4  bf          DATA 0xbf
+    db 0bfh                 ;e4d5  bf          DATA 0xbf
+    db 0bfh                 ;e4d6  bf          DATA 0xbf
+    db 0bfh                 ;e4d7  bf          DATA 0xbf
+    db 0bfh                 ;e4d8  bf          DATA 0xbf
+    db 0bfh                 ;e4d9  bf          DATA 0xbf
+    db 0bfh                 ;e4da  bf          DATA 0xbf
+    db 0bfh                 ;e4db  bf          DATA 0xbf
+    db 0bfh                 ;e4dc  bf          DATA 0xbf
+    db 0bfh                 ;e4dd  bf          DATA 0xbf
+    db 0bfh                 ;e4de  bf          DATA 0xbf
+    db 0bfh                 ;e4df  bf          DATA 0xbf
+    db 0bfh                 ;e4e0  bf          DATA 0xbf
+    db 0bfh                 ;e4e1  bf          DATA 0xbf
+    db 0bfh                 ;e4e2  bf          DATA 0xbf
+    db 0bfh                 ;e4e3  bf          DATA 0xbf
+    db 0bfh                 ;e4e4  bf          DATA 0xbf
+    db 0bfh                 ;e4e5  bf          DATA 0xbf
+    db 0bfh                 ;e4e6  bf          DATA 0xbf
+    db 0bfh                 ;e4e7  bf          DATA 0xbf
+    db 0bfh                 ;e4e8  bf          DATA 0xbf
+    db 0bfh                 ;e4e9  bf          DATA 0xbf
+    db 0bfh                 ;e4ea  bf          DATA 0xbf
+    db 0bfh                 ;e4eb  bf          DATA 0xbf
+    db 0bfh                 ;e4ec  bf          DATA 0xbf
+    db 0bfh                 ;e4ed  bf          DATA 0xbf
+    db 0bfh                 ;e4ee  bf          DATA 0xbf
+    db 0bfh                 ;e4ef  bf          DATA 0xbf
+    db 0bfh                 ;e4f0  bf          DATA 0xbf
+    db 0bfh                 ;e4f1  bf          DATA 0xbf
+    db 0bfh                 ;e4f2  bf          DATA 0xbf
+    db 0bfh                 ;e4f3  bf          DATA 0xbf
+    db 0bfh                 ;e4f4  bf          DATA 0xbf
+    db 0bfh                 ;e4f5  bf          DATA 0xbf
+    db 0bfh                 ;e4f6  bf          DATA 0xbf
+    db 0bfh                 ;e4f7  bf          DATA 0xbf
+    db 0bfh                 ;e4f8  bf          DATA 0xbf
+    db 0bfh                 ;e4f9  bf          DATA 0xbf
+    db 0bfh                 ;e4fa  bf          DATA 0xbf
+    db 0bfh                 ;e4fb  bf          DATA 0xbf
+    db 0bfh                 ;e4fc  bf          DATA 0xbf
+    db 0bfh                 ;e4fd  bf          DATA 0xbf
+    db 0bfh                 ;e4fe  bf          DATA 0xbf
+    db 0bfh                 ;e4ff  bf          DATA 0xbf
+    db 0bfh                 ;e500  bf          DATA 0xbf
+    db 0bfh                 ;e501  bf          DATA 0xbf
+    db 0bfh                 ;e502  bf          DATA 0xbf
+    db 0bfh                 ;e503  bf          DATA 0xbf
+    db 0bfh                 ;e504  bf          DATA 0xbf
+    db 0bfh                 ;e505  bf          DATA 0xbf
+    db 0bfh                 ;e506  bf          DATA 0xbf
+    db 0bfh                 ;e507  bf          DATA 0xbf
+    db 0bfh                 ;e508  bf          DATA 0xbf
+    db 0bfh                 ;e509  bf          DATA 0xbf
+    db 0bfh                 ;e50a  bf          DATA 0xbf
+    db 0bfh                 ;e50b  bf          DATA 0xbf
+    db 0bfh                 ;e50c  bf          DATA 0xbf
+    db 0bfh                 ;e50d  bf          DATA 0xbf
+    db 0bfh                 ;e50e  bf          DATA 0xbf
+    db 0bfh                 ;e50f  bf          DATA 0xbf
+    db 0bfh                 ;e510  bf          DATA 0xbf
+    db 0bfh                 ;e511  bf          DATA 0xbf
+    db 0bfh                 ;e512  bf          DATA 0xbf
+    db 0bfh                 ;e513  bf          DATA 0xbf
+    db 0bfh                 ;e514  bf          DATA 0xbf
+    db 0bfh                 ;e515  bf          DATA 0xbf
+    db 0bfh                 ;e516  bf          DATA 0xbf
+    db 0bfh                 ;e517  bf          DATA 0xbf
+    db 0bfh                 ;e518  bf          DATA 0xbf
+    db 0bfh                 ;e519  bf          DATA 0xbf
+    db 0bfh                 ;e51a  bf          DATA 0xbf
+    db 0bfh                 ;e51b  bf          DATA 0xbf
+    db 0bfh                 ;e51c  bf          DATA 0xbf
+    db 0bfh                 ;e51d  bf          DATA 0xbf
+    db 0bfh                 ;e51e  bf          DATA 0xbf
+    db 0bfh                 ;e51f  bf          DATA 0xbf
+    db 0bfh                 ;e520  bf          DATA 0xbf
+    db 0bfh                 ;e521  bf          DATA 0xbf
+    db 0bfh                 ;e522  bf          DATA 0xbf
+    db 0bfh                 ;e523  bf          DATA 0xbf
+    db 0bfh                 ;e524  bf          DATA 0xbf
+    db 0bfh                 ;e525  bf          DATA 0xbf
+    db 0bfh                 ;e526  bf          DATA 0xbf
+    db 0bfh                 ;e527  bf          DATA 0xbf
+    db 0bfh                 ;e528  bf          DATA 0xbf
+    db 0bfh                 ;e529  bf          DATA 0xbf
+    db 0bfh                 ;e52a  bf          DATA 0xbf
+    db 0bfh                 ;e52b  bf          DATA 0xbf
+    db 0bfh                 ;e52c  bf          DATA 0xbf
+    db 0bfh                 ;e52d  bf          DATA 0xbf
+    db 0bfh                 ;e52e  bf          DATA 0xbf
+    db 0bfh                 ;e52f  bf          DATA 0xbf
+    db 0bfh                 ;e530  bf          DATA 0xbf
+    db 0bfh                 ;e531  bf          DATA 0xbf
+    db 0bfh                 ;e532  bf          DATA 0xbf
+    db 0bfh                 ;e533  bf          DATA 0xbf
+    db 0bfh                 ;e534  bf          DATA 0xbf
+    db 0bfh                 ;e535  bf          DATA 0xbf
+    db 0bfh                 ;e536  bf          DATA 0xbf
+    db 0bfh                 ;e537  bf          DATA 0xbf
+    db 0bfh                 ;e538  bf          DATA 0xbf
+    db 0bfh                 ;e539  bf          DATA 0xbf
+    db 0bfh                 ;e53a  bf          DATA 0xbf
+    db 0bfh                 ;e53b  bf          DATA 0xbf
+    db 0bfh                 ;e53c  bf          DATA 0xbf
+    db 0bfh                 ;e53d  bf          DATA 0xbf
+    db 0bfh                 ;e53e  bf          DATA 0xbf
+    db 0bfh                 ;e53f  bf          DATA 0xbf
+    db 0bfh                 ;e540  bf          DATA 0xbf
+    db 0bfh                 ;e541  bf          DATA 0xbf
+    db 0bfh                 ;e542  bf          DATA 0xbf
+    db 0bfh                 ;e543  bf          DATA 0xbf
+    db 0bfh                 ;e544  bf          DATA 0xbf
+    db 0bfh                 ;e545  bf          DATA 0xbf
+    db 0bfh                 ;e546  bf          DATA 0xbf
+    db 0bfh                 ;e547  bf          DATA 0xbf
+    db 0bfh                 ;e548  bf          DATA 0xbf
+    db 0bfh                 ;e549  bf          DATA 0xbf
+    db 0bfh                 ;e54a  bf          DATA 0xbf
+    db 0bfh                 ;e54b  bf          DATA 0xbf
+    db 0bfh                 ;e54c  bf          DATA 0xbf
+    db 0bfh                 ;e54d  bf          DATA 0xbf
+    db 0bfh                 ;e54e  bf          DATA 0xbf
+    db 0bfh                 ;e54f  bf          DATA 0xbf
+    db 0bfh                 ;e550  bf          DATA 0xbf
+    db 0bfh                 ;e551  bf          DATA 0xbf
+    db 0bfh                 ;e552  bf          DATA 0xbf
+    db 0bfh                 ;e553  bf          DATA 0xbf
+    db 0bfh                 ;e554  bf          DATA 0xbf
+    db 0bfh                 ;e555  bf          DATA 0xbf
+    db 0bfh                 ;e556  bf          DATA 0xbf
+    db 0bfh                 ;e557  bf          DATA 0xbf
+    db 0bfh                 ;e558  bf          DATA 0xbf
+    db 0bfh                 ;e559  bf          DATA 0xbf
+    db 0bfh                 ;e55a  bf          DATA 0xbf
+    db 0bfh                 ;e55b  bf          DATA 0xbf
+    db 0bfh                 ;e55c  bf          DATA 0xbf
+    db 0bfh                 ;e55d  bf          DATA 0xbf
+    db 0bfh                 ;e55e  bf          DATA 0xbf
+    db 0bfh                 ;e55f  bf          DATA 0xbf
+    db 0bfh                 ;e560  bf          DATA 0xbf
+    db 0bfh                 ;e561  bf          DATA 0xbf
+    db 0bfh                 ;e562  bf          DATA 0xbf
+    db 0bfh                 ;e563  bf          DATA 0xbf
+    db 0bfh                 ;e564  bf          DATA 0xbf
+    db 0bfh                 ;e565  bf          DATA 0xbf
+    db 0bfh                 ;e566  bf          DATA 0xbf
+    db 0bfh                 ;e567  bf          DATA 0xbf
+    db 0bfh                 ;e568  bf          DATA 0xbf
+    db 0bfh                 ;e569  bf          DATA 0xbf
+    db 0bfh                 ;e56a  bf          DATA 0xbf
+    db 0bfh                 ;e56b  bf          DATA 0xbf
+    db 0bfh                 ;e56c  bf          DATA 0xbf
+    db 0bfh                 ;e56d  bf          DATA 0xbf
+    db 0bfh                 ;e56e  bf          DATA 0xbf
+    db 0bfh                 ;e56f  bf          DATA 0xbf
+    db 0bfh                 ;e570  bf          DATA 0xbf
+    db 0bfh                 ;e571  bf          DATA 0xbf
+    db 0bfh                 ;e572  bf          DATA 0xbf
+    db 0bfh                 ;e573  bf          DATA 0xbf
+    db 0bfh                 ;e574  bf          DATA 0xbf
+    db 0bfh                 ;e575  bf          DATA 0xbf
+    db 0bfh                 ;e576  bf          DATA 0xbf
+    db 0bfh                 ;e577  bf          DATA 0xbf
+    db 0bfh                 ;e578  bf          DATA 0xbf
+    db 0bfh                 ;e579  bf          DATA 0xbf
+    db 0bfh                 ;e57a  bf          DATA 0xbf
+    db 0bfh                 ;e57b  bf          DATA 0xbf
+    db 0bfh                 ;e57c  bf          DATA 0xbf
+    db 0bfh                 ;e57d  bf          DATA 0xbf
+    db 0bfh                 ;e57e  bf          DATA 0xbf
+    db 0bfh                 ;e57f  bf          DATA 0xbf
+    db 0bfh                 ;e580  bf          DATA 0xbf
+    db 0bfh                 ;e581  bf          DATA 0xbf
+    db 0bfh                 ;e582  bf          DATA 0xbf
+    db 0bfh                 ;e583  bf          DATA 0xbf
+    db 0bfh                 ;e584  bf          DATA 0xbf
+    db 0bfh                 ;e585  bf          DATA 0xbf
+    db 0bfh                 ;e586  bf          DATA 0xbf
+    db 0bfh                 ;e587  bf          DATA 0xbf
+    db 0bfh                 ;e588  bf          DATA 0xbf
+    db 0bfh                 ;e589  bf          DATA 0xbf
+    db 0bfh                 ;e58a  bf          DATA 0xbf
+    db 0bfh                 ;e58b  bf          DATA 0xbf
+    db 0bfh                 ;e58c  bf          DATA 0xbf
+    db 0bfh                 ;e58d  bf          DATA 0xbf
+    db 0bfh                 ;e58e  bf          DATA 0xbf
+    db 0bfh                 ;e58f  bf          DATA 0xbf
+    db 0bfh                 ;e590  bf          DATA 0xbf
+    db 0bfh                 ;e591  bf          DATA 0xbf
+    db 0bfh                 ;e592  bf          DATA 0xbf
+    db 0bfh                 ;e593  bf          DATA 0xbf
+    db 0bfh                 ;e594  bf          DATA 0xbf
+    db 0bfh                 ;e595  bf          DATA 0xbf
+    db 0bfh                 ;e596  bf          DATA 0xbf
+    db 0bfh                 ;e597  bf          DATA 0xbf
+    db 0bfh                 ;e598  bf          DATA 0xbf
+    db 0bfh                 ;e599  bf          DATA 0xbf
+    db 0bfh                 ;e59a  bf          DATA 0xbf
+    db 0bfh                 ;e59b  bf          DATA 0xbf
+    db 0bfh                 ;e59c  bf          DATA 0xbf
+    db 0bfh                 ;e59d  bf          DATA 0xbf
+    db 0bfh                 ;e59e  bf          DATA 0xbf
+    db 0bfh                 ;e59f  bf          DATA 0xbf
+    db 0bfh                 ;e5a0  bf          DATA 0xbf
+    db 0bfh                 ;e5a1  bf          DATA 0xbf
+    db 0bfh                 ;e5a2  bf          DATA 0xbf
+    db 0bfh                 ;e5a3  bf          DATA 0xbf
+    db 0bfh                 ;e5a4  bf          DATA 0xbf
+    db 0bfh                 ;e5a5  bf          DATA 0xbf
+    db 0bfh                 ;e5a6  bf          DATA 0xbf
+    db 0bfh                 ;e5a7  bf          DATA 0xbf
+    db 0bfh                 ;e5a8  bf          DATA 0xbf
+    db 0bfh                 ;e5a9  bf          DATA 0xbf
+    db 0bfh                 ;e5aa  bf          DATA 0xbf
+    db 0bfh                 ;e5ab  bf          DATA 0xbf
+    db 0bfh                 ;e5ac  bf          DATA 0xbf
+    db 0bfh                 ;e5ad  bf          DATA 0xbf
+    db 0bfh                 ;e5ae  bf          DATA 0xbf
+    db 0bfh                 ;e5af  bf          DATA 0xbf
+    db 0bfh                 ;e5b0  bf          DATA 0xbf
+    db 0bfh                 ;e5b1  bf          DATA 0xbf
+    db 0bfh                 ;e5b2  bf          DATA 0xbf
+    db 0bfh                 ;e5b3  bf          DATA 0xbf
+    db 0bfh                 ;e5b4  bf          DATA 0xbf
+    db 0bfh                 ;e5b5  bf          DATA 0xbf
+    db 0bfh                 ;e5b6  bf          DATA 0xbf
+    db 0bfh                 ;e5b7  bf          DATA 0xbf
+    db 0bfh                 ;e5b8  bf          DATA 0xbf
+    db 0bfh                 ;e5b9  bf          DATA 0xbf
+    db 0bfh                 ;e5ba  bf          DATA 0xbf
+    db 0bfh                 ;e5bb  bf          DATA 0xbf
+    db 0bfh                 ;e5bc  bf          DATA 0xbf
+    db 0bfh                 ;e5bd  bf          DATA 0xbf
+    db 0bfh                 ;e5be  bf          DATA 0xbf
+    db 0bfh                 ;e5bf  bf          DATA 0xbf
+    db 0bfh                 ;e5c0  bf          DATA 0xbf
+    db 0bfh                 ;e5c1  bf          DATA 0xbf
+    db 0bfh                 ;e5c2  bf          DATA 0xbf
+    db 0bfh                 ;e5c3  bf          DATA 0xbf
+    db 0bfh                 ;e5c4  bf          DATA 0xbf
+    db 0bfh                 ;e5c5  bf          DATA 0xbf
+    db 0bfh                 ;e5c6  bf          DATA 0xbf
+    db 0bfh                 ;e5c7  bf          DATA 0xbf
+    db 0bfh                 ;e5c8  bf          DATA 0xbf
+    db 0bfh                 ;e5c9  bf          DATA 0xbf
+    db 0bfh                 ;e5ca  bf          DATA 0xbf
+    db 0bfh                 ;e5cb  bf          DATA 0xbf
+    db 0bfh                 ;e5cc  bf          DATA 0xbf
+    db 0bfh                 ;e5cd  bf          DATA 0xbf
+    db 0bfh                 ;e5ce  bf          DATA 0xbf
+    db 0bfh                 ;e5cf  bf          DATA 0xbf
+    db 0bfh                 ;e5d0  bf          DATA 0xbf
+    db 0bfh                 ;e5d1  bf          DATA 0xbf
+    db 0bfh                 ;e5d2  bf          DATA 0xbf
+    db 0bfh                 ;e5d3  bf          DATA 0xbf
+    db 0bfh                 ;e5d4  bf          DATA 0xbf
+    db 0bfh                 ;e5d5  bf          DATA 0xbf
+    db 0bfh                 ;e5d6  bf          DATA 0xbf
+    db 0bfh                 ;e5d7  bf          DATA 0xbf
+    db 0bfh                 ;e5d8  bf          DATA 0xbf
+    db 0bfh                 ;e5d9  bf          DATA 0xbf
+    db 0bfh                 ;e5da  bf          DATA 0xbf
+    db 0bfh                 ;e5db  bf          DATA 0xbf
+    db 0bfh                 ;e5dc  bf          DATA 0xbf
+    db 0bfh                 ;e5dd  bf          DATA 0xbf
+    db 0bfh                 ;e5de  bf          DATA 0xbf
+    db 0bfh                 ;e5df  bf          DATA 0xbf
+    db 0bfh                 ;e5e0  bf          DATA 0xbf
+    db 0bfh                 ;e5e1  bf          DATA 0xbf
+    db 0bfh                 ;e5e2  bf          DATA 0xbf
+    db 0bfh                 ;e5e3  bf          DATA 0xbf
+    db 0bfh                 ;e5e4  bf          DATA 0xbf
+    db 0bfh                 ;e5e5  bf          DATA 0xbf
+    db 0bfh                 ;e5e6  bf          DATA 0xbf
+    db 0bfh                 ;e5e7  bf          DATA 0xbf
+    db 0bfh                 ;e5e8  bf          DATA 0xbf
+    db 0bfh                 ;e5e9  bf          DATA 0xbf
+    db 0bfh                 ;e5ea  bf          DATA 0xbf
+    db 0bfh                 ;e5eb  bf          DATA 0xbf
+    db 0bfh                 ;e5ec  bf          DATA 0xbf
+    db 0bfh                 ;e5ed  bf          DATA 0xbf
+    db 0bfh                 ;e5ee  bf          DATA 0xbf
+    db 0bfh                 ;e5ef  bf          DATA 0xbf
+    db 0bfh                 ;e5f0  bf          DATA 0xbf
+    db 0bfh                 ;e5f1  bf          DATA 0xbf
+    db 0bfh                 ;e5f2  bf          DATA 0xbf
+    db 0bfh                 ;e5f3  bf          DATA 0xbf
+    db 0bfh                 ;e5f4  bf          DATA 0xbf
+    db 0bfh                 ;e5f5  bf          DATA 0xbf
+    db 0bfh                 ;e5f6  bf          DATA 0xbf
+    db 0bfh                 ;e5f7  bf          DATA 0xbf
+    db 0bfh                 ;e5f8  bf          DATA 0xbf
+    db 0bfh                 ;e5f9  bf          DATA 0xbf
+    db 0bfh                 ;e5fa  bf          DATA 0xbf
+    db 0bfh                 ;e5fb  bf          DATA 0xbf
+    db 0bfh                 ;e5fc  bf          DATA 0xbf
+    db 0bfh                 ;e5fd  bf          DATA 0xbf
+    db 0bfh                 ;e5fe  bf          DATA 0xbf
+    db 0bfh                 ;e5ff  bf          DATA 0xbf
+    db 0bfh                 ;e600  bf          DATA 0xbf
+    db 0bfh                 ;e601  bf          DATA 0xbf
+    db 0bfh                 ;e602  bf          DATA 0xbf
+    db 0bfh                 ;e603  bf          DATA 0xbf
+    db 0bfh                 ;e604  bf          DATA 0xbf
+    db 0bfh                 ;e605  bf          DATA 0xbf
+    db 0bfh                 ;e606  bf          DATA 0xbf
+    db 0bfh                 ;e607  bf          DATA 0xbf
+    db 0bfh                 ;e608  bf          DATA 0xbf
+    db 0bfh                 ;e609  bf          DATA 0xbf
+    db 0bfh                 ;e60a  bf          DATA 0xbf
+    db 0bfh                 ;e60b  bf          DATA 0xbf
+    db 0bfh                 ;e60c  bf          DATA 0xbf
+    db 0bfh                 ;e60d  bf          DATA 0xbf
+    db 0bfh                 ;e60e  bf          DATA 0xbf
+    db 0bfh                 ;e60f  bf          DATA 0xbf
+    db 0bfh                 ;e610  bf          DATA 0xbf
+    db 0bfh                 ;e611  bf          DATA 0xbf
+    db 0bfh                 ;e612  bf          DATA 0xbf
+    db 0bfh                 ;e613  bf          DATA 0xbf
+    db 0bfh                 ;e614  bf          DATA 0xbf
+    db 0bfh                 ;e615  bf          DATA 0xbf
+    db 0bfh                 ;e616  bf          DATA 0xbf
+    db 0bfh                 ;e617  bf          DATA 0xbf
+    db 0bfh                 ;e618  bf          DATA 0xbf
+    db 0bfh                 ;e619  bf          DATA 0xbf
+    db 0bfh                 ;e61a  bf          DATA 0xbf
+    db 0bfh                 ;e61b  bf          DATA 0xbf
+    db 0bfh                 ;e61c  bf          DATA 0xbf
+    db 0bfh                 ;e61d  bf          DATA 0xbf
+    db 0bfh                 ;e61e  bf          DATA 0xbf
+    db 0bfh                 ;e61f  bf          DATA 0xbf
+    db 0bfh                 ;e620  bf          DATA 0xbf
+    db 0bfh                 ;e621  bf          DATA 0xbf
+    db 0bfh                 ;e622  bf          DATA 0xbf
+    db 0bfh                 ;e623  bf          DATA 0xbf
+    db 0bfh                 ;e624  bf          DATA 0xbf
+    db 0bfh                 ;e625  bf          DATA 0xbf
+    db 0bfh                 ;e626  bf          DATA 0xbf
+    db 0bfh                 ;e627  bf          DATA 0xbf
+    db 0bfh                 ;e628  bf          DATA 0xbf
+    db 0bfh                 ;e629  bf          DATA 0xbf
+    db 0bfh                 ;e62a  bf          DATA 0xbf
+    db 0bfh                 ;e62b  bf          DATA 0xbf
+    db 0bfh                 ;e62c  bf          DATA 0xbf
+    db 0bfh                 ;e62d  bf          DATA 0xbf
+    db 0bfh                 ;e62e  bf          DATA 0xbf
+    db 0bfh                 ;e62f  bf          DATA 0xbf
+    db 0bfh                 ;e630  bf          DATA 0xbf
+    db 0bfh                 ;e631  bf          DATA 0xbf
+    db 0bfh                 ;e632  bf          DATA 0xbf
+    db 0bfh                 ;e633  bf          DATA 0xbf
+    db 0bfh                 ;e634  bf          DATA 0xbf
+    db 0bfh                 ;e635  bf          DATA 0xbf
+    db 0bfh                 ;e636  bf          DATA 0xbf
+    db 0bfh                 ;e637  bf          DATA 0xbf
+    db 0bfh                 ;e638  bf          DATA 0xbf
+    db 0bfh                 ;e639  bf          DATA 0xbf
+    db 0bfh                 ;e63a  bf          DATA 0xbf
+    db 0bfh                 ;e63b  bf          DATA 0xbf
+    db 0bfh                 ;e63c  bf          DATA 0xbf
+    db 0bfh                 ;e63d  bf          DATA 0xbf
+    db 0bfh                 ;e63e  bf          DATA 0xbf
+    db 0bfh                 ;e63f  bf          DATA 0xbf
+    db 0bfh                 ;e640  bf          DATA 0xbf
+    db 0bfh                 ;e641  bf          DATA 0xbf
+    db 0bfh                 ;e642  bf          DATA 0xbf
+    db 0bfh                 ;e643  bf          DATA 0xbf
+    db 0bfh                 ;e644  bf          DATA 0xbf
+    db 0bfh                 ;e645  bf          DATA 0xbf
+    db 0bfh                 ;e646  bf          DATA 0xbf
+    db 0bfh                 ;e647  bf          DATA 0xbf
+    db 0bfh                 ;e648  bf          DATA 0xbf
+    db 0bfh                 ;e649  bf          DATA 0xbf
+    db 0bfh                 ;e64a  bf          DATA 0xbf
+    db 0bfh                 ;e64b  bf          DATA 0xbf
+    db 0bfh                 ;e64c  bf          DATA 0xbf
+    db 0bfh                 ;e64d  bf          DATA 0xbf
+    db 0bfh                 ;e64e  bf          DATA 0xbf
+    db 0bfh                 ;e64f  bf          DATA 0xbf
+    db 0bfh                 ;e650  bf          DATA 0xbf
+    db 0bfh                 ;e651  bf          DATA 0xbf
+    db 0bfh                 ;e652  bf          DATA 0xbf
+    db 0bfh                 ;e653  bf          DATA 0xbf
+    db 0bfh                 ;e654  bf          DATA 0xbf
+    db 0bfh                 ;e655  bf          DATA 0xbf
+    db 0bfh                 ;e656  bf          DATA 0xbf
+    db 0bfh                 ;e657  bf          DATA 0xbf
+    db 0bfh                 ;e658  bf          DATA 0xbf
+    db 0bfh                 ;e659  bf          DATA 0xbf
+    db 0bfh                 ;e65a  bf          DATA 0xbf
+    db 0bfh                 ;e65b  bf          DATA 0xbf
+    db 0bfh                 ;e65c  bf          DATA 0xbf
+    db 0bfh                 ;e65d  bf          DATA 0xbf
+    db 0bfh                 ;e65e  bf          DATA 0xbf
+    db 0bfh                 ;e65f  bf          DATA 0xbf
+    db 0bfh                 ;e660  bf          DATA 0xbf
+    db 0bfh                 ;e661  bf          DATA 0xbf
+    db 0bfh                 ;e662  bf          DATA 0xbf
+    db 0bfh                 ;e663  bf          DATA 0xbf
+    db 0bfh                 ;e664  bf          DATA 0xbf
+    db 0bfh                 ;e665  bf          DATA 0xbf
+    db 0bfh                 ;e666  bf          DATA 0xbf
+    db 0bfh                 ;e667  bf          DATA 0xbf
+    db 0bfh                 ;e668  bf          DATA 0xbf
+    db 0bfh                 ;e669  bf          DATA 0xbf
+    db 0bfh                 ;e66a  bf          DATA 0xbf
+    db 0bfh                 ;e66b  bf          DATA 0xbf
+    db 0bfh                 ;e66c  bf          DATA 0xbf
+    db 0bfh                 ;e66d  bf          DATA 0xbf
+    db 0bfh                 ;e66e  bf          DATA 0xbf
+    db 0bfh                 ;e66f  bf          DATA 0xbf
+    db 0bfh                 ;e670  bf          DATA 0xbf
+    db 0bfh                 ;e671  bf          DATA 0xbf
+    db 0bfh                 ;e672  bf          DATA 0xbf
+    db 0bfh                 ;e673  bf          DATA 0xbf
+    db 0bfh                 ;e674  bf          DATA 0xbf
+    db 0bfh                 ;e675  bf          DATA 0xbf
+    db 0bfh                 ;e676  bf          DATA 0xbf
+    db 0bfh                 ;e677  bf          DATA 0xbf
+    db 0bfh                 ;e678  bf          DATA 0xbf
+    db 0bfh                 ;e679  bf          DATA 0xbf
+    db 0bfh                 ;e67a  bf          DATA 0xbf
+    db 0bfh                 ;e67b  bf          DATA 0xbf
+    db 0bfh                 ;e67c  bf          DATA 0xbf
+    db 0bfh                 ;e67d  bf          DATA 0xbf
+    db 0bfh                 ;e67e  bf          DATA 0xbf
+    db 0bfh                 ;e67f  bf          DATA 0xbf
+    db 0bfh                 ;e680  bf          DATA 0xbf
+    db 0bfh                 ;e681  bf          DATA 0xbf
+    db 0bfh                 ;e682  bf          DATA 0xbf
+    db 0bfh                 ;e683  bf          DATA 0xbf
+    db 0bfh                 ;e684  bf          DATA 0xbf
+    db 0bfh                 ;e685  bf          DATA 0xbf
+    db 0bfh                 ;e686  bf          DATA 0xbf
+    db 0bfh                 ;e687  bf          DATA 0xbf
+    db 0bfh                 ;e688  bf          DATA 0xbf
+    db 0bfh                 ;e689  bf          DATA 0xbf
+    db 0bfh                 ;e68a  bf          DATA 0xbf
+    db 0bfh                 ;e68b  bf          DATA 0xbf
+    db 0bfh                 ;e68c  bf          DATA 0xbf
+    db 0bfh                 ;e68d  bf          DATA 0xbf
+    db 0bfh                 ;e68e  bf          DATA 0xbf
+    db 0bfh                 ;e68f  bf          DATA 0xbf
+    db 0bfh                 ;e690  bf          DATA 0xbf
+    db 0bfh                 ;e691  bf          DATA 0xbf
+    db 0bfh                 ;e692  bf          DATA 0xbf
+    db 0bfh                 ;e693  bf          DATA 0xbf
+    db 0bfh                 ;e694  bf          DATA 0xbf
+    db 0bfh                 ;e695  bf          DATA 0xbf
+    db 0bfh                 ;e696  bf          DATA 0xbf
+    db 0bfh                 ;e697  bf          DATA 0xbf
+    db 0bfh                 ;e698  bf          DATA 0xbf
+    db 0bfh                 ;e699  bf          DATA 0xbf
+    db 0bfh                 ;e69a  bf          DATA 0xbf
+    db 0bfh                 ;e69b  bf          DATA 0xbf
+    db 0bfh                 ;e69c  bf          DATA 0xbf
+    db 0bfh                 ;e69d  bf          DATA 0xbf
+    db 0bfh                 ;e69e  bf          DATA 0xbf
+    db 0bfh                 ;e69f  bf          DATA 0xbf
+    db 0bfh                 ;e6a0  bf          DATA 0xbf
+    db 0bfh                 ;e6a1  bf          DATA 0xbf
+    db 0bfh                 ;e6a2  bf          DATA 0xbf
+    db 0bfh                 ;e6a3  bf          DATA 0xbf
+    db 0bfh                 ;e6a4  bf          DATA 0xbf
+    db 0bfh                 ;e6a5  bf          DATA 0xbf
+    db 0bfh                 ;e6a6  bf          DATA 0xbf
+    db 0bfh                 ;e6a7  bf          DATA 0xbf
+    db 0bfh                 ;e6a8  bf          DATA 0xbf
+    db 0bfh                 ;e6a9  bf          DATA 0xbf
+    db 0bfh                 ;e6aa  bf          DATA 0xbf
+    db 0bfh                 ;e6ab  bf          DATA 0xbf
+    db 0bfh                 ;e6ac  bf          DATA 0xbf
+    db 0bfh                 ;e6ad  bf          DATA 0xbf
+    db 0bfh                 ;e6ae  bf          DATA 0xbf
+    db 0bfh                 ;e6af  bf          DATA 0xbf
+    db 0bfh                 ;e6b0  bf          DATA 0xbf
+    db 0bfh                 ;e6b1  bf          DATA 0xbf
+    db 0bfh                 ;e6b2  bf          DATA 0xbf
+    db 0bfh                 ;e6b3  bf          DATA 0xbf
+    db 0bfh                 ;e6b4  bf          DATA 0xbf
+    db 0bfh                 ;e6b5  bf          DATA 0xbf
+    db 0bfh                 ;e6b6  bf          DATA 0xbf
+    db 0bfh                 ;e6b7  bf          DATA 0xbf
+    db 0bfh                 ;e6b8  bf          DATA 0xbf
+    db 0bfh                 ;e6b9  bf          DATA 0xbf
+    db 0bfh                 ;e6ba  bf          DATA 0xbf
+    db 0bfh                 ;e6bb  bf          DATA 0xbf
+    db 0bfh                 ;e6bc  bf          DATA 0xbf
+    db 0bfh                 ;e6bd  bf          DATA 0xbf
+    db 0bfh                 ;e6be  bf          DATA 0xbf
+    db 0bfh                 ;e6bf  bf          DATA 0xbf
+    db 0bfh                 ;e6c0  bf          DATA 0xbf
+    db 0bfh                 ;e6c1  bf          DATA 0xbf
+    db 0bfh                 ;e6c2  bf          DATA 0xbf
+    db 0bfh                 ;e6c3  bf          DATA 0xbf
+    db 0bfh                 ;e6c4  bf          DATA 0xbf
+    db 0bfh                 ;e6c5  bf          DATA 0xbf
+    db 0bfh                 ;e6c6  bf          DATA 0xbf
+    db 0bfh                 ;e6c7  bf          DATA 0xbf
+    db 0bfh                 ;e6c8  bf          DATA 0xbf
+    db 0bfh                 ;e6c9  bf          DATA 0xbf
+    db 0bfh                 ;e6ca  bf          DATA 0xbf
+    db 0bfh                 ;e6cb  bf          DATA 0xbf
+    db 0bfh                 ;e6cc  bf          DATA 0xbf
+    db 0bfh                 ;e6cd  bf          DATA 0xbf
+    db 0bfh                 ;e6ce  bf          DATA 0xbf
+    db 0bfh                 ;e6cf  bf          DATA 0xbf
+    db 0bfh                 ;e6d0  bf          DATA 0xbf
+    db 0bfh                 ;e6d1  bf          DATA 0xbf
+    db 0bfh                 ;e6d2  bf          DATA 0xbf
+    db 0bfh                 ;e6d3  bf          DATA 0xbf
+    db 0bfh                 ;e6d4  bf          DATA 0xbf
+    db 0bfh                 ;e6d5  bf          DATA 0xbf
+    db 0bfh                 ;e6d6  bf          DATA 0xbf
+    db 0bfh                 ;e6d7  bf          DATA 0xbf
+    db 0bfh                 ;e6d8  bf          DATA 0xbf
+    db 0bfh                 ;e6d9  bf          DATA 0xbf
+    db 0bfh                 ;e6da  bf          DATA 0xbf
+    db 0bfh                 ;e6db  bf          DATA 0xbf
+    db 0bfh                 ;e6dc  bf          DATA 0xbf
+    db 0bfh                 ;e6dd  bf          DATA 0xbf
+    db 0bfh                 ;e6de  bf          DATA 0xbf
+    db 0bfh                 ;e6df  bf          DATA 0xbf
+    db 0bfh                 ;e6e0  bf          DATA 0xbf
+    db 0bfh                 ;e6e1  bf          DATA 0xbf
+    db 0bfh                 ;e6e2  bf          DATA 0xbf
+    db 0bfh                 ;e6e3  bf          DATA 0xbf
+    db 0bfh                 ;e6e4  bf          DATA 0xbf
+    db 0bfh                 ;e6e5  bf          DATA 0xbf
+    db 0bfh                 ;e6e6  bf          DATA 0xbf
+    db 0bfh                 ;e6e7  bf          DATA 0xbf
+    db 0bfh                 ;e6e8  bf          DATA 0xbf
+    db 0bfh                 ;e6e9  bf          DATA 0xbf
+    db 0bfh                 ;e6ea  bf          DATA 0xbf
+    db 0bfh                 ;e6eb  bf          DATA 0xbf
+    db 0bfh                 ;e6ec  bf          DATA 0xbf
+    db 0bfh                 ;e6ed  bf          DATA 0xbf
+    db 0bfh                 ;e6ee  bf          DATA 0xbf
+    db 0bfh                 ;e6ef  bf          DATA 0xbf
+    db 0bfh                 ;e6f0  bf          DATA 0xbf
+    db 0bfh                 ;e6f1  bf          DATA 0xbf
+    db 0bfh                 ;e6f2  bf          DATA 0xbf
+    db 0bfh                 ;e6f3  bf          DATA 0xbf
+    db 0bfh                 ;e6f4  bf          DATA 0xbf
+    db 0bfh                 ;e6f5  bf          DATA 0xbf
+    db 0bfh                 ;e6f6  bf          DATA 0xbf
+    db 0bfh                 ;e6f7  bf          DATA 0xbf
+    db 0bfh                 ;e6f8  bf          DATA 0xbf
+    db 0bfh                 ;e6f9  bf          DATA 0xbf
+    db 0bfh                 ;e6fa  bf          DATA 0xbf
+    db 0bfh                 ;e6fb  bf          DATA 0xbf
+    db 0bfh                 ;e6fc  bf          DATA 0xbf
+    db 0bfh                 ;e6fd  bf          DATA 0xbf
+    db 0bfh                 ;e6fe  bf          DATA 0xbf
+    db 0bfh                 ;e6ff  bf          DATA 0xbf
+    db 0bfh                 ;e700  bf          DATA 0xbf
+    db 0bfh                 ;e701  bf          DATA 0xbf
+    db 0bfh                 ;e702  bf          DATA 0xbf
+    db 0bfh                 ;e703  bf          DATA 0xbf
+    db 0bfh                 ;e704  bf          DATA 0xbf
+    db 0bfh                 ;e705  bf          DATA 0xbf
+    db 0bfh                 ;e706  bf          DATA 0xbf
+    db 0bfh                 ;e707  bf          DATA 0xbf
+    db 0bfh                 ;e708  bf          DATA 0xbf
+    db 0bfh                 ;e709  bf          DATA 0xbf
+    db 0bfh                 ;e70a  bf          DATA 0xbf
+    db 0bfh                 ;e70b  bf          DATA 0xbf
+    db 0bfh                 ;e70c  bf          DATA 0xbf
+    db 0bfh                 ;e70d  bf          DATA 0xbf
+    db 0bfh                 ;e70e  bf          DATA 0xbf
+    db 0bfh                 ;e70f  bf          DATA 0xbf
+    db 0bfh                 ;e710  bf          DATA 0xbf
+    db 0bfh                 ;e711  bf          DATA 0xbf
+    db 0bfh                 ;e712  bf          DATA 0xbf
+    db 0bfh                 ;e713  bf          DATA 0xbf
+    db 0bfh                 ;e714  bf          DATA 0xbf
+    db 0bfh                 ;e715  bf          DATA 0xbf
+    db 0bfh                 ;e716  bf          DATA 0xbf
+    db 0bfh                 ;e717  bf          DATA 0xbf
+    db 0bfh                 ;e718  bf          DATA 0xbf
+    db 0bfh                 ;e719  bf          DATA 0xbf
+    db 0bfh                 ;e71a  bf          DATA 0xbf
+    db 0bfh                 ;e71b  bf          DATA 0xbf
+    db 0bfh                 ;e71c  bf          DATA 0xbf
+    db 0bfh                 ;e71d  bf          DATA 0xbf
+    db 0bfh                 ;e71e  bf          DATA 0xbf
+    db 0bfh                 ;e71f  bf          DATA 0xbf
+    db 0bfh                 ;e720  bf          DATA 0xbf
+    db 0bfh                 ;e721  bf          DATA 0xbf
+    db 0bfh                 ;e722  bf          DATA 0xbf
+    db 0bfh                 ;e723  bf          DATA 0xbf
+    db 0bfh                 ;e724  bf          DATA 0xbf
+    db 0bfh                 ;e725  bf          DATA 0xbf
+    db 0bfh                 ;e726  bf          DATA 0xbf
+    db 0bfh                 ;e727  bf          DATA 0xbf
+    db 0bfh                 ;e728  bf          DATA 0xbf
+    db 0bfh                 ;e729  bf          DATA 0xbf
+    db 0bfh                 ;e72a  bf          DATA 0xbf
+    db 0bfh                 ;e72b  bf          DATA 0xbf
+    db 0bfh                 ;e72c  bf          DATA 0xbf
+    db 0bfh                 ;e72d  bf          DATA 0xbf
+    db 0bfh                 ;e72e  bf          DATA 0xbf
+    db 0bfh                 ;e72f  bf          DATA 0xbf
+    db 0bfh                 ;e730  bf          DATA 0xbf
+    db 0bfh                 ;e731  bf          DATA 0xbf
+    db 0bfh                 ;e732  bf          DATA 0xbf
+    db 0bfh                 ;e733  bf          DATA 0xbf
+    db 0bfh                 ;e734  bf          DATA 0xbf
+    db 0bfh                 ;e735  bf          DATA 0xbf
+    db 0bfh                 ;e736  bf          DATA 0xbf
+    db 0bfh                 ;e737  bf          DATA 0xbf
+    db 0bfh                 ;e738  bf          DATA 0xbf
+    db 0bfh                 ;e739  bf          DATA 0xbf
+    db 0bfh                 ;e73a  bf          DATA 0xbf
+    db 0bfh                 ;e73b  bf          DATA 0xbf
+    db 0bfh                 ;e73c  bf          DATA 0xbf
+    db 0bfh                 ;e73d  bf          DATA 0xbf
+    db 0bfh                 ;e73e  bf          DATA 0xbf
+    db 0bfh                 ;e73f  bf          DATA 0xbf
+    db 0bfh                 ;e740  bf          DATA 0xbf
+    db 0bfh                 ;e741  bf          DATA 0xbf
+    db 0bfh                 ;e742  bf          DATA 0xbf
+    db 0bfh                 ;e743  bf          DATA 0xbf
+    db 0bfh                 ;e744  bf          DATA 0xbf
+    db 0bfh                 ;e745  bf          DATA 0xbf
+    db 0bfh                 ;e746  bf          DATA 0xbf
+    db 0bfh                 ;e747  bf          DATA 0xbf
+    db 0bfh                 ;e748  bf          DATA 0xbf
+    db 0bfh                 ;e749  bf          DATA 0xbf
+    db 0bfh                 ;e74a  bf          DATA 0xbf
+    db 0bfh                 ;e74b  bf          DATA 0xbf
+    db 0bfh                 ;e74c  bf          DATA 0xbf
+    db 0bfh                 ;e74d  bf          DATA 0xbf
+    db 0bfh                 ;e74e  bf          DATA 0xbf
+    db 0bfh                 ;e74f  bf          DATA 0xbf
+    db 0bfh                 ;e750  bf          DATA 0xbf
+    db 0bfh                 ;e751  bf          DATA 0xbf
+    db 0bfh                 ;e752  bf          DATA 0xbf
+    db 0bfh                 ;e753  bf          DATA 0xbf
+    db 0bfh                 ;e754  bf          DATA 0xbf
+    db 0bfh                 ;e755  bf          DATA 0xbf
+    db 0bfh                 ;e756  bf          DATA 0xbf
+    db 0bfh                 ;e757  bf          DATA 0xbf
+    db 0bfh                 ;e758  bf          DATA 0xbf
+    db 0bfh                 ;e759  bf          DATA 0xbf
+    db 0bfh                 ;e75a  bf          DATA 0xbf
+    db 0bfh                 ;e75b  bf          DATA 0xbf
+    db 0bfh                 ;e75c  bf          DATA 0xbf
+    db 0bfh                 ;e75d  bf          DATA 0xbf
+    db 0bfh                 ;e75e  bf          DATA 0xbf
+    db 0bfh                 ;e75f  bf          DATA 0xbf
+    db 0bfh                 ;e760  bf          DATA 0xbf
+    db 0bfh                 ;e761  bf          DATA 0xbf
+    db 0bfh                 ;e762  bf          DATA 0xbf
+    db 0bfh                 ;e763  bf          DATA 0xbf
+    db 0bfh                 ;e764  bf          DATA 0xbf
+    db 0bfh                 ;e765  bf          DATA 0xbf
+    db 0bfh                 ;e766  bf          DATA 0xbf
+    db 0bfh                 ;e767  bf          DATA 0xbf
+    db 0bfh                 ;e768  bf          DATA 0xbf
+    db 0bfh                 ;e769  bf          DATA 0xbf
+    db 0bfh                 ;e76a  bf          DATA 0xbf
+    db 0bfh                 ;e76b  bf          DATA 0xbf
+    db 0bfh                 ;e76c  bf          DATA 0xbf
+    db 0bfh                 ;e76d  bf          DATA 0xbf
+    db 0bfh                 ;e76e  bf          DATA 0xbf
+    db 0bfh                 ;e76f  bf          DATA 0xbf
+    db 0bfh                 ;e770  bf          DATA 0xbf
+    db 0bfh                 ;e771  bf          DATA 0xbf
+    db 0bfh                 ;e772  bf          DATA 0xbf
+    db 0bfh                 ;e773  bf          DATA 0xbf
+    db 0bfh                 ;e774  bf          DATA 0xbf
+    db 0bfh                 ;e775  bf          DATA 0xbf
+    db 0bfh                 ;e776  bf          DATA 0xbf
+    db 0bfh                 ;e777  bf          DATA 0xbf
+    db 0bfh                 ;e778  bf          DATA 0xbf
+    db 0bfh                 ;e779  bf          DATA 0xbf
+    db 0bfh                 ;e77a  bf          DATA 0xbf
+    db 0bfh                 ;e77b  bf          DATA 0xbf
+    db 0bfh                 ;e77c  bf          DATA 0xbf
+    db 0bfh                 ;e77d  bf          DATA 0xbf
+    db 0bfh                 ;e77e  bf          DATA 0xbf
+    db 0bfh                 ;e77f  bf          DATA 0xbf
+    db 0bfh                 ;e780  bf          DATA 0xbf
+    db 0bfh                 ;e781  bf          DATA 0xbf
+    db 0bfh                 ;e782  bf          DATA 0xbf
+    db 0bfh                 ;e783  bf          DATA 0xbf
+    db 0bfh                 ;e784  bf          DATA 0xbf
+    db 0bfh                 ;e785  bf          DATA 0xbf
+    db 0bfh                 ;e786  bf          DATA 0xbf
+    db 0bfh                 ;e787  bf          DATA 0xbf
+    db 0bfh                 ;e788  bf          DATA 0xbf
+    db 0bfh                 ;e789  bf          DATA 0xbf
+    db 0bfh                 ;e78a  bf          DATA 0xbf
+    db 0bfh                 ;e78b  bf          DATA 0xbf
+    db 0bfh                 ;e78c  bf          DATA 0xbf
+    db 0bfh                 ;e78d  bf          DATA 0xbf
+    db 0bfh                 ;e78e  bf          DATA 0xbf
+    db 0bfh                 ;e78f  bf          DATA 0xbf
+    db 0bfh                 ;e790  bf          DATA 0xbf
+    db 0bfh                 ;e791  bf          DATA 0xbf
+    db 0bfh                 ;e792  bf          DATA 0xbf
+    db 0bfh                 ;e793  bf          DATA 0xbf
+    db 0bfh                 ;e794  bf          DATA 0xbf
+    db 0bfh                 ;e795  bf          DATA 0xbf
+    db 0bfh                 ;e796  bf          DATA 0xbf
+    db 0bfh                 ;e797  bf          DATA 0xbf
+    db 0bfh                 ;e798  bf          DATA 0xbf
+    db 0bfh                 ;e799  bf          DATA 0xbf
+    db 0bfh                 ;e79a  bf          DATA 0xbf
+    db 0bfh                 ;e79b  bf          DATA 0xbf
+    db 0bfh                 ;e79c  bf          DATA 0xbf
+    db 0bfh                 ;e79d  bf          DATA 0xbf
+    db 0bfh                 ;e79e  bf          DATA 0xbf
+    db 0bfh                 ;e79f  bf          DATA 0xbf
+    db 0bfh                 ;e7a0  bf          DATA 0xbf
+    db 0bfh                 ;e7a1  bf          DATA 0xbf
+    db 0bfh                 ;e7a2  bf          DATA 0xbf
+    db 0bfh                 ;e7a3  bf          DATA 0xbf
+    db 0bfh                 ;e7a4  bf          DATA 0xbf
+    db 0bfh                 ;e7a5  bf          DATA 0xbf
+    db 0bfh                 ;e7a6  bf          DATA 0xbf
+    db 0bfh                 ;e7a7  bf          DATA 0xbf
+    db 0bfh                 ;e7a8  bf          DATA 0xbf
+    db 0bfh                 ;e7a9  bf          DATA 0xbf
+    db 0bfh                 ;e7aa  bf          DATA 0xbf
+    db 0bfh                 ;e7ab  bf          DATA 0xbf
+    db 0bfh                 ;e7ac  bf          DATA 0xbf
+    db 0bfh                 ;e7ad  bf          DATA 0xbf
+    db 0bfh                 ;e7ae  bf          DATA 0xbf
+    db 0bfh                 ;e7af  bf          DATA 0xbf
+    db 0bfh                 ;e7b0  bf          DATA 0xbf
+    db 0bfh                 ;e7b1  bf          DATA 0xbf
+    db 0bfh                 ;e7b2  bf          DATA 0xbf
+    db 0bfh                 ;e7b3  bf          DATA 0xbf
+    db 0bfh                 ;e7b4  bf          DATA 0xbf
+    db 0bfh                 ;e7b5  bf          DATA 0xbf
+    db 0bfh                 ;e7b6  bf          DATA 0xbf
+    db 0bfh                 ;e7b7  bf          DATA 0xbf
+    db 0bfh                 ;e7b8  bf          DATA 0xbf
+    db 0bfh                 ;e7b9  bf          DATA 0xbf
+    db 0bfh                 ;e7ba  bf          DATA 0xbf
+    db 0bfh                 ;e7bb  bf          DATA 0xbf
+    db 0bfh                 ;e7bc  bf          DATA 0xbf
+    db 0bfh                 ;e7bd  bf          DATA 0xbf
+    db 0bfh                 ;e7be  bf          DATA 0xbf
+    db 0bfh                 ;e7bf  bf          DATA 0xbf
+    db 0bfh                 ;e7c0  bf          DATA 0xbf
+    db 0bfh                 ;e7c1  bf          DATA 0xbf
+    db 0bfh                 ;e7c2  bf          DATA 0xbf
+    db 0bfh                 ;e7c3  bf          DATA 0xbf
+    db 0bfh                 ;e7c4  bf          DATA 0xbf
+    db 0bfh                 ;e7c5  bf          DATA 0xbf
+    db 0bfh                 ;e7c6  bf          DATA 0xbf
+    db 0bfh                 ;e7c7  bf          DATA 0xbf
+    db 0bfh                 ;e7c8  bf          DATA 0xbf
+    db 0bfh                 ;e7c9  bf          DATA 0xbf
+    db 0bfh                 ;e7ca  bf          DATA 0xbf
+    db 0bfh                 ;e7cb  bf          DATA 0xbf
+    db 0bfh                 ;e7cc  bf          DATA 0xbf
+    db 0bfh                 ;e7cd  bf          DATA 0xbf
+    db 0bfh                 ;e7ce  bf          DATA 0xbf
+    db 0bfh                 ;e7cf  bf          DATA 0xbf
+    db 0bfh                 ;e7d0  bf          DATA 0xbf
+    db 0bfh                 ;e7d1  bf          DATA 0xbf
+    db 0bfh                 ;e7d2  bf          DATA 0xbf
+    db 0bfh                 ;e7d3  bf          DATA 0xbf
+    db 0bfh                 ;e7d4  bf          DATA 0xbf
+    db 0bfh                 ;e7d5  bf          DATA 0xbf
+    db 0bfh                 ;e7d6  bf          DATA 0xbf
+    db 0bfh                 ;e7d7  bf          DATA 0xbf
+    db 0bfh                 ;e7d8  bf          DATA 0xbf
+    db 0bfh                 ;e7d9  bf          DATA 0xbf
+    db 0bfh                 ;e7da  bf          DATA 0xbf
+    db 0bfh                 ;e7db  bf          DATA 0xbf
+    db 0bfh                 ;e7dc  bf          DATA 0xbf
+    db 0bfh                 ;e7dd  bf          DATA 0xbf
+    db 0bfh                 ;e7de  bf          DATA 0xbf
+    db 0bfh                 ;e7df  bf          DATA 0xbf
+    db 0bfh                 ;e7e0  bf          DATA 0xbf
+    db 0bfh                 ;e7e1  bf          DATA 0xbf
+    db 0bfh                 ;e7e2  bf          DATA 0xbf
+    db 0bfh                 ;e7e3  bf          DATA 0xbf
+    db 0bfh                 ;e7e4  bf          DATA 0xbf
+    db 0bfh                 ;e7e5  bf          DATA 0xbf
+    db 0bfh                 ;e7e6  bf          DATA 0xbf
+    db 0bfh                 ;e7e7  bf          DATA 0xbf
+    db 0bfh                 ;e7e8  bf          DATA 0xbf
+    db 0bfh                 ;e7e9  bf          DATA 0xbf
+    db 0bfh                 ;e7ea  bf          DATA 0xbf
+    db 0bfh                 ;e7eb  bf          DATA 0xbf
+    db 0bfh                 ;e7ec  bf          DATA 0xbf
+    db 0bfh                 ;e7ed  bf          DATA 0xbf
+    db 0bfh                 ;e7ee  bf          DATA 0xbf
+    db 0bfh                 ;e7ef  bf          DATA 0xbf
+    db 0bfh                 ;e7f0  bf          DATA 0xbf
+    db 0bfh                 ;e7f1  bf          DATA 0xbf
+    db 0bfh                 ;e7f2  bf          DATA 0xbf
+    db 0bfh                 ;e7f3  bf          DATA 0xbf
+    db 0bfh                 ;e7f4  bf          DATA 0xbf
+    db 0bfh                 ;e7f5  bf          DATA 0xbf
+    db 0bfh                 ;e7f6  bf          DATA 0xbf
+    db 0bfh                 ;e7f7  bf          DATA 0xbf
+    db 0bfh                 ;e7f8  bf          DATA 0xbf
+    db 0bfh                 ;e7f9  bf          DATA 0xbf
+    db 0bfh                 ;e7fa  bf          DATA 0xbf
+    db 0bfh                 ;e7fb  bf          DATA 0xbf
+    db 0bfh                 ;e7fc  bf          DATA 0xbf
+    db 0bfh                 ;e7fd  bf          DATA 0xbf
+    db 0bfh                 ;e7fe  bf          DATA 0xbf
+    db 0bfh                 ;e7ff  bf          DATA 0xbf
+    db 0bfh                 ;e800  bf          DATA 0xbf
+    db 0bfh                 ;e801  bf          DATA 0xbf
+    db 0bfh                 ;e802  bf          DATA 0xbf
+    db 0bfh                 ;e803  bf          DATA 0xbf
+    db 0bfh                 ;e804  bf          DATA 0xbf
+    db 0bfh                 ;e805  bf          DATA 0xbf
+    db 0bfh                 ;e806  bf          DATA 0xbf
+    db 0bfh                 ;e807  bf          DATA 0xbf
+    db 0bfh                 ;e808  bf          DATA 0xbf
+    db 0bfh                 ;e809  bf          DATA 0xbf
+    db 0bfh                 ;e80a  bf          DATA 0xbf
+    db 0bfh                 ;e80b  bf          DATA 0xbf
+    db 0bfh                 ;e80c  bf          DATA 0xbf
+    db 0bfh                 ;e80d  bf          DATA 0xbf
+    db 0bfh                 ;e80e  bf          DATA 0xbf
+    db 0bfh                 ;e80f  bf          DATA 0xbf
+    db 0bfh                 ;e810  bf          DATA 0xbf
+    db 0bfh                 ;e811  bf          DATA 0xbf
+    db 0bfh                 ;e812  bf          DATA 0xbf
+    db 0bfh                 ;e813  bf          DATA 0xbf
+    db 0bfh                 ;e814  bf          DATA 0xbf
+    db 0bfh                 ;e815  bf          DATA 0xbf
+    db 0bfh                 ;e816  bf          DATA 0xbf
+    db 0bfh                 ;e817  bf          DATA 0xbf
+    db 0bfh                 ;e818  bf          DATA 0xbf
+    db 0bfh                 ;e819  bf          DATA 0xbf
+    db 0bfh                 ;e81a  bf          DATA 0xbf
+    db 0bfh                 ;e81b  bf          DATA 0xbf
+    db 0bfh                 ;e81c  bf          DATA 0xbf
+    db 0bfh                 ;e81d  bf          DATA 0xbf
+    db 0bfh                 ;e81e  bf          DATA 0xbf
+    db 0bfh                 ;e81f  bf          DATA 0xbf
+    db 0bfh                 ;e820  bf          DATA 0xbf
+    db 0bfh                 ;e821  bf          DATA 0xbf
+    db 0bfh                 ;e822  bf          DATA 0xbf
+    db 0bfh                 ;e823  bf          DATA 0xbf
+    db 0bfh                 ;e824  bf          DATA 0xbf
+    db 0bfh                 ;e825  bf          DATA 0xbf
+    db 0bfh                 ;e826  bf          DATA 0xbf
+    db 0bfh                 ;e827  bf          DATA 0xbf
+    db 0bfh                 ;e828  bf          DATA 0xbf
+    db 0bfh                 ;e829  bf          DATA 0xbf
+    db 0bfh                 ;e82a  bf          DATA 0xbf
+    db 0bfh                 ;e82b  bf          DATA 0xbf
+    db 0bfh                 ;e82c  bf          DATA 0xbf
+    db 0bfh                 ;e82d  bf          DATA 0xbf
+    db 0bfh                 ;e82e  bf          DATA 0xbf
+    db 0bfh                 ;e82f  bf          DATA 0xbf
+    db 0bfh                 ;e830  bf          DATA 0xbf
+    db 0bfh                 ;e831  bf          DATA 0xbf
+    db 0bfh                 ;e832  bf          DATA 0xbf
+    db 0bfh                 ;e833  bf          DATA 0xbf
+    db 0bfh                 ;e834  bf          DATA 0xbf
+    db 0bfh                 ;e835  bf          DATA 0xbf
+    db 0bfh                 ;e836  bf          DATA 0xbf
+    db 0bfh                 ;e837  bf          DATA 0xbf
+    db 0bfh                 ;e838  bf          DATA 0xbf
+    db 0bfh                 ;e839  bf          DATA 0xbf
+    db 0bfh                 ;e83a  bf          DATA 0xbf
+    db 0bfh                 ;e83b  bf          DATA 0xbf
+    db 0bfh                 ;e83c  bf          DATA 0xbf
+    db 0bfh                 ;e83d  bf          DATA 0xbf
+    db 0bfh                 ;e83e  bf          DATA 0xbf
+    db 0bfh                 ;e83f  bf          DATA 0xbf
+    db 0bfh                 ;e840  bf          DATA 0xbf
+    db 0bfh                 ;e841  bf          DATA 0xbf
+    db 0bfh                 ;e842  bf          DATA 0xbf
+    db 0bfh                 ;e843  bf          DATA 0xbf
+    db 0bfh                 ;e844  bf          DATA 0xbf
+    db 0bfh                 ;e845  bf          DATA 0xbf
+    db 0bfh                 ;e846  bf          DATA 0xbf
+    db 0bfh                 ;e847  bf          DATA 0xbf
+    db 0bfh                 ;e848  bf          DATA 0xbf
+    db 0bfh                 ;e849  bf          DATA 0xbf
+    db 0bfh                 ;e84a  bf          DATA 0xbf
+    db 0bfh                 ;e84b  bf          DATA 0xbf
+    db 0bfh                 ;e84c  bf          DATA 0xbf
+    db 0bfh                 ;e84d  bf          DATA 0xbf
+    db 0bfh                 ;e84e  bf          DATA 0xbf
+    db 0bfh                 ;e84f  bf          DATA 0xbf
+    db 0bfh                 ;e850  bf          DATA 0xbf
+    db 0bfh                 ;e851  bf          DATA 0xbf
+    db 0bfh                 ;e852  bf          DATA 0xbf
+    db 0bfh                 ;e853  bf          DATA 0xbf
+    db 0bfh                 ;e854  bf          DATA 0xbf
+    db 0bfh                 ;e855  bf          DATA 0xbf
+    db 0bfh                 ;e856  bf          DATA 0xbf
+    db 0bfh                 ;e857  bf          DATA 0xbf
+    db 0bfh                 ;e858  bf          DATA 0xbf
+    db 0bfh                 ;e859  bf          DATA 0xbf
+    db 0bfh                 ;e85a  bf          DATA 0xbf
+    db 0bfh                 ;e85b  bf          DATA 0xbf
+    db 0bfh                 ;e85c  bf          DATA 0xbf
+    db 0bfh                 ;e85d  bf          DATA 0xbf
+    db 0bfh                 ;e85e  bf          DATA 0xbf
+    db 0bfh                 ;e85f  bf          DATA 0xbf
+    db 0bfh                 ;e860  bf          DATA 0xbf
+    db 0bfh                 ;e861  bf          DATA 0xbf
+    db 0bfh                 ;e862  bf          DATA 0xbf
+    db 0bfh                 ;e863  bf          DATA 0xbf
+    db 0bfh                 ;e864  bf          DATA 0xbf
+    db 0bfh                 ;e865  bf          DATA 0xbf
+    db 0bfh                 ;e866  bf          DATA 0xbf
+    db 0bfh                 ;e867  bf          DATA 0xbf
+    db 0bfh                 ;e868  bf          DATA 0xbf
+    db 0bfh                 ;e869  bf          DATA 0xbf
+    db 0bfh                 ;e86a  bf          DATA 0xbf
+    db 0bfh                 ;e86b  bf          DATA 0xbf
+    db 0bfh                 ;e86c  bf          DATA 0xbf
+    db 0bfh                 ;e86d  bf          DATA 0xbf
+    db 0bfh                 ;e86e  bf          DATA 0xbf
+    db 0bfh                 ;e86f  bf          DATA 0xbf
+    db 0bfh                 ;e870  bf          DATA 0xbf
+    db 0bfh                 ;e871  bf          DATA 0xbf
+    db 0bfh                 ;e872  bf          DATA 0xbf
+    db 0bfh                 ;e873  bf          DATA 0xbf
+    db 0bfh                 ;e874  bf          DATA 0xbf
+    db 0bfh                 ;e875  bf          DATA 0xbf
+    db 0bfh                 ;e876  bf          DATA 0xbf
+    db 0bfh                 ;e877  bf          DATA 0xbf
+    db 0bfh                 ;e878  bf          DATA 0xbf
+    db 0bfh                 ;e879  bf          DATA 0xbf
+    db 0bfh                 ;e87a  bf          DATA 0xbf
+    db 0bfh                 ;e87b  bf          DATA 0xbf
+    db 0bfh                 ;e87c  bf          DATA 0xbf
+    db 0bfh                 ;e87d  bf          DATA 0xbf
+    db 0bfh                 ;e87e  bf          DATA 0xbf
+    db 0bfh                 ;e87f  bf          DATA 0xbf
+    db 0bfh                 ;e880  bf          DATA 0xbf
+    db 0bfh                 ;e881  bf          DATA 0xbf
+    db 0bfh                 ;e882  bf          DATA 0xbf
+    db 0bfh                 ;e883  bf          DATA 0xbf
+    db 0bfh                 ;e884  bf          DATA 0xbf
+    db 0bfh                 ;e885  bf          DATA 0xbf
+    db 0bfh                 ;e886  bf          DATA 0xbf
+    db 0bfh                 ;e887  bf          DATA 0xbf
+    db 0bfh                 ;e888  bf          DATA 0xbf
+    db 0bfh                 ;e889  bf          DATA 0xbf
+    db 0bfh                 ;e88a  bf          DATA 0xbf
+    db 0bfh                 ;e88b  bf          DATA 0xbf
+    db 0bfh                 ;e88c  bf          DATA 0xbf
+    db 0bfh                 ;e88d  bf          DATA 0xbf
+    db 0bfh                 ;e88e  bf          DATA 0xbf
+    db 0bfh                 ;e88f  bf          DATA 0xbf
+    db 0bfh                 ;e890  bf          DATA 0xbf
+    db 0bfh                 ;e891  bf          DATA 0xbf
+    db 0bfh                 ;e892  bf          DATA 0xbf
+    db 0bfh                 ;e893  bf          DATA 0xbf
+    db 0bfh                 ;e894  bf          DATA 0xbf
+    db 0bfh                 ;e895  bf          DATA 0xbf
+    db 0bfh                 ;e896  bf          DATA 0xbf
+    db 0bfh                 ;e897  bf          DATA 0xbf
+    db 0bfh                 ;e898  bf          DATA 0xbf
+    db 0bfh                 ;e899  bf          DATA 0xbf
+    db 0bfh                 ;e89a  bf          DATA 0xbf
+    db 0bfh                 ;e89b  bf          DATA 0xbf
+    db 0bfh                 ;e89c  bf          DATA 0xbf
+    db 0bfh                 ;e89d  bf          DATA 0xbf
+    db 0bfh                 ;e89e  bf          DATA 0xbf
+    db 0bfh                 ;e89f  bf          DATA 0xbf
+    db 0bfh                 ;e8a0  bf          DATA 0xbf
+    db 0bfh                 ;e8a1  bf          DATA 0xbf
+    db 0bfh                 ;e8a2  bf          DATA 0xbf
+    db 0bfh                 ;e8a3  bf          DATA 0xbf
+    db 0bfh                 ;e8a4  bf          DATA 0xbf
+    db 0bfh                 ;e8a5  bf          DATA 0xbf
+    db 0bfh                 ;e8a6  bf          DATA 0xbf
+    db 0bfh                 ;e8a7  bf          DATA 0xbf
+    db 0bfh                 ;e8a8  bf          DATA 0xbf
+    db 0bfh                 ;e8a9  bf          DATA 0xbf
+    db 0bfh                 ;e8aa  bf          DATA 0xbf
+    db 0bfh                 ;e8ab  bf          DATA 0xbf
+    db 0bfh                 ;e8ac  bf          DATA 0xbf
+    db 0bfh                 ;e8ad  bf          DATA 0xbf
+    db 0bfh                 ;e8ae  bf          DATA 0xbf
+    db 0bfh                 ;e8af  bf          DATA 0xbf
+    db 0bfh                 ;e8b0  bf          DATA 0xbf
+    db 0bfh                 ;e8b1  bf          DATA 0xbf
+    db 0bfh                 ;e8b2  bf          DATA 0xbf
+    db 0bfh                 ;e8b3  bf          DATA 0xbf
+    db 0bfh                 ;e8b4  bf          DATA 0xbf
+    db 0bfh                 ;e8b5  bf          DATA 0xbf
+    db 0bfh                 ;e8b6  bf          DATA 0xbf
+    db 0bfh                 ;e8b7  bf          DATA 0xbf
+    db 0bfh                 ;e8b8  bf          DATA 0xbf
+    db 0bfh                 ;e8b9  bf          DATA 0xbf
+    db 0bfh                 ;e8ba  bf          DATA 0xbf
+    db 0bfh                 ;e8bb  bf          DATA 0xbf
+    db 0bfh                 ;e8bc  bf          DATA 0xbf
+    db 0bfh                 ;e8bd  bf          DATA 0xbf
+    db 0bfh                 ;e8be  bf          DATA 0xbf
+    db 0bfh                 ;e8bf  bf          DATA 0xbf
+    db 0bfh                 ;e8c0  bf          DATA 0xbf
+    db 0bfh                 ;e8c1  bf          DATA 0xbf
+    db 0bfh                 ;e8c2  bf          DATA 0xbf
+    db 0bfh                 ;e8c3  bf          DATA 0xbf
+    db 0bfh                 ;e8c4  bf          DATA 0xbf
+    db 0bfh                 ;e8c5  bf          DATA 0xbf
+    db 0bfh                 ;e8c6  bf          DATA 0xbf
+    db 0bfh                 ;e8c7  bf          DATA 0xbf
+    db 0bfh                 ;e8c8  bf          DATA 0xbf
+    db 0bfh                 ;e8c9  bf          DATA 0xbf
+    db 0bfh                 ;e8ca  bf          DATA 0xbf
+    db 0bfh                 ;e8cb  bf          DATA 0xbf
+    db 0bfh                 ;e8cc  bf          DATA 0xbf
+    db 0bfh                 ;e8cd  bf          DATA 0xbf
+    db 0bfh                 ;e8ce  bf          DATA 0xbf
+    db 0bfh                 ;e8cf  bf          DATA 0xbf
+    db 0bfh                 ;e8d0  bf          DATA 0xbf
+    db 0bfh                 ;e8d1  bf          DATA 0xbf
+    db 0bfh                 ;e8d2  bf          DATA 0xbf
+    db 0bfh                 ;e8d3  bf          DATA 0xbf
+    db 0bfh                 ;e8d4  bf          DATA 0xbf
+    db 0bfh                 ;e8d5  bf          DATA 0xbf
+    db 0bfh                 ;e8d6  bf          DATA 0xbf
+    db 0bfh                 ;e8d7  bf          DATA 0xbf
+    db 0bfh                 ;e8d8  bf          DATA 0xbf
+    db 0bfh                 ;e8d9  bf          DATA 0xbf
+    db 0bfh                 ;e8da  bf          DATA 0xbf
+    db 0bfh                 ;e8db  bf          DATA 0xbf
+    db 0bfh                 ;e8dc  bf          DATA 0xbf
+    db 0bfh                 ;e8dd  bf          DATA 0xbf
+    db 0bfh                 ;e8de  bf          DATA 0xbf
+    db 0bfh                 ;e8df  bf          DATA 0xbf
+    db 0bfh                 ;e8e0  bf          DATA 0xbf
+    db 0bfh                 ;e8e1  bf          DATA 0xbf
+    db 0bfh                 ;e8e2  bf          DATA 0xbf
+    db 0bfh                 ;e8e3  bf          DATA 0xbf
+    db 0bfh                 ;e8e4  bf          DATA 0xbf
+    db 0bfh                 ;e8e5  bf          DATA 0xbf
+    db 0bfh                 ;e8e6  bf          DATA 0xbf
+    db 0bfh                 ;e8e7  bf          DATA 0xbf
+    db 0bfh                 ;e8e8  bf          DATA 0xbf
+    db 0bfh                 ;e8e9  bf          DATA 0xbf
+    db 0bfh                 ;e8ea  bf          DATA 0xbf
+    db 0bfh                 ;e8eb  bf          DATA 0xbf
+    db 0bfh                 ;e8ec  bf          DATA 0xbf
+    db 0bfh                 ;e8ed  bf          DATA 0xbf
+    db 0bfh                 ;e8ee  bf          DATA 0xbf
+    db 0bfh                 ;e8ef  bf          DATA 0xbf
+    db 0bfh                 ;e8f0  bf          DATA 0xbf
+    db 0bfh                 ;e8f1  bf          DATA 0xbf
+    db 0bfh                 ;e8f2  bf          DATA 0xbf
+    db 0bfh                 ;e8f3  bf          DATA 0xbf
+    db 0bfh                 ;e8f4  bf          DATA 0xbf
+    db 0bfh                 ;e8f5  bf          DATA 0xbf
+    db 0bfh                 ;e8f6  bf          DATA 0xbf
+    db 0bfh                 ;e8f7  bf          DATA 0xbf
+    db 0bfh                 ;e8f8  bf          DATA 0xbf
+    db 0bfh                 ;e8f9  bf          DATA 0xbf
+    db 0bfh                 ;e8fa  bf          DATA 0xbf
+    db 0bfh                 ;e8fb  bf          DATA 0xbf
+    db 0bfh                 ;e8fc  bf          DATA 0xbf
+    db 0bfh                 ;e8fd  bf          DATA 0xbf
+    db 0bfh                 ;e8fe  bf          DATA 0xbf
+    db 0bfh                 ;e8ff  bf          DATA 0xbf
+    db 0bfh                 ;e900  bf          DATA 0xbf
+    db 0bfh                 ;e901  bf          DATA 0xbf
+    db 0bfh                 ;e902  bf          DATA 0xbf
+    db 0bfh                 ;e903  bf          DATA 0xbf
+    db 0bfh                 ;e904  bf          DATA 0xbf
+    db 0bfh                 ;e905  bf          DATA 0xbf
+    db 0bfh                 ;e906  bf          DATA 0xbf
+    db 0bfh                 ;e907  bf          DATA 0xbf
+    db 0bfh                 ;e908  bf          DATA 0xbf
+    db 0bfh                 ;e909  bf          DATA 0xbf
+    db 0bfh                 ;e90a  bf          DATA 0xbf
+    db 0bfh                 ;e90b  bf          DATA 0xbf
+    db 0bfh                 ;e90c  bf          DATA 0xbf
+    db 0bfh                 ;e90d  bf          DATA 0xbf
+    db 0bfh                 ;e90e  bf          DATA 0xbf
+    db 0bfh                 ;e90f  bf          DATA 0xbf
+    db 0bfh                 ;e910  bf          DATA 0xbf
+    db 0bfh                 ;e911  bf          DATA 0xbf
+    db 0bfh                 ;e912  bf          DATA 0xbf
+    db 0bfh                 ;e913  bf          DATA 0xbf
+    db 0bfh                 ;e914  bf          DATA 0xbf
+    db 0bfh                 ;e915  bf          DATA 0xbf
+    db 0bfh                 ;e916  bf          DATA 0xbf
+    db 0bfh                 ;e917  bf          DATA 0xbf
+    db 0bfh                 ;e918  bf          DATA 0xbf
+    db 0bfh                 ;e919  bf          DATA 0xbf
+    db 0bfh                 ;e91a  bf          DATA 0xbf
+    db 0bfh                 ;e91b  bf          DATA 0xbf
+    db 0bfh                 ;e91c  bf          DATA 0xbf
+    db 0bfh                 ;e91d  bf          DATA 0xbf
+    db 0bfh                 ;e91e  bf          DATA 0xbf
+    db 0bfh                 ;e91f  bf          DATA 0xbf
+    db 0bfh                 ;e920  bf          DATA 0xbf
+    db 0bfh                 ;e921  bf          DATA 0xbf
+    db 0bfh                 ;e922  bf          DATA 0xbf
+    db 0bfh                 ;e923  bf          DATA 0xbf
+    db 0bfh                 ;e924  bf          DATA 0xbf
+    db 0bfh                 ;e925  bf          DATA 0xbf
+    db 0bfh                 ;e926  bf          DATA 0xbf
+    db 0bfh                 ;e927  bf          DATA 0xbf
+    db 0bfh                 ;e928  bf          DATA 0xbf
+    db 0bfh                 ;e929  bf          DATA 0xbf
+    db 0bfh                 ;e92a  bf          DATA 0xbf
+    db 0bfh                 ;e92b  bf          DATA 0xbf
+    db 0bfh                 ;e92c  bf          DATA 0xbf
+    db 0bfh                 ;e92d  bf          DATA 0xbf
+    db 0bfh                 ;e92e  bf          DATA 0xbf
+    db 0bfh                 ;e92f  bf          DATA 0xbf
+    db 0bfh                 ;e930  bf          DATA 0xbf
+    db 0bfh                 ;e931  bf          DATA 0xbf
+    db 0bfh                 ;e932  bf          DATA 0xbf
+    db 0bfh                 ;e933  bf          DATA 0xbf
+    db 0bfh                 ;e934  bf          DATA 0xbf
+    db 0bfh                 ;e935  bf          DATA 0xbf
+    db 0bfh                 ;e936  bf          DATA 0xbf
+    db 0bfh                 ;e937  bf          DATA 0xbf
+    db 0bfh                 ;e938  bf          DATA 0xbf
+    db 0bfh                 ;e939  bf          DATA 0xbf
+    db 0bfh                 ;e93a  bf          DATA 0xbf
+    db 0bfh                 ;e93b  bf          DATA 0xbf
+    db 0bfh                 ;e93c  bf          DATA 0xbf
+    db 0bfh                 ;e93d  bf          DATA 0xbf
+    db 0bfh                 ;e93e  bf          DATA 0xbf
+    db 0bfh                 ;e93f  bf          DATA 0xbf
+    db 0bfh                 ;e940  bf          DATA 0xbf
+    db 0bfh                 ;e941  bf          DATA 0xbf
+    db 0bfh                 ;e942  bf          DATA 0xbf
+    db 0bfh                 ;e943  bf          DATA 0xbf
+    db 0bfh                 ;e944  bf          DATA 0xbf
+    db 0bfh                 ;e945  bf          DATA 0xbf
+    db 0bfh                 ;e946  bf          DATA 0xbf
+    db 0bfh                 ;e947  bf          DATA 0xbf
+    db 0bfh                 ;e948  bf          DATA 0xbf
+    db 0bfh                 ;e949  bf          DATA 0xbf
+    db 0bfh                 ;e94a  bf          DATA 0xbf
+    db 0bfh                 ;e94b  bf          DATA 0xbf
+    db 0bfh                 ;e94c  bf          DATA 0xbf
+    db 0bfh                 ;e94d  bf          DATA 0xbf
+    db 0bfh                 ;e94e  bf          DATA 0xbf
+    db 0bfh                 ;e94f  bf          DATA 0xbf
+    db 0bfh                 ;e950  bf          DATA 0xbf
+    db 0bfh                 ;e951  bf          DATA 0xbf
+    db 0bfh                 ;e952  bf          DATA 0xbf
+    db 0bfh                 ;e953  bf          DATA 0xbf
+    db 0bfh                 ;e954  bf          DATA 0xbf
+    db 0bfh                 ;e955  bf          DATA 0xbf
+    db 0bfh                 ;e956  bf          DATA 0xbf
+    db 0bfh                 ;e957  bf          DATA 0xbf
+    db 0bfh                 ;e958  bf          DATA 0xbf
+    db 0bfh                 ;e959  bf          DATA 0xbf
+    db 0bfh                 ;e95a  bf          DATA 0xbf
+    db 0bfh                 ;e95b  bf          DATA 0xbf
+    db 0bfh                 ;e95c  bf          DATA 0xbf
+    db 0bfh                 ;e95d  bf          DATA 0xbf
+    db 0bfh                 ;e95e  bf          DATA 0xbf
+    db 0bfh                 ;e95f  bf          DATA 0xbf
+    db 0bfh                 ;e960  bf          DATA 0xbf
+    db 0bfh                 ;e961  bf          DATA 0xbf
+    db 0bfh                 ;e962  bf          DATA 0xbf
+    db 0bfh                 ;e963  bf          DATA 0xbf
+    db 0bfh                 ;e964  bf          DATA 0xbf
+    db 0bfh                 ;e965  bf          DATA 0xbf
+    db 0bfh                 ;e966  bf          DATA 0xbf
+    db 0bfh                 ;e967  bf          DATA 0xbf
+    db 0bfh                 ;e968  bf          DATA 0xbf
+    db 0bfh                 ;e969  bf          DATA 0xbf
+    db 0bfh                 ;e96a  bf          DATA 0xbf
+    db 0bfh                 ;e96b  bf          DATA 0xbf
+    db 0bfh                 ;e96c  bf          DATA 0xbf
+    db 0bfh                 ;e96d  bf          DATA 0xbf
+    db 0bfh                 ;e96e  bf          DATA 0xbf
+    db 0bfh                 ;e96f  bf          DATA 0xbf
+    db 0bfh                 ;e970  bf          DATA 0xbf
+    db 0bfh                 ;e971  bf          DATA 0xbf
+    db 0bfh                 ;e972  bf          DATA 0xbf
+    db 0bfh                 ;e973  bf          DATA 0xbf
+    db 0bfh                 ;e974  bf          DATA 0xbf
+    db 0bfh                 ;e975  bf          DATA 0xbf
+    db 0bfh                 ;e976  bf          DATA 0xbf
+    db 0bfh                 ;e977  bf          DATA 0xbf
+    db 0bfh                 ;e978  bf          DATA 0xbf
+    db 0bfh                 ;e979  bf          DATA 0xbf
+    db 0bfh                 ;e97a  bf          DATA 0xbf
+    db 0bfh                 ;e97b  bf          DATA 0xbf
+    db 0bfh                 ;e97c  bf          DATA 0xbf
+    db 0bfh                 ;e97d  bf          DATA 0xbf
+    db 0bfh                 ;e97e  bf          DATA 0xbf
+    db 0bfh                 ;e97f  bf          DATA 0xbf
+    db 0bfh                 ;e980  bf          DATA 0xbf
+    db 0bfh                 ;e981  bf          DATA 0xbf
+    db 0bfh                 ;e982  bf          DATA 0xbf
+    db 0bfh                 ;e983  bf          DATA 0xbf
+    db 0bfh                 ;e984  bf          DATA 0xbf
+    db 0bfh                 ;e985  bf          DATA 0xbf
+    db 0bfh                 ;e986  bf          DATA 0xbf
+    db 0bfh                 ;e987  bf          DATA 0xbf
+    db 0bfh                 ;e988  bf          DATA 0xbf
+    db 0bfh                 ;e989  bf          DATA 0xbf
+    db 0bfh                 ;e98a  bf          DATA 0xbf
+    db 0bfh                 ;e98b  bf          DATA 0xbf
+    db 0bfh                 ;e98c  bf          DATA 0xbf
+    db 0bfh                 ;e98d  bf          DATA 0xbf
+    db 0bfh                 ;e98e  bf          DATA 0xbf
+    db 0bfh                 ;e98f  bf          DATA 0xbf
+    db 0bfh                 ;e990  bf          DATA 0xbf
+    db 0bfh                 ;e991  bf          DATA 0xbf
+    db 0bfh                 ;e992  bf          DATA 0xbf
+    db 0bfh                 ;e993  bf          DATA 0xbf
+    db 0bfh                 ;e994  bf          DATA 0xbf
+    db 0bfh                 ;e995  bf          DATA 0xbf
+    db 0bfh                 ;e996  bf          DATA 0xbf
+    db 0bfh                 ;e997  bf          DATA 0xbf
+    db 0bfh                 ;e998  bf          DATA 0xbf
+    db 0bfh                 ;e999  bf          DATA 0xbf
+    db 0bfh                 ;e99a  bf          DATA 0xbf
+    db 0bfh                 ;e99b  bf          DATA 0xbf
+    db 0bfh                 ;e99c  bf          DATA 0xbf
+    db 0bfh                 ;e99d  bf          DATA 0xbf
+    db 0bfh                 ;e99e  bf          DATA 0xbf
+    db 0bfh                 ;e99f  bf          DATA 0xbf
+    db 0bfh                 ;e9a0  bf          DATA 0xbf
+    db 0bfh                 ;e9a1  bf          DATA 0xbf
+    db 0bfh                 ;e9a2  bf          DATA 0xbf
+    db 0bfh                 ;e9a3  bf          DATA 0xbf
+    db 0bfh                 ;e9a4  bf          DATA 0xbf
+    db 0bfh                 ;e9a5  bf          DATA 0xbf
+    db 0bfh                 ;e9a6  bf          DATA 0xbf
+    db 0bfh                 ;e9a7  bf          DATA 0xbf
+    db 0bfh                 ;e9a8  bf          DATA 0xbf
+    db 0bfh                 ;e9a9  bf          DATA 0xbf
+    db 0bfh                 ;e9aa  bf          DATA 0xbf
+    db 0bfh                 ;e9ab  bf          DATA 0xbf
+    db 0bfh                 ;e9ac  bf          DATA 0xbf
+    db 0bfh                 ;e9ad  bf          DATA 0xbf
+    db 0bfh                 ;e9ae  bf          DATA 0xbf
+    db 0bfh                 ;e9af  bf          DATA 0xbf
+    db 0bfh                 ;e9b0  bf          DATA 0xbf
+    db 0bfh                 ;e9b1  bf          DATA 0xbf
+    db 0bfh                 ;e9b2  bf          DATA 0xbf
+    db 0bfh                 ;e9b3  bf          DATA 0xbf
+    db 0bfh                 ;e9b4  bf          DATA 0xbf
+    db 0bfh                 ;e9b5  bf          DATA 0xbf
+    db 0bfh                 ;e9b6  bf          DATA 0xbf
+    db 0bfh                 ;e9b7  bf          DATA 0xbf
+    db 0bfh                 ;e9b8  bf          DATA 0xbf
+    db 0bfh                 ;e9b9  bf          DATA 0xbf
+    db 0bfh                 ;e9ba  bf          DATA 0xbf
+    db 0bfh                 ;e9bb  bf          DATA 0xbf
+    db 0bfh                 ;e9bc  bf          DATA 0xbf
+    db 0bfh                 ;e9bd  bf          DATA 0xbf
+    db 0bfh                 ;e9be  bf          DATA 0xbf
+    db 0bfh                 ;e9bf  bf          DATA 0xbf
+    db 0bfh                 ;e9c0  bf          DATA 0xbf
+    db 0bfh                 ;e9c1  bf          DATA 0xbf
+    db 0bfh                 ;e9c2  bf          DATA 0xbf
+    db 0bfh                 ;e9c3  bf          DATA 0xbf
+    db 0bfh                 ;e9c4  bf          DATA 0xbf
+    db 0bfh                 ;e9c5  bf          DATA 0xbf
+    db 0bfh                 ;e9c6  bf          DATA 0xbf
+    db 0bfh                 ;e9c7  bf          DATA 0xbf
+    db 0bfh                 ;e9c8  bf          DATA 0xbf
+    db 0bfh                 ;e9c9  bf          DATA 0xbf
+    db 0bfh                 ;e9ca  bf          DATA 0xbf
+    db 0bfh                 ;e9cb  bf          DATA 0xbf
+    db 0bfh                 ;e9cc  bf          DATA 0xbf
+    db 0bfh                 ;e9cd  bf          DATA 0xbf
+    db 0bfh                 ;e9ce  bf          DATA 0xbf
+    db 0bfh                 ;e9cf  bf          DATA 0xbf
+    db 0bfh                 ;e9d0  bf          DATA 0xbf
+    db 0bfh                 ;e9d1  bf          DATA 0xbf
+    db 0bfh                 ;e9d2  bf          DATA 0xbf
+    db 0bfh                 ;e9d3  bf          DATA 0xbf
+    db 0bfh                 ;e9d4  bf          DATA 0xbf
+    db 0bfh                 ;e9d5  bf          DATA 0xbf
+    db 0bfh                 ;e9d6  bf          DATA 0xbf
+    db 0bfh                 ;e9d7  bf          DATA 0xbf
+    db 0bfh                 ;e9d8  bf          DATA 0xbf
+    db 0bfh                 ;e9d9  bf          DATA 0xbf
+    db 0bfh                 ;e9da  bf          DATA 0xbf
+    db 0bfh                 ;e9db  bf          DATA 0xbf
+    db 0bfh                 ;e9dc  bf          DATA 0xbf
+    db 0bfh                 ;e9dd  bf          DATA 0xbf
+    db 0bfh                 ;e9de  bf          DATA 0xbf
+    db 0bfh                 ;e9df  bf          DATA 0xbf
+    db 0bfh                 ;e9e0  bf          DATA 0xbf
+    db 0bfh                 ;e9e1  bf          DATA 0xbf
+    db 0bfh                 ;e9e2  bf          DATA 0xbf
+    db 0bfh                 ;e9e3  bf          DATA 0xbf
+    db 0bfh                 ;e9e4  bf          DATA 0xbf
+    db 0bfh                 ;e9e5  bf          DATA 0xbf
+    db 0bfh                 ;e9e6  bf          DATA 0xbf
+    db 0bfh                 ;e9e7  bf          DATA 0xbf
+    db 0bfh                 ;e9e8  bf          DATA 0xbf
+    db 0bfh                 ;e9e9  bf          DATA 0xbf
+    db 0bfh                 ;e9ea  bf          DATA 0xbf
+    db 0bfh                 ;e9eb  bf          DATA 0xbf
+    db 0bfh                 ;e9ec  bf          DATA 0xbf
+    db 0bfh                 ;e9ed  bf          DATA 0xbf
+    db 0bfh                 ;e9ee  bf          DATA 0xbf
+    db 0bfh                 ;e9ef  bf          DATA 0xbf
+    db 0bfh                 ;e9f0  bf          DATA 0xbf
+    db 0bfh                 ;e9f1  bf          DATA 0xbf
+    db 0bfh                 ;e9f2  bf          DATA 0xbf
+    db 0bfh                 ;e9f3  bf          DATA 0xbf
+    db 0bfh                 ;e9f4  bf          DATA 0xbf
+    db 0bfh                 ;e9f5  bf          DATA 0xbf
+    db 0bfh                 ;e9f6  bf          DATA 0xbf
+    db 0bfh                 ;e9f7  bf          DATA 0xbf
+    db 0bfh                 ;e9f8  bf          DATA 0xbf
+    db 0bfh                 ;e9f9  bf          DATA 0xbf
+    db 0bfh                 ;e9fa  bf          DATA 0xbf
+    db 0bfh                 ;e9fb  bf          DATA 0xbf
+    db 0bfh                 ;e9fc  bf          DATA 0xbf
+    db 0bfh                 ;e9fd  bf          DATA 0xbf
+    db 0bfh                 ;e9fe  bf          DATA 0xbf
+    db 0bfh                 ;e9ff  bf          DATA 0xbf
+    db 0bfh                 ;ea00  bf          DATA 0xbf
+    db 0bfh                 ;ea01  bf          DATA 0xbf
+    db 0bfh                 ;ea02  bf          DATA 0xbf
+    db 0bfh                 ;ea03  bf          DATA 0xbf
+    db 0bfh                 ;ea04  bf          DATA 0xbf
+    db 0bfh                 ;ea05  bf          DATA 0xbf
+    db 0bfh                 ;ea06  bf          DATA 0xbf
+    db 0bfh                 ;ea07  bf          DATA 0xbf
+    db 0bfh                 ;ea08  bf          DATA 0xbf
+    db 0bfh                 ;ea09  bf          DATA 0xbf
+    db 0bfh                 ;ea0a  bf          DATA 0xbf
+    db 0bfh                 ;ea0b  bf          DATA 0xbf
+    db 0bfh                 ;ea0c  bf          DATA 0xbf
+    db 0bfh                 ;ea0d  bf          DATA 0xbf
+    db 0bfh                 ;ea0e  bf          DATA 0xbf
+    db 0bfh                 ;ea0f  bf          DATA 0xbf
+    db 0bfh                 ;ea10  bf          DATA 0xbf
+    db 0bfh                 ;ea11  bf          DATA 0xbf
+    db 0bfh                 ;ea12  bf          DATA 0xbf
+    db 0bfh                 ;ea13  bf          DATA 0xbf
+    db 0bfh                 ;ea14  bf          DATA 0xbf
+    db 0bfh                 ;ea15  bf          DATA 0xbf
+    db 0bfh                 ;ea16  bf          DATA 0xbf
+    db 0bfh                 ;ea17  bf          DATA 0xbf
+    db 0bfh                 ;ea18  bf          DATA 0xbf
+    db 0bfh                 ;ea19  bf          DATA 0xbf
+    db 0bfh                 ;ea1a  bf          DATA 0xbf
+    db 0bfh                 ;ea1b  bf          DATA 0xbf
+    db 0bfh                 ;ea1c  bf          DATA 0xbf
+    db 0bfh                 ;ea1d  bf          DATA 0xbf
+    db 0bfh                 ;ea1e  bf          DATA 0xbf
+    db 0bfh                 ;ea1f  bf          DATA 0xbf
+    db 0bfh                 ;ea20  bf          DATA 0xbf
+    db 0bfh                 ;ea21  bf          DATA 0xbf
+    db 0bfh                 ;ea22  bf          DATA 0xbf
+    db 0bfh                 ;ea23  bf          DATA 0xbf
+    db 0bfh                 ;ea24  bf          DATA 0xbf
+    db 0bfh                 ;ea25  bf          DATA 0xbf
+    db 0bfh                 ;ea26  bf          DATA 0xbf
+    db 0bfh                 ;ea27  bf          DATA 0xbf
+    db 0bfh                 ;ea28  bf          DATA 0xbf
+    db 0bfh                 ;ea29  bf          DATA 0xbf
+    db 0bfh                 ;ea2a  bf          DATA 0xbf
+    db 0bfh                 ;ea2b  bf          DATA 0xbf
+    db 0bfh                 ;ea2c  bf          DATA 0xbf
+    db 0bfh                 ;ea2d  bf          DATA 0xbf
+    db 0bfh                 ;ea2e  bf          DATA 0xbf
+    db 0bfh                 ;ea2f  bf          DATA 0xbf
+    db 0bfh                 ;ea30  bf          DATA 0xbf
+    db 0bfh                 ;ea31  bf          DATA 0xbf
+    db 0bfh                 ;ea32  bf          DATA 0xbf
+    db 0bfh                 ;ea33  bf          DATA 0xbf
+    db 0bfh                 ;ea34  bf          DATA 0xbf
+    db 0bfh                 ;ea35  bf          DATA 0xbf
+    db 0bfh                 ;ea36  bf          DATA 0xbf
+    db 0bfh                 ;ea37  bf          DATA 0xbf
+    db 0bfh                 ;ea38  bf          DATA 0xbf
+    db 0bfh                 ;ea39  bf          DATA 0xbf
+    db 0bfh                 ;ea3a  bf          DATA 0xbf
+    db 0bfh                 ;ea3b  bf          DATA 0xbf
+    db 0bfh                 ;ea3c  bf          DATA 0xbf
+    db 0bfh                 ;ea3d  bf          DATA 0xbf
+    db 0bfh                 ;ea3e  bf          DATA 0xbf
+    db 0bfh                 ;ea3f  bf          DATA 0xbf
+    db 0bfh                 ;ea40  bf          DATA 0xbf
+    db 0bfh                 ;ea41  bf          DATA 0xbf
+    db 0bfh                 ;ea42  bf          DATA 0xbf
+    db 0bfh                 ;ea43  bf          DATA 0xbf
+    db 0bfh                 ;ea44  bf          DATA 0xbf
+    db 0bfh                 ;ea45  bf          DATA 0xbf
+    db 0bfh                 ;ea46  bf          DATA 0xbf
+    db 0bfh                 ;ea47  bf          DATA 0xbf
+    db 0bfh                 ;ea48  bf          DATA 0xbf
+    db 0bfh                 ;ea49  bf          DATA 0xbf
+    db 0bfh                 ;ea4a  bf          DATA 0xbf
+    db 0bfh                 ;ea4b  bf          DATA 0xbf
+    db 0bfh                 ;ea4c  bf          DATA 0xbf
+    db 0bfh                 ;ea4d  bf          DATA 0xbf
+    db 0bfh                 ;ea4e  bf          DATA 0xbf
+    db 0bfh                 ;ea4f  bf          DATA 0xbf
+    db 0bfh                 ;ea50  bf          DATA 0xbf
+    db 0bfh                 ;ea51  bf          DATA 0xbf
+    db 0bfh                 ;ea52  bf          DATA 0xbf
+    db 0bfh                 ;ea53  bf          DATA 0xbf
+    db 0bfh                 ;ea54  bf          DATA 0xbf
+    db 0bfh                 ;ea55  bf          DATA 0xbf
+    db 0bfh                 ;ea56  bf          DATA 0xbf
+    db 0bfh                 ;ea57  bf          DATA 0xbf
+    db 0bfh                 ;ea58  bf          DATA 0xbf
+    db 0bfh                 ;ea59  bf          DATA 0xbf
+    db 0bfh                 ;ea5a  bf          DATA 0xbf
+    db 0bfh                 ;ea5b  bf          DATA 0xbf
+    db 0bfh                 ;ea5c  bf          DATA 0xbf
+    db 0bfh                 ;ea5d  bf          DATA 0xbf
+    db 0bfh                 ;ea5e  bf          DATA 0xbf
+    db 0bfh                 ;ea5f  bf          DATA 0xbf
+    db 0bfh                 ;ea60  bf          DATA 0xbf
+    db 0bfh                 ;ea61  bf          DATA 0xbf
+    db 0bfh                 ;ea62  bf          DATA 0xbf
+    db 0bfh                 ;ea63  bf          DATA 0xbf
+    db 0bfh                 ;ea64  bf          DATA 0xbf
+    db 0bfh                 ;ea65  bf          DATA 0xbf
+    db 0bfh                 ;ea66  bf          DATA 0xbf
+    db 0bfh                 ;ea67  bf          DATA 0xbf
+    db 0bfh                 ;ea68  bf          DATA 0xbf
+    db 0bfh                 ;ea69  bf          DATA 0xbf
+    db 0bfh                 ;ea6a  bf          DATA 0xbf
+    db 0bfh                 ;ea6b  bf          DATA 0xbf
+    db 0bfh                 ;ea6c  bf          DATA 0xbf
+    db 0bfh                 ;ea6d  bf          DATA 0xbf
+    db 0bfh                 ;ea6e  bf          DATA 0xbf
+    db 0bfh                 ;ea6f  bf          DATA 0xbf
+    db 0bfh                 ;ea70  bf          DATA 0xbf
+    db 0bfh                 ;ea71  bf          DATA 0xbf
+    db 0bfh                 ;ea72  bf          DATA 0xbf
+    db 0bfh                 ;ea73  bf          DATA 0xbf
+    db 0bfh                 ;ea74  bf          DATA 0xbf
+    db 0bfh                 ;ea75  bf          DATA 0xbf
+    db 0bfh                 ;ea76  bf          DATA 0xbf
+    db 0bfh                 ;ea77  bf          DATA 0xbf
+    db 0bfh                 ;ea78  bf          DATA 0xbf
+    db 0bfh                 ;ea79  bf          DATA 0xbf
+    db 0bfh                 ;ea7a  bf          DATA 0xbf
+    db 0bfh                 ;ea7b  bf          DATA 0xbf
+    db 0bfh                 ;ea7c  bf          DATA 0xbf
+    db 0bfh                 ;ea7d  bf          DATA 0xbf
+    db 0bfh                 ;ea7e  bf          DATA 0xbf
+    db 0bfh                 ;ea7f  bf          DATA 0xbf
+    db 0bfh                 ;ea80  bf          DATA 0xbf
+    db 0bfh                 ;ea81  bf          DATA 0xbf
+    db 0bfh                 ;ea82  bf          DATA 0xbf
+    db 0bfh                 ;ea83  bf          DATA 0xbf
+    db 0bfh                 ;ea84  bf          DATA 0xbf
+    db 0bfh                 ;ea85  bf          DATA 0xbf
+    db 0bfh                 ;ea86  bf          DATA 0xbf
+    db 0bfh                 ;ea87  bf          DATA 0xbf
+    db 0bfh                 ;ea88  bf          DATA 0xbf
+    db 0bfh                 ;ea89  bf          DATA 0xbf
+    db 0bfh                 ;ea8a  bf          DATA 0xbf
+    db 0bfh                 ;ea8b  bf          DATA 0xbf
+    db 0bfh                 ;ea8c  bf          DATA 0xbf
+    db 0bfh                 ;ea8d  bf          DATA 0xbf
+    db 0bfh                 ;ea8e  bf          DATA 0xbf
+    db 0bfh                 ;ea8f  bf          DATA 0xbf
+    db 0bfh                 ;ea90  bf          DATA 0xbf
+    db 0bfh                 ;ea91  bf          DATA 0xbf
+    db 0bfh                 ;ea92  bf          DATA 0xbf
+    db 0bfh                 ;ea93  bf          DATA 0xbf
+    db 0bfh                 ;ea94  bf          DATA 0xbf
+    db 0bfh                 ;ea95  bf          DATA 0xbf
+    db 0bfh                 ;ea96  bf          DATA 0xbf
+    db 0bfh                 ;ea97  bf          DATA 0xbf
+    db 0bfh                 ;ea98  bf          DATA 0xbf
+    db 0bfh                 ;ea99  bf          DATA 0xbf
+    db 0bfh                 ;ea9a  bf          DATA 0xbf
+    db 0bfh                 ;ea9b  bf          DATA 0xbf
+    db 0bfh                 ;ea9c  bf          DATA 0xbf
+    db 0bfh                 ;ea9d  bf          DATA 0xbf
+    db 0bfh                 ;ea9e  bf          DATA 0xbf
+    db 0bfh                 ;ea9f  bf          DATA 0xbf
+    db 0bfh                 ;eaa0  bf          DATA 0xbf
+    db 0bfh                 ;eaa1  bf          DATA 0xbf
+    db 0bfh                 ;eaa2  bf          DATA 0xbf
+    db 0bfh                 ;eaa3  bf          DATA 0xbf
+    db 0bfh                 ;eaa4  bf          DATA 0xbf
+    db 0bfh                 ;eaa5  bf          DATA 0xbf
+    db 0bfh                 ;eaa6  bf          DATA 0xbf
+    db 0bfh                 ;eaa7  bf          DATA 0xbf
+    db 0bfh                 ;eaa8  bf          DATA 0xbf
+    db 0bfh                 ;eaa9  bf          DATA 0xbf
+    db 0bfh                 ;eaaa  bf          DATA 0xbf
+    db 0bfh                 ;eaab  bf          DATA 0xbf
+    db 0bfh                 ;eaac  bf          DATA 0xbf
+    db 0bfh                 ;eaad  bf          DATA 0xbf
+    db 0bfh                 ;eaae  bf          DATA 0xbf
+    db 0bfh                 ;eaaf  bf          DATA 0xbf
+    db 0bfh                 ;eab0  bf          DATA 0xbf
+    db 0bfh                 ;eab1  bf          DATA 0xbf
+    db 0bfh                 ;eab2  bf          DATA 0xbf
+    db 0bfh                 ;eab3  bf          DATA 0xbf
+    db 0bfh                 ;eab4  bf          DATA 0xbf
+    db 0bfh                 ;eab5  bf          DATA 0xbf
+    db 0bfh                 ;eab6  bf          DATA 0xbf
+    db 0bfh                 ;eab7  bf          DATA 0xbf
+    db 0bfh                 ;eab8  bf          DATA 0xbf
+    db 0bfh                 ;eab9  bf          DATA 0xbf
+    db 0bfh                 ;eaba  bf          DATA 0xbf
+    db 0bfh                 ;eabb  bf          DATA 0xbf
+    db 0bfh                 ;eabc  bf          DATA 0xbf
+    db 0bfh                 ;eabd  bf          DATA 0xbf
+    db 0bfh                 ;eabe  bf          DATA 0xbf
+    db 0bfh                 ;eabf  bf          DATA 0xbf
+    db 0bfh                 ;eac0  bf          DATA 0xbf
+    db 0bfh                 ;eac1  bf          DATA 0xbf
+    db 0bfh                 ;eac2  bf          DATA 0xbf
+    db 0bfh                 ;eac3  bf          DATA 0xbf
+    db 0bfh                 ;eac4  bf          DATA 0xbf
+    db 0bfh                 ;eac5  bf          DATA 0xbf
+    db 0bfh                 ;eac6  bf          DATA 0xbf
+    db 0bfh                 ;eac7  bf          DATA 0xbf
+    db 0bfh                 ;eac8  bf          DATA 0xbf
+    db 0bfh                 ;eac9  bf          DATA 0xbf
+    db 0bfh                 ;eaca  bf          DATA 0xbf
+    db 0bfh                 ;eacb  bf          DATA 0xbf
+    db 0bfh                 ;eacc  bf          DATA 0xbf
+    db 0bfh                 ;eacd  bf          DATA 0xbf
+    db 0bfh                 ;eace  bf          DATA 0xbf
+    db 0bfh                 ;eacf  bf          DATA 0xbf
+    db 0bfh                 ;ead0  bf          DATA 0xbf
+    db 0bfh                 ;ead1  bf          DATA 0xbf
+    db 0bfh                 ;ead2  bf          DATA 0xbf
+    db 0bfh                 ;ead3  bf          DATA 0xbf
+    db 0bfh                 ;ead4  bf          DATA 0xbf
+    db 0bfh                 ;ead5  bf          DATA 0xbf
+    db 0bfh                 ;ead6  bf          DATA 0xbf
+    db 0bfh                 ;ead7  bf          DATA 0xbf
+    db 0bfh                 ;ead8  bf          DATA 0xbf
+    db 0bfh                 ;ead9  bf          DATA 0xbf
+    db 0bfh                 ;eada  bf          DATA 0xbf
+    db 0bfh                 ;eadb  bf          DATA 0xbf
+    db 0bfh                 ;eadc  bf          DATA 0xbf
+    db 0bfh                 ;eadd  bf          DATA 0xbf
+    db 0bfh                 ;eade  bf          DATA 0xbf
+    db 0bfh                 ;eadf  bf          DATA 0xbf
+    db 0bfh                 ;eae0  bf          DATA 0xbf
+    db 0bfh                 ;eae1  bf          DATA 0xbf
+    db 0bfh                 ;eae2  bf          DATA 0xbf
+    db 0bfh                 ;eae3  bf          DATA 0xbf
+    db 0bfh                 ;eae4  bf          DATA 0xbf
+    db 0bfh                 ;eae5  bf          DATA 0xbf
+    db 0bfh                 ;eae6  bf          DATA 0xbf
+    db 0bfh                 ;eae7  bf          DATA 0xbf
+    db 0bfh                 ;eae8  bf          DATA 0xbf
+    db 0bfh                 ;eae9  bf          DATA 0xbf
+    db 0bfh                 ;eaea  bf          DATA 0xbf
+    db 0bfh                 ;eaeb  bf          DATA 0xbf
+    db 0bfh                 ;eaec  bf          DATA 0xbf
+    db 0bfh                 ;eaed  bf          DATA 0xbf
+    db 0bfh                 ;eaee  bf          DATA 0xbf
+    db 0bfh                 ;eaef  bf          DATA 0xbf
+    db 0bfh                 ;eaf0  bf          DATA 0xbf
+    db 0bfh                 ;eaf1  bf          DATA 0xbf
+    db 0bfh                 ;eaf2  bf          DATA 0xbf
+    db 0bfh                 ;eaf3  bf          DATA 0xbf
+    db 0bfh                 ;eaf4  bf          DATA 0xbf
+    db 0bfh                 ;eaf5  bf          DATA 0xbf
+    db 0bfh                 ;eaf6  bf          DATA 0xbf
+    db 0bfh                 ;eaf7  bf          DATA 0xbf
+    db 0bfh                 ;eaf8  bf          DATA 0xbf
+    db 0bfh                 ;eaf9  bf          DATA 0xbf
+    db 0bfh                 ;eafa  bf          DATA 0xbf
+    db 0bfh                 ;eafb  bf          DATA 0xbf
+    db 0bfh                 ;eafc  bf          DATA 0xbf
+    db 0bfh                 ;eafd  bf          DATA 0xbf
+    db 0bfh                 ;eafe  bf          DATA 0xbf
+    db 0bfh                 ;eaff  bf          DATA 0xbf
+    db 0bfh                 ;eb00  bf          DATA 0xbf
+    db 0bfh                 ;eb01  bf          DATA 0xbf
+    db 0bfh                 ;eb02  bf          DATA 0xbf
+    db 0bfh                 ;eb03  bf          DATA 0xbf
+    db 0bfh                 ;eb04  bf          DATA 0xbf
+    db 0bfh                 ;eb05  bf          DATA 0xbf
+    db 0bfh                 ;eb06  bf          DATA 0xbf
+    db 0bfh                 ;eb07  bf          DATA 0xbf
+    db 0bfh                 ;eb08  bf          DATA 0xbf
+    db 0bfh                 ;eb09  bf          DATA 0xbf
+    db 0bfh                 ;eb0a  bf          DATA 0xbf
+    db 0bfh                 ;eb0b  bf          DATA 0xbf
+    db 0bfh                 ;eb0c  bf          DATA 0xbf
+    db 0bfh                 ;eb0d  bf          DATA 0xbf
+    db 0bfh                 ;eb0e  bf          DATA 0xbf
+    db 0bfh                 ;eb0f  bf          DATA 0xbf
+    db 0bfh                 ;eb10  bf          DATA 0xbf
+    db 0bfh                 ;eb11  bf          DATA 0xbf
+    db 0bfh                 ;eb12  bf          DATA 0xbf
+    db 0bfh                 ;eb13  bf          DATA 0xbf
+    db 0bfh                 ;eb14  bf          DATA 0xbf
+    db 0bfh                 ;eb15  bf          DATA 0xbf
+    db 0bfh                 ;eb16  bf          DATA 0xbf
+    db 0bfh                 ;eb17  bf          DATA 0xbf
+    db 0bfh                 ;eb18  bf          DATA 0xbf
+    db 0bfh                 ;eb19  bf          DATA 0xbf
+    db 0bfh                 ;eb1a  bf          DATA 0xbf
+    db 0bfh                 ;eb1b  bf          DATA 0xbf
+    db 0bfh                 ;eb1c  bf          DATA 0xbf
+    db 0bfh                 ;eb1d  bf          DATA 0xbf
+    db 0bfh                 ;eb1e  bf          DATA 0xbf
+    db 0bfh                 ;eb1f  bf          DATA 0xbf
+    db 0bfh                 ;eb20  bf          DATA 0xbf
+    db 0bfh                 ;eb21  bf          DATA 0xbf
+    db 0bfh                 ;eb22  bf          DATA 0xbf
+    db 0bfh                 ;eb23  bf          DATA 0xbf
+    db 0bfh                 ;eb24  bf          DATA 0xbf
+    db 0bfh                 ;eb25  bf          DATA 0xbf
+    db 0bfh                 ;eb26  bf          DATA 0xbf
+    db 0bfh                 ;eb27  bf          DATA 0xbf
+    db 0bfh                 ;eb28  bf          DATA 0xbf
+    db 0bfh                 ;eb29  bf          DATA 0xbf
+    db 0bfh                 ;eb2a  bf          DATA 0xbf
+    db 0bfh                 ;eb2b  bf          DATA 0xbf
+    db 0bfh                 ;eb2c  bf          DATA 0xbf
+    db 0bfh                 ;eb2d  bf          DATA 0xbf
+    db 0bfh                 ;eb2e  bf          DATA 0xbf
+    db 0bfh                 ;eb2f  bf          DATA 0xbf
+    db 0bfh                 ;eb30  bf          DATA 0xbf
+    db 0bfh                 ;eb31  bf          DATA 0xbf
+    db 0bfh                 ;eb32  bf          DATA 0xbf
+    db 0bfh                 ;eb33  bf          DATA 0xbf
+    db 0bfh                 ;eb34  bf          DATA 0xbf
+    db 0bfh                 ;eb35  bf          DATA 0xbf
+    db 0bfh                 ;eb36  bf          DATA 0xbf
+    db 0bfh                 ;eb37  bf          DATA 0xbf
+    db 0bfh                 ;eb38  bf          DATA 0xbf
+    db 0bfh                 ;eb39  bf          DATA 0xbf
+    db 0bfh                 ;eb3a  bf          DATA 0xbf
+    db 0bfh                 ;eb3b  bf          DATA 0xbf
+    db 0bfh                 ;eb3c  bf          DATA 0xbf
+    db 0bfh                 ;eb3d  bf          DATA 0xbf
+    db 0bfh                 ;eb3e  bf          DATA 0xbf
+    db 0bfh                 ;eb3f  bf          DATA 0xbf
+    db 0bfh                 ;eb40  bf          DATA 0xbf
+    db 0bfh                 ;eb41  bf          DATA 0xbf
+    db 0bfh                 ;eb42  bf          DATA 0xbf
+    db 0bfh                 ;eb43  bf          DATA 0xbf
+    db 0bfh                 ;eb44  bf          DATA 0xbf
+    db 0bfh                 ;eb45  bf          DATA 0xbf
+    db 0bfh                 ;eb46  bf          DATA 0xbf
+    db 0bfh                 ;eb47  bf          DATA 0xbf
+    db 0bfh                 ;eb48  bf          DATA 0xbf
+    db 0bfh                 ;eb49  bf          DATA 0xbf
+    db 0bfh                 ;eb4a  bf          DATA 0xbf
+    db 0bfh                 ;eb4b  bf          DATA 0xbf
+    db 0bfh                 ;eb4c  bf          DATA 0xbf
+    db 0bfh                 ;eb4d  bf          DATA 0xbf
+    db 0bfh                 ;eb4e  bf          DATA 0xbf
+    db 0bfh                 ;eb4f  bf          DATA 0xbf
+    db 0bfh                 ;eb50  bf          DATA 0xbf
+    db 0bfh                 ;eb51  bf          DATA 0xbf
+    db 0bfh                 ;eb52  bf          DATA 0xbf
+    db 0bfh                 ;eb53  bf          DATA 0xbf
+    db 0bfh                 ;eb54  bf          DATA 0xbf
+    db 0bfh                 ;eb55  bf          DATA 0xbf
+    db 0bfh                 ;eb56  bf          DATA 0xbf
+    db 0bfh                 ;eb57  bf          DATA 0xbf
+    db 0bfh                 ;eb58  bf          DATA 0xbf
+    db 0bfh                 ;eb59  bf          DATA 0xbf
+    db 0bfh                 ;eb5a  bf          DATA 0xbf
+    db 0bfh                 ;eb5b  bf          DATA 0xbf
+    db 0bfh                 ;eb5c  bf          DATA 0xbf
+    db 0bfh                 ;eb5d  bf          DATA 0xbf
+    db 0bfh                 ;eb5e  bf          DATA 0xbf
+    db 0bfh                 ;eb5f  bf          DATA 0xbf
+    db 0bfh                 ;eb60  bf          DATA 0xbf
+    db 0bfh                 ;eb61  bf          DATA 0xbf
+    db 0bfh                 ;eb62  bf          DATA 0xbf
+    db 0bfh                 ;eb63  bf          DATA 0xbf
+    db 0bfh                 ;eb64  bf          DATA 0xbf
+    db 0bfh                 ;eb65  bf          DATA 0xbf
+    db 0bfh                 ;eb66  bf          DATA 0xbf
+    db 0bfh                 ;eb67  bf          DATA 0xbf
+    db 0bfh                 ;eb68  bf          DATA 0xbf
+    db 0bfh                 ;eb69  bf          DATA 0xbf
+    db 0bfh                 ;eb6a  bf          DATA 0xbf
+    db 0bfh                 ;eb6b  bf          DATA 0xbf
+    db 0bfh                 ;eb6c  bf          DATA 0xbf
+    db 0bfh                 ;eb6d  bf          DATA 0xbf
+    db 0bfh                 ;eb6e  bf          DATA 0xbf
+    db 0bfh                 ;eb6f  bf          DATA 0xbf
+    db 0bfh                 ;eb70  bf          DATA 0xbf
+    db 0bfh                 ;eb71  bf          DATA 0xbf
+    db 0bfh                 ;eb72  bf          DATA 0xbf
+    db 0bfh                 ;eb73  bf          DATA 0xbf
+    db 0bfh                 ;eb74  bf          DATA 0xbf
+    db 0bfh                 ;eb75  bf          DATA 0xbf
+    db 0bfh                 ;eb76  bf          DATA 0xbf
+    db 0bfh                 ;eb77  bf          DATA 0xbf
+    db 0bfh                 ;eb78  bf          DATA 0xbf
+    db 0bfh                 ;eb79  bf          DATA 0xbf
+    db 0bfh                 ;eb7a  bf          DATA 0xbf
+    db 0bfh                 ;eb7b  bf          DATA 0xbf
+    db 0bfh                 ;eb7c  bf          DATA 0xbf
+    db 0bfh                 ;eb7d  bf          DATA 0xbf
+    db 0bfh                 ;eb7e  bf          DATA 0xbf
+    db 0bfh                 ;eb7f  bf          DATA 0xbf
+    db 0bfh                 ;eb80  bf          DATA 0xbf
+    db 0bfh                 ;eb81  bf          DATA 0xbf
+    db 0bfh                 ;eb82  bf          DATA 0xbf
+    db 0bfh                 ;eb83  bf          DATA 0xbf
+    db 0bfh                 ;eb84  bf          DATA 0xbf
+    db 0bfh                 ;eb85  bf          DATA 0xbf
+    db 0bfh                 ;eb86  bf          DATA 0xbf
+    db 0bfh                 ;eb87  bf          DATA 0xbf
+    db 0bfh                 ;eb88  bf          DATA 0xbf
+    db 0bfh                 ;eb89  bf          DATA 0xbf
+    db 0bfh                 ;eb8a  bf          DATA 0xbf
+    db 0bfh                 ;eb8b  bf          DATA 0xbf
+    db 0bfh                 ;eb8c  bf          DATA 0xbf
+    db 0bfh                 ;eb8d  bf          DATA 0xbf
+    db 0bfh                 ;eb8e  bf          DATA 0xbf
+    db 0bfh                 ;eb8f  bf          DATA 0xbf
+    db 0bfh                 ;eb90  bf          DATA 0xbf
+    db 0bfh                 ;eb91  bf          DATA 0xbf
+    db 0bfh                 ;eb92  bf          DATA 0xbf
+    db 0bfh                 ;eb93  bf          DATA 0xbf
+    db 0bfh                 ;eb94  bf          DATA 0xbf
+    db 0bfh                 ;eb95  bf          DATA 0xbf
+    db 0bfh                 ;eb96  bf          DATA 0xbf
+    db 0bfh                 ;eb97  bf          DATA 0xbf
+    db 0bfh                 ;eb98  bf          DATA 0xbf
+    db 0bfh                 ;eb99  bf          DATA 0xbf
+    db 0bfh                 ;eb9a  bf          DATA 0xbf
+    db 0bfh                 ;eb9b  bf          DATA 0xbf
+    db 0bfh                 ;eb9c  bf          DATA 0xbf
+    db 0bfh                 ;eb9d  bf          DATA 0xbf
+    db 0bfh                 ;eb9e  bf          DATA 0xbf
+    db 0bfh                 ;eb9f  bf          DATA 0xbf
+    db 0bfh                 ;eba0  bf          DATA 0xbf
+    db 0bfh                 ;eba1  bf          DATA 0xbf
+    db 0bfh                 ;eba2  bf          DATA 0xbf
+    db 0bfh                 ;eba3  bf          DATA 0xbf
+    db 0bfh                 ;eba4  bf          DATA 0xbf
+    db 0bfh                 ;eba5  bf          DATA 0xbf
+    db 0bfh                 ;eba6  bf          DATA 0xbf
+    db 0bfh                 ;eba7  bf          DATA 0xbf
+    db 0bfh                 ;eba8  bf          DATA 0xbf
+    db 0bfh                 ;eba9  bf          DATA 0xbf
+    db 0bfh                 ;ebaa  bf          DATA 0xbf
+    db 0bfh                 ;ebab  bf          DATA 0xbf
+    db 0bfh                 ;ebac  bf          DATA 0xbf
+    db 0bfh                 ;ebad  bf          DATA 0xbf
+    db 0bfh                 ;ebae  bf          DATA 0xbf
+    db 0bfh                 ;ebaf  bf          DATA 0xbf
+    db 0bfh                 ;ebb0  bf          DATA 0xbf
+    db 0bfh                 ;ebb1  bf          DATA 0xbf
+    db 0bfh                 ;ebb2  bf          DATA 0xbf
+    db 0bfh                 ;ebb3  bf          DATA 0xbf
+    db 0bfh                 ;ebb4  bf          DATA 0xbf
+    db 0bfh                 ;ebb5  bf          DATA 0xbf
+    db 0bfh                 ;ebb6  bf          DATA 0xbf
+    db 0bfh                 ;ebb7  bf          DATA 0xbf
+    db 0bfh                 ;ebb8  bf          DATA 0xbf
+    db 0bfh                 ;ebb9  bf          DATA 0xbf
+    db 0bfh                 ;ebba  bf          DATA 0xbf
+    db 0bfh                 ;ebbb  bf          DATA 0xbf
+    db 0bfh                 ;ebbc  bf          DATA 0xbf
+    db 0bfh                 ;ebbd  bf          DATA 0xbf
+    db 0bfh                 ;ebbe  bf          DATA 0xbf
+    db 0bfh                 ;ebbf  bf          DATA 0xbf
+    db 0bfh                 ;ebc0  bf          DATA 0xbf
+    db 0bfh                 ;ebc1  bf          DATA 0xbf
+    db 0bfh                 ;ebc2  bf          DATA 0xbf
+    db 0bfh                 ;ebc3  bf          DATA 0xbf
+    db 0bfh                 ;ebc4  bf          DATA 0xbf
+    db 0bfh                 ;ebc5  bf          DATA 0xbf
+    db 0bfh                 ;ebc6  bf          DATA 0xbf
+    db 0bfh                 ;ebc7  bf          DATA 0xbf
+    db 0bfh                 ;ebc8  bf          DATA 0xbf
+    db 0bfh                 ;ebc9  bf          DATA 0xbf
+    db 0bfh                 ;ebca  bf          DATA 0xbf
+    db 0bfh                 ;ebcb  bf          DATA 0xbf
+    db 0bfh                 ;ebcc  bf          DATA 0xbf
+    db 0bfh                 ;ebcd  bf          DATA 0xbf
+    db 0bfh                 ;ebce  bf          DATA 0xbf
+    db 0bfh                 ;ebcf  bf          DATA 0xbf
+    db 0bfh                 ;ebd0  bf          DATA 0xbf
+    db 0bfh                 ;ebd1  bf          DATA 0xbf
+    db 0bfh                 ;ebd2  bf          DATA 0xbf
+    db 0bfh                 ;ebd3  bf          DATA 0xbf
+    db 0bfh                 ;ebd4  bf          DATA 0xbf
+    db 0bfh                 ;ebd5  bf          DATA 0xbf
+    db 0bfh                 ;ebd6  bf          DATA 0xbf
+    db 0bfh                 ;ebd7  bf          DATA 0xbf
+    db 0bfh                 ;ebd8  bf          DATA 0xbf
+    db 0bfh                 ;ebd9  bf          DATA 0xbf
+    db 0bfh                 ;ebda  bf          DATA 0xbf
+    db 0bfh                 ;ebdb  bf          DATA 0xbf
+    db 0bfh                 ;ebdc  bf          DATA 0xbf
+    db 0bfh                 ;ebdd  bf          DATA 0xbf
+    db 0bfh                 ;ebde  bf          DATA 0xbf
+    db 0bfh                 ;ebdf  bf          DATA 0xbf
+    db 0bfh                 ;ebe0  bf          DATA 0xbf
+    db 0bfh                 ;ebe1  bf          DATA 0xbf
+    db 0bfh                 ;ebe2  bf          DATA 0xbf
+    db 0bfh                 ;ebe3  bf          DATA 0xbf
+    db 0bfh                 ;ebe4  bf          DATA 0xbf
+    db 0bfh                 ;ebe5  bf          DATA 0xbf
+    db 0bfh                 ;ebe6  bf          DATA 0xbf
+    db 0bfh                 ;ebe7  bf          DATA 0xbf
+    db 0bfh                 ;ebe8  bf          DATA 0xbf
+    db 0bfh                 ;ebe9  bf          DATA 0xbf
+    db 0bfh                 ;ebea  bf          DATA 0xbf
+    db 0bfh                 ;ebeb  bf          DATA 0xbf
+    db 0bfh                 ;ebec  bf          DATA 0xbf
+    db 0bfh                 ;ebed  bf          DATA 0xbf
+    db 0bfh                 ;ebee  bf          DATA 0xbf
+    db 0bfh                 ;ebef  bf          DATA 0xbf
+    db 0bfh                 ;ebf0  bf          DATA 0xbf
+    db 0bfh                 ;ebf1  bf          DATA 0xbf
+    db 0bfh                 ;ebf2  bf          DATA 0xbf
+    db 0bfh                 ;ebf3  bf          DATA 0xbf
+    db 0bfh                 ;ebf4  bf          DATA 0xbf
+    db 0bfh                 ;ebf5  bf          DATA 0xbf
+    db 0bfh                 ;ebf6  bf          DATA 0xbf
+    db 0bfh                 ;ebf7  bf          DATA 0xbf
+    db 0bfh                 ;ebf8  bf          DATA 0xbf
+    db 0bfh                 ;ebf9  bf          DATA 0xbf
+    db 0bfh                 ;ebfa  bf          DATA 0xbf
+    db 0bfh                 ;ebfb  bf          DATA 0xbf
+    db 0bfh                 ;ebfc  bf          DATA 0xbf
+    db 0bfh                 ;ebfd  bf          DATA 0xbf
+    db 0bfh                 ;ebfe  bf          DATA 0xbf
+    db 0bfh                 ;ebff  bf          DATA 0xbf
+    db 0bfh                 ;ec00  bf          DATA 0xbf
+    db 0bfh                 ;ec01  bf          DATA 0xbf
+    db 0bfh                 ;ec02  bf          DATA 0xbf
+    db 0bfh                 ;ec03  bf          DATA 0xbf
+    db 0bfh                 ;ec04  bf          DATA 0xbf
+    db 0bfh                 ;ec05  bf          DATA 0xbf
+    db 0bfh                 ;ec06  bf          DATA 0xbf
+    db 0bfh                 ;ec07  bf          DATA 0xbf
+    db 0bfh                 ;ec08  bf          DATA 0xbf
+    db 0bfh                 ;ec09  bf          DATA 0xbf
+    db 0bfh                 ;ec0a  bf          DATA 0xbf
+    db 0bfh                 ;ec0b  bf          DATA 0xbf
+    db 0bfh                 ;ec0c  bf          DATA 0xbf
+    db 0bfh                 ;ec0d  bf          DATA 0xbf
+    db 0bfh                 ;ec0e  bf          DATA 0xbf
+    db 0bfh                 ;ec0f  bf          DATA 0xbf
+    db 0bfh                 ;ec10  bf          DATA 0xbf
+    db 0bfh                 ;ec11  bf          DATA 0xbf
+    db 0bfh                 ;ec12  bf          DATA 0xbf
+    db 0bfh                 ;ec13  bf          DATA 0xbf
+    db 0bfh                 ;ec14  bf          DATA 0xbf
+    db 0bfh                 ;ec15  bf          DATA 0xbf
+    db 0bfh                 ;ec16  bf          DATA 0xbf
+    db 0bfh                 ;ec17  bf          DATA 0xbf
+    db 0bfh                 ;ec18  bf          DATA 0xbf
+    db 0bfh                 ;ec19  bf          DATA 0xbf
+    db 0bfh                 ;ec1a  bf          DATA 0xbf
+    db 0bfh                 ;ec1b  bf          DATA 0xbf
+    db 0bfh                 ;ec1c  bf          DATA 0xbf
+    db 0bfh                 ;ec1d  bf          DATA 0xbf
+    db 0bfh                 ;ec1e  bf          DATA 0xbf
+    db 0bfh                 ;ec1f  bf          DATA 0xbf
+    db 0bfh                 ;ec20  bf          DATA 0xbf
+    db 0bfh                 ;ec21  bf          DATA 0xbf
+    db 0bfh                 ;ec22  bf          DATA 0xbf
+    db 0bfh                 ;ec23  bf          DATA 0xbf
+    db 0bfh                 ;ec24  bf          DATA 0xbf
+    db 0bfh                 ;ec25  bf          DATA 0xbf
+    db 0bfh                 ;ec26  bf          DATA 0xbf
+    db 0bfh                 ;ec27  bf          DATA 0xbf
+    db 0bfh                 ;ec28  bf          DATA 0xbf
+    db 0bfh                 ;ec29  bf          DATA 0xbf
+    db 0bfh                 ;ec2a  bf          DATA 0xbf
+    db 0bfh                 ;ec2b  bf          DATA 0xbf
+    db 0bfh                 ;ec2c  bf          DATA 0xbf
+    db 0bfh                 ;ec2d  bf          DATA 0xbf
+    db 0bfh                 ;ec2e  bf          DATA 0xbf
+    db 0bfh                 ;ec2f  bf          DATA 0xbf
+    db 0bfh                 ;ec30  bf          DATA 0xbf
+    db 0bfh                 ;ec31  bf          DATA 0xbf
+    db 0bfh                 ;ec32  bf          DATA 0xbf
+    db 0bfh                 ;ec33  bf          DATA 0xbf
+    db 0bfh                 ;ec34  bf          DATA 0xbf
+    db 0bfh                 ;ec35  bf          DATA 0xbf
+    db 0bfh                 ;ec36  bf          DATA 0xbf
+    db 0bfh                 ;ec37  bf          DATA 0xbf
+    db 0bfh                 ;ec38  bf          DATA 0xbf
+    db 0bfh                 ;ec39  bf          DATA 0xbf
+    db 0bfh                 ;ec3a  bf          DATA 0xbf
+    db 0bfh                 ;ec3b  bf          DATA 0xbf
+    db 0bfh                 ;ec3c  bf          DATA 0xbf
+    db 0bfh                 ;ec3d  bf          DATA 0xbf
+    db 0bfh                 ;ec3e  bf          DATA 0xbf
+    db 0bfh                 ;ec3f  bf          DATA 0xbf
+    db 0bfh                 ;ec40  bf          DATA 0xbf
+    db 0bfh                 ;ec41  bf          DATA 0xbf
+    db 0bfh                 ;ec42  bf          DATA 0xbf
+    db 0bfh                 ;ec43  bf          DATA 0xbf
+    db 0bfh                 ;ec44  bf          DATA 0xbf
+    db 0bfh                 ;ec45  bf          DATA 0xbf
+    db 0bfh                 ;ec46  bf          DATA 0xbf
+    db 0bfh                 ;ec47  bf          DATA 0xbf
+    db 0bfh                 ;ec48  bf          DATA 0xbf
+    db 0bfh                 ;ec49  bf          DATA 0xbf
+    db 0bfh                 ;ec4a  bf          DATA 0xbf
+    db 0bfh                 ;ec4b  bf          DATA 0xbf
+    db 0bfh                 ;ec4c  bf          DATA 0xbf
+    db 0bfh                 ;ec4d  bf          DATA 0xbf
+    db 0bfh                 ;ec4e  bf          DATA 0xbf
+    db 0bfh                 ;ec4f  bf          DATA 0xbf
+    db 0bfh                 ;ec50  bf          DATA 0xbf
+    db 0bfh                 ;ec51  bf          DATA 0xbf
+    db 0bfh                 ;ec52  bf          DATA 0xbf
+    db 0bfh                 ;ec53  bf          DATA 0xbf
+    db 0bfh                 ;ec54  bf          DATA 0xbf
+    db 0bfh                 ;ec55  bf          DATA 0xbf
+    db 0bfh                 ;ec56  bf          DATA 0xbf
+    db 0bfh                 ;ec57  bf          DATA 0xbf
+    db 0bfh                 ;ec58  bf          DATA 0xbf
+    db 0bfh                 ;ec59  bf          DATA 0xbf
+    db 0bfh                 ;ec5a  bf          DATA 0xbf
+    db 0bfh                 ;ec5b  bf          DATA 0xbf
+    db 0bfh                 ;ec5c  bf          DATA 0xbf
+    db 0bfh                 ;ec5d  bf          DATA 0xbf
+    db 0bfh                 ;ec5e  bf          DATA 0xbf
+    db 0bfh                 ;ec5f  bf          DATA 0xbf
+    db 0bfh                 ;ec60  bf          DATA 0xbf
+    db 0bfh                 ;ec61  bf          DATA 0xbf
+    db 0bfh                 ;ec62  bf          DATA 0xbf
+    db 0bfh                 ;ec63  bf          DATA 0xbf
+    db 0bfh                 ;ec64  bf          DATA 0xbf
+    db 0bfh                 ;ec65  bf          DATA 0xbf
+    db 0bfh                 ;ec66  bf          DATA 0xbf
+    db 0bfh                 ;ec67  bf          DATA 0xbf
+    db 0bfh                 ;ec68  bf          DATA 0xbf
+    db 0bfh                 ;ec69  bf          DATA 0xbf
+    db 0bfh                 ;ec6a  bf          DATA 0xbf
+    db 0bfh                 ;ec6b  bf          DATA 0xbf
+    db 0bfh                 ;ec6c  bf          DATA 0xbf
+    db 0bfh                 ;ec6d  bf          DATA 0xbf
+    db 0bfh                 ;ec6e  bf          DATA 0xbf
+    db 0bfh                 ;ec6f  bf          DATA 0xbf
+    db 0bfh                 ;ec70  bf          DATA 0xbf
+    db 0bfh                 ;ec71  bf          DATA 0xbf
+    db 0bfh                 ;ec72  bf          DATA 0xbf
+    db 0bfh                 ;ec73  bf          DATA 0xbf
+    db 0bfh                 ;ec74  bf          DATA 0xbf
+    db 0bfh                 ;ec75  bf          DATA 0xbf
+    db 0bfh                 ;ec76  bf          DATA 0xbf
+    db 0bfh                 ;ec77  bf          DATA 0xbf
+    db 0bfh                 ;ec78  bf          DATA 0xbf
+    db 0bfh                 ;ec79  bf          DATA 0xbf
+    db 0bfh                 ;ec7a  bf          DATA 0xbf
+    db 0bfh                 ;ec7b  bf          DATA 0xbf
+    db 0bfh                 ;ec7c  bf          DATA 0xbf
+    db 0bfh                 ;ec7d  bf          DATA 0xbf
+    db 0bfh                 ;ec7e  bf          DATA 0xbf
+    db 0bfh                 ;ec7f  bf          DATA 0xbf
+    db 0bfh                 ;ec80  bf          DATA 0xbf
+    db 0bfh                 ;ec81  bf          DATA 0xbf
+    db 0bfh                 ;ec82  bf          DATA 0xbf
+    db 0bfh                 ;ec83  bf          DATA 0xbf
+    db 0bfh                 ;ec84  bf          DATA 0xbf
+    db 0bfh                 ;ec85  bf          DATA 0xbf
+    db 0bfh                 ;ec86  bf          DATA 0xbf
+    db 0bfh                 ;ec87  bf          DATA 0xbf
+    db 0bfh                 ;ec88  bf          DATA 0xbf
+    db 0bfh                 ;ec89  bf          DATA 0xbf
+    db 0bfh                 ;ec8a  bf          DATA 0xbf
+    db 0bfh                 ;ec8b  bf          DATA 0xbf
+    db 0bfh                 ;ec8c  bf          DATA 0xbf
+    db 0bfh                 ;ec8d  bf          DATA 0xbf
+    db 0bfh                 ;ec8e  bf          DATA 0xbf
+    db 0bfh                 ;ec8f  bf          DATA 0xbf
+    db 0bfh                 ;ec90  bf          DATA 0xbf
+    db 0bfh                 ;ec91  bf          DATA 0xbf
+    db 0bfh                 ;ec92  bf          DATA 0xbf
+    db 0bfh                 ;ec93  bf          DATA 0xbf
+    db 0bfh                 ;ec94  bf          DATA 0xbf
+    db 0bfh                 ;ec95  bf          DATA 0xbf
+    db 0bfh                 ;ec96  bf          DATA 0xbf
+    db 0bfh                 ;ec97  bf          DATA 0xbf
+    db 0bfh                 ;ec98  bf          DATA 0xbf
+    db 0bfh                 ;ec99  bf          DATA 0xbf
+    db 0bfh                 ;ec9a  bf          DATA 0xbf
+    db 0bfh                 ;ec9b  bf          DATA 0xbf
+    db 0bfh                 ;ec9c  bf          DATA 0xbf
+    db 0bfh                 ;ec9d  bf          DATA 0xbf
+    db 0bfh                 ;ec9e  bf          DATA 0xbf
+    db 0bfh                 ;ec9f  bf          DATA 0xbf
+    db 0bfh                 ;eca0  bf          DATA 0xbf
+    db 0bfh                 ;eca1  bf          DATA 0xbf
+    db 0bfh                 ;eca2  bf          DATA 0xbf
+    db 0bfh                 ;eca3  bf          DATA 0xbf
+    db 0bfh                 ;eca4  bf          DATA 0xbf
+    db 0bfh                 ;eca5  bf          DATA 0xbf
+    db 0bfh                 ;eca6  bf          DATA 0xbf
+    db 0bfh                 ;eca7  bf          DATA 0xbf
+    db 0bfh                 ;eca8  bf          DATA 0xbf
+    db 0bfh                 ;eca9  bf          DATA 0xbf
+    db 0bfh                 ;ecaa  bf          DATA 0xbf
+    db 0bfh                 ;ecab  bf          DATA 0xbf
+    db 0bfh                 ;ecac  bf          DATA 0xbf
+    db 0bfh                 ;ecad  bf          DATA 0xbf
+    db 0bfh                 ;ecae  bf          DATA 0xbf
+    db 0bfh                 ;ecaf  bf          DATA 0xbf
+    db 0bfh                 ;ecb0  bf          DATA 0xbf
+    db 0bfh                 ;ecb1  bf          DATA 0xbf
+    db 0bfh                 ;ecb2  bf          DATA 0xbf
+    db 0bfh                 ;ecb3  bf          DATA 0xbf
+    db 0bfh                 ;ecb4  bf          DATA 0xbf
+    db 0bfh                 ;ecb5  bf          DATA 0xbf
+    db 0bfh                 ;ecb6  bf          DATA 0xbf
+    db 0bfh                 ;ecb7  bf          DATA 0xbf
+    db 0bfh                 ;ecb8  bf          DATA 0xbf
+    db 0bfh                 ;ecb9  bf          DATA 0xbf
+    db 0bfh                 ;ecba  bf          DATA 0xbf
+    db 0bfh                 ;ecbb  bf          DATA 0xbf
+    db 0bfh                 ;ecbc  bf          DATA 0xbf
+    db 0bfh                 ;ecbd  bf          DATA 0xbf
+    db 0bfh                 ;ecbe  bf          DATA 0xbf
+    db 0bfh                 ;ecbf  bf          DATA 0xbf
+    db 0bfh                 ;ecc0  bf          DATA 0xbf
+    db 0bfh                 ;ecc1  bf          DATA 0xbf
+    db 0bfh                 ;ecc2  bf          DATA 0xbf
+    db 0bfh                 ;ecc3  bf          DATA 0xbf
+    db 0bfh                 ;ecc4  bf          DATA 0xbf
+    db 0bfh                 ;ecc5  bf          DATA 0xbf
+    db 0bfh                 ;ecc6  bf          DATA 0xbf
+    db 0bfh                 ;ecc7  bf          DATA 0xbf
+    db 0bfh                 ;ecc8  bf          DATA 0xbf
+    db 0bfh                 ;ecc9  bf          DATA 0xbf
+    db 0bfh                 ;ecca  bf          DATA 0xbf
+    db 0bfh                 ;eccb  bf          DATA 0xbf
+    db 0bfh                 ;eccc  bf          DATA 0xbf
+    db 0bfh                 ;eccd  bf          DATA 0xbf
+    db 0bfh                 ;ecce  bf          DATA 0xbf
+    db 0bfh                 ;eccf  bf          DATA 0xbf
+    db 0bfh                 ;ecd0  bf          DATA 0xbf
+    db 0bfh                 ;ecd1  bf          DATA 0xbf
+    db 0bfh                 ;ecd2  bf          DATA 0xbf
+    db 0bfh                 ;ecd3  bf          DATA 0xbf
+    db 0bfh                 ;ecd4  bf          DATA 0xbf
+    db 0bfh                 ;ecd5  bf          DATA 0xbf
+    db 0bfh                 ;ecd6  bf          DATA 0xbf
+    db 0bfh                 ;ecd7  bf          DATA 0xbf
+    db 0bfh                 ;ecd8  bf          DATA 0xbf
+    db 0bfh                 ;ecd9  bf          DATA 0xbf
+    db 0bfh                 ;ecda  bf          DATA 0xbf
+    db 0bfh                 ;ecdb  bf          DATA 0xbf
+    db 0bfh                 ;ecdc  bf          DATA 0xbf
+    db 0bfh                 ;ecdd  bf          DATA 0xbf
+    db 0bfh                 ;ecde  bf          DATA 0xbf
+    db 0bfh                 ;ecdf  bf          DATA 0xbf
+    db 0bfh                 ;ece0  bf          DATA 0xbf
+    db 0bfh                 ;ece1  bf          DATA 0xbf
+    db 0bfh                 ;ece2  bf          DATA 0xbf
+    db 0bfh                 ;ece3  bf          DATA 0xbf
+    db 0bfh                 ;ece4  bf          DATA 0xbf
+    db 0bfh                 ;ece5  bf          DATA 0xbf
+    db 0bfh                 ;ece6  bf          DATA 0xbf
+    db 0bfh                 ;ece7  bf          DATA 0xbf
+    db 0bfh                 ;ece8  bf          DATA 0xbf
+    db 0bfh                 ;ece9  bf          DATA 0xbf
+    db 0bfh                 ;ecea  bf          DATA 0xbf
+    db 0bfh                 ;eceb  bf          DATA 0xbf
+    db 0bfh                 ;ecec  bf          DATA 0xbf
+    db 0bfh                 ;eced  bf          DATA 0xbf
+    db 0bfh                 ;ecee  bf          DATA 0xbf
+    db 0bfh                 ;ecef  bf          DATA 0xbf
+    db 0bfh                 ;ecf0  bf          DATA 0xbf
+    db 0bfh                 ;ecf1  bf          DATA 0xbf
+    db 0bfh                 ;ecf2  bf          DATA 0xbf
+    db 0bfh                 ;ecf3  bf          DATA 0xbf
+    db 0bfh                 ;ecf4  bf          DATA 0xbf
+    db 0bfh                 ;ecf5  bf          DATA 0xbf
+    db 0bfh                 ;ecf6  bf          DATA 0xbf
+    db 0bfh                 ;ecf7  bf          DATA 0xbf
+    db 0bfh                 ;ecf8  bf          DATA 0xbf
+    db 0bfh                 ;ecf9  bf          DATA 0xbf
+    db 0bfh                 ;ecfa  bf          DATA 0xbf
+    db 0bfh                 ;ecfb  bf          DATA 0xbf
+    db 0bfh                 ;ecfc  bf          DATA 0xbf
+    db 0bfh                 ;ecfd  bf          DATA 0xbf
+    db 0bfh                 ;ecfe  bf          DATA 0xbf
+    db 0bfh                 ;ecff  bf          DATA 0xbf
+    db 0bfh                 ;ed00  bf          DATA 0xbf
+    db 0bfh                 ;ed01  bf          DATA 0xbf
+    db 0bfh                 ;ed02  bf          DATA 0xbf
+    db 0bfh                 ;ed03  bf          DATA 0xbf
+    db 0bfh                 ;ed04  bf          DATA 0xbf
+    db 0bfh                 ;ed05  bf          DATA 0xbf
+    db 0bfh                 ;ed06  bf          DATA 0xbf
+    db 0bfh                 ;ed07  bf          DATA 0xbf
+    db 0bfh                 ;ed08  bf          DATA 0xbf
+    db 0bfh                 ;ed09  bf          DATA 0xbf
+    db 0bfh                 ;ed0a  bf          DATA 0xbf
+    db 0bfh                 ;ed0b  bf          DATA 0xbf
+    db 0bfh                 ;ed0c  bf          DATA 0xbf
+    db 0bfh                 ;ed0d  bf          DATA 0xbf
+    db 0bfh                 ;ed0e  bf          DATA 0xbf
+    db 0bfh                 ;ed0f  bf          DATA 0xbf
+    db 0bfh                 ;ed10  bf          DATA 0xbf
+    db 0bfh                 ;ed11  bf          DATA 0xbf
+    db 0bfh                 ;ed12  bf          DATA 0xbf
+    db 0bfh                 ;ed13  bf          DATA 0xbf
+    db 0bfh                 ;ed14  bf          DATA 0xbf
+    db 0bfh                 ;ed15  bf          DATA 0xbf
+    db 0bfh                 ;ed16  bf          DATA 0xbf
+    db 0bfh                 ;ed17  bf          DATA 0xbf
+    db 0bfh                 ;ed18  bf          DATA 0xbf
+    db 0bfh                 ;ed19  bf          DATA 0xbf
+    db 0bfh                 ;ed1a  bf          DATA 0xbf
+    db 0bfh                 ;ed1b  bf          DATA 0xbf
+    db 0bfh                 ;ed1c  bf          DATA 0xbf
+    db 0bfh                 ;ed1d  bf          DATA 0xbf
+    db 0bfh                 ;ed1e  bf          DATA 0xbf
+    db 0bfh                 ;ed1f  bf          DATA 0xbf
+    db 0bfh                 ;ed20  bf          DATA 0xbf
+    db 0bfh                 ;ed21  bf          DATA 0xbf
+    db 0bfh                 ;ed22  bf          DATA 0xbf
+    db 0bfh                 ;ed23  bf          DATA 0xbf
+    db 0bfh                 ;ed24  bf          DATA 0xbf
+    db 0bfh                 ;ed25  bf          DATA 0xbf
+    db 0bfh                 ;ed26  bf          DATA 0xbf
+    db 0bfh                 ;ed27  bf          DATA 0xbf
+    db 0bfh                 ;ed28  bf          DATA 0xbf
+    db 0bfh                 ;ed29  bf          DATA 0xbf
+    db 0bfh                 ;ed2a  bf          DATA 0xbf
+    db 0bfh                 ;ed2b  bf          DATA 0xbf
+    db 0bfh                 ;ed2c  bf          DATA 0xbf
+    db 0bfh                 ;ed2d  bf          DATA 0xbf
+    db 0bfh                 ;ed2e  bf          DATA 0xbf
+    db 0bfh                 ;ed2f  bf          DATA 0xbf
+    db 0bfh                 ;ed30  bf          DATA 0xbf
+    db 0bfh                 ;ed31  bf          DATA 0xbf
+    db 0bfh                 ;ed32  bf          DATA 0xbf
+    db 0bfh                 ;ed33  bf          DATA 0xbf
+    db 0bfh                 ;ed34  bf          DATA 0xbf
+    db 0bfh                 ;ed35  bf          DATA 0xbf
+    db 0bfh                 ;ed36  bf          DATA 0xbf
+    db 0bfh                 ;ed37  bf          DATA 0xbf
+    db 0bfh                 ;ed38  bf          DATA 0xbf
+    db 0bfh                 ;ed39  bf          DATA 0xbf
+    db 0bfh                 ;ed3a  bf          DATA 0xbf
+    db 0bfh                 ;ed3b  bf          DATA 0xbf
+    db 0bfh                 ;ed3c  bf          DATA 0xbf
+    db 0bfh                 ;ed3d  bf          DATA 0xbf
+    db 0bfh                 ;ed3e  bf          DATA 0xbf
+    db 0bfh                 ;ed3f  bf          DATA 0xbf
+    db 0bfh                 ;ed40  bf          DATA 0xbf
+    db 0bfh                 ;ed41  bf          DATA 0xbf
+    db 0bfh                 ;ed42  bf          DATA 0xbf
+    db 0bfh                 ;ed43  bf          DATA 0xbf
+    db 0bfh                 ;ed44  bf          DATA 0xbf
+    db 0bfh                 ;ed45  bf          DATA 0xbf
+    db 0bfh                 ;ed46  bf          DATA 0xbf
+    db 0bfh                 ;ed47  bf          DATA 0xbf
+    db 0bfh                 ;ed48  bf          DATA 0xbf
+    db 0bfh                 ;ed49  bf          DATA 0xbf
+    db 0bfh                 ;ed4a  bf          DATA 0xbf
+    db 0bfh                 ;ed4b  bf          DATA 0xbf
+    db 0bfh                 ;ed4c  bf          DATA 0xbf
+    db 0bfh                 ;ed4d  bf          DATA 0xbf
+    db 0bfh                 ;ed4e  bf          DATA 0xbf
+    db 0bfh                 ;ed4f  bf          DATA 0xbf
+    db 0bfh                 ;ed50  bf          DATA 0xbf
+    db 0bfh                 ;ed51  bf          DATA 0xbf
+    db 0bfh                 ;ed52  bf          DATA 0xbf
+    db 0bfh                 ;ed53  bf          DATA 0xbf
+    db 0bfh                 ;ed54  bf          DATA 0xbf
+    db 0bfh                 ;ed55  bf          DATA 0xbf
+    db 0bfh                 ;ed56  bf          DATA 0xbf
+    db 0bfh                 ;ed57  bf          DATA 0xbf
+    db 0bfh                 ;ed58  bf          DATA 0xbf
+    db 0bfh                 ;ed59  bf          DATA 0xbf
+    db 0bfh                 ;ed5a  bf          DATA 0xbf
+    db 0bfh                 ;ed5b  bf          DATA 0xbf
+    db 0bfh                 ;ed5c  bf          DATA 0xbf
+    db 0bfh                 ;ed5d  bf          DATA 0xbf
+    db 0bfh                 ;ed5e  bf          DATA 0xbf
+    db 0bfh                 ;ed5f  bf          DATA 0xbf
+    db 0bfh                 ;ed60  bf          DATA 0xbf
+    db 0bfh                 ;ed61  bf          DATA 0xbf
+    db 0bfh                 ;ed62  bf          DATA 0xbf
+    db 0bfh                 ;ed63  bf          DATA 0xbf
+    db 0bfh                 ;ed64  bf          DATA 0xbf
+    db 0bfh                 ;ed65  bf          DATA 0xbf
+    db 0bfh                 ;ed66  bf          DATA 0xbf
+    db 0bfh                 ;ed67  bf          DATA 0xbf
+    db 0bfh                 ;ed68  bf          DATA 0xbf
+    db 0bfh                 ;ed69  bf          DATA 0xbf
+    db 0bfh                 ;ed6a  bf          DATA 0xbf
+    db 0bfh                 ;ed6b  bf          DATA 0xbf
+    db 0bfh                 ;ed6c  bf          DATA 0xbf
+    db 0bfh                 ;ed6d  bf          DATA 0xbf
+    db 0bfh                 ;ed6e  bf          DATA 0xbf
+    db 0bfh                 ;ed6f  bf          DATA 0xbf
+    db 0bfh                 ;ed70  bf          DATA 0xbf
+    db 0bfh                 ;ed71  bf          DATA 0xbf
+    db 0bfh                 ;ed72  bf          DATA 0xbf
+    db 0bfh                 ;ed73  bf          DATA 0xbf
+    db 0bfh                 ;ed74  bf          DATA 0xbf
+    db 0bfh                 ;ed75  bf          DATA 0xbf
+    db 0bfh                 ;ed76  bf          DATA 0xbf
+    db 0bfh                 ;ed77  bf          DATA 0xbf
+    db 0bfh                 ;ed78  bf          DATA 0xbf
+    db 0bfh                 ;ed79  bf          DATA 0xbf
+    db 0bfh                 ;ed7a  bf          DATA 0xbf
+    db 0bfh                 ;ed7b  bf          DATA 0xbf
+    db 0bfh                 ;ed7c  bf          DATA 0xbf
+    db 0bfh                 ;ed7d  bf          DATA 0xbf
+    db 0bfh                 ;ed7e  bf          DATA 0xbf
+    db 0bfh                 ;ed7f  bf          DATA 0xbf
+    db 0bfh                 ;ed80  bf          DATA 0xbf
+    db 0bfh                 ;ed81  bf          DATA 0xbf
+    db 0bfh                 ;ed82  bf          DATA 0xbf
+    db 0bfh                 ;ed83  bf          DATA 0xbf
+    db 0bfh                 ;ed84  bf          DATA 0xbf
+    db 0bfh                 ;ed85  bf          DATA 0xbf
+    db 0bfh                 ;ed86  bf          DATA 0xbf
+    db 0bfh                 ;ed87  bf          DATA 0xbf
+    db 0bfh                 ;ed88  bf          DATA 0xbf
+    db 0bfh                 ;ed89  bf          DATA 0xbf
+    db 0bfh                 ;ed8a  bf          DATA 0xbf
+    db 0bfh                 ;ed8b  bf          DATA 0xbf
+    db 0bfh                 ;ed8c  bf          DATA 0xbf
+    db 0bfh                 ;ed8d  bf          DATA 0xbf
+    db 0bfh                 ;ed8e  bf          DATA 0xbf
+    db 0bfh                 ;ed8f  bf          DATA 0xbf
+    db 0bfh                 ;ed90  bf          DATA 0xbf
+    db 0bfh                 ;ed91  bf          DATA 0xbf
+    db 0bfh                 ;ed92  bf          DATA 0xbf
+    db 0bfh                 ;ed93  bf          DATA 0xbf
+    db 0bfh                 ;ed94  bf          DATA 0xbf
+    db 0bfh                 ;ed95  bf          DATA 0xbf
+    db 0bfh                 ;ed96  bf          DATA 0xbf
+    db 0bfh                 ;ed97  bf          DATA 0xbf
+    db 0bfh                 ;ed98  bf          DATA 0xbf
+    db 0bfh                 ;ed99  bf          DATA 0xbf
+    db 0bfh                 ;ed9a  bf          DATA 0xbf
+    db 0bfh                 ;ed9b  bf          DATA 0xbf
+    db 0bfh                 ;ed9c  bf          DATA 0xbf
+    db 0bfh                 ;ed9d  bf          DATA 0xbf
+    db 0bfh                 ;ed9e  bf          DATA 0xbf
+    db 0bfh                 ;ed9f  bf          DATA 0xbf
+    db 0bfh                 ;eda0  bf          DATA 0xbf
+    db 0bfh                 ;eda1  bf          DATA 0xbf
+    db 0bfh                 ;eda2  bf          DATA 0xbf
+    db 0bfh                 ;eda3  bf          DATA 0xbf
+    db 0bfh                 ;eda4  bf          DATA 0xbf
+    db 0bfh                 ;eda5  bf          DATA 0xbf
+    db 0bfh                 ;eda6  bf          DATA 0xbf
+    db 0bfh                 ;eda7  bf          DATA 0xbf
+    db 0bfh                 ;eda8  bf          DATA 0xbf
+    db 0bfh                 ;eda9  bf          DATA 0xbf
+    db 0bfh                 ;edaa  bf          DATA 0xbf
+    db 0bfh                 ;edab  bf          DATA 0xbf
+    db 0bfh                 ;edac  bf          DATA 0xbf
+    db 0bfh                 ;edad  bf          DATA 0xbf
+    db 0bfh                 ;edae  bf          DATA 0xbf
+    db 0bfh                 ;edaf  bf          DATA 0xbf
+    db 0bfh                 ;edb0  bf          DATA 0xbf
+    db 0bfh                 ;edb1  bf          DATA 0xbf
+    db 0bfh                 ;edb2  bf          DATA 0xbf
+    db 0bfh                 ;edb3  bf          DATA 0xbf
+    db 0bfh                 ;edb4  bf          DATA 0xbf
+    db 0bfh                 ;edb5  bf          DATA 0xbf
+    db 0bfh                 ;edb6  bf          DATA 0xbf
+    db 0bfh                 ;edb7  bf          DATA 0xbf
+    db 0bfh                 ;edb8  bf          DATA 0xbf
+    db 0bfh                 ;edb9  bf          DATA 0xbf
+    db 0bfh                 ;edba  bf          DATA 0xbf
+    db 0bfh                 ;edbb  bf          DATA 0xbf
+    db 0bfh                 ;edbc  bf          DATA 0xbf
+    db 0bfh                 ;edbd  bf          DATA 0xbf
+    db 0bfh                 ;edbe  bf          DATA 0xbf
+    db 0bfh                 ;edbf  bf          DATA 0xbf
+    db 0bfh                 ;edc0  bf          DATA 0xbf
+    db 0bfh                 ;edc1  bf          DATA 0xbf
+    db 0bfh                 ;edc2  bf          DATA 0xbf
+    db 0bfh                 ;edc3  bf          DATA 0xbf
+    db 0bfh                 ;edc4  bf          DATA 0xbf
+    db 0bfh                 ;edc5  bf          DATA 0xbf
+    db 0bfh                 ;edc6  bf          DATA 0xbf
+    db 0bfh                 ;edc7  bf          DATA 0xbf
+    db 0bfh                 ;edc8  bf          DATA 0xbf
+    db 0bfh                 ;edc9  bf          DATA 0xbf
+    db 0bfh                 ;edca  bf          DATA 0xbf
+    db 0bfh                 ;edcb  bf          DATA 0xbf
+    db 0bfh                 ;edcc  bf          DATA 0xbf
+    db 0bfh                 ;edcd  bf          DATA 0xbf
+    db 0bfh                 ;edce  bf          DATA 0xbf
+    db 0bfh                 ;edcf  bf          DATA 0xbf
+    db 0bfh                 ;edd0  bf          DATA 0xbf
+    db 0bfh                 ;edd1  bf          DATA 0xbf
+    db 0bfh                 ;edd2  bf          DATA 0xbf
+    db 0bfh                 ;edd3  bf          DATA 0xbf
+    db 0bfh                 ;edd4  bf          DATA 0xbf
+    db 0bfh                 ;edd5  bf          DATA 0xbf
+    db 0bfh                 ;edd6  bf          DATA 0xbf
+    db 0bfh                 ;edd7  bf          DATA 0xbf
+    db 0bfh                 ;edd8  bf          DATA 0xbf
+    db 0bfh                 ;edd9  bf          DATA 0xbf
+    db 0bfh                 ;edda  bf          DATA 0xbf
+    db 0bfh                 ;eddb  bf          DATA 0xbf
+    db 0bfh                 ;eddc  bf          DATA 0xbf
+    db 0bfh                 ;eddd  bf          DATA 0xbf
+    db 0bfh                 ;edde  bf          DATA 0xbf
+    db 0bfh                 ;eddf  bf          DATA 0xbf
+    db 0bfh                 ;ede0  bf          DATA 0xbf
+    db 0bfh                 ;ede1  bf          DATA 0xbf
+    db 0bfh                 ;ede2  bf          DATA 0xbf
+    db 0bfh                 ;ede3  bf          DATA 0xbf
+    db 0bfh                 ;ede4  bf          DATA 0xbf
+    db 0bfh                 ;ede5  bf          DATA 0xbf
+    db 0bfh                 ;ede6  bf          DATA 0xbf
+    db 0bfh                 ;ede7  bf          DATA 0xbf
+    db 0bfh                 ;ede8  bf          DATA 0xbf
+    db 0bfh                 ;ede9  bf          DATA 0xbf
+    db 0bfh                 ;edea  bf          DATA 0xbf
+    db 0bfh                 ;edeb  bf          DATA 0xbf
+    db 0bfh                 ;edec  bf          DATA 0xbf
+    db 0bfh                 ;eded  bf          DATA 0xbf
+    db 0bfh                 ;edee  bf          DATA 0xbf
+    db 0bfh                 ;edef  bf          DATA 0xbf
+    db 0bfh                 ;edf0  bf          DATA 0xbf
+    db 0bfh                 ;edf1  bf          DATA 0xbf
+    db 0bfh                 ;edf2  bf          DATA 0xbf
+    db 0bfh                 ;edf3  bf          DATA 0xbf
+    db 0bfh                 ;edf4  bf          DATA 0xbf
+    db 0bfh                 ;edf5  bf          DATA 0xbf
+    db 0bfh                 ;edf6  bf          DATA 0xbf
+    db 0bfh                 ;edf7  bf          DATA 0xbf
+    db 0bfh                 ;edf8  bf          DATA 0xbf
+    db 0bfh                 ;edf9  bf          DATA 0xbf
+    db 0bfh                 ;edfa  bf          DATA 0xbf
+    db 0bfh                 ;edfb  bf          DATA 0xbf
+    db 0bfh                 ;edfc  bf          DATA 0xbf
+    db 0bfh                 ;edfd  bf          DATA 0xbf
+    db 0bfh                 ;edfe  bf          DATA 0xbf
+    db 0bfh                 ;edff  bf          DATA 0xbf
+    db 0bfh                 ;ee00  bf          DATA 0xbf
+    db 0bfh                 ;ee01  bf          DATA 0xbf
+    db 0bfh                 ;ee02  bf          DATA 0xbf
+    db 0bfh                 ;ee03  bf          DATA 0xbf
+    db 0bfh                 ;ee04  bf          DATA 0xbf
+    db 0bfh                 ;ee05  bf          DATA 0xbf
+    db 0bfh                 ;ee06  bf          DATA 0xbf
+    db 0bfh                 ;ee07  bf          DATA 0xbf
+    db 0bfh                 ;ee08  bf          DATA 0xbf
+    db 0bfh                 ;ee09  bf          DATA 0xbf
+    db 0bfh                 ;ee0a  bf          DATA 0xbf
+    db 0bfh                 ;ee0b  bf          DATA 0xbf
+    db 0bfh                 ;ee0c  bf          DATA 0xbf
+    db 0bfh                 ;ee0d  bf          DATA 0xbf
+    db 0bfh                 ;ee0e  bf          DATA 0xbf
+    db 0bfh                 ;ee0f  bf          DATA 0xbf
+    db 0bfh                 ;ee10  bf          DATA 0xbf
+    db 0bfh                 ;ee11  bf          DATA 0xbf
+    db 0bfh                 ;ee12  bf          DATA 0xbf
+    db 0bfh                 ;ee13  bf          DATA 0xbf
+    db 0bfh                 ;ee14  bf          DATA 0xbf
+    db 0bfh                 ;ee15  bf          DATA 0xbf
+    db 0bfh                 ;ee16  bf          DATA 0xbf
+    db 0bfh                 ;ee17  bf          DATA 0xbf
+    db 0bfh                 ;ee18  bf          DATA 0xbf
+    db 0bfh                 ;ee19  bf          DATA 0xbf
+    db 0bfh                 ;ee1a  bf          DATA 0xbf
+    db 0bfh                 ;ee1b  bf          DATA 0xbf
+    db 0bfh                 ;ee1c  bf          DATA 0xbf
+    db 0bfh                 ;ee1d  bf          DATA 0xbf
+    db 0bfh                 ;ee1e  bf          DATA 0xbf
+    db 0bfh                 ;ee1f  bf          DATA 0xbf
+    db 0bfh                 ;ee20  bf          DATA 0xbf
+    db 0bfh                 ;ee21  bf          DATA 0xbf
+    db 0bfh                 ;ee22  bf          DATA 0xbf
+    db 0bfh                 ;ee23  bf          DATA 0xbf
+    db 0bfh                 ;ee24  bf          DATA 0xbf
+    db 0bfh                 ;ee25  bf          DATA 0xbf
+    db 0bfh                 ;ee26  bf          DATA 0xbf
+    db 0bfh                 ;ee27  bf          DATA 0xbf
+    db 0bfh                 ;ee28  bf          DATA 0xbf
+    db 0bfh                 ;ee29  bf          DATA 0xbf
+    db 0bfh                 ;ee2a  bf          DATA 0xbf
+    db 0bfh                 ;ee2b  bf          DATA 0xbf
+    db 0bfh                 ;ee2c  bf          DATA 0xbf
+    db 0bfh                 ;ee2d  bf          DATA 0xbf
+    db 0bfh                 ;ee2e  bf          DATA 0xbf
+    db 0bfh                 ;ee2f  bf          DATA 0xbf
+    db 0bfh                 ;ee30  bf          DATA 0xbf
+    db 0bfh                 ;ee31  bf          DATA 0xbf
+    db 0bfh                 ;ee32  bf          DATA 0xbf
+    db 0bfh                 ;ee33  bf          DATA 0xbf
+    db 0bfh                 ;ee34  bf          DATA 0xbf
+    db 0bfh                 ;ee35  bf          DATA 0xbf
+    db 0bfh                 ;ee36  bf          DATA 0xbf
+    db 0bfh                 ;ee37  bf          DATA 0xbf
+    db 0bfh                 ;ee38  bf          DATA 0xbf
+    db 0bfh                 ;ee39  bf          DATA 0xbf
+    db 0bfh                 ;ee3a  bf          DATA 0xbf
+    db 0bfh                 ;ee3b  bf          DATA 0xbf
+    db 0bfh                 ;ee3c  bf          DATA 0xbf
+    db 0bfh                 ;ee3d  bf          DATA 0xbf
+    db 0bfh                 ;ee3e  bf          DATA 0xbf
+    db 0bfh                 ;ee3f  bf          DATA 0xbf
+    db 0bfh                 ;ee40  bf          DATA 0xbf
+    db 0bfh                 ;ee41  bf          DATA 0xbf
+    db 0bfh                 ;ee42  bf          DATA 0xbf
+    db 0bfh                 ;ee43  bf          DATA 0xbf
+    db 0bfh                 ;ee44  bf          DATA 0xbf
+    db 0bfh                 ;ee45  bf          DATA 0xbf
+    db 0bfh                 ;ee46  bf          DATA 0xbf
+    db 0bfh                 ;ee47  bf          DATA 0xbf
+    db 0bfh                 ;ee48  bf          DATA 0xbf
+    db 0bfh                 ;ee49  bf          DATA 0xbf
+    db 0bfh                 ;ee4a  bf          DATA 0xbf
+    db 0bfh                 ;ee4b  bf          DATA 0xbf
+    db 0bfh                 ;ee4c  bf          DATA 0xbf
+    db 0bfh                 ;ee4d  bf          DATA 0xbf
+    db 0bfh                 ;ee4e  bf          DATA 0xbf
+    db 0bfh                 ;ee4f  bf          DATA 0xbf
+    db 0bfh                 ;ee50  bf          DATA 0xbf
+    db 0bfh                 ;ee51  bf          DATA 0xbf
+    db 0bfh                 ;ee52  bf          DATA 0xbf
+    db 0bfh                 ;ee53  bf          DATA 0xbf
+    db 0bfh                 ;ee54  bf          DATA 0xbf
+    db 0bfh                 ;ee55  bf          DATA 0xbf
+    db 0bfh                 ;ee56  bf          DATA 0xbf
+    db 0bfh                 ;ee57  bf          DATA 0xbf
+    db 0bfh                 ;ee58  bf          DATA 0xbf
+    db 0bfh                 ;ee59  bf          DATA 0xbf
+    db 0bfh                 ;ee5a  bf          DATA 0xbf
+    db 0bfh                 ;ee5b  bf          DATA 0xbf
+    db 0bfh                 ;ee5c  bf          DATA 0xbf
+    db 0bfh                 ;ee5d  bf          DATA 0xbf
+    db 0bfh                 ;ee5e  bf          DATA 0xbf
+    db 0bfh                 ;ee5f  bf          DATA 0xbf
+    db 0bfh                 ;ee60  bf          DATA 0xbf
+    db 0bfh                 ;ee61  bf          DATA 0xbf
+    db 0bfh                 ;ee62  bf          DATA 0xbf
+    db 0bfh                 ;ee63  bf          DATA 0xbf
+    db 0bfh                 ;ee64  bf          DATA 0xbf
+    db 0bfh                 ;ee65  bf          DATA 0xbf
+    db 0bfh                 ;ee66  bf          DATA 0xbf
+    db 0bfh                 ;ee67  bf          DATA 0xbf
+    db 0bfh                 ;ee68  bf          DATA 0xbf
+    db 0bfh                 ;ee69  bf          DATA 0xbf
+    db 0bfh                 ;ee6a  bf          DATA 0xbf
+    db 0bfh                 ;ee6b  bf          DATA 0xbf
+    db 0bfh                 ;ee6c  bf          DATA 0xbf
+    db 0bfh                 ;ee6d  bf          DATA 0xbf
+    db 0bfh                 ;ee6e  bf          DATA 0xbf
+    db 0bfh                 ;ee6f  bf          DATA 0xbf
+    db 0bfh                 ;ee70  bf          DATA 0xbf
+    db 0bfh                 ;ee71  bf          DATA 0xbf
+    db 0bfh                 ;ee72  bf          DATA 0xbf
+    db 0bfh                 ;ee73  bf          DATA 0xbf
+    db 0bfh                 ;ee74  bf          DATA 0xbf
+    db 0bfh                 ;ee75  bf          DATA 0xbf
+    db 0bfh                 ;ee76  bf          DATA 0xbf
+    db 0bfh                 ;ee77  bf          DATA 0xbf
+    db 0bfh                 ;ee78  bf          DATA 0xbf
+    db 0bfh                 ;ee79  bf          DATA 0xbf
+    db 0bfh                 ;ee7a  bf          DATA 0xbf
+    db 0bfh                 ;ee7b  bf          DATA 0xbf
+    db 0bfh                 ;ee7c  bf          DATA 0xbf
+    db 0bfh                 ;ee7d  bf          DATA 0xbf
+    db 0bfh                 ;ee7e  bf          DATA 0xbf
+    db 0bfh                 ;ee7f  bf          DATA 0xbf
+    db 0bfh                 ;ee80  bf          DATA 0xbf
+    db 0bfh                 ;ee81  bf          DATA 0xbf
+    db 0bfh                 ;ee82  bf          DATA 0xbf
+    db 0bfh                 ;ee83  bf          DATA 0xbf
+    db 0bfh                 ;ee84  bf          DATA 0xbf
+    db 0bfh                 ;ee85  bf          DATA 0xbf
+    db 0bfh                 ;ee86  bf          DATA 0xbf
+    db 0bfh                 ;ee87  bf          DATA 0xbf
+    db 0bfh                 ;ee88  bf          DATA 0xbf
+    db 0bfh                 ;ee89  bf          DATA 0xbf
+    db 0bfh                 ;ee8a  bf          DATA 0xbf
+    db 0bfh                 ;ee8b  bf          DATA 0xbf
+    db 0bfh                 ;ee8c  bf          DATA 0xbf
+    db 0bfh                 ;ee8d  bf          DATA 0xbf
+    db 0bfh                 ;ee8e  bf          DATA 0xbf
+    db 0bfh                 ;ee8f  bf          DATA 0xbf
+    db 0bfh                 ;ee90  bf          DATA 0xbf
+    db 0bfh                 ;ee91  bf          DATA 0xbf
+    db 0bfh                 ;ee92  bf          DATA 0xbf
+    db 0bfh                 ;ee93  bf          DATA 0xbf
+    db 0bfh                 ;ee94  bf          DATA 0xbf
+    db 0bfh                 ;ee95  bf          DATA 0xbf
+    db 0bfh                 ;ee96  bf          DATA 0xbf
+    db 0bfh                 ;ee97  bf          DATA 0xbf
+    db 0bfh                 ;ee98  bf          DATA 0xbf
+    db 0bfh                 ;ee99  bf          DATA 0xbf
+    db 0bfh                 ;ee9a  bf          DATA 0xbf
+    db 0bfh                 ;ee9b  bf          DATA 0xbf
+    db 0bfh                 ;ee9c  bf          DATA 0xbf
+    db 0bfh                 ;ee9d  bf          DATA 0xbf
+    db 0bfh                 ;ee9e  bf          DATA 0xbf
+    db 0bfh                 ;ee9f  bf          DATA 0xbf
+    db 0bfh                 ;eea0  bf          DATA 0xbf
+    db 0bfh                 ;eea1  bf          DATA 0xbf
+    db 0bfh                 ;eea2  bf          DATA 0xbf
+    db 0bfh                 ;eea3  bf          DATA 0xbf
+    db 0bfh                 ;eea4  bf          DATA 0xbf
+    db 0bfh                 ;eea5  bf          DATA 0xbf
+    db 0bfh                 ;eea6  bf          DATA 0xbf
+    db 0bfh                 ;eea7  bf          DATA 0xbf
+    db 0bfh                 ;eea8  bf          DATA 0xbf
+    db 0bfh                 ;eea9  bf          DATA 0xbf
+    db 0bfh                 ;eeaa  bf          DATA 0xbf
+    db 0bfh                 ;eeab  bf          DATA 0xbf
+    db 0bfh                 ;eeac  bf          DATA 0xbf
+    db 0bfh                 ;eead  bf          DATA 0xbf
+    db 0bfh                 ;eeae  bf          DATA 0xbf
+    db 0bfh                 ;eeaf  bf          DATA 0xbf
+    db 0bfh                 ;eeb0  bf          DATA 0xbf
+    db 0bfh                 ;eeb1  bf          DATA 0xbf
+    db 0bfh                 ;eeb2  bf          DATA 0xbf
+    db 0bfh                 ;eeb3  bf          DATA 0xbf
+    db 0bfh                 ;eeb4  bf          DATA 0xbf
+    db 0bfh                 ;eeb5  bf          DATA 0xbf
+    db 0bfh                 ;eeb6  bf          DATA 0xbf
+    db 0bfh                 ;eeb7  bf          DATA 0xbf
+    db 0bfh                 ;eeb8  bf          DATA 0xbf
+    db 0bfh                 ;eeb9  bf          DATA 0xbf
+    db 0bfh                 ;eeba  bf          DATA 0xbf
+    db 0bfh                 ;eebb  bf          DATA 0xbf
+    db 0bfh                 ;eebc  bf          DATA 0xbf
+    db 0bfh                 ;eebd  bf          DATA 0xbf
+    db 0bfh                 ;eebe  bf          DATA 0xbf
+    db 0bfh                 ;eebf  bf          DATA 0xbf
+    db 0bfh                 ;eec0  bf          DATA 0xbf
+    db 0bfh                 ;eec1  bf          DATA 0xbf
+    db 0bfh                 ;eec2  bf          DATA 0xbf
+    db 0bfh                 ;eec3  bf          DATA 0xbf
+    db 0bfh                 ;eec4  bf          DATA 0xbf
+    db 0bfh                 ;eec5  bf          DATA 0xbf
+    db 0bfh                 ;eec6  bf          DATA 0xbf
+    db 0bfh                 ;eec7  bf          DATA 0xbf
+    db 0bfh                 ;eec8  bf          DATA 0xbf
+    db 0bfh                 ;eec9  bf          DATA 0xbf
+    db 0bfh                 ;eeca  bf          DATA 0xbf
+    db 0bfh                 ;eecb  bf          DATA 0xbf
+    db 0bfh                 ;eecc  bf          DATA 0xbf
+    db 0bfh                 ;eecd  bf          DATA 0xbf
+    db 0bfh                 ;eece  bf          DATA 0xbf
+    db 0bfh                 ;eecf  bf          DATA 0xbf
+    db 0bfh                 ;eed0  bf          DATA 0xbf
+    db 0bfh                 ;eed1  bf          DATA 0xbf
+    db 0bfh                 ;eed2  bf          DATA 0xbf
+    db 0bfh                 ;eed3  bf          DATA 0xbf
+    db 0bfh                 ;eed4  bf          DATA 0xbf
+    db 0bfh                 ;eed5  bf          DATA 0xbf
+    db 0bfh                 ;eed6  bf          DATA 0xbf
+    db 0bfh                 ;eed7  bf          DATA 0xbf
+    db 0bfh                 ;eed8  bf          DATA 0xbf
+    db 0bfh                 ;eed9  bf          DATA 0xbf
+    db 0bfh                 ;eeda  bf          DATA 0xbf
+    db 0bfh                 ;eedb  bf          DATA 0xbf
+    db 0bfh                 ;eedc  bf          DATA 0xbf
+    db 0bfh                 ;eedd  bf          DATA 0xbf
+    db 0bfh                 ;eede  bf          DATA 0xbf
+    db 0bfh                 ;eedf  bf          DATA 0xbf
+    db 0bfh                 ;eee0  bf          DATA 0xbf
+    db 0bfh                 ;eee1  bf          DATA 0xbf
+    db 0bfh                 ;eee2  bf          DATA 0xbf
+    db 0bfh                 ;eee3  bf          DATA 0xbf
+    db 0bfh                 ;eee4  bf          DATA 0xbf
+    db 0bfh                 ;eee5  bf          DATA 0xbf
+    db 0bfh                 ;eee6  bf          DATA 0xbf
+    db 0bfh                 ;eee7  bf          DATA 0xbf
+    db 0bfh                 ;eee8  bf          DATA 0xbf
+    db 0bfh                 ;eee9  bf          DATA 0xbf
+    db 0bfh                 ;eeea  bf          DATA 0xbf
+    db 0bfh                 ;eeeb  bf          DATA 0xbf
+    db 0bfh                 ;eeec  bf          DATA 0xbf
+    db 0bfh                 ;eeed  bf          DATA 0xbf
+    db 0bfh                 ;eeee  bf          DATA 0xbf
+    db 0bfh                 ;eeef  bf          DATA 0xbf
+    db 0bfh                 ;eef0  bf          DATA 0xbf
+    db 0bfh                 ;eef1  bf          DATA 0xbf
+    db 0bfh                 ;eef2  bf          DATA 0xbf
+    db 0bfh                 ;eef3  bf          DATA 0xbf
+    db 0bfh                 ;eef4  bf          DATA 0xbf
+    db 0bfh                 ;eef5  bf          DATA 0xbf
+    db 0bfh                 ;eef6  bf          DATA 0xbf
+    db 0bfh                 ;eef7  bf          DATA 0xbf
+    db 0bfh                 ;eef8  bf          DATA 0xbf
+    db 0bfh                 ;eef9  bf          DATA 0xbf
+    db 0bfh                 ;eefa  bf          DATA 0xbf
+    db 0bfh                 ;eefb  bf          DATA 0xbf
+    db 0bfh                 ;eefc  bf          DATA 0xbf
+    db 0bfh                 ;eefd  bf          DATA 0xbf
+    db 0bfh                 ;eefe  bf          DATA 0xbf
+    db 0bfh                 ;eeff  bf          DATA 0xbf
+    db 0bfh                 ;ef00  bf          DATA 0xbf
+    db 0bfh                 ;ef01  bf          DATA 0xbf
+    db 0bfh                 ;ef02  bf          DATA 0xbf
+    db 0bfh                 ;ef03  bf          DATA 0xbf
+    db 0bfh                 ;ef04  bf          DATA 0xbf
+    db 0bfh                 ;ef05  bf          DATA 0xbf
+    db 0bfh                 ;ef06  bf          DATA 0xbf
+    db 0bfh                 ;ef07  bf          DATA 0xbf
+    db 0bfh                 ;ef08  bf          DATA 0xbf
+    db 0bfh                 ;ef09  bf          DATA 0xbf
+    db 0bfh                 ;ef0a  bf          DATA 0xbf
+    db 0bfh                 ;ef0b  bf          DATA 0xbf
+    db 0bfh                 ;ef0c  bf          DATA 0xbf
+    db 0bfh                 ;ef0d  bf          DATA 0xbf
+    db 0bfh                 ;ef0e  bf          DATA 0xbf
+    db 0bfh                 ;ef0f  bf          DATA 0xbf
+    db 0bfh                 ;ef10  bf          DATA 0xbf
+    db 0bfh                 ;ef11  bf          DATA 0xbf
+    db 0bfh                 ;ef12  bf          DATA 0xbf
+    db 0bfh                 ;ef13  bf          DATA 0xbf
+    db 0bfh                 ;ef14  bf          DATA 0xbf
+    db 0bfh                 ;ef15  bf          DATA 0xbf
+    db 0bfh                 ;ef16  bf          DATA 0xbf
+    db 0bfh                 ;ef17  bf          DATA 0xbf
+    db 0bfh                 ;ef18  bf          DATA 0xbf
+    db 0bfh                 ;ef19  bf          DATA 0xbf
+    db 0bfh                 ;ef1a  bf          DATA 0xbf
+    db 0bfh                 ;ef1b  bf          DATA 0xbf
+    db 0bfh                 ;ef1c  bf          DATA 0xbf
+    db 0bfh                 ;ef1d  bf          DATA 0xbf
+    db 0bfh                 ;ef1e  bf          DATA 0xbf
+    db 0bfh                 ;ef1f  bf          DATA 0xbf
+    db 0bfh                 ;ef20  bf          DATA 0xbf
+    db 0bfh                 ;ef21  bf          DATA 0xbf
+    db 0bfh                 ;ef22  bf          DATA 0xbf
+    db 0bfh                 ;ef23  bf          DATA 0xbf
+    db 0bfh                 ;ef24  bf          DATA 0xbf
+    db 0bfh                 ;ef25  bf          DATA 0xbf
+    db 0bfh                 ;ef26  bf          DATA 0xbf
+    db 0bfh                 ;ef27  bf          DATA 0xbf
+    db 0bfh                 ;ef28  bf          DATA 0xbf
+    db 0bfh                 ;ef29  bf          DATA 0xbf
+    db 0bfh                 ;ef2a  bf          DATA 0xbf
+    db 0bfh                 ;ef2b  bf          DATA 0xbf
+    db 0bfh                 ;ef2c  bf          DATA 0xbf
+    db 0bfh                 ;ef2d  bf          DATA 0xbf
+    db 0bfh                 ;ef2e  bf          DATA 0xbf
+    db 0bfh                 ;ef2f  bf          DATA 0xbf
+    db 0bfh                 ;ef30  bf          DATA 0xbf
+    db 0bfh                 ;ef31  bf          DATA 0xbf
+    db 0bfh                 ;ef32  bf          DATA 0xbf
+    db 0bfh                 ;ef33  bf          DATA 0xbf
+    db 0bfh                 ;ef34  bf          DATA 0xbf
+    db 0bfh                 ;ef35  bf          DATA 0xbf
+    db 0bfh                 ;ef36  bf          DATA 0xbf
+    db 0bfh                 ;ef37  bf          DATA 0xbf
+    db 0bfh                 ;ef38  bf          DATA 0xbf
+    db 0bfh                 ;ef39  bf          DATA 0xbf
+    db 0bfh                 ;ef3a  bf          DATA 0xbf
+    db 0bfh                 ;ef3b  bf          DATA 0xbf
+    db 0bfh                 ;ef3c  bf          DATA 0xbf
+    db 0bfh                 ;ef3d  bf          DATA 0xbf
+    db 0bfh                 ;ef3e  bf          DATA 0xbf
+    db 0bfh                 ;ef3f  bf          DATA 0xbf
+    db 0bfh                 ;ef40  bf          DATA 0xbf
+    db 0bfh                 ;ef41  bf          DATA 0xbf
+    db 0bfh                 ;ef42  bf          DATA 0xbf
+    db 0bfh                 ;ef43  bf          DATA 0xbf
+    db 0bfh                 ;ef44  bf          DATA 0xbf
+    db 0bfh                 ;ef45  bf          DATA 0xbf
+    db 0bfh                 ;ef46  bf          DATA 0xbf
+    db 0bfh                 ;ef47  bf          DATA 0xbf
+    db 0bfh                 ;ef48  bf          DATA 0xbf
+    db 0bfh                 ;ef49  bf          DATA 0xbf
+    db 0bfh                 ;ef4a  bf          DATA 0xbf
+    db 0bfh                 ;ef4b  bf          DATA 0xbf
+    db 0bfh                 ;ef4c  bf          DATA 0xbf
+    db 0bfh                 ;ef4d  bf          DATA 0xbf
+    db 0bfh                 ;ef4e  bf          DATA 0xbf
+    db 0bfh                 ;ef4f  bf          DATA 0xbf
+    db 0bfh                 ;ef50  bf          DATA 0xbf
+    db 0bfh                 ;ef51  bf          DATA 0xbf
+    db 0bfh                 ;ef52  bf          DATA 0xbf
+    db 0bfh                 ;ef53  bf          DATA 0xbf
+    db 0bfh                 ;ef54  bf          DATA 0xbf
+    db 0bfh                 ;ef55  bf          DATA 0xbf
+    db 0bfh                 ;ef56  bf          DATA 0xbf
+    db 0bfh                 ;ef57  bf          DATA 0xbf
+    db 0bfh                 ;ef58  bf          DATA 0xbf
+    db 0bfh                 ;ef59  bf          DATA 0xbf
+    db 0bfh                 ;ef5a  bf          DATA 0xbf
+    db 0bfh                 ;ef5b  bf          DATA 0xbf
+    db 0bfh                 ;ef5c  bf          DATA 0xbf
+    db 0bfh                 ;ef5d  bf          DATA 0xbf
+    db 0bfh                 ;ef5e  bf          DATA 0xbf
+    db 0bfh                 ;ef5f  bf          DATA 0xbf
+    db 0bfh                 ;ef60  bf          DATA 0xbf
+    db 0bfh                 ;ef61  bf          DATA 0xbf
+    db 0bfh                 ;ef62  bf          DATA 0xbf
+    db 0bfh                 ;ef63  bf          DATA 0xbf
+    db 0bfh                 ;ef64  bf          DATA 0xbf
+    db 0bfh                 ;ef65  bf          DATA 0xbf
+    db 0bfh                 ;ef66  bf          DATA 0xbf
+    db 0bfh                 ;ef67  bf          DATA 0xbf
+    db 0bfh                 ;ef68  bf          DATA 0xbf
+    db 0bfh                 ;ef69  bf          DATA 0xbf
+    db 0bfh                 ;ef6a  bf          DATA 0xbf
+    db 0bfh                 ;ef6b  bf          DATA 0xbf
+    db 0bfh                 ;ef6c  bf          DATA 0xbf
+    db 0bfh                 ;ef6d  bf          DATA 0xbf
+    db 0bfh                 ;ef6e  bf          DATA 0xbf
+    db 0bfh                 ;ef6f  bf          DATA 0xbf
+    db 0bfh                 ;ef70  bf          DATA 0xbf
+    db 0bfh                 ;ef71  bf          DATA 0xbf
+    db 0bfh                 ;ef72  bf          DATA 0xbf
+    db 0bfh                 ;ef73  bf          DATA 0xbf
+    db 0bfh                 ;ef74  bf          DATA 0xbf
+    db 0bfh                 ;ef75  bf          DATA 0xbf
+    db 0bfh                 ;ef76  bf          DATA 0xbf
+    db 0bfh                 ;ef77  bf          DATA 0xbf
+    db 0bfh                 ;ef78  bf          DATA 0xbf
+    db 0bfh                 ;ef79  bf          DATA 0xbf
+    db 0bfh                 ;ef7a  bf          DATA 0xbf
+    db 0bfh                 ;ef7b  bf          DATA 0xbf
+    db 0bfh                 ;ef7c  bf          DATA 0xbf
+    db 0bfh                 ;ef7d  bf          DATA 0xbf
+    db 0bfh                 ;ef7e  bf          DATA 0xbf
+    db 0bfh                 ;ef7f  bf          DATA 0xbf
+    db 0bfh                 ;ef80  bf          DATA 0xbf
+    db 0bfh                 ;ef81  bf          DATA 0xbf
+    db 0bfh                 ;ef82  bf          DATA 0xbf
+    db 0bfh                 ;ef83  bf          DATA 0xbf
+    db 0bfh                 ;ef84  bf          DATA 0xbf
+    db 0bfh                 ;ef85  bf          DATA 0xbf
+    db 0bfh                 ;ef86  bf          DATA 0xbf
+    db 0bfh                 ;ef87  bf          DATA 0xbf
+    db 0bfh                 ;ef88  bf          DATA 0xbf
+    db 0bfh                 ;ef89  bf          DATA 0xbf
+    db 0bfh                 ;ef8a  bf          DATA 0xbf
+    db 0bfh                 ;ef8b  bf          DATA 0xbf
+    db 0bfh                 ;ef8c  bf          DATA 0xbf
+    db 0bfh                 ;ef8d  bf          DATA 0xbf
+    db 0bfh                 ;ef8e  bf          DATA 0xbf
+    db 0bfh                 ;ef8f  bf          DATA 0xbf
+    db 0bfh                 ;ef90  bf          DATA 0xbf
+    db 0bfh                 ;ef91  bf          DATA 0xbf
+    db 0bfh                 ;ef92  bf          DATA 0xbf
+    db 0bfh                 ;ef93  bf          DATA 0xbf
+    db 0bfh                 ;ef94  bf          DATA 0xbf
+    db 0bfh                 ;ef95  bf          DATA 0xbf
+    db 0bfh                 ;ef96  bf          DATA 0xbf
+    db 0bfh                 ;ef97  bf          DATA 0xbf
+    db 0bfh                 ;ef98  bf          DATA 0xbf
+    db 0bfh                 ;ef99  bf          DATA 0xbf
+    db 0bfh                 ;ef9a  bf          DATA 0xbf
+    db 0bfh                 ;ef9b  bf          DATA 0xbf
+    db 0bfh                 ;ef9c  bf          DATA 0xbf
+    db 0bfh                 ;ef9d  bf          DATA 0xbf
+    db 0bfh                 ;ef9e  bf          DATA 0xbf
+    db 0bfh                 ;ef9f  bf          DATA 0xbf
+    db 0bfh                 ;efa0  bf          DATA 0xbf
+    db 0bfh                 ;efa1  bf          DATA 0xbf
+    db 0bfh                 ;efa2  bf          DATA 0xbf
+    db 0bfh                 ;efa3  bf          DATA 0xbf
+    db 0bfh                 ;efa4  bf          DATA 0xbf
+    db 0bfh                 ;efa5  bf          DATA 0xbf
+    db 0bfh                 ;efa6  bf          DATA 0xbf
+    db 0bfh                 ;efa7  bf          DATA 0xbf
+    db 0bfh                 ;efa8  bf          DATA 0xbf
+    db 0bfh                 ;efa9  bf          DATA 0xbf
+    db 0bfh                 ;efaa  bf          DATA 0xbf
+    db 0bfh                 ;efab  bf          DATA 0xbf
+    db 0bfh                 ;efac  bf          DATA 0xbf
+    db 0bfh                 ;efad  bf          DATA 0xbf
+    db 0bfh                 ;efae  bf          DATA 0xbf
+    db 0bfh                 ;efaf  bf          DATA 0xbf
+    db 0bfh                 ;efb0  bf          DATA 0xbf
+    db 0bfh                 ;efb1  bf          DATA 0xbf
+    db 0bfh                 ;efb2  bf          DATA 0xbf
+    db 0bfh                 ;efb3  bf          DATA 0xbf
+    db 0bfh                 ;efb4  bf          DATA 0xbf
+    db 0bfh                 ;efb5  bf          DATA 0xbf
+    db 0bfh                 ;efb6  bf          DATA 0xbf
+    db 0bfh                 ;efb7  bf          DATA 0xbf
+    db 0bfh                 ;efb8  bf          DATA 0xbf
+    db 0bfh                 ;efb9  bf          DATA 0xbf
+    db 0bfh                 ;efba  bf          DATA 0xbf
+    db 0bfh                 ;efbb  bf          DATA 0xbf
+    db 0bfh                 ;efbc  bf          DATA 0xbf
+    db 0bfh                 ;efbd  bf          DATA 0xbf
+    db 0bfh                 ;efbe  bf          DATA 0xbf
+    db 0bfh                 ;efbf  bf          DATA 0xbf
+    db 0bfh                 ;efc0  bf          DATA 0xbf
+    db 0bfh                 ;efc1  bf          DATA 0xbf
+    db 0bfh                 ;efc2  bf          DATA 0xbf
+    db 0bfh                 ;efc3  bf          DATA 0xbf
+    db 0bfh                 ;efc4  bf          DATA 0xbf
+    db 0bfh                 ;efc5  bf          DATA 0xbf
+    db 0bfh                 ;efc6  bf          DATA 0xbf
+    db 0bfh                 ;efc7  bf          DATA 0xbf
+    db 0bfh                 ;efc8  bf          DATA 0xbf
+    db 0bfh                 ;efc9  bf          DATA 0xbf
+    db 0bfh                 ;efca  bf          DATA 0xbf
+    db 0bfh                 ;efcb  bf          DATA 0xbf
+    db 0bfh                 ;efcc  bf          DATA 0xbf
+    db 0bfh                 ;efcd  bf          DATA 0xbf
+    db 0bfh                 ;efce  bf          DATA 0xbf
+    db 0bfh                 ;efcf  bf          DATA 0xbf
+    db 0bfh                 ;efd0  bf          DATA 0xbf
+    db 0bfh                 ;efd1  bf          DATA 0xbf
+    db 0bfh                 ;efd2  bf          DATA 0xbf
+    db 0bfh                 ;efd3  bf          DATA 0xbf
+    db 0bfh                 ;efd4  bf          DATA 0xbf
+    db 0bfh                 ;efd5  bf          DATA 0xbf
+    db 0bfh                 ;efd6  bf          DATA 0xbf
+    db 0bfh                 ;efd7  bf          DATA 0xbf
+    db 0bfh                 ;efd8  bf          DATA 0xbf
+    db 0bfh                 ;efd9  bf          DATA 0xbf
+    db 0bfh                 ;efda  bf          DATA 0xbf
+    db 0bfh                 ;efdb  bf          DATA 0xbf
+    db 0bfh                 ;efdc  bf          DATA 0xbf
+    db 0bfh                 ;efdd  bf          DATA 0xbf
+    db 0bfh                 ;efde  bf          DATA 0xbf
+    db 0bfh                 ;efdf  bf          DATA 0xbf
+    db 0bfh                 ;efe0  bf          DATA 0xbf
+    db 0bfh                 ;efe1  bf          DATA 0xbf
+    db 0bfh                 ;efe2  bf          DATA 0xbf
+    db 0bfh                 ;efe3  bf          DATA 0xbf
+    db 0bfh                 ;efe4  bf          DATA 0xbf
+    db 0bfh                 ;efe5  bf          DATA 0xbf
+    db 0bfh                 ;efe6  bf          DATA 0xbf
+    db 0bfh                 ;efe7  bf          DATA 0xbf
+    db 0bfh                 ;efe8  bf          DATA 0xbf
+    db 0bfh                 ;efe9  bf          DATA 0xbf
+    db 0bfh                 ;efea  bf          DATA 0xbf
+    db 0bfh                 ;efeb  bf          DATA 0xbf
+    db 0bfh                 ;efec  bf          DATA 0xbf
+    db 0bfh                 ;efed  bf          DATA 0xbf
+    db 0bfh                 ;efee  bf          DATA 0xbf
+    db 0bfh                 ;efef  bf          DATA 0xbf
+    db 0bfh                 ;eff0  bf          DATA 0xbf
+    db 0bfh                 ;eff1  bf          DATA 0xbf
+    db 0bfh                 ;eff2  bf          DATA 0xbf
+    db 0bfh                 ;eff3  bf          DATA 0xbf
+    db 0bfh                 ;eff4  bf          DATA 0xbf
+    db 0bfh                 ;eff5  bf          DATA 0xbf
+    db 0bfh                 ;eff6  bf          DATA 0xbf
+    db 0bfh                 ;eff7  bf          DATA 0xbf
+    db 0bfh                 ;eff8  bf          DATA 0xbf
+    db 0bfh                 ;eff9  bf          DATA 0xbf
+    db 0bfh                 ;effa  bf          DATA 0xbf
+    db 0bfh                 ;effb  bf          DATA 0xbf
+    db 0bfh                 ;effc  bf          DATA 0xbf
+    db 0bfh                 ;effd  bf          DATA 0xbf
 
-unused_3:
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh, 0bfh
-    db 0bfh, 0bfh
-
+checksum:
     db 1bh                  ;effe  1b          DATA 0x1b
     db 4eh                  ;efff  4e          DATA 0x4e 'N'
     end
