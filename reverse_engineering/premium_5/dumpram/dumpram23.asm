@@ -400,7 +400,7 @@
     WDTM_ equ 0fff9h        ;Watchdog timer mode register
     PCC_ equ 0fffbh         ;Processor clock control register
 
-    dw dumpram              ;0000  88 0d       VECTOR RST
+    dw dump_ram             ;0000  88 0d       VECTOR RST
     dw sub_0d75             ;0002  75 0d       VECTOR (unused)
     dw sub_0d75             ;0004  75 0d       VECTOR INTWDT
     dw lab_5993             ;0006  93 59       VECTOR INTP0
@@ -54903,51 +54903,76 @@ sub_dadd:
     db 0bfh                 ;eeff  bf          DATA 0xbf
 
 
-
-;During receive operation
-;Set P24 (RXD0) to input mode (PM24 = 1)
-
-;During transmit operation
-;Set P25 (TXD0) to output mode (PM25 = 0)
-
-;During transmit/receive operation
-;Set P24 (RXD0) to input mode, and P25 (TxD0) to output mode
-
-
-dumpram:
+dump_ram:
     di                      ;Disable interrupts
-    mov PCC_,#00h
-    mov WDTM_,#00h
-    mov IXS_,#08h
-    mov IMS_,#0cfh
-    mov PM2_,#00h
+    mov PCC_,#00h           ;Processor clock = full speed
+    mov WDTM_,#00h          ;Watchdog disabled
+    mov IXS_,#08h           ;Expansion RAM size = 2K
+    mov IMS_,#0cfh          ;High speed RAM size = 1K, ROM size = 60K
+    mov PM2_,#11011111b     ;PM25=output (TxD0), all others input
     mov ASIM0_,#00h         ;Disable UART
     mov BRGC0_,#1bh         ;Set baud rate to 38400 bps
-    mov ASIM0_,#8ah         ;Enable UART for transmit only 8-N-1
+    mov ASIM0_,#8ah         ;Enable UART for transmit only and 8-N-1
 
-hi_loop:
+    movw hl,#0F000h
 
-    ;Write "H" and wait for it
+dump_loop:
 
-    mov RXB0_TXS0_,#'H'     ;Write 'H' to transmit register
-wait_h:
-    mov1 cy,IF0H_.3         ;Carry flag = IF0H.STIF0
-    bnc $wait_h             ;Wait for transmit complete
+    ;Send colon
+
+    mov a,h
+    mov RXB0_TXS0_,#':'
+wait0:
+    bf IF0H_.3, $wait0      ;Wait until IF0H.3=1 (transmit complete)
     clr1 IF0H_.3            ;Clear transmit complete interrupt flag
 
-    ;Write "I" and wait for it
+    ;Send address high byte
 
-    mov RXB0_TXS0_,#'I'     ;Write 'I' to transmit register
-wait_i:
-    mov1 cy,IF0H_.3         ;Carry flag = IF0H.STIF0
-    bnc $wait_i             ;Wait for transmit complete
+    mov a,h
+    mov RXB0_TXS0_,a
+wait1:
+    bf IF0H_.3, $wait1      ;Wait until IF0H.3=1 (transmit complete)
     clr1 IF0H_.3            ;Clear transmit complete interrupt flag
 
-    ;Loop
+    ;Send address low byte
 
-    br $hi_loop             ;HIHIHIHIHIHIHI...
+    mov a,l
+    mov RXB0_TXS0_,a
+wait2:
+    bf IF0H_.3, $wait2      ;Wait until IF0H.3=1 (transmit complete)
+    clr1 IF0H_.3            ;Clear transmit complete interrupt flag
 
-    br lab_0d88             ;Jump to the original reset routine
+    ;Send data byte
+
+    mov a,[hl]
+    mov RXB0_TXS0_,a
+wait3:
+    bf IF0H_.3, $wait3      ;Wait until IF0H.3=1 (transmit complete)
+    clr1 IF0H_.3            ;Clear transmit complete interrupt flag
+
+    ;Increment address
+
+    incw hl
+
+    ;Skip reserved area F800-FAFF
+
+    movw ax,hl
+    cmpw ax,#0F800h
+    bnz $not_reserved
+    movw hl,#0FB00H
+
+not_reserved:
+
+    ;Loop until done
+
+    movw ax,hl
+    cmpw ax,#0FF00h
+    bnz $dump_loop
+
+    ;Jump to the original reset routine
+
+    br !lab_0d88
+
 
     org 0effeh
 
