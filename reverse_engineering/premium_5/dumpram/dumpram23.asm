@@ -54914,34 +54914,24 @@ dump_ram:
     mov BRGC0_,#1bh         ;Set baud rate to 38400 bps
     mov ASIM0_,#8ah         ;Enable UART for transmit only and 8-N-1
 
+    ;Send header string
+
+    mov b,#8                ;B = number of bytes in header string
+    movw hl,#dump_header    ;"DUMPRAM:" header string
+dump_header_loop:
+    mov a,[hl]
+    mov RXB0_TXS0_,a        ;Send header byte
+dump_header_wait:
+    bf IF0H_.3, $dump_header_wait   ;Wait until IF0H.3=1 (transmit complete)
+    clr1 IF0H_.3                    ;Clear transmit complete interrupt flag
+    incw hl                 ;Increment pointer to header string
+    dec b                   ;Decrement number of bytes remaining
+    bnz $dump_header_loop   ;Loop until header is sent
+
+    ;Send RAM dump
+
     movw hl,#0F000h
-
 dump_loop:
-
-    ;Send colon
-
-    mov a,h
-    mov RXB0_TXS0_,#':'
-wait0:
-    bf IF0H_.3, $wait0      ;Wait until IF0H.3=1 (transmit complete)
-    clr1 IF0H_.3            ;Clear transmit complete interrupt flag
-
-    ;Send address high byte
-
-    mov a,h
-    mov RXB0_TXS0_,a
-wait1:
-    bf IF0H_.3, $wait1      ;Wait until IF0H.3=1 (transmit complete)
-    clr1 IF0H_.3            ;Clear transmit complete interrupt flag
-
-    ;Send address low byte
-
-    mov a,l
-    mov RXB0_TXS0_,a
-wait2:
-    bf IF0H_.3, $wait2      ;Wait until IF0H.3=1 (transmit complete)
-    clr1 IF0H_.3            ;Clear transmit complete interrupt flag
-
     ;Send data byte
 
     mov a,[hl]
@@ -54972,6 +54962,9 @@ not_reserved:
     ;Jump to the original reset routine
 
     br !lab_0d88
+
+dump_header:
+    db 'DUMPRAM:'
 
 
     org 0effeh

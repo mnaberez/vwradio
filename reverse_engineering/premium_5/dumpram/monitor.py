@@ -12,17 +12,24 @@ def make_serial():
 
 def receive_ram():
     ram = {}
+    data = bytearray()
     while True:
-        while ser.read(1) != b':':
-            pass
-
-        high, low, data = ser.read(3)
-        address = (high << 8) + low
-        ram[address] = data
-        if (0xf000 in ram) and (0xfeff in ram):
-            break
-        sys.stdout.write("\rReceiving %04x\r" % address)
+        data += ser.read(1)
+        sys.stdout.write("\rReceiving header: %r" % data)
         sys.stdout.flush()
+        if data[-8:] == b'DUMPRAM:':
+            break
+
+    sys.stdout.write(chr(27) + "[2K\rReceiving data...")
+    sys.stdout.flush()
+    data = ser.read(3072)
+    address = 0xf000
+    ram = {}
+    for d in data:
+        ram[address] = d
+        address += 1
+        if address == 0xf800: # skip reserved area
+            address = 0xfb00
     return ram
 
 def ascii_or_dot(b):
