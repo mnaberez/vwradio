@@ -20,6 +20,348 @@
 
     org 00000h
 
+    mem_f00e equ 0f00eh
+    mem_f00f equ 0f00fh
+    mem_f032 equ 0f032h
+    mem_f04b equ 0f04bh
+    mem_f04c equ 0f04ch
+    mem_f04e equ 0f04eh
+    mem_f052 equ 0f052h
+    mem_f053 equ 0f053h
+    mem_f054 equ 0f054h
+    mem_f057 equ 0f057h
+    mem_f065 equ 0f065h
+    mem_f066 equ 0f066h
+    mem_f067 equ 0f067h
+    mem_f068 equ 0f068h
+    mem_f069 equ 0f069h
+    mem_f06a equ 0f06ah
+    mem_f06b equ 0f06bh
+    mem_f06c equ 0f06ch
+    mem_f06d equ 0f06dh
+    mem_f06e equ 0f06eh
+    mem_f06f equ 0f06fh
+    mem_f070 equ 0f070h
+    mem_f071 equ 0f071h
+    mem_f072 equ 0f072h
+    mem_f073 equ 0f073h
+    mem_f074 equ 0f074h
+    mem_f075 equ 0f075h
+    mem_f076 equ 0f076h
+    mem_f077 equ 0f077h
+    mem_f078 equ 0f078h
+    mem_f079 equ 0f079h
+    mem_f18b equ 0f18bh
+    mem_f18c equ 0f18ch
+    mem_f18d equ 0f18dh
+    mem_f18e equ 0f18eh
+    mem_f190 equ 0f190h
+    mem_f191 equ 0f191h
+    mem_f197 equ 0f197h
+    mem_f198 equ 0f198h
+    mem_f199 equ 0f199h
+    mem_f19a equ 0f19ah
+    mem_f19b equ 0f19bh
+    mem_f19c equ 0f19ch
+    mem_f19d equ 0f19dh
+    mem_f1a2 equ 0f1a2h
+    mem_f1a3 equ 0f1a3h
+    mem_f1a4 equ 0f1a4h
+    mem_f1a5 equ 0f1a5h
+    mem_f1a6 equ 0f1a6h
+    mem_f1a7 equ 0f1a7h
+    mem_f1a8 equ 0f1a8h
+    mem_f1a9 equ 0f1a9h
+    mem_f1aa equ 0f1aah
+    mem_f1ab equ 0f1abh
+    mem_f1ac equ 0f1ach
+    mem_f1ad equ 0f1adh
+    mem_f1b1 equ 0f1b1h
+    mem_f1b2 equ 0f1b2h
+    mem_f1e7 equ 0f1e7h
+    mem_f1e9 equ 0f1e9h
+    mem_f1ea equ 0f1eah
+    mem_f1eb equ 0f1ebh
+    mem_f1ec equ 0f1ech
+    mem_f1fd equ 0f1fdh
+    mem_f1fe equ 0f1feh
+    mem_f1ff equ 0f1ffh
+    mem_f200 equ 0f200h
+    mem_f206 equ 0f206h
+    mem_f207 equ 0f207h
+    mem_f20a equ 0f20ah
+    mem_f20b equ 0f20bh
+    mem_f219 equ 0f219h
+    mem_f252 equ 0f252h
+    mem_f253 equ 0f253h
+    mem_f254 equ 0f254h
+    mem_f257 equ 0f257h
+    mem_f258 equ 0f258h
+    mem_f268 equ 0f268h
+    mem_f26c equ 0f26ch
+    mem_f26d equ 0f26dh
+    mem_fb00 equ 0fb00h
+    mem_fb01 equ 0fb01h
+    mem_fb02 equ 0fb02h
+    mem_fb03 equ 0fb03h
+    mem_fb05 equ 0fb05h
+    mem_fb06 equ 0fb06h
+    mem_fb07 equ 0fb07h
+    mem_fb09 equ 0fb09h
+    mem_fb0a equ 0fb0ah
+    mem_fb0b equ 0fb0bh
+    mem_fb0c equ 0fb0ch
+    mem_fb0d equ 0fb0dh
+    mem_fb0e equ 0fb0eh
+    mem_fb0f equ 0fb0fh
+    mem_fb11 equ 0fb11h
+    mem_fb12 equ 0fb12h
+    mem_fb13 equ 0fb13h
+    mem_fb14 equ 0fb14h
+    mem_fb18 equ 0fb18h
+    mem_fb1a equ 0fb1ah
+    mem_fb1b equ 0fb1bh
+    mem_fb1c equ 0fb1ch
+    mem_fb1f equ 0fb1fh
+    mem_fb22 equ 0fb22h
+    mem_fb24 equ 0fb24h
+    mem_fb25 equ 0fb25h
+    mem_fb26 equ 0fb26h
+    mem_fb29 equ 0fb29h
+    mem_fb2a equ 0fb2ah
+    mem_fb2b equ 0fb2bh
+    mem_fb2d equ 0fb2dh
+    mem_fb2e equ 0fb2eh
+    mem_fb38 equ 0fb38h
+    mem_fb39 equ 0fb39h
+    mem_fb3a equ 0fb3ah
+    mem_fb3b equ 0fb3bh
+    mem_fb3c equ 0fb3ch
+    mem_fb3d equ 0fb3dh
+    mem_fb40 equ 0fb40h
+    mem_fb42 equ 0fb42h
+    mem_fb44 equ 0fb44h
+    mem_fb46 equ 0fb46h
+    mem_fb47 equ 0fb47h
+    mem_fb4b equ 0fb4bh
+    mem_fb4c equ 0fb4ch
+    mem_fb4e equ 0fb4eh
+    mem_fb50 equ 0fb50h
+    mem_fb51 equ 0fb51h
+    mem_fb52 equ 0fb52h
+    mem_fb54 equ 0fb54h
+    mem_fb56 equ 0fb56h
+    mem_fb57 equ 0fb57h
+    mem_fb58 equ 0fb58h
+    mem_fb59 equ 0fb59h
+    mem_fb5a equ 0fb5ah
+    mem_fb5e equ 0fb5eh
+    mem_fb5f equ 0fb5fh
+    mem_fb63 equ 0fb63h
+    mem_fb65 equ 0fb65h
+    mem_fb68 equ 0fb68h
+    mem_fb69 equ 0fb69h
+    mem_fb6a equ 0fb6ah
+    mem_fb6b equ 0fb6bh
+    mem_fb6c equ 0fb6ch
+    mem_fb6f equ 0fb6fh
+    mem_fb70 equ 0fb70h
+    mem_fb71 equ 0fb71h
+    mem_fb72 equ 0fb72h
+    mem_fb75 equ 0fb75h
+    mem_fb76 equ 0fb76h
+    mem_fb79 equ 0fb79h
+    mem_fb91 equ 0fb91h
+    mem_fb92 equ 0fb92h
+    mem_fb94 equ 0fb94h
+    mem_fb95 equ 0fb95h
+    mem_fb9d equ 0fb9dh
+    mem_fb9e equ 0fb9eh
+    mem_fbad equ 0fbadh
+    mem_fbaf equ 0fbafh
+    mem_fbb1 equ 0fbb1h
+    mem_fbc9 equ 0fbc9h
+    mem_fbcc equ 0fbcch
+    mem_fbcd equ 0fbcdh
+    mem_fbcf equ 0fbcfh
+    mem_fbd0 equ 0fbd0h
+    mem_fbd5 equ 0fbd5h
+    mem_fbdb equ 0fbdbh
+    mem_fbdc equ 0fbdch
+    mem_fbdd equ 0fbddh
+    mem_fbde equ 0fbdeh
+    mem_fbdf equ 0fbdfh
+    mem_fbe0 equ 0fbe0h
+    mem_fbe1 equ 0fbe1h
+    mem_fbe2 equ 0fbe2h
+    mem_fbe3 equ 0fbe3h
+    mem_fbe4 equ 0fbe4h
+    mem_fbe5 equ 0fbe5h
+    mem_fbff equ 0fbffh
+    mem_fc10 equ 0fc10h
+    mem_fc11 equ 0fc11h
+    mem_fc12 equ 0fc12h
+    mem_fc14 equ 0fc14h
+    mem_fc16 equ 0fc16h
+    mem_fc23 equ 0fc23h
+    mem_fc24 equ 0fc24h
+    mem_fc26 equ 0fc26h
+    mem_fc27 equ 0fc27h
+    mem_fc2f equ 0fc2fh
+    mem_fc30 equ 0fc30h
+    mem_fc34 equ 0fc34h
+    mem_fc6b equ 0fc6bh
+    mem_fc6c equ 0fc6ch
+    mem_fc6e equ 0fc6eh
+    mem_fc72 equ 0fc72h
+    mem_fc73 equ 0fc73h
+    mem_fc74 equ 0fc74h
+    mem_fc75 equ 0fc75h
+    mem_fc76 equ 0fc76h
+    mem_fc77 equ 0fc77h
+    mem_fc78 equ 0fc78h
+    mem_fc79 equ 0fc79h
+    mem_fc7d equ 0fc7dh
+    mem_fc7e equ 0fc7eh
+    mem_fc81 equ 0fc81h
+    mem_fc82 equ 0fc82h
+    mem_fc85 equ 0fc85h
+    mem_fc89 equ 0fc89h
+    mem_fc8a equ 0fc8ah
+    mem_fc8b equ 0fc8bh
+    mem_fc8c equ 0fc8ch
+    mem_fc8d equ 0fc8dh
+    mem_fc8f equ 0fc8fh
+    mem_fc90 equ 0fc90h
+    mem_fc91 equ 0fc91h
+    mem_fc92 equ 0fc92h
+    mem_fc93 equ 0fc93h
+    mem_fc94 equ 0fc94h
+    mem_fc96 equ 0fc96h
+    mem_fc97 equ 0fc97h
+    mem_fc98 equ 0fc98h
+    mem_fc99 equ 0fc99h
+    mem_fc9a equ 0fc9ah
+    mem_fc9b equ 0fc9bh
+    mem_fc9c equ 0fc9ch
+    mem_fc9f equ 0fc9fh
+    mem_fca2 equ 0fca2h
+    mem_fca3 equ 0fca3h
+    mem_fca5 equ 0fca5h
+    mem_fe1f equ 0fe1fh
+    mem_fe20 equ 0fe20h
+    mem_fe21 equ 0fe21h
+    mem_fe22 equ 0fe22h
+    mem_fe23 equ 0fe23h
+    mem_fe24 equ 0fe24h
+    mem_fe25 equ 0fe25h
+    mem_fe26 equ 0fe26h
+    mem_fe27 equ 0fe27h
+    mem_fe28 equ 0fe28h
+    mem_fe29 equ 0fe29h
+    mem_fe2a equ 0fe2ah
+    mem_fe2b equ 0fe2bh
+    mem_fe2c equ 0fe2ch
+    mem_fe2d equ 0fe2dh
+    mem_fe2e equ 0fe2eh
+    mem_fe2f equ 0fe2fh
+    mem_fe30 equ 0fe30h
+    mem_fe31 equ 0fe31h
+    mem_fe32 equ 0fe32h
+    mem_fe34 equ 0fe34h
+    mem_fe36 equ 0fe36h
+    mem_fe37 equ 0fe37h
+    mem_fe39 equ 0fe39h
+    mem_fe3a equ 0fe3ah
+    mem_fe3d equ 0fe3dh
+    mem_fe3e equ 0fe3eh
+    mem_fe3f equ 0fe3fh
+    mem_fe40 equ 0fe40h
+    mem_fe41 equ 0fe41h
+    mem_fe42 equ 0fe42h
+    mem_fe44 equ 0fe44h
+    mem_fe45 equ 0fe45h
+    mem_fe46 equ 0fe46h
+    mem_fe47 equ 0fe47h
+    mem_fe49 equ 0fe49h
+    mem_fe4a equ 0fe4ah
+    mem_fe4b equ 0fe4bh
+    mem_fe4c equ 0fe4ch
+    mem_fe4d equ 0fe4dh
+    mem_fe4e equ 0fe4eh
+    mem_fe4f equ 0fe4fh
+    mem_fe50 equ 0fe50h
+    mem_fe51 equ 0fe51h
+    mem_fe52 equ 0fe52h
+    mem_fe54 equ 0fe54h
+    mem_fe56 equ 0fe56h
+    mem_fe57 equ 0fe57h
+    mem_fe58 equ 0fe58h
+    mem_fe59 equ 0fe59h
+    mem_fe5a equ 0fe5ah
+    mem_fe5b equ 0fe5bh
+    mem_fe5c equ 0fe5ch
+    mem_fe5d equ 0fe5dh
+    mem_fe5e equ 0fe5eh
+    mem_fe5f equ 0fe5fh
+    mem_fe60 equ 0fe60h
+    mem_fe61 equ 0fe61h
+    mem_fe62 equ 0fe62h
+    mem_fe63 equ 0fe63h
+    mem_fe64 equ 0fe64h
+    mem_fe65 equ 0fe65h
+    mem_fe66 equ 0fe66h
+    mem_fe67 equ 0fe67h
+    mem_fe68 equ 0fe68h
+    mem_fe69 equ 0fe69h
+    mem_fe6a equ 0fe6ah
+    mem_fe6b equ 0fe6bh
+    mem_fe6c equ 0fe6ch
+    mem_fe6d equ 0fe6dh
+    mem_fe6e equ 0fe6eh
+    mem_fe6f equ 0fe6fh
+    mem_fe70 equ 0fe70h
+    mem_fe71 equ 0fe71h
+    mem_fe72 equ 0fe72h
+    mem_fe73 equ 0fe73h
+    mem_fe74 equ 0fe74h
+    mem_fe75 equ 0fe75h
+    mem_fe76 equ 0fe76h
+    mem_fe77 equ 0fe77h
+    mem_fe78 equ 0fe78h
+    mem_fe79 equ 0fe79h
+    mem_fe7a equ 0fe7ah
+    mem_fe7b equ 0fe7bh
+    mem_fe7c equ 0fe7ch
+    mem_fe7d equ 0fe7dh
+    mem_fe7e equ 0fe7eh
+    mem_fe7f equ 0fe7fh
+    mem_fe80 equ 0fe80h
+    mem_fea1 equ 0fea1h
+    mem_fecb equ 0fecbh
+    mem_fecc equ 0fecch
+    mem_fecd equ 0fecdh
+    mem_fece equ 0feceh
+    mem_fecf equ 0fecfh
+    mem_fed0 equ 0fed0h
+    mem_fed1 equ 0fed1h
+    mem_fed2 equ 0fed2h
+    mem_fed3 equ 0fed3h
+    mem_fed4 equ 0fed4h
+    mem_fed5 equ 0fed5h
+    mem_fed6 equ 0fed6h
+    mem_fed7 equ 0fed7h
+    mem_fed8 equ 0fed8h
+    mem_fed9 equ 0fed9h
+    mem_feda equ 0fedah
+    mem_fedc equ 0fedch
+    mem_fedd equ 0feddh
+    mem_fede equ 0fedeh
+    mem_fefa equ 0fefah
+    mem_fefb equ 0fefbh
+    mem_fefd equ 0fefdh
+    mem_fefe equ 0fefeh
+    mem_feff equ 0feffh
     P0_ equ 0ff00h          ;Port 0
     P2_ equ 0ff02h          ;Port 2
     P3_ equ 0ff03h          ;Port 3
@@ -123,7 +465,7 @@
     dw sub_0994             ;0040  94 09       VECTOR CALLT #0
     dw sub_09b9             ;0042  b9 09       VECTOR CALLT #1
     dw lab_09c6             ;0044  c6 09       VECTOR CALLT #2
-    dw lab_096c             ;0046  6c 09       VECTOR CALLT #3
+    dw sub_096c             ;0046  6c 09       VECTOR CALLT #3
     dw sub_09a7             ;0048  a7 09       VECTOR CALLT #4
     dw sub_0d75             ;004a  75 0d       VECTOR CALLT #5
     dw sub_0d75             ;004c  75 0d       VECTOR CALLT #6
@@ -337,7 +679,7 @@
 
 lab_0135:
     sel rb1                 ;0135  61 d8
-    bf 0fe2bh.7,$lab_0148   ;0137  31 73 2b 0d
+    bf mem_fe2b.7,$lab_0148 ;0137  31 73 2b 0d
     mov WTNM0_,#73h         ;013b  13 41 73
     clr1 MK1L_.0            ;013e  71 0b e6
     clr1 PR1L_.0            ;0141  71 0b ea
@@ -348,8 +690,8 @@ lab_0148:
     mov WTNM0_,#13h         ;0148  13 41 13
     clr1 MK1L_.0            ;014b  71 0b e6
     clr1 PR1L_.0            ;014e  71 0b ea
-    inc 0fe28h              ;0151  81 28
-    btclr 0fe28h.7,$lab_015a ;0153  31 71 28 03
+    inc mem_fe28            ;0151  81 28
+    btclr mem_fe28.7,$lab_015a ;0153  31 71 28 03
     br !lab_0265            ;0157  9b 65 02
 
 lab_015a:
@@ -362,22 +704,22 @@ lab_0160:
     mov a,#08h              ;0165  a1 08
     sub a,#00h              ;0167  1d 00
     callf !sub_0932         ;0169  1c 32
-    mov a,!0fb79h           ;016b  8e 79 fb
+    mov a,!mem_fb79         ;016b  8e 79 fb
     inc a                   ;016e  41
-    mov !0fb79h,a           ;016f  9e 79 fb
-    bt 0fe60h.6,$lab_018b   ;0172  ec 60 16
+    mov !mem_fb79,a         ;016f  9e 79 fb
+    bt mem_fe60.6,$lab_018b ;0172  ec 60 16
     clr1 PU4_.5             ;0175  71 5b 34
     set1 PM4_.5             ;0178  71 5a 24
-    set1 0fe60h.5           ;017b  5a 60
+    set1 mem_fe60.5         ;017b  5a 60
     bf P4_.5,$lab_01a0      ;017d  31 53 04 1f
-    clr1 0fe60h.5           ;0181  5b 60
-    set1 0fe60h.4           ;0183  4a 60
-    set1 0fe61h.2           ;0185  2a 61
-    inc 0fe26h              ;0187  81 26
+    clr1 mem_fe60.5         ;0181  5b 60
+    set1 mem_fe60.4         ;0183  4a 60
+    set1 mem_fe61.2         ;0185  2a 61
+    inc mem_fe26            ;0187  81 26
     br $lab_01a0            ;0189  fa 15
 
 lab_018b:
-    mov a,!0f066h           ;018b  8e 66 f0
+    mov a,!mem_f066         ;018b  8e 66 f0
     cmp a,#01h              ;018e  4d 01
     bz $lab_019c            ;0190  ad 0a
     clr1 PU4_.5             ;0192  71 5b 34
@@ -385,53 +727,53 @@ lab_018b:
     bf P4_.5,$lab_01a0      ;0198  31 53 04 04
 
 lab_019c:
-    set1 0fe61h.2           ;019c  2a 61
-    set1 0fe7ch.2           ;019e  2a 7c
+    set1 mem_fe61.2         ;019c  2a 61
+    set1 mem_fe7c.2         ;019e  2a 7c
 
 lab_01a0:
     call !sub_357c          ;01a0  9a 7c 35
-    mov a,!0fb95h           ;01a3  8e 95 fb
+    mov a,!mem_fb95         ;01a3  8e 95 fb
     inc a                   ;01a6  41
-    mov !0fb95h,a           ;01a7  9e 95 fb
-    btclr 0fe61h.3,$lab_01cd ;01aa  31 31 61 1f
-    set1 0fe61h.3           ;01ae  3a 61
-    bf 0fe23h.4,$lab_01b7   ;01b0  31 43 23 03
+    mov !mem_fb95,a         ;01a7  9e 95 fb
+    btclr mem_fe61.3,$lab_01cd ;01aa  31 31 61 1f
+    set1 mem_fe61.3         ;01ae  3a 61
+    bf mem_fe23.4,$lab_01b7 ;01b0  31 43 23 03
     call !sub_250d          ;01b4  9a 0d 25
 
 lab_01b7:
     call !sub_308f          ;01b7  9a 8f 30
-    bf 0fe2dh.0,$lab_01cd   ;01ba  31 03 2d 0f
-    bt 0fe66h.5,$lab_01cd   ;01be  dc 66 0c
-    bt 0fe78h.1,$lab_01cd   ;01c1  9c 78 09
-    bt 0fe31h.1,$lab_01cd   ;01c4  9c 31 06
-    bt 0fe31h.2,$lab_01cd   ;01c7  ac 31 03
+    bf mem_fe2d.0,$lab_01cd ;01ba  31 03 2d 0f
+    bt mem_fe66.5,$lab_01cd ;01be  dc 66 0c
+    bt mem_fe78.1,$lab_01cd ;01c1  9c 78 09
+    bt mem_fe31.1,$lab_01cd ;01c4  9c 31 06
+    bt mem_fe31.2,$lab_01cd ;01c7  ac 31 03
     call !sub_5607          ;01ca  9a 07 56
 
 lab_01cd:
-    mov a,!0fb03h           ;01cd  8e 03 fb
+    mov a,!mem_fb03         ;01cd  8e 03 fb
     cmp a,#00h              ;01d0  4d 00
     bnz $lab_0204           ;01d2  bd 30
     mov a,#0ah              ;01d4  a1 0a
-    inc 0fe29h              ;01d6  81 29
-    bt 0fe29h.0,$lab_01df   ;01d8  8c 29 04
-    bt 0fe29h.1,$lab_01df   ;01db  9c 29 01
+    inc mem_fe29            ;01d6  81 29
+    bt mem_fe29.0,$lab_01df ;01d8  8c 29 04
+    bt mem_fe29.1,$lab_01df ;01db  9c 29 01
     inc a                   ;01de  41
 
 lab_01df:
-    mov !0fb03h,a           ;01df  9e 03 fb
-    movw hl,#0fb07h         ;01e2  16 07 fb
+    mov !mem_fb03,a         ;01df  9e 03 fb
+    movw hl,#mem_fb07       ;01e2  16 07 fb
     mov a,#21h              ;01e5  a1 21
     sub a,#08h              ;01e7  1d 08
     callf !sub_0932         ;01e9  1c 32
-    mov a,!0fb11h           ;01eb  8e 11 fb
+    mov a,!mem_fb11         ;01eb  8e 11 fb
     cmp a,#00h              ;01ee  4d 00
     bnz $lab_01f9           ;01f0  bd 07
     mov a,#0fh              ;01f2  a1 0f
-    mov !0fb11h,a           ;01f4  9e 11 fb
-    inc 0fe3dh              ;01f7  81 3d
+    mov !mem_fb11,a         ;01f4  9e 11 fb
+    inc mem_fe3d            ;01f7  81 3d
 
 lab_01f9:
-    mov a,!0f1e9h           ;01f9  8e e9 f1
+    mov a,!mem_f1e9         ;01f9  8e e9 f1
     bf a.2,$lab_0202        ;01fc  31 2f 03
     call !sub_8178          ;01ff  9a 78 81
 
@@ -439,39 +781,39 @@ lab_0202:
     br $lab_025a            ;0202  fa 56
 
 lab_0204:
-    mov a,!0fb0bh           ;0204  8e 0b fb
+    mov a,!mem_fb0b         ;0204  8e 0b fb
     cmp a,#00h              ;0207  4d 00
     bnz $lab_025a           ;0209  bd 4f
     mov a,#0ah              ;020b  a1 0a
-    mov !0fb0bh,a           ;020d  9e 0b fb
+    mov !mem_fb0b,a         ;020d  9e 0b fb
     movw hl,#0fb20h         ;0210  16 20 fb
     mov a,#4ah              ;0213  a1 4a
     sub a,#21h              ;0215  1d 21
     callf !sub_0932         ;0217  1c 32
-    mov a,!0fb24h           ;0219  8e 24 fb
+    mov a,!mem_fb24         ;0219  8e 24 fb
     cmp a,#00h              ;021c  4d 00
     bnz $lab_025a           ;021e  bd 3a
     mov a,#0ah              ;0220  a1 0a
-    mov !0fb24h,a           ;0222  9e 24 fb
+    mov !mem_fb24,a         ;0222  9e 24 fb
     movw hl,#0fb49h         ;0225  16 49 fb
     mov a,#50h              ;0228  a1 50
     sub a,#4ah              ;022a  1d 4a
     callf !sub_0932         ;022c  1c 32
-    mov a,!0fb4bh           ;022e  8e 4b fb
+    mov a,!mem_fb4b         ;022e  8e 4b fb
     cmp a,#00h              ;0231  4d 00
     bnz $lab_025a           ;0233  bd 25
     mov a,#0ah              ;0235  a1 0a
-    mov !0fb4bh,a           ;0237  9e 4b fb
+    mov !mem_fb4b,a         ;0237  9e 4b fb
     movw hl,#0fb4fh         ;023a  16 4f fb
     mov a,#51h              ;023d  a1 51
     sub a,#50h              ;023f  1d 50
     callf !sub_0932         ;0241  1c 32
-    mov a,!0fb50h           ;0243  8e 50 fb
+    mov a,!mem_fb50         ;0243  8e 50 fb
     cmp a,#00h              ;0246  4d 00
     bnz $lab_025a           ;0248  bd 10
     mov a,#06h              ;024a  a1 06
-    mov !0fb50h,a           ;024c  9e 50 fb
-    movw hl,#0fb50h         ;024f  16 50 fb
+    mov !mem_fb50,a         ;024c  9e 50 fb
+    movw hl,#mem_fb50       ;024f  16 50 fb
     mov a,#56h              ;0252  a1 56
     sub a,#51h              ;0254  1d 51
     bz $lab_025a            ;0256  ad 02
@@ -479,8 +821,8 @@ lab_0204:
 
 lab_025a:
     di                      ;025a  7b 1e
-    dbnz 0fe28h,$lab_0266   ;025c  04 28 07
-    mov 0fe28h,#80h         ;025f  11 28 80
+    dbnz mem_fe28,$lab_0266 ;025c  04 28 07
+    mov mem_fe28,#80h       ;025f  11 28 80
     set1 MK1H_.0            ;0262  71 0a e7
 
 lab_0265:
@@ -553,11 +895,11 @@ lab_02a8:
     movw hl,ax              ;02ae  d6
 
 sub_02af:
-    mov a,0fed6h            ;02af  f0 d6
-    sub a,0fed7h            ;02b1  1e d7
-    mov 0fed6h,a            ;02b3  f2 d6
-    mov a,0fed4h            ;02b5  f0 d4
-    sub a,0fed7h            ;02b7  1e d7
+    mov a,mem_fed6          ;02af  f0 d6
+    sub a,mem_fed7          ;02b1  1e d7
+    mov mem_fed6,a          ;02b3  f2 d6
+    mov a,mem_fed4          ;02b5  f0 d4
+    sub a,mem_fed7          ;02b7  1e d7
     mov b,a                 ;02b9  73
     mov a,e                 ;02ba  64
     sub l,a                 ;02bb  61 16
@@ -586,7 +928,7 @@ lab_02ca:
     mov a,x                 ;02d9  60
     addc a,#00h             ;02da  2d 00
     mov b,a                 ;02dc  73
-    mov a,0fed6h            ;02dd  f0 d6
+    mov a,mem_fed6          ;02dd  f0 d6
     mov c,a                 ;02df  72
     mov a,h                 ;02e0  67
     mov x,a                 ;02e1  70
@@ -598,12 +940,12 @@ lab_02ca:
     mov h,a                 ;02eb  77
     mov a,l                 ;02ec  66
     mov x,a                 ;02ed  70
-    mov a,0fed6h            ;02ee  f0 d6
+    mov a,mem_fed6          ;02ee  f0 d6
     xch a,c                 ;02f0  32
     divuw c                 ;02f1  31 82
     mov a,x                 ;02f3  60
     mov l,a                 ;02f4  76
-    mov a,0fed6h            ;02f5  f0 d6
+    mov a,mem_fed6          ;02f5  f0 d6
     clr1 cy                 ;02f7  21
     rorc a,1                ;02f8  25
     cmp c,a                 ;02f9  61 42
@@ -634,7 +976,7 @@ lab_0311:
 
 sub_0314:
     mov b,#00h              ;0314  a3 00
-    mov a,0fed4h            ;0316  f0 d4
+    mov a,mem_fed4          ;0316  f0 d4
     cmp a,[hl]              ;0318  4f
     bz $lab_0326            ;0319  ad 0b
     bc $lab_0326            ;031b  8d 09
@@ -652,10 +994,10 @@ lab_0326:
 
 lab_0328:
     mov a,[hl+b]            ;0328  ab
-    mov 0fed6h,a            ;0329  f2 d6
+    mov mem_fed6,a          ;0329  f2 d6
     dec b                   ;032b  53
     mov a,[hl+b]            ;032c  ab
-    mov 0fed7h,a            ;032d  f2 d7
+    mov mem_fed7,a          ;032d  f2 d7
     clr1 cy                 ;032f  21
     ret                     ;0330  af
 
@@ -1892,8 +2234,8 @@ lab_0328:
     db 0bfh                 ;07ff  bf          DATA 0xbf
 
 sub_0800:
-    mov a,!0f253h           ;0800  8e 53 f2
-    mov !0fb58h,a           ;0803  9e 58 fb
+    mov a,!mem_f253         ;0800  8e 53 f2
+    mov !mem_fb58,a         ;0803  9e 58 fb
     ret                     ;0806  af
 
     db 48h                  ;0807  48          DATA 0x48 'H'
@@ -1902,27 +2244,27 @@ sub_0800:
     db 0afh                 ;080a  af          DATA 0xaf
 
 sub_080b:
-    mov a,!0f252h           ;080b  8e 52 f2
-    mov !0fb57h,a           ;080e  9e 57 fb
+    mov a,!mem_f252         ;080b  8e 52 f2
+    mov !mem_fb57,a         ;080e  9e 57 fb
     ret                     ;0811  af
 
 sub_0812:
-    cmp a,!0fb57h           ;0812  48 57 fb
+    cmp a,!mem_fb57         ;0812  48 57 fb
     ret                     ;0815  af
 
 sub_0816:
-    clr1 0fe5bh.1           ;0816  1b 5b
-    clr1 0fe5ch.5           ;0818  5b 5c
+    clr1 mem_fe5b.1         ;0816  1b 5b
+    clr1 mem_fe5c.5         ;0818  5b 5c
     call !sub_1c9d          ;081a  9a 9d 1c
     call !sub_080b          ;081d  9a 0b 08
     call !sub_1bff          ;0820  9a ff 1b
 
 sub_0823:
     movw de,#0fb66h         ;0823  14 66 fb
-    movw hl,#0fe20h         ;0826  16 20 fe
+    movw hl,#mem_fe20       ;0826  16 20 fe
     mov b,#02h              ;0829  a3 02
     call !sub_0bef          ;082b  9a ef 0b
-    movw hl,#0fb59h         ;082e  16 59 fb
+    movw hl,#mem_fb59       ;082e  16 59 fb
     mov b,#01h              ;0831  a3 01
     br !sub_0bf6            ;0833  9b f6 0b
 
@@ -1943,14 +2285,14 @@ sub_0823:
     db 03h                  ;0844  03          DATA 0x03
 
 sub_0845:
-    mov 0fe22h,#02h         ;0845  11 22 02
-    clr1 0fe5bh.4           ;0848  4b 5b
-    clr1 0fe5bh.5           ;084a  5b 5b
+    mov mem_fe22,#02h       ;0845  11 22 02
+    clr1 mem_fe5b.4         ;0848  4b 5b
+    clr1 mem_fe5b.5         ;084a  5b 5b
     call !sub_0800          ;084c  9a 00 08
     mov b,a                 ;084f  73
     movw hl,#0b408h         ;0850  16 08 b4
     mov a,[hl+b]            ;0853  ab
-    mov !0fb63h,a           ;0854  9e 63 fb
+    mov !mem_fb63,a         ;0854  9e 63 fb
     ret                     ;0857  af
 
     db 11h                  ;0858  11          DATA 0x11
@@ -1960,19 +2302,19 @@ sub_0845:
     db 03h                  ;085c  03          DATA 0x03
 
 sub_085d:
-    mov 0fe22h,#04h         ;085d  11 22 04
-    clr1 0fe5dh.3           ;0860  3b 5d
-    mov a,0fe22h            ;0862  f0 22
+    mov mem_fe22,#04h       ;085d  11 22 04
+    clr1 mem_fe5d.3         ;0860  3b 5d
+    mov a,mem_fe22          ;0862  f0 22
     push ax                 ;0864  b1
-    set1 0fe69h.4           ;0865  4a 69
+    set1 mem_fe69.4         ;0865  4a 69
     call !sub_60ac          ;0867  9a ac 60
-    clr1 0fe69h.4           ;086a  4b 69
+    clr1 mem_fe69.4         ;086a  4b 69
     pop ax                  ;086c  b0
-    mov 0fe22h,a            ;086d  f2 22
-    clr1 0fe5bh.6           ;086f  6b 5b
-    clr1 0fe5bh.7           ;0871  7b 5b
+    mov mem_fe22,a          ;086d  f2 22
+    clr1 mem_fe5b.6         ;086f  6b 5b
+    clr1 mem_fe5b.7         ;0871  7b 5b
     mov a,#08h              ;0873  a1 08
-    mov !0fb63h,a           ;0875  9e 63 fb
+    mov !mem_fb63,a         ;0875  9e 63 fb
     ret                     ;0878  af
 
 sub_0879:
@@ -1980,7 +2322,7 @@ sub_0879:
 
 sub_087a:
     clr1 IF0H_.4            ;087a  71 4b e1
-    set1 0fe5fh.0           ;087d  0a 5f
+    set1 mem_fe5f.0         ;087d  0a 5f
     mov SIO30_,a            ;087f  f2 1a
     push bc                 ;0881  b3
     mov b,#00h              ;0882  a3 00
@@ -1989,7 +2331,7 @@ lab_0884:
     bt IF0H_.4,$lab_088d    ;0884  31 46 e1 05
     dbnz b,$lab_0884        ;0888  8b fa
     nop                     ;088a  00
-    clr1 0fe5fh.0           ;088b  0b 5f
+    clr1 mem_fe5f.0         ;088b  0b 5f
 
 lab_088d:
     mov a,SIO30_            ;088d  f0 1a
@@ -1997,9 +2339,9 @@ lab_088d:
     ret                     ;0890  af
 
 sub_0891:
-    set1 0fecdh.2           ;0891  2a cd
-    set1 0fecdh.1           ;0893  1a cd
-    mov a,0fecdh            ;0895  f0 cd
+    set1 mem_fecd.2         ;0891  2a cd
+    set1 mem_fecd.1         ;0893  1a cd
+    mov a,mem_fecd          ;0895  f0 cd
     mov P3_,a               ;0897  f2 03
     mov CSIM30_,#00h        ;0899  13 b0 00
     clr1 PM3_.2             ;089c  71 2b 23
@@ -2011,7 +2353,7 @@ sub_0891:
 lab_08a9:
     sel rb2                 ;08a9  61 f0
     mov a,SIO30_            ;08ab  f0 1a
-    bt 0fe5fh.1,$lab_08b1   ;08ad  9c 5f 01
+    bt mem_fe5f.1,$lab_08b1 ;08ad  9c 5f 01
     mov [hl],a              ;08b0  97
 
 lab_08b1:
@@ -2025,9 +2367,9 @@ lab_08b1:
     br $lab_08c9            ;08bb  fa 0c
 
 lab_08bd:
-    set1 0fe5fh.0           ;08bd  0a 5f
+    set1 mem_fe5f.0         ;08bd  0a 5f
     set1 MK0H_.4            ;08bf  71 4a e5
-    bf 0fe60h.7,$lab_08c9   ;08c2  31 73 60 03
+    bf mem_fe60.7,$lab_08c9 ;08c2  31 73 60 03
     call !sub_2f48          ;08c6  9a 48 2f
 
 lab_08c9:
@@ -2051,9 +2393,9 @@ lab_08db:
     ret                     ;08de  af
 
 sub_08df:
-    set1 0fecch.2           ;08df  2a cc
-    set1 0fecch.1           ;08e1  1a cc
-    mov a,0fecch            ;08e3  f0 cc
+    set1 mem_fecc.2         ;08df  2a cc
+    set1 mem_fecc.1         ;08e1  1a cc
+    mov a,mem_fecc          ;08e3  f0 cc
     mov P2_,a               ;08e5  f2 02
     mov CSIM31_,#00h        ;08e7  13 b8 00
     clr1 PM2_.2             ;08ea  71 2b 22
@@ -2067,9 +2409,9 @@ lab_08f7:
     push bc                 ;08f8  b3
     push de                 ;08f9  b5
     push hl                 ;08fa  b7
-    mov a,!0f032h           ;08fb  8e 32 f0
+    mov a,!mem_f032         ;08fb  8e 32 f0
     mov b,a                 ;08fe  73
-    mov a,!0fb0ah           ;08ff  8e 0a fb
+    mov a,!mem_fb0a         ;08ff  8e 0a fb
     cmp a,#00h              ;0902  4d 00
     bnz $lab_0908           ;0904  bd 02
     mov b,#00h              ;0906  a3 00
@@ -2084,7 +2426,7 @@ lab_0908:
     bnz $lab_0925           ;0912  bd 11
     mov b,#07h              ;0914  a3 07
     movw hl,#0f034h         ;0916  16 34 f0
-    movw de,#0fc6eh         ;0919  14 6e fc
+    movw de,#mem_fc6e       ;0919  14 6e fc
 
 lab_091c:
     mov a,[hl]              ;091c  87
@@ -2092,13 +2434,13 @@ lab_091c:
     incw hl                 ;091e  86
     incw de                 ;091f  84
     dbnz b,$lab_091c        ;0920  8b fa
-    set1 0fe5fh.2           ;0922  2a 5f
+    set1 mem_fe5f.2         ;0922  2a 5f
     mov a,b                 ;0924  63
 
 lab_0925:
-    mov !0f032h,a           ;0925  9e 32 f0
+    mov !mem_f032,a         ;0925  9e 32 f0
     mov a,#04h              ;0928  a1 04
-    mov !0fb0ah,a           ;092a  9e 0a fb
+    mov !mem_fb0a,a         ;092a  9e 0a fb
     pop hl                  ;092d  b6
     pop de                  ;092e  b4
     pop bc                  ;092f  b2
@@ -2120,8 +2462,8 @@ lab_0939:
 
 sub_093c:
     mov a,#55h              ;093c  a1 55
-    add a,0fe2dh            ;093e  0e 2d
-    add a,0fe2fh            ;0940  0e 2f
+    add a,mem_fe2d          ;093e  0e 2d
+    add a,mem_fe2f          ;0940  0e 2f
     mov b,#0bh              ;0942  a3 0b
 
 lab_0944:
@@ -2130,8 +2472,8 @@ lab_0944:
     movw hl,#0fb7ah         ;0949  16 7a fb
     add a,[hl+b]            ;094c  31 0b
     dbnz b,$lab_0944        ;094e  8b f4
-    cmp a,0fe2eh            ;0950  4e 2e
-    mov 0fe2eh,a            ;0952  f2 2e
+    cmp a,mem_fe2e          ;0950  4e 2e
+    mov mem_fe2e,a          ;0952  f2 2e
     ret                     ;0954  af
 
 sub_0955:
@@ -2142,18 +2484,18 @@ sub_0955:
     cmp a,#0bh              ;095d  4d 0b
     xch a,b                 ;095f  33
     bnc $lab_096b           ;0960  9d 09
-    xch a,0fe2eh            ;0962  83 2e
+    xch a,mem_fe2e          ;0962  83 2e
     sub a,[hl+b]            ;0964  31 1b
-    add a,0fe2eh            ;0966  0e 2e
-    xch a,0fe2eh            ;0968  83 2e
+    add a,mem_fe2e          ;0966  0e 2e
+    xch a,mem_fe2e          ;0968  83 2e
     mov [hl+b],a            ;096a  bb
 
 lab_096b:
     ret                     ;096b  af
 
-lab_096c:
+sub_096c:
     xch a,b                 ;096c  33
-    mov a,0fe2fh            ;096d  f0 2f
+    mov a,mem_fe2f          ;096d  f0 2f
     xch a,b                 ;096f  33
 
 sub_0970:
@@ -2171,10 +2513,10 @@ lab_097a:
     cmp a,#0bh              ;0982  4d 0b
     bnc $lab_0990           ;0984  9d 0a
     xch a,b                 ;0986  33
-    xch a,0fe2eh            ;0987  83 2e
+    xch a,mem_fe2e          ;0987  83 2e
     sub a,[hl+b]            ;0989  31 1b
-    add a,0fe2eh            ;098b  0e 2e
-    xch a,0fe2eh            ;098d  83 2e
+    add a,mem_fe2e          ;098b  0e 2e
+    xch a,mem_fe2e          ;098d  83 2e
     mov [hl+b],a            ;098f  bb
 
 lab_0990:
@@ -2204,7 +2546,7 @@ sub_0994:
 
 sub_09a7:
     xch a,b                 ;09a7  33
-    mov a,0fe2fh            ;09a8  f0 2f
+    mov a,mem_fe2f          ;09a8  f0 2f
     xch a,b                 ;09aa  33
     and a,#07h              ;09ab  5d 07
     callf !sub_0955         ;09ad  1c 55
@@ -2216,7 +2558,7 @@ sub_09a7:
 
 sub_09b9:
     xch a,b                 ;09b9  33
-    mov a,0fe2fh            ;09ba  f0 2f
+    mov a,mem_fe2f          ;09ba  f0 2f
     xch a,b                 ;09bc  33
     xor a,#0ffh             ;09bd  7d ff
     movw hl,#0fb86h         ;09bf  16 86 fb
@@ -2225,7 +2567,7 @@ sub_09b9:
 
 lab_09c6:
     xch a,b                 ;09c6  33
-    mov a,0fe2fh            ;09c7  f0 2f
+    mov a,mem_fe2f          ;09c7  f0 2f
     xch a,b                 ;09c9  33
     and a,#0fch             ;09ca  5d fc
     movw hl,#0fb86h         ;09cc  16 86 fb
@@ -2233,19 +2575,19 @@ lab_09c6:
     br $lab_097a            ;09d1  fa a7
 
 sub_09d3:
-    or a,0fe2dh             ;09d3  6e 2d
+    or a,mem_fe2d           ;09d3  6e 2d
     br $lab_09db            ;09d5  fa 04
 
 sub_09d7:
     xor a,#0ffh             ;09d7  7d ff
-    and a,0fe2dh            ;09d9  5e 2d
+    and a,mem_fe2d          ;09d9  5e 2d
 
 lab_09db:
-    xch a,0fe2eh            ;09db  83 2e
-    sub a,0fe2dh            ;09dd  1e 2d
-    add a,0fe2eh            ;09df  0e 2e
-    xch a,0fe2eh            ;09e1  83 2e
-    mov 0fe2dh,a            ;09e3  f2 2d
+    xch a,mem_fe2e          ;09db  83 2e
+    sub a,mem_fe2d          ;09dd  1e 2d
+    add a,mem_fe2e          ;09df  0e 2e
+    xch a,mem_fe2e          ;09e1  83 2e
+    mov mem_fe2d,a          ;09e3  f2 2d
     ret                     ;09e5  af
 
 lab_09e6:
@@ -2286,10 +2628,10 @@ sub_09ef:
     db 0afh                 ;0a0c  af          DATA 0xaf
 
 sub_0a0d:
-    movw ax,#0f26ch         ;0a0d  10 6c f2
-    subw ax,#0f206h         ;0a10  da 06 f2
+    movw ax,#mem_f26c       ;0a0d  10 6c f2
+    subw ax,#mem_f206       ;0a10  da 06 f2
     mov a,x                 ;0a13  60
-    mov 0fed6h,a            ;0a14  f2 d6
+    mov mem_fed6,a          ;0a14  f2 d6
     ret                     ;0a16  af
 
 sub_0a17:
@@ -2308,7 +2650,7 @@ sub_0a1c:
 sub_0a2c:
     callf !sub_0a0d         ;0a2c  2c 0d
     movw hl,#00cfh          ;0a2e  16 cf 00
-    movw de,#0f206h         ;0a31  14 06 f2
+    movw de,#mem_f206       ;0a31  14 06 f2
 
 lab_0a34:
     callf !sub_0c9e         ;0a34  4c 9e
@@ -2357,23 +2699,23 @@ lab_0a34:
     db 0f8h                 ;0a5f  f8          DATA 0xf8
 
 sub_0a60:
-    bf 0fe63h.7,$lab_0a7e   ;0a60  31 73 63 1a
-    mov a,!0f207h           ;0a64  8e 07 f2
+    bf mem_fe63.7,$lab_0a7e ;0a60  31 73 63 1a
+    mov a,!mem_f207         ;0a64  8e 07 f2
     bf a.6,$lab_0a7e        ;0a67  31 6f 14
     movw hl,#00eeh          ;0a6a  16 ee 00
     movw de,#0f225h         ;0a6d  14 25 f2
-    movw ax,#0f26ch         ;0a70  10 6c f2
+    movw ax,#mem_f26c       ;0a70  10 6c f2
     subw ax,#0f225h         ;0a73  da 25 f2
     mov a,x                 ;0a76  60
     callf !sub_0c9e         ;0a77  4c 9e
     call !sub_4053          ;0a79  9a 53 40
-    clr1 0fe63h.6           ;0a7c  6b 63
+    clr1 mem_fe63.6         ;0a7c  6b 63
 
 lab_0a7e:
     ret                     ;0a7e  af
 
 sub_0a7f:
-    movw 0fed4h,#0000h      ;0a7f  ee d4 00 00
+    movw mem_fed4,#0000h    ;0a7f  ee d4 00 00
     mov b,#10h              ;0a83  a3 10
 
 lab_0a85:
@@ -2382,14 +2724,14 @@ lab_0a85:
     xch a,x                 ;0a87  30
     rolc a,1                ;0a88  27
     push ax                 ;0a89  b1
-    mov a,0fed4h            ;0a8a  f0 d4
-    addc a,0fed4h           ;0a8c  2e d4
+    mov a,mem_fed4          ;0a8a  f0 d4
+    addc a,mem_fed4         ;0a8c  2e d4
     adjba                   ;0a8e  61 80
-    mov 0fed4h,a            ;0a90  f2 d4
-    mov a,0fed5h            ;0a92  f0 d5
-    addc a,0fed5h           ;0a94  2e d5
+    mov mem_fed4,a          ;0a90  f2 d4
+    mov a,mem_fed5          ;0a92  f0 d5
+    addc a,mem_fed5         ;0a94  2e d5
     adjba                   ;0a96  61 80
-    mov 0fed5h,a            ;0a98  f2 d5
+    mov mem_fed5,a          ;0a98  f2 d5
     pop ax                  ;0a9a  b0
     dbnz b,$lab_0a85        ;0a9b  8b e8
     ret                     ;0a9d  af
@@ -2673,23 +3015,23 @@ lab_0b99:
     db 0afh                 ;0bac  af          DATA 0xaf
 
 sub_0bad:
-    mov a,0fed4h            ;0bad  f0 d4
+    mov a,mem_fed4          ;0bad  f0 d4
     mov x,a                 ;0baf  70
-    mov a,0fed6h            ;0bb0  f0 d6
+    mov a,mem_fed6          ;0bb0  f0 d6
     mulu x                  ;0bb2  31 88
     movw de,ax              ;0bb4  d4
     movw bc,#0000h          ;0bb5  12 00 00
-    mov a,0fed4h            ;0bb8  f0 d4
+    mov a,mem_fed4          ;0bb8  f0 d4
     mov x,a                 ;0bba  70
-    mov a,0fed7h            ;0bbb  f0 d7
+    mov a,mem_fed7          ;0bbb  f0 d7
     mulu x                  ;0bbd  31 88
     xch a,x                 ;0bbf  30
     add d,a                 ;0bc0  61 05
     mov a,x                 ;0bc2  60
     addc c,a                ;0bc3  61 22
-    mov a,0fed5h            ;0bc5  f0 d5
+    mov a,mem_fed5          ;0bc5  f0 d5
     mov x,a                 ;0bc7  70
-    mov a,0fed6h            ;0bc8  f0 d6
+    mov a,mem_fed6          ;0bc8  f0 d6
     mulu x                  ;0bca  31 88
     xch a,x                 ;0bcc  30
     add d,a                 ;0bcd  61 05
@@ -2697,9 +3039,9 @@ sub_0bad:
     addc c,a                ;0bd0  61 22
     mov a,#00h              ;0bd2  a1 00
     addc b,a                ;0bd4  61 23
-    mov a,0fed5h            ;0bd6  f0 d5
+    mov a,mem_fed5          ;0bd6  f0 d5
     mov x,a                 ;0bd8  70
-    mov a,0fed7h            ;0bd9  f0 d7
+    mov a,mem_fed7          ;0bd9  f0 d7
     mulu x                  ;0bdb  31 88
     xch a,x                 ;0bdd  30
     add c,a                 ;0bde  61 02
@@ -2744,7 +3086,7 @@ lab_0bf9:
     mov [de],a              ;0c04  95
 
 lab_0c05:
-    bf 0fe31h.0,$lab_0c0a   ;0c05  31 03 31 01
+    bf mem_fe31.0,$lab_0c0a ;0c05  31 03 31 01
     mov a,x                 ;0c09  60
 
 lab_0c0a:
@@ -2767,20 +3109,20 @@ lab_0c15:
     mov a,#00h              ;0c18  a1 00
 
 lab_0c1a:
-    mov 0fedah,a            ;0c1a  f2 da
+    mov mem_feda,a          ;0c1a  f2 da
     mov a,[hl+b]            ;0c1c  ab
     add x,a                 ;0c1d  61 00
-    mov a,0fedah            ;0c1f  f0 da
+    mov a,mem_feda          ;0c1f  f0 da
     addc a,#00h             ;0c21  2d 00
     dbnz b,$lab_0c1a        ;0c23  8b f5
-    movw 0fedeh,ax          ;0c25  99 de
+    movw mem_fede,ax        ;0c25  99 de
     movw ax,de              ;0c27  c4
     movw hl,ax              ;0c28  d6
     mov a,[hl]              ;0c29  87
     xch a,x                 ;0c2a  30
     mov a,[hl+01h]          ;0c2b  ae 01
-    movw 0fedch,ax          ;0c2d  99 dc
-    movw ax,0fedeh          ;0c2f  89 de
+    movw mem_fedc,ax        ;0c2d  99 dc
+    movw ax,mem_fede        ;0c2f  89 de
     pop psw                 ;0c31  23
     bc $lab_0c39            ;0c32  8d 05
     xch a,x                 ;0c34  30
@@ -2789,15 +3131,15 @@ lab_0c1a:
     mov [hl+01h],a          ;0c37  be 01
 
 lab_0c39:
-    bf 0fe31h.0,$lab_0c3f   ;0c39  31 03 31 02
-    movw ax,0fedch          ;0c3d  89 dc
+    bf mem_fe31.0,$lab_0c3f ;0c39  31 03 31 02
+    movw ax,mem_fedc        ;0c3d  89 dc
 
 lab_0c3f:
     xch a,x                 ;0c3f  30
-    cmp a,0fedch            ;0c40  4e dc
+    cmp a,mem_fedc          ;0c40  4e dc
     bnz $lab_0c47           ;0c42  bd 03
     xch a,x                 ;0c44  30
-    cmp a,0feddh            ;0c45  4e dd
+    cmp a,mem_fedd          ;0c45  4e dd
 
 lab_0c47:
     ret                     ;0c47  af
@@ -3098,13 +3440,13 @@ lab_0cfa:
     db 0afh                 ;0d5d  af          DATA 0xaf
     db 31h                  ;0d5e  31          DATA 0x31 '1'
     db 88h                  ;0d5f  88          DATA 0x88
-    db 30h                  ;0d60  30          DATA 0x30 '0'
-    db 61h                  ;0d61  61          DATA 0x61 'a'
-    db 06h                  ;0d62  06          DATA 0x06
-    db 30h                  ;0d63  30          DATA 0x30 '0'
-    db 61h                  ;0d64  61          DATA 0x61 'a'
-    db 27h                  ;0d65  27          DATA 0x27 '''
-    db 0afh                 ;0d66  af          DATA 0xaf
+
+sub_0d60:
+    xch a,x                 ;0d60  30
+    add l,a                 ;0d61  61 06
+    xch a,x                 ;0d63  30
+    addc h,a                ;0d64  61 27
+    ret                     ;0d66  af
 
 sub_0d67:
     add l,a                 ;0d67  61 06
@@ -3125,12 +3467,12 @@ lab_0d73:
     ret                     ;0d74  af
 
 sub_0d75:
-    clr1 0fed3h.7           ;0d75  7b d3
+    clr1 mem_fed3.7         ;0d75  7b d3
     clr1 PM9_.7             ;0d77  71 7b 29
-    mov a,0fed3h            ;0d7a  f0 d3
+    mov a,mem_fed3          ;0d7a  f0 d3
     mov P9_,a               ;0d7c  f2 09
     mov a,#00h              ;0d7e  a1 00
-    mov !0f18eh,a           ;0d80  9e 8e f1
+    mov !mem_f18e,a         ;0d80  9e 8e f1
     mov WDTM_,#98h          ;0d83  13 f9 98
 
 lab_0d86:
@@ -3141,43 +3483,43 @@ lab_0d88:
     mov WDCS_,#07h          ;0d8a  13 42 07
     mov WDTM_,#90h          ;0d8d  13 f9 90
     mov PCC_,#00h           ;0d90  13 fb 00
-    movw sp,#0fe1fh         ;0d93  ee 1c 1f fe
-    clr1 0fecdh.4           ;0d97  4b cd
+    movw sp,#mem_fe1f       ;0d93  ee 1c 1f fe
+    clr1 mem_fecd.4         ;0d97  4b cd
     clr1 PM3_.4             ;0d99  71 4b 23
-    mov a,0fecdh            ;0d9c  f0 cd
+    mov a,mem_fecd          ;0d9c  f0 cd
     mov P3_,a               ;0d9e  f2 03
-    clr1 0feceh.6           ;0da0  6b ce
+    clr1 mem_fece.6         ;0da0  6b ce
     clr1 PM4_.6             ;0da2  71 6b 24
-    mov a,0feceh            ;0da5  f0 ce
+    mov a,mem_fece          ;0da5  f0 ce
     mov P4_,a               ;0da7  f2 04
     mov a,#01h              ;0da9  a1 01
     callf !sub_09d7         ;0dab  1c d7
     call !sub_3781          ;0dad  9a 81 37
     call !sub_375d          ;0db0  9a 5d 37
     mov a,#00h              ;0db3  a1 00
-    mov !0f18bh,a           ;0db5  9e 8b f1
-    set1 0fe7dh.1           ;0db8  1a 7d
-    clr1 0fe69h.0           ;0dba  0b 69
+    mov !mem_f18b,a         ;0db5  9e 8b f1
+    set1 mem_fe7d.1         ;0db8  1a 7d
+    clr1 mem_fe69.0         ;0dba  0b 69
     clr1 PM7_.0             ;0dbc  71 0b 27
-    clr1 0fed1h.0           ;0dbf  0b d1
-    mov a,0fed1h            ;0dc1  f0 d1
+    clr1 mem_fed1.0         ;0dbf  0b d1
+    mov a,mem_fed1          ;0dc1  f0 d1
     mov P7_,a               ;0dc3  f2 07
     call !sub_4076          ;0dc5  9a 76 40
     bz $lab_0dcf            ;0dc8  ad 05
     mov a,#00h              ;0dca  a1 00
-    mov !0f18eh,a           ;0dcc  9e 8e f1
+    mov !mem_f18e,a         ;0dcc  9e 8e f1
 
 lab_0dcf:
     mov IXS_,#08h           ;0dcf  13 f4 08
     mov IMS_,#0cfh          ;0dd2  13 f0 cf
-    movw sp,#0fe1fh         ;0dd5  ee 1c 1f fe
+    movw sp,#mem_fe1f       ;0dd5  ee 1c 1f fe
     mov a,#07h              ;0dd9  a1 07
     mov WDCS_,a             ;0ddb  f6 42
     mov a,#90h              ;0ddd  a1 90
     mov WDTM_,a             ;0ddf  f6 f9
-    clr1 0fed3h.7           ;0de1  7b d3
+    clr1 mem_fed3.7         ;0de1  7b d3
     clr1 PM9_.7             ;0de3  71 7b 29
-    mov a,0fed3h            ;0de6  f0 d3
+    mov a,mem_fed3          ;0de6  f0 d3
     mov P9_,a               ;0de8  f2 09
     clr1 PU0_.2             ;0dea  71 2b 30
     set1 PM0_.2             ;0ded  71 2a 20
@@ -3188,14 +3530,14 @@ lab_0dcf:
     callf !sub_093c         ;0dfc  1c 3c
     bnz $lab_0e1b           ;0dfe  bd 1b
     mov a,#55h              ;0e00  a1 55
-    cmp a,!0f18eh           ;0e02  48 8e f1
+    cmp a,!mem_f18e         ;0e02  48 8e f1
     bnz $lab_0e1b           ;0e05  bd 14
-    cmp a,!0fca5h           ;0e07  48 a5 fc
+    cmp a,!mem_fca5         ;0e07  48 a5 fc
     bnz $lab_0e1b           ;0e0a  bd 0f
     mov a,#0aah             ;0e0c  a1 aa
-    cmp a,!0fe1fh           ;0e0e  48 1f fe
+    cmp a,!mem_fe1f         ;0e0e  48 1f fe
     bnz $lab_0e1b           ;0e11  bd 08
-    cmp a,!0fb91h           ;0e13  48 91 fb
+    cmp a,!mem_fb91         ;0e13  48 91 fb
     bnz $lab_0e1b           ;0e16  bd 03
     br !lab_0f13            ;0e18  9b 13 0f
 
@@ -3205,14 +3547,14 @@ lab_0e1b:
     mov WDCS_,a             ;0e1f  f6 42
     mov a,#90h              ;0e21  a1 90
     mov WDTM_,a             ;0e23  f6 f9
-    movw hl,#0fb00h         ;0e25  16 00 fb
+    movw hl,#mem_fb00       ;0e25  16 00 fb
     mov a,#00h              ;0e28  a1 00
 
 lab_0e2a:
     mov [hl],a              ;0e2a  97
     incw hl                 ;0e2b  86
     xchw ax,hl              ;0e2c  e6
-    cmpw ax,#0fecbh         ;0e2d  ea cb fe
+    cmpw ax,#mem_fecb       ;0e2d  ea cb fe
     xchw ax,hl              ;0e30  e6
     bc $lab_0e2a            ;0e31  8d f7
     mov WDTM_,#90h          ;0e33  13 f9 90
@@ -3240,78 +3582,78 @@ lab_0e39:
     set1 PM2_.6             ;0e62  71 6a 22
     mov ASIM0_,#00h         ;0e65  13 a0 00
     mov BRGC0_,#39h         ;0e68  13 a2 39
-    set1 0fecch.5           ;0e6b  5a cc
-    mov a,0fecch            ;0e6d  f0 cc
+    set1 mem_fecc.5         ;0e6b  5a cc
+    mov a,mem_fecc          ;0e6d  f0 cc
     mov P2_,a               ;0e6f  f2 02
-    clr1 0fecch.6           ;0e71  6b cc
-    mov a,0fecch            ;0e73  f0 cc
+    clr1 mem_fecc.6         ;0e71  6b cc
+    mov a,mem_fecc          ;0e73  f0 cc
     mov P2_,a               ;0e75  f2 02
     mov a,#0dbh             ;0e77  a1 db
-    mov !0f077h,a           ;0e79  9e 77 f0
+    mov !mem_f077,a         ;0e79  9e 77 f0
     mov a,#00h              ;0e7c  a1 00
-    mov !0f068h,a           ;0e7e  9e 68 f0
-    mov !0f069h,a           ;0e81  9e 69 f0
-    mov !0f06ah,a           ;0e84  9e 6a f0
-    mov !0f06bh,a           ;0e87  9e 6b f0
-    mov !0f06ch,a           ;0e8a  9e 6c f0
-    mov !0f06dh,a           ;0e8d  9e 6d f0
-    mov !0f06eh,a           ;0e90  9e 6e f0
-    mov !0f06fh,a           ;0e93  9e 6f f0
-    mov !0f070h,a           ;0e96  9e 70 f0
-    mov !0f071h,a           ;0e99  9e 71 f0
-    mov !0f072h,a           ;0e9c  9e 72 f0
-    mov !0f073h,a           ;0e9f  9e 73 f0
-    mov !0f074h,a           ;0ea2  9e 74 f0
-    mov !0f075h,a           ;0ea5  9e 75 f0
-    mov !0f076h,a           ;0ea8  9e 76 f0
-    mov !0f078h,a           ;0eab  9e 78 f0
-    mov !0f079h,a           ;0eae  9e 79 f0
-    clr1 0fe7ah.2           ;0eb1  2b 7a
-    clr1 0fe79h.0           ;0eb3  0b 79
-    clr1 0fe79h.1           ;0eb5  1b 79
-    clr1 0fe79h.2           ;0eb7  2b 79
-    clr1 0fe79h.3           ;0eb9  3b 79
-    clr1 0fe79h.4           ;0ebb  4b 79
-    clr1 0fe79h.5           ;0ebd  5b 79
-    clr1 0fe79h.6           ;0ebf  6b 79
-    clr1 0fe79h.7           ;0ec1  7b 79
-    clr1 0fe7ah.0           ;0ec3  0b 7a
-    clr1 0fe7ah.1           ;0ec5  1b 7a
-    clr1 0fe7ah.3           ;0ec7  3b 7a
-    clr1 0fe7ah.4           ;0ec9  4b 7a
-    clr1 0fe7ah.5           ;0ecb  5b 7a
-    clr1 0fe7ah.6           ;0ecd  6b 7a
-    clr1 0fe7ah.7           ;0ecf  7b 7a
-    clr1 0fe7bh.0           ;0ed1  0b 7b
-    clr1 0fe7bh.1           ;0ed3  1b 7b
-    clr1 0fe7bh.2           ;0ed5  2b 7b
-    clr1 0fe7bh.3           ;0ed7  3b 7b
-    clr1 0fe7bh.4           ;0ed9  4b 7b
-    clr1 0fe7bh.5           ;0edb  5b 7b
-    clr1 0fe7bh.6           ;0edd  6b 7b
-    clr1 0fe61h.6           ;0edf  6b 61
+    mov !mem_f068,a         ;0e7e  9e 68 f0
+    mov !mem_f069,a         ;0e81  9e 69 f0
+    mov !mem_f06a,a         ;0e84  9e 6a f0
+    mov !mem_f06b,a         ;0e87  9e 6b f0
+    mov !mem_f06c,a         ;0e8a  9e 6c f0
+    mov !mem_f06d,a         ;0e8d  9e 6d f0
+    mov !mem_f06e,a         ;0e90  9e 6e f0
+    mov !mem_f06f,a         ;0e93  9e 6f f0
+    mov !mem_f070,a         ;0e96  9e 70 f0
+    mov !mem_f071,a         ;0e99  9e 71 f0
+    mov !mem_f072,a         ;0e9c  9e 72 f0
+    mov !mem_f073,a         ;0e9f  9e 73 f0
+    mov !mem_f074,a         ;0ea2  9e 74 f0
+    mov !mem_f075,a         ;0ea5  9e 75 f0
+    mov !mem_f076,a         ;0ea8  9e 76 f0
+    mov !mem_f078,a         ;0eab  9e 78 f0
+    mov !mem_f079,a         ;0eae  9e 79 f0
+    clr1 mem_fe7a.2         ;0eb1  2b 7a
+    clr1 mem_fe79.0         ;0eb3  0b 79
+    clr1 mem_fe79.1         ;0eb5  1b 79
+    clr1 mem_fe79.2         ;0eb7  2b 79
+    clr1 mem_fe79.3         ;0eb9  3b 79
+    clr1 mem_fe79.4         ;0ebb  4b 79
+    clr1 mem_fe79.5         ;0ebd  5b 79
+    clr1 mem_fe79.6         ;0ebf  6b 79
+    clr1 mem_fe79.7         ;0ec1  7b 79
+    clr1 mem_fe7a.0         ;0ec3  0b 7a
+    clr1 mem_fe7a.1         ;0ec5  1b 7a
+    clr1 mem_fe7a.3         ;0ec7  3b 7a
+    clr1 mem_fe7a.4         ;0ec9  4b 7a
+    clr1 mem_fe7a.5         ;0ecb  5b 7a
+    clr1 mem_fe7a.6         ;0ecd  6b 7a
+    clr1 mem_fe7a.7         ;0ecf  7b 7a
+    clr1 mem_fe7b.0         ;0ed1  0b 7b
+    clr1 mem_fe7b.1         ;0ed3  1b 7b
+    clr1 mem_fe7b.2         ;0ed5  2b 7b
+    clr1 mem_fe7b.3         ;0ed7  3b 7b
+    clr1 mem_fe7b.4         ;0ed9  4b 7b
+    clr1 mem_fe7b.5         ;0edb  5b 7b
+    clr1 mem_fe7b.6         ;0edd  6b 7b
+    clr1 mem_fe61.6         ;0edf  6b 61
     call !sub_3bea          ;0ee1  9a ea 3b
     mov a,#00h              ;0ee4  a1 00
-    mov !0f18bh,a           ;0ee6  9e 8b f1
+    mov !mem_f18b,a         ;0ee6  9e 8b f1
     call !sub_3bf7          ;0ee9  9a f7 3b
     call !sub_4234          ;0eec  9a 34 42
     call !sub_4495          ;0eef  9a 95 44
     call !sub_4569          ;0ef2  9a 69 45
     mov a,#0ffh             ;0ef5  a1 ff
-    mov !0fbadh,a           ;0ef7  9e ad fb
+    mov !mem_fbad,a         ;0ef7  9e ad fb
     call !sub_4d1a          ;0efa  9a 1a 4d
     call !sub_7697          ;0efd  9a 97 76
     call !sub_76c9          ;0f00  9a c9 76
-    mov 0fe3eh,#0fh         ;0f03  11 3e 0f
-    clr1 0fe6fh.4           ;0f06  4b 6f
-    clr1 0fe6dh.3           ;0f08  3b 6d
+    mov mem_fe3e,#0fh       ;0f03  11 3e 0f
+    clr1 mem_fe6f.4         ;0f06  4b 6f
+    clr1 mem_fe6d.3         ;0f08  3b 6d
     mov b,#03h              ;0f0a  a3 03
     mov a,#7fh              ;0f0c  a1 7f
-    movw hl,#0fca2h         ;0f0e  16 a2 fc
+    movw hl,#mem_fca2       ;0f0e  16 a2 fc
     callf !sub_0cdc         ;0f11  4c dc
 
 lab_0f13:
-    mov 0fe7ch,#00h         ;0f13  11 7c 00
+    mov mem_fe7c,#00h       ;0f13  11 7c 00
     mov b,#0bh              ;0f16  a3 0b
     movw hl,#0fb85h         ;0f18  16 85 fb
 
@@ -3323,10 +3665,10 @@ lab_0f1b:
     dbnz b,$lab_0f1b        ;0f21  8b f8
     callf !sub_093c         ;0f23  1c 3c
     mov a,#0fh              ;0f25  a1 0f
-    mov !0fb4eh,a           ;0f27  9e 4e fb
+    mov !mem_fb4e,a         ;0f27  9e 4e fb
     mov a,#00h              ;0f2a  a1 00
-    mov !0fb94h,a           ;0f2c  9e 94 fb
-    mov !0fb95h,a           ;0f2f  9e 95 fb
+    mov !mem_fb94,a         ;0f2c  9e 94 fb
+    mov !mem_fb95,a         ;0f2f  9e 95 fb
     clr1 PU7_.5             ;0f32  71 5b 37
     set1 PM7_.5             ;0f35  71 5a 27
     clr1 PU0_.3             ;0f38  71 3b 30
@@ -3342,30 +3684,30 @@ lab_0f1b:
     set1 PM9_.3             ;0f56  71 3a 29
     set1 PM9_.6             ;0f59  71 6a 29
     mov a,#00h              ;0f5c  a1 00
-    mov !0fb68h,a           ;0f5e  9e 68 fb
-    clr1 0fe5dh.7           ;0f61  7b 5d
-    clr1 0fe5eh.2           ;0f63  2b 5e
+    mov !mem_fb68,a         ;0f5e  9e 68 fb
+    clr1 mem_fe5d.7         ;0f61  7b 5d
+    clr1 mem_fe5e.2         ;0f63  2b 5e
     call !sub_0891          ;0f65  9a 91 08
-    set1 0fe5eh.7           ;0f68  7a 5e
-    set1 0fe5fh.0           ;0f6a  0a 5f
-    set1 0fe5fh.1           ;0f6c  1a 5f
+    set1 mem_fe5e.7         ;0f68  7a 5e
+    set1 mem_fe5f.0         ;0f6a  0a 5f
+    set1 mem_fe5f.1         ;0f6c  1a 5f
     clr1 IF0H_.4            ;0f6e  71 4b e1
     set1 MK0H_.4            ;0f71  71 4a e5
     call !sub_08df          ;0f74  9a df 08
-    clr1 0fe5fh.2           ;0f77  2b 5f
+    clr1 mem_fe5f.2         ;0f77  2b 5f
     mov a,#00h              ;0f79  a1 00
-    mov !0f032h,a           ;0f7b  9e 32 f0
+    mov !mem_f032,a         ;0f7b  9e 32 f0
     clr1 IF0H_.5            ;0f7e  71 5b e1
     set1 MK0H_.5            ;0f81  71 5a e5
     mov a,#00h              ;0f84  a1 00
-    mov !0f04eh,a           ;0f86  9e 4e f0
-    clr1 0fe5fh.5           ;0f89  5b 5f
+    mov !mem_f04e,a         ;0f86  9e 4e f0
+    clr1 mem_fe5f.5         ;0f89  5b 5f
     call !sub_2d35          ;0f8b  9a 35 2d
-    set1 0fecch.5           ;0f8e  5a cc
-    mov a,0fecch            ;0f90  f0 cc
+    set1 mem_fecc.5         ;0f8e  5a cc
+    mov a,mem_fecc          ;0f90  f0 cc
     mov P2_,a               ;0f92  f2 02
-    clr1 0fecch.6           ;0f94  6b cc
-    mov a,0fecch            ;0f96  f0 cc
+    clr1 mem_fecc.6         ;0f94  6b cc
+    mov a,mem_fecc          ;0f96  f0 cc
     mov P2_,a               ;0f98  f2 02
     call !sub_3468          ;0f9a  9a 68 34
     mov a,RXB0_TXS0_        ;0f9d  f0 18
@@ -3379,51 +3721,51 @@ lab_0f1b:
     set1 PR0H_.2            ;0fb4  71 2a e9
     clr1 MK0H_.3            ;0fb7  71 3b e5
     clr1 PR0H_.3            ;0fba  71 3b e9
-    clr1 0fe7ah.3           ;0fbd  3b 7a
-    set1 0fe7bh.0           ;0fbf  0a 7b
-    clr1 0fe7ah.7           ;0fc1  7b 7a
+    clr1 mem_fe7a.3         ;0fbd  3b 7a
+    set1 mem_fe7b.0         ;0fbf  0a 7b
+    clr1 mem_fe7a.7         ;0fc1  7b 7a
     mov WTNM0_,#13h         ;0fc3  13 41 13
     clr1 MK1L_.0            ;0fc6  71 0b e6
     clr1 PR1L_.0            ;0fc9  71 0b ea
     mov a,#0ah              ;0fcc  a1 0a
-    mov !0fb03h,a           ;0fce  9e 03 fb
-    mov !0fb0bh,a           ;0fd1  9e 0b fb
-    mov !0fb24h,a           ;0fd4  9e 24 fb
-    mov !0fb4bh,a           ;0fd7  9e 4b fb
+    mov !mem_fb03,a         ;0fce  9e 03 fb
+    mov !mem_fb0b,a         ;0fd1  9e 0b fb
+    mov !mem_fb24,a         ;0fd4  9e 24 fb
+    mov !mem_fb4b,a         ;0fd7  9e 4b fb
     mov a,#06h              ;0fda  a1 06
-    mov !0fb50h,a           ;0fdc  9e 50 fb
-    mov 0fe28h,#80h         ;0fdf  11 28 80
+    mov !mem_fb50,a         ;0fdc  9e 50 fb
+    mov mem_fe28,#80h       ;0fdf  11 28 80
     movw ax,#8000h          ;0fe2  10 00 80
     call !sub_3ba2          ;0fe5  9a a2 3b
     call !sub_3b27          ;0fe8  9a 27 3b
-    bt 0fe65h.1,$lab_0ff1   ;0feb  9c 65 03
+    bt mem_fe65.1,$lab_0ff1 ;0feb  9c 65 03
     call !sub_3b3a          ;0fee  9a 3a 3b
 
 lab_0ff1:
     clr1 PU0_.1             ;0ff1  71 1b 30
     set1 PM0_.1             ;0ff4  71 1a 20
-    bf 0fe7dh.1,$lab_1012   ;0ff7  31 13 7d 17
-    clr1 0fe7dh.1           ;0ffb  1b 7d
-    clr1 0fe2ch.2           ;0ffd  2b 2c
-    clr1 0fe2ch.6           ;0fff  6b 2c
-    clr1 0fe63h.1           ;1001  1b 63
+    bf mem_fe7d.1,$lab_1012 ;0ff7  31 13 7d 17
+    clr1 mem_fe7d.1         ;0ffb  1b 7d
+    clr1 mem_fe2c.2         ;0ffd  2b 2c
+    clr1 mem_fe2c.6         ;0fff  6b 2c
+    clr1 mem_fe63.1         ;1001  1b 63
     call !sub_3bf7          ;1003  9a f7 3b
-    mov a,!0fb54h           ;1006  8e 54 fb
+    mov a,!mem_fb54         ;1006  8e 54 fb
     cmp a,#00h              ;1009  4d 00
     bnz $lab_1012           ;100b  bd 05
     mov a,#02h              ;100d  a1 02
-    mov !0fb54h,a           ;100f  9e 54 fb
+    mov !mem_fb54,a         ;100f  9e 54 fb
 
 lab_1012:
     mov a,#00h              ;1012  a1 00
-    mov !0f18dh,a           ;1014  9e 8d f1
+    mov !mem_f18d,a         ;1014  9e 8d f1
     mov a,#7fh              ;1017  a1 7f
-    mov !0fca2h,a           ;1019  9e a2 fc
+    mov !mem_fca2,a         ;1019  9e a2 fc
     clr1 MK0L_.2            ;101c  71 2b e4
     clr1 PR0L_.2            ;101f  71 2b e8
     set1 EGN_.1             ;1022  71 1a 49
     mov a,#02h              ;1025  a1 02
-    mov !0f18ch,a           ;1027  9e 8c f1
+    mov !mem_f18c,a         ;1027  9e 8c f1
     call !sub_3bf7          ;102a  9a f7 3b
     bz $lab_1030            ;102d  ad 01
     brk                     ;102f  bf
@@ -3434,16 +3776,16 @@ lab_1030:
     brk                     ;1035  bf
 
 lab_1036:
-    clr1 0fe64h.7           ;1036  7b 64
+    clr1 mem_fe64.7         ;1036  7b 64
     call !sub_4902          ;1038  9a 02 49
     mov a,#00h              ;103b  a1 00
-    mov !0fb29h,a           ;103d  9e 29 fb
-    mov !0fb2ah,a           ;1040  9e 2a fb
-    mov !0fb2bh,a           ;1043  9e 2b fb
-    set1 0fe65h.2           ;1046  2a 65
+    mov !mem_fb29,a         ;103d  9e 29 fb
+    mov !mem_fb2a,a         ;1040  9e 2a fb
+    mov !mem_fb2b,a         ;1043  9e 2b fb
+    set1 mem_fe65.2         ;1046  2a 65
     mov a,#00h              ;1048  a1 00
-    mov !0fbcdh,a           ;104a  9e cd fb
-    mov !0fbcch,a           ;104d  9e cc fb
+    mov !mem_fbcd,a         ;104a  9e cd fb
+    mov !mem_fbcc,a         ;104d  9e cc fb
     clr1 MK0L_.5            ;1050  71 5b e4
     set1 PR0L_.5            ;1053  71 5a e8
     set1 EGN_.4             ;1056  71 4a 49
@@ -3452,21 +3794,21 @@ lab_1036:
     set1 PR0L_.7            ;105f  71 7a e8
     set1 EGN_.6             ;1062  71 6a 49
     clr1 EGP_.6             ;1065  71 6b 48
-    clr1 0fe66h.6           ;1068  6b 66
+    clr1 mem_fe66.6         ;1068  6b 66
     mov TMC01_,#00h         ;106a  13 68 00
     set1 MK1L_.3            ;106d  71 3a e6
     set1 MK1L_.4            ;1070  71 4a e6
     mov TMC01_,#04h         ;1073  13 68 04
     set1 MK0L_.1            ;1076  71 1a e4
     mov a,#00h              ;1079  a1 00
-    mov 0fe34h,a            ;107b  f2 34
-    mov !0f198h,a           ;107d  9e 98 f1
-    mov !0fb05h,a           ;1080  9e 05 fb
-    clr1 0fe67h.6           ;1083  6b 67
-    clr1 0fe67h.5           ;1085  5b 67
-    clr1 0fe67h.4           ;1087  4b 67
-    clr1 0fe67h.7           ;1089  7b 67
-    clr1 0fe68h.0           ;108b  0b 68
+    mov mem_fe34,a          ;107b  f2 34
+    mov !mem_f198,a         ;107d  9e 98 f1
+    mov !mem_fb05,a         ;1080  9e 05 fb
+    clr1 mem_fe67.6         ;1083  6b 67
+    clr1 mem_fe67.5         ;1085  5b 67
+    clr1 mem_fe67.4         ;1087  4b 67
+    clr1 mem_fe67.7         ;1089  7b 67
+    clr1 mem_fe68.0         ;108b  0b 68
     clr1 MK0L_.1            ;108d  71 1b e4
     clr1 PR0L_.1            ;1090  71 1b e8
     clr1 EGN_.0             ;1093  71 0b 49
@@ -3474,103 +3816,103 @@ lab_1036:
     set1 EGP_.0             ;1099  71 0a 48
     clr1 EGN_.0             ;109c  71 0b 49
     clr1 PM5_.7             ;109f  71 7b 25
-    set1 0fecfh.7           ;10a2  7a cf
-    mov a,0fecfh            ;10a4  f0 cf
+    set1 mem_fecf.7         ;10a2  7a cf
+    mov a,mem_fecf          ;10a4  f0 cf
     mov P5_,a               ;10a6  f2 05
     mov a,#02h              ;10a8  a1 02
     callf !sub_09d7         ;10aa  1c d7
     call !sub_6947          ;10ac  9a 47 69
-    set1 0fe6ah.2           ;10af  2a 6a
-    clr1 0fe6ah.0           ;10b1  0b 6a
-    clr1 0fe6ah.1           ;10b3  1b 6a
+    set1 mem_fe6a.2         ;10af  2a 6a
+    clr1 mem_fe6a.0         ;10b1  0b 6a
+    clr1 mem_fe6a.1         ;10b3  1b 6a
     clr1 PM2_.7             ;10b5  71 7b 22
-    set1 0fecch.7           ;10b8  7a cc
-    mov a,0fecch            ;10ba  f0 cc
+    set1 mem_fecc.7         ;10b8  7a cc
+    mov a,mem_fecc          ;10ba  f0 cc
     mov P2_,a               ;10bc  f2 02
-    mov 0fe40h,#00h         ;10be  11 40 00
-    mov 0fe41h,#00h         ;10c1  11 41 00
-    mov 0fe42h,#00h         ;10c4  11 42 00
-    mov 0fe3fh,#00h         ;10c7  11 3f 00
-    clr1 0fe6bh.5           ;10ca  5b 6b
-    clr1 0fe6bh.6           ;10cc  6b 6b
-    clr1 0fe6ch.6           ;10ce  6b 6c
-    clr1 0fe6ch.7           ;10d0  7b 6c
-    clr1 0fe6ch.3           ;10d2  3b 6c
-    clr1 0fe6ch.2           ;10d4  2b 6c
+    mov mem_fe40,#00h       ;10be  11 40 00
+    mov mem_fe41,#00h       ;10c1  11 41 00
+    mov mem_fe42,#00h       ;10c4  11 42 00
+    mov mem_fe3f,#00h       ;10c7  11 3f 00
+    clr1 mem_fe6b.5         ;10ca  5b 6b
+    clr1 mem_fe6b.6         ;10cc  6b 6b
+    clr1 mem_fe6c.6         ;10ce  6b 6c
+    clr1 mem_fe6c.7         ;10d0  7b 6c
+    clr1 mem_fe6c.3         ;10d2  3b 6c
+    clr1 mem_fe6c.2         ;10d4  2b 6c
     mov a,#00h              ;10d6  a1 00
-    mov !0fb13h,a           ;10d8  9e 13 fb
+    mov !mem_fb13,a         ;10d8  9e 13 fb
     call !sub_262f          ;10db  9a 2f 26
     clr1 MK0H_.5            ;10de  71 5b e5
     clr1 PR0H_.5            ;10e1  71 5b e9
     callf !sub_08cc         ;10e4  0c cc
     call !sub_d16e          ;10e6  9a 6e d1
     clr1 PM7_.0             ;10e9  71 0b 27
-    set1 0fed1h.0           ;10ec  0a d1
-    mov a,0fed1h            ;10ee  f0 d1
+    set1 mem_fed1.0         ;10ec  0a d1
+    mov a,mem_fed1          ;10ee  f0 d1
     mov P7_,a               ;10f0  f2 07
     mov a,#10h              ;10f2  a1 10
-    mov !0fb1bh,a           ;10f4  9e 1b fb
-    set1 0fe72h.0           ;10f7  0a 72
+    mov !mem_fb1b,a         ;10f4  9e 1b fb
+    set1 mem_fe72.0         ;10f7  0a 72
     mov a,#00h              ;10f9  a1 00
-    mov !0fb1ch,a           ;10fb  9e 1c fb
-    mov !0fc89h,a           ;10fe  9e 89 fc
-    mov !0fc8ah,a           ;1101  9e 8a fc
+    mov !mem_fb1c,a         ;10fb  9e 1c fb
+    mov !mem_fc89,a         ;10fe  9e 89 fc
+    mov !mem_fc8a,a         ;1101  9e 8a fc
     mov a,#02h              ;1104  a1 02
-    mov 0fe54h,a            ;1106  f2 54
+    mov mem_fe54,a          ;1106  f2 54
     mov a,#55h              ;1108  a1 55
-    mov !0f18eh,a           ;110a  9e 8e f1
-    mov !0fca5h,a           ;110d  9e a5 fc
+    mov !mem_f18e,a         ;110a  9e 8e f1
+    mov !mem_fca5,a         ;110d  9e a5 fc
     mov a,#0aah             ;1110  a1 aa
-    mov !0fe1fh,a           ;1112  9e 1f fe
-    mov !0fb91h,a           ;1115  9e 91 fb
+    mov !mem_fe1f,a         ;1112  9e 1f fe
+    mov !mem_fb91,a         ;1115  9e 91 fb
 
 lab_1118:
     mov WDTM_,#90h          ;1118  13 f9 90
-    mov a,!0fb4eh           ;111b  8e 4e fb
+    mov a,!mem_fb4e         ;111b  8e 4e fb
     cmp a,#00h              ;111e  4d 00
     bnz $lab_1123           ;1120  bd 01
     brk                     ;1122  bf
 
 lab_1123:
     di                      ;1123  7b 1e
-    mov a,0fecbh            ;1125  f0 cb
+    mov a,mem_fecb          ;1125  f0 cb
     mov P0_,a               ;1127  f2 00
-    mov a,0fecch            ;1129  f0 cc
+    mov a,mem_fecc          ;1129  f0 cc
     mov P2_,a               ;112b  f2 02
-    mov a,0fecdh            ;112d  f0 cd
+    mov a,mem_fecd          ;112d  f0 cd
     mov P3_,a               ;112f  f2 03
-    mov a,0feceh            ;1131  f0 ce
+    mov a,mem_fece          ;1131  f0 ce
     mov P4_,a               ;1133  f2 04
-    mov a,0fecfh            ;1135  f0 cf
+    mov a,mem_fecf          ;1135  f0 cf
     mov P5_,a               ;1137  f2 05
-    mov a,0fed0h            ;1139  f0 d0
+    mov a,mem_fed0          ;1139  f0 d0
     mov P6_,a               ;113b  f2 06
-    mov a,0fed1h            ;113d  f0 d1
+    mov a,mem_fed1          ;113d  f0 d1
     mov P7_,a               ;113f  f2 07
-    mov a,0fed2h            ;1141  f0 d2
+    mov a,mem_fed2          ;1141  f0 d2
     mov P8_,a               ;1143  f2 08
-    mov a,0fed3h            ;1145  f0 d3
+    mov a,mem_fed3          ;1145  f0 d3
     mov P9_,a               ;1147  f2 09
     ei                      ;1149  7a 1e
     mov WTNM0_,#13h         ;114b  13 41 13
     clr1 MK1L_.0            ;114e  71 0b e6
     clr1 PR1L_.0            ;1151  71 0b ea
-    btclr 0fe61h.7,$lab_115c ;1154  31 71 61 04
+    btclr mem_fe61.7,$lab_115c ;1154  31 71 61 04
     bf P0_.2,$lab_118f      ;1158  31 23 00 33
 
 lab_115c:
     mov a,#02h              ;115c  a1 02
-    mov !0fb4ch,a           ;115e  9e 4c fb
-    set1 0fe7dh.2           ;1161  2a 7d
-    clr1 0fed3h.7           ;1163  7b d3
+    mov !mem_fb4c,a         ;115e  9e 4c fb
+    set1 mem_fe7d.2         ;1161  2a 7d
+    clr1 mem_fed3.7         ;1163  7b d3
     clr1 PM9_.7             ;1165  71 7b 29
-    mov a,0fed3h            ;1168  f0 d3
+    mov a,mem_fed3          ;1168  f0 d3
     mov P9_,a               ;116a  f2 09
-    clr1 0fed3h.4           ;116c  4b d3
+    clr1 mem_fed3.4         ;116c  4b d3
     clr1 PM9_.4             ;116e  71 4b 29
-    mov a,0fed3h            ;1171  f0 d3
+    mov a,mem_fed3          ;1171  f0 d3
     mov P9_,a               ;1173  f2 09
-    set1 0fe2bh.7           ;1175  7a 2b
+    set1 mem_fe2b.7         ;1175  7a 2b
     call !sub_3acf          ;1177  9a cf 3a
     halt                    ;117a  71 10
 
@@ -3596,15 +3938,15 @@ lab_115c:
 
 lab_118f:
     call !sub_3dd4          ;118f  9a d4 3d
-    and 0fe7ch,#07h         ;1192  d8 7c 07
+    and mem_fe7c,#07h       ;1192  d8 7c 07
     bz $lab_11ae            ;1195  ad 17
     mov c,#03h              ;1197  a2 03
     mov b,#00h              ;1199  a3 00
 
 lab_119b:
-    mov a,0fe7ch            ;119b  f0 7c
+    mov a,mem_fe7c          ;119b  f0 7c
     rorc a,1                ;119d  25
-    mov 0fe7ch,a            ;119e  f2 7c
+    mov mem_fe7c,a          ;119e  f2 7c
     bnc $lab_11ab           ;11a0  9d 09
     movw hl,#0b0ceh         ;11a2  16 ce b0
     mov a,[hl+b]            ;11a5  ab
@@ -3628,7 +3970,7 @@ lab_11b2:
     bf a.0,$lab_11c9        ;11b9  31 0f 0d
     bt a.1,$lab_11d5        ;11bc  31 1e 16
     mov a,[hl+b]            ;11bf  ab
-    and a,0fe2dh            ;11c0  5e 2d
+    and a,mem_fe2d          ;11c0  5e 2d
     cmp a,[hl+b]            ;11c2  31 4b
     bnz $lab_11d5           ;11c4  bd 0f
     br !lab_1250            ;11c6  9b 50 12
@@ -3650,7 +3992,7 @@ lab_11d5:
 
 lab_11df:
     movw hl,#0fb85h         ;11df  16 85 fb
-    mov a,!0fb92h           ;11e2  8e 92 fb
+    mov a,!mem_fb92         ;11e2  8e 92 fb
     mov b,a                 ;11e5  73
     cmp a,#00h              ;11e6  4d 00
     bz $lab_11ee            ;11e8  ad 04
@@ -3678,36 +4020,36 @@ lab_11fd:
 
 lab_1201:
     mov a,b                 ;1201  63
-    mov !0fb92h,a           ;1202  9e 92 fb
+    mov !mem_fb92,a         ;1202  9e 92 fb
 
 lab_1205:
     movw hl,#0fb7ah         ;1205  16 7a fb
     mov a,[hl+b]            ;1208  ab
-    xch a,0fe2eh            ;1209  83 2e
-    sub a,0fe2eh            ;120b  1e 2e
-    mov 0fe2eh,a            ;120d  f2 2e
+    xch a,mem_fe2e          ;1209  83 2e
+    sub a,mem_fe2e          ;120b  1e 2e
+    mov mem_fe2e,a          ;120d  f2 2e
     mov a,#00h              ;120f  a1 00
     mov [hl+b],a            ;1211  bb
     movw hl,#0fb85h         ;1212  16 85 fb
     mov a,[hl+b]            ;1215  ab
-    xch a,0fe2eh            ;1216  83 2e
-    sub a,0fe2eh            ;1218  1e 2e
-    xch a,0fe2eh            ;121a  83 2e
+    xch a,mem_fe2e          ;1216  83 2e
+    sub a,mem_fe2e          ;1218  1e 2e
+    xch a,mem_fe2e          ;121a  83 2e
     and a,#0fch             ;121c  5d fc
     mov [hl+b],a            ;121e  bb
-    xch a,0fe2eh            ;121f  83 2e
-    add a,0fe2eh            ;1221  0e 2e
-    xch a,0fe2eh            ;1223  83 2e
+    xch a,mem_fe2e          ;121f  83 2e
+    add a,mem_fe2e          ;1221  0e 2e
+    xch a,mem_fe2e          ;1223  83 2e
 
 lab_1225:
     push ax                 ;1225  b1
     dec b                   ;1226  53
-    mov a,0fe2eh            ;1227  f0 2e
-    sub a,0fe2fh            ;1229  1e 2f
+    mov a,mem_fe2e          ;1227  f0 2e
+    sub a,mem_fe2f          ;1229  1e 2f
     add a,b                 ;122b  61 0b
-    mov 0fe2eh,a            ;122d  f2 2e
+    mov mem_fe2e,a          ;122d  f2 2e
     mov a,b                 ;122f  63
-    mov 0fe2fh,a            ;1230  f2 2f
+    mov mem_fe2f,a          ;1230  f2 2f
     movw hl,#0b0b7h         ;1232  16 b7 b0
     callf !sub_0c48         ;1235  4c 48
     bnc $lab_123a           ;1237  9d 01
@@ -3719,11 +4061,11 @@ lab_123a:
     push ax                 ;123e  b1
     movw ax,de              ;123f  c4
     br ax                   ;1240  31 98
-    mov a,0fe2eh            ;1242  f0 2e
-    sub a,0fe2fh            ;1244  1e 2f
-    mov 0fe2fh,#0bh         ;1246  11 2f 0b
+    mov a,mem_fe2e          ;1242  f0 2e
+    sub a,mem_fe2f          ;1244  1e 2f
+    mov mem_fe2f,#0bh       ;1246  11 2f 0b
     add a,#0bh              ;1249  0d 0b
-    mov 0fe2eh,a            ;124b  f2 2e
+    mov mem_fe2e,a          ;124b  f2 2e
 
 lab_124d:
     br !lab_1118            ;124d  9b 18 11
@@ -3748,15 +4090,15 @@ lab_1260:
     br $lab_1225            ;1267  fa bc
 
 sub_1269:
-    mov a,!0fb95h           ;1269  8e 95 fb
+    mov a,!mem_fb95         ;1269  8e 95 fb
     sub a,#04h              ;126c  1d 04
     bnc $lab_1271           ;126e  9d 01
     ret                     ;1270  af
 
 lab_1271:
-    mov !0fb95h,a           ;1271  9e 95 fb
+    mov !mem_fb95,a         ;1271  9e 95 fb
     call !sub_127f          ;1274  9a 7f 12
-    cmp 0fe2fh,#0bh         ;1277  c8 2f 0b
+    cmp mem_fe2f,#0bh       ;1277  c8 2f 0b
     bz $lab_127d            ;127a  ad 01
     brk                     ;127c  bf
 
@@ -3765,14 +4107,14 @@ lab_127d:
     ret                     ;127e  af
 
 sub_127f:
-    mov a,!0fb94h           ;127f  8e 94 fb
+    mov a,!mem_fb94         ;127f  8e 94 fb
     inc a                   ;1282  41
-    mov !0fb94h,a           ;1283  9e 94 fb
+    mov !mem_fb94,a         ;1283  9e 94 fb
     mov b,#08h              ;1286  a3 08
 
 lab_1288:
-    inc 0fe2fh              ;1288  81 2f
-    inc 0fe2eh              ;128a  81 2e
+    inc mem_fe2f            ;1288  81 2f
+    inc mem_fe2e            ;128a  81 2e
     rorc a,1                ;128c  25
     bc $lab_1291            ;128d  8d 02
     dbnz b,$lab_1288        ;128f  8b f7
@@ -3787,75 +4129,75 @@ lab_1291:
     call !sub_3329          ;129e  9a 29 33
     call !sub_35e9          ;12a1  9a e9 35
     call !sub_6305          ;12a4  9a 05 63
-    bf 0fe40h.0,$lab_12b5   ;12a7  31 03 40 0a
-    mov a,!0fb12h           ;12ab  8e 12 fb
+    bf mem_fe40.0,$lab_12b5 ;12a7  31 03 40 0a
+    mov a,!mem_fb12         ;12ab  8e 12 fb
     cmp a,#00h              ;12ae  4d 00
     bnz $lab_12b5           ;12b0  bd 03
     call !sub_7735          ;12b2  9a 35 77
 
 lab_12b5:
     call !sub_d9ec          ;12b5  9a ec d9
-    mov a,!0f1e9h           ;12b8  8e e9 f1
+    mov a,!mem_f1e9         ;12b8  8e e9 f1
     bf a.2,$lab_12c9        ;12bb  31 2f 0b
-    cmp 0fe30h,#02h         ;12be  c8 30 02
+    cmp mem_fe30,#02h       ;12be  c8 30 02
     bnz $lab_12c9           ;12c1  bd 06
     call !sub_90a6          ;12c3  9a a6 90
     call !sub_90d2          ;12c6  9a d2 90
 
 lab_12c9:
-    bf 0fe2dh.0,$lab_12d7   ;12c9  31 03 2d 0a
-    bt 0fe73h.1,$lab_12d7   ;12cd  9c 73 07
-    bf 0fe66h.3,$lab_12d7   ;12d0  31 33 66 03
+    bf mem_fe2d.0,$lab_12d7 ;12c9  31 03 2d 0a
+    bt mem_fe73.1,$lab_12d7 ;12cd  9c 73 07
+    bf mem_fe66.3,$lab_12d7 ;12d0  31 33 66 03
     call !sub_9a39          ;12d4  9a 39 9a
 
 lab_12d7:
-    mov a,0fe2eh            ;12d7  f0 2e
-    sub a,0fe2fh            ;12d9  1e 2f
+    mov a,mem_fe2e          ;12d7  f0 2e
+    sub a,mem_fe2f          ;12d9  1e 2f
     add a,#0bh              ;12db  0d 0b
-    mov 0fe2eh,a            ;12dd  f2 2e
-    mov 0fe2fh,#0bh         ;12df  11 2f 0b
+    mov mem_fe2e,a          ;12dd  f2 2e
+    mov mem_fe2f,#0bh       ;12df  11 2f 0b
     ret                     ;12e2  af
 
 lab_12e3:
     call !sub_3518          ;12e3  9a 18 35
-    btclr 0fe68h.0,$lab_1312 ;12e6  31 01 68 28
-    bt 0fe67h.6,$lab_1326   ;12ea  ec 67 39
-    bf 0fe67h.4,$lab_12f8   ;12ed  31 43 67 07
-    mov a,!0fb05h           ;12f1  8e 05 fb
+    btclr mem_fe68.0,$lab_1312 ;12e6  31 01 68 28
+    bt mem_fe67.6,$lab_1326 ;12ea  ec 67 39
+    bf mem_fe67.4,$lab_12f8 ;12ed  31 43 67 07
+    mov a,!mem_fb05         ;12f1  8e 05 fb
     cmp a,#00h              ;12f4  4d 00
     bnz $lab_131e           ;12f6  bd 26
 
 lab_12f8:
-    clr1 0fe67h.4           ;12f8  4b 67
-    bf 0fe67h.7,$lab_1309   ;12fa  31 73 67 0b
-    mov a,!0fb0fh           ;12fe  8e 0f fb
+    clr1 mem_fe67.4         ;12f8  4b 67
+    bf mem_fe67.7,$lab_1309 ;12fa  31 73 67 0b
+    mov a,!mem_fb0f         ;12fe  8e 0f fb
     cmp a,#00h              ;1301  4d 00
     bnz $lab_1358           ;1303  bd 53
-    clr1 0fe67h.7           ;1305  7b 67
+    clr1 mem_fe67.7         ;1305  7b 67
     br $lab_1312            ;1307  fa 09
 
 lab_1309:
-    set1 0fe67h.7           ;1309  7a 67
+    set1 mem_fe67.7         ;1309  7a 67
     mov a,#0fh              ;130b  a1 0f
-    mov !0fb0fh,a           ;130d  9e 0f fb
+    mov !mem_fb0f,a         ;130d  9e 0f fb
     br $lab_1358            ;1310  fa 46
 
 lab_1312:
     mov a,#0ffh             ;1312  a1 ff
-    mov !0f197h,a           ;1314  9e 97 f1
-    mov a,!0fc26h           ;1317  8e 26 fc
+    mov !mem_f197,a         ;1314  9e 97 f1
+    mov a,!mem_fc26         ;1317  8e 26 fc
     clr1 a.7                ;131a  61 fb
     br $lab_133e            ;131c  fa 20
 
 lab_131e:
     cmp a,#6fh              ;131e  4d 6f
     bnc $lab_1358           ;1320  9d 36
-    bf 0fe67h.5,$lab_1358   ;1322  31 53 67 32
+    bf mem_fe67.5,$lab_1358 ;1322  31 53 67 32
 
 lab_1326:
-    clr1 0fe67h.6           ;1326  6b 67
-    clr1 0fe67h.5           ;1328  5b 67
-    mov a,!0f197h           ;132a  8e 97 f1
+    clr1 mem_fe67.6         ;1326  6b 67
+    clr1 mem_fe67.5         ;1328  5b 67
+    mov a,!mem_f197         ;132a  8e 97 f1
     movw hl,#0b3adh         ;132d  16 ad b3
     call !sub_0b0d          ;1330  9a 0d 0b
     bnc $lab_12f8           ;1333  9d c3
@@ -3865,97 +4207,97 @@ lab_1326:
     set1 a.7                ;133c  61 fa
 
 lab_133e:
-    bt 0fe65h.5,$lab_1349   ;133e  dc 65 08
-    mov !0fc26h,a           ;1341  9e 26 fc
+    bt mem_fe65.5,$lab_1349 ;133e  dc 65 08
+    mov !mem_fc26,a         ;1341  9e 26 fc
     mov b,#00h              ;1344  a3 00
     callt [0040h]           ;1346  c1
     br $lab_1358            ;1347  fa 0f
 
 lab_1349:
-    mov a,!0fc26h           ;1349  8e 26 fc
+    mov a,!mem_fc26         ;1349  8e 26 fc
     cmp a,#00h              ;134c  4d 00
     bz $lab_1358            ;134e  ad 08
     clr1 a.7                ;1350  61 fb
-    mov !0fc26h,a           ;1352  9e 26 fc
+    mov !mem_fc26,a         ;1352  9e 26 fc
     mov b,#00h              ;1355  a3 00
     callt [0040h]           ;1357  c1
 
 lab_1358:
-    bt 0fe65h.5,$lab_1385   ;1358  dc 65 2a
-    bf 0fe6bh.5,$lab_136d   ;135b  31 53 6b 0e
-    clr1 0fe61h.4           ;135f  4b 61
-    clr1 0fe6bh.5           ;1361  5b 6b
-    clr1 0fe40h.6           ;1363  6b 40
-    clr1 0fe40h.7           ;1365  7b 40
-    clr1 0fe6ch.6           ;1367  6b 6c
-    clr1 0fe6ch.7           ;1369  7b 6c
-    set1 0fe6bh.6           ;136b  6a 6b
+    bt mem_fe65.5,$lab_1385 ;1358  dc 65 2a
+    bf mem_fe6b.5,$lab_136d ;135b  31 53 6b 0e
+    clr1 mem_fe61.4         ;135f  4b 61
+    clr1 mem_fe6b.5         ;1361  5b 6b
+    clr1 mem_fe40.6         ;1363  6b 40
+    clr1 mem_fe40.7         ;1365  7b 40
+    clr1 mem_fe6c.6         ;1367  6b 6c
+    clr1 mem_fe6c.7         ;1369  7b 6c
+    set1 mem_fe6b.6         ;136b  6a 6b
 
 lab_136d:
-    bt 0fe2ch.3,$lab_13b1   ;136d  bc 2c 41
-    mov 0fe40h,#00h         ;1370  11 40 00
-    mov 0fe41h,#00h         ;1373  11 41 00
-    mov 0fe42h,#00h         ;1376  11 42 00
-    mov 0fe3fh,#00h         ;1379  11 3f 00
-    clr1 0fe6ch.7           ;137c  7b 6c
-    clr1 0fe6ch.6           ;137e  6b 6c
-    clr1 0fe6bh.6           ;1380  6b 6b
+    bt mem_fe2c.3,$lab_13b1 ;136d  bc 2c 41
+    mov mem_fe40,#00h       ;1370  11 40 00
+    mov mem_fe41,#00h       ;1373  11 41 00
+    mov mem_fe42,#00h       ;1376  11 42 00
+    mov mem_fe3f,#00h       ;1379  11 3f 00
+    clr1 mem_fe6c.7         ;137c  7b 6c
+    clr1 mem_fe6c.6         ;137e  6b 6c
+    clr1 mem_fe6b.6         ;1380  6b 6b
     br !lab_1479            ;1382  9b 79 14
 
 lab_1385:
-    bf 0fe6bh.5,$lab_138e   ;1385  31 53 6b 05
-    clr1 0fe41h.0           ;1389  0b 41
+    bf mem_fe6b.5,$lab_138e ;1385  31 53 6b 05
+    clr1 mem_fe41.0         ;1389  0b 41
     br !lab_144f            ;138b  9b 4f 14
 
 lab_138e:
-    bt 0fe6bh.6,$lab_13a7   ;138e  ec 6b 16
-    clr1 0fed3h.7           ;1391  7b d3
-    mov a,0fed3h            ;1393  f0 d3
+    bt mem_fe6b.6,$lab_13a7 ;138e  ec 6b 16
+    clr1 mem_fed3.7         ;1391  7b d3
+    mov a,mem_fed3          ;1393  f0 d3
     mov P9_,a               ;1395  f2 09
     mov a,#0fh              ;1397  a1 0f
-    mov !0fb14h,a           ;1399  9e 14 fb
-    clr1 0fed3h.4           ;139c  4b d3
-    mov a,0fed3h            ;139e  f0 d3
+    mov !mem_fb14,a         ;1399  9e 14 fb
+    clr1 mem_fed3.4         ;139c  4b d3
+    mov a,mem_fed3          ;139e  f0 d3
     mov P9_,a               ;13a0  f2 09
-    set1 0fe6bh.6           ;13a2  6a 6b
+    set1 mem_fe6b.6         ;13a2  6a 6b
     br !lab_1479            ;13a4  9b 79 14
 
 lab_13a7:
-    mov a,!0fb14h           ;13a7  8e 14 fb
+    mov a,!mem_fb14         ;13a7  8e 14 fb
     cmp a,#00h              ;13aa  4d 00
     bz $lab_13b9            ;13ac  ad 0b
     br !lab_1479            ;13ae  9b 79 14
 
 lab_13b1:
-    bt 0fe41h.7,$lab_1405   ;13b1  fc 41 51
-    set1 0fe6bh.6           ;13b4  6a 6b
+    bt mem_fe41.7,$lab_1405 ;13b1  fc 41 51
+    set1 mem_fe6b.6         ;13b4  6a 6b
     call !sub_7c51          ;13b6  9a 51 7c
 
 lab_13b9:
     mov a,#00h              ;13b9  a1 00
-    mov !0fc16h,a           ;13bb  9e 16 fc
+    mov !mem_fc16,a         ;13bb  9e 16 fc
     clr1 PM2_.7             ;13be  71 7b 22
-    clr1 0fe40h.0           ;13c1  0b 40
-    clr1 0fe40h.1           ;13c3  1b 40
-    clr1 0fecch.7           ;13c5  7b cc
-    mov a,0fecch            ;13c7  f0 cc
+    clr1 mem_fe40.0         ;13c1  0b 40
+    clr1 mem_fe40.1         ;13c3  1b 40
+    clr1 mem_fecc.7         ;13c5  7b cc
+    mov a,mem_fecc          ;13c7  f0 cc
     mov P2_,a               ;13c9  f2 02
     mov a,#06h              ;13cb  a1 06
-    mov !0fb07h,a           ;13cd  9e 07 fb
+    mov !mem_fb07,a         ;13cd  9e 07 fb
 
 lab_13d0:
-    mov a,!0fb07h           ;13d0  8e 07 fb
+    mov a,!mem_fb07         ;13d0  8e 07 fb
     cmp a,#00h              ;13d3  4d 00
     bnz $lab_13d0           ;13d5  bd f9
-    bf 0fe65h.5,$lab_13e7   ;13d7  31 53 65 0c
-    set1 0fe6bh.5           ;13db  5a 6b
+    bf mem_fe65.5,$lab_13e7 ;13d7  31 53 65 0c
+    set1 mem_fe6b.5         ;13db  5a 6b
     mov a,#00h              ;13dd  a1 00
-    mov !0fb38h,a           ;13df  9e 38 fb
-    mov !0fb39h,a           ;13e2  9e 39 fb
+    mov !mem_fb38,a         ;13df  9e 38 fb
+    mov !mem_fb39,a         ;13e2  9e 39 fb
     br $lab_13e9            ;13e5  fa 02
 
 lab_13e7:
-    set1 0fe41h.7           ;13e7  7a 41
+    set1 mem_fe41.7         ;13e7  7a 41
 
 lab_13e9:
     movw hl,#0fc1ah         ;13e9  16 1a fc
@@ -3969,72 +4311,72 @@ lab_13f3:
     incw de                 ;13f5  84
     dbnz b,$lab_13f3        ;13f6  8b fb
     mov [hl+b],a            ;13f8  bb
-    mov !0fc23h,a           ;13f9  9e 23 fc
-    mov !0fc24h,a           ;13fc  9e 24 fc
-    set1 0fecch.7           ;13ff  7a cc
-    mov a,0fecch            ;1401  f0 cc
+    mov !mem_fc23,a         ;13f9  9e 23 fc
+    mov !mem_fc24,a         ;13fc  9e 24 fc
+    set1 mem_fecc.7         ;13ff  7a cc
+    mov a,mem_fecc          ;1401  f0 cc
     mov P2_,a               ;1403  f2 02
 
 lab_1405:
-    bf 0fed3h.4,$lab_142e   ;1405  31 43 d3 25
-    bf 0fe6bh.6,$lab_1416   ;1409  31 63 6b 09
+    bf mem_fed3.4,$lab_142e ;1405  31 43 d3 25
+    bf mem_fe6b.6,$lab_1416 ;1409  31 63 6b 09
     mov a,#0fh              ;140d  a1 0f
-    mov !0fb14h,a           ;140f  9e 14 fb
-    clr1 0fe6bh.6           ;1412  6b 6b
+    mov !mem_fb14,a         ;140f  9e 14 fb
+    clr1 mem_fe6b.6         ;1412  6b 6b
     br $lab_1479            ;1414  fa 63
 
 lab_1416:
-    mov a,!0fb14h           ;1416  8e 14 fb
+    mov a,!mem_fb14         ;1416  8e 14 fb
     cmp a,#00h              ;1419  4d 00
     bz $lab_141f            ;141b  ad 02
     br $lab_1479            ;141d  fa 5a
 
 lab_141f:
-    bf 0fe6bh.4,$lab_1454   ;141f  31 43 6b 31
+    bf mem_fe6b.4,$lab_1454 ;141f  31 43 6b 31
     mov a,#00h              ;1423  a1 00
-    mov !0fc16h,a           ;1425  9e 16 fc
-    clr1 0fe6bh.4           ;1428  4b 6b
-    clr1 0fe41h.0           ;142a  0b 41
+    mov !mem_fc16,a         ;1425  9e 16 fc
+    clr1 mem_fe6b.4         ;1428  4b 6b
+    clr1 mem_fe41.0         ;142a  0b 41
     br $lab_1454            ;142c  fa 26
 
 lab_142e:
-    set1 0fe41h.3           ;142e  3a 41
-    mov a,!0f1ffh           ;1430  8e ff f1
+    set1 mem_fe41.3         ;142e  3a 41
+    mov a,!mem_f1ff         ;1430  8e ff f1
     cmp a,#00h              ;1433  4d 00
     bz $lab_1479            ;1435  ad 42
-    bf 0fe2ch.3,$lab_1479   ;1437  31 33 2c 3e
-    mov a,!0f1feh           ;143b  8e fe f1
+    bf mem_fe2c.3,$lab_1479 ;1437  31 33 2c 3e
+    mov a,!mem_f1fe         ;143b  8e fe f1
     cmp a,#03h              ;143e  4d 03
     bz $lab_1479            ;1440  ad 37
     cmp a,#03h              ;1442  4d 03
     bz $lab_1479            ;1444  ad 33
-    set1 0fe41h.0           ;1446  0a 41
-    mov a,!0fc16h           ;1448  8e 16 fc
+    set1 mem_fe41.0         ;1446  0a 41
+    mov a,!mem_fc16         ;1448  8e 16 fc
     cmp a,#07h              ;144b  4d 07
     bnc $lab_1479           ;144d  9d 2a
 
 lab_144f:
-    set1 0fe6bh.4           ;144f  4a 6b
+    set1 mem_fe6b.4         ;144f  4a 6b
     call !sub_7c51          ;1451  9a 51 7c
 
 lab_1454:
-    bf 0fe62h.1,$lab_145e   ;1454  31 13 62 06
-    clr1 0fe40h.1           ;1458  1b 40
-    clr1 0fe40h.0           ;145a  0b 40
+    bf mem_fe62.1,$lab_145e ;1454  31 13 62 06
+    clr1 mem_fe40.1         ;1458  1b 40
+    clr1 mem_fe40.0         ;145a  0b 40
     br $lab_1479            ;145c  fa 1b
 
 lab_145e:
-    bt 0fe40h.0,$lab_1479   ;145e  8c 40 18
-    mov a,!0fb13h           ;1461  8e 13 fb
+    bt mem_fe40.0,$lab_1479 ;145e  8c 40 18
+    mov a,!mem_fb13         ;1461  8e 13 fb
     cmp a,#00h              ;1464  4d 00
     bnz $lab_1479           ;1466  bd 11
     mov a,#14h              ;1468  a1 14
-    bt 0fe65h.5,$lab_1473   ;146a  dc 65 06
-    bf 0fe6bh.4,$lab_1473   ;146d  31 43 6b 02
+    bt mem_fe65.5,$lab_1473 ;146a  dc 65 06
+    bf mem_fe6b.4,$lab_1473 ;146d  31 43 6b 02
     mov a,#0fh              ;1471  a1 0f
 
 lab_1473:
-    mov !0fb13h,a           ;1473  9e 13 fb
+    mov !mem_fb13,a         ;1473  9e 13 fb
     call !sub_7712          ;1476  9a 12 77
 
 lab_1479:
@@ -4431,19 +4773,19 @@ lab_1479:
     db 7ah                  ;1600  7a          DATA 0x7a 'z'
 
 sub_1601:
-    mov 0fe20h,#00h         ;1601  11 20 00
-    mov 0fe21h,#00h         ;1604  11 21 00
+    mov mem_fe20,#00h       ;1601  11 20 00
+    mov mem_fe21,#00h       ;1604  11 21 00
     mov a,#00h              ;1607  a1 00
-    mov !0fb57h,a           ;1609  9e 57 fb
-    movw hl,#0f252h         ;160c  16 52 f2
+    mov !mem_fb57,a         ;1609  9e 57 fb
+    movw hl,#mem_f252       ;160c  16 52 f2
     call !sub_4092          ;160f  9a 92 40
     mov a,#01h              ;1612  a1 01
-    mov !0fb58h,a           ;1614  9e 58 fb
-    movw hl,#0f253h         ;1617  16 53 f2
+    mov !mem_fb58,a         ;1614  9e 58 fb
+    movw hl,#mem_f253       ;1617  16 53 f2
     call !sub_4092          ;161a  9a 92 40
     mov a,#00h              ;161d  a1 00
-    mov !0fc2fh,a           ;161f  9e 2f fc
-    clr1 0fe5ch.7           ;1622  7b 5c
+    mov !mem_fc2f,a         ;161f  9e 2f fc
+    clr1 mem_fe5c.7         ;1622  7b 5c
     call !sub_0816          ;1624  9a 16 08
     call !sub_1c5e          ;1627  9a 5e 1c
     bnc $lab_1631           ;162a  9d 05
@@ -4533,13 +4875,13 @@ lab_167f:
     push ax                 ;1682  b1
     movw ax,de              ;1683  c4
     br ax                   ;1684  31 98
-    bf 0fe5ch.7,$lab_168d   ;1686  31 73 5c 03
+    bf mem_fe5c.7,$lab_168d ;1686  31 73 5c 03
     call !sub_1601          ;168a  9a 01 16
 
 lab_168d:
     call !sub_1c6f          ;168d  9a 6f 1c
-    bt 0fe5dh.5,$lab_1695   ;1690  dc 5d 02
-    clr1 0fe5ch.3           ;1693  3b 5c
+    bt mem_fe5d.5,$lab_1695 ;1690  dc 5d 02
+    clr1 mem_fe5c.3         ;1693  3b 5c
 
 lab_1695:
     br !sub_0823            ;1695  9b 23 08
@@ -4698,21 +5040,21 @@ lab_1695:
 lab_172e:
     call !sub_1d4f          ;172e  9a 4f 1d
     call !sub_1a73          ;1731  9a 73 1a
-    mov !0fb56h,a           ;1734  9e 56 fb
-    mov 0fe20h,#00h         ;1737  11 20 00
-    mov 0fe21h,#01h         ;173a  11 21 01
+    mov !mem_fb56,a         ;1734  9e 56 fb
+    mov mem_fe20,#00h       ;1737  11 20 00
+    mov mem_fe21,#01h       ;173a  11 21 01
     mov a,#20h              ;173d  a1 20
     callt [0042h]           ;173f  c3
-    bt 0fe2dh.0,$lab_1745   ;1740  8c 2d 02
+    bt mem_fe2d.0,$lab_1745 ;1740  8c 2d 02
     br $lab_174c            ;1743  fa 07
 
 lab_1745:
-    mov 0fe21h,#02h         ;1745  11 21 02
+    mov mem_fe21,#02h       ;1745  11 21 02
     call !sub_1bff          ;1748  9a ff 1b
     ret                     ;174b  af
 
 lab_174c:
-    clr1 0fe5ch.4           ;174c  4b 5c
+    clr1 mem_fe5c.4         ;174c  4b 5c
     ret                     ;174e  af
 
     db 9ah                  ;174f  9a          DATA 0x9a
@@ -4864,7 +5206,7 @@ lab_174c:
     db 1bh                  ;17e1  1b          DATA 0x1b
 
 lab_17e2:
-    clr1 0fe5ch.5           ;17e2  5b 5c
+    clr1 mem_fe5c.5         ;17e2  5b 5c
     call !sub_1c5e          ;17e4  9a 5e 1c
     bc $lab_17ec            ;17e7  8d 03
     br !lab_172e            ;17e9  9b 2e 17
@@ -4880,7 +5222,7 @@ lab_17ec:
     mov a,#0c0h             ;17fe  a1 c0
 
 lab_1800:
-    mov !0f1abh,a           ;1800  9e ab f1
+    mov !mem_f1ab,a         ;1800  9e ab f1
     call !sub_1ac1          ;1803  9a c1 1a
     call !sub_1a17          ;1806  9a 17 1a
     br !lab_1934            ;1809  9b 34 19
@@ -5189,9 +5531,9 @@ lab_1934:
     ret                     ;193b  af
 
 lab_193c:
-    set1 0fe5dh.2           ;193c  2a 5d
+    set1 mem_fe5d.2         ;193c  2a 5d
     call !sub_60a0          ;193e  9a a0 60
-    mov 0fe21h,#14h         ;1941  11 21 14
+    mov mem_fe21,#14h       ;1941  11 21 14
     ret                     ;1944  af
 
     db 11h                  ;1945  11          DATA 0x11
@@ -5370,16 +5712,16 @@ lab_193c:
 sub_19f1:
     call !sub_0800          ;19f1  9a 00 08
     mov a,c                 ;19f4  62
-    mov !0fb65h,a           ;19f5  9e 65 fb
+    mov !mem_fb65,a         ;19f5  9e 65 fb
     call !sub_a74b          ;19f8  9a 4b a7
     bnc $lab_1a02           ;19fb  9d 05
-    mov 0fe21h,#10h         ;19fd  11 21 10
+    mov mem_fe21,#10h       ;19fd  11 21 10
     clr1 cy                 ;1a00  21
     ret                     ;1a01  af
 
 lab_1a02:
-    mov a,!0fb65h           ;1a02  8e 65 fb
-    mov 0fe21h,a            ;1a05  f2 21
+    mov a,!mem_fb65         ;1a02  8e 65 fb
+    mov mem_fe21,a          ;1a05  f2 21
     call !sub_609e          ;1a07  9a 9e 60
     set1 cy                 ;1a0a  20
     ret                     ;1a0b  af
@@ -5389,7 +5731,7 @@ sub_1a0c:
     cmp a,#07h              ;1a0d  4d 07
     bc $lab_1a15            ;1a0f  8d 04
     mov a,#00h              ;1a11  a1 00
-    set1 0fe5ch.7           ;1a13  7a 5c
+    set1 mem_fe5c.7         ;1a13  7a 5c
 
 lab_1a15:
     xch a,b                 ;1a15  33
@@ -5398,23 +5740,23 @@ lab_1a15:
 sub_1a17:
     mov b,#00h              ;1a17  a3 00
     call !sub_080b          ;1a19  9a 0b 08
-    mov !0fb5eh,a           ;1a1c  9e 5e fb
+    mov !mem_fb5e,a         ;1a1c  9e 5e fb
     call !sub_0800          ;1a1f  9a 00 08
     cmp a,#01h              ;1a22  4d 01
     bnz $lab_1a2c           ;1a24  bd 06
     call !sub_080b          ;1a26  9a 0b 08
-    mov !0fb5fh,a           ;1a29  9e 5f fb
+    mov !mem_fb5f,a         ;1a29  9e 5f fb
 
 lab_1a2c:
     call !sub_1aea          ;1a2c  9a ea 1a
-    cmp 0fe58h,#01h         ;1a2f  c8 58 01
+    cmp mem_fe58,#01h       ;1a2f  c8 58 01
     bnz $lab_1a3c           ;1a32  bd 08
-    mov a,!0fc9ch           ;1a34  8e 9c fc
+    mov a,!mem_fc9c         ;1a34  8e 9c fc
     mov b,#01h              ;1a37  a3 01
     call !sub_408f          ;1a39  9a 8f 40
 
 lab_1a3c:
-    mov a,!0fb56h           ;1a3c  8e 56 fb
+    mov a,!mem_fb56         ;1a3c  8e 56 fb
     call !sub_4092          ;1a3f  9a 92 40
     ret                     ;1a42  af
 
@@ -5448,10 +5790,10 @@ lab_1a3c:
 sub_1a5d:
     mov b,#00h              ;1a5d  a3 00
     mov a,#00h              ;1a5f  a1 00
-    mov !0fb5ah,a           ;1a61  9e 5a fb
-    clr1 0fe5dh.0           ;1a64  0b 5d
+    mov !mem_fb5a,a         ;1a61  9e 5a fb
+    clr1 mem_fe5d.0         ;1a64  0b 5d
     call !sub_1a75          ;1a66  9a 75 1a
-    mov !0fb56h,a           ;1a69  9e 56 fb
+    mov !mem_fb56,a         ;1a69  9e 56 fb
     push hl                 ;1a6c  b7
     mov a,x                 ;1a6d  60
     call !sub_a7ce          ;1a6e  9a ce a7
@@ -5499,7 +5841,7 @@ lab_1a9c:
 
 sub_1a9d:
     call !sub_1a75          ;1a9d  9a 75 1a
-    cmp a,!0fb56h           ;1aa0  48 56 fb
+    cmp a,!mem_fb56         ;1aa0  48 56 fb
     bnz $lab_1aa8           ;1aa3  bd 03
     mov a,b                 ;1aa5  63
     clr1 cy                 ;1aa6  21
@@ -5510,7 +5852,7 @@ lab_1aa8:
     ret                     ;1aa9  af
 
 sub_1aaa:
-    clr1 0fe5ch.2           ;1aaa  2b 5c
+    clr1 mem_fe5c.2         ;1aaa  2b 5c
     call !sub_1a8c          ;1aac  9a 8c 1a
     bc $lab_1ab2            ;1aaf  8d 01
     ret                     ;1ab1  af
@@ -5522,7 +5864,7 @@ lab_1ab4:
     call !sub_1a9d          ;1ab4  9a 9d 1a
     bnc $lab_1ac0           ;1ab7  9d 07
     inc b                   ;1ab9  43
-    cmp 0fefbh,#07h         ;1aba  c8 fb 07
+    cmp mem_fefb,#07h       ;1aba  c8 fb 07
     bc $lab_1ab4            ;1abd  8d f5
     set1 cy                 ;1abf  20
 
@@ -5530,19 +5872,19 @@ lab_1ac0:
     ret                     ;1ac0  af
 
 sub_1ac1:
-    clr1 0fe5ch.2           ;1ac1  2b 5c
+    clr1 mem_fe5c.2         ;1ac1  2b 5c
     call !sub_1ad1          ;1ac3  9a d1 1a
     call !sub_1aaa          ;1ac6  9a aa 1a
     bc $lab_1ad0            ;1ac9  8d 05
-    set1 0fe5ch.2           ;1acb  2a 5c
-    mov !0fb5ah,a           ;1acd  9e 5a fb
+    set1 mem_fe5c.2         ;1acb  2a 5c
+    mov !mem_fb5a,a         ;1acd  9e 5a fb
 
 lab_1ad0:
     ret                     ;1ad0  af
 
 sub_1ad1:
-    mov a,!0fb56h           ;1ad1  8e 56 fb
-    cmp a,!0fb59h           ;1ad4  48 59 fb
+    mov a,!mem_fb56         ;1ad1  8e 56 fb
+    cmp a,!mem_fb59         ;1ad4  48 59 fb
     bz $lab_1ae6            ;1ad7  ad 0d
     bc $lab_1adf            ;1ad9  8d 04
     mov a,#01h              ;1adb  a1 01
@@ -5551,10 +5893,10 @@ sub_1ad1:
 lab_1adf:
     cmp a,#00h              ;1adf  4d 00
     bnz $lab_1ae6           ;1ae1  bd 03
-    mov a,!0fb59h           ;1ae3  8e 59 fb
+    mov a,!mem_fb59         ;1ae3  8e 59 fb
 
 lab_1ae6:
-    mov !0fb56h,a           ;1ae6  9e 56 fb
+    mov !mem_fb56,a         ;1ae6  9e 56 fb
     ret                     ;1ae9  af
 
 sub_1aea:
@@ -5646,8 +5988,8 @@ sub_1aea:
     db 0afh                 ;1b4a  af          DATA 0xaf
 
 sub_1b4b:
-    mov a,!0fb56h           ;1b4b  8e 56 fb
-    bt 0fe5ch.6,$lab_1b54   ;1b4e  ec 5c 03
+    mov a,!mem_fb56         ;1b4b  8e 56 fb
+    bt mem_fe5c.6,$lab_1b54 ;1b4e  ec 5c 03
     dec a                   ;1b51  51
     br $lab_1b55            ;1b52  fa 01
 
@@ -5655,7 +5997,7 @@ lab_1b54:
     inc a                   ;1b54  41
 
 lab_1b55:
-    mov !0fb56h,a           ;1b55  9e 56 fb
+    mov !mem_fb56,a         ;1b55  9e 56 fb
     ret                     ;1b58  af
 
     db 9ah                  ;1b59  9a          DATA 0x9a
@@ -5833,32 +6175,32 @@ sub_1bff:
     ror a,1                 ;1c06  24
     ror a,1                 ;1c07  24
     push hl                 ;1c08  b7
-    movw hl,#0f253h         ;1c09  16 53 f2
-    mov !0fb58h,a           ;1c0c  9e 58 fb
+    movw hl,#mem_f253       ;1c09  16 53 f2
+    mov !mem_fb58,a         ;1c0c  9e 58 fb
     call !sub_4092          ;1c0f  9a 92 40
     pop hl                  ;1c12  b6
     dec a                   ;1c13  51
     mov x,#02h              ;1c14  a0 02
     mulu x                  ;1c16  31 88
     mov a,[hl+04h]          ;1c18  ae 04
-    mov !0fb59h,a           ;1c1a  9e 59 fb
+    mov !mem_fb59,a         ;1c1a  9e 59 fb
     mov b,#02h              ;1c1d  a3 02
-    movw hl,#0f1b2h         ;1c1f  16 b2 f1
+    movw hl,#mem_f1b2       ;1c1f  16 b2 f1
     mov a,x                 ;1c22  60
     add l,a                 ;1c23  61 06
-    addc 0feffh,#00h        ;1c25  a8 ff 00
+    addc mem_feff,#00h      ;1c25  a8 ff 00
 
 lab_1c28:
     mov a,[hl+b]            ;1c28  ab
     push hl                 ;1c29  b7
-    movw hl,#0fb5fh         ;1c2a  16 5f fb
+    movw hl,#mem_fb5f       ;1c2a  16 5f fb
     mov [hl+b],a            ;1c2d  bb
     pop hl                  ;1c2e  b6
     dbnz b,$lab_1c28        ;1c2f  8b f7
     ret                     ;1c31  af
 
 sub_1c32:
-    mov a,!0f1e7h           ;1c32  8e e7 f1
+    mov a,!mem_f1e7         ;1c32  8e e7 f1
     and a,#07h              ;1c35  5d 07
     mov b,a                 ;1c37  73
     movw hl,#0ad35h         ;1c38  16 35 ad
@@ -5877,7 +6219,7 @@ lab_1c46:
     and a,#0fh              ;1c47  5d 0f
     call !sub_0812          ;1c49  9a 12 08
     bz $lab_1c55            ;1c4c  ad 07
-    add 0fefah,#06h         ;1c4e  88 fa 06
+    add mem_fefa,#06h       ;1c4e  88 fa 06
     dbnz b,$lab_1c46        ;1c51  8b f3
     set1 cy                 ;1c53  20
     ret                     ;1c54  af
@@ -5885,13 +6227,13 @@ lab_1c46:
 lab_1c55:
     mov a,c                 ;1c55  62
     add l,a                 ;1c56  61 06
-    addc 0feffh,#00h        ;1c58  a8 ff 00
+    addc mem_feff,#00h      ;1c58  a8 ff 00
     mov a,[hl]              ;1c5b  87
     clr1 cy                 ;1c5c  21
     ret                     ;1c5d  af
 
 sub_1c5e:
-    mov a,0fe30h            ;1c5e  f0 30
+    mov a,mem_fe30          ;1c5e  f0 30
     mov b,#01h              ;1c60  a3 01
     movw hl,#0ae25h         ;1c62  16 25 ae
 
@@ -5907,18 +6249,18 @@ lab_1c6d:
     ret                     ;1c6e  af
 
 sub_1c6f:
-    bt 0fe7dh.2,$lab_1c8c   ;1c6f  ac 7d 1a
+    bt mem_fe7d.2,$lab_1c8c ;1c6f  ac 7d 1a
     call !sub_1c5e          ;1c72  9a 5e 1c
     bc $lab_1c81            ;1c75  8d 0a
-    set1 0fe5bh.1           ;1c77  1a 5b
-    cmp 0fe20h,#00h         ;1c79  c8 20 00
+    set1 mem_fe5b.1         ;1c77  1a 5b
+    cmp mem_fe20,#00h       ;1c79  c8 20 00
     bz $lab_1c8c            ;1c7c  ad 0e
     br !lab_172e            ;1c7e  9b 2e 17
 
 lab_1c81:
-    cmp 0fe20h,#00h         ;1c81  c8 20 00
+    cmp mem_fe20,#00h       ;1c81  c8 20 00
     bnz $lab_1c8c           ;1c84  bd 06
-    mov 0fe20h,#01h         ;1c86  11 20 01
+    mov mem_fe20,#01h       ;1c86  11 20 01
     br !lab_17e2            ;1c89  9b e2 17
 
 lab_1c8c:
@@ -5942,11 +6284,11 @@ lab_1c8c:
     db 0afh                 ;1c9c  af          DATA 0xaf
 
 sub_1c9d:
-    clr1 0fe5dh.4           ;1c9d  4b 5d
-    mov a,!0f1e7h           ;1c9f  8e e7 f1
+    clr1 mem_fe5d.4         ;1c9d  4b 5d
+    mov a,!mem_f1e7         ;1c9f  8e e7 f1
     and a,#07h              ;1ca2  5d 07
     bnz $lab_1ca8           ;1ca4  bd 02
-    set1 0fe5dh.4           ;1ca6  4a 5d
+    set1 mem_fe5d.4         ;1ca6  4a 5d
 
 lab_1ca8:
     ret                     ;1ca8  af
@@ -5958,7 +6300,7 @@ sub_1ca9:
 
 lab_1cb1:
     movw hl,#0ae0fh         ;1cb1  16 0f ae
-    mov a,0fe22h            ;1cb4  f0 22
+    mov a,mem_fe22          ;1cb4  f0 22
     mov b,a                 ;1cb6  73
     call !sub_0c48          ;1cb7  9a 48 0c
     bnc $lab_1cbf           ;1cba  9d 03
@@ -5971,7 +6313,7 @@ lab_1cbf:
     br ax                   ;1cc4  31 98
 
 lab_1cc6:
-    mov a,0fe20h            ;1cc6  f0 20
+    mov a,mem_fe20          ;1cc6  f0 20
     cmp a,#02h              ;1cc8  4d 02
     bz $lab_1cd0            ;1cca  ad 04
     cmp a,#03h              ;1ccc  4d 03
@@ -5982,17 +6324,17 @@ lab_1cd0:
     call !sub_1ad1          ;1cd3  9a d1 1a
     call !sub_609e          ;1cd6  9a 9e 60
     call !sub_0845          ;1cd9  9a 45 08
-    bf 0fe5bh.4,$lab_1d04   ;1cdc  31 43 5b 24
-    bf 0fe5bh.5,$lab_1d05   ;1ce0  31 53 5b 21
+    bf mem_fe5b.4,$lab_1d04 ;1cdc  31 43 5b 24
+    bf mem_fe5b.5,$lab_1d05 ;1ce0  31 53 5b 21
     call !sub_085d          ;1ce4  9a 5d 08
-    bf 0fe5bh.6,$lab_1d04   ;1ce7  31 63 5b 19
-    bf 0fe5bh.7,$lab_1d05   ;1ceb  31 73 5b 16
+    bf mem_fe5b.6,$lab_1d04 ;1ce7  31 63 5b 19
+    bf mem_fe5b.7,$lab_1d05 ;1ceb  31 73 5b 16
     call !sub_0800          ;1cef  9a 00 08
     cmp a,#02h              ;1cf2  4d 02
     bz $lab_1d01            ;1cf4  ad 0b
     call !sub_1d6e          ;1cf6  9a 6e 1d
-    bf 0fe5ch.0,$lab_1d04   ;1cf9  31 03 5c 07
-    bf 0fe5ch.1,$lab_1d05   ;1cfd  31 13 5c 04
+    bf mem_fe5c.0,$lab_1d04 ;1cf9  31 03 5c 07
+    bf mem_fe5c.1,$lab_1d05 ;1cfd  31 13 5c 04
 
 lab_1d01:
     call !sub_1d4f          ;1d01  9a 4f 1d
@@ -6002,9 +6344,9 @@ lab_1d04:
 
 lab_1d05:
     call !sub_1a73          ;1d05  9a 73 1a
-    cmp a,!0fb56h           ;1d08  48 56 fb
+    cmp a,!mem_fb56         ;1d08  48 56 fb
     bnz $lab_1cc6           ;1d0b  bd b9
-    set1 0fe5bh.3           ;1d0d  3a 5b
+    set1 mem_fe5b.3         ;1d0d  3a 5b
     br $lab_1d01            ;1d0f  fa f0
 
     db 8eh                  ;1d11  8e          DATA 0x8e
@@ -6071,10 +6413,10 @@ lab_1d05:
     db 0afh                 ;1d4e  af          DATA 0xaf
 
 sub_1d4f:
-    set1 0fe5bh.2           ;1d4f  2a 5b
-    set1 0fe5bh.4           ;1d51  4a 5b
-    set1 0fe5bh.6           ;1d53  6a 5b
-    mov 0fe22h,#00h         ;1d55  11 22 00
+    set1 mem_fe5b.2         ;1d4f  2a 5b
+    set1 mem_fe5b.4         ;1d51  4a 5b
+    set1 mem_fe5b.6         ;1d53  6a 5b
+    mov mem_fe22,#00h       ;1d55  11 22 00
     ret                     ;1d58  af
 
     db 2bh                  ;1d59  2b          DATA 0x2b '+'
@@ -6100,11 +6442,11 @@ sub_1d4f:
     db 03h                  ;1d6d  03          DATA 0x03
 
 sub_1d6e:
-    mov 0fe22h,#08h         ;1d6e  11 22 08
-    clr1 0fe5ch.0           ;1d71  0b 5c
-    clr1 0fe5ch.1           ;1d73  1b 5c
+    mov mem_fe22,#08h       ;1d6e  11 22 08
+    clr1 mem_fe5c.0         ;1d71  0b 5c
+    clr1 mem_fe5c.1         ;1d73  1b 5c
     mov a,#01h              ;1d75  a1 01
-    mov !0fb63h,a           ;1d77  9e 63 fb
+    mov !mem_fb63,a         ;1d77  9e 63 fb
     ret                     ;1d7a  af
 
     db 8eh                  ;1d7b  8e          DATA 0x8e
@@ -6182,18 +6524,18 @@ sub_1d6e:
     db 0afh                 ;1dc3  af          DATA 0xaf
 
 sub_1dc4:
-    mov a,!0f252h           ;1dc4  8e 52 f2
-    mov !0fb57h,a           ;1dc7  9e 57 fb
-    mov a,!0f253h           ;1dca  8e 53 f2
-    mov !0fb58h,a           ;1dcd  9e 58 fb
+    mov a,!mem_f252         ;1dc4  8e 52 f2
+    mov !mem_fb57,a         ;1dc7  9e 57 fb
+    mov a,!mem_f253         ;1dca  8e 53 f2
+    mov !mem_fb58,a         ;1dcd  9e 58 fb
     mov a,#00h              ;1dd0  a1 00
-    movw hl,#0fb5ah         ;1dd2  16 5a fb
+    movw hl,#mem_fb5a       ;1dd2  16 5a fb
     mov b,#03h              ;1dd5  a3 03
 
 lab_1dd7:
     mov [hl+b],a            ;1dd7  bb
     dbnz b,$lab_1dd7        ;1dd8  8b fd
-    mov !0fb5ah,a           ;1dda  9e 5a fb
+    mov !mem_fb5a,a         ;1dda  9e 5a fb
     ret                     ;1ddd  af
 
     db 4dh                  ;1dde  4d          DATA 0x4d 'M'
@@ -7244,15 +7586,15 @@ lab_1dd7:
     db 0afh                 ;21f3  af          DATA 0xaf
 
 lab_21f4:
-    mov a,!0fb70h           ;21f4  8e 70 fb
+    mov a,!mem_fb70         ;21f4  8e 70 fb
     mov b,a                 ;21f7  73
     movw hl,#0aed4h         ;21f8  16 d4 ae
     callf !sub_0c7d         ;21fb  4c 7d
-    mov !0fb22h,a           ;21fd  9e 22 fb
+    mov !mem_fb22,a         ;21fd  9e 22 fb
     ret                     ;2200  af
 
 lab_2201:
-    mov a,!0fb70h           ;2201  8e 70 fb
+    mov a,!mem_fb70         ;2201  8e 70 fb
     cmp a,#02h              ;2204  4d 02
     bnz $lab_220b           ;2206  bd 03
     call !sub_239c          ;2208  9a 9c 23
@@ -7264,7 +7606,7 @@ lab_220b:
     br $lab_221c            ;2211  fa 09
 
 lab_2213:
-    mov a,!0fb70h           ;2213  8e 70 fb
+    mov a,!mem_fb70         ;2213  8e 70 fb
     mov b,a                 ;2216  73
     movw hl,#0aedeh         ;2217  16 de ae
     callf !sub_0c7d         ;221a  4c 7d
@@ -7279,13 +7621,13 @@ lab_2225:
     mov a,#03h              ;2225  a1 03
 
 lab_2227:
-    mov !0fb70h,a           ;2227  9e 70 fb
+    mov !mem_fb70,a         ;2227  9e 70 fb
     cmp a,#03h              ;222a  4d 03
     bz $lab_21f4            ;222c  ad c6
     mov a,#0c3h             ;222e  a1 c3
-    cmp a,!0fb71h           ;2230  48 71 fb
+    cmp a,!mem_fb71         ;2230  48 71 fb
     bz $lab_21f4            ;2233  ad bf
-    bt 0fe2ch.5,$lab_2225   ;2235  dc 2c ed
+    bt mem_fe2c.5,$lab_2225 ;2235  dc 2c ed
     br $lab_21f4            ;2238  fa ba
 
     db 0cch                 ;223a  cc          DATA 0xcc
@@ -7347,27 +7689,27 @@ lab_226d:
     bz $lab_2265            ;226f  ad f4
     cmp a,#05h              ;2271  4d 05
     bnz $lab_228a           ;2273  bd 15
-    btclr 0fe5eh.5,$lab_2293 ;2275  31 51 5e 1a
-    mov a,!0f20ah           ;2279  8e 0a f2
+    btclr mem_fe5e.5,$lab_2293 ;2275  31 51 5e 1a
+    mov a,!mem_f20a         ;2279  8e 0a f2
     cmp a,#02h              ;227c  4d 02
     mov a,#3ch              ;227e  a1 3c
     bc $lab_2285            ;2280  8d 03
-    mov !0fb52h,a           ;2282  9e 52 fb
+    mov !mem_fb52,a         ;2282  9e 52 fb
 
 lab_2285:
-    mov !0fb51h,a           ;2285  9e 51 fb
+    mov !mem_fb51,a         ;2285  9e 51 fb
     br $lab_2293            ;2288  fa 09
 
 lab_228a:
     call !sub_239c          ;228a  9a 9c 23
     call !sub_248f          ;228d  9a 8f 24
-    bt 0fe2ch.3,$lab_2265   ;2290  bc 2c d2
+    bt mem_fe2c.3,$lab_2265 ;2290  bc 2c d2
 
 lab_2293:
     br !lab_2201            ;2293  9b 01 22
 
 sub_2296:
-    mov a,!0fb70h           ;2296  8e 70 fb
+    mov a,!mem_fb70         ;2296  8e 70 fb
     cmp a,#06h              ;2299  4d 06
     bz $lab_22a1            ;229b  ad 04
     cmp a,#08h              ;229d  4d 08
@@ -7375,19 +7717,19 @@ sub_2296:
 
 lab_22a1:
     call !sub_0a60          ;22a1  9a 60 0a
-    mov a,!0f207h           ;22a4  8e 07 f2
+    mov a,!mem_f207         ;22a4  8e 07 f2
     bf a.6,$lab_22ba        ;22a7  31 6f 10
     call !sub_9118          ;22aa  9a 18 91
     call !sub_1dc4          ;22ad  9a c4 1d
     call !sub_461b          ;22b0  9a 1b 46
-    bf 0fe65h.3,$lab_22ba   ;22b3  31 33 65 03
+    bf mem_fe65.3,$lab_22ba ;22b3  31 33 65 03
     call !sub_ab3c          ;22b7  9a 3c ab
 
 lab_22ba:
-    mov a,!0fb72h           ;22ba  8e 72 fb
-    mov !0fb70h,a           ;22bd  9e 70 fb
+    mov a,!mem_fb72         ;22ba  8e 72 fb
+    mov !mem_fb70,a         ;22bd  9e 70 fb
     call !sub_24f1          ;22c0  9a f1 24
-    mov a,!0fb70h           ;22c3  8e 70 fb
+    mov a,!mem_fb70         ;22c3  8e 70 fb
     br $lab_226d            ;22c6  fa a5
 
     db 6ah                  ;22c8  6a          DATA 0x6a 'j'
@@ -7605,9 +7947,9 @@ lab_22ba:
 
 sub_239c:
     mov a,#10h              ;239c  a1 10
-    mov !0fb75h,a           ;239e  9e 75 fb
+    mov !mem_fb75,a         ;239e  9e 75 fb
     mov a,#00h              ;23a1  a1 00
-    mov !0fb76h,a           ;23a3  9e 76 fb
+    mov !mem_fb76,a         ;23a3  9e 76 fb
     ret                     ;23a6  af
 
     db 9ah                  ;23a7  9a          DATA 0x9a
@@ -7831,14 +8173,14 @@ sub_239c:
     db 0afh                 ;2481  af          DATA 0xaf
 
 sub_2482:
-    mov !0fb71h,a           ;2482  9e 71 fb
+    mov !mem_fb71,a         ;2482  9e 71 fb
     call !sub_249c          ;2485  9a 9c 24
     movw hl,#0f20ch         ;2488  16 0c f2
     call !sub_4092          ;248b  9a 92 40
     ret                     ;248e  af
 
 sub_248f:
-    mov a,!0fb71h           ;248f  8e 71 fb
+    mov a,!mem_fb71         ;248f  8e 71 fb
     and a,#03h              ;2492  5d 03
     mov b,a                 ;2494  73
     movw hl,#202fh          ;2495  16 2f 20
@@ -7934,40 +8276,40 @@ sub_24f1:
     movw hl,#0f20ch         ;24f4  16 0c f2
     call !sub_4092          ;24f7  9a 92 40
     movw de,#0fb77h         ;24fa  14 77 fb
-    movw hl,#0fe23h         ;24fd  16 23 fe
+    movw hl,#mem_fe23       ;24fd  16 23 fe
     mov b,#01h              ;2500  a3 01
     call !sub_0bef          ;2502  9a ef 0b
-    movw hl,#0fb70h         ;2505  16 70 fb
+    movw hl,#mem_fb70       ;2505  16 70 fb
     mov b,#07h              ;2508  a3 07
     br !sub_0bf6            ;250a  9b f6 0b
 
 sub_250d:
-    mov a,!0fb00h           ;250d  8e 00 fb
+    mov a,!mem_fb00         ;250d  8e 00 fb
     cmp a,#00h              ;2510  4d 00
     bz $lab_2515            ;2512  ad 01
     ret                     ;2514  af
 
 lab_2515:
     mov a,#3eh              ;2515  a1 3e
-    mov !0fb00h,a           ;2517  9e 00 fb
+    mov !mem_fb00,a         ;2517  9e 00 fb
 
 sub_251a:
-    cmp 0fe24h,#30h         ;251a  c8 24 30
+    cmp mem_fe24,#30h       ;251a  c8 24 30
     bnc $lab_2521           ;251d  9d 02
-    set1 0fecdh.3           ;251f  3a cd
+    set1 mem_fecd.3         ;251f  3a cd
 
 lab_2521:
-    dbnz 0fe24h,$lab_2532   ;2521  04 24 0e
-    bt 0fe2ch.2,$lab_252f   ;2524  ac 2c 08
-    bt 0fe2ch.3,$lab_252f   ;2527  bc 2c 05
+    dbnz mem_fe24,$lab_2532 ;2521  04 24 0e
+    bt mem_fe2c.2,$lab_252f ;2524  ac 2c 08
+    bt mem_fe2c.3,$lab_252f ;2527  bc 2c 05
     clr1 PM3_.3             ;252a  71 3b 23
-    clr1 0fecdh.3           ;252d  3b cd
+    clr1 mem_fecd.3         ;252d  3b cd
 
 lab_252f:
-    mov 0fe24h,#30h         ;252f  11 24 30
+    mov mem_fe24,#30h       ;252f  11 24 30
 
 lab_2532:
-    mov a,0fecdh            ;2532  f0 cd
+    mov a,mem_fecd          ;2532  f0 cd
     mov P3_,a               ;2534  f2 03
     ret                     ;2536  af
 
@@ -8195,30 +8537,18 @@ lab_2532:
     db 3ah                  ;2614  3a          DATA 0x3a ':'
     db 5eh                  ;2615  5e          DATA 0x5e '^'
     db 0afh                 ;2616  af          DATA 0xaf
-    db 13h                  ;2617  13          DATA 0x13
-    db 0b0h                 ;2618  b0          DATA 0xb0
-    db 83h                  ;2619  83          DATA 0x83
-    db 71h                  ;261a  71          DATA 0x71 'q'
-    db 2bh                  ;261b  2b          DATA 0x2b '+'
-    db 23h                  ;261c  23          DATA 0x23 '#'
-    db 71h                  ;261d  71          DATA 0x71 'q'
-    db 1bh                  ;261e  1b          DATA 0x1b
-    db 23h                  ;261f  23          DATA 0x23 '#'
-    db 71h                  ;2620  71          DATA 0x71 'q'
-    db 0bh                  ;2621  0b          DATA 0x0b
-    db 33h                  ;2622  33          DATA 0x33 '3'
-    db 71h                  ;2623  71          DATA 0x71 'q'
-    db 0ah                  ;2624  0a          DATA 0x0a
-    db 23h                  ;2625  23          DATA 0x23 '#'
-    db 2bh                  ;2626  2b          DATA 0x2b '+'
-    db 0cdh                 ;2627  cd          DATA 0xcd
-    db 1bh                  ;2628  1b          DATA 0x1b
-    db 0cdh                 ;2629  cd          DATA 0xcd
-    db 0f0h                 ;262a  f0          DATA 0xf0
-    db 0cdh                 ;262b  cd          DATA 0xcd
-    db 0f2h                 ;262c  f2          DATA 0xf2
-    db 03h                  ;262d  03          DATA 0x03
-    db 0afh                 ;262e  af          DATA 0xaf
+
+sub_2617:
+    mov CSIM30_,#83h        ;2617  13 b0 83
+    clr1 PM3_.2             ;261a  71 2b 23
+    clr1 PM3_.1             ;261d  71 1b 23
+    clr1 PU3_.0             ;2620  71 0b 33
+    set1 PM3_.0             ;2623  71 0a 23
+    clr1 mem_fecd.2         ;2626  2b cd
+    clr1 mem_fecd.1         ;2628  1b cd
+    mov a,mem_fecd          ;262a  f0 cd
+    mov P3_,a               ;262c  f2 03
+    ret                     ;262e  af
 
 sub_262f:
     mov CSIM31_,#84h        ;262f  13 b8 84
@@ -8227,8 +8557,8 @@ sub_262f:
     clr1 PM2_.1             ;2638  71 1b 22
     clr1 PU2_.0             ;263b  71 0b 32
     set1 PM2_.0             ;263e  71 0a 22
-    clr1 0fecch.1           ;2641  1b cc
-    mov a,0fecch            ;2643  f0 cc
+    clr1 mem_fecc.1         ;2641  1b cc
+    mov a,mem_fecc          ;2643  f0 cc
     mov P2_,a               ;2645  f2 02
     ret                     ;2647  af
 
@@ -8385,9 +8715,9 @@ lab_26d5:
 lab_26d6:
     call !sub_7697          ;26d6  9a 97 76
     mov a,#32h              ;26d9  a1 32
-    mov !0fb2eh,a           ;26db  9e 2e fb
+    mov !mem_fb2e,a         ;26db  9e 2e fb
     mov a,#8fh              ;26de  a1 8f
-    mov !0f1a6h,a           ;26e0  9e a6 f1
+    mov !mem_f1a6,a         ;26e0  9e a6 f1
     ret                     ;26e3  af
 
 lab_26e4:
@@ -8403,7 +8733,7 @@ lab_26e4:
 
 lab_26f9:
     movw de,#kwp_radio_de2  ;26f9  14 6f 26
-    mov a,!0f1e9h           ;26fc  8e e9 f1
+    mov a,!mem_f1e9         ;26fc  8e e9 f1
     bf a.7,$lab_2705        ;26ff  31 7f 03
     movw de,#kwp_radio_delco ;2702  14 7c 26
 
@@ -8416,7 +8746,7 @@ lab_2706:
     mov a,#0dh              ;270c  a1 0d
     callf !sub_0c9e         ;270e  4c 9e
     movw hl,#0f03bh         ;2710  16 3b f0
-    mov a,!0f1ech           ;2713  8e ec f1
+    mov a,!mem_f1ec         ;2713  8e ec f1
     and a,#0f0h             ;2716  5d f0
     ror a,1                 ;2718  24
     ror a,1                 ;2719  24
@@ -8424,11 +8754,11 @@ lab_2706:
     ror a,1                 ;271b  24
     add a,#30h              ;271c  0d 30
     mov [hl+07h],a          ;271e  be 07
-    mov a,!0f1ech           ;2720  8e ec f1
+    mov a,!mem_f1ec         ;2720  8e ec f1
     and a,#0fh              ;2723  5d 0f
     add a,#30h              ;2725  0d 30
     mov [hl+08h],a          ;2727  be 08
-    mov a,!0f1ebh           ;2729  8e eb f1
+    mov a,!mem_f1eb         ;2729  8e eb f1
     and a,#0f0h             ;272c  5d f0
     ror a,1                 ;272e  24
     ror a,1                 ;272f  24
@@ -8436,13 +8766,13 @@ lab_2706:
     ror a,1                 ;2731  24
     add a,#30h              ;2732  0d 30
     mov [hl+09h],a          ;2734  be 09
-    mov a,!0f1ebh           ;2736  8e eb f1
+    mov a,!mem_f1eb         ;2736  8e eb f1
     and a,#0fh              ;2739  5d 0f
     add a,#30h              ;273b  0d 30
     mov [hl+0ah],a          ;273d  be 0a
-    mov a,!0f1e9h           ;273f  8e e9 f1
+    mov a,!mem_f1e9         ;273f  8e e9 f1
     bf a.7,$lab_274a        ;2742  31 7f 05
-    mov a,!0f1eah           ;2745  8e ea f1
+    mov a,!mem_f1ea         ;2745  8e ea f1
     mov [hl+07h],a          ;2748  be 07
 
 lab_274a:
@@ -8450,7 +8780,7 @@ lab_274a:
     ret                     ;274d  af
 
 lab_274e:
-    bt 0fe5fh.3,$lab_2762   ;274e  bc 5f 11
+    bt mem_fe5f.3,$lab_2762 ;274e  bc 5f 11
     call !sub_2c98          ;2751  9a 98 2c
     bc $lab_275c            ;2754  8d 06
     mov e,#88h              ;2756  a4 88
@@ -8458,7 +8788,7 @@ lab_274e:
     ret                     ;275b  af
 
 lab_275c:
-    set1 0fe5fh.3           ;275c  3a 5f
+    set1 mem_fe5f.3         ;275c  3a 5f
     movw ax,hl              ;275e  c6
     movw !0f002h,ax         ;275f  03 02 f0
 
@@ -8466,7 +8796,7 @@ lab_2762:
     movw ax,!0f002h         ;2762  02 02 f0
     cmpw ax,#0f20dh         ;2765  ea 0d f2
     bc $lab_278c            ;2768  8d 22
-    cmpw ax,#0f219h         ;276a  ea 19 f2
+    cmpw ax,#mem_f219       ;276a  ea 19 f2
     bnc $lab_278c           ;276d  9d 1d
     movw de,ax              ;276f  d4
     incw ax                 ;2770  80
@@ -8489,7 +8819,7 @@ lab_2784:
     ret                     ;278b  af
 
 lab_278c:
-    clr1 0fe5fh.3           ;278c  3b 5f
+    clr1 mem_fe5f.3         ;278c  3b 5f
     set1 cy                 ;278e  20
     ret                     ;278f  af
 
@@ -8521,10 +8851,10 @@ lab_27b0:
     movw hl,#0f218h         ;27bc  16 18 f2
     mov a,#88h              ;27bf  a1 88
     call !sub_4092          ;27c1  9a 92 40
-    movw hl,#0f219h         ;27c4  16 19 f2
+    movw hl,#mem_f219       ;27c4  16 19 f2
     mov a,#00h              ;27c7  a1 00
     call !sub_4092          ;27c9  9a 92 40
-    clr1 0fe6dh.3           ;27cc  3b 6d
+    clr1 mem_fe6d.3         ;27cc  3b 6d
 
 lab_27ce:
     ret                     ;27ce  af
@@ -8533,12 +8863,12 @@ lab_27cf:
     push hl                 ;27cf  b7
     push bc                 ;27d0  b3
     call !sub_2d35          ;27d1  9a 35 2d
-    mov a,!0f04eh           ;27d4  8e 4e f0
+    mov a,!mem_f04e         ;27d4  8e 4e f0
     cmp a,#03h              ;27d7  4d 03
     bc $lab_27e6            ;27d9  8d 0b
-    clr1 0fe5fh.5           ;27db  5b 5f
+    clr1 mem_fe5f.5         ;27db  5b 5f
     mov a,#00h              ;27dd  a1 00
-    mov !0f04eh,a           ;27df  9e 4e f0
+    mov !mem_f04e,a         ;27df  9e 4e f0
     pop bc                  ;27e2  b2
     pop hl                  ;27e3  b6
     set1 cy                 ;27e4  20
@@ -8547,7 +8877,7 @@ lab_27cf:
 lab_27e6:
     mov b,a                 ;27e6  73
     inc a                   ;27e7  41
-    mov !0f04eh,a           ;27e8  9e 4e f0
+    mov !mem_f04e,a         ;27e8  9e 4e f0
     movw hl,#0b002h         ;27eb  16 02 b0
     callf !sub_0c48         ;27ee  4c 48
     bc $lab_2818            ;27f0  8d 26
@@ -8592,8 +8922,8 @@ lab_2824:
     movw de,#0f055h         ;2824  14 55 f0
     mov a,#10h              ;2827  a1 10
     callf !sub_0c9e         ;2829  4c 9e
-    set1 0fe60h.3           ;282b  3a 60
-    set1 0fe5fh.5           ;282d  5a 5f
+    set1 mem_fe60.3         ;282b  3a 60
+    set1 mem_fe5f.5         ;282d  5a 5f
     ret                     ;282f  af
 
     db 0cch                 ;2830  cc          DATA 0xcc
@@ -9727,7 +10057,7 @@ lab_2824:
 
 sub_2c98:
     movw hl,#0f20dh         ;2c98  16 0d f2
-    movw de,#0f219h         ;2c9b  14 19 f2
+    movw de,#mem_f219       ;2c9b  14 19 f2
     call !sub_2cbe          ;2c9e  9a be 2c
     mov b,a                 ;2ca1  73
 
@@ -9764,950 +10094,642 @@ sub_2cbe:
     xch a,x                 ;2cc5  30
     ret                     ;2cc6  af
 
-    db 87h                  ;2cc7  87          DATA 0x87
-    db 4dh                  ;2cc8  4d          DATA 0x4d 'M'
-    db 32h                  ;2cc9  32          DATA 0x32 '2'
-    db 9dh                  ;2cca  9d          DATA 0x9d
-    db 04h                  ;2ccb  04          DATA 0x04
-    db 41h                  ;2ccc  41          DATA 0x41 'A'
-    db 9ah                  ;2ccd  9a          DATA 0x9a
-    db 92h                  ;2cce  92          DATA 0x92
-    db 40h                  ;2ccf  40          DATA 0x40 '@'
-    db 0afh                 ;2cd0  af          DATA 0xaf
-    db 4dh                  ;2cd1  4d          DATA 0x4d 'M'
-    db 00h                  ;2cd2  00          DATA 0x00
-    db 0adh                 ;2cd3  ad          DATA 0xad
-    db 09h                  ;2cd4  09          DATA 0x09
-    db 73h                  ;2cd5  73          DATA 0x73 's'
-    db 85h                  ;2cd6  85          DATA 0x85
-    db 9ah                  ;2cd7  9a          DATA 0x9a
-    db 92h                  ;2cd8  92          DATA 0x92
-    db 40h                  ;2cd9  40          DATA 0x40 '@'
-    db 86h                  ;2cda  86          DATA 0x86
-    db 84h                  ;2cdb  84          DATA 0x84
-    db 8bh                  ;2cdc  8b          DATA 0x8b
-    db 0f8h                 ;2cdd  f8          DATA 0xf8
-    db 0afh                 ;2cde  af          DATA 0xaf
-    db 5ch                  ;2cdf  5c          DATA 0x5c '\'
-    db 60h                  ;2ce0  60          DATA 0x60 '`'
-    db 0e6h                 ;2ce1  e6          DATA 0xe6
-    db 8dh                  ;2ce2  8d          DATA 0x8d
-    db 2bh                  ;2ce3  2b          DATA 0x2b '+'
-    db 0ach                 ;2ce4  ac          DATA 0xac
-    db 60h                  ;2ce5  60          DATA 0x60 '`'
-    db 21h                  ;2ce6  21          DATA 0x21 '!'
-    db 0eah                 ;2ce7  ea          DATA 0xea
-    db 00h                  ;2ce8  00          DATA 0x00
-    db 0f0h                 ;2ce9  f0          DATA 0xf0
-    db 9dh                  ;2cea  9d          DATA 0x9d
-    db 02h                  ;2ceb  02          DATA 0x02
-    db 0fah                 ;2cec  fa          DATA 0xfa
-    db 1fh                  ;2ced  1f          DATA 0x1f
-    db 0e6h                 ;2cee  e6          DATA 0xe6
-    db 0eah                 ;2cef  ea          DATA 0xea
-    db 00h                  ;2cf0  00          DATA 0x00
-    db 0fbh                 ;2cf1  fb          DATA 0xfb
-    db 0e6h                 ;2cf2  e6          DATA 0xe6
-    db 9dh                  ;2cf3  9d          DATA 0x9d
-    db 18h                  ;2cf4  18          DATA 0x18
-    db 0eah                 ;2cf5  ea          DATA 0xea
-    db 00h                  ;2cf6  00          DATA 0x00
-    db 0f0h                 ;2cf7  f0          DATA 0xf0
-    db 8dh                  ;2cf8  8d          DATA 0x8d
-    db 15h                  ;2cf9  15          DATA 0x15
-    db 0eah                 ;2cfa  ea          DATA 0xea
-    db 0ffh                 ;2cfb  ff          DATA 0xff
-    db 0f7h                 ;2cfc  f7          DATA 0xf7
-    db 9dh                  ;2cfd  9d          DATA 0x9d
-    db 10h                  ;2cfe  10          DATA 0x10
-    db 0e6h                 ;2cff  e6          DATA 0xe6
-    db 0eah                 ;2d00  ea          DATA 0xea
-    db 00h                  ;2d01  00          DATA 0x00
-    db 0f0h                 ;2d02  f0          DATA 0xf0
-    db 0e6h                 ;2d03  e6          DATA 0xe6
-    db 9dh                  ;2d04  9d          DATA 0x9d
-    db 07h                  ;2d05  07          DATA 0x07
-    db 0fah                 ;2d06  fa          DATA 0xfa
-    db 07h                  ;2d07  07          DATA 0x07
-    db 0eah                 ;2d08  ea          DATA 0xea
-    db 01h                  ;2d09  01          DATA 0x01
-    db 02h                  ;2d0a  02          DATA 0x02
-    db 9dh                  ;2d0b  9d          DATA 0x9d
-    db 02h                  ;2d0c  02          DATA 0x02
-    db 21h                  ;2d0d  21          DATA 0x21 '!'
-    db 0afh                 ;2d0e  af          DATA 0xaf
-    db 20h                  ;2d0f  20          DATA 0x20 ' '
-    db 0afh                 ;2d10  af          DATA 0xaf
-    db 0a1h                 ;2d11  a1          DATA 0xa1
-    db 00h                  ;2d12  00          DATA 0x00
-    db 0ceh                 ;2d13  ce          DATA 0xce
-    db 4bh                  ;2d14  4b          DATA 0x4b 'K'
-    db 0f0h                 ;2d15  f0          DATA 0xf0
-    db 4dh                  ;2d16  4d          DATA 0x4d 'M'
-    db 0eh                  ;2d17  0e          DATA 0x0e
-    db 8dh                  ;2d18  8d          DATA 0x8d
-    db 07h                  ;2d19  07          DATA 0x07
-    db 1dh                  ;2d1a  1d          DATA 0x1d
-    db 0dh                  ;2d1b  0d          DATA 0x0d
-    db 9eh                  ;2d1c  9e          DATA 0x9e
-    db 4bh                  ;2d1d  4b          DATA 0x4b 'K'
-    db 0f0h                 ;2d1e  f0          DATA 0xf0
-    db 0a1h                 ;2d1f  a1          DATA 0xa1
-    db 0dh                  ;2d20  0d          DATA 0x0d
-    db 72h                  ;2d21  72          DATA 0x72 'r'
-    db 0afh                 ;2d22  af          DATA 0xaf
-    db 0a1h                 ;2d23  a1          DATA 0xa1
-    db 00h                  ;2d24  00          DATA 0x00
-    db 0ceh                 ;2d25  ce          DATA 0xce
-    db 4bh                  ;2d26  4b          DATA 0x4b 'K'
-    db 0f0h                 ;2d27  f0          DATA 0xf0
-    db 4dh                  ;2d28  4d          DATA 0x4d 'M'
-    db 11h                  ;2d29  11          DATA 0x11
-    db 8dh                  ;2d2a  8d          DATA 0x8d
-    db 07h                  ;2d2b  07          DATA 0x07
-    db 1dh                  ;2d2c  1d          DATA 0x1d
-    db 10h                  ;2d2d  10          DATA 0x10
-    db 9eh                  ;2d2e  9e          DATA 0x9e
-    db 4bh                  ;2d2f  4b          DATA 0x4b 'K'
-    db 0f0h                 ;2d30  f0          DATA 0xf0
-    db 0a1h                 ;2d31  a1          DATA 0xa1
-    db 10h                  ;2d32  10          DATA 0x10
-    db 72h                  ;2d33  72          DATA 0x72 'r'
-    db 0afh                 ;2d34  af          DATA 0xaf
+lab_2cc7:
+    mov a,[hl]              ;2cc7  87
+    cmp a,#32h              ;2cc8  4d 32
+    bnc $lab_2cd0           ;2cca  9d 04
+    inc a                   ;2ccc  41
+    call !sub_4092          ;2ccd  9a 92 40
+
+lab_2cd0:
+    ret                     ;2cd0  af
+
+lab_2cd1:
+    cmp a,#00h              ;2cd1  4d 00
+    bz $lab_2cde            ;2cd3  ad 09
+    mov b,a                 ;2cd5  73
+
+lab_2cd6:
+    mov a,[de]              ;2cd6  85
+    call !sub_4092          ;2cd7  9a 92 40
+    incw hl                 ;2cda  86
+    incw de                 ;2cdb  84
+    dbnz b,$lab_2cd6        ;2cdc  8b f8
+
+lab_2cde:
+    ret                     ;2cde  af
+
+lab_2cdf:
+    callf !sub_0d60         ;2cdf  5c 60
+    xchw ax,hl              ;2ce1  e6
+    bc $lab_2d0f            ;2ce2  8d 2b
+    bt mem_fe60.2,$lab_2d08 ;2ce4  ac 60 21
+    cmpw ax,#0f000h         ;2ce7  ea 00 f0
+    bnc $lab_2cee           ;2cea  9d 02
+    br $lab_2d0d            ;2cec  fa 1f
+
+lab_2cee:
+    xchw ax,hl              ;2cee  e6
+    cmpw ax,#mem_fb00       ;2cef  ea 00 fb
+    xchw ax,hl              ;2cf2  e6
+    bnc $lab_2d0d           ;2cf3  9d 18
+    cmpw ax,#0f000h         ;2cf5  ea 00 f0
+    bc $lab_2d0f            ;2cf8  8d 15
+    cmpw ax,#0f7ffh         ;2cfa  ea ff f7
+    bnc $lab_2d0f           ;2cfd  9d 10
+    xchw ax,hl              ;2cff  e6
+    cmpw ax,#0f000h         ;2d00  ea 00 f0
+    xchw ax,hl              ;2d03  e6
+    bnc $lab_2d0d           ;2d04  9d 07
+    br $lab_2d0f            ;2d06  fa 07
+
+lab_2d08:
+    cmpw ax,#0201h          ;2d08  ea 01 02
+    bnc $lab_2d0f           ;2d0b  9d 02
+
+lab_2d0d:
+    clr1 cy                 ;2d0d  21
+    ret                     ;2d0e  af
+
+lab_2d0f:
+    set1 cy                 ;2d0f  20
+    ret                     ;2d10  af
+
+lab_2d11:
+    mov a,#00h              ;2d11  a1 00
+    xch a,!mem_f04b         ;2d13  ce 4b f0
+    cmp a,#0eh              ;2d16  4d 0e
+    bc $lab_2d21            ;2d18  8d 07
+    sub a,#0dh              ;2d1a  1d 0d
+    mov !mem_f04b,a         ;2d1c  9e 4b f0
+    mov a,#0dh              ;2d1f  a1 0d
+
+lab_2d21:
+    mov c,a                 ;2d21  72
+    ret                     ;2d22  af
+
+lab_2d23:
+    mov a,#00h              ;2d23  a1 00
+    xch a,!mem_f04b         ;2d25  ce 4b f0
+    cmp a,#11h              ;2d28  4d 11
+    bc $lab_2d33            ;2d2a  8d 07
+    sub a,#10h              ;2d2c  1d 10
+    mov !mem_f04b,a         ;2d2e  9e 4b f0
+    mov a,#10h              ;2d31  a1 10
+
+lab_2d33:
+    mov c,a                 ;2d33  72
+    ret                     ;2d34  af
 
 sub_2d35:
-    clr1 0fe5fh.3           ;2d35  3b 5f
-    clr1 0fe5fh.4           ;2d37  4b 5f
-    clr1 0fe5fh.6           ;2d39  6b 5f
-    clr1 0fe5fh.7           ;2d3b  7b 5f
-    clr1 0fe60h.0           ;2d3d  0b 60
-    clr1 0fe60h.1           ;2d3f  1b 60
-    clr1 0fe60h.2           ;2d41  2b 60
+    clr1 mem_fe5f.3         ;2d35  3b 5f
+    clr1 mem_fe5f.4         ;2d37  4b 5f
+    clr1 mem_fe5f.6         ;2d39  6b 5f
+    clr1 mem_fe5f.7         ;2d3b  7b 5f
+    clr1 mem_fe60.0         ;2d3d  0b 60
+    clr1 mem_fe60.1         ;2d3f  1b 60
+    clr1 mem_fe60.2         ;2d41  2b 60
     ret                     ;2d43  af
 
-    db 0eeh                 ;2d44  ee          DATA 0xee
-    db 0d4h                 ;2d45  d4          DATA 0xd4
-    db 00h                  ;2d46  00          DATA 0x00
-    db 00h                  ;2d47  00          DATA 0x00
-    db 11h                  ;2d48  11          DATA 0x11
-    db 0d6h                 ;2d49  d6          DATA 0xd6
-    db 00h                  ;2d4a  00          DATA 0x00
-    db 0a3h                 ;2d4b  a3          DATA 0xa3
-    db 10h                  ;2d4c  10          DATA 0x10
-    db 30h                  ;2d4d  30          DATA 0x30 '0'
-    db 27h                  ;2d4e  27          DATA 0x27 '''
-    db 30h                  ;2d4f  30          DATA 0x30 '0'
-    db 27h                  ;2d50  27          DATA 0x27 '''
-    db 0b1h                 ;2d51  b1          DATA 0xb1
-    db 0f0h                 ;2d52  f0          DATA 0xf0
-    db 0d4h                 ;2d53  d4          DATA 0xd4
-    db 2eh                  ;2d54  2e          DATA 0x2e '.'
-    db 0d4h                 ;2d55  d4          DATA 0xd4
-    db 61h                  ;2d56  61          DATA 0x61 'a'
-    db 80h                  ;2d57  80          DATA 0x80
-    db 0f2h                 ;2d58  f2          DATA 0xf2
-    db 0d4h                 ;2d59  d4          DATA 0xd4
-    db 0f0h                 ;2d5a  f0          DATA 0xf0
-    db 0d5h                 ;2d5b  d5          DATA 0xd5
-    db 2eh                  ;2d5c  2e          DATA 0x2e '.'
-    db 0d5h                 ;2d5d  d5          DATA 0xd5
-    db 61h                  ;2d5e  61          DATA 0x61 'a'
-    db 80h                  ;2d5f  80          DATA 0x80
-    db 0f2h                 ;2d60  f2          DATA 0xf2
-    db 0d5h                 ;2d61  d5          DATA 0xd5
-    db 0f0h                 ;2d62  f0          DATA 0xf0
-    db 0d6h                 ;2d63  d6          DATA 0xd6
-    db 2eh                  ;2d64  2e          DATA 0x2e '.'
-    db 0d6h                 ;2d65  d6          DATA 0xd6
-    db 61h                  ;2d66  61          DATA 0x61 'a'
-    db 80h                  ;2d67  80          DATA 0x80
-    db 0f2h                 ;2d68  f2          DATA 0xf2
-    db 0d6h                 ;2d69  d6          DATA 0xd6
-    db 0b0h                 ;2d6a  b0          DATA 0xb0
-    db 8bh                  ;2d6b  8b          DATA 0x8b
-    db 0e0h                 ;2d6c  e0          DATA 0xe0
-    db 0afh                 ;2d6d  af          DATA 0xaf
-    db 0f0h                 ;2d6e  f0          DATA 0xf0
-    db 0d4h                 ;2d6f  d4          DATA 0xd4
-    db 5dh                  ;2d70  5d          DATA 0x5d ']'
-    db 0fh                  ;2d71  0f          DATA 0x0f
-    db 4dh                  ;2d72  4d          DATA 0x4d 'M'
-    db 08h                  ;2d73  08          DATA 0x08
-    db 9dh                  ;2d74  9d          DATA 0x9d
-    db 5fh                  ;2d75  5f          DATA 0x5f '_'
-    db 4dh                  ;2d76  4d          DATA 0x4d 'M'
-    db 04h                  ;2d77  04          DATA 0x04
-    db 8dh                  ;2d78  8d          DATA 0x8d
-    db 06h                  ;2d79  06          DATA 0x06
-    db 8eh                  ;2d7a  8e          DATA 0x8e
-    db 0e9h                 ;2d7b  e9          DATA 0xe9
-    db 0f1h                 ;2d7c  f1          DATA 0xf1
-    db 31h                  ;2d7d  31          DATA 0x31 '1'
-    db 0eh                  ;2d7e  0e          DATA 0x0e
-    db 55h                  ;2d7f  55          DATA 0x55 'U'
-    db 0f0h                 ;2d80  f0          DATA 0xf0
-    db 0d4h                 ;2d81  d4          DATA 0xd4
-    db 5dh                  ;2d82  5d          DATA 0x5d ']'
-    db 0f0h                 ;2d83  f0          DATA 0xf0
-    db 2ch                  ;2d84  2c          DATA 0x2c ','
-    db 9eh                  ;2d85  9e          DATA 0x9e
-    db 4dh                  ;2d86  4d          DATA 0x4d 'M'
-    db 05h                  ;2d87  05          DATA 0x05
-    db 9dh                  ;2d88  9d          DATA 0x9d
-    db 4bh                  ;2d89  4b          DATA 0x4b 'K'
-    db 4dh                  ;2d8a  4d          DATA 0x4d 'M'
-    db 00h                  ;2d8b  00          DATA 0x00
-    db 0adh                 ;2d8c  ad          DATA 0xad
-    db 36h                  ;2d8d  36          DATA 0x36 '6'
-    db 4dh                  ;2d8e  4d          DATA 0x4d 'M'
-    db 03h                  ;2d8f  03          DATA 0x03
-    db 0adh                 ;2d90  ad          DATA 0xad
-    db 1dh                  ;2d91  1d          DATA 0x1d
-    db 4dh                  ;2d92  4d          DATA 0x4d 'M'
-    db 04h                  ;2d93  04          DATA 0x04
-    db 0adh                 ;2d94  ad          DATA 0xad
-    db 04h                  ;2d95  04          DATA 0x04
-    db 21h                  ;2d96  21          DATA 0x21 '!'
-    db 9bh                  ;2d97  9b          DATA 0x9b
-    db 0d5h                 ;2d98  d5          DATA 0xd5
-    db 2dh                  ;2d99  2d          DATA 0x2d '-'
-    db 0f0h                 ;2d9a  f0          DATA 0xf0
-    db 0d5h                 ;2d9b  d5          DATA 0xd5
-    db 5dh                  ;2d9c  5d          DATA 0x5d ']'
-    db 0f0h                 ;2d9d  f0          DATA 0xf0
-    db 2ch                  ;2d9e  2c          DATA 0x2c ','
-    db 9eh                  ;2d9f  9e          DATA 0x9e
-    db 16h                  ;2da0  16          DATA 0x16
-    db 0e0h                 ;2da1  e0          DATA 0xe0
-    db 0afh                 ;2da2  af          DATA 0xaf
-    db 0a3h                 ;2da3  a3          DATA 0xa3
-    db 03h                  ;2da4  03          DATA 0x03
-    db 31h                  ;2da5  31          DATA 0x31 '1'
-    db 4bh                  ;2da6  4b          DATA 0x4b 'K'
-    db 0adh                 ;2da7  ad          DATA 0xad
-    db 1bh                  ;2da8  1b          DATA 0x1b
-    db 8bh                  ;2da9  8b          DATA 0x8b
-    db 0fah                 ;2daa  fa          DATA 0xfa
-    db 21h                  ;2dab  21          DATA 0x21 '!'
-    db 9bh                  ;2dac  9b          DATA 0x9b
-    db 0d5h                 ;2dad  d5          DATA 0xd5
-    db 2dh                  ;2dae  2d          DATA 0x2d '-'
-    db 0f0h                 ;2daf  f0          DATA 0xf0
-    db 0d5h                 ;2db0  d5          DATA 0xd5
-    db 5dh                  ;2db1  5d          DATA 0x5d ']'
-    db 0f0h                 ;2db2  f0          DATA 0xf0
-    db 2ch                  ;2db3  2c          DATA 0x2c ','
-    db 9eh                  ;2db4  9e          DATA 0x9e
-    db 16h                  ;2db5  16          DATA 0x16
-    db 0e5h                 ;2db6  e5          DATA 0xe5
-    db 0afh                 ;2db7  af          DATA 0xaf
-    db 0a3h                 ;2db8  a3          DATA 0xa3
-    db 02h                  ;2db9  02          DATA 0x02
-    db 31h                  ;2dba  31          DATA 0x31 '1'
-    db 4bh                  ;2dbb  4b          DATA 0x4b 'K'
-    db 0adh                 ;2dbc  ad          DATA 0xad
-    db 06h                  ;2dbd  06          DATA 0x06
-    db 8bh                  ;2dbe  8b          DATA 0x8b
-    db 0fah                 ;2dbf  fa          DATA 0xfa
-    db 21h                  ;2dc0  21          DATA 0x21 '!'
-    db 9bh                  ;2dc1  9b          DATA 0x9b
-    db 0d5h                 ;2dc2  d5          DATA 0xd5
-    db 2dh                  ;2dc3  2d          DATA 0x2d '-'
-    db 0f0h                 ;2dc4  f0          DATA 0xf0
-    db 0d5h                 ;2dc5  d5          DATA 0xd5
-    db 5dh                  ;2dc6  5d          DATA 0x5d ']'
-    db 0fh                  ;2dc7  0f          DATA 0x0f
-    db 4dh                  ;2dc8  4d          DATA 0x4d 'M'
-    db 05h                  ;2dc9  05          DATA 0x05
-    db 9dh                  ;2dca  9d          DATA 0x9d
-    db 09h                  ;2dcb  09          DATA 0x09
-    db 0f0h                 ;2dcc  f0          DATA 0xf0
-    db 0d6h                 ;2dcd  d6          DATA 0xd6
-    db 5dh                  ;2dce  5d          DATA 0x5d ']'
-    db 0fh                  ;2dcf  0f          DATA 0x0f
-    db 4dh                  ;2dd0  4d          DATA 0x4d 'M'
-    db 01h                  ;2dd1  01          DATA 0x01
-    db 9dh                  ;2dd2  9d          DATA 0x9d
-    db 01h                  ;2dd3  01          DATA 0x01
-    db 20h                  ;2dd4  20          DATA 0x20 ' '
-    db 0afh                 ;2dd5  af          DATA 0xaf
-    db 16h                  ;2dd6  16          DATA 0x16
-    db 8dh                  ;2dd7  8d          DATA 0x8d
-    db 0f0h                 ;2dd8  f0          DATA 0xf0
-    db 8eh                  ;2dd9  8e          DATA 0x8e
-    db 4ch                  ;2dda  4c          DATA 0x4c 'L'
-    db 0f0h                 ;2ddb  f0          DATA 0xf0
-    db 97h                  ;2ddc  97          DATA 0x97
-    db 86h                  ;2ddd  86          DATA 0x86
-    db 02h                  ;2dde  02          DATA 0x02
-    db 00h                  ;2ddf  00          DATA 0x00
-    db 0f0h                 ;2de0  f0          DATA 0xf0
-    db 97h                  ;2de1  97          DATA 0x97
-    db 86h                  ;2de2  86          DATA 0x86
-    db 60h                  ;2de3  60          DATA 0x60 '`'
-    db 97h                  ;2de4  97          DATA 0x97
-    db 0afh                 ;2de5  af          DATA 0xaf
-    db 0b3h                 ;2de6  b3          DATA 0xb3
-    db 96h                  ;2de7  96          DATA 0x96
-    db 73h                  ;2de8  73          DATA 0x73 's'
-    db 0a1h                 ;2de9  a1          DATA 0xa1
-    db 00h                  ;2dea  00          DATA 0x00
-    db 0a0h                 ;2deb  a0          DATA 0xa0
-    db 00h                  ;2dec  00          DATA 0x00
-    db 72h                  ;2ded  72          DATA 0x72 'r'
-    db 0abh                 ;2dee  ab          DATA 0xab
-    db 61h                  ;2def  61          DATA 0x61 'a'
-    db 00h                  ;2df0  00          DATA 0x00
-    db 62h                  ;2df1  62          DATA 0x62 'b'
-    db 2dh                  ;2df2  2d          DATA 0x2d '-'
-    db 00h                  ;2df3  00          DATA 0x00
-    db 8bh                  ;2df4  8b          DATA 0x8b
-    db 0f7h                 ;2df5  f7          DATA 0xf7
-    db 0b2h                 ;2df6  b2          DATA 0xb2
-    db 0afh                 ;2df7  af          DATA 0xaf
-    db 87h                  ;2df8  87          DATA 0x87
-    db 61h                  ;2df9  61          DATA 0x61 'a'
-    db 1ah                  ;2dfa  1a          DATA 0x1a
-    db 30h                  ;2dfb  30          DATA 0x30 '0'
-    db 0aeh                 ;2dfc  ae          DATA 0xae
-    db 01h                  ;2dfd  01          DATA 0x01
-    db 61h                  ;2dfe  61          DATA 0x61 'a'
-    db 3bh                  ;2dff  3b          DATA 0x3b ';'
-    db 30h                  ;2e00  30          DATA 0x30 '0'
-    db 61h                  ;2e01  61          DATA 0x61 'a'
-    db 0ch                  ;2e02  0c          DATA 0x0c
-    db 97h                  ;2e03  97          DATA 0x97
-    db 30h                  ;2e04  30          DATA 0x30 '0'
-    db 61h                  ;2e05  61          DATA 0x61 'a'
-    db 2dh                  ;2e06  2d          DATA 0x2d '-'
-    db 0beh                 ;2e07  be          DATA 0xbe
-    db 01h                  ;2e08  01          DATA 0x01
-    db 0afh                 ;2e09  af          DATA 0xaf
-    db 4dh                  ;2e0a  4d          DATA 0x4d 'M'
-    db 0ah                  ;2e0b  0a          DATA 0x0a
-    db 8dh                  ;2e0c  8d          DATA 0x8d
-    db 06h                  ;2e0d  06          DATA 0x06
-    db 1dh                  ;2e0e  1d          DATA 0x1d
-    db 0ah                  ;2e0f  0a          DATA 0x0a
-    db 0dh                  ;2e10  0d          DATA 0x0d
-    db 41h                  ;2e11  41          DATA 0x41 'A'
-    db 0fah                 ;2e12  fa          DATA 0xfa
-    db 02h                  ;2e13  02          DATA 0x02
-    db 0dh                  ;2e14  0d          DATA 0x0d
-    db 30h                  ;2e15  30          DATA 0x30 '0'
-    db 0afh                 ;2e16  af          DATA 0xaf
-    db 0fch                 ;2e17  fc          DATA 0xfc
-    db 0fbh                 ;2e18  fb          DATA 0xfb
-    db 04h                  ;2e19  04          DATA 0x04
-    db 31h                  ;2e1a  31          DATA 0x31 '1'
-    db 63h                  ;2e1b  63          DATA 0x63 'c'
-    db 0fbh                 ;2e1c  fb          DATA 0xfb
-    db 1ah                  ;2e1d  1a          DATA 0x1a
-    db 0a1h                 ;2e1e  a1          DATA 0xa1
-    db 0c0h                 ;2e1f  c0          DATA 0xc0
-    db 0c3h                 ;2e20  c3          DATA 0xc3
-    db 0a1h                 ;2e21  a1          DATA 0xa1
-    db 81h                  ;2e22  81          DATA 0x81
-    db 9eh                  ;2e23  9e          DATA 0x9e
-    db 52h                  ;2e24  52          DATA 0x52 'R'
-    db 0f0h                 ;2e25  f0          DATA 0xf0
-    db 0a1h                 ;2e26  a1          DATA 0xa1
-    db 12h                  ;2e27  12          DATA 0x12
-    db 9eh                  ;2e28  9e          DATA 0x9e
-    db 53h                  ;2e29  53          DATA 0x53 'S'
-    db 0f0h                 ;2e2a  f0          DATA 0xf0
-    db 0a1h                 ;2e2b  a1          DATA 0xa1
-    db 0f0h                 ;2e2c  f0          DATA 0xf0
-    db 9eh                  ;2e2d  9e          DATA 0x9e
-    db 54h                  ;2e2e  54          DATA 0x54 'T'
-    db 0f0h                 ;2e2f  f0          DATA 0xf0
-    db 2ah                  ;2e30  2a          DATA 0x2a '*'
-    db 61h                  ;2e31  61          DATA 0x61 'a'
-    db 11h                  ;2e32  11          DATA 0x11
-    db 27h                  ;2e33  27          DATA 0x27 '''
-    db 03h                  ;2e34  03          DATA 0x03
-    db 9ah                  ;2e35  9a          DATA 0x9a
-    db 5dh                  ;2e36  5d          DATA 0x5d ']'
-    db 2eh                  ;2e37  2e          DATA 0x2e '.'
-    db 0a1h                 ;2e38  a1          DATA 0xa1
-    db 40h                  ;2e39  40          DATA 0x40 '@'
-    db 9eh                  ;2e3a  9e          DATA 0x9e
-    db 01h                  ;2e3b  01          DATA 0x01
-    db 0fbh                 ;2e3c  fb          DATA 0xfb
-    db 0a1h                 ;2e3d  a1          DATA 0xa1
-    db 01h                  ;2e3e  01          DATA 0x01
-    db 0c7h                 ;2e3f  c7          DATA 0xc7
-    db 31h                  ;2e40  31          DATA 0x31 '1'
-    db 53h                  ;2e41  53          DATA 0x53 'S'
-    db 60h                  ;2e42  60          DATA 0x60 '`'
-    db 07h                  ;2e43  07          DATA 0x07
-    db 31h                  ;2e44  31          DATA 0x31 '1'
-    db 43h                  ;2e45  43          DATA 0x43 'C'
-    db 60h                  ;2e46  60          DATA 0x60 '`'
-    db 03h                  ;2e47  03          DATA 0x03
-    db 9ah                  ;2e48  9a          DATA 0x9a
-    db 0ah                  ;2e49  0a          DATA 0x0a
-    db 2fh                  ;2e4a  2f          DATA 0x2f '/'
-    db 0f0h                 ;2e4b  f0          DATA 0xf0
-    db 25h                  ;2e4c  25          DATA 0x25 '%'
-    db 73h                  ;2e4d  73          DATA 0x73 's'
-    db 16h                  ;2e4e  16          DATA 0x16
-    db 1ah                  ;2e4f  1a          DATA 0x1a
-    db 0b0h                 ;2e50  b0          DATA 0xb0
-    db 4ch                  ;2e51  4c          DATA 0x4c 'L'
-    db 48h                  ;2e52  48          DATA 0x48 'H'
-    db 8dh                  ;2e53  8d          DATA 0x8d
-    db 08h                  ;2e54  08          DATA 0x08
-    db 10h                  ;2e55  10          DATA 0x10
-    db 5ch                  ;2e56  5c          DATA 0x5c '\'
-    db 2eh                  ;2e57  2e          DATA 0x2e '.'
-    db 0b1h                 ;2e58  b1          DATA 0xb1
-    db 0c4h                 ;2e59  c4          DATA 0xc4
-    db 31h                  ;2e5a  31          DATA 0x31 '1'
-    db 98h                  ;2e5b  98          DATA 0x98
-    db 0afh                 ;2e5c  af          DATA 0xaf
-    db 0a1h                 ;2e5d  a1          DATA 0xa1
-    db 00h                  ;2e5e  00          DATA 0x00
-    db 9eh                  ;2e5f  9e          DATA 0x9e
-    db 66h                  ;2e60  66          DATA 0x66 'f'
-    db 0f0h                 ;2e61  f0          DATA 0xf0
-    db 11h                  ;2e62  11          DATA 0x11
-    db 25h                  ;2e63  25          DATA 0x25 '%'
-    db 00h                  ;2e64  00          DATA 0x00
-    db 0f2h                 ;2e65  f2          DATA 0xf2
-    db 26h                  ;2e66  26          DATA 0x26 '&'
-    db 6bh                  ;2e67  6b          DATA 0x6b 'k'
-    db 60h                  ;2e68  60          DATA 0x60 '`'
-    db 7bh                  ;2e69  7b          DATA 0x7b '{'
-    db 60h                  ;2e6a  60          DATA 0x60 '`'
-    db 0afh                 ;2e6b  af          DATA 0xaf
-    db 0a3h                 ;2e6c  a3          DATA 0xa3
-    db 13h                  ;2e6d  13          DATA 0x13
-    db 16h                  ;2e6e  16          DATA 0x16
-    db 51h                  ;2e6f  51          DATA 0x51 'Q'
-    db 0f0h                 ;2e70  f0          DATA 0xf0
-    db 0a0h                 ;2e71  a0          DATA 0xa0
-    db 00h                  ;2e72  00          DATA 0x00
-    db 0abh                 ;2e73  ab          DATA 0xab
-    db 61h                  ;2e74  61          DATA 0x61 'a'
-    db 70h                  ;2e75  70          DATA 0x70 'p'
-    db 8bh                  ;2e76  8b          DATA 0x8b
-    db 0fbh                 ;2e77  fb          DATA 0xfb
-    db 60h                  ;2e78  60          DATA 0x60 '`'
-    db 51h                  ;2e79  51          DATA 0x51 'Q'
-    db 9eh                  ;2e7a  9e          DATA 0x9e
-    db 65h                  ;2e7b  65          DATA 0x65 'e'
-    db 0f0h                 ;2e7c  f0          DATA 0xf0
-    db 0afh                 ;2e7d  af          DATA 0xaf
-    db 0a3h                 ;2e7e  a3          DATA 0xa3
-    db 10h                  ;2e7f  10          DATA 0x10
-    db 16h                  ;2e80  16          DATA 0x16
-    db 55h                  ;2e81  55          DATA 0x55 'U'
-    db 0f0h                 ;2e82  f0          DATA 0xf0
-    db 0a1h                 ;2e83  a1          DATA 0xa1
-    db 20h                  ;2e84  20          DATA 0x20 ' '
-    db 4ch                  ;2e85  4c          DATA 0x4c 'L'
-    db 0dch                 ;2e86  dc          DATA 0xdc
-    db 0afh                 ;2e87  af          DATA 0xaf
-    db 0a3h                 ;2e88  a3          DATA 0xa3
-    db 10h                  ;2e89  10          DATA 0x10
-    db 16h                  ;2e8a  16          DATA 0x16
-    db 55h                  ;2e8b  55          DATA 0x55 'U'
-    db 0f0h                 ;2e8c  f0          DATA 0xf0
-    db 4ch                  ;2e8d  4c          DATA 0x4c 'L'
-    db 0dah                 ;2e8e  da          DATA 0xda
-    db 0afh                 ;2e8f  af          DATA 0xaf
-    db 9ah                  ;2e90  9a          DATA 0x9a
-    db 0fch                 ;2e91  fc          DATA 0xfc
-    db 2eh                  ;2e92  2e          DATA 0x2e '.'
-    db 0bdh                 ;2e93  bd          DATA 0xbd
-    db 05h                  ;2e94  05          DATA 0x05
-    db 9ah                  ;2e95  9a          DATA 0x9a
-    db 88h                  ;2e96  88          DATA 0x88
-    db 2eh                  ;2e97  2e          DATA 0x2e '.'
-    db 20h                  ;2e98  20          DATA 0x20 ' '
-    db 0afh                 ;2e99  af          DATA 0xaf
-    db 0a1h                 ;2e9a  a1          DATA 0xa1
-    db 02h                  ;2e9b  02          DATA 0x02
-    db 16h                  ;2e9c  16          DATA 0x16
-    db 9ah                  ;2e9d  9a          DATA 0x9a
-    db 0f1h                 ;2e9e  f1          DATA 0xf1
-    db 14h                  ;2e9f  14          DATA 0x14
-    db 55h                  ;2ea0  55          DATA 0x55 'U'
-    db 0f0h                 ;2ea1  f0          DATA 0xf0
-    db 4ch                  ;2ea2  4c          DATA 0x4c 'L'
-    db 9eh                  ;2ea3  9e          DATA 0x9e
-    db 0c8h                 ;2ea4  c8          DATA 0xc8
-    db 30h                  ;2ea5  30          DATA 0x30 '0'
-    db 01h                  ;2ea6  01          DATA 0x01
-    db 0adh                 ;2ea7  ad          DATA 0xad
-    db 0ch                  ;2ea8  0c          DATA 0x0c
-    db 0a1h                 ;2ea9  a1          DATA 0xa1
-    db 02h                  ;2eaa  02          DATA 0x02
-    db 16h                  ;2eab  16          DATA 0x16
-    db 9ch                  ;2eac  9c          DATA 0x9c
-    db 0f1h                 ;2ead  f1          DATA 0xf1
-    db 14h                  ;2eae  14          DATA 0x14
-    db 57h                  ;2eaf  57          DATA 0x57 'W'
-    db 0f0h                 ;2eb0  f0          DATA 0xf0
-    db 4ch                  ;2eb1  4c          DATA 0x4c 'L'
-    db 9eh                  ;2eb2  9e          DATA 0x9e
-    db 0fah                 ;2eb3  fa          DATA 0xfa
-    db 27h                  ;2eb4  27          DATA 0x27 '''
-    db 9ah                  ;2eb5  9a          DATA 0x9a
-    db 00h                  ;2eb6  00          DATA 0x00
-    db 08h                  ;2eb7  08          DATA 0x08
-    db 4dh                  ;2eb8  4d          DATA 0x4d 'M'
-    db 02h                  ;2eb9  02          DATA 0x02
-    db 8eh                  ;2eba  8e          DATA 0x8e
-    db 9ch                  ;2ebb  9c          DATA 0x9c
-    db 0f1h                 ;2ebc  f1          DATA 0xf1
-    db 0adh                 ;2ebd  ad          DATA 0xad
-    db 06h                  ;2ebe  06          DATA 0x06
-    db 4dh                  ;2ebf  4d          DATA 0x4d 'M'
-    db 20h                  ;2ec0  20          DATA 0x20 ' '
-    db 9dh                  ;2ec1  9d          DATA 0x9d
-    db 02h                  ;2ec2  02          DATA 0x02
-    db 0dh                  ;2ec3  0d          DATA 0x0d
-    db 31h                  ;2ec4  31          DATA 0x31 '1'
-    db 9eh                  ;2ec5  9e          DATA 0x9e
-    db 57h                  ;2ec6  57          DATA 0x57 'W'
-    db 0f0h                 ;2ec7  f0          DATA 0xf0
-    db 8eh                  ;2ec8  8e          DATA 0x8e
-    db 9dh                  ;2ec9  9d          DATA 0x9d
-    db 0f1h                 ;2eca  f1          DATA 0xf1
-    db 16h                  ;2ecb  16          DATA 0x16
-    db 58h                  ;2ecc  58          DATA 0x58 'X'
-    db 0f0h                 ;2ecd  f0          DATA 0xf0
-    db 31h                  ;2ece  31          DATA 0x31 '1'
-    db 23h                  ;2ecf  23          DATA 0x23 '#'
-    db 5ch                  ;2ed0  5c          DATA 0x5c '\'
-    db 09h                  ;2ed1  09          DATA 0x09
-    db 4dh                  ;2ed2  4d          DATA 0x4d 'M'
-    db 20h                  ;2ed3  20          DATA 0x20 ' '
-    db 9dh                  ;2ed4  9d          DATA 0x9d
-    db 05h                  ;2ed5  05          DATA 0x05
-    db 0dh                  ;2ed6  0d          DATA 0x0d
-    db 2fh                  ;2ed7  2f          DATA 0x2f '/'
-    db 16h                  ;2ed8  16          DATA 0x16
-    db 59h                  ;2ed9  59          DATA 0x59 'Y'
-    db 0f0h                 ;2eda  f0          DATA 0xf0
-    db 97h                  ;2edb  97          DATA 0x97
-    db 0a1h                 ;2edc  a1          DATA 0xa1
-    db 03h                  ;2edd  03          DATA 0x03
-    db 16h                  ;2ede  16          DATA 0x16
-    db 9eh                  ;2edf  9e          DATA 0x9e
-    db 0f1h                 ;2ee0  f1          DATA 0xf1
-    db 14h                  ;2ee1  14          DATA 0x14
-    db 5dh                  ;2ee2  5d          DATA 0x5d ']'
-    db 0f0h                 ;2ee3  f0          DATA 0xf0
-    db 4ch                  ;2ee4  4c          DATA 0x4c 'L'
-    db 9eh                  ;2ee5  9e          DATA 0x9e
-    db 31h                  ;2ee6  31          DATA 0x31 '1'
-    db 53h                  ;2ee7  53          DATA 0x53 'S'
-    db 39h                  ;2ee8  39          DATA 0x39 '9'
-    db 04h                  ;2ee9  04          DATA 0x04
-    db 0a1h                 ;2eea  a1          DATA 0xa1
-    db 2eh                  ;2eeb  2e          DATA 0x2e '.'
-    db 95h                  ;2eec  95          DATA 0x95
-    db 84h                  ;2eed  84          DATA 0x84
-    db 0a1h                 ;2eee  a1          DATA 0xa1
-    db 04h                  ;2eef  04          DATA 0x04
-    db 4ch                  ;2ef0  4c          DATA 0x4c 'L'
-    db 9eh                  ;2ef1  9e          DATA 0x9e
-    db 0a3h                 ;2ef2  a3          DATA 0xa3
-    db 10h                  ;2ef3  10          DATA 0x10
-    db 16h                  ;2ef4  16          DATA 0x16
-    db 54h                  ;2ef5  54          DATA 0x54 'T'
-    db 0f0h                 ;2ef6  f0          DATA 0xf0
-    db 9ah                  ;2ef7  9a          DATA 0x9a
-    db 6fh                  ;2ef8  6f          DATA 0x6f 'o'
-    db 30h                  ;2ef9  30          DATA 0x30 '0'
-    db 21h                  ;2efa  21          DATA 0x21 '!'
-    db 0afh                 ;2efb  af          DATA 0xaf
-    db 0a3h                 ;2efc  a3          DATA 0xa3
-    db 0bh                  ;2efd  0b          DATA 0x0b
-    db 16h                  ;2efe  16          DATA 0x16
-    db 99h                  ;2eff  99          DATA 0x99
-    db 0f1h                 ;2f00  f1          DATA 0xf1
-    db 0a1h                 ;2f01  a1          DATA 0xa1
-    db 20h                  ;2f02  20          DATA 0x20 ' '
-    db 31h                  ;2f03  31          DATA 0x31 '1'
-    db 4bh                  ;2f04  4b          DATA 0x4b 'K'
-    db 0bdh                 ;2f05  bd          DATA 0xbd
-    db 02h                  ;2f06  02          DATA 0x02
-    db 8bh                  ;2f07  8b          DATA 0x8b
-    db 0fah                 ;2f08  fa          DATA 0xfa
-    db 0afh                 ;2f09  af          DATA 0xaf
-    db 4bh                  ;2f0a  4b          DATA 0x4b 'K'
-    db 60h                  ;2f0b  60          DATA 0x60 '`'
-    db 0a1h                 ;2f0c  a1          DATA 0xa1
-    db 00h                  ;2f0d  00          DATA 0x00
-    db 83h                  ;2f0e  83          DATA 0x83
-    db 26h                  ;2f0f  26          DATA 0x26 '&'
-    db 0a2h                 ;2f10  a2          DATA 0xa2
-    db 09h                  ;2f11  09          DATA 0x09
-    db 0a3h                 ;2f12  a3          DATA 0xa3
-    db 00h                  ;2f13  00          DATA 0x00
-    db 16h                  ;2f14  16          DATA 0x16
-    db 09h                  ;2f15  09          DATA 0x09
-    db 0b0h                 ;2f16  b0          DATA 0xb0
-    db 70h                  ;2f17  70          DATA 0x70 'p'
-    db 0abh                 ;2f18  ab          DATA 0xab
-    db 0f2h                 ;2f19  f2          DATA 0xf2
-    db 0d4h                 ;2f1a  d4          DATA 0xd4
-    db 5dh                  ;2f1b  5d          DATA 0x5d ']'
-    db 0fh                  ;2f1c  0f          DATA 0x0f
-    db 61h                  ;2f1d  61          DATA 0x61 'a'
-    db 48h                  ;2f1e  48          DATA 0x48 'H'
-    db 0adh                 ;2f1f  ad          DATA 0xad
-    db 04h                  ;2f20  04          DATA 0x04
-    db 43h                  ;2f21  43          DATA 0x43 'C'
-    db 8ah                  ;2f22  8a          DATA 0x8a
-    db 0f4h                 ;2f23  f4          DATA 0xf4
-    db 0afh                 ;2f24  af          DATA 0xaf
-    db 0f0h                 ;2f25  f0          DATA 0xf0
-    db 0d4h                 ;2f26  d4          DATA 0xd4
-    db 5dh                  ;2f27  5d          DATA 0x5d ']'
-    db 0f0h                 ;2f28  f0          DATA 0xf0
-    db 2ch                  ;2f29  2c          DATA 0x2c ','
-    db 9eh                  ;2f2a  9e          DATA 0x9e
-    db 73h                  ;2f2b  73          DATA 0x73 's'
-    db 16h                  ;2f2c  16          DATA 0x16
-    db 13h                  ;2f2d  13          DATA 0x13
-    db 0b0h                 ;2f2e  b0          DATA 0xb0
-    db 4ch                  ;2f2f  4c          DATA 0x4c 'L'
-    db 48h                  ;2f30  48          DATA 0x48 'H'
-    db 10h                  ;2f31  10          DATA 0x10
-    db 38h                  ;2f32  38          DATA 0x38 '8'
-    db 2fh                  ;2f33  2f          DATA 0x2f '/'
-    db 0b1h                 ;2f34  b1          DATA 0xb1
-    db 0c4h                 ;2f35  c4          DATA 0xc4
-    db 31h                  ;2f36  31          DATA 0x31 '1'
-    db 98h                  ;2f37  98          DATA 0x98
-    db 0afh                 ;2f38  af          DATA 0xaf
-    db 3ah                  ;2f39  3a          DATA 0x3a ':'
-    db 60h                  ;2f3a  60          DATA 0x60 '`'
-    db 1bh                  ;2f3b  1b          DATA 0x1b
-    db 61h                  ;2f3c  61          DATA 0x61 'a'
-    db 0afh                 ;2f3d  af          DATA 0xaf
-    db 3ah                  ;2f3e  3a          DATA 0x3a ':'
-    db 60h                  ;2f3f  60          DATA 0x60 '`'
-    db 1bh                  ;2f40  1b          DATA 0x1b
-    db 61h                  ;2f41  61          DATA 0x61 'a'
-    db 0afh                 ;2f42  af          DATA 0xaf
-    db 3ah                  ;2f43  3a          DATA 0x3a ':'
-    db 60h                  ;2f44  60          DATA 0x60 '`'
-    db 1bh                  ;2f45  1b          DATA 0x1b
-    db 61h                  ;2f46  61          DATA 0x61 'a'
-    db 0afh                 ;2f47  af          DATA 0xaf
+lab_2d44:
+    movw mem_fed4,#0000h    ;2d44  ee d4 00 00
+    mov mem_fed6,#00h       ;2d48  11 d6 00
+    mov b,#10h              ;2d4b  a3 10
+
+lab_2d4d:
+    xch a,x                 ;2d4d  30
+    rolc a,1                ;2d4e  27
+    xch a,x                 ;2d4f  30
+    rolc a,1                ;2d50  27
+    push ax                 ;2d51  b1
+    mov a,mem_fed4          ;2d52  f0 d4
+    addc a,mem_fed4         ;2d54  2e d4
+    adjba                   ;2d56  61 80
+    mov mem_fed4,a          ;2d58  f2 d4
+    mov a,mem_fed5          ;2d5a  f0 d5
+    addc a,mem_fed5         ;2d5c  2e d5
+    adjba                   ;2d5e  61 80
+    mov mem_fed5,a          ;2d60  f2 d5
+    mov a,mem_fed6          ;2d62  f0 d6
+    addc a,mem_fed6         ;2d64  2e d6
+    adjba                   ;2d66  61 80
+    mov mem_fed6,a          ;2d68  f2 d6
+    pop ax                  ;2d6a  b0
+    dbnz b,$lab_2d4d        ;2d6b  8b e0
+    ret                     ;2d6d  af
+
+lab_2d6e:
+    mov a,mem_fed4          ;2d6e  f0 d4
+    and a,#0fh              ;2d70  5d 0f
+    cmp a,#08h              ;2d72  4d 08
+    bnc $lab_2dd5           ;2d74  9d 5f
+    cmp a,#04h              ;2d76  4d 04
+    bc $lab_2d80            ;2d78  8d 06
+    mov a,!mem_f1e9         ;2d7a  8e e9 f1
+    bt a.0,$lab_2dd5        ;2d7d  31 0e 55
+
+lab_2d80:
+    mov a,mem_fed4          ;2d80  f0 d4
+    and a,#0f0h             ;2d82  5d f0
+    callf !sub_0a9e         ;2d84  2c 9e
+    cmp a,#05h              ;2d86  4d 05
+    bnc $lab_2dd5           ;2d88  9d 4b
+    cmp a,#00h              ;2d8a  4d 00
+    bz $lab_2dc4            ;2d8c  ad 36
+    cmp a,#03h              ;2d8e  4d 03
+    bz $lab_2daf            ;2d90  ad 1d
+    cmp a,#04h              ;2d92  4d 04
+    bz $lab_2d9a            ;2d94  ad 04
+    clr1 cy                 ;2d96  21
+    br !lab_2dd5            ;2d97  9b d5 2d
+
+lab_2d9a:
+    mov a,mem_fed5          ;2d9a  f0 d5
+    and a,#0f0h             ;2d9c  5d f0
+    callf !sub_0a9e         ;2d9e  2c 9e
+    movw hl,#0afe0h         ;2da0  16 e0 af
+
+lab_2da3:
+    mov b,#03h              ;2da3  a3 03
+
+lab_2da5:
+    cmp a,[hl+b]            ;2da5  31 4b
+    bz $lab_2dc4            ;2da7  ad 1b
+    dbnz b,$lab_2da5        ;2da9  8b fa
+    clr1 cy                 ;2dab  21
+    br !lab_2dd5            ;2dac  9b d5 2d
+
+lab_2daf:
+    mov a,mem_fed5          ;2daf  f0 d5
+    and a,#0f0h             ;2db1  5d f0
+    callf !sub_0a9e         ;2db3  2c 9e
+    movw hl,#0afe5h         ;2db5  16 e5 af
+
+lab_2db8:
+    mov b,#02h              ;2db8  a3 02
+
+lab_2dba:
+    cmp a,[hl+b]            ;2dba  31 4b
+    bz $lab_2dc4            ;2dbc  ad 06
+    dbnz b,$lab_2dba        ;2dbe  8b fa
+    clr1 cy                 ;2dc0  21
+    br !lab_2dd5            ;2dc1  9b d5 2d
+
+lab_2dc4:
+    mov a,mem_fed5          ;2dc4  f0 d5
+    and a,#0fh              ;2dc6  5d 0f
+    cmp a,#05h              ;2dc8  4d 05
+    bnc $lab_2dd5           ;2dca  9d 09
+    mov a,mem_fed6          ;2dcc  f0 d6
+    and a,#0fh              ;2dce  5d 0f
+    cmp a,#01h              ;2dd0  4d 01
+    bnc $lab_2dd5           ;2dd2  9d 01
+    set1 cy                 ;2dd4  20
+
+lab_2dd5:
+    ret                     ;2dd5  af
+
+lab_2dd6:
+    movw hl,#0f08dh         ;2dd6  16 8d f0
+    mov a,!mem_f04c         ;2dd9  8e 4c f0
+    mov [hl],a              ;2ddc  97
+    incw hl                 ;2ddd  86
+    movw ax,!0f000h         ;2dde  02 00 f0
+    mov [hl],a              ;2de1  97
+    incw hl                 ;2de2  86
+    mov a,x                 ;2de3  60
+    mov [hl],a              ;2de4  97
+    ret                     ;2de5  af
+
+lab_2de6:
+    push bc                 ;2de6  b3
+    decw hl                 ;2de7  96
+    mov b,a                 ;2de8  73
+    mov a,#00h              ;2de9  a1 00
+    mov x,#00h              ;2deb  a0 00
+
+lab_2ded:
+    mov c,a                 ;2ded  72
+    mov a,[hl+b]            ;2dee  ab
+    add x,a                 ;2def  61 00
+    mov a,c                 ;2df1  62
+    addc a,#00h             ;2df2  2d 00
+    dbnz b,$lab_2ded        ;2df4  8b f7
+    pop bc                  ;2df6  b2
+    ret                     ;2df7  af
+
+lab_2df8:
+    mov a,[hl]              ;2df8  87
+    sub a,c                 ;2df9  61 1a
+    xch a,x                 ;2dfb  30
+    mov a,[hl+01h]          ;2dfc  ae 01
+    subc a,b                ;2dfe  61 3b
+    xch a,x                 ;2e00  30
+    add a,e                 ;2e01  61 0c
+    mov [hl],a              ;2e03  97
+    xch a,x                 ;2e04  30
+    addc a,d                ;2e05  61 2d
+    mov [hl+01h],a          ;2e07  be 01
+    ret                     ;2e09  af
+
+lab_2e0a:
+    cmp a,#0ah              ;2e0a  4d 0a
+    bc $lab_2e14            ;2e0c  8d 06
+    sub a,#0ah              ;2e0e  1d 0a
+    add a,#41h              ;2e10  0d 41
+    br $lab_2e16            ;2e12  fa 02
+
+lab_2e14:
+    add a,#30h              ;2e14  0d 30
+
+lab_2e16:
+    ret                     ;2e16  af
+
+lab_2e17:
+    bt mem_fefb.7,$lab_2e1e ;2e17  fc fb 04
+    bf mem_fefb.6,$lab_2e38 ;2e1a  31 63 fb 1a
+
+lab_2e1e:
+    mov a,#0c0h             ;2e1e  a1 c0
+    callt [0042h]           ;2e20  c3
+    mov a,#81h              ;2e21  a1 81
+    mov !mem_f052,a         ;2e23  9e 52 f0
+    mov a,#12h              ;2e26  a1 12
+    mov !mem_f053,a         ;2e28  9e 53 f0
+    mov a,#0f0h             ;2e2b  a1 f0
+    mov !mem_f054,a         ;2e2d  9e 54 f0
+    set1 mem_fe61.2         ;2e30  2a 61
+    mov mem_fe27,#03h       ;2e32  11 27 03
+    call !sub_2e5d          ;2e35  9a 5d 2e
+
+lab_2e38:
+    mov a,#40h              ;2e38  a1 40
+    mov !mem_fb01,a         ;2e3a  9e 01 fb
+    mov a,#01h              ;2e3d  a1 01
+    callt [0046h]           ;2e3f  c7
+    bf mem_fe60.5,$lab_2e4b ;2e40  31 53 60 07
+    bf mem_fe60.4,$lab_2e4b ;2e44  31 43 60 03
+    call !sub_2f0a          ;2e48  9a 0a 2f
+
+lab_2e4b:
+    mov a,mem_fe25          ;2e4b  f0 25
+    mov b,a                 ;2e4d  73
+    movw hl,#0b01ah         ;2e4e  16 1a b0
+    callf !sub_0c48         ;2e51  4c 48
+    bc $sub_2e5d            ;2e53  8d 08
+    movw ax,#2e5ch          ;2e55  10 5c 2e
+    push ax                 ;2e58  b1
+    movw ax,de              ;2e59  c4
+    br ax                   ;2e5a  31 98
+    ret                     ;2e5c  af
+
+sub_2e5d:
+    mov a,#00h              ;2e5d  a1 00
+    mov !mem_f066,a         ;2e5f  9e 66 f0
+    mov mem_fe25,#00h       ;2e62  11 25 00
+    mov mem_fe26,a          ;2e65  f2 26
+    clr1 mem_fe60.6         ;2e67  6b 60
+    clr1 mem_fe60.7         ;2e69  7b 60
+    ret                     ;2e6b  af
+
+sub_2e6c:
+    mov b,#13h              ;2e6c  a3 13
+    movw hl,#0f051h         ;2e6e  16 51 f0
+    mov x,#00h              ;2e71  a0 00
+
+lab_2e73:
+    mov a,[hl+b]            ;2e73  ab
+    xor x,a                 ;2e74  61 70
+    dbnz b,$lab_2e73        ;2e76  8b fb
+    mov a,x                 ;2e78  60
+    dec a                   ;2e79  51
+    mov !mem_f065,a         ;2e7a  9e 65 f0
+    ret                     ;2e7d  af
+
+sub_2e7e:
+    mov b,#10h              ;2e7e  a3 10
+    movw hl,#0f055h         ;2e80  16 55 f0
+    mov a,#20h              ;2e83  a1 20
+    callf !sub_0cdc         ;2e85  4c dc
+    ret                     ;2e87  af
+
+sub_2e88:
+    mov b,#10h              ;2e88  a3 10
+    movw hl,#0f055h         ;2e8a  16 55 f0
+    callf !sub_0cda         ;2e8d  4c da
+    ret                     ;2e8f  af
+
+sub_2e90:
+    call !sub_2efc          ;2e90  9a fc 2e
+    bnz $lab_2e9a           ;2e93  bd 05
+    call !sub_2e88          ;2e95  9a 88 2e
+    set1 cy                 ;2e98  20
+    ret                     ;2e99  af
+
+lab_2e9a:
+    mov a,#02h              ;2e9a  a1 02
+    movw hl,#mem_f19a       ;2e9c  16 9a f1
+    movw de,#0f055h         ;2e9f  14 55 f0
+    callf !sub_0c9e         ;2ea2  4c 9e
+    cmp mem_fe30,#01h       ;2ea4  c8 30 01
+    bz $lab_2eb5            ;2ea7  ad 0c
+    mov a,#02h              ;2ea9  a1 02
+    movw hl,#mem_f19c       ;2eab  16 9c f1
+    movw de,#mem_f057       ;2eae  14 57 f0
+    callf !sub_0c9e         ;2eb1  4c 9e
+    br $lab_2edc            ;2eb3  fa 27
+
+lab_2eb5:
+    call !sub_0800          ;2eb5  9a 00 08
+    cmp a,#02h              ;2eb8  4d 02
+    mov a,!mem_f19c         ;2eba  8e 9c f1
+    bz $lab_2ec5            ;2ebd  ad 06
+    cmp a,#20h              ;2ebf  4d 20
+    bnc $lab_2ec5           ;2ec1  9d 02
+    add a,#31h              ;2ec3  0d 31
+
+lab_2ec5:
+    mov !mem_f057,a         ;2ec5  9e 57 f0
+    mov a,!mem_f19d         ;2ec8  8e 9d f1
+    movw hl,#0f058h         ;2ecb  16 58 f0
+    bf mem_fe5c.2,$lab_2edb ;2ece  31 23 5c 09
+    cmp a,#20h              ;2ed2  4d 20
+    bnc $lab_2edb           ;2ed4  9d 05
+    add a,#2fh              ;2ed6  0d 2f
+    movw hl,#0f059h         ;2ed8  16 59 f0
+
+lab_2edb:
+    mov [hl],a              ;2edb  97
+
+lab_2edc:
+    mov a,#03h              ;2edc  a1 03
+    movw hl,#0f19eh         ;2ede  16 9e f1
+    movw de,#0f05dh         ;2ee1  14 5d f0
+    callf !sub_0c9e         ;2ee4  4c 9e
+    bf mem_fe39.5,$lab_2eee ;2ee6  31 53 39 04
+    mov a,#2eh              ;2eea  a1 2e
+    mov [de],a              ;2eec  95
+    incw de                 ;2eed  84
+
+lab_2eee:
+    mov a,#04h              ;2eee  a1 04
+    callf !sub_0c9e         ;2ef0  4c 9e
+    mov b,#10h              ;2ef2  a3 10
+    movw hl,#mem_f054       ;2ef4  16 54 f0
+    call !sub_306f          ;2ef7  9a 6f 30
+    clr1 cy                 ;2efa  21
+    ret                     ;2efb  af
+
+sub_2efc:
+    mov b,#0bh              ;2efc  a3 0b
+    movw hl,#mem_f199       ;2efe  16 99 f1
+    mov a,#20h              ;2f01  a1 20
+
+lab_2f03:
+    cmp a,[hl+b]            ;2f03  31 4b
+    bnz $lab_2f09           ;2f05  bd 02
+    dbnz b,$lab_2f03        ;2f07  8b fa
+
+lab_2f09:
+    ret                     ;2f09  af
+
+sub_2f0a:
+    clr1 mem_fe60.4         ;2f0a  4b 60
+    mov a,#00h              ;2f0c  a1 00
+    xch a,mem_fe26          ;2f0e  83 26
+    mov c,#09h              ;2f10  a2 09
+    mov b,#00h              ;2f12  a3 00
+    movw hl,#0b009h         ;2f14  16 09 b0
+    mov x,a                 ;2f17  70
+
+lab_2f18:
+    mov a,[hl+b]            ;2f18  ab
+    mov mem_fed4,a          ;2f19  f2 d4
+    and a,#0fh              ;2f1b  5d 0f
+    cmp a,x                 ;2f1d  61 48
+    bz $lab_2f25            ;2f1f  ad 04
+    inc b                   ;2f21  43
+    dbnz c,$lab_2f18        ;2f22  8a f4
+    ret                     ;2f24  af
+
+lab_2f25:
+    mov a,mem_fed4          ;2f25  f0 d4
+    and a,#0f0h             ;2f27  5d f0
+    callf !sub_0a9e         ;2f29  2c 9e
+    mov b,a                 ;2f2b  73
+    movw hl,#0b013h         ;2f2c  16 13 b0
+    callf !sub_0c48         ;2f2f  4c 48
+    movw ax,#2f38h          ;2f31  10 38 2f
+    push ax                 ;2f34  b1
+    movw ax,de              ;2f35  c4
+    br ax                   ;2f36  31 98
+    ret                     ;2f38  af
+
+lab_2f39:
+    set1 mem_fe60.3         ;2f39  3a 60
+    clr1 mem_fe61.1         ;2f3b  1b 61
+    ret                     ;2f3d  af
+
+lab_2f3e:
+    set1 mem_fe60.3         ;2f3e  3a 60
+    clr1 mem_fe61.1         ;2f40  1b 61
+    ret                     ;2f42  af
+
+lab_2f43:
+    set1 mem_fe60.3         ;2f43  3a 60
+    clr1 mem_fe61.1         ;2f45  1b 61
+    ret                     ;2f47  af
 
 sub_2f48:
-    clr1 0feceh.3           ;2f48  3b ce
+    clr1 mem_fece.3         ;2f48  3b ce
     clr1 PM4_.3             ;2f4a  71 3b 24
-    mov a,0feceh            ;2f4d  f0 ce
+    mov a,mem_fece          ;2f4d  f0 ce
     mov P4_,a               ;2f4f  f2 04
-    clr1 0feceh.4           ;2f51  4b ce
+    clr1 mem_fece.4         ;2f51  4b ce
     clr1 PM4_.4             ;2f53  71 4b 24
-    mov a,0feceh            ;2f56  f0 ce
+    mov a,mem_fece          ;2f56  f0 ce
     mov P4_,a               ;2f58  f2 04
     callf !sub_0891         ;2f5a  0c 91
-    set1 0fe5eh.7           ;2f5c  7a 5e
-    clr1 0fe60h.7           ;2f5e  7b 60
+    set1 mem_fe5e.7         ;2f5c  7a 5e
+    clr1 mem_fe60.7         ;2f5e  7b 60
     ret                     ;2f60  af
 
-    db 0cch                 ;2f61  cc          DATA 0xcc
-    db 60h                  ;2f62  60          DATA 0x60 '`'
-    db 45h                  ;2f63  45          DATA 0x45 'E'
-    db 0bch                 ;2f64  bc          DATA 0xbc
-    db 60h                  ;2f65  60          DATA 0x60 '`'
-    db 04h                  ;2f66  04          DATA 0x04
-    db 31h                  ;2f67  31          DATA 0x31 '1'
-    db 13h                  ;2f68  13          DATA 0x13
-    db 61h                  ;2f69  61          DATA 0x61 'a'
-    db 3eh                  ;2f6a  3e          DATA 0x3e '>'
-    db 0dch                 ;2f6b  dc          DATA 0xdc
-    db 5fh                  ;2f6c  5f          DATA 0x5f '_'
-    db 27h                  ;2f6d  27          DATA 0x27 '''
-    db 31h                  ;2f6e  31          DATA 0x31 '1'
-    db 23h                  ;2f6f  23          DATA 0x23 '#'
-    db 6ah                  ;2f70  6a          DATA 0x6a 'j'
-    db 18h                  ;2f71  18          DATA 0x18
-    db 0c8h                 ;2f72  c8          DATA 0xc8
-    db 27h                  ;2f73  27          DATA 0x27 '''
-    db 00h                  ;2f74  00          DATA 0x00
-    db 0bdh                 ;2f75  bd          DATA 0xbd
-    db 02h                  ;2f76  02          DATA 0x02
-    db 0fah                 ;2f77  fa          DATA 0xfa
-    db 30h                  ;2f78  30          DATA 0x30 '0'
-    db 91h                  ;2f79  91          DATA 0x91
-    db 27h                  ;2f7a  27          DATA 0x27 '''
-    db 9ah                  ;2f7b  9a          DATA 0x9a
-    db 88h                  ;2f7c  88          DATA 0x88
-    db 2eh                  ;2f7d  2e          DATA 0x2e '.'
-    db 0fah                 ;2f7e  fa          DATA 0xfa
-    db 15h                  ;2f7f  15          DATA 0x15
-    db 0dch                 ;2f80  dc          DATA 0xdc
-    db 65h                  ;2f81  65          DATA 0x65 'e'
-    db 07h                  ;2f82  07          DATA 0x07
-    db 0bch                 ;2f83  bc          DATA 0xbc
-    db 2ch                  ;2f84  2c          DATA 0x2c ','
-    db 04h                  ;2f85  04          DATA 0x04
-    db 3bh                  ;2f86  3b          DATA 0x3b ';'
-    db 60h                  ;2f87  60          DATA 0x60 '`'
-    db 0fah                 ;2f88  fa          DATA 0xfa
-    db 1fh                  ;2f89  1f          DATA 0x1f
-    db 9ah                  ;2f8a  9a          DATA 0x9a
-    db 7eh                  ;2f8b  7e          DATA 0x7e '~'
-    db 2eh                  ;2f8c  2e          DATA 0x2e '.'
-    db 9ah                  ;2f8d  9a          DATA 0x9a
-    db 90h                  ;2f8e  90          DATA 0x90
-    db 2eh                  ;2f8f  2e          DATA 0x2e '.'
-    db 8dh                  ;2f90  8d          DATA 0x8d
-    db 17h                  ;2f91  17          DATA 0x17
-    db 11h                  ;2f92  11          DATA 0x11
-    db 27h                  ;2f93  27          DATA 0x27 '''
-    db 03h                  ;2f94  03          DATA 0x03
-    db 9ah                  ;2f95  9a          DATA 0x9a
-    db 6ch                  ;2f96  6c          DATA 0x6c 'l'
-    db 2eh                  ;2f97  2e          DATA 0x2e '.'
-    db 0ah                  ;2f98  0a          DATA 0x0a
-    db 61h                  ;2f99  61          DATA 0x61 'a'
-    db 3bh                  ;2f9a  3b          DATA 0x3b ';'
-    db 60h                  ;2f9b  60          DATA 0x60 '`'
-    db 10h                  ;2f9c  10          DATA 0x10
-    db 52h                  ;2f9d  52          DATA 0x52 'R'
-    db 0f0h                 ;2f9e  f0          DATA 0xf0
-    db 03h                  ;2f9f  03          DATA 0x03
-    db 06h                  ;2fa0  06          DATA 0x06
-    db 0f0h                 ;2fa1  f0          DATA 0xf0
-    db 0a1h                 ;2fa2  a1          DATA 0xa1
-    db 14h                  ;2fa3  14          DATA 0x14
-    db 9eh                  ;2fa4  9e          DATA 0x9e
-    db 66h                  ;2fa5  66          DATA 0x66 'f'
-    db 0f0h                 ;2fa6  f0          DATA 0xf0
-    db 0fah                 ;2fa7  fa          DATA 0xfa
-    db 01h                  ;2fa8  01          DATA 0x01
-    db 0afh                 ;2fa9  af          DATA 0xaf
-    db 11h                  ;2faa  11          DATA 0x11
-    db 25h                  ;2fab  25          DATA 0x25 '%'
-    db 01h                  ;2fac  01          DATA 0x01
-    db 21h                  ;2fad  21          DATA 0x21 '!'
-    db 31h                  ;2fae  31          DATA 0x31 '1'
-    db 71h                  ;2faf  71          DATA 0x71 'q'
-    db 5eh                  ;2fb0  5e          DATA 0x5e '^'
-    db 03h                  ;2fb1  03          DATA 0x03
-    db 20h                  ;2fb2  20          DATA 0x20 ' '
-    db 2ah                  ;2fb3  2a          DATA 0x2a '*'
-    db 7ch                  ;2fb4  7c          DATA 0x7c '|'
-    db 9dh                  ;2fb5  9d          DATA 0x9d
-    db 02h                  ;2fb6  02          DATA 0x02
-    db 0fah                 ;2fb7  fa          DATA 0xfa
-    db 74h                  ;2fb8  74          DATA 0x74 't'
-    db 8eh                  ;2fb9  8e          DATA 0x8e
-    db 66h                  ;2fba  66          DATA 0x66 'f'
-    db 0f0h                 ;2fbb  f0          DATA 0xf0
-    db 4dh                  ;2fbc  4d          DATA 0x4d 'M'
-    db 15h                  ;2fbd  15          DATA 0x15
-    db 8dh                  ;2fbe  8d          DATA 0x8d
-    db 03h                  ;2fbf  03          DATA 0x03
-    db 9bh                  ;2fc0  9b          DATA 0x9b
-    db 66h                  ;2fc1  66          DATA 0x66 'f'
-    db 30h                  ;2fc2  30          DATA 0x30 '0'
-    db 4dh                  ;2fc3  4d          DATA 0x4d 'M'
-    db 00h                  ;2fc4  00          DATA 0x00
-    db 0bdh                 ;2fc5  bd          DATA 0xbd
-    db 03h                  ;2fc6  03          DATA 0x03
-    db 9bh                  ;2fc7  9b          DATA 0x9b
-    db 66h                  ;2fc8  66          DATA 0x66 'f'
-    db 30h                  ;2fc9  30          DATA 0x30 '0'
-    db 6ah                  ;2fca  6a          DATA 0x6a 'j'
-    db 60h                  ;2fcb  60          DATA 0x60 '`'
-    db 7ah                  ;2fcc  7a          DATA 0x7a 'z'
-    db 60h                  ;2fcd  60          DATA 0x60 '`'
-    db 0ch                  ;2fce  0c          DATA 0x0c
-    db 91h                  ;2fcf  91          DATA 0x91
-    db 3ah                  ;2fd0  3a          DATA 0x3a ':'
-    db 0ceh                 ;2fd1  ce          DATA 0xce
-    db 71h                  ;2fd2  71          DATA 0x71 'q'
-    db 3bh                  ;2fd3  3b          DATA 0x3b ';'
-    db 24h                  ;2fd4  24          DATA 0x24 '$'
-    db 0f0h                 ;2fd5  f0          DATA 0xf0
-    db 0ceh                 ;2fd6  ce          DATA 0xce
-    db 0f2h                 ;2fd7  f2          DATA 0xf2
-    db 04h                  ;2fd8  04          DATA 0x04
-    db 31h                  ;2fd9  31          DATA 0x31 '1'
-    db 03h                  ;2fda  03          DATA 0x03
-    db 61h                  ;2fdb  61          DATA 0x61 'a'
-    db 17h                  ;2fdc  17          DATA 0x17
-    db 0bh                  ;2fdd  0b          DATA 0x0b
-    db 61h                  ;2fde  61          DATA 0x61 'a'
-    db 4ah                  ;2fdf  4a          DATA 0x4a 'J'
-    db 0ceh                 ;2fe0  ce          DATA 0xce
-    db 71h                  ;2fe1  71          DATA 0x71 'q'
-    db 4bh                  ;2fe2  4b          DATA 0x4b 'K'
-    db 24h                  ;2fe3  24          DATA 0x24 '$'
-    db 0f0h                 ;2fe4  f0          DATA 0xf0
-    db 0ceh                 ;2fe5  ce          DATA 0xce
-    db 0f2h                 ;2fe6  f2          DATA 0xf2
-    db 04h                  ;2fe7  04          DATA 0x04
-    db 0b3h                 ;2fe8  b3          DATA 0xb3
-    db 0a3h                 ;2fe9  a3          DATA 0xa3
-    db 0eh                  ;2fea  0e          DATA 0x0e
-    db 8bh                  ;2feb  8b          DATA 0x8b
-    db 0feh                 ;2fec  fe          DATA 0xfe
-    db 0b2h                 ;2fed  b2          DATA 0xb2
-    db 4bh                  ;2fee  4b          DATA 0x4b 'K'
-    db 0ceh                 ;2fef  ce          DATA 0xce
-    db 0f0h                 ;2ff0  f0          DATA 0xf0
-    db 0ceh                 ;2ff1  ce          DATA 0xce
-    db 0f2h                 ;2ff2  f2          DATA 0xf2
-    db 04h                  ;2ff3  04          DATA 0x04
-    db 71h                  ;2ff4  71          DATA 0x71 'q'
-    db 5bh                  ;2ff5  5b          DATA 0x5b '['
-    db 34h                  ;2ff6  34          DATA 0x34 '4'
-    db 71h                  ;2ff7  71          DATA 0x71 'q'
-    db 5ah                  ;2ff8  5a          DATA 0x5a 'Z'
-    db 24h                  ;2ff9  24          DATA 0x24 '$'
-    db 9ah                  ;2ffa  9a          DATA 0x9a
-    db 17h                  ;2ffb  17          DATA 0x17
-    db 26h                  ;2ffc  26          DATA 0x26 '&'
-    db 1ah                  ;2ffd  1a          DATA 0x1a
-    db 5fh                  ;2ffe  5f          DATA 0x5f '_'
-    db 71h                  ;2fff  71          DATA 0x71 'q'
-    db 4bh                  ;3000  4b          DATA 0x4b 'K'
-    db 0e1h                 ;3001  e1          DATA 0xe1
-    db 71h                  ;3002  71          DATA 0x71 'q'
-    db 4bh                  ;3003  4b          DATA 0x4b 'K'
-    db 0e5h                 ;3004  e5          DATA 0xe5
-    db 71h                  ;3005  71          DATA 0x71 'q'
-    db 4bh                  ;3006  4b          DATA 0x4b 'K'
-    db 0e9h                 ;3007  e9          DATA 0xe9
-    db 02h                  ;3008  02          DATA 0x02
-    db 06h                  ;3009  06          DATA 0x06
-    db 0f0h                 ;300a  f0          DATA 0xf0
-    db 0b1h                 ;300b  b1          DATA 0xb1
-    db 0a1h                 ;300c  a1          DATA 0xa1
-    db 01h                  ;300d  01          DATA 0x01
-    db 0b1h                 ;300e  b1          DATA 0xb1
-    db 61h                  ;300f  61          DATA 0x61 'a'
-    db 0f0h                 ;3010  f0          DATA 0xf0
-    db 0b2h                 ;3011  b2          DATA 0xb2
-    db 0b6h                 ;3012  b6          DATA 0xb6
-    db 0bh                  ;3013  0b          DATA 0x0b
-    db 5fh                  ;3014  5f          DATA 0x5f '_'
-    db 0a2h                 ;3015  a2          DATA 0xa2
-    db 01h                  ;3016  01          DATA 0x01
-    db 87h                  ;3017  87          DATA 0x87
-    db 7ah                  ;3018  7a          DATA 0x7a 'z'
-    db 1eh                  ;3019  1e          DATA 0x1e
-    db 0f2h                 ;301a  f2          DATA 0xf2
-    db 1ah                  ;301b  1a          DATA 0x1a
-    db 61h                  ;301c  61          DATA 0x61 'a'
-    db 0d0h                 ;301d  d0          DATA 0xd0
-    db 02h                  ;301e  02          DATA 0x02
-    db 06h                  ;301f  06          DATA 0x06
-    db 0f0h                 ;3020  f0          DATA 0xf0
-    db 80h                  ;3021  80          DATA 0x80
-    db 03h                  ;3022  03          DATA 0x03
-    db 06h                  ;3023  06          DATA 0x06
-    db 0f0h                 ;3024  f0          DATA 0xf0
-    db 11h                  ;3025  11          DATA 0x11
-    db 25h                  ;3026  25          DATA 0x25 '%'
-    db 02h                  ;3027  02          DATA 0x02
-    db 0a1h                 ;3028  a1          DATA 0xa1
-    db 03h                  ;3029  03          DATA 0x03
-    db 9eh                  ;302a  9e          DATA 0x9e
-    db 02h                  ;302b  02          DATA 0x02
-    db 0fbh                 ;302c  fb          DATA 0xfb
-    db 0afh                 ;302d  af          DATA 0xaf
-    db 71h                  ;302e  71          DATA 0x71 'q'
-    db 5bh                  ;302f  5b          DATA 0x5b '['
-    db 34h                  ;3030  34          DATA 0x34 '4'
-    db 71h                  ;3031  71          DATA 0x71 'q'
-    db 5ah                  ;3032  5a          DATA 0x5a 'Z'
-    db 24h                  ;3033  24          DATA 0x24 '$'
-    db 8eh                  ;3034  8e          DATA 0x8e
-    db 66h                  ;3035  66          DATA 0x66 'f'
-    db 0f0h                 ;3036  f0          DATA 0xf0
-    db 4dh                  ;3037  4d          DATA 0x4d 'M'
-    db 01h                  ;3038  01          DATA 0x01
-    db 0adh                 ;3039  ad          DATA 0xad
-    db 2bh                  ;303a  2b          DATA 0x2b '+'
-    db 31h                  ;303b  31          DATA 0x31 '1'
-    db 53h                  ;303c  53          DATA 0x53 'S'
-    db 04h                  ;303d  04          DATA 0x04
-    db 0ch                  ;303e  0c          DATA 0x0c
-    db 51h                  ;303f  51          DATA 0x51 'Q'
-    db 9eh                  ;3040  9e          DATA 0x9e
-    db 66h                  ;3041  66          DATA 0x66 'f'
-    db 0f0h                 ;3042  f0          DATA 0xf0
-    db 0a1h                 ;3043  a1          DATA 0xa1
-    db 0ah                  ;3044  0a          DATA 0x0a
-    db 9eh                  ;3045  9e          DATA 0x9e
-    db 67h                  ;3046  67          DATA 0x67 'g'
-    db 0f0h                 ;3047  f0          DATA 0xf0
-    db 9bh                  ;3048  9b          DATA 0x9b
-    db 0aah                 ;3049  aa          DATA 0xaa
-    db 2fh                  ;304a  2f          DATA 0x2f '/'
-    db 8eh                  ;304b  8e          DATA 0x8e
-    db 02h                  ;304c  02          DATA 0x02
-    db 0fbh                 ;304d  fb          DATA 0xfb
-    db 4dh                  ;304e  4d          DATA 0x4d 'M'
-    db 00h                  ;304f  00          DATA 0x00
-    db 0bdh                 ;3050  bd          DATA 0xbd
-    db 13h                  ;3051  13          DATA 0x13
-    db 8eh                  ;3052  8e          DATA 0x8e
-    db 67h                  ;3053  67          DATA 0x67 'g'
-    db 0f0h                 ;3054  f0          DATA 0xf0
-    db 4dh                  ;3055  4d          DATA 0x4d 'M'
-    db 00h                  ;3056  00          DATA 0x00
-    db 0adh                 ;3057  ad          DATA 0xad
-    db 08h                  ;3058  08          DATA 0x08
-    db 51h                  ;3059  51          DATA 0x51 'Q'
-    db 9eh                  ;305a  9e          DATA 0x9e
-    db 67h                  ;305b  67          DATA 0x67 'g'
-    db 0f0h                 ;305c  f0          DATA 0xf0
-    db 3ah                  ;305d  3a          DATA 0x3a ':'
-    db 60h                  ;305e  60          DATA 0x60 '`'
-    db 0fah                 ;305f  fa          DATA 0xfa
-    db 05h                  ;3060  05          DATA 0x05
-    db 2bh                  ;3061  2b          DATA 0x2b '+'
-    db 61h                  ;3062  61          DATA 0x61 'a'
-    db 0fah                 ;3063  fa          DATA 0xfa
-    db 01h                  ;3064  01          DATA 0x01
-    db 0afh                 ;3065  af          DATA 0xaf
-    db 9ah                  ;3066  9a          DATA 0x9a
-    db 48h                  ;3067  48          DATA 0x48 'H'
-    db 2fh                  ;3068  2f          DATA 0x2f '/'
-    db 6bh                  ;3069  6b          DATA 0x6b 'k'
-    db 60h                  ;306a  60          DATA 0x60 '`'
-    db 11h                  ;306b  11          DATA 0x11
-    db 25h                  ;306c  25          DATA 0x25 '%'
-    db 00h                  ;306d  00          DATA 0x00
-    db 0afh                 ;306e  af          DATA 0xaf
-    db 0abh                 ;306f  ab          DATA 0xab
-    db 4dh                  ;3070  4d          DATA 0x4d 'M'
-    db 61h                  ;3071  61          DATA 0x61 'a'
-    db 8dh                  ;3072  8d          DATA 0x8d
-    db 07h                  ;3073  07          DATA 0x07
-    db 4dh                  ;3074  4d          DATA 0x4d 'M'
-    db 7bh                  ;3075  7b          DATA 0x7b '{'
-    db 9dh                  ;3076  9d          DATA 0x9d
-    db 03h                  ;3077  03          DATA 0x03
-    db 1dh                  ;3078  1d          DATA 0x1d
-    db 20h                  ;3079  20          DATA 0x20 ' '
-    db 0bbh                 ;307a  bb          DATA 0xbb
-    db 8bh                  ;307b  8b          DATA 0x8b
-    db 0f2h                 ;307c  f2          DATA 0xf2
-    db 0afh                 ;307d  af          DATA 0xaf
+lab_2f61:
+    bt mem_fe60.4,$lab_2fa9 ;2f61  cc 60 45
+    bt mem_fe60.3,$lab_2f6b ;2f64  bc 60 04
+    bf mem_fe61.1,$lab_2fa9 ;2f67  31 13 61 3e
+
+lab_2f6b:
+    bt mem_fe5f.5,$lab_2f95 ;2f6b  dc 5f 27
+    bf mem_fe6a.2,$lab_2f8a ;2f6e  31 23 6a 18
+    cmp mem_fe27,#00h       ;2f72  c8 27 00
+    bnz $lab_2f79           ;2f75  bd 02
+    br $lab_2fa9            ;2f77  fa 30
+
+lab_2f79:
+    dec mem_fe27            ;2f79  91 27
+    call !sub_2e88          ;2f7b  9a 88 2e
+    br $lab_2f95            ;2f7e  fa 15
+
+lab_2f80:
+    bt mem_fe65.5,$lab_2f8a ;2f80  dc 65 07
+    bt mem_fe2c.3,$lab_2f8a ;2f83  bc 2c 04
+    clr1 mem_fe60.3         ;2f86  3b 60
+    br $lab_2fa9            ;2f88  fa 1f
+
+lab_2f8a:
+    call !sub_2e7e          ;2f8a  9a 7e 2e
+    call !sub_2e90          ;2f8d  9a 90 2e
+    bc $lab_2fa9            ;2f90  8d 17
+    mov mem_fe27,#03h       ;2f92  11 27 03
+
+lab_2f95:
+    call !sub_2e6c          ;2f95  9a 6c 2e
+    set1 mem_fe61.0         ;2f98  0a 61
+    clr1 mem_fe60.3         ;2f9a  3b 60
+    movw ax,#mem_f052       ;2f9c  10 52 f0
+    movw !0f006h,ax         ;2f9f  03 06 f0
+    mov a,#14h              ;2fa2  a1 14
+    mov !mem_f066,a         ;2fa4  9e 66 f0
+    br $lab_2faa            ;2fa7  fa 01
+
+lab_2fa9:
+    ret                     ;2fa9  af
+
+lab_2faa:
+    mov mem_fe25,#01h       ;2faa  11 25 01
+    clr1 cy                 ;2fad  21
+    btclr mem_fe5e.7,$lab_2fb5 ;2fae  31 71 5e 03
+    set1 cy                 ;2fb2  20
+    set1 mem_fe7c.2         ;2fb3  2a 7c
+
+lab_2fb5:
+    bnc $lab_2fb9           ;2fb5  9d 02
+    br $lab_302d            ;2fb7  fa 74
+
+lab_2fb9:
+    mov a,!mem_f066         ;2fb9  8e 66 f0
+    cmp a,#15h              ;2fbc  4d 15
+    bc $lab_2fc3            ;2fbe  8d 03
+    br !lab_3066            ;2fc0  9b 66 30
+
+lab_2fc3:
+    cmp a,#00h              ;2fc3  4d 00
+    bnz $lab_2fca           ;2fc5  bd 03
+    br !lab_3066            ;2fc7  9b 66 30
+
+lab_2fca:
+    set1 mem_fe60.6         ;2fca  6a 60
+    set1 mem_fe60.7         ;2fcc  7a 60
+    callf !sub_0891         ;2fce  0c 91
+    set1 mem_fece.3         ;2fd0  3a ce
+    clr1 PM4_.3             ;2fd2  71 3b 24
+    mov a,mem_fece          ;2fd5  f0 ce
+    mov P4_,a               ;2fd7  f2 04
+    bf mem_fe61.0,$lab_2ff4 ;2fd9  31 03 61 17
+    clr1 mem_fe61.0         ;2fdd  0b 61
+    set1 mem_fece.4         ;2fdf  4a ce
+    clr1 PM4_.4             ;2fe1  71 4b 24
+    mov a,mem_fece          ;2fe4  f0 ce
+    mov P4_,a               ;2fe6  f2 04
+    push bc                 ;2fe8  b3
+    mov b,#0eh              ;2fe9  a3 0e
+
+lab_2feb:
+    dbnz b,$lab_2feb        ;2feb  8b fe
+    pop bc                  ;2fed  b2
+    clr1 mem_fece.4         ;2fee  4b ce
+    mov a,mem_fece          ;2ff0  f0 ce
+    mov P4_,a               ;2ff2  f2 04
+
+lab_2ff4:
+    clr1 PU4_.5             ;2ff4  71 5b 34
+    set1 PM4_.5             ;2ff7  71 5a 24
+    call !sub_2617          ;2ffa  9a 17 26
+    set1 mem_fe5f.1         ;2ffd  1a 5f
+    clr1 IF0H_.4            ;2fff  71 4b e1
+    clr1 MK0H_.4            ;3002  71 4b e5
+    clr1 PR0H_.4            ;3005  71 4b e9
+    movw ax,!0f006h         ;3008  02 06 f0
+    push ax                 ;300b  b1
+    mov a,#01h              ;300c  a1 01
+    push ax                 ;300e  b1
+    sel rb2                 ;300f  61 f0
+    pop bc                  ;3011  b2
+    pop hl                  ;3012  b6
+    clr1 mem_fe5f.0         ;3013  0b 5f
+    mov c,#01h              ;3015  a2 01
+    mov a,[hl]              ;3017  87
+    ei                      ;3018  7a 1e
+    mov SIO30_,a            ;301a  f2 1a
+    sel rb0                 ;301c  61 d0
+    movw ax,!0f006h         ;301e  02 06 f0
+    incw ax                 ;3021  80
+    movw !0f006h,ax         ;3022  03 06 f0
+    mov mem_fe25,#02h       ;3025  11 25 02
+    mov a,#03h              ;3028  a1 03
+    mov !mem_fb02,a         ;302a  9e 02 fb
+
+lab_302d:
+    ret                     ;302d  af
+
+lab_302e:
+    clr1 PU4_.5             ;302e  71 5b 34
+    set1 PM4_.5             ;3031  71 5a 24
+    mov a,!mem_f066         ;3034  8e 66 f0
+    cmp a,#01h              ;3037  4d 01
+    bz $lab_3066            ;3039  ad 2b
+    bf P4_.5,$lab_304b      ;303b  31 53 04 0c
+    dec a                   ;303f  51
+    mov !mem_f066,a         ;3040  9e 66 f0
+    mov a,#0ah              ;3043  a1 0a
+    mov !mem_f067,a         ;3045  9e 67 f0
+    br !lab_2faa            ;3048  9b aa 2f
+
+lab_304b:
+    mov a,!mem_fb02         ;304b  8e 02 fb
+    cmp a,#00h              ;304e  4d 00
+    bnz $lab_3065           ;3050  bd 13
+    mov a,!mem_f067         ;3052  8e 67 f0
+    cmp a,#00h              ;3055  4d 00
+    bz $lab_3061            ;3057  ad 08
+    dec a                   ;3059  51
+    mov !mem_f067,a         ;305a  9e 67 f0
+    set1 mem_fe60.3         ;305d  3a 60
+    br $lab_3066            ;305f  fa 05
+
+lab_3061:
+    clr1 mem_fe61.2         ;3061  2b 61
+    br $lab_3066            ;3063  fa 01
+
+lab_3065:
+    ret                     ;3065  af
+
+lab_3066:
+    call !sub_2f48          ;3066  9a 48 2f
+    clr1 mem_fe60.6         ;3069  6b 60
+    mov mem_fe25,#00h       ;306b  11 25 00
+    ret                     ;306e  af
+
+sub_306f:
+    mov a,[hl+b]            ;306f  ab
+    cmp a,#61h              ;3070  4d 61
+    bc $lab_307b            ;3072  8d 07
+    cmp a,#7bh              ;3074  4d 7b
+    bnc $lab_307b           ;3076  9d 03
+    sub a,#20h              ;3078  1d 20
+    mov [hl+b],a            ;307a  bb
+
+lab_307b:
+    dbnz b,$sub_306f        ;307b  8b f2
+    ret                     ;307d  af
 
 lab_307e:
     push ax                 ;307e  b1
-    bt 0fe7ah.2,$lab_308d   ;307f  ac 7a 0b
-    clr1 0fe79h.0           ;3082  0b 79
-    set1 0fecch.5           ;3084  5a cc
-    mov a,0fecch            ;3086  f0 cc
+    bt mem_fe7a.2,$lab_308d ;307f  ac 7a 0b
+    clr1 mem_fe79.0         ;3082  0b 79
+    set1 mem_fecc.5         ;3084  5a cc
+    mov a,mem_fecc          ;3086  f0 cc
     mov P2_,a               ;3088  f2 02
     clr1 ASIM0_.7           ;308a  71 7b a0
 
@@ -10716,27 +10738,27 @@ lab_308d:
     reti                    ;308e  8f
 
 sub_308f:
-    bf 0fe7ah.2,$lab_30e7   ;308f  31 23 7a 54
-    bf 0fe79h.1,$lab_30e7   ;3093  31 13 79 50
+    bf mem_fe7a.2,$lab_30e7 ;308f  31 23 7a 54
+    bf mem_fe79.1,$lab_30e7 ;3093  31 13 79 50
     bf P2_.4,$lab_30e7      ;3097  31 43 02 4c
-    mov a,!0f06eh           ;309b  8e 6e f0
+    mov a,!mem_f06e         ;309b  8e 6e f0
     dec a                   ;309e  51
-    mov !0f06eh,a           ;309f  9e 6e f0
+    mov !mem_f06e,a         ;309f  9e 6e f0
     bnz $lab_30e7           ;30a2  bd 43
-    clr1 0fe79h.1           ;30a4  1b 79
-    clr1 0fecch.5           ;30a6  5b cc
-    mov a,0fecch            ;30a8  f0 cc
+    clr1 mem_fe79.1         ;30a4  1b 79
+    clr1 mem_fecc.5         ;30a6  5b cc
+    mov a,mem_fecc          ;30a8  f0 cc
     mov P2_,a               ;30aa  f2 02
-    bt 0fe79h.6,$lab_30d7   ;30ac  ec 79 28
-    bt 0fe79h.3,$lab_30cb   ;30af  bc 79 19
-    bt 0fe79h.4,$lab_30cf   ;30b2  cc 79 1a
-    bt 0fe79h.5,$lab_30d3   ;30b5  dc 79 1b
-    mov a,!0f068h           ;30b8  8e 68 f0
+    bt mem_fe79.6,$lab_30d7 ;30ac  ec 79 28
+    bt mem_fe79.3,$lab_30cb ;30af  bc 79 19
+    bt mem_fe79.4,$lab_30cf ;30b2  cc 79 1a
+    bt mem_fe79.5,$lab_30d3 ;30b5  dc 79 1b
+    mov a,!mem_f068         ;30b8  8e 68 f0
     and a,#0fh              ;30bb  5d 0f
     mov b,a                 ;30bd  73
-    mov a,!0f068h           ;30be  8e 68 f0
+    mov a,!mem_f068         ;30be  8e 68 f0
     inc a                   ;30c1  41
-    mov !0f068h,a           ;30c2  9e 68 f0
+    mov !mem_f068,a         ;30c2  9e 68 f0
     movw hl,#0f07ah         ;30c5  16 7a f0
     mov a,[hl+b]            ;30c8  ab
     br $lab_30de            ;30c9  fa 13
@@ -10754,13 +10776,13 @@ lab_30d3:
     br $lab_30de            ;30d5  fa 07
 
 lab_30d7:
-    mov a,!0f06ah           ;30d7  8e 6a f0
+    mov a,!mem_f06a         ;30d7  8e 6a f0
     xor a,#0ffh             ;30da  7d ff
     br $lab_30de            ;30dc  fa 00
 
 lab_30de:
-    set1 0fe79h.0           ;30de  0a 79
-    mov !0f06ah,a           ;30e0  9e 6a f0
+    set1 mem_fe79.0         ;30de  0a 79
+    mov !mem_f06a,a         ;30e0  9e 6a f0
     mov RXB0_TXS0_,a        ;30e3  f2 18
     br $lab_30e7            ;30e5  fa 00
 
@@ -10773,25 +10795,25 @@ lab_30e8:
     push hl                 ;30ea  b7
     push de                 ;30eb  b5
     mov a,RXB0_TXS0_        ;30ec  f0 18
-    bf 0fe7ah.2,$lab_3148   ;30ee  31 23 7a 56
-    btclr 0fe79h.0,$lab_313f ;30f2  31 01 79 49
-    btclr 0fe79h.7,$lab_3142 ;30f6  31 71 79 48
-    btclr 0fe79h.3,$lab_3158 ;30fa  31 31 79 5a
-    btclr 0fe79h.4,$lab_3167 ;30fe  31 41 79 65
-    bt 0fe79h.5,$lab_3176   ;3102  dc 79 71
-    bf 0fe7ah.0,$lab_3153   ;3105  31 03 7a 4a
-    clr1 0fe79h.2           ;3109  2b 79
+    bf mem_fe7a.2,$lab_3148 ;30ee  31 23 7a 56
+    btclr mem_fe79.0,$lab_313f ;30f2  31 01 79 49
+    btclr mem_fe79.7,$lab_3142 ;30f6  31 71 79 48
+    btclr mem_fe79.3,$lab_3158 ;30fa  31 31 79 5a
+    btclr mem_fe79.4,$lab_3167 ;30fe  31 41 79 65
+    bt mem_fe79.5,$lab_3176 ;3102  dc 79 71
+    bf mem_fe7a.0,$lab_3153 ;3105  31 03 7a 4a
+    clr1 mem_fe79.2         ;3109  2b 79
     mov x,a                 ;310b  70
-    mov a,!0f069h           ;310c  8e 69 f0
+    mov a,!mem_f069         ;310c  8e 69 f0
     mov c,a                 ;310f  72
     cmp a,#00h              ;3110  4d 00
     bnz $lab_3118           ;3112  bd 04
     mov a,x                 ;3114  60
-    mov !0f06ch,a           ;3115  9e 6c f0
+    mov !mem_f06c,a         ;3115  9e 6c f0
 
 lab_3118:
     mov a,c                 ;3118  62
-    cmp a,!0f06ch           ;3119  48 6c f0
+    cmp a,!mem_f06c         ;3119  48 6c f0
     bz $lab_3145            ;311c  ad 27
     cmp a,#0ffh             ;311e  4d ff
     bc $lab_3127            ;3120  8d 05
@@ -10805,14 +10827,14 @@ lab_3127:
     mov [hl+c],a            ;312b  ba
 
 lab_312c:
-    mov !0f06ah,a           ;312c  9e 6a f0
+    mov !mem_f06a,a         ;312c  9e 6a f0
     inc c                   ;312f  42
     mov a,c                 ;3130  62
-    mov !0f069h,a           ;3131  9e 69 f0
+    mov !mem_f069,a         ;3131  9e 69 f0
     mov a,#02h              ;3134  a1 02
-    mov !0f06eh,a           ;3136  9e 6e f0
-    set1 0fe79h.6           ;3139  6a 79
-    set1 0fe79h.1           ;313b  1a 79
+    mov !mem_f06e,a         ;3136  9e 6e f0
+    set1 mem_fe79.6         ;3139  6a 79
+    set1 mem_fe79.1         ;313b  1a 79
     br $lab_3153            ;313d  fa 14
 
 lab_313f:
@@ -10825,8 +10847,8 @@ lab_3145:
     br !lab_31f6            ;3145  9b f6 31
 
 lab_3148:
-    bf 0fe2bh.7,$lab_3150   ;3148  31 73 2b 04
-    clr1 0fe7bh.6           ;314c  6b 7b
+    bf mem_fe2b.7,$lab_3150 ;3148  31 73 2b 04
+    clr1 mem_fe7b.6         ;314c  6b 7b
     br $lab_3153            ;314e  fa 03
 
 lab_3150:
@@ -10843,29 +10865,29 @@ lab_3158:
     cmp a,#55h              ;3158  4d 55
     bnz $lab_318a           ;315a  bd 2e
     mov a,#04h              ;315c  a1 04
-    mov !0f06fh,a           ;315e  9e 6f f0
-    set1 0fe79h.4           ;3161  4a 79
-    set1 0fe79h.2           ;3163  2a 79
+    mov !mem_f06f,a         ;315e  9e 6f f0
+    set1 mem_fe79.4         ;3161  4a 79
+    set1 mem_fe79.2         ;3163  2a 79
     br $lab_3153            ;3165  fa ec
 
 lab_3167:
     cmp a,#01h              ;3167  4d 01
     bnz $lab_318a           ;3169  bd 1f
     mov a,#04h              ;316b  a1 04
-    mov !0f06fh,a           ;316d  9e 6f f0
-    set1 0fe79h.5           ;3170  5a 79
-    set1 0fe79h.2           ;3172  2a 79
+    mov !mem_f06f,a         ;316d  9e 6f f0
+    set1 mem_fe79.5         ;3170  5a 79
+    set1 mem_fe79.2         ;3172  2a 79
     br $lab_3153            ;3174  fa dd
 
 lab_3176:
     cmp a,#8ah              ;3176  4d 8a
     bnz $lab_318a           ;3178  bd 10
-    mov !0f06ah,a           ;317a  9e 6a f0
+    mov !mem_f06a,a         ;317a  9e 6a f0
     mov a,#0eh              ;317d  a1 0e
-    mov !0f06eh,a           ;317f  9e 6e f0
-    set1 0fe79h.6           ;3182  6a 79
-    set1 0fe79h.1           ;3184  1a 79
-    clr1 0fe79h.2           ;3186  2b 79
+    mov !mem_f06e,a         ;317f  9e 6e f0
+    set1 mem_fe79.6         ;3182  6a 79
+    set1 mem_fe79.1         ;3184  1a 79
+    clr1 mem_fe79.2         ;3186  2b 79
     br $lab_3153            ;3188  fa c9
 
 lab_318a:
@@ -10873,50 +10895,50 @@ lab_318a:
     br !lab_3153            ;318d  9b 53 31
 
 lab_3190:
-    clr1 0fe79h.2           ;3190  2b 79
+    clr1 mem_fe79.2         ;3190  2b 79
     xor a,#0ffh             ;3192  7d ff
-    cmp a,!0f06ah           ;3194  48 6a f0
+    cmp a,!mem_f06a         ;3194  48 6a f0
     bnz $lab_31bf           ;3197  bd 26
-    bt 0fe79h.5,$lab_31ec   ;3199  dc 79 50
-    mov a,!0f068h           ;319c  8e 68 f0
+    bt mem_fe79.5,$lab_31ec ;3199  dc 79 50
+    mov a,!mem_f068         ;319c  8e 68 f0
     and a,#0fh              ;319f  5d 0f
     bnz $lab_31aa           ;31a1  bd 07
-    set1 0fe7ch.0           ;31a3  0a 7c
+    set1 mem_fe7c.0         ;31a3  0a 7c
     mov a,#06h              ;31a5  a1 06
-    mov !0fbc9h,a           ;31a7  9e c9 fb
+    mov !mem_fbc9,a         ;31a7  9e c9 fb
 
 lab_31aa:
     mov a,#02h              ;31aa  a1 02
-    mov !0f06eh,a           ;31ac  9e 6e f0
-    mov a,!0fbc9h           ;31af  8e c9 fb
+    mov !mem_f06e,a         ;31ac  9e 6e f0
+    mov a,!mem_fbc9         ;31af  8e c9 fb
     cmp a,#06h              ;31b2  4d 06
     bnz $lab_31bb           ;31b4  bd 05
     mov a,#08h              ;31b6  a1 08
-    mov !0f06eh,a           ;31b8  9e 6e f0
+    mov !mem_f06e,a         ;31b8  9e 6e f0
 
 lab_31bb:
-    set1 0fe79h.1           ;31bb  1a 79
+    set1 mem_fe79.1         ;31bb  1a 79
     br $lab_31e9            ;31bd  fa 2a
 
 lab_31bf:
-    btclr 0fe79h.5,$lab_31d2 ;31bf  31 51 79 0f
+    btclr mem_fe79.5,$lab_31d2 ;31bf  31 51 79 0f
     movw hl,#0b037h         ;31c3  16 37 b0
-    mov a,!0f06dh           ;31c6  8e 6d f0
+    mov a,!mem_f06d         ;31c6  8e 6d f0
     mov b,a                 ;31c9  73
     mov a,[hl+b]            ;31ca  ab
-    mov !0f06fh,a           ;31cb  9e 6f f0
-    set1 0fe79h.2           ;31ce  2a 79
+    mov !mem_f06f,a         ;31cb  9e 6f f0
+    set1 mem_fe79.2         ;31ce  2a 79
     br $lab_31e9            ;31d0  fa 17
 
 lab_31d2:
-    mov a,!0f079h           ;31d2  8e 79 f0
+    mov a,!mem_f079         ;31d2  8e 79 f0
     inc a                   ;31d5  41
-    mov !0f079h,a           ;31d6  9e 79 f0
+    mov !mem_f079,a         ;31d6  9e 79 f0
     cmp a,#02h              ;31d9  4d 02
     bnc $lab_31e4           ;31db  9d 07
-    set1 0fe7ch.0           ;31dd  0a 7c
+    set1 mem_fe7c.0         ;31dd  0a 7c
     mov a,#02h              ;31df  a1 02
-    mov !0fbc9h,a           ;31e1  9e c9 fb
+    mov !mem_fbc9,a         ;31e1  9e c9 fb
 
 lab_31e4:
     bc $lab_31e9            ;31e4  8d 03
@@ -10926,9 +10948,9 @@ lab_31e9:
     br !lab_3153            ;31e9  9b 53 31
 
 lab_31ec:
-    set1 0fe7ch.0           ;31ec  0a 7c
+    set1 mem_fe7c.0         ;31ec  0a 7c
     mov a,#05h              ;31ee  a1 05
-    mov !0fbc9h,a           ;31f0  9e c9 fb
+    mov !mem_fbc9,a         ;31f0  9e c9 fb
     br !lab_3153            ;31f3  9b 53 31
 
 lab_31f6:
@@ -10936,78 +10958,78 @@ lab_31f6:
     cmp a,#03h              ;31f7  4d 03
     bnz $lab_322c           ;31f9  bd 31
     movw hl,#0b03ch         ;31fb  16 3c b0
-    mov a,!0f06dh           ;31fe  8e 6d f0
+    mov a,!mem_f06d         ;31fe  8e 6d f0
     mov b,a                 ;3201  73
     mov a,[hl+b]            ;3202  ab
-    mov !0f070h,a           ;3203  9e 70 f0
-    set1 0fe79h.2           ;3206  2a 79
-    clr1 0fe79h.2           ;3208  2b 79
-    clr1 0fe7ah.0           ;320a  0b 7a
-    clr1 0fe7bh.3           ;320c  3b 7b
+    mov !mem_f070,a         ;3203  9e 70 f0
+    set1 mem_fe79.2         ;3206  2a 79
+    clr1 mem_fe79.2         ;3208  2b 79
+    clr1 mem_fe7a.0         ;320a  0b 7a
+    clr1 mem_fe7b.3         ;320c  3b 7b
     mov a,#0ffh             ;320e  a1 ff
-    cmp a,!0f06ch           ;3210  48 6c f0
+    cmp a,!mem_f06c         ;3210  48 6c f0
     bc $lab_3223            ;3213  8d 0e
     mov a,#00h              ;3215  a1 00
-    mov !0f079h,a           ;3217  9e 79 f0
-    set1 0fe7ch.0           ;321a  0a 7c
+    mov !mem_f079,a         ;3217  9e 79 f0
+    set1 mem_fe7c.0         ;321a  0a 7c
     mov a,#04h              ;321c  a1 04
-    mov !0fbc9h,a           ;321e  9e c9 fb
+    mov !mem_fbc9,a         ;321e  9e c9 fb
     br $lab_323c            ;3221  fa 19
 
 lab_3223:
-    set1 0fe7ch.0           ;3223  0a 7c
+    set1 mem_fe7c.0         ;3223  0a 7c
     mov a,#07h              ;3225  a1 07
-    mov !0fbc9h,a           ;3227  9e c9 fb
+    mov !mem_fbc9,a         ;3227  9e c9 fb
     br $lab_323c            ;322a  fa 10
 
 lab_322c:
     mov a,#1eh              ;322c  a1 1e
-    mov !0f06fh,a           ;322e  9e 6f f0
-    set1 0fe7bh.3           ;3231  3a 7b
-    set1 0fe79h.2           ;3233  2a 79
+    mov !mem_f06f,a         ;322e  9e 6f f0
+    set1 mem_fe7b.3         ;3231  3a 7b
+    set1 mem_fe79.2         ;3233  2a 79
     mov a,#00h              ;3235  a1 00
-    mov !0f069h,a           ;3237  9e 69 f0
+    mov !mem_f069,a         ;3237  9e 69 f0
     br $lab_323c            ;323a  fa 00
 
 lab_323c:
     br !lab_3153            ;323c  9b 53 31
 
 lab_323f:
-    mov a,!0f06ah           ;323f  8e 6a f0
+    mov a,!mem_f06a         ;323f  8e 6a f0
 
 lab_3242:
-    cmp a,!0f06ah           ;3242  48 6a f0
+    cmp a,!mem_f06a         ;3242  48 6a f0
     bnz $lab_328d           ;3245  bd 46
-    btclr 0fe79h.6,$lab_32a7 ;3247  31 61 79 5c
-    bt 0fe79h.3,$lab_31ec   ;324b  bc 79 9e
-    bt 0fe79h.4,$lab_31ec   ;324e  cc 79 9b
-    bt 0fe79h.5,$lab_3296   ;3251  dc 79 42
-    mov a,!0f068h           ;3254  8e 68 f0
+    btclr mem_fe79.6,$lab_32a7 ;3247  31 61 79 5c
+    bt mem_fe79.3,$lab_31ec ;324b  bc 79 9e
+    bt mem_fe79.4,$lab_31ec ;324e  cc 79 9b
+    bt mem_fe79.5,$lab_3296 ;3251  dc 79 42
+    mov a,!mem_f068         ;3254  8e 68 f0
     cmp a,#00h              ;3257  4d 00
     bz $lab_3263            ;3259  ad 08
-    mov a,!0f06bh           ;325b  8e 6b f0
-    cmp a,!0f068h           ;325e  48 68 f0
+    mov a,!mem_f06b         ;325b  8e 6b f0
+    cmp a,!mem_f068         ;325e  48 68 f0
     bnc $lab_3296           ;3261  9d 33
 
 lab_3263:
     clr1 cy                 ;3263  21
-    bf 0fe7bh.2,$lab_3269   ;3264  31 23 7b 01
+    bf mem_fe7b.2,$lab_3269 ;3264  31 23 7b 01
     set1 cy                 ;3268  20
 
 lab_3269:
     bc $lab_3288            ;3269  8d 1d
-    clr1 0fe7ah.1           ;326b  1b 7a
-    set1 0fe7ah.0           ;326d  0a 7a
+    clr1 mem_fe7a.1         ;326b  1b 7a
+    set1 mem_fe7a.0         ;326d  0a 7a
     mov a,#00h              ;326f  a1 00
-    mov !0f069h,a           ;3271  9e 69 f0
+    mov !mem_f069,a         ;3271  9e 69 f0
     mov a,#00h              ;3274  a1 00
-    mov !0f06fh,a           ;3276  9e 6f f0
+    mov !mem_f06f,a         ;3276  9e 6f f0
     movw hl,#0b03ch         ;3279  16 3c b0
-    mov a,!0f06dh           ;327c  8e 6d f0
+    mov a,!mem_f06d         ;327c  8e 6d f0
     mov b,a                 ;327f  73
     mov a,[hl+b]            ;3280  ab
-    mov !0f070h,a           ;3281  9e 70 f0
-    set1 0fe79h.2           ;3284  2a 79
+    mov !mem_f070,a         ;3281  9e 70 f0
+    set1 mem_fe79.2         ;3284  2a 79
     br $lab_32dc            ;3286  fa 54
 
 lab_3288:
@@ -11015,46 +11037,46 @@ lab_3288:
     br $lab_32dc            ;328b  fa 4f
 
 lab_328d:
-    bf 0fecch.6,$lab_323f   ;328d  31 63 cc ae
+    bf mem_fecc.6,$lab_323f ;328d  31 63 cc ae
     call !sub_3468          ;3291  9a 68 34
     br $lab_32dc            ;3294  fa 46
 
 lab_3296:
     movw hl,#0b037h         ;3296  16 37 b0
-    mov a,!0f06dh           ;3299  8e 6d f0
+    mov a,!mem_f06d         ;3299  8e 6d f0
     mov b,a                 ;329c  73
     mov a,[hl+b]            ;329d  ab
-    mov !0f06fh,a           ;329e  9e 6f f0
-    set1 0fe79h.2           ;32a1  2a 79
-    set1 0fe79h.7           ;32a3  7a 79
+    mov !mem_f06f,a         ;329e  9e 6f f0
+    set1 mem_fe79.2         ;32a1  2a 79
+    set1 mem_fe79.7         ;32a3  7a 79
     br $lab_32dc            ;32a5  fa 35
 
 lab_32a7:
     movw hl,#0b037h         ;32a7  16 37 b0
-    mov a,!0f06dh           ;32aa  8e 6d f0
+    mov a,!mem_f06d         ;32aa  8e 6d f0
     mov b,a                 ;32ad  73
     mov a,[hl+b]            ;32ae  ab
-    mov !0f06fh,a           ;32af  9e 6f f0
-    set1 0fe79h.2           ;32b2  2a 79
-    btclr 0fe79h.5,$lab_32ba ;32b4  31 51 79 02
+    mov !mem_f06f,a         ;32af  9e 6f f0
+    set1 mem_fe79.2         ;32b2  2a 79
+    btclr mem_fe79.5,$lab_32ba ;32b4  31 51 79 02
     br $lab_32dc            ;32b8  fa 22
 
 lab_32ba:
-    clr1 0fe7ah.1           ;32ba  1b 7a
-    set1 0fe7ah.0           ;32bc  0a 7a
+    clr1 mem_fe7a.1         ;32ba  1b 7a
+    set1 mem_fe7a.0         ;32bc  0a 7a
     mov a,#00h              ;32be  a1 00
-    mov !0f069h,a           ;32c0  9e 69 f0
+    mov !mem_f069,a         ;32c0  9e 69 f0
     movw hl,#0b032h         ;32c3  16 32 b0
-    mov a,!0f06dh           ;32c6  8e 6d f0
+    mov a,!mem_f06d         ;32c6  8e 6d f0
     mov b,a                 ;32c9  73
     mov a,[hl+b]            ;32ca  ab
     mov ASIM0_,a            ;32cb  f6 a0
     movw hl,#0b03ch         ;32cd  16 3c b0
-    mov a,!0f06dh           ;32d0  8e 6d f0
+    mov a,!mem_f06d         ;32d0  8e 6d f0
     mov b,a                 ;32d3  73
     mov a,[hl+b]            ;32d4  ab
-    mov !0f070h,a           ;32d5  9e 70 f0
-    set1 0fe79h.2           ;32d8  2a 79
+    mov !mem_f070,a         ;32d5  9e 70 f0
+    set1 mem_fe79.2         ;32d8  2a 79
     br $lab_32dc            ;32da  fa 00
 
 lab_32dc:
@@ -11069,11 +11091,11 @@ lab_32df:
     mov x,a                 ;32e5  70
     mov a,RXB0_TXS0_        ;32e6  f0 18
     clr1 IF0H_.2            ;32e8  71 2b e1
-    bf 0fe7ah.2,$lab_3304   ;32eb  31 23 7a 15
-    bt 0fecch.6,$lab_331c   ;32ef  ec cc 2a
-    bt 0fe79h.0,$lab_3301   ;32f2  8c 79 0c
-    bt 0fe7ah.1,$lab_32fd   ;32f5  9c 7a 05
-    bt 0fe7ah.0,$lab_32ff   ;32f8  8c 7a 04
+    bf mem_fe7a.2,$lab_3304 ;32eb  31 23 7a 15
+    bt mem_fecc.6,$lab_331c ;32ef  ec cc 2a
+    bt mem_fe79.0,$lab_3301 ;32f2  8c 79 0c
+    bt mem_fe7a.1,$lab_32fd ;32f5  9c 7a 05
+    bt mem_fe7a.0,$lab_32ff ;32f8  8c 7a 04
     br $lab_3324            ;32fb  fa 27
 
 lab_32fd:
@@ -11086,21 +11108,21 @@ lab_3301:
     br !lab_323f            ;3301  9b 3f 32
 
 lab_3304:
-    bf 0fe2bh.7,$lab_3321   ;3304  31 73 2b 19
-    bf 0fe2ch.2,$lab_3321   ;3308  31 23 2c 15
+    bf mem_fe2b.7,$lab_3321 ;3304  31 73 2b 19
+    bf mem_fe2c.2,$lab_3321 ;3308  31 23 2c 15
     mov a,x                 ;330c  60
     cmp a,#02h              ;330d  4d 02
     bnz $lab_3318           ;330f  bd 07
-    bt 0fe7bh.6,$lab_3321   ;3311  ec 7b 0d
-    set1 0fe7bh.7           ;3314  7a 7b
+    bt mem_fe7b.6,$lab_3321 ;3311  ec 7b 0d
+    set1 mem_fe7b.7         ;3314  7a 7b
     br $lab_3321            ;3316  fa 09
 
 lab_3318:
-    clr1 0fe7bh.6           ;3318  6b 7b
+    clr1 mem_fe7b.6         ;3318  6b 7b
     br $lab_3324            ;331a  fa 08
 
 lab_331c:
-    clr1 0fe7bh.4           ;331c  4b 7b
+    clr1 mem_fe7b.4         ;331c  4b 7b
     call !sub_3468          ;331e  9a 68 34
 
 lab_3321:
@@ -11114,12 +11136,12 @@ lab_3324:
     reti                    ;3328  8f
 
 sub_3329:
-    bf 0fe79h.2,$lab_336f   ;3329  31 23 79 42
-    mov a,!0f06fh           ;332d  8e 6f f0
+    bf mem_fe79.2,$lab_336f ;3329  31 23 79 42
+    mov a,!mem_f06f         ;332d  8e 6f f0
     cmp a,#00h              ;3330  4d 00
     bz $lab_336f            ;3332  ad 3b
     dec a                   ;3334  51
-    mov !0f06fh,a           ;3335  9e 6f f0
+    mov !mem_f06f,a         ;3335  9e 6f f0
     bnz $lab_336f           ;3338  bd 35
     call !sub_339e          ;333a  9a 9e 33
     br $lab_336f            ;333d  fa 30
@@ -11177,54 +11199,54 @@ lab_336f:
     ret                     ;336f  af
 
 lab_3370:
-    clr1 0fe79h.2           ;3370  2b 79
-    bf 0fecch.6,$lab_3392   ;3372  31 63 cc 1c
-    mov a,!0f078h           ;3376  8e 78 f0
+    clr1 mem_fe79.2         ;3370  2b 79
+    bf mem_fecc.6,$lab_3392 ;3372  31 63 cc 1c
+    mov a,!mem_f078         ;3376  8e 78 f0
     cmp a,#01h              ;3379  4d 01
     bnc $lab_3392           ;337b  9d 15
     inc a                   ;337d  41
-    mov !0f078h,a           ;337e  9e 78 f0
-    mov a,!0f073h           ;3381  8e 73 f0
-    mov !0f074h,a           ;3384  9e 74 f0
-    set1 0fe7ah.3           ;3387  3a 7a
-    set1 0fe7ah.6           ;3389  6a 7a
+    mov !mem_f078,a         ;337e  9e 78 f0
+    mov a,!mem_f073         ;3381  8e 73 f0
+    mov !mem_f074,a         ;3384  9e 74 f0
+    set1 mem_fe7a.3         ;3387  3a 7a
+    set1 mem_fe7a.6         ;3389  6a 7a
     mov a,#1bh              ;338b  a1 1b
-    mov !0f077h,a           ;338d  9e 77 f0
-    set1 0fe7bh.4           ;3390  4a 7b
+    mov !mem_f077,a         ;338d  9e 77 f0
+    set1 mem_fe7b.4         ;3390  4a 7b
 
 lab_3392:
-    set1 0fecch.5           ;3392  5a cc
-    mov a,0fecch            ;3394  f0 cc
+    set1 mem_fecc.5         ;3392  5a cc
+    mov a,mem_fecc          ;3394  f0 cc
     mov P2_,a               ;3396  f2 02
     mov ASIM0_,#00h         ;3398  13 a0 00
     br !sub_3468            ;339b  9b 68 34
 
 sub_339e:
-    bt 0fe7ah.0,$lab_33de   ;339e  8c 7a 3d
-    bt 0fe7ah.1,$lab_3401   ;33a1  9c 7a 5d
-    btclr 0fe79h.3,$lab_3370 ;33a4  31 31 79 c8
-    btclr 0fe79h.4,$lab_3370 ;33a8  31 41 79 c4
-    btclr 0fe79h.5,$lab_33be ;33ac  31 51 79 0e
+    bt mem_fe7a.0,$lab_33de ;339e  8c 7a 3d
+    bt mem_fe7a.1,$lab_3401 ;33a1  9c 7a 5d
+    btclr mem_fe79.3,$lab_3370 ;33a4  31 31 79 c8
+    btclr mem_fe79.4,$lab_3370 ;33a8  31 41 79 c4
+    btclr mem_fe79.5,$lab_33be ;33ac  31 51 79 0e
     movw hl,#0b03ch         ;33b0  16 3c b0
-    mov a,!0f06dh           ;33b3  8e 6d f0
+    mov a,!mem_f06d         ;33b3  8e 6d f0
     mov b,a                 ;33b6  73
     mov a,[hl+b]            ;33b7  ab
-    mov !0f070h,a           ;33b8  9e 70 f0
-    set1 0fe79h.2           ;33bb  2a 79
+    mov !mem_f070,a         ;33b8  9e 70 f0
+    set1 mem_fe79.2         ;33bb  2a 79
     ret                     ;33bd  af
 
 lab_33be:
-    bf 0fe79h.7,$lab_3370   ;33be  31 73 79 ae
-    clr1 0fe79h.2           ;33c2  2b 79
-    clr1 0fe79h.7           ;33c4  7b 79
-    mov a,!0f079h           ;33c6  8e 79 f0
+    bf mem_fe79.7,$lab_3370 ;33be  31 73 79 ae
+    clr1 mem_fe79.2         ;33c2  2b 79
+    clr1 mem_fe79.7         ;33c4  7b 79
+    mov a,!mem_f079         ;33c6  8e 79 f0
     inc a                   ;33c9  41
-    mov !0f079h,a           ;33ca  9e 79 f0
+    mov !mem_f079,a         ;33ca  9e 79 f0
     cmp a,#02h              ;33cd  4d 02
     bnc $lab_33d8           ;33cf  9d 07
-    set1 0fe7ch.0           ;33d1  0a 7c
+    set1 mem_fe7c.0         ;33d1  0a 7c
     mov a,#02h              ;33d3  a1 02
-    mov !0fbc9h,a           ;33d5  9e c9 fb
+    mov !mem_fbc9,a         ;33d5  9e c9 fb
 
 lab_33d8:
     bc $lab_33dd            ;33d8  8d 03
@@ -11234,67 +11256,67 @@ lab_33dd:
     ret                     ;33dd  af
 
 lab_33de:
-    btclr 0fe7bh.3,$lab_33f5 ;33de  31 31 7b 13
+    btclr mem_fe7b.3,$lab_33f5 ;33de  31 31 7b 13
     mov a,#00h              ;33e2  a1 00
-    mov !0f069h,a           ;33e4  9e 69 f0
+    mov !mem_f069,a         ;33e4  9e 69 f0
     movw hl,#0b03ch         ;33e7  16 3c b0
-    mov a,!0f06dh           ;33ea  8e 6d f0
+    mov a,!mem_f06d         ;33ea  8e 6d f0
     mov b,a                 ;33ed  73
     mov a,[hl+b]            ;33ee  ab
-    mov !0f070h,a           ;33ef  9e 70 f0
-    set1 0fe79h.2           ;33f2  2a 79
+    mov !mem_f070,a         ;33ef  9e 70 f0
+    set1 mem_fe79.2         ;33f2  2a 79
     ret                     ;33f4  af
 
 lab_33f5:
-    clr1 0fe79h.2           ;33f5  2b 79
-    clr1 0fe7ah.0           ;33f7  0b 7a
-    set1 0fe7ch.0           ;33f9  0a 7c
+    clr1 mem_fe79.2         ;33f5  2b 79
+    clr1 mem_fe7a.0         ;33f7  0b 7a
+    set1 mem_fe7c.0         ;33f9  0a 7c
     mov a,#08h              ;33fb  a1 08
-    mov !0fbc9h,a           ;33fd  9e c9 fb
+    mov !mem_fbc9,a         ;33fd  9e c9 fb
     ret                     ;3400  af
 
 lab_3401:
-    btclr 0fe7bh.1,$lab_3422 ;3401  31 11 7b 1d
-    set1 0fe7bh.1           ;3405  1a 7b
+    btclr mem_fe7b.1,$lab_3422 ;3401  31 11 7b 1d
+    set1 mem_fe7b.1         ;3405  1a 7b
     movw hl,#0b037h         ;3407  16 37 b0
-    mov a,!0f06dh           ;340a  8e 6d f0
+    mov a,!mem_f06d         ;340a  8e 6d f0
     mov b,a                 ;340d  73
     mov a,[hl+b]            ;340e  ab
-    mov !0f06fh,a           ;340f  9e 6f f0
-    set1 0fe79h.2           ;3412  2a 79
+    mov !mem_f06f,a         ;340f  9e 6f f0
+    set1 mem_fe79.2         ;3412  2a 79
     movw hl,#0b03ch         ;3414  16 3c b0
-    mov a,!0f06dh           ;3417  8e 6d f0
+    mov a,!mem_f06d         ;3417  8e 6d f0
     mov b,a                 ;341a  73
     mov a,[hl+b]            ;341b  ab
-    mov !0f070h,a           ;341c  9e 70 f0
-    set1 0fe79h.2           ;341f  2a 79
+    mov !mem_f070,a         ;341c  9e 70 f0
+    set1 mem_fe79.2         ;341f  2a 79
     ret                     ;3421  af
 
 lab_3422:
-    clr1 0fe79h.2           ;3422  2b 79
-    mov a,!0f079h           ;3424  8e 79 f0
+    clr1 mem_fe79.2         ;3422  2b 79
+    mov a,!mem_f079         ;3424  8e 79 f0
     inc a                   ;3427  41
-    mov !0f079h,a           ;3428  9e 79 f0
+    mov !mem_f079,a         ;3428  9e 79 f0
     cmp a,#0ah              ;342b  4d 0a
     bc $lab_3456            ;342d  8d 27
     clr1 cy                 ;342f  21
-    bf 0fe7bh.2,$lab_3435   ;3430  31 23 7b 01
+    bf mem_fe7b.2,$lab_3435 ;3430  31 23 7b 01
     set1 cy                 ;3434  20
 
 lab_3435:
     bc $lab_3453            ;3435  8d 1c
-    clr1 0fe7ah.1           ;3437  1b 7a
-    set1 0fe7ah.0           ;3439  0a 7a
+    clr1 mem_fe7a.1         ;3437  1b 7a
+    set1 mem_fe7a.0         ;3439  0a 7a
     mov a,#00h              ;343b  a1 00
-    mov !0f069h,a           ;343d  9e 69 f0
+    mov !mem_f069,a         ;343d  9e 69 f0
     mov a,#00h              ;3440  a1 00
-    mov !0f06fh,a           ;3442  9e 6f f0
+    mov !mem_f06f,a         ;3442  9e 6f f0
     movw hl,#0b03ch         ;3445  16 3c b0
-    mov a,!0f06dh           ;3448  8e 6d f0
+    mov a,!mem_f06d         ;3448  8e 6d f0
     mov b,a                 ;344b  73
     mov a,[hl+b]            ;344c  ab
-    mov !0f070h,a           ;344d  9e 70 f0
-    set1 0fe79h.2           ;3450  2a 79
+    mov !mem_f070,a         ;344d  9e 70 f0
+    set1 mem_fe79.2         ;3450  2a 79
     ret                     ;3452  af
 
 lab_3453:
@@ -11302,72 +11324,72 @@ lab_3453:
 
 lab_3456:
     mov a,#0fh              ;3456  a1 0f
-    cmp a,!0f06bh           ;3458  48 6b f0
+    cmp a,!mem_f06b         ;3458  48 6b f0
     bc $lab_3460            ;345b  8d 03
     br !lab_34f7            ;345d  9b f7 34
 
 lab_3460:
-    set1 0fe7ch.0           ;3460  0a 7c
+    set1 mem_fe7c.0         ;3460  0a 7c
     mov a,#09h              ;3462  a1 09
-    mov !0fbc9h,a           ;3464  9e c9 fb
+    mov !mem_fbc9,a         ;3464  9e c9 fb
     ret                     ;3467  af
 
 sub_3468:
-    clr1 0fe7ah.2           ;3468  2b 7a
-    set1 0fecch.5           ;346a  5a cc
-    mov a,0fecch            ;346c  f0 cc
+    clr1 mem_fe7a.2         ;3468  2b 7a
+    set1 mem_fecc.5         ;346a  5a cc
+    mov a,mem_fecc          ;346c  f0 cc
     mov P2_,a               ;346e  f2 02
-    btclr 0fe7bh.4,$lab_348b ;3470  31 41 7b 17
-    clr1 0fecch.6           ;3474  6b cc
-    mov a,0fecch            ;3476  f0 cc
+    btclr mem_fe7b.4,$lab_348b ;3470  31 41 7b 17
+    clr1 mem_fecc.6         ;3474  6b cc
+    mov a,mem_fecc          ;3476  f0 cc
     mov P2_,a               ;3478  f2 02
-    bt 0fe2ch.2,$lab_3481   ;347a  ac 2c 04
-    clr1 0fe7ah.4           ;347d  4b 7a
-    clr1 0fe7ah.3           ;347f  3b 7a
+    bt mem_fe2c.2,$lab_3481 ;347a  ac 2c 04
+    clr1 mem_fe7a.4         ;347d  4b 7a
+    clr1 mem_fe7a.3         ;347f  3b 7a
 
 lab_3481:
-    bf 0fe65h.6,$lab_348b   ;3481  31 63 65 06
-    bf 0fe62h.1,$lab_348b   ;3485  31 13 62 02
-    set1 0fe7dh.0           ;3489  0a 7d
+    bf mem_fe65.6,$lab_348b ;3481  31 63 65 06
+    bf mem_fe62.1,$lab_348b ;3485  31 13 62 02
+    set1 mem_fe7d.0         ;3489  0a 7d
 
 lab_348b:
     mov a,#00h              ;348b  a1 00
-    mov !0fbc9h,a           ;348d  9e c9 fb
-    bf 0fe65h.5,$lab_34a2   ;3490  31 53 65 0e
-    set1 0fe7dh.3           ;3494  3a 7d
-    clr1 0fe61h.4           ;3496  4b 61
-    clr1 0fe5fh.5           ;3498  5b 5f
+    mov !mem_fbc9,a         ;348d  9e c9 fb
+    bf mem_fe65.5,$lab_34a2 ;3490  31 53 65 0e
+    set1 mem_fe7d.3         ;3494  3a 7d
+    clr1 mem_fe61.4         ;3496  4b 61
+    clr1 mem_fe5f.5         ;3498  5b 5f
     mov a,#00h              ;349a  a1 00
-    mov !0fb2eh,a           ;349c  9e 2e fb
-    mov !0f04eh,a           ;349f  9e 4e f0
+    mov !mem_fb2e,a         ;349c  9e 2e fb
+    mov !mem_f04e,a         ;349f  9e 4e f0
 
 lab_34a2:
-    clr1 0fe65h.5           ;34a2  5b 65
-    clr1 0fe65h.7           ;34a4  7b 65
-    clr1 0fe65h.6           ;34a6  6b 65
+    clr1 mem_fe65.5         ;34a2  5b 65
+    clr1 mem_fe65.7         ;34a4  7b 65
+    clr1 mem_fe65.6         ;34a6  6b 65
 
 sub_34a8:
-    clr1 0fe79h.2           ;34a8  2b 79
-    clr1 0fe79h.1           ;34aa  1b 79
-    clr1 0fe7ah.0           ;34ac  0b 7a
-    clr1 0fe7ah.1           ;34ae  1b 7a
-    clr1 0fe79h.3           ;34b0  3b 79
-    clr1 0fe79h.4           ;34b2  4b 79
-    clr1 0fe79h.5           ;34b4  5b 79
-    clr1 0fe7ah.4           ;34b6  4b 7a
-    clr1 0fe7ah.5           ;34b8  5b 7a
-    clr1 0fe79h.0           ;34ba  0b 79
-    clr1 0fe79h.6           ;34bc  6b 79
-    clr1 0fe79h.7           ;34be  7b 79
-    clr1 0fe7bh.1           ;34c0  1b 7b
-    clr1 0fe7bh.2           ;34c2  2b 7b
-    clr1 0fe7bh.3           ;34c4  3b 7b
-    clr1 0fe7bh.4           ;34c6  4b 7b
-    clr1 0fe7bh.5           ;34c8  5b 7b
-    clr1 0fe7bh.6           ;34ca  6b 7b
+    clr1 mem_fe79.2         ;34a8  2b 79
+    clr1 mem_fe79.1         ;34aa  1b 79
+    clr1 mem_fe7a.0         ;34ac  0b 7a
+    clr1 mem_fe7a.1         ;34ae  1b 7a
+    clr1 mem_fe79.3         ;34b0  3b 79
+    clr1 mem_fe79.4         ;34b2  4b 79
+    clr1 mem_fe79.5         ;34b4  5b 79
+    clr1 mem_fe7a.4         ;34b6  4b 7a
+    clr1 mem_fe7a.5         ;34b8  5b 7a
+    clr1 mem_fe79.0         ;34ba  0b 79
+    clr1 mem_fe79.6         ;34bc  6b 79
+    clr1 mem_fe79.7         ;34be  7b 79
+    clr1 mem_fe7b.1         ;34c0  1b 7b
+    clr1 mem_fe7b.2         ;34c2  2b 7b
+    clr1 mem_fe7b.3         ;34c4  3b 7b
+    clr1 mem_fe7b.4         ;34c6  4b 7b
+    clr1 mem_fe7b.5         ;34c8  5b 7b
+    clr1 mem_fe7b.6         ;34ca  6b 7b
     mov a,#00h              ;34cc  a1 00
-    mov !0f079h,a           ;34ce  9e 79 f0
-    clr1 0fe63h.0           ;34d1  0b 63
+    mov !mem_f079,a         ;34ce  9e 79 f0
+    clr1 mem_fe63.0         ;34d1  0b 63
     ret                     ;34d3  af
 
     db 21h                  ;34d4  21          DATA 0x21 '!'
@@ -11408,11 +11430,11 @@ sub_34a8:
 
 lab_34f7:
     mov a,#02h              ;34f7  a1 02
-    mov !0f06eh,a           ;34f9  9e 6e f0
+    mov !mem_f06e,a         ;34f9  9e 6e f0
     mov a,#00h              ;34fc  a1 00
-    mov !0f068h,a           ;34fe  9e 68 f0
-    set1 0fe79h.1           ;3501  1a 79
-    set1 0fe7ah.1           ;3503  1a 7a
+    mov !mem_f068,a         ;34fe  9e 68 f0
+    set1 mem_fe79.1         ;3501  1a 79
+    set1 mem_fe7a.1         ;3503  1a 7a
     ret                     ;3505  af
 
     db 9eh                  ;3506  9e          DATA 0x9e
@@ -11435,163 +11457,163 @@ lab_34f7:
     db 0afh                 ;3517  af          DATA 0xaf
 
 sub_3518:
-    bf 0fe7ah.3,$lab_357b   ;3518  31 33 7a 5f
-    bt 0fe7ah.2,$lab_357b   ;351c  ac 7a 5c
-    bt 0fe7ah.5,$lab_357b   ;351f  dc 7a 59
-    bt 0fe62h.1,$lab_352a   ;3522  9c 62 05
+    bf mem_fe7a.3,$lab_357b ;3518  31 33 7a 5f
+    bt mem_fe7a.2,$lab_357b ;351c  ac 7a 5c
+    bt mem_fe7a.5,$lab_357b ;351f  dc 7a 59
+    bt mem_fe62.1,$lab_352a ;3522  9c 62 05
     bt P2_.4,$lab_3541      ;3525  cc 02 19
-    clr1 0fe7ah.6           ;3528  6b 7a
+    clr1 mem_fe7a.6         ;3528  6b 7a
 
 lab_352a:
-    clr1 0fecch.6           ;352a  6b cc
-    mov a,0fecch            ;352c  f0 cc
+    clr1 mem_fecc.6         ;352a  6b cc
+    mov a,mem_fecc          ;352c  f0 cc
     mov P2_,a               ;352e  f2 02
-    set1 0fecch.5           ;3530  5a cc
-    mov a,0fecch            ;3532  f0 cc
+    set1 mem_fecc.5         ;3530  5a cc
+    mov a,mem_fecc          ;3532  f0 cc
     mov P2_,a               ;3534  f2 02
     mov a,#0dbh             ;3536  a1 db
-    mov !0f077h,a           ;3538  9e 77 f0
-    clr1 0fe7ah.4           ;353b  4b 7a
-    clr1 0fe65h.6           ;353d  6b 65
+    mov !mem_f077,a         ;3538  9e 77 f0
+    clr1 mem_fe7a.4         ;353b  4b 7a
+    clr1 mem_fe65.6         ;353d  6b 65
     br $lab_357b            ;353f  fa 3a
 
 lab_3541:
-    set1 0fe7ah.6           ;3541  6a 7a
-    set1 0fe65h.6           ;3543  6a 65
-    mov a,!0f077h           ;3545  8e 77 f0
+    set1 mem_fe7a.6         ;3541  6a 7a
+    set1 mem_fe65.6         ;3543  6a 65
+    mov a,!mem_f077         ;3545  8e 77 f0
     cmp a,#00h              ;3548  4d 00
     bz $lab_3554            ;354a  ad 08
     dec a                   ;354c  51
-    mov !0f077h,a           ;354d  9e 77 f0
+    mov !mem_f077,a         ;354d  9e 77 f0
     cmp a,#00h              ;3550  4d 00
     bnz $lab_357b           ;3552  bd 27
 
 lab_3554:
     mov ASIM0_,#00h         ;3554  13 a0 00
-    set1 0fecch.6           ;3557  6a cc
-    mov a,0fecch            ;3559  f0 cc
+    set1 mem_fecc.6         ;3557  6a cc
+    mov a,mem_fecc          ;3559  f0 cc
     mov P2_,a               ;355b  f2 02
-    clr1 0fecch.5           ;355d  5b cc
-    mov a,0fecch            ;355f  f0 cc
+    clr1 mem_fecc.5         ;355d  5b cc
+    mov a,mem_fecc          ;355f  f0 cc
     mov P2_,a               ;3561  f2 02
     mov a,#00h              ;3563  a1 00
-    mov !0f071h,a           ;3565  9e 71 f0
+    mov !mem_f071,a         ;3565  9e 71 f0
     mov a,#00h              ;3568  a1 00
-    mov !0f076h,a           ;356a  9e 76 f0
-    clr1 0fe7ah.6           ;356d  6b 7a
-    mov a,!0f073h           ;356f  8e 73 f0
-    mov !0f074h,a           ;3572  9e 74 f0
-    clr1 0fe7ah.3           ;3575  3b 7a
-    set1 0fe7ah.4           ;3577  4a 7a
-    clr1 0fe7ah.5           ;3579  5b 7a
+    mov !mem_f076,a         ;356a  9e 76 f0
+    clr1 mem_fe7a.6         ;356d  6b 7a
+    mov a,!mem_f073         ;356f  8e 73 f0
+    mov !mem_f074,a         ;3572  9e 74 f0
+    clr1 mem_fe7a.3         ;3575  3b 7a
+    set1 mem_fe7a.4         ;3577  4a 7a
+    clr1 mem_fe7a.5         ;3579  5b 7a
 
 lab_357b:
     ret                     ;357b  af
 
 sub_357c:
-    bf 0fe7ah.4,$lab_35e8   ;357c  31 43 7a 68
-    mov a,!0f071h           ;3580  8e 71 f0
+    bf mem_fe7a.4,$lab_35e8 ;357c  31 43 7a 68
+    mov a,!mem_f071         ;3580  8e 71 f0
     inc a                   ;3583  41
-    mov !0f071h,a           ;3584  9e 71 f0
+    mov !mem_f071,a         ;3584  9e 71 f0
     cmp a,#0cdh             ;3587  4d cd
     bz $lab_35ab            ;3589  ad 20
-    bf 0fe7ah.6,$lab_35e8   ;358b  31 63 7a 59
+    bf mem_fe7a.6,$lab_35e8 ;358b  31 63 7a 59
     bt P2_.4,$lab_35e8      ;358f  cc 02 56
-    clr1 0fecch.6           ;3592  6b cc
-    mov a,0fecch            ;3594  f0 cc
+    clr1 mem_fecc.6         ;3592  6b cc
+    mov a,mem_fecc          ;3594  f0 cc
     mov P2_,a               ;3596  f2 02
-    set1 0fecch.5           ;3598  5a cc
-    mov a,0fecch            ;359a  f0 cc
+    set1 mem_fecc.5         ;3598  5a cc
+    mov a,mem_fecc          ;359a  f0 cc
     mov P2_,a               ;359c  f2 02
     mov a,#0dbh             ;359e  a1 db
-    mov !0f077h,a           ;35a0  9e 77 f0
-    clr1 0fe7ah.4           ;35a3  4b 7a
-    set1 0fe7ah.3           ;35a5  3a 7a
-    clr1 0fe65h.6           ;35a7  6b 65
+    mov !mem_f077,a         ;35a0  9e 77 f0
+    clr1 mem_fe7a.4         ;35a3  4b 7a
+    set1 mem_fe7a.3         ;35a5  3a 7a
+    clr1 mem_fe65.6         ;35a7  6b 65
     br $lab_35e8            ;35a9  fa 3d
 
 lab_35ab:
     mov a,#00h              ;35ab  a1 00
-    mov !0f071h,a           ;35ad  9e 71 f0
-    mov a,!0f076h           ;35b0  8e 76 f0
+    mov !mem_f071,a         ;35ad  9e 71 f0
+    mov a,!mem_f076         ;35b0  8e 76 f0
     inc a                   ;35b3  41
-    mov !0f076h,a           ;35b4  9e 76 f0
+    mov !mem_f076,a         ;35b4  9e 76 f0
     cmp a,#09h              ;35b7  4d 09
     bz $lab_35d2            ;35b9  ad 17
     cmp a,#09h              ;35bb  4d 09
     bnc $lab_35dc           ;35bd  9d 1d
-    mov a,!0f074h           ;35bf  8e 74 f0
+    mov a,!mem_f074         ;35bf  8e 74 f0
     ror a,1                 ;35c2  24
-    mov !0f074h,a           ;35c3  9e 74 f0
-    mov1 0fe7ah.6,cy        ;35c6  71 61 7a
-    mov1 0fecch.5,cy        ;35c9  71 51 cc
-    mov a,0fecch            ;35cc  f0 cc
+    mov !mem_f074,a         ;35c3  9e 74 f0
+    mov1 mem_fe7a.6,cy      ;35c6  71 61 7a
+    mov1 mem_fecc.5,cy      ;35c9  71 51 cc
+    mov a,mem_fecc          ;35cc  f0 cc
     mov P2_,a               ;35ce  f2 02
     br $lab_35e8            ;35d0  fa 16
 
 lab_35d2:
-    set1 0fe7ah.6           ;35d2  6a 7a
-    set1 0fecch.5           ;35d4  5a cc
-    mov a,0fecch            ;35d6  f0 cc
+    set1 mem_fe7a.6         ;35d2  6a 7a
+    set1 mem_fecc.5         ;35d4  5a cc
+    mov a,mem_fecc          ;35d6  f0 cc
     mov P2_,a               ;35d8  f2 02
     br $lab_35e8            ;35da  fa 0c
 
 lab_35dc:
-    set1 0fe7ch.0           ;35dc  0a 7c
+    set1 mem_fe7c.0         ;35dc  0a 7c
     mov a,#03h              ;35de  a1 03
-    mov !0fbc9h,a           ;35e0  9e c9 fb
+    mov !mem_fbc9,a         ;35e0  9e c9 fb
     call !sub_34a8          ;35e3  9a a8 34
-    set1 0fe7ah.2           ;35e6  2a 7a
+    set1 mem_fe7a.2         ;35e6  2a 7a
 
 lab_35e8:
     ret                     ;35e8  af
 
 sub_35e9:
-    bt 0fe2ch.2,$lab_35f6   ;35e9  ac 2c 0a
-    bt 0fe2ch.5,$lab_35f6   ;35ec  dc 2c 07
-    bt 0fe2ch.3,$lab_35f6   ;35ef  bc 2c 04
-    clr1 0fe7ah.5           ;35f2  5b 7a
+    bt mem_fe2c.2,$lab_35f6 ;35e9  ac 2c 0a
+    bt mem_fe2c.5,$lab_35f6 ;35ec  dc 2c 07
+    bt mem_fe2c.3,$lab_35f6 ;35ef  bc 2c 04
+    clr1 mem_fe7a.5         ;35f2  5b 7a
     br $lab_362d            ;35f4  fa 37
 
 lab_35f6:
-    bt 0fe7ah.2,$lab_362d   ;35f6  ac 7a 34
-    bt 0fe7ah.4,$lab_362d   ;35f9  cc 7a 31
-    bt 0fe7ah.5,$lab_362f   ;35fc  dc 7a 30
+    bt mem_fe7a.2,$lab_362d ;35f6  ac 7a 34
+    bt mem_fe7a.4,$lab_362d ;35f9  cc 7a 31
+    bt mem_fe7a.5,$lab_362f ;35fc  dc 7a 30
     bf P2_.4,$lab_3607      ;35ff  31 43 02 04
-    clr1 0fe7bh.6           ;3603  6b 7b
+    clr1 mem_fe7b.6         ;3603  6b 7b
     br $lab_362d            ;3605  fa 26
 
 lab_3607:
-    clr1 0fe65h.6           ;3607  6b 65
-    clr1 0fecch.6           ;3609  6b cc
-    mov a,0fecch            ;360b  f0 cc
+    clr1 mem_fe65.6         ;3607  6b 65
+    clr1 mem_fecc.6         ;3609  6b cc
+    mov a,mem_fecc          ;360b  f0 cc
     mov P2_,a               ;360d  f2 02
-    set1 0fecch.5           ;360f  5a cc
-    mov a,0fecch            ;3611  f0 cc
+    set1 mem_fecc.5         ;360f  5a cc
+    mov a,mem_fecc          ;3611  f0 cc
     mov P2_,a               ;3613  f2 02
-    bt 0fe7bh.6,$lab_362d   ;3615  ec 7b 15
-    set1 0fe7ah.5           ;3618  5a 7a
-    clr1 0fe7ah.6           ;361a  6b 7a
+    bt mem_fe7b.6,$lab_362d ;3615  ec 7b 15
+    set1 mem_fe7a.5         ;3618  5a 7a
+    clr1 mem_fe7a.6         ;361a  6b 7a
     mov a,#00h              ;361c  a1 00
-    mov !0f072h,a           ;361e  9e 72 f0
+    mov !mem_f072,a         ;361e  9e 72 f0
     mov a,#00h              ;3621  a1 00
-    mov !0f076h,a           ;3623  9e 76 f0
+    mov !mem_f076,a         ;3623  9e 76 f0
     mov a,#00h              ;3626  a1 00
-    mov !0f075h,a           ;3628  9e 75 f0
-    clr1 0fe7bh.5           ;362b  5b 7b
+    mov !mem_f075,a         ;3628  9e 75 f0
+    clr1 mem_fe7b.5         ;362b  5b 7b
 
 lab_362d:
     br $lab_36ad            ;362d  fa 7e
 
 lab_362f:
-    bt 0fe7ah.6,$lab_3649   ;362f  ec 7a 17
+    bt mem_fe7a.6,$lab_3649 ;362f  ec 7a 17
     bf P2_.4,$lab_3650      ;3632  31 43 02 1a
-    set1 0fe7ah.6           ;3636  6a 7a
+    set1 mem_fe7a.6         ;3636  6a 7a
 
 lab_3638:
-    mov a,!0f072h           ;3638  8e 72 f0
+    mov a,!mem_f072         ;3638  8e 72 f0
     inc a                   ;363b  41
-    mov !0f072h,a           ;363c  9e 72 f0
+    mov !mem_f072,a         ;363c  9e 72 f0
     cmp a,#19h              ;363f  4d 19
     bnc $lab_365d           ;3641  9d 1a
     cmp a,#04h              ;3643  4d 04
@@ -11600,70 +11622,70 @@ lab_3638:
 
 lab_3649:
     bt P2_.4,$lab_3650      ;3649  cc 02 04
-    clr1 0fe7ah.6           ;364c  6b 7a
+    clr1 mem_fe7a.6         ;364c  6b 7a
     br $lab_3638            ;364e  fa e8
 
 lab_3650:
-    mov a,!0f072h           ;3650  8e 72 f0
+    mov a,!mem_f072         ;3650  8e 72 f0
     inc a                   ;3653  41
-    mov !0f072h,a           ;3654  9e 72 f0
+    mov !mem_f072,a         ;3654  9e 72 f0
     cmp a,#19h              ;3657  4d 19
     bnc $lab_365d           ;3659  9d 02
     br $lab_36ad            ;365b  fa 50
 
 lab_365d:
     mov a,#00h              ;365d  a1 00
-    mov !0f072h,a           ;365f  9e 72 f0
-    mov a,!0f076h           ;3662  8e 76 f0
+    mov !mem_f072,a         ;365f  9e 72 f0
+    mov a,!mem_f076         ;3662  8e 76 f0
     inc a                   ;3665  41
-    mov !0f076h,a           ;3666  9e 76 f0
+    mov !mem_f076,a         ;3666  9e 76 f0
     cmp a,#09h              ;3669  4d 09
     bz $lab_3697            ;366b  ad 2a
     cmp a,#09h              ;366d  4d 09
     bnc $lab_3699           ;366f  9d 28
-    mov a,!0f075h           ;3671  8e 75 f0
-    mov1 cy,0fe7ah.6        ;3674  71 64 7a
+    mov a,!mem_f075         ;3671  8e 75 f0
+    mov1 cy,mem_fe7a.6      ;3674  71 64 7a
     rorc a,1                ;3677  25
-    mov !0f075h,a           ;3678  9e 75 f0
+    mov !mem_f075,a         ;3678  9e 75 f0
     br $lab_36ad            ;367b  fa 30
 
 lab_367d:
     mov a,#00h              ;367d  a1 00
-    mov !0f072h,a           ;367f  9e 72 f0
-    mov a,!0f076h           ;3682  8e 76 f0
+    mov !mem_f072,a         ;367f  9e 72 f0
+    mov a,!mem_f076         ;3682  8e 76 f0
     cmp a,#09h              ;3685  4d 09
     bz $lab_3693            ;3687  ad 0a
-    mov a,!0f075h           ;3689  8e 75 f0
+    mov a,!mem_f075         ;3689  8e 75 f0
     xor a,#80h              ;368c  7d 80
-    mov !0f075h,a           ;368e  9e 75 f0
+    mov !mem_f075,a         ;368e  9e 75 f0
     br $lab_36ad            ;3691  fa 1a
 
 lab_3693:
-    bf 0fe7ah.6,$lab_36ae   ;3693  31 63 7a 17
+    bf mem_fe7a.6,$lab_36ae ;3693  31 63 7a 17
 
 lab_3697:
     br $lab_36ad            ;3697  fa 14
 
 lab_3699:
-    bf 0fe7ah.6,$lab_36ae   ;3699  31 63 7a 11
-    mov a,!0f075h           ;369d  8e 75 f0
+    bf mem_fe7a.6,$lab_36ae ;3699  31 63 7a 11
+    mov a,!mem_f075         ;369d  8e 75 f0
     call !sub_36e1          ;36a0  9a e1 36
     bc $lab_36ab            ;36a3  8d 06
-    mov a,!0f075h           ;36a5  8e 75 f0
+    mov a,!mem_f075         ;36a5  8e 75 f0
     call !sub_36bb          ;36a8  9a bb 36
 
 lab_36ab:
-    clr1 0fe7ah.5           ;36ab  5b 7a
+    clr1 mem_fe7a.5         ;36ab  5b 7a
 
 lab_36ad:
     ret                     ;36ad  af
 
 lab_36ae:
-    clr1 0fe7bh.6           ;36ae  6b 7b
-    mov a,!0f075h           ;36b0  8e 75 f0
+    clr1 mem_fe7b.6         ;36ae  6b 7b
+    mov a,!mem_f075         ;36b0  8e 75 f0
     cmp a,#00h              ;36b3  4d 00
     bnz $lab_36ab           ;36b5  bd f4
-    set1 0fe7bh.6           ;36b7  6a 7b
+    set1 mem_fe7b.6         ;36b7  6a 7b
     br $lab_36ab            ;36b9  fa f0
 
 sub_36bb:
@@ -11685,17 +11707,17 @@ lab_36c7:
 
 lab_36d0:
     mov a,b                 ;36d0  63
-    mov !0f06dh,a           ;36d1  9e 6d f0
-    set1 0fe7ch.0           ;36d4  0a 7c
+    mov !mem_f06d,a         ;36d1  9e 6d f0
+    set1 mem_fe7c.0         ;36d4  0a 7c
     mov a,#01h              ;36d6  a1 01
-    mov !0fbc9h,a           ;36d8  9e c9 fb
+    mov !mem_fbc9,a         ;36d8  9e c9 fb
     call !sub_34a8          ;36db  9a a8 34
-    set1 0fe7ah.2           ;36de  2a 7a
+    set1 mem_fe7a.2         ;36de  2a 7a
     ret                     ;36e0  af
 
 sub_36e1:
-    bf 0fe7bh.0,$lab_3705   ;36e1  31 03 7b 20
-    bt 0fe7ah.7,$lab_36ff   ;36e5  fc 7a 17
+    bf mem_fe7b.0,$lab_3705 ;36e1  31 03 7b 20
+    bt mem_fe7a.7,$lab_36ff ;36e5  fc 7a 17
     rol a,1                 ;36e8  26
     xor1 cy,a.7             ;36e9  61 ff
     xor1 cy,a.6             ;36eb  61 ef
@@ -11705,24 +11727,24 @@ sub_36e1:
     xor1 cy,a.2             ;36f3  61 af
     xor1 cy,a.1             ;36f5  61 9f
     bnc $lab_36ff           ;36f7  9d 06
-    bt 0fe7ah.7,$lab_3714   ;36f9  fc 7a 18
+    bt mem_fe7a.7,$lab_3714 ;36f9  fc 7a 18
     clr1 cy                 ;36fc  21
     br $lab_3714            ;36fd  fa 15
 
 lab_36ff:
-    bt 0fe7ah.7,$lab_3714   ;36ff  fc 7a 12
+    bt mem_fe7a.7,$lab_3714 ;36ff  fc 7a 12
     set1 cy                 ;3702  20
     br $lab_3714            ;3703  fa 0f
 
 lab_3705:
     rol a,1                 ;3705  26
     bc $lab_370e            ;3706  8d 06
-    bt 0fe7ah.7,$lab_3714   ;3708  fc 7a 09
+    bt mem_fe7a.7,$lab_3714 ;3708  fc 7a 09
     set1 cy                 ;370b  20
     br $lab_3714            ;370c  fa 06
 
 lab_370e:
-    bt 0fe7ah.7,$lab_3714   ;370e  fc 7a 03
+    bt mem_fe7a.7,$lab_3714 ;370e  fc 7a 03
     clr1 cy                 ;3711  21
     br $lab_3714            ;3712  fa 00
 
@@ -11804,50 +11826,50 @@ lab_3714:
 
 sub_375d:
     clr1 PM8_.0             ;375d  71 0b 28
-    mov a,0fed2h            ;3760  f0 d2
+    mov a,mem_fed2          ;3760  f0 d2
     mov P8_,a               ;3762  f2 08
     clr1 PM9_.7             ;3764  71 7b 29
-    mov a,0fed3h            ;3767  f0 d3
+    mov a,mem_fed3          ;3767  f0 d3
     mov P9_,a               ;3769  f2 09
     clr1 PM9_.4             ;376b  71 4b 29
-    mov a,0fed3h            ;376e  f0 d3
+    mov a,mem_fed3          ;376e  f0 d3
     mov P9_,a               ;3770  f2 09
     clr1 PM8_.2             ;3772  71 2b 28
-    mov a,0fed2h            ;3775  f0 d2
+    mov a,mem_fed2          ;3775  f0 d2
     mov P8_,a               ;3777  f2 08
     clr1 PM8_.1             ;3779  71 1b 28
-    mov a,0fed2h            ;377c  f0 d2
+    mov a,mem_fed2          ;377c  f0 d2
     mov P8_,a               ;377e  f2 08
     ret                     ;3780  af
 
 sub_3781:
     mov a,#02h              ;3781  a1 02
-    mov !0fb0ch,a           ;3783  9e 0c fb
-    mov 0fe2ah,#01h         ;3786  11 2a 01
-    clr1 0fed3h.7           ;3789  7b d3
-    clr1 0fed3h.4           ;378b  4b d3
-    clr1 0fed2h.2           ;378d  2b d2
+    mov !mem_fb0c,a         ;3783  9e 0c fb
+    mov mem_fe2a,#01h       ;3786  11 2a 01
+    clr1 mem_fed3.7         ;3789  7b d3
+    clr1 mem_fed3.4         ;378b  4b d3
+    clr1 mem_fed2.2         ;378d  2b d2
     call !sub_3a06          ;378f  9a 06 3a
-    mov a,!0fb0ch           ;3792  8e 0c fb
+    mov a,!mem_fb0c         ;3792  8e 0c fb
     cmp a,#00h              ;3795  4d 00
     bz $lab_379a            ;3797  ad 01
     ret                     ;3799  af
 
 lab_379a:
     clr1 PM7_.0             ;379a  71 0b 27
-    clr1 0fed1h.0           ;379d  0b d1
-    mov a,0fed1h            ;379f  f0 d1
+    clr1 mem_fed1.0         ;379d  0b d1
+    mov a,mem_fed1          ;379f  f0 d1
     mov P7_,a               ;37a1  f2 07
     mov a,#01h              ;37a3  a1 01
     callf !sub_09d3         ;37a5  1c d3
-    mov 0fe2ah,#02h         ;37a7  11 2a 02
-    clr1 0fed3h.7           ;37aa  7b d3
+    mov mem_fe2a,#02h       ;37a7  11 2a 02
+    clr1 mem_fed3.7         ;37aa  7b d3
     mov a,#00h              ;37ac  a1 00
-    mov !0fb0ch,a           ;37ae  9e 0c fb
-    mov !0fb1fh,a           ;37b1  9e 1f fb
-    mov 0fe2ah,#03h         ;37b4  11 2a 03
-    clr1 0fed3h.4           ;37b7  4b d3
-    mov a,!0fb0ch           ;37b9  8e 0c fb
+    mov !mem_fb0c,a         ;37ae  9e 0c fb
+    mov !mem_fb1f,a         ;37b1  9e 1f fb
+    mov mem_fe2a,#03h       ;37b4  11 2a 03
+    clr1 mem_fed3.4         ;37b7  4b d3
+    mov a,!mem_fb0c         ;37b9  8e 0c fb
     cmp a,#00h              ;37bc  4d 00
     bz $lab_37c1            ;37be  ad 01
     ret                     ;37c0  af
@@ -11856,48 +11878,48 @@ lab_37c1:
     br $lab_37c5            ;37c1  fa 02
 
 lab_37c3:
-    clr1 0fe61h.4           ;37c3  4b 61
+    clr1 mem_fe61.4         ;37c3  4b 61
 
 lab_37c5:
-    mov 0fe2ah,#04h         ;37c5  11 2a 04
+    mov mem_fe2a,#04h       ;37c5  11 2a 04
     mov a,#01h              ;37c8  a1 01
     callf !sub_09d3         ;37ca  1c d3
-    mov 0fe2bh,#40h         ;37cc  11 2b 40
+    mov mem_fe2b,#40h       ;37cc  11 2b 40
     call !sub_3a06          ;37cf  9a 06 3a
-    bf 0fe61h.5,$lab_37da   ;37d2  31 53 61 04
-    set1 0fed3h.4           ;37d6  4a d3
+    bf mem_fe61.5,$lab_37da ;37d2  31 53 61 04
+    set1 mem_fed3.4         ;37d6  4a d3
     br $lab_37ef            ;37d8  fa 15
 
 lab_37da:
-    mov 0fe2ah,#05h         ;37da  11 2a 05
+    mov mem_fe2a,#05h       ;37da  11 2a 05
     mov a,#0ah              ;37dd  a1 0a
-    mov !0fb0ch,a           ;37df  9e 0c fb
-    mov a,!0fb0ch           ;37e2  8e 0c fb
+    mov !mem_fb0c,a         ;37df  9e 0c fb
+    mov a,!mem_fb0c         ;37e2  8e 0c fb
     cmp a,#00h              ;37e5  4d 00
     bz $lab_37ea            ;37e7  ad 01
     ret                     ;37e9  af
 
 lab_37ea:
-    mov 0fe2ah,#04h         ;37ea  11 2a 04
-    clr1 0fed3h.4           ;37ed  4b d3
+    mov mem_fe2a,#04h       ;37ea  11 2a 04
+    clr1 mem_fed3.4         ;37ed  4b d3
 
 lab_37ef:
-    bt 0fe65h.5,$lab_37f6   ;37ef  dc 65 04
-    clr1 0fed2h.2           ;37f2  2b d2
-    clr1 0fed2h.1           ;37f4  1b d2
+    bt mem_fe65.5,$lab_37f6 ;37ef  dc 65 04
+    clr1 mem_fed2.2         ;37f2  2b d2
+    clr1 mem_fed2.1         ;37f4  1b d2
 
 lab_37f6:
-    bt 0fe61h.5,$lab_37fb   ;37f6  dc 61 02
-    clr1 0fed3h.7           ;37f9  7b d3
+    bt mem_fe61.5,$lab_37fb ;37f6  dc 61 02
+    clr1 mem_fed3.7         ;37f9  7b d3
 
 lab_37fb:
-    mov 0fe2ah,#04h         ;37fb  11 2a 04
-    bt 0fe2ch.7,$lab_3804   ;37fe  fc 2c 03
+    mov mem_fe2a,#04h       ;37fb  11 2a 04
+    bt mem_fe2c.7,$lab_3804 ;37fe  fc 2c 03
     br !lab_38dd            ;3801  9b dd 38
 
 lab_3804:
-    bt 0fe2ch.5,$lab_3830   ;3804  dc 2c 29
-    bt 0fe2ch.3,$lab_3830   ;3807  bc 2c 26
+    bt mem_fe2c.5,$lab_3830 ;3804  dc 2c 29
+    bt mem_fe2c.3,$lab_3830 ;3807  bc 2c 26
     ret                     ;380a  af
 
     db 11h                  ;380b  11          DATA 0x11
@@ -11939,108 +11961,108 @@ lab_3804:
     db 93h                  ;382f  93          DATA 0x93
 
 lab_3830:
-    clr1 0fe61h.4           ;3830  4b 61
-    set1 0fed2h.1           ;3832  1a d2
-    set1 0fed2h.2           ;3834  2a d2
-    mov 0fe2ah,#07h         ;3836  11 2a 07
-    clr1 0fe2bh.7           ;3839  7b 2b
-    clr1 0fe2bh.6           ;383b  6b 2b
-    bf 0fe2ch.5,$lab_384c   ;383d  31 53 2c 0b
-    bt 0fe2bh.4,$lab_3856   ;3841  cc 2b 12
-    clr1 0fe7dh.4           ;3844  4b 7d
-    set1 0fe7dh.3           ;3846  3a 7d
-    set1 0fe2bh.4           ;3848  4a 2b
+    clr1 mem_fe61.4         ;3830  4b 61
+    set1 mem_fed2.1         ;3832  1a d2
+    set1 mem_fed2.2         ;3834  2a d2
+    mov mem_fe2a,#07h       ;3836  11 2a 07
+    clr1 mem_fe2b.7         ;3839  7b 2b
+    clr1 mem_fe2b.6         ;383b  6b 2b
+    bf mem_fe2c.5,$lab_384c ;383d  31 53 2c 0b
+    bt mem_fe2b.4,$lab_3856 ;3841  cc 2b 12
+    clr1 mem_fe7d.4         ;3844  4b 7d
+    set1 mem_fe7d.3         ;3846  3a 7d
+    set1 mem_fe2b.4         ;3848  4a 2b
     br $lab_3856            ;384a  fa 0a
 
 lab_384c:
-    bf 0fe2bh.4,$lab_3856   ;384c  31 43 2b 06
-    set1 0fe7dh.4           ;3850  4a 7d
-    clr1 0fe7dh.3           ;3852  3b 7d
-    clr1 0fe2bh.4           ;3854  4b 2b
+    bf mem_fe2b.4,$lab_3856 ;384c  31 43 2b 06
+    set1 mem_fe7d.4         ;3850  4a 7d
+    clr1 mem_fe7d.3         ;3852  3b 7d
+    clr1 mem_fe2b.4         ;3854  4b 2b
 
 lab_3856:
-    set1 0fe2bh.5           ;3856  5a 2b
-    bt 0fe2ch.6,$lab_385d   ;3858  ec 2c 02
-    clr1 0fe2bh.5           ;385b  5b 2b
+    set1 mem_fe2b.5         ;3856  5a 2b
+    bt mem_fe2c.6,$lab_385d ;3858  ec 2c 02
+    clr1 mem_fe2b.5         ;385b  5b 2b
 
 lab_385d:
-    bt 0fed3h.4,$lab_3870   ;385d  cc d3 10
-    mov 0fe2ah,#08h         ;3860  11 2a 08
+    bt mem_fed3.4,$lab_3870 ;385d  cc d3 10
+    mov mem_fe2a,#08h       ;3860  11 2a 08
     mov a,#73h              ;3863  a1 73
-    mov !0fb0ch,a           ;3865  9e 0c fb
-    mov a,!0fb0ch           ;3868  8e 0c fb
+    mov !mem_fb0c,a         ;3865  9e 0c fb
+    mov a,!mem_fb0c         ;3868  8e 0c fb
     cmp a,#00h              ;386b  4d 00
     bz $lab_3870            ;386d  ad 01
     ret                     ;386f  af
 
 lab_3870:
-    mov 0fe2ah,#07h         ;3870  11 2a 07
-    bt 0fe65h.5,$lab_3878   ;3873  dc 65 02
-    set1 0fed3h.4           ;3876  4a d3
+    mov mem_fe2a,#07h       ;3870  11 2a 07
+    bt mem_fe65.5,$lab_3878 ;3873  dc 65 02
+    set1 mem_fed3.4         ;3876  4a d3
 
 lab_3878:
-    bt 0fe2ch.3,$lab_387d   ;3878  bc 2c 02
+    bt mem_fe2c.3,$lab_387d ;3878  bc 2c 02
     br $lab_38d0            ;387b  fa 53
 
 lab_387d:
-    bf 0fe61h.5,$lab_38a2   ;387d  31 53 61 21
-    set1 0fed3h.7           ;3881  7a d3
-    mov a,!0fb71h           ;3883  8e 71 fb
+    bf mem_fe61.5,$lab_38a2 ;387d  31 53 61 21
+    set1 mem_fed3.7         ;3881  7a d3
+    mov a,!mem_fb71         ;3883  8e 71 fb
     cmp a,#0c3h             ;3886  4d c3
     bnz $lab_38a2           ;3888  bd 18
-    mov 0fe2ah,#0ah         ;388a  11 2a 0a
-    bt 0fe61h.5,$lab_38dc   ;388d  dc 61 4c
-    clr1 0fed3h.7           ;3890  7b d3
-    mov 0fe2ah,#0bh         ;3892  11 2a 0b
+    mov mem_fe2a,#0ah       ;388a  11 2a 0a
+    bt mem_fe61.5,$lab_38dc ;388d  dc 61 4c
+    clr1 mem_fed3.7         ;3890  7b d3
+    mov mem_fe2a,#0bh       ;3892  11 2a 0b
     mov a,#0ah              ;3895  a1 0a
-    mov !0fb0ch,a           ;3897  9e 0c fb
-    mov a,!0fb0ch           ;389a  8e 0c fb
+    mov !mem_fb0c,a         ;3897  9e 0c fb
+    mov a,!mem_fb0c         ;389a  8e 0c fb
     cmp a,#00h              ;389d  4d 00
     bz $lab_38a2            ;389f  ad 01
     ret                     ;38a1  af
 
 lab_38a2:
-    mov 0fe2ah,#07h         ;38a2  11 2a 07
-    bf 0fe2ch.5,$lab_38dc   ;38a5  31 53 2c 33
+    mov mem_fe2a,#07h       ;38a2  11 2a 07
+    bf mem_fe2c.5,$lab_38dc ;38a5  31 53 2c 33
     call !sub_3a06          ;38a9  9a 06 3a
-    bt 0fe61h.4,$lab_38c7   ;38ac  cc 61 18
-    mov 0fe2ah,#09h         ;38af  11 2a 09
+    bt mem_fe61.4,$lab_38c7 ;38ac  cc 61 18
+    mov mem_fe2a,#09h       ;38af  11 2a 09
     mov a,#55h              ;38b2  a1 55
-    mov !0fb0ch,a           ;38b4  9e 0c fb
-    mov a,!0fb0ch           ;38b7  8e 0c fb
+    mov !mem_fb0c,a         ;38b4  9e 0c fb
+    mov a,!mem_fb0c         ;38b7  8e 0c fb
     cmp a,#00h              ;38ba  4d 00
     bz $lab_38c3            ;38bc  ad 05
-    bf 0fe2ch.3,$lab_38d0   ;38be  31 33 2c 0e
+    bf mem_fe2c.3,$lab_38d0 ;38be  31 33 2c 0e
     ret                     ;38c2  af
 
 lab_38c3:
-    set1 0fe7eh.0           ;38c3  0a 7e
-    set1 0fe61h.4           ;38c5  4a 61
+    set1 mem_fe7e.0         ;38c3  0a 7e
+    set1 mem_fe61.4         ;38c5  4a 61
 
 lab_38c7:
-    mov 0fe2ah,#07h         ;38c7  11 2a 07
-    bt 0fe65h.5,$lab_38cf   ;38ca  dc 65 02
-    set1 0fed3h.7           ;38cd  7a d3
+    mov mem_fe2a,#07h       ;38c7  11 2a 07
+    bt mem_fe65.5,$lab_38cf ;38ca  dc 65 02
+    set1 mem_fed3.7         ;38cd  7a d3
 
 lab_38cf:
     ret                     ;38cf  af
 
 lab_38d0:
     call !sub_a74b          ;38d0  9a 4b a7
-    set1 0fe7dh.4           ;38d3  4a 7d
-    clr1 0fed2h.1           ;38d5  1b d2
-    clr1 0fed2h.2           ;38d7  2b d2
+    set1 mem_fe7d.4         ;38d3  4a 7d
+    clr1 mem_fed2.1         ;38d5  1b d2
+    clr1 mem_fed2.2         ;38d7  2b d2
     br !lab_37c3            ;38d9  9b c3 37
 
 lab_38dc:
     ret                     ;38dc  af
 
 lab_38dd:
-    mov 0fe2ah,#0ch         ;38dd  11 2a 0c
+    mov mem_fe2a,#0ch       ;38dd  11 2a 0c
     mov a,#00h              ;38e0  a1 00
-    mov !0fb26h,a           ;38e2  9e 26 fb
+    mov !mem_fb26,a         ;38e2  9e 26 fb
     mov a,#05h              ;38e5  a1 05
-    mov !0fb0ch,a           ;38e7  9e 0c fb
+    mov !mem_fb0c,a         ;38e7  9e 0c fb
     br $lab_3924            ;38ea  fa 38
 
     db 11h                  ;38ec  11          DATA 0x11
@@ -12102,8 +12124,8 @@ lab_38dd:
 
 lab_3924:
     mov a,#00h              ;3924  a1 00
-    mov !0fb25h,a           ;3926  9e 25 fb
-    set1 0fe7eh.4           ;3929  4a 7e
+    mov !mem_fb25,a         ;3926  9e 25 fb
+    set1 mem_fe7e.4         ;3929  4a 7e
     ret                     ;392b  af
 
     db 31h                  ;392c  31          DATA 0x31 '1'
@@ -12327,8 +12349,8 @@ lab_3924:
 
 sub_3a06:
     clr1 PM8_.0             ;3a06  71 0b 28
-    set1 0fed2h.0           ;3a09  0a d2
-    mov a,0fed2h            ;3a0b  f0 d2
+    set1 mem_fed2.0         ;3a09  0a d2
+    mov a,mem_fed2          ;3a0b  f0 d2
     mov P8_,a               ;3a0d  f2 08
     ret                     ;3a0f  af
 
@@ -12522,7 +12544,7 @@ sub_3a06:
     db 0afh                 ;3acb  af          DATA 0xaf
 
 lab_3acc:
-    set1 0fe61h.7           ;3acc  7a 61
+    set1 mem_fe61.7         ;3acc  7a 61
     reti                    ;3ace  8f
 
 sub_3acf:
@@ -12534,8 +12556,8 @@ sub_3acf:
     set1 PM2_.5             ;3ade  71 5a 22
     clr1 PU2_.6             ;3ae1  71 6b 32
     set1 PM2_.6             ;3ae4  71 6a 22
-    clr1 0fecch.7           ;3ae7  7b cc
-    mov a,0fecch            ;3ae9  f0 cc
+    clr1 mem_fecc.7         ;3ae7  7b cc
+    mov a,mem_fecc          ;3ae9  f0 cc
     mov P2_,a               ;3aeb  f2 02
     clr1 PU5_.7             ;3aed  71 7b 35
     set1 PM5_.7             ;3af0  71 7a 25
@@ -12650,7 +12672,7 @@ sub_3b80:
     mov CRC00_,#00h         ;3b93  13 62 00
     mov TOC00_,#1bh         ;3b96  13 63 1b
     clr1 PM3_.4             ;3b99  71 4b 23
-    clr1 0fecdh.4           ;3b9c  4b cd
+    clr1 mem_fecd.4         ;3b9c  4b cd
     mov TMC00_,#0ch         ;3b9e  13 60 0c
     ret                     ;3ba1  af
 
@@ -12729,15 +12751,15 @@ sub_3ba2:
 
 sub_3bea:
     mov a,#00h              ;3bea  a1 00
-    mov 0fe2ch,a            ;3bec  f2 2c
-    clr1 0fe63h.0           ;3bee  0b 63
-    clr1 0fe62h.7           ;3bf0  7b 62
+    mov mem_fe2c,a          ;3bec  f2 2c
+    clr1 mem_fe63.0         ;3bee  0b 63
+    clr1 mem_fe62.7         ;3bf0  7b 62
     mov a,#02h              ;3bf2  a1 02
     call !sub_3dbd          ;3bf4  9a bd 3d
 
 sub_3bf7:
     movw de,#0f18ah         ;3bf7  14 8a f1
-    movw hl,#0fe2ch         ;3bfa  16 2c fe
+    movw hl,#mem_fe2c       ;3bfa  16 2c fe
     mov b,#01h              ;3bfd  a3 01
     br !lab_0bf4            ;3bff  9b f4 0b
 
@@ -13186,13 +13208,13 @@ sub_3bf7:
     db 0afh                 ;3dbc  af          DATA 0xaf
 
 sub_3dbd:
-    cmp a,!0fb4ch           ;3dbd  48 4c fb
+    cmp a,!mem_fb4c         ;3dbd  48 4c fb
     bc $lab_3dc5            ;3dc0  8d 03
-    mov !0fb4ch,a           ;3dc2  9e 4c fb
+    mov !mem_fb4c,a         ;3dc2  9e 4c fb
 
 lab_3dc5:
-    bt 0fe2ch.7,$lab_3dd3   ;3dc5  fc 2c 0b
-    set1 0fe2ch.7           ;3dc8  7a 2c
+    bt mem_fe2c.7,$lab_3dd3 ;3dc5  fc 2c 0b
+    set1 mem_fe2c.7         ;3dc8  7a 2c
     mov a,#01h              ;3dca  a1 01
     callt [0048h]           ;3dcc  c9
     call !sub_3bf7          ;3dcd  9a f7 3b
@@ -13203,36 +13225,36 @@ lab_3dd3:
     ret                     ;3dd3  af
 
 sub_3dd4:
-    btclr 0fe62h.5,$lab_3df9 ;3dd4  31 51 62 21
+    btclr mem_fe62.5,$lab_3df9 ;3dd4  31 51 62 21
     bf P0_.1,$lab_3df9      ;3dd8  31 13 00 1d
-    bt 0fe62h.4,$lab_3df1   ;3ddc  cc 62 12
+    bt mem_fe62.4,$lab_3df1 ;3ddc  cc 62 12
     mov a,#00h              ;3ddf  a1 00
-    mov !0fb0dh,a           ;3de1  9e 0d fb
-    bf 0fe62h.7,$lab_3df0   ;3de4  31 73 62 08
-    clr1 0fe62h.7           ;3de8  7b 62
-    clr1 0fe2ch.6           ;3dea  6b 2c
-    clr1 0fe2ch.2           ;3dec  2b 2c
-    clr1 0fe66h.7           ;3dee  7b 66
+    mov !mem_fb0d,a         ;3de1  9e 0d fb
+    bf mem_fe62.7,$lab_3df0 ;3de4  31 73 62 08
+    clr1 mem_fe62.7         ;3de8  7b 62
+    clr1 mem_fe2c.6         ;3dea  6b 2c
+    clr1 mem_fe2c.2         ;3dec  2b 2c
+    clr1 mem_fe66.7         ;3dee  7b 66
 
 lab_3df0:
     ret                     ;3df0  af
 
 lab_3df1:
-    mov a,!0fb0dh           ;3df1  8e 0d fb
+    mov a,!mem_fb0d         ;3df1  8e 0d fb
     cmp a,#00h              ;3df4  4d 00
     bz $lab_3df9            ;3df6  ad 01
     ret                     ;3df8  af
 
 lab_3df9:
-    bt 0fe62h.7,$lab_3e1c   ;3df9  fc 62 20
-    set1 0fe62h.7           ;3dfc  7a 62
-    set1 0fe7dh.4           ;3dfe  4a 7d
-    clr1 0fe2ch.3           ;3e00  3b 2c
-    clr1 0fe62h.6           ;3e02  6b 62
-    clr1 0fe2ch.5           ;3e04  5b 2c
+    bt mem_fe62.7,$lab_3e1c ;3df9  fc 62 20
+    set1 mem_fe62.7         ;3dfc  7a 62
+    set1 mem_fe7d.4         ;3dfe  4a 7d
+    clr1 mem_fe2c.3         ;3e00  3b 2c
+    clr1 mem_fe62.6         ;3e02  6b 62
+    clr1 mem_fe2c.5         ;3e04  5b 2c
     call !sub_3bf7          ;3e06  9a f7 3b
     mov a,#0c3h             ;3e09  a1 c3
-    cmp a,!0fb71h           ;3e0b  48 71 fb
+    cmp a,!mem_fb71         ;3e0b  48 71 fb
     bnz $lab_3e14           ;3e0e  bd 04
     call !sub_2296          ;3e10  9a 96 22
     ret                     ;3e13  af
@@ -13240,7 +13262,7 @@ lab_3df9:
 lab_3e14:
     call !sub_2482          ;3e14  9a 82 24
     call !sub_248f          ;3e17  9a 8f 24
-    clr1 0fe23h.7           ;3e1a  7b 23
+    clr1 mem_fe23.7         ;3e1a  7b 23
 
 lab_3e1c:
     ret                     ;3e1c  af
@@ -13422,7 +13444,7 @@ lab_3e1c:
     db 3bh                  ;3ecb  3b          DATA 0x3b ';'
 
 lab_3ecc:
-    set1 0fe62h.5           ;3ecc  5a 62
+    set1 mem_fe62.5         ;3ecc  5a 62
     reti                    ;3ece  8f
 
     db 14h                  ;3ecf  14          DATA 0x14
@@ -13817,15 +13839,15 @@ lab_3ecc:
 sub_4053:
     push hl                 ;4053  b7
     push de                 ;4054  b5
-    movw hl,#0f206h         ;4055  16 06 f2
-    movw de,#0f26ch         ;4058  14 6c f2
+    movw hl,#mem_f206       ;4055  16 06 f2
+    movw de,#mem_f26c       ;4058  14 6c f2
     callf !sub_0a0d         ;405b  2c 0d
     mov b,a                 ;405d  73
     callf !sub_0c12         ;405e  4c 12
     pop de                  ;4060  b4
     pop hl                  ;4061  b6
-    bf 0fe63h.2,$lab_406b   ;4062  31 23 63 05
-    clr1 0fe63h.2           ;4066  2b 63
+    bf mem_fe63.2,$lab_406b ;4062  31 23 63 05
+    clr1 mem_fe63.2         ;4066  2b 63
     br !lab_0dcf            ;4068  9b cf 0d
 
 lab_406b:
@@ -13845,8 +13867,8 @@ lab_406b:
 sub_4076:
     push hl                 ;4076  b7
     push de                 ;4077  b5
-    movw hl,#0f206h         ;4078  16 06 f2
-    movw de,#0f26ch         ;407b  14 6c f2
+    movw hl,#mem_f206       ;4078  16 06 f2
+    movw de,#mem_f26c       ;407b  14 6c f2
     callf !sub_0a0d         ;407e  2c 0d
     mov b,a                 ;4080  73
     callf !sub_0c0d         ;4081  4c 0d
@@ -13881,7 +13903,7 @@ lab_4095:
     add a,l                 ;409d  61 0e
     xch a,x                 ;409f  30
     addc a,h                ;40a0  61 2f
-    cmpw ax,#0f206h         ;40a2  ea 06 f2
+    cmpw ax,#mem_f206       ;40a2  ea 06 f2
     bc $lab_40ac            ;40a5  8d 05
     cmpw ax,#0f26bh         ;40a7  ea 6b f2
     bc $lab_40b1            ;40aa  8d 05
@@ -13892,23 +13914,23 @@ lab_40ac:
     br $lab_40d4            ;40af  fa 23
 
 lab_40b1:
-    mov a,!0f26ch           ;40b1  8e 6c f2
+    mov a,!mem_f26c         ;40b1  8e 6c f2
     sub a,[hl+b]            ;40b4  31 1b
     mov c,a                 ;40b6  72
-    mov a,!0f26dh           ;40b7  8e 6d f2
+    mov a,!mem_f26d         ;40b7  8e 6d f2
     subc a,#00h             ;40ba  3d 00
-    mov !0f26dh,a           ;40bc  9e 6d f2
+    mov !mem_f26d,a         ;40bc  9e 6d f2
     pop ax                  ;40bf  b0
     mov [hl+b],a            ;40c0  bb
     xch a,c                 ;40c1  32
     add a,c                 ;40c2  61 0a
-    mov !0f26ch,a           ;40c4  9e 6c f2
-    mov a,!0f26dh           ;40c7  8e 6d f2
+    mov !mem_f26c,a         ;40c4  9e 6c f2
+    mov a,!mem_f26d         ;40c7  8e 6d f2
     addc a,#00h             ;40ca  2d 00
-    mov !0f26dh,a           ;40cc  9e 6d f2
+    mov !mem_f26d,a         ;40cc  9e 6d f2
     mov a,c                 ;40cf  62
-    clr1 0fe63h.6           ;40d0  6b 63
-    set1 0fe63h.5           ;40d2  5a 63
+    clr1 mem_fe63.6         ;40d0  6b 63
+    set1 mem_fe63.5         ;40d2  5a 63
 
 lab_40d4:
     pop bc                  ;40d4  b2
@@ -14267,11 +14289,11 @@ lab_40d4:
 
 sub_4234:
     mov a,#01h              ;4234  a1 01
-    mov 0fe30h,a            ;4236  f2 30
-    mov !0f190h,a           ;4238  9e 90 f1
-    set1 0fe7dh.2           ;423b  2a 7d
+    mov mem_fe30,a          ;4236  f2 30
+    mov !mem_f190,a         ;4238  9e 90 f1
+    set1 mem_fe7d.2         ;423b  2a 7d
     mov a,#00h              ;423d  a1 00
-    mov !0f191h,a           ;423f  9e 91 f1
+    mov !mem_f191,a         ;423f  9e 91 f1
     ret                     ;4242  af
 
     db 9ah                  ;4243  9a          DATA 0x9a
@@ -14871,7 +14893,7 @@ sub_4234:
 
 sub_4495:
     movw de,#0f192h         ;4495  14 92 f1
-    movw hl,#0fe30h         ;4498  16 30 fe
+    movw hl,#mem_fe30       ;4498  16 30 fe
     mov b,#01h              ;449b  a3 01
     callf !sub_0bef         ;449d  3c ef
     movw hl,#0f18fh         ;449f  16 8f f1
@@ -15074,7 +15096,7 @@ sub_4495:
     db 0afh                 ;4568  af          DATA 0xaf
 
 sub_4569:
-    clr1 0fe64h.3           ;4569  3b 64
+    clr1 mem_fe64.3         ;4569  3b 64
     mov b,#04h              ;456b  a3 04
     movw hl,#0f193h         ;456d  16 93 f1
     decw hl                 ;4570  96
@@ -15252,8 +15274,8 @@ lab_4571:
 
 sub_461b:
     mov a,#00h              ;461b  a1 00
-    mov !0f190h,a           ;461d  9e 90 f1
-    mov 0fe30h,a            ;4620  f2 30
+    mov !mem_f190,a         ;461d  9e 90 f1
+    mov mem_fe30,a          ;4620  f2 30
     br !sub_4495            ;4622  9b 95 44
 
     db 8eh                  ;4625  8e          DATA 0x8e
@@ -15729,7 +15751,7 @@ sub_461b:
 
 sub_47fb:
     mov a,#04h              ;47fb  a1 04
-    mov !0fbafh,a           ;47fd  9e af fb
+    mov !mem_fbaf,a         ;47fd  9e af fb
     mov a,#02h              ;4800  a1 02
     call !sub_486f          ;4802  9a 6f 48
     movw hl,#0000h          ;4805  16 00 00
@@ -15747,9 +15769,9 @@ lab_4812:
     cmpw ax,#checksum       ;4814  ea fe ef
     xchw ax,hl              ;4817  e6
     bc $lab_480b            ;4818  8d f1
-    mov !0fb9eh,a           ;481a  9e 9e fb
+    mov !mem_fb9e,a         ;481a  9e 9e fb
     xch a,x                 ;481d  30
-    mov !0fb9dh,a           ;481e  9e 9d fb
+    mov !mem_fb9d,a         ;481e  9e 9d fb
     ret                     ;4821  af
 
     db 0a1h                 ;4822  a1          DATA 0xa1
@@ -15959,15 +15981,15 @@ sub_486f:
     db 0afh                 ;48f0  af          DATA 0xaf
 
 lab_48f1:
-    bf 0fe65h.1,$lab_48fa   ;48f1  31 13 65 05
-    mov a,!0fbb1h           ;48f5  8e b1 fb
+    bf mem_fe65.1,$lab_48fa ;48f1  31 13 65 05
+    mov a,!mem_fbb1         ;48f5  8e b1 fb
     br $lab_48fc            ;48f8  fa 02
 
 lab_48fa:
     br $lab_4901            ;48fa  fa 05
 
 lab_48fc:
-    mov 0fed4h,a            ;48fc  f2 d4
+    mov mem_fed4,a          ;48fc  f2 d4
     call !sub_0291          ;48fe  9a 91 02
 
 lab_4901:
@@ -15977,10 +15999,10 @@ sub_4902:
     movw ax,#027fh          ;4902  10 7f 02
     call !sub_abc3          ;4905  9a c3 ab
     bc $lab_4913            ;4908  8d 09
-    mov !0fca3h,a           ;490a  9e a3 fc
+    mov !mem_fca3,a         ;490a  9e a3 fc
     cmp a,#12h              ;490d  4d 12
     bc $lab_4913            ;490f  8d 02
-    set1 0fe65h.1           ;4911  1a 65
+    set1 mem_fe65.1         ;4911  1a 65
 
 lab_4913:
     ret                     ;4913  af
@@ -16082,23 +16104,23 @@ charset_solid_block:
 sub_4960:
     call !sub_4d1a          ;4960  9a 1a 4d
     clr1 cy                 ;4963  21
-    btclr 0fe5eh.7,$lab_496b ;4964  31 71 5e 03
+    btclr mem_fe5e.7,$lab_496b ;4964  31 71 5e 03
     set1 cy                 ;4968  20
     br $lab_498b            ;4969  fa 20
 
 lab_496b:
-    clr1 0feceh.3           ;496b  3b ce
+    clr1 mem_fece.3         ;496b  3b ce
     clr1 PM4_.3             ;496d  71 3b 24
-    mov a,0feceh            ;4970  f0 ce
+    mov a,mem_fece          ;4970  f0 ce
     mov P4_,a               ;4972  f2 04
     mov CSIM30_,#82h        ;4974  13 b0 82
     clr1 PM3_.2             ;4977  71 2b 23
     clr1 PM3_.1             ;497a  71 1b 23
     clr1 PU3_.0             ;497d  71 0b 33
     set1 PM3_.0             ;4980  71 0a 23
-    clr1 0fecdh.2           ;4983  2b cd
-    clr1 0fecdh.1           ;4985  1b cd
-    mov a,0fecdh            ;4987  f0 cd
+    clr1 mem_fecd.2         ;4983  2b cd
+    clr1 mem_fecd.1         ;4985  1b cd
+    mov a,mem_fecd          ;4987  f0 cd
     mov P3_,a               ;4989  f2 03
 
 lab_498b:
@@ -16107,25 +16129,25 @@ lab_498b:
 
 lab_4990:
     call !sub_4d2d          ;4990  9a 2d 4d
-    mov 0fed4h,#80h         ;4993  11 d4 80
-    clr1 0feceh.7           ;4996  7b ce
+    mov mem_fed4,#80h       ;4993  11 d4 80
+    clr1 mem_fece.7         ;4996  7b ce
     clr1 PM4_.7             ;4998  71 7b 24
-    mov a,0feceh            ;499b  f0 ce
+    mov a,mem_fece          ;499b  f0 ce
     mov P4_,a               ;499d  f2 04
     mov a,#4ah              ;499f  a1 4a
     call !sub_4d4d          ;49a1  9a 4d 4d
-    clr1 0feceh.7           ;49a4  7b ce
-    mov a,0feceh            ;49a6  f0 ce
+    clr1 mem_fece.7         ;49a4  7b ce
+    mov a,mem_fece          ;49a6  f0 ce
     mov P4_,a               ;49a8  f2 04
     mov b,#09h              ;49aa  a3 09
     movw de,#charset_fm1    ;49ac  14 21 49
 
 lab_49af:
-    clr1 0feceh.7           ;49af  7b ce
+    clr1 mem_fece.7         ;49af  7b ce
     clr1 PM4_.7             ;49b1  71 7b 24
-    mov a,0feceh            ;49b4  f0 ce
+    mov a,mem_fece          ;49b4  f0 ce
     mov P4_,a               ;49b6  f2 04
-    mov a,0fed4h            ;49b8  f0 d4
+    mov a,mem_fed4          ;49b8  f0 d4
     call !sub_4d4d          ;49ba  9a 4d 4d
     movw ax,de              ;49bd  c4
     movw hl,ax              ;49be  d6
@@ -16134,9 +16156,9 @@ lab_49af:
     push bc                 ;49c3  b3
     mov a,#00h              ;49c4  a1 00
     cmp a,#01h              ;49c6  4d 01
-    set1 0fe5fh.1           ;49c8  1a 5f
+    set1 mem_fe5f.1         ;49c8  1a 5f
     bnz $lab_49db           ;49ca  bd 0f
-    clr1 0fe5fh.1           ;49cc  1b 5f
+    clr1 mem_fe5f.1         ;49cc  1b 5f
     movw ax,hl              ;49ce  c6
     movw hl,ax              ;49cf  d6
     mov a,#07h              ;49d0  a1 07
@@ -16150,8 +16172,8 @@ lab_49d8:
     dbnz b,$lab_49d8        ;49d9  8b fd
 
 lab_49db:
-    set1 0feceh.7           ;49db  7a ce
-    mov a,0feceh            ;49dd  f0 ce
+    set1 mem_fece.7         ;49db  7a ce
+    mov a,mem_fece          ;49dd  f0 ce
     mov P4_,a               ;49df  f2 04
     clr1 IF0H_.4            ;49e1  71 4b e1
     clr1 MK0H_.4            ;49e4  71 4b e5
@@ -16163,24 +16185,24 @@ lab_49db:
     sel rb2                 ;49ef  61 f0
     pop bc                  ;49f1  b2
     pop hl                  ;49f2  b6
-    clr1 0fe5fh.0           ;49f3  0b 5f
+    clr1 mem_fe5f.0         ;49f3  0b 5f
     mov c,#01h              ;49f5  a2 01
     mov a,[hl]              ;49f7  87
     ei                      ;49f8  7a 1e
     mov SIO30_,a            ;49fa  f2 1a
     sel rb0                 ;49fc  61 d0
-    inc 0fed4h              ;49fe  81 d4
+    inc mem_fed4            ;49fe  81 d4
     mov b,#0ffh             ;4a00  a3 ff
 
 lab_4a02:
-    bt 0fe5fh.0,$lab_4a07   ;4a02  8c 5f 02
+    bt mem_fe5f.0,$lab_4a07 ;4a02  8c 5f 02
     dbnz b,$lab_4a02        ;4a05  8b fb
 
 lab_4a07:
     mov b,#0ffh             ;4a07  a3 ff
 
 lab_4a09:
-    bt 0fe5fh.0,$lab_4a0e   ;4a09  8c 5f 02
+    bt mem_fe5f.0,$lab_4a0e ;4a09  8c 5f 02
     dbnz b,$lab_4a09        ;4a0c  8b fb
 
 lab_4a0e:
@@ -16188,23 +16210,23 @@ lab_4a0e:
     dbnz b,$lab_49af        ;4a0f  8b 9e
     mov a,#0c1h             ;4a11  a1 c1
     call !sub_4d4d          ;4a13  9a 4d 4d
-    clr1 0feceh.7           ;4a16  7b ce
-    mov a,0feceh            ;4a18  f0 ce
+    clr1 mem_fece.7         ;4a16  7b ce
+    mov a,mem_fece          ;4a18  f0 ce
     mov P4_,a               ;4a1a  f2 04
     mov a,#04h              ;4a1c  a1 04
     call !sub_4d4d          ;4a1e  9a 4d 4d
-    clr1 0feceh.7           ;4a21  7b ce
-    mov a,0feceh            ;4a23  f0 ce
+    clr1 mem_fece.7         ;4a21  7b ce
+    mov a,mem_fece          ;4a23  f0 ce
     mov P4_,a               ;4a25  f2 04
-    set1 0fecdh.1           ;4a27  1a cd
+    set1 mem_fecd.1         ;4a27  1a cd
     clr1 PM3_.1             ;4a29  71 1b 23
-    mov a,0fecdh            ;4a2c  f0 cd
+    mov a,mem_fecd          ;4a2c  f0 cd
     mov P3_,a               ;4a2e  f2 03
-    clr1 0feceh.7           ;4a30  7b ce
+    clr1 mem_fece.7         ;4a30  7b ce
     clr1 PM4_.7             ;4a32  71 7b 24
-    mov a,0feceh            ;4a35  f0 ce
+    mov a,mem_fece          ;4a35  f0 ce
     mov P4_,a               ;4a37  f2 04
-    set1 0fe5eh.7           ;4a39  7a 5e
+    set1 mem_fe5e.7         ;4a39  7a 5e
     clr1 cy                 ;4a3b  21
 
 lab_4a3c:
@@ -16404,23 +16426,23 @@ lab_4a3c:
 
 sub_4afc:
     clr1 cy                 ;4afc  21
-    btclr 0fe5eh.7,$lab_4b04 ;4afd  31 71 5e 03
+    btclr mem_fe5e.7,$lab_4b04 ;4afd  31 71 5e 03
     set1 cy                 ;4b01  20
     br $lab_4b24            ;4b02  fa 20
 
 lab_4b04:
-    clr1 0feceh.3           ;4b04  3b ce
+    clr1 mem_fece.3         ;4b04  3b ce
     clr1 PM4_.3             ;4b06  71 3b 24
-    mov a,0feceh            ;4b09  f0 ce
+    mov a,mem_fece          ;4b09  f0 ce
     mov P4_,a               ;4b0b  f2 04
     mov CSIM30_,#82h        ;4b0d  13 b0 82
     clr1 PM3_.2             ;4b10  71 2b 23
     clr1 PM3_.1             ;4b13  71 1b 23
     clr1 PU3_.0             ;4b16  71 0b 33
     set1 PM3_.0             ;4b19  71 0a 23
-    clr1 0fecdh.2           ;4b1c  2b cd
-    clr1 0fecdh.1           ;4b1e  1b cd
-    mov a,0fecdh            ;4b20  f0 cd
+    clr1 mem_fecd.2         ;4b1c  2b cd
+    clr1 mem_fecd.1         ;4b1e  1b cd
+    mov a,mem_fecd          ;4b20  f0 cd
     mov P3_,a               ;4b22  f2 03
 
 lab_4b24:
@@ -16429,7 +16451,7 @@ lab_4b24:
 
 lab_4b29:
     call !sub_4d2d          ;4b29  9a 2d 4d
-    mov a,!0fb29h           ;4b2c  8e 29 fb
+    mov a,!mem_fb29         ;4b2c  8e 29 fb
     cmp a,#00h              ;4b2f  4d 00
     bz $lab_4b3f            ;4b31  ad 0c
     movw de,#0fbbdh         ;4b33  14 bd fb
@@ -16444,25 +16466,25 @@ lab_4b3f:
     mov a,#08h              ;4b45  a1 08
     callf !sub_0c9e         ;4b47  4c 9e
     mov a,#14h              ;4b49  a1 14
-    mov !0fb29h,a           ;4b4b  9e 29 fb
-    set1 0fe60h.3           ;4b4e  3a 60
-    set1 0fe7ch.2           ;4b50  2a 7c
-    clr1 0feceh.7           ;4b52  7b ce
+    mov !mem_fb29,a         ;4b4b  9e 29 fb
+    set1 mem_fe60.3         ;4b4e  3a 60
+    set1 mem_fe7c.2         ;4b50  2a 7c
+    clr1 mem_fece.7         ;4b52  7b ce
     clr1 PM4_.7             ;4b54  71 7b 24
-    mov a,0feceh            ;4b57  f0 ce
+    mov a,mem_fece          ;4b57  f0 ce
     mov P4_,a               ;4b59  f2 04
     mov a,#41h              ;4b5b  a1 41
     call !sub_4d4d          ;4b5d  9a 4d 4d
-    clr1 0feceh.7           ;4b60  7b ce
-    mov a,0feceh            ;4b62  f0 ce
+    clr1 mem_fece.7         ;4b60  7b ce
+    mov a,mem_fece          ;4b62  f0 ce
     mov P4_,a               ;4b64  f2 04
     mov a,#80h              ;4b66  a1 80
     call !sub_4d4d          ;4b68  9a 4d 4d
     mov a,#00h              ;4b6b  a1 00
     cmp a,#01h              ;4b6d  4d 01
-    set1 0fe5fh.1           ;4b6f  1a 5f
+    set1 mem_fe5f.1         ;4b6f  1a 5f
     bnz $lab_4b84           ;4b71  bd 11
-    clr1 0fe5fh.1           ;4b73  1b 5f
+    clr1 mem_fe5f.1         ;4b73  1b 5f
     movw ax,#0fe35h         ;4b75  10 35 fe
     movw hl,ax              ;4b78  d6
     mov a,#08h              ;4b79  a1 08
@@ -16476,8 +16498,8 @@ lab_4b81:
     dbnz b,$lab_4b81        ;4b82  8b fd
 
 lab_4b84:
-    set1 0feceh.7           ;4b84  7a ce
-    mov a,0feceh            ;4b86  f0 ce
+    set1 mem_fece.7         ;4b84  7a ce
+    mov a,mem_fece          ;4b86  f0 ce
     mov P4_,a               ;4b88  f2 04
     clr1 IF0H_.4            ;4b8a  71 4b e1
     clr1 MK0H_.4            ;4b8d  71 4b e5
@@ -16489,7 +16511,7 @@ lab_4b84:
     sel rb2                 ;4b9a  61 f0
     pop bc                  ;4b9c  b2
     pop hl                  ;4b9d  b6
-    clr1 0fe5fh.0           ;4b9e  0b 5f
+    clr1 mem_fe5f.0         ;4b9e  0b 5f
     mov c,#01h              ;4ba0  a2 01
     mov a,[hl]              ;4ba2  87
     ei                      ;4ba3  7a 1e
@@ -16497,21 +16519,21 @@ lab_4b84:
     sel rb0                 ;4ba7  61 d0
 
 lab_4ba9:
-    mov a,!0fb2ah           ;4ba9  8e 2a fb
+    mov a,!mem_fb2a         ;4ba9  8e 2a fb
     cmp a,#00h              ;4bac  4d 00
     bnz $lab_4bb3           ;4bae  bd 03
     br !lab_4c5e            ;4bb0  9b 5e 4c
 
 lab_4bb3:
     movw de,#0fbb2h         ;4bb3  14 b2 fb
-    movw hl,#0f19ah         ;4bb6  16 9a f1
+    movw hl,#mem_f19a       ;4bb6  16 9a f1
     mov a,#0bh              ;4bb9  a1 0b
     callf !sub_0cca         ;4bbb  4c ca
     bz $lab_4bc2            ;4bbd  ad 03
     br !lab_4c5e            ;4bbf  9b 5e 4c
 
 lab_4bc2:
-    mov a,!0fb2bh           ;4bc2  8e 2b fb
+    mov a,!mem_fb2b         ;4bc2  8e 2b fb
     cmp a,#00h              ;4bc5  4d 00
     bz $lab_4bcc            ;4bc7  ad 03
     br !lab_4cd5            ;4bc9  9b d5 4c
@@ -16520,35 +16542,35 @@ lab_4bcc:
     mov b,#0ffh             ;4bcc  a3 ff
 
 lab_4bce:
-    bt 0fe5fh.0,$lab_4bd3   ;4bce  8c 5f 02
+    bt mem_fe5f.0,$lab_4bd3 ;4bce  8c 5f 02
     dbnz b,$lab_4bce        ;4bd1  8b fb
 
 lab_4bd3:
-    bt 0fe5fh.0,$lab_4bd9   ;4bd3  8c 5f 03
+    bt mem_fe5f.0,$lab_4bd9 ;4bd3  8c 5f 03
     br !lab_4d05            ;4bd6  9b 05 4d
 
 lab_4bd9:
     mov a,#32h              ;4bd9  a1 32
-    mov !0fb2bh,a           ;4bdb  9e 2b fb
-    mov 0fed4h,#80h         ;4bde  11 d4 80
-    clr1 0feceh.7           ;4be1  7b ce
+    mov !mem_fb2b,a         ;4bdb  9e 2b fb
+    mov mem_fed4,#80h       ;4bde  11 d4 80
+    clr1 mem_fece.7         ;4be1  7b ce
     clr1 PM4_.7             ;4be3  71 7b 24
-    mov a,0feceh            ;4be6  f0 ce
+    mov a,mem_fece          ;4be6  f0 ce
     mov P4_,a               ;4be8  f2 04
     mov a,#4ah              ;4bea  a1 4a
     call !sub_4d4d          ;4bec  9a 4d 4d
-    clr1 0feceh.7           ;4bef  7b ce
-    mov a,0feceh            ;4bf1  f0 ce
+    clr1 mem_fece.7         ;4bef  7b ce
+    mov a,mem_fece          ;4bf1  f0 ce
     mov P4_,a               ;4bf3  f2 04
     mov b,#09h              ;4bf5  a3 09
     movw de,#charset_fm1    ;4bf7  14 21 49
 
 lab_4bfa:
-    clr1 0feceh.7           ;4bfa  7b ce
+    clr1 mem_fece.7         ;4bfa  7b ce
     clr1 PM4_.7             ;4bfc  71 7b 24
-    mov a,0feceh            ;4bff  f0 ce
+    mov a,mem_fece          ;4bff  f0 ce
     mov P4_,a               ;4c01  f2 04
-    mov a,0fed4h            ;4c03  f0 d4
+    mov a,mem_fed4          ;4c03  f0 d4
     call !sub_4d4d          ;4c05  9a 4d 4d
     movw ax,de              ;4c08  c4
     movw hl,ax              ;4c09  d6
@@ -16557,9 +16579,9 @@ lab_4bfa:
     push bc                 ;4c0e  b3
     mov a,#00h              ;4c0f  a1 00
     cmp a,#01h              ;4c11  4d 01
-    set1 0fe5fh.1           ;4c13  1a 5f
+    set1 mem_fe5f.1         ;4c13  1a 5f
     bnz $lab_4c26           ;4c15  bd 0f
-    clr1 0fe5fh.1           ;4c17  1b 5f
+    clr1 mem_fe5f.1         ;4c17  1b 5f
     movw ax,hl              ;4c19  c6
     movw hl,ax              ;4c1a  d6
     mov a,#07h              ;4c1b  a1 07
@@ -16573,8 +16595,8 @@ lab_4c23:
     dbnz b,$lab_4c23        ;4c24  8b fd
 
 lab_4c26:
-    set1 0feceh.7           ;4c26  7a ce
-    mov a,0feceh            ;4c28  f0 ce
+    set1 mem_fece.7         ;4c26  7a ce
+    mov a,mem_fece          ;4c28  f0 ce
     mov P4_,a               ;4c2a  f2 04
     clr1 IF0H_.4            ;4c2c  71 4b e1
     clr1 MK0H_.4            ;4c2f  71 4b e5
@@ -16586,24 +16608,24 @@ lab_4c26:
     sel rb2                 ;4c3a  61 f0
     pop bc                  ;4c3c  b2
     pop hl                  ;4c3d  b6
-    clr1 0fe5fh.0           ;4c3e  0b 5f
+    clr1 mem_fe5f.0         ;4c3e  0b 5f
     mov c,#01h              ;4c40  a2 01
     mov a,[hl]              ;4c42  87
     ei                      ;4c43  7a 1e
     mov SIO30_,a            ;4c45  f2 1a
     sel rb0                 ;4c47  61 d0
-    inc 0fed4h              ;4c49  81 d4
+    inc mem_fed4            ;4c49  81 d4
     mov b,#0ffh             ;4c4b  a3 ff
 
 lab_4c4d:
-    bt 0fe5fh.0,$lab_4c52   ;4c4d  8c 5f 02
+    bt mem_fe5f.0,$lab_4c52 ;4c4d  8c 5f 02
     dbnz b,$lab_4c4d        ;4c50  8b fb
 
 lab_4c52:
     mov b,#0ffh             ;4c52  a3 ff
 
 lab_4c54:
-    bt 0fe5fh.0,$lab_4c59   ;4c54  8c 5f 02
+    bt mem_fe5f.0,$lab_4c59 ;4c54  8c 5f 02
     dbnz b,$lab_4c54        ;4c57  8b fb
 
 lab_4c59:
@@ -16613,41 +16635,41 @@ lab_4c59:
 
 lab_4c5e:
     movw de,#0fbb2h         ;4c5e  14 b2 fb
-    movw hl,#0f19ah         ;4c61  16 9a f1
+    movw hl,#mem_f19a       ;4c61  16 9a f1
     mov a,#0bh              ;4c64  a1 0b
     callf !sub_0c9e         ;4c66  4c 9e
     mov a,#14h              ;4c68  a1 14
-    mov !0fb2ah,a           ;4c6a  9e 2a fb
-    set1 0fe60h.3           ;4c6d  3a 60
-    set1 0fe7ch.2           ;4c6f  2a 7c
+    mov !mem_fb2a,a         ;4c6a  9e 2a fb
+    set1 mem_fe60.3         ;4c6d  3a 60
+    set1 mem_fe7c.2         ;4c6f  2a 7c
     mov b,#0ffh             ;4c71  a3 ff
 
 lab_4c73:
-    bt 0fe5fh.0,$lab_4c78   ;4c73  8c 5f 02
+    bt mem_fe5f.0,$lab_4c78 ;4c73  8c 5f 02
     dbnz b,$lab_4c73        ;4c76  8b fb
 
 lab_4c78:
-    bt 0fe5fh.0,$lab_4c7e   ;4c78  8c 5f 03
+    bt mem_fe5f.0,$lab_4c7e ;4c78  8c 5f 03
     br !lab_4d05            ;4c7b  9b 05 4d
 
 lab_4c7e:
-    clr1 0feceh.7           ;4c7e  7b ce
+    clr1 mem_fece.7         ;4c7e  7b ce
     clr1 PM4_.7             ;4c80  71 7b 24
-    mov a,0feceh            ;4c83  f0 ce
+    mov a,mem_fece          ;4c83  f0 ce
     mov P4_,a               ;4c85  f2 04
     mov a,#40h              ;4c87  a1 40
     call !sub_4d4d          ;4c89  9a 4d 4d
-    clr1 0feceh.7           ;4c8c  7b ce
-    mov a,0feceh            ;4c8e  f0 ce
+    clr1 mem_fece.7         ;4c8c  7b ce
+    mov a,mem_fece          ;4c8e  f0 ce
     mov P4_,a               ;4c90  f2 04
     mov a,#80h              ;4c92  a1 80
     call !sub_4d4d          ;4c94  9a 4d 4d
     mov a,#00h              ;4c97  a1 00
     cmp a,#01h              ;4c99  4d 01
-    set1 0fe5fh.1           ;4c9b  1a 5f
+    set1 mem_fe5f.1         ;4c9b  1a 5f
     bnz $lab_4cb0           ;4c9d  bd 11
-    clr1 0fe5fh.1           ;4c9f  1b 5f
-    movw ax,#0f19ah         ;4ca1  10 9a f1
+    clr1 mem_fe5f.1         ;4c9f  1b 5f
+    movw ax,#mem_f19a       ;4ca1  10 9a f1
     movw hl,ax              ;4ca4  d6
     mov a,#0bh              ;4ca5  a1 0b
     mov b,a                 ;4ca7  73
@@ -16660,20 +16682,20 @@ lab_4cad:
     dbnz b,$lab_4cad        ;4cae  8b fd
 
 lab_4cb0:
-    set1 0feceh.7           ;4cb0  7a ce
-    mov a,0feceh            ;4cb2  f0 ce
+    set1 mem_fece.7         ;4cb0  7a ce
+    mov a,mem_fece          ;4cb2  f0 ce
     mov P4_,a               ;4cb4  f2 04
     clr1 IF0H_.4            ;4cb6  71 4b e1
     clr1 MK0H_.4            ;4cb9  71 4b e5
     clr1 PR0H_.4            ;4cbc  71 4b e9
-    movw ax,#0f19ah         ;4cbf  10 9a f1
+    movw ax,#mem_f19a       ;4cbf  10 9a f1
     push ax                 ;4cc2  b1
     mov a,#0bh              ;4cc3  a1 0b
     push ax                 ;4cc5  b1
     sel rb2                 ;4cc6  61 f0
     pop bc                  ;4cc8  b2
     pop hl                  ;4cc9  b6
-    clr1 0fe5fh.0           ;4cca  0b 5f
+    clr1 mem_fe5f.0         ;4cca  0b 5f
     mov c,#01h              ;4ccc  a2 01
     mov a,[hl]              ;4cce  87
     ei                      ;4ccf  7a 1e
@@ -16681,79 +16703,79 @@ lab_4cb0:
     sel rb0                 ;4cd3  61 d0
 
 lab_4cd5:
-    mov a,!0f1a5h           ;4cd5  8e a5 f1
+    mov a,!mem_f1a5         ;4cd5  8e a5 f1
     cmp a,#0ffh             ;4cd8  4d ff
     bz $lab_4ce1            ;4cda  ad 05
-    mov a,!0fb2eh           ;4cdc  8e 2e fb
+    mov a,!mem_fb2e         ;4cdc  8e 2e fb
     bz $lab_4ce1            ;4cdf  ad 00
 
 lab_4ce1:
     mov b,#0ffh             ;4ce1  a3 ff
 
 lab_4ce3:
-    bt 0fe5fh.0,$lab_4ce8   ;4ce3  8c 5f 02
+    bt mem_fe5f.0,$lab_4ce8 ;4ce3  8c 5f 02
     dbnz b,$lab_4ce3        ;4ce6  8b fb
 
 lab_4ce8:
-    bf 0fe5fh.0,$lab_4d05   ;4ce8  31 03 5f 19
-    clr1 0feceh.7           ;4cec  7b ce
+    bf mem_fe5f.0,$lab_4d05 ;4ce8  31 03 5f 19
+    clr1 mem_fece.7         ;4cec  7b ce
     clr1 PM4_.7             ;4cee  71 7b 24
-    mov a,0feceh            ;4cf1  f0 ce
+    mov a,mem_fece          ;4cf1  f0 ce
     mov P4_,a               ;4cf3  f2 04
     mov a,#4bh              ;4cf5  a1 4b
     call !sub_4d4d          ;4cf7  9a 4d 4d
-    mov a,0fe3eh            ;4cfa  f0 3e
+    mov a,mem_fe3e          ;4cfa  f0 3e
     call !sub_4d4d          ;4cfc  9a 4d 4d
-    clr1 0feceh.7           ;4cff  7b ce
-    mov a,0feceh            ;4d01  f0 ce
+    clr1 mem_fece.7         ;4cff  7b ce
+    mov a,mem_fece          ;4d01  f0 ce
     mov P4_,a               ;4d03  f2 04
 
 lab_4d05:
-    set1 0fecdh.1           ;4d05  1a cd
+    set1 mem_fecd.1         ;4d05  1a cd
     clr1 PM3_.1             ;4d07  71 1b 23
-    mov a,0fecdh            ;4d0a  f0 cd
+    mov a,mem_fecd          ;4d0a  f0 cd
     mov P3_,a               ;4d0c  f2 03
-    clr1 0feceh.7           ;4d0e  7b ce
+    clr1 mem_fece.7         ;4d0e  7b ce
     clr1 PM4_.7             ;4d10  71 7b 24
-    mov a,0feceh            ;4d13  f0 ce
+    mov a,mem_fece          ;4d13  f0 ce
     mov P4_,a               ;4d15  f2 04
-    set1 0fe5eh.7           ;4d17  7a 5e
+    set1 mem_fe5e.7         ;4d17  7a 5e
 
 lab_4d19:
     ret                     ;4d19  af
 
 sub_4d1a:
-    clr1 0feceh.6           ;4d1a  6b ce
+    clr1 mem_fece.6         ;4d1a  6b ce
     clr1 PM4_.6             ;4d1c  71 6b 24
-    mov a,0feceh            ;4d1f  f0 ce
+    mov a,mem_fece          ;4d1f  f0 ce
     mov P4_,a               ;4d21  f2 04
-    clr1 0feceh.7           ;4d23  7b ce
+    clr1 mem_fece.7         ;4d23  7b ce
     clr1 PM4_.7             ;4d25  71 7b 24
-    mov a,0feceh            ;4d28  f0 ce
+    mov a,mem_fece          ;4d28  f0 ce
     mov P4_,a               ;4d2a  f2 04
     ret                     ;4d2c  af
 
 sub_4d2d:
-    clr1 0feceh.7           ;4d2d  7b ce
+    clr1 mem_fece.7         ;4d2d  7b ce
     clr1 PM4_.7             ;4d2f  71 7b 24
-    mov a,0feceh            ;4d32  f0 ce
+    mov a,mem_fece          ;4d32  f0 ce
     mov P4_,a               ;4d34  f2 04
     mov a,#04h              ;4d36  a1 04
     call !sub_4d4d          ;4d38  9a 4d 4d
-    clr1 0feceh.7           ;4d3b  7b ce
-    mov a,0feceh            ;4d3d  f0 ce
+    clr1 mem_fece.7         ;4d3b  7b ce
+    mov a,mem_fece          ;4d3d  f0 ce
     mov P4_,a               ;4d3f  f2 04
     mov a,#0ceh             ;4d41  a1 ce
     call !sub_4d4d          ;4d43  9a 4d 4d
-    clr1 0feceh.7           ;4d46  7b ce
-    mov a,0feceh            ;4d48  f0 ce
+    clr1 mem_fece.7         ;4d46  7b ce
+    mov a,mem_fece          ;4d48  f0 ce
     mov P4_,a               ;4d4a  f2 04
     ret                     ;4d4c  af
 
 sub_4d4d:
     mov x,a                 ;4d4d  70
-    set1 0feceh.7           ;4d4e  7a ce
-    mov a,0feceh            ;4d50  f0 ce
+    set1 mem_fece.7         ;4d4e  7a ce
+    mov a,mem_fece          ;4d50  f0 ce
     mov P4_,a               ;4d52  f2 04
     mov a,x                 ;4d54  60
     callf !sub_087a         ;4d55  0c 7a
@@ -18970,38 +18992,38 @@ sub_4d63:
 
 sub_5607:
     call !sub_5677          ;5607  9a 77 56
-    mov a,!0fbcdh           ;560a  8e cd fb
+    mov a,!mem_fbcd         ;560a  8e cd fb
     call !sub_568f          ;560d  9a 8f 56
-    mov !0fbcdh,a           ;5610  9e cd fb
-    mov a,!0f1a5h           ;5613  8e a5 f1
+    mov !mem_fbcd,a         ;5610  9e cd fb
+    mov a,!mem_f1a5         ;5613  8e a5 f1
     cmp a,#0ffh             ;5616  4d ff
-    movw hl,#0fbcch         ;5618  16 cc fb
-    clr1 0fe66h.2           ;561b  2b 66
+    movw hl,#mem_fbcc       ;5618  16 cc fb
+    clr1 mem_fe66.2         ;561b  2b 66
     bnz $lab_562f           ;561d  bd 10
     movw hl,#0fbceh         ;561f  16 ce fb
-    set1 0fe66h.2           ;5622  2a 66
-    mov a,!0fbd0h           ;5624  8e d0 fb
+    set1 mem_fe66.2         ;5622  2a 66
+    mov a,!mem_fbd0         ;5624  8e d0 fb
     cmp a,#0ffh             ;5627  4d ff
     bz $lab_562f            ;5629  ad 04
     inc a                   ;562b  41
-    mov !0fbd0h,a           ;562c  9e d0 fb
+    mov !mem_fbd0,a         ;562c  9e d0 fb
 
 lab_562f:
     mov a,b                 ;562f  63
     bf a.0,$lab_5676        ;5630  31 0f 43
-    bf 0fe66h.2,$lab_5658   ;5633  31 23 66 21
-    mov a,!0fbd0h           ;5637  8e d0 fb
+    bf mem_fe66.2,$lab_5658 ;5633  31 23 66 21
+    mov a,!mem_fbd0         ;5637  8e d0 fb
     cmp a,#05h              ;563a  4d 05
     mov a,b                 ;563c  63
     bc $lab_5649            ;563d  8d 0a
-    clr1 0fe66h.4           ;563f  4b 66
+    clr1 mem_fe66.4         ;563f  4b 66
     cmp a,#19h              ;5641  4d 19
     bnc $lab_5658           ;5643  9d 13
-    set1 0fe66h.4           ;5645  4a 66
+    set1 mem_fe66.4         ;5645  4a 66
     br $lab_5658            ;5647  fa 0f
 
 lab_5649:
-    set1 0fe66h.3           ;5649  3a 66
+    set1 mem_fe66.3         ;5649  3a 66
     mov1 cy,a.1             ;564b  61 9c
     mov a,[hl]              ;564d  87
     bnc $lab_5654           ;564e  9d 04
@@ -19021,20 +19043,20 @@ lab_5658:
 
 lab_5660:
     mov [hl],a              ;5660  97
-    bf 0fe5dh.7,$lab_5668   ;5661  31 73 5d 03
-    mov !0fbcfh,a           ;5665  9e cf fb
+    bf mem_fe5d.7,$lab_5668 ;5661  31 73 5d 03
+    mov !mem_fbcf,a         ;5665  9e cf fb
 
 lab_5668:
-    bt 0fe66h.2,$lab_566f   ;5668  ac 66 04
-    set1 0fe80h.3           ;566b  3a 80
+    bt mem_fe66.2,$lab_566f ;5668  ac 66 04
+    set1 mem_fe80.3         ;566b  3a 80
     br $lab_5671            ;566d  fa 02
 
 lab_566f:
-    set1 0fe80h.2           ;566f  2a 80
+    set1 mem_fe80.2         ;566f  2a 80
 
 lab_5671:
     mov a,#00h              ;5671  a1 00
-    mov !0fbd0h,a           ;5673  9e d0 fb
+    mov !mem_fbd0,a         ;5673  9e d0 fb
 
 lab_5676:
     ret                     ;5676  af
@@ -19057,11 +19079,11 @@ sub_568f:
     xch a,x                 ;5691  30
     xor a,x                 ;5692  61 78
     and a,#0c0h             ;5694  5d c0
-    mov 0fe32h,a            ;5696  f2 32
+    mov mem_fe32,a          ;5696  f2 32
     mov a,x                 ;5698  60
-    bf 0fe32h.7,$lab_56c3   ;5699  31 73 32 26
+    bf mem_fe32.7,$lab_56c3 ;5699  31 73 32 26
     bf a.5,$lab_56b4        ;569d  31 5f 14
-    bf 0fe32h.6,$lab_56ad   ;56a0  31 63 32 09
+    bf mem_fe32.6,$lab_56ad ;56a0  31 63 32 09
     xor a,#0ffh             ;56a4  7d ff
     and a,#0fh              ;56a6  5d 0f
     mov a,x                 ;56a8  60
@@ -19086,7 +19108,7 @@ lab_56b4:
 
 lab_56c3:
     or a,#2fh               ;56c3  6d 2f
-    bf 0fe32h.6,$lab_56cb   ;56c5  31 63 32 02
+    bf mem_fe32.6,$lab_56cb ;56c5  31 63 32 02
     xor a,#40h              ;56c9  7d 40
 
 lab_56cb:
@@ -19662,9 +19684,9 @@ lab_56cb:
     db 0afh                 ;5903  af          DATA 0xaf
 
 lab_5904:
-    clr1 0fe67h.2           ;5904  2b 67
+    clr1 mem_fe67.2         ;5904  2b 67
     push ax                 ;5906  b1
-    mov a,!0f1e9h           ;5907  8e e9 f1
+    mov a,!mem_f1e9         ;5907  8e e9 f1
     bt a.0,$lab_5913        ;590a  31 0e 06
     bt P0_.4,$lab_5913      ;590d  cc 00 03
     call !sub_5915          ;5910  9a 15 59
@@ -19674,31 +19696,31 @@ lab_5913:
     reti                    ;5914  8f
 
 sub_5915:
-    bt 0fe2dh.0,$lab_5924   ;5915  8c 2d 0c
-    set1 0fe67h.0           ;5918  0a 67
+    bt mem_fe2d.0,$lab_5924 ;5915  8c 2d 0c
+    set1 mem_fe67.0         ;5918  0a 67
     mov a,#00h              ;591a  a1 00
-    mov !0fbd5h,a           ;591c  9e d5 fb
-    mov !0fc27h,a           ;591f  9e 27 fc
+    mov !mem_fbd5,a         ;591c  9e d5 fb
+    mov !mem_fc27,a         ;591f  9e 27 fc
     br $lab_593a            ;5922  fa 16
 
 lab_5924:
-    set1 0fe7dh.6           ;5924  6a 7d
-    clr1 0fe66h.6           ;5926  6b 66
-    mov a,!0fc27h           ;5928  8e 27 fc
+    set1 mem_fe7d.6         ;5924  6a 7d
+    clr1 mem_fe66.6         ;5926  6b 66
+    mov a,!mem_fc27         ;5928  8e 27 fc
     cmp a,#87h              ;592b  4d 87
     bnz $lab_593a           ;592d  bd 0b
     mov a,#00h              ;592f  a1 00
-    mov !0fb3ah,a           ;5931  9e 3a fb
-    set1 0fe66h.6           ;5934  6a 66
-    clr1 0fe7dh.6           ;5936  6b 7d
-    set1 0fe7dh.5           ;5938  5a 7d
+    mov !mem_fb3a,a         ;5931  9e 3a fb
+    set1 mem_fe66.6         ;5934  6a 66
+    clr1 mem_fe7d.6         ;5936  6b 7d
+    set1 mem_fe7d.5         ;5938  5a 7d
 
 lab_593a:
     ret                     ;593a  af
 
 lab_593b:
-    bt 0fe62h.1,$lab_5940   ;593b  9c 62 02
-    set1 0fe7dh.7           ;593e  7a 7d
+    bt mem_fe62.1,$lab_5940 ;593b  9c 62 02
+    set1 mem_fe7d.7         ;593e  7a 7d
 
 lab_5940:
     reti                    ;5940  8f
@@ -19719,20 +19741,20 @@ lab_5944:
     xch a,x                 ;5957  30
     rorc a,1                ;5958  25
     movw !0f00ch,ax         ;5959  03 0c f0
-    cmp 0fe34h,#12h         ;595c  c8 34 12
+    cmp mem_fe34,#12h       ;595c  c8 34 12
     bnz $lab_5969           ;595f  bd 08
     cmpw ax,#8217h          ;5961  ea 17 82
     bz $lab_596e            ;5964  ad 08
     br !lab_59fd            ;5966  9b fd 59
 
 lab_5969:
-    cmp 0fe34h,#22h         ;5969  c8 34 22
+    cmp mem_fe34,#22h       ;5969  c8 34 22
     bz $lab_5978            ;596c  ad 0a
 
 lab_596e:
-    inc 0fe34h              ;596e  81 34
+    inc mem_fe34            ;596e  81 34
     mov a,#05h              ;5970  a1 05
-    mov !0fb05h,a           ;5972  9e 05 fb
+    mov !mem_fb05,a         ;5972  9e 05 fb
     br !lab_5a0e            ;5975  9b 0e 5a
 
 lab_5978:
@@ -19741,13 +19763,13 @@ lab_5978:
     cmp a,x                 ;597b  61 48
     bnz $lab_59fd           ;597d  bd 7e
     xch a,x                 ;597f  30
-    mov !0f197h,a           ;5980  9e 97 f1
-    set1 0fe67h.4           ;5983  4a 67
-    set1 0fe67h.5           ;5985  5a 67
-    clr1 0fe67h.7           ;5987  7b 67
-    mov 0fe34h,#00h         ;5989  11 34 00
+    mov !mem_f197,a         ;5980  9e 97 f1
+    set1 mem_fe67.4         ;5983  4a 67
+    set1 mem_fe67.5         ;5985  5a 67
+    clr1 mem_fe67.7         ;5987  7b 67
+    mov mem_fe34,#00h       ;5989  11 34 00
     mov a,#9fh              ;598c  a1 9f
-    mov !0fb05h,a           ;598e  9e 05 fb
+    mov !mem_fb05,a         ;598e  9e 05 fb
     br $lab_5a0e            ;5991  fa 7b
 
 lab_5993:
@@ -19757,9 +19779,9 @@ lab_5993:
     push de                 ;5997  b5
     push hl                 ;5998  b7
     movw de,ax              ;5999  d4
-    cmp 0fe34h,#23h         ;599a  c8 34 23
+    cmp mem_fe34,#23h       ;599a  c8 34 23
     bnc $lab_59fd           ;599d  9d 5e
-    cmp 0fe34h,#01h         ;599f  c8 34 01
+    cmp mem_fe34,#01h       ;599f  c8 34 01
     bz $lab_59a9            ;59a2  ad 05
     bt P0_.0,$lab_59c9      ;59a4  8c 00 22
     br $lab_59ad            ;59a7  fa 04
@@ -19769,54 +19791,54 @@ lab_59a9:
 
 lab_59ad:
     mov a,#00h              ;59ad  a1 00
-    cmp a,!0fb0eh           ;59af  48 0e fb
+    cmp a,!mem_fb0e         ;59af  48 0e fb
     bnz $lab_59b7           ;59b2  bd 03
-    mov !0f198h,a           ;59b4  9e 98 f1
+    mov !mem_f198,a         ;59b4  9e 98 f1
 
 lab_59b7:
-    mov a,!0f198h           ;59b7  8e 98 f1
+    mov a,!mem_f198         ;59b7  8e 98 f1
     inc a                   ;59ba  41
-    mov !0f198h,a           ;59bb  9e 98 f1
+    mov !mem_f198,a         ;59bb  9e 98 f1
     cmp a,#03h              ;59be  4d 03
     bnc $lab_59fd           ;59c0  9d 3b
     mov a,#64h              ;59c2  a1 64
-    mov !0fb0eh,a           ;59c4  9e 0e fb
+    mov !mem_fb0e,a         ;59c4  9e 0e fb
     br $lab_5a0e            ;59c7  fa 45
 
 lab_59c9:
     mov a,#00h              ;59c9  a1 00
-    mov !0f198h,a           ;59cb  9e 98 f1
-    mov a,!0fb05h           ;59ce  8e 05 fb
+    mov !mem_f198,a         ;59cb  9e 98 f1
+    mov a,!mem_fb05         ;59ce  8e 05 fb
     cmp a,#00h              ;59d1  4d 00
     bz $lab_5a23            ;59d3  ad 4e
-    cmp 0fe34h,#00h         ;59d5  c8 34 00
+    cmp mem_fe34,#00h       ;59d5  c8 34 00
     bz $lab_5a13            ;59d8  ad 39
     movw ax,de              ;59da  c4
     xch a,x                 ;59db  30
-    sub a,!0f00eh           ;59dc  18 0e f0
+    sub a,!mem_f00e         ;59dc  18 0e f0
     xch a,x                 ;59df  30
-    subc a,!0f00fh          ;59e0  38 0f f0
+    subc a,!mem_f00f        ;59e0  38 0f f0
     bnc $lab_59e9           ;59e3  9d 04
     addw ax,#0ffffh         ;59e5  ca ff ff
     incw ax                 ;59e8  80
 
 lab_59e9:
     xchw ax,de              ;59e9  e4
-    movw !0f00eh,ax         ;59ea  03 0e f0
+    movw !mem_f00e,ax       ;59ea  03 0e f0
     xchw ax,de              ;59ed  e4
-    cmp 0fe34h,#02h         ;59ee  c8 34 02
+    cmp mem_fe34,#02h       ;59ee  c8 34 02
     bc $lab_5a3d            ;59f1  8d 4a
     bz $lab_5a58            ;59f3  ad 63
-    cmp 0fe34h,#23h         ;59f5  c8 34 23
+    cmp mem_fe34,#23h       ;59f5  c8 34 23
     bnc $lab_59fd           ;59f8  9d 03
     br !lab_5944            ;59fa  9b 44 59
 
 lab_59fd:
     mov a,#00h              ;59fd  a1 00
-    mov 0fe34h,a            ;59ff  f2 34
-    mov !0fb05h,a           ;5a01  9e 05 fb
-    clr1 0fe67h.4           ;5a04  4b 67
-    clr1 0fe67h.5           ;5a06  5b 67
+    mov mem_fe34,a          ;59ff  f2 34
+    mov !mem_fb05,a         ;5a01  9e 05 fb
+    clr1 mem_fe67.4         ;5a04  4b 67
+    clr1 mem_fe67.5         ;5a06  5b 67
     set1 EGP_.0             ;5a08  71 0a 48
     clr1 EGN_.0             ;5a0b  71 0b 49
 
@@ -19830,25 +19852,25 @@ lab_5a0e:
 lab_5a13:
     cmp a,#7ah              ;5a13  4d 7a
     bnc $lab_59fd           ;5a15  9d e6
-    set1 0fe67h.3           ;5a17  3a 67
-    set1 0fe67h.6           ;5a19  6a 67
+    set1 mem_fe67.3         ;5a17  3a 67
+    set1 mem_fe67.6         ;5a19  6a 67
     cmp a,#63h              ;5a1b  4d 63
     bnc $lab_5a27           ;5a1d  9d 08
     cmp a,#06h              ;5a1f  4d 06
     bc $lab_5a27            ;5a21  8d 04
 
 lab_5a23:
-    clr1 0fe67h.3           ;5a23  3b 67
-    clr1 0fe67h.6           ;5a25  6b 67
+    clr1 mem_fe67.3         ;5a23  3b 67
+    clr1 mem_fe67.6         ;5a25  6b 67
 
 lab_5a27:
-    mov 0fe34h,#01h         ;5a27  11 34 01
+    mov mem_fe34,#01h       ;5a27  11 34 01
     set1 EGN_.0             ;5a2a  71 0a 49
     clr1 EGP_.0             ;5a2d  71 0b 48
     movw ax,de              ;5a30  c4
-    movw !0f00eh,ax         ;5a31  03 0e f0
+    movw !mem_f00e,ax       ;5a31  03 0e f0
     mov a,#0eh              ;5a34  a1 0e
-    mov !0fb05h,a           ;5a36  9e 05 fb
+    mov !mem_fb05,a         ;5a36  9e 05 fb
     br $lab_5a0e            ;5a39  fa d3
 
     db 0fah                 ;5a3b  fa          DATA 0xfa
@@ -19859,11 +19881,11 @@ lab_5a3d:
     bc $lab_59fd            ;5a40  8d bb
     cmpw ax,#0c49ch         ;5a42  ea 9c c4
     bnc $lab_59fd           ;5a45  9d b6
-    mov 0fe34h,#02h         ;5a47  11 34 02
+    mov mem_fe34,#02h       ;5a47  11 34 02
     set1 EGP_.0             ;5a4a  71 0a 48
     clr1 EGN_.0             ;5a4d  71 0b 49
     mov a,#07h              ;5a50  a1 07
-    mov !0fb05h,a           ;5a52  9e 05 fb
+    mov !mem_fb05,a         ;5a52  9e 05 fb
     br !lab_5a0e            ;5a55  9b 0e 5a
 
 lab_5a58:
@@ -19873,19 +19895,19 @@ lab_5a58:
     bnc $lab_59fd           ;5a60  9d 9b
     cmpw ax,#3126h          ;5a62  ea 26 31
     bc $lab_5a74            ;5a65  8d 0d
-    mov 0fe34h,#03h         ;5a67  11 34 03
-    set1 0fe68h.0           ;5a6a  0a 68
+    mov mem_fe34,#03h       ;5a67  11 34 03
+    set1 mem_fe68.0         ;5a6a  0a 68
     mov a,#05h              ;5a6c  a1 05
-    mov !0fb05h,a           ;5a6e  9e 05 fb
+    mov !mem_fb05,a         ;5a6e  9e 05 fb
     br !lab_5a0e            ;5a71  9b 0e 5a
 
 lab_5a74:
-    mov 0fe34h,#00h         ;5a74  11 34 00
-    set1 0fe67h.4           ;5a77  4a 67
-    set1 0fe67h.5           ;5a79  5a 67
-    clr1 0fe67h.7           ;5a7b  7b 67
+    mov mem_fe34,#00h       ;5a74  11 34 00
+    set1 mem_fe67.4         ;5a77  4a 67
+    set1 mem_fe67.5         ;5a79  5a 67
+    clr1 mem_fe67.7         ;5a7b  7b 67
     mov a,#0d7h             ;5a7d  a1 d7
-    mov !0fb05h,a           ;5a7f  9e 05 fb
+    mov !mem_fb05,a         ;5a7f  9e 05 fb
     br !lab_5a0e            ;5a82  9b 0e 5a
 
     db 30h                  ;5a85  30          DATA 0x30 '0'
@@ -19975,7 +19997,7 @@ lab_5ad1:
     addw ax,#9374h          ;5adb  ca 74 93
     movw CR011_,ax          ;5ade  99 12
     movw !0f018h,ax         ;5ae0  03 18 f0
-    set1 0fe68h.2           ;5ae3  2a 68
+    set1 mem_fe68.2         ;5ae3  2a 68
     br !lab_5ba0            ;5ae5  9b a0 5b
 
 lab_5ae8:
@@ -19985,7 +20007,7 @@ lab_5ae8:
     addw ax,#49bah          ;5aef  ca ba 49
     movw CR011_,ax          ;5af2  99 12
     movw !0f018h,ax         ;5af4  03 18 f0
-    clr1 0fe68h.2           ;5af7  2b 68
+    clr1 mem_fe68.2         ;5af7  2b 68
     br !lab_5ba0            ;5af9  9b a0 5b
 
 lab_5afc:
@@ -20003,9 +20025,9 @@ lab_5b04:
 
 lab_5b0f:
     movw ax,#0000h          ;5b0f  10 00 00
-    bf 0fe68h.1,$lab_5b1b   ;5b12  31 13 68 05
+    bf mem_fe68.1,$lab_5b1b ;5b12  31 13 68 05
     movw ax,#0608h          ;5b16  10 08 06
-    clr1 0fe68h.2           ;5b19  2b 68
+    clr1 mem_fe68.2         ;5b19  2b 68
 
 lab_5b1b:
     movw !0f010h,ax         ;5b1b  03 10 f0
@@ -20016,11 +20038,11 @@ lab_5b1b:
     br !lab_5ba0            ;5b27  9b a0 5b
 
 lab_5b2a:
-    mov a,!0f199h           ;5b2a  8e 99 f1
+    mov a,!mem_f199         ;5b2a  8e 99 f1
     cmp a,#00h              ;5b2d  4d 00
     bz $lab_5b90            ;5b2f  ad 5f
     dec a                   ;5b31  51
-    mov !0f199h,a           ;5b32  9e 99 f1
+    mov !mem_f199,a         ;5b32  9e 99 f1
     mov b,a                 ;5b35  73
     movw hl,#0f016h         ;5b36  16 16 f0
     mov a,[hl+b]            ;5b39  ab
@@ -20035,7 +20057,7 @@ lab_5b2a:
     addw ax,#0937h          ;5b4e  ca 37 09
     movw CR011_,ax          ;5b51  99 12
     movw !0f018h,ax         ;5b53  03 18 f0
-    clr1 0fe68h.2           ;5b56  2b 68
+    clr1 mem_fe68.2         ;5b56  2b 68
     br $lab_5ba0            ;5b58  fa 46
 
 lab_5b5a:
@@ -20048,9 +20070,9 @@ lab_5b60:
     push ax                 ;5b60  b1
     push de                 ;5b61  b5
     push hl                 ;5b62  b7
-    mov1 cy,0fe68h.2        ;5b63  71 24 68
-    mov1 0fecfh.7,cy        ;5b66  71 71 cf
-    mov a,0fecfh            ;5b69  f0 cf
+    mov1 cy,mem_fe68.2      ;5b63  71 24 68
+    mov1 mem_fecf.7,cy      ;5b66  71 71 cf
+    mov a,mem_fecf          ;5b69  f0 cf
     mov P5_,a               ;5b6b  f2 05
     movw ax,TM01_           ;5b6d  89 14
     movw de,ax              ;5b6f  d4
@@ -20073,11 +20095,11 @@ lab_5b83:
     br !lab_5afc            ;5b8d  9b fc 5a
 
 lab_5b90:
-    clr1 0fe68h.1           ;5b90  1b 68
-    clr1 0fe68h.3           ;5b92  3b 68
+    clr1 mem_fe68.1         ;5b90  1b 68
+    clr1 mem_fe68.3         ;5b92  3b 68
     clr1 PM5_.7             ;5b94  71 7b 25
-    set1 0fecfh.7           ;5b97  7a cf
-    mov a,0fecfh            ;5b99  f0 cf
+    set1 mem_fecf.7         ;5b97  7a cf
+    mov a,mem_fecf          ;5b99  f0 cf
     mov P5_,a               ;5b9b  f2 05
     set1 MK1L_.4            ;5b9d  71 4a e6
 
@@ -20097,7 +20119,7 @@ lab_5ba4:
     addw ax,#9374h          ;5bae  ca 74 93
     movw CR011_,ax          ;5bb1  99 12
     movw !0f018h,ax         ;5bb3  03 18 f0
-    set1 0fe68h.2           ;5bb6  2a 68
+    set1 mem_fe68.2         ;5bb6  2a 68
     br !lab_5ba0            ;5bb8  9b a0 5b
 
 lab_5bbb:
@@ -20107,7 +20129,7 @@ lab_5bbb:
     addw ax,#49bah          ;5bc2  ca ba 49
     movw CR011_,ax          ;5bc5  99 12
     movw !0f018h,ax         ;5bc7  03 18 f0
-    clr1 0fe68h.2           ;5bca  2b 68
+    clr1 mem_fe68.2         ;5bca  2b 68
     br !lab_5ba0            ;5bcc  9b a0 5b
 
 lab_5bcf:
@@ -20128,7 +20150,7 @@ lab_5bdb:
     movw !0f014h,ax         ;5be5  03 14 f0
 
 lab_5be8:
-    clr1 0fe68h.2           ;5be8  2b 68
+    clr1 mem_fe68.2         ;5be8  2b 68
     bc $lab_5bf8            ;5bea  8d 0c
     movw ax,de              ;5bec  c4
     addw ax,#0937h          ;5bed  ca 37 09
@@ -20150,7 +20172,7 @@ lab_5c04:
     addw ax,#0937h          ;5c09  ca 37 09
     movw CR011_,ax          ;5c0c  99 12
     movw !0f018h,ax         ;5c0e  03 18 f0
-    set1 0fe68h.2           ;5c11  2a 68
+    set1 mem_fe68.2         ;5c11  2a 68
     br !lab_5ba0            ;5c13  9b a0 5b
 
 lab_5c16:
@@ -20182,15 +20204,15 @@ lab_5c31:
     br !lab_5ba0            ;5c3e  9b a0 5b
 
 lab_5c41:
-    bf 0fe68h.1,$lab_5c4d   ;5c41  31 13 68 08
+    bf mem_fe68.1,$lab_5c4d ;5c41  31 13 68 08
     movw ax,#0502h          ;5c45  10 02 05
-    clr1 0fe68h.2           ;5c48  2b 68
+    clr1 mem_fe68.2         ;5c48  2b 68
     br !lab_5c58            ;5c4a  9b 58 5c
 
 lab_5c4d:
     movw ax,#0000h          ;5c4d  10 00 00
     movw !0f010h,ax         ;5c50  03 10 f0
-    set1 0fe68h.2           ;5c53  2a 68
+    set1 mem_fe68.2         ;5c53  2a 68
     br !lab_5ba0            ;5c55  9b a0 5b
 
 lab_5c58:
@@ -20653,7 +20675,7 @@ lab_5c58:
     db 0afh                 ;5e26  af          DATA 0xaf
 
 sub_5e27:
-    movw hl,#0fed4h         ;5e27  16 d4 fe
+    movw hl,#mem_fed4       ;5e27  16 d4 fe
     push ax                 ;5e2a  b1
     and a,#3fh              ;5e2b  5d 3f
     cmp a,#22h              ;5e2d  4d 22
@@ -20664,26 +20686,26 @@ sub_5e27:
 
 lab_5e34:
     push bc                 ;5e34  b3
-    clr1 0fe68h.4           ;5e35  4b 68
+    clr1 mem_fe68.4         ;5e35  4b 68
     bf a.6,$lab_5e3c        ;5e37  31 6f 02
-    set1 0fe68h.4           ;5e3a  4a 68
+    set1 mem_fe68.4         ;5e3a  4a 68
 
 lab_5e3c:
     bf a.7,$lab_5e66        ;5e3c  31 7f 27
     clr1 PU7_.4             ;5e3f  71 4b 37
     set1 PM7_.4             ;5e42  71 4a 27
-    clr1 0fed1h.4           ;5e45  4b d1
+    clr1 mem_fed1.4         ;5e45  4b d1
     push ax                 ;5e47  b1
-    mov a,0fed1h            ;5e48  f0 d1
+    mov a,mem_fed1          ;5e48  f0 d1
     mov P7_,a               ;5e4a  f2 07
     clr1 PU7_.3             ;5e4c  71 3b 37
     set1 PM7_.3             ;5e4f  71 3a 27
-    clr1 0fed1h.3           ;5e52  3b d1
-    mov a,0fed1h            ;5e54  f0 d1
+    clr1 mem_fed1.3         ;5e52  3b d1
+    mov a,mem_fed1          ;5e54  f0 d1
     mov P7_,a               ;5e56  f2 07
     pop ax                  ;5e58  b0
     clr1 PM7_.4             ;5e59  71 4b 27
-    cmp 0fefbh,#00h         ;5e5c  c8 fb 00
+    cmp mem_fefb,#00h       ;5e5c  c8 fb 00
     nop                     ;5e5f  00
     nop                     ;5e60  00
     nop                     ;5e61  00
@@ -20713,8 +20735,8 @@ lab_5e7c:
     nop                     ;5e7c  00
     clr1 PU7_.3             ;5e7d  71 3b 37
     set1 PM7_.3             ;5e80  71 3a 27
-    cmp 0fefbh,#00h         ;5e83  c8 fb 00
-    cmp 0fefbh,#00h         ;5e86  c8 fb 00
+    cmp mem_fefb,#00h       ;5e83  c8 fb 00
+    cmp mem_fefb,#00h       ;5e86  c8 fb 00
     nop                     ;5e89  00
     clr1 PM7_.3             ;5e8a  71 3b 27
     dbnz c,$lab_5e6e        ;5e8d  8a df
@@ -20722,8 +20744,8 @@ lab_5e7c:
     set1 PM7_.4             ;5e92  71 4a 27
     clr1 PU7_.3             ;5e95  71 3b 37
     set1 PM7_.3             ;5e98  71 3a 27
-    cmp 0fefbh,#00h         ;5e9b  c8 fb 00
-    cmp 0fefbh,#00h         ;5e9e  c8 fb 00
+    cmp mem_fefb,#00h       ;5e9b  c8 fb 00
+    cmp mem_fefb,#00h       ;5e9e  c8 fb 00
     nop                     ;5ea1  00
     nop                     ;5ea2  00
     nop                     ;5ea3  00
@@ -20732,7 +20754,7 @@ lab_5e7c:
     incw hl                 ;5eaa  86
     dbnz b,$lab_5e6b        ;5eab  8b be
     pop bc                  ;5ead  b2
-    bt 0fe68h.4,$lab_5eb3   ;5eae  cc 68 02
+    bt mem_fe68.4,$lab_5eb3 ;5eae  cc 68 02
     clr1 cy                 ;5eb1  21
     ret                     ;5eb2  af
 
@@ -20740,7 +20762,7 @@ lab_5eb3:
     clr1 PM7_.4             ;5eb3  71 4b 27
     clr1 PU7_.3             ;5eb6  71 3b 37
     set1 PM7_.3             ;5eb9  71 3a 27
-    cmp 0fefbh,#00h         ;5ebc  c8 fb 00
+    cmp mem_fefb,#00h       ;5ebc  c8 fb 00
     nop                     ;5ebf  00
     nop                     ;5ec0  00
     clr1 PU7_.4             ;5ec1  71 4b 37
@@ -20750,13 +20772,13 @@ lab_5eb3:
 
 lab_5ec9:
     clr1 PM7_.3             ;5ec9  71 3b 27
-    cmp 0fefbh,#00h         ;5ecc  c8 fb 00
+    cmp mem_fefb,#00h       ;5ecc  c8 fb 00
     nop                     ;5ecf  00
     nop                     ;5ed0  00
     clr1 PM7_.4             ;5ed1  71 4b 27
     clr1 PU7_.3             ;5ed4  71 3b 37
     set1 PM7_.3             ;5ed7  71 3a 27
-    cmp 0fefbh,#00h         ;5eda  c8 fb 00
+    cmp mem_fefb,#00h       ;5eda  c8 fb 00
     nop                     ;5edd  00
     nop                     ;5ede  00
     clr1 PU7_.4             ;5edf  71 4b 37
@@ -20788,23 +20810,23 @@ lab_5ef2:
     br $lab_5f45            ;5f03  fa 40
 
 lab_5f05:
-    clr1 0fe68h.5           ;5f05  5b 68
-    bf 0fefah.6,$lab_5f0d   ;5f07  31 63 fa 02
-    set1 0fe68h.5           ;5f0b  5a 68
+    clr1 mem_fe68.5         ;5f05  5b 68
+    bf mem_fefa.6,$lab_5f0d ;5f07  31 63 fa 02
+    set1 mem_fe68.5         ;5f0b  5a 68
 
 lab_5f0d:
-    and 0fefah,#3fh         ;5f0d  d8 fa 3f
+    and mem_fefa,#3fh       ;5f0d  d8 fa 3f
     mov a,c                 ;5f10  62
     mov b,a                 ;5f11  73
     set1 IICC0_.2           ;5f12  71 2a a8
     decw hl                 ;5f15  96
 
 lab_5f16:
-    bt 0fe61h.7,$lab_5f4b   ;5f16  fc 61 32
+    bt mem_fe61.7,$lab_5f4b ;5f16  fc 61 32
     dec b                   ;5f19  53
     bnz $lab_5f26           ;5f1a  bd 0a
-    bf 0fe68h.5,$lab_5f26   ;5f1c  31 53 68 06
-    bt 0fe69h.3,$lab_5f26   ;5f20  bc 69 03
+    bf mem_fe68.5,$lab_5f26 ;5f1c  31 53 68 06
+    bt mem_fe69.3,$lab_5f26 ;5f20  bc 69 03
     clr1 IICC0_.2           ;5f23  71 2b a8
 
 lab_5f26:
@@ -20823,7 +20845,7 @@ lab_5f35:
     mov a,IIC0_             ;5f38  f0 1f
     mov [hl],a              ;5f3a  97
     dbnz b,$lab_5f16        ;5f3b  8b d9
-    bf 0fe68h.5,$lab_5f44   ;5f3d  31 53 68 03
+    bf mem_fe68.5,$lab_5f44 ;5f3d  31 53 68 03
     set1 IICC0_.0           ;5f41  71 0a a8
 
 lab_5f44:
@@ -20831,8 +20853,8 @@ lab_5f44:
 
 lab_5f45:
     pop bc                  ;5f45  b2
-    clr1 0fe69h.1           ;5f46  1b 69
-    set1 0fe68h.6           ;5f48  6a 68
+    clr1 mem_fe69.1         ;5f46  1b 69
+    set1 mem_fe68.6         ;5f48  6a 68
     ret                     ;5f4a  af
 
 lab_5f4b:
@@ -20843,18 +20865,18 @@ lab_5f4b:
     db 0feh                 ;5f50  fe          DATA 0xfe
 
 sub_5f51:
-    bt 0fe69h.0,$lab_5f64   ;5f51  8c 69 10
-    bf 0fe2dh.0,$lab_5f5f   ;5f54  31 03 2d 07
+    bt mem_fe69.0,$lab_5f64 ;5f51  8c 69 10
+    bf mem_fe2d.0,$lab_5f5f ;5f54  31 03 2d 07
     call !sub_5ff5          ;5f58  9a f5 5f
-    set1 0fe69h.0           ;5f5b  0a 69
+    set1 mem_fe69.0         ;5f5b  0a 69
     br $lab_5f64            ;5f5d  fa 05
 
 lab_5f5f:
-    set1 0fe68h.7           ;5f5f  7a 68
+    set1 mem_fe68.7         ;5f5f  7a 68
     br !lab_5fef            ;5f61  9b ef 5f
 
 lab_5f64:
-    mov1 cy,0fe69h.1        ;5f64  71 14 69
+    mov1 cy,mem_fe69.1      ;5f64  71 14 69
     not1 cy                 ;5f67  01
     mov1 IICCL0_.3,cy       ;5f68  71 39 aa
     push ax                 ;5f6b  b1
@@ -20866,16 +20888,16 @@ lab_5f64:
     ret                     ;5f74  af
 
 lab_5f75:
-    clr1 0fe68h.7           ;5f75  7b 68
+    clr1 mem_fe68.7         ;5f75  7b 68
     push bc                 ;5f77  b3
-    clr1 0fe68h.5           ;5f78  5b 68
+    clr1 mem_fe68.5         ;5f78  5b 68
     bf a.6,$lab_5f7f        ;5f7a  31 6f 02
-    set1 0fe68h.5           ;5f7d  5a 68
+    set1 mem_fe68.5         ;5f7d  5a 68
 
 lab_5f7f:
     set1 IICC0_.3           ;5f7f  71 3a a8
     bf a.7,$lab_5fa9        ;5f82  31 7f 24
-    bf 0fe68h.6,$lab_5fa0   ;5f85  31 63 68 17
+    bf mem_fe68.6,$lab_5fa0 ;5f85  31 63 68 17
     bt IICCL0_.4,$lab_5f8f  ;5f89  31 46 aa 02
     br $lab_5f93            ;5f8d  fa 04
 
@@ -20903,17 +20925,17 @@ lab_5fa9:
     mov b,a                 ;5fad  73
 
 lab_5fae:
-    bt 0fe61h.7,$lab_5feb   ;5fae  fc 61 3a
+    bt mem_fe61.7,$lab_5feb ;5fae  fc 61 3a
     mov a,[hl]              ;5fb1  87
     mov IIC0_,a             ;5fb2  f2 1f
     incw hl                 ;5fb4  86
-    bf 0fe69h.2,$lab_5fbc   ;5fb5  31 23 69 03
-    clr1 0fe69h.2           ;5fb9  2b 69
+    bf mem_fe69.2,$lab_5fbc ;5fb5  31 23 69 03
+    clr1 mem_fe69.2         ;5fb9  2b 69
     set1 cy                 ;5fbb  20
 
 lab_5fbc:
     bc $lab_5fc0            ;5fbc  8d 02
-    set1 0fe68h.7           ;5fbe  7a 68
+    set1 mem_fe68.7         ;5fbe  7a 68
 
 lab_5fc0:
     mov c,#50h              ;5fc0  a2 50
@@ -20929,15 +20951,15 @@ lab_5fca:
     bnz $lab_5feb           ;5fcf  bd 1a
     mov1 cy,IICS0_.2        ;5fd1  71 2c a9
     dbnz b,$lab_5fae        ;5fd4  8b d8
-    bf 0fe68h.5,$lab_5fdd   ;5fd6  31 53 68 03
+    bf mem_fe68.5,$lab_5fdd ;5fd6  31 53 68 03
     set1 IICC0_.0           ;5fda  71 0a a8
 
 lab_5fdd:
-    mov1 cy,0fe68h.5        ;5fdd  71 54 68
-    mov1 0fe68h.6,cy        ;5fe0  71 61 68
+    mov1 cy,mem_fe68.5      ;5fdd  71 54 68
+    mov1 mem_fe68.6,cy      ;5fe0  71 61 68
     pop bc                  ;5fe3  b2
-    clr1 0fe69h.1           ;5fe4  1b 69
-    bt 0fe68h.7,$lab_5ff3   ;5fe6  fc 68 0a
+    clr1 mem_fe69.1         ;5fe4  1b 69
+    bt mem_fe68.7,$lab_5ff3 ;5fe6  fc 68 0a
     clr1 cy                 ;5fe9  21
     ret                     ;5fea  af
 
@@ -20946,8 +20968,8 @@ lab_5feb:
     pop bc                  ;5fee  b2
 
 lab_5fef:
-    clr1 0fe69h.1           ;5fef  1b 69
-    set1 0fe68h.6           ;5ff1  6a 68
+    clr1 mem_fe69.1         ;5fef  1b 69
+    set1 mem_fe68.6         ;5ff1  6a 68
 
 lab_5ff3:
     set1 cy                 ;5ff3  20
@@ -20955,18 +20977,18 @@ lab_5ff3:
 
 sub_5ff5:
     mov IICCL0_,#0ch        ;5ff5  13 aa 0c
-    bf 0fe69h.1,$lab_5fff   ;5ff8  31 13 69 03
+    bf mem_fe69.1,$lab_5fff ;5ff8  31 13 69 03
     clr1 IICCL0_.3          ;5ffc  71 3b aa
 
 lab_5fff:
     mov IICC0_,#0ch         ;5fff  13 a8 0c
     push ax                 ;6002  b1
     clr1 IICC0_.7           ;6003  71 7b a8
-    clr1 0fed1h.2           ;6006  2b d1
-    mov a,0fed1h            ;6008  f0 d1
+    clr1 mem_fed1.2         ;6006  2b d1
+    mov a,mem_fed1          ;6008  f0 d1
     mov P7_,a               ;600a  f2 07
-    clr1 0fed1h.1           ;600c  1b d1
-    mov a,0fed1h            ;600e  f0 d1
+    clr1 mem_fed1.1         ;600c  1b d1
+    mov a,mem_fed1          ;600e  f0 d1
     mov P7_,a               ;6010  f2 07
     set1 IICC0_.7           ;6012  71 7a a8
     clr1 PM7_.2             ;6015  71 2b 27
@@ -20989,20 +21011,20 @@ sub_602d:
     push bc                 ;602e  b3
     clr1 IICC0_.7           ;602f  71 7b a8
     mov c,#09h              ;6032  a2 09
-    set1 0fed1h.1           ;6034  1a d1
+    set1 mem_fed1.1         ;6034  1a d1
     set1 PM7_.1             ;6036  71 1a 27
-    clr1 0fed1h.2           ;6039  2b d1
-    mov a,0fed1h            ;603b  f0 d1
+    clr1 mem_fed1.2         ;6039  2b d1
+    mov a,mem_fed1          ;603b  f0 d1
     mov P7_,a               ;603d  f2 07
     clr1 PM7_.2             ;603f  71 2b 27
 
 lab_6042:
-    cmp 0fefbh,#00h         ;6042  c8 fb 00
-    cmp 0fefbh,#00h         ;6045  c8 fb 00
+    cmp mem_fefb,#00h       ;6042  c8 fb 00
+    cmp mem_fefb,#00h       ;6045  c8 fb 00
     nop                     ;6048  00
     nop                     ;6049  00
     nop                     ;604a  00
-    set1 0fed1h.2           ;604b  2a d1
+    set1 mem_fed1.2         ;604b  2a d1
     set1 PM7_.2             ;604d  71 2a 27
     push bc                 ;6050  b3
     mov b,#01h              ;6051  a3 01
@@ -21012,11 +21034,11 @@ lab_6053:
     pop bc                  ;6055  b2
     clr1 PM7_.2             ;6056  71 2b 27
     dbnz c,$lab_6042        ;6059  8a e7
-    clr1 0fed1h.1           ;605b  1b d1
-    mov a,0fed1h            ;605d  f0 d1
+    clr1 mem_fed1.1         ;605b  1b d1
+    mov a,mem_fed1          ;605d  f0 d1
     mov P7_,a               ;605f  f2 07
     clr1 PM7_.1             ;6061  71 1b 27
-    set1 0fed1h.2           ;6064  2a d1
+    set1 mem_fed1.2         ;6064  2a d1
     set1 PM7_.2             ;6066  71 2a 27
     push bc                 ;6069  b3
     mov b,#01h              ;606a  a3 01
@@ -21024,7 +21046,7 @@ lab_6053:
 lab_606c:
     dbnz b,$lab_606c        ;606c  8b fe
     pop bc                  ;606e  b2
-    set1 0fed1h.1           ;606f  1a d1
+    set1 mem_fed1.1         ;606f  1a d1
     set1 PM7_.1             ;6071  71 1a 27
     clr1 cy                 ;6074  21
     pop bc                  ;6075  b2
@@ -21032,11 +21054,11 @@ lab_606c:
     ret                     ;6077  af
 
 sub_6078:
-    clr1 0fe69h.0           ;6078  0b 69
+    clr1 mem_fe69.0         ;6078  0b 69
     clr1 IICC0_.7           ;607a  71 7b a8
-    set1 0fed1h.2           ;607d  2a d1
+    set1 mem_fed1.2         ;607d  2a d1
     set1 PM7_.2             ;607f  71 2a 27
-    set1 0fed1h.1           ;6082  1a d1
+    set1 mem_fed1.1         ;6082  1a d1
     set1 PM7_.1             ;6084  71 1a 27
     ret                     ;6087  af
 
@@ -21064,13 +21086,13 @@ sub_6078:
     db 0afh                 ;609d  af          DATA 0xaf
 
 sub_609e:
-    clr1 0fe5dh.2           ;609e  2b 5d
+    clr1 mem_fe5d.2         ;609e  2b 5d
 
 sub_60a0:
-    clr1 0fe69h.4           ;60a0  4b 69
-    clr1 0fe5ch.4           ;60a2  4b 5c
+    clr1 mem_fe69.4         ;60a0  4b 69
+    clr1 mem_fe5c.4         ;60a2  4b 5c
     mov a,#14h              ;60a4  a1 14
-    mov !0fb09h,a           ;60a6  9e 09 fb
+    mov !mem_fb09,a         ;60a6  9e 09 fb
     call !sub_6165          ;60a9  9a 65 61
 
 sub_60ac:
@@ -21083,7 +21105,7 @@ sub_60ac:
     mov x,a                 ;60bb  70
     mov a,[hl+01h]          ;60bc  ae 01
     cmp a,#02h              ;60be  4d 02
-    mov a,!0fb56h           ;60c0  8e 56 fb
+    mov a,!mem_fb56         ;60c0  8e 56 fb
     bnz $lab_60c7           ;60c3  bd 02
     clr1 cy                 ;60c5  21
     rorc a,1                ;60c6  25
@@ -21092,26 +21114,26 @@ lab_60c7:
     add a,x                 ;60c7  61 08
     movw hl,#0b3d3h         ;60c9  16 d3 b3
     movw de,#0f1b9h         ;60cc  14 b9 f1
-    mov 0fed4h,a            ;60cf  f2 d4
+    mov mem_fed4,a          ;60cf  f2 d4
     call !sub_026e          ;60d1  9a 6e 02
 
 lab_60d4:
-    btclr 0fe5dh.2,$lab_60dd ;60d4  31 21 5d 05
-    bt 0fe69h.4,$lab_60dd   ;60d8  cc 69 02
+    btclr mem_fe5d.2,$lab_60dd ;60d4  31 21 5d 05
+    bt mem_fe69.4,$lab_60dd ;60d8  cc 69 02
     or a,#80h               ;60db  6d 80
 
 lab_60dd:
-    mov 0fed7h,a            ;60dd  f2 d7
+    mov mem_fed7,a          ;60dd  f2 d7
     call !sub_1c32          ;60df  9a 32 1c
     mov a,[hl+01h]          ;60e2  ae 01
     mov b,a                 ;60e4  73
-    bf 0fe69h.7,$lab_60f8   ;60e5  31 73 69 0f
+    bf mem_fe69.7,$lab_60f8 ;60e5  31 73 69 0f
     mov a,[hl+06h]          ;60e9  ae 06
     mov x,a                 ;60eb  70
     mov a,[hl+07h]          ;60ec  ae 07
 
 lab_60ee:
-    sub a,!0fb56h           ;60ee  18 56 fb
+    sub a,!mem_fb56         ;60ee  18 56 fb
     bnc $lab_60f4           ;60f1  9d 01
     dec x                   ;60f3  50
 
@@ -21125,14 +21147,14 @@ lab_60f8:
     mov a,[hl+03h]          ;60fb  ae 03
 
 lab_60fd:
-    add a,!0fb56h           ;60fd  08 56 fb
+    add a,!mem_fb56         ;60fd  08 56 fb
     xch a,x                 ;6100  30
     addc a,#00h             ;6101  2d 00
     xch a,x                 ;6103  30
     dbnz b,$lab_60fd        ;6104  8b f7
 
 lab_6106:
-    bf 0fe5dh.4,$lab_611f   ;6106  31 43 5d 15
+    bf mem_fe5d.4,$lab_611f ;6106  31 43 5d 15
     push ax                 ;610a  b1
     call !sub_0800          ;610b  9a 00 08
     cmp a,#01h              ;610e  4d 01
@@ -21140,7 +21162,7 @@ lab_6106:
     bnz $lab_611f           ;6111  bd 0c
     push ax                 ;6113  b1
     mov a,#01h              ;6114  a1 01
-    cmp a,!0fb56h           ;6116  48 56 fb
+    cmp a,!mem_fb56         ;6116  48 56 fb
     pop ax                  ;6119  b0
     bnz $lab_611f           ;611a  bd 03
     xch a,x                 ;611c  30
@@ -21148,27 +21170,27 @@ lab_6106:
     xch a,x                 ;611e  30
 
 lab_611f:
-    mov 0fed6h,a            ;611f  f2 d6
+    mov mem_fed6,a          ;611f  f2 d6
     mov a,x                 ;6121  60
-    mov 0fed5h,a            ;6122  f2 d5
-    set1 0fe69h.1           ;6124  1a 69
-    mov 0fed4h,#0c2h        ;6126  11 d4 c2
+    mov mem_fed5,a          ;6122  f2 d5
+    set1 mem_fe69.1         ;6124  1a 69
+    mov mem_fed4,#0c2h      ;6126  11 d4 c2
     call !sub_0800          ;6129  9a 00 08
     mov b,a                 ;612c  73
     movw hl,#0f1beh         ;612d  16 be f1
     mov a,[hl+b]            ;6130  ab
-    mov 0fed8h,a            ;6131  f2 d8
+    mov mem_fed8,a          ;6131  f2 d8
     movw hl,#0f1c0h         ;6133  16 c0 f1
     mov a,[hl+b]            ;6136  ab
-    mov 0fed9h,a            ;6137  f2 d9
+    mov mem_fed9,a          ;6137  f2 d9
     movw hl,#0f1c2h         ;6139  16 c2 f1
     mov a,[hl+b]            ;613c  ab
-    mov 0fedah,a            ;613d  f2 da
+    mov mem_feda,a          ;613d  f2 da
     mov a,#0c7h             ;613f  a1 c7
     push bc                 ;6141  b3
     call !sub_5e27          ;6142  9a 27 5e
     pop bc                  ;6145  b2
-    mov 0fe22h,#00h         ;6146  11 22 00
+    mov mem_fe22,#00h       ;6146  11 22 00
     ret                     ;6149  af
 
     db 9ah                  ;614a  9a          DATA 0x9a
@@ -21200,7 +21222,7 @@ lab_611f:
     db 0afh                 ;6164  af          DATA 0xaf
 
 sub_6165:
-    set1 0fe69h.5           ;6165  5a 69
+    set1 mem_fe69.5         ;6165  5a 69
     ret                     ;6167  af
 
     db 0a3h                 ;6168  a3          DATA 0xa3
@@ -21332,11 +21354,11 @@ sub_6165:
     db 0afh                 ;61e6  af          DATA 0xaf
 
 sub_61e7:
-    clr1 0fe69h.7           ;61e7  7b 69
+    clr1 mem_fe69.7         ;61e7  7b 69
     call !sub_0800          ;61e9  9a 00 08
     cmp a,#02h              ;61ec  4d 02
     bnz $lab_6209           ;61ee  bd 19
-    mov a,!0f1e7h           ;61f0  8e e7 f1
+    mov a,!mem_f1e7         ;61f0  8e e7 f1
     and a,#07h              ;61f3  5d 07
     mov b,a                 ;61f5  73
     movw hl,#0b3dah         ;61f6  16 da b3
@@ -21344,10 +21366,10 @@ sub_61e7:
     bc $lab_6209            ;61fb  8d 0c
     movw ax,de              ;61fd  c4
     movw hl,ax              ;61fe  d6
-    mov a,!0fb56h           ;61ff  8e 56 fb
+    mov a,!mem_fb56         ;61ff  8e 56 fb
     call !sub_0b0d          ;6202  9a 0d 0b
     bnc $lab_6209           ;6205  9d 02
-    set1 0fe69h.7           ;6207  7a 69
+    set1 mem_fe69.7         ;6207  7a 69
 
 lab_6209:
     ret                     ;6209  af
@@ -21412,26 +21434,26 @@ sub_623d:
     call !sub_6364          ;6241  9a 64 63
     bnc $lab_628b           ;6244  9d 45
     mov a,#05h              ;6246  a1 05
-    mov !0fc12h,a           ;6248  9e 12 fc
+    mov !mem_fc12,a         ;6248  9e 12 fc
     movw ax,hl              ;624b  c6
     movw !0f01ah,ax         ;624c  03 1a f0
 
 lab_624f:
     mov a,l                 ;624f  66
-    mov !0fbdch,a           ;6250  9e dc fb
+    mov !mem_fbdc,a         ;6250  9e dc fb
     mov a,h                 ;6253  67
     and a,#07h              ;6254  5d 07
     rol a,1                 ;6256  26
     or a,#0a0h              ;6257  6d a0
-    mov !0fbdbh,a           ;6259  9e db fb
+    mov !mem_fbdb,a         ;6259  9e db fb
     push ax                 ;625c  b1
     mov a,#82h              ;625d  a1 82
-    movw hl,#0fbdbh         ;625f  16 db fb
+    movw hl,#mem_fbdb       ;625f  16 db fb
     call !sub_5f51          ;6262  9a 51 5f
     pop ax                  ;6265  b0
     set1 a.0                ;6266  61 8a
     mov x,a                 ;6268  70
-    mov a,!0fc10h           ;6269  8e 10 fc
+    mov a,!mem_fc10         ;6269  8e 10 fc
     or a,#0c0h              ;626c  6d c0
     pop hl                  ;626e  b6
     push hl                 ;626f  b7
@@ -21449,10 +21471,10 @@ lab_6276:
     ret                     ;627a  af
 
 lab_627b:
-    mov a,!0fc12h           ;627b  8e 12 fc
+    mov a,!mem_fc12         ;627b  8e 12 fc
     sub a,#01h              ;627e  1d 01
     bc $lab_628b            ;6280  8d 09
-    mov !0fc12h,a           ;6282  9e 12 fc
+    mov !mem_fc12,a         ;6282  9e 12 fc
     movw ax,!0f01ah         ;6285  02 1a f0
     movw hl,ax              ;6288  d6
     br $lab_624f            ;6289  fa c4
@@ -21483,9 +21505,9 @@ sub_6293:
     movw ax,de              ;62a6  c4
     movw hl,ax              ;62a7  d6
     movw de,#0fc00h         ;62a8  14 00 fc
-    mov a,!0fc10h           ;62ab  8e 10 fc
+    mov a,!mem_fc10         ;62ab  8e 10 fc
     callf !sub_0c9e         ;62ae  4c 9e
-    mov a,!0fc11h           ;62b0  8e 11 fc
+    mov a,!mem_fc11         ;62b0  8e 11 fc
     mov b,a                 ;62b3  73
     movw ax,de              ;62b4  c4
     xch a,x                 ;62b5  30
@@ -21493,68 +21515,68 @@ sub_6293:
     xch a,x                 ;62b8  30
     subc a,#00h             ;62b9  3d 00
     movw !0f01eh,ax         ;62bb  03 1e f0
-    mov a,!0fc10h           ;62be  8e 10 fc
+    mov a,!mem_fc10         ;62be  8e 10 fc
     sub a,b                 ;62c1  61 1b
-    mov !0fc10h,a           ;62c3  9e 10 fc
+    mov !mem_fc10,a         ;62c3  9e 10 fc
 
 lab_62c6:
     movw hl,#0fc00h         ;62c6  16 00 fc
-    movw de,#0fbddh         ;62c9  14 dd fb
-    mov a,!0fc10h           ;62cc  8e 10 fc
+    movw de,#mem_fbdd       ;62c9  14 dd fb
+    mov a,!mem_fc10         ;62cc  8e 10 fc
     callf !sub_0c9e         ;62cf  4c 9e
     movw ax,!0f01ah         ;62d1  02 1a f0
     and a,#07h              ;62d4  5d 07
     rol a,1                 ;62d6  26
     or a,#0a0h              ;62d7  6d a0
-    mov !0fbdbh,a           ;62d9  9e db fb
+    mov !mem_fbdb,a         ;62d9  9e db fb
     mov a,x                 ;62dc  60
-    mov !0fbdch,a           ;62dd  9e dc fb
-    movw hl,#0fbdbh         ;62e0  16 db fb
-    mov a,!0fc10h           ;62e3  8e 10 fc
+    mov !mem_fbdc,a         ;62dd  9e dc fb
+    movw hl,#mem_fbdb       ;62e0  16 db fb
+    mov a,!mem_fc10         ;62e3  8e 10 fc
     add a,#0c2h             ;62e6  0d c2
     call !sub_5f51          ;62e8  9a 51 5f
     bc $lab_628b            ;62eb  8d 9e
     mov a,#0bh              ;62ed  a1 0b
-    mov !0fb06h,a           ;62ef  9e 06 fb
+    mov !mem_fb06,a         ;62ef  9e 06 fb
     mov a,#02h              ;62f2  a1 02
     callf !sub_09d7         ;62f4  1c d7
-    mov a,!0fbffh           ;62f6  8e ff fb
+    mov a,!mem_fbff         ;62f6  8e ff fb
     cmp a,#00h              ;62f9  4d 00
     bnz $lab_6302           ;62fb  bd 05
     mov a,#03h              ;62fd  a1 03
-    mov !0fbffh,a           ;62ff  9e ff fb
+    mov !mem_fbff,a         ;62ff  9e ff fb
 
 lab_6302:
     br !lab_6275            ;6302  9b 75 62
 
 sub_6305:
-    bt 0fe2dh.0,$lab_630d   ;6305  8c 2d 05
+    bt mem_fe2d.0,$lab_630d ;6305  8c 2d 05
     mov a,#02h              ;6308  a1 02
     callf !sub_09d7         ;630a  1c d7
     ret                     ;630c  af
 
 lab_630d:
-    mov a,!0fbffh           ;630d  8e ff fb
+    mov a,!mem_fbff         ;630d  8e ff fb
     cmp a,#00h              ;6310  4d 00
     bz $lab_634a            ;6312  ad 36
-    mov a,!0fb06h           ;6314  8e 06 fb
+    mov a,!mem_fb06         ;6314  8e 06 fb
     cmp a,#00h              ;6317  4d 00
     bnz $lab_6363           ;6319  bd 48
     movw ax,!0f01ah         ;631b  02 1a f0
     movw hl,ax              ;631e  d6
-    movw de,#0fbdbh         ;631f  14 db fb
-    mov a,!0fc10h           ;6322  8e 10 fc
+    movw de,#mem_fbdb       ;631f  14 db fb
+    mov a,!mem_fc10         ;6322  8e 10 fc
     call !sub_623d          ;6325  9a 3d 62
     bnc $lab_6334           ;6328  9d 0a
     movw hl,#0fc00h         ;632a  16 00 fc
-    mov a,!0fc10h           ;632d  8e 10 fc
+    mov a,!mem_fc10         ;632d  8e 10 fc
     callf !sub_0cca         ;6330  4c ca
     bz $lab_6345            ;6332  ad 11
 
 lab_6334:
-    mov a,!0fbffh           ;6334  8e ff fb
+    mov a,!mem_fbff         ;6334  8e ff fb
     dec a                   ;6337  51
-    mov !0fbffh,a           ;6338  9e ff fb
+    mov !mem_fbff,a         ;6338  9e ff fb
     bz $lab_6343            ;633b  ad 06
     push hl                 ;633d  b7
     push bc                 ;633e  b3
@@ -21567,19 +21589,19 @@ lab_6343:
 
 lab_6345:
     mov a,#00h              ;6345  a1 00
-    mov !0fbffh,a           ;6347  9e ff fb
+    mov !mem_fbff,a         ;6347  9e ff fb
 
 lab_634a:
     mov a,#02h              ;634a  a1 02
     callf !sub_09d3         ;634c  1c d3
-    mov a,!0fc11h           ;634e  8e 11 fc
+    mov a,!mem_fc11         ;634e  8e 11 fc
     cmp a,#00h              ;6351  4d 00
     bz $lab_6363            ;6353  ad 0e
     movw ax,!0f01ch         ;6355  02 1c f0
     movw de,ax              ;6358  d4
     movw ax,!0f01eh         ;6359  02 1e f0
     movw hl,ax              ;635c  d6
-    mov a,!0fc11h           ;635d  8e 11 fc
+    mov a,!mem_fc11         ;635d  8e 11 fc
     call !sub_6293          ;6360  9a 93 62
 
 lab_6363:
@@ -21590,7 +21612,7 @@ sub_6364:
     bz $lab_637d            ;6366  ad 15
     cmp a,#11h              ;6368  4d 11
     bnc $lab_637d           ;636a  9d 11
-    mov !0fc10h,a           ;636c  9e 10 fc
+    mov !mem_fc10,a         ;636c  9e 10 fc
     xchw ax,hl              ;636f  e6
     subw ax,#0000h          ;6370  da 00 00
     xchw ax,hl              ;6373  e6
@@ -21605,7 +21627,7 @@ lab_637d:
 
 sub_637e:
     push ax                 ;637e  b1
-    mov a,!0fc10h           ;637f  8e 10 fc
+    mov a,!mem_fc10         ;637f  8e 10 fc
     mov b,a                 ;6382  73
     pop ax                  ;6383  b0
     movw !0f01ch,ax         ;6384  03 1c f0
@@ -21630,7 +21652,7 @@ lab_63a6:
     mov a,#00h              ;63a6  a1 00
 
 lab_63a8:
-    mov !0fc11h,a           ;63a8  9e 11 fc
+    mov !mem_fc11,a         ;63a8  9e 11 fc
     ret                     ;63ab  af
 
 m:
@@ -22867,11 +22889,11 @@ chk_magazin:
     db 4eh                  ;67b8  4e          DATA 0x4e 'N'
 
 lab_67b9:
-    dbnz 0fe4ch,$lab_680b   ;67b9  04 4c 4f
+    dbnz mem_fe4c,$lab_680b ;67b9  04 4c 4f
     inc b                   ;67bc  43
-    clr1 0fea1h.4           ;67bd  4b a1
+    clr1 mem_fea1.4         ;67bd  4b a1
     callt [007eh]           ;67bf  ff
-    mov !0f1a6h,a           ;67c0  9e a6 f1
+    mov !mem_f1a6,a         ;67c0  9e a6 f1
     ret                     ;67c3  af
 
     db 27h                  ;67c4  27          DATA 0x27 '''
@@ -22898,9 +22920,9 @@ lab_67b9:
 
 sub_67d9:
     movw hl,#0f259h         ;67d9  16 59 f2
-    mov a,0fe30h            ;67dc  f0 30
+    mov a,mem_fe30          ;67dc  f0 30
     inc a                   ;67de  41
-    cmp 0fe30h,#01h         ;67df  c8 30 01
+    cmp mem_fe30,#01h       ;67df  c8 30 01
     bnz $lab_67f4           ;67e2  bd 10
     push ax                 ;67e4  b1
     push bc                 ;67e5  b3
@@ -23020,14 +23042,14 @@ lab_6815:
 lab_6856:
     call !sub_6f78          ;6856  9a 78 6f
     push de                 ;6859  b5
-    clr1 0fe6ah.3           ;685a  3b 6a
-    mov 0fed4h,a            ;685c  f2 d4
+    clr1 mem_fe6a.3         ;685a  3b 6a
+    mov mem_fed4,a          ;685c  f2 d4
     bf a.7,$lab_6863        ;685e  31 7f 02
-    set1 0fe6ah.3           ;6861  3a 6a
+    set1 mem_fe6a.3         ;6861  3a 6a
 
 lab_6863:
     xch a,b                 ;6863  33
-    mov 0fed5h,a            ;6864  f2 d5
+    mov mem_fed5,a          ;6864  f2 d5
     xch a,b                 ;6866  33
     and a,#0c0h             ;6867  5d c0
     bz $lab_68e0            ;6869  ad 75
@@ -23046,10 +23068,10 @@ lab_6863:
     br $lab_68e0            ;6880  fa 5e
 
 lab_6882:
-    mov a,!0fc30h           ;6882  8e 30 fc
+    mov a,!mem_fc30         ;6882  8e 30 fc
     cmp a,#00h              ;6885  4d 00
     bnz $lab_6890           ;6887  bd 07
-    mov a,!0fb2dh           ;6889  8e 2d fb
+    mov a,!mem_fb2d         ;6889  8e 2d fb
     cmp a,#00h              ;688c  4d 00
     bz $lab_6896            ;688e  ad 06
 
@@ -23059,19 +23081,19 @@ lab_6890:
     br $lab_68e4            ;6894  fa 4e
 
 lab_6896:
-    add 0fed4h,#10h         ;6896  88 d4 10
+    add mem_fed4,#10h       ;6896  88 d4 10
     call !sub_6fa9          ;6899  9a a9 6f
 
 lab_689c:
     call !sub_6fb9          ;689c  9a b9 6f
     call !sub_6934          ;689f  9a 34 69
     bz $lab_68cf            ;68a2  ad 2b
-    mov a,0fed4h            ;68a4  f0 d4
+    mov a,mem_fed4          ;68a4  f0 d4
     and a,#30h              ;68a6  5d 30
     cmp a,#30h              ;68a8  4d 30
     bnz $lab_68e4           ;68aa  bd 38
     xch a,b                 ;68ac  33
-    mov 0fed4h,a            ;68ad  f2 d4
+    mov mem_fed4,a          ;68ad  f2 d4
     xch a,b                 ;68af  33
 
 lab_68b0:
@@ -23086,7 +23108,7 @@ lab_68b0:
     br $lab_689c            ;68bf  fa db
 
 lab_68c1:
-    and 0fed4h,#7fh         ;68c1  d8 d4 7f
+    and mem_fed4,#7fh       ;68c1  d8 d4 7f
     call !sub_6fa9          ;68c4  9a a9 6f
     call !sub_6fb9          ;68c7  9a b9 6f
     call !sub_6934          ;68ca  9a 34 69
@@ -23095,18 +23117,18 @@ lab_68c1:
 lab_68cf:
     xch a,b                 ;68cf  33
     and a,#0fh              ;68d0  5d 0f
-    mov 0fed4h,a            ;68d2  f2 d4
+    mov mem_fed4,a          ;68d2  f2 d4
     xch a,b                 ;68d4  33
     call !sub_6fa9          ;68d5  9a a9 6f
     br $lab_68e4            ;68d8  fa 0a
 
 lab_68da:
-    and 0fed4h,#7fh         ;68da  d8 d4 7f
+    and mem_fed4,#7fh       ;68da  d8 d4 7f
     call !sub_6fa9          ;68dd  9a a9 6f
 
 lab_68e0:
     xch a,b                 ;68e0  33
-    mov a,0fed4h            ;68e1  f0 d4
+    mov a,mem_fed4          ;68e1  f0 d4
     xch a,b                 ;68e3  33
 
 lab_68e4:
@@ -23121,37 +23143,37 @@ lab_68e4:
     movw ax,de              ;68f1  c4
     br ax                   ;68f2  31 98
     call !sub_7030          ;68f4  9a 30 70
-    bf 0fe2dh.0,$lab_6933   ;68f7  31 03 2d 38
-    bt 0fe65h.5,$lab_6915   ;68fb  dc 65 17
-    bt 0fe2ch.3,$lab_6912   ;68fe  bc 2c 11
-    set1 0fe6ah.2           ;6901  2a 6a
-    bf 0feceh.6,$lab_6923   ;6903  31 63 ce 1c
-    clr1 0feceh.6           ;6907  6b ce
+    bf mem_fe2d.0,$lab_6933 ;68f7  31 03 2d 38
+    bt mem_fe65.5,$lab_6915 ;68fb  dc 65 17
+    bt mem_fe2c.3,$lab_6912 ;68fe  bc 2c 11
+    set1 mem_fe6a.2         ;6901  2a 6a
+    bf mem_fece.6,$lab_6923 ;6903  31 63 ce 1c
+    clr1 mem_fece.6         ;6907  6b ce
     clr1 PM4_.6             ;6909  71 6b 24
-    mov a,0feceh            ;690c  f0 ce
+    mov a,mem_fece          ;690c  f0 ce
     mov P4_,a               ;690e  f2 04
     br $lab_6923            ;6910  fa 11
 
 lab_6912:
-    bt 0fe62h.1,$lab_6933   ;6912  9c 62 1e
+    bt mem_fe62.1,$lab_6933 ;6912  9c 62 1e
 
 lab_6915:
-    clr1 0fe6ah.2           ;6915  2b 6a
-    bt 0feceh.6,$lab_6923   ;6917  ec ce 09
-    set1 0feceh.6           ;691a  6a ce
+    clr1 mem_fe6a.2         ;6915  2b 6a
+    bt mem_fece.6,$lab_6923 ;6917  ec ce 09
+    set1 mem_fece.6         ;691a  6a ce
     clr1 PM4_.6             ;691c  71 6b 24
-    mov a,0feceh            ;691f  f0 ce
+    mov a,mem_fece          ;691f  f0 ce
     mov P4_,a               ;6921  f2 04
 
 lab_6923:
-    bf 0fe65h.2,$lab_692e   ;6923  31 23 65 07
+    bf mem_fe65.2,$lab_692e ;6923  31 23 65 07
     call !sub_4960          ;6927  9a 60 49
     bc $lab_6933            ;692a  8d 07
-    clr1 0fe65h.2           ;692c  2b 65
+    clr1 mem_fe65.2         ;692c  2b 65
 
 lab_692e:
     call !sub_4afc          ;692e  9a fc 4a
-    set1 0fe6ah.1           ;6931  1a 6a
+    set1 mem_fe6a.1         ;6931  1a 6a
 
 lab_6933:
     ret                     ;6933  af
@@ -23169,12 +23191,12 @@ sub_6934:
     mov b,a                 ;6940  73
     pop ax                  ;6941  b0
     xch a,b                 ;6942  33
-    mov !0fb2dh,a           ;6943  9e 2d fb
+    mov !mem_fb2d,a         ;6943  9e 2d fb
     ret                     ;6946  af
 
 sub_6947:
     mov a,#80h              ;6947  a1 80
-    mov !0f1aah,a           ;6949  9e aa f1
+    mov !mem_f1aa,a         ;6949  9e aa f1
     ret                     ;694c  af
 
     db 0a3h                 ;694d  a3          DATA 0xa3
@@ -23351,7 +23373,7 @@ lab_69f8:
     callt [0070h]           ;69f8  f1
     and a,#0fh              ;69f9  5d 0f
     mov b,a                 ;69fb  73
-    mov !0f1abh,a           ;69fc  9e ab f1
+    mov !mem_f1ab,a         ;69fc  9e ab f1
     movw hl,#0b481h         ;69ff  16 81 b4
     callf !sub_0c48         ;6a02  4c 48
     bc $lab_6a09            ;6a04  8d 03
@@ -23363,11 +23385,11 @@ lab_6a09:
 
 lab_6a0a:
     mov a,#00h              ;6a0a  a1 00
-    mov !0fb2dh,a           ;6a0c  9e 2d fb
+    mov !mem_fb2d,a         ;6a0c  9e 2d fb
     ret                     ;6a0f  af
 
 lab_6a10:
-    mov a,!0f1feh           ;6a10  8e fe f1
+    mov a,!mem_f1fe         ;6a10  8e fe f1
     cmp a,#03h              ;6a13  4d 03
     bz $lab_6a1b            ;6a15  ad 04
     cmp a,#04h              ;6a17  4d 04
@@ -23379,7 +23401,7 @@ lab_6a1b:
 
 lab_6a1f:
     mov a,#00h              ;6a1f  a1 00
-    mov !0fb2eh,a           ;6a21  9e 2e fb
+    mov !mem_fb2e,a         ;6a21  9e 2e fb
     mov a,#0ffh             ;6a24  a1 ff
 
 lab_6a26:
@@ -23392,22 +23414,22 @@ lab_6a2f:
     mov a,#0ah              ;6a2f  a1 0a
     mov b,#0ffh             ;6a31  a3 ff
     movw hl,#blank          ;6a33  16 11 65
-    mov1 cy,0fe62h.2        ;6a36  71 24 62
+    mov1 cy,mem_fe62.2      ;6a36  71 24 62
     bc $lab_6a40            ;6a39  8d 05
-    bt 0fe62h.1,$lab_6a4b   ;6a3b  9c 62 0d
+    bt mem_fe62.1,$lab_6a4b ;6a3b  9c 62 0d
     br $lab_6a56            ;6a3e  fa 16
 
 lab_6a40:
-    set1 0feceh.6           ;6a40  6a ce
+    set1 mem_fece.6         ;6a40  6a ce
     clr1 PM4_.6             ;6a42  71 6b 24
-    mov a,0feceh            ;6a45  f0 ce
+    mov a,mem_fece          ;6a45  f0 ce
     mov P4_,a               ;6a47  f2 04
     br $lab_6a5b            ;6a49  fa 10
 
 lab_6a4b:
-    clr1 0feceh.6           ;6a4b  6b ce
+    clr1 mem_fece.6         ;6a4b  6b ce
     clr1 PM4_.6             ;6a4d  71 6b 24
-    mov a,0feceh            ;6a50  f0 ce
+    mov a,mem_fece          ;6a50  f0 ce
     mov P4_,a               ;6a52  f2 04
     br $lab_6a5b            ;6a54  fa 05
 
@@ -23425,11 +23447,11 @@ lab_6a5c:
     br $lab_6a75            ;6a62  fa 11
 
 lab_6a64:
-    mov a,!0fb2eh           ;6a64  8e 2e fb
+    mov a,!mem_fb2e         ;6a64  8e 2e fb
     cmp a,#00h              ;6a67  4d 00
     bnz $lab_6a71           ;6a69  bd 06
     call !67beh             ;6a6b  9a be 67
-    mov !0f1a5h,a           ;6a6e  9e a5 f1
+    mov !mem_f1a5,a         ;6a6e  9e a5 f1
 
 lab_6a71:
     mov a,#88h              ;6a71  a1 88
@@ -23461,9 +23483,9 @@ lab_6a9c:
     mov a,#88h              ;6a9c  a1 88
     mov b,#0ffh             ;6a9e  a3 ff
     call !sub_6e70          ;6aa0  9a 70 6e
-    mov a,!0fb5ah           ;6aa3  8e 5a fb
+    mov a,!mem_fb5a         ;6aa3  8e 5a fb
     add a,#01h              ;6aa6  0d 01
-    mov !0f19dh,a           ;6aa8  9e 9d f1
+    mov !mem_f19d,a         ;6aa8  9e 9d f1
     movw hl,#pscan          ;6aab  16 cf 63
     mov b,#0fh              ;6aae  a3 0f
     mov a,#0ffh             ;6ab0  a1 ff
@@ -23486,8 +23508,8 @@ lab_6aca:
     call !sub_6d61          ;6ace  9a 61 6d
 
 lab_6ad1:
-    bf 0fe5ch.2,$lab_6af1   ;6ad1  31 23 5c 1c
-    mov a,!0f1abh           ;6ad5  8e ab f1
+    bf mem_fe5c.2,$lab_6af1 ;6ad1  31 23 5c 1c
+    mov a,!mem_f1ab         ;6ad5  8e ab f1
     cmp a,#09h              ;6ad8  4d 09
     bz $lab_6ae2            ;6ada  ad 06
     and a,#0fh              ;6adc  5d 0f
@@ -23495,13 +23517,13 @@ lab_6ad1:
     bnz $lab_6af1           ;6ae0  bd 0f
 
 lab_6ae2:
-    mov a,!0fb5ah           ;6ae2  8e 5a fb
+    mov a,!mem_fb5a         ;6ae2  8e 5a fb
     cmp a,#00h              ;6ae5  4d 00
     bz $lab_6af1            ;6ae7  ad 08
     cmp a,#07h              ;6ae9  4d 07
     bnc $lab_6af1           ;6aeb  9d 04
     inc a                   ;6aed  41
-    mov !0f19dh,a           ;6aee  9e 9d f1
+    mov !mem_f19d,a         ;6aee  9e 9d f1
 
 lab_6af1:
     call !sub_6e6e          ;6af1  9a 6e 6e
@@ -23515,7 +23537,7 @@ lab_6af5:
     ret                     ;6aff  af
 
 lab_6b00:
-    bf 0fe71h.4,$lab_6b0e   ;6b00  31 43 71 0a
+    bf mem_fe71.4,$lab_6b0e ;6b00  31 43 71 0a
     mov b,#0ffh             ;6b04  a3 ff
     mov a,#0ah              ;6b06  a1 0a
     movw hl,#tape_metal     ;6b08  16 ff 65
@@ -23591,15 +23613,15 @@ lab_6b66:
     br !lab_6ca5            ;6b70  9b a5 6c
 
 lab_6b73:
-    mov a,!0fc79h           ;6b73  8e 79 fc
+    mov a,!mem_fc79         ;6b73  8e 79 fc
     cmp a,#03h              ;6b76  4d 03
     bz $lab_6b90            ;6b78  ad 16
     mov a,#0ah              ;6b7a  a1 0a
     mov b,#0ffh             ;6b7c  a3 ff
     movw hl,#cd_cd_err      ;6b7e  16 95 67
     call !sub_6e70          ;6b81  9a 70 6e
-    movw hl,#0f19ah         ;6b84  16 9a f1
-    mov a,!0fc7dh           ;6b87  8e 7d fc
+    movw hl,#mem_f19a       ;6b84  16 9a f1
+    mov a,!mem_fc7d         ;6b87  8e 7d fc
     add a,#30h              ;6b8a  0d 30
     mov [hl+03h],a          ;6b8c  be 03
     br $lab_6b9a            ;6b8e  fa 0a
@@ -23618,29 +23640,29 @@ lab_6b9d:
     mov b,#0ffh             ;6b9f  a3 ff
     movw hl,#cd_no_cd       ;6ba1  16 90 66
     call !sub_6e70          ;6ba4  9a 70 6e
-    movw hl,#0f19ah         ;6ba7  16 9a f1
-    mov a,!0fc7dh           ;6baa  8e 7d fc
+    movw hl,#mem_f19a       ;6ba7  16 9a f1
+    mov a,!mem_fc7d         ;6baa  8e 7d fc
     add a,#30h              ;6bad  0d 30
     mov [hl+03h],a          ;6baf  be 03
     br !lab_6ca5            ;6bb1  9b a5 6c
 
 lab_6bb4:
-    mov a,!0f1adh           ;6bb4  8e ad f1
+    mov a,!mem_f1ad         ;6bb4  8e ad f1
     and a,#0fh              ;6bb7  5d 0f
-    mov !0f1b1h,a           ;6bb9  9e b1 f1
+    mov !mem_f1b1,a         ;6bb9  9e b1 f1
     mov a,#84h              ;6bbc  a1 84
-    mov !0f1adh,a           ;6bbe  9e ad f1
+    mov !mem_f1ad,a         ;6bbe  9e ad f1
     ret                     ;6bc1  af
 
 lab_6bc2:
-    mov a,!0f1b1h           ;6bc2  8e b1 f1
+    mov a,!mem_f1b1         ;6bc2  8e b1 f1
     or a,#80h               ;6bc5  6d 80
-    mov !0f1adh,a           ;6bc7  9e ad f1
+    mov !mem_f1ad,a         ;6bc7  9e ad f1
     ret                     ;6bca  af
 
 lab_6bcb:
-    bf 0fe3dh.1,$lab_6bdd   ;6bcb  31 13 3d 0e
-    mov a,!0f1b1h           ;6bcf  8e b1 f1
+    bf mem_fe3d.1,$lab_6bdd ;6bcb  31 13 3d 0e
+    mov a,!mem_f1b1         ;6bcf  8e b1 f1
     mov b,a                 ;6bd2  73
     movw hl,#0b4dfh         ;6bd3  16 df b4
     callf !sub_0c48         ;6bd6  4c 48
@@ -23680,9 +23702,9 @@ lab_6bf9:
     mov a,#0ah              ;6bf9  a1 0a
     movw hl,#cue            ;6bfb  16 b4 66
     mov b,#0ffh             ;6bfe  a3 ff
-    set1 0fe3ah.1           ;6c00  1a 3a
-    bt 0fe6eh.1,$lab_6c07   ;6c02  9c 6e 02
-    clr1 0fe3ah.1           ;6c05  1b 3a
+    set1 mem_fe3a.1         ;6c00  1a 3a
+    bt mem_fe6e.1,$lab_6c07 ;6c02  9c 6e 02
+    clr1 mem_fe3a.1         ;6c05  1b 3a
 
 lab_6c07:
     call !sub_6e70          ;6c07  9a 70 6e
@@ -23693,9 +23715,9 @@ lab_6c10:
     mov a,#0ah              ;6c10  a1 0a
     movw hl,#cd__           ;6c12  16 84 66
     mov b,#0ffh             ;6c15  a3 ff
-    set1 0fe3ah.1           ;6c17  1a 3a
-    bt 0fe6eh.1,$lab_6c1e   ;6c19  9c 6e 02
-    clr1 0fe3ah.1           ;6c1c  1b 3a
+    set1 mem_fe3a.1         ;6c17  1a 3a
+    bt mem_fe6e.1,$lab_6c1e ;6c19  9c 6e 02
+    clr1 mem_fe3a.1         ;6c1c  1b 3a
 
 lab_6c1e:
     call !sub_6e70          ;6c1e  9a 70 6e
@@ -23707,9 +23729,9 @@ lab_6c29:
     mov a,#0ah              ;6c29  a1 0a
     movw hl,#rev            ;6c2b  16 c0 66
     mov b,#0ffh             ;6c2e  a3 ff
-    set1 0fe3ah.1           ;6c30  1a 3a
-    bt 0fe6eh.1,$lab_6c37   ;6c32  9c 6e 02
-    clr1 0fe3ah.1           ;6c35  1b 3a
+    set1 mem_fe3a.1         ;6c30  1a 3a
+    bt mem_fe6e.1,$lab_6c37 ;6c32  9c 6e 02
+    clr1 mem_fe3a.1         ;6c35  1b 3a
 
 lab_6c37:
     call !sub_6e70          ;6c37  9a 70 6e
@@ -23720,9 +23742,9 @@ lab_6c3f:
     mov a,#0ah              ;6c3f  a1 0a
     movw hl,#cd__           ;6c41  16 84 66
     mov b,#0ffh             ;6c44  a3 ff
-    set1 0fe3ah.1           ;6c46  1a 3a
-    bt 0fe6eh.1,$lab_6c4d   ;6c48  9c 6e 02
-    clr1 0fe3ah.1           ;6c4b  1b 3a
+    set1 mem_fe3a.1         ;6c46  1a 3a
+    bt mem_fe6e.1,$lab_6c4d ;6c48  9c 6e 02
+    clr1 mem_fe3a.1         ;6c4b  1b 3a
 
 lab_6c4d:
     call !sub_6e70          ;6c4d  9a 70 6e
@@ -23785,9 +23807,9 @@ lab_6ca8:
     ret                     ;6cab  af
 
 sub_6cac:
-    mov a,!0fc77h           ;6cac  8e 77 fc
+    mov a,!mem_fc77         ;6cac  8e 77 fc
     mov b,a                 ;6caf  73
-    mov a,!0fc78h           ;6cb0  8e 78 fc
+    mov a,!mem_fc78         ;6cb0  8e 78 fc
     mov x,a                 ;6cb3  70
     mov a,b                 ;6cb4  63
     and a,#0f0h             ;6cb5  5d f0
@@ -23827,7 +23849,7 @@ lab_6cdf:
     mov c,#99h              ;6ce3  a2 99
 
 lab_6ce5:
-    set1 0fe39h.5           ;6ce5  5a 39
+    set1 mem_fe39.5         ;6ce5  5a 39
     mov b,#06h              ;6ce7  a3 06
     mov a,c                 ;6ce9  62
     push ax                 ;6cea  b1
@@ -23837,7 +23859,7 @@ lab_6ce5:
     and a,#0fh              ;6cf1  5d 0f
     cmp a,#0ah              ;6cf3  4d 0a
     bnz $lab_6cfe           ;6cf5  bd 07
-    movw hl,#0f19ah         ;6cf7  16 9a f1
+    movw hl,#mem_f19a       ;6cf7  16 9a f1
     mov a,#2dh              ;6cfa  a1 2d
     mov [hl+b],a            ;6cfc  bb
     ret                     ;6cfd  af
@@ -23846,27 +23868,27 @@ lab_6cfe:
     br !sub_6f68            ;6cfe  9b 68 6f
 
 sub_6d01:
-    mov a,!0fc76h           ;6d01  8e 76 fc
+    mov a,!mem_fc76         ;6d01  8e 76 fc
     cmp a,#00h              ;6d04  4d 00
     bz $lab_6d2d            ;6d06  ad 25
     push ax                 ;6d08  b1
-    clr1 0fe3ah.1           ;6d09  1b 3a
-    mov a,!0f1adh           ;6d0b  8e ad f1
+    clr1 mem_fe3a.1         ;6d09  1b 3a
+    mov a,!mem_f1ad         ;6d0b  8e ad f1
     and a,#0fh              ;6d0e  5d 0f
     cmp a,#0ah              ;6d10  4d 0a
     bz $lab_6d1b            ;6d12  ad 07
-    set1 0fe3ah.1           ;6d14  1a 3a
-    bt 0fe6eh.1,$lab_6d1b   ;6d16  9c 6e 02
-    clr1 0fe3ah.1           ;6d19  1b 3a
+    set1 mem_fe3a.1         ;6d14  1a 3a
+    bt mem_fe6e.1,$lab_6d1b ;6d16  9c 6e 02
+    clr1 mem_fe3a.1         ;6d19  1b 3a
 
 lab_6d1b:
     mov b,#09h              ;6d1b  a3 09
-    mov a,!0f1adh           ;6d1d  8e ad f1
+    mov a,!mem_f1ad         ;6d1d  8e ad f1
     and a,#0fh              ;6d20  5d 0f
     cmp a,#0ah              ;6d22  4d 0a
     bnz $lab_6d2a           ;6d24  bd 04
     mov b,#0ah              ;6d26  a3 0a
-    set1 0fe39h.5           ;6d28  5a 39
+    set1 mem_fe39.5         ;6d28  5a 39
 
 lab_6d2a:
     pop ax                  ;6d2a  b0
@@ -23876,7 +23898,7 @@ lab_6d2d:
     br $lab_6d60            ;6d2d  fa 31
 
 sub_6d2f:
-    mov a,!0fc75h           ;6d2f  8e 75 fc
+    mov a,!mem_fc75         ;6d2f  8e 75 fc
     cmp a,#00h              ;6d32  4d 00
     bz $lab_6d60            ;6d34  ad 2a
     cmp a,#07h              ;6d36  4d 07
@@ -23886,7 +23908,7 @@ sub_6d2f:
 lab_6d3c:
     mov b,#03h              ;6d3c  a3 03
     push ax                 ;6d3e  b1
-    mov a,!0f1adh           ;6d3f  8e ad f1
+    mov a,!mem_f1ad         ;6d3f  8e ad f1
     and a,#0fh              ;6d42  5d 0f
     cmp a,#0ah              ;6d44  4d 0a
     bnz $lab_6d4a           ;6d46  bd 02
@@ -23918,15 +23940,15 @@ sub_6d64:
     call !sub_0800          ;6d64  9a 00 08
     cmp a,#01h              ;6d67  4d 01
     bz $lab_6db1            ;6d69  ad 46
-    mov a,!0f1abh           ;6d6b  8e ab f1
+    mov a,!mem_f1ab         ;6d6b  8e ab f1
     and a,#0fh              ;6d6e  5d 0f
     cmp a,#00h              ;6d70  4d 00
     bz $lab_6d87            ;6d72  ad 13
-    cmp 0fe20h,#03h         ;6d74  c8 20 03
+    cmp mem_fe20,#03h       ;6d74  c8 20 03
     bnz $lab_6d87           ;6d77  bd 0e
-    cmp 0fe21h,#0bh         ;6d79  c8 21 0b
+    cmp mem_fe21,#0bh       ;6d79  c8 21 0b
     bnz $lab_6d9d           ;6d7c  bd 1f
-    mov a,!0f1abh           ;6d7e  8e ab f1
+    mov a,!mem_f1ab         ;6d7e  8e ab f1
     and a,#0efh             ;6d81  5d ef
     cmp a,#09h              ;6d83  4d 09
     bnz $lab_6d9d           ;6d85  bd 16
@@ -23934,21 +23956,21 @@ sub_6d64:
 lab_6d87:
     mov a,#00h              ;6d87  a1 00
     mov a,#20h              ;6d89  a1 20
-    mov !0f19ch,a           ;6d8b  9e 9c f1
+    mov !mem_f19c,a         ;6d8b  9e 9c f1
     mov a,#20h              ;6d8e  a1 20
-    mov !0f19dh,a           ;6d90  9e 9d f1
+    mov !mem_f19d,a         ;6d90  9e 9d f1
     mov a,#41h              ;6d93  a1 41
-    mov !0f19ah,a           ;6d95  9e 9a f1
+    mov !mem_f19a,a         ;6d95  9e 9a f1
     mov a,#4dh              ;6d98  a1 4d
-    mov !0f19bh,a           ;6d9a  9e 9b f1
+    mov !mem_f19b,a         ;6d9a  9e 9b f1
 
 lab_6d9d:
     mov a,#6bh              ;6d9d  a1 6b
-    mov !0f1a2h,a           ;6d9f  9e a2 f1
+    mov !mem_f1a2,a         ;6d9f  9e a2 f1
     mov a,#48h              ;6da2  a1 48
-    mov !0f1a3h,a           ;6da4  9e a3 f1
+    mov !mem_f1a3,a         ;6da4  9e a3 f1
     mov a,#7ah              ;6da7  a1 7a
-    mov !0f1a4h,a           ;6da9  9e a4 f1
+    mov !mem_f1a4,a         ;6da9  9e a4 f1
     mov b,#0ffh             ;6dac  a3 ff
     br !lab_6e3c            ;6dae  9b 3c 6e
 
@@ -23956,70 +23978,70 @@ lab_6db1:
     call !sub_080b          ;6db1  9a 0b 08
     cmp a,#01h              ;6db4  4d 01
     bz $lab_6dfb            ;6db6  ad 43
-    mov a,!0f1abh           ;6db8  8e ab f1
+    mov a,!mem_f1ab         ;6db8  8e ab f1
     and a,#0fh              ;6dbb  5d 0f
     cmp a,#00h              ;6dbd  4d 00
     bz $lab_6dd4            ;6dbf  ad 13
-    cmp 0fe20h,#03h         ;6dc1  c8 20 03
+    cmp mem_fe20,#03h       ;6dc1  c8 20 03
     bnz $lab_6dd4           ;6dc4  bd 0e
-    cmp 0fe21h,#0bh         ;6dc6  c8 21 0b
+    cmp mem_fe21,#0bh       ;6dc6  c8 21 0b
     bnz $lab_6de8           ;6dc9  bd 1d
-    mov a,!0f1abh           ;6dcb  8e ab f1
+    mov a,!mem_f1ab         ;6dcb  8e ab f1
     and a,#0efh             ;6dce  5d ef
     cmp a,#09h              ;6dd0  4d 09
     bnz $lab_6de8           ;6dd2  bd 14
 
 lab_6dd4:
     mov a,#00h              ;6dd4  a1 00
-    mov !0f19ch,a           ;6dd6  9e 9c f1
+    mov !mem_f19c,a         ;6dd6  9e 9c f1
     mov a,#20h              ;6dd9  a1 20
-    mov !0f19dh,a           ;6ddb  9e 9d f1
+    mov !mem_f19d,a         ;6ddb  9e 9d f1
     mov a,#46h              ;6dde  a1 46
-    mov !0f19ah,a           ;6de0  9e 9a f1
+    mov !mem_f19a,a         ;6de0  9e 9a f1
     mov a,#4dh              ;6de3  a1 4d
-    mov !0f19bh,a           ;6de5  9e 9b f1
+    mov !mem_f19b,a         ;6de5  9e 9b f1
 
 lab_6de8:
     mov a,#4dh              ;6de8  a1 4d
-    mov !0f1a2h,a           ;6dea  9e a2 f1
+    mov !mem_f1a2,a         ;6dea  9e a2 f1
     mov a,#48h              ;6ded  a1 48
-    mov !0f1a3h,a           ;6def  9e a3 f1
+    mov !mem_f1a3,a         ;6def  9e a3 f1
     mov a,#7ah              ;6df2  a1 7a
-    mov !0f1a4h,a           ;6df4  9e a4 f1
+    mov !mem_f1a4,a         ;6df4  9e a4 f1
     mov b,#0ffh             ;6df7  a3 ff
     br $lab_6e3c            ;6df9  fa 41
 
 lab_6dfb:
-    mov a,!0f1abh           ;6dfb  8e ab f1
+    mov a,!mem_f1ab         ;6dfb  8e ab f1
     and a,#0fh              ;6dfe  5d 0f
     cmp a,#00h              ;6e00  4d 00
     bz $lab_6e17            ;6e02  ad 13
-    cmp 0fe20h,#03h         ;6e04  c8 20 03
+    cmp mem_fe20,#03h       ;6e04  c8 20 03
     bnz $lab_6e17           ;6e07  bd 0e
-    cmp 0fe21h,#0bh         ;6e09  c8 21 0b
+    cmp mem_fe21,#0bh       ;6e09  c8 21 0b
     bnz $lab_6e2b           ;6e0c  bd 1d
-    mov a,!0f1abh           ;6e0e  8e ab f1
+    mov a,!mem_f1ab         ;6e0e  8e ab f1
     and a,#0efh             ;6e11  5d ef
     cmp a,#09h              ;6e13  4d 09
     bnz $lab_6e2b           ;6e15  bd 14
 
 lab_6e17:
     mov a,#01h              ;6e17  a1 01
-    mov !0f19ch,a           ;6e19  9e 9c f1
+    mov !mem_f19c,a         ;6e19  9e 9c f1
     mov a,#20h              ;6e1c  a1 20
-    mov !0f19dh,a           ;6e1e  9e 9d f1
+    mov !mem_f19d,a         ;6e1e  9e 9d f1
     mov a,#46h              ;6e21  a1 46
-    mov !0f19ah,a           ;6e23  9e 9a f1
+    mov !mem_f19a,a         ;6e23  9e 9a f1
     mov a,#4dh              ;6e26  a1 4d
-    mov !0f19bh,a           ;6e28  9e 9b f1
+    mov !mem_f19b,a         ;6e28  9e 9b f1
 
 lab_6e2b:
     mov a,#4dh              ;6e2b  a1 4d
-    mov !0f1a2h,a           ;6e2d  9e a2 f1
+    mov !mem_f1a2,a         ;6e2d  9e a2 f1
     mov a,#48h              ;6e30  a1 48
-    mov !0f1a3h,a           ;6e32  9e a3 f1
+    mov !mem_f1a3,a         ;6e32  9e a3 f1
     mov a,#7ah              ;6e35  a1 7a
-    mov !0f1a4h,a           ;6e37  9e a4 f1
+    mov !mem_f1a4,a         ;6e37  9e a4 f1
     mov b,#0ffh             ;6e3a  a3 ff
 
 lab_6e3c:
@@ -24027,7 +24049,7 @@ lab_6e3c:
     ret                     ;6e3f  af
 
 sub_6e40:
-    mov a,!0f1ach           ;6e40  8e ac f1
+    mov a,!mem_f1ac         ;6e40  8e ac f1
     cmp a,#03h              ;6e43  4d 03
     bz $lab_6e5e            ;6e45  ad 17
     cmp a,#02h              ;6e47  4d 02
@@ -24037,21 +24059,21 @@ sub_6e40:
     cmp a,#06h              ;6e4f  4d 06
     bz $lab_6e5e            ;6e51  ad 0b
     mov a,#41h              ;6e53  a1 41
-    bf 0fe4dh.6,$lab_6e5b   ;6e55  31 63 4d 02
+    bf mem_fe4d.6,$lab_6e5b ;6e55  31 63 4d 02
     mov a,#42h              ;6e59  a1 42
 
 lab_6e5b:
-    mov !0f1a4h,a           ;6e5b  9e a4 f1
+    mov !mem_f1a4,a         ;6e5b  9e a4 f1
 
 lab_6e5e:
-    clr1 0fe36h.2           ;6e5e  2b 36
-    bf 0fe6fh.4,$lab_6e66   ;6e60  31 43 6f 02
-    set1 0fe36h.2           ;6e64  2a 36
+    clr1 mem_fe36.2         ;6e5e  2b 36
+    bf mem_fe6f.4,$lab_6e66 ;6e60  31 43 6f 02
+    set1 mem_fe36.2         ;6e64  2a 36
 
 lab_6e66:
-    clr1 0fe37h.7           ;6e66  7b 37
-    bf 0fe71h.4,$sub_6e6e   ;6e68  31 43 71 02
-    set1 0fe37h.7           ;6e6c  7a 37
+    clr1 mem_fe37.7         ;6e66  7b 37
+    bf mem_fe71.4,$sub_6e6e ;6e68  31 43 71 02
+    set1 mem_fe37.7         ;6e6c  7a 37
 
 sub_6e6e:
     ret                     ;6e6e  af
@@ -24121,12 +24143,12 @@ sub_6eb2:
 
 sub_6ebb:
     call !sub_0800          ;6ebb  9a 00 08
-    mov 0fed6h,a            ;6ebe  f2 d6
-    mov a,!0f1e7h           ;6ec0  8e e7 f1
+    mov mem_fed6,a          ;6ebe  f2 d6
+    mov a,!mem_f1e7         ;6ec0  8e e7 f1
     mov x,a                 ;6ec3  70
-    mov a,!0fb56h           ;6ec4  8e 56 fb
+    mov a,!mem_fb56         ;6ec4  8e 56 fb
     dec a                   ;6ec7  51
-    cmp 0fed6h,#02h         ;6ec8  c8 d6 02
+    cmp mem_fed6,#02h       ;6ec8  c8 d6 02
     bz $lab_6f06            ;6ecb  ad 39
     xch a,x                 ;6ecd  30
     cmp a,#01h              ;6ece  4d 01
@@ -24212,20 +24234,20 @@ lab_6f37:
 
 lab_6f40:
     push hl                 ;6f40  b7
-    mov a,0fed4h            ;6f41  f0 d4
+    mov a,mem_fed4          ;6f41  f0 d4
     call !sub_6f6c          ;6f43  9a 6c 6f
     call !sub_0800          ;6f46  9a 00 08
     cmp a,#02h              ;6f49  4d 02
     bz $lab_6f4f            ;6f4b  ad 02
-    set1 0fe39h.5           ;6f4d  5a 39
+    set1 mem_fe39.5         ;6f4d  5a 39
 
 lab_6f4f:
-    mov a,0fed4h            ;6f4f  f0 d4
+    mov a,mem_fed4          ;6f4f  f0 d4
     callf !sub_0a9e         ;6f51  2c 9e
     call !sub_6f6c          ;6f53  9a 6c 6f
-    mov a,0fed5h            ;6f56  f0 d5
+    mov a,mem_fed5          ;6f56  f0 d5
     call !sub_6f6c          ;6f58  9a 6c 6f
-    mov a,0fed5h            ;6f5b  f0 d5
+    mov a,mem_fed5          ;6f5b  f0 d5
     callf !sub_0a9e         ;6f5d  2c 9e
     and a,#0fh              ;6f5f  5d 0f
     bz $lab_6f66            ;6f61  ad 03
@@ -24243,7 +24265,7 @@ sub_6f6c:
     and a,#0fh              ;6f6c  5d 0f
     add a,#30h              ;6f6e  0d 30
     push hl                 ;6f70  b7
-    movw hl,#0f19ah         ;6f71  16 9a f1
+    movw hl,#mem_f19a       ;6f71  16 9a f1
     mov [hl+b],a            ;6f74  bb
     pop hl                  ;6f75  b6
 
@@ -24252,7 +24274,7 @@ lab_6f76:
     ret                     ;6f77  af
 
 sub_6f78:
-    mov a,0fe30h            ;6f78  f0 30
+    mov a,mem_fe30          ;6f78  f0 30
     mov b,a                 ;6f7a  73
     cmp a,#04h              ;6f7b  4d 04
     bc $lab_6f81            ;6f7d  8d 02
@@ -24272,11 +24294,11 @@ lab_6f8b:
     push hl                 ;6f92  b7
     movw hl,#0b531h         ;6f93  16 31 b5
     mov a,[hl+b]            ;6f96  ab
-    mov 0fedeh,a            ;6f97  f2 de
-    movw hl,#0f1aah         ;6f99  16 aa f1
+    mov mem_fede,a          ;6f97  f2 de
+    movw hl,#mem_f1aa       ;6f99  16 aa f1
     mov a,[hl+b]            ;6f9c  ab
     and a,#0fh              ;6f9d  5d 0f
-    cmp a,0fedeh            ;6f9f  4e de
+    cmp a,mem_fede          ;6f9f  4e de
     bc $lab_6fa6            ;6fa1  8d 03
     mov a,#00h              ;6fa3  a1 00
     mov [hl+b],a            ;6fa5  bb
@@ -24290,10 +24312,10 @@ sub_6fa9:
     push ax                 ;6fa9  b1
     push bc                 ;6faa  b3
     push hl                 ;6fab  b7
-    mov a,0fed5h            ;6fac  f0 d5
+    mov a,mem_fed5          ;6fac  f0 d5
     mov b,a                 ;6fae  73
-    mov a,0fed4h            ;6faf  f0 d4
-    movw hl,#0f1aah         ;6fb1  16 aa f1
+    mov a,mem_fed4          ;6faf  f0 d4
+    movw hl,#mem_f1aa       ;6fb1  16 aa f1
     mov [hl+b],a            ;6fb4  bb
     pop hl                  ;6fb5  b6
     pop bc                  ;6fb6  b2
@@ -24301,7 +24323,7 @@ sub_6fa9:
     ret                     ;6fb8  af
 
 sub_6fb9:
-    mov a,0fed4h            ;6fb9  f0 d4
+    mov a,mem_fed4          ;6fb9  f0 d4
     and a,#30h              ;6fbb  5d 30
     ror a,1                 ;6fbd  24
     ror a,1                 ;6fbe  24
@@ -24324,7 +24346,7 @@ lab_6fc8:
     db 0afh                 ;6fcf  af          DATA 0xaf
 
 sub_6fd0:
-    movw hl,#0f19ah         ;6fd0  16 9a f1
+    movw hl,#mem_f19a       ;6fd0  16 9a f1
     mov a,#0bh              ;6fd3  a1 0b
     cmp a,#00h              ;6fd5  4d 00
     br $lab_6fd9            ;6fd7  fa 00
@@ -24361,7 +24383,7 @@ sub_6feb:
     xch a,h                 ;6ff9  37
     movw ax,hl              ;6ffa  c6
     movw de,ax              ;6ffb  d4
-    movw hl,#0f19ah         ;6ffc  16 9a f1
+    movw hl,#mem_f19a       ;6ffc  16 9a f1
 
 lab_6fff:
     mov a,[de]              ;6fff  85
@@ -24416,7 +24438,7 @@ lab_7009:
 
 sub_7030:
     mov b,#05h              ;7030  a3 05
-    movw hl,#0f1a4h         ;7032  16 a4 f1
+    movw hl,#mem_f1a4       ;7032  16 a4 f1
 
 lab_7035:
     mov a,[hl+b]            ;7035  ab
@@ -24424,7 +24446,7 @@ lab_7035:
     bnz $lab_7041           ;7038  bd 07
     dbnz b,$lab_7035        ;703a  8b f9
     mov a,#00h              ;703c  a1 00
-    mov !0fb2eh,a           ;703e  9e 2e fb
+    mov !mem_fb2e,a         ;703e  9e 2e fb
 
 lab_7041:
     mov a,b                 ;7041  63
@@ -24441,26 +24463,26 @@ lab_704d:
     br !lab_7690            ;7051  9b 90 76
 
 lab_7054:
-    clr1 0fe39h.5           ;7054  5b 39
-    mov a,!0f1a6h           ;7056  8e a6 f1
+    clr1 mem_fe39.5         ;7054  5b 39
+    mov a,!mem_f1a6         ;7056  8e a6 f1
     and a,#0fh              ;7059  5d 0f
     cmp a,#0eh              ;705b  4d 0e
     bz $lab_7065            ;705d  ad 06
-    clr1 0fe37h.7           ;705f  7b 37
-    clr1 0fe36h.2           ;7061  2b 36
-    clr1 0fe3ah.1           ;7063  1b 3a
+    clr1 mem_fe37.7         ;705f  7b 37
+    clr1 mem_fe36.2         ;7061  2b 36
+    clr1 mem_fe3a.1         ;7063  1b 3a
 
 lab_7065:
-    bf 0fe2ch.3,$lab_7070   ;7065  31 33 2c 07
+    bf mem_fe2c.3,$lab_7070 ;7065  31 33 2c 07
     mov a,#0c3h             ;7069  a1 c3
-    cmp a,!0fb71h           ;706b  48 71 fb
+    cmp a,!mem_fb71         ;706b  48 71 fb
     bz $lab_7087            ;706e  ad 17
 
 lab_7070:
-    bt 0fe2ch.5,$lab_7087   ;7070  dc 2c 14
-    bt 0fe65h.5,$lab_7087   ;7073  dc 65 11
+    bt mem_fe2c.5,$lab_7087 ;7070  dc 2c 14
+    bt mem_fe65.5,$lab_7087 ;7073  dc 65 11
     mov a,#00h              ;7076  a1 00
-    mov !0fb2eh,a           ;7078  9e 2e fb
+    mov !mem_fb2e,a         ;7078  9e 2e fb
     mov a,#0ah              ;707b  a1 0a
     mov b,#0ffh             ;707d  a3 ff
     movw hl,#blank          ;707f  16 11 65
@@ -24597,7 +24619,7 @@ lab_708e:
 
 lab_7105:
     mov a,#0ffh             ;7105  a1 ff
-    mov !0f1a7h,a           ;7107  9e a7 f1
+    mov !mem_f1a7,a         ;7107  9e a7 f1
     ret                     ;710a  af
 
 lab_710b:
@@ -24634,23 +24656,23 @@ lab_711c:
     ret                     ;7141  af
 
 lab_7142:
-    mov a,!0f1a8h           ;7142  8e a8 f1
+    mov a,!mem_f1a8         ;7142  8e a8 f1
     and a,#7fh              ;7145  5d 7f
-    mov !0f1a8h,a           ;7147  9e a8 f1
+    mov !mem_f1a8,a         ;7147  9e a8 f1
     mov b,a                 ;714a  73
     movw hl,#0b457h         ;714b  16 57 b4
     br !lab_704d            ;714e  9b 4d 70
 
 lab_7151:
-    bt 0fe5dh.7,$lab_715c   ;7151  fc 5d 08
+    bt mem_fe5d.7,$lab_715c ;7151  fc 5d 08
     mov a,#0ffh             ;7154  a1 ff
-    mov !0f1a9h,a           ;7156  9e a9 f1
+    mov !mem_f1a9,a         ;7156  9e a9 f1
     br !lab_708e            ;7159  9b 8e 70
 
 lab_715c:
-    mov a,!0f1a9h           ;715c  8e a9 f1
+    mov a,!mem_f1a9         ;715c  8e a9 f1
     and a,#7fh              ;715f  5d 7f
-    mov !0f1a9h,a           ;7161  9e a9 f1
+    mov !mem_f1a9,a         ;7161  9e a9 f1
     mov b,a                 ;7164  73
     movw hl,#0b460h         ;7165  16 60 b4
     br !lab_704d            ;7168  9b 4d 70
@@ -24711,9 +24733,9 @@ lab_71b0:
     mov a,#0ah              ;71b2  a1 0a
     movw hl,#cd_cd_rom      ;71b4  16 89 67
     call !sub_6e70          ;71b7  9a 70 6e
-    movw hl,#0f19ah         ;71ba  16 9a f1
+    movw hl,#mem_f19a       ;71ba  16 9a f1
     mov b,#03h              ;71bd  a3 03
-    mov a,!0f1b2h           ;71bf  8e b2 f1
+    mov a,!mem_f1b2         ;71bf  8e b2 f1
     add a,#30h              ;71c2  0d 30
     mov [hl+b],a            ;71c4  bb
     ret                     ;71c5  af
@@ -24740,7 +24762,7 @@ lab_71da:
     br $lab_71d6            ;71e1  fa f3
 
 lab_71e3:
-    set1 0fe6ah.0           ;71e3  0a 6a
+    set1 mem_fe6a.0         ;71e3  0a 6a
     call !sub_6fe1          ;71e5  9a e1 6f
     mov b,#0ah              ;71e8  a3 0a
     movw hl,#safe           ;71ea  16 f9 64
@@ -24748,14 +24770,14 @@ lab_71e3:
     br !lab_7290            ;71ef  9b 90 72
 
 lab_71f2:
-    set1 0fe6ah.0           ;71f2  0a 6a
+    set1 mem_fe6a.0         ;71f2  0a 6a
     call !sub_6fe1          ;71f4  9a e1 6f
     mov b,#0ah              ;71f7  a3 0a
     movw hl,#safe           ;71f9  16 f9 64
     mov a,#0ffh             ;71fc  a1 ff
     call !sub_6e70          ;71fe  9a 70 6e
-    movw hl,#0f19ah         ;7201  16 9a f1
-    mov a,!0f206h           ;7204  8e 06 f2
+    movw hl,#mem_f19a       ;7201  16 9a f1
+    mov a,!mem_f206         ;7204  8e 06 f2
     call !sub_0cf4          ;7207  9a f4 0c
     mov a,x                 ;720a  60
     and a,#0fh              ;720b  5d 0f
@@ -24776,18 +24798,18 @@ lab_71f2:
     br $lab_7290            ;7222  fa 6c
 
 lab_7224:
-    mov a,!0fb2eh           ;7224  8e 2e fb
+    mov a,!mem_fb2e         ;7224  8e 2e fb
     cmp a,#00h              ;7227  4d 00
     bnz $lab_7249           ;7229  bd 1e
-    set1 0fe6ah.0           ;722b  0a 6a
+    set1 mem_fe6a.0         ;722b  0a 6a
     call !sub_6fe1          ;722d  9a e1 6f
     mov b,#0ah              ;7230  a3 0a
     movw hl,#safe           ;7232  16 f9 64
     mov a,#0ffh             ;7235  a1 ff
     call !sub_6e70          ;7237  9a 70 6e
-    mov a,!0f20bh           ;723a  8e 0b f2
+    mov a,!mem_f20b         ;723a  8e 0b f2
     add a,#30h              ;723d  0d 30
-    movw hl,#0f19ah         ;723f  16 9a f1
+    movw hl,#mem_f19a       ;723f  16 9a f1
     mov [hl],a              ;7242  97
     mov a,#0ffh             ;7243  a1 ff
     mov b,#0ffh             ;7245  a3 ff
@@ -24799,32 +24821,32 @@ lab_7249:
     movw hl,#safe           ;724e  16 f9 64
     mov a,#0ffh             ;7251  a1 ff
     call !sub_6e70          ;7253  9a 70 6e
-    mov a,!0f20bh           ;7256  8e 0b f2
+    mov a,!mem_f20b         ;7256  8e 0b f2
     add a,#30h              ;7259  0d 30
-    movw hl,#0f19ah         ;725b  16 9a f1
+    movw hl,#mem_f19a       ;725b  16 9a f1
     mov [hl],a              ;725e  97
     mov a,#0ffh             ;725f  a1 ff
     mov b,#0ffh             ;7261  a3 ff
-    bf 0fe3dh.1,$lab_7290   ;7263  31 13 3d 29
+    bf mem_fe3d.1,$lab_7290 ;7263  31 13 3d 29
     mov a,#0ah              ;7267  a1 0a
     mov b,#0ffh             ;7269  a3 ff
     movw hl,#blank          ;726b  16 11 65
-    mov1 cy,0fe62h.2        ;726e  71 24 62
+    mov1 cy,mem_fe62.2      ;726e  71 24 62
     bc $lab_7278            ;7271  8d 05
-    bt 0fe62h.1,$lab_7284   ;7273  9c 62 0e
+    bt mem_fe62.1,$lab_7284 ;7273  9c 62 0e
     br $lab_7290            ;7276  fa 18
 
 lab_7278:
-    set1 0feceh.6           ;7278  6a ce
+    set1 mem_fece.6         ;7278  6a ce
     clr1 PM4_.6             ;727a  71 6b 24
-    mov a,0feceh            ;727d  f0 ce
+    mov a,mem_fece          ;727d  f0 ce
     mov P4_,a               ;727f  f2 04
     br !lab_6a5b            ;7281  9b 5b 6a
 
 lab_7284:
-    clr1 0feceh.6           ;7284  6b ce
+    clr1 mem_fece.6         ;7284  6b ce
     clr1 PM4_.6             ;7286  71 6b 24
-    mov a,0feceh            ;7289  f0 ce
+    mov a,mem_fece          ;7289  f0 ce
     mov P4_,a               ;728b  f2 04
     br !lab_6a5b            ;728d  9b 5b 6a
 
@@ -24836,19 +24858,19 @@ lab_7294:
     mov a,#0ah              ;7294  a1 0a
     mov b,#0ffh             ;7296  a3 ff
     movw hl,#blank          ;7298  16 11 65
-    set1 0fe6ah.0           ;729b  0a 6a
+    set1 mem_fe6a.0         ;729b  0a 6a
     call !sub_6e70          ;729d  9a 70 6e
-    movw hl,#0f19ah         ;72a0  16 9a f1
-    mov a,!0f20bh           ;72a3  8e 0b f2
+    movw hl,#mem_f19a       ;72a0  16 9a f1
+    mov a,!mem_f20b         ;72a3  8e 0b f2
     cmp a,#00h              ;72a6  4d 00
     bz $lab_72ad            ;72a8  ad 03
     add a,#30h              ;72aa  0d 30
     mov [hl],a              ;72ac  97
 
 lab_72ad:
-    mov a,!0fb76h           ;72ad  8e 76 fb
+    mov a,!mem_fb76         ;72ad  8e 76 fb
     mov x,a                 ;72b0  70
-    mov a,!0fb75h           ;72b1  8e 75 fb
+    mov a,!mem_fb75         ;72b1  8e 75 fb
     push ax                 ;72b4  b1
     and a,#0fh              ;72b5  5d 0f
     add a,#30h              ;72b7  0d 30
@@ -24894,7 +24916,7 @@ lab_72e9:
     call !sub_6e70          ;72f0  9a 70 6e
     mov a,#23h              ;72f3  a1 23
     call !sub_0be4          ;72f5  9a e4 0b
-    movw hl,#0f19ah         ;72f8  16 9a f1
+    movw hl,#mem_f19a       ;72f8  16 9a f1
     mov b,#09h              ;72fb  a3 09
     mov [hl+b],a            ;72fd  bb
     mov a,x                 ;72fe  60
@@ -24910,22 +24932,22 @@ lab_7303:
     mov a,#83h              ;730d  a1 83
     mov b,#0ffh             ;730f  a3 ff
     call !sub_6e70          ;7311  9a 70 6e
-    clr1 0fe39h.5           ;7314  5b 39
+    clr1 mem_fe39.5         ;7314  5b 39
     mov b,#04h              ;7316  a3 04
-    movw hl,#0f19ah         ;7318  16 9a f1
-    mov a,!0fb69h           ;731b  8e 69 fb
+    movw hl,#mem_f19a       ;7318  16 9a f1
+    mov a,!mem_fb69         ;731b  8e 69 fb
     call !sub_6809          ;731e  9a 09 68
     mov [hl+b],a            ;7321  bb
     mov b,#06h              ;7322  a3 06
-    mov a,!0fb6ah           ;7324  8e 6a fb
+    mov a,!mem_fb6a         ;7324  8e 6a fb
     call !sub_6809          ;7327  9a 09 68
     mov [hl+b],a            ;732a  bb
     mov b,#08h              ;732b  a3 08
-    mov a,!0fb6bh           ;732d  8e 6b fb
+    mov a,!mem_fb6b         ;732d  8e 6b fb
     call !sub_6809          ;7330  9a 09 68
     mov [hl+b],a            ;7333  bb
     mov b,#0ah              ;7334  a3 0a
-    mov a,!0fb6ch           ;7336  8e 6c fb
+    mov a,!mem_fb6c         ;7336  8e 6c fb
     call !sub_6809          ;7339  9a 09 68
     mov [hl+b],a            ;733c  bb
     ret                     ;733d  af
@@ -24933,7 +24955,7 @@ lab_7303:
 lab_733e:
     mov b,#0ah              ;733e  a3 0a
     movw hl,#fern_on        ;7340  16 e1 64
-    mov1 cy,0fe5eh.1        ;7343  71 14 5e
+    mov1 cy,mem_fe5e.1      ;7343  71 14 5e
     bc $lab_734b            ;7346  8d 03
     movw hl,#fern_off       ;7348  16 ed 64
 
@@ -24947,7 +24969,7 @@ lab_7351:
     movw hl,#set_onvol      ;7353  16 99 64
     mov b,#0ffh             ;7356  a3 ff
     call !sub_6e70          ;7358  9a 70 6e
-    mov a,!0f254h           ;735b  8e 54 f2
+    mov a,!mem_f254         ;735b  8e 54 f2
     clr1 a.0                ;735e  61 8b
     ror a,1                 ;7360  24
     call !sub_0cf4          ;7361  9a f4 0c
@@ -24955,7 +24977,7 @@ lab_7351:
     and a,#0fh              ;7365  5d 0f
     add a,#30h              ;7367  0d 30
     mov b,#0ah              ;7369  a3 0a
-    movw hl,#0f19ah         ;736b  16 9a f1
+    movw hl,#mem_f19a       ;736b  16 9a f1
     mov [hl+b],a            ;736e  bb
     mov a,x                 ;736f  60
     and a,#0f0h             ;7370  5d f0
@@ -24973,7 +24995,7 @@ lab_737e:
 
 lab_7380:
     mov b,#09h              ;7380  a3 09
-    movw hl,#0f19ah         ;7382  16 9a f1
+    movw hl,#mem_f19a       ;7382  16 9a f1
     mov [hl+b],a            ;7385  bb
     ret                     ;7386  af
 
@@ -24982,7 +25004,7 @@ lab_7387:
     mov b,#0ffh             ;7389  a3 ff
     movw hl,#set_cd_mix     ;738b  16 a5 64
     call !sub_6e70          ;738e  9a 70 6e
-    mov a,!0fb6fh           ;7391  8e 6f fb
+    mov a,!mem_fb6f         ;7391  8e 6f fb
     and a,#01h              ;7394  5d 01
     mov a,#31h              ;7396  a1 31
     bz $lab_739c            ;7398  ad 02
@@ -24990,7 +25012,7 @@ lab_7387:
 
 lab_739c:
     mov b,#0ah              ;739c  a3 0a
-    movw hl,#0f19ah         ;739e  16 9a f1
+    movw hl,#mem_f19a       ;739e  16 9a f1
     mov [hl+b],a            ;73a1  bb
     ret                     ;73a2  af
 
@@ -24999,7 +25021,7 @@ lab_73a3:
     mov b,#0ffh             ;73a5  a3 ff
     movw hl,#tape_skip      ;73a7  16 b1 64
     call !sub_6e70          ;73aa  9a 70 6e
-    mov a,!0fb6fh           ;73ad  8e 6f fb
+    mov a,!mem_fb6f         ;73ad  8e 6f fb
     and a,#02h              ;73b0  5d 02
     mov a,#59h              ;73b2  a1 59
     bnz $lab_73b8           ;73b4  bd 02
@@ -25007,7 +25029,7 @@ lab_73a3:
 
 lab_73b8:
     mov b,#0ah              ;73b8  a3 0a
-    movw hl,#0f19ah         ;73ba  16 9a f1
+    movw hl,#mem_f19a       ;73ba  16 9a f1
     mov [hl+b],a            ;73bd  bb
     ret                     ;73be  af
 
@@ -25020,13 +25042,13 @@ lab_73bf:
     ret                     ;73cc  af
 
 lab_73cd:
-    mov a,!0fc9fh           ;73cd  8e 9f fc
+    mov a,!mem_fc9f         ;73cd  8e 9f fc
     cmp a,#00h              ;73d0  4d 00
     bz $lab_73ec            ;73d2  ad 18
     cmp a,#0ffh             ;73d4  4d ff
     bz $lab_73e3            ;73d6  ad 0b
     mov a,#00h              ;73d8  a1 00
-    mov !0fb2eh,a           ;73da  9e 2e fb
+    mov !mem_fb2e,a         ;73da  9e 2e fb
     mov a,#0ffh             ;73dd  a1 ff
     mov b,#0ffh             ;73df  a3 ff
     br $lab_7401            ;73e1  fa 1e
@@ -25038,12 +25060,12 @@ lab_73e3:
     br $lab_7401            ;73ea  fa 15
 
 lab_73ec:
-    mov a,!0f1a6h           ;73ec  8e a6 f1
+    mov a,!mem_f1a6         ;73ec  8e a6 f1
     and a,#0fh              ;73ef  5d 0f
     cmp a,#0eh              ;73f1  4d 0e
     bnz $lab_73fa           ;73f3  bd 05
     mov a,#1eh              ;73f5  a1 1e
-    mov !0fb2eh,a           ;73f7  9e 2e fb
+    mov !mem_fb2e,a         ;73f7  9e 2e fb
 
 lab_73fa:
     mov b,#0ffh             ;73fa  a3 ff
@@ -25055,16 +25077,16 @@ lab_7401:
     ret                     ;7404  af
 
 lab_7405:
-    mov a,!0fc9fh           ;7405  8e 9f fc
+    mov a,!mem_fc9f         ;7405  8e 9f fc
     cmp a,#00h              ;7408  4d 00
     bz $lab_7414            ;740a  ad 08
     mov a,#80h              ;740c  a1 80
-    mov !0f1abh,a           ;740e  9e ab f1
+    mov !mem_f1ab,a         ;740e  9e ab f1
     br !lab_6856            ;7411  9b 56 68
 
 lab_7414:
     call !sub_6d64          ;7414  9a 64 6d
-    mov a,!0f1abh           ;7417  8e ab f1
+    mov a,!mem_f1ab         ;7417  8e ab f1
     cmp a,#09h              ;741a  4d 09
     bz $lab_7424            ;741c  ad 06
     and a,#0fh              ;741e  5d 0f
@@ -25072,21 +25094,21 @@ lab_7414:
     bnz $lab_7433           ;7422  bd 0f
 
 lab_7424:
-    mov a,!0fb5ah           ;7424  8e 5a fb
+    mov a,!mem_fb5a         ;7424  8e 5a fb
     cmp a,#00h              ;7427  4d 00
     bz $lab_7433            ;7429  ad 08
     cmp a,#07h              ;742b  4d 07
     bnc $lab_7433           ;742d  9d 04
     inc a                   ;742f  41
-    mov !0f19dh,a           ;7430  9e 9d f1
+    mov !mem_f19d,a         ;7430  9e 9d f1
 
 lab_7433:
-    mov a,!0f1a6h           ;7433  8e a6 f1
+    mov a,!mem_f1a6         ;7433  8e a6 f1
     and a,#0fh              ;7436  5d 0f
     cmp a,#0eh              ;7438  4d 0e
     bnz $lab_7441           ;743a  bd 05
     mov a,#0ffh             ;743c  a1 ff
-    mov !0f1a6h,a           ;743e  9e a6 f1
+    mov !mem_f1a6,a         ;743e  9e a6 f1
 
 lab_7441:
     mov b,#0ffh             ;7441  a3 ff
@@ -25100,7 +25122,7 @@ lab_744c:
     movw hl,#tape           ;744e  16 a6 65
     mov a,#03h              ;7451  a1 03
     call !sub_6e70          ;7453  9a 70 6e
-    mov a,!0f1ach           ;7456  8e ac f1
+    mov a,!mem_f1ac         ;7456  8e ac f1
     cmp a,#03h              ;7459  4d 03
     bz $lab_7474            ;745b  ad 17
     cmp a,#02h              ;745d  4d 02
@@ -25110,29 +25132,29 @@ lab_744c:
     cmp a,#06h              ;7465  4d 06
     bz $lab_7474            ;7467  ad 0b
     mov a,#41h              ;7469  a1 41
-    bf 0fe4dh.6,$lab_7471   ;746b  31 63 4d 02
+    bf mem_fe4d.6,$lab_7471 ;746b  31 63 4d 02
     mov a,#42h              ;746f  a1 42
 
 lab_7471:
-    mov !0f1a4h,a           ;7471  9e a4 f1
+    mov !mem_f1a4,a         ;7471  9e a4 f1
 
 lab_7474:
-    clr1 0fe36h.2           ;7474  2b 36
-    bf 0fe6fh.4,$lab_747c   ;7476  31 43 6f 02
-    set1 0fe36h.2           ;747a  2a 36
+    clr1 mem_fe36.2         ;7474  2b 36
+    bf mem_fe6f.4,$lab_747c ;7476  31 43 6f 02
+    set1 mem_fe36.2         ;747a  2a 36
 
 lab_747c:
-    clr1 0fe37h.7           ;747c  7b 37
-    bf 0fe71h.4,$lab_7484   ;747e  31 43 71 02
-    set1 0fe37h.7           ;7482  7a 37
+    clr1 mem_fe37.7         ;747c  7b 37
+    bf mem_fe71.4,$lab_7484 ;747e  31 43 71 02
+    set1 mem_fe37.7         ;7482  7a 37
 
 lab_7484:
-    mov a,!0f1a6h           ;7484  8e a6 f1
+    mov a,!mem_f1a6         ;7484  8e a6 f1
     and a,#0fh              ;7487  5d 0f
     cmp a,#0eh              ;7489  4d 0e
     bnz $lab_7492           ;748b  bd 05
     mov a,#0ffh             ;748d  a1 ff
-    mov !0f1a6h,a           ;748f  9e a6 f1
+    mov !mem_f1a6,a         ;748f  9e a6 f1
 
 lab_7492:
     mov b,#0ffh             ;7492  a3 ff
@@ -25146,22 +25168,22 @@ lab_749d:
     mov b,#0ah              ;749f  a3 0a
     movw hl,#cd_tr          ;74a1  16 9c 66
     call !sub_6e70          ;74a4  9a 70 6e
-    movw hl,#0f19ah         ;74a7  16 9a f1
-    mov a,!0fc75h           ;74aa  8e 75 fc
+    movw hl,#mem_f19a       ;74a7  16 9a f1
+    mov a,!mem_fc75         ;74aa  8e 75 fc
     add a,#30h              ;74ad  0d 30
     mov [hl+03h],a          ;74af  be 03
-    clr1 0fe3ah.1           ;74b1  1b 3a
-    bt 0fe6eh.0,$lab_74bc   ;74b3  8c 6e 06
-    mov1 cy,0fe6eh.1        ;74b6  71 14 6e
-    mov1 0fe3ah.1,cy        ;74b9  71 11 3a
+    clr1 mem_fe3a.1         ;74b1  1b 3a
+    bt mem_fe6e.0,$lab_74bc ;74b3  8c 6e 06
+    mov1 cy,mem_fe6e.1      ;74b6  71 14 6e
+    mov1 mem_fe3a.1,cy      ;74b9  71 11 3a
 
 lab_74bc:
-    mov a,!0f1a6h           ;74bc  8e a6 f1
+    mov a,!mem_f1a6         ;74bc  8e a6 f1
     and a,#0fh              ;74bf  5d 0f
     cmp a,#0eh              ;74c1  4d 0e
     bnz $lab_74ca           ;74c3  bd 05
     mov a,#0ffh             ;74c5  a1 ff
-    mov !0f1a6h,a           ;74c7  9e a6 f1
+    mov !mem_f1a6,a         ;74c7  9e a6 f1
 
 lab_74ca:
     mov b,#0ffh             ;74ca  a3 ff
@@ -25198,7 +25220,7 @@ lab_74ff:
     movw hl,#0f1a0h         ;74ff  16 a0 f1
     mov a,#2dh              ;7502  a1 2d
     mov [hl],a              ;7504  97
-    movw hl,#0f1a2h         ;7505  16 a2 f1
+    movw hl,#mem_f1a2       ;7505  16 a2 f1
     mov a,#09h              ;7508  a1 09
     sub a,x                 ;750a  61 18
     add a,#30h              ;750c  0d 30
@@ -25209,7 +25231,7 @@ lab_7511:
     movw hl,#0f1a0h         ;7511  16 a0 f1
     mov a,#2bh              ;7514  a1 2b
     mov [hl],a              ;7516  97
-    movw hl,#0f1a2h         ;7517  16 a2 f1
+    movw hl,#mem_f1a2       ;7517  16 a2 f1
     mov a,x                 ;751a  60
     sub a,#0bh              ;751b  1d 0b
     add a,#30h              ;751d  0d 30
@@ -25217,7 +25239,7 @@ lab_7511:
     br $lab_7528            ;7520  fa 06
 
 lab_7522:
-    movw hl,#0f1a2h         ;7522  16 a2 f1
+    movw hl,#mem_f1a2       ;7522  16 a2 f1
     mov a,#30h              ;7525  a1 30
     mov [hl],a              ;7527  97
 
@@ -25248,7 +25270,7 @@ lab_754b:
     movw hl,#0f1a0h         ;754b  16 a0 f1
     mov a,#2dh              ;754e  a1 2d
     mov [hl],a              ;7550  97
-    movw hl,#0f1a2h         ;7551  16 a2 f1
+    movw hl,#mem_f1a2       ;7551  16 a2 f1
     mov a,#09h              ;7554  a1 09
     sub a,x                 ;7556  61 18
     add a,#30h              ;7558  0d 30
@@ -25259,7 +25281,7 @@ lab_755d:
     movw hl,#0f1a0h         ;755d  16 a0 f1
     mov a,#2bh              ;7560  a1 2b
     mov [hl],a              ;7562  97
-    movw hl,#0f1a2h         ;7563  16 a2 f1
+    movw hl,#mem_f1a2       ;7563  16 a2 f1
     mov a,x                 ;7566  60
     sub a,#0bh              ;7567  1d 0b
     add a,#30h              ;7569  0d 30
@@ -25267,7 +25289,7 @@ lab_755d:
     br $lab_7574            ;756c  fa 06
 
 lab_756e:
-    movw hl,#0f1a2h         ;756e  16 a2 f1
+    movw hl,#mem_f1a2       ;756e  16 a2 f1
     mov a,#30h              ;7571  a1 30
     mov [hl],a              ;7573  97
 
@@ -25298,7 +25320,7 @@ lab_7595:
     movw hl,#0f1a0h         ;7595  16 a0 f1
     mov a,#2dh              ;7598  a1 2d
     mov [hl],a              ;759a  97
-    movw hl,#0f1a2h         ;759b  16 a2 f1
+    movw hl,#mem_f1a2       ;759b  16 a2 f1
     mov a,#09h              ;759e  a1 09
     sub a,x                 ;75a0  61 18
     add a,#30h              ;75a2  0d 30
@@ -25309,7 +25331,7 @@ lab_75a7:
     movw hl,#0f1a0h         ;75a7  16 a0 f1
     mov a,#2bh              ;75aa  a1 2b
     mov [hl],a              ;75ac  97
-    movw hl,#0f1a2h         ;75ad  16 a2 f1
+    movw hl,#mem_f1a2       ;75ad  16 a2 f1
     mov a,x                 ;75b0  60
     sub a,#0bh              ;75b1  1d 0b
     add a,#30h              ;75b3  0d 30
@@ -25317,7 +25339,7 @@ lab_75a7:
     br $lab_75be            ;75b6  fa 06
 
 lab_75b8:
-    movw hl,#0f1a2h         ;75b8  16 a2 f1
+    movw hl,#mem_f1a2       ;75b8  16 a2 f1
     mov a,#30h              ;75bb  a1 30
     mov [hl],a              ;75bd  97
 
@@ -25342,7 +25364,7 @@ lab_75d3:
     mov a,#0ah              ;75d5  a1 0a
     movw hl,#bal_left       ;75d7  16 35 64
     call !sub_6e70          ;75da  9a 70 6e
-    movw hl,#0f1a4h         ;75dd  16 a4 f1
+    movw hl,#mem_f1a4       ;75dd  16 a4 f1
     pop ax                  ;75e0  b0
     xch a,x                 ;75e1  30
     mov a,#09h              ;75e2  a1 09
@@ -25356,7 +25378,7 @@ lab_75eb:
     mov a,#0ah              ;75ed  a1 0a
     movw hl,#bal_right      ;75ef  16 4d 64
     call !sub_6e70          ;75f2  9a 70 6e
-    movw hl,#0f1a4h         ;75f5  16 a4 f1
+    movw hl,#mem_f1a4       ;75f5  16 a4 f1
     pop ax                  ;75f8  b0
     sub a,#0bh              ;75f9  1d 0b
     add a,#30h              ;75fb  0d 30
@@ -25391,7 +25413,7 @@ lab_7620:
     mov a,#0ah              ;7622  a1 0a
     movw hl,#faderear       ;7624  16 24 64
     call !sub_6e70          ;7627  9a 70 6e
-    movw hl,#0f1a4h         ;762a  16 a4 f1
+    movw hl,#mem_f1a4       ;762a  16 a4 f1
     pop ax                  ;762d  b0
     xch a,x                 ;762e  30
     mov a,#09h              ;762f  a1 09
@@ -25405,7 +25427,7 @@ lab_7638:
     mov a,#0ah              ;763a  a1 0a
     movw hl,#fadefront      ;763c  16 0c 64
     call !sub_6e70          ;763f  9a 70 6e
-    movw hl,#0f1a4h         ;7642  16 a4 f1
+    movw hl,#mem_f1a4       ;7642  16 a4 f1
     pop ax                  ;7645  b0
     sub a,#0bh              ;7646  1d 0b
     add a,#30h              ;7648  0d 30
@@ -25443,15 +25465,15 @@ lab_766a:
 lab_7675:
     call !sub_6f78          ;7675  9a 78 6f
     bf a.6,$lab_768f        ;7678  31 6f 14
-    mov 0fed4h,a            ;767b  f2 d4
+    mov mem_fed4,a          ;767b  f2 d4
     mov a,b                 ;767d  63
-    mov 0fed5h,a            ;767e  f2 d5
+    mov mem_fed5,a          ;767e  f2 d5
     movw ax,#7687h          ;7680  10 87 76
     push ax                 ;7683  b1
     movw ax,hl              ;7684  c6
     br ax                   ;7685  31 98
     mov a,#00h              ;7687  a1 00
-    mov !0fb2dh,a           ;7689  9e 2d fb
+    mov !mem_fb2d,a         ;7689  9e 2d fb
     call !sub_6fa9          ;768c  9a a9 6f
 
 lab_768f:
@@ -25463,16 +25485,16 @@ lab_7690:
     ret                     ;7696  af
 
 sub_7697:
-    bt 0fe5dh.7,$lab_76c2   ;7697  fc 5d 28
-    bt 0fe64h.1,$lab_76c2   ;769a  9c 64 25
-    cmp 0fe30h,#03h         ;769d  c8 30 03
+    bt mem_fe5d.7,$lab_76c2 ;7697  fc 5d 28
+    bt mem_fe64.1,$lab_76c2 ;769a  9c 64 25
+    cmp mem_fe30,#03h       ;769d  c8 30 03
     bnz $lab_76b8           ;76a0  bd 16
-    cmp 0fe44h,#04h         ;76a2  c8 44 04
+    cmp mem_fe44,#04h       ;76a2  c8 44 04
     bc $lab_76c2            ;76a5  8d 1b
-    cmp 0fe44h,#05h         ;76a7  c8 44 05
+    cmp mem_fe44,#05h       ;76a7  c8 44 05
     bz $lab_76c2            ;76aa  ad 16
-    bt 0fe47h.5,$lab_76c2   ;76ac  dc 47 13
-    mov a,!0f1a6h           ;76af  8e a6 f1
+    bt mem_fe47.5,$lab_76c2 ;76ac  dc 47 13
+    mov a,!mem_f1a6         ;76af  8e a6 f1
     and a,#7fh              ;76b2  5d 7f
     cmp a,#09h              ;76b4  4d 09
     bz $lab_76c2            ;76b6  ad 0a
@@ -25480,14 +25502,14 @@ sub_7697:
 lab_76b8:
     mov b,#05h              ;76b8  a3 05
     mov a,#0ffh             ;76ba  a1 ff
-    movw hl,#0f1a4h         ;76bc  16 a4 f1
+    movw hl,#mem_f1a4       ;76bc  16 a4 f1
 
 lab_76bf:
     mov [hl+b],a            ;76bf  bb
     dbnz b,$lab_76bf        ;76c0  8b fd
 
 lab_76c2:
-    movw hl,#0f1a5h         ;76c2  16 a5 f1
+    movw hl,#mem_f1a5       ;76c2  16 a5 f1
     mov a,#0ffh             ;76c5  a1 ff
     mov [hl],a              ;76c7  97
     ret                     ;76c8  af
@@ -25495,12 +25517,12 @@ lab_76c2:
 sub_76c9:
     mov b,#04h              ;76c9  a3 04
     mov a,#00h              ;76cb  a1 00
-    movw hl,#0f1a9h         ;76cd  16 a9 f1
+    movw hl,#mem_f1a9       ;76cd  16 a9 f1
 
 lab_76d0:
     mov [hl+b],a            ;76d0  bb
     push hl                 ;76d1  b7
-    movw hl,#0f1adh         ;76d2  16 ad f1
+    movw hl,#mem_f1ad       ;76d2  16 ad f1
     mov [hl+b],a            ;76d5  bb
     pop hl                  ;76d6  b6
     dbnz b,$lab_76d0        ;76d7  8b f7
@@ -25564,112 +25586,112 @@ lab_76d0:
     db 02h                  ;7711  02          DATA 0x02
 
 sub_7712:
-    bt 0fe40h.1,$lab_7734   ;7712  9c 40 1f
+    bt mem_fe40.1,$lab_7734 ;7712  9c 40 1f
     mov a,#02h              ;7715  a1 02
-    mov !0fc14h,a           ;7717  9e 14 fc
+    mov !mem_fc14,a         ;7717  9e 14 fc
 
 lab_771a:
     mov a,#0ch              ;771a  a1 0c
-    mov !0fb12h,a           ;771c  9e 12 fb
+    mov !mem_fb12,a         ;771c  9e 12 fb
     mov a,#44h              ;771f  a1 44
-    mov !0fbdbh,a           ;7721  9e db fb
+    mov !mem_fbdb,a         ;7721  9e db fb
     mov a,#0c1h             ;7724  a1 c1
-    movw hl,#0fbdbh         ;7726  16 db fb
+    movw hl,#mem_fbdb       ;7726  16 db fb
     call !sub_5f51          ;7729  9a 51 5f
-    clr1 0fe40h.0           ;772c  0b 40
+    clr1 mem_fe40.0         ;772c  0b 40
     bc $lab_7734            ;772e  8d 04
-    set1 0fe40h.0           ;7730  0a 40
-    set1 0fe40h.1           ;7732  1a 40
+    set1 mem_fe40.0         ;7730  0a 40
+    set1 mem_fe40.1         ;7732  1a 40
 
 lab_7734:
     ret                     ;7734  af
 
 sub_7735:
-    clr1 0fe40h.0           ;7735  0b 40
+    clr1 mem_fe40.0         ;7735  0b 40
     mov a,#44h              ;7737  a1 44
     set1 a.0                ;7739  61 8a
     mov x,a                 ;773b  70
     mov a,#03h              ;773c  a1 03
     or a,#0c0h              ;773e  6d c0
     movw hl,#0fc17h         ;7740  16 17 fc
-    clr1 0fe69h.3           ;7743  3b 69
-    bt 0fe6bh.4,$lab_774a   ;7745  cc 6b 02
-    set1 0fe69h.3           ;7748  3a 69
+    clr1 mem_fe69.3         ;7743  3b 69
+    bt mem_fe6b.4,$lab_774a ;7745  cc 6b 02
+    set1 mem_fe69.3         ;7748  3a 69
 
 lab_774a:
     call !sub_5ee8          ;774a  9a e8 5e
-    clr1 0fe69h.3           ;774d  3b 69
+    clr1 mem_fe69.3         ;774d  3b 69
     bnc $lab_7761           ;774f  9d 10
-    mov a,!0fc14h           ;7751  8e 14 fc
+    mov a,!mem_fc14         ;7751  8e 14 fc
     cmp a,#00h              ;7754  4d 00
     bz $lab_775e            ;7756  ad 06
     dec a                   ;7758  51
-    mov !0fc14h,a           ;7759  9e 14 fc
+    mov !mem_fc14,a         ;7759  9e 14 fc
     br $lab_771a            ;775c  fa bc
 
 lab_775e:
-    clr1 0fe40h.1           ;775e  1b 40
+    clr1 mem_fe40.1         ;775e  1b 40
     ret                     ;7760  af
 
 lab_7761:
-    clr1 0fe40h.1           ;7761  1b 40
-    mov a,!0fc16h           ;7763  8e 16 fc
+    clr1 mem_fe40.1         ;7761  1b 40
+    mov a,!mem_fc16         ;7763  8e 16 fc
     inc a                   ;7766  41
     cmp a,#03h              ;7767  4d 03
     bnc $lab_776f           ;7769  9d 04
-    mov !0fc16h,a           ;776b  9e 16 fc
+    mov !mem_fc16,a         ;776b  9e 16 fc
     ret                     ;776e  af
 
 lab_776f:
-    mov !0fc16h,a           ;776f  9e 16 fc
+    mov !mem_fc16,a         ;776f  9e 16 fc
     cmp a,#07h              ;7772  4d 07
     bc $lab_777d            ;7774  8d 07
-    clr1 0fe41h.0           ;7776  0b 41
+    clr1 mem_fe41.0         ;7776  0b 41
     mov a,#07h              ;7778  a1 07
-    mov !0fc16h,a           ;777a  9e 16 fc
+    mov !mem_fc16,a         ;777a  9e 16 fc
 
 lab_777d:
-    mov 0fedeh,a            ;777d  f2 de
-    bt 0fe65h.5,$lab_7792   ;777f  dc 65 10
-    bf 0fe6bh.4,$lab_7792   ;7782  31 43 6b 0c
-    bf 0fe41h.0,$lab_77f8   ;7786  31 03 41 6e
-    mov 0fed4h,#03h         ;778a  11 d4 03
-    mov 0fed5h,#06h         ;778d  11 d5 06
+    mov mem_fede,a          ;777d  f2 de
+    bt mem_fe65.5,$lab_7792 ;777f  dc 65 10
+    bf mem_fe6b.4,$lab_7792 ;7782  31 43 6b 0c
+    bf mem_fe41.0,$lab_77f8 ;7786  31 03 41 6e
+    mov mem_fed4,#03h       ;778a  11 d4 03
+    mov mem_fed5,#06h       ;778d  11 d5 06
     br $lab_77a4            ;7790  fa 12
 
 lab_7792:
-    mov 0fed4h,#04h         ;7792  11 d4 04
-    mov 0fed5h,#08h         ;7795  11 d5 08
+    mov mem_fed4,#04h       ;7792  11 d4 04
+    mov mem_fed5,#08h       ;7795  11 d5 08
 
 lab_7798:
-    bt 0fe65h.5,$lab_77a4   ;7798  dc 65 09
-    bf 0fe6bh.4,$lab_77a4   ;779b  31 43 6b 05
-    cmp 0fed5h,#04h         ;779f  c8 d5 04
+    bt mem_fe65.5,$lab_77a4 ;7798  dc 65 09
+    bf mem_fe6b.4,$lab_77a4 ;779b  31 43 6b 05
+    cmp mem_fed5,#04h       ;779f  c8 d5 04
     bz $lab_77f8            ;77a2  ad 54
 
 lab_77a4:
-    mov a,0fed5h            ;77a4  f0 d5
+    mov a,mem_fed5          ;77a4  f0 d5
     mov b,a                 ;77a6  73
     dec b                   ;77a7  53
     movw hl,#770ah          ;77a8  16 0a 77
     mov a,[hl+b]            ;77ab  ab
-    mov 0fed6h,a            ;77ac  f2 d6
+    mov mem_fed6,a          ;77ac  f2 d6
     mov c,a                 ;77ae  72
     movw hl,#0fb30h         ;77af  16 30 fb
     mov a,[hl+b]            ;77b2  ab
-    mov 0fedch,a            ;77b3  f2 dc
+    mov mem_fedc,a          ;77b3  f2 dc
     movw hl,#0f20dh         ;77b5  16 0d f2
     mov a,[hl+c]            ;77b8  aa
-    mov 0fed9h,a            ;77b9  f2 d9
+    mov mem_fed9,a          ;77b9  f2 d9
     movw hl,#0f21ah         ;77bb  16 1a f2
     mov a,[hl+c]            ;77be  aa
-    mov 0fed8h,a            ;77bf  f2 d8
+    mov mem_fed8,a          ;77bf  f2 d8
     movw hl,#0fc1ah         ;77c1  16 1a fc
     mov a,[hl+c]            ;77c4  aa
-    mov 0feddh,a            ;77c5  f2 dd
-    mov 0fed7h,#88h         ;77c7  11 d7 88
-    bf 0fe62h.1,$lab_77d3   ;77ca  31 13 62 05
-    cmp 0fed5h,#04h         ;77ce  c8 d5 04
+    mov mem_fedd,a          ;77c5  f2 dd
+    mov mem_fed7,#88h       ;77c7  11 d7 88
+    bf mem_fe62.1,$lab_77d3 ;77ca  31 13 62 05
+    cmp mem_fed5,#04h       ;77ce  c8 d5 04
     bnz $lab_77e2           ;77d1  bd 0f
 
 lab_77d3:
@@ -25682,30 +25704,30 @@ lab_77d3:
     br ax                   ;77e0  31 98
 
 lab_77e2:
-    mov a,0fed6h            ;77e2  f0 d6
+    mov a,mem_fed6          ;77e2  f0 d6
     mov c,a                 ;77e4  72
-    mov a,0feddh            ;77e5  f0 dd
+    mov a,mem_fedd          ;77e5  f0 dd
     movw hl,#0fc1ah         ;77e7  16 1a fc
     mov [hl+c],a            ;77ea  ba
-    mov a,0fed5h            ;77eb  f0 d5
+    mov a,mem_fed5          ;77eb  f0 d5
     mov c,a                 ;77ed  72
     dec c                   ;77ee  52
-    mov a,0fedch            ;77ef  f0 dc
+    mov a,mem_fedc          ;77ef  f0 dc
     movw hl,#0fb30h         ;77f1  16 30 fb
     mov [hl+c],a            ;77f4  ba
-    dbnz 0fed5h,$lab_7798   ;77f5  04 d5 a0
+    dbnz mem_fed5,$lab_7798 ;77f5  04 d5 a0
 
 lab_77f8:
     ret                     ;77f8  af
 
 sub_77f9:
     movw hl,#0fc17h         ;77f9  16 17 fc
-    mov a,0fed4h            ;77fc  f0 d4
+    mov a,mem_fed4          ;77fc  f0 d4
     cmp a,#06h              ;77fe  4d 06
     bnc $lab_7807           ;7800  9d 05
     mov b,a                 ;7802  73
     callf !sub_0c6b         ;7803  4c 6b
-    mov 0fedah,a            ;7805  f2 da
+    mov mem_feda,a          ;7805  f2 da
 
 lab_7807:
     ret                     ;7807  af
@@ -26664,238 +26686,238 @@ sub_7bbd:
     ret                     ;7bbd  af
 
 sub_7bbe:
-    bf 0fe62h.1,$lab_7bc5   ;7bbe  31 13 62 03
+    bf mem_fe62.1,$lab_7bc5 ;7bbe  31 13 62 03
     br !lab_7c50            ;7bc2  9b 50 7c
 
 lab_7bc5:
-    set1 0fe41h.5           ;7bc5  5a 41
+    set1 mem_fe41.5         ;7bc5  5a 41
     mov a,#06h              ;7bc7  a1 06
-    mov 0fed5h,a            ;7bc9  f2 d5
+    mov mem_fed5,a          ;7bc9  f2 d5
 
 lab_7bcb:
     mov b,a                 ;7bcb  73
     dec b                   ;7bcc  53
     movw hl,#770ah          ;7bcd  16 0a 77
     mov a,[hl+b]            ;7bd0  ab
-    mov 0fed6h,a            ;7bd1  f2 d6
+    mov mem_fed6,a          ;7bd1  f2 d6
     mov c,a                 ;7bd3  72
     movw hl,#0f20dh         ;7bd4  16 0d f2
     mov a,[hl+c]            ;7bd7  aa
-    mov 0fed9h,a            ;7bd8  f2 d9
+    mov mem_fed9,a          ;7bd8  f2 d9
     movw hl,#0f21ah         ;7bda  16 1a f2
     mov a,[hl+c]            ;7bdd  aa
-    mov 0fed8h,a            ;7bde  f2 d8
+    mov mem_fed8,a          ;7bde  f2 d8
     movw hl,#0fc1ah         ;7be0  16 1a fc
     mov a,[hl+c]            ;7be3  aa
-    mov 0feddh,a            ;7be4  f2 dd
-    mov 0fed7h,a            ;7be6  f2 d7
-    mov1 cy,0fe3fh.1        ;7be8  71 14 3f
-    mov1 0fe6ah.4,cy        ;7beb  71 41 6a
-    mov1 cy,0fe6bh.1        ;7bee  71 14 6b
-    mov1 0fe6ah.7,cy        ;7bf1  71 71 6a
-    mov1 cy,0fe42h.1        ;7bf4  71 14 42
-    mov1 0fe6ah.5,cy        ;7bf7  71 51 6a
+    mov mem_fedd,a          ;7be4  f2 dd
+    mov mem_fed7,a          ;7be6  f2 d7
+    mov1 cy,mem_fe3f.1      ;7be8  71 14 3f
+    mov1 mem_fe6a.4,cy      ;7beb  71 41 6a
+    mov1 cy,mem_fe6b.1      ;7bee  71 14 6b
+    mov1 mem_fe6a.7,cy      ;7bf1  71 71 6a
+    mov1 cy,mem_fe42.1      ;7bf4  71 14 42
+    mov1 mem_fe6a.5,cy      ;7bf7  71 51 6a
     cmp a,#88h              ;7bfa  4d 88
     bz $lab_7c03            ;7bfc  ad 05
-    cmp a,0fed9h            ;7bfe  4e d9
+    cmp a,mem_fed9          ;7bfe  4e d9
     bnz $lab_7c0a           ;7c00  bd 08
     ret                     ;7c02  af
 
 lab_7c03:
-    clr1 0fe41h.2           ;7c03  2b 41
-    bf 0fed9h.7,$lab_7c0c   ;7c05  31 73 d9 03
+    clr1 mem_fe41.2         ;7c03  2b 41
+    bf mem_fed9.7,$lab_7c0c ;7c05  31 73 d9 03
     ret                     ;7c09  af
 
 lab_7c0a:
-    set1 0fe41h.2           ;7c0a  2a 41
+    set1 mem_fe41.2         ;7c0a  2a 41
 
 lab_7c0c:
-    set1 0fe41h.0           ;7c0c  0a 41
+    set1 mem_fe41.0         ;7c0c  0a 41
     call !sub_7c7d          ;7c0e  9a 7d 7c
-    bt 0fe41h.5,$lab_7c28   ;7c11  dc 41 14
-    mov1 cy,0fe6ah.4        ;7c14  71 44 6a
-    mov1 0fe3fh.0,cy        ;7c17  71 01 3f
-    mov1 cy,0fe6ah.7        ;7c1a  71 74 6a
-    mov1 0fe6bh.2,cy        ;7c1d  71 21 6b
-    mov1 cy,0fe6ah.5        ;7c20  71 54 6a
-    mov1 0fe42h.0,cy        ;7c23  71 01 42
+    bt mem_fe41.5,$lab_7c28 ;7c11  dc 41 14
+    mov1 cy,mem_fe6a.4      ;7c14  71 44 6a
+    mov1 mem_fe3f.0,cy      ;7c17  71 01 3f
+    mov1 cy,mem_fe6a.7      ;7c1a  71 74 6a
+    mov1 mem_fe6b.2,cy      ;7c1d  71 21 6b
+    mov1 cy,mem_fe6a.5      ;7c20  71 54 6a
+    mov1 mem_fe42.0,cy      ;7c23  71 01 42
     br $lab_7c3a            ;7c26  fa 12
 
 lab_7c28:
-    mov1 cy,0fe6ah.4        ;7c28  71 44 6a
-    mov1 0fe3fh.1,cy        ;7c2b  71 11 3f
-    mov1 cy,0fe6ah.7        ;7c2e  71 74 6a
-    mov1 0fe6bh.1,cy        ;7c31  71 11 6b
-    mov1 cy,0fe6ah.5        ;7c34  71 54 6a
-    mov1 0fe42h.1,cy        ;7c37  71 11 42
+    mov1 cy,mem_fe6a.4      ;7c28  71 44 6a
+    mov1 mem_fe3f.1,cy      ;7c2b  71 11 3f
+    mov1 cy,mem_fe6a.7      ;7c2e  71 74 6a
+    mov1 mem_fe6b.1,cy      ;7c31  71 11 6b
+    mov1 cy,mem_fe6a.5      ;7c34  71 54 6a
+    mov1 mem_fe42.1,cy      ;7c37  71 11 42
 
 lab_7c3a:
-    mov a,0fed6h            ;7c3a  f0 d6
+    mov a,mem_fed6          ;7c3a  f0 d6
     mov c,a                 ;7c3c  72
-    mov a,0feddh            ;7c3d  f0 dd
+    mov a,mem_fedd          ;7c3d  f0 dd
     movw hl,#0fc1ah         ;7c3f  16 1a fc
     mov [hl+c],a            ;7c42  ba
-    bf 0fe41h.5,$lab_7c50   ;7c43  31 53 41 09
-    clr1 0fe41h.5           ;7c47  5b 41
+    bf mem_fe41.5,$lab_7c50 ;7c43  31 53 41 09
+    clr1 mem_fe41.5         ;7c47  5b 41
     mov a,#05h              ;7c49  a1 05
-    mov 0fed5h,a            ;7c4b  f2 d5
+    mov mem_fed5,a          ;7c4b  f2 d5
     br !lab_7bcb            ;7c4d  9b cb 7b
 
 lab_7c50:
     ret                     ;7c50  af
 
 sub_7c51:
-    mov a,!0f1fdh           ;7c51  8e fd f1
+    mov a,!mem_f1fd         ;7c51  8e fd f1
     mov1 cy,a.0             ;7c54  61 8c
-    mov1 0fe6bh.7,cy        ;7c56  71 71 6b
-    set1 0fe6ch.1           ;7c59  1a 6c
-    set1 0fe6ch.0           ;7c5b  0a 6c
-    mov a,!0f1ffh           ;7c5d  8e ff f1
+    mov1 mem_fe6b.7,cy      ;7c56  71 71 6b
+    set1 mem_fe6c.1         ;7c59  1a 6c
+    set1 mem_fe6c.0         ;7c5b  0a 6c
+    mov a,!mem_f1ff         ;7c5d  8e ff f1
     cmp a,#00h              ;7c60  4d 00
     bz $lab_7c7c            ;7c62  ad 18
     cmp a,#04h              ;7c64  4d 04
     bnz $lab_7c6e           ;7c66  bd 06
-    clr1 0fe6ch.0           ;7c68  0b 6c
-    clr1 0fe6ch.1           ;7c6a  1b 6c
+    clr1 mem_fe6c.0         ;7c68  0b 6c
+    clr1 mem_fe6c.1         ;7c6a  1b 6c
     br $lab_7c7c            ;7c6c  fa 0e
 
 lab_7c6e:
     cmp a,#02h              ;7c6e  4d 02
     bnz $lab_7c76           ;7c70  bd 04
-    clr1 0fe6ch.0           ;7c72  0b 6c
+    clr1 mem_fe6c.0         ;7c72  0b 6c
     br $lab_7c7c            ;7c74  fa 06
 
 lab_7c76:
     cmp a,#03h              ;7c76  4d 03
     bnz $lab_7c7c           ;7c78  bd 02
-    clr1 0fe6ch.1           ;7c7a  1b 6c
+    clr1 mem_fe6c.1         ;7c7a  1b 6c
 
 lab_7c7c:
     ret                     ;7c7c  af
 
 sub_7c7d:
-    bf 0fe41h.2,$lab_7ce8   ;7c7d  31 23 41 67
-    bf 0fe41h.0,$lab_7c8a   ;7c81  31 03 41 05
-    bt 0fe6bh.3,$lab_7ce3   ;7c85  bc 6b 5b
+    bf mem_fe41.2,$lab_7ce8 ;7c7d  31 23 41 67
+    bf mem_fe41.0,$lab_7c8a ;7c81  31 03 41 05
+    bt mem_fe6b.3,$lab_7ce3 ;7c85  bc 6b 5b
     br $lab_7cb7            ;7c88  fa 2d
 
 lab_7c8a:
-    cmp 0feddh,#00h         ;7c8a  c8 dd 00
+    cmp mem_fedd,#00h       ;7c8a  c8 dd 00
     bz $lab_7c94            ;7c8d  ad 05
-    cmp 0feddh,#88h         ;7c8f  c8 dd 88
+    cmp mem_fedd,#88h       ;7c8f  c8 dd 88
     bnz $lab_7c99           ;7c92  bd 05
 
 lab_7c94:
-    mov 0fedch,#64h         ;7c94  11 dc 64
+    mov mem_fedc,#64h       ;7c94  11 dc 64
     br $lab_7ce3            ;7c97  fa 4a
 
 lab_7c99:
-    mov a,0fed7h            ;7c99  f0 d7
-    cmp a,0feddh            ;7c9b  4e dd
+    mov a,mem_fed7          ;7c99  f0 d7
+    cmp a,mem_fedd          ;7c9b  4e dd
     bnz $lab_7c94           ;7c9d  bd f5
-    cmp 0fedch,#00h         ;7c9f  c8 dc 00
+    cmp mem_fedc,#00h       ;7c9f  c8 dc 00
     bz $lab_7ca8            ;7ca2  ad 04
-    set1 0fe6ah.7           ;7ca4  7a 6a
+    set1 mem_fe6a.7         ;7ca4  7a 6a
     br $lab_7ce3            ;7ca6  fa 3b
 
 lab_7ca8:
-    mov a,0fed9h            ;7ca8  f0 d9
-    cmp a,0fed7h            ;7caa  4e d7
+    mov a,mem_fed9          ;7ca8  f0 d9
+    cmp a,mem_fed7          ;7caa  4e d7
     bz $lab_7cdf            ;7cac  ad 31
-    cmp 0fed9h,#88h         ;7cae  c8 d9 88
+    cmp mem_fed9,#88h       ;7cae  c8 d9 88
     bz $lab_7cb7            ;7cb1  ad 04
-    bf 0fe6ah.7,$lab_7c94   ;7cb3  31 73 6a dd
+    bf mem_fe6a.7,$lab_7c94 ;7cb3  31 73 6a dd
 
 lab_7cb7:
-    bt 0fe6ch.4,$lab_7cdf   ;7cb7  cc 6c 25
+    bt mem_fe6c.4,$lab_7cdf ;7cb7  cc 6c 25
     movw hl,#0f21ah         ;7cba  16 1a f2
-    mov a,0fed6h            ;7cbd  f0 d6
+    mov a,mem_fed6          ;7cbd  f0 d6
     mov b,a                 ;7cbf  73
     mov a,#00h              ;7cc0  a1 00
     call !sub_408f          ;7cc2  9a 8f 40
-    cmp 0fed9h,#88h         ;7cc5  c8 d9 88
+    cmp mem_fed9,#88h       ;7cc5  c8 d9 88
     bz $lab_7cd4            ;7cc8  ad 0a
-    bf 0fed9h.7,$lab_7cd4   ;7cca  31 73 d9 06
-    bf 0fe6ah.5,$lab_7cd4   ;7cce  31 53 6a 02
-    set1 0fe6ah.4           ;7cd2  4a 6a
+    bf mem_fed9.7,$lab_7cd4 ;7cca  31 73 d9 06
+    bf mem_fe6a.5,$lab_7cd4 ;7cce  31 53 6a 02
+    set1 mem_fe6a.4         ;7cd2  4a 6a
 
 lab_7cd4:
     movw hl,#0f20dh         ;7cd4  16 0d f2
-    mov a,0fed6h            ;7cd7  f0 d6
+    mov a,mem_fed6          ;7cd7  f0 d6
     mov b,a                 ;7cd9  73
-    mov a,0fed7h            ;7cda  f0 d7
+    mov a,mem_fed7          ;7cda  f0 d7
     call !sub_408f          ;7cdc  9a 8f 40
 
 lab_7cdf:
-    clr1 0fe6ah.7           ;7cdf  7b 6a
-    set1 0fe6ah.5           ;7ce1  5a 6a
+    clr1 mem_fe6a.7         ;7cdf  7b 6a
+    set1 mem_fe6a.5         ;7ce1  5a 6a
 
 lab_7ce3:
-    mov a,0fed7h            ;7ce3  f0 d7
-    mov 0feddh,a            ;7ce5  f2 dd
+    mov a,mem_fed7          ;7ce3  f0 d7
+    mov mem_fedd,a          ;7ce5  f2 dd
     ret                     ;7ce7  af
 
 lab_7ce8:
-    bf 0fe41h.0,$lab_7cf1   ;7ce8  31 03 41 05
-    bt 0fe6bh.3,$lab_7ce3   ;7cec  bc 6b f4
+    bf mem_fe41.0,$lab_7cf1 ;7ce8  31 03 41 05
+    bt mem_fe6b.3,$lab_7ce3 ;7cec  bc 6b f4
     br $lab_7d07            ;7cef  fa 16
 
 lab_7cf1:
-    cmp 0feddh,#88h         ;7cf1  c8 dd 88
+    cmp mem_fedd,#88h       ;7cf1  c8 dd 88
     bnz $lab_7c94           ;7cf4  bd 9e
-    cmp 0fedch,#00h         ;7cf6  c8 dc 00
+    cmp mem_fedc,#00h       ;7cf6  c8 dc 00
     bnz $lab_7ce3           ;7cf9  bd e8
-    bt 0fe6ah.5,$lab_7d2b   ;7cfb  dc 6a 2d
-    cmp 0fed9h,#88h         ;7cfe  c8 d9 88
+    bt mem_fe6a.5,$lab_7d2b ;7cfb  dc 6a 2d
+    cmp mem_fed9,#88h       ;7cfe  c8 d9 88
     bnz $lab_7d07           ;7d01  bd 04
-    set1 0fe6ah.5           ;7d03  5a 6a
+    set1 mem_fe6a.5         ;7d03  5a 6a
     br $lab_7ce3            ;7d05  fa dc
 
 lab_7d07:
-    bt 0fe6ah.4,$lab_7ce3   ;7d07  cc 6a d9
-    cmp 0fed8h,#00h         ;7d0a  c8 d8 00
+    bt mem_fe6a.4,$lab_7ce3 ;7d07  cc 6a d9
+    cmp mem_fed8,#00h       ;7d0a  c8 d8 00
     bnz $lab_7d14           ;7d0d  bd 05
-    mov 0fed8h,#32h         ;7d0f  11 d8 32
+    mov mem_fed8,#32h       ;7d0f  11 d8 32
     br $lab_7d1e            ;7d12  fa 0a
 
 lab_7d14:
-    dec 0fed8h              ;7d14  91 d8
-    cmp 0fed8h,#00h         ;7d16  c8 d8 00
+    dec mem_fed8            ;7d14  91 d8
+    cmp mem_fed8,#00h       ;7d16  c8 d8 00
     bnz $lab_7d1e           ;7d19  bd 03
-    mov 0fed9h,#88h         ;7d1b  11 d9 88
+    mov mem_fed9,#88h       ;7d1b  11 d9 88
 
 lab_7d1e:
     movw hl,#0f21ah         ;7d1e  16 1a f2
-    mov a,0fed6h            ;7d21  f0 d6
+    mov a,mem_fed6          ;7d21  f0 d6
     mov b,a                 ;7d23  73
-    mov a,0fed8h            ;7d24  f0 d8
+    mov a,mem_fed8          ;7d24  f0 d8
     call !sub_408f          ;7d26  9a 8f 40
-    set1 0fe6ah.5           ;7d29  5a 6a
+    set1 mem_fe6a.5         ;7d29  5a 6a
 
 lab_7d2b:
-    cmp 0fed9h,#88h         ;7d2b  c8 d9 88
+    cmp mem_fed9,#88h       ;7d2b  c8 d9 88
     bz $lab_7d4f            ;7d2e  ad 1f
-    cmp 0fed5h,#06h         ;7d30  c8 d5 06
+    cmp mem_fed5,#06h       ;7d30  c8 d5 06
     bz $lab_7d3a            ;7d33  ad 05
-    cmp 0fed5h,#05h         ;7d35  c8 d5 05
+    cmp mem_fed5,#05h       ;7d35  c8 d5 05
     bnz $lab_7d47           ;7d38  bd 0d
 
 lab_7d3a:
-    bt 0fe65h.5,$lab_7d47   ;7d3a  dc 65 0a
-    bt 0fe6bh.4,$lab_7d47   ;7d3d  cc 6b 07
-    bf 0fe6ah.5,$lab_7d47   ;7d40  31 53 6a 03
-    bt 0fe6ah.6,$lab_7ce3   ;7d44  ec 6a 9c
+    bt mem_fe65.5,$lab_7d47 ;7d3a  dc 65 0a
+    bt mem_fe6b.4,$lab_7d47 ;7d3d  cc 6b 07
+    bf mem_fe6a.5,$lab_7d47 ;7d40  31 53 6a 03
+    bt mem_fe6a.6,$lab_7ce3 ;7d44  ec 6a 9c
 
 lab_7d47:
-    bt 0fed9h.7,$lab_7ce3   ;7d47  fc d9 99
-    bt 0fe6ah.4,$lab_7ce3   ;7d4a  cc 6a 96
-    set1 0fed9h.7           ;7d4d  7a d9
+    bt mem_fed9.7,$lab_7ce3 ;7d47  fc d9 99
+    bt mem_fe6a.4,$lab_7ce3 ;7d4a  cc 6a 96
+    set1 mem_fed9.7         ;7d4d  7a d9
 
 lab_7d4f:
     movw hl,#0f20dh         ;7d4f  16 0d f2
-    mov a,0fed6h            ;7d52  f0 d6
+    mov a,mem_fed6          ;7d52  f0 d6
     mov b,a                 ;7d54  73
-    mov a,0fed9h            ;7d55  f0 d9
+    mov a,mem_fed9          ;7d55  f0 d9
     call !sub_408f          ;7d57  9a 8f 40
     br $lab_7ce3            ;7d5a  fa 87
 
@@ -27716,9 +27738,9 @@ lab_8085:
     br !lab_0bf4            ;808d  9b f4 0b
 
 lab_8090:
-    bt 0fe6dh.3,$lab_80b0   ;8090  bc 6d 1d
+    bt mem_fe6d.3,$lab_80b0 ;8090  bc 6d 1d
     call !sub_47fb          ;8093  9a fb 47
-    set1 0fe6dh.3           ;8096  3a 6d
+    set1 mem_fe6d.3         ;8096  3a 6d
     xch a,x                 ;8098  30
     movw hl,#checksum       ;8099  16 fe ef
     cmp a,[hl]              ;809c  4f
@@ -27729,7 +27751,7 @@ lab_8090:
     bz $lab_80b0            ;80a2  ad 0c
 
 lab_80a4:
-    mov a,!0f219h           ;80a4  8e 19 f2
+    mov a,!mem_f219         ;80a4  8e 19 f2
     cmp a,#03h              ;80a7  4d 03
     bz $lab_80b0            ;80a9  ad 05
     mov a,#02h              ;80ab  a1 02
@@ -27899,56 +27921,56 @@ lab_80b0:
     db 02h                  ;814f  02          DATA 0x02
 
 lab_8150:
-    set1 0fe6fh.2           ;8150  2a 6f
+    set1 mem_fe6f.2         ;8150  2a 6f
     mov a,#50h              ;8152  a1 50
-    mov !0fb42h,a           ;8154  9e 42 fb
-    mov a,0fe50h            ;8157  f0 50
-    cmp a,0fe4fh            ;8159  4e 4f
+    mov !mem_fb42,a         ;8154  9e 42 fb
+    mov a,mem_fe50          ;8157  f0 50
+    cmp a,mem_fe4f          ;8159  4e 4f
     bnz $lab_8160           ;815b  bd 03
 
 lab_815d:
     br !lab_8f58            ;815d  9b 58 8f
 
 lab_8160:
-    mov a,!0fb42h           ;8160  8e 42 fb
+    mov a,!mem_fb42         ;8160  8e 42 fb
     cmp a,#00h              ;8163  4d 00
     bnz $lab_8174           ;8165  bd 0d
-    mov a,0fe4fh            ;8167  f0 4f
+    mov a,mem_fe4f          ;8167  f0 4f
     cmp a,#01h              ;8169  4d 01
     bnz $lab_816d           ;816b  bd 00
 
 lab_816d:
-    bf 0fe6fh.2,$lab_815d   ;816d  31 23 6f ec
+    bf mem_fe6f.2,$lab_815d ;816d  31 23 6f ec
     br !lab_8ad0            ;8171  9b d0 8a
 
 lab_8174:
-    mov 0fe4eh,#1fh         ;8174  11 4e 1f
+    mov mem_fe4e,#1fh       ;8174  11 4e 1f
     ret                     ;8177  af
 
 sub_8178:
-    bf 0fe6eh.6,$lab_81bd   ;8178  31 63 6e 41
-    cmp 0fe4bh,#25h         ;817c  c8 4b 25
+    bf mem_fe6e.6,$lab_81bd ;8178  31 63 6e 41
+    cmp mem_fe4b,#25h       ;817c  c8 4b 25
     bz $lab_8186            ;817f  ad 05
-    cmp 0fe4bh,#00h         ;8181  c8 4b 00
+    cmp mem_fe4b,#00h       ;8181  c8 4b 00
     bz $lab_818e            ;8184  ad 08
 
 lab_8186:
     movw hl,#0b808h         ;8186  16 08 b8
-    mov a,0fe4bh            ;8189  f0 4b
+    mov a,mem_fe4b          ;8189  f0 4b
     mov b,a                 ;818b  73
     br $lab_81ad            ;818c  fa 1f
 
 lab_818e:
-    cmp 0fe50h,#00h         ;818e  c8 50 00
+    cmp mem_fe50,#00h       ;818e  c8 50 00
     bnz $lab_8197           ;8191  bd 04
-    clr1 0fe70h.7           ;8193  7b 70
+    clr1 mem_fe70.7         ;8193  7b 70
     br $lab_8199            ;8195  fa 02
 
 lab_8197:
-    set1 0fe70h.7           ;8197  7a 70
+    set1 mem_fe70.7         ;8197  7a 70
 
 lab_8199:
-    mov a,0fe50h            ;8199  f0 50
+    mov a,mem_fe50          ;8199  f0 50
     mov b,a                 ;819b  73
     movw hl,#0b79ch         ;819c  16 9c b7
     callf !sub_0c48         ;819f  4c 48
@@ -27959,7 +27981,7 @@ lab_8199:
 lab_81a8:
     movw ax,de              ;81a8  c4
     movw hl,ax              ;81a9  d6
-    mov a,0fe4fh            ;81aa  f0 4f
+    mov a,mem_fe4f          ;81aa  f0 4f
     mov b,a                 ;81ac  73
 
 lab_81ad:
@@ -29640,16 +29662,16 @@ lab_81bd:
 
 lab_883a:
     push ax                 ;883a  b1
-    mov a,!0fb18h           ;883b  8e 18 fb
+    mov a,!mem_fb18         ;883b  8e 18 fb
     cmp a,#00h              ;883e  4d 00
     bz $lab_884e            ;8840  ad 0c
-    inc 0fe4ah              ;8842  81 4a
+    inc mem_fe4a            ;8842  81 4a
     bz $lab_884b            ;8844  ad 05
     clr1 IF0H_.0            ;8846  71 0b e1
     br $lab_8851            ;8849  fa 06
 
 lab_884b:
-    mov 0fe4ah,#0ffh        ;884b  11 4a ff
+    mov mem_fe4a,#0ffh      ;884b  11 4a ff
 
 lab_884e:
     set1 MK0H_.0            ;884e  71 0a e5
@@ -30297,15 +30319,15 @@ lab_8851:
     db 18h                  ;8acf  18          DATA 0x18
 
 lab_8ad0:
-    mov a,!0f1e9h           ;8ad0  8e e9 f1
+    mov a,!mem_f1e9         ;8ad0  8e e9 f1
     bf a.2,$lab_8ae8        ;8ad3  31 2f 12
-    set1 0fe7eh.6           ;8ad6  6a 7e
+    set1 mem_fe7e.6         ;8ad6  6a 7e
     call !sub_7697          ;8ad8  9a 97 76
-    mov 0fe4ch,#00h         ;8adb  11 4c 00
-    clr1 0fe4dh.5           ;8ade  5b 4d
+    mov mem_fe4c,#00h       ;8adb  11 4c 00
+    clr1 mem_fe4d.5         ;8ade  5b 4d
     call !sub_8f8f          ;8ae0  9a 8f 8f
     mov a,#00h              ;8ae3  a1 00
-    mov !0fc34h,a           ;8ae5  9e 34 fc
+    mov !mem_fc34,a         ;8ae5  9e 34 fc
 
 lab_8ae8:
     ret                     ;8ae8  af
@@ -31447,8 +31469,8 @@ lab_8ae8:
     db 0afh                 ;8f57  af          DATA 0xaf
 
 lab_8f58:
-    mov a,!0fc85h           ;8f58  8e 85 fc
-    mov 0fe4eh,a            ;8f5b  f2 4e
+    mov a,!mem_fc85         ;8f58  8e 85 fc
+    mov mem_fe4e,a          ;8f5b  f2 4e
     ret                     ;8f5d  af
 
     db 0bh                  ;8f5e  0b          DATA 0x0b
@@ -31494,16 +31516,16 @@ lab_8f58:
     db 0afh                 ;8f86  af          DATA 0xaf
 
 sub_8f87:
-    mov a,0fe4eh            ;8f87  f0 4e
-    mov !0fc85h,a           ;8f89  9e 85 fc
+    mov a,mem_fe4e          ;8f87  f0 4e
+    mov !mem_fc85,a         ;8f89  9e 85 fc
     br !lab_8150            ;8f8c  9b 50 81
 
 sub_8f8f:
     movw de,#0fc87h         ;8f8f  14 87 fc
-    movw hl,#0fe4ch         ;8f92  16 4c fe
+    movw hl,#mem_fe4c       ;8f92  16 4c fe
     mov b,#03h              ;8f95  a3 03
     call !sub_0bef          ;8f97  9a ef 0b
-    movw hl,#0fc85h         ;8f9a  16 85 fc
+    movw hl,#mem_fc85       ;8f9a  16 85 fc
     mov b,#02h              ;8f9d  a3 02
     br !sub_0bf6            ;8f9f  9b f6 0b
 
@@ -31770,24 +31792,24 @@ sub_8f8f:
 
 sub_90a6:
     call !sub_a04a          ;90a6  9a 4a a0
-    cmp 0fed4h,#00h         ;90a9  c8 d4 00
+    cmp mem_fed4,#00h       ;90a9  c8 d4 00
     bz $lab_90b4            ;90ac  ad 06
-    mov 0fed5h,#0ffh        ;90ae  11 d5 ff
-    mov 0fed6h,#0ffh        ;90b1  11 d6 ff
+    mov mem_fed5,#0ffh      ;90ae  11 d5 ff
+    mov mem_fed6,#0ffh      ;90b1  11 d6 ff
 
 lab_90b4:
-    mov a,0fed6h            ;90b4  f0 d6
+    mov a,mem_fed6          ;90b4  f0 d6
     mov x,a                 ;90b6  70
-    mov a,0fed5h            ;90b7  f0 d5
-    cmp 0fe50h,#03h         ;90b9  c8 50 03
+    mov a,mem_fed5          ;90b7  f0 d5
+    cmp mem_fe50,#03h       ;90b9  c8 50 03
     bz $lab_90c7            ;90bc  ad 09
-    cmp 0fe50h,#02h         ;90be  c8 50 02
+    cmp mem_fe50,#02h       ;90be  c8 50 02
     bz $lab_90c7            ;90c1  ad 04
     cmpw ax,#00b0h          ;90c3  ea b0 00
     ret                     ;90c6  af
 
 lab_90c7:
-    bt 0fe4dh.4,$lab_90ce   ;90c7  cc 4d 04
+    bt mem_fe4d.4,$lab_90ce ;90c7  cc 4d 04
     cmpw ax,#sub_0314       ;90ca  ea 14 03
     ret                     ;90cd  af
 
@@ -31796,52 +31818,52 @@ lab_90ce:
     ret                     ;90d1  af
 
 sub_90d2:
-    bt 0fe71h.6,$lab_90dc   ;90d2  ec 71 07
+    bt mem_fe71.6,$lab_90dc ;90d2  ec 71 07
     bc $lab_90fd            ;90d5  8d 26
-    mov 0fe51h,#00h         ;90d7  11 51 00
+    mov mem_fe51,#00h       ;90d7  11 51 00
     br $lab_90e1            ;90da  fa 05
 
 lab_90dc:
     bnc $lab_90fd           ;90dc  9d 1f
-    mov 0fe51h,#00h         ;90de  11 51 00
+    mov mem_fe51,#00h       ;90de  11 51 00
 
 lab_90e1:
-    cmp 0fe4ch,#02h         ;90e1  c8 4c 02
+    cmp mem_fe4c,#02h       ;90e1  c8 4c 02
     bnz $lab_90ee           ;90e4  bd 08
-    mov a,!0fb44h           ;90e6  8e 44 fb
+    mov a,!mem_fb44         ;90e6  8e 44 fb
     cmp a,#00h              ;90e9  4d 00
     bz $lab_90ee            ;90eb  ad 01
     ret                     ;90ed  af
 
 lab_90ee:
-    mov a,!0fc81h           ;90ee  8e 81 fc
+    mov a,!mem_fc81         ;90ee  8e 81 fc
     cmp a,#00h              ;90f1  4d 00
     bnz $lab_90f8           ;90f3  bd 03
-    set1 0fe71h.5           ;90f5  5a 71
+    set1 mem_fe71.5         ;90f5  5a 71
     ret                     ;90f7  af
 
 lab_90f8:
     dec a                   ;90f8  51
-    mov !0fc81h,a           ;90f9  9e 81 fc
+    mov !mem_fc81,a         ;90f9  9e 81 fc
     ret                     ;90fc  af
 
 lab_90fd:
-    inc 0fe51h              ;90fd  81 51
-    cmp 0fe51h,#02h         ;90ff  c8 51 02
+    inc mem_fe51            ;90fd  81 51
+    cmp mem_fe51,#02h       ;90ff  c8 51 02
     bc $lab_90e1            ;9102  8d dd
-    cmp 0fe4ch,#02h         ;9104  c8 4c 02
+    cmp mem_fe4c,#02h       ;9104  c8 4c 02
     bnz $lab_910e           ;9107  bd 05
     mov a,#96h              ;9109  a1 96
-    mov !0fb44h,a           ;910b  9e 44 fb
+    mov !mem_fb44,a         ;910b  9e 44 fb
 
 lab_910e:
-    mov 0fe51h,#00h         ;910e  11 51 00
-    mov a,!0fc82h           ;9111  8e 82 fc
-    mov !0fc81h,a           ;9114  9e 81 fc
+    mov mem_fe51,#00h       ;910e  11 51 00
+    mov a,!mem_fc82         ;9111  8e 82 fc
+    mov !mem_fc81,a         ;9114  9e 81 fc
     ret                     ;9117  af
 
 sub_9118:
-    clr1 0fe6fh.4           ;9118  4b 6f
+    clr1 mem_fe6f.4         ;9118  4b 6f
     ret                     ;911a  af
 
     db 0a2h                 ;911b  a2          DATA 0xa2
@@ -31874,8 +31896,8 @@ sub_9118:
     db 0afh                 ;9136  af          DATA 0xaf
 
 sub_9137:
-    bf 0fe72h.5,$lab_913f   ;9137  31 53 72 04
-    mov !0fc89h,a           ;913b  9e 89 fc
+    bf mem_fe72.5,$lab_913f ;9137  31 53 72 04
+    mov !mem_fc89,a         ;913b  9e 89 fc
     pop ax                  ;913e  b0
 
 lab_913f:
@@ -34180,28 +34202,28 @@ lab_913f:
     db 91h                  ;9a38  91          DATA 0x91
 
 sub_9a39:
-    bt 0fe73h.3,$lab_9a3f   ;9a39  bc 73 03
+    bt mem_fe73.3,$lab_9a3f ;9a39  bc 73 03
     br !lab_9b35            ;9a3c  9b 35 9b
 
 lab_9a3f:
-    set1 0fe74h.3           ;9a3f  3a 74
-    mov a,!0fc96h           ;9a41  8e 96 fc
-    bt 0fe76h.2,$lab_9a4d   ;9a44  ac 76 06
-    bt 0fe75h.7,$lab_9ab4   ;9a47  fc 75 6a
-    bt 0fe76h.0,$lab_9ab4   ;9a4a  8c 76 67
+    set1 mem_fe74.3         ;9a3f  3a 74
+    mov a,!mem_fc96         ;9a41  8e 96 fc
+    bt mem_fe76.2,$lab_9a4d ;9a44  ac 76 06
+    bt mem_fe75.7,$lab_9ab4 ;9a47  fc 75 6a
+    bt mem_fe76.0,$lab_9ab4 ;9a4a  8c 76 67
 
 lab_9a4d:
-    clr1 0fe75h.7           ;9a4d  7b 75
-    clr1 0fe76h.0           ;9a4f  0b 76
-    set1 0fe78h.0           ;9a51  0a 78
+    clr1 mem_fe75.7         ;9a4d  7b 75
+    clr1 mem_fe76.0         ;9a4f  0b 76
+    set1 mem_fe78.0         ;9a51  0a 78
     call !sub_a694          ;9a53  9a 94 a6
-    clr1 0fe78h.0           ;9a56  0b 78
+    clr1 mem_fe78.0         ;9a56  0b 78
     mov x,a                 ;9a58  70
     mov a,#00h              ;9a59  a1 00
     mov c,#02h              ;9a5b  a2 02
     divuw c                 ;9a5d  31 82
     mov a,x                 ;9a5f  60
-    bt 0fe74h.6,$lab_9a81   ;9a60  ec 74 1e
+    bt mem_fe74.6,$lab_9a81 ;9a60  ec 74 1e
     push ax                 ;9a63  b1
     mov b,a                 ;9a64  73
     mov a,#3dh              ;9a65  a1 3d
@@ -34214,48 +34236,48 @@ lab_9a4d:
 lab_9a70:
     movw hl,#0be1ch         ;9a70  16 1c be
     call !sub_0c7d          ;9a73  9a 7d 0c
-    cmp a,!0fc99h           ;9a76  48 99 fc
+    cmp a,!mem_fc99         ;9a76  48 99 fc
     bz $lab_9a80            ;9a79  ad 05
-    mov !0fc99h,a           ;9a7b  9e 99 fc
-    set1 0fe73h.5           ;9a7e  5a 73
+    mov !mem_fc99,a         ;9a7b  9e 99 fc
+    set1 mem_fe73.5         ;9a7e  5a 73
 
 lab_9a80:
     pop ax                  ;9a80  b0
 
 lab_9a81:
-    mov !0fc97h,a           ;9a81  9e 97 fc
-    clr1 0fe75h.5           ;9a84  5b 75
-    clr1 0fe75h.6           ;9a86  6b 75
-    bt 0fe76h.5,$lab_9ab4   ;9a88  dc 76 29
-    bf 0fe76h.2,$lab_9a96   ;9a8b  31 23 76 07
-    clr1 0fe76h.2           ;9a8f  2b 76
-    cmp a,!0fc96h           ;9a91  48 96 fc
+    mov !mem_fc97,a         ;9a81  9e 97 fc
+    clr1 mem_fe75.5         ;9a84  5b 75
+    clr1 mem_fe75.6         ;9a86  6b 75
+    bt mem_fe76.5,$lab_9ab4 ;9a88  dc 76 29
+    bf mem_fe76.2,$lab_9a96 ;9a8b  31 23 76 07
+    clr1 mem_fe76.2         ;9a8f  2b 76
+    cmp a,!mem_fc96         ;9a91  48 96 fc
     bnc $lab_9ab4           ;9a94  9d 1e
 
 lab_9a96:
-    cmp a,!0fc96h           ;9a96  48 96 fc
-    mov a,!0fc96h           ;9a99  8e 96 fc
+    cmp a,!mem_fc96         ;9a96  48 96 fc
+    mov a,!mem_fc96         ;9a99  8e 96 fc
     bnc $lab_9aa9           ;9a9c  9d 0b
-    set1 0fe75h.6           ;9a9e  6a 75
+    set1 mem_fe75.6         ;9a9e  6a 75
     dec a                   ;9aa0  51
-    bf 0fe2dh.2,$lab_9ab4   ;9aa1  31 23 2d 0f
+    bf mem_fe2d.2,$lab_9ab4 ;9aa1  31 23 2d 0f
     mov a,#00h              ;9aa5  a1 00
     br $lab_9ab4            ;9aa7  fa 0b
 
 lab_9aa9:
     bnz $lab_9ab1           ;9aa9  bd 06
-    clr1 0fe73h.3           ;9aab  3b 73
-    clr1 0fe66h.3           ;9aad  3b 66
+    clr1 mem_fe73.3         ;9aab  3b 73
+    clr1 mem_fe66.3         ;9aad  3b 66
     br $lab_9ab4            ;9aaf  fa 03
 
 lab_9ab1:
-    set1 0fe75h.5           ;9ab1  5a 75
+    set1 mem_fe75.5         ;9ab1  5a 75
     inc a                   ;9ab3  41
 
 lab_9ab4:
-    mov !0fc96h,a           ;9ab4  9e 96 fc
+    mov !mem_fc96,a         ;9ab4  9e 96 fc
     mov b,a                 ;9ab7  73
-    bf 0fe74h.6,$lab_9ac4   ;9ab8  31 63 74 08
+    bf mem_fe74.6,$lab_9ac4 ;9ab8  31 63 74 08
     cmp a,#2dh              ;9abc  4d 2d
     bc $lab_9aca            ;9abe  8d 0a
     mov b,#2dh              ;9ac0  a3 2d
@@ -34268,13 +34290,13 @@ lab_9ac4:
 
 lab_9aca:
     movw hl,#0bea9h         ;9aca  16 a9 be
-    bf 0fe74h.3,$lab_9ad4   ;9acd  31 33 74 03
+    bf mem_fe74.3,$lab_9ad4 ;9acd  31 33 74 03
     movw hl,#0bfa3h         ;9ad1  16 a3 bf
 
 lab_9ad4:
-    bf 0fe74h.6,$lab_9ae2   ;9ad4  31 63 74 0a
+    bf mem_fe74.6,$lab_9ae2 ;9ad4  31 63 74 0a
     movw hl,#0c1b4h         ;9ad8  16 b4 c1
-    bf 0fe74h.3,$lab_9ae2   ;9adb  31 33 74 03
+    bf mem_fe74.3,$lab_9ae2 ;9adb  31 33 74 03
     movw hl,#0c157h         ;9adf  16 57 c1
 
 lab_9ae2:
@@ -34284,32 +34306,32 @@ lab_9ae2:
     br $lab_9aca            ;9ae8  fa e0
 
 lab_9aea:
-    set1 0fe76h.1           ;9aea  1a 76
+    set1 mem_fe76.1         ;9aea  1a 76
     call !sub_a1a6          ;9aec  9a a6 a1
     push bc                 ;9aef  b3
     movw ax,#08ech          ;9af0  10 ec 08
     call !sub_9f07          ;9af3  9a 07 9f
     pop bc                  ;9af6  b2
     movw hl,#0be2ch         ;9af7  16 2c be
-    bf 0fe74h.3,$lab_9b01   ;9afa  31 33 74 03
+    bf mem_fe74.3,$lab_9b01 ;9afa  31 33 74 03
     movw hl,#0bf26h         ;9afe  16 26 bf
 
 lab_9b01:
-    bf 0fe74h.6,$lab_9b0f   ;9b01  31 63 74 0a
+    bf mem_fe74.6,$lab_9b0f ;9b01  31 63 74 0a
     movw hl,#0c0fah         ;9b05  16 fa c0
-    bf 0fe74h.3,$lab_9b0f   ;9b08  31 33 74 03
+    bf mem_fe74.3,$lab_9b0f ;9b08  31 33 74 03
     movw hl,#0c09dh         ;9b0c  16 9d c0
 
 lab_9b0f:
     callf !sub_0c48         ;9b0f  4c 48
-    clr1 0fe76h.1           ;9b11  1b 76
+    clr1 mem_fe76.1         ;9b11  1b 76
     call !sub_a1a6          ;9b13  9a a6 a1
     movw ax,#08e0h          ;9b16  10 e0 08
     call !sub_9f07          ;9b19  9a 07 9f
-    mov a,!0fc96h           ;9b1c  8e 96 fc
+    mov a,!mem_fc96         ;9b1c  8e 96 fc
     mov b,a                 ;9b1f  73
     movw hl,#0c020h         ;9b20  16 20 c0
-    bf 0fe74h.6,$lab_9b2a   ;9b23  31 63 74 03
+    bf mem_fe74.6,$lab_9b2a ;9b23  31 63 74 03
     movw hl,#0c211h         ;9b27  16 11 c2
 
 lab_9b2a:
@@ -34319,16 +34341,16 @@ lab_9b2a:
     br !lab_9d1f            ;9b32  9b 1f 9d
 
 lab_9b35:
-    bt 0fe73h.5,$lab_9b3b   ;9b35  dc 73 03
+    bt mem_fe73.5,$lab_9b3b ;9b35  dc 73 03
     br !lab_9c8b            ;9b38  9b 8b 9c
 
 lab_9b3b:
-    clr1 0fe74h.4           ;9b3b  4b 74
+    clr1 mem_fe74.4         ;9b3b  4b 74
     mov b,#01h              ;9b3d  a3 01
     call !sub_aae0          ;9b3f  9a e0 aa
-    bt 0fe2dh.2,$lab_9b53   ;9b42  ac 2d 0e
-    cmp a,!0fc8ch           ;9b45  48 8c fc
-    mov a,!0fc8ch           ;9b48  8e 8c fc
+    bt mem_fe2d.2,$lab_9b53 ;9b42  ac 2d 0e
+    cmp a,!mem_fc8c         ;9b45  48 8c fc
+    mov a,!mem_fc8c         ;9b48  8e 8c fc
     bz $lab_9b53            ;9b4b  ad 06
     bc $lab_9b52            ;9b4d  8d 03
     inc a                   ;9b4f  41
@@ -34338,12 +34360,12 @@ lab_9b52:
     dec a                   ;9b52  51
 
 lab_9b53:
-    mov !0fc8ch,a           ;9b53  9e 8c fc
+    mov !mem_fc8c,a         ;9b53  9e 8c fc
     mov b,#02h              ;9b56  a3 02
     call !sub_aae0          ;9b58  9a e0 aa
-    bt 0fe2dh.2,$lab_9b6c   ;9b5b  ac 2d 0e
-    cmp a,!0fc8dh           ;9b5e  48 8d fc
-    mov a,!0fc8dh           ;9b61  8e 8d fc
+    bt mem_fe2d.2,$lab_9b6c ;9b5b  ac 2d 0e
+    cmp a,!mem_fc8d         ;9b5e  48 8d fc
+    mov a,!mem_fc8d         ;9b61  8e 8d fc
     bz $lab_9b6c            ;9b64  ad 06
     bc $lab_9b6b            ;9b66  8d 03
     inc a                   ;9b68  41
@@ -34353,16 +34375,16 @@ lab_9b6b:
     dec a                   ;9b6b  51
 
 lab_9b6c:
-    mov !0fc8dh,a           ;9b6c  9e 8d fc
-    bt 0fe74h.6,$lab_9bb4   ;9b6f  ec 74 42
-    mov a,!0fc8ch           ;9b72  8e 8c fc
+    mov !mem_fc8d,a         ;9b6c  9e 8d fc
+    bt mem_fe74.6,$lab_9bb4 ;9b6f  ec 74 42
+    mov a,!mem_fc8c         ;9b72  8e 8c fc
     mov b,a                 ;9b75  73
     movw hl,#0c37eh         ;9b76  16 7e c3
-    bt 0fe75h.0,$lab_9b7f   ;9b79  8c 75 03
+    bt mem_fe75.0,$lab_9b7f ;9b79  8c 75 03
     movw hl,#0c2d2h         ;9b7c  16 d2 c2
 
 lab_9b7f:
-    bf 0fe74h.2,$lab_9b86   ;9b7f  31 23 74 03
+    bf mem_fe74.2,$lab_9b86 ;9b7f  31 23 74 03
     movw hl,#0c52ch         ;9b83  16 2c c5
 
 lab_9b86:
@@ -34371,14 +34393,14 @@ lab_9b86:
     call !sub_9e8e          ;9b8b  9a 8e 9e
     mov a,#56h              ;9b8e  a1 56
     call !sub_9137          ;9b90  9a 37 91
-    mov a,!0fc8ch           ;9b93  8e 8c fc
+    mov a,!mem_fc8c         ;9b93  8e 8c fc
     mov b,a                 ;9b96  73
     movw hl,#0c3a9h         ;9b97  16 a9 c3
-    bt 0fe75h.0,$lab_9ba0   ;9b9a  8c 75 03
+    bt mem_fe75.0,$lab_9ba0 ;9b9a  8c 75 03
     movw hl,#0c2fdh         ;9b9d  16 fd c2
 
 lab_9ba0:
-    bf 0fe74h.2,$lab_9ba7   ;9ba0  31 23 74 03
+    bf mem_fe74.2,$lab_9ba7 ;9ba0  31 23 74 03
     movw hl,#0c557h         ;9ba4  16 57 c5
 
 lab_9ba7:
@@ -34389,24 +34411,24 @@ lab_9ba7:
     call !sub_9137          ;9bb1  9a 37 91
 
 lab_9bb4:
-    mov a,!0fc8ch           ;9bb4  8e 8c fc
+    mov a,!mem_fc8c         ;9bb4  8e 8c fc
     mov b,a                 ;9bb7  73
     movw hl,#0c3d4h         ;9bb8  16 d4 c3
-    bt 0fe75h.0,$lab_9bc1   ;9bbb  8c 75 03
+    bt mem_fe75.0,$lab_9bc1 ;9bbb  8c 75 03
     movw hl,#0c328h         ;9bbe  16 28 c3
 
 lab_9bc1:
-    bf 0fe74h.2,$lab_9bc8   ;9bc1  31 23 74 03
+    bf mem_fe74.2,$lab_9bc8 ;9bc1  31 23 74 03
     movw hl,#0c582h         ;9bc5  16 82 c5
 
 lab_9bc8:
-    bf 0fe74h.6,$lab_9bdc   ;9bc8  31 63 74 10
+    bf mem_fe74.6,$lab_9bdc ;9bc8  31 63 74 10
     movw hl,#0c480h         ;9bcc  16 80 c4
-    bt 0fe75h.0,$lab_9bd5   ;9bcf  8c 75 03
+    bt mem_fe75.0,$lab_9bd5 ;9bcf  8c 75 03
     movw hl,#0c42ah         ;9bd2  16 2a c4
 
 lab_9bd5:
-    bf 0fe74h.2,$lab_9bdc   ;9bd5  31 23 74 03
+    bf mem_fe74.2,$lab_9bdc ;9bd5  31 23 74 03
     movw hl,#0c4d6h         ;9bd9  16 d6 c4
 
 lab_9bdc:
@@ -34415,24 +34437,24 @@ lab_9bdc:
     call !sub_9e8e          ;9be1  9a 8e 9e
     mov a,#58h              ;9be4  a1 58
     call !sub_9137          ;9be6  9a 37 91
-    mov a,!0fc8ch           ;9be9  8e 8c fc
+    mov a,!mem_fc8c         ;9be9  8e 8c fc
     mov b,a                 ;9bec  73
     movw hl,#0c3ffh         ;9bed  16 ff c3
-    bt 0fe75h.0,$lab_9bf6   ;9bf0  8c 75 03
+    bt mem_fe75.0,$lab_9bf6 ;9bf0  8c 75 03
     movw hl,#0c353h         ;9bf3  16 53 c3
 
 lab_9bf6:
-    bf 0fe74h.2,$lab_9bfd   ;9bf6  31 23 74 03
+    bf mem_fe74.2,$lab_9bfd ;9bf6  31 23 74 03
     movw hl,#0c5adh         ;9bfa  16 ad c5
 
 lab_9bfd:
-    bf 0fe74h.6,$lab_9c11   ;9bfd  31 63 74 10
+    bf mem_fe74.6,$lab_9c11 ;9bfd  31 63 74 10
     movw hl,#0c4abh         ;9c01  16 ab c4
-    bt 0fe75h.0,$lab_9c0a   ;9c04  8c 75 03
+    bt mem_fe75.0,$lab_9c0a ;9c04  8c 75 03
     movw hl,#0c455h         ;9c07  16 55 c4
 
 lab_9c0a:
-    bf 0fe74h.2,$lab_9c11   ;9c0a  31 23 74 03
+    bf mem_fe74.2,$lab_9c11 ;9c0a  31 23 74 03
     movw hl,#0c501h         ;9c0e  16 01 c5
 
 lab_9c11:
@@ -34441,16 +34463,16 @@ lab_9c11:
     call !sub_9e8e          ;9c16  9a 8e 9e
     mov a,#59h              ;9c19  a1 59
     call !sub_9137          ;9c1b  9a 37 91
-    mov a,!0fc8dh           ;9c1e  8e 8d fc
+    mov a,!mem_fc8d         ;9c1e  8e 8d fc
     mov b,a                 ;9c21  73
     movw hl,#0c5d8h         ;9c22  16 d8 c5
-    bf 0fe74h.2,$lab_9c2c   ;9c25  31 23 74 03
+    bf mem_fe74.2,$lab_9c2c ;9c25  31 23 74 03
     movw hl,#0c62eh         ;9c29  16 2e c6
 
 lab_9c2c:
-    bf 0fe74h.6,$lab_9c3a   ;9c2c  31 63 74 0a
+    bf mem_fe74.6,$lab_9c3a ;9c2c  31 63 74 0a
     movw hl,#0c684h         ;9c30  16 84 c6
-    bf 0fe74h.2,$lab_9c3a   ;9c33  31 23 74 03
+    bf mem_fe74.2,$lab_9c3a ;9c33  31 23 74 03
     movw hl,#0c6dah         ;9c37  16 da c6
 
 lab_9c3a:
@@ -34459,16 +34481,16 @@ lab_9c3a:
     call !sub_9e8e          ;9c3f  9a 8e 9e
     mov a,#5ah              ;9c42  a1 5a
     call !sub_9137          ;9c44  9a 37 91
-    mov a,!0fc8dh           ;9c47  8e 8d fc
+    mov a,!mem_fc8d         ;9c47  8e 8d fc
     mov b,a                 ;9c4a  73
     movw hl,#0c603h         ;9c4b  16 03 c6
-    bf 0fe74h.2,$lab_9c55   ;9c4e  31 23 74 03
+    bf mem_fe74.2,$lab_9c55 ;9c4e  31 23 74 03
     movw hl,#0c659h         ;9c52  16 59 c6
 
 lab_9c55:
-    bf 0fe74h.6,$lab_9c63   ;9c55  31 63 74 0a
+    bf mem_fe74.6,$lab_9c63 ;9c55  31 63 74 0a
     movw hl,#0c6afh         ;9c59  16 af c6
-    bf 0fe74h.2,$lab_9c63   ;9c5c  31 23 74 03
+    bf mem_fe74.2,$lab_9c63 ;9c5c  31 23 74 03
     movw hl,#0c705h         ;9c60  16 05 c7
 
 lab_9c63:
@@ -34479,39 +34501,39 @@ lab_9c63:
     call !sub_9137          ;9c6d  9a 37 91
     mov b,#01h              ;9c70  a3 01
     call !sub_aae0          ;9c72  9a e0 aa
-    cmp a,!0fc8ch           ;9c75  48 8c fc
+    cmp a,!mem_fc8c         ;9c75  48 8c fc
     bnz $lab_9c88           ;9c78  bd 0e
     mov b,#02h              ;9c7a  a3 02
     call !sub_aae0          ;9c7c  9a e0 aa
-    cmp a,!0fc8dh           ;9c7f  48 8d fc
+    cmp a,!mem_fc8d         ;9c7f  48 8d fc
     bnz $lab_9c88           ;9c82  bd 04
-    clr1 0fe73h.5           ;9c84  5b 73
-    set1 0fe72h.1           ;9c86  1a 72
+    clr1 mem_fe73.5         ;9c84  5b 73
+    set1 mem_fe72.1         ;9c86  1a 72
 
 lab_9c88:
     br !lab_9d1f            ;9c88  9b 1f 9d
 
 lab_9c8b:
-    bf 0fe73h.4,$lab_9c9f   ;9c8b  31 43 73 10
+    bf mem_fe73.4,$lab_9c9f ;9c8b  31 43 73 10
     call !sub_9d61          ;9c8f  9a 61 9d
     call !sub_9dd3          ;9c92  9a d3 9d
     call !sub_9ec7          ;9c95  9a c7 9e
-    clr1 0fe73h.4           ;9c98  4b 73
+    clr1 mem_fe73.4         ;9c98  4b 73
     mov a,#00h              ;9c9a  a1 00
     call !sub_9137          ;9c9c  9a 37 91
 
 lab_9c9f:
-    bf 0fe73h.6,$lab_9d00   ;9c9f  31 63 73 5d
+    bf mem_fe73.6,$lab_9d00 ;9c9f  31 63 73 5d
     movw ax,#sub_0800       ;9ca3  10 00 08
-    mov !0fbdeh,a           ;9ca6  9e de fb
-    mov !0fbe0h,a           ;9ca9  9e e0 fb
-    mov !0fbe2h,a           ;9cac  9e e2 fb
-    mov !0fbe4h,a           ;9caf  9e e4 fb
+    mov !mem_fbde,a         ;9ca6  9e de fb
+    mov !mem_fbe0,a         ;9ca9  9e e0 fb
+    mov !mem_fbe2,a         ;9cac  9e e2 fb
+    mov !mem_fbe4,a         ;9caf  9e e4 fb
     xch a,x                 ;9cb2  30
-    mov !0fbdfh,a           ;9cb3  9e df fb
-    mov !0fbe1h,a           ;9cb6  9e e1 fb
-    mov !0fbe3h,a           ;9cb9  9e e3 fb
-    mov !0fbe5h,a           ;9cbc  9e e5 fb
+    mov !mem_fbdf,a         ;9cb3  9e df fb
+    mov !mem_fbe1,a         ;9cb6  9e e1 fb
+    mov !mem_fbe3,a         ;9cb9  9e e3 fb
+    mov !mem_fbe5,a         ;9cbc  9e e5 fb
     call !sub_aaae          ;9cbf  9a ae aa
     mov b,a                 ;9cc2  73
     cmp a,#0ah              ;9cc3  4d 0a
@@ -34519,11 +34541,11 @@ lab_9c9f:
     movw hl,#0c98dh         ;9cc7  16 8d c9
     callf !sub_0c48         ;9cca  4c 48
     movw ax,de              ;9ccc  c4
-    mov !0fbdeh,a           ;9ccd  9e de fb
-    mov !0fbe0h,a           ;9cd0  9e e0 fb
+    mov !mem_fbde,a         ;9ccd  9e de fb
+    mov !mem_fbe0,a         ;9cd0  9e e0 fb
     xch a,x                 ;9cd3  30
-    mov !0fbdfh,a           ;9cd4  9e df fb
-    mov !0fbe1h,a           ;9cd7  9e e1 fb
+    mov !mem_fbdf,a         ;9cd4  9e df fb
+    mov !mem_fbe1,a         ;9cd7  9e e1 fb
     br $lab_9cf4            ;9cda  fa 18
 
 lab_9cdc:
@@ -34533,38 +34555,38 @@ lab_9cdc:
     movw hl,#0c98dh         ;9ce1  16 8d c9
     callf !sub_0c48         ;9ce4  4c 48
     movw ax,de              ;9ce6  c4
-    mov !0fbe2h,a           ;9ce7  9e e2 fb
-    mov !0fbe4h,a           ;9cea  9e e4 fb
+    mov !mem_fbe2,a         ;9ce7  9e e2 fb
+    mov !mem_fbe4,a         ;9cea  9e e4 fb
     xch a,x                 ;9ced  30
-    mov !0fbe3h,a           ;9cee  9e e3 fb
-    mov !0fbe5h,a           ;9cf1  9e e5 fb
+    mov !mem_fbe3,a         ;9cee  9e e3 fb
+    mov !mem_fbe5,a         ;9cf1  9e e5 fb
 
 lab_9cf4:
     mov b,#0bh              ;9cf4  a3 0b
     movw ax,#08efh          ;9cf6  10 ef 08
     call !sub_9f12          ;9cf9  9a 12 9f
-    clr1 0fe73h.6           ;9cfc  6b 73
+    clr1 mem_fe73.6         ;9cfc  6b 73
     br $lab_9d1f            ;9cfe  fa 1f
 
 lab_9d00:
     call !sub_a09b          ;9d00  9a 9b a0
-    mov a,!0fb46h           ;9d03  8e 46 fb
+    mov a,!mem_fb46         ;9d03  8e 46 fb
     cmp a,#00h              ;9d06  4d 00
     bnz $lab_9d1f           ;9d08  bd 15
-    mov a,!0fb47h           ;9d0a  8e 47 fb
+    mov a,!mem_fb47         ;9d0a  8e 47 fb
     cmp a,#00h              ;9d0d  4d 00
     bnz $lab_9d1f           ;9d0f  bd 0e
-    btclr 0fe72h.1,$lab_9d17 ;9d11  31 11 72 02
+    btclr mem_fe72.1,$lab_9d17 ;9d11  31 11 72 02
     br $lab_9d1f            ;9d15  fa 08
 
 lab_9d17:
     mov a,#0ah              ;9d17  a1 0a
-    mov !0fb47h,a           ;9d19  9e 47 fb
+    mov !mem_fb47,a         ;9d19  9e 47 fb
     br !lab_a246            ;9d1c  9b 46 a2
 
 lab_9d1f:
     mov a,#00h              ;9d1f  a1 00
-    mov !0fc89h,a           ;9d21  9e 89 fc
+    mov !mem_fc89,a         ;9d21  9e 89 fc
     ret                     ;9d24  af
 
     db 0a1h                 ;9d25  a1          DATA 0xa1
@@ -34634,13 +34656,13 @@ sub_9d61:
     mov b,a                 ;9d66  73
     push bc                 ;9d67  b3
     movw hl,#0c786h         ;9d68  16 86 c7
-    bf 0fe74h.2,$lab_9d72   ;9d6b  31 23 74 03
+    bf mem_fe74.2,$lab_9d72 ;9d6b  31 23 74 03
     movw hl,#0c7dch         ;9d6f  16 dc c7
 
 lab_9d72:
-    bf 0fe74h.6,$lab_9d80   ;9d72  31 63 74 0a
+    bf mem_fe74.6,$lab_9d80 ;9d72  31 63 74 0a
     movw hl,#0c85dh         ;9d76  16 5d c8
-    bf 0fe74h.2,$lab_9d80   ;9d79  31 23 74 03
+    bf mem_fe74.2,$lab_9d80 ;9d79  31 23 74 03
     movw hl,#0c8deh         ;9d7d  16 de c8
 
 lab_9d80:
@@ -34650,13 +34672,13 @@ lab_9d80:
     pop bc                  ;9d86  b2
     push bc                 ;9d87  b3
     movw hl,#0c7b1h         ;9d88  16 b1 c7
-    bf 0fe74h.2,$lab_9d92   ;9d8b  31 23 74 03
+    bf mem_fe74.2,$lab_9d92 ;9d8b  31 23 74 03
     movw hl,#0c807h         ;9d8f  16 07 c8
 
 lab_9d92:
-    bf 0fe74h.6,$lab_9da0   ;9d92  31 63 74 0a
+    bf mem_fe74.6,$lab_9da0 ;9d92  31 63 74 0a
     movw hl,#0c888h         ;9d96  16 88 c8
-    bf 0fe74h.2,$lab_9da0   ;9d99  31 23 74 03
+    bf mem_fe74.2,$lab_9da0 ;9d99  31 23 74 03
     movw hl,#0c909h         ;9d9d  16 09 c9
 
 lab_9da0:
@@ -34666,7 +34688,7 @@ lab_9da0:
     pop bc                  ;9da6  b2
     push bc                 ;9da7  b3
     movw hl,#0c730h         ;9da8  16 30 c7
-    bf 0fe74h.6,$lab_9db2   ;9dab  31 63 74 03
+    bf mem_fe74.6,$lab_9db2 ;9dab  31 63 74 03
     movw hl,#0c832h         ;9daf  16 32 c8
 
 lab_9db2:
@@ -34674,7 +34696,7 @@ lab_9db2:
     movw ax,de              ;9db4  c4
     movw !0f02ah,ax         ;9db5  03 2a f0
     pop bc                  ;9db8  b2
-    bt 0fe74h.6,$lab_9dc3   ;9db9  ec 74 07
+    bt mem_fe74.6,$lab_9dc3 ;9db9  ec 74 07
     movw hl,#0c75bh         ;9dbc  16 5b c7
     callf !sub_0c48         ;9dbf  4c 48
     br $lab_9dc8            ;9dc1  fa 05
@@ -34695,18 +34717,18 @@ sub_9dd3:
     call !sub_aae0          ;9dd5  9a e0 aa
     mov b,a                 ;9dd8  73
     movw hl,#0c9d2h         ;9dd9  16 d2 c9
-    bf 0fe74h.6,$lab_9de3   ;9ddc  31 63 74 03
+    bf mem_fe74.6,$lab_9de3 ;9ddc  31 63 74 03
     movw hl,#0c9fdh         ;9de0  16 fd c9
 
 lab_9de3:
     callf !sub_0c48         ;9de3  4c 48
     movw ax,de              ;9de5  c4
-    movw 0fed4h,ax          ;9de6  99 d4
+    movw mem_fed4,ax        ;9de6  99 d4
     call !sub_aac7          ;9de8  9a c7 aa
     mov b,a                 ;9deb  73
     cmp a,#0ah              ;9dec  4d 0a
     bnc $lab_9e11           ;9dee  9d 21
-    bt 0fe74h.6,$lab_9dfa   ;9df0  ec 74 07
+    bt mem_fe74.6,$lab_9dfa ;9df0  ec 74 07
     movw hl,#0c9a4h         ;9df3  16 a4 c9
     callf !sub_0c48         ;9df6  4c 48
     br $lab_9dff            ;9df8  fa 05
@@ -34728,7 +34750,7 @@ lab_9e11:
     mov a,#14h              ;9e11  a1 14
     sub a,b                 ;9e13  61 1b
     mov b,a                 ;9e15  73
-    bt 0fe74h.6,$lab_9e20   ;9e16  ec 74 07
+    bt mem_fe74.6,$lab_9e20 ;9e16  ec 74 07
     movw hl,#0c9a4h         ;9e19  16 a4 c9
     callf !sub_0c48         ;9e1c  4c 48
     br $lab_9e25            ;9e1e  fa 05
@@ -34749,9 +34771,9 @@ lab_9e35:
     ret                     ;9e35  af
 
 sub_9e36:
-    movw 0fed6h,ax          ;9e36  99 d6
+    movw mem_fed6,ax        ;9e36  99 d6
     call !sub_0bad          ;9e38  9a ad 0b
-    add 0fefdh,#80h         ;9e3b  88 fd 80
+    add mem_fefd,#80h       ;9e3b  88 fd 80
     bnc $lab_9e41           ;9e3e  9d 01
     incw bc                 ;9e40  82
 
@@ -34836,49 +34858,49 @@ lab_9e41:
     db 0afh                 ;9e8d  af          DATA 0xaf
 
 sub_9e8e:
-    mov !0fbdch,a           ;9e8e  9e dc fb
+    mov !mem_fbdc,a         ;9e8e  9e dc fb
     xch a,x                 ;9e91  30
-    mov !0fbddh,a           ;9e92  9e dd fb
+    mov !mem_fbdd,a         ;9e92  9e dd fb
     mov a,#38h              ;9e95  a1 38
-    mov !0fbdbh,a           ;9e97  9e db fb
+    mov !mem_fbdb,a         ;9e97  9e db fb
     movw ax,de              ;9e9a  c4
-    mov !0fbdeh,a           ;9e9b  9e de fb
+    mov !mem_fbde,a         ;9e9b  9e de fb
     xch a,x                 ;9e9e  30
-    mov !0fbdfh,a           ;9e9f  9e df fb
+    mov !mem_fbdf,a         ;9e9f  9e df fb
     mov a,#85h              ;9ea2  a1 85
-    movw hl,#0fbdbh         ;9ea4  16 db fb
+    movw hl,#mem_fbdb       ;9ea4  16 db fb
     call !sub_5f51          ;9ea7  9a 51 5f
     mov a,#02h              ;9eaa  a1 02
-    movw hl,#0fbdeh         ;9eac  16 de fb
+    movw hl,#mem_fbde       ;9eac  16 de fb
     call !sub_5f51          ;9eaf  9a 51 5f
     mov a,#02h              ;9eb2  a1 02
-    movw hl,#0fbdeh         ;9eb4  16 de fb
+    movw hl,#mem_fbde       ;9eb4  16 de fb
     call !sub_5f51          ;9eb7  9a 51 5f
     mov a,#42h              ;9eba  a1 42
-    movw hl,#0fbdeh         ;9ebc  16 de fb
+    movw hl,#mem_fbde       ;9ebc  16 de fb
     call !sub_5f51          ;9ebf  9a 51 5f
     mov a,#0bh              ;9ec2  a1 0b
     br !sub_9f9f            ;9ec4  9b 9f 9f
 
 sub_9ec7:
     movw ax,#08b7h          ;9ec7  10 b7 08
-    bf 0fe73h.7,$lab_9ed1   ;9eca  31 73 73 03
+    bf mem_fe73.7,$lab_9ed1 ;9eca  31 73 73 03
     movw ax,#08c5h          ;9ece  10 c5 08
 
 lab_9ed1:
-    mov !0fbdch,a           ;9ed1  9e dc fb
+    mov !mem_fbdc,a         ;9ed1  9e dc fb
     xch a,x                 ;9ed4  30
-    mov !0fbddh,a           ;9ed5  9e dd fb
+    mov !mem_fbdd,a         ;9ed5  9e dd fb
     mov a,#38h              ;9ed8  a1 38
-    mov !0fbdbh,a           ;9eda  9e db fb
+    mov !mem_fbdb,a         ;9eda  9e db fb
     mov a,#83h              ;9edd  a1 83
-    movw hl,#0fbdbh         ;9edf  16 db fb
+    movw hl,#mem_fbdb       ;9edf  16 db fb
     call !sub_5f51          ;9ee2  9a 51 5f
     mov a,#4eh              ;9ee5  a1 4e
     movw hl,#0f022h         ;9ee7  16 22 f0
     call !sub_5f51          ;9eea  9a 51 5f
     movw hl,#0ba94h         ;9eed  16 94 ba
-    bf 0fe73h.7,$lab_9ef7   ;9ef0  31 73 73 03
+    bf mem_fe73.7,$lab_9ef7 ;9ef0  31 73 73 03
     movw hl,#0ba9ah         ;9ef4  16 9a ba
 
 lab_9ef7:
@@ -34886,28 +34908,28 @@ lab_9ef7:
     mov a,#13h              ;9efa  a1 13
     call !sub_9f9f          ;9efc  9a 9f 9f
     set1 cy                 ;9eff  20
-    xor1 cy,0fe73h.7        ;9f00  71 77 73
-    mov1 0fe73h.7,cy        ;9f03  71 71 73
+    xor1 cy,mem_fe73.7      ;9f00  71 77 73
+    mov1 mem_fe73.7,cy      ;9f03  71 71 73
     ret                     ;9f06  af
 
 sub_9f07:
     mov b,#05h              ;9f07  a3 05
     xchw ax,de              ;9f09  e4
-    mov !0fbdeh,a           ;9f0a  9e de fb
+    mov !mem_fbde,a         ;9f0a  9e de fb
     mov a,x                 ;9f0d  60
-    mov !0fbdfh,a           ;9f0e  9e df fb
+    mov !mem_fbdf,a         ;9f0e  9e df fb
     xchw ax,de              ;9f11  e4
 
 sub_9f12:
-    mov !0fbdch,a           ;9f12  9e dc fb
+    mov !mem_fbdc,a         ;9f12  9e dc fb
     mov a,x                 ;9f15  60
-    mov !0fbddh,a           ;9f16  9e dd fb
+    mov !mem_fbdd,a         ;9f16  9e dd fb
     mov a,#38h              ;9f19  a1 38
-    mov !0fbdbh,a           ;9f1b  9e db fb
+    mov !mem_fbdb,a         ;9f1b  9e db fb
     mov a,b                 ;9f1e  63
     call !sub_9f9f          ;9f1f  9a 9f 9f
     or a,#0c0h              ;9f22  6d c0
-    movw hl,#0fbdbh         ;9f24  16 db fb
+    movw hl,#mem_fbdb       ;9f24  16 db fb
     br !sub_5f51            ;9f27  9b 51 5f
 
 sub_9f2a:
@@ -34924,7 +34946,7 @@ sub_9f33:
 lab_9f37:
     add a,#03h              ;9f37  0d 03
     call !sub_9f9f          ;9f39  9a 9f 9f
-    set1 0fe74h.0           ;9f3c  0a 74
+    set1 mem_fe74.0         ;9f3c  0a 74
 
 lab_9f3e:
     cmp a,#1eh              ;9f3e  4d 1e
@@ -34935,7 +34957,7 @@ lab_9f3e:
     mov a,#1eh              ;9f46  a1 1e
     call !sub_9f55          ;9f48  9a 55 9f
     pop hl                  ;9f4b  b6
-    add 0fefeh,#1eh         ;9f4c  88 fe 1e
+    add mem_fefe,#1eh       ;9f4c  88 fe 1e
     bnc $lab_9f52           ;9f4f  9d 01
     inc h                   ;9f51  47
 
@@ -34944,25 +34966,25 @@ lab_9f52:
     br $lab_9f3e            ;9f53  fa e9
 
 sub_9f55:
-    clr1 0fe74h.1           ;9f55  1b 74
+    clr1 mem_fe74.1         ;9f55  1b 74
     br $lab_9f5b            ;9f57  fa 02
 
 lab_9f59:
-    set1 0fe74h.1           ;9f59  1a 74
+    set1 mem_fe74.1         ;9f59  1a 74
 
 lab_9f5b:
-    movw de,#0fbdeh         ;9f5b  14 de fb
+    movw de,#mem_fbde       ;9f5b  14 de fb
     push ax                 ;9f5e  b1
     sub a,#03h              ;9f5f  1d 03
     call !sub_0c9e          ;9f61  9a 9e 0c
     pop ax                  ;9f64  b0
-    movw hl,#0fbdbh         ;9f65  16 db fb
-    bf 0fe74h.0,$lab_9f70   ;9f68  31 03 74 04
+    movw hl,#mem_fbdb       ;9f65  16 db fb
+    bf mem_fe74.0,$lab_9f70 ;9f68  31 03 74 04
     or a,#80h               ;9f6c  6d 80
-    clr1 0fe74h.0           ;9f6e  0b 74
+    clr1 mem_fe74.0         ;9f6e  0b 74
 
 lab_9f70:
-    bf 0fe74h.1,$lab_9f76   ;9f70  31 13 74 02
+    bf mem_fe74.1,$lab_9f76 ;9f70  31 13 74 02
     or a,#40h               ;9f74  6d 40
 
 lab_9f76:
@@ -34988,32 +35010,32 @@ lab_9f76:
 
 sub_9f8a:
     mov a,#38h              ;9f8a  a1 38
-    mov !0fbdbh,a           ;9f8c  9e db fb
+    mov !mem_fbdb,a         ;9f8c  9e db fb
     decw hl                 ;9f8f  96
     decw hl                 ;9f90  96
     decw hl                 ;9f91  96
     mov a,[hl]              ;9f92  87
-    mov !0fbddh,a           ;9f93  9e dd fb
+    mov !mem_fbdd,a         ;9f93  9e dd fb
     incw hl                 ;9f96  86
     mov a,[hl]              ;9f97  87
-    mov !0fbdch,a           ;9f98  9e dc fb
+    mov !mem_fbdc,a         ;9f98  9e dc fb
     incw hl                 ;9f9b  86
     mov a,[hl]              ;9f9c  87
     incw hl                 ;9f9d  86
     ret                     ;9f9e  af
 
 sub_9f9f:
-    xch a,!0fc8bh           ;9f9f  ce 8b fc
-    add a,!0fc8bh           ;9fa2  08 8b fc
+    xch a,!mem_fc8b         ;9f9f  ce 8b fc
+    add a,!mem_fc8b         ;9fa2  08 8b fc
     bc $lab_9fab            ;9fa5  8d 04
     cmp a,#21h              ;9fa7  4d 21
     bc $lab_9fad            ;9fa9  8d 02
 
 lab_9fab:
-    set1 0fe72h.5           ;9fab  5a 72
+    set1 mem_fe72.5         ;9fab  5a 72
 
 lab_9fad:
-    xch a,!0fc8bh           ;9fad  ce 8b fc
+    xch a,!mem_fc8b         ;9fad  ce 8b fc
     ret                     ;9fb0  af
 
     db 16h                  ;9fb1  16          DATA 0x16
@@ -35151,30 +35173,30 @@ lab_9fad:
 sub_a034:
     movw ax,#00deh          ;a034  10 de 00
     call !sub_a04d          ;a037  9a 4d a0
-    cmp 0fed4h,#00h         ;a03a  c8 d4 00
+    cmp mem_fed4,#00h       ;a03a  c8 d4 00
     bz $lab_a045            ;a03d  ad 06
-    mov 0fed5h,#0ffh        ;a03f  11 d5 ff
-    mov 0fed6h,#0ffh        ;a042  11 d6 ff
+    mov mem_fed5,#0ffh      ;a03f  11 d5 ff
+    mov mem_fed6,#0ffh      ;a042  11 d6 ff
 
 lab_a045:
-    mov a,0fed6h            ;a045  f0 d6
-    mov 0fed4h,a            ;a047  f2 d4
+    mov a,mem_fed6          ;a045  f0 d6
+    mov mem_fed4,a          ;a047  f2 d4
     ret                     ;a049  af
 
 sub_a04a:
     movw ax,#00dbh          ;a04a  10 db 00
 
 sub_a04d:
-    mov !0fbdch,a           ;a04d  9e dc fb
+    mov !mem_fbdc,a         ;a04d  9e dc fb
     mov a,x                 ;a050  60
-    mov !0fbddh,a           ;a051  9e dd fb
+    mov !mem_fbdd,a         ;a051  9e dd fb
     mov a,#38h              ;a054  a1 38
-    mov !0fbdbh,a           ;a056  9e db fb
+    mov !mem_fbdb,a         ;a056  9e db fb
     mov a,#83h              ;a059  a1 83
-    movw hl,#0fbdbh         ;a05b  16 db fb
+    movw hl,#mem_fbdb       ;a05b  16 db fb
     call !sub_5f51          ;a05e  9a 51 5f
     mov x,#39h              ;a061  a0 39
-    movw hl,#0fed4h         ;a063  16 d4 fe
+    movw hl,#mem_fed4       ;a063  16 d4 fe
     mov a,#0c3h             ;a066  a1 c3
     br !sub_5ee8            ;a068  9b e8 5e
 
@@ -35228,22 +35250,22 @@ sub_a04d:
     db 0afh                 ;a09a  af          DATA 0xaf
 
 sub_a09b:
-    mov a,!0fb46h           ;a09b  8e 46 fb
+    mov a,!mem_fb46         ;a09b  8e 46 fb
     cmp a,#00h              ;a09e  4d 00
     bnz $lab_a0a5           ;a0a0  bd 03
     br !lab_a142            ;a0a2  9b 42 a1
 
 lab_a0a5:
-    mov a,!0fb1ah           ;a0a5  8e 1a fb
+    mov a,!mem_fb1a         ;a0a5  8e 1a fb
     cmp a,#00h              ;a0a8  4d 00
     bz $lab_a0af            ;a0aa  ad 03
     br !lab_a141            ;a0ac  9b 41 a1
 
 lab_a0af:
     mov a,#0ah              ;a0af  a1 0a
-    mov !0fb1ah,a           ;a0b1  9e 1a fb
+    mov !mem_fb1a,a         ;a0b1  9e 1a fb
     call !sub_a034          ;a0b4  9a 34 a0
-    movw ax,0fed4h          ;a0b7  89 d4
+    movw ax,mem_fed4        ;a0b7  89 d4
     cmp a,#02h              ;a0b9  4d 02
     bnc $lab_a0c0           ;a0bb  9d 03
     br !lab_a141            ;a0bd  9b 41 a1
@@ -35253,22 +35275,22 @@ lab_a0c0:
     call !sub_0adf          ;a0c3  9a df 0a
     mov a,#24h              ;a0c6  a1 24
     sub a,b                 ;a0c8  61 1b
-    mov !0fc8fh,a           ;a0ca  9e 8f fc
+    mov !mem_fc8f,a         ;a0ca  9e 8f fc
     mov b,a                 ;a0cd  73
     call !sub_a156          ;a0ce  9a 56 a1
-    bf 0fe75h.3,$lab_a0d7   ;a0d1  31 33 75 02
+    bf mem_fe75.3,$lab_a0d7 ;a0d1  31 33 75 02
     br $lab_a141            ;a0d5  fa 6a
 
 lab_a0d7:
-    sub a,!0fc90h           ;a0d7  18 90 fc
-    add a,!0fc92h           ;a0da  08 92 fc
+    sub a,!mem_fc90         ;a0d7  18 90 fc
+    add a,!mem_fc92         ;a0da  08 92 fc
     mov x,a                 ;a0dd  70
-    sub a,!0fc93h           ;a0de  18 93 fc
+    sub a,!mem_fc93         ;a0de  18 93 fc
     bt a.7,$lab_a0f0        ;a0e1  31 7e 0c
     cmp a,#06h              ;a0e4  4d 06
     mov a,x                 ;a0e6  60
     bc $lab_a0ff            ;a0e7  8d 16
-    mov a,!0fc93h           ;a0e9  8e 93 fc
+    mov a,!mem_fc93         ;a0e9  8e 93 fc
     add a,#06h              ;a0ec  0d 06
     br $lab_a0ff            ;a0ee  fa 0f
 
@@ -35279,7 +35301,7 @@ lab_a0f0:
     cmp a,#06h              ;a0f5  4d 06
     mov a,x                 ;a0f7  60
     bc $lab_a0ff            ;a0f8  8d 05
-    mov a,!0fc93h           ;a0fa  8e 93 fc
+    mov a,!mem_fc93         ;a0fa  8e 93 fc
     sub a,#06h              ;a0fd  1d 06
 
 lab_a0ff:
@@ -35301,67 +35323,67 @@ lab_a114:
     mov a,#24h              ;a118  a1 24
 
 lab_a11a:
-    cmp a,!0fc91h           ;a11a  48 91 fc
+    cmp a,!mem_fc91         ;a11a  48 91 fc
     bz $lab_a141            ;a11d  ad 22
     mov x,a                 ;a11f  70
-    mov a,!0fe57h           ;a120  8e 57 fe
+    mov a,!mem_fe57         ;a120  8e 57 fe
     and a,#0feh             ;a123  5d fe
     ror a,1                 ;a125  24
-    mov 0fed4h,a            ;a126  f2 d4
+    mov mem_fed4,a          ;a126  f2 d4
     add a,x                 ;a128  61 08
     bt a.7,$lab_a131        ;a12a  31 7e 04
     cmp a,#00h              ;a12d  4d 00
     bnz $lab_a139           ;a12f  bd 08
 
 lab_a131:
-    dec 0fed4h              ;a131  91 d4
+    dec mem_fed4            ;a131  91 d4
     mov a,#00h              ;a133  a1 00
-    sub a,0fed4h            ;a135  1e d4
+    sub a,mem_fed4          ;a135  1e d4
     br $lab_a13a            ;a137  fa 01
 
 lab_a139:
     mov a,x                 ;a139  60
 
 lab_a13a:
-    mov !0fc91h,a           ;a13a  9e 91 fc
-    set1 0fe73h.3           ;a13d  3a 73
-    set1 0fe76h.2           ;a13f  2a 76
+    mov !mem_fc91,a         ;a13a  9e 91 fc
+    set1 mem_fe73.3         ;a13d  3a 73
+    set1 mem_fe76.2         ;a13f  2a 76
 
 lab_a141:
     ret                     ;a141  af
 
 lab_a142:
-    btclr 0fe75h.4,$lab_a147 ;a142  31 41 75 01
+    btclr mem_fe75.4,$lab_a147 ;a142  31 41 75 01
     ret                     ;a146  af
 
 lab_a147:
-    mov a,!0fc8fh           ;a147  8e 8f fc
-    mov !0fc90h,a           ;a14a  9e 90 fc
-    mov a,!0fc91h           ;a14d  8e 91 fc
-    mov !0fc92h,a           ;a150  9e 92 fc
-    clr1 0fe75h.3           ;a153  3b 75
+    mov a,!mem_fc8f         ;a147  8e 8f fc
+    mov !mem_fc90,a         ;a14a  9e 90 fc
+    mov a,!mem_fc91         ;a14d  8e 91 fc
+    mov !mem_fc92,a         ;a150  9e 92 fc
+    clr1 mem_fe75.3         ;a153  3b 75
     ret                     ;a155  af
 
 sub_a156:
-    btclr 0fe75h.2,$lab_a16f ;a156  31 21 75 15
-    mov a,!0fc94h           ;a15a  8e 94 fc
+    btclr mem_fe75.2,$lab_a16f ;a156  31 21 75 15
+    mov a,!mem_fc94         ;a15a  8e 94 fc
     add a,b                 ;a15d  61 0b
-    sub a,!0fc9ah           ;a15f  18 9a fc
-    xch a,!0fc94h           ;a162  ce 94 fc
+    sub a,!mem_fc9a         ;a15f  18 9a fc
+    xch a,!mem_fc94         ;a162  ce 94 fc
     add a,b                 ;a165  61 0b
     and a,#0fch             ;a167  5d fc
     ror a,1                 ;a169  24
     ror a,1                 ;a16a  24
-    mov !0fc9ah,a           ;a16b  9e 9a fc
+    mov !mem_fc9a,a         ;a16b  9e 9a fc
     ret                     ;a16e  af
 
 lab_a16f:
     mov a,b                 ;a16f  63
     add a,b                 ;a170  61 0b
     add a,b                 ;a172  61 0b
-    mov !0fc94h,a           ;a174  9e 94 fc
+    mov !mem_fc94,a         ;a174  9e 94 fc
     mov a,b                 ;a177  63
-    mov !0fc9ah,a           ;a178  9e 9a fc
+    mov !mem_fc9a,a         ;a178  9e 9a fc
     ret                     ;a17b  af
 
     db 31h                  ;a17c  31          DATA 0x31 '1'
@@ -35409,10 +35431,10 @@ lab_a16f:
 
 sub_a1a6:
     push de                 ;a1a6  b5
-    bt 0fe75h.5,$lab_a1ba   ;a1a7  dc 75 10
-    bt 0fe75h.6,$lab_a1b4   ;a1aa  ec 75 07
-    clr1 0fe76h.0           ;a1ad  0b 76
-    clr1 0fe75h.7           ;a1af  7b 75
+    bt mem_fe75.5,$lab_a1ba ;a1a7  dc 75 10
+    bt mem_fe75.6,$lab_a1b4 ;a1aa  ec 75 07
+    clr1 mem_fe76.0         ;a1ad  0b 76
+    clr1 mem_fe75.7         ;a1af  7b 75
     br !lab_a23d            ;a1b1  9b 3d a2
 
 lab_a1b4:
@@ -35427,12 +35449,12 @@ lab_a1ba:
     inc b                   ;a1bd  43
 
 lab_a1be:
-    bt 0fe76h.1,$lab_a1c6   ;a1be  9c 76 05
-    bt 0fe76h.0,$lab_a1f9   ;a1c1  8c 76 35
+    bt mem_fe76.1,$lab_a1c6 ;a1be  9c 76 05
+    bt mem_fe76.0,$lab_a1f9 ;a1c1  8c 76 35
     br $lab_a1c9            ;a1c4  fa 03
 
 lab_a1c6:
-    bt 0fe75h.7,$lab_a1f9   ;a1c6  fc 75 30
+    bt mem_fe75.7,$lab_a1f9 ;a1c6  fc 75 30
 
 lab_a1c9:
     pop ax                  ;a1c9  b0
@@ -35450,34 +35472,34 @@ lab_a1c9:
     incw ax                 ;a1da  80
 
 lab_a1db:
-    bt 0fe76h.1,$lab_a1ea   ;a1db  9c 76 0c
-    clr1 0fe76h.0           ;a1de  0b 76
+    bt mem_fe76.1,$lab_a1ea ;a1db  9c 76 0c
+    clr1 mem_fe76.0         ;a1de  0b 76
     cmpw ax,#0008h          ;a1e0  ea 08 00
     bc $lab_a23c            ;a1e3  8d 57
-    set1 0fe76h.0           ;a1e5  0a 76
+    set1 mem_fe76.0         ;a1e5  0a 76
     br !lab_a1f3            ;a1e7  9b f3 a1
 
 lab_a1ea:
-    clr1 0fe75h.7           ;a1ea  7b 75
+    clr1 mem_fe75.7         ;a1ea  7b 75
     cmpw ax,#0030h          ;a1ec  ea 30 00
     bc $lab_a23c            ;a1ef  8d 4b
-    set1 0fe75h.7           ;a1f1  7a 75
+    set1 mem_fe75.7         ;a1f1  7a 75
 
 lab_a1f3:
     pop de                  ;a1f3  b4
     mov a,#00h              ;a1f4  a1 00
-    mov !0fc98h,a           ;a1f6  9e 98 fc
+    mov !mem_fc98,a         ;a1f6  9e 98 fc
 
 lab_a1f9:
-    mov a,!0fc98h           ;a1f9  8e 98 fc
+    mov a,!mem_fc98         ;a1f9  8e 98 fc
     inc a                   ;a1fc  41
-    mov 0fed6h,a            ;a1fd  f2 d6
-    mov !0fc98h,a           ;a1ff  9e 98 fc
+    mov mem_fed6,a          ;a1fd  f2 d6
+    mov !mem_fc98,a         ;a1ff  9e 98 fc
     movw ax,de              ;a202  c4
-    bt 0fe75h.5,$lab_a21d   ;a203  dc 75 17
+    bt mem_fe75.5,$lab_a21d ;a203  dc 75 17
 
 lab_a206:
-    bt 0fe76h.1,$lab_a20e   ;a206  9c 76 05
+    bt mem_fe76.1,$lab_a20e ;a206  9c 76 05
     addw ax,#0008h          ;a209  ca 08 00
     br $lab_a211            ;a20c  fa 03
 
@@ -35485,7 +35507,7 @@ lab_a20e:
     addw ax,#0030h          ;a20e  ca 30 00
 
 lab_a211:
-    dbnz 0fed6h,$lab_a206   ;a211  04 d6 f2
+    dbnz mem_fed6,$lab_a206 ;a211  04 d6 f2
     pop de                  ;a214  b4
     push ax                 ;a215  b1
     call !sub_a23f          ;a216  9a 3f a2
@@ -35493,7 +35515,7 @@ lab_a211:
     br $lab_a23d            ;a21b  fa 20
 
 lab_a21d:
-    bt 0fe76h.1,$lab_a225   ;a21d  9c 76 05
+    bt mem_fe76.1,$lab_a225 ;a21d  9c 76 05
     subw ax,#0008h          ;a220  da 08 00
     br $lab_a228            ;a223  fa 03
 
@@ -35501,7 +35523,7 @@ lab_a225:
     subw ax,#0030h          ;a225  da 30 00
 
 lab_a228:
-    dbnz 0fed6h,$lab_a21d   ;a228  04 d6 f2
+    dbnz mem_fed6,$lab_a21d ;a228  04 d6 f2
     pop de                  ;a22b  b4
     push ax                 ;a22c  b1
     call !sub_a23f          ;a22d  9a 3f a2
@@ -35509,12 +35531,12 @@ lab_a228:
 
 lab_a232:
     pop ax                  ;a232  b0
-    bt 0fe76h.1,$lab_a239   ;a233  9c 76 03
-    clr1 0fe76h.0           ;a236  0b 76
+    bt mem_fe76.1,$lab_a239 ;a233  9c 76 03
+    clr1 mem_fe76.0         ;a236  0b 76
     ret                     ;a238  af
 
 lab_a239:
-    clr1 0fe75h.7           ;a239  7b 75
+    clr1 mem_fe75.7         ;a239  7b 75
     ret                     ;a23b  af
 
 lab_a23c:
@@ -35532,53 +35554,53 @@ sub_a23f:
     ret                     ;a245  af
 
 lab_a246:
-    bt 0fe74h.6,$lab_a24c   ;a246  ec 74 03
+    bt mem_fe74.6,$lab_a24c ;a246  ec 74 03
     br !lab_a347            ;a249  9b 47 a3
 
 lab_a24c:
-    mov a,!0fe56h           ;a24c  8e 56 fe
+    mov a,!mem_fe56         ;a24c  8e 56 fe
     mov b,a                 ;a24f  73
-    mov 0fe52h,#00h         ;a250  11 52 00
+    mov mem_fe52,#00h       ;a250  11 52 00
     cmp a,#00h              ;a253  4d 00
     bz $lab_a25c            ;a255  ad 05
 
 lab_a257:
-    add 0fe52h,#06h         ;a257  88 52 06
+    add mem_fe52,#06h       ;a257  88 52 06
     dbnz b,$lab_a257        ;a25a  8b fb
 
 lab_a25c:
-    mov a,0fe52h            ;a25c  f0 52
+    mov a,mem_fe52          ;a25c  f0 52
     mov b,a                 ;a25e  73
     movw hl,#0cee5h         ;a25f  16 e5 ce
     callf !sub_0c48         ;a262  4c 48
     movw ax,de              ;a264  c4
     movw hl,ax              ;a265  d6
-    inc 0fe52h              ;a266  81 52
-    bt 0fe74h.2,$lab_a26f   ;a268  ac 74 04
-    inc 0fe52h              ;a26b  81 52
+    inc mem_fe52            ;a266  81 52
+    bt mem_fe74.2,$lab_a26f ;a268  ac 74 04
+    inc mem_fe52            ;a26b  81 52
     br $lab_a27b            ;a26d  fa 0c
 
 lab_a26f:
-    mov a,0fe52h            ;a26f  f0 52
+    mov a,mem_fe52          ;a26f  f0 52
     mov b,a                 ;a271  73
     movw hl,#0cee5h         ;a272  16 e5 ce
     callf !sub_0c48         ;a275  4c 48
     movw ax,de              ;a277  c4
     movw hl,ax              ;a278  d6
-    inc 0fe52h              ;a279  81 52
+    inc mem_fe52            ;a279  81 52
 
 lab_a27b:
     call !sub_9f33          ;a27b  9a 33 9f
     mov a,#63h              ;a27e  a1 63
     call !sub_9137          ;a280  9a 37 91
-    mov a,!0fc8ch           ;a283  8e 8c fc
+    mov a,!mem_fc8c         ;a283  8e 8c fc
     mov b,a                 ;a286  73
     movw hl,#0c480h         ;a287  16 80 c4
-    bt 0fe75h.0,$lab_a290   ;a28a  8c 75 03
+    bt mem_fe75.0,$lab_a290 ;a28a  8c 75 03
     movw hl,#0c42ah         ;a28d  16 2a c4
 
 lab_a290:
-    bf 0fe74h.2,$lab_a297   ;a290  31 23 74 03
+    bf mem_fe74.2,$lab_a297 ;a290  31 23 74 03
     movw hl,#0c4d6h         ;a294  16 d6 c4
 
 lab_a297:
@@ -35587,10 +35609,10 @@ lab_a297:
     call !sub_9e8e          ;a29c  9a 8e 9e
     mov a,#64h              ;a29f  a1 64
     call !sub_9137          ;a2a1  9a 37 91
-    mov a,!0fc8dh           ;a2a4  8e 8d fc
+    mov a,!mem_fc8d         ;a2a4  8e 8d fc
     mov b,a                 ;a2a7  73
     movw hl,#0c684h         ;a2a8  16 84 c6
-    bf 0fe74h.2,$lab_a2b2   ;a2ab  31 23 74 03
+    bf mem_fe74.2,$lab_a2b2 ;a2ab  31 23 74 03
     movw hl,#0c6dah         ;a2af  16 da c6
 
 lab_a2b2:
@@ -35599,38 +35621,38 @@ lab_a2b2:
     call !sub_9e8e          ;a2b7  9a 8e 9e
     mov a,#65h              ;a2ba  a1 65
     call !sub_9137          ;a2bc  9a 37 91
-    mov a,0fe52h            ;a2bf  f0 52
+    mov a,mem_fe52          ;a2bf  f0 52
     mov b,a                 ;a2c1  73
     movw hl,#0cee5h         ;a2c2  16 e5 ce
     callf !sub_0c48         ;a2c5  4c 48
     movw ax,de              ;a2c7  c4
     movw hl,ax              ;a2c8  d6
-    inc 0fe52h              ;a2c9  81 52
-    bt 0fe74h.2,$lab_a2d2   ;a2cb  ac 74 04
-    inc 0fe52h              ;a2ce  81 52
+    inc mem_fe52            ;a2c9  81 52
+    bt mem_fe74.2,$lab_a2d2 ;a2cb  ac 74 04
+    inc mem_fe52            ;a2ce  81 52
     br $lab_a2de            ;a2d0  fa 0c
 
 lab_a2d2:
-    mov a,0fe52h            ;a2d2  f0 52
+    mov a,mem_fe52          ;a2d2  f0 52
     mov b,a                 ;a2d4  73
     movw hl,#0cee5h         ;a2d5  16 e5 ce
     callf !sub_0c48         ;a2d8  4c 48
     movw ax,de              ;a2da  c4
     movw hl,ax              ;a2db  d6
-    inc 0fe52h              ;a2dc  81 52
+    inc mem_fe52            ;a2dc  81 52
 
 lab_a2de:
     call !sub_9f33          ;a2de  9a 33 9f
     mov a,#66h              ;a2e1  a1 66
     call !sub_9137          ;a2e3  9a 37 91
-    mov a,!0fc8ch           ;a2e6  8e 8c fc
+    mov a,!mem_fc8c         ;a2e6  8e 8c fc
     mov b,a                 ;a2e9  73
     movw hl,#0c4abh         ;a2ea  16 ab c4
-    bt 0fe75h.0,$lab_a2f3   ;a2ed  8c 75 03
+    bt mem_fe75.0,$lab_a2f3 ;a2ed  8c 75 03
     movw hl,#0c455h         ;a2f0  16 55 c4
 
 lab_a2f3:
-    bf 0fe74h.2,$lab_a2fa   ;a2f3  31 23 74 03
+    bf mem_fe74.2,$lab_a2fa ;a2f3  31 23 74 03
     movw hl,#0c501h         ;a2f7  16 01 c5
 
 lab_a2fa:
@@ -35639,10 +35661,10 @@ lab_a2fa:
     call !sub_9e8e          ;a2ff  9a 8e 9e
     mov a,#67h              ;a302  a1 67
     call !sub_9137          ;a304  9a 37 91
-    mov a,!0fc8dh           ;a307  8e 8d fc
+    mov a,!mem_fc8d         ;a307  8e 8d fc
     mov b,a                 ;a30a  73
     movw hl,#0c6afh         ;a30b  16 af c6
-    bf 0fe74h.2,$lab_a315   ;a30e  31 23 74 03
+    bf mem_fe74.2,$lab_a315 ;a30e  31 23 74 03
     movw hl,#0c705h         ;a312  16 05 c7
 
 lab_a315:
@@ -35651,39 +35673,39 @@ lab_a315:
     call !sub_9e8e          ;a31a  9a 8e 9e
     mov a,#68h              ;a31d  a1 68
     call !sub_9137          ;a31f  9a 37 91
-    mov a,0fe52h            ;a322  f0 52
+    mov a,mem_fe52          ;a322  f0 52
     mov b,a                 ;a324  73
     movw hl,#0cee5h         ;a325  16 e5 ce
     callf !sub_0c48         ;a328  4c 48
     movw ax,de              ;a32a  c4
     movw hl,ax              ;a32b  d6
-    inc 0fe52h              ;a32c  81 52
-    bt 0fe74h.2,$lab_a335   ;a32e  ac 74 04
-    inc 0fe52h              ;a331  81 52
+    inc mem_fe52            ;a32c  81 52
+    bt mem_fe74.2,$lab_a335 ;a32e  ac 74 04
+    inc mem_fe52            ;a331  81 52
     br $lab_a341            ;a333  fa 0c
 
 lab_a335:
-    mov a,0fe52h            ;a335  f0 52
+    mov a,mem_fe52          ;a335  f0 52
     mov b,a                 ;a337  73
     movw hl,#0cee5h         ;a338  16 e5 ce
     callf !sub_0c48         ;a33b  4c 48
     movw ax,de              ;a33d  c4
     movw hl,ax              ;a33e  d6
-    inc 0fe52h              ;a33f  81 52
+    inc mem_fe52            ;a33f  81 52
 
 lab_a341:
     call !sub_9f33          ;a341  9a 33 9f
     br !lab_9d1f            ;a344  9b 1f 9d
 
 lab_a347:
-    mov a,!0fc8ch           ;a347  8e 8c fc
+    mov a,!mem_fc8c         ;a347  8e 8c fc
     mov b,a                 ;a34a  73
     movw hl,#0c37eh         ;a34b  16 7e c3
-    bt 0fe75h.0,$lab_a354   ;a34e  8c 75 03
+    bt mem_fe75.0,$lab_a354 ;a34e  8c 75 03
     movw hl,#0c2d2h         ;a351  16 d2 c2
 
 lab_a354:
-    bf 0fe74h.2,$lab_a35b   ;a354  31 23 74 03
+    bf mem_fe74.2,$lab_a35b ;a354  31 23 74 03
     movw hl,#0c52ch         ;a358  16 2c c5
 
 lab_a35b:
@@ -35692,14 +35714,14 @@ lab_a35b:
     call !sub_9e8e          ;a360  9a 8e 9e
     mov a,#69h              ;a363  a1 69
     call !sub_9137          ;a365  9a 37 91
-    mov a,!0fc8ch           ;a368  8e 8c fc
+    mov a,!mem_fc8c         ;a368  8e 8c fc
     mov b,a                 ;a36b  73
     movw hl,#0c3d4h         ;a36c  16 d4 c3
-    bt 0fe75h.0,$lab_a375   ;a36f  8c 75 03
+    bt mem_fe75.0,$lab_a375 ;a36f  8c 75 03
     movw hl,#0c328h         ;a372  16 28 c3
 
 lab_a375:
-    bf 0fe74h.2,$lab_a37c   ;a375  31 23 74 03
+    bf mem_fe74.2,$lab_a37c ;a375  31 23 74 03
     movw hl,#0c582h         ;a379  16 82 c5
 
 lab_a37c:
@@ -35708,10 +35730,10 @@ lab_a37c:
     call !sub_9e8e          ;a381  9a 8e 9e
     mov a,#6ah              ;a384  a1 6a
     call !sub_9137          ;a386  9a 37 91
-    mov a,!0fc8dh           ;a389  8e 8d fc
+    mov a,!mem_fc8d         ;a389  8e 8d fc
     mov b,a                 ;a38c  73
     movw hl,#0c5d8h         ;a38d  16 d8 c5
-    bf 0fe74h.2,$lab_a397   ;a390  31 23 74 03
+    bf mem_fe74.2,$lab_a397 ;a390  31 23 74 03
     movw hl,#0c62eh         ;a394  16 2e c6
 
 lab_a397:
@@ -35720,9 +35742,9 @@ lab_a397:
     call !sub_9e8e          ;a39c  9a 8e 9e
     mov a,#6bh              ;a39f  a1 6b
     call !sub_9137          ;a3a1  9a 37 91
-    mov a,!0f200h           ;a3a4  8e 00 f2
+    mov a,!mem_f200         ;a3a4  8e 00 f2
     mov b,a                 ;a3a7  73
-    bt 0fe74h.2,$lab_a3b2   ;a3a8  ac 74 07
+    bt mem_fe74.2,$lab_a3b2 ;a3a8  ac 74 07
     movw hl,#0c934h         ;a3ab  16 34 c9
     callf !sub_0c48         ;a3ae  4c 48
     br $lab_a3b7            ;a3b0  fa 05
@@ -35737,7 +35759,7 @@ lab_a3b7:
     mov a,#6ch              ;a3bd  a1 6c
     call !sub_9137          ;a3bf  9a 37 91
     movw ax,#0177h          ;a3c2  10 77 01
-    bf 0fe74h.2,$lab_a3cc   ;a3c5  31 23 74 03
+    bf mem_fe74.2,$lab_a3cc ;a3c5  31 23 74 03
     movw ax,#0117h          ;a3c9  10 17 01
 
 lab_a3cc:
@@ -35746,14 +35768,14 @@ lab_a3cc:
     call !sub_9e8e          ;a3d0  9a 8e 9e
     mov a,#6dh              ;a3d3  a1 6d
     call !sub_9137          ;a3d5  9a 37 91
-    mov a,!0fc8ch           ;a3d8  8e 8c fc
+    mov a,!mem_fc8c         ;a3d8  8e 8c fc
     mov b,a                 ;a3db  73
     movw hl,#0c3a9h         ;a3dc  16 a9 c3
-    bt 0fe75h.0,$lab_a3e5   ;a3df  8c 75 03
+    bt mem_fe75.0,$lab_a3e5 ;a3df  8c 75 03
     movw hl,#0c2fdh         ;a3e2  16 fd c2
 
 lab_a3e5:
-    bf 0fe74h.2,$lab_a3ec   ;a3e5  31 23 74 03
+    bf mem_fe74.2,$lab_a3ec ;a3e5  31 23 74 03
     movw hl,#0c557h         ;a3e9  16 57 c5
 
 lab_a3ec:
@@ -35762,14 +35784,14 @@ lab_a3ec:
     call !sub_9e8e          ;a3f1  9a 8e 9e
     mov a,#6eh              ;a3f4  a1 6e
     call !sub_9137          ;a3f6  9a 37 91
-    mov a,!0fc8ch           ;a3f9  8e 8c fc
+    mov a,!mem_fc8c         ;a3f9  8e 8c fc
     mov b,a                 ;a3fc  73
     movw hl,#0c3ffh         ;a3fd  16 ff c3
-    bt 0fe75h.0,$lab_a406   ;a400  8c 75 03
+    bt mem_fe75.0,$lab_a406 ;a400  8c 75 03
     movw hl,#0c353h         ;a403  16 53 c3
 
 lab_a406:
-    bf 0fe74h.2,$lab_a40d   ;a406  31 23 74 03
+    bf mem_fe74.2,$lab_a40d ;a406  31 23 74 03
     movw hl,#0c5adh         ;a40a  16 ad c5
 
 lab_a40d:
@@ -35778,10 +35800,10 @@ lab_a40d:
     call !sub_9e8e          ;a412  9a 8e 9e
     mov a,#6fh              ;a415  a1 6f
     call !sub_9137          ;a417  9a 37 91
-    mov a,!0fc8dh           ;a41a  8e 8d fc
+    mov a,!mem_fc8d         ;a41a  8e 8d fc
     mov b,a                 ;a41d  73
     movw hl,#0c603h         ;a41e  16 03 c6
-    bf 0fe74h.2,$lab_a428   ;a421  31 23 74 03
+    bf mem_fe74.2,$lab_a428 ;a421  31 23 74 03
     movw hl,#0c659h         ;a425  16 59 c6
 
 lab_a428:
@@ -35790,9 +35812,9 @@ lab_a428:
     call !sub_9e8e          ;a42d  9a 8e 9e
     mov a,#70h              ;a430  a1 70
     call !sub_9137          ;a432  9a 37 91
-    mov a,!0f200h           ;a435  8e 00 f2
+    mov a,!mem_f200         ;a435  8e 00 f2
     mov b,a                 ;a438  73
-    bt 0fe74h.2,$lab_a443   ;a439  ac 74 07
+    bt mem_fe74.2,$lab_a443 ;a439  ac 74 07
     movw hl,#0c949h         ;a43c  16 49 c9
     callf !sub_0c48         ;a43f  4c 48
     br $lab_a448            ;a441  fa 05
@@ -35807,7 +35829,7 @@ lab_a448:
     mov a,#71h              ;a44e  a1 71
     call !sub_9137          ;a450  9a 37 91
     movw ax,#5540h          ;a453  10 40 55
-    bf 0fe74h.2,$lab_a45d   ;a456  31 23 74 03
+    bf mem_fe74.2,$lab_a45d ;a456  31 23 74 03
     movw ax,#4540h          ;a45a  10 40 45
 
 lab_a45d:
@@ -36376,15 +36398,15 @@ lab_a45d:
 
 sub_a694:
     mov a,#00h              ;a694  a1 00
-    cmp 0fe58h,#00h         ;a696  c8 58 00
+    cmp mem_fe58,#00h       ;a696  c8 58 00
     bz $lab_a6cc            ;a699  ad 31
-    mov a,!0fe57h           ;a69b  8e 57 fe
+    mov a,!mem_fe57         ;a69b  8e 57 fe
     mov x,a                 ;a69e  70
     mov a,#00h              ;a69f  a1 00
-    bf 0fe78h.0,$lab_a6b0   ;a6a1  31 03 78 0b
-    sub a,0fe5ah            ;a6a5  1e 5a
-    add a,!0fc91h           ;a6a7  08 91 fc
-    add a,!0fc91h           ;a6aa  08 91 fc
+    bf mem_fe78.0,$lab_a6b0 ;a6a1  31 03 78 0b
+    sub a,mem_fe5a          ;a6a5  1e 5a
+    add a,!mem_fc91         ;a6a7  08 91 fc
+    add a,!mem_fc91         ;a6aa  08 91 fc
     bf a.7,$lab_a6b9        ;a6ad  31 7f 09
 
 lab_a6b0:
@@ -36397,7 +36419,7 @@ lab_a6b9:
     add a,x                 ;a6b9  61 08
 
 lab_a6bb:
-    bt 0fe74h.6,$lab_a6c6   ;a6bb  ec 74 08
+    bt mem_fe74.6,$lab_a6c6 ;a6bb  ec 74 08
     cmp a,#7bh              ;a6be  4d 7b
     bc $lab_a6cc            ;a6c0  8d 0a
     mov a,#7ah              ;a6c2  a1 7a
@@ -36476,19 +36498,19 @@ lab_a6cc:
     db 0afh                 ;a70b  af          DATA 0xaf
 
 sub_a70c:
-    set1 0fe72h.7           ;a70c  7a 72
-    set1 0fe72h.2           ;a70e  2a 72
-    clr1 0fe80h.4           ;a710  4b 80
-    clr1 0fe77h.1           ;a712  1b 77
-    bt 0fe77h.2,$lab_a728   ;a714  ac 77 11
-    set1 0fe77h.2           ;a717  2a 77
+    set1 mem_fe72.7         ;a70c  7a 72
+    set1 mem_fe72.2         ;a70e  2a 72
+    clr1 mem_fe80.4         ;a710  4b 80
+    clr1 mem_fe77.1         ;a712  1b 77
+    bt mem_fe77.2,$lab_a728 ;a714  ac 77 11
+    set1 mem_fe77.2         ;a717  2a 77
     mov a,#00h              ;a719  a1 00
-    mov !0fc9bh,a           ;a71b  9e 9b fc
+    mov !mem_fc9b,a         ;a71b  9e 9b fc
     mov a,#20h              ;a71e  a1 20
     mov b,#03h              ;a720  a3 03
     callf !sub_0970         ;a722  1c 70
-    set1 0fe72h.2           ;a724  2a 72
-    set1 0fe72h.7           ;a726  7a 72
+    set1 mem_fe72.2         ;a724  2a 72
+    set1 mem_fe72.7         ;a726  7a 72
 
 lab_a728:
     ret                     ;a728  af
@@ -36529,12 +36551,12 @@ lab_a728:
     db 0a0h                 ;a74a  a0          DATA 0xa0
 
 sub_a74b:
-    set1 0fe76h.6           ;a74b  6a 76
-    bf 0fe77h.2,$lab_a754   ;a74d  31 23 77 03
-    bt 0fe2dh.2,$lab_a77e   ;a751  ac 2d 2a
+    set1 mem_fe76.6         ;a74b  6a 76
+    bf mem_fe77.2,$lab_a754 ;a74d  31 23 77 03
+    bt mem_fe2d.2,$lab_a77e ;a751  ac 2d 2a
 
 lab_a754:
-    mov a,0fe2fh            ;a754  f0 2f
+    mov a,mem_fe2f          ;a754  f0 2f
     mov b,#03h              ;a756  a3 03
 
 lab_a758:
@@ -36546,12 +36568,12 @@ lab_a758:
 
 lab_a763:
     mov a,b                 ;a763  63
-    cmp a,0fe58h            ;a764  4e 58
+    cmp a,mem_fe58          ;a764  4e 58
     bnz $lab_a77e           ;a766  bd 16
 
 lab_a768:
-    bt 0fe2dh.2,$lab_a77a   ;a768  ac 2d 0f
-    clr1 0fe80h.4           ;a76b  4b 80
+    bt mem_fe2d.2,$lab_a77a ;a768  ac 2d 0f
+    clr1 mem_fe80.4         ;a76b  4b 80
     call !sub_a70c          ;a76d  9a 0c a7
     mov a,#04h              ;a770  a1 04
     mov a,#04h              ;a772  a1 04
@@ -36561,8 +36583,8 @@ lab_a768:
     ret                     ;a779  af
 
 lab_a77a:
-    set1 0fe77h.2           ;a77a  2a 77
-    clr1 0fe80h.4           ;a77c  4b 80
+    set1 mem_fe77.2         ;a77a  2a 77
+    clr1 mem_fe80.4         ;a77c  4b 80
 
 lab_a77e:
     clr1 cy                 ;a77e  21
@@ -36648,14 +36670,14 @@ lab_a77e:
     db 0afh                 ;a7cd  af          DATA 0xaf
 
 sub_a7ce:
-    cmp 0fe58h,#01h         ;a7ce  c8 58 01
+    cmp mem_fe58,#01h       ;a7ce  c8 58 01
     bnz $lab_a7ed           ;a7d1  bd 1a
-    mov !0fc9ch,a           ;a7d3  9e 9c fc
+    mov !mem_fc9c,a         ;a7d3  9e 9c fc
     push ax                 ;a7d6  b1
     call !sub_aa9c          ;a7d7  9a 9c aa
     pop ax                  ;a7da  b0
     mov b,a                 ;a7db  73
-    mov a,0fe58h            ;a7dc  f0 58
+    mov a,mem_fe58          ;a7dc  f0 58
     cmp a,#00h              ;a7de  4d 00
     bz $lab_a7ed            ;a7e0  ad 0b
     cmp a,#04h              ;a7e2  4d 04
@@ -37357,17 +37379,17 @@ lab_a7ed:
 
 sub_aa9c:
     movw de,#0fc9dh         ;aa9c  14 9d fc
-    movw hl,#0fe58h         ;aa9f  16 58 fe
+    movw hl,#mem_fe58       ;aa9f  16 58 fe
     mov b,#01h              ;aaa2  a3 01
     callf !sub_0bef         ;aaa4  3c ef
-    movw hl,#0fc9bh         ;aaa6  16 9b fc
+    movw hl,#mem_fc9b       ;aaa6  16 9b fc
     mov b,#02h              ;aaa9  a3 02
     br !sub_0bf6            ;aaab  9b f6 0b
 
 sub_aaae:
-    mov a,!0f257h           ;aaae  8e 57 f2
+    mov a,!mem_f257         ;aaae  8e 57 f2
     call !sub_aaba          ;aab1  9a ba aa
-    movw hl,#0f257h         ;aab4  16 57 f2
+    movw hl,#mem_f257       ;aab4  16 57 f2
     call !sub_4092          ;aab7  9a 92 40
 
 sub_aaba:
@@ -37384,9 +37406,9 @@ lab_aac6:
     ret                     ;aac6  af
 
 sub_aac7:
-    mov a,!0f258h           ;aac7  8e 58 f2
+    mov a,!mem_f258         ;aac7  8e 58 f2
     call !sub_aad3          ;aaca  9a d3 aa
-    movw hl,#0f258h         ;aacd  16 58 f2
+    movw hl,#mem_f258       ;aacd  16 58 f2
     call !sub_4092          ;aad0  9a 92 40
 
 sub_aad3:
@@ -37404,17 +37426,17 @@ lab_aadf:
 
 sub_aae0:
     call !sub_ab0a          ;aae0  9a 0a ab
-    cmp 0fedah,#00h         ;aae3  c8 da 00
+    cmp mem_feda,#00h       ;aae3  c8 da 00
     bnz $lab_aaea           ;aae6  bd 02
-    sub a,0fe59h            ;aae8  1e 59
+    sub a,mem_fe59          ;aae8  1e 59
 
 lab_aaea:
-    cmp 0fedah,#00h         ;aaea  c8 da 00
+    cmp mem_feda,#00h       ;aaea  c8 da 00
     bnz $lab_aafa           ;aaed  bd 0b
-    bt 0fe74h.6,$lab_aafa   ;aaef  ec 74 08
-    cmp a,!0fc99h           ;aaf2  48 99 fc
+    bt mem_fe74.6,$lab_aafa ;aaef  ec 74 08
+    cmp a,!mem_fc99         ;aaf2  48 99 fc
     bc $lab_aafa            ;aaf5  8d 03
-    mov a,!0fc99h           ;aaf7  8e 99 fc
+    mov a,!mem_fc99         ;aaf7  8e 99 fc
 
 lab_aafa:
     br $lab_aafe            ;aafa  fa 02
@@ -37438,12 +37460,12 @@ sub_ab0a:
     dec b                   ;ab0a  53
     mov a,b                 ;ab0b  63
     bt a.7,$lab_aafc        ;ab0c  31 7e ed
-    mov 0fed9h,a            ;ab0f  f2 d9
+    mov mem_fed9,a          ;ab0f  f2 d9
     cmp a,#03h              ;ab11  4d 03
     bnc $lab_aafc           ;ab13  9d e7
-    mov 0fedah,a            ;ab15  f2 da
+    mov mem_feda,a          ;ab15  f2 da
     mov b,a                 ;ab17  73
-    mov a,0fedah            ;ab18  f0 da
+    mov a,mem_feda          ;ab18  f0 da
     mov b,a                 ;ab1a  73
     movw hl,#0f259h         ;ab1b  16 59 f2
     mov a,[hl+b]            ;ab1e  ab
@@ -37474,41 +37496,41 @@ lab_ab32:
     db 25h                  ;ab3b  25          DATA 0x25 '%'
 
 sub_ab3c:
-    clr1 0fe76h.2           ;ab3c  2b 76
+    clr1 mem_fe76.2         ;ab3c  2b 76
     mov a,#00h              ;ab3e  a1 00
-    mov 0fe5ah,a            ;ab40  f2 5a
-    mov 0fe59h,a            ;ab42  f2 59
+    mov mem_fe5a,a          ;ab40  f2 5a
+    mov mem_fe59,a          ;ab42  f2 59
     mov a,#0ah              ;ab44  a1 0a
-    mov !0fc8ch,a           ;ab46  9e 8c fc
-    mov !0fc8dh,a           ;ab49  9e 8d fc
-    set1 0fe75h.3           ;ab4c  3a 75
-    mov a,!0f268h           ;ab4e  8e 68 f2
+    mov !mem_fc8c,a         ;ab46  9e 8c fc
+    mov !mem_fc8d,a         ;ab49  9e 8d fc
+    set1 mem_fe75.3         ;ab4c  3a 75
+    mov a,!mem_f268         ;ab4e  8e 68 f2
     mov b,a                 ;ab51  73
-    mov a,!0f254h           ;ab52  8e 54 f2
+    mov a,!mem_f254         ;ab52  8e 54 f2
     cmp a,b                 ;ab55  61 4b
     bc $lab_ab5a            ;ab57  8d 01
     mov a,b                 ;ab59  63
 
 lab_ab5a:
-    set1 0fe76h.5           ;ab5a  5a 76
-    mov !0fe57h,a           ;ab5c  9e 57 fe
-    set1 0fe73h.3           ;ab5f  3a 73
+    set1 mem_fe76.5         ;ab5a  5a 76
+    mov !mem_fe57,a         ;ab5c  9e 57 fe
+    set1 mem_fe73.3         ;ab5f  3a 73
     cmp a,#00h              ;ab61  4d 00
     bnz $lab_ab6b           ;ab63  bd 06
     mov a,#00h              ;ab65  a1 00
-    mov !0fc9fh,a           ;ab67  9e 9f fc
+    mov !mem_fc9f,a         ;ab67  9e 9f fc
     ret                     ;ab6a  af
 
 lab_ab6b:
     cmp a,#7ah              ;ab6b  4d 7a
     bc $lab_ab75            ;ab6d  8d 06
     mov a,#0ffh             ;ab6f  a1 ff
-    mov !0fc9fh,a           ;ab71  9e 9f fc
+    mov !mem_fc9f,a         ;ab71  9e 9f fc
     ret                     ;ab74  af
 
 lab_ab75:
     mov a,#55h              ;ab75  a1 55
-    mov !0fc9fh,a           ;ab77  9e 9f fc
+    mov !mem_fc9f,a         ;ab77  9e 9f fc
     ret                     ;ab7a  af
 
     db 31h                  ;ab7b  31          DATA 0x31 '1'
@@ -37615,7 +37637,7 @@ lab_abeb:
     clr1 cy                 ;abeb  21
 
 lab_abec:
-    clr1 0fe78h.1           ;abec  1b 78
+    clr1 mem_fe78.1         ;abec  1b 78
     ret                     ;abee  af
 
 lab_abef:
@@ -47184,14 +47206,14 @@ lab_ac4e:
     db 1bh                  ;d16d  1b          DATA 0x1b
 
 sub_d16e:
-    mov 0fe44h,#04h         ;d16e  11 44 04
-    mov 0fe45h,#00h         ;d171  11 45 00
-    mov 0fe46h,#00h         ;d174  11 46 00
-    mov 0fe47h,#00h         ;d177  11 47 00
-    clr1 0fe6dh.5           ;d17a  5b 6d
-    clr1 0fe6eh.3           ;d17c  3b 6e
+    mov mem_fe44,#04h       ;d16e  11 44 04
+    mov mem_fe45,#00h       ;d171  11 45 00
+    mov mem_fe46,#00h       ;d174  11 46 00
+    mov mem_fe47,#00h       ;d177  11 47 00
+    clr1 mem_fe6d.5         ;d17a  5b 6d
+    clr1 mem_fe6e.3         ;d17c  3b 6e
     mov a,#0fh              ;d17e  a1 0f
-    mov !0fb3ch,a           ;d180  9e 3c fb
+    mov !mem_fb3c,a         ;d180  9e 3c fb
     call !sub_dadd          ;d183  9a dd da
     call !sub_d8fd          ;d186  9a fd d8
     ret                     ;d189  af
@@ -48877,22 +48899,22 @@ sub_d16e:
     db 0afh                 ;d818  af          DATA 0xaf
 
 sub_d819:
-    mov a,!0fc74h           ;d819  8e 74 fc
+    mov a,!mem_fc74         ;d819  8e 74 fc
     and a,#07h              ;d81c  5d 07
     cmp a,#03h              ;d81e  4d 03
     bnz $lab_d83b           ;d820  bd 19
-    mov a,!0fc74h           ;d822  8e 74 fc
-    cmp 0fe30h,#03h         ;d825  c8 30 03
+    mov a,!mem_fc74         ;d822  8e 74 fc
+    cmp mem_fe30,#03h       ;d825  c8 30 03
     bz $lab_d82e            ;d828  ad 04
-    clr1 0fe46h.4           ;d82a  4b 46
+    clr1 mem_fe46.4         ;d82a  4b 46
     br $lab_d833            ;d82c  fa 05
 
 lab_d82e:
     mov1 cy,a.7             ;d82e  61 fc
-    mov1 0fe46h.4,cy        ;d830  71 41 46
+    mov1 mem_fe46.4,cy      ;d830  71 41 46
 
 lab_d833:
-    mov a,!0fc6eh           ;d833  8e 6e fc
+    mov a,!mem_fc6e         ;d833  8e 6e fc
     bt a.7,$lab_d83e        ;d836  31 7e 05
     br $lab_d867            ;d839  fa 2c
 
@@ -48931,71 +48953,71 @@ lab_d864:
     br !sub_d8fd            ;d864  9b fd d8
 
 lab_d867:
-    mov a,0fe49h            ;d867  f0 49
-    mov !0fc6bh,a           ;d869  9e 6b fc
-    mov a,!0fc73h           ;d86c  8e 73 fc
+    mov a,mem_fe49          ;d867  f0 49
+    mov !mem_fc6b,a         ;d869  9e 6b fc
+    mov a,!mem_fc73         ;d86c  8e 73 fc
     and a,#0f0h             ;d86f  5d f0
-    mov 0fe49h,a            ;d871  f2 49
-    cmp 0fe49h,#10h         ;d873  c8 49 10
+    mov mem_fe49,a          ;d871  f2 49
+    cmp mem_fe49,#10h       ;d873  c8 49 10
     bz $lab_d881            ;d876  ad 09
-    cmp 0fe49h,#30h         ;d878  c8 49 30
+    cmp mem_fe49,#30h       ;d878  c8 49 30
     bnz $lab_d885           ;d87b  bd 08
-    set1 0fe47h.4           ;d87d  4a 47
-    clr1 0fe47h.3           ;d87f  3b 47
+    set1 mem_fe47.4         ;d87d  4a 47
+    clr1 mem_fe47.3         ;d87f  3b 47
 
 lab_d881:
-    clr1 0fe6dh.7           ;d881  7b 6d
-    clr1 0fe6dh.6           ;d883  6b 6d
+    clr1 mem_fe6d.7         ;d881  7b 6d
+    clr1 mem_fe6d.6         ;d883  6b 6d
 
 lab_d885:
     cmp a,#0a0h             ;d885  4d a0
     bnz $lab_d895           ;d887  bd 0c
     call !sub_d99c          ;d889  9a 9c d9
-    set1 0fe6dh.7           ;d88c  7a 6d
-    clr1 0fe47h.4           ;d88e  4b 47
-    mov 0fe44h,#02h         ;d890  11 44 02
+    set1 mem_fe6d.7         ;d88c  7a 6d
+    clr1 mem_fe47.4         ;d88e  4b 47
+    mov mem_fe44,#02h       ;d890  11 44 02
     br $lab_d8b3            ;d893  fa 1e
 
 lab_d895:
     cmp a,#0b0h             ;d895  4d b0
     bnz $lab_d8a0           ;d897  bd 07
-    set1 0fe6dh.7           ;d899  7a 6d
-    clr1 0fe47h.4           ;d89b  4b 47
-    mov 0fe44h,#02h         ;d89d  11 44 02
+    set1 mem_fe6d.7         ;d899  7a 6d
+    clr1 mem_fe47.4         ;d89b  4b 47
+    mov mem_fe44,#02h       ;d89d  11 44 02
 
 lab_d8a0:
     cmp a,#90h              ;d8a0  4d 90
     bnz $lab_d8ad           ;d8a2  bd 09
     call !sub_dadd          ;d8a4  9a dd da
-    clr1 0fe6dh.6           ;d8a7  6b 6d
-    set1 0fe47h.3           ;d8a9  3a 47
-    clr1 0fe47h.4           ;d8ab  4b 47
+    clr1 mem_fe6d.6         ;d8a7  6b 6d
+    set1 mem_fe47.3         ;d8a9  3a 47
+    clr1 mem_fe47.4         ;d8ab  4b 47
 
 lab_d8ad:
     cmp a,#70h              ;d8ad  4d 70
     bnz $lab_d8b3           ;d8af  bd 02
-    clr1 0fe47h.4           ;d8b1  4b 47
+    clr1 mem_fe47.4         ;d8b1  4b 47
 
 lab_d8b3:
-    mov a,!0fc72h           ;d8b3  8e 72 fc
+    mov a,!mem_fc72         ;d8b3  8e 72 fc
     mov1 cy,a.2             ;d8b6  61 ac
-    mov1 0fe6eh.2,cy        ;d8b8  71 21 6e
+    mov1 mem_fe6e.2,cy      ;d8b8  71 21 6e
     mov1 cy,a.5             ;d8bb  61 dc
-    or1 cy,0fe6eh.2         ;d8bd  71 26 6e
-    mov1 0fe6eh.1,cy        ;d8c0  71 11 6e
+    or1 cy,mem_fe6e.2       ;d8bd  71 26 6e
+    mov1 mem_fe6e.1,cy      ;d8c0  71 11 6e
     mov1 cy,a.4             ;d8c3  61 cc
-    mov1 0fe6eh.0,cy        ;d8c5  71 01 6e
-    mov a,!0fc73h           ;d8c8  8e 73 fc
+    mov1 mem_fe6e.0,cy      ;d8c5  71 01 6e
+    mov a,!mem_fc73         ;d8c8  8e 73 fc
     mov1 cy,a.3             ;d8cb  61 bc
     bnc $lab_d8e9           ;d8cd  9d 1a
-    mov a,!0fc7eh           ;d8cf  8e 7e fc
+    mov a,!mem_fc7e         ;d8cf  8e 7e fc
     inc a                   ;d8d2  41
-    mov !0fc7eh,a           ;d8d3  9e 7e fc
+    mov !mem_fc7e,a         ;d8d3  9e 7e fc
     cmp a,#05h              ;d8d6  4d 05
     bc $lab_d8f0            ;d8d8  8d 16
-    set1 0fe47h.6           ;d8da  6a 47
+    set1 mem_fe47.6         ;d8da  6a 47
     movw hl,#0fc48h         ;d8dc  16 48 fc
-    mov a,!0fc75h           ;d8df  8e 75 fc
+    mov a,!mem_fc75         ;d8df  8e 75 fc
     mov b,a                 ;d8e2  73
     mov a,[hl+b]            ;d8e3  ab
     clr1 a.6                ;d8e4  61 eb
@@ -49003,21 +49025,21 @@ lab_d8b3:
     br $lab_d8f0            ;d8e7  fa 07
 
 lab_d8e9:
-    clr1 0fe47h.6           ;d8e9  6b 47
+    clr1 mem_fe47.6         ;d8e9  6b 47
     mov a,#00h              ;d8eb  a1 00
-    mov !0fc7eh,a           ;d8ed  9e 7e fc
+    mov !mem_fc7e,a         ;d8ed  9e 7e fc
 
 lab_d8f0:
-    mov a,!0fc73h           ;d8f0  8e 73 fc
+    mov a,!mem_fc73         ;d8f0  8e 73 fc
     and a,#06h              ;d8f3  5d 06
     ror a,1                 ;d8f5  24
     and a,#03h              ;d8f6  5d 03
-    mov !0fc79h,a           ;d8f8  9e 79 fc
-    set1 0fe46h.3           ;d8fb  3a 46
+    mov !mem_fc79,a         ;d8f8  9e 79 fc
+    set1 mem_fe46.3         ;d8fb  3a 46
 
 sub_d8fd:
     movw de,#0fc6dh         ;d8fd  14 6d fc
-    movw hl,#0fe44h         ;d900  16 44 fe
+    movw hl,#mem_fe44       ;d900  16 44 fe
     mov b,#06h              ;d903  a3 06
     callf !sub_0bef         ;d905  3c ef
     movw hl,#0fc48h         ;d907  16 48 fc
@@ -49234,56 +49256,56 @@ lab_d9a4:
 
 sub_d9e3:
     mov a,#00h              ;d9e3  a1 00
-    mov !0fb3dh,a           ;d9e5  9e 3d fb
-    mov !0fb40h,a           ;d9e8  9e 40 fb
+    mov !mem_fb3d,a         ;d9e5  9e 3d fb
+    mov !mem_fb40,a         ;d9e8  9e 40 fb
     ret                     ;d9eb  af
 
 sub_d9ec:
-    bf 0fe5fh.2,$lab_da0a   ;d9ec  31 23 5f 1a
-    clr1 0fe5fh.2           ;d9f0  2b 5f
-    mov a,!0fca2h           ;d9f2  8e a2 fc
+    bf mem_fe5f.2,$lab_da0a ;d9ec  31 23 5f 1a
+    clr1 mem_fe5f.2         ;d9f0  2b 5f
+    mov a,!mem_fca2         ;d9f2  8e a2 fc
     cmp a,#62h              ;d9f5  4d 62
     bc $lab_da03            ;d9f7  8d 0a
-    mov a,!0fb3bh           ;d9f9  8e 3b fb
+    mov a,!mem_fb3b         ;d9f9  8e 3b fb
     cmp a,#00h              ;d9fc  4d 00
     bnz $lab_da03           ;d9fe  bd 03
     call !sub_d819          ;da00  9a 19 d8
 
 lab_da03:
     mov a,#0fh              ;da03  a1 0f
-    mov !0fb3ch,a           ;da05  9e 3c fb
+    mov !mem_fb3c,a         ;da05  9e 3c fb
     br $lab_da4c            ;da08  fa 42
 
 lab_da0a:
-    mov a,!0fca2h           ;da0a  8e a2 fc
+    mov a,!mem_fca2         ;da0a  8e a2 fc
     cmp a,#62h              ;da0d  4d 62
     bnc $lab_da18           ;da0f  9d 07
     mov a,#0ah              ;da11  a1 0a
-    mov !0fb3bh,a           ;da13  9e 3b fb
+    mov !mem_fb3b,a         ;da13  9e 3b fb
     br $lab_da4c            ;da16  fa 34
 
 lab_da18:
-    mov a,!0fb3bh           ;da18  8e 3b fb
+    mov a,!mem_fb3b         ;da18  8e 3b fb
     cmp a,#00h              ;da1b  4d 00
     bnz $lab_da4c           ;da1d  bd 2d
-    mov a,!0fb3ch           ;da1f  8e 3c fb
+    mov a,!mem_fb3c         ;da1f  8e 3c fb
     cmp a,#00h              ;da22  4d 00
     bnz $lab_da4c           ;da24  bd 26
-    mov a,0fe49h            ;da26  f0 49
-    mov !0fc6bh,a           ;da28  9e 6b fc
-    cmp 0fe49h,#0ffh        ;da2b  c8 49 ff
+    mov a,mem_fe49          ;da26  f0 49
+    mov !mem_fc6b,a         ;da28  9e 6b fc
+    cmp mem_fe49,#0ffh      ;da2b  c8 49 ff
     bz $lab_da40            ;da2e  ad 10
-    mov 0fe49h,#0ffh        ;da30  11 49 ff
-    mov 0fe44h,#00h         ;da33  11 44 00
+    mov mem_fe49,#0ffh      ;da30  11 49 ff
+    mov mem_fe44,#00h       ;da33  11 44 00
     call !sub_d9e3          ;da36  9a e3 d9
-    cmp 0fe30h,#03h         ;da39  c8 30 03
+    cmp mem_fe30,#03h       ;da39  c8 30 03
     bz $lab_da40            ;da3c  ad 02
-    set1 0fe7fh.7           ;da3e  7a 7f
+    set1 mem_fe7f.7         ;da3e  7a 7f
 
 lab_da40:
-    set1 0fe6dh.7           ;da40  7a 6d
-    set1 0fe46h.3           ;da42  3a 46
-    clr1 0fe46h.5           ;da44  5b 46
+    set1 mem_fe6d.7         ;da40  7a 6d
+    set1 mem_fe46.3         ;da42  3a 46
+    clr1 mem_fe46.5         ;da44  5b 46
     call !sub_d950          ;da46  9a 50 d9
     call !sub_d8fd          ;da49  9a fd d8
 
@@ -49437,7 +49459,7 @@ lab_da4c:
 
 sub_dadd:
     mov a,#00h              ;dadd  a1 00
-    mov !0fc6ch,a           ;dadf  9e 6c fc
+    mov !mem_fc6c,a         ;dadf  9e 6c fc
     ret                     ;dae2  af
 
     db 8eh                  ;dae3  8e          DATA 0x8e
