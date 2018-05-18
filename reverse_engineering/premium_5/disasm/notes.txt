@@ -1,0 +1,17 @@
+f052 fis 3lb packet buffer (20 bytes)
+f066 number of bytes in 3lb buffer at f052
+f19a upd16432b display buffer #1 (11 bytes)
+f1b3 eeprom contents buffer (185 bytes)
+        conversion:
+            ram address - f1a3 = eeprom address
+
+        ram f1b3 = eeprom 0010
+        ...
+        ram f26b = eeprom 00c8
+
+        f1b7 actual safe code (bcd, high byte)
+        f1b8 actual safe code (bcd, low byte)
+        f20b safe code entry attempt count (0-2)
+fb75 entered safe code (bcd, high byte)
+fb76 entered safe code (bcd, low byte)
+fbb2 upd16432b display buffer #2 (11 bytes)
