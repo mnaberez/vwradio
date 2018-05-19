@@ -41,3 +41,9 @@ kwp1281 tables:
     8  titles: b2a5    handlers: b2af
     14 titles: b2c2    handlers: b2d2
     4  titles: b2f1    handlers: b2f7
+
+kwp1281 custom access tables:
+    titles: b302    lengths: b30e   handlers: b31a
+
+
+lab_552a
