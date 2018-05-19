@@ -16,9 +16,11 @@ def receive_ram(ser):
     data = bytearray()
     while True:
         data += ser.read(1)
-        sys.stdout.write("\rReceiving header: %r" % data)
+        if len(data) > 8:
+            data.pop(0)
+        sys.stdout.write(chr(27)+"[0K\rReceiving header: %d bytes (%r)" % (len(data), bytes(data)))
         sys.stdout.flush()
-        if data[-8:] == b'DUMPRAM:':
+        if data == b'DUMPRAM:':
             break
 
     sys.stdout.write(chr(27) + "[2K\rReceiving data...")
