@@ -46,4 +46,6 @@ kwp1281 custom access tables:
     titles: b302    lengths: b30e   handlers: b31a
 
 
-lab_552a
+To access protected functions, you must set these two bits:
+  mem_fe65.3
+  mem_fe65.4
