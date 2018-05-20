@@ -21,6 +21,7 @@
     org 00000h
 
     mem_f000 equ 0f000h
+    mem_f002 equ 0f002h
     mem_f004 equ 0f004h
     mem_f00e equ 0f00eh
     mem_f00f equ 0f00fh
@@ -8838,17 +8839,17 @@ sub_274e:
 lab_275c:
     set1 mem_fe5f.3         ;275c  3a 5f
     movw ax,hl              ;275e  c6
-    movw !0f002h,ax         ;275f  03 02 f0
+    movw !mem_f002,ax       ;275f  03 02 f0
 
 lab_2762:
-    movw ax,!0f002h         ;2762  02 02 f0
+    movw ax,!mem_f002       ;2762  02 02 f0
     cmpw ax,#mem_f20d       ;2765  ea 0d f2
     bc $lab_278c            ;2768  8d 22
     cmpw ax,#mem_f219       ;276a  ea 19 f2
     bnc $lab_278c           ;276d  9d 1d
     movw de,ax              ;276f  d4
     incw ax                 ;2770  80
-    movw !0f002h,ax         ;2771  03 02 f0
+    movw !mem_f002,ax       ;2771  03 02 f0
     mov a,[de]              ;2774  85
     cmp a,#88h              ;2775  4d 88
     bz $lab_2762            ;2777  ad e9
@@ -9014,7 +9015,7 @@ lab_285e:
 
 lab_2862:
     movw ax,de              ;2862  c4
-    movw !0f002h,ax         ;2863  03 02 f0
+    movw !mem_f002,ax       ;2863  03 02 f0
     decw de                 ;2866  94
     mov a,[de]              ;2867  85
     incw de                 ;2868  84
@@ -9038,7 +9039,7 @@ lab_287a:
     dec a                   ;2883  51
     mov !mem_f050,a         ;2884  9e 50 f0
     set1 mem_fe5f.4         ;2887  4a 5f
-    movw ax,!0f002h         ;2889  02 02 f0
+    movw ax,!mem_f002       ;2889  02 02 f0
     movw hl,ax              ;288c  d6
     mov a,[hl]              ;288d  87
     mov e,a                 ;288e  74
@@ -9051,7 +9052,7 @@ lab_287a:
     push ax                 ;2895  b1
     incw hl                 ;2896  86
     movw ax,hl              ;2897  c6
-    movw !0f002h,ax         ;2898  03 02 f0
+    movw !mem_f002,ax       ;2898  03 02 f0
     pop ax                  ;289b  b0
     push ax                 ;289c  b1
     mov a,!mem_f04f         ;289d  8e 4f f0     A = KWP1281 group number
@@ -9572,14 +9573,14 @@ sub_2bd4:
     bc $lab_2bf3            ;2bd6  8d 1b
     mov !mem_f04b,a         ;2bd8  9e 4b f0
     movw ax,de              ;2bdb  c4
-    movw !0f002h,ax         ;2bdc  03 02 f0
+    movw !mem_f002,ax       ;2bdc  03 02 f0
     call !sub_2d11          ;2bdf  9a 11 2d
     mov l,a                 ;2be2  76
     mov h,#00h              ;2be3  a7 00
-    movw ax,!0f002h         ;2be5  02 02 f0
+    movw ax,!mem_f002       ;2be5  02 02 f0
     call !sub_2cdf          ;2be8  9a df 2c
     bc $lab_2bf3            ;2beb  8d 06
-    movw !0f002h,ax         ;2bed  03 02 f0
+    movw !mem_f002,ax       ;2bed  03 02 f0
     movw ax,hl              ;2bf0  c6
     movw de,ax              ;2bf1  d4
     clr1 cy                 ;2bf2  21
@@ -9587,69 +9588,50 @@ sub_2bd4:
 lab_2bf3:
     ret                     ;2bf3  af
 
-    db 0b7h                 ;2bf4  b7          DATA 0xb7
-    db 20h                  ;2bf5  20          DATA 0x20 ' '
-    db 31h                  ;2bf6  31          DATA 0x31 '1'
-    db 73h                  ;2bf7  73          DATA 0x73 's'
-    db 5fh                  ;2bf8  5f          DATA 0x5f '_'
-    db 0bh                  ;2bf9  0b          DATA 0x0b
-    db 7bh                  ;2bfa  7b          DATA 0x7b '{'
-    db 5fh                  ;2bfb  5f          DATA 0x5f '_'
-    db 2ah                  ;2bfc  2a          DATA 0x2a '*'
-    db 60h                  ;2bfd  60          DATA 0x60 '`'
-    db 9ah                  ;2bfe  9a          DATA 0x9a
-    db 1ah                  ;2bff  1a          DATA 0x1a
-    db 2ch                  ;2c00  2c          DATA 0x2c ','
-    db 8dh                  ;2c01  8d          DATA 0x8d
-    db 02h                  ;2c02  02          DATA 0x02
-    db 7ah                  ;2c03  7a          DATA 0x7a 'z'
-    db 5fh                  ;2c04  5f          DATA 0x5f '_'
-    db 0b6h                 ;2c05  b6          DATA 0xb6
-    db 0afh                 ;2c06  af          DATA 0xaf
-    db 0b7h                 ;2c07  b7          DATA 0xb7
-    db 20h                  ;2c08  20          DATA 0x20 ' '
-    db 31h                  ;2c09  31          DATA 0x31 '1'
-    db 63h                  ;2c0a  63          DATA 0x63 'c'
-    db 5fh                  ;2c0b  5f          DATA 0x5f '_'
-    db 0bh                  ;2c0c  0b          DATA 0x0b
-    db 6bh                  ;2c0d  6b          DATA 0x6b 'k'
-    db 5fh                  ;2c0e  5f          DATA 0x5f '_'
-    db 2bh                  ;2c0f  2b          DATA 0x2b '+'
-    db 60h                  ;2c10  60          DATA 0x60 '`'
-    db 9ah                  ;2c11  9a          DATA 0x9a
-    db 1ah                  ;2c12  1a          DATA 0x1a
-    db 2ch                  ;2c13  2c          DATA 0x2c ','
-    db 8dh                  ;2c14  8d          DATA 0x8d
-    db 02h                  ;2c15  02          DATA 0x02
-    db 6ah                  ;2c16  6a          DATA 0x6a 'j'
-    db 5fh                  ;2c17  5f          DATA 0x5f '_'
-    db 0b6h                 ;2c18  b6          DATA 0xb6
-    db 0afh                 ;2c19  af          DATA 0xaf
-    db 9ah                  ;2c1a  9a          DATA 0x9a
-    db 23h                  ;2c1b  23          DATA 0x23 '#'
-    db 2dh                  ;2c1c  2d          DATA 0x2d '-'
-    db 4dh                  ;2c1d  4d          DATA 0x4d 'M'
-    db 01h                  ;2c1e  01          DATA 0x01
-    db 8dh                  ;2c1f  8d          DATA 0x8d
-    db 11h                  ;2c20  11          DATA 0x11
-    db 76h                  ;2c21  76          DATA 0x76 'v'
-    db 0a7h                 ;2c22  a7          DATA 0xa7
-    db 00h                  ;2c23  00          DATA 0x00
-    db 02h                  ;2c24  02          DATA 0x02
-    db 02h                  ;2c25  02          DATA 0x02
-    db 0f0h                 ;2c26  f0          DATA 0xf0
-    db 9ah                  ;2c27  9a          DATA 0x9a
-    db 0dfh                 ;2c28  df          DATA 0xdf
-    db 2ch                  ;2c29  2c          DATA 0x2c ','
-    db 8dh                  ;2c2a  8d          DATA 0x8d
-    db 06h                  ;2c2b  06          DATA 0x06
-    db 03h                  ;2c2c  03          DATA 0x03
-    db 02h                  ;2c2d  02          DATA 0x02
-    db 0f0h                 ;2c2e  f0          DATA 0xf0
-    db 0c6h                 ;2c2f  c6          DATA 0xc6
-    db 0d4h                 ;2c30  d4          DATA 0xd4
-    db 21h                  ;2c31  21          DATA 0x21 '!'
-    db 0afh                 ;2c32  af          DATA 0xaf
+sub_2bf4:
+    push hl                 ;2bf4  b7
+    set1 cy                 ;2bf5  20
+    bf mem_fe5f.7,$lab_2c05 ;2bf6  31 73 5f 0b
+    clr1 mem_fe5f.7         ;2bfa  7b 5f
+    set1 mem_fe60.2         ;2bfc  2a 60
+    call !sub_2c1a          ;2bfe  9a 1a 2c
+    bc $lab_2c05            ;2c01  8d 02
+    set1 mem_fe5f.7         ;2c03  7a 5f
+
+lab_2c05:
+    pop hl                  ;2c05  b6
+    ret                     ;2c06  af
+
+sub_2c07:
+    push hl                 ;2c07  b7
+    set1 cy                 ;2c08  20
+    bf mem_fe5f.6,$lab_2c18 ;2c09  31 63 5f 0b
+    clr1 mem_fe5f.6         ;2c0d  6b 5f
+    clr1 mem_fe60.2         ;2c0f  2b 60
+    call !sub_2c1a          ;2c11  9a 1a 2c
+    bc $lab_2c18            ;2c14  8d 02
+    set1 mem_fe5f.6         ;2c16  6a 5f
+
+lab_2c18:
+    pop hl                  ;2c18  b6
+    ret                     ;2c19  af
+
+sub_2c1a:
+    call !sub_2d23          ;2c1a  9a 23 2d
+    cmp a,#01h              ;2c1d  4d 01
+    bc $lab_2c32            ;2c1f  8d 11
+    mov l,a                 ;2c21  76
+    mov h,#00h              ;2c22  a7 00
+    movw ax,!mem_f002       ;2c24  02 02 f0
+    call !sub_2cdf          ;2c27  9a df 2c
+    bc $lab_2c32            ;2c2a  8d 06
+    movw !mem_f002,ax       ;2c2c  03 02 f0
+    movw ax,hl              ;2c2f  c6
+    movw de,ax              ;2c30  d4
+    clr1 cy                 ;2c31  21
+
+lab_2c32:
+    ret                     ;2c32  af
 
 sub_2c33:
 ;unknown, called from lab_50ec (? write eeprom related)
@@ -9848,7 +9830,7 @@ lab_2d21:
     mov c,a                 ;2d21  72
     ret                     ;2d22  af
 
-lab_2d23:
+sub_2d23:
     mov a,#00h              ;2d23  a1 00
     xch a,!mem_f04b         ;2d25  ce 4b f0
     cmp a,#11h              ;2d28  4d 11
@@ -16370,7 +16352,7 @@ lab_4e12:
     movw hl,#kwp_rx_buf     ;4e12  16 8a f0     HL = pointer to KWP1281 rx buffer
     mov a,[hl]              ;4e15  87           A = block length from rx buffer
     mov x,a                 ;4e16  70           X = actual block length
-    movw hl,#kwp_lengths_b280+1 ;4e17  16 81 b2   HL = pointer to block lengths table
+    movw hl,#kwp_lengths_b280+1 ;4e17  16 81 b2 HL = pointer to block lengths table
     mov a,[hl+b]            ;4e1a  ab           A = expected block length
     cmp a,#0ffh             ;4e1b  4d ff        Is it a variable length request block?
     bz $lab_4e26            ;4e1d  ad 07          Yes: skip compare
@@ -16940,37 +16922,27 @@ lab_5144:
     br !lab_5337            ;514c  9b 37 53     Branch to Send End Session response
 
     db 0afh                 ;514f  af          DATA 0xaf
-    db 8eh                  ;5150  8e          DATA 0x8e
-    db 0cah                 ;5151  ca          DATA 0xca
-    db 0fbh                 ;5152  fb          DATA 0xfb
-    db 4dh                  ;5153  4d          DATA 0x4d 'M'
-    db 01h                  ;5154  01          DATA 0x01
-    db 0bdh                 ;5155  bd          DATA 0xbd
-    db 03h                  ;5156  03          DATA 0x03
-    db 9bh                  ;5157  9b          DATA 0x9b
-    db 5ch                  ;5158  5c          DATA 0x5c '\'
-    db 55h                  ;5159  55          DATA 0x55 'U'
-    db 4dh                  ;515a  4d          DATA 0x4d 'M'
-    db 02h                  ;515b  02          DATA 0x02
-    db 0bdh                 ;515c  bd          DATA 0xbd
-    db 03h                  ;515d  03          DATA 0x03
-    db 9bh                  ;515e  9b          DATA 0x9b
-    db 0b6h                 ;515f  b6          DATA 0xb6
-    db 55h                  ;5160  55          DATA 0x55 'U'
-    db 0a1h                 ;5161  a1          DATA 0xa1
-    db 00h                  ;5162  00          DATA 0x00
-    db 9eh                  ;5163  9e          DATA 0x9e
-    db 0cah                 ;5164  ca          DATA 0xca
-    db 0fbh                 ;5165  fb          DATA 0xfb
-    db 0afh                 ;5166  af          DATA 0xaf
-    db 8eh                  ;5167  8e          DATA 0x8e
-    db 0cbh                 ;5168  cb          DATA 0xcb
-    db 0fbh                 ;5169  fb          DATA 0xfb
-    db 1dh                  ;516a  1d          DATA 0x1d
-    db 01h                  ;516b  01          DATA 0x01
-    db 9eh                  ;516c  9e          DATA 0x9e
-    db 0cbh                 ;516d  cb          DATA 0xcb
-    db 0fbh                 ;516e  fb          DATA 0xfb
+
+lab_5150:
+    mov a,!mem_fbca         ;5150  8e ca fb
+    cmp a,#01h              ;5153  4d 01
+    bnz $lab_515a           ;5155  bd 03
+    br !lab_555c            ;5157  9b 5c 55
+
+lab_515a:
+    cmp a,#02h              ;515a  4d 02
+    bnz $lab_5161           ;515c  bd 03
+    br !lab_55b6            ;515e  9b b6 55
+
+lab_5161:
+    mov a,#00h              ;5161  a1 00
+    mov !mem_fbca,a         ;5163  9e ca fb
+    ret                     ;5166  af
+
+lab_5167:
+    mov a,!mem_fbcb         ;5167  8e cb fb
+    sub a,#01h              ;516a  1d 01
+    mov !mem_fbcb,a         ;516c  9e cb fb
 
 lab_516f:
     mov a,!mem_fbca         ;516f  8e ca fb
@@ -16988,67 +16960,41 @@ lab_5180:
     mov !mem_fbca,a         ;5182  9e ca fb
     ret                     ;5185  af
 
-    db 8eh                  ;5186  8e          DATA 0x8e
-    db 0cbh                 ;5187  cb          DATA 0xcb
-    db 0fbh                 ;5188  fb          DATA 0xfb
-    db 0dh                  ;5189  0d          DATA 0x0d
-    db 01h                  ;518a  01          DATA 0x01
-    db 9eh                  ;518b  9e          DATA 0x9e
-    db 0cbh                 ;518c  cb          DATA 0xcb
-    db 0fbh                 ;518d  fb          DATA 0xfb
-    db 16h                  ;518e  16          DATA 0x16
-    db 8ah                  ;518f  8a          DATA 0x8a
-    db 0f0h                 ;5190  f0          DATA 0xf0
-    db 0aeh                 ;5191  ae          DATA 0xae
-    db 02h                  ;5192  02          DATA 0x02
-    db 16h                  ;5193  16          DATA 0x16
-    db 5dh                  ;5194  5d          DATA 0x5d ']'
-    db 0b2h                 ;5195  b2          DATA 0xb2
-    db 0a3h                 ;5196  a3          DATA 0xa3
-    db 22h                  ;5197  22          DATA 0x22 '"'
-    db 31h                  ;5198  31          DATA 0x31 '1'
-    db 4bh                  ;5199  4b          DATA 0x4b 'K'
-    db 0adh                 ;519a  ad          DATA 0xad
-    db 05h                  ;519b  05          DATA 0x05
-    db 8bh                  ;519c  8b          DATA 0x8b
-    db 0fah                 ;519d  fa          DATA 0xfa
-    db 9bh                  ;519e  9b          DATA 0x9b
-    db 55h                  ;519f  55          DATA 0x55 'U'
-    db 53h                  ;51a0  53          DATA 0x53 'S'
-    db 16h                  ;51a1  16          DATA 0x16
-    db 8ah                  ;51a2  8a          DATA 0x8a
-    db 0f0h                 ;51a3  f0          DATA 0xf0
-    db 87h                  ;51a4  87          DATA 0x87
-    db 70h                  ;51a5  70          DATA 0x70 'p'
-    db 16h                  ;51a6  16          DATA 0x16
-    db 81h                  ;51a7  81          DATA 0x81
-    db 0b2h                 ;51a8  b2          DATA 0xb2
-    db 0abh                 ;51a9  ab          DATA 0xab
-    db 4dh                  ;51aa  4d          DATA 0x4d 'M'
-    db 0ffh                 ;51ab  ff          DATA 0xff
-    db 0adh                 ;51ac  ad          DATA 0xad
-    db 07h                  ;51ad  07          DATA 0x07
-    db 61h                  ;51ae  61          DATA 0x61 'a'
-    db 48h                  ;51af  48          DATA 0x48 'H'
-    db 0adh                 ;51b0  ad          DATA 0xad
-    db 03h                  ;51b1  03          DATA 0x03
-    db 9bh                  ;51b2  9b          DATA 0x9b
-    db 44h                  ;51b3  44          DATA 0x44 'D'
-    db 53h                  ;51b4  53          DATA 0x53 'S'
-    db 9bh                  ;51b5  9b          DATA 0x9b
-    db 55h                  ;51b6  55          DATA 0x55 'U'
-    db 53h                  ;51b7  53          DATA 0x53 'S'
-    db 8eh                  ;51b8  8e          DATA 0x8e
-    db 0cbh                 ;51b9  cb          DATA 0xcb
-    db 0fbh                 ;51ba  fb          DATA 0xfb
-    db 0dh                  ;51bb  0d          DATA 0x0d
-    db 01h                  ;51bc  01          DATA 0x01
-    db 9eh                  ;51bd  9e          DATA 0x9e
-    db 0cbh                 ;51be  cb          DATA 0xcb
-    db 0fbh                 ;51bf  fb          DATA 0xfb
-    db 9bh                  ;51c0  9b          DATA 0x9b
-    db 44h                  ;51c1  44          DATA 0x44 'D'
-    db 53h                  ;51c2  53          DATA 0x53 'S'
+lab_5186:
+    mov a,!mem_fbcb         ;5186  8e cb fb
+    add a,#01h              ;5189  0d 01
+    mov !mem_fbcb,a         ;518b  9e cb fb
+    movw hl,#kwp_rx_buf     ;518e  16 8a f0
+    mov a,[hl+02h]          ;5191  ae 02
+    movw hl,#kwp_titles_b25c+1 ;5193  16 5d b2
+    mov b,#22h              ;5196  a3 22
+
+lab_5198:
+    cmp a,[hl+b]            ;5198  31 4b
+    bz $lab_51a1            ;519a  ad 05
+    dbnz b,$lab_5198        ;519c  8b fa
+    br !lab_5355            ;519e  9b 55 53
+
+lab_51a1:
+    movw hl,#kwp_rx_buf     ;51a1  16 8a f0
+    mov a,[hl]              ;51a4  87
+    mov x,a                 ;51a5  70
+    movw hl,#kwp_lengths_b280+1 ;51a6  16 81 b2
+    mov a,[hl+b]            ;51a9  ab
+    cmp a,#0ffh             ;51aa  4d ff
+    bz $lab_51b5            ;51ac  ad 07
+    cmp a,x                 ;51ae  61 48
+    bz $lab_51b5            ;51b0  ad 03
+    br !lab_5344            ;51b2  9b 44 53
+
+lab_51b5:
+    br !lab_5355            ;51b5  9b 55 53
+
+lab_51b8:
+    mov a,!mem_fbcb         ;51b8  8e cb fb
+    add a,#01h              ;51bb  0d 01
+    mov !mem_fbcb,a         ;51bd  9e cb fb
+    br !lab_5344            ;51c0  9b 44 53
 
 lab_51c3:
 ;clear auth bits and end session
@@ -17056,206 +17002,127 @@ lab_51c3:
     clr1 mem_fe65.4         ;51c5  4b 65       Clear bit to indicate group read 0x19 not performed
     br !sub_3468            ;51c7  9b 68 34
 
-    db 16h                  ;51ca  16          DATA 0x16
-    db 2dh                  ;51cb  2d          DATA 0x2d '-'
-    db 0b0h                 ;51cc  b0          DATA 0xb0
-    db 8eh                  ;51cd  8e          DATA 0x8e
-    db 6dh                  ;51ce  6d          DATA 0x6d 'm'
-    db 0f0h                 ;51cf  f0          DATA 0xf0
-    db 73h                  ;51d0  73          DATA 0x73 's'
-    db 0abh                 ;51d1  ab          DATA 0xab
-    db 0f6h                 ;51d2  f6          DATA 0xf6
-    db 0a2h                 ;51d3  a2          DATA 0xa2
-    db 0a1h                 ;51d4  a1          DATA 0xa1
-    db 0cah                 ;51d5  ca          DATA 0xca
-    db 0f6h                 ;51d6  f6          DATA 0xf6
-    db 0a0h                 ;51d7  a0          DATA 0xa0
-    db 0a1h                 ;51d8  a1          DATA 0xa1
-    db 2eh                  ;51d9  2e          DATA 0x2e '.'
-    db 9eh                  ;51da  9e          DATA 0x9e
-    db 6eh                  ;51db  6e          DATA 0x6e 'n'
-    db 0f0h                 ;51dc  f0          DATA 0xf0
-    db 1ah                  ;51dd  1a          DATA 0x1a
-    db 79h                  ;51de  79          DATA 0x79 'y'
-    db 3ah                  ;51df  3a          DATA 0x3a ':'
-    db 79h                  ;51e0  79          DATA 0x79 'y'
-    db 0afh                 ;51e1  af          DATA 0xaf
-    db 16h                  ;51e2  16          DATA 0x16
-    db 2dh                  ;51e3  2d          DATA 0x2d '-'
-    db 0b0h                 ;51e4  b0          DATA 0xb0
-    db 8eh                  ;51e5  8e          DATA 0x8e
-    db 6dh                  ;51e6  6d          DATA 0x6d 'm'
-    db 0f0h                 ;51e7  f0          DATA 0xf0
-    db 73h                  ;51e8  73          DATA 0x73 's'
-    db 0abh                 ;51e9  ab          DATA 0xab
-    db 0f6h                 ;51ea  f6          DATA 0xf6
-    db 0a2h                 ;51eb  a2          DATA 0xa2
-    db 0a1h                 ;51ec  a1          DATA 0xa1
-    db 0cah                 ;51ed  ca          DATA 0xca
-    db 0f6h                 ;51ee  f6          DATA 0xf6
-    db 0a0h                 ;51ef  a0          DATA 0xa0
-    db 0a1h                 ;51f0  a1          DATA 0xa1
-    db 79h                  ;51f1  79          DATA 0x79 'y'
-    db 9eh                  ;51f2  9e          DATA 0x9e
-    db 6eh                  ;51f3  6e          DATA 0x6e 'n'
-    db 0f0h                 ;51f4  f0          DATA 0xf0
-    db 1ah                  ;51f5  1a          DATA 0x1a
-    db 79h                  ;51f6  79          DATA 0x79 'y'
-    db 3ah                  ;51f7  3a          DATA 0x3a ':'
-    db 79h                  ;51f8  79          DATA 0x79 'y'
-    db 0afh                 ;51f9  af          DATA 0xaf
-    db 8eh                  ;51fa  8e          DATA 0x8e
-    db 73h                  ;51fb  73          DATA 0x73 's'
-    db 0f0h                 ;51fc  f0          DATA 0xf0
-    db 16h                  ;51fd  16          DATA 0x16
-    db 23h                  ;51fe  23          DATA 0x23 '#'
-    db 0b0h                 ;51ff  b0          DATA 0xb0
-    db 0a3h                 ;5200  a3          DATA 0xa3
-    db 03h                  ;5201  03          DATA 0x03
-    db 31h                  ;5202  31          DATA 0x31 '1'
-    db 4bh                  ;5203  4b          DATA 0x4b 'K'
-    db 0adh                 ;5204  ad          DATA 0xad
-    db 05h                  ;5205  05          DATA 0x05
-    db 8bh                  ;5206  8b          DATA 0x8b
-    db 0fah                 ;5207  fa          DATA 0xfa
-    db 9bh                  ;5208  9b          DATA 0x9b
-    db 0c3h                 ;5209  c3          DATA 0xc3
-    db 51h                  ;520a  51          DATA 0x51 'Q'
-    db 63h                  ;520b  63          DATA 0x63 'c'
-    db 9eh                  ;520c  9e          DATA 0x9e
-    db 6dh                  ;520d  6d          DATA 0x6d 'm'
-    db 0f0h                 ;520e  f0          DATA 0xf0
-    db 16h                  ;520f  16          DATA 0x16
-    db 2dh                  ;5210  2d          DATA 0x2d '-'
-    db 0b0h                 ;5211  b0          DATA 0xb0
-    db 8eh                  ;5212  8e          DATA 0x8e
-    db 6dh                  ;5213  6d          DATA 0x6d 'm'
-    db 0f0h                 ;5214  f0          DATA 0xf0
-    db 73h                  ;5215  73          DATA 0x73 's'
-    db 0abh                 ;5216  ab          DATA 0xab
-    db 0f6h                 ;5217  f6          DATA 0xf6
-    db 0a2h                 ;5218  a2          DATA 0xa2
-    db 0a1h                 ;5219  a1          DATA 0xa1
-    db 0cah                 ;521a  ca          DATA 0xca
-    db 0f6h                 ;521b  f6          DATA 0xf6
-    db 0a0h                 ;521c  a0          DATA 0xa0
-    db 0a1h                 ;521d  a1          DATA 0xa1
-    db 1ch                  ;521e  1c          DATA 0x1c
-    db 9eh                  ;521f  9e          DATA 0x9e
-    db 6fh                  ;5220  6f          DATA 0x6f 'o'
-    db 0f0h                 ;5221  f0          DATA 0xf0
-    db 3ah                  ;5222  3a          DATA 0x3a ':'
-    db 79h                  ;5223  79          DATA 0x79 'y'
-    db 2ah                  ;5224  2a          DATA 0x2a '*'
-    db 79h                  ;5225  79          DATA 0x79 'y'
-    db 8eh                  ;5226  8e          DATA 0x8e
-    db 6dh                  ;5227  6d          DATA 0x6d 'm'
-    db 0f0h                 ;5228  f0          DATA 0xf0
-    db 4dh                  ;5229  4d          DATA 0x4d 'M'
-    db 03h                  ;522a  03          DATA 0x03
-    db 0bdh                 ;522b  bd          DATA 0xbd
-    db 03h                  ;522c  03          DATA 0x03
-    db 9bh                  ;522d  9b          DATA 0x9b
-    db 8ch                  ;522e  8c          DATA 0x8c
-    db 52h                  ;522f  52          DATA 0x52 'R'
-    db 0afh                 ;5230  af          DATA 0xaf
-    db 31h                  ;5231  31          DATA 0x31 '1'
-    db 31h                  ;5232  31          DATA 0x31 '1'
-    db 79h                  ;5233  79          DATA 0x79 'y'
-    db 09h                  ;5234  09          DATA 0x09
-    db 31h                  ;5235  31          DATA 0x31 '1'
-    db 41h                  ;5236  41          DATA 0x41 'A'
-    db 79h                  ;5237  79          DATA 0x79 'y'
-    db 0fh                  ;5238  0f          DATA 0x0f
-    db 31h                  ;5239  31          DATA 0x31 '1'
-    db 51h                  ;523a  51          DATA 0x51 'Q'
-    db 79h                  ;523b  79          DATA 0x79 'y'
-    db 15h                  ;523c  15          DATA 0x15
-    db 0afh                 ;523d  af          DATA 0xaf
-    db 4ah                  ;523e  4a          DATA 0x4a 'J'
-    db 79h                  ;523f  79          DATA 0x79 'y'
-    db 0a1h                 ;5240  a1          DATA 0xa1
-    db 04h                  ;5241  04          DATA 0x04
-    db 9eh                  ;5242  9e          DATA 0x9e
-    db 6eh                  ;5243  6e          DATA 0x6e 'n'
-    db 0f0h                 ;5244  f0          DATA 0xf0
-    db 1ah                  ;5245  1a          DATA 0x1a
-    db 79h                  ;5246  79          DATA 0x79 'y'
-    db 0afh                 ;5247  af          DATA 0xaf
-    db 5ah                  ;5248  5a          DATA 0x5a 'Z'
-    db 79h                  ;5249  79          DATA 0x79 'y'
-    db 0a1h                 ;524a  a1          DATA 0xa1
-    db 02h                  ;524b  02          DATA 0x02
-    db 9eh                  ;524c  9e          DATA 0x9e
-    db 6eh                  ;524d  6e          DATA 0x6e 'n'
-    db 0f0h                 ;524e  f0          DATA 0xf0
-    db 1ah                  ;524f  1a          DATA 0x1a
-    db 79h                  ;5250  79          DATA 0x79 'y'
-    db 0afh                 ;5251  af          DATA 0xaf
-    db 16h                  ;5252  16          DATA 0x16
-    db 2dh                  ;5253  2d          DATA 0x2d '-'
-    db 0b0h                 ;5254  b0          DATA 0xb0
-    db 8eh                  ;5255  8e          DATA 0x8e
-    db 6dh                  ;5256  6d          DATA 0x6d 'm'
-    db 0f0h                 ;5257  f0          DATA 0xf0
-    db 73h                  ;5258  73          DATA 0x73 's'
-    db 0abh                 ;5259  ab          DATA 0xab
-    db 0f6h                 ;525a  f6          DATA 0xf6
-    db 0a2h                 ;525b  a2          DATA 0xa2
-    db 16h                  ;525c  16          DATA 0x16
-    db 32h                  ;525d  32          DATA 0x32 '2'
-    db 0b0h                 ;525e  b0          DATA 0xb0
-    db 0abh                 ;525f  ab          DATA 0xab
-    db 0f6h                 ;5260  f6          DATA 0xf6
-    db 0a0h                 ;5261  a0          DATA 0xa0
-    db 8eh                  ;5262  8e          DATA 0x8e
-    db 6dh                  ;5263  6d          DATA 0x6d 'm'
-    db 0f0h                 ;5264  f0          DATA 0xf0
-    db 4dh                  ;5265  4d          DATA 0x4d 'M'
-    db 01h                  ;5266  01          DATA 0x01
-    db 0bdh                 ;5267  bd          DATA 0xbd
-    db 03h                  ;5268  03          DATA 0x03
-    db 9bh                  ;5269  9b          DATA 0x9b
-    db 74h                  ;526a  74          DATA 0x74 't'
-    db 52h                  ;526b  52          DATA 0x52 'R'
-    db 4dh                  ;526c  4d          DATA 0x4d 'M'
-    db 02h                  ;526d  02          DATA 0x02
-    db 0bdh                 ;526e  bd          DATA 0xbd
-    db 03h                  ;526f  03          DATA 0x03
-    db 9bh                  ;5270  9b          DATA 0x9b
-    db 7eh                  ;5271  7e          DATA 0x7e '~'
-    db 52h                  ;5272  52          DATA 0x52 'R'
-    db 0afh                 ;5273  af          DATA 0xaf
-    db 7ah                  ;5274  7a          DATA 0x7a 'z'
-    db 65h                  ;5275  65          DATA 0x65 'e'
-    db 0a1h                 ;5276  a1          DATA 0xa1
-    db 01h                  ;5277  01          DATA 0x01
-    db 9eh                  ;5278  9e          DATA 0x9e
-    db 0c7h                 ;5279  c7          DATA 0xc7
-    db 0fbh                 ;527a  fb          DATA 0xfb
-    db 9bh                  ;527b  9b          DATA 0x9b
-    db 2ah                  ;527c  2a          DATA 0x2a '*'
-    db 53h                  ;527d  53          DATA 0x53 'S'
-    db 5ah                  ;527e  5a          DATA 0x5a 'Z'
-    db 65h                  ;527f  65          DATA 0x65 'e'
-    db 4ah                  ;5280  4a          DATA 0x4a 'J'
-    db 7dh                  ;5281  7d          DATA 0x7d '}'
-    db 0a1h                 ;5282  a1          DATA 0xa1
-    db 01h                  ;5283  01          DATA 0x01
-    db 9eh                  ;5284  9e          DATA 0x9e
-    db 0c5h                 ;5285  c5          DATA 0xc5
-    db 0fbh                 ;5286  fb          DATA 0xfb
-    db 0ah                  ;5287  0a          DATA 0x0a
-    db 66h                  ;5288  66          DATA 0x66 'f'
-    db 9bh                  ;5289  9b          DATA 0x9b
-    db 0eah                 ;528a  ea          DATA 0xea
-    db 52h                  ;528b  52          DATA 0x52 'R'
-    db 0a1h                 ;528c  a1          DATA 0xa1
-    db 01h                  ;528d  01          DATA 0x01
-    db 9eh                  ;528e  9e          DATA 0x9e
-    db 0c6h                 ;528f  c6          DATA 0xc6
-    db 0fbh                 ;5290  fb          DATA 0xfb
-    db 0afh                 ;5291  af          DATA 0xaf
+lab_51ca:
+    movw hl,#0b02dh         ;51ca  16 2d b0
+    mov a,!mem_f06d         ;51cd  8e 6d f0
+    mov b,a                 ;51d0  73
+    mov a,[hl+b]            ;51d1  ab
+    mov BRGC0_,a            ;51d2  f6 a2
+    mov a,#0cah             ;51d4  a1 ca
+    mov ASIM0_,a            ;51d6  f6 a0
+    mov a,#2eh              ;51d8  a1 2e
+    mov !mem_f06e,a         ;51da  9e 6e f0
+    set1 mem_fe79.1         ;51dd  1a 79
+    set1 mem_fe79.3         ;51df  3a 79
+    ret                     ;51e1  af
+
+lab_51e2:
+    movw hl,#0b02dh         ;51e2  16 2d b0
+    mov a,!mem_f06d         ;51e5  8e 6d f0
+    mov b,a                 ;51e8  73
+    mov a,[hl+b]            ;51e9  ab
+    mov BRGC0_,a            ;51ea  f6 a2
+    mov a,#0cah             ;51ec  a1 ca
+    mov ASIM0_,a            ;51ee  f6 a0
+    mov a,#79h              ;51f0  a1 79
+    mov !mem_f06e,a         ;51f2  9e 6e f0
+    set1 mem_fe79.1         ;51f5  1a 79
+    set1 mem_fe79.3         ;51f7  3a 79
+    ret                     ;51f9  af
+
+lab_51fa:
+    mov a,!mem_f073         ;51fa  8e 73 f0
+    movw hl,#0b023h         ;51fd  16 23 b0
+    mov b,#03h              ;5200  a3 03
+
+lab_5202:
+    cmp a,[hl+b]            ;5202  31 4b
+    bz $lab_520b            ;5204  ad 05
+    dbnz b,$lab_5202        ;5206  8b fa
+    br !lab_51c3            ;5208  9b c3 51
+
+lab_520b:
+    mov a,b                 ;520b  63
+    mov !mem_f06d,a         ;520c  9e 6d f0
+    movw hl,#0b02dh         ;520f  16 2d b0
+    mov a,!mem_f06d         ;5212  8e 6d f0
+    mov b,a                 ;5215  73
+    mov a,[hl+b]            ;5216  ab
+    mov BRGC0_,a            ;5217  f6 a2
+    mov a,#0cah             ;5219  a1 ca
+    mov ASIM0_,a            ;521b  f6 a0
+    mov a,#1ch              ;521d  a1 1c
+    mov !mem_f06f,a         ;521f  9e 6f f0
+    set1 mem_fe79.3         ;5222  3a 79
+    set1 mem_fe79.2         ;5224  2a 79
+    mov a,!mem_f06d         ;5226  8e 6d f0
+    cmp a,#03h              ;5229  4d 03
+    bnz $lab_5230           ;522b  bd 03
+    br !lab_528c            ;522d  9b 8c 52
+
+lab_5230:
+    ret                     ;5230  af
+
+lab_5231:
+    btclr mem_fe79.3,$lab_523e ;5231  31 31 79 09
+    btclr mem_fe79.4,$lab_5248 ;5235  31 41 79 0f
+    btclr mem_fe79.5,$lab_5252 ;5239  31 51 79 15
+    ret                     ;523d  af
+
+lab_523e:
+    set1 mem_fe79.4         ;523e  4a 79
+    mov a,#04h              ;5240  a1 04
+    mov !mem_f06e,a         ;5242  9e 6e f0
+    set1 mem_fe79.1         ;5245  1a 79
+    ret                     ;5247  af
+
+lab_5248:
+    set1 mem_fe79.5         ;5248  5a 79
+    mov a,#02h              ;524a  a1 02
+    mov !mem_f06e,a         ;524c  9e 6e f0
+    set1 mem_fe79.1         ;524f  1a 79
+    ret                     ;5251  af
+
+lab_5252:
+    movw hl,#0b02dh         ;5252  16 2d b0
+    mov a,!mem_f06d         ;5255  8e 6d f0
+    mov b,a                 ;5258  73
+    mov a,[hl+b]            ;5259  ab
+    mov BRGC0_,a            ;525a  f6 a2
+    movw hl,#0b032h         ;525c  16 32 b0
+    mov a,[hl+b]            ;525f  ab
+    mov ASIM0_,a            ;5260  f6 a0
+    mov a,!mem_f06d         ;5262  8e 6d f0
+    cmp a,#01h              ;5265  4d 01
+    bnz $lab_526c           ;5267  bd 03
+    br !lab_5274            ;5269  9b 74 52
+
+lab_526c:
+    cmp a,#02h              ;526c  4d 02
+    bnz $lab_5273           ;526e  bd 03
+    br !lab_527e            ;5270  9b 7e 52
+
+lab_5273:
+    ret                     ;5273  af
+
+lab_5274:
+    set1 mem_fe65.7         ;5274  7a 65
+    mov a,#01h              ;5276  a1 01
+    mov !mem_fbc7,a         ;5278  9e c7 fb
+    br !lab_532a            ;527b  9b 2a 53
+
+lab_527e:
+    set1 mem_fe65.5         ;527e  5a 65
+    set1 mem_fe7d.4         ;5280  4a 7d
+    mov a,#01h              ;5282  a1 01
+    mov !mem_fbc5,a         ;5284  9e c5 fb
+    set1 mem_fe66.0         ;5287  0a 66
+    br !lab_52ea            ;5289  9b ea 52
+
+lab_528c:
+    mov a,#01h              ;528c  a1 01
+    mov !mem_fbc6,a         ;528e  9e c6 fb
+    ret                     ;5291  af
 
 sub_5292:
 ;Set block title, counter, length in KWP1281 tx buffer
@@ -17844,27 +17711,23 @@ lab_554d:
     mov a,b                 ;5553  63
     cmp a,#10h              ;5554  4d 10
     bnc $lab_555b           ;5556  9d 03
+
+lab_5558:
     mov a,#03h              ;5558  a1 03
     mov [hl+b],a            ;555a  bb
 
 lab_555b:
     ret                     ;555b  af
 
-    db 16h                  ;555c  16          DATA 0x16
-    db 7ah                  ;555d  7a          DATA 0x7a 'z'
-    db 0f0h                 ;555e  f0          DATA 0xf0
-    db 0a3h                 ;555f  a3          DATA 0xa3
-    db 00h                  ;5560  00          DATA 0x00
-    db 9ah                  ;5561  9a          DATA 0x9a
-    db 07h                  ;5562  07          DATA 0x07
-    db 2ch                  ;5563  2c          DATA 0x2c ','
-    db 62h                  ;5564  62          DATA 0x62 'b'
-    db 4dh                  ;5565  4d          DATA 0x4d 'M'
-    db 00h                  ;5566  00          DATA 0x00
-    db 0adh                 ;5567  ad          DATA 0xad
-    db 0efh                 ;5568  ef          DATA 0xef
-    db 0fah                 ;5569  fa          DATA 0xfa
-    db 0e2h                 ;556a  e2          DATA 0xe2
+lab_555c:
+    movw hl,#kwp_tx_buf     ;555c  16 7a f0
+    mov b,#00h              ;555f  a3 00
+    call !sub_2c07          ;5561  9a 07 2c
+    mov a,c                 ;5564  62
+    cmp a,#00h              ;5565  4d 00
+    bz $lab_5558            ;5567  ad ef
+    br $lab_554d            ;5569  fa e2
+
     db 0a3h                 ;556b  a3          DATA 0xa3
     db 1dh                  ;556c  1d          DATA 0x1d
     db 9ah                  ;556d  9a          DATA 0x9a
@@ -17906,6 +17769,8 @@ lab_559b:
     mov [hl],a              ;559d  97
     mov !mem_f06b,a         ;559e  9e 6b f0
     call !sub_34f7          ;55a1  9a f7 34
+
+lab_55a4:
     call !sub_2b6e          ;55a4  9a 6e 2b
 
 lab_55a7:
@@ -17917,27 +17782,22 @@ lab_55a7:
     mov a,b                 ;55ad  63
     cmp a,#10h              ;55ae  4d 10
     bnc $lab_55b5           ;55b0  9d 03
+
+lab_55b2:
     mov a,#03h              ;55b2  a1 03
     mov [hl+b],a            ;55b4  bb
 
 lab_55b5:
     ret                     ;55b5  af
 
-    db 16h                  ;55b6  16          DATA 0x16
-    db 7ah                  ;55b7  7a          DATA 0x7a 'z'
-    db 0f0h                 ;55b8  f0          DATA 0xf0
-    db 0a3h                 ;55b9  a3          DATA 0xa3
-    db 00h                  ;55ba  00          DATA 0x00
-    db 9ah                  ;55bb  9a          DATA 0x9a
-    db 0f4h                 ;55bc  f4          DATA 0xf4
-    db 2bh                  ;55bd  2b          DATA 0x2b '+'
-    db 62h                  ;55be  62          DATA 0x62 'b'
-    db 4dh                  ;55bf  4d          DATA 0x4d 'M'
-    db 00h                  ;55c0  00          DATA 0x00
-    db 0adh                 ;55c1  ad          DATA 0xad
-    db 0efh                 ;55c2  ef          DATA 0xef
-    db 0fah                 ;55c3  fa          DATA 0xfa
-    db 0dfh                 ;55c4  df          DATA 0xdf
+lab_55b6:
+    movw hl,#kwp_tx_buf     ;55b6  16 7a f0
+    mov b,#00h              ;55b9  a3 00
+    call !sub_2bf4          ;55bb  9a f4 2b
+    mov a,c                 ;55be  62
+    cmp a,#00h              ;55bf  4d 00
+    bz $lab_55b2            ;55c1  ad ef
+    br $lab_55a4            ;55c3  fa df
 
 lab_55c5:
     mov b,#20h              ;55c5  a3 20        B = index 0x20 response to write eeprom
@@ -38285,15 +38145,15 @@ kwp_login_b1eb:
 mem_b247:
     db 0ah                  ;b247              DATA 0x0a        10 entries below:
     dw lab_4df4             ;b248              VECTOR
-    dw 51cah                ;b24a              VECTOR
-    dw 51e2h                ;b24c              VECTOR
-    dw 51fah                ;b24e              VECTOR
+    dw lab_51ca             ;b24a              VECTOR
+    dw lab_51e2             ;b24c              VECTOR
+    dw lab_51fa             ;b24e              VECTOR
     dw lab_4dfa             ;b250              VECTOR
-    dw 5231h                ;b252              VECTOR
-    dw 5150h                ;b254              VECTOR
-    dw 5186h                ;b256              VECTOR
-    dw 51b8h                ;b258              VECTOR
-    dw 5167h                ;b25a              VECTOR
+    dw lab_5231             ;b252              VECTOR
+    dw lab_5150             ;b254              VECTOR
+    dw lab_5186             ;b256              VECTOR
+    dw lab_51b8             ;b258              VECTOR
+    dw lab_5167             ;b25a              VECTOR
 
 kwp_titles_b25c:
     db 23h                  ;b25c  23          DATA 0x23 '#'    35 entries below:
