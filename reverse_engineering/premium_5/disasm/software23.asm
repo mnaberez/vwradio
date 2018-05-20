@@ -10548,11 +10548,13 @@ lab_31bb:
 
 lab_31bf:
     btclr mem_fe79.5,$lab_31d2 ;31bf  31 51 79 0f
-    movw hl,#0b037h         ;31c3  16 37 b0
+
+    movw hl,#kwp_unknown_b037  ;31c3  16 37 b0
     mov a,!mem_f06d         ;31c6  8e 6d f0
     mov b,a                 ;31c9  73
     mov a,[hl+b]            ;31ca  ab
     mov !mem_f06f,a         ;31cb  9e 6f f0
+
     set1 mem_fe79.2         ;31ce  2a 79
     br $lab_31e9            ;31d0  fa 17
 
@@ -10583,11 +10585,13 @@ lab_31f6:
     mov a,x                 ;31f6  60
     cmp a,#03h              ;31f7  4d 03
     bnz $lab_322c           ;31f9  bd 31
-    movw hl,#0b03ch         ;31fb  16 3c b0
+
+    movw hl,#kwp_unknown_b03c  ;31fb  16 3c b0
     mov a,!mem_f06d         ;31fe  8e 6d f0
     mov b,a                 ;3201  73
     mov a,[hl+b]            ;3202  ab
     mov !mem_f070,a         ;3203  9e 70 f0
+
     set1 mem_fe79.2         ;3206  2a 79
     clr1 mem_fe79.2         ;3208  2b 79
     clr1 mem_fe7a.0         ;320a  0b 7a
@@ -10650,11 +10654,13 @@ lab_3269:
     mov !mem_f069,a         ;3271  9e 69 f0
     mov a,#00h              ;3274  a1 00
     mov !mem_f06f,a         ;3276  9e 6f f0
-    movw hl,#0b03ch         ;3279  16 3c b0
+
+    movw hl,#kwp_unknown_b03c  ;3279  16 3c b0
     mov a,!mem_f06d         ;327c  8e 6d f0
     mov b,a                 ;327f  73
     mov a,[hl+b]            ;3280  ab
     mov !mem_f070,a         ;3281  9e 70 f0
+
     set1 mem_fe79.2         ;3284  2a 79
     br $lab_32dc            ;3286  fa 54
 
@@ -10668,21 +10674,23 @@ lab_328d:
     br $lab_32dc            ;3294  fa 46
 
 lab_3296:
-    movw hl,#0b037h         ;3296  16 37 b0
+    movw hl,#kwp_unknown_b037  ;3296  16 37 b0
     mov a,!mem_f06d         ;3299  8e 6d f0
     mov b,a                 ;329c  73
     mov a,[hl+b]            ;329d  ab
     mov !mem_f06f,a         ;329e  9e 6f f0
+
     set1 mem_fe79.2         ;32a1  2a 79
     set1 mem_fe79.7         ;32a3  7a 79
     br $lab_32dc            ;32a5  fa 35
 
 lab_32a7:
-    movw hl,#0b037h         ;32a7  16 37 b0
+    movw hl,#kwp_unknown_b037  ;32a7  16 37 b0
     mov a,!mem_f06d         ;32aa  8e 6d f0
     mov b,a                 ;32ad  73
     mov a,[hl+b]            ;32ae  ab
     mov !mem_f06f,a         ;32af  9e 6f f0
+
     set1 mem_fe79.2         ;32b2  2a 79
     btclr mem_fe79.5,$lab_32ba ;32b4  31 51 79 02
     br $lab_32dc            ;32b8  fa 22
@@ -10692,16 +10700,19 @@ lab_32ba:
     set1 mem_fe7a.0         ;32bc  0a 7a
     mov a,#00h              ;32be  a1 00
     mov !mem_f069,a         ;32c0  9e 69 f0
-    movw hl,#0b032h         ;32c3  16 32 b0
+
+    movw hl,#kwp_unknown_b032  ;32c3  16 32 b0
     mov a,!mem_f06d         ;32c6  8e 6d f0
     mov b,a                 ;32c9  73
     mov a,[hl+b]            ;32ca  ab
     mov ASIM0_,a            ;32cb  f6 a0
-    movw hl,#0b03ch         ;32cd  16 3c b0
+
+    movw hl,#kwp_unknown_b03c  ;32cd  16 3c b0
     mov a,!mem_f06d         ;32d0  8e 6d f0
     mov b,a                 ;32d3  73
     mov a,[hl+b]            ;32d4  ab
     mov !mem_f070,a         ;32d5  9e 70 f0
+
     set1 mem_fe79.2         ;32d8  2a 79
     br $lab_32dc            ;32da  fa 00
 
@@ -10853,11 +10864,13 @@ sub_339e:
     btclr mem_fe79.3,$lab_3370 ;33a4  31 31 79 c8
     btclr mem_fe79.4,$lab_3370 ;33a8  31 41 79 c4
     btclr mem_fe79.5,$lab_33be ;33ac  31 51 79 0e
-    movw hl,#0b03ch         ;33b0  16 3c b0
+
+    movw hl,#kwp_unknown_b03c  ;33b0  16 3c b0
     mov a,!mem_f06d         ;33b3  8e 6d f0
     mov b,a                 ;33b6  73
     mov a,[hl+b]            ;33b7  ab
     mov !mem_f070,a         ;33b8  9e 70 f0
+
     set1 mem_fe79.2         ;33bb  2a 79
     ret                     ;33bd  af
 
@@ -10885,11 +10898,13 @@ lab_33de:
     btclr mem_fe7b.3,$lab_33f5 ;33de  31 31 7b 13
     mov a,#00h              ;33e2  a1 00
     mov !mem_f069,a         ;33e4  9e 69 f0
-    movw hl,#0b03ch         ;33e7  16 3c b0
+
+    movw hl,#kwp_unknown_b03c  ;33e7  16 3c b0
     mov a,!mem_f06d         ;33ea  8e 6d f0
     mov b,a                 ;33ed  73
     mov a,[hl+b]            ;33ee  ab
     mov !mem_f070,a         ;33ef  9e 70 f0
+
     set1 mem_fe79.2         ;33f2  2a 79
     ret                     ;33f4  af
 
@@ -10904,17 +10919,21 @@ lab_33f5:
 lab_3401:
     btclr mem_fe7b.1,$lab_3422 ;3401  31 11 7b 1d
     set1 mem_fe7b.1         ;3405  1a 7b
-    movw hl,#0b037h         ;3407  16 37 b0
+
+    movw hl,#kwp_unknown_b037  ;3407  16 37 b0
     mov a,!mem_f06d         ;340a  8e 6d f0
     mov b,a                 ;340d  73
     mov a,[hl+b]            ;340e  ab
     mov !mem_f06f,a         ;340f  9e 6f f0
+
     set1 mem_fe79.2         ;3412  2a 79
-    movw hl,#0b03ch         ;3414  16 3c b0
+
+    movw hl,#kwp_unknown_b03c  ;3414  16 3c b0
     mov a,!mem_f06d         ;3417  8e 6d f0
     mov b,a                 ;341a  73
     mov a,[hl+b]            ;341b  ab
     mov !mem_f070,a         ;341c  9e 70 f0
+
     set1 mem_fe79.2         ;341f  2a 79
     ret                     ;3421  af
 
@@ -10937,11 +10956,13 @@ lab_3435:
     mov !mem_f069,a         ;343d  9e 69 f0
     mov a,#00h              ;3440  a1 00
     mov !mem_f06f,a         ;3442  9e 6f f0
-    movw hl,#0b03ch         ;3445  16 3c b0
+
+    movw hl,#kwp_unknown_b03c  ;3445  16 3c b0
     mov a,!mem_f06d         ;3448  8e 6d f0
     mov b,a                 ;344b  73
     mov a,[hl+b]            ;344c  ab
     mov !mem_f070,a         ;344d  9e 70 f0
+
     set1 mem_fe79.2         ;3450  2a 79
     ret                     ;3452  af
 
@@ -16302,7 +16323,7 @@ lab_4e26:
     ;block length is ok
     mov a,!mem_f06d         ;4e26  8e 6d f0
     mov b,a                 ;4e29  73
-    movw hl,#kwp_unknown_b028         ;4e2a  16 28 b0
+    movw hl,#kwp_unknown_b028 ;4e2a  16 28 b0
     mov a,[hl+b]            ;4e2d  ab
     cmp a,#00h              ;4e2e  4d 00
     bz $lab_4e3d            ;4e30  ad 0b
@@ -16329,6 +16350,7 @@ lab_4e4e:
     ret                     ;4e4e  af
 
 lab_4e4f:
+    ;used if mem_f06d = 0x01
     movw hl,#kwp_rx_buf     ;4e4f  16 8a f0     HL = pointer to KWP1281 rx buffer
     mov a,[hl+02h]          ;4e52  ae 02        A = block title to find
     movw hl,#kwp_titles_b2a5 ;4e54  16 a5 b2    HL = pointer to table of block titles
@@ -16352,6 +16374,7 @@ lab_4e62:
     br ax                   ;4e6c  31 98
 
 lab_4e6e:
+    ;used if mem_f06d = 0x02
     movw hl,#kwp_rx_buf     ;4e6e  16 8a f0     HL = pointer to KWP1281 rx buffer
     mov a,[hl+02h]          ;4e71  ae 02        A = block title
     movw hl,#kwp_titles_b2c2 ;4e73  16 c2 b2    HL = pointer to table of block titles
@@ -16375,6 +16398,7 @@ lab_4e81:
     br ax                   ;4e8b  31 98
 
 lab_4e8d:
+    ;used if mem_f06d = 0x03
     movw hl,#kwp_rx_buf     ;4e8d  16 8a f0     HL = pointer to KWP1281 rx buffer
     mov a,[hl+02h]          ;4e90  ae 02        A = block title
     movw hl,#kwp_titles_b2f1 ;4e92  16 f1 b2    HL = pointer to table of block titles
@@ -37557,16 +37581,28 @@ kwp_unknown_b028:
     db 39h                  ;b02f  39          DATA 0x39 '9'
     db 39h                  ;b030  39          DATA 0x39 '9'
     db 04h                  ;b031  04          DATA 0x04
+
+kwp_unknown_b032:
+;unknown; related to mem_f06d
+;values to be stored in ASIM0_
     db 00h                  ;b032  00          DATA 0x00
     db 0cah                 ;b033  ca          DATA 0xca
     db 0cah                 ;b034  ca          DATA 0xca
     db 0cah                 ;b035  ca          DATA 0xca
     db 04h                  ;b036  04          DATA 0x04
+
+kwp_unknown_b037:
+;unknown; related to mem_f06d
+;values to be stored in mem_f06f
     db 08h                  ;b037  08          DATA 0x08
     db 08h                  ;b038  08          DATA 0x08
     db 08h                  ;b039  08          DATA 0x08
     db 08h                  ;b03a  08          DATA 0x08
     db 04h                  ;b03b  04          DATA 0x04
+
+kwp_unknown_b03c:
+;unknown; related to mem_f06d
+;values to be stored in mem_f070
     db 25h                  ;b03c  25          DATA 0x25 '%'
     db 0ffh                 ;b03d  ff          DATA 0xff
     db 25h                  ;b03e  25          DATA 0x25 '%'
@@ -38204,6 +38240,7 @@ kwp_lengths_b281:
     db 09h                  ;b2a4  09          DATA 0x09
 
 kwp_titles_b2a5:
+;used if mem_f06d = 0x01
     db 0ffh                 ;b2a5  ff          DATA 0xff        B=0
     db 09h                  ;b2a6  09          DATA 0x09        B=1 ack
     db 06h                  ;b2a7  06          DATA 0x06        B=2 end session
@@ -38231,6 +38268,7 @@ kwp_handlers_b2af:
     db 0fh                  ;b2c1  0f          DATA 0x0f
 
 kwp_titles_b2c2:
+;used if mem_f06d = 0x02
     db 0ffh                 ;b2c2  ff          DATA 0xff        B= 0
     db 09h                  ;b2c3  09          DATA 0x09        B= 1 ack
     db 06h                  ;b2c4  06          DATA 0x06        B= 2 end session
@@ -38270,6 +38308,7 @@ kwp_handlers_b2d2:
     db 05h                  ;b2f0  05          DATA 0x05
 
 kwp_titles_b2f1:
+;used if mem_f06d = 0x03
     db 0ffh                 ;b2f1  ff          DATA 0xff        B=0
     db 09h                  ;b2f2  09          DATA 0x09        B=1 ack
     db 06h                  ;b2f3  06          DATA 0x06        B=2 end session
