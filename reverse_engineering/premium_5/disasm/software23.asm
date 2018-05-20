@@ -7769,7 +7769,7 @@ lab_1dd7:
 lab_21f4:
     mov a,!mem_fb70         ;21f4  8e 70 fb
     mov b,a                 ;21f7  73
-    movw hl,#0aed4h         ;21f8  16 d4 ae
+    movw hl,#mem_aed4       ;21f8  16 d4 ae
     callf !sub_0c7d         ;21fb  4c 7d
     mov !mem_fb22,a         ;21fd  9e 22 fb
     ret                     ;2200  af
@@ -7782,14 +7782,14 @@ lab_2201:
 
 lab_220b:
     mov b,a                 ;220b  73
-    movw hl,#0aee8h         ;220c  16 e8 ae
+    movw hl,#mem_aee8       ;220c  16 e8 ae
     callf !sub_0c7d         ;220f  4c 7d
     br $lab_221c            ;2211  fa 09
 
 lab_2213:
     mov a,!mem_fb70         ;2213  8e 70 fb
     mov b,a                 ;2216  73
-    movw hl,#0aedeh         ;2217  16 de ae
+    movw hl,#mem_aede       ;2217  16 de ae
     callf !sub_0c7d         ;221a  4c 7d
 
 lab_221c:
@@ -14953,13 +14953,13 @@ lab_46c9:
     mov a,!kwp_rx_buf+6     ;46ca  8e 90 f0     KWP1281 rx buffer byte 6
     bc $lab_46e8            ;46cd  8d 19
     mov b,a                 ;46cf  73
-    movw hl,#0b1c8h         ;46d0  16 c8 b1
+    movw hl,#mem_b1c8       ;46d0  16 c8 b1
     mov a,!mem_f1e9         ;46d3  8e e9 f1
     bf a.0,$lab_46e4        ;46d6  31 0f 0b
-    movw hl,#0b1d4h         ;46d9  16 d4 b1
+    movw hl,#mem_b1d4       ;46d9  16 d4 b1
     cmp mem_fe30,#01h       ;46dc  c8 30 01
     bz $lab_46e4            ;46df  ad 03
-    movw hl,#0b1e0h         ;46e1  16 e0 b1
+    movw hl,#mem_b1e0       ;46e1  16 e0 b1
 
 lab_46e4:
     callf !sub_0c7d         ;46e4  4c 7d
@@ -17509,23 +17509,27 @@ lab_5422:
     ;branched from group reading lab_5075
     mov b,#12h              ;5422  a3 12        B = index 0x12 response to group reading
     call !sub_5292          ;5424  9a 92 52     Set block title, counter, length in KWP1281 tx buffer
-    mov c,#04h              ;5427  a2 04
+
+    mov c,#04h              ;5427  a2 04        C = 4 values to read in group
 
 lab_5429:
-    push hl                 ;5429  b7
-    push bc                 ;542a  b3
+    push hl                 ;5429  b7           Push HL (address of KWP1281 tx buffer)
+    push bc                 ;542a  b3           Push BC (B = 3, offset into tx buffer)
     call !sub_2830          ;542b  9a 30 28
-    pop bc                  ;542e  b2
-    pop hl                  ;542f  b6
+    pop bc                  ;542e  b2           Pop BC (B = 3, offset into tx buffer)
+    pop hl                  ;542f  b6           Pop HL (address of KWP1281 tx buffer)
     bc $lab_543c            ;5430  8d 0a
+
     mov [hl+b],a            ;5432  bb
-    inc b                   ;5433  43
+    inc b                   ;5433  43           B = 4 (offset into tx buffer)
     mov a,x                 ;5434  60
     mov [hl+b],a            ;5435  bb
-    inc b                   ;5436  43
+
+    inc b                   ;5436  43           B = 5 (offset into tx buffer)
     mov a,e                 ;5437  64
     mov [hl+b],a            ;5438  bb
-    inc b                   ;5439  43
+
+    inc b                   ;5439  43           B = 6 (offset into tx buffer)
     dbnz c,$lab_5429        ;543a  8a ed
 
 lab_543c:
@@ -17543,8 +17547,8 @@ lab_544c:
     bz $lab_5429            ;544f  ad d8
     mov [hl],a              ;5451  97
     mov !mem_f06b,a         ;5452  9e 6b f0
-    mov a,#03h              ;5455  a1 03
-    mov [hl+b],a            ;5457  bb
+    mov a,#03h              ;5455  a1 03        A = 0x03 block end
+    mov [hl+b],a            ;5457  bb           Store block end in KWP1281 tx buffer
     br !sub_34f7            ;5458  9b f7 34
 
     db 0a3h                 ;545b  a3          DATA 0xa3
@@ -33115,7 +33119,7 @@ lab_9a4d:
     mov b,#0eh              ;9a6e  a3 0e
 
 lab_9a70:
-    movw hl,#0be1ch         ;9a70  16 1c be
+    movw hl,#mem_be1c       ;9a70  16 1c be
     call !sub_0c7d          ;9a73  9a 7d 0c
     cmp a,!mem_fc99         ;9a76  48 99 fc
     bz $lab_9a80            ;9a79  ad 05
@@ -37216,6 +37220,8 @@ mem_ae0f:
     db 0aah                 ;aed1  aa          DATA 0xaa
     db 1fh                  ;aed2  1f          DATA 0x1f
     db 09h                  ;aed3  09          DATA 0x09
+
+mem_aed4:
     db 1eh                  ;aed4  1e          DATA 0x1e
     db 01h                  ;aed5  01          DATA 0x01
     db 1eh                  ;aed6  1e          DATA 0x1e
@@ -37226,6 +37232,8 @@ mem_ae0f:
     db 0c8h                 ;aedb  c8          DATA 0xc8
     db 0ah                  ;aedc  0a          DATA 0x0a
     db 09h                  ;aedd  09          DATA 0x09
+
+mem_aede:
     db 00h                  ;aede  00          DATA 0x00
     db 07h                  ;aedf  07          DATA 0x07
     db 02h                  ;aee0  02          DATA 0x02
@@ -37236,6 +37244,8 @@ mem_ae0f:
     db 03h                  ;aee5  03          DATA 0x03
     db 08h                  ;aee6  08          DATA 0x08
     db 09h                  ;aee7  09          DATA 0x09
+
+mem_aee8:
     db 01h                  ;aee8  01          DATA 0x01
     db 07h                  ;aee9  07          DATA 0x07
     db 01h                  ;aeea  01          DATA 0x01
@@ -37404,33 +37414,31 @@ mem_ae0f:
     db 08h                  ;af8d  08          DATA 0x08
 
 mem_af8e:
-    db 01h                  ;af8e  01          DATA 0x01
-    db 02h                  ;af8f  02          DATA 0x02
-    db 03h                  ;af90  03          DATA 0x03
-    db 04h                  ;af91  04          DATA 0x04
-    db 05h                  ;af92  05          DATA 0x05
-    db 06h                  ;af93  06          DATA 0x06
-    db 07h                  ;af94  07          DATA 0x07
-    db 19h                  ;af95  19          DATA 0x19
-    db 07h                  ;af96  07          DATA 0x07
+;group reading related
+;group numbers
+    db 01h                  ;af8e  01          DATA 0x01    Group 1 (General)
+    db 02h                  ;af8f  02          DATA 0x02    Group 2 (Speakers)
+    db 03h                  ;af90  03          DATA 0x03    Group 3 (Antenna)
+    db 04h                  ;af91  04          DATA 0x04    Group 4 (Amplifier)
+    db 05h                  ;af92  05          DATA 0x05    Group 5 (CD Changer)
+    db 06h                  ;af93  06          DATA 0x06    Group 6 (External Display)
+    db 07h                  ;af94  07          DATA 0x07    Group 7 (Steering Wheel Control)
+    db 19h                  ;af95  19          DATA 0x19    Group 25 (Protection)
+    db 07h                  ;af96  07          DATA 0x07    ? Group 7 again?
 
 mem_af97:
-    db 0a6h                 ;af97  a6          DATA 0xa6
-    db 0afh                 ;af98  af          DATA 0xaf
-    db 0b3h                 ;af99  b3          DATA 0xb3
-    db 0afh                 ;af9a  af          DATA 0xaf
-    db 0c0h                 ;af9b  c0          DATA 0xc0
-    db 0afh                 ;af9c  af          DATA 0xaf
-    db 0cah                 ;af9d  ca          DATA 0xca
-    db 0afh                 ;af9e  af          DATA 0xaf
-    db 0ceh                 ;af9f  ce          DATA 0xce
-    db 0afh                 ;afa0  af          DATA 0xaf
-    db 0d5h                 ;afa1  d5          DATA 0xd5
-    db 0afh                 ;afa2  af          DATA 0xaf
-    db 0dch                 ;afa3  dc          DATA 0xdc
-    db 0afh                 ;afa4  af          DATA 0xaf
+;group reading related
+    dw 0afa6h               ;af97   VECTOR
+    dw 0afb3h               ;af99   VECTOR
+    dw 0afc0h               ;af9b   VECTOR
+    dw 0afcah               ;af9d   VECTOR
+    dw 0afceh               ;af9f   VECTOR
+    dw 0afd5h               ;afa1   VECTOR
+    dw 0afdch               ;afa3   VECTOR
+
     db 0ch                  ;afa5  0c          DATA 0x0c
     db 25h                  ;afa6  25          DATA 0x25 '%'
+
     db 00h                  ;afa7  00          DATA 0x00
     db 00h                  ;afa8  00          DATA 0x00
     db 06h                  ;afa9  06          DATA 0x06
@@ -38005,6 +38013,8 @@ mem_b190:
     db 0ch                  ;b1c5  0c          DATA 0x0c
     db 07h                  ;b1c6  07          DATA 0x07
     db 0bh                  ;b1c7  0b          DATA 0x0b
+
+mem_b1c8:
     db 00h                  ;b1c8  00          DATA 0x00
     db 08h                  ;b1c9  08          DATA 0x08
     db 09h                  ;b1ca  09          DATA 0x09
@@ -38017,6 +38027,8 @@ mem_b190:
     db 29h                  ;b1d1  29          DATA 0x29 ')'
     db 13h                  ;b1d2  13          DATA 0x13
     db 0bh                  ;b1d3  0b          DATA 0x0b
+
+mem_b1d4:
     db 00h                  ;b1d4  00          DATA 0x00
     db 08h                  ;b1d5  08          DATA 0x08
     db 09h                  ;b1d6  09          DATA 0x09
@@ -38029,6 +38041,8 @@ mem_b190:
     db 29h                  ;b1dd  29          DATA 0x29 ')'
     db 13h                  ;b1de  13          DATA 0x13
     db 0bh                  ;b1df  0b          DATA 0x0b
+
+mem_b1e0:
     db 00h                  ;b1e0  00          DATA 0x00
     db 1ch                  ;b1e1  1c          DATA 0x1c
     db 1dh                  ;b1e2  1d          DATA 0x1d
@@ -41191,6 +41205,8 @@ mem_b79c:
     db 09h                  ;be19  09          DATA 0x09
     db 0dh                  ;be1a  0d          DATA 0x0d
     db 0fh                  ;be1b  0f          DATA 0x0f
+
+mem_be1c:
     db 00h                  ;be1c  00          DATA 0x00
     db 02h                  ;be1d  02          DATA 0x02
     db 04h                  ;be1e  04          DATA 0x04
