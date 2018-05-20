@@ -21,6 +21,7 @@
     org 00000h
 
     mem_f000 equ 0f000h
+    mem_f004 equ 0f004h
     mem_f00e equ 0f00eh
     mem_f00f equ 0f00fh
     mem_f032 equ 0f032h
@@ -3886,7 +3887,7 @@ lab_0f1b:
     mov a,#00h              ;0f84  a1 00
     mov !mem_f04e,a         ;0f86  9e 4e f0
     clr1 mem_fe5f.5         ;0f89  5b 5f
-    call !sub_2d35          ;0f8b  9a 35 2d     Clears bits in mem_fe5f and mem_fe60
+    call !sub_2d35          ;0f8b  9a 35 2d     Clear bits in mem_fe5f and mem_fe60
     set1 mem_fecc.5         ;0f8e  5a cc
     mov a,mem_fecc          ;0f90  f0 cc
     mov P2_,a               ;0f92  f2 02
@@ -8485,6 +8486,7 @@ sub_259b:
     ret                     ;259d  af
 
 sub_259e:
+;related to security access
     movw ax,#mem_fe3d       ;259e  10 3d fe
     sub a,mem_fe3d          ;25a1  1e 3d
     xch a,x                 ;25a3  30
@@ -8747,31 +8749,36 @@ lab_26d6:
     mov !mem_f1a6,a         ;26e0  9e a6 f1
     ret                     ;26e3  af
 
-sub_26e4:
-    movw hl,#mem_f1ed       ;26e4  16 ed f1     HL = source address
+
+kwp_part_number:
+    movw hl,#mem_f1ed       ;26e4  16 ed f1     HL = source address (EEPROM area "1J0035180B  ")
     movw de,#mem_f03b       ;26e7  14 3b f0     DE = destination address
     mov a,#0ch              ;26ea  a1 0c        A = number of bytes to copy
     callf !sub_0c9e         ;26ec  4c 9e        Copy A bytes from [HL] to [DE]
+
     movw hl,#mem_f03b       ;26ee  16 3b f0
-    mov a,#03h              ;26f1  a1 03
-    mov [hl+0ch],a          ;26f3  be 0c
+    mov a,#03h              ;26f1  a1 03        A = 0x03 block end
+    mov [hl+0ch],a          ;26f3  be 0c        Put block end after part number
+
     movw de,#mem_f03b       ;26f5  14 3b f0
     ret                     ;26f8  af
 
-sub_26f9:
+
+kwp_radio_de2:
     movw de,#kwp_radio_de2  ;26f9  14 6f 26
     mov a,!mem_f1e9         ;26fc  8e e9 f1
     bf a.7,$lab_2705        ;26ff  31 7f 03
     movw de,#kwp_radio_delco ;2702  14 7c 26
-
 lab_2705:
     ret                     ;2705  af
+
 
 sub_2706:
     movw hl,#kwp_0001       ;2706  16 89 26     HL = source address
     movw de,#mem_f03b       ;2709  14 3b f0     DE = destination address
     mov a,#0dh              ;270c  a1 0d        A = number of bytes to copy
     callf !sub_0c9e         ;270e  4c 9e        Copy A bytes from [HL] to [DE]
+
     movw hl,#mem_f03b       ;2710  16 3b f0
     mov a,!mem_f1ec         ;2713  8e ec f1
     and a,#0f0h             ;2716  5d f0
@@ -8781,10 +8788,12 @@ sub_2706:
     ror a,1                 ;271b  24
     add a,#30h              ;271c  0d 30
     mov [hl+07h],a          ;271e  be 07
+
     mov a,!mem_f1ec         ;2720  8e ec f1
     and a,#0fh              ;2723  5d 0f
     add a,#30h              ;2725  0d 30
     mov [hl+08h],a          ;2727  be 08
+
     mov a,!mem_f1eb         ;2729  8e eb f1
     and a,#0f0h             ;272c  5d f0
     ror a,1                 ;272e  24
@@ -8793,18 +8802,22 @@ sub_2706:
     ror a,1                 ;2731  24
     add a,#30h              ;2732  0d 30
     mov [hl+09h],a          ;2734  be 09
+
     mov a,!mem_f1eb         ;2736  8e eb f1
     and a,#0fh              ;2739  5d 0f
     add a,#30h              ;273b  0d 30
     mov [hl+0ah],a          ;273d  be 0a
+
     mov a,!mem_f1e9         ;273f  8e e9 f1
     bf a.7,$lab_274a        ;2742  31 7f 05
+
     mov a,!mem_f1ea         ;2745  8e ea f1
     mov [hl+07h],a          ;2748  be 07
 
 lab_274a:
     movw de,#mem_f03b       ;274a  14 3b f0
     ret                     ;274d  af
+
 
 sub_274e:
     bt mem_fe5f.3,$lab_2762 ;274e  bc 5f 11
@@ -8851,7 +8864,7 @@ lab_278c:
     ret                     ;278f  af
 
 sub_2790:
-    call !sub_2d35          ;2790  9a 35 2d     Clears bits in mem_fe5f and mem_fe60
+    call !sub_2d35          ;2790  9a 35 2d     Clear bits in mem_fe5f and mem_fe60
     movw hl,#0f20ch         ;2793  16 0c f2
     movw de,#0f215h         ;2796  14 15 f2
     call !sub_2cbe          ;2799  9a be 2c
@@ -8889,7 +8902,7 @@ lab_27ce:
 sub_27cf:
     push hl                 ;27cf  b7
     push bc                 ;27d0  b3
-    call !sub_2d35          ;27d1  9a 35 2d     Clears bits in mem_fe5f and mem_fe60
+    call !sub_2d35          ;27d1  9a 35 2d     Clear bits in mem_fe5f and mem_fe60
     mov a,!mem_f04e         ;27d4  8e 4e f0
     cmp a,#03h              ;27d7  4d 03
     bc $lab_27e6            ;27d9  8d 0b
@@ -9222,7 +9235,7 @@ lab_29b0:
 
 sub_29b4:
 ;Called from recoding
-    call !sub_2d35          ;29b4  9a 35 2d     Clears bits in mem_fe5f and mem_fe60
+    call !sub_2d35          ;29b4  9a 35 2d     Clear bits in mem_fe5f and mem_fe60
     mov a,!kwp_rx_buf+4     ;29b7  8e 8e f0     A = KWP1281 rx buffer byte 4
     mov x,a                 ;29ba  70           Copy it to X
     mov a,!kwp_rx_buf+3     ;29bb  8e 8d f0     A = KWP1281 rx buffer byte 3
@@ -9359,7 +9372,7 @@ lab_2ab9:
 
 sub_2aba:
 ;called when login succeeds
-    call !sub_2d35          ;2aba  9a 35 2d     Clears bits in mem_fe5f and mem_fe60
+    call !sub_2d35          ;2aba  9a 35 2d     Clear bits in mem_fe5f and mem_fe60
     movw hl,#mem_f1f9       ;2abd  16 f9 f1
     mov a,#09h              ;2ac0  a1 09
     call !sub_2de6          ;2ac2  9a e6 2d
@@ -9445,10 +9458,14 @@ lab_2b4e:
     ret                     ;2b52  af
 
 sub_2b53:
+    ;Called from lab_5581 (read rom related)
     push hl                 ;2b53  b7
-    call !sub_2d35          ;2b54  9a 35 2d     Clears bits in mem_fe5f and mem_fe60
+    call !sub_2d35          ;2b54  9a 35 2d     Clear bits in mem_fe5f and mem_fe60
     set1 mem_fe60.2         ;2b57  2a 60
-    call !sub_2c8b          ;2b59  9a 8b 2c
+    call !read_kwp_rx_3     ;2b59  9a 8b 2c     Read 3 bytes from KWP1281 rx buffer:
+                                                    A = KWP1281 rx buffer byte 3 (number of bytes to read)
+                                                    D = KWP1281 rx buffer byte 4 (address high)
+                                                    E = KWP1281 rx buffer byte 5 (address low)
     mov !mem_f04c,a         ;2b5c  9e 4c f0
     xchw ax,de              ;2b5f  e4
     movw !mem_f000,ax       ;2b60  03 00 f0
@@ -9522,11 +9539,17 @@ lab_2bb6:
 sub_2bb9:
 ;Called from lab_552a (read ram related)
     push hl                 ;2bb9  b7
-    call !sub_2d35          ;2bba  9a 35 2d     Clears bits in mem_fe5f and mem_fe60
-    call !sub_2c8b          ;2bbd  9a 8b 2c
-    mov !mem_f04c,a         ;2bc0  9e 4c f0
+    call !sub_2d35          ;2bba  9a 35 2d     Clear bits in mem_fe5f and mem_fe60
+    call !read_kwp_rx_3     ;2bbd  9a 8b 2c     Read 3 bytes from KWP1281 rx buffer:
+                                                    A = KWP1281 rx buffer byte 3 (number of bytes to read)
+                                                    D = KWP1281 rx buffer byte 4 (address high)
+                                                    E = KWP1281 rx buffer byte 5 (address low)
+
+    mov !mem_f04c,a         ;2bc0  9e 4c f0     Store number of bytes to read
+
     xchw ax,de              ;2bc3  e4
     movw !mem_f000,ax       ;2bc4  03 00 f0
+
     xchw ax,de              ;2bc7  e4
     call !sub_2bd4          ;2bc8  9a d4 2b
     bc $lab_2bd2            ;2bcb  8d 05
@@ -9622,16 +9645,21 @@ lab_2bf3:
     db 0afh                 ;2c32  af          DATA 0xaf
 
 sub_2c33:
+;unknown, called from lab_50ec (? write eeprom related)
+;returns some status in carry flag
     call !sub_6217          ;2c33  9a 17 62
     bnc $sub_2c33           ;2c36  9d fb
-    call !sub_2d35          ;2c38  9a 35 2d     Clears bits in mem_fe5f and mem_fe60
+    call !sub_2d35          ;2c38  9a 35 2d     Clear bits in mem_fe5f and mem_fe60
     set1 mem_fe60.2         ;2c3b  2a 60
-    call !sub_2c8b          ;2c3d  9a 8b 2c
+    call !read_kwp_rx_3    ;2c3d  9a 8b 2c      Read 3 bytes from KWP1281 rx buffer:
+                                                    A = KWP1281 rx buffer byte 3 (number of bytes to read)
+                                                    D = KWP1281 rx buffer byte 4 (address high)
+                                                    E = KWP1281 rx buffer byte 5 (address low)
     mov !mem_f04c,a         ;2c40  9e 4c f0
     mov l,a                 ;2c43  76
     mov h,#00h              ;2c44  a7 00
     movw ax,de              ;2c46  c4
-    movw !0f004h,ax         ;2c47  03 04 f0
+    movw !mem_f004,ax       ;2c47  03 04 f0
     call !sub_2cdf          ;2c4a  9a df 2c
     bc $lab_2c7b            ;2c4d  8d 2c
     bf mem_fe65.5,$lab_2c6c ;2c4f  31 53 65 19
@@ -9666,23 +9694,36 @@ lab_2c7b:
     ret                     ;2c7e  af
 
 sub_2c7f:
-    movw ax,!0f004h         ;2c7f  02 04 f0
-    movw de,ax              ;2c82  d4
-    mov a,!kwp_rx_buf+6     ;2c83  8e 90 f0     KWP1281 rx buffer byte 6
-    mov x,a                 ;2c86  70
-    mov a,!mem_f04c         ;2c87  8e 4c f0
+;called from write eeprom lab_55c5
+;Returns DE = word at mem_f004
+;Returns X = KWP1281 rx buffer byte 6
+;Returns A = byte at mem_f04c
+    movw ax,!mem_f004       ;2c7f  02 04 f0
+    movw de,ax              ;2c82  d4           DE = word at mem_f004
+    mov a,!kwp_rx_buf+6     ;2c83  8e 90 f0
+    mov x,a                 ;2c86  70           X = KWP1281 rx buffer byte 6
+    mov a,!mem_f04c         ;2c87  8e 4c f0     A = byte at mem_f04c
     ret                     ;2c8a  af
 
-sub_2c8b:
-    movw hl,#kwp_rx_buf+3   ;2c8b  16 8d f0     HL = pointer to KWP1281 rx buffer byte 3
+read_kwp_rx_3:
+;Read 3 bytes from KWP1281 rx buffer:
+;  A = KWP1281 rx buffer byte 3
+;  D = KWP1281 rx buffer byte 4
+;  E = KWP1281 rx buffer byte 5
+;
+    movw hl,#kwp_rx_buf+3   ;2c8b  16 8d f0
     mov a,[hl]              ;2c8e  87
-    mov e,a                 ;2c8f  74
+    mov e,a                 ;2c8f  74           ;E = KWP1281 rx buffer byte 3
+
     incw hl                 ;2c90  86
     mov a,[hl]              ;2c91  87
-    mov d,a                 ;2c92  75
+    mov d,a                 ;2c92  75           ;D = KWP1281 rx buffer byte 4
+
     incw hl                 ;2c93  86
-    mov a,[hl]              ;2c94  87
-    xch a,e                 ;2c95  34
+    mov a,[hl]              ;2c94  87           ;A = KWP1281 rx buffer byte 5
+
+    xch a,e                 ;2c95  34           ;Swap A and E
+
     ret                     ;2c96  af
 
     db 0afh                 ;2c97  af          DATA 0xaf
@@ -9814,7 +9855,7 @@ lab_2d33:
     ret                     ;2d34  af
 
 sub_2d35:
-;Clears bits in mem_fe5f and mem_fe60
+;Clear bits in mem_fe5f and mem_fe60
     clr1 mem_fe5f.3         ;2d35  3b 5f
     clr1 mem_fe5f.4         ;2d37  4b 5f
     clr1 mem_fe5f.6         ;2d39  6b 5f
@@ -16666,14 +16707,14 @@ lab_4ff3:
     bnz $lab_4fff           ;4ff5  bd 08
     mov a,#02h              ;4ff7  a1 02
     mov !mem_fbc5,a         ;4ff9  9e c5 fb
-    br !lab_52e0            ;4ffc  9b e0 52
+    br !lab_52e0            ;4ffc  9b e0 52     Branch to send ascii/data response with "Radio DE2"
 
 lab_4fff:
     cmp a,#02h              ;4fff  4d 02
     bnz $lab_500b           ;5001  bd 08
     mov a,#03h              ;5003  a1 03
     mov !mem_fbc5,a         ;5005  9e c5 fb
-    br !lab_52d5            ;5008  9b d5 52
+    br !lab_52d5            ;5008  9b d5 52     Branch to Send ascii/data response with "0001" and extras
 
 lab_500b:
     cmp a,#03h              ;500b  4d 03
@@ -16720,7 +16761,7 @@ lab_504e:
     mov a,#01h              ;504e  a1 01
     mov !mem_fbc5,a         ;5050  9e c5 fb
     set1 mem_fe66.0         ;5053  0a 66
-    br !lab_52ea            ;5055  9b ea 52
+    br !lab_52ea            ;5055  9b ea 52     Branch to Send ascii/data response with "1J0035180B"
 
 lab_5058:
     ;read faults (kwp_handlers_b2d2)
@@ -16757,7 +16798,7 @@ lab_507d:
     mov !mem_fbc5,a         ;507f  9e c5 fb
     set1 mem_fe66.0         ;5082  0a 66
     call !sub_29b4          ;5084  9a b4 29
-    br !lab_52ea            ;5087  9b ea 52
+    br !lab_52ea            ;5087  9b ea 52     Branch to Send ascii/data response with "1J0035180B"
 
 lab_508a:
     ;login (kwp_handlers_b2d2)
@@ -17256,21 +17297,25 @@ lab_52b1:
     br !sub_34f7            ;52d2  9b f7 34
 
 lab_52d5:
+;Send ascii/data response with "0001" and extras
     mov a,#11h              ;52d5  a1 11
     mov !mem_fbca,a         ;52d7  9e ca fb
-    call !sub_2706          ;52da  9a 06 27
-    br !lab_52f2            ;52dd  9b f2 52
+    call !sub_2706          ;52da  9a 06 27     DE = pointer to mem_f03b ("0001" and extras)
+    br !lab_52f2            ;52dd  9b f2 52     Branch to finish building ascii/data response
 
 lab_52e0:
+;Send ascii/data response with "Radio DE2"
     mov a,#12h              ;52e0  a1 12
     mov !mem_fbca,a         ;52e2  9e ca fb
-    call !sub_26f9          ;52e5  9a f9 26
-    br $lab_52f2            ;52e8  fa 08
+    call !kwp_radio_de2     ;52e5  9a f9 26     DE = pointer to mem_f03b ("Radio DE2" or "Radio DELCO")
+    br $lab_52f2            ;52e8  fa 08        Branch to finish building ascii/data response
 
 lab_52ea:
+;Send ascii/data response with "1J0035180B"
     mov a,#13h              ;52ea  a1 13
     mov !mem_fbca,a         ;52ec  9e ca fb
-    call !sub_26e4          ;52ef  9a e4 26
+    call !kwp_part_number   ;52ef  9a e4 26     DE = pointer to mem_f03b ("1J0035180B"-like number form EEPROM)
+                                                Fall through to finish building ascii/data response
 
 lab_52f2:
     mov b,#07h              ;52f2  a3 07        B = index 0x07 response with ascii/data
@@ -17837,6 +17882,7 @@ lab_557e:
     call !sub_2dd6          ;557e  9a d6 2d
 
 lab_5581:
+    ;branched from both read rom
     mov a,#02h              ;5581  a1 02
     mov !mem_fbca,a         ;5583  9e ca fb
     mov b,#1eh              ;5586  a3 1e        B = index 0x1e response to read rom
@@ -17889,17 +17935,25 @@ lab_55b5:
 lab_55c5:
     mov b,#20h              ;55c5  a3 20        B = index 0x20 response to write eeprom
     call !sub_5292          ;55c7  9a 92 52     Set block title, counter, length in KWP1281 tx buffer
-    call !sub_2c7f          ;55ca  9a 7f 2c
-    mov [hl+b],a            ;55cd  bb           Store in KWP1281 tx buffer byte 3
+
+    call !sub_2c7f          ;55ca  9a 7f 2c     Returns DE = word at mem_f004
+                                                Returns X = KWP1281 rx buffer byte 6
+                                                Returns A = byte at mem_f04c
+
+    mov [hl+b],a            ;55cd  bb           Store A in KWP1281 tx buffer byte 3
+
     inc b                   ;55ce  43
     mov a,d                 ;55cf  65
-    mov [hl+b],a            ;55d0  bb           Store in KWP1281 tx buffer byte 4
+    mov [hl+b],a            ;55d0  bb           Store D in KWP1281 tx buffer byte 4
+
     inc b                   ;55d1  43
     mov a,e                 ;55d2  64
-    mov [hl+b],a            ;55d3  bb           Store in KWP1281 tx buffer byte 5
+    mov [hl+b],a            ;55d3  bb           Store E in KWP1281 tx buffer byte 5
+
     inc b                   ;55d4  43
     mov a,x                 ;55d5  60
-    mov [hl+b],a            ;55d6  bb           Store in KWP1281 tx buffer byte 6
+    mov [hl+b],a            ;55d6  bb           Store X in KWP1281 tx buffer byte 6
+
     inc b                   ;55d7  43
     mov a,#03h              ;55d8  a1 03        A = 0x03 block end
     mov [hl+b],a            ;55da  bb           Store in KWP1281 tx buffer byte 7
@@ -17908,17 +17962,23 @@ lab_55c5:
 lab_55de:
     mov b,#21h              ;55de  a3 21        B = 0x21 ? response to security access
     call !sub_5292          ;55e0  9a 92 52     Set block title, counter, length in KWP1281 tx buffer
+
     call !sub_259e          ;55e3  9a 9e 25
-    mov [hl+b],a            ;55e6  bb           Store in KWP1281 tx buffer byte 3
+
+    mov [hl+b],a            ;55e6  bb           Store A in KWP1281 tx buffer byte 3
+
     inc b                   ;55e7  43
     mov a,x                 ;55e8  60
-    mov [hl+b],a            ;55e9  bb           Store in KWP1281 tx buffer byte 4
+    mov [hl+b],a            ;55e9  bb           Store X in KWP1281 tx buffer byte 4
+
     inc b                   ;55ea  43
     mov a,d                 ;55eb  65
-    mov [hl+b],a            ;55ec  bb           Store in KWP1281 tx buffer byte 5
+    mov [hl+b],a            ;55ec  bb           Store D in KWP1281 tx buffer byte 5
+
     inc b                   ;55ed  43
     mov a,e                 ;55ee  64
-    mov [hl+b],a            ;55ef  bb           Store in KWP1281 tx buffer byte 6
+    mov [hl+b],a            ;55ef  bb           Store E in KWP1281 tx buffer byte 6
+
     inc b                   ;55f0  43
     mov a,#03h              ;55f1  a1 03        A = 0x03 block end
     mov [hl+b],a            ;55f3  bb           Store in KWP1281 tx buffer byte 7

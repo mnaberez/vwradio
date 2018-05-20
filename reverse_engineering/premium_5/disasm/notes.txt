@@ -27,6 +27,7 @@ f1b3 eeprom contents buffer (185 bytes)
 
         f1b7 actual safe code (bcd, high byte)
         f1b8 actual safe code (bcd, low byte)
+        f1e9 bit 7 set KWP1281 sends "RADIO DE2", clear sends "RADIO DELCO"
         f20b safe code entry attempt count (0-2)
 
 fb75 entered safe code (bcd, high byte)
