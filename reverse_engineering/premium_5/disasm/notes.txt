@@ -48,5 +48,5 @@ kwp1281 custom access tables:
 
 
 To access protected functions, you must set these two bits:
-  mem_fe65.3
-  mem_fe65.4
+  mem_fe65.3    set by successful login
+  mem_fe65.4    set by group read 0x19
