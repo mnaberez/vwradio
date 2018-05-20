@@ -4234,10 +4234,12 @@ lab_1225:
 
 lab_123a:
     pop bc                  ;123a  b2
-    movw ax,#1242h          ;123b  10 42 12
+    movw ax,#lab_1242       ;123b  10 42 12
     push ax                 ;123e  b1
     movw ax,de              ;123f  c4
     br ax                   ;1240  31 98
+
+lab_1242:
     mov a,mem_fe2e          ;1242  f0 2e
     sub a,mem_fe2f          ;1244  1e 2f
     mov mem_fe2f,#0bh       ;1246  11 2f 0b
@@ -5048,10 +5050,12 @@ lab_1631:
     db 82h                  ;167e  82          DATA 0x82
 
 lab_167f:
-    movw ax,#1686h          ;167f  10 86 16
+    movw ax,#lab_1686       ;167f  10 86 16
     push ax                 ;1682  b1
     movw ax,de              ;1683  c4
     br ax                   ;1684  31 98
+
+lab_1686:
     bf mem_fe5c.7,$lab_168d ;1686  31 73 5c 03
     call !sub_1601          ;168a  9a 01 16
 
@@ -9995,10 +9999,12 @@ lab_2e4b:
     movw hl,#mem_b01a       ;2e4e  16 1a b0
     callf !sub_0c48         ;2e51  4c 48
     bc $sub_2e5d            ;2e53  8d 08
-    movw ax,#2e5ch          ;2e55  10 5c 2e
+    movw ax,#lab_2e5c       ;2e55  10 5c 2e
     push ax                 ;2e58  b1
     movw ax,de              ;2e59  c4
     br ax                   ;2e5a  31 98
+
+lab_2e5c:
     ret                     ;2e5c  af
 
 sub_2e5d:
@@ -10137,10 +10143,12 @@ lab_2f25:
     mov b,a                 ;2f2b  73
     movw hl,#mem_b013       ;2f2c  16 13 b0
     callf !sub_0c48         ;2f2f  4c 48
-    movw ax,#2f38h          ;2f31  10 38 2f
+    movw ax,#lab_2f38       ;2f31  10 38 2f
     push ax                 ;2f34  b1
     movw ax,de              ;2f35  c4
     br ax                   ;2f36  31 98
+
+lab_2f38:
     ret                     ;2f38  af
 
 lab_2f39:
@@ -21895,10 +21903,12 @@ lab_6863:
     xor a,#80h              ;686b  7d 80
     bz $lab_68da            ;686d  ad 6b
     push ax                 ;686f  b1
-    movw ax,#6877h          ;6870  10 77 68
+    movw ax,#lab_6877       ;6870  10 77 68
     push ax                 ;6873  b1
     movw ax,hl              ;6874  c6
     br ax                   ;6875  31 98
+
+lab_6877:
     pop ax                  ;6877  b0
     xor a,#40h              ;6878  7d 40
     bz $lab_68c1            ;687a  ad 45
@@ -21940,10 +21950,12 @@ lab_68b0:
     pop hl                  ;68b3  b6
     call !sub_6f78          ;68b4  9a 78 6f
     push de                 ;68b7  b5
-    movw ax,#68bfh          ;68b8  10 bf 68
+    movw ax,#lab_68bf       ;68b8  10 bf 68
     push ax                 ;68bb  b1
     movw ax,hl              ;68bc  c6
     br ax                   ;68bd  31 98
+
+lab_68bf:
     br $lab_689c            ;68bf  fa db
 
 lab_68c1:
@@ -21977,10 +21989,12 @@ lab_68e4:
     pop hl                  ;68e8  b6
     callf !sub_0c48         ;68e9  4c 48
     bc $lab_6933            ;68eb  8d 46
-    movw ax,#68f4h          ;68ed  10 f4 68
+    movw ax,#lab_68f4       ;68ed  10 f4 68
     push ax                 ;68f0  b1
     movw ax,de              ;68f1  c4
     br ax                   ;68f2  31 98
+
+lab_68f4:
     call !sub_7030          ;68f4  9a 30 70
     bf mem_fe2d.0,$lab_6933 ;68f7  31 03 2d 38
     bt mem_fe65.5,$lab_6915 ;68fb  dc 65 17
@@ -23126,10 +23140,12 @@ lab_6f81:
     br !lab_7690            ;6f88  9b 90 76
 
 lab_6f8b:
-    movw ax,#6f92h          ;6f8b  10 92 6f
+    movw ax,#lab_6f92       ;6f8b  10 92 6f
     push ax                 ;6f8e  b1
     movw ax,de              ;6f8f  c4
     br ax                   ;6f90  31 98
+
+lab_6f92:
     push hl                 ;6f92  b7
     movw hl,#0b531h         ;6f93  16 31 b5
     mov a,[hl+b]            ;6f96  ab
@@ -24307,10 +24323,12 @@ lab_7675:
     mov mem_fed4,a          ;767b  f2 d4
     mov a,b                 ;767d  63
     mov mem_fed5,a          ;767e  f2 d5
-    movw ax,#7687h          ;7680  10 87 76
+    movw ax,#lab_7687       ;7680  10 87 76
     push ax                 ;7683  b1
     movw ax,hl              ;7684  c6
     br ax                   ;7685  31 98
+
+lab_7687:
     mov a,#00h              ;7687  a1 00
     mov !mem_fb2d,a         ;7689  9e 2d fb
     call !sub_6fa9          ;768c  9a a9 6f
