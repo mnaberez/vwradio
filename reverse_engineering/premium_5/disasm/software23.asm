@@ -20,6 +20,7 @@
 
     org 00000h
 
+    mem_f000 equ 0f000h
     mem_f00e equ 0f00eh
     mem_f00f equ 0f00fh
     mem_f032 equ 0f032h
@@ -57,13 +58,8 @@
     mem_f077 equ 0f077h
     mem_f078 equ 0f078h
     mem_f079 equ 0f079h
-    mem_f07a equ 0f07ah
-    mem_f08a equ 0f08ah
-    mem_f08d equ 0f08dh
-    mem_f08e equ 0f08eh
-    mem_f08f equ 0f08fh
-    mem_f090 equ 0f090h
-    mem_f091 equ 0f091h
+    kwp_tx_buf equ 0f07ah   ;16 bytes?
+    kwp_rx_buf equ 0f08ah   ;16 bytes?
     mem_f18b equ 0f18bh
     mem_f18c equ 0f18ch
     mem_f18d equ 0f18dh
@@ -8407,9 +8403,10 @@ lab_2532:
     ret                     ;2536  af
 
 sub_2537:
-    movw hl,#mem_f08d       ;2537  16 8d f0     HL = source address
+;called only from security access lab_513a
+    movw hl,#kwp_rx_buf+3   ;2537  16 8d f0     HL = source address (KWP1281 rx buffer byte 3)
     movw de,#mem_fed4       ;253a  14 d4 fe     DE = destination address
-    mov a,#04h              ;253d  a1 04        A = number of bytes to copy
+    mov a,#04h              ;253d  a1 04        A = 4 bytes to copy
     callf !sub_0c9e         ;253f  4c 9e        Copy A bytes from [HL] to [DE]
     movw ax,mem_fed4        ;2541  89 d4
     subw ax,#0bde7h         ;2543  da e7 bd
@@ -8489,9 +8486,9 @@ sub_25ac:
     cmp a,#00h              ;25af  4d 00
     bnz $lab_25f9           ;25b1  bd 46
     clr1 mem_fe65.3         ;25b3  3b 65        Clear bit to indicate not logged in
-    mov a,!mem_f08e         ;25b5  8e 8e f0     A = KWP1281 rx buffer byte 4
+    mov a,!kwp_rx_buf+4     ;25b5  8e 8e f0     A = KWP1281 rx buffer byte 4
     mov x,a                 ;25b8  70           Copy it to X
-    mov a,!mem_f08d         ;25b9  8e 8d f0     A = KWP1281 rx buffer byte 3
+    mov a,!kwp_rx_buf+3     ;25b9  8e 8d f0     A = KWP1281 rx buffer byte 3
     call !sub_0a7f          ;25bc  9a 7f 0a     Convert binary in AX to BCD word in mem_fed4
     call !sub_2605          ;25bf  9a 05 26
     bc $lab_25c5            ;25c2  8d 01
@@ -8943,7 +8940,7 @@ lab_2824:
 
 sub_2830:
     bt mem_fe5f.4,$lab_287a ;2830  cc 5f 47
-    mov a,!mem_f08d         ;2833  8e 8d f0     A = KWP1281 rx buffer byte 3
+    mov a,!kwp_rx_buf+3     ;2833  8e 8d f0     A = KWP1281 rx buffer byte 3
     mov !mem_f04f,a         ;2836  9e 4f f0
 
     cmp a,#19h              ;2839  4d 19        Is KWP1281 rx buffer byte 3 = 0x19?
@@ -9206,10 +9203,11 @@ lab_29b0:
     ret                     ;29b3  af
 
 sub_29b4:
+;Called from recoding
     call !sub_2d35          ;29b4  9a 35 2d     Clears bits in mem_fe5f and mem_fe60
-    mov a,!mem_f08e         ;29b7  8e 8e f0
-    mov x,a                 ;29ba  70
-    mov a,!mem_f08d         ;29bb  8e 8d f0     A = KWP1281 rx buffer byte 3
+    mov a,!kwp_rx_buf+4     ;29b7  8e 8e f0     A = KWP1281 rx buffer byte 4
+    mov x,a                 ;29ba  70           Copy it to X
+    mov a,!kwp_rx_buf+3     ;29bb  8e 8d f0     A = KWP1281 rx buffer byte 3
     clr1 cy                 ;29be  21
     rorc a,1                ;29bf  25
     xch a,x                 ;29c0  30
@@ -9260,7 +9258,7 @@ lab_2a10:
     mov a,#09h              ;2a13  a1 09
     call !sub_2de6          ;2a15  9a e6 2d
     push ax                 ;2a18  b1
-    movw hl,#mem_f08d       ;2a19  16 8d f0     HL = source address (KWP1281 rx buffer offset 3)
+    movw hl,#kwp_rx_buf+3   ;2a19  16 8d f0     HL = source address (KWP1281 rx buffer byte 3)
     movw de,#mem_f1f9       ;2a1c  14 f9 f1     DE = destination address
     mov a,#04h              ;2a1f  a1 04        A = 4 bytes to copy
     callf !sub_0c9e         ;2a21  4c 9e        Copy A bytes from [HL] to [DE]
@@ -9348,16 +9346,16 @@ sub_2aba:
     mov a,#09h              ;2ac0  a1 09
     call !sub_2de6          ;2ac2  9a e6 2d
     push ax                 ;2ac5  b1
-    mov a,!mem_f08f         ;2ac6  8e 8f f0
+    mov a,!kwp_rx_buf+5     ;2ac6  8e 8f f0     KWP1281 rx buffer byte 5
     and a,#01h              ;2ac9  5d 01
     mov x,a                 ;2acb  70
     mov a,!mem_f1fa         ;2acc  8e fa f1
     and a,#0feh             ;2acf  5d fe
     or a,x                  ;2ad1  61 68
     mov !mem_f1fa,a         ;2ad3  9e fa f1
-    mov a,!mem_f090         ;2ad6  8e 90 f0
+    mov a,!kwp_rx_buf+6     ;2ad6  8e 90 f0     KWP1281 rx buffer byte 6
     mov !mem_f1fb,a         ;2ad9  9e fb f1
-    mov a,!mem_f091         ;2adc  8e 91 f0
+    mov a,!kwp_rx_buf+7     ;2adc  8e 91 f0     KWP1281 rx buffer byte 7
     mov !mem_f1fc,a         ;2adf  9e fc f1
     movw hl,#mem_f1f9       ;2ae2  16 f9 f1
     mov a,#09h              ;2ae5  a1 09
@@ -9435,7 +9433,7 @@ sub_2b53:
     call !sub_2c8b          ;2b59  9a 8b 2c
     mov !mem_f04c,a         ;2b5c  9e 4c f0
     xchw ax,de              ;2b5f  e4
-    movw !0f000h,ax         ;2b60  03 00 f0
+    movw !mem_f000,ax       ;2b60  03 00 f0
     xchw ax,de              ;2b63  e4
     call !sub_2bd4          ;2b64  9a d4 2b
     bc $lab_2b6c            ;2b67  8d 03
@@ -9510,7 +9508,7 @@ sub_2bb9:
     call !sub_2c8b          ;2bbd  9a 8b 2c
     mov !mem_f04c,a         ;2bc0  9e 4c f0
     xchw ax,de              ;2bc3  e4
-    movw !0f000h,ax         ;2bc4  03 00 f0
+    movw !mem_f000,ax       ;2bc4  03 00 f0
     xchw ax,de              ;2bc7  e4
     call !sub_2bd4          ;2bc8  9a d4 2b
     bc $lab_2bd2            ;2bcb  8d 05
@@ -9634,7 +9632,7 @@ lab_2c60:
     br $lab_2c77            ;2c6a  fa 0b
 
 lab_2c6c:
-    movw hl,#mem_f090       ;2c6c  16 90 f0
+    movw hl,#kwp_rx_buf+6   ;2c6c  16 90 f0     KWP1281 rx buffer byte 6
     mov a,!mem_f04c         ;2c6f  8e 4c f0
     call !sub_628e          ;2c72  9a 8e 62
     bnc $lab_2c7b           ;2c75  9d 04
@@ -9652,13 +9650,13 @@ lab_2c7b:
 sub_2c7f:
     movw ax,!0f004h         ;2c7f  02 04 f0
     movw de,ax              ;2c82  d4
-    mov a,!mem_f090         ;2c83  8e 90 f0
+    mov a,!kwp_rx_buf+6     ;2c83  8e 90 f0     KWP1281 rx buffer byte 6
     mov x,a                 ;2c86  70
     mov a,!mem_f04c         ;2c87  8e 4c f0
     ret                     ;2c8a  af
 
 sub_2c8b:
-    movw hl,#mem_f08d       ;2c8b  16 8d f0     HL = pointer to KWP1281 rx buffer byte 3
+    movw hl,#kwp_rx_buf+3   ;2c8b  16 8d f0     HL = pointer to KWP1281 rx buffer byte 3
     mov a,[hl]              ;2c8e  87
     mov e,a                 ;2c8f  74
     incw hl                 ;2c90  86
@@ -9907,11 +9905,11 @@ lab_2dd5:
     ret                     ;2dd5  af
 
 sub_2dd6:
-    movw hl,#mem_f08d       ;2dd6  16 8d f0     HL = pointer to KWP1281 rx buffer offset 3
+    movw hl,#kwp_rx_buf+3   ;2dd6  16 8d f0     HL = pointer to KWP1281 rx buffer byte 3
     mov a,!mem_f04c         ;2dd9  8e 4c f0
     mov [hl],a              ;2ddc  97
     incw hl                 ;2ddd  86
-    movw ax,!0f000h         ;2dde  02 00 f0
+    movw ax,!mem_f000       ;2dde  02 00 f0
     mov [hl],a              ;2de1  97
     incw hl                 ;2de2  86
     mov a,x                 ;2de3  60
@@ -10376,7 +10374,7 @@ sub_308f:
     mov a,!mem_f068         ;30be  8e 68 f0
     inc a                   ;30c1  41
     mov !mem_f068,a         ;30c2  9e 68 f0
-    movw hl,#mem_f07a       ;30c5  16 7a f0         HL = pointer to KWP1281 tx buffer
+    movw hl,#kwp_tx_buf     ;30c5  16 7a f0         HL = pointer to KWP1281 tx buffer
     mov a,[hl+b]            ;30c8  ab
     br $lab_30de            ;30c9  fa 13
 
@@ -10439,7 +10437,7 @@ lab_3118:
     br $lab_312c            ;3125  fa 05
 
 lab_3127:
-    movw hl,#mem_f08a       ;3127  16 8a f0     HL = pointer to KWP1281 rx buffer
+    movw hl,#kwp_rx_buf     ;3127  16 8a f0     HL = pointer to KWP1281 rx buffer
     mov a,x                 ;312a  60           A = block length
     mov [hl+c],a            ;312b  ba
 
@@ -14886,13 +14884,13 @@ sub_4694:
 ;set mem_fe64.7 and returns it in the carry:
 ;  clear = no login, set = login successful
 ;
-    clr1 mem_fe64.7         ;4694  7b 64        Clear byte to indicate no login
-    movw hl,#mem_f08d       ;4696  16 8d f0     HL = pointer to KWP rx buffer offset 3
-    movw de,#kwp_login_b1eb  ;4699  14 eb b1    DE = pointer to "OCLED"
+    clr1 mem_fe64.7         ;4694  7b 64        Clear byte to indicate no DELCO login
+    movw hl,#kwp_rx_buf+3   ;4696  16 8d f0     HL = pointer to KWP1281 rx buffer byte 3
+    movw de,#kwp_login_b1eb  ;4699  14 eb b1    DE = pointer to "OCLED" (DELCO backwards)
     mov a,#05h              ;469c  a1 05        A = 5 bytes to compare
     callf !sub_0cca         ;469e  4c ca        Compare buffers
     bnz $lab_46a9           ;46a0  bd 07        Branch if buffers are not equal
-    set1 mem_fe64.7         ;46a2  7a 64        Set bit to indicate successful login
+    set1 mem_fe64.7         ;46a2  7a 64        Set bit to indicate successful DELCO login
     mov a,#34h              ;46a4  a1 34
     mov !mem_fb28,a         ;46a6  9e 28 fb
 
@@ -14902,25 +14900,25 @@ lab_46a9:
 
 sub_46ad:
 ;Called from Title=0x1b  Subtitle=0x26  Block length=0x06
-    mov a,!mem_f08f         ;46ad  8e 8f f0
+    mov a,!kwp_rx_buf+5     ;46ad  8e 8f f0     A = value at KWP1281 rx buffer byte 5
     and a,#07h              ;46b0  5d 07
     mov mem_fe31,a          ;46b2  f2 31
     mov a,#03h              ;46b4  a1 03        A = 3 bytes to copy
-    call !sub_486f          ;46b6  9a 6f 48     Copy A bytes from mem_f08d to 0fb9bh
+    call !sub_486f          ;46b6  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to 0fb9bh
     mov a,#03h              ;46b9  a1 03
     mov !mem_fbaf,a         ;46bb  9e af fb
     ret                     ;46be  af
 
 sub_46bf:
 ;Called from Title=0x1b  Subtitle=0x27  Block length=0x07
-    mov a,!mem_f08f         ;46bf  8e 8f f0
+    mov a,!kwp_rx_buf+5     ;46bf  8e 8f f0     A = value at KWP1281 rx buffer byte 5
     clr1 mem_fe64.6         ;46c2  6b 64
     bf a.1,$lab_46c9        ;46c4  31 1f 02
     set1 mem_fe64.6         ;46c7  6a 64
 
 lab_46c9:
     rorc a,1                ;46c9  25
-    mov a,!mem_f090         ;46ca  8e 90 f0
+    mov a,!kwp_rx_buf+6     ;46ca  8e 90 f0     KWP1281 rx buffer byte 6
     bc $lab_46e8            ;46cd  8d 19
     mov b,a                 ;46cf  73
     movw hl,#0b1c8h         ;46d0  16 c8 b1
@@ -14961,7 +14959,7 @@ sub_46fc:
     mov a,x                 ;4705  60
     mov !mem_fb9e,a         ;4706  9e 9e fb
     mov a,#02h              ;4709  a1 02        A = 2 bytes to copy
-    call !sub_486f          ;470b  9a 6f 48     Copy A bytes from mem_f08d to 0fb9bh
+    call !sub_486f          ;470b  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to 0fb9bh
     bf mem_fe65.0,$lab_4724 ;470e  31 03 65 12
 
 lab_4712:
@@ -14985,18 +14983,18 @@ lab_4730:
 
 sub_4731:
 ;Called from Title=0x1b  Subtitle=0x2d  Block length=0x0b
-    mov a,!mem_f08f         ;4731  8e 8f f0
+    mov a,!kwp_rx_buf+5     ;4731  8e 8f f0     A = value at KWP1281 rx buffer byte 5
     cmp a,#00h              ;4734  4d 00
     bz $lab_474d            ;4736  ad 15
     bf a.7,$lab_474e        ;4738  31 7f 13
     mov a,#08h              ;473b  a1 08        A = 8 bytes to copy
     mov !mem_fbaf,a         ;473d  9e af fb
-    call !sub_486f          ;4740  9a 6f 48     Copy A bytes from mem_f08d to 0fb9bh
+    call !sub_486f          ;4740  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to 0fb9bh
     movw de,#mem_fba7       ;4743  14 a7 fb
 
 sub_4746:
     mov a,#05h              ;4746  a1 05        A = 5 bytes to copy
-    movw hl,#mem_f090       ;4748  16 90 f0     HL = source address
+    movw hl,#kwp_rx_buf+6   ;4748  16 90 f0     HL = source address (KWP rx buffer byte 6)
     callf !sub_0c9e         ;474b  4c 9e        Copy A bytes from [HL] to [DE]
 
 lab_474d:
@@ -15014,7 +15012,7 @@ lab_474e:
 lab_475d:
     mov x,a                 ;475d  70
     push ax                 ;475e  b1
-    mov a,!mem_f08f         ;475f  8e 8f f0
+    mov a,!kwp_rx_buf+5     ;475f  8e 8f f0     A = value at KWP1281 rx buffer byte 5
     and a,#78h              ;4762  5d 78
     cmp a,#10h              ;4764  4d 10
     bc $lab_476e            ;4766  8d 06
@@ -15023,11 +15021,11 @@ lab_475d:
 
 lab_476e:
     mov a,#03h              ;476e  a1 03        A = 3 bytes to copy
-    call !sub_486f          ;4770  9a 6f 48     Copy A bytes from mem_f08d to 0fb9bh
+    call !sub_486f          ;4770  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to 0fb9bh
     pop ax                  ;4773  b0
     add a,#03h              ;4774  0d 03
     mov !mem_fbaf,a         ;4776  9e af fb
-    mov a,!mem_f090         ;4779  8e 90 f0
+    mov a,!kwp_rx_buf+6     ;4779  8e 90 f0     KWP1281 rx buffer byte 6
     set1 a.0                ;477c  61 8a
     xch a,x                 ;477e  30
     or a,#0c0h              ;477f  6d c0
@@ -15051,13 +15049,13 @@ lab_4795:
 sub_4797:
     mov a,#08h              ;4797  a1 08        A = 8 bytes to copy
     mov !mem_fbaf,a         ;4799  9e af fb
-    call !sub_486f          ;479c  9a 6f 48     Copy A bytes from mem_f08d to 0fb9bh
+    call !sub_486f          ;479c  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to 0fb9bh
     movw de,#mem_fbdb       ;479f  14 db fb
     call !sub_4746          ;47a2  9a 46 47
     mov a,#05h              ;47a5  a1 05        A = 5 bytes to copy
     movw hl,#mem_fba7       ;47a7  16 a7 fb     HL = source address
     callf !sub_0c9e         ;47aa  4c 9e        Copy A bytes from [HL] to [DE]
-    mov a,!mem_f08f         ;47ac  8e 8f f0
+    mov a,!kwp_rx_buf+5     ;47ac  8e 8f f0     A = value at KWP1281 rx buffer byte 5
     ror a,1                 ;47af  24
     ror a,1                 ;47b0  24
     ror a,1                 ;47b1  24
@@ -15089,14 +15087,14 @@ sub_47d2:
 ;Called from Title=0x1b  Subtitle=0x2e  Block length=0x0b
     mov a,#08h              ;47d2  a1 08        A = 8 bytes to copy
     mov !mem_fbaf,a         ;47d4  9e af fb
-    call !sub_486f          ;47d7  9a 6f 48     Copy A bytes from mem_f08d to 0fb9bh
+    call !sub_486f          ;47d7  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to 0fb9bh
     call !sub_4835          ;47da  9a 35 48
     bc $lab_47f5            ;47dd  8d 16
     movw de,ax              ;47df  d4
     mov !mem_fb9d,a         ;47e0  9e 9d fb
     mov a,x                 ;47e3  60
     mov !mem_fb9e,a         ;47e4  9e 9e fb
-    mov a,!mem_f091         ;47e7  8e 91 f0
+    mov a,!kwp_rx_buf+7     ;47e7  8e 91 f0     KWP1281 rx buffer byte 7
     and a,#03h              ;47ea  5d 03
     mov !mem_fb9f,a         ;47ec  9e 9f fb
     movw hl,#0f092h         ;47ef  16 92 f0
@@ -15115,7 +15113,7 @@ sub_47fb:
     mov a,#04h              ;47fb  a1 04
     mov !mem_fbaf,a         ;47fd  9e af fb
     mov a,#02h              ;4800  a1 02        A = 2 bytes to copy
-    call !sub_486f          ;4802  9a 6f 48     Copy A bytes from mem_f08d to 0fb9bh
+    call !sub_486f          ;4802  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to 0fb9bh
     movw hl,#0000h          ;4805  16 00 00
     movw ax,#5555h          ;4808  10 55 55
 
@@ -15153,13 +15151,13 @@ lab_4834:
 
 sub_4835:
     clr1 mem_fe65.0         ;4835  0b 65
-    mov a,!mem_f08f         ;4837  8e 8f f0
+    mov a,!kwp_rx_buf+5     ;4837  8e 8f f0     A = value at KWP1281 rx buffer byte 5
     mov b,a                 ;483a  73
     movw hl,#0b190h         ;483b  16 90 b1
     callf !sub_0c48         ;483e  4c 48
     bc $lab_4859            ;4840  8d 17
     mov x,#00h              ;4842  a0 00
-    mov a,!mem_f090         ;4844  8e 90 f0
+    mov a,!kwp_rx_buf+6     ;4844  8e 90 f0     KWP1281 rx buffer byte 6
     bf a.7,$lab_484c        ;4847  31 7f 02
     mov x,#0ffh             ;484a  a0 ff
 
@@ -15196,10 +15194,10 @@ lab_486c:
     ret                     ;486e  af
 
 sub_486f:
-;Copy A bytes from mem_f08d to 0fb9bh
+;Copy A bytes from kwp_rx_buf+3 to 0fb9bh
     push de                 ;486f  b5
     push hl                 ;4870  b7
-    movw hl,#mem_f08d       ;4871  16 8d f0     HL = source address
+    movw hl,#kwp_rx_buf+3   ;4871  16 8d f0     HL = source address
     movw de,#0fb9bh         ;4874  14 9b fb     DE = destination address
     callf !sub_0c9e         ;4877  4c 9e        Copy A bytes from [HL] to [DE]
     pop hl                  ;4879  b6
@@ -16264,7 +16262,7 @@ lab_4df9:
     ret                     ;4df9  af
 
 lab_4dfa:
-    movw hl,#mem_f08a       ;4dfa  16 8a f0     HL = pointer to KWP1281 rx buffer
+    movw hl,#kwp_rx_buf     ;4dfa  16 8a f0     HL = pointer to KWP1281 rx buffer
     mov a,[hl+01h]          ;4dfd  ae 01        A = block counter
     mov !mem_fbcb,a         ;4dff  9e cb fb     Store block counter
     mov a,[hl+02h]          ;4e02  ae 02
@@ -16275,10 +16273,10 @@ lab_4e09:
     cmp a,[hl+b]            ;4e09  31 4b
     bz $lab_4e12            ;4e0b  ad 05
     dbnz b,$lab_4e09        ;4e0d  8b fa
-    br !lab_5355            ;4e0f  9b 55 53     Branch to Send NAK response
+    br !lab_5355            ;4e0f  9b 55 53     Branch to Send NAK response (index 0x04)
 
 lab_4e12:
-    movw hl,#mem_f08a       ;4e12  16 8a f0     HL = pointer to KWP1281 rx buffer
+    movw hl,#kwp_rx_buf     ;4e12  16 8a f0     HL = pointer to KWP1281 rx buffer
     mov a,[hl]              ;4e15  87           A = block length from rx buffer
     mov x,a                 ;4e16  70           X = actual block length
     movw hl,#kwp_lengths_b281 ;4e17  16 81 b2   HL = pointer to block lengths table
@@ -16287,7 +16285,7 @@ lab_4e12:
     bz $lab_4e26            ;4e1d  ad 07          Yes: skip compare
     cmp a,x                 ;4e1f  61 48        Actual block length match expected?
     bz $lab_4e26            ;4e21  ad 03          Yes: lab_4e26
-    br !lab_5344            ;4e23  9b 44 53       No: lab_5344
+    br !lab_5344            ;4e23  9b 44 53       No: lab_5344 Send NAK response (index 0x03)
 
 lab_4e26:
     ;block length is ok
@@ -16320,16 +16318,16 @@ lab_4e4e:
     ret                     ;4e4e  af
 
 lab_4e4f:
-    movw hl,#mem_f08a       ;4e4f  16 8a f0     HL = pointer to KWP1281 rx buffer
-    mov a,[hl+02h]          ;4e52  ae 02        A = block title
-    movw hl,#kwp_titles_b2a5 ;4e54  16 a5 b2
-    mov b,#08h              ;4e57  a3 08
+    movw hl,#kwp_rx_buf     ;4e4f  16 8a f0     HL = pointer to KWP1281 rx buffer
+    mov a,[hl+02h]          ;4e52  ae 02        A = block title to find
+    movw hl,#kwp_titles_b2a5 ;4e54  16 a5 b2    HL = pointer to table of block titles
+    mov b,#08h              ;4e57  a3 08        B = 8 block titles in table
 
 lab_4e59:
     cmp a,[hl+b]            ;4e59  31 4b
     bz $lab_4e62            ;4e5b  ad 05
     dbnz b,$lab_4e59        ;4e5d  8b fa
-    br !lab_5355            ;4e5f  9b 55 53     Branch to Send NAK response
+    br !lab_5355            ;4e5f  9b 55 53     Branch to Send NAK response (index 0x04)
 
 lab_4e62:
     mov a,b                 ;4e62  63
@@ -16343,16 +16341,16 @@ lab_4e62:
     br ax                   ;4e6c  31 98
 
 lab_4e6e:
-    movw hl,#mem_f08a       ;4e6e  16 8a f0     HL = pointer to KWP1281 rx buffer
+    movw hl,#kwp_rx_buf     ;4e6e  16 8a f0     HL = pointer to KWP1281 rx buffer
     mov a,[hl+02h]          ;4e71  ae 02        A = block title
-    movw hl,#kwp_titles_b2c2 ;4e73  16 c2 b2
-    mov b,#0eh              ;4e76  a3 0e
+    movw hl,#kwp_titles_b2c2 ;4e73  16 c2 b2    HL = pointer to table of block titles
+    mov b,#0eh              ;4e76  a3 0e        B = 0x0e block titles in table
 
 lab_4e78:
     cmp a,[hl+b]            ;4e78  31 4b
     bz $lab_4e81            ;4e7a  ad 05
     dbnz b,$lab_4e78        ;4e7c  8b fa
-    br !lab_5355            ;4e7e  9b 55 53     Branch to Send NAK response
+    br !lab_5355            ;4e7e  9b 55 53     Branch to Send NAK response (index 0x04)
 
 lab_4e81:
     mov a,b                 ;4e81  63
@@ -16366,16 +16364,16 @@ lab_4e81:
     br ax                   ;4e8b  31 98
 
 lab_4e8d:
-    movw hl,#mem_f08a       ;4e8d  16 8a f0     HL = pointer to KWP1281 rx buffer
+    movw hl,#kwp_rx_buf     ;4e8d  16 8a f0     HL = pointer to KWP1281 rx buffer
     mov a,[hl+02h]          ;4e90  ae 02        A = block title
-    movw hl,#kwp_titles_b2f1 ;4e92  16 f1 b2
-    mov b,#04h              ;4e95  a3 04
+    movw hl,#kwp_titles_b2f1 ;4e92  16 f1 b2    HL = pointer to table of block titles
+    mov b,#04h              ;4e95  a3 04        B = 4 block titles in table
 
 lab_4e97:
     cmp a,[hl+b]            ;4e97  31 4b
     bz $lab_4ea0            ;4e99  ad 05
     dbnz b,$lab_4e97        ;4e9b  8b fa
-    br !lab_5355            ;4e9d  9b 55 53     Branch to Send NAK response
+    br !lab_5355            ;4e9d  9b 55 53     Branch to Send NAK response (index 0x04)
 
 lab_4ea0:
     mov a,b                 ;4ea0  63
@@ -16390,12 +16388,12 @@ lab_4ea0:
     ret                     ;4eac  af
 
 lab_4ead:
-    ;ack
+    ;ack (kwp_handlers_b2af)
     call !sub_4828          ;4ead  9a 28 48
     br !lab_532a            ;4eb0  9b 2a 53     Branch to send ACK response
 
 lab_4eb3:
-    ;end session
+    ;end session (kwp_handlers_b2af)
     mov a,#00h              ;4eb3  a1 00
     mov !mem_fbc7,a         ;4eb5  9e c7 fb
     call !sub_4822          ;4eb8  9a 22 48
@@ -16405,8 +16403,8 @@ lab_4ebe:
     br !lab_532a            ;4ebe  9b 2a 53     Branch to send ACK response
 
 lab_4ec1:
-    ;nak
-    movw hl,#mem_f08a       ;4ec1  16 8a f0     HL = pointer to KWP1281 rx buffer
+    ;nak (kwp_handlers_4ec1)
+    movw hl,#kwp_rx_buf     ;4ec1  16 8a f0     HL = pointer to KWP1281 rx buffer
     mov a,[hl+03h]          ;4ec4  ae 03
     cmp a,[hl+01h]          ;4ec6  49 01
     bz $lab_4ebe            ;4ec8  ad f4
@@ -16415,7 +16413,7 @@ lab_4ec1:
     bc $lab_4ede            ;4ecf  8d 0d
     mov a,!mem_fbcb         ;4ed1  8e cb fb
     add a,#01h              ;4ed4  0d 01
-    movw hl,#mem_f07a       ;4ed6  16 7a f0     HL = pointer to KWP1281 tx buffer
+    movw hl,#kwp_tx_buf     ;4ed6  16 7a f0     HL = pointer to KWP1281 tx buffer
     mov [hl+01h],a          ;4ed9  be 01        Store block counter in tx buffer
     br !sub_34f7            ;4edb  9b f7 34
 
@@ -16423,15 +16421,15 @@ lab_4ede:
     br !lab_516f            ;4ede  9b 6f 51
 
 lab_4ee1:
-    ;login
+    ;login (kwp_handlers_b2af)
     call !sub_4694          ;4ee1  9a 94 46
     bc $lab_4eee            ;4ee4  8d 08        ;Branch if successful login
     mov a,#01h              ;4ee6  a1 01
     mov !mem_fbc7,a         ;4ee8  9e c7 fb
-    br !lab_5355            ;4eeb  9b 55 53     Branch to Send NAK response
+    br !lab_5355            ;4eeb  9b 55 53     Branch to Send NAK response (index 0x04)
 
 lab_4eee:
-    ;successful kwp_login_b1eb
+    ;successful login
     mov a,#00h              ;4eee  a1 00
     mov !mem_fbc7,a         ;4ef0  9e c7 fb
     br !lab_532a            ;4ef3  9b 2a 53     Branch to send ACK response
@@ -16441,7 +16439,7 @@ lab_4ef6:
     mov a,!mem_fbc7         ;4ef6  8e c7 fb
     cmp a,#01h              ;4ef9  4d 01
     bnz $lab_4f00           ;4efb  bd 03
-    br !lab_5355            ;4efd  9b 55 53     Branch to Send NAK response
+    br !lab_5355            ;4efd  9b 55 53     Branch to Send NAK response (index 0x04)
 
 lab_4f00:
     mov a,#00h              ;4f00  a1 00
@@ -16450,17 +16448,17 @@ lab_4f00:
     call !sub_4828          ;4f06  9a 28 48
     set1 cy                 ;4f09  20
     bc $lab_4f0f            ;4f0a  8d 03
-    br !lab_5355            ;4f0c  9b 55 53     Branch to Send NAK response
+    br !lab_5355            ;4f0c  9b 55 53     Branch to Send NAK response (index 0x04)
 
 lab_4f0f:
     br !lab_552a            ;4f0f  9b 2a 55
 
 lab_4f12:
-    ;read rom
+    ;read rom (kwp_handlers_b2af)
     mov a,!mem_fbc7         ;4f12  8e c7 fb
     cmp a,#01h              ;4f15  4d 01
     bnz $lab_4f1c           ;4f17  bd 03
-    br !lab_5355            ;4f19  9b 55 53     Branch to Send NAK response
+    br !lab_5355            ;4f19  9b 55 53     Branch to Send NAK response (index 0x04)
 
 lab_4f1c:
     mov a,#00h              ;4f1c  a1 00
@@ -16469,16 +16467,17 @@ lab_4f1c:
     call !sub_4828          ;4f22  9a 28 48
     set1 cy                 ;4f25  20
     bc $lab_4f2b            ;4f26  8d 03
-    br !lab_5355            ;4f28  9b 55 53     Branch to Send NAK response
+    br !lab_5355            ;4f28  9b 55 53     Branch to Send NAK response (index 0x04)
 
 lab_4f2b:
     br !lab_5581            ;4f2b  9b 81 55
 
 lab_4f2e:
+    ;? write eeprom (kwp_handlers_b2af)
     mov a,!mem_fbc7         ;4f2e  8e c7 fb
     cmp a,#01h              ;4f31  4d 01
     bnz $lab_4f38           ;4f33  bd 03
-    br !lab_5355            ;4f35  9b 55 53     Branch to Send NAK response
+    br !lab_5355            ;4f35  9b 55 53     Branch to Send NAK response (index 0x04)
 
 lab_4f38:
     mov a,#00h              ;4f38  a1 00
@@ -16489,7 +16488,7 @@ lab_4f38:
     bc $lab_4f47            ;4f42  8d 03
 
 lab_4f44:
-    br !lab_5355            ;4f44  9b 55 53     Branch to Send NAK response
+    br !lab_5355            ;4f44  9b 55 53     Branch to Send NAK response (index 0x04)
 
 lab_4f47:
     call !sub_2c33          ;4f47  9a 33 2c
@@ -16497,40 +16496,40 @@ lab_4f47:
     br !lab_55c5            ;4f4c  9b c5 55
 
 lab_4f4f:
-    ;kwp ? custom usage
+    ;kwp ? custom usage (kwp_handlers_b2af)
     mov a,!mem_fbc7         ;4f4f  8e c7 fb
     cmp a,#01h              ;4f52  4d 01
     bnz $lab_4f59           ;4f54  bd 03
-    br !lab_5355            ;4f56  9b 55 53     Branch to Send NAK response
+    br !lab_5355            ;4f56  9b 55 53     Branch to Send NAK response (index 0x04)
 
 lab_4f59:
     mov a,#00h              ;4f59  a1 00
     mov !mem_fbc7,a         ;4f5b  9e c7 fb
-    movw hl,#mem_f08a       ;4f5e  16 8a f0     HL = pointer to KWP1281 rx buffer
+    movw hl,#kwp_rx_buf     ;4f5e  16 8a f0     HL = pointer to KWP1281 rx buffer
     mov a,[hl+03h]          ;4f61  ae 03        A = first payload byte after block title
     cmp a,#31h              ;4f63  4d 31        Is it a "1"?
     bz $lab_4f6a            ;4f65  ad 03          Yes: lab_4f6a
-    br !lab_5355            ;4f67  9b 55 53       No:  lab_5355 Send NAK response
+    br !lab_5355            ;4f67  9b 55 53       No:  lab_5355 Send NAK response (index 0x04)
 
 lab_4f6a:
     mov a,[hl+04h]          ;4f6a  ae 04        A = KWP1281 rx buffer subtitle
-    movw hl,#kwp_titles_b302 ;4f6c  16 02 b3
+    movw hl,#kwp_subtitles_b302 ;4f6c  16 02 b3
     mov b,#0ah              ;4f6f  a3 0a
 
 lab_4f71:
     cmp a,[hl+b]            ;4f71  31 4b
     bz $lab_4f7a            ;4f73  ad 05
     dbnz b,$lab_4f71        ;4f75  8b fa
-    br !lab_5355            ;4f77  9b 55 53     Branch to Send NAK response
+    br !lab_5355            ;4f77  9b 55 53     Branch to Send NAK response (index 0x04)
 
 lab_4f7a:
-    ;found a match in kwp_titles_b302
-    movw hl,#mem_f08a       ;4f7a  16 8a f0     HL = pointer to KWP1281 rx buffer
+    ;found a match in kwp_subtitles_b302
+    movw hl,#kwp_rx_buf     ;4f7a  16 8a f0     HL = pointer to KWP1281 rx buffer
     mov a,[hl]              ;4f7d  87           A = block length
     movw hl,#kwp_lengths_b30e ;4f7e  16 0e b3
     cmp a,[hl+b]            ;4f81  31 4b
     bz $lab_4f88            ;4f83  ad 03
-    br !lab_5355            ;4f85  9b 55 53     Branch to Send NAK response
+    br !lab_5355            ;4f85  9b 55 53     Branch to Send NAK response (index 0x04)
 
 lab_4f88:
     ;found a match in kwp_lengths_b30e
@@ -16545,7 +16544,7 @@ lab_4f88:
     mov x,a                 ;4f94  70
     inc b                   ;4f95  43
     mov a,[hl+b]            ;4f96  ab
-    movw hl,#mem_f08a       ;4f97  16 8a f0     HL = pointer to KWP1281 rx buffer
+    movw hl,#kwp_rx_buf     ;4f97  16 8a f0     HL = pointer to KWP1281 rx buffer
     mov b,#04h              ;4f9a  a3 04
     br ax                   ;4f9c  31 98
 
@@ -16599,7 +16598,7 @@ lab_4fd1:
     br !lab_54fb            ;4fd4  9b fb 54
 
 lab_4fd7:
-    ;ack
+    ;ack (kwp_handlers_b2d2)
     mov a,!mem_fbc5         ;4fd7  8e c5 fb
     cmp a,#00h              ;4fda  4d 00
     bnz $lab_4fe1           ;4fdc  bd 03
@@ -16642,7 +16641,7 @@ lab_501b:
     br !lab_52b1            ;501b  9b b1 52
 
 lab_501e:
-    ;end session
+    ;end session (kwp_handlers_b2d2)
     mov a,#00h              ;501e  a1 00
     mov !mem_fbc5,a         ;5020  9e c5 fb
     br !lab_51c3            ;5023  9b c3 51     Branch to clear auth bits and end session
@@ -16653,8 +16652,8 @@ lab_5026:
     br !lab_532a            ;502b  9b 2a 53     Branch to send ACK response
 
 lab_502e:
-    ;nak
-    movw hl,#mem_f08a       ;502e  16 8a f0     HL = pointer to KWP1281 rx buffer
+    ;nak (kwp_handlers_b2d2)
+    movw hl,#kwp_rx_buf     ;502e  16 8a f0     HL = pointer to KWP1281 rx buffer
     mov a,[hl+03h]          ;5031  ae 03
     cmp a,[hl+01h]          ;5033  49 01
     bz $lab_5026            ;5035  ad ef
@@ -16663,7 +16662,7 @@ lab_502e:
     bc $lab_504b            ;503c  8d 0d
     mov a,!mem_fbcb         ;503e  8e cb fb
     add a,#01h              ;5041  0d 01
-    movw hl,#mem_f07a       ;5043  16 7a f0     HL = pointer to KWP1281 tx buffer
+    movw hl,#kwp_tx_buf     ;5043  16 7a f0     HL = pointer to KWP1281 tx buffer
     mov [hl+01h],a          ;5046  be 01        Store block counter in tx buffer
     br !sub_34f7            ;5048  9b f7 34
 
@@ -16671,43 +16670,43 @@ lab_504b:
     br !lab_516f            ;504b  9b 6f 51
 
 lab_504e:
-    ;read identification
+    ;read identification (kwp_handlers_b2d2)
     mov a,#01h              ;504e  a1 01
     mov !mem_fbc5,a         ;5050  9e c5 fb
     set1 mem_fe66.0         ;5053  0a 66
     br !lab_52ea            ;5055  9b ea 52
 
 lab_5058:
-    ;read faults
+    ;read faults (kwp_handlers_b2d2)
     mov a,#04h              ;5058  a1 04
     mov !mem_fbc5,a         ;505a  9e c5 fb
     br !lab_537b            ;505d  9b 7b 53
 
 lab_5060:
-    ;clear faults
+    ;clear faults (kwp_handlers_b2d2)
     call !sub_2790          ;5060  9a 90 27
     br $lab_5058            ;5063  fa f3
 
 lab_5065:
-    ;output tests
+    ;output tests (kwp_handlers_b2d2)
     mov a,#00h              ;5065  a1 00
     mov !mem_fbc5,a         ;5067  9e c5 fb
     br !lab_53cf            ;506a  9b cf 53
 
 lab_506d:
-    ;basic setting
+    ;basic setting (kwp_handlers_b2d2)
     mov a,#00h              ;506d  a1 00
     mov !mem_fbc5,a         ;506f  9e c5 fb
-    br !lab_5355            ;5072  9b 55 53     Branch to Send NAK response
+    br !lab_5355            ;5072  9b 55 53     Branch to Send NAK response (index 0x04)
 
 lab_5075:
-    ;group reading
+    ;group reading (kwp_handlers_b2d2)
     mov a,#00h              ;5075  a1 00
     mov !mem_fbc5,a         ;5077  9e c5 fb
     br !lab_5422            ;507a  9b 22 54
 
 lab_507d:
-    ;recoding
+    ;recoding (kwp_handlers_b2d2)
     mov a,#01h              ;507d  a1 01
     mov !mem_fbc5,a         ;507f  9e c5 fb
     set1 mem_fe66.0         ;5082  0a 66
@@ -16732,17 +16731,17 @@ lab_509e:
     mov a,#00h              ;509e  a1 00
     mov !mem_fbc5,a         ;50a0  9e c5 fb
     bt mem_fe65.3,$lab_50a9 ;50a3  bc 65 03     Branch if logged in
-    br !lab_5355            ;50a6  9b 55 53     Branch to Send NAK response
+    br !lab_5355            ;50a6  9b 55 53     Branch to Send NAK response (index 0x04)
 
 lab_50a9:
     bt mem_fe65.4,$lab_50af ;50a9  cc 65 03     Branch if group read 0x19 was performed
-    br !lab_5355            ;50ac  9b 55 53     Branch to Send NAK response
+    br !lab_5355            ;50ac  9b 55 53     Branch to Send NAK response (index 0x04)
 
 lab_50af:
     clr1 cy                 ;50af  21
     set1 cy                 ;50b0  20
     bc $lab_50b6            ;50b1  8d 03
-    br !lab_5355            ;50b3  9b 55 53     Branch to Send NAK response
+    br !lab_5355            ;50b3  9b 55 53     Branch to Send NAK response (index 0x04)
 
 lab_50b6:
     br !lab_552a            ;50b6  9b 2a 55
@@ -16752,17 +16751,17 @@ lab_50b9:
     mov a,#00h              ;50b9  a1 00
     mov !mem_fbc5,a         ;50bb  9e c5 fb
     bt mem_fe65.3,$lab_50c4 ;50be  bc 65 03     Branch if logged in
-    br !lab_5355            ;50c1  9b 55 53     Branch to Send NAK response
+    br !lab_5355            ;50c1  9b 55 53     Branch to Send NAK response (index 0x04)
 
 lab_50c4:
     bt mem_fe65.4,$lab_50ca ;50c4  cc 65 03     Branch if group read 0x19 was performed
-    br !lab_5355            ;50c7  9b 55 53     Branch to Send NAK response
+    br !lab_5355            ;50c7  9b 55 53     Branch to Send NAK response (index 0x04)
 
 lab_50ca:
     clr1 cy                 ;50ca  21
     set1 cy                 ;50cb  20
     bc $lab_50d1            ;50cc  8d 03
-    br !lab_5355            ;50ce  9b 55 53     Branch to Send NAK response
+    br !lab_5355            ;50ce  9b 55 53     Branch to Send NAK response (index 0x04)
 
 lab_50d1:
     br !lab_5581            ;50d1  9b 81 55
@@ -16772,11 +16771,11 @@ lab_50d4:
     mov a,#00h              ;50d4  a1 00
     mov !mem_fbc5,a         ;50d6  9e c5 fb
     bt mem_fe65.3,$lab_50df ;50d9  bc 65 03     Branch if logged in
-    br !lab_5355            ;50dc  9b 55 53     Branch to Send NAK response
+    br !lab_5355            ;50dc  9b 55 53     Branch to Send NAK response (index 0x04)
 
 lab_50df:
     bt mem_fe65.4,$lab_50e5 ;50df  cc 65 03     Branch if group read 0x19 was performed
-    br !lab_5355            ;50e2  9b 55 53     Branch to Send NAK response
+    br !lab_5355            ;50e2  9b 55 53     Branch to Send NAK response (index 0x04)
 
 lab_50e5:
     clr1 cy                 ;50e5  21
@@ -16784,7 +16783,7 @@ lab_50e5:
     bc $lab_50ec            ;50e7  8d 03
 
 lab_50e9:
-    br !lab_5355            ;50e9  9b 55 53     Branch to Send NAK response
+    br !lab_5355            ;50e9  9b 55 53     Branch to Send NAK response (index 0x04)
 
 lab_50ec:
     call !sub_2c33          ;50ec  9a 33 2c
@@ -16792,10 +16791,11 @@ lab_50ec:
     br !lab_55c5            ;50f1  9b c5 55
 
 lab_50f4:
+    ;ack (kwp_handlers_b2f7)
     mov a,!mem_fbc6         ;50f4  8e c6 fb
     cmp a,#01h              ;50f7  4d 01
     bz $lab_50fe            ;50f9  ad 03
-    br !lab_5355            ;50fb  9b 55 53     Branch to Send NAK response
+    br !lab_5355            ;50fb  9b 55 53     Branch to Send NAK response (index 0x04)
 
 lab_50fe:
     mov a,#02h              ;50fe  a1 02
@@ -16803,6 +16803,7 @@ lab_50fe:
     br !lab_55de            ;5103  9b de 55
 
 lab_5106:
+    ;end session (kwp_handlers_b2f7)
     call !sub_259b          ;5106  9a 9b 25
     mov a,#00h              ;5109  a1 00
     mov !mem_fbc6,a         ;510b  9e c6 fb
@@ -16812,10 +16813,11 @@ lab_5111:
     call !sub_259b          ;5111  9a 9b 25
     mov a,#00h              ;5114  a1 00
     mov !mem_fbc6,a         ;5116  9e c6 fb
-    br !lab_5337            ;5119  9b 37 53
+    br !lab_5337            ;5119  9b 37 53     Branch to Send End Session response
 
 lab_511c:
-    movw hl,#mem_f08a       ;511c  16 8a f0     HL = pointer to KWP1281 rx buffer
+    ;nak (kwp_handlers_b2f7)
+    movw hl,#kwp_rx_buf     ;511c  16 8a f0     HL = pointer to KWP1281 rx buffer
     mov a,[hl+03h]          ;511f  ae 03
     cmp a,[hl+01h]          ;5121  49 01
     bz $lab_5111            ;5123  ad ec
@@ -16828,19 +16830,20 @@ lab_512f:
     call !sub_259b          ;512f  9a 9b 25
     mov a,#00h              ;5132  a1 00
     mov !mem_fbc6,a         ;5134  9e c6 fb
-    br !lab_5337            ;5137  9b 37 53
+    br !lab_5337            ;5137  9b 37 53     Branch to Send End Session response
 
 lab_513a:
+    ;? security access (kwp_handlers_b2f7)
     mov a,!mem_fbc6         ;513a  8e c6 fb
     cmp a,#02h              ;513d  4d 02
     bz $lab_5144            ;513f  ad 03
-    br !lab_5355            ;5141  9b 55 53     Branch to Send NAK response
+    br !lab_5355            ;5141  9b 55 53     Branch to Send NAK response (index 0x04)
 
 lab_5144:
     call !sub_2537          ;5144  9a 37 25
     mov a,#00h              ;5147  a1 00
     mov !mem_fbc6,a         ;5149  9e c6 fb
-    br !lab_5337            ;514c  9b 37 53
+    br !lab_5337            ;514c  9b 37 53     Branch to Send End Session response
 
     db 0afh                 ;514f  af          DATA 0xaf
     db 8eh                  ;5150  8e          DATA 0x8e
@@ -17171,7 +17174,7 @@ sub_5292:
     mov !mem_f06b,a         ;5297  9e 6b f0
     movw hl,#kwp_titles_b25d ;529a  16 5d b2
     mov a,[hl+b]            ;529d  ab
-    movw hl,#mem_f07a       ;529e  16 7a f0     HL = pointer to KWP1281 tx buffer
+    movw hl,#kwp_tx_buf     ;529e  16 7a f0     HL = pointer to KWP1281 tx buffer
     mov [hl+02h],a          ;52a1  be 02        Store block title in tx buffer
     mov a,!mem_fbcb         ;52a3  8e cb fb
     inc a                   ;52a6  41
@@ -17188,22 +17191,22 @@ lab_52b1:
     mov b,#05h              ;52b6  a3 05        B = index 0x05 response with ascii/data
     call !sub_5292          ;52b8  9a 92 52     Set block title, counter, length in KWP1281 tx buffer
     mov a,#00h              ;52bb  a1 00        A = 0
-    mov [hl+b],a            ;52bd  bb           Store in KWP1281 tx buffer offset 3
+    mov [hl+b],a            ;52bd  bb           Store in KWP1281 tx buffer byte 3
     inc b                   ;52be  43
     call !sub_2b46          ;52bf  9a 46 2b
-    mov [hl+b],a            ;52c2  bb           Store in KWP1281 tx buffer offset 4
+    mov [hl+b],a            ;52c2  bb           Store in KWP1281 tx buffer byte 4
     inc b                   ;52c3  43
     mov a,x                 ;52c4  60
-    mov [hl+b],a            ;52c5  bb           Store in KWP1281 tx buffer offset 5
+    mov [hl+b],a            ;52c5  bb           Store in KWP1281 tx buffer byte 5
     inc b                   ;52c6  43
     call !sub_2b4b          ;52c7  9a 4b 2b
-    mov [hl+b],a            ;52ca  bb           Store in KWP1281 tx buffer offset 6
+    mov [hl+b],a            ;52ca  bb           Store in KWP1281 tx buffer byte 6
     inc b                   ;52cb  43
     mov a,x                 ;52cc  60
-    mov [hl+b],a            ;52cd  bb           Store in KWP1281 tx buffer offset 7
+    mov [hl+b],a            ;52cd  bb           Store in KWP1281 tx buffer byte 7
     inc b                   ;52ce  43
     mov a,#03h              ;52cf  a1 03        A = 0x03 block end
-    mov [hl+b],a            ;52d1  bb           Store in KWP1281 tx buffer offset 8
+    mov [hl+b],a            ;52d1  bb           Store in KWP1281 tx buffer byte 8
     br !sub_34f7            ;52d2  9b f7 34
 
 lab_52d5:
@@ -17261,42 +17264,44 @@ lab_5322:
     br !lab_34fc            ;5327  9b fc 34
 
 lab_532a:
-;Send ack response
+;Send ACK response
     clr1 mem_fe63.0         ;532a  0b 63
     mov b,#01h              ;532c  a3 01        B = index 0x01 ack
     call !sub_5292          ;532e  9a 92 52     Set block title, counter, length in KWP1281 tx buffer
     mov a,#03h              ;5331  a1 03        A = 0x03 block end
-    mov [hl+b],a            ;5333  bb           Store in KWP1281 tx buffer offset 3
+    mov [hl+b],a            ;5333  bb           Store in KWP1281 tx buffer byte 3
     br !sub_34f7            ;5334  9b f7 34
 
 lab_5337:
+;Send End Session response
     mov b,#02h              ;5337  a3 02        B = index 0x02 end session
     call !sub_5292          ;5339  9a 92 52     Set block title, counter, length in KWP1281 tx buffer
     set1 mem_fe7b.2         ;533c  2a 7b
     mov a,#03h              ;533e  a1 03        A = 0x03 block end
-    mov [hl+b],a            ;5340  bb           Store in KWP1281 tx buffer offset 3
+    mov [hl+b],a            ;5340  bb           Store in KWP1281 tx buffer byte 3
     br !sub_34f7            ;5341  9b f7 34
 
 lab_5344:
+;Send NAK response (index 0x03)
     mov b,#03h              ;5344  a3 03        B = index 0x03 nak
     call !sub_5292          ;5346  9a 92 52     Set block title, counter, length in KWP1281 tx buffer
     mov a,!mem_fbcb         ;5349  8e cb fb
     dec a                   ;534c  51           A = value at mem_fbcb - 1
-    mov [hl+b],a            ;534d  bb           Store in KWP1281 tx buffer offset 3
+    mov [hl+b],a            ;534d  bb           Store in KWP1281 tx buffer byte 3
     inc b                   ;534e  43
     mov a,#03h              ;534f  a1 03        A = 0x03 block end
-    mov [hl+b],a            ;5351  bb           Store in KWP1281 tx buffer offset 4
+    mov [hl+b],a            ;5351  bb           Store in KWP1281 tx buffer byte 4
     br !sub_34f7            ;5352  9b f7 34
 
 lab_5355:
-;Send NAK response
-    mov b,#04h              ;5355  a3 04        B = index 0x03 nak
+;Send NAK response (index 0x04)
+    mov b,#04h              ;5355  a3 04        B = index 0x04 nak
     call !sub_5292          ;5357  9a 92 52     Set block title, counter, length in KWP1281 tx buffer
     mov a,!mem_fbcb         ;535a  8e cb fb     A = value at mem_fbcb
-    mov [hl+b],a            ;535d  bb           Store in KWP1281 tx buffer offset 3
+    mov [hl+b],a            ;535d  bb           Store in KWP1281 tx buffer byte 3
     inc b                   ;535e  43
     mov a,#03h              ;535f  a1 03        A = 0x03 block end
-    mov [hl+b],a            ;5361  bb           Store in KWP1281 tx buffer offset 4
+    mov [hl+b],a            ;5361  bb           Store in KWP1281 tx buffer byte 4
     br !sub_34f7            ;5362  9b f7 34
 
     db 0a3h                 ;5365  a3          DATA 0xa3
@@ -17494,7 +17499,7 @@ lab_543c:
     mov a,!mem_fbcb         ;5441  8e cb fb
     sub a,#01h              ;5444  1d 01
     mov !mem_fbcb,a         ;5446  9e cb fb
-    br !lab_5355            ;5449  9b 55 53     Branch to Send NAK response
+    br !lab_5355            ;5449  9b 55 53     Branch to Send NAK response (index 0x04)
 
 lab_544c:
     mov a,b                 ;544c  63
@@ -17719,7 +17724,7 @@ lab_552a:
     mov a,!mem_fbcb         ;5539  8e cb fb
     sub a,#01h              ;553c  1d 01
     mov !mem_fbcb,a         ;553e  9e cb fb
-    br !lab_5355            ;5541  9b 55 53     Branch to Send NAK response
+    br !lab_5355            ;5541  9b 55 53     Branch to Send NAK response (index 0x04)
 
 lab_5544:
     add a,#03h              ;5544  0d 03
@@ -17790,7 +17795,7 @@ lab_5581:
     mov a,!mem_fbcb         ;5590  8e cb fb
     sub a,#01h              ;5593  1d 01
     mov !mem_fbcb,a         ;5595  9e cb fb
-    br !lab_5355            ;5598  9b 55 53     Branch to Send NAK response
+    br !lab_5355            ;5598  9b 55 53     Branch to Send NAK response (index 0x04)
 
 lab_559b:
     add a,#03h              ;559b  0d 03
@@ -17834,38 +17839,38 @@ lab_55c5:
     mov b,#20h              ;55c5  a3 20        B = index 0x20 response to write eeprom
     call !sub_5292          ;55c7  9a 92 52     Set block title, counter, length in KWP1281 tx buffer
     call !sub_2c7f          ;55ca  9a 7f 2c
-    mov [hl+b],a            ;55cd  bb           Store in KWP1281 tx buffer offset 3
+    mov [hl+b],a            ;55cd  bb           Store in KWP1281 tx buffer byte 3
     inc b                   ;55ce  43
     mov a,d                 ;55cf  65
-    mov [hl+b],a            ;55d0  bb           Store in KWP1281 tx buffer offset 4
+    mov [hl+b],a            ;55d0  bb           Store in KWP1281 tx buffer byte 4
     inc b                   ;55d1  43
     mov a,e                 ;55d2  64
-    mov [hl+b],a            ;55d3  bb           Store in KWP1281 tx buffer offset 5
+    mov [hl+b],a            ;55d3  bb           Store in KWP1281 tx buffer byte 5
     inc b                   ;55d4  43
     mov a,x                 ;55d5  60
-    mov [hl+b],a            ;55d6  bb           Store in KWP1281 tx buffer offset 6
+    mov [hl+b],a            ;55d6  bb           Store in KWP1281 tx buffer byte 6
     inc b                   ;55d7  43
     mov a,#03h              ;55d8  a1 03        A = 0x03 block end
-    mov [hl+b],a            ;55da  bb           Store in KWP1281 tx buffer offset 7
+    mov [hl+b],a            ;55da  bb           Store in KWP1281 tx buffer byte 7
     br !sub_34f7            ;55db  9b f7 34
 
 lab_55de:
     mov b,#21h              ;55de  a3 21        B = 0x21 ? response to security access
     call !sub_5292          ;55e0  9a 92 52     Set block title, counter, length in KWP1281 tx buffer
     call !sub_259e          ;55e3  9a 9e 25
-    mov [hl+b],a            ;55e6  bb           Store in KWP1281 tx buffer offset 3
+    mov [hl+b],a            ;55e6  bb           Store in KWP1281 tx buffer byte 3
     inc b                   ;55e7  43
     mov a,x                 ;55e8  60
-    mov [hl+b],a            ;55e9  bb           Store in KWP1281 tx buffer offset 4
+    mov [hl+b],a            ;55e9  bb           Store in KWP1281 tx buffer byte 4
     inc b                   ;55ea  43
     mov a,d                 ;55eb  65
-    mov [hl+b],a            ;55ec  bb           Store in KWP1281 tx buffer offset 5
+    mov [hl+b],a            ;55ec  bb           Store in KWP1281 tx buffer byte 5
     inc b                   ;55ed  43
     mov a,e                 ;55ee  64
-    mov [hl+b],a            ;55ef  bb           Store in KWP1281 tx buffer offset 6
+    mov [hl+b],a            ;55ef  bb           Store in KWP1281 tx buffer byte 6
     inc b                   ;55f0  43
     mov a,#03h              ;55f1  a1 03        A = 0x03 block end
-    mov [hl+b],a            ;55f3  bb           Store in KWP1281 tx buffer offset 7
+    mov [hl+b],a            ;55f3  bb           Store in KWP1281 tx buffer byte 7
     br !sub_34f7            ;55f4  9b f7 34
 
     db 9bh                  ;55f7  9b          DATA 0x9b
@@ -37959,11 +37964,13 @@ kwp_unknown_b028:
     db 13h                  ;b1ea  13          DATA 0x13
 
 kwp_login_b1eb:
+    ;"DELCO" backwards
     db 4fh                  ;b1eb  4f          DATA 0x4f 'O'
     db 43h                  ;b1ec  43          DATA 0x43 'C'
     db 4ch                  ;b1ed  4c          DATA 0x4c 'L'
     db 45h                  ;b1ee  45          DATA 0x45 'E'
     db 44h                  ;b1ef  44          DATA 0x44 'D'
+
     db 03h                  ;b1f0  03          DATA 0x03
     db 00h                  ;b1f1  00          DATA 0x00
     db 4ch                  ;b1f2  4c          DATA 0x4c 'L'
@@ -38168,7 +38175,8 @@ kwp_titles_b2a5:
     db 09h                  ;b2ae  09          DATA 0x09
 
 kwp_handlers_b2af:
-    dw lab_5344             ;b2af  44 53       VECTOR           B=0
+;same order as kwp_titles_b2a5
+    dw lab_5344             ;b2af  44 53       VECTOR           B=0 <bad title: send nak>
     dw lab_4ead             ;b2b1  ad 4e       VECTOR           B=1 ack
     dw lab_4eb3             ;b2b3  b3 4e       VECTOR           B=2 end session
     dw lab_4ec1             ;b2b5  c1 4e       VECTOR           B=3 nak
@@ -38200,7 +38208,8 @@ kwp_titles_b2c2:
     db 0fh                  ;b2d1  0f          DATA 0x0f
 
 kwp_handlers_b2d2:
-    dw lab_5344             ;b2d2  44 53       VECTOR           B= 0
+;same order as kwp_titles_b2c2
+    dw lab_5344             ;b2d2  44 53       VECTOR           B= 0 <bad title: send nak>
     dw lab_4fd7             ;b2d4  d7 4f       VECTOR           B= 1 ack
     dw lab_501e             ;b2d6  1e 50       VECTOR           B= 2 end session
     dw lab_502e             ;b2d8  2e 50       VECTOR           B= 3 nak
@@ -38228,7 +38237,8 @@ kwp_titles_b2f1:
     db 05h                  ;b2f6  05          DATA 0x05
 
 kwp_handlers_b2f7:
-    dw lab_5344             ;b2f7  44 53       VECTOR           B=0
+;same order as b2f1
+    dw lab_5344             ;b2f7  44 53       VECTOR           B=0 <bad title: send nak>
     dw lab_50f4             ;b2f9  f4 50       VECTOR           B=1 ack
     dw lab_5106             ;b2fb  06 51       VECTOR           B=2 end session
     dw lab_511c             ;b2fd  1c 51       VECTOR           B=3 nak
@@ -38236,7 +38246,7 @@ kwp_handlers_b2f7:
 
     db 0bh                  ;b301  0b          DATA 0x0b
 
-kwp_titles_b302:
+kwp_subtitles_b302:
 ;unknown: kwp 1b ? custom usage subtitles
     db 0ffh                 ;b302  ff          DATA 0xff        B=0x00
     db 26h                  ;b303  26          DATA 0x26 '&'    B=0x01  Title=0x1b  Subtitle=0x26
@@ -38253,7 +38263,7 @@ kwp_titles_b302:
     db 0bh                  ;b30d  0b          DATA 0x0b
 
 kwp_lengths_b30e:
-;same order as kwp_titles_b302
+;same order as kwp_subtitles_b302
     db 00h                  ;b30e  00          DATA 0x00        B=0x00
     db 06h                  ;b30f  06          DATA 0x06        B=0x01  Title=0x1b  Subtitle=0x26
     db 07h                  ;b310  07          DATA 0x07        B=0x02  Title=0x1b  Subtitle=0x27
@@ -38269,8 +38279,8 @@ kwp_lengths_b30e:
     db 0bh                  ;b319  0b          DATA 0x0b
 
 kwp_handlers_b31a:
-;same order as kwp_titles_b302
-    dw lab_5344             ;b31a  44 53       VECTOR           B=0x00
+;same order as kwp_subtitles_b302
+    dw lab_5344             ;b31a  44 53       VECTOR           B=0x00  <bad title: send nak>
     dw lab_4f9e             ;b31c  9e 4f       VECTOR           B=0x01  Title=0x1b  Subtitle=0x26
     dw lab_4fa4             ;b31e  a4 4f       VECTOR           B=0x02  Title=0x1b  Subtitle=0x27
     dw lab_4faa             ;b320  aa 4f       VECTOR           B=0x03  Title=0x1b  Subtitle=0x28
