@@ -63,7 +63,7 @@ Read the SAFE code:
     TX: 04 xx F0 00 03                  (Mode=0/Read)
     RX: 05 xx F0 12 34 03               ("SAFE code word is BCD 0x1234")
 
-Covert SAFE code BCD (0x1234) to binary (0x04D2).
+Convert SAFE code BCD (0x1234) to binary (0x04D2).
 
 Login using the binary value:
     TX: 08 xx 2B 04 D2 01 86 9F 03     (Login with SAFE code binary 0x04D2)
