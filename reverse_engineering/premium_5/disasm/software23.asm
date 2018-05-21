@@ -3475,12 +3475,14 @@ lab_0caa:
     db 0b0h                 ;0cc8  b0          DATA 0xb0
     db 0afh                 ;0cc9  af          DATA 0xaf
 
+
 sub_0cca:
+;Compare A bytes between [HL] and [DE]
+;Sets Z flag if equal, clears Z flag if not equal
     push bc                 ;0cca  b3
     mov b,a                 ;0ccb  73
     cmp a,#00h              ;0ccc  4d 00
     bz $lab_0cd8            ;0cce  ad 08
-
 lab_0cd0:
     mov a,[de]              ;0cd0  85
     cmp a,[hl]              ;0cd1  4f
@@ -3488,10 +3490,10 @@ lab_0cd0:
     incw hl                 ;0cd4  86
     incw de                 ;0cd5  84
     dbnz b,$lab_0cd0        ;0cd6  8b f8
-
 lab_0cd8:
     pop bc                  ;0cd8  b2
     ret                     ;0cd9  af
+
 
 sub_0cda:
     mov a,#00h              ;0cda  a1 00
@@ -13750,8 +13752,8 @@ lab_41a1:
     movw de,#mem_f204       ;41af  14 04 f2
     mov a,#02h              ;41b2  a1 02
     clr1 mem_fe63.3         ;41b4  3b 63
-    callf !sub_0cca         ;41b6  4c ca
-    bz $lab_41bc            ;41b8  ad 02
+    callf !sub_0cca         ;41b6  4c ca        Compare A bytes from [HL] to [DE]
+    bz $lab_41bc            ;41b8  ad 02        Branch if buffers are equal
     set1 mem_fe63.3         ;41ba  3a 63
 
 lab_41bc:
@@ -14959,9 +14961,9 @@ sub_4694:
 ;
     clr1 mem_fe64.7         ;4694  7b 64        Clear byte to indicate no DELCO login
     movw hl,#kwp_rx_buf+3   ;4696  16 8d f0     HL = pointer to KWP1281 rx buffer byte 3
-    movw de,#kwp_login_b1eb  ;4699  14 eb b1    DE = pointer to "OCLED" (DELCO backwards)
+    movw de,#kwp_login_b1eb ;4699  14 eb b1     DE = pointer to "OCLED" (DELCO backwards)
     mov a,#05h              ;469c  a1 05        A = 5 bytes to compare
-    callf !sub_0cca         ;469e  4c ca        Compare buffers
+    callf !sub_0cca         ;469e  4c ca        Compare A bytes between [HL] to [DE]
     bnz $lab_46a9           ;46a0  bd 07        Branch if buffers are not equal
     set1 mem_fe64.7         ;46a2  7a 64        Set bit to indicate successful DELCO login
     mov a,#34h              ;46a4  a1 34
@@ -15872,8 +15874,8 @@ lab_4b29:
     movw de,#mem_fbbd       ;4b33  14 bd fb
     movw hl,#mem_fe35       ;4b36  16 35 fe
     mov a,#08h              ;4b39  a1 08
-    callf !sub_0cca         ;4b3b  4c ca
-    bz $lab_4ba9            ;4b3d  ad 6a
+    callf !sub_0cca         ;4b3b  4c ca        Compare A bytes between [HL] to [DE]
+    bz $lab_4ba9            ;4b3d  ad 6a        Branch if buffers are equal
 
 lab_4b3f:
     movw de,#mem_fbbd       ;4b3f  14 bd fb     DE = destination address
@@ -15943,8 +15945,8 @@ lab_4bb3:
     movw de,#mem_fbb2         ;4bb3  14 b2 fb
     movw hl,#mem_f19a       ;4bb6  16 9a f1
     mov a,#0bh              ;4bb9  a1 0b
-    callf !sub_0cca         ;4bbb  4c ca
-    bz $lab_4bc2            ;4bbd  ad 03
+    callf !sub_0cca         ;4bbb  4c ca        Compare A bytes between [HL] to [DE]
+    bz $lab_4bc2            ;4bbd  ad 03        Branch if buffers are equal
     br !lab_4c5e            ;4bbf  9b 5e 4c
 
 lab_4bc2:
@@ -20389,8 +20391,8 @@ lab_630d:
     bnc $lab_6334           ;6328  9d 0a
     movw hl,#mem_fc00       ;632a  16 00 fc
     mov a,!mem_fc10         ;632d  8e 10 fc
-    callf !sub_0cca         ;6330  4c ca
-    bz $lab_6345            ;6332  ad 11
+    callf !sub_0cca         ;6330  4c ca        Compare A bytes between [HL] to [DE]
+    bz $lab_6345            ;6332  ad 11        Branch if buffers are equal
 
 lab_6334:
     mov a,!mem_fbff         ;6334  8e ff fb
