@@ -33,12 +33,7 @@
     mem_f04f equ 0f04fh     ;KWP1281 Group number
     mem_f050 equ 0f050h
     mem_f051 equ 0f051h
-    mem_f052 equ 0f052h
-    mem_f053 equ 0f053h
-    mem_f054 equ 0f054h
-    mem_f055 equ 0f055h
-    mem_f057 equ 0f057h
-    mem_f05d equ 0f05dh
+    fis_tx_buf equ 0f052h   ;FIS display 3LB packet buffer (20 bytes?)
     mem_f065 equ 0f065h
     mem_f066 equ 0f066h
     mem_f067 equ 0f067h
@@ -71,15 +66,7 @@
     mem_f197 equ 0f197h
     mem_f198 equ 0f198h
     mem_f199 equ 0f199h
-    mem_f19a equ 0f19ah
-    mem_f19b equ 0f19bh
-    mem_f19c equ 0f19ch
-    mem_f19d equ 0f19dh
-    mem_f19e equ 0f19eh
-    mem_f1a0 equ 0f1a0h
-    mem_f1a2 equ 0f1a2h
-    mem_f1a3 equ 0f1a3h
-    mem_f1a4 equ 0f1a4h
+    upd_1_buf equ 0f19ah    ;uPD16432B display buffer #1 (11 bytes)
     mem_f1a5 equ 0f1a5h
     mem_f1a6 equ 0f1a6h
     mem_f1a7 equ 0f1a7h
@@ -220,7 +207,7 @@
     mem_fbad equ 0fbadh
     mem_fbaf equ 0fbafh
     mem_fbb1 equ 0fbb1h
-    mem_fbb2 equ 0fbb2h
+    upd_2_buf equ 0fbb2h    ;uPD16432B display buffer #2 (11 bytes)
     mem_fbbd equ 0fbbdh
     mem_fbc5 equ 0fbc5h
     mem_fbc6 equ 0fbc6h
@@ -8975,7 +8962,7 @@ sub_2821:
     movw hl,#display_test   ;2821  16 96 26     HL = source address
 
 lab_2824:
-    movw de,#mem_f055       ;2824  14 55 f0     DE = destination address
+    movw de,#fis_tx_buf+3   ;2824  14 55 f0     DE = destination address
     mov a,#10h              ;2827  a1 10        A = 0x10 bytes to copy
     callf !sub_0c9e         ;2829  4c 9e        Copy A bytes from [HL] to [DE]
     set1 mem_fe60.3         ;282b  3a 60
@@ -10023,11 +10010,11 @@ lab_2e1e:
     mov a,#0c0h             ;2e1e  a1 c0
     callt [0042h]           ;2e20  c3
     mov a,#81h              ;2e21  a1 81
-    mov !mem_f052,a         ;2e23  9e 52 f0
+    mov !fis_tx_buf+0,a     ;2e23  9e 52 f0
     mov a,#12h              ;2e26  a1 12
-    mov !mem_f053,a         ;2e28  9e 53 f0
+    mov !fis_tx_buf+1,a     ;2e28  9e 53 f0
     mov a,#0f0h             ;2e2b  a1 f0
-    mov !mem_f054,a         ;2e2d  9e 54 f0
+    mov !fis_tx_buf+2,a     ;2e2d  9e 54 f0
     set1 mem_fe61.2         ;2e30  2a 61
     mov mem_fe27,#03h       ;2e32  11 27 03
     call !sub_2e5d          ;2e35  9a 5d 2e
@@ -10079,55 +10066,55 @@ lab_2e73:
     ret                     ;2e7d  af
 
 sub_2e7e:
-;Fill 16 bytes at mem_f055 buffer with 0x20 (space)
+;Fill 16 bytes at fis_tx_buf+3 buffer with 0x20 (space)
     mov b,#10h              ;2e7e  a3 10        B = 16 bytes to fill
-    movw hl,#mem_f055       ;2e80  16 55 f0     HL = pointer to buffer to fill
+    movw hl,#fis_tx_buf+3   ;2e80  16 55 f0     HL = pointer to buffer to fill
     mov a,#20h              ;2e83  a1 20        A = fill value
     callf !sub_0cdc         ;2e85  4c dc        Fill B bytes in buffer [HL] with A
     ret                     ;2e87  af
 
 sub_2e88:
-;Fill 16 bytes at mem_f055 buffer with 0
+;Fill 16 bytes at fis_tx_buf+3 buffer with 0
     mov b,#10h              ;2e88  a3 10        B = 16 bytes to fill
-    movw hl,#mem_f055       ;2e8a  16 55 f0     HL = pointer to buffer to fill
+    movw hl,#fis_tx_buf+3   ;2e8a  16 55 f0     HL = pointer to buffer to fill
     callf !sub_0cda         ;2e8d  4c da        Fill B bytes in buffer [HL] with 0
     ret                     ;2e8f  af
 
 sub_2e90:
     call !sub_2efc          ;2e90  9a fc 2e
     bnz $lab_2e9a           ;2e93  bd 05
-    call !sub_2e88          ;2e95  9a 88 2e     Fill 16 bytes at mem_f055 buffer with 0
+    call !sub_2e88          ;2e95  9a 88 2e     Fill 16 bytes at fis_tx_buf+3 buffer with 0
     set1 cy                 ;2e98  20
     ret                     ;2e99  af
 
 lab_2e9a:
     mov a,#02h              ;2e9a  a1 02        A = 2 bytes to copy
-    movw hl,#mem_f19a       ;2e9c  16 9a f1     HL = source address
-    movw de,#mem_f055       ;2e9f  14 55 f0     DE = destination address
+    movw hl,#upd_1_buf      ;2e9c  16 9a f1     HL = source address
+    movw de,#fis_tx_buf+3   ;2e9f  14 55 f0     DE = destination address
     callf !sub_0c9e         ;2ea2  4c 9e        Copy A bytes from [HL] to [DE]
     cmp mem_fe30,#01h       ;2ea4  c8 30 01
     bz $lab_2eb5            ;2ea7  ad 0c
     mov a,#02h              ;2ea9  a1 02        A = 2 bytes to copy
-    movw hl,#mem_f19c       ;2eab  16 9c f1     HL = source address
-    movw de,#mem_f057       ;2eae  14 57 f0     DE = destination address
+    movw hl,#upd_1_buf+2    ;2eab  16 9c f1     HL = source address
+    movw de,#fis_tx_buf+5   ;2eae  14 57 f0     DE = destination address
     callf !sub_0c9e         ;2eb1  4c 9e        Copy A bytes from [HL] to [DE]
     br $lab_2edc            ;2eb3  fa 27
 
 lab_2eb5:
     call !sub_0800          ;2eb5  9a 00 08
     cmp a,#02h              ;2eb8  4d 02
-    mov a,!mem_f19c         ;2eba  8e 9c f1
+    mov a,!upd_1_buf+2      ;2eba  8e 9c f1
     bz $lab_2ec5            ;2ebd  ad 06
     cmp a,#20h              ;2ebf  4d 20
     bnc $lab_2ec5           ;2ec1  9d 02
     add a,#31h              ;2ec3  0d 31
 
 lab_2ec5:
-    mov !mem_f057,a         ;2ec5  9e 57 f0
-    mov a,!mem_f19d         ;2ec8  8e 9d f1
+    mov !fis_tx_buf+5,a     ;2ec5  9e 57 f0
+    mov a,!upd_1_buf+3      ;2ec8  8e 9d f1
     movw hl,#0f058h         ;2ecb  16 58 f0
     bf mem_fe5c.2,$lab_2edb ;2ece  31 23 5c 09
-    cmp a,#20h              ;2ed2  4d 20
+    cmp a,#' '              ;2ed2  4d 20
     bnc $lab_2edb           ;2ed4  9d 05
     add a,#2fh              ;2ed6  0d 2f
     movw hl,#0f059h         ;2ed8  16 59 f0
@@ -10137,11 +10124,11 @@ lab_2edb:
 
 lab_2edc:
     mov a,#03h              ;2edc  a1 03        A = 3 bytes to copy
-    movw hl,#mem_f19e       ;2ede  16 9e f1     HL = source address
-    movw de,#mem_f05d       ;2ee1  14 5d f0     DE = destination addrss
+    movw hl,#upd_1_buf+4    ;2ede  16 9e f1     HL = source address
+    movw de,#fis_tx_buf+11  ;2ee1  14 5d f0     DE = destination addrss
     callf !sub_0c9e         ;2ee4  4c 9e        Copy A bytes from [HL] to [DE]
     bf mem_fe39.5,$lab_2eee ;2ee6  31 53 39 04
-    mov a,#2eh              ;2eea  a1 2e
+    mov a,#'.'              ;2eea  a1 2e
     mov [de],a              ;2eec  95
     incw de                 ;2eed  84
 
@@ -10149,7 +10136,7 @@ lab_2eee:
     mov a,#04h              ;2eee  a1 04        A = 4 bytes to copy
     callf !sub_0c9e         ;2ef0  4c 9e        Copy A bytes from [HL] to [DE]
     mov b,#10h              ;2ef2  a3 10
-    movw hl,#mem_f054       ;2ef4  16 54 f0
+    movw hl,#fis_tx_buf+2   ;2ef4  16 54 f0
     call !sub_306f          ;2ef7  9a 6f 30
     clr1 cy                 ;2efa  21
     ret                     ;2efb  af
@@ -10244,7 +10231,7 @@ lab_2f6b:
 
 lab_2f79:
     dec mem_fe27            ;2f79  91 27
-    call !sub_2e88          ;2f7b  9a 88 2e     Fill 16 bytes at mem_f055 buffer with 0
+    call !sub_2e88          ;2f7b  9a 88 2e     Fill 16 bytes at fis_tx_buf+3 buffer with 0
     br $lab_2f95            ;2f7e  fa 15
 
 lab_2f80:
@@ -10254,7 +10241,7 @@ lab_2f80:
     br $lab_2fa9            ;2f88  fa 1f
 
 lab_2f8a:
-    call !sub_2e7e          ;2f8a  9a 7e 2e     Fill 16 bytes at mem_f055 buffer with 0x20 (space)
+    call !sub_2e7e          ;2f8a  9a 7e 2e     Fill 16 bytes at fis_tx_buf+3 buffer with 0x20 (space)
     call !sub_2e90          ;2f8d  9a 90 2e
     bc $lab_2fa9            ;2f90  8d 17
     mov mem_fe27,#03h       ;2f92  11 27 03
@@ -10263,7 +10250,7 @@ lab_2f95:
     call !sub_2e6c          ;2f95  9a 6c 2e
     set1 mem_fe61.0         ;2f98  0a 61
     clr1 mem_fe60.3         ;2f9a  3b 60
-    movw ax,#mem_f052       ;2f9c  10 52 f0
+    movw ax,#fis_tx_buf     ;2f9c  10 52 f0
     movw !0f006h,ax         ;2f9f  03 06 f0
     mov a,#14h              ;2fa2  a1 14
     mov !mem_f066,a         ;2fa4  9e 66 f0
@@ -15949,8 +15936,8 @@ lab_4ba9:
     br !lab_4c5e            ;4bb0  9b 5e 4c
 
 lab_4bb3:
-    movw de,#mem_fbb2         ;4bb3  14 b2 fb
-    movw hl,#mem_f19a       ;4bb6  16 9a f1
+    movw de,#upd_2_buf      ;4bb3  14 b2 fb
+    movw hl,#upd_1_buf      ;4bb6  16 9a f1
     mov a,#0bh              ;4bb9  a1 0b
     callf !sub_0cca         ;4bbb  4c ca        Compare A bytes between [HL] to [DE]
     bz $lab_4bc2            ;4bbd  ad 03        Branch if buffers are equal
@@ -16058,8 +16045,8 @@ lab_4c59:
     br $lab_4cd5            ;4c5c  fa 77
 
 lab_4c5e:
-    movw de,#mem_fbb2         ;4c5e  14 b2 fb     DE = destination address
-    movw hl,#mem_f19a       ;4c61  16 9a f1     HL = source address
+    movw de,#upd_2_buf      ;4c5e  14 b2 fb     DE = destination address
+    movw hl,#upd_1_buf      ;4c61  16 9a f1     HL = source address
     mov a,#0bh              ;4c64  a1 0b        A = 0x0b bytes to copy
     callf !sub_0c9e         ;4c66  4c 9e        Copy A bytes from [HL] to [DE]
     mov a,#14h              ;4c68  a1 14
@@ -16093,7 +16080,7 @@ lab_4c7e:
     set1 mem_fe5f.1         ;4c9b  1a 5f
     bnz $lab_4cb0           ;4c9d  bd 11
     clr1 mem_fe5f.1         ;4c9f  1b 5f
-    movw ax,#mem_f19a       ;4ca1  10 9a f1
+    movw ax,#upd_1_buf      ;4ca1  10 9a f1
     movw hl,ax              ;4ca4  d6
     mov a,#0bh              ;4ca5  a1 0b
     mov b,a                 ;4ca7  73
@@ -16112,7 +16099,7 @@ lab_4cb0:
     clr1 IF0H_.4            ;4cb6  71 4b e1
     clr1 MK0H_.4            ;4cb9  71 4b e5
     clr1 PR0H_.4            ;4cbc  71 4b e9
-    movw ax,#mem_f19a       ;4cbf  10 9a f1
+    movw ax,#upd_1_buf      ;4cbf  10 9a f1
     push ax                 ;4cc2  b1
     mov a,#0bh              ;4cc3  a1 0b
     push ax                 ;4cc5  b1
@@ -22320,7 +22307,7 @@ lab_6a9c:
     call !sub_6e70          ;6aa0  9a 70 6e
     mov a,!mem_fb5a         ;6aa3  8e 5a fb
     add a,#01h              ;6aa6  0d 01
-    mov !mem_f19d,a         ;6aa8  9e 9d f1
+    mov !upd_1_buf+3,a      ;6aa8  9e 9d f1
     movw hl,#pscan          ;6aab  16 cf 63
     mov b,#0fh              ;6aae  a3 0f
     mov a,#0ffh             ;6ab0  a1 ff
@@ -22358,7 +22345,7 @@ lab_6ae2:
     cmp a,#07h              ;6ae9  4d 07
     bnc $lab_6af1           ;6aeb  9d 04
     inc a                   ;6aed  41
-    mov !mem_f19d,a         ;6aee  9e 9d f1
+    mov !upd_1_buf+3,a      ;6aee  9e 9d f1
 
 lab_6af1:
     call !sub_6e6e          ;6af1  9a 6e 6e
@@ -22455,7 +22442,7 @@ lab_6b73:
     mov b,#0ffh             ;6b7c  a3 ff
     movw hl,#cd_cd_err      ;6b7e  16 95 67
     call !sub_6e70          ;6b81  9a 70 6e
-    movw hl,#mem_f19a       ;6b84  16 9a f1
+    movw hl,#upd_1_buf      ;6b84  16 9a f1
     mov a,!mem_fc7d         ;6b87  8e 7d fc
     add a,#30h              ;6b8a  0d 30
     mov [hl+03h],a          ;6b8c  be 03
@@ -22475,7 +22462,7 @@ lab_6b9d:
     mov b,#0ffh             ;6b9f  a3 ff
     movw hl,#cd_no_cd       ;6ba1  16 90 66
     call !sub_6e70          ;6ba4  9a 70 6e
-    movw hl,#mem_f19a       ;6ba7  16 9a f1
+    movw hl,#upd_1_buf      ;6ba7  16 9a f1
     mov a,!mem_fc7d         ;6baa  8e 7d fc
     add a,#30h              ;6bad  0d 30
     mov [hl+03h],a          ;6baf  be 03
@@ -22694,7 +22681,7 @@ lab_6ce5:
     and a,#0fh              ;6cf1  5d 0f
     cmp a,#0ah              ;6cf3  4d 0a
     bnz $lab_6cfe           ;6cf5  bd 07
-    movw hl,#mem_f19a       ;6cf7  16 9a f1
+    movw hl,#upd_1_buf      ;6cf7  16 9a f1
     mov a,#2dh              ;6cfa  a1 2d
     mov [hl+b],a            ;6cfc  bb
     ret                     ;6cfd  af
@@ -22790,22 +22777,22 @@ sub_6d64:
 
 lab_6d87:
     mov a,#00h              ;6d87  a1 00
-    mov a,#20h              ;6d89  a1 20
-    mov !mem_f19c,a         ;6d8b  9e 9c f1
-    mov a,#20h              ;6d8e  a1 20
-    mov !mem_f19d,a         ;6d90  9e 9d f1
-    mov a,#41h              ;6d93  a1 41
-    mov !mem_f19a,a         ;6d95  9e 9a f1
-    mov a,#4dh              ;6d98  a1 4d
-    mov !mem_f19b,a         ;6d9a  9e 9b f1
+    mov a,#' '              ;6d89  a1 20
+    mov !upd_1_buf+2,a      ;6d8b  9e 9c f1
+    mov a,#' '              ;6d8e  a1 20
+    mov !upd_1_buf+3,a      ;6d90  9e 9d f1
+    mov a,#'A'              ;6d93  a1 41        ;'AM'
+    mov !upd_1_buf,a        ;6d95  9e 9a f1
+    mov a,#'M'              ;6d98  a1 4d
+    mov !upd_1_buf+1,a      ;6d9a  9e 9b f1
 
 lab_6d9d:
-    mov a,#6bh              ;6d9d  a1 6b
-    mov !mem_f1a2,a         ;6d9f  9e a2 f1
-    mov a,#48h              ;6da2  a1 48
-    mov !mem_f1a3,a         ;6da4  9e a3 f1
-    mov a,#7ah              ;6da7  a1 7a
-    mov !mem_f1a4,a         ;6da9  9e a4 f1
+    mov a,#'k'              ;6d9d  a1 6b        ;'kHz'
+    mov !upd_1_buf+8,a      ;6d9f  9e a2 f1
+    mov a,#'H'              ;6da2  a1 48
+    mov !upd_1_buf+9,a      ;6da4  9e a3 f1
+    mov a,#'z'              ;6da7  a1 7a
+    mov !upd_1_buf+10,a     ;6da9  9e a4 f1
     mov b,#0ffh             ;6dac  a3 ff
     br !lab_6e3c            ;6dae  9b 3c 6e
 
@@ -22828,21 +22815,21 @@ lab_6db1:
 
 lab_6dd4:
     mov a,#00h              ;6dd4  a1 00
-    mov !mem_f19c,a         ;6dd6  9e 9c f1
-    mov a,#20h              ;6dd9  a1 20
-    mov !mem_f19d,a         ;6ddb  9e 9d f1
-    mov a,#46h              ;6dde  a1 46
-    mov !mem_f19a,a         ;6de0  9e 9a f1
-    mov a,#4dh              ;6de3  a1 4d
-    mov !mem_f19b,a         ;6de5  9e 9b f1
+    mov !upd_1_buf+2,a      ;6dd6  9e 9c f1
+    mov a,#' '              ;6dd9  a1 20
+    mov !upd_1_buf+3,a      ;6ddb  9e 9d f1
+    mov a,#'F'              ;6dde  a1 46        ;'FM'
+    mov !upd_1_buf,a        ;6de0  9e 9a f1
+    mov a,#'M'              ;6de3  a1 4d
+    mov !upd_1_buf+1,a      ;6de5  9e 9b f1
 
 lab_6de8:
-    mov a,#4dh              ;6de8  a1 4d
-    mov !mem_f1a2,a         ;6dea  9e a2 f1
-    mov a,#48h              ;6ded  a1 48
-    mov !mem_f1a3,a         ;6def  9e a3 f1
-    mov a,#7ah              ;6df2  a1 7a
-    mov !mem_f1a4,a         ;6df4  9e a4 f1
+    mov a,#'M'              ;6de8  a1 4d        ;'MHz'
+    mov !upd_1_buf+8,a      ;6dea  9e a2 f1
+    mov a,#'H'              ;6ded  a1 48
+    mov !upd_1_buf+9,a      ;6def  9e a3 f1
+    mov a,#'z'              ;6df2  a1 7a
+    mov !upd_1_buf+10,a     ;6df4  9e a4 f1
     mov b,#0ffh             ;6df7  a3 ff
     br $lab_6e3c            ;6df9  fa 41
 
@@ -22862,21 +22849,21 @@ lab_6dfb:
 
 lab_6e17:
     mov a,#01h              ;6e17  a1 01
-    mov !mem_f19c,a         ;6e19  9e 9c f1
-    mov a,#20h              ;6e1c  a1 20
-    mov !mem_f19d,a         ;6e1e  9e 9d f1
-    mov a,#46h              ;6e21  a1 46
-    mov !mem_f19a,a         ;6e23  9e 9a f1
-    mov a,#4dh              ;6e26  a1 4d
-    mov !mem_f19b,a         ;6e28  9e 9b f1
+    mov !upd_1_buf+2,a      ;6e19  9e 9c f1
+    mov a,#' '              ;6e1c  a1 20
+    mov !upd_1_buf+3,a      ;6e1e  9e 9d f1
+    mov a,#'F'              ;6e21  a1 46        ;'FM'
+    mov !upd_1_buf,a        ;6e23  9e 9a f1
+    mov a,#'M'              ;6e26  a1 4d
+    mov !upd_1_buf+1,a      ;6e28  9e 9b f1
 
 lab_6e2b:
-    mov a,#4dh              ;6e2b  a1 4d
-    mov !mem_f1a2,a         ;6e2d  9e a2 f1
-    mov a,#48h              ;6e30  a1 48
-    mov !mem_f1a3,a         ;6e32  9e a3 f1
-    mov a,#7ah              ;6e35  a1 7a
-    mov !mem_f1a4,a         ;6e37  9e a4 f1
+    mov a,#'M'              ;6e2b  a1 4d        ;'MHz'
+    mov !upd_1_buf+8,a      ;6e2d  9e a2 f1
+    mov a,#'H'              ;6e30  a1 48
+    mov !upd_1_buf+9,a      ;6e32  9e a3 f1
+    mov a,#'z'              ;6e35  a1 7a
+    mov !upd_1_buf+10,a     ;6e37  9e a4 f1
     mov b,#0ffh             ;6e3a  a3 ff
 
 lab_6e3c:
@@ -22898,7 +22885,7 @@ sub_6e40:
     mov a,#42h              ;6e59  a1 42
 
 lab_6e5b:
-    mov !mem_f1a4,a         ;6e5b  9e a4 f1
+    mov !upd_1_buf+10,a     ;6e5b  9e a4 f1
 
 lab_6e5e:
     clr1 mem_fe36.2         ;6e5e  2b 36
@@ -23100,7 +23087,7 @@ sub_6f6c:
     and a,#0fh              ;6f6c  5d 0f
     add a,#30h              ;6f6e  0d 30
     push hl                 ;6f70  b7
-    movw hl,#mem_f19a       ;6f71  16 9a f1
+    movw hl,#upd_1_buf      ;6f71  16 9a f1
     mov [hl+b],a            ;6f74  bb
     pop hl                  ;6f75  b6
 
@@ -23184,8 +23171,8 @@ lab_6fc8:
 
 
 sub_6fd0:
-;Fill 11 bytes in mem_f19a buffer with 0x20 (space)
-    movw hl,#mem_f19a       ;6fd0  16 9a f1     HL = pointer to buffer to fill
+;Fill 11 bytes in upd_1_buf buffer with 0x20 (space)
+    movw hl,#upd_1_buf      ;6fd0  16 9a f1     HL = pointer to buffer to fill
     mov a,#0bh              ;6fd3  a1 0b        A = 11 bytes to fill
     cmp a,#00h              ;6fd5  4d 00
     br $lab_6fd9            ;6fd7  fa 00
@@ -23222,7 +23209,7 @@ sub_6feb:
     xch a,h                 ;6ff9  37
     movw ax,hl              ;6ffa  c6
     movw de,ax              ;6ffb  d4
-    movw hl,#mem_f19a       ;6ffc  16 9a f1
+    movw hl,#upd_1_buf      ;6ffc  16 9a f1
 
 lab_6fff:
     mov a,[de]              ;6fff  85
@@ -23277,7 +23264,7 @@ lab_7009:
 
 sub_7030:
     mov b,#05h              ;7030  a3 05
-    movw hl,#mem_f1a4       ;7032  16 a4 f1
+    movw hl,#upd_1_buf+10   ;7032  16 a4 f1
 
 lab_7035:
     mov a,[hl+b]            ;7035  ab
@@ -23572,7 +23559,7 @@ lab_71b0:
     mov a,#0ah              ;71b2  a1 0a
     movw hl,#cd_cd_rom      ;71b4  16 89 67
     call !sub_6e70          ;71b7  9a 70 6e
-    movw hl,#mem_f19a       ;71ba  16 9a f1
+    movw hl,#upd_1_buf      ;71ba  16 9a f1
     mov b,#03h              ;71bd  a3 03
     mov a,!mem_f1b2         ;71bf  8e b2 f1
     add a,#30h              ;71c2  0d 30
@@ -23615,7 +23602,7 @@ lab_71f2:
     movw hl,#safe           ;71f9  16 f9 64
     mov a,#0ffh             ;71fc  a1 ff
     call !sub_6e70          ;71fe  9a 70 6e
-    movw hl,#mem_f19a       ;7201  16 9a f1
+    movw hl,#upd_1_buf      ;7201  16 9a f1
     mov a,!mem_f206         ;7204  8e 06 f2
     call !sub_0cf4          ;7207  9a f4 0c
     mov a,x                 ;720a  60
@@ -23648,7 +23635,7 @@ lab_7224:
     call !sub_6e70          ;7237  9a 70 6e
     mov a,!mem_f20b         ;723a  8e 0b f2     SAFE code attempt counter
     add a,#30h              ;723d  0d 30
-    movw hl,#mem_f19a       ;723f  16 9a f1
+    movw hl,#upd_1_buf      ;723f  16 9a f1
     mov [hl],a              ;7242  97
     mov a,#0ffh             ;7243  a1 ff
     mov b,#0ffh             ;7245  a3 ff
@@ -23662,7 +23649,7 @@ lab_7249:
     call !sub_6e70          ;7253  9a 70 6e
     mov a,!mem_f20b         ;7256  8e 0b f2     SAFE code attempt counter
     add a,#30h              ;7259  0d 30
-    movw hl,#mem_f19a       ;725b  16 9a f1
+    movw hl,#upd_1_buf      ;725b  16 9a f1
     mov [hl],a              ;725e  97
     mov a,#0ffh             ;725f  a1 ff
     mov b,#0ffh             ;7261  a3 ff
@@ -23699,7 +23686,7 @@ lab_7294:
     movw hl,#blank          ;7298  16 11 65
     set1 mem_fe6a.0         ;729b  0a 6a
     call !sub_6e70          ;729d  9a 70 6e
-    movw hl,#mem_f19a       ;72a0  16 9a f1
+    movw hl,#upd_1_buf      ;72a0  16 9a f1
     mov a,!mem_f20b         ;72a3  8e 0b f2     SAFE code attempt counter
     cmp a,#00h              ;72a6  4d 00
     bz $lab_72ad            ;72a8  ad 03
@@ -23755,7 +23742,7 @@ lab_72e9:
     call !sub_6e70          ;72f0  9a 70 6e
     mov a,#23h              ;72f3  a1 23
     call !sub_0be4          ;72f5  9a e4 0b
-    movw hl,#mem_f19a       ;72f8  16 9a f1
+    movw hl,#upd_1_buf      ;72f8  16 9a f1
     mov b,#09h              ;72fb  a3 09
     mov [hl+b],a            ;72fd  bb
     mov a,x                 ;72fe  60
@@ -23773,7 +23760,7 @@ lab_7303:
     call !sub_6e70          ;7311  9a 70 6e
     clr1 mem_fe39.5         ;7314  5b 39
     mov b,#04h              ;7316  a3 04
-    movw hl,#mem_f19a       ;7318  16 9a f1
+    movw hl,#upd_1_buf      ;7318  16 9a f1
     mov a,!mem_fb69         ;731b  8e 69 fb
     call !sub_6809          ;731e  9a 09 68
     mov [hl+b],a            ;7321  bb
@@ -23816,7 +23803,7 @@ lab_7351:
     and a,#0fh              ;7365  5d 0f
     add a,#30h              ;7367  0d 30
     mov b,#0ah              ;7369  a3 0a
-    movw hl,#mem_f19a       ;736b  16 9a f1
+    movw hl,#upd_1_buf      ;736b  16 9a f1
     mov [hl+b],a            ;736e  bb
     mov a,x                 ;736f  60
     and a,#0f0h             ;7370  5d f0
@@ -23834,7 +23821,7 @@ lab_737e:
 
 lab_7380:
     mov b,#09h              ;7380  a3 09
-    movw hl,#mem_f19a       ;7382  16 9a f1
+    movw hl,#upd_1_buf      ;7382  16 9a f1
     mov [hl+b],a            ;7385  bb
     ret                     ;7386  af
 
@@ -23851,7 +23838,7 @@ lab_7387:
 
 lab_739c:
     mov b,#0ah              ;739c  a3 0a
-    movw hl,#mem_f19a       ;739e  16 9a f1
+    movw hl,#upd_1_buf      ;739e  16 9a f1
     mov [hl+b],a            ;73a1  bb
     ret                     ;73a2  af
 
@@ -23868,7 +23855,7 @@ lab_73a3:
 
 lab_73b8:
     mov b,#0ah              ;73b8  a3 0a
-    movw hl,#mem_f19a       ;73ba  16 9a f1
+    movw hl,#upd_1_buf      ;73ba  16 9a f1
     mov [hl+b],a            ;73bd  bb
     ret                     ;73be  af
 
@@ -23939,7 +23926,7 @@ lab_7424:
     cmp a,#07h              ;742b  4d 07
     bnc $lab_7433           ;742d  9d 04
     inc a                   ;742f  41
-    mov !mem_f19d,a         ;7430  9e 9d f1
+    mov !upd_1_buf+3,a      ;7430  9e 9d f1
 
 lab_7433:
     mov a,!mem_f1a6         ;7433  8e a6 f1
@@ -23975,7 +23962,7 @@ lab_744c:
     mov a,#42h              ;746f  a1 42
 
 lab_7471:
-    mov !mem_f1a4,a         ;7471  9e a4 f1
+    mov !upd_1_buf+10,a     ;7471  9e a4 f1
 
 lab_7474:
     clr1 mem_fe36.2         ;7474  2b 36
@@ -24007,7 +23994,7 @@ lab_749d:
     mov b,#0ah              ;749f  a3 0a
     movw hl,#cd_tr          ;74a1  16 9c 66
     call !sub_6e70          ;74a4  9a 70 6e
-    movw hl,#mem_f19a       ;74a7  16 9a f1
+    movw hl,#upd_1_buf      ;74a7  16 9a f1
     mov a,!mem_fc75         ;74aa  8e 75 fc
     add a,#30h              ;74ad  0d 30
     mov [hl+03h],a          ;74af  be 03
@@ -24032,7 +24019,7 @@ lab_74ca:
     ret                     ;74d4  af
 
 lab_74d5:
-    call !sub_6fd0          ;74d5  9a d0 6f     Fill 11 bytes in mem_f19a buffer with 0x20 (space)
+    call !sub_6fd0          ;74d5  9a d0 6f     Fill 11 bytes in upd_1_bufbuffer with 0x20 (space)
     mov a,#0ffh             ;74d8  a1 ff
     mov b,#0ah              ;74da  a3 0a
     movw hl,#diag           ;74dc  16 93 65
@@ -24056,10 +24043,10 @@ lab_74e3:
     br $lab_7522            ;74fd  fa 23
 
 lab_74ff:
-    movw hl,#mem_f1a0       ;74ff  16 a0 f1
+    movw hl,#upd_1_buf+6    ;74ff  16 a0 f1
     mov a,#2dh              ;7502  a1 2d
     mov [hl],a              ;7504  97
-    movw hl,#mem_f1a2       ;7505  16 a2 f1
+    movw hl,#upd_1_buf+8    ;7505  16 a2 f1
     mov a,#09h              ;7508  a1 09
     sub a,x                 ;750a  61 18
     add a,#30h              ;750c  0d 30
@@ -24067,10 +24054,10 @@ lab_74ff:
     br $lab_7528            ;750f  fa 17
 
 lab_7511:
-    movw hl,#mem_f1a0       ;7511  16 a0 f1
+    movw hl,#upd_1_buf+6    ;7511  16 a0 f1
     mov a,#2bh              ;7514  a1 2b
     mov [hl],a              ;7516  97
-    movw hl,#mem_f1a2       ;7517  16 a2 f1
+    movw hl,#upd_1_buf+8    ;7517  16 a2 f1
     mov a,x                 ;751a  60
     sub a,#0bh              ;751b  1d 0b
     add a,#30h              ;751d  0d 30
@@ -24078,7 +24065,7 @@ lab_7511:
     br $lab_7528            ;7520  fa 06
 
 lab_7522:
-    movw hl,#mem_f1a2       ;7522  16 a2 f1
+    movw hl,#upd_1_buf+8    ;7522  16 a2 f1
     mov a,#30h              ;7525  a1 30
     mov [hl],a              ;7527  97
 
@@ -24106,10 +24093,10 @@ lab_752f:
     br $lab_756e            ;7549  fa 23
 
 lab_754b:
-    movw hl,#mem_f1a0       ;754b  16 a0 f1
+    movw hl,#upd_1_buf+6    ;754b  16 a0 f1
     mov a,#2dh              ;754e  a1 2d
     mov [hl],a              ;7550  97
-    movw hl,#mem_f1a2       ;7551  16 a2 f1
+    movw hl,#upd_1_buf+8    ;7551  16 a2 f1
     mov a,#09h              ;7554  a1 09
     sub a,x                 ;7556  61 18
     add a,#30h              ;7558  0d 30
@@ -24117,10 +24104,10 @@ lab_754b:
     br $lab_7574            ;755b  fa 17
 
 lab_755d:
-    movw hl,#mem_f1a0       ;755d  16 a0 f1
+    movw hl,#upd_1_buf+6    ;755d  16 a0 f1
     mov a,#2bh              ;7560  a1 2b
     mov [hl],a              ;7562  97
-    movw hl,#mem_f1a2       ;7563  16 a2 f1
+    movw hl,#upd_1_buf+8    ;7563  16 a2 f1
     mov a,x                 ;7566  60
     sub a,#0bh              ;7567  1d 0b
     add a,#30h              ;7569  0d 30
@@ -24128,7 +24115,7 @@ lab_755d:
     br $lab_7574            ;756c  fa 06
 
 lab_756e:
-    movw hl,#mem_f1a2       ;756e  16 a2 f1
+    movw hl,#upd_1_buf+8    ;756e  16 a2 f1
     mov a,#30h              ;7571  a1 30
     mov [hl],a              ;7573  97
 
@@ -24156,10 +24143,10 @@ lab_7579:
     br $lab_75b8            ;7593  fa 23
 
 lab_7595:
-    movw hl,#mem_f1a0       ;7595  16 a0 f1
+    movw hl,#upd_1_buf+6    ;7595  16 a0 f1
     mov a,#2dh              ;7598  a1 2d
     mov [hl],a              ;759a  97
-    movw hl,#mem_f1a2       ;759b  16 a2 f1
+    movw hl,#upd_1_buf+8    ;759b  16 a2 f1
     mov a,#09h              ;759e  a1 09
     sub a,x                 ;75a0  61 18
     add a,#30h              ;75a2  0d 30
@@ -24167,10 +24154,10 @@ lab_7595:
     br $lab_75be            ;75a5  fa 17
 
 lab_75a7:
-    movw hl,#mem_f1a0       ;75a7  16 a0 f1
+    movw hl,#upd_1_buf+6    ;75a7  16 a0 f1
     mov a,#2bh              ;75aa  a1 2b
     mov [hl],a              ;75ac  97
-    movw hl,#mem_f1a2       ;75ad  16 a2 f1
+    movw hl,#upd_1_buf+8    ;75ad  16 a2 f1
     mov a,x                 ;75b0  60
     sub a,#0bh              ;75b1  1d 0b
     add a,#30h              ;75b3  0d 30
@@ -24178,7 +24165,7 @@ lab_75a7:
     br $lab_75be            ;75b6  fa 06
 
 lab_75b8:
-    movw hl,#mem_f1a2       ;75b8  16 a2 f1
+    movw hl,#upd_1_buf+8    ;75b8  16 a2 f1
     mov a,#30h              ;75bb  a1 30
     mov [hl],a              ;75bd  97
 
@@ -24203,7 +24190,7 @@ lab_75d3:
     mov a,#0ah              ;75d5  a1 0a
     movw hl,#bal_left       ;75d7  16 35 64
     call !sub_6e70          ;75da  9a 70 6e
-    movw hl,#mem_f1a4       ;75dd  16 a4 f1
+    movw hl,#upd_1_buf+10   ;75dd  16 a4 f1
     pop ax                  ;75e0  b0
     xch a,x                 ;75e1  30
     mov a,#09h              ;75e2  a1 09
@@ -24217,7 +24204,7 @@ lab_75eb:
     mov a,#0ah              ;75ed  a1 0a
     movw hl,#bal_right      ;75ef  16 4d 64
     call !sub_6e70          ;75f2  9a 70 6e
-    movw hl,#mem_f1a4       ;75f5  16 a4 f1
+    movw hl,#upd_1_buf+10   ;75f5  16 a4 f1
     pop ax                  ;75f8  b0
     sub a,#0bh              ;75f9  1d 0b
     add a,#30h              ;75fb  0d 30
@@ -24252,7 +24239,7 @@ lab_7620:
     mov a,#0ah              ;7622  a1 0a
     movw hl,#faderear       ;7624  16 24 64
     call !sub_6e70          ;7627  9a 70 6e
-    movw hl,#mem_f1a4       ;762a  16 a4 f1
+    movw hl,#upd_1_buf+10   ;762a  16 a4 f1
     pop ax                  ;762d  b0
     xch a,x                 ;762e  30
     mov a,#09h              ;762f  a1 09
@@ -24266,7 +24253,7 @@ lab_7638:
     mov a,#0ah              ;763a  a1 0a
     movw hl,#fadefront      ;763c  16 0c 64
     call !sub_6e70          ;763f  9a 70 6e
-    movw hl,#mem_f1a4       ;7642  16 a4 f1
+    movw hl,#upd_1_buf+10   ;7642  16 a4 f1
     pop ax                  ;7645  b0
     sub a,#0bh              ;7646  1d 0b
     add a,#30h              ;7648  0d 30
@@ -24343,7 +24330,7 @@ sub_7697:
 lab_76b8:
     mov b,#05h              ;76b8  a3 05
     mov a,#0ffh             ;76ba  a1 ff
-    movw hl,#mem_f1a4       ;76bc  16 a4 f1
+    movw hl,#upd_1_buf+10   ;76bc  16 a4 f1
 
 lab_76bf:
     mov [hl+b],a            ;76bf  bb
