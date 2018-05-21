@@ -3496,22 +3496,24 @@ lab_0cd8:
 
 
 sub_0cda:
+;Fill B bytes in buffer [HL] with 0
     mov a,#00h              ;0cda  a1 00
 
+
 sub_0cdc:
+;Fill B bytes in buffer [HL] with A
     xch a,b                 ;0cdc  33
     cmp a,#00h              ;0cdd  4d 00
     xch a,b                 ;0cdf  33
     bz $lab_0ce7            ;0ce0  ad 05
     decw hl                 ;0ce2  96
-
 lab_0ce3:
     mov [hl+b],a            ;0ce3  bb
     dbnz b,$lab_0ce3        ;0ce4  8b fd
     incw hl                 ;0ce6  86
-
 lab_0ce7:
     ret                     ;0ce7  af
+
 
     db 4dh                  ;0ce8  4d          DATA 0x4d 'M'
     db 0a0h                 ;0ce9  a0          DATA 0xa0
@@ -3760,10 +3762,12 @@ lab_0e39:
     bc $lab_0e39            ;0e40  8d f7
     mov WDTM_,#90h          ;0e42  13 f9 90
     call !sub_0a17          ;0e45  9a 17 0a
-    mov b,#0bh              ;0e48  a3 0b
-    mov a,#80h              ;0e4a  a1 80
-    movw hl,#0fb86h         ;0e4c  16 86 fb
-    callf !sub_0cdc         ;0e4f  4c dc
+
+    mov b,#0bh              ;0e48  a3 0b        B = 0x0b bytes to fill
+    mov a,#80h              ;0e4a  a1 80        A = 0x80 value to fill
+    movw hl,#0fb86h         ;0e4c  16 86 fb     HL = pointer to buffer to fill
+    callf !sub_0cdc         ;0e4f  4c dc        Fill B bytes in buffer [HL] with A
+
     callf !sub_093c         ;0e51  1c 3c
     clr1 PU2_.4             ;0e53  71 4b 32
     set1 PM2_.4             ;0e56  71 4a 22
@@ -3838,10 +3842,11 @@ lab_0e39:
     mov mem_fe3e,#0fh       ;0f03  11 3e 0f
     clr1 mem_fe6f.4         ;0f06  4b 6f
     clr1 mem_fe6d.3         ;0f08  3b 6d
-    mov b,#03h              ;0f0a  a3 03
-    mov a,#7fh              ;0f0c  a1 7f
-    movw hl,#mem_fca2       ;0f0e  16 a2 fc
-    callf !sub_0cdc         ;0f11  4c dc
+
+    mov b,#03h              ;0f0a  a3 03        B = 3 bytes to fill
+    mov a,#7fh              ;0f0c  a1 7f        A = fill value 0x7f
+    movw hl,#mem_fca2       ;0f0e  16 a2 fc     HL = pointer to buffer to fill
+    callf !sub_0cdc         ;0f11  4c dc        Fill B bytes in buffer [HL] with A
 
 lab_0f13:
     mov mem_fe7c,#00h       ;0f13  11 7c 00
@@ -10074,22 +10079,24 @@ lab_2e73:
     ret                     ;2e7d  af
 
 sub_2e7e:
-    mov b,#10h              ;2e7e  a3 10
-    movw hl,#mem_f055       ;2e80  16 55 f0
-    mov a,#20h              ;2e83  a1 20
-    callf !sub_0cdc         ;2e85  4c dc
+;Fill 16 bytes at mem_f055 buffer with 0x20 (space)
+    mov b,#10h              ;2e7e  a3 10        B = 16 bytes to fill
+    movw hl,#mem_f055       ;2e80  16 55 f0     HL = pointer to buffer to fill
+    mov a,#20h              ;2e83  a1 20        A = fill value
+    callf !sub_0cdc         ;2e85  4c dc        Fill B bytes in buffer [HL] with A
     ret                     ;2e87  af
 
 sub_2e88:
-    mov b,#10h              ;2e88  a3 10
-    movw hl,#mem_f055       ;2e8a  16 55 f0
-    callf !sub_0cda         ;2e8d  4c da
+;Fill 16 bytes at mem_f055 buffer with 0
+    mov b,#10h              ;2e88  a3 10        B = 16 bytes to fill
+    movw hl,#mem_f055       ;2e8a  16 55 f0     HL = pointer to buffer to fill
+    callf !sub_0cda         ;2e8d  4c da        Fill B bytes in buffer [HL] with 0
     ret                     ;2e8f  af
 
 sub_2e90:
     call !sub_2efc          ;2e90  9a fc 2e
     bnz $lab_2e9a           ;2e93  bd 05
-    call !sub_2e88          ;2e95  9a 88 2e
+    call !sub_2e88          ;2e95  9a 88 2e     Fill 16 bytes at mem_f055 buffer with 0
     set1 cy                 ;2e98  20
     ret                     ;2e99  af
 
@@ -10237,7 +10244,7 @@ lab_2f6b:
 
 lab_2f79:
     dec mem_fe27            ;2f79  91 27
-    call !sub_2e88          ;2f7b  9a 88 2e
+    call !sub_2e88          ;2f7b  9a 88 2e     Fill 16 bytes at mem_f055 buffer with 0
     br $lab_2f95            ;2f7e  fa 15
 
 lab_2f80:
@@ -10247,7 +10254,7 @@ lab_2f80:
     br $lab_2fa9            ;2f88  fa 1f
 
 lab_2f8a:
-    call !sub_2e7e          ;2f8a  9a 7e 2e
+    call !sub_2e7e          ;2f8a  9a 7e 2e     Fill 16 bytes at mem_f055 buffer with 0x20 (space)
     call !sub_2e90          ;2f8d  9a 90 2e
     bc $lab_2fa9            ;2f90  8d 17
     mov mem_fe27,#03h       ;2f92  11 27 03
@@ -23175,29 +23182,31 @@ lab_6fc8:
     db 6fh                  ;6fce  6f          DATA 0x6f 'o'
     db 0afh                 ;6fcf  af          DATA 0xaf
 
+
 sub_6fd0:
-    movw hl,#mem_f19a       ;6fd0  16 9a f1
-    mov a,#0bh              ;6fd3  a1 0b
+;Fill 11 bytes in mem_f19a buffer with 0x20 (space)
+    movw hl,#mem_f19a       ;6fd0  16 9a f1     HL = pointer to buffer to fill
+    mov a,#0bh              ;6fd3  a1 0b        A = 11 bytes to fill
     cmp a,#00h              ;6fd5  4d 00
     br $lab_6fd9            ;6fd7  fa 00
-
 lab_6fd9:
     bz $lab_6fe0            ;6fd9  ad 05
     mov b,a                 ;6fdb  73
-    mov a,#20h              ;6fdc  a1 20
-    callf !sub_0cdc         ;6fde  4c dc
-
+    mov a,#20h              ;6fdc  a1 20        A = value to fill (0x20)
+    callf !sub_0cdc         ;6fde  4c dc        Fill B bytes in buffer [HL] with A
 lab_6fe0:
     ret                     ;6fe0  af
 
-sub_6fe1:
-    mov b,#08h              ;6fe1  a3 08
-    bz $lab_6fea            ;6fe3  ad 05
-    movw hl,#mem_fe35       ;6fe5  16 35 fe
-    callf !sub_0cda         ;6fe8  4c da
 
+sub_6fe1:
+;Fill 8 bytes in mem_fe35 buffer with 0
+    mov b,#08h              ;6fe1  a3 08        B = 8 bytes to fill
+    bz $lab_6fea            ;6fe3  ad 05
+    movw hl,#mem_fe35       ;6fe5  16 35 fe     HL = pointer to buffer to fill
+    callf !sub_0cda         ;6fe8  4c da        Fill B bytes in buffer [HL] with 0
 lab_6fea:
     ret                     ;6fea  af
+
 
 sub_6feb:
     push de                 ;6feb  b5
@@ -23593,7 +23602,7 @@ lab_71da:
 
 lab_71e3:
     set1 mem_fe6a.0         ;71e3  0a 6a
-    call !sub_6fe1          ;71e5  9a e1 6f
+    call !sub_6fe1          ;71e5  9a e1 6f     Fill 8 bytes in mem_fe35 buffer with 0
     mov b,#0ah              ;71e8  a3 0a
     movw hl,#safe           ;71ea  16 f9 64
     mov a,#0ffh             ;71ed  a1 ff
@@ -23601,7 +23610,7 @@ lab_71e3:
 
 lab_71f2:
     set1 mem_fe6a.0         ;71f2  0a 6a
-    call !sub_6fe1          ;71f4  9a e1 6f
+    call !sub_6fe1          ;71f4  9a e1 6f     Fill 8 bytes in mem_fe35 buffer with 0
     mov b,#0ah              ;71f7  a3 0a
     movw hl,#safe           ;71f9  16 f9 64
     mov a,#0ffh             ;71fc  a1 ff
@@ -23632,7 +23641,7 @@ lab_7224:
     cmp a,#00h              ;7227  4d 00
     bnz $lab_7249           ;7229  bd 1e
     set1 mem_fe6a.0         ;722b  0a 6a
-    call !sub_6fe1          ;722d  9a e1 6f
+    call !sub_6fe1          ;722d  9a e1 6f     Fill 8 bytes in mem_fe35 buffer with 0
     mov b,#0ah              ;7230  a3 0a
     movw hl,#safe           ;7232  16 f9 64
     mov a,#0ffh             ;7235  a1 ff
@@ -23646,7 +23655,7 @@ lab_7224:
     br $lab_7290            ;7247  fa 47
 
 lab_7249:
-    call !sub_6fe1          ;7249  9a e1 6f
+    call !sub_6fe1          ;7249  9a e1 6f     Fill 8 bytes in mem_fe35 buffer with 0
     mov b,#0ah              ;724c  a3 0a
     movw hl,#safe           ;724e  16 f9 64
     mov a,#0ffh             ;7251  a1 ff
@@ -24023,7 +24032,7 @@ lab_74ca:
     ret                     ;74d4  af
 
 lab_74d5:
-    call !sub_6fd0          ;74d5  9a d0 6f
+    call !sub_6fd0          ;74d5  9a d0 6f     Fill 11 bytes in mem_f19a buffer with 0x20 (space)
     mov a,#0ffh             ;74d8  a1 ff
     mov b,#0ah              ;74da  a3 0a
     movw hl,#diag           ;74dc  16 93 65
