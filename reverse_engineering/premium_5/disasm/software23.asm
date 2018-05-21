@@ -8975,22 +8975,22 @@ sub_2830:
     mov a,!kwp_rx_buf+3     ;2833  8e 8d f0     A = KWP1281 rx buffer byte 3 (group number)
     mov !mem_f04f,a         ;2836  9e 4f f0     Store group number in mem_f04f
 
-    cmp a,#19h              ;2839  4d 19        Is KWP1281 group number = 0x19 (protection)?
+    cmp a,#19h              ;2839  4d 19        Is it KWP1281 group 0x19 (protection)?
     bz $lab_285e            ;283b  ad 21          Yes: branch to lab_285e
 
-    cmp a,#06h              ;283d  4d 06        Is KWP1281 group number = 0x06 (external display)?
+    cmp a,#06h              ;283d  4d 06        Is it KWP1281 group 6 (external display)?
     bnz $lab_2849           ;283f  bd 08          No: branch to lab_2849
 
-    ;group number = 6
+    ;group number = 6 (external display)
     mov a,!mem_f1e9         ;2841  8e e9 f1
     bt a.0,$lab_2858        ;2844  31 0e 11
     mov a,#06h              ;2847  a1 06
 
 lab_2849:
-    movw hl,#mem_af8d+1     ;2849  16 8e af
+    movw hl,#mem_af8d+1     ;2849  16 8e af     HL = pointer to table of valid group numbers
     call !sub_0b0d          ;284c  9a 0d 0b
     bnc $lab_2858           ;284f  9d 07
-    movw hl,#mem_af96+1     ;2851  16 97 af
+    movw hl,#mem_af96+1     ;2851  16 97 af     HL = pointer to table of group data pointers
     callf !sub_0c48         ;2854  4c 48
     bnc $lab_2862           ;2856  9d 0a
 
@@ -9904,7 +9904,7 @@ lab_2d9a:
     mov a,mem_fed5          ;2d9a  f0 d5
     and a,#0f0h             ;2d9c  5d f0
     callf !sub_0a9e         ;2d9e  2c 9e
-    movw hl,#mem_afe0       ;2da0  16 e0 af
+    movw hl,#mem_afdf+1     ;2da0  16 e0 af
 
 lab_2da3:
     mov b,#03h              ;2da3  a3 03
@@ -9920,7 +9920,7 @@ lab_2daf:
     mov a,mem_fed5          ;2daf  f0 d5
     and a,#0f0h             ;2db1  5d f0
     callf !sub_0a9e         ;2db3  2c 9e
-    movw hl,#mem_afe5       ;2db5  16 e5 af
+    movw hl,#mem_afe4+1     ;2db5  16 e5 af
 
 lab_2db8:
     mov b,#02h              ;2db8  a3 02
@@ -37370,7 +37370,7 @@ mem_af75:
 
 mem_af8d:
 ;group reading related
-;group numbers
+;valid group numbers
 ;used with sub_0b0d
     db 08h                  ;af8d  08          DATA 0x08    8 entries below:
     db 01h                  ;af8e  01          DATA 0x01    Group 1 (General)
@@ -37384,92 +37384,105 @@ mem_af8d:
 
 mem_af96:
 ;group reading related
+;pointer to data table for each group
 ;used with sub_0c48
-    db 07h                  ;af96  07          DATA 0x07    7 entries below:
-    dw 0afa6h               ;af97   VECTOR
-    dw 0afb3h               ;af99   VECTOR
-    dw 0afc0h               ;af9b   VECTOR
-    dw 0afcah               ;af9d   VECTOR
-    dw 0afceh               ;af9f   VECTOR
-    dw 0afd5h               ;afa1   VECTOR
-    dw 0afdch               ;afa3   VECTOR
+    db 07h                  ;af96  07          DATA 0x07        7 entries below:
+    dw mem_afa5+1           ;af97              POINTER          Group 1 (General)
+    dw mem_afb2+1           ;af99              POINTER          Group 2 (Speakers)
+    dw mem_afbf+1           ;af9b              POINTER          Group 3 (Antenna)
+    dw mem_afc9+1           ;af9d              POINTER          Group 4 (Amplifier)
+    dw mem_afce+1           ;af9f              POINTER          Group 5 (CD Changer)
+    dw mem_afd4+1           ;afa1              POINTER          Group 6 (External Display)
+    dw mem_afdb+1           ;afa3              POINTER          Group 7 (Steering Wheel Control)
 
+mem_afa5:
+;Group 1 (General)
+    db 0ch                  ;afa5  0c          DATA 0x0c        12 entries below:
+    db 25h                  ;afa6  25          DATA 0x25 '%'    type        \
+    db 00h                  ;afa7  00          DATA 0x00        value a      GALA-Signal
+    db 00h                  ;afa8  00          DATA 0x00        value b     /
+    db 06h                  ;afa9  06          DATA 0x06        type        \
+    db 5fh                  ;afaa  5f          DATA 0x5f '_'    value a      Supply Voltage (Terminal 30)
+    db 0ffh                 ;afab  ff          DATA 0xff        value b     /
+    db 17h                  ;afac  17          DATA 0x17        type        \
+    db 64h                  ;afad  64          DATA 0x64 'd'    value a      Illumination % (Terminal 5d)
+    db 0feh                 ;afae  fe          DATA 0xfe        value b     /
+    db 25h                  ;afaf  25          DATA 0x25 '%'    type        \
+    db 00h                  ;afb0  00          DATA 0x00        value a      S-Contact Status
+    db 0e0h                 ;afb1  e0          DATA 0xe0        value b     /
 
-    db 0ch                  ;afa5  0c          DATA 0x0c
-    db 25h                  ;afa6  25          DATA 0x25 '%'
+mem_afb2:
+;Group 2 (Speakers)
+    db 0ch                  ;afb2  0c          DATA 0x0c        12 entries below:
+    db 25h                  ;afb3  25          DATA 0x25 '%'    type        \
+    db 00h                  ;afb4  00          DATA 0x00        value a      Location/Type (Front)
+    db 0f0h                 ;afb5  f0          DATA 0xf0        value b     /
+    db 25h                  ;afb6  25          DATA 0x25 '%'    type        \
+    db 00h                  ;afb7  00          DATA 0x00        value a      Status
+    db 0e1h                 ;afb8  e1          DATA 0xe1        value b     /
+    db 25h                  ;afb9  25          DATA 0x25 '%'    type        \
+    db 00h                  ;afba  00          DATA 0x00        value a      Location/Type (Rear)
+    db 0f1h                 ;afbb  f1          DATA 0xf1        value b     /
+    db 25h                  ;afbc  25          DATA 0x25 '%'    type        \
+    db 00h                  ;afbd  00          DATA 0x00        value a      Status
+    db 0e2h                 ;afbe  e2          DATA 0xe2        value b     /
 
-    db 00h                  ;afa7  00          DATA 0x00
-    db 00h                  ;afa8  00          DATA 0x00
-    db 06h                  ;afa9  06          DATA 0x06
-    db 5fh                  ;afaa  5f          DATA 0x5f '_'
-    db 0ffh                 ;afab  ff          DATA 0xff
-    db 17h                  ;afac  17          DATA 0x17
-    db 64h                  ;afad  64          DATA 0x64 'd'
-    db 0feh                 ;afae  fe          DATA 0xfe
-    db 25h                  ;afaf  25          DATA 0x25 '%'
-    db 00h                  ;afb0  00          DATA 0x00
-    db 0e0h                 ;afb1  e0          DATA 0xe0
-    db 0ch                  ;afb2  0c          DATA 0x0c
+mem_afbf:
+;Group 3 (Antenna)
+    db 09h                  ;afbf  09          DATA 0x09        9 entries below:
+    db 25h                  ;afc0  25          DATA 0x25 '%'    type        \
+    db 01h                  ;afc1  01          DATA 0x01        value a      Antenna Type
+    db 0e3h                 ;afc2  e3          DATA 0xe3        value b     /
+    db 25h                  ;afc3  25          DATA 0x25 '%'    type        \
+    db 00h                  ;afc4  00          DATA 0x00        value a      Antenna
+    db 0f4h                 ;afc5  f4          DATA 0xf4        value b     /
+    db 25h                  ;afc6  25          DATA 0x25 '%'    type        \
+    db 00h                  ;afc7  00          DATA 0x00        value a      Status
+    db 0e4h                 ;afc8  e4          DATA 0xe4        value b     /
 
-    db 25h                  ;afb3  25          DATA 0x25 '%'
-    db 00h                  ;afb4  00          DATA 0x00
-    db 0f0h                 ;afb5  f0          DATA 0xf0
-    db 25h                  ;afb6  25          DATA 0x25 '%'
-    db 00h                  ;afb7  00          DATA 0x00
-    db 0e1h                 ;afb8  e1          DATA 0xe1
-    db 25h                  ;afb9  25          DATA 0x25 '%'
-    db 00h                  ;afba  00          DATA 0x00
-    db 0f1h                 ;afbb  f1          DATA 0xf1
-    db 25h                  ;afbc  25          DATA 0x25 '%'
-    db 00h                  ;afbd  00          DATA 0x00
-    db 0e2h                 ;afbe  e2          DATA 0xe2
-    db 09h                  ;afbf  09          DATA 0x09
+mem_afc9:
+;Group 4 (Amplifier)
+    db 03h                  ;afc9  03          DATA 0x03        3 entries below
+    db 10h                  ;afca  10          DATA 0x10        type        \
+    db 01h                  ;afcb  01          DATA 0x01        value a      Amplifier Output
+    db 0d1h                 ;afcc  d1          DATA 0xd1        value b     /
 
-    db 25h                  ;afc0  25          DATA 0x25 '%'
-    db 01h                  ;afc1  01          DATA 0x01
-    db 0e3h                 ;afc2  e3          DATA 0xe3
-    db 25h                  ;afc3  25          DATA 0x25 '%'
-    db 00h                  ;afc4  00          DATA 0x00
-    db 0f4h                 ;afc5  f4          DATA 0xf4
-    db 25h                  ;afc6  25          DATA 0x25 '%'
-    db 00h                  ;afc7  00          DATA 0x00
-    db 0e4h                 ;afc8  e4          DATA 0xe4
-    db 03h                  ;afc9  03          DATA 0x03
+mem_afce:
+;Group 5 (CD Changer)
+    db 06h                  ;afcd  06          DATA 0x06        6 entries below:
+    db 25h                  ;afce  25          DATA 0x25 '%'    type        \
+    db 00h                  ;afcf  00          DATA 0x00        value a      Component
+    db 0f6h                 ;afd0  f6          DATA 0xf6        value b     /
+    db 25h                  ;afd1  25          DATA 0x25 '%'    type        \
+    db 00h                  ;afd2  00          DATA 0x00        value a      Status
+    db 0e5h                 ;afd3  e5          DATA 0xe5        value b     /
 
-    db 10h                  ;afca  10          DATA 0x10
-    db 01h                  ;afcb  01          DATA 0x01
-    db 0d1h                 ;afcc  d1          DATA 0xd1
-    db 06h                  ;afcd  06          DATA 0x06
+mem_afd4:
+;Group 6 (External Display)
+    db 06h                  ;afd4  06          DATA 0x06        6 entries below:
+    db 25h                  ;afd5  25          DATA 0x25 '%'    type        \
+    db 00h                  ;afd6  00          DATA 0x00        value a      Component
+    db 0f7h                 ;afd7  f7          DATA 0xf7        value b     /
+    db 25h                  ;afd8  25          DATA 0x25 '%'    type        \
+    db 00h                  ;afd9  00          DATA 0x00        value a      Status
+    db 0e6h                 ;afda  e6          DATA 0xe6        value b     /
 
-    db 25h                  ;afce  25          DATA 0x25 '%'
-    db 00h                  ;afcf  00          DATA 0x00
-    db 0f6h                 ;afd0  f6          DATA 0xf6
-    db 25h                  ;afd1  25          DATA 0x25 '%'
-    db 00h                  ;afd2  00          DATA 0x00
-    db 0e5h                 ;afd3  e5          DATA 0xe5
-    db 06h                  ;afd4  06          DATA 0x06
+mem_afdb:
+;Group 7 (Steering Wheel Control)
+    db 03h                  ;afdb  03          DATA 0x03        3 entries below:
+    db 11h                  ;afdc  11          DATA 0x11        type        \
+    db 25h                  ;afdd  25          DATA 0x25 '%'    value a      Steering Wheel buttons
+    db 0fch                 ;afde  fc          DATA 0xfc        value b     /
 
-    db 25h                  ;afd5  25          DATA 0x25 '%'
-    db 00h                  ;afd6  00          DATA 0x00
-    db 0f7h                 ;afd7  f7          DATA 0xf7
-    db 25h                  ;afd8  25          DATA 0x25 '%'
-    db 00h                  ;afd9  00          DATA 0x00
-    db 0e6h                 ;afda  e6          DATA 0xe6
-    db 03h                  ;afdb  03          DATA 0x03
-
-    db 11h                  ;afdc  11          DATA 0x11
-    db 25h                  ;afdd  25          DATA 0x25 '%'
-    db 0fch                 ;afde  fc          DATA 0xfc
-    db 04h                  ;afdf  04          DATA 0x04
-
-mem_afe0:
+mem_afdf:
+    db 04h                  ;afdf  04          DATA 0x04        4 entries below:
     db 00h                  ;afe0  00          DATA 0x00
     db 01h                  ;afe1  01          DATA 0x01
     db 02h                  ;afe2  02          DATA 0x02
     db 04h                  ;afe3  04          DATA 0x04
-    db 03h                  ;afe4  03          DATA 0x03
 
-mem_afe5:
+mem_afe4:
+    db 03h                  ;afe4  03          DATA 0x03        3 entries below:
     db 00h                  ;afe5  00          DATA 0x00
     db 01h                  ;afe6  01          DATA 0x01
     db 06h                  ;afe7  06          DATA 0x06
