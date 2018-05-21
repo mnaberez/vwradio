@@ -259,7 +259,7 @@
     mem_fc77 equ 0fc77h
     mem_fc78 equ 0fc78h
     mem_fc79 equ 0fc79h
-    mem_fc7d equ 0fc7dh
+    mem_fc7d equ 0fc7dh       ;CD disc number
     mem_fc7e equ 0fc7eh
     mem_fc81 equ 0fc81h
     mem_fc82 equ 0fc82h
@@ -10125,7 +10125,7 @@ lab_2edb:
 lab_2edc:
     mov a,#03h              ;2edc  a1 03        A = 3 bytes to copy
     movw hl,#upd_1_buf+4    ;2ede  16 9e f1     HL = source address
-    movw de,#fis_tx_buf+11  ;2ee1  14 5d f0     DE = destination addrss
+    movw de,#fis_tx_buf+11  ;2ee1  14 5d f0     DE = destination address
     callf !sub_0c9e         ;2ee4  4c 9e        Copy A bytes from [HL] to [DE]
     bf mem_fe39.5,$lab_2eee ;2ee6  31 53 39 04
     mov a,#'.'              ;2eea  a1 2e
@@ -13742,9 +13742,9 @@ lab_41a1:
     mov !mem_fb9a,a         ;41a5  9e 9a fb
     callf !sub_09e6         ;41a8  1c e6
     callf !sub_0c12         ;41aa  4c 12
-    movw hl,#mem_f202       ;41ac  16 02 f2
-    movw de,#mem_f204       ;41af  14 04 f2
-    mov a,#02h              ;41b2  a1 02
+    movw hl,#mem_f202       ;41ac  16 02 f2     HL = pointer to first buffer
+    movw de,#mem_f204       ;41af  14 04 f2     DE = pointer to second buffer
+    mov a,#02h              ;41b2  a1 02        A = 2 bytes to compare
     clr1 mem_fe63.3         ;41b4  3b 63
     callf !sub_0cca         ;41b6  4c ca        Compare A bytes from [HL] to [DE]
     bz $lab_41bc            ;41b8  ad 02        Branch if buffers are equal
@@ -15865,9 +15865,9 @@ lab_4b29:
     mov a,!mem_fb29         ;4b2c  8e 29 fb
     cmp a,#00h              ;4b2f  4d 00
     bz $lab_4b3f            ;4b31  ad 0c
-    movw de,#mem_fbbd       ;4b33  14 bd fb
-    movw hl,#mem_fe35       ;4b36  16 35 fe
-    mov a,#08h              ;4b39  a1 08
+    movw de,#mem_fbbd       ;4b33  14 bd fb     DE = pointer to first buffer
+    movw hl,#mem_fe35       ;4b36  16 35 fe     HL = pointer to second buffer
+    mov a,#08h              ;4b39  a1 08        A = 8 bytes to compare
     callf !sub_0cca         ;4b3b  4c ca        Compare A bytes between [HL] to [DE]
     bz $lab_4ba9            ;4b3d  ad 6a        Branch if buffers are equal
 
@@ -15936,9 +15936,9 @@ lab_4ba9:
     br !lab_4c5e            ;4bb0  9b 5e 4c
 
 lab_4bb3:
-    movw de,#upd_2_buf      ;4bb3  14 b2 fb
-    movw hl,#upd_1_buf      ;4bb6  16 9a f1
-    mov a,#0bh              ;4bb9  a1 0b
+    movw de,#upd_2_buf      ;4bb3  14 b2 fb     DE = pointer to first buffer
+    movw hl,#upd_1_buf      ;4bb6  16 9a f1     HL = pointer to second buffer
+    mov a,#0bh              ;4bb9  a1 0b        A = 11 bytes to compare
     callf !sub_0cca         ;4bbb  4c ca        Compare A bytes between [HL] to [DE]
     bz $lab_4bc2            ;4bbd  ad 03        Branch if buffers are equal
     br !lab_4c5e            ;4bbf  9b 5e 4c
@@ -20383,7 +20383,7 @@ lab_630d:
     mov a,!mem_fc10         ;6322  8e 10 fc
     call !sub_623d          ;6325  9a 3d 62
     bnc $lab_6334           ;6328  9d 0a
-    movw hl,#mem_fc00       ;632a  16 00 fc
+    movw hl,#mem_fc00       ;632a  16 00 fc     HL = pointer to first buffer
     mov a,!mem_fc10         ;632d  8e 10 fc
     callf !sub_0cca         ;6330  4c ca        Compare A bytes between [HL] to [DE]
     bz $lab_6345            ;6332  ad 11        Branch if buffers are equal
@@ -22443,8 +22443,8 @@ lab_6b73:
     movw hl,#cd_cd_err      ;6b7e  16 95 67
     call !sub_6e70          ;6b81  9a 70 6e
     movw hl,#upd_1_buf      ;6b84  16 9a f1
-    mov a,!mem_fc7d         ;6b87  8e 7d fc
-    add a,#30h              ;6b8a  0d 30
+    mov a,!mem_fc7d           ;6b87  8e 7d fc     A = CD number
+    add a,#30h              ;6b8a  0d 30        Convert to ASCII
     mov [hl+03h],a          ;6b8c  be 03
     br $lab_6b9a            ;6b8e  fa 0a
 
@@ -22463,8 +22463,8 @@ lab_6b9d:
     movw hl,#cd_no_cd       ;6ba1  16 90 66
     call !sub_6e70          ;6ba4  9a 70 6e
     movw hl,#upd_1_buf      ;6ba7  16 9a f1
-    mov a,!mem_fc7d         ;6baa  8e 7d fc
-    add a,#30h              ;6bad  0d 30
+    mov a,!mem_fc7d           ;6baa  8e 7d fc     A = CD number
+    add a,#30h              ;6bad  0d 30        Convert to ASCII
     mov [hl+03h],a          ;6baf  be 03
     br !lab_6ca5            ;6bb1  9b a5 6c
 
@@ -22880,12 +22880,12 @@ sub_6e40:
     bz $lab_6e5e            ;6e4d  ad 0f
     cmp a,#06h              ;6e4f  4d 06
     bz $lab_6e5e            ;6e51  ad 0b
-    mov a,#41h              ;6e53  a1 41
+    mov a,#'A'              ;6e53  a1 41            'A' for tape side A
     bf mem_fe4d.6,$lab_6e5b ;6e55  31 63 4d 02
-    mov a,#42h              ;6e59  a1 42
+    mov a,#'B'              ;6e59  a1 42            'B' for tape side B
 
 lab_6e5b:
-    mov !upd_1_buf+10,a     ;6e5b  9e a4 f1
+    mov !upd_1_buf+10,a     ;6e5b  9e a4 f1         Write tape side to display
 
 lab_6e5e:
     clr1 mem_fe36.2         ;6e5e  2b 36
@@ -23486,7 +23486,7 @@ lab_7142:
     and a,#7fh              ;7145  5d 7f
     mov !mem_f1a8,a         ;7147  9e a8 f1
     mov b,a                 ;714a  73
-    movw hl,#mem_b457       ;714b  16 57 b4
+    movw hl,#mem_b456+1     ;714b  16 57 b4
     br !lab_704d            ;714e  9b 4d 70
 
 lab_7151:
@@ -23500,7 +23500,7 @@ lab_715c:
     and a,#7fh              ;715f  5d 7f
     mov !mem_f1a9,a         ;7161  9e a9 f1
     mov b,a                 ;7164  73
-    movw hl,#mem_b460       ;7165  16 60 b4
+    movw hl,#mem_b459+1     ;7165  16 60 b4
     br !lab_704d            ;7168  9b 4d 70
 
 lab_716b:
@@ -38557,7 +38557,8 @@ mem_b3d9:
     db 0fdh                 ;b3e8  fd          DATA 0xfd
     db 0b3h                 ;b3e9  b3          DATA 0xb3
 
-    db 0bh                  ;b3ea  0b          DATA 0x0b
+;unknown table
+    db 0bh                  ;b3ea  0b          DATA 0x0b        11 entries below:
     db 01h                  ;b3eb  01          DATA 0x01
     db 0ah                  ;b3ec  0a          DATA 0x0a
     db 17h                  ;b3ed  17          DATA 0x17
@@ -38569,13 +38570,19 @@ mem_b3d9:
     db 69h                  ;b3f3  69          DATA 0x69 'i'
     db 6fh                  ;b3f4  6f          DATA 0x6f 'o'
     db 75h                  ;b3f5  75          DATA 0x75 'u'
-    db 02h                  ;b3f6  02          DATA 0x02
+
+;unknown table
+    db 02h                  ;b3f6  02          DATA 0x02        2 entries below:
     db 0dh                  ;b3f7  0d          DATA 0x0d
     db 56h                  ;b3f8  56          DATA 0x56 'V'
-    db 02h                  ;b3f9  02          DATA 0x02
+
+;unknown table
+    db 02h                  ;b3f9  02          DATA 0x02        2 entries below:
     db 0eh                  ;b3fa  0e          DATA 0x0e
     db 57h                  ;b3fb  57          DATA 0x57 'W'
-    db 0bh                  ;b3fc  0b          DATA 0x0b
+
+;unknown table
+    db 0bh                  ;b3fc  0b          DATA 0x0b        11 entries below:
     db 02h                  ;b3fd  02          DATA 0x02
     db 0bh                  ;b3fe  0b          DATA 0x0b
     db 18h                  ;b3ff  18          DATA 0x18
@@ -38589,21 +38596,29 @@ mem_b3d9:
     db 76h                  ;b407  76          DATA 0x76 'v'
 
 mem_b408:
-    db 02h                  ;b408  02          DATA 0x02
+    db 02h                  ;b408  02          DATA 0x02        2 entries below:
     db 02h                  ;b409  02          DATA 0x02
     db 05h                  ;b40a  05          DATA 0x05
-    db 02h                  ;b40b  02          DATA 0x02
+
+;unknown table
+    db 02h                  ;b40b  02          DATA 0x02        2 entries below:
     db 5fh                  ;b40c  5f          DATA 0x5f '_'
     db 2bh                  ;b40d  2b          DATA 0x2b '+'
-    db 02h                  ;b40e  02          DATA 0x02
+
+;unknown table
+    db 02h                  ;b40e  02          DATA 0x02        2 entries below:
     db 59h                  ;b40f  59          DATA 0x59 'Y'
     db 25h                  ;b410  25          DATA 0x25 '%'
-    db 04h                  ;b411  04          DATA 0x04
+
+;unknown table
+    db 04h                  ;b411  04          DATA 0x04        4 entries below:
     db 00h                  ;b412  00          DATA 0x00
     db 01h                  ;b413  01          DATA 0x01
     db 0ah                  ;b414  0a          DATA 0x0a
     db 0bh                  ;b415  0b          DATA 0x0b
-    db 04h                  ;b416  04          DATA 0x04
+
+;unknown table
+    db 04h                  ;b416  04          DATA 0x04        4 entries below:
     db 1fh                  ;b417  1f          DATA 0x1f
     db 1eh                  ;b418  1e          DATA 0x1e
     db 21h                  ;b419  21          DATA 0x21 '!'
@@ -38611,7 +38626,7 @@ mem_b408:
 
 mem_b41b:
 ;table used with sub_0c48
-    db 05h                  ;b41b  05          DATA 0x05
+    db 05h                  ;b41b  05          DATA 0x05        5 entries below:
     db 8fh                  ;b41c  8f          DATA 0x8f
     db 70h                  ;b41d  70          DATA 0x70 'p'
     db 0bah                 ;b41e  ba          DATA 0xba
@@ -38623,7 +38638,8 @@ mem_b41b:
     db 51h                  ;b424  51          DATA 0x51 'Q'
     db 71h                  ;b425  71          DATA 0x71 'q'
 
-    db 07h                  ;b426  07          DATA 0x07
+;unknown table
+    db 07h                  ;b426  07          DATA 0x07        7 entries below:
     db 12h                  ;b427  12          DATA 0x12
     db 76h                  ;b428  76          DATA 0x76 'v'
     db 0c5h                 ;b429  c5          DATA 0xc5
@@ -38638,7 +38654,9 @@ mem_b41b:
     db 76h                  ;b432  76          DATA 0x76 'v'
     db 6ah                  ;b433  6a          DATA 0x6a 'j'
     db 76h                  ;b434  76          DATA 0x76 'v'
-    db 10h                  ;b435  10          DATA 0x10
+
+;unknown table
+    db 10h                  ;b435  10          DATA 0x10        16 entries below:
     db 10h                  ;b436  10          DATA 0x10
     db 6ah                  ;b437  6a          DATA 0x6a 'j'
     db 9ah                  ;b438  9a          DATA 0x9a
@@ -38671,9 +38689,9 @@ mem_b41b:
     db 73h                  ;b453  73          DATA 0x73 's'
     db 0d5h                 ;b454  d5          DATA 0xd5
     db 74h                  ;b455  74          DATA 0x74 't'
-    db 04h                  ;b456  04          DATA 0x04
 
-mem_b457:
+mem_b456:
+    db 04h                  ;b456  04          DATA 0x04        4 entries below:
     db 0e3h                 ;b457  e3          DATA 0xe3
     db 71h                  ;b458  71          DATA 0x71 'q'
     db 0f2h                 ;b459  f2          DATA 0xf2
@@ -38682,9 +38700,9 @@ mem_b457:
     db 72h                  ;b45c  72          DATA 0x72 'r'
     db 94h                  ;b45d  94          DATA 0x94
     db 72h                  ;b45e  72          DATA 0x72 'r'
-    db 07h                  ;b45f  07          DATA 0x07
 
-mem_b460:
+mem_b459:
+    db 07h                  ;b45f  07          DATA 0x07        7 entries below:
     db 0deh                 ;b460  de          DATA 0xde
     db 72h                  ;b461  72          DATA 0x72 'r'
     db 0e9h                 ;b462  e9          DATA 0xe9
