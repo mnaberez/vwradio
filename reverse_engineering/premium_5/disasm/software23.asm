@@ -744,6 +744,7 @@ mem_00b4:
     db 04h                  ;00cc  04          DATA 0x04
     db 00h                  ;00cd  00          DATA 0x00
     db 00h                  ;00ce  00          DATA 0x00
+
 mem_00cf:
     db 00h                  ;00cf  00          DATA 0x00
     db 44h                  ;00d0  44          DATA 0x44 'D'
@@ -4131,7 +4132,7 @@ lab_119b:
     rorc a,1                ;119d  25
     mov mem_fe7c,a          ;119e  f2 7c
     bnc $lab_11ab           ;11a0  9d 09
-    movw hl,#mem_b0ce       ;11a2  16 ce b0
+    movw hl,#mem_b0cd+1     ;11a2  16 ce b0
     mov a,[hl+b]            ;11a5  ab
     push bc                 ;11a6  b3
     mov b,a                 ;11a7  73
@@ -10160,7 +10161,7 @@ sub_2f0a:
     xch a,mem_fe26          ;2f0e  83 26
     mov c,#09h              ;2f10  a2 09
     mov b,#00h              ;2f12  a3 00
-    movw hl,#mem_b009       ;2f14  16 09 b0
+    movw hl,#mem_b008+1     ;2f14  16 09 b0
     mov x,a                 ;2f17  70
 
 lab_2f18:
@@ -10586,7 +10587,7 @@ lab_31bb:
 lab_31bf:
     btclr mem_fe79.5,$lab_31d2 ;31bf  31 51 79 0f
 
-    movw hl,#kwp_unknown_b037  ;31c3  16 37 b0
+    movw hl,#kwp_unknown_b036+1  ;31c3  16 37 b0
     mov a,!mem_f06d         ;31c6  8e 6d f0
     mov b,a                 ;31c9  73
     mov a,[hl+b]            ;31ca  ab
@@ -10623,7 +10624,7 @@ lab_31f6:
     cmp a,#03h              ;31f7  4d 03
     bnz $lab_322c           ;31f9  bd 31
 
-    movw hl,#kwp_unknown_b03c  ;31fb  16 3c b0
+    movw hl,#kwp_unknown_b03b+1  ;31fb  16 3c b0
     mov a,!mem_f06d         ;31fe  8e 6d f0
     mov b,a                 ;3201  73
     mov a,[hl+b]            ;3202  ab
@@ -10692,7 +10693,7 @@ lab_3269:
     mov a,#00h              ;3274  a1 00
     mov !mem_f06f,a         ;3276  9e 6f f0
 
-    movw hl,#kwp_unknown_b03c  ;3279  16 3c b0
+    movw hl,#kwp_unknown_b03b+1  ;3279  16 3c b0
     mov a,!mem_f06d         ;327c  8e 6d f0
     mov b,a                 ;327f  73
     mov a,[hl+b]            ;3280  ab
@@ -10711,7 +10712,7 @@ lab_328d:
     br $lab_32dc            ;3294  fa 46
 
 lab_3296:
-    movw hl,#kwp_unknown_b037  ;3296  16 37 b0
+    movw hl,#kwp_unknown_b036+1  ;3296  16 37 b0
     mov a,!mem_f06d         ;3299  8e 6d f0
     mov b,a                 ;329c  73
     mov a,[hl+b]            ;329d  ab
@@ -10722,7 +10723,7 @@ lab_3296:
     br $lab_32dc            ;32a5  fa 35
 
 lab_32a7:
-    movw hl,#kwp_unknown_b037  ;32a7  16 37 b0
+    movw hl,#kwp_unknown_b036+1  ;32a7  16 37 b0
     mov a,!mem_f06d         ;32aa  8e 6d f0
     mov b,a                 ;32ad  73
     mov a,[hl+b]            ;32ae  ab
@@ -10738,13 +10739,13 @@ lab_32ba:
     mov a,#00h              ;32be  a1 00
     mov !mem_f069,a         ;32c0  9e 69 f0
 
-    movw hl,#kwp_unknown_b032  ;32c3  16 32 b0
+    movw hl,#kwp_unknown_b031+1  ;32c3  16 32 b0
     mov a,!mem_f06d         ;32c6  8e 6d f0
     mov b,a                 ;32c9  73
     mov a,[hl+b]            ;32ca  ab
     mov ASIM0_,a            ;32cb  f6 a0
 
-    movw hl,#kwp_unknown_b03c  ;32cd  16 3c b0
+    movw hl,#kwp_unknown_b03b+1  ;32cd  16 3c b0
     mov a,!mem_f06d         ;32d0  8e 6d f0
     mov b,a                 ;32d3  73
     mov a,[hl+b]            ;32d4  ab
@@ -10902,7 +10903,7 @@ sub_339e:
     btclr mem_fe79.4,$lab_3370 ;33a8  31 41 79 c4
     btclr mem_fe79.5,$lab_33be ;33ac  31 51 79 0e
 
-    movw hl,#kwp_unknown_b03c  ;33b0  16 3c b0
+    movw hl,#kwp_unknown_b03b+1  ;33b0  16 3c b0
     mov a,!mem_f06d         ;33b3  8e 6d f0
     mov b,a                 ;33b6  73
     mov a,[hl+b]            ;33b7  ab
@@ -10936,7 +10937,7 @@ lab_33de:
     mov a,#00h              ;33e2  a1 00
     mov !mem_f069,a         ;33e4  9e 69 f0
 
-    movw hl,#kwp_unknown_b03c  ;33e7  16 3c b0
+    movw hl,#kwp_unknown_b03b+1  ;33e7  16 3c b0
     mov a,!mem_f06d         ;33ea  8e 6d f0
     mov b,a                 ;33ed  73
     mov a,[hl+b]            ;33ee  ab
@@ -10957,7 +10958,7 @@ lab_3401:
     btclr mem_fe7b.1,$lab_3422 ;3401  31 11 7b 1d
     set1 mem_fe7b.1         ;3405  1a 7b
 
-    movw hl,#kwp_unknown_b037  ;3407  16 37 b0
+    movw hl,#kwp_unknown_b036+1  ;3407  16 37 b0
     mov a,!mem_f06d         ;340a  8e 6d f0
     mov b,a                 ;340d  73
     mov a,[hl+b]            ;340e  ab
@@ -10965,7 +10966,7 @@ lab_3401:
 
     set1 mem_fe79.2         ;3412  2a 79
 
-    movw hl,#kwp_unknown_b03c  ;3414  16 3c b0
+    movw hl,#kwp_unknown_b03b+1  ;3414  16 3c b0
     mov a,!mem_f06d         ;3417  8e 6d f0
     mov b,a                 ;341a  73
     mov a,[hl+b]            ;341b  ab
@@ -10994,7 +10995,7 @@ lab_3435:
     mov a,#00h              ;3440  a1 00
     mov !mem_f06f,a         ;3442  9e 6f f0
 
-    movw hl,#kwp_unknown_b03c  ;3445  16 3c b0
+    movw hl,#kwp_unknown_b03b+1  ;3445  16 3c b0
     mov a,!mem_f06d         ;3448  8e 6d f0
     mov b,a                 ;344b  73
     mov a,[hl+b]            ;344c  ab
@@ -11366,7 +11367,7 @@ lab_36ae:
     br $lab_36ab            ;36b9  fa f0
 
 sub_36bb:
-    movw hl,#mem_b023       ;36bb  16 23 b0
+    movw hl,#mem_b022+1     ;36bb  16 23 b0
     mov b,#03h              ;36be  a3 03
 
 lab_36c0:
@@ -11376,7 +11377,7 @@ lab_36c0:
     ret                     ;36c6  af
 
 lab_36c7:
-    movw hl,#kwp_unknown_b028         ;36c7  16 28 b0
+    movw hl,#kwp_unknown_b027+1         ;36c7  16 28 b0
     mov a,[hl+b]            ;36ca  ab
     cmp a,#00h              ;36cb  4d 00
     bz $lab_36d0            ;36cd  ad 01
@@ -16360,7 +16361,7 @@ lab_4e26:
     ;block length is ok
     mov a,!mem_f06d         ;4e26  8e 6d f0
     mov b,a                 ;4e29  73
-    movw hl,#kwp_unknown_b028 ;4e2a  16 28 b0
+    movw hl,#kwp_unknown_b027+1 ;4e2a  16 28 b0
     mov a,[hl+b]            ;4e2d  ab
     cmp a,#00h              ;4e2e  4d 00
     bz $lab_4e3d            ;4e30  ad 0b
@@ -19928,7 +19929,7 @@ sub_60ac:
 
 lab_60c7:
     add a,x                 ;60c7  61 08
-    movw hl,#mem_b3d3       ;60c9  16 d3 b3
+    movw hl,#mem_b3d2+1     ;60c9  16 d3 b3
     movw de,#0f1b9h         ;60cc  14 b9 f1
     mov mem_fed4,a          ;60cf  f2 d4
     call !sub_026e          ;60d1  9a 6e 02
@@ -23116,7 +23117,7 @@ lab_6f8b:
 
 lab_6f92:
     push hl                 ;6f92  b7
-    movw hl,#mem_b531       ;6f93  16 31 b5
+    movw hl,#mem_b530+1     ;6f93  16 31 b5
     mov a,[hl+b]            ;6f96  ab
     mov mem_fede,a          ;6f97  f2 de
     movw hl,#mem_f1aa       ;6f99  16 aa f1
@@ -26785,7 +26786,7 @@ sub_8178:
     bz $lab_818e            ;8184  ad 08
 
 lab_8186:
-    movw hl,#mem_b808       ;8186  16 08 b8
+    movw hl,#mem_b807+1     ;8186  16 08 b8
     mov a,mem_fe4b          ;8189  f0 4b
     mov b,a                 ;818b  73
     br $lab_81ad            ;818c  fa 1f
@@ -33162,7 +33163,7 @@ lab_9b0f:
     mov b,a                 ;9b1f  73
     movw hl,#mem_c020       ;9b20  16 20 c0
     bf mem_fe74.6,$lab_9b2a ;9b23  31 63 74 03
-    movw hl,#mem_c211       ;9b27  16 11 c2
+    movw hl,#mem_c210+1     ;9b27  16 11 c2
 
 lab_9b2a:
     callf !sub_0c48         ;9b2a  4c 48
@@ -33269,7 +33270,7 @@ lab_9bdc:
     call !sub_9137          ;9be6  9a 37 91
     mov a,!mem_fc8c         ;9be9  8e 8c fc
     mov b,a                 ;9bec  73
-    movw hl,#mem_c3ff       ;9bed  16 ff c3
+    movw hl,#mem_c3fe+1     ;9bed  16 ff c3
     bt mem_fe75.0,$lab_9bf6 ;9bf0  8c 75 03
     movw hl,#mem_c352+1     ;9bf3  16 53 c3
 
@@ -33485,9 +33486,9 @@ sub_9d61:
     call !sub_aae0          ;9d63  9a e0 aa
     mov b,a                 ;9d66  73
     push bc                 ;9d67  b3
-    movw hl,#mem_c786       ;9d68  16 86 c7
+    movw hl,#mem_c785+1     ;9d68  16 86 c7
     bf mem_fe74.2,$lab_9d72 ;9d6b  31 23 74 03
-    movw hl,#mem_c7dc       ;9d6f  16 dc c7
+    movw hl,#mem_c7db+1     ;9d6f  16 dc c7
 
 lab_9d72:
     bf mem_fe74.6,$lab_9d80 ;9d72  31 63 74 0a
@@ -33501,9 +33502,9 @@ lab_9d80:
     movw !0f022h,ax         ;9d83  03 22 f0
     pop bc                  ;9d86  b2
     push bc                 ;9d87  b3
-    movw hl,#mem_c7b1       ;9d88  16 b1 c7
+    movw hl,#mem_c7b0+1     ;9d88  16 b1 c7
     bf mem_fe74.2,$lab_9d92 ;9d8b  31 23 74 03
-    movw hl,#mem_c807       ;9d8f  16 07 c8
+    movw hl,#mem_c806+1     ;9d8f  16 07 c8
 
 lab_9d92:
     bf mem_fe74.6,$lab_9da0 ;9d92  31 63 74 0a
@@ -33527,12 +33528,12 @@ lab_9db2:
     movw !0f02ah,ax         ;9db5  03 2a f0
     pop bc                  ;9db8  b2
     bt mem_fe74.6,$lab_9dc3 ;9db9  ec 74 07
-    movw hl,#mem_c75b       ;9dbc  16 5b c7
+    movw hl,#mem_c75a+1     ;9dbc  16 5b c7
     callf !sub_0c48         ;9dbf  4c 48
     br $lab_9dc8            ;9dc1  fa 05
 
 lab_9dc3:
-    movw hl,#mem_c8b3       ;9dc3  16 b3 c8
+    movw hl,#mem_c8b2+1     ;9dc3  16 b3 c8
     callf !sub_0c48         ;9dc6  4c 48
 
 lab_9dc8:
@@ -33548,7 +33549,7 @@ sub_9dd3:
     mov b,a                 ;9dd8  73
     movw hl,#mem_c9d1+1     ;9dd9  16 d2 c9
     bf mem_fe74.6,$lab_9de3 ;9ddc  31 63 74 03
-    movw hl,#mem_c9fd       ;9de0  16 fd c9
+    movw hl,#mem_c9fc+1     ;9de0  16 fd c9
 
 lab_9de3:
     callf !sub_0c48         ;9de3  4c 48
@@ -34101,7 +34102,7 @@ lab_a0af:
     br !lab_a141            ;a0bd  9b 41 a1
 
 lab_a0c0:
-    movw hl,#mem_ca28       ;a0c0  16 28 ca
+    movw hl,#mem_ca27+1     ;a0c0  16 28 ca
     call !sub_0adf          ;a0c3  9a df 0a
     mov a,#24h              ;a0c6  a1 24
     sub a,b                 ;a0c8  61 1b
@@ -34575,12 +34576,12 @@ lab_a397:
     mov a,!mem_f200         ;a3a4  8e 00 f2
     mov b,a                 ;a3a7  73
     bt mem_fe74.2,$lab_a3b2 ;a3a8  ac 74 07
-    movw hl,#mem_c934       ;a3ab  16 34 c9
+    movw hl,#mem_c933+1     ;a3ab  16 34 c9
     callf !sub_0c48         ;a3ae  4c 48
     br $lab_a3b7            ;a3b0  fa 05
 
 lab_a3b2:
-    movw hl,#mem_c95e       ;a3b2  16 5e c9
+    movw hl,#mem_c95d+1     ;a3b2  16 5e c9
     callf !sub_0c48         ;a3b5  4c 48
 
 lab_a3b7:
@@ -34616,7 +34617,7 @@ lab_a3ec:
     call !sub_9137          ;a3f6  9a 37 91
     mov a,!mem_fc8c         ;a3f9  8e 8c fc
     mov b,a                 ;a3fc  73
-    movw hl,#mem_c3ff       ;a3fd  16 ff c3
+    movw hl,#mem_c3fe+1     ;a3fd  16 ff c3
     bt mem_fe75.0,$lab_a406 ;a400  8c 75 03
     movw hl,#mem_c352+1     ;a403  16 53 c3
 
@@ -34645,12 +34646,12 @@ lab_a428:
     mov a,!mem_f200         ;a435  8e 00 f2
     mov b,a                 ;a438  73
     bt mem_fe74.2,$lab_a443 ;a439  ac 74 07
-    movw hl,#mem_c949       ;a43c  16 49 c9
+    movw hl,#mem_c948+1     ;a43c  16 49 c9
     callf !sub_0c48         ;a43f  4c 48
     br $lab_a448            ;a441  fa 05
 
 lab_a443:
-    movw hl,#mem_c973       ;a443  16 73 c9
+    movw hl,#mem_c972+1     ;a443  16 73 c9
     callf !sub_0c48         ;a446  4c 48
 
 lab_a448:
@@ -37525,9 +37526,8 @@ mem_b001:
     db 0abh                 ;b006  ab          DATA 0xab
     db 04h                  ;b007  04          DATA 0x04
 
-    db 09h                  ;b008  09          DATA 0x09
-
-mem_b009:
+mem_b008:
+    db 09h                  ;b008  09          DATA 0x09        9 entries below:
     db 02h                  ;b009  02          DATA 0x02
     db 03h                  ;b00a  03          DATA 0x03
     db 04h                  ;b00b  04          DATA 0x04
@@ -37560,52 +37560,56 @@ mem_b019:
     db 66h                  ;b020  66          DATA 0x66 'f'
     db 30h                  ;b021  30          DATA 0x30 '0'
 
-    db 04h                  ;b022  04          DATA 0x04
-mem_b023:
+mem_b022:
+    db 04h                  ;b022  04          DATA 0x04        4 entries below:
     db 00h                  ;b023  00          DATA 0x00
     db 7ch                  ;b024  7c          DATA 0x7c '|'
     db 0d6h                 ;b025  d6          DATA 0xd6
     db 0bfh                 ;b026  bf          DATA 0xbf
-    db 04h                  ;b027  04          DATA 0x04
 
-kwp_unknown_b028:
+kwp_unknown_b027:
 ;unknown; related to mem_f06d
+    db 04h                  ;b027  04          DATA 0x04        4 entries below:
     db 00h                  ;b028  00          DATA 0x00
     db 00h                  ;b029  00          DATA 0x00
     db 00h                  ;b02a  00          DATA 0x00
     db 01h                  ;b02b  01          DATA 0x01
-    db 04h                  ;b02c  04          DATA 0x04
+
+;unknown table
+    db 04h                  ;b02c  04          DATA 0x04        4 entries below:
     db 39h                  ;b02d  39          DATA 0x39 '9'
     db 39h                  ;b02e  39          DATA 0x39 '9'
     db 39h                  ;b02f  39          DATA 0x39 '9'
     db 39h                  ;b030  39          DATA 0x39 '9'
-    db 04h                  ;b031  04          DATA 0x04
 
-kwp_unknown_b032:
+kwp_unknown_b031:
 ;unknown; related to mem_f06d
 ;values to be stored in ASIM0_
+    db 04h                  ;b031  04          DATA 0x04        4 entries below:
     db 00h                  ;b032  00          DATA 0x00
     db 0cah                 ;b033  ca          DATA 0xca
     db 0cah                 ;b034  ca          DATA 0xca
     db 0cah                 ;b035  ca          DATA 0xca
-    db 04h                  ;b036  04          DATA 0x04
 
-kwp_unknown_b037:
+kwp_unknown_b036:
 ;unknown; related to mem_f06d
 ;values to be stored in mem_f06f
+    db 04h                  ;b036  04          DATA 0x04        4 entries below:
     db 08h                  ;b037  08          DATA 0x08
     db 08h                  ;b038  08          DATA 0x08
     db 08h                  ;b039  08          DATA 0x08
     db 08h                  ;b03a  08          DATA 0x08
-    db 04h                  ;b03b  04          DATA 0x04
 
-kwp_unknown_b03c:
+kwp_unknown_b03b:
 ;unknown; related to mem_f06d
 ;values to be stored in mem_f070
+    db 04h                  ;b03b  04          DATA 0x04        4 entries below:
     db 25h                  ;b03c  25          DATA 0x25 '%'
     db 0ffh                 ;b03d  ff          DATA 0xff
     db 25h                  ;b03e  25          DATA 0x25 '%'
     db 25h                  ;b03f  25          DATA 0x25 '%'
+
+;unknown table
     db 0fh                  ;b040  0f          DATA 0x0f
     db 81h                  ;b041  81          DATA 0x81
     db 37h                  ;b042  37          DATA 0x37 '7'
@@ -37751,9 +37755,8 @@ mem_b0b6:
     db 7fh                  ;b0cb  7f          DATA 0x7f
     db 4dh                  ;b0cc  4d          DATA 0x4d 'M'
 
-    db 03h                  ;b0cd  03          DATA 0x03
-
-mem_b0ce:
+mem_b0cd:
+    db 03h                  ;b0cd  03          DATA 0x03        3 entries below:
     db 0ah                  ;b0ce  0a          DATA 0x0a
     db 05h                  ;b0cf  05          DATA 0x05
     db 02h                  ;b0d0  02          DATA 0x02
@@ -37992,7 +37995,8 @@ mem_b18f:
     db 75h                  ;b1b2  75          DATA 0x75 'u'
     db 0fch                 ;b1b3  fc          DATA 0xfc
 
-    db 12h                  ;b1b4  12          DATA 0x12
+;unknown table
+    db 12h                  ;b1b4  12          DATA 0x12        18 entries below:
     db 4bh                  ;b1b5  4b          DATA 0x4b 'K'
     db 00h                  ;b1b6  00          DATA 0x00
     db 02h                  ;b1b7  02          DATA 0x02
@@ -38540,9 +38544,9 @@ mem_b3b1:
     db 03h                  ;b3cf  03          DATA 0x03
     db 08h                  ;b3d0  08          DATA 0x08
     db 0ffh                 ;b3d1  ff          DATA 0xff
-    db 06h                  ;b3d2  06          DATA 0x06
 
-mem_b3d3:
+mem_b3d2:
+    db 06h                  ;b3d2  06          DATA 0x06        6 entries below:
     db 01h                  ;b3d3  01          DATA 0x01
     db 21h                  ;b3d4  21          DATA 0x21 '!'
     db 41h                  ;b3d5  41          DATA 0x41 'A'
@@ -38936,14 +38940,16 @@ mem_b4de:
     db 02h                  ;b52d  02          DATA 0x02
     db 3ah                  ;b52e  3a          DATA 0x3a ':'
     db 0ch                  ;b52f  0c          DATA 0x0c
-    db 04h                  ;b530  04          DATA 0x04
 
-mem_b531:
+mem_b530:
+    db 04h                  ;b530  04          DATA 0x04    4 entries below:
     db 01h                  ;b531  01          DATA 0x01
     db 0ah                  ;b532  0a          DATA 0x0a
     db 0ah                  ;b533  0a          DATA 0x0a
     db 0dh                  ;b534  0d          DATA 0x0d
-    db 0dh                  ;b535  0d          DATA 0x0d
+
+;unknown table
+    db 0dh                  ;b535  0d          DATA 0x0d    13 entries below:
     db 80h                  ;b536  80          DATA 0x80
     db 05h                  ;b537  05          DATA 0x05
     db 81h                  ;b538  81          DATA 0x81
@@ -38973,7 +38979,7 @@ mem_b531:
 
 mem_b550:
 ;table used with sub_0c48
-    db 0dh                  ;b550  0d          DATA 0x0d        13 entries below
+    db 0dh                  ;b550  0d          DATA 0x0d        13 entries below:
     db 6bh                  ;b551  6b          DATA 0x6b 'k'
     db 71h                  ;b552  71          DATA 0x71 'q'
     db 7fh                  ;b553  7f          DATA 0x7f
@@ -39568,7 +39574,7 @@ mem_b5c5:
 
 mem_b79b:
 ;table used with sub_0c48
-    db 06h                  ;b79b  06          DATA 0x06    6 entries below:
+    db 06h                  ;b79b  06          DATA 0x06        6 entries below:
     db 0bah                 ;b79c  ba          DATA 0xba
     db 0b7h                 ;b79d  b7          DATA 0xb7
     db 0c7h                 ;b79e  c7          DATA 0xc7
@@ -39582,7 +39588,8 @@ mem_b79b:
     db 0fbh                 ;b7a6  fb          DATA 0xfb
     db 0b7h                 ;b7a7  b7          DATA 0xb7
 
-    db 08h                  ;b7a8  08          DATA 0x08
+;unknown table
+    db 08h                  ;b7a8  08          DATA 0x08        8 entries follow:
     db 0f6h                 ;b7a9  f6          DATA 0xf6
     db 80h                  ;b7aa  80          DATA 0x80
     db 0f6h                 ;b7ab  f6          DATA 0xf6
@@ -39599,7 +39606,9 @@ mem_b79b:
     db 81h                  ;b7b6  81          DATA 0x81
     db 2ch                  ;b7b7  2c          DATA 0x2c ','
     db 81h                  ;b7b8  81          DATA 0x81
-    db 06h                  ;b7b9  06          DATA 0x06
+
+;unknown table
+    db 06h                  ;b7b9  06          DATA 0x06        6 entries follow:
     db 8ch                  ;b7ba  8c          DATA 0x8c
     db 87h                  ;b7bb  87          DATA 0x87
     db 43h                  ;b7bc  43          DATA 0x43 'C'
@@ -39612,7 +39621,9 @@ mem_b79b:
     db 82h                  ;b7c3  82          DATA 0x82
     db 43h                  ;b7c4  43          DATA 0x43 'C'
     db 82h                  ;b7c5  82          DATA 0x82
-    db 06h                  ;b7c6  06          DATA 0x06
+
+;unknown table
+    db 06h                  ;b7c6  06          DATA 0x06        6 entries follow:
     db 0b1h                 ;b7c7  b1          DATA 0xb1
     db 83h                  ;b7c8  83          DATA 0x83
     db 8ch                  ;b7c9  8c          DATA 0x8c
@@ -39625,7 +39636,9 @@ mem_b79b:
     db 83h                  ;b7d0  83          DATA 0x83
     db 0c4h                 ;b7d1  c4          DATA 0xc4
     db 83h                  ;b7d2  83          DATA 0x83
-    db 06h                  ;b7d3  06          DATA 0x06
+
+;unknown table
+    db 06h                  ;b7d3  06          DATA 0x06        6 entries follow:
     db 0f5h                 ;b7d4  f5          DATA 0xf5
     db 86h                  ;b7d5  86          DATA 0x86
     db 0f5h                 ;b7d6  f5          DATA 0xf5
@@ -39638,7 +39651,9 @@ mem_b79b:
     db 86h                  ;b7dd  86          DATA 0x86
     db 0f5h                 ;b7de  f5          DATA 0xf5
     db 86h                  ;b7df  86          DATA 0x86
-    db 06h                  ;b7e0  06          DATA 0x06
+
+;unknown table
+    db 06h                  ;b7e0  06          DATA 0x06        6 entries follow:
     db 0f5h                 ;b7e1  f5          DATA 0xf5
     db 86h                  ;b7e2  86          DATA 0x86
     db 0f5h                 ;b7e3  f5          DATA 0xf5
@@ -39651,7 +39666,9 @@ mem_b79b:
     db 86h                  ;b7ea  86          DATA 0x86
     db 0f5h                 ;b7eb  f5          DATA 0xf5
     db 86h                  ;b7ec  86          DATA 0x86
-    db 06h                  ;b7ed  06          DATA 0x06
+
+;unknown table
+    db 06h                  ;b7ed  06          DATA 0x06        6 entries follow:
     db 8eh                  ;b7ee  8e          DATA 0x8e
     db 85h                  ;b7ef  85          DATA 0x85
     db 8eh                  ;b7f0  8e          DATA 0x8e
@@ -39664,7 +39681,9 @@ mem_b79b:
     db 87h                  ;b7f7  87          DATA 0x87
     db 8eh                  ;b7f8  8e          DATA 0x8e
     db 85h                  ;b7f9  85          DATA 0x85
-    db 06h                  ;b7fa  06          DATA 0x06
+
+;unknown table
+    db 06h                  ;b7fa  06          DATA 0x06        6 entries follow:
     db 8eh                  ;b7fb  8e          DATA 0x8e
     db 85h                  ;b7fc  85          DATA 0x85
     db 8eh                  ;b7fd  8e          DATA 0x8e
@@ -39677,9 +39696,9 @@ mem_b79b:
     db 85h                  ;b804  85          DATA 0x85
     db 8ch                  ;b805  8c          DATA 0x8c
     db 87h                  ;b806  87          DATA 0x87
-    db 2dh                  ;b807  2d          DATA 0x2d '-'
 
-mem_b808:
+mem_b807:
+    db 2dh                  ;b807  2d          DATA 0x2d '-'    45 entries follow:
     db 8ch                  ;b808  8c          DATA 0x8c
     db 87h                  ;b809  87          DATA 0x87
     db 0f9h                 ;b80a  f9          DATA 0xf9
@@ -42091,7 +42110,7 @@ mem_c0f9:
 
 mem_c156:
 ;table used with sub_0c48
-    db 2eh                  ;c156  2e          DATA 0x2e '.'    46 entries below
+    db 2eh                  ;c156  2e          DATA 0x2e '.'    46 entries below:
     db 0ffh                 ;c157  ff          DATA 0xff
     db 0fh                  ;c158  0f          DATA 0x0f
     db 0f5h                 ;c159  f5          DATA 0xf5
@@ -42280,9 +42299,9 @@ mem_c1b3:
     db 08h                  ;c20d  08          DATA 0x08
     db 00h                  ;c20e  00          DATA 0x00
     db 08h                  ;c20f  08          DATA 0x08
-    db 2eh                  ;c210  2e          DATA 0x2e '.'
 
-mem_c211:
+mem_c210:
+    db 2eh                  ;c210  2e          DATA 0x2e '.'    46 entries follow:
     db 00h                  ;c211  00          DATA 0x00
     db 00h                  ;c212  00          DATA 0x00
     db 1ah                  ;c213  1a          DATA 0x1a
@@ -42375,6 +42394,7 @@ mem_c211:
     db 07h                  ;c26a  07          DATA 0x07
     db 0ffh                 ;c26b  ff          DATA 0xff
     db 07h                  ;c26c  07          DATA 0x07
+
     db 2fh                  ;c26d  2f          DATA 0x2f '/'
     db 0ah                  ;c26e  0a          DATA 0x0a
     db 00h                  ;c26f  00          DATA 0x00
@@ -42662,7 +42682,7 @@ mem_c352:
 
 mem_c37d:
 ;table used with sub_0c48
-    db 15h                  ;c37d  15          DATA 0x15        21 entries below
+    db 15h                  ;c37d  15          DATA 0x15        21 entries below:
     db 69h                  ;c37e  69          DATA 0x69 'i'
     db 00h                  ;c37f  00          DATA 0x00
     db 69h                  ;c380  69          DATA 0x69 'i'
@@ -42797,9 +42817,9 @@ mem_c3d3:
     db 01h                  ;c3fb  01          DATA 0x01
     db 86h                  ;c3fc  86          DATA 0x86
     db 01h                  ;c3fd  01          DATA 0x01
-    db 15h                  ;c3fe  15          DATA 0x15
 
-mem_c3ff:
+mem_c3fe:
+    db 15h                  ;c3fe  15          DATA 0x15        21 entries below:
     db 28h                  ;c3ff  28          DATA 0x28 '('
     db 6dh                  ;c400  6d          DATA 0x6d 'm'
     db 2eh                  ;c401  2e          DATA 0x2e '.'
@@ -43166,7 +43186,7 @@ mem_c52b:
 
 mem_c556:
 ;table used with sub_0c48
-    db 15h                  ;c556  15          DATA 0x15        21 entries below
+    db 15h                  ;c556  15          DATA 0x15        21 entries below:
     db 10h                  ;c557  10          DATA 0x10
     db 5dh                  ;c558  5d          DATA 0x5d ']'
     db 10h                  ;c559  10          DATA 0x10
@@ -43257,7 +43277,7 @@ mem_c581:
     db 01h                  ;c5ab  01          DATA 0x01
 
 mem_c5ac:
-    db 15h                  ;c5ac  15          DATA 0x15        21 entries below
+    db 15h                  ;c5ac  15          DATA 0x15        21 entries below:
     db 28h                  ;c5ad  28          DATA 0x28 '('
     db 65h                  ;c5ae  65          DATA 0x65 'e'
     db 32h                  ;c5af  32          DATA 0x32 '2'
@@ -43713,9 +43733,9 @@ mem_c72f:
     db 51h                  ;c757  51          DATA 0x51 'Q'
     db 05h                  ;c758  05          DATA 0x05
     db 87h                  ;c759  87          DATA 0x87
-    db 15h                  ;c75a  15          DATA 0x15
 
-mem_c75b:
+mem_c75a:
+    db 15h                  ;c75a  15          DATA 0x15        21 entries below:
     db 07h                  ;c75b  07          DATA 0x07
     db 0ffh                 ;c75c  ff          DATA 0xff
     db 07h                  ;c75d  07          DATA 0x07
@@ -43758,9 +43778,9 @@ mem_c75b:
     db 0aeh                 ;c782  ae          DATA 0xae
     db 02h                  ;c783  02          DATA 0x02
     db 78h                  ;c784  78          DATA 0x78 'x'
-    db 15h                  ;c785  15          DATA 0x15
 
-mem_c786:
+mem_c785:
+    db 15h                  ;c785  15          DATA 0x15        21 entries below:
     db 05h                  ;c786  05          DATA 0x05
     db 0b3h                 ;c787  b3          DATA 0xb3
     db 05h                  ;c788  05          DATA 0x05
@@ -43803,9 +43823,9 @@ mem_c786:
     db 0ffh                 ;c7ad  ff          DATA 0xff
     db 00h                  ;c7ae  00          DATA 0x00
     db 0ffh                 ;c7af  ff          DATA 0xff
-    db 15h                  ;c7b0  15          DATA 0x15
 
-mem_c7b1:
+mem_c7b0:
+    db 15h                  ;c7b0  15          DATA 0x15        21 entries below:
     db 06h                  ;c7b1  06          DATA 0x06
     db 0d9h                 ;c7b2  d9          DATA 0xd9
     db 06h                  ;c7b3  06          DATA 0x06
@@ -43848,9 +43868,9 @@ mem_c7b1:
     db 7fh                  ;c7d8  7f          DATA 0x7f
     db 04h                  ;c7d9  04          DATA 0x04
     db 7fh                  ;c7da  7f          DATA 0x7f
-    db 15h                  ;c7db  15          DATA 0x15
 
-mem_c7dc:
+mem_c7db:
+    db 15h                  ;c7db  15          DATA 0x15        21 entries below:
     db 05h                  ;c7dc  05          DATA 0x05
     db 0fbh                 ;c7dd  fb          DATA 0xfb
     db 05h                  ;c7de  05          DATA 0x05
@@ -43893,9 +43913,9 @@ mem_c7dc:
     db 0c0h                 ;c803  c0          DATA 0xc0
     db 01h                  ;c804  01          DATA 0x01
     db 0c0h                 ;c805  c0          DATA 0xc0
-    db 15h                  ;c806  15          DATA 0x15
 
-mem_c807:
+mem_c806:
+    db 15h                  ;c806  15          DATA 0x15        21 entries below:
     db 06h                  ;c807  06          DATA 0x06
     db 0fdh                 ;c808  fd          DATA 0xfd
     db 06h                  ;c809  06          DATA 0x06
@@ -44076,9 +44096,9 @@ mem_c887:
     db 8fh                  ;c8af  8f          DATA 0x8f
     db 05h                  ;c8b0  05          DATA 0x05
     db 8fh                  ;c8b1  8f          DATA 0x8f
-    db 15h                  ;c8b2  15          DATA 0x15
 
-mem_c8b3:
+mem_c8b2:
+    db 15h                  ;c8b2  15          DATA 0x15        21 entries below:
     db 07h                  ;c8b3  07          DATA 0x07
     db 0ffh                 ;c8b4  ff          DATA 0xff
     db 07h                  ;c8b5  07          DATA 0x07
@@ -44213,9 +44233,9 @@ mem_c908:
     db 0d4h                 ;c930  d4          DATA 0xd4
     db 05h                  ;c931  05          DATA 0x05
     db 0d4h                 ;c932  d4          DATA 0xd4
-    db 0ah                  ;c933  0a          DATA 0x0a
 
-mem_c934:
+mem_c933:
+    db 0ah                  ;c933  0a          DATA 0x0a        10 entries below:
     db 77h                  ;c934  77          DATA 0x77 'w'
     db 01h                  ;c935  01          DATA 0x01
     db 86h                  ;c936  86          DATA 0x86
@@ -44236,9 +44256,9 @@ mem_c934:
     db 01h                  ;c945  01          DATA 0x01
     db 0e7h                 ;c946  e7          DATA 0xe7
     db 00h                  ;c947  00          DATA 0x00
-    db 0ah                  ;c948  0a          DATA 0x0a
 
-mem_c949:
+mem_c948:
+    db 0ah                  ;c948  0a          DATA 0x0a        10 entries below:
     db 40h                  ;c949  40          DATA 0x40 '@'
     db 55h                  ;c94a  55          DATA 0x55 'U'
     db 24h                  ;c94b  24          DATA 0x24 '$'
@@ -44259,9 +44279,9 @@ mem_c949:
     db 55h                  ;c95a  55          DATA 0x55 'U'
     db 66h                  ;c95b  66          DATA 0x66 'f'
     db 77h                  ;c95c  77          DATA 0x77 'w'
-    db 0ah                  ;c95d  0a          DATA 0x0a
 
-mem_c95e:
+mem_c95d:
+    db 0ah                  ;c95d  0a          DATA 0x0a        10 entries below:
     db 77h                  ;c95e  77          DATA 0x77 'w'
     db 01h                  ;c95f  01          DATA 0x01
     db 0e6h                 ;c960  e6          DATA 0xe6
@@ -44282,9 +44302,9 @@ mem_c95e:
     db 01h                  ;c96f  01          DATA 0x01
     db 0b7h                 ;c970  b7          DATA 0xb7
     db 00h                  ;c971  00          DATA 0x00
-    db 0ah                  ;c972  0a          DATA 0x0a
 
-mem_c973:
+mem_c972:
+    db 0ah                  ;c972  0a          DATA 0x0a        10 entries below:
     db 40h                  ;c973  40          DATA 0x40 '@'
     db 45h                  ;c974  45          DATA 0x45 'E'
     db 24h                  ;c975  24          DATA 0x24 '$'
@@ -44305,6 +44325,8 @@ mem_c973:
     db 45h                  ;c984  45          DATA 0x45 'E'
     db 66h                  ;c985  66          DATA 0x66 'f'
     db 67h                  ;c986  67          DATA 0x67 'g'
+
+;unknown table
     db 0eeh                 ;c987  ee          DATA 0xee
     db 08h                  ;c988  08          DATA 0x08
     db 01h                  ;c989  01          DATA 0x01
@@ -44434,9 +44456,9 @@ mem_c9d1:
     db 17h                  ;c9f9  17          DATA 0x17
     db 0e0h                 ;c9fa  e0          DATA 0xe0
     db 19h                  ;c9fb  19          DATA 0x19
-    db 15h                  ;c9fc  15          DATA 0x15
 
-mem_c9fd:
+mem_c9fc:
+    db 15h                  ;c9fc  15          DATA 0x15        21 entries below:
     db 60h                  ;c9fd  60          DATA 0x60 '`'
     db 08h                  ;c9fe  08          DATA 0x08
     db 58h                  ;c9ff  58          DATA 0x58 'X'
@@ -44479,9 +44501,9 @@ mem_c9fd:
     db 0eh                  ;ca24  0e          DATA 0x0e
     db 58h                  ;ca25  58          DATA 0x58 'X'
     db 0fh                  ;ca26  0f          DATA 0x0f
-    db 24h                  ;ca27  24          DATA 0x24 '$'
 
-mem_ca28:
+mem_ca27:
+    db 24h                  ;ca27  24          DATA 0x24 '$'    36 entries below:
     db 0b0h                 ;ca28  b0          DATA 0xb0
     db 02h                  ;ca29  02          DATA 0x02
     db 05h                  ;ca2a  05          DATA 0x05
