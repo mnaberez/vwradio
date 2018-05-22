@@ -29,28 +29,31 @@ uint8_t kwp_component_2[16];    // "        0001"
 #define KWP_RADIO 0x56
 
 // Block Titles
-#define KWP_READ_ID         0x00  /* Read Identification */
-#define KWP_READ_RAM        0x01  /* Read RAM */
-#define KWP_READ_ROM        0x03  /* Read ROM */
-#define KWP_OUTPUT_TESTS    0x04  /* Actuator/Output Tests */
-#define KWP_CLEAR_FAULTS    0x05  /* Clear Faults */
-#define KWP_END_SESSION     0x06  /* End Session */
-#define KWP_READ_FAULTS     0x07  /* Read Faults */
-#define KWP_SINGLE_READING  0x08  /* Single Reading (radio always NAKs) */
-#define KWP_ACK             0x09  /* Acknowledge */
-#define KWP_NAK             0x0A  /* No Acknowledge */
-#define KWP_RECODING        0x10  /* Recoding */
-#define KWP_READ_EEPROM     0x19  /* Read EEPROM */
-#define KWP_ADAPTATION      0x21  /* Adaptation (radio always NAKs) */
-#define KWP_BASIC_SETTING   0x28  /* Basic Setting (radio always NAKs) */
-#define KWP_GROUP_READING   0x29  /* Group Reading */
-#define KWP_LOGIN           0x2B  /* Login */
-#define KWP_R_GROUP_READING 0xE7  /* Response to Group Reading */
-#define KWP_SAFE_CODE       0xF0  /* Request or Response to R/W SAFE Code */
-#define KWP_R_OUTPUT_TEST   0xF5  /* Response to Actuator/Output Tests */
-#define KWP_R_ASCII_DATA    0xF6  /* Response with ASCII Data/ID code */
-#define KWP_R_FAULTS        0xFC  /* Response to Read or Clear Faults */
-#define KWP_R_READ_EEPROM   0xFD  /* Response to Read ROM or Read EEPROM */
-#define KWP_R_READ_RAM      0xFE  /* Response to Read RAM */
+//                                                                      Premium 4   5
+#define KWP_READ_ID         0x00  /* Read Identification                        X   X       */
+#define KWP_READ_RAM        0x01  /* Read RAM                                   X   X       */
+#define KWP_READ_ROM        0x03  /* Read ROM                                   X   X       */
+#define KWP_OUTPUT_TESTS    0x04  /* Actuator/Output Tests                      X   X       */
+#define KWP_CLEAR_FAULTS    0x05  /* Clear Faults                               X   X       */
+#define KWP_END_SESSION     0x06  /* End Session                                X   X       */
+#define KWP_READ_FAULTS     0x07  /* Read Faults                                X   X       */
+#define KWP_SINGLE_READING  0x08  /* Single Reading                                         */
+#define KWP_ACK             0x09  /* Acknowledge                                X   X       */
+#define KWP_NAK             0x0A  /* No Acknowledge                             X   X       */
+#define KWP_WRITE_EEPROM    0x0C  /* Write EEPROM                                   X       */
+#define KWP_RECODING        0x10  /* Recoding                                   X   X       */
+#define KWP_READ_EEPROM     0x19  /* Read EEPROM                                X           */
+#define KWP_ADAPTATION      0x21  /* Adaptation                                             */
+#define KWP_BASIC_SETTING   0x28  /* Basic Setting                                          */
+#define KWP_GROUP_READING   0x29  /* Group Reading                              X   X       */
+#define KWP_LOGIN           0x2B  /* Login                                      X   X       */
+#define KWP_R_GROUP_READING 0xE7  /* Response to Group Reading                  X   X       */
+#define KWP_SAFE_CODE       0xF0  /* Request or Response to R/W SAFE Code       X           */
+#define KWP_R_OUTPUT_TEST   0xF5  /* Response to Actuator/Output Tests          X   X       */
+#define KWP_R_ASCII_DATA    0xF6  /* Response with ASCII Data/ID code           X   X       */
+#define KWP_R_WRITE_EEPROM  0xF9  /* Response to Write EEPROM                       X       */
+#define KWP_R_FAULTS        0xFC  /* Response to Read or Clear Faults           X   X       */
+#define KWP_R_READ_EEPROM   0xFD  /* Response to Read ROM or Read EEPROM        X   X       */
+#define KWP_R_READ_RAM      0xFE  /* Response to Read RAM                       X   X       */
 
 #endif
