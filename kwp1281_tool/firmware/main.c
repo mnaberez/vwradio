@@ -55,32 +55,13 @@ int main()
     kwp_connect(KWP_RADIO, 10400);
     print_radio_info();
 
-    //                     O C     L     E D
-    kwp_send_login_block(0x4f43, 0x4c, 0x4544);
+    kwp_send_login_block(0x795, 0x01, 0x869f);
     kwp_receive_block_expect(KWP_ACK);
 
-// TX: 08
-// TX: 2F
-// TX: 2B
-// TX: 4F
-// TX: 43
-// TX: 4C
-// TX: 45
-// TX: 44
-// TX: 03
+    kwp_send_group_reading_block(0x19);
+    kwp_receive_block_expect(KWP_NAK);  // premium 5 radio lies
 
-
-    // kwp_send_group_reading_block(0x19);
-    // kwp_receive_block_expect(KWP_ACK);
-    //
-    // kwp_read_eeprom();
-    //
-    // for (uint8_t i=0; i<100; i++) {
-    //     uart_puts(UART_DEBUG, "\n\nRAM ITERATION ");
-    //     uart_puthex(UART_DEBUG, i);
-    //     uart_puts(UART_DEBUG, "\n\n");
-    //     kwp_read_ram(0x8000, 32768);
-    // }
+    kwp_read_ram(0, 61440);
 
     while(1);
 }
