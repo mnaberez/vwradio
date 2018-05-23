@@ -55,11 +55,13 @@ int main()
     kwp_connect(KWP_RADIO, 10400);
     print_radio_info();
 
-    kwp_send_login_block(0x795, 0x01, 0x869f);
+    kwp_send_login_block(0x490, 0x01, 0x869f);
     kwp_receive_block_expect(KWP_ACK);
 
     kwp_send_group_reading_block(0x19);
-    kwp_receive_block_expect(KWP_NAK);  // premium 5 radio lies
+    // premium 4 and 5 will unlock the protected commands after login and reading group 0x19.
+    // premium 4 sends ack.  premium 5 sends nak, but it's a lie, treat it like ack.
+    kwp_receive_block();
 
     kwp_read_ram(0, 61440);
 

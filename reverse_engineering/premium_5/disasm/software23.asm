@@ -25,6 +25,7 @@
     mem_f004 equ 0f004h
     mem_f00e equ 0f00eh
     mem_f00f equ 0f00fh
+    mem_f01a equ 0f01ah
     mem_f032 equ 0f032h
     mem_f03b equ 0f03bh
     mem_f04b equ 0f04bh
@@ -102,9 +103,18 @@
     mem_f207 equ 0f207h
     mem_f208 equ 0f208h
     mem_f209 equ 0f209h
-    mem_f20a equ 0f20ah
+    mem_f20a equ 0f20ah     ;KWP1281 login attempt counter
     mem_f20b equ 0f20bh     ;SAFE code attempt counter
+    mem_f20c equ 0f20ch
     mem_f20d equ 0f20dh
+    mem_f211 equ 0f211h
+    mem_f212 equ 0f212h
+    mem_f213 equ 0f213h
+    mem_f214 equ 0f214h
+    mem_f215 equ 0f215h
+    mem_f216 equ 0f216h
+    mem_f217 equ 0f217h
+    mem_f218 equ 0f218h
     mem_f219 equ 0f219h
     mem_f21a equ 0f21ah
     mem_f225 equ 0f225h
@@ -115,6 +125,7 @@
     mem_f258 equ 0f258h
     mem_f259 equ 0f259h
     mem_f268 equ 0f268h
+    mem_f26b equ 0f26bh
     mem_f26c equ 0f26ch
     mem_f26d equ 0f26dh
     mem_fb00 equ 0fb00h
@@ -168,7 +179,7 @@
     mem_fb4e equ 0fb4eh
     mem_fb50 equ 0fb50h
     mem_fb51 equ 0fb51h
-    mem_fb52 equ 0fb52h
+    mem_fb52 equ 0fb52h     ;KWP1281 Login rate limiter countdown
     mem_fb54 equ 0fb54h
     mem_fb56 equ 0fb56h
     mem_fb57 equ 0fb57h
@@ -2884,10 +2895,17 @@ sub_0a60:
 lab_0a7e:
     ret                     ;0a7e  af
 
-sub_0a7f:
-;Called from login with A = byte 3, X = byte 4
-;Probably binary to BCD conversion
-;Returns BCD in mem_fed4
+bin_to_bcd:
+;Binary to BCD conversion
+;
+;Called with:
+;  A = KWP1281 rx buffer byte 3 (login code high byte)
+;  X = KWP1281 rx buffer byte 4 (login code low byte)
+;
+;Returns:
+;  mem_fed4: BCD low byte
+;  mem_fed5: BCD high byte
+;
     movw mem_fed4,#0000h    ;0a7f  ee d4 00 00
     mov b,#10h              ;0a83  a3 10
 
@@ -7882,7 +7900,7 @@ lab_226d:
     cmp a,#05h              ;2271  4d 05
     bnz $lab_228a           ;2273  bd 15
     btclr mem_fe5e.5,$lab_2293 ;2275  31 51 5e 1a
-    mov a,!mem_f20a         ;2279  8e 0a f2
+    mov a,!mem_f20a         ;2279  8e 0a f2     A = KWP1281 login attempt count
     cmp a,#02h              ;227c  4d 02
     mov a,#3ch              ;227e  a1 3c
     bc $lab_2285            ;2280  8d 03
@@ -8009,7 +8027,7 @@ lab_2327:
     movw hl,#mem_f209       ;233a  16 09 f2
     call !sub_4092          ;233d  9a 92 40
     call !sub_249c          ;2340  9a 9c 24
-    movw hl,#0f20ch         ;2343  16 0c f2
+    movw hl,#mem_f20c       ;2343  16 0c f2
     call !sub_4092          ;2346  9a 92 40
     set1 mem_fe23.7         ;2349  7a 23
 
@@ -8279,7 +8297,7 @@ sub_246b:
 sub_2482:
     mov !mem_fb71,a         ;2482  9e 71 fb
     call !sub_249c          ;2485  9a 9c 24
-    movw hl,#0f20ch         ;2488  16 0c f2
+    movw hl,#mem_f20c       ;2488  16 0c f2
     call !sub_4092          ;248b  9a 92 40
     ret                     ;248e  af
 
@@ -8377,7 +8395,7 @@ lab_24a3:
 
 sub_24f1:
     call !sub_249c          ;24f1  9a 9c 24
-    movw hl,#0f20ch         ;24f4  16 0c f2
+    movw hl,#mem_f20c       ;24f4  16 0c f2
     call !sub_4092          ;24f7  9a 92 40
     movw de,#0fb77h         ;24fa  14 77 fb
     movw hl,#mem_fe23       ;24fd  16 23 fe
@@ -8418,7 +8436,7 @@ lab_2532:
     ret                     ;2536  af
 
 sub_2537:
-;called only from security access lab_513a
+;called only from security access kwp_f06d_3_secure_access
     movw hl,#kwp_rx_buf+3   ;2537  16 8d f0     HL = source address (KWP1281 rx buffer byte 3)
     movw de,#mem_fed4       ;253a  14 d4 fe     DE = destination address
     mov a,#04h              ;253d  a1 04        A = 4 bytes to copy
@@ -8495,33 +8513,40 @@ sub_259e:
     mulu x                  ;25a9  31 88
     ret                     ;25ab  af
 
-sub_25ac:
-;authenticate login
-;called from login lab_508a
-    mov a,!mem_fb52         ;25ac  8e 52 fb
+auth_login_safe:
+;Authenticate login using SAFE code
+;Called from kwp_f06d_2_login
+;
+    mov a,!mem_fb52         ;25ac  8e 52 fb     A = KWP1281 rate limit countdown
     cmp a,#00h              ;25af  4d 00
-    bnz $lab_25f9           ;25b1  bd 46
+    bnz $lab_25f9           ;25b1  bd 46        Branch to do nothing and return if rate limited
+
+    ;not currently being rate limited
 
     clr1 mem_fe65.3         ;25b3  3b 65        Clear bit to indicate not logged in
 
     mov a,!kwp_rx_buf+4     ;25b5  8e 8e f0
-    mov x,a                 ;25b8  70           X = KWP1281 rx buffer byte 4
-    mov a,!kwp_rx_buf+3     ;25b9  8e 8d f0     A = KWP1281 rx buffer byte 3
+    mov x,a                 ;25b8  70           X = KWP1281 rx buffer byte 4 (login code low byte)
+    mov a,!kwp_rx_buf+3     ;25b9  8e 8d f0     A = KWP1281 rx buffer byte 3 (login code high byte)
 
-    call !sub_0a7f          ;25bc  9a 7f 0a     Convert binary in AX to BCD word in mem_fed4
+    call !bin_to_bcd        ;25bc  9a 7f 0a     Convert binary in AX to BCD word:
+                            ;                       mem_fed4: BCD low byte
+                            ;                       mem_fed5: BCD high byte
 
-    call !sub_2605          ;25bf  9a 05 26     does something with mem_fed6, sets carry
-    bc $lab_25c5            ;25c2  8d 01
+    call !read_ee_safe      ;25bf  9a 05 26     Read SAFE code from EEPROM:
+                            ;                       mem_fed6: BCD high byte
+                            ;                       mem_fed7: BCD low byte
+    bc $lab_25c5_compare    ;25c2  8d 01
     ret                     ;25c4  af
 
-lab_25c5:
-    mov a,mem_fed5          ;25c5  f0 d5        Converted BCD word low byte(?)
-    cmp a,mem_fed6          ;25c7  4e d6
-    bnz $lab_25e0           ;25c9  bd 15
+lab_25c5_compare:
+    mov a,mem_fed5          ;25c5  f0 d5        A = Login code converted BCD high byte
+    cmp a,mem_fed6          ;25c7  4e d6        Compare to SAFE code BCD high byte
+    bnz $lab_25e0_fail      ;25c9  bd 15        Branch if not equal
 
-    mov a,mem_fed4          ;25cb  f0 d4        Converted BCD word high byte(?)
-    cmp a,mem_fed7          ;25cd  4e d7
-    bnz $lab_25e0           ;25cf  bd 0f
+    mov a,mem_fed4          ;25cb  f0 d4        A = Login code converted BCD low byte
+    cmp a,mem_fed7          ;25cd  4e d7        Compare to SAFE code BCD low byte
+    bnz $lab_25e0_fail      ;25cf  bd 0f        Branch if not equal
 
     set1 mem_fe65.3         ;25d1  3a 65        Set bit to indicate successful login
     bf mem_fe23.6,$lab_25f9 ;25d3  31 63 23 22
@@ -8529,8 +8554,8 @@ lab_25c5:
     call !sub_248f          ;25da  9a 8f 24
     br !sub_24f1            ;25dd  9b f1 24
 
-lab_25e0:
-    mov a,!mem_f20a         ;25e0  8e 0a f2
+lab_25e0_fail:
+    mov a,!mem_f20a         ;25e0  8e 0a f2     A = KWP1281 login attempt count
     inc a                   ;25e3  41
     cmp a,#03h              ;25e4  4d 03
     bnc $lab_25f4           ;25e6  9d 0c
@@ -8556,15 +8581,16 @@ lab_25ff:
     call !sub_3506          ;2601  9a 06 35
     ret                     ;2604  af
 
-sub_2605:
-;called from login sub_25ac
+read_ee_safe:
+;Read SAFE code from EEPROM, store BCD word in 0xfed6
+;called from login auth_login_safe
 ;does something with mem_fed6
 ;returns some status in carry
     clr1 mem_fe5e.3         ;2605  3b 5e
-    movw hl,#0014h          ;2607  16 14 00
-    movw de,#mem_fed6       ;260a  14 d6 fe
-    mov a,#02h              ;260d  a1 02
-    call !sub_6238          ;260f  9a 38 62
+    movw hl,#0014h          ;2607  16 14 00     HL = EEPROM address 0x0014 (SAFE code)
+    movw de,#mem_fed6       ;260a  14 d6 fe     DE = destination buffer
+    mov a,#02h              ;260d  a1 02        A = 2 bytes to read into buffer
+    call !sub_6238          ;260f  9a 38 62     Read A bytes from EEPROM address HL into [DE]
     bc $lab_2616            ;2612  8d 02
     set1 mem_fe5e.3         ;2614  3a 5e
 
@@ -8869,8 +8895,8 @@ lab_278c:
 
 sub_2790:
     call !sub_2d35          ;2790  9a 35 2d     Clear bits in mem_fe5f and mem_fe60
-    movw hl,#0f20ch         ;2793  16 0c f2
-    movw de,#0f215h         ;2796  14 15 f2
+    movw hl,#mem_f20c         ;2793  16 0c f2
+    movw de,#mem_f215         ;2796  14 15 f2
     call !sub_2cbe          ;2799  9a be 2c
     cmp a,#00h              ;279c  4d 00
     bz $lab_27ce            ;279e  ad 2e
@@ -8889,10 +8915,10 @@ lab_27b0:
     incw hl                 ;27b0  86
     incw de                 ;27b1  84
     dbnz b,$lab_27a7        ;27b2  8b f3
-    movw hl,#0f217h         ;27b4  16 17 f2
+    movw hl,#mem_f217         ;27b4  16 17 f2
     mov a,#88h              ;27b7  a1 88
     call !sub_4092          ;27b9  9a 92 40
-    movw hl,#0f218h         ;27bc  16 18 f2
+    movw hl,#mem_f218         ;27bc  16 18 f2
     mov a,#88h              ;27bf  a1 88
     call !sub_4092          ;27c1  9a 92 40
     movw hl,#mem_f219       ;27c4  16 19 f2
@@ -8972,6 +8998,7 @@ lab_2824:
 
 sub_2830:
 ;called from group reading lab_5429
+;returns some status in D where D=0x0F means error
     bt mem_fe5f.4,$lab_287a ;2830  cc 5f 47
     mov a,!kwp_rx_buf+3     ;2833  8e 8d f0     A = KWP1281 rx buffer byte 3 (group number)
     mov !mem_f04f,a         ;2836  9e 4f f0     Store group number in mem_f04f
@@ -9258,21 +9285,21 @@ lab_29ce:
     and a,!mem_f1fd         ;29d0  58 fd f1
     mov b,a                 ;29d3  73
     bt a.0,$lab_29df        ;29d4  31 0e 08
-    movw hl,#0f215h         ;29d7  16 15 f2
+    movw hl,#mem_f215       ;29d7  16 15 f2
     mov a,#88h              ;29da  a1 88
     call !sub_4092          ;29dc  9a 92 40
 
 lab_29df:
     mov a,b                 ;29df  63
     bt a.1,$lab_29eb        ;29e0  31 1e 08
-    movw hl,#0f214h         ;29e3  16 14 f2
+    movw hl,#mem_f214       ;29e3  16 14 f2
     mov a,#88h              ;29e6  a1 88
     call !sub_4092          ;29e8  9a 92 40
 
 lab_29eb:
     mov a,b                 ;29eb  63
     bt a.2,$lab_29f7        ;29ec  31 2e 08
-    movw hl,#0f213h         ;29ef  16 13 f2
+    movw hl,#mem_f213       ;29ef  16 13 f2
     mov a,#88h              ;29f2  a1 88
     call !sub_4092          ;29f4  9a 92 40
 
@@ -9281,10 +9308,10 @@ lab_29f7:
     and a,#0fh              ;29f9  5d 0f
     cmp a,!mem_f1ff         ;29fb  48 ff f1
     bz $lab_2a10            ;29fe  ad 10
-    movw hl,#0f211h         ;2a00  16 11 f2
+    movw hl,#mem_f211       ;2a00  16 11 f2
     mov a,#88h              ;2a03  a1 88
     call !sub_4092          ;2a05  9a 92 40
-    movw hl,#0f212h         ;2a08  16 12 f2
+    movw hl,#mem_f212       ;2a08  16 12 f2
     mov a,#88h              ;2a0b  a1 88
     call !sub_4092          ;2a0d  9a 92 40
 
@@ -9330,10 +9357,10 @@ lab_2a5e:
     br $lab_2a5e            ;2a63  fa f9
 
 lab_2a65:
-    movw hl,#0058h          ;2a65  16 58 00
-    movw de,#mem_fed6       ;2a68  14 d6 fe
-    mov a,#09h              ;2a6b  a1 09
-    call !sub_6238          ;2a6d  9a 38 62
+    movw hl,#0058h          ;2a65  16 58 00     HL = EEPROM address 0x0058
+    movw de,#mem_fed6       ;2a68  14 d6 fe     DE = pointer to buffer to receive EEPROM contents
+    mov a,#09h              ;2a6b  a1 09        A = 9 bytes to read from EEPROM
+    call !sub_6238          ;2a6d  9a 38 62     Read A bytes from EEPROM address HL into [DE]
     bc $lab_2a74            ;2a70  8d 02
     br $lab_2ab9            ;2a72  fa 45
 
@@ -9342,10 +9369,10 @@ lab_2a74:
     mov a,#09h              ;2a77  a1 09
     call !sub_2de6          ;2a79  9a e6 2d
     movw bc,ax              ;2a7c  d2
-    movw hl,#0061h          ;2a7d  16 61 00
-    movw de,#mem_fed6       ;2a80  14 d6 fe
-    mov a,#02h              ;2a83  a1 02
-    call !sub_6238          ;2a85  9a 38 62
+    movw hl,#0061h          ;2a7d  16 61 00     HL = EEPROM address 0x0061
+    movw de,#mem_fed6       ;2a80  14 d6 fe     DE = pointer to buffer to receive EEPROM contents
+    mov a,#02h              ;2a83  a1 02        A = 2 bytes to read from EEPROM
+    call !sub_6238          ;2a85  9a 38 62     Read A bytes from EEPROM address HL into [DE]
     bc $lab_2a8c            ;2a88  8d 02
     br $lab_2ab9            ;2a8a  fa 2d
 
@@ -9367,7 +9394,7 @@ lab_2a9f:
     mov a,#09h              ;2aaa  a1 09
     call !sub_628e          ;2aac  9a 8e 62
     bnc $lab_2ab9           ;2aaf  9d 08
-    movw hl,#0f216h         ;2ab1  16 16 f2
+    movw hl,#mem_f216       ;2ab1  16 16 f2
     mov a,#88h              ;2ab4  a1 88
     call !sub_4092          ;2ab6  9a 92 40
 
@@ -9407,10 +9434,10 @@ lab_2af4:
     br $lab_2af4            ;2af9  fa f9
 
 lab_2afb:
-    movw hl,#0058h          ;2afb  16 58 00
-    movw de,#mem_fed6       ;2afe  14 d6 fe
-    mov a,#09h              ;2b01  a1 09
-    call !sub_6238          ;2b03  9a 38 62
+    movw hl,#0058h          ;2afb  16 58 00     HL = EEPROM address 0x0058
+    movw de,#mem_fed6       ;2afe  14 d6 fe     DE = pointer to buffer to receive EEPROM contents
+    mov a,#09h              ;2b01  a1 09        A = 9 bytes to read from EEPROM
+    call !sub_6238          ;2b03  9a 38 62     Read A bytes from EEPROM address HL into [DE]
     bc $lab_2b0a            ;2b06  8d 02
     br $lab_2b45            ;2b08  fa 3b
 
@@ -9419,10 +9446,10 @@ lab_2b0a:
     mov a,#09h              ;2b0d  a1 09
     call !sub_2de6          ;2b0f  9a e6 2d
     movw bc,ax              ;2b12  d2
-    movw hl,#0061h          ;2b13  16 61 00
-    movw de,#mem_fed6       ;2b16  14 d6 fe
-    mov a,#02h              ;2b19  a1 02
-    call !sub_6238          ;2b1b  9a 38 62
+    movw hl,#0061h          ;2b13  16 61 00     HL = EEPROM address 0x0061
+    movw de,#mem_fed6       ;2b16  14 d6 fe     DE = pointer to buffer to receive EEPROM contents
+    mov a,#02h              ;2b19  a1 02        A = 2 bytes to read from EEPROM
+    call !sub_6238          ;2b1b  9a 38 62     Read A bytes from EEPROM address HL into [DE]
     bc $lab_2b22            ;2b1e  8d 02
     br $lab_2b45            ;2b20  fa 23
 
@@ -9467,7 +9494,7 @@ sub_2b53:
     call !sub_2d35          ;2b54  9a 35 2d     Clear bits in mem_fe5f and mem_fe60
     set1 mem_fe60.2         ;2b57  2a 60
     call !read_kwp_rx_3     ;2b59  9a 8b 2c     Read 3 bytes from KWP1281 rx buffer:
-                            ;                       A = KWP1281 rx buffer byte 3 (number of bytes to read)
+                            ;                       A = KWP1281 rx buffer byte 3 (number of bytes)
                             ;                       D = KWP1281 rx buffer byte 4 (address high)
                             ;                       E = KWP1281 rx buffer byte 5 (address low)
     mov !mem_f04c,a         ;2b5c  9e 4c f0
@@ -9488,8 +9515,8 @@ sub_2b6e:
     push ax                 ;2b70  b1
     movw hl,ax              ;2b71  d6
     mov a,c                 ;2b72  62
-    movw de,#mem_f03b       ;2b73  14 3b f0
-    call !sub_6238          ;2b76  9a 38 62
+    movw de,#mem_f03b       ;2b73  14 3b f0     DE = pointer to buffer to receive EEPROM contents
+    call !sub_6238          ;2b76  9a 38 62     Read A bytes from EEPROM address HL into [DE]
     pop ax                  ;2b79  b0
     bnc $lab_2bb6           ;2b7a  9d 3a
     push bc                 ;2b7c  b3
@@ -9545,7 +9572,7 @@ sub_2bb9:
     push hl                 ;2bb9  b7
     call !sub_2d35          ;2bba  9a 35 2d     Clear bits in mem_fe5f and mem_fe60
     call !read_kwp_rx_3     ;2bbd  9a 8b 2c     Read 3 bytes from KWP1281 rx buffer:
-                            ;                        A = KWP1281 rx buffer byte 3 (number of bytes to read)
+                            ;                        A = KWP1281 rx buffer byte 3 (number of bytes)
                             ;                        D = KWP1281 rx buffer byte 4 (address high)
                             ;                        E = KWP1281 rx buffer byte 5 (address low)
     mov !mem_f04c,a         ;2bc0  9e 4c f0     Store number of bytes to read
@@ -9629,14 +9656,16 @@ lab_2c32:
     ret                     ;2c32  af
 
 sub_2c33:
-;unknown, called from lab_50ec (? write eeprom related)
-;returns some status in carry flag
+;Perform EEPROM write(?).  Sets carry on failure.
+;unknown, called from lab_50ec (write eeprom related)
+;Returns carry clear = success, carry set = failure
     call !sub_6217          ;2c33  9a 17 62
-    bnc $sub_2c33           ;2c36  9d fb
+    bnc $sub_2c33           ;2c36  9d fb        Wait until (??)
+
     call !sub_2d35          ;2c38  9a 35 2d     Clear bits in mem_fe5f and mem_fe60
     set1 mem_fe60.2         ;2c3b  2a 60
-    call !read_kwp_rx_3     ;2c3d  9a 8b 2c      Read 3 bytes from KWP1281 rx buffer:
-                            ;                       A = KWP1281 rx buffer byte 3 (number of bytes to read)
+    call !read_kwp_rx_3     ;2c3d  9a 8b 2c     Read 3 bytes from KWP1281 rx buffer:
+                            ;                       A = KWP1281 rx buffer byte 3 (number of bytes)
                             ;                       D = KWP1281 rx buffer byte 4 (address high)
                             ;                       E = KWP1281 rx buffer byte 5 (address low)
     mov !mem_f04c,a         ;2c40  9e 4c f0
@@ -9644,36 +9673,42 @@ sub_2c33:
     mov h,#00h              ;2c44  a7 00
     movw ax,de              ;2c46  c4
     movw !mem_f004,ax       ;2c47  03 04 f0
+
     call !sub_2cdf          ;2c4a  9a df 2c
-    bc $lab_2c7b            ;2c4d  8d 2c
-    bf mem_fe65.5,$lab_2c6c ;2c4f  31 53 65 19
+    bc $lab_2c7b_success    ;2c4d  8d 2c
+
+    bf mem_fe65.5,$lab_2c7b_write  ;2c4f  31 53 65 19   Skip protection checks if ?? bit is off
+
     movw ax,de              ;2c53  c4
+
+    ;Protect 2 EEPROM addresses: 0x0014-0x0015 (SAFE code)
     cmpw ax,#0014h          ;2c54  ea 14 00
-    bc $lab_2c60            ;2c57  8d 07
+    bc $lab_2c60            ;2c57  8d 07        Branch if address < 0x0014
     cmpw ax,#0016h          ;2c59  ea 16 00
-    bnc $lab_2c60           ;2c5c  9d 02
-    br $lab_2c77            ;2c5e  fa 17
+    bnc $lab_2c60           ;2c5c  9d 02        Branch if address >= 00x16
+    br $lab_2c77_fail       ;2c5e  fa 17        Address is protected; branch to fail
 
 lab_2c60:
+    ;Protect 9 EEPROM addresses: 0x0058-0x0060 (??)
     cmpw ax,#0058h          ;2c60  ea 58 00
-    bc $lab_2c6c            ;2c63  8d 07
+    bc $lab_2c7b_write      ;2c63  8d 07        Branch if address < 0x0058
     cmpw ax,#0061h          ;2c65  ea 61 00
-    bnc $lab_2c6c           ;2c68  9d 02
-    br $lab_2c77            ;2c6a  fa 0b
+    bnc $lab_2c7b_write     ;2c68  9d 02        Branch if address >= 0x0061
+    br $lab_2c77_fail       ;2c6a  fa 0b        Address is protected; branch to fail
 
-lab_2c6c:
+lab_2c7b_write:
     movw hl,#kwp_rx_buf+6   ;2c6c  16 90 f0     KWP1281 rx buffer byte 6
     mov a,!mem_f04c         ;2c6f  8e 4c f0
-    call !sub_628e          ;2c72  9a 8e 62
-    bnc $lab_2c7b           ;2c75  9d 04
+    call !sub_628e          ;2c72  9a 8e 62     Perform EEPROM write(?)
+    bnc $lab_2c7b_success   ;2c75  9d 04
 
-lab_2c77:
-    clr1 cy                 ;2c77  21
+lab_2c77_fail:
+    clr1 cy                 ;2c77  21           Clear carry = failure
     set1 mem_fe60.1         ;2c78  1a 60
     ret                     ;2c7a  af
 
-lab_2c7b:
-    set1 cy                 ;2c7b  20
+lab_2c7b_success:
+    set1 cy                 ;2c7b  20           Set carry = success
     clr1 mem_fe60.1         ;2c7c  1b 60
     ret                     ;2c7e  af
 
@@ -9735,7 +9770,7 @@ sub_2cae:
     mov x,#00h              ;2cae  a0 00
     push ax                 ;2cb0  b1
     xch a,x                 ;2cb1  30
-    movw hl,#0f218h         ;2cb2  16 18 f2
+    movw hl,#mem_f218         ;2cb2  16 18 f2
     call !sub_4092          ;2cb5  9a 92 40
     incw hl                 ;2cb8  86
     pop ax                  ;2cb9  b0
@@ -10739,7 +10774,7 @@ lab_32ba:
     mov a,#00h              ;32be  a1 00
     mov !mem_f069,a         ;32c0  9e 69 f0
 
-    movw hl,#kwp_unknown_b031+1  ;32c3  16 32 b0
+    movw hl,#kwp_asim0_b031+1  ;32c3  16 32 b0
     mov a,!mem_f06d         ;32c6  8e 6d f0
     mov b,a                 ;32c9  73
     mov a,[hl+b]            ;32ca  ab
@@ -13583,7 +13618,7 @@ lab_4095:
     addc a,h                ;40a0  61 2f
     cmpw ax,#mem_f206       ;40a2  ea 06 f2
     bc $lab_40ac            ;40a5  8d 05
-    cmpw ax,#0f26bh         ;40a7  ea 6b f2
+    cmpw ax,#mem_f26b       ;40a7  ea 6b f2
     bc $lab_40b1            ;40aa  8d 05
 
 lab_40ac:
@@ -13636,7 +13671,7 @@ sub_40df:
 lab_40e9:
     callf !sub_09f8         ;40e9  1c f8
     mov b,a                 ;40eb  73
-    call !sub_6238          ;40ec  9a 38 62
+    call !sub_6238          ;40ec  9a 38 62     Read A bytes from EEPROM address HL into [DE]
     bnc $lab_4104           ;40ef  9d 13
     cmp mem_fed5,#00h       ;40f1  c8 d5 00
     bz $lab_4103            ;40f4  ad 0d
@@ -14949,8 +14984,9 @@ sub_461b:
     db 0fch                 ;4692  fc          DATA 0xfc
     db 0afh                 ;4693  af          DATA 0xaf
 
-sub_4694:
-;called from lab_4ee1 (login related, kwp_handlers_b2ae)
+auth_login_ocled:
+;Authenticate login using "OCLED" (DELCO backwards)
+;called from kwp_f06d_1_login (login related, kwp_handlers_b2ae)
 ;set mem_fe64.7 and returns it in the carry:
 ;  clear = no login, set = login successful
 ;
@@ -15035,9 +15071,9 @@ sub_46fc:
 lab_4712:
     call !sub_6217          ;4712  9a 17 62
     bnc $lab_4712           ;4715  9d fb
-    mov a,#04h              ;4717  a1 04
-    movw de,#mem_fbdb       ;4719  14 db fb
-    call !sub_6238          ;471c  9a 38 62
+    mov a,#04h              ;4717  a1 04        A = 4 bytes to read from EEPROM
+    movw de,#mem_fbdb       ;4719  14 db fb     DE = pointer to buffer to receive EEPROM contents
+    call !sub_6238          ;471c  9a 38 62     Read A bytes from EEPROM address HL into [DE]
     bnc $lab_4730           ;471f  9d 0f
     movw hl,#mem_fbdb       ;4721  16 db fb     HL = source address
 
@@ -16335,7 +16371,7 @@ lab_4dfa:
     movw hl,#kwp_rx_buf     ;4dfa  16 8a f0     HL = pointer to KWP1281 rx buffer
     mov a,[hl+01h]          ;4dfd  ae 01        A = block counter
     mov !mem_fbcb,a         ;4dff  9e cb fb     Store block counter
-    mov a,[hl+02h]          ;4e02  ae 02
+    mov a,[hl+02h]          ;4e02  ae 02        A = block title
     movw hl,#kwp_titles_b25c+1 ;4e04  16 5d b2
     mov b,#22h              ;4e07  a3 22
 
@@ -16346,6 +16382,7 @@ lab_4e09:
     br !lab_5355            ;4e0f  9b 55 53     Branch to Send NAK response (index 0x04)
 
 lab_4e12:
+    ;block title is ok
     movw hl,#kwp_rx_buf     ;4e12  16 8a f0     HL = pointer to KWP1281 rx buffer
     mov a,[hl]              ;4e15  87           A = block length from rx buffer
     mov x,a                 ;4e16  70           X = actual block length
@@ -16355,7 +16392,7 @@ lab_4e12:
     bz $lab_4e26            ;4e1d  ad 07          Yes: skip compare
     cmp a,x                 ;4e1f  61 48        Actual block length match expected?
     bz $lab_4e26            ;4e21  ad 03          Yes: lab_4e26
-    br !lab_5344            ;4e23  9b 44 53       No: lab_5344 Send NAK response (index 0x03)
+    br !lab_5344_bad        ;4e23  9b 44 53       No: lab_5344_bad Send NAK response (index 0x03)
 
 lab_4e26:
     ;block length is ok
@@ -16368,7 +16405,7 @@ lab_4e26:
     mov a,!mem_f06d         ;4e32  8e 6d f0
     cmp a,#03h              ;4e35  4d 03
     bnz $lab_4e3c           ;4e37  bd 03
-    br !lab_4e8d            ;4e39  9b 8d 4e
+    br !lab_4e8d_eq_3       ;4e39  9b 8d 4e     Branch to handle mem_f0fd = 0x03
 
 lab_4e3c:
     ret                     ;4e3c  af
@@ -16377,30 +16414,31 @@ lab_4e3d:
     mov a,!mem_f06d         ;4e3d  8e 6d f0
     cmp a,#01h              ;4e40  4d 01
     bnz $lab_4e47           ;4e42  bd 03
-    br !lab_4e4f            ;4e44  9b 4f 4e
+    br !lab_4e4f_eq_1       ;4e44  9b 4f 4e     Branch to handle mem_f0fd = 0x01
 
 lab_4e47:
     cmp a,#02h              ;4e47  4d 02
     bnz $lab_4e4e           ;4e49  bd 03
-    br !lab_4e6e            ;4e4b  9b 6e 4e
+    br !lab_4e6e_eq_2       ;4e4b  9b 6e 4e     Branch to handle mem_f0fd = 0x02
 
 lab_4e4e:
     ret                     ;4e4e  af
 
-lab_4e4f:
+lab_4e4f_eq_1:
     ;used if mem_f06d = 0x01
     movw hl,#kwp_rx_buf     ;4e4f  16 8a f0     HL = pointer to KWP1281 rx buffer
     mov a,[hl+02h]          ;4e52  ae 02        A = block title to find
-    movw hl,#kwp_titles_b2a4+1 ;4e54  16 a5 b2    HL = pointer to table of block titles
+    movw hl,#kwp_titles_b2a4+1 ;4e54  16 a5 b2  HL = pointer to table of block titles
     mov b,#08h              ;4e57  a3 08        B = 8 block titles in table
 
 lab_4e59:
     cmp a,[hl+b]            ;4e59  31 4b
-    bz $lab_4e62            ;4e5b  ad 05
+    bz $lab_4e62_title_ok   ;4e5b  ad 05
     dbnz b,$lab_4e59        ;4e5d  8b fa
     br !lab_5355            ;4e5f  9b 55 53     Branch to Send NAK response (index 0x04)
 
-lab_4e62:
+lab_4e62_title_ok:
+    ;title found in kwp_titles_b2a4
     mov a,b                 ;4e62  63
     movw hl,#kwp_handlers_b2ae+1 ;4e63  16 af b2
     rol a,1                 ;4e66  26
@@ -16409,22 +16447,23 @@ lab_4e62:
     mov x,a                 ;4e69  70
     inc b                   ;4e6a  43
     mov a,[hl+b]            ;4e6b  ab
-    br ax                   ;4e6c  31 98
+    br ax                   ;4e6c  31 98        Branch to KWP1281 block title handler
 
-lab_4e6e:
+lab_4e6e_eq_2:
     ;used if mem_f06d = 0x02
     movw hl,#kwp_rx_buf     ;4e6e  16 8a f0     HL = pointer to KWP1281 rx buffer
     mov a,[hl+02h]          ;4e71  ae 02        A = block title
-    movw hl,#kwp_titles_b2c1+1 ;4e73  16 c2 b2    HL = pointer to table of block titles
+    movw hl,#kwp_titles_b2c1+1 ;4e73  16 c2 b2  HL = pointer to table of block titles
     mov b,#0eh              ;4e76  a3 0e        B = 0x0e block titles in table
 
 lab_4e78:
     cmp a,[hl+b]            ;4e78  31 4b
-    bz $lab_4e81            ;4e7a  ad 05
+    bz $lab_4e81_title_ok   ;4e7a  ad 05
     dbnz b,$lab_4e78        ;4e7c  8b fa
     br !lab_5355            ;4e7e  9b 55 53     Branch to Send NAK response (index 0x04)
 
-lab_4e81:
+lab_4e81_title_ok:
+    ;title found in kwp_titles_b2c1
     mov a,b                 ;4e81  63
     movw hl,#kwp_handlers_b2d1+1 ;4e82  16 d2 b2
     rol a,1                 ;4e85  26
@@ -16433,22 +16472,22 @@ lab_4e81:
     mov x,a                 ;4e88  70
     inc b                   ;4e89  43
     mov a,[hl+b]            ;4e8a  ab
-    br ax                   ;4e8b  31 98
+    br ax                   ;4e8b  31 98        Branch to KWP1281 block title handler
 
-lab_4e8d:
+lab_4e8d_eq_3:
     ;used if mem_f06d = 0x03
     movw hl,#kwp_rx_buf     ;4e8d  16 8a f0     HL = pointer to KWP1281 rx buffer
     mov a,[hl+02h]          ;4e90  ae 02        A = block title
-    movw hl,#kwp_titles_b2f0+1 ;4e92  16 f1 b2    HL = pointer to table of block titles
+    movw hl,#kwp_titles_b2f0+1 ;4e92  16 f1 b2  HL = pointer to table of block titles
     mov b,#04h              ;4e95  a3 04        B = 4 block titles in table
 
 lab_4e97:
     cmp a,[hl+b]            ;4e97  31 4b
-    bz $lab_4ea0            ;4e99  ad 05
+    bz $lab_4ea0_title_ok   ;4e99  ad 05
     dbnz b,$lab_4e97        ;4e9b  8b fa
     br !lab_5355            ;4e9d  9b 55 53     Branch to Send NAK response (index 0x04)
 
-lab_4ea0:
+lab_4ea0_title_ok:
     mov a,b                 ;4ea0  63
     movw hl,#kwp_handlers_b2f6+1 ;4ea1  16 f7 b2
     rol a,1                 ;4ea4  26
@@ -16457,15 +16496,15 @@ lab_4ea0:
     mov x,a                 ;4ea7  70
     inc b                   ;4ea8  43
     mov a,[hl+b]            ;4ea9  ab
-    br ax                   ;4eaa  31 98
+    br ax                   ;4eaa  31 98        Branch to KWP1281 block title handler
     ret                     ;4eac  af
 
-lab_4ead:
+kwp_f06d_1_ack:
     ;ack (kwp_handlers_b2ae)
     call !sub_4828          ;4ead  9a 28 48
     br !lab_532a            ;4eb0  9b 2a 53     Branch to send ACK response
 
-lab_4eb3:
+kwp_f06d_1_end_session:
     ;end session (kwp_handlers_b2ae)
     mov a,#00h              ;4eb3  a1 00
     mov !mem_fbc7,a         ;4eb5  9e c7 fb
@@ -16475,12 +16514,12 @@ lab_4eb3:
 lab_4ebe:
     br !lab_532a            ;4ebe  9b 2a 53     Branch to send ACK response
 
-lab_4ec1:
-    ;nak (kwp_handlers_4ec1)
+kwp_f06d_1_nak:
+    ;nak (kwp_handlers_b2ae)
     movw hl,#kwp_rx_buf     ;4ec1  16 8a f0     HL = pointer to KWP1281 rx buffer
-    mov a,[hl+03h]          ;4ec4  ae 03
-    cmp a,[hl+01h]          ;4ec6  49 01
-    bz $lab_4ebe            ;4ec8  ad f4
+    mov a,[hl+03h]          ;4ec4  ae 03        A = KWP1281 rx buffer byte 3
+    cmp a,[hl+01h]          ;4ec6  49 01        Compare to KWP1281 rx buffer byte 2 (block counter)
+    bz $lab_4ebe            ;4ec8  ad f4        Branch to send ACK response
     mov a,#0fh              ;4eca  a1 0f
     cmp a,!mem_f06b         ;4ecc  48 6b f0
     bc $lab_4ede            ;4ecf  8d 0d
@@ -16493,21 +16532,22 @@ lab_4ec1:
 lab_4ede:
     br !lab_516f            ;4ede  9b 6f 51
 
-lab_4ee1:
+kwp_f06d_1_login:
     ;login (kwp_handlers_b2ae)
-    call !sub_4694          ;4ee1  9a 94 46
-    bc $lab_4eee            ;4ee4  8d 08        ;Branch if successful login
+    call !auth_login_ocled  ;4ee1  9a 94 46     Authenticate login using "DELCO" backwards
+    bc $lab_4eee_login_ok   ;4ee4  8d 08        Branch if successful login
+    ;login failed
     mov a,#01h              ;4ee6  a1 01
     mov !mem_fbc7,a         ;4ee8  9e c7 fb
     br !lab_5355            ;4eeb  9b 55 53     Branch to Send NAK response (index 0x04)
 
-lab_4eee:
-    ;successful login
+lab_4eee_login_ok:
+    ;login succeeded
     mov a,#00h              ;4eee  a1 00
     mov !mem_fbc7,a         ;4ef0  9e c7 fb
     br !lab_532a            ;4ef3  9b 2a 53     Branch to send ACK response
 
-lab_4ef6:
+kwp_f06d_1_read_ram:
     ;read ram (kwp_handlers_b2ae)
     mov a,!mem_fbc7         ;4ef6  8e c7 fb
     cmp a,#01h              ;4ef9  4d 01
@@ -16526,7 +16566,7 @@ lab_4f00:
 lab_4f0f:
     br !lab_552a            ;4f0f  9b 2a 55
 
-lab_4f12:
+kwp_f06d_1_read_rom:
     ;read rom (kwp_handlers_b2ae)
     mov a,!mem_fbc7         ;4f12  8e c7 fb
     cmp a,#01h              ;4f15  4d 01
@@ -16545,8 +16585,8 @@ lab_4f1c:
 lab_4f2b:
     br !lab_5581            ;4f2b  9b 81 55
 
-lab_4f2e:
-    ;? write eeprom (kwp_handlers_b2ae)
+kwp_f06d_1_write_eeprom:
+    ;write eeprom (kwp_handlers_b2ae)
     mov a,!mem_fbc7         ;4f2e  8e c7 fb
     cmp a,#01h              ;4f31  4d 01
     bnz $lab_4f38           ;4f33  bd 03
@@ -16564,11 +16604,11 @@ lab_4f44:
     br !lab_5355            ;4f44  9b 55 53     Branch to Send NAK response (index 0x04)
 
 lab_4f47:
-    call !sub_2c33          ;4f47  9a 33 2c
-    bc $lab_4f44            ;4f4a  8d f8
-    br !lab_55c5            ;4f4c  9b c5 55
+    call !sub_2c33          ;4f47  9a 33 2c     Perform EEPROM write(?).  Sets carry on failure.
+    bc $lab_4f44            ;4f4a  8d f8        Branch to Send NAK response (index 0x04)
+    br !lab_55c5            ;4f4c  9b c5 55     Branch to Send EEPROM write response
 
-lab_4f4f:
+kwp_f06d_1_custom:
     ;kwp ? custom usage (kwp_handlers_b2ae)
     mov a,!mem_fbc7         ;4f4f  8e c7 fb
     cmp a,#01h              ;4f52  4d 01
@@ -16670,7 +16710,7 @@ lab_4fd1:
     call !sub_47fb          ;4fd1  9a fb 47
     br !lab_54fb            ;4fd4  9b fb 54
 
-lab_4fd7:
+kwp_f06d_2_ack:
     ;ack (kwp_handlers_b2d1)
     mov a,!mem_fbc5         ;4fd7  8e c5 fb
     cmp a,#00h              ;4fda  4d 00
@@ -16713,7 +16753,7 @@ lab_500b:
 lab_501b:
     br !lab_52b1            ;501b  9b b1 52
 
-lab_501e:
+kwp_f06d_2_end_session:
     ;end session (kwp_handlers_b2d1)
     mov a,#00h              ;501e  a1 00
     mov !mem_fbc5,a         ;5020  9e c5 fb
@@ -16724,7 +16764,7 @@ lab_5026:
     mov !mem_fbc5,a         ;5028  9e c5 fb
     br !lab_532a            ;502b  9b 2a 53     Branch to send ACK response
 
-lab_502e:
+kwp_f06d_2_nak:
     ;nak (kwp_handlers_b2d1)
     movw hl,#kwp_rx_buf     ;502e  16 8a f0     HL = pointer to KWP1281 rx buffer
     mov a,[hl+03h]          ;5031  ae 03
@@ -16742,43 +16782,43 @@ lab_502e:
 lab_504b:
     br !lab_516f            ;504b  9b 6f 51
 
-lab_504e:
+kwp_f06d_2_read_id:
     ;read identification (kwp_handlers_b2d1)
     mov a,#01h              ;504e  a1 01
     mov !mem_fbc5,a         ;5050  9e c5 fb
     set1 mem_fe66.0         ;5053  0a 66
     br !lab_52ea            ;5055  9b ea 52     Branch to Send ascii/data response with "1J0035180B"
 
-lab_5058:
+kwp_f06d_2_read_faults:
     ;read faults (kwp_handlers_b2d1)
     mov a,#04h              ;5058  a1 04
     mov !mem_fbc5,a         ;505a  9e c5 fb
     br !lab_537b            ;505d  9b 7b 53
 
-lab_5060:
+kwp_f06d_2_clear_faults:
     ;clear faults (kwp_handlers_b2d1)
     call !sub_2790          ;5060  9a 90 27
-    br $lab_5058            ;5063  fa f3
+    br $kwp_f06d_2_read_faults            ;5063  fa f3
 
-lab_5065:
+kwp_f06d_2_output_tests:
     ;output tests (kwp_handlers_b2d1)
     mov a,#00h              ;5065  a1 00
     mov !mem_fbc5,a         ;5067  9e c5 fb
     br !lab_53cf            ;506a  9b cf 53
 
-lab_506d:
+kwp_f06d_2_basic_setting:
     ;basic setting (kwp_handlers_b2d1)
     mov a,#00h              ;506d  a1 00
     mov !mem_fbc5,a         ;506f  9e c5 fb
     br !lab_5355            ;5072  9b 55 53     Branch to Send NAK response (index 0x04)
 
-lab_5075:
+kwp_f06d_2_group_reading:
     ;group reading (kwp_handlers_b2d1)
     mov a,#00h              ;5075  a1 00
     mov !mem_fbc5,a         ;5077  9e c5 fb
     br !lab_5422            ;507a  9b 22 54
 
-lab_507d:
+kwp_f06d_2_recoding:
     ;recoding (kwp_handlers_b2d1)
     mov a,#01h              ;507d  a1 01
     mov !mem_fbc5,a         ;507f  9e c5 fb
@@ -16786,12 +16826,13 @@ lab_507d:
     call !sub_29b4          ;5084  9a b4 29
     br !lab_52ea            ;5087  9b ea 52     Branch to Send ascii/data response with "1J0035180B"
 
-lab_508a:
+kwp_f06d_2_login:
     ;login (kwp_handlers_b2d1)
     mov a,#00h              ;508a  a1 00
     mov !mem_fbc5,a         ;508c  9e c5 fb
-    call !sub_25ac          ;508f  9a ac 25     Authenticate login
+    call !auth_login_safe   ;508f  9a ac 25     Authenticate login using SAFE code
     bt mem_fe65.3,$lab_5098 ;5092  bc 65 03     Branch if login succeeded
+    ;login failed
     br !lab_51c3            ;5095  9b c3 51     Branch to clear auth bits and end session
 
 lab_5098:
@@ -16799,7 +16840,7 @@ lab_5098:
     call !sub_2aba          ;5098  9a ba 2a
     br !lab_532a            ;509b  9b 2a 53     Branch to send ACK response
 
-lab_509e:
+kwp_f06d_2_read_ram:
     ;read ram (kwp_handlers_b2d1)
     mov a,#00h              ;509e  a1 00
     mov !mem_fbc5,a         ;50a0  9e c5 fb
@@ -16819,7 +16860,7 @@ lab_50af:
 lab_50b6:
     br !lab_552a            ;50b6  9b 2a 55
 
-lab_50b9:
+kwp_f06d_2_read_rom:
     ;read rom (kwp_handlers_b2d1)
     mov a,#00h              ;50b9  a1 00
     mov !mem_fbc5,a         ;50bb  9e c5 fb
@@ -16839,7 +16880,7 @@ lab_50ca:
 lab_50d1:
     br !lab_5581            ;50d1  9b 81 55
 
-lab_50d4:
+kwp_f06d_2_write_eeprom:
     ;write eeprom (kwp_handlers_b2d1)
     mov a,#00h              ;50d4  a1 00
     mov !mem_fbc5,a         ;50d6  9e c5 fb
@@ -16859,11 +16900,12 @@ lab_50e9:
     br !lab_5355            ;50e9  9b 55 53     Branch to Send NAK response (index 0x04)
 
 lab_50ec:
-    call !sub_2c33          ;50ec  9a 33 2c
-    bc $lab_50e9            ;50ef  8d f8
-    br !lab_55c5            ;50f1  9b c5 55
+;write eeprom related
+    call !sub_2c33          ;50ec  9a 33 2c     Perform EEPROM write(?).  Sets carry on failure.
+    bc $lab_50e9            ;50ef  8d f8        Branch to Send NAK response
+    br !lab_55c5            ;50f1  9b c5 55     Branch to Send EEPROM write response
 
-lab_50f4:
+kwp_f06d_3_ack:
     ;ack (kwp_handlers_b2f6)
     mov a,!mem_fbc6         ;50f4  8e c6 fb
     cmp a,#01h              ;50f7  4d 01
@@ -16875,7 +16917,7 @@ lab_50fe:
     mov !mem_fbc6,a         ;5100  9e c6 fb
     br !lab_55de            ;5103  9b de 55
 
-lab_5106:
+kwp_f06d_3_end_session:
     ;end session (kwp_handlers_b2f6)
     call !sub_259b          ;5106  9a 9b 25
     mov a,#00h              ;5109  a1 00
@@ -16888,7 +16930,7 @@ lab_5111:
     mov !mem_fbc6,a         ;5116  9e c6 fb
     br !lab_5337            ;5119  9b 37 53     Branch to Send End Session response
 
-lab_511c:
+kwp_f06d_3_nak:
     ;nak (kwp_handlers_b2f6)
     movw hl,#kwp_rx_buf     ;511c  16 8a f0     HL = pointer to KWP1281 rx buffer
     mov a,[hl+03h]          ;511f  ae 03
@@ -16905,7 +16947,7 @@ lab_512f:
     mov !mem_fbc6,a         ;5134  9e c6 fb
     br !lab_5337            ;5137  9b 37 53     Branch to Send End Session response
 
-lab_513a:
+kwp_f06d_3_secure_access:
     ;? security access (kwp_handlers_b2f6)
     mov a,!mem_fbc6         ;513a  8e c6 fb
     cmp a,#02h              ;513d  4d 02
@@ -16982,7 +17024,7 @@ lab_51a1:
     bz $lab_51b5            ;51ac  ad 07
     cmp a,x                 ;51ae  61 48
     bz $lab_51b5            ;51b0  ad 03
-    br !lab_5344            ;51b2  9b 44 53
+    br !lab_5344_bad        ;51b2  9b 44 53     Send NAK response (index 0x03)
 
 lab_51b5:
     br !lab_5355            ;51b5  9b 55 53
@@ -16991,7 +17033,7 @@ lab_51b8:
     mov a,!mem_fbcb         ;51b8  8e cb fb
     add a,#01h              ;51bb  0d 01
     mov !mem_fbcb,a         ;51bd  9e cb fb
-    br !lab_5344            ;51c0  9b 44 53
+    br !lab_5344_bad        ;51c0  9b 44 53     Send NAK response (index 0x03)
 
 lab_51c3:
 ;clear auth bits and end session
@@ -17000,7 +17042,7 @@ lab_51c3:
     br !sub_3468            ;51c7  9b 68 34
 
 lab_51ca:
-    movw hl,#0b02dh         ;51ca  16 2d b0
+    movw hl,#kwp_brgc0_b02c+1     ;51ca  16 2d b0
     mov a,!mem_f06d         ;51cd  8e 6d f0
     mov b,a                 ;51d0  73
     mov a,[hl+b]            ;51d1  ab
@@ -17014,7 +17056,7 @@ lab_51ca:
     ret                     ;51e1  af
 
 lab_51e2:
-    movw hl,#0b02dh         ;51e2  16 2d b0
+    movw hl,#kwp_brgc0_b02c+1     ;51e2  16 2d b0
     mov a,!mem_f06d         ;51e5  8e 6d f0
     mov b,a                 ;51e8  73
     mov a,[hl+b]            ;51e9  ab
@@ -17029,7 +17071,7 @@ lab_51e2:
 
 lab_51fa:
     mov a,!mem_f073         ;51fa  8e 73 f0
-    movw hl,#0b023h         ;51fd  16 23 b0
+    movw hl,#mem_b022+1     ;51fd  16 23 b0
     mov b,#03h              ;5200  a3 03
 
 lab_5202:
@@ -17041,7 +17083,7 @@ lab_5202:
 lab_520b:
     mov a,b                 ;520b  63
     mov !mem_f06d,a         ;520c  9e 6d f0
-    movw hl,#0b02dh         ;520f  16 2d b0
+    movw hl,#kwp_brgc0_b02c+1     ;520f  16 2d b0
     mov a,!mem_f06d         ;5212  8e 6d f0
     mov b,a                 ;5215  73
     mov a,[hl+b]            ;5216  ab
@@ -17081,12 +17123,12 @@ lab_5248:
     ret                     ;5251  af
 
 lab_5252:
-    movw hl,#0b02dh         ;5252  16 2d b0
+    movw hl,#kwp_brgc0_b02c+1     ;5252  16 2d b0
     mov a,!mem_f06d         ;5255  8e 6d f0
     mov b,a                 ;5258  73
     mov a,[hl+b]            ;5259  ab
     mov BRGC0_,a            ;525a  f6 a2
-    movw hl,#0b032h         ;525c  16 32 b0
+    movw hl,#kwp_asim0_b031+1  ;525c  16 32 b0
     mov a,[hl+b]            ;525f  ab
     mov ASIM0_,a            ;5260  f6 a0
     mov a,!mem_f06d         ;5262  8e 6d f0
@@ -17243,7 +17285,7 @@ lab_5337:
     mov [hl+b],a            ;5340  bb           Store in KWP1281 tx buffer byte 3
     br !sub_34f7            ;5341  9b f7 34
 
-lab_5344:
+lab_5344_bad      :
 ;Send NAK response (index 0x03)
     mov b,#03h              ;5344  a3 03        B = index 0x03 nak
     call !sub_5292          ;5346  9a 92 52     Set block title, counter, length in KWP1281 tx buffer
@@ -17433,7 +17475,7 @@ lab_53e4:
     db 34h                  ;5421  34          DATA 0x34 '4'
 
 lab_5422:
-    ;branched from group reading lab_5075
+    ;branched from group reading kwp_f06d_2_group_reading
     mov b,#12h              ;5422  a3 12        B = index 0x12 response to group reading
     call !sub_5292          ;5424  9a 92 52     Set block title, counter, length in KWP1281 tx buffer
 
@@ -17442,7 +17484,10 @@ lab_5422:
 lab_5429:
     push hl                 ;5429  b7           Push HL (address of KWP1281 tx buffer)
     push bc                 ;542a  b3           Push BC (B = 3, offset into tx buffer)
-    call !sub_2830          ;542b  9a 30 28
+
+    call !sub_2830          ;542b  9a 30 28     Group lookup
+                            ;                   Returns D=0x0F on error
+
     pop bc                  ;542e  b2           Pop BC (B = 3, offset into tx buffer)
     pop hl                  ;542f  b6           Pop HL (address of KWP1281 tx buffer)
     bc $lab_543c            ;5430  8d 0a
@@ -17460,15 +17505,18 @@ lab_5429:
     dbnz c,$lab_5429        ;543a  8a ed
 
 lab_543c:
-    mov a,d                 ;543c  65
+    mov a,d                 ;543c  65           A=D (error code returned in D by sub_2830)
     cmp a,#0fh              ;543d  4d 0f
     bnz $lab_544c           ;543f  bd 0b
+
+    ;error from sub_2830
     mov a,!mem_fbcb         ;5441  8e cb fb
     sub a,#01h              ;5444  1d 01
     mov !mem_fbcb,a         ;5446  9e cb fb
     br !lab_5355            ;5449  9b 55 53     Branch to Send NAK response (index 0x04)
 
 lab_544c:
+    ;no error from sub_2830
     mov a,b                 ;544c  63
     cmp a,#03h              ;544d  4d 03
     bz $lab_5429            ;544f  ad d8
@@ -20235,11 +20283,11 @@ lab_6236:
     ret                     ;6237  af
 
 sub_6238:
-;Unknown, called from 2607 with:
-;    movw hl,#0014h
-;    movw de,#mem_fed6
-;    mov a,#02h
-;    call !sub_6238
+;Read A bytes from EEPROM address HL into [DE]
+;
+;HL = EEPROM address to read
+;DE = buffer to receive EEPROM contents
+;A = number of bytes to read
 ;
     call !sub_6217          ;6238  9a 17 62
     bnc $lab_6236           ;623b  9d f9
@@ -20254,7 +20302,7 @@ sub_623d:
     mov a,#05h              ;6246  a1 05
     mov !mem_fc12,a         ;6248  9e 12 fc
     movw ax,hl              ;624b  c6
-    movw !0f01ah,ax         ;624c  03 1a f0
+    movw !mem_f01a,ax       ;624c  03 1a f0
 
 lab_624f:
     mov a,l                 ;624f  66
@@ -20293,7 +20341,7 @@ lab_627b:
     sub a,#01h              ;627e  1d 01
     bc $lab_628b            ;6280  8d 09
     mov !mem_fc12,a         ;6282  9e 12 fc
-    movw ax,!0f01ah         ;6285  02 1a f0
+    movw ax,!mem_f01a       ;6285  02 1a f0
     movw hl,ax              ;6288  d6
     br $lab_624f            ;6289  fa c4
 
@@ -20316,7 +20364,7 @@ sub_6293:
     call !sub_6364          ;629a  9a 64 63
     bnc $lab_628b           ;629d  9d ec
     movw ax,hl              ;629f  c6
-    movw !0f01ah,ax         ;62a0  03 1a f0
+    movw !mem_f01a,ax       ;62a0  03 1a f0
     call !sub_637e          ;62a3  9a 7e 63
     movw ax,de              ;62a6  c4
     movw hl,ax              ;62a7  d6
@@ -20340,7 +20388,7 @@ lab_62c6:
     movw de,#mem_fbdd       ;62c9  14 dd fb     DE = destination address
     mov a,!mem_fc10         ;62cc  8e 10 fc
     callf !sub_0c9e         ;62cf  4c 9e        Copy A bytes from [HL] to [DE]
-    movw ax,!0f01ah         ;62d1  02 1a f0
+    movw ax,!mem_f01a       ;62d1  02 1a f0
     and a,#07h              ;62d4  5d 07
     rol a,1                 ;62d6  26
     or a,#0a0h              ;62d7  6d a0
@@ -20378,7 +20426,7 @@ lab_630d:
     mov a,!mem_fb06         ;6314  8e 06 fb
     cmp a,#00h              ;6317  4d 00
     bnz $lab_6363           ;6319  bd 48
-    movw ax,!0f01ah         ;631b  02 1a f0
+    movw ax,!mem_f01a       ;631b  02 1a f0
     movw hl,ax              ;631e  d6
     movw de,#mem_fbdb       ;631f  14 db fb
     mov a,!mem_fc10         ;6322  8e 10 fc
@@ -23052,7 +23100,7 @@ lab_6f37:
     add a,c                 ;6f38  61 0a
     xch a,x                 ;6f3a  30
     addc a,b                ;6f3b  61 2b
-    callf !sub_0a7f         ;6f3d  2c 7f        Binary word to BCD word
+    callf !bin_to_bcd         ;6f3d  2c 7f        Binary word to BCD word
     ret                     ;6f3f  af
 
 lab_6f40:
@@ -37575,16 +37623,18 @@ kwp_unknown_b027:
     db 00h                  ;b02a  00          DATA 0x00
     db 01h                  ;b02b  01          DATA 0x01
 
-;unknown table
+kwp_brgc0_b02c:
+;values to be stored in BRGC0_
+;indexed by mem_f06d
     db 04h                  ;b02c  04          DATA 0x04        4 entries below:
     db 39h                  ;b02d  39          DATA 0x39 '9'
     db 39h                  ;b02e  39          DATA 0x39 '9'
     db 39h                  ;b02f  39          DATA 0x39 '9'
     db 39h                  ;b030  39          DATA 0x39 '9'
 
-kwp_unknown_b031:
-;unknown; related to mem_f06d
+kwp_asim0_b031:
 ;values to be stored in ASIM0_
+;indexed by mem_f06d
     db 04h                  ;b031  04          DATA 0x04        4 entries below:
     db 00h                  ;b032  00          DATA 0x00
     db 0cah                 ;b033  ca          DATA 0xca
@@ -37592,8 +37642,8 @@ kwp_unknown_b031:
     db 0cah                 ;b035  ca          DATA 0xca
 
 kwp_unknown_b036:
-;unknown; related to mem_f06d
-;values to be stored in mem_f06f
+;unknown values to be stored in mem_f06f
+;indexed by mem_f06d
     db 04h                  ;b036  04          DATA 0x04        4 entries below:
     db 08h                  ;b037  08          DATA 0x08
     db 08h                  ;b038  08          DATA 0x08
@@ -37601,8 +37651,8 @@ kwp_unknown_b036:
     db 08h                  ;b03a  08          DATA 0x08
 
 kwp_unknown_b03b:
-;unknown; related to mem_f06d
-;values to be stored in mem_f070
+;unknown values to be stored in mem_f06f
+;indexed by mem_f06d
     db 04h                  ;b03b  04          DATA 0x04        4 entries below:
     db 25h                  ;b03c  25          DATA 0x25 '%'
     db 0ffh                 ;b03d  ff          DATA 0xff
@@ -38197,14 +38247,14 @@ kwp_titles_b25c:
     db 2ah                  ;b273  2a          DATA 0x2a '*'    B=0x16 ?
     db 08h                  ;b274  08          DATA 0x08        B=0x17 single reading
     db 2bh                  ;b275  2b          DATA 0x2b '+'    B=0x18 login
-    db 1bh                  ;b276  1b          DATA 0x1b        B=0x19 ?
+    db 1bh                  ;b276  1b          DATA 0x1b        B=0x19 read eeprom
     db 1bh                  ;b277  1b          DATA 0x1b        B=0x1a ?
     db 01h                  ;b278  01          DATA 0x01        B=0x1b read ram
     db 0feh                 ;b279  fe          DATA 0xfe        B=0x1c response to read ram
     db 03h                  ;b27a  03          DATA 0x03        B=0x1d read rom
     db 0fdh                 ;b27b  fd          DATA 0xfd        B=0x1e response to read rom
-    db 0ch                  ;b27c  0c          DATA 0x0c        B=0x1f ? write eeprom
-    db 0f9h                 ;b27d  f9          DATA 0xf9        B=0x20 ? response to write eeprom
+    db 0ch                  ;b27c  0c          DATA 0x0c        B=0x1f write eeprom
+    db 0f9h                 ;b27d  f9          DATA 0xf9        B=0x20 response to write eeprom
     db 0d7h                 ;b27e  d7          DATA 0xd7        B=0x21 ? security access
     db 3dh                  ;b27f  3d          DATA 0x3d '='    D=0x22 ? response to security access
 
@@ -38237,98 +38287,98 @@ kwp_lengths_b280:
     db 09h                  ;b297  09          DATA 0x09        B=0x16 ?
     db 04h                  ;b298  04          DATA 0x04        B=0x17 single reading
     db 08h                  ;b299  08          DATA 0x08        B=0x18 login
-    db 0ffh                 ;b29a  ff          DATA 0xff        B=0x19 ?
+    db 0ffh                 ;b29a  ff          DATA 0xff        B=0x19 read eeprom
     db 0ffh                 ;b29b  ff          DATA 0xff        B=0x1a ?
     db 06h                  ;b29c  06          DATA 0x06        B=0x1b read ram
     db 0ffh                 ;b29d  ff          DATA 0xff        B=0x1c response to read ram
     db 06h                  ;b29e  06          DATA 0x06        B=0x1d read rom
     db 0ffh                 ;b29f  ff          DATA 0xff        B=0x1e response to read rom
-    db 0ffh                 ;b2a0  ff          DATA 0xff        B=0x1f ? write eeprom
-    db 07h                  ;b2a1  07          DATA 0x07        B=0x20 ? response to write eeprom
+    db 0ffh                 ;b2a0  ff          DATA 0xff        B=0x1f write eeprom
+    db 07h                  ;b2a1  07          DATA 0x07        B=0x20 response to write eeprom
     db 07h                  ;b2a2  07          DATA 0x07        B=0x21 ? security access
     db 07h                  ;b2a3  07          DATA 0x07        B=0x22 ? response to security access
 
 kwp_titles_b2a4:
 ;used if mem_f06d = 0x01
-    db 09h                  ;b2a4  09          DATA 0x09        9 entries below:
-    db 0ffh                 ;b2a5  ff          DATA 0xff        B=0
-    db 09h                  ;b2a6  09          DATA 0x09        B=1 ack
-    db 06h                  ;b2a7  06          DATA 0x06        B=2 end session
-    db 0ah                  ;b2a8  0a          DATA 0x0a        B=3 nak
-    db 2bh                  ;b2a9  2b          DATA 0x2b '+'    B=4 login
-    db 1bh                  ;b2aa  1b          DATA 0x1b        B=5 ? custom usage
-    db 01h                  ;b2ab  01          DATA 0x01        B=6 read ram
-    db 03h                  ;b2ac  03          DATA 0x03        B=7 read rom
-    db 0ch                  ;b2ad  0c          DATA 0x0c        B=8 ? write eeprom
+    db 09h                      ;b2a4  09          DATA 0x09        9 entries below:
+    db 0ffh                     ;b2a5  ff          DATA 0xff        B=0
+    db 09h                      ;b2a6  09          DATA 0x09        B=1 ack
+    db 06h                      ;b2a7  06          DATA 0x06        B=2 end session
+    db 0ah                      ;b2a8  0a          DATA 0x0a        B=3 nak
+    db 2bh                      ;b2a9  2b          DATA 0x2b '+'    B=4 login
+    db 1bh                      ;b2aa  1b          DATA 0x1b        B=5 ? custom usage
+    db 01h                      ;b2ab  01          DATA 0x01        B=6 read ram
+    db 03h                      ;b2ac  03          DATA 0x03        B=7 read rom
+    db 0ch                      ;b2ad  0c          DATA 0x0c        B=8 write eeprom
 
 kwp_handlers_b2ae:
 ;same order as kwp_titles_b2a4
-    db 09h                  ;b2ae  09          DATA 0x09        9 entries below:
-    dw lab_5344             ;b2af  44 53       VECTOR           B=0 <bad title: send nak>
-    dw lab_4ead             ;b2b1  ad 4e       VECTOR           B=1 ack
-    dw lab_4eb3             ;b2b3  b3 4e       VECTOR           B=2 end session
-    dw lab_4ec1             ;b2b5  c1 4e       VECTOR           B=3 nak
-    dw lab_4ee1             ;b2b7  e1 4e       VECTOR           B=4 login
-    dw lab_4f4f             ;b2b9  4f 4f       VECTOR           B=5 ? custom usage
-    dw lab_4ef6             ;b2bb  f6 4e       VECTOR           B=6 read ram
-    dw lab_4f12             ;b2bd  12 4f       VECTOR           B=7 read rom
-    dw lab_4f2e             ;b2bf  2e 4f       VECTOR           B=8 ? write eeprom
+    db 09h                      ;b2ae  09          DATA 0x09        9 entries below:
+    dw lab_5344_bad             ;b2af  44 53       VECTOR           B=0 <bad title: send nak>
+    dw kwp_f06d_1_ack           ;b2b1  ad 4e       VECTOR           B=1 ack
+    dw kwp_f06d_1_end_session   ;b2b3  b3 4e       VECTOR           B=2 end session
+    dw kwp_f06d_1_nak           ;b2b5  c1 4e       VECTOR           B=3 nak
+    dw kwp_f06d_1_login         ;b2b7  e1 4e       VECTOR           B=4 login
+    dw kwp_f06d_1_custom        ;b2b9  4f 4f       VECTOR           B=5 ? custom usage
+    dw kwp_f06d_1_read_ram      ;b2bb  f6 4e       VECTOR           B=6 read ram
+    dw kwp_f06d_1_read_rom      ;b2bd  12 4f       VECTOR           B=7 read rom
+    dw kwp_f06d_1_write_eeprom  ;b2bf  2e 4f       VECTOR           B=8 write eeprom
 
 kwp_titles_b2c1:
 ;used if mem_f06d = 0x02
-    db 0fh                  ;b2c1  0f          DATA 0x0f        15 entries below:
-    db 0ffh                 ;b2c2  ff          DATA 0xff        B= 0
-    db 09h                  ;b2c3  09          DATA 0x09        B= 1 ack
-    db 06h                  ;b2c4  06          DATA 0x06        B= 2 end session
-    db 0ah                  ;b2c5  0a          DATA 0x0a        B= 3 nak
-    db 00h                  ;b2c6  00          DATA 0x00        B= 4 read identification
-    db 07h                  ;b2c7  07          DATA 0x07        B= 5 read faults
-    db 05h                  ;b2c8  05          DATA 0x05        B= 6 clear faults
-    db 04h                  ;b2c9  04          DATA 0x04        B= 7 output tests
-    db 28h                  ;b2ca  28          DATA 0x28 '('    B= 8 basic setting
-    db 29h                  ;b2cb  29          DATA 0x29 ')'    B= 9 group reading
-    db 10h                  ;b2cc  10          DATA 0x10        B=10 recoding
-    db 2bh                  ;b2cd  2b          DATA 0x2b '+'    B=11 login
-    db 01h                  ;b2ce  01          DATA 0x01        B=12 read ram
-    db 03h                  ;b2cf  03          DATA 0x03        B=13 read rom
-    db 0ch                  ;b2d0  0c          DATA 0x0c        B=14 ? write eeprom
+    db 0fh                      ;b2c1  0f          DATA 0x0f        15 entries below:
+    db 0ffh                     ;b2c2  ff          DATA 0xff        B= 0
+    db 09h                      ;b2c3  09          DATA 0x09        B= 1 ack
+    db 06h                      ;b2c4  06          DATA 0x06        B= 2 end session
+    db 0ah                      ;b2c5  0a          DATA 0x0a        B= 3 nak
+    db 00h                      ;b2c6  00          DATA 0x00        B= 4 read identification
+    db 07h                      ;b2c7  07          DATA 0x07        B= 5 read faults
+    db 05h                      ;b2c8  05          DATA 0x05        B= 6 clear faults
+    db 04h                      ;b2c9  04          DATA 0x04        B= 7 output tests
+    db 28h                      ;b2ca  28          DATA 0x28 '('    B= 8 basic setting
+    db 29h                      ;b2cb  29          DATA 0x29 ')'    B= 9 group reading
+    db 10h                      ;b2cc  10          DATA 0x10        B=10 recoding
+    db 2bh                      ;b2cd  2b          DATA 0x2b '+'    B=11 login
+    db 01h                      ;b2ce  01          DATA 0x01        B=12 read ram
+    db 03h                      ;b2cf  03          DATA 0x03        B=13 read rom
+    db 0ch                      ;b2d0  0c          DATA 0x0c        B=14 write eeprom
 
 kwp_handlers_b2d1:
 ;same order as kwp_titles_b2c1
-    db 0fh                  ;b2d1  0f          DATA 0x0f        15 entries below:
-    dw lab_5344             ;b2d2  44 53       VECTOR           B= 0 <bad title: send nak>
-    dw lab_4fd7             ;b2d4  d7 4f       VECTOR           B= 1 ack
-    dw lab_501e             ;b2d6  1e 50       VECTOR           B= 2 end session
-    dw lab_502e             ;b2d8  2e 50       VECTOR           B= 3 nak
-    dw lab_504e             ;b2da  4e 50       VECTOR           B= 4 read identification
-    dw lab_5058             ;b2dc  58 50       VECTOR           B= 5 read faults
-    dw lab_5060             ;b2de  60 50       VECTOR           B= 6 clear faults
-    dw lab_5065             ;b2e0  65 50       VECTOR           B= 7 output tests
-    dw lab_506d             ;b2e2  6d 50       VECTOR           B= 8 basic setting
-    dw lab_5075             ;b2e4  75 50       VECTOR           B= 9 group reading
-    dw lab_507d             ;b2e6  7d 50       VECTOR           B=10 recoding
-    dw lab_508a             ;b2e8  8a 50       VECTOR           B=11 login
-    dw lab_509e             ;b2ea  9e 50       VECTOR           B=12 read ram
-    dw lab_50b9             ;b2ec  b9 50       VECTOR           B=13 read rom
-    dw lab_50d4             ;b2ee  d4 50       VECTOR           B=14 ? write eeprom
+    db 0fh                      ;b2d1  0f          DATA 0x0f        15 entries below:
+    dw lab_5344_bad             ;b2d2  44 53       VECTOR           B= 0 <bad title: send nak>
+    dw kwp_f06d_2_ack           ;b2d4  d7 4f       VECTOR           B= 1 ack
+    dw kwp_f06d_2_end_session   ;b2d6  1e 50       VECTOR           B= 2 end session
+    dw kwp_f06d_2_nak           ;b2d8  2e 50       VECTOR           B= 3 nak
+    dw kwp_f06d_2_read_id       ;b2da  4e 50       VECTOR           B= 4 read identification
+    dw kwp_f06d_2_read_faults   ;b2dc  58 50       VECTOR           B= 5 read faults
+    dw kwp_f06d_2_clear_faults  ;b2de  60 50       VECTOR           B= 6 clear faults
+    dw kwp_f06d_2_output_tests  ;b2e0  65 50       VECTOR           B= 7 output tests
+    dw kwp_f06d_2_basic_setting ;b2e2  6d 50       VECTOR           B= 8 basic setting
+    dw kwp_f06d_2_group_reading ;b2e4  75 50       VECTOR           B= 9 group reading
+    dw kwp_f06d_2_recoding      ;b2e6  7d 50       VECTOR           B=10 recoding
+    dw kwp_f06d_2_login         ;b2e8  8a 50       VECTOR           B=11 login
+    dw kwp_f06d_2_read_ram      ;b2ea  9e 50       VECTOR           B=12 read ram
+    dw kwp_f06d_2_read_rom      ;b2ec  b9 50       VECTOR           B=13 read rom
+    dw kwp_f06d_2_write_eeprom  ;b2ee  d4 50       VECTOR           B=14 write eeprom
 
 kwp_titles_b2f0:
 ;used if mem_f06d = 0x03
-    db 05h                  ;b2f0  05          DATA 0x05        5 entries below:
-    db 0ffh                 ;b2f1  ff          DATA 0xff        B=0
-    db 09h                  ;b2f2  09          DATA 0x09        B=1 ack
-    db 06h                  ;b2f3  06          DATA 0x06        B=2 end session
-    db 0ah                  ;b2f4  0a          DATA 0x0a        B=3 nak
-    db 3dh                  ;b2f5  3d          DATA 0x3d '='    B=4 ? security access
+    db 05h                      ;b2f0  05          DATA 0x05        5 entries below:
+    db 0ffh                     ;b2f1  ff          DATA 0xff        B=0
+    db 09h                      ;b2f2  09          DATA 0x09        B=1 ack
+    db 06h                      ;b2f3  06          DATA 0x06        B=2 end session
+    db 0ah                      ;b2f4  0a          DATA 0x0a        B=3 nak
+    db 3dh                      ;b2f5  3d          DATA 0x3d '='    B=4 ? security access
 
 kwp_handlers_b2f6:
 ;same order as b2f1
-    db 05h                  ;b2f6  05          DATA 0x05        5 entries below:
-    dw lab_5344             ;b2f7  44 53       VECTOR           B=0 <bad title: send nak>
-    dw lab_50f4             ;b2f9  f4 50       VECTOR           B=1 ack
-    dw lab_5106             ;b2fb  06 51       VECTOR           B=2 end session
-    dw lab_511c             ;b2fd  1c 51       VECTOR           B=3 nak
-    dw lab_513a             ;b2ff  3a 51       VECTOR           B=4 ? security access
+    db 05h                      ;b2f6  05          DATA 0x05        5 entries below:
+    dw lab_5344_bad             ;b2f7  44 53       VECTOR           B=0 <bad title: send nak>
+    dw kwp_f06d_3_ack           ;b2f9  f4 50       VECTOR           B=1 ack
+    dw kwp_f06d_3_end_session   ;b2fb  06 51       VECTOR           B=2 end session
+    dw kwp_f06d_3_nak           ;b2fd  1c 51       VECTOR           B=3 nak
+    dw kwp_f06d_3_secure_access ;b2ff  3a 51       VECTOR           B=4 ? security access
 
 kwp_subtitles_b301:
 ;unknown: kwp 1b ? custom usage subtitles
@@ -38363,7 +38413,7 @@ kwp_lengths_b30d:
 kwp_handlers_b319:
 ;same order as kwp_subtitles_b301
     db 0bh                  ;b319  0b          DATA 0x0b        11 entries below:
-    dw lab_5344             ;b31a  44 53       VECTOR           B=0x00  <bad title: send nak>
+    dw lab_5344_bad         ;b31a  44 53       VECTOR           B=0x00  <bad title: send nak>
     dw lab_4f9e             ;b31c  9e 4f       VECTOR           B=0x01  Title=0x1b  Subtitle=0x26
     dw lab_4fa4             ;b31e  a4 4f       VECTOR           B=0x02  Title=0x1b  Subtitle=0x27
     dw lab_4faa             ;b320  aa 4f       VECTOR           B=0x03  Title=0x1b  Subtitle=0x28
