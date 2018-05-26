@@ -20,8 +20,8 @@
 
     org 00000h
 
-    mem_f000 equ 0f000h
-    mem_f002 equ 0f002h
+    mem_f000 equ 0f000h     ;memory address for KWP1281 read ram or read rom (2 bytes)
+    mem_f002 equ 0f002h     ;eeprom address for KWP1281 write eeprom (2 bytes)
     mem_f004 equ 0f004h
     mem_f00e equ 0f00eh
     mem_f00f equ 0f00fh
@@ -29,7 +29,7 @@
     mem_f032 equ 0f032h
     mem_f03b equ 0f03bh
     mem_f04b equ 0f04bh
-    mem_f04c equ 0f04ch
+    mem_f04c equ 0f04ch     ;byte count for KWP1281 read ram, read rom, or write eeprom commands
     mem_f04e equ 0f04eh
     mem_f04f equ 0f04fh     ;KWP1281 Group number
     mem_f050 equ 0f050h
@@ -64,6 +64,7 @@
     mem_f18e equ 0f18eh
     mem_f190 equ 0f190h
     mem_f191 equ 0f191h
+    mem_f192 equ 0f192h
     mem_f197 equ 0f197h
     mem_f198 equ 0f198h
     mem_f199 equ 0f199h
@@ -120,7 +121,7 @@
     mem_f225 equ 0f225h
     mem_f252 equ 0f252h
     mem_f253 equ 0f253h
-    mem_f254 equ 0f254h
+    mem_f254 equ 0f254h     ;ONVOL related
     mem_f257 equ 0f257h
     mem_f258 equ 0f258h
     mem_f259 equ 0f259h
@@ -190,12 +191,15 @@
     mem_fb5f equ 0fb5fh
     mem_fb63 equ 0fb63h
     mem_fb65 equ 0fb65h
+    mem_fb66 equ 0fb66h
+    mem_fb77 equ 0fb77h
     mem_fb68 equ 0fb68h
     mem_fb69 equ 0fb69h
     mem_fb6a equ 0fb6ah
     mem_fb6b equ 0fb6bh
     mem_fb6c equ 0fb6ch
-    mem_fb6f equ 0fb6fh
+    mem_fb6f equ 0fb6fh     ;Bit 0: off=CD MIX 1,    on=CD MIX 6
+                            ;Bit 1: off=TAPE SKIP Y, on=TAPE SKIP N
     mem_fb70 equ 0fb70h
     mem_fb71 equ 0fb71h
     mem_fb72 equ 0fb72h
@@ -211,6 +215,7 @@
     mem_fb97 equ 0fb97h
     mem_fb98 equ 0fb98h
     mem_fb9a equ 0fb9ah
+    mem_fb9b equ 0fb9bh
     mem_fb9d equ 0fb9dh
     mem_fb9e equ 0fb9eh
     mem_fb9f equ 0fb9fh
@@ -261,20 +266,22 @@
     mem_fc34 equ 0fc34h
     mem_fc6b equ 0fc6bh
     mem_fc6c equ 0fc6ch
+    mem_fc6d equ 0fc6dh
     mem_fc6e equ 0fc6eh
     mem_fc72 equ 0fc72h
     mem_fc73 equ 0fc73h
     mem_fc74 equ 0fc74h
-    mem_fc75 equ 0fc75h
+    mem_fc75 equ 0fc75h         ;CD track number
     mem_fc76 equ 0fc76h
     mem_fc77 equ 0fc77h
     mem_fc78 equ 0fc78h
     mem_fc79 equ 0fc79h
-    mem_fc7d equ 0fc7dh       ;CD disc number
+    mem_fc7d equ 0fc7dh         ;CD disc number
     mem_fc7e equ 0fc7eh
     mem_fc81 equ 0fc81h
     mem_fc82 equ 0fc82h
     mem_fc85 equ 0fc85h
+    mem_fc87 equ 0fc87h
     mem_fc89 equ 0fc89h
     mem_fc8a equ 0fc8ah
     mem_fc8b equ 0fc8bh
@@ -293,6 +300,7 @@
     mem_fc9a equ 0fc9ah
     mem_fc9b equ 0fc9bh
     mem_fc9c equ 0fc9ch
+    mem_fc9d equ 0fc9dh
     mem_fc9f equ 0fc9fh
     mem_fca2 equ 0fca2h
     mem_fca3 equ 0fca3h
@@ -352,7 +360,7 @@
     mem_fe5b equ 0fe5bh
     mem_fe5c equ 0fe5ch
     mem_fe5d equ 0fe5dh
-    mem_fe5e equ 0fe5eh
+    mem_fe5e equ 0fe5eh     ;Bit 1: off=FERN off, on=FERN on
     mem_fe5f equ 0fe5fh
     mem_fe60 equ 0fe60h
     mem_fe61 equ 0fe61h
@@ -371,7 +379,7 @@
     mem_fe6e equ 0fe6eh
     mem_fe6f equ 0fe6fh
     mem_fe70 equ 0fe70h
-    mem_fe71 equ 0fe71h
+    mem_fe71 equ 0fe71h     ;Bit 4: off=normal tape, on=metal tape
     mem_fe72 equ 0fe72h
     mem_fe73 equ 0fe73h
     mem_fe74 equ 0fe74h
@@ -397,7 +405,7 @@
     mem_fed1 equ 0fed1h
     mem_fed2 equ 0fed2h
     mem_fed3 equ 0fed3h
-    mem_fed4 equ 0fed4h
+    mem_fed4 equ 0fed4h     ;Bit 6 off=tape side A, on=tape side B
     mem_fed5 equ 0fed5h
     mem_fed6 equ 0fed6h
     mem_fed7 equ 0fed7h
@@ -2429,11 +2437,13 @@ sub_0800:
     db 0afh                 ;080a  af          DATA 0xaf
 
 sub_080b:
+;Return mem_f252 in A, also copy it into mem_fb57
     mov a,!mem_f252         ;080b  8e 52 f2
     mov !mem_fb57,a         ;080e  9e 57 fb
     ret                     ;0811  af
 
 sub_0812:
+;Compare A to mem_fb57
     cmp a,!mem_fb57         ;0812  48 57 fb
     ret                     ;0815  af
 
@@ -2441,11 +2451,11 @@ sub_0816:
     clr1 mem_fe5b.1         ;0816  1b 5b
     clr1 mem_fe5c.5         ;0818  5b 5c
     call !sub_1c9d          ;081a  9a 9d 1c
-    call !sub_080b          ;081d  9a 0b 08
+    call !sub_080b          ;081d  9a 0b 08         Return mem_f252 in A, also copy it into mem_fb57
     call !sub_1bff          ;0820  9a ff 1b
 
 sub_0823:
-    movw de,#0fb66h         ;0823  14 66 fb
+    movw de,#mem_fb66       ;0823  14 66 fb
     movw hl,#mem_fe20       ;0826  16 20 fe
     mov b,#02h              ;0829  a3 02
     call !sub_0bef          ;082b  9a ef 0b
@@ -2896,7 +2906,7 @@ lab_0a7e:
     ret                     ;0a7e  af
 
 bin_to_bcd:
-;Binary to BCD conversion
+;Convert AX to BCD, store word in mem_fed4
 ;
 ;Called with:
 ;  A = KWP1281 rx buffer byte 3 (login code high byte)
@@ -2927,7 +2937,8 @@ lab_0a85:
     dbnz b,$lab_0a85        ;0a9b  8b e8
     ret                     ;0a9d  af
 
-sub_0a9e:
+ror_a_4:
+;Rotate A >> 4
     ror a,1                 ;0a9e  24
     ror a,1                 ;0a9f  24
     ror a,1                 ;0aa0  24
@@ -3156,7 +3167,7 @@ lab_0b6c:
     bnc $lab_0b81           ;0b78  9d 07
     and a,#0fh              ;0b7a  5d 0f
     xch a,c                 ;0b7c  32
-    callf !sub_0a9e         ;0b7d  2c 9e
+    callf !ror_a_4          ;0b7d  2c 9e        A = A >> 4
     br $lab_0b83            ;0b7f  fa 02
 
 lab_0b81:
@@ -3177,10 +3188,11 @@ lab_0b8e:
     ret                     ;0b8f  af
 
 sub_0b90:
+;Convert A lower nibble to ASCII decimal digit
     and a,#0fh              ;0b90  5d 0f
     cmp a,#0ah              ;0b92  4d 0a
     bnc $lab_0b99           ;0b94  9d 03
-    add a,#30h              ;0b96  0d 30
+    add a,#'0'              ;0b96  0d 30       Convert it to ASCII
     ret                     ;0b98  af
 
 lab_0b99:
@@ -3240,15 +3252,18 @@ sub_0bad:
     addc b,a                ;0be1  61 23
     ret                     ;0be3  af
 
+
 sub_0be4:
+;Convert BCD number in A to ASCII
     mov x,a                 ;0be4  70
-    callf !sub_0b90         ;0be5  3c 90
+    callf !sub_0b90         ;0be5  3c 90        Convert A lower nibble to ASCII decimal digit
     xch a,x                 ;0be7  30
     ror a,1                 ;0be8  24
     ror a,1                 ;0be9  24
     ror a,1                 ;0bea  24
     ror a,1                 ;0beb  24
-    br !sub_0b90            ;0bec  9b 90 0b
+    br !sub_0b90            ;0bec  9b 90 0b     Convert A lower nibble to ASCII decimal digit
+
 
 sub_0bef:
     mov x,#55h              ;0bef  a0 55
@@ -3535,6 +3550,7 @@ lab_0ce7:
     db 0afh                 ;0cf3  af          DATA 0xaf
 
 sub_0cf4:
+;Probably binary to BCD
     push de                 ;0cf4  b5
     movw de,#0000h          ;0cf5  14 00 00
     mov b,#08h              ;0cf8  a3 08
@@ -5945,12 +5961,12 @@ lab_1a15:
 
 sub_1a17:
     mov b,#00h              ;1a17  a3 00
-    call !sub_080b          ;1a19  9a 0b 08
+    call !sub_080b          ;1a19  9a 0b 08     Return mem_f252 in A, also copy it into mem_fb57
     mov !mem_fb5e,a         ;1a1c  9e 5e fb
     call !sub_0800          ;1a1f  9a 00 08
     cmp a,#01h              ;1a22  4d 01
     bnz $lab_1a2c           ;1a24  bd 06
-    call !sub_080b          ;1a26  9a 0b 08
+    call !sub_080b          ;1a26  9a 0b 08     Return mem_f252 in A, also copy it into mem_fb57
     mov !mem_fb5f,a         ;1a29  9e 5f fb
 
 lab_1a2c:
@@ -6024,7 +6040,7 @@ sub_1a75:
 
 sub_1a82:
     movw hl,#0fb5bh         ;1a82  16 5b fb
-    call !sub_080b          ;1a85  9a 0b 08
+    call !sub_080b          ;1a85  9a 0b 08     Return mem_f252 in A, also copy it into mem_fb57
     mov c,a                 ;1a88  72
     mov a,[hl+c]            ;1a89  aa
     mov b,a                 ;1a8a  73
@@ -6108,7 +6124,7 @@ lab_1ae6:
 sub_1aea:
     push ax                 ;1aea  b1
     mov x,#0eh              ;1aeb  a0 0e
-    call !sub_080b          ;1aed  9a 0b 08
+    call !sub_080b          ;1aed  9a 0b 08     Return mem_f252 in A, also copy it into mem_fb57
     mulu x                  ;1af0  31 88
     xch a,x                 ;1af2  30
     add a,#25h              ;1af3  0d 25
@@ -6423,7 +6439,7 @@ sub_1c32:
 lab_1c46:
     mov a,[hl+c]            ;1c46  aa
     and a,#0fh              ;1c47  5d 0f
-    call !sub_0812          ;1c49  9a 12 08
+    call !sub_0812          ;1c49  9a 12 08     Compare A to mem_fb57
     bz $lab_1c55            ;1c4c  ad 07
     add mem_fefa,#06h       ;1c4e  88 fa 06
     dbnz b,$lab_1c46        ;1c51  8b f3
@@ -8397,7 +8413,7 @@ sub_24f1:
     call !sub_249c          ;24f1  9a 9c 24
     movw hl,#mem_f20c       ;24f4  16 0c f2
     call !sub_4092          ;24f7  9a 92 40
-    movw de,#0fb77h         ;24fa  14 77 fb
+    movw de,#mem_fb77       ;24fa  14 77 fb
     movw hl,#mem_fe23       ;24fd  16 23 fe
     mov b,#01h              ;2500  a3 01
     call !sub_0bef          ;2502  9a ef 0b
@@ -8529,7 +8545,7 @@ auth_login_safe:
     mov x,a                 ;25b8  70           X = KWP1281 rx buffer byte 4 (login code low byte)
     mov a,!kwp_rx_buf+3     ;25b9  8e 8d f0     A = KWP1281 rx buffer byte 3 (login code high byte)
 
-    call !bin_to_bcd        ;25bc  9a 7f 0a     Convert binary in AX to BCD word:
+    call !bin_to_bcd        ;25bc  9a 7f 0a     Convert AX to BCD, store word in mem_fed4:
                             ;                       mem_fed4: BCD low byte
                             ;                       mem_fed5: BCD high byte
 
@@ -8816,12 +8832,12 @@ sub_2706:
     ror a,1                 ;2719  24
     ror a,1                 ;271a  24
     ror a,1                 ;271b  24
-    add a,#30h              ;271c  0d 30
+    add a,#'0'              ;271c  0d 30
     mov [hl+07h],a          ;271e  be 07
 
     mov a,!mem_f1ec         ;2720  8e ec f1
     and a,#0fh              ;2723  5d 0f
-    add a,#30h              ;2725  0d 30
+    add a,#'0'              ;2725  0d 30
     mov [hl+08h],a          ;2727  be 08
 
     mov a,!mem_f1eb         ;2729  8e eb f1
@@ -8830,12 +8846,12 @@ sub_2706:
     ror a,1                 ;272f  24
     ror a,1                 ;2730  24
     ror a,1                 ;2731  24
-    add a,#30h              ;2732  0d 30
+    add a,#'0'              ;2732  0d 30
     mov [hl+09h],a          ;2734  be 09
 
     mov a,!mem_f1eb         ;2736  8e eb f1
     and a,#0fh              ;2739  5d 0f
-    add a,#30h              ;273b  0d 30
+    add a,#'0'              ;273b  0d 30
     mov [hl+0ah],a          ;273d  be 0a
 
     mov a,!mem_f1e9         ;273f  8e e9 f1
@@ -9105,10 +9121,10 @@ lab_28b7:
     mov c,#0ah              ;28cb  a2 0a
     divuw c                 ;28cd  31 82
     mov a,x                 ;28cf  60
-    add a,#30h              ;28d0  0d 30
+    add a,#'0'              ;28d0  0d 30
     mov x,a                 ;28d2  70
     mov a,c                 ;28d3  62
-    add a,#30h              ;28d4  0d 30
+    add a,#'0'              ;28d4  0d 30
     xch a,e                 ;28d6  34
     br !lab_29b0            ;28d7  9b b0 29
 
@@ -9329,14 +9345,14 @@ lab_2a10:
     mov !mem_f1fd,a         ;2a27  9e fd f1
     mov a,mem_fed4          ;2a2a  f0 d4
     and a,#0f0h             ;2a2c  5d f0
-    callf !sub_0a9e         ;2a2e  2c 9e
+    callf !ror_a_4          ;2a2e  2c 9e        A = A >> 4
     mov !mem_f1fe,a         ;2a30  9e fe f1
     mov a,mem_fed5          ;2a33  f0 d5
     and a,#0fh              ;2a35  5d 0f
     mov !mem_f1ff,a         ;2a37  9e ff f1
     mov a,mem_fed5          ;2a3a  f0 d5
     and a,#0f0h             ;2a3c  5d f0
-    callf !sub_0a9e         ;2a3e  2c 9e
+    callf !ror_a_4          ;2a3e  2c 9e        A = A >> 4
     mov !mem_f200,a         ;2a40  9e 00 f2
     mov a,mem_fed6          ;2a43  f0 d6
     and a,#0fh              ;2a45  5d 0f
@@ -9499,7 +9515,7 @@ sub_2b53:
                             ;                       E = KWP1281 rx buffer byte 5 (address low)
     mov !mem_f04c,a         ;2b5c  9e 4c f0
     xchw ax,de              ;2b5f  e4
-    movw !mem_f000,ax       ;2b60  03 00 f0
+    movw !mem_f000,ax       ;2b60  03 00 f0     Store as memory address for KWP1281 read ram or read rom
     xchw ax,de              ;2b63  e4
     call !sub_2bd4          ;2b64  9a d4 2b
     bc $lab_2b6c            ;2b67  8d 03
@@ -9924,7 +9940,7 @@ sub_2d6e:
 lab_2d80:
     mov a,mem_fed4          ;2d80  f0 d4
     and a,#0f0h             ;2d82  5d f0
-    callf !sub_0a9e         ;2d84  2c 9e
+    callf !ror_a_4          ;2d84  2c 9e        A = A >> 4
     cmp a,#05h              ;2d86  4d 05
     bnc $lab_2dd5           ;2d88  9d 4b
     cmp a,#00h              ;2d8a  4d 00
@@ -9939,7 +9955,7 @@ lab_2d80:
 lab_2d9a:
     mov a,mem_fed5          ;2d9a  f0 d5
     and a,#0f0h             ;2d9c  5d f0
-    callf !sub_0a9e         ;2d9e  2c 9e
+    callf !ror_a_4          ;2d9e  2c 9e        A = A >> 4
     movw hl,#mem_afdf+1     ;2da0  16 e0 af
 
 lab_2da3:
@@ -9955,7 +9971,7 @@ lab_2da5:
 lab_2daf:
     mov a,mem_fed5          ;2daf  f0 d5
     and a,#0f0h             ;2db1  5d f0
-    callf !sub_0a9e         ;2db3  2c 9e
+    callf !ror_a_4          ;2db3  2c 9e        A = A >> 4
     movw hl,#mem_afe4+1     ;2db5  16 e5 af
 
 lab_2db8:
@@ -9982,17 +9998,23 @@ lab_2dc4:
 lab_2dd5:
     ret                     ;2dd5  af
 
+
 sub_2dd6:
-    movw hl,#kwp_rx_buf+3   ;2dd6  16 8d f0     HL = pointer to KWP1281 rx buffer byte 3
-    mov a,!mem_f04c         ;2dd9  8e 4c f0
-    mov [hl],a              ;2ddc  97
-    incw hl                 ;2ddd  86
-    movw ax,!mem_f000       ;2dde  02 00 f0
-    mov [hl],a              ;2de1  97
-    incw hl                 ;2de2  86
-    mov a,x                 ;2de3  60
-    mov [hl],a              ;2de4  97
+;Fake KWP1281 address and byte count in KWP1281 rx buffer
+;Reads address from mem_f000, reads byte count from mem_f04c
+    movw hl,#kwp_rx_buf+3   ;2dd6  16 8d f0     HL = pointer to KWP1281 rx buffer byte 3 (number of bytes to read)
+    mov a,!mem_f04c         ;2dd9  8e 4c f0     A = value at mem_f04c
+    mov [hl],a              ;2ddc  97           Store it in KWP1281 rx buffer byte 3
+
+    incw hl                 ;2ddd  86           HL = pointer to KWP1281 rx buffer byte 4 (address high)
+    movw ax,!mem_f000       ;2dde  02 00 f0     AX = value at mem_f000
+    mov [hl],a              ;2de1  97           Store it (address low byte) in KWP1281 rx buffer byte 4
+
+    incw hl                 ;2de2  86           HL = pointer to KWP1281 rx buffer byte 5 (address low)
+    mov a,x                 ;2de3  60           A = value at mem_f001
+    mov [hl],a              ;2de4  97           Store it (address high byte) in KWP1281 rx buffer byte 5
     ret                     ;2de5  af
+
 
 sub_2de6:
     push bc                 ;2de6  b3
@@ -10033,7 +10055,7 @@ lab_2e0a:
     br $lab_2e16            ;2e12  fa 02
 
 lab_2e14:
-    add a,#30h              ;2e14  0d 30
+    add a,#'0'              ;2e14  0d 30
 
 lab_2e16:
     ret                     ;2e16  af
@@ -10147,13 +10169,13 @@ lab_2eb5:
 
 lab_2ec5:
     mov !fis_tx_buf+5,a     ;2ec5  9e 57 f0
-    mov a,!upd_1_buf+3      ;2ec8  8e 9d f1
-    movw hl,#0f058h         ;2ecb  16 58 f0
+    mov a,!upd_1_buf+3      ;2ec8  8e 9d f1     A = preset character
+    movw hl,#fis_tx_buf+6   ;2ecb  16 58 f0
     bf mem_fe5c.2,$lab_2edb ;2ece  31 23 5c 09
     cmp a,#' '              ;2ed2  4d 20
     bnc $lab_2edb           ;2ed4  9d 05
-    add a,#2fh              ;2ed6  0d 2f
-    movw hl,#0f059h         ;2ed8  16 59 f0
+    add a,#'/'              ;2ed6  0d 2f        Convert character code for preset (preset 1 = code 2) to ASCII
+    movw hl,#fis_tx_buf+7   ;2ed8  16 59 f0
 
 lab_2edb:
     mov [hl],a              ;2edb  97
@@ -10212,7 +10234,7 @@ lab_2f18:
 lab_2f25:
     mov a,mem_fed4          ;2f25  f0 d4
     and a,#0f0h             ;2f27  5d f0
-    callf !sub_0a9e         ;2f29  2c 9e
+    callf !ror_a_4          ;2f29  2c 9e        A = A >> 4
     mov b,a                 ;2f2b  73
     movw hl,#mem_b012+1     ;2f2c  16 13 b0
     callf !sub_0c48         ;2f2f  4c 48
@@ -14486,7 +14508,7 @@ sub_4234:
     db 0afh                 ;4494  af          DATA 0xaf
 
 sub_4495:
-    movw de,#0f192h         ;4495  14 92 f1
+    movw de,#mem_f192       ;4495  14 92 f1
     movw hl,#mem_fe30       ;4498  16 30 fe
     mov b,#01h              ;449b  a3 01
     callf !sub_0bef         ;449d  3c ef
@@ -15010,9 +15032,9 @@ sub_46ad:
     and a,#07h              ;46b0  5d 07
     mov mem_fe31,a          ;46b2  f2 31
     mov a,#03h              ;46b4  a1 03        A = 3 bytes to copy
-    call !sub_486f          ;46b6  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to 0fb9bh
+    call !sub_486f          ;46b6  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to mem_fb9b
     mov a,#03h              ;46b9  a1 03
-    mov !mem_fbaf,a         ;46bb  9e af fb
+    mov !mem_fbaf,a         ;46bb  9e af fb     mem_fbaf = 3
     ret                     ;46be  af
 
 sub_46bf:
@@ -15065,7 +15087,7 @@ sub_46fc:
     mov a,x                 ;4705  60
     mov !mem_fb9e,a         ;4706  9e 9e fb
     mov a,#02h              ;4709  a1 02        A = 2 bytes to copy
-    call !sub_486f          ;470b  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to 0fb9bh
+    call !sub_486f          ;470b  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to mem_fb9b
     bf mem_fe65.0,$lab_4724 ;470e  31 03 65 12
 
 lab_4712:
@@ -15082,7 +15104,7 @@ lab_4724:
     mov a,#04h              ;4727  a1 04        A = 4 bytes to copy
     callf !sub_0c9e         ;4729  4c 9e        Copy A bytes from [HL] to [DE]
     mov a,#08h              ;472b  a1 08
-    mov !mem_fbaf,a         ;472d  9e af fb
+    mov !mem_fbaf,a         ;472d  9e af fb     mem_fbaf = 8
 
 lab_4730:
     ret                     ;4730  af
@@ -15095,7 +15117,7 @@ sub_4731:
     bf a.7,$lab_474e        ;4738  31 7f 13
     mov a,#08h              ;473b  a1 08        A = 8 bytes to copy
     mov !mem_fbaf,a         ;473d  9e af fb
-    call !sub_486f          ;4740  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to 0fb9bh
+    call !sub_486f          ;4740  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to mem_fb9b
     movw de,#mem_fba7       ;4743  14 a7 fb
 
 sub_4746:
@@ -15127,7 +15149,7 @@ lab_475d:
 
 lab_476e:
     mov a,#03h              ;476e  a1 03        A = 3 bytes to copy
-    call !sub_486f          ;4770  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to 0fb9bh
+    call !sub_486f          ;4770  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to mem_fb9b
     pop ax                  ;4773  b0
     add a,#03h              ;4774  0d 03
     mov !mem_fbaf,a         ;4776  9e af fb
@@ -15155,7 +15177,7 @@ lab_4795:
 sub_4797:
     mov a,#08h              ;4797  a1 08        A = 8 bytes to copy
     mov !mem_fbaf,a         ;4799  9e af fb
-    call !sub_486f          ;479c  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to 0fb9bh
+    call !sub_486f          ;479c  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to mem_fb9b
     movw de,#mem_fbdb       ;479f  14 db fb
     call !sub_4746          ;47a2  9a 46 47
     mov a,#05h              ;47a5  a1 05        A = 5 bytes to copy
@@ -15193,7 +15215,7 @@ sub_47d2:
 ;Called from Title=0x1b  Subtitle=0x2e  Block length=0x0b
     mov a,#08h              ;47d2  a1 08        A = 8 bytes to copy
     mov !mem_fbaf,a         ;47d4  9e af fb
-    call !sub_486f          ;47d7  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to 0fb9bh
+    call !sub_486f          ;47d7  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to mem_fb9b
     call !sub_4835          ;47da  9a 35 48
     bc $lab_47f5            ;47dd  8d 16
     movw de,ax              ;47df  d4
@@ -15219,7 +15241,7 @@ sub_47fb:
     mov a,#04h              ;47fb  a1 04
     mov !mem_fbaf,a         ;47fd  9e af fb
     mov a,#02h              ;4800  a1 02        A = 2 bytes to copy
-    call !sub_486f          ;4802  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to 0fb9bh
+    call !sub_486f          ;4802  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to mem_fb9b
     movw hl,#0000h          ;4805  16 00 00
     movw ax,#5555h          ;4808  10 55 55
 
@@ -15282,7 +15304,8 @@ lab_4859:
     ret                     ;4859  af
 
 sub_485a:
-    movw de,#0fb9bh         ;485a  14 9b fb
+;DE = #mem_fb9b, A=!mem_fbaf, C=A
+    movw de,#mem_fb9b       ;485a  14 9b fb
     mov a,!mem_fbaf         ;485d  8e af fb
     mov c,a                 ;4860  72
     ret                     ;4861  af
@@ -15300,11 +15323,11 @@ lab_486c:
     ret                     ;486e  af
 
 sub_486f:
-;Copy A bytes from kwp_rx_buf+3 to 0fb9bh
+;Copy A bytes from kwp_rx_buf+3 to mem_fb9b
     push de                 ;486f  b5
     push hl                 ;4870  b7
     movw hl,#kwp_rx_buf+3   ;4871  16 8d f0     HL = source address
-    movw de,#0fb9bh         ;4874  14 9b fb     DE = destination address
+    movw de,#mem_fb9b       ;4874  14 9b fb     DE = destination address
     callf !sub_0c9e         ;4877  4c 9e        Copy A bytes from [HL] to [DE]
     pop hl                  ;4879  b6
     pop de                  ;487a  b4
@@ -15463,7 +15486,7 @@ lab_4914:
     br $lab_4920            ;491c  fa 02
 
 lab_491e:
-    add a,#30h              ;491e  0d 30
+    add a,#'0'              ;491e  0d 30
 
 lab_4920:
     ret                     ;4920  af
@@ -16426,6 +16449,7 @@ lab_4e4e:
 
 lab_4e4f_eq_1:
     ;used if mem_f06d = 0x01
+    ;"DELCO mode" handlers
     movw hl,#kwp_rx_buf     ;4e4f  16 8a f0     HL = pointer to KWP1281 rx buffer
     mov a,[hl+02h]          ;4e52  ae 02        A = block title to find
     movw hl,#kwp_titles_b2a4+1 ;4e54  16 a5 b2  HL = pointer to table of block titles
@@ -16451,6 +16475,7 @@ lab_4e62_title_ok:
 
 lab_4e6e_eq_2:
     ;used if mem_f06d = 0x02
+    ;"Normal mode" handlers
     movw hl,#kwp_rx_buf     ;4e6e  16 8a f0     HL = pointer to KWP1281 rx buffer
     mov a,[hl+02h]          ;4e71  ae 02        A = block title
     movw hl,#kwp_titles_b2c1+1 ;4e73  16 c2 b2  HL = pointer to table of block titles
@@ -16564,7 +16589,7 @@ lab_4f00:
     br !lab_5355            ;4f0c  9b 55 53     Branch to Send NAK response (index 0x04)
 
 lab_4f0f:
-    br !lab_552a            ;4f0f  9b 2a 55
+    br !lab_552a            ;4f0f  9b 2a 55     Branch to Send 0x1c response to read ram or send nak
 
 kwp_f06d_1_read_rom:
     ;read rom (kwp_handlers_b2ae)
@@ -16858,7 +16883,7 @@ lab_50af:
     br !lab_5355            ;50b3  9b 55 53     Branch to Send NAK response (index 0x04)
 
 lab_50b6:
-    br !lab_552a            ;50b6  9b 2a 55
+    br !lab_552a            ;50b6  9b 2a 55     Branch to Send 0x1c response to read ram or send nak
 
 kwp_f06d_2_read_rom:
     ;read rom (kwp_handlers_b2d1)
@@ -16987,12 +17012,16 @@ lab_516f:
     mov a,!mem_fbca         ;516f  8e ca fb
     cmp a,#01h              ;5172  4d 01
     bnz $lab_5179           ;5174  bd 03
-    br !lab_5527            ;5176  9b 27 55
+    ;mem_fbca = 0x01
+    br !lab_5527            ;5176  9b 27 55     send read ram response with faked address
+                            ;                   from mem_f000 and faked byte count from mem_f04c
 
 lab_5179:
     cmp a,#02h              ;5179  4d 02
     bnz $lab_5180           ;517b  bd 03
-    br !lab_557e            ;517d  9b 7e 55
+    ;mem_fbca = 0x02
+    br !lab_557e            ;517d  9b 7e 55     send read rom response with faked address
+                            ;                   from mem_f000 and faked byte count from mem_f04c
 
 lab_5180:
     mov a,#00h              ;5180  a1 00
@@ -17004,7 +17033,7 @@ lab_5186:
     add a,#01h              ;5189  0d 01
     mov !mem_fbcb,a         ;518b  9e cb fb
     movw hl,#kwp_rx_buf     ;518e  16 8a f0
-    mov a,[hl+02h]          ;5191  ae 02
+    mov a,[hl+02h]          ;5191  ae 02        A = block title
     movw hl,#kwp_titles_b25c+1 ;5193  16 5d b2
     mov b,#22h              ;5196  a3 22
 
@@ -17015,8 +17044,8 @@ lab_5198:
     br !lab_5355            ;519e  9b 55 53
 
 lab_51a1:
-    movw hl,#kwp_rx_buf     ;51a1  16 8a f0
-    mov a,[hl]              ;51a4  87
+    movw hl,#kwp_rx_buf     ;51a1  16 8a f0     HL = pointer to KWP1281 rx buffer
+    mov a,[hl]              ;51a4  87           A = block length
     mov x,a                 ;51a5  70
     movw hl,#kwp_lengths_b280+1 ;51a6  16 81 b2
     mov a,[hl+b]            ;51a9  ab
@@ -17690,7 +17719,7 @@ lab_544c:
 lab_54fb:
     mov b,#1ah              ;54fb  a3 1a        B = index 0x1a ? TODO
     call !sub_5292          ;54fd  9a 92 52     Set block title, counter, length in KWP1281 tx buffer
-    call !sub_485a          ;5500  9a 5a 48
+    call !sub_485a          ;5500  9a 5a 48     DE = #mem_fb9b, A=!mem_fbaf, C=A
 
 lab_5503:
     mov a,[de]              ;5503  85
@@ -17726,10 +17755,14 @@ lab_5503:
     db 34h                  ;5526  34          DATA 0x34 '4'
 
 lab_5527:
-    call !sub_2dd6          ;5527  9a d6 2d
+    ;send read ram response with faked address from mem_f000 and faked byte count from mem_f04c
+    ;branched to when mem_fbca = 0x01
+    call !sub_2dd6          ;5527  9a d6 2d     ;Fake KWP1281 address and byte count in KWP1281 rx buffer
+                                                ;Reads address from mem_f000, reads byte count from mem_f04c
 
 lab_552a:
-;called from both read ram handlers
+;Send 0x1c response to read ram or send nak
+;branched to from both read ram handlers
     mov a,#01h              ;552a  a1 01
     mov !mem_fbca,a         ;552c  9e ca fb
     mov b,#1ch              ;552f  a3 1c        B = index 0x1c response to read ram
@@ -17794,8 +17827,11 @@ lab_555c:
     db 34h                  ;557d  34          DATA 0x34 '4'
 
 lab_557e:
-    call !sub_2dd6          ;557e  9a d6 2d
-
+    ;possible nak handling related
+    ;send read rom response with faked address from mem_f000 and faked byte count from mem_f04c
+    ;branched to when mem_fbca = 0x02
+    call !sub_2dd6          ;557e  9a d6 2d     ;Fake KWP1281 address and byte count in KWP1281 rx buffer
+                                                ;Reads address from mem_f000, reads byte count from mem_f04c
 lab_5581:
     ;branched from both read rom
     mov a,#02h              ;5581  a1 02
@@ -20520,37 +20556,37 @@ lab_63a8:
     ret                     ;63ab  af
 
 m:
-    db 01h                  ;63ac  01          DATA 0x01
+    db 01h                  ;63ac  01          DATA 0x01        1 byte follows:
     db 4dh                  ;63ad  4d          DATA 0x4d 'M'
 
 u1:
-    db 02h                  ;63ae  02          DATA 0x02
+    db 02h                  ;63ae  02          DATA 0x02        2 bytes follow:
     db 55h                  ;63af  55          DATA 0x55 'U'
     db 31h                  ;63b0  31          DATA 0x31 '1'
 
 u2:
-    db 02h                  ;63b1  02          DATA 0x02
+    db 02h                  ;63b1  02          DATA 0x02        2 bytes follow:
     db 55h                  ;63b2  55          DATA 0x55 'U'
     db 32h                  ;63b3  32          DATA 0x32 '2'
 
 on:
-    db 02h                  ;63b4  02          DATA 0x02
+    db 02h                  ;63b4  02          DATA 0x02        2 bytes follow:
     db 4fh                  ;63b5  4f          DATA 0x4f 'O'
     db 4eh                  ;63b6  4e          DATA 0x4e 'N'
 
 off:
-    db 03h                  ;63b7  03          DATA 0x03
+    db 03h                  ;63b7  03          DATA 0x03        3 bytes follow:
     db 4fh                  ;63b8  4f          DATA 0x4f 'O'
     db 46h                  ;63b9  46          DATA 0x46 'F'
     db 46h                  ;63ba  46          DATA 0x46 'F'
 
 no:
-    db 02h                  ;63bb  02          DATA 0x02
+    db 02h                  ;63bb  02          DATA 0x02        2 bytes follow:
     db 4eh                  ;63bc  4e          DATA 0x4e 'N'
     db 4fh                  ;63bd  4f          DATA 0x4f 'O'
 
 e__:
-    db 0bh                  ;63be  0b          DATA 0x0b
+    db 0bh                  ;63be  0b          DATA 0x0b        11 bytes follow:
     db 45h                  ;63bf  45          DATA 0x45 'E'
     db 20h                  ;63c0  20          DATA 0x20 ' '
     db 20h                  ;63c1  20          DATA 0x20 ' '
@@ -20565,13 +20601,13 @@ e__:
     db 20h                  ;63ca  20          DATA 0x20 ' '
 
 psc:
-    db 03h                  ;63cb  03          DATA 0x03
+    db 03h                  ;63cb  03          DATA 0x03        3 bytes follow:
     db 50h                  ;63cc  50          DATA 0x50 'P'
     db 53h                  ;63cd  53          DATA 0x53 'S'
     db 43h                  ;63ce  43          DATA 0x43 'C'
 
 pscan:
-    db 05h                  ;63cf  05          DATA 0x05
+    db 05h                  ;63cf  05          DATA 0x05        5 bytes follow:
     db 50h                  ;63d0  50          DATA 0x50 'P'
     db 53h                  ;63d1  53          DATA 0x53 'S'
     db 43h                  ;63d2  43          DATA 0x43 'C'
@@ -20579,7 +20615,7 @@ pscan:
     db 4eh                  ;63d4  4e          DATA 0x4e 'N'
 
 preset_scan:
-    db 0bh                  ;63d5  0b          DATA 0x0b
+    db 0bh                  ;63d5  0b          DATA 0x0b        11 bytes follow:
     db 50h                  ;63d6  50          DATA 0x50 'P'
     db 52h                  ;63d7  52          DATA 0x52 'R'
     db 45h                  ;63d8  45          DATA 0x45 'E'
@@ -20593,21 +20629,21 @@ preset_scan:
     db 4eh                  ;63e0  4e          DATA 0x4e 'N'
 
 pset:
-    db 04h                  ;63e1  04          DATA 0x04
+    db 04h                  ;63e1  04          DATA 0x04        4 bytes follow:
     db 50h                  ;63e2  50          DATA 0x50 'P'
     db 53h                  ;63e3  53          DATA 0x53 'S'
     db 45h                  ;63e4  45          DATA 0x45 'E'
     db 54h                  ;63e5  54          DATA 0x54 'T'
 
 scan:
-    db 04h                  ;63e6  04          DATA 0x04
+    db 04h                  ;63e6  04          DATA 0x04        4 bytes follow:
     db 53h                  ;63e7  53          DATA 0x53 'S'
     db 43h                  ;63e8  43          DATA 0x43 'C'
     db 41h                  ;63e9  41          DATA 0x41 'A'
     db 4eh                  ;63ea  4e          DATA 0x4e 'N'
 
 seek_plus:
-    db 06h                  ;63eb  06          DATA 0x06
+    db 06h                  ;63eb  06          DATA 0x06        6 bytes follow:
     db 53h                  ;63ec  53          DATA 0x53 'S'
     db 45h                  ;63ed  45          DATA 0x45 'E'
     db 45h                  ;63ee  45          DATA 0x45 'E'
@@ -20616,7 +20652,7 @@ seek_plus:
     db 2bh                  ;63f1  2b          DATA 0x2b '+'
 
 seek_minus:
-    db 06h                  ;63f2  06          DATA 0x06
+    db 06h                  ;63f2  06          DATA 0x06        6 bytes follow:
     db 53h                  ;63f3  53          DATA 0x53 'S'
     db 45h                  ;63f4  45          DATA 0x45 'E'
     db 45h                  ;63f5  45          DATA 0x45 'E'
@@ -20625,7 +20661,7 @@ seek_minus:
     db 2dh                  ;63f8  2d          DATA 0x2d '-'
 
 vol:
-    db 0dh                  ;63f9  0d          DATA 0x0d
+    db 0dh                  ;63f9  0d          DATA 0x0d        13 bytes follow:
     db 56h                  ;63fa  56          DATA 0x56 'V'
     db 4fh                  ;63fb  4f          DATA 0x4f 'O'
     db 4ch                  ;63fc  4c          DATA 0x4c 'L'
@@ -20641,14 +20677,14 @@ vol:
     db 20h                  ;6406  20          DATA 0x20 ' '
 
 fade:
-    db 04h                  ;6407  04          DATA 0x04
+    db 04h                  ;6407  04          DATA 0x04        4 bytes follow:
     db 46h                  ;6408  46          DATA 0x46 'F'
     db 41h                  ;6409  41          DATA 0x41 'A'
     db 44h                  ;640a  44          DATA 0x44 'D'
     db 45h                  ;640b  45          DATA 0x45 'E'
 
 fadefront:
-    db 0bh                  ;640c  0b          DATA 0x0b
+    db 0bh                  ;640c  0b          DATA 0x0b        11 bytes follow:
     db 46h                  ;640d  46          DATA 0x46 'F'
     db 41h                  ;640e  41          DATA 0x41 'A'
     db 44h                  ;640f  44          DATA 0x44 'D'
@@ -20662,7 +20698,7 @@ fadefront:
     db 20h                  ;6417  20          DATA 0x20 ' '
 
 fadecenter:
-    db 0bh                  ;6418  0b          DATA 0x0b
+    db 0bh                  ;6418  0b          DATA 0x0b        11 bytes follow:
     db 46h                  ;6419  46          DATA 0x46 'F'
     db 41h                  ;641a  41          DATA 0x41 'A'
     db 44h                  ;641b  44          DATA 0x44 'D'
@@ -20676,7 +20712,7 @@ fadecenter:
     db 20h                  ;6423  20          DATA 0x20 ' '
 
 faderear:
-    db 0bh                  ;6424  0b          DATA 0x0b
+    db 0bh                  ;6424  0b          DATA 0x0b        11 bytes follow:
     db 46h                  ;6425  46          DATA 0x46 'F'
     db 41h                  ;6426  41          DATA 0x41 'A'
     db 44h                  ;6427  44          DATA 0x44 'D'
@@ -20690,14 +20726,14 @@ faderear:
     db 20h                  ;642f  20          DATA 0x20 ' '
 
 bal:
-    db 04h                  ;6430  04          DATA 0x04
+    db 04h                  ;6430  04          DATA 0x04        4 bytes follow:
     db 42h                  ;6431  42          DATA 0x42 'B'
     db 41h                  ;6432  41          DATA 0x41 'A'
     db 4ch                  ;6433  4c          DATA 0x4c 'L'
     db 20h                  ;6434  20          DATA 0x20 ' '
 
 bal_left:
-    db 0bh                  ;6435  0b          DATA 0x0b
+    db 0bh                  ;6435  0b          DATA 0x0b        11 bytes follow:
     db 42h                  ;6436  42          DATA 0x42 'B'
     db 41h                  ;6437  41          DATA 0x41 'A'
     db 4ch                  ;6438  4c          DATA 0x4c 'L'
@@ -20711,7 +20747,7 @@ bal_left:
     db 20h                  ;6440  20          DATA 0x20 ' '
 
 bal_center:
-    db 0bh                  ;6441  0b          DATA 0x0b
+    db 0bh                  ;6441  0b          DATA 0x0b        11 bytes follow:
     db 42h                  ;6442  42          DATA 0x42 'B'
     db 41h                  ;6443  41          DATA 0x41 'A'
     db 4ch                  ;6444  4c          DATA 0x4c 'L'
@@ -20725,7 +20761,7 @@ bal_center:
     db 20h                  ;644c  20          DATA 0x20 ' '
 
 bal_right:
-    db 0bh                  ;644d  0b          DATA 0x0b
+    db 0bh                  ;644d  0b          DATA 0x0b        11 bytes follow:
     db 42h                  ;644e  42          DATA 0x42 'B'
     db 41h                  ;644f  41          DATA 0x41 'A'
     db 4ch                  ;6450  4c          DATA 0x4c 'L'
@@ -20739,7 +20775,7 @@ bal_right:
     db 20h                  ;6458  20          DATA 0x20 ' '
 
 bass:
-    db 0bh                  ;6459  0b          DATA 0x0b
+    db 0bh                  ;6459  0b          DATA 0x0b        11 bytes follow:
     db 42h                  ;645a  42          DATA 0x42 'B'
     db 41h                  ;645b  41          DATA 0x41 'A'
     db 53h                  ;645c  53          DATA 0x53 'S'
@@ -20753,7 +20789,7 @@ bass:
     db 20h                  ;6464  20          DATA 0x20 ' '
 
 mid:
-    db 0bh                  ;6465  0b          DATA 0x0b
+    db 0bh                  ;6465  0b          DATA 0x0b        11 bytes follow:
     db 4dh                  ;6466  4d          DATA 0x4d 'M'
     db 49h                  ;6467  49          DATA 0x49 'I'
     db 44h                  ;6468  44          DATA 0x44 'D'
@@ -20767,7 +20803,7 @@ mid:
     db 20h                  ;6470  20          DATA 0x20 ' '
 
 treb:
-    db 0bh                  ;6471  0b          DATA 0x0b
+    db 0bh                  ;6471  0b          DATA 0x0b        11 bytes follow:
     db 54h                  ;6472  54          DATA 0x54 'T'
     db 52h                  ;6473  52          DATA 0x52 'R'
     db 45h                  ;6474  45          DATA 0x45 'E'
@@ -20781,7 +20817,7 @@ treb:
     db 20h                  ;647c  20          DATA 0x20 ' '
 
 treb_out16:
-    db 0bh                  ;647d  0b          DATA 0x0b
+    db 0bh                  ;647d  0b          DATA 0x0b        11 bytes follow:
     db 54h                  ;647e  54          DATA 0x54 'T'
     db 52h                  ;647f  52          DATA 0x52 'R'
     db 45h                  ;6480  45          DATA 0x45 'E'
@@ -20795,7 +20831,7 @@ treb_out16:
     db 20h                  ;6488  20          DATA 0x20 ' '
 
 max:
-    db 07h                  ;6489  07          DATA 0x07
+    db 07h                  ;6489  07          DATA 0x07        7 bytes follow:
     db 20h                  ;648a  20          DATA 0x20 ' '
     db 20h                  ;648b  20          DATA 0x20 ' '
     db 4dh                  ;648c  4d          DATA 0x4d 'M'
@@ -20805,7 +20841,7 @@ max:
     db 20h                  ;6490  20          DATA 0x20 ' '
 
 min:
-    db 07h                  ;6491  07          DATA 0x07
+    db 07h                  ;6491  07          DATA 0x07        7 bytes follow:
     db 20h                  ;6492  20          DATA 0x20 ' '
     db 20h                  ;6493  20          DATA 0x20 ' '
     db 4dh                  ;6494  4d          DATA 0x4d 'M'
@@ -20815,7 +20851,7 @@ min:
     db 20h                  ;6498  20          DATA 0x20 ' '
 
 set_onvol:
-    db 0bh                  ;6499  0b          DATA 0x0b
+    db 0bh                  ;6499  0b          DATA 0x0b        11 bytes follow:
     db 53h                  ;649a  53          DATA 0x53 'S'
     db 45h                  ;649b  45          DATA 0x45 'E'
     db 54h                  ;649c  54          DATA 0x54 'T'
@@ -20829,7 +20865,7 @@ set_onvol:
     db 20h                  ;64a4  20          DATA 0x20 ' '
 
 set_cd_mix:
-    db 0bh                  ;64a5  0b          DATA 0x0b
+    db 0bh                  ;64a5  0b          DATA 0x0b        11 bytes follow:
     db 53h                  ;64a6  53          DATA 0x53 'S'
     db 45h                  ;64a7  45          DATA 0x45 'E'
     db 54h                  ;64a8  54          DATA 0x54 'T'
@@ -20843,7 +20879,7 @@ set_cd_mix:
     db 20h                  ;64b0  20          DATA 0x20 ' '
 
 tape_skip:
-    db 0bh                  ;64b1  0b          DATA 0x0b
+    db 0bh                  ;64b1  0b          DATA 0x0b        11 bytes follow:
     db 54h                  ;64b2  54          DATA 0x54 'T'
     db 41h                  ;64b3  41          DATA 0x41 'A'
     db 50h                  ;64b4  50          DATA 0x50 'P'
@@ -20857,7 +20893,7 @@ tape_skip:
     db 20h                  ;64bc  20          DATA 0x20 ' '
 
 rad_de2:
-    db 0bh                  ;64bd  0b          DATA 0x0b
+    db 0bh                  ;64bd  0b          DATA 0x0b        11 bytes follow:
     db 52h                  ;64be  52          DATA 0x52 'R'
     db 41h                  ;64bf  41          DATA 0x41 'A'
     db 44h                  ;64c0  44          DATA 0x44 'D'
@@ -20871,7 +20907,7 @@ rad_de2:
     db 20h                  ;64c8  20          DATA 0x20 ' '
 
 monsoon:
-    db 0bh                  ;64c9  0b          DATA 0x0b
+    db 0bh                  ;64c9  0b          DATA 0x0b        11 bytes follow:
     db 20h                  ;64ca  20          DATA 0x20 ' '
     db 20h                  ;64cb  20          DATA 0x20 ' '
     db 20h                  ;64cc  20          DATA 0x20 ' '
@@ -20885,7 +20921,7 @@ monsoon:
     db 4eh                  ;64d4  4e          DATA 0x4e 'N'
 
 vers_a99cznn:
-    db 0bh                  ;64d5  0b          DATA 0x0b
+    db 0bh                  ;64d5  0b          DATA 0x0b        11 bytes follow:
     db 56h                  ;64d6  56          DATA 0x56 'V'
     db 65h                  ;64d7  65          DATA 0x65 'e'
     db 72h                  ;64d8  72          DATA 0x72 'r'
@@ -20899,7 +20935,7 @@ vers_a99cznn:
     db 6eh                  ;64e0  6e          DATA 0x6e 'n'
 
 fern_on:
-    db 0bh                  ;64e1  0b          DATA 0x0b
+    db 0bh                  ;64e1  0b          DATA 0x0b        11 bytes follow:
     db 46h                  ;64e2  46          DATA 0x46 'F'
     db 45h                  ;64e3  45          DATA 0x45 'E'
     db 52h                  ;64e4  52          DATA 0x52 'R'
@@ -20913,7 +20949,7 @@ fern_on:
     db 20h                  ;64ec  20          DATA 0x20 ' '
 
 fern_off:
-    db 0bh                  ;64ed  0b          DATA 0x0b
+    db 0bh                  ;64ed  0b          DATA 0x0b        11 bytes follow:
     db 46h                  ;64ee  46          DATA 0x46 'F'
     db 45h                  ;64ef  45          DATA 0x45 'E'
     db 52h                  ;64f0  52          DATA 0x52 'R'
@@ -20927,7 +20963,7 @@ fern_off:
     db 20h                  ;64f8  20          DATA 0x20 ' '
 
 safe:
-    db 0bh                  ;64f9  0b          DATA 0x0b
+    db 0bh                  ;64f9  0b          DATA 0x0b        11 bytes follow:
     db 20h                  ;64fa  20          DATA 0x20 ' '
     db 20h                  ;64fb  20          DATA 0x20 ' '
     db 20h                  ;64fc  20          DATA 0x20 ' '
@@ -20941,7 +20977,7 @@ safe:
     db 20h                  ;6504  20          DATA 0x20 ' '
 
 onethousand:
-    db 0bh                  ;6505  0b          DATA 0x0b
+    db 0bh                  ;6505  0b          DATA 0x0b        11 bytes follow:
     db 20h                  ;6506  20          DATA 0x20 ' '
     db 20h                  ;6507  20          DATA 0x20 ' '
     db 20h                  ;6508  20          DATA 0x20 ' '
@@ -20955,7 +20991,7 @@ onethousand:
     db 20h                  ;6510  20          DATA 0x20 ' '
 
 blank:
-    db 0bh                  ;6511  0b          DATA 0x0b
+    db 0bh                  ;6511  0b          DATA 0x0b        11 bytes follow:
     db 20h                  ;6512  20          DATA 0x20 ' '
     db 20h                  ;6513  20          DATA 0x20 ' '
     db 20h                  ;6514  20          DATA 0x20 ' '
@@ -20969,7 +21005,7 @@ blank:
     db 20h                  ;651c  20          DATA 0x20 ' '
 
 flat:
-    db 09h                  ;651d  09          DATA 0x09
+    db 09h                  ;651d  09          DATA 0x09        9 bytes follow:
     db 46h                  ;651e  46          DATA 0x46 'F'
     db 4ch                  ;651f  4c          DATA 0x4c 'L'
     db 41h                  ;6520  41          DATA 0x41 'A'
@@ -20981,7 +21017,7 @@ flat:
     db 20h                  ;6526  20          DATA 0x20 ' '
 
 select_eq:
-    db 0dh                  ;6527  0d          DATA 0x0d
+    db 0dh                  ;6527  0d          DATA 0x0d        13 bytes follow:
     db 53h                  ;6528  53          DATA 0x53 'S'
     db 45h                  ;6529  45          DATA 0x45 'E'
     db 4ch                  ;652a  4c          DATA 0x4c 'L'
@@ -20995,6 +21031,7 @@ select_eq:
     db 23h                  ;6532  23          DATA 0x23 '#'
     db 20h                  ;6533  20          DATA 0x20 ' '
     db 20h                  ;6534  20          DATA 0x20 ' '
+
     db 00h                  ;6535  00          DATA 0x00
     db 0dfh                 ;6536  df          DATA 0xdf
     db 00h                  ;6537  00          DATA 0x00
@@ -21079,7 +21116,7 @@ select_eq:
     db 0d1h                 ;6586  d1          DATA 0xd1
 
 normal:
-    db 06h                  ;6587  06          DATA 0x06
+    db 06h                  ;6587  06          DATA 0x06        6 bytes follow:
     db 4eh                  ;6588  4e          DATA 0x4e 'N'
     db 4fh                  ;6589  4f          DATA 0x4f 'O'
     db 52h                  ;658a  52          DATA 0x52 'R'
@@ -21088,14 +21125,14 @@ normal:
     db 4ch                  ;658d  4c          DATA 0x4c 'L'
 
 loud:
-    db 04h                  ;658e  04          DATA 0x04
+    db 04h                  ;658e  04          DATA 0x04        4 bytes follow:
     db 4ch                  ;658f  4c          DATA 0x4c 'L'
     db 4fh                  ;6590  4f          DATA 0x4f 'O'
     db 55h                  ;6591  55          DATA 0x55 'U'
     db 44h                  ;6592  44          DATA 0x44 'D'
 
 diag:
-    db 07h                  ;6593  07          DATA 0x07
+    db 07h                  ;6593  07          DATA 0x07        7 bytes follow:
     db 20h                  ;6594  20          DATA 0x20 ' '
     db 44h                  ;6595  44          DATA 0x44 'D'
     db 49h                  ;6596  49          DATA 0x49 'I'
@@ -21105,7 +21142,7 @@ diag:
     db 20h                  ;659a  20          DATA 0x20 ' '
 
 none_found:
-    db 0ah                  ;659b  0a          DATA 0x0a
+    db 0ah                  ;659b  0a          DATA 0x0a        10 bytes follow:
     db 4eh                  ;659c  4e          DATA 0x4e 'N'
     db 4fh                  ;659d  4f          DATA 0x4f 'O'
     db 4eh                  ;659e  4e          DATA 0x4e 'N'
@@ -21118,14 +21155,14 @@ none_found:
     db 44h                  ;65a5  44          DATA 0x44 'D'
 
 tape:
-    db 04h                  ;65a6  04          DATA 0x04
+    db 04h                  ;65a6  04          DATA 0x04        4 bytes follow:
     db 54h                  ;65a7  54          DATA 0x54 'T'
     db 41h                  ;65a8  41          DATA 0x41 'A'
     db 50h                  ;65a9  50          DATA 0x50 'P'
     db 45h                  ;65aa  45          DATA 0x45 'E'
 
 tape_play:
-    db 0bh                  ;65ab  0b          DATA 0x0b
+    db 0bh                  ;65ab  0b          DATA 0x0b        11 bytes follow:
     db 54h                  ;65ac  54          DATA 0x54 'T'
     db 41h                  ;65ad  41          DATA 0x41 'A'
     db 50h                  ;65ae  50          DATA 0x50 'P'
@@ -21139,7 +21176,7 @@ tape_play:
     db 20h                  ;65b6  20          DATA 0x20 ' '
 
 tape_ff:
-    db 0bh                  ;65b7  0b          DATA 0x0b
+    db 0bh                  ;65b7  0b          DATA 0x0b        11 bytes follow:
     db 54h                  ;65b8  54          DATA 0x54 'T'
     db 41h                  ;65b9  41          DATA 0x41 'A'
     db 50h                  ;65ba  50          DATA 0x50 'P'
@@ -21153,7 +21190,7 @@ tape_ff:
     db 20h                  ;65c2  20          DATA 0x20 ' '
 
 tape_rew:
-    db 0bh                  ;65c3  0b          DATA 0x0b
+    db 0bh                  ;65c3  0b          DATA 0x0b        11 bytes follow:
     db 54h                  ;65c4  54          DATA 0x54 'T'
     db 41h                  ;65c5  41          DATA 0x41 'A'
     db 50h                  ;65c6  50          DATA 0x50 'P'
@@ -21167,7 +21204,7 @@ tape_rew:
     db 20h                  ;65ce  20          DATA 0x20 ' '
 
 tapemss_ff:
-    db 0bh                  ;65cf  0b          DATA 0x0b
+    db 0bh                  ;65cf  0b          DATA 0x0b        11 bytes follow:
     db 54h                  ;65d0  54          DATA 0x54 'T'
     db 41h                  ;65d1  41          DATA 0x41 'A'
     db 50h                  ;65d2  50          DATA 0x50 'P'
@@ -21181,7 +21218,7 @@ tapemss_ff:
     db 20h                  ;65da  20          DATA 0x20 ' '
 
 tapemss_rew:
-    db 0bh                  ;65db  0b          DATA 0x0b
+    db 0bh                  ;65db  0b          DATA 0x0b        11 bytes follow:
     db 54h                  ;65dc  54          DATA 0x54 'T'
     db 41h                  ;65dd  41          DATA 0x41 'A'
     db 50h                  ;65de  50          DATA 0x50 'P'
@@ -21195,7 +21232,7 @@ tapemss_rew:
     db 57h                  ;65e6  57          DATA 0x57 'W'
 
 skip_blank:
-    db 0bh                  ;65e7  0b          DATA 0x0b
+    db 0bh                  ;65e7  0b          DATA 0x0b        11 bytes follow:
     db 53h                  ;65e8  53          DATA 0x53 'S'
     db 4bh                  ;65e9  4b          DATA 0x4b 'K'
     db 49h                  ;65ea  49          DATA 0x49 'I'
@@ -21209,7 +21246,7 @@ skip_blank:
     db 20h                  ;65f2  20          DATA 0x20 ' '
 
 tape_scan:
-    db 0bh                  ;65f3  0b          DATA 0x0b
+    db 0bh                  ;65f3  0b          DATA 0x0b        11 bytes follow:
     db 54h                  ;65f4  54          DATA 0x54 'T'
     db 41h                  ;65f5  41          DATA 0x41 'A'
     db 50h                  ;65f6  50          DATA 0x50 'P'
@@ -21223,7 +21260,7 @@ tape_scan:
     db 20h                  ;65fe  20          DATA 0x20 ' '
 
 tape_metal:
-    db 0bh                  ;65ff  0b          DATA 0x0b
+    db 0bh                  ;65ff  0b          DATA 0x0b        11 bytes follow:
     db 54h                  ;6600  54          DATA 0x54 'T'
     db 41h                  ;6601  41          DATA 0x41 'A'
     db 50h                  ;6602  50          DATA 0x50 'P'
@@ -21237,7 +21274,7 @@ tape_metal:
     db 20h                  ;660a  20          DATA 0x20 ' '
 
 tape_load:
-    db 0bh                  ;660b  0b          DATA 0x0b
+    db 0bh                  ;660b  0b          DATA 0x0b        11 bytes follow:
     db 54h                  ;660c  54          DATA 0x54 'T'
     db 41h                  ;660d  41          DATA 0x41 'A'
     db 50h                  ;660e  50          DATA 0x50 'P'
@@ -21251,7 +21288,7 @@ tape_load:
     db 20h                  ;6616  20          DATA 0x20 ' '
 
 no_tape:
-    db 0bh                  ;6617  0b          DATA 0x0b
+    db 0bh                  ;6617  0b          DATA 0x0b        11 bytes follow:
     db 20h                  ;6618  20          DATA 0x20 ' '
     db 20h                  ;6619  20          DATA 0x20 ' '
     db 20h                  ;661a  20          DATA 0x20 ' '
@@ -21265,7 +21302,7 @@ no_tape:
     db 45h                  ;6622  45          DATA 0x45 'E'
 
 tape_error:
-    db 0bh                  ;6623  0b          DATA 0x0b
+    db 0bh                  ;6623  0b          DATA 0x0b        11 bytes follow:
     db 54h                  ;6624  54          DATA 0x54 'T'
     db 41h                  ;6625  41          DATA 0x41 'A'
     db 50h                  ;6626  50          DATA 0x50 'P'
@@ -21279,7 +21316,7 @@ tape_error:
     db 20h                  ;662e  20          DATA 0x20 ' '
 
 ff:
-    db 07h                  ;662f  07          DATA 0x07
+    db 07h                  ;662f  07          DATA 0x07        7 bytes follow:
     db 20h                  ;6630  20          DATA 0x20 ' '
     db 20h                  ;6631  20          DATA 0x20 ' '
     db 46h                  ;6632  46          DATA 0x46 'F'
@@ -21289,11 +21326,11 @@ ff:
     db 20h                  ;6636  20          DATA 0x20 ' '
 
 right_arrow:
-    db 01h                  ;6637  01          DATA 0x01
+    db 01h                  ;6637  01          DATA 0x01        1 byte follows:
     db 3eh                  ;6638  3e          DATA 0x3e '>'
 
 rew:
-    db 07h                  ;6639  07          DATA 0x07
+    db 07h                  ;6639  07          DATA 0x07        7 bytes follow:
     db 20h                  ;663a  20          DATA 0x20 ' '
     db 20h                  ;663b  20          DATA 0x20 ' '
     db 52h                  ;663c  52          DATA 0x52 'R'
@@ -21303,11 +21340,11 @@ rew:
     db 20h                  ;6640  20          DATA 0x20 ' '
 
 left_arrow:
-    db 01h                  ;6641  01          DATA 0x01
+    db 01h                  ;6641  01          DATA 0x01        1 byte follows:
     db 3ch                  ;6642  3c          DATA 0x3c '<'
 
 cut_tape:
-    db 08h                  ;6643  08          DATA 0x08
+    db 08h                  ;6643  08          DATA 0x08        8 bytes follow:
     db 43h                  ;6644  43          DATA 0x43 'C'
     db 55h                  ;6645  55          DATA 0x55 'U'
     db 54h                  ;6646  54          DATA 0x54 'T'
@@ -21318,7 +21355,7 @@ cut_tape:
     db 45h                  ;664b  45          DATA 0x45 'E'
 
 disabled:
-    db 08h                  ;664c  08          DATA 0x08
+    db 08h                  ;664c  08          DATA 0x08        8 bytes follow:
     db 44h                  ;664d  44          DATA 0x44 'D'
     db 49h                  ;664e  49          DATA 0x49 'I'
     db 53h                  ;664f  53          DATA 0x53 'S'
@@ -21329,7 +21366,7 @@ disabled:
     db 44h                  ;6654  44          DATA 0x44 'D'
 
 comm_error:
-    db 0ah                  ;6655  0a          DATA 0x0a
+    db 0ah                  ;6655  0a          DATA 0x0a        10 bytes follow:
     db 43h                  ;6656  43          DATA 0x43 'C'
     db 6fh                  ;6657  6f          DATA 0x6f 'o'
     db 6dh                  ;6658  6d          DATA 0x6d 'm'
@@ -21342,7 +21379,7 @@ comm_error:
     db 72h                  ;665f  72          DATA 0x72 'r'
 
 broken_tape:
-    db 0bh                  ;6660  0b          DATA 0x0b
+    db 0bh                  ;6660  0b          DATA 0x0b        11 bytes follow:
     db 42h                  ;6661  42          DATA 0x42 'B'
     db 72h                  ;6662  72          DATA 0x72 'r'
     db 6fh                  ;6663  6f          DATA 0x6f 'o'
@@ -21356,7 +21393,7 @@ broken_tape:
     db 65h                  ;666b  65          DATA 0x65 'e'
 
 tight_tape:
-    db 0ah                  ;666c  0a          DATA 0x0a
+    db 0ah                  ;666c  0a          DATA 0x0a        10 bytes follow:
     db 54h                  ;666d  54          DATA 0x54 'T'
     db 69h                  ;666e  69          DATA 0x69 'i'
     db 67h                  ;666f  67          DATA 0x67 'g'
@@ -21369,7 +21406,7 @@ tight_tape:
     db 65h                  ;6676  65          DATA 0x65 'e'
 
 wrapped_tape:
-    db 0ch                  ;6677  0c          DATA 0x0c
+    db 0ch                  ;6677  0c          DATA 0x0c        12 bytes follow:
     db 57h                  ;6678  57          DATA 0x57 'W'
     db 72h                  ;6679  72          DATA 0x72 'r'
     db 61h                  ;667a  61          DATA 0x61 'a'
@@ -21384,7 +21421,7 @@ wrapped_tape:
     db 65h                  ;6683  65          DATA 0x65 'e'
 
 cd__:
-    db 0bh                  ;6684  0b          DATA 0x0b
+    db 0bh                  ;6684  0b          DATA 0x0b        11 bytes follow:
     db 43h                  ;6685  43          DATA 0x43 'C'
     db 44h                  ;6686  44          DATA 0x44 'D'
     db 20h                  ;6687  20          DATA 0x20 ' '
@@ -21398,7 +21435,7 @@ cd__:
     db 20h                  ;668f  20          DATA 0x20 ' '
 
 cd_no_cd:
-    db 0bh                  ;6690  0b          DATA 0x0b
+    db 0bh                  ;6690  0b          DATA 0x0b        11 bytes follow:
     db 43h                  ;6691  43          DATA 0x43 'C'
     db 44h                  ;6692  44          DATA 0x44 'D'
     db 20h                  ;6693  20          DATA 0x20 ' '
@@ -21412,7 +21449,7 @@ cd_no_cd:
     db 20h                  ;669b  20          DATA 0x20 ' '
 
 cd_tr:
-    db 0bh                  ;669c  0b          DATA 0x0b
+    db 0bh                  ;669c  0b          DATA 0x0b        11 bytes follow:
     db 43h                  ;669d  43          DATA 0x43 'C'
     db 44h                  ;669e  44          DATA 0x44 'D'
     db 20h                  ;669f  20          DATA 0x20 ' '
@@ -21426,7 +21463,7 @@ cd_tr:
     db 20h                  ;66a7  20          DATA 0x20 ' '
 
 playcd_tr:
-    db 0bh                  ;66a8  0b          DATA 0x0b
+    db 0bh                  ;66a8  0b          DATA 0x0b        11 bytes follow:
     db 50h                  ;66a9  50          DATA 0x50 'P'
     db 4ch                  ;66aa  4c          DATA 0x4c 'L'
     db 41h                  ;66ab  41          DATA 0x41 'A'
@@ -21440,7 +21477,7 @@ playcd_tr:
     db 20h                  ;66b3  20          DATA 0x20 ' '
 
 cue:
-    db 0bh                  ;66b4  0b          DATA 0x0b
+    db 0bh                  ;66b4  0b          DATA 0x0b        11 bytes follow:
     db 43h                  ;66b5  43          DATA 0x43 'C'
     db 55h                  ;66b6  55          DATA 0x55 'U'
     db 45h                  ;66b7  45          DATA 0x45 'E'
@@ -21454,7 +21491,7 @@ cue:
     db 20h                  ;66bf  20          DATA 0x20 ' '
 
 rev:
-    db 0bh                  ;66c0  0b          DATA 0x0b
+    db 0bh                  ;66c0  0b          DATA 0x0b        11 bytes follow:
     db 52h                  ;66c1  52          DATA 0x52 'R'
     db 45h                  ;66c2  45          DATA 0x45 'E'
     db 56h                  ;66c3  56          DATA 0x56 'V'
@@ -21468,7 +21505,7 @@ rev:
     db 20h                  ;66cb  20          DATA 0x20 ' '
 
 scan_tr:
-    db 0bh                  ;66cc  0b          DATA 0x0b
+    db 0bh                  ;66cc  0b          DATA 0x0b        11 bytes follow:
     db 53h                  ;66cd  53          DATA 0x53 'S'
     db 43h                  ;66ce  43          DATA 0x43 'C'
     db 41h                  ;66cf  41          DATA 0x41 'A'
@@ -21482,7 +21519,7 @@ scan_tr:
     db 20h                  ;66d7  20          DATA 0x20 ' '
 
 track:
-    db 06h                  ;66d8  06          DATA 0x06
+    db 06h                  ;66d8  06          DATA 0x06        6 bytes follow:
     db 54h                  ;66d9  54          DATA 0x54 'T'
     db 52h                  ;66da  52          DATA 0x52 'R'
     db 41h                  ;66db  41          DATA 0x41 'A'
@@ -21491,13 +21528,13 @@ track:
     db 20h                  ;66de  20          DATA 0x20 ' '
 
 rdm:
-    db 03h                  ;66df  03          DATA 0x03
+    db 03h                  ;66df  03          DATA 0x03        3 bytes follow:
     db 52h                  ;66e0  52          DATA 0x52 'R'
     db 44h                  ;66e1  44          DATA 0x44 'D'
     db 4dh                  ;66e2  4d          DATA 0x4d 'M'
 
 random_one:
-    db 0ah                  ;66e3  0a          DATA 0x0a
+    db 0ah                  ;66e3  0a          DATA 0x0a        10 bytes follow:
     db 52h                  ;66e4  52          DATA 0x52 'R'
     db 41h                  ;66e5  41          DATA 0x41 'A'
     db 4eh                  ;66e6  4e          DATA 0x4e 'N'
@@ -21510,7 +21547,7 @@ random_one:
     db 45h                  ;66ed  45          DATA 0x45 'E'
 
 random_all:
-    db 0ah                  ;66ee  0a          DATA 0x0a
+    db 0ah                  ;66ee  0a          DATA 0x0a        10 bytes follow:
     db 52h                  ;66ef  52          DATA 0x52 'R'
     db 41h                  ;66f0  41          DATA 0x41 'A'
     db 4eh                  ;66f1  4e          DATA 0x4e 'N'
@@ -21523,31 +21560,31 @@ random_all:
     db 4ch                  ;66f8  4c          DATA 0x4c 'L'
 
 rev2:
-    db 03h                  ;66f9  03          DATA 0x03
+    db 03h                  ;66f9  03          DATA 0x03        3 bytes follow:
     db 52h                  ;66fa  52          DATA 0x52 'R'
     db 45h                  ;66fb  45          DATA 0x45 'E'
     db 56h                  ;66fc  56          DATA 0x56 'V'
 
 fwd:
-    db 03h                  ;66fd  03          DATA 0x03
+    db 03h                  ;66fd  03          DATA 0x03        3 bytes follow:
     db 46h                  ;66fe  46          DATA 0x46 'F'
     db 57h                  ;66ff  57          DATA 0x57 'W'
     db 44h                  ;6700  44          DATA 0x44 'D'
 
 et:
-    db 02h                  ;6701  02          DATA 0x02
+    db 02h                  ;6701  02          DATA 0x02        2 bytes follow:
     db 45h                  ;6702  45          DATA 0x45 'E'
     db 54h                  ;6703  54          DATA 0x54 'T'
 
 eltm:
-    db 04h                  ;6704  04          DATA 0x04
+    db 04h                  ;6704  04          DATA 0x04        4 bytes follow:
     db 45h                  ;6705  45          DATA 0x45 'E'
     db 4ch                  ;6706  4c          DATA 0x4c 'L'
     db 54h                  ;6707  54          DATA 0x54 'T'
     db 4dh                  ;6708  4d          DATA 0x4d 'M'
 
 track_scan:
-    db 0dh                  ;6709  0d          DATA 0x0d
+    db 0dh                  ;6709  0d          DATA 0x0d        12 bytes follow:
     db 54h                  ;670a  54          DATA 0x54 'T'
     db 52h                  ;670b  52          DATA 0x52 'R'
     db 41h                  ;670c  41          DATA 0x41 'A'
@@ -21563,7 +21600,7 @@ track_scan:
     db 20h                  ;6716  20          DATA 0x20 ' '
 
 disc_scan:
-    db 0dh                  ;6717  0d          DATA 0x0d
+    db 0dh                  ;6717  0d          DATA 0x0d        12 bytes follow:
     db 44h                  ;6718  44          DATA 0x44 'D'
     db 49h                  ;6719  49          DATA 0x49 'I'
     db 53h                  ;671a  53          DATA 0x53 'S'
@@ -21579,7 +21616,7 @@ disc_scan:
     db 20h                  ;6724  20          DATA 0x20 ' '
 
 check_cd:
-    db 08h                  ;6725  08          DATA 0x08
+    db 08h                  ;6725  08          DATA 0x08        8 bytes follow:
     db 43h                  ;6726  43          DATA 0x43 'C'
     db 68h                  ;6727  68          DATA 0x68 'h'
     db 65h                  ;6728  65          DATA 0x65 'e'
@@ -21590,7 +21627,7 @@ check_cd:
     db 44h                  ;672d  44          DATA 0x44 'D'
 
 player_error:
-    db 0ch                  ;672e  0c          DATA 0x0c
+    db 0ch                  ;672e  0c          DATA 0x0c        12 bytes follow:
     db 50h                  ;672f  50          DATA 0x50 'P'
     db 6ch                  ;6730  6c          DATA 0x6c 'l'
     db 61h                  ;6731  61          DATA 0x61 'a'
@@ -21605,7 +21642,7 @@ player_error:
     db 72h                  ;673a  72          DATA 0x72 'r'
 
 focus:
-    db 05h                  ;673b  05          DATA 0x05
+    db 05h                  ;673b  05          DATA 0x05        5 bytes follow:
     db 46h                  ;673c  46          DATA 0x46 'F'
     db 4fh                  ;673d  4f          DATA 0x4f 'O'
     db 43h                  ;673e  43          DATA 0x43 'C'
@@ -21613,7 +21650,7 @@ focus:
     db 53h                  ;6740  53          DATA 0x53 'S'
 
 cd_door_open:
-    db 0ch                  ;6741  0c          DATA 0x0c
+    db 0ch                  ;6741  0c          DATA 0x0c        12 bytes follow:
     db 43h                  ;6742  43          DATA 0x43 'C'
     db 44h                  ;6743  44          DATA 0x44 'D'
     db 20h                  ;6744  20          DATA 0x20 ' '
@@ -21628,7 +21665,7 @@ cd_door_open:
     db 6eh                  ;674d  6e          DATA 0x6e 'n'
 
 changer_error:
-    db 0ch                  ;674e  0c          DATA 0x0c
+    db 0ch                  ;674e  0c          DATA 0x0c        12 bytes follow:
     db 43h                  ;674f  43          DATA 0x43 'C'
     db 68h                  ;6750  68          DATA 0x68 'h'
     db 61h                  ;6751  61          DATA 0x61 'a'
@@ -21644,7 +21681,7 @@ changer_error:
     db 72h                  ;675b  72          DATA 0x72 'r'
 
 magazine:
-    db 08h                  ;675c  08          DATA 0x08
+    db 08h                  ;675c  08          DATA 0x08        8 bytes follow:
     db 4dh                  ;675d  4d          DATA 0x4d 'M'
     db 41h                  ;675e  41          DATA 0x41 'A'
     db 47h                  ;675f  47          DATA 0x47 'G'
@@ -21655,7 +21692,7 @@ magazine:
     db 45h                  ;6764  45          DATA 0x45 'E'
 
 no_magazin:
-    db 0bh                  ;6765  0b          DATA 0x0b
+    db 0bh                  ;6765  0b          DATA 0x0b        11 bytes follow:
     db 4eh                  ;6766  4e          DATA 0x4e 'N'
     db 4fh                  ;6767  4f          DATA 0x4f 'O'
     db 20h                  ;6768  20          DATA 0x20 ' '
@@ -21669,7 +21706,7 @@ no_magazin:
     db 4eh                  ;6770  4e          DATA 0x4e 'N'
 
 no_changer:
-    db 0bh                  ;6771  0b          DATA 0x0b
+    db 0bh                  ;6771  0b          DATA 0x0b        11 bytes follow:
     db 4eh                  ;6772  4e          DATA 0x4e 'N'
     db 4fh                  ;6773  4f          DATA 0x4f 'O'
     db 20h                  ;6774  20          DATA 0x20 ' '
@@ -21683,7 +21720,7 @@ no_changer:
     db 52h                  ;677c  52          DATA 0x52 'R'
 
 no_disc:
-    db 0bh                  ;677d  0b          DATA 0x0b
+    db 0bh                  ;677d  0b          DATA 0x0b        11 bytes follow:
     db 20h                  ;677e  20          DATA 0x20 ' '
     db 20h                  ;677f  20          DATA 0x20 ' '
     db 20h                  ;6780  20          DATA 0x20 ' '
@@ -21697,7 +21734,7 @@ no_disc:
     db 43h                  ;6788  43          DATA 0x43 'C'
 
 cd_cd_rom:
-    db 0bh                  ;6789  0b          DATA 0x0b
+    db 0bh                  ;6789  0b          DATA 0x0b        11 bytes follow:
     db 43h                  ;678a  43          DATA 0x43 'C'
     db 44h                  ;678b  44          DATA 0x44 'D'
     db 20h                  ;678c  20          DATA 0x20 ' '
@@ -21711,7 +21748,7 @@ cd_cd_rom:
     db 20h                  ;6794  20          DATA 0x20 ' '
 
 cd_cd_err:
-    db 0bh                  ;6795  0b          DATA 0x0b
+    db 0bh                  ;6795  0b          DATA 0x0b        11 bytes follow:
     db 43h                  ;6796  43          DATA 0x43 'C'
     db 44h                  ;6797  44          DATA 0x44 'D'
     db 20h                  ;6798  20          DATA 0x20 ' '
@@ -21725,7 +21762,7 @@ cd_cd_err:
     db 20h                  ;67a0  20          DATA 0x20 ' '
 
 cd_error:
-    db 0bh                  ;67a1  0b          DATA 0x0b
+    db 0bh                  ;67a1  0b          DATA 0x0b        11 bytes follow:
     db 20h                  ;67a2  20          DATA 0x20 ' '
     db 43h                  ;67a3  43          DATA 0x43 'C'
     db 44h                  ;67a4  44          DATA 0x44 'D'
@@ -21739,7 +21776,7 @@ cd_error:
     db 20h                  ;67ac  20          DATA 0x20 ' '
 
 chk_magazin:
-    db 0bh                  ;67ad  0b          DATA 0x0b
+    db 0bh                  ;67ad  0b          DATA 0x0b        11 bytes follow:
     db 43h                  ;67ae  43          DATA 0x43 'C'
     db 48h                  ;67af  48          DATA 0x48 'H'
     db 4bh                  ;67b0  4b          DATA 0x4b 'K'
@@ -21823,20 +21860,20 @@ lab_67f4:
     db 0ch                  ;6807  0c          DATA 0x0c
     db 0afh                 ;6808  af          DATA 0xaf
 
-sub_6809:
-    cmp a,#0ah              ;6809  4d 0a
 
+to_hex_digit:
+;Convert lower nibble of A to hexadecimal digit in ASCII
+    cmp a,#0ah              ;6809  4d 0a
 lab_680b:
     bc $lab_6813            ;680b  8d 06
     sub a,#0ah              ;680d  1d 0a
-    add a,#41h              ;680f  0d 41
+    add a,#'A'              ;680f  0d 41
     br $lab_6815            ;6811  fa 02
-
 lab_6813:
-    add a,#30h              ;6813  0d 30
-
+    add a,#'0'              ;6813  0d 30       Convert it to ASCII
 lab_6815:
     ret                     ;6815  af
+
 
     db 16h                  ;6816  16          DATA 0x16
     db 9ah                  ;6817  9a          DATA 0x9a
@@ -22355,8 +22392,8 @@ lab_6a9c:
     mov b,#0ffh             ;6a9e  a3 ff
     call !sub_6e70          ;6aa0  9a 70 6e
     mov a,!mem_fb5a         ;6aa3  8e 5a fb
-    add a,#01h              ;6aa6  0d 01
-    mov !upd_1_buf+3,a      ;6aa8  9e 9d f1
+    add a,#01h              ;6aa6  0d 01        Convert it to character code for preset (preset 1 = code 2)
+    mov !upd_1_buf+3,a      ;6aa8  9e 9d f1     '...1.......' (preset)
     movw hl,#pscan          ;6aab  16 cf 63
     mov b,#0fh              ;6aae  a3 0f
     mov a,#0ffh             ;6ab0  a1 ff
@@ -22393,8 +22430,8 @@ lab_6ae2:
     bz $lab_6af1            ;6ae7  ad 08
     cmp a,#07h              ;6ae9  4d 07
     bnc $lab_6af1           ;6aeb  9d 04
-    inc a                   ;6aed  41
-    mov !upd_1_buf+3,a      ;6aee  9e 9d f1
+    inc a                   ;6aed  41           Convert it to character code for preset (preset 1 = code 2)
+    mov !upd_1_buf+3,a      ;6aee  9e 9d f1     '...1.......' (preset)
 
 lab_6af1:
     call !sub_6e6e          ;6af1  9a 6e 6e
@@ -22465,6 +22502,7 @@ lab_6b48:
     db 0afh                 ;6b51  af          DATA 0xaf
 
 lab_6b52:
+;Finish tape message
     call !sub_6e70          ;6b52  9a 70 6e
     call !sub_6e40          ;6b55  9a 40 6e
     call !sub_6e6f          ;6b58  9a 6f 6e
@@ -22492,9 +22530,9 @@ lab_6b73:
     movw hl,#cd_cd_err      ;6b7e  16 95 67
     call !sub_6e70          ;6b81  9a 70 6e
     movw hl,#upd_1_buf      ;6b84  16 9a f1
-    mov a,!mem_fc7d           ;6b87  8e 7d fc     A = CD number
-    add a,#30h              ;6b8a  0d 30        Convert to ASCII
-    mov [hl+03h],a          ;6b8c  be 03
+    mov a,!mem_fc7d         ;6b87  8e 7d fc     A = CD number
+    add a,#'0'              ;6b8a  0d 30        Convert to ASCII
+    mov [hl+03h],a          ;6b8c  be 03        '...1.......'
     br $lab_6b9a            ;6b8e  fa 0a
 
 lab_6b90:
@@ -22512,9 +22550,9 @@ lab_6b9d:
     movw hl,#cd_no_cd       ;6ba1  16 90 66
     call !sub_6e70          ;6ba4  9a 70 6e
     movw hl,#upd_1_buf      ;6ba7  16 9a f1
-    mov a,!mem_fc7d           ;6baa  8e 7d fc     A = CD number
-    add a,#30h              ;6bad  0d 30        Convert to ASCII
-    mov [hl+03h],a          ;6baf  be 03
+    mov a,!mem_fc7d         ;6baa  8e 7d fc     A = CD number
+    add a,#'0'              ;6bad  0d 30        Convert to ASCII
+    mov [hl+03h],a          ;6baf  be 03        '...1.......'
     br !lab_6ca5            ;6bb1  9b a5 6c
 
 lab_6bb4:
@@ -22703,10 +22741,10 @@ lab_6cc6:
     mov c,a                 ;6cc8  72
     xch a,b                 ;6cc9  33
     mov b,#08h              ;6cca  a3 08
-    call !sub_6f6c          ;6ccc  9a 6c 6f
+    call !write_digit       ;6ccc  9a 6c 6f     Convert A to ASCII, write it to display buf at offset B, decr B
     mov a,x                 ;6ccf  60
-    callf !sub_0a9e         ;6cd0  2c 9e
-    call !sub_6f6c          ;6cd2  9a 6c 6f
+    callf !ror_a_4          ;6cd0  2c 9e        A = A >> 4
+    call !write_digit       ;6cd2  9a 6c 6f     Convert A to ASCII, write it to display buf at offset B, decr B
     mov a,c                 ;6cd5  62
     and a,#0f0h             ;6cd6  5d f0
     cmp a,#0a0h             ;6cd8  4d a0
@@ -22724,15 +22762,15 @@ lab_6ce5:
     mov b,#06h              ;6ce7  a3 06
     mov a,c                 ;6ce9  62
     push ax                 ;6cea  b1
-    call !sub_6f6c          ;6ceb  9a 6c 6f
+    call !write_digit       ;6ceb  9a 6c 6f     Convert A to ASCII, write it to display buf at offset B, decr B
     pop ax                  ;6cee  b0
-    callf !sub_0a9e         ;6cef  2c 9e
+    callf !ror_a_4          ;6cef  2c 9e        A = A >> 4
     and a,#0fh              ;6cf1  5d 0f
     cmp a,#0ah              ;6cf3  4d 0a
     bnz $lab_6cfe           ;6cf5  bd 07
     movw hl,#upd_1_buf      ;6cf7  16 9a f1
-    mov a,#2dh              ;6cfa  a1 2d
-    mov [hl+b],a            ;6cfc  bb
+    mov a,#'-'              ;6cfa  a1 2d
+    mov [hl+b],a            ;6cfc  bb           '......-.....'
     ret                     ;6cfd  af
 
 lab_6cfe:
@@ -22769,7 +22807,7 @@ lab_6d2d:
     br $lab_6d60            ;6d2d  fa 31
 
 sub_6d2f:
-    mov a,!mem_fc75         ;6d2f  8e 75 fc
+    mov a,!mem_fc75         ;6d2f  8e 75 fc     A = CD track number
     cmp a,#00h              ;6d32  4d 00
     bz $lab_6d60            ;6d34  ad 2a
     cmp a,#07h              ;6d36  4d 07
@@ -22788,18 +22826,18 @@ lab_6d3c:
 lab_6d4a:
     pop ax                  ;6d4a  b0
     push ax                 ;6d4b  b1
-    call !sub_6f6c          ;6d4c  9a 6c 6f
+    call !write_digit       ;6d4c  9a 6c 6f     Convert A to ASCII, write it to display buf at offset B, decr B
     pop ax                  ;6d4f  b0
-    callf !sub_0a9e         ;6d50  2c 9e
+    callf !ror_a_4          ;6d50  2c 9e        A = A >> 4
     call !sub_6f68          ;6d52  9a 68 6f
     ret                     ;6d55  af
 
 lab_6d56:
     push ax                 ;6d56  b1
-    call !sub_6f6c          ;6d57  9a 6c 6f
+    call !write_digit       ;6d57  9a 6c 6f     Convert A to ASCII, write it to display buf at offset B, decr B
     pop ax                  ;6d5a  b0
-    callf !sub_0a9e         ;6d5b  2c 9e
-    call !sub_6f6c          ;6d5d  9a 6c 6f
+    callf !ror_a_4          ;6d5b  2c 9e        A = A >> 4
+    call !write_digit       ;6d5d  9a 6c 6f     Convert A to ASCII, write it to display buf at offset B, decr B
 
 lab_6d60:
     ret                     ;6d60  af
@@ -22814,71 +22852,75 @@ sub_6d64:
     mov a,!mem_f1ab         ;6d6b  8e ab f1
     and a,#0fh              ;6d6e  5d 0f
     cmp a,#00h              ;6d70  4d 00
-    bz $lab_6d87            ;6d72  ad 13
+    bz $lab_6d87            ;6d72  ad 13        Write 'AM' to display buffer
     cmp mem_fe20,#03h       ;6d74  c8 20 03
-    bnz $lab_6d87           ;6d77  bd 0e
+    bnz $lab_6d87           ;6d77  bd 0e        Write 'AM' to display buffer
     cmp mem_fe21,#0bh       ;6d79  c8 21 0b
-    bnz $lab_6d9d           ;6d7c  bd 1f
+    bnz $lab_6d9d           ;6d7c  bd 1f        Write 'kHz' to display buffer
     mov a,!mem_f1ab         ;6d7e  8e ab f1
     and a,#0efh             ;6d81  5d ef
     cmp a,#09h              ;6d83  4d 09
-    bnz $lab_6d9d           ;6d85  bd 16
+    bnz $lab_6d9d           ;6d85  bd 16        Write 'kHz' to display buffer
 
 lab_6d87:
-    mov a,#00h              ;6d87  a1 00
-    mov a,#' '              ;6d89  a1 20
-    mov !upd_1_buf+2,a      ;6d8b  9e 9c f1
+;AM
+    mov a,#00h              ;6d87  a1 00        A = character code for "1" in FM1
+    mov a,#' '              ;6d89  a1 20        A = space character
+    mov !upd_1_buf+2,a      ;6d8b  9e 9c f1     '.. ........'
     mov a,#' '              ;6d8e  a1 20
-    mov !upd_1_buf+3,a      ;6d90  9e 9d f1
-    mov a,#'A'              ;6d93  a1 41        ;'AM'
-    mov !upd_1_buf,a        ;6d95  9e 9a f1
+    mov !upd_1_buf+3,a      ;6d90  9e 9d f1     '... .......' (preset)
+    mov a,#'A'              ;6d93  a1 41
+    mov !upd_1_buf,a        ;6d95  9e 9a f1     'A..........'
     mov a,#'M'              ;6d98  a1 4d
-    mov !upd_1_buf+1,a      ;6d9a  9e 9b f1
+    mov !upd_1_buf+1,a      ;6d9a  9e 9b f1     '.M.........'
 
 lab_6d9d:
-    mov a,#'k'              ;6d9d  a1 6b        ;'kHz'
-    mov !upd_1_buf+8,a      ;6d9f  9e a2 f1
+;kHz
+    mov a,#'k'              ;6d9d  a1 6b
+    mov !upd_1_buf+8,a      ;6d9f  9e a2 f1     '........k..'
     mov a,#'H'              ;6da2  a1 48
-    mov !upd_1_buf+9,a      ;6da4  9e a3 f1
+    mov !upd_1_buf+9,a      ;6da4  9e a3 f1     '.........H.'
     mov a,#'z'              ;6da7  a1 7a
-    mov !upd_1_buf+10,a     ;6da9  9e a4 f1
+    mov !upd_1_buf+10,a     ;6da9  9e a4 f1     '..........z'
     mov b,#0ffh             ;6dac  a3 ff
     br !lab_6e3c            ;6dae  9b 3c 6e
 
 lab_6db1:
-    call !sub_080b          ;6db1  9a 0b 08
+    call !sub_080b          ;6db1  9a 0b 08     Return mem_f252 in A, also copy it into mem_fb57
     cmp a,#01h              ;6db4  4d 01
     bz $lab_6dfb            ;6db6  ad 43
     mov a,!mem_f1ab         ;6db8  8e ab f1
     and a,#0fh              ;6dbb  5d 0f
     cmp a,#00h              ;6dbd  4d 00
-    bz $lab_6dd4            ;6dbf  ad 13
+    bz $lab_6dd4_fm1        ;6dbf  ad 13        Write 'FM1'...'MHz' to display buffer
     cmp mem_fe20,#03h       ;6dc1  c8 20 03
-    bnz $lab_6dd4           ;6dc4  bd 0e
+    bnz $lab_6dd4_fm1       ;6dc4  bd 0e        Write 'FM1'...'MHz' to display buffer
     cmp mem_fe21,#0bh       ;6dc6  c8 21 0b
-    bnz $lab_6de8           ;6dc9  bd 1d
+    bnz $lab_6de8_mhz       ;6dc9  bd 1d        Write 'MHz' to display buffer
     mov a,!mem_f1ab         ;6dcb  8e ab f1
     and a,#0efh             ;6dce  5d ef
     cmp a,#09h              ;6dd0  4d 09
-    bnz $lab_6de8           ;6dd2  bd 14
+    bnz $lab_6de8_mhz       ;6dd2  bd 14        Write 'MHz' to display buffer
 
-lab_6dd4:
-    mov a,#00h              ;6dd4  a1 00
-    mov !upd_1_buf+2,a      ;6dd6  9e 9c f1
+lab_6dd4_fm1:
+;FM1
+    mov a,#00h              ;6dd4  a1 00        A = character code for "1" in "FM1"
+    mov !upd_1_buf+2,a      ;6dd6  9e 9c f1     '..1........'
     mov a,#' '              ;6dd9  a1 20
-    mov !upd_1_buf+3,a      ;6ddb  9e 9d f1
-    mov a,#'F'              ;6dde  a1 46        ;'FM'
-    mov !upd_1_buf,a        ;6de0  9e 9a f1
+    mov !upd_1_buf+3,a      ;6ddb  9e 9d f1     '... .......' (preset)
+    mov a,#'F'              ;6dde  a1 46
+    mov !upd_1_buf,a        ;6de0  9e 9a f1     'F..........'
     mov a,#'M'              ;6de3  a1 4d
-    mov !upd_1_buf+1,a      ;6de5  9e 9b f1
+    mov !upd_1_buf+1,a      ;6de5  9e 9b f1     '.M.........'
 
-lab_6de8:
-    mov a,#'M'              ;6de8  a1 4d        ;'MHz'
-    mov !upd_1_buf+8,a      ;6dea  9e a2 f1
+lab_6de8_mhz:
+;MHz
+    mov a,#'M'              ;6de8  a1 4d
+    mov !upd_1_buf+8,a      ;6dea  9e a2 f1     '........M..'
     mov a,#'H'              ;6ded  a1 48
-    mov !upd_1_buf+9,a      ;6def  9e a3 f1
+    mov !upd_1_buf+9,a      ;6def  9e a3 f1     '.........H.'
     mov a,#'z'              ;6df2  a1 7a
-    mov !upd_1_buf+10,a     ;6df4  9e a4 f1
+    mov !upd_1_buf+10,a     ;6df4  9e a4 f1     '..........z'
     mov b,#0ffh             ;6df7  a3 ff
     br $lab_6e3c            ;6df9  fa 41
 
@@ -22886,33 +22928,35 @@ lab_6dfb:
     mov a,!mem_f1ab         ;6dfb  8e ab f1
     and a,#0fh              ;6dfe  5d 0f
     cmp a,#00h              ;6e00  4d 00
-    bz $lab_6e17            ;6e02  ad 13
+    bz $lab_6e17_fm2        ;6e02  ad 13        Write 'FM2'...'MHz' to display buffer
     cmp mem_fe20,#03h       ;6e04  c8 20 03
-    bnz $lab_6e17           ;6e07  bd 0e
+    bnz $lab_6e17_fm2       ;6e07  bd 0e        Write 'FM2'...'MHz' to display buffer
     cmp mem_fe21,#0bh       ;6e09  c8 21 0b
-    bnz $lab_6e2b           ;6e0c  bd 1d
+    bnz $lab_6e2b_mhz       ;6e0c  bd 1d        Write 'MHz' to display buffer
     mov a,!mem_f1ab         ;6e0e  8e ab f1
     and a,#0efh             ;6e11  5d ef
     cmp a,#09h              ;6e13  4d 09
-    bnz $lab_6e2b           ;6e15  bd 14
+    bnz $lab_6e2b_mhz       ;6e15  bd 14        Write 'MHz' to display buffer
 
-lab_6e17:
-    mov a,#01h              ;6e17  a1 01
-    mov !upd_1_buf+2,a      ;6e19  9e 9c f1
+lab_6e17_fm2:
+;FM2
+    mov a,#01h              ;6e17  a1 01        A = character code for "2" in "FM2"
+    mov !upd_1_buf+2,a      ;6e19  9e 9c f1     '..2........'
     mov a,#' '              ;6e1c  a1 20
-    mov !upd_1_buf+3,a      ;6e1e  9e 9d f1
-    mov a,#'F'              ;6e21  a1 46        ;'FM'
-    mov !upd_1_buf,a        ;6e23  9e 9a f1
+    mov !upd_1_buf+3,a      ;6e1e  9e 9d f1     '... .......' (preset)
+    mov a,#'F'              ;6e21  a1 46
+    mov !upd_1_buf,a        ;6e23  9e 9a f1     'F..........'
     mov a,#'M'              ;6e26  a1 4d
-    mov !upd_1_buf+1,a      ;6e28  9e 9b f1
+    mov !upd_1_buf+1,a      ;6e28  9e 9b f1     '.M........'
 
-lab_6e2b:
-    mov a,#'M'              ;6e2b  a1 4d        ;'MHz'
-    mov !upd_1_buf+8,a      ;6e2d  9e a2 f1
+lab_6e2b_mhz:
+;MHz
+    mov a,#'M'              ;6e2b  a1 4d
+    mov !upd_1_buf+8,a      ;6e2d  9e a2 f1     '........M..'
     mov a,#'H'              ;6e30  a1 48
-    mov !upd_1_buf+9,a      ;6e32  9e a3 f1
+    mov !upd_1_buf+9,a      ;6e32  9e a3 f1     '.........H.'
     mov a,#'z'              ;6e35  a1 7a
-    mov !upd_1_buf+10,a     ;6e37  9e a4 f1
+    mov !upd_1_buf+10,a     ;6e37  9e a4 f1     '..........z'
     mov b,#0ffh             ;6e3a  a3 ff
 
 lab_6e3c:
@@ -22934,7 +22978,7 @@ sub_6e40:
     mov a,#'B'              ;6e59  a1 42            'B' for tape side B
 
 lab_6e5b:
-    mov !upd_1_buf+10,a     ;6e5b  9e a4 f1         Write tape side to display
+    mov !upd_1_buf+10,a     ;6e5b  9e a4 f1         '..........A' or '..........B'
 
 lab_6e5e:
     clr1 mem_fe36.2         ;6e5e  2b 36
@@ -22953,7 +22997,11 @@ sub_6e6f:
     ret                     ;6e6f  af
 
 sub_6e70:
+;HL = pointer to message
+;A = ?
+;B = ?
     bt a.7,$lab_6e87        ;6e70  31 7e 14
+    ;bit 7 of B is clear
     push ax                 ;6e73  b1
     mov a,b                 ;6e74  63
     and a,#80h              ;6e75  5d 80
@@ -22969,6 +23017,7 @@ sub_6e70:
     br !sub_6feb            ;6e84  9b eb 6f
 
 lab_6e87:
+    ;bit 7 of B is set
     push ax                 ;6e87  b1
     mov a,b                 ;6e88  63
     and a,#80h              ;6e89  5d 80
@@ -22982,18 +23031,18 @@ lab_6e87:
 
 lab_6e97:
     push ax                 ;6e97  b1
-    call !sub_6ea7          ;6e98  9a a7 6e
+    call !sub_6ea7_ret      ;6e98  9a a7 6e     Returns immediately without doing anything
     pop ax                  ;6e9b  b0
     mov b,a                 ;6e9c  73
     br !sub_6feb            ;6e9d  9b eb 6f
 
 lab_6ea0:
     push ax                 ;6ea0  b1
-    call !sub_6ea7          ;6ea1  9a a7 6e
+    call !sub_6ea7_ret      ;6ea1  9a a7 6e     Returns immediately without doing anything
     pop ax                  ;6ea4  b0
     br $lab_6ea8            ;6ea5  fa 01
 
-sub_6ea7:
+sub_6ea7_ret:
     ret                     ;6ea7  af
 
 lab_6ea8:
@@ -23100,29 +23149,33 @@ lab_6f37:
     add a,c                 ;6f38  61 0a
     xch a,x                 ;6f3a  30
     addc a,b                ;6f3b  61 2b
-    callf !bin_to_bcd         ;6f3d  2c 7f        Binary word to BCD word
+    callf !bin_to_bcd       ;6f3d  2c 7f        Convert AX to BCD, store word in mem_fed4
+                            ;                       mem_fed4: BCD low byte
+                            ;                       mem_fed5: BCD high byte
     ret                     ;6f3f  af
 
 lab_6f40:
     push hl                 ;6f40  b7
-    mov a,mem_fed4          ;6f41  f0 d4
-    call !sub_6f6c          ;6f43  9a 6c 6f
+    mov a,mem_fed4          ;6f41  f0 d4        A = BCD low byte
+    call !write_digit       ;6f43  9a 6c 6f     Convert A to ASCII, write it to display buf at offset B, decr B
     call !sub_0800          ;6f46  9a 00 08
     cmp a,#02h              ;6f49  4d 02
     bz $lab_6f4f            ;6f4b  ad 02
     set1 mem_fe39.5         ;6f4d  5a 39
 
 lab_6f4f:
-    mov a,mem_fed4          ;6f4f  f0 d4
-    callf !sub_0a9e         ;6f51  2c 9e
-    call !sub_6f6c          ;6f53  9a 6c 6f
-    mov a,mem_fed5          ;6f56  f0 d5
-    call !sub_6f6c          ;6f58  9a 6c 6f
-    mov a,mem_fed5          ;6f5b  f0 d5
-    callf !sub_0a9e         ;6f5d  2c 9e
-    and a,#0fh              ;6f5f  5d 0f
+    mov a,mem_fed4          ;6f4f  f0 d4        A = BCD low byte
+    callf !ror_a_4          ;6f51  2c 9e        A = A >> 4
+    call !write_digit       ;6f53  9a 6c 6f     Convert A to ASCII, write it to display buf at offset B, decr B
+
+    mov a,mem_fed5          ;6f56  f0 d5        A = BCD high byte
+    call !write_digit       ;6f58  9a 6c 6f     Convert A to ASCII, write it to display buf at offset B, decr B
+
+    mov a,mem_fed5          ;6f5b  f0 d5        A = BCD high byte
+    callf !ror_a_4          ;6f5d  2c 9e        A = A >> 4
+    and a,#0fh              ;6f5f  5d 0f        Mask to leave only low nibble
     bz $lab_6f66            ;6f61  ad 03
-    call !sub_6f6c          ;6f63  9a 6c 6f
+    call !write_digit       ;6f63  9a 6c 6f     Convert A to ASCII, write it to display buf at offset B, decr B
 
 lab_6f66:
     pop hl                  ;6f66  b6
@@ -23132,12 +23185,13 @@ sub_6f68:
     and a,#0fh              ;6f68  5d 0f
     bz $lab_6f76            ;6f6a  ad 0a
 
-sub_6f6c:
-    and a,#0fh              ;6f6c  5d 0f
-    add a,#30h              ;6f6e  0d 30
+write_digit:
+;Convert A to ASCII, write it to display buf at offset B, decr B
+    and a,#0fh              ;6f6c  5d 0f        Mask to leave only low nibble
+    add a,#'0'              ;6f6e  0d 30        Convert it to ASCII
     push hl                 ;6f70  b7
     movw hl,#upd_1_buf      ;6f71  16 9a f1
-    mov [hl+b],a            ;6f74  bb
+    mov [hl+b],a            ;6f74  bb           Write it to display at offset B
     pop hl                  ;6f75  b6
 
 lab_6f76:
@@ -23508,7 +23562,7 @@ lab_710b:
     br !lab_7054            ;7119  9b 54 70
 
 lab_711c:
-    callf !sub_0cf4         ;711c  4c f4
+    callf !sub_0cf4         ;711c  4c f4        Probably binary to BCD
     push ax                 ;711e  b1
     push ax                 ;711f  b1
     mov b,#83h              ;7120  a3 83
@@ -23523,9 +23577,9 @@ lab_711c:
     pop bc                  ;7134  b2
     pop ax                  ;7135  b0
     push ax                 ;7136  b1
-    call !sub_6f6c          ;7137  9a 6c 6f
+    call !write_digit       ;7137  9a 6c 6f     Convert A to ASCII, write it to display buf at offset B, decr B
     pop ax                  ;713a  b0
-    callf !sub_0a9e         ;713b  2c 9e
+    callf !ror_a_4          ;713b  2c 9e        A = A >> 4
     call !sub_6f68          ;713d  9a 68 6f
     pop ax                  ;7140  b0
     ret                     ;7141  af
@@ -23611,7 +23665,7 @@ lab_71b0:
     movw hl,#upd_1_buf      ;71ba  16 9a f1
     mov b,#03h              ;71bd  a3 03
     mov a,!mem_f1b2         ;71bf  8e b2 f1
-    add a,#30h              ;71c2  0d 30
+    add a,#'0'              ;71c2  0d 30        Convert it to ASCII
     mov [hl+b],a            ;71c4  bb
     ret                     ;71c5  af
 
@@ -23656,18 +23710,18 @@ lab_71f2:
     call !sub_0cf4          ;7207  9a f4 0c
     mov a,x                 ;720a  60
     and a,#0fh              ;720b  5d 0f
-    add a,#30h              ;720d  0d 30
+    add a,#'0'              ;720d  0d 30        Convert it to ASCII
     mov b,#01h              ;720f  a3 01
-    mov [hl+b],a            ;7211  bb
+    mov [hl+b],a            ;7211  bb           '.1.........'
     mov a,x                 ;7212  60
     rol a,1                 ;7213  26
     rol a,1                 ;7214  26
     rol a,1                 ;7215  26
     rol a,1                 ;7216  26
     and a,#0fh              ;7217  5d 0f
-    add a,#30h              ;7219  0d 30
+    add a,#'0'              ;7219  0d 30        Convert it to ASCII
     mov b,#00h              ;721b  a3 00
-    mov [hl+b],a            ;721d  bb
+    mov [hl+b],a            ;721d  bb           '0..........'
     mov a,#0ffh             ;721e  a1 ff
     mov b,#0ffh             ;7220  a3 ff
     br $lab_7290            ;7222  fa 6c
@@ -23683,9 +23737,9 @@ lab_7224:
     mov a,#0ffh             ;7235  a1 ff
     call !sub_6e70          ;7237  9a 70 6e
     mov a,!mem_f20b         ;723a  8e 0b f2     SAFE code attempt counter
-    add a,#30h              ;723d  0d 30
+    add a,#'0'              ;723d  0d 30        Convert it to ASCII
     movw hl,#upd_1_buf      ;723f  16 9a f1
-    mov [hl],a              ;7242  97
+    mov [hl],a              ;7242  97           '2..........'
     mov a,#0ffh             ;7243  a1 ff
     mov b,#0ffh             ;7245  a3 ff
     br $lab_7290            ;7247  fa 47
@@ -23697,9 +23751,9 @@ lab_7249:
     mov a,#0ffh             ;7251  a1 ff
     call !sub_6e70          ;7253  9a 70 6e
     mov a,!mem_f20b         ;7256  8e 0b f2     SAFE code attempt counter
-    add a,#30h              ;7259  0d 30
+    add a,#'0'              ;7259  0d 30        Convert it to ASCII
     movw hl,#upd_1_buf      ;725b  16 9a f1
-    mov [hl],a              ;725e  97
+    mov [hl],a              ;725e  97           '2..........'
     mov a,#0ffh             ;725f  a1 ff
     mov b,#0ffh             ;7261  a3 ff
     bf mem_fe3d.1,$lab_7290 ;7263  31 13 3d 29
@@ -23730,6 +23784,7 @@ lab_7290:
     ret                     ;7293  af
 
 lab_7294:
+;Write SAFE code attempt count to the display buffer
     mov a,#0ah              ;7294  a1 0a
     mov b,#0ffh             ;7296  a3 ff
     movw hl,#blank          ;7298  16 11 65
@@ -23738,43 +23793,44 @@ lab_7294:
     movw hl,#upd_1_buf      ;72a0  16 9a f1
     mov a,!mem_f20b         ;72a3  8e 0b f2     SAFE code attempt counter
     cmp a,#00h              ;72a6  4d 00
-    bz $lab_72ad            ;72a8  ad 03
-    add a,#30h              ;72aa  0d 30
-    mov [hl],a              ;72ac  97
+    bz $lab_72ad            ;72a8  ad 03        Skip write count if it is zero
+    add a,#'0'              ;72aa  0d 30        Convert count to ASCII
+    mov [hl],a              ;72ac  97           '2..........'
 
 lab_72ad:
+;Write entered SAFE code to the display buffer
     mov a,!mem_fb76         ;72ad  8e 76 fb     Entered SAFE code (BCD low byte)
     mov x,a                 ;72b0  70
     mov a,!mem_fb75         ;72b1  8e 75 fb     Entered SAFE code (BCD high byte)
     push ax                 ;72b4  b1
     and a,#0fh              ;72b5  5d 0f
-    add a,#30h              ;72b7  0d 30
+    add a,#'0'              ;72b7  0d 30        Convert it to ASCII
     mov b,#05h              ;72b9  a3 05
-    mov [hl+b],a            ;72bb  bb
+    mov [hl+b],a            ;72bb  bb           '.....5.....'
     pop ax                  ;72bc  b0
     rol a,1                 ;72bd  26
     rol a,1                 ;72be  26
     rol a,1                 ;72bf  26
     rol a,1                 ;72c0  26
     and a,#0fh              ;72c1  5d 0f
-    add a,#30h              ;72c3  0d 30
+    add a,#'0'              ;72c3  0d 30        Convert it to ASCII
     mov b,#04h              ;72c5  a3 04
-    mov [hl+b],a            ;72c7  bb
+    mov [hl+b],a            ;72c7  bb           '....4......'
     xch a,x                 ;72c8  30
     push ax                 ;72c9  b1
     and a,#0fh              ;72ca  5d 0f
-    add a,#30h              ;72cc  0d 30
+    add a,#'0'              ;72cc  0d 30        Convert it to ASCII
     mov b,#07h              ;72ce  a3 07
-    mov [hl+b],a            ;72d0  bb
+    mov [hl+b],a            ;72d0  bb           '.......7...'
     pop ax                  ;72d1  b0
     rol a,1                 ;72d2  26
     rol a,1                 ;72d3  26
     rol a,1                 ;72d4  26
     rol a,1                 ;72d5  26
     and a,#0fh              ;72d6  5d 0f
-    add a,#30h              ;72d8  0d 30
+    add a,#'0'              ;72d8  0d 30        Convert it to ASCII
     mov b,#06h              ;72da  a3 06
-    mov [hl+b],a            ;72dc  bb
+    mov [hl+b],a            ;72dc  bb           '......6....'
     ret                     ;72dd  af
 
 lab_72de:
@@ -23786,17 +23842,17 @@ lab_72de:
 
 lab_72e9:
     mov a,#0ah              ;72e9  a1 0a
-    movw hl,#vers_a99cznn   ;72eb  16 d5 64
+    movw hl,#vers_a99cznn   ;72eb  16 d5 64     ;HL = pointer to 'VersA99CZnn'
     mov b,#0ffh             ;72ee  a3 ff
     call !sub_6e70          ;72f0  9a 70 6e
-    mov a,#23h              ;72f3  a1 23
-    call !sub_0be4          ;72f5  9a e4 0b
+    mov a,#23h              ;72f3  a1 23        ;23 = SOFTWARE 23
+    call !sub_0be4          ;72f5  9a e4 0b     ;Convert BCD number in A to ASCII
     movw hl,#upd_1_buf      ;72f8  16 9a f1
-    mov b,#09h              ;72fb  a3 09
-    mov [hl+b],a            ;72fd  bb
+    mov b,#9                ;72fb  a3 09
+    mov [hl+b],a            ;72fd  bb           ;'.........2.'
     mov a,x                 ;72fe  60
-    mov b,#0ah              ;72ff  a3 0a
-    mov [hl+b],a            ;7301  bb
+    mov b,#10               ;72ff  a3 0a
+    mov [hl+b],a            ;7301  bb           ;'..........3'
     ret                     ;7302  af
 
 lab_7303:
@@ -23804,27 +23860,33 @@ lab_7303:
     mov b,#0ffh             ;7305  a3 ff
     movw hl,#blank          ;7307  16 11 65
     call !sub_6e70          ;730a  9a 70 6e
+
     mov a,#83h              ;730d  a1 83
     mov b,#0ffh             ;730f  a3 ff
     call !sub_6e70          ;7311  9a 70 6e
+
     clr1 mem_fe39.5         ;7314  5b 39
-    mov b,#04h              ;7316  a3 04
+
+    mov b,#4                ;7316  a3 04
     movw hl,#upd_1_buf      ;7318  16 9a f1
     mov a,!mem_fb69         ;731b  8e 69 fb
-    call !sub_6809          ;731e  9a 09 68
-    mov [hl+b],a            ;7321  bb
-    mov b,#06h              ;7322  a3 06
+    call !to_hex_digit      ;731e  9a 09 68     Convert lower nibble of A to hex digit in ASCII
+    mov [hl+b],a            ;7321  bb           '....A......'
+
+    mov b,#6                ;7322  a3 06
     mov a,!mem_fb6a         ;7324  8e 6a fb
-    call !sub_6809          ;7327  9a 09 68
-    mov [hl+b],a            ;732a  bb
-    mov b,#08h              ;732b  a3 08
+    call !to_hex_digit      ;7327  9a 09 68     Convert lower nibble of A to hex digit in ASCII
+    mov [hl+b],a            ;732a  bb           '......A....'
+
+    mov b,#8                ;732b  a3 08
     mov a,!mem_fb6b         ;732d  8e 6b fb
-    call !sub_6809          ;7330  9a 09 68
-    mov [hl+b],a            ;7333  bb
-    mov b,#0ah              ;7334  a3 0a
+    call !to_hex_digit      ;7330  9a 09 68     Convert lower nibble of A to hex digit in ASCII
+    mov [hl+b],a            ;7333  bb           '........A..'
+
+    mov b,#10               ;7334  a3 0a
     mov a,!mem_fb6c         ;7336  8e 6c fb
-    call !sub_6809          ;7339  9a 09 68
-    mov [hl+b],a            ;733c  bb
+    call !to_hex_digit      ;7339  9a 09 68     Convert lower nibble of A to hex digit in ASCII
+    mov [hl+b],a            ;733c  bb           '..........A'
     ret                     ;733d  af
 
 lab_733e:
@@ -23844,16 +23906,19 @@ lab_7351:
     movw hl,#set_onvol      ;7353  16 99 64
     mov b,#0ffh             ;7356  a3 ff
     call !sub_6e70          ;7358  9a 70 6e
-    mov a,!mem_f254         ;735b  8e 54 f2
+    mov a,!mem_f254         ;735b  8e 54 f2     ONVOL related
     clr1 a.0                ;735e  61 8b
     ror a,1                 ;7360  24
-    call !sub_0cf4          ;7361  9a f4 0c
+    call !sub_0cf4          ;7361  9a f4 0c     Probably binary to BCD
+
     mov a,x                 ;7364  60
     and a,#0fh              ;7365  5d 0f
-    add a,#30h              ;7367  0d 30
-    mov b,#0ah              ;7369  a3 0a
+    add a,#'0'              ;7367  0d 30        Convert it to ASCII
+
+    mov b,#10               ;7369  a3 0a
     movw hl,#upd_1_buf      ;736b  16 9a f1
-    mov [hl+b],a            ;736e  bb
+    mov [hl+b],a            ;736e  bb           '..........1' (onvol ones place)
+
     mov a,x                 ;736f  60
     and a,#0f0h             ;7370  5d f0
     rol a,1                 ;7372  26
@@ -23862,16 +23927,16 @@ lab_7351:
     rol a,1                 ;7375  26
     cmp a,#00h              ;7376  4d 00
     bnz $lab_737e           ;7378  bd 04
-    mov a,#20h              ;737a  a1 20
+    mov a,#' '              ;737a  a1 20
     br $lab_7380            ;737c  fa 02
 
 lab_737e:
-    add a,#30h              ;737e  0d 30
+    add a,#'0'              ;737e  0d 30        Convert onvol digit to ASCII
 
 lab_7380:
-    mov b,#09h              ;7380  a3 09
+    mov b,#9                ;7380  a3 09
     movw hl,#upd_1_buf      ;7382  16 9a f1
-    mov [hl+b],a            ;7385  bb
+    mov [hl+b],a            ;7385  bb           '.........1.' (onvol tens place)
     ret                     ;7386  af
 
 lab_7387:
@@ -23881,14 +23946,14 @@ lab_7387:
     call !sub_6e70          ;738e  9a 70 6e
     mov a,!mem_fb6f         ;7391  8e 6f fb
     and a,#01h              ;7394  5d 01
-    mov a,#31h              ;7396  a1 31
+    mov a,#'1'              ;7396  a1 31        A = '1' for 'CD MIX 1'
     bz $lab_739c            ;7398  ad 02
-    mov a,#36h              ;739a  a1 36
+    mov a,#'6'              ;739a  a1 36        A = '6' for 'CD MIX 6'
 
 lab_739c:
-    mov b,#0ah              ;739c  a3 0a
+    mov b,#10               ;739c  a3 0a
     movw hl,#upd_1_buf      ;739e  16 9a f1
-    mov [hl+b],a            ;73a1  bb
+    mov [hl+b],a            ;73a1  bb           '..........6'
     ret                     ;73a2  af
 
 lab_73a3:
@@ -23898,14 +23963,14 @@ lab_73a3:
     call !sub_6e70          ;73aa  9a 70 6e
     mov a,!mem_fb6f         ;73ad  8e 6f fb
     and a,#02h              ;73b0  5d 02
-    mov a,#59h              ;73b2  a1 59
+    mov a,#'Y'              ;73b2  a1 59        A = 'Y' for 'TAPE SKIP Y'
     bnz $lab_73b8           ;73b4  bd 02
-    mov a,#4eh              ;73b6  a1 4e
+    mov a,#'N'              ;73b6  a1 4e        A = 'N' for 'TAPE SKIP N'
 
 lab_73b8:
-    mov b,#0ah              ;73b8  a3 0a
+    mov b,#010              ;73b8  a3 0a
     movw hl,#upd_1_buf      ;73ba  16 9a f1
-    mov [hl+b],a            ;73bd  bb
+    mov [hl+b],a            ;73bd  bb           '..........Y'
     ret                     ;73be  af
 
 lab_73bf:
@@ -23974,8 +24039,8 @@ lab_7424:
     bz $lab_7433            ;7429  ad 08
     cmp a,#07h              ;742b  4d 07
     bnc $lab_7433           ;742d  9d 04
-    inc a                   ;742f  41
-    mov !upd_1_buf+3,a      ;7430  9e 9d f1
+    inc a                   ;742f  41           Convert it to character code for preset (preset 1 = code 2)
+    mov !upd_1_buf+3,a      ;7430  9e 9d f1     '...1.......' (preset)
 
 lab_7433:
     mov a,!mem_f1a6         ;7433  8e a6 f1
@@ -24006,12 +24071,12 @@ lab_744c:
     bz $lab_7474            ;7463  ad 0f
     cmp a,#06h              ;7465  4d 06
     bz $lab_7474            ;7467  ad 0b
-    mov a,#41h              ;7469  a1 41
+    mov a,#'A'              ;7469  a1 41        A = 'A' for 'TAPE PLAY A'
     bf mem_fe4d.6,$lab_7471 ;746b  31 63 4d 02
-    mov a,#42h              ;746f  a1 42
+    mov a,#'B'              ;746f  a1 42        B = 'B' for 'TAPE PLAY B'
 
 lab_7471:
-    mov !upd_1_buf+10,a     ;7471  9e a4 f1
+    mov !upd_1_buf+10,a     ;7471  9e a4 f1     '..........A' or '..........B'
 
 lab_7474:
     clr1 mem_fe36.2         ;7474  2b 36
@@ -24044,9 +24109,9 @@ lab_749d:
     movw hl,#cd_tr          ;74a1  16 9c 66
     call !sub_6e70          ;74a4  9a 70 6e
     movw hl,#upd_1_buf      ;74a7  16 9a f1
-    mov a,!mem_fc75         ;74aa  8e 75 fc
-    add a,#30h              ;74ad  0d 30
-    mov [hl+03h],a          ;74af  be 03
+    mov a,!mem_fc75         ;74aa  8e 75 fc     A = CD track number
+    add a,#'0'              ;74ad  0d 30        Convert it to ASCII
+    mov [hl+03h],a          ;74af  be 03        '...1.......'
     clr1 mem_fe3a.1         ;74b1  1b 3a
     bt mem_fe6e.0,$lab_74bc ;74b3  8c 6e 06
     mov1 cy,mem_fe6e.1      ;74b6  71 14 6e
@@ -24086,37 +24151,37 @@ lab_74e3:
     pop ax                  ;74f3  b0
     mov x,a                 ;74f4  70
     cmp a,#09h              ;74f5  4d 09
-    bc $lab_74ff            ;74f7  8d 06
+    bc $lab_74ff_bass_minus ;74f7  8d 06
     cmp a,#0ch              ;74f9  4d 0c
-    bnc $lab_7511           ;74fb  9d 14
-    br $lab_7522            ;74fd  fa 23
+    bnc $lab_7511_bass_plus ;74fb  9d 14
+    br $lab_7522_bass_zero  ;74fd  fa 23
 
-lab_74ff:
+lab_74ff_bass_minus:
     movw hl,#upd_1_buf+6    ;74ff  16 a0 f1
-    mov a,#2dh              ;7502  a1 2d
-    mov [hl],a              ;7504  97
+    mov a,#'-'              ;7502  a1 2d
+    mov [hl],a              ;7504  97           '......-....'
     movw hl,#upd_1_buf+8    ;7505  16 a2 f1
     mov a,#09h              ;7508  a1 09
     sub a,x                 ;750a  61 18
-    add a,#30h              ;750c  0d 30
-    mov [hl],a              ;750e  97
+    add a,#'0'              ;750c  0d 30        Convert it to ASCII
+    mov [hl],a              ;750e  97           '........9..'
     br $lab_7528            ;750f  fa 17
 
-lab_7511:
+lab_7511_bass_plus:
     movw hl,#upd_1_buf+6    ;7511  16 a0 f1
-    mov a,#2bh              ;7514  a1 2b
-    mov [hl],a              ;7516  97
+    mov a,#'+'              ;7514  a1 2b
+    mov [hl],a              ;7516  97           '......+....'
     movw hl,#upd_1_buf+8    ;7517  16 a2 f1
     mov a,x                 ;751a  60
     sub a,#0bh              ;751b  1d 0b
-    add a,#30h              ;751d  0d 30
-    mov [hl],a              ;751f  97
+    add a,#'0'              ;751d  0d 30        Convert it to ASCII
+    mov [hl],a              ;751f  97           '........9..'
     br $lab_7528            ;7520  fa 06
 
-lab_7522:
+lab_7522_bass_zero:
     movw hl,#upd_1_buf+8    ;7522  16 a2 f1
-    mov a,#30h              ;7525  a1 30
-    mov [hl],a              ;7527  97
+    mov a,#'0'              ;7525  a1 30
+    mov [hl],a              ;7527  97           '........0..'
 
 lab_7528:
     ret                     ;7528  af
@@ -24136,37 +24201,37 @@ lab_752f:
     pop ax                  ;753f  b0
     mov x,a                 ;7540  70
     cmp a,#09h              ;7541  4d 09
-    bc $lab_754b            ;7543  8d 06
+    bc $lab_754b_mid_minus  ;7543  8d 06
     cmp a,#0ch              ;7545  4d 0c
-    bnc $lab_755d           ;7547  9d 14
-    br $lab_756e            ;7549  fa 23
+    bnc $lab_755d_mid_plus  ;7547  9d 14
+    br $lab_756e_mid_zero   ;7549  fa 23
 
-lab_754b:
+lab_754b_mid_minus:
     movw hl,#upd_1_buf+6    ;754b  16 a0 f1
-    mov a,#2dh              ;754e  a1 2d
-    mov [hl],a              ;7550  97
+    mov a,#'-'              ;754e  a1 2d
+    mov [hl],a              ;7550  97           '......-....'
     movw hl,#upd_1_buf+8    ;7551  16 a2 f1
     mov a,#09h              ;7554  a1 09
     sub a,x                 ;7556  61 18
-    add a,#30h              ;7558  0d 30
-    mov [hl],a              ;755a  97
+    add a,#'0'              ;7558  0d 30        Convert it to ASCII
+    mov [hl],a              ;755a  97           '........9..'
     br $lab_7574            ;755b  fa 17
 
-lab_755d:
+lab_755d_mid_plus:
     movw hl,#upd_1_buf+6    ;755d  16 a0 f1
-    mov a,#2bh              ;7560  a1 2b
-    mov [hl],a              ;7562  97
+    mov a,#'+'              ;7560  a1 2b
+    mov [hl],a              ;7562  97          '......+.....'
     movw hl,#upd_1_buf+8    ;7563  16 a2 f1
     mov a,x                 ;7566  60
     sub a,#0bh              ;7567  1d 0b
-    add a,#30h              ;7569  0d 30
-    mov [hl],a              ;756b  97
+    add a,#'0'              ;7569  0d 30        Convert it to ASCII
+    mov [hl],a              ;756b  97           '........9..'
     br $lab_7574            ;756c  fa 06
 
-lab_756e:
+lab_756e_mid_zero:
     movw hl,#upd_1_buf+8    ;756e  16 a2 f1
-    mov a,#30h              ;7571  a1 30
-    mov [hl],a              ;7573  97
+    mov a,#'0'              ;7571  a1 30
+    mov [hl],a              ;7573  97           '........0..'
 
 lab_7574:
     ret                     ;7574  af
@@ -24186,36 +24251,36 @@ lab_7579:
     pop ax                  ;7589  b0
     mov x,a                 ;758a  70
     cmp a,#09h              ;758b  4d 09
-    bc $lab_7595            ;758d  8d 06
+    bc $lab_7595_treb_minus ;758d  8d 06
     cmp a,#0ch              ;758f  4d 0c
-    bnc $lab_75a7           ;7591  9d 14
-    br $lab_75b8            ;7593  fa 23
+    bnc $lab_75a7_treb_plus ;7591  9d 14
+    br $lab_75b8_treb_zero            ;7593  fa 23
 
-lab_7595:
+lab_7595_treb_minus:
     movw hl,#upd_1_buf+6    ;7595  16 a0 f1
-    mov a,#2dh              ;7598  a1 2d
-    mov [hl],a              ;759a  97
+    mov a,#'-'              ;7598  a1 2d
+    mov [hl],a              ;759a  97           '......-....'
     movw hl,#upd_1_buf+8    ;759b  16 a2 f1
     mov a,#09h              ;759e  a1 09
     sub a,x                 ;75a0  61 18
-    add a,#30h              ;75a2  0d 30
-    mov [hl],a              ;75a4  97
+    add a,#'0'              ;75a2  0d 30        Convert it to ASCII
+    mov [hl],a              ;75a4  97           '........9..'
     br $lab_75be            ;75a5  fa 17
 
-lab_75a7:
+lab_75a7_treb_plus:
     movw hl,#upd_1_buf+6    ;75a7  16 a0 f1
-    mov a,#2bh              ;75aa  a1 2b
-    mov [hl],a              ;75ac  97
+    mov a,#'+'              ;75aa  a1 2b
+    mov [hl],a              ;75ac  97           '......+....'
     movw hl,#upd_1_buf+8    ;75ad  16 a2 f1
     mov a,x                 ;75b0  60
     sub a,#0bh              ;75b1  1d 0b
-    add a,#30h              ;75b3  0d 30
+    add a,#'0'              ;75b3  0d 30        Convert it to ASCII
     mov [hl],a              ;75b5  97
     br $lab_75be            ;75b6  fa 06
 
-lab_75b8:
+lab_75b8_treb_zero:
     movw hl,#upd_1_buf+8    ;75b8  16 a2 f1
-    mov a,#30h              ;75bb  a1 30
+    mov a,#'0'              ;75bb  a1 30
     mov [hl],a              ;75bd  97
 
 lab_75be:
@@ -24229,12 +24294,12 @@ lab_75c5:
     call !sub_aac7          ;75c5  9a c7 aa
     push ax                 ;75c8  b1
     cmp a,#09h              ;75c9  4d 09
-    bc $lab_75d3            ;75cb  8d 06
+    bc $lab_75d3_bal_left   ;75cb  8d 06
     cmp a,#0ch              ;75cd  4d 0c
-    bnc $lab_75eb           ;75cf  9d 1a
-    br $lab_7600            ;75d1  fa 2d
+    bnc $lab_75d3_bal_right ;75cf  9d 1a
+    br $lab_75d3_bal_center ;75d1  fa 2d
 
-lab_75d3:
+lab_75d3_bal_left:
     mov b,#0ffh             ;75d3  a3 ff
     mov a,#0ah              ;75d5  a1 0a
     movw hl,#bal_left       ;75d7  16 35 64
@@ -24244,11 +24309,11 @@ lab_75d3:
     xch a,x                 ;75e1  30
     mov a,#09h              ;75e2  a1 09
     sub a,x                 ;75e4  61 18
-    add a,#30h              ;75e6  0d 30
+    add a,#'0'              ;75e6  0d 30        Convert it to ASCII
     mov [hl],a              ;75e8  97
     br $lab_760b            ;75e9  fa 20
 
-lab_75eb:
+lab_75d3_bal_right:
     mov b,#0ffh             ;75eb  a3 ff
     mov a,#0ah              ;75ed  a1 0a
     movw hl,#bal_right      ;75ef  16 4d 64
@@ -24256,11 +24321,11 @@ lab_75eb:
     movw hl,#upd_1_buf+10   ;75f5  16 a4 f1
     pop ax                  ;75f8  b0
     sub a,#0bh              ;75f9  1d 0b
-    add a,#30h              ;75fb  0d 30
+    add a,#'0'              ;75fb  0d 30        Convert it to ASCII
     mov [hl],a              ;75fd  97
     br $lab_760b            ;75fe  fa 0b
 
-lab_7600:
+lab_75d3_bal_center:
     mov b,#0ffh             ;7600  a3 ff
     mov a,#0ah              ;7602  a1 0a
     movw hl,#bal_center     ;7604  16 41 64
@@ -24278,12 +24343,12 @@ lab_7612:
     call !sub_aaae          ;7612  9a ae aa
     push ax                 ;7615  b1
     cmp a,#09h              ;7616  4d 09
-    bc $lab_7620            ;7618  8d 06
+    bc $lab_75d3_faderear   ;7618  8d 06
     cmp a,#0ch              ;761a  4d 0c
-    bnc $lab_7638           ;761c  9d 1a
-    br $lab_764d            ;761e  fa 2d
+    bnc $lab_75d3_fadefront ;761c  9d 1a
+    br $lab_75d3_fadecenter ;761e  fa 2d
 
-lab_7620:
+lab_75d3_faderear:
     mov b,#0ffh             ;7620  a3 ff
     mov a,#0ah              ;7622  a1 0a
     movw hl,#faderear       ;7624  16 24 64
@@ -24293,11 +24358,11 @@ lab_7620:
     xch a,x                 ;762e  30
     mov a,#09h              ;762f  a1 09
     sub a,x                 ;7631  61 18
-    add a,#30h              ;7633  0d 30
+    add a,#'0'              ;7633  0d 30        Convert it to ASCII
     mov [hl],a              ;7635  97
     br $lab_7658            ;7636  fa 20
 
-lab_7638:
+lab_75d3_fadefront:
     mov b,#0ffh             ;7638  a3 ff
     mov a,#0ah              ;763a  a1 0a
     movw hl,#fadefront      ;763c  16 0c 64
@@ -24305,11 +24370,11 @@ lab_7638:
     movw hl,#upd_1_buf+10   ;7642  16 a4 f1
     pop ax                  ;7645  b0
     sub a,#0bh              ;7646  1d 0b
-    add a,#30h              ;7648  0d 30
+    add a,#'0'              ;7648  0d 30        Convert it to ASCII
     mov [hl],a              ;764a  97
     br $lab_7658            ;764b  fa 0b
 
-lab_764d:
+lab_75d3_fadecenter:
     mov b,#0ffh             ;764d  a3 ff
     mov a,#0ah              ;764f  a1 0a
     movw hl,#fadecenter     ;7651  16 18 64
@@ -30400,7 +30465,7 @@ sub_8f87:
     br !lab_8150            ;8f8c  9b 50 81
 
 sub_8f8f:
-    movw de,#0fc87h         ;8f8f  14 87 fc
+    movw de,#mem_fc87       ;8f8f  14 87 fc
     movw hl,#mem_fe4c       ;8f92  16 4c fe
     mov b,#03h              ;8f95  a3 03
     call !sub_0bef          ;8f97  9a ef 0b
@@ -36241,7 +36306,7 @@ lab_aa92:
     db 0afh                 ;aa9b  af          DATA 0xaf
 
 sub_aa9c:
-    movw de,#0fc9dh         ;aa9c  14 9d fc
+    movw de,#mem_fc9d       ;aa9c  14 9d fc
     movw hl,#mem_fe58       ;aa9f  16 58 fe
     mov b,#01h              ;aaa2  a3 01
     callf !sub_0bef         ;aaa4  3c ef
@@ -36370,7 +36435,7 @@ sub_ab3c:
     set1 mem_fe75.3         ;ab4c  3a 75
     mov a,!mem_f268         ;ab4e  8e 68 f2
     mov b,a                 ;ab51  73
-    mov a,!mem_f254         ;ab52  8e 54 f2
+    mov a,!mem_f254         ;ab52  8e 54 f2     ONVOL related
     cmp a,b                 ;ab55  61 4b
     bc $lab_ab5a            ;ab57  8d 01
     mov a,b                 ;ab59  63
@@ -48234,7 +48299,7 @@ lab_d8b3:
     bc $lab_d8f0            ;d8d8  8d 16
     set1 mem_fe47.6         ;d8da  6a 47
     movw hl,#0fc48h         ;d8dc  16 48 fc
-    mov a,!mem_fc75         ;d8df  8e 75 fc
+    mov a,!mem_fc75         ;d8df  8e 75 fc     A = CD track number
     mov b,a                 ;d8e2  73
     mov a,[hl+b]            ;d8e3  ab
     clr1 a.6                ;d8e4  61 eb
@@ -48255,7 +48320,7 @@ lab_d8f0:
     set1 mem_fe46.3         ;d8fb  3a 46
 
 sub_d8fd:
-    movw de,#0fc6dh         ;d8fd  14 6d fc
+    movw de,#mem_fc6d       ;d8fd  14 6d fc
     movw hl,#mem_fe44       ;d900  16 44 fe
     mov b,#06h              ;d903  a3 06
     callf !sub_0bef         ;d905  3c ef
