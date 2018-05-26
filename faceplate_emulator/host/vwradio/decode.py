@@ -166,7 +166,7 @@ class Upd16432b(object):
             self._print("    LCD mode: 0=LCD forced off (SEGn, COMn=Vlc5)")
         elif lcd_mode == 1:
             self._print("    LCD mode: 1=LCD forced off (SEGn, "
-                      "COMn=unselected waveform")
+                      "COMn=unselected waveform)")
         elif lcd_mode == 2:
             self._print("    LCD mode: 2=Normal operation (0b00)")
         else: # 3
