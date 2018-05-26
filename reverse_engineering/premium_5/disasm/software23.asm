@@ -68,7 +68,7 @@
     mem_f197 equ 0f197h
     mem_f198 equ 0f198h
     mem_f199 equ 0f199h
-    upd_1_buf equ 0f19ah    ;uPD16432B display buffer #1 (11 bytes)
+    upd_disp equ 0f19ah     ;uPD16432B display buffer (11 bytes)
     mem_f1a5 equ 0f1a5h
     mem_f1a6 equ 0f1a6h
     mem_f1a7 equ 0f1a7h
@@ -223,8 +223,8 @@
     mem_fbad equ 0fbadh
     mem_fbaf equ 0fbafh
     mem_fbb1 equ 0fbb1h
-    upd_2_buf equ 0fbb2h    ;uPD16432B display buffer #2 (11 bytes)
-    mem_fbbd equ 0fbbdh
+    upd_disp_old equ 0fbb2h   ;uPD16432B last display buffer sent (11 bytes)
+    upd_pict_old equ 0fbbdh   ;uPD16432B last pictograph buffer sent (8 bytes)
     mem_fbc5 equ 0fbc5h
     mem_fbc6 equ 0fbc6h
     mem_fbc7 equ 0fbc7h
@@ -326,11 +326,7 @@
     mem_fe31 equ 0fe31h
     mem_fe32 equ 0fe32h
     mem_fe34 equ 0fe34h
-    mem_fe35 equ 0fe35h
-    mem_fe36 equ 0fe36h
-    mem_fe37 equ 0fe37h
-    mem_fe39 equ 0fe39h
-    mem_fe3a equ 0fe3ah
+    upd_pict equ 0fe35h     ;uPD16432B pictograph buffer (8 bytes)
     mem_fe3d equ 0fe3dh
     mem_fe3e equ 0fe3eh     ;Value to write to uPD16432B LED output latch
     mem_fe3f equ 0fe3fh
@@ -376,8 +372,8 @@
     mem_fe6b equ 0fe6bh
     mem_fe6c equ 0fe6ch
     mem_fe6d equ 0fe6dh
-    mem_fe6e equ 0fe6eh
-    mem_fe6f equ 0fe6fh
+    mem_fe6e equ 0fe6eh     ;Bit 1: off=MIX off, on=MIX on
+    mem_fe6f equ 0fe6fh     ;Bit 4: off=Dolby off, on=Dolby on
     mem_fe70 equ 0fe70h
     mem_fe71 equ 0fe71h     ;Bit 4: off=normal tape, on=metal tape
     mem_fe72 equ 0fe72h
@@ -3865,7 +3861,7 @@ lab_0e39:
     call !sub_7697          ;0efd  9a 97 76
     call !sub_76c9          ;0f00  9a c9 76
     mov mem_fe3e,#0fh       ;0f03  11 3e 0f     Value to write to uPD16432B LED output latch
-    clr1 mem_fe6f.4         ;0f06  4b 6f
+    clr1 mem_fe6f.4         ;0f06  4b 6f        Dolby = off
     clr1 mem_fe6d.3         ;0f08  3b 6d
 
     mov b,#03h              ;0f0a  a3 03        B = 3 bytes to fill
@@ -10150,13 +10146,13 @@ sub_2e90:
 
 lab_2e9a:
     mov a,#02h              ;2e9a  a1 02        A = 2 bytes to copy
-    movw hl,#upd_1_buf      ;2e9c  16 9a f1     HL = source address
+    movw hl,#upd_disp       ;2e9c  16 9a f1     HL = source address
     movw de,#fis_tx_buf+3   ;2e9f  14 55 f0     DE = destination address
     callf !sub_0c9e         ;2ea2  4c 9e        Copy A bytes from [HL] to [DE]
     cmp mem_fe30,#01h       ;2ea4  c8 30 01
     bz $lab_2eb5            ;2ea7  ad 0c
     mov a,#02h              ;2ea9  a1 02        A = 2 bytes to copy
-    movw hl,#upd_1_buf+2    ;2eab  16 9c f1     HL = source address
+    movw hl,#upd_disp+2     ;2eab  16 9c f1     HL = source address
     movw de,#fis_tx_buf+5   ;2eae  14 57 f0     DE = destination address
     callf !sub_0c9e         ;2eb1  4c 9e        Copy A bytes from [HL] to [DE]
     br $lab_2edc            ;2eb3  fa 27
@@ -10164,7 +10160,7 @@ lab_2e9a:
 lab_2eb5:
     call !sub_0800          ;2eb5  9a 00 08
     cmp a,#02h              ;2eb8  4d 02
-    mov a,!upd_1_buf+2      ;2eba  8e 9c f1
+    mov a,!upd_disp+2       ;2eba  8e 9c f1
     bz $lab_2ec5            ;2ebd  ad 06
     cmp a,#20h              ;2ebf  4d 20
     bnc $lab_2ec5           ;2ec1  9d 02
@@ -10172,7 +10168,7 @@ lab_2eb5:
 
 lab_2ec5:
     mov !fis_tx_buf+5,a     ;2ec5  9e 57 f0
-    mov a,!upd_1_buf+3      ;2ec8  8e 9d f1     A = preset character
+    mov a,!upd_disp+3       ;2ec8  8e 9d f1     A = preset character
     movw hl,#fis_tx_buf+6   ;2ecb  16 58 f0
     bf mem_fe5c.2,$lab_2edb ;2ece  31 23 5c 09
     cmp a,#' '              ;2ed2  4d 20
@@ -10184,14 +10180,14 @@ lab_2edb:
     mov [hl],a              ;2edb  97
 
 lab_2edc:
-    mov a,#03h              ;2edc  a1 03        A = 3 bytes to copy
-    movw hl,#upd_1_buf+4    ;2ede  16 9e f1     HL = source address
-    movw de,#fis_tx_buf+11  ;2ee1  14 5d f0     DE = destination address
-    callf !sub_0c9e         ;2ee4  4c 9e        Copy A bytes from [HL] to [DE]
-    bf mem_fe39.5,$lab_2eee ;2ee6  31 53 39 04
-    mov a,#'.'              ;2eea  a1 2e
-    mov [de],a              ;2eec  95
-    incw de                 ;2eed  84
+    mov a,#03h                  ;2edc  a1 03        A = 3 bytes to copy
+    movw hl,#upd_disp+4         ;2ede  16 9e f1     HL = source address
+    movw de,#fis_tx_buf+11      ;2ee1  14 5d f0     DE = destination address
+    callf !sub_0c9e             ;2ee4  4c 9e        Copy A bytes from [HL] to [DE]
+    bf upd_pict+4.5,$lab_2eee   ;2ee6  31 53 39 04  Branch if period pictograph is off
+    mov a,#'.'                  ;2eea  a1 2e
+    mov [de],a                  ;2eec  95
+    incw de                     ;2eed  84
 
 lab_2eee:
     mov a,#04h              ;2eee  a1 04        A = 4 bytes to copy
@@ -15954,15 +15950,15 @@ lab_4b29:
     mov a,!mem_fb29         ;4b2c  8e 29 fb
     cmp a,#00h              ;4b2f  4d 00
     bz $lab_4b3f            ;4b31  ad 0c
-    movw de,#mem_fbbd       ;4b33  14 bd fb     DE = pointer to first buffer
-    movw hl,#mem_fe35       ;4b36  16 35 fe     HL = pointer to second buffer
+    movw de,#upd_pict_old   ;4b33  14 bd fb     DE = pointer to last uPD16432B pictograph buffer sent
+    movw hl,#upd_pict       ;4b36  16 35 fe     HL = pointer to current uPD16432B pictograph buffer
     mov a,#08h              ;4b39  a1 08        A = 8 bytes to compare
     callf !sub_0cca         ;4b3b  4c ca        Compare A bytes between [HL] to [DE]
-    bz $lab_4ba9            ;4b3d  ad 6a        Branch if buffers are equal
+    bz $lab_4ba9            ;4b3d  ad 6a        Branch if equal (no update needs to be sent)
 
 lab_4b3f:
-    movw de,#mem_fbbd       ;4b3f  14 bd fb     DE = destination address
-    movw hl,#mem_fe35       ;4b42  16 35 fe     HL = source address
+    movw de,#upd_pict_old   ;4b3f  14 bd fb     DE = pointer to last uPD16432B pictograph buffer sent (destination)
+    movw hl,#upd_pict       ;4b42  16 35 fe     HL = pointer to current uPD16432B pictograph buffer (source)
     mov a,#08h              ;4b45  a1 08        A = 8 bytes to copy
     callf !sub_0c9e         ;4b47  4c 9e        Copy A bytes from [HL] to [DE]
     mov a,#14h              ;4b49  a1 14
@@ -15994,7 +15990,7 @@ lab_4b3f:
     set1 mem_fe5f.1         ;4b6f  1a 5f
     bnz $lab_4b84           ;4b71  bd 11
     clr1 mem_fe5f.1         ;4b73  1b 5f
-    movw ax,#mem_fe35       ;4b75  10 35 fe
+    movw ax,#upd_pict       ;4b75  10 35 fe
     movw hl,ax              ;4b78  d6
     mov a,#08h              ;4b79  a1 08
     mov b,a                 ;4b7b  73
@@ -16013,7 +16009,7 @@ lab_4b84:
     clr1 IF0H_.4            ;4b8a  71 4b e1
     clr1 MK0H_.4            ;4b8d  71 4b e5
     clr1 PR0H_.4            ;4b90  71 4b e9
-    movw ax,#mem_fe35       ;4b93  10 35 fe
+    movw ax,#upd_pict       ;4b93  10 35 fe
     push ax                 ;4b96  b1
     mov a,#08h              ;4b97  a1 08
     push ax                 ;4b99  b1
@@ -16034,11 +16030,11 @@ lab_4ba9:
     br !lab_4c5e            ;4bb0  9b 5e 4c
 
 lab_4bb3:
-    movw de,#upd_2_buf      ;4bb3  14 b2 fb     DE = pointer to first buffer
-    movw hl,#upd_1_buf      ;4bb6  16 9a f1     HL = pointer to second buffer
+    movw de,#upd_disp_old   ;4bb3  14 b2 fb     DE = pointer to last uPD16432B display buffer sent
+    movw hl,#upd_disp       ;4bb6  16 9a f1     HL = pointer to current uPD16432B display buffer
     mov a,#0bh              ;4bb9  a1 0b        A = 11 bytes to compare
     callf !sub_0cca         ;4bbb  4c ca        Compare A bytes between [HL] to [DE]
-    bz $lab_4bc2            ;4bbd  ad 03        Branch if buffers are equal
+    bz $lab_4bc2            ;4bbd  ad 03        Branch if equal (no update needs to be sent)
     br !lab_4c5e            ;4bbf  9b 5e 4c
 
 lab_4bc2:
@@ -16151,8 +16147,8 @@ lab_4c59:
     br $lab_4cd5            ;4c5c  fa 77
 
 lab_4c5e:
-    movw de,#upd_2_buf      ;4c5e  14 b2 fb     DE = destination address
-    movw hl,#upd_1_buf      ;4c61  16 9a f1     HL = source address
+    movw de,#upd_disp_old   ;4c5e  14 b2 fb     DE = pointer to last uPD16432B display buffer sent (destination)
+    movw hl,#upd_disp       ;4c61  16 9a f1     HL = pointer to current uPD16432B display buffer (source)
     mov a,#0bh              ;4c64  a1 0b        A = 0x0b bytes to copy
     callf !sub_0c9e         ;4c66  4c 9e        Copy A bytes from [HL] to [DE]
     mov a,#14h              ;4c68  a1 14
@@ -16195,7 +16191,7 @@ lab_4c7e:
     set1 mem_fe5f.1         ;4c9b  1a 5f
     bnz $lab_4cb0           ;4c9d  bd 11
     clr1 mem_fe5f.1         ;4c9f  1b 5f
-    movw ax,#upd_1_buf      ;4ca1  10 9a f1
+    movw ax,#upd_disp       ;4ca1  10 9a f1
     movw hl,ax              ;4ca4  d6
     mov a,#0bh              ;4ca5  a1 0b
     mov b,a                 ;4ca7  73
@@ -16214,7 +16210,7 @@ lab_4cb0:
     clr1 IF0H_.4            ;4cb6  71 4b e1
     clr1 MK0H_.4            ;4cb9  71 4b e5
     clr1 PR0H_.4            ;4cbc  71 4b e9
-    movw ax,#upd_1_buf      ;4cbf  10 9a f1
+    movw ax,#upd_disp       ;4cbf  10 9a f1
     push ax                 ;4cc2  b1
     mov a,#0bh              ;4cc3  a1 0b
     push ax                 ;4cc5  b1
@@ -22472,7 +22468,7 @@ lab_6a9c:
     call !sub_6e70          ;6aa0  9a 70 6e
     mov a,!mem_fb5a         ;6aa3  8e 5a fb
     add a,#01h              ;6aa6  0d 01        Convert it to character code for preset (preset 1 = code 2)
-    mov !upd_1_buf+3,a      ;6aa8  9e 9d f1     '...1.......' (preset)
+    mov !upd_disp+3,a       ;6aa8  9e 9d f1     '...1.......' (preset)
     movw hl,#pscan          ;6aab  16 cf 63
     mov b,#0fh              ;6aae  a3 0f
     mov a,#0ffh             ;6ab0  a1 ff
@@ -22510,7 +22506,7 @@ lab_6ae2:
     cmp a,#07h              ;6ae9  4d 07
     bnc $lab_6af1           ;6aeb  9d 04
     inc a                   ;6aed  41           Convert it to character code for preset (preset 1 = code 2)
-    mov !upd_1_buf+3,a      ;6aee  9e 9d f1     '...1.......' (preset)
+    mov !upd_disp+3,a       ;6aee  9e 9d f1     '...1.......' (preset)
 
 lab_6af1:
     call !sub_6e6e          ;6af1  9a 6e 6e
@@ -22608,7 +22604,7 @@ lab_6b73:
     mov b,#0ffh             ;6b7c  a3 ff
     movw hl,#cd_cd_err      ;6b7e  16 95 67
     call !sub_6e70          ;6b81  9a 70 6e
-    movw hl,#upd_1_buf      ;6b84  16 9a f1
+    movw hl,#upd_disp       ;6b84  16 9a f1
     mov a,!mem_fc7d         ;6b87  8e 7d fc     A = CD number
     add a,#'0'              ;6b8a  0d 30        Convert to ASCII
     mov [hl+03h],a          ;6b8c  be 03        '...1.......'
@@ -22628,7 +22624,7 @@ lab_6b9d:
     mov b,#0ffh             ;6b9f  a3 ff
     movw hl,#cd_no_cd       ;6ba1  16 90 66
     call !sub_6e70          ;6ba4  9a 70 6e
-    movw hl,#upd_1_buf      ;6ba7  16 9a f1
+    movw hl,#upd_disp       ;6ba7  16 9a f1
     mov a,!mem_fc7d         ;6baa  8e 7d fc     A = CD number
     add a,#'0'              ;6bad  0d 30        Convert to ASCII
     mov [hl+03h],a          ;6baf  be 03        '...1.......'
@@ -22690,9 +22686,9 @@ lab_6bf9:
     mov a,#0ah              ;6bf9  a1 0a
     movw hl,#cue            ;6bfb  16 b4 66
     mov b,#0ffh             ;6bfe  a3 ff
-    set1 mem_fe3a.1         ;6c00  1a 3a
-    bt mem_fe6e.1,$lab_6c07 ;6c02  9c 6e 02
-    clr1 mem_fe3a.1         ;6c05  1b 3a
+    set1 upd_pict+5.1       ;6c00  1a 3a        Turn on "MIX" pictograph
+    bt mem_fe6e.1,$lab_6c07 ;6c02  9c 6e 02     Branch if MIX is on
+    clr1 upd_pict+5.1       ;6c05  1b 3a        Turn off "MIX" pictograph
 
 lab_6c07:
     call !sub_6e70          ;6c07  9a 70 6e
@@ -22703,9 +22699,9 @@ lab_6c10:
     mov a,#0ah              ;6c10  a1 0a
     movw hl,#cd__           ;6c12  16 84 66
     mov b,#0ffh             ;6c15  a3 ff
-    set1 mem_fe3a.1         ;6c17  1a 3a
-    bt mem_fe6e.1,$lab_6c1e ;6c19  9c 6e 02
-    clr1 mem_fe3a.1         ;6c1c  1b 3a
+    set1 upd_pict+5.1       ;6c17  1a 3a        Turn on "MIX" pictograph
+    bt mem_fe6e.1,$lab_6c1e ;6c19  9c 6e 02     Branch if MIX is on
+    clr1 upd_pict+5.1       ;6c1c  1b 3a        Turn off "MIX" pictograph
 
 lab_6c1e:
     call !sub_6e70          ;6c1e  9a 70 6e
@@ -22717,9 +22713,9 @@ lab_6c29:
     mov a,#0ah              ;6c29  a1 0a
     movw hl,#rev            ;6c2b  16 c0 66
     mov b,#0ffh             ;6c2e  a3 ff
-    set1 mem_fe3a.1         ;6c30  1a 3a
-    bt mem_fe6e.1,$lab_6c37 ;6c32  9c 6e 02
-    clr1 mem_fe3a.1         ;6c35  1b 3a
+    set1 upd_pict+5.1       ;6c30  1a 3a        Turn on "MIX" pictograph
+    bt mem_fe6e.1,$lab_6c37 ;6c32  9c 6e 02     Branch if MIX is on
+    clr1 upd_pict+5.1       ;6c35  1b 3a        Turn off "MIX" pictograph
 
 lab_6c37:
     call !sub_6e70          ;6c37  9a 70 6e
@@ -22730,9 +22726,9 @@ lab_6c3f:
     mov a,#0ah              ;6c3f  a1 0a
     movw hl,#cd__           ;6c41  16 84 66
     mov b,#0ffh             ;6c44  a3 ff
-    set1 mem_fe3a.1         ;6c46  1a 3a
-    bt mem_fe6e.1,$lab_6c4d ;6c48  9c 6e 02
-    clr1 mem_fe3a.1         ;6c4b  1b 3a
+    set1 upd_pict+5.1       ;6c46  1a 3a        Turn on "MIX" pictograph
+    bt mem_fe6e.1,$lab_6c4d ;6c48  9c 6e 02     Branch if MIX is on
+    clr1 upd_pict+5.1       ;6c4b  1b 3a        Turn off "MIX" pictograph
 
 lab_6c4d:
     call !sub_6e70          ;6c4d  9a 70 6e
@@ -22837,7 +22833,7 @@ lab_6cdf:
     mov c,#99h              ;6ce3  a2 99
 
 lab_6ce5:
-    set1 mem_fe39.5         ;6ce5  5a 39
+    set1 upd_pict+4.5       ;6ce5  5a 39        Turn on "MIX" pictograph
     mov b,#06h              ;6ce7  a3 06
     mov a,c                 ;6ce9  62
     push ax                 ;6cea  b1
@@ -22847,7 +22843,7 @@ lab_6ce5:
     and a,#0fh              ;6cf1  5d 0f
     cmp a,#0ah              ;6cf3  4d 0a
     bnz $lab_6cfe           ;6cf5  bd 07
-    movw hl,#upd_1_buf      ;6cf7  16 9a f1
+    movw hl,#upd_disp       ;6cf7  16 9a f1
     mov a,#'-'              ;6cfa  a1 2d
     mov [hl+b],a            ;6cfc  bb           '......-.....'
     ret                     ;6cfd  af
@@ -22860,14 +22856,14 @@ sub_6d01:
     cmp a,#00h              ;6d04  4d 00
     bz $lab_6d2d            ;6d06  ad 25
     push ax                 ;6d08  b1
-    clr1 mem_fe3a.1         ;6d09  1b 3a
+    clr1 upd_pict+5.1       ;6d09  1b 3a        Turn off "MIX" pictograph
     mov a,!mem_f1ad         ;6d0b  8e ad f1
     and a,#0fh              ;6d0e  5d 0f
     cmp a,#0ah              ;6d10  4d 0a
     bz $lab_6d1b            ;6d12  ad 07
-    set1 mem_fe3a.1         ;6d14  1a 3a
-    bt mem_fe6e.1,$lab_6d1b ;6d16  9c 6e 02
-    clr1 mem_fe3a.1         ;6d19  1b 3a
+    set1 upd_pict+5.1       ;6d14  1a 3a        Turn on "MIX" pictograph
+    bt mem_fe6e.1,$lab_6d1b ;6d16  9c 6e 02     Branch if MIX is on
+    clr1 upd_pict+5.1       ;6d19  1b 3a        Turn off "MIX" pictograph
 
 lab_6d1b:
     mov b,#09h              ;6d1b  a3 09
@@ -22876,7 +22872,7 @@ lab_6d1b:
     cmp a,#0ah              ;6d22  4d 0a
     bnz $lab_6d2a           ;6d24  bd 04
     mov b,#0ah              ;6d26  a3 0a
-    set1 mem_fe39.5         ;6d28  5a 39
+    set1 upd_pict+4.5       ;6d28  5a 39        Turn on period pictograph
 
 lab_6d2a:
     pop ax                  ;6d2a  b0
@@ -22945,22 +22941,22 @@ lab_6d87:
 ;AM
     mov a,#00h              ;6d87  a1 00        A = character code for "1" in FM1
     mov a,#' '              ;6d89  a1 20        A = space character
-    mov !upd_1_buf+2,a      ;6d8b  9e 9c f1     '.. ........'
+    mov !upd_disp+2,a       ;6d8b  9e 9c f1     '.. ........'
     mov a,#' '              ;6d8e  a1 20
-    mov !upd_1_buf+3,a      ;6d90  9e 9d f1     '... .......' (preset)
+    mov !upd_disp+3,a       ;6d90  9e 9d f1     '... .......' (preset)
     mov a,#'A'              ;6d93  a1 41
-    mov !upd_1_buf,a        ;6d95  9e 9a f1     'A..........'
+    mov !upd_disp,a         ;6d95  9e 9a f1     'A..........'
     mov a,#'M'              ;6d98  a1 4d
-    mov !upd_1_buf+1,a      ;6d9a  9e 9b f1     '.M.........'
+    mov !upd_disp+1,a       ;6d9a  9e 9b f1     '.M.........'
 
 lab_6d9d:
 ;kHz
     mov a,#'k'              ;6d9d  a1 6b
-    mov !upd_1_buf+8,a      ;6d9f  9e a2 f1     '........k..'
+    mov !upd_disp+8,a       ;6d9f  9e a2 f1     '........k..'
     mov a,#'H'              ;6da2  a1 48
-    mov !upd_1_buf+9,a      ;6da4  9e a3 f1     '.........H.'
+    mov !upd_disp+9,a       ;6da4  9e a3 f1     '.........H.'
     mov a,#'z'              ;6da7  a1 7a
-    mov !upd_1_buf+10,a     ;6da9  9e a4 f1     '..........z'
+    mov !upd_disp+10,a      ;6da9  9e a4 f1     '..........z'
     mov b,#0ffh             ;6dac  a3 ff
     br !lab_6e3c            ;6dae  9b 3c 6e
 
@@ -22984,22 +22980,22 @@ lab_6db1:
 lab_6dd4_fm1:
 ;FM1
     mov a,#00h              ;6dd4  a1 00        A = character code for "1" in "FM1"
-    mov !upd_1_buf+2,a      ;6dd6  9e 9c f1     '..1........'
+    mov !upd_disp+2,a       ;6dd6  9e 9c f1     '..1........'
     mov a,#' '              ;6dd9  a1 20
-    mov !upd_1_buf+3,a      ;6ddb  9e 9d f1     '... .......' (preset)
+    mov !upd_disp+3,a       ;6ddb  9e 9d f1     '... .......' (preset)
     mov a,#'F'              ;6dde  a1 46
-    mov !upd_1_buf,a        ;6de0  9e 9a f1     'F..........'
+    mov !upd_disp,a         ;6de0  9e 9a f1     'F..........'
     mov a,#'M'              ;6de3  a1 4d
-    mov !upd_1_buf+1,a      ;6de5  9e 9b f1     '.M.........'
+    mov !upd_disp+1,a       ;6de5  9e 9b f1     '.M.........'
 
 lab_6de8_mhz:
 ;MHz
     mov a,#'M'              ;6de8  a1 4d
-    mov !upd_1_buf+8,a      ;6dea  9e a2 f1     '........M..'
+    mov !upd_disp+8,a       ;6dea  9e a2 f1     '........M..'
     mov a,#'H'              ;6ded  a1 48
-    mov !upd_1_buf+9,a      ;6def  9e a3 f1     '.........H.'
+    mov !upd_disp+9,a       ;6def  9e a3 f1     '.........H.'
     mov a,#'z'              ;6df2  a1 7a
-    mov !upd_1_buf+10,a     ;6df4  9e a4 f1     '..........z'
+    mov !upd_disp+10,a      ;6df4  9e a4 f1     '..........z'
     mov b,#0ffh             ;6df7  a3 ff
     br $lab_6e3c            ;6df9  fa 41
 
@@ -23020,22 +23016,22 @@ lab_6dfb:
 lab_6e17_fm2:
 ;FM2
     mov a,#01h              ;6e17  a1 01        A = character code for "2" in "FM2"
-    mov !upd_1_buf+2,a      ;6e19  9e 9c f1     '..2........'
+    mov !upd_disp+2,a       ;6e19  9e 9c f1     '..2........'
     mov a,#' '              ;6e1c  a1 20
-    mov !upd_1_buf+3,a      ;6e1e  9e 9d f1     '... .......' (preset)
+    mov !upd_disp+3,a       ;6e1e  9e 9d f1     '... .......' (preset)
     mov a,#'F'              ;6e21  a1 46
-    mov !upd_1_buf,a        ;6e23  9e 9a f1     'F..........'
+    mov !upd_disp,a         ;6e23  9e 9a f1     'F..........'
     mov a,#'M'              ;6e26  a1 4d
-    mov !upd_1_buf+1,a      ;6e28  9e 9b f1     '.M........'
+    mov !upd_disp+1,a       ;6e28  9e 9b f1     '.M........'
 
 lab_6e2b_mhz:
 ;MHz
     mov a,#'M'              ;6e2b  a1 4d
-    mov !upd_1_buf+8,a      ;6e2d  9e a2 f1     '........M..'
+    mov !upd_disp+8,a       ;6e2d  9e a2 f1     '........M..'
     mov a,#'H'              ;6e30  a1 48
-    mov !upd_1_buf+9,a      ;6e32  9e a3 f1     '.........H.'
+    mov !upd_disp+9,a       ;6e32  9e a3 f1     '.........H.'
     mov a,#'z'              ;6e35  a1 7a
-    mov !upd_1_buf+10,a     ;6e37  9e a4 f1     '..........z'
+    mov !upd_disp+10,a      ;6e37  9e a4 f1     '..........z'
     mov b,#0ffh             ;6e3a  a3 ff
 
 lab_6e3c:
@@ -23057,17 +23053,17 @@ sub_6e40:
     mov a,#'B'              ;6e59  a1 42            'B' for tape side B
 
 lab_6e5b:
-    mov !upd_1_buf+10,a     ;6e5b  9e a4 f1         '..........A' or '..........B'
+    mov !upd_disp+10,a      ;6e5b  9e a4 f1         '..........A' or '..........B'
 
 lab_6e5e:
-    clr1 mem_fe36.2         ;6e5e  2b 36
-    bf mem_fe6f.4,$lab_6e66 ;6e60  31 43 6f 02
-    set1 mem_fe36.2         ;6e64  2a 36
+    clr1 upd_pict+1.2       ;6e5e  2b 36            Turn off "DOLBY" pictograph
+    bf mem_fe6f.4,$lab_6e66 ;6e60  31 43 6f 02      Branch if Dolby is off
+    set1 upd_pict+1.2       ;6e64  2a 36            Turn on "DOLBY" pictograph
 
 lab_6e66:
-    clr1 mem_fe37.7         ;6e66  7b 37
+    clr1 upd_pict+2.7       ;6e66  7b 37            Turn off "METAL" pictograph
     bf mem_fe71.4,$sub_6e6e ;6e68  31 43 71 02
-    set1 mem_fe37.7         ;6e6c  7a 37
+    set1 upd_pict+2.7       ;6e6c  7a 37            Turn on "METAL pictograph
 
 sub_6e6e:
     ret                     ;6e6e  af
@@ -23240,7 +23236,7 @@ lab_6f40:
     call !sub_0800          ;6f46  9a 00 08
     cmp a,#02h              ;6f49  4d 02
     bz $lab_6f4f            ;6f4b  ad 02
-    set1 mem_fe39.5         ;6f4d  5a 39
+    set1 upd_pict+4.5       ;6f4d  5a 39        Turn on period pictograph
 
 lab_6f4f:
     mov a,mem_fed4          ;6f4f  f0 d4        A = BCD low byte
@@ -23269,7 +23265,7 @@ write_digit:
     and a,#0fh              ;6f6c  5d 0f        Mask to leave only low nibble
     add a,#'0'              ;6f6e  0d 30        Convert it to ASCII
     push hl                 ;6f70  b7
-    movw hl,#upd_1_buf      ;6f71  16 9a f1
+    movw hl,#upd_disp       ;6f71  16 9a f1
     mov [hl+b],a            ;6f74  bb           Write it to display at offset B
     pop hl                  ;6f75  b6
 
@@ -23352,9 +23348,9 @@ lab_6fc8:
     db 0afh                 ;6fcf  af          DATA 0xaf
 
 
-sub_6fd0:
-;Fill 11 bytes in upd_1_buf buffer with 0x20 (space)
-    movw hl,#upd_1_buf      ;6fd0  16 9a f1     HL = pointer to buffer to fill
+clear_upd_disp:
+;Fill all characters with spaces in upd_disp buffer
+    movw hl,#upd_disp       ;6fd0  16 9a f1     HL = pointer to buffer to fill
     mov a,#0bh              ;6fd3  a1 0b        A = 11 bytes to fill
     cmp a,#00h              ;6fd5  4d 00
     br $lab_6fd9            ;6fd7  fa 00
@@ -23367,11 +23363,11 @@ lab_6fe0:
     ret                     ;6fe0  af
 
 
-sub_6fe1:
-;Fill 8 bytes in mem_fe35 buffer with 0
+clear_upd_pict:
+;Turn off all pictographs in upd_pict buffer
     mov b,#08h              ;6fe1  a3 08        B = 8 bytes to fill
     bz $lab_6fea            ;6fe3  ad 05
-    movw hl,#mem_fe35       ;6fe5  16 35 fe     HL = pointer to buffer to fill
+    movw hl,#upd_pict       ;6fe5  16 35 fe     HL = pointer to buffer to fill
     callf !sub_0cda         ;6fe8  4c da        Fill B bytes in buffer [HL] with 0
 lab_6fea:
     ret                     ;6fea  af
@@ -23391,7 +23387,7 @@ sub_6feb:
     xch a,h                 ;6ff9  37
     movw ax,hl              ;6ffa  c6
     movw de,ax              ;6ffb  d4
-    movw hl,#upd_1_buf      ;6ffc  16 9a f1
+    movw hl,#upd_disp       ;6ffc  16 9a f1
 
 lab_6fff:
     mov a,[de]              ;6fff  85
@@ -23446,7 +23442,7 @@ lab_7009:
 
 sub_7030:
     mov b,#05h              ;7030  a3 05
-    movw hl,#upd_1_buf+10   ;7032  16 a4 f1
+    movw hl,#upd_disp+10    ;7032  16 a4 f1
 
 lab_7035:
     mov a,[hl+b]            ;7035  ab
@@ -23471,14 +23467,14 @@ lab_704d:
     br !lab_7690            ;7051  9b 90 76
 
 lab_7054:
-    clr1 mem_fe39.5         ;7054  5b 39
+    clr1 upd_pict+4.5       ;7054  5b 39        Turn off period pictograph
     mov a,!mem_f1a6         ;7056  8e a6 f1
     and a,#0fh              ;7059  5d 0f
     cmp a,#0eh              ;705b  4d 0e
     bz $lab_7065            ;705d  ad 06
-    clr1 mem_fe37.7         ;705f  7b 37
-    clr1 mem_fe36.2         ;7061  2b 36
-    clr1 mem_fe3a.1         ;7063  1b 3a
+    clr1 upd_pict+2.7       ;705f  7b 37        Turn off "METAL" pictograph
+    clr1 upd_pict+1.2       ;7061  2b 36        Turn off "DOLBY" pictograph
+    clr1 upd_pict+5.1       ;7063  1b 3a        Turn off "MIX" pictograph
 
 lab_7065:
     bf mem_fe2c.3,$lab_7070 ;7065  31 33 2c 07
@@ -23741,7 +23737,7 @@ lab_71b0:
     mov a,#0ah              ;71b2  a1 0a
     movw hl,#cd_cd_rom      ;71b4  16 89 67
     call !sub_6e70          ;71b7  9a 70 6e
-    movw hl,#upd_1_buf      ;71ba  16 9a f1
+    movw hl,#upd_disp       ;71ba  16 9a f1
     mov b,#03h              ;71bd  a3 03
     mov a,!mem_f1b2         ;71bf  8e b2 f1
     add a,#'0'              ;71c2  0d 30        Convert it to ASCII
@@ -23771,7 +23767,7 @@ lab_71da:
 
 lab_71e3:
     set1 mem_fe6a.0         ;71e3  0a 6a
-    call !sub_6fe1          ;71e5  9a e1 6f     Fill 8 bytes in mem_fe35 buffer with 0
+    call !clear_upd_pict    ;71e5  9a e1 6f     Turn off all pictographs in upd_pict buffer
     mov b,#0ah              ;71e8  a3 0a
     movw hl,#safe           ;71ea  16 f9 64
     mov a,#0ffh             ;71ed  a1 ff
@@ -23779,12 +23775,12 @@ lab_71e3:
 
 lab_71f2:
     set1 mem_fe6a.0         ;71f2  0a 6a
-    call !sub_6fe1          ;71f4  9a e1 6f     Fill 8 bytes in mem_fe35 buffer with 0
+    call !clear_upd_pict    ;71f4  9a e1 6f     Turn off all pictographs in upd_pict buffer
     mov b,#0ah              ;71f7  a3 0a
     movw hl,#safe           ;71f9  16 f9 64
     mov a,#0ffh             ;71fc  a1 ff
     call !sub_6e70          ;71fe  9a 70 6e
-    movw hl,#upd_1_buf      ;7201  16 9a f1
+    movw hl,#upd_disp       ;7201  16 9a f1
     mov a,!mem_f206         ;7204  8e 06 f2
     call !sub_0cf4          ;7207  9a f4 0c
     mov a,x                 ;720a  60
@@ -23810,28 +23806,28 @@ lab_7224:
     cmp a,#00h              ;7227  4d 00
     bnz $lab_7249           ;7229  bd 1e
     set1 mem_fe6a.0         ;722b  0a 6a
-    call !sub_6fe1          ;722d  9a e1 6f     Fill 8 bytes in mem_fe35 buffer with 0
+    call !clear_upd_pict    ;722d  9a e1 6f     Turn off all pictographs in upd_pict buffer
     mov b,#0ah              ;7230  a3 0a
     movw hl,#safe           ;7232  16 f9 64
     mov a,#0ffh             ;7235  a1 ff
     call !sub_6e70          ;7237  9a 70 6e
     mov a,!mem_f20b         ;723a  8e 0b f2     SAFE code attempt counter
     add a,#'0'              ;723d  0d 30        Convert it to ASCII
-    movw hl,#upd_1_buf      ;723f  16 9a f1
+    movw hl,#upd_disp       ;723f  16 9a f1
     mov [hl],a              ;7242  97           '2..........'
     mov a,#0ffh             ;7243  a1 ff
     mov b,#0ffh             ;7245  a3 ff
     br $lab_7290            ;7247  fa 47
 
 lab_7249:
-    call !sub_6fe1          ;7249  9a e1 6f     Fill 8 bytes in mem_fe35 buffer with 0
+    call !clear_upd_pict    ;7249  9a e1 6f     Turn off all pictographs in upd_pict buffer
     mov b,#0ah              ;724c  a3 0a
     movw hl,#safe           ;724e  16 f9 64
     mov a,#0ffh             ;7251  a1 ff
     call !sub_6e70          ;7253  9a 70 6e
     mov a,!mem_f20b         ;7256  8e 0b f2     SAFE code attempt counter
     add a,#'0'              ;7259  0d 30        Convert it to ASCII
-    movw hl,#upd_1_buf      ;725b  16 9a f1
+    movw hl,#upd_disp       ;725b  16 9a f1
     mov [hl],a              ;725e  97           '2..........'
     mov a,#0ffh             ;725f  a1 ff
     mov b,#0ffh             ;7261  a3 ff
@@ -23869,7 +23865,7 @@ lab_7294:
     movw hl,#blank          ;7298  16 11 65
     set1 mem_fe6a.0         ;729b  0a 6a
     call !sub_6e70          ;729d  9a 70 6e
-    movw hl,#upd_1_buf      ;72a0  16 9a f1
+    movw hl,#upd_disp       ;72a0  16 9a f1
     mov a,!mem_f20b         ;72a3  8e 0b f2     SAFE code attempt counter
     cmp a,#00h              ;72a6  4d 00
     bz $lab_72ad            ;72a8  ad 03        Skip write count if it is zero
@@ -23926,7 +23922,7 @@ lab_72e9:
     call !sub_6e70          ;72f0  9a 70 6e
     mov a,#23h              ;72f3  a1 23        ;23 = SOFTWARE 23
     call !sub_0be4          ;72f5  9a e4 0b     ;Convert BCD number in A to ASCII
-    movw hl,#upd_1_buf      ;72f8  16 9a f1
+    movw hl,#upd_disp       ;72f8  16 9a f1
     mov b,#9                ;72fb  a3 09
     mov [hl+b],a            ;72fd  bb           ;'.........2.'
     mov a,x                 ;72fe  60
@@ -23944,10 +23940,10 @@ lab_7303:
     mov b,#0ffh             ;730f  a3 ff
     call !sub_6e70          ;7311  9a 70 6e
 
-    clr1 mem_fe39.5         ;7314  5b 39
+    clr1 upd_pict+4.5       ;7314  5b 39        Turn off period pictograph
 
     mov b,#4                ;7316  a3 04
-    movw hl,#upd_1_buf      ;7318  16 9a f1
+    movw hl,#upd_disp       ;7318  16 9a f1
     mov a,!mem_fb69         ;731b  8e 69 fb
     call !to_hex_digit      ;731e  9a 09 68     Convert lower nibble of A to hex digit in ASCII
     mov [hl+b],a            ;7321  bb           '....A......'
@@ -23995,7 +23991,7 @@ lab_7351:
     add a,#'0'              ;7367  0d 30        Convert it to ASCII
 
     mov b,#10               ;7369  a3 0a
-    movw hl,#upd_1_buf      ;736b  16 9a f1
+    movw hl,#upd_disp       ;736b  16 9a f1
     mov [hl+b],a            ;736e  bb           '..........1' (onvol ones place)
 
     mov a,x                 ;736f  60
@@ -24014,7 +24010,7 @@ lab_737e:
 
 lab_7380:
     mov b,#9                ;7380  a3 09
-    movw hl,#upd_1_buf      ;7382  16 9a f1
+    movw hl,#upd_disp       ;7382  16 9a f1
     mov [hl+b],a            ;7385  bb           '.........1.' (onvol tens place)
     ret                     ;7386  af
 
@@ -24031,7 +24027,7 @@ lab_7387:
 
 lab_739c:
     mov b,#10               ;739c  a3 0a
-    movw hl,#upd_1_buf      ;739e  16 9a f1
+    movw hl,#upd_disp       ;739e  16 9a f1
     mov [hl+b],a            ;73a1  bb           '..........6'
     ret                     ;73a2  af
 
@@ -24048,7 +24044,7 @@ lab_73a3:
 
 lab_73b8:
     mov b,#010              ;73b8  a3 0a
-    movw hl,#upd_1_buf      ;73ba  16 9a f1
+    movw hl,#upd_disp       ;73ba  16 9a f1
     mov [hl+b],a            ;73bd  bb           '..........Y'
     ret                     ;73be  af
 
@@ -24119,7 +24115,7 @@ lab_7424:
     cmp a,#07h              ;742b  4d 07
     bnc $lab_7433           ;742d  9d 04
     inc a                   ;742f  41           Convert it to character code for preset (preset 1 = code 2)
-    mov !upd_1_buf+3,a      ;7430  9e 9d f1     '...1.......' (preset)
+    mov !upd_disp+3,a       ;7430  9e 9d f1     '...1.......' (preset)
 
 lab_7433:
     mov a,!mem_f1a6         ;7433  8e a6 f1
@@ -24155,17 +24151,17 @@ lab_744c:
     mov a,#'B'              ;746f  a1 42        B = 'B' for 'TAPE PLAY B'
 
 lab_7471:
-    mov !upd_1_buf+10,a     ;7471  9e a4 f1     '..........A' or '..........B'
+    mov !upd_disp+10,a      ;7471  9e a4 f1     '..........A' or '..........B'
 
 lab_7474:
-    clr1 mem_fe36.2         ;7474  2b 36
-    bf mem_fe6f.4,$lab_747c ;7476  31 43 6f 02
-    set1 mem_fe36.2         ;747a  2a 36
+    clr1 upd_pict+1.2       ;7474  2b 36        Turn off "DOLBY" pictograph
+    bf mem_fe6f.4,$lab_747c ;7476  31 43 6f 02  Branch if Dolby is off
+    set1 upd_pict+1.2       ;747a  2a 36        Turn on "DOLBY" pictograph
 
 lab_747c:
-    clr1 mem_fe37.7         ;747c  7b 37
+    clr1 upd_pict+2.7       ;747c  7b 37        Turn off "METAL" pictograph
     bf mem_fe71.4,$lab_7484 ;747e  31 43 71 02
-    set1 mem_fe37.7         ;7482  7a 37
+    set1 upd_pict+2.7       ;7482  7a 37        Turn on "METAL" pictograph
 
 lab_7484:
     mov a,!mem_f1a6         ;7484  8e a6 f1
@@ -24187,14 +24183,14 @@ lab_749d:
     mov b,#0ah              ;749f  a3 0a
     movw hl,#cd_tr          ;74a1  16 9c 66
     call !sub_6e70          ;74a4  9a 70 6e
-    movw hl,#upd_1_buf      ;74a7  16 9a f1
+    movw hl,#upd_disp       ;74a7  16 9a f1
     mov a,!mem_fc75         ;74aa  8e 75 fc     A = CD track number
     add a,#'0'              ;74ad  0d 30        Convert it to ASCII
     mov [hl+03h],a          ;74af  be 03        '...1.......'
-    clr1 mem_fe3a.1         ;74b1  1b 3a
+    clr1 upd_pict+5.1       ;74b1  1b 3a        Turn off "MIX" pictograph
     bt mem_fe6e.0,$lab_74bc ;74b3  8c 6e 06
-    mov1 cy,mem_fe6e.1      ;74b6  71 14 6e
-    mov1 mem_fe3a.1,cy      ;74b9  71 11 3a
+    mov1 cy,mem_fe6e.1      ;74b6  71 14 6e     Copy MIX flag into carry
+    mov1 upd_pict+5.1,cy    ;74b9  71 11 3a     Copy carry to "MIX" pictograph
 
 lab_74bc:
     mov a,!mem_f1a6         ;74bc  8e a6 f1
@@ -24212,7 +24208,7 @@ lab_74ca:
     ret                     ;74d4  af
 
 lab_74d5:
-    call !sub_6fd0          ;74d5  9a d0 6f     Fill 11 bytes in upd_1_bufbuffer with 0x20 (space)
+    call !clear_upd_disp    ;74d5  9a d0 6f     Fill all characters with spaces in upd_disp buffer
     mov a,#0ffh             ;74d8  a1 ff
     mov b,#0ah              ;74da  a3 0a
     movw hl,#diag           ;74dc  16 93 65
@@ -24236,10 +24232,10 @@ lab_74e3:
     br $lab_7522_bass_zero  ;74fd  fa 23
 
 lab_74ff_bass_minus:
-    movw hl,#upd_1_buf+6    ;74ff  16 a0 f1
+    movw hl,#upd_disp+6     ;74ff  16 a0 f1
     mov a,#'-'              ;7502  a1 2d
     mov [hl],a              ;7504  97           '......-....'
-    movw hl,#upd_1_buf+8    ;7505  16 a2 f1
+    movw hl,#upd_disp+8     ;7505  16 a2 f1
     mov a,#09h              ;7508  a1 09
     sub a,x                 ;750a  61 18
     add a,#'0'              ;750c  0d 30        Convert it to ASCII
@@ -24247,10 +24243,10 @@ lab_74ff_bass_minus:
     br $lab_7528            ;750f  fa 17
 
 lab_7511_bass_plus:
-    movw hl,#upd_1_buf+6    ;7511  16 a0 f1
+    movw hl,#upd_disp+6     ;7511  16 a0 f1
     mov a,#'+'              ;7514  a1 2b
     mov [hl],a              ;7516  97           '......+....'
-    movw hl,#upd_1_buf+8    ;7517  16 a2 f1
+    movw hl,#upd_disp+8     ;7517  16 a2 f1
     mov a,x                 ;751a  60
     sub a,#0bh              ;751b  1d 0b
     add a,#'0'              ;751d  0d 30        Convert it to ASCII
@@ -24258,7 +24254,7 @@ lab_7511_bass_plus:
     br $lab_7528            ;7520  fa 06
 
 lab_7522_bass_zero:
-    movw hl,#upd_1_buf+8    ;7522  16 a2 f1
+    movw hl,#upd_disp+8     ;7522  16 a2 f1
     mov a,#'0'              ;7525  a1 30
     mov [hl],a              ;7527  97           '........0..'
 
@@ -24286,10 +24282,10 @@ lab_752f:
     br $lab_756e_mid_zero   ;7549  fa 23
 
 lab_754b_mid_minus:
-    movw hl,#upd_1_buf+6    ;754b  16 a0 f1
+    movw hl,#upd_disp+6     ;754b  16 a0 f1
     mov a,#'-'              ;754e  a1 2d
     mov [hl],a              ;7550  97           '......-....'
-    movw hl,#upd_1_buf+8    ;7551  16 a2 f1
+    movw hl,#upd_disp+8     ;7551  16 a2 f1
     mov a,#09h              ;7554  a1 09
     sub a,x                 ;7556  61 18
     add a,#'0'              ;7558  0d 30        Convert it to ASCII
@@ -24297,10 +24293,10 @@ lab_754b_mid_minus:
     br $lab_7574            ;755b  fa 17
 
 lab_755d_mid_plus:
-    movw hl,#upd_1_buf+6    ;755d  16 a0 f1
+    movw hl,#upd_disp+6     ;755d  16 a0 f1
     mov a,#'+'              ;7560  a1 2b
     mov [hl],a              ;7562  97          '......+.....'
-    movw hl,#upd_1_buf+8    ;7563  16 a2 f1
+    movw hl,#upd_disp+8     ;7563  16 a2 f1
     mov a,x                 ;7566  60
     sub a,#0bh              ;7567  1d 0b
     add a,#'0'              ;7569  0d 30        Convert it to ASCII
@@ -24308,7 +24304,7 @@ lab_755d_mid_plus:
     br $lab_7574            ;756c  fa 06
 
 lab_756e_mid_zero:
-    movw hl,#upd_1_buf+8    ;756e  16 a2 f1
+    movw hl,#upd_disp+8     ;756e  16 a2 f1
     mov a,#'0'              ;7571  a1 30
     mov [hl],a              ;7573  97           '........0..'
 
@@ -24336,10 +24332,10 @@ lab_7579:
     br $lab_75b8_treb_zero            ;7593  fa 23
 
 lab_7595_treb_minus:
-    movw hl,#upd_1_buf+6    ;7595  16 a0 f1
+    movw hl,#upd_disp+6     ;7595  16 a0 f1
     mov a,#'-'              ;7598  a1 2d
     mov [hl],a              ;759a  97           '......-....'
-    movw hl,#upd_1_buf+8    ;759b  16 a2 f1
+    movw hl,#upd_disp+8     ;759b  16 a2 f1
     mov a,#09h              ;759e  a1 09
     sub a,x                 ;75a0  61 18
     add a,#'0'              ;75a2  0d 30        Convert it to ASCII
@@ -24347,10 +24343,10 @@ lab_7595_treb_minus:
     br $lab_75be            ;75a5  fa 17
 
 lab_75a7_treb_plus:
-    movw hl,#upd_1_buf+6    ;75a7  16 a0 f1
+    movw hl,#upd_disp+6     ;75a7  16 a0 f1
     mov a,#'+'              ;75aa  a1 2b
     mov [hl],a              ;75ac  97           '......+....'
-    movw hl,#upd_1_buf+8    ;75ad  16 a2 f1
+    movw hl,#upd_disp+8     ;75ad  16 a2 f1
     mov a,x                 ;75b0  60
     sub a,#0bh              ;75b1  1d 0b
     add a,#'0'              ;75b3  0d 30        Convert it to ASCII
@@ -24358,7 +24354,7 @@ lab_75a7_treb_plus:
     br $lab_75be            ;75b6  fa 06
 
 lab_75b8_treb_zero:
-    movw hl,#upd_1_buf+8    ;75b8  16 a2 f1
+    movw hl,#upd_disp+8     ;75b8  16 a2 f1
     mov a,#'0'              ;75bb  a1 30
     mov [hl],a              ;75bd  97
 
@@ -24383,7 +24379,7 @@ lab_75d3_bal_left:
     mov a,#0ah              ;75d5  a1 0a
     movw hl,#bal_left       ;75d7  16 35 64
     call !sub_6e70          ;75da  9a 70 6e
-    movw hl,#upd_1_buf+10   ;75dd  16 a4 f1
+    movw hl,#upd_disp+10    ;75dd  16 a4 f1
     pop ax                  ;75e0  b0
     xch a,x                 ;75e1  30
     mov a,#09h              ;75e2  a1 09
@@ -24397,7 +24393,7 @@ lab_75d3_bal_right:
     mov a,#0ah              ;75ed  a1 0a
     movw hl,#bal_right      ;75ef  16 4d 64
     call !sub_6e70          ;75f2  9a 70 6e
-    movw hl,#upd_1_buf+10   ;75f5  16 a4 f1
+    movw hl,#upd_disp+10    ;75f5  16 a4 f1
     pop ax                  ;75f8  b0
     sub a,#0bh              ;75f9  1d 0b
     add a,#'0'              ;75fb  0d 30        Convert it to ASCII
@@ -24432,7 +24428,7 @@ lab_75d3_faderear:
     mov a,#0ah              ;7622  a1 0a
     movw hl,#faderear       ;7624  16 24 64
     call !sub_6e70          ;7627  9a 70 6e
-    movw hl,#upd_1_buf+10   ;762a  16 a4 f1
+    movw hl,#upd_disp+10    ;762a  16 a4 f1
     pop ax                  ;762d  b0
     xch a,x                 ;762e  30
     mov a,#09h              ;762f  a1 09
@@ -24446,7 +24442,7 @@ lab_75d3_fadefront:
     mov a,#0ah              ;763a  a1 0a
     movw hl,#fadefront      ;763c  16 0c 64
     call !sub_6e70          ;763f  9a 70 6e
-    movw hl,#upd_1_buf+10   ;7642  16 a4 f1
+    movw hl,#upd_disp+10    ;7642  16 a4 f1
     pop ax                  ;7645  b0
     sub a,#0bh              ;7646  1d 0b
     add a,#'0'              ;7648  0d 30        Convert it to ASCII
@@ -24523,7 +24519,7 @@ sub_7697:
 lab_76b8:
     mov b,#05h              ;76b8  a3 05
     mov a,#0ffh             ;76ba  a1 ff
-    movw hl,#upd_1_buf+10   ;76bc  16 a4 f1
+    movw hl,#upd_disp+10    ;76bc  16 a4 f1
 
 lab_76bf:
     mov [hl+b],a            ;76bf  bb
@@ -30886,7 +30882,7 @@ lab_910e:
     ret                     ;9117  af
 
 sub_9118:
-    clr1 mem_fe6f.4         ;9118  4b 6f
+    clr1 mem_fe6f.4         ;9118  4b 6f        Dolby = off
     ret                     ;911a  af
 
     db 0a2h                 ;911b  a2          DATA 0xa2
@@ -48365,7 +48361,7 @@ lab_d8b3:
     mov1 mem_fe6e.2,cy      ;d8b8  71 21 6e
     mov1 cy,a.5             ;d8bb  61 dc
     or1 cy,mem_fe6e.2       ;d8bd  71 26 6e
-    mov1 mem_fe6e.1,cy      ;d8c0  71 11 6e
+    mov1 mem_fe6e.1,cy      ;d8c0  71 11 6e     Copy carry into MIX flag
     mov1 cy,a.4             ;d8c3  61 cc
     mov1 mem_fe6e.0,cy      ;d8c5  71 01 6e
     mov a,!mem_fc73         ;d8c8  8e 73 fc
