@@ -332,7 +332,7 @@
     mem_fe39 equ 0fe39h
     mem_fe3a equ 0fe3ah
     mem_fe3d equ 0fe3dh
-    mem_fe3e equ 0fe3eh
+    mem_fe3e equ 0fe3eh     ;Value to write to uPD16432B LED output latch
     mem_fe3f equ 0fe3fh
     mem_fe40 equ 0fe40h
     mem_fe41 equ 0fe41h
@@ -2515,23 +2515,26 @@ sub_085d:
 sub_0879:
     ret                     ;0879  af
 
+
 sub_087a:
-    clr1 IF0H_.4            ;087a  71 4b e1
+;SPI transfer on SIO30 (sends byte in A, receives byte in A)
+    clr1 IF0H_.4            ;087a  71 4b e1     Clear CSIIF30
     set1 mem_fe5f.0         ;087d  0a 5f
     mov SIO30_,a            ;087f  f2 1a
     push bc                 ;0881  b3
     mov b,#00h              ;0882  a3 00
-
 lab_0884:
-    bt IF0H_.4,$lab_088d    ;0884  31 46 e1 05
+    bt IF0H_.4,$lab_088d    ;0884  31 46 e1 05  Branch if CSIIF30 indicates transfer complete
+    ;transfer not complete
     dbnz b,$lab_0884        ;0888  8b fa
     nop                     ;088a  00
     clr1 mem_fe5f.0         ;088b  0b 5f
-
 lab_088d:
+    ;transfer complete
     mov a,SIO30_            ;088d  f0 1a
     pop bc                  ;088f  b2
     ret                     ;0890  af
+
 
 sub_0891:
     set1 mem_fecd.2         ;0891  2a cd
@@ -3861,7 +3864,7 @@ lab_0e39:
     call !sub_4d1a          ;0efa  9a 1a 4d
     call !sub_7697          ;0efd  9a 97 76
     call !sub_76c9          ;0f00  9a c9 76
-    mov mem_fe3e,#0fh       ;0f03  11 3e 0f
+    mov mem_fe3e,#0fh       ;0f03  11 3e 0f     Value to write to uPD16432B LED output latch
     clr1 mem_fe6f.4         ;0f06  4b 6f
     clr1 mem_fe6d.3         ;0f08  3b 6d
 
@@ -15599,27 +15602,38 @@ lab_498b:
     br !lab_4a3c            ;498d  9b 3c 4a
 
 lab_4990:
-    call !sub_4d2d          ;4990  9a 2d 4d
-    mov mem_fed4,#80h       ;4993  11 d4 80
+    call !upd_display_on    ;4990  9a 2d 4d     Turn uPD16432B display on
+
+    mov mem_fed4,#80h       ;4993  11 d4 80     A = uPD16432B Command Byte 0x80 (0b10000000)
+                            ;                       Address Setting Command
+                            ;                           Address = 00
     clr1 mem_fece.7         ;4996  7b ce
     clr1 PM4_.7             ;4998  71 7b 24
     mov a,mem_fece          ;499b  f0 ce
     mov P4_,a               ;499d  f2 04
-    mov a,#4ah              ;499f  a1 4a
-    call !sub_4d4d          ;49a1  9a 4d 4d
+
+    mov a,#4ah              ;499f  a1 4a        A = uPD16432B Command Byte 0x4a (0b01001010)
+                            ;                       Data Setting Command
+                            ;                           2=Write to chargen ram
+                            ;                           Command implies address increment; increment = on
+                            ;                           Command implies reset to address 0; address = 0
+    call !upd_send_byte     ;49a1  9a 4d 4d     Send a byte to uPD16432B over SPI on SIO30
+
     clr1 mem_fece.7         ;49a4  7b ce
     mov a,mem_fece          ;49a6  f0 ce
     mov P4_,a               ;49a8  f2 04
     mov b,#09h              ;49aa  a3 09
-    movw de,#charset_fm1    ;49ac  14 21 49
+    movw de,#charset_fm1    ;49ac  14 21 49     DE = pointer to chargen data
 
 lab_49af:
     clr1 mem_fece.7         ;49af  7b ce
     clr1 PM4_.7             ;49b1  71 7b 24
     mov a,mem_fece          ;49b4  f0 ce
     mov P4_,a               ;49b6  f2 04
-    mov a,mem_fed4          ;49b8  f0 d4
-    call !sub_4d4d          ;49ba  9a 4d 4d
+
+    mov a,mem_fed4          ;49b8  f0 d4        A = uPD16432B Address Setting Command
+    call !upd_send_byte     ;49ba  9a 4d 4d     Send a byte to uPD16432B over SPI on SIO30
+
     movw ax,de              ;49bd  c4
     movw hl,ax              ;49be  d6
     addw ax,#0007h          ;49bf  ca 07 00
@@ -15662,7 +15676,7 @@ lab_49db:
     ei                      ;49f8  7a 1e
     mov SIO30_,a            ;49fa  f2 1a
     sel rb0                 ;49fc  61 d0
-    inc mem_fed4            ;49fe  81 d4
+    inc mem_fed4            ;49fe  81 d4    Increment uPD16432B Address Setting Command to next address
     mov b,#0ffh             ;4a00  a3 ff
 
 lab_4a02:
@@ -15679,13 +15693,27 @@ lab_4a09:
 lab_4a0e:
     pop bc                  ;4a0e  b2
     dbnz b,$lab_49af        ;4a0f  8b 9e
-    mov a,#0c1h             ;4a11  a1 c1
-    call !sub_4d4d          ;4a13  9a 4d 4d
+
+    mov a,#0c1h             ;4a11  a1 c1        A = uPD16432B Command Byte 0xc1 (0b11000001)
+                            ;                       Status command
+                            ;                         Test mode setting: 0=Normal operation
+                            ;                         Standby mode setting: 0=Normal operation
+                            ;                         Key scan control: 0=Key scanning stopped
+                            ;                         LED control: 0=LED forced off
+                            ;                         LCD mode: 1=LCD forced off (SEGn, COMn=unselected waveform)
+    call !upd_send_byte     ;4a13  9a 4d 4d     Send a byte to uPD16432B over SPI on SIO30
+
     clr1 mem_fece.7         ;4a16  7b ce
     mov a,mem_fece          ;4a18  f0 ce
     mov P4_,a               ;4a1a  f2 04
-    mov a,#04h              ;4a1c  a1 04
-    call !sub_4d4d          ;4a1e  9a 4d 4d
+
+    mov a,#04h              ;4a1c  a1 04        A = uPD16432B Command Byte (0b00000100)
+                            ;                       Display Setting Command
+                            ;                       Duty setting: 0=1/8 duty
+                            ;                       Master/slave setting: 0=master
+                            ;                       Drive voltage supply method: 1=internal
+    call !upd_send_byte     ;4a1e  9a 4d 4d     Send a byte to uPD16432B over SPI on SIO30
+
     clr1 mem_fece.7         ;4a21  7b ce
     mov a,mem_fece          ;4a23  f0 ce
     mov P4_,a               ;4a25  f2 04
@@ -15921,7 +15949,8 @@ lab_4b24:
     br !lab_4d19            ;4b26  9b 19 4d
 
 lab_4b29:
-    call !sub_4d2d          ;4b29  9a 2d 4d
+    call !upd_display_on    ;4b29  9a 2d 4d     Turn uPD16432B display on
+
     mov a,!mem_fb29         ;4b2c  8e 29 fb
     cmp a,#00h              ;4b2f  4d 00
     bz $lab_4b3f            ;4b31  ad 0c
@@ -15944,13 +15973,22 @@ lab_4b3f:
     clr1 PM4_.7             ;4b54  71 7b 24
     mov a,mem_fece          ;4b57  f0 ce
     mov P4_,a               ;4b59  f2 04
-    mov a,#41h              ;4b5b  a1 41
-    call !sub_4d4d          ;4b5d  9a 4d 4d
+
+    mov a,#41h              ;4b5b  a1 41        A = uPD16432B Command Byte 0x41 (0b01000001)
+                            ;                       Data Setting Command
+                            ;                           1=Write to pictograph RAM
+                            ;                           Address increment mode: 0=increment
+    call !upd_send_byte     ;4b5d  9a 4d 4d     Send a byte to uPD16432B over SPI on SIO30
+
     clr1 mem_fece.7         ;4b60  7b ce
     mov a,mem_fece          ;4b62  f0 ce
     mov P4_,a               ;4b64  f2 04
-    mov a,#80h              ;4b66  a1 80
-    call !sub_4d4d          ;4b68  9a 4d 4d
+
+    mov a,#80h              ;4b66  a1 80        A = uPD16432B Command Byte 0x80 (0b10000000)
+                            ;                       Address Setting Command
+                            ;                           Address = 00
+    call !upd_send_byte     ;4b68  9a 4d 4d     Send a byte to uPD16432B over SPI on SIO30
+
     mov a,#00h              ;4b6b  a1 00
     cmp a,#01h              ;4b6d  4d 01
     set1 mem_fe5f.1         ;4b6f  1a 5f
@@ -16028,8 +16066,14 @@ lab_4bd9:
     clr1 PM4_.7             ;4be3  71 7b 24
     mov a,mem_fece          ;4be6  f0 ce
     mov P4_,a               ;4be8  f2 04
-    mov a,#4ah              ;4bea  a1 4a
-    call !sub_4d4d          ;4bec  9a 4d 4d
+
+    mov a,#4ah              ;4bea  a1 4a        A = Command Byte 0x4a (0b01001010)
+                            ;                   Data Setting Command
+                            ;                       2=Write to chargen ram
+                            ;                       Command implies address increment; increment = on
+                            ;                       Command implies reset to address 0; address = 0
+    call !upd_send_byte     ;4bec  9a 4d 4d     Send a byte to uPD16432B over SPI on SIO30
+
     clr1 mem_fece.7         ;4bef  7b ce
     mov a,mem_fece          ;4bf1  f0 ce
     mov P4_,a               ;4bf3  f2 04
@@ -16041,8 +16085,10 @@ lab_4bfa:
     clr1 PM4_.7             ;4bfc  71 7b 24
     mov a,mem_fece          ;4bff  f0 ce
     mov P4_,a               ;4c01  f2 04
+
     mov a,mem_fed4          ;4c03  f0 d4
-    call !sub_4d4d          ;4c05  9a 4d 4d
+    call !upd_send_byte     ;4c05  9a 4d 4d     Send a byte to uPD16432B over SPI on SIO30
+
     movw ax,de              ;4c08  c4
     movw hl,ax              ;4c09  d6
     addw ax,#0007h          ;4c0a  ca 07 00
@@ -16128,13 +16174,22 @@ lab_4c7e:
     clr1 PM4_.7             ;4c80  71 7b 24
     mov a,mem_fece          ;4c83  f0 ce
     mov P4_,a               ;4c85  f2 04
-    mov a,#40h              ;4c87  a1 40
-    call !sub_4d4d          ;4c89  9a 4d 4d
+
+    mov a,#40h              ;4c87  a1 40        A = uPD16432B Command Byte 0x40 (0b01000000)
+                            ;                       Data Setting Command
+                            ;                           0=Write to display RAM
+                            ;                           Address increment mode: 0=increment
+    call !upd_send_byte     ;4c89  9a 4d 4d     Send a byte to uPD16432B over SPI on SIO30
+
     clr1 mem_fece.7         ;4c8c  7b ce
     mov a,mem_fece          ;4c8e  f0 ce
     mov P4_,a               ;4c90  f2 04
-    mov a,#80h              ;4c92  a1 80
-    call !sub_4d4d          ;4c94  9a 4d 4d
+
+    mov a,#80h              ;4c92  a1 80        A = uPD16432B Command Byte 0x80 (0b10000000)
+                            ;                       Address Setting Command
+                            ;                           Address = 00
+    call !upd_send_byte     ;4c94  9a 4d 4d     Send a byte to uPD16432B over SPI on SIO30
+
     mov a,#00h              ;4c97  a1 00
     cmp a,#01h              ;4c99  4d 01
     set1 mem_fe5f.1         ;4c9b  1a 5f
@@ -16193,10 +16248,15 @@ lab_4ce8:
     clr1 PM4_.7             ;4cee  71 7b 24
     mov a,mem_fece          ;4cf1  f0 ce
     mov P4_,a               ;4cf3  f2 04
-    mov a,#4bh              ;4cf5  a1 4b
-    call !sub_4d4d          ;4cf7  9a 4d 4d
-    mov a,mem_fe3e          ;4cfa  f0 3e
-    call !sub_4d4d          ;4cfc  9a 4d 4d
+
+    mov a,#4bh              ;4cf5  a1 4b        A = uPD16432B Command Byte 0x4B
+                            ;                       Data Setting Command
+                            ;                           3=Write to LED output latch
+    call !upd_send_byte     ;4cf7  9a 4d 4d     Send a byte to uPD16432B over SPI on SIO30
+
+    mov a,mem_fe3e          ;4cfa  f0 3e        A = uPD16432B Data Byte
+    call !upd_send_byte     ;4cfc  9a 4d 4d     Send a byte to uPD16432B over SPI on SIO30
+
     clr1 mem_fece.7         ;4cff  7b ce
     mov a,mem_fece          ;4d01  f0 ce
     mov P4_,a               ;4d03  f2 04
@@ -16226,31 +16286,50 @@ sub_4d1a:
     mov P4_,a               ;4d2a  f2 04
     ret                     ;4d2c  af
 
-sub_4d2d:
+
+upd_display_on:
+;Turn uPD16432B display on
     clr1 mem_fece.7         ;4d2d  7b ce
     clr1 PM4_.7             ;4d2f  71 7b 24
     mov a,mem_fece          ;4d32  f0 ce
     mov P4_,a               ;4d34  f2 04
-    mov a,#04h              ;4d36  a1 04
-    call !sub_4d4d          ;4d38  9a 4d 4d
+
+    mov a,#04h              ;4d36  a1 04        A = uPD16432B Command Byte 0x04 (0b00000100)
+                            ;                       Display Setting Command
+                            ;                           Duty setting: 0=1/8 duty
+                            ;                           Master/slave setting: 0=master
+                            ;                           Drive voltage supply method: 1=internal
+    call !upd_send_byte     ;4d38  9a 4d 4d     Send a byte to uPD16432B over SPI on SIO30
+
     clr1 mem_fece.7         ;4d3b  7b ce
     mov a,mem_fece          ;4d3d  f0 ce
     mov P4_,a               ;4d3f  f2 04
-    mov a,#0ceh             ;4d41  a1 ce
-    call !sub_4d4d          ;4d43  9a 4d 4d
+
+    mov a,#0ceh             ;4d41  a1 ce        A = uPD16432B Command Byte 0xce (0b11001110)
+                            ;                       Status command
+                            ;                           Test mode setting: 0=Normal operation
+                            ;                           Standby mode setting: 0=Normal operation
+                            ;                           Key scan control: 1=Key scan operation
+                            ;                           LED control: 1=Normal operation
+                            ;                           LCD mode: 2=Normal operation (0b00)
+    call !upd_send_byte     ;4d43  9a 4d 4d     Send a byte to uPD16432B over SPI on SIO30
+
     clr1 mem_fece.7         ;4d46  7b ce
     mov a,mem_fece          ;4d48  f0 ce
     mov P4_,a               ;4d4a  f2 04
     ret                     ;4d4c  af
 
-sub_4d4d:
+
+upd_send_byte:
+;Send a byte to uPD16432B over SPI on SIO30
     mov x,a                 ;4d4d  70
     set1 mem_fece.7         ;4d4e  7a ce
     mov a,mem_fece          ;4d50  f0 ce
     mov P4_,a               ;4d52  f2 04
     mov a,x                 ;4d54  60
-    callf !sub_087a         ;4d55  0c 7a
+    callf !sub_087a         ;4d55  0c 7a        SPI transfer on SIO30 (sends byte in A, receives byte in A)
     ret                     ;4d57  af
+
 
     db 7ah                  ;4d58  7a          DATA 0x7a 'z'
     db 0ceh                 ;4d59  ce          DATA 0xce
