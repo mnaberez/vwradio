@@ -392,15 +392,15 @@
     mem_fe7f equ 0fe7fh
     mem_fe80 equ 0fe80h
     mem_fea1 equ 0fea1h
-    mem_fecb equ 0fecbh
-    mem_fecc equ 0fecch
-    mem_fecd equ 0fecdh
-    mem_fece equ 0feceh
-    mem_fecf equ 0fecfh
-    mem_fed0 equ 0fed0h
-    mem_fed1 equ 0fed1h
-    mem_fed2 equ 0fed2h
-    mem_fed3 equ 0fed3h
+    shadow_p0_ equ 0fecbh   ;Copy of P0_ that will be changed and then written to P0_
+    shadow_p2_ equ 0fecch   ;Copy of P2_ that will be changed and then written to P2_
+    shadow_p3_ equ 0fecdh   ;Copy of P3_ that will be changed and then written to P3_
+    shadow_p4_ equ 0feceh   ;Copy of P4_ that will be changed and then written to P4_
+    shadow_p5_ equ 0fecfh   ;Copy of P5_ that will be changed and then written to P5_
+    shadow_p6_ equ 0fed0h   ;Copy of P6_ that will be changed and then written to P6_
+    shadow_p7_ equ 0fed1h   ;Copy of P7_ that will be changed and then written to P7_
+    shadow_p8_ equ 0fed2h   ;Copy of P8_ that will be changed and then written to P8_
+    shadow_p9_ equ 0fed3h   ;Copy of P9_ that will be changed and then written to P9_
     mem_fed4 equ 0fed4h     ;Bit 6 off=tape side A, on=tape side B
     mem_fed5 equ 0fed5h
     mem_fed6 equ 0fed6h
@@ -2533,9 +2533,9 @@ lab_088d:
 
 
 sub_0891:
-    set1 mem_fecd.2         ;0891  2a cd
-    set1 mem_fecd.1         ;0893  1a cd
-    mov a,mem_fecd          ;0895  f0 cd
+    set1 shadow_p3_.2       ;0891  2a cd
+    set1 shadow_p3_.1       ;0893  1a cd
+    mov a,shadow_p3_        ;0895  f0 cd
     mov P3_,a               ;0897  f2 03
     mov CSIM30_,#00h        ;0899  13 b0 00
     clr1 PM3_.2             ;089c  71 2b 23
@@ -2587,9 +2587,9 @@ lab_08db:
     ret                     ;08de  af
 
 sub_08df:
-    set1 mem_fecc.2         ;08df  2a cc
-    set1 mem_fecc.1         ;08e1  1a cc
-    mov a,mem_fecc          ;08e3  f0 cc
+    set1 shadow_p2_.2       ;08df  2a cc
+    set1 shadow_p2_.1       ;08e1  1a cc
+    mov a,shadow_p2_        ;08e3  f0 cc
     mov P2_,a               ;08e5  f2 02
     mov CSIM31_,#00h        ;08e7  13 b8 00
     clr1 PM2_.2             ;08ea  71 2b 22
@@ -3681,9 +3681,9 @@ lab_0d73:
     ret                     ;0d74  af
 
 sub_0d75:
-    clr1 mem_fed3.7         ;0d75  7b d3
+    clr1 shadow_p9_.7       ;0d75  7b d3
     clr1 PM9_.7             ;0d77  71 7b 29
-    mov a,mem_fed3          ;0d7a  f0 d3
+    mov a,shadow_p9_        ;0d7a  f0 d3
     mov P9_,a               ;0d7c  f2 09
     mov a,#00h              ;0d7e  a1 00
     mov !mem_f18e,a         ;0d80  9e 8e f1
@@ -3698,13 +3698,13 @@ lab_0d88:
     mov WDTM_,#90h          ;0d8d  13 f9 90
     mov PCC_,#00h           ;0d90  13 fb 00
     movw sp,#mem_fe1f       ;0d93  ee 1c 1f fe
-    clr1 mem_fecd.4         ;0d97  4b cd
+    clr1 shadow_p3_.4       ;0d97  4b cd
     clr1 PM3_.4             ;0d99  71 4b 23
-    mov a,mem_fecd          ;0d9c  f0 cd
+    mov a,shadow_p3_        ;0d9c  f0 cd
     mov P3_,a               ;0d9e  f2 03
-    clr1 mem_fece.6         ;0da0  6b ce
+    clr1 shadow_p4_.6       ;0da0  6b ce
     clr1 PM4_.6             ;0da2  71 6b 24
-    mov a,mem_fece          ;0da5  f0 ce
+    mov a,shadow_p4_        ;0da5  f0 ce
     mov P4_,a               ;0da7  f2 04
     mov a,#01h              ;0da9  a1 01
     callf !sub_09d7         ;0dab  1c d7
@@ -3715,8 +3715,8 @@ lab_0d88:
     set1 mem_fe7d.1         ;0db8  1a 7d
     clr1 mem_fe69.0         ;0dba  0b 69
     clr1 PM7_.0             ;0dbc  71 0b 27
-    clr1 mem_fed1.0         ;0dbf  0b d1
-    mov a,mem_fed1          ;0dc1  f0 d1
+    clr1 shadow_p7_.0       ;0dbf  0b d1
+    mov a,shadow_p7_        ;0dc1  f0 d1
     mov P7_,a               ;0dc3  f2 07
     call !sub_4076          ;0dc5  9a 76 40
     bz $lab_0dcf            ;0dc8  ad 05
@@ -3731,9 +3731,9 @@ lab_0dcf:
     mov WDCS_,a             ;0ddb  f6 42
     mov a,#90h              ;0ddd  a1 90
     mov WDTM_,a             ;0ddf  f6 f9
-    clr1 mem_fed3.7         ;0de1  7b d3
+    clr1 shadow_p9_.7       ;0de1  7b d3
     clr1 PM9_.7             ;0de3  71 7b 29
-    mov a,mem_fed3          ;0de6  f0 d3
+    mov a,shadow_p9_        ;0de6  f0 d3
     mov P9_,a               ;0de8  f2 09
     clr1 PU0_.2             ;0dea  71 2b 30
     set1 PM0_.2             ;0ded  71 2a 20
@@ -3768,7 +3768,7 @@ lab_0e2a:
     mov [hl],a              ;0e2a  97
     incw hl                 ;0e2b  86
     xchw ax,hl              ;0e2c  e6
-    cmpw ax,#mem_fecb       ;0e2d  ea cb fe
+    cmpw ax,#shadow_p0_     ;0e2d  ea cb fe
     xchw ax,hl              ;0e30  e6
     bc $lab_0e2a            ;0e31  8d f7
     mov WDTM_,#90h          ;0e33  13 f9 90
@@ -3798,11 +3798,11 @@ lab_0e39:
     set1 PM2_.6             ;0e62  71 6a 22
     mov ASIM0_,#00h         ;0e65  13 a0 00
     mov BRGC0_,#39h         ;0e68  13 a2 39
-    set1 mem_fecc.5         ;0e6b  5a cc
-    mov a,mem_fecc          ;0e6d  f0 cc
+    set1 shadow_p2_.5       ;0e6b  5a cc
+    mov a,shadow_p2_        ;0e6d  f0 cc
     mov P2_,a               ;0e6f  f2 02
-    clr1 mem_fecc.6         ;0e71  6b cc
-    mov a,mem_fecc          ;0e73  f0 cc
+    clr1 shadow_p2_.6       ;0e71  6b cc
+    mov a,shadow_p2_        ;0e73  f0 cc
     mov P2_,a               ;0e75  f2 02
     mov a,#0dbh             ;0e77  a1 db
     mov !mem_f077,a         ;0e79  9e 77 f0
@@ -3920,11 +3920,11 @@ lab_0f1b:
     mov !mem_f04e,a         ;0f86  9e 4e f0
     clr1 mem_fe5f.5         ;0f89  5b 5f
     call !sub_2d35          ;0f8b  9a 35 2d     Clear bits in mem_fe5f and mem_fe60
-    set1 mem_fecc.5         ;0f8e  5a cc
-    mov a,mem_fecc          ;0f90  f0 cc
+    set1 shadow_p2_.5       ;0f8e  5a cc
+    mov a,shadow_p2_        ;0f90  f0 cc
     mov P2_,a               ;0f92  f2 02
-    clr1 mem_fecc.6         ;0f94  6b cc
-    mov a,mem_fecc          ;0f96  f0 cc
+    clr1 shadow_p2_.6       ;0f94  6b cc
+    mov a,shadow_p2_        ;0f96  f0 cc
     mov P2_,a               ;0f98  f2 02
     call !sub_3468          ;0f9a  9a 68 34
     mov a,RXB0_TXS0_        ;0f9d  f0 18
@@ -4033,8 +4033,8 @@ lab_1036:
     set1 EGP_.0             ;1099  71 0a 48
     clr1 EGN_.0             ;109c  71 0b 49
     clr1 PM5_.7             ;109f  71 7b 25
-    set1 mem_fecf.7         ;10a2  7a cf
-    mov a,mem_fecf          ;10a4  f0 cf
+    set1 shadow_p5_.7       ;10a2  7a cf
+    mov a,shadow_p5_        ;10a4  f0 cf
     mov P5_,a               ;10a6  f2 05
     mov a,#02h              ;10a8  a1 02
     callf !sub_09d7         ;10aa  1c d7
@@ -4043,8 +4043,8 @@ lab_1036:
     clr1 mem_fe6a.0         ;10b1  0b 6a
     clr1 mem_fe6a.1         ;10b3  1b 6a
     clr1 PM2_.7             ;10b5  71 7b 22
-    set1 mem_fecc.7         ;10b8  7a cc
-    mov a,mem_fecc          ;10ba  f0 cc
+    set1 shadow_p2_.7       ;10b8  7a cc
+    mov a,shadow_p2_        ;10ba  f0 cc
     mov P2_,a               ;10bc  f2 02
     mov mem_fe40,#00h       ;10be  11 40 00
     mov mem_fe41,#00h       ;10c1  11 41 00
@@ -4064,8 +4064,8 @@ lab_1036:
     callf !sub_08cc         ;10e4  0c cc
     call !sub_d16e          ;10e6  9a 6e d1
     clr1 PM7_.0             ;10e9  71 0b 27
-    set1 mem_fed1.0         ;10ec  0a d1
-    mov a,mem_fed1          ;10ee  f0 d1
+    set1 shadow_p7_.0       ;10ec  0a d1
+    mov a,shadow_p7_        ;10ee  f0 d1
     mov P7_,a               ;10f0  f2 07
     mov a,#10h              ;10f2  a1 10
     mov !mem_fb1b,a         ;10f4  9e 1b fb
@@ -4092,23 +4092,23 @@ lab_1118:
 
 lab_1123:
     di                      ;1123  7b 1e
-    mov a,mem_fecb          ;1125  f0 cb
+    mov a,shadow_p0_        ;1125  f0 cb
     mov P0_,a               ;1127  f2 00
-    mov a,mem_fecc          ;1129  f0 cc
+    mov a,shadow_p2_        ;1129  f0 cc
     mov P2_,a               ;112b  f2 02
-    mov a,mem_fecd          ;112d  f0 cd
+    mov a,shadow_p3_        ;112d  f0 cd
     mov P3_,a               ;112f  f2 03
-    mov a,mem_fece          ;1131  f0 ce
+    mov a,shadow_p4_        ;1131  f0 ce
     mov P4_,a               ;1133  f2 04
-    mov a,mem_fecf          ;1135  f0 cf
+    mov a,shadow_p5_        ;1135  f0 cf
     mov P5_,a               ;1137  f2 05
-    mov a,mem_fed0          ;1139  f0 d0
+    mov a,shadow_p6_        ;1139  f0 d0
     mov P6_,a               ;113b  f2 06
-    mov a,mem_fed1          ;113d  f0 d1
+    mov a,shadow_p7_        ;113d  f0 d1
     mov P7_,a               ;113f  f2 07
-    mov a,mem_fed2          ;1141  f0 d2
+    mov a,shadow_p8_        ;1141  f0 d2
     mov P8_,a               ;1143  f2 08
-    mov a,mem_fed3          ;1145  f0 d3
+    mov a,shadow_p9_        ;1145  f0 d3
     mov P9_,a               ;1147  f2 09
     ei                      ;1149  7a 1e
     mov WTNM0_,#13h         ;114b  13 41 13
@@ -4121,13 +4121,13 @@ lab_115c:
     mov a,#02h              ;115c  a1 02
     mov !mem_fb4c,a         ;115e  9e 4c fb
     set1 mem_fe7d.2         ;1161  2a 7d
-    clr1 mem_fed3.7         ;1163  7b d3
+    clr1 shadow_p9_.7       ;1163  7b d3
     clr1 PM9_.7             ;1165  71 7b 29
-    mov a,mem_fed3          ;1168  f0 d3
+    mov a,shadow_p9_        ;1168  f0 d3
     mov P9_,a               ;116a  f2 09
-    clr1 mem_fed3.4         ;116c  4b d3
+    clr1 shadow_p9_.4       ;116c  4b d3
     clr1 PM9_.4             ;116e  71 4b 29
-    mov a,mem_fed3          ;1171  f0 d3
+    mov a,shadow_p9_        ;1171  f0 d3
     mov P9_,a               ;1173  f2 09
     set1 mem_fe2b.7         ;1175  7a 2b
     call !sub_3acf          ;1177  9a cf 3a
@@ -4470,13 +4470,13 @@ lab_1385:
 
 lab_138e:
     bt mem_fe6b.6,$lab_13a7 ;138e  ec 6b 16
-    clr1 mem_fed3.7         ;1391  7b d3
-    mov a,mem_fed3          ;1393  f0 d3
+    clr1 shadow_p9_.7       ;1391  7b d3
+    mov a,shadow_p9_        ;1393  f0 d3
     mov P9_,a               ;1395  f2 09
     mov a,#0fh              ;1397  a1 0f
     mov !mem_fb14,a         ;1399  9e 14 fb
-    clr1 mem_fed3.4         ;139c  4b d3
-    mov a,mem_fed3          ;139e  f0 d3
+    clr1 shadow_p9_.4       ;139c  4b d3
+    mov a,shadow_p9_        ;139e  f0 d3
     mov P9_,a               ;13a0  f2 09
     set1 mem_fe6b.6         ;13a2  6a 6b
     br !lab_1479            ;13a4  9b 79 14
@@ -4498,8 +4498,8 @@ lab_13b9:
     clr1 PM2_.7             ;13be  71 7b 22
     clr1 mem_fe40.0         ;13c1  0b 40
     clr1 mem_fe40.1         ;13c3  1b 40
-    clr1 mem_fecc.7         ;13c5  7b cc
-    mov a,mem_fecc          ;13c7  f0 cc
+    clr1 shadow_p2_.7       ;13c5  7b cc
+    mov a,shadow_p2_        ;13c7  f0 cc
     mov P2_,a               ;13c9  f2 02
     mov a,#06h              ;13cb  a1 06
     mov !mem_fb07,a         ;13cd  9e 07 fb
@@ -4532,12 +4532,12 @@ lab_13f3:
     mov [hl+b],a            ;13f8  bb
     mov !mem_fc23,a         ;13f9  9e 23 fc
     mov !mem_fc24,a         ;13fc  9e 24 fc
-    set1 mem_fecc.7         ;13ff  7a cc
-    mov a,mem_fecc          ;1401  f0 cc
+    set1 shadow_p2_.7       ;13ff  7a cc
+    mov a,shadow_p2_        ;1401  f0 cc
     mov P2_,a               ;1403  f2 02
 
 lab_1405:
-    bf mem_fed3.4,$lab_142e ;1405  31 43 d3 25
+    bf shadow_p9_.4,$lab_142e ;1405  31 43 d3 25
     bf mem_fe6b.6,$lab_1416 ;1409  31 63 6b 09
     mov a,#0fh              ;140d  a1 0f
     mov !mem_fb14,a         ;140f  9e 14 fb
@@ -8433,20 +8433,20 @@ lab_2515:
 sub_251a:
     cmp mem_fe24,#30h       ;251a  c8 24 30
     bnc $lab_2521           ;251d  9d 02
-    set1 mem_fecd.3         ;251f  3a cd
+    set1 shadow_p3_.3       ;251f  3a cd
 
 lab_2521:
     dbnz mem_fe24,$lab_2532 ;2521  04 24 0e
     bt mem_fe2c.2,$lab_252f ;2524  ac 2c 08
     bt mem_fe2c.3,$lab_252f ;2527  bc 2c 05
     clr1 PM3_.3             ;252a  71 3b 23
-    clr1 mem_fecd.3         ;252d  3b cd
+    clr1 shadow_p3_.3       ;252d  3b cd
 
 lab_252f:
     mov mem_fe24,#30h       ;252f  11 24 30
 
 lab_2532:
-    mov a,mem_fecd          ;2532  f0 cd
+    mov a,shadow_p3_        ;2532  f0 cd
     mov P3_,a               ;2534  f2 03
     ret                     ;2536  af
 
@@ -8618,9 +8618,9 @@ sub_2617:
     clr1 PM3_.1             ;261d  71 1b 23
     clr1 PU3_.0             ;2620  71 0b 33
     set1 PM3_.0             ;2623  71 0a 23
-    clr1 mem_fecd.2         ;2626  2b cd
-    clr1 mem_fecd.1         ;2628  1b cd
-    mov a,mem_fecd          ;262a  f0 cd
+    clr1 shadow_p3_.2       ;2626  2b cd
+    clr1 shadow_p3_.1       ;2628  1b cd
+    mov a,shadow_p3_        ;262a  f0 cd
     mov P3_,a               ;262c  f2 03
     ret                     ;262e  af
 
@@ -8631,8 +8631,8 @@ sub_262f:
     clr1 PM2_.1             ;2638  71 1b 22
     clr1 PU2_.0             ;263b  71 0b 32
     set1 PM2_.0             ;263e  71 0a 22
-    clr1 mem_fecc.1         ;2641  1b cc
-    mov a,mem_fecc          ;2643  f0 cc
+    clr1 shadow_p2_.1        ;2641  1b cc
+    mov a,shadow_p2_        ;2643  f0 cc
     mov P2_,a               ;2645  f2 02
     ret                     ;2647  af
 
@@ -10261,13 +10261,13 @@ lab_2f43:
     ret                     ;2f47  af
 
 sub_2f48:
-    clr1 mem_fece.3         ;2f48  3b ce
+    clr1 shadow_p4_.3       ;2f48  3b ce
     clr1 PM4_.3             ;2f4a  71 3b 24
-    mov a,mem_fece          ;2f4d  f0 ce
+    mov a,shadow_p4_        ;2f4d  f0 ce
     mov P4_,a               ;2f4f  f2 04
-    clr1 mem_fece.4         ;2f51  4b ce
+    clr1 shadow_p4_.4       ;2f51  4b ce
     clr1 PM4_.4             ;2f53  71 4b 24
-    mov a,mem_fece          ;2f56  f0 ce
+    mov a,shadow_p4_        ;2f56  f0 ce
     mov P4_,a               ;2f58  f2 04
     callf !sub_0891         ;2f5a  0c 91
     set1 mem_fe5e.7         ;2f5c  7a 5e
@@ -10342,15 +10342,15 @@ lab_2fca:
     set1 mem_fe60.6         ;2fca  6a 60
     set1 mem_fe60.7         ;2fcc  7a 60
     callf !sub_0891         ;2fce  0c 91
-    set1 mem_fece.3         ;2fd0  3a ce
+    set1 shadow_p4_.3       ;2fd0  3a ce
     clr1 PM4_.3             ;2fd2  71 3b 24
-    mov a,mem_fece          ;2fd5  f0 ce
+    mov a,shadow_p4_        ;2fd5  f0 ce
     mov P4_,a               ;2fd7  f2 04
     bf mem_fe61.0,$lab_2ff4 ;2fd9  31 03 61 17
     clr1 mem_fe61.0         ;2fdd  0b 61
-    set1 mem_fece.4         ;2fdf  4a ce
+    set1 shadow_p4_.4       ;2fdf  4a ce
     clr1 PM4_.4             ;2fe1  71 4b 24
-    mov a,mem_fece          ;2fe4  f0 ce
+    mov a,shadow_p4_        ;2fe4  f0 ce
     mov P4_,a               ;2fe6  f2 04
     push bc                 ;2fe8  b3
     mov b,#0eh              ;2fe9  a3 0e
@@ -10358,8 +10358,8 @@ lab_2fca:
 lab_2feb:
     dbnz b,$lab_2feb        ;2feb  8b fe
     pop bc                  ;2fed  b2
-    clr1 mem_fece.4         ;2fee  4b ce
-    mov a,mem_fece          ;2ff0  f0 ce
+    clr1 shadow_p4_.4       ;2fee  4b ce
+    mov a,shadow_p4_        ;2ff0  f0 ce
     mov P4_,a               ;2ff2  f2 04
 
 lab_2ff4:
@@ -10448,8 +10448,8 @@ lab_307e:
     push ax                 ;307e  b1
     bt mem_fe7a.2,$lab_308d ;307f  ac 7a 0b
     clr1 mem_fe79.0         ;3082  0b 79
-    set1 mem_fecc.5         ;3084  5a cc
-    mov a,mem_fecc          ;3086  f0 cc
+    set1 shadow_p2_.5        ;3084  5a cc
+    mov a,shadow_p2_        ;3086  f0 cc
     mov P2_,a               ;3088  f2 02
     clr1 ASIM0_.7           ;308a  71 7b a0
 
@@ -10466,8 +10466,8 @@ sub_308f:
     mov !mem_f06e,a         ;309f  9e 6e f0
     bnz $lab_30e7           ;30a2  bd 43
     clr1 mem_fe79.1         ;30a4  1b 79
-    clr1 mem_fecc.5         ;30a6  5b cc
-    mov a,mem_fecc          ;30a8  f0 cc
+    clr1 shadow_p2_.5        ;30a6  5b cc
+    mov a,shadow_p2_        ;30a8  f0 cc
     mov P2_,a               ;30aa  f2 02
     bt mem_fe79.6,$lab_30d7 ;30ac  ec 79 28
     bt mem_fe79.3,$lab_30cb ;30af  bc 79 19
@@ -10763,7 +10763,7 @@ lab_3288:
     br $lab_32dc            ;328b  fa 4f
 
 lab_328d:
-    bf mem_fecc.6,$lab_323f ;328d  31 63 cc ae
+    bf shadow_p2_.6,$lab_323f ;328d  31 63 cc ae
     call !sub_3468          ;3291  9a 68 34
     br $lab_32dc            ;3294  fa 46
 
@@ -10823,7 +10823,7 @@ lab_32df:
     mov a,RXB0_TXS0_        ;32e6  f0 18
     clr1 IF0H_.2            ;32e8  71 2b e1
     bf mem_fe7a.2,$lab_3304 ;32eb  31 23 7a 15
-    bt mem_fecc.6,$lab_331c ;32ef  ec cc 2a
+    bt shadow_p2_.6,$lab_331c ;32ef  ec cc 2a
     bt mem_fe79.0,$lab_3301 ;32f2  8c 79 0c
     bt mem_fe7a.1,$lab_32fd ;32f5  9c 7a 05
     bt mem_fe7a.0,$lab_32ff ;32f8  8c 7a 04
@@ -10931,7 +10931,7 @@ lab_336f:
 
 lab_3370:
     clr1 mem_fe79.2         ;3370  2b 79
-    bf mem_fecc.6,$lab_3392 ;3372  31 63 cc 1c
+    bf shadow_p2_.6,$lab_3392 ;3372  31 63 cc 1c
     mov a,!mem_f078         ;3376  8e 78 f0
     cmp a,#01h              ;3379  4d 01
     bnc $lab_3392           ;337b  9d 15
@@ -10946,8 +10946,8 @@ lab_3370:
     set1 mem_fe7b.4         ;3390  4a 7b
 
 lab_3392:
-    set1 mem_fecc.5         ;3392  5a cc
-    mov a,mem_fecc          ;3394  f0 cc
+    set1 shadow_p2_.5       ;3392  5a cc
+    mov a,shadow_p2_        ;3394  f0 cc
     mov P2_,a               ;3396  f2 02
     mov ASIM0_,#00h         ;3398  13 a0 00
     br !sub_3468            ;339b  9b 68 34
@@ -11077,12 +11077,12 @@ lab_3460:
 
 sub_3468:
     clr1 mem_fe7a.2         ;3468  2b 7a
-    set1 mem_fecc.5         ;346a  5a cc
-    mov a,mem_fecc          ;346c  f0 cc
+    set1 shadow_p2_.5        ;346a  5a cc
+    mov a,shadow_p2_        ;346c  f0 cc
     mov P2_,a               ;346e  f2 02
     btclr mem_fe7b.4,$lab_348b ;3470  31 41 7b 17
-    clr1 mem_fecc.6         ;3474  6b cc
-    mov a,mem_fecc          ;3476  f0 cc
+    clr1 shadow_p2_.6        ;3474  6b cc
+    mov a,shadow_p2_        ;3476  f0 cc
     mov P2_,a               ;3478  f2 02
     bt mem_fe2c.2,$lab_3481 ;347a  ac 2c 04
     clr1 mem_fe7a.4         ;347d  4b 7a
@@ -11199,11 +11199,11 @@ sub_3518:
     clr1 mem_fe7a.6         ;3528  6b 7a
 
 lab_352a:
-    clr1 mem_fecc.6         ;352a  6b cc
-    mov a,mem_fecc          ;352c  f0 cc
+    clr1 shadow_p2_.6        ;352a  6b cc
+    mov a,shadow_p2_        ;352c  f0 cc
     mov P2_,a               ;352e  f2 02
-    set1 mem_fecc.5         ;3530  5a cc
-    mov a,mem_fecc          ;3532  f0 cc
+    set1 shadow_p2_.5       ;3530  5a cc
+    mov a,shadow_p2_        ;3532  f0 cc
     mov P2_,a               ;3534  f2 02
     mov a,#0dbh             ;3536  a1 db
     mov !mem_f077,a         ;3538  9e 77 f0
@@ -11224,11 +11224,11 @@ lab_3541:
 
 lab_3554:
     mov ASIM0_,#00h         ;3554  13 a0 00
-    set1 mem_fecc.6         ;3557  6a cc
-    mov a,mem_fecc          ;3559  f0 cc
+    set1 shadow_p2_.6       ;3557  6a cc
+    mov a,shadow_p2_        ;3559  f0 cc
     mov P2_,a               ;355b  f2 02
-    clr1 mem_fecc.5         ;355d  5b cc
-    mov a,mem_fecc          ;355f  f0 cc
+    clr1 shadow_p2_.5       ;355d  5b cc
+    mov a,shadow_p2_        ;355f  f0 cc
     mov P2_,a               ;3561  f2 02
     mov a,#00h              ;3563  a1 00
     mov !mem_f071,a         ;3565  9e 71 f0
@@ -11253,11 +11253,11 @@ sub_357c:
     bz $lab_35ab            ;3589  ad 20
     bf mem_fe7a.6,$lab_35e8 ;358b  31 63 7a 59
     bt P2_.4,$lab_35e8      ;358f  cc 02 56
-    clr1 mem_fecc.6         ;3592  6b cc
-    mov a,mem_fecc          ;3594  f0 cc
+    clr1 shadow_p2_.6       ;3592  6b cc
+    mov a,shadow_p2_        ;3594  f0 cc
     mov P2_,a               ;3596  f2 02
-    set1 mem_fecc.5         ;3598  5a cc
-    mov a,mem_fecc          ;359a  f0 cc
+    set1 shadow_p2_.5       ;3598  5a cc
+    mov a,shadow_p2_        ;359a  f0 cc
     mov P2_,a               ;359c  f2 02
     mov a,#0dbh             ;359e  a1 db
     mov !mem_f077,a         ;35a0  9e 77 f0
@@ -11280,15 +11280,15 @@ lab_35ab:
     ror a,1                 ;35c2  24
     mov !mem_f074,a         ;35c3  9e 74 f0
     mov1 mem_fe7a.6,cy      ;35c6  71 61 7a
-    mov1 mem_fecc.5,cy      ;35c9  71 51 cc
-    mov a,mem_fecc          ;35cc  f0 cc
+    mov1 shadow_p2_.5,cy    ;35c9  71 51 cc
+    mov a,shadow_p2_        ;35cc  f0 cc
     mov P2_,a               ;35ce  f2 02
     br $lab_35e8            ;35d0  fa 16
 
 lab_35d2:
     set1 mem_fe7a.6         ;35d2  6a 7a
-    set1 mem_fecc.5         ;35d4  5a cc
-    mov a,mem_fecc          ;35d6  f0 cc
+    set1 shadow_p2_.5       ;35d4  5a cc
+    mov a,shadow_p2_        ;35d6  f0 cc
     mov P2_,a               ;35d8  f2 02
     br $lab_35e8            ;35da  fa 0c
 
@@ -11319,11 +11319,11 @@ lab_35f6:
 
 lab_3607:
     clr1 mem_fe65.6         ;3607  6b 65
-    clr1 mem_fecc.6         ;3609  6b cc
-    mov a,mem_fecc          ;360b  f0 cc
+    clr1 shadow_p2_.6       ;3609  6b cc
+    mov a,shadow_p2_        ;360b  f0 cc
     mov P2_,a               ;360d  f2 02
-    set1 mem_fecc.5         ;360f  5a cc
-    mov a,mem_fecc          ;3611  f0 cc
+    set1 shadow_p2_.5       ;360f  5a cc
+    mov a,shadow_p2_        ;3611  f0 cc
     mov P2_,a               ;3613  f2 02
     bt mem_fe7b.6,$lab_362d ;3615  ec 7b 15
     set1 mem_fe7a.5         ;3618  5a 7a
@@ -11560,19 +11560,19 @@ lab_3714:
 
 sub_375d:
     clr1 PM8_.0             ;375d  71 0b 28
-    mov a,mem_fed2          ;3760  f0 d2
+    mov a,shadow_p8_        ;3760  f0 d2
     mov P8_,a               ;3762  f2 08
     clr1 PM9_.7             ;3764  71 7b 29
-    mov a,mem_fed3          ;3767  f0 d3
+    mov a,shadow_p9_        ;3767  f0 d3
     mov P9_,a               ;3769  f2 09
     clr1 PM9_.4             ;376b  71 4b 29
-    mov a,mem_fed3          ;376e  f0 d3
+    mov a,shadow_p9_        ;376e  f0 d3
     mov P9_,a               ;3770  f2 09
     clr1 PM8_.2             ;3772  71 2b 28
-    mov a,mem_fed2          ;3775  f0 d2
+    mov a,shadow_p8_        ;3775  f0 d2
     mov P8_,a               ;3777  f2 08
     clr1 PM8_.1             ;3779  71 1b 28
-    mov a,mem_fed2          ;377c  f0 d2
+    mov a,shadow_p8_        ;377c  f0 d2
     mov P8_,a               ;377e  f2 08
     ret                     ;3780  af
 
@@ -11580,9 +11580,9 @@ sub_3781:
     mov a,#02h              ;3781  a1 02
     mov !mem_fb0c,a         ;3783  9e 0c fb
     mov mem_fe2a,#01h       ;3786  11 2a 01
-    clr1 mem_fed3.7         ;3789  7b d3
-    clr1 mem_fed3.4         ;378b  4b d3
-    clr1 mem_fed2.2         ;378d  2b d2
+    clr1 shadow_p9_.7       ;3789  7b d3
+    clr1 shadow_p9_.4       ;378b  4b d3
+    clr1 shadow_p8_.2       ;378d  2b d2
     call !sub_3a06          ;378f  9a 06 3a
     mov a,!mem_fb0c         ;3792  8e 0c fb
     cmp a,#00h              ;3795  4d 00
@@ -11591,18 +11591,18 @@ sub_3781:
 
 lab_379a:
     clr1 PM7_.0             ;379a  71 0b 27
-    clr1 mem_fed1.0         ;379d  0b d1
-    mov a,mem_fed1          ;379f  f0 d1
+    clr1 shadow_p7_.0       ;379d  0b d1
+    mov a,shadow_p7_        ;379f  f0 d1
     mov P7_,a               ;37a1  f2 07
     mov a,#01h              ;37a3  a1 01
     callf !sub_09d3         ;37a5  1c d3
     mov mem_fe2a,#02h       ;37a7  11 2a 02
-    clr1 mem_fed3.7         ;37aa  7b d3
+    clr1 shadow_p9_.7       ;37aa  7b d3
     mov a,#00h              ;37ac  a1 00
     mov !mem_fb0c,a         ;37ae  9e 0c fb
     mov !mem_fb1f,a         ;37b1  9e 1f fb
     mov mem_fe2a,#03h       ;37b4  11 2a 03
-    clr1 mem_fed3.4         ;37b7  4b d3
+    clr1 shadow_p9_.4       ;37b7  4b d3
     mov a,!mem_fb0c         ;37b9  8e 0c fb
     cmp a,#00h              ;37bc  4d 00
     bz $lab_37c1            ;37be  ad 01
@@ -11621,7 +11621,7 @@ lab_37c5:
     mov mem_fe2b,#40h       ;37cc  11 2b 40
     call !sub_3a06          ;37cf  9a 06 3a
     bf mem_fe61.5,$lab_37da ;37d2  31 53 61 04
-    set1 mem_fed3.4         ;37d6  4a d3
+    set1 shadow_p9_.4       ;37d6  4a d3
     br $lab_37ef            ;37d8  fa 15
 
 lab_37da:
@@ -11635,16 +11635,16 @@ lab_37da:
 
 lab_37ea:
     mov mem_fe2a,#04h       ;37ea  11 2a 04
-    clr1 mem_fed3.4         ;37ed  4b d3
+    clr1 shadow_p9_.4       ;37ed  4b d3
 
 lab_37ef:
     bt mem_fe65.5,$lab_37f6 ;37ef  dc 65 04
-    clr1 mem_fed2.2         ;37f2  2b d2
-    clr1 mem_fed2.1         ;37f4  1b d2
+    clr1 shadow_p8_.2       ;37f2  2b d2
+    clr1 shadow_p8_.1       ;37f4  1b d2
 
 lab_37f6:
     bt mem_fe61.5,$lab_37fb ;37f6  dc 61 02
-    clr1 mem_fed3.7         ;37f9  7b d3
+    clr1 shadow_p9_.7       ;37f9  7b d3
 
 lab_37fb:
     mov mem_fe2a,#04h       ;37fb  11 2a 04
@@ -11696,8 +11696,8 @@ lab_3804:
 
 lab_3830:
     clr1 mem_fe61.4         ;3830  4b 61
-    set1 mem_fed2.1         ;3832  1a d2
-    set1 mem_fed2.2         ;3834  2a d2
+    set1 shadow_p8_.1       ;3832  1a d2
+    set1 shadow_p8_.2       ;3834  2a d2
     mov mem_fe2a,#07h       ;3836  11 2a 07
     clr1 mem_fe2b.7         ;3839  7b 2b
     clr1 mem_fe2b.6         ;383b  6b 2b
@@ -11720,7 +11720,7 @@ lab_3856:
     clr1 mem_fe2b.5         ;385b  5b 2b
 
 lab_385d:
-    bt mem_fed3.4,$lab_3870 ;385d  cc d3 10
+    bt shadow_p9_.4,$lab_3870 ;385d  cc d3 10
     mov mem_fe2a,#08h       ;3860  11 2a 08
     mov a,#73h              ;3863  a1 73
     mov !mem_fb0c,a         ;3865  9e 0c fb
@@ -11732,7 +11732,7 @@ lab_385d:
 lab_3870:
     mov mem_fe2a,#07h       ;3870  11 2a 07
     bt mem_fe65.5,$lab_3878 ;3873  dc 65 02
-    set1 mem_fed3.4         ;3876  4a d3
+    set1 shadow_p9_.4       ;3876  4a d3
 
 lab_3878:
     bt mem_fe2c.3,$lab_387d ;3878  bc 2c 02
@@ -11740,13 +11740,13 @@ lab_3878:
 
 lab_387d:
     bf mem_fe61.5,$lab_38a2 ;387d  31 53 61 21
-    set1 mem_fed3.7         ;3881  7a d3
+    set1 shadow_p9_.7       ;3881  7a d3
     mov a,!mem_fb71         ;3883  8e 71 fb
     cmp a,#0c3h             ;3886  4d c3
     bnz $lab_38a2           ;3888  bd 18
     mov mem_fe2a,#0ah       ;388a  11 2a 0a
     bt mem_fe61.5,$lab_38dc ;388d  dc 61 4c
-    clr1 mem_fed3.7         ;3890  7b d3
+    clr1 shadow_p9_.7       ;3890  7b d3
     mov mem_fe2a,#0bh       ;3892  11 2a 0b
     mov a,#0ah              ;3895  a1 0a
     mov !mem_fb0c,a         ;3897  9e 0c fb
@@ -11776,7 +11776,7 @@ lab_38c3:
 lab_38c7:
     mov mem_fe2a,#07h       ;38c7  11 2a 07
     bt mem_fe65.5,$lab_38cf ;38ca  dc 65 02
-    set1 mem_fed3.7         ;38cd  7a d3
+    set1 shadow_p9_.7       ;38cd  7a d3
 
 lab_38cf:
     ret                     ;38cf  af
@@ -11784,8 +11784,8 @@ lab_38cf:
 lab_38d0:
     call !sub_a74b          ;38d0  9a 4b a7
     set1 mem_fe7d.4         ;38d3  4a 7d
-    clr1 mem_fed2.1         ;38d5  1b d2
-    clr1 mem_fed2.2         ;38d7  2b d2
+    clr1 shadow_p8_.1       ;38d5  1b d2
+    clr1 shadow_p8_.2       ;38d7  2b d2
     br !lab_37c3            ;38d9  9b c3 37
 
 lab_38dc:
@@ -12083,8 +12083,8 @@ lab_3924:
 
 sub_3a06:
     clr1 PM8_.0             ;3a06  71 0b 28
-    set1 mem_fed2.0         ;3a09  0a d2
-    mov a,mem_fed2          ;3a0b  f0 d2
+    set1 shadow_p8_.0       ;3a09  0a d2
+    mov a,shadow_p8_        ;3a0b  f0 d2
     mov P8_,a               ;3a0d  f2 08
     ret                     ;3a0f  af
 
@@ -12290,8 +12290,8 @@ sub_3acf:
     set1 PM2_.5             ;3ade  71 5a 22
     clr1 PU2_.6             ;3ae1  71 6b 32
     set1 PM2_.6             ;3ae4  71 6a 22
-    clr1 mem_fecc.7         ;3ae7  7b cc
-    mov a,mem_fecc          ;3ae9  f0 cc
+    clr1 shadow_p2_.7       ;3ae7  7b cc
+    mov a,shadow_p2_        ;3ae9  f0 cc
     mov P2_,a               ;3aeb  f2 02
     clr1 PU5_.7             ;3aed  71 7b 35
     set1 PM5_.7             ;3af0  71 7a 25
@@ -12406,7 +12406,7 @@ sub_3b80:
     mov CRC00_,#00h         ;3b93  13 62 00
     mov TOC00_,#1bh         ;3b96  13 63 1b
     clr1 PM3_.4             ;3b99  71 4b 23
-    clr1 mem_fecd.4         ;3b9c  4b cd
+    clr1 shadow_p3_.4       ;3b9c  4b cd
     mov TMC00_,#0ch         ;3b9e  13 60 0c
     ret                     ;3ba1  af
 
@@ -15580,18 +15580,18 @@ sub_4960:
     br $lab_498b            ;4969  fa 20
 
 lab_496b:
-    clr1 mem_fece.3         ;496b  3b ce
+    clr1 shadow_p4_.3       ;496b  3b ce
     clr1 PM4_.3             ;496d  71 3b 24
-    mov a,mem_fece          ;4970  f0 ce
+    mov a,shadow_p4_        ;4970  f0 ce
     mov P4_,a               ;4972  f2 04
     mov CSIM30_,#82h        ;4974  13 b0 82
     clr1 PM3_.2             ;4977  71 2b 23
     clr1 PM3_.1             ;497a  71 1b 23
     clr1 PU3_.0             ;497d  71 0b 33
     set1 PM3_.0             ;4980  71 0a 23
-    clr1 mem_fecd.2         ;4983  2b cd
-    clr1 mem_fecd.1         ;4985  1b cd
-    mov a,mem_fecd          ;4987  f0 cd
+    clr1 shadow_p3_.2       ;4983  2b cd
+    clr1 shadow_p3_.1       ;4985  1b cd
+    mov a,shadow_p3_        ;4987  f0 cd
     mov P3_,a               ;4989  f2 03
 
 lab_498b:
@@ -15604,9 +15604,9 @@ lab_4990:
     mov mem_fed4,#80h       ;4993  11 d4 80     A = uPD16432B Command Byte 0x80 (0b10000000)
                             ;                       Address Setting Command
                             ;                           Address = 00
-    clr1 mem_fece.7         ;4996  7b ce
+    clr1 shadow_p4_.7       ;4996  7b ce
     clr1 PM4_.7             ;4998  71 7b 24
-    mov a,mem_fece          ;499b  f0 ce
+    mov a,shadow_p4_        ;499b  f0 ce
     mov P4_,a               ;499d  f2 04
 
     mov a,#4ah              ;499f  a1 4a        A = uPD16432B Command Byte 0x4a (0b01001010)
@@ -15616,16 +15616,16 @@ lab_4990:
                             ;                           Command implies reset to address 0; address = 0
     call !upd_send_byte     ;49a1  9a 4d 4d     Send a byte to uPD16432B over SPI on SIO30
 
-    clr1 mem_fece.7         ;49a4  7b ce
-    mov a,mem_fece          ;49a6  f0 ce
+    clr1 shadow_p4_.7       ;49a4  7b ce
+    mov a,shadow_p4_        ;49a6  f0 ce
     mov P4_,a               ;49a8  f2 04
     mov b,#09h              ;49aa  a3 09
     movw de,#charset_fm1    ;49ac  14 21 49     DE = pointer to chargen data
 
 lab_49af:
-    clr1 mem_fece.7         ;49af  7b ce
+    clr1 shadow_p4_.7       ;49af  7b ce
     clr1 PM4_.7             ;49b1  71 7b 24
-    mov a,mem_fece          ;49b4  f0 ce
+    mov a,shadow_p4_        ;49b4  f0 ce
     mov P4_,a               ;49b6  f2 04
 
     mov a,mem_fed4          ;49b8  f0 d4        A = uPD16432B Address Setting Command
@@ -15654,8 +15654,8 @@ lab_49d8:
     dbnz b,$lab_49d8        ;49d9  8b fd
 
 lab_49db:
-    set1 mem_fece.7         ;49db  7a ce
-    mov a,mem_fece          ;49dd  f0 ce
+    set1 shadow_p4_.7       ;49db  7a ce
+    mov a,shadow_p4_        ;49dd  f0 ce
     mov P4_,a               ;49df  f2 04
     clr1 IF0H_.4            ;49e1  71 4b e1
     clr1 MK0H_.4            ;49e4  71 4b e5
@@ -15700,8 +15700,8 @@ lab_4a0e:
                             ;                         LCD mode: 1=LCD forced off (SEGn, COMn=unselected waveform)
     call !upd_send_byte     ;4a13  9a 4d 4d     Send a byte to uPD16432B over SPI on SIO30
 
-    clr1 mem_fece.7         ;4a16  7b ce
-    mov a,mem_fece          ;4a18  f0 ce
+    clr1 shadow_p4_.7       ;4a16  7b ce
+    mov a,shadow_p4_        ;4a18  f0 ce
     mov P4_,a               ;4a1a  f2 04
 
     mov a,#04h              ;4a1c  a1 04        A = uPD16432B Command Byte (0b00000100)
@@ -15711,16 +15711,16 @@ lab_4a0e:
                             ;                       Drive voltage supply method: 1=internal
     call !upd_send_byte     ;4a1e  9a 4d 4d     Send a byte to uPD16432B over SPI on SIO30
 
-    clr1 mem_fece.7         ;4a21  7b ce
-    mov a,mem_fece          ;4a23  f0 ce
+    clr1 shadow_p4_.7       ;4a21  7b ce
+    mov a,shadow_p4_        ;4a23  f0 ce
     mov P4_,a               ;4a25  f2 04
-    set1 mem_fecd.1         ;4a27  1a cd
+    set1 shadow_p3_.1       ;4a27  1a cd
     clr1 PM3_.1             ;4a29  71 1b 23
-    mov a,mem_fecd          ;4a2c  f0 cd
+    mov a,shadow_p3_        ;4a2c  f0 cd
     mov P3_,a               ;4a2e  f2 03
-    clr1 mem_fece.7         ;4a30  7b ce
+    clr1 shadow_p4_.7       ;4a30  7b ce
     clr1 PM4_.7             ;4a32  71 7b 24
-    mov a,mem_fece          ;4a35  f0 ce
+    mov a,shadow_p4_        ;4a35  f0 ce
     mov P4_,a               ;4a37  f2 04
     set1 mem_fe5e.7         ;4a39  7a 5e
     clr1 cy                 ;4a3b  21
@@ -15927,18 +15927,18 @@ sub_4afc:
     br $lab_4b24            ;4b02  fa 20
 
 lab_4b04:
-    clr1 mem_fece.3         ;4b04  3b ce
+    clr1 shadow_p4_.3       ;4b04  3b ce
     clr1 PM4_.3             ;4b06  71 3b 24
-    mov a,mem_fece          ;4b09  f0 ce
+    mov a,shadow_p4_        ;4b09  f0 ce
     mov P4_,a               ;4b0b  f2 04
     mov CSIM30_,#82h        ;4b0d  13 b0 82
     clr1 PM3_.2             ;4b10  71 2b 23
     clr1 PM3_.1             ;4b13  71 1b 23
     clr1 PU3_.0             ;4b16  71 0b 33
     set1 PM3_.0             ;4b19  71 0a 23
-    clr1 mem_fecd.2         ;4b1c  2b cd
-    clr1 mem_fecd.1         ;4b1e  1b cd
-    mov a,mem_fecd          ;4b20  f0 cd
+    clr1 shadow_p3_.2       ;4b1c  2b cd
+    clr1 shadow_p3_.1       ;4b1e  1b cd
+    mov a,shadow_p3_        ;4b20  f0 cd
     mov P3_,a               ;4b22  f2 03
 
 lab_4b24:
@@ -15966,9 +15966,9 @@ lab_4b3f:
     mov !mem_fb29,a         ;4b4b  9e 29 fb
     set1 mem_fe60.3         ;4b4e  3a 60
     set1 mem_fe7c.2         ;4b50  2a 7c
-    clr1 mem_fece.7         ;4b52  7b ce
+    clr1 shadow_p4_.7       ;4b52  7b ce
     clr1 PM4_.7             ;4b54  71 7b 24
-    mov a,mem_fece          ;4b57  f0 ce
+    mov a,shadow_p4_        ;4b57  f0 ce
     mov P4_,a               ;4b59  f2 04
 
     mov a,#41h              ;4b5b  a1 41        A = uPD16432B Command Byte 0x41 (0b01000001)
@@ -15977,8 +15977,8 @@ lab_4b3f:
                             ;                           Address increment mode: 0=increment
     call !upd_send_byte     ;4b5d  9a 4d 4d     Send a byte to uPD16432B over SPI on SIO30
 
-    clr1 mem_fece.7         ;4b60  7b ce
-    mov a,mem_fece          ;4b62  f0 ce
+    clr1 shadow_p4_.7       ;4b60  7b ce
+    mov a,shadow_p4_        ;4b62  f0 ce
     mov P4_,a               ;4b64  f2 04
 
     mov a,#80h              ;4b66  a1 80        A = uPD16432B Command Byte 0x80 (0b10000000)
@@ -16004,8 +16004,8 @@ lab_4b81:
     dbnz b,$lab_4b81        ;4b82  8b fd
 
 lab_4b84:
-    set1 mem_fece.7         ;4b84  7a ce
-    mov a,mem_fece          ;4b86  f0 ce
+    set1 shadow_p4_.7       ;4b84  7a ce
+    mov a,shadow_p4_        ;4b86  f0 ce
     mov P4_,a               ;4b88  f2 04
     clr1 IF0H_.4            ;4b8a  71 4b e1
     clr1 MK0H_.4            ;4b8d  71 4b e5
@@ -16059,9 +16059,9 @@ lab_4bd9:
     mov a,#32h              ;4bd9  a1 32
     mov !mem_fb2b,a         ;4bdb  9e 2b fb
     mov mem_fed4,#80h       ;4bde  11 d4 80
-    clr1 mem_fece.7         ;4be1  7b ce
+    clr1 shadow_p4_.7       ;4be1  7b ce
     clr1 PM4_.7             ;4be3  71 7b 24
-    mov a,mem_fece          ;4be6  f0 ce
+    mov a,shadow_p4_        ;4be6  f0 ce
     mov P4_,a               ;4be8  f2 04
 
     mov a,#4ah              ;4bea  a1 4a        A = Command Byte 0x4a (0b01001010)
@@ -16071,16 +16071,16 @@ lab_4bd9:
                             ;                       Command implies reset to address 0; address = 0
     call !upd_send_byte     ;4bec  9a 4d 4d     Send a byte to uPD16432B over SPI on SIO30
 
-    clr1 mem_fece.7         ;4bef  7b ce
-    mov a,mem_fece          ;4bf1  f0 ce
+    clr1 shadow_p4_.7       ;4bef  7b ce
+    mov a,shadow_p4_        ;4bf1  f0 ce
     mov P4_,a               ;4bf3  f2 04
     mov b,#09h              ;4bf5  a3 09
     movw de,#charset_fm1    ;4bf7  14 21 49
 
 lab_4bfa:
-    clr1 mem_fece.7         ;4bfa  7b ce
+    clr1 shadow_p4_.7       ;4bfa  7b ce
     clr1 PM4_.7             ;4bfc  71 7b 24
-    mov a,mem_fece          ;4bff  f0 ce
+    mov a,shadow_p4_        ;4bff  f0 ce
     mov P4_,a               ;4c01  f2 04
 
     mov a,mem_fed4          ;4c03  f0 d4
@@ -16109,8 +16109,8 @@ lab_4c23:
     dbnz b,$lab_4c23        ;4c24  8b fd
 
 lab_4c26:
-    set1 mem_fece.7         ;4c26  7a ce
-    mov a,mem_fece          ;4c28  f0 ce
+    set1 shadow_p4_.7       ;4c26  7a ce
+    mov a,shadow_p4_        ;4c28  f0 ce
     mov P4_,a               ;4c2a  f2 04
     clr1 IF0H_.4            ;4c2c  71 4b e1
     clr1 MK0H_.4            ;4c2f  71 4b e5
@@ -16167,9 +16167,9 @@ lab_4c78:
     br !lab_4d05            ;4c7b  9b 05 4d
 
 lab_4c7e:
-    clr1 mem_fece.7         ;4c7e  7b ce
+    clr1 shadow_p4_.7       ;4c7e  7b ce
     clr1 PM4_.7             ;4c80  71 7b 24
-    mov a,mem_fece          ;4c83  f0 ce
+    mov a,shadow_p4_        ;4c83  f0 ce
     mov P4_,a               ;4c85  f2 04
 
     mov a,#40h              ;4c87  a1 40        A = uPD16432B Command Byte 0x40 (0b01000000)
@@ -16178,8 +16178,8 @@ lab_4c7e:
                             ;                           Address increment mode: 0=increment
     call !upd_send_byte     ;4c89  9a 4d 4d     Send a byte to uPD16432B over SPI on SIO30
 
-    clr1 mem_fece.7         ;4c8c  7b ce
-    mov a,mem_fece          ;4c8e  f0 ce
+    clr1 shadow_p4_.7       ;4c8c  7b ce
+    mov a,shadow_p4_        ;4c8e  f0 ce
     mov P4_,a               ;4c90  f2 04
 
     mov a,#80h              ;4c92  a1 80        A = uPD16432B Command Byte 0x80 (0b10000000)
@@ -16205,8 +16205,8 @@ lab_4cad:
     dbnz b,$lab_4cad        ;4cae  8b fd
 
 lab_4cb0:
-    set1 mem_fece.7         ;4cb0  7a ce
-    mov a,mem_fece          ;4cb2  f0 ce
+    set1 shadow_p4_.7       ;4cb0  7a ce
+    mov a,shadow_p4_        ;4cb2  f0 ce
     mov P4_,a               ;4cb4  f2 04
     clr1 IF0H_.4            ;4cb6  71 4b e1
     clr1 MK0H_.4            ;4cb9  71 4b e5
@@ -16241,9 +16241,9 @@ lab_4ce3:
 
 lab_4ce8:
     bf mem_fe5f.0,$lab_4d05 ;4ce8  31 03 5f 19
-    clr1 mem_fece.7         ;4cec  7b ce
+    clr1 shadow_p4_.7       ;4cec  7b ce
     clr1 PM4_.7             ;4cee  71 7b 24
-    mov a,mem_fece          ;4cf1  f0 ce
+    mov a,shadow_p4_        ;4cf1  f0 ce
     mov P4_,a               ;4cf3  f2 04
 
     mov a,#4bh              ;4cf5  a1 4b        A = uPD16432B Command Byte 0x4B
@@ -16254,18 +16254,18 @@ lab_4ce8:
     mov a,mem_fe3e          ;4cfa  f0 3e        A = uPD16432B Data Byte
     call !upd_send_byte     ;4cfc  9a 4d 4d     Send a byte to uPD16432B over SPI on SIO30
 
-    clr1 mem_fece.7         ;4cff  7b ce
-    mov a,mem_fece          ;4d01  f0 ce
+    clr1 shadow_p4_.7       ;4cff  7b ce
+    mov a,shadow_p4_        ;4d01  f0 ce
     mov P4_,a               ;4d03  f2 04
 
 lab_4d05:
-    set1 mem_fecd.1         ;4d05  1a cd
+    set1 shadow_p3_.1       ;4d05  1a cd
     clr1 PM3_.1             ;4d07  71 1b 23
-    mov a,mem_fecd          ;4d0a  f0 cd
+    mov a,shadow_p3_        ;4d0a  f0 cd
     mov P3_,a               ;4d0c  f2 03
-    clr1 mem_fece.7         ;4d0e  7b ce
+    clr1 shadow_p4_.7       ;4d0e  7b ce
     clr1 PM4_.7             ;4d10  71 7b 24
-    mov a,mem_fece          ;4d13  f0 ce
+    mov a,shadow_p4_        ;4d13  f0 ce
     mov P4_,a               ;4d15  f2 04
     set1 mem_fe5e.7         ;4d17  7a 5e
 
@@ -16273,22 +16273,22 @@ lab_4d19:
     ret                     ;4d19  af
 
 sub_4d1a:
-    clr1 mem_fece.6         ;4d1a  6b ce
+    clr1 shadow_p4_.6       ;4d1a  6b ce
     clr1 PM4_.6             ;4d1c  71 6b 24
-    mov a,mem_fece          ;4d1f  f0 ce
+    mov a,shadow_p4_        ;4d1f  f0 ce
     mov P4_,a               ;4d21  f2 04
-    clr1 mem_fece.7         ;4d23  7b ce
+    clr1 shadow_p4_.7       ;4d23  7b ce
     clr1 PM4_.7             ;4d25  71 7b 24
-    mov a,mem_fece          ;4d28  f0 ce
+    mov a,shadow_p4_        ;4d28  f0 ce
     mov P4_,a               ;4d2a  f2 04
     ret                     ;4d2c  af
 
 
 upd_display_on:
 ;Turn uPD16432B display on
-    clr1 mem_fece.7         ;4d2d  7b ce
+    clr1 shadow_p4_.7       ;4d2d  7b ce
     clr1 PM4_.7             ;4d2f  71 7b 24
-    mov a,mem_fece          ;4d32  f0 ce
+    mov a,shadow_p4_        ;4d32  f0 ce
     mov P4_,a               ;4d34  f2 04
 
     mov a,#04h              ;4d36  a1 04        A = uPD16432B Command Byte 0x04 (0b00000100)
@@ -16298,8 +16298,8 @@ upd_display_on:
                             ;                           Drive voltage supply method: 1=internal
     call !upd_send_byte     ;4d38  9a 4d 4d     Send a byte to uPD16432B over SPI on SIO30
 
-    clr1 mem_fece.7         ;4d3b  7b ce
-    mov a,mem_fece          ;4d3d  f0 ce
+    clr1 shadow_p4_.7       ;4d3b  7b ce
+    mov a,shadow_p4_        ;4d3d  f0 ce
     mov P4_,a               ;4d3f  f2 04
 
     mov a,#0ceh             ;4d41  a1 ce        A = uPD16432B Command Byte 0xce (0b11001110)
@@ -16311,8 +16311,8 @@ upd_display_on:
                             ;                           LCD mode: 2=Normal operation (0b00)
     call !upd_send_byte     ;4d43  9a 4d 4d     Send a byte to uPD16432B over SPI on SIO30
 
-    clr1 mem_fece.7         ;4d46  7b ce
-    mov a,mem_fece          ;4d48  f0 ce
+    clr1 shadow_p4_.7       ;4d46  7b ce
+    mov a,shadow_p4_        ;4d48  f0 ce
     mov P4_,a               ;4d4a  f2 04
     ret                     ;4d4c  af
 
@@ -16320,8 +16320,8 @@ upd_display_on:
 upd_send_byte:
 ;Send a byte to uPD16432B over SPI on SIO30
     mov x,a                 ;4d4d  70
-    set1 mem_fece.7         ;4d4e  7a ce
-    mov a,mem_fece          ;4d50  f0 ce
+    set1 shadow_p4_.7       ;4d4e  7a ce
+    mov a,shadow_p4_        ;4d50  f0 ce
     mov P4_,a               ;4d52  f2 04
     mov a,x                 ;4d54  60
     callf !sub_087a         ;4d55  0c 7a        SPI transfer on SIO30 (sends byte in A, receives byte in A)
@@ -19107,8 +19107,8 @@ lab_5b60:
     push de                 ;5b61  b5
     push hl                 ;5b62  b7
     mov1 cy,mem_fe68.2      ;5b63  71 24 68
-    mov1 mem_fecf.7,cy      ;5b66  71 71 cf
-    mov a,mem_fecf          ;5b69  f0 cf
+    mov1 shadow_p5_.7,cy    ;5b66  71 71 cf
+    mov a,shadow_p5_        ;5b69  f0 cf
     mov P5_,a               ;5b6b  f2 05
     movw ax,TM01_           ;5b6d  89 14
     movw de,ax              ;5b6f  d4
@@ -19134,8 +19134,8 @@ lab_5b90:
     clr1 mem_fe68.1         ;5b90  1b 68
     clr1 mem_fe68.3         ;5b92  3b 68
     clr1 PM5_.7             ;5b94  71 7b 25
-    set1 mem_fecf.7         ;5b97  7a cf
-    mov a,mem_fecf          ;5b99  f0 cf
+    set1 shadow_p5_.7       ;5b97  7a cf
+    mov a,shadow_p5_        ;5b99  f0 cf
     mov P5_,a               ;5b9b  f2 05
     set1 MK1L_.4            ;5b9d  71 4a e6
 
@@ -19672,14 +19672,14 @@ lab_5e3c:
     bf a.7,$lab_5e66        ;5e3c  31 7f 27
     clr1 PU7_.4             ;5e3f  71 4b 37
     set1 PM7_.4             ;5e42  71 4a 27
-    clr1 mem_fed1.4         ;5e45  4b d1
+    clr1 shadow_p7_.4       ;5e45  4b d1
     push ax                 ;5e47  b1
-    mov a,mem_fed1          ;5e48  f0 d1
+    mov a,shadow_p7_        ;5e48  f0 d1
     mov P7_,a               ;5e4a  f2 07
     clr1 PU7_.3             ;5e4c  71 3b 37
     set1 PM7_.3             ;5e4f  71 3a 27
-    clr1 mem_fed1.3         ;5e52  3b d1
-    mov a,mem_fed1          ;5e54  f0 d1
+    clr1 shadow_p7_.3       ;5e52  3b d1
+    mov a,shadow_p7_        ;5e54  f0 d1
     mov P7_,a               ;5e56  f2 07
     pop ax                  ;5e58  b0
     clr1 PM7_.4             ;5e59  71 4b 27
@@ -19962,11 +19962,11 @@ lab_5fff:
     mov IICC0_,#0ch         ;5fff  13 a8 0c
     push ax                 ;6002  b1
     clr1 IICC0_.7           ;6003  71 7b a8
-    clr1 mem_fed1.2         ;6006  2b d1
-    mov a,mem_fed1          ;6008  f0 d1
+    clr1 shadow_p7_.2       ;6006  2b d1
+    mov a,shadow_p7_        ;6008  f0 d1
     mov P7_,a               ;600a  f2 07
-    clr1 mem_fed1.1         ;600c  1b d1
-    mov a,mem_fed1          ;600e  f0 d1
+    clr1 shadow_p7_.1       ;600c  1b d1
+    mov a,shadow_p7_        ;600e  f0 d1
     mov P7_,a               ;6010  f2 07
     set1 IICC0_.7           ;6012  71 7a a8
     clr1 PM7_.2             ;6015  71 2b 27
@@ -19989,10 +19989,10 @@ sub_602d:
     push bc                 ;602e  b3
     clr1 IICC0_.7           ;602f  71 7b a8
     mov c,#09h              ;6032  a2 09
-    set1 mem_fed1.1         ;6034  1a d1
+    set1 shadow_p7_.1       ;6034  1a d1
     set1 PM7_.1             ;6036  71 1a 27
-    clr1 mem_fed1.2         ;6039  2b d1
-    mov a,mem_fed1          ;603b  f0 d1
+    clr1 shadow_p7_.2       ;6039  2b d1
+    mov a,shadow_p7_        ;603b  f0 d1
     mov P7_,a               ;603d  f2 07
     clr1 PM7_.2             ;603f  71 2b 27
 
@@ -20002,7 +20002,7 @@ lab_6042:
     nop                     ;6048  00
     nop                     ;6049  00
     nop                     ;604a  00
-    set1 mem_fed1.2         ;604b  2a d1
+    set1 shadow_p7_.2       ;604b  2a d1
     set1 PM7_.2             ;604d  71 2a 27
     push bc                 ;6050  b3
     mov b,#01h              ;6051  a3 01
@@ -20012,11 +20012,11 @@ lab_6053:
     pop bc                  ;6055  b2
     clr1 PM7_.2             ;6056  71 2b 27
     dbnz c,$lab_6042        ;6059  8a e7
-    clr1 mem_fed1.1         ;605b  1b d1
-    mov a,mem_fed1          ;605d  f0 d1
+    clr1 shadow_p7_.1       ;605b  1b d1
+    mov a,shadow_p7_        ;605d  f0 d1
     mov P7_,a               ;605f  f2 07
     clr1 PM7_.1             ;6061  71 1b 27
-    set1 mem_fed1.2         ;6064  2a d1
+    set1 shadow_p7_.2       ;6064  2a d1
     set1 PM7_.2             ;6066  71 2a 27
     push bc                 ;6069  b3
     mov b,#01h              ;606a  a3 01
@@ -20024,7 +20024,7 @@ lab_6053:
 lab_606c:
     dbnz b,$lab_606c        ;606c  8b fe
     pop bc                  ;606e  b2
-    set1 mem_fed1.1         ;606f  1a d1
+    set1 shadow_p7_.1       ;606f  1a d1
     set1 PM7_.1             ;6071  71 1a 27
     clr1 cy                 ;6074  21
     pop bc                  ;6075  b2
@@ -20034,9 +20034,9 @@ lab_606c:
 sub_6078:
     clr1 mem_fe69.0         ;6078  0b 69
     clr1 IICC0_.7           ;607a  71 7b a8
-    set1 mem_fed1.2         ;607d  2a d1
+    set1 shadow_p7_.2       ;607d  2a d1
     set1 PM7_.2             ;607f  71 2a 27
-    set1 mem_fed1.1         ;6082  1a d1
+    set1 shadow_p7_.1       ;6082  1a d1
     set1 PM7_.1             ;6084  71 1a 27
     ret                     ;6087  af
 
@@ -22131,10 +22131,10 @@ lab_68f4:
     bt mem_fe65.5,$lab_6915 ;68fb  dc 65 17
     bt mem_fe2c.3,$lab_6912 ;68fe  bc 2c 11
     set1 mem_fe6a.2         ;6901  2a 6a
-    bf mem_fece.6,$lab_6923 ;6903  31 63 ce 1c
-    clr1 mem_fece.6         ;6907  6b ce
+    bf shadow_p4_.6,$lab_6923 ;6903  31 63 ce 1c
+    clr1 shadow_p4_.6       ;6907  6b ce
     clr1 PM4_.6             ;6909  71 6b 24
-    mov a,mem_fece          ;690c  f0 ce
+    mov a,shadow_p4_        ;690c  f0 ce
     mov P4_,a               ;690e  f2 04
     br $lab_6923            ;6910  fa 11
 
@@ -22143,10 +22143,10 @@ lab_6912:
 
 lab_6915:
     clr1 mem_fe6a.2         ;6915  2b 6a
-    bt mem_fece.6,$lab_6923 ;6917  ec ce 09
-    set1 mem_fece.6         ;691a  6a ce
+    bt shadow_p4_.6,$lab_6923 ;6917  ec ce 09
+    set1 shadow_p4_.6       ;691a  6a ce
     clr1 PM4_.6             ;691c  71 6b 24
-    mov a,mem_fece          ;691f  f0 ce
+    mov a,shadow_p4_        ;691f  f0 ce
     mov P4_,a               ;6921  f2 04
 
 lab_6923:
@@ -22405,16 +22405,16 @@ lab_6a2f:
     br $lab_6a56            ;6a3e  fa 16
 
 lab_6a40:
-    set1 mem_fece.6         ;6a40  6a ce
+    set1 shadow_p4_.6       ;6a40  6a ce
     clr1 PM4_.6             ;6a42  71 6b 24
-    mov a,mem_fece          ;6a45  f0 ce
+    mov a,shadow_p4_        ;6a45  f0 ce
     mov P4_,a               ;6a47  f2 04
     br $lab_6a5b            ;6a49  fa 10
 
 lab_6a4b:
-    clr1 mem_fece.6         ;6a4b  6b ce
+    clr1 shadow_p4_.6       ;6a4b  6b ce
     clr1 PM4_.6             ;6a4d  71 6b 24
-    mov a,mem_fece          ;6a50  f0 ce
+    mov a,shadow_p4_        ;6a50  f0 ce
     mov P4_,a               ;6a52  f2 04
     br $lab_6a5b            ;6a54  fa 05
 
@@ -23843,16 +23843,16 @@ lab_7249:
     br $lab_7290            ;7276  fa 18
 
 lab_7278:
-    set1 mem_fece.6         ;7278  6a ce
+    set1 shadow_p4_.6       ;7278  6a ce
     clr1 PM4_.6             ;727a  71 6b 24
-    mov a,mem_fece          ;727d  f0 ce
+    mov a,shadow_p4_        ;727d  f0 ce
     mov P4_,a               ;727f  f2 04
     br !lab_6a5b            ;7281  9b 5b 6a
 
 lab_7284:
-    clr1 mem_fece.6         ;7284  6b ce
+    clr1 shadow_p4_.6       ;7284  6b ce
     clr1 PM4_.6             ;7286  71 6b 24
-    mov a,mem_fece          ;7289  f0 ce
+    mov a,shadow_p4_        ;7289  f0 ce
     mov P4_,a               ;728b  f2 04
     br !lab_6a5b            ;728d  9b 5b 6a
 
