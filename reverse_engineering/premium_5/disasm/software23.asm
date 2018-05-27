@@ -129,6 +129,7 @@
     mem_f26b equ 0f26bh
     mem_f26c equ 0f26ch
     mem_f26d equ 0f26dh
+    mem_faff equ 0faffh
     mem_fb00 equ 0fb00h
     mem_fb01 equ 0fb01h
     mem_fb02 equ 0fb02h
@@ -152,6 +153,7 @@
     mem_fb1b equ 0fb1bh
     mem_fb1c equ 0fb1ch
     mem_fb1f equ 0fb1fh
+    mem_fb20 equ 0fb20h
     mem_fb22 equ 0fb22h
     mem_fb23 equ 0fb23h
     mem_fb24 equ 0fb24h
@@ -175,9 +177,11 @@
     mem_fb44 equ 0fb44h
     mem_fb46 equ 0fb46h
     mem_fb47 equ 0fb47h
+    mem_fb49 equ 0fb49h
     mem_fb4b equ 0fb4bh
     mem_fb4c equ 0fb4ch
     mem_fb4e equ 0fb4eh
+    mem_fb4f equ 0fb4fh
     mem_fb50 equ 0fb50h
     mem_fb51 equ 0fb51h
     mem_fb52 equ 0fb52h     ;KWP1281 Login rate limiter countdown
@@ -486,100 +490,100 @@
 
 
 rst_vect:
-    dw lab_0d88             ;0000  88 0d       VECTOR RST
+    dw rst_0d88             ;0000  88 0d       VECTOR RST
 
 unused0_vect:
-    dw sub_0d75             ;0002  75 0d       VECTOR (unused)
+    dw badisr_0d75          ;0002  75 0d       VECTOR (unused)
 
 intwdt_vect:
-    dw sub_0d75             ;0004  75 0d       VECTOR INTWDT
+    dw badisr_0d75          ;0004  75 0d       VECTOR INTWDT
 
 intp0_vect:
-    dw lab_5993             ;0006  93 59       VECTOR INTP0
+    dw intp0_5933           ;0006  93 59       VECTOR INTP0
 
 intp1_vect:
-    dw lab_3ecc             ;0008  cc 3e       VECTOR INTP1
+    dw intp1_3ecc           ;0008  cc 3e       VECTOR INTP1
 
 intp2_vect:
-    dw lab_3acc             ;000a  cc 3a       VECTOR INTP2
+    dw intp2_3acc           ;000a  cc 3a       VECTOR INTP2
 
 intp3_vect:
-    dw sub_0d75             ;000c  75 0d       VECTOR INTP3
+    dw badisr_0d75          ;000c  75 0d       VECTOR INTP3
 
 intp4_vect:
-    dw lab_5904             ;000e  04 59       VECTOR INTP4
+    dw intp4_5904           ;000e  04 59       VECTOR INTP4
 
 intp5_vect:
-    dw sub_0d75             ;0010  75 0d       VECTOR INTP5
+    dw badisr_0d75          ;0010  75 0d       VECTOR INTP5
 
 intp6_vect:
-    dw lab_593b             ;0012  3b 59       VECTOR INTP6
+    dw intp6_5904           ;0012  3b 59       VECTOR INTP6
 
 intp7_vect:
-    dw lab_883a             ;0014  3a 88       VECTOR INTP7
+    dw intp7_883a           ;0014  3a 88       VECTOR INTP7
 
 intser0_vect:
-    dw lab_32df             ;0016  df 32       VECTOR INTSER0
+    dw intser0_32df         ;0016  df 32       VECTOR INTSER0
 
 intsr0_vect:
-    dw lab_30e8             ;0018  e8 30       VECTOR INTSR0
+    dw intsr0_30e8          ;0018  e8 30       VECTOR INTSR0
 
 intst0_vect:
-    dw lab_307e             ;001a  7e 30       VECTOR INTST0
+    dw intst0_307e          ;001a  7e 30       VECTOR INTST0
 
 intcsi30_vect:
-    dw lab_08a9             ;001c  a9 08       VECTOR INTCSI30
+    dw intcsi30_08a9        ;001c  a9 08       VECTOR INTCSI30
 
 intcsi31_vect:
-    dw lab_08f7             ;001e  f7 08       VECTOR INTCSI31
+    dw intcsi31_08f7        ;001e  f7 08       VECTOR INTCSI31
 
 intiic0_vect:
-    dw sub_0d75             ;0020  75 0d       VECTOR INTIIC0
+    dw badisr_0d75          ;0020  75 0d       VECTOR INTIIC0
 
 intc2_vect:
-    dw sub_0d75             ;0022  75 0d       VECTOR INTC2
+    dw badisr_0d75          ;0022  75 0d       VECTOR INTC2
 
 intwtni0_vect:
-    dw lab_0135             ;0024  35 01       VECTOR INTWTNI0
+    dw intwtni0_0135        ;0024  35 01       VECTOR INTWTNI0
 
 inttm000_vect:
-    dw lab_3b2b             ;0026  2b 3b       VECTOR INTTM000
+    dw inttm000_3b2b        ;0026  2b 3b       VECTOR INTTM000
 
 inttm010_vect:
-    dw sub_0d75             ;0028  75 0d       VECTOR INTTM010
+    dw badisr_0d75          ;0028  75 0d       VECTOR INTTM010
 
 inttm001_vect:
-    dw sub_0d75             ;002a  75 0d       VECTOR INTTM001
+    dw badisr_0d75          ;002a  75 0d       VECTOR INTTM001
 
 inttm011_vect:
-    dw lab_5b60             ;002c  60 5b       VECTOR INTTM011
+    dw inttm011_5b60        ;002c  60 5b       VECTOR INTTM011
 
 intad00_vect:
-    dw sub_0d75             ;002e  75 0d       VECTOR INTAD00
+    dw badisr_0d75          ;002e  75 0d       VECTOR INTAD00
 
 intad01_vect:
-    dw sub_0d75             ;0030  75 0d       VECTOR INTAD01
+    dw badisr_0d75          ;0030  75 0d       VECTOR INTAD01
 
 unused1_vect:
-    dw sub_0d75             ;0032  75 0d       VECTOR (unused)
+    dw badisr_0d75          ;0032  75 0d       VECTOR (unused)
 
 intwtn0_vect:
-    dw sub_0d75             ;0034  75 0d       VECTOR INTWTN0
+    dw badisr_0d75          ;0034  75 0d       VECTOR INTWTN0
 
 intkr_vect:
-    dw sub_0d75             ;0036  75 0d       VECTOR INTKR
+    dw badisr_0d75          ;0036  75 0d       VECTOR INTKR
 
 unused2_vect:
-    dw sub_0d75             ;0038  75 0d       VECTOR (unused)
+    dw badisr_0d75          ;0038  75 0d       VECTOR (unused)
 
 unused3_vect:
-    dw sub_0d75             ;003a  75 0d       VECTOR (unused)
+    dw badisr_0d75          ;003a  75 0d       VECTOR (unused)
 
 unused4_vect:
-    dw sub_0d75             ;003c  75 0d       VECTOR (unused)
+    dw badisr_0d75          ;003c  75 0d       VECTOR (unused)
 
 brk_i_vect:
-    dw sub_0d75             ;003e  75 0d       VECTOR BRK_I
+    dw badisr_0d75          ;003e  75 0d       VECTOR BRK_I
 
 callt_0_vect:
     dw sub_0994             ;0040  94 09       VECTOR CALLT #0
@@ -597,85 +601,85 @@ callt_4_vect:
     dw sub_09a7             ;0048  a7 09       VECTOR CALLT #4
 
 callt_5_vect:
-    dw sub_0d75             ;004a  75 0d       VECTOR CALLT #5
+    dw badisr_0d75          ;004a  75 0d       VECTOR CALLT #5
 
 callt_6_vect:
-    dw sub_0d75             ;004c  75 0d       VECTOR CALLT #6
+    dw badisr_0d75          ;004c  75 0d       VECTOR CALLT #6
 
 callt_7_vect:
-    dw sub_0d75             ;004e  75 0d       VECTOR CALLT #7
+    dw badisr_0d75          ;004e  75 0d       VECTOR CALLT #7
 
 callt_8_vect:
-    dw sub_0d75             ;0050  75 0d       VECTOR CALLT #8
+    dw badisr_0d75          ;0050  75 0d       VECTOR CALLT #8
 
 callt_9_vect:
-    dw sub_0d75             ;0052  75 0d       VECTOR CALLT #9
+    dw badisr_0d75          ;0052  75 0d       VECTOR CALLT #9
 
 callt_10_vect:
-    dw sub_0d75             ;0054  75 0d       VECTOR CALLT #10
+    dw badisr_0d75          ;0054  75 0d       VECTOR CALLT #10
 
 callt_11_vect:
-    dw sub_0d75             ;0056  75 0d       VECTOR CALLT #11
+    dw badisr_0d75          ;0056  75 0d       VECTOR CALLT #11
 
 callt_12_vect:
-    dw sub_0d75             ;0058  75 0d       VECTOR CALLT #12
+    dw badisr_0d75          ;0058  75 0d       VECTOR CALLT #12
 
 callt_13_vect:
-    dw sub_0d75             ;005a  75 0d       VECTOR CALLT #13
+    dw badisr_0d75          ;005a  75 0d       VECTOR CALLT #13
 
 callt_14_vect:
-    dw sub_0d75             ;005c  75 0d       VECTOR CALLT #14
+    dw badisr_0d75          ;005c  75 0d       VECTOR CALLT #14
 
 callt_15_vect:
-    dw sub_0d75             ;005e  75 0d       VECTOR CALLT #15
+    dw badisr_0d75          ;005e  75 0d       VECTOR CALLT #15
 
 callt_16_vect:
-    dw sub_0d75             ;0060  75 0d       VECTOR CALLT #16
+    dw badisr_0d75          ;0060  75 0d       VECTOR CALLT #16
 
 callt_17_vect:
-    dw sub_0d75             ;0062  75 0d       VECTOR CALLT #17
+    dw badisr_0d75          ;0062  75 0d       VECTOR CALLT #17
 
 callt_18_vect:
-    dw sub_0d75             ;0064  75 0d       VECTOR CALLT #18
+    dw badisr_0d75          ;0064  75 0d       VECTOR CALLT #18
 
 callt_19_vect:
-    dw sub_0d75             ;0066  75 0d       VECTOR CALLT #19
+    dw badisr_0d75          ;0066  75 0d       VECTOR CALLT #19
 
 callt_20_vect:
-    dw sub_0d75             ;0068  75 0d       VECTOR CALLT #20
+    dw badisr_0d75          ;0068  75 0d       VECTOR CALLT #20
 
 callt_21_vect:
-    dw sub_0d75             ;006a  75 0d       VECTOR CALLT #21
+    dw badisr_0d75          ;006a  75 0d       VECTOR CALLT #21
 
 callt_22_vect:
-    dw sub_0d75             ;006c  75 0d       VECTOR CALLT #22
+    dw badisr_0d75          ;006c  75 0d       VECTOR CALLT #22
 
 callt_23_vect:
-    dw sub_0d75             ;006e  75 0d       VECTOR CALLT #23
+    dw badisr_0d75          ;006e  75 0d       VECTOR CALLT #23
 
 callt_24_vect:
-    dw sub_0d75             ;0070  75 0d       VECTOR CALLT #24
+    dw badisr_0d75          ;0070  75 0d       VECTOR CALLT #24
 
 callt_25_vect:
-    dw sub_0d75             ;0072  75 0d       VECTOR CALLT #25
+    dw badisr_0d75          ;0072  75 0d       VECTOR CALLT #25
 
 callt_26_vect:
-    dw sub_0d75             ;0074  75 0d       VECTOR CALLT #26
+    dw badisr_0d75          ;0074  75 0d       VECTOR CALLT #26
 
 callt_27_vect:
-    dw sub_0d75             ;0076  75 0d       VECTOR CALLT #27
+    dw badisr_0d75          ;0076  75 0d       VECTOR CALLT #27
 
 callt_28_vect:
-    dw sub_0d75             ;0078  75 0d       VECTOR CALLT #28
+    dw badisr_0d75          ;0078  75 0d       VECTOR CALLT #28
 
 callt_29_vect:
-    dw sub_0d75             ;007a  75 0d       VECTOR CALLT #29
+    dw badisr_0d75          ;007a  75 0d       VECTOR CALLT #29
 
 callt_30_vect:
-    dw sub_0d75             ;007c  75 0d       VECTOR CALLT #30
+    dw badisr_0d75          ;007c  75 0d       VECTOR CALLT #30
 
 callt_31_vect:
-    dw sub_0d75             ;007e  75 0d       VECTOR CALLT #31
+    dw badisr_0d75          ;007e  75 0d       VECTOR CALLT #31
 
 mem_0080:
     db 1dh                  ;0080  1d          DATA 0x1d
@@ -866,7 +870,7 @@ mem_00ee:
     db 06h                  ;0133  06          DATA 0x06
     db 55h                  ;0134  55          DATA 0x55 'U'
 
-lab_0135:
+intwtni0_0135:
     sel rb1                 ;0135  61 d8
     bf mem_fe2b.7,$lab_0148 ;0137  31 73 2b 0d
     mov WTNM0_,#73h         ;013b  13 41 73
@@ -889,7 +893,7 @@ lab_015a:
 
 lab_0160:
     ei                      ;0160  7a 1e
-    movw hl,#0faffh         ;0162  16 ff fa
+    movw hl,#mem_faff       ;0162  16 ff fa
     mov a,#08h              ;0165  a1 08
     sub a,#00h              ;0167  1d 00
     callf !sub_0932         ;0169  1c 32
@@ -975,7 +979,7 @@ lab_0204:
     bnz $lab_025a           ;0209  bd 4f
     mov a,#0ah              ;020b  a1 0a
     mov !mem_fb0b,a         ;020d  9e 0b fb
-    movw hl,#0fb20h         ;0210  16 20 fb
+    movw hl,#mem_fb20       ;0210  16 20 fb
     mov a,#4ah              ;0213  a1 4a
     sub a,#21h              ;0215  1d 21
     callf !sub_0932         ;0217  1c 32
@@ -984,7 +988,7 @@ lab_0204:
     bnz $lab_025a           ;021e  bd 3a
     mov a,#0ah              ;0220  a1 0a
     mov !mem_fb24,a         ;0222  9e 24 fb
-    movw hl,#0fb49h         ;0225  16 49 fb
+    movw hl,#mem_fb49       ;0225  16 49 fb
     mov a,#50h              ;0228  a1 50
     sub a,#4ah              ;022a  1d 4a
     callf !sub_0932         ;022c  1c 32
@@ -993,7 +997,7 @@ lab_0204:
     bnz $lab_025a           ;0233  bd 25
     mov a,#0ah              ;0235  a1 0a
     mov !mem_fb4b,a         ;0237  9e 4b fb
-    movw hl,#0fb4fh         ;023a  16 4f fb
+    movw hl,#mem_fb4f       ;023a  16 4f fb
     mov a,#51h              ;023d  a1 51
     sub a,#50h              ;023f  1d 50
     callf !sub_0932         ;0241  1c 32
@@ -2544,7 +2548,7 @@ sub_0891:
     set1 PM3_.0             ;08a5  71 0a 23
     ret                     ;08a8  af
 
-lab_08a9:
+intcsi30_08a9:
     sel rb2                 ;08a9  61 f0
     mov a,SIO30_            ;08ab  f0 1a
     bt mem_fe5f.1,$lab_08b1 ;08ad  9c 5f 01
@@ -2598,7 +2602,7 @@ sub_08df:
     set1 PM2_.0             ;08f3  71 0a 22
     ret                     ;08f6  af
 
-lab_08f7:
+intcsi31_08f7:
     push ax                 ;08f7  b1
     push bc                 ;08f8  b3
     push de                 ;08f9  b5
@@ -3680,7 +3684,7 @@ lab_0d73:
     xch a,b                 ;0d73  33
     ret                     ;0d74  af
 
-sub_0d75:
+badisr_0d75:
     clr1 shadow_p9_.7       ;0d75  7b d3
     clr1 PM9_.7             ;0d77  71 7b 29
     mov a,shadow_p9_        ;0d7a  f0 d3
@@ -3692,7 +3696,7 @@ sub_0d75:
 lab_0d86:
     br $lab_0d86            ;0d86  fa fe
 
-lab_0d88:
+rst_0d88:
     di                      ;0d88  7b 1e
     mov WDCS_,#07h          ;0d8a  13 42 07
     mov WDTM_,#90h          ;0d8d  13 f9 90
@@ -10444,7 +10448,7 @@ lab_307b:
     dbnz b,$sub_306f        ;307b  8b f2
     ret                     ;307d  af
 
-lab_307e:
+intst0_307e:
     push ax                 ;307e  b1
     bt mem_fe7a.2,$lab_308d ;307f  ac 7a 0b
     clr1 mem_fe79.0         ;3082  0b 79
@@ -10509,7 +10513,7 @@ lab_30de:
 lab_30e7:
     ret                     ;30e7  af
 
-lab_30e8:
+intsr0_30e8:
     push ax                 ;30e8  b1
     push bc                 ;30e9  b3
     push hl                 ;30ea  b7
@@ -10813,7 +10817,7 @@ lab_32ba:
 lab_32dc:
     br !lab_3153            ;32dc  9b 53 31
 
-lab_32df:
+intser0_32df:
     push ax                 ;32df  b1
     push bc                 ;32e0  b3
     push hl                 ;32e1  b7
@@ -12277,7 +12281,7 @@ sub_3a06:
     db 0e9h                 ;3aca  e9          DATA 0xe9
     db 0afh                 ;3acb  af          DATA 0xaf
 
-lab_3acc:
+intp2_3acc:
     set1 mem_fe61.7         ;3acc  7a 61
     reti                    ;3ace  8f
 
@@ -12318,7 +12322,7 @@ sub_3b27:
     mov PRM00_,#00h         ;3b27  13 61 00
     ret                     ;3b2a  af
 
-lab_3b2b:
+inttm000_3b2b:
     push ax                 ;3b2b  b1
     call !sub_3b80          ;3b2c  9a 80 3b
     pop ax                  ;3b2f  b0
@@ -13177,7 +13181,7 @@ lab_3e1c:
     db 0f7h                 ;3eca  f7          DATA 0xf7
     db 3bh                  ;3ecb  3b          DATA 0x3b ';'
 
-lab_3ecc:
+intp1_3ecc:
     set1 mem_fe62.5         ;3ecc  5a 62
     reti                    ;3ece  8f
 
@@ -16794,7 +16798,7 @@ lab_4fbc:
 
 lab_4fc2:
 ;Title=0x1b  Subtitle=0x2f  Block length=0x05
-    br !sub_0d75            ;4fc2  9b 75 0d
+    br !badisr_0d75            ;4fc2  9b 75 0d
 
 lab_4fc5:
 ;Title=0x1b  Subtitle=0x30  Block length=0x05
@@ -18719,7 +18723,7 @@ lab_56cb:
     db 12h                  ;5902  12          DATA 0x12
     db 0afh                 ;5903  af          DATA 0xaf
 
-lab_5904:
+intp4_5904:
     clr1 mem_fe67.2         ;5904  2b 67
     push ax                 ;5906  b1
     mov a,!mem_f1e9         ;5907  8e e9 f1
@@ -18754,7 +18758,7 @@ lab_5924:
 lab_593a:
     ret                     ;593a  af
 
-lab_593b:
+intp6_5904:
     bt mem_fe62.1,$lab_5940 ;593b  9c 62 02
     set1 mem_fe7d.7         ;593e  7a 7d
 
@@ -18808,7 +18812,7 @@ lab_5978:
     mov !mem_fb05,a         ;598e  9e 05 fb
     br $lab_5a0e            ;5991  fa 7b
 
-lab_5993:
+intp0_5933:
     push ax                 ;5993  b1
     movw ax,TM01_           ;5994  89 14
     push bc                 ;5996  b3
@@ -19102,7 +19106,7 @@ lab_5b5a:
 lab_5b5d:
     br !lab_5ad1            ;5b5d  9b d1 5a
 
-lab_5b60:
+inttm011_5b60:
     push ax                 ;5b60  b1
     push de                 ;5b61  b5
     push hl                 ;5b62  b7
@@ -28681,7 +28685,7 @@ lab_81bd:
     db 4ah                  ;8838  4a          DATA 0x4a 'J'
     db 0afh                 ;8839  af          DATA 0xaf
 
-lab_883a:
+intp7_883a:
     push ax                 ;883a  b1
     mov a,!mem_fb18         ;883b  8e 18 fb
     cmp a,#00h              ;883e  4d 00
