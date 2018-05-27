@@ -2549,6 +2549,7 @@ sub_0891:
     ret                     ;08a8  af
 
 intcsi30_08a9:
+;SPI transfer complete on CSI30
     sel rb2                 ;08a9  61 f0
     mov a,SIO30_            ;08ab  f0 1a
     bt mem_fe5f.1,$lab_08b1 ;08ad  9c 5f 01
@@ -15608,7 +15609,8 @@ lab_4990:
     mov mem_fed4,#80h       ;4993  11 d4 80     A = uPD16432B Command Byte 0x80 (0b10000000)
                             ;                       Address Setting Command
                             ;                           Address = 00
-    clr1 shadow_p4_.7       ;4996  7b ce
+
+    clr1 shadow_p4_.7       ;4996  7b ce        Deselect uPD16432B (STB=low)
     clr1 PM4_.7             ;4998  71 7b 24
     mov a,shadow_p4_        ;499b  f0 ce
     mov P4_,a               ;499d  f2 04
@@ -15618,22 +15620,23 @@ lab_4990:
                             ;                           2=Write to chargen ram
                             ;                           Command implies address increment; increment = on
                             ;                           Command implies reset to address 0; address = 0
-    call !upd_send_byte     ;49a1  9a 4d 4d     Send a byte to uPD16432B over SPI on SIO30
+    call !upd_send_byte     ;49a1  9a 4d 4d     Select uPD16432B (STB=high), then send a byte to it
 
-    clr1 shadow_p4_.7       ;49a4  7b ce
+    clr1 shadow_p4_.7       ;49a4  7b ce        Deselect uPD16432B (STB=low)
     mov a,shadow_p4_        ;49a6  f0 ce
     mov P4_,a               ;49a8  f2 04
+
     mov b,#09h              ;49aa  a3 09
     movw de,#charset_fm1    ;49ac  14 21 49     DE = pointer to chargen data
 
 lab_49af:
-    clr1 shadow_p4_.7       ;49af  7b ce
+    clr1 shadow_p4_.7       ;49af  7b ce        Deselect uPD16432B (STB=low)
     clr1 PM4_.7             ;49b1  71 7b 24
     mov a,shadow_p4_        ;49b4  f0 ce
     mov P4_,a               ;49b6  f2 04
 
     mov a,mem_fed4          ;49b8  f0 d4        A = uPD16432B Address Setting Command
-    call !upd_send_byte     ;49ba  9a 4d 4d     Send a byte to uPD16432B over SPI on SIO30
+    call !upd_send_byte     ;49ba  9a 4d 4d     Select uPD16432B (STB=high), then send a byte to it
 
     movw ax,de              ;49bd  c4
     movw hl,ax              ;49be  d6
@@ -15658,9 +15661,10 @@ lab_49d8:
     dbnz b,$lab_49d8        ;49d9  8b fd
 
 lab_49db:
-    set1 shadow_p4_.7       ;49db  7a ce
+    set1 shadow_p4_.7       ;49db  7a ce        Select uPD16432B (STB=high)
     mov a,shadow_p4_        ;49dd  f0 ce
     mov P4_,a               ;49df  f2 04
+
     clr1 IF0H_.4            ;49e1  71 4b e1
     clr1 MK0H_.4            ;49e4  71 4b e5
     clr1 PR0H_.4            ;49e7  71 4b e9
@@ -15702,9 +15706,9 @@ lab_4a0e:
                             ;                         Key scan control: 0=Key scanning stopped
                             ;                         LED control: 0=LED forced off
                             ;                         LCD mode: 1=LCD forced off (SEGn, COMn=unselected waveform)
-    call !upd_send_byte     ;4a13  9a 4d 4d     Send a byte to uPD16432B over SPI on SIO30
+    call !upd_send_byte     ;4a13  9a 4d 4d     Select uPD16432B (STB=high), then send a byte to it
 
-    clr1 shadow_p4_.7       ;4a16  7b ce
+    clr1 shadow_p4_.7       ;4a16  7b ce        Deselect uPD16432B (STB=low)
     mov a,shadow_p4_        ;4a18  f0 ce
     mov P4_,a               ;4a1a  f2 04
 
@@ -15713,19 +15717,22 @@ lab_4a0e:
                             ;                       Duty setting: 0=1/8 duty
                             ;                       Master/slave setting: 0=master
                             ;                       Drive voltage supply method: 1=internal
-    call !upd_send_byte     ;4a1e  9a 4d 4d     Send a byte to uPD16432B over SPI on SIO30
+    call !upd_send_byte     ;4a1e  9a 4d 4d     Select uPD16432B (STB=high), then send a byte to it
 
-    clr1 shadow_p4_.7       ;4a21  7b ce
+    clr1 shadow_p4_.7       ;4a21  7b ce        Deselect uPD16432B (STB=low)
     mov a,shadow_p4_        ;4a23  f0 ce
     mov P4_,a               ;4a25  f2 04
+
     set1 shadow_p3_.1       ;4a27  1a cd
     clr1 PM3_.1             ;4a29  71 1b 23
     mov a,shadow_p3_        ;4a2c  f0 cd
     mov P3_,a               ;4a2e  f2 03
-    clr1 shadow_p4_.7       ;4a30  7b ce
+
+    clr1 shadow_p4_.7       ;4a30  7b ce        Deselect uPD16432B (STB=low)
     clr1 PM4_.7             ;4a32  71 7b 24
     mov a,shadow_p4_        ;4a35  f0 ce
     mov P4_,a               ;4a37  f2 04
+
     set1 mem_fe5e.7         ;4a39  7a 5e
     clr1 cy                 ;4a3b  21
 
@@ -15970,7 +15977,8 @@ lab_4b3f:
     mov !mem_fb29,a         ;4b4b  9e 29 fb
     set1 mem_fe60.3         ;4b4e  3a 60
     set1 mem_fe7c.2         ;4b50  2a 7c
-    clr1 shadow_p4_.7       ;4b52  7b ce
+
+    clr1 shadow_p4_.7       ;4b52  7b ce        Deselect uPD16432B (STB=low)
     clr1 PM4_.7             ;4b54  71 7b 24
     mov a,shadow_p4_        ;4b57  f0 ce
     mov P4_,a               ;4b59  f2 04
@@ -15979,16 +15987,16 @@ lab_4b3f:
                             ;                       Data Setting Command
                             ;                           1=Write to pictograph RAM
                             ;                           Address increment mode: 0=increment
-    call !upd_send_byte     ;4b5d  9a 4d 4d     Send a byte to uPD16432B over SPI on SIO30
+    call !upd_send_byte     ;4b5d  9a 4d 4d     Select uPD16432B (STB=high), then send a byte to it
 
-    clr1 shadow_p4_.7       ;4b60  7b ce
+    clr1 shadow_p4_.7       ;4b60  7b ce        Deselect uPD16432B (STB=low)
     mov a,shadow_p4_        ;4b62  f0 ce
     mov P4_,a               ;4b64  f2 04
 
     mov a,#80h              ;4b66  a1 80        A = uPD16432B Command Byte 0x80 (0b10000000)
                             ;                       Address Setting Command
                             ;                           Address = 00
-    call !upd_send_byte     ;4b68  9a 4d 4d     Send a byte to uPD16432B over SPI on SIO30
+    call !upd_send_byte     ;4b68  9a 4d 4d     Select uPD16432B (STB=high), then send a byte to it
 
     mov a,#00h              ;4b6b  a1 00
     cmp a,#01h              ;4b6d  4d 01
@@ -16008,9 +16016,10 @@ lab_4b81:
     dbnz b,$lab_4b81        ;4b82  8b fd
 
 lab_4b84:
-    set1 shadow_p4_.7       ;4b84  7a ce
+    set1 shadow_p4_.7       ;4b84  7a ce        Select uPD16432B (STB=high)
     mov a,shadow_p4_        ;4b86  f0 ce
     mov P4_,a               ;4b88  f2 04
+
     clr1 IF0H_.4            ;4b8a  71 4b e1
     clr1 MK0H_.4            ;4b8d  71 4b e5
     clr1 PR0H_.4            ;4b90  71 4b e9
@@ -16063,7 +16072,8 @@ lab_4bd9:
     mov a,#32h              ;4bd9  a1 32
     mov !mem_fb2b,a         ;4bdb  9e 2b fb
     mov mem_fed4,#80h       ;4bde  11 d4 80
-    clr1 shadow_p4_.7       ;4be1  7b ce
+
+    clr1 shadow_p4_.7       ;4be1  7b ce        Deselect uPD16432B (STB=low)
     clr1 PM4_.7             ;4be3  71 7b 24
     mov a,shadow_p4_        ;4be6  f0 ce
     mov P4_,a               ;4be8  f2 04
@@ -16073,22 +16083,23 @@ lab_4bd9:
                             ;                       2=Write to chargen ram
                             ;                       Command implies address increment; increment = on
                             ;                       Command implies reset to address 0; address = 0
-    call !upd_send_byte     ;4bec  9a 4d 4d     Send a byte to uPD16432B over SPI on SIO30
+    call !upd_send_byte     ;4bec  9a 4d 4d     Select uPD16432B (STB=high), then send a byte to it
 
-    clr1 shadow_p4_.7       ;4bef  7b ce
+    clr1 shadow_p4_.7       ;4bef  7b ce        Deselect uPD16432B (STB=low)
     mov a,shadow_p4_        ;4bf1  f0 ce
     mov P4_,a               ;4bf3  f2 04
+
     mov b,#09h              ;4bf5  a3 09
     movw de,#charset_fm1    ;4bf7  14 21 49
 
 lab_4bfa:
-    clr1 shadow_p4_.7       ;4bfa  7b ce
+    clr1 shadow_p4_.7       ;4bfa  7b ce        Deselect uPD16432B (STB=low)
     clr1 PM4_.7             ;4bfc  71 7b 24
     mov a,shadow_p4_        ;4bff  f0 ce
     mov P4_,a               ;4c01  f2 04
 
     mov a,mem_fed4          ;4c03  f0 d4
-    call !upd_send_byte     ;4c05  9a 4d 4d     Send a byte to uPD16432B over SPI on SIO30
+    call !upd_send_byte     ;4c05  9a 4d 4d     Select uPD16432B (STB=high), then send a byte to it
 
     movw ax,de              ;4c08  c4
     movw hl,ax              ;4c09  d6
@@ -16113,9 +16124,10 @@ lab_4c23:
     dbnz b,$lab_4c23        ;4c24  8b fd
 
 lab_4c26:
-    set1 shadow_p4_.7       ;4c26  7a ce
+    set1 shadow_p4_.7       ;4c26  7a ce        Select uPD16432B (STB=high)
     mov a,shadow_p4_        ;4c28  f0 ce
     mov P4_,a               ;4c2a  f2 04
+
     clr1 IF0H_.4            ;4c2c  71 4b e1
     clr1 MK0H_.4            ;4c2f  71 4b e5
     clr1 PR0H_.4            ;4c32  71 4b e9
@@ -16171,7 +16183,7 @@ lab_4c78:
     br !lab_4d05            ;4c7b  9b 05 4d
 
 lab_4c7e:
-    clr1 shadow_p4_.7       ;4c7e  7b ce
+    clr1 shadow_p4_.7       ;4c7e  7b ce        Deselect uPD16432B (STB=low)
     clr1 PM4_.7             ;4c80  71 7b 24
     mov a,shadow_p4_        ;4c83  f0 ce
     mov P4_,a               ;4c85  f2 04
@@ -16180,16 +16192,16 @@ lab_4c7e:
                             ;                       Data Setting Command
                             ;                           0=Write to display RAM
                             ;                           Address increment mode: 0=increment
-    call !upd_send_byte     ;4c89  9a 4d 4d     Send a byte to uPD16432B over SPI on SIO30
+    call !upd_send_byte     ;4c89  9a 4d 4d     Select uPD16432B (STB=high), then send a byte to it
 
-    clr1 shadow_p4_.7       ;4c8c  7b ce
+    clr1 shadow_p4_.7       ;4c8c  7b ce        Deselect uPD16432B (STB=low)
     mov a,shadow_p4_        ;4c8e  f0 ce
     mov P4_,a               ;4c90  f2 04
 
     mov a,#80h              ;4c92  a1 80        A = uPD16432B Command Byte 0x80 (0b10000000)
                             ;                       Address Setting Command
                             ;                           Address = 00
-    call !upd_send_byte     ;4c94  9a 4d 4d     Send a byte to uPD16432B over SPI on SIO30
+    call !upd_send_byte     ;4c94  9a 4d 4d     Select uPD16432B (STB=high), then send a byte to it
 
     mov a,#00h              ;4c97  a1 00
     cmp a,#01h              ;4c99  4d 01
@@ -16209,9 +16221,10 @@ lab_4cad:
     dbnz b,$lab_4cad        ;4cae  8b fd
 
 lab_4cb0:
-    set1 shadow_p4_.7       ;4cb0  7a ce
+    set1 shadow_p4_.7       ;4cb0  7a ce            Select uPD16432B (STB=high)
     mov a,shadow_p4_        ;4cb2  f0 ce
     mov P4_,a               ;4cb4  f2 04
+
     clr1 IF0H_.4            ;4cb6  71 4b e1
     clr1 MK0H_.4            ;4cb9  71 4b e5
     clr1 PR0H_.4            ;4cbc  71 4b e9
@@ -16245,7 +16258,8 @@ lab_4ce3:
 
 lab_4ce8:
     bf mem_fe5f.0,$lab_4d05 ;4ce8  31 03 5f 19
-    clr1 shadow_p4_.7       ;4cec  7b ce
+
+    clr1 shadow_p4_.7       ;4cec  7b ce        Deselect uPD16432B (STB=low)
     clr1 PM4_.7             ;4cee  71 7b 24
     mov a,shadow_p4_        ;4cf1  f0 ce
     mov P4_,a               ;4cf3  f2 04
@@ -16253,12 +16267,12 @@ lab_4ce8:
     mov a,#4bh              ;4cf5  a1 4b        A = uPD16432B Command Byte 0x4B
                             ;                       Data Setting Command
                             ;                           3=Write to LED output latch
-    call !upd_send_byte     ;4cf7  9a 4d 4d     Send a byte to uPD16432B over SPI on SIO30
+    call !upd_send_byte     ;4cf7  9a 4d 4d     Select uPD16432B (STB=high), then send a byte to it
 
     mov a,mem_fe3e          ;4cfa  f0 3e        A = uPD16432B Data Byte
-    call !upd_send_byte     ;4cfc  9a 4d 4d     Send a byte to uPD16432B over SPI on SIO30
+    call !upd_send_byte     ;4cfc  9a 4d 4d     Select uPD16432B (STB=high), then send a byte to it
 
-    clr1 shadow_p4_.7       ;4cff  7b ce
+    clr1 shadow_p4_.7       ;4cff  7b ce        Deselect uPD16432B (STB=low)
     mov a,shadow_p4_        ;4d01  f0 ce
     mov P4_,a               ;4d03  f2 04
 
@@ -16267,10 +16281,12 @@ lab_4d05:
     clr1 PM3_.1             ;4d07  71 1b 23
     mov a,shadow_p3_        ;4d0a  f0 cd
     mov P3_,a               ;4d0c  f2 03
-    clr1 shadow_p4_.7       ;4d0e  7b ce
+
+    clr1 shadow_p4_.7       ;4d0e  7b ce        Deselect uPD16432B (STB=low)
     clr1 PM4_.7             ;4d10  71 7b 24
     mov a,shadow_p4_        ;4d13  f0 ce
     mov P4_,a               ;4d15  f2 04
+
     set1 mem_fe5e.7         ;4d17  7a 5e
 
 lab_4d19:
@@ -16281,16 +16297,18 @@ sub_4d1a:
     clr1 PM4_.6             ;4d1c  71 6b 24
     mov a,shadow_p4_        ;4d1f  f0 ce
     mov P4_,a               ;4d21  f2 04
-    clr1 shadow_p4_.7       ;4d23  7b ce
+
+    clr1 shadow_p4_.7       ;4d23  7b ce        Deselect uPD16432B (STB=low)
     clr1 PM4_.7             ;4d25  71 7b 24
     mov a,shadow_p4_        ;4d28  f0 ce
     mov P4_,a               ;4d2a  f2 04
+
     ret                     ;4d2c  af
 
 
 upd_display_on:
 ;Turn uPD16432B display on
-    clr1 shadow_p4_.7       ;4d2d  7b ce
+    clr1 shadow_p4_.7       ;4d2d  7b ce        Deselect uPD16432B (STB=low)
     clr1 PM4_.7             ;4d2f  71 7b 24
     mov a,shadow_p4_        ;4d32  f0 ce
     mov P4_,a               ;4d34  f2 04
@@ -16300,9 +16318,9 @@ upd_display_on:
                             ;                           Duty setting: 0=1/8 duty
                             ;                           Master/slave setting: 0=master
                             ;                           Drive voltage supply method: 1=internal
-    call !upd_send_byte     ;4d38  9a 4d 4d     Send a byte to uPD16432B over SPI on SIO30
+    call !upd_send_byte     ;4d38  9a 4d 4d     Select uPD16432B (STB=high), then send a byte to it
 
-    clr1 shadow_p4_.7       ;4d3b  7b ce
+    clr1 shadow_p4_.7       ;4d3b  7b ce        Deselect uPD16432B (STB=low)
     mov a,shadow_p4_        ;4d3d  f0 ce
     mov P4_,a               ;4d3f  f2 04
 
@@ -16313,36 +16331,37 @@ upd_display_on:
                             ;                           Key scan control: 1=Key scan operation
                             ;                           LED control: 1=Normal operation
                             ;                           LCD mode: 2=Normal operation (0b00)
-    call !upd_send_byte     ;4d43  9a 4d 4d     Send a byte to uPD16432B over SPI on SIO30
+    call !upd_send_byte     ;4d43  9a 4d 4d     Select uPD16432B (STB=high), then send a byte to it
 
-    clr1 shadow_p4_.7       ;4d46  7b ce
+    clr1 shadow_p4_.7       ;4d46  7b ce        Deselect uPD16432B (STB=low)
     mov a,shadow_p4_        ;4d48  f0 ce
     mov P4_,a               ;4d4a  f2 04
     ret                     ;4d4c  af
 
 
 upd_send_byte:
-;Send a byte to uPD16432B over SPI on SIO30
+;Select uPD16432B (STB=high), then send a byte to it
+;Sends byte in A, destroys X
     mov x,a                 ;4d4d  70
-    set1 shadow_p4_.7       ;4d4e  7a ce
+
+    set1 shadow_p4_.7       ;4d4e  7a ce        Select uPD16432B (STB=high)
     mov a,shadow_p4_        ;4d50  f0 ce
     mov P4_,a               ;4d52  f2 04
+
     mov a,x                 ;4d54  60
     callf !sub_087a         ;4d55  0c 7a        SPI transfer on SIO30 (sends byte in A, receives byte in A)
     ret                     ;4d57  af
 
+upd_recv_byte:
+;Select uPD16432B (STB=high), then receive a byte from it
+;Returns byte in A
+    set1 shadow_p4_.7       ;4d58  7a ce        Select uPD16432B (STB=high)
+    mov a,shadow_p4_        ;4d5a  f0 ce
+    mov P4_,a               ;4d5c  f2 04
 
-    db 7ah                  ;4d58  7a          DATA 0x7a 'z'
-    db 0ceh                 ;4d59  ce          DATA 0xce
-    db 0f0h                 ;4d5a  f0          DATA 0xf0
-    db 0ceh                 ;4d5b  ce          DATA 0xce
-    db 0f2h                 ;4d5c  f2          DATA 0xf2
-    db 04h                  ;4d5d  04          DATA 0x04
-    db 0a1h                 ;4d5e  a1          DATA 0xa1
-    db 00h                  ;4d5f  00          DATA 0x00
-    db 0ch                  ;4d60  0c          DATA 0x0c
-    db 7ah                  ;4d61  7a          DATA 0x7a 'z'
-    db 0afh                 ;4d62  af          DATA 0xaf
+    mov a,#00h              ;4d5e  a1 00        A = dummy byte to transmit while clocking in receive byte
+    callf !sub_087a         ;4d60  0c 7a        SPI transfer on SIO30 (sends byte in A, receives byte in A)
+    ret                     ;4d62  af
 
 sub_4d63:
     call !sub_3b3a          ;4d63  9a 3a 3b
