@@ -15237,6 +15237,7 @@ sub_47f6:
 
 sub_47fb:
 ;Title=0x1b  Subtitle=0x32  Block length=0x05
+;Calculate ROM checksum, store in mem_fb9d-mem_fb9e
     mov a,#04h              ;47fb  a1 04
     mov !mem_fbaf,a         ;47fd  9e af fb
     mov a,#02h              ;4800  a1 02        A = 2 bytes to copy
@@ -16807,7 +16808,8 @@ lab_4fcb:
 
 lab_4fd1:
 ;Title=0x1b  Subtitle=0x32  Block length=0x05
-    call !sub_47fb          ;4fd1  9a fb 47
+;Perform ROM checksum
+    call !sub_47fb          ;4fd1  9a fb 47     Calculate ROM checksum, store in mem_fb9d-mem_fb9e
     br !lab_54fb            ;4fd4  9b fb 54
 
 kwp_f06d_2_ack:
@@ -26758,7 +26760,7 @@ lab_8085:
 
 lab_8090:
     bt mem_fe6d.3,$lab_80b0 ;8090  bc 6d 1d
-    call !sub_47fb          ;8093  9a fb 47
+    call !sub_47fb          ;8093  9a fb 47     Calculate ROM checksum, store in mem_fb9d-mem_fb9e
     set1 mem_fe6d.3         ;8096  3a 6d
     xch a,x                 ;8098  30
     movw hl,#checksum       ;8099  16 fe ef
@@ -38533,7 +38535,7 @@ kwp_subtitles_b301:
     db 2fh                  ;b309  2f          DATA 0x2f '/'    B=0x07  Title=0x1b  Subtitle=0x2f
     db 30h                  ;b30a  30          DATA 0x30 '0'    B=0x08  Title=0x1b  Subtitle=0x30
     db 31h                  ;b30b  31          DATA 0x31 '1'    B=0x09  Title=0x1b  Subtitle=0x31
-    db 32h                  ;b30c  32          DATA 0x32 '2'    B=0x0A  Title=0x1b  Subtitle=0x32
+    db 32h                  ;b30c  32          DATA 0x32 '2'    B=0x0A  Title=0x1b  Subtitle=0x32   Perform ROM checksum
 
 kwp_lengths_b30d:
 ;same order as kwp_subtitles_b301
@@ -38548,7 +38550,7 @@ kwp_lengths_b30d:
     db 05h                  ;b315  05          DATA 0x05        B=0x07  Title=0x1b  Subtitle=0x2f
     db 05h                  ;b316  05          DATA 0x05        B=0x08  Title=0x1b  Subtitle=0x30
     db 05h                  ;b317  05          DATA 0x05        B=0x09  Title=0x1b  Subtitle=0x31
-    db 05h                  ;b318  05          DATA 0x05        B=0x0A  Title=0x1b  Subtitle=0x32
+    db 05h                  ;b318  05          DATA 0x05        B=0x0A  Title=0x1b  Subtitle=0x32   Perform ROM checksum
 
 kwp_handlers_b319:
 ;same order as kwp_subtitles_b301
@@ -38563,7 +38565,7 @@ kwp_handlers_b319:
     dw lab_4fc2             ;b328  c2 4f       VECTOR           B=0x07  Title=0x1b  Subtitle=0x2f
     dw lab_4fc5             ;b32a  c5 4f       VECTOR           B=0x08  Title=0x1b  Subtitle=0x30
     dw lab_4fcb             ;b32c  cb 4f       VECTOR           B=0x09  Title=0x1b  Subtitle=0x31
-    dw lab_4fd1             ;b32e  d1 4f       VECTOR           B=0x0A  Title=0x1b  Subtitle=0x32
+    dw lab_4fd1             ;b32e  d1 4f       VECTOR           B=0x0A  Title=0x1b  Subtitle=0x32   Perform ROM checksum
 
     db 01h                  ;b330  01          DATA 0x01
     db 00h                  ;b331  00          DATA 0x00
@@ -54224,6 +54226,5 @@ sub_dadd:
     db 0bfh                 ;effd  bf          DATA 0xbf
 
 checksum:
-    db 1bh                  ;effe  1b          DATA 0x1b
-    db 4eh                  ;efff  4e          DATA 0x4e 'N'
+    dw 4e1bh                ;effe  1b 4e       DATA
     end
