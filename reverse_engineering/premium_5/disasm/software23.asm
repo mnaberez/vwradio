@@ -27,6 +27,8 @@
     mem_f00f equ 0f00fh
     mem_f01a equ 0f01ah
     mem_f032 equ 0f032h
+    mem_f033 equ 0f033h
+    mem_f034 equ 0f034h
     mem_f03b equ 0f03bh
     mem_f04b equ 0f04bh
     mem_f04c equ 0f04ch     ;byte count for KWP1281 read ram, read rom, or write eeprom commands
@@ -361,7 +363,7 @@
     mem_fe5c equ 0fe5ch
     mem_fe5d equ 0fe5dh
     mem_fe5e equ 0fe5eh     ;Bit 1: off=FERN off, on=FERN on
-    mem_fe5f equ 0fe5fh
+    mem_fe5f equ 0fe5fh     ;Bit 0: off=SPI packet transfer not yet complete, on=complete
     mem_fe60 equ 0fe60h
     mem_fe61 equ 0fe61h
     mem_fe62 equ 0fe62h
@@ -487,7 +489,6 @@
     IXS_ equ 0fff4h         ;Internal expansion RAM size switching register
     WDTM_ equ 0fff9h        ;Watchdog timer mode register
     PCC_ equ 0fffbh         ;Processor clock control register
-
 
 rst_vect:
     dw rst_0d88             ;0000  88 0d       VECTOR RST
@@ -2519,7 +2520,7 @@ sub_0879:
 sub_087a:
 ;SPI transfer on SIO30 (sends byte in A, receives byte in A)
     clr1 IF0H_.4            ;087a  71 4b e1     Clear CSIIF30
-    set1 mem_fe5f.0         ;087d  0a 5f
+    set1 mem_fe5f.0         ;087d  0a 5f        SPI packet complete flag = complete
     mov SIO30_,a            ;087f  f2 1a
     push bc                 ;0881  b3
     mov b,#00h              ;0882  a3 00
@@ -2528,7 +2529,7 @@ lab_0884:
     ;transfer not complete
     dbnz b,$lab_0884        ;0888  8b fa
     nop                     ;088a  00
-    clr1 mem_fe5f.0         ;088b  0b 5f
+    clr1 mem_fe5f.0         ;088b  0b 5f        SPI packet complete flag = not complete
 lab_088d:
     ;transfer complete
     mov a,SIO30_            ;088d  f0 1a
@@ -2536,46 +2537,59 @@ lab_088d:
     ret                     ;0890  af
 
 
-sub_0891:
-    set1 shadow_p3_.2       ;0891  2a cd
-    set1 shadow_p3_.1       ;0893  1a cd
+sio30_disable:
+;Disable SIO30 (used for uPD16432B SPI)
+    set1 shadow_p3_.2       ;0891  2a cd        uPD16432B CLK = high
+    set1 shadow_p3_.1       ;0893  1a cd        uPD16432B DAT = high
     mov a,shadow_p3_        ;0895  f0 cd
     mov P3_,a               ;0897  f2 03
-    mov CSIM30_,#00h        ;0899  13 b0 00
+
+    mov CSIM30_,#00h        ;0899  13 b0 00     SIO30 = operation stopped
+
     clr1 PM3_.2             ;089c  71 2b 23
     clr1 PM3_.1             ;089f  71 1b 23
     clr1 PU3_.0             ;08a2  71 0b 33
     set1 PM3_.0             ;08a5  71 0a 23
     ret                     ;08a8  af
 
+
 intcsi30_08a9:
-;SPI transfer complete on CSI30
-    sel rb2                 ;08a9  61 f0
-    mov a,SIO30_            ;08ab  f0 1a
-    bt mem_fe5f.1,$lab_08b1 ;08ad  9c 5f 01
-    mov [hl],a              ;08b0  97
+;ISR: SPI transfer complete on CSI30 (uPD16432B)
+;
+;Uses RB2:
+;  HL = pointer to buffer to transfer
+;   B = total number of bytes to transfer
+;   C = number of bytes transferred so far
+;
+    sel rb2                 ;08a9  61 f0        Select register bank used by this ISR
+    mov a,SIO30_            ;08ab  f0 1a        A = SPI byte received
+    bt mem_fe5f.1,$lab_08b1 ;08ad  9c 5f 01     Branch if ??
+    mov [hl],a              ;08b0  97           Store A in receive buffer
 
 lab_08b1:
-    mov a,c                 ;08b1  62
-    cmp a,b                 ;08b2  61 4b
-    bz $lab_08bd            ;08b4  ad 07
-    incw hl                 ;08b6  86
-    inc c                   ;08b7  42
-    mov a,[hl]              ;08b8  87
-    mov SIO30_,a            ;08b9  f2 1a
+    mov a,c                 ;08b1  62           A = number of bytes transferred
+    cmp a,b                 ;08b2  61 4b        Is it equal to B (total number of bytes)?
+    bz $lab_08bd            ;08b4  ad 07          Yes: branch lab_08bd
+    incw hl                 ;08b6  86           Increment buffer pointer
+    inc c                   ;08b7  42           Increment number of bytes transferred
+    mov a,[hl]              ;08b8  87           A = current byte in buffer
+    mov SIO30_,a            ;08b9  f2 1a        Send A out SPI
     br $lab_08c9            ;08bb  fa 0c
 
 lab_08bd:
-    set1 mem_fe5f.0         ;08bd  0a 5f
-    set1 MK0H_.4            ;08bf  71 4a e5
+    ;All bytes have been transferred
+    set1 mem_fe5f.0         ;08bd  0a 5f        SPI packet complete flag = complete
+    set1 MK0H_.4            ;08bf  71 4a e5     CSIMK30
     bf mem_fe60.7,$lab_08c9 ;08c2  31 73 60 03
-    call !sub_2f48          ;08c6  9a 48 2f
+    call !sub_2f48          ;08c6  9a 48 2f     P4_.3=low, P4_.4=low, disable SIO30, set mem_fe5e.7, clear mem_fe60.7
 
 lab_08c9:
-    sel rb0                 ;08c9  61 d0
+    sel rb0                 ;08c9  61 d0        Select normal register bank
     reti                    ;08cb  8f
 
+
 sub_08cc:
+;SPI transfer on SIO31 (sends byte in A, receives byte in A)
     clr1 IF0H_.5            ;08cc  71 5b e1
     mov SIO31_,a            ;08cf  f2 1b
     push bc                 ;08d1  b3
@@ -2591,12 +2605,14 @@ lab_08db:
     pop bc                  ;08dd  b2
     ret                     ;08de  af
 
-sub_08df:
+
+sio31_disable:
+;Disable SIO31 (unknown SPI)
     set1 shadow_p2_.2       ;08df  2a cc
     set1 shadow_p2_.1       ;08e1  1a cc
     mov a,shadow_p2_        ;08e3  f0 cc
     mov P2_,a               ;08e5  f2 02
-    mov CSIM31_,#00h        ;08e7  13 b8 00
+    mov CSIM31_,#00h        ;08e7  13 b8 00     SIO31 = operation stopped
     clr1 PM2_.2             ;08ea  71 2b 22
     clr1 PM2_.1             ;08ed  71 1b 22
     clr1 PU2_.0             ;08f0  71 0b 32
@@ -2617,14 +2633,14 @@ intcsi31_08f7:
 
 lab_0908:
     xch a,SIO31_            ;0908  83 1b
-    movw hl,#0f033h         ;090a  16 33 f0
+    movw hl,#mem_f033       ;090a  16 33 f0
     mov [hl+b],a            ;090d  bb
     inc b                   ;090e  43
     mov a,b                 ;090f  63
     cmp a,#08h              ;0910  4d 08
     bnz $lab_0925           ;0912  bd 11
     mov b,#07h              ;0914  a3 07
-    movw hl,#0f034h         ;0916  16 34 f0
+    movw hl,#mem_f034       ;0916  16 34 f0
     movw de,#mem_fc6e       ;0919  14 6e fc
 
 lab_091c:
@@ -3909,13 +3925,13 @@ lab_0f1b:
     mov !mem_fb68,a         ;0f5e  9e 68 fb
     clr1 mem_fe5d.7         ;0f61  7b 5d
     clr1 mem_fe5e.2         ;0f63  2b 5e
-    call !sub_0891          ;0f65  9a 91 08
+    call !sio30_disable     ;0f65  9a 91 08     Disable SIO30 (used for uPD16432B SPI)
     set1 mem_fe5e.7         ;0f68  7a 5e
-    set1 mem_fe5f.0         ;0f6a  0a 5f
+    set1 mem_fe5f.0         ;0f6a  0a 5f        SPI packet complete flag = complete
     set1 mem_fe5f.1         ;0f6c  1a 5f
-    clr1 IF0H_.4            ;0f6e  71 4b e1
-    set1 MK0H_.4            ;0f71  71 4a e5
-    call !sub_08df          ;0f74  9a df 08
+    clr1 IF0H_.4            ;0f6e  71 4b e1     CSIIF30
+    set1 MK0H_.4            ;0f71  71 4a e5     CSIMK30
+    call !sio31_disable     ;0f74  9a df 08     Disable SIO31 (unknown SPI)
     clr1 mem_fe5f.2         ;0f77  2b 5f
     mov a,#00h              ;0f79  a1 00
     mov !mem_f032,a         ;0f7b  9e 32 f0
@@ -4063,10 +4079,10 @@ lab_1036:
     clr1 mem_fe6c.2         ;10d4  2b 6c
     mov a,#00h              ;10d6  a1 00
     mov !mem_fb13,a         ;10d8  9e 13 fb
-    call !sub_262f          ;10db  9a 2f 26
+    call !sio31_enable      ;10db  9a 2f 26     Enable SIO31 (unknown SPI)
     clr1 MK0H_.5            ;10de  71 5b e5
     clr1 PR0H_.5            ;10e1  71 5b e9
-    callf !sub_08cc         ;10e4  0c cc
+    callf !sub_08cc         ;10e4  0c cc        SPI transfer on SIO31 (sends byte in A, receives byte in A)
     call !sub_d16e          ;10e6  9a 6e d1
     clr1 PM7_.0             ;10e9  71 0b 27
     set1 shadow_p7_.0       ;10ec  0a d1
@@ -8613,24 +8629,25 @@ read_ee_safe:
     call !sub_6238          ;260f  9a 38 62     Read A bytes from EEPROM address HL into [DE]
     bc $lab_2616            ;2612  8d 02
     set1 mem_fe5e.3         ;2614  3a 5e
-
 lab_2616:
     ret                     ;2616  af
 
-sub_2617:
-    mov CSIM30_,#83h        ;2617  13 b0 83
+sio30_enable:
+;Enable SIO30 (used for uPD16432B SPI)
+    mov CSIM30_,#83h        ;2617  13 b0 83     SIO30 mode = enabled, tx & rx, clock = fx/2^6 (65.5 kHz)
     clr1 PM3_.2             ;261a  71 2b 23
     clr1 PM3_.1             ;261d  71 1b 23
     clr1 PU3_.0             ;2620  71 0b 33
     set1 PM3_.0             ;2623  71 0a 23
-    clr1 shadow_p3_.2       ;2626  2b cd
-    clr1 shadow_p3_.1       ;2628  1b cd
+    clr1 shadow_p3_.2       ;2626  2b cd        uPD16432B CLK = low
+    clr1 shadow_p3_.1       ;2628  1b cd        uPD16432B DAT out = low
     mov a,shadow_p3_        ;262a  f0 cd
     mov P3_,a               ;262c  f2 03
     ret                     ;262e  af
 
-sub_262f:
-    mov CSIM31_,#84h        ;262f  13 b8 84
+sio31_enable:
+;Enable SIO31 (unknown SPI)
+    mov CSIM31_,#84h        ;262f  13 b8 84     SIO31 mode = enabled, rx only, clock = external to SCK31
     clr1 PU2_.2             ;2632  71 2b 32
     set1 PM2_.2             ;2635  71 2a 22
     clr1 PM2_.1             ;2638  71 1b 22
@@ -8641,19 +8658,16 @@ sub_262f:
     mov P2_,a               ;2645  f2 02
     ret                     ;2647  af
 
-    db 4dh                  ;2648  4d          DATA 0x4d 'M'
-    db 0ah                  ;2649  0a          DATA 0x0a
-    db 8dh                  ;264a  8d          DATA 0x8d
-    db 06h                  ;264b  06          DATA 0x06
-    db 1dh                  ;264c  1d          DATA 0x1d
-    db 0ah                  ;264d  0a          DATA 0x0a
-    db 0dh                  ;264e  0d          DATA 0x0d
-    db 41h                  ;264f  41          DATA 0x41 'A'
-    db 0fah                 ;2650  fa          DATA 0xfa
-    db 02h                  ;2651  02          DATA 0x02
-    db 0dh                  ;2652  0d          DATA 0x0d
-    db 30h                  ;2653  30          DATA 0x30 '0'
-    db 0afh                 ;2654  af          DATA 0xaf
+lab_2648:
+    cmp a,#0ah              ;2648  4d 0a
+    bc $lab_2652            ;264a  8d 06
+    sub a,#0ah              ;264c  1d 0a
+    add a,#41h              ;264e  0d 41
+    br $lab_2654            ;2650  fa 02
+lab_2652:
+    add a,#30h              ;2652  0d 30
+lab_2654:
+    ret                     ;2654  af
 
 kwp_1j003b180b:
     db 31h                  ;2655  31          DATA 0x31 '1'
@@ -10266,15 +10280,18 @@ lab_2f43:
     ret                     ;2f47  af
 
 sub_2f48:
-    clr1 shadow_p4_.3       ;2f48  3b ce
+;P4_.3=low, P4_.4=low, disable SIO30, set mem_fe5e.7, clear mem_fe60.7
+    clr1 shadow_p4_.3       ;2f48  3b ce        P4_.3 = low
     clr1 PM4_.3             ;2f4a  71 3b 24
     mov a,shadow_p4_        ;2f4d  f0 ce
     mov P4_,a               ;2f4f  f2 04
-    clr1 shadow_p4_.4       ;2f51  4b ce
+
+    clr1 shadow_p4_.4       ;2f51  4b ce        P4_.4 = low
     clr1 PM4_.4             ;2f53  71 4b 24
     mov a,shadow_p4_        ;2f56  f0 ce
     mov P4_,a               ;2f58  f2 04
-    callf !sub_0891         ;2f5a  0c 91
+
+    callf !sio30_disable    ;2f5a  0c 91        Disable SIO30 (used for uPD16432B SPI)
     set1 mem_fe5e.7         ;2f5c  7a 5e
     clr1 mem_fe60.7         ;2f5e  7b 60
     ret                     ;2f60  af
@@ -10346,7 +10363,7 @@ lab_2fc3:
 lab_2fca:
     set1 mem_fe60.6         ;2fca  6a 60
     set1 mem_fe60.7         ;2fcc  7a 60
-    callf !sub_0891         ;2fce  0c 91
+    callf !sio30_disable    ;2fce  0c 91        Disable SIO30 (used for uPD16432B SPI)
     set1 shadow_p4_.3       ;2fd0  3a ce
     clr1 PM4_.3             ;2fd2  71 3b 24
     mov a,shadow_p4_        ;2fd5  f0 ce
@@ -10370,24 +10387,25 @@ lab_2feb:
 lab_2ff4:
     clr1 PU4_.5             ;2ff4  71 5b 34
     set1 PM4_.5             ;2ff7  71 5a 24
-    call !sub_2617          ;2ffa  9a 17 26
+    call !sio30_enable      ;2ffa  9a 17 26     Enable SIO30 (used for uPD16432B SPI)
     set1 mem_fe5f.1         ;2ffd  1a 5f
-    clr1 IF0H_.4            ;2fff  71 4b e1
-    clr1 MK0H_.4            ;3002  71 4b e5
+    clr1 IF0H_.4            ;2fff  71 4b e1     CSIIF30
+    clr1 MK0H_.4            ;3002  71 4b e5     CSIMK30
     clr1 PR0H_.4            ;3005  71 4b e9
+
     movw ax,!0f006h         ;3008  02 06 f0
-    push ax                 ;300b  b1
+    push ax                 ;300b  b1           Push: pointer to buffer to transfer
     mov a,#01h              ;300c  a1 01
-    push ax                 ;300e  b1
-    sel rb2                 ;300f  61 f0
-    pop bc                  ;3011  b2
-    pop hl                  ;3012  b6
-    clr1 mem_fe5f.0         ;3013  0b 5f
-    mov c,#01h              ;3015  a2 01
-    mov a,[hl]              ;3017  87
+    push ax                 ;300e  b1           Pop: number of bytes to transfer
+    sel rb2                 ;300f  61 f0        Select register bank used by intcsi30_08a9
+    pop bc                  ;3011  b2           Pop: B  = number of bytes to transfer
+    pop hl                  ;3012  b6           Pop: HL = pointer to buffer to transfer
+    clr1 mem_fe5f.0         ;3013  0b 5f        SPI packet complete flag = not complete
+    mov c,#01h              ;3015  a2 01        C = number of bytes sent
+    mov a,[hl]              ;3017  87           A = first byte in buffer to transfer
     ei                      ;3018  7a 1e
-    mov SIO30_,a            ;301a  f2 1a
-    sel rb0                 ;301c  61 d0
+    mov SIO30_,a            ;301a  f2 1a        Send the first byte in the buffer
+    sel rb0                 ;301c  61 d0        Select normal register bank
     movw ax,!0f006h         ;301e  02 06 f0
     incw ax                 ;3021  80
     movw !0f006h,ax         ;3022  03 06 f0
@@ -10431,7 +10449,7 @@ lab_3065:
     ret                     ;3065  af
 
 lab_3066:
-    call !sub_2f48          ;3066  9a 48 2f
+    call !sub_2f48          ;3066  9a 48 2f     P4_.3=low, P4_.4=low, disable SIO30, set mem_fe5e.7, clear mem_fe60.7
     clr1 mem_fe60.6         ;3069  6b 60
     mov mem_fe25,#00h       ;306b  11 25 00
     ret                     ;306e  af
@@ -15589,13 +15607,13 @@ lab_496b:
     clr1 PM4_.3             ;496d  71 3b 24
     mov a,shadow_p4_        ;4970  f0 ce
     mov P4_,a               ;4972  f2 04
-    mov CSIM30_,#82h        ;4974  13 b0 82
+    mov CSIM30_,#82h        ;4974  13 b0 82     SIO30 mode = enabled, tx & rx, clock = fx/2^4 (262 kHz)
     clr1 PM3_.2             ;4977  71 2b 23
     clr1 PM3_.1             ;497a  71 1b 23
     clr1 PU3_.0             ;497d  71 0b 33
     set1 PM3_.0             ;4980  71 0a 23
-    clr1 shadow_p3_.2       ;4983  2b cd
-    clr1 shadow_p3_.1       ;4985  1b cd
+    clr1 shadow_p3_.2       ;4983  2b cd        uPD16432B CLK = low
+    clr1 shadow_p3_.1       ;4985  1b cd        uPD16432B DAT out = low
     mov a,shadow_p3_        ;4987  f0 cd
     mov P3_,a               ;4989  f2 03
 
@@ -15665,34 +15683,34 @@ lab_49db:
     mov a,shadow_p4_        ;49dd  f0 ce
     mov P4_,a               ;49df  f2 04
 
-    clr1 IF0H_.4            ;49e1  71 4b e1
-    clr1 MK0H_.4            ;49e4  71 4b e5
+    clr1 IF0H_.4            ;49e1  71 4b e1     CSIIF30
+    clr1 MK0H_.4            ;49e4  71 4b e5     CSIMK30
     clr1 PR0H_.4            ;49e7  71 4b e9
-    movw ax,hl              ;49ea  c6
-    push ax                 ;49eb  b1
-    mov a,#07h              ;49ec  a1 07
-    push ax                 ;49ee  b1
-    sel rb2                 ;49ef  61 f0
-    pop bc                  ;49f1  b2
-    pop hl                  ;49f2  b6
-    clr1 mem_fe5f.0         ;49f3  0b 5f
-    mov c,#01h              ;49f5  a2 01
-    mov a,[hl]              ;49f7  87
-    ei                      ;49f8  7a 1e
-    mov SIO30_,a            ;49fa  f2 1a
-    sel rb0                 ;49fc  61 d0
-    inc mem_fed4            ;49fe  81 d4    Increment uPD16432B Address Setting Command to next address
-    mov b,#0ffh             ;4a00  a3 ff
 
+    movw ax,hl              ;49ea  c6
+    push ax                 ;49eb  b1           Push: pointer to buffer to transfer
+    mov a,#07h              ;49ec  a1 07
+    push ax                 ;49ee  b1           Pop: number of bytes to transfer
+    sel rb2                 ;49ef  61 f0        Select register bank used by intcsi30_08a9
+    pop bc                  ;49f1  b2           Pop: B  = number of bytes to transfer
+    pop hl                  ;49f2  b6           Pop: HL = pointer to buffer to transfer
+    clr1 mem_fe5f.0         ;49f3  0b 5f        SPI packet complete flag = not complete
+    mov c,#01h              ;49f5  a2 01        C = number of bytes sent
+    mov a,[hl]              ;49f7  87           A = first byte in buffer to transfer
+    ei                      ;49f8  7a 1e
+    mov SIO30_,a            ;49fa  f2 1a        Send the first byte in the buffer
+    sel rb0                 ;49fc  61 d0        Select normal register bank
+    inc mem_fed4            ;49fe  81 d4        Increment uPD16432B Address Setting Command to next address
+
+    mov b,#0ffh             ;4a00  a3 ff
 lab_4a02:
-    bt mem_fe5f.0,$lab_4a07 ;4a02  8c 5f 02
+    bt mem_fe5f.0,$lab_4a07 ;4a02  8c 5f 02     Branch if SPI packet complete flag = complete
     dbnz b,$lab_4a02        ;4a05  8b fb
 
 lab_4a07:
     mov b,#0ffh             ;4a07  a3 ff
-
 lab_4a09:
-    bt mem_fe5f.0,$lab_4a0e ;4a09  8c 5f 02
+    bt mem_fe5f.0,$lab_4a0e ;4a09  8c 5f 02     Branch if SPI packet complete flag = complete
     dbnz b,$lab_4a09        ;4a0c  8b fb
 
 lab_4a0e:
@@ -15723,7 +15741,7 @@ lab_4a0e:
     mov a,shadow_p4_        ;4a23  f0 ce
     mov P4_,a               ;4a25  f2 04
 
-    set1 shadow_p3_.1       ;4a27  1a cd
+    set1 shadow_p3_.1       ;4a27  1a cd        uPD16432B DAT out
     clr1 PM3_.1             ;4a29  71 1b 23
     mov a,shadow_p3_        ;4a2c  f0 cd
     mov P3_,a               ;4a2e  f2 03
@@ -15942,13 +15960,13 @@ lab_4b04:
     clr1 PM4_.3             ;4b06  71 3b 24
     mov a,shadow_p4_        ;4b09  f0 ce
     mov P4_,a               ;4b0b  f2 04
-    mov CSIM30_,#82h        ;4b0d  13 b0 82
+    mov CSIM30_,#82h        ;4b0d  13 b0 82     SIO30 mode = enabled, tx & rx, clock = fx/2^4 (262 kHz)
     clr1 PM3_.2             ;4b10  71 2b 23
     clr1 PM3_.1             ;4b13  71 1b 23
     clr1 PU3_.0             ;4b16  71 0b 33
     set1 PM3_.0             ;4b19  71 0a 23
-    clr1 shadow_p3_.2       ;4b1c  2b cd
-    clr1 shadow_p3_.1       ;4b1e  1b cd
+    clr1 shadow_p3_.2       ;4b1c  2b cd        uPD16432B CLK = low
+    clr1 shadow_p3_.1       ;4b1e  1b cd        uPD16432B DAT out = low
     mov a,shadow_p3_        ;4b20  f0 cd
     mov P3_,a               ;4b22  f2 03
 
@@ -16020,22 +16038,23 @@ lab_4b84:
     mov a,shadow_p4_        ;4b86  f0 ce
     mov P4_,a               ;4b88  f2 04
 
-    clr1 IF0H_.4            ;4b8a  71 4b e1
-    clr1 MK0H_.4            ;4b8d  71 4b e5
+    clr1 IF0H_.4            ;4b8a  71 4b e1     CSIIF30
+    clr1 MK0H_.4            ;4b8d  71 4b e5     CSIMK30
     clr1 PR0H_.4            ;4b90  71 4b e9
+
     movw ax,#upd_pict       ;4b93  10 35 fe
-    push ax                 ;4b96  b1
+    push ax                 ;4b96  b1           Push: pointer to buffer to transfer
     mov a,#08h              ;4b97  a1 08
-    push ax                 ;4b99  b1
-    sel rb2                 ;4b9a  61 f0
-    pop bc                  ;4b9c  b2
-    pop hl                  ;4b9d  b6
-    clr1 mem_fe5f.0         ;4b9e  0b 5f
-    mov c,#01h              ;4ba0  a2 01
-    mov a,[hl]              ;4ba2  87
+    push ax                 ;4b99  b1           Pop: number of bytes to transfer
+    sel rb2                 ;4b9a  61 f0        Select register bank used by intcsi30_08a9
+    pop bc                  ;4b9c  b2           Pop: B  = number of bytes to transfer
+    pop hl                  ;4b9d  b6           Pop: HL = pointer to buffer to transfer
+    clr1 mem_fe5f.0         ;4b9e  0b 5f        SPI packet complete flag = not complete
+    mov c,#01h              ;4ba0  a2 01        C = number of bytes sent
+    mov a,[hl]              ;4ba2  87           A = first byte in buffer to transfer
     ei                      ;4ba3  7a 1e
-    mov SIO30_,a            ;4ba5  f2 1a
-    sel rb0                 ;4ba7  61 d0
+    mov SIO30_,a            ;4ba5  f2 1a        Send the first byte in the buffer
+    sel rb0                 ;4ba7  61 d0        Select normal register bank
 
 lab_4ba9:
     mov a,!mem_fb2a         ;4ba9  8e 2a fb
@@ -16059,13 +16078,12 @@ lab_4bc2:
 
 lab_4bcc:
     mov b,#0ffh             ;4bcc  a3 ff
-
 lab_4bce:
-    bt mem_fe5f.0,$lab_4bd3 ;4bce  8c 5f 02
+    bt mem_fe5f.0,$lab_4bd3 ;4bce  8c 5f 02     Branch if SPI packet complete flag = complete
     dbnz b,$lab_4bce        ;4bd1  8b fb
 
 lab_4bd3:
-    bt mem_fe5f.0,$lab_4bd9 ;4bd3  8c 5f 03
+    bt mem_fe5f.0,$lab_4bd9 ;4bd3  8c 5f 03     Branch if SPI packet complete flag = complete
     br !lab_4d05            ;4bd6  9b 05 4d
 
 lab_4bd9:
@@ -16128,34 +16146,34 @@ lab_4c26:
     mov a,shadow_p4_        ;4c28  f0 ce
     mov P4_,a               ;4c2a  f2 04
 
-    clr1 IF0H_.4            ;4c2c  71 4b e1
-    clr1 MK0H_.4            ;4c2f  71 4b e5
+    clr1 IF0H_.4            ;4c2c  71 4b e1     CSIIF30
+    clr1 MK0H_.4            ;4c2f  71 4b e5     CSIMK30
     clr1 PR0H_.4            ;4c32  71 4b e9
+
     movw ax,hl              ;4c35  c6
-    push ax                 ;4c36  b1
+    push ax                 ;4c36  b1           Push: pointer to buffer to transfer
     mov a,#07h              ;4c37  a1 07
-    push ax                 ;4c39  b1
-    sel rb2                 ;4c3a  61 f0
-    pop bc                  ;4c3c  b2
-    pop hl                  ;4c3d  b6
-    clr1 mem_fe5f.0         ;4c3e  0b 5f
-    mov c,#01h              ;4c40  a2 01
-    mov a,[hl]              ;4c42  87
+    push ax                 ;4c39  b1           Pop: number of bytes to transfer
+    sel rb2                 ;4c3a  61 f0        Select register bank used by intcsi30_08a9
+    pop bc                  ;4c3c  b2           Pop: B  = number of bytes to transfer
+    pop hl                  ;4c3d  b6           Pop: HL = pointer to buffer to transfer
+    clr1 mem_fe5f.0         ;4c3e  0b 5f        SPI packet complete flag = not complete
+    mov c,#01h              ;4c40  a2 01        C = number of bytes sent
+    mov a,[hl]              ;4c42  87           A = first byte in buffer to transfer
     ei                      ;4c43  7a 1e
-    mov SIO30_,a            ;4c45  f2 1a
-    sel rb0                 ;4c47  61 d0
+    mov SIO30_,a            ;4c45  f2 1a        Send the first byte in the buffer
+    sel rb0                 ;4c47  61 d0        Select normal register bank
     inc mem_fed4            ;4c49  81 d4
     mov b,#0ffh             ;4c4b  a3 ff
 
 lab_4c4d:
-    bt mem_fe5f.0,$lab_4c52 ;4c4d  8c 5f 02
+    bt mem_fe5f.0,$lab_4c52 ;4c4d  8c 5f 02     Branch if SPI packet complete flag = complete
     dbnz b,$lab_4c4d        ;4c50  8b fb
 
 lab_4c52:
     mov b,#0ffh             ;4c52  a3 ff
-
 lab_4c54:
-    bt mem_fe5f.0,$lab_4c59 ;4c54  8c 5f 02
+    bt mem_fe5f.0,$lab_4c59 ;4c54  8c 5f 02     Branch if SPI packet complete flag = complete
     dbnz b,$lab_4c54        ;4c57  8b fb
 
 lab_4c59:
@@ -16175,11 +16193,11 @@ lab_4c5e:
     mov b,#0ffh             ;4c71  a3 ff
 
 lab_4c73:
-    bt mem_fe5f.0,$lab_4c78 ;4c73  8c 5f 02
+    bt mem_fe5f.0,$lab_4c78 ;4c73  8c 5f 02     Branch if SPI packet complete flag = complete
     dbnz b,$lab_4c73        ;4c76  8b fb
 
 lab_4c78:
-    bt mem_fe5f.0,$lab_4c7e ;4c78  8c 5f 03
+    bt mem_fe5f.0,$lab_4c7e ;4c78  8c 5f 03     Branch if SPI packet complete flag = complete
     br !lab_4d05            ;4c7b  9b 05 4d
 
 lab_4c7e:
@@ -16221,26 +16239,29 @@ lab_4cad:
     dbnz b,$lab_4cad        ;4cae  8b fd
 
 lab_4cb0:
-    set1 shadow_p4_.7       ;4cb0  7a ce            Select uPD16432B (STB=high)
+    set1 shadow_p4_.7       ;4cb0  7a ce        Select uPD16432B (STB=high)
     mov a,shadow_p4_        ;4cb2  f0 ce
     mov P4_,a               ;4cb4  f2 04
 
-    clr1 IF0H_.4            ;4cb6  71 4b e1
-    clr1 MK0H_.4            ;4cb9  71 4b e5
-    clr1 PR0H_.4            ;4cbc  71 4b e9
+    clr1 IF0H_.4            ;4cb6  71 4b e1     CSIIF30
+    clr1 MK0H_.4            ;4cb9  71 4b e5     CSIMK30
+    clr1 PR0H_.4            ;4cbc  71 4b e9     CSIPR30
+
     movw ax,#upd_disp       ;4cbf  10 9a f1
-    push ax                 ;4cc2  b1
+    push ax                 ;4cc2  b1           Push: pointer to buffer to transfer
     mov a,#0bh              ;4cc3  a1 0b
-    push ax                 ;4cc5  b1
-    sel rb2                 ;4cc6  61 f0
-    pop bc                  ;4cc8  b2
-    pop hl                  ;4cc9  b6
-    clr1 mem_fe5f.0         ;4cca  0b 5f
-    mov c,#01h              ;4ccc  a2 01
-    mov a,[hl]              ;4cce  87
+    push ax                 ;4cc5  b1           Pop: number of bytes to transfer
+
+    sel rb2                 ;4cc6  61 f0        Select register bank used by intcsi30_08a9
+    pop bc                  ;4cc8  b2           Pop: B  = number of bytes to transfer
+    pop hl                  ;4cc9  b6           Pop: HL = pointer to buffer to transfer
+
+    clr1 mem_fe5f.0         ;4cca  0b 5f        SPI packet complete flag = not complete
+    mov c,#01h              ;4ccc  a2 01        C = number of bytes sent
+    mov a,[hl]              ;4cce  87           A = first byte in buffer to transfer
     ei                      ;4ccf  7a 1e
-    mov SIO30_,a            ;4cd1  f2 1a
-    sel rb0                 ;4cd3  61 d0
+    mov SIO30_,a            ;4cd1  f2 1a        Send the first byte in the buffer
+    sel rb0                 ;4cd3  61 d0        Select normal register bank
 
 lab_4cd5:
     mov a,!mem_f1a5         ;4cd5  8e a5 f1
@@ -16251,13 +16272,12 @@ lab_4cd5:
 
 lab_4ce1:
     mov b,#0ffh             ;4ce1  a3 ff
-
 lab_4ce3:
-    bt mem_fe5f.0,$lab_4ce8 ;4ce3  8c 5f 02
+    bt mem_fe5f.0,$lab_4ce8 ;4ce3  8c 5f 02     Branch if SPI packet complete flag = complete
     dbnz b,$lab_4ce3        ;4ce6  8b fb
 
 lab_4ce8:
-    bf mem_fe5f.0,$lab_4d05 ;4ce8  31 03 5f 19
+    bf mem_fe5f.0,$lab_4d05 ;4ce8  31 03 5f 19  Branch if packet complete flag = not complete
 
     clr1 shadow_p4_.7       ;4cec  7b ce        Deselect uPD16432B (STB=low)
     clr1 PM4_.7             ;4cee  71 7b 24
@@ -16277,7 +16297,7 @@ lab_4ce8:
     mov P4_,a               ;4d03  f2 04
 
 lab_4d05:
-    set1 shadow_p3_.1       ;4d05  1a cd
+    set1 shadow_p3_.1       ;4d05  1a cd        uPD16432B DAT out
     clr1 PM3_.1             ;4d07  71 1b 23
     mov a,shadow_p3_        ;4d0a  f0 cd
     mov P3_,a               ;4d0c  f2 03
