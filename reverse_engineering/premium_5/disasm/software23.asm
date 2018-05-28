@@ -9400,8 +9400,8 @@ lab_2c32:
     ret                     ;2c32  af
 
 sub_2c33:
-;Perform EEPROM write(?).  Sets carry on failure.
-;unknown, called from lab_50ec (write eeprom related)
+;Perform EEPROM write from KWP1281 request
+;Called from lab_4f47, lab_50ec (write eeprom related)
 ;Returns carry clear = success, carry set = failure
     call !sub_6217          ;2c33  9a 17 62     Unknown; EEPROM related
     bnc $sub_2c33           ;2c36  9d fb        Repeat until success
@@ -9410,8 +9410,8 @@ sub_2c33:
     set1 mem_fe60.2         ;2c3b  2a 60
     call !read_kwp_rx_3     ;2c3d  9a 8b 2c     Read 3 bytes from KWP1281 rx buffer:
                             ;                       A = KWP1281 rx buffer byte 3 (number of bytes)
-                            ;                       D = KWP1281 rx buffer byte 4 (address high)
-                            ;                       E = KWP1281 rx buffer byte 5 (address low)
+                            ;                       D = KWP1281 rx buffer byte 4 (EEPROM address high)
+                            ;                       E = KWP1281 rx buffer byte 5 (EEPROM address low)
     mov !mem_f04c,a         ;2c40  9e 4c f0
     mov l,a                 ;2c43  76
     mov h,#00h              ;2c44  a7 00
@@ -9419,42 +9419,43 @@ sub_2c33:
     movw !mem_f004,ax       ;2c47  03 04 f0
 
     call !sub_2cdf          ;2c4a  9a df 2c
-    bc $lab_2c7b_success    ;2c4d  8d 2c
+    bc $lab_2c7b_failed     ;2c4d  8d 2c
 
-    bf mem_fe65.5,$lab_2c7b_write  ;2c4f  31 53 65 19   Skip protection checks if ?? bit is off
+    bf mem_fe65.5,$lab_2c6c_write  ;2c4f  31 53 65 19   Skip protection checks if ?? bit is off
 
-    movw ax,de              ;2c53  c4
+    movw ax,de              ;2c53  c4           Copy EEPROM address into AX for comparisons
 
     ;Protect 2 EEPROM addresses: 0x0014-0x0015 (SAFE code)
     cmpw ax,#0014h          ;2c54  ea 14 00
-    bc $lab_2c60            ;2c57  8d 07        Branch if address < 0x0014
+    bc $lab_2c60            ;2c57  8d 07        Branch if EEPROM address < 0x0014
     cmpw ax,#0016h          ;2c59  ea 16 00
-    bnc $lab_2c60           ;2c5c  9d 02        Branch if address >= 00x16
-    br $lab_2c77_fail       ;2c5e  fa 17        Address is protected; branch to fail
+    bnc $lab_2c60           ;2c5c  9d 02        Branch if EEPROM address >= 0x0016
+    br $lab_2c77_success    ;2c5e  fa 17        Address is protected; skip write and falsely report success
 
 lab_2c60:
     ;Protect 9 EEPROM addresses: 0x0058-0x0060 (??)
     cmpw ax,#0058h          ;2c60  ea 58 00
-    bc $lab_2c7b_write      ;2c63  8d 07        Branch if address < 0x0058
+    bc $lab_2c6c_write      ;2c63  8d 07        Branch if EEPROM address < 0x0058
     cmpw ax,#0061h          ;2c65  ea 61 00
-    bnc $lab_2c7b_write     ;2c68  9d 02        Branch if address >= 0x0061
-    br $lab_2c77_fail       ;2c6a  fa 0b        Address is protected; branch to fail
+    bnc $lab_2c6c_write     ;2c68  9d 02        Branch if EEPROM address >= 0x0061
+    br $lab_2c77_success    ;2c6a  fa 0b        Address is protected; skip write and falsely report success
 
-lab_2c7b_write:
-    movw hl,#kwp_rx_buf+6   ;2c6c  16 90 f0     HL = pointer to KWP1281 rx buffer bytes 6-7
+lab_2c6c_write:
+    ;Perform EEPROM write
+    movw hl,#kwp_rx_buf+6   ;2c6c  16 90 f0     HL = pointer to KWP1281 rx buffer bytes 6+
     mov a,!mem_f04c         ;2c6f  8e 4c f0     A = number of bytes to write to EEPROM
     call !sub_628e          ;2c72  9a 8e 62     Write A bytes to EEPROM address DE from [HL]
-    bnc $lab_2c7b_success   ;2c75  9d 04        Branch if write failed
+    bnc $lab_2c7b_failed    ;2c75  9d 04        Branch if write failed
 
-;TODO: fail/success here seems wrong
+    ;write succeeded
 
-lab_2c77_fail:
-    clr1 cy                 ;2c77  21           Clear carry = failure
+lab_2c77_success:
+    clr1 cy                 ;2c77  21           Clear carry = success
     set1 mem_fe60.1         ;2c78  1a 60
     ret                     ;2c7a  af
 
-lab_2c7b_success:
-    set1 cy                 ;2c7b  20           Set carry = success
+lab_2c7b_failed:
+    set1 cy                 ;2c7b  20           Set carry = failure
     clr1 mem_fe60.1         ;2c7c  1b 60
     ret                     ;2c7e  af
 
@@ -9557,41 +9558,44 @@ lab_2cd6:
 lab_2cde:
     ret                     ;2cde  af
 
+
 sub_2cdf:
+;Returns carry set = failure, carry clear = success
     callf !sub_0d60         ;2cdf  5c 60
     xchw ax,hl              ;2ce1  e6
-    bc $lab_2d0f            ;2ce2  8d 2b
+    bc $lab_2d0f_failed     ;2ce2  8d 2b
     bt mem_fe60.2,$lab_2d08 ;2ce4  ac 60 21
     cmpw ax,#0f000h         ;2ce7  ea 00 f0
     bnc $lab_2cee           ;2cea  9d 02
-    br $lab_2d0d            ;2cec  fa 1f
+    br $lab_2d0f_success    ;2cec  fa 1f
 
 lab_2cee:
     xchw ax,hl              ;2cee  e6
     cmpw ax,#mem_fb00       ;2cef  ea 00 fb
     xchw ax,hl              ;2cf2  e6
-    bnc $lab_2d0d           ;2cf3  9d 18
+    bnc $lab_2d0f_success   ;2cf3  9d 18
     cmpw ax,#0f000h         ;2cf5  ea 00 f0
-    bc $lab_2d0f            ;2cf8  8d 15
+    bc $lab_2d0f_failed     ;2cf8  8d 15
     cmpw ax,#0f7ffh         ;2cfa  ea ff f7
-    bnc $lab_2d0f           ;2cfd  9d 10
+    bnc $lab_2d0f_failed    ;2cfd  9d 10
     xchw ax,hl              ;2cff  e6
     cmpw ax,#0f000h         ;2d00  ea 00 f0
     xchw ax,hl              ;2d03  e6
-    bnc $lab_2d0d           ;2d04  9d 07
-    br $lab_2d0f            ;2d06  fa 07
+    bnc $lab_2d0f_success   ;2d04  9d 07
+    br $lab_2d0f_failed     ;2d06  fa 07
 
 lab_2d08:
     cmpw ax,#0201h          ;2d08  ea 01 02
-    bnc $lab_2d0f           ;2d0b  9d 02
+    bnc $lab_2d0f_failed    ;2d0b  9d 02
 
-lab_2d0d:
+lab_2d0f_success:
     clr1 cy                 ;2d0d  21
     ret                     ;2d0e  af
 
-lab_2d0f:
+lab_2d0f_failed:
     set1 cy                 ;2d0f  20
     ret                     ;2d10  af
+
 
 sub_2d11:
     mov a,#00h              ;2d11  a1 00
@@ -16433,7 +16437,7 @@ lab_4f44:
     br !lab_5355            ;4f44  9b 55 53     Branch to Send NAK response (index 0x04)
 
 lab_4f47:
-    call !sub_2c33          ;4f47  9a 33 2c     Perform EEPROM write(?).  Sets carry on failure.
+    call !sub_2c33          ;4f47  9a 33 2c     Perform EEPROM write from KWP1281 request.  Sets carry on failure.
     bc $lab_4f44            ;4f4a  8d f8        Branch to Send NAK response (index 0x04)
     br !lab_55c5            ;4f4c  9b c5 55     Branch to Send EEPROM write response
 
@@ -16731,7 +16735,7 @@ lab_50e9:
 
 lab_50ec:
 ;write eeprom related
-    call !sub_2c33          ;50ec  9a 33 2c     Perform EEPROM write(?).  Sets carry on failure.
+    call !sub_2c33          ;50ec  9a 33 2c     Perform EEPROM write from KWP1281 request.  Sets carry on failure.
     bc $lab_50e9            ;50ef  8d f8        Branch to Send NAK response
     br !lab_55c5            ;50f1  9b c5 55     Branch to Send EEPROM write response
 
