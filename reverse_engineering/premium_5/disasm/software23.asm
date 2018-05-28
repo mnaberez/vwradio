@@ -200,6 +200,7 @@
     mem_fb63 equ 0fb63h
     mem_fb65 equ 0fb65h
     mem_fb66 equ 0fb66h
+    mem_fb67 equ 0fb67h
     mem_fb77 equ 0fb77h
     mem_fb68 equ 0fb68h
     mem_fb69 equ 0fb69h
@@ -256,6 +257,9 @@
     mem_fbe3 equ 0fbe3h
     mem_fbe4 equ 0fbe4h
     mem_fbe5 equ 0fbe5h
+    mem_fbfc equ 0fbfch
+    mem_fbfd equ 0fbfdh
+    mem_fbfe equ 0fbfeh
     mem_fbff equ 0fbffh
     mem_fc00 equ 0fc00h
     mem_fc10 equ 0fc10h
@@ -2436,10 +2440,9 @@ sub_0800:
     mov !mem_fb58,a         ;0803  9e 58 fb
     ret                     ;0806  af
 
-    db 48h                  ;0807  48          DATA 0x48 'H'
-    db 58h                  ;0808  58          DATA 0x58 'X'
-    db 0fbh                 ;0809  fb          DATA 0xfb
-    db 0afh                 ;080a  af          DATA 0xaf
+sub_0807:
+    cmp a,!mem_fb58         ;0807  48 58 fb
+    ret                     ;080a  af
 
 sub_080b:
 ;Return mem_f252 in A, also copy it into mem_fb57
@@ -2468,24 +2471,21 @@ sub_0823:
     mov b,#01h              ;0831  a3 01
     br !sub_0bf6            ;0833  9b f6 0b
 
-    db 2bh                  ;0836  2b          DATA 0x2b '+'
-    db 5bh                  ;0837  5b          DATA 0x5b '['
-    db 3bh                  ;0838  3b          DATA 0x3b ';'
-    db 5bh                  ;0839  5b          DATA 0x5b '['
-    db 2bh                  ;083a  2b          DATA 0x2b '+'
-    db 5ch                  ;083b  5c          DATA 0x5c '\'
-    db 11h                  ;083c  11          DATA 0x11
-    db 22h                  ;083d  22          DATA 0x22 '"'
-    db 0ah                  ;083e  0a          DATA 0x0a
-    db 0afh                 ;083f  af          DATA 0xaf
-    db 11h                  ;0840  11          DATA 0x11
-    db 22h                  ;0841  22          DATA 0x22 '"'
-    db 01h                  ;0842  01          DATA 0x01
-    db 0fah                 ;0843  fa          DATA 0xfa
-    db 03h                  ;0844  03          DATA 0x03
+sub_0836:
+    clr1 mem_fe5b.2         ;0836  2b 5b
+    clr1 mem_fe5b.3         ;0838  3b 5b
+    clr1 mem_fe5c.2         ;083a  2b 5c
+    mov mem_fe22,#0ah       ;083c  11 22 0a
+    ret                     ;083f  af
+
+sub_0840:
+    mov mem_fe22,#01h       ;0840  11 22 01
+    br $lab_0848            ;0843  fa 03
 
 sub_0845:
     mov mem_fe22,#02h       ;0845  11 22 02
+
+lab_0848:
     clr1 mem_fe5b.4         ;0848  4b 5b
     clr1 mem_fe5b.5         ;084a  5b 5b
     call !sub_0800          ;084c  9a 00 08
@@ -2867,47 +2867,40 @@ lab_0a34:
     callf !sub_0c9e         ;0a34  4c 9e        Copy A bytes from [HL] to [DE]
     ret                     ;0a36  af
 
-    db 0b5h                 ;0a37  b5          DATA 0xb5
-    db 0b3h                 ;0a38  b3          DATA 0xb3
-    db 0a3h                 ;0a39  a3          DATA 0xa3
-    db 02h                  ;0a3a  02          DATA 0x02
-    db 14h                  ;0a3b  14          DATA 0x14
-    db 0dbh                 ;0a3c  db          DATA 0xdb
-    db 0fbh                 ;0a3d  fb          DATA 0xfb
-    db 0a1h                 ;0a3e  a1          DATA 0xa1
-    db 01h                  ;0a3f  01          DATA 0x01
-    db 9ah                  ;0a40  9a          DATA 0x9a
-    db 38h                  ;0a41  38          DATA 0x38 '8'
-    db 62h                  ;0a42  62          DATA 0x62 'b'
-    db 9dh                  ;0a43  9d          DATA 0x9d
-    db 14h                  ;0a44  14          DATA 0x14
-    db 8eh                  ;0a45  8e          DATA 0x8e
-    db 0dbh                 ;0a46  db          DATA 0xdb
-    db 0fbh                 ;0a47  fb          DATA 0xfb
-    db 4dh                  ;0a48  4d          DATA 0x4d 'M'
-    db 55h                  ;0a49  55          DATA 0x55 'U'
-    db 0adh                 ;0a4a  ad          DATA 0xad
-    db 0ch                  ;0a4b  0c          DATA 0x0c
-    db 53h                  ;0a4c  53          DATA 0x53 'S'
-    db 0adh                 ;0a4d  ad          DATA 0xad
-    db 04h                  ;0a4e  04          DATA 0x04
-    db 0f2h                 ;0a4f  f2          DATA 0xf2
-    db 0deh                 ;0a50  de          DATA 0xde
-    db 0fah                 ;0a51  fa          DATA 0xfa
-    db 0ebh                 ;0a52  eb          DATA 0xeb
-    db 4eh                  ;0a53  4e          DATA 0x4e 'N'
-    db 0deh                 ;0a54  de          DATA 0xde
-    db 0adh                 ;0a55  ad          DATA 0xad
-    db 05h                  ;0a56  05          DATA 0x05
-    db 20h                  ;0a57  20          DATA 0x20 ' '
-    db 01h                  ;0a58  01          DATA 0x01
-    db 0b2h                 ;0a59  b2          DATA 0xb2
-    db 0b4h                 ;0a5a  b4          DATA 0xb4
-    db 0afh                 ;0a5b  af          DATA 0xaf
-    db 6bh                  ;0a5c  6b          DATA 0x6b 'k'
-    db 1eh                  ;0a5d  1e          DATA 0x1e
-    db 0fah                 ;0a5e  fa          DATA 0xfa
-    db 0f8h                 ;0a5f  f8          DATA 0xf8
+lab_0a37:
+    push de                 ;0a37  b5
+    push bc                 ;0a38  b3
+    mov b,#02h              ;0a39  a3 02
+    movw de,#mem_fbdb       ;0a3b  14 db fb
+
+lab_0a3e:
+    mov a,#01h              ;0a3e  a1 01
+    call !sub_6238          ;0a40  9a 38 62
+    bnc $lab_0a59           ;0a43  9d 14
+    mov a,!mem_fbdb         ;0a45  8e db fb
+    cmp a,#55h              ;0a48  4d 55
+    bz $lab_0a58            ;0a4a  ad 0c
+    dec b                   ;0a4c  53
+    bz $lab_0a53            ;0a4d  ad 04
+    mov mem_fede,a          ;0a4f  f2 de
+    br $lab_0a3e            ;0a51  fa eb
+
+lab_0a53:
+    cmp a,mem_fede          ;0a53  4e de
+    bz $lab_0a5c            ;0a55  ad 05
+    set1 cy                 ;0a57  20
+
+lab_0a58:
+    not1 cy                 ;0a58  01
+
+lab_0a59:
+    pop bc                  ;0a59  b2
+    pop de                  ;0a5a  b4
+    ret                     ;0a5b  af
+
+lab_0a5c:
+    clr1 psw.6              ;0a5c  6b 1e
+    br $lab_0a58            ;0a5e  fa f8
 
 sub_0a60:
     bf mem_fe63.7,$lab_0a7e ;0a60  31 73 63 1a
@@ -2965,66 +2958,65 @@ ror_a_4:
     ror a,1                 ;0aa1  24
     ret                     ;0aa2  af
 
-    db 0a0h                 ;0aa3  a0          DATA 0xa0
-    db 0ffh                 ;0aa4  ff          DATA 0xff
-    db 0fah                 ;0aa5  fa          DATA 0xfa
-    db 02h                  ;0aa6  02          DATA 0x02
-    db 0a0h                 ;0aa7  a0          DATA 0xa0
-    db 00h                  ;0aa8  00          DATA 0x00
-    db 62h                  ;0aa9  62          DATA 0x62 'b'
-    db 75h                  ;0aaa  75          DATA 0x75 'u'
-    db 0dh                  ;0aab  0d          DATA 0x0d
-    db 07h                  ;0aac  07          DATA 0x07
-    db 5dh                  ;0aad  5d          DATA 0x5d ']'
-    db 0f8h                 ;0aae  f8          DATA 0xf8
-    db 24h                  ;0aaf  24          DATA 0x24 '$'
-    db 24h                  ;0ab0  24          DATA 0x24 '$'
-    db 24h                  ;0ab1  24          DATA 0x24 '$'
-    db 72h                  ;0ab2  72          DATA 0x72 'r'
-    db 0a3h                 ;0ab3  a3          DATA 0xa3
-    db 00h                  ;0ab4  00          DATA 0x00
-    db 87h                  ;0ab5  87          DATA 0x87
-    db 4dh                  ;0ab6  4d          DATA 0x4d 'M'
-    db 00h                  ;0ab7  00          DATA 0x00
-    db 0bdh                 ;0ab8  bd          DATA 0xbd
-    db 06h                  ;0ab9  06          DATA 0x06
-    db 86h                  ;0aba  86          DATA 0x86
-    db 43h                  ;0abb  43          DATA 0x43 'C'
-    db 8ah                  ;0abc  8a          DATA 0x8a
-    db 0f7h                 ;0abd  f7          DATA 0xf7
-    db 21h                  ;0abe  21          DATA 0x21 '!'
-    db 0afh                 ;0abf  af          DATA 0xaf
-    db 0b3h                 ;0ac0  b3          DATA 0xb3
-    db 0a3h                 ;0ac1  a3          DATA 0xa3
-    db 00h                  ;0ac2  00          DATA 0x00
-    db 43h                  ;0ac3  43          DATA 0x43 'C'
-    db 25h                  ;0ac4  25          DATA 0x25 '%'
-    db 9dh                  ;0ac5  9d          DATA 0x9d
-    db 0fch                 ;0ac6  fc          DATA 0xfc
-    db 33h                  ;0ac7  33          DATA 0x33 '3'
-    db 72h                  ;0ac8  72          DATA 0x72 'r'
-    db 33h                  ;0ac9  33          DATA 0x33 '3'
-    db 52h                  ;0aca  52          DATA 0x52 'R'
-    db 30h                  ;0acb  30          DATA 0x30 '0'
-    db 4dh                  ;0acc  4d          DATA 0x4d 'M'
-    db 00h                  ;0acd  00          DATA 0x00
-    db 30h                  ;0ace  30          DATA 0x30 '0'
-    db 0bdh                 ;0acf  bd          DATA 0xbd
-    db 04h                  ;0ad0  04          DATA 0x04
-    db 26h                  ;0ad1  26          DATA 0x26 '&'
-    db 8bh                  ;0ad2  8b          DATA 0x8b
-    db 0fdh                 ;0ad3  fd          DATA 0xfd
-    db 97h                  ;0ad4  97          DATA 0x97
-    db 0b0h                 ;0ad5  b0          DATA 0xb0
-    db 26h                  ;0ad6  26          DATA 0x26 '&'
-    db 26h                  ;0ad7  26          DATA 0x26 '&'
-    db 26h                  ;0ad8  26          DATA 0x26 '&'
-    db 61h                  ;0ad9  61          DATA 0x61 'a'
-    db 0ah                  ;0ada  0a          DATA 0x0a
-    db 73h                  ;0adb  73          DATA 0x73 's'
-    db 61h                  ;0adc  61          DATA 0x61 'a'
-    db 4dh                  ;0add  4d          DATA 0x4d 'M'
-    db 0afh                 ;0ade  af          DATA 0xaf
+lab_0aa3:
+    mov x,#0ffh             ;0aa3  a0 ff
+    br $lab_0aa9            ;0aa5  fa 02
+
+lab_0aa7:
+    mov x,#00h              ;0aa7  a0 00
+
+lab_0aa9:
+    mov a,c                 ;0aa9  62
+    mov d,a                 ;0aaa  75
+    add a,#07h              ;0aab  0d 07
+    and a,#0f8h             ;0aad  5d f8
+    ror a,1                 ;0aaf  24
+    ror a,1                 ;0ab0  24
+    ror a,1                 ;0ab1  24
+    mov c,a                 ;0ab2  72
+    mov b,#00h              ;0ab3  a3 00
+
+lab_0ab5:
+    mov a,[hl]              ;0ab5  87
+    cmp a,#00h              ;0ab6  4d 00
+    bnz $lab_0ac0           ;0ab8  bd 06
+    incw hl                 ;0aba  86
+    inc b                   ;0abb  43
+    dbnz c,$lab_0ab5        ;0abc  8a f7
+    clr1 cy                 ;0abe  21
+    ret                     ;0abf  af
+
+lab_0ac0:
+    push bc                 ;0ac0  b3
+    mov b,#00h              ;0ac1  a3 00
+
+lab_0ac3:
+    inc b                   ;0ac3  43
+    rorc a,1                ;0ac4  25
+    bnc $lab_0ac3           ;0ac5  9d fc
+    xch a,b                 ;0ac7  33
+    mov c,a                 ;0ac8  72
+    xch a,b                 ;0ac9  33
+    dec c                   ;0aca  52
+    xch a,x                 ;0acb  30
+    cmp a,#00h              ;0acc  4d 00
+    xch a,x                 ;0ace  30
+    bnz $lab_0ad5           ;0acf  bd 04
+
+lab_0ad1:
+    rol a,1                 ;0ad1  26
+    dbnz b,$lab_0ad1        ;0ad2  8b fd
+    mov [hl],a              ;0ad4  97
+
+lab_0ad5:
+    pop ax                  ;0ad5  b0
+    rol a,1                 ;0ad6  26
+    rol a,1                 ;0ad7  26
+    rol a,1                 ;0ad8  26
+    add a,c                 ;0ad9  61 0a
+    mov b,a                 ;0adb  73
+    cmp a,d                 ;0adc  61 4d
+    ret                     ;0ade  af
 
 sub_0adf:
     push ax                 ;0adf  b1
@@ -3555,19 +3547,17 @@ lab_0ce3:
 lab_0ce7:
     ret                     ;0ce7  af
 
+sub_0ce8:
+    cmp a,#0a0h             ;0ce8  4d a0
+    bnc $lab_0cf2           ;0cea  9d 06
+    push ax                 ;0cec  b1
+    and a,#0fh              ;0ced  5d 0f
+    cmp a,#0ah              ;0cef  4d 0a
+    pop ax                  ;0cf1  b0
 
-    db 4dh                  ;0ce8  4d          DATA 0x4d 'M'
-    db 0a0h                 ;0ce9  a0          DATA 0xa0
-    db 9dh                  ;0cea  9d          DATA 0x9d
-    db 06h                  ;0ceb  06          DATA 0x06
-    db 0b1h                 ;0cec  b1          DATA 0xb1
-    db 5dh                  ;0ced  5d          DATA 0x5d ']'
-    db 0fh                  ;0cee  0f          DATA 0x0f
-    db 4dh                  ;0cef  4d          DATA 0x4d 'M'
-    db 0ah                  ;0cf0  0a          DATA 0x0a
-    db 0b0h                 ;0cf1  b0          DATA 0xb0
-    db 01h                  ;0cf2  01          DATA 0x01
-    db 0afh                 ;0cf3  af          DATA 0xaf
+lab_0cf2:
+    not1 cy                 ;0cf2  01
+    ret                     ;0cf3  af
 
 sub_0cf4:
 ;Probably binary to BCD
@@ -6508,22 +6498,17 @@ lab_1c81:
 lab_1c8c:
     ret                     ;1c8c  af
 
-    db 9ah                  ;1c8d  9a          DATA 0x9a
-    db 32h                  ;1c8e  32          DATA 0x32 '2'
-    db 1ch                  ;1c8f  1c          DATA 0x1c
-    db 8dh                  ;1c90  8d          DATA 0x8d
-    db 0ah                  ;1c91  0a          DATA 0x0a
-    db 5dh                  ;1c92  5d          DATA 0x5d ']'
-    db 0f0h                 ;1c93  f0          DATA 0xf0
-    db 2ch                  ;1c94  2c          DATA 0x2c ','
-    db 9eh                  ;1c95  9e          DATA 0x9e
-    db 9ah                  ;1c96  9a          DATA 0x9a
-    db 07h                  ;1c97  07          DATA 0x07
-    db 08h                  ;1c98  08          DATA 0x08
-    db 0adh                 ;1c99  ad          DATA 0xad
-    db 01h                  ;1c9a  01          DATA 0x01
-    db 20h                  ;1c9b  20          DATA 0x20 ' '
-    db 0afh                 ;1c9c  af          DATA 0xaf
+sub_1c8d:
+    call !sub_1c32          ;1c8d  9a 32 1c
+    bc $lab_1c9c            ;1c90  8d 0a
+    and a,#0f0h             ;1c92  5d f0
+    callf !ror_a_4          ;1c94  2c 9e
+    call !sub_0807          ;1c96  9a 07 08
+    bz $lab_1c9c            ;1c99  ad 01
+    set1 cy                 ;1c9b  20
+
+lab_1c9c:
+    ret                     ;1c9c  af
 
 sub_1c9d:
     clr1 mem_fe5d.4         ;1c9d  4b 5d
@@ -6691,79 +6676,47 @@ sub_1d6e:
     mov !mem_fb63,a         ;1d77  9e 63 fb
     ret                     ;1d7a  af
 
-    db 8eh                  ;1d7b  8e          DATA 0x8e
-    db 63h                  ;1d7c  63          DATA 0x63 'c'
-    db 0fbh                 ;1d7d  fb          DATA 0xfb
-    db 51h                  ;1d7e  51          DATA 0x51 'Q'
-    db 9eh                  ;1d7f  9e          DATA 0x9e
-    db 63h                  ;1d80  63          DATA 0x63 'c'
-    db 0fbh                 ;1d81  fb          DATA 0xfb
-    db 0bdh                 ;1d82  bd          DATA 0xbd
-    db 16h                  ;1d83  16          DATA 0x16
-    db 9ah                  ;1d84  9a          DATA 0x9a
-    db 4ah                  ;1d85  4a          DATA 0x4a 'J'
-    db 61h                  ;1d86  61          DATA 0x61 'a'
-    db 8eh                  ;1d87  8e          DATA 0x8e
-    db 67h                  ;1d88  67          DATA 0x67 'g'
-    db 0fbh                 ;1d89  fb          DATA 0xfb
-    db 4dh                  ;1d8a  4d          DATA 0x4d 'M'
-    db 33h                  ;1d8b  33          DATA 0x33 '3'
-    db 9dh                  ;1d8c  9d          DATA 0x9d
-    db 02h                  ;1d8d  02          DATA 0x02
-    db 1ah                  ;1d8e  1a          DATA 0x1a
-    db 5ch                  ;1d8f  5c          DATA 0x5c '\'
-    db 0ah                  ;1d90  0a          DATA 0x0a
-    db 5ch                  ;1d91  5c          DATA 0x5c '\'
-    db 0c8h                 ;1d92  c8          DATA 0xc8
-    db 22h                  ;1d93  22          DATA 0x22 '"'
-    db 08h                  ;1d94  08          DATA 0x08
-    db 0bdh                 ;1d95  bd          DATA 0xbd
-    db 0b8h                 ;1d96  b8          DATA 0xb8
-    db 11h                  ;1d97  11          DATA 0x11
-    db 22h                  ;1d98  22          DATA 0x22 '"'
-    db 09h                  ;1d99  09          DATA 0x09
-    db 0afh                 ;1d9a  af          DATA 0xaf
-    db 0b3h                 ;1d9b  b3          DATA 0xb3
-    db 0eeh                 ;1d9c  ee          DATA 0xee
-    db 0d4h                 ;1d9d  d4          DATA 0xd4
-    db 00h                  ;1d9e  00          DATA 0x00
-    db 00h                  ;1d9f  00          DATA 0x00
-    db 0eeh                 ;1da0  ee          DATA 0xee
-    db 0d6h                 ;1da1  d6          DATA 0xd6
-    db 00h                  ;1da2  00          DATA 0x00
-    db 00h                  ;1da3  00          DATA 0x00
-    db 8eh                  ;1da4  8e          DATA 0x8e
-    db 0fdh                 ;1da5  fd          DATA 0xfd
-    db 0fbh                 ;1da6  fb          DATA 0xfb
-    db 0f2h                 ;1da7  f2          DATA 0xf2
-    db 0d4h                 ;1da8  d4          DATA 0xd4
-    db 8eh                  ;1da9  8e          DATA 0x8e
-    db 0feh                 ;1daa  fe          DATA 0xfe
-    db 0fbh                 ;1dab  fb          DATA 0xfb
-    db 27h                  ;1dac  27          DATA 0x27 '''
-    db 0f2h                 ;1dad  f2          DATA 0xf2
-    db 0d6h                 ;1dae  d6          DATA 0xd6
-    db 71h                  ;1daf  71          DATA 0x71 'q'
-    db 01h                  ;1db0  01          DATA 0x01
-    db 0d7h                 ;1db1  d7          DATA 0xd7
-    db 89h                  ;1db2  89          DATA 0x89
-    db 0d4h                 ;1db3  d4          DATA 0xd4
-    db 30h                  ;1db4  30          DATA 0x30 '0'
-    db 0eh                  ;1db5  0e          DATA 0x0e
-    db 0d6h                 ;1db6  d6          DATA 0xd6
-    db 30h                  ;1db7  30          DATA 0x30 '0'
-    db 2eh                  ;1db8  2e          DATA 0x2e '.'
-    db 0d7h                 ;1db9  d7          DATA 0xd7
-    db 0a2h                 ;1dba  a2          DATA 0xa2
-    db 03h                  ;1dbb  03          DATA 0x03
-    db 31h                  ;1dbc  31          DATA 0x31 '1'
-    db 82h                  ;1dbd  82          DATA 0x82
-    db 30h                  ;1dbe  30          DATA 0x30 '0'
-    db 9eh                  ;1dbf  9e          DATA 0x9e
-    db 67h                  ;1dc0  67          DATA 0x67 'g'
-    db 0fbh                 ;1dc1  fb          DATA 0xfb
-    db 0b2h                 ;1dc2  b2          DATA 0xb2
-    db 0afh                 ;1dc3  af          DATA 0xaf
+lab_1d7b:
+    mov a,!mem_fb63         ;1d7b  8e 63 fb
+    dec a                   ;1d7e  51
+    mov !mem_fb63,a         ;1d7f  9e 63 fb
+    bnz $lab_1d9a           ;1d82  bd 16
+    call !sub_614a          ;1d84  9a 4a 61
+    mov a,!mem_fb67         ;1d87  8e 67 fb
+    cmp a,#33h              ;1d8a  4d 33
+    bnc $lab_1d90           ;1d8c  9d 02
+    set1 mem_fe5c.1         ;1d8e  1a 5c
+
+lab_1d90:
+    set1 mem_fe5c.0         ;1d90  0a 5c
+    cmp mem_fe22,#08h       ;1d92  c8 22 08
+    bnz $sub_1d4f           ;1d95  bd b8
+    mov mem_fe22,#09h       ;1d97  11 22 09
+
+lab_1d9a:
+    ret                     ;1d9a  af
+
+sub_1d9b:
+    push bc                 ;1d9b  b3
+    movw mem_fed4,#0000h    ;1d9c  ee d4 00 00
+    movw mem_fed6,#0000h    ;1da0  ee d6 00 00
+    mov a,!mem_fbfd         ;1da4  8e fd fb
+    mov mem_fed4,a          ;1da7  f2 d4
+    mov a,!mem_fbfe         ;1da9  8e fe fb
+    rolc a,1                ;1dac  27
+    mov mem_fed6,a          ;1dad  f2 d6
+    mov1 mem_fed7.0,cy      ;1daf  71 01 d7
+    movw ax,mem_fed4        ;1db2  89 d4
+    xch a,x                 ;1db4  30
+    add a,mem_fed6          ;1db5  0e d6
+    xch a,x                 ;1db7  30
+    addc a,mem_fed7         ;1db8  2e d7
+    mov c,#03h              ;1dba  a2 03
+    divuw c                 ;1dbc  31 82
+    xch a,x                 ;1dbe  30
+    mov !mem_fb67,a         ;1dbf  9e 67 fb
+    pop bc                  ;1dc2  b2
+    ret                     ;1dc3  af
 
 sub_1dc4:
     mov a,!mem_f252         ;1dc4  8e 52 f2
@@ -7409,6 +7362,7 @@ mem_2033:
     db 0a1h                 ;204c  a1          DATA 0xa1
     db 04h                  ;204d  04          DATA 0x04
     db 9eh                  ;204e  9e          DATA 0x9e
+
     db 70h                  ;204f  70          DATA 0x70 'p'
     db 0fbh                 ;2050  fb          DATA 0xfb
     db 0a1h                 ;2051  a1          DATA 0xa1
@@ -7569,6 +7523,7 @@ mem_2033:
     db 16h                  ;20ec  16          DATA 0x16
     db 75h                  ;20ed  75          DATA 0x75 'u'
     db 0afh                 ;20ee  af          DATA 0xaf
+
     db 0abh                 ;20ef  ab          DATA 0xab
     db 9ah                  ;20f0  9a          DATA 0x9a
     db 64h                  ;20f1  64          DATA 0x64 'd'
@@ -7611,7 +7566,7 @@ lab_211b:
     br $lab_2130            ;2124  fa 0a
 
 lab_2126:
-    mov a,!mem_f20b         ;2126  8e 0b f2
+    mov a,!mem_f20b         ;2126  8e 0b f2     A = SAFE code attempt counter
     cmp a,#01h              ;2129  4d 01
     pop ax                  ;212b  b0
     bnz $lab_2130           ;212c  bd 02
@@ -7641,7 +7596,7 @@ lab_214e:
     mov a,!mem_f20a         ;214e  8e 0a f2
     cmp a,#02h              ;2151  4d 02
     bc $lab_2164            ;2153  8d 0f
-    mov a,!mem_fb52         ;2155  8e 52 fb
+    mov a,!mem_fb52         ;2155  8e 52 fb     A = KWP1281 Login rate limiter countdown
     cmp a,#00h              ;2158  4d 00
     bnz $lab_2164           ;215a  bd 08
     mov a,#00h              ;215c  a1 00
@@ -7690,7 +7645,7 @@ lab_21a3:
     cmp a,#00h              ;21b1  4d 00
     bnz $lab_21f3           ;21b3  bd 3e
     mov a,#00h              ;21b5  a1 00
-    movw hl,#mem_f20b       ;21b7  16 0b f2
+    movw hl,#mem_f20b       ;21b7  16 0b f2     HL = pointer to SAFE code attempt counter
     call !sub_4092          ;21ba  9a 92 40
     mov a,#01h              ;21bd  a1 01
     mov !mem_fb70,a         ;21bf  9e 70 fb
@@ -7765,49 +7720,27 @@ sub_2227:
     bt mem_fe2c.5,$lab_2225 ;2235  dc 2c ed
     br $sub_21f4            ;2238  fa ba
 
-    db 0cch                 ;223a  cc          DATA 0xcc
-    db 23h                  ;223b  23          DATA 0x23 '#'
-    db 05h                  ;223c  05          DATA 0x05
-    db 3ah                  ;223d  3a          DATA 0x3a ':'
-    db 23h                  ;223e  23          DATA 0x23 '#'
-    db 9bh                  ;223f  9b          DATA 0x9b
-    db 0f1h                 ;2240  f1          DATA 0xf1
-    db 24h                  ;2241  24          DATA 0x24 '$'
-    db 3bh                  ;2242  3b          DATA 0x3b ';'
-    db 23h                  ;2243  23          DATA 0x23 '#'
-    db 8eh                  ;2244  8e          DATA 0x8e
-    db 71h                  ;2245  71          DATA 0x71 'q'
-    db 0fbh                 ;2246  fb          DATA 0xfb
-    db 4dh                  ;2247  4d          DATA 0x4d 'M'
-    db 0c3h                 ;2248  c3          DATA 0xc3
-    db 0bdh                 ;2249  bd          DATA 0xbd
-    db 0fh                  ;224a  0f          DATA 0x0f
-    db 0dch                 ;224b  dc          DATA 0xdc
-    db 23h                  ;224c  23          DATA 0x23 '#'
-    db 0ch                  ;224d  0c          DATA 0x0c
-    db 31h                  ;224e  31          DATA 0x31 '1'
-    db 73h                  ;224f  73          DATA 0x73 's'
-    db 23h                  ;2250  23          DATA 0x23 '#'
-    db 08h                  ;2251  08          DATA 0x08
-    db 9ah                  ;2252  9a          DATA 0x9a
-    db 6bh                  ;2253  6b          DATA 0x6b 'k'
-    db 24h                  ;2254  24          DATA 0x24 '$'
-    db 9ah                  ;2255  9a          DATA 0x9a
-    db 8fh                  ;2256  8f          DATA 0x8f
-    db 24h                  ;2257  24          DATA 0x24 '$'
-    db 3ah                  ;2258  3a          DATA 0x3a ':'
-    db 7dh                  ;2259  7d          DATA 0x7d '}'
-    db 8eh                  ;225a  8e          DATA 0x8e
-    db 70h                  ;225b  70          DATA 0x70 'p'
-    db 0fbh                 ;225c  fb          DATA 0xfb
-    db 31h                  ;225d  31          DATA 0x31 '1'
-    db 33h                  ;225e  33          DATA 0x33 '3'
-    db 2ch                  ;225f  2c          DATA 0x2c ','
-    db 38h                  ;2260  38          DATA 0x38 '8'
-    db 4dh                  ;2261  4d          DATA 0x4d 'M'
-    db 06h                  ;2262  06          DATA 0x06
-    db 0bdh                 ;2263  bd          DATA 0xbd
-    db 02h                  ;2264  02          DATA 0x02
+lab_223a:
+    bt mem_fe23.4,$lab_2242 ;223a  cc 23 05
+    set1 mem_fe23.3         ;223d  3a 23
+    br !sub_24f1            ;223f  9b f1 24
+
+lab_2242:
+    clr1 mem_fe23.3         ;2242  3b 23
+    mov a,!mem_fb71         ;2244  8e 71 fb
+    cmp a,#0c3h             ;2247  4d c3
+    bnz $lab_225a           ;2249  bd 0f
+    bt mem_fe23.5,$lab_225a ;224b  dc 23 0c
+    bf mem_fe23.7,$lab_225a ;224e  31 73 23 08
+    call !sub_246b          ;2252  9a 6b 24
+    call !sub_248f          ;2255  9a 8f 24
+    set1 mem_fe7d.3         ;2258  3a 7d
+
+lab_225a:
+    mov a,!mem_fb70         ;225a  8e 70 fb
+    bf mem_fe2c.3,$lab_2299 ;225d  31 33 2c 38
+    cmp a,#06h              ;2261  4d 06
+    bnz $lab_2267           ;2263  bd 02
 
 lab_2265:
     br $lab_2213            ;2265  fa ac
@@ -7827,7 +7760,7 @@ lab_226d:
     cmp a,#02h              ;227c  4d 02
     mov a,#3ch              ;227e  a1 3c
     bc $lab_2285            ;2280  8d 03
-    mov !mem_fb52,a         ;2282  9e 52 fb
+    mov !mem_fb52,a         ;2282  9e 52 fb     Save KWP1281 login rate limiter countdown
 
 lab_2285:
     mov !mem_fb51,a         ;2285  9e 51 fb
@@ -7843,6 +7776,8 @@ lab_2293:
 
 sub_2296:
     mov a,!mem_fb70         ;2296  8e 70 fb
+
+lab_2299:
     cmp a,#06h              ;2299  4d 06
     bz $lab_22a1            ;229b  ad 04
     cmp a,#08h              ;229d  4d 08
@@ -8004,7 +7939,7 @@ lab_23a7:
     movw hl,#mem_f207       ;23b1  16 07 f2
     call !sub_4092          ;23b4  9a 92 40
     mov a,#00h              ;23b7  a1 00
-    movw hl,#mem_f20b       ;23b9  16 0b f2
+    movw hl,#mem_f20b       ;23b9  16 0b f2     HL = pointer to SAFE code attempt counter
     call !sub_4092          ;23bc  9a 92 40
     mov a,#00h              ;23bf  a1 00
     movw hl,#mem_f20a       ;23c1  16 0a f2
@@ -8035,20 +7970,20 @@ sub_23e6:
     ;Entered SAFE code matches actual SAFE code
     call !sub_246b          ;23e6  9a 6b 24
     mov a,#00h              ;23e9  a1 00
-    mov !mem_fb52,a         ;23eb  9e 52 fb
+    mov !mem_fb52,a         ;23eb  9e 52 fb     Save KWP1281 login rate limiter countdown
     bt mem_fe23.7,$lab_23f8 ;23ee  fc 23 07
     bf mem_fe2c.2,$lab_23f8 ;23f1  31 23 2c 03
     call !sub_25fa          ;23f5  9a fa 25
 
 lab_23f8:
-    bf mem_fe65.3,$lab_2417 ;23f8  31 33 65 1b      Branch if not logged in
+    bf mem_fe65.3,$lab_2417 ;23f8  31 33 65 1b  Branch if not logged in
     call !sub_0a60          ;23fc  9a 60 0a
     mov a,!mem_f207         ;23ff  8e 07 f2
     bf a.6,$lab_2415        ;2402  31 6f 10
     call !sub_9118          ;2405  9a 18 91
     call !sub_1dc4          ;2408  9a c4 1d
     call !sub_461b          ;240b  9a 1b 46
-    bf mem_fe65.3,$lab_2415 ;240e  31 33 65 03      Branch if not logged in
+    bf mem_fe65.3,$lab_2415 ;240e  31 33 65 03  Branch if not logged in
     call !sub_ab3c          ;2412  9a 3c ab
 
 lab_2415:
@@ -8084,11 +8019,11 @@ lab_2438:
 lab_2442:
     mov a,#1eh              ;2442  a1 1e
     mov !mem_fb2e,a         ;2444  9e 2e fb
-    mov a,!mem_f20b         ;2447  8e 0b f2
+    mov a,!mem_f20b         ;2447  8e 0b f2     A = SAFE code attempt counter
     inc a                   ;244a  41
     cmp a,#03h              ;244b  4d 03
     bnc $lab_245e           ;244d  9d 0f
-    movw hl,#mem_f20b       ;244f  16 0b f2
+    movw hl,#mem_f20b       ;244f  16 0b f2     HL = pointer to SAFE code attempt counter
     call !sub_4092          ;2452  9a 92 40
     cmp a,#02h              ;2455  4d 02
     bnc $lab_245e           ;2457  9d 05
@@ -8370,7 +8305,7 @@ lab_25e0_fail:
 
 lab_25f4:
     mov a,#3ch              ;25f4  a1 3c
-    mov !mem_fb52,a         ;25f6  9e 52 fb
+    mov !mem_fb52,a         ;25f6  9e 52 fb     Save KWP1281 rate limit countdown
 
 lab_25f9:
     ret                     ;25f9  af
@@ -8696,8 +8631,8 @@ lab_278c:
 
 sub_2790:
     call !sub_2d35          ;2790  9a 35 2d     Clear bits in mem_fe5f and mem_fe60
-    movw hl,#mem_f20c         ;2793  16 0c f2
-    movw de,#mem_f215         ;2796  14 15 f2
+    movw hl,#mem_f20c       ;2793  16 0c f2
+    movw de,#mem_f215       ;2796  14 15 f2
     call !sub_2cbe          ;2799  9a be 2c
     cmp a,#00h              ;279c  4d 00
     bz $lab_27ce            ;279e  ad 2e
@@ -19821,28 +19756,19 @@ sub_6078:
     set1 PM7_.1             ;6084  71 1a 27
     ret                     ;6087  af
 
-    db 4ah                  ;6088  4a          DATA 0x4a 'J'
-    db 69h                  ;6089  69          DATA 0x69 'i'
-    db 9bh                  ;608a  9b          DATA 0x9b
-    db 0ach                 ;608b  ac          DATA 0xac
-    db 60h                  ;608c  60          DATA 0x60 '`'
-    db 4ah                  ;608d  4a          DATA 0x4a 'J'
-    db 69h                  ;608e  69          DATA 0x69 'i'
-    db 31h                  ;608f  31          DATA 0x31 '1'
-    db 53h                  ;6090  53          DATA 0x53 'S'
-    db 69h                  ;6091  69          DATA 0x69 'i'
-    db 0ah                  ;6092  0a          DATA 0x0a
-    db 31h                  ;6093  31          DATA 0x31 '1'
-    db 23h                  ;6094  23          DATA 0x23 '#'
-    db 2dh                  ;6095  2d          DATA 0x2d '-'
-    db 06h                  ;6096  06          DATA 0x06
-    db 9ah                  ;6097  9a          DATA 0x9a
-    db 0ach                 ;6098  ac          DATA 0xac
-    db 60h                  ;6099  60          DATA 0x60 '`'
-    db 9ah                  ;609a  9a          DATA 0x9a
-    db 62h                  ;609b  62          DATA 0x62 'b'
-    db 61h                  ;609c  61          DATA 0x61 'a'
-    db 0afh                 ;609d  af          DATA 0xaf
+lab_6088:
+    set1 mem_fe69.4         ;6088  4a 69
+    br !sub_60ac            ;608a  9b ac 60
+
+lab_608d:
+    set1 mem_fe69.4         ;608d  4a 69
+    bf mem_fe69.5,$lab_609d ;608f  31 53 69 0a
+    bf mem_fe2d.2,$lab_609d ;6093  31 23 2d 06
+    call !sub_60ac          ;6097  9a ac 60
+    call !sub_6162          ;609a  9a 62 61
+
+lab_609d:
+    ret                     ;609d  af
 
 sub_609e:
     clr1 mem_fe5d.2         ;609e  2b 5d
@@ -19952,33 +19878,25 @@ lab_611f:
     mov mem_fe22,#00h       ;6146  11 22 00
     ret                     ;6149  af
 
-    db 9ah                  ;614a  9a          DATA 0x9a
-    db 0a6h                 ;614b  a6          DATA 0xa6
-    db 61h                  ;614c  61          DATA 0x61 'a'
-    db 31h                  ;614d  31          DATA 0x31 '1'
-    db 73h                  ;614e  73          DATA 0x73 's'
-    db 0d4h                 ;614f  d4          DATA 0xd4
-    db 07h                  ;6150  07          DATA 0x07
-    db 0a1h                 ;6151  a1          DATA 0xa1
-    db 1eh                  ;6152  1e          DATA 0x1e
-    db 9eh                  ;6153  9e          DATA 0x9e
-    db 09h                  ;6154  09          DATA 0x09
-    db 0fbh                 ;6155  fb          DATA 0xfb
-    db 4ah                  ;6156  4a          DATA 0x4a 'J'
-    db 5ch                  ;6157  5c          DATA 0x5c '\'
-    db 8eh                  ;6158  8e          DATA 0x8e
-    db 09h                  ;6159  09          DATA 0x09
-    db 0fbh                 ;615a  fb          DATA 0xfb
-    db 4dh                  ;615b  4d          DATA 0x4d 'M'
-    db 00h                  ;615c  00          DATA 0x00
-    db 0bdh                 ;615d  bd          DATA 0xbd
-    db 02h                  ;615e  02          DATA 0x02
-    db 4bh                  ;615f  4b          DATA 0x4b 'K'
-    db 5ch                  ;6160  5c          DATA 0x5c '\'
-    db 0afh                 ;6161  af          DATA 0xaf
-    db 5bh                  ;6162  5b          DATA 0x5b '['
-    db 69h                  ;6163  69          DATA 0x69 'i'
-    db 0afh                 ;6164  af          DATA 0xaf
+sub_614a:
+    call !sub_61a6          ;614a  9a a6 61
+    bf mem_fed4.7,$lab_6158 ;614d  31 73 d4 07
+    mov a,#1eh              ;6151  a1 1e
+    mov !mem_fb09,a         ;6153  9e 09 fb
+    set1 mem_fe5c.4         ;6156  4a 5c
+
+lab_6158:
+    mov a,!mem_fb09         ;6158  8e 09 fb
+    cmp a,#00h              ;615b  4d 00
+    bnz $lab_6161           ;615d  bd 02
+    clr1 mem_fe5c.4         ;615f  4b 5c
+
+lab_6161:
+    ret                     ;6161  af
+
+sub_6162:
+    clr1 mem_fe69.5         ;6162  5b 69
+    ret                     ;6164  af
 
 sub_6165:
     set1 mem_fe69.5         ;6165  5a 69
@@ -20046,71 +19964,41 @@ sub_6165:
     db 69h                  ;61a3  69          DATA 0x69 'i'
     db 0fah                 ;61a4  fa          DATA 0xfa
     db 02h                  ;61a5  02          DATA 0x02
-    db 6ah                  ;61a6  6a          DATA 0x6a 'j'
-    db 69h                  ;61a7  69          DATA 0x69 'i'
-    db 10h                  ;61a8  10          DATA 0x10
-    db 02h                  ;61a9  02          DATA 0x02
-    db 00h                  ;61aa  00          DATA 0x00
-    db 9ah                  ;61ab  9a          DATA 0x9a
-    db 4dh                  ;61ac  4d          DATA 0x4d 'M'
-    db 0a0h                 ;61ad  a0          DATA 0xa0
-    db 0c8h                 ;61ae  c8          DATA 0xc8
-    db 0d4h                 ;61af  d4          DATA 0xd4
-    db 02h                  ;61b0  02          DATA 0x02
-    db 8dh                  ;61b1  8d          DATA 0x8d
-    db 04h                  ;61b2  04          DATA 0x04
-    db 0a1h                 ;61b3  a1          DATA 0xa1
-    db 00h                  ;61b4  00          DATA 0x00
-    db 0fah                 ;61b5  fa          DATA 0xfa
-    db 06h                  ;61b6  06          DATA 0x06
-    db 9ah                  ;61b7  9a          DATA 0x9a
-    db 0dch                 ;61b8  dc          DATA 0xdc
-    db 61h                  ;61b9  61          DATA 0x61 'a'
-    db 9ah                  ;61ba  9a          DATA 0x9a
-    db 0dch                 ;61bb  dc          DATA 0xdc
-    db 61h                  ;61bc  61          DATA 0x61 'a'
-    db 9eh                  ;61bd  9e          DATA 0x9e
-    db 0fch                 ;61be  fc          DATA 0xfc
-    db 0fbh                 ;61bf  fb          DATA 0xfb
-    db 10h                  ;61c0  10          DATA 0x10
-    db 07h                  ;61c1  07          DATA 0x07
-    db 00h                  ;61c2  00          DATA 0x00
-    db 9ah                  ;61c3  9a          DATA 0x9a
-    db 4dh                  ;61c4  4d          DATA 0x4d 'M'
-    db 0a0h                 ;61c5  a0          DATA 0xa0
-    db 9ah                  ;61c6  9a          DATA 0x9a
-    db 0dch                 ;61c7  dc          DATA 0xdc
-    db 61h                  ;61c8  61          DATA 0x61 'a'
-    db 9eh                  ;61c9  9e          DATA 0x9e
-    db 0feh                 ;61ca  fe          DATA 0xfe
-    db 0fbh                 ;61cb  fb          DATA 0xfb
-    db 10h                  ;61cc  10          DATA 0x10
-    db 1ch                  ;61cd  1c          DATA 0x1c
-    db 00h                  ;61ce  00          DATA 0x00
-    db 9ah                  ;61cf  9a          DATA 0x9a
-    db 4dh                  ;61d0  4d          DATA 0x4d 'M'
-    db 0a0h                 ;61d1  a0          DATA 0xa0
-    db 9ah                  ;61d2  9a          DATA 0x9a
-    db 0dch                 ;61d3  dc          DATA 0xdc
-    db 61h                  ;61d4  61          DATA 0x61 'a'
-    db 9eh                  ;61d5  9e          DATA 0x9e
-    db 0fdh                 ;61d6  fd          DATA 0xfd
-    db 0fbh                 ;61d7  fb          DATA 0xfb
-    db 9ah                  ;61d8  9a          DATA 0x9a
-    db 9bh                  ;61d9  9b          DATA 0x9b
-    db 1dh                  ;61da  1d          DATA 0x1d
-    db 0afh                 ;61db  af          DATA 0xaf
-    db 0f0h                 ;61dc  f0          DATA 0xf0
-    db 0d4h                 ;61dd  d4          DATA 0xd4
-    db 25h                  ;61de  25          DATA 0x25 '%'
-    db 0f2h                 ;61df  f2          DATA 0xf2
-    db 0d4h                 ;61e0  d4          DATA 0xd4
-    db 0f0h                 ;61e1  f0          DATA 0xf0
-    db 0d5h                 ;61e2  d5          DATA 0xd5
-    db 25h                  ;61e3  25          DATA 0x25 '%'
-    db 0f2h                 ;61e4  f2          DATA 0xf2
-    db 0d5h                 ;61e5  d5          DATA 0xd5
-    db 0afh                 ;61e6  af          DATA 0xaf
+
+sub_61a6:
+    set1 mem_fe69.6         ;61a6  6a 69
+    movw ax,#0002h          ;61a8  10 02 00
+    call !sub_a04d          ;61ab  9a 4d a0
+    cmp mem_fed4,#02h       ;61ae  c8 d4 02
+    bc $lab_61b7            ;61b1  8d 04
+    mov a,#00h              ;61b3  a1 00
+    br $lab_61bd            ;61b5  fa 06
+
+lab_61b7:
+    call !sub_61dc          ;61b7  9a dc 61
+    call !sub_61dc          ;61ba  9a dc 61
+
+lab_61bd:
+    mov !mem_fbfc,a         ;61bd  9e fc fb
+    movw ax,#0007h          ;61c0  10 07 00
+    call !sub_a04d          ;61c3  9a 4d a0
+    call !sub_61dc          ;61c6  9a dc 61
+    mov !mem_fbfe,a         ;61c9  9e fe fb
+    movw ax,#001ch          ;61cc  10 1c 00
+    call !sub_a04d          ;61cf  9a 4d a0
+    call !sub_61dc          ;61d2  9a dc 61
+    mov !mem_fbfd,a         ;61d5  9e fd fb
+    call !sub_1d9b          ;61d8  9a 9b 1d
+    ret                     ;61db  af
+
+sub_61dc:
+    mov a,mem_fed4          ;61dc  f0 d4
+    rorc a,1                ;61de  25
+    mov mem_fed4,a          ;61df  f2 d4
+    mov a,mem_fed5          ;61e1  f0 d5
+    rorc a,1                ;61e3  25
+    mov mem_fed5,a          ;61e4  f2 d5
+    ret                     ;61e6  af
 
 sub_61e7:
     clr1 mem_fe69.7         ;61e7  7b 69
@@ -21706,18 +21594,13 @@ lab_67f4:
     mov a,[hl+b]            ;67fc  ab
     ret                     ;67fd  af
 
-    db 0a3h                 ;67fe  a3          DATA 0xa3
-    db 0dh                  ;67ff  0d          DATA 0x0d
-    db 16h                  ;6800  16          DATA 0x16
-    db 9eh                  ;6801  9e          DATA 0x9e
-    db 0f1h                 ;6802  f1          DATA 0xf1
-    db 0a1h                 ;6803  a1          DATA 0xa1
-    db 20h                  ;6804  20          DATA 0x20 ' '
-    db 9ah                  ;6805  9a          DATA 0x9a
-    db 0dch                 ;6806  dc          DATA 0xdc
-    db 0ch                  ;6807  0c          DATA 0x0c
-    db 0afh                 ;6808  af          DATA 0xaf
-
+sub_67fe:
+;Note: writes past end of upd_disp buffer; may not be used
+    mov b,#0dh              ;67fe  a3 0d        B = 13 bytes to fill
+    movw hl,#upd_disp+4     ;6800  16 9e f1     HL = pointer to display buffer + 4
+    mov a,#20h              ;6803  a1 20        A = fill value (space)
+    call !sub_0cdc          ;6805  9a dc 0c     Fill B bytes in buffer [HL] with A
+    ret                     ;6808  af
 
 to_hex_digit:
 ;Convert lower nibble of A to hexadecimal digit in ASCII
@@ -21731,7 +21614,6 @@ lab_6813:
     add a,#'0'              ;6813  0d 30       Convert it to ASCII
 lab_6815:
     ret                     ;6815  af
-
 
     db 16h                  ;6816  16          DATA 0x16
     db 9ah                  ;6817  9a          DATA 0x9a
@@ -23608,7 +23490,7 @@ lab_7249:
     movw hl,#safe           ;724e  16 f9 64
     mov a,#0ffh             ;7251  a1 ff
     call !sub_6e70          ;7253  9a 70 6e
-    mov a,!mem_f20b         ;7256  8e 0b f2     SAFE code attempt counter
+    mov a,!mem_f20b         ;7256  8e 0b f2     A = SAFE code attempt counter
     add a,#'0'              ;7259  0d 30        Convert it to ASCII
     movw hl,#upd_disp       ;725b  16 9a f1
     mov [hl],a              ;725e  97           '2..........'
@@ -23649,7 +23531,7 @@ lab_7294:
     set1 mem_fe6a.0         ;729b  0a 6a
     call !sub_6e70          ;729d  9a 70 6e
     movw hl,#upd_disp       ;72a0  16 9a f1
-    mov a,!mem_f20b         ;72a3  8e 0b f2     SAFE code attempt counter
+    mov a,!mem_f20b         ;72a3  8e 0b f2     A = SAFE code attempt counter
     cmp a,#00h              ;72a6  4d 00
     bz $lab_72ad            ;72a8  ad 03        Skip write count if it is zero
     add a,#'0'              ;72aa  0d 30        Convert count to ASCII
@@ -23657,9 +23539,9 @@ lab_7294:
 
 lab_72ad:
 ;Write entered SAFE code to the display buffer
-    mov a,!mem_fb76         ;72ad  8e 76 fb     Entered SAFE code (BCD low byte)
+    mov a,!mem_fb76         ;72ad  8e 76 fb     A = Entered SAFE code (BCD low byte)
     mov x,a                 ;72b0  70
-    mov a,!mem_fb75         ;72b1  8e 75 fb     Entered SAFE code (BCD high byte)
+    mov a,!mem_fb75         ;72b1  8e 75 fb     A = Entered SAFE code (BCD high byte)
     push ax                 ;72b4  b1
     and a,#0fh              ;72b5  5d 0f
     add a,#'0'              ;72b7  0d 30        Convert it to ASCII
