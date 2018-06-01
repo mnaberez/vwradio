@@ -10112,7 +10112,7 @@ lab_2ff4:
     movw ax,!0f006h         ;3008  02 06 f0
     push ax                 ;300b  b1           Push: pointer to buffer to transfer
     mov a,#01h              ;300c  a1 01
-    push ax                 ;300e  b1           Pop: number of bytes to transfer
+    push ax                 ;300e  b1           Push: number of bytes to transfer
     sel rb2                 ;300f  61 f0        Select register bank used by intcsi30_08a9
     pop bc                  ;3011  b2           Pop: B  = number of bytes to transfer
     pop hl                  ;3012  b6           Pop: HL = pointer to buffer to transfer
@@ -15379,7 +15379,7 @@ lab_49db:
     movw ax,hl              ;49ea  c6
     push ax                 ;49eb  b1           Push: pointer to buffer to transfer
     mov a,#07h              ;49ec  a1 07
-    push ax                 ;49ee  b1           Pop: number of bytes to transfer
+    push ax                 ;49ee  b1           Push: number of bytes to transfer
     sel rb2                 ;49ef  61 f0        Select register bank used by intcsi30_08a9
     pop bc                  ;49f1  b2           Pop: B  = number of bytes to transfer
     pop hl                  ;49f2  b6           Pop: HL = pointer to buffer to transfer
@@ -15734,7 +15734,7 @@ lab_4b84:
     movw ax,#upd_pict       ;4b93  10 35 fe
     push ax                 ;4b96  b1           Push: pointer to buffer to transfer
     mov a,#08h              ;4b97  a1 08
-    push ax                 ;4b99  b1           Pop: number of bytes to transfer
+    push ax                 ;4b99  b1           Push: number of bytes to transfer
     sel rb2                 ;4b9a  61 f0        Select register bank used by intcsi30_08a9
     pop bc                  ;4b9c  b2           Pop: B  = number of bytes to transfer
     pop hl                  ;4b9d  b6           Pop: HL = pointer to buffer to transfer
@@ -15842,7 +15842,7 @@ lab_4c26:
     movw ax,hl              ;4c35  c6
     push ax                 ;4c36  b1           Push: pointer to buffer to transfer
     mov a,#07h              ;4c37  a1 07
-    push ax                 ;4c39  b1           Pop: number of bytes to transfer
+    push ax                 ;4c39  b1           Push: number of bytes to transfer
     sel rb2                 ;4c3a  61 f0        Select register bank used by intcsi30_08a9
     pop bc                  ;4c3c  b2           Pop: B  = number of bytes to transfer
     pop hl                  ;4c3d  b6           Pop: HL = pointer to buffer to transfer
@@ -15939,7 +15939,7 @@ lab_4cb0:
     movw ax,#upd_disp       ;4cbf  10 9a f1
     push ax                 ;4cc2  b1           Push: pointer to buffer to transfer
     mov a,#0bh              ;4cc3  a1 0b
-    push ax                 ;4cc5  b1           Pop: number of bytes to transfer
+    push ax                 ;4cc5  b1           Push: number of bytes to transfer
 
     sel rb2                 ;4cc6  61 f0        Select register bank used by intcsi30_08a9
     pop bc                  ;4cc8  b2           Pop: B  = number of bytes to transfer
