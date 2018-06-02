@@ -7,15 +7,13 @@
 ;it as an NEC uPD78F0831Y.  There is no documentation for this chip
 ;but it is very similar to the uPD78F0833Y, which is documented.
 ;
-;The flash ROM contents were extracted using chips from three different
-;radios, all of which had a sticker "SOFTWARE 23" on the case.  Each
-;chip provided a different area of the flash ROM.  Those were then combined
-;to make a complete binary.  The extracted binary was flashed into a radio
-;and the radio was functional.
+;KWP1281 was used to dump the internal flash ROM contents from a radio
+;that had a sticker "SOFTWARE 23" on its case.  The uPD78F0831Y was
+;then erased and flashed with the dump.  The radio was fully functional.
 ;
 ;No rights are claimed on the executable object code as found
 ;in the internal flash ROM of the "N60 FLASH" chip.  The SHA-1
-;hash of that binary is: 46f6adab9b1d1872452ae9accca029663b5de15b.
+;hash of that binary is: 3fe339736134f0cf08fef60bc424b2622adda075.
 ;
 
     org 00000h
@@ -2342,7 +2340,7 @@ lab_0328:
     db 0bfh                 ;07a1  bf          DATA 0xbf
     db 0bfh                 ;07a2  bf          DATA 0xbf
     db 0bfh                 ;07a3  bf          DATA 0xbf
-    db 0ffh                 ;07a4  ff          DATA 0xff
+    db 0bfh                 ;07a4  bf          DATA 0xff
     db 0bfh                 ;07a5  bf          DATA 0xbf
     db 0bfh                 ;07a6  bf          DATA 0xbf
     db 0bfh                 ;07a7  bf          DATA 0xbf
@@ -38664,7 +38662,6 @@ mem_b480:
     db 69h                  ;b492  69          DATA 0x69 'i'
     db 05h                  ;b493  05          DATA 0x05
     db 74h                  ;b494  74          DATA 0x74 't'
-
     db 0ah                  ;b495  0a          DATA 0x0a
     db 02h                  ;b496  02          DATA 0x02
     db 0ffh                 ;b497  ff          DATA 0xff
@@ -38675,46 +38672,46 @@ mem_b480:
     db 0ffh                 ;b49c  ff          DATA 0xff
     db 0ffh                 ;b49d  ff          DATA 0xff
     db 0ffh                 ;b49e  ff          DATA 0xff
-    db 00h                  ;b49f  00          DATA 0x00
-    db 00h                  ;b4a0  00          DATA 0x00
-    db 00h                  ;b4a1  00          DATA 0x00
-    db 00h                  ;b4a2  00          DATA 0x00
-    db 00h                  ;b4a3  00          DATA 0x00
-    db 00h                  ;b4a4  00          DATA 0x00
-    db 00h                  ;b4a5  00          DATA 0x00
-    db 00h                  ;b4a6  00          DATA 0x00
-    db 00h                  ;b4a7  00          DATA 0x00
-    db 00h                  ;b4a8  00          DATA 0x00
-    db 00h                  ;b4a9  00          DATA 0x00
-    db 00h                  ;b4aa  00          DATA 0x00
-    db 00h                  ;b4ab  00          DATA 0x00
-    db 00h                  ;b4ac  00          DATA 0x00
-    db 00h                  ;b4ad  00          DATA 0x00
-    db 00h                  ;b4ae  00          DATA 0x00
-    db 00h                  ;b4af  00          DATA 0x00
-    db 00h                  ;b4b0  00          DATA 0x00
+    db 01h                  ;b49f  01          DATA 0x00
+    db 03h                  ;b4a0  03          DATA 0x03
+    db 0a8h                 ;b4a1  a8          DATA 0xa8
+    db 0b4h                 ;b4a2  b4          DATA 0xb4
+    db 0abh                 ;b4a3  ab          DATA 0xab
+    db 0b4h                 ;b4a4  b4          DATA 0xb4
+    db 0aeh                 ;b4a5  ae          DATA 0xae
+    db 0b4h                 ;b4a6  b4          DATA 0xb4
+    db 02h                  ;b4a7  02          DATA 0x02
+    db 50h                  ;b4a8  50          DATA 0x50
+    db 09h                  ;b4a9  09          DATA 0x09
+    db 02h                  ;b4aa  02          DATA 0x02
+    db 33h                  ;b4ab  33          DATA 0x33
+    db 09h                  ;b4ac  09          DATA 0x09
+    db 02h                  ;b4ad  02          DATA 0x02
+    db 20h                  ;b4ae  20          DATA 0x20
+    db 09h                  ;b4af  09          DATA 0x09
+    db 00ah                 ;b4b0  0a          DATA 0x0a
     db 00h                  ;b4b1  00          DATA 0x00
-    db 00h                  ;b4b2  00          DATA 0x00
-    db 00h                  ;b4b3  00          DATA 0x00
-    db 00h                  ;b4b4  00          DATA 0x00
-    db 00h                  ;b4b5  00          DATA 0x00
-    db 00h                  ;b4b6  00          DATA 0x00
-    db 00h                  ;b4b7  00          DATA 0x00
-    db 00h                  ;b4b8  00          DATA 0x00
-    db 00h                  ;b4b9  00          DATA 0x00
-    db 00h                  ;b4ba  00          DATA 0x00
-    db 00h                  ;b4bb  00          DATA 0x00
-    db 00h                  ;b4bc  00          DATA 0x00
-    db 00h                  ;b4bd  00          DATA 0x00
-    db 00h                  ;b4be  00          DATA 0x00
-    db 00h                  ;b4bf  00          DATA 0x00
-    db 00h                  ;b4c0  00          DATA 0x00
-    db 00h                  ;b4c1  00          DATA 0x00
-    db 00h                  ;b4c2  00          DATA 0x00
-    db 00h                  ;b4c3  00          DATA 0x00
-    db 00h                  ;b4c4  00          DATA 0x00
-    db 00h                  ;b4c5  00          DATA 0x00
-    db 00h                  ;b4c6  00          DATA 0x00
+    db 6bh                  ;b4b2  6b          DATA 0x6b
+    db 0fh                  ;b4b3  0f          DATA 0x0f
+    db 6bh                  ;b4b4  6b          DATA 0x6b
+    db 3eh                  ;b4b5  3e          DATA 0x3e
+    db 6bh                  ;b4b6  6b          DATA 0x6b
+    db 48h                  ;b4b7  48          DATA 0x48
+    db 6bh                  ;b4b8  6b          DATA 0x6b
+    db 2ah                  ;b4b9  2a          DATA 0x2a
+    db 6bh                  ;b4ba  6b          DATA 0x6b
+    db 18h                  ;b4bb  18          DATA 0x18
+    db 6bh                  ;b4bc  6b          DATA 0x6b
+    db 21h                  ;b4bd  21          DATA 0x21
+    db 6bh                  ;b4be  6b          DATA 0x6b
+    db 4ch                  ;b4bf  4c          DATA 0x4c
+    db 74h                  ;b4c0  74          DATA 0x74
+    db 0f5h                 ;b4c1  f5          DATA 0xf5
+    db 6ah                  ;b4c2  6a          DATA 0x6a
+    db 33h                  ;b4c3  33          DATA 0x33
+    db 6bh                  ;b4c4  6b          DATA 0x6b
+    db 0ah                  ;b4c5  0a          DATA 0x0a
+    db 02h                  ;b4c6  02          DATA 0x02
     db 0ffh                 ;b4c7  ff          DATA 0xff
     db 0ffh                 ;b4c8  ff          DATA 0xff
     db 0ffh                 ;b4c9  ff          DATA 0xff
@@ -53919,4 +53916,5 @@ sub_dadd:
 
 checksum:
     dw 4e1bh                ;effe  1b 4e       DATA
+
     end
