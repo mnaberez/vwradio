@@ -45,7 +45,7 @@
     mem_f06a equ 0f06ah
     mem_f06b equ 0f06bh
     mem_f06c equ 0f06ch
-    mem_f06d equ 0f06dh
+    mem_f06d equ 0f06dh     ;KWP1281 mode: 1 = Normal, 2 = DELCO, 3 = Radio to Cluster (?)
     mem_f06e equ 0f06eh
     mem_f06f equ 0f06fh
     mem_f070 equ 0f070h
@@ -375,7 +375,7 @@
     mem_fe61 equ 0fe61h
     mem_fe62 equ 0fe62h
     mem_fe63 equ 0fe63h
-    mem_fe64 equ 0fe64h
+    mem_fe64 equ 0fe64h     ;Bit 7: on=successful OCLED login, off=no login
     mem_fe65 equ 0fe65h
     mem_fe66 equ 0fe66h
     mem_fe67 equ 0fe67h
@@ -4004,7 +4004,7 @@ lab_1030:
     brk                     ;1035  bf
 
 lab_1036:
-    clr1 mem_fe64.7         ;1036  7b 64
+    clr1 mem_fe64.7         ;1036  7b 64        Clear bit to indicate no DELCO login
     call !sub_4902          ;1038  9a 02 49
     mov a,#00h              ;103b  a1 00
     mov !mem_fb29,a         ;103d  9e 29 fb
@@ -14720,20 +14720,21 @@ auth_login_ocled:
 ;Authenticate login using "OCLED" (DELCO backwards)
 ;called from kwp_f06d_1_login (login related, kwp_handlers_b2ae)
 ;set mem_fe64.7 and returns it in the carry:
-;  clear = no login, set = login successful
+;  clear = login failed, set = login successful
 ;
-    clr1 mem_fe64.7         ;4694  7b 64        Clear byte to indicate no DELCO login
+    clr1 mem_fe64.7         ;4694  7b 64        Clear bit to indicate no DELCO login
     movw hl,#kwp_rx_buf+3   ;4696  16 8d f0     HL = pointer to KWP1281 rx buffer byte 3
     movw de,#kwp_login_b1eb ;4699  14 eb b1     DE = pointer to "OCLED" (DELCO backwards)
     mov a,#05h              ;469c  a1 05        A = 5 bytes to compare
     callf !sub_0cca         ;469e  4c ca        Compare A bytes between [HL] to [DE]
     bnz $lab_46a9           ;46a0  bd 07        Branch if buffers are not equal
+    ;login succeeded
     set1 mem_fe64.7         ;46a2  7a 64        Set bit to indicate successful DELCO login
     mov a,#34h              ;46a4  a1 34
     mov !mem_fb28,a         ;46a6  9e 28 fb
 
 lab_46a9:
-    mov1 cy,mem_fe64.7      ;46a9  71 74 64
+    mov1 cy,mem_fe64.7      ;46a9  71 74 64     Copy bit into carry (clear = login failed, set = login successful)
     ret                     ;46ac  af
 
 sub_46ad:
