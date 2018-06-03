@@ -325,7 +325,7 @@ void kwp_read_ram(uint16_t start_address, uint16_t size)
         address += chunksize;
         remaining -= chunksize;
 
-        kwp_send_ack_block(address, chunksize);
+        kwp_send_ack_block();
         kwp_receive_block_expect(KWP_ACK);
     }
 }
@@ -355,7 +355,7 @@ void kwp_read_eeprom()
         address += chunksize;
         remaining -= chunksize;
 
-        kwp_send_ack_block(address, chunksize);
+        kwp_send_ack_block();
         kwp_receive_block_expect(KWP_ACK);
     }
 }
