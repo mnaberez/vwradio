@@ -18,7 +18,7 @@
 
     org 00000h
 
-    mem_f000 equ 0f000h     ;memory address for KWP1281 read ram or read rom (2 bytes)
+    mem_f000 equ 0f000h     ;memory address for KWP1281 read ram or read eeprom (2 bytes)
     mem_f002 equ 0f002h     ;eeprom address for KWP1281 write eeprom (2 bytes)
     mem_f004 equ 0f004h
     mem_f00e equ 0f00eh
@@ -29,7 +29,7 @@
     mem_f034 equ 0f034h
     mem_f03b equ 0f03bh
     mem_f04b equ 0f04bh
-    mem_f04c equ 0f04ch     ;byte count for KWP1281 read ram, read rom, or write eeprom commands
+    mem_f04c equ 0f04ch     ;byte count for KWP1281 read ram, read eeprom, or write eeprom commands
     mem_f04e equ 0f04eh
     mem_f04f equ 0f04fh     ;KWP1281 Group number
     mem_f050 equ 0f050h
@@ -9231,7 +9231,7 @@ lab_2b4e:
     ret                     ;2b52  af
 
 sub_2b53:
-    ;Called from lab_5581 (read rom related)
+    ;Called from lab_5581 (read eeprom related)
     push hl                 ;2b53  b7
     call !sub_2d35          ;2b54  9a 35 2d     Clear bits in mem_fe5f and mem_fe60
     set1 mem_fe60.2         ;2b57  2a 60
@@ -9241,7 +9241,7 @@ sub_2b53:
                             ;                       E = KWP1281 rx buffer byte 5 (address low)
     mov !mem_f04c,a         ;2b5c  9e 4c f0
     xchw ax,de              ;2b5f  e4
-    movw !mem_f000,ax       ;2b60  03 00 f0     Store as memory address for KWP1281 read ram or read rom
+    movw !mem_f000,ax       ;2b60  03 00 f0     Store as memory address for KWP1281 read ram or read eeprom
     xchw ax,de              ;2b63  e4
     call !sub_2bd4          ;2b64  9a d4 2b
     bc $lab_2b6c            ;2b67  8d 03
@@ -16396,8 +16396,8 @@ lab_4f00:
 lab_4f0f:
     br !lab_552a            ;4f0f  9b 2a 55     Branch to Send 0x1c response to read ram or send nak
 
-kwp_7c_03_read_rom:
-    ;read rom (kwp_7c_handlers)
+kwp_7c_03_read_eeprom:
+    ;read eeprom (kwp_7c_handlers)
     mov a,!mem_fbc7         ;4f12  8e c7 fb
     cmp a,#01h              ;4f15  4d 01
     bnz $lab_4f1c           ;4f17  bd 03
@@ -16691,8 +16691,8 @@ lab_50af:
 lab_50b6:
     br !lab_552a            ;50b6  9b 2a 55     Branch to Send 0x1c response to read ram or send nak
 
-kwp_56_03_read_rom:
-    ;read rom (kwp_56_handlers)
+kwp_56_03_read_eeprom:
+    ;read eeprom (kwp_56_handlers)
     mov a,#00h              ;50b9  a1 00
     mov !mem_fbc5,a         ;50bb  9e c5 fb
     bt mem_fe65.3,$lab_50c4 ;50be  bc 65 03     Branch if logged in
@@ -16826,7 +16826,7 @@ lab_5179:
     cmp a,#02h              ;5179  4d 02
     bnz $lab_5180           ;517b  bd 03
     ;mem_fbca = 0x02
-    br !lab_557e            ;517d  9b 7e 55     send read rom response with faked address
+    br !lab_557e            ;517d  9b 7e 55     send read eeprom response with faked address
                             ;                   from mem_f000 and faked byte count from mem_f04c
 
 lab_5180:
@@ -17634,15 +17634,15 @@ lab_555c:
 
 lab_557e:
     ;possible nak handling related
-    ;send read rom response with faked address from mem_f000 and faked byte count from mem_f04c
+    ;send read eeprom response with faked address from mem_f000 and faked byte count from mem_f04c
     ;branched to when mem_fbca = 0x02
     call !sub_2dd6          ;557e  9a d6 2d     ;Fake KWP1281 address and byte count in KWP1281 rx buffer
                                                 ;Reads address from mem_f000, reads byte count from mem_f04c
 lab_5581:
-    ;branched from both read rom
+    ;branched from both read eeprom
     mov a,#02h              ;5581  a1 02
     mov !mem_fbca,a         ;5583  9e ca fb
-    mov b,#1eh              ;5586  a3 1e        B = index 0x1e response to read rom
+    mov b,#1eh              ;5586  a3 1e        B = index 0x1e response to read eeprom
     call !sub_5292          ;5588  9a 92 52     Set block title, counter, length in KWP1281 tx buffer
     call !sub_2b53          ;558b  9a 53 2b
     bnc $lab_559b           ;558e  9d 0b
@@ -38081,8 +38081,8 @@ kwp_titles_b25c:
     db 1bh                  ;b277  1b          DATA 0x1b        B=0x1a ?
     db 01h                  ;b278  01          DATA 0x01        B=0x1b read ram
     db 0feh                 ;b279  fe          DATA 0xfe        B=0x1c response to read ram
-    db 03h                  ;b27a  03          DATA 0x03        B=0x1d read rom
-    db 0fdh                 ;b27b  fd          DATA 0xfd        B=0x1e response to read rom
+    db 03h                  ;b27a  03          DATA 0x03        B=0x1d read rom or eeprom
+    db 0fdh                 ;b27b  fd          DATA 0xfd        B=0x1e response to read rom or eeprom
     db 0ch                  ;b27c  0c          DATA 0x0c        B=0x1f write eeprom
     db 0f9h                 ;b27d  f9          DATA 0xf9        B=0x20 response to write eeprom
     db 0d7h                 ;b27e  d7          DATA 0xd7        B=0x21 ? security access
@@ -38121,8 +38121,8 @@ kwp_lengths_b280:
     db 0ffh                 ;b29b  ff          DATA 0xff        B=0x1a ?
     db 06h                  ;b29c  06          DATA 0x06        B=0x1b read ram
     db 0ffh                 ;b29d  ff          DATA 0xff        B=0x1c response to read ram
-    db 06h                  ;b29e  06          DATA 0x06        B=0x1d read rom
-    db 0ffh                 ;b29f  ff          DATA 0xff        B=0x1e response to read rom
+    db 06h                  ;b29e  06          DATA 0x06        B=0x1d read rom or eeprom
+    db 0ffh                 ;b29f  ff          DATA 0xff        B=0x1e response to read rom or eeprom
     db 0ffh                 ;b2a0  ff          DATA 0xff        B=0x1f write eeprom
     db 07h                  ;b2a1  07          DATA 0x07        B=0x20 response to write eeprom
     db 07h                  ;b2a2  07          DATA 0x07        B=0x21 ? security access
@@ -38139,7 +38139,7 @@ kwp_7c_titles:
     db 2bh                      ;b2a9  2b          DATA 0x2b '+'    B=4 login
     db 1bh                      ;b2aa  1b          DATA 0x1b        B=5 ? custom usage
     db 01h                      ;b2ab  01          DATA 0x01        B=6 read ram
-    db 03h                      ;b2ac  03          DATA 0x03        B=7 read rom
+    db 03h                      ;b2ac  03          DATA 0x03        B=7 read rom or eeprom (reads 24c04)
     db 0ch                      ;b2ad  0c          DATA 0x0c        B=8 write eeprom
 
 kwp_7c_handlers:
@@ -38153,7 +38153,7 @@ kwp_7c_handlers:
     dw kwp_7c_2b_login          ;b2b7  e1 4e       VECTOR           B=4 login
     dw kwp_7c_1b_custom         ;b2b9  4f 4f       VECTOR           B=5 ? custom usage
     dw kwp_7c_01_read_ram       ;b2bb  f6 4e       VECTOR           B=6 read ram
-    dw kwp_7c_03_read_rom       ;b2bd  12 4f       VECTOR           B=7 read rom
+    dw kwp_7c_03_read_eeprom    ;b2bd  12 4f       VECTOR           B=7 read rom or eeprom (reads 24c04)
     dw kwp_7c_0c_write_eeprom   ;b2bf  2e 4f       VECTOR           B=8 write eeprom
 
 kwp_56_titles:
@@ -38173,7 +38173,7 @@ kwp_56_titles:
     db 10h                      ;b2cc  10          DATA 0x10        B=10 recoding
     db 2bh                      ;b2cd  2b          DATA 0x2b '+'    B=11 login
     db 01h                      ;b2ce  01          DATA 0x01        B=12 read ram
-    db 03h                      ;b2cf  03          DATA 0x03        B=13 read rom
+    db 03h                      ;b2cf  03          DATA 0x03        B=13 read rom or eeprom (reads 24c04)
     db 0ch                      ;b2d0  0c          DATA 0x0c        B=14 write eeprom
 
 kwp_56_handlers:
@@ -38193,7 +38193,7 @@ kwp_56_handlers:
     dw kwp_56_10_recoding       ;b2e6  7d 50       VECTOR           B=10 recoding
     dw kwp_56_2b_login          ;b2e8  8a 50       VECTOR           B=11 login
     dw kwp_56_01_read_ram       ;b2ea  9e 50       VECTOR           B=12 read ram
-    dw kwp_56_03_read_rom       ;b2ec  b9 50       VECTOR           B=13 read rom
+    dw kwp_56_03_read_eeprom    ;b2ec  b9 50       VECTOR           B=13 read rom or eeprom (reads 24c04)
     dw kwp_56_0c_write_eeprom   ;b2ee  d4 50       VECTOR           B=14 write eeprom
 
 kwp_titles_b2f0:

@@ -341,7 +341,7 @@ void kwp_read_eeprom()
         if (remaining < chunksize) { chunksize = remaining; }
 
         kwp_send_read_eeprom_block(address, chunksize);
-        kwp_receive_block_expect(KWP_R_READ_EEPROM);
+        kwp_receive_block_expect(KWP_R_READ_ROM_EEPROM);
 
         uart_puts(UART_DEBUG, "EEPROM: ");
         uart_puthex16(UART_DEBUG, address);
