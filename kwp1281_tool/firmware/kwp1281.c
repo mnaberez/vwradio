@@ -365,20 +365,25 @@ void kwp_connect(uint8_t address, uint32_t baud)
 {
     uart_init(UART_KLINE, baud);
 
-    _send_address(address);
-    _wait_for_55_01_8a();
-    _delay_ms(30);
-    _send_byte(0x75);
-
     kwp_is_first_block = 1;
 
     memset(kwp_vag_number,  0, sizeof(kwp_vag_number));
     memset(kwp_component_1, 0, sizeof(kwp_component_1));
     memset(kwp_component_2, 0, sizeof(kwp_component_2));
 
+    _send_address(address);
+    _wait_for_55_01_8a();
+    _delay_ms(30);
+    _send_byte(0x75);
+
     for (uint8_t i=0; i<4; i++) {
-        kwp_receive_block_expect(KWP_R_ASCII_DATA);
-        kwp_send_ack_block();
+        kwp_receive_block();
+
+        // Premium 5 mfg mode (address 0x7C) sends ACK and is ready immediately receiving 0x75
+        if ((i == 0) && (kwp_rx_buf[2] == KWP_ACK)) { return; }
+
+        // All others should send 4 ASCII blocks that need to be ACKed after receiving 0x75
+        if (kwp_rx_buf[2] != KWP_R_ASCII_DATA) { _panic("Expected 0xF6"); }
 
         switch (i) {
             case 0:     // 0xF6 (ASCII/Data): "1J0035180D  "
@@ -393,8 +398,10 @@ void kwp_connect(uint8_t address, uint32_t baud)
             default:    // 0xF6 (ASCII/Data): 0x00 0x0A 0xF8 0x00 0x00
                 break;
         }
+
+        kwp_send_ack_block();
     }
 
-    // Receive 0x09 (Acknowledge)
     kwp_receive_block_expect(KWP_ACK);
+    return;
 }
