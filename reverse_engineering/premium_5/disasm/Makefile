@@ -1,6 +1,7 @@
 all: clean out.bin diff
 
 diff: out.bin
+	python checksum.py out.bin
 	openssl sha1 out.bin | cut -d ' ' -f 2 > out.sha1
 	diff software23.sha1 out.sha1
 
