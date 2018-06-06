@@ -1,15 +1,23 @@
-Premium 5 KWP1281
------------------
+# Premium 5 KWP1281
 
-The radio validates the length of the data payload.  If a block is sent with
-a payload that is too long or too short for the title, NAK will be returned.
+## Read RAM
 
-These were found by fuzzing:
+Premium 5 has some kind of bug reading 0xEFFF.  You can read 0-0xEFFE without hitting the bug.
+If the read includes 0xEFFF, then 0xEFFD-0xEFFF will be corrupted.
 
-Title 0x00, Data Length=0                   Read identification
-Title 0x04, Data Length=1, Data=0x00-FF     Actuator/Output Tests
-Title 0x05, Data Length=0                   Clear Faults
-Title 0x07, Data Length=0                   Read Faults
-Title 0x09, Data Length=0                   ACK
-Title 0x10, Data Length=4, Data=0x00-0xFF   Recoding
-Title 0x29, Data Length=1, Data=0x01-0x07   Group Reading
+```
+kwp_read_ram(0xeff0, 16);
+//=> RAM: EFF0: BF BF BF BF BF BF BF BF BF BF BF BF BF FC FB 06     (bug)
+kwp_read_ram(0xeff0, 15);
+//=> RAM: EFF0: BF BF BF BF BF BF BF BF BF BF BF BF BF BF 1B        (good)
+kwp_read_ram(0xeffd, 1);
+//=> RAM: EFFD: BF                                                  (good)
+kwp_read_ram(0xeffe, 1);
+//=> RAM: EFFE: 1B                                                  (good)
+kwp_read_ram(0xefff, 1);
+//=> NAK                                                            (bug)
+```
+
+The last two bytes of the ROM (0xEFFE-0xEFFF) are the checksum.  There is a manufacturing
+command on address 0x7C that calculates and returns the checksum.  To dump the whole ROM, use
+Read RAM to read 0-0xEFFD, then use the checksum command to fill in 0xEFFE-0xEFFF.
