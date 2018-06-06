@@ -13430,6 +13430,8 @@ lab_4104:
 
 sub_4109:
 ;Called from Title=0x1b  Subtitle=0x30  Block length=0x05
+;0 request parameters
+;Replies with ACK only
     clr1 mem_fe64.5         ;4109  5b 64
     mov a,!mem_fb98         ;410b  8e 98 fb
     cmp a,#05h              ;410e  4d 05
@@ -14740,6 +14742,8 @@ lab_46a9:
 
 sub_46ad:
 ;Called from Title=0x1b  Subtitle=0x26  Block length=0x06
+;1 request parameter
+;Replies with data
     mov a,!kwp_rx_buf+5     ;46ad  8e 8f f0     A = value at KWP1281 rx buffer byte 5
     and a,#07h              ;46b0  5d 07
     mov mem_fe31,a          ;46b2  f2 31
@@ -14751,6 +14755,8 @@ sub_46ad:
 
 sub_46bf:
 ;Called from Title=0x1b  Subtitle=0x27  Block length=0x07
+;2 request parameters
+;Replies with ACK only
     mov a,!kwp_rx_buf+5     ;46bf  8e 8f f0     A = value at KWP1281 rx buffer byte 5
     clr1 mem_fe64.6         ;46c2  6b 64
     bf a.1,$lab_46c9        ;46c4  31 1f 02
@@ -14784,6 +14790,8 @@ lab_46f0:
 
 sub_46f1:
 ;Called from Title=0x1b  Subtitle=0x28  Block length=0x05
+;0 request parameters
+;Replies with ACK only
     set1 mem_fe73.3         ;46f1  3a 73
     set1 mem_fe73.4         ;46f3  4a 73
     set1 mem_fe73.6         ;46f5  6a 73
@@ -14792,7 +14800,9 @@ sub_46f1:
 
 sub_46fc:
 ;Called from Title=0x1b  Subtitle=0x2a  Block length=0x07
-    call !sub_4835          ;46fc  9a 35 48
+;2 request parameters
+;Replies with ACK only
+    call !sub_4835          ;46fc  9a 35 48     Reads rx buffer bytes 5,6 and does something with mem_fe65.0
     bc $lab_4730            ;46ff  8d 2f
     movw hl,ax              ;4701  d6
     mov !mem_fb9d,a         ;4702  9e 9d fb
@@ -14824,6 +14834,8 @@ lab_4730:
 
 sub_4731:
 ;Called from Title=0x1b  Subtitle=0x2d  Block length=0x0b
+;6 request parameters
+;Replies with data
     mov a,!kwp_rx_buf+5     ;4731  8e 8f f0     A = value at KWP1281 rx buffer byte 5
     cmp a,#00h              ;4734  4d 00
     bz $lab_474d            ;4736  ad 15
@@ -14926,10 +14938,12 @@ lab_47d0:
 
 sub_47d2:
 ;Called from Title=0x1b  Subtitle=0x2e  Block length=0x0b
+;6 request parameters
+;Replies with data
     mov a,#08h              ;47d2  a1 08        A = 8 bytes to copy
     mov !mem_fbaf,a         ;47d4  9e af fb
     call !sub_486f          ;47d7  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to mem_fb9b
-    call !sub_4835          ;47da  9a 35 48
+    call !sub_4835          ;47da  9a 35 48     Reads rx buffer bytes 5,6 and does something with mem_fe65.0
     bc $lab_47f5            ;47dd  8d 16
     movw de,ax              ;47df  d4
     mov !mem_fb9d,a         ;47e0  9e 9d fb
@@ -14939,13 +14953,15 @@ sub_47d2:
     and a,#03h              ;47ea  5d 03
     mov !mem_fb9f,a         ;47ec  9e 9f fb
     movw hl,#0f092h         ;47ef  16 92 f0
-    call !sub_4862          ;47f2  9a 62 48
+    call !sub_4862          ;47f2  9a 62 48     EEPROM write related(?) gated by mem_fe65
 
 lab_47f5:
     ret                     ;47f5  af
 
 sub_47f6:
 ;Title=0x1b  Subtitle=0x31  Block length=0x05
+;0 request parameters
+;Replies with ACK only
     set1 mem_fe64.5         ;47f6  5a 64
     br !lab_4165            ;47f8  9b 65 41
 
@@ -14992,6 +15008,7 @@ lab_4834:
     ret                     ;4834  af
 
 sub_4835:
+;Reads rx buffer bytes 5,6 and does something with mem_fe65.0
     clr1 mem_fe65.0         ;4835  0b 65
     mov a,!kwp_rx_buf+5     ;4837  8e 8f f0     A = value at KWP1281 rx buffer byte 5
     mov b,a                 ;483a  73
@@ -16453,7 +16470,7 @@ lab_4f59:
     mov !mem_fbc7,a         ;4f5b  9e c7 fb
     movw hl,#kwp_rx_buf     ;4f5e  16 8a f0     HL = pointer to KWP1281 rx buffer
     mov a,[hl+03h]          ;4f61  ae 03        A = first payload byte after block title
-    cmp a,#31h              ;4f63  4d 31        Is it a "1"?
+    cmp a,#31h              ;4f63  4d 31        Is it a "1" (unknown constant)?
     bz $lab_4f6a            ;4f65  ad 03          Yes: lab_4f6a
     br !lab_5355            ;4f67  9b 55 53       No:  lab_5355 Send NAK response (index 0x04)
 
@@ -16494,55 +16511,106 @@ lab_4f88:
     mov b,#04h              ;4f9a  a3 04
     br ax                   ;4f9c  31 98
 
+
+;Block title 0x1B custom usage commands
+;
+;Request format:
+;   xx  block length              kwp_rx_buf+0
+;   xx  block counter             kwp_rx_buf+1
+;  0x1b block title        0x1B   kwp_rx_buf+2
+;  0x31 unknown constant   0x31   kwp_rx_buf+3
+;   xx  "subtitle"                kwp_rx_buf+4
+;   ...                           ...
+;  0x03 block end          0x03   kwp_rx_buf+x
+
+
 kwp_7c_1b_26:
 ;Title=0x1b  Subtitle=0x26  Block length=0x06
+;1 request parameter
+;Replies with data
     call !sub_46ad          ;4f9e  9a ad 46
-    br !lab_54fb            ;4fa1  9b fb 54
+    br !lab_54fb            ;4fa1  9b fb 54     Branch to send response with data
 
 kwp_7c_1b_27:
 ;Title=0x1b  Subtitle=0x27  Block length=0x07
+;2 request parameters
+;Replies with ACK only
     call !sub_46bf          ;4fa4  9a bf 46
     br !lab_532a            ;4fa7  9b 2a 53     Branch to send ACK response
 
 kwp_7c_1b_28:
 ;Title=0x1b  Subtitle=0x28  Block length=0x05
+;0 request parameters
+;Replies with ACK only
     call !sub_46f1          ;4faa  9a f1 46
     br !lab_532a            ;4fad  9b 2a 53     Branch to send ACK response
 
 kwp_7c_1b_2a:
 ;Title=0x1b  Subtitle=0x2a  Block length=0x07
+;2 request parameters
+;Replies with ACK only
     call !sub_46fc          ;4fb0  9a fc 46
-    br !lab_54fb            ;4fb3  9b fb 54     Branch to send ACK response
+    br !lab_54fb            ;4fb3  9b fb 54     Branch to send response with data
 
 kwp_7c_1b_2d:
 ;Title=0x1b  Subtitle=0x2d  Block length=0x0b
+;6 request parameters
+;Replies with data
     call !sub_4731          ;4fb6  9a 31 47
-    br !lab_54fb            ;4fb9  9b fb 54
+    br !lab_54fb            ;4fb9  9b fb 54     Branch to send response with data
 
 kwp_7c_1b_2e:
 ;Title=0x1b  Subtitle=0x2e  Block length=0x0b
+;6 request parameters
+;Replies with data
     call !sub_47d2          ;4fbc  9a d2 47
-    br !lab_54fb            ;4fbf  9b fb 54
+    br !lab_54fb            ;4fbf  9b fb 54     Branch to send response with data
 
 kwp_7c_1b_2f:
 ;Title=0x1b  Subtitle=0x2f  Block length=0x05
+;Simulate power off
+;0 request parameters
+;No response; radio goes offline
     br !badisr_0d75            ;4fc2  9b 75 0d
 
 kwp_7c_1b_30:
 ;Title=0x1b  Subtitle=0x30  Block length=0x05
+;0 request parameters
+;Replies with ACK only
     call !sub_4109          ;4fc5  9a 09 41
     br !lab_532a            ;4fc8  9b 2a 53     Branch to send ACK response
 
 kwp_7c_1b_31:
 ;Title=0x1b  Subtitle=0x31  Block length=0x05
+;0 request parameters
+;Replies with ACK only
     call !sub_47f6          ;4fcb  9a f6 47
     br !lab_532a            ;4fce  9b 2a 53     Branch to send ACK response
 
 kwp_7c_1b_32:
 ;Title=0x1b  Subtitle=0x32  Block length=0x05
 ;Perform ROM checksum
+;
+;Request block:
+;   0x05 Block length                  kwp_rx_buf+0
+;    xx  Block counter                 kwp_rx_buf+1
+;   0x1B Block title (custom usage)    kwp_rx_buf+2
+;   0x31 Unknown constant              kwp_rx_buf+3
+;   0x32 Subtitle (ROM checksum)       kwp_rx_buf+4
+;   0x03 Block end                     kwp_rx_buf+5
+;
+;Response block:
+;   0x07 Block length                  kwp_tx_buf+0
+;    xx  Block counter                 kwp_tx_buf+1
+;   0x1B Block title (custom usage)    kwp_tx_buf+2
+;   0x31 Unknown constant              kwp_tx_buf+3
+;   0x32 Subtitle (ROM checksum)       kwp_tx_buf+4
+;    xx  Checksum (high byte)          kwp_tx_buf+5
+;    xx  Checksum (low byte)           kwp_tx_buf+6
+;   0x03 Block end                     kwp_tx_buf+7
+;
     call !sub_47fb          ;4fd1  9a fb 47     Calculate ROM checksum, store in mem_fb9d-mem_fb9e
-    br !lab_54fb            ;4fd4  9b fb 54
+    br !lab_54fb            ;4fd4  9b fb 54     Branch to send response with data
 
 kwp_56_09_ack:
     ;ack (kwp_56_handlers)
@@ -17526,7 +17594,8 @@ lab_544c:
     db 34h                  ;54fa  34          DATA 0x34 '4'
 
 lab_54fb:
-    mov b,#1ah              ;54fb  a3 1a        B = index 0x1a ? TODO
+;Send response to custom usage with data
+    mov b,#1ah              ;54fb  a3 1a        B = index 0x1a response to custom usage
     call !sub_5292          ;54fd  9a 92 52     Set block title, counter, length in KWP1281 tx buffer
     call !sub_485a          ;5500  9a 5a 48     DE = #mem_fb9b, A=!mem_fbaf, C=A
 
@@ -17539,7 +17608,7 @@ lab_5503:
     mov a,b                 ;5509  63
     mov [hl],a              ;550a  97
     mov !mem_f06b,a         ;550b  9e 6b f0
-    mov a,#03h              ;550e  a1 03
+    mov a,#03h              ;550e  a1 03        3 = block end?
     mov [hl+b],a            ;5510  bb
     br !sub_34f7            ;5511  9b f7 34
 
@@ -38244,16 +38313,16 @@ kwp_7c_1b_handlers:
 ;same order as kwp_7c_1b_subtitles
     db 0bh                  ;b319  0b          DATA 0x0b        11 entries below:
     dw lab_5344_bad         ;b31a  44 53       VECTOR           B=0x00  <bad title: send nak>
-    dw kwp_7c_1b_26         ;b31c  9e 4f       VECTOR           B=0x01  Title=0x1b  Subtitle=0x26
-    dw kwp_7c_1b_27         ;b31e  a4 4f       VECTOR           B=0x02  Title=0x1b  Subtitle=0x27
-    dw kwp_7c_1b_28         ;b320  aa 4f       VECTOR           B=0x03  Title=0x1b  Subtitle=0x28
-    dw kwp_7c_1b_2a         ;b322  b0 4f       VECTOR           B=0x04  Title=0x1b  Subtitle=0x2a
-    dw kwp_7c_1b_2d         ;b324  b6 4f       VECTOR           B=0x05  Title=0x1b  Subtitle=0x2d
-    dw kwp_7c_1b_2e         ;b326  bc 4f       VECTOR           B=0x06  Title=0x1b  Subtitle=0x2e
-    dw kwp_7c_1b_2f         ;b328  c2 4f       VECTOR           B=0x07  Title=0x1b  Subtitle=0x2f
-    dw kwp_7c_1b_30         ;b32a  c5 4f       VECTOR           B=0x08  Title=0x1b  Subtitle=0x30
-    dw kwp_7c_1b_31         ;b32c  cb 4f       VECTOR           B=0x09  Title=0x1b  Subtitle=0x31
-    dw kwp_7c_1b_32         ;b32e  d1 4f       VECTOR           B=0x0A  Title=0x1b  Subtitle=0x32   Perform ROM checksum
+    dw kwp_7c_1b_26         ;b31c  9e 4f       VECTOR           B=0x01  Title=0x1b  Subtitle=0x26   Unknown; 1 request param; replies with data
+    dw kwp_7c_1b_27         ;b31e  a4 4f       VECTOR           B=0x02  Title=0x1b  Subtitle=0x27   Unknown; 1 request param; replies with ACK only
+    dw kwp_7c_1b_28         ;b320  aa 4f       VECTOR           B=0x03  Title=0x1b  Subtitle=0x28   Unknown; 2 request params; replies with ACK only
+    dw kwp_7c_1b_2a         ;b322  b0 4f       VECTOR           B=0x04  Title=0x1b  Subtitle=0x2a   Unknown; 2 request params; replies with ACK only
+    dw kwp_7c_1b_2d         ;b324  b6 4f       VECTOR           B=0x05  Title=0x1b  Subtitle=0x2d   Unknown; 6 request params; replies with data
+    dw kwp_7c_1b_2e         ;b326  bc 4f       VECTOR           B=0x06  Title=0x1b  Subtitle=0x2e   Unknown; 6 request params; replies with data
+    dw kwp_7c_1b_2f         ;b328  c2 4f       VECTOR           B=0x07  Title=0x1b  Subtitle=0x2f   Simulate power off; radio goes offline
+    dw kwp_7c_1b_30         ;b32a  c5 4f       VECTOR           B=0x08  Title=0x1b  Subtitle=0x30   Unknown; 0 request params; replies with ACK only
+    dw kwp_7c_1b_31         ;b32c  cb 4f       VECTOR           B=0x09  Title=0x1b  Subtitle=0x31   Unknown; 0 request params; replies with ACK only
+    dw kwp_7c_1b_32         ;b32e  d1 4f       VECTOR           B=0x0A  Title=0x1b  Subtitle=0x32   Perform ROM checksum; 0 request params; replies with data
 
     db 01h                  ;b330  01          DATA 0x01
     db 00h                  ;b331  00          DATA 0x00
