@@ -41,8 +41,15 @@ void print_radio_info()
 
 void print_safe_code(uint16_t safe_code_bcd)
 {
-    uart_puts(UART_DEBUG, "SAFE Code:  ");
+    uart_puts(UART_DEBUG, "SAFE Code: ");
     uart_puthex16(UART_DEBUG, safe_code_bcd);
+    uart_puts(UART_DEBUG, "\n");
+}
+
+void print_rom_checksum(uint16_t checksum)
+{
+    uart_puts(UART_DEBUG, "ROM Checksum: ");
+    uart_puthex16(UART_DEBUG, checksum);
     uart_puts(UART_DEBUG, "\n");
 }
 
@@ -86,11 +93,10 @@ int main()
     sei();
 
     connect_and_login_mfg();
-    //connect_and_login_safe(0x0057);
+    uint16_t safe_code = kwp_p5_read_safe_code_bcd();
+    uint16_t checksum = kwp_p5_calc_rom_checksum();
+    print_safe_code(safe_code);
+    print_rom_checksum(checksum);
 
-    while(1) {
-        kwp_send_ack_block();
-        kwp_receive_block_expect(KWP_ACK);
-        _delay_ms(200);
-    }
+    while(1);
 }

@@ -221,20 +221,6 @@ void kwp_send_ack_block()
 }
 
 
-void kwp_send_f0_block()
-{
-    uart_puts(UART_DEBUG, "BEGIN SEND BLOCK: F0\n");
-
-    _send_byte_recv_compl(0x04);                // block length
-    _send_byte_recv_compl(++kwp_block_counter); // block counter
-    _send_byte_recv_compl(KWP_SAFE_CODE);       // block title
-    _send_byte_recv_compl(0x00);                // 0=read
-    _send_byte(0x03);                           // block end
-
-    uart_puts(UART_DEBUG, "END SEND BLOCK: F0\n\n");
-}
-
-
 void kwp_send_login_block(uint16_t safe_code, uint8_t fern, uint16_t workshop)
 {
     uart_puts(UART_DEBUG, "BEGIN SEND BLOCK: LOGIN\n");
@@ -264,15 +250,6 @@ void kwp_send_group_reading_block(uint8_t group)
     _send_byte(0x03);                           // block end
 
     uart_puts(UART_DEBUG, "END SEND BLOCK: GROUP READ\n\n");
-}
-
-
-uint16_t kwp_read_safe_code_bcd()
-{
-    kwp_send_f0_block();
-    kwp_receive_block_expect(KWP_SAFE_CODE);
-    uint16_t safe_code_bcd = (kwp_rx_buf[3] << 8) + kwp_rx_buf[4];
-    return safe_code_bcd;
 }
 
 
@@ -322,7 +299,6 @@ static void _read_mem(uint8_t req_title, uint8_t resp_title,
     }
 }
 
-
 void kwp_read_ram(uint16_t start_address, uint16_t size)
 {
     _read_mem(KWP_READ_RAM, KWP_R_READ_RAM, start_address, size);
@@ -338,6 +314,62 @@ void kwp_read_eeprom(uint16_t start_address, uint16_t size)
     _read_mem(KWP_READ_EEPROM, KWP_R_READ_ROM_EEPROM, start_address, size);
 }
 
+// Premium 4 only ===========================================================
+
+static void _send_f0_block()
+{
+    uart_puts(UART_DEBUG, "BEGIN SEND BLOCK: F0\n");
+
+    _send_byte_recv_compl(0x04);                // block length
+    _send_byte_recv_compl(++kwp_block_counter); // block counter
+    _send_byte_recv_compl(KWP_SAFE_CODE);       // block title
+    _send_byte_recv_compl(0x00);                // 0=read
+    _send_byte(0x03);                           // block end
+
+    uart_puts(UART_DEBUG, "END SEND BLOCK: F0\n\n");
+}
+
+uint16_t kwp_p4_read_safe_code_bcd()
+{
+    _send_f0_block();
+    kwp_receive_block_expect(KWP_SAFE_CODE);
+    uint16_t safe_code_bcd = (kwp_rx_buf[3] << 8) + kwp_rx_buf[4];
+    return safe_code_bcd;
+}
+
+// Premium 5 mfg mode (address 0x7c) only ===================================
+
+uint16_t kwp_p5_read_safe_code_bcd()
+{
+    _send_read_mem_block(KWP_READ_ROM_EEPROM, 0x0014, 0x02);
+    kwp_receive_block_expect(KWP_R_READ_ROM_EEPROM);
+    uint16_t safe_code_bin = (kwp_rx_buf[3] << 8) + kwp_rx_buf[4];
+    return safe_code_bin;
+}
+
+static void _send_calc_rom_checksum_block()
+{
+    uart_puts(UART_DEBUG, "BEGIN SEND BLOCK: ROM CHECKSUM\n");
+
+    _send_byte_recv_compl(0x05);                // block length
+    _send_byte_recv_compl(++kwp_block_counter); // block counter
+    _send_byte_recv_compl(KWP_CUSTOM);          // block title
+    _send_byte_recv_compl(0x31);                // unknown constant
+    _send_byte_recv_compl(0x32);                // subtitle (rom checksum)
+    _send_byte(0x03);                           // block end
+
+    uart_puts(UART_DEBUG, "END SEND BLOCK: ROM CHECKSUM\n\n");
+}
+
+uint16_t kwp_p5_calc_rom_checksum()
+{
+    _send_calc_rom_checksum_block();
+    kwp_receive_block_expect(0x1B);
+    uint16_t checksum = (kwp_rx_buf[5] << 8) + kwp_rx_buf[6];
+    return checksum;
+}
+
+// ==========================================================================
 
 // Returns 0=success, 1=failed
 int kwp_connect(uint8_t address, uint32_t baud)
