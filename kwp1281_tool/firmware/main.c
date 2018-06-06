@@ -46,24 +46,51 @@ void print_safe_code(uint16_t safe_code_bcd)
     uart_puts(UART_DEBUG, "\n");
 }
 
-int main()
+// connect to premium 5 manufacturing address and login
+// should work on any premium 5 radio
+void connect_and_login_mfg()
 {
-    uart_init(UART_DEBUG, 115200);  // debug messages
-    uart_init(UART_KLINE,   9600);  // obd-ii kwp1281
-    sei();
+    int retval = kwp_connect(0x7c, 10400);
+    if (retval != 0) {
+        uart_puts(UART_DEBUG, "INIT FAILED\n");
+        while(1);
+    }
+    kwp_send_login_block(0x4f43, 0x4c, 0x4544);  // "OCLED"
+    kwp_receive_block_expect(KWP_ACK);
+}
 
-    kwp_connect(KWP_RADIO, 10400);
-    print_radio_info();
+// connect to standard radio address and login using safe code
+// should work on any premium 4 or 5 if safe code is correct
+void connect_and_login_safe(uint16_t safe_code)
+{
+    int retval = kwp_connect(KWP_RADIO, 10400);
+    if (retval != 0) {
+        uart_puts(UART_DEBUG, "INIT FAILED\n");
+        while(1);
+    }
 
-    kwp_send_login_block(0x490, 0x01, 0x869f);
+    kwp_send_login_block(safe_code, 0x01, 0x869f);
     kwp_receive_block_expect(KWP_ACK);
 
     kwp_send_group_reading_block(0x19);
     // premium 4 and 5 will unlock the protected commands after login and reading group 0x19.
     // premium 4 sends ack.  premium 5 sends nak, but it's a lie, treat it like ack.
     kwp_receive_block();
+}
 
-    kwp_read_ram(0, 61440);
 
-    while(1);
+int main()
+{
+    uart_init(UART_DEBUG, 115200);  // debug messages
+    uart_init(UART_KLINE,  10400);  // obd-ii kwp1281
+    sei();
+
+    connect_and_login_mfg();
+    //connect_and_login_safe(0x0057);
+
+    while(1) {
+        kwp_send_ack_block();
+        kwp_receive_block_expect(KWP_ACK);
+        _delay_ms(200);
+    }
 }

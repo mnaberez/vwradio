@@ -121,20 +121,27 @@ static uint8_t _recv_byte_send_compl()
 
 
 // Wait for the 0x55 0x01 0x8A sequence during initial connection
-static void _wait_for_55_01_8a()
+static int _wait_for_55_01_8a()
 {
     uint8_t i = 0;
     uint8_t c = 0;
+    uint16_t millis = 0;
 
     while (1) {
-        c = _recv_byte();
+        if (uart_rx_ready(UART_KLINE)) {
+            c = _recv_byte();
 
-        if ((i == 0) && (c == 0x55)) { i = 1; }
-        if ((i == 1) && (c == 0x01)) { i = 2; }
-        if ((i == 2) && (c == 0x8A)) { i = 3; }
-        if (i == 3) { break; }
+            if ((i == 0) && (c == 0x55)) { i = 1; }
+            if ((i == 1) && (c == 0x01)) { i = 2; }
+            if ((i == 2) && (c == 0x8A)) { i = 3; }
+            if (i == 3) { break; }
+        } else {
+            _delay_ms(1);
+            if (++millis > 3000) { return 1; } // timeout
+        }
     }
     uart_puts(UART_DEBUG, "\nGOT KW\n\n");
+    return 0;
 }
 
 
@@ -360,8 +367,8 @@ void kwp_read_eeprom()
     }
 }
 
-
-void kwp_connect(uint8_t address, uint32_t baud)
+// Returns 0=success, 1=failed
+int kwp_connect(uint8_t address, uint32_t baud)
 {
     uart_init(UART_KLINE, baud);
 
@@ -372,7 +379,8 @@ void kwp_connect(uint8_t address, uint32_t baud)
     memset(kwp_component_2, 0, sizeof(kwp_component_2));
 
     _send_address(address);
-    _wait_for_55_01_8a();
+    int rv = _wait_for_55_01_8a();
+    if (rv == 1) { return rv; }  // error
     _delay_ms(30);
     _send_byte(0x75);
 
@@ -380,7 +388,7 @@ void kwp_connect(uint8_t address, uint32_t baud)
         kwp_receive_block();
 
         // Premium 5 mfg mode (address 0x7C) sends ACK and is ready immediately receiving 0x75
-        if ((i == 0) && (kwp_rx_buf[2] == KWP_ACK)) { return; }
+        if ((i == 0) && (kwp_rx_buf[2] == KWP_ACK)) { return 0; }
 
         // All others should send 4 ASCII blocks that need to be ACKed after receiving 0x75
         if (kwp_rx_buf[2] != KWP_R_ASCII_DATA) { _panic("Expected 0xF6"); }
@@ -403,5 +411,5 @@ void kwp_connect(uint8_t address, uint32_t baud)
     }
 
     kwp_receive_block_expect(KWP_ACK);
-    return;
+    return 0;
 }

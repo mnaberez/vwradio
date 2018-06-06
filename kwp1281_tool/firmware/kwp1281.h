@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-void kwp_connect(uint8_t address, uint32_t baud);
+int kwp_connect(uint8_t address, uint32_t baud);
 void kwp_send_read_ram_block(uint16_t address, uint8_t length);
 void kwp_send_read_eeprom_block(uint16_t address, uint8_t length);
 void kwp_send_group_reading_block(uint8_t group);
