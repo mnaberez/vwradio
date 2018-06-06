@@ -4,8 +4,6 @@
 #include <stdint.h>
 
 int kwp_connect(uint8_t address, uint32_t baud);
-void kwp_send_read_ram_block(uint16_t address, uint8_t length);
-void kwp_send_read_eeprom_block(uint16_t address, uint8_t length);
 void kwp_send_group_reading_block(uint8_t group);
 void kwp_send_login_block(uint16_t safe_code, uint8_t fern, uint16_t workshop);
 void kwp_send_f0_block();
@@ -13,7 +11,8 @@ void kwp_send_ack_block();
 void kwp_receive_block();
 void kwp_receive_block_expect(uint8_t title);
 void kwp_read_ram(uint16_t start_address, uint16_t size);
-void kwp_read_eeprom();
+void kwp_read_rom_or_eeprom(uint16_t start_address, uint16_t size);
+void kwp_read_eeprom(uint16_t start_address, uint16_t size);
 uint16_t kwp_read_safe_code_bcd();
 
 uint8_t kwp_is_first_block;     // flag: 0=no blocks received, 1=otherwise

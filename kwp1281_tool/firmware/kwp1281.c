@@ -267,38 +267,6 @@ void kwp_send_group_reading_block(uint8_t group)
 }
 
 
-void kwp_send_read_eeprom_block(uint16_t address, uint8_t length)
-{
-    uart_puts(UART_DEBUG, "BEGIN SEND BLOCK: READ EEPROM\n");
-
-    _send_byte_recv_compl(0x06);                 // block length
-    _send_byte_recv_compl(++kwp_block_counter);  // block counter
-    _send_byte_recv_compl(KWP_READ_EEPROM);      // block title (read eeprom)
-    _send_byte_recv_compl(length);               // number of bytes to read
-    _send_byte_recv_compl(HIGH(address));        // address high
-    _send_byte_recv_compl(LOW(address));         // address low
-    _send_byte(0x03);                            // block end
-
-    uart_puts(UART_DEBUG, "END SEND BLOCK: READ EEPROM\n\n");
-}
-
-
-void kwp_send_read_ram_block(uint16_t address, uint8_t length)
-{
-    uart_puts(UART_DEBUG, "BEGIN SEND BLOCK: READ RAM\n");
-
-    _send_byte_recv_compl(0x06);                 // block length
-    _send_byte_recv_compl(++kwp_block_counter);  // block counter
-    _send_byte_recv_compl(KWP_READ_RAM);         // block title
-    _send_byte_recv_compl(length);               // number of bytes to read
-    _send_byte_recv_compl(HIGH(address));        // address high
-    _send_byte_recv_compl(LOW(address));         // address low
-    _send_byte(0x03);                            // block end
-
-    uart_puts(UART_DEBUG, "END SEND BLOCK: READ RAM\n\n");
-}
-
-
 uint16_t kwp_read_safe_code_bcd()
 {
     kwp_send_f0_block();
@@ -308,7 +276,24 @@ uint16_t kwp_read_safe_code_bcd()
 }
 
 
-void kwp_read_ram(uint16_t start_address, uint16_t size)
+static void _send_read_mem_block(uint8_t title, uint16_t address, uint8_t length)
+{
+    uart_puts(UART_DEBUG, "BEGIN SEND BLOCK: READ xx MEMORY\n");
+
+    _send_byte_recv_compl(0x06);                 // block length
+    _send_byte_recv_compl(++kwp_block_counter);  // block counter
+    _send_byte_recv_compl(title);                // block title
+    _send_byte_recv_compl(length);               // number of bytes to read
+    _send_byte_recv_compl(HIGH(address));        // address high
+    _send_byte_recv_compl(LOW(address));         // address low
+    _send_byte(0x03);                            // block end
+
+    uart_puts(UART_DEBUG, "END SEND BLOCK: READ xx MEMORY\n\n");
+}
+
+
+static void _read_mem(uint8_t req_title, uint8_t resp_title,
+               uint16_t start_address, uint16_t size)
 {
     uint16_t address = start_address;
     uint16_t remaining = size;
@@ -317,10 +302,10 @@ void kwp_read_ram(uint16_t start_address, uint16_t size)
         uint8_t chunksize = 32;
         if (remaining < chunksize) { chunksize = remaining; }
 
-        kwp_send_read_ram_block(address, chunksize);
-        kwp_receive_block_expect(KWP_R_READ_RAM);
+        _send_read_mem_block(req_title, address, chunksize);
+        kwp_receive_block_expect(resp_title);
 
-        uart_puts(UART_DEBUG, "RAM: ");
+        uart_puts(UART_DEBUG, "MEM: ");
         uart_puthex16(UART_DEBUG, address);
         uart_puts(UART_DEBUG, ": ");
         for (uint8_t i=0; i<chunksize; i++) {
@@ -338,34 +323,21 @@ void kwp_read_ram(uint16_t start_address, uint16_t size)
 }
 
 
-void kwp_read_eeprom()
+void kwp_read_ram(uint16_t start_address, uint16_t size)
 {
-    uint16_t address = 0;
-    uint16_t remaining = 0x80;
-
-    while (remaining != 0) {
-        uint8_t chunksize = 32;
-        if (remaining < chunksize) { chunksize = remaining; }
-
-        kwp_send_read_eeprom_block(address, chunksize);
-        kwp_receive_block_expect(KWP_R_READ_ROM_EEPROM);
-
-        uart_puts(UART_DEBUG, "EEPROM: ");
-        uart_puthex16(UART_DEBUG, address);
-        uart_puts(UART_DEBUG, ": ");
-        for (uint8_t i=0; i<chunksize; i++) {
-            uart_puthex(UART_DEBUG, kwp_rx_buf[3 + i]);
-            uart_put(UART_DEBUG, ' ');
-        }
-        uart_puts(UART_DEBUG, "\n\n");
-
-        address += chunksize;
-        remaining -= chunksize;
-
-        kwp_send_ack_block();
-        kwp_receive_block_expect(KWP_ACK);
-    }
+    _read_mem(KWP_READ_RAM, KWP_R_READ_RAM, start_address, size);
 }
+
+void kwp_read_rom_or_eeprom(uint16_t start_address, uint16_t size)
+{
+    _read_mem(KWP_READ_ROM_EEPROM, KWP_R_READ_ROM_EEPROM, start_address, size);
+}
+
+void kwp_read_eeprom(uint16_t start_address, uint16_t size)
+{
+    _read_mem(KWP_READ_EEPROM, KWP_R_READ_ROM_EEPROM, start_address, size);
+}
+
 
 // Returns 0=success, 1=failed
 int kwp_connect(uint8_t address, uint32_t baud)
