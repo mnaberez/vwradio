@@ -57,7 +57,7 @@ void print_rom_checksum(uint16_t checksum)
 // should work on any premium 5 radio
 void connect_and_login_mfg()
 {
-    int retval = kwp_connect(0x7c, 10400);
+    int retval = kwp_connect(KWP_RADIO_MFG, 10400);
     if (retval != 0) {
         uart_puts(UART_DEBUG, "INIT FAILED\n");
         while(1);

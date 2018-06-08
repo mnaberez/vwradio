@@ -26,7 +26,8 @@ uint8_t kwp_component_1[16];    // " RADIO 3CP  "
 uint8_t kwp_component_2[16];    // "        0001"
 
 // Module Addresses
-#define KWP_RADIO 0x56
+#define KWP_RADIO       0x56
+#define KWP_RADIO_MFG   0x7C    // Delco Premium 5, TechniSat Gamma 5
 
 // Block Titles
 //                                                                          Premium 4   5
