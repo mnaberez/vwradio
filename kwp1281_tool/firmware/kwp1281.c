@@ -123,6 +123,7 @@ static uint8_t _recv_byte_send_compl()
 // Wait for the 0x55 0x01 0x8A sequence during initial connection
 static int _wait_for_55_01_8a()
 {
+    const uint8_t expected_rx_bytes[] = { 0x55, 0x01, 0x8a };
     uint8_t i = 0;
     uint8_t c = 0;
     uint16_t millis = 0;
@@ -130,18 +131,16 @@ static int _wait_for_55_01_8a()
     while (1) {
         if (uart_rx_ready(UART_KLINE)) {
             c = _recv_byte();
-
-            if ((i == 0) && (c == 0x55)) { i = 1; }
-            if ((i == 1) && (c == 0x01)) { i = 2; }
-            if ((i == 2) && (c == 0x8A)) { i = 3; }
-            if (i == 3) { break; }
+            if (c == expected_rx_bytes[i]) {
+                if (++i == 3) { return 0; } // success
+            } else {
+                i = 0;
+            }
         } else {
             _delay_ms(1);
             if (++millis > 3000) { return 1; } // timeout
         }
     }
-    uart_puts(UART_DEBUG, "\nGOT KW\n\n");
-    return 0;
 }
 
 
