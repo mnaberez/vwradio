@@ -132,13 +132,13 @@ static int _wait_for_55_01_8a()
         if (uart_rx_ready(UART_KLINE)) {
             c = _recv_byte();
             if (c == expected_rx_bytes[i]) {
-                if (++i == 3) { return 0; } // success
+                if (++i == 3) { return KWP_SUCCESS; }
             } else {
                 i = 0;
             }
         } else {
             _delay_ms(1);
-            if (++millis > 3000) { return 1; } // timeout
+            if (++millis > 3000) { return KWP_TIMEOUT; }
         }
     }
 }
@@ -382,8 +382,8 @@ int kwp_connect(uint8_t address, uint32_t baud)
     memset(kwp_component_2, 0, sizeof(kwp_component_2));
 
     _send_address(address);
-    int rv = _wait_for_55_01_8a();
-    if (rv == 1) { return rv; }  // error
+    int result = _wait_for_55_01_8a();
+    if (result != KWP_SUCCESS) { return result; }  // error
     _delay_ms(30);
     _send_byte(0x75);
 
@@ -391,7 +391,7 @@ int kwp_connect(uint8_t address, uint32_t baud)
         kwp_receive_block();
 
         // Premium 5 mfg mode (address 0x7C) sends ACK and is ready immediately receiving 0x75
-        if ((i == 0) && (kwp_rx_buf[2] == KWP_ACK)) { return 0; }
+        if ((i == 0) && (kwp_rx_buf[2] == KWP_ACK)) { return KWP_SUCCESS; }
 
         // All others should send 4 ASCII blocks that need to be ACKed after receiving 0x75
         if (kwp_rx_buf[2] != KWP_R_ASCII_DATA) { _panic("Expected 0xF6"); }
@@ -414,5 +414,5 @@ int kwp_connect(uint8_t address, uint32_t baud)
     }
 
     kwp_receive_block_expect(KWP_ACK);
-    return 0;
+    return KWP_SUCCESS;
 }

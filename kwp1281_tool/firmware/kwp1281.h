@@ -25,6 +25,10 @@ uint8_t kwp_vag_number[16];     // "1J0035180D  "
 uint8_t kwp_component_1[16];    // " RADIO 3CP  "
 uint8_t kwp_component_2[16];    // "        0001"
 
+// Result codes for functions
+#define KWP_SUCCESS     0
+#define KWP_TIMEOUT     1
+
 // Module Addresses
 #define KWP_RADIO       0x56
 #define KWP_RADIO_MFG   0x7C    // Delco Premium 5, TechniSat Gamma 5

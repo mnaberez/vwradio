@@ -57,8 +57,8 @@ void print_rom_checksum(uint16_t checksum)
 // should work on any premium 5 radio
 void connect_and_login_mfg()
 {
-    int retval = kwp_connect(KWP_RADIO_MFG, 10400);
-    if (retval != 0) {
+    int result = kwp_connect(KWP_RADIO_MFG, 10400);
+    if (result != KWP_SUCCESS) {
         uart_puts(UART_DEBUG, "INIT FAILED\n");
         while(1);
     }
@@ -70,8 +70,8 @@ void connect_and_login_mfg()
 // should work on any premium 4 or 5 if safe code is correct
 void connect_and_login_safe(uint16_t safe_code)
 {
-    int retval = kwp_connect(KWP_RADIO, 10400);
-    if (retval != 0) {
+    int result = kwp_connect(KWP_RADIO, 10400);
+    if (result != KWP_SUCCESS) {
         uart_puts(UART_DEBUG, "INIT FAILED\n");
         while(1);
     }
