@@ -430,10 +430,11 @@ int kwp_connect(uint8_t address, uint32_t baud)
 
 int kwp_autoconnect(uint8_t address)
 {
-    uint16_t bauds[2] = { 10400, 9600 };
+    const uint16_t baud_rates[2] = { 10400, 9600 };
+
     for (uint8_t try=0; try<2; try++) {
         for (uint8_t baud_index=0; baud_index<2; baud_index++) {
-            int result = kwp_connect(address, bauds[baud_index]);
+            int result = kwp_connect(address, baud_rates[baud_index]);
             if (result == KWP_SUCCESS) { return result; }
             _delay_ms(2000); // delay before next try
         }
