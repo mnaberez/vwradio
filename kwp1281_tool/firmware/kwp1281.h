@@ -9,6 +9,7 @@ void kwp_print_module_info();
 void kwp_send_group_reading_block(uint8_t group);
 void kwp_send_login_block(uint16_t safe_code, uint8_t fern, uint16_t workshop);
 void kwp_send_ack_block();
+void kwp_send_block(uint8_t *buf);
 void kwp_receive_block();
 void kwp_receive_block_expect(uint8_t title);
 void kwp_read_ram(uint16_t start_address, uint16_t size);

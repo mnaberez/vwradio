@@ -144,6 +144,32 @@ static int _wait_for_55_01_8a()
 }
 
 
+// Send a block
+void kwp_send_block(uint8_t *buf)
+{
+    uint8_t block_length = buf[0];
+    uint8_t buf_size = block_length + 1;
+    uint8_t block_title = buf[2];
+
+    buf[1] = ++kwp_block_counter;   // insert block counter
+    buf[buf_size - 1] = 0x03;       // insert block end
+
+    uart_puts(UART_DEBUG, "BEGIN SEND BLOCK ");
+    uart_puthex(UART_DEBUG, block_title);
+    uart_puts(UART_DEBUG, "\n");
+
+    uint8_t i;
+    for (i=0; i<(buf_size-1); i++) {
+        _send_byte_recv_compl(buf[i]);
+    }
+    _send_byte(buf[i]); // block end
+
+    uart_puts(UART_DEBUG, "END SEND BLOCK ");
+    uart_puthex(UART_DEBUG, block_title);
+    uart_puts(UART_DEBUG, "\n\n");
+}
+
+
 // Receive a block
 void kwp_receive_block()
 {
@@ -209,62 +235,62 @@ void kwp_receive_block_expect(uint8_t title)
 
 void kwp_send_ack_block()
 {
-    uart_puts(UART_DEBUG, "BEGIN SEND BLOCK: ACK\n");
-
-    _send_byte_recv_compl(0x03);                // block length
-    _send_byte_recv_compl(++kwp_block_counter); // block counter
-    _send_byte_recv_compl(KWP_ACK);             // block title
-    _send_byte(0x03);                           // block end
-
-    uart_puts(UART_DEBUG, "END SEND BLOCK: ACK\n\n");
+    uart_puts(UART_DEBUG, "SENDING ACK\n");
+    uint8_t block[] = {
+        0x03,       // block length
+        0,          // placeholder for block counter
+        KWP_ACK,    // block title
+        0,          // placeholder for block end
+    };
+    kwp_send_block(block);
 }
 
 
 void kwp_send_login_block(uint16_t safe_code, uint8_t fern, uint16_t workshop)
 {
-    uart_puts(UART_DEBUG, "BEGIN SEND BLOCK: LOGIN\n");
-
-    _send_byte_recv_compl(0x08);                 // block length
-    _send_byte_recv_compl(++kwp_block_counter);  // block counter
-    _send_byte_recv_compl(KWP_LOGIN);            // block title
-    _send_byte_recv_compl(HIGH(safe_code));      // safe code high byte
-    _send_byte_recv_compl(LOW(safe_code));       // safe code low byte
-    _send_byte_recv_compl(fern);                 // fern byte
-    _send_byte_recv_compl(HIGH(workshop));       // workshop code high byte
-    _send_byte_recv_compl(LOW(workshop));        // workshop code low byte
-    _send_byte(0x03);                            // block end
-
-    uart_puts(UART_DEBUG, "END SEND BLOCK: LOGIN\n\n");
+    uart_puts(UART_DEBUG, "SENDING LOGIN\n");
+    uint8_t block[] = {
+        0x08,               // block length
+        0,                  // placeholder for block counter
+        KWP_LOGIN,          // block title
+        HIGH(safe_code),    // safe code high byte
+        LOW(safe_code),     // safe code low byte
+        fern,               // fern byte
+        HIGH(workshop),     // workshop code high byte
+        LOW(workshop),      // workshop code low byte
+        0,                  // placeholder for block end
+    };
+    kwp_send_block(block);
 }
 
 
 void kwp_send_group_reading_block(uint8_t group)
 {
-    uart_puts(UART_DEBUG, "BEGIN SEND BLOCK: GROUP READ\n");
-
-    _send_byte_recv_compl(0x04);                // block length
-    _send_byte_recv_compl(++kwp_block_counter); // block counter
-    _send_byte_recv_compl(KWP_GROUP_READING);   // block title
-    _send_byte_recv_compl(group);               // group number
-    _send_byte(0x03);                           // block end
-
-    uart_puts(UART_DEBUG, "END SEND BLOCK: GROUP READ\n\n");
+    uart_puts(UART_DEBUG, "SENDING GROUP READ\n");
+    uint8_t block[] = {
+        0x04,               // block length
+        0,                  // placeholder for block counter
+        KWP_GROUP_READING,  // block title
+        group,              // group number
+        0,                  // placeholder for block end
+    };
+    kwp_send_block(block);
 }
 
 
 static void _send_read_mem_block(uint8_t title, uint16_t address, uint8_t length)
 {
-    uart_puts(UART_DEBUG, "BEGIN SEND BLOCK: READ xx MEMORY\n");
-
-    _send_byte_recv_compl(0x06);                 // block length
-    _send_byte_recv_compl(++kwp_block_counter);  // block counter
-    _send_byte_recv_compl(title);                // block title
-    _send_byte_recv_compl(length);               // number of bytes to read
-    _send_byte_recv_compl(HIGH(address));        // address high
-    _send_byte_recv_compl(LOW(address));         // address low
-    _send_byte(0x03);                            // block end
-
-    uart_puts(UART_DEBUG, "END SEND BLOCK: READ xx MEMORY\n\n");
+    uart_puts(UART_DEBUG, "SENDING READ xx MEMORY\n");
+    uint8_t block[] = {
+        0x06,           // block length
+        0,              // placeholder for block counter
+        title,          // block title
+        length,         // number of bytes to read
+        HIGH(address),  // address high
+        LOW(address),   // address low
+        0,              // placeholder for block end
+    };
+    kwp_send_block(block);
 }
 
 
@@ -317,15 +343,15 @@ void kwp_read_eeprom(uint16_t start_address, uint16_t size)
 
 static void _send_f0_block()
 {
-    uart_puts(UART_DEBUG, "BEGIN SEND BLOCK: F0\n");
-
-    _send_byte_recv_compl(0x04);                // block length
-    _send_byte_recv_compl(++kwp_block_counter); // block counter
-    _send_byte_recv_compl(KWP_SAFE_CODE);       // block title
-    _send_byte_recv_compl(0x00);                // 0=read
-    _send_byte(0x03);                           // block end
-
-    uart_puts(UART_DEBUG, "END SEND BLOCK: F0\n\n");
+    uart_puts(UART_DEBUG, "SENDING TITLE F0\n");
+    uint8_t block[] = {
+        0x04,           // block length
+        0,              // placeholder for block length
+        KWP_SAFE_CODE,  // block title
+        0,              // 0=read
+        0,              // placeholder for block end
+    };
+    kwp_send_block(block);
 }
 
 uint16_t kwp_p4_read_safe_code_bcd()
@@ -348,16 +374,16 @@ uint16_t kwp_p5_read_safe_code_bcd()
 
 static void _send_calc_rom_checksum_block()
 {
-    uart_puts(UART_DEBUG, "BEGIN SEND BLOCK: ROM CHECKSUM\n");
-
-    _send_byte_recv_compl(0x05);                // block length
-    _send_byte_recv_compl(++kwp_block_counter); // block counter
-    _send_byte_recv_compl(KWP_CUSTOM);          // block title
-    _send_byte_recv_compl(0x31);                // unknown constant
-    _send_byte_recv_compl(0x32);                // subtitle (rom checksum)
-    _send_byte(0x03);                           // block end
-
-    uart_puts(UART_DEBUG, "END SEND BLOCK: ROM CHECKSUM\n\n");
+    uart_puts(UART_DEBUG, "SENDING ROM CHECKSUM\n");
+    uint8_t block[] = {
+        0x05,       // block length
+        0,          // placeholder for block counter
+        KWP_CUSTOM, // block title
+        0x31,       // unknown constant
+        0x32,       // subtitle (rom checksum)
+        0,          // placeholder for block end
+    };
+    kwp_send_block(block);
 }
 
 uint16_t kwp_p5_calc_rom_checksum()
