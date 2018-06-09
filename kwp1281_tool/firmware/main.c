@@ -88,7 +88,7 @@ int main()
         print_safe_code(safe_code);
     } else if (memcmp(&kwp_component_1[7], "DE2", 3) == 0) {
         uart_puts(UART_DEBUG, "DELCO\n");
-        _delay_ms(5000);  // wait 5 seconds for 0x56 connection to time out
+        kwp_disconnect();
         connect_and_login_mfg();
         uint16_t rom_checksum = kwp_p5_calc_rom_checksum();
         uint16_t safe_code = kwp_p5_read_safe_code_bcd();

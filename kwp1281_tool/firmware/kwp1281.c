@@ -19,10 +19,6 @@ void _panic(char *msg)
 // Send module address at 5bps
 static void _send_address(uint8_t address)
 {
-    uart_puts(UART_DEBUG, "\nINIT 0x");
-    uart_puthex(UART_DEBUG, address);
-    uart_puts(UART_DEBUG, ": ");
-
     UCSR1B &= ~_BV(RXEN1);  // Disable RX (PD2/TXD1)
     UCSR1B &= ~_BV(TXEN1);  // Disable TX (PD3/TXD1)
     DDRD |= _BV(PD3);       // PD3 = output
@@ -139,7 +135,6 @@ void kwp_send_block(uint8_t *buf)
 {
     uint8_t block_length = buf[0];
     uint8_t buf_size = block_length + 1;
-    uint8_t block_title = buf[2];
 
     buf[1] = ++kwp_block_counter;   // insert block counter
     buf[buf_size - 1] = 0x03;       // insert block end
@@ -300,7 +295,7 @@ static void _read_mem(uint8_t req_title, uint8_t resp_title,
             uart_puthex(UART_DEBUG, kwp_rx_buf[3 + i]);
             uart_put(UART_DEBUG, ' ');
         }
-        uart_puts(UART_DEBUG, "\n\n");
+        uart_puts(UART_DEBUG, "\n");
 
         address += chunksize;
         remaining -= chunksize;
@@ -384,6 +379,10 @@ uint16_t kwp_p5_calc_rom_checksum()
 
 int kwp_connect(uint8_t address, uint32_t baud)
 {
+    uart_puts(UART_DEBUG, "\nCONNECT ");
+    uart_puthex(UART_DEBUG, address);
+    uart_puts(UART_DEBUG, ": ");
+
     uart_init(UART_KLINE, baud);
 
     kwp_is_first_block = 1;
@@ -440,6 +439,11 @@ int kwp_autoconnect(uint8_t address)
         }
     }
     return KWP_TIMEOUT;
+}
+
+void kwp_disconnect()
+{
+    _delay_ms(5000);
 }
 
 void kwp_print_module_info()
