@@ -19,9 +19,9 @@ void _panic(char *msg)
 // Send module address at 5bps
 static void _send_address(uint8_t address)
 {
-    uart_puts(UART_DEBUG, "INIT 0x");
+    uart_puts(UART_DEBUG, "\nINIT 0x");
     uart_puthex(UART_DEBUG, address);
-    uart_puts(UART_DEBUG, "\n\n");
+    uart_puts(UART_DEBUG, ": ");
 
     UCSR1B &= ~_BV(RXEN1);  // Disable RX (PD2/TXD1)
     UCSR1B &= ~_BV(TXEN1);  // Disable TX (PD3/TXD1)
@@ -68,9 +68,8 @@ static void _send_byte(uint8_t c)
     uint8_t echo = uart_blocking_get(UART_KLINE); // consume its echo
     if (echo != c) { _panic("echo wrong"); }
 
-    uart_puts(UART_DEBUG, "TX: ");
     uart_puthex(UART_DEBUG, c);
-    uart_put(UART_DEBUG, '\n');
+    uart_put(UART_DEBUG, ' ');
 }
 
 
@@ -81,10 +80,6 @@ static void _send_byte_recv_compl(uint8_t c)
 
     uint8_t complement = uart_blocking_get(UART_KLINE);
     if (complement != (c ^ 0xff)) { _panic("rx complement wrong"); }
-
-    uart_puts(UART_DEBUG, "R_: ");
-    uart_puthex(UART_DEBUG, complement);
-    uart_put(UART_DEBUG, '\n');
 }
 
 
@@ -93,9 +88,8 @@ static uint8_t _recv_byte()
 {
     uint8_t c = uart_blocking_get(UART_KLINE);
 
-    uart_puts(UART_DEBUG, "RX: ");
     uart_puthex(UART_DEBUG, c);
-    uart_put(UART_DEBUG, '\n');
+    uart_put(UART_DEBUG, ' ');
     return c;
 }
 
@@ -111,10 +105,6 @@ static uint8_t _recv_byte_send_compl()
     uart_blocking_put(UART_KLINE, complement);      // send complement byte
     uint8_t echo = uart_blocking_get(UART_KLINE);   // consume its echo
     if (echo != complement) { _panic("complement echo wrong"); }
-
-    uart_puts(UART_DEBUG, "T_: ");
-    uart_puthex(UART_DEBUG, complement);
-    uart_put(UART_DEBUG, '\n');
 
     return c;
 }
@@ -154,9 +144,7 @@ void kwp_send_block(uint8_t *buf)
     buf[1] = ++kwp_block_counter;   // insert block counter
     buf[buf_size - 1] = 0x03;       // insert block end
 
-    uart_puts(UART_DEBUG, "BEGIN SEND BLOCK ");
-    uart_puthex(UART_DEBUG, block_title);
-    uart_puts(UART_DEBUG, "\n");
+    uart_puts(UART_DEBUG, "SEND: ");
 
     uint8_t i;
     for (i=0; i<(buf_size-1); i++) {
@@ -164,16 +152,14 @@ void kwp_send_block(uint8_t *buf)
     }
     _send_byte(buf[i]); // block end
 
-    uart_puts(UART_DEBUG, "END SEND BLOCK ");
-    uart_puthex(UART_DEBUG, block_title);
-    uart_puts(UART_DEBUG, "\n\n");
+    uart_puts(UART_DEBUG, "\n");
 }
 
 
 // Receive a block
 void kwp_receive_block()
 {
-    uart_puts(UART_DEBUG, "BEGIN RECEIVE BLOCK\n");
+    uart_puts(UART_DEBUG, "RECV: ");
 
     kwp_rx_size = 0;
     memset(kwp_rx_buf, 0, sizeof(kwp_rx_buf));
@@ -212,7 +198,7 @@ void kwp_receive_block()
     }
 
     _delay_ms(10);
-    uart_puts(UART_DEBUG, "END RECEIVE BLOCK\n\n");
+    uart_puts(UART_DEBUG, "\n");
     return;
 }
 
@@ -235,7 +221,7 @@ void kwp_receive_block_expect(uint8_t title)
 
 void kwp_send_ack_block()
 {
-    uart_puts(UART_DEBUG, "SENDING ACK\n");
+    uart_puts(UART_DEBUG, "PERFORM ACK\n");
     uint8_t block[] = {
         0x03,       // block length
         0,          // placeholder for block counter
@@ -248,7 +234,7 @@ void kwp_send_ack_block()
 
 void kwp_send_login_block(uint16_t safe_code, uint8_t fern, uint16_t workshop)
 {
-    uart_puts(UART_DEBUG, "SENDING LOGIN\n");
+    uart_puts(UART_DEBUG, "PERFORM LOGIN\n");
     uint8_t block[] = {
         0x08,               // block length
         0,                  // placeholder for block counter
@@ -266,7 +252,7 @@ void kwp_send_login_block(uint16_t safe_code, uint8_t fern, uint16_t workshop)
 
 void kwp_send_group_reading_block(uint8_t group)
 {
-    uart_puts(UART_DEBUG, "SENDING GROUP READ\n");
+    uart_puts(UART_DEBUG, "PERFORM GROUP READ\n");
     uint8_t block[] = {
         0x04,               // block length
         0,                  // placeholder for block counter
@@ -280,7 +266,7 @@ void kwp_send_group_reading_block(uint8_t group)
 
 static void _send_read_mem_block(uint8_t title, uint16_t address, uint8_t length)
 {
-    uart_puts(UART_DEBUG, "SENDING READ xx MEMORY\n");
+    uart_puts(UART_DEBUG, "PERFORM READ xx MEMORY\n");
     uint8_t block[] = {
         0x06,           // block length
         0,              // placeholder for block counter
@@ -343,7 +329,7 @@ void kwp_read_eeprom(uint16_t start_address, uint16_t size)
 
 static void _send_f0_block()
 {
-    uart_puts(UART_DEBUG, "SENDING TITLE F0\n");
+    uart_puts(UART_DEBUG, "PERFORM TITLE F0\n");
     uint8_t block[] = {
         0x04,           // block length
         0,              // placeholder for block length
@@ -374,7 +360,7 @@ uint16_t kwp_p5_read_safe_code_bcd()
 
 static void _send_calc_rom_checksum_block()
 {
-    uart_puts(UART_DEBUG, "SENDING ROM CHECKSUM\n");
+    uart_puts(UART_DEBUG, "PERFORM ROM CHECKSUM\n");
     uint8_t block[] = {
         0x05,       // block length
         0,          // placeholder for block counter
@@ -411,6 +397,7 @@ int kwp_connect(uint8_t address, uint32_t baud)
     if (result != KWP_SUCCESS) { return result; }  // error
     _delay_ms(30);
     _send_byte(0x75);
+    uart_put(UART_DEBUG, '\n');
 
     for (uint8_t i=0; i<4; i++) {
         kwp_receive_block();
