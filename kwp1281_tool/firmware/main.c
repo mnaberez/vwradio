@@ -83,11 +83,11 @@ int main()
     kwp_print_module_info();
 
     if (memcmp(&kwp_component_1[7], "3CP", 3) == 0) {
-        uart_puts(UART_DEBUG, "CLARION\n");
+        uart_puts(UART_DEBUG, "CLARION PREMIUM 4 DETECTED\n");
         uint16_t safe_code = kwp_p4_read_safe_code_bcd();
         print_safe_code(safe_code);
     } else if (memcmp(&kwp_component_1[7], "DE2", 3) == 0) {
-        uart_puts(UART_DEBUG, "DELCO\n");
+        uart_puts(UART_DEBUG, "DELCO PREMIUM 5 DETECTED\n");
         kwp_disconnect();
         connect_and_login_mfg();
         uint16_t rom_checksum = kwp_p5_calc_rom_checksum();
