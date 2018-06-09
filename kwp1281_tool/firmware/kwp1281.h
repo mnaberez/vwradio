@@ -4,6 +4,8 @@
 #include <stdint.h>
 
 int kwp_connect(uint8_t address, uint32_t baud);
+int kwp_autoconnect(uint8_t address);
+void kwp_print_module_info();
 void kwp_send_group_reading_block(uint8_t group);
 void kwp_send_login_block(uint16_t safe_code, uint8_t fern, uint16_t workshop);
 void kwp_send_ack_block();

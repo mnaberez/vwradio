@@ -370,7 +370,6 @@ uint16_t kwp_p5_calc_rom_checksum()
 
 // ==========================================================================
 
-// Returns 0=success, 1=failed
 int kwp_connect(uint8_t address, uint32_t baud)
 {
     uart_init(UART_KLINE, baud);
@@ -415,4 +414,35 @@ int kwp_connect(uint8_t address, uint32_t baud)
 
     kwp_receive_block_expect(KWP_ACK);
     return KWP_SUCCESS;
+}
+
+int kwp_autoconnect(uint8_t address)
+{
+    uint16_t bauds[2] = { 10400, 9600 };
+    for (uint8_t try=0; try<2; try++) {
+        for (uint8_t baud_index=0; baud_index<2; baud_index++) {
+            int result = kwp_connect(address, bauds[baud_index]);
+            if (result == KWP_SUCCESS) { return result; }
+            _delay_ms(2000); // delay before next try
+        }
+    }
+    return KWP_TIMEOUT;
+}
+
+void kwp_print_module_info()
+{
+    uart_puts(UART_DEBUG, "VAG Number: \"");
+    for (uint8_t i=0; i<12; i++) {
+        uart_put(UART_DEBUG, kwp_vag_number[i]);
+    }
+    uart_puts(UART_DEBUG, "\"\n");
+
+    uart_puts(UART_DEBUG, "Component:  \"");
+    for (uint8_t i=0; i<12; i++) {
+        uart_put(UART_DEBUG, kwp_component_1[i]);
+    }
+    for (uint8_t i=0; i<12; i++) {
+        uart_put(UART_DEBUG, kwp_component_2[i]);
+    }
+    uart_puts(UART_DEBUG, "\"\n");
 }

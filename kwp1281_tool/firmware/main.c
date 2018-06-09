@@ -1,7 +1,7 @@
 #include "main.h"
 #include "uart.h"
 #include "kwp1281.h"
-
+#include <string.h>
 #include <stdint.h>
 #include <avr/interrupt.h>
 #include <avr/io.h>
@@ -19,24 +19,6 @@ uint16_t bcd_to_bin(uint16_t bcd)
     bin += ((bcd & 0x0f00) >>  8) * 100;
     bin += ((bcd & 0xf000) >> 12) * 1000;
     return bin;
-}
-
-void print_radio_info()
-{
-    uart_puts(UART_DEBUG, "VAG Number: \"");
-    for (uint8_t i=0; i<12; i++) {
-        uart_put(UART_DEBUG, kwp_vag_number[i]);
-    }
-    uart_puts(UART_DEBUG, "\"\n");
-
-    uart_puts(UART_DEBUG, "Component:  \"");
-    for (uint8_t i=0; i<12; i++) {
-        uart_put(UART_DEBUG, kwp_component_1[i]);
-    }
-    for (uint8_t i=0; i<12; i++) {
-        uart_put(UART_DEBUG, kwp_component_2[i]);
-    }
-    uart_puts(UART_DEBUG, "\"\n");
 }
 
 void print_safe_code(uint16_t safe_code_bcd)
@@ -92,11 +74,29 @@ int main()
     uart_init(UART_KLINE,  10400);  // obd-ii kwp1281
     sei();
 
-    connect_and_login_mfg();
-    uint16_t safe_code = kwp_p5_read_safe_code_bcd();
-    uint16_t checksum = kwp_p5_calc_rom_checksum();
-    print_safe_code(safe_code);
-    print_rom_checksum(checksum);
+    int result = kwp_autoconnect(KWP_RADIO);
+    if (result != KWP_SUCCESS) {
+        uart_puts(UART_DEBUG, "INIT FAILED\n");
+        while(1);
+    }
+
+    kwp_print_module_info();
+
+    if (memcmp(&kwp_component_1[7], "3CP", 3) == 0) {
+        uart_puts(UART_DEBUG, "CLARION\n");
+        uint16_t safe_code = kwp_p4_read_safe_code_bcd();
+        print_safe_code(safe_code);
+    } else if (memcmp(&kwp_component_1[7], "DE2", 3) == 0) {
+        uart_puts(UART_DEBUG, "DELCO\n");
+        _delay_ms(5000);  // wait 5 seconds for 0x56 connection to time out
+        connect_and_login_mfg();
+        uint16_t rom_checksum = kwp_p5_calc_rom_checksum();
+        uint16_t safe_code = kwp_p5_read_safe_code_bcd();
+        print_rom_checksum(rom_checksum);
+        print_safe_code(safe_code);
+    } else {
+        uart_puts(UART_DEBUG, "UNCRACKABLE\n");
+    }
 
     while(1);
 }
