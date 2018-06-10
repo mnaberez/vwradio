@@ -11,7 +11,7 @@ $(PROJECT).elf: $(SOURCES)
 	avr-gcc $(CFLAGS) -I. -o $(PROJECT).elf $(SOURCES)
 
 program: $(PROJECT).hex
-	avrdude $(ISPFLAGS) -p $(MMCU) -U lfuse:w:0xF7:m -U hfuse:w:0x92:m -U efuse:w:0xFC:m
+	avrdude $(ISPFLAGS) -p $(MMCU) -U lfuse:w:0xF7:m -U hfuse:w:0x92:m -U efuse:w:0xFF:m
 	avrdude $(ISPFLAGS) -p $(MMCU) -U flash:w:$(PROJECT).hex
 
 size: $(PROJECT).elf
