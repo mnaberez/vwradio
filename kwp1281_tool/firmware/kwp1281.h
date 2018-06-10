@@ -3,22 +3,36 @@
 
 #include <stdint.h>
 
-int kwp_connect(uint8_t address, uint32_t baud);
-int kwp_autoconnect(uint8_t address);
+// Result codes for functions
+enum _kwp_result
+{
+    KWP_SUCCESS = 0,
+    KWP_TIMEOUT = 1,
+    KWP_BAD_ECHO = 2,
+    KWP_BAD_COMPLEMENT = 3,
+    KWP_RX_OVERFLOW = 4,
+    KWP_BAD_BLK_COUNTER = 5,
+    KWP_UNEXPECTED = 6,
+};
+typedef enum _kwp_result kwp_result_t;
+
+kwp_result_t kwp_connect(uint8_t address, uint32_t baud);
+kwp_result_t kwp_autoconnect(uint8_t address);
+kwp_result_t kwp_send_group_reading_block(uint8_t group);
+kwp_result_t kwp_send_login_block(uint16_t safe_code, uint8_t fern, uint16_t workshop);
+kwp_result_t kwp_send_ack_block();
+kwp_result_t kwp_send_block(uint8_t *buf);
+kwp_result_t kwp_receive_block();
+kwp_result_t kwp_receive_block_expect(uint8_t title);
+kwp_result_t kwp_read_ram(uint16_t start_address, uint16_t size);
+kwp_result_t kwp_read_rom_or_eeprom(uint16_t start_address, uint16_t size);
+kwp_result_t kwp_read_eeprom(uint16_t start_address, uint16_t size);
+kwp_result_t kwp_p4_read_safe_code_bcd(uint16_t *safe_code);
+kwp_result_t kwp_p5_read_safe_code_bcd(uint16_t *safe_code);
+kwp_result_t kwp_p5_calc_rom_checksum(uint16_t *rom_checksum);
 void kwp_disconnect();
 void kwp_print_module_info();
-void kwp_send_group_reading_block(uint8_t group);
-void kwp_send_login_block(uint16_t safe_code, uint8_t fern, uint16_t workshop);
-void kwp_send_ack_block();
-void kwp_send_block(uint8_t *buf);
-void kwp_receive_block();
-void kwp_receive_block_expect(uint8_t title);
-void kwp_read_ram(uint16_t start_address, uint16_t size);
-void kwp_read_rom_or_eeprom(uint16_t start_address, uint16_t size);
-void kwp_read_eeprom(uint16_t start_address, uint16_t size);
-uint16_t kwp_p4_read_safe_code_bcd();
-uint16_t kwp_p5_read_safe_code_bcd();
-uint16_t kwp_p5_calc_rom_checksum();
+void kwp_panic_if_error(kwp_result_t result);
 
 uint8_t kwp_is_first_block;     // flag: 0=no blocks received, 1=otherwise
 uint8_t kwp_block_counter;      // block counter; valid after first rx block
@@ -28,10 +42,6 @@ uint8_t kwp_rx_size;            // number of bytes used in kwp_rx_buf
 uint8_t kwp_vag_number[16];     // "1J0035180D  "
 uint8_t kwp_component_1[16];    // " RADIO 3CP  "
 uint8_t kwp_component_2[16];    // "        0001"
-
-// Result codes for functions
-#define KWP_SUCCESS     0
-#define KWP_TIMEOUT     1
 
 // Module Addresses
 #define KWP_RADIO       0x56
