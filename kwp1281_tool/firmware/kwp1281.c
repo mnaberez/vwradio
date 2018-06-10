@@ -149,7 +149,7 @@ static int _wait_for_55_01_8a()
     uint16_t millis = 0;
 
     while (1) {
-        if (uart_rx_ready(UART_KLINE)) {
+        if (uart_rx_ready(UART_KLINE) == UART_READY) {
             _recv_byte(&c);
             if (c == expected_rx_bytes[i]) {
                 if (++i == 3) { return KWP_SUCCESS; }

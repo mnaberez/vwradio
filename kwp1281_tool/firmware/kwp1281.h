@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 // Result codes for functions
-enum _kwp_result
+typedef enum
 {
     KWP_SUCCESS = 0,
     KWP_TIMEOUT = 1,
@@ -13,8 +13,7 @@ enum _kwp_result
     KWP_RX_OVERFLOW = 4,
     KWP_BAD_BLK_COUNTER = 5,
     KWP_UNEXPECTED = 6,
-};
-typedef enum _kwp_result kwp_result_t;
+} kwp_result_t;
 
 kwp_result_t kwp_connect(uint8_t address, uint32_t baud);
 kwp_result_t kwp_autoconnect(uint8_t address);

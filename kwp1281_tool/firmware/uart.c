@@ -47,7 +47,7 @@ static uint8_t _baud_to_UBBRxL(uint32_t baud)
     }
 }
 
-void uart_init(uint8_t uartnum, uint32_t baud)
+void uart_init(uart_num_t uartnum, uint32_t baud)
 {
     switch (uartnum) {
         case UART0:
@@ -74,7 +74,7 @@ void uart_init(uint8_t uartnum, uint32_t baud)
     _buf_init(&_tx_buffers[uartnum]);
 }
 
-void uart_put(uint8_t uartnum, uint8_t c)
+void uart_put(uart_num_t uartnum, uint8_t c)
 {
     _buf_write_byte(&_tx_buffers[uartnum], c);
     // Enable UDRE interrupt
@@ -85,13 +85,13 @@ void uart_put(uint8_t uartnum, uint8_t c)
     }
 }
 
-void uart_put16(uint8_t uartnum, uint16_t w)
+void uart_put16(uart_num_t uartnum, uint16_t w)
 {
     uart_put(uartnum, w & 0x00FF);
     uart_put(uartnum, (w & 0xFF00) >> 8);
 }
 
-void uart_puts(uint8_t uartnum, char *str)
+void uart_puts(uart_num_t uartnum, char *str)
 {
     while (*str != '\0') {
         uart_put(uartnum, *str);
@@ -99,7 +99,7 @@ void uart_puts(uint8_t uartnum, char *str)
     }
 }
 
-static void _puthex_nib(uint8_t uartnum, uint8_t c)
+static void _puthex_nib(uart_num_t uartnum, uint8_t c)
 {
     if (c < 10) { // 0-9
         uart_put(uartnum, c + 0x30);
@@ -108,52 +108,56 @@ static void _puthex_nib(uint8_t uartnum, uint8_t c)
     }
 }
 
-void uart_puthex(uint8_t uartnum, uint8_t c)
+void uart_puthex(uart_num_t uartnum, uint8_t c)
 {
     _puthex_nib(uartnum, (c & 0xf0) >> 4);
     _puthex_nib(uartnum, c & 0x0f);
 }
 
-void uart_puthex16(uint8_t uartnum, uint16_t w)
+void uart_puthex16(uart_num_t uartnum, uint16_t w)
 {
     uart_puthex(uartnum, (w & 0xff00) >> 8);
     uart_puthex(uartnum, (w & 0x00ff));
 }
 
 // Block until the TX buffer is empty
-void uart_flush_tx(uint8_t uartnum)
+void uart_flush_tx(uart_num_t uartnum)
 {
     while (_buf_has_byte(&_tx_buffers[uartnum]));
 }
 
 // Send a byte; block until it has been transmitted
-void uart_blocking_put(uint8_t uartnum, uint8_t c)
+void uart_blocking_put(uart_num_t uartnum, uint8_t c)
 {
     uart_flush_tx(uartnum);
     uart_put(uartnum, c);
     uart_flush_tx(uartnum);
 }
 
-// Returns true if a newly received byte is available
-uint8_t uart_rx_ready(uint8_t uartnum)
+// Checks if a newly received byte is available
+uart_status_t uart_rx_ready(uart_num_t uartnum)
 {
-    return _buf_has_byte(&_rx_buffers[uartnum]);
+    if (_buf_has_byte(&_rx_buffers[uartnum])) {
+        return UART_READY;
+    } else {
+        return UART_NOT_READY;
+    }
 }
 
 // Receive a byte; block until one is available
-uint8_t uart_blocking_get(uint8_t uartnum)
+uint8_t uart_blocking_get(uart_num_t uartnum)
 {
-    while (!uart_rx_ready(uartnum));
+    while (uart_rx_ready(uartnum) == UART_NOT_READY);
     return _buf_read_byte(&_rx_buffers[uartnum]);
 }
 
 // Wrapper around uart_blocking_get() and uart_rx_ready() to provide a timeout
 // Returns true if byte has been received into rx_byte_out
-uint8_t uart_blocking_get_with_timeout(uint8_t uartnum, uint16_t timeout_ms, uint8_t *rx_byte_out)
+uart_status_t uart_blocking_get_with_timeout(uart_num_t uartnum, uint16_t timeout_ms, uint8_t *rx_byte_out)
 {
     uint16_t millis = 0;
     uint16_t submillis = 0;
-    while (!uart_rx_ready(uartnum)) {
+    while (uart_rx_ready(uartnum) == UART_NOT_READY) {
         _delay_us(50); // 50 us = 0.05 ms
         if (++submillis == 20) {  // 1 ms
             submillis = 0;
