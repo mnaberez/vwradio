@@ -144,21 +144,17 @@ static int _recv_byte_send_compl(uint8_t *rx_byte_out)
 static int _wait_for_55_01_8a()
 {
     const uint8_t expected_rx_bytes[] = { 0x55, 0x01, 0x8a };
+    uint8_t rx_byte;
     uint8_t i = 0;
-    uint8_t c = 0;
-    uint16_t millis = 0;
 
     while (1) {
-        if (uart_rx_ready(UART_KLINE) == UART_READY) {
-            _recv_byte(&c);
-            if (c == expected_rx_bytes[i]) {
-                if (++i == 3) { return KWP_SUCCESS; }
-            } else {
-                i = 0;
-            }
+        kwp_result_t result = _recv_byte(&rx_byte);
+        if (result != KWP_SUCCESS) { return result; }
+
+        if (rx_byte == expected_rx_bytes[i]) {
+            if (++i == 3) { return KWP_SUCCESS; }
         } else {
-            _delay_ms(1);
-            if (++millis > 3000) { return KWP_TIMEOUT; }
+            i = 0;
         }
     }
 }
