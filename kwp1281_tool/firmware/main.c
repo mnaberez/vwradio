@@ -74,10 +74,12 @@ int main()
     uart_init(UART_KLINE,  10400);  // obd-ii kwp1281
     sei();
 
+    uart_puts(UART_DEBUG, "\n\nRESET\n");
+
     int result = kwp_autoconnect(KWP_RADIO);
     if (result != KWP_SUCCESS) {
         uart_puts(UART_DEBUG, "INIT FAILED\n");
-        while(1);
+        goto done;
     }
 
     kwp_print_module_info();
@@ -98,5 +100,7 @@ int main()
         uart_puts(UART_DEBUG, "UNCRACKABLE\n");
     }
 
+done:
+    uart_puts(UART_DEBUG, "\nDONE\n");
     while(1);
 }
