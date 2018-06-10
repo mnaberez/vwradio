@@ -1,6 +1,7 @@
 #include "main.h"
 #include <stdint.h>
 #include <avr/interrupt.h>
+#include <util/delay.h>
 #include "uart.h"
 
 /*************************************************************************
@@ -144,6 +145,23 @@ uint8_t uart_blocking_get(uint8_t uartnum)
 {
     while (!uart_rx_ready(uartnum));
     return _buf_read_byte(&_rx_buffers[uartnum]);
+}
+
+// Wrapper around uart_blocking_get() and uart_rx_ready() to provide a timeout
+// Returns true if byte has been received into rx_byte_out
+uint8_t uart_blocking_get_with_timeout(uint8_t uartnum, uint16_t timeout_ms, uint8_t *rx_byte_out)
+{
+    uint16_t millis = 0;
+    uint16_t submillis = 0;
+    while (!uart_rx_ready(uartnum)) {
+        _delay_us(50); // 50 us = 0.05 ms
+        if (++submillis == 20) {  // 1 ms
+            submillis = 0;
+            if (++millis == timeout_ms) { return 0; }  // timeout
+        }
+    }
+    *rx_byte_out = uart_blocking_get(uartnum);
+    return 1;  // success
 }
 
 /*************************************************************************

@@ -76,8 +76,13 @@ static int _send_byte(uint8_t tx_byte)
 {
     _delay_ms(1);
 
+    // send byte
     uart_blocking_put(UART_KLINE, tx_byte);       // send byte
-    uint8_t echo = uart_blocking_get(UART_KLINE); // consume its echo
+
+    // consume its echo
+    uint8_t echo;
+    uint8_t uart_ready = uart_blocking_get_with_timeout(UART_KLINE, 3000, &echo);
+    if (!uart_ready) { return KWP_TIMEOUT; }
     if (echo != tx_byte) { return KWP_BAD_ECHO; }
 
     uart_puthex(UART_DEBUG, tx_byte);
@@ -92,7 +97,9 @@ static int _send_byte_recv_compl(uint8_t tx_byte)
     kwp_result_t result = _send_byte(tx_byte);
     if (result != KWP_SUCCESS) { return result; }
 
-    uint8_t complement = uart_blocking_get(UART_KLINE);
+    uint8_t complement;
+    uint8_t uart_ready = uart_blocking_get_with_timeout(UART_KLINE, 3000, &complement);
+    if (!uart_ready) { return KWP_TIMEOUT; }
     if (complement != (tx_byte ^ 0xff)) { return KWP_BAD_COMPLEMENT; }
 
     return KWP_SUCCESS;
@@ -102,7 +109,8 @@ static int _send_byte_recv_compl(uint8_t tx_byte)
 // Receive byte only
 static int _recv_byte(uint8_t *rx_byte_out)
 {
-    *rx_byte_out = uart_blocking_get(UART_KLINE);
+    uint8_t uart_ready = uart_blocking_get_with_timeout(UART_KLINE, 3000, rx_byte_out);
+    if (!uart_ready) { return KWP_TIMEOUT; }
 
     uart_puthex(UART_DEBUG, *rx_byte_out);
     uart_put(UART_DEBUG, ' ');
@@ -118,10 +126,14 @@ static int _recv_byte_send_compl(uint8_t *rx_byte_out)
 
     _delay_ms(1);
 
+    // send complement byte
     uint8_t complement = *rx_byte_out ^ 0xFF;
-    uart_blocking_put(UART_KLINE, complement);      // send complement byte
+    uart_blocking_put(UART_KLINE, complement);
 
-    uint8_t echo = uart_blocking_get(UART_KLINE);   // consume its echo
+    // consume its echo
+    uint8_t echo;
+    uint8_t uart_ready = uart_blocking_get_with_timeout(UART_KLINE, 3000, &echo);
+    if (!uart_ready) { return KWP_TIMEOUT; }
     if (echo != complement) { return KWP_BAD_ECHO; }
 
     return KWP_SUCCESS;
