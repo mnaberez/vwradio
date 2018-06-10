@@ -29,7 +29,7 @@ kwp_result_t kwp_read_eeprom(uint16_t start_address, uint16_t size);
 kwp_result_t kwp_p4_read_safe_code_bcd(uint16_t *safe_code);
 kwp_result_t kwp_p5_read_safe_code_bcd(uint16_t *safe_code);
 kwp_result_t kwp_p5_calc_rom_checksum(uint16_t *rom_checksum);
-void kwp_disconnect();
+kwp_result_t kwp_disconnect();
 void kwp_print_module_info();
 void kwp_panic_if_error(kwp_result_t result);
 

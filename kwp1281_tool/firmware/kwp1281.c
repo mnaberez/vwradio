@@ -507,9 +507,10 @@ kwp_result_t kwp_autoconnect(uint8_t address)
     return KWP_TIMEOUT;
 }
 
-void kwp_disconnect()
+kwp_result_t kwp_disconnect()
 {
     _delay_ms(5000);
+    return KWP_SUCCESS;
 }
 
 void kwp_print_module_info()
