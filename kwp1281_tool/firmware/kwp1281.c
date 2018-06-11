@@ -72,12 +72,12 @@ static void _send_address(uint8_t address)
 
 
 // Send byte only
-static int _send_byte(uint8_t tx_byte)
+static kwp_result_t _send_byte(uint8_t tx_byte)
 {
     _delay_ms(1);
 
     // send byte
-    uart_blocking_put(UART_KLINE, tx_byte);       // send byte
+    uart_blocking_put(UART_KLINE, tx_byte);
 
     // consume its echo
     uint8_t echo;
@@ -92,7 +92,7 @@ static int _send_byte(uint8_t tx_byte)
 
 
 // Send byte and receive its complement
-static int _send_byte_recv_compl(uint8_t tx_byte)
+static kwp_result_t _send_byte_recv_compl(uint8_t tx_byte)
 {
     kwp_result_t result = _send_byte(tx_byte);
     if (result != KWP_SUCCESS) { return result; }
@@ -107,7 +107,7 @@ static int _send_byte_recv_compl(uint8_t tx_byte)
 
 
 // Receive byte only
-static int _recv_byte(uint8_t *rx_byte_out)
+static kwp_result_t _recv_byte(uint8_t *rx_byte_out)
 {
     uint8_t uart_ready = uart_blocking_get_with_timeout(UART_KLINE, 3000, rx_byte_out);
     if (!uart_ready) { return KWP_TIMEOUT; }
@@ -119,7 +119,7 @@ static int _recv_byte(uint8_t *rx_byte_out)
 
 
 // Receive byte and send its complement
-static int _recv_byte_send_compl(uint8_t *rx_byte_out)
+static kwp_result_t _recv_byte_send_compl(uint8_t *rx_byte_out)
 {
     kwp_result_t result = _recv_byte(rx_byte_out);
     if (result != KWP_SUCCESS) { return result; }
@@ -141,7 +141,7 @@ static int _recv_byte_send_compl(uint8_t *rx_byte_out)
 
 
 // Wait for the 0x55 0x01 0x8A sequence during initial connection
-static int _wait_for_55_01_8a()
+static kwp_result_t _wait_for_55_01_8a()
 {
     const uint8_t expected_rx_bytes[] = { 0x55, 0x01, 0x8a };
     uint8_t rx_byte;
@@ -317,8 +317,8 @@ int _send_read_mem_block(uint8_t title, uint16_t address, uint8_t length)
 }
 
 
-static int _read_mem(uint8_t req_title, uint8_t resp_title,
-               uint16_t start_address, uint16_t size)
+static kwp_result_t _read_mem(uint8_t req_title, uint8_t resp_title,
+                              uint16_t start_address, uint16_t size)
 {
     uint16_t address = start_address;
     uint16_t remaining = size;
@@ -371,7 +371,7 @@ kwp_result_t kwp_read_eeprom(uint16_t start_address, uint16_t size)
 
 // Premium 4 only ===========================================================
 
-static int _send_f0_block()
+static kwp_result_t _send_f0_block()
 {
     uart_puts(UART_DEBUG, "PERFORM TITLE F0\n");
     uint8_t block[] = {
@@ -410,7 +410,7 @@ kwp_result_t kwp_p5_read_safe_code_bcd(uint16_t *safe_code)
     return KWP_SUCCESS;
 }
 
-static int _send_calc_rom_checksum_block()
+static kwp_result_t _send_calc_rom_checksum_block()
 {
     uart_puts(UART_DEBUG, "PERFORM ROM CHECKSUM\n");
     uint8_t block[] = {
