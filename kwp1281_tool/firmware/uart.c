@@ -156,7 +156,7 @@ uint8_t uart_blocking_get(uart_num_t uartnum)
 uart_status_t uart_blocking_get_with_timeout(uart_num_t uartnum, uint16_t timeout_ms, uint8_t *rx_byte_out)
 {
     uint16_t millis = 0;
-    uint16_t submillis = 0;
+    uint8_t submillis = 0;
     while (uart_rx_ready(uartnum) == UART_NOT_READY) {
         _delay_us(50); // 50 us = 0.05 ms
         if (++submillis == 20) {  // 1 ms
