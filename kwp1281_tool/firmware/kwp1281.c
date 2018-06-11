@@ -463,7 +463,7 @@ kwp_result_t kwp_connect(uint8_t address, uint32_t baud)
         result = kwp_receive_block();
         if (result != KWP_SUCCESS) { return result; }
 
-        // Premium 5 mfg mode (address 0x7C) sends ACK and is ready immediately receiving 0x75
+        // Premium 5 mfg mode (address 0x7C) sends ACK and is ready immediately after receiving 0x75
         if ((i == 0) && (kwp_rx_buf[2] == KWP_ACK)) { return KWP_SUCCESS; }
 
         // All others should send 4 ASCII blocks that need to be ACKed after receiving 0x75
