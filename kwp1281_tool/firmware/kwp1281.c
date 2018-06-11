@@ -446,51 +446,48 @@ kwp_result_t kwp_connect(uint8_t address, uint32_t baud)
 
     uart_init(UART_KLINE, baud);
 
+    // Initialize connection state
     kwp_is_first_block = 1;
-
     memset(kwp_vag_number,  0, sizeof(kwp_vag_number));
     memset(kwp_component_1, 0, sizeof(kwp_component_1));
     memset(kwp_component_2, 0, sizeof(kwp_component_2));
 
+    // Send address at 5 baud and perform initial handshake
     _send_address(address);
     kwp_result_t result = _wait_for_55_01_8a();
-    if (result != KWP_SUCCESS) { return result; }  // error
+    if (result != KWP_SUCCESS) { return result; }
     _delay_ms(30);
-    _send_byte(0x75);
+    result = _send_byte(0x75);
+    if (result != KWP_SUCCESS) { return result; }
     uart_put(UART_DEBUG, '\n');
 
-    for (uint8_t i=0; i<4; i++) {
+    // Receive 0xF6 ASCII/data blocks until we have control of the connection
+    // Most modules will send 4 ASCII/data blocks: 3 with component info, 1 with workshop/coding
+    // Premium 5 radio in mfg mode (address 0x7c) sends no ASCII/data blocks
+    uint8_t ascii_blocks = 0;
+    while (1) {
         result = kwp_receive_block();
         if (result != KWP_SUCCESS) { return result; }
 
-        // Premium 5 mfg mode (address 0x7C) sends ACK and is ready immediately after receiving 0x75
-        if ((i == 0) && (kwp_rx_buf[2] == KWP_ACK)) { return KWP_SUCCESS; }
-
-        // All others should send 4 ASCII blocks that need to be ACKed after receiving 0x75
+        if (kwp_rx_buf[2] == KWP_ACK) { return KWP_SUCCESS; }
         if (kwp_rx_buf[2] != KWP_R_ASCII_DATA) { return KWP_UNEXPECTED; }
 
-        switch (i) {
-            case 0:     // 0xF6 (ASCII/Data): "1J0035180D  "
-                memcpy(&kwp_vag_number,  &kwp_rx_buf[3], 12);
-                break;
-            case 1:     // 0xF6 (ASCII/Data): " RADIO 3CP  "
-                memcpy(&kwp_component_1, &kwp_rx_buf[3], 12);
-                break;
-            case 2:     // 0xF6 (ASCII/Data): "        0001"
-                memcpy(&kwp_component_2, &kwp_rx_buf[3], 12);
-                break;
-            default:    // 0xF6 (ASCII/Data): 0x00 0x0A 0xF8 0x00 0x00
+        switch (ascii_blocks++) {
+            case 0:    // 0xF6 (ASCII/Data): "1J0035180D  "
+                memcpy(&kwp_vag_number,  &kwp_rx_buf[3], 12); break;
+            case 1:    // 0xF6 (ASCII/Data): " RADIO 3CP  "
+                memcpy(&kwp_component_1, &kwp_rx_buf[3], 12); break;
+            case 2:    // 0xF6 (ASCII/Data): "        0001"
+                memcpy(&kwp_component_2, &kwp_rx_buf[3], 12); break;
+            case 0xFF: // insane case of too many blocks
+                return KWP_UNEXPECTED;
+            default:   // ignore block
                 break;
         }
 
         result = kwp_send_ack_block();
         if (result != KWP_SUCCESS) { return result; }
     }
-
-    result = kwp_receive_block_expect(KWP_ACK);
-    if (result != KWP_SUCCESS) { return result; }
-
-    return KWP_SUCCESS;
 }
 
 kwp_result_t kwp_autoconnect(uint8_t address)
