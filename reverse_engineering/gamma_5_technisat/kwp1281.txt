@@ -1,0 +1,18 @@
+Address 0x56
+------------
+
+Login with the SAFE code works like on the Premium 5, reading
+group 0x19 responds with NAK but it's a lie, treat it like ACK.
+
+Address 0x7C
+------------
+
+Radio does not send the usual 55 01 8A, instead it sends these
+unknown 5 bytes:
+
+10 01 5E 00 90
+            ^^ looks like (sum of previous 4 bytes)^0xff
+
+After addressing the radio once on 0x7C, it will not send the
+sequence again unless it is power cycled or the volume knob
+is pushed twice (once to turn off, once again to turn back on).

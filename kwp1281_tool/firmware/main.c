@@ -48,7 +48,7 @@ void connect_and_login_mfg()
 }
 
 // connect to standard radio address and login using safe code
-// should work on any premium 4 or 5 if safe code is correct
+// should work on any radio if safe code is correct
 void connect_and_login_safe(uint16_t safe_code)
 {
     kwp_result_t result = kwp_connect(KWP_RADIO, 10400);
@@ -61,8 +61,9 @@ void connect_and_login_safe(uint16_t safe_code)
 
     result = kwp_send_group_reading_block(0x19);
     kwp_panic_if_error(result);
-    // premium 4 and 5 will unlock the protected commands after login and reading group 0x19.
-    // premium 4 sends ack.  premium 5 sends nak, but it's a lie, treat it like ack.
+    // premium 4 (clarion), premium 5 (delco), and gamma 5 (technisat) will unlock the protected
+    // commands after reading group 0x19.  only premium 4 sends ack.  the other radios send nak,
+    // but it's a lie, treat it like ack.
     result = kwp_receive_block();
     kwp_panic_if_error(result);
 }
