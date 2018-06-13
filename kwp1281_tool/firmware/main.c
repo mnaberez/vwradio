@@ -96,17 +96,23 @@ int main()
         kwp_disconnect();
         connect_and_login_mfg();
 
-        uint16_t safe_code;
-        result = kwp_p5_read_safe_code_bcd(&safe_code);
-        kwp_panic_if_error(result);
-
         uint16_t rom_checksum;
         result = kwp_p5_calc_rom_checksum(&rom_checksum);
         kwp_panic_if_error(result);
 
+        uint16_t safe_code;
+        result = kwp_p5_read_safe_code_bcd(&safe_code);
+        kwp_panic_if_error(result);
+
         print_rom_checksum(rom_checksum);
         print_safe_code(safe_code);
+
+    } else if (memcmp(&kwp_component_1[7], "YD5", 3) == 0) {
+        uart_puts(UART_DEBUG, "TECHNISAT GAMMA 5 DETECTED\n");
+        uart_puts(UART_DEBUG, "UNCRACKABLE\n");
+
     } else {
+        uart_puts(UART_DEBUG, "UNKNOWN RADIO\n");
         uart_puts(UART_DEBUG, "UNCRACKABLE\n");
     }
 
