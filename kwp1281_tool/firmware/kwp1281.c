@@ -322,24 +322,23 @@ int _send_read_mem_block(uint8_t title, uint16_t address, uint8_t length)
 
 
 static kwp_result_t _read_mem(uint8_t req_title, uint8_t resp_title,
-                              uint16_t start_address, uint16_t size)
+                              uint16_t start_address, uint16_t total_size, uint8_t chunk_size)
 {
     uint16_t address = start_address;
-    uint16_t remaining = size;
+    uint16_t remaining = total_size;
 
     while (remaining != 0) {
-        uint8_t chunksize = 32;
-        if (remaining < chunksize) { chunksize = remaining; }
+        if (remaining < chunk_size) { chunk_size = remaining; }
 
-        kwp_result_t result = _send_read_mem_block(req_title, address, chunksize);
+        kwp_result_t result = _send_read_mem_block(req_title, address, chunk_size);
         if (result != KWP_SUCCESS) { return result; }
 
         result = kwp_receive_block_expect(resp_title);
         if (result != KWP_SUCCESS) { return result; }
 
         uint8_t datalen = kwp_rx_buf[0] - 3;  // block length - (counter + title + end)
-        if (datalen < chunksize) { return KWP_MEM_TOO_SHORT; }
-        if (datalen > chunksize) { return KWP_MEM_TOO_LONG; }
+        if (datalen < chunk_size) { return KWP_MEM_TOO_SHORT; }
+        if (datalen > chunk_size) { return KWP_MEM_TOO_LONG; }
 
         uart_puts(UART_DEBUG, "MEM: ");
         uart_puthex16(UART_DEBUG, address);
@@ -350,8 +349,8 @@ static kwp_result_t _read_mem(uint8_t req_title, uint8_t resp_title,
         }
         uart_puts(UART_DEBUG, "\n");
 
-        address += chunksize;
-        remaining -= chunksize;
+        address += chunk_size;
+        remaining -= chunk_size;
 
         result = kwp_send_ack_block();
         if (result != KWP_SUCCESS) { return result; }
@@ -362,19 +361,22 @@ static kwp_result_t _read_mem(uint8_t req_title, uint8_t resp_title,
     return KWP_SUCCESS;
 }
 
-kwp_result_t kwp_read_ram(uint16_t start_address, uint16_t size)
+kwp_result_t kwp_read_ram(uint16_t start_address, uint16_t total_size, uint8_t chunk_size)
 {
-    return _read_mem(KWP_READ_RAM, KWP_R_READ_RAM, start_address, size);
+    return _read_mem(KWP_READ_RAM, KWP_R_READ_RAM,
+                     start_address, total_size, chunk_size);
 }
 
-kwp_result_t kwp_read_rom_or_eeprom(uint16_t start_address, uint16_t size)
+kwp_result_t kwp_read_rom_or_eeprom(uint16_t start_address, uint16_t total_size, uint8_t chunk_size)
 {
-    return _read_mem(KWP_READ_ROM_EEPROM, KWP_R_READ_ROM_EEPROM, start_address, size);
+    return _read_mem(KWP_READ_ROM_EEPROM, KWP_R_READ_ROM_EEPROM,
+                     start_address, total_size, chunk_size);
 }
 
-kwp_result_t kwp_read_eeprom(uint16_t start_address, uint16_t size)
+kwp_result_t kwp_read_eeprom(uint16_t start_address, uint16_t total_size, uint8_t chunk_size)
 {
-    return _read_mem(KWP_READ_EEPROM, KWP_R_READ_ROM_EEPROM, start_address, size);
+    return _read_mem(KWP_READ_EEPROM, KWP_R_READ_ROM_EEPROM,
+                     start_address, total_size, chunk_size);
 }
 
 // Premium 4 only ===========================================================
