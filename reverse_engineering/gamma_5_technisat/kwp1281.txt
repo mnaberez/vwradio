@@ -1,8 +1,36 @@
 Address 0x56
 ------------
 
-Login with the SAFE code works like on the Premium 5, reading
-group 0x19 responds with NAK but it's a lie, treat it like ACK.
+0x2B Login
+    Login with SAFE code works like on the Premium 5, reading
+    group 0x19 responds with NAK but it's a lie, treat it like ACK.
+
+0x01 Read RAM
+    Only allows reading 0-0x7FF (2K)
+    2K is same amount of RAM as M38869FFAHP
+    Contents look good for RAM
+        LCD buffer possibly at 0x0121 (contains "DIAG.")
+        KWP1281 buffers somewhere between 0x030F-0x0365
+    Contents always have some differences between dumps (expected for RAM)
+
+0x03 Read ROM or EEPROM
+    Only allows reading 0x2000-0xFFFF (56K)
+    M38869F'F'AHP (this MCU) should have 60K flash but the 'E' version
+        has only 56K flash.  56K seems plausible as the flash ROM.
+    Dumped all 56K three times; all dumps were identical (expected for ROM)
+    No strings but XOR all bytes with 0xFF shows some strings with parts
+        of radio LCD messages; looks encrypted
+
+0x19 Read EEPROM
+    Responds with title 0xEF (unlike Premium 4 which responds with 0xFD)
+    Only allows reading 0-0x7ff (2K)
+    Dumped all 2K many times; all are identical except for 2 bytes
+        at offset 0x001e that are always different.
+    24C08 is only 1K
+    First half of the dump looks like the "right side" 24c08
+        with the SAFE code filtered out
+    Second half is unknown, not like the "left side" 24c08,
+        and repeats a lot
 
 Address 0x7C
 ------------
