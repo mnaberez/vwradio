@@ -27,33 +27,41 @@ Build the hardware as described in [`hardware/`](./hardware/).  Modify the [`mai
 
 Example code for `main.c`:
 ```
-kwp_connect(0x56, 9600);
-kwp_send_login_block(0x0672, 0x01, 0x869f);
-kwp_receive_block_expect(KWP_ACK);
+kwp_result_t result = kwp_autoconnect(KWP_RADIO);
+kwp_panic_if_error(result);
+
+result = kwp_login_safe(1866);
+kwp_panic_if_error(result);
+
+result = kwp_read_ram(0, 0xffff, 32);
+kwp_panic_if_error(result);
 ```
 
-Corresponding debug output (complement bytes omitted):
+Corresponding debug output:
 ```
-INIT 0x56
-
-BEGIN SEND BLOCK: LOGIN
-TX: 08
-TX: 70
-TX: 2B
-TX: 06
-TX: 72
-TX: 01
-TX: 86
-TX: 9F
-RX: 03
-END SEND BLOCK: LOGIN
-
-BEGIN RECEIVE BLOCK
-RX: 03
-RX: 71
-RX: 09
-RX: 03
-END RECEIVE BLOCK
+CONNECT 56: 55 01 8A 75
+RECV: 0F E8 F6 31 4A 30 30 33 35 31 38 30 42 20 20 03
+PERFORM ACK
+SEND: 03 E9 09 03
+RECV: 0F EA F6 20 52 61 64 69 6F 20 44 45 32 20 20 03
+PERFORM ACK
+SEND: 03 EB 09 03
+RECV: 0E EC F6 20 20 20 20 20 20 20 30 30 30 31 03
+PERFORM ACK
+SEND: 03 ED 09 03
+RECV: 08 EE F6 00 03 21 86 9F 03
+PERFORM ACK
+SEND: 03 EF 09 03
+RECV: 03 F0 09 03
+PERFORM LOGIN
+SEND: 08 F1 2B 07 4A 01 86 9F 03
+RECV: 03 F2 09 03
+PERFORM GROUP READ
+SEND: 04 F3 29 19 03
+RECV: 04 F4 0A F4 03
+PERFORM READ xx MEMORY
+SEND: 06 F5 01 20 00 00 03
+RECV: 23 F6 FE 88 0D 75 0D 75 0D 93 59 CC 3E CC 3A 75 0D 04 59 ...
 ```
 
 ## Compatibility
