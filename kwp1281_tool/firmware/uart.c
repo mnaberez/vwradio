@@ -36,31 +36,32 @@ static uint8_t _buf_has_byte(volatile uart_ringbuffer_t *buf)
  * UART
  *************************************************************************/
 
-static uint8_t _baud_to_UBBRxL(uint32_t baud)
+static uint16_t _baud_to_ubrr(uint32_t baud)
 {
-    // assumes 20 MHz system clock, UBBRxH=0
     switch (baud) {
-        case 115200:    return 0x0A;
-        case 10400:     return 0x77;
-        case 9600:      return 0x81;
+        case 115200:    return UART_UBRR_115200;
+        case 10400:     return UART_UBRR_10400;
+        case 9600:      return UART_UBRR_9600;
         default:        while(1);
     }
 }
 
 void uart_init(uart_num_t uartnum, uint32_t baud)
 {
+    uint16_t ubrr = _baud_to_ubrr(baud);
+
     switch (uartnum) {
         case UART0:
-            UBRR0H = 0;                         // Baud Rate high
-            UBRR0L = _baud_to_UBBRxL(baud);     // Baud Rate low
+            UBRR0H = HIGH(ubrr);                // Baud Rate high
+            UBRR0L = LOW(ubrr);                 // Baud Rate low
             UCSR0A &= ~(_BV(U2X0));             // Do not use 2X
             UCSR0C = _BV(UCSZ01) | _BV(UCSZ00); // N-8-1
             UCSR0B = _BV(RXEN0) | _BV(TXEN0);   // Enable RX and TX
             UCSR0B |= _BV(RXCIE0);              // Enable Recieve Complete int
             break;
         case UART1:
-            UBRR1H = 0;                         // Baud Rate high
-            UBRR1L = _baud_to_UBBRxL(baud);     // Baud Rate low
+            UBRR1H = HIGH(ubrr);                // Baud Rate high
+            UBRR1L = LOW(ubrr);                 // Baud Rate low
             UCSR1A &= ~(_BV(U2X1));             // Do not use 2X
             UCSR1C = _BV(UCSZ11) | _BV(UCSZ10); // N-8-1
             UCSR1B = _BV(RXEN1) | _BV(TXEN1);   // Enable RX and TX

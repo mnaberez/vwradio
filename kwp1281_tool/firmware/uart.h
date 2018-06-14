@@ -1,7 +1,16 @@
 #ifndef UART_H
 #define UART_H
 
+#include "main.h"
 #include <stdint.h>
+
+#if F_CPU == 20000000
+#define UART_UBRR_115200  0x000A
+#define UART_UBRR_10400   0x0077
+#define UART_UBRR_9600    0x0081
+#else
+#error "No UART baud rate values defined for this value for F_CPU"
+#endif
 
 typedef enum {
     UART0 = 0,
