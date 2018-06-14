@@ -408,6 +408,15 @@ kwp_result_t kwp_p4_read_safe_code_bcd(uint16_t *safe_code)
 
 // Premium 5 mfg mode (address 0x7c) only ===================================
 
+kwp_result_t kwp_p5_login_mfg()
+{
+    kwp_result_t result = kwp_send_login_block(0x4f43, 0x4c, 0x4544);  // "OCLED"
+    if (result != KWP_SUCCESS) { return result; }
+    kwp_panic_if_error(result);
+    result = kwp_receive_block_expect(KWP_ACK);
+    return result;
+}
+
 kwp_result_t kwp_p5_read_safe_code_bcd(uint16_t *safe_code)
 {
     kwp_result_t result = _send_read_mem_block(KWP_READ_ROM_EEPROM, 0x0014, 0x02);

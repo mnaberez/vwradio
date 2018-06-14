@@ -35,18 +35,6 @@ void print_rom_checksum(uint16_t checksum)
     uart_puts(UART_DEBUG, "\n");
 }
 
-// connect to premium 5 manufacturing address and login
-// should work on any premium 5 radio
-void connect_and_login_mfg()
-{
-    kwp_result_t result = kwp_connect(KWP_RADIO_MFG, 10400);
-    kwp_panic_if_error(result);
-    result = kwp_send_login_block(0x4f43, 0x4c, 0x4544);  // "OCLED"
-    kwp_panic_if_error(result);
-    result = kwp_receive_block_expect(KWP_ACK);
-    kwp_panic_if_error(result);
-}
-
 // connect to standard radio address and login using safe code
 // should work on any radio if safe code is correct
 void connect_and_login_safe(uint16_t safe_code)
@@ -94,7 +82,10 @@ int main()
     } else if (memcmp(&kwp_component_1[7], "DE2", 3) == 0) {
         uart_puts(UART_DEBUG, "DELCO PREMIUM 5 DETECTED\n");
         kwp_disconnect();
-        connect_and_login_mfg();
+        result = kwp_autoconnect(KWP_RADIO_MFG);
+        kwp_panic_if_error(result);
+        result = kwp_p5_login_mfg();
+        kwp_panic_if_error(result);
 
         uint16_t rom_checksum;
         result = kwp_p5_calc_rom_checksum(&rom_checksum);

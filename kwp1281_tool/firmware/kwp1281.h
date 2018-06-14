@@ -29,6 +29,7 @@ kwp_result_t kwp_read_ram(uint16_t start_address, uint16_t total_size, uint8_t c
 kwp_result_t kwp_read_rom_or_eeprom(uint16_t start_address, uint16_t total_size, uint8_t chunk_size);
 kwp_result_t kwp_read_eeprom(uint16_t start_address, uint16_t total_size, uint8_t chunk_size);
 kwp_result_t kwp_p4_read_safe_code_bcd(uint16_t *safe_code);
+kwp_result_t kwp_p5_login_mfg();
 kwp_result_t kwp_p5_read_safe_code_bcd(uint16_t *safe_code);
 kwp_result_t kwp_p5_calc_rom_checksum(uint16_t *rom_checksum);
 kwp_result_t kwp_disconnect();
