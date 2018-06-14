@@ -291,6 +291,28 @@ kwp_result_t kwp_send_login_block(uint16_t safe_code, uint8_t fern, uint16_t wor
 }
 
 
+// login using the safe code and read the secret group 0x19
+// should work on any radio if the safe code is correct
+kwp_result_t kwp_login_safe(uint16_t safe_code)
+{
+    kwp_result_t result = kwp_send_login_block(safe_code, 0x01, 0x869f);
+    if (result != KWP_SUCCESS) { return result; }
+
+    result = kwp_receive_block_expect(KWP_ACK);
+    if (result != KWP_SUCCESS) { return result; }
+
+    result = kwp_send_group_reading_block(0x19);
+    if (result != KWP_SUCCESS) { return result; }
+
+    // all radios require reading group 0x19 to unlock the protected commands.
+    // some return ack, some lie and return nak (treat it like ack).
+    //   ack: premium 4 (clarion), audi chorus
+    //   nak: premium 5 (delco), gamma 5 (technisat)
+    result = kwp_receive_block();
+    return result;
+}
+
+
 kwp_result_t kwp_send_group_reading_block(uint8_t group)
 {
     uart_puts(UART_DEBUG, "PERFORM GROUP READ\n");

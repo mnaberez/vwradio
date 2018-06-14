@@ -35,26 +35,7 @@ void print_rom_checksum(uint16_t checksum)
     uart_puts(UART_DEBUG, "\n");
 }
 
-// connect to standard radio address and login using safe code
-// should work on any radio if safe code is correct
-void connect_and_login_safe(uint16_t safe_code)
-{
-    kwp_result_t result = kwp_connect(KWP_RADIO, 10400);
-    kwp_panic_if_error(result);
 
-    result = kwp_send_login_block(safe_code, 0x01, 0x869f);
-    kwp_panic_if_error(result);
-    result = kwp_receive_block_expect(KWP_ACK);
-    kwp_panic_if_error(result);
-
-    result = kwp_send_group_reading_block(0x19);
-    kwp_panic_if_error(result);
-    // premium 4 (clarion), premium 5 (delco), and gamma 5 (technisat) will unlock the protected
-    // commands after reading group 0x19.  only premium 4 sends ack.  the other radios send nak,
-    // but it's a lie, treat it like ack.
-    result = kwp_receive_block();
-    kwp_panic_if_error(result);
-}
 
 
 int main()
@@ -66,6 +47,9 @@ int main()
     uart_puts(UART_DEBUG, "\n\nRESET\n");
 
     kwp_result_t result = kwp_autoconnect(KWP_RADIO);
+    kwp_panic_if_error(result);
+
+    result = kwp_login_safe(87);
     kwp_panic_if_error(result);
 
     kwp_print_module_info();
