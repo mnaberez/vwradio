@@ -23,6 +23,10 @@ void kwp_panic_if_error(kwp_result_t result)
             uart_puts(UART_DEBUG, "RX buffer overflow\n"); break;
         case KWP_BAD_BLK_COUNTER:
             uart_puts(UART_DEBUG, "Wrong block counter\n"); break;
+        case KWP_MEM_TOO_SHORT:
+            uart_puts(UART_DEBUG, "Length of memory returned is shorter than requested\n"); break;
+        case KWP_MEM_TOO_LONG:
+            uart_puts(UART_DEBUG, "Length of memory returned is longer than requested\n"); break;
         case KWP_UNEXPECTED:
             uart_puts(UART_DEBUG, "Unexpected block title received\n"); break;
         default:
@@ -333,10 +337,14 @@ static kwp_result_t _read_mem(uint8_t req_title, uint8_t resp_title,
         result = kwp_receive_block_expect(resp_title);
         if (result != KWP_SUCCESS) { return result; }
 
+        uint8_t datalen = kwp_rx_buf[0] - 3;  // block length - (counter + title + end)
+        if (datalen < chunksize) { return KWP_MEM_TOO_SHORT; }
+        if (datalen > chunksize) { return KWP_MEM_TOO_LONG; }
+
         uart_puts(UART_DEBUG, "MEM: ");
         uart_puthex16(UART_DEBUG, address);
         uart_puts(UART_DEBUG, ": ");
-        for (uint8_t i=0; i<chunksize; i++) {
+        for (uint8_t i=0; i<datalen; i++) {
             uart_puthex(UART_DEBUG, kwp_rx_buf[3 + i]);
             uart_put(UART_DEBUG, ' ');
         }
