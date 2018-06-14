@@ -35,24 +35,9 @@ void print_rom_checksum(uint16_t checksum)
     uart_puts(UART_DEBUG, "\n");
 }
 
-
-
-
-int main()
+void crack()
 {
-    uart_init(UART_DEBUG, 115200);  // debug messages
-    uart_init(UART_KLINE,  10400);  // obd-ii kwp1281
-    sei();
-
-    uart_puts(UART_DEBUG, "\n\nRESET\n");
-
-    kwp_result_t result = kwp_autoconnect(KWP_RADIO);
-    kwp_panic_if_error(result);
-
-    result = kwp_login_safe(87);
-    kwp_panic_if_error(result);
-
-    kwp_print_module_info();
+    kwp_result_t result;
 
     if (memcmp(&kwp_component_1[7], "3CP", 3) == 0) {
         uart_puts(UART_DEBUG, "CLARION PREMIUM 4 DETECTED\n");
@@ -90,6 +75,27 @@ int main()
         uart_puts(UART_DEBUG, "UNKNOWN RADIO\n");
         uart_puts(UART_DEBUG, "UNCRACKABLE\n");
     }
+}
+
+
+int main()
+{
+    uart_init(UART_DEBUG, 115200);  // debug messages
+    uart_init(UART_KLINE,  10400);  // obd-ii kwp1281
+    sei();
+
+    uart_puts(UART_DEBUG, "\n\nRESET\n");
+
+    kwp_result_t result = kwp_autoconnect(KWP_RADIO);
+    kwp_panic_if_error(result);
+    kwp_print_module_info();
+
+    // result = kwp_login_safe(1866);
+    // kwp_panic_if_error(result);
+    // kwp_read_ram(0x2000, 0xffff, 32);
+    // kwp_panic_if_error(result);
+
+    crack();
 
     uart_puts(UART_DEBUG, "\nDONE\n");
     while(1);
