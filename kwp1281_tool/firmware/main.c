@@ -21,17 +21,10 @@ uint16_t bcd_to_bin(uint16_t bcd)
     return bin;
 }
 
-void print_safe_code(uint16_t safe_code_bcd)
+void print_hex16(char *label, uint16_t word)
 {
-    uart_puts(UART_DEBUG, "SAFE Code: ");
-    uart_puthex16(UART_DEBUG, safe_code_bcd);
-    uart_puts(UART_DEBUG, "\n");
-}
-
-void print_rom_checksum(uint16_t checksum)
-{
-    uart_puts(UART_DEBUG, "ROM Checksum: ");
-    uart_puthex16(UART_DEBUG, checksum);
+    uart_puts(UART_DEBUG, label);
+    uart_puthex16(UART_DEBUG, word);
     uart_puts(UART_DEBUG, "\n");
 }
 
@@ -46,7 +39,7 @@ void crack()
         result = kwp_p4_read_safe_code_bcd(&safe_code);
         kwp_panic_if_error(result);
 
-        print_safe_code(safe_code);
+        print_hex16("SAFE Code: ", safe_code);
 
     } else if (memcmp(&kwp_component_1[7], "DE2", 3) == 0) {
         uart_puts(UART_DEBUG, "DELCO PREMIUM 5 DETECTED\n");
@@ -64,8 +57,8 @@ void crack()
         result = kwp_p5_read_safe_code_bcd(&safe_code);
         kwp_panic_if_error(result);
 
-        print_rom_checksum(rom_checksum);
-        print_safe_code(safe_code);
+        print_hex16("ROM Checksum: ", rom_checksum);
+        print_hex16("SAFE Code: ", safe_code);
 
     } else if (memcmp(&kwp_component_1[7], "YD5", 3) == 0) {
         uart_puts(UART_DEBUG, "TECHNISAT GAMMA 5 DETECTED\n");
