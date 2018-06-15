@@ -21,10 +21,10 @@ int main()
     kwp_panic_if_error(result);
     kwp_print_module_info();
 
-    result = kwp_login_safe(87);
-    kwp_panic_if_error(result);
-    result = kwp_read_ram(0, 0xffff, 32);
-    kwp_panic_if_error(result);
+    // result = kwp_login_safe(1866);
+    // kwp_panic_if_error(result);
+    // result = kwp_read_ram(0, 0xffff, 32);
+    // kwp_panic_if_error(result);
 
     crack();
 
