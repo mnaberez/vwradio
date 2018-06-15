@@ -13,8 +13,9 @@ const char * kwp_describe_result(kwp_result_t result) {
         case KWP_TIMEOUT:           return "Timeout";
         case KWP_BAD_ECHO:          return "Bad echo received";
         case KWP_BAD_COMPLEMENT:    return "Bad complement received";
-        case KWP_BAD_BLK_COUNTER:   return "Wrong block counter";
-        case KWP_BAD_BLK_END:       return "Bad block end marker byte";
+        case KWP_BAD_BLK_LENGTH:    return "Bad block length received";
+        case KWP_BAD_BLK_COUNTER:   return "Wrong block counter received";
+        case KWP_BAD_BLK_END:       return "Bad block end marker byte received";
         case KWP_RX_OVERFLOW:       return "RX buffer overflow";
         case KWP_UNEXPECTED:        return "Unexpected block title received";
         case KWP_MEM_TOO_SHORT:     return "Length of memory returned is shorter than requested";
@@ -218,12 +219,11 @@ kwp_result_t kwp_receive_block()
         }
 
         kwp_rx_buf[kwp_rx_size++] = c;
-
-        // detect buffer overflow
         if (kwp_rx_size == sizeof(kwp_rx_buf)) { return KWP_RX_OVERFLOW; }
 
         switch (kwp_rx_size) {
-            case 1:  // block length
+            case 1:  // block length (must be at least 3 for title, counter, end)
+                if (c < 3) { return KWP_BAD_BLK_LENGTH; }
                 bytes_remaining = c;
                 break;
             case 2:  // block counter
