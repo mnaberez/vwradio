@@ -35,6 +35,7 @@ kwp_result_t kwp_p5_read_safe_code_bcd(uint16_t *safe_code);
 kwp_result_t kwp_p5_calc_rom_checksum(uint16_t *rom_checksum);
 kwp_result_t kwp_disconnect();
 void kwp_print_module_info();
+const char * kwp_describe_result(kwp_result_t result);
 void kwp_panic_if_error(kwp_result_t result);
 
 uint8_t kwp_is_first_block;     // flag: 0=no blocks received, 1=otherwise

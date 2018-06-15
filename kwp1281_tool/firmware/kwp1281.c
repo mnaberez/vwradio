@@ -5,33 +5,34 @@
 #include <avr/io.h>
 #include <util/delay.h>
 
+
+// Return a string description of a result
+const char * kwp_describe_result(kwp_result_t result) {
+    switch (result) {
+        case KWP_SUCCESS:           return "Success";
+        case KWP_TIMEOUT:           return "Timeout";
+        case KWP_BAD_ECHO:          return "Bad echo received";
+        case KWP_BAD_COMPLEMENT:    return "Bad complement received";
+        case KWP_RX_OVERFLOW:       return "RX buffer overflow";
+        case KWP_BAD_BLK_COUNTER:   return "Wrong block counter";
+        case KWP_UNEXPECTED:        return "Unexpected block title received";
+        case KWP_MEM_TOO_SHORT:     return "Length of memory returned is shorter than requested";
+        case KWP_MEM_TOO_LONG:      return "Length of memory returned is longer than requested";
+        default:                    return "???";
+    }
+}
+
+
 // If result is success, do nothing.  Otherwise, report the error and halt.
 void kwp_panic_if_error(kwp_result_t result)
 {
     if (result == KWP_SUCCESS) { return; }
 
+    const char *msg = kwp_describe_result(result);
     uart_flush_tx(UART_DEBUG);
-    uart_puts(UART_DEBUG, "\n\n*** KWP ERROR: ");
-    switch (result) {
-        case KWP_TIMEOUT:
-            uart_puts(UART_DEBUG, "Timeout\n"); break;
-        case KWP_BAD_ECHO:
-            uart_puts(UART_DEBUG, "Bad echo received\n"); break;
-        case KWP_BAD_COMPLEMENT:
-            uart_puts(UART_DEBUG, "Bad complement received\n"); break;
-        case KWP_RX_OVERFLOW:
-            uart_puts(UART_DEBUG, "RX buffer overflow\n"); break;
-        case KWP_BAD_BLK_COUNTER:
-            uart_puts(UART_DEBUG, "Wrong block counter\n"); break;
-        case KWP_MEM_TOO_SHORT:
-            uart_puts(UART_DEBUG, "Length of memory returned is shorter than requested\n"); break;
-        case KWP_MEM_TOO_LONG:
-            uart_puts(UART_DEBUG, "Length of memory returned is longer than requested\n"); break;
-        case KWP_UNEXPECTED:
-            uart_puts(UART_DEBUG, "Unexpected block title received\n"); break;
-        default:
-            uart_puts(UART_DEBUG, "???\n");
-    }
+    uart_puts(UART_DEBUG, "\n\n*** KWP PANIC: ");
+    uart_puts(UART_DEBUG, (char *)msg);
+    uart_puts(UART_DEBUG, "\n");
     while(1);
 }
 
@@ -533,12 +534,15 @@ kwp_result_t kwp_connect(uint8_t address, uint32_t baud)
 
 kwp_result_t kwp_autoconnect(uint8_t address)
 {
-    const uint16_t baud_rates[2] = { 10400, 9600 };
+    const uint16_t baud_rates[2] = { 9600, 10400 };
 
     for (uint8_t try=0; try<2; try++) {
         for (uint8_t baud_index=0; baud_index<2; baud_index++) {
             kwp_result_t result = kwp_connect(address, baud_rates[baud_index]);
             if (result == KWP_SUCCESS) { return result; }
+
+            const char *msg = kwp_describe_result(result);
+            uart_puts(UART_DEBUG, (char *)msg);
             _delay_ms(2000); // delay before next try
         }
     }
