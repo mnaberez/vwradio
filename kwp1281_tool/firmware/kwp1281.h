@@ -10,11 +10,12 @@ typedef enum
     KWP_TIMEOUT = 1,
     KWP_BAD_ECHO = 2,
     KWP_BAD_COMPLEMENT = 3,
-    KWP_RX_OVERFLOW = 4,
+    KWP_BAD_BLK_END = 4,
     KWP_BAD_BLK_COUNTER = 5,
-    KWP_UNEXPECTED = 6,
-    KWP_MEM_TOO_SHORT = 7,
-    KWP_MEM_TOO_LONG = 8,
+    KWP_RX_OVERFLOW = 6,
+    KWP_UNEXPECTED = 7,
+    KWP_MEM_TOO_SHORT = 8,
+    KWP_MEM_TOO_LONG = 9,
 } kwp_result_t;
 
 kwp_result_t kwp_connect(uint8_t address, uint32_t baud);
