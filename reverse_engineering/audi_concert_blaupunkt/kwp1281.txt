@@ -1,0 +1,12 @@
+Address 0x56
+------------
+
+Identification
+    RECV: 0F 76 F6 34 42 30 30 33 35 31 38 36 20 20 20 03   '4B0035186   '
+    RECV: 0F 78 F6 20 52 61 64 69 6F 20 20 20 20 20 20 03   ' Radio      '
+    RECV: 0E 7A F6 20 20 20 20 20 20 20 30 30 30 31 03      '       0001'
+    RECV: 08 7C F6 00 01 9E 18 A9 03
+
+0x2B Login
+    Login with SAFE code works like on the Premium 4, reading
+    group 0x19 responds with ACK.
