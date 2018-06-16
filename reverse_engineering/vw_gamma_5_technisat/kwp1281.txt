@@ -1,6 +1,12 @@
 Address 0x56
 ------------
 
+Identification
+    RECV: 0F 01 F6 31 4A 30 30 33 35 31 38 36 44 20 20 03   '1J0035186D  '
+    RECV: 0F 03 F6 20 52 61 64 69 6F 20 59 44 35 20 20 03   ' Radio YD5  '
+    RECV: 0F 05 F6 20 20 20 20 20 20 20 20 30 30 30 34 03   '        0004'
+    RECV: 08 07 F6 00 2A 37 86 9F 03
+
 0x2B Login
     Login with SAFE code works like on the Premium 5, reading
     group 0x19 responds with NAK but it's a lie, treat it like ACK.

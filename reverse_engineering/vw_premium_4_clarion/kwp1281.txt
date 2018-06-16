@@ -1,3 +1,13 @@
+Address 0x56
+------------
+
+Identification
+    RECV: 0F 01 F6 31 4A 30 30 33 35 31 38 30 44 20 20 03   '1J0035180D  '
+    RECV: 0F 03 F6 20 52 41 44 49 4F 20 33 43 50 20 20 03   ' RADIO 3CP  '
+    RECV: 0E 05 F6 20 20 20 20 20 20 20 30 30 30 32 03      '       0002'
+    RECV: 08 07 F6 00 03 21 86 9F 03
+
+
 ;KWP1281 Login
 ;
 ;The password for login is the same as the SAFE code, except it is binary
