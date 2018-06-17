@@ -229,7 +229,7 @@ kwp_result_t kwp_receive_block()
             case 2:  // block counter
                 if (kwp_is_first_block) {   // set initial value
                     kwp_block_counter = c;
-                    kwp_is_first_block = 0;
+                    kwp_is_first_block = false;
                 } else {                    // increment; detect mismatch
                     if (++kwp_block_counter != c) { return KWP_BAD_BLK_COUNTER; }
                 }
@@ -491,7 +491,7 @@ kwp_result_t kwp_connect(uint8_t address, uint32_t baud)
     uart_init(UART_KLINE, baud);
 
     // Initialize connection state
-    kwp_is_first_block = 1;
+    kwp_is_first_block = true;
     memset(kwp_vag_number,  0, sizeof(kwp_vag_number));
     memset(kwp_component_1, 0, sizeof(kwp_component_1));
     memset(kwp_component_2, 0, sizeof(kwp_component_2));
