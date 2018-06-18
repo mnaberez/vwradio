@@ -309,7 +309,7 @@ kwp_result_t kwp_login_safe(uint16_t safe_code)
 
     // all radios require reading group 0x19 to unlock the protected commands.
     // some return ack, some lie and return nak (treat it like ack).
-    //   ack: premium 4 (clarion), audi chorus
+    //   ack: premium 4 (clarion), audi chorus (blaupunkt)
     //   nak: premium 5 (delco), gamma 5 (technisat)
     result = kwp_receive_block();
     return result;
