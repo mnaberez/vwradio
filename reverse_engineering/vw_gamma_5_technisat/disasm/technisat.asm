@@ -25053,56 +25053,95 @@ lab_a22f:
     rts                     ;a235  60
 
 
-;read rom/eeprom
+;Read ROM/EEPROM
+;
+;Request block format:
+;  0x06 Block length                    0x0320
+;  0x3E Block counter                   0x0321
+;  0x03 Block title (0x03)              0x0322
+;  0x00 Number of bytes to read         0x0323
+;  0x00 Address high                    0x0324
+;  0x00 Address low                     0x0325
+;  0x03 Block end                       0x0326
+;
 lab_a236:
-    lda 0x0324              ;a236  ad 24 03
-    cmp #0x20               ;a239  c9 20
-    bcc 0xa294              ;a23b  90 57        branch to send nak response
+    lda 0x0324              ;a236  ad 24 03     A = address high
+    cmp #0x20               ;a239  c9 20        Compare to 0x20 (ROM starts at 0x2000)
+    bcc 0xa294              ;a23b  90 57        Send nak response if address high < 0x20
+
     cmp #0xff               ;a23d  c9 ff
     bcs 0xa294              ;a23f  b0 53        branch to send nak response
-    ldx #0xfd               ;a241  a2 fd
-    stx 0x4e                ;a243  86 4e
-    bra 0xa253              ;a245  80 0c
+
+    ldx #0xfd               ;a241  a2 fd        X = block title 0xFD: Response to Read ROM
+    stx 0x4e                ;a243  86 4e        Encryption selector = 0xFD (enable encryption)
+    bra 0xa253              ;a245  80 0c        Branch to memory read common code
 
 
-;read ram
+;Read RAM
+;
+;Request block format:
+;  0x06 Block length                    0x0320
+;  0x3E Block counter                   0x0321
+;  0x01 Block title (0x01)              0x0322
+;  0x00 Number of bytes to read         0x0323
+;  0x00 Address high                    0x0324
+;  0x00 Address low                     0x0325
+;  0x03 Block end                       0x0326
+;
 lab_a247:
-    ldm #0x00,0x4e          ;a247  3c 00 4e
-    ldx #0xfe               ;a24a  a2 fe        0xFE = block title: response to read read
-    lda 0x0324              ;a24c  ad 24 03
-    cmp #0x08               ;a24f  c9 08
-    bcs 0xa294              ;a251  b0 41        branch to send nak response
+    ldm #0x00,0x4e          ;a247  3c 00 4e     Encryption selector = 0 (disable encryption)
+    ldx #0xfe               ;a24a  a2 fe        X = block title 0xFE: Response to Read RAM
 
+    lda 0x0324              ;a24c  ad 24 03     A = address high
+    cmp #0x08               ;a24f  c9 08        Compare to 0x08 (RAM ends at 0x07FF)
+    bcs 0xa294              ;a251  b0 41        Send nak response if address high >= 0x08
+
+    ;Fall through into memory read common code
+
+
+;routine common to read rom/eeprom and read ram
 lab_a253:
     bbc 1,0xe7,0xa294       ;a253  37 e7 3e     if not authorized, branch to send nak response
-    sta 0x4d                ;a256  85 4d
-    stx 0xaabb              ;a258  8e 33 03
-    ldx 0x0320              ;a25b  ae 20 03
-    cpx #0x07               ;a25e  e0 07
-    bcs 0xa294              ;a260  b0 32        branch to send nak response
-    lda 0x0323              ;a262  ad 23 03
-    beq 0xa294              ;a265  f0 2d        branch to send nak response
-    cmp #0x29               ;a267  c9 29
-    bcs 0xa294              ;a269  b0 29        branch to send nak response
-    clc                     ;a26b  18
-    adc #0x03               ;a26c  69 03
-    sta 0x0331              ;a26e  8d 31 03
-    ldx 0x0325              ;a271  ae 25 03
-    stx 0x4c                ;a274  86 4c
-    ldy #0x00               ;a276  a0 00
 
+    sta 0x4d                ;a256  85 4d        Store address high as pointer high byte
+
+    stx 0xaabb              ;a258  8e 33 03
+
+    ldx 0x0320              ;a25b  ae 20 03     X = block length
+    cpx #0x07               ;a25e  e0 07        Compare to 7 (expected block length = 6)
+    bcs 0xa294              ;a260  b0 32        Send nak response if length >= 7
+
+    lda 0x0323              ;a262  ad 23 03     A = number of bytes to read
+    beq 0xa294              ;a265  f0 2d        Send nak response if number = 0
+
+    cmp #0x29               ;a267  c9 29        Compare to 41
+    bcs 0xa294              ;a269  b0 29        Send nak response if number >= 41
+
+    ;number of bytes to read is between 1-40
+
+    clc                     ;a26b  18
+    adc #0x03               ;a26c  69 03        Add 3 for response block title, length, end
+    sta 0x0331              ;a26e  8d 31 03     Store in tx buffer byte 0 (block length)
+
+    ldx 0x0325              ;a271  ae 25 03     X = address low
+    stx 0x4c                ;a274  86 4c        Store address low as pointer low byte
+
+    ldy #0x00               ;a276  a0 00
 lab_a278:
-    lda [0x4c],y            ;a278  b1 4c
-    bit 0x4e                ;a27a  24 4e
-    bpl 0xa282              ;a27c  10 04
-    eor 0xff00,x            ;a27e  5d 00 ff
+    lda [0x4c],y            ;a278  b1 4c        Read memory at pointer
+    bit 0x4e                ;a27a  24 4e        Set flags based on encryption selector
+    bpl 0xa282              ;a27c  10 04        Skip encryption if bit 7 of encryption selector = 0
+
+    ;encryption selector bit 7 = 1
+
+    eor 0xff00,x            ;a27e  5d 00 ff     Encrypt it
     inx                     ;a281  e8
 
 lab_a282:
     sta 0x0334,y            ;a282  99 34 03
     iny                     ;a285  c8
     cpy 0x0323              ;a286  cc 23 03
-    bcc 0xa278              ;a289  90 ed
+    bcc 0xa278              ;a289  90 ed        
     lda #0x00               ;a28b  a9 00
     sta 0x05b7              ;a28d  8d b7 05
     jsr 0xb69f              ;a290  20 9f b6
@@ -25617,16 +25656,19 @@ lab_a52c:
     jsr 0xb461              ;a52c  20 61 b4     send nak response
     rts                     ;a52f  60
 
-    .byte 0x01              ;a530  01          DATA 0x01
-    .byte 0x02              ;a531  02          DATA 0x02
-    .byte 0x03              ;a532  03          DATA 0x03
-    .byte 0x04              ;a533  04          DATA 0x04
-    .byte 0x05              ;a534  05          DATA 0x05
-    .byte 0x06              ;a535  06          DATA 0x06
-    .byte 0x07              ;a536  07          DATA 0x07
-    .byte 0x19              ;a537  19          DATA 0x19
-    .byte 0x50              ;a538  50          DATA 0x50 'P'
-    .byte 0x51              ;a539  51          DATA 0x51 'Q'
+;group reading valid group numbers
+    .byte 0x01              ;a530  general
+    .byte 0x02              ;a531  speakers/line-out
+    .byte 0x03              ;a532  antenna
+    .byte 0x04              ;a533  amplifier/telephone
+    .byte 0x05              ;a534  cd changer
+    .byte 0x06              ;a535  external display
+    .byte 0x07              ;a536  steering wheel control
+    .byte 0x19              ;a537  protection
+    .byte 0x50              ;a538  advanced id 1: "YD5-001 27.01.04"
+    .byte 0x51              ;a539  advanced id 2: "VWZAZ3D2301808"
+
+;group reading handlers
     .byte 0x85              ;a53a  85          DATA 0x85
     .byte 0xa5              ;a53b  a5          DATA 0xa5
     .byte 0x85              ;a53c  85          DATA 0x85
@@ -25727,12 +25769,15 @@ lab_a59d:
     ldy #0x00               ;a5aa  a0 00
 
 lab_a5ac:
+    ;compare login code
     lda 0x0117,y            ;a5ac  b9 17 01
     cmp 0x0103,y            ;a5af  d9 03 01
     bne 0xa5e3              ;a5b2  d0 2f
     iny                     ;a5b4  c8
     cpy #0x04               ;a5b5  c0 04
     bcc 0xa5ac              ;a5b7  90 f3
+
+    ;login succeeded
     jsr 0xa124              ;a5b9  20 24 a1
     jsr 0xb45b              ;a5bc  20 5b b4     send ack response
     seb 0,0xe7              ;a5bf  0f e7
@@ -25751,6 +25796,7 @@ lab_a5ac:
     bra 0xa605              ;a5e1  80 22
 
 lab_a5e3:
+    ;login failed
     jsr 0x9f33              ;a5e3  20 33 9f
     bbs 5,0xe7,0xa5fb       ;a5e6  a7 e7 12
     seb 5,0xe7              ;a5e9  af e7
@@ -28610,13 +28656,17 @@ lab_b470:
     rts                     ;b47e  60
 
 sub_b47f:
-    lda 0x05b3              ;b47f  ad b3 05
-    cmp #0x29               ;b482  c9 29
-    bne 0xb491              ;b484  d0 0b
-    lda 0x0323              ;b486  ad 23 03
-    cmp #0x01               ;b489  c9 01
-    bne 0xb491              ;b48b  d0 04
-    seb 3,0xe7              ;b48d  6f e7
+    lda 0x05b3              ;b47f  ad b3 05     A = block title
+    cmp #0x29               ;b482  c9 29        Is it 0x29 group reading?
+    bne 0xb491              ;b484  d0 0b          No: branch to b491
+
+    ;block title = 0x29 group reading
+    lda 0x0323              ;b486  ad 23 03     A = group number
+    cmp #0x01               ;b489  c9 01        Is it group 1?
+    bne 0xb491              ;b48b  d0 04            No: branch to b491
+
+    ;set bit only for group reading of group 1
+    seb 3,0xe7              ;b48d  6f e7        TODO looks interesting
     bra 0xb493              ;b48f  80 02
 
 lab_b491:
@@ -28633,23 +28683,27 @@ lab_b49d:
 
 lab_b49f:
     inx                     ;b49f  e8
-    lda 0xb4c1,x            ;b4a0  bd c1 b4
-    bmi 0xb4b9              ;b4a3  30 14
-    cmp 0x05b3              ;b4a5  cd b3 05
-    bne 0xb49f              ;b4a8  d0 f5
+    lda 0xb4c1,x            ;b4a0  bd c1 b4     A = KWP1281 block title from table
+    bmi 0xb4b9              ;b4a3  30 14        Branch if end of table reached
+
+    cmp 0x05b3              ;b4a5  cd b3 05     Compare to block title received
+    bne 0xb49f              ;b4a8  d0 f5        Keep going if not a match
+
+    ;block title found in table
     txa                     ;b4aa  8a
     asl a                   ;b4ab  0a
     tax                     ;b4ac  aa
-    lda 0xb4db,x            ;b4ad  bd db b4
+    lda 0xb4db,x            ;b4ad  bd db b4     Set up pointer to handler
     sta 0xc0                ;b4b0  85 c0
     lda 0xb4dc,x            ;b4b2  bd dc b4
     sta 0xc1                ;b4b5  85 c1
-    jmp [0xc0]              ;b4b7  b2 c0
+    jmp [0xc0]              ;b4b7  b2 c0        Jump to handler
 
 lab_b4b9:
+    ;end of table: block title not found
     lda #0x00               ;b4b9  a9 00
     sta 0x05b7              ;b4bb  8d b7 05
-    jmp 0xb461              ;b4be  4c 61 b4
+    jmp 0xb461              ;b4be  4c 61 b4     send nak response
 
 ;kwp1281 block titles
     .byte 0x00              ;b4c1  00          DATA 0x00        read identification
@@ -28668,13 +28722,13 @@ lab_b4b9:
     .byte 0x12              ;b4ce  12          DATA 0x12        nak: ?
     .byte 0x19              ;b4cf  19          DATA 0x19        read eeprom
     .byte 0x1a              ;b4d0  1a          DATA 0x1a        nak: write eeprom
-    .byte 0x1b              ;b4d1  1b          DATA 0x1b        custom
-    .byte 0x21              ;b4d2  21          DATA 0x21 '!'    adaptation read
-    .byte 0x22              ;b4d3  22          DATA 0x22 '"'    adaptation transfer
-    .byte 0x27              ;b4d4  27          DATA 0x27 '''    ?
+    .byte 0x1b              ;b4d1  1b          DATA 0x1b        nak: custom
+    .byte 0x21              ;b4d2  21          DATA 0x21 '!'    nak: adaptation read
+    .byte 0x22              ;b4d3  22          DATA 0x22 '"'    nak: adaptation transfer
+    .byte 0x27              ;b4d4  27          DATA 0x27 '''    nak: ?
     .byte 0x28              ;b4d5  28          DATA 0x28 '('    basic setting
     .byte 0x29              ;b4d6  29          DATA 0x29 ')'    group reading
-    .byte 0x2a              ;b4d7  2a          DATA 0x2a '*'    adaptation save?
+    .byte 0x2a              ;b4d7  2a          DATA 0x2a '*'    nak: adaptation save
     .byte 0x2b              ;b4d8  2b          DATA 0x2b '+'    login
     .byte 0x7f              ;b4d9  7f          DATA 0x7f        ???
     .byte 0xff              ;b4da  ff          DATA 0xff
@@ -28682,7 +28736,7 @@ lab_b4b9:
 ;kwp1281 block title handlers
     .word sub_a1ae          ;b4db  ae a1       VECTOR   read identification
     .word lab_a247          ;b4dd  47 a2       VECTOR   protected: read ram
-    .word lab_a298          ;b4df  98 a2       VECTOR   protected: write ram
+    .word lab_a298          ;b4df  98 a2       VECTOR   protected: nak: write ram
     .word lab_a236          ;b4e1  36 a2       VECTOR   protected: read rom/eeprom
     .word lab_a29f          ;b4e3  9f a2       VECTOR   output tests
     .word lab_a353          ;b4e5  53 a3       VECTOR   clear faults
@@ -28702,7 +28756,7 @@ lab_b4b9:
     .word lab_a528          ;b501  28 a5       VECTOR   nak: ?
     .word lab_a52c          ;b503  2c a5       VECTOR   nak: basic setting
     .word lab_a54e          ;b505  4e a5       VECTOR   group reading
-    .word lab_a591          ;b507  91 a5       VECTOR   nak: ?
+    .word lab_a591          ;b507  91 a5       VECTOR   nak: adaptation save
     .word lab_a595          ;b509  95 a5       VECTOR   login
     .word lab_b466          ;b50b  66 b4       VECTOR   7f ???
 
@@ -28733,7 +28787,7 @@ lab_b527:
 
 lab_b53e:
     lda #0x01               ;b53e  a9 01
-    jsr 0x5ac5              ;b540  20 c5 5a     Send 0xAA
+    jsr 0x5ac5              ;b540  20 c5 5a     Send 0x01
     lda #0x03               ;b543  a9 03
     sta 0x05b1              ;b545  8d b1 05
     lda #0x02               ;b548  a9 02
@@ -28776,9 +28830,11 @@ lab_b581:
     jmp 0xb625              ;b58f  4c 25 b6
 
 lab_b592:
-    lda 0x0322              ;b592  ad 22 03
-    cmp #0x0a               ;b595  c9 0a
-    bne 0xb5aa              ;b597  d0 11
+    lda 0x0322              ;b592  ad 22 03     A = block title
+    cmp #0x0a               ;b595  c9 0a        Is it NAK?
+    bne 0xb5aa              ;b597  d0 11            No: branch
+
+    ;block title = nak
     lda 0x0323              ;b599  ad 23 03
     cmp 0x0321              ;b59c  cd 21 03
     beq 0xb5aa              ;b59f  f0 09
@@ -28786,11 +28842,12 @@ lab_b592:
     inc 0x0332              ;b5a4  ee 32 03
     jmp 0xb69f              ;b5a7  4c 9f b6
 
+;block title != nak
 lab_b5aa:
     lda 0x05b7              ;b5aa  ad b7 05
     bne 0xb5b5              ;b5ad  d0 06
-    lda 0x0322              ;b5af  ad 22 03
-    sta 0x05b3              ;b5b2  8d b3 05
+    lda 0x0322              ;b5af  ad 22 03     A = block title
+    sta 0x05b3              ;b5b2  8d b3 05     Save it in 0x05b3
 
 lab_b5b5:
     jsr 0xb47f              ;b5b5  20 7f b4
@@ -28798,7 +28855,7 @@ lab_b5b5:
 
 lab_b5bb:
     lda 0x0331              ;b5bb  ad 31 03
-    jsr 0x5ac5              ;b5be  20 c5 5a
+    jsr 0x5ac5              ;b5be  20 c5 5a     Send byte
     lda #0x03               ;b5c1  a9 03
     sta 0x05b2              ;b5c3  8d b2 05
     lda #0x06               ;b5c6  a9 06
@@ -28811,7 +28868,7 @@ lab_b5d3:
     inc 0x05ad              ;b5d3  ee ad 05
     ldx 0x05ad              ;b5d6  ae ad 05
     lda 0x0331,x            ;b5d9  bd 31 03
-    jsr 0x5ac5              ;b5dc  20 c5 5a
+    jsr 0x5ac5              ;b5dc  20 c5 5a     Send byte
     lda 0x05ad              ;b5df  ad ad 05
     cmp 0x05b4              ;b5e2  cd b4 05
     bne 0xb5f9              ;b5e5  d0 12
@@ -28836,7 +28893,7 @@ lab_b60b:
     ldx 0x05ad              ;b60b  ae ad 05
     lda 0x0320,x            ;b60e  bd 20 03
     eor #0xff               ;b611  49 ff
-    jsr 0x5ac5              ;b613  20 c5 5a
+    jsr 0x5ac5              ;b613  20 c5 5a     Send byte
     lda #0x05               ;b616  a9 05
     sta 0x05b2              ;b618  8d b2 05
     lda #0x06               ;b61b  a9 06
@@ -28982,7 +29039,7 @@ sub_b69f:
     ldx 0x05b4              ;b6b7  ae b4 05
     sta 0x0331,x            ;b6ba  9d 31 03
     lda 0x0331              ;b6bd  ad 31 03
-    jsr 0x5ac5              ;b6c0  20 c5 5a
+    jsr 0x5ac5              ;b6c0  20 c5 5a     Send byte
     lda #0x06               ;b6c3  a9 06
     sta 0x01af              ;b6c5  8d af 01
     ldy #0x28               ;b6c8  a0 28

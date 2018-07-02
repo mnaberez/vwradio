@@ -82,7 +82,7 @@ lab_b53e send 01
 lab_b555 send 8a
 
 0320 might be the kwp1281 rx buffer (lab_b60b sends complement byte)
-0331 might be the kwp1281 tx buffer
+0331 might be the kwp1281 tx buffer (a26e stores block length there)
 
 sub_b69f might be send block because it puts 0x03 (block end) in the buffer
 
@@ -100,3 +100,5 @@ sub_b69f might be send block because it puts 0x03 (block end) in the buffer
 sub_b47f looks like block title recognition based on 0x05b3
 b4c1 is table of kwp1281 block titles
 b4db is table of block title handlers
+
+0x0331
