@@ -1,0 +1,102 @@
+protocol:
+
+    Immediately after 5 baud address it sends:
+      10  ?
+      01  ?
+      5E  ?
+      00  ?
+      90  checksum: sum of previous bytes ^ FF
+
+    It will reply if I send:
+      XX  must be between 2-FF
+      01  must be 01
+      NN  number of optional bytes after D0 (must be 0-2)
+      D0  ?
+      D1  optional ?
+      D2  optional ?
+      CS  checksum: sum of previous bytes ^ FF
+
+    rx buffer = 0x320
+        0x0320 = # of bytes received
+        0x0321 = rx buffer
+
+common routines:
+    5a14  get byte from uart
+    5a36  called during uart receive interrupt to fill rx buffer
+    5ac5  some other uart send byte
+    5ad5  send uart byte
+    5adf  send packet 10 01 5E <0x344> checksum
+
+jump table to command handlers:
+    values=3570     handlers=3588
+
+lab_b6e6
+might be kwp1281
+
+
+commands:
+    sub_35b8 does the lookup and dispatch
+    dispatch is from byte in 0x72
+
+    buffer rx byte 0x322 gets stored in 0x73
+
+    5b37 calls 5adf to send packet 10 01 5E <0x344> checksum
+
+    5b4a similar to 5ce4: two paths
+
+    5bbb todo
+
+    5ce4 one path sends packet   10 4F 44 ??... CS
+         other path sends packet 10 01 5E 06 CS
+
+    5d22 sends packet 10 01 5E 06 CS
+    5d69 sends packet 10 01 5E 06 CS
+    5db3 sends packet 10 01 5E 04 CS
+
+    5e9b one path sends packet   10 4F 48 ??... CS
+         other path sends packet 10 01 5E 05 CS
+
+    5e05 sends packet 10 4F 44 ??... CS
+
+    5fe4 sends packet 10 01 5E 00 CS
+
+    6070 one path sends packet   10 01 5E 10 CS
+         other path sends packet 10 01 5E 00 CS
+
+    60a3 one path sends packet   10 01 5E 10 CS
+         other path sends packet 10 01 5E 00 CS
+
+    60f3 sends packet 10 01 5E 10 CS
+
+    613f sends packet 10 01 5E 10 CS
+
+
+KWP1281 Radio as tester
+lab_b8ef compares 0x05b6 with 0x55
+lab_b901 compares 0x05b6 with 01
+lab_b913 compares 0x05b6 with 8a
+
+KWP1281 Radio as radio
+lab_b527 send 55
+lab_b53e send 01
+lab_b555 send 8a
+
+0320 might be the kwp1281 rx buffer (lab_b60b sends complement byte)
+0331 might be the kwp1281 tx buffer
+
+sub_b69f might be send block because it puts 0x03 (block end) in the buffer
+
+
+0x0321 might be block counter based on this
+    lda 0x0321              ;b81f  ad 21 03
+    inc a                   ;b822  3a
+    sta 0x05ae              ;b823  8d ae 05
+
+0x0322 might be block title based on this
+    lda 0x0322              ;b592  ad 22 03
+    cmp #0x0a               ;b595  c9 0a
+    bne 0xb5aa              ;b597  d0 11
+0x0322 gets stored in 0x05b3
+sub_b47f looks like block title recognition based on 0x05b3
+b4c1 is table of kwp1281 block titles
+b4db is table of block title handlers
