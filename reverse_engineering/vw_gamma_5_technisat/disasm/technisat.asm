@@ -3878,6 +3878,9 @@ lab_34f4:
     .byte 0x3e              ;356d  3e          DATA 0x3e '>'
     .byte 0xef              ;356e  ef          DATA 0xef
     .byte 0x40              ;356f  40          DATA 0x40 '@'
+
+;unknown table related to technisat protocol
+;command bytes?
     .byte 0x5e              ;3570  5e          DATA 0x5e '^'
     .byte 0x5f              ;3571  5f          DATA 0x5f '_'
     .byte 0x42              ;3572  42          DATA 0x42 'B'
@@ -3903,7 +3906,7 @@ lab_34f4:
     .byte 0x5a              ;3586  5a          DATA 0x5a 'Z'
     .byte 0x7f              ;3587  7f          DATA 0x7f
 
-    .word sub_5adf          ;3588  df 5a       VECTOR
+    .word sub_5adf          ;3588  df 5a       VECTOR   Send 10 01 5E <0x0344> CS
     .word lab_5b37          ;358a  37 5b       VECTOR
     .word lab_5b4a          ;358c  4a 5b       VECTOR
     .word lab_5bbb          ;358e  bb 5b       VECTOR
@@ -11185,61 +11188,88 @@ lab_5a32:
     pla                     ;5a34  68
     rti                     ;5a35  40
 
+;Byte received from UART is in A
 sub_5a36:
-    ldy 0x0320              ;5a36  ac 20 03
-    bne 0x5a5e              ;5a39  d0 23
-    cmp #0x00               ;5a3b  c9 00
-    beq 0x5a48              ;5a3d  f0 09
+    ldy 0x0320              ;5a36  ac 20 03     Y = number of bytes received
+    bne 0x5a5e              ;5a39  d0 23        Branch if any bytes were already received
+
+    ;this is the first byte received
+
+    cmp #0x00               ;5a3b  c9 00        Is the received byte = 0?
+    beq 0x5a48              ;5a3d  f0 09          Yes: branch
+
+    ;the received byte != 0
+
     cmp 0x0342              ;5a3f  cd 42 03
-    bne 0x5a5c              ;5a42  d0 18
+    bne 0x5a5c              ;5a42  d0 18        Branch to RTS
+
+    ;the received byte = byte at 0x0342
+
     seb 7,0xe8              ;5a44  ef e8
     bra 0x5a4a              ;5a46  80 02
 
 lab_5a48:
+    ;this is the first byte received and the byte = 0
     clb 7,0xe8              ;5a48  ff e8
 
 lab_5a4a:
-    sta 0x0343              ;5a4a  8d 43 03
+    sta 0x0343              ;5a4a  8d 43 03     Store byte as initial value of checksum
     clb 7,0x3c              ;5a4d  ff 3c
+
     lda #0x00               ;5a4f  a9 00
     sta 0x0344              ;5a51  8d 44 03
+
     ldm #0x31,0x22          ;5a54  3c 31 22
     seb 7,0x3e              ;5a57  ef 3e
-    inc 0x0320              ;5a59  ee 20 03
+    inc 0x0320              ;5a59  ee 20 03     Increment number of bytes received
 
 lab_5a5c:
-    bra 0x5ab4              ;5a5c  80 56
+    bra 0x5ab4              ;5a5c  80 56        Branch to RTS
+
 
 lab_5a5e:
-    sta 0x0320,y            ;5a5e  99 20 03
-    ldy 0x0321              ;5a61  ac 21 03
-    iny                     ;5a64  c8
+    ;bytes received > 0
+
+    sta 0x0320,y            ;5a5e  99 20 03     Store byte in UART rx buffer
+
+    ldy 0x0321              ;5a61  ac 21 03     Y = rx buffer byte 1
+    iny                     ;5a64  c8           Y=Y+2
     iny                     ;5a65  c8
-    cpy 0x0320              ;5a66  cc 20 03
-    bcc 0x5a7a              ;5a69  90 0f
+    cpy 0x0320              ;5a66  cc 20 03     Compare to 0x0320 (number of bytes received)
+    bcc 0x5a7a              ;5a69  90 0f        Branch if >=
+
     clc                     ;5a6b  18
     adc 0x0343              ;5a6c  6d 43 03
-    sta 0x0343              ;5a6f  8d 43 03
-    inc 0x0320              ;5a72  ee 20 03
+    sta 0x0343              ;5a6f  8d 43 03     update checksum
+
+    inc 0x0320              ;5a72  ee 20 03     Increment number of bytes received
+
     ldm #0x31,0x22          ;5a75  3c 31 22
-    bra 0x5ab4              ;5a78  80 3a
+    bra 0x5ab4              ;5a78  80 3a        Branch to RTS
 
 lab_5a7a:
-    lda 0x0343              ;5a7a  ad 43 03
+    lda 0x0343              ;5a7a  ad 43 03     A = expected checksum byte
     eor #0xff               ;5a7d  49 ff
-    ldy 0x0320              ;5a7f  ac 20 03
-    cmp 0x0320,y            ;5a82  d9 20 03
+
+    ldy 0x0320              ;5a7f  ac 20 03     get number of bytes received
+    cmp 0x0320,y            ;5a82  d9 20 03     compare to last byte of rx buffer
     beq 0x5a91              ;5a85  f0 0a
+
+    ;checksum doesn't match
+
     lda #0x03               ;5a87  a9 03
     sta 0x0344              ;5a89  8d 44 03
+
     lda #0x5e               ;5a8c  a9 5e
     sta 0x0322              ;5a8e  8d 22 03
 
 lab_5a91:
-    lda 0x0322              ;5a91  ad 22 03
+    ;checksum matches
+    lda 0x0322              ;5a91  ad 22 03     A = UART rx buffer byte 2
     cmp #0x40               ;5a94  c9 40
     bne 0x5aaa              ;5a96  d0 12
-    lda 0x0323              ;5a98  ad 23 03
+
+    lda 0x0323              ;5a98  ad 23 03     A = UART rx buffer byte 3 (TODO command?)
     sta 0x73                ;5a9b  85 73
     seb 0,0xf7              ;5a9d  0f f7
     ldm #0x12,0x5e          ;5a9f  3c 12 5e
@@ -11294,24 +11324,25 @@ lab_5ada:
     nop                     ;5add  ea
     rts                     ;5ade  60
 
+;Send 10 01 5E <0x0344> CS
 sub_5adf:
     ldm #0xff,0x75          ;5adf  3c ff 75
     clb 2,0xf7              ;5ae2  5f f7
     bbc 7,0xe8,0x5b10       ;5ae4  f7 e8 29
     seb 6,0xe5              ;5ae7  cf e5
     lda #0x10               ;5ae9  a9 10
-    jsr 0x5ad5              ;5aeb  20 d5 5a
+    jsr 0x5ad5              ;5aeb  20 d5 5a     Send byte 0x10
     lda #0x01               ;5aee  a9 01
-    jsr 0x5ad5              ;5af0  20 d5 5a
+    jsr 0x5ad5              ;5af0  20 d5 5a     Send byte 0x01
     lda #0x5e               ;5af3  a9 5e
-    jsr 0x5ad5              ;5af5  20 d5 5a
+    jsr 0x5ad5              ;5af5  20 d5 5a     Send byte 0x5e
     lda 0x0344              ;5af8  ad 44 03
-    jsr 0x5ad5              ;5afb  20 d5 5a
+    jsr 0x5ad5              ;5afb  20 d5 5a     Send byte in 0x0344
     clc                     ;5afe  18
     lda #0x6f               ;5aff  a9 6f
     adc 0x0344              ;5b01  6d 44 03
     eor #0xff               ;5b04  49 ff
-    jsr 0x5ad5              ;5b06  20 d5 5a
+    jsr 0x5ad5              ;5b06  20 d5 5a     Send checksum byte
     ldy #0x01               ;5b09  a0 01
     jsr 0xf22c              ;5b0b  20 2c f2
     clb 6,0xe5              ;5b0e  df e5
@@ -11320,6 +11351,7 @@ lab_5b10:
     lda #0x00               ;5b10  a9 00
     sta 0x0320              ;5b12  8d 20 03
     rts                     ;5b15  60
+
     seb 0,0xe8              ;5b16  0f e8
     seb 1,0xe8              ;5b18  2f e8
     seb 7,0x1a              ;5b1a  ef 1a
@@ -11333,13 +11365,13 @@ lab_5b10:
     sta 0x0344              ;5b2b  8d 44 03
     ldy #0x01               ;5b2e  a0 01
     jsr 0xf22c              ;5b30  20 2c f2
-    jsr 0x5adf              ;5b33  20 df 5a
+    jsr 0x5adf              ;5b33  20 df 5a     Send 10 01 5E <0x0344> CS
     rts                     ;5b36  60
 
 lab_5b37:
     ldy #0x01               ;5b37  a0 01
     jsr 0xf22c              ;5b39  20 2c f2
-    jsr 0x5adf              ;5b3c  20 df 5a
+    jsr 0x5adf              ;5b3c  20 df 5a     Send 10 01 5E <0x0344> CS
     ldm #0x40,0x1c          ;5b3f  3c 40 1c
     clb 6,0xe9              ;5b42  df e9
     clb 0,0xef              ;5b44  1f ef
@@ -11350,7 +11382,7 @@ lab_5b4a:
     bbc 7,0xe8,0x5bba       ;5b4a  f7 e8 6d
     ldy #0x01               ;5b4d  a0 01
     jsr 0xf22c              ;5b4f  20 2c f2
-    lda 0x0325              ;5b52  ad 25 03
+    lda 0x0325              ;5b52  ad 25 03     A = uart rx buffer byte 5
     and #0xf0               ;5b55  29 f0
     cmp #0xa0               ;5b57  c9 a0
     beq 0x5bb2              ;5b59  f0 57
@@ -11358,11 +11390,11 @@ lab_5b4a:
     sta 0x4c                ;5b5d  85 4c
     lda #0x03               ;5b5f  a9 03
     sta 0x4d                ;5b61  85 4d
-    lda 0x0323              ;5b63  ad 23 03
+    lda 0x0323              ;5b63  ad 23 03     A = uart rx buffer byte 3
     sta 0x4e                ;5b66  85 4e
     cmp #0x11               ;5b68  c9 11
     bcs 0x5bb2              ;5b6a  b0 46
-    lda 0x0324              ;5b6c  ad 24 03
+    lda 0x0324              ;5b6c  ad 24 03     A = uart rx buffer byte 4
     sta 0x4f                ;5b6f  85 4f
     cmp #0x11               ;5b71  c9 11
     bcs 0x5bb2              ;5b73  b0 3d
@@ -11376,12 +11408,12 @@ lab_5b4a:
     seb 6,0xe5              ;5b86  cf e5
     lda #0x10               ;5b88  a9 10
     sta 0x0343              ;5b8a  8d 43 03
-    jsr 0x5ad5              ;5b8d  20 d5 5a
+    jsr 0x5ad5              ;5b8d  20 d5 5a     Send byte
     ldy #0x00               ;5b90  a0 00
 
 lab_5b92:
-    lda 0x0325,y            ;5b92  b9 25 03
-    jsr 0x5ad5              ;5b95  20 d5 5a
+    lda 0x0325,y            ;5b92  b9 25 03     A = uart rx buffer byte 5+
+    jsr 0x5ad5              ;5b95  20 d5 5a     Send byte
     clc                     ;5b98  18
     adc 0x0343              ;5b99  6d 43 03
     sta 0x0343              ;5b9c  8d 43 03
@@ -11389,7 +11421,7 @@ lab_5b92:
     cpy 0x4f                ;5ba0  c4 4f
     bcc 0x5b92              ;5ba2  90 ee
     eor #0xff               ;5ba4  49 ff
-    jsr 0x5ad5              ;5ba6  20 d5 5a
+    jsr 0x5ad5              ;5ba6  20 d5 5a     Send checksum byte
     ldy #0x01               ;5ba9  a0 01
     jsr 0xf22c              ;5bab  20 2c f2
     clb 6,0xe5              ;5bae  df e5
@@ -11398,7 +11430,7 @@ lab_5b92:
 lab_5bb2:
     lda #0x10               ;5bb2  a9 10
     sta 0x0344              ;5bb4  8d 44 03
-    jsr 0x5adf              ;5bb7  20 df 5a
+    jsr 0x5adf              ;5bb7  20 df 5a     Send 10 01 5E <0x0344> CS
 
 lab_5bba:
     rts                     ;5bba  60
@@ -11408,7 +11440,7 @@ lab_5bbb:
     jsr 0xf22c              ;5bbd  20 2c f2
     lda #0x10               ;5bc0  a9 10
     sta 0x0344              ;5bc2  8d 44 03
-    lda 0x0325              ;5bc5  ad 25 03
+    lda 0x0325              ;5bc5  ad 25 03     A = uart rx buffer byte 5
     and #0xf0               ;5bc8  29 f0
     cmp #0xa0               ;5bca  c9 a0
     beq 0x5be7              ;5bcc  f0 19
@@ -11418,25 +11450,25 @@ lab_5bbb:
     sta 0x4c                ;5bd5  85 4c
     lda #0x03               ;5bd7  a9 03
     sta 0x4d                ;5bd9  85 4d
-    lda 0x0323              ;5bdb  ad 23 03
+    lda 0x0323              ;5bdb  ad 23 03     A = uart rx buffer byte 3
     sta 0x4e                ;5bde  85 4e
     lda #0x00               ;5be0  a9 00
     sta 0x4f                ;5be2  85 4f
     jsr 0x46e5              ;5be4  20 e5 46
 
 lab_5be7:
-    jsr 0x5adf              ;5be7  20 df 5a
+    jsr 0x5adf              ;5be7  20 df 5a     Send 10 01 5E <0x0344> CS
     rts                     ;5bea  60
 
 lab_5beb:
     bbc 7,0xe8,0x5c2d       ;5beb  f7 e8 3f
     ldy #0x01               ;5bee  a0 01
     jsr 0xf22c              ;5bf0  20 2c f2
-    lda 0x0323              ;5bf3  ad 23 03
+    lda 0x0323              ;5bf3  ad 23 03     A = uart rx buffer byte 3
     sta 0x4c                ;5bf6  85 4c
-    lda 0x0324              ;5bf8  ad 24 03
+    lda 0x0324              ;5bf8  ad 24 03     A = uart rx buffer byte 4
     sta 0x4d                ;5bfb  85 4d
-    lda 0x0325              ;5bfd  ad 25 03
+    lda 0x0325              ;5bfd  ad 25 03     A = uart rx buffer byte 5
     sta 0x4f                ;5c00  85 4f
     dec a                   ;5c02  1a
     clc                     ;5c03  18
@@ -11461,7 +11493,7 @@ lab_5c18:
 lab_5c25:
     lda #0x04               ;5c25  a9 04
     sta 0x0344              ;5c27  8d 44 03
-    jsr 0x5adf              ;5c2a  20 df 5a
+    jsr 0x5adf              ;5c2a  20 df 5a     Send 10 01 5E <0x0344> CS
 
 lab_5c2d:
     rts                     ;5c2d  60
@@ -11469,11 +11501,11 @@ lab_5c2d:
 lab_5c2e:
     ldy #0x01               ;5c2e  a0 01
     jsr 0xf22c              ;5c30  20 2c f2
-    lda 0x0323              ;5c33  ad 23 03
+    lda 0x0323              ;5c33  ad 23 03     A = uart rx buffer byte 3
     sta 0x4c                ;5c36  85 4c
-    lda 0x0324              ;5c38  ad 24 03
+    lda 0x0324              ;5c38  ad 24 03     A = uart rx buffer byte 4
     sta 0x4d                ;5c3b  85 4d
-    lda 0x0321              ;5c3d  ad 21 03
+    lda 0x0321              ;5c3d  ad 21 03     A = uart rx buffer byte 1
     dec a                   ;5c40  1a
     dec a                   ;5c41  1a
     sta 0x4e                ;5c42  85 4e
@@ -11492,7 +11524,7 @@ lab_5c2e:
 lab_5c61:
     lda #0x20               ;5c61  a9 20
     sta 0x0344              ;5c63  8d 44 03
-    jsr 0x5adf              ;5c66  20 df 5a
+    jsr 0x5adf              ;5c66  20 df 5a     Send 10 01 5E <0x0344> CS
     bra 0x5c7d              ;5c69  80 12
 
 lab_5c6b:
@@ -11504,7 +11536,7 @@ lab_5c6b:
     sta 0x0344              ;5c77  8d 44 03
 
 lab_5c7a:
-    jsr 0x5adf              ;5c7a  20 df 5a
+    jsr 0x5adf              ;5c7a  20 df 5a     Send 10 01 5E <0x0344> CS
 
 lab_5c7d:
     rts                     ;5c7d  60
@@ -11512,11 +11544,11 @@ lab_5c7d:
 lab_5c7e:
     ldy #0x01               ;5c7e  a0 01
     jsr 0xf22c              ;5c80  20 2c f2
-    lda 0x0323              ;5c83  ad 23 03
+    lda 0x0323              ;5c83  ad 23 03     A = uart rx buffer byte 3
     sta 0x4c                ;5c86  85 4c
-    lda 0x0324              ;5c88  ad 24 03
+    lda 0x0324              ;5c88  ad 24 03     A = uart rx buffer byte 4
     sta 0x4d                ;5c8b  85 4d
-    lda 0x0325              ;5c8d  ad 25 03
+    lda 0x0325              ;5c8d  ad 25 03     A = uart rx buffere byte 5
     sta 0x4e                ;5c90  85 4e
     com 0x4e                ;5c92  44 4e
     ldm #0x00,0x4f          ;5c94  3c 00 4f
@@ -11534,17 +11566,17 @@ lab_5ca9:
     sta 0x0344              ;5cab  8d 44 03
 
 lab_5cae:
-    jsr 0x5adf              ;5cae  20 df 5a
+    jsr 0x5adf              ;5cae  20 df 5a     Send 10 01 5E <0x0344> CS
     rts                     ;5cb1  60
 
 lab_5cb2:
     ldy #0x01               ;5cb2  a0 01
     jsr 0xf22c              ;5cb4  20 2c f2
-    lda 0x0323              ;5cb7  ad 23 03
+    lda 0x0323              ;5cb7  ad 23 03     A = uart rx buffer byte 3
     sta 0x4c                ;5cba  85 4c
-    lda 0x0324              ;5cbc  ad 24 03
+    lda 0x0324              ;5cbc  ad 24 03     A = uart rx buffer byte 4
     sta 0x4d                ;5cbf  85 4d
-    lda 0x0325              ;5cc1  ad 25 03
+    lda 0x0325              ;5cc1  ad 25 03     A = uart rx buffer byte 5
     sta 0x4e                ;5cc4  85 4e
     ldm #0x00,0x4f          ;5cc6  3c 00 4f
     jsr 0x5e62              ;5cc9  20 62 5e
@@ -11561,14 +11593,14 @@ lab_5cdb:
     sta 0x0344              ;5cdd  8d 44 03
 
 lab_5ce0:
-    jsr 0x5adf              ;5ce0  20 df 5a
+    jsr 0x5adf              ;5ce0  20 df 5a     Send 10 01 5E <0x0344> CS
     rts                     ;5ce3  60
 
 lab_5ce4:
     bbc 7,0xe8,0x5d21       ;5ce4  f7 e8 3a
     ldy #0x01               ;5ce7  a0 01
     jsr 0xf22c              ;5ce9  20 2c f2
-    lda 0x0323              ;5cec  ad 23 03
+    lda 0x0323              ;5cec  ad 23 03     A = uart rx buffer byte 3
     cmp #0x0a               ;5cef  c9 0a
     bcs 0x5d19              ;5cf1  b0 26
     asl a                   ;5cf3  0a
@@ -11595,7 +11627,7 @@ lab_5d19:
     sta 0x0344              ;5d1b  8d 44 03
 
 lab_5d1e:
-    jsr 0x5adf              ;5d1e  20 df 5a
+    jsr 0x5adf              ;5d1e  20 df 5a     Send 10 01 5E <0x0344> CS
 
 lab_5d21:
     rts                     ;5d21  60
@@ -11603,7 +11635,7 @@ lab_5d21:
 lab_5d22:
     ldy #0x01               ;5d22  a0 01
     jsr 0xf22c              ;5d24  20 2c f2
-    lda 0x0323              ;5d27  ad 23 03
+    lda 0x0323              ;5d27  ad 23 03     A = uart rx buffer byte 3
     cmp #0x0a               ;5d2a  c9 0a
     bcs 0x5d60              ;5d2c  b0 32
     asl a                   ;5d2e  0a
@@ -11620,9 +11652,9 @@ lab_5d22:
 
 lab_5d47:
     ldm #0x00,0x4f          ;5d47  3c 00 4f
-    lda 0x0325              ;5d4a  ad 25 03
+    lda 0x0325              ;5d4a  ad 25 03     A = uart rx buffer byte 5
     sta 0x0326              ;5d4d  8d 26 03
-    lda 0x0324              ;5d50  ad 24 03
+    lda 0x0324              ;5d50  ad 24 03     A = uart rx buffer byte 4
     sta 0x0325              ;5d53  8d 25 03
     lda #0x00               ;5d56  a9 00
     sta 0x0344              ;5d58  8d 44 03
@@ -11634,13 +11666,13 @@ lab_5d60:
     sta 0x0344              ;5d62  8d 44 03
 
 lab_5d65:
-    jsr 0x5adf              ;5d65  20 df 5a
+    jsr 0x5adf              ;5d65  20 df 5a     Send 10 01 5E <0x0344> CS
     rts                     ;5d68  60
 
 lab_5d69:
     ldy #0x01               ;5d69  a0 01
     jsr 0xf22c              ;5d6b  20 2c f2
-    lda 0x0323              ;5d6e  ad 23 03
+    lda 0x0323              ;5d6e  ad 23 03     A = uart rx buffer byte 3
     cmp #0x0a               ;5d71  c9 0a
     bcs 0x5daa              ;5d73  b0 35
     cmp #0x04               ;5d75  c9 04
@@ -11654,7 +11686,7 @@ lab_5d69:
     lda 0x59fe,y            ;5d84  b9 fe 59
     and #0x0f               ;5d87  29 0f
     sta 0x4d                ;5d89  85 4d
-    lda 0x0324              ;5d8b  ad 24 03
+    lda 0x0324              ;5d8b  ad 24 03     A = uart rx buffer byte 4
     sta 0x4e                ;5d8e  85 4e
     com 0x4e                ;5d90  44 4e
     ldm #0x00,0x4f          ;5d92  3c 00 4f
@@ -11678,13 +11710,13 @@ lab_5daa:
     sta 0x0344              ;5dac  8d 44 03
 
 lab_5daf:
-    jsr 0x5adf              ;5daf  20 df 5a
+    jsr 0x5adf              ;5daf  20 df 5a     Send 10 01 5E <0x0344> CS
     rts                     ;5db2  60
 
 lab_5db3:
     ldy #0x01               ;5db3  a0 01
     jsr 0xf22c              ;5db5  20 2c f2
-    lda 0x0323              ;5db8  ad 23 03
+    lda 0x0323              ;5db8  ad 23 03     A = uart rx buffer byte 3
     cmp #0x0a               ;5dbb  c9 0a
     bcs 0x5dfc              ;5dbd  b0 3d
     cmp #0x04               ;5dbf  c9 04
@@ -11698,7 +11730,7 @@ lab_5db3:
     lda 0x59fe,y            ;5dce  b9 fe 59
     and #0x0f               ;5dd1  29 0f
     sta 0x4d                ;5dd3  85 4d
-    lda 0x0324              ;5dd5  ad 24 03
+    lda 0x0324              ;5dd5  ad 24 03     A = uart rx buffer byte 4
     sta 0x4e                ;5dd8  85 4e
     ldm #0x00,0x4f          ;5dda  3c 00 4f
     ldy #0x00               ;5ddd  a0 00
@@ -11714,7 +11746,7 @@ lab_5dea:
 
 lab_5dee:
     bbc 6,0xe9,0x5e01       ;5dee  d7 e9 10
-    lda 0x0324              ;5df1  ad 24 03
+    lda 0x0324              ;5df1  ad 24 03     A = uart rx buffer byte 4
     cmp #0x02               ;5df4  c9 02
     bne 0x5e01              ;5df6  d0 09
     seb 1,0xff              ;5df8  2f ff
@@ -11725,21 +11757,21 @@ lab_5dfc:
     sta 0x0344              ;5dfe  8d 44 03
 
 lab_5e01:
-    jsr 0x5adf              ;5e01  20 df 5a
+    jsr 0x5adf              ;5e01  20 df 5a     Send 10 01 5E <0x0344> CS
     rts                     ;5e04  60
 
 sub_5e05:
     seb 6,0xe5              ;5e05  cf e5
     lda #0x10               ;5e07  a9 10
     sta 0x0343              ;5e09  8d 43 03
-    jsr 0x5ad5              ;5e0c  20 d5 5a
+    jsr 0x5ad5              ;5e0c  20 d5 5a     Send byte
     lda 0x4f                ;5e0f  a5 4f
-    jsr 0x5ad5              ;5e11  20 d5 5a
+    jsr 0x5ad5              ;5e11  20 d5 5a     Send byte
     clc                     ;5e14  18
     adc 0x0343              ;5e15  6d 43 03
     sta 0x0343              ;5e18  8d 43 03
     lda #0x44               ;5e1b  a9 44
-    jsr 0x5ad5              ;5e1d  20 d5 5a
+    jsr 0x5ad5              ;5e1d  20 d5 5a     Send byte
     clc                     ;5e20  18
     adc 0x0343              ;5e21  6d 43 03
     sta 0x0343              ;5e24  8d 43 03
@@ -11747,7 +11779,7 @@ sub_5e05:
 
 lab_5e29:
     lda [0x4c],y            ;5e29  b1 4c
-    jsr 0x5ad5              ;5e2b  20 d5 5a
+    jsr 0x5ad5              ;5e2b  20 d5 5a     Send byte
     clc                     ;5e2e  18
     adc 0x0343              ;5e2f  6d 43 03
     sta 0x0343              ;5e32  8d 43 03
@@ -11755,7 +11787,7 @@ lab_5e29:
     cpy 0x4f                ;5e36  c4 4f
     bne 0x5e29              ;5e38  d0 ef
     eor #0xff               ;5e3a  49 ff
-    jsr 0x5ad5              ;5e3c  20 d5 5a
+    jsr 0x5ad5              ;5e3c  20 d5 5a     Send byte
     ldy #0x01               ;5e3f  a0 01
     jsr 0xf22c              ;5e41  20 2c f2
     clb 6,0xe5              ;5e44  df e5
@@ -11768,7 +11800,7 @@ sub_5e47:
 lab_5e4b:
     jsr 0x5e62              ;5e4b  20 62 5e
     bcs 0x5e61              ;5e4e  b0 11
-    lda 0x0325,y            ;5e50  b9 25 03
+    lda 0x0325,y            ;5e50  b9 25 03     A = uart rx buffer byte 5 +
     sta [0x4c,x]            ;5e53  81 4c
     inc 0x4c                ;5e55  e6 4c
     bne 0x5e5b              ;5e57  d0 02
@@ -11843,22 +11875,23 @@ lab_5e9b:
     sta 0x0344              ;5ea9  8d 44 03
     lda #0x10               ;5eac  a9 10
     sta 0x0343              ;5eae  8d 43 03
-    jsr 0x5ad5              ;5eb1  20 d5 5a
+    jsr 0x5ad5              ;5eb1  20 d5 5a     Send byte   0x10
     lda 0x4f                ;5eb4  a5 4f
-    jsr 0x5ad5              ;5eb6  20 d5 5a
+    jsr 0x5ad5              ;5eb6  20 d5 5a     Send byte   0x4f
     clc                     ;5eb9  18
     adc 0x0343              ;5eba  6d 43 03
     sta 0x0343              ;5ebd  8d 43 03
     lda #0x48               ;5ec0  a9 48
-    jsr 0x5ad5              ;5ec2  20 d5 5a
+    jsr 0x5ad5              ;5ec2  20 d5 5a     Send byte   0x48
     clc                     ;5ec5  18
     adc 0x0343              ;5ec6  6d 43 03
     sta 0x0343              ;5ec9  8d 43 03
     ldy #0x00               ;5ecc  a0 00
 
+;TODO is this reading the eeprom?
 lab_5ece:
     lda 0x0102,y            ;5ece  b9 02 01
-    jsr 0x5ad5              ;5ed1  20 d5 5a
+    jsr 0x5ad5              ;5ed1  20 d5 5a     Send byte   (eeprom contents?)
     clc                     ;5ed4  18
     adc 0x0343              ;5ed5  6d 43 03
     sta 0x0343              ;5ed8  8d 43 03
@@ -11866,7 +11899,7 @@ lab_5ece:
     cpy 0x4f                ;5edc  c4 4f
     bne 0x5ece              ;5ede  d0 ee
     eor #0xff               ;5ee0  49 ff
-    jsr 0x5ad5              ;5ee2  20 d5 5a
+    jsr 0x5ad5              ;5ee2  20 d5 5a     Send byte   (checksum)
     ldy #0x01               ;5ee5  a0 01
     jsr 0xf22c              ;5ee7  20 2c f2
     clb 6,0xe5              ;5eea  df e5
@@ -11875,37 +11908,43 @@ lab_5ece:
 lab_5eee:
     lda #0x05               ;5eee  a9 05
     sta 0x0344              ;5ef0  8d 44 03
-    jsr 0x5adf              ;5ef3  20 df 5a
+    jsr 0x5adf              ;5ef3  20 df 5a     Send 10 01 5E <0x0344> CS
 
 lab_5ef6:
     rts                     ;5ef6  60
 
+
+;Called from KWP1281 Read EEPROM (lab_a48d)
+;Also called from TechniSat protocol code (lab_5e9b)
 sub_5ef7:
     lda #0x00               ;5ef7  a9 00
     sta 0x4c                ;5ef9  85 4c
     lda #0x01               ;5efb  a9 01
     sta 0x4d                ;5efd  85 4d
     ldm #0x02,0x4e          ;5eff  3c 02 4e
-    lda 0x0325              ;5f02  ad 25 03
+
+    lda 0x0325              ;5f02  ad 25 03     A = KWP1281 rx buffer byte 5 (address low)
     sta 0x4f                ;5f05  85 4f
     dec a                   ;5f07  1a
     clc                     ;5f08  18
     adc 0x0323              ;5f09  6d 23 03
     lda #0x00               ;5f0c  a9 00
     adc 0x0324              ;5f0e  6d 24 03
-    cmp #0x08               ;5f11  c9 08
-    bcs 0x5f4c              ;5f13  b0 37
-    lda 0x0323              ;5f15  ad 23 03
+
+    cmp #0x08               ;5f11  c9 08        Compare address high with 0x08:
+    bcs 0x5f4c              ;5f13  b0 37        Return with carry set if address high >= 0x08
+
+    lda 0x0323              ;5f15  ad 23 03     A = uart rx buffer byte 3
     sta 0x0101              ;5f18  8d 01 01
-    lda 0x0324              ;5f1b  ad 24 03
+    lda 0x0324              ;5f1b  ad 24 03     A = uart rx buffer byte 4
     asl a                   ;5f1e  0a
     ora #0xa0               ;5f1f  09 a0
     sta 0x0100              ;5f21  8d 00 01
     jsr 0x46e5              ;5f24  20 e5 46
     bbs 6,0xe9,0x5f4b       ;5f27  c7 e9 21
-    lda 0x0323              ;5f2a  ad 23 03
+    lda 0x0323              ;5f2a  ad 23 03     A = uart rx buffer byte 3
     sta 0x4c                ;5f2d  85 4c
-    lda 0x0324              ;5f2f  ad 24 03
+    lda 0x0324              ;5f2f  ad 24 03     A = uart rx buffer byte 4
     sta 0x4d                ;5f32  85 4d
     ldy #0x00               ;5f34  a0 00
 
@@ -11941,22 +11980,22 @@ lab_5f4d:
 sub_5f59:
     lda #0x05               ;5f59  a9 05
     sta 0x0344              ;5f5b  8d 44 03
-    lda 0x0321              ;5f5e  ad 21 03
+    lda 0x0321              ;5f5e  ad 21 03     A = uart rx buffer byte 1
     dec a                   ;5f61  1a
     dec a                   ;5f62  1a
     sta 0x4e                ;5f63  85 4e
     ldm #0x00,0x4f          ;5f65  3c 00 4f
     dec a                   ;5f68  1a
     clc                     ;5f69  18
-    adc 0x0323              ;5f6a  6d 23 03
+    adc 0x0323              ;5f6a  6d 23 03     add to uart rx buffer byte 3
     lda #0x00               ;5f6d  a9 00
-    adc 0x0324              ;5f6f  6d 24 03
+    adc 0x0324              ;5f6f  6d 24 03     add to uart rx buffer byte 4
     cmp #0x08               ;5f72  c9 08
     bcs 0x5fbe              ;5f74  b0 48
     bbs 6,0xe9,0x5f96       ;5f76  c7 e9 1d
-    lda 0x0323              ;5f79  ad 23 03
+    lda 0x0323              ;5f79  ad 23 03     A = uart rx buffer byte 3
     sta 0x4c                ;5f7c  85 4c
-    lda 0x0324              ;5f7e  ad 24 03
+    lda 0x0324              ;5f7e  ad 24 03     A = uart rx buffer byte 4
     sta 0x4d                ;5f81  85 4d
     ldy #0x00               ;5f83  a0 00
 
@@ -11975,9 +12014,9 @@ lab_5f90:
 
 lab_5f96:
     bcs 0x5fbe              ;5f96  b0 26
-    lda 0x0323              ;5f98  ad 23 03
+    lda 0x0323              ;5f98  ad 23 03     A = uart rx buffer byte 3
     sta 0x4a                ;5f9b  85 4a
-    lda 0x0324              ;5f9d  ad 24 03
+    lda 0x0324              ;5f9d  ad 24 03     A = uart rx buffer byte 4
     sta 0x4b                ;5fa0  85 4b
     lda #0x00               ;5fa2  a9 00
     sta 0x4c                ;5fa4  85 4c
@@ -11987,7 +12026,7 @@ lab_5f96:
     dex                     ;5fac  ca
 
 lab_5fad:
-    lda 0x0325,x            ;5fad  bd 25 03
+    lda 0x0325,x            ;5fad  bd 25 03     A = uart rx buffer byte 5+
     sta 0x0102,x            ;5fb0  9d 02 01
     dex                     ;5fb3  ca
     bpl 0x5fad              ;5fb4  10 f7
@@ -24771,9 +24810,9 @@ lab_a075:
     rts                     ;a075  60
 
 sub_a076:
-    lda 0x0323              ;a076  ad 23 03
+    lda 0x0323              ;a076  ad 23 03     A = uart rx buffer byte 3
     sta 0x0102              ;a079  8d 02 01
-    lda 0x0324              ;a07c  ad 24 03
+    lda 0x0324              ;a07c  ad 24 03     A = uart rx buffer byte 4
     sta 0x0103              ;a07f  8d 03 01
     jsr 0xa0d5              ;a082  20 d5 a0
     ldy #0x04               ;a085  a0 04
@@ -24787,13 +24826,13 @@ lab_a087:
 lab_a091:
     dey                     ;a091  88
     bpl 0xa087              ;a092  10 f3
-    lda 0x0323              ;a094  ad 23 03
+    lda 0x0323              ;a094  ad 23 03     A = uart rx buffer byte 3
     sta 0x0102              ;a097  8d 02 01
-    lda 0x0324              ;a09a  ad 24 03
+    lda 0x0324              ;a09a  ad 24 03     A = uart rx buffer byte 4
     sta 0x0103              ;a09d  8d 03 01
-    lda 0x0325              ;a0a0  ad 25 03
+    lda 0x0325              ;a0a0  ad 25 03     A = uart rx buffer byte 5
     sta 0x0104              ;a0a3  8d 04 01
-    lda 0x0326              ;a0a6  ad 26 03
+    lda 0x0326              ;a0a6  ad 26 03     A = uart rx buffer byte 6
     sta 0x0105              ;a0a9  8d 05 01
     lda #0x00               ;a0ac  a9 00
     sta 0x0106              ;a0ae  8d 06 01
@@ -24852,9 +24891,9 @@ sub_a10a:
     pha                     ;a10c  48
     lda 0x45                ;a10d  a5 45
     pha                     ;a10f  48
-    lda 0x0323              ;a110  ad 23 03
+    lda 0x0323              ;a110  ad 23 03     A = uart rx buffer byte 3
     sta 0x45                ;a113  85 45
-    lda 0x0324              ;a115  ad 24 03
+    lda 0x0324              ;a115  ad 24 03     A = uart rx buffer byte 4
     sta 0x44                ;a118  85 44
     jsr 0x6be9              ;a11a  20 e9 6b
     pla                     ;a11d  68
@@ -24868,13 +24907,13 @@ sub_a124:
     lda 0x0103              ;a127  ad 03 01
     and #0xfe               ;a12a  29 fe
     sta 0x0103              ;a12c  8d 03 01
-    lda 0x0325              ;a12f  ad 25 03
+    lda 0x0325              ;a12f  ad 25 03     A = uart rx buffer byte 5
     and #0x01               ;a132  29 01
     ora 0x0103              ;a134  0d 03 01
     sta 0x0103              ;a137  8d 03 01
-    lda 0x0326              ;a13a  ad 26 03
+    lda 0x0326              ;a13a  ad 26 03     A = uart rx buffer byte 6
     sta 0x0104              ;a13d  8d 04 01
-    lda 0x0327              ;a140  ad 27 03
+    lda 0x0327              ;a140  ad 27 03     A = uart rx buffer byte 7
     sta 0x0105              ;a143  8d 05 01
     jsr 0xa0b1              ;a146  20 b1 a0
     rts                     ;a149  60
@@ -25141,7 +25180,7 @@ lab_a282:
     sta 0x0334,y            ;a282  99 34 03
     iny                     ;a285  c8
     cpy 0x0323              ;a286  cc 23 03
-    bcc 0xa278              ;a289  90 ed        
+    bcc 0xa278              ;a289  90 ed
     lda #0x00               ;a28b  a9 00
     sta 0x05b7              ;a28d  8d b7 05
     jsr 0xb69f              ;a290  20 9f b6
@@ -25516,14 +25555,26 @@ lab_a489:
     rts                     ;a48c  60
 
 
-;read eeprom
+;KWP1281 Read EEPROM
+;
+;  0x06 Block length                    0x0320
+;  0x3E Block counter                   0x0321
+;  0x03 Block title (0x03 or 0x19)      0x0322
+;  0x00 Number of bytes to read         0x0323
+;  0x00 Address high                    0x0324
+;  0x00 Address low                     0x0325
+;  0x03 Block end                       0x0326
+;
 lab_a48d:
     bbc 1,0xe7,0xa4cb       ;a48d  37 e7 3b     if not authorized, branch to send nak response
     clb 6,0xe9              ;a490  df e9
-    lda 0x0323              ;a492  ad 23 03
-    beq 0xa4cb              ;a495  f0 34        send nak response
-    cmp #0x21               ;a497  c9 21
-    bcs 0xa4cb              ;a499  b0 30        send nak response
+
+    lda 0x0323              ;a492  ad 23 03     A = number of bytes to read
+    beq 0xa4cb              ;a495  f0 34        Send nak response if number = 0
+
+    cmp #0x21               ;a497  c9 21        Compare to 41
+    bcs 0xa4cb              ;a499  b0 30        Send nak response if number >= 41
+
     ldx 0x0325              ;a49b  ae 25 03
     stx 0xaabb              ;a49e  8e 23 03
     sta 0x0325              ;a4a1  8d 25 03
@@ -25692,7 +25743,7 @@ lab_a52c:
 
 ;group reading
 lab_a54e:
-    lda 0x0323              ;a54e  ad 23 03
+    lda 0x0323              ;a54e  ad 23 03     A = uart rx buffer byte 3
     sta 0x05bb              ;a551  8d bb 05
     ldx #0x00               ;a554  a2 00
 
@@ -28640,7 +28691,7 @@ sub_b461:
 
 ;unknown block title 7f
 lab_b466:
-    lda 0x0321              ;b466  ad 21 03
+    lda 0x0321              ;b466  ad 21 03     A = uart rx buffer byte 1
 
 lab_b469:
     sta 0x0334              ;b469  8d 34 03
@@ -28835,7 +28886,7 @@ lab_b592:
     bne 0xb5aa              ;b597  d0 11            No: branch
 
     ;block title = nak
-    lda 0x0323              ;b599  ad 23 03
+    lda 0x0323              ;b599  ad 23 03     A = uart rx buffer byte 3
     cmp 0x0321              ;b59c  cd 21 03
     beq 0xb5aa              ;b59f  f0 09
     inc 0x0332              ;b5a1  ee 32 03
@@ -28891,7 +28942,7 @@ lab_b5f9:
 
 lab_b60b:
     ldx 0x05ad              ;b60b  ae ad 05
-    lda 0x0320,x            ;b60e  bd 20 03
+    lda 0x0320,x            ;b60e  bd 20 03     A = uart rx buffer byte 0+
     eor #0xff               ;b611  49 ff
     jsr 0x5ac5              ;b613  20 c5 5a     Send byte
     lda #0x05               ;b616  a9 05
@@ -29213,7 +29264,7 @@ lab_b80e:
 lab_b81a:
     lda #0x01               ;b81a  a9 01
     sta 0x05b2              ;b81c  8d b2 05
-    lda 0x0321              ;b81f  ad 21 03
+    lda 0x0321              ;b81f  ad 21 03     A = UART rx buffer byte 1
     inc a                   ;b822  3a
     sta 0x05ae              ;b823  8d ae 05
     ldx #0x01               ;b826  a2 01
@@ -41366,6 +41417,8 @@ lab_f620:
     clb 7,0xff              ;fefa  ff ff
     clb 7,0xff              ;fefc  ff ff
     clb 7,0xff              ;fefe  ff ff
+
+;start of encryption key used by a27e
     clb 7,0xff              ;ff00  ff ff
     clb 7,0xff              ;ff02  ff ff
     clb 7,0xff              ;ff04  ff ff
@@ -41398,8 +41451,8 @@ lab_f620:
     clb 7,0xff              ;ff3a  ff ff
     clb 7,0xff              ;ff3c  ff ff
     clb 7,0xff              ;ff3e  ff ff
-    .byte 0x54              ;ff40  54
 
+    .byte 0x54              ;ff40  54          DATA 0x54 'T'
     .byte 0x65              ;ff41  65          DATA 0x65 'e'
     .byte 0x63              ;ff42  63          DATA 0x63 'c'
     .byte 0x68              ;ff43  68          DATA 0x68 'h'
@@ -41558,6 +41611,7 @@ lab_f620:
     .byte 0x00              ;ffdc  00          DATA 0x00
 
     .word lab_f620          ;ffdd  20 f6       VECTOR
+
     .word lab_3731          ;ffdf  31 37       VECTOR
     .word 0xf66d            ;ffe1  6d f6       VECTOR
     .word 0xf631            ;ffe3  31 f6       VECTOR
