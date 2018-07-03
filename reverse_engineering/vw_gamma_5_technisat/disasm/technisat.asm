@@ -916,7 +916,7 @@ sub_263e:
 
 lab_264c:
     ldx #0x00               ;264c  a2 00
-    stx 0xaabb              ;264e  8e 80 03
+    stx 0x0380              ;264e  8e 80 03
 
 lab_2651:
     cmp #0x93               ;2651  c9 93
@@ -15737,7 +15737,7 @@ lab_7163:
     ldx #0x03               ;718a  a2 03
 
 lab_718c:
-    stx 0xaabb              ;718c  8e 02 01
+    stx 0x0102              ;718c  8e 02 01
     lda #0x8c               ;718f  a9 8c
     sta 0x0100              ;7191  8d 00 01
     lda #0x0b               ;7194  a9 0b
@@ -20801,7 +20801,7 @@ sub_8b8c:
     bcc 0x8bbd              ;8bab  90 10
     ldm #0x03,0xbb          ;8bad  3c 03 bb
     ldx #0x00               ;8bb0  a2 00
-    stx 0xaabb              ;8bb2  8e 6f 01
+    stx 0x016f              ;8bb2  8e 6f 01
     ldm #0x00,0x71          ;8bb5  3c 00 71
     jsr 0x9204              ;8bb8  20 04 92
     bra 0x8bc9              ;8bbb  80 0c
@@ -24747,20 +24747,20 @@ sub_9fe2:
     ldy 0x0294              ;a001  ac 94 02
     cpy #0x02               ;a004  c0 02
     bne 0xa00e              ;a006  d0 06
-    stx 0xaabb              ;a008  8e 94 02
-    stx 0xaabb              ;a00b  8e a4 02
+    stx 0x0294              ;a008  8e 94 02
+    stx 0x02a4              ;a00b  8e a4 02
 
 lab_a00e:
     bbs 5,a,0xa01c          ;a00e  a3 0c
-    stx 0xaabb              ;a010  8e 99 02
-    stx 0xaabb              ;a013  8e a9 02
-    stx 0xaabb              ;a016  8e 9a 02
-    stx 0xaabb              ;a019  8e aa 02
+    stx 0x0299              ;a010  8e 99 02
+    stx 0x02a9              ;a013  8e a9 02
+    stx 0x029a              ;a016  8e 9a 02
+    stx 0x02aa              ;a019  8e aa 02
 
 lab_a01c:
     bbs 6,a,0xa024          ;a01c  c3 06
-    stx 0xaabb              ;a01e  8e 97 02
-    stx 0xaabb              ;a021  8e a7 02
+    stx 0x0297              ;a01e  8e 97 02
+    stx 0x02a7              ;a021  8e a7 02
 
 lab_a024:
     and #0x07               ;a024  29 07
@@ -25144,7 +25144,7 @@ lab_a253:
 
     sta 0x4d                ;a256  85 4d        Store address high as pointer high byte
 
-    stx 0xaabb              ;a258  8e 33 03
+    stx 0x0333              ;a258  8e 33 03
 
     ldx 0x0320              ;a25b  ae 20 03     X = block length
     cpx #0x07               ;a25e  e0 07        Compare to 7 (expected block length = 6)
@@ -25514,7 +25514,7 @@ lab_a444:
     ldx #0x00               ;a456  a2 00
 
 lab_a458:
-    stx 0xaabb              ;a458  8e b7 05
+    stx 0x05b7              ;a458  8e b7 05
     jsr 0xb69f              ;a45b  20 9f b6
     rts                     ;a45e  60
 
@@ -25557,6 +25557,7 @@ lab_a489:
 
 ;KWP1281 Read EEPROM
 ;
+;Request block format:
 ;  0x06 Block length                    0x0320
 ;  0x3E Block counter                   0x0321
 ;  0x03 Block title (0x03 or 0x19)      0x0322
@@ -25576,7 +25577,7 @@ lab_a48d:
     bcs 0xa4cb              ;a499  b0 30        Send nak response if number >= 41
 
     ldx 0x0325              ;a49b  ae 25 03
-    stx 0xaabb              ;a49e  8e 23 03
+    stx 0x0323              ;a49e  8e 23 03
     sta 0x0325              ;a4a1  8d 25 03
     clc                     ;a4a4  18
     adc #0x03               ;a4a5  69 03
@@ -27002,7 +27003,7 @@ lab_aac6:
     cpx #0x0a               ;aac6  e0 0a
     bcs 0xaad9              ;aac8  b0 0f
     inx                     ;aaca  e8
-    stx 0xaabb              ;aacb  8e bf 05
+    stx 0x05bf              ;aacb  8e bf 05
     cpx #0x0a               ;aace  e0 0a
     bcc 0xaad9              ;aad0  90 07
     lda #0x01               ;aad2  a9 01
@@ -27076,7 +27077,7 @@ sub_ab18:
     sta 0x0290,x            ;ab1d  9d 90 02
     lda #0x32               ;ab20  a9 32
     sta 0x02a0,x            ;ab22  9d a0 02
-    stx 0xaabb              ;ab25  8e 03 01
+    stx 0x0103              ;ab25  8e 03 01
     pla                     ;ab28  68
     jsr 0xab35              ;ab29  20 35 ab
     clc                     ;ab2c  18
@@ -28137,7 +28138,7 @@ lab_b0e0:
 
 sub_b0e1:
     ldx #0x01               ;b0e1  a2 01
-    stx 0xaabb              ;b0e3  8e 0e 06
+    stx 0x060e              ;b0e3  8e 0e 06
 
 lab_b0e6:
     ldx 0x060e              ;b0e6  ae 0e 06
@@ -28149,7 +28150,7 @@ lab_b0e6:
 lab_b0f3:
     ldx 0x060e              ;b0f3  ae 0e 06
     inx                     ;b0f6  e8
-    stx 0xaabb              ;b0f7  8e 0e 06
+    stx 0x060e              ;b0f7  8e 0e 06
     cpx 0x060f              ;b0fa  ec 0f 06
     bcc 0xb0e6              ;b0fd  90 e7
     beq 0xb0e6              ;b0ff  f0 e5
@@ -28384,7 +28385,7 @@ lab_b23d:
 lab_b24c:
     cpx #0x01               ;b24c  e0 01
     bcc 0xb27f              ;b24e  90 2f
-    stx 0xaabb              ;b250  8e 0d 06
+    stx 0x060d              ;b250  8e 0d 06
     ldy #0x00               ;b253  a0 00
     lda [0x40],y            ;b255  b1 40
     clb 1,0xfe              ;b257  3f fe
@@ -28473,7 +28474,7 @@ sub_b2d5:
     cmp #0x02               ;b2db  c9 02
     bcc 0xb332              ;b2dd  90 53
     ldx #0x01               ;b2df  a2 01
-    stx 0xaabb              ;b2e1  8e 0e 06
+    stx 0x060e              ;b2e1  8e 0e 06
 
 lab_b2e4:
     ldx 0x060e              ;b2e4  ae 0e 06
@@ -28514,7 +28515,7 @@ lab_b309:
 lab_b326:
     ldx 0x060e              ;b326  ae 0e 06
     inx                     ;b329  e8
-    stx 0xaabb              ;b32a  8e 0e 06
+    stx 0x060e              ;b32a  8e 0e 06
     cpx 0x060d              ;b32d  ec 0d 06
     bcc 0xb2e4              ;b330  90 b2
 
@@ -28699,7 +28700,7 @@ lab_b469:
     lda #0x0a               ;b46e  a9 0a        block title (nak)
 
 lab_b470:
-    stx 0xaabb              ;b470  8e 31 03
+    stx 0x0331              ;b470  8e 31 03
     sta 0x0333              ;b473  8d 33 03
     lda #0x00               ;b476  a9 00
     sta 0x05b7              ;b478  8d b7 05
@@ -29270,7 +29271,7 @@ lab_b81a:
     ldx #0x01               ;b826  a2 01
     ldy #0x0a               ;b828  a0 0a
     jsr 0xf21e              ;b82a  20 1e f2
-    stx 0xaabb              ;b82d  8e af 01
+    stx 0x01af              ;b82d  8e af 01
     ldy #0x27               ;b830  a0 27
     jsr 0x3300              ;b832  20 00 33
     jmp 0xb845              ;b835  4c 45 b8
@@ -30629,9 +30630,9 @@ lab_bfd5:
     lda 0x0111              ;bfd5  ad 11 01
     bbc 7,a,0xbfe4          ;bfd8  f3 0a
     ldx #0x54               ;bfda  a2 54
-    stx 0xaabb              ;bfdc  8e 22 01
+    stx 0x0122              ;bfdc  8e 22 01
     ldx #0x50               ;bfdf  a2 50
-    stx 0xaabb              ;bfe1  8e 23 01
+    stx 0x0123              ;bfe1  8e 23 01
 
 lab_bfe4:
     rts                     ;bfe4  60
@@ -30674,26 +30675,26 @@ sub_c00c:
     cpx #0x2e               ;c00f  e0 2e
     beq 0xc02a              ;c011  f0 17
     ldx 0x0127              ;c013  ae 27 01
-    stx 0xaabb              ;c016  8e 26 01
+    stx 0x0126              ;c016  8e 26 01
     ldx 0x0128              ;c019  ae 28 01
-    stx 0xaabb              ;c01c  8e 27 01
+    stx 0x0127              ;c01c  8e 27 01
     ldx 0x0129              ;c01f  ae 29 01
-    stx 0xaabb              ;c022  8e 28 01
+    stx 0x0128              ;c022  8e 28 01
     ldx #0x2e               ;c025  a2 2e
-    stx 0xaabb              ;c027  8e 29 01
+    stx 0x0129              ;c027  8e 29 01
 
 lab_c02a:
     rts                     ;c02a  60
 
 sub_c02b:
     ldx 0x011d              ;c02b  ae 1d 01
-    stx 0xaabb              ;c02e  8e 1c 01
+    stx 0x011c              ;c02e  8e 1c 01
     ldx 0x011e              ;c031  ae 1e 01
-    stx 0xaabb              ;c034  8e 1d 01
+    stx 0x011d              ;c034  8e 1d 01
     ldx 0x011f              ;c037  ae 1f 01
-    stx 0xaabb              ;c03a  8e 1e 01
+    stx 0x011e              ;c03a  8e 1e 01
     ldx #0x2e               ;c03d  a2 2e
-    stx 0xaabb              ;c03f  8e 1f 01
+    stx 0x011f              ;c03f  8e 1f 01
     rts                     ;c042  60
 
 sub_c043:
@@ -36327,7 +36328,7 @@ lab_ded2:
     inx                     ;ded9  e8
 
 lab_deda:
-    stx 0xaabb              ;deda  8e 98 03
+    stx 0x0398              ;deda  8e 98 03
     jsr 0xe61b              ;dedd  20 1b e6
     jsr 0xe67b              ;dee0  20 7b e6
     bra 0xdef1              ;dee3  80 0c
@@ -36792,7 +36793,7 @@ lab_e203:
     cmp 0x0420              ;e229  cd 20 04
     bcc 0xe203              ;e22c  90 d5
     sta 0x0420              ;e22e  8d 20 04
-    stx 0xaabb              ;e231  8e c0 03
+    stx 0x03c0              ;e231  8e c0 03
     bra 0xe203              ;e234  80 cd
 
 lab_e236:
@@ -37609,7 +37610,7 @@ sub_e753:
     ldx #0x02               ;e76b  a2 02
 
 lab_e76d:
-    stx 0xaabb              ;e76d  8e b5 03
+    stx 0x03b5              ;e76d  8e b5 03
     sty 0x03b6              ;e770  8c b6 03
     ldy 0x03b5              ;e773  ac b5 03
     lda 0xe750,y            ;e776  b9 50 e7
@@ -37802,7 +37803,7 @@ lab_e8cf:
     rts                     ;e8cf  60
 
 sub_e8d0:
-    stx 0xaabb              ;e8d0  8e b8 03
+    stx 0x03b8              ;e8d0  8e b8 03
     cpx #0x03               ;e8d3  e0 03
     bcc 0xe8da              ;e8d5  90 03
     jmp 0xe954              ;e8d7  4c 54 e9
@@ -37846,7 +37847,7 @@ lab_e907:
     bcs 0xe907              ;e92f  b0 d6
 
 lab_e931:
-    stx 0xaabb              ;e931  8e b7 03
+    stx 0x03b7              ;e931  8e b7 03
     cpy 0x03b7              ;e934  cc b7 03
     bcs 0xe907              ;e937  b0 ce
     ldx 0x03b5              ;e939  ae b5 03
@@ -38747,7 +38748,7 @@ lab_eec8:
     bcc 0xeec8              ;eed0  90 f6
 
 lab_eed2:
-    stx 0xaabb              ;eed2  8e ba 02
+    stx 0x02ba              ;eed2  8e ba 02
     lda 0xee88,x            ;eed5  bd 88 ee
     dec a                   ;eed8  1a
     sta 0x02bd              ;eed9  8d bd 02
