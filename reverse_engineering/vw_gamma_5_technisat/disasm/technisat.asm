@@ -25092,7 +25092,7 @@ lab_a22f:
     rts                     ;a235  60
 
 
-;Read ROM/EEPROM
+;KWP1281 0x03 Read ROM/EEPROM
 ;
 ;Request block format:
 ;  0x06 Block length                    0x0320
