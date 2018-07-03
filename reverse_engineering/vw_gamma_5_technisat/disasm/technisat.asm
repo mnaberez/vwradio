@@ -11916,6 +11916,19 @@ lab_5ef6:
 
 ;Called from KWP1281 Read EEPROM (lab_a48d)
 ;Also called from TechniSat protocol code (lab_5e9b)
+;Returns some status in the carry flag
+;
+;The KWP1281 rx buffer is modified before this subroutine
+;is called.  See the notes in lab_5e9b.  It looks like this:
+;
+;  0x06 Block length                0x0320
+;  0x3E Block counter               0x0321
+;  0x03 Block title (0x19)          0x0322
+;  0x00 Address low                 0x0323 <-+
+;  0x00 Address high                0x0324   | swapped from original request
+;  0x00 Number of bytes to read     0x0325 <-+
+;  0x03 Block end                   0x0326
+;
 sub_5ef7:
     lda #0x00               ;5ef7  a9 00
     sta 0x4c                ;5ef9  85 4c
@@ -11923,34 +11936,54 @@ sub_5ef7:
     sta 0x4d                ;5efd  85 4d
     ldm #0x02,0x4e          ;5eff  3c 02 4e
 
-    lda 0x0325              ;5f02  ad 25 03     A = KWP1281 rx buffer byte 5 (address low)
+    ;Now the KWP1281 rx buffer is going to be modified again.
+    ;The address in 0x0323-0324 is the start address to read.
+    ;It's now going to be changed to the end address.
+
+    lda 0x0325              ;5f02  ad 25 03     A = KWP1281 rx buffer: Number of bytes to read
     sta 0x4f                ;5f05  85 4f
     dec a                   ;5f07  1a
     clc                     ;5f08  18
-    adc 0x0323              ;5f09  6d 23 03
+    adc 0x0323              ;5f09  6d 23 03     Add to KWP1281 rx buffer: Address low
     lda #0x00               ;5f0c  a9 00
-    adc 0x0324              ;5f0e  6d 24 03
+    adc 0x0324              ;5f0e  6d 24 03     Add to KWP1281 rx buffer: Address high
+
+    ;Check address high
 
     cmp #0x08               ;5f11  c9 08        Compare address high with 0x08:
     bcs 0x5f4c              ;5f13  b0 37        Return with carry set if address high >= 0x08
 
-    lda 0x0323              ;5f15  ad 23 03     A = uart rx buffer byte 3
+    ;At this point, the KWP1281 rx buffer looks like this:
+    ;  0x06 Block length                0x0320
+    ;  0x3E Block counter               0x0321
+    ;  0x03 Block title (0x19)          0x0322
+    ;  0x00 End Address low             0x0323
+    ;  0x00 End Address high            0x0324
+    ;  0x00 Number of bytes to read     0x0325
+    ;  0x03 Block end                   0x0326
+
+    ;TODO: setting up something in 0x100-0x101
+    lda 0x0323              ;5f15  ad 23 03     A = KWP1281 rx buffer: End Address low
     sta 0x0101              ;5f18  8d 01 01
-    lda 0x0324              ;5f1b  ad 24 03     A = uart rx buffer byte 4
+    lda 0x0324              ;5f1b  ad 24 03     A = KWP1281 rx buffer: End Address high
     asl a                   ;5f1e  0a
     ora #0xa0               ;5f1f  09 a0
     sta 0x0100              ;5f21  8d 00 01
+
     jsr 0x46e5              ;5f24  20 e5 46
     bbs 6,0xe9,0x5f4b       ;5f27  c7 e9 21
-    lda 0x0323              ;5f2a  ad 23 03     A = uart rx buffer byte 3
-    sta 0x4c                ;5f2d  85 4c
-    lda 0x0324              ;5f2f  ad 24 03     A = uart rx buffer byte 4
-    sta 0x4d                ;5f32  85 4d
-    ldy #0x00               ;5f34  a0 00
 
+    ;Set up pointer at 0x004c with end address
+    lda 0x0323              ;5f2a  ad 23 03     A = KWP1281 rx buffer: End Address low
+    sta 0x4c                ;5f2d  85 4c
+    lda 0x0324              ;5f2f  ad 24 03     A = KWP1281 rx buffer: End Address high
+    sta 0x4d                ;5f32  85 4d
+
+    ldy #0x00               ;5f34  a0 00
 lab_5f36:
-    jsr 0x5fbf              ;5f36  20 bf 5f
-    bcc 0x5f40              ;5f39  90 05
+    jsr 0x5fbf              ;5f36  20 bf 5f     TODO looks like filtering
+    bcc 0x5f40              ;5f39  90 05        Skip filtering if carry clear
+
     lda #0x00               ;5f3b  a9 00
     sta 0x0102,y            ;5f3d  99 02 01
 
@@ -12038,6 +12071,8 @@ lab_5fbe:
     rts                     ;5fbe  60
 
 sub_5fbf:
+;TODO looks like filtering
+;returns carry clear=filter, carry set=no filter
     lda 0x4d                ;5fbf  a5 4d
     cmp #0x00               ;5fc1  c9 00
     bcc 0x5fdd              ;5fc3  90 18
@@ -25116,7 +25151,7 @@ lab_a236:
     bra 0xa253              ;a245  80 0c        Branch to memory read common code
 
 
-;Read RAM
+;KWP1281 0x01 Read RAM
 ;
 ;Request block format:
 ;  0x06 Block length                    0x0320
@@ -25555,16 +25590,23 @@ lab_a489:
     rts                     ;a48c  60
 
 
-;KWP1281 Read EEPROM
+;KWP1281 0x19 Read EEPROM
 ;
 ;Request block format:
-;  0x06 Block length                    0x0320
-;  0x3E Block counter                   0x0321
-;  0x03 Block title (0x03 or 0x19)      0x0322
-;  0x00 Number of bytes to read         0x0323
-;  0x00 Address high                    0x0324
-;  0x00 Address low                     0x0325
-;  0x03 Block end                       0x0326
+;  0x06 Block length                0x0320
+;  0x3E Block counter               0x0321
+;  0x03 Block title (0x19)          0x0322
+;  0x00 Number of bytes to read     0x0323
+;  0x00 Address high                0x0324
+;  0x00 Address low                 0x0325
+;  0x03 Block end                   0x0326
+;
+;Response block format:
+;  0x?? Block length                0x0331
+;  0x?? Block counter               0x0332
+;  0xEF Block title (0xEF)          0x0333
+;  ... data bytes ...               0x0334
+;  0x03 Block end (0x03)
 ;
 lab_a48d:
     bbc 1,0xe7,0xa4cb       ;a48d  37 e7 3b     if not authorized, branch to send nak response
@@ -25576,31 +25618,46 @@ lab_a48d:
     cmp #0x21               ;a497  c9 21        Compare to 41
     bcs 0xa4cb              ;a499  b0 30        Send nak response if number >= 41
 
-    ldx 0x0325              ;a49b  ae 25 03
-    stx 0x0323              ;a49e  8e 23 03
-    sta 0x0325              ;a4a1  8d 25 03
-    clc                     ;a4a4  18
-    adc #0x03               ;a4a5  69 03
-    sta 0x0331              ;a4a7  8d 31 03
-    jsr 0x5ef7              ;a4aa  20 f7 5e
-    bcs 0xa4cb              ;a4ad  b0 1c        send nak response
-    ldy #0xef               ;a4af  a0 ef
-    sty 0x0333              ;a4b1  8c 33 03
-    ldy #0x00               ;a4b4  a0 00
+    ;Swap bytes 0x323 and 0x325 in the KWP1281 rx buffer
+    ldx 0x0325              ;a49b  ae 25 03     X = address low
+    stx 0x0323              ;a49e  8e 23 03     Store address low in KWP1281 rx buffer # of bytes to read
+    sta 0x0325              ;a4a1  8d 25 03     Store # of bytes to read in KWP1281 rx buffer address low
 
+    ;Now the KWP1281 rx buffer looks like this:
+    ;  0x06 Block length                0x0320
+    ;  0x3E Block counter               0x0321
+    ;  0x03 Block title (0x19)          0x0322
+    ;  0x00 Address low                 0x0323 <-+
+    ;  0x00 Address high                0x0324   | swapped from original request
+    ;  0x00 Number of bytes to read     0x0325 <-+
+    ;  0x03 Block end                   0x0326
+
+    ;A still contains number of bytes to read
+    clc                     ;a4a4  18
+    adc #0x03               ;a4a5  69 03        Add 3 for block counter, block title, block end
+    sta 0x0331              ;a4a7  8d 31 03     Store in KWP1281 tx buffer: block length
+
+    jsr 0x5ef7              ;a4aa  20 f7 5e
+    bcs 0xa4cb              ;a4ad  b0 1c        Send nak response
+
+    ldy #0xef               ;a4af  a0 ef        Y = block title 0xEF
+    sty 0x0333              ;a4b1  8c 33 03     Store in KWP1281 tx buffer: block title
+
+    ldy #0x00               ;a4b4  a0 00
 lab_a4b6:
-    lda 0x0102,y            ;a4b6  b9 02 01
-    sta 0x0334,y            ;a4b9  99 34 03
+    lda 0x0102,y            ;a4b6  b9 02 01     Read data byte
+    sta 0x0334,y            ;a4b9  99 34 03     Copy it into KWP1281 tx buffer
     iny                     ;a4bc  c8
-    cpy 0x0325              ;a4bd  cc 25 03
-    bcc 0xa4b6              ;a4c0  90 f4
+    cpy 0x0325              ;a4bd  cc 25 03     Compare to number of bytes to read
+    bcc 0xa4b6              ;a4c0  90 f4        Keep going until all bytes are copied
+
     lda #0x00               ;a4c2  a9 00
     sta 0x05b7              ;a4c4  8d b7 05
     jsr 0xb69f              ;a4c7  20 9f b6
     rts                     ;a4ca  60
 
 lab_a4cb:
-    jsr 0xb461              ;a4cb  20 61 b4     send nak response
+    jsr 0xb461              ;a4cb  20 61 b4     Send nak response
     rts                     ;a4ce  60
 
 ;write eeprom
@@ -28757,7 +28814,7 @@ lab_b4b9:
     sta 0x05b7              ;b4bb  8d b7 05
     jmp 0xb461              ;b4be  4c 61 b4     send nak response
 
-;kwp1281 block titles
+;KWP1281 Block Titles
     .byte 0x00              ;b4c1  00          DATA 0x00        read identification
     .byte 0x01              ;b4c2  01          DATA 0x01        protected: read ram
     .byte 0x02              ;b4c3  02          DATA 0x02        protected: write ram
@@ -28785,7 +28842,8 @@ lab_b4b9:
     .byte 0x7f              ;b4d9  7f          DATA 0x7f        ???
     .byte 0xff              ;b4da  ff          DATA 0xff
 
-;kwp1281 block title handlers
+;KWP1281 Block Title Handlers
+;same order as table b4c1
     .word sub_a1ae          ;b4db  ae a1       VECTOR   read identification
     .word lab_a247          ;b4dd  47 a2       VECTOR   protected: read ram
     .word lab_a298          ;b4df  98 a2       VECTOR   protected: nak: write ram
