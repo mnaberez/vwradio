@@ -3755,6 +3755,7 @@ lab_34ef:
 lab_34f4:
     rts                     ;34f4  60
 
+;unknown table used by lab_3618, 0x29 bytes long
     .byte 0x3f              ;34f5  3f          DATA 0x3f '?'
     .byte 0x1a              ;34f6  1a          DATA 0x1a
     .byte 0x1b              ;34f7  1b          DATA 0x1b
@@ -3796,6 +3797,8 @@ lab_34f4:
     .byte 0x3e              ;351b  3e          DATA 0x3e '>'
     .byte 0x3c              ;351c  3c          DATA 0x3c '<'
     .byte 0x3b              ;351d  3b          DATA 0x3b ';'
+
+;unknown table of handlers used by lab_3624, 0x29 bytes long
     .byte 0x03              ;351e  03          DATA 0x03
     .byte 0x37              ;351f  37          DATA 0x37 '7'
     .byte 0x58              ;3520  58          DATA 0x58 'X'
@@ -3880,6 +3883,7 @@ lab_34f4:
     .byte 0x40              ;356f  40          DATA 0x40 '@'
 
 ;unknown table related to technisat protocol
+;used by lab_3634, 0x18 bytes long
 ;command bytes?
     .byte 0x5e              ;3570  5e          DATA 0x5e '^'
     .byte 0x5f              ;3571  5f          DATA 0x5f '_'
@@ -3906,6 +3910,8 @@ lab_34f4:
     .byte 0x5a              ;3586  5a          DATA 0x5a 'Z'
     .byte 0x7f              ;3587  7f          DATA 0x7f
 
+;unknown table of handlers related to technisat protocol
+;used by lab_3640, 0x18 bytes long
     .word sub_5adf          ;3588  df 5a       VECTOR   Send 10 01 5E <0x0344> CS
     .word lab_5b37          ;358a  37 5b       VECTOR
     .word lab_5b4a          ;358c  4a 5b       VECTOR
@@ -3920,27 +3926,16 @@ lab_34f4:
     .word lab_5db3          ;359e  b3 5d       VECTOR
     .word lab_5e97          ;35a0  97 5e       VECTOR
     .word lab_5f4d          ;35a2  4d 5f       VECTOR
-
-    .byte 0x66              ;35a4  66          DATA 0x66 'f'
-    .byte 0x22              ;35a5  22          DATA 0x22 '"'
-    .byte 0x66              ;35a6  66          DATA 0x66 'f'
-    .byte 0x22              ;35a7  22          DATA 0x22 '"'
-    .byte 0xe4              ;35a8  e4          DATA 0xe4
-    .byte 0x5f              ;35a9  5f          DATA 0x5f '_'
-    .byte 0x70              ;35aa  70          DATA 0x70 'p'
-    .byte 0x60              ;35ab  60          DATA 0x60 '`'
-    .byte 0xa3              ;35ac  a3          DATA 0xa3
-    .byte 0x60              ;35ad  60          DATA 0x60 '`'
-    .byte 0x9a              ;35ae  9a          DATA 0x9a
-    .byte 0x61              ;35af  61          DATA 0x61 'a'
-    .byte 0x1a              ;35b0  1a          DATA 0x1a
-    .byte 0x61              ;35b1  61          DATA 0x61 'a'
-    .byte 0xf6              ;35b2  f6          DATA 0xf6
-    .byte 0x60              ;35b3  60          DATA 0x60 '`'
-    .byte 0x3f              ;35b4  3f          DATA 0x3f '?'
-    .byte 0x61              ;35b5  61          DATA 0x61 'a'
-    .byte 0x66              ;35b6  66          DATA 0x66 'f'
-    .byte 0x22              ;35b7  22          DATA 0x22 '"'
+    .word lab_2266          ;35a4  66 22       VECTOR
+    .word lab_2266          ;35a6  66 22       VECTOR
+    .word lab_5fe4          ;35a8  e4 5f       VECTOR
+    .word lab_6070          ;35aa  70 60       VECTOR
+    .word lab_60a3          ;35ac  a3 60       VECTOR
+    .word lab_619a          ;35ae  9a 61       VECTOR
+    .word lab_611a          ;35b0  1a 61       VECTOR
+    .word lab_60f6          ;35b2  f6 60       VECTOR
+    .word lab_613f          ;35b4  3f 61       VECTOR
+    .word lab_2266          ;35b6  66 22       VECTOR
 
 sub_35b8:
     ldy #0x0e               ;35b8  a0 0e
@@ -11261,7 +11256,7 @@ lab_5a7a:
     sta 0x0344              ;5a89  8d 44 03
 
     lda #0x5e               ;5a8c  a9 5e
-    sta 0x0322              ;5a8e  8d 22 03
+    sta 0x0322              ;5a8e  8d 22 03     store in uart rx buffer byte 2
 
 lab_5a91:
     ;checksum matches
@@ -25069,9 +25064,9 @@ sub_a1ae:
 
 lab_a1c7:
     lda #0x0f               ;a1c7  a9 0f        block length
-    sta 0x0331              ;a1c9  8d 31 03
-    lda #0xf6               ;a1cc  a9 f6        block title
-    sta 0x0333              ;a1ce  8d 33 03
+    sta 0x0331              ;a1c9  8d 31 03     Store in KWP1281 tx buffer: block length
+    lda #0xf6               ;a1cc  a9 f6        A = block title 0xF6 (Response with ASCII Data/ID code)
+    sta 0x0333              ;a1ce  8d 33 03     Store in KWP1281 tx buffer: block title
     jsr 0x9fa7              ;a1d1  20 a7 9f
     jsr 0x9fd6              ;a1d4  20 d6 9f
     lda #0x04               ;a1d7  a9 04
@@ -25082,9 +25077,9 @@ lab_a1de:
     cmp #0x01               ;a1de  c9 01
     bne 0xa1f9              ;a1e0  d0 17
     lda #0x08               ;a1e2  a9 08
-    sta 0x0331              ;a1e4  8d 31 03
-    lda #0xf6               ;a1e7  a9 f6
-    sta 0x0333              ;a1e9  8d 33 03
+    sta 0x0331              ;a1e4  8d 31 03     Store in KWP1281 tx buffer: block length
+    lda #0xf6               ;a1e7  a9 f6        A = block title 0xF6 (Response with ASCII Data/ID code)
+    sta 0x0333              ;a1e9  8d 33 03     Store in KWP1281 tx buffer: block title
     lda #0x00               ;a1ec  a9 00
     sta 0x0334              ;a1ee  8d 34 03
     jsr 0x9fe2              ;a1f1  20 e2 9f
@@ -25098,7 +25093,7 @@ lab_a1f9:
 
 lab_a1ff:
     lda 0xff5b,x            ;a1ff  bd 5b ff
-    sta 0x0331,x            ;a202  9d 31 03
+    sta 0x0331,x            ;a202  9d 31 03     Store in KWP1281 tx buffer
     dex                     ;a205  ca
     bpl 0xa1ff              ;a206  10 f7
     bra 0xa22f              ;a208  80 25
@@ -25109,7 +25104,7 @@ lab_a20a:
 
 lab_a20e:
     lda 0xff4c,x            ;a20e  bd 4c ff
-    sta 0x0331,x            ;a211  9d 31 03
+    sta 0x0331,x            ;a211  9d 31 03     Store in KWP1281 tx buffer
     dex                     ;a214  ca
     bpl 0xa20e              ;a215  10 f7
     lda 0xff82              ;a217  ad 82 ff
@@ -25179,7 +25174,7 @@ lab_a253:
 
     sta 0x4d                ;a256  85 4d        Store address high as pointer high byte
 
-    stx 0x0333              ;a258  8e 33 03
+    stx 0x0333              ;a258  8e 33 03     Store X in KWP1281 tx buffer: block title
 
     ldx 0x0320              ;a25b  ae 20 03     X = block length
     cpx #0x07               ;a25e  e0 07        Compare to 7 (expected block length = 6)
@@ -25195,7 +25190,7 @@ lab_a253:
 
     clc                     ;a26b  18
     adc #0x03               ;a26c  69 03        Add 3 for response block title, length, end
-    sta 0x0331              ;a26e  8d 31 03     Store in tx buffer byte 0 (block length)
+    sta 0x0331              ;a26e  8d 31 03     Store in tx buffer: block length
 
     ldx 0x0325              ;a271  ae 25 03     X = address low
     stx 0x4c                ;a274  86 4c        Store address low as pointer low byte
@@ -25277,9 +25272,9 @@ lab_a2e2:
 
 lab_a2f0:
     lda #0x05               ;a2f0  a9 05
-    sta 0x0331              ;a2f2  8d 31 03
-    lda #0xf5               ;a2f5  a9 f5
-    sta 0x0333              ;a2f7  8d 33 03
+    sta 0x0331              ;a2f2  8d 31 03     Store in KWP1281 tx buffer: block length
+    lda #0xf5               ;a2f5  a9 f5        A = block title 0xF5 (Response to Actuator/Output Tests)
+    sta 0x0333              ;a2f7  8d 33 03     Store in KWP1281 tx buffer: block title
     lda #0x00               ;a2fa  a9 00
     sta 0x05b7              ;a2fc  8d b7 05
     jsr 0xb69f              ;a2ff  20 9f b6
@@ -25522,7 +25517,7 @@ lab_a426:
     beq 0xa433              ;a429  f0 08
     cpy #0x00               ;a42b  c0 00
     bne 0xa442              ;a42d  d0 13
-    lda #0x09               ;a42f  a9 09
+    lda #0x09               ;a42f  a9 09        A = block title 0x09 (Acknowledge)
     bra 0xa444              ;a431  80 11
 
 lab_a433:
@@ -25534,14 +25529,14 @@ lab_a433:
     ldy #0x03               ;a440  a0 03
 
 lab_a442:
-    lda #0xfc               ;a442  a9 fc
+    lda #0xfc               ;a442  a9 fc        A = block title 0xFC (Response to Read or Clear Faults)
 
 lab_a444:
-    sta 0x0333              ;a444  8d 33 03
+    sta 0x0333              ;a444  8d 33 03     Store in KWP1281 tx buffer: block title
     iny                     ;a447  c8
     iny                     ;a448  c8
     iny                     ;a449  c8
-    sty 0x0331              ;a44a  8c 31 03
+    sty 0x0331              ;a44a  8c 31 03     Store in KWP1281 tx buffer: block length
     ldx #0x01               ;a44d  a2 01
     lda 0x02af              ;a44f  ad af 02
     cmp #0x0d               ;a452  c9 0d
@@ -28739,7 +28734,7 @@ sub_b40f:
 ;send ack response
 sub_b45b:
     ldx #0x03               ;b45b  a2 03        block length
-    lda #0x09               ;b45d  a9 09        block title ack
+    lda #0x09               ;b45d  a9 09        A = block title 0x09 (Acknowledge)
     bra 0xb470              ;b45f  80 0f
 
 sub_b461:
@@ -28754,11 +28749,11 @@ lab_b466:
 lab_b469:
     sta 0x0334              ;b469  8d 34 03
     ldx #0x04               ;b46c  a2 04        block length
-    lda #0x0a               ;b46e  a9 0a        block title (nak)
+    lda #0x0a               ;b46e  a9 0a        A = block title 0x0A (No Acknowledge)
 
 lab_b470:
-    stx 0x0331              ;b470  8e 31 03
-    sta 0x0333              ;b473  8d 33 03
+    stx 0x0331              ;b470  8e 31 03     Store X in KWP1281 tx buffer: block length
+    sta 0x0333              ;b473  8d 33 03     Store A in KWP1281 tx buffer: block title
     lda #0x00               ;b476  a9 00
     sta 0x05b7              ;b478  8d b7 05
     jsr 0xb69f              ;b47b  20 9f b6
@@ -28940,7 +28935,7 @@ lab_b581:
     jmp 0xb625              ;b58f  4c 25 b6
 
 lab_b592:
-    lda 0x0322              ;b592  ad 22 03     A = block title
+    lda 0x0322              ;b592  ad 22 03     A = KWP1281 rx buffer: block title
     cmp #0x0a               ;b595  c9 0a        Is it NAK?
     bne 0xb5aa              ;b597  d0 11            No: branch
 
@@ -28948,15 +28943,15 @@ lab_b592:
     lda 0x0323              ;b599  ad 23 03     A = uart rx buffer byte 3
     cmp 0x0321              ;b59c  cd 21 03
     beq 0xb5aa              ;b59f  f0 09
-    inc 0x0332              ;b5a1  ee 32 03
-    inc 0x0332              ;b5a4  ee 32 03
+    inc 0x0332              ;b5a1  ee 32 03     Increment KWP1281 tx buffer: block counter
+    inc 0x0332              ;b5a4  ee 32 03     Increment KWP1281 tx buffer: block counter again
     jmp 0xb69f              ;b5a7  4c 9f b6
 
 ;block title != nak
 lab_b5aa:
     lda 0x05b7              ;b5aa  ad b7 05
     bne 0xb5b5              ;b5ad  d0 06
-    lda 0x0322              ;b5af  ad 22 03     A = block title
+    lda 0x0322              ;b5af  ad 22 03     A = KWP1281 rx buffer: block title
     sta 0x05b3              ;b5b2  8d b3 05     Save it in 0x05b3
 
 lab_b5b5:
@@ -28964,7 +28959,7 @@ lab_b5b5:
     jmp 0xb625              ;b5b8  4c 25 b6
 
 lab_b5bb:
-    lda 0x0331              ;b5bb  ad 31 03
+    lda 0x0331              ;b5bb  ad 31 03     A = KWP1281 tx buffer: block length
     jsr 0x5ac5              ;b5be  20 c5 5a     Send byte
     lda #0x03               ;b5c1  a9 03
     sta 0x05b2              ;b5c3  8d b2 05
@@ -28977,7 +28972,7 @@ lab_b5bb:
 lab_b5d3:
     inc 0x05ad              ;b5d3  ee ad 05
     ldx 0x05ad              ;b5d6  ae ad 05
-    lda 0x0331,x            ;b5d9  bd 31 03
+    lda 0x0331,x            ;b5d9  bd 31 03     A = byte from KWP1281 tx buffer
     jsr 0x5ac5              ;b5dc  20 c5 5a     Send byte
     lda 0x05ad              ;b5df  ad ad 05
     cmp 0x05b4              ;b5e2  cd b4 05
@@ -29001,7 +28996,7 @@ lab_b5f9:
 
 lab_b60b:
     ldx 0x05ad              ;b60b  ae ad 05
-    lda 0x0320,x            ;b60e  bd 20 03     A = uart rx buffer byte 0+
+    lda 0x0320,x            ;b60e  bd 20 03     A = byte from KWP1281 rx buffer
     eor #0xff               ;b611  49 ff
     jsr 0x5ac5              ;b613  20 c5 5a     Send byte
     lda #0x05               ;b616  a9 05
@@ -29140,14 +29135,14 @@ sub_b69f:
     lda #0x00               ;b69f  a9 00
     sta 0x05ad              ;b6a1  8d ad 05
     lda 0x05ae              ;b6a4  ad ae 05
-    sta 0x0332              ;b6a7  8d 32 03
+    sta 0x0332              ;b6a7  8d 32 03     Store in KWP1281 tx buffer: block counter
     lda #0x03               ;b6aa  a9 03
     sta 0x05b2              ;b6ac  8d b2 05
-    lda 0x0331              ;b6af  ad 31 03
+    lda 0x0331              ;b6af  ad 31 03     A = KWP1281 tx buffer: block length
     sta 0x05b4              ;b6b2  8d b4 05
     lda #0x03               ;b6b5  a9 03
     ldx 0x05b4              ;b6b7  ae b4 05
-    sta 0x0331,x            ;b6ba  9d 31 03
+    sta 0x0331,x            ;b6ba  9d 31 03     Store byte in KWP1281 tx buffer
     lda 0x0331              ;b6bd  ad 31 03
     jsr 0x5ac5              ;b6c0  20 c5 5a     Send byte
     lda #0x06               ;b6c3  a9 06
@@ -29256,7 +29251,7 @@ lab_b77e:
 
 lab_b793:
     ldx 0x05ad              ;b793  ae ad 05
-    lda 0x0331,x            ;b796  bd 31 03
+    lda 0x0331,x            ;b796  bd 31 03     A = byte from KWP1281 tx buffer
     eor #0xff               ;b799  49 ff
     cmp 0x05b6              ;b79b  cd b6 05
     bne 0xb7a8              ;b79e  d0 08
@@ -29292,7 +29287,7 @@ lab_b7ce:
     cmp #0x11               ;b7db  c9 11
     bcs 0xb7e8              ;b7dd  b0 09
     sta 0x05b4              ;b7df  8d b4 05
-    sta 0x0320              ;b7e2  8d 20 03
+    sta 0x0320              ;b7e2  8d 20 03     Store in KWP1281 rx buffer: block length
     jmp 0xb83d              ;b7e5  4c 3d b8
 
 lab_b7e8:
@@ -29303,7 +29298,7 @@ lab_b7ee:
     inc 0x05ad              ;b7ee  ee ad 05
     lda 0x05b6              ;b7f1  ad b6 05
     ldx 0x05ad              ;b7f4  ae ad 05
-    sta 0x0320,x            ;b7f7  9d 20 03
+    sta 0x0320,x            ;b7f7  9d 20 03     Store in KWP1281 rx buffer
     lda 0x05ad              ;b7fa  ad ad 05
     cmp 0x05b4              ;b7fd  cd b4 05
     bcc 0xb838              ;b800  90 36
@@ -29311,7 +29306,7 @@ lab_b7ee:
     cmp #0x03               ;b805  c9 03
     beq 0xb80e              ;b807  f0 05
     lda #0x7f               ;b809  a9 7f
-    sta 0x0322              ;b80b  8d 22 03
+    sta 0x0322              ;b80b  8d 22 03     Store in KWP1281 rx buffer: block title
 
 lab_b80e:
     lda 0x05af              ;b80e  ad af 05
@@ -29497,7 +29492,7 @@ lab_b946:
 
 lab_b958:
     ldx 0x05ad              ;b958  ae ad 05
-    lda 0x0331,x            ;b95b  bd 31 03
+    lda 0x0331,x            ;b95b  bd 31 03     A = byte from KWP1281 tx buffer
     eor #0xff               ;b95e  49 ff
     cmp 0x05b6              ;b960  cd b6 05
     bne 0xb977              ;b963  d0 12
@@ -29528,7 +29523,7 @@ lab_b98c:
     cmp #0x08               ;b999  c9 08
     bcs 0xb9b0              ;b99b  b0 13
     sta 0x05b4              ;b99d  8d b4 05
-    sta 0x0320              ;b9a0  8d 20 03
+    sta 0x0320              ;b9a0  8d 20 03     Store in KWP1281 rx buffer
     lda #0x01               ;b9a3  a9 01
     sta 0x01af              ;b9a5  8d af 01
     ldy #0x29               ;b9a8  a0 29
@@ -29549,7 +29544,7 @@ lab_b9c5:
     inc 0x05ad              ;b9c5  ee ad 05
     ldx 0x05ad              ;b9c8  ae ad 05
     lda 0x05b6              ;b9cb  ad b6 05
-    sta 0x0320,x            ;b9ce  9d 20 03
+    sta 0x0320,x            ;b9ce  9d 20 03     Store in KWP1281 rx buffer
     lda 0x05ad              ;b9d1  ad ad 05
     cmp 0x05b4              ;b9d4  cd b4 05
     bcc 0xba02              ;b9d7  90 29
@@ -31810,13 +31805,14 @@ lab_c610:
     rts                     ;c613  60
 
 sub_c614:
-    sta 0x0332              ;c614  8d 32 03
+;XXX these do not look correct for KWP1281.  the same buffer may be used for something else.
+    sta 0x0332              ;c614  8d 32 03     Store in KWP1281 tx buffer: block counter
     eor #0xff               ;c617  49 ff
-    sta 0x0331              ;c619  8d 31 03
+    sta 0x0331              ;c619  8d 31 03     Store in KWP1281 tx buffer: block length
     lda #0xca               ;c61c  a9 ca
     sta 0x0334              ;c61e  8d 34 03
     lda #0x34               ;c621  a9 34
-    sta 0x0333              ;c623  8d 33 03
+    sta 0x0333              ;c623  8d 33 03     Store in KWP1281 tx buffer: block title
     lda #0x05               ;c626  a9 05
     sta 0x035e              ;c628  8d 5e 03
     lda #0x04               ;c62b  a9 04
@@ -31919,14 +31915,14 @@ lab_c6ad:
     beq 0xc6c6              ;c6b2  f0 12
     ldx 0x0360              ;c6b4  ae 60 03
     dex                     ;c6b7  ca
-    lda 0x0331,x            ;c6b8  bd 31 03
+    lda 0x0331,x            ;c6b8  bd 31 03     A = byte from KWP1281 tx buffer
     and #0x01               ;c6bb  29 01
     beq 0xc6c3              ;c6bd  f0 04
     lda #0x07               ;c6bf  a9 07
     sta 0x22                ;c6c1  85 22
 
 lab_c6c3:
-    lsr 0x0331,x            ;c6c3  5e 31 03
+    lsr 0x0331,x            ;c6c3  5e 31 03     LSR with byte from KWP1281 tx buffer
 
 lab_c6c6:
     dec 0x035f              ;c6c6  ce 5f 03
