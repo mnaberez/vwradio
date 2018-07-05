@@ -23766,16 +23766,16 @@ lab_a52c:
     .byte 0x51              ;a539  advanced id 2: "VWZAZ3D2301808"
 
 ;group reading handlers
-    .word lab_a585          ;a53a  85 a5       VECTOR
-    .word lab_a585          ;a53c  85 a5       VECTOR
-    .word lab_a585          ;a53e  85 a5       VECTOR
-    .word lab_a585          ;a540  85 a5       VECTOR
-    .word lab_a585          ;a542  85 a5       VECTOR
-    .word lab_a585          ;a544  85 a5       VECTOR
-    .word lab_a585          ;a546  85 a5       VECTOR
-    .word lab_a574          ;a548  74 a5       VECTOR
-    .word lab_a57b          ;a54a  7b a5       VECTOR
-    .word lab_a580          ;a54c  80 a5       VECTOR
+    .word lab_a585          ;a53a  85 a5       VECTOR   general
+    .word lab_a585          ;a53c  85 a5       VECTOR   speakers/line-out
+    .word lab_a585          ;a53e  85 a5       VECTOR   antenna
+    .word lab_a585          ;a540  85 a5       VECTOR   amplifier/telephone
+    .word lab_a585          ;a542  85 a5       VECTOR   cd changer
+    .word lab_a585          ;a544  85 a5       VECTOR   external display
+    .word lab_a585          ;a546  85 a5       VECTOR   steering wheel control
+    .word lab_a574          ;a548  74 a5       VECTOR   protection
+    .word lab_a57b          ;a54a  7b a5       VECTOR   advanced id 1: "YD5-001 27.01.04"
+    .word lab_a580          ;a54c  80 a5       VECTOR   advanced id 2: "VWZAZ3D2301808"
 
 ;group reading
 lab_a54e:
@@ -23804,21 +23804,34 @@ lab_a565:
     sta 0x41                ;a570  85 41
     jmp [0x40]              ;a572  b2 40
 
+
+;group reading handler: protection
 lab_a574:
-    bbc 0,0xe7,lab_a579     ;a574  17 e7 02
-    seb 1,0xe7              ;a577  2f e7
+    bbc 0,0xe7,lab_a579     ;a574  17 e7 02     if not logged in, skip setting bit
+    seb 1,0xe7              ;a577  2f e7        set bit to indicate protection group was read
+
+    ;protected commands are unlocked now
+    ;fall through to send nak (it's a lie; treat it like ack)
 
 lab_a579:
-    bra lab_a560            ;a579  80 e5
+    bra lab_a560            ;a579  80 e5        branch to send nak request
 
+
+;group reading handler: advanced id 1 ("YD5-001 27.01.04)
 lab_a57b:
     jsr sub_a84f            ;a57b  20 4f a8
     bra lab_a588            ;a57e  80 08
 
+
+;group reading handler: advanced id 2 ("VWZAZ3D2301808")
 lab_a580:
     jsr sub_a88c            ;a580  20 8c a8
     bra lab_a588            ;a583  80 03
 
+
+;group reading handler:
+;  general, speakers/line-out, antenna, amplifier/telephone,
+;  cd changer, external display, steering wheel control
 lab_a585:
     jsr sub_a6b5            ;a585  20 b5 a6
 
@@ -23830,10 +23843,12 @@ lab_a588:
 lab_a590:
     rts                     ;a590  60
 
+
 ;nak: ?
 lab_a591:
     jsr sub_b461            ;a591  20 61 b4     send nak response
     rts                     ;a594  60
+
 
 ;login
 lab_a595:
@@ -24073,6 +24088,9 @@ lab_a605:
     .byte 0x48              ;a6b3  48          DATA 0x48 'H'
     .byte 0xa8              ;a6b4  a8          DATA 0xa8
 
+;group reading handler:
+;  general, speakers/line-out, antenna, amplifier/telephone,
+;  cd changer, external display, steering wheel control
 sub_a6b5:
     lda 0x05bb              ;a6b5  ad bb 05
     dec a                   ;a6b8  1a
@@ -24427,6 +24445,7 @@ lab_a733:
     .byte 0xac              ;a84d  ac          DATA 0xac
     .byte 0x60              ;a84e  60          DATA 0x60 '`'
 
+;group reading: advanced id 1 ("YD5-001 27.01.04")
 sub_a84f:
     ldx #0x2c               ;a84f  a2 2c
     lda #0x20               ;a851  a9 20
@@ -24457,6 +24476,7 @@ lab_a85b:
     sta 0x0345              ;a888  8d 45 03
     rts                     ;a88b  60
 
+;group reading advanced id 2 ("VWZAZ3D2301808")
 sub_a88c:
     ldx #0x2c               ;a88c  a2 2c
     lda #0x20               ;a88e  a9 20
