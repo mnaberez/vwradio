@@ -311,6 +311,7 @@ sub_2258:
     bcs lab_2266            ;2262  b0 02
     jsr [0x40]              ;2264  02 40
 
+;TechniSat protocol related
 lab_2266:
     rts                     ;2266  60
 
@@ -552,7 +553,7 @@ lab_2402:
 lab_2407:
     bbs 0,0xe8,lab_2413     ;2407  07 e8 09
     bbc 5,0xf4,lab_2413     ;240a  b7 f4 06
-    jsr sub_9f33            ;240d  20 33 9f
+    jsr sub_9f33            ;240d  20 33 9f     end session
     jmp lab_249f            ;2410  4c 9f 24
 
 lab_2413:
@@ -562,7 +563,7 @@ lab_2413:
     jsr sub_33c6            ;241b  20 c6 33
     bcs lab_2429            ;241e  b0 09
     bbs 3,0xe7,lab_2429     ;2420  67 e7 06
-    jsr sub_9f33            ;2423  20 33 9f
+    jsr sub_9f33            ;2423  20 33 9f     end session
     jmp lab_249f            ;2426  4c 9f 24
 
 lab_2429:
@@ -2141,7 +2142,7 @@ lab_2cc2:
 sub_2cc3:
     bbc 5,0xf4,lab_2cce     ;2cc3  b7 f4 08
     bbs 3,0xe7,lab_2d18     ;2cc6  67 e7 4f
-    jsr sub_9f33            ;2cc9  20 33 9f
+    jsr sub_9f33            ;2cc9  20 33 9f     end session
     bra lab_2d18            ;2ccc  80 4a
 
 lab_2cce:
@@ -2518,7 +2519,7 @@ lab_2f38:
 sub_2f40:
     bbc 0,0xe8,lab_2f50     ;2f40  17 e8 0d
     bbs 1,0xe8,lab_2f4b     ;2f43  27 e8 05
-    jsr sub_9f33            ;2f46  20 33 9f
+    jsr sub_9f33            ;2f46  20 33 9f     end session
     bra lab_2f50            ;2f49  80 05
 
 lab_2f4b:
@@ -3613,6 +3614,8 @@ lab_34ef:
 lab_34f4:
     rts                     ;34f4  60
 
+;TechniSat protocol related (commands?)
+;used by lab_3618
     .byte 0x3f              ;34f5  3f          DATA 0x3f '?'
     .byte 0x1a              ;34f6  1a          DATA 0x1a
     .byte 0x1b              ;34f7  1b          DATA 0x1b
@@ -3655,6 +3658,9 @@ lab_34f4:
     .byte 0x3c              ;351c  3c          DATA 0x3c '<'
     .byte 0x3b              ;351d  3b          DATA 0x3b ';'
 
+;TechniSat protocol handlers
+;same order as table of bytes at 0x34f5
+;used by lab_3624
     .word lab_3703          ;351e  03 37       VECTOR
     .word lab_3758          ;3520  58 37       VECTOR
     .word lab_3758          ;3522  58 37       VECTOR
@@ -3697,6 +3703,8 @@ lab_34f4:
     .word lab_3ea3          ;356c  a3 3e       VECTOR
     .word lab_40ef          ;356e  ef 40       VECTOR
 
+;TechniSat protocol related (commands?)
+;used by lab_3634
     .byte 0x5e              ;3570  5e          DATA 0x5e '^'
     .byte 0x5f              ;3571  5f          DATA 0x5f '_'
     .byte 0x42              ;3572  42          DATA 0x42 'B'
@@ -3722,6 +3730,9 @@ lab_34f4:
     .byte 0x5a              ;3586  5a          DATA 0x5a 'Z'
     .byte 0x7f              ;3587  7f          DATA 0x7f
 
+;TechniSat protocol handlers
+;same order as table of bytes at 0x3570
+;used by lab_3640
     .word sub_5adf          ;3588  df 5a       VECTOR
     .word lab_5b37          ;358a  37 5b       VECTOR
     .word lab_5b4a          ;358c  4a 5b       VECTOR
@@ -9886,6 +9897,7 @@ lab_5ada:
     nop                     ;5add  ea
     rts                     ;5ade  60
 
+;TechniSat protocol related
 sub_5adf:
     ldm #0xff,0x75          ;5adf  3c ff 75
     clb 2,0xf7              ;5ae2  5f f7
@@ -9930,6 +9942,7 @@ lab_5b1d:
     jsr sub_5adf            ;5b33  20 df 5a     Send 10 01 5E <0x0344> CS
     rts                     ;5b36  60
 
+;TechniSat protocol related
 lab_5b37:
     ldy #0x01               ;5b37  a0 01
     jsr sub_f22c            ;5b39  20 2c f2
@@ -9940,6 +9953,7 @@ lab_5b37:
     jsr sub_b40f            ;5b46  20 0f b4
     rts                     ;5b49  60
 
+;TechniSat protocol related
 lab_5b4a:
     bbc 7,0xe8,lab_5bba     ;5b4a  f7 e8 6d
     ldy #0x01               ;5b4d  a0 01
@@ -9997,6 +10011,7 @@ lab_5bb2:
 lab_5bba:
     rts                     ;5bba  60
 
+;TechniSat protocol related
 lab_5bbb:
     ldy #0x01               ;5bbb  a0 01
     jsr sub_f22c            ;5bbd  20 2c f2
@@ -10022,6 +10037,7 @@ lab_5be7:
     jsr sub_5adf            ;5be7  20 df 5a     Send 10 01 5E <0x0344> CS
     rts                     ;5bea  60
 
+;TechniSat protocol related
 lab_5beb:
     bbc 7,0xe8,lab_5c2d     ;5beb  f7 e8 3f
     ldy #0x01               ;5bee  a0 01
@@ -10060,6 +10076,7 @@ lab_5c25:
 lab_5c2d:
     rts                     ;5c2d  60
 
+;TechniSat protocol related
 lab_5c2e:
     ldy #0x01               ;5c2e  a0 01
     jsr sub_f22c            ;5c30  20 2c f2
@@ -10103,6 +10120,7 @@ lab_5c7a:
 lab_5c7d:
     rts                     ;5c7d  60
 
+;TechniSat protocol related
 lab_5c7e:
     ldy #0x01               ;5c7e  a0 01
     jsr sub_f22c            ;5c80  20 2c f2
@@ -10131,6 +10149,7 @@ lab_5cae:
     jsr sub_5adf            ;5cae  20 df 5a     Send 10 01 5E <0x0344> CS
     rts                     ;5cb1  60
 
+;TechniSat protocol related
 lab_5cb2:
     ldy #0x01               ;5cb2  a0 01
     jsr sub_f22c            ;5cb4  20 2c f2
@@ -10158,6 +10177,7 @@ lab_5ce0:
     jsr sub_5adf            ;5ce0  20 df 5a     Send 10 01 5E <0x0344> CS
     rts                     ;5ce3  60
 
+;TechniSat protocol related
 lab_5ce4:
     bbc 7,0xe8,lab_5d21     ;5ce4  f7 e8 3a
     ldy #0x01               ;5ce7  a0 01
@@ -10194,6 +10214,7 @@ lab_5d1e:
 lab_5d21:
     rts                     ;5d21  60
 
+;TechniSat protocol related
 lab_5d22:
     ldy #0x01               ;5d22  a0 01
     jsr sub_f22c            ;5d24  20 2c f2
@@ -10231,6 +10252,7 @@ lab_5d65:
     jsr sub_5adf            ;5d65  20 df 5a     Send 10 01 5E <0x0344> CS
     rts                     ;5d68  60
 
+;TechniSat protocol related
 lab_5d69:
     ldy #0x01               ;5d69  a0 01
     jsr sub_f22c            ;5d6b  20 2c f2
@@ -10275,6 +10297,7 @@ lab_5daf:
     jsr sub_5adf            ;5daf  20 df 5a     Send 10 01 5E <0x0344> CS
     rts                     ;5db2  60
 
+;TechniSat protocol related
 lab_5db3:
     ldy #0x01               ;5db3  a0 01
     jsr sub_f22c            ;5db5  20 2c f2
@@ -10423,6 +10446,7 @@ lab_5e95:
 lab_5e96:
     rts                     ;5e96  60
 
+;TechniSat protocol related
 lab_5e97:
     bbs 7,0xe8,lab_5e9b     ;5e97  e7 e8 01
     rts                     ;5e9a  60
@@ -10541,8 +10565,11 @@ sub_5ef7:
     ldy #0x00               ;5f34  a0 00
 
 lab_5f36:
-    jsr sub_5fbf            ;5f36  20 bf 5f     TODO looks like filtering
-    bcc lab_5f40            ;5f39  90 05        Skip filtering if carry clear
+    jsr sub_5fbf            ;5f36  20 bf 5f     TODO looks like filtering by EEPROM address
+    bcc lab_5f40            ;5f39  90 05        Branch if address should not be filtered
+
+    ;Filter EEPROM data for this address
+
     lda #0x00               ;5f3b  a9 00
     sta 0x0102,y            ;5f3d  99 02 01
 
@@ -10562,6 +10589,7 @@ lab_5f4b:
 lab_5f4c:
     rts                     ;5f4c  60
 
+;TechniSat protocol related
 lab_5f4d:
     ldy #0x01               ;5f4d  a0 01
     jsr sub_f22c            ;5f4f  20 2c f2
@@ -10592,8 +10620,11 @@ sub_5f59:
     ldy #0x00               ;5f83  a0 00
 
 lab_5f85:
-    jsr sub_5fbf            ;5f85  20 bf 5f
-    bcs lab_5f96            ;5f88  b0 0c
+    jsr sub_5fbf            ;5f85  20 bf 5f     TODO looks like filtering by EEPROM address
+    bcs lab_5f96            ;5f88  b0 0c        Branch if address should be filtered
+
+    ;Not filtered
+
     inc 0x4c                ;5f8a  e6 4c
     bne lab_5f90            ;5f8c  d0 02
     inc 0x4d                ;5f8e  e6 4d
@@ -10630,31 +10661,36 @@ lab_5fbe:
     rts                     ;5fbe  60
 
 sub_5fbf:
-;TODO looks like filtering
-;returns carry clear=filter, carry set=no filter
-    lda 0x4d                ;5fbf  a5 4d
+;TODO looks like filtering based on EEPROM address
+;Checks EEPROM address in 0x004C-0x004D
+;returns carry clear=do not filter, carry set=filter
+    lda 0x4d                ;5fbf  a5 4d        A = EEPROM address high byte
     cmp #0x00               ;5fc1  c9 00
     bcc lab_5fdd            ;5fc3  90 18
     bne lab_5fcd            ;5fc5  d0 06
-    lda 0x4c                ;5fc7  a5 4c
+
+    lda 0x4c                ;5fc7  a5 4c        A = EEPROM address low byte
     cmp #0x09               ;5fc9  c9 09
     bcc lab_5fdd            ;5fcb  90 10
 
 lab_5fcd:
-    lda 0x4d                ;5fcd  a5 4d
+    lda 0x4d                ;5fcd  a5 4d        A = EEPROM address high byte
     cmp #0x00               ;5fcf  c9 00
     bcc lab_5fe0            ;5fd1  90 0d
     bne lab_5fdd            ;5fd3  d0 08
-    lda 0x4c                ;5fd5  a5 4c
+
+    lda 0x4c                ;5fd5  a5 4c        A = EEPROM address low byte
     cmp #0x0f               ;5fd7  c9 0f
     bcc lab_5fe0            ;5fd9  90 05
     beq lab_5fe0            ;5fdb  f0 03
 
 lab_5fdd:
+    ;return with carry clear = do not filter
     clc                     ;5fdd  18
-    bra lab_5fe1            ;5fde  80 01
+    bra lab_5fe1            ;5fde  80 01    Branch to RTS
 
 lab_5fe0:
+    ;return with carry set = filter
     sec                     ;5fe0  38
 
 lab_5fe1:
@@ -10663,6 +10699,7 @@ lab_5fe1:
     .byte 0x60              ;5fe2  60          DATA 0x60 '`'
     .byte 0x60              ;5fe3  60          DATA 0x60 '`'
 
+;TechniSat protocol related
 lab_5fe4:
     ldy #0x01               ;5fe4  a0 01
     jsr sub_f22c            ;5fe6  20 2c f2
@@ -10730,6 +10767,7 @@ lab_606c:
     jsr sub_5adf            ;606c  20 df 5a
     rts                     ;606f  60
 
+;TechniSat protocol related
 lab_6070:
     ldy #0x01               ;6070  a0 01
     jsr sub_f22c            ;6072  20 2c f2
@@ -10756,6 +10794,7 @@ lab_609f:
     jsr sub_5adf            ;609f  20 df 5a
     rts                     ;60a2  60
 
+;TechniSat protocol related
 lab_60a3:
     ldy #0x01               ;60a3  a0 01
     jsr sub_f22c            ;60a5  20 2c f2
@@ -10799,6 +10838,7 @@ lab_60ee:
     .byte 0x0f              ;60f4  0f          DATA 0x0f
     .byte 0x0a              ;60f5  0a          DATA 0x0a
 
+;TechniSat protocol related
 lab_60f6:
     ldy #0x01               ;60f6  a0 01
     jsr sub_f22c            ;60f8  20 2c f2
@@ -10820,6 +10860,7 @@ lab_6106:
 lab_6119:
     rts                     ;6119  60
 
+;TechniSat protocol related
 lab_611a:
     bbc 7,0xe8,lab_613e     ;611a  f7 e8 21
     ldy #0x01               ;611d  a0 01
@@ -10841,6 +10882,7 @@ lab_612d:
 lab_613e:
     rts                     ;613e  60
 
+;TechniSat protocol related
 lab_613f:
     ldy #0x01               ;613f  a0 01
     jsr sub_f22c            ;6141  20 2c f2
@@ -10913,6 +10955,7 @@ lab_6176:
     .byte 0xd2              ;6198  d2          DATA 0xd2
     .byte 0x62              ;6199  62          DATA 0x62 'b'
 
+;TechniSat protocol related
 lab_619a:
     bbc 7,0xe8,lab_621b     ;619a  f7 e8 7e
     ldy #0x01               ;619d  a0 01
@@ -22728,6 +22771,7 @@ lab_9ef9:
     seb 3,0xe9              ;9f30  6f e9
     rts                     ;9f32  60
 
+;KWP1281 0x06 End Session
 sub_9f33:
     ldy #0x27               ;9f33  a0 27
     jsr sub_3361            ;9f35  20 61 33
@@ -23100,6 +23144,7 @@ lab_a1a4:
 lab_a1ad:
     rts                     ;a1ad  60
 
+;KWP1281 0x00 Read Identification
 sub_a1ae:
     lda 0x05b7              ;a1ae  ad b7 05
     cmp #0xff               ;a1b1  c9 ff
@@ -23241,6 +23286,9 @@ lab_a278:
 
     ;encryption selector bit 7 = 1
 
+    ;X still contains the address low byte, which is used
+    ;as the initial index to the 256-byte XOR key at 0xFF00
+
     eor 0xff00,x            ;a27e  5d 00 ff     Encrypt it
     inx                     ;a281  e8
 
@@ -23258,13 +23306,13 @@ lab_a294:
     jsr sub_b461            ;a294  20 61 b4     send nak response
     rts                     ;a297  60
 
-;write ram
+;KWP1281 0x02 Write RAM
 lab_a298:
     bbc 1,0xe7,lab_a294     ;a298  37 e7 f9     if not authorized, branch to send nak response
     jsr sub_b461            ;a29b  20 61 b4     send nak response
     rts                     ;a29e  60
 
-;output tests
+;KWP1281 0x04 Output Tests
 lab_a29f:
     lda 0x05b9              ;a29f  ad b9 05
     cmp #0x00               ;a2a2  c9 00
@@ -23389,7 +23437,7 @@ lab_a323:
     .byte 0x2e              ;a351  2e          DATA 0x2e '.'
     .byte 0x20              ;a352  20          DATA 0x20 ' '
 
-;clear faults
+;KWP1281 0x05 Clear Faults
 lab_a353:
     ldx #0x04               ;a353  a2 04
 
@@ -23469,6 +23517,7 @@ sub_a3c7:
     .byte 0xb4              ;a3d4  b4          DATA 0xb4
     .byte 0x60              ;a3d5  60          DATA 0x60 '`'
 
+;KWP1281 0x07 Read Faults
 lab_a3d6:
     lda 0x05b7              ;a3d6  ad b7 05
     cmp #0xff               ;a3d9  c9 ff
@@ -23548,6 +23597,7 @@ lab_a458:
     jsr sub_b69f            ;a45b  20 9f b6
     rts                     ;a45e  60
 
+;KWP1281 0x08 Single Reading
 lab_a45f:
     jsr sub_b461            ;a45f  20 61 b4     send nak response
     rts                     ;a462  60
@@ -23557,10 +23607,12 @@ lab_a45f:
     .byte 0xb4              ;a465  b4          DATA 0xb4
     .byte 0x60              ;a466  60          DATA 0x60 '`'
 
+;KWP1281 0x0C Write EEPROM
 lab_a467:
     jsr sub_b461            ;a467  20 61 b4     send nak response
     rts                     ;a46a  60
 
+;KWP1281 0x10 Recoding
 lab_a46b:
     jsr sub_a076            ;a46b  20 76 a0
     jsr sub_9fe2            ;a46e  20 e2 9f
@@ -23573,10 +23625,12 @@ lab_a46b:
     jsr sub_a1ae            ;a481  20 ae a1
     rts                     ;a484  60
 
+;KWP1281 0x11 Basic Setting Read
 lab_a485:
     jsr sub_b461            ;a485  20 61 b4     send nak reponse
     rts                     ;a488  60
 
+;KWP1281 0x12 ?
 lab_a489:
     jsr sub_b461            ;a489  20 61 b4     send nak reponse
     rts                     ;a48c  60
@@ -23585,11 +23639,11 @@ lab_a489:
 ;
 ;Request block format:
 ;  0x06 Block length                0x0320
-;  0x3E Block counter               0x0321
+;  0x?? Block counter               0x0321
 ;  0x03 Block title (0x19)          0x0322
-;  0x00 Number of bytes to read     0x0323
-;  0x00 Address high                0x0324
-;  0x00 Address low                 0x0325
+;  0x?? Number of bytes to read     0x0323
+;  0x?? Address high                0x0324
+;  0x?? Address low                 0x0325
 ;  0x03 Block end                   0x0326
 ;
 ;Response block format:
@@ -23627,8 +23681,10 @@ lab_a48d:
     clc                     ;a4a4  18
     adc #0x03               ;a4a5  69 03        Add 3 for block counter, block title, block end
     sta 0x0331              ;a4a7  8d 31 03     Store in KWP1281 tx buffer: block length
+
     jsr sub_5ef7            ;a4aa  20 f7 5e
     bcs lab_a4cb            ;a4ad  b0 1c        Send nak response
+
     ldy #0xef               ;a4af  a0 ef        Y = block title 0xEF
     sty 0x0333              ;a4b1  8c 33 03     Store in KWP1281 tx buffer: block title
     ldy #0x00               ;a4b4  a0 00
@@ -23648,7 +23704,7 @@ lab_a4cb:
     jsr sub_b461            ;a4cb  20 61 b4     Send nak response
     rts                     ;a4ce  60
 
-;write eeprom
+;KWP1281 0x1A Write EEPROM
 lab_a4cf:
     bra lab_a4cb            ;a4cf  80 fa        branch to send nak response
 
@@ -23728,26 +23784,31 @@ lab_a4cf:
     .byte 0xb6              ;a51a  b6          DATA 0xb6
     .byte 0x60              ;a51b  60          DATA 0x60 '`'
 
+;KWP1281 0x1B Custom Usage
 ;nak: custom usage
 lab_a51c:
     jsr sub_b461            ;a51c  20 61 b4     send nak response
     rts                     ;a51f  60
 
+;KWP1281 0x21 Adaptation Read
 ;nak: adaptation read
 lab_a520:
     jsr sub_b461            ;a520  20 61 b4     send nak response
     rts                     ;a523  60
 
+;KWP1281 0x22 Adaptation Transfer
 ;nak: adaptation transfer
 lab_a524:
     jsr sub_b461            ;a524  20 61 b4     send nak response
     rts                     ;a527  60
 
+;KWP1281 0x27 ?
 ;nak: ?
 lab_a528:
     jsr sub_b461            ;a528  20 61 b4     send nak response
     rts                     ;a52b  60
 
+;KWP1281 0x28 Basic Setting
 ;nak: basic setting
 lab_a52c:
     jsr sub_b461            ;a52c  20 61 b4     send nak response
@@ -23777,12 +23838,21 @@ lab_a52c:
     .word lab_a57b          ;a54a  7b a5       VECTOR   advanced id 1: "YD5-001 27.01.04"
     .word lab_a580          ;a54c  80 a5       VECTOR   advanced id 2: "VWZAZ3D2301808"
 
-;group reading
+;KWP1281 0x29 Group Reading
+;
+;Request block format:
+;   0x04 Block length                   0x320
+;   0x2A Block counter                  0x321
+;   0x29 Block title (Group Reading)    0x322
+;   0x01 Group Number                   0x323
+;   0x03 Block end                      0x324
+;
 lab_a54e:
-    lda 0x0323              ;a54e  ad 23 03     A = uart rx buffer byte 3
+    lda 0x0323              ;a54e  ad 23 03     A = KWP1281 rx buffer: group number
     sta 0x05bb              ;a551  8d bb 05
-    ldx #0x00               ;a554  a2 00
 
+    ;find group number in table
+    ldx #0x00               ;a554  a2 00
 lab_a556:
     cmp 0xa530,x            ;a556  dd 30 a5
     beq lab_a565            ;a559  f0 0a
@@ -23791,10 +23861,12 @@ lab_a556:
     bcc lab_a556            ;a55e  90 f6
 
 lab_a560:
+    ;group not found
     jsr sub_b461            ;a560  20 61 b4     send nak response
     bra lab_a590            ;a563  80 2b
 
 lab_a565:
+    ;group found
     txa                     ;a565  8a
     asl a                   ;a566  0a
     tax                     ;a567  aa
@@ -23802,7 +23874,7 @@ lab_a565:
     sta 0x40                ;a56b  85 40
     lda 0xa53b,x            ;a56d  bd 3b a5
     sta 0x41                ;a570  85 41
-    jmp [0x40]              ;a572  b2 40
+    jmp [0x40]              ;a572  b2 40        jump to handler
 
 
 ;group reading handler: protection
@@ -23844,16 +23916,17 @@ lab_a590:
     rts                     ;a590  60
 
 
+;KWP1281 0x2a Adaptation Save
 ;nak: ?
 lab_a591:
     jsr sub_b461            ;a591  20 61 b4     send nak response
     rts                     ;a594  60
 
 
-;login
+;KWP1281 0x2b Login
 lab_a595:
     bbc 3,0xf1,lab_a59d     ;a595  77 f1 05
-    jsr sub_9f33            ;a598  20 33 9f
+    jsr sub_9f33            ;a598  20 33 9f     end session
     bra lab_a605            ;a59b  80 68
 
 lab_a59d:
@@ -23893,7 +23966,7 @@ lab_a5ac:
 
 lab_a5e3:
     ;login failed
-    jsr sub_9f33            ;a5e3  20 33 9f
+    jsr sub_9f33            ;a5e3  20 33 9f     end session
     bbs 5,0xe7,lab_a5fb     ;a5e6  a7 e7 12
     seb 5,0xe7              ;a5e9  af e7
     lda 0x05c0              ;a5eb  ad c0 05
@@ -26624,6 +26697,7 @@ sub_b40f:
     seb 2,0xe8              ;b458  4f e8
     rts                     ;b45a  60
 
+;KWP1281 0x09 Acknowledge
 sub_b45b:
     ldx #0x03               ;b45b  a2 03        block length
     lda #0x09               ;b45d  a9 09        A = block title 0x09 (Acknowledge)
@@ -26633,6 +26707,7 @@ sub_b461:
     lda 0x05ae              ;b461  ad ae 05
     bra lab_b469            ;b464  80 03
 
+;KWP1281 7f ?
 lab_b466:
     lda 0x0321              ;b466  ad 21 03     A = uart rx buffer byte 1
 
@@ -39822,6 +39897,8 @@ sub_f2ac:
     .byte 0xff              ;fefd  ff          DATA 0xff
     .byte 0xff              ;fefe  ff          DATA 0xff
     .byte 0xff              ;feff  ff          DATA 0xff
+
+;Start of 256 byte XOR key used by KWP1281 0x03 Read ROM (see lab_a278)
     .byte 0xff              ;ff00  ff          DATA 0xff
     .byte 0xff              ;ff01  ff          DATA 0xff
     .byte 0xff              ;ff02  ff          DATA 0xff
