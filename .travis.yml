@@ -19,18 +19,21 @@ before_install:
   - make -C avra/src -f makefiles/Makefile.linux
   - export PATH=$PATH:$PWD/avra/src
 
-  # asf2mc8
+  # as740, asf2mc8
   - wget -q -U travis http://6502.org/tools/asm/av5p00.zip
   - wget -q -U travis http://6502.org/tools/asm/u05500.zip
+  - wget -q -U travis http://6502.org/tools/asm/av5p00-u05500-fix-as740-byte-directive.zip
   - unzip -q av5p00.zip
   - unzip -q -o u05500.zip
-  - make -C asxv5pxx/asxmak/linux/build asf2mc8
+  - unzip -q -o av5p00-u05500-fix-as740-byte-directive.zip
+  - make -C asxv5pxx/asxmak/linux/build as740 asf2mc8
   - export PATH=$PATH:$PWD/asxv5pxx/asxmak/linux/build
 
 script:
   - make -C faceplate_emulator/firmware
   - python faceplate_emulator/host/setup.py test -q
   - make -C kwp1281_tool/firmware
+  - make -C reverse_engineering/vw_gamma_5_technisat/disasm
   - make -C reverse_engineering/vw_premium_4_clarion/disasm/pu1666a_mainmcu
   - make -C reverse_engineering/vw_premium_4_clarion/disasm/pu1666a_submcu
   - make -C volume_monitor/firmware
