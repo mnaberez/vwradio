@@ -10613,12 +10613,13 @@ sub_5f59:
     cmp #0x08               ;5f72  c9 08
     bcs lab_5fbe            ;5f74  b0 48
     bbs 6,0xe9,lab_5f96     ;5f76  c7 e9 1d
+
     lda 0x0323              ;5f79  ad 23 03     A = uart rx buffer byte 3
     sta 0x4c                ;5f7c  85 4c
     lda 0x0324              ;5f7e  ad 24 03     A = uart rx buffer byte 4
     sta 0x4d                ;5f81  85 4d
-    ldy #0x00               ;5f83  a0 00
 
+    ldy #0x00               ;5f83  a0 00
 lab_5f85:
     jsr sub_5fbf            ;5f85  20 bf 5f     TODO looks like filtering by EEPROM address
     bcs lab_5f96            ;5f88  b0 0c        Branch if address should be filtered
@@ -13112,19 +13113,29 @@ sub_6b1c:
     .byte 0x0a              ;6bde  0a          DATA 0x0a
     .byte 0x5d              ;6bdf  5d          DATA 0x5d ']'
     .byte 0x60              ;6be0  60          DATA 0x60 '`'
-    .byte 0x10              ;6be1  10          DATA 0x10
-    .byte 0x27              ;6be2  27          DATA 0x27 '''
-    .byte 0xe8              ;6be3  e8          DATA 0xe8
-    .byte 0x03              ;6be4  03          DATA 0x03
-    .byte 0x64              ;6be5  64          DATA 0x64 'd'
-    .byte 0x00              ;6be6  00          DATA 0x00
-    .byte 0x0a              ;6be7  0a          DATA 0x0a
-    .byte 0x00              ;6be8  00          DATA 0x00
 
+;Data used by binary to decimal conversion at sub_6be9
+    .word 10000             ;6be1  10 27       DATA
+    .word 1000              ;6be3  e8 03       DATA
+    .word 100               ;6be5  64 00       DATA
+    .word 10                ;6be7  0a 00       DATA
+
+;Convert 16-bit binary number to five digit decimal number in ASCII
+;
+;Inputs:
+;  0x44     Binary number (low byte)
+;  0x45     Binary number (high byte)
+;
+;Outputs:
+;  0x0116   Decimal number in ASCII (ten thousands place)
+;  0x0117   Decimal number in ASCII (thousands place)
+;  0x0118   Decimal number in ASCII (hundreds place)
+;  0x0119   Decimal number in ASCII (tens place)
+;  0x011a   Decimal number in ASCII (ones place)
+;
 sub_6be9:
     ldy #0x02               ;6be9  a0 02
     ldx #0x00               ;6beb  a2 00
-
 lab_6bed:
     lda 0x6be1,x            ;6bed  bd e1 6b
     sta 0x4c                ;6bf0  85 4c
@@ -13133,7 +13144,6 @@ lab_6bed:
     sta 0x4d                ;6bf6  85 4d
     inx                     ;6bf8  e8
     ldm #0xff,0x4e          ;6bf9  3c ff 4e
-
 lab_6bfc:
     inc 0x4e                ;6bfc  e6 4e
     lda 0x44                ;6bfe  a5 44
@@ -13160,9 +13170,10 @@ lab_6bfc:
     bcc lab_6bed            ;6c25  90 c6
     lda 0x44                ;6c27  a5 44
     clc                     ;6c29  18
-    adc #0x30               ;6c2a  69 30
+    adc #'0                 ;6c2a  69 30        Convert to ASCII
     sta 0x0114,y            ;6c2c  99 14 01
     rts                     ;6c2f  60
+
 
 sub_6c30:
     ldx #0x07               ;6c30  a2 07
@@ -13173,7 +13184,7 @@ lab_6c34:
     lda #0x30               ;6c37  a9 30
     dex                     ;6c39  ca
     bpl lab_6c34            ;6c3a  10 f8
-    jsr sub_6be9            ;6c3c  20 e9 6b
+    jsr sub_6be9            ;6c3c  20 e9 6b     Convert binary number in 0x44-0x45 to decimal number in ASCII in 0x0116-0x11a
     jsr sub_6c6f            ;6c3f  20 6f 6c
     rts                     ;6c42  60
 
@@ -23037,7 +23048,7 @@ sub_a0d5:
     lda 0x0103              ;a0e1  ad 03 01
     ror a                   ;a0e4  6a
     sta 0x44                ;a0e5  85 44
-    jsr sub_6be9            ;a0e7  20 e9 6b
+    jsr sub_6be9            ;a0e7  20 e9 6b     Convert binary number in 0x44-0x45 to decimal number in ASCII in 0x0116-0x11a
     pla                     ;a0ea  68
     sta 0x45                ;a0eb  85 45
     pla                     ;a0ed  68
@@ -23055,21 +23066,42 @@ sub_a0f1:
     sta 0x0338              ;a106  8d 38 03
     rts                     ;a109  60
 
+
+;Called by KWP1281 0x2b Login
+;Convert SAFE code binary number in KWP1281 rx buffer
+;into a five digit decimal number in ASCII in 0x116-0x11a
 sub_a10a:
+    ;Push 0x44, 0x45
     lda 0x44                ;a10a  a5 44
     pha                     ;a10c  48
     lda 0x45                ;a10d  a5 45
     pha                     ;a10f  48
-    lda 0x0323              ;a110  ad 23 03     A = uart rx buffer byte 3
+
+    ;Copy attempted SAFE code into 0x44-0x45 (read by sub_6be9)
+    lda 0x0323              ;a110  ad 23 03     A = KWP1281 rx buffer byte 3: SAFE code (high byte)
     sta 0x45                ;a113  85 45
-    lda 0x0324              ;a115  ad 24 03     A = uart rx buffer byte 4
+    lda 0x0324              ;a115  ad 24 03     A = KWP1281 rx buffer byte 4: SAFE code (low byte)
     sta 0x44                ;a118  85 44
-    jsr sub_6be9            ;a11a  20 e9 6b
+
+    ;0x44 now contains attempted SAFE code in binary (low byte)
+    ;0x45 now contains attempted SAFE code in binary (high byte)
+
+    jsr sub_6be9            ;a11a  20 e9 6b     Convert binary number in 0x44-0x45 to decimal number in ASCII in 0x0116-0x11a
+
+    ;Result of sub_6be9:
+    ;  0x0116   Attempted SAFE code as a decimal number in ASCII (ten thousands place)
+    ;  0x0117   Attempted SAFE code as a decimal number in ASCII (thousands place)
+    ;  0x0118   Attempted SAFE code as a decimal number in ASCII (hundreds place)
+    ;  0x0119   Attempted SAFE code as a decimal number in ASCII (tens place)
+    ;  0x011a   Attempted SAFE code as a decimal number in ASCII (ones place)
+
+    ;Pop 0x44, 0x45
     pla                     ;a11d  68
     sta 0x45                ;a11e  85 45
     pla                     ;a120  68
     sta 0x44                ;a121  85 44
     rts                     ;a123  60
+
 
 sub_a124:
     jsr sub_a040            ;a124  20 40 a0
@@ -23234,7 +23266,7 @@ lab_a236:
     cmp #0xff               ;a23d  c9 ff
     bcs lab_a294            ;a23f  b0 53        branch to send nak response
     ldx #0xfd               ;a241  a2 fd        X = block title 0xFD: Response to Read ROM
-    stx 0x4e                ;a243  86 4e        Encryption selector = 0xFD (enable encryption)
+    stx 0x4e                ;a243  86 4e        Encryption selector = 0xFD (bit 7 set enables encryption)
     bra lab_a253            ;a245  80 0c        Branch to memory read common code
 
 ;KWP1281 0x01 Read RAM
@@ -23249,7 +23281,7 @@ lab_a236:
 ;  0x03 Block end                       0x0326
 ;
 lab_a247:
-    ldm #0x00,0x4e          ;a247  3c 00 4e     Encryption selector = 0 (disable encryption)
+    ldm #0x00,0x4e          ;a247  3c 00 4e     Encryption selector = 0 (bit 7 clear disables encryption)
     ldx #0xfe               ;a24a  a2 fe        X = block title 0xFE: Response to Read RAM
     lda 0x0324              ;a24c  ad 24 03     A = address high
     cmp #0x08               ;a24f  c9 08        Compare to 0x08 (RAM ends at 0x07FF)
@@ -23883,7 +23915,7 @@ lab_a574:
     seb 1,0xe7              ;a577  2f e7        set bit to indicate protection group was read
 
     ;protected commands are unlocked now
-    ;fall through to send nak (it's a lie; treat it like ack)
+    ;fall through to send nak (it's a lie; receiver should treat it like ack)
 
 lab_a579:
     bra lab_a560            ;a579  80 e5        branch to send nak request
@@ -23924,21 +23956,51 @@ lab_a591:
 
 
 ;KWP1281 0x2b Login
+;
+;Request block format:
+;  0x08 Block length                        0x320
+;  0x?? Block counter                       0x321
+;  0x2B Block title (Login)                 0x322
+;  0x?? SAFE code high byte (binary)        0x323
+;  0x?? SAFE code low byte (binary)         0x324
+;  0x?? Unknown byte 0                      0x325
+;  0x?? Workshop Code high byte (binary)    0x326
+;  0x?? Workshop Code low byte (binary)     0x327
+;  0x03 Block end                           0x328
+;
 lab_a595:
     bbc 3,0xf1,lab_a59d     ;a595  77 f1 05
     jsr sub_9f33            ;a598  20 33 9f     end session
     bra lab_a605            ;a59b  80 68
 
 lab_a59d:
-    jsr sub_a10a            ;a59d  20 0a a1
-    lda 0x0116              ;a5a0  ad 16 01
-    cmp #0x30               ;a5a3  c9 30
-    bne lab_a5e3            ;a5a5  d0 3c
-    jsr sub_2dc9            ;a5a7  20 c9 2d
-    ldy #0x00               ;a5aa  a0 00
+    jsr sub_a10a            ;a59d  20 0a a1     ;Convert SAFE code binary number in KWP1281 rx buffer
+                                                ;into a five digit decimal number in ASCII in 0x116-0x11a
 
+    ;Result of sub_a10a:
+    ;  0x0116   Attempted SAFE code as a decimal number in ASCII (ten thousands place)
+    ;  0x0117   Attempted SAFE code as a decimal number in ASCII (thousands place)
+    ;  0x0118   Attempted SAFE code as a decimal number in ASCII (hundreds place)
+    ;  0x0119   Attempted SAFE code as a decimal number in ASCII (tens place)
+    ;  0x011a   Attempted SAFE code as a decimal number in ASCII (ones place)
+
+    ;Check attempted SAFE code is 0-9999
+    lda 0x0116              ;a5a0  ad 16 01     A = SAFE code as decimal in ASCII (ten thousands place)
+    cmp #'0                 ;a5a3  c9 30        Is the ten thousands place = 0?
+    bne lab_a5e3            ;a5a5  d0 3c          No: branch to login failed
+
+    ;TODO probably reading EEPROM
+    jsr sub_2dc9            ;a5a7  20 c9 2d
+
+    ;Result of sub_2dc9:
+    ;  0x0103   Actual SAFE code as a decimal number in ASCII (thousands place)
+    ;  0x0104   Actual SAFE code as a decimal number in ASCII (hundreds place)
+    ;  0x0105   Actual SAFE code as a decimal number in ASCII (tens place)
+    ;  0x0106   Actual SAFE code as a decimal number in ASCII (ones place)
+
+    ;Compare attempted SAFE code with actual
+    ldy #0x00               ;a5aa  a0 00
 lab_a5ac:
-    ;compare login code
     lda 0x0117,y            ;a5ac  b9 17 01
     cmp 0x0103,y            ;a5af  d9 03 01
     bne lab_a5e3            ;a5b2  d0 2f
