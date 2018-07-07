@@ -235,6 +235,7 @@ lab_21ed:
 lab_21fb:
     jmp lab_2154            ;21fb  4c 54 21
 
+;unknown table used by lab_2213
     .byte 0x73              ;21fe  73          DATA 0x73 's'
     .byte 0x74              ;21ff  74          DATA 0x74 't'
     .byte 0x75              ;2200  75          DATA 0x75 'u'
@@ -256,11 +257,13 @@ lab_2213:
     inx                     ;2213  e8
     lsr a                   ;2214  4a
     bcc lab_2213            ;2215  90 fc
+
     lda 0x21fe,x            ;2217  bd fe 21
     sta 0x40                ;221a  85 40
     ldy #0x00               ;221c  a0 00
     sty 0x41                ;221e  84 41
-    lda [0x40],y            ;2220  b1 40
+
+    lda [0x40],y            ;2220  b1 40        A = value stored in one of: 0x73, 0x74, 0x75
     cmp #0x20               ;2222  c9 20
     bne lab_2228            ;2224  d0 02
     lda #0x24               ;2226  a9 24
@@ -3864,6 +3867,7 @@ lab_364e:
 lab_3650:
     rts                     ;3650  60
 
+;unknown table of bytes used by lab_3663
     .byte 0x3f              ;3651  3f          DATA 0x3f '?'
     .byte 0x1a              ;3652  1a          DATA 0x1a
     .byte 0x1b              ;3653  1b          DATA 0x1b
@@ -3905,6 +3909,7 @@ lab_3678:
 lab_3679:
     rts                     ;3679  60
 
+;unknown table of bytes used by lab_3687
     .byte 0x3f              ;367a  3f          DATA 0x3f '?'
     .byte 0x24              ;367b  24          DATA 0x24 '$'
     .byte 0x25              ;367c  25          DATA 0x25 '%'
@@ -3934,6 +3939,7 @@ lab_3693:
 lab_3694:
     rts                     ;3694  60
 
+;unknown table of bytes used by lab_3699
     .byte 0x3f              ;3695  3f          DATA 0x3f '?'
     .byte 0x3b              ;3696  3b          DATA 0x3b ';'
 
@@ -3954,6 +3960,7 @@ lab_36a5:
 lab_36a6:
     rts                     ;36a6  60
 
+;unknown table of bytes used by lab_36ab
     .byte 0x3f              ;36a7  3f          DATA 0x3f '?'
     .byte 0x3b              ;36a8  3b          DATA 0x3b ';'
 
@@ -3974,6 +3981,7 @@ lab_36b7:
 lab_36b8:
     rts                     ;36b8  60
 
+;unknown table of bytes used by lab_36c7
     .byte 0x3f              ;36b9  3f          DATA 0x3f '?'
     .byte 0x17              ;36ba  17          DATA 0x17
     .byte 0x1e              ;36bb  1e          DATA 0x1e
@@ -4004,6 +4012,7 @@ lab_36d3:
 lab_36d4:
     rts                     ;36d4  60
 
+;unknown table of bytes used by lab_36f5
     .byte 0x3f              ;36d5  3f          DATA 0x3f '?'
     .byte 0x1a              ;36d6  1a          DATA 0x1a
     .byte 0x1b              ;36d7  1b          DATA 0x1b
@@ -4515,6 +4524,7 @@ lab_3a21:
 lab_3a24:
     rts                     ;3a24  60
 
+;unknown table of bytes used by lab_3a54
     .byte 0x17              ;3a25  17          DATA 0x17
     .byte 0x18              ;3a26  18          DATA 0x18
     .byte 0x19              ;3a27  19          DATA 0x19
@@ -5258,6 +5268,7 @@ lab_3f4b:
     jsr sub_aeb4            ;3f4b  20 b4 ae
     rts                     ;3f4e  60
 
+;unknown table used by sub_3f52
     .byte 0xf0              ;3f4f  f0          DATA 0xf0
     .byte 0xf1              ;3f50  f1          DATA 0xf1
     .byte 0xf2              ;3f51  f2          DATA 0xf2
@@ -6093,6 +6104,7 @@ lab_447b:
     tay                     ;447c  a8
     rts                     ;447d  60
 
+;unknown table of bytes used by sub_4485
     .byte 0x02              ;447e  02          DATA 0x02
     .byte 0x02              ;447f  02          DATA 0x02
     .byte 0x02              ;4480  02          DATA 0x02
@@ -9789,10 +9801,13 @@ lab_5a32:
 sub_5a36:
     ldy 0x0320              ;5a36  ac 20 03     Y = number of bytes received
     bne lab_5a5e            ;5a39  d0 23        Branch if any bytes were already received
+
     cmp #0x00               ;5a3b  c9 00        Is the received byte = 0?
     beq lab_5a48            ;5a3d  f0 09          Yes: branch
+
     cmp 0x0342              ;5a3f  cd 42 03
     bne lab_5a5c            ;5a42  d0 18        Branch to RTS
+
     seb 7,0xe8              ;5a44  ef e8
     bra lab_5a4a            ;5a46  80 02
 
@@ -9813,11 +9828,13 @@ lab_5a5c:
 
 lab_5a5e:
     sta 0x0320,y            ;5a5e  99 20 03     Store byte in UART rx buffer
+
     ldy 0x0321              ;5a61  ac 21 03     Y = rx buffer byte 1
     iny                     ;5a64  c8           Y=Y+2
     iny                     ;5a65  c8
     cpy 0x0320              ;5a66  cc 20 03     Compare to 0x0320 (number of bytes received)
     bcc lab_5a7a            ;5a69  90 0f        Branch if >=
+
     clc                     ;5a6b  18
     adc 0x0343              ;5a6c  6d 43 03
     sta 0x0343              ;5a6f  8d 43 03     update checksum
@@ -9837,11 +9854,15 @@ lab_5a7a:
     sta 0x0322              ;5a8e  8d 22 03     store in uart rx buffer byte 2
 
 lab_5a91:
+;checksum is good
     lda 0x0322              ;5a91  ad 22 03     A = UART rx buffer byte 2
     cmp #0x40               ;5a94  c9 40
     bne lab_5aaa            ;5a96  d0 12
+    ;0x0322 = 40
+
     lda 0x0323              ;5a98  ad 23 03     A = UART rx buffer byte 3 (TODO command?)
     sta 0x73                ;5a9b  85 73
+
     seb 0,0xf7              ;5a9d  0f f7
     ldm #0x12,0x5e          ;5a9f  3c 12 5e
     lda #0x5e               ;5aa2  a9 5e
@@ -23873,11 +23894,11 @@ lab_a52c:
 ;KWP1281 0x29 Group Reading
 ;
 ;Request block format:
-;   0x04 Block length                   0x320
-;   0x2A Block counter                  0x321
-;   0x29 Block title (Group Reading)    0x322
-;   0x01 Group Number                   0x323
-;   0x03 Block end                      0x324
+;   0x04 Block length                   0x0320
+;   0x2A Block counter                  0x0321
+;   0x29 Block title (Group Reading)    0x0322
+;   0x01 Group Number                   0x0323
+;   0x03 Block end                      0x0324
 ;
 lab_a54e:
     lda 0x0323              ;a54e  ad 23 03     A = KWP1281 rx buffer: group number
@@ -23958,15 +23979,15 @@ lab_a591:
 ;KWP1281 0x2b Login
 ;
 ;Request block format:
-;  0x08 Block length                        0x320
-;  0x?? Block counter                       0x321
-;  0x2B Block title (Login)                 0x322
-;  0x?? SAFE code high byte (binary)        0x323
-;  0x?? SAFE code low byte (binary)         0x324
-;  0x?? Unknown byte 0                      0x325
-;  0x?? Workshop Code high byte (binary)    0x326
-;  0x?? Workshop Code low byte (binary)     0x327
-;  0x03 Block end                           0x328
+;  0x08 Block length                        0x0320
+;  0x?? Block counter                       0x0321
+;  0x2B Block title (Login)                 0x0322
+;  0x?? SAFE code high byte (binary)        0x0323
+;  0x?? SAFE code low byte (binary)         0x0324
+;  0x?? Unknown byte 0                      0x0325
+;  0x?? Workshop Code high byte (binary)    0x0326
+;  0x?? Workshop Code low byte (binary)     0x0327
+;  0x03 Block end                           0x0328
 ;
 lab_a595:
     bbc 3,0xf1,lab_a59d     ;a595  77 f1 05
