@@ -23339,10 +23339,13 @@ lab_a22f:
 ;
 lab_a236:
     lda 0x0324              ;a236  ad 24 03     A = address high
-    cmp #0x20               ;a239  c9 20        Compare to 0x20 (ROM starts at 0x2000)
+
+    cmp #0x20               ;a239  c9 20        Compare address high to 0x20 (ROM starts at 0x2000)
     bcc lab_a294            ;a23b  90 57        Send nak response if address high < 0x20
-    cmp #0xff               ;a23d  c9 ff
-    bcs lab_a294            ;a23f  b0 53        branch to send nak response
+
+    cmp #0xff               ;a23d  c9 ff        Compare address high to 0xFF (XOR key starts at 0xFF00)
+    bcs lab_a294            ;a23f  b0 53        Send nak response if address high >= 0xFF
+
     ldx #0xfd               ;a241  a2 fd        X = block title 0xFD: Response to Read ROM
     stx 0x4e                ;a243  86 4e        Encryption selector = 0xFD (bit 7 set enables encryption)
     bra lab_a253            ;a245  80 0c        Branch to memory read common code
@@ -23361,6 +23364,7 @@ lab_a236:
 lab_a247:
     ldm #0x00,0x4e          ;a247  3c 00 4e     Encryption selector = 0 (bit 7 clear disables encryption)
     ldx #0xfe               ;a24a  a2 fe        X = block title 0xFE: Response to Read RAM
+
     lda 0x0324              ;a24c  ad 24 03     A = address high
     cmp #0x08               ;a24f  c9 08        Compare to 0x08 (RAM ends at 0x07FF)
     bcs lab_a294            ;a251  b0 41        Send nak response if address high >= 0x08
@@ -23385,10 +23389,11 @@ lab_a253:
     clc                     ;a26b  18
     adc #0x03               ;a26c  69 03        Add 3 for response block title, length, end
     sta 0x0331              ;a26e  8d 31 03     Store in tx buffer: block length
-    ldx 0x0325              ;a271  ae 25 03     X = address low
-    stx 0x4c                ;a274  86 4c        Store address low as pointer low byte
-    ldy #0x00               ;a276  a0 00
 
+    ldx 0x0325              ;a271  ae 25 03     X = address low (also initial index into XOR key)
+    stx 0x4c                ;a274  86 4c        Store address low as pointer low byte
+
+    ldy #0x00               ;a276  a0 00
 lab_a278:
     lda [0x4c],y            ;a278  b1 4c        Read memory at pointer
     bit 0x4e                ;a27a  24 4e        Set flags based on encryption selector
