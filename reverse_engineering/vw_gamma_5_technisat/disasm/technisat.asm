@@ -10644,8 +10644,9 @@ sub_5ef7:
     ldy #0x00               ;5f34  a0 00
 
 lab_5f36:
-    jsr sub_5fbf            ;5f36  20 bf 5f     TODO looks like filtering by EEPROM address
-    bcc lab_5f40            ;5f39  90 05        Branch if address should not be filtered
+    jsr sub_5fbf            ;5f36  20 bf 5f     ;Check if the "right side" 24C08 EEPROM address
+                                                ;  should be filtered (addresses 0x0009-0x000F).
+    bcc lab_5f40            ;5f39  90 05        ;Branch if address should not be filtered
 
     ;Filter EEPROM data for this address
 
@@ -10694,20 +10695,22 @@ sub_5f59:
     bbs 6,0xe9,lab_5f96     ;5f76  c7 e9 1d
 
     lda 0x0323              ;5f79  ad 23 03     A = uart rx buffer byte 3
-    sta 0x4c                ;5f7c  85 4c
+    sta 0x4c                ;5f7c  85 4c        Store as EEPROM address low byte
+
     lda 0x0324              ;5f7e  ad 24 03     A = uart rx buffer byte 4
-    sta 0x4d                ;5f81  85 4d
+    sta 0x4d                ;5f81  85 4d        Store as EEPROM address high byte
 
     ldy #0x00               ;5f83  a0 00
 lab_5f85:
-    jsr sub_5fbf            ;5f85  20 bf 5f     TODO looks like filtering by EEPROM address
+    jsr sub_5fbf            ;5f85  20 bf 5f     Check if the "right side" 24C08 EEPROM address
+                            ;                     should be filtered (addresses 0x0009-0x000F).
     bcs lab_5f96            ;5f88  b0 0c        Branch if address should be filtered
 
     ;Not filtered
 
-    inc 0x4c                ;5f8a  e6 4c
+    inc 0x4c                ;5f8a  e6 4c        Increment EEPROM address low byte
     bne lab_5f90            ;5f8c  d0 02
-    inc 0x4d                ;5f8e  e6 4d
+    inc 0x4d                ;5f8e  e6 4d        Increment EEPROM address high byte
 
 lab_5f90:
     iny                     ;5f90  c8
@@ -10741,9 +10744,17 @@ lab_5fbe:
     rts                     ;5fbe  60
 
 sub_5fbf:
-;TODO looks like filtering based on EEPROM address
-;Checks EEPROM address in 0x004C-0x004D
-;returns carry clear=do not filter, carry set=filter
+;Check if a "right side" 24C08 EEPROM address should be filtered.
+;EEPROM addresses 0x0009-0x000F (inclusive) are filtered.  This range
+;includes the SAFE code, which is four ASCII digits at 0x000C-0x000F.
+;
+;Input:
+;  0x004C  EEPROM address low byte
+;  0x004D  EEPROM address high byte
+;
+;Output:
+;  Carry set = filter, carry clear = do not filter
+;
     lda 0x4d                ;5fbf  a5 4d        A = EEPROM address high byte
     cmp #0x00               ;5fc1  c9 00
     bcc lab_5fdd            ;5fc3  90 18
