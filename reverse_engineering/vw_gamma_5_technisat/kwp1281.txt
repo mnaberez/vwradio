@@ -12,20 +12,25 @@ Identification
     group 0x19 responds with NAK but it's a lie, treat it like ACK.
 
 0x01 Read RAM
-    Returns the contents of the M38869FFAHP's RAM.
+    Returns the unencrypted contents of the M38869FFAHP's RAM.
     Only allows reading 0x0000-07FF but this is the entire RAM area.
-    Data is returned unencrypted.
 
 0x03 Read ROM or EEPROM
-    Returns contents of the M38869FFAHP microcontroller's flash ROM.
+    Returns XOR encrypted contents of the M38869FFAHP microcontroller's
+    flash ROM.  Only allows reading 0x2000-0xFEFF.  The entire ROM is
+    0x2000-0xFFFF.  The missing 256 bytes are the XOR encryption key.
 
-    Only allows reading 0x2000-0xFFFF (56K) but this MCU (M38869F'F'AHP)
-    has 60K flash.  The unreadable 4K is unused in the firmware (all 0xFF).
-    The 'E' version of this MCU has only 56K flash, so the firmware
-    probably targeted that version originally.
+    The ROM has several unused 256-byte pages before the encryption
+    key at 0xFF00.  These unused pages contain all 0xFF.  To recover
+    the key, read 0xFE00-0xFFFF and XOR it with 0xFF.  Use the key to
+    decrypt 0x2000-0xFEFF, then append the key to the end (0xFF00-0xFFFF)
+    to complete the dump.
 
-    Data is returned XOR encrypted using the last 256 bytes of the ROM
-    (0xFF00-FFFF) as the key (see code around 0xA27E).
+    Note: the M38869F'F'AHP has 60K flash ROM (0x1000-0xFFFF) but the
+    first 4K (0x1000-0x1FFF) is not readable by this command.  This is
+    not an issue because the firmware is only 56K.  The first 4K contains
+    all 0xFF.  The firmware was probably designed to fit in the 'E'
+    version of the MCU, which has 56K flash ROM.
 
 0x19 Read EEPROM
     Responds with title 0xEF (unlike Premium 4 which responds with 0xFD)
