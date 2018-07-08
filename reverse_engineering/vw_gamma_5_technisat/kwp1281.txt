@@ -22,7 +22,7 @@ Identification
 
     The ROM has several unused 256-byte pages before the encryption
     key at 0xFF00.  These unused pages contain all 0xFF.  To recover
-    the key, read 0xFE00-0xFFFF and XOR it with 0xFF.  Use the key to
+    the key, read 0xFE00-0xFEFF and XOR it with 0xFF.  Use the key to
     decrypt 0x2000-0xFEFF, then append the key to the end (0xFF00-0xFFFF)
     to complete the dump.
 
