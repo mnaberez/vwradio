@@ -3762,8 +3762,13 @@ lab_34f4:
     .word lab_3ea3          ;356c  a3 3e       VECTOR
     .word lab_40ef          ;356e  ef 40       VECTOR
 
-;TechniSat protocol related (commands?)
+;TechniSat protocol related (command bytes)
 ;used by lab_3634
+;
+;Request block: 10 01 02 45 62 14 41
+;                        ^^
+;                        command byte from this table
+;
     .byte 0x5e              ;3570  5e          DATA 0x5e '^'
     .byte 0x5f              ;3571  5f          DATA 0x5f '_'
     .byte 0x42              ;3572  42          DATA 0x42 'B'
@@ -3792,30 +3797,30 @@ lab_34f4:
 ;TechniSat protocol handlers
 ;same order as table of bytes at 0x3570
 ;used by lab_3640
-    .word sub_5adf          ;3588  df 5a       VECTOR   Send 10 01 5E <0x0344> CS
-    .word lab_5b37          ;358a  37 5b       VECTOR
-    .word lab_5b4a          ;358c  4a 5b       VECTOR
-    .word lab_5bbb          ;358e  bb 5b       VECTOR
-    .word lab_5beb          ;3590  eb 5b       VECTOR
-    .word lab_5c2e          ;3592  2e 5c       VECTOR   TODO disables EEPROM filtering based on payload
-    .word lab_5c7e          ;3594  7e 5c       VECTOR
-    .word lab_5cb2          ;3596  b2 5c       VECTOR
-    .word lab_5ce4          ;3598  e4 5c       VECTOR
-    .word lab_5d22          ;359a  22 5d       VECTOR
-    .word lab_5d69          ;359c  69 5d       VECTOR
-    .word lab_5db3          ;359e  b3 5d       VECTOR   TODO disables EEPROM filtering based on payload
-    .word lab_5e97          ;35a0  97 5e       VECTOR   TODO returns EEPROM contents
-    .word lab_5f4d          ;35a2  4d 5f       VECTOR
-    .word lab_2266          ;35a4  66 22       VECTOR
-    .word lab_2266          ;35a6  66 22       VECTOR
-    .word lab_5fe4          ;35a8  e4 5f       VECTOR
-    .word lab_6070          ;35aa  70 60       VECTOR
-    .word lab_60a3          ;35ac  a3 60       VECTOR
-    .word lab_619a          ;35ae  9a 61       VECTOR
-    .word lab_611a          ;35b0  1a 61       VECTOR
-    .word lab_60f6          ;35b2  f6 60       VECTOR
-    .word lab_613f          ;35b4  3f 61       VECTOR
-    .word lab_2266          ;35b6  66 22       VECTOR
+    .word sub_5adf          ;3588  df 5a       VECTOR   cmd=5e   Send 10 01 5E <0x0344> CS
+    .word lab_5b37          ;358a  37 5b       VECTOR   cmd=5f
+    .word lab_5b4a          ;358c  4a 5b       VECTOR   cmd=42
+    .word lab_5bbb          ;358e  bb 5b       VECTOR   cmd=43
+    .word lab_5beb          ;3590  eb 5b       VECTOR   cmd=44
+    .word lab_5c2e          ;3592  2e 5c       VECTOR   cmd=45   TODO disables EEPROM filtering based on payload
+    .word lab_5c7e          ;3594  7e 5c       VECTOR   cmd=46
+    .word lab_5cb2          ;3596  b2 5c       VECTOR   cmd=47
+    .word lab_5ce4          ;3598  e4 5c       VECTOR   cmd=4a
+    .word lab_5d22          ;359a  22 5d       VECTOR   cmd=4b
+    .word lab_5d69          ;359c  69 5d       VECTOR   cmd=4c
+    .word lab_5db3          ;359e  b3 5d       VECTOR   cmd=4d   TODO disables EEPROM filtering based on payload
+    .word lab_5e97          ;35a0  97 5e       VECTOR   cmd=48   TODO returns EEPROM contents
+    .word lab_5f4d          ;35a2  4d 5f       VECTOR   cmd=49
+    .word lab_2266          ;35a4  66 22       VECTOR   cmd=7f
+    .word lab_2266          ;35a6  66 22       VECTOR   cmd=7f
+    .word lab_5fe4          ;35a8  e4 5f       VECTOR   cmd=50
+    .word lab_6070          ;35aa  70 60       VECTOR   cmd=51
+    .word lab_60a3          ;35ac  a3 60       VECTOR   cmd=52
+    .word lab_619a          ;35ae  9a 61       VECTOR   cmd=53
+    .word lab_611a          ;35b0  1a 61       VECTOR   cmd=58
+    .word lab_60f6          ;35b2  f6 60       VECTOR   cmd=59
+    .word lab_613f          ;35b4  3f 61       VECTOR   cmd=5a
+    .word lab_2266          ;35b6  66 22       VECTOR   cmd=7f
 
 sub_35b8:
     ldy #0x0e               ;35b8  a0 0e
@@ -10262,7 +10267,7 @@ lab_5c7e:
     sta 0x4c                ;5c86  85 4c
     lda 0x0324              ;5c88  ad 24 03     A = uart rx buffer byte 4
     sta 0x4d                ;5c8b  85 4d
-    lda 0x0325              ;5c8d  ad 25 03     A = uart rx buffere byte 5
+    lda 0x0325              ;5c8d  ad 25 03     A = uart rx buffer byte 5
     sta 0x4e                ;5c90  85 4e
     com 0x4e                ;5c92  44 4e
     ldm #0x00,0x4f          ;5c94  3c 00 4f
