@@ -3811,8 +3811,8 @@ lab_34f4:
     .word lab_5db3          ;359e  b3 5d       VECTOR   cmd=4d   TODO disables EEPROM filtering based on payload
     .word lab_5e97          ;35a0  97 5e       VECTOR   cmd=48   TODO returns EEPROM contents
     .word lab_5f4d          ;35a2  4d 5f       VECTOR   cmd=49
-    .word lab_2266          ;35a4  66 22       VECTOR   cmd=7f
-    .word lab_2266          ;35a6  66 22       VECTOR   cmd=7f
+    .word lab_2266          ;35a4  66 22       VECTOR   cmd=7f   Bad command?
+    .word lab_2266          ;35a6  66 22       VECTOR   cmd=7f   Bad command?
     .word lab_5fe4          ;35a8  e4 5f       VECTOR   cmd=50
     .word lab_6070          ;35aa  70 60       VECTOR   cmd=51
     .word lab_60a3          ;35ac  a3 60       VECTOR   cmd=52
@@ -3820,7 +3820,7 @@ lab_34f4:
     .word lab_611a          ;35b0  1a 61       VECTOR   cmd=58
     .word lab_60f6          ;35b2  f6 60       VECTOR   cmd=59
     .word lab_613f          ;35b4  3f 61       VECTOR   cmd=5a
-    .word lab_2266          ;35b6  66 22       VECTOR   cmd=7f
+    .word lab_2266          ;35b6  66 22       VECTOR   cmd=7f   Bad command?
 
 sub_35b8:
     ldy #0x0e               ;35b8  a0 0e
@@ -10026,7 +10026,7 @@ lab_5ada:
     rts                     ;5ade  60
 
 
-;TechniSat protocol related
+;TechniSat protocol command 0x5E
 ;Send 10 01 5E <0x0344> CS
 sub_5adf:
     ldm #0xff,0x75          ;5adf  3c ff 75
@@ -10074,7 +10074,7 @@ lab_5b1d:
     jsr sub_5adf            ;5b33  20 df 5a     Send 10 01 5E <0x0344> CS
     rts                     ;5b36  60
 
-;TechniSat protocol related
+;TechniSat protocol command 0x5F
 lab_5b37:
     ldy #0x01               ;5b37  a0 01
     jsr sub_f22c            ;5b39  20 2c f2
@@ -10085,7 +10085,7 @@ lab_5b37:
     jsr sub_b40f            ;5b46  20 0f b4
     rts                     ;5b49  60
 
-;TechniSat protocol related
+;TechniSat protocol command 0x42
 lab_5b4a:
     bbc 7,0xe8,lab_5bba     ;5b4a  f7 e8 6d
     ldy #0x01               ;5b4d  a0 01
@@ -10143,7 +10143,7 @@ lab_5bb2:
 lab_5bba:
     rts                     ;5bba  60
 
-;TechniSat protocol related
+;TechniSat protocol command 0x43
 lab_5bbb:
     ldy #0x01               ;5bbb  a0 01
     jsr sub_f22c            ;5bbd  20 2c f2
@@ -10169,7 +10169,7 @@ lab_5be7:
     jsr sub_5adf            ;5be7  20 df 5a     Send 10 01 5E <0x0344> CS
     rts                     ;5bea  60
 
-;TechniSat protocol related
+;TechniSat protocol command 0x44
 lab_5beb:
     bbc 7,0xe8,lab_5c2d     ;5beb  f7 e8 3f
     ldy #0x01               ;5bee  a0 01
@@ -10208,7 +10208,7 @@ lab_5c25:
 lab_5c2d:
     rts                     ;5c2d  60
 
-;TechniSat protocol related
+;TechniSat protocol command 0x45
 ;TODO disables EEPROM filtering based on payload
 lab_5c2e:
     ldy #0x01               ;5c2e  a0 01
@@ -10259,7 +10259,7 @@ lab_5c7a:
 lab_5c7d:
     rts                     ;5c7d  60
 
-;TechniSat protocol related
+;TechniSat protocol command 0x46
 lab_5c7e:
     ldy #0x01               ;5c7e  a0 01
     jsr sub_f22c            ;5c80  20 2c f2
@@ -10288,7 +10288,7 @@ lab_5cae:
     jsr sub_5adf            ;5cae  20 df 5a     Send 10 01 5E <0x0344> CS
     rts                     ;5cb1  60
 
-;TechniSat protocol related
+;TechniSat protocol command 0x47
 lab_5cb2:
     ldy #0x01               ;5cb2  a0 01
     jsr sub_f22c            ;5cb4  20 2c f2
@@ -10316,7 +10316,7 @@ lab_5ce0:
     jsr sub_5adf            ;5ce0  20 df 5a     Send 10 01 5E <0x0344> CS
     rts                     ;5ce3  60
 
-;TechniSat protocol related
+;TechniSat protocol command 0x4a
 lab_5ce4:
     bbc 7,0xe8,lab_5d21     ;5ce4  f7 e8 3a
     ldy #0x01               ;5ce7  a0 01
@@ -10353,7 +10353,7 @@ lab_5d1e:
 lab_5d21:
     rts                     ;5d21  60
 
-;TechniSat protocol related
+;TechniSat protocol command 0x4b
 lab_5d22:
     ldy #0x01               ;5d22  a0 01
     jsr sub_f22c            ;5d24  20 2c f2
@@ -10391,7 +10391,7 @@ lab_5d65:
     jsr sub_5adf            ;5d65  20 df 5a     Send 10 01 5E <0x0344> CS
     rts                     ;5d68  60
 
-;TechniSat protocol related
+;TechniSat protocol command 0x4c
 lab_5d69:
     ldy #0x01               ;5d69  a0 01
     jsr sub_f22c            ;5d6b  20 2c f2
@@ -10436,7 +10436,7 @@ lab_5daf:
     jsr sub_5adf            ;5daf  20 df 5a     Send 10 01 5E <0x0344> CS
     rts                     ;5db2  60
 
-;TechniSat protocol related
+;TechniSat protocol command 0x4d
 ;TODO disables EEPROM filtering based on payload
 lab_5db3:
     ldy #0x01               ;5db3  a0 01
@@ -10598,7 +10598,8 @@ lab_5e96:
     rts                     ;5e96  60
 
 
-;TechniSat protocol related
+;TechniSat protocol command 0x48
+;TODO returns EEPROM contents
 lab_5e97:
     bbs 7,0xe8,lab_5e9b     ;5e97  e7 e8 01
     rts                     ;5e9a  60
@@ -10755,7 +10756,7 @@ lab_5f4b:
 lab_5f4c:
     rts                     ;5f4c  60
 
-;TechniSat protocol related
+;TechniSat protocol command 0x49
 lab_5f4d:
     ldy #0x01               ;5f4d  a0 01
     jsr sub_f22c            ;5f4f  20 2c f2
@@ -10880,7 +10881,7 @@ lab_5fe1:
     .byte 0x60              ;5fe2  60          DATA 0x60 '`'
     .byte 0x60              ;5fe3  60          DATA 0x60 '`'
 
-;TechniSat protocol related
+;TechniSat protocol command 0x50
 lab_5fe4:
     ldy #0x01               ;5fe4  a0 01
     jsr sub_f22c            ;5fe6  20 2c f2
@@ -10948,7 +10949,7 @@ lab_606c:
     jsr sub_5adf            ;606c  20 df 5a     Send 10 01 5E <0x0344> CS
     rts                     ;606f  60
 
-;TechniSat protocol related
+;TechniSat protocol command 0x51
 lab_6070:
     ldy #0x01               ;6070  a0 01
     jsr sub_f22c            ;6072  20 2c f2
@@ -10975,7 +10976,7 @@ lab_609f:
     jsr sub_5adf            ;609f  20 df 5a     Send 10 01 5E <0x0344> CS
     rts                     ;60a2  60
 
-;TechniSat protocol related
+;TechniSat protocol command 0x52
 lab_60a3:
     ldy #0x01               ;60a3  a0 01
     jsr sub_f22c            ;60a5  20 2c f2
@@ -11019,7 +11020,7 @@ lab_60ee:
     .byte 0x0f              ;60f4  0f          DATA 0x0f
     .byte 0x0a              ;60f5  0a          DATA 0x0a
 
-;TechniSat protocol related
+;TechniSat protocol command 0x59
 lab_60f6:
     ldy #0x01               ;60f6  a0 01
     jsr sub_f22c            ;60f8  20 2c f2
@@ -11041,7 +11042,7 @@ lab_6106:
 lab_6119:
     rts                     ;6119  60
 
-;TechniSat protocol related
+;TechniSat protocol command 0x58
 lab_611a:
     bbc 7,0xe8,lab_613e     ;611a  f7 e8 21
     ldy #0x01               ;611d  a0 01
@@ -11063,7 +11064,7 @@ lab_612d:
 lab_613e:
     rts                     ;613e  60
 
-;TechniSat protocol related
+;TechniSat protocol command 0x5a
 lab_613f:
     ldy #0x01               ;613f  a0 01
     jsr sub_f22c            ;6141  20 2c f2
@@ -11136,7 +11137,7 @@ lab_6176:
     .byte 0xd2              ;6198  d2          DATA 0xd2
     .byte 0x62              ;6199  62          DATA 0x62 'b'
 
-;TechniSat protocol related
+;TechniSat protocol command 0x53
 lab_619a:
     bbc 7,0xe8,lab_621b     ;619a  f7 e8 7e
     ldy #0x01               ;619d  a0 01
