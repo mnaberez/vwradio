@@ -98,7 +98,7 @@ lab_2000:
     ldm #0x00,UARTCON       ;2066  3c 00 1b
     ldm #0x40,BRG           ;2069  3c 40 1c
     ldm #0x6b,SIO2CON       ;206c  3c 6b 1d
-    clb 7,SIO1CON           ;206f  ff 1a
+    clb 7,SIO1CON           ;206f  ff 1a        Serial I/O1 enabled bit = disabled
     lda #0x00               ;2071  a9 00
     sta ICON1               ;2073  85 3e
     sta ICON2               ;2075  85 3f
@@ -138,7 +138,7 @@ lab_2000:
     ldm #0x0a,0x65          ;20d2  3c 0a 65
     jsr sub_31f7            ;20d5  20 f7 31
     ldm #0x01,0x60          ;20d8  3c 01 60
-    jsr sub_46ce            ;20db  20 ce 46
+    jsr sub_46ce            ;20db  20 ce 46     I2C related
     lda #0xff               ;20de  a9 ff
     sta 0x027b              ;20e0  8d 7b 02
     sta 0x05a4              ;20e3  8d a4 05
@@ -1289,7 +1289,7 @@ sub_27b1:
     bbc 7,P1,lab_27f2       ;27bf  f7 02 30
     seb 6,P0                ;27c2  cf 00
     jsr sub_27f6            ;27c4  20 f6 27
-    jsr sub_46ce            ;27c7  20 ce 46
+    jsr sub_46ce            ;27c7  20 ce 46     I2C related
     jsr sub_4d39            ;27ca  20 39 4d
     jsr sub_c9af            ;27cd  20 af c9
     seb 6,0xf1              ;27d0  cf f1
@@ -1367,7 +1367,7 @@ sub_2835:
     clb 3,0xf3              ;283a  7f f3
     clb 1,0xf3              ;283c  3f f3
     clb 0,0xf9              ;283e  1f f9
-    jsr sub_544b            ;2840  20 4b 54
+    jsr sub_544b            ;2840  20 4b 54     Clears many registers
     clb 2,0xfa              ;2843  5f fa
     clb 7,0xfb              ;2845  ff fb
     clb 2,0xf4              ;2847  5f f4
@@ -1381,7 +1381,7 @@ sub_2835:
     jsr sub_bebc            ;2859  20 bc be
     jsr sub_27f6            ;285c  20 f6 27
     jsr sub_822c            ;285f  20 2c 82
-    jsr sub_46ce            ;2862  20 ce 46
+    jsr sub_46ce            ;2862  20 ce 46     I2C related
     jsr sub_7bdc            ;2865  20 dc 7b
     lda 0xf0                ;2868  a5 f0
     pha                     ;286a  48
@@ -2071,7 +2071,7 @@ lab_2bf2:
     jsr sub_c9ce            ;2bf2  20 ce c9
 
 lab_2bf5:
-    jsr sub_544b            ;2bf5  20 4b 54
+    jsr sub_544b            ;2bf5  20 4b 54     Clears many registers
     clb 3,0xfa              ;2bf8  7f fa
     ldy #0x37               ;2bfa  a0 37
     jsr sub_3300            ;2bfc  20 00 33
@@ -2363,7 +2363,7 @@ sub_2dc9:
     sta 0x4d                ;2ddc  85 4d
     ldm #0x02,0x4e          ;2dde  3c 02 4e
     ldm #0x05,0x4f          ;2de1  3c 05 4f
-    jsr sub_46e5            ;2de4  20 e5 46
+    jsr sub_46e5            ;2de4  20 e5 46     TODO probably read from I2C EEPROM
     rts                     ;2de7  60
 
 sub_2de8:
@@ -2385,7 +2385,7 @@ sub_2de8:
     asl a                   ;2e05  0a
     ora #0xa0               ;2e06  09 a0
     sta 0x0100              ;2e08  8d 00 01
-    jsr sub_46e5            ;2e0b  20 e5 46
+    jsr sub_46e5            ;2e0b  20 e5 46     TODO probably read from I2C EEPROM
     ldy #0x0a               ;2e0e  a0 0a
     jsr sub_f22c            ;2e10  20 2c f2
 
@@ -2450,7 +2450,7 @@ sub_2e3a:
     sta 0x4d                ;2e5e  85 4d
     ldm #0x05,0x4e          ;2e60  3c 05 4e
     ldm #0x00,0x4f          ;2e63  3c 00 4f
-    jsr sub_46e5            ;2e66  20 e5 46
+    jsr sub_46e5            ;2e66  20 e5 46     TODO probably read from I2C EEPROM
     ldy #0x0a               ;2e69  a0 0a
     jsr sub_f22c            ;2e6b  20 2c f2
     rts                     ;2e6e  60
@@ -2514,7 +2514,7 @@ lab_2eb7:
 
 lab_2ebf:
     seb 6,P0                ;2ebf  cf 00
-    jsr sub_46ce            ;2ec1  20 ce 46
+    jsr sub_46ce            ;2ec1  20 ce 46     I2C related
     jsr sub_2b17            ;2ec4  20 17 2b
     jsr sub_2b51            ;2ec7  20 51 2b
 
@@ -2577,13 +2577,13 @@ lab_2f38:
 
 sub_2f40:
     bbc 0,0xe8,lab_2f50     ;2f40  17 e8 0d
-    bbs 1,0xe8,lab_2f4b     ;2f43  27 e8 05
+    bbs 1,0xe8,lab_2f4b     ;2f43  27 e8 05     Branch if TechniSat protocol is active
     jsr sub_9f33            ;2f46  20 33 9f     end session
     bra lab_2f50            ;2f49  80 05
 
 lab_2f4b:
     jsr sub_b40f            ;2f4b  20 0f b4
-    clb 6,0xe9              ;2f4e  df e9
+    clb 6,0xe9              ;2f4e  df e9        Clear bit 6 = Enable EEPROM filtering
 
 lab_2f50:
     rts                     ;2f50  60
@@ -2593,7 +2593,7 @@ sub_2f51:
     clb 0,0xf3              ;2f54  1f f3
     clb 3,0xfa              ;2f56  7f fa
     clb 0,0xf9              ;2f58  1f f9
-    jsr sub_544b            ;2f5a  20 4b 54
+    jsr sub_544b            ;2f5a  20 4b 54     Clears many registers
     jsr sub_44a7            ;2f5d  20 a7 44
     jsr sub_890d            ;2f60  20 0d 89
     jsr sub_9dcd            ;2f63  20 cd 9d
@@ -3792,19 +3792,19 @@ lab_34f4:
 ;TechniSat protocol handlers
 ;same order as table of bytes at 0x3570
 ;used by lab_3640
-    .word sub_5adf          ;3588  df 5a       VECTOR
+    .word sub_5adf          ;3588  df 5a       VECTOR   Send 10 01 5E <0x0344> CS
     .word lab_5b37          ;358a  37 5b       VECTOR
     .word lab_5b4a          ;358c  4a 5b       VECTOR
     .word lab_5bbb          ;358e  bb 5b       VECTOR
     .word lab_5beb          ;3590  eb 5b       VECTOR
-    .word lab_5c2e          ;3592  2e 5c       VECTOR
+    .word lab_5c2e          ;3592  2e 5c       VECTOR   TODO disables EEPROM filtering based on payload
     .word lab_5c7e          ;3594  7e 5c       VECTOR
     .word lab_5cb2          ;3596  b2 5c       VECTOR
     .word lab_5ce4          ;3598  e4 5c       VECTOR
     .word lab_5d22          ;359a  22 5d       VECTOR
     .word lab_5d69          ;359c  69 5d       VECTOR
-    .word lab_5db3          ;359e  b3 5d       VECTOR
-    .word lab_5e97          ;35a0  97 5e       VECTOR
+    .word lab_5db3          ;359e  b3 5d       VECTOR   TODO disables EEPROM filtering based on payload
+    .word lab_5e97          ;35a0  97 5e       VECTOR   TODO returns EEPROM contents
     .word lab_5f4d          ;35a2  4d 5f       VECTOR
     .word lab_2266          ;35a4  66 22       VECTOR
     .word lab_2266          ;35a6  66 22       VECTOR
@@ -4431,7 +4431,7 @@ lab_3910:
 lab_3942:
     bbs 2,0xe6,lab_3966     ;3942  47 e6 21
     bbs 3,0xf7,lab_3966     ;3945  67 f7 1e
-    bbs 1,0xe8,lab_394e     ;3948  27 e8 03
+    bbs 1,0xe8,lab_394e     ;3948  27 e8 03     Branch if TechniSat protocol is active
     bbs 0,0xe8,lab_3966     ;394b  07 e8 18
 
 lab_394e:
@@ -5528,7 +5528,7 @@ sub_40a3:
 lab_40a4:
     bbs 2,0xe6,lab_40cc     ;40a4  47 e6 25
     bbs 3,0xf7,lab_40cc     ;40a7  67 f7 22
-    bbs 1,0xe8,lab_40b0     ;40aa  27 e8 03
+    bbs 1,0xe8,lab_40b0     ;40aa  27 e8 03     Branch if TechniSat protocol is active
     bbs 0,0xe8,lab_40cc     ;40ad  07 e8 1c
 
 lab_40b0:
@@ -5561,7 +5561,7 @@ sub_40cf:
 lab_40d1:
     bbs 2,0xe6,lab_40ee     ;40d1  47 e6 1a
     bbs 3,0xf7,lab_40ee     ;40d4  67 f7 17
-    bbs 1,0xe8,lab_40dd     ;40d7  27 e8 03
+    bbs 1,0xe8,lab_40dd     ;40d7  27 e8 03     Branch if TechniSat protocol is active
     bbs 0,0xe8,lab_40ee     ;40da  07 e8 11
 
 lab_40dd:
@@ -5590,7 +5590,7 @@ lab_40ef:
 sub_40f8:
     jsr sub_c9ce            ;40f8  20 ce c9
     clb 0,0xf9              ;40fb  1f f9
-    jsr sub_544b            ;40fd  20 4b 54
+    jsr sub_544b            ;40fd  20 4b 54     Clears many registers
     lda #0x00               ;4100  a9 00
     sta 0x02b7              ;4102  8d b7 02
     clb 5,0xf5              ;4105  bf f5
@@ -5662,7 +5662,7 @@ lab_4181:
     sta 0x4d                ;418c  85 4d
     ldm #0x02,0x4e          ;418e  3c 02 4e
     ldm #0x02,0x4f          ;4191  3c 02 4f
-    jsr sub_46e5            ;4194  20 e5 46
+    jsr sub_46e5            ;4194  20 e5 46     TODO probably read from I2C EEPROM
     lda 0x0102              ;4197  ad 02 01
     bbs 7,a,lab_41a3        ;419a  e3 07
     lda 0x0103              ;419c  ad 03 01
@@ -5692,7 +5692,7 @@ lab_41b7:
     sta 0x4d                ;41c2  85 4d
     ldm #0x02,0x4e          ;41c4  3c 02 4e
     ldm #0x04,0x4f          ;41c7  3c 04 4f
-    jsr sub_46e5            ;41ca  20 e5 46
+    jsr sub_46e5            ;41ca  20 e5 46     TODO probably read from I2C EEPROM
     lda 0x0102              ;41cd  ad 02 01
     bbs 7,a,lab_41f9        ;41d0  e3 27
     lda 0x0104              ;41d2  ad 04 01
@@ -5753,7 +5753,7 @@ lab_421a:
     sta 0x4d                ;4225  85 4d
     ldm #0x02,0x4e          ;4227  3c 02 4e
     ldm #0x04,0x4f          ;422a  3c 04 4f
-    jsr sub_46e5            ;422d  20 e5 46
+    jsr sub_46e5            ;422d  20 e5 46     TODO probably read from I2C EEPROM
     lda 0x0102              ;4230  ad 02 01
     bbs 7,a,lab_4262        ;4233  e3 2d
     bbc 0,a,lab_4262        ;4235  13 2b
@@ -5771,7 +5771,7 @@ lab_421a:
     sta 0x4d                ;4250  85 4d
     ldm #0x02,0x4e          ;4252  3c 02 4e
     ldm #0x0e,0x4f          ;4255  3c 0e 4f
-    jsr sub_46e5            ;4258  20 e5 46
+    jsr sub_46e5            ;4258  20 e5 46     TODO probably read from I2C EEPROM
     jsr sub_4a7c            ;425b  20 7c 4a
     seb 2,0xfb              ;425e  4f fb
     bra lab_4272            ;4260  80 10
@@ -6524,17 +6524,22 @@ lab_46ca:
 lab_46cd:
     rts                     ;46cd  60
 
+;I2C related
 sub_46ce:
-    ldm #0x18,S0D           ;46ce  3c 18 13
-    ldm #0x87,S2            ;46d1  3c 87 16
-    ldm #0x1e,S2D           ;46d4  3c 1e 17
-    ldm #0x10,S1            ;46d7  3c 10 14
-    ldm #0x00,S1D           ;46da  3c 00 15
+    ldm #0x18,S0D           ;46ce  3c 18 13     I2C address register = 0x18
+    ldm #0x87,S2            ;46d1  3c 87 16     Set I2C clock control register
+    ldm #0x1e,S2D           ;46d4  3c 1e 17     Set I2C start/stop condition control register
+    ldm #0x10,S1            ;46d7  3c 10 14     Set I2C status register
+    ldm #0x00,S1D           ;46da  3c 00 15     Set I2C control register
     seb 3,S1D               ;46dd  6f 15
     ldm #0xd0,S1            ;46df  3c d0 14
     clb 1,0xff              ;46e2  3f ff
     rts                     ;46e4  60
 
+;TODO probably read from I2C EEPROM
+;0x004C-0x004D pointer to buffer that will receive EEPROM contents
+;0x004E = number of bytes to write to the slave
+;0x004F = number of bytes to read from the slave
 sub_46e5:
     bbc 1,0xff,lab_46e9     ;46e5  37 ff 01
     rts                     ;46e8  60
@@ -6543,38 +6548,48 @@ lab_46e9:
     pha                     ;46e9  48
     tya                     ;46ea  98
     pha                     ;46eb  48
-    ldm #0x00,S1            ;46ec  3c 00 14
+    ldm #0x00,S1            ;46ec  3c 00 14     Set ... I2C status register
     seb 3,S1D               ;46ef  6f 15
 
 lab_46f1:
-    bbs 5,S1,lab_46f1       ;46f1  a7 14 fd
+    bbs 5,S1,lab_46f1       ;46f1  a7 14 fd     Wait for ... I2C status register
     lda 0x4e                ;46f4  a5 4e
     bne lab_46fb            ;46f6  d0 03
+    ;0x004e = 0
     jmp lab_477e            ;46f8  4c 7e 47
 
 lab_46fb:
+    ;0x004e != 0
     cmp #0x01               ;46fb  c9 01
     bne lab_4703            ;46fd  d0 04
+    ;0x004e = 1
     lda 0x4f                ;46ff  a5 4f
     bne lab_473c            ;4701  d0 39
 
+    ;0x004e != 1, 0x004f = 0
+
 lab_4703:
+    ;0x004e != 0,1
     seb 0,0xff              ;4703  0f ff
+
     ldy #0x00               ;4705  a0 00
-    lda [0x4c],y            ;4707  b1 4c
-    clb 0,a                 ;4709  1b
+    lda [0x4c],y            ;4707  b1 4c        A = first byte from buffer (control/address byte)
+    clb 0,a                 ;4709  1b           Clear bit 0
+
     sei                     ;470a  78
-    sta S0                  ;470b  85 12
-    ldm #0xf0,S1            ;470d  3c f0 14
+    sta S0                  ;470b  85 12        Store in I2C data shift register
+    ldm #0xf0,S1            ;470d  3c f0 14     Set I2C status register
     cli                     ;4710  58
 
 lab_4711:
-    bbs 4,S1,lab_4711       ;4711  87 14 fd
-    bbs 0,S1,lab_477e       ;4714  07 14 67
+    bbs 4,S1,lab_4711       ;4711  87 14 fd     Wait for ... I2C status register
+    bbs 0,S1,lab_477e       ;4714  07 14 67     Branch if ... I2C status register
     clb 0,0xff              ;4717  1f ff
+
     lda 0x4e                ;4719  a5 4e
     cmp #0x01               ;471b  c9 01
     bne lab_4723            ;471d  d0 04
+
     lda 0x4f                ;471f  a5 4f
     beq lab_477e            ;4721  f0 5b
 
@@ -6583,12 +6598,12 @@ lab_4723:
     ldy #0x01               ;4725  a0 01
 
 lab_4727:
-    lda [0x4c],y            ;4727  b1 4c
-    sta S0                  ;4729  85 12
+    lda [0x4c],y            ;4727  b1 4c        Read from buffer
+    sta S0                  ;4729  85 12        Store in I2C data shift register
 
 lab_472b:
-    bbs 4,S1,lab_472b       ;472b  87 14 fd
-    bbs 0,S1,lab_477e       ;472e  07 14 4d
+    bbs 4,S1,lab_472b       ;472b  87 14 fd     Wait for ... I2C status register
+    bbs 0,S1,lab_477e       ;472e  07 14 4d     Branch if ... I2C status register
     iny                     ;4731  c8
     cpy 0x4e                ;4732  c4 4e
     bcc lab_4727            ;4734  90 f1
@@ -6597,58 +6612,66 @@ lab_472b:
     beq lab_477e            ;473a  f0 42
 
 lab_473c:
+    ;0x004e = 1, 0x004f != 0
     seb 0,0xff              ;473c  0f ff
+
     ldy #0x00               ;473e  a0 00
-    lda [0x4c],y            ;4740  b1 4c
-    seb 0,a                 ;4742  0b
+    lda [0x4c],y            ;4740  b1 4c        A = first byte from buffer (control/address byte)
+    seb 0,a                 ;4742  0b           Set bit 0
+
     sei                     ;4743  78
-    sta S0                  ;4744  85 12
-    ldm #0xf0,S1            ;4746  3c f0 14
+    sta S0                  ;4744  85 12        Store in I2C data shift register
+    ldm #0xf0,S1            ;4746  3c f0 14     Set I2C status register
     cli                     ;4749  58
 
 lab_474a:
-    bbs 4,S1,lab_474a       ;474a  87 14 fd
-    bbs 0,S1,lab_477e       ;474d  07 14 2e
+    bbs 4,S1,lab_474a       ;474a  87 14 fd     Check I2C status register
+    bbs 0,S1,lab_477e       ;474d  07 14 2e     Check I2C status register
+
     clc                     ;4750  18
     lda 0x4f                ;4751  a5 4f
     pha                     ;4753  48
     adc 0x4e                ;4754  65 4e
     dec a                   ;4756  1a
     sta 0x4f                ;4757  85 4f
-    clb 6,S2                ;4759  df 16
-    ldm #0xb0,S1            ;475b  3c b0 14
+
+    clb 6,S2                ;4759  df 16        Set I2C clock control register
+    ldm #0xb0,S1            ;475b  3c b0 14     Set I2C status register
+
     ldy 0x4e                ;475e  a4 4e
     cpy 0x4f                ;4760  c4 4f
     bne lab_4766            ;4762  d0 02
 
 lab_4764:
-    seb 6,S2                ;4764  cf 16
+    seb 6,S2                ;4764  cf 16        Set I2C clock control register
 
 lab_4766:
-    ldm #0xff,S0            ;4766  3c ff 12
+    ldm #0xff,S0            ;4766  3c ff 12     Write 0xFF to I2C data shift register
 
 lab_4769:
-    bbs 4,S1,lab_4769       ;4769  87 14 fd
-    lda S0                  ;476c  a5 12
-    sta [0x4c],y            ;476e  91 4c
+    bbs 4,S1,lab_4769       ;4769  87 14 fd     Wait for I2C status register
+
+    lda S0                  ;476c  a5 12        A = I2C data shift register
+    sta [0x4c],y            ;476e  91 4c        Store it in the buffer
     iny                     ;4770  c8
     cpy 0x4f                ;4771  c4 4f
+
     bcc lab_4766            ;4773  90 f1
     beq lab_4764            ;4775  f0 ed
-    clb 6,S2                ;4777  df 16
+    clb 6,S2                ;4777  df 16        Set I2C clock control register
     pla                     ;4779  68
     sta 0x4f                ;477a  85 4f
     clb 0,0xff              ;477c  1f ff
 
 lab_477e:
     sei                     ;477e  78
-    ldm #0xc0,S1            ;477f  3c c0 14
+    ldm #0xc0,S1            ;477f  3c c0 14     Set I2C status register
     nop                     ;4782  ea
-    ldm #0xd0,S1            ;4783  3c d0 14
+    ldm #0xd0,S1            ;4783  3c d0 14     Set I2C status register
     cli                     ;4786  58
 
 lab_4787:
-    bbs 5,S1,lab_4787       ;4787  a7 14 fd
+    bbs 5,S1,lab_4787       ;4787  a7 14 fd     Wait for I2C status register
     pla                     ;478a  68
     tay                     ;478b  a8
     pla                     ;478c  68
@@ -6888,7 +6911,7 @@ lab_48a6:
     sta 0x4d                ;48b1  85 4d
     ldm #0x02,0x4e          ;48b3  3c 02 4e
     ldm #0x06,0x4f          ;48b6  3c 06 4f
-    jsr sub_46e5            ;48b9  20 e5 46
+    jsr sub_46e5            ;48b9  20 e5 46     TODO probably read from I2C EEPROM
     lda 0x0102              ;48bc  ad 02 01
     sta 0x48                ;48bf  85 48
     and #0x3c               ;48c1  29 3c
@@ -7012,7 +7035,7 @@ sub_4979:
     sta 0x4d                ;4989  85 4d
     ldm #0x02,0x4e          ;498b  3c 02 4e
     ldm #0x02,0x4f          ;498e  3c 02 4f
-    jsr sub_46e5            ;4991  20 e5 46
+    jsr sub_46e5            ;4991  20 e5 46     TODO probably read from I2C EEPROM
     bbs 0,0xff,lab_49bf     ;4994  07 ff 28
     lda 0x0102              ;4997  ad 02 01
     bbs 7,a,lab_49a1        ;499a  e3 05
@@ -7035,7 +7058,7 @@ lab_49ae:
     sta 0x4d                ;49b4  85 4d
     ldm #0x02,0x4e          ;49b6  3c 02 4e
     ldm #0x0e,0x4f          ;49b9  3c 0e 4f
-    jsr sub_46e5            ;49bc  20 e5 46
+    jsr sub_46e5            ;49bc  20 e5 46     TODO probably read from I2C EEPROM
 
 lab_49bf:
     bbs 0,0xff,lab_4a3b     ;49bf  07 ff 79
@@ -7188,7 +7211,7 @@ sub_4a9d:
     sta 0x4d                ;4aa8  85 4d
     ldm #0x02,0x4e          ;4aaa  3c 02 4e
     ldm #0x02,0x4f          ;4aad  3c 02 4f
-    jsr sub_46e5            ;4ab0  20 e5 46
+    jsr sub_46e5            ;4ab0  20 e5 46     TODO probably read from I2C EEPROM
     bbs 0,0xff,lab_4b24     ;4ab3  07 ff 6e
     lda 0x0103              ;4ab6  ad 03 01
     pha                     ;4ab9  48
@@ -7200,7 +7223,7 @@ sub_4a9d:
     sta 0x4d                ;4ac5  85 4d
     ldm #0x02,0x4e          ;4ac7  3c 02 4e
     ldm #0x11,0x4f          ;4aca  3c 11 4f
-    jsr sub_46e5            ;4acd  20 e5 46
+    jsr sub_46e5            ;4acd  20 e5 46     TODO probably read from I2C EEPROM
     pla                     ;4ad0  68
     bbs 0,0xff,lab_4b24     ;4ad1  07 ff 50
     tay                     ;4ad4  a8
@@ -7315,7 +7338,7 @@ lab_4b67:
     pha                     ;4b76  48
     inc 0x4e                ;4b77  e6 4e
     inc 0x4e                ;4b79  e6 4e
-    jsr sub_46e5            ;4b7b  20 e5 46
+    jsr sub_46e5            ;4b7b  20 e5 46     TODO probably read from I2C EEPROM
     ldy #0x0a               ;4b7e  a0 0a
     jsr sub_f22c            ;4b80  20 2c f2
     pla                     ;4b83  68
@@ -7407,7 +7430,7 @@ sub_4bec:
     sta 0x4d                ;4bf5  85 4d
     ldm #0x02,0x4e          ;4bf7  3c 02 4e
     ldm #0x10,0x4f          ;4bfa  3c 10 4f
-    jsr sub_46e5            ;4bfd  20 e5 46
+    jsr sub_46e5            ;4bfd  20 e5 46     TODO probably read from I2C EEPROM
     ldy #0x03               ;4c00  a0 03
     lda 0x0102,y            ;4c02  b9 02 01
     cmp #0x07               ;4c05  c9 07
@@ -7550,7 +7573,7 @@ lab_4cab:
     inc 0x4e                ;4cc0  e6 4e
     inc 0x4e                ;4cc2  e6 4e
     ldm #0x00,0x4f          ;4cc4  3c 00 4f
-    jsr sub_46e5            ;4cc7  20 e5 46
+    jsr sub_46e5            ;4cc7  20 e5 46     TODO probably read from I2C EEPROM
     ldy #0x0a               ;4cca  a0 0a
     jsr sub_f22c            ;4ccc  20 2c f2
     rts                     ;4ccf  60
@@ -7568,7 +7591,7 @@ sub_4cd0:
     sta 0x4d                ;4ce3  85 4d
     ldm #0x02,0x4e          ;4ce5  3c 02 4e
     ldm #0x01,0x4f          ;4ce8  3c 01 4f
-    jsr sub_46e5            ;4ceb  20 e5 46
+    jsr sub_46e5            ;4ceb  20 e5 46     TODO probably read from I2C EEPROM
     lda 0x0102              ;4cee  ad 02 01
     bbc 7,a,lab_4cf5        ;4cf1  f3 02
     lda #0x00               ;4cf3  a9 00
@@ -7592,7 +7615,7 @@ sub_4cf9:
     sta 0x4d                ;4d12  85 4d
     ldm #0x03,0x4e          ;4d14  3c 03 4e
     ldm #0x00,0x4f          ;4d17  3c 00 4f
-    jsr sub_46e5            ;4d1a  20 e5 46
+    jsr sub_46e5            ;4d1a  20 e5 46     TODO probably read from I2C EEPROM
     ldy #0x0a               ;4d1d  a0 0a
     jsr sub_f22c            ;4d1f  20 2c f2
     rts                     ;4d22  60
@@ -7675,7 +7698,7 @@ lab_4d7a:
     sta 0x4d                ;4d94  85 4d
     ldm #0x06,0x4e          ;4d96  3c 06 4e
     ldm #0x00,0x4f          ;4d99  3c 00 4f
-    jsr sub_46e5            ;4d9c  20 e5 46
+    jsr sub_46e5            ;4d9c  20 e5 46     TODO probably read from I2C EEPROM
     ldy #0x0a               ;4d9f  a0 0a
     jsr sub_f22c            ;4da1  20 2c f2
 
@@ -7695,7 +7718,7 @@ sub_4da5:
     sta 0x4d                ;4db8  85 4d
     ldm #0x02,0x4e          ;4dba  3c 02 4e
     ldm #0x04,0x4f          ;4dbd  3c 04 4f
-    jsr sub_46e5            ;4dc0  20 e5 46
+    jsr sub_46e5            ;4dc0  20 e5 46     TODO probably read from I2C EEPROM
     rts                     ;4dc3  60
 
 sub_4dc4:
@@ -7794,7 +7817,7 @@ lab_4e6b:
     sta 0x4d                ;4e71  85 4d
     ldm #0x04,0x4e          ;4e73  3c 04 4e
     ldm #0x00,0x4f          ;4e76  3c 00 4f
-    jsr sub_46e5            ;4e79  20 e5 46
+    jsr sub_46e5            ;4e79  20 e5 46     TODO probably read from I2C EEPROM
     bbc 0,0xff,lab_4e83     ;4e7c  17 ff 04
     clb 0,0xff              ;4e7f  1f ff
     seb 0,0x76              ;4e81  0f 76
@@ -7842,7 +7865,7 @@ lab_4eb6:
     sta 0x4d                ;4ec2  85 4d
     ldm #0x02,0x4e          ;4ec4  3c 02 4e
     ldm #0x01,0x4f          ;4ec7  3c 01 4f
-    jsr sub_46e5            ;4eca  20 e5 46
+    jsr sub_46e5            ;4eca  20 e5 46     TODO probably read from I2C EEPROM
     lda 0x0102              ;4ecd  ad 02 01
     beq lab_4ef3            ;4ed0  f0 21
     ldy #0x00               ;4ed2  a0 00
@@ -7883,7 +7906,7 @@ lab_4f04:
     sta 0x4d                ;4f10  85 4d
     ldm #0x02,0x4e          ;4f12  3c 02 4e
     ldm #0x1d,0x4f          ;4f15  3c 1d 4f
-    jsr sub_46e5            ;4f18  20 e5 46
+    jsr sub_46e5            ;4f18  20 e5 46     TODO probably read from I2C EEPROM
     ldy #0x00               ;4f1b  a0 00
 
 lab_4f1d:
@@ -7929,7 +7952,7 @@ sub_4f4b:
     sta 0x4d                ;4f5e  85 4d
     ldm #0x02,0x4e          ;4f60  3c 02 4e
     ldm #0x02,0x4f          ;4f63  3c 02 4f
-    jsr sub_46e5            ;4f66  20 e5 46
+    jsr sub_46e5            ;4f66  20 e5 46     TODO probably read from I2C EEPROM
     ldx #0x00               ;4f69  a2 00
     bbc 0,0xf2,lab_4f70     ;4f6b  17 f2 02
     ldx #0x01               ;4f6e  a2 01
@@ -7966,7 +7989,7 @@ lab_4f8a:
     sta 0x4d                ;4fa3  85 4d
     ldm #0x1f,0x4e          ;4fa5  3c 1f 4e
     ldm #0x00,0x4f          ;4fa8  3c 00 4f
-    jsr sub_46e5            ;4fab  20 e5 46
+    jsr sub_46e5            ;4fab  20 e5 46     TODO probably read from I2C EEPROM
     rts                     ;4fae  60
 
 sub_4faf:
@@ -7983,7 +8006,7 @@ sub_4faf:
     sta 0x4d                ;4fc7  85 4d
     ldm #0x03,0x4e          ;4fc9  3c 03 4e
     ldm #0x00,0x4f          ;4fcc  3c 00 4f
-    jsr sub_46e5            ;4fcf  20 e5 46
+    jsr sub_46e5            ;4fcf  20 e5 46     TODO probably read from I2C EEPROM
     rts                     ;4fd2  60
 
 sub_4fd3:
@@ -8000,7 +8023,7 @@ sub_4fd3:
     sta 0x4d                ;4feb  85 4d
     ldm #0x03,0x4e          ;4fed  3c 03 4e
     ldm #0x00,0x4f          ;4ff0  3c 00 4f
-    jsr sub_46e5            ;4ff3  20 e5 46
+    jsr sub_46e5            ;4ff3  20 e5 46     TODO probably read from I2C EEPROM
     rts                     ;4ff6  60
 
 sub_4ff7:
@@ -8017,7 +8040,7 @@ sub_4ff7:
     sta 0x4d                ;500e  85 4d
     ldm #0x03,0x4e          ;5010  3c 03 4e
     ldm #0x00,0x4f          ;5013  3c 00 4f
-    jsr sub_46e5            ;5016  20 e5 46
+    jsr sub_46e5            ;5016  20 e5 46     TODO probably read from I2C EEPROM
     rts                     ;5019  60
 
 sub_501a:
@@ -8035,7 +8058,7 @@ sub_501a:
     sta 0x4d                ;5034  85 4d
     ldm #0x03,0x4e          ;5036  3c 03 4e
     ldm #0x00,0x4f          ;5039  3c 00 4f
-    jsr sub_46e5            ;503c  20 e5 46
+    jsr sub_46e5            ;503c  20 e5 46     TODO probably read from I2C EEPROM
 
 lab_503f:
     rts                     ;503f  60
@@ -9734,7 +9757,7 @@ lab_5999:
 
 lab_599f:
     bbs 2,0xe6,lab_59d1     ;599f  47 e6 2f
-    bbs 1,0xe8,lab_59a8     ;59a2  27 e8 03
+    bbs 1,0xe8,lab_59a8     ;59a2  27 e8 03     Branch if TechniSat protocol is active
     bbs 0,0xe8,lab_59d1     ;59a5  07 e8 29
 
 lab_59a8:
@@ -9827,15 +9850,21 @@ lab_59d2:
     .byte 0xff              ;5a0f  ff          DATA 0xff
     .byte 0x10              ;5a10  10          DATA 0x10
 
+
+;ISR for INT_FFF6
+;Serial I/O 1 reception
 lab_5a11:
     pha                     ;5a11  48
     tya                     ;5a12  98
     pha                     ;5a13  48
-    lda TB_RB               ;5a14  a5 18
-    bbs 1,0xe8,lab_5a2c     ;5a16  27 e8 13
+
+    lda TB_RB               ;5a14  a5 18        A = byte received from UART
+    bbs 1,0xe8,lab_5a2c     ;5a16  27 e8 13     Branch if TechniSat protocol is active
+
     ldy 0x05c5              ;5a19  ac c5 05
     cpy #0x04               ;5a1c  c0 04
-    bcc lab_5a22            ;5a1e  90 02
+    bcc lab_5a22            ;5a1e  90 02        Branch if < 4
+
     ldy #0x00               ;5a20  a0 00
 
 lab_5a22:
@@ -9846,7 +9875,7 @@ lab_5a22:
 
 lab_5a2c:
     bbs 6,0xe5,lab_5a32     ;5a2c  c7 e5 03
-    jsr sub_5a36            ;5a2f  20 36 5a
+    jsr sub_5a36            ;5a2f  20 36 5a     Process TechniSat protocol byte received
 
 lab_5a32:
     pla                     ;5a32  68
@@ -9854,6 +9883,9 @@ lab_5a32:
     pla                     ;5a34  68
     rti                     ;5a35  40
 
+;New TechniSat protocol byte received from UART
+;Byte is A register
+;Called from ISR at lab_5a11
 sub_5a36:
     ldy 0x0320              ;5a36  ac 20 03     Y = number of bytes received
     bne lab_5a5e            ;5a39  d0 23        Branch if any bytes were already received
@@ -9870,26 +9902,33 @@ sub_5a36:
 lab_5a48:
     clb 7,0xe8              ;5a48  ff e8
 
+;first byte received
 lab_5a4a:
     sta 0x0343              ;5a4a  8d 43 03     Store byte as initial value of checksum
     clb 7,IREQ1             ;5a4d  ff 3c
+
     lda #0x00               ;5a4f  a9 00
-    sta 0x0344              ;5a51  8d 44 03
+    sta 0x0344              ;5a51  8d 44 03     Store as TechniSat protocol status byte
+
     ldm #0x31,T2            ;5a54  3c 31 22
     seb 7,ICON1             ;5a57  ef 3e
+
     inc 0x0320              ;5a59  ee 20 03     Increment number of bytes received
 
 lab_5a5c:
     bra lab_5ab4            ;5a5c  80 56        Branch to RTS
 
+;not first byte received
 lab_5a5e:
     sta 0x0320,y            ;5a5e  99 20 03     Store byte in UART rx buffer
 
+    ;branches if 0x320 > (0x321 + 2)
+    ;number of bytes received > (first byte received + 2)
     ldy 0x0321              ;5a61  ac 21 03     Y = rx buffer byte 1
     iny                     ;5a64  c8           Y=Y+2
     iny                     ;5a65  c8
     cpy 0x0320              ;5a66  cc 20 03     Compare to 0x0320 (number of bytes received)
-    bcc lab_5a7a            ;5a69  90 0f        Branch if >=
+    bcc lab_5a7a            ;5a69  90 0f
 
     clc                     ;5a6b  18
     adc 0x0343              ;5a6c  6d 43 03
@@ -9904,8 +9943,12 @@ lab_5a7a:
     ldy 0x0320              ;5a7f  ac 20 03     get number of bytes received
     cmp 0x0320,y            ;5a82  d9 20 03     compare to last byte of rx buffer
     beq lab_5a91            ;5a85  f0 0a
+
+    ;checksum is bad
+
     lda #0x03               ;5a87  a9 03
-    sta 0x0344              ;5a89  8d 44 03
+    sta 0x0344              ;5a89  8d 44 03     Store as TechniSat protocol status byte
+
     lda #0x5e               ;5a8c  a9 5e
     sta 0x0322              ;5a8e  8d 22 03     store in uart rx buffer byte 2
 
@@ -9938,6 +9981,8 @@ lab_5ab1:
 lab_5ab4:
     rts                     ;5ab4  60
 
+
+;ISR for INT_FFEC (Timer 2)
 lab_5ab5:
     bbc 4,0xeb,lab_5abb     ;5ab5  97 eb 03
     jmp lab_c684            ;5ab8  4c 84 c6
@@ -9950,32 +9995,34 @@ lab_5abb:
     pla                     ;5ac3  68
     rti                     ;5ac4  40
 
+
+;Send byte in A out UART, also save byte in 0x05b5 and set bit 3 of 0x00e8
 sub_5ac5:
     sei                     ;5ac5  78
-    sta TB_RB               ;5ac6  85 18
+    sta TB_RB               ;5ac6  85 18        Store byte in transmit register
     sta 0x05b5              ;5ac8  8d b5 05
     seb 3,0xe8              ;5acb  6f e8
     cli                     ;5acd  58
-
 lab_5ace:
-    bbc 0,SIO1STS,lab_5ace  ;5ace  17 19 fd
-
+    bbc 0,SIO1STS,lab_5ace  ;5ace  17 19 fd     Wait until transmit buffer empty flag = empty
 lab_5ad1:
-    bbc 2,SIO1STS,lab_5ad1  ;5ad1  57 19 fd
+    bbc 2,SIO1STS,lab_5ad1  ;5ad1  57 19 fd     Wait until transmit shift complete flag = complete
     rts                     ;5ad4  60
 
+
+;Send byte in A out the UART
 sub_5ad5:
-    sta TB_RB               ;5ad5  85 18
-
+    sta TB_RB               ;5ad5  85 18        Store byte in transmit register
 lab_5ad7:
-    bbc 0,SIO1STS,lab_5ad7  ;5ad7  17 19 fd
-
+    bbc 0,SIO1STS,lab_5ad7  ;5ad7  17 19 fd     Wait until transmit buffer empty flag = empty
 lab_5ada:
-    bbc 2,SIO1STS,lab_5ada  ;5ada  57 19 fd
+    bbc 2,SIO1STS,lab_5ada  ;5ada  57 19 fd     Wait until transmit shift complete flag = complete
     nop                     ;5add  ea
     rts                     ;5ade  60
 
+
 ;TechniSat protocol related
+;Send 10 01 5E <0x0344> CS
 sub_5adf:
     ldm #0xff,0x75          ;5adf  3c ff 75
     clb 2,0xf7              ;5ae2  5f f7
@@ -10002,9 +10049,11 @@ lab_5b10:
     lda #0x00               ;5b10  a9 00
     sta 0x0320              ;5b12  8d 20 03
     rts                     ;5b15  60
+
+lab_5b16:
     seb 0,0xe8              ;5b16  0f e8
-    seb 1,0xe8              ;5b18  2f e8
-    seb 7,SIO1CON           ;5b1a  ef 1a
+    seb 1,0xe8              ;5b18  2f e8        Set flag = TechniSat protocol is active
+    seb 7,SIO1CON           ;5b1a  ef 1a        Serial I/O1 enabled bit = enabled
     rts                     ;5b1c  60
 
 lab_5b1d:
@@ -10012,9 +10061,9 @@ lab_5b1d:
     sta 0x0342              ;5b1f  8d 42 03
     seb 7,0xe8              ;5b22  ef e8
     ldm #0x40,BRG           ;5b24  3c 40 1c
-    clb 6,0xe9              ;5b27  df e9
+    clb 6,0xe9              ;5b27  df e9        Clear bit 6 = Enable EEPROM filtering
     lda #0x00               ;5b29  a9 00
-    sta 0x0344              ;5b2b  8d 44 03
+    sta 0x0344              ;5b2b  8d 44 03     Store as TechniSat protocol status byte
     ldy #0x01               ;5b2e  a0 01
     jsr sub_f22c            ;5b30  20 2c f2
     jsr sub_5adf            ;5b33  20 df 5a     Send 10 01 5E <0x0344> CS
@@ -10026,7 +10075,7 @@ lab_5b37:
     jsr sub_f22c            ;5b39  20 2c f2
     jsr sub_5adf            ;5b3c  20 df 5a     Send 10 01 5E <0x0344> CS
     ldm #0x40,BRG           ;5b3f  3c 40 1c
-    clb 6,0xe9              ;5b42  df e9
+    clb 6,0xe9              ;5b42  df e9        Clear bit 6 = Enable EEPROM filtering
     clb 0,0xef              ;5b44  1f ef
     jsr sub_b40f            ;5b46  20 0f b4
     rts                     ;5b49  60
@@ -10052,7 +10101,7 @@ lab_5b4a:
     sta 0x4f                ;5b6f  85 4f
     cmp #0x11               ;5b71  c9 11
     bcs lab_5bb2            ;5b73  b0 3d
-    jsr sub_46e5            ;5b75  20 e5 46
+    jsr sub_46e5            ;5b75  20 e5 46     TODO probably read from I2C EEPROM
     lda 0x4f                ;5b78  a5 4f
     sta 0x0325              ;5b7a  8d 25 03
     inc 0x4f                ;5b7d  e6 4f
@@ -10083,7 +10132,7 @@ lab_5b92:
 
 lab_5bb2:
     lda #0x10               ;5bb2  a9 10
-    sta 0x0344              ;5bb4  8d 44 03
+    sta 0x0344              ;5bb4  8d 44 03     Store as TechniSat protocol status byte
     jsr sub_5adf            ;5bb7  20 df 5a     Send 10 01 5E <0x0344> CS
 
 lab_5bba:
@@ -10094,13 +10143,13 @@ lab_5bbb:
     ldy #0x01               ;5bbb  a0 01
     jsr sub_f22c            ;5bbd  20 2c f2
     lda #0x10               ;5bc0  a9 10
-    sta 0x0344              ;5bc2  8d 44 03
+    sta 0x0344              ;5bc2  8d 44 03     Store as TechniSat protocol status byte
     lda 0x0325              ;5bc5  ad 25 03     A = uart rx buffer byte 5
     and #0xf0               ;5bc8  29 f0
     cmp #0xa0               ;5bca  c9 a0
     beq lab_5be7            ;5bcc  f0 19
     lda #0x00               ;5bce  a9 00
-    sta 0x0344              ;5bd0  8d 44 03
+    sta 0x0344              ;5bd0  8d 44 03     Store as TechniSat protocol status byte
     lda #0x25               ;5bd3  a9 25
     sta 0x4c                ;5bd5  85 4c
     lda #0x03               ;5bd7  a9 03
@@ -10109,7 +10158,7 @@ lab_5bbb:
     sta 0x4e                ;5bde  85 4e
     lda #0x00               ;5be0  a9 00
     sta 0x4f                ;5be2  85 4f
-    jsr sub_46e5            ;5be4  20 e5 46
+    jsr sub_46e5            ;5be4  20 e5 46     TODO probably read from I2C EEPROM
 
 lab_5be7:
     jsr sub_5adf            ;5be7  20 df 5a     Send 10 01 5E <0x0344> CS
@@ -10142,33 +10191,40 @@ lab_5beb:
 lab_5c18:
     ldm #0x00,0x4e          ;5c18  3c 00 4e
     lda #0x00               ;5c1b  a9 00
-    sta 0x0344              ;5c1d  8d 44 03
+    sta 0x0344              ;5c1d  8d 44 03     Store as TechniSat protocol status byte
     jsr sub_5e05            ;5c20  20 05 5e
     bra lab_5c2d            ;5c23  80 08
 
 lab_5c25:
     lda #0x04               ;5c25  a9 04
-    sta 0x0344              ;5c27  8d 44 03
+    sta 0x0344              ;5c27  8d 44 03     Store as TechniSat protocol status byte
     jsr sub_5adf            ;5c2a  20 df 5a     Send 10 01 5E <0x0344> CS
 
 lab_5c2d:
     rts                     ;5c2d  60
 
 ;TechniSat protocol related
+;TODO disables EEPROM filtering based on payload
 lab_5c2e:
     ldy #0x01               ;5c2e  a0 01
     jsr sub_f22c            ;5c30  20 2c f2
-    lda 0x0323              ;5c33  ad 23 03     A = uart rx buffer byte 3
+
+    lda 0x0323              ;5c33  ad 23 03     A = uart rx buffer byte 3 (magic number; see below)
     sta 0x4c                ;5c36  85 4c
-    lda 0x0324              ;5c38  ad 24 03     A = uart rx buffer byte 4
+
+    lda 0x0324              ;5c38  ad 24 03     A = uart rx buffer byte 4 (magic number; see below)
     sta 0x4d                ;5c3b  85 4d
+
     lda 0x0321              ;5c3d  ad 21 03     A = uart rx buffer byte 1
     dec a                   ;5c40  1a
     dec a                   ;5c41  1a
     sta 0x4e                ;5c42  85 4e
     ldm #0x00,0x4f          ;5c44  3c 00 4f
-    jsr sub_5e84            ;5c47  20 84 5e
-    bcs lab_5c6b            ;5c4a  b0 1f
+
+    jsr sub_5e84            ;5c47  20 84 5e     Disable EEPROM filtering based on magic number in 0x4c/0x4d
+    bcs lab_5c6b            ;5c4a  b0 1f        Branch if magic number check failed
+
+    ;magic number check passed
     bbc 0,0xf1,lab_5c61     ;5c4c  17 f1 12
     clb 7,0xf0              ;5c4f  ff f0
     clb 0,0xf1              ;5c51  1f f1
@@ -10180,17 +10236,17 @@ lab_5c2e:
 
 lab_5c61:
     lda #0x20               ;5c61  a9 20
-    sta 0x0344              ;5c63  8d 44 03
+    sta 0x0344              ;5c63  8d 44 03     Store as TechniSat protocol status byte
     jsr sub_5adf            ;5c66  20 df 5a     Send 10 01 5E <0x0344> CS
     bra lab_5c7d            ;5c69  80 12
 
 lab_5c6b:
     lda #0x00               ;5c6b  a9 00
-    sta 0x0344              ;5c6d  8d 44 03
+    sta 0x0344              ;5c6d  8d 44 03     Store as TechniSat protocol status byte
     jsr sub_5e47            ;5c70  20 47 5e
     bcc lab_5c7a            ;5c73  90 05
     lda #0x04               ;5c75  a9 04
-    sta 0x0344              ;5c77  8d 44 03
+    sta 0x0344              ;5c77  8d 44 03     Store as TechniSat protocol status byte
 
 lab_5c7a:
     jsr sub_5adf            ;5c7a  20 df 5a     Send 10 01 5E <0x0344> CS
@@ -10221,7 +10277,7 @@ lab_5c7e:
 
 lab_5ca9:
     lda #0x04               ;5ca9  a9 04
-    sta 0x0344              ;5cab  8d 44 03
+    sta 0x0344              ;5cab  8d 44 03     Store as TechniSat protocol status byte
 
 lab_5cae:
     jsr sub_5adf            ;5cae  20 df 5a     Send 10 01 5E <0x0344> CS
@@ -10249,7 +10305,7 @@ lab_5cb2:
 
 lab_5cdb:
     lda #0x06               ;5cdb  a9 06
-    sta 0x0344              ;5cdd  8d 44 03
+    sta 0x0344              ;5cdd  8d 44 03     Store as TechniSat protocol status byte
 
 lab_5ce0:
     jsr sub_5adf            ;5ce0  20 df 5a     Send 10 01 5E <0x0344> CS
@@ -10278,13 +10334,13 @@ lab_5ce4:
 
 lab_5d0f:
     lda #0x00               ;5d0f  a9 00
-    sta 0x0344              ;5d11  8d 44 03
+    sta 0x0344              ;5d11  8d 44 03     Store as TechniSat protocol status byte
     jsr sub_5e05            ;5d14  20 05 5e
     bra lab_5d1e            ;5d17  80 05
 
 lab_5d19:
     lda #0x06               ;5d19  a9 06
-    sta 0x0344              ;5d1b  8d 44 03
+    sta 0x0344              ;5d1b  8d 44 03     Store as TechniSat protocol status byte
 
 lab_5d1e:
     jsr sub_5adf            ;5d1e  20 df 5a     Send 10 01 5E <0x0344> CS
@@ -10318,13 +10374,13 @@ lab_5d47:
     lda 0x0324              ;5d50  ad 24 03     A = uart rx buffer byte 4
     sta 0x0325              ;5d53  8d 25 03
     lda #0x00               ;5d56  a9 00
-    sta 0x0344              ;5d58  8d 44 03
+    sta 0x0344              ;5d58  8d 44 03     Store as TechniSat protocol status byte
     jsr sub_5e47            ;5d5b  20 47 5e
     bcc lab_5d65            ;5d5e  90 05
 
 lab_5d60:
     lda #0x06               ;5d60  a9 06
-    sta 0x0344              ;5d62  8d 44 03
+    sta 0x0344              ;5d62  8d 44 03     Store as TechniSat protocol status byte
 
 lab_5d65:
     jsr sub_5adf            ;5d65  20 df 5a     Send 10 01 5E <0x0344> CS
@@ -10360,7 +10416,7 @@ lab_5d69:
     bra lab_5daf            ;5da0  80 0d
 
 lab_5da2:
-    clb 6,0xe9              ;5da2  df e9
+    clb 6,0xe9              ;5da2  df e9        Clear bit 6 = Enable EEPROM filtering
     bra lab_5daf            ;5da4  80 09
 
 lab_5da6:
@@ -10369,23 +10425,28 @@ lab_5da6:
 
 lab_5daa:
     lda #0x06               ;5daa  a9 06
-    sta 0x0344              ;5dac  8d 44 03
+    sta 0x0344              ;5dac  8d 44 03     Store as TechniSat protocol status byte
 
 lab_5daf:
     jsr sub_5adf            ;5daf  20 df 5a     Send 10 01 5E <0x0344> CS
     rts                     ;5db2  60
 
 ;TechniSat protocol related
+;TODO disables EEPROM filtering based on payload
 lab_5db3:
     ldy #0x01               ;5db3  a0 01
     jsr sub_f22c            ;5db5  20 2c f2
+
     lda 0x0323              ;5db8  ad 23 03     A = uart rx buffer byte 3
     cmp #0x0a               ;5dbb  c9 0a
     bcs lab_5dfc            ;5dbd  b0 3d
+
     cmp #0x04               ;5dbf  c9 04
-    beq lab_5dea            ;5dc1  f0 27
+    beq lab_5dea            ;5dc1  f0 27        TODO disables EEPROM filtering
+
     cmp #0x09               ;5dc3  c9 09
     beq lab_5dee            ;5dc5  f0 27
+
     asl a                   ;5dc7  0a
     tay                     ;5dc8  a8
     lda 0x59fd,y            ;5dc9  b9 fd 59
@@ -10393,22 +10454,28 @@ lab_5db3:
     lda 0x59fe,y            ;5dce  b9 fe 59
     and #0x0f               ;5dd1  29 0f
     sta 0x4d                ;5dd3  85 4d
+
     lda 0x0324              ;5dd5  ad 24 03     A = uart rx buffer byte 4
     sta 0x4e                ;5dd8  85 4e
+
     ldm #0x00,0x4f          ;5dda  3c 00 4f
+
     ldy #0x00               ;5ddd  a0 00
     sty 0x0344              ;5ddf  8c 44 03
+
     lda [0x4c],y            ;5de2  b1 4c
     ora 0x4e                ;5de4  05 4e
     sta [0x4c],y            ;5de6  91 4c
+
     bra lab_5e01            ;5de8  80 17
 
 lab_5dea:
-    seb 6,0xe9              ;5dea  cf e9
+    seb 6,0xe9              ;5dea  cf e9        Set bit 6 = Disable EEPROM filtering
     bra lab_5e01            ;5dec  80 13
 
 lab_5dee:
-    bbc 6,0xe9,lab_5e01     ;5dee  d7 e9 10
+    bbc 6,0xe9,lab_5e01     ;5dee  d7 e9 10     Branch if EEPROM filtering is enabled
+
     lda 0x0324              ;5df1  ad 24 03     A = uart rx buffer byte 4
     cmp #0x02               ;5df4  c9 02
     bne lab_5e01            ;5df6  d0 09
@@ -10417,7 +10484,7 @@ lab_5dee:
 
 lab_5dfc:
     lda #0x04               ;5dfc  a9 04
-    sta 0x0344              ;5dfe  8d 44 03
+    sta 0x0344              ;5dfe  8d 44 03     Store as TechniSat protocol status byte
 
 lab_5e01:
     jsr sub_5adf            ;5e01  20 df 5a     Send 10 01 5E <0x0344> CS
@@ -10507,6 +10574,9 @@ lab_5e82:
 lab_5e83:
     rts                     ;5e83  60
 
+
+;TODO magic number check; disables EEPROM filtering if 0x4c/0x4d matches
+;Returns carry clear = matches, carry set = does not match
 sub_5e84:
     lda 0x4d                ;5e84  a5 4d
     cmp #0x14               ;5e86  c9 14
@@ -10514,15 +10584,14 @@ sub_5e84:
     lda 0x4c                ;5e8a  a5 4c
     cmp #0x62               ;5e8c  c9 62
     bne lab_5e95            ;5e8e  d0 05
-    seb 6,0xe9              ;5e90  cf e9
+    seb 6,0xe9              ;5e90  cf e9    Set bit = Disable EEPROM filtering
     clc                     ;5e92  18
     bra lab_5e96            ;5e93  80 01
-
 lab_5e95:
     sec                     ;5e95  38
-
 lab_5e96:
     rts                     ;5e96  60
+
 
 ;TechniSat protocol related
 lab_5e97:
@@ -10532,11 +10601,13 @@ lab_5e97:
 lab_5e9b:
     ldy #0x01               ;5e9b  a0 01
     jsr sub_f22c            ;5e9d  20 2c f2
-    jsr sub_5ef7            ;5ea0  20 f7 5e
-    bcs lab_5eee            ;5ea3  b0 49
+
+    jsr sub_5ef7            ;5ea0  20 f7 5e     Read from EEPROM
+    bcs lab_5eee            ;5ea3  b0 49        If read from EEPROM failed, branch
+
     seb 6,0xe5              ;5ea5  cf e5
     lda #0x00               ;5ea7  a9 00
-    sta 0x0344              ;5ea9  8d 44 03
+    sta 0x0344              ;5ea9  8d 44 03     Store as TechniSat protocol status byte
     lda #0x10               ;5eac  a9 10
     sta 0x0343              ;5eae  8d 43 03
     jsr sub_5ad5            ;5eb1  20 d5 5a     Send byte   0x10
@@ -10570,15 +10641,16 @@ lab_5ece:
 
 lab_5eee:
     lda #0x05               ;5eee  a9 05
-    sta 0x0344              ;5ef0  8d 44 03
+    sta 0x0344              ;5ef0  8d 44 03     Store as TechniSat protocol status byte
     jsr sub_5adf            ;5ef3  20 df 5a     Send 10 01 5E <0x0344> CS
 
 lab_5ef6:
     rts                     ;5ef6  60
 
+;Read from EEPROM
 ;Called from KWP1281 Read EEPROM (lab_a48d)
 ;Also called from TechniSat protocol code (lab_5e9b)
-;Returns some status in the carry flag
+;Returns carry clear = success, carry set = failed
 ;
 ;The KWP1281 rx buffer is modified before this subroutine
 ;is called.  See the notes in lab_5e9b.  It looks like this:
@@ -10592,18 +10664,21 @@ lab_5ef6:
 ;  0x03 Block end                   0x0326
 ;
 sub_5ef7:
-    lda #0x00               ;5ef7  a9 00
-    sta 0x4c                ;5ef9  85 4c
-    lda #0x01               ;5efb  a9 01
-    sta 0x4d                ;5efd  85 4d
-    ldm #0x02,0x4e          ;5eff  3c 02 4e
+    ;Set pointer to buffer at 0x100 will receive EEPROM contents (used by sub_46e5)
+    lda #0x00               ;5ef7  a9 00    A = Buffer address low
+    sta 0x4c                ;5ef9  85 4c    Store in pointer low
+    lda #0x01               ;5efb  a9 01    A = Buffer address high
+    sta 0x4d                ;5efd  85 4d    Store in pointer high
+
+    ldm #0x02,0x4e          ;5eff  3c 02 4e     TODO what is 4e?
 
     ;Now the KWP1281 rx buffer is going to be modified again.
     ;The address in 0x0323-0324 is the start address to read.
     ;It's now going to be changed to the end address.
 
     lda 0x0325              ;5f02  ad 25 03     A = KWP1281 rx buffer: Number of bytes to read
-    sta 0x4f                ;5f05  85 4f
+    sta 0x4f                ;5f05  85 4f        Save number of bytes (used by sub_46e5)
+
     dec a                   ;5f07  1a
     clc                     ;5f08  18
     adc 0x0323              ;5f09  6d 23 03     Add to KWP1281 rx buffer: Address low
@@ -10626,17 +10701,21 @@ sub_5ef7:
 
     ;TODO: setting up something in 0x100-0x101
     lda 0x0323              ;5f15  ad 23 03     A = KWP1281 rx buffer: End Address low
-    sta 0x0101              ;5f18  8d 01 01
+    sta 0x0101              ;5f18  8d 01 01     Store it in 0x0101
+
     lda 0x0324              ;5f1b  ad 24 03     A = KWP1281 rx buffer: End Address high
     asl a                   ;5f1e  0a
     ora #0xa0               ;5f1f  09 a0
     sta 0x0100              ;5f21  8d 00 01
 
-    jsr sub_46e5            ;5f24  20 e5 46
+    jsr sub_46e5            ;5f24  20 e5 46     TODO probably read from I2C EEPROM
 
-    bbs 6,0xe9,lab_5f4b     ;5f27  c7 e9 21
+    bbs 6,0xe9,lab_5f4b     ;5f27  c7 e9 21     Skip EEPROM filtering if ??? TODO
 
-    ;Set up pointer at 0x004c with end address
+    ;Start of EEPROM filtering
+
+    ;Set up pointer at 0x004c with end address (used by sub_5fbf)
+    ;TODO might not be end address, notice Y increments below
     lda 0x0323              ;5f2a  ad 23 03     A = KWP1281 rx buffer: End Address low
     sta 0x4c                ;5f2d  85 4c
     lda 0x0324              ;5f2f  ad 24 03     A = KWP1281 rx buffer: End Address high
@@ -10644,24 +10723,26 @@ sub_5ef7:
     ldy #0x00               ;5f34  a0 00
 
 lab_5f36:
+    ;Check if this EEPROM address should be filtered
     jsr sub_5fbf            ;5f36  20 bf 5f     ;Check if the "right side" 24C08 EEPROM address
                                                 ;  should be filtered (addresses 0x0009-0x000F).
     bcc lab_5f40            ;5f39  90 05        ;Branch if address should not be filtered
 
     ;Filter EEPROM data for this address
-
     lda #0x00               ;5f3b  a9 00
     sta 0x0102,y            ;5f3d  99 02 01
 
 lab_5f40:
+    ;Increment to next address to check for filter
     inc 0x4c                ;5f40  e6 4c
     bne lab_5f46            ;5f42  d0 02
     inc 0x4d                ;5f44  e6 4d
-
 lab_5f46:
     iny                     ;5f46  c8
     cpy 0x4f                ;5f47  c4 4f
     bcc lab_5f36            ;5f49  90 eb
+
+    ;End of EEPROM filtering
 
 lab_5f4b:
     clc                     ;5f4b  18
@@ -10674,12 +10755,12 @@ lab_5f4d:
     ldy #0x01               ;5f4d  a0 01
     jsr sub_f22c            ;5f4f  20 2c f2
     jsr sub_5f59            ;5f52  20 59 5f
-    jsr sub_5adf            ;5f55  20 df 5a
+    jsr sub_5adf            ;5f55  20 df 5a     Send 10 01 5E <0x0344> CS
     rts                     ;5f58  60
 
 sub_5f59:
     lda #0x05               ;5f59  a9 05
-    sta 0x0344              ;5f5b  8d 44 03
+    sta 0x0344              ;5f5b  8d 44 03     Store as TechniSat protocol status byte
     lda 0x0321              ;5f5e  ad 21 03     A = uart rx buffer byte 1
     dec a                   ;5f61  1a
     dec a                   ;5f62  1a
@@ -10692,7 +10773,10 @@ sub_5f59:
     adc 0x0324              ;5f6f  6d 24 03     add to uart rx buffer byte 4
     cmp #0x08               ;5f72  c9 08
     bcs lab_5fbe            ;5f74  b0 48
-    bbs 6,0xe9,lab_5f96     ;5f76  c7 e9 1d
+
+    bbs 6,0xe9,lab_5f96     ;5f76  c7 e9 1d     Skip EEPROM filtering if ??? TODO
+
+    ;Start of EEPROM filtering
 
     lda 0x0323              ;5f79  ad 23 03     A = uart rx buffer byte 3
     sta 0x4c                ;5f7c  85 4c        Store as EEPROM address low byte
@@ -10711,12 +10795,13 @@ lab_5f85:
     inc 0x4c                ;5f8a  e6 4c        Increment EEPROM address low byte
     bne lab_5f90            ;5f8c  d0 02
     inc 0x4d                ;5f8e  e6 4d        Increment EEPROM address high byte
-
 lab_5f90:
     iny                     ;5f90  c8
     cpy 0x4e                ;5f91  c4 4e
     bcc lab_5f85            ;5f93  90 f0
     clc                     ;5f95  18
+
+    ;End of EEPROM filtering
 
 lab_5f96:
     bcs lab_5fbe            ;5f96  b0 26
@@ -10738,7 +10823,7 @@ lab_5fad:
     bpl lab_5fad            ;5fb4  10 f7
     jsr sub_4b4e            ;5fb6  20 4e 4b
     lda #0x00               ;5fb9  a9 00
-    sta 0x0344              ;5fbb  8d 44 03
+    sta 0x0344              ;5fbb  8d 44 03     Store as TechniSat protocol status byte
 
 lab_5fbe:
     rts                     ;5fbe  60
@@ -10795,7 +10880,7 @@ lab_5fe4:
     ldy #0x01               ;5fe4  a0 01
     jsr sub_f22c            ;5fe6  20 2c f2
     lda #0x10               ;5fe9  a9 10
-    sta 0x0344              ;5feb  8d 44 03
+    sta 0x0344              ;5feb  8d 44 03     Store as TechniSat protocol status byte
     lda 0x0323              ;5fee  ad 23 03
     cmp #0x05               ;5ff1  c9 05
     bcs lab_606c            ;5ff3  b0 77
@@ -10815,7 +10900,7 @@ lab_5fe4:
     sta 0x59                ;6014  85 59
     clb 3,P0                ;6016  7f 00
     seb 4,0xfa              ;6018  8f fa
-    jsr sub_544b            ;601a  20 4b 54
+    jsr sub_544b            ;601a  20 4b 54     Clears many registers
     jsr sub_44a7            ;601d  20 a7 44
     jsr sub_890d            ;6020  20 0d 89
     bra lab_6044            ;6023  80 1f
@@ -10852,10 +10937,10 @@ lab_6044:
 lab_6064:
     jsr sub_51d8            ;6064  20 d8 51
     lda #0x00               ;6067  a9 00
-    sta 0x0344              ;6069  8d 44 03
+    sta 0x0344              ;6069  8d 44 03     Store as TechniSat protocol status byte
 
 lab_606c:
-    jsr sub_5adf            ;606c  20 df 5a
+    jsr sub_5adf            ;606c  20 df 5a     Send 10 01 5E <0x0344> CS
     rts                     ;606f  60
 
 ;TechniSat protocol related
@@ -10863,7 +10948,7 @@ lab_6070:
     ldy #0x01               ;6070  a0 01
     jsr sub_f22c            ;6072  20 2c f2
     lda #0x10               ;6075  a9 10
-    sta 0x0344              ;6077  8d 44 03
+    sta 0x0344              ;6077  8d 44 03     Store as TechniSat protocol status byte
     lda 0x0324              ;607a  ad 24 03
     cmp #0x2e               ;607d  c9 2e
     bcs lab_609f            ;607f  b0 1e
@@ -10879,10 +10964,10 @@ lab_6070:
     seb 5,P0                ;6096  af 00
     seb 6,P8_P4I            ;6098  cf 10
     lda #0x00               ;609a  a9 00
-    sta 0x0344              ;609c  8d 44 03
+    sta 0x0344              ;609c  8d 44 03     Store as TechniSat protocol status byte
 
 lab_609f:
-    jsr sub_5adf            ;609f  20 df 5a
+    jsr sub_5adf            ;609f  20 df 5a     Send 10 01 5E <0x0344> CS
     rts                     ;60a2  60
 
 ;TechniSat protocol related
@@ -10890,7 +10975,7 @@ lab_60a3:
     ldy #0x01               ;60a3  a0 01
     jsr sub_f22c            ;60a5  20 2c f2
     lda #0x10               ;60a8  a9 10
-    sta 0x0344              ;60aa  8d 44 03
+    sta 0x0344              ;60aa  8d 44 03     Store as TechniSat protocol status byte
     ldy #0x00               ;60ad  a0 00
 
 lab_60af:
@@ -10918,10 +11003,10 @@ lab_60af:
     jsr sub_746f            ;60e3  20 6f 74
     jsr sub_71bc            ;60e6  20 bc 71
     lda #0x00               ;60e9  a9 00
-    sta 0x0344              ;60eb  8d 44 03
+    sta 0x0344              ;60eb  8d 44 03     Store as TechniSat protocol status byte
 
 lab_60ee:
-    jsr sub_5adf            ;60ee  20 df 5a
+    jsr sub_5adf            ;60ee  20 df 5a     Send 10 01 5E <0x0344> CS
     rts                     ;60f1  60
 
     .byte 0x40              ;60f2  40          DATA 0x40 '@'
@@ -10940,8 +11025,8 @@ lab_60f6:
     lda #0x10               ;6104  a9 10
 
 lab_6106:
-    sta 0x0344              ;6106  8d 44 03
-    jsr sub_5adf            ;6109  20 df 5a
+    sta 0x0344              ;6106  8d 44 03     Store as TechniSat protocol status byte
+    jsr sub_5adf            ;6109  20 df 5a     Send 10 01 5E <0x0344> CS
     lda 0x0344              ;610c  ad 44 03
     bne lab_6119            ;610f  d0 08
     ldx 0x0323              ;6111  ae 23 03
@@ -10964,7 +11049,7 @@ lab_611a:
 
 lab_612d:
     stx 0x0344              ;612d  8e 44 03
-    jsr sub_5adf            ;6130  20 df 5a
+    jsr sub_5adf            ;6130  20 df 5a     Send 10 01 5E <0x0344> CS
     lda 0x0344              ;6133  ad 44 03
     bne lab_613e            ;6136  d0 06
     lda 0x0323              ;6138  ad 23 03
@@ -11001,16 +11086,16 @@ lab_615a:
     dex                     ;6164  ca
     bpl lab_615a            ;6165  10 f3
     lda #0x00               ;6167  a9 00
-    sta 0x0344              ;6169  8d 44 03
+    sta 0x0344              ;6169  8d 44 03     Store as TechniSat protocol status byte
     jsr sub_6cc0            ;616c  20 c0 6c
     bra lab_6176            ;616f  80 05
 
 lab_6171:
     lda #0x10               ;6171  a9 10
-    sta 0x0344              ;6173  8d 44 03
+    sta 0x0344              ;6173  8d 44 03     Store as TechniSat protocol status byte
 
 lab_6176:
-    jsr sub_5adf            ;6176  20 df 5a
+    jsr sub_5adf            ;6176  20 df 5a     Send 10 01 5E <0x0344> CS
     rts                     ;6179  60
 
     .byte 0x1c              ;617a  1c          DATA 0x1c
@@ -11052,7 +11137,7 @@ lab_619a:
     ldy #0x01               ;619d  a0 01
     jsr sub_f22c            ;619f  20 2c f2
     lda #0x10               ;61a2  a9 10
-    sta 0x0344              ;61a4  8d 44 03
+    sta 0x0344              ;61a4  8d 44 03     Store as TechniSat protocol status byte
     lda 0x0323              ;61a7  ad 23 03
     cmp #0x08               ;61aa  c9 08
     bcs lab_6218            ;61ac  b0 6a
@@ -11091,12 +11176,12 @@ lab_61dc:
     seb 6,0xe5              ;61ec  cf e5
     lda #0x10               ;61ee  a9 10
     sta 0x0343              ;61f0  8d 43 03
-    jsr sub_5ad5            ;61f3  20 d5 5a
+    jsr sub_5ad5            ;61f3  20 d5 5a     Send byte
     ldy #0x00               ;61f6  a0 00
 
 lab_61f8:
     lda 0x0321,y            ;61f8  b9 21 03
-    jsr sub_5ad5            ;61fb  20 d5 5a
+    jsr sub_5ad5            ;61fb  20 d5 5a     Send byte
     clc                     ;61fe  18
     adc 0x0343              ;61ff  6d 43 03
     sta 0x0343              ;6202  8d 43 03
@@ -11104,14 +11189,14 @@ lab_61f8:
     cpy 0x4f                ;6206  c4 4f
     bne lab_61f8            ;6208  d0 ee
     eor #0xff               ;620a  49 ff
-    jsr sub_5ad5            ;620c  20 d5 5a
+    jsr sub_5ad5            ;620c  20 d5 5a     Send byte
     ldy #0x01               ;620f  a0 01
     jsr sub_f22c            ;6211  20 2c f2
     clb 6,0xe5              ;6214  df e5
     bra lab_621b            ;6216  80 03
 
 lab_6218:
-    jsr sub_5adf            ;6218  20 df 5a
+    jsr sub_5adf            ;6218  20 df 5a     Send 10 01 5E <0x0344> CS
 
 lab_621b:
     rts                     ;621b  60
@@ -13954,7 +14039,7 @@ lab_6fca:
     sta 0x4d                ;6fd6  85 4d
     ldm #0x02,0x4e          ;6fd8  3c 02 4e
     ldm #0x01,0x4f          ;6fdb  3c 01 4f
-    jsr sub_46e5            ;6fde  20 e5 46
+    jsr sub_46e5            ;6fde  20 e5 46     TODO probably read from I2C EEPROM
     lda 0x0102              ;6fe1  ad 02 01
     cmp #0xe0               ;6fe4  c9 e0
     bcc lab_7009            ;6fe6  90 21
@@ -13996,7 +14081,7 @@ lab_701a:
     sta 0x4d                ;7026  85 4d
     ldm #0x02,0x4e          ;7028  3c 02 4e
     ldm #0x20,0x4f          ;702b  3c 20 4f
-    jsr sub_46e5            ;702e  20 e5 46
+    jsr sub_46e5            ;702e  20 e5 46     TODO probably read from I2C EEPROM
 
 lab_7031:
     lda 0x0107              ;7031  ad 07 01
@@ -14031,7 +14116,7 @@ lab_7031:
     sta 0x4d                ;707f  85 4d
     ldm #0x22,0x4e          ;7081  3c 22 4e
     ldm #0x00,0x4f          ;7084  3c 00 4f
-    jsr sub_46e5            ;7087  20 e5 46
+    jsr sub_46e5            ;7087  20 e5 46     TODO probably read from I2C EEPROM
     bbc 0,0xff,lab_7091     ;708a  17 ff 04
     clb 0,0xff              ;708d  1f ff
     seb 4,0x76              ;708f  8f 76
@@ -14128,7 +14213,7 @@ lab_70f5:
     sta 0x4d                ;7121  85 4d
     ldm #0x03,0x4e          ;7123  3c 03 4e
     ldm #0x00,0x4f          ;7126  3c 00 4f
-    jsr sub_46e5            ;7129  20 e5 46
+    jsr sub_46e5            ;7129  20 e5 46     TODO probably read from I2C EEPROM
     lda 0x42                ;712c  a5 42
     cmp #0x06               ;712e  c9 06
     beq lab_713a            ;7130  f0 08
@@ -14173,7 +14258,7 @@ lab_7163:
     sta 0x4d                ;7173  85 4d
     ldm #0x03,0x4e          ;7175  3c 03 4e
     ldm #0x00,0x4f          ;7178  3c 00 4f
-    jsr sub_46e5            ;717b  20 e5 46
+    jsr sub_46e5            ;717b  20 e5 46     TODO probably read from I2C EEPROM
     jsr sub_77b5            ;717e  20 b5 77
     ldx 0x02c5              ;7181  ae c5 02
     ldy #0x01               ;7184  a0 01
@@ -14193,7 +14278,7 @@ lab_718c:
     sta 0x4d                ;719f  85 4d
     ldm #0x03,0x4e          ;71a1  3c 03 4e
     ldm #0x00,0x4f          ;71a4  3c 00 4f
-    jsr sub_46e5            ;71a7  20 e5 46
+    jsr sub_46e5            ;71a7  20 e5 46     TODO probably read from I2C EEPROM
     ldy #0x02               ;71aa  a0 02
     lda [0x40],y            ;71ac  b1 40
     tax                     ;71ae  aa
@@ -14328,7 +14413,7 @@ lab_727e:
     sta 0x4d                ;7297  85 4d
     ldm #0x04,0x4e          ;7299  3c 04 4e
     ldm #0x00,0x4f          ;729c  3c 00 4f
-    jsr sub_46e5            ;729f  20 e5 46
+    jsr sub_46e5            ;729f  20 e5 46     TODO probably read from I2C EEPROM
     bra lab_72dc            ;72a2  80 38
 
 lab_72a4:
@@ -14357,7 +14442,7 @@ lab_72c8:
     sta 0x4d                ;72d1  85 4d
     ldm #0x05,0x4e          ;72d3  3c 05 4e
     ldm #0x00,0x4f          ;72d6  3c 00 4f
-    jsr sub_46e5            ;72d9  20 e5 46
+    jsr sub_46e5            ;72d9  20 e5 46     TODO probably read from I2C EEPROM
 
 lab_72dc:
     lda 0xa0                ;72dc  a5 a0
@@ -14393,7 +14478,7 @@ sub_72ef:
     sta 0x4d                ;7302  85 4d
     ldm #0x02,0x4e          ;7304  3c 02 4e
     ldm #0x01,0x4f          ;7307  3c 01 4f
-    jsr sub_46e5            ;730a  20 e5 46
+    jsr sub_46e5            ;730a  20 e5 46     TODO probably read from I2C EEPROM
     lda 0x0102              ;730d  ad 02 01
     beq lab_7322            ;7310  f0 10
     ldx 0xa1                ;7312  a6 a1
@@ -14420,7 +14505,7 @@ lab_7322:
     sta 0x4d                ;733b  85 4d
     ldm #0x02,0x4e          ;733d  3c 02 4e
     ldm #0x02,0x4f          ;7340  3c 02 4f
-    jsr sub_46e5            ;7343  20 e5 46
+    jsr sub_46e5            ;7343  20 e5 46     TODO probably read from I2C EEPROM
     lda 0x0102              ;7346  ad 02 01
     sta 0x02c1              ;7349  8d c1 02
     lda 0x0103              ;734c  ad 03 01
@@ -14442,7 +14527,7 @@ sub_7353:
     sta 0x4d                ;7369  85 4d
     ldm #0x03,0x4e          ;736b  3c 03 4e
     ldm #0x00,0x4f          ;736e  3c 00 4f
-    jsr sub_46e5            ;7371  20 e5 46
+    jsr sub_46e5            ;7371  20 e5 46     TODO probably read from I2C EEPROM
     lda #0x0a               ;7374  a9 0a
     sta 0x0101              ;7376  8d 01 01
     lda 0x02c2              ;7379  ad c2 02
@@ -14453,7 +14538,7 @@ sub_7353:
     sta 0x4d                ;7385  85 4d
     ldm #0x03,0x4e          ;7387  3c 03 4e
     ldm #0x00,0x4f          ;738a  3c 00 4f
-    jsr sub_46e5            ;738d  20 e5 46
+    jsr sub_46e5            ;738d  20 e5 46     TODO probably read from I2C EEPROM
     rts                     ;7390  60
 
     .byte 0x20              ;7391  20          DATA 0x20 ' '
@@ -14483,7 +14568,7 @@ sub_739e:
     sta 0x4d                ;73b1  85 4d
     ldm #0x02,0x4e          ;73b3  3c 02 4e
     ldm #0x01,0x4f          ;73b6  3c 01 4f
-    jsr sub_46e5            ;73b9  20 e5 46
+    jsr sub_46e5            ;73b9  20 e5 46     TODO probably read from I2C EEPROM
     lda 0x0102              ;73bc  ad 02 01
     beq lab_73c8            ;73bf  f0 07
     ldx 0xa2                ;73c1  a6 a2
@@ -14506,7 +14591,7 @@ lab_73c8:
     sta 0x4d                ;73e0  85 4d
     ldm #0x02,0x4e          ;73e2  3c 02 4e
     ldm #0x01,0x4f          ;73e5  3c 01 4f
-    jsr sub_46e5            ;73e8  20 e5 46
+    jsr sub_46e5            ;73e8  20 e5 46     TODO probably read from I2C EEPROM
     lda 0x0102              ;73eb  ad 02 01
 
 lab_73ee:
@@ -14528,7 +14613,7 @@ sub_73f7:
     sta 0x4d                ;740d  85 4d
     ldm #0x03,0x4e          ;740f  3c 03 4e
     ldm #0x00,0x4f          ;7412  3c 00 4f
-    jsr sub_46e5            ;7415  20 e5 46
+    jsr sub_46e5            ;7415  20 e5 46     TODO probably read from I2C EEPROM
     rts                     ;7418  60
 
     .byte 0x00              ;7419  00          DATA 0x00
@@ -14666,7 +14751,7 @@ lab_74b8:
     sta 0x4d                ;74c6  85 4d
     ldm #0x06,0x4e          ;74c8  3c 06 4e
     ldm #0x00,0x4f          ;74cb  3c 00 4f
-    jsr sub_46e5            ;74ce  20 e5 46
+    jsr sub_46e5            ;74ce  20 e5 46     TODO probably read from I2C EEPROM
     rts                     ;74d1  60
 
 sub_74d2:
@@ -14719,7 +14804,7 @@ sub_7518:
     sta 0x4d                ;752d  85 4d
     ldm #0x03,0x4e          ;752f  3c 03 4e
     ldm #0x00,0x4f          ;7532  3c 00 4f
-    jsr sub_46e5            ;7535  20 e5 46
+    jsr sub_46e5            ;7535  20 e5 46     TODO probably read from I2C EEPROM
     rts                     ;7538  60
 
 sub_7539:
@@ -14736,7 +14821,7 @@ sub_7539:
     sta 0x4d                ;7550  85 4d
     ldm #0x03,0x4e          ;7552  3c 03 4e
     ldm #0x00,0x4f          ;7555  3c 00 4f
-    jsr sub_46e5            ;7558  20 e5 46
+    jsr sub_46e5            ;7558  20 e5 46     TODO probably read from I2C EEPROM
     rts                     ;755b  60
 
 sub_755c:
@@ -14753,7 +14838,7 @@ sub_755c:
     sta 0x4d                ;7573  85 4d
     ldm #0x03,0x4e          ;7575  3c 03 4e
     ldm #0x00,0x4f          ;7578  3c 00 4f
-    jsr sub_46e5            ;757b  20 e5 46
+    jsr sub_46e5            ;757b  20 e5 46     TODO probably read from I2C EEPROM
     rts                     ;757e  60
 
 sub_757f:
@@ -14777,7 +14862,7 @@ lab_7599:
     sta 0x4d                ;759f  85 4d
     ldm #0x03,0x4e          ;75a1  3c 03 4e
     ldm #0x00,0x4f          ;75a4  3c 00 4f
-    jsr sub_46e5            ;75a7  20 e5 46
+    jsr sub_46e5            ;75a7  20 e5 46     TODO probably read from I2C EEPROM
     lda 0x0102              ;75aa  ad 02 01
     bne lab_75b1            ;75ad  d0 02
     lda #0x80               ;75af  a9 80
@@ -14844,7 +14929,7 @@ lab_7609:
     sta 0x4d                ;7612  85 4d
     ldm #0x03,0x4e          ;7614  3c 03 4e
     ldm #0x00,0x4f          ;7617  3c 00 4f
-    jsr sub_46e5            ;761a  20 e5 46
+    jsr sub_46e5            ;761a  20 e5 46     TODO probably read from I2C EEPROM
     lda 0x0102              ;761d  ad 02 01
     cmp #0x80               ;7620  c9 80
     bne lab_7626            ;7622  d0 02
@@ -14922,7 +15007,7 @@ sub_7673:
     sta 0x4d                ;7688  85 4d
     ldm #0x03,0x4e          ;768a  3c 03 4e
     ldm #0x00,0x4f          ;768d  3c 00 4f
-    jsr sub_46e5            ;7690  20 e5 46
+    jsr sub_46e5            ;7690  20 e5 46     TODO probably read from I2C EEPROM
     rts                     ;7693  60
 
 sub_7694:
@@ -14974,7 +15059,7 @@ lab_76cc:
     sta 0x4d                ;76e6  85 4d
     ldm #0x03,0x4e          ;76e8  3c 03 4e
     ldm #0x00,0x4f          ;76eb  3c 00 4f
-    jsr sub_46e5            ;76ee  20 e5 46
+    jsr sub_46e5            ;76ee  20 e5 46     TODO probably read from I2C EEPROM
 
 lab_76f1:
     rts                     ;76f1  60
@@ -15116,7 +15201,7 @@ lab_7780:
     sta 0x4d                ;779a  85 4d
     ldm #0x03,0x4e          ;779c  3c 03 4e
     ldm #0x00,0x4f          ;779f  3c 00 4f
-    jsr sub_46e5            ;77a2  20 e5 46
+    jsr sub_46e5            ;77a2  20 e5 46     TODO probably read from I2C EEPROM
     rts                     ;77a5  60
 
 sub_77a6:
@@ -15155,7 +15240,7 @@ sub_77cd:
     sta 0x4d                ;77d6  85 4d
     ldm #0x02,0x4e          ;77d8  3c 02 4e
     ldm #0x02,0x4f          ;77db  3c 02 4f
-    jsr sub_46e5            ;77de  20 e5 46
+    jsr sub_46e5            ;77de  20 e5 46     TODO probably read from I2C EEPROM
     lda 0x0102              ;77e1  ad 02 01
     cmp #0x14               ;77e4  c9 14
     bcc lab_77ea            ;77e6  90 02
@@ -15184,7 +15269,7 @@ sub_77f8:
     sta 0x4d                ;780b  85 4d
     ldm #0x04,0x4e          ;780d  3c 04 4e
     ldm #0x00,0x4f          ;7810  3c 00 4f
-    jsr sub_46e5            ;7813  20 e5 46
+    jsr sub_46e5            ;7813  20 e5 46     TODO probably read from I2C EEPROM
     ldy #0x0a               ;7816  a0 0a
     jsr sub_f22c            ;7818  20 2c f2
     rts                     ;781b  60
@@ -15312,7 +15397,7 @@ sub_7897:
     sta 0x4d                ;78a0  85 4d
     ldm #0x02,0x4e          ;78a2  3c 02 4e
     ldm #0x03,0x4f          ;78a5  3c 03 4f
-    jsr sub_46e5            ;78a8  20 e5 46
+    jsr sub_46e5            ;78a8  20 e5 46     TODO probably read from I2C EEPROM
     lda 0x0104              ;78ab  ad 04 01
     cmp #0x40               ;78ae  c9 40
     bcc lab_78d0            ;78b0  90 1e
@@ -15358,7 +15443,7 @@ lab_78e2:
     sta 0x4d                ;78f5  85 4d
     ldm #0x03,0x4e          ;78f7  3c 03 4e
     ldm #0x00,0x4f          ;78fa  3c 00 4f
-    jsr sub_46e5            ;78fd  20 e5 46
+    jsr sub_46e5            ;78fd  20 e5 46     TODO probably read from I2C EEPROM
     lda 0x0103              ;7900  ad 03 01
     sta 0x0102              ;7903  8d 02 01
     lda 0x0104              ;7906  ad 04 01
@@ -15371,7 +15456,7 @@ lab_78e2:
     sta 0x4d                ;7917  85 4d
     ldm #0x04,0x4e          ;7919  3c 04 4e
     ldm #0x00,0x4f          ;791c  3c 00 4f
-    jsr sub_46e5            ;791f  20 e5 46
+    jsr sub_46e5            ;791f  20 e5 46     TODO probably read from I2C EEPROM
     rts                     ;7922  60
 
     .byte 0xad              ;7923  ad          DATA 0xad
@@ -15444,7 +15529,7 @@ sub_796d:
     sta 0x4d                ;7982  85 4d
     ldm #0x03,0x4e          ;7984  3c 03 4e
     ldm #0x00,0x4f          ;7987  3c 00 4f
-    jsr sub_46e5            ;798a  20 e5 46
+    jsr sub_46e5            ;798a  20 e5 46     TODO probably read from I2C EEPROM
     lda #0x01               ;798d  a9 01
     sta 0x0101              ;798f  8d 01 01
     lda #0x00               ;7992  a9 00
@@ -15455,7 +15540,7 @@ sub_796d:
     sta 0x4d                ;799d  85 4d
     ldm #0x03,0x4e          ;799f  3c 03 4e
     ldm #0x00,0x4f          ;79a2  3c 00 4f
-    jsr sub_46e5            ;79a5  20 e5 46
+    jsr sub_46e5            ;79a5  20 e5 46     TODO probably read from I2C EEPROM
     rts                     ;79a8  60
 
     .byte 0x36              ;79a9  36          DATA 0x36 '6'
@@ -15922,7 +16007,7 @@ sub_7b65:
     sta 0x4d                ;7b89  85 4d
     ldm #0x04,0x4e          ;7b8b  3c 04 4e
     ldm #0x00,0x4f          ;7b8e  3c 00 4f
-    jsr sub_46e5            ;7b91  20 e5 46
+    jsr sub_46e5            ;7b91  20 e5 46     TODO probably read from I2C EEPROM
     rts                     ;7b94  60
 
 sub_7b95:
@@ -15964,7 +16049,7 @@ lab_7bba:
     sta 0x4d                ;7bd0  85 4d
     ldm #0x03,0x4e          ;7bd2  3c 03 4e
     ldm #0x00,0x4f          ;7bd5  3c 00 4f
-    jsr sub_46e5            ;7bd8  20 e5 46
+    jsr sub_46e5            ;7bd8  20 e5 46     TODO probably read from I2C EEPROM
     rts                     ;7bdb  60
 
 sub_7bdc:
@@ -15980,7 +16065,7 @@ sub_7bdc:
     sta 0x4d                ;7bef  85 4d
     ldm #0x02,0x4e          ;7bf1  3c 02 4e
     ldm #0x01,0x4f          ;7bf4  3c 01 4f
-    jsr sub_46e5            ;7bf7  20 e5 46
+    jsr sub_46e5            ;7bf7  20 e5 46     TODO probably read from I2C EEPROM
     lda 0x0102              ;7bfa  ad 02 01
     beq lab_7c15            ;7bfd  f0 16
     ldy #0x00               ;7bff  a0 00
@@ -16010,7 +16095,7 @@ lab_7c15:
     sta 0x4d                ;7c28  85 4d
     ldm #0x02,0x4e          ;7c2a  3c 02 4e
     ldm #0x08,0x4f          ;7c2d  3c 08 4f
-    jsr sub_46e5            ;7c30  20 e5 46
+    jsr sub_46e5            ;7c30  20 e5 46     TODO probably read from I2C EEPROM
     ldy #0x00               ;7c33  a0 00
 
 lab_7c35:
@@ -16195,7 +16280,7 @@ lab_7d33:
     sta 0x4d                ;7d5a  85 4d
     ldm #0x03,0x4e          ;7d5c  3c 03 4e
     ldm #0x00,0x4f          ;7d5f  3c 00 4f
-    jsr sub_46e5            ;7d62  20 e5 46
+    jsr sub_46e5            ;7d62  20 e5 46     TODO probably read from I2C EEPROM
     ldy #0x0a               ;7d65  a0 0a
     jsr sub_f22c            ;7d67  20 2c f2
     ldy 0x028a              ;7d6a  ac 8a 02
@@ -16215,7 +16300,7 @@ lab_7d33:
     sta 0x4d                ;7d89  85 4d
     ldm #0x03,0x4e          ;7d8b  3c 03 4e
     ldm #0x00,0x4f          ;7d8e  3c 00 4f
-    jsr sub_46e5            ;7d91  20 e5 46
+    jsr sub_46e5            ;7d91  20 e5 46     TODO probably read from I2C EEPROM
     ldy #0x0a               ;7d94  a0 0a
     jsr sub_f22c            ;7d96  20 2c f2
 
@@ -16247,7 +16332,7 @@ lab_7dba:
     sta 0x4d                ;7dc0  85 4d
     ldm #0x0a,0x4e          ;7dc2  3c 0a 4e
     ldm #0x00,0x4f          ;7dc5  3c 00 4f
-    jsr sub_46e5            ;7dc8  20 e5 46
+    jsr sub_46e5            ;7dc8  20 e5 46     TODO probably read from I2C EEPROM
     lda 0x0285              ;7dcb  ad 85 02
     sta 0x028c              ;7dce  8d 8c 02
 
@@ -17256,7 +17341,7 @@ sub_822c:
     sta 0x4d                ;823f  85 4d
     ldm #0x02,0x4e          ;8241  3c 02 4e
     ldm #0x04,0x4f          ;8244  3c 04 4f
-    jsr sub_46e5            ;8247  20 e5 46
+    jsr sub_46e5            ;8247  20 e5 46     TODO probably read from I2C EEPROM
     lda 0x0104              ;824a  ad 04 01
     and #0x1f               ;824d  29 1f
     sta 0x02c9              ;824f  8d c9 02
@@ -17790,7 +17875,7 @@ sub_853b:
     sta 0x4d                ;854e  85 4d
     ldm #0x02,0x4e          ;8550  3c 02 4e
     ldm #0x18,0x4f          ;8553  3c 18 4f
-    jsr sub_46e5            ;8556  20 e5 46
+    jsr sub_46e5            ;8556  20 e5 46     TODO probably read from I2C EEPROM
     bbc 0,0xff,lab_855e     ;8559  17 ff 02
     seb 1,0x76              ;855c  2f 76
 
@@ -17977,7 +18062,7 @@ sub_8639:
     sta 0x4d                ;864b  85 4d
     ldm #0x01,0x4e          ;864d  3c 01 4e
     ldm #0x00,0x4f          ;8650  3c 00 4f
-    jsr sub_46e5            ;8653  20 e5 46
+    jsr sub_46e5            ;8653  20 e5 46     TODO probably read from I2C EEPROM
     rts                     ;8656  60
 
     .byte 0xad              ;8657  ad          DATA 0xad
@@ -20959,7 +21044,7 @@ lab_94b5:
     lda 0x0150,x            ;94b5  bd 50 01
     sta 0x71                ;94b8  85 71
     clb 0,0xf9              ;94ba  1f f9
-    jsr sub_544b            ;94bc  20 4b 54
+    jsr sub_544b            ;94bc  20 4b 54     Clears many registers
     jsr sub_4dd1            ;94bf  20 d1 4d
     lda 0x0170,x            ;94c2  bd 70 01
     tax                     ;94c5  aa
@@ -22287,7 +22372,7 @@ sub_9b0a:
     sta 0x02b7              ;9b10  8d b7 02
     clb 5,0xf5              ;9b13  bf f5
     clb 0,0xf9              ;9b15  1f f9
-    jsr sub_544b            ;9b17  20 4b 54
+    jsr sub_544b            ;9b17  20 4b 54     Clears many registers
     jsr sub_44a7            ;9b1a  20 a7 44
     jsr sub_890d            ;9b1d  20 0d 89
     jsr sub_9043            ;9b20  20 43 90
@@ -22357,7 +22442,7 @@ sub_9b99:
     ldy #0x1d               ;9b99  a0 1d
     jsr sub_3361            ;9b9b  20 61 33
     clb 0,0xf9              ;9b9e  1f f9
-    jsr sub_544b            ;9ba0  20 4b 54
+    jsr sub_544b            ;9ba0  20 4b 54     Clears many registers
     lda #0x00               ;9ba3  a9 00
     sta 0x90                ;9ba5  85 90
     sta 0x91                ;9ba7  85 91
@@ -22642,7 +22727,7 @@ sub_9d7d:
     clb 0,0xf9              ;9d8b  1f f9
     jsr sub_44a7            ;9d8d  20 a7 44
     jsr sub_890d            ;9d90  20 0d 89
-    jsr sub_544b            ;9d93  20 4b 54
+    jsr sub_544b            ;9d93  20 4b 54     Clears many registers
     clb 2,0xfa              ;9d96  5f fa
     clb 7,0xfb              ;9d98  ff fb
     clb 2,0xf4              ;9d9a  5f f4
@@ -22663,7 +22748,7 @@ sub_9da1:
     clb 0,0xf9              ;9db7  1f f9
     jsr sub_44a7            ;9db9  20 a7 44
     jsr sub_890d            ;9dbc  20 0d 89
-    jsr sub_544b            ;9dbf  20 4b 54
+    jsr sub_544b            ;9dbf  20 4b 54     Clears many registers
     clb 2,0xfa              ;9dc2  5f fa
     clb 7,0xfb              ;9dc4  ff fb
     clb 2,0xf4              ;9dc6  5f f4
@@ -22754,7 +22839,7 @@ sub_9e44:
     sta 0x4d                ;9e57  85 4d
     ldm #0x02,0x4e          ;9e59  3c 02 4e
     ldm #0x04,0x4f          ;9e5c  3c 04 4f
-    jsr sub_46e5            ;9e5f  20 e5 46
+    jsr sub_46e5            ;9e5f  20 e5 46     TODO probably read from I2C EEPROM
     lda #0x00               ;9e62  a9 00
     bbs 5,0xf3,lab_9e8a     ;9e64  a7 f3 23
     bbs 6,0xf3,lab_9e8a     ;9e67  c7 f3 20
@@ -22975,7 +23060,7 @@ sub_9fa7:
     sta 0x4d                ;9fba  85 4d
     ldm #0x02,0x4e          ;9fbc  3c 02 4e
     ldm #0x0c,0x4f          ;9fbf  3c 0c 4f
-    jsr sub_46e5            ;9fc2  20 e5 46
+    jsr sub_46e5            ;9fc2  20 e5 46     TODO probably read from I2C EEPROM
     lda 0x0102              ;9fc5  ad 02 01
     bbc 7,a,lab_9fd5        ;9fc8  f3 0b
     ldx #0x0b               ;9fca  a2 0b
@@ -23065,7 +23150,7 @@ sub_a040:
     sta 0x4d                ;a053  85 4d
     ldm #0x02,0x4e          ;a055  3c 02 4e
     ldm #0x05,0x4f          ;a058  3c 05 4f
-    jsr sub_46e5            ;a05b  20 e5 46
+    jsr sub_46e5            ;a05b  20 e5 46     TODO probably read from I2C EEPROM
     lda 0x0106              ;a05e  ad 06 01
     beq lab_a075            ;a061  f0 12
     lda #0x03               ;a063  a9 03
@@ -23120,7 +23205,7 @@ sub_a0b1:
     sta 0x4d                ;a0c4  85 4d
     ldm #0x07,0x4e          ;a0c6  3c 07 4e
     ldm #0x00,0x4f          ;a0c9  3c 00 4f
-    jsr sub_46e5            ;a0cc  20 e5 46
+    jsr sub_46e5            ;a0cc  20 e5 46     TODO probably read from I2C EEPROM
     ldy #0x0a               ;a0cf  a0 0a
     jsr sub_f22c            ;a0d1  20 2c f2
 
@@ -23221,7 +23306,7 @@ sub_a14a:
     sta 0x4d                ;a15d  85 4d
     ldm #0x02,0x4e          ;a15f  3c 02 4e
     ldm #0x06,0x4f          ;a162  3c 06 4f
-    jsr sub_46e5            ;a165  20 e5 46
+    jsr sub_46e5            ;a165  20 e5 46     TODO probably read from I2C EEPROM
     lda 0x0102              ;a168  ad 02 01
     and #0xcf               ;a16b  29 cf
     cmp #0x04               ;a16d  c9 04
@@ -23250,7 +23335,7 @@ sub_a17d:
     sta 0x4d                ;a190  85 4d
     ldm #0x02,0x4e          ;a192  3c 02 4e
     ldm #0x0e,0x4f          ;a195  3c 0e 4f
-    jsr sub_46e5            ;a198  20 e5 46
+    jsr sub_46e5            ;a198  20 e5 46     TODO probably read from I2C EEPROM
     lda 0x0102              ;a19b  ad 02 01
     cmp #0x56               ;a19e  c9 56
     beq lab_a1ad            ;a1a0  f0 0b
@@ -23781,7 +23866,7 @@ lab_a489:
 ;
 lab_a48d:
     bbc 1,0xe7,lab_a4cb     ;a48d  37 e7 3b     if not authorized, branch to send nak response
-    clb 6,0xe9              ;a490  df e9
+    clb 6,0xe9              ;a490  df e9        Clear bit 6 = Enable EEPROM filtering
 
     lda 0x0323              ;a492  ad 23 03     A = number of bytes to read
     beq lab_a4cb            ;a495  f0 34        Send nak response if number = 0
@@ -23808,8 +23893,8 @@ lab_a48d:
     adc #0x03               ;a4a5  69 03        Add 3 for block counter, block title, block end
     sta 0x0331              ;a4a7  8d 31 03     Store in KWP1281 tx buffer: block length
 
-    jsr sub_5ef7            ;a4aa  20 f7 5e
-    bcs lab_a4cb            ;a4ad  b0 1c        Send nak response
+    jsr sub_5ef7            ;a4aa  20 f7 5e     Read from EEPROM
+    bcs lab_a4cb            ;a4ad  b0 1c        If read from EEPROM failed, send nak response
 
     ldy #0xef               ;a4af  a0 ef        Y = block title 0xEF
     sty 0x0333              ;a4b1  8c 33 03     Store in KWP1281 tx buffer: block title
@@ -24695,7 +24780,7 @@ lab_a85b:
     lda 0x0105              ;a879  ad 05 01
     sta 0x0342              ;a87c  8d 42 03
     lda 0x0106              ;a87f  ad 06 01
-    sta 0x0344              ;a882  8d 44 03
+    sta 0x0344              ;a882  8d 44 03     Store as TechniSat protocol status byte
     lda 0x0107              ;a885  ad 07 01
     sta 0x0345              ;a888  8d 45 03
     rts                     ;a88b  60
@@ -25274,7 +25359,7 @@ sub_ab35:
     sta 0x4d                ;ab4d  85 4d
     ldm #0x02,0x4e          ;ab4f  3c 02 4e
     ldm #0x01,0x4f          ;ab52  3c 01 4f
-    jsr sub_46e5            ;ab55  20 e5 46
+    jsr sub_46e5            ;ab55  20 e5 46     TODO probably read from I2C EEPROM
     pla                     ;ab58  68
     cmp 0x0102              ;ab59  cd 02 01
     beq lab_ab7d            ;ab5c  f0 1f
@@ -25308,7 +25393,7 @@ sub_ab7e:
     sta 0x4d                ;ab91  85 4d
     ldm #0x02,0x4e          ;ab93  3c 02 4e
     ldm #0x01,0x4f          ;ab96  3c 01 4f
-    jsr sub_46e5            ;ab99  20 e5 46
+    jsr sub_46e5            ;ab99  20 e5 46     TODO probably read from I2C EEPROM
     rts                     ;ab9c  60
 
 sub_ab9d:
@@ -25324,7 +25409,7 @@ sub_ab9d:
     sta 0x4d                ;abb0  85 4d
     ldm #0x03,0x4e          ;abb2  3c 03 4e
     ldm #0x00,0x4f          ;abb5  3c 00 4f
-    jsr sub_46e5            ;abb8  20 e5 46
+    jsr sub_46e5            ;abb8  20 e5 46     TODO probably read from I2C EEPROM
     ldy #0x0a               ;abbb  a0 0a
     jsr sub_f22c            ;abbd  20 2c f2
     rts                     ;abc0  60
@@ -25779,7 +25864,7 @@ sub_ad9b:
     jsr sub_c9ce            ;ada6  20 ce c9
     clb 0,0xf3              ;ada9  1f f3
     clb 0,0xf9              ;adab  1f f9
-    jsr sub_544b            ;adad  20 4b 54
+    jsr sub_544b            ;adad  20 4b 54     Clears many registers
     jsr sub_44a7            ;adb0  20 a7 44
     jsr sub_890d            ;adb3  20 0d 89
     lda #0x00               ;adb6  a9 00
@@ -26816,7 +26901,7 @@ lab_b3f7:
     rts                     ;b40e  60
 
 sub_b40f:
-    clb 7,SIO1CON           ;b40f  ff 1a
+    clb 7,SIO1CON           ;b40f  ff 1a        Serial I/O1 enabled bit = disabled
     seb 5,P4                ;b411  af 08
     clb 7,P4                ;b413  ff 08
     ldm #0x40,BRG           ;b415  3c 40 1c
@@ -26980,11 +27065,11 @@ lab_b4b9:
 sub_b50d:
     lda 0x05b1              ;b50d  ad b1 05
     cmp #0x01               ;b510  c9 01
-    beq lab_b527            ;b512  f0 13
+    beq lab_b527            ;b512  f0 13        Send 0x55
     cmp #0x02               ;b514  c9 02
-    beq lab_b53e            ;b516  f0 26
+    beq lab_b53e            ;b516  f0 26        Send 0x01
     cmp #0x03               ;b518  c9 03
-    beq lab_b555            ;b51a  f0 39
+    beq lab_b555            ;b51a  f0 39        Send 0x8A
     cmp #0x04               ;b51c  c9 04
     beq lab_b567            ;b51e  f0 47
     cmp #0x05               ;b520  c9 05
@@ -28447,7 +28532,7 @@ lab_bd78:
 
 lab_bd8c:
     ldm #0x3c,BRG           ;bd8c  3c 3c 1c
-    seb 7,SIO1CON           ;bd8f  ef 1a
+    seb 7,SIO1CON           ;bd8f  ef 1a        Serial I/O1 enabled bit = enabled
     lda #0x09               ;bd91  a9 09
     sta 0x05b1              ;bd93  8d b1 05
     lda #0x17               ;bd96  a9 17
@@ -28570,6 +28655,7 @@ lab_be6a:
     jsr sub_b40f            ;be6a  20 0f b4
     jmp lab_bead            ;be6d  4c ad be
 
+;Address 0xD6 (KWP1281 protocol)
 lab_be70:
     bbs 6,0xf1,lab_be78     ;be70  c7 f1 05
     bbc 3,P8_P4I,lab_be6a   ;be73  77 10 f4
@@ -28577,10 +28663,10 @@ lab_be70:
 
 lab_be78:
     seb 0,0xe8              ;be78  0f e8
-    seb 7,SIO1CON           ;be7a  ef 1a
+    seb 7,SIO1CON           ;be7a  ef 1a        Serial I/O1 enabled bit = enabled
     clb 0,0xf9              ;be7c  1f f9
     lda #0x01               ;be7e  a9 01
-    sta 0x05b1              ;be80  8d b1 05
+    sta 0x05b1              ;be80  8d b1 05     FSM=0x01 (send 55 of the 55, 01, 8A sequence)
     lda #0x0a               ;be83  a9 0a
     sta 0x01af              ;be85  8d af 01
     ldy #0x27               ;be88  a0 27
@@ -28590,16 +28676,17 @@ lab_be78:
     sta 0x05c6              ;be92  8d c6 05
     jmp lab_bead            ;be95  4c ad be
 
+;Address 0x7C (TechniSat protocol)
 lab_be98:
     seb 0,0xe8              ;be98  0f e8
-    seb 1,0xe8              ;be9a  2f e8
+    seb 1,0xe8              ;be9a  2f e8        Set flag = TechniSat procol is active
     seb 7,P4                ;be9c  ef 08
     lda #0x06               ;be9e  a9 06
-    sta 0x05b1              ;bea0  8d b1 05
+    sta 0x05b1              ;bea0  8d b1 05     FSM=0x06 (skip sending 55, 01, 8A)
     ldm #0x7c,0x73          ;bea3  3c 7c 73
     seb 0,0xf7              ;bea6  0f f7
     ldm #0x12,0x5e          ;bea8  3c 12 5e
-    seb 7,SIO1CON           ;beab  ef 1a
+    seb 7,SIO1CON           ;beab  ef 1a        Serial I/O1 enabled bit = enabled
 
 lab_bead:
     lda #0x00               ;bead  a9 00
@@ -30303,7 +30390,7 @@ lab_c8bc:
     sta 0x4d                ;c8ed  85 4d
     ldm #0x03,0x4e          ;c8ef  3c 03 4e
     ldm #0x00,0x4f          ;c8f2  3c 00 4f
-    jsr sub_46e5            ;c8f5  20 e5 46
+    jsr sub_46e5            ;c8f5  20 e5 46     TODO probably read from I2C EEPROM
     jsr sub_7694            ;c8f8  20 94 76
 
 lab_c8fb:
@@ -30362,7 +30449,7 @@ sub_c929:
     sta 0x4d                ;c93c  85 4d
     ldm #0x02,0x4e          ;c93e  3c 02 4e
     ldm #0x01,0x4f          ;c941  3c 01 4f
-    jsr sub_46e5            ;c944  20 e5 46
+    jsr sub_46e5            ;c944  20 e5 46     TODO probably read from I2C EEPROM
     lda 0x0102              ;c947  ad 02 01
     beq lab_c951            ;c94a  f0 05
     jsr sub_c9af            ;c94c  20 af c9
@@ -30381,7 +30468,7 @@ lab_c951:
     sta 0x4d                ;c964  85 4d
     ldm #0x02,0x4e          ;c966  3c 02 4e
     ldm #0x20,0x4f          ;c969  3c 20 4f
-    jsr sub_46e5            ;c96c  20 e5 46
+    jsr sub_46e5            ;c96c  20 e5 46     TODO probably read from I2C EEPROM
     ldx #0x1f               ;c96f  a2 1f
 
 lab_c971:
@@ -32271,7 +32358,7 @@ sub_d522:
     sta 0x4d                ;d530  85 4d
     ldm #0x02,0x4e          ;d532  3c 02 4e
     ldm #0x00,0x4f          ;d535  3c 00 4f
-    jsr sub_46e5            ;d538  20 e5 46
+    jsr sub_46e5            ;d538  20 e5 46     TODO probably read from I2C EEPROM
     rts                     ;d53b  60
 
 sub_d53c:
@@ -32286,7 +32373,7 @@ sub_d53c:
     sta 0x4d                ;d54b  85 4d
     ldm #0x01,0x4e          ;d54d  3c 01 4e
     ldm #0x05,0x4f          ;d550  3c 05 4f
-    jsr sub_46e5            ;d553  20 e5 46
+    jsr sub_46e5            ;d553  20 e5 46     TODO probably read from I2C EEPROM
     lda 0x0101              ;d556  ad 01 01
     cmp #0x04               ;d559  c9 04
     beq lab_d55f            ;d55b  f0 02
@@ -34588,7 +34675,7 @@ lab_e42d:
     clb 3,0xf3              ;e444  7f f3
     clb 1,0xf3              ;e446  3f f3
     clb 0,0xf9              ;e448  1f f9
-    jsr sub_544b            ;e44a  20 4b 54
+    jsr sub_544b            ;e44a  20 4b 54     Clears many registers
     jsr sub_4dd1            ;e44d  20 d1 4d
     ldy #0x04               ;e450  a0 04
     jsr sub_f22c            ;e452  20 2c f2
@@ -35595,7 +35682,7 @@ sub_eacb:
     lda 0x43                ;ead4  a5 43
     pha                     ;ead6  48
     clb 0,0xf9              ;ead7  1f f9
-    jsr sub_544b            ;ead9  20 4b 54
+    jsr sub_544b            ;ead9  20 4b 54     Clears many registers
     clb 3,0xfa              ;eadc  7f fa
     lda #0x00               ;eade  a9 00
     sta 0x90                ;eae0  85 90
@@ -36287,7 +36374,7 @@ sub_eefc:
     sta 0x4d                ;ef16  85 4d
     ldm #0x03,0x4e          ;ef18  3c 03 4e
     ldm #0x00,0x4f          ;ef1b  3c 00 4f
-    jsr sub_46e5            ;ef1e  20 e5 46
+    jsr sub_46e5            ;ef1e  20 e5 46     TODO probably read from I2C EEPROM
     lda #0xc4               ;ef21  a9 c4
     sta 0x0100              ;ef23  8d 00 01
     lda #0x09               ;ef26  a9 09
@@ -36300,7 +36387,7 @@ sub_eefc:
     sta 0x4d                ;ef36  85 4d
     ldm #0x03,0x4e          ;ef38  3c 03 4e
     ldm #0x00,0x4f          ;ef3b  3c 00 4f
-    jsr sub_46e5            ;ef3e  20 e5 46
+    jsr sub_46e5            ;ef3e  20 e5 46     TODO probably read from I2C EEPROM
     rts                     ;ef41  60
 
 sub_ef42:
@@ -36316,7 +36403,7 @@ sub_ef42:
     sta 0x4d                ;ef58  85 4d
     ldm #0x03,0x4e          ;ef5a  3c 03 4e
     ldm #0x00,0x4f          ;ef5d  3c 00 4f
-    jsr sub_46e5            ;ef60  20 e5 46
+    jsr sub_46e5            ;ef60  20 e5 46     TODO probably read from I2C EEPROM
     lda #0xc4               ;ef63  a9 c4
     sta 0x0100              ;ef65  8d 00 01
     lda #0x09               ;ef68  a9 09
@@ -36329,7 +36416,7 @@ sub_ef42:
     sta 0x4d                ;ef79  85 4d
     ldm #0x03,0x4e          ;ef7b  3c 03 4e
     ldm #0x00,0x4f          ;ef7e  3c 00 4f
-    jsr sub_46e5            ;ef81  20 e5 46
+    jsr sub_46e5            ;ef81  20 e5 46     TODO probably read from I2C EEPROM
     rts                     ;ef84  60
 
     .byte 0x87              ;ef85  87          DATA 0x87
