@@ -22,6 +22,7 @@ typedef enum
 
 kwp_result_t kwp_connect(uint8_t address, uint32_t baud);
 kwp_result_t kwp_autoconnect(uint8_t address);
+void kwp_send_address(uint8_t address);
 kwp_result_t kwp_send_group_reading_block(uint8_t group);
 kwp_result_t kwp_send_login_block(uint16_t safe_code, uint8_t fern, uint16_t workshop);
 kwp_result_t kwp_send_ack_block();

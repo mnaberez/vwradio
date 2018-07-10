@@ -39,45 +39,6 @@ void kwp_panic_if_error(kwp_result_t result)
 }
 
 
-// Send module address at 5bps
-static void _send_address(uint8_t address)
-{
-    UCSR1B &= ~_BV(RXEN1);  // Disable RX (PD2/TXD1)
-    UCSR1B &= ~_BV(TXEN1);  // Disable TX (PD3/TXD1)
-    DDRD |= _BV(PD3);       // PD3 = output
-
-    uint8_t parity = 1;
-    for (uint8_t i=0; i<10; i++) {
-        uint8_t bit;
-        switch (i) {
-            case 0:     // start bit
-                bit = 0;
-                break;
-            case 8:     // parity bit
-                bit = parity;
-                break;
-            case 9:     // stop bit
-                bit = 1;
-                break;
-            default:    // 7 data bits
-                bit = (uint8_t)((address & (1 << (i - 1))) != 0);
-                parity ^= bit;
-        }
-
-        if (bit == 1) {
-            PORTD |= _BV(PD3);  // high
-        } else {
-            PORTD &= ~_BV(PD3); // low
-        }
-        _delay_ms(200);         // 1000ms / 5bps = 200ms per bit
-    }
-
-    UCSR1B |= _BV(TXEN1);   // Enable TX (PD3/TXD1)
-    UCSR1B |= _BV(RXEN1);   // Enable RX (PD2/TXD1)
-    DDRD &= ~_BV(PD3);      // PD3 = input
-}
-
-
 // Send byte only
 static kwp_result_t _send_byte(uint8_t tx_byte)
 {
@@ -482,6 +443,48 @@ kwp_result_t kwp_p5_calc_rom_checksum(uint16_t *rom_checksum)
 
 // ==========================================================================
 
+// Switch to 5 baud, send address byte, then switch back to previous settings
+// This is blocking so it will hang for about 2 seconds
+void kwp_send_address(uint8_t address)
+{
+    // TODO: add support for other uart
+    if (UART_KLINE != UART1) { while(1); }
+
+    UCSR1B &= ~_BV(RXEN1);  // Disable RX (PD2/TXD1)
+    UCSR1B &= ~_BV(TXEN1);  // Disable TX (PD3/TXD1)
+    DDRD |= _BV(PD3);       // PD3 = output
+
+    uint8_t parity = 1;
+    for (uint8_t i=0; i<10; i++) {
+        uint8_t bit;
+        switch (i) {
+            case 0:     // start bit
+                bit = 0;
+                break;
+            case 8:     // parity bit
+                bit = parity;
+                break;
+            case 9:     // stop bit
+                bit = 1;
+                break;
+            default:    // 7 data bits
+                bit = (uint8_t)((address & (1 << (i - 1))) != 0);
+                parity ^= bit;
+        }
+
+        if (bit == 1) {
+            PORTD |= _BV(PD3);  // high
+        } else {
+            PORTD &= ~_BV(PD3); // low
+        }
+        _delay_ms(200);         // 1000ms / 5bps = 200ms per bit
+    }
+
+    UCSR1B |= _BV(TXEN1);   // Enable TX (PD3/TXD1)
+    UCSR1B |= _BV(RXEN1);   // Enable RX (PD2/TXD1)
+    DDRD &= ~_BV(PD3);      // PD3 = input
+}
+
 kwp_result_t kwp_connect(uint8_t address, uint32_t baud)
 {
     uart_puts(UART_DEBUG, "\nCONNECT ");
@@ -497,7 +500,7 @@ kwp_result_t kwp_connect(uint8_t address, uint32_t baud)
     memset(kwp_component_2, 0, sizeof(kwp_component_2));
 
     // Send address at 5 baud and perform initial handshake
-    _send_address(address);
+    kwp_send_address(address);
     kwp_result_t result = _wait_for_55_01_8a();
     if (result != KWP_SUCCESS) { return result; }
     _delay_ms(30);

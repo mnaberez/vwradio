@@ -1,4 +1,5 @@
 #include "kwp1281.h"
+#include "technisat.h"
 #include "uart.h"
 #include "main.h"
 #include <string.h>
@@ -25,7 +26,7 @@ void crack()
     kwp_result_t result;
 
     if (memcmp(&kwp_component_1[7], "3CP", 3) == 0) {
-        uart_puts(UART_DEBUG, "CLARION PREMIUM 4 DETECTED\n");
+        uart_puts(UART_DEBUG, "VW PREMIUM 4 (CLARION) DETECTED\n");
 
         uint16_t safe_code;
         result = kwp_p4_read_safe_code_bcd(&safe_code);
@@ -34,7 +35,7 @@ void crack()
         print_hex16("SAFE Code: ", safe_code);
 
     } else if (memcmp(&kwp_component_1[7], "DE2", 3) == 0) {
-        uart_puts(UART_DEBUG, "DELCO PREMIUM 5 DETECTED\n");
+        uart_puts(UART_DEBUG, "VW PREMIUM 5 (DELCO) DETECTED\n");
         kwp_disconnect();
         result = kwp_autoconnect(KWP_RADIO_MFG);
         kwp_panic_if_error(result);
@@ -53,8 +54,24 @@ void crack()
         print_hex16("SAFE Code: ", safe_code);
 
     } else if (memcmp(&kwp_component_1[7], "YD5", 3) == 0) {
-        uart_puts(UART_DEBUG, "TECHNISAT GAMMA 5 DETECTED\n");
-        uart_puts(UART_DEBUG, "UNCRACKABLE\n");
+        uart_puts(UART_DEBUG, "VW GAMMA 5 (TECHNISAT) DETECTED\n");
+        kwp_disconnect();
+
+        tsat_result_t tresult;
+        tresult = tsat_connect();
+        tsat_panic_if_error(tresult);
+
+        tresult = tsat_authenticate();
+        tsat_panic_if_error(tresult);
+
+        uint16_t safe_code;
+        tresult = tsat_read_safe_code_bcd(&safe_code);
+        tsat_panic_if_error(tresult);
+
+        tresult = tsat_disconnect();
+        tsat_panic_if_error(tresult);
+
+        print_hex16("SAFE Code: ", safe_code);
 
     } else {
         uart_puts(UART_DEBUG, "UNKNOWN RADIO\n");

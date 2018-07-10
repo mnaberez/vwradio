@@ -1,6 +1,7 @@
 #include "main.h"
 #include "uart.h"
 #include "kwp1281.h"
+#include "technisat.h"
 #include "crack.h"
 #include <string.h>
 #include <stdint.h>
@@ -15,7 +16,7 @@ int main()
     uart_init(UART_KLINE,  10400);  // obd-ii kwp1281
     sei();
 
-    uart_puts(UART_DEBUG, "\n\nRESET\n");
+    //uart_puts(UART_DEBUG, "\n\nRESET\n");
 
     kwp_result_t result = kwp_autoconnect(KWP_RADIO);
     kwp_panic_if_error(result);

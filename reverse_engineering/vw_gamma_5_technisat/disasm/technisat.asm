@@ -1282,7 +1282,7 @@ lab_27b0:
 
 sub_27b1:
     jsr sub_6f1c            ;27b1  20 1c 6f
-    jsr sub_b40f            ;27b4  20 0f b4
+    jsr sub_b40f            ;27b4  20 0f b4     Terminate KWP1281 or TechniSat session
     jsr sub_822c            ;27b7  20 2c 82
     clb 0,0xf7              ;27ba  1f f7
     ldm #0xff,0x72          ;27bc  3c ff 72
@@ -2582,7 +2582,7 @@ sub_2f40:
     bra lab_2f50            ;2f49  80 05
 
 lab_2f4b:
-    jsr sub_b40f            ;2f4b  20 0f b4
+    jsr sub_b40f            ;2f4b  20 0f b4     Terminate KWP1281 or TechniSat session
     clb 6,0xe9              ;2f4e  df e9        Clear bit 6 = Enable EEPROM filtering
 
 lab_2f50:
@@ -3798,7 +3798,7 @@ lab_34f4:
 ;same order as table of bytes at 0x3570
 ;used by lab_3640
     .word sub_5adf          ;3588  df 5a       VECTOR   cmd=5e   Send 10 01 5E <0x0344> CS
-    .word lab_5b37          ;358a  37 5b       VECTOR   cmd=5f
+    .word lab_5b37          ;358a  37 5b       VECTOR   cmd=5f   Disconnect (terminate session)
     .word lab_5b4a          ;358c  4a 5b       VECTOR   cmd=42
     .word lab_5bbb          ;358e  bb 5b       VECTOR   cmd=43
     .word lab_5beb          ;3590  eb 5b       VECTOR   cmd=44
@@ -10075,6 +10075,7 @@ lab_5b1d:
     rts                     ;5b36  60
 
 ;TechniSat protocol command 0x5F
+;Disconnect (terminate session)
 lab_5b37:
     ldy #0x01               ;5b37  a0 01
     jsr sub_f22c            ;5b39  20 2c f2
@@ -10082,7 +10083,7 @@ lab_5b37:
     ldm #0x40,BRG           ;5b3f  3c 40 1c
     clb 6,0xe9              ;5b42  df e9        Clear bit 6 = Enable EEPROM filtering
     clb 0,0xef              ;5b44  1f ef
-    jsr sub_b40f            ;5b46  20 0f b4
+    jsr sub_b40f            ;5b46  20 0f b4     Terminate KWP1281 or TechniSat session
     rts                     ;5b49  60
 
 ;TechniSat protocol command 0x42
@@ -22977,7 +22978,7 @@ sub_9f33:
 lab_9f47:
     lda #0x00               ;9f47  a9 00
     sta 0x05b9              ;9f49  8d b9 05
-    jsr sub_b40f            ;9f4c  20 0f b4
+    jsr sub_b40f            ;9f4c  20 0f b4     Terminate KWP1281 or TechniSat session
     clb 5,0xf4              ;9f4f  bf f4
     bbs 0,0xf1,lab_9f56     ;9f51  07 f1 02
     clb 7,0xf0              ;9f54  ff f0
@@ -26906,6 +26907,7 @@ lab_b3f7:
     bpl lab_b3f7            ;b40c  10 e9
     rts                     ;b40e  60
 
+;Terminate KWP1281 or TechniSat session
 sub_b40f:
     clb 7,SIO1CON           ;b40f  ff 1a        Serial I/O1 enabled bit = disabled
     seb 5,P4                ;b411  af 08
@@ -27372,7 +27374,7 @@ lab_b6e6:
     lda 0x05b6              ;b6ef  ad b6 05
     cmp 0x05b5              ;b6f2  cd b5 05
     beq lab_b710            ;b6f5  f0 19
-    jsr sub_b40f            ;b6f7  20 0f b4
+    jsr sub_b40f            ;b6f7  20 0f b4     Terminate KWP1281 or TechniSat session
     lda 0x05b1              ;b6fa  ad b1 05
     cmp #0x0a               ;b6fd  c9 0a
     bne lab_b710            ;b6ff  d0 0f
@@ -27423,7 +27425,7 @@ lab_b739:
     jmp lab_b845            ;b759  4c 45 b8
 
 lab_b75c:
-    jsr sub_b40f            ;b75c  20 0f b4
+    jsr sub_b40f            ;b75c  20 0f b4     Terminate KWP1281 or TechniSat session
     jmp lab_b845            ;b75f  4c 45 b8
 
 lab_b762:
@@ -27447,7 +27449,7 @@ lab_b77e:
     beq lab_b7ce            ;b787  f0 45
     cmp #0x05               ;b789  c9 05
     beq lab_b7ee            ;b78b  f0 61
-    jsr sub_b40f            ;b78d  20 0f b4
+    jsr sub_b40f            ;b78d  20 0f b4     Terminate KWP1281 or TechniSat session
     jmp lab_b845            ;b790  4c 45 b8
 
 lab_b793:
@@ -27476,7 +27478,7 @@ lab_b7a8:
     jmp lab_b845            ;b7c5  4c 45 b8
 
 lab_b7c8:
-    jsr sub_b40f            ;b7c8  20 0f b4
+    jsr sub_b40f            ;b7c8  20 0f b4     Terminate KWP1281 or TechniSat session
     jmp lab_b845            ;b7cb  4c 45 b8
 
 lab_b7ce:
@@ -27492,7 +27494,7 @@ lab_b7ce:
     jmp lab_b83d            ;b7e5  4c 3d b8
 
 lab_b7e8:
-    jsr sub_b40f            ;b7e8  20 0f b4
+    jsr sub_b40f            ;b7e8  20 0f b4     Terminate KWP1281 or TechniSat session
     jmp lab_b845            ;b7eb  4c 45 b8
 
 lab_b7ee:
@@ -27672,7 +27674,7 @@ lab_b91f:
 lab_b931:
     lda 0x05a4              ;b931  ad a4 05
     beq lab_b943            ;b934  f0 0d
-    jsr sub_b40f            ;b936  20 0f b4
+    jsr sub_b40f            ;b936  20 0f b4     Terminate KWP1281 or TechniSat session
     lda #0x02               ;b939  a9 02
     sta 0x01af              ;b93b  8d af 01
     ldy #0x2a               ;b93e  a0 2a
@@ -27706,7 +27708,7 @@ lab_b958:
     jmp lab_ba21            ;b974  4c 21 ba
 
 lab_b977:
-    jsr sub_b40f            ;b977  20 0f b4
+    jsr sub_b40f            ;b977  20 0f b4     Terminate KWP1281 or TechniSat session
     lda #0x05               ;b97a  a9 05
     sta 0x05a4              ;b97c  8d a4 05
     lda #0x02               ;b97f  a9 02
@@ -27732,7 +27734,7 @@ lab_b98c:
     jmp lab_ba21            ;b9ad  4c 21 ba
 
 lab_b9b0:
-    jsr sub_b40f            ;b9b0  20 0f b4
+    jsr sub_b40f            ;b9b0  20 0f b4     Terminate KWP1281 or TechniSat session
     lda #0x05               ;b9b3  a9 05
     sta 0x05a4              ;b9b5  8d a4 05
     lda #0x02               ;b9b8  a9 02
@@ -27752,7 +27754,7 @@ lab_b9c5:
     lda 0x05b6              ;b9d9  ad b6 05
     cmp #0x03               ;b9dc  c9 03
     beq lab_b9f0            ;b9de  f0 10
-    jsr sub_b40f            ;b9e0  20 0f b4
+    jsr sub_b40f            ;b9e0  20 0f b4     Terminate KWP1281 or TechniSat session
     lda #0x02               ;b9e3  a9 02
     sta 0x01af              ;b9e5  8d af 01
     ldy #0x2a               ;b9e8  a0 2a
@@ -27778,7 +27780,7 @@ lab_ba02:
     jmp lab_ba21            ;ba11  4c 21 ba
 
 lab_ba14:
-    jsr sub_b40f            ;ba14  20 0f b4
+    jsr sub_b40f            ;ba14  20 0f b4     Terminate KWP1281 or TechniSat session
     lda #0x02               ;ba17  a9 02
     sta 0x01af              ;ba19  8d af 01
     ldy #0x2a               ;ba1c  a0 2a
@@ -28458,7 +28460,7 @@ lab_bce7:
     bbs 4,P4,lab_bcfc       ;bcf1  87 08 08
     lda #0x01               ;bcf4  a9 01
     sta 0x05a4              ;bcf6  8d a4 05
-    jsr sub_b40f            ;bcf9  20 0f b4
+    jsr sub_b40f            ;bcf9  20 0f b4     Terminate KWP1281 or TechniSat session
 
 lab_bcfc:
     lda 0x05a4              ;bcfc  ad a4 05
@@ -28624,7 +28626,7 @@ lab_be10:
     lda 0x05a9              ;be2a  ad a9 05
     cmp #0xa0               ;be2d  c9 a0
     bcs lab_be37            ;be2f  b0 06
-    jsr sub_b40f            ;be31  20 0f b4
+    jsr sub_b40f            ;be31  20 0f b4     Terminate KWP1281 or TechniSat session
     jmp lab_bead            ;be34  4c ad be
 
 lab_be37:
@@ -28635,7 +28637,7 @@ lab_be3d:
     lda 0x05a9              ;be3d  ad a9 05
     cmp #0xa0               ;be40  c9 a0
     bcs lab_be4a            ;be42  b0 06
-    jsr sub_b40f            ;be44  20 0f b4
+    jsr sub_b40f            ;be44  20 0f b4     Terminate KWP1281 or TechniSat session
     jmp lab_bead            ;be47  4c ad be
 
 lab_be4a:
@@ -28646,7 +28648,7 @@ lab_be50:
     lda 0x05aa              ;be50  ad aa 05
     cmp #0xa0               ;be53  c9 a0
     bcs lab_be5f            ;be55  b0 08
-    jsr sub_b40f            ;be57  20 0f b4
+    jsr sub_b40f            ;be57  20 0f b4     Terminate KWP1281 or TechniSat session
     seb 2,0xe7              ;be5a  4f e7
     jmp lab_bead            ;be5c  4c ad be
 
@@ -28658,7 +28660,7 @@ lab_be5f:
     beq lab_be98            ;be68  f0 2e
 
 lab_be6a:
-    jsr sub_b40f            ;be6a  20 0f b4
+    jsr sub_b40f            ;be6a  20 0f b4     Terminate KWP1281 or TechniSat session
     jmp lab_bead            ;be6d  4c ad be
 
 ;Address 0xD6 (KWP1281 protocol)
