@@ -126,11 +126,10 @@ tsat_result_t tsat_authenticate()
     _delay_ms(10);
     _send_byte(0x10);    // only responds if this is 2-0xff
     _send_byte(0x01);    // only responds if this is 1
-    _send_byte(0x2);     // number of bytes before checksum -1 (only responds to 0-2)
-    _send_byte(0x45);
-    _send_byte(0x62);
-    _send_byte(0x14);
-    _send_byte(0x41);    // checksum
+    _send_byte(0x1);     // number of bytes before checksum -1 (only responds to 0-2)
+    _send_byte(0x4d);
+    _send_byte(0x04);
+    _send_byte(0xac);    // checksum
     uart_puts(UART_DEBUG, "\n");
 
     // receive authentication response block

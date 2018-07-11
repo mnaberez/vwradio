@@ -3802,13 +3802,13 @@ lab_34f4:
     .word lab_5b4a          ;358c  4a 5b       VECTOR   cmd=42
     .word lab_5bbb          ;358e  bb 5b       VECTOR   cmd=43
     .word lab_5beb          ;3590  eb 5b       VECTOR   cmd=44
-    .word lab_5c2e          ;3592  2e 5c       VECTOR   cmd=45   TODO disables EEPROM filtering based on payload
+    .word lab_5c2e          ;3592  2e 5c       VECTOR   cmd=45   Disables EEPROM filtering based on payload
     .word lab_5c7e          ;3594  7e 5c       VECTOR   cmd=46
     .word lab_5cb2          ;3596  b2 5c       VECTOR   cmd=47
     .word lab_5ce4          ;3598  e4 5c       VECTOR   cmd=4a
     .word lab_5d22          ;359a  22 5d       VECTOR   cmd=4b
     .word lab_5d69          ;359c  69 5d       VECTOR   cmd=4c
-    .word lab_5db3          ;359e  b3 5d       VECTOR   cmd=4d   TODO disables EEPROM filtering based on payload
+    .word lab_5db3          ;359e  b3 5d       VECTOR   cmd=4d   Disables EEPROM filtering based on payload
     .word lab_5e97          ;35a0  97 5e       VECTOR   cmd=48   TODO returns EEPROM contents
     .word lab_5f4d          ;35a2  4d 5f       VECTOR   cmd=49
     .word lab_2266          ;35a4  66 22       VECTOR   cmd=7f   Bad command?
@@ -3818,7 +3818,7 @@ lab_34f4:
     .word lab_60a3          ;35ac  a3 60       VECTOR   cmd=52
     .word lab_619a          ;35ae  9a 61       VECTOR   cmd=53
     .word lab_611a          ;35b0  1a 61       VECTOR   cmd=58
-    .word lab_60f6          ;35b2  f6 60       VECTOR   cmd=59
+    .word lab_60f6          ;35b2  f6 60       VECTOR   cmd=59   Change baud rate
     .word lab_613f          ;35b4  3f 61       VECTOR   cmd=5a
     .word lab_2266          ;35b6  66 22       VECTOR   cmd=7f   Bad command?
 
@@ -10198,7 +10198,7 @@ lab_5c18:
     ldm #0x00,0x4e          ;5c18  3c 00 4e
     lda #0x00               ;5c1b  a9 00
     sta 0x0344              ;5c1d  8d 44 03     Store as TechniSat protocol status byte
-    jsr sub_5e05            ;5c20  20 05 5e
+    jsr sub_5e05            ;5c20  20 05 5e     Send 10 4F 44 <data, data...> CS
     bra lab_5c2d            ;5c23  80 08
 
 lab_5c25:
@@ -10210,7 +10210,14 @@ lab_5c2d:
     rts                     ;5c2d  60
 
 ;TechniSat protocol command 0x45
-;TODO disables EEPROM filtering based on payload
+;Disables EEPROM filtering based on payload
+;Also performs unknown functions
+;
+;Send: 10 01 02 45 62 14 41
+;Recv: 10 01 5E 20 70         EEPROM filtering now disabled
+;
+;Filtering can also be disabled with command 0x4D
+;and this may be preferable; see lab_5db3.
 lab_5c2e:
     ldy #0x01               ;5c2e  a0 01
     jsr sub_f22c            ;5c30  20 2c f2
@@ -10264,18 +10271,25 @@ lab_5c7d:
 lab_5c7e:
     ldy #0x01               ;5c7e  a0 01
     jsr sub_f22c            ;5c80  20 2c f2
+
     lda 0x0323              ;5c83  ad 23 03     A = uart rx buffer byte 3
     sta 0x4c                ;5c86  85 4c
+
     lda 0x0324              ;5c88  ad 24 03     A = uart rx buffer byte 4
     sta 0x4d                ;5c8b  85 4d
+
     lda 0x0325              ;5c8d  ad 25 03     A = uart rx buffer byte 5
     sta 0x4e                ;5c90  85 4e
     com 0x4e                ;5c92  44 4e
+
     ldm #0x00,0x4f          ;5c94  3c 00 4f
+
     jsr sub_5e62            ;5c97  20 62 5e
     bcs lab_5ca9            ;5c9a  b0 0d
+
     ldy #0x00               ;5c9c  a0 00
     sty 0x0344              ;5c9e  8c 44 03
+
     lda [0x4c],y            ;5ca1  b1 4c
     and 0x4e                ;5ca3  25 4e
     sta [0x4c],y            ;5ca5  91 4c
@@ -10293,17 +10307,24 @@ lab_5cae:
 lab_5cb2:
     ldy #0x01               ;5cb2  a0 01
     jsr sub_f22c            ;5cb4  20 2c f2
+
     lda 0x0323              ;5cb7  ad 23 03     A = uart rx buffer byte 3
     sta 0x4c                ;5cba  85 4c
+
     lda 0x0324              ;5cbc  ad 24 03     A = uart rx buffer byte 4
     sta 0x4d                ;5cbf  85 4d
+
     lda 0x0325              ;5cc1  ad 25 03     A = uart rx buffer byte 5
     sta 0x4e                ;5cc4  85 4e
+
     ldm #0x00,0x4f          ;5cc6  3c 00 4f
+
     jsr sub_5e62            ;5cc9  20 62 5e
     bcs lab_5cdb            ;5ccc  b0 0d
+
     ldy #0x00               ;5cce  a0 00
     sty 0x0344              ;5cd0  8c 44 03
+
     lda [0x4c],y            ;5cd3  b1 4c
     ora 0x4e                ;5cd5  05 4e
     sta [0x4c],y            ;5cd7  91 4c
@@ -10322,16 +10343,21 @@ lab_5ce4:
     bbc 7,0xe8,lab_5d21     ;5ce4  f7 e8 3a
     ldy #0x01               ;5ce7  a0 01
     jsr sub_f22c            ;5ce9  20 2c f2
+
     lda 0x0323              ;5cec  ad 23 03     A = uart rx buffer byte 3
     cmp #0x0a               ;5cef  c9 0a
+
     bcs lab_5d19            ;5cf1  b0 26
     asl a                   ;5cf3  0a
     tay                     ;5cf4  a8
+
     lda 0x59fd,y            ;5cf5  b9 fd 59
     sta 0x4c                ;5cf8  85 4c
+
     lda 0x59fe,y            ;5cfa  b9 fe 59
     and #0x0f               ;5cfd  29 0f
     sta 0x4d                ;5cff  85 4d
+
     ldm #0x00,0x4e          ;5d01  3c 00 4e
     ldm #0x01,0x4f          ;5d04  3c 01 4f
     lda 0x59fe,y            ;5d07  b9 fe 59
@@ -10341,7 +10367,7 @@ lab_5ce4:
 lab_5d0f:
     lda #0x00               ;5d0f  a9 00
     sta 0x0344              ;5d11  8d 44 03     Store as TechniSat protocol status byte
-    jsr sub_5e05            ;5d14  20 05 5e
+    jsr sub_5e05            ;5d14  20 05 5e     Send 10 4F 44 <data, data...> CS
     bra lab_5d1e            ;5d17  80 05
 
 lab_5d19:
@@ -10438,7 +10464,16 @@ lab_5daf:
     rts                     ;5db2  60
 
 ;TechniSat protocol command 0x4d
-;TODO disables EEPROM filtering based on payload
+;
+;Disables EEPROM filtering based on payload:
+;  Send: 10 01 01 4D 04 AC
+;  Recv: 10 01 5E 00 90       Filtering now disabled
+;
+;This command may have fewer side effects than disabling EEPROM
+;filtering via command 0x45, since 0x45 calls more unknown subroutines.
+;
+;This command also sets unknown values in memory if the payload
+;contains a value other then 0x04.
 lab_5db3:
     ldy #0x01               ;5db3  a0 01
     jsr sub_f22c            ;5db5  20 2c f2
@@ -10448,7 +10483,7 @@ lab_5db3:
     bcs lab_5dfc            ;5dbd  b0 3d
 
     cmp #0x04               ;5dbf  c9 04
-    beq lab_5dea            ;5dc1  f0 27        TODO disables EEPROM filtering
+    beq lab_5dea            ;5dc1  f0 27        Disables EEPROM filtering
 
     cmp #0x09               ;5dc3  c9 09
     beq lab_5dee            ;5dc5  f0 27
@@ -10496,18 +10531,19 @@ lab_5e01:
     jsr sub_5adf            ;5e01  20 df 5a     Send 10 01 5E <0x0344> CS
     rts                     ;5e04  60
 
+;Send 10 4F 44 <data, data...> CS
 sub_5e05:
     seb 6,0xe5              ;5e05  cf e5
     lda #0x10               ;5e07  a9 10
     sta 0x0343              ;5e09  8d 43 03
-    jsr sub_5ad5            ;5e0c  20 d5 5a     Send byte
+    jsr sub_5ad5            ;5e0c  20 d5 5a     Send byte 0x10
     lda 0x4f                ;5e0f  a5 4f
-    jsr sub_5ad5            ;5e11  20 d5 5a     Send byte
+    jsr sub_5ad5            ;5e11  20 d5 5a     Send byte 0x4F
     clc                     ;5e14  18
     adc 0x0343              ;5e15  6d 43 03
     sta 0x0343              ;5e18  8d 43 03
     lda #0x44               ;5e1b  a9 44
-    jsr sub_5ad5            ;5e1d  20 d5 5a     Send byte
+    jsr sub_5ad5            ;5e1d  20 d5 5a     Send byte 0x44
     clc                     ;5e20  18
     adc 0x0343              ;5e21  6d 43 03
     sta 0x0343              ;5e24  8d 43 03
@@ -10515,7 +10551,7 @@ sub_5e05:
 
 lab_5e29:
     lda [0x4c],y            ;5e29  b1 4c
-    jsr sub_5ad5            ;5e2b  20 d5 5a     Send byte
+    jsr sub_5ad5            ;5e2b  20 d5 5a     Send data bytes...
     clc                     ;5e2e  18
     adc 0x0343              ;5e2f  6d 43 03
     sta 0x0343              ;5e32  8d 43 03
@@ -10523,7 +10559,7 @@ lab_5e29:
     cpy 0x4f                ;5e36  c4 4f
     bne lab_5e29            ;5e38  d0 ef
     eor #0xff               ;5e3a  49 ff
-    jsr sub_5ad5            ;5e3c  20 d5 5a     Send byte
+    jsr sub_5ad5            ;5e3c  20 d5 5a     Send checksum byte
     ldy #0x01               ;5e3f  a0 01
     jsr sub_f22c            ;5e41  20 2c f2
     clb 6,0xe5              ;5e44  df e5
@@ -10536,6 +10572,7 @@ sub_5e47:
 lab_5e4b:
     jsr sub_5e62            ;5e4b  20 62 5e
     bcs lab_5e61            ;5e4e  b0 11
+
     lda 0x0325,y            ;5e50  b9 25 03     A = uart rx buffer byte 5 +
     sta [0x4c,x]            ;5e53  81 4c
     inc 0x4c                ;5e55  e6 4c
@@ -10551,21 +10588,25 @@ lab_5e5b:
 lab_5e61:
     rts                     ;5e61  60
 
+
+;Checks word in 0x4c and returns status in carry
+;Carry clear:
+;  0, 2, 4, 6, 8, a, c, e, 0x10, 0x0040-0x053f
+;Carry set:
+;  1, 3, 5, 7, 9, b, d, f, 0x11-0x3f, 0x0540-0xffff
 sub_5e62:
-    lda 0x4d                ;5e62  a5 4d
+    lda 0x4d                ;5e62  a5 4d    A = high byte
     bne lab_5e76            ;5e64  d0 10
-    lda 0x4c                ;5e66  a5 4c
+    lda 0x4c                ;5e66  a5 4c    A = low byte
     cmp #0x40               ;5e68  c9 40
     bcc lab_5e6f            ;5e6a  90 03
     clc                     ;5e6c  18
     bra lab_5e83            ;5e6d  80 14
-
 lab_5e6f:
     lsr a                   ;5e6f  4a
     bcs lab_5e83            ;5e70  b0 11
     cmp #0x09               ;5e72  c9 09
     bra lab_5e83            ;5e74  80 0d
-
 lab_5e76:
     cmp #0x05               ;5e76  c9 05
     bcc lab_5e83            ;5e78  90 09
@@ -10573,10 +10614,8 @@ lab_5e76:
     lda 0x4c                ;5e7c  a5 4c
     cmp #0x40               ;5e7e  c9 40
     bcc lab_5e83            ;5e80  90 01
-
 lab_5e82:
     sec                     ;5e82  38
-
 lab_5e83:
     rts                     ;5e83  60
 
@@ -10656,7 +10695,7 @@ lab_5ef6:
 
 ;Read from EEPROM
 ;Called from KWP1281 Read EEPROM (lab_a48d)
-;Also called from TechniSat protocol code (lab_5e9b)
+;Also called from TechniSat protocol command 0x48 (lab_5e9b)
 ;Returns carry clear = success, carry set = failed
 ;
 ;The KWP1281 rx buffer is modified before this subroutine
@@ -11016,12 +11055,16 @@ lab_60ee:
     jsr sub_5adf            ;60ee  20 df 5a     Send 10 01 5E <0x0344> CS
     rts                     ;60f1  60
 
+;table of BRG values used by lab_6106
     .byte 0x40              ;60f2  40          DATA 0x40 '@'
     .byte 0x20              ;60f3  20          DATA 0x20 ' '
     .byte 0x0f              ;60f4  0f          DATA 0x0f
     .byte 0x0a              ;60f5  0a          DATA 0x0a
 
 ;TechniSat protocol command 0x59
+;Change baud rate
+;First parameter is an index to the baud rates table above.
+;Response will be sent at current baud rate, then rate changed.
 lab_60f6:
     ldy #0x01               ;60f6  a0 01
     jsr sub_f22c            ;60f8  20 2c f2
