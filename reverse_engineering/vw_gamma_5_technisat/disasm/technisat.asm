@@ -3810,7 +3810,7 @@ lab_34f4:
     .word lab_5d69          ;359c  69 5d       VECTOR   cmd=4c
     .word lab_5db3          ;359e  b3 5d       VECTOR   cmd=4d   Disables EEPROM filtering based on payload
     .word lab_5e97          ;35a0  97 5e       VECTOR   cmd=48   Read EEPROM data
-    .word lab_5f4d          ;35a2  4d 5f       VECTOR   cmd=49   TODO possibly EEPROM write
+    .word lab_5f4d          ;35a2  4d 5f       VECTOR   cmd=49   Write EEPROM data
     .word lab_2266          ;35a4  66 22       VECTOR   cmd=7f   Bad command?
     .word lab_2266          ;35a6  66 22       VECTOR   cmd=7f   Bad command?
     .word lab_5fe4          ;35a8  e4 5f       VECTOR   cmd=50
@@ -6897,7 +6897,7 @@ lab_4875:
     sta 0x4c                ;488c  85 4c
     lda #0x01               ;488e  a9 01
     sta 0x4d                ;4890  85 4d
-    jsr sub_4b4e            ;4892  20 4e 4b
+    jsr sub_4b4e            ;4892  20 4e 4b     TODO probably EEPROM write
     jmp lab_4976            ;4895  4c 76 49
 
 lab_4898:
@@ -6987,7 +6987,7 @@ lab_492a:
     sta 0x4c                ;4931  85 4c
     lda #0x01               ;4933  a9 01
     sta 0x4d                ;4935  85 4d
-    jsr sub_4b4e            ;4937  20 4e 4b
+    jsr sub_4b4e            ;4937  20 4e 4b     TODO probably EEPROM write
     bbc 0,0xfd,lab_4976     ;493a  17 fd 39
     ldx #0x01               ;493d  a2 01
     lda 0xb8                ;493f  a5 b8
@@ -7021,7 +7021,7 @@ lab_4959:
     sta 0x4c                ;496d  85 4c
     lda #0x01               ;496f  a9 01
     sta 0x4d                ;4971  85 4d
-    jsr sub_4b4e            ;4973  20 4e 4b
+    jsr sub_4b4e            ;4973  20 4e 4b     TODO probably EEPROM write
 
 lab_4976:
     pla                     ;4976  68
@@ -7315,6 +7315,7 @@ lab_4b4c:
 lab_4b4d:
     rts                     ;4b4d  60
 
+;TODO probably EEPROM write
 sub_4b4e:
     lda 0x49                ;4b4e  a5 49
     pha                     ;4b50  48
@@ -10256,8 +10257,10 @@ lab_5c61:
 lab_5c6b:
     lda #0x00               ;5c6b  a9 00
     sta 0x0344              ;5c6d  8d 44 03     Store as TechniSat protocol status byte
+
     jsr sub_5e47            ;5c70  20 47 5e
-    bcc lab_5c7a            ;5c73  90 05
+    bcc lab_5c7a            ;5c73  90 05        Branch if success
+
     lda #0x04               ;5c75  a9 04
     sta 0x0344              ;5c77  8d 44 03     Store as TechniSat protocol status byte
 
@@ -10284,8 +10287,8 @@ lab_5c7e:
 
     ldm #0x00,0x4f          ;5c94  3c 00 4f
 
-    jsr sub_5e62            ;5c97  20 62 5e
-    bcs lab_5ca9            ;5c9a  b0 0d
+    jsr sub_5e62            ;5c97  20 62 5e     Check if word in 0x4c is in allowed ranges
+    bcs lab_5ca9            ;5c9a  b0 0d        Branch if not allowed
 
     ldy #0x00               ;5c9c  a0 00
     sty 0x0344              ;5c9e  8c 44 03
@@ -10319,8 +10322,8 @@ lab_5cb2:
 
     ldm #0x00,0x4f          ;5cc6  3c 00 4f
 
-    jsr sub_5e62            ;5cc9  20 62 5e
-    bcs lab_5cdb            ;5ccc  b0 0d
+    jsr sub_5e62            ;5cc9  20 62 5e     Check if word in 0x4c is in allowed ranges
+    bcs lab_5cdb            ;5ccc  b0 0d        Branch if not allowed
 
     ldy #0x00               ;5cce  a0 00
     sty 0x0344              ;5cd0  8c 44 03
@@ -10407,8 +10410,9 @@ lab_5d47:
     sta 0x0325              ;5d53  8d 25 03
     lda #0x00               ;5d56  a9 00
     sta 0x0344              ;5d58  8d 44 03     Store as TechniSat protocol status byte
+
     jsr sub_5e47            ;5d5b  20 47 5e
-    bcc lab_5d65            ;5d5e  90 05
+    bcc lab_5d65            ;5d5e  90 05        Branch if success
 
 lab_5d60:
     lda #0x06               ;5d60  a9 06
@@ -10531,6 +10535,7 @@ lab_5e01:
     jsr sub_5adf            ;5e01  20 df 5a     Send 10 01 5E <0x0344> CS
     rts                     ;5e04  60
 
+
 ;Send 10 4F 44 <data, data...> CS
 sub_5e05:
     seb 6,0xe5              ;5e05  cf e5
@@ -10565,13 +10570,18 @@ lab_5e29:
     clb 6,0xe5              ;5e44  df e5
     rts                     ;5e46  60
 
+
+;Called from TechniSat command 0x45 (lab_5c2e)
+;   and from TechniSat command 0x4B (lab_5d22)
+;
+;Returns carry clear=success, carry set=failure
 sub_5e47:
     ldx #0x00               ;5e47  a2 00
     ldy #0x00               ;5e49  a0 00
 
 lab_5e4b:
-    jsr sub_5e62            ;5e4b  20 62 5e
-    bcs lab_5e61            ;5e4e  b0 11
+    jsr sub_5e62            ;5e4b  20 62 5e     Check if word in 0x4c is in allowed ranges
+    bcs lab_5e61            ;5e4e  b0 11        Branch if not allowed
 
     lda 0x0325,y            ;5e50  b9 25 03     A = uart rx buffer byte 5 +
     sta [0x4c,x]            ;5e53  81 4c
@@ -10589,11 +10599,14 @@ lab_5e61:
     rts                     ;5e61  60
 
 
-;Checks word in 0x4c and returns status in carry
+;Check if word in 0x4c is in allowed ranges
+;Returns status in carry
+;
 ;Carry clear:
 ;  0, 2, 4, 6, 8, a, c, e, 0x10, 0x0040-0x053f
 ;Carry set:
 ;  1, 3, 5, 7, 9, b, d, f, 0x11-0x3f, 0x0540-0xffff
+;
 sub_5e62:
     lda 0x4d                ;5e62  a5 4d    A = high byte
     bne lab_5e76            ;5e64  d0 10
@@ -10620,13 +10633,14 @@ lab_5e83:
     rts                     ;5e83  60
 
 
-;TODO magic number check; disables EEPROM filtering if 0x4c/0x4d matches
+;Check word in 0x4c for magic number; disable EEPROM filtering if it matches
 ;Returns carry clear = matches, carry set = does not match
+;Called from TechniSat command 0x45 (lab_5c2e)
 sub_5e84:
-    lda 0x4d                ;5e84  a5 4d
+    lda 0x4d                ;5e84  a5 4d    A = high byte
     cmp #0x14               ;5e86  c9 14
     bne lab_5e95            ;5e88  d0 0b
-    lda 0x4c                ;5e8a  a5 4c
+    lda 0x4c                ;5e8a  a5 4c    A = low byte
     cmp #0x62               ;5e8c  c9 62
     bne lab_5e95            ;5e8e  d0 05
     seb 6,0xe9              ;5e90  cf e9    Set bit = Disable EEPROM filtering
@@ -10782,7 +10796,7 @@ sub_5ef7:
 
     jsr sub_46e5            ;5f24  20 e5 46     TODO probably read from I2C EEPROM
 
-    bbs 6,0xe9,lab_5f4b     ;5f27  c7 e9 21     Skip EEPROM filtering if ??? TODO
+    bbs 6,0xe9,lab_5f4b     ;5f27  c7 e9 21     Skip EEPROM filtering if it has been disabled
 
     ;Start of EEPROM filtering
 
@@ -10823,7 +10837,30 @@ lab_5f4c:
     rts                     ;5f4c  60
 
 ;TechniSat protocol command 0x49
-;TODO possibly EEPROM write
+;Write EEPROM data
+;
+;Note that some areas are filtered (including the SAFE code).
+;Disable filtering with command 0x4D or 0x45 to write these.
+;
+;Address range is the same as KWP1281 Read EEPROM (0x19).
+;See lab_a48d for more.
+;
+;The number of parameters (0x322) is the number of address
+;bytes (always 2) plus the number of data bytes (0x325+).
+;
+;Request block:
+;  0x10     unknown
+;  0x01     unknown
+;  0x03     number of parameters                0x321
+;  0x49     command (0x49 = write eeprom)       0x322
+;  0x0c     param 0: eeprom address low         0x323
+;  0x00     param 1: eeprom address high        0x324
+;  ...      param 2+:  ... data bytes ...       0x325+
+;  <CS>     checksum
+;
+;Response block:
+;  10 01 5E 00 90
+;
 lab_5f4d:
     ldy #0x01               ;5f4d  a0 01
     jsr sub_f22c            ;5f4f  20 2c f2
@@ -10834,27 +10871,34 @@ lab_5f4d:
 sub_5f59:
     lda #0x05               ;5f59  a9 05
     sta 0x0344              ;5f5b  8d 44 03     Store as TechniSat protocol status byte
-    lda 0x0321              ;5f5e  ad 21 03     A = uart rx buffer byte 1
-    dec a                   ;5f61  1a
-    dec a                   ;5f62  1a
-    sta 0x4e                ;5f63  85 4e
+
+    lda 0x0321              ;5f5e  ad 21 03     A = number of parameters
+    dec a                   ;5f61  1a           -1 for param 0: EEPROM address low
+    dec a                   ;5f62  1a           -1 for param 1: EEPROM address high
+    sta 0x4e                ;5f63  85 4e        Store as count of data bytes to write (params 2+)
+
     ldm #0x00,0x4f          ;5f65  3c 00 4f
+
+    ;Check requested EEPROM end address
+
     dec a                   ;5f68  1a
     clc                     ;5f69  18
-    adc 0x0323              ;5f6a  6d 23 03     add to uart rx buffer byte 3
+    adc 0x0323              ;5f6a  6d 23 03     Add to param 0 (EEPROM address low)
     lda #0x00               ;5f6d  a9 00
-    adc 0x0324              ;5f6f  6d 24 03     add to uart rx buffer byte 4
+    adc 0x0324              ;5f6f  6d 24 03     Add to param 1 (EEPROM address high)
     cmp #0x08               ;5f72  c9 08
-    bcs lab_5fbe            ;5f74  b0 48
+    bcs lab_5fbe            ;5f74  b0 48        Branch if >= end address high byte 0x08
 
-    bbs 6,0xe9,lab_5f96     ;5f76  c7 e9 1d     Skip EEPROM filtering if ??? TODO
+    ;EEPROM address is in range 0-0x7FF
+
+    bbs 6,0xe9,lab_5f96     ;5f76  c7 e9 1d     Skip EEPROM filtering if it has been disabled
 
     ;Start of EEPROM filtering
 
-    lda 0x0323              ;5f79  ad 23 03     A = uart rx buffer byte 3
+    lda 0x0323              ;5f79  ad 23 03     A = param 0 (EEPROM address low)
     sta 0x4c                ;5f7c  85 4c        Store as EEPROM address low byte
 
-    lda 0x0324              ;5f7e  ad 24 03     A = uart rx buffer byte 4
+    lda 0x0324              ;5f7e  ad 24 03     A = param 1 (EEPROM address high)
     sta 0x4d                ;5f81  85 4d        Store as EEPROM address high byte
 
     ldy #0x00               ;5f83  a0 00
@@ -10878,23 +10922,23 @@ lab_5f90:
 
 lab_5f96:
     bcs lab_5fbe            ;5f96  b0 26
-    lda 0x0323              ;5f98  ad 23 03     A = uart rx buffer byte 3
+    lda 0x0323              ;5f98  ad 23 03     A = param 0 (EEPROM address low)
     sta 0x4a                ;5f9b  85 4a
-    lda 0x0324              ;5f9d  ad 24 03     A = uart rx buffer byte 4
+    lda 0x0324              ;5f9d  ad 24 03     A = param 1 (EEPROM address high)
     sta 0x4b                ;5fa0  85 4b
     lda #0x00               ;5fa2  a9 00
     sta 0x4c                ;5fa4  85 4c
     lda #0x01               ;5fa6  a9 01
     sta 0x4d                ;5fa8  85 4d
-    ldx 0x4e                ;5faa  a6 4e
+    ldx 0x4e                ;5faa  a6 4e        A = number of bytes to write
     dex                     ;5fac  ca
 
 lab_5fad:
-    lda 0x0325,x            ;5fad  bd 25 03     A = uart rx buffer byte 5+
+    lda 0x0325,x            ;5fad  bd 25 03     A = param 2+ (data bytes)
     sta 0x0102,x            ;5fb0  9d 02 01
     dex                     ;5fb3  ca
     bpl lab_5fad            ;5fb4  10 f7
-    jsr sub_4b4e            ;5fb6  20 4e 4b
+    jsr sub_4b4e            ;5fb6  20 4e 4b     TODO probably EEPROM write
     lda #0x00               ;5fb9  a9 00
     sta 0x0344              ;5fbb  8d 44 03     Store as TechniSat protocol status byte
 
@@ -17980,7 +18024,7 @@ lab_8561:
     sta 0x4d                ;8580  85 4d
     ldm #0x18,0x4e          ;8582  3c 18 4e
     ldm #0x00,0x4f          ;8585  3c 00 4f
-    jsr sub_4b4e            ;8588  20 4e 4b
+    jsr sub_4b4e            ;8588  20 4e 4b     TODO probably EEPROM write
     bbc 0,0xff,lab_8590     ;858b  17 ff 02
     seb 1,0x76              ;858e  2f 76
 
@@ -25465,7 +25509,7 @@ sub_ab35:
     sta 0x4b                ;ab73  85 4b
     lda 0x0101              ;ab75  ad 01 01
     sta 0x4a                ;ab78  85 4a
-    jsr sub_4b4e            ;ab7a  20 4e 4b
+    jsr sub_4b4e            ;ab7a  20 4e 4b     TODO probably EEPROM write
 
 lab_ab7d:
     rts                     ;ab7d  60
@@ -30588,7 +30632,7 @@ lab_c97d:
     lda #0x01               ;c992  a9 01
     sta 0x4d                ;c994  85 4d
     ldm #0x20,0x4e          ;c996  3c 20 4e
-    jsr sub_4b4e            ;c999  20 4e 4b
+    jsr sub_4b4e            ;c999  20 4e 4b     TODO probably EEPROM write
     rts                     ;c99c  60
 
 sub_c99d:

@@ -181,6 +181,40 @@ tsat_result_t tsat_read_eeprom(uint16_t address, uint8_t size)
 }
 
 
+tsat_result_t tsat_write_eeprom(uint16_t address, uint8_t size, uint8_t *data)
+{
+    uart_puts(UART_DEBUG, "PERFORM WRITE EEPROM\n");
+
+    // send block
+    uart_puts(UART_DEBUG, "SEND: ");
+    _delay_ms(10);
+
+    _send_byte(0x10);           // only responds if this is 2-0xff
+    _send_byte(0x01);           // only responds if this is 1
+    _send_byte(size + 2);       // number of parameters (data size + 2 for address bytes)
+    _send_byte(0x49);           // command (0x49 = write eeprom)
+    _send_byte(LOW(address));   // param 0: eeprom address low
+    _send_byte(HIGH(address));  // param 1: eeprom address high
+
+    uint8_t checksum = (uint8_t)(0x01 + (size + 2) + 0x49 + LOW(address) + HIGH(address));
+    for (uint8_t i=0; i<size; i++) {
+        _send_byte(data[i]);
+        checksum += data[i];
+    }
+    checksum ^= 0xff;
+    _send_byte(checksum);
+    uart_puts(UART_DEBUG, "\n");
+
+    // receive read eeprom response block
+    tsat_result_t result = tec_receive_block();
+    if (result != TSAT_SUCCESS) { return result; }
+
+    // TODO check status code in rx buffer
+
+    return TSAT_SUCCESS;
+}
+
+
 tsat_result_t tsat_read_safe_code_bcd(uint16_t *safe_code)
 {
     tsat_result_t result = tsat_read_eeprom(0x000c, 4);
