@@ -3809,8 +3809,8 @@ lab_34f4:
     .word lab_5d22          ;359a  22 5d       VECTOR   cmd=4b
     .word lab_5d69          ;359c  69 5d       VECTOR   cmd=4c
     .word lab_5db3          ;359e  b3 5d       VECTOR   cmd=4d   Disables EEPROM filtering based on payload
-    .word lab_5e97          ;35a0  97 5e       VECTOR   cmd=48   TODO returns EEPROM contents
-    .word lab_5f4d          ;35a2  4d 5f       VECTOR   cmd=49
+    .word lab_5e97          ;35a0  97 5e       VECTOR   cmd=48   Read EEPROM data
+    .word lab_5f4d          ;35a2  4d 5f       VECTOR   cmd=49   TODO possibly EEPROM write
     .word lab_2266          ;35a4  66 22       VECTOR   cmd=7f   Bad command?
     .word lab_2266          ;35a6  66 22       VECTOR   cmd=7f   Bad command?
     .word lab_5fe4          ;35a8  e4 5f       VECTOR   cmd=50
@@ -10639,7 +10639,33 @@ lab_5e96:
 
 
 ;TechniSat protocol command 0x48
-;TODO returns EEPROM contents
+;Read EEPROM data
+;
+;Note that some areas are filtered (including the SAFE code).
+;Disable filtering with command 0x4D or 0x45 to read these.
+;
+;Address range is the same as KWP1281 Read EEPROM (0x19).
+;See lab_a48d for more.
+;
+;Request block:
+;  0x10     unknown
+;  0x01     unknown
+;  0x03     number of parameters                0x321
+;  0x48     command (0x48 = read eeprom)        0x322
+;  0x0c     param 0: eeprom address low         0x323
+;  0x00     param 1: eeprom address high        0x324
+;  0x10     param 2: number of bytes to read    0x325
+;  <CS>     checksum                            0x326
+;
+;Response block (success):
+;  0x10     unknown
+;  0x04     number of data bytes
+;  0x48     response title (0x48 = read eeprom)
+;  ...      eeprom data bytes
+;  <CS>     checksum
+;
+;On failure, returns error code 5 (10 01 5E 05 CS).
+;
 lab_5e97:
     bbs 7,0xe8,lab_5e9b     ;5e97  e7 e8 01
     rts                     ;5e9a  60
@@ -10695,11 +10721,11 @@ lab_5ef6:
 
 ;Read from EEPROM
 ;Called from KWP1281 Read EEPROM (lab_a48d)
-;Also called from TechniSat protocol command 0x48 (lab_5e9b)
+;Also called from TechniSat protocol command 0x48 (lab_5e97)
 ;Returns carry clear = success, carry set = failed
 ;
 ;The KWP1281 rx buffer is modified before this subroutine
-;is called.  See the notes in lab_5e9b.  It looks like this:
+;is called.  See the notes in lab_5e97.  It looks like this:
 ;
 ;  0x06 Block length                0x0320
 ;  0x3E Block counter               0x0321
@@ -10797,6 +10823,7 @@ lab_5f4c:
     rts                     ;5f4c  60
 
 ;TechniSat protocol command 0x49
+;TODO possibly EEPROM write
 lab_5f4d:
     ldy #0x01               ;5f4d  a0 01
     jsr sub_f22c            ;5f4f  20 2c f2
@@ -23897,6 +23924,19 @@ lab_a489:
     rts                     ;a48c  60
 
 ;KWP1281 0x19 Read EEPROM
+;
+;Returns the unencrypted contents of the two 24C08 EEPROMs (1K each).
+;Responds with title 0xEF (unlike Premium 4 and 5 which respond with 0xFD).
+;Only allows reading 0x0000-0x07FF (2K).
+;
+;0x0000-0x03FF (first 1K)
+;  "Right side" 24C08 EEPROM (closest to the antenna)
+;  EEPROM addresses 0x009-0x00F are filtered out (zeroed).  The
+;  filtered range includes the SAFE code at 0x00C-0x00F.
+;
+;0x0400-0x07FF (second 1K)
+;  "Left side" 24C08 EEPROM
+;  Identical to the real EEPROM contents
 ;
 ;Request block format:
 ;  0x06 Block length                0x0320

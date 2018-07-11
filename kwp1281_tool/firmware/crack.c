@@ -32,7 +32,7 @@ void crack()
         result = kwp_p4_read_safe_code_bcd(&safe_code);
         kwp_panic_if_error(result);
 
-        print_hex16("SAFE Code: ", safe_code);
+        print_hex16("\nSAFE Code: ", safe_code);
 
     } else if (memcmp(&kwp_component_1[7], "DE2", 3) == 0) {
         uart_puts(UART_DEBUG, "VW PREMIUM 5 (DELCO) DETECTED\n");
@@ -50,7 +50,7 @@ void crack()
         result = kwp_p5_read_safe_code_bcd(&safe_code);
         kwp_panic_if_error(result);
 
-        print_hex16("ROM Checksum: ", rom_checksum);
+        print_hex16("\nROM Checksum: ", rom_checksum);
         print_hex16("SAFE Code: ", safe_code);
 
     } else if (memcmp(&kwp_component_1[7], "YD5", 3) == 0) {
@@ -61,7 +61,7 @@ void crack()
         tresult = tsat_connect();
         tsat_panic_if_error(tresult);
 
-        tresult = tsat_authenticate();
+        tresult = tsat_disable_eeprom_filter();
         tsat_panic_if_error(tresult);
 
         uint16_t safe_code;
@@ -71,10 +71,12 @@ void crack()
         tresult = tsat_disconnect();
         tsat_panic_if_error(tresult);
 
-        print_hex16("SAFE Code: ", safe_code);
+        print_hex16("\nSAFE Code: ", safe_code);
 
     } else {
         uart_puts(UART_DEBUG, "UNKNOWN RADIO\n");
         uart_puts(UART_DEBUG, "UNCRACKABLE\n");
     }
+
+    uart_puts(UART_DEBUG, "Done.\n");
 }

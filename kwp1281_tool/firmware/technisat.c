@@ -117,18 +117,18 @@ tsat_result_t tsat_disconnect()
     return TSAT_SUCCESS;
 }
 
-tsat_result_t tsat_authenticate()
+tsat_result_t tsat_disable_eeprom_filter()
 {
-    uart_puts(UART_DEBUG, "PERFORM AUTHENTICATION\n");
+    uart_puts(UART_DEBUG, "PERFORM DISABLE EEPROM FILTER\n");
 
     // send authentication block
     uart_puts(UART_DEBUG, "SEND: ");
     _delay_ms(10);
     _send_byte(0x10);    // only responds if this is 2-0xff
     _send_byte(0x01);    // only responds if this is 1
-    _send_byte(0x1);     // number of bytes before checksum -1 (only responds to 0-2)
-    _send_byte(0x4d);
-    _send_byte(0x04);
+    _send_byte(0x1);     // number of parameters
+    _send_byte(0x4d);    // command
+    _send_byte(0x04);    // param 0: 0x04 = disable eeprom filtering
     _send_byte(0xac);    // checksum
     uart_puts(UART_DEBUG, "\n");
 
@@ -142,20 +142,33 @@ tsat_result_t tsat_authenticate()
 }
 
 
-tsat_result_t tsat_read_eeprom()
+tsat_result_t tsat_read_eeprom(uint16_t address, uint8_t size)
 {
     uart_puts(UART_DEBUG, "PERFORM READ EEPROM\n");
 
-    // send read eeprom block
+    uint8_t block[] = {
+        0x10,           // only responds if this is 2-0xff
+        0x01,           // only responds if this is 1
+        0x03,           // number of parameters
+        0x48,           // command
+        LOW(address),   // param 0: eeprom address low
+        HIGH(address),  // param 1: eeprom address high
+        size,           // param 2: number of bytes to read
+        0,              // checksum
+    };
+
+    // calculate checksum
+    uint8_t checksum = 0;
+    for (uint8_t i=1; i<7; i++) { checksum += block[i]; }
+    checksum ^= 0xff;
+    block[7] = checksum;
+
+    // send block
     uart_puts(UART_DEBUG, "SEND: ");
     _delay_ms(10);
-    _send_byte(0x10);    // only responds if this is 2-0xff
-    _send_byte(0x01);    // only responds if this is 1
-    _send_byte(0x2);     // number of bytes before checksum -1 (only responds to 0-2)
-    _send_byte(0x48);
-    _send_byte(0x00);
-    _send_byte(0x00);
-    _send_byte(0xb4);    // checksum
+    for (uint8_t i=0; i<8; i++) {
+        _send_byte(block[i]);
+    }
     uart_puts(UART_DEBUG, "\n");
 
     // receive read eeprom response block
@@ -170,15 +183,15 @@ tsat_result_t tsat_read_eeprom()
 
 tsat_result_t tsat_read_safe_code_bcd(uint16_t *safe_code)
 {
-    tsat_result_t result = tsat_read_eeprom();
+    tsat_result_t result = tsat_read_eeprom(0x000c, 4);
     if (result != TSAT_SUCCESS) { return result; }
 
     // safe code is stored as 4 ascii digits in eeprom
     *safe_code = 0;
-    *safe_code += (tsat_rx_buf[15] - 0x30) << 12;
-    *safe_code += (tsat_rx_buf[16] - 0x30) << 8;
-    *safe_code += (tsat_rx_buf[17] - 0x30) << 4;
-    *safe_code += (tsat_rx_buf[18] - 0x30);
+    *safe_code += (tsat_rx_buf[3] - 0x30) << 12;
+    *safe_code += (tsat_rx_buf[4] - 0x30) << 8;
+    *safe_code += (tsat_rx_buf[5] - 0x30) << 4;
+    *safe_code += (tsat_rx_buf[6] - 0x30);
 
     return TSAT_SUCCESS;
 }

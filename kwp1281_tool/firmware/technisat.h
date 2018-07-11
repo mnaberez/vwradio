@@ -15,8 +15,8 @@ typedef enum
 tsat_result_t tsat_connect();
 tsat_result_t tsat_disconnect();
 tsat_result_t tsat_send_block(uint8_t *buf);
-tsat_result_t tsat_authenticate();
-tsat_result_t tsat_read_eeprom();
+tsat_result_t tsat_disable_eeprom_filter();
+tsat_result_t tsat_read_eeprom(uint16_t address, uint8_t size);
 tsat_result_t tsat_read_safe_code_bcd(uint16_t *safe_code);
 tsat_result_t tsat_disconnect();
 const char * tsat_describe_result(tsat_result_t result);

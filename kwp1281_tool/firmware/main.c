@@ -16,8 +16,6 @@ int main()
     uart_init(UART_KLINE,  10400);  // obd-ii kwp1281
     sei();
 
-    //uart_puts(UART_DEBUG, "\n\nRESET\n");
-
     kwp_result_t result = kwp_autoconnect(KWP_RADIO);
     kwp_panic_if_error(result);
     kwp_print_module_info();
@@ -29,6 +27,5 @@ int main()
 
     crack();
 
-    uart_puts(UART_DEBUG, "\nDONE\n");
     while(1);
 }
