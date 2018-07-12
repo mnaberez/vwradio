@@ -14,6 +14,7 @@ const char * tsat_describe_result(tsat_result_t result) {
         case TSAT_TIMEOUT:           return "Timeout";
         case TSAT_BAD_ECHO:          return "Bad echo received";
         case TSAT_BAD_CHECKSUM:      return "Bad checksum";
+        case TSAT_UNEXPECTED:        return "Unexpected response";
         default:                     return "???";
     }
 }
@@ -150,9 +151,12 @@ tsat_result_t tsat_disconnect()
     result = tec_receive_block();
     if (result != TSAT_SUCCESS) { return result; }
 
-    // TODO check status code in rx buffer
-
-    return TSAT_SUCCESS;
+    // check status
+    if ((tsat_rx_buf[2] == 0x5e) && (tsat_rx_buf[3] == 0x00)) {
+        return TSAT_SUCCESS;
+    } else {
+        return TSAT_UNEXPECTED;
+    }
 }
 
 tsat_result_t tsat_disable_eeprom_filter()
@@ -173,9 +177,12 @@ tsat_result_t tsat_disable_eeprom_filter()
     result = tec_receive_block();
     if (result != TSAT_SUCCESS) { return result; }
 
-    // TODO check status code in rx buffer
-
-    return TSAT_SUCCESS;
+    // check status
+    if ((tsat_rx_buf[2] == 0x5e) && (tsat_rx_buf[3] == 0x00)) {
+        return TSAT_SUCCESS;
+    } else {
+        return TSAT_UNEXPECTED;
+    }
 }
 
 
@@ -199,9 +206,12 @@ tsat_result_t tsat_read_eeprom(uint16_t address, uint8_t size)
     result = tec_receive_block();
     if (result != TSAT_SUCCESS) { return result; }
 
-    // TODO check status code in rx buffer
-
-    return TSAT_SUCCESS;
+    // check status
+    if (tsat_rx_buf[2] == 0x48) {
+        return TSAT_SUCCESS;
+    } else {
+        return TSAT_UNEXPECTED;
+    }
 }
 
 
@@ -233,9 +243,12 @@ tsat_result_t tsat_write_eeprom(uint16_t address, uint8_t size, uint8_t *data)
     tsat_result_t result = tec_receive_block();
     if (result != TSAT_SUCCESS) { return result; }
 
-    // TODO check status code in rx buffer
-
-    return TSAT_SUCCESS;
+    // check status
+    if ((tsat_rx_buf[2] == 0x5e) && (tsat_rx_buf[3] == 0x00)) {
+        return TSAT_SUCCESS;
+    } else {
+        return TSAT_UNEXPECTED;
+    }
 }
 
 
@@ -270,7 +283,10 @@ tsat_result_t tsat_connect()
     tsat_result_t result = tec_receive_block();
     if (result != TSAT_SUCCESS) { return result; }
 
-    // TODO check status code in rx buffer
-
-    return TSAT_SUCCESS;
+    // check status
+    if ((tsat_rx_buf[2] == 0x5e) && (tsat_rx_buf[3] == 0x00)) {
+        return TSAT_SUCCESS;
+    } else {
+        return TSAT_UNEXPECTED;
+    }
 }
