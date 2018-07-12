@@ -87,7 +87,7 @@ static tsat_result_t tec_receive_block()
         // second byte is number of optional params after command byte
         if (tsat_rx_size == 2) { remaining += rx_byte; }
 
-        // add byte to checksum, unless it's the last byte (the checksum)
+        // all bytes are added to checksum except last byte (checksum itself)
         if (remaining != 0) { checksum += rx_byte; }
     }
 
@@ -104,22 +104,50 @@ static tsat_result_t tec_receive_block()
 }
 
 
+tsat_result_t tsat_send_block(uint8_t *buf)
+{
+    // size is number of optional data bytes (byte 2) plus 5 for:
+    // unknown + unknown + num params + command + checksum
+    uint8_t size = buf[2] + 5;
+    uint8_t checksum_index = size - 1;
+    buf[checksum_index] = 0;
+
+    uart_puts(UART_DEBUG, "SEND: ");
+    _delay_ms(10);
+    for (uint8_t i=0; i<size; i++) {
+        // update checksum
+        if (i == 0) {
+            // for tx only, first byte is not included in checksum
+        } else if (i < checksum_index) {
+            buf[checksum_index] += buf[i];
+        } else {
+            buf[checksum_index] ^= 0xff;
+        }
+
+        tsat_result_t result = _send_byte(buf[i]);
+        if (result != TSAT_SUCCESS) { return result; }
+    }
+    uart_puts(UART_DEBUG, "\n");
+
+    return TSAT_SUCCESS;
+}
+
+
 tsat_result_t tsat_disconnect()
 {
     uart_puts(UART_DEBUG, "PERFORM DISCONNECT\n");
 
     // send authentication block
-    uart_puts(UART_DEBUG, "SEND: ");
-    _delay_ms(10);
-    _send_byte(0x10);    // only responds if this is 2-0xff
-    _send_byte(0x01);    // only responds if this is 1
-    _send_byte(0x0);     // number of bytes before checksum -1 (only responds to 0-2)
-    _send_byte(0x5f);
-    _send_byte(0x9f);    // checksum
-    uart_puts(UART_DEBUG, "\n");
+    uint8_t block[] = { 0x10, // only responds if this is 2-0xff
+                        0x01, // only responds if this is 1
+                        0x00, // number of parameters after command (0)
+                        0x5f, // command 0x5f (disconnect)
+                        0     // checksum (will be calculated)
+                      };
+    tsat_result_t result = tsat_send_block(block);
 
     // receive authentication response block
-    tsat_result_t result = tec_receive_block();
+    result = tec_receive_block();
     if (result != TSAT_SUCCESS) { return result; }
 
     // TODO check status code in rx buffer
@@ -131,19 +159,18 @@ tsat_result_t tsat_disable_eeprom_filter()
 {
     uart_puts(UART_DEBUG, "PERFORM DISABLE EEPROM FILTER\n");
 
-    // send authentication block
-    uart_puts(UART_DEBUG, "SEND: ");
-    _delay_ms(10);
-    _send_byte(0x10);    // only responds if this is 2-0xff
-    _send_byte(0x01);    // only responds if this is 1
-    _send_byte(0x1);     // number of parameters
-    _send_byte(0x4d);    // command
-    _send_byte(0x04);    // param 0: 0x04 = disable eeprom filtering
-    _send_byte(0xac);    // checksum
-    uart_puts(UART_DEBUG, "\n");
+    // send disable eeprom filter block
+    uint8_t block[] = { 0x10, // only responds if this is 2-0xff
+                        0x01, // only responds if this is 1
+                        0x01, // number of parameters after command (1)
+                        0x4d, // command 0x4d
+                        0x04, // param 0: 0x04 = disable eeprom filtering
+                        0     // checksum (will be calculated)
+                      };
+    tsat_result_t result = tsat_send_block(block);
 
     // receive authentication response block
-    tsat_result_t result = tec_receive_block();
+    result = tec_receive_block();
     if (result != TSAT_SUCCESS) { return result; }
 
     // TODO check status code in rx buffer
@@ -156,33 +183,20 @@ tsat_result_t tsat_read_eeprom(uint16_t address, uint8_t size)
 {
     uart_puts(UART_DEBUG, "PERFORM READ EEPROM\n");
 
-    uint8_t block[] = {
-        0x10,           // only responds if this is 2-0xff
-        0x01,           // only responds if this is 1
-        0x03,           // number of parameters
-        0x48,           // command
-        LOW(address),   // param 0: eeprom address low
-        HIGH(address),  // param 1: eeprom address high
-        size,           // param 2: number of bytes to read
-        0,              // checksum
-    };
-
-    // calculate checksum
-    uint8_t checksum = 0;
-    for (uint8_t i=1; i<7; i++) { checksum += block[i]; }
-    checksum ^= 0xff;
-    block[7] = checksum;
-
-    // send block
-    uart_puts(UART_DEBUG, "SEND: ");
-    _delay_ms(10);
-    for (uint8_t i=0; i<8; i++) {
-        _send_byte(block[i]);
-    }
-    uart_puts(UART_DEBUG, "\n");
+    // send read eeprom block
+    uint8_t block[] = { 0x10,           // only responds if this is 2-0xff
+                        0x01,           // only responds if this is 1
+                        0x03,           // number of parameters after command (3)
+                        0x48,           // command 0x48 (read eeprom)
+                        LOW(address),   // param 0: eeprom address low
+                        HIGH(address),  // param 1: eeprom address high
+                        size,           // param 2: number of bytes to read
+                        0,              // checksum (will be calculated)
+                      };
+    tsat_result_t result = tsat_send_block(block);
 
     // receive read eeprom response block
-    tsat_result_t result = tec_receive_block();
+    result = tec_receive_block();
     if (result != TSAT_SUCCESS) { return result; }
 
     // TODO check status code in rx buffer
