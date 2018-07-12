@@ -13,6 +13,7 @@ const char * tsat_describe_result(tsat_result_t result) {
         case TSAT_SUCCESS:           return "Success";
         case TSAT_TIMEOUT:           return "Timeout";
         case TSAT_BAD_ECHO:          return "Bad echo received";
+        case TSAT_BAD_CHECKSUM:      return "Bad checksum";
         default:                     return "???";
     }
 }
@@ -68,29 +69,38 @@ static tsat_result_t tec_receive_block()
 {
     uart_puts(UART_DEBUG, "RECV: ");
 
-    uint8_t rx_byte;
     tsat_result_t result;
+    tsat_rx_size = 0;
 
-    // receive unknown first byte
-    result = _recv_byte(&rx_byte);
-    if (result != TSAT_SUCCESS) { return result; }
-    tsat_rx_buf[0] = rx_byte;
-
-    // receive length byte
-    result = _recv_byte(&rx_byte);
-    if (result != TSAT_SUCCESS) { return result; }
-    tsat_rx_buf[1] = rx_byte;
-
-    uint8_t length = rx_byte + 1 + 1;
-    for (uint8_t i=0; i<length; i++) {
+    // receive block
+    uint8_t remaining = 4;  // unknown + num params + command + checksum
+    uint8_t checksum = 0;
+    while (remaining != 0) {
+        uint8_t rx_byte;
         result = _recv_byte(&rx_byte);
         if (result != TSAT_SUCCESS) { return result; }
-        tsat_rx_buf[i+2] = rx_byte;
+
+        tsat_rx_buf[tsat_rx_size] = rx_byte;
+        tsat_rx_size += 1;
+        remaining -= 1;
+
+        // second byte is number of optional params after command byte
+        if (tsat_rx_size == 2) { remaining += rx_byte; }
+
+        // add byte to checksum, unless it's the last byte (the checksum)
+        if (remaining != 0) { checksum += rx_byte; }
     }
-    tsat_rx_size = length;
+
+    // verify checksum
+    checksum ^= 0xff;
+    if (checksum == tsat_rx_buf[tsat_rx_size - 1]) {
+        result = TSAT_SUCCESS;
+    } else {
+        result = TSAT_BAD_CHECKSUM;
+    }
 
     uart_puts(UART_DEBUG, "\n");
-    return TSAT_SUCCESS;
+    return result;
 }
 
 

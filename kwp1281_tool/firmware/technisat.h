@@ -10,6 +10,7 @@ typedef enum
     TSAT_SUCCESS = 0,
     TSAT_TIMEOUT = 1,
     TSAT_BAD_ECHO = 2,
+    TSAT_BAD_CHECKSUM = 3,
 } tsat_result_t;
 
 tsat_result_t tsat_connect();
