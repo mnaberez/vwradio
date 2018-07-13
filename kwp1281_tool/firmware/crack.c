@@ -42,15 +42,10 @@ void crack()
         result = kwp_p5_login_mfg();
         kwp_panic_if_error(result);
 
-        uint16_t rom_checksum;
-        result = kwp_p5_calc_rom_checksum(&rom_checksum);
-        kwp_panic_if_error(result);
-
         uint16_t safe_code;
         result = kwp_p5_read_safe_code_bcd(&safe_code);
         kwp_panic_if_error(result);
 
-        print_hex16("\nROM Checksum: ", rom_checksum);
         print_hex16("SAFE Code: ", safe_code);
 
     } else if (memcmp(&kwp_component_1[7], "YD5", 3) == 0) {
