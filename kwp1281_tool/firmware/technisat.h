@@ -14,7 +14,7 @@ typedef enum
     TSAT_UNEXPECTED = 4,
 } tsat_result_t;
 
-tsat_result_t tsat_connect();
+tsat_result_t tsat_connect(uint8_t address, uint32_t baud);
 tsat_result_t tsat_disconnect();
 tsat_result_t tsat_send_block(uint8_t *buf);
 tsat_result_t tsat_disable_eeprom_filter();

@@ -494,6 +494,7 @@ kwp_result_t kwp_connect(uint8_t address, uint32_t baud)
     uart_init(UART_KLINE, baud);
 
     // Initialize connection state
+    kwp_baud_rate = baud;
     kwp_is_first_block = true;
     memset(kwp_vag_number,  0, sizeof(kwp_vag_number));
     memset(kwp_component_1, 0, sizeof(kwp_component_1));

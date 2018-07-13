@@ -268,13 +268,13 @@ tsat_result_t tsat_read_safe_code_bcd(uint16_t *safe_code)
 }
 
 
-tsat_result_t tsat_connect()
+tsat_result_t tsat_connect(uint8_t address, uint32_t baud)
 {
     uart_puts(UART_DEBUG, "\nCONNECT ");
     uart_puthex(UART_DEBUG, 0x7c);
     uart_puts(UART_DEBUG, " TECHNISAT PROTOCOL\n");
 
-    uart_init(UART_KLINE, 9600);
+    uart_init(UART_KLINE, baud);
 
     // Send address at 5 baud
     kwp_send_address(KWP_RADIO_MFG);

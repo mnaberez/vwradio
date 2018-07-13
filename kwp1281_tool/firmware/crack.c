@@ -37,7 +37,7 @@ void crack()
     } else if (memcmp(&kwp_component_1[7], "DE2", 3) == 0) {
         uart_puts(UART_DEBUG, "VW PREMIUM 5 (DELCO) DETECTED\n");
         kwp_disconnect();
-        result = kwp_autoconnect(KWP_RADIO_MFG);
+        result = kwp_connect(KWP_RADIO_MFG, kwp_baud_rate);
         kwp_panic_if_error(result);
         result = kwp_p5_login_mfg();
         kwp_panic_if_error(result);
@@ -46,14 +46,14 @@ void crack()
         result = kwp_p5_read_safe_code_bcd(&safe_code);
         kwp_panic_if_error(result);
 
-        print_hex16("SAFE Code: ", safe_code);
+        print_hex16("\nSAFE Code: ", safe_code);
 
     } else if (memcmp(&kwp_component_1[7], "YD5", 3) == 0) {
         uart_puts(UART_DEBUG, "VW GAMMA 5 (TECHNISAT) DETECTED\n");
         kwp_disconnect();
 
         tsat_result_t tresult;
-        tresult = tsat_connect();
+        tresult = tsat_connect(KWP_RADIO_MFG, kwp_baud_rate);
         tsat_panic_if_error(tresult);
 
         tresult = tsat_disable_eeprom_filter();
