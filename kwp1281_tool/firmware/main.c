@@ -3,11 +3,7 @@
 #include "kwp1281.h"
 #include "technisat.h"
 #include "crack.h"
-#include <string.h>
-#include <stdint.h>
 #include <avr/interrupt.h>
-#include <avr/io.h>
-#include <util/delay.h>
 
 
 int main()
