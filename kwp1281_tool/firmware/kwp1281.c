@@ -372,7 +372,7 @@ static kwp_result_t _send_f0_block()
     uart_puts(UART_DEBUG, "PERFORM TITLE F0\n");
     uint8_t block[] = {
         0x04,           // block length
-        0,              // placeholder for block length
+        0,              // placeholder for block counter
         KWP_SAFE_CODE,  // block title
         0,              // 0=read
         0,              // placeholder for block end
