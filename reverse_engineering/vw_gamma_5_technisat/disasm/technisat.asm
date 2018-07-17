@@ -1,3 +1,27 @@
+;Volkswagen Gamma V radio (TechniSat)
+;Reverse engineered source code
+;
+;This source code is for the microcontroller in the radio.  It is a
+;QFP-80 package and has these markings on the outside:
+;
+;  M38869FFAHP
+;      348B100
+;
+;The MCU was removed from a radio and dumped using "flash memory mode 1
+;(parallel I/O mode)" as described in the Renesas (Mitsubishi) 3886 Group
+;datasheet.  A second radio was dumped using KWP1281.  After decryption
+;of the KWP1281 dump, the two dumps were identical.
+;
+;Note that the M38869FFAHP has 60K flash ROM total but this source code
+;assembles to 56K.  The first 4K (0x1000-0x1FFF) is not used and contains
+;all 0xFF.  The radio firmware was probably designed to fit in the 'E'
+;version of the MCU, which has 56K flash ROM.
+;
+;No rights are claimed on the executable object code as found
+;in the internal flash ROM of the M38869FFAHP chip.  The SHA-1
+;hash of that binary is: 2d9344b56ba4329e762a984150c304cc35d51b13.
+;
+
     .area CODE1 (ABS)
     .org 0x2000
 
