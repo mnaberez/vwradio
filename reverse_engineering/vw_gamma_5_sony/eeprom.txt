@@ -1,0 +1,5 @@
+The EEPROM is a 24C04 and is located on the underside of the PCB on
+the side near the antenna.
+
+SAFE code is stored in 3 bytes at 0x0010-0x0012 in the EEPROM.  It
+is encrypted using an unknown algorithm.

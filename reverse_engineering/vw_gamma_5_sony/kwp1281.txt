@@ -1,0 +1,23 @@
+Address 0x56
+------------
+
+Identification
+    0F 01 F6 31 4A 30 30 33 35 31 38 36 44 20 20 03   "1J0035186D  "
+    0F 03 F6 20 52 41 44 49 4F 20 53 4F 4E 20 20 03   " RADIO SON  "
+    0E 05 F6 20 20 20 20 20 20 20 30 30 30 33 03      "       0003"
+
+0x2B Login
+    Login with SAFE code works like on the Premium 5.  Reading
+    group 0x19 responds with NAK but it's a lie, treat it like ACK.
+
+0x01 Read RAM (Protected)
+    All addresses 0x0000-0xFFFF return NAK.
+
+0x03 Read ROM or EEPROM (Protected)
+    Behaves exactly like 0x19 Read EEPROM.
+
+0x19 Read EEPROM (Protected)
+    Returns the contents of the 24C04 EEPROM (512 bytes).
+    Responds with title 0xEF (unlike Premium 4 and 5 which respond with 0xFD).
+    Only allows reading 0x0000-0x01FF (512 bytes).
+
