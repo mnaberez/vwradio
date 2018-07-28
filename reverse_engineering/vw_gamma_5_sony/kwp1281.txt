@@ -19,23 +19,31 @@ Identification
 0x19 Read EEPROM (Protected)
     Returns the contents of the 24C04 EEPROM (512 bytes).
     Responds with title 0xEF (unlike Premium 4 and 5 which respond with 0xFD).
-    Only allows reading 0x0000-0x01FF (512 bytes).
+    Only allows reading 0x0000-0x01FF (512 bytes) or else it returns NAK.
     Returns 0 for the SAFE code area 0x0010-0x0012.
 
-0x0c Write EEPROM (Protected)
-    Only allows writing 0x0000-0x01FF (512 bytes).
+0x0C Write EEPROM (Protected)
+    Overwrites the contents of the 24C04 EEPROM (512) bytes.  Any
+    address other than 0x0000-0x01FF (512 bytes) will return NAK.
+    It allows overwriting every byte in this area.  It always responds
+    with title 0xF9.
 
-    Seems to work more like "fill".  Only the first data byte in the
-    list is written to the EEPROM.  If the data size byte is greater
-    than 1, successive locations will be filled with the first data byte.
+    It seems to work more like a "fill" than a "write", which may be
+    a bug.  Only the first data byte in the list is written to the
+    EEPROM.  If the data size byte is greater than 1, successive
+    locations will be filled with the first data byte.
 
     Example:
-        Write 3 bytes "ABC" to locations 0x0080-0x0082:
+        Try to write 3 bytes "ABC" to locations 0x0080-0x0082:
 
         SEND: 09 0E 0C 03 00 80 41 42 43 03
         RECV: 07 0F F9 03 00 80 00 03
 
-        All three locations will be filled with "A".
+        The result is that "A" will be written to all 3 locations.
 
-    Writing to the SAFE code area 0x0010-0x0012 fails silently (returns
-    title 0xF9, indistinguishable from a successful write).
+    The SAFE code can be changed by writing the 3 encrypted bytes at
+    0x0010-0x0012.  The change will not take effect until power is
+    removed (pressing the power button is not enough).  Login will
+    continue to work with the previous SAFE code until the unit is
+    power cycled.  After power cycling, the new SAFE code must be used
+    for login.
