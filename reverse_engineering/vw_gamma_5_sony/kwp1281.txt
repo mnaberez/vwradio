@@ -20,4 +20,22 @@ Identification
     Returns the contents of the 24C04 EEPROM (512 bytes).
     Responds with title 0xEF (unlike Premium 4 and 5 which respond with 0xFD).
     Only allows reading 0x0000-0x01FF (512 bytes).
+    Returns 0 for the SAFE code area 0x0010-0x0012.
 
+0x0c Write EEPROM (Protected)
+    Only allows writing 0x0000-0x01FF (512 bytes).
+
+    Seems to work more like "fill".  Only the first data byte in the
+    list is written to the EEPROM.  If the data size byte is greater
+    than 1, successive locations will be filled with the first data byte.
+
+    Example:
+        Write 3 bytes "ABC" to locations 0x0080-0x0082:
+
+        SEND: 09 0E 0C 03 00 80 41 42 43 03
+        RECV: 07 0F F9 03 00 80 00 03
+
+        All three locations will be filled with "A".
+
+    Writing to the SAFE code area 0x0010-0x0012 fails silently (returns
+    title 0xF9, indistinguishable from a successful write).
