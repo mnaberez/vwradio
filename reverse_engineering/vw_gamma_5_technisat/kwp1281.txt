@@ -11,11 +11,11 @@ Identification
     Login with SAFE code works like on the Premium 5.  Reading
     group 0x19 responds with NAK but it's a lie, treat it like ACK.
 
-0x01 Read RAM
+0x01 Read RAM (Protected)
     Returns the unencrypted contents of the M38869FFAHP's RAM.
     Only allows reading 0x0000-07FF but this is the entire RAM area.
 
-0x03 Read ROM or EEPROM
+0x03 Read ROM or EEPROM (Protected)
     Returns XOR encrypted contents of the M38869FFAHP microcontroller's
     flash ROM.  Only allows reading 0x2000-0xFEFF.  The entire ROM is
     0x2000-0xFFFF.  The missing 256 bytes are the XOR encryption key.
@@ -32,7 +32,7 @@ Identification
     all 0xFF.  The firmware was probably designed to fit in the 'E'
     version of the MCU, which has 56K flash ROM.
 
-0x19 Read EEPROM
+0x19 Read EEPROM (Protected)
     Returns the unencrypted contents of the two 24C08 EEPROMs (1K each).
     Responds with title 0xEF (unlike Premium 4 and 5 which respond with 0xFD).
     Only allows reading 0x0000-0x07FF (2K).
