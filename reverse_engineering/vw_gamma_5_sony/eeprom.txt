@@ -3,3 +3,28 @@ the side near the antenna.
 
 SAFE code is stored in 3 bytes at 0x0010-0x0012 in the EEPROM.  It
 is encrypted using an unknown algorithm.
+
+0010: Encrypted SAFE code (byte 1 of 3)
+0011: Encrypted SAFE code (byte 2 of 3)
+0012: Encrypted SAFE code (byte 3 of 3)
+
+0080: ' OSTSEE '    FM1 preset 1 station name
+0088: 'ANTENNE '    FM1 preset 2 station name
+0090: 'NDR 1 MV'    FM1 preset 3 station name
+0098: ' N-JOY  '    FM1 preset 4 station name
+00a0: '  RSH   '    FM1 preset 5 station name
+00a8: ' NDR 2  '    FM1 preset 6 station name
+
+00b0: 'ANTENNE '    FM2 preset 1 station name
+00b8: ' OSTSEE '    FM2 preset 2 station name
+00c0: ' NDR 2  '    FM2 preset 3 station name
+00c8: ' N-JOY  '    FM2 preset 4 station name
+00d0: ' delta  '    FM2 preset 5 station name
+00d8: 'NDR 1 MV'    FM2 preset 6 station name
+
+00e0: 'ANTENNE '    TP preset 1 station name
+00e8: ' OSTSEE '    TP preset 2 station name
+00f0: 'NDR 1 MV'    TP preset 3 station name
+00f8: ' NDR 2  '    TP preset 4 station name
+0100: ' N-JOY  '    TP preset 5 station name
+0108: 'N.DIRECT'    TP preset 6 station name
