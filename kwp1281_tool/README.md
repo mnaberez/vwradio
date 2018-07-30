@@ -68,8 +68,9 @@ RECV: 23 F6 FE 88 0D 75 0D 75 0D 93 59 CC 3E CC 3A 75 0D 04 59 ...
 
 The tool reliably communicates with these radios:
 
- - Premium 4 (Clarion)
- - Premium 5 (Delco)
- - Gamma 5 (TechniSat)
+ - VW Premium 4 (Clarion)
+ - VW Premium 5 (Delco)
+ - VW Gamma 5 (Sony)
+ - VW Gamma 5 (TechniSat)
 
 It is likely to work with more radios and other modules as well.
