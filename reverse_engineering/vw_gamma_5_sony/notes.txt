@@ -1,0 +1,43 @@
+Wrap Around
+-----------
+
+Receive buffer wraps around.  Notice it executing block title 0x29:
+
+SEND: 90 0A 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+      00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+      00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+      00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+      00 0A 29 01 03
+RECV: 0F 0B E7 10 08 08 06 6C 70 17 64 03 25 00 87 03
+
+SEND: B3 0A 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+      00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+      00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+      00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+      00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+      00 BE 29 01 03
+         ^  ^  ^  ^
+         |  |  |  |         response block counter was 0xBE + 1 so we must be overwriting
+         |  |  |  end       the block counter
+         |  |  param
+         |  title           response block title was response for 0x29 so we must be overwriting
+         |                  the block title
+         counter
+RECV: 0F BF E7 10 08 08 06 6C 72 17 64 03 25 00 87 03
+
+Maximum block length is 0xBD for the wrap-around behavior.  If block length is 0xBE or larger,
+it just times out.
+
+
+Hard Crash
+----------
+
+This block causes KWP1281 and the faceplate to become completely unresponsive.  No response is sent
+and pushing the power button has no effect.  Power has to be removed from the radio to recover.
+
+SEND: 5E 0A 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+      00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+      50 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 50
+
+Notice that the 0x03 Block End byte was not sent.  The radio crashed before sending the complement
+to byte 0x50.
