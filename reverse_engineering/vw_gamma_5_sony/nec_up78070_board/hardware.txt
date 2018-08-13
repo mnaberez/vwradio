@@ -1,0 +1,58 @@
+78070 pinout on PDF page 40
+Example EPROM hookup on PDF page 515
+
+
+78078 Connections
+-----------------
+
+    9   IC      -> GND
+    24  AVREF0  -> GND
+    33  AVSS    -> GND
+    40  VSS     -> GND
+    71  VSS     -> GND
+    12  VDD     -> 5V
+    23  AVDD    -> 5V
+    36  AVREF1  -> 5V
+
+    10  X1      -> 4.9512 MHz crystal
+    11  X2      -> 4.9512 MHz crystal
+
+    2   /RESET  -> Reset Generator
+
+    49  A0      -> 27512 pin 10 (A0)
+    50  A1      -> 27512 pin 9  (A1)
+    51  A2      -> 27512 pin 8  (A2)
+    52  A3      -> 27512 pin 7  (A3)
+    53  A4      -> 27512 pin 6  (A4)
+    54  A5      -> 27512 pin 5  (A5)
+    55  A6      -> 27512 pin 4  (A6)
+    56  A7      -> 27512 pin 3  (A7)
+    65  A8      -> 27512 pin 25 (A8)
+    66  A9      -> 27512 pin 24 (A9)
+    67  A10     -> 27512 pin 21 (A10)
+    68  A11     -> 27512 pin 23 (A11)
+    69  A12     -> 27512 pin 2  (A12)
+    70  A13     -> 27512 pin 26 (A13)
+    72  A14     -> 27512 pin 27 (A14)
+    73  A15     -> 27512 pin 1  (A15)
+
+    57  AD0     -> 27512 pin 11 (D0)
+    58  AD1     -> 27512 pin 12 (D1)
+    59  AD2     -> 27512 pin 13 (D2)
+    60  AD3     -> 27512 pin 15 (D3)
+    61  AD4     -> 27512 pin 16 (D4)
+    62  AD5     -> 27512 pin 17 (D5)
+    63  AD6     -> 27512 pin 18 (D6)
+    64  AD7     -> 27512 pin 19 (D7)
+
+    78  /RD     -> 27512 pin (/OE)
+
+
+27512 Connections
+-----------------
+https://ist.uwaterloo.ca/~schepers/ROMS/PINOUTS/27512.png
+
+    14  GND     -> GND
+    22  /OE     -> GND
+    28  Vcc     -> 5V
+
