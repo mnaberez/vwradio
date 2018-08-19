@@ -51,6 +51,8 @@ I also developed several other projects as a side effect of this work:
 
 - [k0dasm](https://github.com/mnaberez/k0dasm): NEC 78K0 disassembler that generates output compatible with NEC's commercial [RA78K0 assembler](https://web.archive.org/web/20180604213218/https://www.renesas.com/en-us/products/software-tools/tools/compiler-assembler/assembler-package-for-78k0-ra78k0.html)
 
+- [m740dasm](https://github.com/mnaberez/m740dasm): Mitsubishi 740 disassembler that generates output compatible with the [as740](http://shop-pdp.net/ashtml/as740.htm) assember
+
 ## Author
 
 [Mike Naberezny](https://github.com/mnaberez)
