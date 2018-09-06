@@ -21,6 +21,7 @@
     mem_f000 equ 0f000h     ;memory address for KWP1281 read ram or read eeprom (2 bytes)
     mem_f002 equ 0f002h     ;eeprom address for KWP1281 write eeprom (2 bytes)
     mem_f004 equ 0f004h
+    mem_f006 equ 0f006h
     mem_f00e equ 0f00eh
     mem_f00f equ 0f00fh
     mem_f01a equ 0f01ah
@@ -251,7 +252,9 @@
     mem_fbcd equ 0fbcdh
     mem_fbcf equ 0fbcfh
     mem_fbd0 equ 0fbd0h
+    mem_fbd1 equ 0fbd1h
     mem_fbd5 equ 0fbd5h
+    mem_fbd6 equ 0fbd6h
     mem_fbdb equ 0fbdbh
     mem_fbdc equ 0fbdch
     mem_fbdd equ 0fbddh
@@ -3126,7 +3129,7 @@ lab_0b2c:
     and a,#07h              ;0b3d  5d 07
     mov b,a                 ;0b3f  73
     push hl                 ;0b40  b7
-    movw hl,#0af75h         ;0b41  16 75 af
+    movw hl,#mem_af75       ;0b41  16 75 af
     mov a,[hl+b]            ;0b44  ab
     pop hl                  ;0b45  b6
     xch a,e                 ;0b46  34
@@ -3451,7 +3454,7 @@ lab_0c87:
     xch a,b                 ;0c90  33
     and a,#07h              ;0c91  5d 07
     push hl                 ;0c93  b7
-    movw hl,#0af75h         ;0c94  16 75 af
+    movw hl,#mem_af75       ;0c94  16 75 af
     mov c,a                 ;0c97  72
     mov a,[hl+c]            ;0c98  aa
     pop hl                  ;0c99  b6
@@ -7458,67 +7461,48 @@ mem_2033:
     db 24h                  ;20c5  24          DATA 0x24 '$'
     db 0bdh                 ;20c6  bd          DATA 0xbd
     db 12h                  ;20c7  12          DATA 0x12
-    db 31h                  ;20c8  31          DATA 0x31 '1'
-    db 33h                  ;20c9  33          DATA 0x33 '3'
-    db 23h                  ;20ca  23          DATA 0x23 '#'
-    db 03h                  ;20cb  03          DATA 0x03
-    db 9ah                  ;20cc  9a          DATA 0x9a
-    db 3ah                  ;20cd  3a          DATA 0x3a ':'
-    db 22h                  ;20ce  22          DATA 0x22 '"'
-    db 9ah                  ;20cf  9a          DATA 0x9a
-    db 4eh                  ;20d0  4e          DATA 0x4e 'N'
-    db 21h                  ;20d1  21          DATA 0x21 '!'
-    db 9bh                  ;20d2  9b          DATA 0x9b
-    db 07h                  ;20d3  07          DATA 0x07
-    db 21h                  ;20d4  21          DATA 0x21 '!'
-    db 9ah                  ;20d5  9a          DATA 0x9a
-    db 0f1h                 ;20d6  f1          DATA 0xf1
-    db 24h                  ;20d7  24          DATA 0x24 '$'
-    db 0adh                 ;20d8  ad          DATA 0xad
-    db 06h                  ;20d9  06          DATA 0x06
-    db 9ah                  ;20da  9a          DATA 0x9a
-    db 38h                  ;20db  38          DATA 0x38 '8'
-    db 21h                  ;20dc  21          DATA 0x21 '!'
-    db 9bh                  ;20dd  9b          DATA 0x9b
-    db 07h                  ;20de  07          DATA 0x07
-    db 21h                  ;20df  21          DATA 0x21 '!'
-    db 14h                  ;20e0  14          DATA 0x14
-    db 0fbh                 ;20e1  fb          DATA 0xfb
-    db 0aeh                 ;20e2  ae          DATA 0xae
-    db 8eh                  ;20e3  8e          DATA 0x8e
-    db 70h                  ;20e4  70          DATA 0x70 'p'
-    db 0fbh                 ;20e5  fb          DATA 0xfb
-    db 73h                  ;20e6  73          DATA 0x73 's'
-    db 31h                  ;20e7  31          DATA 0x31 '1'
-    db 3fh                  ;20e8  3f          DATA 0x3f '?'
-    db 02h                  ;20e9  02          DATA 0x02
-    db 0a3h                 ;20ea  a3          DATA 0xa3
-    db 07h                  ;20eb  07          DATA 0x07
-    db 16h                  ;20ec  16          DATA 0x16
-    db 75h                  ;20ed  75          DATA 0x75 'u'
-    db 0afh                 ;20ee  af          DATA 0xaf
 
-    db 0abh                 ;20ef  ab          DATA 0xab
-    db 9ah                  ;20f0  9a          DATA 0x9a
-    db 64h                  ;20f1  64          DATA 0x64 'd'
-    db 5ch                  ;20f2  5c          DATA 0x5c '\'
-    db 4dh                  ;20f3  4d          DATA 0x4d 'M'
-    db 0ffh                 ;20f4  ff          DATA 0xff
-    db 0bdh                 ;20f5  bd          DATA 0xbd
-    db 02h                  ;20f6  02          DATA 0x02
-    db 0a3h                 ;20f7  a3          DATA 0xa3
-    db 00h                  ;20f8  00          DATA 0x00
-    db 16h                  ;20f9  16          DATA 0x16
-    db 58h                  ;20fa  58          DATA 0x58 'X'
-    db 0afh                 ;20fb  af          DATA 0xaf
+lab_20c8:
+    bf mem_fe23.3,$lab_20cf ;20c8  31 33 23 03
+    call !sub_223a          ;20cc  9a 3a 22
+
+lab_20cf:
+    call !sub_214e          ;20cf  9a 4e 21
+    br !lab_2107            ;20d2  9b 07 21
+
+lab_20d5:
+    call !sub_24f1          ;20d5  9a f1 24
+    bz $lab_20e0            ;20d8  ad 06
+    call !sub_2138          ;20da  9a 38 21
+    br !lab_2107            ;20dd  9b 07 21
+
+lab_20e0:
+    movw de,#mem_aefb       ;20e0  14 fb ae
+    mov a,!mem_fb70         ;20e3  8e 70 fb
+    mov b,a                 ;20e6  73
+    bf a.3,$lab_20ec        ;20e7  31 3f 02
+    mov b,#07h              ;20ea  a3 07
+
+lab_20ec:
+    movw hl,#mem_af75       ;20ec  16 75 af
+    mov a,[hl+b]            ;20ef  ab
+    call !sub_5c64          ;20f0  9a 64 5c
+    cmp a,#0ffh             ;20f3  4d ff
+    bnz $lab_20f9           ;20f5  bd 02
+    mov b,#00h              ;20f7  a3 00
+
+lab_20f9:
+    movw hl,#mem_af58       ;20f9  16 58 af
 
 lab_20fc:
     callf !sub_0c48         ;20fc  4c 48        Load DE with word at position B in table [HL]
-    bc $lab_2138            ;20fe  8d 38        Branch if table lookup failed
-    movw ax,#2107h          ;2100  10 07 21
+    bc $sub_2138            ;20fe  8d 38        Branch if table lookup failed
+    movw ax,#lab_2107       ;2100  10 07 21
     push ax                 ;2103  b1
     movw ax,de              ;2104  c4
     br ax                   ;2105  31 98
+
+lab_2107:
     mov a,!mem_fb70         ;2107  8e 70 fb
     cmp a,#0ffh             ;210a  4d ff
     bz $lab_210e            ;210c  ad 00
@@ -7526,7 +7510,7 @@ lab_20fc:
 lab_210e:
     mov a,!mem_fb70         ;210e  8e 70 fb
     mov b,a                 ;2111  73
-    movw hl,#0aef2h         ;2112  16 f2 ae
+    movw hl,#mem_aef1+1     ;2112  16 f2 ae
     callf !sub_0c7d         ;2115  4c 7d
     bnc $lab_211b           ;2117  9d 02
     mov a,#0ffh             ;2119  a1 ff
@@ -7551,7 +7535,7 @@ lab_2130:
     callf !sub_099c         ;2133  1c 9c
     br !sub_24f1            ;2135  9b f1 24
 
-lab_2138:
+sub_2138:
     mov a,#04h              ;2138  a1 04
     mov !mem_fb70,a         ;213a  9e 70 fb
     call !sub_21f4          ;213d  9a f4 21
@@ -7564,9 +7548,10 @@ lab_2148:
     mov a,#0c3h             ;2148  a1 c3
     br !sub_2482            ;214a  9b 82 24
 
-    db 0afh                 ;214d  af          DATA 0xaf
+lab_214d:
+    ret                     ;214d  af
 
-lab_214e:
+sub_214e:
     mov a,!mem_f20a         ;214e  8e 0a f2
     cmp a,#02h              ;2151  4d 02
     bc $lab_2164            ;2153  8d 0f
@@ -7694,7 +7679,7 @@ sub_2227:
     bt mem_fe2c.5,$lab_2225 ;2235  dc 2c ed
     br $sub_21f4            ;2238  fa ba
 
-lab_223a:
+sub_223a:
     bt mem_fe23.4,$lab_2242 ;223a  cc 23 05
     set1 mem_fe23.3         ;223d  3a 23
     br !sub_24f1            ;223f  9b f1 24
@@ -9489,9 +9474,11 @@ lab_2cac:
 
 sub_2cae:
     mov x,#00h              ;2cae  a0 00
+
+sub_2cb0:
     push ax                 ;2cb0  b1
     xch a,x                 ;2cb1  30
-    movw hl,#mem_f218         ;2cb2  16 18 f2
+    movw hl,#mem_f218       ;2cb2  16 18 f2
     call !sub_4092          ;2cb5  9a 92 40
     incw hl                 ;2cb8  86
     pop ax                  ;2cb9  b0
@@ -10020,7 +10007,7 @@ lab_2f95:
     set1 mem_fe61.0         ;2f98  0a 61
     clr1 mem_fe60.3         ;2f9a  3b 60
     movw ax,#fis_tx_buf     ;2f9c  10 52 f0
-    movw !0f006h,ax         ;2f9f  03 06 f0
+    movw !mem_f006,ax       ;2f9f  03 06 f0
     mov a,#14h              ;2fa2  a1 14
     mov !mem_f066,a         ;2fa4  9e 66 f0
     br $lab_2faa            ;2fa7  fa 01
@@ -10081,9 +10068,9 @@ lab_2ff4:
     set1 mem_fe5f.1         ;2ffd  1a 5f
     clr1 IF0H_.4            ;2fff  71 4b e1     CSIIF30
     clr1 MK0H_.4            ;3002  71 4b e5     CSIMK30
-    clr1 PR0H_.4            ;3005  71 4b e9
+    clr1 PR0H_.4            ;3005  71 4b e9     CSIPR30
 
-    movw ax,!0f006h         ;3008  02 06 f0
+    movw ax,!mem_f006       ;3008  02 06 f0
     push ax                 ;300b  b1           Push: pointer to buffer to transfer
     mov a,#01h              ;300c  a1 01
     push ax                 ;300e  b1           Push: number of bytes to transfer
@@ -10098,9 +10085,11 @@ lab_2ff4:
     ei                      ;3018  7a 1e
     mov SIO30_,a            ;301a  f2 1a        Send the first byte in the buffer
     sel rb0                 ;301c  61 d0        Select normal register bank
-    movw ax,!0f006h         ;301e  02 06 f0
+
+    movw ax,!mem_f006       ;301e  02 06 f0
     incw ax                 ;3021  80
-    movw !0f006h,ax         ;3022  03 06 f0
+    movw !mem_f006,ax       ;3022  03 06 f0
+
     mov mem_fe25,#02h       ;3025  11 25 02
     mov a,#03h              ;3028  a1 03
     mov !mem_fb02,a         ;302a  9e 02 fb
@@ -12962,15 +12951,17 @@ lab_3f2f:
     br $lab_3f06            ;3f41  fa c3
 
 lab_3f43:
-    movw hl,#0b0f0h         ;3f43  16 f0 b0
+    movw hl,#mem_b0ef+1     ;3f43  16 f0 b0
     mov a,!mem_fb96         ;3f46  8e 96 fb
     mov b,a                 ;3f49  73
-    callf !sub_0c48         ;3f4a  4c 48
-    bc $lab_3f56            ;3f4c  8d 08
-    movw ax,#3f55h          ;3f4e  10 55 3f
+    callf !sub_0c48         ;3f4a  4c 48        Load DE with word at position B in table [HL]
+    bc $lab_3f56            ;3f4c  8d 08        Branch if table lookup failed
+    movw ax,#lab_3f55       ;3f4e  10 55 3f
     push ax                 ;3f51  b1
     movw ax,de              ;3f52  c4
     br ax                   ;3f53  31 98
+
+lab_3f55:
     ret                     ;3f55  af
 
 lab_3f56:
@@ -13124,7 +13115,7 @@ lab_4040:
 lab_4042:
     mov a,mem_fed6          ;4042  f0 d6
     movw hl,#00cfh          ;4044  16 cf 00
-    callf !sub_0c9e         ;4047  4c 9e
+    callf !sub_0c9e         ;4047  4c 9e        Copy A bytes from [HL] to [DE]
 
 lab_4049:
     call !sub_4053          ;4049  9a 53 40
@@ -13415,7 +13406,7 @@ lab_41ed:
     callf !sub_09ef         ;41f5  1c ef
     movw hl,#00c6h          ;41f7  16 c6 00
     movw de,#0f1f9h         ;41fa  14 f9 f1
-    callf !sub_0c9e         ;41fd  4c 9e
+    callf !sub_0c9e         ;41fd  4c 9e        Copy A bytes from [HL] to [DE]
 
 lab_41ff:
     movw hl,#0046h          ;41ff  16 46 00
@@ -15176,7 +15167,7 @@ lab_49db:
 
     clr1 IF0H_.4            ;49e1  71 4b e1     CSIIF30
     clr1 MK0H_.4            ;49e4  71 4b e5     CSIMK30
-    clr1 PR0H_.4            ;49e7  71 4b e9
+    clr1 PR0H_.4            ;49e7  71 4b e9     CSIPR30
 
     movw ax,hl              ;49ea  c6
     push ax                 ;49eb  b1           Push: pointer to buffer to transfer
@@ -15257,42 +15248,52 @@ lab_4a3d:
     br $lab_4a65            ;4a43  fa 20
 
 lab_4a45:
-    clr1 shadow_p4_.3         ;4a45  3b ce
+    clr1 shadow_p4_.3       ;4a45  3b ce
     clr1 PM4_.3             ;4a47  71 3b 24
-    mov a,shadow_p4_          ;4a4a  f0 ce
+    mov a,shadow_p4_        ;4a4a  f0 ce
     mov P4_,a               ;4a4c  f2 04
     mov CSIM30_,#82h        ;4a4e  13 b0 82
     clr1 PM3_.2             ;4a51  71 2b 23
     clr1 PM3_.1             ;4a54  71 1b 23
     clr1 PU3_.0             ;4a57  71 0b 33
     set1 PM3_.0             ;4a5a  71 0a 23
-    clr1 shadow_p3_.2         ;4a5d  2b cd
-    clr1 shadow_p3_.1         ;4a5f  1b cd
-    mov a,shadow_p3_          ;4a61  f0 cd
+    clr1 shadow_p3_.2       ;4a5d  2b cd
+    clr1 shadow_p3_.1       ;4a5f  1b cd
+    mov a,shadow_p3_        ;4a61  f0 cd
     mov P3_,a               ;4a63  f2 03
 
 lab_4a65:
-    call !upd_display_on          ;4a65  9a 2d 4d
+    call !upd_display_on    ;4a65  9a 2d 4d
     mov mem_fed4,#80h       ;4a68  11 d4 80
-    clr1 shadow_p4_.7         ;4a6b  7b ce
+
+    clr1 shadow_p4_.7       ;4a6b  7b ce        Deselect uPD16432B (STB=low)
     clr1 PM4_.7             ;4a6d  71 7b 24
-    mov a,shadow_p4_          ;4a70  f0 ce
+    mov a,shadow_p4_        ;4a70  f0 ce
     mov P4_,a               ;4a72  f2 04
-    mov a,#4ah              ;4a74  a1 4a
-    call !upd_send_byte          ;4a76  9a 4d 4d
-    clr1 shadow_p4_.7         ;4a79  7b ce
-    mov a,shadow_p4_          ;4a7b  f0 ce
+
+
+    mov a,#4ah              ;4a74  a1 4a        A = uPD16432B Command Byte 0x4a (0b01001010)
+                            ;                       Data Setting Command
+                            ;                           2=Write to chargen ram
+                            ;                           Command implies address increment; increment = on
+                            ;                           Command implies reset to address 0; address = 0
+    call !upd_send_byte     ;4a76  9a 4d 4d
+
+    clr1 shadow_p4_.7       ;4a79  7b ce        Deselect uPD16432B (STB=low)
+    mov a,shadow_p4_        ;4a7b  f0 ce
     mov P4_,a               ;4a7d  f2 04
     mov b,#09h              ;4a7f  a3 09
     movw de,#4921h          ;4a81  14 21 49
 
 lab_4a84:
-    clr1 shadow_p4_.7         ;4a84  7b ce
+    clr1 shadow_p4_.7       ;4a84  7b ce        Deselect uPD16432B (STB=low)
     clr1 PM4_.7             ;4a86  71 7b 24
-    mov a,shadow_p4_          ;4a89  f0 ce
+    mov a,shadow_p4_        ;4a89  f0 ce
     mov P4_,a               ;4a8b  f2 04
+
     mov a,mem_fed4          ;4a8d  f0 d4
-    call !upd_send_byte          ;4a8f  9a 4d 4d
+    call !upd_send_byte     ;4a8f  9a 4d 4d     Select uPD16432B (STB=high), then send a byte to it
+
     movw ax,de              ;4a92  c4
     movw hl,ax              ;4a93  d6
     addw ax,#0007h          ;4a94  ca 07 00
@@ -15316,25 +15317,30 @@ lab_4aad:
     dbnz b,$lab_4aad        ;4aae  8b fd
 
 lab_4ab0:
-    set1 shadow_p4_.7         ;4ab0  7a ce
-    mov a,shadow_p4_          ;4ab2  f0 ce
+    set1 shadow_p4_.7       ;4ab0  7a ce        Select uPD16432B (STB=high)
+    mov a,shadow_p4_        ;4ab2  f0 ce
     mov P4_,a               ;4ab4  f2 04
-    clr1 IF0H_.4            ;4ab6  71 4b e1
-    clr1 MK0H_.4            ;4ab9  71 4b e5
-    clr1 PR0H_.4            ;4abc  71 4b e9
+
+    clr1 IF0H_.4            ;4ab6  71 4b e1     CSIIF30
+    clr1 MK0H_.4            ;4ab9  71 4b e5     CSIMK30
+    clr1 PR0H_.4            ;4abc  71 4b e9     CSIPR30
+
     movw ax,hl              ;4abf  c6
-    push ax                 ;4ac0  b1
+    push ax                 ;4ac0  b1           Push: pointer to buffer to transfer
     mov a,#07h              ;4ac1  a1 07
-    push ax                 ;4ac3  b1
-    sel rb2                 ;4ac4  61 f0
-    pop bc                  ;4ac6  b2
-    pop hl                  ;4ac7  b6
-    clr1 mem_fe5f.0         ;4ac8  0b 5f
-    mov c,#01h              ;4aca  a2 01
-    mov a,[hl]              ;4acc  87
+    push ax                 ;4ac3  b1           Push: number of bytes to transfer
+
+    sel rb2                 ;4ac4  61 f0        Select register bank used by intcsi30_08a9
+    pop bc                  ;4ac6  b2           Pop: B  = number of bytes to transfer
+    pop hl                  ;4ac7  b6           Pop: HL = pointer to buffer to transfer
+
+    clr1 mem_fe5f.0         ;4ac8  0b 5f        SPI packet complete flag = not complete
+    mov c,#01h              ;4aca  a2 01        C = number of bytes sent
+    mov a,[hl]              ;4acc  87           A = first byte in buffer to transfer
     ei                      ;4acd  7a 1e
-    mov SIO30_,a            ;4acf  f2 1a
-    sel rb0                 ;4ad1  61 d0
+    mov SIO30_,a            ;4acf  f2 1a        Send the first byte in the buffer
+    sel rb0                 ;4ad1  61 d0        Select normal register bank
+
     inc mem_fed4            ;4ad3  81 d4
     mov b,#0ffh             ;4ad5  a3 ff
 
@@ -15352,14 +15358,16 @@ lab_4ade:
 lab_4ae3:
     pop bc                  ;4ae3  b2
     dbnz b,$lab_4a84        ;4ae4  8b 9e
-    set1 shadow_p3_.1         ;4ae6  1a cd
+    set1 shadow_p3_.1       ;4ae6  1a cd
     clr1 PM3_.1             ;4ae8  71 1b 23
-    mov a,shadow_p3_          ;4aeb  f0 cd
+    mov a,shadow_p3_        ;4aeb  f0 cd
     mov P3_,a               ;4aed  f2 03
-    clr1 shadow_p4_.7         ;4aef  7b ce
+
+    clr1 shadow_p4_.7       ;4aef  7b ce        Deselect uPD16432B (STB=low)
     clr1 PM4_.7             ;4af1  71 7b 24
-    mov a,shadow_p4_          ;4af4  f0 ce
+    mov a,shadow_p4_        ;4af4  f0 ce
     mov P4_,a               ;4af6  f2 04
+
     set1 mem_fe5e.7         ;4af8  7a 5e
     ret                     ;4afa  af
 
@@ -15457,7 +15465,7 @@ lab_4b84:
 
     clr1 IF0H_.4            ;4b8a  71 4b e1     CSIIF30
     clr1 MK0H_.4            ;4b8d  71 4b e5     CSIMK30
-    clr1 PR0H_.4            ;4b90  71 4b e9
+    clr1 PR0H_.4            ;4b90  71 4b e9     CSIPR30
 
     movw ax,#upd_pict       ;4b93  10 35 fe
     push ax                 ;4b96  b1           Push: pointer to buffer to transfer
@@ -15567,7 +15575,7 @@ lab_4c26:
 
     clr1 IF0H_.4            ;4c2c  71 4b e1     CSIIF30
     clr1 MK0H_.4            ;4c2f  71 4b e5     CSIMK30
-    clr1 PR0H_.4            ;4c32  71 4b e9
+    clr1 PR0H_.4            ;4c32  71 4b e9     CSIPR30
 
     movw ax,hl              ;4c35  c6
     push ax                 ;4c36  b1           Push: pointer to buffer to transfer
@@ -17669,248 +17677,166 @@ lab_56cb:
     db 9bh                  ;5715  9b          DATA 0x9b
     db 0d5h                 ;5716  d5          DATA 0xd5
     db 58h                  ;5717  58          DATA 0x58 'X'
-    db 7bh                  ;5718  7b          DATA 0x7b '{'
-    db 0ceh                 ;5719  ce          DATA 0xce
-    db 71h                  ;571a  71          DATA 0x71 'q'
-    db 7bh                  ;571b  7b          DATA 0x7b '{'
-    db 24h                  ;571c  24          DATA 0x24 '$'
-    db 0f0h                 ;571d  f0          DATA 0xf0
-    db 0ceh                 ;571e  ce          DATA 0xce
-    db 0f2h                 ;571f  f2          DATA 0xf2
-    db 04h                  ;5720  04          DATA 0x04
-    db 0a1h                 ;5721  a1          DATA 0xa1
-    db 4ch                  ;5722  4c          DATA 0x4c 'L'
-    db 7ah                  ;5723  7a          DATA 0x7a 'z'
-    db 0ceh                 ;5724  ce          DATA 0xce
-    db 0f0h                 ;5725  f0          DATA 0xf0
-    db 0ceh                 ;5726  ce          DATA 0xce
-    db 0f2h                 ;5727  f2          DATA 0xf2
-    db 04h                  ;5728  04          DATA 0x04
-    db 0a1h                 ;5729  a1          DATA 0xa1
-    db 4ch                  ;572a  4c          DATA 0x4c 'L'
-    db 0ch                  ;572b  0c          DATA 0x0c
-    db 7ah                  ;572c  7a          DATA 0x7a 'z'
-    db 8ch                  ;572d  8c          DATA 0x8c
-    db 5fh                  ;572e  5f          DATA 0x5f '_'
-    db 03h                  ;572f  03          DATA 0x03
-    db 9bh                  ;5730  9b          DATA 0x9b
-    db 0d5h                 ;5731  d5          DATA 0xd5
-    db 58h                  ;5732  58          DATA 0x58 'X'
-    db 0a1h                 ;5733  a1          DATA 0xa1
-    db 01h                  ;5734  01          DATA 0x01
-    db 4dh                  ;5735  4d          DATA 0x4d 'M'
-    db 01h                  ;5736  01          DATA 0x01
-    db 1ah                  ;5737  1a          DATA 0x1a
-    db 5fh                  ;5738  5f          DATA 0x5f '_'
-    db 0bdh                 ;5739  bd          DATA 0xbd
-    db 11h                  ;573a  11          DATA 0x11
-    db 1bh                  ;573b  1b          DATA 0x1b
-    db 5fh                  ;573c  5f          DATA 0x5f '_'
-    db 10h                  ;573d  10          DATA 0x10
-    db 0d6h                 ;573e  d6          DATA 0xd6
-    db 0fbh                 ;573f  fb          DATA 0xfb
-    db 0d6h                 ;5740  d6          DATA 0xd6
-    db 0a1h                 ;5741  a1          DATA 0xa1
-    db 04h                  ;5742  04          DATA 0x04
-    db 73h                  ;5743  73          DATA 0x73 's'
-    db 96h                  ;5744  96          DATA 0x96
-    db 0a1h                 ;5745  a1          DATA 0xa1
-    db 0ffh                 ;5746  ff          DATA 0xff
-    db 7dh                  ;5747  7d          DATA 0x7d '}'
-    db 00h                  ;5748  00          DATA 0x00
-    db 0bbh                 ;5749  bb          DATA 0xbb
-    db 8bh                  ;574a  8b          DATA 0x8b
-    db 0fdh                 ;574b  fd          DATA 0xfd
-    db 7ah                  ;574c  7a          DATA 0x7a 'z'
-    db 0ceh                 ;574d  ce          DATA 0xce
-    db 0f0h                 ;574e  f0          DATA 0xf0
-    db 0ceh                 ;574f  ce          DATA 0xce
-    db 0f2h                 ;5750  f2          DATA 0xf2
-    db 04h                  ;5751  04          DATA 0x04
-    db 71h                  ;5752  71          DATA 0x71 'q'
-    db 4bh                  ;5753  4b          DATA 0x4b 'K'
-    db 0e1h                 ;5754  e1          DATA 0xe1
-    db 71h                  ;5755  71          DATA 0x71 'q'
-    db 4bh                  ;5756  4b          DATA 0x4b 'K'
-    db 0e5h                 ;5757  e5          DATA 0xe5
-    db 71h                  ;5758  71          DATA 0x71 'q'
-    db 4bh                  ;5759  4b          DATA 0x4b 'K'
-    db 0e9h                 ;575a  e9          DATA 0xe9
-    db 10h                  ;575b  10          DATA 0x10
-    db 0d6h                 ;575c  d6          DATA 0xd6
-    db 0fbh                 ;575d  fb          DATA 0xfb
-    db 0b1h                 ;575e  b1          DATA 0xb1
-    db 0a1h                 ;575f  a1          DATA 0xa1
-    db 04h                  ;5760  04          DATA 0x04
-    db 0b1h                 ;5761  b1          DATA 0xb1
-    db 61h                  ;5762  61          DATA 0x61 'a'
-    db 0f0h                 ;5763  f0          DATA 0xf0
-    db 0b2h                 ;5764  b2          DATA 0xb2
-    db 0b6h                 ;5765  b6          DATA 0xb6
-    db 0bh                  ;5766  0b          DATA 0x0b
-    db 5fh                  ;5767  5f          DATA 0x5f '_'
-    db 0a2h                 ;5768  a2          DATA 0xa2
-    db 01h                  ;5769  01          DATA 0x01
-    db 87h                  ;576a  87          DATA 0x87
-    db 7ah                  ;576b  7a          DATA 0x7a 'z'
-    db 1eh                  ;576c  1e          DATA 0x1e
-    db 0f2h                 ;576d  f2          DATA 0xf2
-    db 1ah                  ;576e  1a          DATA 0x1a
-    db 61h                  ;576f  61          DATA 0x61 'a'
-    db 0d0h                 ;5770  d0          DATA 0xd0
-    db 0a3h                 ;5771  a3          DATA 0xa3
-    db 0ffh                 ;5772  ff          DATA 0xff
-    db 8ch                  ;5773  8c          DATA 0x8c
-    db 5fh                  ;5774  5f          DATA 0x5f '_'
-    db 02h                  ;5775  02          DATA 0x02
-    db 8bh                  ;5776  8b          DATA 0x8b
-    db 0fbh                 ;5777  fb          DATA 0xfb
-    db 1ah                  ;5778  1a          DATA 0x1a
-    db 0cdh                 ;5779  cd          DATA 0xcd
-    db 71h                  ;577a  71          DATA 0x71 'q'
-    db 1bh                  ;577b  1b          DATA 0x1b
-    db 23h                  ;577c  23          DATA 0x23 '#'
-    db 0f0h                 ;577d  f0          DATA 0xf0
-    db 0cdh                 ;577e  cd          DATA 0xcd
-    db 0f2h                 ;577f  f2          DATA 0xf2
-    db 03h                  ;5780  03          DATA 0x03
-    db 7bh                  ;5781  7b          DATA 0x7b '{'
-    db 0ceh                 ;5782  ce          DATA 0xce
-    db 71h                  ;5783  71          DATA 0x71 'q'
-    db 7bh                  ;5784  7b          DATA 0x7b '{'
-    db 24h                  ;5785  24          DATA 0x24 '$'
-    db 0f0h                 ;5786  f0          DATA 0xf0
-    db 0ceh                 ;5787  ce          DATA 0xce
-    db 0f2h                 ;5788  f2          DATA 0xf2
-    db 04h                  ;5789  04          DATA 0x04
-    db 7ah                  ;578a  7a          DATA 0x7a 'z'
-    db 5eh                  ;578b  5e          DATA 0x5e '^'
-    db 8ch                  ;578c  8c          DATA 0x8c
-    db 5fh                  ;578d  5f          DATA 0x5f '_'
-    db 03h                  ;578e  03          DATA 0x03
-    db 9bh                  ;578f  9b          DATA 0x9b
-    db 0d5h                 ;5790  d5          DATA 0xd5
-    db 58h                  ;5791  58          DATA 0x58 'X'
+
+lab_5718:
+    clr1 shadow_p4_.7       ;5718  7b ce        Deselect uPD16432B (STB=low)
+    clr1 PM4_.7             ;571a  71 7b 24
+    mov a,shadow_p4_        ;571d  f0 ce
+    mov P4_,a               ;571f  f2 04
+
+    mov a,#4ch              ;5721  a1 4c        XXX useless A = uPD16432B Command byte 0x4c;
+                            ;                     A will be overwritten before being sent
+
+    set1 shadow_p4_.7       ;5723  7a ce        Select uPD16432B (STB=high)
+    mov a,shadow_p4_        ;5725  f0 ce
+    mov P4_,a               ;5727  f2 04
+
+    mov a,#4ch              ;5729  a1 4c        A = uPD16432B Command byte 0x4c (0b01001100)
+                            ;                       Data Setting Command
+                            ;                         4=Read key data
+                            ;                         Command implies address increment; increment = on
+                            ;                         Command implies reset to address 0; address = 0
+    callf !sub_087a         ;572b  0c 7a        SPI transfer on SIO30 (sends byte in A, receives byte in A)
+
+    bt mem_fe5f.0,$lab_5733 ;572d  8c 5f 03
+    br !lab_58d5            ;5730  9b d5 58
+
+lab_5733:
+    mov a,#01h              ;5733  a1 01
+    cmp a,#01h              ;5735  4d 01
+    set1 mem_fe5f.1         ;5737  1a 5f
+    bnz $lab_574c           ;5739  bd 11
+    clr1 mem_fe5f.1         ;573b  1b 5f
+    movw ax,#mem_fbd6       ;573d  10 d6 fb
+    movw hl,ax              ;5740  d6
+    mov a,#04h              ;5741  a1 04
+    mov b,a                 ;5743  73
+    decw hl                 ;5744  96
+    mov a,#0ffh             ;5745  a1 ff
+    xor a,#00h              ;5747  7d 00
+
+lab_5749:
+    mov [hl+b],a            ;5749  bb
+    dbnz b,$lab_5749        ;574a  8b fd
+
+lab_574c:
+    set1 shadow_p4_.7       ;574c  7a ce        Select uPD16432B (STB=high)
+    mov a,shadow_p4_        ;574e  f0 ce
+    mov P4_,a               ;5750  f2 04
+
+    clr1 IF0H_.4            ;5752  71 4b e1     CSIIF30
+    clr1 MK0H_.4            ;5755  71 4b e5     CSIMK30
+    clr1 PR0H_.4            ;5758  71 4b e9     CSIPR30
+
+    movw ax,#mem_fbd6       ;575b  10 d6 fb
+    push ax                 ;575e  b1           Push: pointer to buffer to transfer
+    mov a,#04h              ;575f  a1 04
+    push ax                 ;5761  b1           Push: number of bytes to transfer
+
+    sel rb2                 ;5762  61 f0        Select register bank used by intcsi30_08a9
+    pop bc                  ;5764  b2           Pop: B  = number of bytes to transfer
+    pop hl                  ;5765  b6           Pop: HL = pointer to buffer to transfer
+
+    clr1 mem_fe5f.0         ;5766  0b 5f        SPI packet complete flag = not complete
+    mov c,#01h              ;5768  a2 01        C = number of bytes sent
+    mov a,[hl]              ;576a  87           A = first byte in buffer to transfer
+    ei                      ;576b  7a 1e
+    mov SIO30_,a            ;576d  f2 1a        Send the first byte in the buffer
+    sel rb0                 ;576f  61 d0        Select normal register bank
+
+    mov b,#0ffh             ;5771  a3 ff
+
+lab_5773:
+    bt mem_fe5f.0,$lab_5778 ;5773  8c 5f 02
+    dbnz b,$lab_5773        ;5776  8b fb
+
+lab_5778:
+    set1 shadow_p3_.1         ;5778  1a cd
+    clr1 PM3_.1             ;577a  71 1b 23
+    mov a,shadow_p3_          ;577d  f0 cd
+    mov P3_,a               ;577f  f2 03
+
+    clr1 shadow_p4_.7       ;5781  7b ce        Deselect uPD16432B (STB=low)
+    clr1 PM4_.7             ;5783  71 7b 24
+    mov a,shadow_p4_        ;5786  f0 ce
+    mov P4_,a               ;5788  f2 04
+
+    set1 mem_fe5e.7         ;578a  7a 5e
+    bt mem_fe5f.0,$lab_5792 ;578c  8c 5f 03
+    br !lab_58d5            ;578f  9b d5 58
+
+lab_5792:
     db 0a3h                 ;5792  a3          DATA 0xa3
     db 04h                  ;5793  04          DATA 0x04
-    db 16h                  ;5794  16          DATA 0x16
-    db 0a7h                 ;5795  a7          DATA 0xa7
-    db 0b3h                 ;5796  b3          DATA 0xb3
-    db 0abh                 ;5797  ab          DATA 0xab
-    db 16h                  ;5798  16          DATA 0x16
-    db 0d5h                 ;5799  d5          DATA 0xd5
-    db 0fbh                 ;579a  fb          DATA 0xfb
-    db 31h                  ;579b  31          DATA 0x31 '1'
-    db 5bh                  ;579c  5b          DATA 0x5b '['
-    db 0bbh                 ;579d  bb          DATA 0xbb
-    db 8bh                  ;579e  8b          DATA 0x8b
-    db 0f4h                 ;579f  f4          DATA 0xf4
-    db 16h                  ;57a0  16          DATA 0x16
-    db 0d6h                 ;57a1  d6          DATA 0xd6
-    db 0fbh                 ;57a2  fb          DATA 0xfb
-    db 14h                  ;57a3  14          DATA 0x14
-    db 0d5h                 ;57a4  d5          DATA 0xd5
-    db 0feh                 ;57a5  fe          DATA 0xfe
-    db 0a1h                 ;57a6  a1          DATA 0xa1
-    db 04h                  ;57a7  04          DATA 0x04
-    db 4ch                  ;57a8  4c          DATA 0x4c 'L'
-    db 9eh                  ;57a9  9e          DATA 0x9e
-    db 16h                  ;57aa  16          DATA 0x16
-    db 0d5h                 ;57ab  d5          DATA 0xd5
-    db 0feh                 ;57ac  fe          DATA 0xfe
-    db 14h                  ;57ad  14          DATA 0x14
-    db 0d1h                 ;57ae  d1          DATA 0xd1
-    db 0fbh                 ;57af  fb          DATA 0xfb
-    db 0a1h                 ;57b0  a1          DATA 0xa1
-    db 04h                  ;57b1  04          DATA 0x04
-    db 4ch                  ;57b2  4c          DATA 0x4c 'L'
-    db 0cah                 ;57b3  ca          DATA 0xca
-    db 0adh                 ;57b4  ad          DATA 0xad
-    db 0dh                  ;57b5  0d          DATA 0x0d
-    db 16h                  ;57b6  16          DATA 0x16
-    db 0d5h                 ;57b7  d5          DATA 0xd5
-    db 0feh                 ;57b8  fe          DATA 0xfe
-    db 14h                  ;57b9  14          DATA 0x14
-    db 0d1h                 ;57ba  d1          DATA 0xd1
-    db 0fbh                 ;57bb  fb          DATA 0xfb
-    db 0a1h                 ;57bc  a1          DATA 0xa1
-    db 04h                  ;57bd  04          DATA 0x04
-    db 4ch                  ;57be  4c          DATA 0x4c 'L'
-    db 9eh                  ;57bf  9e          DATA 0x9e
-    db 9bh                  ;57c0  9b          DATA 0x9b
-    db 0d5h                 ;57c1  d5          DATA 0xd5
-    db 58h                  ;57c2  58          DATA 0x58 'X'
-    db 0a2h                 ;57c3  a2          DATA 0xa2
-    db 04h                  ;57c4  04          DATA 0x04
-    db 0a1h                 ;57c5  a1          DATA 0xa1
-    db 00h                  ;57c6  00          DATA 0x00
-    db 16h                  ;57c7  16          DATA 0x16
-    db 0d0h                 ;57c8  d0          DATA 0xd0
-    db 0fbh                 ;57c9  fb          DATA 0xfb
-    db 31h                  ;57ca  31          DATA 0x31 '1'
-    db 4ah                  ;57cb  4a          DATA 0x4a 'J'
-    db 0bdh                 ;57cc  bd          DATA 0xbd
-    db 04h                  ;57cd  04          DATA 0x04
-    db 8ah                  ;57ce  8a          DATA 0x8a
-    db 0fah                 ;57cf  fa          DATA 0xfa
-    db 0fah                 ;57d0  fa          DATA 0xfa
-    db 20h                  ;57d1  20          DATA 0x20 ' '
-    db 0a2h                 ;57d2  a2          DATA 0xa2
-    db 18h                  ;57d3  18          DATA 0x18
-    db 14h                  ;57d4  14          DATA 0x14
-    db 0a4h                 ;57d5  a4          DATA 0xa4
-    db 0b3h                 ;57d6  b3          DATA 0xb3
-    db 16h                  ;57d7  16          DATA 0x16
-    db 0d1h                 ;57d8  d1          DATA 0xd1
-    db 0fbh                 ;57d9  fb          DATA 0xfb
-    db 0a1h                 ;57da  a1          DATA 0xa1
-    db 04h                  ;57db  04          DATA 0x04
-    db 0b5h                 ;57dc  b5          DATA 0xb5
-    db 4ch                  ;57dd  4c          DATA 0x4c 'L'
-    db 0cah                 ;57de  ca          DATA 0xca
-    db 0b0h                 ;57df  b0          DATA 0xb0
-    db 0adh                 ;57e0  ad          DATA 0xad
-    db 38h                  ;57e1  38          DATA 0x38 '8'
-    db 0dah                 ;57e2  da          DATA 0xda
-    db 05h                  ;57e3  05          DATA 0x05
-    db 00h                  ;57e4  00          DATA 0x00
-    db 0d4h                 ;57e5  d4          DATA 0xd4
-    db 8ah                  ;57e6  8a          DATA 0x8a
-    db 0efh                 ;57e7  ef          DATA 0xef
-    db 8eh                  ;57e8  8e          DATA 0x8e
-    db 27h                  ;57e9  27          DATA 0x27 '''
-    db 0fch                 ;57ea  fc          DATA 0xfc
-    db 4dh                  ;57eb  4d          DATA 0x4d 'M'
-    db 00h                  ;57ec  00          DATA 0x00
-    db 0bdh                 ;57ed  bd          DATA 0xbd
-    db 7bh                  ;57ee  7b          DATA 0x7b '{'
-    db 9bh                  ;57ef  9b          DATA 0x9b
-    db 0d5h                 ;57f0  d5          DATA 0xd5
-    db 58h                  ;57f1  58          DATA 0x58 'X'
-    db 8eh                  ;57f2  8e          DATA 0x8e
-    db 19h                  ;57f3  19          DATA 0x19
-    db 0f2h                 ;57f4  f2          DATA 0xf2
-    db 4dh                  ;57f5  4d          DATA 0x4d 'M'
-    db 01h                  ;57f6  01          DATA 0x01
-    db 0bdh                 ;57f7  bd          DATA 0xbd
-    db 11h                  ;57f8  11          DATA 0x11
-    db 8eh                  ;57f9  8e          DATA 0x8e
-    db 18h                  ;57fa  18          DATA 0x18
-    db 0f2h                 ;57fb  f2          DATA 0xf2
-    db 4dh                  ;57fc  4d          DATA 0x4d 'M'
-    db 00h                  ;57fd  00          DATA 0x00
-    db 0bdh                 ;57fe  bd          DATA 0xbd
-    db 0ah                  ;57ff  0a          DATA 0x0a
-    db 0ach                 ;5800  ac          DATA 0xac
-    db 67h                  ;5801  67          DATA 0x67 'g'
-    db 07h                  ;5802  07          DATA 0x07
-    db 0a1h                 ;5803  a1          DATA 0xa1
-    db 01h                  ;5804  01          DATA 0x01
-    db 0a0h                 ;5805  a0          DATA 0xa0
-    db 80h                  ;5806  80          DATA 0x80
-    db 9ah                  ;5807  9a          DATA 0x9a
-    db 0b0h                 ;5808  b0          DATA 0xb0
-    db 2ch                  ;5809  2c          DATA 0x2c ','
+
+lab_5794:
+    movw hl,#0b3a7h         ;5794  16 a7 b3
+    mov a,[hl+b]            ;5797  ab
+    movw hl,#mem_fbd5       ;5798  16 d5 fb
+    and a,[hl+b]            ;579b  31 5b
+    mov [hl+b],a            ;579d  bb
+    dbnz b,$lab_5794        ;579e  8b f4
+    movw hl,#0fbd6h         ;57a0  16 d6 fb
+    movw de,#mem_fed5       ;57a3  14 d5 fe
+    mov a,#04h              ;57a6  a1 04
+    callf !sub_0c9e         ;57a8  4c 9e
+
+    movw hl,#mem_fed5       ;57aa  16 d5 fe     HL = source address
+    movw de,#mem_fbd1       ;57ad  14 d1 fb     DE = destination address
+    mov a,#04h              ;57b0  a1 04        A = 4 bytes to compare
+    callf !sub_0cca         ;57b2  4c ca        Compare A bytes between [HL] to [DE]
+    bz $lab_57c3            ;57b4  ad 0d        Branch if buffers are equal
+
+    movw hl,#mem_fed5       ;57b6  16 d5 fe     HL = source address
+    movw de,#mem_fbd1       ;57b9  14 d1 fb     DE = destination address
+    mov a,#04h              ;57bc  a1 04        A = 4 bytes to copy
+    callf !sub_0c9e         ;57be  4c 9e        Copy A bytes from [HL] to [DE]
+    br !lab_58d5            ;57c0  9b d5 58
+
+lab_57c3:
+    mov c,#04h              ;57c3  a2 04
+    mov a,#00h              ;57c5  a1 00
+    movw hl,#mem_fbd0       ;57c7  16 d0 fb
+
+lab_57ca:
+    cmp a,[hl+c]            ;57ca  31 4a
+    bnz $lab_57d2           ;57cc  bd 04
+    dbnz c,$lab_57ca        ;57ce  8a fa
+    br $lab_57f2            ;57d0  fa 20
+
+lab_57d2:
+    mov c,#18h              ;57d2  a2 18
+    movw de,#0b3a4h         ;57d4  14 a4 b3
+
+lab_57d7:
+    movw hl,#mem_fbd1       ;57d7  16 d1 fb
+    mov a,#04h              ;57da  a1 04
+    push de                 ;57dc  b5
+    callf !sub_0cca         ;57dd  4c ca        Compare A bytes between [HL] to [DE]
+    pop ax                  ;57df  b0
+    bz $lab_581a            ;57e0  ad 38        Branch if buffers are equal
+
+    subw ax,#0005h          ;57e2  da 05 00
+    movw de,ax              ;57e5  d4
+    dbnz c,$lab_57d7        ;57e6  8a ef
+    mov a,!mem_fc27         ;57e8  8e 27 fc
+    cmp a,#00h              ;57eb  4d 00
+    bnz $lab_586a           ;57ed  bd 7b
+    br !lab_58d5            ;57ef  9b d5 58
+
+lab_57f2:
+    mov a,!mem_f219         ;57f2  8e 19 f2
+    cmp a,#01h              ;57f5  4d 01
+    bnz $lab_580a           ;57f7  bd 11
+    mov a,!mem_f218         ;57f9  8e 18 f2
+    cmp a,#00h              ;57fc  4d 00
+    bnz $lab_580a           ;57fe  bd 0a
+    bt mem_fe67.2,$lab_580a ;5800  ac 67 07
+    mov a,#01h              ;5803  a1 01
+    mov x,#80h              ;5805  a0 80
+    call !sub_2cb0          ;5807  9a b0 2c
+
+lab_580a:
     db 8eh                  ;580a  8e          DATA 0x8e
     db 27h                  ;580b  27          DATA 0x27 '''
     db 0fch                 ;580c  fc          DATA 0xfc
@@ -17927,6 +17853,8 @@ lab_56cb:
     db 7fh                  ;5817  7f          DATA 0x7f
     db 0fah                 ;5818  fa          DATA 0xfa
     db 7ah                  ;5819  7a          DATA 0x7a 'z'
+
+lab_581a:
     db 62h                  ;581a  62          DATA 0x62 'b'
     db 51h                  ;581b  51          DATA 0x51 'Q'
     db 0a0h                 ;581c  a0          DATA 0xa0
@@ -18007,6 +17935,8 @@ lab_56cb:
     db 4bh                  ;5867  4b          DATA 0x4b 'K'
     db 0bdh                 ;5868  bd          DATA 0xbd
     db 0ach                 ;5869  ac          DATA 0xac
+
+lab_586a:
     db 8eh                  ;586a  8e          DATA 0x8e
     db 4fh                  ;586b  4f          DATA 0x4f 'O'
     db 0fbh                 ;586c  fb          DATA 0xfb
@@ -18114,9 +18044,11 @@ lab_56cb:
     db 0a3h                 ;58d2  a3          DATA 0xa3
     db 00h                  ;58d3  00          DATA 0x00
     db 0c1h                 ;58d4  c1          DATA 0xc1
-    db 5bh                  ;58d5  5b          DATA 0x5b '['
-    db 66h                  ;58d6  66          DATA 0x66 'f'
-    db 0afh                 ;58d7  af          DATA 0xaf
+
+lab_58d5:
+    clr1 mem_fe66.5         ;58d5  5b 66
+    ret                     ;58d7  af
+
     db 8eh                  ;58d8  8e          DATA 0x8e
     db 0e9h                 ;58d9  e9          DATA 0xe9
     db 0f1h                 ;58da  f1          DATA 0xf1
@@ -18701,6 +18633,7 @@ lab_5c58:
     movw !0f018h,ax         ;5c5e  03 18 f0
     br !lab_5ba0            ;5c61  9b a0 5b
 
+sub_5c64:
     db 0f2h                 ;5c64  f2          DATA 0xf2
     db 0d4h                 ;5c65  d4          DATA 0xd4
     db 9ah                  ;5c66  9a          DATA 0x9a
@@ -22057,24 +21990,18 @@ lab_6bcb:
 lab_6bdd:
     ret                     ;6bdd  af
 
-    db 8eh                  ;6bde  8e          DATA 0x8e
-    db 0b1h                 ;6bdf  b1          DATA 0xb1
-    db 0f1h                 ;6be0  f1          DATA 0xf1
-    db 73h                  ;6be1  73          DATA 0x73 's'
-    db 9eh                  ;6be2  9e          DATA 0x9e
-    db 0adh                 ;6be3  ad          DATA 0xad
-    db 0f1h                 ;6be4  f1          DATA 0xf1
-    db 16h                  ;6be5  16          DATA 0x16
-    db 0dfh                 ;6be6  df          DATA 0xdf
-    db 0b4h                 ;6be7  b4          DATA 0xb4
-    db 4ch                  ;6be8  4c          DATA 0x4c 'L'
-    db 48h                  ;6be9  48          DATA 0x48 'H'
-    db 8dh                  ;6bea  8d          DATA 0x8d
-    db 03h                  ;6beb  03          DATA 0x03
-    db 0c4h                 ;6bec  c4          DATA 0xc4
-    db 31h                  ;6bed  31          DATA 0x31 '1'
-    db 98h                  ;6bee  98          DATA 0x98
-    db 0afh                 ;6bef  af          DATA 0xaf
+lab_6bde:
+    mov a,!mem_f1b1         ;6bde  8e b1 f1
+    mov b,a                 ;6be1  73
+    mov !mem_f1ad,a         ;6be2  9e ad f1
+    movw hl,#mem_b4de+1     ;6be5  16 df b4
+    callf !sub_0c48         ;6be8  4c 48        Load DE with word at position B in table [HL]
+    bc $lab_6bef            ;6bea  8d 03        Branch if table lookup failed
+    movw ax,de              ;6bec  c4
+    br ax                   ;6bed  31 98
+
+lab_6bef:
+    ret                     ;6bef  af
 
 lab_6bf0:
     mov a,#0ffh             ;6bf0  a1 ff
@@ -36799,7 +36726,9 @@ mem_aee7:
     db 00h                  ;aeef  00          DATA 0x00
     db 08h                  ;aef0  08          DATA 0x08
 
-    db 09h                  ;aef1  09          DATA 0x09
+mem_aef1:
+;table used with sub_0c7d
+    db 09h                  ;aef1  09          DATA 0x09    9 entries below:
     db 00h                  ;aef2  00          DATA 0x00
     db 03h                  ;aef3  03          DATA 0x03
     db 02h                  ;aef4  02          DATA 0x02
@@ -36809,6 +36738,8 @@ mem_aee7:
     db 0ffh                 ;aef8  ff          DATA 0xff
     db 03h                  ;aef9  03          DATA 0x03
     db 01h                  ;aefa  01          DATA 0x01
+
+mem_aefb:
     db 0eh                  ;aefb  0e          DATA 0x0e
     db 28h                  ;aefc  28          DATA 0x28 '('
     db 0afh                 ;aefd  af          DATA 0xaf
@@ -36902,30 +36833,21 @@ mem_aee7:
     db 0a4h                 ;af55  a4          DATA 0xa4
     db 06h                  ;af56  06          DATA 0x06
     db 0ch                  ;af57  0c          DATA 0x0c
-    db 4eh                  ;af58  4e          DATA 0x4e 'N'
-    db 21h                  ;af59  21          DATA 0x21 '!'
-    db 01h                  ;af5a  01          DATA 0x01
-    db 22h                  ;af5b  22          DATA 0x22 '"'
-    db 13h                  ;af5c  13          DATA 0x13
-    db 22h                  ;af5d  22          DATA 0x22 '"'
-    db 4ch                  ;af5e  4c          DATA 0x4c 'L'
-    db 23h                  ;af5f  23          DATA 0x23 '#'
-    db 55h                  ;af60  55          DATA 0x55 'U'
-    db 23h                  ;af61  23          DATA 0x23 '#'
-    db 74h                  ;af62  74          DATA 0x74 't'
-    db 23h                  ;af63  23          DATA 0x23 '#'
-    db 7dh                  ;af64  7d          DATA 0x7d '}'
-    db 23h                  ;af65  23          DATA 0x23 '#'
-    db 0c8h                 ;af66  c8          DATA 0xc8
-    db 22h                  ;af67  22          DATA 0x22 '"'
-    db 96h                  ;af68  96          DATA 0x96
-    db 22h                  ;af69  22          DATA 0x22 '"'
-    db 0a7h                 ;af6a  a7          DATA 0xa7
-    db 23h                  ;af6b  23          DATA 0x23 '#'
-    db 9ch                  ;af6c  9c          DATA 0x9c
-    db 23h                  ;af6d  23          DATA 0x23 '#'
-    db 3ah                  ;af6e  3a          DATA 0x3a ':'
-    db 22h                  ;af6f  22          DATA 0x22 '"'
+
+mem_af58:
+    dw sub_214e             ;af58   DATA
+    dw sub_2201             ;af5a   DATA
+    dw lab_2213             ;af5c   DATA
+    dw lab_234c             ;af5e   DATA
+    dw lab_2355             ;af60   DATA
+    dw lab_2374             ;af62   DATA
+    dw lab_237d             ;af64   DATA
+    dw lab_22c8             ;af66   DATA
+    dw sub_2296             ;af68   DATA
+    dw lab_23a7             ;af6a   DATA
+    dw safe_code_1000       ;af6c   DATA
+    dw sub_223a             ;af6e   DATA
+
     db 41h                  ;af70  41          DATA 0x41 'A'
     db 99h                  ;af71  99          DATA 0x99
     db 43h                  ;af72  43          DATA 0x43 'C'
@@ -37129,27 +37051,18 @@ mem_b008:
 
 mem_b012:
 ;table used with sub_0c48
-;TODO these are vectors
     db 03h                  ;b012  03          DATA 0x03        3 entries below:
-    db 39h                  ;b013  39          DATA 0x39 '9'
-    db 2fh                  ;b014  2f          DATA 0x2f '/'
-    db 3eh                  ;b015  3e          DATA 0x3e '>'
-    db 2fh                  ;b016  2f          DATA 0x2f '/'
-    db 43h                  ;b017  43          DATA 0x43 'C'
-    db 2fh                  ;b018  2f          DATA 0x2f '/'
+    dw lab_2f39             ;b013   DATA
+    dw lab_2f3e             ;b015   DATA
+    dw lab_2f43             ;b017   DATA
 
 mem_b019:
 ;table used with sub_0c48
-;TODO these are vectors
     db 04h                  ;b019  04          DATA 0x04        4 entries below:
-    db 61h                  ;b01a  61          DATA 0x61 'a'
-    db 2fh                  ;b01b  2f          DATA 0x2f '/'
-    db 0aah                 ;b01c  aa          DATA 0xaa
-    db 2fh                  ;b01d  2f          DATA 0x2f '/'
-    db 2eh                  ;b01e  2e          DATA 0x2e '.'
-    db 30h                  ;b01f  30          DATA 0x30 '0'
-    db 66h                  ;b020  66          DATA 0x66 'f'
-    db 30h                  ;b021  30          DATA 0x30 '0'
+    dw lab_2f61             ;b01a   DATA
+    dw lab_2faa             ;b01c   DATA
+    dw lab_302e             ;b01e   DATA
+    dw lab_3066             ;b020   DATA
 
 mem_b022:
     db 04h                  ;b022  04          DATA 0x04        4 entries below:
@@ -37389,11 +37302,13 @@ mem_b0d1:
     db 40h                  ;b0ec  40          DATA 0x40 '@'
     db 20h                  ;b0ed  20          DATA 0x20 ' '
     db 40h                  ;b0ee  40          DATA 0x40 '@'
-    db 02h                  ;b0ef  02          DATA 0x02
-    db 76h                  ;b0f0  76          DATA 0x76 'v'
-    db 3fh                  ;b0f1  3f          DATA 0x3f '?'
-    db 56h                  ;b0f2  56          DATA 0x56 'V'
-    db 3fh                  ;b0f3  3f          DATA 0x3f '?'
+
+mem_b0ef:
+;table used with sub_0c48
+    db 02h                  ;b0ef  02          DATA 0x02        2 entries below:
+    dw lab_3f76             ;b0f0   DATA
+    dw lab_3f56             ;b0f2   DATA
+
     db 03h                  ;b0f4  03          DATA 0x03
     db 01h                  ;b0f5  01          DATA 0x01
     db 02h                  ;b0f6  02          DATA 0x02
@@ -37960,126 +37875,152 @@ kwp_7c_1b_handlers:
     dw kwp_7c_1b_31         ;b32c  cb 4f       VECTOR           B=0x09  Title=0x1b  Subtitle=0x31   Unknown; 0 request params; replies with ACK only
     dw kwp_7c_1b_32         ;b32e  d1 4f       VECTOR           B=0x0A  Title=0x1b  Subtitle=0x32   Perform ROM checksum; 0 request params; replies with data
 
-    db 01h                  ;b330  01          DATA 0x01
-    db 00h                  ;b331  00          DATA 0x00
-    db 00h                  ;b332  00          DATA 0x00
-    db 04h                  ;b333  04          DATA 0x04
-    db 00h                  ;b334  00          DATA 0x00
-    db 02h                  ;b335  02          DATA 0x02
-    db 00h                  ;b336  00          DATA 0x00
-    db 00h                  ;b337  00          DATA 0x00
-    db 02h                  ;b338  02          DATA 0x02
-    db 00h                  ;b339  00          DATA 0x00
-    db 03h                  ;b33a  03          DATA 0x03
-    db 00h                  ;b33b  00          DATA 0x00
-    db 00h                  ;b33c  00          DATA 0x00
-    db 01h                  ;b33d  01          DATA 0x01
-    db 00h                  ;b33e  00          DATA 0x00
-    db 04h                  ;b33f  04          DATA 0x04
-    db 00h                  ;b340  00          DATA 0x00
-    db 00h                  ;b341  00          DATA 0x00
-    db 00h                  ;b342  00          DATA 0x00
-    db 10h                  ;b343  10          DATA 0x10
-    db 05h                  ;b344  05          DATA 0x05
-    db 00h                  ;b345  00          DATA 0x00
-    db 00h                  ;b346  00          DATA 0x00
-    db 00h                  ;b347  00          DATA 0x00
-    db 20h                  ;b348  20          DATA 0x20 ' '
-    db 06h                  ;b349  06          DATA 0x06
-    db 00h                  ;b34a  00          DATA 0x00
-    db 00h                  ;b34b  00          DATA 0x00
-    db 00h                  ;b34c  00          DATA 0x00
-    db 40h                  ;b34d  40          DATA 0x40 '@'
-    db 07h                  ;b34e  07          DATA 0x07
-    db 00h                  ;b34f  00          DATA 0x00
-    db 00h                  ;b350  00          DATA 0x00
-    db 00h                  ;b351  00          DATA 0x00
-    db 08h                  ;b352  08          DATA 0x08
-    db 08h                  ;b353  08          DATA 0x08
-    db 00h                  ;b354  00          DATA 0x00
-    db 00h                  ;b355  00          DATA 0x00
-    db 40h                  ;b356  40          DATA 0x40 '@'
-    db 00h                  ;b357  00          DATA 0x00
-    db 09h                  ;b358  09          DATA 0x09
-    db 00h                  ;b359  00          DATA 0x00
-    db 00h                  ;b35a  00          DATA 0x00
-    db 20h                  ;b35b  20          DATA 0x20 ' '
-    db 00h                  ;b35c  00          DATA 0x00
-    db 0ah                  ;b35d  0a          DATA 0x0a
-    db 00h                  ;b35e  00          DATA 0x00
-    db 00h                  ;b35f  00          DATA 0x00
-    db 00h                  ;b360  00          DATA 0x00
-    db 02h                  ;b361  02          DATA 0x02
-    db 0bh                  ;b362  0b          DATA 0x0b
-    db 00h                  ;b363  00          DATA 0x00
-    db 00h                  ;b364  00          DATA 0x00
-    db 00h                  ;b365  00          DATA 0x00
-    db 04h                  ;b366  04          DATA 0x04
-    db 0ch                  ;b367  0c          DATA 0x0c
-    db 00h                  ;b368  00          DATA 0x00
-    db 10h                  ;b369  10          DATA 0x10
-    db 00h                  ;b36a  00          DATA 0x00
-    db 00h                  ;b36b  00          DATA 0x00
-    db 0dh                  ;b36c  0d          DATA 0x0d
-    db 00h                  ;b36d  00          DATA 0x00
-    db 20h                  ;b36e  20          DATA 0x20 ' '
-    db 00h                  ;b36f  00          DATA 0x00
-    db 00h                  ;b370  00          DATA 0x00
-    db 0eh                  ;b371  0e          DATA 0x0e
-    db 00h                  ;b372  00          DATA 0x00
-    db 40h                  ;b373  40          DATA 0x40 '@'
-    db 00h                  ;b374  00          DATA 0x00
-    db 00h                  ;b375  00          DATA 0x00
-    db 0fh                  ;b376  0f          DATA 0x0f
-    db 00h                  ;b377  00          DATA 0x00
-    db 80h                  ;b378  80          DATA 0x80
-    db 00h                  ;b379  00          DATA 0x00
-    db 00h                  ;b37a  00          DATA 0x00
-    db 10h                  ;b37b  10          DATA 0x10
-    db 00h                  ;b37c  00          DATA 0x00
-    db 00h                  ;b37d  00          DATA 0x00
-    db 00h                  ;b37e  00          DATA 0x00
-    db 01h                  ;b37f  01          DATA 0x01
-    db 11h                  ;b380  11          DATA 0x11
-    db 00h                  ;b381  00          DATA 0x00
-    db 02h                  ;b382  02          DATA 0x02
-    db 00h                  ;b383  00          DATA 0x00
-    db 00h                  ;b384  00          DATA 0x00
-    db 12h                  ;b385  12          DATA 0x12
-    db 00h                  ;b386  00          DATA 0x00
-    db 04h                  ;b387  04          DATA 0x04
-    db 00h                  ;b388  00          DATA 0x00
-    db 00h                  ;b389  00          DATA 0x00
-    db 13h                  ;b38a  13          DATA 0x13
-    db 00h                  ;b38b  00          DATA 0x00
-    db 01h                  ;b38c  01          DATA 0x01
-    db 00h                  ;b38d  00          DATA 0x00
-    db 00h                  ;b38e  00          DATA 0x00
-    db 14h                  ;b38f  14          DATA 0x14
-    db 00h                  ;b390  00          DATA 0x00
-    db 00h                  ;b391  00          DATA 0x00
-    db 08h                  ;b392  08          DATA 0x08
-    db 00h                  ;b393  00          DATA 0x00
-    db 15h                  ;b394  15          DATA 0x15
-    db 00h                  ;b395  00          DATA 0x00
-    db 08h                  ;b396  08          DATA 0x08
-    db 00h                  ;b397  00          DATA 0x00
-    db 00h                  ;b398  00          DATA 0x00
-    db 16h                  ;b399  16          DATA 0x16
-    db 00h                  ;b39a  00          DATA 0x00
-    db 00h                  ;b39b  00          DATA 0x00
-    db 00h                  ;b39c  00          DATA 0x00
-    db 80h                  ;b39d  80          DATA 0x80
-    db 17h                  ;b39e  17          DATA 0x17
-    db 00h                  ;b39f  00          DATA 0x00
-    db 00h                  ;b3a0  00          DATA 0x00
-    db 80h                  ;b3a1  80          DATA 0x80
-    db 00h                  ;b3a2  00          DATA 0x00
-    db 18h                  ;b3a3  18          DATA 0x18
-    db 00h                  ;b3a4  00          DATA 0x00
-    db 00h                  ;b3a5  00          DATA 0x00
-    db 10h                  ;b3a6  10          DATA 0x10
-    db 00h                  ;b3a7  00          DATA 0x00
+;key matrix
+mem_b330:
+    db 01h                  ;b330  01          DATA 0x01    PRESET_1
+    db 0                    ;b331  00          DATA 0x00
+    db 0                    ;b332  00          DATA 0x00
+    db 00000100b            ;b333  04          DATA 0x04
+    db 0                    ;b334  00          DATA 0x00
+
+    db 02h                  ;b335  02          DATA 0x02    PRESET_2
+    db 0                    ;b336  00          DATA 0x00
+    db 0                    ;b337  00          DATA 0x00
+    db 00000010b            ;b338  02          DATA 0x02
+    db 0                    ;b339  00          DATA 0x00
+
+    db 03h                  ;b33a  03          DATA 0x03    PRESET_3
+    db 0                    ;b33b  00          DATA 0x00
+    db 0                    ;b33c  00          DATA 0x00
+    db 00000001b            ;b33d  01          DATA 0x01
+    db 0                    ;b33e  00          DATA 0x00
+
+    db 04h                  ;b33f  04          DATA 0x04    PRESET_4
+    db 0                    ;b340  00          DATA 0x00
+    db 0                    ;b341  00          DATA 0x00
+    db 0                    ;b342  00          DATA 0x00
+    db 00010000b            ;b343  10          DATA 0x10
+
+    db 05h                  ;b344  05          DATA 0x05    PRESET_5
+    db 0                    ;b345  00          DATA 0x00
+    db 0                    ;b346  00          DATA 0x00
+    db 0                    ;b347  00          DATA 0x00
+    db 00100000b            ;b348  20          DATA 0x20
+
+    db 06h                  ;b349  06          DATA 0x06    PRESET_6
+    db 0                    ;b34a  00          DATA 0x00
+    db 0                    ;b34b  00          DATA 0x00
+    db 0                    ;b34c  00          DATA 0x00
+    db 01000000b            ;b34d  40          DATA 0x40
+
+    db 07h                  ;b34e  07          DATA 0x07    SCAN
+    db 0                    ;b34f  00          DATA 0x00
+    db 0                    ;b350  00          DATA 0x00
+    db 0                    ;b351  00          DATA 0x00
+    db 00001000b            ;b352  08          DATA 0x08
+
+    db 08h                  ;b353  08          DATA 0x08    SEEK_UP
+    db 0                    ;b354  00          DATA 0x00
+    db 0                    ;b355  00          DATA 0x00
+    db 01000000b            ;b356  40          DATA 0x40
+    db 0                    ;b357  00          DATA 0x00
+
+    db 09h                  ;b358  09          DATA 0x09    SEEK_DOWN
+    db 0                    ;b359  00          DATA 0x00
+    db 0                    ;b35a  00          DATA 0x00
+    db 00100000b            ;b35b  20          DATA 0x20
+    db 0                    ;b35c  00          DATA 0x00
+
+    db 0ah                  ;b35d  0a          DATA 0x0a    TUNE_UP
+    db 0                    ;b35e  00          DATA 0x00
+    db 0                    ;b35f  00          DATA 0x00
+    db 0                    ;b360  00          DATA 0x00
+    db 00000010b            ;b361  02          DATA 0x02
+
+    db 0bh                  ;b362  0b          DATA 0x0b    TUNE_DOWN
+    db 0                    ;b363  00          DATA 0x00
+    db 0                    ;b364  00          DATA 0x00
+    db 0                    ;b365  00          DATA 0x00
+    db 00000100b            ;b366  04          DATA 0x04
+
+    db 0ch                  ;b367  0c          DATA 0x0c    SOUND_FB
+    db 0                    ;b368  00          DATA 0x00
+    db 00010000b            ;b369  10          DATA 0x10
+    db 0                    ;b36a  00          DATA 0x00
+    db 0                    ;b36b  00          DATA 0x00
+
+    db 0dh                  ;b36c  0d          DATA 0x0d    SOUND_BASS
+    db 0                    ;b36d  00          DATA 0x00
+    db 00100000b            ;b36e  20          DATA 0x20
+    db 0                    ;b36f  00          DATA 0x00
+    db 0                    ;b370  00          DATA 0x00
+
+    db 0eh                  ;b371  0e          DATA 0x0e    SOUND_MID
+    db 0                    ;b372  00          DATA 0x00
+    db 01000000b            ;b373  40          DATA 0x40
+    db 0                    ;b374  00          DATA 0x00
+    db 0                    ;b375  00          DATA 0x00
+
+    db 0fh                  ;b376  0f          DATA 0x0f    SOUND_TREB
+    db 0                    ;b377  00          DATA 0x00
+    db 10000000b            ;b378  80          DATA 0x80
+    db 0                    ;b379  00          DATA 0x00
+    db 0                    ;b37a  00          DATA 0x00
+
+    db 10h                  ;b37b  10          DATA 0x10    MIX_DOLBY
+    db 0                    ;b37c  00          DATA 0x00
+    db 0                    ;b37d  00          DATA 0x00
+    db 0                    ;b37e  00          DATA 0x00
+    db 00000001b            ;b37f  01          DATA 0x01
+
+    db 11h                  ;b380  11          DATA 0x11    ?
+    db 0                    ;b381  00          DATA 0x00
+    db 00000010b            ;b382  02          DATA 0x02
+    db 0                    ;b383  00          DATA 0x00
+    db 0                    ;b384  00          DATA 0x00
+
+    db 12h                  ;b385  12          DATA 0x12    ?
+    db 0                    ;b386  00          DATA 0x00
+    db 00000100b            ;b387  04          DATA 0x04
+    db 0                    ;b388  00          DATA 0x00
+    db 0                    ;b389  00          DATA 0x00
+
+    db 13h                  ;b38a  13          DATA 0x13    TAPE_SIDE
+    db 0                    ;b38b  00          DATA 0x00
+    db 00000001b            ;b38c  01          DATA 0x01
+    db 0                    ;b38d  00          DATA 0x00
+    db 0                    ;b38e  00          DATA 0x00
+
+    db 14h                  ;b38f  14          DATA 0x14    MODE_CD
+    db 0                    ;b390  00          DATA 0x00
+    db 0                    ;b391  00          DATA 0x00
+    db 00001000b            ;b392  08          DATA 0x08
+    db 0                    ;b393  00          DATA 0x00
+
+    db 15h                  ;b394  15          DATA 0x15    MODE_TAPE
+    db 0                    ;b395  00          DATA 0x00
+    db 00001000b            ;b396  08          DATA 0x08
+    db 0                    ;b397  00          DATA 0x00
+    db 0                    ;b398  00          DATA 0x00
+
+    db 16h                  ;b399  16          DATA 0x16    MODE_AM
+    db 0                    ;b39a  00          DATA 0x00
+    db 0                    ;b39b  00          DATA 0x00
+    db 0                    ;b39c  00          DATA 0x00
+    db 10000000b            ;b39d  80          DATA 0x80
+
+    db 17h                  ;b39e  17          DATA 0x17    MODE_FM
+    db 0                    ;b39f  00          DATA 0x00
+    db 0                    ;b3a0  00          DATA 0x00
+    db 10000000b            ;b3a1  80          DATA 0x80
+    db 0                    ;b3a2  00          DATA 0x00
+
+    db 18h                  ;b3a3  18          DATA 0x18    ?
+    db 0                    ;b3a4  00          DATA 0x00
+    db 0                    ;b3a5  00          DATA 0x00
+    db 00010000b            ;b3a6  10          DATA 0x10
+    db 0                    ;b3a7  00          DATA 0x00
+
     db 00h                  ;b3a8  00          DATA 0x00
     db 0ffh                 ;b3a9  ff          DATA 0xff
     db 0ffh                 ;b3aa  ff          DATA 0xff
@@ -38443,34 +38384,20 @@ mem_b480:
 
 mem_b4de:
 ;table used with sub_0c48
-;TODO these are vectors
     db 0dh                  ;b4de  0d          DATA 0x0d        13 entries below:
-    db 58h                  ;b4df  58          DATA 0x58 'X'
-    db 6ch                  ;b4e0  6c          DATA 0x6c 'l'
-    db 82h                  ;b4e1  82          DATA 0x82
-    db 6ch                  ;b4e2  6c          DATA 0x6c 'l'
-    db 8eh                  ;b4e3  8e          DATA 0x8e
-    db 6ch                  ;b4e4  6c          DATA 0x6c 'l'
-    db 58h                  ;b4e5  58          DATA 0x58 'X'
-    db 6ch                  ;b4e6  6c          DATA 0x6c 'l'
-    db 0cbh                 ;b4e7  cb          DATA 0xcb
-    db 6bh                  ;b4e8  6b          DATA 0x6b 'k'
-    db 0deh                 ;b4e9  de          DATA 0xde
-    db 6bh                  ;b4ea  6b          DATA 0x6b 'k'
-    db 0f9h                 ;b4eb  f9          DATA 0xf9
-    db 6bh                  ;b4ec  6b          DATA 0x6b 'k'
-    db 29h                  ;b4ed  29          DATA 0x29 ')'
-    db 6ch                  ;b4ee  6c          DATA 0x6c 'l'
-    db 10h                  ;b4ef  10          DATA 0x10
-    db 6ch                  ;b4f0  6c          DATA 0x6c 'l'
-    db 3fh                  ;b4f1  3f          DATA 0x3f '?'
-    db 6ch                  ;b4f2  6c          DATA 0x6c 'l'
-    db 0f0h                 ;b4f3  f0          DATA 0xf0
-    db 6bh                  ;b4f4  6b          DATA 0x6b 'k'
-    db 66h                  ;b4f5  66          DATA 0x66 'f'
-    db 6bh                  ;b4f6  6b          DATA 0x6b 'k'
-    db 9dh                  ;b4f7  9d          DATA 0x9d
-    db 74h                  ;b4f8  74          DATA 0x74 't'
+    dw lab_6c58             ;b4df   DATA
+    dw lab_6c82             ;b4e1   DATA
+    dw lab_6c8e             ;b4e3   DATA
+    dw lab_6c58             ;b4e5   DATA
+    dw lab_6bcb             ;b4e7   DATA
+    dw lab_6bde             ;b4e9   DATA
+    dw lab_6bf9             ;b4eb   DATA
+    dw lab_6c29             ;b4ed   DATA
+    dw lab_6c10             ;b4ef   DATA
+    dw lab_6c3f             ;b4f1   DATA
+    dw lab_6bf0             ;b4f3   DATA
+    dw lab_6b66             ;b4f5   DATA
+    dw lab_749d             ;b4f7   DATA
 
     db 03h                  ;b4f9  03          DATA 0x03
     db 01h                  ;b4fa  01          DATA 0x01
