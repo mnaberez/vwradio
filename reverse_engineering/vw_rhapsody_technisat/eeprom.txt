@@ -1,0 +1,6 @@
+The hardware of the Rhapsody radio is very similar to the Gamma 5 radio.
+Like the Gamma 5, it has two 24C08 EEPROMs near the rear wall.  The EEPROM
+layouts are the same or very similar to the Gamma 5.  The SAFE code is
+stored in the same locations.  It is in the EEPROM closest to the antenna
+and is stored as four ASCII digits at offset 0x0C.
+
