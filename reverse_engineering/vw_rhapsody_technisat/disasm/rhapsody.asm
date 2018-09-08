@@ -22190,26 +22190,29 @@ kwp_28_basic_setting:
     rts                     ;af07  60
 
 kwp_29_group_reading:
-    lda 0x0323              ;af08  ad 23 03
+    lda 0x0323              ;af08  ad 23 03     A = KWP1281 rx buffer: group number
     cmp #0x0b               ;af0b  c9 0b
     bcs lab_af14            ;af0d  b0 05
     jsr sub_b118            ;af0f  20 18 b1
     bra lab_af32            ;af12  80 1e
 
 lab_af14:
-    cmp #0x19               ;af14  c9 19
+    cmp #0x19               ;af14  c9 19        Group number = 0x19 (Protection)?
     bne lab_af1d            ;af16  d0 05
+
+    ;Group number = 0x19 (Protection)
+    ;Support for the protection group has been removed, send NAK
     jsr sub_b974_nak        ;af18  20 74 b9
     bra lab_af32            ;af1b  80 15
 
 lab_af1d:
-    cmp #0x50               ;af1d  c9 50
+    cmp #0x50               ;af1d  c9 50        Group number = 0x50 (Advanced ID 1)?
     bne lab_af26            ;af1f  d0 05
     jsr sub_b292            ;af21  20 92 b2
     bra lab_af32            ;af24  80 0c
 
 lab_af26:
-    cmp #0x51               ;af26  c9 51
+    cmp #0x51               ;af26  c9 51        Group number = 0x51 (Advanced ID 2)?
     bne lab_af2f            ;af28  d0 05
     jsr sub_b2d2            ;af2a  20 d2 b2
     bra lab_af32            ;af2d  80 03
