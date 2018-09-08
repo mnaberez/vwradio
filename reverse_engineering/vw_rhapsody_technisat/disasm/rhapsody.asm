@@ -22106,25 +22106,21 @@ lab_ae99:
 
 kwp_01_read_ram:
     jmp sub_b974_nak        ;aea4  4c 74 b9
+    rts                     ;aea7  60
 
-    .byte 0x60              ;aea7  60          DATA 0x60 '`'
-
-lab_aea8:
+kwp_02_write_ram:
     jmp sub_b974_nak        ;aea8  4c 74 b9
+    rts                     ;aeab  60
 
-    .byte 0x60              ;aeab  60          DATA 0x60 '`'
-
-lab_aeac:
+kwp_03_read_rom:
     jmp sub_b974_nak        ;aeac  4c 74 b9
+    rts                     ;aeaf  60
 
-    .byte 0x60              ;aeaf  60          DATA 0x60 '`'
-
-lab_aeb0:
+kwp_04_output_tests:
     jmp sub_b974_nak        ;aeb0  4c 74 b9
+    rts                     ;aeb3  60
 
-    .byte 0x60              ;aeb3  60          DATA 0x60 '`'
-
-lab_aeb4:
+kwp_05_clear_faults:
     clb 7,P8_P4I            ;aeb4  ff 10
     ldx #0x00               ;aeb6  a2 00
 
@@ -22141,70 +22137,59 @@ lab_aeb8:
     jsr sub_9c33            ;aece  20 33 9c
     rts                     ;aed1  60
 
-lab_aed2:
+kwp_07_read_faults:
     jsr sub_9c33            ;aed2  20 33 9c
     rts                     ;aed5  60
 
-lab_aed6:
+kwp_08_single_reading:
     jmp sub_b974_nak        ;aed6  4c 74 b9
+    rts                     ;aed9  60
 
-    .byte 0x60              ;aed9  60          DATA 0x60 '`'
-
-lab_aeda:
+kwp_0c_write_eeprom:
     jmp sub_b974_nak        ;aeda  4c 74 b9
+    rts                     ;aedd  60
 
-    .byte 0x60              ;aedd  60          DATA 0x60 '`'
-
-lab_aede:
+kwp_10_recoding:
     jsr sub_af71            ;aede  20 71 af
     jmp kwp_00_read_id      ;aee1  4c 36 ae
 
-lab_aee4:
+kwp_11_basic_set_read:
     jmp sub_b974_nak        ;aee4  4c 74 b9
+    rts                     ;aee7  60
 
-    .byte 0x60              ;aee7  60          DATA 0x60 '`'
-
-lab_aee8:
+kwp_12:
     jmp sub_b974_nak        ;aee8  4c 74 b9
+    rts                     ;aeeb  60
 
-    .byte 0x60              ;aeeb  60          DATA 0x60 '`'
-
-lab_aeec:
+kwp_19_read_eeprom:
     jmp sub_b974_nak        ;aeec  4c 74 b9
+    rts                     ;aeef  60
 
-    .byte 0x60              ;aeef  60          DATA 0x60 '`'
-
-lab_aef0:
+kwp_1a_write_eeprom:
     jmp sub_b974_nak        ;aef0  4c 74 b9
+    rts                     ;aef3  60
 
-    .byte 0x60              ;aef3  60          DATA 0x60 '`'
-
-lab_aef4:
+kwp_1b_custom:
     jmp sub_b974_nak        ;aef4  4c 74 b9
+    rts                     ;aef7  60
 
-    .byte 0x60              ;aef7  60          DATA 0x60 '`'
-
-lab_aef8:
+kwp_21_adapt_read:
     jmp sub_b974_nak        ;aef8  4c 74 b9
+    rts                     ;aefb  60
 
-    .byte 0x60              ;aefb  60          DATA 0x60 '`'
-
-lab_aefc:
+kwp_22_adapt_trans:
     jmp sub_b974_nak        ;aefc  4c 74 b9
+    rts                     ;aeff  60
 
-    .byte 0x60              ;aeff  60          DATA 0x60 '`'
-
-lab_af00:
+kwp_27:
     jmp sub_b974_nak        ;af00  4c 74 b9
+    rts                     ;af03  60
 
-    .byte 0x60              ;af03  60          DATA 0x60 '`'
-
-lab_af04:
+kwp_28_basic_setting:
     jmp sub_b974_nak        ;af04  4c 74 b9
+    rts                     ;af07  60
 
-    .byte 0x60              ;af07  60          DATA 0x60 '`'
-
-lab_af08:
+kwp_29_group_reading:
     lda 0x0323              ;af08  ad 23 03
     cmp #0x0b               ;af0b  c9 0b
     bcs lab_af14            ;af0d  b0 05
@@ -22235,15 +22220,13 @@ lab_af2f:
 lab_af32:
     rts                     ;af32  60
 
-lab_af33:
+kwp_2a_adapt_save:
     jmp sub_b974_nak        ;af33  4c 74 b9
+    rts                     ;af36  60
 
-    .byte 0x60              ;af36  60          DATA 0x60 '`'
-
-lab_af37:
+kwp_2b_login:
     jmp sub_b974_nak        ;af37  4c 74 b9
-
-    .byte 0x60              ;af3a  60          DATA 0x60 '`'
+    rts                     ;af3a  60
 
 sub_af3b:
     lda #0x50               ;af3b  a9 50
@@ -24035,7 +24018,7 @@ lab_b965:
     txa                     ;b965  8a
     asl a                   ;b966  0a
     tax                     ;b967  aa
-    lda kwp_00_read_id_vect,x ;b968  bd 9e b9
+    lda kwp1281_handlers,x ;b968  bd 9e b9
     sta 0xd0                ;b96b  85 d0
     lda 0xb99f,x            ;b96d  bd 9f b9
     sta 0xd1                ;b970  85 d1
@@ -24052,61 +24035,53 @@ sub_b974_nak:
     rts                     ;b986  60
 
 kwp1281_block_titles:
-    .byte 0x00              ;b987  00          DATA 0x00
-    .byte 0x01              ;b988  01          DATA 0x01
-    .byte 0x02              ;b989  02          DATA 0x02
-    .byte 0x03              ;b98a  03          DATA 0x03
-    .byte 0x04              ;b98b  04          DATA 0x04
-    .byte 0x05              ;b98c  05          DATA 0x05
-    .byte 0x07              ;b98d  07          DATA 0x07
-    .byte 0x08              ;b98e  08          DATA 0x08
-    .byte 0x0c              ;b98f  0c          DATA 0x0c
-    .byte 0x10              ;b990  10          DATA 0x10
-    .byte 0x11              ;b991  11          DATA 0x11
-    .byte 0x12              ;b992  12          DATA 0x12
-    .byte 0x19              ;b993  19          DATA 0x19
-    .byte 0x1a              ;b994  1a          DATA 0x1a
-    .byte 0x1b              ;b995  1b          DATA 0x1b
-    .byte 0x21              ;b996  21          DATA 0x21 '!'
-    .byte 0x22              ;b997  22          DATA 0x22 '"'
-    .byte 0x27              ;b998  27          DATA 0x27 '''
-    .byte 0x28              ;b999  28          DATA 0x28 '('
-    .byte 0x29              ;b99a  29          DATA 0x29 ')'
-    .byte 0x2a              ;b99b  2a          DATA 0x2a '*'
-    .byte 0x2b              ;b99c  2b          DATA 0x2b '+'
-    .byte 0xff              ;b99d  ff          DATA 0xff
+    .byte 0x00              ;b987  00          DATA 0x00    read identification
+    .byte 0x01              ;b988  01          DATA 0x01    nak: read ram
+    .byte 0x02              ;b989  02          DATA 0x02    nak: write ram
+    .byte 0x03              ;b98a  03          DATA 0x03    nak: read rom/eeprom
+    .byte 0x04              ;b98b  04          DATA 0x04    output tests
+    .byte 0x05              ;b98c  05          DATA 0x05    clear faults
+    .byte 0x07              ;b98d  07          DATA 0x07    read faults
+    .byte 0x08              ;b98e  08          DATA 0x08    nak: single reading
+    .byte 0x0c              ;b98f  0c          DATA 0x0c    nak: write eeprom
+    .byte 0x10              ;b990  10          DATA 0x10    recoding
+    .byte 0x11              ;b991  11          DATA 0x11    nak: basic setting read
+    .byte 0x12              ;b992  12          DATA 0x12    nak: ?
+    .byte 0x19              ;b993  19          DATA 0x19    read eeprom
+    .byte 0x1a              ;b994  1a          DATA 0x1a    nak: write eeprom
+    .byte 0x1b              ;b995  1b          DATA 0x1b    nak: custom
+    .byte 0x21              ;b996  21          DATA 0x21    nak: adaptation read
+    .byte 0x22              ;b997  22          DATA 0x22    nak: adaptation transfer
+    .byte 0x27              ;b998  27          DATA 0x27    nak: ?
+    .byte 0x28              ;b999  28          DATA 0x28    basic setting
+    .byte 0x29              ;b99a  29          DATA 0x29    group reading
+    .byte 0x2a              ;b99b  2a          DATA 0x2a    nak: adaptation save
+    .byte 0x2b              ;b99c  2b          DATA 0x2b    login
+    .byte 0xff              ;b99d  ff          DATA 0xff    (end of table marker)
 
-kwp_00_read_id_vect:
-    .word kwp_00_read_id    ;b99e  36 ae       VECTOR
-
-kwp_01_read_ram_vect:
-    .word kwp_01_read_ram   ;b9a0  a4 ae       VECTOR
-
-kwp_02_write_ram_vect:
-    .word lab_aea8          ;b9a2  a8 ae       VECTOR
-
-kwp_04_output_tests_vect:
-    .word lab_aeac          ;b9a4  ac ae       VECTOR
-
-kwp_05_clear_faults_vect:
-    .word lab_aeb0          ;b9a6  b0 ae       VECTOR
-    .word lab_aeb4          ;b9a8  b4 ae       VECTOR
-    .word lab_aed2          ;b9aa  d2 ae       VECTOR
-    .word lab_aed6          ;b9ac  d6 ae       VECTOR
-    .word lab_aeda          ;b9ae  da ae       VECTOR
-    .word lab_aede          ;b9b0  de ae       VECTOR
-    .word lab_aee4          ;b9b2  e4 ae       VECTOR
-    .word lab_aee8          ;b9b4  e8 ae       VECTOR
-    .word lab_aeec          ;b9b6  ec ae       VECTOR
-    .word lab_aef0          ;b9b8  f0 ae       VECTOR
-    .word lab_aef4          ;b9ba  f4 ae       VECTOR
-    .word lab_aef8          ;b9bc  f8 ae       VECTOR
-    .word lab_aefc          ;b9be  fc ae       VECTOR
-    .word lab_af00          ;b9c0  00 af       VECTOR
-    .word lab_af04          ;b9c2  04 af       VECTOR
-    .word lab_af08          ;b9c4  08 af       VECTOR
-    .word lab_af33          ;b9c6  33 af       VECTOR
-    .word lab_af37          ;b9c8  37 af       VECTOR
+kwp1281_handlers:
+    .word kwp_00_read_id        ;b99e  36 ae   VECTOR       read identification
+    .word kwp_01_read_ram       ;b9a0  a4 ae   VECTOR       nak: read ram
+    .word kwp_02_write_ram      ;b9a2  a8 ae   VECTOR       nak: write ram
+    .word kwp_03_read_rom       ;b9a4  ac ae   VECTOR       nak: read rom/eeprom
+    .word kwp_04_output_tests   ;b9a6  b0 ae   VECTOR       output tests
+    .word kwp_05_clear_faults   ;b9a8  b4 ae   VECTOR       clear faults
+    .word kwp_07_read_faults    ;b9aa  d2 ae   VECTOR       read faults
+    .word kwp_08_single_reading ;b9ac  d6 ae   VECTOR       nak: single reading
+    .word kwp_0c_write_eeprom   ;b9ae  da ae   VECTOR       nak: write eeprom
+    .word kwp_10_recoding       ;b9b0  de ae   VECTOR       recoding
+    .word kwp_11_basic_set_read ;b9b2  e4 ae   VECTOR       nak: basic setting read
+    .word kwp_12                ;b9b4  e8 ae   VECTOR       nak: ?
+    .word kwp_19_read_eeprom    ;b9b6  ec ae   VECTOR       read eeprom
+    .word kwp_1a_write_eeprom   ;b9b8  f0 ae   VECTOR       nak: write eeprom
+    .word kwp_1b_custom         ;b9ba  f4 ae   VECTOR       nak: custom
+    .word kwp_21_adapt_read     ;b9bc  f8 ae   VECTOR       nak: adaptation read
+    .word kwp_22_adapt_trans    ;b9be  fc ae   VECTOR       nak: adaptation transfer
+    .word kwp_27                ;b9c0  00 af   VECTOR       nak: ?
+    .word kwp_28_basic_setting  ;b9c2  04 af   VECTOR       basic setting
+    .word kwp_29_group_reading  ;b9c4  08 af   VECTOR       group reading
+    .word kwp_2a_adapt_save     ;b9c6  33 af   VECTOR       nak: adaptation save
+    .word kwp_2b_login          ;b9c8  37 af   VECTOR       nak: login
 
 sub_b9ca:
     ldm #0x00,0xce          ;b9ca  3c 00 ce
