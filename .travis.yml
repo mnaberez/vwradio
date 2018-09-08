@@ -19,14 +19,14 @@ before_install:
   - make -C avra/src -f makefiles/Makefile.linux
   - export PATH=$PATH:$PWD/avra/src
 
-  # as740, asf2mc8
+  # as740, asf2mc8, aslink
   - wget -q -U travis http://6502.org/tools/asm/av5p00.zip
   - wget -q -U travis http://6502.org/tools/asm/u05500.zip
   - wget -q -U travis http://6502.org/tools/asm/av5p00-u05500-fix-as740-byte-directive.zip
   - unzip -q av5p00.zip
   - unzip -q -o u05500.zip
   - unzip -q -o av5p00-u05500-fix-as740-byte-directive.zip
-  - make -C asxv5pxx/asxmak/linux/build as740 asf2mc8
+  - make -C asxv5pxx/asxmak/linux/build as740 asf2mc8 aslink
   - export PATH=$PATH:$PWD/asxv5pxx/asxmak/linux/build
 
 script:
