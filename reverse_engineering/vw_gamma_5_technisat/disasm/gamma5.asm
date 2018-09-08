@@ -23437,6 +23437,8 @@ sub_a124:
     rts                     ;a149  60
 
 sub_a14a:
+;Read unknown data from EEPROM, or a default
+;called from sub_a84f (group reading: advanced id 1)
     lda #0x0e               ;a14a  a9 0e
     sta 0x0101              ;a14c  8d 01 01
     lda #0x03               ;a14f  a9 03
@@ -23449,15 +23451,17 @@ sub_a14a:
     sta 0x4d                ;a15d  85 4d
     ldm #0x02,0x4e          ;a15f  3c 02 4e
     ldm #0x06,0x4f          ;a162  3c 06 4f
+
     jsr sub_46e5            ;a165  20 e5 46     TODO probably read from I2C EEPROM
-    lda 0x0102              ;a168  ad 02 01
+
+    lda 0x0102              ;a168  ad 02 01     A = first byte from EEPROM data
     and #0xcf               ;a16b  29 cf
     cmp #0x04               ;a16d  c9 04
     bcc lab_a17c            ;a16f  90 0b
-    ldx #0x10               ;a171  a2 10
 
+    ldx #0x10               ;a171  a2 10
 lab_a173:
-    lda 0xff78,x            ;a173  bd 78 ff
+    lda yd5_001,x           ;a173  bd 78 ff
     sta 0x0102,x            ;a176  9d 02 01
     dex                     ;a179  ca
     bpl lab_a173            ;a17a  10 f7
@@ -23465,7 +23469,10 @@ lab_a173:
 lab_a17c:
     rts                     ;a17c  60
 
+
 sub_a17d:
+;Read serial number from EEPROM, or a default if none
+;called from sub_a88c (group reading advanced id 2)
     lda #0x00               ;a17d  a9 00
     sta 0x0101              ;a17f  8d 01 01
     lda #0x03               ;a182  a9 03
@@ -23478,20 +23485,26 @@ sub_a17d:
     sta 0x4d                ;a190  85 4d
     ldm #0x02,0x4e          ;a192  3c 02 4e
     ldm #0x0e,0x4f          ;a195  3c 0e 4f
-    jsr sub_46e5            ;a198  20 e5 46     TODO probably read from I2C EEPROM
-    lda 0x0102              ;a19b  ad 02 01
-    cmp #0x56               ;a19e  c9 56
-    beq lab_a1ad            ;a1a0  f0 0b
-    ldx #0x0e               ;a1a2  a2 0e
 
+    jsr sub_46e5            ;a198  20 e5 46     TODO probably read from I2C EEPROM
+
+    lda 0x0102              ;a19b  ad 02 01     A = first byte of serial number read from EEPROM
+    cmp #'V                 ;a19e  c9 56        Is it a "V" as in "VWZAZ..."?
+    beq lab_a1ad            ;a1a0  f0 0b          Yes, serial number is valid, branch to RTS
+
+    ;EEPROM serial number is invalid
+    ;Fill buffer with default serial number of "VWZAZ3B0000000"
+
+    ldx #0x0e               ;a1a2  a2 0e
 lab_a1a4:
-    lda 0xff6a,x            ;a1a4  bd 6a ff
+    lda default_serial,x    ;a1a4  bd 6a ff     A = byte from "VWZAZ3B0000000"
     sta 0x0102,x            ;a1a7  9d 02 01
     dex                     ;a1aa  ca
     bpl lab_a1a4            ;a1ab  10 f7
 
 lab_a1ad:
     rts                     ;a1ad  60
+
 
 ;KWP1281 0x00 Read Identification
 sub_a1ae:
@@ -23643,7 +23656,7 @@ lab_a278:
     ;X still contains the address low byte, which is used
     ;as the initial index to the 256-byte XOR key at 0xFF00
 
-    eor 0xff00,x            ;a27e  5d 00 ff     Encrypt it
+    eor encryption_key,x    ;a27e  5d 00 ff     Encrypt it
     inx                     ;a281  e8
 
 lab_a282:
@@ -24915,30 +24928,37 @@ lab_a733:
 ;group reading: advanced id 1 ("YD5-001 27.01.04")
 sub_a84f:
     ldx #0x2c               ;a84f  a2 2c
-    lda #0x20               ;a851  a9 20
 
+    lda #0x20               ;a851  a9 20
 lab_a853:
-    sta 0x0331,x            ;a853  9d 31 03
+    sta 0x0331,x            ;a853  9d 31 03     Store in KWP1281 tx buffer
     dex                     ;a856  ca
     bpl lab_a853            ;a857  10 fa
-    ldx #0x12               ;a859  a2 12
 
+    ldx #0x12               ;a859  a2 12
 lab_a85b:
-    lda 0xff7e,x            ;a85b  bd 7e ff
-    sta 0x0331,x            ;a85e  9d 31 03
+    lda 0xff7e,x            ;a85b  bd 7e ff     A = byte from "YD5-001 27.01.04"
+    sta 0x0331,x            ;a85e  9d 31 03     Store in KWP1281 tx buffer
     dex                     ;a861  ca
     bpl lab_a85b            ;a862  10 f7
-    jsr sub_a14a            ;a864  20 4a a1
+
+    jsr sub_a14a            ;a864  20 4a a1     Read unknown data from EEPROM, or a default
+
     lda 0x0102              ;a867  ad 02 01
     sta 0x033e              ;a86a  8d 3e 03
+
     lda 0x0103              ;a86d  ad 03 01
     sta 0x033f              ;a870  8d 3f 03
+
     lda 0x0104              ;a873  ad 04 01
     sta 0x0341              ;a876  8d 41 03
+
     lda 0x0105              ;a879  ad 05 01
     sta 0x0342              ;a87c  8d 42 03
+
     lda 0x0106              ;a87f  ad 06 01
-    sta 0x0344              ;a882  8d 44 03     Store as TechniSat protocol status byte
+    sta 0x0344              ;a882  8d 44 03
+
     lda 0x0107              ;a885  ad 07 01
     sta 0x0345              ;a888  8d 45 03
     rts                     ;a88b  60
@@ -24946,25 +24966,26 @@ lab_a85b:
 ;group reading advanced id 2 ("VWZAZ3D2301808")
 sub_a88c:
     ldx #0x2c               ;a88c  a2 2c
-    lda #0x20               ;a88e  a9 20
 
+    lda #0x20               ;a88e  a9 20
 lab_a890:
-    sta 0x0331,x            ;a890  9d 31 03
+    sta 0x0331,x            ;a890  9d 31 03     Store in KWP1281 tx buffer
     dex                     ;a893  ca
     bpl lab_a890            ;a894  10 fa
-    ldx #0x03               ;a896  a2 03
 
+    ldx #0x03               ;a896  a2 03
 lab_a898:
-    lda 0xff7e,x            ;a898  bd 7e ff
-    sta 0x0331,x            ;a89b  9d 31 03
+    lda 0xff7e,x            ;a898  bd 7e ff     A = byte from "VWZAZ3D2301808"
+    sta 0x0331,x            ;a89b  9d 31 03     Store in KWP1281 tx buffer
     dex                     ;a89e  ca
     bpl lab_a898            ;a89f  10 f7
-    jsr sub_a17d            ;a8a1  20 7d a1
-    ldx #0x0d               ;a8a4  a2 0d
 
+    jsr sub_a17d            ;a8a1  20 7d a1     Read serial number from EEPROM, or a default if none
+
+    ldx #0x0d               ;a8a4  a2 0d
 lab_a8a6:
-    lda 0x0102,x            ;a8a6  bd 02 01
-    sta 0x0346,x            ;a8a9  9d 46 03
+    lda 0x0102,x            ;a8a6  bd 02 01     A = byte from serial number
+    sta 0x0346,x            ;a8a9  9d 46 03     Store it in the KWP1281 tx buffer
     dex                     ;a8ac  ca
     bpl lab_a8a6            ;a8ad  10 f7
     rts                     ;a8af  60
@@ -40296,6 +40317,7 @@ sub_f2ac:
     .byte 0xff              ;feff  ff          DATA 0xff
 
 ;Start of 256 byte XOR key used by KWP1281 0x03 Read ROM (see lab_a278)
+encryption_key:
     .byte 0xff              ;ff00  ff          DATA 0xff
     .byte 0xff              ;ff01  ff          DATA 0xff
     .byte 0xff              ;ff02  ff          DATA 0xff
@@ -40389,6 +40411,7 @@ sub_f2ac:
     .byte 0x20              ;ff5a  20          DATA 0x20 ' '
     .byte 0x0f              ;ff5b  0f          DATA 0x0f
     .byte 0x00              ;ff5c  00          DATA 0x00
+
     .byte 0xf6              ;ff5d  f6          DATA 0xf6
     .byte 0x20              ;ff5e  20          DATA 0x20 ' '
     .byte 0x20              ;ff5f  20          DATA 0x20 ' '
@@ -40402,6 +40425,8 @@ sub_f2ac:
     .byte 0x30              ;ff67  30          DATA 0x30 '0'
     .byte 0x30              ;ff68  30          DATA 0x30 '0'
     .byte 0x34              ;ff69  34          DATA 0x34 '4'
+
+default_serial:
     .byte 0x56              ;ff6a  56          DATA 0x56 'V'
     .byte 0x57              ;ff6b  57          DATA 0x57 'W'
     .byte 0x5a              ;ff6c  5a          DATA 0x5a 'Z'
@@ -40416,6 +40441,8 @@ sub_f2ac:
     .byte 0x30              ;ff75  30          DATA 0x30 '0'
     .byte 0x30              ;ff76  30          DATA 0x30 '0'
     .byte 0x30              ;ff77  30          DATA 0x30 '0'
+
+yd5_001:
     .byte 0x3f              ;ff78  3f          DATA 0x3f '?'
     .byte 0x3f              ;ff79  3f          DATA 0x3f '?'
     .byte 0x3f              ;ff7a  3f          DATA 0x3f '?'
@@ -40433,6 +40460,7 @@ sub_f2ac:
     .byte 0x30              ;ff86  30          DATA 0x30 '0'
     .byte 0x30              ;ff87  30          DATA 0x30 '0'
     .byte 0x31              ;ff88  31          DATA 0x31 '1'
+
     .byte 0x20              ;ff89  20          DATA 0x20 ' '
     .byte 0x20              ;ff8a  20          DATA 0x20 ' '
     .byte 0x2d              ;ff8b  2d          DATA 0x2d '-'
