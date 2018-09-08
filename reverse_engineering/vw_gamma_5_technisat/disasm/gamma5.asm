@@ -24182,6 +24182,7 @@ lab_a52c:
     rts                     ;a52f  60
 
 ;group reading valid group numbers
+group_numbers:
     .byte 0x01              ;a530  general
     .byte 0x02              ;a531  speakers/line-out
     .byte 0x03              ;a532  antenna
@@ -24194,6 +24195,7 @@ lab_a52c:
     .byte 0x51              ;a539  advanced id 2: "VWZAZ3D2301808"
 
 ;group reading handlers
+group_handlers:
     .word lab_a585          ;a53a  85 a5       VECTOR   general
     .word lab_a585          ;a53c  85 a5       VECTOR   speakers/line-out
     .word lab_a585          ;a53e  85 a5       VECTOR   antenna
@@ -24221,7 +24223,7 @@ lab_a54e:
     ;find group number in table
     ldx #0x00               ;a554  a2 00
 lab_a556:
-    cmp 0xa530,x            ;a556  dd 30 a5
+    cmp group_numbers,x     ;a556  dd 30 a5
     beq lab_a565            ;a559  f0 0a
     inx                     ;a55b  e8
     cpx #0x0a               ;a55c  e0 0a
@@ -24237,9 +24239,9 @@ lab_a565:
     txa                     ;a565  8a
     asl a                   ;a566  0a
     tax                     ;a567  aa
-    lda 0xa53a,x            ;a568  bd 3a a5
+    lda group_handlers,x    ;a568  bd 3a a5
     sta 0x40                ;a56b  85 40
-    lda 0xa53b,x            ;a56d  bd 3b a5
+    lda group_handlers+1,x  ;a56d  bd 3b a5
     sta 0x41                ;a570  85 41
     jmp [0x40]              ;a572  b2 40        jump to handler
 
