@@ -13,9 +13,7 @@
 ;of the KWP1281 dump, the two dumps were identical.
 ;
 ;Note that the M38869FFAHP has 60K flash ROM total but this source code
-;assembles to 56K.  The first 4K (0x1000-0x1FFF) is not used and contains
-;all 0xFF.  The radio firmware was probably designed to fit in the 'E'
-;version of the MCU, which has 56K flash ROM.
+;assembles to 56K.  The first 4K (0x1000-0x1FFF) contains all 0xFF.
 ;
 ;No rights are claimed on the executable object code as found
 ;in the internal flash ROM of the M38869FFAHP chip.  The SHA-1
