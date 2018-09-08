@@ -3,15 +3,15 @@
 ![Photo](https://user-images.githubusercontent.com/52712/38045152-b4fae3bc-3270-11e8-9463-c228bd5f6f46.jpg)
 
 This repository is all about reverse engineering older Volkswagen car radios, like the Premium 4
-radio shown above.  The radios studied here are well over ten years old, are the single-DIN
-size, and have a cassette player.  Despite their age, they are intelligent and support
+radio shown above.  The radios studied here are well over ten years old and are the single-DIN
+size.  Despite their age, they are intelligent and support
 diagnostics over the OBD-II port (using VW's KWP1281 protocol on the K-line).  You'll find
 protocol notes and partial disassemblies of radio firmware here, but no original binaries
 of firmware or EEPROMs.
 
 VW radios from this era require a four digit security code called the "SAFE code".  The radios usually store the SAFE code in a serial EEPROM like a 93C46 or a 24C04.  The SAFE code can be found by opening up the radio, desoldering the EEPROM, reading it, and then soldering the EEPROM back in.  I wanted to know if there was an easier way.
 
-I disassembled the firmware for three radios: Premium 4 (Clarion), Premium 5 (Delco), and Gamma 5 (TechniSat).  I found that each of them had a different way to read the SAFE code via the OBD-II port.  Reading the code via the OBD-II port means the radio does not have to be opened and does not even need to be removed from the car.  Since this information is not published anywhere and I couldn't find any tool that could do it, I built my own tool.
+I disassembled the firmware for three radios: Premium 4 (Clarion), Premium 5 (Delco), and Gamma 5 (TechniSat).  I found that each of them had a backdoor to read the SAFE code via the OBD-II port.  Reading the code via the OBD-II port means the radio does not have to be opened and does not even need to be removed from the car.  Since this information is not published anywhere and I couldn't find any tool that could do it, I built my own tool.
 
 ## Projects
 
