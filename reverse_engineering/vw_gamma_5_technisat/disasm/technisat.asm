@@ -9962,7 +9962,7 @@ lab_5a5e:
 
     clc                     ;5a6b  18
     adc 0x0343              ;5a6c  6d 43 03
-    sta 0x0343              ;5a6f  8d 43 03     update checksum
+    sta 0x0343              ;5a6f  8d 43 03     Update checksum
     inc 0x0320              ;5a72  ee 20 03     Increment number of bytes received
     ldm #0x31,T2            ;5a75  3c 31 22
     bra lab_5ab4            ;5a78  80 3a        Branch to RTS
@@ -9970,8 +9970,8 @@ lab_5a5e:
 lab_5a7a:
     lda 0x0343              ;5a7a  ad 43 03     A = expected checksum byte
     eor #0xff               ;5a7d  49 ff
-    ldy 0x0320              ;5a7f  ac 20 03     get number of bytes received
-    cmp 0x0320,y            ;5a82  d9 20 03     compare to last byte of rx buffer
+    ldy 0x0320              ;5a7f  ac 20 03     Get number of bytes received
+    cmp 0x0320,y            ;5a82  d9 20 03     Compare to last byte of rx buffer
     beq lab_5a91            ;5a85  f0 0a
 
     ;checksum is bad
@@ -9980,7 +9980,7 @@ lab_5a7a:
     sta 0x0344              ;5a89  8d 44 03     Store as TechniSat protocol status byte
 
     lda #0x5e               ;5a8c  a9 5e
-    sta 0x0322              ;5a8e  8d 22 03     store in uart rx buffer byte 2
+    sta 0x0322              ;5a8e  8d 22 03     Store in uart rx buffer byte 2
 
 lab_5a91:
 ;checksum is good
@@ -28838,7 +28838,7 @@ lab_be78:
 ;Address 0x7C (TechniSat protocol)
 lab_be98:
     seb 0,0xe8              ;be98  0f e8
-    seb 1,0xe8              ;be9a  2f e8        Set flag = TechniSat procol is active
+    seb 1,0xe8              ;be9a  2f e8        Set flag = TechniSat protocol is active
     seb 7,P4                ;be9c  ef 08
     lda #0x06               ;be9e  a9 06
     sta 0x05b1              ;bea0  8d b1 05     FSM=0x06 (skip sending 55, 01, 8A)
@@ -40563,7 +40563,7 @@ INT_FFF8:
     .word lab_f204          ;fff8  04 f2       VECTOR INT1 / Output buffer empty (OBE)
 
 INT_FFFA:
-    .word lab_5342          ;fffa  42 53       VECTOR INT0 / Input buffer ful (IBF)
+    .word lab_5342          ;fffa  42 53       VECTOR INT0 / Input buffer full (IBF)
 
 RESET:
     .word lab_2000          ;fffc  00 20       VECTOR Reset vector
