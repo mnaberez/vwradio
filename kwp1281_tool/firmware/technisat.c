@@ -159,6 +159,30 @@ tsat_result_t tsat_disconnect()
     }
 }
 
+tsat_result_t tsat_hello()
+{
+    uart_puts(UART_DEBUG, "PERFORM HELLO\n");
+
+    // send hello block
+    uint8_t block[] = { 0x10, // only responds if this is 2-0xff
+                        0x01, // only responds if this is 1
+                        0x00, // number of parameters after command (1)
+                        0x5e, // command 0x5e
+                        0     // checksum (will be calculated)
+                      };
+    tsat_result_t result = tsat_send_block(block);
+
+    result = tec_receive_block();
+    if (result != TSAT_SUCCESS) { return result; }
+
+    // check status
+    if ((tsat_rx_buf[2] == 0x5e) && (tsat_rx_buf[3] == 0x00)) {
+        return TSAT_SUCCESS;
+    } else {
+        return TSAT_UNEXPECTED;
+    }
+}
+
 tsat_result_t tsat_disable_eeprom_filter()
 {
     uart_puts(UART_DEBUG, "PERFORM DISABLE EEPROM FILTER\n");
@@ -279,14 +303,25 @@ tsat_result_t tsat_connect(uint8_t address, uint32_t baud)
     // Send address at 5 baud
     kwp_send_address(KWP_RADIO_MFG);
 
-    // receive initial block
+    // try to receive a block
+    // gamma 5 sends a block, rhapsody sends nothing
     tsat_result_t result = tec_receive_block();
-    if (result != TSAT_SUCCESS) { return result; }
 
-    // check status
-    if ((tsat_rx_buf[2] == 0x5e) && (tsat_rx_buf[3] == 0x00)) {
-        return TSAT_SUCCESS;
+    if (result == TSAT_SUCCESS) {
+        // radio sent a block (probably gamma 5)
+        // check status
+        if ((tsat_rx_buf[2] == 0x5e) && (tsat_rx_buf[3] == 0x00)) {
+            return TSAT_SUCCESS;
+        } else {
+            return TSAT_UNEXPECTED;
+        }
+    } if (result == TSAT_TIMEOUT) {
+        // radio didn't send a block (probably rhapsody)
+        // send hello to see if it's there
+        uart_puts(UART_DEBUG, "Timeout; trying hello\n");
+        return tsat_hello();
     } else {
-        return TSAT_UNEXPECTED;
+        // error
+        return result;
     }
 }
