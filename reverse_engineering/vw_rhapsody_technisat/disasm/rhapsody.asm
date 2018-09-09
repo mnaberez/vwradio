@@ -2019,11 +2019,11 @@ sub_4aa6:
     bbc 0,0xc4,lab_4ab9     ;4aa6  17 c4 10
     bbs 1,0xc4,lab_4ab4     ;4aa9  27 c4 08     Branch if TechniSat protocol is active
     jsr sub_ae1b            ;4aac  20 1b ae
-    jsr sub_b8c4            ;4aaf  20 c4 b8
+    jsr sub_b8c4            ;4aaf  20 c4 b8     Terminate KWP1281 or TechniSat session
     bra lab_4ab9            ;4ab2  80 05
 
 lab_4ab4:
-    jsr sub_b8c4            ;4ab4  20 c4 b8
+    jsr sub_b8c4            ;4ab4  20 c4 b8     Terminate KWP1281 or TechniSat session
     clb 6,0xfd              ;4ab7  df fd
 
 lab_4ab9:
@@ -3084,6 +3084,9 @@ lab_4e88:
     .byte 0x9f              ;4fbc  9f          DATA 0x9f
     .byte 0x10              ;4fbd  10          DATA 0x10
     .byte 0x60              ;4fbe  60          DATA 0x60 '`'
+
+;TechniSat protocol related (commands?)
+;used by lab_50ba
     .byte 0x3f              ;4fbf  3f          DATA 0x3f '?'
     .byte 0x1a              ;4fc0  1a          DATA 0x1a
     .byte 0x1b              ;4fc1  1b          DATA 0x1b
@@ -3120,78 +3123,54 @@ lab_4e88:
     .byte 0x3d              ;4fe0  3d          DATA 0x3d '='
     .byte 0x3e              ;4fe1  3e          DATA 0x3e '>'
     .byte 0x3c              ;4fe2  3c          DATA 0x3c '<'
-    .byte 0x71              ;4fe3  71          DATA 0x71 'q'
-    .byte 0x51              ;4fe4  51          DATA 0x51 'Q'
-    .byte 0xce              ;4fe5  ce          DATA 0xce
-    .byte 0x51              ;4fe6  51          DATA 0x51 'Q'
-    .byte 0xce              ;4fe7  ce          DATA 0xce
-    .byte 0x51              ;4fe8  51          DATA 0x51 'Q'
-    .byte 0xce              ;4fe9  ce          DATA 0xce
-    .byte 0x51              ;4fea  51          DATA 0x51 'Q'
-    .byte 0xce              ;4feb  ce          DATA 0xce
-    .byte 0x51              ;4fec  51          DATA 0x51 'Q'
-    .byte 0xce              ;4fed  ce          DATA 0xce
-    .byte 0x51              ;4fee  51          DATA 0x51 'Q'
-    .byte 0xce              ;4fef  ce          DATA 0xce
-    .byte 0x51              ;4ff0  51          DATA 0x51 'Q'
-    .byte 0x96              ;4ff1  96          DATA 0x96
-    .byte 0x51              ;4ff2  51          DATA 0x51 'Q'
-    .byte 0x7c              ;4ff3  7c          DATA 0x7c '|'
-    .byte 0x55              ;4ff4  55          DATA 0x55 'U'
-    .byte 0xce              ;4ff5  ce          DATA 0xce
-    .byte 0x55              ;4ff6  55          DATA 0x55 'U'
-    .byte 0x7b              ;4ff7  7b          DATA 0x7b '{'
-    .byte 0x42              ;4ff8  42          DATA 0x42 'B'
-    .byte 0x7b              ;4ff9  7b          DATA 0x7b '{'
-    .byte 0x42              ;4ffa  42          DATA 0x42 'B'
-    .byte 0x60              ;4ffb  60          DATA 0x60 '`'
-    .byte 0x54              ;4ffc  54          DATA 0x54 'T'
-    .byte 0x6a              ;4ffd  6a          DATA 0x6a 'j'
-    .byte 0x54              ;4ffe  54          DATA 0x54 'T'
-    .byte 0xa3              ;4fff  a3          DATA 0xa3
-    .byte 0x54              ;5000  54          DATA 0x54 'T'
-    .byte 0xad              ;5001  ad          DATA 0xad
-    .byte 0x54              ;5002  54          DATA 0x54 'T'
-    .byte 0x83              ;5003  83          DATA 0x83
-    .byte 0x52              ;5004  52          DATA 0x52 'R'
-    .byte 0x8f              ;5005  8f          DATA 0x8f
-    .byte 0x52              ;5006  52          DATA 0x52 'R'
-    .byte 0xa7              ;5007  a7          DATA 0xa7
-    .byte 0x53              ;5008  53          DATA 0x53 'S'
-    .byte 0xb3              ;5009  b3          DATA 0xb3
-    .byte 0x53              ;500a  53          DATA 0x53 'S'
-    .byte 0xda              ;500b  da          DATA 0xda
-    .byte 0x57              ;500c  57          DATA 0x57 'W'
-    .byte 0x31              ;500d  31          DATA 0x31 '1'
-    .byte 0x57              ;500e  57          DATA 0x57 'W'
-    .byte 0x8a              ;500f  8a          DATA 0x8a
-    .byte 0x58              ;5010  58          DATA 0x58 'X'
-    .byte 0xf5              ;5011  f5          DATA 0xf5
-    .byte 0x58              ;5012  58          DATA 0x58 'X'
-    .byte 0xd0              ;5013  d0          DATA 0xd0
-    .byte 0x54              ;5014  54          DATA 0x54 'T'
-    .byte 0x7b              ;5015  7b          DATA 0x7b '{'
-    .byte 0x42              ;5016  42          DATA 0x42 'B'
-    .byte 0xf0              ;5017  f0          DATA 0xf0
-    .byte 0x54              ;5018  54          DATA 0x54 'T'
-    .byte 0x7b              ;5019  7b          DATA 0x7b '{'
-    .byte 0x42              ;501a  42          DATA 0x42 'B'
-    .byte 0x60              ;501b  60          DATA 0x60 '`'
-    .byte 0x54              ;501c  54          DATA 0x54 'T'
-    .byte 0x6a              ;501d  6a          DATA 0x6a 'j'
-    .byte 0x54              ;501e  54          DATA 0x54 'T'
-    .byte 0x39              ;501f  39          DATA 0x39 '9'
-    .byte 0x54              ;5020  54          DATA 0x54 'T'
-    .byte 0x48              ;5021  48          DATA 0x48 'H'
-    .byte 0x54              ;5022  54          DATA 0x54 'T'
-    .byte 0xe4              ;5023  e4          DATA 0xe4
-    .byte 0x73              ;5024  73          DATA 0x73 's'
-    .byte 0x71              ;5025  71          DATA 0x71 'q'
-    .byte 0x58              ;5026  58          DATA 0x58 'X'
-    .byte 0x7b              ;5027  7b          DATA 0x7b '{'
-    .byte 0x42              ;5028  42          DATA 0x42 'B'
-    .byte 0xd6              ;5029  d6          DATA 0xd6
-    .byte 0x57              ;502a  57          DATA 0x57 'W'
+
+;TechniSat protocol handlers
+;same order as table of bytes at 4fbf
+;used by lab_50c6
+    .word 0x5171            ;4fe3   VECTOR
+    .word 0x51ce            ;4fe5   VECTOR
+    .word 0x51ce            ;4fe7   VECTOR
+    .word 0x51ce            ;4fe9   VECTOR
+    .word 0x51ce            ;4feb   VECTOR
+    .word 0x51ce            ;4fed   VECTOR
+    .word 0x51ce            ;4fef   VECTOR
+    .word 0x5196            ;4ff1   VECTOR
+    .word 0x557c            ;4ff3   VECTOR
+    .word 0x55ce            ;4ff5   VECTOR
+    .word 0x427b            ;4ff7   VECTOR
+    .word 0x427b            ;4ff9   VECTOR
+    .word 0x5460            ;4ffb   VECTOR
+    .word 0x546a            ;4ffd   VECTOR
+    .word 0x54a3            ;4fff   VECTOR
+    .word 0x54ad            ;5001   VECTOR
+    .word 0x5283            ;5003   VECTOR
+    .word 0x528f            ;5005   VECTOR
+    .word 0x53a7            ;5007   VECTOR
+    .word 0x53b3            ;5009   VECTOR
+    .word 0x57da            ;500b   VECTOR
+    .word 0x5731            ;500d   VECTOR
+    .word 0x588a            ;500f   VECTOR
+    .word 0x58f5            ;5011   VECTOR
+    .word 0x54d0            ;5013   VECTOR
+    .word 0x427b            ;5015   VECTOR
+    .word 0x54f0            ;5017   VECTOR
+    .word 0x427b            ;5019   VECTOR
+    .word 0x5460            ;501b   VECTOR
+    .word 0x546a            ;501d   VECTOR
+    .word 0x5439            ;501f   VECTOR
+    .word 0x5448            ;5021   VECTOR
+    .word 0x73e4            ;5023   VECTOR
+    .word 0x5871            ;5025   VECTOR
+    .word 0x427b            ;5027   VECTOR
+    .word 0x57d6            ;5029   VECTOR
+
+;TechniSat protocol related (command bytes)
+;used by lab_50d6
+;
+;Request block: 10 01 02 45 62 14 41
+;                        ^^
+;                        command byte from this table
+;
     .byte 0x5e              ;502b  5e          DATA 0x5e '^'
     .byte 0x5f              ;502c  5f          DATA 0x5f '_'
     .byte 0x42              ;502d  42          DATA 0x42 'B'
@@ -3216,54 +3195,34 @@ lab_4e88:
     .byte 0x59              ;5040  59          DATA 0x59 'Y'
     .byte 0x5a              ;5041  5a          DATA 0x5a 'Z'
     .byte 0x7f              ;5042  7f          DATA 0x7f
-    .byte 0xa5              ;5043  a5          DATA 0xa5
-    .byte 0x73              ;5044  73          DATA 0x73 's'
-    .byte 0xfe              ;5045  fe          DATA 0xfe
-    .byte 0x73              ;5046  73          DATA 0x73 's'
-    .byte 0x11              ;5047  11          DATA 0x11
-    .byte 0x74              ;5048  74          DATA 0x74 't'
-    .byte 0x83              ;5049  83          DATA 0x83
-    .byte 0x74              ;504a  74          DATA 0x74 't'
-    .byte 0xb3              ;504b  b3          DATA 0xb3
-    .byte 0x74              ;504c  74          DATA 0x74 't'
-    .byte 0xf6              ;504d  f6          DATA 0xf6
-    .byte 0x74              ;504e  74          DATA 0x74 't'
-    .byte 0x42              ;504f  42          DATA 0x42 'B'
-    .byte 0x75              ;5050  75          DATA 0x75 'u'
-    .byte 0x76              ;5051  76          DATA 0x76 'v'
-    .byte 0x75              ;5052  75          DATA 0x75 'u'
-    .byte 0xa8              ;5053  a8          DATA 0xa8
-    .byte 0x75              ;5054  75          DATA 0x75 'u'
-    .byte 0xe6              ;5055  e6          DATA 0xe6
-    .byte 0x75              ;5056  75          DATA 0x75 'u'
-    .byte 0x2d              ;5057  2d          DATA 0x2d '-'
-    .byte 0x76              ;5058  76          DATA 0x76 'v'
-    .byte 0x77              ;5059  77          DATA 0x77 'w'
-    .byte 0x76              ;505a  76          DATA 0x76 'v'
-    .byte 0x5c              ;505b  5c          DATA 0x5c '\'
-    .byte 0x77              ;505c  77          DATA 0x77 'w'
-    .byte 0x0f              ;505d  0f          DATA 0x0f
-    .byte 0x78              ;505e  78          DATA 0x78 'x'
-    .byte 0x7b              ;505f  7b          DATA 0x7b '{'
-    .byte 0x42              ;5060  42          DATA 0x42 'B'
-    .byte 0x7b              ;5061  7b          DATA 0x7b '{'
-    .byte 0x42              ;5062  42          DATA 0x42 'B'
-    .byte 0xa2              ;5063  a2          DATA 0xa2
-    .byte 0x78              ;5064  78          DATA 0x78 'x'
-    .byte 0x19              ;5065  19          DATA 0x19
-    .byte 0x79              ;5066  79          DATA 0x79 'y'
-    .byte 0x47              ;5067  47          DATA 0x47 'G'
-    .byte 0x79              ;5068  79          DATA 0x79 'y'
-    .byte 0x3e              ;5069  3e          DATA 0x3e '>'
-    .byte 0x7a              ;506a  7a          DATA 0x7a 'z'
-    .byte 0xbe              ;506b  be          DATA 0xbe
-    .byte 0x79              ;506c  79          DATA 0x79 'y'
-    .byte 0x9a              ;506d  9a          DATA 0x9a
-    .byte 0x79              ;506e  79          DATA 0x79 'y'
-    .byte 0xe3              ;506f  e3          DATA 0xe3
-    .byte 0x79              ;5070  79          DATA 0x79 'y'
-    .byte 0x7b              ;5071  7b          DATA 0x7b '{'
-    .byte 0x42              ;5072  42          DATA 0x42 'B'
+
+;TechniSat protocol handlers
+;same order as table of bytes at 0x502b
+;used by lab_50e2
+    .word sub_73a5          ;5043   VECTOR      cmd=5e   Send 10 01 5E <0x0344> CS
+    .word lab_73fe          ;5045   VECTOR      cmd=5f   Disconnect (terminate session)
+    .word 0x7411            ;5047   VECTOR
+    .word 0x7483            ;5049   VECTOR
+    .word 0x74b3            ;504b   VECTOR
+    .word 0x74f6            ;504d   VECTOR
+    .word 0x7542            ;504f   VECTOR
+    .word 0x7576            ;5051   VECTOR
+    .word 0x75a8            ;5053   VECTOR
+    .word 0x75e6            ;5055   VECTOR
+    .word 0x762d            ;5057   VECTOR
+    .word 0x7677            ;5059   VECTOR
+    .word 0x775c            ;505b   VECTOR
+    .word 0x780f            ;505d   VECTOR
+    .word 0x427b            ;505f   VECTOR
+    .word 0x427b            ;5061   VECTOR
+    .word 0x78a2            ;5063   VECTOR
+    .word 0x7919            ;5065   VECTOR
+    .word 0x7947            ;5067   VECTOR
+    .word 0x7a3e            ;5069   VECTOR
+    .word 0x79be            ;506b   VECTOR
+    .word lab_799a          ;506d   VECTOR      cmd=59   Change baud rate
+    .word 0x79e3            ;506f   VECTOR
+    .word 0x427b            ;5071   VECTOR
 
 sub_5073:
     bbc 7,0xf0,lab_509c     ;5073  f7 f0 26
@@ -10063,88 +10022,64 @@ lab_7381:
     pla                     ;7389  68
     rti                     ;738a  40
 
+
+;Send byte in A out the UART
 lab_738b:
     sta TB_RB               ;738b  85 18
 lab_738d:
-    bbc 0,SIO1STS,lab_738d  ;738d  17 19 fd
+    bbc 0,SIO1STS,lab_738d  ;738d  17 19 fd     Wait until transmit buffer empty flag = empty
 lab_7390:
-    bbc 2,SIO1STS,lab_7390  ;7390  57 19 fd
+    bbc 2,SIO1STS,lab_7390  ;7390  57 19 fd     Wait until transmit shift complete flag = complete
     rts                     ;7393  60
 
 
+;Send byte in A out the UART and consume its echo
 sub_7394:
     pha                     ;7394  48
-    sta TB_RB               ;7395  85 18
-
+    sta TB_RB               ;7395  85 18        Store byte in transmit register
 lab_7397:
-    bbc 0,SIO1STS,lab_7397  ;7397  17 19 fd
-
+    bbc 0,SIO1STS,lab_7397  ;7397  17 19 fd     Wait until transmit buffer empty flag = empty
 lab_739a:
-    bbc 2,SIO1STS,lab_739a  ;739a  57 19 fd
+    bbc 2,SIO1STS,lab_739a  ;739a  57 19 fd     Wait until transmit shift complete flag = complete
     nop                     ;739d  ea
-
 lab_739e:
-    bbc 1,SIO1STS,lab_739e  ;739e  37 19 fd
-    lda TB_RB               ;73a1  a5 18
+    bbc 1,SIO1STS,lab_739e  ;739e  37 19 fd     Wait until receive buffer full flag = full
+    lda TB_RB               ;73a1  a5 18        Read echo of byte we just transmitted from rx reg
     pla                     ;73a3  68
     rts                     ;73a4  60
 
-    .byte 0x3c              ;73a5  3c          DATA 0x3c '<'
-    .byte 0xff              ;73a6  ff          DATA 0xff
-    .byte 0x54              ;73a7  54          DATA 0x54 'T'
-    .byte 0x5f              ;73a8  5f          DATA 0x5f '_'
-    .byte 0xf5              ;73a9  f5          DATA 0xf5
-    .byte 0xf7              ;73aa  f7          DATA 0xf7
-    .byte 0xfd              ;73ab  fd          DATA 0xfd
-    .byte 0x2a              ;73ac  2a          DATA 0x2a '*'
-    .byte 0x78              ;73ad  78          DATA 0x78 'x'
-    .byte 0x5f              ;73ae  5f          DATA 0x5f '_'
-    .byte 0x3e              ;73af  3e          DATA 0x3e '>'
-    .byte 0x58              ;73b0  58          DATA 0x58 'X'
-    .byte 0xa9              ;73b1  a9          DATA 0xa9
-    .byte 0x10              ;73b2  10          DATA 0x10
-    .byte 0x20              ;73b3  20          DATA 0x20 ' '
-    .byte 0x94              ;73b4  94          DATA 0x94
-    .byte 0x73              ;73b5  73          DATA 0x73 's'
-    .byte 0xa9              ;73b6  a9          DATA 0xa9
-    .byte 0x01              ;73b7  01          DATA 0x01
-    .byte 0x20              ;73b8  20          DATA 0x20 ' '
-    .byte 0x94              ;73b9  94          DATA 0x94
-    .byte 0x73              ;73ba  73          DATA 0x73 's'
-    .byte 0xa9              ;73bb  a9          DATA 0xa9
-    .byte 0x5e              ;73bc  5e          DATA 0x5e '^'
-    .byte 0x20              ;73bd  20          DATA 0x20 ' '
-    .byte 0x94              ;73be  94          DATA 0x94
-    .byte 0x73              ;73bf  73          DATA 0x73 's'
-    .byte 0xad              ;73c0  ad          DATA 0xad
-    .byte 0x44              ;73c1  44          DATA 0x44 'D'
-    .byte 0x03              ;73c2  03          DATA 0x03
-    .byte 0x20              ;73c3  20          DATA 0x20 ' '
-    .byte 0x94              ;73c4  94          DATA 0x94
-    .byte 0x73              ;73c5  73          DATA 0x73 's'
-    .byte 0x18              ;73c6  18          DATA 0x18
-    .byte 0xa9              ;73c7  a9          DATA 0xa9
-    .byte 0x6f              ;73c8  6f          DATA 0x6f 'o'
-    .byte 0x6d              ;73c9  6d          DATA 0x6d 'm'
-    .byte 0x44              ;73ca  44          DATA 0x44 'D'
-    .byte 0x03              ;73cb  03          DATA 0x03
-    .byte 0x49              ;73cc  49          DATA 0x49 'I'
-    .byte 0xff              ;73cd  ff          DATA 0xff
-    .byte 0x20              ;73ce  20          DATA 0x20 ' '
-    .byte 0x94              ;73cf  94          DATA 0x94
-    .byte 0x73              ;73d0  73          DATA 0x73 's'
-    .byte 0x78              ;73d1  78          DATA 0x78 'x'
-    .byte 0x4f              ;73d2  4f          DATA 0x4f 'O'
-    .byte 0x3e              ;73d3  3e          DATA 0x3e '>'
-    .byte 0x5f              ;73d4  5f          DATA 0x5f '_'
-    .byte 0x3c              ;73d5  3c          DATA 0x3c '<'
-    .byte 0x58              ;73d6  58          DATA 0x58 'X'
-    .byte 0xa9              ;73d7  a9          DATA 0xa9
-    .byte 0x00              ;73d8  00          DATA 0x00
-    .byte 0x8d              ;73d9  8d          DATA 0x8d
-    .byte 0x20              ;73da  20          DATA 0x20 ' '
-    .byte 0x03              ;73db  03          DATA 0x03
-    .byte 0x60              ;73dc  60          DATA 0x60 '`'
+
+;Send 10 01 5E <0x0344> CS
+sub_73a5:
+    ldm #0xff,0x54          ;73a5  3c ff 54
+    clb 2,0xf5              ;73a8  5f f5
+    bbc 7,0xfd,lab_73d7     ;73aa  f7 fd 2a
+    sei                     ;73ad  78
+    clb 2,ICON1             ;73ae  5f 3e
+    cli                     ;73b0  58
+    lda #0x10               ;73b1  a9 10
+    jsr sub_7394            ;73b3  20 94 73     Send byte 0x10
+    lda #0x01               ;73b6  a9 01
+    jsr sub_7394            ;73b8  20 94 73     Send byte 0x01
+    lda #0x5e               ;73bb  a9 5e
+    jsr sub_7394            ;73bd  20 94 73     Send byte 0x5e
+    lda 0x0344              ;73c0  ad 44 03
+    jsr sub_7394            ;73c3  20 94 73     Send byte in 0x0344
+    clc                     ;73c6  18
+    lda #0x6f               ;73c7  a9 6f
+    adc 0x0344              ;73c9  6d 44 03
+    eor #0xff               ;73cc  49 ff
+    jsr sub_7394            ;73ce  20 94 73     Send checksum byte
+    sei                     ;73d1  78
+    seb 2,ICON1             ;73d2  4f 3e
+    clb 2,IREQ1             ;73d4  5f 3c
+    cli                     ;73d6  58
+
+lab_73d7:
+    lda #0x00               ;73d7  a9 00
+    sta 0x0320              ;73d9  8d 20 03
+    rts                     ;73dc  60
+
     .byte 0x0f              ;73dd  0f          DATA 0x0f
     .byte 0xc4              ;73de  c4          DATA 0xc4
     .byte 0x2f              ;73df  2f          DATA 0x2f '/'
@@ -10178,25 +10113,19 @@ lab_739e:
     .byte 0xa5              ;73fb  a5          DATA 0xa5
     .byte 0x73              ;73fc  73          DATA 0x73 's'
     .byte 0x60              ;73fd  60          DATA 0x60 '`'
-    .byte 0xa0              ;73fe  a0          DATA 0xa0
-    .byte 0x01              ;73ff  01          DATA 0x01
-    .byte 0x20              ;7400  20          DATA 0x20 ' '
-    .byte 0xd5              ;7401  d5          DATA 0xd5
-    .byte 0x45              ;7402  45          DATA 0x45 'E'
-    .byte 0x20              ;7403  20          DATA 0x20 ' '
-    .byte 0xa5              ;7404  a5          DATA 0xa5
-    .byte 0x73              ;7405  73          DATA 0x73 's'
-    .byte 0x3c              ;7406  3c          DATA 0x3c '<'
-    .byte 0x40              ;7407  40          DATA 0x40 '@'
-    .byte 0x1c              ;7408  1c          DATA 0x1c
-    .byte 0xdf              ;7409  df          DATA 0xdf
-    .byte 0xfd              ;740a  fd          DATA 0xfd
-    .byte 0x1f              ;740b  1f          DATA 0x1f
-    .byte 0xff              ;740c  ff          DATA 0xff
-    .byte 0x20              ;740d  20          DATA 0x20 ' '
-    .byte 0xc4              ;740e  c4          DATA 0xc4
-    .byte 0xb8              ;740f  b8          DATA 0xb8
-    .byte 0x60              ;7410  60          DATA 0x60 '`'
+
+;TechniSat protocol command 0x5F
+;Disconnect (terminate session)
+lab_73fe:
+    ldy #0x01               ;73fe  a0 01
+    jsr sub_45d5            ;7400  20 d5 45
+    jsr sub_73a5            ;7403  20 a5 73     Send 10 01 5E <0x0344> CS
+    ldm #0x40,BRG           ;7406  3c 40 1c
+    clb 6,0xfd              ;7409  df fd
+    clb 0,0xff              ;740b  1f ff
+    jsr sub_b8c4            ;740d  20 c4 b8     Terminate KWP1281 or TechniSat session
+    rts                     ;7410  60
+
     .byte 0xf7              ;7411  f7          DATA 0xf7
     .byte 0xfd              ;7412  fd          DATA 0xfd
     .byte 0x6e              ;7413  6e          DATA 0x6e 'n'
@@ -11610,46 +11539,38 @@ lab_739e:
     .byte 0xa5              ;7993  a5          DATA 0xa5
     .byte 0x73              ;7994  73          DATA 0x73 's'
     .byte 0x60              ;7995  60          DATA 0x60 '`'
+
+;table of BRG values used by lab_79aa
     .byte 0x40              ;7996  40          DATA 0x40 '@'
     .byte 0x20              ;7997  20          DATA 0x20 ' '
     .byte 0x0f              ;7998  0f          DATA 0x0f
     .byte 0x0a              ;7999  0a          DATA 0x0a
-    .byte 0xa0              ;799a  a0          DATA 0xa0
-    .byte 0x01              ;799b  01          DATA 0x01
-    .byte 0x20              ;799c  20          DATA 0x20 ' '
-    .byte 0xd5              ;799d  d5          DATA 0xd5
-    .byte 0x45              ;799e  45          DATA 0x45 'E'
-    .byte 0xa9              ;799f  a9          DATA 0xa9
-    .byte 0x00              ;79a0  00          DATA 0x00
-    .byte 0xae              ;79a1  ae          DATA 0xae
-    .byte 0x23              ;79a2  23          DATA 0x23 '#'
-    .byte 0x03              ;79a3  03          DATA 0x03
-    .byte 0xe0              ;79a4  e0          DATA 0xe0
-    .byte 0x04              ;79a5  04          DATA 0x04
-    .byte 0x90              ;79a6  90          DATA 0x90
-    .byte 0x02              ;79a7  02          DATA 0x02
-    .byte 0xa9              ;79a8  a9          DATA 0xa9
-    .byte 0x10              ;79a9  10          DATA 0x10
-    .byte 0x8d              ;79aa  8d          DATA 0x8d
-    .byte 0x44              ;79ab  44          DATA 0x44 'D'
-    .byte 0x03              ;79ac  03          DATA 0x03
-    .byte 0x20              ;79ad  20          DATA 0x20 ' '
-    .byte 0xa5              ;79ae  a5          DATA 0xa5
-    .byte 0x73              ;79af  73          DATA 0x73 's'
-    .byte 0xad              ;79b0  ad          DATA 0xad
-    .byte 0x44              ;79b1  44          DATA 0x44 'D'
-    .byte 0x03              ;79b2  03          DATA 0x03
-    .byte 0xd0              ;79b3  d0          DATA 0xd0
-    .byte 0x08              ;79b4  08          DATA 0x08
-    .byte 0xae              ;79b5  ae          DATA 0xae
-    .byte 0x23              ;79b6  23          DATA 0x23 '#'
-    .byte 0x03              ;79b7  03          DATA 0x03
-    .byte 0xbd              ;79b8  bd          DATA 0xbd
-    .byte 0x96              ;79b9  96          DATA 0x96
-    .byte 0x79              ;79ba  79          DATA 0x79 'y'
-    .byte 0x85              ;79bb  85          DATA 0x85
-    .byte 0x1c              ;79bc  1c          DATA 0x1c
-    .byte 0x60              ;79bd  60          DATA 0x60 '`'
+
+;TechniSat protocol command 0x59
+;Change baud rate
+;First parameter is an index to the baud rates table above.
+;Response will be sent at current baud rate, then rate changed.
+lab_799a:
+    ldy #0x01               ;799a  a0 01
+    jsr sub_45d5            ;799c  20 d5 45
+    lda #0x00               ;799f  a9 00
+    ldx 0x0323              ;79a1  ae 23 03
+    cpx #0x04               ;79a4  e0 04
+    bcc lab_79aa            ;79a6  90 02
+    lda #0x10               ;79a8  a9 10
+
+lab_79aa:
+    sta 0x0344              ;79aa  8d 44 03
+    jsr sub_73a5            ;79ad  20 a5 73     Send 10 01 5E <0x0344> CS
+    lda 0x0344              ;79b0  ad 44 03
+    bne lab_79bd            ;79b3  d0 08
+    ldx 0x0323              ;79b5  ae 23 03
+    lda 0x7996,x            ;79b8  bd 96 79
+    sta BRG                 ;79bb  85 1c
+
+lab_79bd:
+    rts                     ;79bd  60
+
     .byte 0xf7              ;79be  f7          DATA 0xf7
     .byte 0xfd              ;79bf  fd          DATA 0xfd
     .byte 0x21              ;79c0  21          DATA 0x21 '!'
@@ -23289,7 +23210,7 @@ lab_b483:
 
 sub_b484:
     jsr sub_879f            ;b484  20 9f 87
-    jsr sub_b8c4            ;b487  20 c4 b8
+    jsr sub_b8c4            ;b487  20 c4 b8     Terminate KWP1281 or TechniSat session
     clb 1,0xfc              ;b48a  3f fc
     bbc 3,P8_P4I,lab_b491   ;b48c  77 10 02
     seb 1,0xfc              ;b48f  2f fc
@@ -23815,7 +23736,7 @@ lab_b7ff:
 sub_b800:
     bbs 1,0xfc,lab_b809     ;b800  27 fc 06
     bbc 0,0xf4,lab_b809     ;b803  17 f4 03
-    jmp sub_b8c4            ;b806  4c c4 b8
+    jmp sub_b8c4            ;b806  4c c4 b8     Terminate KWP1281 or TechniSat session
 
 lab_b809:
     jsr sub_87c8            ;b809  20 c8 87
@@ -23830,7 +23751,7 @@ lab_b819:
     lda 0xc0                ;b819  a5 c0
     bne lab_b819            ;b81b  d0 fc
     lda #0x55               ;b81d  a9 55
-    jsr sub_7394            ;b81f  20 94 73
+    jsr sub_7394            ;b81f  20 94 73     Send byte in A out the UART
     lda #0x06               ;b822  a9 06
     sta 0xc1                ;b824  85 c1
 
@@ -23838,7 +23759,7 @@ lab_b826:
     lda 0xc1                ;b826  a5 c1
     bne lab_b826            ;b828  d0 fc
     lda #0x01               ;b82a  a9 01
-    jsr sub_7394            ;b82c  20 94 73
+    jsr sub_7394            ;b82c  20 94 73     Send byte in A out the UART
     lda #0x03               ;b82f  a9 03
     sta 0xc1                ;b831  85 c1
 
@@ -23846,7 +23767,7 @@ lab_b833:
     lda 0xc1                ;b833  a5 c1
     bne lab_b833            ;b835  d0 fc
     lda #0x8a               ;b837  a9 8a
-    jsr sub_7394            ;b839  20 94 73
+    jsr sub_7394            ;b839  20 94 73     Send byte in A out the UART
     lda #0xe8               ;b83c  a9 e8
     sta 0xc1                ;b83e  85 c1
 
@@ -23927,6 +23848,7 @@ lab_b8be:
 lab_b8c1:
     jsr sub_ae1b            ;b8c1  20 1b ae
 
+;Terminate KWP1281 or TechniSat session
 sub_b8c4:
     clb 7,SIO1CON           ;b8c4  ff 1a        Serial I/O1 enabled bit = disabled
     ldm #0x00,0xc0          ;b8c6  3c 00 c0
@@ -24114,7 +24036,7 @@ lab_b9ee:
     jmp lab_ba29            ;b9f5  4c 29 ba
 
 lab_b9f8:
-    jsr sub_7394            ;b9f8  20 94 73
+    jsr sub_7394            ;b9f8  20 94 73     Send byte in A out the UART
     lda #0x38               ;b9fb  a9 38
     sta 0xc1                ;b9fd  85 c1
 
@@ -24147,7 +24069,7 @@ lab_ba22:
     jmp lab_b9ee            ;ba26  4c ee b9
 
 lab_ba29:
-    jsr sub_7394            ;ba29  20 94 73
+    jsr sub_7394            ;ba29  20 94 73     Send byte in A out the UART
 
 lab_ba2c:
     rts                     ;ba2c  60
@@ -24190,7 +24112,7 @@ lab_ba63:
     lda 0xc1                ;ba63  a5 c1
     bne lab_ba63            ;ba65  d0 fc
     pla                     ;ba67  68
-    jsr sub_7394            ;ba68  20 94 73
+    jsr sub_7394            ;ba68  20 94 73     Send byte in A out the UART
     inx                     ;ba6b  e8
     jmp lab_ba35            ;ba6c  4c 35 ba
 
@@ -24287,7 +24209,7 @@ lab_baf0:
     dex                     ;baf0  ca
     bpl lab_bad8            ;baf1  10 e5
     lda #0x75               ;baf3  a9 75
-    jsr sub_7394            ;baf5  20 94 73
+    jsr sub_7394            ;baf5  20 94 73     Send byte in A out the UART
     jsr sub_ba2d            ;baf8  20 2d ba
     lda 0xce                ;bafb  a5 ce
     beq lab_bb06            ;bafd  f0 07
