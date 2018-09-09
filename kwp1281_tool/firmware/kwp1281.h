@@ -13,7 +13,6 @@ typedef enum
     KWP_BAD_COMPLEMENT = 3,
     KWP_BAD_BLK_LENGTH = 4,
     KWP_BAD_BLK_END = 5,
-    KWP_BAD_BLK_COUNTER = 6,
     KWP_RX_OVERFLOW = 7,
     KWP_UNEXPECTED = 8,
     KWP_MEM_TOO_SHORT = 9,

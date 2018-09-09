@@ -14,7 +14,6 @@ const char * kwp_describe_result(kwp_result_t result) {
         case KWP_BAD_ECHO:          return "Bad echo received";
         case KWP_BAD_COMPLEMENT:    return "Bad complement received";
         case KWP_BAD_BLK_LENGTH:    return "Bad block length received";
-        case KWP_BAD_BLK_COUNTER:   return "Wrong block counter received";
         case KWP_BAD_BLK_END:       return "Bad block end marker byte received";
         case KWP_RX_OVERFLOW:       return "RX buffer overflow";
         case KWP_UNEXPECTED:        return "Unexpected block title received";
@@ -191,8 +190,12 @@ kwp_result_t kwp_receive_block()
                 if (kwp_is_first_block) {   // set initial value
                     kwp_block_counter = c;
                     kwp_is_first_block = false;
-                } else {                    // increment; detect mismatch
-                    if (++kwp_block_counter != c) { return KWP_BAD_BLK_COUNTER; }
+                } else {
+                    kwp_block_counter++;
+                    // we used to detect a mismatch in the block counter here but had
+                    // to remove the check.  it worked fine on several radios but not
+                    // on the vw rhapsody (technisat), which does not always send the
+                    // correct block counter.
                 }
                 // fall through
             default:
