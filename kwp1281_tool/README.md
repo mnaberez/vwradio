@@ -72,5 +72,6 @@ The tool reliably communicates with these radios:
  - VW Premium 5 (Delco)
  - VW Gamma 5 (Sony)
  - VW Gamma 5 (TechniSat)
+ - VW Rhapsody (TechniSat)
 
 It is likely to work with more radios and other modules as well.
