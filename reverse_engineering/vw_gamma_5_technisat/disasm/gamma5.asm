@@ -3823,13 +3823,13 @@ lab_34f4:
     .word lab_5b37          ;358a  37 5b       VECTOR   cmd=5f   Disconnect (terminate session)
     .word lab_5b4a          ;358c  4a 5b       VECTOR   cmd=42
     .word lab_5bbb          ;358e  bb 5b       VECTOR   cmd=43
-    .word lab_5beb          ;3590  eb 5b       VECTOR   cmd=44
+    .word lab_5beb          ;3590  eb 5b       VECTOR   cmd=44   Read arbitrary memory <= 0x0500 ?
     .word lab_5c2e          ;3592  2e 5c       VECTOR   cmd=45   Disables EEPROM filtering based on payload
-    .word lab_5c7e          ;3594  7e 5c       VECTOR   cmd=46
-    .word lab_5cb2          ;3596  b2 5c       VECTOR   cmd=47
-    .word lab_5ce4          ;3598  e4 5c       VECTOR   cmd=4a
-    .word lab_5d22          ;359a  22 5d       VECTOR   cmd=4b
-    .word lab_5d69          ;359c  69 5d       VECTOR   cmd=4c
+    .word lab_5c7e          ;3594  7e 5c       VECTOR   cmd=46   AND memory in allowed ranges with complement of a value
+    .word lab_5cb2          ;3596  b2 5c       VECTOR   cmd=47   OR memory in allowed ranges with a value
+    .word lab_5ce4          ;3598  e4 5c       VECTOR   cmd=4a   ? mem_59fd read bytes [0x4c],y
+    .word lab_5d22          ;359a  22 5d       VECTOR   cmd=4b   ? mem_59fd write bytes [0x4c,x]
+    .word lab_5d69          ;359c  69 5d       VECTOR   cmd=4c   ? mem_95fd AND bytes [0x4c],y
     .word lab_5db3          ;359e  b3 5d       VECTOR   cmd=4d   Disables EEPROM filtering based on payload
     .word lab_5e97          ;35a0  97 5e       VECTOR   cmd=48   Read EEPROM data
     .word lab_5f4d          ;35a2  4d 5f       VECTOR   cmd=49   Write EEPROM data
@@ -9857,27 +9857,18 @@ lab_59d2:
     .byte 0x85              ;59fa  85          DATA 0x85
     .byte 0x40              ;59fb  40          DATA 0x40 '@'
     .byte 0x60              ;59fc  60          DATA 0x60 '`'
-    .byte 0xb0              ;59fd  b0          DATA 0xb0
-    .byte 0x20              ;59fe  20          DATA 0x20 ' '
-    .byte 0xf0              ;59ff  f0          DATA 0xf0
-    .byte 0x10              ;5a00  10          DATA 0x10
-    .byte 0xf1              ;5a01  f1          DATA 0xf1
-    .byte 0x10              ;5a02  10          DATA 0x10
-    .byte 0xf2              ;5a03  f2          DATA 0xf2
-    .byte 0x10              ;5a04  10          DATA 0x10
-    .byte 0xe9              ;5a05  e9          DATA 0xe9
-    .byte 0x10              ;5a06  10          DATA 0x10
-    .byte 0x88              ;5a07  88          DATA 0x88
-    .byte 0x12              ;5a08  12          DATA 0x12
-    .byte 0x50              ;5a09  50          DATA 0x50 'P'
-    .byte 0x10              ;5a0a  10          DATA 0x10
-    .byte 0x71              ;5a0b  71          DATA 0x71 'q'
-    .byte 0x10              ;5a0c  10          DATA 0x10
-    .byte 0x90              ;5a0d  90          DATA 0x90
-    .byte 0x20              ;5a0e  20          DATA 0x20 ' '
-    .byte 0xff              ;5a0f  ff          DATA 0xff
-    .byte 0x10              ;5a10  10          DATA 0x10
 
+mem_59fd:
+    .word 0x20b0            ;59fd   2 bytes at 0x00b0
+    .word 0x10f0            ;59ff   2 bytes at 0x00f0
+    .word 0x10f1            ;5a01   1 byte  at 0x00f1
+    .word 0x10f2            ;5a03   1 byte  at 0x00f2
+    .word 0x10e9            ;5a05   1 byte  at 0x00e9
+    .word 0x1288            ;5a07   1 byte  at 0x0288
+    .word 0x1050            ;5a98   1 byte  at 0x0050
+    .word 0x1071            ;5a0b   1 byte  at 0x0071
+    .word 0x2090            ;5a0d   2 bytes at 0x0090
+    .word 0x10ff            ;5a0f   1 byte  at 0x00ff
 
 ;ISR for INT_FFF6
 ;Serial I/O 1 reception
@@ -10198,21 +10189,27 @@ lab_5beb:
     bbc 7,0xe8,lab_5c2d     ;5beb  f7 e8 3f
     ldy #0x01               ;5bee  a0 01
     jsr sub_f22c            ;5bf0  20 2c f2
+
     lda 0x0323              ;5bf3  ad 23 03     A = uart rx buffer byte 3
     sta 0x4c                ;5bf6  85 4c
+
     lda 0x0324              ;5bf8  ad 24 03     A = uart rx buffer byte 4
     sta 0x4d                ;5bfb  85 4d
+
     lda 0x0325              ;5bfd  ad 25 03     A = uart rx buffer byte 5
     sta 0x4f                ;5c00  85 4f
+
     dec a                   ;5c02  1a
     clc                     ;5c03  18
     adc 0x4c                ;5c04  65 4c
     sta 0x4e                ;5c06  85 4e
+
     lda #0x00               ;5c08  a9 00
     adc 0x4d                ;5c0a  65 4d
     cmp #0x05               ;5c0c  c9 05
     bcc lab_5c18            ;5c0e  90 08
     bne lab_5c25            ;5c10  d0 13
+
     lda 0x4e                ;5c12  a5 4e
     cmp #0x40               ;5c14  c9 40
     bcs lab_5c25            ;5c16  b0 0d
@@ -10221,7 +10218,7 @@ lab_5c18:
     ldm #0x00,0x4e          ;5c18  3c 00 4e
     lda #0x00               ;5c1b  a9 00
     sta 0x0344              ;5c1d  8d 44 03     Store as TechniSat protocol status byte
-    jsr sub_5e05            ;5c20  20 05 5e     Send 10 4F 44 <data, data...> CS
+    jsr sub_5e05            ;5c20  20 05 5e     Send 10 4F 44 <data [0x4c],y...> CS
     bra lab_5c2d            ;5c23  80 08
 
 lab_5c25:
@@ -10280,7 +10277,7 @@ lab_5c6b:
     lda #0x00               ;5c6b  a9 00
     sta 0x0344              ;5c6d  8d 44 03     Store as TechniSat protocol status byte
 
-    jsr sub_5e47            ;5c70  20 47 5e
+    jsr sub_5e47            ;5c70  20 47 5e     TODO write to memory from uart rx buffer to [0x4c,x]
     bcc lab_5c7a            ;5c73  90 05        Branch if success
 
     lda #0x04               ;5c75  a9 04
@@ -10293,6 +10290,8 @@ lab_5c7d:
     rts                     ;5c7d  60
 
 ;TechniSat protocol command 0x46
+;AND one memory address in allowed ranges with complement of a value
+;allowed ranges = 0, 2, 4, 6, 8, a, c, e, 0x10, 0x0040-0x053f
 lab_5c7e:
     ldy #0x01               ;5c7e  a0 01
     jsr sub_f22c            ;5c80  20 2c f2
@@ -10313,7 +10312,7 @@ lab_5c7e:
     bcs lab_5ca9            ;5c9a  b0 0d        Branch if not allowed
 
     ldy #0x00               ;5c9c  a0 00
-    sty 0x0344              ;5c9e  8c 44 03
+    sty 0x0344              ;5c9e  8c 44 03     Store as TechniSat protocol status byte
 
     lda [0x4c],y            ;5ca1  b1 4c
     and 0x4e                ;5ca3  25 4e
@@ -10329,6 +10328,8 @@ lab_5cae:
     rts                     ;5cb1  60
 
 ;TechniSat protocol command 0x47
+;OR one memory address in allowed ranges with a value
+;allowed ranges = 0, 2, 4, 6, 8, a, c, e, 0x10, 0x0040-0x053f
 lab_5cb2:
     ldy #0x01               ;5cb2  a0 01
     jsr sub_f22c            ;5cb4  20 2c f2
@@ -10348,7 +10349,7 @@ lab_5cb2:
     bcs lab_5cdb            ;5ccc  b0 0d        Branch if not allowed
 
     ldy #0x00               ;5cce  a0 00
-    sty 0x0344              ;5cd0  8c 44 03
+    sty 0x0344              ;5cd0  8c 44 03     Store as TechniSat protocol status byte
 
     lda [0x4c],y            ;5cd3  b1 4c
     ora 0x4e                ;5cd5  05 4e
@@ -10370,29 +10371,30 @@ lab_5ce4:
     jsr sub_f22c            ;5ce9  20 2c f2
 
     lda 0x0323              ;5cec  ad 23 03     A = uart rx buffer byte 3
-    cmp #0x0a               ;5cef  c9 0a
+    cmp #0x0a               ;5cef  c9 0a        Compare to number of words in mem_59fd
+    bcs lab_5d19            ;5cf1  b0 26        Branch if out of range
 
-    bcs lab_5d19            ;5cf1  b0 26
-    asl a                   ;5cf3  0a
+    asl a                   ;5cf3  0a           * 2 to calculate offset of word
     tay                     ;5cf4  a8
 
-    lda 0x59fd,y            ;5cf5  b9 fd 59
+    lda mem_59fd,y          ;5cf5  b9 fd 59
     sta 0x4c                ;5cf8  85 4c
 
-    lda 0x59fe,y            ;5cfa  b9 fe 59
+    lda mem_59fd+1,y        ;5cfa  b9 fe 59
     and #0x0f               ;5cfd  29 0f
     sta 0x4d                ;5cff  85 4d
 
     ldm #0x00,0x4e          ;5d01  3c 00 4e
     ldm #0x01,0x4f          ;5d04  3c 01 4f
-    lda 0x59fe,y            ;5d07  b9 fe 59
+    lda mem_59fd+1,y        ;5d07  b9 fe 59
+
     bbc 5,a,lab_5d0f        ;5d0a  b3 03
     ldm #0x02,0x4f          ;5d0c  3c 02 4f
 
 lab_5d0f:
     lda #0x00               ;5d0f  a9 00
     sta 0x0344              ;5d11  8d 44 03     Store as TechniSat protocol status byte
-    jsr sub_5e05            ;5d14  20 05 5e     Send 10 4F 44 <data, data...> CS
+    jsr sub_5e05            ;5d14  20 05 5e     Send 10 4F 44 <data [0x4c],y...> CS
     bra lab_5d1e            ;5d17  80 05
 
 lab_5d19:
@@ -10414,26 +10416,29 @@ lab_5d22:
     bcs lab_5d60            ;5d2c  b0 32
     asl a                   ;5d2e  0a
     tay                     ;5d2f  a8
-    lda 0x59fd,y            ;5d30  b9 fd 59
+    lda mem_59fd,y          ;5d30  b9 fd 59
     sta 0x4c                ;5d33  85 4c
-    lda 0x59fe,y            ;5d35  b9 fe 59
+    lda mem_59fd+1,y        ;5d35  b9 fe 59
     and #0x0f               ;5d38  29 0f
     sta 0x4d                ;5d3a  85 4d
     ldm #0x01,0x4e          ;5d3c  3c 01 4e
-    lda 0x59fe,y            ;5d3f  b9 fe 59
+    lda mem_59fd+1,y        ;5d3f  b9 fe 59
     bbc 5,a,lab_5d47        ;5d42  b3 03
     ldm #0x02,0x4e          ;5d44  3c 02 4e
 
 lab_5d47:
     ldm #0x00,0x4f          ;5d47  3c 00 4f
+
     lda 0x0325              ;5d4a  ad 25 03     A = uart rx buffer byte 5
     sta 0x0326              ;5d4d  8d 26 03
+
     lda 0x0324              ;5d50  ad 24 03     A = uart rx buffer byte 4
     sta 0x0325              ;5d53  8d 25 03
+
     lda #0x00               ;5d56  a9 00
     sta 0x0344              ;5d58  8d 44 03     Store as TechniSat protocol status byte
 
-    jsr sub_5e47            ;5d5b  20 47 5e
+    jsr sub_5e47            ;5d5b  20 47 5e     TODO write to memory from uart rx buffer to [0x4c,x]
     bcc lab_5d65            ;5d5e  90 05        Branch if success
 
 lab_5d60:
@@ -10457,9 +10462,9 @@ lab_5d69:
     beq lab_5da6            ;5d7b  f0 29
     asl a                   ;5d7d  0a
     tay                     ;5d7e  a8
-    lda 0x59fd,y            ;5d7f  b9 fd 59
+    lda mem_59fd,y          ;5d7f  b9 fd 59
     sta 0x4c                ;5d82  85 4c
-    lda 0x59fe,y            ;5d84  b9 fe 59
+    lda mem_59fd+1,y        ;5d84  b9 fe 59
     and #0x0f               ;5d87  29 0f
     sta 0x4d                ;5d89  85 4d
     lda 0x0324              ;5d8b  ad 24 03     A = uart rx buffer byte 4
@@ -10516,9 +10521,9 @@ lab_5db3:
 
     asl a                   ;5dc7  0a
     tay                     ;5dc8  a8
-    lda 0x59fd,y            ;5dc9  b9 fd 59
+    lda mem_59fd,y          ;5dc9  b9 fd 59
     sta 0x4c                ;5dcc  85 4c
-    lda 0x59fe,y            ;5dce  b9 fe 59
+    lda mem_59fd+1,y        ;5dce  b9 fe 59
     and #0x0f               ;5dd1  29 0f
     sta 0x4d                ;5dd3  85 4d
 
@@ -10558,7 +10563,7 @@ lab_5e01:
     rts                     ;5e04  60
 
 
-;Send 10 4F 44 <data, data...> CS
+;Send 10 4F 44 <data [0x4c],y...> CS
 sub_5e05:
     seb 6,0xe5              ;5e05  cf e5
     lda #0x10               ;5e07  a9 10
@@ -10593,6 +10598,8 @@ lab_5e29:
     rts                     ;5e46  60
 
 
+;TODO write to memory from uart rx buffer to [0x4c,x]
+;
 ;Called from TechniSat command 0x45 (lab_5c2e)
 ;   and from TechniSat command 0x4B (lab_5d22)
 ;
@@ -10624,9 +10631,9 @@ lab_5e61:
 ;Check if word in 0x4c is in allowed ranges
 ;Returns status in carry
 ;
-;Carry clear:
+;Carry clear (allowed):
 ;  0, 2, 4, 6, 8, a, c, e, 0x10, 0x0040-0x053f
-;Carry set:
+;Carry set (not allowed):
 ;  1, 3, 5, 7, 9, b, d, f, 0x11-0x3f, 0x0540-0xffff
 ;
 sub_5e62:
@@ -11241,38 +11248,28 @@ lab_6176:
     jsr sub_5adf            ;6176  20 df 5a     Send 10 01 5E <0x0344> CS
     rts                     ;6179  60
 
+;table of 2 bytes used by lab_619a
+mem_617a:
     .byte 0x1c              ;617a  1c          DATA 0x1c
     .byte 0x62              ;617b  62          DATA 0x62 'b'
-    .byte 0x4a              ;617c  4a          DATA 0x4a 'J'
-    .byte 0x62              ;617d  62          DATA 0x62 'b'
-    .byte 0x25              ;617e  25          DATA 0x25 '%'
-    .byte 0x62              ;617f  62          DATA 0x62 'b'
-    .byte 0xaf              ;6180  af          DATA 0xaf
-    .byte 0x62              ;6181  62          DATA 0x62 'b'
-    .byte 0x2f              ;6182  2f          DATA 0x2f '/'
-    .byte 0x62              ;6183  62          DATA 0x62 'b'
-    .byte 0xb8              ;6184  b8          DATA 0xb8
-    .byte 0x62              ;6185  62          DATA 0x62 'b'
-    .byte 0x38              ;6186  38          DATA 0x38 '8'
-    .byte 0x62              ;6187  62          DATA 0x62 'b'
-    .byte 0xc3              ;6188  c3          DATA 0xc3
-    .byte 0x62              ;6189  62          DATA 0x62 'b'
-    .byte 0x3f              ;618a  3f          DATA 0x3f '?'
-    .byte 0x62              ;618b  62          DATA 0x62 'b'
-    .byte 0x49              ;618c  49          DATA 0x49 'I'
-    .byte 0x62              ;618d  62          DATA 0x62 'b'
-    .byte 0x3f              ;618e  3f          DATA 0x3f '?'
-    .byte 0x62              ;618f  62          DATA 0x62 'b'
-    .byte 0x49              ;6190  49          DATA 0x49 'I'
-    .byte 0x62              ;6191  62          DATA 0x62 'b'
-    .byte 0x40              ;6192  40          DATA 0x40 '@'
-    .byte 0x62              ;6193  62          DATA 0x62 'b'
-    .byte 0xc9              ;6194  c9          DATA 0xc9
-    .byte 0x62              ;6195  62          DATA 0x62 'b'
-    .byte 0x44              ;6196  44          DATA 0x44 'D'
-    .byte 0x62              ;6197  62          DATA 0x62 'b'
-    .byte 0xd2              ;6198  d2          DATA 0xd2
-    .byte 0x62              ;6199  62          DATA 0x62 'b'
+
+;table of code addresses used by lab_619a
+mem_617c:
+    .word 0x624a            ;617c   VECTOR
+    .word 0x6225            ;617e   VECTOR
+    .word 0x62af            ;6180   VECTOR
+    .word 0x622f            ;6182   VECTOR
+    .word 0x62b8            ;6184   VECTOR
+    .word 0x6238            ;6186   VECTOR
+    .word 0x62c3            ;6188   VECTOR
+    .word 0x623f            ;618a   VECTOR
+    .word 0x6249            ;618c   VECTOR
+    .word 0x623f            ;618e   VECTOR
+    .word 0x6249            ;6190   VECTOR
+    .word 0x6240            ;6192   VECTOR
+    .word 0x62c9            ;6194   VECTOR
+    .word 0x6244            ;6196   VECTOR
+    .word 0x62d2            ;6198   VECTOR
 
 ;TechniSat protocol command 0x53
 lab_619a:
@@ -11289,13 +11286,13 @@ lab_619a:
     asl a                   ;61b4  0a
     asl a                   ;61b5  0a
     tay                     ;61b6  a8
-    lda 0x617a,y            ;61b7  b9 7a 61
+    lda mem_617a,y            ;61b7  b9 7a 61
     sta 0x40                ;61ba  85 40
-    lda 0x617b,y            ;61bc  b9 7b 61
+    lda mem_617a+1,y            ;61bc  b9 7b 61
     sta 0x41                ;61bf  85 41
-    lda 0x617c,y            ;61c1  b9 7c 61
+    lda mem_617c,y            ;61c1  b9 7c 61
     sta 0x42                ;61c4  85 42
-    lda 0x617d,y            ;61c6  b9 7d 61
+    lda mem_617c+1,y            ;61c6  b9 7d 61
     sta 0x43                ;61c9  85 43
     jsr [0x42]              ;61cb  02 42
     ldy #0x00               ;61cd  a0 00

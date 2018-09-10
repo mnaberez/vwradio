@@ -66,7 +66,7 @@ static tsat_result_t _recv_byte(uint8_t *rx_byte_out)
 }
 
 
-static tsat_result_t tec_receive_block()
+tsat_result_t tsat_receive_block()
 {
     uart_puts(UART_DEBUG, "RECV: ");
 
@@ -141,14 +141,14 @@ tsat_result_t tsat_disconnect()
     // send authentication block
     uint8_t block[] = { 0x10, // only responds if this is 2-0xff
                         0x01, // only responds if this is 1
-                        0x00, // number of parameters after command (0)
+                        0x00, // number of parameters after command
                         0x5f, // command 0x5f (disconnect)
                         0     // checksum (will be calculated)
                       };
     tsat_result_t result = tsat_send_block(block);
 
     // receive authentication response block
-    result = tec_receive_block();
+    result = tsat_receive_block();
     if (result != TSAT_SUCCESS) { return result; }
 
     // check status
@@ -159,20 +159,105 @@ tsat_result_t tsat_disconnect()
     }
 }
 
+tsat_result_t tsat_and(uint16_t address, uint8_t mask) {
+    uart_puts(UART_DEBUG, "PERFORM AND\n");
+
+    uint8_t block[] = { 0x10, // only responds if this is 2-0xff
+                        0x01, // only responds if this is 1
+                        0x03, // number of parameters after command
+                        0x46, // command
+                        LOW(address),
+                        HIGH(address),
+                        (mask ^ 0xff),
+                        0     // checksum (will be calculated)
+                      };
+    tsat_result_t result = tsat_send_block(block);
+
+    result = tsat_receive_block();
+    if (result != TSAT_SUCCESS) { return result; }
+
+    // check status
+    if ((tsat_rx_buf[2] == 0x5e) && (tsat_rx_buf[3] == 0x00)) {
+        return TSAT_SUCCESS;
+    } else {
+        return TSAT_UNEXPECTED;
+    }
+}
+
+tsat_result_t tsat_or(uint16_t address, uint8_t mask) {
+    uart_puts(UART_DEBUG, "PERFORM OR\n");
+
+    uint8_t block[] = { 0x10, // only responds if this is 2-0xff
+                        0x01, // only responds if this is 1
+                        0x03, // number of parameters after command
+                        0x47, // command
+                        LOW(address),
+                        HIGH(address),
+                        mask,
+                        0     // checksum (will be calculated)
+                      };
+    tsat_result_t result = tsat_send_block(block);
+
+    result = tsat_receive_block();
+    if (result != TSAT_SUCCESS) { return result; }
+
+    // check status
+    if ((tsat_rx_buf[2] == 0x5e) && (tsat_rx_buf[3] == 0x00)) {
+        return TSAT_SUCCESS;
+    } else {
+        return TSAT_UNEXPECTED;
+    }
+}
+
+tsat_result_t tsat_write(uint16_t address, uint8_t value) {
+    tsat_result_t result = tsat_and(address, 0);
+    if (result != TSAT_SUCCESS) { return result; }
+
+    result = tsat_or(address, value);
+    return result;
+}
+
+
+tsat_result_t tsat_read_ram(uint16_t address, uint8_t count)
+{
+    uart_puts(UART_DEBUG, "PERFORM READ RAM\n");
+
+    uint8_t block[] = { 0x10, // only responds if this is 2-0xff
+                        0x01, // only responds if this is 1
+                        0x03, // number of parameters after command
+                        0x44, // command
+                        LOW(address),
+                        HIGH(address),
+                        count,
+                        0     // checksum (will be calculated)
+                      };
+    tsat_result_t result = tsat_send_block(block);
+
+    result = tsat_receive_block();
+    if (result != TSAT_SUCCESS) { return result; }
+
+    // check status
+    if ((tsat_rx_buf[2] == 0x44) && (tsat_rx_buf[3] == 0x00)) {
+        return TSAT_SUCCESS;
+    } else {
+        return TSAT_UNEXPECTED;
+    }
+}
+
+
 tsat_result_t tsat_hello()
 {
     uart_puts(UART_DEBUG, "PERFORM HELLO\n");
 
-    // send hello block
     uint8_t block[] = { 0x10, // only responds if this is 2-0xff
                         0x01, // only responds if this is 1
-                        0x00, // number of parameters after command (1)
+                        0x00, // number of parameters after command
                         0x5e, // command 0x5e
                         0     // checksum (will be calculated)
                       };
     tsat_result_t result = tsat_send_block(block);
 
-    result = tec_receive_block();
+    result = tsat_receive_block();
     if (result != TSAT_SUCCESS) { return result; }
 
     // check status
@@ -190,7 +275,7 @@ tsat_result_t tsat_disable_eeprom_filter()
     // send disable eeprom filter block
     uint8_t block[] = { 0x10, // only responds if this is 2-0xff
                         0x01, // only responds if this is 1
-                        0x01, // number of parameters after command (1)
+                        0x01, // number of parameters after command
                         0x4d, // command 0x4d
                         0x04, // param 0: 0x04 = disable eeprom filtering
                         0     // checksum (will be calculated)
@@ -198,7 +283,7 @@ tsat_result_t tsat_disable_eeprom_filter()
     tsat_result_t result = tsat_send_block(block);
 
     // receive authentication response block
-    result = tec_receive_block();
+    result = tsat_receive_block();
     if (result != TSAT_SUCCESS) { return result; }
 
     // check status
@@ -217,7 +302,7 @@ tsat_result_t tsat_read_eeprom(uint16_t address, uint8_t size)
     // send read eeprom block
     uint8_t block[] = { 0x10,           // only responds if this is 2-0xff
                         0x01,           // only responds if this is 1
-                        0x03,           // number of parameters after command (3)
+                        0x03,           // number of parameters after command
                         0x48,           // command 0x48 (read eeprom)
                         LOW(address),   // param 0: eeprom address low
                         HIGH(address),  // param 1: eeprom address high
@@ -227,7 +312,7 @@ tsat_result_t tsat_read_eeprom(uint16_t address, uint8_t size)
     tsat_result_t result = tsat_send_block(block);
 
     // receive read eeprom response block
-    result = tec_receive_block();
+    result = tsat_receive_block();
     if (result != TSAT_SUCCESS) { return result; }
 
     // check status
@@ -264,7 +349,7 @@ tsat_result_t tsat_write_eeprom(uint16_t address, uint8_t size, uint8_t *data)
     uart_puts(UART_DEBUG, "\n");
 
     // receive read eeprom response block
-    tsat_result_t result = tec_receive_block();
+    tsat_result_t result = tsat_receive_block();
     if (result != TSAT_SUCCESS) { return result; }
 
     // check status
@@ -305,7 +390,7 @@ tsat_result_t tsat_connect(uint8_t address, uint32_t baud)
 
     // try to receive a block
     // gamma 5 sends a block, rhapsody sends nothing
-    tsat_result_t result = tec_receive_block();
+    tsat_result_t result = tsat_receive_block();
 
     if (result == TSAT_SUCCESS) {
         // radio sent a block (probably gamma 5)
