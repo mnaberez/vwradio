@@ -14889,8 +14889,8 @@ lab_4e4f_eq_1:
     ;used if mem_f06d = 0x01
     movw hl,#kwp_rx_buf     ;4e4f  16 8a f0     HL = pointer to KWP1281 rx buffer
     mov a,[hl+02h]          ;4e52  ae 02        A = block title to find
-    movw hl,#kwp_7c_titles+1 ;4e54  16 a5 b2    HL = pointer to table of block titles
-    mov b,#08h              ;4e57  a3 08        B = 8 block titles in table
+    movw hl,#new_kwp_7c_titles+1 ;4e54  16 a5 b2    HL = pointer to table of block titles
+    mov b,#new_kwp_7c_num_titles ;4e57  a3 08        B = number of block titles in table
 
 lab_4e59:
     cmp a,[hl+b]            ;4e59  31 4b
@@ -14899,9 +14899,9 @@ lab_4e59:
     br !lab_5355            ;4e5f  9b 55 53     Branch to Send NAK response (index 0x04)
 
 lab_4e62_title_ok:
-    ;title found in kwp_7c_titles
+    ;title found in new_kwp_7c_titles
     mov a,b                 ;4e62  63
-    movw hl,#kwp_7c_handlers+1 ;4e63  16 af b2
+    movw hl,#new_kwp_7c_handlers+1 ;4e63  16 af b2
     rol a,1                 ;4e66  26
     mov b,a                 ;4e67  73
     mov a,[hl+b]            ;4e68  ab
@@ -36681,7 +36681,7 @@ kwp_7c_titles:
     db 0ch                      ;b2ad  0c          DATA 0x0c        B=8 write eeprom
 
 kwp_7c_handlers:
-;handlers for block titles on address 0x56
+;handlers for block titles on address 0x7c
 ;same order as kwp_7c_titles
     db 09h                      ;b2ae  09          DATA 0x09        9 entries below:
     dw lab_5344_bad             ;b2af  44 53       VECTOR           B=0 <bad title: send nak>
@@ -47456,9 +47456,44 @@ sub_dadd:
     db 0d8h                 ;dc62  d8          DATA 0xd8
     db 0afh                 ;dc63  af          DATA 0xaf
 
-;Free space from DC64 until EFFE (checksum area)
+;
+;Normally free space from DC64 until EFFE (checksum area)
 ;NEC toolchain will automatically fill this area with 0xFF bytes
-;This 5K area is available for code
+;Any code in this 5K area is a modification from the original
+;
 
+;number of valid block titles for address 0x7c in tables below
+new_kwp_7c_num_titles equ 8
+
+new_kwp_7c_titles:
+;block titles accepted on address 0x7c
+;used if mem_f06d = 0x01
+    db new_kwp_7c_num_titles+1  ;number of entries below:
+    db 0ffh                     ;B=0 <bad title: send nak>
+    db 09h                      ;B=1 ack
+    db 06h                      ;B=2 end session
+    db 0ah                      ;B=3 nak
+    db 2bh                      ;B=4 login
+    db 1bh                      ;B=5 ? custom usage
+    db 01h                      ;B=6 read ram
+    db 03h                      ;B=7 read rom or eeprom (reads 24c04)
+    db 0ch                      ;B=8 write eeprom
+
+new_kwp_7c_handlers:
+;handlers for block titles on address 0x7c
+;same order as new_kwp_7c_titles
+    db new_kwp_7c_num_titles+1  ;number of entries below:
+    dw lab_5344_bad             ;B=0 <bad title: send nak>
+    dw kwp_7c_09_ack            ;B=1 ack
+    dw kwp_7c_06_end_session    ;B=2 end session
+    dw kwp_7c_0a_nak            ;B=3 nak
+    dw kwp_7c_2b_login          ;B=4 login
+    dw kwp_7c_1b_custom         ;B=5 ? custom usage
+    dw kwp_7c_01_read_ram       ;B=6 read ram
+    dw kwp_7c_03_read_eeprom    ;B=7 read rom or eeprom (reads 24c04)
+    dw kwp_7c_0c_write_eeprom   ;B=8 write eeprom
+
+;
 ;Last two bytes (EFFE, EFFF) will contain the checksum
+;
     end
