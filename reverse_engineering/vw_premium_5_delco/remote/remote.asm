@@ -14900,8 +14900,13 @@ lab_4e59:
 
 lab_4e62_title_ok:
     ;title found in new_kwp_7c_titles
-    mov a,b                 ;4e62  63
-    movw hl,#new_kwp_7c_handlers+1 ;4e63  16 af b2
+
+    br !new_kwp_7c_title_ok ;4e62  9b xx xx     Jump out to patched routine
+    nop                     ;4e65  00           NOP to keep byte alignment
+
+;   mov a,b                        ;4e62  63
+;   movw hl,#new_kwp_7c_handlers+1 ;4e63  16 af b2
+
     rol a,1                 ;4e66  26
     mov b,a                 ;4e67  73
     mov a,[hl+b]            ;4e68  ab
@@ -47470,28 +47475,44 @@ new_kwp_7c_titles:
 ;used if mem_f06d = 0x01
     db new_kwp_7c_num_titles+1  ;number of entries below:
     db 0ffh                     ;B=0 <bad title: send nak>
-    db 09h                      ;B=1 ack
-    db 06h                      ;B=2 end session
-    db 0ah                      ;B=3 nak
-    db 2bh                      ;B=4 login
-    db 1bh                      ;B=5 ? custom usage
-    db 01h                      ;B=6 read ram
-    db 03h                      ;B=7 read rom or eeprom (reads 24c04)
-    db 0ch                      ;B=8 write eeprom
+    db 01h                      ;B=1 read ram
+    db 03h                      ;B=2 read rom or eeprom (reads 24c04)
+    db 06h                      ;B=3 end session
+    db 09h                      ;B=4 ack
+    db 0ah                      ;B=5 nak
+    db 0ch                      ;B=6 write eeprom
+    db 1bh                      ;B=7 ? custom usage
+    db 2bh                      ;B=8 login              (NOTE: login just sends ack response now)
 
 new_kwp_7c_handlers:
 ;handlers for block titles on address 0x7c
 ;same order as new_kwp_7c_titles
     db new_kwp_7c_num_titles+1  ;number of entries below:
     dw lab_5344_bad             ;B=0 <bad title: send nak>
-    dw kwp_7c_09_ack            ;B=1 ack
-    dw kwp_7c_06_end_session    ;B=2 end session
-    dw kwp_7c_0a_nak            ;B=3 nak
-    dw kwp_7c_2b_login          ;B=4 login
-    dw kwp_7c_1b_custom         ;B=5 ? custom usage
-    dw kwp_7c_01_read_ram       ;B=6 read ram
-    dw kwp_7c_03_read_eeprom    ;B=7 read rom or eeprom (reads 24c04)
-    dw kwp_7c_0c_write_eeprom   ;B=8 write eeprom
+    dw kwp_7c_01_read_ram       ;B=1 read ram
+    dw kwp_7c_03_read_eeprom    ;B=2 read rom or eeprom (reads 24c04)
+    dw kwp_7c_06_end_session    ;B=3 end session
+    dw kwp_7c_09_ack            ;B=4 ack
+    dw kwp_7c_0a_nak            ;B=5 nak
+    dw kwp_7c_0c_write_eeprom   ;B=6 write eeprom
+    dw kwp_7c_1b_custom         ;B=7 ? custom usage
+    dw lab_532a                 ;B=8 login              (NOTE: login just sends ack response now)
+
+new_kwp_7c_title_ok:
+;patched version of lab_4e62_title_ok (block title dispatch)
+;that always sets the DELCO login state to logged in
+    mov a,#00h
+    mov !mem_fbc7,a             ;Set byte that indicates logged in
+    ;now do what lab_4e62_title_ok normally does
+    mov a,b
+    movw hl,#new_kwp_7c_handlers+1
+    rol a,1
+    mov b,a
+    mov a,[hl+b]
+    mov x,a
+    inc b
+    mov a,[hl+b]
+    br ax                       ;Branch to KWP1281 block title handler
 
 ;
 ;Last two bytes (EFFE, EFFF) will contain the checksum

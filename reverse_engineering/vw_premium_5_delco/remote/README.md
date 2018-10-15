@@ -7,3 +7,7 @@ This is a modification of the "SOFTWARE 23" firmware to give remote control of t
  - The build process now calculates the ROM checksum automatically and writes it into the binary.
 
  - Address 0x7C block title and handler tables have been moved to the end of the ROM and modified.
+
+ - Address 0x7C login command now does nothing and unconditionally returns ACK.
+
+ - Address 0x7C protected commands are always enabled now (DELCO login bypassed).
