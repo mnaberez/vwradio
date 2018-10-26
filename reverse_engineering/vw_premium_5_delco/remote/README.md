@@ -11,3 +11,5 @@ This is a modification of the "SOFTWARE 23" firmware to give remote control of t
  - Address 0x7C login command now does nothing and unconditionally returns ACK.
 
  - Address 0x7C protected commands are always enabled now (DELCO login bypassed).
+
+ - Address 0x7C write EEPROM (0x0C) has been temporarily changed to write to RAM instead.
