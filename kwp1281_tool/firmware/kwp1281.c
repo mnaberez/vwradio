@@ -368,7 +368,7 @@ kwp_result_t kwp_read_eeprom(uint16_t start_address, uint16_t total_size, uint8_
                      start_address, total_size, chunk_size);
 }
 
-// Premium 4 only ===========================================================
+// VW Premium 4 only ========================================================
 
 static kwp_result_t _send_f0_block()
 {
@@ -395,9 +395,9 @@ kwp_result_t kwp_p4_read_safe_code_bcd(uint16_t *safe_code)
     return KWP_SUCCESS;
 }
 
-// Premium 5 mfg mode (address 0x7c) only ===================================
+// VW Premium 5 mfg mode (address 0x7c) only ================================
 
-kwp_result_t kwp_p5_login_mfg()
+static kwp_result_t _delco_login_mfg()
 {
     kwp_result_t result = kwp_send_login_block(0x4f43, 0x4c, 0x4544);  // "OCLED"
     if (result != KWP_SUCCESS) { return result; }
@@ -406,9 +406,9 @@ kwp_result_t kwp_p5_login_mfg()
     return result;
 }
 
-kwp_result_t kwp_p5_read_safe_code_bcd(uint16_t *safe_code)
+static kwp_result_t _delco_read_safe_code_bcd(uint16_t eeprom_address, uint16_t *safe_code)
 {
-    kwp_result_t result = _send_read_mem_block(KWP_READ_ROM_EEPROM, 0x0014, 0x02);
+    kwp_result_t result = _send_read_mem_block(KWP_READ_ROM_EEPROM, eeprom_address, 0x02);
     if (result != KWP_SUCCESS) { return result; }
 
     kwp_receive_block_expect(KWP_R_READ_ROM_EEPROM);
@@ -416,6 +416,17 @@ kwp_result_t kwp_p5_read_safe_code_bcd(uint16_t *safe_code)
 
     *safe_code = (kwp_rx_buf[3] << 8) + kwp_rx_buf[4];
     return KWP_SUCCESS;
+}
+
+kwp_result_t kwp_p5_login_mfg()
+{
+    return _delco_login_mfg();
+}
+
+kwp_result_t kwp_p5_read_safe_code_bcd(uint16_t *safe_code)
+{
+    uint16_t eeprom_address = 0x0014;
+    return _delco_read_safe_code_bcd(eeprom_address, safe_code);
 }
 
 static kwp_result_t _send_calc_rom_checksum_block()
@@ -442,6 +453,19 @@ kwp_result_t kwp_p5_calc_rom_checksum(uint16_t *rom_checksum)
 
     *rom_checksum = (kwp_rx_buf[5] << 8) + kwp_rx_buf[6];
     return KWP_SUCCESS;
+}
+
+// Seat Liceo mfg mode (address 0x7c) only ==================================
+
+kwp_result_t kwp_sl_login_mfg()
+{
+    return _delco_login_mfg();
+}
+
+kwp_result_t kwp_sl_read_safe_code_bcd(uint16_t *safe_code)
+{
+    uint16_t eeprom_address = 0x0028;
+    return _delco_read_safe_code_bcd(eeprom_address, safe_code);
 }
 
 // ==========================================================================

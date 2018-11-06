@@ -36,6 +36,8 @@ kwp_result_t kwp_p4_read_safe_code_bcd(uint16_t *safe_code);
 kwp_result_t kwp_p5_login_mfg();
 kwp_result_t kwp_p5_read_safe_code_bcd(uint16_t *safe_code);
 kwp_result_t kwp_p5_calc_rom_checksum(uint16_t *rom_checksum);
+kwp_result_t kwp_sl_login_mfg();
+kwp_result_t kwp_sl_read_safe_code_bcd(uint16_t *safe_code);
 kwp_result_t kwp_disconnect();
 void kwp_print_module_info();
 const char * kwp_describe_result(kwp_result_t result);

@@ -17,7 +17,6 @@ I disassembled the firmware for these radios: Premium 4 (Clarion), Premium 5 (De
 
 - [`kwp1281_tool`](./kwp1281_tool/):  Diagnostics protocol tool (Volkswagen [KWP1281](https://translate.google.com/translate?hl=en&sl=de&tl=en&u=https%3A%2F%2Fde.wikipedia.org%2Fwiki%2FKWP1281)).  It can send arbitrary commands to a radio, or any other module, using the KWP1281 protocol.  It can also send commands using a proprietary protocol found in the Gamma 5 (TechniSat) radio.  Finally, it can automatically retrieve the SAFE code for any of the radios listed above.
 
-
 - [`faceplate_emulator`](./faceplate_emulator/): Faceplate emulator (NEC [µPD16432B](http://6502.org/documents/datasheets/nec/nec_upd16432b_2000_dec.pdf)).  It plugs into the Premium 4 radio in place of the faceplate and allows the radio to be controlled over serial.  It can also simultaneously control a real faceplate.
 
 - [`tape_emulator`](./tape_emulator/): Cassette tape emulator (Philips TDA3612).  It plugs into the Premium 4 radio in place of the SCA4.4/TDA3612 cassette tape assembly and fools the radio into thinking a tape is playing.
@@ -33,11 +32,11 @@ Here are some of the more interesting discoveries I made about the radios:
 
 - All of the radios studied support a common set of KWP1281 diagnostics functions on the normal radio address of 0x56.  Some radios (not all) also have protected KWP1281 commands on this same address.  The protected commands available vary by model but may include the ability to read the microcontroller's RAM or RAM, and to read/write serial EEPROM(s).  Accessing the protected commands requires sending a login block based on the SAFE code and also performing a group reading of a hidden group.
 
-- Premium 4 (Clarion) has an unprotected KWP1281 command 0xF0 that returns the SAFE code.  It also contains a hidden mode where the SAFE code can be changed via the faceplate.  Entering this mode requires pressing keys that do not exist on the faceplate.  I assume there was a special manufacturing faceplate used by the factory.
+- VW Premium 4 (Clarion) has an unprotected KWP1281 command 0xF0 that returns the SAFE code.  It also contains a hidden mode where the SAFE code can be changed via the faceplate.  Entering this mode requires pressing keys that do not exist on the faceplate.  I assume there was a special manufacturing faceplate used by the factory.
 
-- Premium 5 (Delco) responds to a different set of KWP1281 commands on address 0x7C.  These commands require authentication using a hardcoded login block.  Once authenticated, commands are available to read and write the EEPROM, which can be used to retrieve the SAFE code.
+- VW Premium 5 (Delco) and Seat Liceo (Delco) respond to a different set of KWP1281 commands on address 0x7C.  These commands require authentication using a hardcoded login block.  Once authenticated, commands are available to read and write the EEPROM, which can be used to retrieve the SAFE code.
 
-- Gamma 5 (TechniSat) and Rhapsody (TechniSat) have a proprietary, non-KWP protocol on address 0x7C.  It is unlike anything that I have found documented and was likely made by TechniSat just for manufacturing of the radio.  It has commands to read and write the EEPROM, which can be used to retrieve the SAFE code.  The SAFE code area of the EEPROM is normally filtered from these commands, but another command disables the filtering.
+- VW Gamma 5 (TechniSat) and Rhapsody (TechniSat) have a proprietary, non-KWP protocol on address 0x7C.  It is unlike anything that I have found documented and was likely made by TechniSat just for manufacturing of the radio.  It has commands to read and write the EEPROM, which can be used to retrieve the SAFE code.  The SAFE code area of the EEPROM is normally filtered from these commands, but another command disables the filtering.
 
 ## Spin-offs
 

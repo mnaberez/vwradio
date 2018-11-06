@@ -1,0 +1,1 @@
+The SAFE code is stored in addresses 0x028-0x029.
