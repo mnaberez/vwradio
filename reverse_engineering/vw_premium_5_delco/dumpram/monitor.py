@@ -9,7 +9,7 @@ def make_serial():
     print(names)
     if not names:
         raise Exception("No serial port found")
-    return serial.Serial(port=names[0], baudrate=38400, timeout=None)
+    return serial.Serial(port=names[0], baudrate=115200, timeout=None)
 
 def receive_ram(ser):
     ram = {}
