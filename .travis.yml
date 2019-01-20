@@ -22,10 +22,10 @@ before_install:
   - make -C avra/src -f makefiles/Makefile.linux
   - export PATH=$PATH:$PWD/avra/src
 
-  # as740, asf2mc8, aslink
+  # as740, as78k0, asf2mc8, aslink
   - wget -q -U travis http://6502.org/tools/asm/asxs5p30.zip
   - unzip -q asxs5p30.zip
-  - make -C asxv5pxx/asxmak/linux/build as740 asf2mc8 aslink
+  - make -C asxv5pxx/asxmak/linux/build as740 as78k0 asf2mc8 aslink
   - export PATH=$PATH:$PWD/asxv5pxx/asxmak/linux/build
 
 script:
