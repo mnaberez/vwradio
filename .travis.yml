@@ -22,11 +22,10 @@ before_install:
   - make -C avra/src -f makefiles/Makefile.linux
   - export PATH=$PATH:$PWD/avra/src
 
-  # as740, as78k0, asf2mc8, aslink
-  - wget -q -U travis http://6502.org/tools/asm/asxs5p30.zip
-  - unzip -q asxs5p30.zip
-  - make -C asxv5pxx/asxmak/linux/build as740 as78k0 asf2mc8 aslink
-  - export PATH=$PATH:$PWD/asxv5pxx/asxmak/linux/build
+  # asxxxx
+  - git clone https://github.com/mnaberez/asxxxx.git
+  - make -C asxxxx/asxv5pxx/asxmak/linux/build all
+  - export PATH=$PATH:$PWD/asxxxx/asxv5pxx/asxmak/linux/build
 
 script:
   - make -C faceplate_emulator/firmware
