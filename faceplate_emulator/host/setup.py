@@ -1,6 +1,10 @@
 __version__ = '0.1.0.dev0'
 
+import sys
 from setuptools import setup, find_packages
+
+if sys.version_info[:2] < (3, 4):
+    raise RuntimeError('vwradio requires Python 3.4 or later')
 
 CLASSIFIERS = [
     'Development Status :: 3 - Alpha',

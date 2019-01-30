@@ -1,9 +1,6 @@
 import itertools
 import unittest
-try:
-    from StringIO import StringIO
-except ImportError: # python 3
-    from io import StringIO
+from io import StringIO
 from vwradio.decode import Upd16432b
 
 class TestUpd16432b(unittest.TestCase):
