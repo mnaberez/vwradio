@@ -48,7 +48,7 @@ I also developed several other projects as a side effect of this work:
 
 - [language-f2mc8](https://github.com/mnaberez/language-f2mc8): Fujitsu F2MC-8 assembly language syntax highlighting for the [Atom](https://atom.io) text editor
 
-- [k0dasm](https://github.com/mnaberez/k0dasm): NEC 78K0 disassembler that generates output compatible with NEC's commercial [RA78K0 assembler](https://web.archive.org/web/20180604213218/https://www.renesas.com/en-us/products/software-tools/tools/compiler-assembler/assembler-package-for-78k0-ra78k0.html)
+- [k0dasm](https://github.com/mnaberez/k0dasm): NEC 78K0 disassembler that generates output compatible with the [as78k0](http://shop-pdp.net/ashtml/as78k0.htm) assember
 
 - [m740dasm](https://github.com/mnaberez/m740dasm): Mitsubishi 740 disassembler that generates output compatible with the [as740](http://shop-pdp.net/ashtml/as740.htm) assember
 
