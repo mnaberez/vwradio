@@ -2,7 +2,7 @@ all: clean out.bin
 
 out.bin: out.hex
 	srec_cat out.hex -intel -o out.bin -binary
-	python checksum.py update out.bin
+	python ../disasm/checksum.py update out.bin
 
 out.hex: out.lmf
 	oc78k0 out.lmf
