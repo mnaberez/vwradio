@@ -34,6 +34,7 @@ script:
   - make -C reverse_engineering/vw_premium_4_clarion/disasm/pu1666a_mainmcu
   - make -C reverse_engineering/vw_premium_4_clarion/disasm/pu1666a_submcu
   - make -C reverse_engineering/vw_premium_5_delco/disasm
+  - make -C reverse_engineering/vw_premium_5_delco/dumpram
   - make -C reverse_engineering/vw_rhapsody_technisat/disasm
   - make -C volume_monitor/firmware
   - make -C tape_emulator/firmware
