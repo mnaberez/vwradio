@@ -210,7 +210,7 @@ mem_fb6a = 0xfb6a
 mem_fb6b = 0xfb6b
 mem_fb6c = 0xfb6c
 mem_fb6f = 0xfb6f           ;Bit 0: off=CD MIX 1,    on=CD MIX 6
-;Bit 1: off=TAPE SKIP Y, on=TAPE SKIP N
+                            ;Bit 1: off=TAPE SKIP Y, on=TAPE SKIP N
 mem_fb70 = 0xfb70
 mem_fb71 = 0xfb71
 mem_fb72 = 0xfb72
@@ -2544,12 +2544,12 @@ sub_087a:
     mov b,#0x00             ;0882  a3 00
 lab_0884:
     bt if0h.4,lab_088d      ;0884  31 46 e1 05  Branch if CSIIF30 indicates transfer complete
-;transfer not complete
+    ;transfer not complete
     dbnz b,lab_0884         ;0888  8b fa
     nop                     ;088a  00
     clr1 mem_fe5f.0         ;088b  0b 5f        SPI packet complete flag = not complete
 lab_088d:
-;transfer complete
+    ;transfer complete
     mov a,sio30             ;088d  f0 1a
     pop bc                  ;088f  b2
     ret                     ;0890  af
@@ -2600,7 +2600,7 @@ lab_08bd:
     set1 mk0h.4             ;08bf  71 4a e5     CSIMK30
     bf mem_fe60.7,lab_08c9  ;08c2  31 73 60 03
     call !sub_2f48          ;08c6  9a 48 2f     p4.3=low, p4_.4=low, disable SIO30,
-;                     set mem_fe5e.7, clear mem_fe60.7
+                            ;                     set mem_fe5e.7, clear mem_fe60.7
 
 lab_08c9:
     sel rb0                 ;08c9  61 d0        Select normal register bank
@@ -7912,8 +7912,8 @@ lab_23a7:
 lab_23d0:
     set1 mem_fe61.5         ;23d0  5a 61
     call !read_ee_safe      ;23d2  9a 05 26     Read SAFE code from EEPROM:
-;                       mem_fed6: BCD high byte
-;                       mem_fed7: BCD low byte
+                            ;                       mem_fed6: BCD high byte
+                            ;                       mem_fed7: BCD low byte
     bc lab_23d8             ;23d5  8d 01        Branch if EEPROM read succeeded
     ret                     ;23d7  af
 
@@ -8147,7 +8147,7 @@ lab_254d:
     subw ax,#0x0018         ;254d  da 18 00
     movw mem_fed6,ax        ;2550  99 d6
     call !sub_258e          ;2552  9a 8e 25     mem_fed4 = mem_fed4 xor mem_fed6
-;                   mem_fed5 = mem_fed5 xor mem_fed7
+                            ;                   mem_fed5 = mem_fed5 xor mem_fed7
     mov a,mem_fed4          ;2555  f0 d4
     mov c,#0x02             ;2557  a2 02
     mov mem_fed8,#0x00      ;2559  11 d8 00
@@ -8220,7 +8220,7 @@ auth_login_safe:
     cmp a,#0x00             ;25af  4d 00
     bnz lab_25f9            ;25b1  bd 46        Branch to do nothing and return if rate limited
 
-;not currently being rate limited
+    ;not currently being rate limited
 
     clr1 mem_fe65.3         ;25b3  3b 65        Clear bit to indicate not logged in
 
@@ -8229,12 +8229,12 @@ auth_login_safe:
     mov a,!kwp_rx_buf+3     ;25b9  8e 8d f0     A = KWP1281 rx buffer byte 3 (login code high byte)
 
     call !bin_to_bcd        ;25bc  9a 7f 0a     Convert AX to BCD, store word in mem_fed4:
-;                       mem_fed4: BCD low byte
-;                       mem_fed5: BCD high byte
+                            ;                       mem_fed4: BCD low byte
+                            ;                       mem_fed5: BCD high byte
 
     call !read_ee_safe      ;25bf  9a 05 26     Read SAFE code from EEPROM:
-;                       mem_fed6: BCD high byte
-;                       mem_fed7: BCD low byte
+                            ;                       mem_fed6: BCD high byte
+                            ;                       mem_fed7: BCD low byte
     bc lab_25c5_compare     ;25c2  8d 01        Branch if EEPROM read succeeded
     ret                     ;25c4  af
 
@@ -8711,7 +8711,7 @@ sub_2830:
     cmp a,#0x06             ;283d  4d 06        Is it KWP1281 group 6 (external display)?
     bnz lab_2849            ;283f  bd 08          No: branch to lab_2849
 
-;group number = 6 (external display)
+    ;group number = 6 (external display)
     mov a,!mem_f1e9         ;2841  8e e9 f1
     bt a.0,lab_2858         ;2844  31 0e 11
     mov a,#0x06             ;2847  a1 06
@@ -8733,7 +8733,7 @@ lab_285a:
     ret                     ;285d  af
 
 lab_285e:
-;group number = 0x19
+    ;group number = 0x19
     set1 mem_fe65.4         ;285e  4a 65        Set bit to indicate group read 0x19 was performed
     br lab_2858             ;2860  fa f6
 
@@ -8783,7 +8783,7 @@ lab_287a:
     cmp a,#0x07             ;28a0  4d 07
     mov a,e                 ;28a2  64
     bnz lab_28e2            ;28a3  bd 3d
-;group number = 7
+    ;group number = 7
     pop ax                  ;28a5  b0
     xch a,e                 ;28a6  34
     movw hl,ax              ;28a7  d6
@@ -8821,7 +8821,7 @@ lab_28da:
     br !lab_29b0            ;28df  9b b0 29
 
 lab_28e2:
-;group number != 7
+    ;group number != 7
     and a,#0xf0             ;28e2  5d f0
     cmp a,#0xd0             ;28e4  4d d0
     bnz lab_2903            ;28e6  bd 1b
@@ -9199,9 +9199,9 @@ sub_2b53:
     call !sub_2d35          ;2b54  9a 35 2d     Clear bits in mem_fe5f and mem_fe60
     set1 mem_fe60.2         ;2b57  2a 60
     call !read_kwp_rx_3     ;2b59  9a 8b 2c     Read 3 bytes from KWP1281 rx buffer:
-;                       A = KWP1281 rx buffer byte 3 (number of bytes)
-;                       D = KWP1281 rx buffer byte 4 (address high)
-;                       E = KWP1281 rx buffer byte 5 (address low)
+                            ;                       A = KWP1281 rx buffer byte 3 (number of bytes)
+                            ;                       D = KWP1281 rx buffer byte 4 (address high)
+                            ;                       E = KWP1281 rx buffer byte 5 (address low)
     mov !mem_f04c,a         ;2b5c  9e 4c f0
     xchw ax,de              ;2b5f  e4
     movw !mem_f000,ax       ;2b60  03 00 f0     Store as mem addr for KWP1281 read ram / read eeprom
@@ -9277,9 +9277,9 @@ sub_2bb9:
     push hl                 ;2bb9  b7
     call !sub_2d35          ;2bba  9a 35 2d     Clear bits in mem_fe5f and mem_fe60
     call !read_kwp_rx_3     ;2bbd  9a 8b 2c     Read 3 bytes from KWP1281 rx buffer:
-;                        A = KWP1281 rx buffer byte 3 (number of bytes)
-;                        D = KWP1281 rx buffer byte 4 (address high)
-;                        E = KWP1281 rx buffer byte 5 (address low)
+                            ;                        A = KWP1281 rx buffer byte 3 (number of bytes)
+                            ;                        D = KWP1281 rx buffer byte 4 (address high)
+                            ;                        E = KWP1281 rx buffer byte 5 (address low)
     mov !mem_f04c,a         ;2bc0  9e 4c f0     Store number of bytes to read
 
     xchw ax,de              ;2bc3  e4
@@ -9370,9 +9370,9 @@ sub_2c33:
     call !sub_2d35          ;2c38  9a 35 2d     Clear bits in mem_fe5f and mem_fe60
     set1 mem_fe60.2         ;2c3b  2a 60
     call !read_kwp_rx_3     ;2c3d  9a 8b 2c     Read 3 bytes from KWP1281 rx buffer:
-;                       A = KWP1281 rx buffer byte 3 (number of bytes)
-;                       D = KWP1281 rx buffer byte 4 (EEPROM addr high)
-;                       E = KWP1281 rx buffer byte 5 (EEPROM addr low)
+                            ;                       A = KWP1281 rx buffer byte 3 (number of bytes)
+                            ;                       D = KWP1281 rx buffer byte 4 (EEPROM addr high)
+                            ;                       E = KWP1281 rx buffer byte 5 (EEPROM addr low)
     mov !mem_f04c,a         ;2c40  9e 4c f0
     mov l,a                 ;2c43  76
     mov h,#0x00             ;2c44  a7 00
@@ -9386,13 +9386,13 @@ sub_2c33:
 
     movw ax,de              ;2c53  c4           Copy EEPROM address into AX for comparisons
 
-;Protect 2 EEPROM addresses: 0x0014-0x0015 (SAFE code)
+    ;Protect 2 EEPROM addresses: 0x0014-0x0015 (SAFE code)
     cmpw ax,#0x0014         ;2c54  ea 14 00
     bc lab_2c60             ;2c57  8d 07        Branch if EEPROM address < 0x0014
     cmpw ax,#0x0016         ;2c59  ea 16 00
     bnc lab_2c60            ;2c5c  9d 02        Branch if EEPROM address >= 0x0016
     br lab_2c77_success     ;2c5e  fa 17        Address is protected; skip write and
-;                     falsely report success
+                            ;                     falsely report success
 
 lab_2c60:
 ;Protect 9 EEPROM addresses: 0x0058-0x0060 (??)
@@ -9401,7 +9401,7 @@ lab_2c60:
     cmpw ax,#0x0061         ;2c65  ea 61 00
     bnc lab_2c6c_write      ;2c68  9d 02        Branch if EEPROM address >= 0x0061
     br lab_2c77_success     ;2c6a  fa 0b        Address is protected; skip write and
-;                     falsely report success
+                            ;                     falsely report success
 
 lab_2c6c_write:
 ;Perform EEPROM write
@@ -9410,7 +9410,7 @@ lab_2c6c_write:
     call !sub_628e          ;2c72  9a 8e 62     Write A bytes to EEPROM address DE from [HL]
     bnc lab_2c7b_failed     ;2c75  9d 04        Branch if write failed
 
-;write succeeded
+    ;write succeeded
 
 lab_2c77_success:
     clr1 cy                 ;2c77  21           Clear carry = success
@@ -9702,7 +9702,7 @@ sub_2dd6:
 ;Fake KWP1281 address and byte count in KWP1281 rx buffer
 ;Reads address from mem_f000, reads byte count from mem_f04c
     movw hl,#kwp_rx_buf+3   ;2dd6  16 8d f0     HL = pointer to KWP1281 rx buffer byte 3
-;                        (number of bytes to read)
+                            ;                        (number of bytes to read)
     mov a,!mem_f04c         ;2dd9  8e 4c f0     A = value at mem_f04c
     mov [hl],a              ;2ddc  97           Store it in KWP1281 rx buffer byte 3
 
@@ -9875,7 +9875,7 @@ lab_2ec5:
     cmp a,#0x20             ;2ed2  4d 20
     bnc lab_2edb            ;2ed4  9d 05
     add a,#0x2f             ;2ed6  0d 2f        Convert character code for preset to ASCII
-;                     (preset 1 = code 2)
+                            ;                     (preset 1 = code 2)
     movw hl,#fis_tx_buf+7   ;2ed8  16 59 f0
 
 lab_2edb:
@@ -10137,7 +10137,7 @@ lab_3065:
 
 lab_3066:
     call !sub_2f48          ;3066  9a 48 2f     p4.3=low, p4.4=low, disable SIO30,
-;                     set mem_fe5e.7, clear mem_fe60.7
+                            ;                     set mem_fe5e.7, clear mem_fe60.7
     clr1 mem_fe60.6         ;3069  6b 60
     mov mem_fe25,#0x00      ;306b  11 25 00
     ret                     ;306e  af
@@ -14512,14 +14512,14 @@ auth_login_ocled:
     mov a,#0x05             ;469c  a1 05        A = 5 bytes to compare
     callf !sub_0cca         ;469e  4c ca        Compare A bytes between [HL] to [DE]
     bnz lab_46a9            ;46a0  bd 07        Branch if buffers are not equal
-;login succeeded
+    ;login succeeded
     set1 mem_fe64.7         ;46a2  7a 64        Set bit to indicate successful DELCO login
     mov a,#0x34             ;46a4  a1 34
     mov !mem_fb28,a         ;46a6  9e 28 fb
 
 lab_46a9:
     mov1 cy,mem_fe64.7      ;46a9  71 74 64     Copy bit into carry (clear = login failed,
-;                     set = login successful)
+                            ;                     set = login successful)
     ret                     ;46ac  af
 
 sub_46ad:
@@ -14585,7 +14585,7 @@ sub_46fc:
 ;2 request parameters
 ;Replies with ACK only
     call !sub_4835          ;46fc  9a 35 48     Reads rx buffer bytes 5,6 and
-;                     does something with mem_fe65.0
+                            ;                     does something with mem_fe65.0
     bc lab_4730             ;46ff  8d 2f
     movw hl,ax              ;4701  d6
     mov !mem_fb9d,a         ;4702  9e 9d fb
@@ -14727,7 +14727,7 @@ sub_47d2:
     mov !mem_fbaf,a         ;47d4  9e af fb
     call !sub_486f          ;47d7  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to mem_fb9b
     call !sub_4835          ;47da  9a 35 48     Reads rx buffer bytes 5,6 and
-;                     does something with mem_fe65.0
+                            ;                     does something with mem_fe65.0
     bc lab_47f5             ;47dd  8d 16
     movw de,ax              ;47df  d4
     mov !mem_fb9d,a         ;47e0  9e 9d fb
@@ -15117,8 +15117,8 @@ lab_4990:
     call !upd_display_on    ;4990  9a 2d 4d     Turn uPD16432B display on
 
     mov mem_fed4,#0x80      ;4993  11 d4 80     A = uPD16432B Command Byte 0x80 (0b10000000)
-;                       Address Setting Command
-;                           Address = 00
+                            ;                       Address Setting Command
+                            ;                           Address = 00
 
     clr1 shadow_p4.7        ;4996  7b ce        Deselect uPD16432B (STB=low)
     clr1 pm4.7              ;4998  71 7b 24
@@ -15126,10 +15126,10 @@ lab_4990:
     mov p4,a                ;499d  f2 04
 
     mov a,#0x4a             ;499f  a1 4a        A = uPD16432B Command Byte 0x4a (0b01001010)
-;                       Data Setting Command
-;                           2=Write to chargen ram
-;                           Command implies address incr; incr = on
-;                           Command implies reset to addr 0; addr = 0
+                            ;                       Data Setting Command
+                            ;                           2=Write to chargen ram
+                            ;                           Command implies address incr; incr = on
+                            ;                           Command implies reset to addr 0; addr = 0
     call !upd_send_byte     ;49a1  9a 4d 4d     Select uPD16432B (STB=high), then send a byte to it
 
     clr1 shadow_p4.7        ;49a4  7b ce        Deselect uPD16432B (STB=low)
@@ -15195,7 +15195,7 @@ lab_49db:
     mov sio30,a             ;49fa  f2 1a        Send the first byte in the buffer
     sel rb0                 ;49fc  61 d0        Select normal register bank
     inc mem_fed4            ;49fe  81 d4        Increment uPD16432B Address Setting Command
-;                     to next address
+                            ;                     to next address
 
     mov b,#0xff             ;4a00  a3 ff
 lab_4a02:
@@ -15213,13 +15213,13 @@ lab_4a0e:
     dbnz b,lab_49af         ;4a0f  8b 9e
 
     mov a,#0xc1             ;4a11  a1 c1        A = uPD16432B Command Byte 0xc1 (0b11000001)
-;                       Status command
-;                         Test mode setting: 0=Normal operation
-;                         Standby mode setting: 0=Normal operation
-;                         Key scan control: 0=Key scanning stopped
-;                         LED control: 0=LED forced off
-;                         LCD mode: 1=LCD forced off (SEGn,
-;                           COMn=unselected waveform)
+                            ;                       Status command
+                            ;                         Test mode setting: 0=Normal operation
+                            ;                         Standby mode setting: 0=Normal operation
+                            ;                         Key scan control: 0=Key scanning stopped
+                            ;                         LED control: 0=LED forced off
+                            ;                         LCD mode: 1=LCD forced off (SEGn,
+                            ;                           COMn=unselected waveform)
     call !upd_send_byte     ;4a13  9a 4d 4d     Select uPD16432B (STB=high), then send a byte to it
 
     clr1 shadow_p4.7        ;4a16  7b ce        Deselect uPD16432B (STB=low)
@@ -15227,10 +15227,10 @@ lab_4a0e:
     mov p4,a                ;4a1a  f2 04
 
     mov a,#0x04             ;4a1c  a1 04        A = uPD16432B Command Byte (0b00000100)
-;                       Display Setting Command
-;                       Duty setting: 0=1/8 duty
-;                       Master/slave setting: 0=master
-;                       Drive voltage supply method: 1=internal
+                            ;                       Display Setting Command
+                            ;                       Duty setting: 0=1/8 duty
+                            ;                       Master/slave setting: 0=master
+                            ;                       Drive voltage supply method: 1=internal
     call !upd_send_byte     ;4a1e  9a 4d 4d     Select uPD16432B (STB=high), then send a byte to it
 
     clr1 shadow_p4.7        ;4a21  7b ce        Deselect uPD16432B (STB=low)
@@ -15285,10 +15285,10 @@ lab_4a65:
 
 
     mov a,#0x4a             ;4a74  a1 4a        A = uPD16432B Command Byte 0x4a (0b01001010)
-;                       Data Setting Command
-;                           2=Write to chargen ram
-;                           Command implies address incr; incr = on
-;                           Command implies reset to addr 0; addr = 0
+                            ;                       Data Setting Command
+                            ;                           2=Write to chargen ram
+                            ;                           Command implies address incr; incr = on
+                            ;                           Command implies reset to addr 0; addr = 0
     call !upd_send_byte     ;4a76  9a 4d 4d
 
     clr1 shadow_p4.7        ;4a79  7b ce        Deselect uPD16432B (STB=low)
@@ -15425,9 +15425,9 @@ lab_4b29:
 
 lab_4b3f:
     movw de,#upd_pict_old   ;4b3f  14 bd fb     DE = pointer to last uPD16432B pictograph buf sent
-;                          (destination)
+                            ;                          (destination)
     movw hl,#upd_pict       ;4b42  16 35 fe     HL = pointer to current uPD16432B pictograph buf
-;                          (source)
+                            ;                          (source)
     mov a,#0x08             ;4b45  a1 08        A = 8 bytes to copy
     callf !sub_0c9e         ;4b47  4c 9e        Copy A bytes from [HL] to [DE]
     mov a,#0x14             ;4b49  a1 14
@@ -15441,9 +15441,9 @@ lab_4b3f:
     mov p4,a                ;4b59  f2 04
 
     mov a,#0x41             ;4b5b  a1 41        A = uPD16432B Command Byte 0x41 (0b01000001)
-;                       Data Setting Command
-;                           1=Write to pictograph RAM
-;                           Address increment mode: 0=increment
+                            ;                       Data Setting Command
+                            ;                           1=Write to pictograph RAM
+                            ;                           Address increment mode: 0=increment
     call !upd_send_byte     ;4b5d  9a 4d 4d     Select uPD16432B (STB=high), then send a byte to it
 
     clr1 shadow_p4.7        ;4b60  7b ce        Deselect uPD16432B (STB=low)
@@ -15451,8 +15451,8 @@ lab_4b3f:
     mov p4,a                ;4b64  f2 04
 
     mov a,#0x80             ;4b66  a1 80        A = uPD16432B Command Byte 0x80 (0b10000000)
-;                       Address Setting Command
-;                           Address = 00
+                            ;                       Address Setting Command
+                            ;                           Address = 00
     call !upd_send_byte     ;4b68  9a 4d 4d     Select uPD16432B (STB=high), then send a byte to it
 
     mov a,#0x00             ;4b6b  a1 00
@@ -15538,10 +15538,10 @@ lab_4bd9:
     mov p4,a                ;4be8  f2 04
 
     mov a,#0x4a             ;4bea  a1 4a        A = Command Byte 0x4a (0b01001010)
-;                   Data Setting Command
-;                       2=Write to chargen ram
-;                       Command implies address incr; incr = on
-;                       Command implies reset to addr 0; addr = 0
+                            ;                   Data Setting Command
+                            ;                       2=Write to chargen ram
+                            ;                       Command implies address incr; incr = on
+                            ;                       Command implies reset to addr 0; addr = 0
     call !upd_send_byte     ;4bec  9a 4d 4d     Select uPD16432B (STB=high), then send a byte to it
 
     clr1 shadow_p4.7        ;4bef  7b ce        Deselect uPD16432B (STB=low)
@@ -15626,9 +15626,9 @@ lab_4c59:
 
 lab_4c5e:
     movw de,#upd_disp_old   ;4c5e  14 b2 fb     DE = pointer to last uPD16432B display buffer sent
-;                        (destination)
+                            ;                        (destination)
     movw hl,#upd_disp       ;4c61  16 9a f1     HL = pointer to current uPD16432B display buffer
-;                        (source)
+                            ;                        (source)
     mov a,#0x0b             ;4c64  a1 0b        A = 0x0b bytes to copy
     callf !sub_0c9e         ;4c66  4c 9e        Copy A bytes from [HL] to [DE]
     mov a,#0x14             ;4c68  a1 14
@@ -15652,9 +15652,9 @@ lab_4c7e:
     mov p4,a                ;4c85  f2 04
 
     mov a,#0x40             ;4c87  a1 40        A = uPD16432B Command Byte 0x40 (0b01000000)
-;                       Data Setting Command
-;                           0=Write to display RAM
-;                           Address increment mode: 0=increment
+                            ;                       Data Setting Command
+                            ;                           0=Write to display RAM
+                            ;                           Address increment mode: 0=increment
     call !upd_send_byte     ;4c89  9a 4d 4d     Select uPD16432B (STB=high), then send a byte to it
 
     clr1 shadow_p4.7        ;4c8c  7b ce        Deselect uPD16432B (STB=low)
@@ -15662,8 +15662,8 @@ lab_4c7e:
     mov p4,a                ;4c90  f2 04
 
     mov a,#0x80             ;4c92  a1 80        A = uPD16432B Command Byte 0x80 (0b10000000)
-;                       Address Setting Command
-;                           Address = 00
+                            ;                       Address Setting Command
+                            ;                           Address = 00
     call !upd_send_byte     ;4c94  9a 4d 4d     Select uPD16432B (STB=high), then send a byte to it
 
     mov a,#0x00             ;4c97  a1 00
@@ -15730,8 +15730,8 @@ lab_4ce8:
     mov p4,a                ;4cf3  f2 04
 
     mov a,#0x4b             ;4cf5  a1 4b        A = uPD16432B Command Byte 0x4B
-;                       Data Setting Command
-;                           3=Write to LED output latch
+                            ;                       Data Setting Command
+                            ;                           3=Write to LED output latch
     call !upd_send_byte     ;4cf7  9a 4d 4d     Select uPD16432B (STB=high), then send a byte to it
 
     mov a,mem_fe3e          ;4cfa  f0 3e        A = uPD16432B Data Byte
@@ -15779,10 +15779,10 @@ upd_display_on:
     mov p4,a                ;4d34  f2 04
 
     mov a,#0x04             ;4d36  a1 04        A = uPD16432B Command Byte 0x04 (0b00000100)
-;                       Display Setting Command
-;                           Duty setting: 0=1/8 duty
-;                           Master/slave setting: 0=master
-;                           Drive voltage supply method: 1=internal
+                            ;                       Display Setting Command
+                            ;                           Duty setting: 0=1/8 duty
+                            ;                           Master/slave setting: 0=master
+                            ;                           Drive voltage supply method: 1=internal
     call !upd_send_byte     ;4d38  9a 4d 4d     Select uPD16432B (STB=high), then send a byte to it
 
     clr1 shadow_p4.7        ;4d3b  7b ce        Deselect uPD16432B (STB=low)
@@ -15790,12 +15790,12 @@ upd_display_on:
     mov p4,a                ;4d3f  f2 04
 
     mov a,#0xce             ;4d41  a1 ce        A = uPD16432B Command Byte 0xce (0b11001110)
-;                       Status command
-;                           Test mode setting: 0=Normal operation
-;                           Standby mode setting: 0=Normal operation
-;                           Key scan control: 1=Key scan operation
-;                           LED control: 1=Normal operation
-;                           LCD mode: 2=Normal operation (0b00)
+                            ;                       Status command
+                            ;                           Test mode setting: 0=Normal operation
+                            ;                           Standby mode setting: 0=Normal operation
+                            ;                           Key scan control: 1=Key scan operation
+                            ;                           LED control: 1=Normal operation
+                            ;                           LCD mode: 2=Normal operation (0b00)
     call !upd_send_byte     ;4d43  9a 4d 4d     Select uPD16432B (STB=high), then send a byte to it
 
     clr1 shadow_p4.7        ;4d46  7b ce        Deselect uPD16432B (STB=low)
@@ -16087,13 +16087,13 @@ kwp_7c_2b_login:
 ;login (kwp_7c_handlers)
     call !auth_login_ocled  ;4ee1  9a 94 46     Authenticate login using "DELCO" backwards
     bc lab_4eee_login_ok    ;4ee4  8d 08        Branch if successful login
-;login failed
+    ;login failed
     mov a,#0x01             ;4ee6  a1 01
     mov !mem_fbc7,a         ;4ee8  9e c7 fb
     br !lab_5355            ;4eeb  9b 55 53     Branch to Send NAK response (index 0x04)
 
 lab_4eee_login_ok:
-;login succeeded
+    ;login succeeded
     mov a,#0x00             ;4eee  a1 00
     mov !mem_fbc7,a         ;4ef0  9e c7 fb
     br !lab_532a            ;4ef3  9b 2a 53     Branch to send ACK response
@@ -16156,7 +16156,7 @@ lab_4f44:
 
 lab_4f47:
     call !sub_2c33          ;4f47  9a 33 2c     Perform EEPROM write from KWP1281 request.
-;                     Sets carry on failure.
+                            ;                     Sets carry on failure.
     bc lab_4f44             ;4f4a  8d f8        Branch to Send NAK response (index 0x04)
     br !lab_55c5            ;4f4c  9b c5 55     Branch to Send EEPROM write response
 
@@ -16188,7 +16188,7 @@ lab_4f71:
     br !lab_5355            ;4f77  9b 55 53     Branch to Send NAK response (index 0x04)
 
 lab_4f7a:
-;found a match in kwp_7c_1b_subtitles
+    ;found a match in kwp_7c_1b_subtitles
     movw hl,#kwp_rx_buf     ;4f7a  16 8a f0     HL = pointer to KWP1281 rx buffer
     mov a,[hl]              ;4f7d  87           A = block length
     movw hl,#kwp_7c_1b_lengths+1 ;4f7e  16 0e b3
@@ -16197,7 +16197,7 @@ lab_4f7a:
     br !lab_5355            ;4f85  9b 55 53     Branch to Send NAK response (index 0x04)
 
 lab_4f88:
-;found a match in kwp_7c_1b_lengths
+    ;found a match in kwp_7c_1b_lengths
     push bc                 ;4f88  b3
     call !sub_4828          ;4f89  9a 28 48
     pop bc                  ;4f8c  b2
@@ -16345,7 +16345,7 @@ lab_4fff:
     mov a,#0x03             ;5003  a1 03
     mov !mem_fbc5,a         ;5005  9e c5 fb
     br !lab_52d5            ;5008  9b d5 52     Branch to Send ascii/data response with
-;                     "0001" and extras
+                            ;                     "0001" and extras
 
 lab_500b:
     cmp a,#0x03             ;500b  4d 03
@@ -16437,7 +16437,7 @@ kwp_56_2b_login:
     mov !mem_fbc5,a         ;508c  9e c5 fb
     call !auth_login_safe   ;508f  9a ac 25     Authenticate login using SAFE code
     bt mem_fe65.3,lab_5098  ;5092  bc 65 03     Branch if login succeeded
-;login failed
+    ;login failed
     br !sub_51c3            ;5095  9b c3 51     Branch to clear auth bits and end session
 
 lab_5098:
@@ -16507,7 +16507,7 @@ lab_50e9:
 lab_50ec:
 ;write eeprom related
     call !sub_2c33          ;50ec  9a 33 2c     Perform EEPROM write from KWP1281 request.
-;                     Sets carry on failure.
+                            ;                     Sets carry on failure.
     bc lab_50e9             ;50ef  8d f8        Branch to Send NAK response
     br !lab_55c5            ;50f1  9b c5 55     Branch to Send EEPROM write response
 
@@ -16593,16 +16593,16 @@ lab_516f:
     mov a,!mem_fbca         ;516f  8e ca fb
     cmp a,#0x01             ;5172  4d 01
     bnz lab_5179            ;5174  bd 03
-;mem_fbca = 0x01
+    ;mem_fbca = 0x01
     br !lab_5527            ;5176  9b 27 55     send read ram response with faked address
-;                   from mem_f000 and faked byte count from mem_f04c
+                            ;                   from mem_f000 and faked byte count from mem_f04c
 
 lab_5179:
     cmp a,#0x02             ;5179  4d 02
     bnz lab_5180            ;517b  bd 03
-;mem_fbca = 0x02
+    ;mem_fbca = 0x02
     br !lab_557e            ;517d  9b 7e 55     send read eeprom response with faked address
-;                   from mem_f000 and faked byte count from mem_f04c
+                            ;                   from mem_f000 and faked byte count from mem_f04c
 
 lab_5180:
     mov a,#0x00             ;5180  a1 00
@@ -16838,7 +16838,7 @@ lab_52ea:
     mov a,#0x13             ;52ea  a1 13
     mov !mem_fbca,a         ;52ec  9e ca fb
     call !kwp_part_number   ;52ef  9a e4 26     DE = pointer to mem_f03b ("1J0035180B" from EEPROM)
-;                   Fall through to finish building ascii/data response
+                            ;                   Fall through to finish building ascii/data response
 
 lab_52f2:
     mov b,#0x07             ;52f2  a3 07        B = index 0x07 response with ascii/data
@@ -17061,7 +17061,7 @@ lab_5429:
     push bc                 ;542a  b3           Push BC (B = 3, offset into tx buffer)
 
     call !sub_2830          ;542b  9a 30 28     Group lookup
-;                   Returns D=0x0F on error
+                            ;                   Returns D=0x0F on error
 
     pop bc                  ;542e  b2           Pop BC (B = 3, offset into tx buffer)
     pop hl                  ;542f  b6           Pop HL (address of KWP1281 tx buffer)
@@ -17305,7 +17305,7 @@ lab_5527:
 ;send read ram response with faked address from mem_f000 and faked byte count from mem_f04c
 ;branched to when mem_fbca = 0x01
     call !sub_2dd6          ;5527  9a d6 2d     Fake KWP1281 address, byte count in KWP1281 rx buf
-;                   Reads addr from mem_f000, byte count from mem_f04c
+                            ;                   Reads addr from mem_f000, byte count from mem_f04c
 
 lab_552a:
 ;Send 0x1c response to read ram or send nak
@@ -17378,7 +17378,7 @@ lab_557e:
 ;send read eeprom response with faked address from mem_f000 and faked byte count from mem_f04c
 ;branched to when mem_fbca = 0x02
     call !sub_2dd6          ;557e  9a d6 2d     Fake KWP1281 address, byte count in KWP1281 rx buf
-;                   Read addr from mem_f000, byte count from mem_f04c
+                            ;                   Read addr from mem_f000, byte count from mem_f04c
 lab_5581:
 ;branched from both read eeprom
     mov a,#0x02             ;5581  a1 02
@@ -17432,8 +17432,8 @@ lab_55c5:
     call !sub_5292          ;55c7  9a 92 52     Set block title, counter, length in KWP1281 tx buf
 
     call !sub_2c7f          ;55ca  9a 7f 2c     Returns DE = word at mem_f004
-;                   Returns X = KWP1281 rx buffer byte 6
-;                   Returns A = byte at mem_f04c
+                            ;                   Returns X = KWP1281 rx buffer byte 6
+                            ;                   Returns A = byte at mem_f04c
 
     mov [hl+b],a            ;55cd  bb           Store A in KWP1281 tx buffer byte 3
 
@@ -17704,17 +17704,17 @@ lab_5718:
     mov p4,a                ;571f  f2 04
 
     mov a,#0x4c             ;5721  a1 4c        XXX useless A = uPD16432B Command byte 0x4c;
-;                     A will be overwritten before being sent
+                            ;                     A will be overwritten before being sent
 
     set1 shadow_p4.7        ;5723  7a ce        Select uPD16432B (STB=high)
     mov a,shadow_p4         ;5725  f0 ce
     mov p4,a                ;5727  f2 04
 
     mov a,#0x4c             ;5729  a1 4c        A = uPD16432B Command byte 0x4c (0b01001100)
-;                       Data Setting Command
-;                         4=Read key data
-;                         Command implies address incr; incr = on
-;                         Command implies reset to addr 0; addr = 0
+                            ;                       Data Setting Command
+                            ;                         4=Read key data
+                            ;                         Command implies address incr; incr = on
+                            ;                         Command implies reset to addr 0; addr = 0
     callf !sub_087a         ;572b  0c 7a        SPI xfer on SIO30 (send byte in A, recv byte in A)
 
     bt mem_fe5f.0,lab_5733  ;572d  8c 5f 03
@@ -19900,7 +19900,7 @@ lab_630d:
     movw de,#mem_fbdb       ;631f  14 db fb
     mov a,!mem_fc10         ;6322  8e 10 fc
     call !sub_623d          ;6325  9a 3d 62     Read A bytes from EEPROM address HL into [DE]
-;                     without sub_6217 check
+                            ;                     without sub_6217 check
     bnc lab_6334            ;6328  9d 0a
     movw hl,#mem_fc00       ;632a  16 00 fc     HL = pointer to first buffer
     mov a,!mem_fc10         ;632d  8e 10 fc
@@ -19937,7 +19937,7 @@ lab_634a:
     movw hl,ax              ;635c  d6
     mov a,!mem_fc11         ;635d  8e 11 fc
     call !sub_6293          ;6360  9a 93 62     Write A bytes to EEPROM address DE from [HL]
-;                     without sub_6217 check
+                            ;                     without sub_6217 check
 
 lab_6363:
     ret                     ;6363  af
@@ -22424,7 +22424,7 @@ sub_6e70:
 ;A = ?
 ;B = ?
     bt a.7,lab_6e87         ;6e70  31 7e 14
-;bit 7 of B is clear
+    ;bit 7 of B is clear
     push ax                 ;6e73  b1
     mov a,b                 ;6e74  63
     and a,#0x80             ;6e75  5d 80
@@ -22440,7 +22440,7 @@ sub_6e70:
     br !sub_6feb            ;6e84  9b eb 6f
 
 lab_6e87:
-;bit 7 of B is set
+    ;bit 7 of B is set
     push ax                 ;6e87  b1
     mov a,b                 ;6e88  63
     and a,#0x80             ;6e89  5d 80
@@ -22573,8 +22573,8 @@ lab_6f37:
     xch a,x                 ;6f3a  30
     addc a,b                ;6f3b  61 2b
     callf !bin_to_bcd       ;6f3d  2c 7f        Convert AX to BCD, store word in mem_fed4
-;                       mem_fed4: BCD low byte
-;                       mem_fed5: BCD high byte
+                            ;                       mem_fed4: BCD low byte
+                            ;                       mem_fed5: BCD high byte
     ret                     ;6f3f  af
 
 lab_6f40:
@@ -37778,16 +37778,16 @@ kwp_7c_titles:
 kwp_7c_handlers:
 ;handlers for block titles on address 0x56
 ;same order as kwp_7c_titles
-    .byte 0x09              ;b2ae  09          DATA 0x09        9 entries below:
-    .word lab_5344_bad      ;b2af  44 53       VECTOR           B=0 <bad title: send nak>
-    .word kwp_7c_09_ack     ;b2b1  ad 4e       VECTOR           B=1 ack
-    .word kwp_7c_06_end_session ;b2b3  b3 4e       VECTOR           B=2 end session
-    .word kwp_7c_0a_nak     ;b2b5  c1 4e       VECTOR           B=3 nak
-    .word kwp_7c_2b_login   ;b2b7  e1 4e       VECTOR           B=4 login
-    .word kwp_7c_1b_custom  ;b2b9  4f 4f       VECTOR           B=5 ? custom usage
-    .word kwp_7c_01_read_ram ;b2bb  f6 4e       VECTOR           B=6 read ram
-    .word kwp_7c_03_read_eeprom ;b2bd  12 4f       VECTOR           B=7 read rom or eeprom (24c04)
-    .word kwp_7c_0c_write_eeprom ;b2bf  2e 4f       VECTOR           B=8 write eeprom
+    .byte 0x09                    ;b2ae  09          DATA 0x09        9 entries below:
+    .word lab_5344_bad            ;b2af  44 53       VECTOR           B=0 <bad title: send nak>
+    .word kwp_7c_09_ack           ;b2b1  ad 4e       VECTOR           B=1 ack
+    .word kwp_7c_06_end_session   ;b2b3  b3 4e       VECTOR           B=2 end session
+    .word kwp_7c_0a_nak           ;b2b5  c1 4e       VECTOR           B=3 nak
+    .word kwp_7c_2b_login         ;b2b7  e1 4e       VECTOR           B=4 login
+    .word kwp_7c_1b_custom        ;b2b9  4f 4f       VECTOR           B=5 ? custom usage
+    .word kwp_7c_01_read_ram      ;b2bb  f6 4e       VECTOR           B=6 read ram
+    .word kwp_7c_03_read_eeprom   ;b2bd  12 4f       VECTOR           B=7 read rom or eeprom (24c04)
+    .word kwp_7c_0c_write_eeprom  ;b2bf  2e 4f       VECTOR           B=8 write eeprom
 
 kwp_56_titles:
 ;block titles accepted on address 0x56
@@ -37812,22 +37812,22 @@ kwp_56_titles:
 kwp_56_handlers:
 ;handlers for block titles on address 0x56
 ;same order as kwp_56_titles
-    .byte 0x0f              ;b2d1  0f          DATA 0x0f        15 entries below:
-    .word lab_5344_bad      ;b2d2  44 53       VECTOR           B= 0 <bad title: send nak>
-    .word kwp_56_09_ack     ;b2d4  d7 4f       VECTOR           B= 1 ack
-    .word kwp_56_06_end_session ;b2d6  1e 50       VECTOR           B= 2 end session
-    .word kwp_56_0a_nak     ;b2d8  2e 50       VECTOR           B= 3 nak
-    .word kwp_56_00_read_id ;b2da  4e 50       VECTOR           B= 4 read identification
-    .word kwp_56_07_read_faults ;b2dc  58 50       VECTOR           B= 5 read faults
-    .word kwp_56_05_clear_faults ;b2de  60 50       VECTOR           B= 6 clear faults
-    .word kwp_56_04_output_tests ;b2e0  65 50       VECTOR           B= 7 output tests
+    .byte 0x0f                    ;b2d1  0f          DATA 0x0f        15 entries below:
+    .word lab_5344_bad            ;b2d2  44 53       VECTOR           B= 0 <bad title: send nak>
+    .word kwp_56_09_ack           ;b2d4  d7 4f       VECTOR           B= 1 ack
+    .word kwp_56_06_end_session   ;b2d6  1e 50       VECTOR           B= 2 end session
+    .word kwp_56_0a_nak           ;b2d8  2e 50       VECTOR           B= 3 nak
+    .word kwp_56_00_read_id       ;b2da  4e 50       VECTOR           B= 4 read identification
+    .word kwp_56_07_read_faults   ;b2dc  58 50       VECTOR           B= 5 read faults
+    .word kwp_56_05_clear_faults  ;b2de  60 50       VECTOR           B= 6 clear faults
+    .word kwp_56_04_output_tests  ;b2e0  65 50       VECTOR           B= 7 output tests
     .word kwp_56_28_basic_setting ;b2e2  6d 50       VECTOR           B= 8 basic setting
     .word kwp_56_29_group_reading ;b2e4  75 50       VECTOR           B= 9 group reading
-    .word kwp_56_10_recoding ;b2e6  7d 50       VECTOR           B=10 recoding
-    .word kwp_56_2b_login   ;b2e8  8a 50       VECTOR           B=11 login
-    .word kwp_56_01_read_ram ;b2ea  9e 50       VECTOR           B=12 read ram
-    .word kwp_56_03_read_eeprom ;b2ec  b9 50       VECTOR           B=13 read rom or eeprom (24c04)
-    .word kwp_56_0c_write_eeprom ;b2ee  d4 50       VECTOR           B=14 write eeprom
+    .word kwp_56_10_recoding      ;b2e6  7d 50       VECTOR           B=10 recoding
+    .word kwp_56_2b_login         ;b2e8  8a 50       VECTOR           B=11 login
+    .word kwp_56_01_read_ram      ;b2ea  9e 50       VECTOR           B=12 read ram
+    .word kwp_56_03_read_eeprom   ;b2ec  b9 50       VECTOR           B=13 read rom or eeprom (24c04)
+    .word kwp_56_0c_write_eeprom  ;b2ee  d4 50       VECTOR           B=14 write eeprom
 
 kwp_titles_b2f0:
 ;unknown block titles
@@ -37842,12 +37842,12 @@ kwp_titles_b2f0:
 kwp_handlers_b2f6:
 ;unknown handlers for kwp_titles_b2f0
 ;same order as b2f1
-    .byte 0x05              ;b2f6  05          DATA 0x05        5 entries below:
-    .word lab_5344_bad      ;b2f7  44 53       VECTOR           B=0 <bad title: send nak>
-    .word kwp_f06d_3_ack    ;b2f9  f4 50       VECTOR           B=1 ack
-    .word kwp_f06d_3_end_session ;b2fb  06 51       VECTOR           B=2 end session
-    .word kwp_f06d_3_nak    ;b2fd  1c 51       VECTOR           B=3 nak
-    .word kwp_f06d_3_secure_access ;b2ff  3a 51       VECTOR           B=4 ? security access
+    .byte 0x05                      ;b2f6  05          DATA 0x05        5 entries below:
+    .word lab_5344_bad              ;b2f7  44 53       VECTOR           B=0 <bad title: send nak>
+    .word kwp_f06d_3_ack            ;b2f9  f4 50       VECTOR           B=1 ack
+    .word kwp_f06d_3_end_session    ;b2fb  06 51       VECTOR           B=2 end session
+    .word kwp_f06d_3_nak            ;b2fd  1c 51       VECTOR           B=3 nak
+    .word kwp_f06d_3_secure_access  ;b2ff  3a 51       VECTOR           B=4 ? security access
 
 kwp_7c_1b_subtitles:
 ;subtitles accepted by block title 0x1b on address 0x7c
