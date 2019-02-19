@@ -8,7 +8,7 @@ static void _print_hex16(char *label, uint16_t word)
 {
     uart_puts(UART_DEBUG, label);
     uart_puthex16(UART_DEBUG, word);
-    uart_puts(UART_DEBUG, "\n");
+    uart_puts(UART_DEBUG, "\r\n");
 }
 
 static void _crack_clarion()
@@ -17,7 +17,7 @@ static void _crack_clarion()
     kwp_result_t result = kwp_p4_read_safe_code_bcd(&safe_code);
     kwp_panic_if_error(result);
 
-    _print_hex16("\nSAFE Code: ", safe_code);
+    _print_hex16("\r\nSAFE Code: ", safe_code);
 }
 
 static void _crack_delco_vw_premium_5()
@@ -33,7 +33,7 @@ static void _crack_delco_vw_premium_5()
     result = kwp_p5_read_safe_code_bcd(&safe_code);
     kwp_panic_if_error(result);
 
-    _print_hex16("\nSAFE Code: ", safe_code);
+    _print_hex16("\r\nSAFE Code: ", safe_code);
 }
 
 static void _crack_delco_seat_liceo()
@@ -49,7 +49,7 @@ static void _crack_delco_seat_liceo()
     result = kwp_sl_read_safe_code_bcd(&safe_code);
     kwp_panic_if_error(result);
 
-    _print_hex16("\nSAFE Code: ", safe_code);
+    _print_hex16("\r\nSAFE Code: ", safe_code);
 }
 
 static void _crack_technisat()
@@ -70,35 +70,35 @@ static void _crack_technisat()
     tresult = tsat_disconnect();
     tsat_panic_if_error(tresult);
 
-    _print_hex16("\nSAFE Code: ", safe_code);
+    _print_hex16("\r\nSAFE Code: ", safe_code);
 }
 
 void crack()
 {
     if (memcmp(&kwp_component_1[7], "3CP", 3) == 0) {
-        uart_puts(UART_DEBUG, "VW PREMIUM 4 (CLARION) DETECTED\n");
+        uart_puts(UART_DEBUG, "VW PREMIUM 4 (CLARION) DETECTED\r\n");
         _crack_clarion();
 
     } else if (memcmp(&kwp_component_1[7], "DE2", 3) == 0) {
-        uart_puts(UART_DEBUG, "VW PREMIUM 5 (DELCO) DETECTED\n");
+        uart_puts(UART_DEBUG, "VW PREMIUM 5 (DELCO) DETECTED\r\n");
         _crack_delco_vw_premium_5();
 
     } else if (memcmp(&kwp_component_1[7], "FF6", 3) == 0) {
-        uart_puts(UART_DEBUG, "SEAT LICEO (DELCO) DETECTED\n");
+        uart_puts(UART_DEBUG, "SEAT LICEO (DELCO) DETECTED\r\n");
         _crack_delco_seat_liceo();
 
     } else if (memcmp(&kwp_vag_number, "1J0035156", 9) == 0) {
-        uart_puts(UART_DEBUG, "VW RHAPSODY (TECHNISAT) DETECTED\n");
+        uart_puts(UART_DEBUG, "VW RHAPSODY (TECHNISAT) DETECTED\r\n");
         _crack_technisat();
 
     } else if (memcmp(&kwp_component_1[7], "YD5", 3) == 0) {
-        uart_puts(UART_DEBUG, "VW GAMMA 5 (TECHNISAT) DETECTED\n");
+        uart_puts(UART_DEBUG, "VW GAMMA 5 (TECHNISAT) DETECTED\r\n");
         _crack_technisat();
 
     } else {
-        uart_puts(UART_DEBUG, "UNKNOWN RADIO\n");
-        uart_puts(UART_DEBUG, "UNCRACKABLE\n");
+        uart_puts(UART_DEBUG, "UNKNOWN RADIO\r\n");
+        uart_puts(UART_DEBUG, "UNCRACKABLE\r\n");
     }
 
-    uart_puts(UART_DEBUG, "Done.\n");
+    uart_puts(UART_DEBUG, "Done.\r\n");
 }

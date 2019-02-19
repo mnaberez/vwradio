@@ -27,9 +27,9 @@ void tsat_panic_if_error(tsat_result_t result)
 
     const char *msg = tsat_describe_result(result);
     uart_flush_tx(UART_DEBUG);
-    uart_puts(UART_DEBUG, "\n\n*** TSAT PANIC: ");
+    uart_puts(UART_DEBUG, "\r\n\r\n*** TSAT PANIC: ");
     uart_puts(UART_DEBUG, (char *)msg);
-    uart_puts(UART_DEBUG, "\n");
+    uart_puts(UART_DEBUG, "\r\n");
     while(1);
 }
 
@@ -100,7 +100,7 @@ tsat_result_t tsat_receive_block()
         result = TSAT_BAD_CHECKSUM;
     }
 
-    uart_puts(UART_DEBUG, "\n");
+    uart_puts(UART_DEBUG, "\r\n");
     return result;
 }
 
@@ -128,7 +128,7 @@ tsat_result_t tsat_send_block(uint8_t *buf)
         tsat_result_t result = _send_byte(buf[i]);
         if (result != TSAT_SUCCESS) { return result; }
     }
-    uart_puts(UART_DEBUG, "\n");
+    uart_puts(UART_DEBUG, "\r\n");
 
     return TSAT_SUCCESS;
 }
@@ -136,7 +136,7 @@ tsat_result_t tsat_send_block(uint8_t *buf)
 
 tsat_result_t tsat_disconnect()
 {
-    uart_puts(UART_DEBUG, "PERFORM DISCONNECT\n");
+    uart_puts(UART_DEBUG, "PERFORM DISCONNECT\r\n");
 
     // send authentication block
     uint8_t block[] = { 0x10, // only responds if this is 2-0xff
@@ -160,7 +160,7 @@ tsat_result_t tsat_disconnect()
 }
 
 tsat_result_t tsat_and(uint16_t address, uint8_t mask) {
-    uart_puts(UART_DEBUG, "PERFORM AND\n");
+    uart_puts(UART_DEBUG, "PERFORM AND\r\n");
 
     uint8_t block[] = { 0x10, // only responds if this is 2-0xff
                         0x01, // only responds if this is 1
@@ -185,7 +185,7 @@ tsat_result_t tsat_and(uint16_t address, uint8_t mask) {
 }
 
 tsat_result_t tsat_or(uint16_t address, uint8_t mask) {
-    uart_puts(UART_DEBUG, "PERFORM OR\n");
+    uart_puts(UART_DEBUG, "PERFORM OR\r\n");
 
     uint8_t block[] = { 0x10, // only responds if this is 2-0xff
                         0x01, // only responds if this is 1
@@ -220,7 +220,7 @@ tsat_result_t tsat_write(uint16_t address, uint8_t value) {
 
 tsat_result_t tsat_read_ram(uint16_t address, uint8_t count)
 {
-    uart_puts(UART_DEBUG, "PERFORM READ RAM\n");
+    uart_puts(UART_DEBUG, "PERFORM READ RAM\r\n");
 
     uint8_t block[] = { 0x10, // only responds if this is 2-0xff
                         0x01, // only responds if this is 1
@@ -247,7 +247,7 @@ tsat_result_t tsat_read_ram(uint16_t address, uint8_t count)
 
 tsat_result_t tsat_hello()
 {
-    uart_puts(UART_DEBUG, "PERFORM HELLO\n");
+    uart_puts(UART_DEBUG, "PERFORM HELLO\r\n");
 
     uint8_t block[] = { 0x10, // only responds if this is 2-0xff
                         0x01, // only responds if this is 1
@@ -270,7 +270,7 @@ tsat_result_t tsat_hello()
 
 tsat_result_t tsat_disable_eeprom_filter()
 {
-    uart_puts(UART_DEBUG, "PERFORM DISABLE EEPROM FILTER\n");
+    uart_puts(UART_DEBUG, "PERFORM DISABLE EEPROM FILTER\r\n");
 
     // send disable eeprom filter block
     uint8_t block[] = { 0x10, // only responds if this is 2-0xff
@@ -297,7 +297,7 @@ tsat_result_t tsat_disable_eeprom_filter()
 
 tsat_result_t tsat_read_eeprom(uint16_t address, uint8_t size)
 {
-    uart_puts(UART_DEBUG, "PERFORM READ EEPROM\n");
+    uart_puts(UART_DEBUG, "PERFORM READ EEPROM\r\n");
 
     // send read eeprom block
     uint8_t block[] = { 0x10,           // only responds if this is 2-0xff
@@ -326,7 +326,7 @@ tsat_result_t tsat_read_eeprom(uint16_t address, uint8_t size)
 
 tsat_result_t tsat_write_eeprom(uint16_t address, uint8_t size, uint8_t *data)
 {
-    uart_puts(UART_DEBUG, "PERFORM WRITE EEPROM\n");
+    uart_puts(UART_DEBUG, "PERFORM WRITE EEPROM\r\n");
 
     // send block
     uart_puts(UART_DEBUG, "SEND: ");
@@ -346,7 +346,7 @@ tsat_result_t tsat_write_eeprom(uint16_t address, uint8_t size, uint8_t *data)
     }
     checksum ^= 0xff;
     _send_byte(checksum);
-    uart_puts(UART_DEBUG, "\n");
+    uart_puts(UART_DEBUG, "\r\n");
 
     // receive read eeprom response block
     tsat_result_t result = tsat_receive_block();
@@ -379,9 +379,9 @@ tsat_result_t tsat_read_safe_code_bcd(uint16_t *safe_code)
 
 tsat_result_t tsat_connect(uint8_t address, uint32_t baud)
 {
-    uart_puts(UART_DEBUG, "\nCONNECT ");
+    uart_puts(UART_DEBUG, "\r\nCONNECT ");
     uart_puthex(UART_DEBUG, 0x7c);
-    uart_puts(UART_DEBUG, " TECHNISAT PROTOCOL\n");
+    uart_puts(UART_DEBUG, " TECHNISAT PROTOCOL\r\n");
 
     uart_init(UART_KLINE, baud);
 
@@ -403,7 +403,7 @@ tsat_result_t tsat_connect(uint8_t address, uint32_t baud)
     } if (result == TSAT_TIMEOUT) {
         // radio didn't send a block (probably rhapsody)
         // send hello to see if it's there
-        uart_puts(UART_DEBUG, "Timeout; trying hello\n");
+        uart_puts(UART_DEBUG, "Timeout; trying hello\r\n");
         return tsat_hello();
     } else {
         // error
