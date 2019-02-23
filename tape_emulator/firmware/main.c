@@ -51,15 +51,15 @@ ISR(SPI_STC_vect)
     uart_put('0');
     uart_put('x');
     uart_puthex_byte(c);
-    uart_put('\n');
+    uart_put('\r\n');
     if ((c == 0xac) || (c == 0xa8))
     {
-        uart_puts((uint8_t*)"-> PLAY\n");
+        uart_puts((uint8_t*)"-> PLAY\r\n");
         state = STATE_STARTING_PLAY;
     }
     else if ((c == 0) && (state == STATE_PLAYING))
     {
-        uart_puts((uint8_t*)"-> STOP\n");
+        uart_puts((uint8_t*)"-> STOP\r\n");
         state = STATE_IDLE_TAPE_IN;
     }
 }
@@ -102,7 +102,7 @@ int main()
     // Pushbutton as input (low=pushed)
     DDRD &= ~_BV(PD4);
 
-    uart_puts((uint8_t*)"RESET!\n\n");
+    uart_puts((uint8_t*)"RESET!\r\n\r\n");
     uart_flush_tx();
     led_set(LED_RED, 1);
     led_set(LED_GREEN, 0);
@@ -113,7 +113,7 @@ int main()
 
     loop_until_bit_is_clear(PIND, PD4); // wait for pushbutton to be pressed
 
-    uart_puts((uint8_t*)"Tape Inserted\n\n");
+    uart_puts((uint8_t*)"Tape Inserted\r\n\r\n");
     uart_flush_tx();
     PORTB |= _BV(PB1); // set SWITCH high (tape inserted)
     _delay_ms(200);
