@@ -12,7 +12,7 @@ The purpose of this emulator is to trick the Premium 4 into thinking that a cass
 
 There is a switch on the cassette transport.  When a cassette is inserted or removed, it passes by the switch and causes it to toggle momentarily.  The radio watches for these pulses to detect the presence of a cassette.
 
-To play a cassette, the radio sends commands to the TDA3612.  The TDA3612 is an SPI peripheral with an enable, data, clock lines.  The data is unidirectional (from the radio to the TDA3612 only).  
+To play a cassette, the radio sends commands to the TDA3612.  The TDA3612 is an SPI peripheral with enable, data, and clock lines.  The data is unidirectional (from the radio to the TDA3612 only).  
 
 The clock line is bidirectional.  When enable is asserted, the clock line is an input used to clock in the SPI bits.  When enable is not asserted, the clock line is a tachometer output.  It pulses as the cassette tape rotates and the radio monitors the speed to detect tape problems.  
 
