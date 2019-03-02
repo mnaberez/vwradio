@@ -4,7 +4,7 @@ I studied the firmware for various radios with a focus on the On-Board Diagnosti
 
 ## Models
 
-The [VW Premium 5](./vw_premium_5_delco) is special in the list of models below because this is the radio in my own car.  As such, I've done more reverse engineering work on it than most of the others.
+The [VW Premium 5](./vw_premium_5_delco) is special in the list of models below because it is the radio in my own car.  As such, I've done more reverse engineering work on it than most of the others.
 
 | Radio                                 | Manufacturer | Market        | Firmware  | EEPROM | OBD Crack | Status   |
 | ------                                | ------------ | ------        | ----      | ------ | --------- | -------- |

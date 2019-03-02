@@ -1,54 +1,57 @@
-Keys
-----
+# Faceplate
 
-Key         (Byte 0-3)  Bit (0-7)
-AM              3           7
-Preset 6        3           6
-Preset 5        3           5
-Preset 4        3           4
-SCAN            3           3
-Tune Down       3           2
-Tune Up         3           1
-Mix/Dolby       3           0
-FM              2           7
-Seek Up         2           6
-Seek Down       2           5
-CD              2           3
-Preset 1        2           2
-Preset 2        2           1
-Preset 3        2           0
-Treb            1           7
-Mid             1           6
-Bass            1           5
-F/B             1           4
-Tape            1           3
-Tape Side       1           0
+## Keys
+
+|Key         |(Byte 0-3)  |Bit (0-7)|
+|------------|------------|---------|
+|AM          |   3        |   7     |
+|Preset 6    |   3        |   6     |
+|Preset 5    |   3        |   5     |
+|Preset 4    |   3        |   4     |
+|SCAN        |   3        |   3     |
+|Tune Down   |   3        |   2     |
+|Tune Up     |   3        |   1     |
+|Mix/Dolby   |   3        |   0     |
+|FM          |   2        |   7     |
+|Seek Up     |   2        |   6     |
+|Seek Down   |   2        |   5     |
+|CD          |   2        |   3     |
+|Preset 1    |   2        |   2     |
+|Preset 2    |   2        |   1     |
+|Preset 3    |   2        |   0     |
+|Treb        |   1        |   7     |
+|Mid         |   1        |   6     |
+|Bass        |   1        |   5     |
+|F/B         |   1        |   4     |
+|Tape        |   1        |   3     |
+|Tape Side   |   1        |   0     |
 
 TODO How are the Power and Eject keys read on Premium 5?
 
 
-Pictographs
------------
+# Pictographs
 
-Pictographs are symbols on the display like the Dolby logo
+Pictographs are symbols on the display like the Dolby logo.
+
 64 possible: 8 bytes, 1 bit per pictograph, bit on = pictograph displayed
+
 4 pictographs total on the LCD
 
-Pictograph  Byte (0-7)  Bit (0-7)
-Period          4           5
-Metal           2           7
-Dolby           1           2
-Mix             5           1
+|Pictograph  | Byte (0-7)  | Bit (0-7)|
+|------------|-------------|----------|
+|Period      |    4        |   5      |
+|Metal       |    2        |   7      |
+|Dolby       |    1        |   2      |
+|Mix         |    5        |   1      |
 
-
-Dot Matrix Characters
----------------------
+# Dot Matrix Characters
 
 Every character is a 5x7 matrix but some are physically smaller on the LCD
 11 characters total on the LCD (4 small on left, 7 large on right)
 Leftmost character on display is address 0 in display RAM
 Rightmost character on display is address 0x0a in display RAM
 
+```text
 Display:     "NO CHANGER"
 Display RAM: [0x4e, 0x4f, 0x20, 0x20, 0x43, 0x48, 0x41, 0x4e, 0x47, 0x45, 0x52, ?...]
 
@@ -57,14 +60,14 @@ Display RAM: [0x20, 0x20, 0x20, 0x20, 0x31, 0x32, 0x33, 0x34, 0x20, 0x20, 0x20, 
 
 Display:     "    4321   "
 Display RAM: [0x20, 0x20, 0x20, 0x20, 0x34, 0x33, 0x32, 0x31, 0x20, 0x20, 0x20, ?...]
+```
 
-
-Character ROM
--------------
+# Character ROM
 
 Character codes 0x10-0xFF are stored in ROM.  These have been sent from the
 radio and seen on the LCD:
 
+```text
 0x20: " "
 0x2b: "+"
 0x2d: "-"
@@ -107,13 +110,14 @@ radio and seen on the LCD:
 0x72: "r"
 0x73: "s"
 0x7a: "z"
-
+```
 
 Character RAM
 -------------
 
 Character codes 0x00-0x0F are programmable.  The radio sends these:
 
+```text
   0x00:  0x01:  0x02:  0x03:  0x04:  0x05:  0x06:  0x07:  0x08:
   .O...  OOO..  ....O  ..OOO  ..OOO  ..O.O  ..OOO  ..OOO  OOOOO
   .O...  ..O..  ....O  ....O  ....O  ..O.O  ..O..  ..O..  OOOOO
@@ -122,21 +126,21 @@ Character codes 0x00-0x0F are programmable.  The radio sends these:
   .O...  O....  ....O  ..O..  ....O  ....O  ....O  ..O.O  OOOOO
   .O...  O....  ....O  ..O..  ....O  ....O  ....O  ..O.O  OOOOO
   .O...  OOO..  ....O  ..OOO  ..OOO  ....O  ..OO.  ..OOO  OOOOO
+```
 
-0x00: Narrow "1" for FM 1
-0x01: Narrow "2" for FM 2
-0x02: Narrow "1" for AM/FM preset 1
-0x03: Narrow "2" for AM/FM preset 2
-0x04: Narrow "3" for AM/FM preset 3
-0x05: Narrow "4" for AM/FM preset 3
-0x06: Narrow "5" for AM/FM preset 3
-0x07: Narrow "6" for AM/FM preset 3
-0x08: All bits on; has not been seen on LCD
+ - 0x00: Narrow "1" for FM 1
+ - 0x01: Narrow "2" for FM 2
+ - 0x02: Narrow "1" for AM/FM preset 1
+ - 0x03: Narrow "2" for AM/FM preset 2
+ - 0x04: Narrow "3" for AM/FM preset 3
+ - 0x05: Narrow "4" for AM/FM preset 3
+ - 0x06: Narrow "5" for AM/FM preset 3
+ - 0x07: Narrow "6" for AM/FM preset 3
+ - 0x08: All bits on; has not been seen on LCD
 
+# Messages
 
-Messages
---------
-
+```text
 SAFE mode
   Decoded Display RAM: '    1000   '
   Decoded Display RAM: '1    SAFE  ' (note extra space before SAFE)
@@ -248,3 +252,4 @@ Test Mode
   Decoded Display RAM: '17100 1 2 3' (Signal Strength: AM  1710KHz = 0x0123)
   Decoded Display RAM: ' 8770 5 3 0' (Signal Strength: FM  87.7Mhz = 0x0530)
   Decoded Display RAM: '10770 6 4 0' (Signal Strength: FM 107.0MHz = 0x0640)
+```
