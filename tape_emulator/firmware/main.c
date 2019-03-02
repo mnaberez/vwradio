@@ -48,10 +48,9 @@ ISR(PCINT1_vect)
 ISR(SPI_STC_vect)
 {
     uint8_t c = SPDR;
-    uart_put('0');
-    uart_put('x');
+    uart_puts((uint8_t*)"0x");
     uart_puthex_byte(c);
-    uart_put('\r\n');
+    uart_puts((uint8_t*)"\r\n");
     if ((c == 0xac) || (c == 0xa8))
     {
         uart_puts((uint8_t*)"-> PLAY\r\n");
@@ -107,7 +106,7 @@ int main()
     led_set(LED_RED, 1);
     led_set(LED_GREEN, 0);
 
-    DDRB |= _BV(PB1);   // SWITCH as output
+    DDRB |= _BV(PB1);    // SWITCH as output
     PORTB &= ~_BV(PB1);  // set SWITCH initially low (no tape inserted)
     _delay_ms(200);
 
