@@ -1,6 +1,8 @@
-SCA4.4 (Cassette Mechanism with TDA3612)
-----------------------------------------
+# Cassette Tape
 
+# SCA4.4 (Cassette Mechanism with TDA3612)
+
+```text
 FE/ME:
     output
     metal tape indicator:
@@ -44,10 +46,9 @@ CLOCK:
       the CLOCK line continuously (tachometer?): 25ms off, 1ms on.
     while playing, if the clock pulses are interrupted for about 500ms(?),
       the radio will report a side switch (e.g. "PLAY A" -> "PLAY B").
+```
 
-
-Radio Board Connections
------------------------
+## Radio Board Connections
 
 SCA4.4      MB89677A            Notes
 MONITOR     N/C                 Appears completely unconnected
@@ -67,9 +68,9 @@ Audi Concert/Chorus schematic shows 47K resistors to 5V on CLOCK,
 DATA, ENABLE, and SWITCH.  It has a 10K resistor to 5V on FE/ME.
 
 
-SPI Commands
-------------
+# SPI Commands
 
+```text
 PU-1582 with Tape Simulator:
   Initial 12V Power Up:       0xF0, 0x9A, 0xDB, 0xA8, 0xF0, 0x00
   Tape inserted during SAFE:  0xAC, 0xA8, 0xAA, 0x9A, 0xDB, 0xC2, 0xF0, 0x00
@@ -101,13 +102,14 @@ PU-1666A with Real SCA4.4:
   MSS FF during PLAY B:       0xC0, 0xE2
   MSS REW during PLAY A:      0xC0, 0xEA, 0xE2
   MSS REW during PLAY B:      0xC0, 0xDA, 0xD2
+```text
 
 Note: there doesn't seem to be a difference between normal FF/REW and MSS FF/REW.
 
 
-Simulating Play
----------------
+## Simulating Play
 
+```text
 configure FE/ME as output, set it permanently low (non-metal tape)
 configure MONITOR as output, set it permanently high (no error condition)
 configure ENABLE as input, CLOCK as input, SWITCH as output
@@ -123,17 +125,15 @@ set CLOCK as output
 loop forever:
   set CLOCK high for 25ms
   set CLOCK low for 1ms
+```
 
-
-Simulating Stop
----------------
+## Simulating Stop
 
 set SWITCH high
 stop pulsing CLOCK
 
 
-TEA0675 (Cassette Preamplifier with Dolby NR)
----------------------------------------------
+## TEA0675 (Cassette Preamplifier with Dolby NR)
 
 To inject external audio, disconnect pin 1 (OUTA) and pin 24 (OUTB) from
 the board.  These are the outputs of the TEA0675's preamplifier.  Connect an
@@ -153,8 +153,7 @@ longer detect cassette audio.  The TEA0675 can be removed, but the LA2000 must
 also be removed and its pin 6 faked.
 
 
-LA2000 (Audio Level Sensor)
----------------------------
+## LA2000 (Audio Level Sensor)
 
 Pin 6 (APC DET) goes immediately high when there is audio from the tape head and
 immediately low when there not.  It does not seem to detect audio from any
@@ -173,8 +172,7 @@ if the "TAPE SKIP" option is set to "Y".  The non-matrix display radios don't
 seem to have the "TAPE SKIP" option.
 
 
-Raspberry Pi Headphone Jack Audio
----------------------------------
+## Raspberry Pi Headphone Jack Audio
 
 The Raspberry Pi 3 Model B's headphone jack will produce acceptable sound when
 connected directly to the TEA0675 output pads if the Raspberry Pi is powered
@@ -193,8 +191,7 @@ the Raspberry Pi and the radio eliminates the noise and makes the sound usable
 (tested with the UBEC).
 
 
-Raspberry Pi PHAT DAC Audio
----------------------------
+## Raspberry Pi PHAT DAC Audio
 
 The PHAT DAC produces mostly acceptable sound when connected directly to the
 TEA0675 output pads.  Some crackling and background noise can be heard, which
