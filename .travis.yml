@@ -22,9 +22,10 @@ before_install:
   - export PATH=$PATH:$PWD/avra/src
 
   # asxxxx
-  - git clone https://github.com/mnaberez/asxxxx.git
-  - make -C asxxxx/asxv5pxx/asxmak/linux/build all
-  - export PATH=$PATH:$PWD/asxxxx/asxv5pxx/asxmak/linux/build
+  - wget -q -U travis http://6502.org/tools/asm/asxv5p31.zip
+  - unzip -q asxv5p31.zip
+  - make -C asxv5pxx/asxmak/linux/build all
+  - export PATH=$PATH:$PWD/asxv5pxx/asxmak/linux/build
 
 script:
   - make -C faceplate_emulator/firmware
