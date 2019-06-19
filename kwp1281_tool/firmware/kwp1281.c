@@ -17,8 +17,8 @@ const char * kwp_describe_result(kwp_result_t result) {
         case KWP_BAD_BLK_END:       return "Bad block end marker byte received";
         case KWP_RX_OVERFLOW:       return "RX buffer overflow";
         case KWP_UNEXPECTED:        return "Unexpected block title received";
-        case KWP_MEM_TOO_SHORT:     return "Length of memory returned is shorter than requested";
-        case KWP_MEM_TOO_LONG:      return "Length of memory returned is longer than requested";
+        case KWP_DATA_TOO_SHORT:    return "Length of data returned is shorter than expected";
+        case KWP_DATA_TOO_LONG:     return "Length of data returned is longer than expected";
         default:                    return "???";
     }
 }
@@ -294,6 +294,43 @@ kwp_result_t kwp_send_group_reading_block(uint8_t group)
 }
 
 
+/*
+ * Perform a group reading, receive the response block and validate it.
+ */
+kwp_result_t kwp_read_group(uint8_t group)
+{
+    kwp_result_t result = kwp_send_group_reading_block(group);
+    if (result != KWP_SUCCESS) { return result; }
+
+    result = kwp_receive_block_expect(KWP_R_GROUP_READING);
+    if (result != KWP_SUCCESS) { return result; }
+
+    /*
+     * Response:
+     * 0F C7 E7 01 C8 16 05 0F 7C 14 64 7E 04 4B 6D 03
+     * LL CC TT A0 A1 A2 B0 B1 B2 C0 C1 C2 D0 D1 D2 EE
+     *
+     * LL    = Block length
+     * CC    = Block counter
+     * TT    = Block title (0xE7 = response to group reading)
+     * A0    = Measurement 1 Unit of Measure (0x01 = RPM)
+     * A1,A2 = Measurement 1 Value
+     * B0    = Measurement 2 Unit of Measure (0x05 = deg C)
+     * B1,B2 = Measurement 2 Value
+     * C0    = Measurement 3 Unit of Measure (0x14 = %)
+     * C1,B2 = Measurement 3 Value
+     * D0    = Measurement 4 Unit of Measure (0x04 = ATDC/BTDC)
+     * D1,D2 = Measurement 4 Value
+     * EE    = Block end
+     */
+    uint8_t datalen = kwp_rx_buf[0] - 3;  // block length - (counter + title + end)
+    if (datalen < 12) { return KWP_DATA_TOO_SHORT; }  // 12 = 4 measurements * 3 bytes
+    if (datalen > 12) { return KWP_DATA_TOO_SHORT; }
+
+    return KWP_SUCCESS;
+}
+
+
 int _send_read_mem_block(uint8_t title, uint16_t address, uint8_t length)
 {
     uart_puts(UART_DEBUG, "PERFORM READ xx MEMORY\r\n");
@@ -326,8 +363,8 @@ static kwp_result_t _read_mem(uint8_t req_title, uint8_t resp_title,
         if (result != KWP_SUCCESS) { return result; }
 
         uint8_t datalen = kwp_rx_buf[0] - 3;  // block length - (counter + title + end)
-        if (datalen < chunk_size) { return KWP_MEM_TOO_SHORT; }
-        if (datalen > chunk_size) { return KWP_MEM_TOO_LONG; }
+        if (datalen < chunk_size) { return KWP_DATA_TOO_SHORT; }
+        if (datalen > chunk_size) { return KWP_DATA_TOO_LONG; }
 
         uart_puts(UART_DEBUG, "MEM: ");
         uart_puthex16(UART_DEBUG, address);

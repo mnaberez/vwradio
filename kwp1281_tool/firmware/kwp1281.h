@@ -15,8 +15,8 @@ typedef enum
     KWP_BAD_BLK_END = 5,
     KWP_RX_OVERFLOW = 7,
     KWP_UNEXPECTED = 8,
-    KWP_MEM_TOO_SHORT = 9,
-    KWP_MEM_TOO_LONG = 10,
+    KWP_DATA_TOO_SHORT = 9,
+    KWP_DATA_TOO_LONG = 10,
 } kwp_result_t;
 
 kwp_result_t kwp_connect(uint8_t address, uint32_t baud);
@@ -32,6 +32,7 @@ kwp_result_t kwp_read_ram(uint16_t start_address, uint16_t total_size, uint8_t c
 kwp_result_t kwp_read_rom_or_eeprom(uint16_t start_address, uint16_t total_size, uint8_t chunk_size);
 kwp_result_t kwp_read_eeprom(uint16_t start_address, uint16_t total_size, uint8_t chunk_size);
 kwp_result_t kwp_login_safe(uint16_t safe_code);
+kwp_result_t kwp_read_group(uint8_t group);
 kwp_result_t kwp_p4_read_safe_code_bcd(uint16_t *safe_code);
 kwp_result_t kwp_p5_login_mfg();
 kwp_result_t kwp_p5_read_safe_code_bcd(uint16_t *safe_code);
@@ -54,6 +55,7 @@ uint8_t kwp_component_1[16];    // " RADIO 3CP  "
 uint8_t kwp_component_2[16];    // "        0001"
 
 // Module Addresses
+#define KWP_ENGINE      0x01
 #define KWP_RADIO       0x56
 #define KWP_RADIO_MFG   0x7C    // Delco Premium 5, TechniSat Gamma 5
 
