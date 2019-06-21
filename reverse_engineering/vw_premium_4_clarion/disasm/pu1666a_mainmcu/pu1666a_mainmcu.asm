@@ -10210,7 +10210,7 @@ sub_b538:
 sub_b53b:
 ;Build KWP1281 fragment for 2 Faults
     call sub_b542           ;b53b  31 b5 42     Build KWP1281 fragment for 1 Fault
-    call sub_b542           ;b53e  31 b5 42
+    call sub_b542           ;b53e  31 b5 42     Build KWP1281 fragment for 1 Fault
     ret                     ;b541  20
 
 sub_b542:
