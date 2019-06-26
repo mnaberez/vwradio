@@ -332,16 +332,16 @@ kwp_result_t kwp_read_faults()
     // print each fault
     uint8_t i = 3; // first byte after block title
     while (i <= datalen) {
-        uint8_t fault_high = kwp_rx_buf[i++];
-        uint8_t fault_low = kwp_rx_buf[i++];
-        uint8_t fault_code = (fault_high << 8) + fault_low;
-        uint8_t elaboration_code = kwp_rx_buf[i++];
+        uint8_t fault_code = WORD(kwp_rx_buf[i+0], kwp_rx_buf[i+1]);
+        uint8_t elaboration_code = kwp_rx_buf[i+2];
 
         uart_puts(UART_DEBUG, "FAULT: CODE=");
         uart_puthex16(UART_DEBUG, fault_code);
         uart_puts(UART_DEBUG, ", ELABORATION=");
         uart_puthex(UART_DEBUG, elaboration_code);
         uart_puts(UART_DEBUG, "\r\n");
+
+        i += 3;
     }
 
     return KWP_SUCCESS;
@@ -495,7 +495,7 @@ kwp_result_t kwp_p4_read_safe_code_bcd(uint16_t *safe_code)
     result = kwp_receive_block_expect(KWP_SAFE_CODE);
     if (result != KWP_SUCCESS) { return result; }
 
-    *safe_code = (kwp_rx_buf[3] << 8) + kwp_rx_buf[4];
+    *safe_code = WORD(kwp_rx_buf[3], kwp_rx_buf[4]);
     return KWP_SUCCESS;
 }
 
@@ -518,7 +518,7 @@ static kwp_result_t _delco_read_safe_code_bcd(uint16_t eeprom_address, uint16_t 
     kwp_receive_block_expect(KWP_R_READ_ROM_EEPROM);
     if (result != KWP_SUCCESS) { return result; }
 
-    *safe_code = (kwp_rx_buf[3] << 8) + kwp_rx_buf[4];
+    *safe_code = WORD(kwp_rx_buf[3], kwp_rx_buf[4]);
     return KWP_SUCCESS;
 }
 
@@ -555,7 +555,7 @@ kwp_result_t kwp_p5_calc_rom_checksum(uint16_t *rom_checksum)
     result = kwp_receive_block_expect(KWP_CUSTOM);
     if (result != KWP_SUCCESS) { return result; }
 
-    *rom_checksum = (kwp_rx_buf[5] << 8) + kwp_rx_buf[6];
+    *rom_checksum = WORD(kwp_rx_buf[5], kwp_rx_buf[6]);
     return KWP_SUCCESS;
 }
 
