@@ -23,6 +23,7 @@ kwp_result_t kwp_connect(uint8_t address, uint32_t baud);
 kwp_result_t kwp_autoconnect(uint8_t address);
 void kwp_send_address(uint8_t address);
 kwp_result_t kwp_send_group_reading_block(uint8_t group);
+kwp_result_t kwp_send_read_faults_block();
 kwp_result_t kwp_send_login_block(uint16_t safe_code, uint8_t fern, uint16_t workshop);
 kwp_result_t kwp_send_ack_block();
 kwp_result_t kwp_send_block(uint8_t *buf);
@@ -33,6 +34,7 @@ kwp_result_t kwp_read_rom_or_eeprom(uint16_t start_address, uint16_t total_size,
 kwp_result_t kwp_read_eeprom(uint16_t start_address, uint16_t total_size, uint8_t chunk_size);
 kwp_result_t kwp_login_safe(uint16_t safe_code);
 kwp_result_t kwp_read_group(uint8_t group);
+kwp_result_t kwp_read_faults();
 kwp_result_t kwp_p4_read_safe_code_bcd(uint16_t *safe_code);
 kwp_result_t kwp_p5_login_mfg();
 kwp_result_t kwp_p5_read_safe_code_bcd(uint16_t *safe_code);

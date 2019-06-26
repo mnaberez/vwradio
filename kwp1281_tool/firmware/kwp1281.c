@@ -279,6 +279,73 @@ kwp_result_t kwp_login_safe(uint16_t safe_code)
     return result;
 }
 
+kwp_result_t kwp_send_read_faults_block()
+{
+    uart_puts(UART_DEBUG, "PERFORM READ FAULTS\r\n");
+    uint8_t block[] = {
+        0x03,               // block length
+        0,                  // placeholder for block counter
+        KWP_READ_FAULTS,    // block title
+        0,                  // placeholder for block end
+    };
+    return kwp_send_block(block);
+}
+
+/**
+ * Perform a fault code reading (DTCs), receive the response
+ * block and validate it.
+ */
+kwp_result_t kwp_read_faults()
+{
+    kwp_result_t result = kwp_send_read_faults_block();
+    if (result != KWP_SUCCESS) { return result; }
+
+    result = kwp_receive_block_expect(KWP_R_FAULTS);
+    if (result != KWP_SUCCESS) { return result; }
+
+    /*
+     * Response:
+     * 0F 0B FC 00 10 10 00 11 11 00 12 12 00 13 13 03
+     * LL CC TT A0 A1 A2 B0 B1 B2 C0 C1 C1 D0 D1 D2 EE
+     *
+     * LL    = Block length
+     * CC    = Block counter
+     * TT    = Block title (0xFC = response to read faults)
+     * A0,A1 = Fault 1 Fault Code (A0=High Byte, A1=Low Byte)
+     * A2    = Fault 1 Elaboration Code
+     * B0,B1 = Fault 2 Fault Code (B0=High Byte, B1=Low Byte)
+     * B2    = Fault 2 Elaboration Code
+     * C0,C1 = Fault 2 Fault Code (C0=High Byte, C1=Low Byte)
+     * C2    = Fault 2 Elaboration Code
+     * D0,D1 = Fault 2 Fault Code (D0=High Byte, D1=Low Byte)
+     * D2    = Fault 2 Elaboration Code
+     * EE    = Block end
+     */
+
+    // block length - (counter + title + end)
+    uint8_t datalen = kwp_rx_buf[0] - 3;
+
+    // 0 or more faults, 3 bytes per fault
+    // TODO error is misleading, will be returned for too short or long
+    if (datalen % 3 != 0) { return KWP_DATA_TOO_SHORT; }
+
+    // print each fault
+    uint8_t i = 3; // first byte after block title
+    while (i <= datalen) {
+        uint8_t fault_high = kwp_rx_buf[i++];
+        uint8_t fault_low = kwp_rx_buf[i++];
+        uint8_t fault_code = (fault_high << 8) + fault_low;
+        uint8_t elaboration_code = kwp_rx_buf[i++];
+
+        uart_puts(UART_DEBUG, "FAULT: CODE=");
+        uart_puthex16(UART_DEBUG, fault_code);
+        uart_puts(UART_DEBUG, ", ELABORATION=");
+        uart_puthex(UART_DEBUG, elaboration_code);
+        uart_puts(UART_DEBUG, "\r\n");
+    }
+
+    return KWP_SUCCESS;
+}
 
 kwp_result_t kwp_send_group_reading_block(uint8_t group)
 {
@@ -293,9 +360,9 @@ kwp_result_t kwp_send_group_reading_block(uint8_t group)
     return kwp_send_block(block);
 }
 
-
 /*
- * Perform a group reading, receive the response block and validate it.
+ * Perform a group reading (measuring blocks) for the specific group,
+ * receive the response block and validate it.
  */
 kwp_result_t kwp_read_group(uint8_t group)
 {
