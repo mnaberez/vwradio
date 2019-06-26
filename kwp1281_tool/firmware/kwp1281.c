@@ -1,10 +1,10 @@
 #include "main.h"
 #include "kwp1281.h"
 #include "uart.h"
+#include <stdio.h>
 #include <string.h>
 #include <avr/io.h>
 #include <util/delay.h>
-
 
 // Return a string description of a result
 const char * kwp_describe_result(kwp_result_t result) {
@@ -335,11 +335,10 @@ kwp_result_t kwp_read_faults()
         uint8_t fault_code = WORD(kwp_rx_buf[i+0], kwp_rx_buf[i+1]);
         uint8_t elaboration_code = kwp_rx_buf[i+2];
 
-        uart_puts(UART_DEBUG, "FAULT: CODE=");
-        uart_puthex16(UART_DEBUG, fault_code);
-        uart_puts(UART_DEBUG, ", ELABORATION=");
-        uart_puthex(UART_DEBUG, elaboration_code);
-        uart_puts(UART_DEBUG, "\r\n");
+        char msg[60];
+        sprintf(msg, "FAULT: CODE=%04X ELABORATION=%02X\r\n",
+                fault_code, elaboration_code);
+        uart_puts(UART_DEBUG, msg);
 
         i += 3;
     }
@@ -380,19 +379,35 @@ kwp_result_t kwp_read_group(uint8_t group)
      * LL    = Block length
      * CC    = Block counter
      * TT    = Block title (0xE7 = response to group reading)
-     * A0    = Measurement 1 Unit of Measure (0x01 = RPM)
+     * A0    = Measurement 1 Formula (0x01 = RPM)
      * A1,A2 = Measurement 1 Value
-     * B0    = Measurement 2 Unit of Measure (0x05 = deg C)
+     * B0    = Measurement 2 Formula (0x05 = deg C)
      * B1,B2 = Measurement 2 Value
-     * C0    = Measurement 3 Unit of Measure (0x14 = %)
+     * C0    = Measurement 3 Formula (0x14 = %)
      * C1,B2 = Measurement 3 Value
-     * D0    = Measurement 4 Unit of Measure (0x04 = ATDC/BTDC)
+     * D0    = Measurement 4 Formula (0x04 = ATDC/BTDC)
      * D1,D2 = Measurement 4 Value
      * EE    = Block end
      */
     uint8_t datalen = kwp_rx_buf[0] - 3;  // block length - (counter + title + end)
+
+    // TODO: this is wrong.  Premium 5 radio sends back valid blocks
+    // with fewer than 4 measurements.
     if (datalen < 12) { return KWP_DATA_TOO_SHORT; }  // 12 = 4 measurements * 3 bytes
-    if (datalen > 12) { return KWP_DATA_TOO_SHORT; }
+    if (datalen > 12) { return KWP_DATA_TOO_LONG; }
+
+    uint8_t i = 3; // first byte after block title
+    for (uint8_t cell=1; cell<5; cell++) {
+        uint8_t formula = kwp_rx_buf[i+0];
+        uint16_t value = WORD(kwp_rx_buf[i+1], kwp_rx_buf[i+2]);
+
+        char msg[60];
+        sprintf(msg, "MEAS: GROUP=%02X CELL=%02X FORMULA=%02X VALUE=%04X\r\n",
+                group, cell, formula, value);
+        uart_puts(UART_DEBUG, msg);
+
+        i += 3;
+    }
 
     return KWP_SUCCESS;
 }
