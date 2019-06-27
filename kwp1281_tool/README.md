@@ -74,4 +74,8 @@ The tool reliably communicates with these radios:
  - VW Gamma 5 (TechniSat)
  - VW Rhapsody (TechniSat)
 
-It is likely to work with more radios and other modules as well.
+It also reliably communicates with this engine control module:
+
+ - VW Golf/Jetta Mk3 ABA 2.0L Motronic M5.9 (Bosch)
+
+It is likely to work with other modules as well.
