@@ -12,7 +12,7 @@ Since the M38869FFAHP has no code protection, the firmware can be dumped by seve
 
 The Rhapsody firmware is generally quite similar to the Gamma 5, but the KWP1281 commands have been reduced.  Several protected KWP1281 commands that are supported on Gamma 5 have been changed to unconditionally return NAK on Rhapsody.  Notably, Gamma 5 supports reading memory (including the firmware) via KWP1281 but the data returned is encrypted.  Rhapsody doesn't allow reading memory at all.
 
-Rhapsody has an interesting KWP1281 bug not found in the Gamma 5.  The Gamma 5, and all other radios I've studied, always return consecutive block counter numbers for the entire session.  Rhapsody usually does this, but not always.  It sometimes returns a block counter out of sequence.  An earlier version of my KWP1281 tool didn't like this, so I changed it to be more forgiving about the block counter.   TESTER communicates fine with the Rhapsody, so perhaps other modules have this behavior as well.
+Rhapsody has an interesting KWP1281 bug not found in the Gamma 5.  The Gamma 5, and all other radios I've studied, always return consecutive block counter numbers for the entire session.  Rhapsody usually does this, but not always.  It sometimes returns a block counter out of sequence.  An earlier version of my KWP1281 tool didn't like this, so I changed it to be more forgiving about the block counter.  I found that a commercial scan tool communicates fine with the Rhapsody, so perhaps other modules have this behavior as well.
 
 ## TechniSat Protocol
 
