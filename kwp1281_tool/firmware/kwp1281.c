@@ -391,13 +391,16 @@ kwp_result_t kwp_read_group(uint8_t group)
      */
     uint8_t datalen = kwp_rx_buf[0] - 3;  // block length - (counter + title + end)
 
-    // TODO: this is wrong.  Premium 5 radio sends back valid blocks
-    // with fewer than 4 measurements.
-    if (datalen < 12) { return KWP_DATA_TOO_SHORT; }  // 12 = 4 measurements * 3 bytes
+    // module may send up to 4 measurements (4 * 3 bytes = 12)
     if (datalen > 12) { return KWP_DATA_TOO_LONG; }
 
+    // must receive 3 bytes for each measurement
+    if (datalen % 3 != 0) { return KWP_DATA_TOO_SHORT; }
+
+    // print each measurement
     uint8_t i = 3; // first byte after block title
-    for (uint8_t cell=1; cell<5; cell++) {
+    uint8_t cell = 1;
+    while (i <= datalen) {
         uint8_t formula = kwp_rx_buf[i+0];
         uint16_t value = WORD(kwp_rx_buf[i+1], kwp_rx_buf[i+2]);
 
@@ -407,6 +410,7 @@ kwp_result_t kwp_read_group(uint8_t group)
         uart_puts(UART_DEBUG, msg);
 
         i += 3;
+        cell++;
     }
 
     return KWP_SUCCESS;
