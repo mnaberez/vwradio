@@ -369,8 +369,19 @@ kwp_result_t kwp_read_group(uint8_t group)
     kwp_result_t result = kwp_send_group_reading_block(group);
     if (result != KWP_SUCCESS) { return result; }
 
-    result = kwp_receive_block_expect(KWP_R_GROUP_READING);
+    result = kwp_receive_block();
     if (result != KWP_SUCCESS) { return result; }
+
+    // in some rare cases, a module may return an ACK title instead
+    // of the usual 0xE7 title.  this happens when the group number
+    // is valid but there are no measurements to return.  this can be
+    // observed on both the vw premium 4 radio (clarion) and on the
+    // audi chorus radio (blaupunkt) by reading the secret group 0x19.
+    uint8_t block_title = kwp_rx_buf[2];
+    if (block_title == KWP_ACK) { return KWP_SUCCESS; }
+
+    // otherwise, expect the typical 0xE7 response title
+    if (block_title != KWP_R_GROUP_READING) { return KWP_UNEXPECTED; }
 
     /*
      * Response:
@@ -399,18 +410,18 @@ kwp_result_t kwp_read_group(uint8_t group)
     if (datalen % 3 != 0) { return KWP_DATA_TOO_SHORT; }
 
     // print each measurement
-    uint8_t i = 3; // first byte after block title
-    uint8_t cell = 1;
-    while (i <= datalen) {
-        uint8_t formula = kwp_rx_buf[i+0];
-        uint16_t value = WORD(kwp_rx_buf[i+1], kwp_rx_buf[i+2]);
+    uint8_t cell = 1; // measuring block cell 1 of 4
+    uint8_t pos = 3;  // rx buffer position: first byte after block title
+    while (pos <= datalen) {
+        uint8_t formula = kwp_rx_buf[pos+0];
+        uint16_t value = WORD(kwp_rx_buf[pos+1], kwp_rx_buf[pos+2]);
 
         char msg[60];
         sprintf(msg, "MEAS: GROUP=%02X CELL=%02X FORMULA=%02X VALUE=%04X\r\n",
                 group, cell, formula, value);
         uart_puts(UART_DEBUG, msg);
 
-        i += 3;
+        pos += 3;
         cell++;
     }
 
