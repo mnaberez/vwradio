@@ -326,21 +326,22 @@ kwp_result_t kwp_read_faults()
     uint8_t datalen = kwp_rx_buf[0] - 3;
 
     // 0 or more faults, 3 bytes per fault
-    // TODO error is misleading, will be returned for too short or long
     if (datalen % 3 != 0) { return KWP_DATA_TOO_SHORT; }
 
     // print each fault
-    uint8_t i = 3; // first byte after block title
-    while (i <= datalen) {
-        uint8_t fault_code = WORD(kwp_rx_buf[i+0], kwp_rx_buf[i+1]);
-        uint8_t elaboration_code = kwp_rx_buf[i+2];
+    uint8_t num = 1;  // fault 1 of x
+    uint8_t pos = 3;  // rx buffer position: first byte after block title
+    while (pos <= datalen) {
+        uint8_t fault_code = WORD(kwp_rx_buf[pos+0], kwp_rx_buf[pos+1]);
+        uint8_t elaboration_code = kwp_rx_buf[pos+2];
 
         char msg[60];
-        sprintf(msg, "FAULT: CODE=%04X ELABORATION=%02X\r\n",
-                fault_code, elaboration_code);
+        sprintf(msg, "FAULT: NUM=%02X CODE=%04X ELABORATION=%02X\r\n",
+                num, fault_code, elaboration_code);
         uart_puts(UART_DEBUG, msg);
 
-        i += 3;
+        pos += 3;
+        num += 1;
     }
 
     return KWP_SUCCESS;
