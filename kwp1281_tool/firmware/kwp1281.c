@@ -240,6 +240,21 @@ kwp_result_t kwp_send_ack_block()
 }
 
 
+/*
+ * Send an ACK block and receive the response ACK block.  A module
+ * will typically disconnect if it does not receive any blocks
+ * for some period of time.  This can be used to keep the connection
+ * alive when no other commands need to be sent.
+ */
+kwp_result_t kwp_acknowledge()
+{
+  kwp_result_t result = kwp_send_ack_block();
+  if (result != KWP_SUCCESS) { return result; }
+
+  return kwp_receive_block_expect(KWP_ACK);
+}
+
+
 kwp_result_t kwp_send_login_block(uint16_t safe_code, uint8_t fern, uint16_t workshop)
 {
     uart_puts(UART_DEBUG, "PERFORM LOGIN\r\n");
@@ -476,10 +491,7 @@ static kwp_result_t _read_mem(uint8_t req_title, uint8_t resp_title,
         address += chunk_size;
         remaining -= chunk_size;
 
-        result = kwp_send_ack_block();
-        if (result != KWP_SUCCESS) { return result; }
-
-        kwp_receive_block_expect(KWP_ACK);
+        result = kwp_acknowledge();
         if (result != KWP_SUCCESS) { return result; }
     }
     return KWP_SUCCESS;
