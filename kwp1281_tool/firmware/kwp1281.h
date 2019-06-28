@@ -64,7 +64,8 @@ uint8_t kwp_component_2[16];    // "        0001"
 // Delays (all in milliseconds)
 #define KWP_INTERBYTE_MS    1     /* Between individual bytes in a block */
 #define KWP_INTERBLOCK_MS   10    /* Between blocks */
-#define KWP_RECV_TIMEOUT_MS 3000  /* Declare timeout if no byte received for this long */
+#define KWP_RECV_TIMEOUT_MS 3000  /* Timeout if no byte received from module for this long */
+#define KWP_ECHO_TIMEOUT_MS 1     /* Timeout if our byte echo is not received for this long */
 #define KWP_POSTKEYWORD_MS  30    /* After initial 55 01 8A before sending 75 */
 #define KWP_DISCONNECT_MS   5000  /* Do nothing for this long to disconnect */
 #define KWP_AUTOCONNECT_MS  2000  /* Between auto-connect tries */

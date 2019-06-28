@@ -48,7 +48,7 @@ static kwp_result_t _send_byte(uint8_t tx_byte)
 
     // consume its echo
     uint8_t echo;
-    uint8_t uart_ready = uart_blocking_get_with_timeout(UART_KLINE, KWP_RECV_TIMEOUT_MS, &echo);
+    uint8_t uart_ready = uart_blocking_get_with_timeout(UART_KLINE, KWP_ECHO_TIMEOUT_MS, &echo);
     if (!uart_ready) { return KWP_TIMEOUT; }
     if (echo != tx_byte) { return KWP_BAD_ECHO; }
 
@@ -99,7 +99,7 @@ static kwp_result_t _recv_byte_send_compl(uint8_t *rx_byte_out)
 
     // consume its echo
     uint8_t echo;
-    uint8_t uart_ready = uart_blocking_get_with_timeout(UART_KLINE, KWP_RECV_TIMEOUT_MS, &echo);
+    uint8_t uart_ready = uart_blocking_get_with_timeout(UART_KLINE, KWP_ECHO_TIMEOUT_MS, &echo);
     if (!uart_ready) { return KWP_TIMEOUT; }
     if (echo != complement) { return KWP_BAD_ECHO; }
 
