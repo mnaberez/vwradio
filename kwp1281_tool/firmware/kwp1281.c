@@ -41,7 +41,7 @@ void kwp_panic_if_error(kwp_result_t result)
 // Send byte only
 static kwp_result_t _send_byte(uint8_t tx_byte)
 {
-    _delay_ms(1);
+    _delay_ms(KWP_DELAY_INTERBYTE_MS);
 
     // send byte
     uart_blocking_put(UART_KLINE, tx_byte);
@@ -91,7 +91,7 @@ static kwp_result_t _recv_byte_send_compl(uint8_t *rx_byte_out)
     kwp_result_t result = _recv_byte(rx_byte_out);
     if (result != KWP_SUCCESS) { return result; }
 
-    _delay_ms(1);
+    _delay_ms(KWP_DELAY_INTERBYTE_MS);
 
     // send complement byte
     uint8_t complement = *rx_byte_out ^ 0xFF;
@@ -203,7 +203,7 @@ kwp_result_t kwp_receive_block()
         }
     }
 
-    _delay_ms(10);
+    _delay_ms(KWP_DELAY_INTERBLOCK_MS);
     uart_puts(UART_DEBUG, "\r\n");
     return KWP_SUCCESS;
 }
@@ -666,7 +666,7 @@ kwp_result_t kwp_connect(uint8_t address, uint32_t baud)
     kwp_send_address(address);
     kwp_result_t result = _wait_for_55_01_8a();
     if (result != KWP_SUCCESS) { return result; }
-    _delay_ms(30);
+    _delay_ms(KWP_DELAY_POSTKEYWORD_MS);
     result = _send_byte(0x75);
     if (result != KWP_SUCCESS) { return result; }
     uart_puts(UART_DEBUG, "\r\n");
@@ -711,7 +711,7 @@ kwp_result_t kwp_autoconnect(uint8_t address)
 
             const char *msg = kwp_describe_result(result);
             uart_puts(UART_DEBUG, (char *)msg);
-            _delay_ms(2000); // delay before next try
+            _delay_ms(KWP_DELAY_AUTOCONNECT_MS); // delay before next try
         }
     }
     return KWP_TIMEOUT;
@@ -719,7 +719,7 @@ kwp_result_t kwp_autoconnect(uint8_t address)
 
 kwp_result_t kwp_disconnect()
 {
-    _delay_ms(5000);
+    _delay_ms(KWP_DELAY_DISCONNECT_MS);
     return KWP_SUCCESS;
 }
 
