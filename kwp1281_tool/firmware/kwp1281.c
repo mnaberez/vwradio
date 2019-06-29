@@ -347,7 +347,7 @@ kwp_result_t kwp_read_faults()
     uint8_t num = 1;  // fault 1 of x
     uint8_t pos = 3;  // rx buffer position: first byte after block title
     while (pos <= datalen) {
-        uint8_t fault_code = WORD(kwp_rx_buf[pos+0], kwp_rx_buf[pos+1]);
+        uint16_t fault_code = WORD(kwp_rx_buf[pos+0], kwp_rx_buf[pos+1]);
         uint8_t elaboration_code = kwp_rx_buf[pos+2];
 
         char msg[60];
