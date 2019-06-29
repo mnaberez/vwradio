@@ -340,7 +340,7 @@ kwp_result_t kwp_read_faults()
     // block length - (counter + title + end)
     uint8_t datalen = kwp_rx_buf[0] - 3;
 
-    // 0 or more faults, 3 bytes per fault
+    // 3 bytes per fault
     if (datalen % 3 != 0) { return KWP_DATA_TOO_SHORT; }
 
     // print each fault
@@ -350,14 +350,21 @@ kwp_result_t kwp_read_faults()
         uint16_t fault_code = WORD(kwp_rx_buf[pos+0], kwp_rx_buf[pos+1]);
         uint8_t elaboration_code = kwp_rx_buf[pos+2];
 
-        char msg[60];
-        sprintf(msg, "FAULT: NUM=%02X CODE=%04X ELABORATION=%02X\r\n",
-                num, fault_code, elaboration_code);
-        uart_puts(UART_DEBUG, msg);
+        if ((fault_code == 0xFFFF) && (elaboration_code == 0x88)) {
+          // this is a special fault that means "no fault"
+        } else {
+          char msg[60];
+          sprintf(msg, "FAULT: NUM=%02X CODE=%04X ELABORATION=%02X\r\n",
+                  num, fault_code, elaboration_code);
+          uart_puts(UART_DEBUG, msg);
+        }
 
         pos += 3;
         num += 1;
     }
+
+    /* TODO: this implementation is likely incomplete.  need to observe
+       what happens when a module sends more than 4 fault codes. */
 
     return KWP_SUCCESS;
 }
