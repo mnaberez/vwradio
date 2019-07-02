@@ -227,7 +227,7 @@ kwp_result_t kwp_receive_block_expect(uint8_t title)
 }
 
 
-kwp_result_t kwp_send_ack_block()
+static kwp_result_t _send_ack_block()
 {
     uart_puts(UART_DEBUG, "PERFORM ACK\r\n");
     uint8_t block[] = {
@@ -248,7 +248,7 @@ kwp_result_t kwp_send_ack_block()
  */
 kwp_result_t kwp_acknowledge()
 {
-  kwp_result_t result = kwp_send_ack_block();
+  kwp_result_t result = _send_ack_block();
   if (result != KWP_SUCCESS) { return result; }
 
   return kwp_receive_block_expect(KWP_ACK);
@@ -294,7 +294,7 @@ kwp_result_t kwp_login_safe(uint16_t safe_code)
     return result;
 }
 
-kwp_result_t kwp_send_read_faults_block()
+static kwp_result_t _send_read_faults_block()
 {
     uart_puts(UART_DEBUG, "PERFORM READ FAULTS\r\n");
     uint8_t block[] = {
@@ -319,7 +319,7 @@ kwp_result_t kwp_send_read_faults_block()
  */
 kwp_result_t kwp_read_faults()
 {
-    kwp_result_t result = kwp_send_read_faults_block();
+    kwp_result_t result = _send_read_faults_block();
     if (result != KWP_SUCCESS) { return result; }
 
     result = kwp_receive_block_expect(KWP_R_FAULTS);
@@ -381,7 +381,7 @@ kwp_result_t kwp_read_faults()
         // send an ack block to check for more faults
         // (if the last response returned fewer than 4 faults, we may be
         //  able to stop here, but it seems safer to always do this.)
-        result = kwp_send_ack_block();
+        result = _send_ack_block();
         if (result != KWP_SUCCESS) { return result; }
         result = kwp_receive_block();
         if (result != KWP_SUCCESS) { return result; }
@@ -744,7 +744,7 @@ kwp_result_t kwp_connect(uint8_t address, uint32_t baud)
                 break;
         }
 
-        result = kwp_send_ack_block();
+        result = _send_ack_block();
         if (result != KWP_SUCCESS) { return result; }
     }
 }
