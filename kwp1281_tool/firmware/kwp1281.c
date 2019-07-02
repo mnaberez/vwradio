@@ -531,10 +531,15 @@ static kwp_result_t _send_read_ident_block()
 }
 
 /*
- * Receive all title 0xF6 ASCII/data blocks identifying this module.  This
- * is used during the initial connection and by read identification.
+ * Receive all title 0xF6 ASCII/data blocks identifying this module.
+ * This is used in 3 places:
  *
- * Most modules will send 3 blocks:
+ *  - During the initial connection
+ *  - For response to block title 0x00 Read Identification
+ *  - For response to block title 0x08 Recoding
+ *
+ * A module will normally send 4 blocks:
+ *
  *  - 3 with component info
  *  - 1 with workshop and coding
  *
