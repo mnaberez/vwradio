@@ -294,35 +294,21 @@ kwp_result_t kwp_login_safe(uint16_t safe_code)
     return result;
 }
 
-static kwp_result_t _send_read_faults_block()
-{
-    uart_puts(UART_DEBUG, "PERFORM READ FAULTS\r\n");
-    uint8_t block[] = {
-        0x03,               // block length
-        0,                  // placeholder for block counter
-        KWP_READ_FAULTS,    // block title
-        0,                  // placeholder for block end
-    };
-    return kwp_send_block(block);
-}
-
-/**
- * Read all fault codes (Diagnotic Trouble Codes / DTCs) in the
- * module and print them.  It has been observed with several modules
- * that if there are no faults, the response will contain one special
- * fault that means "no fault".  Otherwise, it has been observed that
- * the module will send up to 4 faults for the first request.  Each
- * successive request will return up to 4 more.  This function does
- * not assume 4 is a magic number and will process as many faults as
- * are returned in each response.  This function will make as many
- * requests as needed to retrieve all of the faults.
+/* Receive all fault blocks.  This is used to handle the responses
+ * for both reading faults and clearing faults.
+ *
+ * It has been observed with several modules that if there are no
+ * faults, the response will contain one special fault that means
+ * "no fault".  Otherwise, it has been observed that the module will
+ * send up to 4 faults for the first request.  Each successive request
+ * will return up to 4 more.  This function does not assume 4 is a
+ * magic number and will process as many faults as are returned in each
+ * response.  This function will make as many requests as needed to
+ * retrieve all of the faults.
  */
-kwp_result_t kwp_read_faults()
+static kwp_result_t _receive_all_faults()
 {
-    kwp_result_t result = _send_read_faults_block();
-    if (result != KWP_SUCCESS) { return result; }
-
-    result = kwp_receive_block_expect(KWP_R_FAULTS);
+    kwp_result_t result = kwp_receive_block_expect(KWP_R_FAULTS);
     if (result != KWP_SUCCESS) { return result; }
 
     uint8_t faults_count = 0;
@@ -398,6 +384,57 @@ kwp_result_t kwp_read_faults()
 
     return KWP_SUCCESS;
 }
+
+static kwp_result_t _send_read_faults_block()
+{
+    uart_puts(UART_DEBUG, "PERFORM READ FAULTS\r\n");
+    uint8_t block[] = {
+        0x03,               // block length
+        0,                  // placeholder for block counter
+        KWP_READ_FAULTS,    // block title
+        0,                  // placeholder for block end
+    };
+    return kwp_send_block(block);
+}
+
+/**
+ * Read all fault codes (Diagnotic Trouble Codes / DTCs) in the
+ * module and print them.
+ */
+kwp_result_t kwp_read_faults()
+{
+    kwp_result_t result = _send_read_faults_block();
+    if (result != KWP_SUCCESS) { return result; }
+
+    return _receive_all_faults();
+}
+
+static kwp_result_t _send_clear_faults_block()
+{
+    uart_puts(UART_DEBUG, "PERFORM CLEAR FAULTS\r\n");
+    uint8_t block[] = {
+        0x03,               // block length
+        0,                  // placeholder for block counter
+        KWP_CLEAR_FAULTS,   // block title
+        0,                  // placeholder for block end
+    };
+    return kwp_send_block(block);
+}
+
+/**
+ * Clear all fault codes (Diagnotic Trouble Codes / DTCs) in the
+ * module.  This may or may not actually clear them, depending
+ * on if the module decides the faults can be cleared.  After
+ * clearing, any remaining DTCs are read from the module and printed.
+ */
+kwp_result_t kwp_clear_faults()
+{
+    kwp_result_t result = _send_clear_faults_block();
+    if (result != KWP_SUCCESS) { return result; }
+
+    return _receive_all_faults();
+}
+
 
 kwp_result_t kwp_send_group_reading_block(uint8_t group)
 {
