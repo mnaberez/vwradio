@@ -14,7 +14,6 @@ int main()
 
     kwp_result_t result = kwp_autoconnect(KWP_RADIO);
     kwp_panic_if_error(result);
-    kwp_print_module_info();
 
     // result = kwp_login_safe(1866);
     // kwp_panic_if_error(result);

@@ -31,6 +31,7 @@ kwp_result_t kwp_read_ram(uint16_t start_address, uint16_t total_size, uint8_t c
 kwp_result_t kwp_read_rom_or_eeprom(uint16_t start_address, uint16_t total_size, uint8_t chunk_size);
 kwp_result_t kwp_read_eeprom(uint16_t start_address, uint16_t total_size, uint8_t chunk_size);
 kwp_result_t kwp_login_safe(uint16_t safe_code);
+kwp_result_t kwp_read_identification();
 kwp_result_t kwp_read_group(uint8_t group);
 kwp_result_t kwp_read_faults();
 kwp_result_t kwp_clear_faults();
@@ -72,7 +73,7 @@ uint8_t kwp_component_2[16];    // "        0001"
 
 // Block Titles
 //                                                                          Premium 4   5
-#define KWP_READ_ID             0x00  /* Read Identification                        X   X       */
+#define KWP_READ_IDENT          0x00  /* Read Identification                        X   X       */
 #define KWP_READ_RAM            0x01  /* Read RAM                                   X   X       */
 #define KWP_READ_ROM_EEPROM     0x03  /* Read ROM or EEPROM                         *1  *1      */
 #define KWP_OUTPUT_TESTS        0x04  /* Actuator/Output Tests                      X   X       */

@@ -306,7 +306,7 @@ kwp_result_t kwp_login_safe(uint16_t safe_code)
  * response.  This function will make as many requests as needed to
  * retrieve all of the faults.
  */
-static kwp_result_t _receive_all_faults()
+static kwp_result_t _receive_all_fault_blocks()
 {
     kwp_result_t result = kwp_receive_block_expect(KWP_R_FAULTS);
     if (result != KWP_SUCCESS) { return result; }
@@ -406,7 +406,7 @@ kwp_result_t kwp_read_faults()
     kwp_result_t result = _send_read_faults_block();
     if (result != KWP_SUCCESS) { return result; }
 
-    return _receive_all_faults();
+    return _receive_all_fault_blocks();
 }
 
 static kwp_result_t _send_clear_faults_block()
@@ -432,7 +432,7 @@ kwp_result_t kwp_clear_faults()
     kwp_result_t result = _send_clear_faults_block();
     if (result != KWP_SUCCESS) { return result; }
 
-    return _receive_all_faults();
+    return _receive_all_fault_blocks();
 }
 
 
@@ -514,6 +514,97 @@ kwp_result_t kwp_read_group(uint8_t group)
         cell++;
     }
 
+    return KWP_SUCCESS;
+}
+
+
+static kwp_result_t _send_read_ident_block()
+{
+    uart_puts(UART_DEBUG, "PERFORM READ IDENTIFICATION\r\n");
+    uint8_t block[] = {
+        0x03,               // block length
+        0,                  // placeholder for block counter
+        KWP_READ_IDENT,     // block title
+        0,                  // placeholder for block end
+    };
+    return kwp_send_block(block);
+}
+
+/*
+ * Receive all title 0xF6 ASCII/data blocks identifying this module.  This
+ * is used during the initial connection and by read identification.
+ *
+ * Most modules will send 3 blocks:
+ *  - 3 with component info
+ *  - 1 with workshop and coding
+ *
+ * In some rare cases, like the Premium 5 radio in manufacturing mode (address
+ * 0x7C), there will be no ASCII/data blocks sent during the initial connection.
+ */
+static kwp_result_t _receive_all_ident_blocks()
+{
+    uint8_t blocks_received = 0;
+    while (1) {
+        kwp_result_t result = kwp_receive_block();
+        if (result != KWP_SUCCESS) { return result; }
+
+        if (kwp_rx_buf[2] == KWP_ACK) { return KWP_SUCCESS; }
+        if (kwp_rx_buf[2] != KWP_R_ASCII_DATA) { return KWP_UNEXPECTED; }
+
+        switch (blocks_received++) {
+            case 0:    // 0xF6 (ASCII/Data): "1J0035180D  "
+                memcpy(&kwp_vag_number,  &kwp_rx_buf[3], 12); break;
+            case 1:    // 0xF6 (ASCII/Data): " RADIO 3CP  "
+                memcpy(&kwp_component_1, &kwp_rx_buf[3], 12); break;
+            case 2:    // 0xF6 (ASCII/Data): "        0001"
+                memcpy(&kwp_component_2, &kwp_rx_buf[3], 12); break;
+            case 0xFF: // insane case of too many blocks
+                return KWP_UNEXPECTED;
+            default:   // ignore block
+                break;
+        }
+
+        result = _send_ack_block();
+        if (result != KWP_SUCCESS) { return result; }
+    }
+}
+
+/*
+ * Print the module's identification that has been previously
+ * stored in the globals.  The globals are populated after the
+ * initial connection and after issuing a read identification.
+ */
+static void _print_identification()
+{
+    uart_puts(UART_DEBUG, "VAG Number: \"");
+    for (uint8_t i=0; i<12; i++) {
+        uart_put(UART_DEBUG, kwp_vag_number[i]);
+    }
+    uart_puts(UART_DEBUG, "\"\r\n");
+
+    uart_puts(UART_DEBUG, "Component:  \"");
+    for (uint8_t i=0; i<12; i++) {
+        uart_put(UART_DEBUG, kwp_component_1[i]);
+    }
+    for (uint8_t i=0; i<12; i++) {
+        uart_put(UART_DEBUG, kwp_component_2[i]);
+    }
+    uart_puts(UART_DEBUG, "\"\r\n");
+}
+
+/*
+ * Read the module's identification, including its VAG part number
+ * and component info.  Populate the globals and print them.
+ */
+kwp_result_t kwp_read_identification()
+{
+    kwp_result_t result = _send_read_ident_block();
+    if (result != KWP_SUCCESS) { return result; }
+
+    result = _receive_all_ident_blocks();
+    if (result != KWP_SUCCESS) { return result; }
+
+    _print_identification();
     return KWP_SUCCESS;
 }
 
@@ -733,6 +824,7 @@ void kwp_send_address(uint8_t address)
     DDRD &= ~_BV(PD3);      // PD3 = input
 }
 
+
 kwp_result_t kwp_connect(uint8_t address, uint32_t baud)
 {
     uart_puts(UART_DEBUG, "\r\nCONNECT ");
@@ -757,33 +849,13 @@ kwp_result_t kwp_connect(uint8_t address, uint32_t baud)
     if (result != KWP_SUCCESS) { return result; }
     uart_puts(UART_DEBUG, "\r\n");
 
-    // Receive 0xF6 ASCII/data blocks until we have control of the connection
-    // Most modules will send 4 ASCII/data blocks: 3 with component info, 1 with workshop/coding
-    // Premium 5 radio in mfg mode (address 0x7c) sends no ASCII/data blocks
-    uint8_t ascii_blocks = 0;
-    while (1) {
-        result = kwp_receive_block();
-        if (result != KWP_SUCCESS) { return result; }
+    // Receive all identification blocks until we control the connection
+    result = _receive_all_ident_blocks();
+    if (result != KWP_SUCCESS) { return result; }
 
-        if (kwp_rx_buf[2] == KWP_ACK) { return KWP_SUCCESS; }
-        if (kwp_rx_buf[2] != KWP_R_ASCII_DATA) { return KWP_UNEXPECTED; }
-
-        switch (ascii_blocks++) {
-            case 0:    // 0xF6 (ASCII/Data): "1J0035180D  "
-                memcpy(&kwp_vag_number,  &kwp_rx_buf[3], 12); break;
-            case 1:    // 0xF6 (ASCII/Data): " RADIO 3CP  "
-                memcpy(&kwp_component_1, &kwp_rx_buf[3], 12); break;
-            case 2:    // 0xF6 (ASCII/Data): "        0001"
-                memcpy(&kwp_component_2, &kwp_rx_buf[3], 12); break;
-            case 0xFF: // insane case of too many blocks
-                return KWP_UNEXPECTED;
-            default:   // ignore block
-                break;
-        }
-
-        result = _send_ack_block();
-        if (result != KWP_SUCCESS) { return result; }
-    }
+    // Print the identification info
+    _print_identification();
+    return KWP_SUCCESS;
 }
 
 kwp_result_t kwp_autoconnect(uint8_t address)
@@ -807,22 +879,4 @@ kwp_result_t kwp_disconnect()
 {
     _delay_ms(KWP_DISCONNECT_MS);
     return KWP_SUCCESS;
-}
-
-void kwp_print_module_info()
-{
-    uart_puts(UART_DEBUG, "VAG Number: \"");
-    for (uint8_t i=0; i<12; i++) {
-        uart_put(UART_DEBUG, kwp_vag_number[i]);
-    }
-    uart_puts(UART_DEBUG, "\"\r\n");
-
-    uart_puts(UART_DEBUG, "Component:  \"");
-    for (uint8_t i=0; i<12; i++) {
-        uart_put(UART_DEBUG, kwp_component_1[i]);
-    }
-    for (uint8_t i=0; i<12; i++) {
-        uart_put(UART_DEBUG, kwp_component_2[i]);
-    }
-    uart_puts(UART_DEBUG, "\"\r\n");
 }
