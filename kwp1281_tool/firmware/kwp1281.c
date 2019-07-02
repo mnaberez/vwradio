@@ -318,53 +318,70 @@ kwp_result_t kwp_read_faults()
     result = kwp_receive_block_expect(KWP_R_FAULTS);
     if (result != KWP_SUCCESS) { return result; }
 
-    /*
-     * Response:
-     * 0F 0B FC 00 10 10 00 11 11 00 12 12 00 13 13 03
-     * LL CC TT A0 A1 A2 B0 B1 B2 C0 C1 C1 D0 D1 D2 EE
-     *
-     * LL    = Block length
-     * CC    = Block counter
-     * TT    = Block title (0xFC = response to read faults)
-     * A0,A1 = Fault 1 Fault Code (A0=High Byte, A1=Low Byte)
-     * A2    = Fault 1 Elaboration Code
-     * B0,B1 = Fault 2 Fault Code (B0=High Byte, B1=Low Byte)
-     * B2    = Fault 2 Elaboration Code
-     * C0,C1 = Fault 2 Fault Code (C0=High Byte, C1=Low Byte)
-     * C2    = Fault 2 Elaboration Code
-     * D0,D1 = Fault 2 Fault Code (D0=High Byte, D1=Low Byte)
-     * D2    = Fault 2 Elaboration Code
-     * EE    = Block end
-     */
+    uint8_t faults_count = 0;
 
-    // block length - (counter + title + end)
-    uint8_t datalen = kwp_rx_buf[0] - 3;
+    while(1) {
+        /*
+         * Response:
+         * 0F 0B FC 00 10 10 00 11 11 00 12 12 00 13 13 03
+         * LL CC TT A0 A1 A2 B0 B1 B2 C0 C1 C1 D0 D1 D2 EE
+         *
+         * LL    = Block length
+         * CC    = Block counter
+         * TT    = Block title (0xFC = response to read faults)
+         * A0,A1 = Fault 1 Fault Code (A0=High Byte, A1=Low Byte)
+         * A2    = Fault 1 Elaboration Code
+         * B0,B1 = Fault 2 Fault Code (B0=High Byte, B1=Low Byte)
+         * B2    = Fault 2 Elaboration Code
+         * C0,C1 = Fault 2 Fault Code (C0=High Byte, C1=Low Byte)
+         * C2    = Fault 2 Elaboration Code
+         * D0,D1 = Fault 2 Fault Code (D0=High Byte, D1=Low Byte)
+         * D2    = Fault 2 Elaboration Code
+         * EE    = Block end
+         */
 
-    // 3 bytes per fault
-    if (datalen % 3 != 0) { return KWP_DATA_TOO_SHORT; }
+        // block length - (counter + title + end)
+        uint8_t datalen = kwp_rx_buf[0] - 3;
 
-    // print each fault
-    uint8_t num = 1;  // fault 1 of x
-    uint8_t pos = 3;  // rx buffer position: first byte after block title
-    while (pos <= datalen) {
-        uint16_t fault_code = WORD(kwp_rx_buf[pos+0], kwp_rx_buf[pos+1]);
-        uint8_t elaboration_code = kwp_rx_buf[pos+2];
+        // 3 bytes per fault
+        if (datalen % 3 != 0) { return KWP_DATA_TOO_SHORT; }
 
-        if ((fault_code == 0xFFFF) && (elaboration_code == 0x88)) {
-          // this is a special fault that means "no fault"
-        } else {
-          char msg[60];
-          sprintf(msg, "FAULT: NUM=%02X CODE=%04X ELABORATION=%02X\r\n",
-                  num, fault_code, elaboration_code);
-          uart_puts(UART_DEBUG, msg);
+        // print each fault
+        uint8_t pos = 3;  // rx buffer position: first byte after block title
+        while (pos <= datalen) {
+            uint16_t fault_code = WORD(kwp_rx_buf[pos+0], kwp_rx_buf[pos+1]);
+            uint8_t elaboration_code = kwp_rx_buf[pos+2];
+
+            if ((fault_code == 0xFFFF) && (elaboration_code == 0x88)) {
+              // this is a special fault that means "no fault"
+            } else {
+              faults_count += 1;
+
+              char msg[60];
+              sprintf(msg, "FAULT: NUM=%02X CODE=%04X ELABORATION=%02X\r\n",
+                      faults_count, fault_code, elaboration_code);
+              uart_puts(UART_DEBUG, msg);
+            }
+
+            pos += 3;
         }
 
-        pos += 3;
-        num += 1;
-    }
+        // send an ack block to check for more faults
+        result = kwp_send_ack_block();
+        if (result != KWP_SUCCESS) { return result; }
 
-    /* TODO: this implementation is likely incomplete.  need to observe
-       what happens when a module sends more than 4 fault codes. */
+        result = kwp_receive_block();
+        if (result != KWP_SUCCESS) { return result; }
+
+        // if the response to ack is ack, there are no more faults
+        if (kwp_rx_buf[2] == KWP_ACK) { break; }
+
+        // otherwise, the response to ack should be a new faults block
+        if (kwp_rx_buf[2] != KWP_R_FAULTS) { return KWP_UNEXPECTED; }
+
+        // in the insane case we receive too many faults, bail out
+        if (faults_count > 200) { return KWP_UNEXPECTED; }
+    }
 
     return KWP_SUCCESS;
 }
