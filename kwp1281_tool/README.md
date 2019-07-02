@@ -6,19 +6,22 @@
 
 This is an ATmega1284 project that implements the [KWP1281](https://translate.google.com/translate?hl=en&sl=de&tl=en&u=https%3A%2F%2Fde.wikipedia.org%2Fwiki%2FKWP1281) diagnostics protocol.  It has two serial ports.  The first serial port uses an [L9637D](https://web.archive.org/web/20180405180225/http://www.st.com/content/ccc/resource/technical/document/datasheet/4a/80/83/26/e0/78/4d/18/CD00000234.pdf/files/CD00000234.pdf/jcr:content/translations/en.CD00000234.pdf) transceiver to connect to the K-line on the car's on-board diagnostics port.  It can also be connected to the K-line on a module outside of the car, such as the radio shown above.  The second serial port connects to a host computer and shows debug messages.
 
-When I reverse engineered the firmware for the Premium 4 radio, I found that it responds to several hidden KWP1281 commands.  I wanted to send these commands but I had no way to do so.  The commerical scan tool that I was using at the time did not provide any access to the underlying communications.  I built this project so I could directly interact with the Premium 4 radio using the raw KWP1281 protocol.  I have since used it successfully on other modules as well.
+When I reverse engineered the firmware for the VW Premium 4 radio, I found that it responds to several hidden KWP1281 commands.  I wanted to send these commands but I had no way to do so.  The commerical scan tool that I was using at the time did not provide any access to the underlying communications.  I built this project so I could directly interact with the Premium 4 radio using the raw KWP1281 protocol.  I have since used it successfully on other modules as well.
+
+There are other open source projects that implement KWP1281 but this code is not based on any of them.  Therefore, this code may have different features or problems than those other implementations.  VW did not release documentation on KWP1281 to the public.  I had to make various assumptions and best guesses based on my own reverse engineering and what I could find posted by others online.
 
 ## Features
 
  - Capable of sending and receiving raw KWP1281 blocks
  - Outputs a transcript of all KWP1281 blocks sent and received
  - Checks for errors whenever possible, during both transmit and receive
+ - Reliably maintains a connection for long periods with modules tested
 
 ## Design
 
-KWP1281 is asynchronous serial, typically at 9600 or 10400 baud.  It should be possible to communicate with a module over KWP1281 using any computer with a serial port.  However, doing so is problematic for two reasons.  The first is that before communication starts, the module must be woken up with "slow init" by sending its address at a nonstandard baud rate (5 baud).  The second is that modules are often very sensitive to timing.  Modules may require a delay of a few milliseconds before each byte is transmitted.  However, if the transmission is delayed by a few milliseconds too long, it may cause the module to disconnect.
+KWP1281 is asynchronous serial, typically at 9600 or 10400 baud.  It should be possible to communicate with a module over KWP1281 using any computer with a serial port.  However, doing so is problematic for two reasons.  The first is that before communication starts, the module must be woken up with "slow init" by sending its address at a nonstandard baud rate (5 baud).  The second is that modules are  sensitive to timing.  Once a connection is established, modules typically require a delay of one millisecond before each byte in a block is transmitted.  However, if the byte is delayed by too many milliseconds, the module may return "no acknowledge" or may abort the connection entirely.  Delays caused by the computer's operating system multitasking, or by latencies when using a USB to serial adapter, can cause the KWP1281 connection to be unreliable.
 
-This project solves those issues by doing all communications using an AVR.  It first bit-bangs the 5 baud init, then uses the hardware UART for the 9600 or 10400 baud communication.  The AVR ensures that consistent delays are inserted between bytes and after blocks.  As it runs, it outputs debugging messages to its second UART with all the raw KWP1281 blocks sent and received.
+This project solves those issues by doing all communications using an Atmel AVR microcontroller.  It first bit-bangs the 5 baud init, then uses the hardware UART for the 9600 or 10400 baud communication.  It ensures that consistent delays are inserted and that the connection to the module is always kept alive.  In testing with several different modules, it has been able to maintain a connection for hours without retrying or reconnecting.  As it runs, it outputs debugging messages to its second UART with all the raw KWP1281 blocks sent and received.
 
 ## Usage
 
