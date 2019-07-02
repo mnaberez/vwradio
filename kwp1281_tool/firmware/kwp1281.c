@@ -307,8 +307,15 @@ kwp_result_t kwp_send_read_faults_block()
 }
 
 /**
- * Perform a fault code reading (DTCs), receive the response
- * block and validate it.
+ * Read all fault codes (Diagnotic Trouble Codes / DTCs) in the
+ * module and print them.  It has been observed with several modules
+ * that if there are no faults, the response will contain one special
+ * fault that means "no fault".  Otherwise, it has been observed that
+ * the module will send up to 4 faults for the first request.  Each
+ * successive request will return up to 4 more.  This function does
+ * not assume 4 is a magic number and will process as many faults as
+ * are returned in each response.  This function will make as many
+ * requests as needed to retrieve all of the faults.
  */
 kwp_result_t kwp_read_faults()
 {
@@ -353,7 +360,12 @@ kwp_result_t kwp_read_faults()
             uint8_t elaboration_code = kwp_rx_buf[pos+2];
 
             if ((fault_code == 0xFFFF) && (elaboration_code == 0x88)) {
-              // this is a special fault that means "no fault"
+              // this is a special fault that means "no fault".  it has been
+              // observed on several modules that when there are no faults,
+              // this special fault is returned.  we may be able to stop
+              // here but it seems safer to ignore this and keep going just
+              // in case any real faults are also returned.
+
             } else {
               faults_count += 1;
 
@@ -367,9 +379,10 @@ kwp_result_t kwp_read_faults()
         }
 
         // send an ack block to check for more faults
+        // (if the last response returned fewer than 4 faults, we may be
+        //  able to stop here, but it seems safer to always do this.)
         result = kwp_send_ack_block();
         if (result != KWP_SUCCESS) { return result; }
-
         result = kwp_receive_block();
         if (result != KWP_SUCCESS) { return result; }
 
