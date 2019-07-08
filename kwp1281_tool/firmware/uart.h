@@ -30,7 +30,8 @@ typedef struct
 } uart_ringbuffer_t;
 
 void uart_init(uart_num_t uartnum, uint32_t baud);
-void uart_send_5baud_address(uart_num_t uartnum, uint8_t address);
+void uart_enable(uart_num_t uartnum);
+void uart_disable(uart_num_t uartnum);
 void uart_flush_tx(uart_num_t uartnum);
 void uart_put(uart_num_t uartnum, uint8_t c);
 void uart_put16(uart_num_t uartnum, uint16_t w);

@@ -795,12 +795,7 @@ kwp_result_t kwp_sl_read_safe_code_bcd(uint16_t *safe_code)
 // This is blocking so it will hang for about 2 seconds
 void kwp_send_address(uint8_t address)
 {
-    // TODO: add support for other uart
-    if (UART_KLINE != UART1) { while(1); }
-
-    UCSR1B &= ~_BV(RXEN1);  // Disable RX (PD2/TXD1)
-    UCSR1B &= ~_BV(TXEN1);  // Disable TX (PD3/TXD1)
-    DDRD |= _BV(PD3);       // PD3 = output
+    uart_disable(UART_KLINE);
 
     uint8_t parity = 1;
     for (uint8_t i=0; i<10; i++) {
@@ -828,9 +823,7 @@ void kwp_send_address(uint8_t address)
         _delay_ms(200);         // 1000ms / 5bps = 200ms per bit
     }
 
-    UCSR1B |= _BV(TXEN1);   // Enable TX (PD3/TXD1)
-    UCSR1B |= _BV(RXEN1);   // Enable RX (PD2/TXD1)
-    DDRD &= ~_BV(PD3);      // PD3 = input
+    uart_enable(UART_KLINE);
 }
 
 
