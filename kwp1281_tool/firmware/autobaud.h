@@ -1,0 +1,1 @@
+void autobaud_start();
