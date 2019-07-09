@@ -48,17 +48,15 @@ kwp_result_t autobaud(uint32_t *actual_baud_rate, uint32_t *normal_baud_rate)
     TCCR1A = 0;
     TIFR1 = (1<<ICF1);		// clear input capture flag
     TCCR1B = _BV(CS11);   // 20 MHz clock / 8 prescaler = 8 MHz clock
-
-    // enable capture interrupt
-    TIMSK1 |= _BV(ICIE1);
+    TIMSK1 |= _BV(ICIE1); // enable capture interrupt
 
     while(i == 0);
     _delay_ms(5);
 
     // calculate baud rate
     uint16_t ticks = ending_cnt - starting_cnt;
-    float period = ticks * 0.4;  // 0.4 is period of 8 MHz
-    float frequency = (2 * 1000000) / period;  // 2 * because 2 bits per tick
+    float period = ticks * 0.4;                 // 0.4 uS is period of 8 MHz
+    float frequency = (2 * 1000000) / period;   // 2 * because 2 bits per tick
     uint16_t baud = (uint16_t)frequency;
 
     // normalize baud rate
@@ -90,12 +88,14 @@ kwp_result_t autobaud(uint32_t *actual_baud_rate, uint32_t *normal_baud_rate)
     return KWP_SUCCESS;
 }
 
+
 ISR(TIMER1_CAPT_vect)
 {
     if (i == 0) {
       starting_cnt = ICR1;
       i = 1;
 
+      // XXX For debugging only, remove me
       PORTA |= _BV(PA0);     // PA0 = on
       PORTA &= ~_BV(PA0);    // PA0 = off
 
@@ -103,11 +103,10 @@ ISR(TIMER1_CAPT_vect)
       ending_cnt = ICR1;
       i = 2;
 
+      // XXX For debugging only, remove me
       PORTA |= _BV(PA0);     // PA0 = on
       PORTA &= ~_BV(PA0);    // PA0 = off
-
     }
-
 
     edges++;
 }
