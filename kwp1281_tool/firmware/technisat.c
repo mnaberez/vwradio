@@ -386,7 +386,9 @@ tsat_result_t tsat_connect(uint8_t address, uint32_t baud)
     uart_init(UART_KLINE, baud);
 
     // Send address at 5 baud
-    kwp_send_address(KWP_RADIO_MFG);
+    uart_disable(UART_KLINE);
+    kwp_send_address(address);
+    uart_enable(UART_KLINE);
 
     // try to receive a block
     // gamma 5 sends a block, rhapsody sends nothing

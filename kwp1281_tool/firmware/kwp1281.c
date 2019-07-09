@@ -808,8 +808,6 @@ kwp_result_t kwp_sl_read_safe_code_bcd(uint16_t *safe_code)
 // This is blocking so it will hang for about 2 seconds
 void kwp_send_address(uint8_t address)
 {
-    uart_disable(UART_KLINE);
-
     uint8_t parity = 1;
     for (uint8_t i=0; i<10; i++) {
         uint8_t bit;
@@ -835,8 +833,6 @@ void kwp_send_address(uint8_t address)
         }
         _delay_ms(200);         // 1000ms / 5bps = 200ms per bit
     }
-
-    uart_enable(UART_KLINE);
 }
 
 
@@ -855,8 +851,11 @@ kwp_result_t kwp_connect(uint8_t address, uint32_t baud)
     memset(kwp_component_1, 0, sizeof(kwp_component_1));
     memset(kwp_component_2, 0, sizeof(kwp_component_2));
 
+
     // Send address at 5 baud to wake up the module
+    uart_disable(UART_KLINE);
     kwp_send_address(address);
+    uart_enable(UART_KLINE);
 
     // Wait for the module to send the 0x55 sync byte
     kwp_result_t result = _wait_for_sync();
