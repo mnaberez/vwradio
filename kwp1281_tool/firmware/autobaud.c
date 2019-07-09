@@ -1,13 +1,18 @@
 #include "main.h"
 #include "autobaud.h"
+#include "kwp1281.h"
+#include "uart.h"
 #include <avr/interrupt.h>
 #include <avr/io.h>
-#include <util/delay.h>
 #include <stdio.h>
-#include "uart.h"
-#include "kwp1281.h"
+#include <util/delay.h>
 
 /*
+ * After a module receives its 5 baud address, it transmits a
+ * sync byte (0x55) so the tester can synchronize to its baud rate.
+ * We use the AVR's Input Capture mode to measure the time between
+ * two negative edges, which is time "B" in the diagram below:
+ *
  *                         Sync Byte (0x55)
  *
  *   Idle   Start  0   1   2   3   4   5   6   7  Stop     Idle
@@ -35,13 +40,38 @@
  * 10400 baud    96.15 us   192.30 us    961.50 us
  */
 
-volatile uint8_t i = 0;
-volatile uint16_t edges = 0;
-volatile uint16_t starting_cnt = 0;
-volatile uint16_t ending_cnt = 0;
+
+/*
+ * Start input capture.  The time between the first two negative
+ * edges is measured, and the total number of edges received is counted.
+ */
+void _start_input_capture()
+{
+    _autobaud_edges = 0;
+    _autobaud_start_count = 0;
+    _autobaud_end_count = 0;
+
+    TCCR1A = 0;                   // disable output compare and waveform generation
+    TCCR1B = 0;                   // no noise cancel, capture neg edge, stop timer
+    TCNT1 = 0;                    // reset counter
+    TIFR1 = _BV(ICF1);            // clear input capture flag (avoids spurious interrupt)
+    TIMSK1 |= _BV(ICIE1);         // enable capture interrupt
+    TCCR1B |= AUTOBAUD_PRESCALER; // start counting
+}
 
 
-/* Normalize a detected baud rate to a supported one.  Baud rates
+/*
+ * Stop input capture
+ */
+void _stop_input_capture()
+{
+    TIMSK1 &= ~_BV(ICIE1);  // disable capture interrupt
+    TCCR1B = 0;             // no noise cancel, capture neg edge, stop timer
+}
+
+
+/*
+ * Normalize a detected baud rate to a supported one.  Baud rates
  * of 4800, 9600, and 10400 are supported.  The ranges allow -/+ 4%
  * error.  If normalization fails, 0 is returned.
  */
@@ -66,82 +96,68 @@ static uint32_t _normalize_baud_rate(uint32_t baud_rate)
 }
 
 
-kwp_result_t autobaud(uint32_t *actual_baud_rate, uint32_t *normal_baud_rate)
+/*
+ * Receive the sync byte and measure its baud rate.  Return the
+ * actual measured baud rate and the normalized baud rate.
+ */
+kwp_result_t autobaud_sync(uint32_t *actual_baud_rate, uint32_t *normal_baud_rate)
 {
-    i = 0;
-    edges = 0;
+    _start_input_capture();
 
-    TCCR1A = 0;           // disable output compare and waveform generation
-    TIFR1 = _BV(ICF1);    // clear input capture flag (avoids spurious interrupt)
-    TCCR1B = _BV(CS11);   // no noise cancel, neg edge, 20 MHz / 8 prescaler = 8 MHz
-    TIMSK1 |= _BV(ICIE1); // enable capture interrupt
+    while(_autobaud_edges == 0);
+    _delay_ms(5); // 5 ms is longer than one byte at 2400 baud
 
-    while(i == 0);
-    _delay_ms(5);
+    _stop_input_capture();
 
-    // calculate baud rate
-    uint16_t ticks = ending_cnt - starting_cnt;
-    float period = ticks * 0.4;                 // 0.4 uS is the period of 8 MHz
+    // calculate actual baud rate
+    uint16_t ticks = _autobaud_end_count - _autobaud_start_count;
+    float period = ticks * AUTOBAUD_PERIOD;
     float frequency = (2 * 1000000) / period;   // 2 * because 2 bits per tick
-    uint16_t baud = (uint16_t)frequency;
+    uint16_t baud_rate = (uint16_t)frequency;
 
     // normalize baud rate
-    *actual_baud_rate = baud;
-    *normal_baud_rate = _normalize_baud_rate(baud);
-
-    // TODO handle failure from _normalize_baud_rate
-
-    // debug output
-    char msg[60];
-    sprintf(msg, "\r\nEDGES: %d\r\n", edges);
-    uart_puts(UART_DEBUG, msg);
-    sprintf(msg, "START: 0x%04x\r\n", starting_cnt);
-    uart_puts(UART_DEBUG, msg);
-    sprintf(msg, "END:   0x%04x\r\n", ending_cnt);
-    uart_puts(UART_DEBUG, msg);
-    sprintf(msg, "TICKS: 0x%04x\r\n", ticks);
-    uart_puts(UART_DEBUG, msg);
-    sprintf(msg, "BAUD:  %d\r\n", (int)*actual_baud_rate);
-    uart_puts(UART_DEBUG, msg);
-    sprintf(msg, "USING: %d\r\n", (int)*normal_baud_rate);
-    uart_puts(UART_DEBUG, msg);
-
-    // disable capture interrupt
-    TIMSK1 &= ~_BV(ICIE1);
+    *actual_baud_rate = baud_rate;
+    *normal_baud_rate = _normalize_baud_rate(baud_rate);
+    if (*normal_baud_rate == 0) { return KWP_SYNC_BAD_BAUD; }
 
     return KWP_SUCCESS;
 }
 
 
-ISR(TIMER1_CAPT_vect)
+/*
+ * Print debug information
+ */
+void autobaud_debug()
 {
-    if (i == 0) {
-      starting_cnt = ICR1;
-      i = 1;
+    char msg[60];
 
-      // XXX For debugging only, remove me
-      PORTA |= _BV(PA0);     // PA0 = on
-      PORTA &= ~_BV(PA0);    // PA0 = off
+    sprintf(msg, "\r\nEDGES: %d\r\n", _autobaud_edges);
+    uart_puts(UART_DEBUG, msg);
 
-    } else if (i == 1) {
-      ending_cnt = ICR1;
-      i = 2;
+    sprintf(msg, "START: 0x%04x\r\n", _autobaud_start_count);
+    uart_puts(UART_DEBUG, msg);
 
-      // XXX For debugging only, remove me
-      PORTA |= _BV(PA0);     // PA0 = on
-      PORTA &= ~_BV(PA0);    // PA0 = off
-    }
+    sprintf(msg, "END:   0x%04x\r\n", _autobaud_end_count);
+    uart_puts(UART_DEBUG, msg);
 
-    edges++;
+    uint16_t ticks = _autobaud_end_count - _autobaud_start_count;
+    sprintf(msg, "TICKS: 0x%04x\r\n\r\n", ticks);
+    uart_puts(UART_DEBUG, msg);
 }
 
 
-// 20 MHz / 8 prescaler = 2.5 MHz = period of 0.4 us
-// premium 5 10400 baud
-//   count 0x01dd = (477 * 0.4) = 190.8 us
-// technisat 9600 baud
-//   count = 0x207 = (519 * 0.4) = 207.6 us
+/*
+ * Input Capture interrupt; fires on the negative edges of the
+ * sync byte.  We capture the time between the first two negative
+ * edges (2 bits) to measure the baud rate.
+ */
+ISR(TIMER1_CAPT_vect)
+{
+    if (_autobaud_edges == 0) {
+        _autobaud_start_count = ICR1;
+    } else if (_autobaud_edges == 1) {
+        _autobaud_end_count = ICR1;
+    }
 
-//  4800 baud / 2 edges = 2400 = 416.66 us
-//  9600 baud / 2 edges = 4800 = 208.33 us
-// 10400 baud / 2 edges = 5200 = 192.30 us
+    _autobaud_edges++;
+}

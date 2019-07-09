@@ -12,6 +12,7 @@ const char * kwp_describe_result(kwp_result_t result) {
     switch (result) {
         case KWP_SUCCESS:           return "Success";
         case KWP_TIMEOUT:           return "Timeout";
+        case KWP_SYNC_BAD_BAUD:     return "Baud rate measured from sync is unachievable";
         case KWP_BAD_KEYWORD:       return "Bad keyword received (not KWP1281)";
         case KWP_BAD_ECHO:          return "Bad echo received";
         case KWP_BAD_COMPLEMENT:    return "Bad complement received";
@@ -821,12 +822,12 @@ void kwp_send_address(uint8_t address)
     }
 }
 
-
+// TODO restore support for a fixed baud rate (no autobaud)
 kwp_result_t kwp_connect(uint8_t address, uint32_t baud)
 {
     uart_puts(UART_DEBUG, "\r\nCONNECT ");
     uart_puthex(UART_DEBUG, address);
-    uart_puts(UART_DEBUG, ": ");
+    uart_puts(UART_DEBUG, "\n");
 
     uart_init(UART_KLINE, baud);
 
@@ -841,21 +842,30 @@ kwp_result_t kwp_connect(uint8_t address, uint32_t baud)
     uart_disable(UART_KLINE);
     kwp_send_address(address);
 
+    // Receive sync byte and detect its baud rate
     uint32_t actual_baud_rate = 0;
     uint32_t normal_baud_rate = 0;
-    kwp_result_t result = autobaud(&actual_baud_rate, &normal_baud_rate);
+    kwp_result_t result = autobaud_sync(&actual_baud_rate, &normal_baud_rate);
     if (result != KWP_SUCCESS) { return result; }
 
     // Re-enable UART at detected baud rate
     uart_init(UART_KLINE, normal_baud_rate);
 
+    // Print the baud rate info
+    char msg[60];
+    sprintf(msg, "BAUD: %d (DETECTED %d)\r\n",
+      (int)normal_baud_rate, (int)actual_baud_rate);
+    uart_puts(UART_DEBUG, msg);
+
     // Receive two-byte keyword that identifies the module's protocol
+    uart_puts(UART_DEBUG, "KWRECV: ");
     uint16_t keyword;
     result = _recv_keyword(&keyword);
     if (result != KWP_SUCCESS) { return result; }
     if (keyword != KWP_1281) { return KWP_BAD_KEYWORD; }
 
     // Send response to keyword
+    uart_puts(UART_DEBUG, "\r\nKWSEND: ");
     _delay_ms(KWP_POSTKEYWORD_MS);
     result = _send_byte((keyword & 0xff) ^ 0xff);
     if (result != KWP_SUCCESS) { return result; }
