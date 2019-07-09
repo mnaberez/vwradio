@@ -11,6 +11,7 @@ const char * kwp_describe_result(kwp_result_t result) {
     switch (result) {
         case KWP_SUCCESS:           return "Success";
         case KWP_TIMEOUT:           return "Timeout";
+        case KWP_BAD_KEYWORD:       return "Bad keyword received (not KWP1281)";
         case KWP_BAD_ECHO:          return "Bad echo received";
         case KWP_BAD_COMPLEMENT:    return "Bad complement received";
         case KWP_BAD_BLK_LENGTH:    return "Bad block length received";
@@ -107,23 +108,35 @@ static kwp_result_t _recv_byte_send_compl(uint8_t *rx_byte_out)
 }
 
 
-// Wait for the 0x55 0x01 0x8A sequence during initial connection
-static kwp_result_t _wait_for_55_01_8a()
+// Wait for the 0x55 sync byte
+// during the initial connection
+static kwp_result_t _wait_for_sync()
 {
-    const uint8_t expected_rx_bytes[] = { 0x55, 0x01, 0x8a };
     uint8_t rx_byte;
-    uint8_t i = 0;
 
     while (1) {
         kwp_result_t result = _recv_byte(&rx_byte);
         if (result != KWP_SUCCESS) { return result; }
 
-        if (rx_byte == expected_rx_bytes[i]) {
-            if (++i == 3) { return KWP_SUCCESS; }
-        } else {
-            i = 0;
-        }
+        if (rx_byte == 0x55) { return KWP_SUCCESS; }
     }
+}
+
+
+// Receive the two keyword bytes after the 0x55 sync byte
+// during the initial connection
+static kwp_result_t _recv_keyword(uint16_t *keyword_out)
+{
+    uint8_t high, low;
+
+    kwp_result_t result = _recv_byte(&high);
+    if (result != KWP_SUCCESS) { return result; }
+
+    result = _recv_byte(&low);
+    if (result != KWP_SUCCESS) { return result; }
+
+    *keyword_out = WORD(high, low);
+    return KWP_SUCCESS;
 }
 
 
@@ -842,16 +855,26 @@ kwp_result_t kwp_connect(uint8_t address, uint32_t baud)
     memset(kwp_component_1, 0, sizeof(kwp_component_1));
     memset(kwp_component_2, 0, sizeof(kwp_component_2));
 
-    // Send address at 5 baud and perform initial handshake
+    // Send address at 5 baud to wake up the module
     kwp_send_address(address);
-    kwp_result_t result = _wait_for_55_01_8a();
+
+    // Wait for the module to send the 0x55 sync byte
+    kwp_result_t result = _wait_for_sync();
     if (result != KWP_SUCCESS) { return result; }
+
+    // Receive two-byte keyword that identifies the module's protocol
+    uint16_t keyword;
+    result = _recv_keyword(&keyword);
+    if (result != KWP_SUCCESS) { return result; }
+    if (keyword != KWP_1281) { return KWP_BAD_KEYWORD; }
+
+    // Send response to keyword
     _delay_ms(KWP_POSTKEYWORD_MS);
-    result = _send_byte(0x75);
+    result = _send_byte((keyword & 0xff) ^ 0xff);
     if (result != KWP_SUCCESS) { return result; }
-    uart_puts(UART_DEBUG, "\r\n");
 
     // Receive all identification blocks until we control the connection
+    uart_puts(UART_DEBUG, "\r\n");
     result = _receive_all_ident_blocks();
     if (result != KWP_SUCCESS) { return result; }
 
@@ -868,6 +891,7 @@ kwp_result_t kwp_autoconnect(uint8_t address)
         for (uint8_t baud_index=0; baud_index<2; baud_index++) {
             kwp_result_t result = kwp_connect(address, baud_rates[baud_index]);
             if (result == KWP_SUCCESS) { return result; }
+            if (result == KWP_BAD_KEYWORD) { return result; }
 
             const char *msg = kwp_describe_result(result);
             uart_puts(UART_DEBUG, (char *)msg);

@@ -9,14 +9,15 @@ typedef enum
 {
     KWP_SUCCESS = 0,
     KWP_TIMEOUT = 1,
-    KWP_BAD_ECHO = 2,
-    KWP_BAD_COMPLEMENT = 3,
-    KWP_BAD_BLK_LENGTH = 4,
-    KWP_BAD_BLK_END = 5,
-    KWP_RX_OVERFLOW = 7,
-    KWP_UNEXPECTED = 8,
-    KWP_DATA_TOO_SHORT = 9,
-    KWP_DATA_TOO_LONG = 10,
+    KWP_BAD_KEYWORD = 3,
+    KWP_BAD_ECHO = 4,
+    KWP_BAD_COMPLEMENT = 5,
+    KWP_BAD_BLK_LENGTH = 6,
+    KWP_BAD_BLK_END = 7,
+    KWP_RX_OVERFLOW = 8,
+    KWP_UNEXPECTED = 9,
+    KWP_DATA_TOO_SHORT = 10,
+    KWP_DATA_TOO_LONG = 11,
 } kwp_result_t;
 
 kwp_result_t kwp_connect(uint8_t address, uint32_t baud);
@@ -56,6 +57,9 @@ uint32_t kwp_baud_rate;         // baud rate of current connection
 uint8_t kwp_vag_number[16];     // "1J0035180D  "
 uint8_t kwp_component_1[16];    // " RADIO 3CP  "
 uint8_t kwp_component_2[16];    // "        0001"
+
+// Protocol Keywords
+#define KWP_1281        0x018a  // KWP1281 protocol
 
 // Module Addresses
 #define KWP_ENGINE      0x01
