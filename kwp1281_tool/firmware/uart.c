@@ -42,6 +42,7 @@ static uint16_t _baud_to_ubrr(uint32_t baud)
         case 115200:    return UART_UBRR_115200;
         case 10400:     return UART_UBRR_10400;
         case 9600:      return UART_UBRR_9600;
+        // TODO: add 4800 baud
         default:        while(1);
     }
 }

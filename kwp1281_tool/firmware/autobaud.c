@@ -40,14 +40,40 @@ volatile uint16_t edges = 0;
 volatile uint16_t starting_cnt = 0;
 volatile uint16_t ending_cnt = 0;
 
+
+/* Normalize a detected baud rate to a supported one.  Baud rates
+ * of 4800, 9600, and 10400 are supported.  The ranges allow -/+ 4%
+ * error.  If normalization fails, 0 is returned.
+ */
+static uint32_t _normalize_baud_rate(uint32_t baud_rate)
+{
+    /* thresholds generated with python:
+     *
+     *   for baud in (4800, 9600, 10400):
+     *     min = baud - (baud * 0.04)  # -4%
+     *     max = baud + (baud * 0.04)  # +4%
+     *     print("%d: %d - %d" % (baud, min, max))
+     */
+    if ((baud_rate >= 4608) && (baud_rate <= 4992)) {
+        return 4800;
+    } else if ((baud_rate >= 9216) && (baud_rate <= 9984)) {
+        return 9600;
+    } else if ((baud_rate >= 9984) && (baud_rate <= 10816)) {
+        return 10400;
+    } else {
+        return 0;  // error: normalization failed
+    };
+}
+
+
 kwp_result_t autobaud(uint32_t *actual_baud_rate, uint32_t *normal_baud_rate)
 {
     i = 0;
     edges = 0;
 
-    TCCR1A = 0;
-    TIFR1 = (1<<ICF1);		// clear input capture flag
-    TCCR1B = _BV(CS11);   // 20 MHz clock / 8 prescaler = 8 MHz clock
+    TCCR1A = 0;           // disable output compare and waveform generation
+    TIFR1 = _BV(ICF1);    // clear input capture flag (avoids spurious interrupt)
+    TCCR1B = _BV(CS11);   // no noise cancel, neg edge, 20 MHz / 8 prescaler = 8 MHz
     TIMSK1 |= _BV(ICIE1); // enable capture interrupt
 
     while(i == 0);
@@ -55,17 +81,15 @@ kwp_result_t autobaud(uint32_t *actual_baud_rate, uint32_t *normal_baud_rate)
 
     // calculate baud rate
     uint16_t ticks = ending_cnt - starting_cnt;
-    float period = ticks * 0.4;                 // 0.4 uS is period of 8 MHz
+    float period = ticks * 0.4;                 // 0.4 uS is the period of 8 MHz
     float frequency = (2 * 1000000) / period;   // 2 * because 2 bits per tick
     uint16_t baud = (uint16_t)frequency;
 
     // normalize baud rate
     *actual_baud_rate = baud;
-    if (baud >= 10000) {
-      *normal_baud_rate = 10400;
-    } else {
-      *normal_baud_rate = 9600;
-    };
+    *normal_baud_rate = _normalize_baud_rate(baud);
+
+    // TODO handle failure from _normalize_baud_rate
 
     // debug output
     char msg[60];

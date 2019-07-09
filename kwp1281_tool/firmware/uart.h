@@ -8,6 +8,7 @@
 #define UART_UBRR_115200  0x000A
 #define UART_UBRR_10400   0x0077
 #define UART_UBRR_9600    0x0081
+// TODO: add 4800 baud
 #else
 #error "No UART baud rate values defined for this value for F_CPU"
 #endif
