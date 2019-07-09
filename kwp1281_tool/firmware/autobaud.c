@@ -5,6 +5,7 @@
 #include <util/delay.h>
 #include <stdio.h>
 #include "uart.h"
+#include "kwp1281.h"
 
 /*
  *                         Sync Byte (0x55)
@@ -39,9 +40,10 @@ volatile uint16_t edges = 0;
 volatile uint16_t starting_cnt = 0;
 volatile uint16_t ending_cnt = 0;
 
-void autobaud_start()
+kwp_result_t autobaud(uint32_t *actual_baud_rate, uint32_t *normal_baud_rate)
 {
     i = 0;
+    edges = 0;
 
     TCCR1A = 0;
     TIFR1 = (1<<ICF1);		// clear input capture flag
@@ -53,11 +55,21 @@ void autobaud_start()
     while(i == 0);
     _delay_ms(5);
 
-    uint16_t diff = ending_cnt - starting_cnt;
-    float period = diff * 0.4;
-    float frequency = 2000000 / period;
+    // calculate baud rate
+    uint16_t ticks = ending_cnt - starting_cnt;
+    float period = ticks * 0.4;  // 0.4 is period of 8 MHz
+    float frequency = (2 * 1000000) / period;  // 2 * because 2 bits per tick
     uint16_t baud = (uint16_t)frequency;
 
+    // normalize baud rate
+    *actual_baud_rate = baud;
+    if (baud >= 10000) {
+      *normal_baud_rate = 10400;
+    } else {
+      *normal_baud_rate = 9600;
+    };
+
+    // debug output
     char msg[60];
     sprintf(msg, "\r\nEDGES: %d\r\n", edges);
     uart_puts(UART_DEBUG, msg);
@@ -65,12 +77,17 @@ void autobaud_start()
     uart_puts(UART_DEBUG, msg);
     sprintf(msg, "END:   0x%04x\r\n", ending_cnt);
     uart_puts(UART_DEBUG, msg);
-    sprintf(msg, "DIFF:  0x%04x\r\n", diff);
+    sprintf(msg, "TICKS: 0x%04x\r\n", ticks);
     uart_puts(UART_DEBUG, msg);
-    sprintf(msg, "BAUD:  %d\r\n", baud);
+    sprintf(msg, "BAUD:  %d\r\n", (int)*actual_baud_rate);
+    uart_puts(UART_DEBUG, msg);
+    sprintf(msg, "USING: %d\r\n", (int)*normal_baud_rate);
     uart_puts(UART_DEBUG, msg);
 
-    while(1);
+    // disable capture interrupt
+    TIMSK1 &= ~_BV(ICIE1);
+
+    return KWP_SUCCESS;
 }
 
 ISR(TIMER1_CAPT_vect)

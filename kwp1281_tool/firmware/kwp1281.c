@@ -1,4 +1,5 @@
 #include "main.h"
+#include "autobaud.h"
 #include "kwp1281.h"
 #include "uart.h"
 #include <stdio.h>
@@ -105,21 +106,6 @@ static kwp_result_t _recv_byte_send_compl(uint8_t *rx_byte_out)
     if (echo != complement) { return KWP_BAD_ECHO; }
 
     return KWP_SUCCESS;
-}
-
-
-// Wait for the 0x55 sync byte
-// during the initial connection
-static kwp_result_t _wait_for_sync()
-{
-    uint8_t rx_byte;
-
-    while (1) {
-        kwp_result_t result = _recv_byte(&rx_byte);
-        if (result != KWP_SUCCESS) { return result; }
-
-        if (rx_byte == 0x55) { return KWP_SUCCESS; }
-    }
 }
 
 
@@ -851,15 +837,17 @@ kwp_result_t kwp_connect(uint8_t address, uint32_t baud)
     memset(kwp_component_1, 0, sizeof(kwp_component_1));
     memset(kwp_component_2, 0, sizeof(kwp_component_2));
 
-
     // Send address at 5 baud to wake up the module
     uart_disable(UART_KLINE);
     kwp_send_address(address);
-    uart_enable(UART_KLINE);
 
-    // Wait for the module to send the 0x55 sync byte
-    kwp_result_t result = _wait_for_sync();
+    uint32_t actual_baud_rate = 0;
+    uint32_t normal_baud_rate = 0;
+    kwp_result_t result = autobaud(&actual_baud_rate, &normal_baud_rate);
     if (result != KWP_SUCCESS) { return result; }
+
+    // Re-enable UART at detected baud rate
+    uart_init(UART_KLINE, normal_baud_rate);
 
     // Receive two-byte keyword that identifies the module's protocol
     uint16_t keyword;

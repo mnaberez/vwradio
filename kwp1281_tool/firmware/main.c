@@ -8,6 +8,10 @@
 
 int main()
 {
+    // XXX For debugging only, remove me
+    DDRA |= _BV(PA0);       // PA0 = output
+    PORTA &= ~_BV(PA3);     // PA0 = off
+
     uart_init(UART_DEBUG, 115200);  // debug messages
     uart_init(UART_KLINE,  10400);  // obd-ii kwp1281
     sei();
