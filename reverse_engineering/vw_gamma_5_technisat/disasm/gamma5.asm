@@ -24266,7 +24266,7 @@ lab_a574:
 lab_a579:
     bra lab_a560            ;a579  80 e5        branch to send nak request
 
-;group reading handler: advanced id 1 ("YD5-001 27.01.04)
+;group reading handler: advanced id 1 ("YD5-001 27.01.04")
 lab_a57b:
     jsr sub_a84f            ;a57b  20 4f a8
     bra lab_a588            ;a57e  80 08
