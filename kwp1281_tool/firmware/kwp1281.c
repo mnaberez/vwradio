@@ -452,6 +452,10 @@ kwp_result_t kwp_send_group_reading_block(uint8_t group)
 /*
  * Perform a group reading (measuring blocks) for the specific group,
  * receive the response block and validate it.
+ *
+ * TODO: figure out what to do about advanced id's (groups 0x50 & 0x51)
+ * found in the Gamma 5 (TechniSat) radio.  Those responses are an 0xE7
+ * block title but the data does not conform to the usual 0xE7 format.
  */
 kwp_result_t kwp_read_group(uint8_t group)
 {

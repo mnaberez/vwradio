@@ -41,3 +41,19 @@ RECV: 03 11 09 03
 VAG Number: "IMMO-IDENTNR"
 Component:  ": AUZ7Z0W0359960       ␃"
 ```
+
+## Group Reading Advanced ID
+
+The VW Gamma 5 radio made by TechniSat returns string data in measuring blocks for groups 0x50 and 0x51.  See the Gamma 5 disassembly (`gamma5.asm`):
+
+```
+;group reading handler: advanced id 1 ("YD5-001 27.01.04")
+lab_a57b:
+    jsr sub_a84f            ;a57b  20 4f a8
+    bra lab_a588            ;a57e  80 08
+
+;group reading handler: advanced id 2 ("VWZAZ3D2301808")
+lab_a580:
+    jsr sub_a88c            ;a580  20 8c a8
+    bra lab_a588            ;a583  80 03
+```
