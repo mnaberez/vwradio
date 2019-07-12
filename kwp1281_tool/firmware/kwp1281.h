@@ -68,11 +68,12 @@ uint8_t kwp_component_2[16];    // "        0001"
 #define KWP_RADIO_MFG   0x7C    // Delco Premium 5, TechniSat Gamma 5
 
 // Delays (all in milliseconds)
-#define KWP_INTERBYTE_MS    1     /* Between individual bytes in a block */
-#define KWP_INTERBLOCK_MS   10    /* Between blocks */
+#define KWP_INTERBYTE_MS    1     /* Delay to wait between individual bytes in a block */
+#define KWP_INTERBLOCK_MS   10    /* Delay to wait between blocks */
+#define KWP_SYNC_TIMEOUT_MS 1000  /* Timeout if no initial sync byte from module for this long */
 #define KWP_RECV_TIMEOUT_MS 3000  /* Timeout if no byte received from module for this long */
 #define KWP_ECHO_TIMEOUT_MS 100   /* Timeout if our byte echo is not received for this long */
-#define KWP_POSTKEYWORD_MS  30    /* After initial 55 01 8A before sending 75 */
+#define KWP_POSTKEYWORD_MS  30    /* Delay to wait after initial 55 01 8A before sending 75 */
 #define KWP_DISCONNECT_MS   5000  /* Do nothing for this long to disconnect */
 #define KWP_AUTOCONNECT_MS  2000  /* Between auto-connect tries */
 

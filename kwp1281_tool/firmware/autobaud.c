@@ -95,6 +95,22 @@ static uint32_t _normalize_baud_rate(uint32_t baud_rate)
     };
 }
 
+/*
+ * Block until the first sync edge is received or timeout.
+ */
+static void _wait_for_first_sync_edge()
+{
+    uint16_t millis = 0;
+    uint8_t submillis = 0;
+
+    while (_autobaud_edges == 0) {
+        _delay_us(50); // 50 us = 0.05 ms
+        if (++submillis == 20) {  // 1 ms
+            submillis = 0;
+            if (++millis == KWP_SYNC_TIMEOUT_MS) { return; }  // timeout
+        }
+    }
+}
 
 /*
  * Receive the sync byte and measure its baud rate.  Return the
@@ -104,10 +120,15 @@ kwp_result_t autobaud_sync(uint32_t *actual_baud_rate, uint32_t *normal_baud_rat
 {
     _start_input_capture();
 
-    while(_autobaud_edges == 0);
-    _delay_ms(5); // 5 ms is longer than one byte at 2400 baud
+    _wait_for_first_sync_edge();
+
+    // capture for an additional 5ms after the first edge to capture
+    // the whole sync byte (5ms is longer than one byte at 2400 baud)
+    _delay_ms(5);
 
     _stop_input_capture();
+
+    if (_autobaud_edges == 0) { return KWP_TIMEOUT; }
 
     // calculate actual baud rate
     uint16_t ticks = _autobaud_end_count - _autobaud_start_count;
