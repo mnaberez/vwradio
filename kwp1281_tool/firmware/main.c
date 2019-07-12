@@ -12,7 +12,7 @@ int main()
     uart_init(UART_KLINE,  10400);  // obd-ii kwp1281
     sei();
 
-    kwp_result_t result = kwp_autoconnect(KWP_RADIO);
+    kwp_result_t result = kwp_retrying_connect(KWP_RADIO);
     kwp_panic_if_error(result);
 
     // result = kwp_login_safe(1866);

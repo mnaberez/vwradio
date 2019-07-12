@@ -24,7 +24,7 @@ static void _crack_delco_vw_premium_5()
 {
     kwp_disconnect();
 
-    kwp_result_t result = kwp_connect(KWP_RADIO_MFG, kwp_baud_rate);
+    kwp_result_t result = kwp_connect(KWP_RADIO_MFG);
     kwp_panic_if_error(result);
     result = kwp_p5_login_mfg();
     kwp_panic_if_error(result);
@@ -40,7 +40,7 @@ static void _crack_delco_seat_liceo()
 {
     kwp_disconnect();
 
-    kwp_result_t result = kwp_connect(KWP_RADIO_MFG, kwp_baud_rate);
+    kwp_result_t result = kwp_connect(KWP_RADIO_MFG);
     kwp_panic_if_error(result);
     result = kwp_sl_login_mfg();
     kwp_panic_if_error(result);

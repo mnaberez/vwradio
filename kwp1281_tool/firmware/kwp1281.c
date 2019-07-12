@@ -824,33 +824,30 @@ void kwp_send_address(uint8_t address)
 }
 
 // TODO restore support for a fixed baud rate (no autobaud)
-kwp_result_t kwp_connect(uint8_t address, uint32_t baud)
+kwp_result_t kwp_connect(uint8_t address)
 {
-    uart_puts(UART_DEBUG, "\r\nCONNECT ");
-    uart_puthex(UART_DEBUG, address);
-    uart_puts(UART_DEBUG, "\n");
-
-    uart_init(UART_KLINE, baud);
-
     // Initialize connection state
-    kwp_baud_rate = baud;
     kwp_is_first_block = true;
     memset(kwp_vag_number,  0, sizeof(kwp_vag_number));
     memset(kwp_component_1, 0, sizeof(kwp_component_1));
     memset(kwp_component_2, 0, sizeof(kwp_component_2));
 
     // Send address at 5 baud to wake up the module
+    uart_puts(UART_DEBUG, "\r\nCONNECT ");
+    uart_puthex(UART_DEBUG, address);
+    uart_puts(UART_DEBUG, "\n");
     uart_disable(UART_KLINE);
     kwp_send_address(address);
 
     // Receive sync byte and detect its baud rate
-    uint32_t actual_baud_rate = 0;
-    uint32_t normal_baud_rate = 0;
+    uint32_t actual_baud_rate;
+    uint32_t normal_baud_rate;
     kwp_result_t result = autobaud_sync(&actual_baud_rate, &normal_baud_rate);
     if (result != KWP_SUCCESS) { return result; }
 
     // Re-enable UART at detected baud rate
     uart_init(UART_KLINE, normal_baud_rate);
+    kwp_baud_rate = normal_baud_rate;
 
     // Print the baud rate info
     char msg[60];
@@ -881,20 +878,16 @@ kwp_result_t kwp_connect(uint8_t address, uint32_t baud)
     return KWP_SUCCESS;
 }
 
-kwp_result_t kwp_autoconnect(uint8_t address)
+kwp_result_t kwp_retrying_connect(uint8_t address)
 {
-    const uint16_t baud_rates[2] = { 9600, 10400 };
-
     for (uint8_t try=0; try<2; try++) {
-        for (uint8_t baud_index=0; baud_index<2; baud_index++) {
-            kwp_result_t result = kwp_connect(address, baud_rates[baud_index]);
-            if (result == KWP_SUCCESS) { return result; }
-            if (result == KWP_BAD_KEYWORD) { return result; }
+        kwp_result_t result = kwp_connect(address);
+        if (result == KWP_SUCCESS) { return result; }
+        if (result == KWP_BAD_KEYWORD) { return result; }
 
-            const char *msg = kwp_describe_result(result);
-            uart_puts(UART_DEBUG, (char *)msg);
-            _delay_ms(KWP_AUTOCONNECT_MS); // delay before next try
-        }
+        const char *msg = kwp_describe_result(result);
+        uart_puts(UART_DEBUG, (char *)msg);
+        _delay_ms(KWP_CONNECT_RETRY_MS);
     }
     return KWP_TIMEOUT;
 }
