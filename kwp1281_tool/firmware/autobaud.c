@@ -129,6 +129,7 @@ kwp_result_t autobaud_sync(uint32_t *actual_baud_rate, uint32_t *normal_baud_rat
     _stop_input_capture();
 
     if (_autobaud_edges == 0) { return KWP_TIMEOUT; }
+    if (_autobaud_edges != 5) { return KWP_SYNC_NOT_0X55; }
 
     // calculate actual baud rate
     uint16_t ticks = _autobaud_end_count - _autobaud_start_count;

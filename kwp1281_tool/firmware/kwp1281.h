@@ -9,7 +9,8 @@ typedef enum
 {
     KWP_SUCCESS = 0,
     KWP_TIMEOUT = 1,
-    KWP_SYNC_BAD_BAUD = 3,
+    KWP_SYNC_BAD_BAUD = 2,
+    KWP_SYNC_NOT_0X55 = 3,
     KWP_BAD_KEYWORD = 4,
     KWP_BAD_ECHO = 5,
     KWP_BAD_COMPLEMENT = 6,
@@ -17,8 +18,8 @@ typedef enum
     KWP_BAD_BLK_END = 8,
     KWP_RX_OVERFLOW = 9,
     KWP_UNEXPECTED = 10,
-    KWP_DATA_TOO_SHORT = 12,
-    KWP_DATA_TOO_LONG = 13,
+    KWP_DATA_TOO_SHORT = 11,
+    KWP_DATA_TOO_LONG = 12,
 } kwp_result_t;
 
 kwp_result_t kwp_connect(uint8_t address, uint32_t baud);
