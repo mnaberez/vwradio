@@ -40,6 +40,9 @@
  * 10400 baud    96.15 us   192.30 us    961.50 us
  */
 
+static volatile uint8_t _autobaud_edges;           // Count of negative edges received
+static volatile uint16_t _autobaud_start_count;    // ICR1 at first negative edge
+static volatile uint16_t _autobaud_end_count;      // ICR1 at second negative edge
 
 /*
  * Start input capture.  The time between the first two negative
@@ -59,7 +62,6 @@ void _start_input_capture()
     TCCR1B |= AUTOBAUD_PRESCALER; // start counting
 }
 
-
 /*
  * Stop input capture
  */
@@ -68,7 +70,6 @@ void _stop_input_capture()
     TIMSK1 &= ~_BV(ICIE1);  // disable capture interrupt
     TCCR1B = 0;             // no noise cancel, capture neg edge, stop timer
 }
-
 
 /*
  * Normalize a detected baud rate to a supported one.  Baud rates
@@ -145,7 +146,6 @@ kwp_result_t autobaud_sync(uint32_t *actual_baud_rate, uint32_t *normal_baud_rat
     return KWP_SUCCESS;
 }
 
-
 /*
  * Print debug information
  */
@@ -166,7 +166,6 @@ void autobaud_debug()
     sprintf(msg, "TICKS: 0x%04x\r\n\r\n", ticks);
     uart_puts(UART_DEBUG, msg);
 }
-
 
 /*
  * Input Capture interrupt; fires on the negative edges of the
