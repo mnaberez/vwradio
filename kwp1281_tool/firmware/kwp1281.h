@@ -16,10 +16,11 @@ typedef enum
     KWP_BAD_COMPLEMENT = 6,
     KWP_BAD_BLK_LENGTH = 7,
     KWP_BAD_BLK_END = 8,
-    KWP_RX_OVERFLOW = 9,
-    KWP_UNEXPECTED = 10,
-    KWP_DATA_TOO_SHORT = 11,
-    KWP_DATA_TOO_LONG = 12,
+    KWP_TX_BLK_MALFORMED = 9,
+    KWP_RX_OVERFLOW = 10,
+    KWP_UNEXPECTED = 11,
+    KWP_DATA_TOO_SHORT = 12,
+    KWP_DATA_TOO_LONG = 13,
 } kwp_result_t;
 
 kwp_result_t kwp_connect(uint8_t address);

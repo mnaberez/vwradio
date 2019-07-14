@@ -20,6 +20,7 @@ const char * kwp_describe_result(kwp_result_t result) {
         case KWP_BAD_BLK_LENGTH:    return "Bad block length received";
         case KWP_BAD_BLK_END:       return "Bad block end marker byte received";
         case KWP_RX_OVERFLOW:       return "RX buffer overflow";
+        case KWP_TX_BLK_MALFORMED:  return "Malformed block in TX buffer (block lengh too short)";
         case KWP_UNEXPECTED:        return "Unexpected block title received";
         case KWP_DATA_TOO_SHORT:    return "Length of data returned is shorter than expected";
         case KWP_DATA_TOO_LONG:     return "Length of data returned is longer than expected";
@@ -132,17 +133,18 @@ static kwp_result_t _recv_keyword(uint16_t *keyword_out)
 kwp_result_t kwp_send_block(uint8_t *buf)
 {
     uint8_t block_length = buf[0];
-    uint8_t buf_size = block_length + 1;
+    // minumum block length of 3 = counter + title + end
+    if (block_length < 3) { return KWP_TX_BLK_MALFORMED; }
 
     buf[1] = ++kwp_block_counter;   // insert block counter
-    buf[buf_size - 1] = 0x03;       // insert block end
+    buf[block_length] = 0x03;       // insert block end
 
     uart_puts(UART_DEBUG, "SEND: ");
 
     // send each byte and receive its complement, except block end
     kwp_result_t result;
     uint8_t i;
-    for (i=0; i<(buf_size-1); i++) {
+    for (i=0; i<block_length; i++) {
         result = _send_byte_recv_compl(buf[i]);
         if (result != KWP_SUCCESS) { return result; }
     }
