@@ -20,7 +20,7 @@ const char * kwp_describe_result(kwp_result_t result) {
         case KWP_BAD_BLK_LENGTH:    return "Bad block length received";
         case KWP_BAD_BLK_END:       return "Bad block end marker byte received";
         case KWP_RX_OVERFLOW:       return "RX buffer overflow";
-        case KWP_TX_BLK_MALFORMED:  return "Malformed block in TX buffer (block lengh too short)";
+        case KWP_TX_BLK_MALFORMED:  return "Malformed block in TX buffer (block length too short)";
         case KWP_UNEXPECTED:        return "Unexpected block title received";
         case KWP_DATA_TOO_SHORT:    return "Length of data returned is shorter than expected";
         case KWP_DATA_TOO_LONG:     return "Length of data returned is longer than expected";
