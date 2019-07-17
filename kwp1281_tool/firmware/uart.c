@@ -186,7 +186,7 @@ uint8_t uart_blocking_get(uart_num_t uartnum)
 }
 
 // Wrapper around uart_blocking_get() and uart_rx_ready() to provide a timeout
-// Returns true if byte has been received into rx_byte_out
+// Returns UART_READY if a byte has been received into rx_byte_out
 uart_status_t uart_blocking_get_with_timeout(uart_num_t uartnum, uint16_t timeout_ms, uint8_t *rx_byte_out)
 {
     uint16_t millis = 0;
@@ -195,11 +195,11 @@ uart_status_t uart_blocking_get_with_timeout(uart_num_t uartnum, uint16_t timeou
         _delay_us(50); // 50 us = 0.05 ms
         if (++submillis == 20) {  // 1 ms
             submillis = 0;
-            if (++millis == timeout_ms) { return 0; }  // timeout
+            if (++millis == timeout_ms) { return UART_NOT_READY; }
         }
     }
     *rx_byte_out = uart_blocking_get(uartnum);
-    return 1;  // success
+    return UART_READY;
 }
 
 /*************************************************************************
