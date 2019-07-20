@@ -19,6 +19,17 @@
     .area CODE1 (ABS)
     .org 0x0000
 
+brgc0_value = 0x6b          ;Baud rate used for KWP1281:
+                            ;  0x39 = 10400 baud (the normal baud rate of this radio)
+                            ;  0x3b = 9600 baud
+                            ;  0x4b = 4800 baud
+                            ;  0x5b = 2400 baud
+                            ;  0x6b = 1200 baud
+                            ;
+                            ;uPD78F0833Y Subseries Manual (U13892EJ2V0UM, 2nd Edition):
+                            ;  BRGC0 register bits on page 244
+                            ;  Table of baud rate values on page 250
+
 mem_f000 = 0xf000           ;memory address for KWP1281 read ram or read eeprom (2 bytes)
 mem_f002 = 0xf002           ;eeprom address for KWP1281 write eeprom (2 bytes)
 mem_f004 = 0xf004
@@ -3795,7 +3806,7 @@ lab_0e39:
     clr1 pu2.6              ;0e5f  71 6b 32
     set1 pm2.6              ;0e62  71 6a 22
     mov asim0,#0x00         ;0e65  13 a0 00
-    mov brgc0,#0x39         ;0e68  13 a2 39
+    mov brgc0,#brgc0_value  ;0e68  13 a2 39
     set1 shadow_p2.5        ;0e6b  5a cc
     mov a,shadow_p2         ;0e6d  f0 cc
     mov p2,a                ;0e6f  f2 02
@@ -37121,10 +37132,10 @@ kwp_brgc0_b02c:
 ;values to be stored in BRGC0_
 ;indexed by mem_f06d
     .byte 0x04              ;b02c  04          DATA 0x04        4 entries below:
-    .byte 0x39              ;b02d  39          DATA 0x39 '9'
-    .byte 0x39              ;b02e  39          DATA 0x39 '9'
-    .byte 0x39              ;b02f  39          DATA 0x39 '9'
-    .byte 0x39              ;b030  39          DATA 0x39 '9'
+    .byte brgc0_value       ;b02d  39          DATA 0x39 '9'
+    .byte brgc0_value       ;b02e  39          DATA 0x39 '9'
+    .byte brgc0_value       ;b02f  39          DATA 0x39 '9'
+    .byte brgc0_value       ;b030  39          DATA 0x39 '9'
 
 kwp_asim0_b031:
 ;values to be stored in ASIM0_
