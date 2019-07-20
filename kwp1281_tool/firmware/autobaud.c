@@ -72,20 +72,24 @@ void _stop_input_capture()
 }
 
 /*
- * Normalize a detected baud rate to a supported one.  Baud rates
- * of 4800, 9600, and 10400 are supported.  The ranges allow -/+ 4%
- * error.  If normalization fails, 0 is returned.
+ * Normalize a detected baud rate to a supported one.  Baud rates of
+ * 1200, 2400, 4800, 9600, and 10400 are supported.  The ranges allow
+ * -/+ 4% error.  If normalization fails, 0 is returned.
  */
 static uint32_t _normalize_baud_rate(uint32_t baud_rate)
 {
     /* thresholds generated with python:
      *
-     *   for baud in (4800, 9600, 10400):
+     *   for baud in (1200, 2400, 4800, 9600, 10400):
      *     min = baud - (baud * 0.04)  # -4%
      *     max = baud + (baud * 0.04)  # +4%
      *     print("%d: %d - %d" % (baud, min, max))
      */
-    if ((baud_rate >= 4608) && (baud_rate <= 4992)) {
+    if ((baud_rate >= 1152) && (baud_rate <= 1248)) {
+        return 1200;
+    } else if ((baud_rate >= 2304) && (baud_rate <= 2496)) {
+        return 2400;
+    } else if ((baud_rate >= 4608) && (baud_rate <= 4992)) {
         return 4800;
     } else if ((baud_rate >= 9216) && (baud_rate <= 9984)) {
         return 9600;
@@ -97,13 +101,15 @@ static uint32_t _normalize_baud_rate(uint32_t baud_rate)
 }
 
 /*
- * Block until the first sync edge is received or timeout.
+ * Wait until all 5 neg edges of the 0x55 sync byte have been
+ * received or timeout.
  */
-static void _wait_for_first_sync_edge()
+static void _wait_for_0x55_or_timeout()
 {
     uint16_t millis = 0;
     uint8_t submillis = 0;
 
+    // wait a long time for the first negative edge
     while (_autobaud_edges == 0) {
         _delay_us(50); // 50 us = 0.05 ms
         if (++submillis == 20) {  // 1 ms
@@ -111,6 +117,17 @@ static void _wait_for_first_sync_edge()
             if (++millis == KWP_SYNC_TIMEOUT_MS) { return; }  // timeout
         }
     }
+
+    // first edge received; now wait for 5 edges within 20ms or timeout
+    // 20ms = over 2x the total time of sync byte at 1200 baud
+    for (millis=0; millis<20; millis++) {
+        if (_autobaud_edges == 5) { break; }
+        _delay_ms(1);
+    }
+
+    // wait an additional delay to allow the k-line to return to idle
+    // 2ms = over 2x the period of one bit at 1200 baud
+    _delay_ms(2);
 }
 
 /*
@@ -120,13 +137,7 @@ static void _wait_for_first_sync_edge()
 kwp_result_t autobaud_sync(uint32_t *actual_baud_rate, uint32_t *normal_baud_rate)
 {
     _start_input_capture();
-
-    _wait_for_first_sync_edge();
-
-    // capture for an additional 5ms after the first edge to capture
-    // the whole sync byte (5ms is longer than one byte at 2400 baud)
-    _delay_ms(5);
-
+    _wait_for_0x55_or_timeout();
     _stop_input_capture();
 
     if (_autobaud_edges == 0) { return KWP_TIMEOUT; }
