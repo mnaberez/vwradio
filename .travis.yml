@@ -40,6 +40,7 @@ script:
   - make -C reverse_engineering/vw_premium_4_clarion/disasm/pu1666a_mainmcu
   - make -C reverse_engineering/vw_premium_4_clarion/disasm/pu1666a_submcu
   - make -C reverse_engineering/vw_premium_5_delco/disasm
+  - make -C reverse_engineering/vw_premium_5_delco/custom/baudrate
   - make -C reverse_engineering/vw_premium_5_delco/custom/dumpram
   - make -C reverse_engineering/vw_premium_5_delco/custom/faultcodes
   - make -C reverse_engineering/vw_premium_5_delco/custom/remote
