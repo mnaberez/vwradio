@@ -3795,7 +3795,7 @@ lab_0e39:
     clr1 pu2.6              ;0e5f  71 6b 32
     set1 pm2.6              ;0e62  71 6a 22
     mov asim0,#0x00         ;0e65  13 a0 00
-    mov brgc0,#0x39         ;0e68  13 a2 39
+    mov brgc0,#0x39         ;0e68  13 a2 39     0x39 = 10400 baud
     set1 shadow_p2.5        ;0e6b  5a cc
     mov a,shadow_p2         ;0e6d  f0 cc
     mov p2,a                ;0e6f  f2 02
@@ -37121,10 +37121,10 @@ kwp_brgc0_b02c:
 ;values to be stored in BRGC0
 ;indexed by mem_f06d
     .byte 0x04              ;b02c  04          DATA 0x04        4 entries below:
-    .byte 0x39              ;b02d  39          DATA 0x39 '9'
-    .byte 0x39              ;b02e  39          DATA 0x39 '9'
-    .byte 0x39              ;b02f  39          DATA 0x39 '9'
-    .byte 0x39              ;b030  39          DATA 0x39 '9'
+    .byte 0x39              ;b02d  39          DATA 0x39 '9'      0x39 = 10400 baud
+    .byte 0x39              ;b02e  39          DATA 0x39 '9'      0x39 = 10400 baud
+    .byte 0x39              ;b02f  39          DATA 0x39 '9'      0x39 = 10400 baud
+    .byte 0x39              ;b030  39          DATA 0x39 '9'      0x39 = 10400 baud
 
 kwp_asim0_b031:
 ;values to be stored in ASIM0
