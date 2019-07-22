@@ -416,15 +416,15 @@ mem_fe7f = 0xfe7f
 mem_fe80 = 0xfe80
 mem_fe81 = 0xfe81
 mem_fea1 = 0xfea1
-shadow_p0 = 0xfecb          ;Copy of P0_ that will be changed and then written to P0_
-shadow_p2 = 0xfecc          ;Copy of P2_ that will be changed and then written to P2_
-shadow_p3 = 0xfecd          ;Copy of P3_ that will be changed and then written to P3_
-shadow_p4 = 0xfece          ;Copy of P4_ that will be changed and then written to P4_
-shadow_p5 = 0xfecf          ;Copy of P5_ that will be changed and then written to P5_
-shadow_p6 = 0xfed0          ;Copy of P6_ that will be changed and then written to P6_
-shadow_p7 = 0xfed1          ;Copy of P7_ that will be changed and then written to P7_
-shadow_p8 = 0xfed2          ;Copy of P8_ that will be changed and then written to P8_
-shadow_p9 = 0xfed3          ;Copy of P9_ that will be changed and then written to P9_
+shadow_p0 = 0xfecb          ;Copy of P0 that will be changed and then written to P0
+shadow_p2 = 0xfecc          ;Copy of P2 that will be changed and then written to P2
+shadow_p3 = 0xfecd          ;Copy of P3 that will be changed and then written to P3
+shadow_p4 = 0xfece          ;Copy of P4 that will be changed and then written to P4
+shadow_p5 = 0xfecf          ;Copy of P5 that will be changed and then written to P5
+shadow_p6 = 0xfed0          ;Copy of P6 that will be changed and then written to P6
+shadow_p7 = 0xfed1          ;Copy of P7 that will be changed and then written to P7
+shadow_p8 = 0xfed2          ;Copy of P8 that will be changed and then written to P8
+shadow_p9 = 0xfed3          ;Copy of P9 that will be changed and then written to P9
 mem_fed4 = 0xfed4           ;Bit 6 off=tape side A, on=tape side B
 mem_fed5 = 0xfed5
 mem_fed6 = 0xfed6
@@ -37118,7 +37118,7 @@ kwp_unknown_b027:
     .byte 0x01              ;b02b  01          DATA 0x01
 
 kwp_brgc0_b02c:
-;values to be stored in BRGC0_
+;values to be stored in BRGC0
 ;indexed by mem_f06d
     .byte 0x04              ;b02c  04          DATA 0x04        4 entries below:
     .byte 0x39              ;b02d  39          DATA 0x39 '9'
@@ -37127,7 +37127,7 @@ kwp_brgc0_b02c:
     .byte 0x39              ;b030  39          DATA 0x39 '9'
 
 kwp_asim0_b031:
-;values to be stored in ASIM0_
+;values to be stored in ASIM0
 ;indexed by mem_f06d
     .byte 0x04              ;b031  04          DATA 0x04        4 entries below:
     .byte 0x00              ;b032  00          DATA 0x00
