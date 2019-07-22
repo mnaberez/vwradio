@@ -101,7 +101,7 @@ static uint32_t _normalize_baud_rate(uint32_t baud_rate)
 }
 
 /*
- * Wait until all 5 neg edges of the 0x55 sync byte have been
+ * Wait until all 5 negative edges of the 0x55 sync byte have been
  * received or timeout.
  */
 static void _wait_for_0x55_or_timeout()
@@ -109,7 +109,9 @@ static void _wait_for_0x55_or_timeout()
     uint16_t millis = 0;
     uint8_t submillis = 0;
 
-    // wait a long time for the first negative edge
+    // wait for the first negative edge of 0x55
+    // after receiving its 5 baud address, the module will not start
+    // transmitting for some time.  this will be tens of milliseconds.
     while (_autobaud_edges == 0) {
         _delay_us(50); // 50 us = 0.05 ms
         if (++submillis == 20) {  // 1 ms
@@ -118,8 +120,9 @@ static void _wait_for_0x55_or_timeout()
         }
     }
 
-    // first edge received; now wait for 5 edges within 20ms or timeout
-    // 20ms = over 2x the total time of sync byte at 1200 baud
+    // first negative edge of 0x55 received
+    // now wait for the remaining 4 negative edges within 20ms or timeout
+    // 20ms = over 2x the total time of the sync byte at 1200 baud
     for (millis=0; millis<20; millis++) {
         if (_autobaud_edges == 5) { break; }
         _delay_ms(1);
