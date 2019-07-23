@@ -188,10 +188,12 @@ void autobaud_debug()
  */
 ISR(TIMER1_CAPT_vect)
 {
+    uint16_t count = ICR1;
+
     if (_autobaud_edges == 0) {
-        _autobaud_start_count = ICR1;
+        _autobaud_start_count = count;
     } else if (_autobaud_edges == 1) {
-        _autobaud_end_count = ICR1;
+        _autobaud_end_count = count;
     }
 
     _autobaud_edges++;
