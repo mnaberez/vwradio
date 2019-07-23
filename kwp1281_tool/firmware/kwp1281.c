@@ -356,7 +356,7 @@ static kwp_result_t _receive_all_fault_blocks()
               // in case any real faults are also returned.
 
             } else {
-              faults_count += 1;
+              faults_count++;
 
               char msg[60];
               sprintf(msg, "FAULT: NUM=%02X CODE=%04X ELABORATION=%02X\r\n",
