@@ -55,14 +55,14 @@ void uart_init(uart_num_t uartnum, uint32_t baud)
 
     switch (uartnum) {
         case UART0:
-            UBRR0H = HIGH(ubrr);                // Baud Rate high
-            UBRR0L = LOW(ubrr);                 // Baud Rate low
-            UCSR0A &= ~(_BV(U2X0));             // Do not use 2X
+            UBRR0H = HIGH(ubrr);  // Baud Rate high
+            UBRR0L = LOW(ubrr);   // Baud Rate low
+            UCSR0A = 0;           // Do not use 2X, clear error flags
             break;
         case UART1:
-            UBRR1H = HIGH(ubrr);                // Baud Rate high
-            UBRR1L = LOW(ubrr);                 // Baud Rate low
-            UCSR1A &= ~(_BV(U2X1));             // Do not use 2X
+            UBRR1H = HIGH(ubrr);  // Baud Rate high
+            UBRR1L = LOW(ubrr);   // Baud Rate low
+            UCSR1A = 0;           // Do not use 2X, clear error flags
             break;
         default:
             while(1);
