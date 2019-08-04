@@ -21036,7 +21036,7 @@ eltm:
     .byte 0x4d              ;6708  4d          DATA 0x4d 'M'
 
 track_scan:
-    .byte 0x0d              ;6709  0d          DATA 0x0d        12 bytes follow:
+    .byte 0x0d              ;6709  0d          DATA 0x0d        13 bytes follow:
     .byte 0x54              ;670a  54          DATA 0x54 'T'
     .byte 0x52              ;670b  52          DATA 0x52 'R'
     .byte 0x41              ;670c  41          DATA 0x41 'A'
@@ -21052,7 +21052,7 @@ track_scan:
     .byte 0x20              ;6716  20          DATA 0x20 ' '
 
 disc_scan:
-    .byte 0x0d              ;6717  0d          DATA 0x0d        12 bytes follow:
+    .byte 0x0d              ;6717  0d          DATA 0x0d        13 bytes follow:
     .byte 0x44              ;6718  44          DATA 0x44 'D'
     .byte 0x49              ;6719  49          DATA 0x49 'I'
     .byte 0x53              ;671a  53          DATA 0x53 'S'
@@ -21760,14 +21760,15 @@ lab_6a1f:
 
 lab_6a26:
     mov b,#0xff             ;6a26  a3 ff
-    movw hl,#monsoon        ;6a28  16 c9 64
+    movw hl,#monsoon        ;6a28  16 c9 64     HL = pointer to 11,"    MONSOON"
     call !sub_6e70          ;6a2b  9a 70 6e
+
     ret                     ;6a2e  af
 
 lab_6a2f:
     mov a,#0x0a             ;6a2f  a1 0a
     mov b,#0xff             ;6a31  a3 ff
-    movw hl,#blank          ;6a33  16 11 65
+    movw hl,#blank          ;6a33  16 11 65     HL = pointer to 11,"           "
     mov1 cy,mem_fe62.2      ;6a36  71 24 62
     bc lab_6a40             ;6a39  8d 05
     bt mem_fe62.1,lab_6a4b  ;6a3b  9c 62 0d
@@ -21819,6 +21820,7 @@ lab_6a7a:
     mov a,#0x87             ;6a7a  a1 87
     mov b,#0xff             ;6a7c  a3 ff
     call !sub_6e70          ;6a7e  9a 70 6e
+
     mov b,#0x03             ;6a81  a3 03
     mov a,#0xff             ;6a83  a1 ff
     movw hl,#scan           ;6a85  16 e6 63
@@ -21828,7 +21830,7 @@ lab_6a7a:
 lab_6a8d:
     mov a,#0x88             ;6a8d  a1 88
     mov b,#0x03             ;6a8f  a3 03
-    movw hl,#scan           ;6a91  16 e6 63
+    movw hl,#scan           ;6a91  16 e6 63     HL = pointer to 4,"SCAN"
     call !sub_6d61          ;6a94  9a 61 6d
     call !sub_6d61          ;6a97  9a 61 6d
     br lab_6ad1             ;6a9a  fa 35
@@ -21837,10 +21839,12 @@ lab_6a9c:
     mov a,#0x88             ;6a9c  a1 88
     mov b,#0xff             ;6a9e  a3 ff
     call !sub_6e70          ;6aa0  9a 70 6e
+
     mov a,!mem_fb5a         ;6aa3  8e 5a fb
     add a,#0x01             ;6aa6  0d 01        Convert to char code for preset (preset 1 = code 2)
     mov !upd_disp+3,a       ;6aa8  9e 9d f1     '...1.......' (preset)
-    movw hl,#pscan          ;6aab  16 cf 63
+
+    movw hl,#pscan          ;6aab  16 cf 63     HL = pointer to 5,"PSCAN"
     mov b,#0x0f             ;6aae  a3 0f
     mov a,#0xff             ;6ab0  a1 ff
     call !sub_6d61          ;6ab2  9a 61 6d
@@ -21850,10 +21854,12 @@ lab_6ab7:
     mov a,#0xff             ;6ab7  a1 ff
     mov b,#0x83             ;6ab9  a3 83
     call !sub_6e70          ;6abb  9a 70 6e
+
     mov a,#0xff             ;6abe  a1 ff
-    movw hl,#preset_scan    ;6ac0  16 d5 63
+    movw hl,#preset_scan    ;6ac0  16 d5 63     HL = pointer to 11,"PRESET SCAN"
     mov b,#0x10             ;6ac3  a3 10
     call !sub_6d61          ;6ac5  9a 61 6d
+
     br lab_6ad1             ;6ac8  fa 07
 
 lab_6aca:
@@ -21886,7 +21892,7 @@ lab_6af1:
 lab_6af5:
     mov b,#0xff             ;6af5  a3 ff
     mov a,#0x0a             ;6af7  a1 0a
-    movw hl,#tape_load      ;6af9  16 0b 66
+    movw hl,#tape_load      ;6af9  16 0b 66     HL = pointer to 11,"TAPE LOAD  "
     call !sub_6e70          ;6afc  9a 70 6e
     ret                     ;6aff  af
 
@@ -21894,7 +21900,7 @@ lab_6b00:
     bf mem_fe71.4,lab_6b0e  ;6b00  31 43 71 0a
     mov b,#0xff             ;6b04  a3 ff
     mov a,#0x0a             ;6b06  a1 0a
-    movw hl,#tape_metal     ;6b08  16 ff 65
+    movw hl,#tape_metal     ;6b08  16 ff 65     HL = pointer to 11,"TAPE METAL"
     call !sub_6e70          ;6b0b  9a 70 6e
 
 lab_6b0e:
@@ -21927,25 +21933,25 @@ lab_6b2a:
 lab_6b33:
     mov b,#0xff             ;6b33  a3 ff
     mov a,#0x0a             ;6b35  a1 0a
-    movw hl,#skip_blank     ;6b37  16 e7 65
+    movw hl,#skip_blank     ;6b37  16 e7 65     HL = pointer to 11,"SKIP BLANK "
     call !sub_6e70          ;6b3a  9a 70 6e
     ret                     ;6b3d  af
 
 lab_6b3e:
     mov b,#0xff             ;6b3e  a3 ff
-    movw hl,#tapemss_ff     ;6b40  16 cf 65
+    movw hl,#tapemss_ff     ;6b40  16 cf 65     HL = pointer to 11,"TAPEMSS FF "
     mov a,#0x0a             ;6b43  a1 0a
     br lab_6b52             ;6b45  fa 0b
 
-    .byte 0xaf              ;6b47  af          DATA 0xaf
+    ret                     ;6b47  af
 
 lab_6b48:
     mov b,#0xff             ;6b48  a3 ff
-    movw hl,#tapemss_rew    ;6b4a  16 db 65
+    movw hl,#tapemss_rew    ;6b4a  16 db 65     HL = pointer to 11,"TAPE MSS REW"
     mov a,#0x0a             ;6b4d  a1 0a
     br lab_6b52             ;6b4f  fa 01
 
-    .byte 0xaf              ;6b51  af          DATA 0xaf
+    ret                     ;6b51  af
 
 lab_6b52:
 ;Finish tape message
@@ -21962,19 +21968,22 @@ lab_6b5c:
 
 lab_6b66:
     mov a,#0x0a             ;6b66  a1 0a
-    movw hl,#chk_magazin    ;6b68  16 ad 67
+    movw hl,#chk_magazin    ;6b68  16 ad 67     HL = pointer to 11,"CHK MAGAZIN"
     mov b,#0xff             ;6b6b  a3 ff
     call !sub_6e70          ;6b6d  9a 70 6e
+
     br !lab_6ca5            ;6b70  9b a5 6c
 
 lab_6b73:
     mov a,!mem_fc79         ;6b73  8e 79 fc
     cmp a,#0x03             ;6b76  4d 03
     bz lab_6b90             ;6b78  ad 16
+
     mov a,#0x0a             ;6b7a  a1 0a
     mov b,#0xff             ;6b7c  a3 ff
-    movw hl,#cd_cd_err      ;6b7e  16 95 67
+    movw hl,#cd_cd_err      ;6b7e  16 95 67     HL = pointer to 11,"CD  CD ERR "
     call !sub_6e70          ;6b81  9a 70 6e
+
     movw hl,#upd_disp       ;6b84  16 9a f1
     mov a,!mem_fc7d         ;6b87  8e 7d fc     A = CD number
     add a,#0x30             ;6b8a  0d 30        Convert to ASCII
@@ -21984,7 +21993,7 @@ lab_6b73:
 lab_6b90:
     mov a,#0x0a             ;6b90  a1 0a
     mov b,#0xff             ;6b92  a3 ff
-    movw hl,#cd_error       ;6b94  16 a1 67
+    movw hl,#cd_error       ;6b94  16 a1 67     HL = pointer to 11," CD  ERROR "
     call !sub_6e70          ;6b97  9a 70 6e
 
 lab_6b9a:
@@ -21993,8 +22002,9 @@ lab_6b9a:
 lab_6b9d:
     mov a,#0x0a             ;6b9d  a1 0a
     mov b,#0xff             ;6b9f  a3 ff
-    movw hl,#cd_no_cd       ;6ba1  16 90 66
+    movw hl,#cd_no_cd       ;6ba1  16 90 66     HL = pointer to 11,"CD   NO CD "
     call !sub_6e70          ;6ba4  9a 70 6e
+
     movw hl,#upd_disp       ;6ba7  16 9a f1
     mov a,!mem_fc7d         ;6baa  8e 7d fc     A = CD number
     add a,#0x30             ;6bad  0d 30        Convert to ASCII
@@ -22044,12 +22054,12 @@ lab_6bef:
 lab_6bf0:
     mov a,#0xff             ;6bf0  a1 ff
     mov b,#0x0a             ;6bf2  a3 0a
-    movw hl,#scan_tr        ;6bf4  16 cc 66
+    movw hl,#scan_tr        ;6bf4  16 cc 66     HL = pointer to 11,"SCANCD TR  "
     br lab_6c5f             ;6bf7  fa 66
 
 lab_6bf9:
     mov a,#0x0a             ;6bf9  a1 0a
-    movw hl,#cue            ;6bfb  16 b4 66
+    movw hl,#cue            ;6bfb  16 b4 66     HL = pointer to 11,"CUE        "
     mov b,#0xff             ;6bfe  a3 ff
     set1 upd_pict+5.1       ;6c00  1a 3a        Turn on "MIX" pictograph
     bt mem_fe6e.1,lab_6c07  ;6c02  9c 6e 02     Branch if MIX is on
@@ -22062,7 +22072,7 @@ lab_6c07:
 
 lab_6c10:
     mov a,#0x0a             ;6c10  a1 0a
-    movw hl,#cd__           ;6c12  16 84 66
+    movw hl,#cd__           ;6c12  16 84 66     HL = pointer to 11,"CD         "
     mov b,#0xff             ;6c15  a3 ff
     set1 upd_pict+5.1       ;6c17  1a 3a        Turn on "MIX" pictograph
     bt mem_fe6e.1,lab_6c1e  ;6c19  9c 6e 02     Branch if MIX is on
@@ -22076,7 +22086,7 @@ lab_6c1e:
 
 lab_6c29:
     mov a,#0x0a             ;6c29  a1 0a
-    movw hl,#rev            ;6c2b  16 c0 66
+    movw hl,#rev            ;6c2b  16 c0 66     HL = pointer to 11,"REV        "
     mov b,#0xff             ;6c2e  a3 ff
     set1 upd_pict+5.1       ;6c30  1a 3a        Turn on "MIX" pictograph
     bt mem_fe6e.1,lab_6c37  ;6c32  9c 6e 02     Branch if MIX is on
@@ -22089,7 +22099,7 @@ lab_6c37:
 
 lab_6c3f:
     mov a,#0x0a             ;6c3f  a1 0a
-    movw hl,#cd__           ;6c41  16 84 66
+    movw hl,#cd__           ;6c41  16 84 66     HL = pointer to 11,"CD         "
     mov b,#0xff             ;6c44  a3 ff
     set1 upd_pict+5.1       ;6c46  1a 3a        Turn on "MIX" pictograph
     bt mem_fe6e.1,lab_6c4d  ;6c48  9c 6e 02     Branch if MIX is on
@@ -22103,7 +22113,7 @@ lab_6c4d:
 
 lab_6c58:
     mov a,#0x0a             ;6c58  a1 0a
-    movw hl,#cd_tr          ;6c5a  16 9c 66
+    movw hl,#cd_tr          ;6c5a  16 9c 66     HL = pointer to 11,"CD   TR    "
     mov b,#0xff             ;6c5d  a3 ff
 
 lab_6c5f:
@@ -22115,15 +22125,17 @@ lab_6c5f:
 lab_6c6a:
     mov b,#0x83             ;6c6a  a3 83
     mov a,#0x10             ;6c6c  a1 10
-    movw hl,#track_scan     ;6c6e  16 09 67
+    movw hl,#track_scan     ;6c6e  16 09 67     HL = pointer to 13,"TRACK SCAN   "
     call !sub_6e70          ;6c71  9a 70 6e
+
     br lab_6ca5             ;6c74  fa 2f
 
 lab_6c76:
     mov b,#0x83             ;6c76  a3 83
     mov a,#0x10             ;6c78  a1 10
-    movw hl,#disc_scan      ;6c7a  16 17 67
+    movw hl,#disc_scan      ;6c7a  16 17 67     HL = pointer to 13,"DISC SCAN    "
     call !sub_6e70          ;6c7d  9a 70 6e
+
     br lab_6ca5             ;6c80  fa 23
 
 lab_6c82:
@@ -22441,7 +22453,11 @@ sub_6e70:
 ;A = ?
 ;B = ?
     bt a.7,lab_6e87         ;6e70  31 7e 14
+
     ;bit 7 of B is clear
+    ;it seems like bit 7 is clear for all the messages that
+    ;i have seen on the radio
+
     push ax                 ;6e73  b1
     mov a,b                 ;6e74  63
     and a,#0x80             ;6e75  5d 80
@@ -22458,6 +22474,9 @@ sub_6e70:
 
 lab_6e87:
     ;bit 7 of B is set
+    ;it seems like bit 7 is set only for messages that
+    ;i have never seen on the radio
+
     push ax                 ;6e87  b1
     mov a,b                 ;6e88  63
     and a,#0x80             ;6e89  5d 80
@@ -22739,11 +22758,13 @@ lab_6fea:
 
 
 sub_6feb:
+;Copy from [HL] into upd_disp
+;TODO not fully understood
     push de                 ;6feb  b5
     push bc                 ;6fec  b3
     mov a,b                 ;6fed  63
     cmp a,#0x0b             ;6fee  4d 0b
-    bnc lab_7009            ;6ff0  9d 17
+    bnc lab_7009            ;6ff0  9d 17        TODO bounds check? (11 = LCD size in characters)
     mov a,[hl]              ;6ff2  87
     mov c,a                 ;6ff3  72
     add l,a                 ;6ff4  61 06
@@ -22854,7 +22875,7 @@ lab_7070:
     mov !mem_fb2e,a         ;7078  9e 2e fb
     mov a,#0x0a             ;707b  a1 0a
     mov b,#0xff             ;707d  a3 ff
-    movw hl,#blank          ;707f  16 11 65
+    movw hl,#blank          ;707f  16 11 65     HL = pointer to 11,"           "
     call !sub_6e70          ;7082  9a 70 6e
     br lab_708e             ;7085  fa 07
 
@@ -23005,10 +23026,12 @@ lab_711c:
     callf !sub_0cf4         ;711c  4c f4        Probably binary to BCD
     push ax                 ;711e  b1
     push ax                 ;711f  b1
+
     mov b,#0x83             ;7120  a3 83
     mov a,#0x10             ;7122  a1 10
-    movw hl,#e__            ;7124  16 be 63
+    movw hl,#e__            ;7124  16 be 63     HL = pointer to 11,"E           "
     call !sub_6e70          ;7127  9a 70 6e
+
     mov a,#0xff             ;712a  a1 ff
     mov b,#0x07             ;712c  a3 07
     push bc                 ;712e  b3
@@ -23049,7 +23072,7 @@ lab_715c:
 lab_716b:
     mov b,#0x83             ;716b  a3 83
     mov a,#0x0d             ;716d  a1 0d
-    movw hl,#comm_error     ;716f  16 55 66
+    movw hl,#comm_error     ;716f  16 55 66     HL = pointer to 10,"Comm Error"
 
 lab_7172:
     call !sub_6e70          ;7172  9a 70 6e
@@ -23058,13 +23081,13 @@ lab_7172:
 lab_7176:
     mov a,#0xff             ;7176  a1 ff
     mov b,#0x0a             ;7178  a3 0a
-    movw hl,#no_tape        ;717a  16 17 66
+    movw hl,#no_tape        ;717a  16 17 66     HL = pointer to 11,"    NO TAPE"
     br lab_7172             ;717d  fa f3
 
 lab_717f:
     mov a,#0xff             ;717f  a1 ff
     mov b,#0x0a             ;7181  a3 0a
-    movw hl,#tape_error     ;7183  16 23 66
+    movw hl,#tape_error     ;7183  16 23 66     HL = pointer to 11,"TAPE ERROR "
     br lab_7172             ;7186  fa ea
 
 lab_7188:
@@ -23100,8 +23123,9 @@ lab_71a7:
 lab_71b0:
     mov b,#0xff             ;71b0  a3 ff
     mov a,#0x0a             ;71b2  a1 0a
-    movw hl,#cd_cd_rom      ;71b4  16 89 67
+    movw hl,#cd_cd_rom      ;71b4  16 89 67     HL = pointer to 11,"CD  CD ROM "
     call !sub_6e70          ;71b7  9a 70 6e
+
     movw hl,#upd_disp       ;71ba  16 9a f1
     mov b,#0x03             ;71bd  a3 03
     mov a,!mem_f1b2         ;71bf  8e b2 f1
@@ -23118,7 +23142,7 @@ lab_71c6:
 lab_71cf:
     mov b,#0xff             ;71cf  a3 ff
     mov a,#0x0a             ;71d1  a1 0a
-    movw hl,#no_disc        ;71d3  16 7d 67
+    movw hl,#no_disc        ;71d3  16 7d 67     HL = pointer to 11,"    NO DISC"
 
 lab_71d6:
     call !sub_6e70          ;71d6  9a 70 6e
@@ -23141,10 +23165,12 @@ lab_71e3:
 lab_71f2:
     set1 mem_fe6a.0         ;71f2  0a 6a
     call !clear_upd_pict    ;71f4  9a e1 6f     Turn off all pictographs in upd_pict buffer
+
     mov b,#0x0a             ;71f7  a3 0a
-    movw hl,#safe           ;71f9  16 f9 64
+    movw hl,#safe           ;71f9  16 f9 64     HL = pointer to 11,"     SAFE  "
     mov a,#0xff             ;71fc  a1 ff
     call !sub_6e70          ;71fe  9a 70 6e
+
     movw hl,#upd_disp       ;7201  16 9a f1
     mov a,!mem_f206         ;7204  8e 06 f2
     call !sub_0cf4          ;7207  9a f4 0c
@@ -23172,10 +23198,12 @@ lab_7224:
     bnz lab_7249            ;7229  bd 1e
     set1 mem_fe6a.0         ;722b  0a 6a
     call !clear_upd_pict    ;722d  9a e1 6f     Turn off all pictographs in upd_pict buffer
+
     mov b,#0x0a             ;7230  a3 0a
-    movw hl,#safe           ;7232  16 f9 64
+    movw hl,#safe           ;7232  16 f9 64     HL = pointer to 11,"     SAFE  "
     mov a,#0xff             ;7235  a1 ff
     call !sub_6e70          ;7237  9a 70 6e
+
     mov a,!mem_f20b         ;723a  8e 0b f2     SAFE code attempt counter
     add a,#0x30             ;723d  0d 30        Convert it to ASCII
     movw hl,#upd_disp       ;723f  16 9a f1
@@ -23186,10 +23214,12 @@ lab_7224:
 
 lab_7249:
     call !clear_upd_pict    ;7249  9a e1 6f     Turn off all pictographs in upd_pict buffer
+
     mov b,#0x0a             ;724c  a3 0a
-    movw hl,#safe           ;724e  16 f9 64
+    movw hl,#safe           ;724e  16 f9 64     HL = pointer to 11,"     SAFE  "
     mov a,#0xff             ;7251  a1 ff
     call !sub_6e70          ;7253  9a 70 6e
+
     mov a,!mem_f20b         ;7256  8e 0b f2     A = SAFE code attempt counter
     add a,#0x30             ;7259  0d 30        Convert it to ASCII
     movw hl,#upd_disp       ;725b  16 9a f1
@@ -23199,7 +23229,7 @@ lab_7249:
     bf mem_fe3d.1,lab_7290  ;7263  31 13 3d 29
     mov a,#0x0a             ;7267  a1 0a
     mov b,#0xff             ;7269  a3 ff
-    movw hl,#blank          ;726b  16 11 65
+    movw hl,#blank          ;726b  16 11 65     HL = pointer to 11,"           "
     mov1 cy,mem_fe62.2      ;726e  71 24 62
     bc lab_7278             ;7271  8d 05
     bt mem_fe62.1,lab_7284  ;7273  9c 62 0e
@@ -23227,7 +23257,7 @@ lab_7294:
 ;Write SAFE code attempt count to the display buffer
     mov a,#0x0a             ;7294  a1 0a
     mov b,#0xff             ;7296  a3 ff
-    movw hl,#blank          ;7298  16 11 65
+    movw hl,#blank          ;7298  16 11 65     HL = pointer to 11,"           "
     set1 mem_fe6a.0         ;729b  0a 6a
     call !sub_6e70          ;729d  9a 70 6e
     movw hl,#upd_disp       ;72a0  16 9a f1
@@ -23275,16 +23305,17 @@ lab_72ad:
 
 lab_72de:
     mov b,#0x0a             ;72de  a3 0a
-    movw hl,#rad_de2        ;72e0  16 bd 64
+    movw hl,#rad_de2        ;72e0  16 bd 64     HL = pointer to 11,"RAD   DE2  "
     mov a,#0xff             ;72e3  a1 ff
     call !sub_6e70          ;72e5  9a 70 6e
     ret                     ;72e8  af
 
 lab_72e9:
     mov a,#0x0a             ;72e9  a1 0a
-    movw hl,#vers_a99cznn   ;72eb  16 d5 64     ;HL = pointer to 'VersA99CZnn'
+    movw hl,#vers_a99cznn   ;72eb  16 d5 64     ;HL = pointer to 11,"VersA99CZnn"
     mov b,#0xff             ;72ee  a3 ff
     call !sub_6e70          ;72f0  9a 70 6e
+
     mov a,#0x23             ;72f3  a1 23        ;23 = SOFTWARE 23
     call !sub_0be4          ;72f5  9a e4 0b     ;Convert BCD number in A to ASCII
     movw hl,#upd_disp       ;72f8  16 9a f1
@@ -23298,7 +23329,7 @@ lab_72e9:
 lab_7303:
     mov a,#0x0a             ;7303  a1 0a
     mov b,#0xff             ;7305  a3 ff
-    movw hl,#blank          ;7307  16 11 65
+    movw hl,#blank          ;7307  16 11 65     HL = pointer to 11,"           "
     call !sub_6e70          ;730a  9a 70 6e
 
     mov a,#0x83             ;730d  a1 83
@@ -23331,10 +23362,10 @@ lab_7303:
 
 lab_733e:
     mov b,#0x0a             ;733e  a3 0a
-    movw hl,#fern_on        ;7340  16 e1 64
+    movw hl,#fern_on        ;7340  16 e1 64     HL = pointer to 11,"FERN   ON  "
     mov1 cy,mem_fe5e.1      ;7343  71 14 5e
     bc lab_734b             ;7346  8d 03
-    movw hl,#fern_off       ;7348  16 ed 64
+    movw hl,#fern_off       ;7348  16 ed 64     HL = pointer to 11,"FERN   OFF "
 
 lab_734b:
     mov a,#0xff             ;734b  a1 ff
@@ -23343,9 +23374,10 @@ lab_734b:
 
 lab_7351:
     mov a,#0x0a             ;7351  a1 0a
-    movw hl,#set_onvol      ;7353  16 99 64
+    movw hl,#set_onvol      ;7353  16 99 64     HL = pointer to 11,"SET ONVOL  "
     mov b,#0xff             ;7356  a3 ff
     call !sub_6e70          ;7358  9a 70 6e
+
     mov a,!mem_f254         ;735b  8e 54 f2     ONVOL related
     clr1 a.0                ;735e  61 8b
     ror a,1                 ;7360  24
@@ -23382,8 +23414,9 @@ lab_7380:
 lab_7387:
     mov a,#0x0a             ;7387  a1 0a
     mov b,#0xff             ;7389  a3 ff
-    movw hl,#set_cd_mix     ;738b  16 a5 64
+    movw hl,#set_cd_mix     ;738b  16 a5 64     HL = pointer to 11,"SET CD MIX "
     call !sub_6e70          ;738e  9a 70 6e
+
     mov a,!mem_fb6f         ;7391  8e 6f fb
     and a,#0x01             ;7394  5d 01
     mov a,#0x31             ;7396  a1 31        A = '1' for 'CD MIX 1'
@@ -23399,8 +23432,9 @@ lab_739c:
 lab_73a3:
     mov a,#0x0a             ;73a3  a1 0a
     mov b,#0xff             ;73a5  a3 ff
-    movw hl,#tape_skip      ;73a7  16 b1 64
+    movw hl,#tape_skip      ;73a7  16 b1 64     HL = pointer to 11,"TAPE SKIP  "
     call !sub_6e70          ;73aa  9a 70 6e
+
     mov a,!mem_fb6f         ;73ad  8e 6f fb
     and a,#0x02             ;73b0  5d 02
     mov a,#0x59             ;73b2  a1 59        A = 'Y' for 'TAPE SKIP Y'
@@ -23415,9 +23449,9 @@ lab_73b8:
 
 lab_73bf:
     mov b,#0x07             ;73bf  a3 07
-    movw hl,#cut_tape       ;73c1  16 43 66
+    movw hl,#cut_tape       ;73c1  16 43 66     HL = pointer to 8,"CUT TAPE"
     mov a,#0x0f             ;73c4  a1 0f
-    movw de,#disabled       ;73c6  14 4c 66
+    movw de,#disabled       ;73c6  14 4c 66     HL = pointer to 8,"DISABLED"
     call !sub_6e70          ;73c9  9a 70 6e
     ret                     ;73cc  af
 
@@ -23436,7 +23470,7 @@ lab_73cd:
 lab_73e3:
     mov b,#0xff             ;73e3  a3 ff
     mov a,#0x0a             ;73e5  a1 0a
-    movw hl,#max            ;73e7  16 89 64
+    movw hl,#max            ;73e7  16 89 64     HL = pointer to 7,"  MAX  "
     br lab_7401             ;73ea  fa 15
 
 lab_73ec:
@@ -23450,7 +23484,7 @@ lab_73ec:
 lab_73fa:
     mov b,#0xff             ;73fa  a3 ff
     mov a,#0x0a             ;73fc  a1 0a
-    movw hl,#min            ;73fe  16 91 64
+    movw hl,#min            ;73fe  16 91 64     HL = pointer to 7,"  MIN  "
 
 lab_7401:
     call !sub_6e70          ;7401  9a 70 6e
@@ -23493,15 +23527,16 @@ lab_7433:
 lab_7441:
     mov b,#0xff             ;7441  a3 ff
     mov a,#0x0a             ;7443  a1 0a
-    movw hl,#min            ;7445  16 91 64
+    movw hl,#min            ;7445  16 91 64     HL = pointer to 7,"  MIN  "
     call !sub_6e70          ;7448  9a 70 6e
     ret                     ;744b  af
 
 lab_744c:
     mov b,#0xff             ;744c  a3 ff
-    movw hl,#tape           ;744e  16 a6 65
+    movw hl,#tape           ;744e  16 a6 65     HL = pointer to 4,"TAPE"
     mov a,#0x03             ;7451  a1 03
     call !sub_6e70          ;7453  9a 70 6e
+
     mov a,!mem_f1ac         ;7456  8e ac f1
     cmp a,#0x03             ;7459  4d 03
     bz lab_7474             ;745b  ad 17
@@ -23539,15 +23574,16 @@ lab_7484:
 lab_7492:
     mov b,#0xff             ;7492  a3 ff
     mov a,#0x0a             ;7494  a1 0a
-    movw hl,#min            ;7496  16 91 64
+    movw hl,#min            ;7496  16 91 64     HL = pointer to 7,"  MIN  "
     call !sub_6e70          ;7499  9a 70 6e
     ret                     ;749c  af
 
 lab_749d:
     mov a,#0xff             ;749d  a1 ff
     mov b,#0x0a             ;749f  a3 0a
-    movw hl,#cd_tr          ;74a1  16 9c 66
+    movw hl,#cd_tr          ;74a1  16 9c 66     HL = pointer to 11,"CD   TR    "
     call !sub_6e70          ;74a4  9a 70 6e
+
     movw hl,#upd_disp       ;74a7  16 9a f1
     mov a,!mem_fc75         ;74aa  8e 75 fc     A = CD track number
     add a,#0x30             ;74ad  0d 30        Convert it to ASCII
@@ -23568,7 +23604,7 @@ lab_74bc:
 lab_74ca:
     mov b,#0xff             ;74ca  a3 ff
     mov a,#0x0a             ;74cc  a1 0a
-    movw hl,#min            ;74ce  16 91 64
+    movw hl,#min            ;74ce  16 91 64     HL = 7,"  MIN  "
     call !sub_6e70          ;74d1  9a 70 6e
     ret                     ;74d4  af
 
@@ -23576,7 +23612,7 @@ lab_74d5:
     call !clear_upd_disp    ;74d5  9a d0 6f     Fill all characters with spaces in upd_disp buffer
     mov a,#0xff             ;74d8  a1 ff
     mov b,#0x0a             ;74da  a3 0a
-    movw hl,#diag           ;74dc  16 93 65
+    movw hl,#diag           ;74dc  16 93 65     HL = pointer to 7," DIAG  "
     call !sub_6e70          ;74df  9a 70 6e
     ret                     ;74e2  af
 
@@ -23584,10 +23620,12 @@ lab_74e3:
     mov b,#0x00             ;74e3  a3 00
     call !sub_67d9          ;74e5  9a d9 67
     push ax                 ;74e8  b1
+
     mov b,#0xff             ;74e9  a3 ff
     mov a,#0x0a             ;74eb  a1 0a
-    movw hl,#bass           ;74ed  16 59 64
+    movw hl,#bass           ;74ed  16 59 64   HL = pointer to 11,"BASS       "
     call !sub_6e70          ;74f0  9a 70 6e
+
     pop ax                  ;74f3  b0
     mov x,a                 ;74f4  70
     cmp a,#0x09             ;74f5  4d 09
@@ -23634,10 +23672,12 @@ lab_752f:
     mov b,#0x01             ;752f  a3 01
     call !sub_67d9          ;7531  9a d9 67
     push ax                 ;7534  b1
+
     mov b,#0xff             ;7535  a3 ff
     mov a,#0x0a             ;7537  a1 0a
-    movw hl,#mid            ;7539  16 65 64
+    movw hl,#mid            ;7539  16 65 64     HL = pointer to 11,"MID        "
     call !sub_6e70          ;753c  9a 70 6e
+
     pop ax                  ;753f  b0
     mov x,a                 ;7540  70
     cmp a,#0x09             ;7541  4d 09
@@ -23684,10 +23724,12 @@ lab_7579:
     mov b,#0x02             ;7579  a3 02
     call !sub_67d9          ;757b  9a d9 67
     push ax                 ;757e  b1
+
     mov b,#0xff             ;757f  a3 ff
     mov a,#0x0a             ;7581  a1 0a
-    movw hl,#treb           ;7583  16 71 64
+    movw hl,#treb           ;7583  16 71 64     HL = pointer to 11,"TREB       "
     call !sub_6e70          ;7586  9a 70 6e
+
     pop ax                  ;7589  b0
     mov x,a                 ;758a  70
     cmp a,#0x09             ;758b  4d 09
@@ -23742,8 +23784,9 @@ lab_75c5:
 lab_75d3_bal_left:
     mov b,#0xff             ;75d3  a3 ff
     mov a,#0x0a             ;75d5  a1 0a
-    movw hl,#bal_left       ;75d7  16 35 64
+    movw hl,#bal_left       ;75d7  16 35 64     HL = pointer to 11,"BAL LEFT   "
     call !sub_6e70          ;75da  9a 70 6e
+
     movw hl,#upd_disp+10    ;75dd  16 a4 f1
     pop ax                  ;75e0  b0
     xch a,x                 ;75e1  30
@@ -23756,8 +23799,9 @@ lab_75d3_bal_left:
 lab_75d3_bal_right:
     mov b,#0xff             ;75eb  a3 ff
     mov a,#0x0a             ;75ed  a1 0a
-    movw hl,#bal_right      ;75ef  16 4d 64
+    movw hl,#bal_right      ;75ef  16 4d 64     HL = pointer to 11,"BAL RIGHT  "
     call !sub_6e70          ;75f2  9a 70 6e
+
     movw hl,#upd_disp+10    ;75f5  16 a4 f1
     pop ax                  ;75f8  b0
     sub a,#0x0b             ;75f9  1d 0b
@@ -23768,8 +23812,9 @@ lab_75d3_bal_right:
 lab_75d3_bal_center:
     mov b,#0xff             ;7600  a3 ff
     mov a,#0x0a             ;7602  a1 0a
-    movw hl,#bal_center     ;7604  16 41 64
+    movw hl,#bal_center     ;7604  16 41 64     HL = pointer to 11,"BAL CENTER "
     call !sub_6e70          ;7607  9a 70 6e
+
     pop ax                  ;760a  b0
 
 lab_760b:
@@ -23791,8 +23836,9 @@ lab_7612:
 lab_75d3_faderear:
     mov b,#0xff             ;7620  a3 ff
     mov a,#0x0a             ;7622  a1 0a
-    movw hl,#faderear       ;7624  16 24 64
+    movw hl,#faderear       ;7624  16 24 64     HL = pointer to 11,"FADEREAR   "
     call !sub_6e70          ;7627  9a 70 6e
+
     movw hl,#upd_disp+10    ;762a  16 a4 f1
     pop ax                  ;762d  b0
     xch a,x                 ;762e  30
@@ -23805,8 +23851,9 @@ lab_75d3_faderear:
 lab_75d3_fadefront:
     mov b,#0xff             ;7638  a3 ff
     mov a,#0x0a             ;763a  a1 0a
-    movw hl,#fadefront      ;763c  16 0c 64
+    movw hl,#fadefront      ;763c  16 0c 64     HL = pointer to 11,"FADEFRONT  "
     call !sub_6e70          ;763f  9a 70 6e
+
     movw hl,#upd_disp+10    ;7642  16 a4 f1
     pop ax                  ;7645  b0
     sub a,#0x0b             ;7646  1d 0b
@@ -23817,8 +23864,9 @@ lab_75d3_fadefront:
 lab_75d3_fadecenter:
     mov b,#0xff             ;764d  a3 ff
     mov a,#0x0a             ;764f  a1 0a
-    movw hl,#fadecenter     ;7651  16 18 64
+    movw hl,#fadecenter     ;7651  16 18 64     HL = pointer to 11,"FADECENTER "
     call !sub_6e70          ;7654  9a 70 6e
+
     pop ax                  ;7657  b0
 
 lab_7658:
@@ -23830,16 +23878,18 @@ lab_7659:
 
 lab_765f:
     mov b,#0x83             ;765f  a3 83
-    movw hl,#flat           ;7661  16 1d 65
+    movw hl,#flat           ;7661  16 1d 65     HL = pointer to 9,"FLAT     "
     mov a,#0x0c             ;7664  a1 0c
     call !sub_6e70          ;7666  9a 70 6e
+
     ret                     ;7669  af
 
 lab_766a:
     mov b,#0x83             ;766a  a3 83
-    movw hl,#select_eq      ;766c  16 27 65
+    movw hl,#select_eq      ;766c  16 27 65     HL = pointer to 13,"SELECT EQ #  "
     mov a,#0x10             ;766f  a1 10
     call !sub_6e70          ;7671  9a 70 6e
+
     ret                     ;7674  af
 
 lab_7675:
