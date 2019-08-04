@@ -37891,7 +37891,7 @@ key_matrix_end = . - 8
 
 mem_b3ac:
 ;table used with sub_0b0d
-    .byte 0x04              ;b3ac  04          DATA 0x04    4 entries below:
+    .byte 0x04              ;b3ac  04          DATA 0x04        4 entries below:
     .byte 0x00              ;b3ad  00          DATA 0x00
     .byte 0x01              ;b3ae  01          DATA 0x01
     .byte 0x0a              ;b3af  0a          DATA 0x0a
@@ -37899,13 +37899,14 @@ mem_b3ac:
 
 mem_b3b1:
 ;table used with sub_0b0d
-    .byte 0x04              ;b3b1  04          DATA 0x04    4 entries below
+    .byte 0x04              ;b3b1  04          DATA 0x04        4 entries below:
     .byte 0x1f              ;b3b2  1f          DATA 0x1f
     .byte 0x1e              ;b3b3  1e          DATA 0x1e
     .byte 0x21              ;b3b4  21          DATA 0x21 '!'
     .byte 0x20              ;b3b5  20          DATA 0x20 ' '
 
-    .byte 0x0c              ;b3b6  0c          DATA 0x0c
+;unknown table
+    .byte 0x0c              ;b3b6  0c          DATA 0x0c        12 entries below:
     .byte 0xff              ;b3b7  ff          DATA 0xff
     .byte 0xfd              ;b3b8  fd          DATA 0xfd
     .byte 0xfc              ;b3b9  fc          DATA 0xfc
@@ -37918,7 +37919,9 @@ mem_b3b1:
     .byte 0xcd              ;b3c0  cd          DATA 0xcd
     .byte 0x9b              ;b3c1  9b          DATA 0x9b
     .byte 0x00              ;b3c2  00          DATA 0x00
-    .byte 0x08              ;b3c3  08          DATA 0x08
+
+;unknown table
+    .byte 0x08              ;b3c3  08          DATA 0x08        8 entries below
     .byte 0x05              ;b3c4  05          DATA 0x05
     .byte 0x07              ;b3c5  07          DATA 0x07
     .byte 0x0a              ;b3c6  0a          DATA 0x0a
@@ -37927,7 +37930,9 @@ mem_b3b1:
     .byte 0x21              ;b3c9  21          DATA 0x21 '!'
     .byte 0x32              ;b3ca  32          DATA 0x32 '2'
     .byte 0x64              ;b3cb  64          DATA 0x64 'd'
-    .byte 0x05              ;b3cc  05          DATA 0x05
+
+;unknown table
+    .byte 0x05              ;b3cc  05          DATA 0x05        5 entries below
     .byte 0x01              ;b3cd  01          DATA 0x01
     .byte 0x02              ;b3ce  02          DATA 0x02
     .byte 0x03              ;b3cf  03          DATA 0x03
