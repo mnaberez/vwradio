@@ -3219,7 +3219,7 @@ sub_0b90:
     and a,#0x0f             ;0b90  5d 0f
     cmp a,#0x0a             ;0b92  4d 0a
     bnc lab_0b99            ;0b94  9d 03
-    add a,#0x30             ;0b96  0d 30       Convert it to ASCII
+    add a,#'0               ;0b96  0d 30       Convert it to ASCII
     ret                     ;0b98  af
 
 lab_0b99:
@@ -21248,7 +21248,7 @@ lab_680b:
     add a,#0x41             ;680f  0d 41
     br lab_6815             ;6811  fa 02
 lab_6813:
-    add a,#0x30             ;6813  0d 30       Convert it to ASCII
+    add a,#'0               ;6813  0d 30       Convert it to ASCII
 lab_6815:
     ret                     ;6815  af
 
@@ -21866,7 +21866,7 @@ lab_6b73:
 
     movw hl,#upd_disp       ;6b84  16 9a f1
     mov a,!mem_fc7d         ;6b87  8e 7d fc     A = CD number
-    add a,#0x30             ;6b8a  0d 30        Convert to ASCII
+    add a,#'0               ;6b8a  0d 30        Convert to ASCII
     mov [hl+0x03],a         ;6b8c  be 03        '...1.......'
     br lab_6b9a             ;6b8e  fa 0a
 
@@ -21887,7 +21887,7 @@ lab_6b9d:
 
     movw hl,#upd_disp       ;6ba7  16 9a f1
     mov a,!mem_fc7d         ;6baa  8e 7d fc     A = CD number
-    add a,#0x30             ;6bad  0d 30        Convert to ASCII
+    add a,#'0               ;6bad  0d 30        Convert to ASCII
     mov [hl+0x03],a         ;6baf  be 03        '...1.......'
     br !lab_6ca5            ;6bb1  9b a5 6c     Branch to return
 
@@ -22101,7 +22101,7 @@ lab_6ce5:
     cmp a,#0x0a             ;6cf3  4d 0a
     bnz lab_6cfe            ;6cf5  bd 07
     movw hl,#upd_disp       ;6cf7  16 9a f1
-    mov a,#0x2d             ;6cfa  a1 2d
+    mov a,#'-               ;6cfa  a1 2d
     mov [hl+b],a            ;6cfc  bb           '......-.....'
     ret                     ;6cfd  af
 
@@ -22203,20 +22203,20 @@ lab_6d87:
     mov a,#0x00             ;6d87  a1 00        A = character code for "1" in AM1
     mov a,#0x20             ;6d89  a1 20        A = space character
     mov !upd_disp+2,a       ;6d8b  9e 9c f1     '.. ........'
-    mov a,#0x20             ;6d8e  a1 20
+    mov a,#0x20             ;6d8e  a1 20        A = space character
     mov !upd_disp+3,a       ;6d90  9e 9d f1     '... .......' (preset)
-    mov a,#0x41             ;6d93  a1 41
+    mov a,#'A               ;6d93  a1 41
     mov !upd_disp,a         ;6d95  9e 9a f1     'A..........'
-    mov a,#0x4d             ;6d98  a1 4d
+    mov a,#'M               ;6d98  a1 4d
     mov !upd_disp+1,a       ;6d9a  9e 9b f1     '.M.........'
 
 lab_6d9d:
 ;kHz
-    mov a,#0x6b             ;6d9d  a1 6b
+    mov a,#'k               ;6d9d  a1 6b
     mov !upd_disp+8,a       ;6d9f  9e a2 f1     '........k..'
-    mov a,#0x48             ;6da2  a1 48
+    mov a,#'H               ;6da2  a1 48
     mov !upd_disp+9,a       ;6da4  9e a3 f1     '.........H.'
-    mov a,#0x7a             ;6da7  a1 7a
+    mov a,#'z               ;6da7  a1 7a
     mov !upd_disp+10,a      ;6da9  9e a4 f1     '..........z'
     mov b,#0xff             ;6dac  a3 ff
     br !lab_6e3c            ;6dae  9b 3c 6e
@@ -22242,20 +22242,20 @@ lab_6dd4_fm1:
 ;FM1
     mov a,#0x00             ;6dd4  a1 00        A = character code for "1" in "FM1"
     mov !upd_disp+2,a       ;6dd6  9e 9c f1     '..1........'
-    mov a,#0x20             ;6dd9  a1 20
+    mov a,#0x20             ;6dd9  a1 20        A = space character
     mov !upd_disp+3,a       ;6ddb  9e 9d f1     '... .......' (preset)
-    mov a,#0x46             ;6dde  a1 46
+    mov a,#'F               ;6dde  a1 46
     mov !upd_disp,a         ;6de0  9e 9a f1     'F..........'
-    mov a,#0x4d             ;6de3  a1 4d
+    mov a,#'M               ;6de3  a1 4d
     mov !upd_disp+1,a       ;6de5  9e 9b f1     '.M.........'
 
 lab_6de8_mhz:
 ;MHz
-    mov a,#0x4d             ;6de8  a1 4d
+    mov a,#'M               ;6de8  a1 4d
     mov !upd_disp+8,a       ;6dea  9e a2 f1     '........M..'
-    mov a,#0x48             ;6ded  a1 48
+    mov a,#'H               ;6ded  a1 48
     mov !upd_disp+9,a       ;6def  9e a3 f1     '.........H.'
-    mov a,#0x7a             ;6df2  a1 7a
+    mov a,#'z               ;6df2  a1 7a
     mov !upd_disp+10,a      ;6df4  9e a4 f1     '..........z'
     mov b,#0xff             ;6df7  a3 ff
     br lab_6e3c             ;6df9  fa 41
@@ -22278,20 +22278,20 @@ lab_6e17_fm2:
 ;FM2
     mov a,#0x01             ;6e17  a1 01        A = character code for "2" in "FM2"
     mov !upd_disp+2,a       ;6e19  9e 9c f1     '..2........'
-    mov a,#0x20             ;6e1c  a1 20
+    mov a,#0x20             ;6e1c  a1 20        A = space character
     mov !upd_disp+3,a       ;6e1e  9e 9d f1     '... .......' (preset)
-    mov a,#0x46             ;6e21  a1 46
+    mov a,#'F               ;6e21  a1 46
     mov !upd_disp,a         ;6e23  9e 9a f1     'F..........'
-    mov a,#0x4d             ;6e26  a1 4d
+    mov a,#'M               ;6e26  a1 4d
     mov !upd_disp+1,a       ;6e28  9e 9b f1     '.M........'
 
 lab_6e2b_mhz:
 ;MHz
-    mov a,#0x4d             ;6e2b  a1 4d
+    mov a,#'M               ;6e2b  a1 4d
     mov !upd_disp+8,a       ;6e2d  9e a2 f1     '........M..'
-    mov a,#0x48             ;6e30  a1 48
+    mov a,#'H               ;6e30  a1 48
     mov !upd_disp+9,a       ;6e32  9e a3 f1     '.........H.'
-    mov a,#0x7a             ;6e35  a1 7a
+    mov a,#'z               ;6e35  a1 7a
     mov !upd_disp+10,a      ;6e37  9e a4 f1     '..........z'
     mov b,#0xff             ;6e3a  a3 ff
 
@@ -22310,9 +22310,9 @@ sub_6e40:
     bz lab_6e5e             ;6e4d  ad 0f
     cmp a,#0x06             ;6e4f  4d 06
     bz lab_6e5e             ;6e51  ad 0b
-    mov a,#0x41             ;6e53  a1 41            'A' for tape side A
+    mov a,#'A               ;6e53  a1 41            'A' for tape side A
     bf mem_fe4d.6,lab_6e5b  ;6e55  31 63 4d 02
-    mov a,#0x42             ;6e59  a1 42            'B' for tape side B
+    mov a,#'B               ;6e59  a1 42            'B' for tape side B
 
 lab_6e5b:
     mov !upd_disp+10,a      ;6e5b  9e a4 f1         '..........A' or '..........B'
@@ -22540,7 +22540,7 @@ sub_6f68:
 write_digit:
 ;Convert A to ASCII, write to buf at offset B, decr B
     and a,#0x0f             ;6f6c  5d 0f        Mask to leave only low nibble
-    add a,#0x30             ;6f6e  0d 30        Convert it to ASCII
+    add a,#'0               ;6f6e  0d 30        Convert it to ASCII
     push hl                 ;6f70  b7
     movw hl,#upd_disp       ;6f71  16 9a f1
     mov [hl+b],a            ;6f74  bb           Write it to display at offset B
@@ -23022,7 +23022,7 @@ lab_71b0:
     movw hl,#upd_disp       ;71ba  16 9a f1
     mov b,#0x03             ;71bd  a3 03
     mov a,!mem_f1b2         ;71bf  8e b2 f1
-    add a,#0x30             ;71c2  0d 30        Convert it to ASCII
+    add a,#'0               ;71c2  0d 30        Convert it to ASCII
     mov [hl+b],a            ;71c4  bb
     ret                     ;71c5  af
 
@@ -23069,7 +23069,7 @@ lab_71f2:
     call !sub_0cf4          ;7207  9a f4 0c
     mov a,x                 ;720a  60
     and a,#0x0f             ;720b  5d 0f
-    add a,#0x30             ;720d  0d 30        Convert it to ASCII
+    add a,#'0               ;720d  0d 30        Convert it to ASCII
     mov b,#0x01             ;720f  a3 01
     mov [hl+b],a            ;7211  bb           '.1.........'
     mov a,x                 ;7212  60
@@ -23078,7 +23078,7 @@ lab_71f2:
     rol a,1                 ;7215  26
     rol a,1                 ;7216  26
     and a,#0x0f             ;7217  5d 0f
-    add a,#0x30             ;7219  0d 30        Convert it to ASCII
+    add a,#'0               ;7219  0d 30        Convert it to ASCII
     mov b,#0x00             ;721b  a3 00
     mov [hl+b],a            ;721d  bb           '0..........'
     mov a,#0xff             ;721e  a1 ff
@@ -23098,7 +23098,7 @@ lab_7224:
     call !sub_6e70          ;7237  9a 70 6e     Copy message from [HL] to display buf; uses A, B
 
     mov a,!mem_f20b         ;723a  8e 0b f2     SAFE code attempt counter
-    add a,#0x30             ;723d  0d 30        Convert it to ASCII
+    add a,#'0               ;723d  0d 30        Convert it to ASCII
     movw hl,#upd_disp       ;723f  16 9a f1
     mov [hl],a              ;7242  97           '2..........'
     mov a,#0xff             ;7243  a1 ff
@@ -23114,7 +23114,7 @@ lab_7249:
     call !sub_6e70          ;7253  9a 70 6e     Copy message from [HL] to display buf; uses A, B
 
     mov a,!mem_f20b         ;7256  8e 0b f2     A = SAFE code attempt counter
-    add a,#0x30             ;7259  0d 30        Convert it to ASCII
+    add a,#'0               ;7259  0d 30        Convert it to ASCII
     movw hl,#upd_disp       ;725b  16 9a f1
     mov [hl],a              ;725e  97           '2..........'
     mov a,#0xff             ;725f  a1 ff
@@ -23157,7 +23157,7 @@ lab_7294:
     mov a,!mem_f20b         ;72a3  8e 0b f2     A = SAFE code attempt counter
     cmp a,#0x00             ;72a6  4d 00
     bz lab_72ad             ;72a8  ad 03        Skip write count if it is zero
-    add a,#0x30             ;72aa  0d 30        Convert count to ASCII
+    add a,#'0               ;72aa  0d 30        Convert count to ASCII
     mov [hl],a              ;72ac  97           '2..........'
 
 lab_72ad:
@@ -23167,7 +23167,7 @@ lab_72ad:
     mov a,!mem_fb75         ;72b1  8e 75 fb     A = Entered SAFE code (BCD high byte)
     push ax                 ;72b4  b1
     and a,#0x0f             ;72b5  5d 0f
-    add a,#0x30             ;72b7  0d 30        Convert it to ASCII
+    add a,#'0               ;72b7  0d 30        Convert it to ASCII
     mov b,#0x05             ;72b9  a3 05
     mov [hl+b],a            ;72bb  bb           '.....5.....'
     pop ax                  ;72bc  b0
@@ -23176,13 +23176,13 @@ lab_72ad:
     rol a,1                 ;72bf  26
     rol a,1                 ;72c0  26
     and a,#0x0f             ;72c1  5d 0f
-    add a,#0x30             ;72c3  0d 30        Convert it to ASCII
+    add a,#'0               ;72c3  0d 30        Convert it to ASCII
     mov b,#0x04             ;72c5  a3 04
     mov [hl+b],a            ;72c7  bb           '....4......'
     xch a,x                 ;72c8  30
     push ax                 ;72c9  b1
     and a,#0x0f             ;72ca  5d 0f
-    add a,#0x30             ;72cc  0d 30        Convert it to ASCII
+    add a,#'0               ;72cc  0d 30        Convert it to ASCII
     mov b,#0x07             ;72ce  a3 07
     mov [hl+b],a            ;72d0  bb           '.......7...'
     pop ax                  ;72d1  b0
@@ -23191,7 +23191,7 @@ lab_72ad:
     rol a,1                 ;72d4  26
     rol a,1                 ;72d5  26
     and a,#0x0f             ;72d6  5d 0f
-    add a,#0x30             ;72d8  0d 30        Convert it to ASCII
+    add a,#'0               ;72d8  0d 30        Convert it to ASCII
     mov b,#0x06             ;72da  a3 06
     mov [hl+b],a            ;72dc  bb           '......6....'
     ret                     ;72dd  af
@@ -23278,7 +23278,7 @@ lab_7351:
 
     mov a,x                 ;7364  60
     and a,#0x0f             ;7365  5d 0f
-    add a,#0x30             ;7367  0d 30        Convert it to ASCII
+    add a,#'0               ;7367  0d 30        Convert it to ASCII
 
     mov b,#0x0a             ;7369  a3 0a
     movw hl,#upd_disp       ;736b  16 9a f1
@@ -23292,7 +23292,7 @@ lab_7351:
     rol a,1                 ;7375  26
     cmp a,#0x00             ;7376  4d 00
     bnz lab_737e            ;7378  bd 04
-    mov a,#0x20             ;737a  a1 20
+    mov a,#0x20             ;737a  a1 20        A = space character
     br lab_7380             ;737c  fa 02
 
 lab_737e:
@@ -23312,9 +23312,9 @@ lab_7387:
 
     mov a,!mem_fb6f         ;7391  8e 6f fb
     and a,#0x01             ;7394  5d 01
-    mov a,#0x31             ;7396  a1 31        A = '1' for 'CD MIX 1'
+    mov a,#'1               ;7396  a1 31        A = '1' for 'CD MIX 1'
     bz lab_739c             ;7398  ad 02
-    mov a,#0x36             ;739a  a1 36        A = '6' for 'CD MIX 6'
+    mov a,#'6               ;739a  a1 36        A = '6' for 'CD MIX 6'
 
 lab_739c:
     mov b,#0x0a             ;739c  a3 0a
@@ -23330,9 +23330,9 @@ lab_73a3:
 
     mov a,!mem_fb6f         ;73ad  8e 6f fb
     and a,#0x02             ;73b0  5d 02
-    mov a,#0x59             ;73b2  a1 59        A = 'Y' for 'TAPE SKIP Y'
+    mov a,#'Y               ;73b2  a1 59        A = 'Y' for 'TAPE SKIP Y'
     bnz lab_73b8            ;73b4  bd 02
-    mov a,#0x4e             ;73b6  a1 4e        A = 'N' for 'TAPE SKIP N'
+    mov a,#'N               ;73b6  a1 4e        A = 'N' for 'TAPE SKIP N'
 
 lab_73b8:
     mov b,#0x0a             ;73b8  a3 0a
@@ -23351,9 +23351,9 @@ lab_73bf:
 lab_73cd:
     mov a,!mem_fc9f         ;73cd  8e 9f fc
     cmp a,#0x00             ;73d0  4d 00
-    bz lab_73ec             ;73d2  ad 18
+    bz lab_73ec             ;73d2  ad 18        Branch to write 7,"  MIN  "
     cmp a,#0xff             ;73d4  4d ff
-    bz lab_73e3             ;73d6  ad 0b
+    bz lab_73e3             ;73d6  ad 0b        Branch to write 7,"  MAX  "
     mov a,#0x00             ;73d8  a1 00
     mov !mem_fb2e,a         ;73da  9e 2e fb
     mov a,#0xff             ;73dd  a1 ff
@@ -23433,15 +23433,19 @@ lab_744c:
     mov a,!mem_f1ac         ;7456  8e ac f1
     cmp a,#0x03             ;7459  4d 03
     bz lab_7474             ;745b  ad 17
+
     cmp a,#0x02             ;745d  4d 02
     bz lab_7474             ;745f  ad 13
+
     cmp a,#0x05             ;7461  4d 05
     bz lab_7474             ;7463  ad 0f
+
     cmp a,#0x06             ;7465  4d 06
     bz lab_7474             ;7467  ad 0b
-    mov a,#0x41             ;7469  a1 41        A = 'A' for 'TAPE PLAY A'
+
+    mov a,#'A               ;7469  a1 41        A = 'A' for 'TAPE PLAY A'
     bf mem_fe4d.6,lab_7471  ;746b  31 63 4d 02
-    mov a,#0x42             ;746f  a1 42        B = 'B' for 'TAPE PLAY B'
+    mov a,#'B               ;746f  a1 42        B = 'B' for 'TAPE PLAY B'
 
 lab_7471:
     mov !upd_disp+10,a      ;7471  9e a4 f1     '..........A' or '..........B'
@@ -23479,7 +23483,7 @@ lab_749d:
 
     movw hl,#upd_disp       ;74a7  16 9a f1
     mov a,!mem_fc75         ;74aa  8e 75 fc     A = CD track number
-    add a,#0x30             ;74ad  0d 30        Convert it to ASCII
+    add a,#'0               ;74ad  0d 30        Convert it to ASCII
     mov [hl+0x03],a         ;74af  be 03        '...1.......'
     clr1 upd_pict+5.1       ;74b1  1b 3a        Turn off "MIX" pictograph
     bt mem_fe6e.0,lab_74bc  ;74b3  8c 6e 06
@@ -23534,7 +23538,7 @@ lab_74ff_bass_minus:
     movw hl,#upd_disp+8     ;7505  16 a2 f1
     mov a,#0x09             ;7508  a1 09
     sub a,x                 ;750a  61 18
-    add a,#0x30             ;750c  0d 30        Convert it to ASCII
+    add a,#'0               ;750c  0d 30        Convert it to ASCII
     mov [hl],a              ;750e  97           '........9..'
     br lab_7528             ;750f  fa 17
 
@@ -23545,7 +23549,7 @@ lab_7511_bass_plus:
     movw hl,#upd_disp+8     ;7517  16 a2 f1
     mov a,x                 ;751a  60
     sub a,#0x0b             ;751b  1d 0b
-    add a,#0x30             ;751d  0d 30        Convert it to ASCII
+    add a,#'0               ;751d  0d 30        Convert it to ASCII
     mov [hl],a              ;751f  97           '........9..'
     br lab_7528             ;7520  fa 06
 
@@ -23586,7 +23590,7 @@ lab_754b_mid_minus:
     movw hl,#upd_disp+8     ;7551  16 a2 f1
     mov a,#0x09             ;7554  a1 09
     sub a,x                 ;7556  61 18
-    add a,#0x30             ;7558  0d 30        Convert it to ASCII
+    add a,#'0               ;7558  0d 30        Convert it to ASCII
     mov [hl],a              ;755a  97           '........9..'
     br lab_7574             ;755b  fa 17
 
@@ -23597,7 +23601,7 @@ lab_755d_mid_plus:
     movw hl,#upd_disp+8     ;7563  16 a2 f1
     mov a,x                 ;7566  60
     sub a,#0x0b             ;7567  1d 0b
-    add a,#0x30             ;7569  0d 30        Convert it to ASCII
+    add a,#'0               ;7569  0d 30        Convert it to ASCII
     mov [hl],a              ;756b  97           '........9..'
     br lab_7574             ;756c  fa 06
 
@@ -23638,7 +23642,7 @@ lab_7595_treb_minus:
     movw hl,#upd_disp+8     ;759b  16 a2 f1
     mov a,#0x09             ;759e  a1 09
     sub a,x                 ;75a0  61 18
-    add a,#0x30             ;75a2  0d 30        Convert it to ASCII
+    add a,#'0               ;75a2  0d 30        Convert it to ASCII
     mov [hl],a              ;75a4  97           '........9..'
     br lab_75be             ;75a5  fa 17
 
@@ -23649,7 +23653,7 @@ lab_75a7_treb_plus:
     movw hl,#upd_disp+8     ;75ad  16 a2 f1
     mov a,x                 ;75b0  60
     sub a,#0x0b             ;75b1  1d 0b
-    add a,#0x30             ;75b3  0d 30        Convert it to ASCII
+    add a,#'0               ;75b3  0d 30        Convert it to ASCII
     mov [hl],a              ;75b5  97
     br lab_75be             ;75b6  fa 06
 
@@ -23685,7 +23689,7 @@ lab_75d3_bal_left:
     xch a,x                 ;75e1  30
     mov a,#0x09             ;75e2  a1 09
     sub a,x                 ;75e4  61 18
-    add a,#0x30             ;75e6  0d 30        Convert it to ASCII
+    add a,#'0               ;75e6  0d 30        Convert it to ASCII
     mov [hl],a              ;75e8  97
     br lab_760b             ;75e9  fa 20
 
@@ -23698,7 +23702,7 @@ lab_75d3_bal_right:
     movw hl,#upd_disp+10    ;75f5  16 a4 f1
     pop ax                  ;75f8  b0
     sub a,#0x0b             ;75f9  1d 0b
-    add a,#0x30             ;75fb  0d 30        Convert it to ASCII
+    add a,#'0               ;75fb  0d 30        Convert it to ASCII
     mov [hl],a              ;75fd  97
     br lab_760b             ;75fe  fa 0b
 
@@ -23737,7 +23741,7 @@ lab_75d3_faderear:
     xch a,x                 ;762e  30
     mov a,#0x09             ;762f  a1 09
     sub a,x                 ;7631  61 18
-    add a,#0x30             ;7633  0d 30        Convert it to ASCII
+    add a,#'0               ;7633  0d 30        Convert it to ASCII
     mov [hl],a              ;7635  97
     br lab_7658             ;7636  fa 20
 
@@ -23750,7 +23754,7 @@ lab_75d3_fadefront:
     movw hl,#upd_disp+10    ;7642  16 a4 f1
     pop ax                  ;7645  b0
     sub a,#0x0b             ;7646  1d 0b
-    add a,#0x30             ;7648  0d 30        Convert it to ASCII
+    add a,#'0               ;7648  0d 30        Convert it to ASCII
     mov [hl],a              ;764a  97
     br lab_7658             ;764b  fa 0b
 
