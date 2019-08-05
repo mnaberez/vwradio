@@ -163,6 +163,7 @@ mem_f225 = 0xf225
 mem_f252 = 0xf252
 mem_f253 = 0xf253
 mem_f254 = 0xf254           ;ONVOL related
+mem_f255 = 0xf255
 mem_f256 = 0xf256
 mem_f257 = 0xf257
 mem_f258 = 0xf258
@@ -200,6 +201,7 @@ mem_fb19 = 0xfb19
 mem_fb1a = 0xfb1a
 mem_fb1b = 0xfb1b
 mem_fb1c = 0xfb1c
+mem_fb1e = 0xfb1e
 mem_fb1f = 0xfb1f
 mem_fb20 = 0xfb20
 mem_fb22 = 0xfb22
@@ -4409,6 +4411,8 @@ lab_1291:
     bc lab_12d7             ;1296  8d 3f        Branch if table lookup failed
     movw ax,de              ;1298  c4
     br ax                   ;1299  31 98
+
+lab_129b:
     call !sub_1ca9          ;129b  9a a9 1c
     call !sub_3329          ;129e  9a 29 33
     call !sub_35e9          ;12a1  9a e9 35
@@ -4667,395 +4671,219 @@ lab_1479:
     br !lab_12d7            ;1479  9b d7 12
 
 lab_147c:
-    .byte 0xdc              ;147c  dc          DATA 0xdc
-    .byte 0x65              ;147d  65          DATA 0x65 'e'
-    .byte 0x10              ;147e  10          DATA 0x10
-    .byte 0x5b              ;147f  5b          DATA 0x5b '['
-    .byte 0x5f              ;1480  5f          DATA 0x5f '_'
-    .byte 0x8e              ;1481  8e          DATA 0x8e
-    .byte 0xa6              ;1482  a6          DATA 0xa6
-    .byte 0xf1              ;1483  f1          DATA 0xf1
-    .byte 0x5d              ;1484  5d          DATA 0x5d ']'
-    .byte 0x7f              ;1485  7f          DATA 0x7f
-    .byte 0x4d              ;1486  4d          DATA 0x4d 'M'
-    .byte 0x0f              ;1487  0f          DATA 0x0f
-    .byte 0xbd              ;1488  bd          DATA 0xbd
-    .byte 0x05              ;1489  05          DATA 0x05
-    .byte 0xa1              ;148a  a1          DATA 0xa1
-    .byte 0xff              ;148b  ff          DATA 0xff
-    .byte 0x9e              ;148c  9e          DATA 0x9e
-    .byte 0xa6              ;148d  a6          DATA 0xa6
-    .byte 0xf1              ;148e  f1          DATA 0xf1
-    .byte 0x9a              ;148f  9a          DATA 0x9a
-    .byte 0x3f              ;1490  3f          DATA 0x3f '?'
-    .byte 0x33              ;1491  33          DATA 0x33 '3'
-    .byte 0x9a              ;1492  9a          DATA 0x9a
-    .byte 0x1d              ;1493  1d          DATA 0x1d
-    .byte 0x3e              ;1494  3e          DATA 0x3e '>'
-    .byte 0x9a              ;1495  9a          DATA 0x9a
-    .byte 0x09              ;1496  09          DATA 0x09
-    .byte 0x3d              ;1497  3d          DATA 0x3d '='
-    .byte 0x9a              ;1498  9a          DATA 0x9a
-    .byte 0x89              ;1499  89          DATA 0x89
-    .byte 0x48              ;149a  48          DATA 0x48 'H'
-    .byte 0x9a              ;149b  9a          DATA 0x9a
-    .byte 0xd8              ;149c  d8          DATA 0xd8
-    .byte 0x58              ;149d  58          DATA 0x58 'X'
-    .byte 0x9a              ;149e  9a          DATA 0x9a
-    .byte 0xcc              ;149f  cc          DATA 0xcc
-    .byte 0x56              ;14a0  56          DATA 0x56 'V'
-    .byte 0x31              ;14a1  31          DATA 0x31 '1'
-    .byte 0x03              ;14a2  03          DATA 0x03
-    .byte 0x2d              ;14a3  2d          DATA 0x2d '-'
-    .byte 0x03              ;14a4  03          DATA 0x03
-    .byte 0x9a              ;14a5  9a          DATA 0x9a
-    .byte 0x40              ;14a6  40          DATA 0x40 '@'
-    .byte 0x91              ;14a7  91          DATA 0x91
-    .byte 0x9a              ;14a8  9a          DATA 0x9a
-    .byte 0x7b              ;14a9  7b          DATA 0x7b '{'
-    .byte 0xab              ;14aa  ab          DATA 0xab
-    .byte 0x9b              ;14ab  9b          DATA 0x9b
-    .byte 0xd7              ;14ac  d7          DATA 0xd7
-    .byte 0x12              ;14ad  12          DATA 0x12
-    .byte 0x31              ;14ae  31          DATA 0x31 '1'
-    .byte 0x53              ;14af  53          DATA 0x53 'S'
-    .byte 0x65              ;14b0  65          DATA 0x65 'e'
-    .byte 0x03              ;14b1  03          DATA 0x03
-    .byte 0x9a              ;14b2  9a          DATA 0x9a
-    .byte 0xd6              ;14b3  d6          DATA 0xd6
-    .byte 0x26              ;14b4  26          DATA 0x26 '&'
-    .byte 0x31              ;14b5  31          DATA 0x31 '1'
-    .byte 0x73              ;14b6  73          DATA 0x73 's'
-    .byte 0x64              ;14b7  64          DATA 0x64 'd'
-    .byte 0x03              ;14b8  03          DATA 0x03
-    .byte 0x9a              ;14b9  9a          DATA 0x9a
-    .byte 0x25              ;14ba  25          DATA 0x25 '%'
-    .byte 0x46              ;14bb  46          DATA 0x46 'F'
-    .byte 0x9a              ;14bc  9a          DATA 0x9a
-    .byte 0x53              ;14bd  53          DATA 0x53 'S'
-    .byte 0x68              ;14be  68          DATA 0x68 'h'
-    .byte 0x9b              ;14bf  9b          DATA 0x9b
-    .byte 0xd7              ;14c0  d7          DATA 0xd7
-    .byte 0x12              ;14c1  12          DATA 0x12
-    .byte 0x1c              ;14c2  1c          DATA 0x1c
-    .byte 0x3c              ;14c3  3c          DATA 0x3c '<'
-    .byte 0xad              ;14c4  ad          DATA 0xad
-    .byte 0x03              ;14c5  03          DATA 0x03
-    .byte 0x9b              ;14c6  9b          DATA 0x9b
-    .byte 0xcf              ;14c7  cf          DATA 0xcf
-    .byte 0x0d              ;14c8  0d          DATA 0x0d
-    .byte 0xa1              ;14c9  a1          DATA 0xa1
-    .byte 0xaa              ;14ca  aa          DATA 0xaa
-    .byte 0x48              ;14cb  48          DATA 0x48 'H'
-    .byte 0x1f              ;14cc  1f          DATA 0x1f
-    .byte 0xfe              ;14cd  fe          DATA 0xfe
-    .byte 0xbd              ;14ce  bd          DATA 0xbd
-    .byte 0x05              ;14cf  05          DATA 0x05
-    .byte 0x48              ;14d0  48          DATA 0x48 'H'
-    .byte 0x91              ;14d1  91          DATA 0x91
-    .byte 0xfb              ;14d2  fb          DATA 0xfb
-    .byte 0xad              ;14d3  ad          DATA 0xad
-    .byte 0x01              ;14d4  01          DATA 0x01
-    .byte 0xbf              ;14d5  bf          DATA 0xbf
-    .byte 0xa1              ;14d6  a1          DATA 0xa1
-    .byte 0x07              ;14d7  07          DATA 0x07
-    .byte 0xf6              ;14d8  f6          DATA 0xf6
-    .byte 0x42              ;14d9  42          DATA 0x42 'B'
-    .byte 0xa1              ;14da  a1          DATA 0xa1
-    .byte 0x90              ;14db  90          DATA 0x90
-    .byte 0xf6              ;14dc  f6          DATA 0xf6
-    .byte 0xf9              ;14dd  f9          DATA 0xf9
-    .byte 0xf0              ;14de  f0          DATA 0xf0
-    .byte 0x2c              ;14df  2c          DATA 0x2c ','
-    .byte 0xb1              ;14e0  b1          DATA 0xb1
-    .byte 0x9a              ;14e1  9a          DATA 0x9a
-    .byte 0x76              ;14e2  76          DATA 0x76 'v'
-    .byte 0x3e              ;14e3  3e          DATA 0x3e '>'
-    .byte 0xb0              ;14e4  b0          DATA 0xb0
-    .byte 0x4e              ;14e5  4e          DATA 0x4e 'N'
-    .byte 0x2c              ;14e6  2c          DATA 0x2c ','
-    .byte 0xad              ;14e7  ad          DATA 0xad
-    .byte 0x03              ;14e8  03          DATA 0x03
-    .byte 0xa3              ;14e9  a3          DATA 0xa3
-    .byte 0x09              ;14ea  09          DATA 0x09
-    .byte 0xc1              ;14eb  c1          DATA 0xc1
-    .byte 0xfc              ;14ec  fc          DATA 0xfc
-    .byte 0x61              ;14ed  61          DATA 0x61 'a'
-    .byte 0x1d              ;14ee  1d          DATA 0x1d
-    .byte 0xec              ;14ef  ec          DATA 0xec
-    .byte 0x61              ;14f0  61          DATA 0x61 'a'
-    .byte 0x1a              ;14f1  1a          DATA 0x1a
-    .byte 0x9a              ;14f2  9a          DATA 0x9a
-    .byte 0x60              ;14f3  60          DATA 0x60 '`'
-    .byte 0x0a              ;14f4  0a          DATA 0x0a
-    .byte 0x31              ;14f5  31          DATA 0x31 '1'
-    .byte 0x73              ;14f6  73          DATA 0x73 's'
-    .byte 0x63              ;14f7  63          DATA 0x63 'c'
-    .byte 0x13              ;14f8  13          DATA 0x13
-    .byte 0x6a              ;14f9  6a          DATA 0x6a 'j'
-    .byte 0x61              ;14fa  61          DATA 0x61 'a'
-    .byte 0x8e              ;14fb  8e          DATA 0x8e
-    .byte 0x07              ;14fc  07          DATA 0x07
-    .byte 0xf2              ;14fd  f2          DATA 0xf2
-    .byte 0x31              ;14fe  31          DATA 0x31 '1'
-    .byte 0x6f              ;14ff  6f          DATA 0x6f 'o'
-    .byte 0x0b              ;1500  0b          DATA 0x0b
-    .byte 0x7a              ;1501  7a          DATA 0x7a 'z'
-    .byte 0x7d              ;1502  7d          DATA 0x7d '}'
-    .byte 0x9a              ;1503  9a          DATA 0x9a
-    .byte 0x18              ;1504  18          DATA 0x18
-    .byte 0x91              ;1505  91          DATA 0x91
-    .byte 0x9a              ;1506  9a          DATA 0x9a
-    .byte 0xc4              ;1507  c4          DATA 0xc4
-    .byte 0x1d              ;1508  1d          DATA 0x1d
-    .byte 0x9a              ;1509  9a          DATA 0x9a
-    .byte 0x1b              ;150a  1b          DATA 0x1b
-    .byte 0x46              ;150b  46          DATA 0x46 'F'
-    .byte 0x9b              ;150c  9b          DATA 0x9b
-    .byte 0xd7              ;150d  d7          DATA 0xd7
-    .byte 0x12              ;150e  12          DATA 0x12
-    .byte 0x11              ;150f  11          DATA 0x11
-    .byte 0x28              ;1510  28          DATA 0x28 '('
-    .byte 0x80              ;1511  80          DATA 0x80
-    .byte 0x31              ;1512  31          DATA 0x31 '1'
-    .byte 0x03              ;1513  03          DATA 0x03
-    .byte 0x69              ;1514  69          DATA 0x69 'i'
-    .byte 0x1e              ;1515  1e          DATA 0x1e
-    .byte 0x13              ;1516  13          DATA 0x13
-    .byte 0xaa              ;1517  aa          DATA 0xaa
-    .byte 0x0c              ;1518  0c          DATA 0x0c
-    .byte 0x71              ;1519  71          DATA 0x71 'q'
-    .byte 0x6b              ;151a  6b          DATA 0x6b 'k'
-    .byte 0xa8              ;151b  a8          DATA 0xa8
-    .byte 0x71              ;151c  71          DATA 0x71 'q'
-    .byte 0x4b              ;151d  4b          DATA 0x4b 'K'
-    .byte 0xa8              ;151e  a8          DATA 0xa8
-    .byte 0x2b              ;151f  2b          DATA 0x2b '+'
-    .byte 0xd1              ;1520  d1          DATA 0xd1
-    .byte 0xf0              ;1521  f0          DATA 0xf0
-    .byte 0xd1              ;1522  d1          DATA 0xd1
-    .byte 0xf2              ;1523  f2          DATA 0xf2
-    .byte 0x07              ;1524  07          DATA 0x07
-    .byte 0x1b              ;1525  1b          DATA 0x1b
-    .byte 0xd1              ;1526  d1          DATA 0xd1
-    .byte 0xf0              ;1527  f0          DATA 0xf0
-    .byte 0xd1              ;1528  d1          DATA 0xd1
-    .byte 0xf2              ;1529  f2          DATA 0xf2
-    .byte 0x07              ;152a  07          DATA 0x07
-    .byte 0x71              ;152b  71          DATA 0x71 'q'
-    .byte 0x7a              ;152c  7a          DATA 0x7a 'z'
-    .byte 0xa8              ;152d  a8          DATA 0xa8
-    .byte 0x71              ;152e  71          DATA 0x71 'q'
-    .byte 0x2b              ;152f  2b          DATA 0x2b '+'
-    .byte 0x27              ;1530  27          DATA 0x27 '''
-    .byte 0x71              ;1531  71          DATA 0x71 'q'
-    .byte 0x1b              ;1532  1b          DATA 0x1b
-    .byte 0x27              ;1533  27          DATA 0x27 '''
-    .byte 0x9b              ;1534  9b          DATA 0x9b
-    .byte 0xd7              ;1535  d7          DATA 0xd7
-    .byte 0x12              ;1536  12          DATA 0x12
-    .byte 0x31              ;1537  31          DATA 0x31 '1'
-    .byte 0x73              ;1538  73          DATA 0x73 's'
-    .byte 0x5d              ;1539  5d          DATA 0x5d ']'
-    .byte 0x03              ;153a  03          DATA 0x03
-    .byte 0x9a              ;153b  9a          DATA 0x9a
-    .byte 0xc3              ;153c  c3          DATA 0xc3
-    .byte 0x1e              ;153d  1e          DATA 0x1e
-    .byte 0x71              ;153e  71          DATA 0x71 'q'
-    .byte 0x5b              ;153f  5b          DATA 0x5b '['
-    .byte 0x37              ;1540  37          DATA 0x37 '7'
-    .byte 0x71              ;1541  71          DATA 0x71 'q'
-    .byte 0x5a              ;1542  5a          DATA 0x5a 'Z'
-    .byte 0x27              ;1543  27          DATA 0x27 '''
-    .byte 0x71              ;1544  71          DATA 0x71 'q'
-    .byte 0x3b              ;1545  3b          DATA 0x3b ';'
-    .byte 0x30              ;1546  30          DATA 0x30 '0'
-    .byte 0x71              ;1547  71          DATA 0x71 'q'
-    .byte 0x3a              ;1548  3a          DATA 0x3a ':'
-    .byte 0x20              ;1549  20          DATA 0x20 ' '
-    .byte 0x71              ;154a  71          DATA 0x71 'q'
-    .byte 0x3a              ;154b  3a          DATA 0x3a ':'
-    .byte 0x28              ;154c  28          DATA 0x28 '('
-    .byte 0x71              ;154d  71          DATA 0x71 'q'
-    .byte 0x4a              ;154e  4a          DATA 0x4a 'J'
-    .byte 0x28              ;154f  28          DATA 0x28 '('
-    .byte 0x71              ;1550  71          DATA 0x71 'q'
-    .byte 0x5a              ;1551  5a          DATA 0x5a 'Z'
-    .byte 0x28              ;1552  28          DATA 0x28 '('
-    .byte 0x71              ;1553  71          DATA 0x71 'q'
-    .byte 0x6a              ;1554  6a          DATA 0x6a 'j'
-    .byte 0x28              ;1555  28          DATA 0x28 '('
-    .byte 0x71              ;1556  71          DATA 0x71 'q'
-    .byte 0x2b              ;1557  2b          DATA 0x2b '+'
-    .byte 0x34              ;1558  34          DATA 0x34 '4'
-    .byte 0x71              ;1559  71          DATA 0x71 'q'
-    .byte 0x2a              ;155a  2a          DATA 0x2a '*'
-    .byte 0x24              ;155b  24          DATA 0x24 '$'
-    .byte 0x71              ;155c  71          DATA 0x71 'q'
-    .byte 0x5b              ;155d  5b          DATA 0x5b '['
-    .byte 0x33              ;155e  33          DATA 0x33 '3'
-    .byte 0x71              ;155f  71          DATA 0x71 'q'
-    .byte 0x5a              ;1560  5a          DATA 0x5a 'Z'
-    .byte 0x23              ;1561  23          DATA 0x23 '#'
-    .byte 0x71              ;1562  71          DATA 0x71 'q'
-    .byte 0x3a              ;1563  3a          DATA 0x3a ':'
-    .byte 0x29              ;1564  29          DATA 0x29 ')'
-    .byte 0x71              ;1565  71          DATA 0x71 'q'
-    .byte 0x6a              ;1566  6a          DATA 0x6a 'j'
-    .byte 0x29              ;1567  29          DATA 0x29 ')'
-    .byte 0x2b              ;1568  2b          DATA 0x2b '+'
-    .byte 0x64              ;1569  64          DATA 0x64 'd'
-    .byte 0x31              ;156a  31          DATA 0x31 '1'
-    .byte 0x13              ;156b  13          DATA 0x13
-    .byte 0x64              ;156c  64          DATA 0x64 'd'
-    .byte 0x13              ;156d  13          DATA 0x13
-    .byte 0x8e              ;156e  8e          DATA 0x8e
-    .byte 0x27              ;156f  27          DATA 0x27 '''
-    .byte 0xfb              ;1570  fb          DATA 0xfb
-    .byte 0x4d              ;1571  4d          DATA 0x4d 'M'
-    .byte 0x00              ;1572  00          DATA 0x00
-    .byte 0xbd              ;1573  bd          DATA 0xbd
-    .byte 0x0c              ;1574  0c          DATA 0x0c
-    .byte 0x1b              ;1575  1b          DATA 0x1b
-    .byte 0x64              ;1576  64          DATA 0x64 'd'
-    .byte 0x9a              ;1577  9a          DATA 0x9a
-    .byte 0xa7              ;1578  a7          DATA 0xa7
-    .byte 0x44              ;1579  44          DATA 0x44 'D'
-    .byte 0xa1              ;157a  a1          DATA 0xa1
-    .byte 0x00              ;157b  00          DATA 0x00
-    .byte 0x9e              ;157c  9e          DATA 0x9e
-    .byte 0x2c              ;157d  2c          DATA 0x2c ','
-    .byte 0xfb              ;157e  fb          DATA 0xfb
-    .byte 0x2a              ;157f  2a          DATA 0x2a '*'
-    .byte 0x64              ;1580  64          DATA 0x64 'd'
-    .byte 0x9a              ;1581  9a          DATA 0x9a
-    .byte 0x95              ;1582  95          DATA 0x95
-    .byte 0x44              ;1583  44          DATA 0x44 'D'
-    .byte 0xad              ;1584  ad          DATA 0xad
-    .byte 0x05              ;1585  05          DATA 0x05
-    .byte 0x9a              ;1586  9a          DATA 0x9a
-    .byte 0x34              ;1587  34          DATA 0x34 '4'
-    .byte 0x42              ;1588  42          DATA 0x42 'B'
-    .byte 0xfa              ;1589  fa          DATA 0xfa
-    .byte 0x14              ;158a  14          DATA 0x14
-    .byte 0xc8              ;158b  c8          DATA 0xc8
-    .byte 0x30              ;158c  30          DATA 0x30 '0'
-    .byte 0x04              ;158d  04          DATA 0x04
-    .byte 0x9d              ;158e  9d          DATA 0x9d
-    .byte 0x07              ;158f  07          DATA 0x07
-    .byte 0x8e              ;1590  8e          DATA 0x8e
-    .byte 0x90              ;1591  90          DATA 0x90
-    .byte 0xf1              ;1592  f1          DATA 0xf1
-    .byte 0x4d              ;1593  4d          DATA 0x4d 'M'
-    .byte 0x04              ;1594  04          DATA 0x04
-    .byte 0x8d              ;1595  8d          DATA 0x8d
-    .byte 0x05              ;1596  05          DATA 0x05
-    .byte 0x9a              ;1597  9a          DATA 0x9a
-    .byte 0x34              ;1598  34          DATA 0x34 '4'
-    .byte 0x42              ;1599  42          DATA 0x42 'B'
-    .byte 0xfa              ;159a  fa          DATA 0xfa
-    .byte 0x03              ;159b  03          DATA 0x03
-    .byte 0x9a              ;159c  9a          DATA 0x9a
-    .byte 0xbe              ;159d  be          DATA 0xbe
-    .byte 0x42              ;159e  42          DATA 0x42 'B'
-    .byte 0x9b              ;159f  9b          DATA 0x9b
-    .byte 0xd7              ;15a0  d7          DATA 0xd7
-    .byte 0x12              ;15a1  12          DATA 0x12
-    .byte 0x9a              ;15a2  9a          DATA 0x9a
-    .byte 0x27              ;15a3  27          DATA 0x27 '''
-    .byte 0x3b              ;15a4  3b          DATA 0x3b ';'
-    .byte 0x4a              ;15a5  4a          DATA 0x4a 'J'
-    .byte 0x77              ;15a6  77          DATA 0x77 'w'
-    .byte 0x9b              ;15a7  9b          DATA 0x9b
-    .byte 0xd7              ;15a8  d7          DATA 0xd7
-    .byte 0x12              ;15a9  12          DATA 0x12
-    .byte 0x4d              ;15aa  4d          DATA 0x4d 'M'
-    .byte 0x0a              ;15ab  0a          DATA 0x0a
-    .byte 0x8d              ;15ac  8d          DATA 0x8d
-    .byte 0x06              ;15ad  06          DATA 0x06
-    .byte 0x1d              ;15ae  1d          DATA 0x1d
-    .byte 0x0a              ;15af  0a          DATA 0x0a
-    .byte 0x0d              ;15b0  0d          DATA 0x0d
-    .byte 0x41              ;15b1  41          DATA 0x41 'A'
-    .byte 0xfa              ;15b2  fa          DATA 0xfa
-    .byte 0x02              ;15b3  02          DATA 0x02
-    .byte 0x0d              ;15b4  0d          DATA 0x0d
-    .byte 0x30              ;15b5  30          DATA 0x30 '0'
-    .byte 0xaf              ;15b6  af          DATA 0xaf
-    .byte 0x5b              ;15b7  5b          DATA 0x5b '['
-    .byte 0x5d              ;15b8  5d          DATA 0x5d ']'
-    .byte 0x9a              ;15b9  9a          DATA 0x9a
-    .byte 0x23              ;15ba  23          DATA 0x23 '#'
-    .byte 0x08              ;15bb  08          DATA 0x08
-    .byte 0xbd              ;15bc  bd          DATA 0xbd
-    .byte 0x43              ;15bd  43          DATA 0x43 'C'
-    .byte 0xc8              ;15be  c8          DATA 0xc8
-    .byte 0x20              ;15bf  20          DATA 0x20 ' '
-    .byte 0x05              ;15c0  05          DATA 0x05
-    .byte 0x9d              ;15c1  9d          DATA 0x9d
-    .byte 0x3e              ;15c2  3e          DATA 0x3e '>'
-    .byte 0x9a              ;15c3  9a          DATA 0x9a
-    .byte 0x8d              ;15c4  8d          DATA 0x8d
-    .byte 0x1c              ;15c5  1c          DATA 0x1c
-    .byte 0x8d              ;15c6  8d          DATA 0x8d
-    .byte 0x39              ;15c7  39          DATA 0x39 '9'
-    .byte 0x14              ;15c8  14          DATA 0x14
-    .byte 0xa7              ;15c9  a7          DATA 0xa7
-    .byte 0xac              ;15ca  ac          DATA 0xac
-    .byte 0xf0              ;15cb  f0          DATA 0xf0
-    .byte 0x20              ;15cc  20          DATA 0x20 ' '
-    .byte 0x73              ;15cd  73          DATA 0x73 's'
-    .byte 0x16              ;15ce  16          DATA 0x16
-    .byte 0x75              ;15cf  75          DATA 0x75 'u'
-    .byte 0xaf              ;15d0  af          DATA 0xaf
-    .byte 0xab              ;15d1  ab          DATA 0xab
-    .byte 0x9a              ;15d2  9a          DATA 0x9a
-    .byte 0x64              ;15d3  64          DATA 0x64 'd'
-    .byte 0x5c              ;15d4  5c          DATA 0x5c '\'
-    .byte 0xad              ;15d5  ad          DATA 0xad
-    .byte 0x22              ;15d6  22          DATA 0x22 '"'
-    .byte 0x73              ;15d7  73          DATA 0x73 's'
-    .byte 0x31              ;15d8  31          DATA 0x31 '1'
-    .byte 0x73              ;15d9  73          DATA 0x73 's'
-    .byte 0x5d              ;15da  5d          DATA 0x5d ']'
-    .byte 0x09              ;15db  09          DATA 0x09
-    .byte 0x8e              ;15dc  8e          DATA 0x8e
-    .byte 0x68              ;15dd  68          DATA 0x68 'h'
-    .byte 0xfb              ;15de  fb          DATA 0xfb
-    .byte 0x4d              ;15df  4d          DATA 0x4d 'M'
-    .byte 0x05              ;15e0  05          DATA 0x05
-    .byte 0x8d              ;15e1  8d          DATA 0x8d
-    .byte 0x11              ;15e2  11          DATA 0x11
-    .byte 0xfa              ;15e3  fa          DATA 0xfa
-    .byte 0x0d              ;15e4  0d          DATA 0x0d
-    .byte 0xdc              ;15e5  dc          DATA 0xdc
-    .byte 0x2c              ;15e6  2c          DATA 0x2c ','
-    .byte 0x0c              ;15e7  0c          DATA 0x0c
-    .byte 0xc8              ;15e8  c8          DATA 0xc8
-    .byte 0x43              ;15e9  43          DATA 0x43 'C'
-    .byte 0x16              ;15ea  16          DATA 0x16
-    .byte 0xad              ;15eb  ad          DATA 0xad
-    .byte 0x05              ;15ec  05          DATA 0x05
-    .byte 0xc8              ;15ed  c8          DATA 0xc8
-    .byte 0x43              ;15ee  43          DATA 0x43 'C'
-    .byte 0x17              ;15ef  17          DATA 0x17
-    .byte 0xbd              ;15f0  bd          DATA 0xbd
-    .byte 0x02              ;15f1  02          DATA 0x02
-    .byte 0xa3              ;15f2  a3          DATA 0xa3
-    .byte 0xff              ;15f3  ff          DATA 0xff
-    .byte 0x63              ;15f4  63          DATA 0x63 'c'
-    .byte 0x4d              ;15f5  4d          DATA 0x4d 'M'
-    .byte 0xff              ;15f6  ff          DATA 0xff
-    .byte 0xbd              ;15f7  bd          DATA 0xbd
-    .byte 0x03              ;15f8  03          DATA 0x03
-    .byte 0x9b              ;15f9  9b          DATA 0x9b
-    .byte 0x8d              ;15fa  8d          DATA 0x8d
-    .byte 0x16              ;15fb  16          DATA 0x16
-    .byte 0x16              ;15fc  16          DATA 0x16
-    .byte 0xaf              ;15fd  af          DATA 0xaf
-    .byte 0xad              ;15fe  ad          DATA 0xad
-    .byte 0xfa              ;15ff  fa          DATA 0xfa
-    .byte 0x7a              ;1600  7a          DATA 0x7a 'z'
+    bt mem_fe65.5,lab_148f  ;147c  dc 65 10
+    clr1 mem_fe5f.5         ;147f  5b 5f
+    mov a,!mem_f1a6         ;1481  8e a6 f1
+    and a,#0x7f             ;1484  5d 7f
+    cmp a,#0x0f             ;1486  4d 0f
+    bnz lab_148f            ;1488  bd 05
+    mov a,#0xff             ;148a  a1 ff
+    mov !mem_f1a6,a         ;148c  9e a6 f1
+
+lab_148f:
+    call !sub_333f          ;148f  9a 3f 33
+    call !sub_3e1d          ;1492  9a 1d 3e
+    call !sub_3d09          ;1495  9a 09 3d
+    call !sub_4889          ;1498  9a 89 48
+    call !sub_58d8          ;149b  9a d8 58
+    call !sub_56cc          ;149e  9a cc 56
+    bf mem_fe2d.0,lab_14a8  ;14a1  31 03 2d 03
+    call !sub_9140          ;14a5  9a 40 91
+
+lab_14a8:
+    call !sub_ab7b          ;14a8  9a 7b ab
+    br !lab_12d7            ;14ab  9b d7 12
+
+lab_14ae:
+    bf mem_fe65.5,lab_14b5  ;14ae  31 53 65 03
+    call !sub_26d6          ;14b2  9a d6 26
+
+lab_14b5:
+    bf mem_fe64.7,lab_14bc  ;14b5  31 73 64 03
+    call !sub_4625          ;14b9  9a 25 46
+
+lab_14bc:
+    call !sub_6853          ;14bc  9a 53 68
+    br !lab_12d7            ;14bf  9b d7 12
+
+lab_14c2:
+    callf !sub_093c         ;14c2  1c 3c
+    bz lab_14c9             ;14c4  ad 03
+    br !lab_0dcf            ;14c6  9b cf 0d
+
+lab_14c9:
+    mov a,#0xaa             ;14c9  a1 aa
+    cmp a,!mem_fe1f         ;14cb  48 1f fe
+    bnz lab_14d5            ;14ce  bd 05
+    cmp a,!mem_fb91         ;14d0  48 91 fb
+    bz lab_14d6             ;14d3  ad 01
+
+lab_14d5:
+    brk                     ;14d5  bf
+
+lab_14d6:
+    mov a,#0x07             ;14d6  a1 07
+    mov wdcs,a              ;14d8  f6 42
+    mov a,#0x90             ;14da  a1 90
+    mov wdtm,a              ;14dc  f6 f9
+    mov a,mem_fe2c          ;14de  f0 2c
+    push ax                 ;14e0  b1
+    call !sub_3e76          ;14e1  9a 76 3e
+    pop ax                  ;14e4  b0
+    cmp a,mem_fe2c          ;14e5  4e 2c
+    bz lab_14ec             ;14e7  ad 03
+    mov b,#0x09             ;14e9  a3 09
+    callt [0x0040]          ;14eb  c1
+
+lab_14ec:
+    bt mem_fe61.7,lab_150c  ;14ec  fc 61 1d
+    bt mem_fe61.6,lab_150c  ;14ef  ec 61 1a
+    call !sub_0a60          ;14f2  9a 60 0a
+    bf mem_fe63.7,lab_150c  ;14f5  31 73 63 13
+    set1 mem_fe61.6         ;14f9  6a 61
+    mov a,!mem_f207         ;14fb  8e 07 f2
+    bf a.6,lab_150c         ;14fe  31 6f 0b
+    set1 mem_fe7d.7         ;1501  7a 7d
+    call !sub_9118          ;1503  9a 18 91
+    call !sub_1dc4          ;1506  9a c4 1d
+    call !sub_461b          ;1509  9a 1b 46
+
+lab_150c:
+    br !lab_12d7            ;150c  9b d7 12
+
+lab_150f:
+    mov mem_fe28,#0x80      ;150f  11 28 80
+    bf mem_fe69.0,lab_1534  ;1512  31 03 69 1e
+    mov iiccl0,#0x0c        ;1516  13 aa 0c
+    clr1 iicc0.6            ;1519  71 6b a8
+    clr1 iicc0.4            ;151c  71 4b a8
+    clr1 shadow_p7.2         ;151f  2b d1
+    mov a,shadow_p7          ;1521  f0 d1
+    mov p7,a                ;1523  f2 07
+    clr1 shadow_p7.1         ;1525  1b d1
+    mov a,shadow_p7          ;1527  f0 d1
+    mov p7,a                ;1529  f2 07
+    set1 iicc0.7            ;152b  71 7a a8
+    clr1 pm7.2              ;152e  71 2b 27
+    clr1 pm7.1              ;1531  71 1b 27
+
+lab_1534:
+    br !lab_12d7            ;1534  9b d7 12
+
+lab_1537:
+    bf mem_fe5d.7,lab_153e  ;1537  31 73 5d 03
+    call !sub_1ec3          ;153b  9a c3 1e
+
+lab_153e:
+    clr1 pu7.5              ;153e  71 5b 37
+    set1 pm7.5              ;1541  71 5a 27
+    clr1 pu0.3              ;1544  71 3b 30
+    set1 pm0.3              ;1547  71 3a 20
+    set1 pm8.3              ;154a  71 3a 28
+    set1 pm8.4              ;154d  71 4a 28
+    set1 pm8.5              ;1550  71 5a 28
+    set1 pm8.6              ;1553  71 6a 28
+    clr1 pu4.2              ;1556  71 2b 34
+    set1 pm4.2              ;1559  71 2a 24
+    clr1 pu3.5              ;155c  71 5b 33
+    set1 pm3.5              ;155f  71 5a 23
+    set1 pm9.3              ;1562  71 3a 29
+    set1 pm9.6              ;1565  71 6a 29
+    clr1 mem_fe64.2         ;1568  2b 64
+    bf mem_fe64.1,lab_1581  ;156a  31 13 64 13
+    mov a,!mem_fb27         ;156e  8e 27 fb
+    cmp a,#0x00             ;1571  4d 00
+    bnz lab_1581            ;1573  bd 0c
+    clr1 mem_fe64.1         ;1575  1b 64
+    call !sub_44a7          ;1577  9a a7 44
+    mov a,#0x00             ;157a  a1 00
+    mov !mem_fb2c,a         ;157c  9e 2c fb
+    set1 mem_fe64.2         ;157f  2a 64
+
+lab_1581:
+    call !sub_4495          ;1581  9a 95 44
+    bz lab_158b             ;1584  ad 05
+    call !sub_4234          ;1586  9a 34 42
+    br lab_159f             ;1589  fa 14
+
+lab_158b:
+    cmp mem_fe30,#0x04      ;158b  c8 30 04
+    bnc lab_1597            ;158e  9d 07
+    mov a,!mem_f190         ;1590  8e 90 f1
+    cmp a,#0x04             ;1593  4d 04
+    bc lab_159c             ;1595  8d 05
+
+lab_1597:
+    call !sub_4234          ;1597  9a 34 42
+    br lab_159f             ;159a  fa 03
+
+lab_159c:
+    call !sub_42be          ;159c  9a be 42
+
+lab_159f:
+    br !lab_12d7            ;159f  9b d7 12
+
+lab_15a2:
+    call !sub_3b27          ;15a2  9a 27 3b
+    set1 mem_fe77.4         ;15a5  4a 77
+    br !lab_12d7            ;15a7  9b d7 12
+
+lab_15aa:
+    cmp a,#0x0a             ;15aa  4d 0a
+    bc lab_15b4             ;15ac  8d 06
+    sub a,#0x0a             ;15ae  1d 0a
+    add a,#0x41             ;15b0  0d 41
+    br lab_15b6             ;15b2  fa 02
+
+lab_15b4:
+    add a,#0x30             ;15b4  0d 30
+
+lab_15b6:
+    ret                     ;15b6  af
+
+lab_15b7:
+    clr1 mem_fe5d.5         ;15b7  5b 5d
+    call !sub_0823          ;15b9  9a 23 08
+    bnz sub_1601            ;15bc  bd 43
+    cmp mem_fe20,#0x05      ;15be  c8 20 05
+    bnc sub_1601            ;15c1  9d 3e
+    call !sub_1c8d          ;15c3  9a 8d 1c
+    bc sub_1601             ;15c6  8d 39
+    movw de,#0xaca7         ;15c8  14 a7 ac
+    mov a,mem_fe20          ;15cb  f0 20
+    mov b,a                 ;15cd  73
+    movw hl,#0xaf75         ;15ce  16 75 af
+    mov a,[hl+b]            ;15d1  ab
+    call !sub_5c64          ;15d2  9a 64 5c
+    bz lab_15f9             ;15d5  ad 22
+    mov b,a                 ;15d7  73
+    bf mem_fe5d.7,lab_15e5  ;15d8  31 73 5d 09
+    mov a,!mem_fb68         ;15dc  8e 68 fb
+    cmp a,#0x05             ;15df  4d 05
+    bc lab_15f4             ;15e1  8d 11
+    br lab_15f2             ;15e3  fa 0d
+
+lab_15e5:
+    bt mem_fe2c.5,lab_15f4  ;15e5  dc 2c 0c
+    cmp mem_fe43,#0x16      ;15e8  c8 43 16
+    bz lab_15f2             ;15eb  ad 05
+    cmp mem_fe43,#0x17      ;15ed  c8 43 17
+    bnz lab_15f4            ;15f0  bd 02
+
+lab_15f2:
+    mov b,#0xff             ;15f2  a3 ff
+
+lab_15f4:
+    mov a,b                 ;15f4  63
+    cmp a,#0xff             ;15f5  4d ff
+    bnz lab_15fc            ;15f7  bd 03
+
+lab_15f9:
+    br !lab_168d            ;15f9  9b 8d 16
+
+lab_15fc:
+    movw hl,#0xadaf         ;15fc  16 af ad
+    br lab_167b             ;15ff  fa 7a
 
 sub_1601:
     mov mem_fe20,#0x00      ;1601  11 20 00
@@ -5074,7 +4902,7 @@ sub_1601:
     call !sub_0816          ;1624  9a 16 08
     call !sub_1c5e          ;1627  9a 5e 1c
     bnc lab_1631            ;162a  9d 05
-    movw de,#0x17ef         ;162c  14 ef 17
+    movw de,#lab_17ef       ;162c  14 ef 17
     br lab_167f             ;162f  fa 4e
 
 lab_1631:
@@ -5143,156 +4971,93 @@ lab_168d:
 lab_1695:
     br !sub_0823            ;1695  9b 23 08
 
-    .byte 0x1c              ;1698  1c          DATA 0x1c
-    .byte 0x9c              ;1699  9c          DATA 0x9c
-    .byte 0xaf              ;169a  af          DATA 0xaf
-    .byte 0x0a              ;169b  0a          DATA 0x0a
-    .byte 0x5b              ;169c  5b          DATA 0x5b '['
-    .byte 0xc8              ;169d  c8          DATA 0xc8
-    .byte 0x21              ;169e  21          DATA 0x21 '!'
-    .byte 0x0b              ;169f  0b          DATA 0x0b
-    .byte 0xbd              ;16a0  bd          DATA 0xbd
-    .byte 0x05              ;16a1  05          DATA 0x05
-    .byte 0x9a              ;16a2  9a          DATA 0x9a
-    .byte 0x17              ;16a3  17          DATA 0x17
-    .byte 0x1a              ;16a4  1a          DATA 0x1a
-    .byte 0xfa              ;16a5  fa          DATA 0xfa
-    .byte 0x0a              ;16a6  0a          DATA 0x0a
-    .byte 0x9a              ;16a7  9a          DATA 0x9a
-    .byte 0xef              ;16a8  ef          DATA 0xef
-    .byte 0x17              ;16a9  17          DATA 0x17
-    .byte 0xc8              ;16aa  c8          DATA 0xc8
-    .byte 0x20              ;16ab  20          DATA 0x20 ' '
-    .byte 0x03              ;16ac  03          DATA 0x03
-    .byte 0xad              ;16ad  ad          DATA 0xad
-    .byte 0x02              ;16ae  02          DATA 0x02
-    .byte 0x0b              ;16af  0b          DATA 0x0b
-    .byte 0x5b              ;16b0  5b          DATA 0x5b '['
-    .byte 0xbc              ;16b1  bc          DATA 0xbc
-    .byte 0x5c              ;16b2  5c          DATA 0x5c '\'
-    .byte 0x41              ;16b3  41          DATA 0x41 'A'
-    .byte 0x11              ;16b4  11          DATA 0x11
-    .byte 0x21              ;16b5  21          DATA 0x21 '!'
-    .byte 0x00              ;16b6  00          DATA 0x00
-    .byte 0x9a              ;16b7  9a          DATA 0x9a
-    .byte 0x0b              ;16b8  0b          DATA 0x0b
-    .byte 0x08              ;16b9  08          DATA 0x08
-    .byte 0x73              ;16ba  73          DATA 0x73 's'
-    .byte 0x16              ;16bb  16          DATA 0x16
-    .byte 0x5b              ;16bc  5b          DATA 0x5b '['
-    .byte 0xfb              ;16bd  fb          DATA 0xfb
-    .byte 0xf0              ;16be  f0          DATA 0xf0
-    .byte 0x43              ;16bf  43          DATA 0x43 'C'
-    .byte 0x1d              ;16c0  1d          DATA 0x1d
-    .byte 0x00              ;16c1  00          DATA 0x00
-    .byte 0x9e              ;16c2  9e          DATA 0x9e
-    .byte 0x5a              ;16c3  5a          DATA 0x5a 'Z'
-    .byte 0xfb              ;16c4  fb          DATA 0xfb
-    .byte 0xbb              ;16c5  bb          DATA 0xbb
-    .byte 0x2a              ;16c6  2a          DATA 0x2a '*'
-    .byte 0x5c              ;16c7  5c          DATA 0x5c '\'
-    .byte 0xc8              ;16c8  c8          DATA 0xc8
-    .byte 0x21              ;16c9  21          DATA 0x21 '!'
-    .byte 0x0a              ;16ca  0a          DATA 0x0a
-    .byte 0xad              ;16cb  ad          DATA 0xad
-    .byte 0x1c              ;16cc  1c          DATA 0x1c
-    .byte 0xc8              ;16cd  c8          DATA 0xc8
-    .byte 0x21              ;16ce  21          DATA 0x21 '!'
-    .byte 0x0b              ;16cf  0b          DATA 0x0b
-    .byte 0xad              ;16d0  ad          DATA 0xad
-    .byte 0x17              ;16d1  17          DATA 0x17
-    .byte 0x9a              ;16d2  9a          DATA 0x9a
-    .byte 0x94              ;16d3  94          DATA 0x94
-    .byte 0xa6              ;16d4  a6          DATA 0xa6
-    .byte 0x4d              ;16d5  4d          DATA 0x4d 'M'
-    .byte 0x00              ;16d6  00          DATA 0x00
-    .byte 0xa1              ;16d7  a1          DATA 0xa1
-    .byte 0x80              ;16d8  80          DATA 0x80
-    .byte 0xbd              ;16d9  bd          DATA 0xbd
-    .byte 0x0b              ;16da  0b          DATA 0x0b
-    .byte 0x8e              ;16db  8e          DATA 0x8e
-    .byte 0xab              ;16dc  ab          DATA 0xab
-    .byte 0xf1              ;16dd  f1          DATA 0xf1
-    .byte 0x5d              ;16de  5d          DATA 0x5d ']'
-    .byte 0x7f              ;16df  7f          DATA 0x7f
-    .byte 0x4d              ;16e0  4d          DATA 0x4d 'M'
-    .byte 0x00              ;16e1  00          DATA 0x00
-    .byte 0xbd              ;16e2  bd          DATA 0xbd
-    .byte 0x05              ;16e3  05          DATA 0x05
-    .byte 0xa1              ;16e4  a1          DATA 0xa1
-    .byte 0xc0              ;16e5  c0          DATA 0xc0
-    .byte 0x9e              ;16e6  9e          DATA 0x9e
-    .byte 0xab              ;16e7  ab          DATA 0xab
-    .byte 0xf1              ;16e8  f1          DATA 0xf1
-    .byte 0xc8              ;16e9  c8          DATA 0xc8
-    .byte 0x20              ;16ea  20          DATA 0x20 ' '
-    .byte 0x01              ;16eb  01          DATA 0x01
-    .byte 0xad              ;16ec  ad          DATA 0xad
-    .byte 0x06              ;16ed  06          DATA 0x06
-    .byte 0x31              ;16ee  31          DATA 0x31 '1'
-    .byte 0x01              ;16ef  01          DATA 0x01
-    .byte 0x5b              ;16f0  5b          DATA 0x5b '['
-    .byte 0x02              ;16f1  02          DATA 0x02
-    .byte 0xfa              ;16f2  fa          DATA 0xfa
-    .byte 0x07              ;16f3  07          DATA 0x07
-    .byte 0xaf              ;16f4  af          DATA 0xaf
-    .byte 0xa1              ;16f5  a1          DATA 0xa1
-    .byte 0x00              ;16f6  00          DATA 0x00
-    .byte 0x9e              ;16f7  9e          DATA 0x9e
-    .byte 0x2f              ;16f8  2f          DATA 0x2f '/'
-    .byte 0xfc              ;16f9  fc          DATA 0xfc
-    .byte 0xaf              ;16fa  af          DATA 0xaf
-    .byte 0x9a              ;16fb  9a          DATA 0x9a
-    .byte 0x82              ;16fc  82          DATA 0x82
-    .byte 0x1a              ;16fd  1a          DATA 0x1a
-    .byte 0x73              ;16fe  73          DATA 0x73 's'
-    .byte 0x9a              ;16ff  9a          DATA 0x9a
-    .byte 0x43              ;1700  43          DATA 0x43 'C'
-    .byte 0x1a              ;1701  1a          DATA 0x1a
-    .byte 0x9a              ;1702  9a          DATA 0x9a
-    .byte 0x17              ;1703  17          DATA 0x17
-    .byte 0x1a              ;1704  1a          DATA 0x1a
-    .byte 0xa1              ;1705  a1          DATA 0xa1
-    .byte 0x80              ;1706  80          DATA 0x80
-    .byte 0x9e              ;1707  9e          DATA 0x9e
-    .byte 0xab              ;1708  ab          DATA 0xab
-    .byte 0xf1              ;1709  f1          DATA 0xf1
-    .byte 0x9b              ;170a  9b          DATA 0x9b
-    .byte 0x8e              ;170b  8e          DATA 0x8e
-    .byte 0x17              ;170c  17          DATA 0x17
-    .byte 0x8e              ;170d  8e          DATA 0x8e
-    .byte 0x91              ;170e  91          DATA 0x91
-    .byte 0xfc              ;170f  fc          DATA 0xfc
-    .byte 0x4d              ;1710  4d          DATA 0x4d 'M'
-    .byte 0x00              ;1711  00          DATA 0x00
-    .byte 0xbd              ;1712  bd          DATA 0xbd
-    .byte 0x02              ;1713  02          DATA 0x02
-    .byte 0x1a              ;1714  1a          DATA 0x1a
-    .byte 0x5b              ;1715  5b          DATA 0x5b '['
-    .byte 0x9a              ;1716  9a          DATA 0x9a
-    .byte 0x82              ;1717  82          DATA 0x82
-    .byte 0x1a              ;1718  1a          DATA 0x1a
-    .byte 0x73              ;1719  73          DATA 0x73 's'
-    .byte 0x9a              ;171a  9a          DATA 0x9a
-    .byte 0x2c              ;171b  2c          DATA 0x2c ','
-    .byte 0x1a              ;171c  1a          DATA 0x1a
-    .byte 0xa1              ;171d  a1          DATA 0xa1
-    .byte 0x80              ;171e  80          DATA 0x80
-    .byte 0x9e              ;171f  9e          DATA 0x9e
-    .byte 0xab              ;1720  ab          DATA 0xab
-    .byte 0xf1              ;1721  f1          DATA 0xf1
-    .byte 0x11              ;1722  11          DATA 0x11
-    .byte 0x21              ;1723  21          DATA 0x21 '!'
-    .byte 0x00              ;1724  00          DATA 0x00
-    .byte 0x2a              ;1725  2a          DATA 0x2a '*'
-    .byte 0x5c              ;1726  5c          DATA 0x5c '\'
-    .byte 0x9a              ;1727  9a          DATA 0x9a
-    .byte 0x4b              ;1728  4b          DATA 0x4b 'K'
-    .byte 0xa7              ;1729  a7          DATA 0xa7
-    .byte 0xaf              ;172a  af          DATA 0xaf
-    .byte 0x9a              ;172b  9a          DATA 0x9a
-    .byte 0x51              ;172c  51          DATA 0x51 'Q'
-    .byte 0x1a              ;172d  1a          DATA 0x1a
+lab_1698:
+    callf !sub_099c         ;1698  1c 9c
+    ret                     ;169a  af
+
+lab_169b:
+    set1 mem_fe5b.0         ;169b  0a 5b
+    cmp mem_fe21,#0x0b      ;169d  c8 21 0b
+    bnz lab_16a7            ;16a0  bd 05
+    call !sub_1a17          ;16a2  9a 17 1a
+    br lab_16b1             ;16a5  fa 0a
+
+lab_16a7:
+    call !lab_17ef          ;16a7  9a ef 17
+    cmp mem_fe20,#0x03      ;16aa  c8 20 03
+    bz lab_16b1             ;16ad  ad 02
+    clr1 mem_fe5b.0         ;16af  0b 5b
+
+lab_16b1:
+    bt mem_fe5c.3,lab_16f5  ;16b1  bc 5c 41
+    mov mem_fe21,#0x00      ;16b4  11 21 00
+    call !sub_080b          ;16b7  9a 0b 08
+    mov b,a                 ;16ba  73
+    movw hl,#0xfb5b         ;16bb  16 5b fb
+    mov a,mem_fe43          ;16be  f0 43
+    sub a,#0x00             ;16c0  1d 00
+    mov !mem_fb5a,a         ;16c2  9e 5a fb
+    mov [hl+b],a            ;16c5  bb
+    set1 mem_fe5c.2         ;16c6  2a 5c
+    cmp mem_fe21,#0x0a      ;16c8  c8 21 0a
+    bz lab_16e9             ;16cb  ad 1c
+    cmp mem_fe21,#0x0b      ;16cd  c8 21 0b
+    bz lab_16e9             ;16d0  ad 17
+    call !sub_a694          ;16d2  9a 94 a6
+    cmp a,#0x00             ;16d5  4d 00
+    mov a,#0x80             ;16d7  a1 80
+    bnz lab_16e6            ;16d9  bd 0b
+    mov a,!mem_f1ab         ;16db  8e ab f1
+    and a,#0x7f             ;16de  5d 7f
+    cmp a,#0x00             ;16e0  4d 00
+    bnz lab_16e9            ;16e2  bd 05
+    mov a,#0xc0             ;16e4  a1 c0
+
+lab_16e6:
+    mov !mem_f1ab,a         ;16e6  9e ab f1
+
+lab_16e9:
+    cmp mem_fe20,#0x01      ;16e9  c8 20 01
+    bz lab_16f4             ;16ec  ad 06
+    btclr mem_fe5b.0,lab_16f4 ;16ee  31 01 5b 02
+    br lab_16fb             ;16f2  fa 07
+
+lab_16f4:
+    ret                     ;16f4  af
+
+lab_16f5:
+    mov a,#0x00             ;16f5  a1 00
+    mov !mem_fc2f,a         ;16f7  9e 2f fc
+    ret                     ;16fa  af
+
+lab_16fb:
+    call !sub_1a82          ;16fb  9a 82 1a
+    mov b,a                 ;16fe  73
+    call !sub_1a43          ;16ff  9a 43 1a
+    call !sub_1a17          ;1702  9a 17 1a
+    mov a,#0x80             ;1705  a1 80
+    mov !mem_f1ab,a         ;1707  9e ab f1
+    br !lab_178e            ;170a  9b 8e 17
+
+lab_170d:
+    mov a,!mem_fc91         ;170d  8e 91 fc
+    cmp a,#0x00             ;1710  4d 00
+    bnz lab_1716            ;1712  bd 02
+    set1 mem_fe5b.1         ;1714  1a 5b
+
+lab_1716:
+    call !sub_1a82          ;1716  9a 82 1a
+    mov b,a                 ;1719  73
+    call !sub_1a2c          ;171a  9a 2c 1a
+    mov a,#0x80             ;171d  a1 80
+    mov !mem_f1ab,a         ;171f  9e ab f1
+    mov mem_fe21,#0x00      ;1722  11 21 00
+    set1 mem_fe5c.2         ;1725  2a 5c
+    call !sub_a74b          ;1727  9a 4b a7
+    ret                     ;172a  af
+
+lab_172b:
+    call !sub_1a51          ;172b  9a 51 1a
 
 lab_172e:
     call !sub_1d4f          ;172e  9a 4f 1d
@@ -5377,6 +5142,9 @@ lab_174c:
     .byte 0x9a              ;178b  9a          DATA 0x9a
     .byte 0x17              ;178c  17          DATA 0x17
     .byte 0x1a              ;178d  1a          DATA 0x1a
+
+lab_178e:
+;TODO this is code
     .byte 0x6b              ;178e  6b          DATA 0x6b 'k'
     .byte 0x5d              ;178f  5d          DATA 0x5d ']'
     .byte 0xa2              ;1790  a2          DATA 0xa2
@@ -5470,6 +5238,8 @@ lab_17e2:
 
 lab_17ec:
     call !sub_1bff          ;17ec  9a ff 1b
+
+lab_17ef:
     call !sub_1a5d          ;17ef  9a 5d 1a
     call !sub_1d4f          ;17f2  9a 4f 1d
     call !sub_a694          ;17f5  9a 94 a6
@@ -5996,11 +5766,11 @@ sub_1a17:
     mov !mem_fb5e,a         ;1a1c  9e 5e fb
     call !sub_0800          ;1a1f  9a 00 08     Return mem_f253 in A, also copy it into mem_fb58
     cmp a,#0x01             ;1a22  4d 01
-    bnz lab_1a2c            ;1a24  bd 06
+    bnz sub_1a2c            ;1a24  bd 06
     call !sub_080b          ;1a26  9a 0b 08     Return mem_f252 in A, also copy it into mem_fb57
     mov !mem_fb5f,a         ;1a29  9e 5f fb
 
-lab_1a2c:
+sub_1a2c:
     call !sub_1aea          ;1a2c  9a ea 1a
     cmp mem_fe58,#0x01      ;1a2f  c8 58 01
     bnz lab_1a3c            ;1a32  bd 08
@@ -6013,38 +5783,27 @@ lab_1a3c:
     call !sub_4092          ;1a3f  9a 92 40
     ret                     ;1a42  af
 
-    .byte 0x2a              ;1a43  2a          DATA 0x2a '*'
-    .byte 0x5c              ;1a44  5c          DATA 0x5c '\'
-    .byte 0x8e              ;1a45  8e          DATA 0x8e
-    .byte 0x5a              ;1a46  5a          DATA 0x5a 'Z'
-    .byte 0xfb              ;1a47  fb          DATA 0xfb
-    .byte 0x73              ;1a48  73          DATA 0x73 's'
-    .byte 0x9a              ;1a49  9a          DATA 0x9a
-    .byte 0x66              ;1a4a  66          DATA 0x66 'f'
-    .byte 0x1a              ;1a4b  1a          DATA 0x1a
-    .byte 0x9a              ;1a4c  9a          DATA 0x9a
-    .byte 0xd1              ;1a4d  d1          DATA 0xd1
-    .byte 0x1a              ;1a4e  1a          DATA 0x1a
-    .byte 0xfa              ;1a4f  fa          DATA 0xfa
-    .byte 0xeb              ;1a50  eb          DATA 0xeb
-    .byte 0x8e              ;1a51  8e          DATA 0x8e
-    .byte 0x5e              ;1a52  5e          DATA 0x5e '^'
-    .byte 0xfb              ;1a53  fb          DATA 0xfb
-    .byte 0x9e              ;1a54  9e          DATA 0x9e
-    .byte 0x57              ;1a55  57          DATA 0x57 'W'
-    .byte 0xfb              ;1a56  fb          DATA 0xfb
-    .byte 0x16              ;1a57  16          DATA 0x16
-    .byte 0x52              ;1a58  52          DATA 0x52 'R'
-    .byte 0xf2              ;1a59  f2          DATA 0xf2
-    .byte 0x9a              ;1a5a  9a          DATA 0x9a
-    .byte 0x92              ;1a5b  92          DATA 0x92
-    .byte 0x40              ;1a5c  40          DATA 0x40 '@'
+sub_1a43:
+    set1 mem_fe5c.2         ;1a43  2a 5c
+    mov a,!mem_fb5a         ;1a45  8e 5a fb
+    mov b,a                 ;1a48  73
+    call !sub_1a66          ;1a49  9a 66 1a
+    call !sub_1ad1          ;1a4c  9a d1 1a
+    br lab_1a3c             ;1a4f  fa eb
+
+sub_1a51:
+    mov a,!mem_fb5e         ;1a51  8e 5e fb
+    mov !mem_fb57,a         ;1a54  9e 57 fb
+    movw hl,#mem_f252       ;1a57  16 52 f2
+    call !sub_4092          ;1a5a  9a 92 40
 
 sub_1a5d:
     mov b,#0x00             ;1a5d  a3 00
     mov a,#0x00             ;1a5f  a1 00
     mov !mem_fb5a,a         ;1a61  9e 5a fb
     clr1 mem_fe5d.0         ;1a64  0b 5d
+
+sub_1a66:
     call !sub_1a75          ;1a66  9a 75 1a
     mov !mem_fb56,a         ;1a69  9e 56 fb
     push hl                 ;1a6c  b7
@@ -6063,14 +5822,14 @@ sub_1a75:
     mov a,[hl]              ;1a7b  87
     ret                     ;1a7c  af
 
-    .byte 0x16              ;1a7d  16          DATA 0x16
-    .byte 0x4f              ;1a7e  4f          DATA 0x4f 'O'
-    .byte 0xf2              ;1a7f  f2          DATA 0xf2
-    .byte 0xfa              ;1a80  fa          DATA 0xfa
-    .byte 0x03              ;1a81  03          DATA 0x03
+sub_1a7d:
+    movw hl,#0xf24f         ;1a7d  16 4f f2
+    br lab_1a85             ;1a80  fa 03
 
 sub_1a82:
     movw hl,#0xfb5b         ;1a82  16 5b fb
+
+lab_1a85:
     call !sub_080b          ;1a85  9a 0b 08     Return mem_f252 in A, also copy it into mem_fb57
     mov c,a                 ;1a88  72
     mov a,[hl+c]            ;1a89  aa
@@ -6572,15 +6331,21 @@ lab_1cd0:
     call !sub_1ad1          ;1cd3  9a d1 1a
     call !sub_609e          ;1cd6  9a 9e 60
     call !sub_0845          ;1cd9  9a 45 08
+
+lab_1cdc:
     bf mem_fe5b.4,lab_1d04  ;1cdc  31 43 5b 24
     bf mem_fe5b.5,lab_1d05  ;1ce0  31 53 5b 21
     call !sub_085d          ;1ce4  9a 5d 08
+
+lab_1ce7:
     bf mem_fe5b.6,lab_1d04  ;1ce7  31 63 5b 19
     bf mem_fe5b.7,lab_1d05  ;1ceb  31 73 5b 16
     call !sub_0800          ;1cef  9a 00 08     Return mem_f253 in A, also copy it into mem_fb58
     cmp a,#0x02             ;1cf2  4d 02
     bz lab_1d01             ;1cf4  ad 0b
     call !sub_1d6e          ;1cf6  9a 6e 1d
+
+lab_1cf9:
     bf mem_fe5c.0,lab_1d04  ;1cf9  31 03 5c 07
     bf mem_fe5c.1,lab_1d05  ;1cfd  31 13 5c 04
 
@@ -6597,6 +6362,8 @@ lab_1d05:
     set1 mem_fe5b.3         ;1d0d  3a 5b
     br lab_1d01             ;1d0f  fa f0
 
+lab_1d11:
+;TODO this is code
     .byte 0x8e              ;1d11  8e          DATA 0x8e
     .byte 0x63              ;1d12  63          DATA 0x63 'c'
     .byte 0xfb              ;1d13  fb          DATA 0xfb
@@ -6624,6 +6391,9 @@ lab_1d05:
     .byte 0x22              ;1d29  22          DATA 0x22 '"'
     .byte 0x05              ;1d2a  05          DATA 0x05
     .byte 0xaf              ;1d2b  af          DATA 0xaf
+
+lab_1d2c:
+;TODO this is code
     .byte 0x8e              ;1d2c  8e          DATA 0x8e
     .byte 0x63              ;1d2d  63          DATA 0x63 'c'
     .byte 0xfb              ;1d2e  fb          DATA 0xfb
@@ -6977,6 +6747,9 @@ lab_1dd7:
     .byte 0x9e              ;1ec0  9e          DATA 0x9e
     .byte 0xa9              ;1ec1  a9          DATA 0xa9
     .byte 0xf1              ;1ec2  f1          DATA 0xf1
+
+sub_1ec3:
+;TODO this is code
     .byte 0x31              ;1ec3  31          DATA 0x31 '1'
     .byte 0x03              ;1ec4  03          DATA 0x03
     .byte 0x5e              ;1ec5  5e          DATA 0x5e '^'
@@ -8442,7 +8215,7 @@ sub_26c9:
 lab_26d5:
     ret                     ;26d5  af
 
-lab_26d6:
+sub_26d6:
     call !sub_7697          ;26d6  9a 97 76
     mov a,#0x32             ;26d9  a1 32
     mov !mem_fb2e,a         ;26db  9e 2e fb
@@ -12874,7 +12647,7 @@ lab_4266:
     movw hl,#0xaf75         ;4267  16 75 af
     mov a,[hl+b]            ;426a  ab
     call !sub_5c64          ;426b  9a 64 5c
-    bz lab_42be             ;426e  ad 4e
+    bz sub_42be             ;426e  ad 4e
     bf mem_fe65.5,lab_427a  ;4270  31 53 65 06
     cmp a,#0x03             ;4274  4d 03
     bz lab_42a1             ;4276  ad 29
@@ -12904,7 +12677,7 @@ lab_42a1:
 
 lab_42a3:
     cmp a,#0xff             ;42a3  4d ff
-    bz lab_42be             ;42a5  ad 17
+    bz sub_42be             ;42a5  ad 17
     movw de,#0x4466         ;42a7  14 66 44
     bt a.6,lab_42b7         ;42aa  31 6e 0a
     movw hl,#0xb171         ;42ad  16 71 b1
@@ -12913,12 +12686,12 @@ lab_42a3:
     br !sub_4234            ;42b4  9b 34 42
 
 lab_42b7:
-    movw ax,#lab_42be       ;42b7  10 be 42
+    movw ax,#sub_42be       ;42b7  10 be 42
     push ax                 ;42ba  b1
     movw ax,de              ;42bb  c4
     br ax                   ;42bc  31 98
 
-lab_42be:
+sub_42be:
     bf mem_fe2d.0,lab_42c5  ;42be  31 03 2d 03
     bt mem_fe2c.5,lab_42d2  ;42c2  dc 2c 0d
 
@@ -13486,7 +13259,7 @@ sub_461b:
     mov mem_fe30,a          ;4620  f2 30
     br !sub_4495            ;4622  9b 95 44
 
-lab_4625:
+sub_4625:
     mov a,!mem_fb28         ;4625  8e 28 fb
     cmp a,#0x00             ;4628  4d 00
     bnz lab_463c            ;462a  bd 10
@@ -13534,7 +13307,7 @@ lab_4654:
 lab_4680:
     call !sub_4dd8          ;4680  9a d8 4d
     call !sub_6305          ;4683  9a 05 63
-    br lab_4625             ;4686  fa 9d
+    br sub_4625             ;4686  fa 9d
 
 lab_4688:
     bt mem_fe64.6,lab_4693  ;4688  ec 64 08
@@ -22776,345 +22549,192 @@ sub_77f9:
 lab_7807:
     ret                     ;7807  af
 
-    .byte 0x71              ;7808  71          DATA 0x71 'q'
-    .byte 0x74              ;7809  74          DATA 0x74 't'
-    .byte 0x40              ;780a  40          DATA 0x40 '@'
-    .byte 0x71              ;780b  71          DATA 0x71 'q'
-    .byte 0x61              ;780c  61          DATA 0x61 'a'
-    .byte 0x6a              ;780d  6a          DATA 0x6a 'j'
-    .byte 0x1a              ;780e  1a          DATA 0x1a
-    .byte 0x41              ;780f  41          DATA 0x41 'A'
-    .byte 0x71              ;7810  71          DATA 0x71 'q'
-    .byte 0x34              ;7811  34          DATA 0x34 '4'
-    .byte 0x3f              ;7812  3f          DATA 0x3f '?'
-    .byte 0x71              ;7813  71          DATA 0x71 'q'
-    .byte 0x41              ;7814  41          DATA 0x41 'A'
-    .byte 0x6a              ;7815  6a          DATA 0x6a 'j'
-    .byte 0x71              ;7816  71          DATA 0x71 'q'
-    .byte 0x34              ;7817  34          DATA 0x34 '4'
-    .byte 0x42              ;7818  42          DATA 0x42 'B'
-    .byte 0x71              ;7819  71          DATA 0x71 'q'
-    .byte 0x51              ;781a  51          DATA 0x51 'Q'
-    .byte 0x6a              ;781b  6a          DATA 0x6a 'j'
-    .byte 0x8e              ;781c  8e          DATA 0x8e
-    .byte 0x38              ;781d  38          DATA 0x38 '8'
-    .byte 0xfb              ;781e  fb          DATA 0xfb
-    .byte 0xf2              ;781f  f2          DATA 0xf2
-    .byte 0xdb              ;7820  db          DATA 0xdb
-    .byte 0x7a              ;7821  7a          DATA 0x7a 'z'
-    .byte 0x6a              ;7822  6a          DATA 0x6a 'j'
-    .byte 0x9a              ;7823  9a          DATA 0x9a
-    .byte 0x80              ;7824  80          DATA 0x80
-    .byte 0x78              ;7825  78          DATA 0x78 'x'
-    .byte 0x71              ;7826  71          DATA 0x71 'q'
-    .byte 0x44              ;7827  44          DATA 0x44 'D'
-    .byte 0x6a              ;7828  6a          DATA 0x6a 'j'
-    .byte 0x71              ;7829  71          DATA 0x71 'q'
-    .byte 0x31              ;782a  31          DATA 0x31 '1'
-    .byte 0x3f              ;782b  3f          DATA 0x3f '?'
-    .byte 0x71              ;782c  71          DATA 0x71 'q'
-    .byte 0x64              ;782d  64          DATA 0x64 'd'
-    .byte 0x6a              ;782e  6a          DATA 0x6a 'j'
-    .byte 0x71              ;782f  71          DATA 0x71 'q'
-    .byte 0x71              ;7830  71          DATA 0x71 'q'
-    .byte 0x40              ;7831  40          DATA 0x40 '@'
-    .byte 0x71              ;7832  71          DATA 0x71 'q'
-    .byte 0x54              ;7833  54          DATA 0x54 'T'
-    .byte 0x6a              ;7834  6a          DATA 0x6a 'j'
-    .byte 0x71              ;7835  71          DATA 0x71 'q'
-    .byte 0x31              ;7836  31          DATA 0x31 '1'
-    .byte 0x42              ;7837  42          DATA 0x42 'B'
-    .byte 0xf0              ;7838  f0          DATA 0xf0
-    .byte 0xdb              ;7839  db          DATA 0xdb
-    .byte 0x9e              ;783a  9e          DATA 0x9e
-    .byte 0x38              ;783b  38          DATA 0x38 '8'
-    .byte 0xfb              ;783c  fb          DATA 0xfb
-    .byte 0xaf              ;783d  af          DATA 0xaf
-    .byte 0x71              ;783e  71          DATA 0x71 'q'
-    .byte 0x64              ;783f  64          DATA 0x64 'd'
-    .byte 0x40              ;7840  40          DATA 0x40 '@'
-    .byte 0x71              ;7841  71          DATA 0x71 'q'
-    .byte 0x61              ;7842  61          DATA 0x61 'a'
-    .byte 0x6a              ;7843  6a          DATA 0x6a 'j'
-    .byte 0x71              ;7844  71          DATA 0x71 'q'
-    .byte 0x24              ;7845  24          DATA 0x24 '$'
-    .byte 0x3f              ;7846  3f          DATA 0x3f '?'
-    .byte 0x71              ;7847  71          DATA 0x71 'q'
-    .byte 0x41              ;7848  41          DATA 0x41 'A'
-    .byte 0x6a              ;7849  6a          DATA 0x6a 'j'
-    .byte 0x71              ;784a  71          DATA 0x71 'q'
-    .byte 0x24              ;784b  24          DATA 0x24 '$'
-    .byte 0x42              ;784c  42          DATA 0x42 'B'
-    .byte 0x71              ;784d  71          DATA 0x71 'q'
-    .byte 0x51              ;784e  51          DATA 0x51 'Q'
-    .byte 0x6a              ;784f  6a          DATA 0x6a 'j'
-    .byte 0x71              ;7850  71          DATA 0x71 'q'
-    .byte 0x04              ;7851  04          DATA 0x04
-    .byte 0x6b              ;7852  6b          DATA 0x6b 'k'
-    .byte 0x71              ;7853  71          DATA 0x71 'q'
-    .byte 0x71              ;7854  71          DATA 0x71 'q'
-    .byte 0x6a              ;7855  6a          DATA 0x6a 'j'
-    .byte 0x8e              ;7856  8e          DATA 0x8e
-    .byte 0x39              ;7857  39          DATA 0x39 '9'
-    .byte 0xfb              ;7858  fb          DATA 0xfb
-    .byte 0xf2              ;7859  f2          DATA 0xf2
-    .byte 0xdb              ;785a  db          DATA 0xdb
-    .byte 0x1b              ;785b  1b          DATA 0x1b
-    .byte 0x41              ;785c  41          DATA 0x41 'A'
-    .byte 0x9a              ;785d  9a          DATA 0x9a
-    .byte 0x80              ;785e  80          DATA 0x80
-    .byte 0x78              ;785f  78          DATA 0x78 'x'
-    .byte 0x71              ;7860  71          DATA 0x71 'q'
-    .byte 0x44              ;7861  44          DATA 0x44 'D'
-    .byte 0x6a              ;7862  6a          DATA 0x6a 'j'
-    .byte 0x71              ;7863  71          DATA 0x71 'q'
-    .byte 0x21              ;7864  21          DATA 0x21 '!'
-    .byte 0x3f              ;7865  3f          DATA 0x3f '?'
-    .byte 0x71              ;7866  71          DATA 0x71 'q'
-    .byte 0x64              ;7867  64          DATA 0x64 'd'
-    .byte 0x6a              ;7868  6a          DATA 0x6a 'j'
-    .byte 0x71              ;7869  71          DATA 0x71 'q'
-    .byte 0x61              ;786a  61          DATA 0x61 'a'
-    .byte 0x40              ;786b  40          DATA 0x40 '@'
-    .byte 0x71              ;786c  71          DATA 0x71 'q'
-    .byte 0x54              ;786d  54          DATA 0x54 'T'
-    .byte 0x6a              ;786e  6a          DATA 0x6a 'j'
-    .byte 0x71              ;786f  71          DATA 0x71 'q'
-    .byte 0x21              ;7870  21          DATA 0x21 '!'
-    .byte 0x42              ;7871  42          DATA 0x42 'B'
-    .byte 0x71              ;7872  71          DATA 0x71 'q'
-    .byte 0x74              ;7873  74          DATA 0x74 't'
-    .byte 0x6a              ;7874  6a          DATA 0x6a 'j'
-    .byte 0x71              ;7875  71          DATA 0x71 'q'
-    .byte 0x01              ;7876  01          DATA 0x01
-    .byte 0x6b              ;7877  6b          DATA 0x6b 'k'
-    .byte 0xf0              ;7878  f0          DATA 0xf0
-    .byte 0xdb              ;7879  db          DATA 0xdb
-    .byte 0x9e              ;787a  9e          DATA 0x9e
-    .byte 0x39              ;787b  39          DATA 0x39 '9'
-    .byte 0xfb              ;787c  fb          DATA 0xfb
-    .byte 0x91              ;787d  91          DATA 0x91
-    .byte 0xd4              ;787e  d4          DATA 0xd4
-    .byte 0xaf              ;787f  af          DATA 0xaf
-    .byte 0xdc              ;7880  dc          DATA 0xdc
-    .byte 0x65              ;7881  65          DATA 0x65 'e'
-    .byte 0x05              ;7882  05          DATA 0x05
-    .byte 0x31              ;7883  31          DATA 0x31 '1'
-    .byte 0x63              ;7884  63          DATA 0x63 'c'
-    .byte 0x6a              ;7885  6a          DATA 0x6a 'j'
-    .byte 0x58              ;7886  58          DATA 0x58 'X'
-    .byte 0xaf              ;7887  af          DATA 0xaf
-    .byte 0x9c              ;7888  9c          DATA 0x9c
-    .byte 0x41              ;7889  41          DATA 0x41 'A'
-    .byte 0x19              ;788a  19          DATA 0x19
-    .byte 0xf0              ;788b  f0          DATA 0xf0
-    .byte 0xdd              ;788c  dd          DATA 0xdd
-    .byte 0x4d              ;788d  4d          DATA 0x4d 'M'
-    .byte 0x88              ;788e  88          DATA 0x88
-    .byte 0xad              ;788f  ad          DATA 0xad
-    .byte 0x09              ;7890  09          DATA 0x09
-    .byte 0x31              ;7891  31          DATA 0x31 '1'
-    .byte 0x53              ;7892  53          DATA 0x53 'S'
-    .byte 0x6a              ;7893  6a          DATA 0x6a 'j'
-    .byte 0x05              ;7894  05          DATA 0x05
-    .byte 0xc8              ;7895  c8          DATA 0xc8
-    .byte 0xdd              ;7896  dd          DATA 0xdd
-    .byte 0x2c              ;7897  2c          DATA 0x2c ','
-    .byte 0xad              ;7898  ad          DATA 0xad
-    .byte 0x23              ;7899  23          DATA 0x23 '#'
-    .byte 0x9c              ;789a  9c          DATA 0x9c
-    .byte 0xd2              ;789b  d2          DATA 0xd2
-    .byte 0x42              ;789c  42          DATA 0x42 'B'
-    .byte 0x1a              ;789d  1a          DATA 0x1a
-    .byte 0xd2              ;789e  d2          DATA 0xd2
-    .byte 0xf0              ;789f  f0          DATA 0xf0
-    .byte 0xd2              ;78a0  d2          DATA 0xd2
-    .byte 0xf2              ;78a1  f2          DATA 0xf2
-    .byte 0x08              ;78a2  08          DATA 0x08
-    .byte 0xaf              ;78a3  af          DATA 0xaf
-    .byte 0xf0              ;78a4  f0          DATA 0xf0
-    .byte 0xdd              ;78a5  dd          DATA 0xdd
-    .byte 0x4d              ;78a6  4d          DATA 0x4d 'M'
-    .byte 0x88              ;78a7  88          DATA 0x88
-    .byte 0xbd              ;78a8  bd          DATA 0xbd
-    .byte 0x0a              ;78a9  0a          DATA 0x0a
-    .byte 0xac              ;78aa  ac          DATA 0xac
-    .byte 0xd2              ;78ab  d2          DATA 0xd2
-    .byte 0x32              ;78ac  32          DATA 0x32 '2'
-    .byte 0x2a              ;78ad  2a          DATA 0x2a '*'
-    .byte 0xd2              ;78ae  d2          DATA 0xd2
-    .byte 0xf0              ;78af  f0          DATA 0xf0
-    .byte 0xd2              ;78b0  d2          DATA 0xd2
-    .byte 0xf2              ;78b1  f2          DATA 0xf2
-    .byte 0x08              ;78b2  08          DATA 0x08
-    .byte 0xaf              ;78b3  af          DATA 0xaf
-    .byte 0x31              ;78b4  31          DATA 0x31 '1'
-    .byte 0x53              ;78b5  53          DATA 0x53 'S'
-    .byte 0x6a              ;78b6  6a          DATA 0x6a 'j'
-    .byte 0xf2              ;78b7  f2          DATA 0xf2
-    .byte 0xc8              ;78b8  c8          DATA 0xc8
-    .byte 0xdd              ;78b9  dd          DATA 0xdd
-    .byte 0x1d              ;78ba  1d          DATA 0x1d
-    .byte 0xbd              ;78bb  bd          DATA 0xbd
-    .byte 0xed              ;78bc  ed          DATA 0xed
-    .byte 0xc8              ;78bd  c8          DATA 0xc8
-    .byte 0xdb              ;78be  db          DATA 0xdb
-    .byte 0x00              ;78bf  00          DATA 0x00
-    .byte 0xbd              ;78c0  bd          DATA 0xbd
-    .byte 0x10              ;78c1  10          DATA 0x10
-    .byte 0x11              ;78c2  11          DATA 0x11
-    .byte 0xdb              ;78c3  db          DATA 0xdb
-    .byte 0x0a              ;78c4  0a          DATA 0x0a
-    .byte 0xec              ;78c5  ec          DATA 0xec
-    .byte 0x6a              ;78c6  6a          DATA 0x6a 'j'
-    .byte 0x03              ;78c7  03          DATA 0x03
-    .byte 0x11              ;78c8  11          DATA 0x11
-    .byte 0xdb              ;78c9  db          DATA 0xdb
-    .byte 0x5a              ;78ca  5a          DATA 0x5a 'Z'
-    .byte 0x20              ;78cb  20          DATA 0x20 ' '
-    .byte 0x71              ;78cc  71          DATA 0x71 'q'
-    .byte 0x67              ;78cd  67          DATA 0x67 'g'
-    .byte 0x6a              ;78ce  6a          DATA 0x6a 'j'
-    .byte 0x71              ;78cf  71          DATA 0x71 'q'
-    .byte 0x61              ;78d0  61          DATA 0x61 'a'
-    .byte 0x6a              ;78d1  6a          DATA 0x6a 'j'
-    .byte 0xec              ;78d2  ec          DATA 0xec
-    .byte 0x6a              ;78d3  6a          DATA 0x6a 'j'
-    .byte 0x05              ;78d4  05          DATA 0x05
-    .byte 0x9c              ;78d5  9c          DATA 0x9c
-    .byte 0x41              ;78d6  41          DATA 0x41 'A'
-    .byte 0xd2              ;78d7  d2          DATA 0xd2
-    .byte 0xfa              ;78d8  fa          DATA 0xfa
-    .byte 0xc0              ;78d9  c0          DATA 0xc0
-    .byte 0x9c              ;78da  9c          DATA 0x9c
-    .byte 0x41              ;78db  41          DATA 0x41 'A'
-    .byte 0x54              ;78dc  54          DATA 0x54 'T'
-    .byte 0xfa              ;78dd  fa          DATA 0xfa
-    .byte 0x73              ;78de  73          DATA 0x73 's'
-    .byte 0x2b              ;78df  2b          DATA 0x2b '+'
-    .byte 0x41              ;78e0  41          DATA 0x41 'A'
-    .byte 0x31              ;78e1  31          DATA 0x31 '1'
-    .byte 0x13              ;78e2  13          DATA 0x13
-    .byte 0x41              ;78e3  41          DATA 0x41 'A'
-    .byte 0x0d              ;78e4  0d          DATA 0x0d
-    .byte 0xf0              ;78e5  f0          DATA 0xf0
-    .byte 0xda              ;78e6  da          DATA 0xda
-    .byte 0x5d              ;78e7  5d          DATA 0x5d ']'
-    .byte 0x0c              ;78e8  0c          DATA 0x0c
-    .byte 0x4d              ;78e9  4d          DATA 0x4d 'M'
-    .byte 0x08              ;78ea  08          DATA 0x08
-    .byte 0xbd              ;78eb  bd          DATA 0xbd
-    .byte 0x23              ;78ec  23          DATA 0x23 '#'
-    .byte 0x11              ;78ed  11          DATA 0x11
-    .byte 0xd7              ;78ee  d7          DATA 0xd7
-    .byte 0x1d              ;78ef  1d          DATA 0x1d
-    .byte 0xfa              ;78f0  fa          DATA 0xfa
-    .byte 0x1c              ;78f1  1c          DATA 0x1c
-    .byte 0xf0              ;78f2  f0          DATA 0xf0
-    .byte 0xda              ;78f3  da          DATA 0xda
-    .byte 0x5d              ;78f4  5d          DATA 0x5d ']'
-    .byte 0x03              ;78f5  03          DATA 0x03
-    .byte 0x4d              ;78f6  4d          DATA 0x4d 'M'
-    .byte 0x02              ;78f7  02          DATA 0x02
-    .byte 0xbd              ;78f8  bd          DATA 0xbd
-    .byte 0x05              ;78f9  05          DATA 0x05
-    .byte 0x11              ;78fa  11          DATA 0x11
-    .byte 0xd7              ;78fb  d7          DATA 0xd7
-    .byte 0x2c              ;78fc  2c          DATA 0x2c ','
-    .byte 0xfa              ;78fd  fa          DATA 0xfa
-    .byte 0x0f              ;78fe  0f          DATA 0x0f
-    .byte 0x5b              ;78ff  5b          DATA 0x5b '['
-    .byte 0x6c              ;7900  6c          DATA 0x6c 'l'
-    .byte 0x4d              ;7901  4d          DATA 0x4d 'M'
-    .byte 0x01              ;7902  01          DATA 0x01
-    .byte 0xbd              ;7903  bd          DATA 0xbd
-    .byte 0x0b              ;7904  0b          DATA 0x0b
-    .byte 0x5a              ;7905  5a          DATA 0x5a 'Z'
-    .byte 0x6c              ;7906  6c          DATA 0x6c 'l'
-    .byte 0x31              ;7907  31          DATA 0x31 '1'
-    .byte 0x73              ;7908  73          DATA 0x73 's'
-    .byte 0x6b              ;7909  6b          DATA 0x6b 'k'
-    .byte 0x05              ;790a  05          DATA 0x05
-    .byte 0x11              ;790b  11          DATA 0x11
-    .byte 0xd7              ;790c  d7          DATA 0xd7
-    .byte 0x24              ;790d  24          DATA 0x24 '$'
-    .byte 0x2a              ;790e  2a          DATA 0x2a '*'
-    .byte 0x41              ;790f  41          DATA 0x41 'A'
-    .byte 0x9a              ;7910  9a          DATA 0x9a
-    .byte 0x7d              ;7911  7d          DATA 0x7d '}'
-    .byte 0x7c              ;7912  7c          DATA 0x7c '|'
-    .byte 0xdc              ;7913  dc          DATA 0xdc
-    .byte 0x65              ;7914  65          DATA 0x65 'e'
-    .byte 0x44              ;7915  44          DATA 0x44 'D'
-    .byte 0x31              ;7916  31          DATA 0x31 '1'
-    .byte 0x53              ;7917  53          DATA 0x53 'S'
-    .byte 0x6a              ;7918  6a          DATA 0x6a 'j'
-    .byte 0x40              ;7919  40          DATA 0x40 '@'
-    .byte 0x6b              ;791a  6b          DATA 0x6b 'k'
-    .byte 0x6a              ;791b  6a          DATA 0x6a 'j'
-    .byte 0x31              ;791c  31          DATA 0x31 '1'
-    .byte 0x13              ;791d  13          DATA 0x13
-    .byte 0x41              ;791e  41          DATA 0x41 'A'
-    .byte 0x19              ;791f  19          DATA 0x19
-    .byte 0xc8              ;7920  c8          DATA 0xc8
-    .byte 0xd7              ;7921  d7          DATA 0xd7
-    .byte 0x1d              ;7922  1d          DATA 0x1d
-    .byte 0xad              ;7923  ad          DATA 0xad
-    .byte 0x04              ;7924  04          DATA 0x04
-    .byte 0x6a              ;7925  6a          DATA 0x6a 'j'
-    .byte 0x6c              ;7926  6c          DATA 0x6c 'l'
-    .byte 0xfa              ;7927  fa          DATA 0xfa
-    .byte 0x31              ;7928  31          DATA 0x31 '1'
-    .byte 0x31              ;7929  31          DATA 0x31 '1'
-    .byte 0x63              ;792a  63          DATA 0x63 'c'
-    .byte 0x6c              ;792b  6c          DATA 0x6c 'l'
-    .byte 0x04              ;792c  04          DATA 0x04
-    .byte 0x6b              ;792d  6b          DATA 0x6b 'k'
-    .byte 0x6c              ;792e  6c          DATA 0x6c 'l'
-    .byte 0xfa              ;792f  fa          DATA 0xfa
-    .byte 0x1a              ;7930  1a          DATA 0x1a
-    .byte 0x2b              ;7931  2b          DATA 0x2b '+'
-    .byte 0xd2              ;7932  d2          DATA 0xd2
-    .byte 0xf0              ;7933  f0          DATA 0xf0
-    .byte 0xd2              ;7934  d2          DATA 0xd2
-    .byte 0xf2              ;7935  f2          DATA 0xf2
-    .byte 0x08              ;7936  08          DATA 0x08
-    .byte 0xfa              ;7937  fa          DATA 0xfa
-    .byte 0x1f              ;7938  1f          DATA 0x1f
-    .byte 0xc8              ;7939  c8          DATA 0xc8
-    .byte 0xd7              ;793a  d7          DATA 0xd7
-    .byte 0x88              ;793b  88          DATA 0x88
-    .byte 0xbd              ;793c  bd          DATA 0xbd
-    .byte 0x07              ;793d  07          DATA 0x07
-    .byte 0xdc              ;793e  dc          DATA 0xdc
-    .byte 0x6c              ;793f  6c          DATA 0x6c 'l'
-    .byte 0x04              ;7940  04          DATA 0x04
-    .byte 0x7a              ;7941  7a          DATA 0x7a 'z'
-    .byte 0x6c              ;7942  6c          DATA 0x6c 'l'
-    .byte 0xfa              ;7943  fa          DATA 0xfa
-    .byte 0x15              ;7944  15          DATA 0x15
-    .byte 0x31              ;7945  31          DATA 0x31 '1'
-    .byte 0x73              ;7946  73          DATA 0x73 's'
-    .byte 0x6c              ;7947  6c          DATA 0x6c 'l'
-    .byte 0x09              ;7948  09          DATA 0x09
-    .byte 0x7b              ;7949  7b          DATA 0x7b '{'
-    .byte 0x6c              ;794a  6c          DATA 0x6c 'l'
-    .byte 0xcc              ;794b  cc          DATA 0xcc
-    .byte 0x6a              ;794c  6a          DATA 0x6a 'j'
-    .byte 0x0c              ;794d  0c          DATA 0x0c
-    .byte 0x5b              ;794e  5b          DATA 0x5b '['
-    .byte 0x6a              ;794f  6a          DATA 0x6a 'j'
-    .byte 0xfa              ;7950  fa          DATA 0xfa
-    .byte 0x08              ;7951  08          DATA 0x08
-    .byte 0x1b              ;7952  1b          DATA 0x1b
-    .byte 0xd2              ;7953  d2          DATA 0xd2
-    .byte 0xf0              ;7954  f0          DATA 0xf0
-    .byte 0xd2              ;7955  d2          DATA 0xd2
-    .byte 0xf2              ;7956  f2          DATA 0xf2
-    .byte 0x08              ;7957  08          DATA 0x08
-    .byte 0x6a              ;7958  6a          DATA 0x6a 'j'
-    .byte 0x6a              ;7959  6a          DATA 0x6a 'j'
-    .byte 0xaf              ;795a  af          DATA 0xaf
+lab_7808:
+    mov1 cy,mem_fe40.7      ;7808  71 74 40
+    mov1 mem_fe6a.6,cy      ;780b  71 61 6a
+    set1 mem_fe41.1         ;780e  1a 41
+    mov1 cy,mem_fe3f.3      ;7810  71 34 3f
+    mov1 mem_fe6a.4,cy      ;7813  71 41 6a
+    mov1 cy,mem_fe42.3      ;7816  71 34 42
+    mov1 mem_fe6a.5,cy      ;7819  71 51 6a
+    mov a,!mem_fb38         ;781c  8e 38 fb
+    mov mem_fedb,a          ;781f  f2 db
+    set1 mem_fe6a.7         ;7821  7a 6a
+    call !sub_7880          ;7823  9a 80 78
+    mov1 cy,mem_fe6a.4      ;7826  71 44 6a
+    mov1 mem_fe3f.3,cy      ;7829  71 31 3f
+    mov1 cy,mem_fe6a.6      ;782c  71 64 6a
+    mov1 mem_fe40.7,cy      ;782f  71 71 40
+    mov1 cy,mem_fe6a.5      ;7832  71 54 6a
+    mov1 mem_fe42.3,cy      ;7835  71 31 42
+    mov a,mem_fedb          ;7838  f0 db
+    mov !mem_fb38,a         ;783a  9e 38 fb
+    ret                     ;783d  af
+
+lab_783e:
+    mov1 cy,mem_fe40.6      ;783e  71 64 40
+    mov1 mem_fe6a.6,cy      ;7841  71 61 6a
+    mov1 cy,mem_fe3f.2      ;7844  71 24 3f
+    mov1 mem_fe6a.4,cy      ;7847  71 41 6a
+    mov1 cy,mem_fe42.2      ;784a  71 24 42
+    mov1 mem_fe6a.5,cy      ;784d  71 51 6a
+    mov1 cy,mem_fe6b.0      ;7850  71 04 6b
+    mov1 mem_fe6a.7,cy      ;7853  71 71 6a
+    mov a,!mem_fb39         ;7856  8e 39 fb
+    mov mem_fedb,a          ;7859  f2 db
+    clr1 mem_fe41.1         ;785b  1b 41
+    call !sub_7880          ;785d  9a 80 78
+    mov1 cy,mem_fe6a.4      ;7860  71 44 6a
+    mov1 mem_fe3f.2,cy      ;7863  71 21 3f
+    mov1 cy,mem_fe6a.6      ;7866  71 64 6a
+    mov1 mem_fe40.6,cy      ;7869  71 61 40
+    mov1 cy,mem_fe6a.5      ;786c  71 54 6a
+    mov1 mem_fe42.2,cy      ;786f  71 21 42
+    mov1 cy,mem_fe6a.7      ;7872  71 74 6a
+    mov1 mem_fe6b.0,cy      ;7875  71 01 6b
+    mov a,mem_fedb          ;7878  f0 db
+    mov !mem_fb39,a         ;787a  9e 39 fb
+    dec mem_fed4            ;787d  91 d4
+    ret                     ;787f  af
+
+sub_7880:
+    bt mem_fe65.5,lab_7888  ;7880  dc 65 05
+    bf mem_fe6a.6,lab_78df  ;7883  31 63 6a 58
+    ret                     ;7887  af
+
+lab_7888:
+    bt mem_fe41.1,lab_78a4  ;7888  9c 41 19
+    mov a,mem_fedd          ;788b  f0 dd
+    cmp a,#0x88             ;788d  4d 88
+    bz lab_789a             ;788f  ad 09
+    bf mem_fe6a.5,lab_789a  ;7891  31 53 6a 05
+    cmp mem_fedd,#0x2c      ;7895  c8 dd 2c
+    bz lab_78bd             ;7898  ad 23
+
+lab_789a:
+    bt shadow_p8.1,lab_78df  ;789a  9c d2 42
+    set1 shadow_p8.1         ;789d  1a d2
+    mov a,shadow_p8          ;789f  f0 d2
+    mov p8,a                ;78a1  f2 08
+    ret                     ;78a3  af
+
+lab_78a4:
+    mov a,mem_fedd          ;78a4  f0 dd
+    cmp a,#0x88             ;78a6  4d 88
+    bnz lab_78b4            ;78a8  bd 0a
+
+lab_78aa:
+    bt shadow_p8.2,lab_78df  ;78aa  ac d2 32
+    set1 shadow_p8.2         ;78ad  2a d2
+    mov a,shadow_p8          ;78af  f0 d2
+    mov p8,a                ;78b1  f2 08
+    ret                     ;78b3  af
+
+lab_78b4:
+    bf mem_fe6a.5,lab_78aa  ;78b4  31 53 6a f2
+    cmp mem_fedd,#0x1d      ;78b8  c8 dd 1d
+    bnz lab_78aa            ;78bb  bd ed
+
+lab_78bd:
+    cmp mem_fedb,#0x00      ;78bd  c8 db 00
+    bnz lab_78d2            ;78c0  bd 10
+    mov mem_fedb,#0x0a      ;78c2  11 db 0a
+    bt mem_fe6a.6,lab_78cb  ;78c5  ec 6a 03
+    mov mem_fedb,#0x5a      ;78c8  11 db 5a
+
+lab_78cb:
+    set1 cy                 ;78cb  20
+    xor1 cy,mem_fe6a.6      ;78cc  71 67 6a
+    mov1 mem_fe6a.6,cy      ;78cf  71 61 6a
+
+lab_78d2:
+    bt mem_fe6a.6,lab_78da  ;78d2  ec 6a 05
+    bt mem_fe41.1,lab_78aa  ;78d5  9c 41 d2
+    br lab_789a             ;78d8  fa c0
+
+lab_78da:
+    bt mem_fe41.1,lab_7931  ;78da  9c 41 54
+    br lab_7952             ;78dd  fa 73
+
+lab_78df:
+    clr1 mem_fe41.2         ;78df  2b 41
+    bf mem_fe41.1,lab_78f2  ;78e1  31 13 41 0d
+    mov a,mem_feda          ;78e5  f0 da
+    and a,#0x0c             ;78e7  5d 0c
+    cmp a,#0x08             ;78e9  4d 08
+    bnz lab_7910            ;78eb  bd 23
+    mov mem_fed7,#0x1d      ;78ed  11 d7 1d
+    br lab_790e             ;78f0  fa 1c
+
+lab_78f2:
+    mov a,mem_feda          ;78f2  f0 da
+    and a,#0x03             ;78f4  5d 03
+    cmp a,#0x02             ;78f6  4d 02
+    bnz lab_78ff            ;78f8  bd 05
+    mov mem_fed7,#0x2c      ;78fa  11 d7 2c
+    br lab_790e             ;78fd  fa 0f
+
+lab_78ff:
+    clr1 mem_fe6c.5         ;78ff  5b 6c
+    cmp a,#0x01             ;7901  4d 01
+    bnz lab_7910            ;7903  bd 0b
+    set1 mem_fe6c.5         ;7905  5a 6c
+    bf mem_fe6b.7,lab_7910  ;7907  31 73 6b 05
+    mov mem_fed7,#0x24      ;790b  11 d7 24
+
+lab_790e:
+    set1 mem_fe41.2         ;790e  2a 41
+
+lab_7910:
+    call !sub_7c7d          ;7910  9a 7d 7c
+    bt mem_fe65.5,lab_795a  ;7913  dc 65 44
+    bf mem_fe6a.5,lab_795a  ;7916  31 53 6a 40
+    clr1 mem_fe6a.6         ;791a  6b 6a
+    bf mem_fe41.1,lab_7939  ;791c  31 13 41 19
+    cmp mem_fed7,#0x1d      ;7920  c8 d7 1d
+    bz lab_7929             ;7923  ad 04
+    set1 mem_fe6c.6         ;7925  6a 6c
+    br lab_795a             ;7927  fa 31
+
+lab_7929:
+    bf mem_fe6c.6,lab_7931  ;7929  31 63 6c 04
+    clr1 mem_fe6c.6         ;792d  6b 6c
+    br lab_794b             ;792f  fa 1a
+
+lab_7931:
+    clr1 shadow_p8.2         ;7931  2b d2
+    mov a,shadow_p8          ;7933  f0 d2
+    mov p8,a                ;7935  f2 08
+    br lab_7958             ;7937  fa 1f
+
+lab_7939:
+    cmp mem_fed7,#0x88      ;7939  c8 d7 88
+    bnz lab_7945            ;793c  bd 07
+    bt mem_fe6c.5,lab_7945  ;793e  dc 6c 04
+    set1 mem_fe6c.7         ;7941  7a 6c
+    br lab_795a             ;7943  fa 15
+
+lab_7945:
+    bf mem_fe6c.7,lab_7952  ;7945  31 73 6c 09
+    clr1 mem_fe6c.7         ;7949  7b 6c
+
+lab_794b:
+    bt mem_fe6a.4,lab_795a  ;794b  cc 6a 0c
+    clr1 mem_fe6a.5         ;794e  5b 6a
+    br lab_795a             ;7950  fa 08
+
+lab_7952:
+    clr1 shadow_p8.1         ;7952  1b d2
+    mov a,shadow_p8          ;7954  f0 d2
+    mov p8,a                 ;7956  f2 08
+
+lab_7958:
+    set1 mem_fe6a.6         ;7958  6a 6a
+
+lab_795a:
+    ret                     ;795a  af
+
+lab_795b:
     .byte 0x5b              ;795b  5b          DATA 0x5b '['
     .byte 0x41              ;795c  41          DATA 0x41 'A'
     .byte 0x6b              ;795d  6b          DATA 0x6b 'k'
@@ -23159,572 +22779,317 @@ lab_7807:
     .byte 0xfc              ;7984  fc          DATA 0xfc
     .byte 0xfa              ;7985  fa          DATA 0xfa
     .byte 0x33              ;7986  33          DATA 0x33 '3'
-    .byte 0x71              ;7987  71          DATA 0x71 'q'
-    .byte 0x14              ;7988  14          DATA 0x14
-    .byte 0x3f              ;7989  3f          DATA 0x3f '?'
-    .byte 0x71              ;798a  71          DATA 0x71 'q'
-    .byte 0x41              ;798b  41          DATA 0x41 'A'
-    .byte 0x6a              ;798c  6a          DATA 0x6a 'j'
-    .byte 0x71              ;798d  71          DATA 0x71 'q'
-    .byte 0x14              ;798e  14          DATA 0x14
-    .byte 0x6b              ;798f  6b          DATA 0x6b 'k'
-    .byte 0x71              ;7990  71          DATA 0x71 'q'
-    .byte 0x71              ;7991  71          DATA 0x71 'q'
-    .byte 0x6a              ;7992  6a          DATA 0x6a 'j'
-    .byte 0x71              ;7993  71          DATA 0x71 'q'
-    .byte 0x14              ;7994  14          DATA 0x14
-    .byte 0x42              ;7995  42          DATA 0x42 'B'
-    .byte 0x71              ;7996  71          DATA 0x71 'q'
-    .byte 0x51              ;7997  51          DATA 0x51 'Q'
-    .byte 0x6a              ;7998  6a          DATA 0x6a 'j'
-    .byte 0x71              ;7999  71          DATA 0x71 'q'
-    .byte 0x34              ;799a  34          DATA 0x34 '4'
-    .byte 0x40              ;799b  40          DATA 0x40 '@'
-    .byte 0x71              ;799c  71          DATA 0x71 'q'
-    .byte 0x31              ;799d  31          DATA 0x31 '1'
-    .byte 0x6b              ;799e  6b          DATA 0x6b 'k'
-    .byte 0x71              ;799f  71          DATA 0x71 'q'
-    .byte 0x54              ;79a0  54          DATA 0x54 'T'
-    .byte 0x40              ;79a1  40          DATA 0x40 '@'
-    .byte 0x71              ;79a2  71          DATA 0x71 'q'
-    .byte 0x61              ;79a3  61          DATA 0x61 'a'
-    .byte 0x6a              ;79a4  6a          DATA 0x6a 'j'
-    .byte 0x8e              ;79a5  8e          DATA 0x8e
-    .byte 0x23              ;79a6  23          DATA 0x23 '#'
-    .byte 0xfc              ;79a7  fc          DATA 0xfc
-    .byte 0x83              ;79a8  83          DATA 0x83
-    .byte 0xdd              ;79a9  dd          DATA 0xdd
-    .byte 0x9e              ;79aa  9e          DATA 0x9e
-    .byte 0x23              ;79ab  23          DATA 0x23 '#'
-    .byte 0xfc              ;79ac  fc          DATA 0xfc
-    .byte 0x6b              ;79ad  6b          DATA 0x6b 'k'
-    .byte 0x41              ;79ae  41          DATA 0x41 'A'
-    .byte 0x5a              ;79af  5a          DATA 0x5a 'Z'
-    .byte 0x41              ;79b0  41          DATA 0x41 'A'
-    .byte 0x8e              ;79b1  8e          DATA 0x8e
-    .byte 0xff              ;79b2  ff          DATA 0xff
-    .byte 0xf1              ;79b3  f1          DATA 0xf1
-    .byte 0x4d              ;79b4  4d          DATA 0x4d 'M'
-    .byte 0x01              ;79b5  01          DATA 0x01
-    .byte 0xbd              ;79b6  bd          DATA 0xbd
-    .byte 0x02              ;79b7  02          DATA 0x02
-    .byte 0x6a              ;79b8  6a          DATA 0x6a 'j'
-    .byte 0x41              ;79b9  41          DATA 0x41 'A'
-    .byte 0x2b              ;79ba  2b          DATA 0x2b '+'
-    .byte 0x41              ;79bb  41          DATA 0x41 'A'
-    .byte 0xdc              ;79bc  dc          DATA 0xdc
-    .byte 0x65              ;79bd  65          DATA 0x65 'e'
-    .byte 0x4e              ;79be  4e          DATA 0x4e 'N'
-    .byte 0xcc              ;79bf  cc          DATA 0xcc
-    .byte 0x6b              ;79c0  6b          DATA 0x6b 'k'
-    .byte 0x4b              ;79c1  4b          DATA 0x4b 'K'
-    .byte 0xdc              ;79c2  dc          DATA 0xdc
-    .byte 0x41              ;79c3  41          DATA 0x41 'A'
-    .byte 0x24              ;79c4  24          DATA 0x24 '$'
-    .byte 0x16              ;79c5  16          DATA 0x16
-    .byte 0x17              ;79c6  17          DATA 0x17
-    .byte 0xfc              ;79c7  fc          DATA 0xfc
-    .byte 0xae              ;79c8  ae          DATA 0xae
-    .byte 0x00              ;79c9  00          DATA 0x00
-    .byte 0xf2              ;79ca  f2          DATA 0xf2
-    .byte 0xda              ;79cb  da          DATA 0xda
-    .byte 0x5d              ;79cc  5d          DATA 0x5d ']'
-    .byte 0x0f              ;79cd  0f          DATA 0x0f
-    .byte 0x4d              ;79ce  4d          DATA 0x4d 'M'
-    .byte 0x0d              ;79cf  0d          DATA 0x0d
-    .byte 0xbd              ;79d0  bd          DATA 0xbd
-    .byte 0x02              ;79d1  02          DATA 0x02
-    .byte 0xfa              ;79d2  fa          DATA 0xfa
-    .byte 0x32              ;79d3  32          DATA 0x32 '2'
-    .byte 0x4d              ;79d4  4d          DATA 0x4d 'M'
-    .byte 0x0e              ;79d5  0e          DATA 0x0e
-    .byte 0xbd              ;79d6  bd          DATA 0xbd
-    .byte 0x02              ;79d7  02          DATA 0x02
-    .byte 0xfa              ;79d8  fa          DATA 0xfa
-    .byte 0x2c              ;79d9  2c          DATA 0x2c ','
-    .byte 0xf0              ;79da  f0          DATA 0xf0
-    .byte 0xda              ;79db  da          DATA 0xda
-    .byte 0x5d              ;79dc  5d          DATA 0x5d ']'
-    .byte 0x3c              ;79dd  3c          DATA 0x3c '<'
-    .byte 0x4d              ;79de  4d          DATA 0x4d 'M'
-    .byte 0x1c              ;79df  1c          DATA 0x1c
-    .byte 0xad              ;79e0  ad          DATA 0xad
-    .byte 0x24              ;79e1  24          DATA 0x24 '$'
-    .byte 0x4d              ;79e2  4d          DATA 0x4d 'M'
-    .byte 0x2c              ;79e3  2c          DATA 0x2c ','
-    .byte 0xad              ;79e4  ad          DATA 0xad
-    .byte 0x20              ;79e5  20          DATA 0x20 ' '
-    .byte 0x9b              ;79e6  9b          DATA 0x9b
-    .byte 0x70              ;79e7  70          DATA 0x70 'p'
-    .byte 0x7a              ;79e8  7a          DATA 0x7a 'z'
-    .byte 0x16              ;79e9  16          DATA 0x16
-    .byte 0x17              ;79ea  17          DATA 0x17
-    .byte 0xfc              ;79eb  fc          DATA 0xfc
-    .byte 0xae              ;79ec  ae          DATA 0xae
-    .byte 0x01              ;79ed  01          DATA 0x01
-    .byte 0xf2              ;79ee  f2          DATA 0xf2
-    .byte 0xda              ;79ef  da          DATA 0xda
-    .byte 0x5d              ;79f0  5d          DATA 0x5d ']'
-    .byte 0xfc              ;79f1  fc          DATA 0xfc
-    .byte 0x4d              ;79f2  4d          DATA 0x4d 'M'
-    .byte 0xdc              ;79f3  dc          DATA 0xdc
-    .byte 0xad              ;79f4  ad          DATA 0xad
-    .byte 0x10              ;79f5  10          DATA 0x10
-    .byte 0x4d              ;79f6  4d          DATA 0x4d 'M'
-    .byte 0xec              ;79f7  ec          DATA 0xec
-    .byte 0xad              ;79f8  ad          DATA 0xad
-    .byte 0x0c              ;79f9  0c          DATA 0x0c
-    .byte 0xf0              ;79fa  f0          DATA 0xf0
-    .byte 0xda              ;79fb  da          DATA 0xda
-    .byte 0x5d              ;79fc  5d          DATA 0x5d ']'
-    .byte 0xcf              ;79fd  cf          DATA 0xcf
-    .byte 0x4d              ;79fe  4d          DATA 0x4d 'M'
-    .byte 0xcd              ;79ff  cd          DATA 0xcd
-    .byte 0xad              ;7a00  ad          DATA 0xad
-    .byte 0x04              ;7a01  04          DATA 0x04
-    .byte 0x4d              ;7a02  4d          DATA 0x4d 'M'
-    .byte 0xce              ;7a03  ce          DATA 0xce
-    .byte 0xbd              ;7a04  bd          DATA 0xbd
-    .byte 0x6a              ;7a05  6a          DATA 0x6a 'j'
-    .byte 0x6b              ;7a06  6b          DATA 0x6b 'k'
-    .byte 0x6a              ;7a07  6a          DATA 0x6a 'j'
-    .byte 0x11              ;7a08  11          DATA 0x11
-    .byte 0xd7              ;7a09  d7          DATA 0xd7
-    .byte 0x2c              ;7a0a  2c          DATA 0x2c ','
-    .byte 0xfa              ;7a0b  fa          DATA 0xfa
-    .byte 0x5c              ;7a0c  5c          DATA 0x5c '\'
-    .byte 0x4b              ;7a0d  4b          DATA 0x4b 'K'
-    .byte 0x41              ;7a0e  41          DATA 0x41 'A'
-    .byte 0xf0              ;7a0f  f0          DATA 0xf0
-    .byte 0xda              ;7a10  da          DATA 0xda
-    .byte 0x5d              ;7a11  5d          DATA 0x5d ']'
-    .byte 0x0f              ;7a12  0f          DATA 0x0f
-    .byte 0x8c              ;7a13  8c          DATA 0x8c
-    .byte 0x41              ;7a14  41          DATA 0x41 'A'
-    .byte 0x10              ;7a15  10          DATA 0x10
-    .byte 0x4d              ;7a16  4d          DATA 0x4d 'M'
-    .byte 0x07              ;7a17  07          DATA 0x07
-    .byte 0xbd              ;7a18  bd          DATA 0xbd
-    .byte 0x04              ;7a19  04          DATA 0x04
-    .byte 0x6a              ;7a1a  6a          DATA 0x6a 'j'
-    .byte 0x6a              ;7a1b  6a          DATA 0x6a 'j'
-    .byte 0xfa              ;7a1c  fa          DATA 0xfa
-    .byte 0x25              ;7a1d  25          DATA 0x25 '%'
-    .byte 0x4d              ;7a1e  4d          DATA 0x4d 'M'
-    .byte 0x0d              ;7a1f  0d          DATA 0x0d
-    .byte 0xad              ;7a20  ad          DATA 0xad
-    .byte 0x21              ;7a21  21          DATA 0x21 '!'
-    .byte 0x4d              ;7a22  4d          DATA 0x4d 'M'
-    .byte 0x0e              ;7a23  0e          DATA 0x0e
-    .byte 0xad              ;7a24  ad          DATA 0xad
-    .byte 0x1d              ;7a25  1d          DATA 0x1d
-    .byte 0xdc              ;7a26  dc          DATA 0xdc
-    .byte 0x41              ;7a27  41          DATA 0x41 'A'
-    .byte 0x05              ;7a28  05          DATA 0x05
-    .byte 0x9c              ;7a29  9c          DATA 0x9c
-    .byte 0x6c              ;7a2a  6c          DATA 0x6c 'l'
-    .byte 0x1c              ;7a2b  1c          DATA 0x1c
-    .byte 0xfa              ;7a2c  fa          DATA 0xfa
-    .byte 0x08              ;7a2d  08          DATA 0x08
-    .byte 0x31              ;7a2e  31          DATA 0x31 '1'
-    .byte 0x03              ;7a2f  03          DATA 0x03
-    .byte 0x6c              ;7a30  6c          DATA 0x6c 'l'
-    .byte 0x04              ;7a31  04          DATA 0x04
-    .byte 0x31              ;7a32  31          DATA 0x31 '1'
-    .byte 0x63              ;7a33  63          DATA 0x63 'c'
-    .byte 0x41              ;7a34  41          DATA 0x41 'A'
-    .byte 0x12              ;7a35  12          DATA 0x12
-    .byte 0x5d              ;7a36  5d          DATA 0x5d ']'
-    .byte 0x0f              ;7a37  0f          DATA 0x0f
-    .byte 0x4d              ;7a38  4d          DATA 0x4d 'M'
-    .byte 0x0b              ;7a39  0b          DATA 0x0b
-    .byte 0xbd              ;7a3a  bd          DATA 0xbd
-    .byte 0x0c              ;7a3b  0c          DATA 0x0c
-    .byte 0x6a              ;7a3c  6a          DATA 0x6a 'j'
-    .byte 0x6a              ;7a3d  6a          DATA 0x6a 'j'
-    .byte 0x11              ;7a3e  11          DATA 0x11
-    .byte 0xd7              ;7a3f  d7          DATA 0xd7
-    .byte 0x24              ;7a40  24          DATA 0x24 '$'
-    .byte 0xfa              ;7a41  fa          DATA 0xfa
-    .byte 0x03              ;7a42  03          DATA 0x03
-    .byte 0x11              ;7a43  11          DATA 0x11
-    .byte 0xd7              ;7a44  d7          DATA 0xd7
-    .byte 0x2c              ;7a45  2c          DATA 0x2c ','
-    .byte 0x2a              ;7a46  2a          DATA 0x2a '*'
-    .byte 0x41              ;7a47  41          DATA 0x41 'A'
-    .byte 0xdc              ;7a48  dc          DATA 0xdc
-    .byte 0x65              ;7a49  65          DATA 0x65 'e'
-    .byte 0x06              ;7a4a  06          DATA 0x06
-    .byte 0x31              ;7a4b  31          DATA 0x31 '1'
-    .byte 0x63              ;7a4c  63          DATA 0x63 'c'
-    .byte 0x41              ;7a4d  41          DATA 0x41 'A'
-    .byte 0x02              ;7a4e  02          DATA 0x02
-    .byte 0x91              ;7a4f  91          DATA 0x91
-    .byte 0xd4              ;7a50  d4          DATA 0xd4
-    .byte 0x6b              ;7a51  6b          DATA 0x6b 'k'
-    .byte 0x41              ;7a52  41          DATA 0x41 'A'
-    .byte 0x31              ;7a53  31          DATA 0x31 '1'
-    .byte 0x43              ;7a54  43          DATA 0x43 'C'
-    .byte 0x41              ;7a55  41          DATA 0x41 'A'
-    .byte 0x02              ;7a56  02          DATA 0x02
-    .byte 0xfa              ;7a57  fa          DATA 0xfa
-    .byte 0x17              ;7a58  17          DATA 0x17
-    .byte 0x91              ;7a59  91          DATA 0x91
-    .byte 0xd4              ;7a5a  d4          DATA 0xd4
-    .byte 0x4a              ;7a5b  4a          DATA 0x4a 'J'
-    .byte 0x41              ;7a5c  41          DATA 0x41 'A'
-    .byte 0xc8              ;7a5d  c8          DATA 0xc8
-    .byte 0xd7              ;7a5e  d7          DATA 0xd7
-    .byte 0x2c              ;7a5f  2c          DATA 0x2c ','
-    .byte 0xad              ;7a60  ad          DATA 0xad
-    .byte 0x0e              ;7a61  0e          DATA 0x0e
-    .byte 0x9a              ;7a62  9a          DATA 0x9a
-    .byte 0xf9              ;7a63  f9          DATA 0xf9
-    .byte 0x77              ;7a64  77          DATA 0x77 'w'
-    .byte 0x5d              ;7a65  5d          DATA 0x5d ']'
-    .byte 0x0f              ;7a66  0f          DATA 0x0f
-    .byte 0xfa              ;7a67  fa          DATA 0xfa
-    .byte 0xaa              ;7a68  aa          DATA 0xaa
-    .byte 0x2a              ;7a69  2a          DATA 0x2a '*'
-    .byte 0x41              ;7a6a  41          DATA 0x41 'A'
-    .byte 0xcc              ;7a6b  cc          DATA 0xcc
-    .byte 0x41              ;7a6c  41          DATA 0x41 'A'
-    .byte 0x02              ;7a6d  02          DATA 0x02
-    .byte 0x91              ;7a6e  91          DATA 0x91
-    .byte 0xd4              ;7a6f  d4          DATA 0xd4
-    .byte 0x31              ;7a70  31          DATA 0x31 '1'
-    .byte 0x03              ;7a71  03          DATA 0x03
-    .byte 0x41              ;7a72  41          DATA 0x41 'A'
-    .byte 0x1b              ;7a73  1b          DATA 0x1b
-    .byte 0xc8              ;7a74  c8          DATA 0xc8
-    .byte 0xdd              ;7a75  dd          DATA 0xdd
-    .byte 0x00              ;7a76  00          DATA 0x00
-    .byte 0xbd              ;7a77  bd          DATA 0xbd
-    .byte 0x07              ;7a78  07          DATA 0x07
-    .byte 0xf0              ;7a79  f0          DATA 0xf0
-    .byte 0xd7              ;7a7a  d7          DATA 0xd7
-    .byte 0xf2              ;7a7b  f2          DATA 0xf2
-    .byte 0xdd              ;7a7c  dd          DATA 0xdd
-    .byte 0x9b              ;7a7d  9b          DATA 0x9b
-    .byte 0x04              ;7a7e  04          DATA 0x04
-    .byte 0x7b              ;7a7f  7b          DATA 0x7b '{'
-    .byte 0xf0              ;7a80  f0          DATA 0xf0
-    .byte 0xd7              ;7a81  d7          DATA 0xd7
-    .byte 0x4e              ;7a82  4e          DATA 0x4e 'N'
-    .byte 0xdd              ;7a83  dd          DATA 0xdd
-    .byte 0xad              ;7a84  ad          DATA 0xad
-    .byte 0x04              ;7a85  04          DATA 0x04
-    .byte 0x3a              ;7a86  3a          DATA 0x3a ':'
-    .byte 0x6b              ;7a87  6b          DATA 0x6b 'k'
-    .byte 0xfa              ;7a88  fa          DATA 0xfa
-    .byte 0x0a              ;7a89  0a          DATA 0x0a
-    .byte 0xc8              ;7a8a  c8          DATA 0xc8
-    .byte 0xde              ;7a8b  de          DATA 0xde
-    .byte 0x06              ;7a8c  06          DATA 0x06
-    .byte 0x8d              ;7a8d  8d          DATA 0x8d
-    .byte 0x05              ;7a8e  05          DATA 0x05
-    .byte 0x9a              ;7a8f  9a          DATA 0x9a
-    .byte 0x7d              ;7a90  7d          DATA 0x7d '}'
-    .byte 0x7c              ;7a91  7c          DATA 0x7c '|'
-    .byte 0x3b              ;7a92  3b          DATA 0x3b ';'
-    .byte 0x6b              ;7a93  6b          DATA 0x6b 'k'
-    .byte 0xdc              ;7a94  dc          DATA 0xdc
-    .byte 0x41              ;7a95  41          DATA 0x41 'A'
-    .byte 0x37              ;7a96  37          DATA 0x37 '7'
-    .byte 0x71              ;7a97  71          DATA 0x71 'q'
-    .byte 0x44              ;7a98  44          DATA 0x44 'D'
-    .byte 0x6a              ;7a99  6a          DATA 0x6a 'j'
-    .byte 0x71              ;7a9a  71          DATA 0x71 'q'
-    .byte 0x01              ;7a9b  01          DATA 0x01
-    .byte 0x3f              ;7a9c  3f          DATA 0x3f '?'
-    .byte 0x71              ;7a9d  71          DATA 0x71 'q'
-    .byte 0x74              ;7a9e  74          DATA 0x74 't'
-    .byte 0x6a              ;7a9f  6a          DATA 0x6a 'j'
-    .byte 0x71              ;7aa0  71          DATA 0x71 'q'
-    .byte 0x21              ;7aa1  21          DATA 0x21 '!'
-    .byte 0x6b              ;7aa2  6b          DATA 0x6b 'k'
-    .byte 0x71              ;7aa3  71          DATA 0x71 'q'
-    .byte 0x54              ;7aa4  54          DATA 0x54 'T'
-    .byte 0x6a              ;7aa5  6a          DATA 0x6a 'j'
-    .byte 0x71              ;7aa6  71          DATA 0x71 'q'
-    .byte 0x01              ;7aa7  01          DATA 0x01
-    .byte 0x42              ;7aa8  42          DATA 0x42 'B'
-    .byte 0x71              ;7aa9  71          DATA 0x71 'q'
-    .byte 0x34              ;7aaa  34          DATA 0x34 '4'
-    .byte 0x6b              ;7aab  6b          DATA 0x6b 'k'
-    .byte 0x71              ;7aac  71          DATA 0x71 'q'
-    .byte 0x21              ;7aad  21          DATA 0x21 '!'
-    .byte 0x40              ;7aae  40          DATA 0x40 '@'
-    .byte 0x71              ;7aaf  71          DATA 0x71 'q'
-    .byte 0x64              ;7ab0  64          DATA 0x64 'd'
-    .byte 0x6a              ;7ab1  6a          DATA 0x6a 'j'
-    .byte 0x71              ;7ab2  71          DATA 0x71 'q'
-    .byte 0x41              ;7ab3  41          DATA 0x41 'A'
-    .byte 0x40              ;7ab4  40          DATA 0x40 '@'
-    .byte 0x8e              ;7ab5  8e          DATA 0x8e
-    .byte 0x24              ;7ab6  24          DATA 0x24 '$'
-    .byte 0xfc              ;7ab7  fc          DATA 0xfc
-    .byte 0x4e              ;7ab8  4e          DATA 0x4e 'N'
-    .byte 0xdd              ;7ab9  dd          DATA 0xdd
-    .byte 0xad              ;7aba  ad          DATA 0xad
-    .byte 0x11              ;7abb  11          DATA 0x11
-    .byte 0xc8              ;7abc  c8          DATA 0xc8
-    .byte 0xdc              ;7abd  dc          DATA 0xdc
-    .byte 0x50              ;7abe  50          DATA 0x50 'P'
-    .byte 0x8d              ;7abf  8d          DATA 0x8d
-    .byte 0x07              ;7ac0  07          DATA 0x07
-    .byte 0x83              ;7ac1  83          DATA 0x83
-    .byte 0xdd              ;7ac2  dd          DATA 0xdd
-    .byte 0x9e              ;7ac3  9e          DATA 0x9e
-    .byte 0x24              ;7ac4  24          DATA 0x24 '$'
-    .byte 0xfc              ;7ac5  fc          DATA 0xfc
-    .byte 0xfa              ;7ac6  fa          DATA 0xfa
-    .byte 0x05              ;7ac7  05          DATA 0x05
-    .byte 0xf0              ;7ac8  f0          DATA 0xf0
-    .byte 0xdd              ;7ac9  dd          DATA 0xdd
-    .byte 0x9e              ;7aca  9e          DATA 0x9e
-    .byte 0x24              ;7acb  24          DATA 0x24 '$'
-    .byte 0xfc              ;7acc  fc          DATA 0xfc
-    .byte 0xaf              ;7acd  af          DATA 0xaf
-    .byte 0x71              ;7ace  71          DATA 0x71 'q'
-    .byte 0x44              ;7acf  44          DATA 0x44 'D'
-    .byte 0x6a              ;7ad0  6a          DATA 0x6a 'j'
-    .byte 0x71              ;7ad1  71          DATA 0x71 'q'
-    .byte 0x11              ;7ad2  11          DATA 0x11
-    .byte 0x3f              ;7ad3  3f          DATA 0x3f '?'
-    .byte 0x71              ;7ad4  71          DATA 0x71 'q'
-    .byte 0x74              ;7ad5  74          DATA 0x74 't'
-    .byte 0x6a              ;7ad6  6a          DATA 0x6a 'j'
-    .byte 0x71              ;7ad7  71          DATA 0x71 'q'
-    .byte 0x11              ;7ad8  11          DATA 0x11
-    .byte 0x6b              ;7ad9  6b          DATA 0x6b 'k'
-    .byte 0x71              ;7ada  71          DATA 0x71 'q'
-    .byte 0x54              ;7adb  54          DATA 0x54 'T'
-    .byte 0x6a              ;7adc  6a          DATA 0x6a 'j'
-    .byte 0x71              ;7add  71          DATA 0x71 'q'
-    .byte 0x11              ;7ade  11          DATA 0x11
-    .byte 0x42              ;7adf  42          DATA 0x42 'B'
-    .byte 0x71              ;7ae0  71          DATA 0x71 'q'
-    .byte 0x34              ;7ae1  34          DATA 0x34 '4'
-    .byte 0x40              ;7ae2  40          DATA 0x40 '@'
-    .byte 0x71              ;7ae3  71          DATA 0x71 'q'
-    .byte 0x31              ;7ae4  31          DATA 0x31 '1'
-    .byte 0x40              ;7ae5  40          DATA 0x40 '@'
-    .byte 0x71              ;7ae6  71          DATA 0x71 'q'
-    .byte 0x64              ;7ae7  64          DATA 0x64 'd'
-    .byte 0x6a              ;7ae8  6a          DATA 0x6a 'j'
-    .byte 0x71              ;7ae9  71          DATA 0x71 'q'
-    .byte 0x51              ;7aea  51          DATA 0x51 'Q'
-    .byte 0x40              ;7aeb  40          DATA 0x40 '@'
-    .byte 0x8e              ;7aec  8e          DATA 0x8e
-    .byte 0x23              ;7aed  23          DATA 0x23 '#'
-    .byte 0xfc              ;7aee  fc          DATA 0xfc
-    .byte 0x4e              ;7aef  4e          DATA 0x4e 'N'
-    .byte 0xdd              ;7af0  dd          DATA 0xdd
-    .byte 0xad              ;7af1  ad          DATA 0xad
-    .byte 0x11              ;7af2  11          DATA 0x11
-    .byte 0xc8              ;7af3  c8          DATA 0xc8
-    .byte 0xdc              ;7af4  dc          DATA 0xdc
-    .byte 0x50              ;7af5  50          DATA 0x50 'P'
-    .byte 0x8d              ;7af6  8d          DATA 0x8d
-    .byte 0x07              ;7af7  07          DATA 0x07
-    .byte 0x83              ;7af8  83          DATA 0x83
-    .byte 0xdd              ;7af9  dd          DATA 0xdd
-    .byte 0x9e              ;7afa  9e          DATA 0x9e
-    .byte 0x23              ;7afb  23          DATA 0x23 '#'
-    .byte 0xfc              ;7afc  fc          DATA 0xfc
-    .byte 0xfa              ;7afd  fa          DATA 0xfa
-    .byte 0x05              ;7afe  05          DATA 0x05
-    .byte 0xf0              ;7aff  f0          DATA 0xf0
-    .byte 0xdd              ;7b00  dd          DATA 0xdd
-    .byte 0x9e              ;7b01  9e          DATA 0x9e
-    .byte 0x23              ;7b02  23          DATA 0x23 '#'
-    .byte 0xfc              ;7b03  fc          DATA 0xfc
-    .byte 0x91              ;7b04  91          DATA 0x91
-    .byte 0xd4              ;7b05  d4          DATA 0xd4
-    .byte 0xaf              ;7b06  af          DATA 0xaf
-    .byte 0x71              ;7b07  71          DATA 0x71 'q'
-    .byte 0x74              ;7b08  74          DATA 0x74 't'
-    .byte 0x3f              ;7b09  3f          DATA 0x3f '?'
-    .byte 0x71              ;7b0a  71          DATA 0x71 'q'
-    .byte 0x41              ;7b0b  41          DATA 0x41 'A'
-    .byte 0x6a              ;7b0c  6a          DATA 0x6a 'j'
-    .byte 0x71              ;7b0d  71          DATA 0x71 'q'
-    .byte 0x74              ;7b0e  74          DATA 0x74 't'
-    .byte 0x42              ;7b0f  42          DATA 0x42 'B'
-    .byte 0x71              ;7b10  71          DATA 0x71 'q'
-    .byte 0x51              ;7b11  51          DATA 0x51 'Q'
-    .byte 0x6a              ;7b12  6a          DATA 0x6a 'j'
-    .byte 0x2b              ;7b13  2b          DATA 0x2b '+'
-    .byte 0x41              ;7b14  41          DATA 0x41 'A'
-    .byte 0x7a              ;7b15  7a          DATA 0x7a 'z'
-    .byte 0x6a              ;7b16  6a          DATA 0x6a 'j'
-    .byte 0x8e              ;7b17  8e          DATA 0x8e
-    .byte 0x8d              ;7b18  8d          DATA 0x8d
-    .byte 0xf1              ;7b19  f1          DATA 0xf1
-    .byte 0x4d              ;7b1a  4d          DATA 0x4d 'M'
-    .byte 0x61              ;7b1b  61          DATA 0x61 'a'
-    .byte 0x8d              ;7b1c  8d          DATA 0x8d
-    .byte 0x0a              ;7b1d  0a          DATA 0x0a
-    .byte 0x31              ;7b1e  31          DATA 0x31 '1'
-    .byte 0x33              ;7b1f  33          DATA 0x33 '3'
-    .byte 0x6c              ;7b20  6c          DATA 0x6c 'l'
-    .byte 0x0f              ;7b21  0f          DATA 0x0f
-    .byte 0x3b              ;7b22  3b          DATA 0x3b ';'
-    .byte 0x6c              ;7b23  6c          DATA 0x6c 'l'
-    .byte 0x4d              ;7b24  4d          DATA 0x4d 'M'
-    .byte 0x73              ;7b25  73          DATA 0x73 's'
-    .byte 0x9d              ;7b26  9d          DATA 0x9d
-    .byte 0x09              ;7b27  09          DATA 0x09
-    .byte 0x2a              ;7b28  2a          DATA 0x2a '*'
-    .byte 0x41              ;7b29  41          DATA 0x41 'A'
-    .byte 0x3a              ;7b2a  3a          DATA 0x3a ':'
-    .byte 0x6c              ;7b2b  6c          DATA 0x6c 'l'
-    .byte 0x2a              ;7b2c  2a          DATA 0x2a '*'
-    .byte 0x6c              ;7b2d  6c          DATA 0x6c 'l'
-    .byte 0x11              ;7b2e  11          DATA 0x11
-    .byte 0xd7              ;7b2f  d7          DATA 0xd7
-    .byte 0x07              ;7b30  07          DATA 0x07
-    .byte 0x9a              ;7b31  9a          DATA 0x9a
-    .byte 0x7d              ;7b32  7d          DATA 0x7d '}'
-    .byte 0x7c              ;7b33  7c          DATA 0x7c '|'
-    .byte 0x71              ;7b34  71          DATA 0x71 'q'
-    .byte 0x44              ;7b35  44          DATA 0x44 'D'
-    .byte 0x6a              ;7b36  6a          DATA 0x6a 'j'
-    .byte 0x71              ;7b37  71          DATA 0x71 'q'
-    .byte 0x71              ;7b38  71          DATA 0x71 'q'
-    .byte 0x3f              ;7b39  3f          DATA 0x3f '?'
-    .byte 0x71              ;7b3a  71          DATA 0x71 'q'
-    .byte 0x54              ;7b3b  54          DATA 0x54 'T'
-    .byte 0x6a              ;7b3c  6a          DATA 0x6a 'j'
-    .byte 0x71              ;7b3d  71          DATA 0x71 'q'
-    .byte 0x71              ;7b3e  71          DATA 0x71 'q'
-    .byte 0x42              ;7b3f  42          DATA 0x42 'B'
-    .byte 0xaf              ;7b40  af          DATA 0xaf
-    .byte 0x31              ;7b41  31          DATA 0x31 '1'
-    .byte 0x23              ;7b42  23          DATA 0x23 '#'
-    .byte 0x6c              ;7b43  6c          DATA 0x6c 'l'
-    .byte 0x08              ;7b44  08          DATA 0x08
-    .byte 0x8e              ;7b45  8e          DATA 0x8e
-    .byte 0x8d              ;7b46  8d          DATA 0x8d
-    .byte 0xf1              ;7b47  f1          DATA 0xf1
-    .byte 0x4d              ;7b48  4d          DATA 0x4d 'M'
-    .byte 0x74              ;7b49  74          DATA 0x74 't'
-    .byte 0x9d              ;7b4a  9d          DATA 0x9d
-    .byte 0x01              ;7b4b  01          DATA 0x01
-    .byte 0xaf              ;7b4c  af          DATA 0xaf
-    .byte 0x2b              ;7b4d  2b          DATA 0x2b '+'
-    .byte 0x6c              ;7b4e  6c          DATA 0x6c 'l'
-    .byte 0x71              ;7b4f  71          DATA 0x71 'q'
-    .byte 0x44              ;7b50  44          DATA 0x44 'D'
-    .byte 0x3f              ;7b51  3f          DATA 0x3f '?'
-    .byte 0x71              ;7b52  71          DATA 0x71 'q'
-    .byte 0x41              ;7b53  41          DATA 0x41 'A'
-    .byte 0x6a              ;7b54  6a          DATA 0x6a 'j'
-    .byte 0x71              ;7b55  71          DATA 0x71 'q'
-    .byte 0x44              ;7b56  44          DATA 0x44 'D'
-    .byte 0x42              ;7b57  42          DATA 0x42 'B'
-    .byte 0x71              ;7b58  71          DATA 0x71 'q'
-    .byte 0x51              ;7b59  51          DATA 0x51 'Q'
-    .byte 0x6a              ;7b5a  6a          DATA 0x6a 'j'
-    .byte 0x2b              ;7b5b  2b          DATA 0x2b '+'
-    .byte 0x41              ;7b5c  41          DATA 0x41 'A'
-    .byte 0x7a              ;7b5d  7a          DATA 0x7a 'z'
-    .byte 0x6a              ;7b5e  6a          DATA 0x6a 'j'
-    .byte 0xc8              ;7b5f  c8          DATA 0xc8
-    .byte 0x49              ;7b60  49          DATA 0x49 'I'
-    .byte 0xff              ;7b61  ff          DATA 0xff
-    .byte 0xbd              ;7b62  bd          DATA 0xbd
-    .byte 0x05              ;7b63  05          DATA 0x05
-    .byte 0x2a              ;7b64  2a          DATA 0x2a '*'
-    .byte 0x41              ;7b65  41          DATA 0x41 'A'
-    .byte 0x11              ;7b66  11          DATA 0x11
-    .byte 0xd7              ;7b67  d7          DATA 0xd7
-    .byte 0x31              ;7b68  31          DATA 0x31 '1'
-    .byte 0x8e              ;7b69  8e          DATA 0x8e
-    .byte 0xfd              ;7b6a  fd          DATA 0xfd
-    .byte 0xf1              ;7b6b  f1          DATA 0xf1
-    .byte 0x31              ;7b6c  31          DATA 0x31 '1'
-    .byte 0x1e              ;7b6d  1e          DATA 0x1e
-    .byte 0x02              ;7b6e  02          DATA 0x02
-    .byte 0x4a              ;7b6f  4a          DATA 0x4a 'J'
-    .byte 0x6c              ;7b70  6c          DATA 0x6c 'l'
-    .byte 0x9a              ;7b71  9a          DATA 0x9a
-    .byte 0x7d              ;7b72  7d          DATA 0x7d '}'
-    .byte 0x7c              ;7b73  7c          DATA 0x7c '|'
-    .byte 0x71              ;7b74  71          DATA 0x71 'q'
-    .byte 0x44              ;7b75  44          DATA 0x44 'D'
-    .byte 0x6a              ;7b76  6a          DATA 0x6a 'j'
-    .byte 0x71              ;7b77  71          DATA 0x71 'q'
-    .byte 0x41              ;7b78  41          DATA 0x41 'A'
-    .byte 0x3f              ;7b79  3f          DATA 0x3f '?'
-    .byte 0x71              ;7b7a  71          DATA 0x71 'q'
-    .byte 0x54              ;7b7b  54          DATA 0x54 'T'
-    .byte 0x6a              ;7b7c  6a          DATA 0x6a 'j'
-    .byte 0x71              ;7b7d  71          DATA 0x71 'q'
-    .byte 0x41              ;7b7e  41          DATA 0x41 'A'
-    .byte 0x42              ;7b7f  42          DATA 0x42 'B'
-    .byte 0x4b              ;7b80  4b          DATA 0x4b 'K'
-    .byte 0x6c              ;7b81  6c          DATA 0x6c 'l'
-    .byte 0xaf              ;7b82  af          DATA 0xaf
-    .byte 0x71              ;7b83  71          DATA 0x71 'q'
-    .byte 0x54              ;7b84  54          DATA 0x54 'T'
-    .byte 0x3f              ;7b85  3f          DATA 0x3f '?'
-    .byte 0x71              ;7b86  71          DATA 0x71 'q'
-    .byte 0x41              ;7b87  41          DATA 0x41 'A'
-    .byte 0x6a              ;7b88  6a          DATA 0x6a 'j'
-    .byte 0x71              ;7b89  71          DATA 0x71 'q'
-    .byte 0x54              ;7b8a  54          DATA 0x54 'T'
-    .byte 0x42              ;7b8b  42          DATA 0x42 'B'
-    .byte 0x71              ;7b8c  71          DATA 0x71 'q'
-    .byte 0x51              ;7b8d  51          DATA 0x51 'Q'
-    .byte 0x6a              ;7b8e  6a          DATA 0x6a 'j'
-    .byte 0x2b              ;7b8f  2b          DATA 0x2b '+'
-    .byte 0x41              ;7b90  41          DATA 0x41 'A'
-    .byte 0x7a              ;7b91  7a          DATA 0x7a 'z'
-    .byte 0x6a              ;7b92  6a          DATA 0x6a 'j'
-    .byte 0xac              ;7b93  ac          DATA 0xac
-    .byte 0x61              ;7b94  61          DATA 0x61 'a'
-    .byte 0x05              ;7b95  05          DATA 0x05
-    .byte 0x2a              ;7b96  2a          DATA 0x2a '*'
-    .byte 0x41              ;7b97  41          DATA 0x41 'A'
-    .byte 0x11              ;7b98  11          DATA 0x11
-    .byte 0xd7              ;7b99  d7          DATA 0xd7
-    .byte 0x31              ;7b9a  31          DATA 0x31 '1'
-    .byte 0x8e              ;7b9b  8e          DATA 0x8e
-    .byte 0xfd              ;7b9c  fd          DATA 0xfd
-    .byte 0xf1              ;7b9d  f1          DATA 0xf1
-    .byte 0x31              ;7b9e  31          DATA 0x31 '1'
-    .byte 0x2f              ;7b9f  2f          DATA 0x2f '/'
-    .byte 0x06              ;7ba0  06          DATA 0x06
-    .byte 0x8e              ;7ba1  8e          DATA 0x8e
-    .byte 0xe9              ;7ba2  e9          DATA 0xe9
-    .byte 0xf1              ;7ba3  f1          DATA 0xf1
-    .byte 0x31              ;7ba4  31          DATA 0x31 '1'
-    .byte 0x3e              ;7ba5  3e          DATA 0x3e '>'
-    .byte 0x02              ;7ba6  02          DATA 0x02
-    .byte 0x4a              ;7ba7  4a          DATA 0x4a 'J'
-    .byte 0x6c              ;7ba8  6c          DATA 0x6c 'l'
-    .byte 0x9a              ;7ba9  9a          DATA 0x9a
-    .byte 0x7d              ;7baa  7d          DATA 0x7d '}'
-    .byte 0x7c              ;7bab  7c          DATA 0x7c '|'
-    .byte 0x71              ;7bac  71          DATA 0x71 'q'
-    .byte 0x44              ;7bad  44          DATA 0x44 'D'
-    .byte 0x6a              ;7bae  6a          DATA 0x6a 'j'
-    .byte 0x71              ;7baf  71          DATA 0x71 'q'
-    .byte 0x51              ;7bb0  51          DATA 0x51 'Q'
-    .byte 0x3f              ;7bb1  3f          DATA 0x3f '?'
-    .byte 0x71              ;7bb2  71          DATA 0x71 'q'
-    .byte 0x54              ;7bb3  54          DATA 0x54 'T'
-    .byte 0x6a              ;7bb4  6a          DATA 0x6a 'j'
-    .byte 0x71              ;7bb5  71          DATA 0x71 'q'
-    .byte 0x51              ;7bb6  51          DATA 0x51 'Q'
-    .byte 0x42              ;7bb7  42          DATA 0x42 'B'
-    .byte 0x4b              ;7bb8  4b          DATA 0x4b 'K'
-    .byte 0x6c              ;7bb9  6c          DATA 0x6c 'l'
-    .byte 0xaf              ;7bba  af          DATA 0xaf
-    .byte 0xaf              ;7bbb  af          DATA 0xaf
-    .byte 0xaf              ;7bbc  af          DATA 0xaf
+
+lab_7987:
+    mov1 cy,mem_fe3f.1      ;7987  71 14 3f
+    mov1 mem_fe6a.4,cy      ;798a  71 41 6a
+    mov1 cy,mem_fe6b.1      ;798d  71 14 6b
+    mov1 mem_fe6a.7,cy      ;7990  71 71 6a
+    mov1 cy,mem_fe42.1      ;7993  71 14 42
+    mov1 mem_fe6a.5,cy      ;7996  71 51 6a
+    mov1 cy,mem_fe40.3      ;7999  71 34 40
+    mov1 mem_fe6b.3,cy      ;799c  71 31 6b
+    mov1 cy,mem_fe40.5      ;799f  71 54 40
+    mov1 mem_fe6a.6,cy      ;79a2  71 61 6a
+    mov a,!mem_fc23         ;79a5  8e 23 fc
+    xch a,mem_fedd          ;79a8  83 dd
+    mov !mem_fc23,a         ;79aa  9e 23 fc
+    clr1 mem_fe41.6         ;79ad  6b 41
+    set1 mem_fe41.5         ;79af  5a 41
+    mov a,!mem_f1ff         ;79b1  8e ff f1
+    cmp a,#0x01             ;79b4  4d 01
+    bnz lab_79ba            ;79b6  bd 02
+    set1 mem_fe41.6         ;79b8  6a 41
+
+lab_79ba:
+    clr1 mem_fe41.2         ;79ba  2b 41
+    bt mem_fe65.5,lab_7a0d  ;79bc  dc 65 4e
+    bt mem_fe6b.4,lab_7a0d  ;79bf  cc 6b 4b
+    bt mem_fe41.5,lab_79e9  ;79c2  dc 41 24
+    movw hl,#0xfc17         ;79c5  16 17 fc
+    mov a,[hl+0x00]         ;79c8  ae 00
+    mov mem_feda,a          ;79ca  f2 da
+    and a,#0x0f             ;79cc  5d 0f
+    cmp a,#0x0d             ;79ce  4d 0d
+    bnz lab_79d4            ;79d0  bd 02
+    br lab_7a06             ;79d2  fa 32
+
+lab_79d4:
+    cmp a,#0x0e             ;79d4  4d 0e
+    bnz lab_79da            ;79d6  bd 02
+    br lab_7a06             ;79d8  fa 2c
+
+lab_79da:
+    mov a,mem_feda          ;79da  f0 da
+    and a,#0x3c             ;79dc  5d 3c
+    cmp a,#0x1c             ;79de  4d 1c
+    bz lab_7a06             ;79e0  ad 24
+    cmp a,#0x2c             ;79e2  4d 2c
+    bz lab_7a06             ;79e4  ad 20
+    br !lab_7a70            ;79e6  9b 70 7a
+
+lab_79e9:
+    movw hl,#0xfc17         ;79e9  16 17 fc
+    mov a,[hl+0x01]         ;79ec  ae 01
+    mov mem_feda,a          ;79ee  f2 da
+    and a,#0xfc             ;79f0  5d fc
+    cmp a,#0xdc             ;79f2  4d dc
+    bz lab_7a06             ;79f4  ad 10
+    cmp a,#0xec             ;79f6  4d ec
+    bz lab_7a06             ;79f8  ad 0c
+    mov a,mem_feda          ;79fa  f0 da
+    and a,#0xcf             ;79fc  5d cf
+    cmp a,#0xcd             ;79fe  4d cd
+    bz lab_7a06             ;7a00  ad 04
+    cmp a,#0xce             ;7a02  4d ce
+    bnz lab_7a70            ;7a04  bd 6a
+
+lab_7a06:
+    clr1 mem_fe6a.6         ;7a06  6b 6a
+    mov mem_fed7,#0x2c      ;7a08  11 d7 2c
+    br lab_7a69             ;7a0b  fa 5c
+
+lab_7a0d:
+    clr1 mem_fe41.4         ;7a0d  4b 41
+    mov a,mem_feda          ;7a0f  f0 da
+    and a,#0x0f             ;7a11  5d 0f
+
+lab_7a13:
+    bt mem_fe41.0,lab_7a26  ;7a13  8c 41 10
+    cmp a,#0x07             ;7a16  4d 07
+    bnz lab_7a1e            ;7a18  bd 04
+    set1 mem_fe6a.6         ;7a1a  6a 6a
+    br lab_7a43             ;7a1c  fa 25
+
+lab_7a1e:
+    cmp a,#0x0d             ;7a1e  4d 0d
+    bz lab_7a43             ;7a20  ad 21
+    cmp a,#0x0e             ;7a22  4d 0e
+    bz lab_7a43             ;7a24  ad 1d
+
+lab_7a26:
+    bt mem_fe41.5,lab_7a2e  ;7a26  dc 41 05
+    bt mem_fe6c.1,lab_7a48  ;7a29  9c 6c 1c
+    br lab_7a36             ;7a2c  fa 08
+
+lab_7a2e:
+    bf mem_fe6c.0,lab_7a36  ;7a2e  31 03 6c 04
+    bf mem_fe41.6,lab_7a48  ;7a32  31 63 41 12
+
+lab_7a36:
+    and a,#0x0f             ;7a36  5d 0f
+    cmp a,#0x0b             ;7a38  4d 0b
+    bnz lab_7a48            ;7a3a  bd 0c
+    set1 mem_fe6a.6         ;7a3c  6a 6a
+    mov mem_fed7,#0x24      ;7a3e  11 d7 24
+    br lab_7a46             ;7a41  fa 03
+
+lab_7a43:
+    mov mem_fed7,#0x2c      ;7a43  11 d7 2c
+
+lab_7a46:
+    set1 mem_fe41.2         ;7a46  2a 41
+
+lab_7a48:
+    bt mem_fe65.5,lab_7a51  ;7a48  dc 65 06
+    bf mem_fe41.6,lab_7a51  ;7a4b  31 63 41 02
+    dec mem_fed4            ;7a4f  91 d4
+
+lab_7a51:
+    clr1 mem_fe41.6         ;7a51  6b 41
+    bf mem_fe41.4,lab_7a59  ;7a53  31 43 41 02
+    br lab_7a70             ;7a57  fa 17
+
+lab_7a59:
+    dec mem_fed4            ;7a59  91 d4
+    set1 mem_fe41.4         ;7a5b  4a 41
+    cmp mem_fed7,#0x2c      ;7a5d  c8 d7 2c
+    bz lab_7a70             ;7a60  ad 0e
+    call !sub_77f9          ;7a62  9a f9 77
+    and a,#0x0f             ;7a65  5d 0f
+    br lab_7a13             ;7a67  fa aa
+
+lab_7a69:
+    set1 mem_fe41.2         ;7a69  2a 41
+    bt mem_fe41.4,lab_7a70  ;7a6b  cc 41 02
+    dec mem_fed4            ;7a6e  91 d4
+
+lab_7a70:
+    bf mem_fe41.0,lab_7a8f  ;7a70  31 03 41 1b
+    cmp mem_fedd,#0x00      ;7a74  c8 dd 00
+    bnz lab_7a80            ;7a77  bd 07
+    mov a,mem_fed7          ;7a79  f0 d7
+    mov mem_fedd,a          ;7a7b  f2 dd
+    br !lab_7b04            ;7a7d  9b 04 7b
+
+lab_7a80:
+    mov a,mem_fed7          ;7a80  f0 d7
+    cmp a,mem_fedd          ;7a82  4e dd
+    bz lab_7a8a             ;7a84  ad 04
+    set1 mem_fe6b.3         ;7a86  3a 6b
+    br lab_7a94             ;7a88  fa 0a
+
+lab_7a8a:
+    cmp mem_fede,#0x06      ;7a8a  c8 de 06
+    bc lab_7a94             ;7a8d  8d 05
+
+lab_7a8f:
+    call !sub_7c7d          ;7a8f  9a 7d 7c
+    clr1 mem_fe6b.3         ;7a92  3b 6b
+
+lab_7a94:
+    bt mem_fe41.5,lab_7ace  ;7a94  dc 41 37
+    mov1 cy,mem_fe6a.4      ;7a97  71 44 6a
+    mov1 mem_fe3f.0,cy      ;7a9a  71 01 3f
+    mov1 cy,mem_fe6a.7      ;7a9d  71 74 6a
+    mov1 mem_fe6b.2,cy      ;7aa0  71 21 6b
+    mov1 cy,mem_fe6a.5      ;7aa3  71 54 6a
+    mov1 mem_fe42.0,cy      ;7aa6  71 01 42
+    mov1 cy,mem_fe6b.3      ;7aa9  71 34 6b
+    mov1 mem_fe40.2,cy      ;7aac  71 21 40
+    mov1 cy,mem_fe6a.6      ;7aaf  71 64 6a
+    mov1 mem_fe40.4,cy      ;7ab2  71 41 40
+    mov a,!mem_fc24         ;7ab5  8e 24 fc
+    cmp a,mem_fedd          ;7ab8  4e dd
+    bz lab_7acd             ;7aba  ad 11
+    cmp mem_fedc,#0x50      ;7abc  c8 dc 50
+    bc lab_7ac8             ;7abf  8d 07
+    xch a,mem_fedd          ;7ac1  83 dd
+    mov !mem_fc24,a         ;7ac3  9e 24 fc
+    br lab_7acd             ;7ac6  fa 05
+
+lab_7ac8:
+    mov a,mem_fedd          ;7ac8  f0 dd
+    mov !mem_fc24,a         ;7aca  9e 24 fc
+
+lab_7acd:
+    ret                     ;7acd  af
+
+lab_7ace:
+    mov1 cy,mem_fe6a.4      ;7ace  71 44 6a
+    mov1 mem_fe3f.1,cy      ;7ad1  71 11 3f
+    mov1 cy,mem_fe6a.7      ;7ad4  71 74 6a
+    mov1 mem_fe6b.1,cy      ;7ad7  71 11 6b
+    mov1 cy,mem_fe6a.5      ;7ada  71 54 6a
+    mov1 mem_fe42.1,cy      ;7add  71 11 42
+    mov1 cy,mem_fe40.3      ;7ae0  71 34 40
+    mov1 mem_fe40.3,cy      ;7ae3  71 31 40
+    mov1 cy,mem_fe6a.6      ;7ae6  71 64 6a
+    mov1 mem_fe40.5,cy      ;7ae9  71 51 40
+    mov a,!mem_fc23         ;7aec  8e 23 fc
+    cmp a,mem_fedd          ;7aef  4e dd
+    bz lab_7b04             ;7af1  ad 11
+    cmp mem_fedc,#0x50      ;7af3  c8 dc 50
+    bc lab_7aff             ;7af6  8d 07
+    xch a,mem_fedd          ;7af8  83 dd
+    mov !mem_fc23,a         ;7afa  9e 23 fc
+    br lab_7b04             ;7afd  fa 05
+
+lab_7aff:
+    mov a,mem_fedd          ;7aff  f0 dd
+    mov !mem_fc23,a         ;7b01  9e 23 fc
+
+lab_7b04:
+    dec mem_fed4            ;7b04  91 d4
+    ret                     ;7b06  af
+
+lab_7b07:
+    mov1 cy,mem_fe3f.7      ;7b07  71 74 3f
+    mov1 mem_fe6a.4,cy      ;7b0a  71 41 6a
+    mov1 cy,mem_fe42.7      ;7b0d  71 74 42
+    mov1 mem_fe6a.5,cy      ;7b10  71 51 6a
+    clr1 mem_fe41.2         ;7b13  2b 41
+    set1 mem_fe6a.7         ;7b15  7a 6a
+    mov a,!mem_f18d         ;7b17  8e 8d f1
+    cmp a,#0x61             ;7b1a  4d 61
+    bc lab_7b28             ;7b1c  8d 0a
+    bf mem_fe6c.3,lab_7b31  ;7b1e  31 33 6c 0f
+    clr1 mem_fe6c.3         ;7b22  3b 6c
+    cmp a,#0x73             ;7b24  4d 73
+    bnc lab_7b31            ;7b26  9d 09
+
+lab_7b28:
+    set1 mem_fe41.2         ;7b28  2a 41
+    set1 mem_fe6c.3         ;7b2a  3a 6c
+    set1 mem_fe6c.2         ;7b2c  2a 6c
+    mov mem_fed7,#0x07      ;7b2e  11 d7 07
+
+lab_7b31:
+    call !sub_7c7d          ;7b31  9a 7d 7c
+    mov1 cy,mem_fe6a.4      ;7b34  71 44 6a
+    mov1 mem_fe3f.7,cy      ;7b37  71 71 3f
+    mov1 cy,mem_fe6a.5      ;7b3a  71 54 6a
+    mov1 mem_fe42.7,cy      ;7b3d  71 71 42
+    ret                     ;7b40  af
+
+lab_7b41:
+    bf mem_fe6c.2,lab_7b4d  ;7b41  31 23 6c 08
+    mov a,!mem_f18d         ;7b45  8e 8d f1
+    cmp a,#0x74             ;7b48  4d 74
+    bnc lab_7b4d            ;7b4a  9d 01
+    ret                     ;7b4c  af
+
+lab_7b4d:
+    clr1 mem_fe6c.2         ;7b4d  2b 6c
+    mov1 cy,mem_fe3f.4      ;7b4f  71 44 3f
+    mov1 mem_fe6a.4,cy      ;7b52  71 41 6a
+    mov1 cy,mem_fe42.4      ;7b55  71 44 42
+    mov1 mem_fe6a.5,cy      ;7b58  71 51 6a
+    clr1 mem_fe41.2         ;7b5b  2b 41
+    set1 mem_fe6a.7         ;7b5d  7a 6a
+    cmp mem_fe49,#0xff      ;7b5f  c8 49 ff
+    bnz lab_7b69            ;7b62  bd 05
+    set1 mem_fe41.2         ;7b64  2a 41
+    mov mem_fed7,#0x31      ;7b66  11 d7 31
+
+lab_7b69:
+    mov a,!mem_f1fd         ;7b69  8e fd f1
+    bt a.1,lab_7b71         ;7b6c  31 1e 02
+    set1 mem_fe6c.4         ;7b6f  4a 6c
+
+lab_7b71:
+    call !sub_7c7d          ;7b71  9a 7d 7c
+    mov1 cy,mem_fe6a.4      ;7b74  71 44 6a
+    mov1 mem_fe3f.4,cy      ;7b77  71 41 3f
+    mov1 cy,mem_fe6a.5      ;7b7a  71 54 6a
+    mov1 mem_fe42.4,cy      ;7b7d  71 41 42
+    clr1 mem_fe6c.4         ;7b80  4b 6c
+    ret                     ;7b82  af
+
+lab_7b83:
+    mov1 cy,mem_fe3f.5      ;7b83  71 54 3f
+    mov1 mem_fe6a.4,cy      ;7b86  71 41 6a
+    mov1 cy,mem_fe42.5      ;7b89  71 54 42
+    mov1 mem_fe6a.5,cy      ;7b8c  71 51 6a
+    clr1 mem_fe41.2         ;7b8f  2b 41
+    set1 mem_fe6a.7         ;7b91  7a 6a
+    bt mem_fe61.2,lab_7b9b  ;7b93  ac 61 05
+    set1 mem_fe41.2         ;7b96  2a 41
+    mov mem_fed7,#0x31      ;7b98  11 d7 31
+
+lab_7b9b:
+    mov a,!mem_f1fd         ;7b9b  8e fd f1
+    bf a.2,lab_7ba7         ;7b9e  31 2f 06
+    mov a,!mem_f1e9         ;7ba1  8e e9 f1
+    bt a.3,lab_7ba9         ;7ba4  31 3e 02
+
+lab_7ba7:
+    set1 mem_fe6c.4         ;7ba7  4a 6c
+
+lab_7ba9:
+    call !sub_7c7d          ;7ba9  9a 7d 7c
+    mov1 cy,mem_fe6a.4      ;7bac  71 44 6a
+    mov1 mem_fe3f.5,cy      ;7baf  71 51 3f
+    mov1 cy,mem_fe6a.5      ;7bb2  71 54 6a
+    mov1 mem_fe42.5,cy      ;7bb5  71 51 42
+    clr1 mem_fe6c.4         ;7bb8  4b 6c
+    ret                     ;7bba  af
+
+lab_7bbb:
+    ret                     ;7bbb  af
+
+lab_7bbc:
+    ret                     ;7bbc  af
 
 sub_7bbd:
     ret                     ;7bbd  af
@@ -27225,252 +26590,138 @@ lab_8d2b:
     ret                     ;8d33  af
 
 lab_8d34:
-;TODO this is code
-    .byte 0xa1              ;8d34  a1          DATA 0xa1
-    .byte 0x09              ;8d35  09          DATA 0x09
-    .byte 0x9a              ;8d36  9a          DATA 0x9a
-    .byte 0x46              ;8d37  46          DATA 0x46 'F'
-    .byte 0x89              ;8d38  89          DATA 0x89
-    .byte 0x11              ;8d39  11          DATA 0x11
-    .byte 0x4e              ;8d3a  4e          DATA 0x4e 'N'
-    .byte 0x09              ;8d3b  09          DATA 0x09
-    .byte 0x9a              ;8d3c  9a          DATA 0x9a
-    .byte 0x4b              ;8d3d  4b          DATA 0x4b 'K'
-    .byte 0xa7              ;8d3e  a7          DATA 0xa7
-    .byte 0x8d              ;8d3f  8d          DATA 0x8d
-    .byte 0x03              ;8d40  03          DATA 0x03
-    .byte 0x11              ;8d41  11          DATA 0x11
-    .byte 0x4e              ;8d42  4e          DATA 0x4e 'N'
-    .byte 0x0a              ;8d43  0a          DATA 0x0a
-    .byte 0xaf              ;8d44  af          DATA 0xaf
-    .byte 0xa1              ;8d45  a1          DATA 0xa1
-    .byte 0x20              ;8d46  20          DATA 0x20 ' '
-    .byte 0xc5              ;8d47  c5          DATA 0xc5
-    .byte 0x5a              ;8d48  5a          DATA 0x5a 'Z'
-    .byte 0x4d              ;8d49  4d          DATA 0x4d 'M'
-    .byte 0xa1              ;8d4a  a1          DATA 0xa1
-    .byte 0x0b              ;8d4b  0b          DATA 0x0b
-    .byte 0x9e              ;8d4c  9e          DATA 0x9e
-    .byte 0x85              ;8d4d  85          DATA 0x85
-    .byte 0xfc              ;8d4e  fc          DATA 0xfc
-    .byte 0x11              ;8d4f  11          DATA 0x11
-    .byte 0x4f              ;8d50  4f          DATA 0x4f 'O'
-    .byte 0x04              ;8d51  04          DATA 0x04
-    .byte 0x31              ;8d52  31          DATA 0x31 '1'
-    .byte 0x63              ;8d53  63          DATA 0x63 'c'
-    .byte 0x4d              ;8d54  4d          DATA 0x4d 'M'
-    .byte 0x03              ;8d55  03          DATA 0x03
-    .byte 0x11              ;8d56  11          DATA 0x11
-    .byte 0x4f              ;8d57  4f          DATA 0x4f 'O'
-    .byte 0x05              ;8d58  05          DATA 0x05
-    .byte 0x9b              ;8d59  9b          DATA 0x9b
-    .byte 0x50              ;8d5a  50          DATA 0x50 'P'
-    .byte 0x81              ;8d5b  81          DATA 0x81
-    .byte 0x5b              ;8d5c  5b          DATA 0x5b '['
-    .byte 0x4d              ;8d5d  4d          DATA 0x4d 'M'
-    .byte 0x4b              ;8d5e  4b          DATA 0x4b 'K'
-    .byte 0xd0              ;8d5f  d0          DATA 0xd0
-    .byte 0x31              ;8d60  31          DATA 0x31 '1'
-    .byte 0x63              ;8d61  63          DATA 0x63 'c'
-    .byte 0x4d              ;8d62  4d          DATA 0x4d 'M'
-    .byte 0x02              ;8d63  02          DATA 0x02
-    .byte 0x4a              ;8d64  4a          DATA 0x4a 'J'
-    .byte 0xd0              ;8d65  d0          DATA 0xd0
-    .byte 0x11              ;8d66  11          DATA 0x11
-    .byte 0x4e              ;8d67  4e          DATA 0x4e 'N'
-    .byte 0x0c              ;8d68  0c          DATA 0x0c
-    .byte 0xaf              ;8d69  af          DATA 0xaf
+    mov a,#0x09             ;8d34  a1 09
+    call !sub_8946          ;8d36  9a 46 89
+    mov mem_fe4e,#0x09      ;8d39  11 4e 09
+    call !sub_a74b          ;8d3c  9a 4b a7
+    bc lab_8d44             ;8d3f  8d 03
+    mov mem_fe4e,#0x0a      ;8d41  11 4e 0a
+
+lab_8d44:
+    ret                     ;8d44  af
+
+lab_8d45:
+    mov a,#0x20             ;8d45  a1 20
+    callt [0x0044]          ;8d47  c5
+    set1 mem_fe4d.5         ;8d48  5a 4d
+    mov a,#0x0b             ;8d4a  a1 0b
+    mov !mem_fc85,a         ;8d4c  9e 85 fc
+    mov mem_fe4f,#0x04      ;8d4f  11 4f 04
+    bf mem_fe4d.6,lab_8d59  ;8d52  31 63 4d 03
+    mov mem_fe4f,#0x05      ;8d56  11 4f 05
+
+lab_8d59:
+    br !lab_8150            ;8d59  9b 50 81
+
+lab_8d5c:
+    clr1 mem_fe4d.5         ;8d5c  5b 4d
+    clr1 shadow_p6.4         ;8d5e  4b d0
+    bf mem_fe4d.6,lab_8d66  ;8d60  31 63 4d 02
+    set1 shadow_p6.4         ;8d64  4a d0
+
+lab_8d66:
+    mov mem_fe4e,#0x0c      ;8d66  11 4e 0c
+    ret                     ;8d69  af
 
 lab_8d6a:
-;TODO this is code
-    .byte 0xc8              ;8d6a  c8          DATA 0xc8
-    .byte 0x4c              ;8d6b  4c          DATA 0x4c 'L'
-    .byte 0x08              ;8d6c  08          DATA 0x08
-    .byte 0xad              ;8d6d  ad          DATA 0xad
-    .byte 0x1b              ;8d6e  1b          DATA 0x1b
-    .byte 0xc8              ;8d6f  c8          DATA 0xc8
-    .byte 0x4c              ;8d70  4c          DATA 0x4c 'L'
-    .byte 0x07              ;8d71  07          DATA 0x07
-    .byte 0xad              ;8d72  ad          DATA 0xad
-    .byte 0x16              ;8d73  16          DATA 0x16
-    .byte 0xa1              ;8d74  a1          DATA 0xa1
-    .byte 0x81              ;8d75  81          DATA 0x81
-    .byte 0x9e              ;8d76  9e          DATA 0x9e
-    .byte 0xac              ;8d77  ac          DATA 0xac
-    .byte 0xf1              ;8d78  f1          DATA 0xf1
-    .byte 0x11              ;8d79  11          DATA 0x11
-    .byte 0x4c              ;8d7a  4c          DATA 0x4c 'L'
-    .byte 0x02              ;8d7b  02          DATA 0x02
-    .byte 0x11              ;8d7c  11          DATA 0x11
-    .byte 0x4e              ;8d7d  4e          DATA 0x4e 'N'
-    .byte 0x0d              ;8d7e  0d          DATA 0x0d
-    .byte 0xa1              ;8d7f  a1          DATA 0xa1
-    .byte 0x96              ;8d80  96          DATA 0x96
-    .byte 0x9e              ;8d81  9e          DATA 0x9e
-    .byte 0x44              ;8d82  44          DATA 0x44 'D'
-    .byte 0xfb              ;8d83  fb          DATA 0xfb
-    .byte 0xa1              ;8d84  a1          DATA 0xa1
-    .byte 0x00              ;8d85  00          DATA 0x00
-    .byte 0x9a              ;8d86  9a          DATA 0x9a
-    .byte 0x98              ;8d87  98          DATA 0x98
-    .byte 0x90              ;8d88  90          DATA 0x90
-    .byte 0xaf              ;8d89  af          DATA 0xaf
-    .byte 0x9a              ;8d8a  9a          DATA 0x9a
-    .byte 0x94              ;8d8b  94          DATA 0x94
-    .byte 0xa6              ;8d8c  a6          DATA 0xa6
-    .byte 0x4d              ;8d8d  4d          DATA 0x4d 'M'
-    .byte 0x00              ;8d8e  00          DATA 0x00
-    .byte 0xbd              ;8d8f  bd          DATA 0xbd
-    .byte 0x05              ;8d90  05          DATA 0x05
-    .byte 0xa1              ;8d91  a1          DATA 0xa1
-    .byte 0xc4              ;8d92  c4          DATA 0xc4
-    .byte 0x9e              ;8d93  9e          DATA 0x9e
-    .byte 0xac              ;8d94  ac          DATA 0xac
-    .byte 0xf1              ;8d95  f1          DATA 0xf1
-    .byte 0x11              ;8d96  11          DATA 0x11
-    .byte 0x4c              ;8d97  4c          DATA 0x4c 'L'
-    .byte 0x08              ;8d98  08          DATA 0x08
-    .byte 0x11              ;8d99  11          DATA 0x11
-    .byte 0x4e              ;8d9a  4e          DATA 0x4e 'N'
-    .byte 0x0e              ;8d9b  0e          DATA 0x0e
-    .byte 0xa1              ;8d9c  a1          DATA 0xa1
-    .byte 0x64              ;8d9d  64          DATA 0x64 'd'
-    .byte 0x9e              ;8d9e  9e          DATA 0x9e
-    .byte 0x44              ;8d9f  44          DATA 0x44 'D'
-    .byte 0xfb              ;8da0  fb          DATA 0xfb
-    .byte 0xaf              ;8da1  af          DATA 0xaf
-    .byte 0x9a              ;8da2  9a          DATA 0x9a
-    .byte 0x00              ;8da3  00          DATA 0x00
-    .byte 0x90              ;8da4  90          DATA 0x90
-    .byte 0x9a              ;8da5  9a          DATA 0x9a
-    .byte 0x80              ;8da6  80          DATA 0x80
-    .byte 0xa7              ;8da7  a7          DATA 0xa7
-    .byte 0x8e              ;8da8  8e          DATA 0x8e
-    .byte 0xac              ;8da9  ac          DATA 0xac
-    .byte 0xf1              ;8daa  f1          DATA 0xf1
-    .byte 0x5d              ;8dab  5d          DATA 0x5d ']'
-    .byte 0x0f              ;8dac  0f          DATA 0x0f
-    .byte 0x4d              ;8dad  4d          DATA 0x4d 'M'
-    .byte 0x07              ;8dae  07          DATA 0x07
-    .byte 0xad              ;8daf  ad          DATA 0xad
-    .byte 0x0e              ;8db0  0e          DATA 0x0e
-    .byte 0x9a              ;8db1  9a          DATA 0x9a
-    .byte 0x94              ;8db2  94          DATA 0x94
-    .byte 0xa6              ;8db3  a6          DATA 0xa6
-    .byte 0x4d              ;8db4  4d          DATA 0x4d 'M'
-    .byte 0x00              ;8db5  00          DATA 0x00
-    .byte 0xbd              ;8db6  bd          DATA 0xbd
-    .byte 0x13              ;8db7  13          DATA 0x13
-    .byte 0xa1              ;8db8  a1          DATA 0xa1
-    .byte 0xc7              ;8db9  c7          DATA 0xc7
-    .byte 0x9e              ;8dba  9e          DATA 0x9e
-    .byte 0xac              ;8dbb  ac          DATA 0xac
-    .byte 0xf1              ;8dbc  f1          DATA 0xf1
-    .byte 0xfa              ;8dbd  fa          DATA 0xfa
-    .byte 0x0c              ;8dbe  0c          DATA 0x0c
-    .byte 0x9a              ;8dbf  9a          DATA 0x9a
-    .byte 0x94              ;8dc0  94          DATA 0x94
-    .byte 0xa6              ;8dc1  a6          DATA 0xa6
-    .byte 0x4d              ;8dc2  4d          DATA 0x4d 'M'
-    .byte 0x00              ;8dc3  00          DATA 0x00
-    .byte 0xad              ;8dc4  ad          DATA 0xad
-    .byte 0x05              ;8dc5  05          DATA 0x05
-    .byte 0xa1              ;8dc6  a1          DATA 0xa1
-    .byte 0x81              ;8dc7  81          DATA 0x81
-    .byte 0x9e              ;8dc8  9e          DATA 0x9e
-    .byte 0xac              ;8dc9  ac          DATA 0xac
-    .byte 0xf1              ;8dca  f1          DATA 0xf1
-    .byte 0x9a              ;8dcb  9a          DATA 0x9a
-    .byte 0x65              ;8dcc  65          DATA 0x65 'e'
-    .byte 0x8f              ;8dcd  8f          DATA 0x8f
-    .byte 0x9a              ;8dce  9a          DATA 0x9a
-    .byte 0x1d              ;8dcf  1d          DATA 0x1d
-    .byte 0x90              ;8dd0  90          DATA 0x90
-    .byte 0x8c              ;8dd1  8c          DATA 0x8c
-    .byte 0x5e              ;8dd2  5e          DATA 0x5e '^'
-    .byte 0x07              ;8dd3  07          DATA 0x07
-    .byte 0x8e              ;8dd4  8e          DATA 0x8e
-    .byte 0x55              ;8dd5  55          DATA 0x55 'U'
-    .byte 0xf2              ;8dd6  f2          DATA 0xf2
-    .byte 0x5d              ;8dd7  5d          DATA 0x5d ']'
-    .byte 0x02              ;8dd8  02          DATA 0x02
-    .byte 0xbd              ;8dd9  bd          DATA 0xbd
-    .byte 0x0a              ;8dda  0a          DATA 0x0a
-    .byte 0xa1              ;8ddb  a1          DATA 0xa1
-    .byte 0x96              ;8ddc  96          DATA 0x96
-    .byte 0x9e              ;8ddd  9e          DATA 0x9e
-    .byte 0x44              ;8dde  44          DATA 0x44 'D'
-    .byte 0xfb              ;8ddf  fb          DATA 0xfb
-    .byte 0xa1              ;8de0  a1          DATA 0xa1
-    .byte 0x00              ;8de1  00          DATA 0x00
-    .byte 0x9b              ;8de2  9b          DATA 0x9b
-    .byte 0x98              ;8de3  98          DATA 0x98
-    .byte 0x90              ;8de4  90          DATA 0x90
-    .byte 0x31              ;8de5  31          DATA 0x31 '1'
-    .byte 0x53              ;8de6  53          DATA 0x53 'S'
-    .byte 0x71              ;8de7  71          DATA 0x71 'q'
-    .byte 0x10              ;8de8  10          DATA 0x10
-    .byte 0x9a              ;8de9  9a          DATA 0x9a
-    .byte 0x97              ;8dea  97          DATA 0x97
-    .byte 0x76              ;8deb  76          DATA 0x76 'v'
-    .byte 0xa1              ;8dec  a1          DATA 0xa1
-    .byte 0x89              ;8ded  89          DATA 0x89
-    .byte 0x9e              ;8dee  9e          DATA 0x9e
-    .byte 0xac              ;8def  ac          DATA 0xac
-    .byte 0xf1              ;8df0  f1          DATA 0xf1
-    .byte 0x7b              ;8df1  7b          DATA 0x7b '{'
-    .byte 0x4d              ;8df2  4d          DATA 0x4d 'M'
-    .byte 0x11              ;8df3  11          DATA 0x11
-    .byte 0x4c              ;8df4  4c          DATA 0x4c 'L'
-    .byte 0x09              ;8df5  09          DATA 0x09
-    .byte 0x9b              ;8df6  9b          DATA 0x9b
-    .byte 0x26              ;8df7  26          DATA 0x26 '&'
-    .byte 0x8e              ;8df8  8e          DATA 0x8e
-    .byte 0xaf              ;8df9  af          DATA 0xaf
-    .byte 0x9a              ;8dfa  9a          DATA 0x9a
-    .byte 0x00              ;8dfb  00          DATA 0x00
-    .byte 0x90              ;8dfc  90          DATA 0x90
-    .byte 0x9a              ;8dfd  9a          DATA 0x9a
-    .byte 0x80              ;8dfe  80          DATA 0x80
-    .byte 0xa7              ;8dff  a7          DATA 0xa7
-    .byte 0x8e              ;8e00  8e          DATA 0x8e
-    .byte 0xac              ;8e01  ac          DATA 0xac
-    .byte 0xf1              ;8e02  f1          DATA 0xf1
-    .byte 0x5d              ;8e03  5d          DATA 0x5d ']'
-    .byte 0x0f              ;8e04  0f          DATA 0x0f
-    .byte 0x4d              ;8e05  4d          DATA 0x4d 'M'
-    .byte 0x07              ;8e06  07          DATA 0x07
-    .byte 0xbd              ;8e07  bd          DATA 0xbd
-    .byte 0x0c              ;8e08  0c          DATA 0x0c
-    .byte 0x9a              ;8e09  9a          DATA 0x9a
-    .byte 0x94              ;8e0a  94          DATA 0x94
-    .byte 0xa6              ;8e0b  a6          DATA 0xa6
-    .byte 0x4d              ;8e0c  4d          DATA 0x4d 'M'
-    .byte 0x00              ;8e0d  00          DATA 0x00
-    .byte 0xad              ;8e0e  ad          DATA 0xad
-    .byte 0x05              ;8e0f  05          DATA 0x05
-    .byte 0xa1              ;8e10  a1          DATA 0xa1
-    .byte 0x84              ;8e11  84          DATA 0x84
-    .byte 0x9e              ;8e12  9e          DATA 0x9e
-    .byte 0xac              ;8e13  ac          DATA 0xac
-    .byte 0xf1              ;8e14  f1          DATA 0xf1
-    .byte 0x9a              ;8e15  9a          DATA 0x9a
-    .byte 0x65              ;8e16  65          DATA 0x65 'e'
-    .byte 0x8f              ;8e17  8f          DATA 0x8f
-    .byte 0x9a              ;8e18  9a          DATA 0x9a
-    .byte 0x1d              ;8e19  1d          DATA 0x1d
-    .byte 0x90              ;8e1a  90          DATA 0x90
-    .byte 0x8e              ;8e1b  8e          DATA 0x8e
-    .byte 0x44              ;8e1c  44          DATA 0x44 'D'
-    .byte 0xfb              ;8e1d  fb          DATA 0xfb
-    .byte 0x4d              ;8e1e  4d          DATA 0x4d 'M'
-    .byte 0x00              ;8e1f  00          DATA 0x00
-    .byte 0xbd              ;8e20  bd          DATA 0xbd
-    .byte 0x03              ;8e21  03          DATA 0x03
-    .byte 0x9b              ;8e22  9b          DATA 0x9b
-    .byte 0xdf              ;8e23  df          DATA 0xdf
-    .byte 0x8b              ;8e24  8b          DATA 0x8b
-    .byte 0xaf              ;8e25  af          DATA 0xaf
+    cmp mem_fe4c,#0x08      ;8d6a  c8 4c 08
+    bz lab_8d8a             ;8d6d  ad 1b
+    cmp mem_fe4c,#0x07      ;8d6f  c8 4c 07
+    bz lab_8d8a             ;8d72  ad 16
+    mov a,#0x81             ;8d74  a1 81
+    mov !mem_f1ac,a         ;8d76  9e ac f1
+    mov mem_fe4c,#0x02      ;8d79  11 4c 02
+    mov mem_fe4e,#0x0d      ;8d7c  11 4e 0d
+    mov a,#0x96             ;8d7f  a1 96
+    mov !mem_fb44,a         ;8d81  9e 44 fb
+    mov a,#0x00             ;8d84  a1 00
+    call !sub_9098          ;8d86  9a 98 90
+    ret                     ;8d89  af
+
+lab_8d8a:
+    call !sub_a694          ;8d8a  9a 94 a6
+    cmp a,#0x00             ;8d8d  4d 00
+    bnz lab_8d96            ;8d8f  bd 05
+    mov a,#0xc4             ;8d91  a1 c4
+    mov !mem_f1ac,a         ;8d93  9e ac f1
+
+lab_8d96:
+    mov mem_fe4c,#0x08      ;8d96  11 4c 08
+    mov mem_fe4e,#0x0e      ;8d99  11 4e 0e
+    mov a,#0x64             ;8d9c  a1 64
+    mov !mem_fb44,a         ;8d9e  9e 44 fb
+    ret                     ;8da1  af
+
+lab_8da2:
+    call !sub_9000          ;8da2  9a 00 90
+    call !sub_a780          ;8da5  9a 80 a7
+    mov a,!mem_f1ac         ;8da8  8e ac f1
+    and a,#0x0f             ;8dab  5d 0f
+    cmp a,#0x07             ;8dad  4d 07
+    bz lab_8dbf             ;8daf  ad 0e
+    call !sub_a694          ;8db1  9a 94 a6
+    cmp a,#0x00             ;8db4  4d 00
+    bnz lab_8dcb            ;8db6  bd 13
+    mov a,#0xc7             ;8db8  a1 c7
+    mov !mem_f1ac,a         ;8dba  9e ac f1
+    br lab_8dcb             ;8dbd  fa 0c
+
+lab_8dbf:
+    call !sub_a694          ;8dbf  9a 94 a6
+    cmp a,#0x00             ;8dc2  4d 00
+    bz lab_8dcb             ;8dc4  ad 05
+    mov a,#0x81             ;8dc6  a1 81
+    mov !mem_f1ac,a         ;8dc8  9e ac f1
+
+lab_8dcb:
+    call !sub_8f65          ;8dcb  9a 65 8f
+    call !sub_901d          ;8dce  9a 1d 90
+    bt mem_fe5e.0,lab_8ddb  ;8dd1  8c 5e 07
+    mov a,!mem_f255         ;8dd4  8e 55 f2
+    and a,#0x02             ;8dd7  5d 02
+    bnz lab_8de5            ;8dd9  bd 0a
+
+lab_8ddb:
+    mov a,#0x96             ;8ddb  a1 96
+    mov !mem_fb44,a         ;8ddd  9e 44 fb
+    mov a,#0x00             ;8de0  a1 00
+    br !sub_9098            ;8de2  9b 98 90
+
+lab_8de5:
+    bf mem_fe71.5,lab_8df9  ;8de5  31 53 71 10
+    call !sub_7697          ;8de9  9a 97 76
+    mov a,#0x89             ;8dec  a1 89
+    mov !mem_f1ac,a         ;8dee  9e ac f1
+    clr1 mem_fe4d.7         ;8df1  7b 4d
+    mov mem_fe4c,#0x09      ;8df3  11 4c 09
+    br !lab_8e26            ;8df6  9b 26 8e
+
+lab_8df9:
+    ret                     ;8df9  af
+
+lab_8dfa:
+    call !sub_9000          ;8dfa  9a 00 90
+    call !sub_a780          ;8dfd  9a 80 a7
+    mov a,!mem_f1ac         ;8e00  8e ac f1
+    and a,#0x0f             ;8e03  5d 0f
+    cmp a,#0x07             ;8e05  4d 07
+    bnz lab_8e15            ;8e07  bd 0c
+    call !sub_a694          ;8e09  9a 94 a6
+    cmp a,#0x00             ;8e0c  4d 00
+    bz lab_8e15             ;8e0e  ad 05
+    mov a,#0x84             ;8e10  a1 84
+    mov !mem_f1ac,a         ;8e12  9e ac f1
+
+lab_8e15:
+    call !sub_8f65          ;8e15  9a 65 8f
+    call !sub_901d          ;8e18  9a 1d 90
+    mov a,!mem_fb44         ;8e1b  8e 44 fb
+    cmp a,#0x00             ;8e1e  4d 00
+    bnz lab_8e25            ;8e20  bd 03
+    br !lab_8bdf            ;8e22  9b df 8b
+
+lab_8e25:
+    ret                     ;8e25  af
 
 lab_8e26:
     .byte 0xa1              ;8e26  a1          DATA 0xa1
@@ -27786,48 +27037,31 @@ lab_8f58:
     ret                     ;8f5d  af
 
 sub_8f5e:
-;TODO this is code
-    .byte 0x0b              ;8f5e  0b          DATA 0x0b
-    .byte 0x70              ;8f5f  70          DATA 0x70 'p'
-    .byte 0x1b              ;8f60  1b          DATA 0x1b
-    .byte 0x70              ;8f61  70          DATA 0x70 'p'
-    .byte 0x5a              ;8f62  5a          DATA 0x5a 'Z'
-    .byte 0x4d              ;8f63  4d          DATA 0x4d 'M'
-    .byte 0xaf              ;8f64  af          DATA 0xaf
-    .byte 0xf0              ;8f65  f0          DATA 0xf0
-    .byte 0x4f              ;8f66  4f          DATA 0x4f 'O'
-    .byte 0x4e              ;8f67  4e          DATA 0x4e 'N'
-    .byte 0x50              ;8f68  50          DATA 0x50 'P'
-    .byte 0xbd              ;8f69  bd          DATA 0xbd
-    .byte 0x1c              ;8f6a  1c          DATA 0x1c
-    .byte 0xf0              ;8f6b  f0          DATA 0xf0
-    .byte 0x50              ;8f6c  50          DATA 0x50 'P'
-    .byte 0x4d              ;8f6d  4d          DATA 0x4d 'M'
-    .byte 0x04              ;8f6e  04          DATA 0x04
-    .byte 0xad              ;8f6f  ad          DATA 0xad
-    .byte 0x0f              ;8f70  0f          DATA 0x0f
-    .byte 0x4d              ;8f71  4d          DATA 0x4d 'M'
-    .byte 0x05              ;8f72  05          DATA 0x05
-    .byte 0xad              ;8f73  ad          DATA 0xad
-    .byte 0x0b              ;8f74  0b          DATA 0x0b
-    .byte 0x4d              ;8f75  4d          DATA 0x4d 'M'
-    .byte 0x03              ;8f76  03          DATA 0x03
-    .byte 0xad              ;8f77  ad          DATA 0xad
-    .byte 0x07              ;8f78  07          DATA 0x07
-    .byte 0x4d              ;8f79  4d          DATA 0x4d 'M'
-    .byte 0x02              ;8f7a  02          DATA 0x02
-    .byte 0xad              ;8f7b  ad          DATA 0xad
-    .byte 0x03              ;8f7c  03          DATA 0x03
-    .byte 0x6a              ;8f7d  6a          DATA 0x6a 'j'
-    .byte 0x7e              ;8f7e  7e          DATA 0x7e '~'
-    .byte 0xaf              ;8f7f  af          DATA 0xaf
-    .byte 0x71              ;8f80  71          DATA 0x71 'q'
-    .byte 0x34              ;8f81  34          DATA 0x34 '4'
-    .byte 0x02              ;8f82  02          DATA 0x02
-    .byte 0x71              ;8f83  71          DATA 0x71 'q'
-    .byte 0x41              ;8f84  41          DATA 0x41 'A'
-    .byte 0x71              ;8f85  71          DATA 0x71 'q'
-    .byte 0xaf              ;8f86  af          DATA 0xaf
+    clr1 mem_fe70.0         ;8f5e  0b 70
+    clr1 mem_fe70.1         ;8f60  1b 70
+    set1 mem_fe4d.5         ;8f62  5a 4d
+    ret                     ;8f64  af
+
+sub_8f65:
+    mov a,mem_fe4f          ;8f65  f0 4f
+    cmp a,mem_fe50          ;8f67  4e 50
+    bnz sub_8f87            ;8f69  bd 1c
+    mov a,mem_fe50          ;8f6b  f0 50
+    cmp a,#0x04             ;8f6d  4d 04
+    bz lab_8f80             ;8f6f  ad 0f
+    cmp a,#0x05             ;8f71  4d 05
+    bz lab_8f80             ;8f73  ad 0b
+    cmp a,#0x03             ;8f75  4d 03
+    bz lab_8f80             ;8f77  ad 07
+    cmp a,#0x02             ;8f79  4d 02
+    bz lab_8f80             ;8f7b  ad 03
+    set1 mem_fe7e.6         ;8f7d  6a 7e
+    ret                     ;8f7f  af
+
+lab_8f80:
+    mov1 cy,p2.3            ;8f80  71 34 02
+    mov1 mem_fe71.4,cy      ;8f83  71 41 71
+    ret                     ;8f86  af
 
 sub_8f87:
     mov a,mem_fe4e          ;8f87  f0 4e
@@ -27919,7 +27153,7 @@ lab_9016:
     mov p8,a                ;901a  f2 08
     ret                     ;901c  af
 
-lab_901d:
+sub_901d:
     bf mem_fe70.6,lab_906a  ;901d  31 63 70 49
     pop ax                  ;9021  b0
     clr1 mem_fe70.6         ;9022  6b 70
@@ -27998,7 +27232,7 @@ lab_9094:
     clr1 mem_fe71.6         ;9094  6b 71
     br lab_909a             ;9096  fa 02
 
-lab_9098:
+sub_9098:
     set1 mem_fe71.6         ;9098  6a 71
 
 lab_909a:
@@ -28114,6 +27348,8 @@ sub_9137:
 lab_913f:
     ret                     ;913f  af
 
+sub_9140:
+;TODO this is code
     .byte 0x8e              ;9140  8e          DATA 0x8e
     .byte 0x1b              ;9141  1b          DATA 0x1b
     .byte 0xfb              ;9142  fb          DATA 0xfb
@@ -31169,551 +30405,348 @@ lab_a473:
     ret                     ;a473  af
 
 lab_a474:
-;TODO this is code
-    .byte 0x31              ;a474  31          DATA 0x31 '1'
-    .byte 0x73              ;a475  73          DATA 0x73 's'
-    .byte 0xfb              ;a476  fb          DATA 0xfb
-    .byte 0x05              ;a477  05          DATA 0x05
-    .byte 0x9a              ;a478  9a          DATA 0x9a
-    .byte 0xfe              ;a479  fe          DATA 0xfe
-    .byte 0xa4              ;a47a  a4          DATA 0xa4
-    .byte 0xfa              ;a47b  fa          DATA 0xfa
-    .byte 0x1b              ;a47c  1b          DATA 0x1b
-    .byte 0x31              ;a47d  31          DATA 0x31 '1'
-    .byte 0x63              ;a47e  63          DATA 0x63 'c'
-    .byte 0xfb              ;a47f  fb          DATA 0xfb
-    .byte 0x1c              ;a480  1c          DATA 0x1c
-    .byte 0x9a              ;a481  9a          DATA 0x9a
-    .byte 0x9c              ;a482  9c          DATA 0x9c
-    .byte 0xaa              ;a483  aa          DATA 0xaa
-    .byte 0xad              ;a484  ad          DATA 0xad
-    .byte 0x01              ;a485  01          DATA 0x01
-    .byte 0xbf              ;a486  bf          DATA 0xbf
-    .byte 0x6a              ;a487  6a          DATA 0x6a 'j'
-    .byte 0x72              ;a488  72          DATA 0x72 'r'
-    .byte 0x0a              ;a489  0a          DATA 0x0a
-    .byte 0x73              ;a48a  73          DATA 0x73 's'
-    .byte 0x1a              ;a48b  1a          DATA 0x1a
-    .byte 0x73              ;a48c  73          DATA 0x73 's'
-    .byte 0x3a              ;a48d  3a          DATA 0x3a ':'
-    .byte 0x73              ;a48e  73          DATA 0x73 's'
-    .byte 0x4a              ;a48f  4a          DATA 0x4a 'J'
-    .byte 0x73              ;a490  73          DATA 0x73 's'
-    .byte 0x5a              ;a491  5a          DATA 0x5a 'Z'
-    .byte 0x73              ;a492  73          DATA 0x73 's'
-    .byte 0x6a              ;a493  6a          DATA 0x6a 'j'
-    .byte 0x73              ;a494  73          DATA 0x73 's'
-    .byte 0x9a              ;a495  9a          DATA 0x9a
-    .byte 0x14              ;a496  14          DATA 0x14
-    .byte 0xa5              ;a497  a5          DATA 0xa5
-    .byte 0xa1              ;a498  a1          DATA 0xa1
-    .byte 0xc0              ;a499  c0          DATA 0xc0
-    .byte 0xc3              ;a49a  c3          DATA 0xc3
-    .byte 0xfa              ;a49b  fa          DATA 0xfa
-    .byte 0x08              ;a49c  08          DATA 0x08
-    .byte 0x9a              ;a49d  9a          DATA 0x9a
-    .byte 0x9c              ;a49e  9c          DATA 0x9c
-    .byte 0xaa              ;a49f  aa          DATA 0xaa
-    .byte 0xad              ;a4a0  ad          DATA 0xad
-    .byte 0x03              ;a4a1  03          DATA 0x03
-    .byte 0x9a              ;a4a2  9a          DATA 0x9a
-    .byte 0xfe              ;a4a3  fe          DATA 0xfe
-    .byte 0xa4              ;a4a4  a4          DATA 0xa4
-    .byte 0xa1              ;a4a5  a1          DATA 0xa1
-    .byte 0x05              ;a4a6  05          DATA 0x05
-    .byte 0x9e              ;a4a7  9e          DATA 0x9e
-    .byte 0x1e              ;a4a8  1e          DATA 0x1e
-    .byte 0xfb              ;a4a9  fb          DATA 0xfb
-    .byte 0xa1              ;a4aa  a1          DATA 0xa1
-    .byte 0x1e              ;a4ab  1e          DATA 0x1e
-    .byte 0xc7              ;a4ac  c7          DATA 0xc7
-    .byte 0x71              ;a4ad  71          DATA 0x71 'q'
-    .byte 0x5a              ;a4ae  5a          DATA 0x5a 'Z'
-    .byte 0x29              ;a4af  29          DATA 0x29 ')'
-    .byte 0x9a              ;a4b0  9a          DATA 0x9a
-    .byte 0x29              ;a4b1  29          DATA 0x29 ')'
-    .byte 0xa7              ;a4b2  a7          DATA 0xa7
-    .byte 0x9a              ;a4b3  9a          DATA 0x9a
-    .byte 0x40              ;a4b4  40          DATA 0x40 '@'
-    .byte 0xaa              ;a4b5  aa          DATA 0xaa
-    .byte 0x8e              ;a4b6  8e          DATA 0x8e
-    .byte 0x9b              ;a4b7  9b          DATA 0x9b
-    .byte 0xfc              ;a4b8  fc          DATA 0xfc
-    .byte 0x73              ;a4b9  73          DATA 0x73 's'
-    .byte 0x16              ;a4ba  16          DATA 0x16
-    .byte 0xc8              ;a4bb  c8          DATA 0xc8
-    .byte 0xd0              ;a4bc  d0          DATA 0xd0
-    .byte 0x4c              ;a4bd  4c          DATA 0x4c 'L'
-    .byte 0x48              ;a4be  48          DATA 0x48 'H'
-    .byte 0x9d              ;a4bf  9d          DATA 0x9d
-    .byte 0x05              ;a4c0  05          DATA 0x05
-    .byte 0x9a              ;a4c1  9a          DATA 0x9a
-    .byte 0xfe              ;a4c2  fe          DATA 0xfe
-    .byte 0xa4              ;a4c3  a4          DATA 0xa4
-    .byte 0xfa              ;a4c4  fa          DATA 0xfa
-    .byte 0x07              ;a4c5  07          DATA 0x07
-    .byte 0x10              ;a4c6  10          DATA 0x10
-    .byte 0xcd              ;a4c7  cd          DATA 0xcd
-    .byte 0xa4              ;a4c8  a4          DATA 0xa4
-    .byte 0xb1              ;a4c9  b1          DATA 0xb1
-    .byte 0xc4              ;a4ca  c4          DATA 0xc4
-    .byte 0x31              ;a4cb  31          DATA 0x31 '1'
-    .byte 0x98              ;a4cc  98          DATA 0x98
-    .byte 0x31              ;a4cd  31          DATA 0x31 '1'
-    .byte 0x03              ;a4ce  03          DATA 0x03
-    .byte 0x2d              ;a4cf  2d          DATA 0x2d '-'
-    .byte 0x03              ;a4d0  03          DATA 0x03
-    .byte 0x9a              ;a4d1  9a          DATA 0x9a
-    .byte 0x40              ;a4d2  40          DATA 0x40 '@'
-    .byte 0x91              ;a4d3  91          DATA 0x91
-    .byte 0x9b              ;a4d4  9b          DATA 0x9b
-    .byte 0x9c              ;a4d5  9c          DATA 0x9c
-    .byte 0xaa              ;a4d6  aa          DATA 0xaa
-    .byte 0x9a              ;a4d7  9a          DATA 0x9a
-    .byte 0x9c              ;a4d8  9c          DATA 0x9c
-    .byte 0xaa              ;a4d9  aa          DATA 0xaa
-    .byte 0xad              ;a4da  ad          DATA 0xad
-    .byte 0x03              ;a4db  03          DATA 0x03
-    .byte 0x9a              ;a4dc  9a          DATA 0x9a
-    .byte 0xfe              ;a4dd  fe          DATA 0xfe
-    .byte 0xa4              ;a4de  a4          DATA 0xa4
-    .byte 0xa1              ;a4df  a1          DATA 0xa1
-    .byte 0xf7              ;a4e0  f7          DATA 0xf7
-    .byte 0xac              ;a4e1  ac          DATA 0xac
-    .byte 0x2d              ;a4e2  2d          DATA 0x2d '-'
-    .byte 0x02              ;a4e3  02          DATA 0x02
-    .byte 0x61              ;a4e4  61          DATA 0x61 'a'
-    .byte 0x8b              ;a4e5  8b          DATA 0x8b
-    .byte 0xc8              ;a4e6  c8          DATA 0xc8
-    .byte 0x58              ;a4e7  58          DATA 0x58 'X'
-    .byte 0x00              ;a4e8  00          DATA 0x00
-    .byte 0xbd              ;a4e9  bd          DATA 0xbd
-    .byte 0x02              ;a4ea  02          DATA 0x02
-    .byte 0x61              ;a4eb  61          DATA 0x61 'a'
-    .byte 0x9b              ;a4ec  9b          DATA 0x9b
-    .byte 0x14              ;a4ed  14          DATA 0x14
-    .byte 0x62              ;a4ee  62          DATA 0x62 'b'
-    .byte 0xd0              ;a4ef  d0          DATA 0xd0
-    .byte 0x9a              ;a4f0  9a          DATA 0x9a
-    .byte 0x64              ;a4f1  64          DATA 0x64 'd'
-    .byte 0x5c              ;a4f2  5c          DATA 0x5c '\'
-    .byte 0x4d              ;a4f3  4d          DATA 0x4d 'M'
-    .byte 0xff              ;a4f4  ff          DATA 0xff
-    .byte 0xbd              ;a4f5  bd          DATA 0xbd
-    .byte 0x02              ;a4f6  02          DATA 0x02
-    .byte 0xa3              ;a4f7  a3          DATA 0xa3
-    .byte 0x00              ;a4f8  00          DATA 0x00
-    .byte 0x16              ;a4f9  16          DATA 0x16
-    .byte 0xcd              ;a4fa  cd          DATA 0xcd
-    .byte 0xd0              ;a4fb  d0          DATA 0xd0
-    .byte 0xfa              ;a4fc  fa          DATA 0xfa
-    .byte 0xbf              ;a4fd  bf          DATA 0xbf
-    .byte 0x0a              ;a4fe  0a          DATA 0x0a
-    .byte 0x73              ;a4ff  73          DATA 0x73 's'
-    .byte 0x1a              ;a500  1a          DATA 0x1a
-    .byte 0x73              ;a501  73          DATA 0x73 's'
-    .byte 0xa1              ;a502  a1          DATA 0xa1
-    .byte 0x00              ;a503  00          DATA 0x00
-    .byte 0x9e              ;a504  9e          DATA 0x9e
-    .byte 0x9b              ;a505  9b          DATA 0x9b
-    .byte 0xfc              ;a506  fc          DATA 0xfc
-    .byte 0xa1              ;a507  a1          DATA 0xa1
-    .byte 0x15              ;a508  15          DATA 0x15
-    .byte 0x9e              ;a509  9e          DATA 0x9e
-    .byte 0x57              ;a50a  57          DATA 0x57 'W'
-    .byte 0xfe              ;a50b  fe          DATA 0xfe
-    .byte 0x9a              ;a50c  9a          DATA 0x9a
-    .byte 0x29              ;a50d  29          DATA 0x29 ')'
-    .byte 0xa5              ;a50e  a5          DATA 0xa5
-    .byte 0x9a              ;a50f  9a          DATA 0x9a
-    .byte 0x3a              ;a510  3a          DATA 0x3a ':'
-    .byte 0xa5              ;a511  a5          DATA 0xa5
-    .byte 0x7a              ;a512  7a          DATA 0x7a 'z'
-    .byte 0x76              ;a513  76          DATA 0x76 'v'
-    .byte 0x11              ;a514  11          DATA 0x11
-    .byte 0x58              ;a515  58          DATA 0x58 'X'
-    .byte 0x00              ;a516  00          DATA 0x00
-    .byte 0x1b              ;a517  1b          DATA 0x1b
-    .byte 0x77              ;a518  77          DATA 0x77 'w'
-    .byte 0x5b              ;a519  5b          DATA 0x5b '['
-    .byte 0x77              ;a51a  77          DATA 0x77 'w'
-    .byte 0x0b              ;a51b  0b          DATA 0x0b
-    .byte 0x77              ;a51c  77          DATA 0x77 'w'
-    .byte 0x4a              ;a51d  4a          DATA 0x4a 'J'
-    .byte 0x77              ;a51e  77          DATA 0x77 'w'
-    .byte 0x71              ;a51f  71          DATA 0x71 'q'
-    .byte 0x5a              ;a520  5a          DATA 0x5a 'Z'
-    .byte 0x29              ;a521  29          DATA 0x29 ')'
-    .byte 0x2a              ;a522  2a          DATA 0x2a '*'
-    .byte 0x72              ;a523  72          DATA 0x72 'r'
-    .byte 0x7a              ;a524  7a          DATA 0x7a 'z'
-    .byte 0x72              ;a525  72          DATA 0x72 'r'
-    .byte 0x4a              ;a526  4a          DATA 0x4a 'J'
-    .byte 0x77              ;a527  77          DATA 0x77 'w'
-    .byte 0xaf              ;a528  af          DATA 0xaf
-    .byte 0xa1              ;a529  a1          DATA 0xa1
-    .byte 0x0a              ;a52a  0a          DATA 0x0a
-    .byte 0x16              ;a52b  16          DATA 0x16
-    .byte 0x58              ;a52c  58          DATA 0x58 'X'
-    .byte 0xf2              ;a52d  f2          DATA 0xf2
-    .byte 0x9a              ;a52e  9a          DATA 0x9a
-    .byte 0x92              ;a52f  92          DATA 0x92
-    .byte 0x40              ;a530  40          DATA 0x40 '@'
-    .byte 0xa1              ;a531  a1          DATA 0xa1
-    .byte 0x0a              ;a532  0a          DATA 0x0a
-    .byte 0x16              ;a533  16          DATA 0x16
-    .byte 0x57              ;a534  57          DATA 0x57 'W'
-    .byte 0xf2              ;a535  f2          DATA 0xf2
-    .byte 0x9a              ;a536  9a          DATA 0x9a
-    .byte 0x92              ;a537  92          DATA 0x92
-    .byte 0x40              ;a538  40          DATA 0x40 '@'
-    .byte 0xaf              ;a539  af          DATA 0xaf
-    .byte 0xa1              ;a53a  a1          DATA 0xa1
-    .byte 0x0a              ;a53b  0a          DATA 0x0a
-    .byte 0xa3              ;a53c  a3          DATA 0xa3
-    .byte 0x03              ;a53d  03          DATA 0x03
-    .byte 0x16              ;a53e  16          DATA 0x16
-    .byte 0x58              ;a53f  58          DATA 0x58 'X'
-    .byte 0xf2              ;a540  f2          DATA 0xf2
-    .byte 0x9a              ;a541  9a          DATA 0x9a
-    .byte 0x8f              ;a542  8f          DATA 0x8f
-    .byte 0x40              ;a543  40          DATA 0x40 '@'
-    .byte 0x8b              ;a544  8b          DATA 0x8b
-    .byte 0xfb              ;a545  fb          DATA 0xfb
-    .byte 0xaf              ;a546  af          DATA 0xaf
-    .byte 0xaf              ;a547  af          DATA 0xaf
-    .byte 0xa1              ;a548  a1          DATA 0xa1
-    .byte 0x00              ;a549  00          DATA 0x00
-    .byte 0xce              ;a54a  ce          DATA 0xce
-    .byte 0xce              ;a54b  ce          DATA 0xce
-    .byte 0xfb              ;a54c  fb          DATA 0xfb
-    .byte 0x70              ;a54d  70          DATA 0x70 'p'
-    .byte 0x31              ;a54e  31          DATA 0x31 '1'
-    .byte 0x73              ;a54f  73          DATA 0x73 's'
-    .byte 0x5d              ;a550  5d          DATA 0x5d ']'
-    .byte 0x0b              ;a551  0b          DATA 0x0b
-    .byte 0x8e              ;a552  8e          DATA 0x8e
-    .byte 0x68              ;a553  68          DATA 0x68 'h'
-    .byte 0xfb              ;a554  fb          DATA 0xfb
-    .byte 0x4d              ;a555  4d          DATA 0x4d 'M'
-    .byte 0x06              ;a556  06          DATA 0x06
-    .byte 0xad              ;a557  ad          DATA 0xad
-    .byte 0x14              ;a558  14          DATA 0x14
-    .byte 0x4d              ;a559  4d          DATA 0x4d 'M'
-    .byte 0x07              ;a55a  07          DATA 0x07
-    .byte 0xad              ;a55b  ad          DATA 0xad
-    .byte 0x10              ;a55c  10          DATA 0x10
-    .byte 0x60              ;a55d  60          DATA 0x60 '`'
-    .byte 0x31              ;a55e  31          DATA 0x31 '1'
-    .byte 0x73              ;a55f  73          DATA 0x73 's'
-    .byte 0xd3              ;a560  d3          DATA 0xd3
-    .byte 0x0b              ;a561  0b          DATA 0x0b
-    .byte 0x31              ;a562  31          DATA 0x31 '1'
-    .byte 0x63              ;a563  63          DATA 0x63 'c'
-    .byte 0x76              ;a564  76          DATA 0x76 'v'
-    .byte 0x08              ;a565  08          DATA 0x08
-    .byte 0xac              ;a566  ac          DATA 0xac
-    .byte 0x77              ;a567  77          DATA 0x77 'w'
-    .byte 0x04              ;a568  04          DATA 0x04
-    .byte 0x6b              ;a569  6b          DATA 0x6b 'k'
-    .byte 0x76              ;a56a  76          DATA 0x76 'v'
-    .byte 0xfa              ;a56b  fa          DATA 0xfa
-    .byte 0x01              ;a56c  01          DATA 0x01
-    .byte 0xaf              ;a56d  af          DATA 0xaf
-    .byte 0x5b              ;a56e  5b          DATA 0x5b '['
-    .byte 0x76              ;a56f  76          DATA 0x76 'v'
-    .byte 0x70              ;a570  70          DATA 0x70 'p'
-    .byte 0xa1              ;a571  a1          DATA 0xa1
-    .byte 0x00              ;a572  00          DATA 0x00
-    .byte 0x9e              ;a573  9e          DATA 0x9e
-    .byte 0x46              ;a574  46          DATA 0x46 'F'
-    .byte 0xfb              ;a575  fb          DATA 0xfb
-    .byte 0x60              ;a576  60          DATA 0x60 '`'
-    .byte 0x31              ;a577  31          DATA 0x31 '1'
-    .byte 0x13              ;a578  13          DATA 0x13
-    .byte 0x77              ;a579  77          DATA 0x77 'w'
-    .byte 0x03              ;a57a  03          DATA 0x03
-    .byte 0x9b              ;a57b  9b          DATA 0x9b
-    .byte 0xcd              ;a57c  cd          DATA 0xcd
-    .byte 0xa6              ;a57d  a6          DATA 0xa6
-    .byte 0x26              ;a57e  26          DATA 0x26 '&'
-    .byte 0x5d              ;a57f  5d          DATA 0x5d ']'
-    .byte 0xfe              ;a580  fe          DATA 0xfe
-    .byte 0x73              ;a581  73          DATA 0x73 's'
-    .byte 0x77              ;a582  77          DATA 0x77 'w'
-    .byte 0x8e              ;a583  8e          DATA 0x8e
-    .byte 0x57              ;a584  57          DATA 0x57 'W'
-    .byte 0xfe              ;a585  fe          DATA 0xfe
-    .byte 0x61              ;a586  61          DATA 0x61 'a'
-    .byte 0x0b              ;a587  0b          DATA 0x0b
-    .byte 0x31              ;a588  31          DATA 0x31 '1'
-    .byte 0x63              ;a589  63          DATA 0x63 'c'
-    .byte 0x74              ;a58a  74          DATA 0x74 't'
-    .byte 0x08              ;a58b  08          DATA 0x08
-    .byte 0x4d              ;a58c  4d          DATA 0x4d 'M'
-    .byte 0x5b              ;a58d  5b          DATA 0x5b '['
-    .byte 0x8d              ;a58e  8d          DATA 0x8d
-    .byte 0x14              ;a58f  14          DATA 0x14
-    .byte 0xa1              ;a590  a1          DATA 0xa1
-    .byte 0x5a              ;a591  5a          DATA 0x5a 'Z'
-    .byte 0xfa              ;a592  fa          DATA 0xfa
-    .byte 0x0a              ;a593  0a          DATA 0x0a
-    .byte 0x4d              ;a594  4d          DATA 0x4d 'M'
-    .byte 0x7b              ;a595  7b          DATA 0x7b '{'
-    .byte 0x8d              ;a596  8d          DATA 0x8d
-    .byte 0x0c              ;a597  0c          DATA 0x0c
-    .byte 0x1d              ;a598  1d          DATA 0x1d
-    .byte 0x7a              ;a599  7a          DATA 0x7a 'z'
-    .byte 0x61              ;a59a  61          DATA 0x61 'a'
-    .byte 0x13              ;a59b  13          DATA 0x13
-    .byte 0xa1              ;a59c  a1          DATA 0xa1
-    .byte 0x7a              ;a59d  7a          DATA 0x7a 'z'
-    .byte 0x31              ;a59e  31          DATA 0x31 '1'
-    .byte 0x73              ;a59f  73          DATA 0x73 's'
-    .byte 0xff              ;a5a0  ff          DATA 0xff
-    .byte 0x02              ;a5a1  02          DATA 0x02
-    .byte 0xa1              ;a5a2  a1          DATA 0xa1
-    .byte 0x00              ;a5a3  00          DATA 0x00
-    .byte 0xb1              ;a5a4  b1          DATA 0xb1
-    .byte 0x31              ;a5a5  31          DATA 0x31 '1'
-    .byte 0x73              ;a5a6  73          DATA 0x73 's'
-    .byte 0xfb              ;a5a7  fb          DATA 0xfb
-    .byte 0x15              ;a5a8  15          DATA 0x15
-    .byte 0xc8              ;a5a9  c8          DATA 0xc8
-    .byte 0x5a              ;a5aa  5a          DATA 0x5a 'Z'
-    .byte 0x00              ;a5ab  00          DATA 0x00
-    .byte 0xad              ;a5ac  ad          DATA 0xad
-    .byte 0x3a              ;a5ad  3a          DATA 0x3a ':'
-    .byte 0xf0              ;a5ae  f0          DATA 0xf0
-    .byte 0x5a              ;a5af  5a          DATA 0x5a 'Z'
-    .byte 0x61              ;a5b0  61          DATA 0x61 'a'
-    .byte 0x0b              ;a5b1  0b          DATA 0x0b
-    .byte 0xf2              ;a5b2  f2          DATA 0xf2
-    .byte 0x5a              ;a5b3  5a          DATA 0x5a 'Z'
-    .byte 0x31              ;a5b4  31          DATA 0x31 '1'
-    .byte 0x7f              ;a5b5  7f          DATA 0x7f
-    .byte 0x03              ;a5b6  03          DATA 0x03
-    .byte 0x11              ;a5b7  11          DATA 0x11
-    .byte 0x5a              ;a5b8  5a          DATA 0x5a 'Z'
-    .byte 0x00              ;a5b9  00          DATA 0x00
-    .byte 0x2b              ;a5ba  2b          DATA 0x2b '+'
-    .byte 0x76              ;a5bb  76          DATA 0x76 'v'
-    .byte 0xfa              ;a5bc  fa          DATA 0xfa
-    .byte 0x2a              ;a5bd  2a          DATA 0x2a '*'
-    .byte 0xc8              ;a5be  c8          DATA 0xc8
-    .byte 0x5a              ;a5bf  5a          DATA 0x5a 'Z'
-    .byte 0x00              ;a5c0  00          DATA 0x00
-    .byte 0xad              ;a5c1  ad          DATA 0xad
-    .byte 0x25              ;a5c2  25          DATA 0x25 '%'
-    .byte 0x8e              ;a5c3  8e          DATA 0x8e
-    .byte 0x57              ;a5c4  57          DATA 0x57 'W'
-    .byte 0xfe              ;a5c5  fe          DATA 0xfe
-    .byte 0x4d              ;a5c6  4d          DATA 0x4d 'M'
-    .byte 0x7a              ;a5c7  7a          DATA 0x7a 'z'
-    .byte 0x31              ;a5c8  31          DATA 0x31 '1'
-    .byte 0x63              ;a5c9  63          DATA 0x63 'c'
-    .byte 0x74              ;a5ca  74          DATA 0x74 't'
-    .byte 0x02              ;a5cb  02          DATA 0x02
-    .byte 0x4d              ;a5cc  4d          DATA 0x4d 'M'
-    .byte 0x5a              ;a5cd  5a          DATA 0x5a 'Z'
-    .byte 0x9d              ;a5ce  9d          DATA 0x9d
-    .byte 0x18              ;a5cf  18          DATA 0x18
-    .byte 0x8e              ;a5d0  8e          DATA 0x8e
-    .byte 0x97              ;a5d1  97          DATA 0x97
-    .byte 0xfc              ;a5d2  fc          DATA 0xfc
-    .byte 0x18              ;a5d3  18          DATA 0x18
-    .byte 0x96              ;a5d4  96          DATA 0x96
-    .byte 0xfc              ;a5d5  fc          DATA 0xfc
-    .byte 0xad              ;a5d6  ad          DATA 0xad
-    .byte 0x02              ;a5d7  02          DATA 0x02
-    .byte 0x9d              ;a5d8  9d          DATA 0x9d
-    .byte 0x02              ;a5d9  02          DATA 0x02
-    .byte 0xfa              ;a5da  fa          DATA 0xfa
-    .byte 0x0c              ;a5db  0c          DATA 0x0c
-    .byte 0x61              ;a5dc  61          DATA 0x61 'a'
-    .byte 0x01              ;a5dd  01          DATA 0x01
-    .byte 0x0e              ;a5de  0e          DATA 0x0e
-    .byte 0x5a              ;a5df  5a          DATA 0x5a 'Z'
-    .byte 0x61              ;a5e0  61          DATA 0x61 'a'
-    .byte 0x0b              ;a5e1  0b          DATA 0x0b
-    .byte 0xf2              ;a5e2  f2          DATA 0xf2
-    .byte 0x5a              ;a5e3  5a          DATA 0x5a 'Z'
-    .byte 0x2a              ;a5e4  2a          DATA 0x2a '*'
-    .byte 0x76              ;a5e5  76          DATA 0x76 'v'
-    .byte 0xfa              ;a5e6  fa          DATA 0xfa
-    .byte 0x00              ;a5e7  00          DATA 0x00
-    .byte 0xb0              ;a5e8  b0          DATA 0xb0
-    .byte 0x3a              ;a5e9  3a          DATA 0x3a ':'
-    .byte 0x73              ;a5ea  73          DATA 0x73 's'
-    .byte 0x9a              ;a5eb  9a          DATA 0x9a
-    .byte 0x70              ;a5ec  70          DATA 0x70 'p'
-    .byte 0xa6              ;a5ed  a6          DATA 0xa6
-    .byte 0xfc              ;a5ee  fc          DATA 0xfc
-    .byte 0x5d              ;a5ef  5d          DATA 0x5d ']'
-    .byte 0x57              ;a5f0  57          DATA 0x57 'W'
-    .byte 0xc8              ;a5f1  c8          DATA 0xc8
-    .byte 0x58              ;a5f2  58          DATA 0x58 'X'
-    .byte 0x00              ;a5f3  00          DATA 0x00
-    .byte 0xad              ;a5f4  ad          DATA 0xad
-    .byte 0x52              ;a5f5  52          DATA 0x52 'R'
-    .byte 0x9a              ;a5f6  9a          DATA 0x9a
-    .byte 0x94              ;a5f7  94          DATA 0x94
-    .byte 0xa6              ;a5f8  a6          DATA 0xa6
-    .byte 0x4d              ;a5f9  4d          DATA 0x4d 'M'
-    .byte 0x00              ;a5fa  00          DATA 0x00
-    .byte 0xbd              ;a5fb  bd          DATA 0xbd
-    .byte 0x10              ;a5fc  10          DATA 0x10
-    .byte 0x8e              ;a5fd  8e          DATA 0x8e
-    .byte 0x9f              ;a5fe  9f          DATA 0x9f
-    .byte 0xfc              ;a5ff  fc          DATA 0xfc
-    .byte 0x4d              ;a600  4d          DATA 0x4d 'M'
-    .byte 0x00              ;a601  00          DATA 0x00
-    .byte 0xad              ;a602  ad          DATA 0xad
-    .byte 0x44              ;a603  44          DATA 0x44 'D'
-    .byte 0x0a              ;a604  0a          DATA 0x0a
-    .byte 0x80              ;a605  80          DATA 0x80
-    .byte 0xa1              ;a606  a1          DATA 0xa1
-    .byte 0x00              ;a607  00          DATA 0x00
-    .byte 0x9e              ;a608  9e          DATA 0x9e
-    .byte 0x9f              ;a609  9f          DATA 0x9f
-    .byte 0xfc              ;a60a  fc          DATA 0xfc
-    .byte 0xfa              ;a60b  fa          DATA 0xfa
-    .byte 0x0f              ;a60c  0f          DATA 0x0f
-    .byte 0x4d              ;a60d  4d          DATA 0x4d 'M'
-    .byte 0x7a              ;a60e  7a          DATA 0x7a 'z'
-    .byte 0x31              ;a60f  31          DATA 0x31 '1'
-    .byte 0x63              ;a610  63          DATA 0x63 'c'
-    .byte 0x74              ;a611  74          DATA 0x74 't'
-    .byte 0x02              ;a612  02          DATA 0x02
-    .byte 0x4d              ;a613  4d          DATA 0x4d 'M'
-    .byte 0x5a              ;a614  5a          DATA 0x5a 'Z'
-    .byte 0x8d              ;a615  8d          DATA 0x8d
-    .byte 0x19              ;a616  19          DATA 0x19
-    .byte 0xa1              ;a617  a1          DATA 0xa1
-    .byte 0xff              ;a618  ff          DATA 0xff
-    .byte 0x9e              ;a619  9e          DATA 0x9e
-    .byte 0x9f              ;a61a  9f          DATA 0x9f
-    .byte 0xfc              ;a61b  fc          DATA 0xfc
-    .byte 0x9a              ;a61c  9a          DATA 0x9a
-    .byte 0x97              ;a61d  97          DATA 0x97
-    .byte 0x76              ;a61e  76          DATA 0x76 'v'
-    .byte 0xa1              ;a61f  a1          DATA 0xa1
-    .byte 0x8e              ;a620  8e          DATA 0x8e
-    .byte 0x9e              ;a621  9e          DATA 0x9e
-    .byte 0xa6              ;a622  a6          DATA 0xa6
-    .byte 0xf1              ;a623  f1          DATA 0xf1
-    .byte 0xa1              ;a624  a1          DATA 0xa1
-    .byte 0x1e              ;a625  1e          DATA 0x1e
-    .byte 0x9e              ;a626  9e          DATA 0x9e
-    .byte 0x2e              ;a627  2e          DATA 0x2e '.'
-    .byte 0xfb              ;a628  fb          DATA 0xfb
-    .byte 0xa1              ;a629  a1          DATA 0xa1
-    .byte 0x0a              ;a62a  0a          DATA 0x0a
-    .byte 0x9e              ;a62b  9e          DATA 0x9e
-    .byte 0x49              ;a62c  49          DATA 0x49 'I'
-    .byte 0xfb              ;a62d  fb          DATA 0xfb
-    .byte 0xfa              ;a62e  fa          DATA 0xfa
-    .byte 0x18              ;a62f  18          DATA 0x18
-    .byte 0xa1              ;a630  a1          DATA 0xa1
-    .byte 0x55              ;a631  55          DATA 0x55 'U'
-    .byte 0x9e              ;a632  9e          DATA 0x9e
-    .byte 0x9f              ;a633  9f          DATA 0x9f
-    .byte 0xfc              ;a634  fc          DATA 0xfc
-    .byte 0x8e              ;a635  8e          DATA 0x8e
-    .byte 0xa6              ;a636  a6          DATA 0xa6
-    .byte 0xf1              ;a637  f1          DATA 0xf1
-    .byte 0x5d              ;a638  5d          DATA 0x5d ']'
-    .byte 0x7f              ;a639  7f          DATA 0x7f
-    .byte 0x4d              ;a63a  4d          DATA 0x4d 'M'
-    .byte 0x0e              ;a63b  0e          DATA 0x0e
-    .byte 0xbd              ;a63c  bd          DATA 0xbd
-    .byte 0x0a              ;a63d  0a          DATA 0x0a
-    .byte 0xa1              ;a63e  a1          DATA 0xa1
-    .byte 0xff              ;a63f  ff          DATA 0xff
-    .byte 0x9e              ;a640  9e          DATA 0x9e
-    .byte 0xa6              ;a641  a6          DATA 0xa6
-    .byte 0xf1              ;a642  f1          DATA 0xf1
-    .byte 0xa1              ;a643  a1          DATA 0xa1
-    .byte 0x00              ;a644  00          DATA 0x00
-    .byte 0x9e              ;a645  9e          DATA 0x9e
-    .byte 0x2e              ;a646  2e          DATA 0x2e '.'
-    .byte 0xfb              ;a647  fb          DATA 0xfb
-    .byte 0xaf              ;a648  af          DATA 0xaf
-    .byte 0x31              ;a649  31          DATA 0x31 '1'
-    .byte 0x03              ;a64a  03          DATA 0x03
-    .byte 0x5e              ;a64b  5e          DATA 0x5e '^'
-    .byte 0x01              ;a64c  01          DATA 0x01
-    .byte 0xaf              ;a64d  af          DATA 0xaf
-    .byte 0xa1              ;a64e  a1          DATA 0xa1
-    .byte 0x01              ;a64f  01          DATA 0x01
-    .byte 0x9b              ;a650  9b          DATA 0x9b
-    .byte 0x4d              ;a651  4d          DATA 0x4d 'M'
-    .byte 0xa5              ;a652  a5          DATA 0xa5
-    .byte 0x31              ;a653  31          DATA 0x31 '1'
-    .byte 0x03              ;a654  03          DATA 0x03
-    .byte 0x5e              ;a655  5e          DATA 0x5e '^'
-    .byte 0x01              ;a656  01          DATA 0x01
-    .byte 0xaf              ;a657  af          DATA 0xaf
-    .byte 0xa1              ;a658  a1          DATA 0xa1
-    .byte 0xff              ;a659  ff          DATA 0xff
-    .byte 0x9b              ;a65a  9b          DATA 0x9b
-    .byte 0x4d              ;a65b  4d          DATA 0x4d 'M'
-    .byte 0xa5              ;a65c  a5          DATA 0xa5
-    .byte 0xdc              ;a65d  dc          DATA 0xdc
-    .byte 0x77              ;a65e  77          DATA 0x77 'w'
-    .byte 0x0f              ;a65f  0f          DATA 0x0f
-    .byte 0x5a              ;a660  5a          DATA 0x5a 'Z'
-    .byte 0x77              ;a661  77          DATA 0x77 'w'
-    .byte 0xfa              ;a662  fa          DATA 0xfa
-    .byte 0x06              ;a663  06          DATA 0x06
-    .byte 0x31              ;a664  31          DATA 0x31 '1'
-    .byte 0x53              ;a665  53          DATA 0x53 'S'
-    .byte 0x77              ;a666  77          DATA 0x77 'w'
-    .byte 0x07              ;a667  07          DATA 0x07
-    .byte 0x5b              ;a668  5b          DATA 0x5b '['
-    .byte 0x77              ;a669  77          DATA 0x77 'w'
-    .byte 0x5a              ;a66a  5a          DATA 0x5a 'Z'
-    .byte 0x80              ;a66b  80          DATA 0x80
-    .byte 0x9a              ;a66c  9a          DATA 0x9a
-    .byte 0x9c              ;a66d  9c          DATA 0x9c
-    .byte 0xaa              ;a66e  aa          DATA 0xaa
-    .byte 0xaf              ;a66f  af          DATA 0xaf
-    .byte 0xc8              ;a670  c8          DATA 0xc8
-    .byte 0x58              ;a671  58          DATA 0x58 'X'
-    .byte 0x00              ;a672  00          DATA 0x00
-    .byte 0xad              ;a673  ad          DATA 0xad
-    .byte 0x1e              ;a674  1e          DATA 0x1e
-    .byte 0x31              ;a675  31          DATA 0x31 '1'
-    .byte 0x7f              ;a676  7f          DATA 0x7f
-    .byte 0x02              ;a677  02          DATA 0x02
-    .byte 0xa1              ;a678  a1          DATA 0xa1
-    .byte 0x00              ;a679  00          DATA 0x00
-    .byte 0x70              ;a67a  70          DATA 0x70 'p'
-    .byte 0x8e              ;a67b  8e          DATA 0x8e
-    .byte 0x68              ;a67c  68          DATA 0x68 'h'
-    .byte 0xfb              ;a67d  fb          DATA 0xfb
-    .byte 0x4d              ;a67e  4d          DATA 0x4d 'M'
-    .byte 0x05              ;a67f  05          DATA 0x05
-    .byte 0xbd              ;a680  bd          DATA 0xbd
-    .byte 0x07              ;a681  07          DATA 0x07
-    .byte 0x60              ;a682  60          DATA 0x60 '`'
-    .byte 0x4d              ;a683  4d          DATA 0x4d 'M'
-    .byte 0x10              ;a684  10          DATA 0x10
-    .byte 0x9d              ;a685  9d          DATA 0x9d
-    .byte 0x02              ;a686  02          DATA 0x02
-    .byte 0xa0              ;a687  a0          DATA 0xa0
-    .byte 0x10              ;a688  10          DATA 0x10
-    .byte 0x4d              ;a689  4d          DATA 0x4d 'M'
-    .byte 0x7b              ;a68a  7b          DATA 0x7b '{'
-    .byte 0x8d              ;a68b  8d          DATA 0x8d
-    .byte 0x02              ;a68c  02          DATA 0x02
-    .byte 0xa0              ;a68d  a0          DATA 0xa0
-    .byte 0x7a              ;a68e  7a          DATA 0x7a 'z'
-    .byte 0x60              ;a68f  60          DATA 0x60 '`'
-    .byte 0x9e              ;a690  9e          DATA 0x9e
-    .byte 0x57              ;a691  57          DATA 0x57 'W'
-    .byte 0xfe              ;a692  fe          DATA 0xfe
-    .byte 0xaf              ;a693  af          DATA 0xaf
+    bf mem_fefb.7,lab_a47d  ;a474  31 73 fb 05
+    call !sub_a4fe          ;a478  9a fe a4
+    br lab_a498             ;a47b  fa 1b
+
+lab_a47d:
+    bf mem_fefb.6,lab_a49d  ;a47d  31 63 fb 1c
+    call !sub_aa9c          ;a481  9a 9c aa
+    bz lab_a487             ;a484  ad 01
+    brk                     ;a486  bf
+
+lab_a487:
+    set1 mem_fe72.6         ;a487  6a 72
+    set1 mem_fe73.0         ;a489  0a 73
+    set1 mem_fe73.1         ;a48b  1a 73
+    set1 mem_fe73.3         ;a48d  3a 73
+    set1 mem_fe73.4         ;a48f  4a 73
+    set1 mem_fe73.5         ;a491  5a 73
+    set1 mem_fe73.6         ;a493  6a 73
+    call !sub_a514          ;a495  9a 14 a5
+
+lab_a498:
+    mov a,#0xc0             ;a498  a1 c0
+    callt [0x0042]          ;a49a  c3
+    br lab_a4a5             ;a49b  fa 08
+
+lab_a49d:
+    call !sub_aa9c          ;a49d  9a 9c aa
+    bz lab_a4a5             ;a4a0  ad 03
+    call !sub_a4fe          ;a4a2  9a fe a4
+
+lab_a4a5:
+    mov a,#0x05             ;a4a5  a1 05
+    mov !mem_fb1e,a         ;a4a7  9e 1e fb
+    mov a,#0x1e             ;a4aa  a1 1e
+    callt [0x0046]          ;a4ac  c7
+    set1 pm9.5              ;a4ad  71 5a 29
+    call !sub_a729          ;a4b0  9a 29 a7
+    call !sub_aa40          ;a4b3  9a 40 aa
+    mov a,!mem_fc9b         ;a4b6  8e 9b fc
+    mov b,a                 ;a4b9  73
+    movw hl,#0xd0c8         ;a4ba  16 c8 d0
+
+lab_a4bd:
+    callf !sub_0c48         ;a4bd  4c 48
+    bnc lab_a4c6            ;a4bf  9d 05
+    call !sub_a4fe          ;a4c1  9a fe a4
+    br lab_a4cd             ;a4c4  fa 07
+
+lab_a4c6:
+    movw ax,#lab_a4cd       ;a4c6  10 cd a4
+    push ax                 ;a4c9  b1
+    movw ax,de              ;a4ca  c4
+    br ax                   ;a4cb  31 98
+
+lab_a4cd:
+    bf mem_fe2d.0,lab_a4d4  ;a4cd  31 03 2d 03
+    call !sub_9140          ;a4d1  9a 40 91
+
+lab_a4d4:
+    br !sub_aa9c            ;a4d4  9b 9c aa
+
+lab_a4d7:
+    call !sub_aa9c          ;a4d7  9a 9c aa
+    bz lab_a4df             ;a4da  ad 03
+    call !sub_a4fe          ;a4dc  9a fe a4
+
+lab_a4df:
+    mov a,#0xf7             ;a4df  a1 f7
+    bt mem_fe2d.2,lab_a4e6  ;a4e1  ac 2d 02
+    clr1 a.0                ;a4e4  61 8b
+
+lab_a4e6:
+    cmp mem_fe58,#0x00      ;a4e6  c8 58 00
+    bnz lab_a4ed            ;a4e9  bd 02
+    clr1 a.1                ;a4eb  61 9b
+
+lab_a4ed:
+    movw de,#0xd062         ;a4ed  14 62 d0
+    call !sub_5c64          ;a4f0  9a 64 5c
+    cmp a,#0xff             ;a4f3  4d ff
+    bnz lab_a4f9            ;a4f5  bd 02
+    mov b,#0x00             ;a4f7  a3 00
+
+lab_a4f9:
+    movw hl,#0xd0cd         ;a4f9  16 cd d0
+    br lab_a4bd             ;a4fc  fa bf
+
+sub_a4fe:
+    set1 mem_fe73.0         ;a4fe  0a 73
+    set1 mem_fe73.1         ;a500  1a 73
+    mov a,#0x00             ;a502  a1 00
+    mov !mem_fc9b,a         ;a504  9e 9b fc
+    mov a,#0x15             ;a507  a1 15
+    mov !mem_fe57,a         ;a509  9e 57 fe
+    call !sub_a529          ;a50c  9a 29 a5
+    call !sub_a53a          ;a50f  9a 3a a5
+    set1 mem_fe76.7         ;a512  7a 76
+
+sub_a514:
+    mov mem_fe58,#0x00      ;a514  11 58 00
+    clr1 mem_fe77.1         ;a517  1b 77
+    clr1 mem_fe77.5         ;a519  5b 77
+    clr1 mem_fe77.0         ;a51b  0b 77
+    set1 mem_fe77.4         ;a51d  4a 77
+    set1 pm9.5              ;a51f  71 5a 29
+    set1 mem_fe72.2         ;a522  2a 72
+    set1 mem_fe72.7         ;a524  7a 72
+    set1 mem_fe77.4         ;a526  4a 77
+    ret                     ;a528  af
+
+sub_a529:
+    mov a,#0x0a             ;a529  a1 0a
+    movw hl,#mem_f258       ;a52b  16 58 f2
+    call !sub_4092          ;a52e  9a 92 40
+    mov a,#0x0a             ;a531  a1 0a
+    movw hl,#mem_f257       ;a533  16 57 f2
+    call !sub_4092          ;a536  9a 92 40
+    ret                     ;a539  af
+
+sub_a53a:
+    mov a,#0x0a             ;a53a  a1 0a
+    mov b,#0x03             ;a53c  a3 03
+    movw hl,#mem_f258       ;a53e  16 58 f2
+
+lab_a541:
+    call !sub_408f          ;a541  9a 8f 40
+    dbnz b,lab_a541         ;a544  8b fb
+    ret                     ;a546  af
+
+lab_a547:
+    ret                     ;a547  af
+
+lab_a548:
+    mov a,#0x00             ;a548  a1 00
+    xch a,!mem_fbce         ;a54a  ce ce fb
+
+lab_a54d:
+    mov x,a                 ;a54d  70
+    bf mem_fe5d.7,lab_a55d  ;a54e  31 73 5d 0b
+    mov a,!mem_fb68         ;a552  8e 68 fb
+    cmp a,#0x06             ;a555  4d 06
+    bz lab_a56d             ;a557  ad 14
+    cmp a,#0x07             ;a559  4d 07
+    bz lab_a56d             ;a55b  ad 10
+
+lab_a55d:
+    mov a,x                 ;a55d  60
+    bf shadow_p9.7,lab_a56d  ;a55e  31 73 d3 0b
+    bf mem_fe76.6,lab_a56e  ;a562  31 63 76 08
+    bt mem_fe77.2,lab_a56d  ;a566  ac 77 04
+    clr1 mem_fe76.6         ;a569  6b 76
+    br lab_a56e             ;a56b  fa 01
+
+lab_a56d:
+    ret                     ;a56d  af
+
+lab_a56e:
+    clr1 mem_fe76.5         ;a56e  5b 76
+    mov x,a                 ;a570  70
+    mov a,#0x00             ;a571  a1 00
+    mov !mem_fb46,a         ;a573  9e 46 fb
+    mov a,x                 ;a576  60
+    bf mem_fe77.1,lab_a57e  ;a577  31 13 77 03
+    br !lab_a6cd            ;a57b  9b cd a6
+
+lab_a57e:
+    rol a,1                 ;a57e  26
+    and a,#0xfe             ;a57f  5d fe
+    mov b,a                 ;a581  73
+    mov h,a                 ;a582  77
+    mov a,!mem_fe57         ;a583  8e 57 fe
+    add a,b                 ;a586  61 0b
+    bf mem_fe74.6,lab_a594  ;a588  31 63 74 08
+    cmp a,#0x5b             ;a58c  4d 5b
+    bc lab_a5a4             ;a58e  8d 14
+    mov a,#0x5a             ;a590  a1 5a
+    br lab_a59e             ;a592  fa 0a
+
+lab_a594:
+    cmp a,#0x7b             ;a594  4d 7b
+    bc lab_a5a4             ;a596  8d 0c
+    sub a,#0x7a             ;a598  1d 7a
+    sub b,a                 ;a59a  61 13
+    mov a,#0x7a             ;a59c  a1 7a
+
+lab_a59e:
+    bf mem_feff.7,lab_a5a4  ;a59e  31 73 ff 02
+    mov a,#0x00             ;a5a2  a1 00
+
+lab_a5a4:
+    push ax                 ;a5a4  b1
+    bf mem_fefb.7,lab_a5be  ;a5a5  31 73 fb 15
+    cmp mem_fe5a,#0x00      ;a5a9  c8 5a 00
+    bz lab_a5e8             ;a5ac  ad 3a
+    mov a,mem_fe5a          ;a5ae  f0 5a
+    add a,b                 ;a5b0  61 0b
+    mov mem_fe5a,a          ;a5b2  f2 5a
+    bf a.7,lab_a5ba         ;a5b4  31 7f 03
+    mov mem_fe5a,#0x00      ;a5b7  11 5a 00
+
+lab_a5ba:
+    clr1 mem_fe76.2         ;a5ba  2b 76
+    br lab_a5e8             ;a5bc  fa 2a
+
+lab_a5be:
+    cmp mem_fe5a,#0x00      ;a5be  c8 5a 00
+    bz lab_a5e8             ;a5c1  ad 25
+    mov a,!mem_fe57         ;a5c3  8e 57 fe
+    cmp a,#0x7a             ;a5c6  4d 7a
+    bf mem_fe74.6,lab_a5ce  ;a5c8  31 63 74 02
+    cmp a,#0x5a             ;a5cc  4d 5a
+
+lab_a5ce:
+    bnc lab_a5e8            ;a5ce  9d 18
+    mov a,!mem_fc97         ;a5d0  8e 97 fc
+    sub a,!mem_fc96         ;a5d3  18 96 fc
+    bz lab_a5da             ;a5d6  ad 02
+    bnc lab_a5dc            ;a5d8  9d 02
+
+lab_a5da:
+    br lab_a5e8             ;a5da  fa 0c
+
+lab_a5dc:
+    add a,a                 ;a5dc  61 01
+    add a,mem_fe5a          ;a5de  0e 5a
+    add a,b                 ;a5e0  61 0b
+    mov mem_fe5a,a          ;a5e2  f2 5a
+    set1 mem_fe76.2         ;a5e4  2a 76
+    br lab_a5e8             ;a5e6  fa 00
+
+lab_a5e8:
+    pop ax                  ;a5e8  b0
+    set1 mem_fe73.3         ;a5e9  3a 73
+    call !sub_a670          ;a5eb  9a 70 a6
+    bt mem_fe5d.7,lab_a648  ;a5ee  fc 5d 57
+    cmp mem_fe58,#0x00      ;a5f1  c8 58 00
+    bz lab_a648             ;a5f4  ad 52
+    call !sub_a694          ;a5f6  9a 94 a6
+    cmp a,#0x00             ;a5f9  4d 00
+    bnz lab_a60d            ;a5fb  bd 10
+    mov a,!mem_fc9f         ;a5fd  8e 9f fc
+    cmp a,#0x00             ;a600  4d 00
+    bz lab_a648             ;a602  ad 44
+    set1 mem_fe80.0         ;a604  0a 80
+    mov a,#0x00             ;a606  a1 00
+    mov !mem_fc9f,a         ;a608  9e 9f fc
+    br lab_a61c             ;a60b  fa 0f
+
+lab_a60d:
+    cmp a,#0x7a             ;a60d  4d 7a
+    bf mem_fe74.6,lab_a615  ;a60f  31 63 74 02
+    cmp a,#0x5a             ;a613  4d 5a
+
+lab_a615:
+    bc lab_a630             ;a615  8d 19
+    mov a,#0xff             ;a617  a1 ff
+    mov !mem_fc9f,a         ;a619  9e 9f fc
+
+lab_a61c:
+    call !sub_7697          ;a61c  9a 97 76
+    mov a,#0x8e             ;a61f  a1 8e
+    mov !mem_f1a6,a         ;a621  9e a6 f1
+    mov a,#0x1e             ;a624  a1 1e
+    mov !mem_fb2e,a         ;a626  9e 2e fb
+    mov a,#0x0a             ;a629  a1 0a
+    mov !mem_fb49,a         ;a62b  9e 49 fb
+    br lab_a648             ;a62e  fa 18
+
+lab_a630:
+    mov a,#0x55             ;a630  a1 55
+    mov !mem_fc9f,a         ;a632  9e 9f fc
+    mov a,!mem_f1a6         ;a635  8e a6 f1
+    and a,#0x7f             ;a638  5d 7f
+    cmp a,#0x0e             ;a63a  4d 0e
+    bnz lab_a648            ;a63c  bd 0a
+    mov a,#0xff             ;a63e  a1 ff
+    mov !mem_f1a6,a         ;a640  9e a6 f1
+    mov a,#0x00             ;a643  a1 00
+    mov !mem_fb2e,a         ;a645  9e 2e fb
+
+lab_a648:
+    ret                     ;a648  af
+
+lab_a649:
+    bf mem_fe5e.0,lab_a64e  ;a649  31 03 5e 01
+    ret                     ;a64d  af
+
+lab_a64e:
+    mov a,#0x01             ;a64e  a1 01
+    br !lab_a54d            ;a650  9b 4d a5
+
+lab_a653:
+    bf mem_fe5e.0,lab_a658  ;a653  31 03 5e 01
+    ret                     ;a657  af
+
+lab_a658:
+    mov a,#0xff             ;a658  a1 ff
+    br !lab_a54d            ;a65a  9b 4d a5
+
+lab_a65d:
+    bt mem_fe77.5,lab_a66f  ;a65d  dc 77 0f
+    set1 mem_fe77.5         ;a660  5a 77
+    br lab_a66a             ;a662  fa 06
+
+lab_a664:
+    bf mem_fe77.5,lab_a66f  ;a664  31 53 77 07
+    clr1 mem_fe77.5         ;a668  5b 77
+
+lab_a66a:
+    set1 mem_fe80.5         ;a66a  5a 80
+    call !sub_aa9c          ;a66c  9a 9c aa
+
+lab_a66f:
+    ret                     ;a66f  af
+
+sub_a670:
+    cmp mem_fe58,#0x00      ;a670  c8 58 00
+    bz lab_a693             ;a673  ad 1e
+    bf a.7,lab_a67a         ;a675  31 7f 02
+    mov a,#0x00             ;a678  a1 00
+
+lab_a67a:
+    mov x,a                 ;a67a  70
+    mov a,!mem_fb68         ;a67b  8e 68 fb
+    cmp a,#0x05             ;a67e  4d 05
+    bnz lab_a689            ;a680  bd 07
+    mov a,x                 ;a682  60
+    cmp a,#0x10             ;a683  4d 10
+    bnc lab_a689            ;a685  9d 02
+    mov x,#0x10             ;a687  a0 10
+
+lab_a689:
+    cmp a,#0x7b             ;a689  4d 7b
+    bc lab_a68f             ;a68b  8d 02
+    mov x,#0x7a             ;a68d  a0 7a
+
+lab_a68f:
+    mov a,x                 ;a68f  60
+    mov !mem_fe57,a         ;a690  9e 57 fe
+
+lab_a693:
+    ret                     ;a693  af
 
 sub_a694:
     mov a,#0x00             ;a694  a1 00
@@ -31752,14 +30785,14 @@ lab_a6c6:
 lab_a6cc:
     ret                     ;a6cc  af
 
-    .byte 0x31              ;a6cd  31          DATA 0x31 '1'
-    .byte 0x23              ;a6ce  23          DATA 0x23 '#'
-    .byte 0x77              ;a6cf  77          DATA 0x77 'w'
-    .byte 0x04              ;a6d0  04          DATA 0x04
-    .byte 0xaf              ;a6d1  af          DATA 0xaf
+lab_a6cd:
+    bf mem_fe77.2,lab_a6d5  ;a6cd  31 23 77 04
+    ret                     ;a6d1  af
 
 sub_a6d2:
     bt mem_fe77.1,lab_a6f4  ;a6d2  9c 77 1f
+
+lab_a6d5:
     bt mem_fe7d.2,lab_a6f4  ;a6d5  ac 7d 1c
     mov a,!mem_fb1f         ;a6d8  8e 1f fb
     cmp a,#0x00             ;a6db  4d 00
@@ -31819,6 +30852,8 @@ sub_a70c:
 lab_a728:
     ret                     ;a728  af
 
+sub_a729:
+;TODO this is code
     .byte 0x8e              ;a729  8e          DATA 0x8e
     .byte 0x1f              ;a72a  1f          DATA 0x1f
     .byte 0xfb              ;a72b  fb          DATA 0xfb
@@ -31894,6 +30929,8 @@ lab_a77e:
     clr1 cy                 ;a77e  21
     ret                     ;a77f  af
 
+sub_a780:
+;TODO this is code
     .byte 0x31              ;a780  31          DATA 0x31 '1'
     .byte 0x23              ;a781  23          DATA 0x23 '#'
     .byte 0x77              ;a782  77          DATA 0x77 'w'
@@ -32588,6 +31625,9 @@ lab_a7ed:
     .byte 0x4e              ;aa3d  4e          DATA 0x4e 'N'
     .byte 0x58              ;aa3e  58          DATA 0x58 'X'
     .byte 0xaf              ;aa3f  af          DATA 0xaf
+
+sub_aa40:
+;TODO this is code
     .byte 0x9a              ;aa40  9a          DATA 0x9a
     .byte 0x14              ;aa41  14          DATA 0x14
     .byte 0xaa              ;aa42  aa          DATA 0xaa
@@ -32837,78 +31877,56 @@ lab_ab75:
     mov !mem_fc9f,a         ;ab77  9e 9f fc
     ret                     ;ab7a  af
 
-    .byte 0x31              ;ab7b  31          DATA 0x31 '1'
-    .byte 0x03              ;ab7c  03          DATA 0x03
-    .byte 0x2d              ;ab7d  2d          DATA 0x2d '-'
-    .byte 0x43              ;ab7e  43          DATA 0x43 'C'
-    .byte 0x9c              ;ab7f  9c          DATA 0x9c
-    .byte 0x31              ;ab80  31          DATA 0x31 '1'
-    .byte 0x40              ;ab81  40          DATA 0x40 '@'
-    .byte 0x11              ;ab82  11          DATA 0x11
-    .byte 0xd6              ;ab83  d6          DATA 0xd6
-    .byte 0x03              ;ab84  03          DATA 0x03
-    .byte 0x16              ;ab85  16          DATA 0x16
-    .byte 0xea              ;ab86  ea          DATA 0xea
-    .byte 0xd0              ;ab87  d0          DATA 0xd0
-    .byte 0x14              ;ab88  14          DATA 0x14
-    .byte 0xa2              ;ab89  a2          DATA 0xa2
-    .byte 0xfc              ;ab8a  fc          DATA 0xfc
-    .byte 0xae              ;ab8b  ae          DATA 0xae
-    .byte 0x00              ;ab8c  00          DATA 0x00
-    .byte 0x70              ;ab8d  70          DATA 0x70 'p'
-    .byte 0xae              ;ab8e  ae          DATA 0xae
-    .byte 0x01              ;ab8f  01          DATA 0x01
-    .byte 0xb7              ;ab90  b7          DATA 0xb7
-    .byte 0x9a              ;ab91  9a          DATA 0x9a
-    .byte 0xc3              ;ab92  c3          DATA 0xc3
-    .byte 0xab              ;ab93  ab          DATA 0xab
-    .byte 0xb6              ;ab94  b6          DATA 0xb6
-    .byte 0x8d              ;ab95  8d          DATA 0x8d
-    .byte 0x22              ;ab96  22          DATA 0x22 '"'
-    .byte 0x70              ;ab97  70          DATA 0x70 'p'
-    .byte 0xae              ;ab98  ae          DATA 0xae
-    .byte 0x02              ;ab99  02          DATA 0x02
-    .byte 0x31              ;ab9a  31          DATA 0x31 '1'
-    .byte 0x7f              ;ab9b  7f          DATA 0x7f
-    .byte 0x06              ;ab9c  06          DATA 0x06
-    .byte 0x5d              ;ab9d  5d          DATA 0x5d ']'
-    .byte 0x7f              ;ab9e  7f          DATA 0x7f
-    .byte 0x30              ;ab9f  30          DATA 0x30 '0'
-    .byte 0x7d              ;aba0  7d          DATA 0x7d '}'
-    .byte 0xff              ;aba1  ff          DATA 0xff
-    .byte 0x30              ;aba2  30          DATA 0x30 '0'
-    .byte 0x73              ;aba3  73          DATA 0x73 's'
-    .byte 0x85              ;aba4  85          DATA 0x85
-    .byte 0x61              ;aba5  61          DATA 0x61 'a'
-    .byte 0x18              ;aba6  18          DATA 0x18
-    .byte 0x9d              ;aba7  9d          DATA 0x9d
-    .byte 0x03              ;aba8  03          DATA 0x03
-    .byte 0x7d              ;aba9  7d          DATA 0x7d '}'
-    .byte 0xff              ;abaa  ff          DATA 0xff
-    .byte 0x41              ;abab  41          DATA 0x41 'A'
-    .byte 0x61              ;abac  61          DATA 0x61 'a'
-    .byte 0x4b              ;abad  4b          DATA 0x4b 'K'
-    .byte 0x8d              ;abae  8d          DATA 0x8d
-    .byte 0x09              ;abaf  09          DATA 0x09
-    .byte 0x60              ;abb0  60          DATA 0x60 '`'
-    .byte 0x95              ;abb1  95          DATA 0x95
-    .byte 0xae              ;abb2  ae          DATA 0xae
-    .byte 0x03              ;abb3  03          DATA 0x03
-    .byte 0xb7              ;abb4  b7          DATA 0xb7
-    .byte 0x9a              ;abb5  9a          DATA 0x9a
-    .byte 0x2e              ;abb6  2e          DATA 0x2e '.'
-    .byte 0x91              ;abb7  91          DATA 0x91
-    .byte 0xb6              ;abb8  b6          DATA 0xb6
-    .byte 0x84              ;abb9  84          DATA 0x84
-    .byte 0xc6              ;abba  c6          DATA 0xc6
-    .byte 0xca              ;abbb  ca          DATA 0xca
-    .byte 0x04              ;abbc  04          DATA 0x04
-    .byte 0x00              ;abbd  00          DATA 0x00
-    .byte 0xd6              ;abbe  d6          DATA 0xd6
-    .byte 0x04              ;abbf  04          DATA 0x04
-    .byte 0xd6              ;abc0  d6          DATA 0xd6
-    .byte 0xc9              ;abc1  c9          DATA 0xc9
-    .byte 0xaf              ;abc2  af          DATA 0xaf
+sub_ab7b:
+    bf mem_fe2d.0,lab_abc2  ;ab7b  31 03 2d 43
+    bt mem_fe31.1,lab_abc2  ;ab7f  9c 31 40
+    mov mem_fed6,#0x03      ;ab82  11 d6 03
+    movw hl,#0xd0ea         ;ab85  16 ea d0
+    movw de,#mem_fca2       ;ab88  14 a2 fc
+
+lab_ab8b:
+    mov a,[hl+0x00]         ;ab8b  ae 00
+    mov x,a                 ;ab8d  70
+    mov a,[hl+0x01]         ;ab8e  ae 01
+    push hl                 ;ab90  b7
+    call !sub_abc3          ;ab91  9a c3 ab
+    pop hl                  ;ab94  b6
+    bc lab_abb9             ;ab95  8d 22
+    mov x,a                 ;ab97  70
+    mov a,[hl+0x02]         ;ab98  ae 02
+    bf a.7,lab_aba3         ;ab9a  31 7f 06
+    and a,#0x7f             ;ab9d  5d 7f
+    xch a,x                 ;ab9f  30
+    xor a,#0xff             ;aba0  7d ff
+    xch a,x                 ;aba2  30
+
+lab_aba3:
+    mov b,a                 ;aba3  73
+    mov a,[de]              ;aba4  85
+    sub a,x                 ;aba5  61 18
+    bnc lab_abac            ;aba7  9d 03
+    xor a,#0xff             ;aba9  7d ff
+    inc a                   ;abab  41
+
+lab_abac:
+    cmp a,b                 ;abac  61 4b
+    bc lab_abb9             ;abae  8d 09
+    mov a,x                 ;abb0  60
+    mov [de],a              ;abb1  95
+    mov a,[hl+0x03]         ;abb2  ae 03
+    push hl                 ;abb4  b7
+    call !sub_912e          ;abb5  9a 2e 91
+    pop hl                  ;abb8  b6
+
+lab_abb9:
+    incw de                 ;abb9  84
+    movw ax,hl              ;abba  c6
+    addw ax,#0x0004         ;abbb  ca 04 00
+    movw hl,ax              ;abbe  d6
+    dbnz mem_fed6,lab_ab8b  ;abbf  04 d6 c9
+
+lab_abc2:
+    ret                     ;abc2  af
 
 sub_abc3:
     call !sub_abf5          ;abc3  9a f5 ab
@@ -33459,30 +32477,18 @@ mem_ad34:
 
 mem_ae0e:
 ;table used with sub_0c48
-;TODO these are vectors
     .byte 0x0b              ;ae0e  0b          DATA 0x0b        11 entries below:
-    .byte 0x4f              ;ae0f  4f          DATA 0x4f 'O'
-    .byte 0x1d              ;ae10  1d          DATA 0x1d
-    .byte 0x11              ;ae11  11          DATA 0x11
-    .byte 0x1d              ;ae12  1d          DATA 0x1d
-    .byte 0x11              ;ae13  11          DATA 0x11
-    .byte 0x1d              ;ae14  1d          DATA 0x1d
-    .byte 0x2c              ;ae15  2c          DATA 0x2c ','
-    .byte 0x1d              ;ae16  1d          DATA 0x1d
-    .byte 0x2c              ;ae17  2c          DATA 0x2c ','
-    .byte 0x1d              ;ae18  1d          DATA 0x1d
-    .byte 0xdc              ;ae19  dc          DATA 0xdc
-    .byte 0x1c              ;ae1a  1c          DATA 0x1c
-    .byte 0xe7              ;ae1b  e7          DATA 0xe7
-    .byte 0x1c              ;ae1c  1c          DATA 0x1c
-    .byte 0x7b              ;ae1d  7b          DATA 0x7b '{'
-    .byte 0x1d              ;ae1e  1d          DATA 0x1d
-    .byte 0x7b              ;ae1f  7b          DATA 0x7b '{'
-    .byte 0x1d              ;ae20  1d          DATA 0x1d
-    .byte 0xf9              ;ae21  f9          DATA 0xf9
-    .byte 0x1c              ;ae22  1c          DATA 0x1c
-    .byte 0xc6              ;ae23  c6          DATA 0xc6
-    .byte 0x1c              ;ae24  1c          DATA 0x1c
+    .word sub_1d4f
+    .word lab_1d11
+    .word lab_1d11
+    .word lab_1d2c
+    .word lab_1d2c
+    .word lab_1cdc
+    .word lab_1ce7
+    .word lab_1d7b
+    .word lab_1d7b
+    .word lab_1cf9
+    .word lab_1cc6
 
 mem_ae25:
     .byte 0x01              ;ae25  01          DATA 0x01
@@ -34211,7 +33217,6 @@ kwp_unknown_b03b:
 
 mem_b0b6:
 ;table used with sub_0c48
-;TODO these are vectors
     .byte 0x0b              ;b0b6  0b          DATA 0x0b        11 words below:
     .word lab_7d5c          ;b0b7
     .word lab_2037          ;b0b9
@@ -34233,26 +33238,16 @@ mem_b0cd:
 
 mem_b0d1:
 ;table used with sub_0c48
-;TODO these are vectors
     .byte 0x09              ;b0d1  09          DATA 0x09        9 entries below:
-    .byte 0xd7              ;b0d2  d7          DATA 0xd7
-    .byte 0x12              ;b0d3  12          DATA 0x12
-    .byte 0xa2              ;b0d4  a2          DATA 0xa2
-    .byte 0x15              ;b0d5  15          DATA 0x15
-    .byte 0x37              ;b0d6  37          DATA 0x37 '7'
-    .byte 0x15              ;b0d7  15          DATA 0x15
-    .byte 0x0f              ;b0d8  0f          DATA 0x0f
-    .byte 0x15              ;b0d9  15          DATA 0x15
-    .byte 0xc2              ;b0da  c2          DATA 0xc2
-    .byte 0x14              ;b0db  14          DATA 0x14
-    .byte 0xae              ;b0dc  ae          DATA 0xae
-    .byte 0x14              ;b0dd  14          DATA 0x14
-    .byte 0x7c              ;b0de  7c          DATA 0x7c '|'
-    .byte 0x14              ;b0df  14          DATA 0x14
-    .byte 0xe3              ;b0e0  e3          DATA 0xe3
-    .byte 0x12              ;b0e1  12          DATA 0x12
-    .byte 0x9b              ;b0e2  9b          DATA 0x9b
-    .byte 0x12              ;b0e3  12          DATA 0x12
+    .word lab_12d7
+    .word lab_15a2
+    .word lab_1537
+    .word lab_150f
+    .word lab_14c2
+    .word lab_14ae
+    .word lab_147c
+    .word lab_12e3
+    .word lab_129b
 
     .byte 0x01              ;b0e4  01          DATA 0x01
     .byte 0x00              ;b0e5  00          DATA 0x00
@@ -35425,24 +34420,15 @@ mem_b550:
 
 mem_b5c5:
 ;table used with sub_0c48
-;TODO these are vectors
     .byte 0x08              ;b5c5  08          DATA 0x08        8 entries below:
-    .byte 0xbb              ;b5c6  bb          DATA 0xbb
-    .byte 0x7b              ;b5c7  7b          DATA 0x7b '{'
-    .byte 0x83              ;b5c8  83          DATA 0x83
-    .byte 0x7b              ;b5c9  7b          DATA 0x7b '{'
-    .byte 0x41              ;b5ca  41          DATA 0x41 'A'
-    .byte 0x7b              ;b5cb  7b          DATA 0x7b '{'
-    .byte 0x07              ;b5cc  07          DATA 0x07
-    .byte 0x7b              ;b5cd  7b          DATA 0x7b '{'
-    .byte 0x5b              ;b5ce  5b          DATA 0x5b '['
-    .byte 0x79              ;b5cf  79          DATA 0x79 'y'
-    .byte 0x87              ;b5d0  87          DATA 0x87
-    .byte 0x79              ;b5d1  79          DATA 0x79 'y'
-    .byte 0x3e              ;b5d2  3e          DATA 0x3e '>'
-    .byte 0x78              ;b5d3  78          DATA 0x78 'x'
-    .byte 0x08              ;b5d4  08          DATA 0x08
-    .byte 0x78              ;b5d5  78          DATA 0x78 'x'
+    .word lab_7bbb
+    .word lab_7b83
+    .word lab_7b41
+    .word lab_7b07
+    .word lab_795b
+    .word lab_7987
+    .word lab_783e
+    .word lab_7808
 
     .byte 0x4a              ;b5d6  4a          DATA 0x4a 'J'
     .byte 0x00              ;b5d7  00          DATA 0x00
