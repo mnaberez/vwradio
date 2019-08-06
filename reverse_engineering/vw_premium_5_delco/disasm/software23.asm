@@ -16724,7 +16724,7 @@ lab_5d02:
     and a,#0x1f             ;5d06  5d 1f
     mov b,a                 ;5d08  73
     push hl                 ;5d09  b7
-    movw hl,#0xb3b7         ;5d0a  16 b7 b3
+    movw hl,#0xb3b6+1       ;5d0a  16 b7 b3
     callf !sub_0c7d         ;5d0d  4c 7d
     pop hl                  ;5d0f  b6
     bc lab_5d39             ;5d10  8d 27
@@ -16770,7 +16770,7 @@ lab_5d3d:
     ror a,1                 ;5d49  24
     mov b,a                 ;5d4a  73
     push hl                 ;5d4b  b7
-    movw hl,#0xb3cd         ;5d4c  16 cd b3
+    movw hl,#0xb3cc+1       ;5d4c  16 cd b3
     callf !sub_0c7d         ;5d4f  4c 7d
     pop hl                  ;5d51  b6
     bc lab_5d39             ;5d52  8d e5
@@ -16807,7 +16807,7 @@ lab_5d88:
     mov a,mem_fed4          ;5d88  f0 d4
     and a,#0x07             ;5d8a  5d 07
     mov b,a                 ;5d8c  73
-    movw hl,#0xb3c4         ;5d8d  16 c4 b3
+    movw hl,#0xb3c3+1       ;5d8d  16 c4 b3
     callf !sub_0c7d         ;5d90  4c 7d
     bc lab_5d39             ;5d92  8d a5
     mov !mem_fb10,a         ;5d94  9e 10 fb
@@ -17453,11 +17453,11 @@ lab_617d:
     call !sub_5d99          ;6188  9a 99 5d
     call !sub_0800          ;618b  9a 00 08
     mov b,a                 ;618e  73
-    movw hl,#0xb40e         ;618f  16 0e b4
+    movw hl,#mem_b40e       ;618f  16 0e b4
     mov a,[hl+b]            ;6192  ab
     cmp a,mem_fed4          ;6193  4e d4
     bnc lab_61a1            ;6195  9d 0a
-    movw hl,#0xb40b         ;6197  16 0b b4
+    movw hl,#mem_b40b       ;6197  16 0b b4
     mov a,[hl+b]            ;619a  ab
     cmp a,mem_fed4          ;619b  4e d4
     bc lab_61a1             ;619d  8d 02
@@ -22098,7 +22098,7 @@ lab_7ed2:
     mov b,a                 ;7eda  73
     cmp a,#0x0c             ;7edb  4d 0c
     bnc lab_7ef1            ;7edd  9d 12
-    movw hl,#0xb3b7         ;7edf  16 b7 b3
+    movw hl,#0xb3b6+1       ;7edf  16 b7 b3
     mov a,[hl+b]            ;7ee2  ab
     cmp a,!mem_fb3a         ;7ee3  48 3a fb
     bc lab_7ef1             ;7ee6  8d 09
@@ -31661,6 +31661,7 @@ mem_b3b1:
     .byte 0x21              ;b3b4  21          DATA 0x21 '!'
     .byte 0x20              ;b3b5  20          DATA 0x20 ' '
 
+mem_b3b6:
 ;unknown table
     .byte 0x0c              ;b3b6  0c          DATA 0x0c        12 entries below:
     .byte 0xff              ;b3b7  ff          DATA 0xff
@@ -31676,6 +31677,7 @@ mem_b3b1:
     .byte 0x9b              ;b3c1  9b          DATA 0x9b
     .byte 0x00              ;b3c2  00          DATA 0x00
 
+mem_b3c3:
 ;unknown table
     .byte 0x08              ;b3c3  08          DATA 0x08        8 entries below
     .byte 0x05              ;b3c4  05          DATA 0x05
@@ -31687,6 +31689,7 @@ mem_b3b1:
     .byte 0x32              ;b3ca  32          DATA 0x32 '2'
     .byte 0x64              ;b3cb  64          DATA 0x64 'd'
 
+mem_b3cc:
 ;unknown table
     .byte 0x05              ;b3cc  05          DATA 0x05        5 entries below
     .byte 0x01              ;b3cd  01          DATA 0x01
@@ -31696,6 +31699,7 @@ mem_b3b1:
     .byte 0xff              ;b3d1  ff          DATA 0xff
 
 mem_b3d2:
+;unknown table
     .byte 0x06              ;b3d2  06          DATA 0x06        6 entries below:
     .byte 0x01              ;b3d3  01          DATA 0x01
     .byte 0x21              ;b3d4  21          DATA 0x21 '!'
@@ -31763,15 +31767,18 @@ mem_b3d9:
     .byte 0x76              ;b407  76          DATA 0x76 'v'
 
 mem_b408:
+;unknown table
     .byte 0x02              ;b408  02          DATA 0x02        2 entries below:
     .byte 0x02              ;b409  02          DATA 0x02
     .byte 0x05              ;b40a  05          DATA 0x05
 
+mem_b40b:
 ;unknown table
     .byte 0x02              ;b40b  02          DATA 0x02        2 entries below:
     .byte 0x5f              ;b40c  5f          DATA 0x5f '_'
     .byte 0x2b              ;b40d  2b          DATA 0x2b '+'
 
+mem_b40e:
 ;unknown table
     .byte 0x02              ;b40e  02          DATA 0x02        2 entries below:
     .byte 0x59              ;b40f  59          DATA 0x59 'Y'
