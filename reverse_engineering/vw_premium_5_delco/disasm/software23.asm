@@ -31286,12 +31286,7 @@ mem_b1df:
     .byte 0x13              ;b1ea  13          DATA 0x13
 
 kwp_login_b1eb:
-;"DELCO" backwards
-    .byte 0x4f              ;b1eb  4f          DATA 0x4f 'O'
-    .byte 0x43              ;b1ec  43          DATA 0x43 'C'
-    .byte 0x4c              ;b1ed  4c          DATA 0x4c 'L'
-    .byte 0x45              ;b1ee  45          DATA 0x45 'E'
-    .byte 0x44              ;b1ef  44          DATA 0x44 'D'
+    .ascii "OCLED"    ;"DELCO" backwards
 
 mem_b1f0:
     .byte 0x03              ;b1f0  03          DATA 0x03        3 entries below:
