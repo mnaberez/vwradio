@@ -1146,16 +1146,18 @@ lab_0265:
 lab_0266:
     br !lab_0160            ;0266  9b 60 01
 
-    .byte 0x94              ;0269  94          DATA 0x94
-    .byte 0x85              ;026a  85          DATA 0x85
-    .byte 0x84              ;026b  84          DATA 0x84
-    .byte 0xfa              ;026c  fa          DATA 0xfa
-    .byte 0x03              ;026d  03          DATA 0x03
+lab_0269:
+    decw de                 ;0269  94
+    mov a,[de]              ;026a  85
+    incw de                 ;026b  84
+    br lab_0271             ;026c  fa 03
 
 sub_026e:
     decw hl                 ;026e  96
     mov a,[hl]              ;026f  87
     incw hl                 ;0270  86
+
+lab_0271:
     dec a                   ;0271  51
     mov c,a                 ;0272  72
     call !sub_0314          ;0273  9a 14 03
@@ -5106,69 +5108,47 @@ lab_174c:
     clr1 mem_fe5c.4         ;174c  4b 5c
     ret                     ;174e  af
 
-    .byte 0x9a              ;174f  9a          DATA 0x9a
-    .byte 0x51              ;1750  51          DATA 0x51 'Q'
-    .byte 0x1a              ;1751  1a          DATA 0x1a
-    .byte 0xfa              ;1752  fa          DATA 0xfa
-    .byte 0x1e              ;1753  1e          DATA 0x1e
-    .byte 0x6a              ;1754  6a          DATA 0x6a 'j'
-    .byte 0x5d              ;1755  5d          DATA 0x5d ']'
-    .byte 0x1a              ;1756  1a          DATA 0x1a
-    .byte 0x5d              ;1757  5d          DATA 0x5d ']'
-    .byte 0x6a              ;1758  6a          DATA 0x6a 'j'
-    .byte 0x5c              ;1759  5c          DATA 0x5c '\'
-    .byte 0xfa              ;175a  fa          DATA 0xfa
-    .byte 0x06              ;175b  06          DATA 0x06
-    .byte 0x6a              ;175c  6a          DATA 0x6a 'j'
-    .byte 0x5d              ;175d  5d          DATA 0x5d ']'
-    .byte 0x1a              ;175e  1a          DATA 0x1a
-    .byte 0x5d              ;175f  5d          DATA 0x5d ']'
-    .byte 0x6b              ;1760  6b          DATA 0x6b 'k'
-    .byte 0x5c              ;1761  5c          DATA 0x5c '\'
-    .byte 0xc8              ;1762  c8          DATA 0xc8
-    .byte 0x20              ;1763  20          DATA 0x20 ' '
-    .byte 0x03              ;1764  03          DATA 0x03
-    .byte 0xad              ;1765  ad          DATA 0xad
-    .byte 0x05              ;1766  05          DATA 0x05
-    .byte 0xc8              ;1767  c8          DATA 0xc8
-    .byte 0x20              ;1768  20          DATA 0x20 ' '
-    .byte 0x02              ;1769  02          DATA 0x02
-    .byte 0xbd              ;176a  bd          DATA 0xbd
-    .byte 0x03              ;176b  03          DATA 0x03
-    .byte 0x9a              ;176c  9a          DATA 0x9a
-    .byte 0x5d              ;176d  5d          DATA 0x5d ']'
-    .byte 0x1a              ;176e  1a          DATA 0x1a
-    .byte 0x9a              ;176f  9a          DATA 0x9a
-    .byte 0x4b              ;1770  4b          DATA 0x4b 'K'
-    .byte 0x1b              ;1771  1b          DATA 0x1b
-    .byte 0x9a              ;1772  9a          DATA 0x9a
-    .byte 0x59              ;1773  59          DATA 0x59 'Y'
-    .byte 0x1d              ;1774  1d          DATA 0x1d
-    .byte 0x9a              ;1775  9a          DATA 0x9a
-    .byte 0xd1              ;1776  d1          DATA 0xd1
-    .byte 0x1a              ;1777  1a          DATA 0x1a
-    .byte 0x2b              ;1778  2b          DATA 0x2b '+'
-    .byte 0x5c              ;1779  5c          DATA 0x5c '\'
-    .byte 0x9a              ;177a  9a          DATA 0x9a
-    .byte 0x94              ;177b  94          DATA 0x94
-    .byte 0xa6              ;177c  a6          DATA 0xa6
-    .byte 0x4d              ;177d  4d          DATA 0x4d 'M'
-    .byte 0x00              ;177e  00          DATA 0x00
-    .byte 0xa1              ;177f  a1          DATA 0xa1
-    .byte 0x80              ;1780  80          DATA 0x80
-    .byte 0xbd              ;1781  bd          DATA 0xbd
-    .byte 0x02              ;1782  02          DATA 0x02
-    .byte 0xa1              ;1783  a1          DATA 0xa1
-    .byte 0xc0              ;1784  c0          DATA 0xc0
-    .byte 0x9e              ;1785  9e          DATA 0x9e
-    .byte 0xab              ;1786  ab          DATA 0xab
-    .byte 0xf1              ;1787  f1          DATA 0xf1
-    .byte 0xec              ;1788  ec          DATA 0xec
-    .byte 0x5d              ;1789  5d          DATA 0x5d ']'
-    .byte 0x03              ;178a  03          DATA 0x03
-    .byte 0x9a              ;178b  9a          DATA 0x9a
-    .byte 0x17              ;178c  17          DATA 0x17
-    .byte 0x1a              ;178d  1a          DATA 0x1a
+lab_174f:
+    call !sub_1a51          ;174f  9a 51 1a
+    br lab_1772             ;1752  fa 1e
+
+lab_1754:
+    set1 mem_fe5d.6         ;1754  6a 5d
+    set1 mem_fe5d.1         ;1756  1a 5d
+    set1 mem_fe5c.6         ;1758  6a 5c
+    br lab_1762             ;175a  fa 06
+
+lab_175c:
+    set1 mem_fe5d.6         ;175c  6a 5d
+    set1 mem_fe5d.1         ;175e  1a 5d
+    clr1 mem_fe5c.6         ;1760  6b 5c
+
+lab_1762:
+    cmp mem_fe20,#0x03      ;1762  c8 20 03
+    bz lab_176c             ;1765  ad 05
+    cmp mem_fe20,#0x02      ;1767  c8 20 02
+    bnz lab_176f            ;176a  bd 03
+
+lab_176c:
+    call !sub_1a5d          ;176c  9a 5d 1a
+
+lab_176f:
+    call !sub_1b4b          ;176f  9a 4b 1b
+
+lab_1772:
+    call !sub_1d59          ;1772  9a 59 1d
+    call !sub_1ad1          ;1775  9a d1 1a
+    clr1 mem_fe5c.2         ;1778  2b 5c
+    call !sub_a694          ;177a  9a 94 a6
+    cmp a,#0x00             ;177d  4d 00
+    mov a,#0x80             ;177f  a1 80
+    bnz lab_1785            ;1781  bd 02
+    mov a,#0xc0             ;1783  a1 c0
+
+lab_1785:
+    mov !mem_f1ab,a         ;1785  9e ab f1
+    bt mem_fe5d.6,lab_178e  ;1788  ec 5d 03
+    call !sub_1a17          ;178b  9a 17 1a
 
 lab_178e:
     clr1 mem_fe5d.6         ;178e  6b 5d
@@ -7498,115 +7478,30 @@ lab_2654:
     ret                     ;2654  af
 
 kwp_1j003b180b:
-    .byte 0x31              ;2655  31          DATA 0x31 '1'
-    .byte 0x4a              ;2656  4a          DATA 0x4a 'J'
-    .byte 0x30              ;2657  30          DATA 0x30 '0'
-    .byte 0x30              ;2658  30          DATA 0x30 '0'
-    .byte 0x33              ;2659  33          DATA 0x33 '3'
-    .byte 0x35              ;265a  35          DATA 0x35 '5'
-    .byte 0x31              ;265b  31          DATA 0x31 '1'
-    .byte 0x38              ;265c  38          DATA 0x38 '8'
-    .byte 0x30              ;265d  30          DATA 0x30 '0'
-    .byte 0x20              ;265e  20          DATA 0x20 ' '
-    .byte 0x42              ;265f  42          DATA 0x42 'B'
-    .byte 0x20              ;2660  20          DATA 0x20 ' '
-    .byte 0x03              ;2661  03          DATA 0x03
+    .ascii "1J0035180 B "
+    .byte 0x03
 
 kwp_1c0035180a:
-    .byte 0x31              ;2662  31          DATA 0x31 '1'
-    .byte 0x43              ;2663  43          DATA 0x43 'C'
-    .byte 0x30              ;2664  30          DATA 0x30 '0'
-    .byte 0x30              ;2665  30          DATA 0x30 '0'
-    .byte 0x33              ;2666  33          DATA 0x33 '3'
-    .byte 0x35              ;2667  35          DATA 0x35 '5'
-    .byte 0x31              ;2668  31          DATA 0x31 '1'
-    .byte 0x38              ;2669  38          DATA 0x38 '8'
-    .byte 0x30              ;266a  30          DATA 0x30 '0'
-    .byte 0x20              ;266b  20          DATA 0x20 ' '
-    .byte 0x41              ;266c  41          DATA 0x41 'A'
-    .byte 0x20              ;266d  20          DATA 0x20 ' '
+    .ascii "1C0035180 A "
     .byte 0x03              ;266e  03          DATA 0x03
 
 kwp_radio_de2:
-    .byte 0x20              ;266f  20          DATA 0x20 ' '
-    .byte 0x52              ;2670  52          DATA 0x52 'R'
-    .byte 0x61              ;2671  61          DATA 0x61 'a'
-    .byte 0x64              ;2672  64          DATA 0x64 'd'
-    .byte 0x69              ;2673  69          DATA 0x69 'i'
-    .byte 0x6f              ;2674  6f          DATA 0x6f 'o'
-    .byte 0x20              ;2675  20          DATA 0x20 ' '
-    .byte 0x44              ;2676  44          DATA 0x44 'D'
-    .byte 0x45              ;2677  45          DATA 0x45 'E'
-    .byte 0x32              ;2678  32          DATA 0x32 '2'
-    .byte 0x20              ;2679  20          DATA 0x20 ' '
-    .byte 0x20              ;267a  20          DATA 0x20 ' '
-    .byte 0x03              ;267b  03          DATA 0x03
+    .ascii " Radio DE2  "
+    .byte 0x03
 
 kwp_radio_delco:
-    .byte 0x20              ;267c  20          DATA 0x20 ' '
-    .byte 0x52              ;267d  52          DATA 0x52 'R'
-    .byte 0x61              ;267e  61          DATA 0x61 'a'
-    .byte 0x64              ;267f  64          DATA 0x64 'd'
-    .byte 0x69              ;2680  69          DATA 0x69 'i'
-    .byte 0x6f              ;2681  6f          DATA 0x6f 'o'
-    .byte 0x20              ;2682  20          DATA 0x20 ' '
-    .byte 0x44              ;2683  44          DATA 0x44 'D'
-    .byte 0x45              ;2684  45          DATA 0x45 'E'
-    .byte 0x4c              ;2685  4c          DATA 0x4c 'L'
-    .byte 0x43              ;2686  43          DATA 0x43 'C'
-    .byte 0x4f              ;2687  4f          DATA 0x4f 'O'
-    .byte 0x03              ;2688  03          DATA 0x03
+    .ascii " Radio DELCO"
+    .byte 0x03
 
 kwp_0001:
-    .byte 0x20              ;2689  20          DATA 0x20 ' '
-    .byte 0x20              ;268a  20          DATA 0x20 ' '
-    .byte 0x20              ;268b  20          DATA 0x20 ' '
-    .byte 0x20              ;268c  20          DATA 0x20 ' '
-    .byte 0x20              ;268d  20          DATA 0x20 ' '
-    .byte 0x20              ;268e  20          DATA 0x20 ' '
-    .byte 0x20              ;268f  20          DATA 0x20 ' '
-    .byte 0x30              ;2690  30          DATA 0x30 '0'
-    .byte 0x30              ;2691  30          DATA 0x30 '0'
-    .byte 0x30              ;2692  30          DATA 0x30 '0'
-    .byte 0x31              ;2693  31          DATA 0x31 '1'
-    .byte 0x00              ;2694  00          DATA 0x00
-    .byte 0x03              ;2695  03          DATA 0x03
+    .ascii "       0001"
+    .byte 0x00, 0x03
 
 display_test:
-    .byte 0x44              ;2696  44          DATA 0x44 'D'
-    .byte 0x49              ;2697  49          DATA 0x49 'I'
-    .byte 0x53              ;2698  53          DATA 0x53 'S'
-    .byte 0x50              ;2699  50          DATA 0x50 'P'
-    .byte 0x4c              ;269a  4c          DATA 0x4c 'L'
-    .byte 0x41              ;269b  41          DATA 0x41 'A'
-    .byte 0x59              ;269c  59          DATA 0x59 'Y'
-    .byte 0x20              ;269d  20          DATA 0x20 ' '
-    .byte 0x20              ;269e  20          DATA 0x20 ' '
-    .byte 0x20              ;269f  20          DATA 0x20 ' '
-    .byte 0x54              ;26a0  54          DATA 0x54 'T'
-    .byte 0x45              ;26a1  45          DATA 0x45 'E'
-    .byte 0x53              ;26a2  53          DATA 0x53 'S'
-    .byte 0x54              ;26a3  54          DATA 0x54 'T'
-    .byte 0x20              ;26a4  20          DATA 0x20 ' '
-    .byte 0x20              ;26a5  20          DATA 0x20 ' '
+    .ascii "DISPLAY   TEST  "
 
 display_test_end:
-    .byte 0x20              ;26a6  20          DATA 0x20 ' '
-    .byte 0x20              ;26a7  20          DATA 0x20 ' '
-    .byte 0x20              ;26a8  20          DATA 0x20 ' '
-    .byte 0x20              ;26a9  20          DATA 0x20 ' '
-    .byte 0x20              ;26aa  20          DATA 0x20 ' '
-    .byte 0x20              ;26ab  20          DATA 0x20 ' '
-    .byte 0x20              ;26ac  20          DATA 0x20 ' '
-    .byte 0x20              ;26ad  20          DATA 0x20 ' '
-    .byte 0x20              ;26ae  20          DATA 0x20 ' '
-    .byte 0x20              ;26af  20          DATA 0x20 ' '
-    .byte 0x45              ;26b0  45          DATA 0x45 'E'
-    .byte 0x4e              ;26b1  4e          DATA 0x4e 'N'
-    .byte 0x44              ;26b2  44          DATA 0x44 'D'
-    .byte 0x20              ;26b3  20          DATA 0x20 ' '
-    .byte 0x20              ;26b4  20          DATA 0x20 ' '
-    .byte 0x20              ;26b5  20          DATA 0x20 ' '
+    .ascii "          END   "
 
 sub_26b6:
     mov e,#0xc2             ;26b6  a4 c2
@@ -17923,480 +17818,171 @@ lab_63a8:
 
 m:
     .byte 0x01              ;63ac  01          DATA 0x01        1 byte follows:
-    .byte 0x4d              ;63ad  4d          DATA 0x4d 'M'
+    .ascii "M"
 
 u1:
     .byte 0x02              ;63ae  02          DATA 0x02        2 bytes follow:
-    .byte 0x55              ;63af  55          DATA 0x55 'U'
-    .byte 0x31              ;63b0  31          DATA 0x31 '1'
+    .ascii "U1"
 
 u2:
     .byte 0x02              ;63b1  02          DATA 0x02        2 bytes follow:
-    .byte 0x55              ;63b2  55          DATA 0x55 'U'
-    .byte 0x32              ;63b3  32          DATA 0x32 '2'
+    .ascii "U2"
 
 on:
     .byte 0x02              ;63b4  02          DATA 0x02        2 bytes follow:
-    .byte 0x4f              ;63b5  4f          DATA 0x4f 'O'
-    .byte 0x4e              ;63b6  4e          DATA 0x4e 'N'
+    .ascii "ON"
 
 off:
     .byte 0x03              ;63b7  03          DATA 0x03        3 bytes follow:
-    .byte 0x4f              ;63b8  4f          DATA 0x4f 'O'
-    .byte 0x46              ;63b9  46          DATA 0x46 'F'
-    .byte 0x46              ;63ba  46          DATA 0x46 'F'
+    .ascii "OFF"
 
 no:
     .byte 0x02              ;63bb  02          DATA 0x02        2 bytes follow:
-    .byte 0x4e              ;63bc  4e          DATA 0x4e 'N'
-    .byte 0x4f              ;63bd  4f          DATA 0x4f 'O'
+    .ascii "NO"
 
 e__:
     .byte 0x0b              ;63be  0b          DATA 0x0b        11 bytes follow:
-    .byte 0x45              ;63bf  45          DATA 0x45 'E'
-    .byte 0x20              ;63c0  20          DATA 0x20 ' '
-    .byte 0x20              ;63c1  20          DATA 0x20 ' '
-    .byte 0x20              ;63c2  20          DATA 0x20 ' '
-    .byte 0x20              ;63c3  20          DATA 0x20 ' '
-    .byte 0x20              ;63c4  20          DATA 0x20 ' '
-    .byte 0x20              ;63c5  20          DATA 0x20 ' '
-    .byte 0x20              ;63c6  20          DATA 0x20 ' '
-    .byte 0x20              ;63c7  20          DATA 0x20 ' '
-    .byte 0x20              ;63c8  20          DATA 0x20 ' '
-    .byte 0x20              ;63c9  20          DATA 0x20 ' '
-    .byte 0x20              ;63ca  20          DATA 0x20 ' '
+    .ascii "E           "
 
 psc:
     .byte 0x03              ;63cb  03          DATA 0x03        3 bytes follow:
-    .byte 0x50              ;63cc  50          DATA 0x50 'P'
-    .byte 0x53              ;63cd  53          DATA 0x53 'S'
-    .byte 0x43              ;63ce  43          DATA 0x43 'C'
+    .ascii "PSC"
 
 pscan:
     .byte 0x05              ;63cf  05          DATA 0x05        5 bytes follow:
-    .byte 0x50              ;63d0  50          DATA 0x50 'P'
-    .byte 0x53              ;63d1  53          DATA 0x53 'S'
-    .byte 0x43              ;63d2  43          DATA 0x43 'C'
-    .byte 0x41              ;63d3  41          DATA 0x41 'A'
-    .byte 0x4e              ;63d4  4e          DATA 0x4e 'N'
+    .ascii "PSCAN"
 
 preset_scan:
     .byte 0x0b              ;63d5  0b          DATA 0x0b        11 bytes follow:
-    .byte 0x50              ;63d6  50          DATA 0x50 'P'
-    .byte 0x52              ;63d7  52          DATA 0x52 'R'
-    .byte 0x45              ;63d8  45          DATA 0x45 'E'
-    .byte 0x53              ;63d9  53          DATA 0x53 'S'
-    .byte 0x45              ;63da  45          DATA 0x45 'E'
-    .byte 0x54              ;63db  54          DATA 0x54 'T'
-    .byte 0x20              ;63dc  20          DATA 0x20 ' '
-    .byte 0x53              ;63dd  53          DATA 0x53 'S'
-    .byte 0x43              ;63de  43          DATA 0x43 'C'
-    .byte 0x41              ;63df  41          DATA 0x41 'A'
-    .byte 0x4e              ;63e0  4e          DATA 0x4e 'N'
+    .ascii "PRESET SCAN"
 
 pset:
     .byte 0x04              ;63e1  04          DATA 0x04        4 bytes follow:
-    .byte 0x50              ;63e2  50          DATA 0x50 'P'
-    .byte 0x53              ;63e3  53          DATA 0x53 'S'
-    .byte 0x45              ;63e4  45          DATA 0x45 'E'
-    .byte 0x54              ;63e5  54          DATA 0x54 'T'
+    .ascii "PSET"
 
 scan:
     .byte 0x04              ;63e6  04          DATA 0x04        4 bytes follow:
-    .byte 0x53              ;63e7  53          DATA 0x53 'S'
-    .byte 0x43              ;63e8  43          DATA 0x43 'C'
-    .byte 0x41              ;63e9  41          DATA 0x41 'A'
-    .byte 0x4e              ;63ea  4e          DATA 0x4e 'N'
+    .ascii "SCAN"
 
 seek_plus:
     .byte 0x06              ;63eb  06          DATA 0x06        6 bytes follow:
-    .byte 0x53              ;63ec  53          DATA 0x53 'S'
-    .byte 0x45              ;63ed  45          DATA 0x45 'E'
-    .byte 0x45              ;63ee  45          DATA 0x45 'E'
-    .byte 0x4b              ;63ef  4b          DATA 0x4b 'K'
-    .byte 0x20              ;63f0  20          DATA 0x20 ' '
-    .byte 0x2b              ;63f1  2b          DATA 0x2b '+'
+    .ascii "SEEK +"
 
 seek_minus:
     .byte 0x06              ;63f2  06          DATA 0x06        6 bytes follow:
-    .byte 0x53              ;63f3  53          DATA 0x53 'S'
-    .byte 0x45              ;63f4  45          DATA 0x45 'E'
-    .byte 0x45              ;63f5  45          DATA 0x45 'E'
-    .byte 0x4b              ;63f6  4b          DATA 0x4b 'K'
-    .byte 0x20              ;63f7  20          DATA 0x20 ' '
-    .byte 0x2d              ;63f8  2d          DATA 0x2d '-'
+    .ascii "SEEK -"
 
 vol:
     .byte 0x0d              ;63f9  0d          DATA 0x0d        13 bytes follow:
-    .byte 0x56              ;63fa  56          DATA 0x56 'V'
-    .byte 0x4f              ;63fb  4f          DATA 0x4f 'O'
-    .byte 0x4c              ;63fc  4c          DATA 0x4c 'L'
-    .byte 0x20              ;63fd  20          DATA 0x20 ' '
-    .byte 0x20              ;63fe  20          DATA 0x20 ' '
-    .byte 0x20              ;63ff  20          DATA 0x20 ' '
-    .byte 0x20              ;6400  20          DATA 0x20 ' '
-    .byte 0x20              ;6401  20          DATA 0x20 ' '
-    .byte 0x20              ;6402  20          DATA 0x20 ' '
-    .byte 0x20              ;6403  20          DATA 0x20 ' '
-    .byte 0x20              ;6404  20          DATA 0x20 ' '
-    .byte 0x20              ;6405  20          DATA 0x20 ' '
-    .byte 0x20              ;6406  20          DATA 0x20 ' '
+    .ascii "VOL          "
 
 fade:
     .byte 0x04              ;6407  04          DATA 0x04        4 bytes follow:
-    .byte 0x46              ;6408  46          DATA 0x46 'F'
-    .byte 0x41              ;6409  41          DATA 0x41 'A'
-    .byte 0x44              ;640a  44          DATA 0x44 'D'
-    .byte 0x45              ;640b  45          DATA 0x45 'E'
+    .ascii "FADE"
 
 fadefront:
     .byte 0x0b              ;640c  0b          DATA 0x0b        11 bytes follow:
-    .byte 0x46              ;640d  46          DATA 0x46 'F'
-    .byte 0x41              ;640e  41          DATA 0x41 'A'
-    .byte 0x44              ;640f  44          DATA 0x44 'D'
-    .byte 0x45              ;6410  45          DATA 0x45 'E'
-    .byte 0x46              ;6411  46          DATA 0x46 'F'
-    .byte 0x52              ;6412  52          DATA 0x52 'R'
-    .byte 0x4f              ;6413  4f          DATA 0x4f 'O'
-    .byte 0x4e              ;6414  4e          DATA 0x4e 'N'
-    .byte 0x54              ;6415  54          DATA 0x54 'T'
-    .byte 0x20              ;6416  20          DATA 0x20 ' '
-    .byte 0x20              ;6417  20          DATA 0x20 ' '
+    .ascii "FADEFRONT  "
 
 fadecenter:
     .byte 0x0b              ;6418  0b          DATA 0x0b        11 bytes follow:
-    .byte 0x46              ;6419  46          DATA 0x46 'F'
-    .byte 0x41              ;641a  41          DATA 0x41 'A'
-    .byte 0x44              ;641b  44          DATA 0x44 'D'
-    .byte 0x45              ;641c  45          DATA 0x45 'E'
-    .byte 0x43              ;641d  43          DATA 0x43 'C'
-    .byte 0x45              ;641e  45          DATA 0x45 'E'
-    .byte 0x4e              ;641f  4e          DATA 0x4e 'N'
-    .byte 0x54              ;6420  54          DATA 0x54 'T'
-    .byte 0x45              ;6421  45          DATA 0x45 'E'
-    .byte 0x52              ;6422  52          DATA 0x52 'R'
-    .byte 0x20              ;6423  20          DATA 0x20 ' '
+    .ascii "FADECENTER "
 
 faderear:
     .byte 0x0b              ;6424  0b          DATA 0x0b        11 bytes follow:
-    .byte 0x46              ;6425  46          DATA 0x46 'F'
-    .byte 0x41              ;6426  41          DATA 0x41 'A'
-    .byte 0x44              ;6427  44          DATA 0x44 'D'
-    .byte 0x45              ;6428  45          DATA 0x45 'E'
-    .byte 0x52              ;6429  52          DATA 0x52 'R'
-    .byte 0x45              ;642a  45          DATA 0x45 'E'
-    .byte 0x41              ;642b  41          DATA 0x41 'A'
-    .byte 0x52              ;642c  52          DATA 0x52 'R'
-    .byte 0x20              ;642d  20          DATA 0x20 ' '
-    .byte 0x20              ;642e  20          DATA 0x20 ' '
-    .byte 0x20              ;642f  20          DATA 0x20 ' '
+    .ascii "FADEREAR   "
 
 bal:
     .byte 0x04              ;6430  04          DATA 0x04        4 bytes follow:
-    .byte 0x42              ;6431  42          DATA 0x42 'B'
-    .byte 0x41              ;6432  41          DATA 0x41 'A'
-    .byte 0x4c              ;6433  4c          DATA 0x4c 'L'
-    .byte 0x20              ;6434  20          DATA 0x20 ' '
+    .ascii "BAL "
 
 bal_left:
     .byte 0x0b              ;6435  0b          DATA 0x0b        11 bytes follow:
-    .byte 0x42              ;6436  42          DATA 0x42 'B'
-    .byte 0x41              ;6437  41          DATA 0x41 'A'
-    .byte 0x4c              ;6438  4c          DATA 0x4c 'L'
-    .byte 0x20              ;6439  20          DATA 0x20 ' '
-    .byte 0x4c              ;643a  4c          DATA 0x4c 'L'
-    .byte 0x45              ;643b  45          DATA 0x45 'E'
-    .byte 0x46              ;643c  46          DATA 0x46 'F'
-    .byte 0x54              ;643d  54          DATA 0x54 'T'
-    .byte 0x20              ;643e  20          DATA 0x20 ' '
-    .byte 0x20              ;643f  20          DATA 0x20 ' '
-    .byte 0x20              ;6440  20          DATA 0x20 ' '
+    .ascii "BAL LEFT   "
 
 bal_center:
     .byte 0x0b              ;6441  0b          DATA 0x0b        11 bytes follow:
-    .byte 0x42              ;6442  42          DATA 0x42 'B'
-    .byte 0x41              ;6443  41          DATA 0x41 'A'
-    .byte 0x4c              ;6444  4c          DATA 0x4c 'L'
-    .byte 0x20              ;6445  20          DATA 0x20 ' '
-    .byte 0x43              ;6446  43          DATA 0x43 'C'
-    .byte 0x45              ;6447  45          DATA 0x45 'E'
-    .byte 0x4e              ;6448  4e          DATA 0x4e 'N'
-    .byte 0x54              ;6449  54          DATA 0x54 'T'
-    .byte 0x45              ;644a  45          DATA 0x45 'E'
-    .byte 0x52              ;644b  52          DATA 0x52 'R'
-    .byte 0x20              ;644c  20          DATA 0x20 ' '
+    .ascii "BAL CENTER "
 
 bal_right:
     .byte 0x0b              ;644d  0b          DATA 0x0b        11 bytes follow:
-    .byte 0x42              ;644e  42          DATA 0x42 'B'
-    .byte 0x41              ;644f  41          DATA 0x41 'A'
-    .byte 0x4c              ;6450  4c          DATA 0x4c 'L'
-    .byte 0x20              ;6451  20          DATA 0x20 ' '
-    .byte 0x52              ;6452  52          DATA 0x52 'R'
-    .byte 0x49              ;6453  49          DATA 0x49 'I'
-    .byte 0x47              ;6454  47          DATA 0x47 'G'
-    .byte 0x48              ;6455  48          DATA 0x48 'H'
-    .byte 0x54              ;6456  54          DATA 0x54 'T'
-    .byte 0x20              ;6457  20          DATA 0x20 ' '
-    .byte 0x20              ;6458  20          DATA 0x20 ' '
+    .ascii "BAL RIGHT  "
 
 bass:
     .byte 0x0b              ;6459  0b          DATA 0x0b        11 bytes follow:
-    .byte 0x42              ;645a  42          DATA 0x42 'B'
-    .byte 0x41              ;645b  41          DATA 0x41 'A'
-    .byte 0x53              ;645c  53          DATA 0x53 'S'
-    .byte 0x53              ;645d  53          DATA 0x53 'S'
-    .byte 0x20              ;645e  20          DATA 0x20 ' '
-    .byte 0x20              ;645f  20          DATA 0x20 ' '
-    .byte 0x20              ;6460  20          DATA 0x20 ' '
-    .byte 0x20              ;6461  20          DATA 0x20 ' '
-    .byte 0x20              ;6462  20          DATA 0x20 ' '
-    .byte 0x20              ;6463  20          DATA 0x20 ' '
-    .byte 0x20              ;6464  20          DATA 0x20 ' '
+    .ascii "BASS       "
 
 mid:
     .byte 0x0b              ;6465  0b          DATA 0x0b        11 bytes follow:
-    .byte 0x4d              ;6466  4d          DATA 0x4d 'M'
-    .byte 0x49              ;6467  49          DATA 0x49 'I'
-    .byte 0x44              ;6468  44          DATA 0x44 'D'
-    .byte 0x20              ;6469  20          DATA 0x20 ' '
-    .byte 0x20              ;646a  20          DATA 0x20 ' '
-    .byte 0x20              ;646b  20          DATA 0x20 ' '
-    .byte 0x20              ;646c  20          DATA 0x20 ' '
-    .byte 0x20              ;646d  20          DATA 0x20 ' '
-    .byte 0x20              ;646e  20          DATA 0x20 ' '
-    .byte 0x20              ;646f  20          DATA 0x20 ' '
-    .byte 0x20              ;6470  20          DATA 0x20 ' '
+    .ascii "MID        "
 
 treb:
     .byte 0x0b              ;6471  0b          DATA 0x0b        11 bytes follow:
-    .byte 0x54              ;6472  54          DATA 0x54 'T'
-    .byte 0x52              ;6473  52          DATA 0x52 'R'
-    .byte 0x45              ;6474  45          DATA 0x45 'E'
-    .byte 0x42              ;6475  42          DATA 0x42 'B'
-    .byte 0x20              ;6476  20          DATA 0x20 ' '
-    .byte 0x20              ;6477  20          DATA 0x20 ' '
-    .byte 0x20              ;6478  20          DATA 0x20 ' '
-    .byte 0x20              ;6479  20          DATA 0x20 ' '
-    .byte 0x20              ;647a  20          DATA 0x20 ' '
-    .byte 0x20              ;647b  20          DATA 0x20 ' '
-    .byte 0x20              ;647c  20          DATA 0x20 ' '
+    .ascii "TREB       "
 
 treb_out16:
     .byte 0x0b              ;647d  0b          DATA 0x0b        11 bytes follow:
-    .byte 0x54              ;647e  54          DATA 0x54 'T'
-    .byte 0x52              ;647f  52          DATA 0x52 'R'
-    .byte 0x45              ;6480  45          DATA 0x45 'E'
-    .byte 0x42              ;6481  42          DATA 0x42 'B'
-    .byte 0x20              ;6482  20          DATA 0x20 ' '
-    .byte 0x4f              ;6483  4f          DATA 0x4f 'O'
-    .byte 0x55              ;6484  55          DATA 0x55 'U'
-    .byte 0x54              ;6485  54          DATA 0x54 'T'
-    .byte 0x31              ;6486  31          DATA 0x31 '1'
-    .byte 0x36              ;6487  36          DATA 0x36 '6'
-    .byte 0x20              ;6488  20          DATA 0x20 ' '
+    .ascii "TREB OUT16 "
 
 max:
     .byte 0x07              ;6489  07          DATA 0x07        7 bytes follow:
-    .byte 0x20              ;648a  20          DATA 0x20 ' '
-    .byte 0x20              ;648b  20          DATA 0x20 ' '
-    .byte 0x4d              ;648c  4d          DATA 0x4d 'M'
-    .byte 0x41              ;648d  41          DATA 0x41 'A'
-    .byte 0x58              ;648e  58          DATA 0x58 'X'
-    .byte 0x20              ;648f  20          DATA 0x20 ' '
-    .byte 0x20              ;6490  20          DATA 0x20 ' '
+    .ascii "  MAX  "
 
 min:
     .byte 0x07              ;6491  07          DATA 0x07        7 bytes follow:
-    .byte 0x20              ;6492  20          DATA 0x20 ' '
-    .byte 0x20              ;6493  20          DATA 0x20 ' '
-    .byte 0x4d              ;6494  4d          DATA 0x4d 'M'
-    .byte 0x49              ;6495  49          DATA 0x49 'I'
-    .byte 0x4e              ;6496  4e          DATA 0x4e 'N'
-    .byte 0x20              ;6497  20          DATA 0x20 ' '
-    .byte 0x20              ;6498  20          DATA 0x20 ' '
+    .ascii "  MIN  "
 
 set_onvol:
     .byte 0x0b              ;6499  0b          DATA 0x0b        11 bytes follow:
-    .byte 0x53              ;649a  53          DATA 0x53 'S'
-    .byte 0x45              ;649b  45          DATA 0x45 'E'
-    .byte 0x54              ;649c  54          DATA 0x54 'T'
-    .byte 0x20              ;649d  20          DATA 0x20 ' '
-    .byte 0x4f              ;649e  4f          DATA 0x4f 'O'
-    .byte 0x4e              ;649f  4e          DATA 0x4e 'N'
-    .byte 0x56              ;64a0  56          DATA 0x56 'V'
-    .byte 0x4f              ;64a1  4f          DATA 0x4f 'O'
-    .byte 0x4c              ;64a2  4c          DATA 0x4c 'L'
-    .byte 0x20              ;64a3  20          DATA 0x20 ' '
-    .byte 0x20              ;64a4  20          DATA 0x20 ' '
+    .ascii "SET ONVOL  "
 
 set_cd_mix:
     .byte 0x0b              ;64a5  0b          DATA 0x0b        11 bytes follow:
-    .byte 0x53              ;64a6  53          DATA 0x53 'S'
-    .byte 0x45              ;64a7  45          DATA 0x45 'E'
-    .byte 0x54              ;64a8  54          DATA 0x54 'T'
-    .byte 0x20              ;64a9  20          DATA 0x20 ' '
-    .byte 0x43              ;64aa  43          DATA 0x43 'C'
-    .byte 0x44              ;64ab  44          DATA 0x44 'D'
-    .byte 0x20              ;64ac  20          DATA 0x20 ' '
-    .byte 0x4d              ;64ad  4d          DATA 0x4d 'M'
-    .byte 0x49              ;64ae  49          DATA 0x49 'I'
-    .byte 0x58              ;64af  58          DATA 0x58 'X'
-    .byte 0x20              ;64b0  20          DATA 0x20 ' '
+    .ascii "SET CD MIX "
 
 tape_skip:
     .byte 0x0b              ;64b1  0b          DATA 0x0b        11 bytes follow:
-    .byte 0x54              ;64b2  54          DATA 0x54 'T'
-    .byte 0x41              ;64b3  41          DATA 0x41 'A'
-    .byte 0x50              ;64b4  50          DATA 0x50 'P'
-    .byte 0x45              ;64b5  45          DATA 0x45 'E'
-    .byte 0x20              ;64b6  20          DATA 0x20 ' '
-    .byte 0x53              ;64b7  53          DATA 0x53 'S'
-    .byte 0x4b              ;64b8  4b          DATA 0x4b 'K'
-    .byte 0x49              ;64b9  49          DATA 0x49 'I'
-    .byte 0x50              ;64ba  50          DATA 0x50 'P'
-    .byte 0x20              ;64bb  20          DATA 0x20 ' '
-    .byte 0x20              ;64bc  20          DATA 0x20 ' '
+    .ascii "TAPE SKIP  "
 
 rad_de2:
     .byte 0x0b              ;64bd  0b          DATA 0x0b        11 bytes follow:
-    .byte 0x52              ;64be  52          DATA 0x52 'R'
-    .byte 0x41              ;64bf  41          DATA 0x41 'A'
-    .byte 0x44              ;64c0  44          DATA 0x44 'D'
-    .byte 0x20              ;64c1  20          DATA 0x20 ' '
-    .byte 0x20              ;64c2  20          DATA 0x20 ' '
-    .byte 0x20              ;64c3  20          DATA 0x20 ' '
-    .byte 0x44              ;64c4  44          DATA 0x44 'D'
-    .byte 0x45              ;64c5  45          DATA 0x45 'E'
-    .byte 0x32              ;64c6  32          DATA 0x32 '2'
-    .byte 0x20              ;64c7  20          DATA 0x20 ' '
-    .byte 0x20              ;64c8  20          DATA 0x20 ' '
+    .ascii "RAD   DE2  "
 
 monsoon:
     .byte 0x0b              ;64c9  0b          DATA 0x0b        11 bytes follow:
-    .byte 0x20              ;64ca  20          DATA 0x20 ' '
-    .byte 0x20              ;64cb  20          DATA 0x20 ' '
-    .byte 0x20              ;64cc  20          DATA 0x20 ' '
-    .byte 0x20              ;64cd  20          DATA 0x20 ' '
-    .byte 0x4d              ;64ce  4d          DATA 0x4d 'M'
-    .byte 0x4f              ;64cf  4f          DATA 0x4f 'O'
-    .byte 0x4e              ;64d0  4e          DATA 0x4e 'N'
-    .byte 0x53              ;64d1  53          DATA 0x53 'S'
-    .byte 0x4f              ;64d2  4f          DATA 0x4f 'O'
-    .byte 0x4f              ;64d3  4f          DATA 0x4f 'O'
-    .byte 0x4e              ;64d4  4e          DATA 0x4e 'N'
+    .ascii "    MONSOON"
 
 vers_a99cznn:
     .byte 0x0b              ;64d5  0b          DATA 0x0b        11 bytes follow:
-    .byte 0x56              ;64d6  56          DATA 0x56 'V'
-    .byte 0x65              ;64d7  65          DATA 0x65 'e'
-    .byte 0x72              ;64d8  72          DATA 0x72 'r'
-    .byte 0x73              ;64d9  73          DATA 0x73 's'
-    .byte 0x41              ;64da  41          DATA 0x41 'A'
-    .byte 0x39              ;64db  39          DATA 0x39 '9'
-    .byte 0x39              ;64dc  39          DATA 0x39 '9'
-    .byte 0x43              ;64dd  43          DATA 0x43 'C'
-    .byte 0x5a              ;64de  5a          DATA 0x5a 'Z'
-    .byte 0x6e              ;64df  6e          DATA 0x6e 'n'
-    .byte 0x6e              ;64e0  6e          DATA 0x6e 'n'
+    .ascii "VersA99CZnn"
 
 fern_on:
     .byte 0x0b              ;64e1  0b          DATA 0x0b        11 bytes follow:
-    .byte 0x46              ;64e2  46          DATA 0x46 'F'
-    .byte 0x45              ;64e3  45          DATA 0x45 'E'
-    .byte 0x52              ;64e4  52          DATA 0x52 'R'
-    .byte 0x4e              ;64e5  4e          DATA 0x4e 'N'
-    .byte 0x20              ;64e6  20          DATA 0x20 ' '
-    .byte 0x20              ;64e7  20          DATA 0x20 ' '
-    .byte 0x20              ;64e8  20          DATA 0x20 ' '
-    .byte 0x4f              ;64e9  4f          DATA 0x4f 'O'
-    .byte 0x4e              ;64ea  4e          DATA 0x4e 'N'
-    .byte 0x20              ;64eb  20          DATA 0x20 ' '
-    .byte 0x20              ;64ec  20          DATA 0x20 ' '
+    .ascii "FERN   ON  "
 
 fern_off:
     .byte 0x0b              ;64ed  0b          DATA 0x0b        11 bytes follow:
-    .byte 0x46              ;64ee  46          DATA 0x46 'F'
-    .byte 0x45              ;64ef  45          DATA 0x45 'E'
-    .byte 0x52              ;64f0  52          DATA 0x52 'R'
-    .byte 0x4e              ;64f1  4e          DATA 0x4e 'N'
-    .byte 0x20              ;64f2  20          DATA 0x20 ' '
-    .byte 0x20              ;64f3  20          DATA 0x20 ' '
-    .byte 0x20              ;64f4  20          DATA 0x20 ' '
-    .byte 0x4f              ;64f5  4f          DATA 0x4f 'O'
-    .byte 0x46              ;64f6  46          DATA 0x46 'F'
-    .byte 0x46              ;64f7  46          DATA 0x46 'F'
-    .byte 0x20              ;64f8  20          DATA 0x20 ' '
+    .ascii "FERN   OFF "
 
 safe:
     .byte 0x0b              ;64f9  0b          DATA 0x0b        11 bytes follow:
-    .byte 0x20              ;64fa  20          DATA 0x20 ' '
-    .byte 0x20              ;64fb  20          DATA 0x20 ' '
-    .byte 0x20              ;64fc  20          DATA 0x20 ' '
-    .byte 0x20              ;64fd  20          DATA 0x20 ' '
-    .byte 0x20              ;64fe  20          DATA 0x20 ' '
-    .byte 0x53              ;64ff  53          DATA 0x53 'S'
-    .byte 0x41              ;6500  41          DATA 0x41 'A'
-    .byte 0x46              ;6501  46          DATA 0x46 'F'
-    .byte 0x45              ;6502  45          DATA 0x45 'E'
-    .byte 0x20              ;6503  20          DATA 0x20 ' '
-    .byte 0x20              ;6504  20          DATA 0x20 ' '
+    .ascii "     SAFE  "
 
 onethousand:
     .byte 0x0b              ;6505  0b          DATA 0x0b        11 bytes follow:
-    .byte 0x20              ;6506  20          DATA 0x20 ' '
-    .byte 0x20              ;6507  20          DATA 0x20 ' '
-    .byte 0x20              ;6508  20          DATA 0x20 ' '
-    .byte 0x20              ;6509  20          DATA 0x20 ' '
-    .byte 0x20              ;650a  20          DATA 0x20 ' '
-    .byte 0x31              ;650b  31          DATA 0x31 '1'
-    .byte 0x30              ;650c  30          DATA 0x30 '0'
-    .byte 0x30              ;650d  30          DATA 0x30 '0'
-    .byte 0x30              ;650e  30          DATA 0x30 '0'
-    .byte 0x20              ;650f  20          DATA 0x20 ' '
-    .byte 0x20              ;6510  20          DATA 0x20 ' '
+    .ascii "     1000  "
 
 blank:
     .byte 0x0b              ;6511  0b          DATA 0x0b        11 bytes follow:
-    .byte 0x20              ;6512  20          DATA 0x20 ' '
-    .byte 0x20              ;6513  20          DATA 0x20 ' '
-    .byte 0x20              ;6514  20          DATA 0x20 ' '
-    .byte 0x20              ;6515  20          DATA 0x20 ' '
-    .byte 0x20              ;6516  20          DATA 0x20 ' '
-    .byte 0x20              ;6517  20          DATA 0x20 ' '
-    .byte 0x20              ;6518  20          DATA 0x20 ' '
-    .byte 0x20              ;6519  20          DATA 0x20 ' '
-    .byte 0x20              ;651a  20          DATA 0x20 ' '
-    .byte 0x20              ;651b  20          DATA 0x20 ' '
-    .byte 0x20              ;651c  20          DATA 0x20 ' '
+    .ascii "           "
 
 flat:
     .byte 0x09              ;651d  09          DATA 0x09        9 bytes follow:
-    .byte 0x46              ;651e  46          DATA 0x46 'F'
-    .byte 0x4c              ;651f  4c          DATA 0x4c 'L'
-    .byte 0x41              ;6520  41          DATA 0x41 'A'
-    .byte 0x54              ;6521  54          DATA 0x54 'T'
-    .byte 0x20              ;6522  20          DATA 0x20 ' '
-    .byte 0x20              ;6523  20          DATA 0x20 ' '
-    .byte 0x20              ;6524  20          DATA 0x20 ' '
-    .byte 0x20              ;6525  20          DATA 0x20 ' '
-    .byte 0x20              ;6526  20          DATA 0x20 ' '
+    .ascii "FLAT     "
 
 select_eq:
     .byte 0x0d              ;6527  0d          DATA 0x0d        13 bytes follow:
-    .byte 0x53              ;6528  53          DATA 0x53 'S'
-    .byte 0x45              ;6529  45          DATA 0x45 'E'
-    .byte 0x4c              ;652a  4c          DATA 0x4c 'L'
-    .byte 0x45              ;652b  45          DATA 0x45 'E'
-    .byte 0x43              ;652c  43          DATA 0x43 'C'
-    .byte 0x54              ;652d  54          DATA 0x54 'T'
-    .byte 0x20              ;652e  20          DATA 0x20 ' '
-    .byte 0x45              ;652f  45          DATA 0x45 'E'
-    .byte 0x51              ;6530  51          DATA 0x51 'Q'
-    .byte 0x20              ;6531  20          DATA 0x20 ' '
-    .byte 0x23              ;6532  23          DATA 0x23 '#'
-    .byte 0x20              ;6533  20          DATA 0x20 ' '
-    .byte 0x20              ;6534  20          DATA 0x20 ' '
+    .ascii "SELECT EQ #  "
 
 mem_6535:
     .byte 0x00              ;6535  00          DATA 0x00
@@ -18484,684 +18070,231 @@ mem_6535:
 
 normal:
     .byte 0x06              ;6587  06          DATA 0x06        6 bytes follow:
-    .byte 0x4e              ;6588  4e          DATA 0x4e 'N'
-    .byte 0x4f              ;6589  4f          DATA 0x4f 'O'
-    .byte 0x52              ;658a  52          DATA 0x52 'R'
-    .byte 0x4d              ;658b  4d          DATA 0x4d 'M'
-    .byte 0x41              ;658c  41          DATA 0x41 'A'
-    .byte 0x4c              ;658d  4c          DATA 0x4c 'L'
+    .ascii "NORMAL"
 
 loud:
     .byte 0x04              ;658e  04          DATA 0x04        4 bytes follow:
-    .byte 0x4c              ;658f  4c          DATA 0x4c 'L'
-    .byte 0x4f              ;6590  4f          DATA 0x4f 'O'
-    .byte 0x55              ;6591  55          DATA 0x55 'U'
-    .byte 0x44              ;6592  44          DATA 0x44 'D'
+    .ascii "LOUD"
 
 diag:
     .byte 0x07              ;6593  07          DATA 0x07        7 bytes follow:
-    .byte 0x20              ;6594  20          DATA 0x20 ' '
-    .byte 0x44              ;6595  44          DATA 0x44 'D'
-    .byte 0x49              ;6596  49          DATA 0x49 'I'
-    .byte 0x41              ;6597  41          DATA 0x41 'A'
-    .byte 0x47              ;6598  47          DATA 0x47 'G'
-    .byte 0x20              ;6599  20          DATA 0x20 ' '
-    .byte 0x20              ;659a  20          DATA 0x20 ' '
+    .ascii " DIAG  "
 
 none_found:
     .byte 0x0a              ;659b  0a          DATA 0x0a        10 bytes follow:
-    .byte 0x4e              ;659c  4e          DATA 0x4e 'N'
-    .byte 0x4f              ;659d  4f          DATA 0x4f 'O'
-    .byte 0x4e              ;659e  4e          DATA 0x4e 'N'
-    .byte 0x45              ;659f  45          DATA 0x45 'E'
-    .byte 0x20              ;65a0  20          DATA 0x20 ' '
-    .byte 0x46              ;65a1  46          DATA 0x46 'F'
-    .byte 0x4f              ;65a2  4f          DATA 0x4f 'O'
-    .byte 0x55              ;65a3  55          DATA 0x55 'U'
-    .byte 0x4e              ;65a4  4e          DATA 0x4e 'N'
-    .byte 0x44              ;65a5  44          DATA 0x44 'D'
+    .ascii "NONE FOUND"
 
 tape:
     .byte 0x04              ;65a6  04          DATA 0x04        4 bytes follow:
-    .byte 0x54              ;65a7  54          DATA 0x54 'T'
-    .byte 0x41              ;65a8  41          DATA 0x41 'A'
-    .byte 0x50              ;65a9  50          DATA 0x50 'P'
-    .byte 0x45              ;65aa  45          DATA 0x45 'E'
+    .ascii "TAPE"
 
 tape_play:
     .byte 0x0b              ;65ab  0b          DATA 0x0b        11 bytes follow:
-    .byte 0x54              ;65ac  54          DATA 0x54 'T'
-    .byte 0x41              ;65ad  41          DATA 0x41 'A'
-    .byte 0x50              ;65ae  50          DATA 0x50 'P'
-    .byte 0x45              ;65af  45          DATA 0x45 'E'
-    .byte 0x20              ;65b0  20          DATA 0x20 ' '
-    .byte 0x50              ;65b1  50          DATA 0x50 'P'
-    .byte 0x4c              ;65b2  4c          DATA 0x4c 'L'
-    .byte 0x41              ;65b3  41          DATA 0x41 'A'
-    .byte 0x59              ;65b4  59          DATA 0x59 'Y'
-    .byte 0x20              ;65b5  20          DATA 0x20 ' '
-    .byte 0x20              ;65b6  20          DATA 0x20 ' '
+    .ascii "TAPE PLAY  "
 
 tape_ff:
     .byte 0x0b              ;65b7  0b          DATA 0x0b        11 bytes follow:
-    .byte 0x54              ;65b8  54          DATA 0x54 'T'
-    .byte 0x41              ;65b9  41          DATA 0x41 'A'
-    .byte 0x50              ;65ba  50          DATA 0x50 'P'
-    .byte 0x45              ;65bb  45          DATA 0x45 'E'
-    .byte 0x20              ;65bc  20          DATA 0x20 ' '
-    .byte 0x20              ;65bd  20          DATA 0x20 ' '
-    .byte 0x46              ;65be  46          DATA 0x46 'F'
-    .byte 0x46              ;65bf  46          DATA 0x46 'F'
-    .byte 0x20              ;65c0  20          DATA 0x20 ' '
-    .byte 0x20              ;65c1  20          DATA 0x20 ' '
-    .byte 0x20              ;65c2  20          DATA 0x20 ' '
+    .ascii "TAPE  FF   "
 
 tape_rew:
     .byte 0x0b              ;65c3  0b          DATA 0x0b        11 bytes follow:
-    .byte 0x54              ;65c4  54          DATA 0x54 'T'
-    .byte 0x41              ;65c5  41          DATA 0x41 'A'
-    .byte 0x50              ;65c6  50          DATA 0x50 'P'
-    .byte 0x45              ;65c7  45          DATA 0x45 'E'
-    .byte 0x20              ;65c8  20          DATA 0x20 ' '
-    .byte 0x20              ;65c9  20          DATA 0x20 ' '
-    .byte 0x52              ;65ca  52          DATA 0x52 'R'
-    .byte 0x45              ;65cb  45          DATA 0x45 'E'
-    .byte 0x57              ;65cc  57          DATA 0x57 'W'
-    .byte 0x20              ;65cd  20          DATA 0x20 ' '
-    .byte 0x20              ;65ce  20          DATA 0x20 ' '
+    .ascii "TAPE  REW  "
 
 tapemss_ff:
     .byte 0x0b              ;65cf  0b          DATA 0x0b        11 bytes follow:
-    .byte 0x54              ;65d0  54          DATA 0x54 'T'
-    .byte 0x41              ;65d1  41          DATA 0x41 'A'
-    .byte 0x50              ;65d2  50          DATA 0x50 'P'
-    .byte 0x45              ;65d3  45          DATA 0x45 'E'
-    .byte 0x4d              ;65d4  4d          DATA 0x4d 'M'
-    .byte 0x53              ;65d5  53          DATA 0x53 'S'
-    .byte 0x53              ;65d6  53          DATA 0x53 'S'
-    .byte 0x20              ;65d7  20          DATA 0x20 ' '
-    .byte 0x46              ;65d8  46          DATA 0x46 'F'
-    .byte 0x46              ;65d9  46          DATA 0x46 'F'
-    .byte 0x20              ;65da  20          DATA 0x20 ' '
+    .ascii "TAPEMSS FF "
 
 tapemss_rew:
     .byte 0x0b              ;65db  0b          DATA 0x0b        11 bytes follow:
-    .byte 0x54              ;65dc  54          DATA 0x54 'T'
-    .byte 0x41              ;65dd  41          DATA 0x41 'A'
-    .byte 0x50              ;65de  50          DATA 0x50 'P'
-    .byte 0x45              ;65df  45          DATA 0x45 'E'
-    .byte 0x4d              ;65e0  4d          DATA 0x4d 'M'
-    .byte 0x53              ;65e1  53          DATA 0x53 'S'
-    .byte 0x53              ;65e2  53          DATA 0x53 'S'
-    .byte 0x20              ;65e3  20          DATA 0x20 ' '
-    .byte 0x52              ;65e4  52          DATA 0x52 'R'
-    .byte 0x45              ;65e5  45          DATA 0x45 'E'
-    .byte 0x57              ;65e6  57          DATA 0x57 'W'
+    .ascii "TAPEMSS REW"
 
 skip_blank:
     .byte 0x0b              ;65e7  0b          DATA 0x0b        11 bytes follow:
-    .byte 0x53              ;65e8  53          DATA 0x53 'S'
-    .byte 0x4b              ;65e9  4b          DATA 0x4b 'K'
-    .byte 0x49              ;65ea  49          DATA 0x49 'I'
-    .byte 0x50              ;65eb  50          DATA 0x50 'P'
-    .byte 0x20              ;65ec  20          DATA 0x20 ' '
-    .byte 0x42              ;65ed  42          DATA 0x42 'B'
-    .byte 0x4c              ;65ee  4c          DATA 0x4c 'L'
-    .byte 0x41              ;65ef  41          DATA 0x41 'A'
-    .byte 0x4e              ;65f0  4e          DATA 0x4e 'N'
-    .byte 0x4b              ;65f1  4b          DATA 0x4b 'K'
-    .byte 0x20              ;65f2  20          DATA 0x20 ' '
+    .ascii "SKIP BLANK "
 
 tape_scan:
     .byte 0x0b              ;65f3  0b          DATA 0x0b        11 bytes follow:
-    .byte 0x54              ;65f4  54          DATA 0x54 'T'
-    .byte 0x41              ;65f5  41          DATA 0x41 'A'
-    .byte 0x50              ;65f6  50          DATA 0x50 'P'
-    .byte 0x45              ;65f7  45          DATA 0x45 'E'
-    .byte 0x20              ;65f8  20          DATA 0x20 ' '
-    .byte 0x53              ;65f9  53          DATA 0x53 'S'
-    .byte 0x43              ;65fa  43          DATA 0x43 'C'
-    .byte 0x41              ;65fb  41          DATA 0x41 'A'
-    .byte 0x4e              ;65fc  4e          DATA 0x4e 'N'
-    .byte 0x20              ;65fd  20          DATA 0x20 ' '
-    .byte 0x20              ;65fe  20          DATA 0x20 ' '
+    .ascii "TAPE SCAN  "
 
 tape_metal:
     .byte 0x0b              ;65ff  0b          DATA 0x0b        11 bytes follow:
-    .byte 0x54              ;6600  54          DATA 0x54 'T'
-    .byte 0x41              ;6601  41          DATA 0x41 'A'
-    .byte 0x50              ;6602  50          DATA 0x50 'P'
-    .byte 0x45              ;6603  45          DATA 0x45 'E'
-    .byte 0x20              ;6604  20          DATA 0x20 ' '
-    .byte 0x4d              ;6605  4d          DATA 0x4d 'M'
-    .byte 0x45              ;6606  45          DATA 0x45 'E'
-    .byte 0x54              ;6607  54          DATA 0x54 'T'
-    .byte 0x41              ;6608  41          DATA 0x41 'A'
-    .byte 0x4c              ;6609  4c          DATA 0x4c 'L'
-    .byte 0x20              ;660a  20          DATA 0x20 ' '
+    .ascii "TAPE METAL "
 
 tape_load:
     .byte 0x0b              ;660b  0b          DATA 0x0b        11 bytes follow:
-    .byte 0x54              ;660c  54          DATA 0x54 'T'
-    .byte 0x41              ;660d  41          DATA 0x41 'A'
-    .byte 0x50              ;660e  50          DATA 0x50 'P'
-    .byte 0x45              ;660f  45          DATA 0x45 'E'
-    .byte 0x20              ;6610  20          DATA 0x20 ' '
-    .byte 0x4c              ;6611  4c          DATA 0x4c 'L'
-    .byte 0x4f              ;6612  4f          DATA 0x4f 'O'
-    .byte 0x41              ;6613  41          DATA 0x41 'A'
-    .byte 0x44              ;6614  44          DATA 0x44 'D'
-    .byte 0x20              ;6615  20          DATA 0x20 ' '
-    .byte 0x20              ;6616  20          DATA 0x20 ' '
+    .ascii "TAPE LOAD  "
 
 no_tape:
     .byte 0x0b              ;6617  0b          DATA 0x0b        11 bytes follow:
-    .byte 0x20              ;6618  20          DATA 0x20 ' '
-    .byte 0x20              ;6619  20          DATA 0x20 ' '
-    .byte 0x20              ;661a  20          DATA 0x20 ' '
-    .byte 0x20              ;661b  20          DATA 0x20 ' '
-    .byte 0x4e              ;661c  4e          DATA 0x4e 'N'
-    .byte 0x4f              ;661d  4f          DATA 0x4f 'O'
-    .byte 0x20              ;661e  20          DATA 0x20 ' '
-    .byte 0x54              ;661f  54          DATA 0x54 'T'
-    .byte 0x41              ;6620  41          DATA 0x41 'A'
-    .byte 0x50              ;6621  50          DATA 0x50 'P'
-    .byte 0x45              ;6622  45          DATA 0x45 'E'
+    .ascii "    NO TAPE"
 
 tape_error:
     .byte 0x0b              ;6623  0b          DATA 0x0b        11 bytes follow:
-    .byte 0x54              ;6624  54          DATA 0x54 'T'
-    .byte 0x41              ;6625  41          DATA 0x41 'A'
-    .byte 0x50              ;6626  50          DATA 0x50 'P'
-    .byte 0x45              ;6627  45          DATA 0x45 'E'
-    .byte 0x20              ;6628  20          DATA 0x20 ' '
-    .byte 0x45              ;6629  45          DATA 0x45 'E'
-    .byte 0x52              ;662a  52          DATA 0x52 'R'
-    .byte 0x52              ;662b  52          DATA 0x52 'R'
-    .byte 0x4f              ;662c  4f          DATA 0x4f 'O'
-    .byte 0x52              ;662d  52          DATA 0x52 'R'
-    .byte 0x20              ;662e  20          DATA 0x20 ' '
+    .ascii "TAPE ERROR "
 
 ff:
     .byte 0x07              ;662f  07          DATA 0x07        7 bytes follow:
-    .byte 0x20              ;6630  20          DATA 0x20 ' '
-    .byte 0x20              ;6631  20          DATA 0x20 ' '
-    .byte 0x46              ;6632  46          DATA 0x46 'F'
-    .byte 0x46              ;6633  46          DATA 0x46 'F'
-    .byte 0x20              ;6634  20          DATA 0x20 ' '
-    .byte 0x20              ;6635  20          DATA 0x20 ' '
-    .byte 0x20              ;6636  20          DATA 0x20 ' '
+    .ascii "  FF   "
 
 right_arrow:
     .byte 0x01              ;6637  01          DATA 0x01        1 byte follows:
-    .byte 0x3e              ;6638  3e          DATA 0x3e '>'
+    .ascii ">"
 
 rew:
     .byte 0x07              ;6639  07          DATA 0x07        7 bytes follow:
-    .byte 0x20              ;663a  20          DATA 0x20 ' '
-    .byte 0x20              ;663b  20          DATA 0x20 ' '
-    .byte 0x52              ;663c  52          DATA 0x52 'R'
-    .byte 0x45              ;663d  45          DATA 0x45 'E'
-    .byte 0x57              ;663e  57          DATA 0x57 'W'
-    .byte 0x20              ;663f  20          DATA 0x20 ' '
-    .byte 0x20              ;6640  20          DATA 0x20 ' '
+    .ascii "  REW  "
 
 left_arrow:
     .byte 0x01              ;6641  01          DATA 0x01        1 byte follows:
-    .byte 0x3c              ;6642  3c          DATA 0x3c '<'
+    .ascii "<"
 
 cut_tape:
     .byte 0x08              ;6643  08          DATA 0x08        8 bytes follow:
-    .byte 0x43              ;6644  43          DATA 0x43 'C'
-    .byte 0x55              ;6645  55          DATA 0x55 'U'
-    .byte 0x54              ;6646  54          DATA 0x54 'T'
-    .byte 0x20              ;6647  20          DATA 0x20 ' '
-    .byte 0x54              ;6648  54          DATA 0x54 'T'
-    .byte 0x41              ;6649  41          DATA 0x41 'A'
-    .byte 0x50              ;664a  50          DATA 0x50 'P'
-    .byte 0x45              ;664b  45          DATA 0x45 'E'
+    .ascii "CUT TAPE"
 
 disabled:
     .byte 0x08              ;664c  08          DATA 0x08        8 bytes follow:
-    .byte 0x44              ;664d  44          DATA 0x44 'D'
-    .byte 0x49              ;664e  49          DATA 0x49 'I'
-    .byte 0x53              ;664f  53          DATA 0x53 'S'
-    .byte 0x41              ;6650  41          DATA 0x41 'A'
-    .byte 0x42              ;6651  42          DATA 0x42 'B'
-    .byte 0x4c              ;6652  4c          DATA 0x4c 'L'
-    .byte 0x45              ;6653  45          DATA 0x45 'E'
-    .byte 0x44              ;6654  44          DATA 0x44 'D'
+    .ascii "DISABLED"
 
 comm_error:
     .byte 0x0a              ;6655  0a          DATA 0x0a        10 bytes follow:
-    .byte 0x43              ;6656  43          DATA 0x43 'C'
-    .byte 0x6f              ;6657  6f          DATA 0x6f 'o'
-    .byte 0x6d              ;6658  6d          DATA 0x6d 'm'
-    .byte 0x6d              ;6659  6d          DATA 0x6d 'm'
-    .byte 0x20              ;665a  20          DATA 0x20 ' '
-    .byte 0x45              ;665b  45          DATA 0x45 'E'
-    .byte 0x72              ;665c  72          DATA 0x72 'r'
-    .byte 0x72              ;665d  72          DATA 0x72 'r'
-    .byte 0x6f              ;665e  6f          DATA 0x6f 'o'
-    .byte 0x72              ;665f  72          DATA 0x72 'r'
+    .ascii "Comm Error"
 
 broken_tape:
     .byte 0x0b              ;6660  0b          DATA 0x0b        11 bytes follow:
-    .byte 0x42              ;6661  42          DATA 0x42 'B'
-    .byte 0x72              ;6662  72          DATA 0x72 'r'
-    .byte 0x6f              ;6663  6f          DATA 0x6f 'o'
-    .byte 0x6b              ;6664  6b          DATA 0x6b 'k'
-    .byte 0x65              ;6665  65          DATA 0x65 'e'
-    .byte 0x6e              ;6666  6e          DATA 0x6e 'n'
-    .byte 0x20              ;6667  20          DATA 0x20 ' '
-    .byte 0x54              ;6668  54          DATA 0x54 'T'
-    .byte 0x61              ;6669  61          DATA 0x61 'a'
-    .byte 0x70              ;666a  70          DATA 0x70 'p'
-    .byte 0x65              ;666b  65          DATA 0x65 'e'
+    .ascii "Broken Tape"
 
 tight_tape:
     .byte 0x0a              ;666c  0a          DATA 0x0a        10 bytes follow:
-    .byte 0x54              ;666d  54          DATA 0x54 'T'
-    .byte 0x69              ;666e  69          DATA 0x69 'i'
-    .byte 0x67              ;666f  67          DATA 0x67 'g'
-    .byte 0x68              ;6670  68          DATA 0x68 'h'
-    .byte 0x74              ;6671  74          DATA 0x74 't'
-    .byte 0x20              ;6672  20          DATA 0x20 ' '
-    .byte 0x54              ;6673  54          DATA 0x54 'T'
-    .byte 0x61              ;6674  61          DATA 0x61 'a'
-    .byte 0x70              ;6675  70          DATA 0x70 'p'
-    .byte 0x65              ;6676  65          DATA 0x65 'e'
+    .ascii "Tight Tape"
 
 wrapped_tape:
     .byte 0x0c              ;6677  0c          DATA 0x0c        12 bytes follow:
-    .byte 0x57              ;6678  57          DATA 0x57 'W'
-    .byte 0x72              ;6679  72          DATA 0x72 'r'
-    .byte 0x61              ;667a  61          DATA 0x61 'a'
-    .byte 0x70              ;667b  70          DATA 0x70 'p'
-    .byte 0x70              ;667c  70          DATA 0x70 'p'
-    .byte 0x65              ;667d  65          DATA 0x65 'e'
-    .byte 0x64              ;667e  64          DATA 0x64 'd'
-    .byte 0x20              ;667f  20          DATA 0x20 ' '
-    .byte 0x54              ;6680  54          DATA 0x54 'T'
-    .byte 0x61              ;6681  61          DATA 0x61 'a'
-    .byte 0x70              ;6682  70          DATA 0x70 'p'
-    .byte 0x65              ;6683  65          DATA 0x65 'e'
+    .ascii "Wrapped Tape"
 
 cd__:
     .byte 0x0b              ;6684  0b          DATA 0x0b        11 bytes follow:
-    .byte 0x43              ;6685  43          DATA 0x43 'C'
-    .byte 0x44              ;6686  44          DATA 0x44 'D'
-    .byte 0x20              ;6687  20          DATA 0x20 ' '
-    .byte 0x20              ;6688  20          DATA 0x20 ' '
-    .byte 0x20              ;6689  20          DATA 0x20 ' '
-    .byte 0x20              ;668a  20          DATA 0x20 ' '
-    .byte 0x20              ;668b  20          DATA 0x20 ' '
-    .byte 0x20              ;668c  20          DATA 0x20 ' '
-    .byte 0x20              ;668d  20          DATA 0x20 ' '
-    .byte 0x20              ;668e  20          DATA 0x20 ' '
-    .byte 0x20              ;668f  20          DATA 0x20 ' '
+    .ascii "CD         "
 
 cd_no_cd:
     .byte 0x0b              ;6690  0b          DATA 0x0b        11 bytes follow:
-    .byte 0x43              ;6691  43          DATA 0x43 'C'
-    .byte 0x44              ;6692  44          DATA 0x44 'D'
-    .byte 0x20              ;6693  20          DATA 0x20 ' '
-    .byte 0x20              ;6694  20          DATA 0x20 ' '
-    .byte 0x20              ;6695  20          DATA 0x20 ' '
-    .byte 0x4e              ;6696  4e          DATA 0x4e 'N'
-    .byte 0x4f              ;6697  4f          DATA 0x4f 'O'
-    .byte 0x20              ;6698  20          DATA 0x20 ' '
-    .byte 0x43              ;6699  43          DATA 0x43 'C'
-    .byte 0x44              ;669a  44          DATA 0x44 'D'
-    .byte 0x20              ;669b  20          DATA 0x20 ' '
+    .ascii "CD   NO CD "
 
 cd_tr:
     .byte 0x0b              ;669c  0b          DATA 0x0b        11 bytes follow:
-    .byte 0x43              ;669d  43          DATA 0x43 'C'
-    .byte 0x44              ;669e  44          DATA 0x44 'D'
-    .byte 0x20              ;669f  20          DATA 0x20 ' '
-    .byte 0x20              ;66a0  20          DATA 0x20 ' '
-    .byte 0x20              ;66a1  20          DATA 0x20 ' '
-    .byte 0x54              ;66a2  54          DATA 0x54 'T'
-    .byte 0x52              ;66a3  52          DATA 0x52 'R'
-    .byte 0x20              ;66a4  20          DATA 0x20 ' '
-    .byte 0x20              ;66a5  20          DATA 0x20 ' '
-    .byte 0x20              ;66a6  20          DATA 0x20 ' '
-    .byte 0x20              ;66a7  20          DATA 0x20 ' '
+    .ascii "CD   TR    "
 
 playcd_tr:
     .byte 0x0b              ;66a8  0b          DATA 0x0b        11 bytes follow:
-    .byte 0x50              ;66a9  50          DATA 0x50 'P'
-    .byte 0x4c              ;66aa  4c          DATA 0x4c 'L'
-    .byte 0x41              ;66ab  41          DATA 0x41 'A'
-    .byte 0x59              ;66ac  59          DATA 0x59 'Y'
-    .byte 0x43              ;66ad  43          DATA 0x43 'C'
-    .byte 0x44              ;66ae  44          DATA 0x44 'D'
-    .byte 0x20              ;66af  20          DATA 0x20 ' '
-    .byte 0x54              ;66b0  54          DATA 0x54 'T'
-    .byte 0x52              ;66b1  52          DATA 0x52 'R'
-    .byte 0x20              ;66b2  20          DATA 0x20 ' '
-    .byte 0x20              ;66b3  20          DATA 0x20 ' '
+    .ascii "PLAYCD TR  "
 
 cue:
     .byte 0x0b              ;66b4  0b          DATA 0x0b        11 bytes follow:
-    .byte 0x43              ;66b5  43          DATA 0x43 'C'
-    .byte 0x55              ;66b6  55          DATA 0x55 'U'
-    .byte 0x45              ;66b7  45          DATA 0x45 'E'
-    .byte 0x20              ;66b8  20          DATA 0x20 ' '
-    .byte 0x20              ;66b9  20          DATA 0x20 ' '
-    .byte 0x20              ;66ba  20          DATA 0x20 ' '
-    .byte 0x20              ;66bb  20          DATA 0x20 ' '
-    .byte 0x20              ;66bc  20          DATA 0x20 ' '
-    .byte 0x20              ;66bd  20          DATA 0x20 ' '
-    .byte 0x20              ;66be  20          DATA 0x20 ' '
-    .byte 0x20              ;66bf  20          DATA 0x20 ' '
+    .ascii "CUE        "
 
 rev:
     .byte 0x0b              ;66c0  0b          DATA 0x0b        11 bytes follow:
-    .byte 0x52              ;66c1  52          DATA 0x52 'R'
-    .byte 0x45              ;66c2  45          DATA 0x45 'E'
-    .byte 0x56              ;66c3  56          DATA 0x56 'V'
-    .byte 0x20              ;66c4  20          DATA 0x20 ' '
-    .byte 0x20              ;66c5  20          DATA 0x20 ' '
-    .byte 0x20              ;66c6  20          DATA 0x20 ' '
-    .byte 0x20              ;66c7  20          DATA 0x20 ' '
-    .byte 0x20              ;66c8  20          DATA 0x20 ' '
-    .byte 0x20              ;66c9  20          DATA 0x20 ' '
-    .byte 0x20              ;66ca  20          DATA 0x20 ' '
-    .byte 0x20              ;66cb  20          DATA 0x20 ' '
+    .ascii "REV        "
 
 scan_tr:
     .byte 0x0b              ;66cc  0b          DATA 0x0b        11 bytes follow:
-    .byte 0x53              ;66cd  53          DATA 0x53 'S'
-    .byte 0x43              ;66ce  43          DATA 0x43 'C'
-    .byte 0x41              ;66cf  41          DATA 0x41 'A'
-    .byte 0x4e              ;66d0  4e          DATA 0x4e 'N'
-    .byte 0x43              ;66d1  43          DATA 0x43 'C'
-    .byte 0x44              ;66d2  44          DATA 0x44 'D'
-    .byte 0x20              ;66d3  20          DATA 0x20 ' '
-    .byte 0x54              ;66d4  54          DATA 0x54 'T'
-    .byte 0x52              ;66d5  52          DATA 0x52 'R'
-    .byte 0x20              ;66d6  20          DATA 0x20 ' '
-    .byte 0x20              ;66d7  20          DATA 0x20 ' '
+    .ascii "SCANCD TR  "
 
 track:
     .byte 0x06              ;66d8  06          DATA 0x06        6 bytes follow:
-    .byte 0x54              ;66d9  54          DATA 0x54 'T'
-    .byte 0x52              ;66da  52          DATA 0x52 'R'
-    .byte 0x41              ;66db  41          DATA 0x41 'A'
-    .byte 0x43              ;66dc  43          DATA 0x43 'C'
-    .byte 0x4b              ;66dd  4b          DATA 0x4b 'K'
-    .byte 0x20              ;66de  20          DATA 0x20 ' '
+    .ascii "TRACK "
 
 rdm:
     .byte 0x03              ;66df  03          DATA 0x03        3 bytes follow:
-    .byte 0x52              ;66e0  52          DATA 0x52 'R'
-    .byte 0x44              ;66e1  44          DATA 0x44 'D'
-    .byte 0x4d              ;66e2  4d          DATA 0x4d 'M'
+    .ascii "RDM"
 
 random_one:
     .byte 0x0a              ;66e3  0a          DATA 0x0a        10 bytes follow:
-    .byte 0x52              ;66e4  52          DATA 0x52 'R'
-    .byte 0x41              ;66e5  41          DATA 0x41 'A'
-    .byte 0x4e              ;66e6  4e          DATA 0x4e 'N'
-    .byte 0x44              ;66e7  44          DATA 0x44 'D'
-    .byte 0x4f              ;66e8  4f          DATA 0x4f 'O'
-    .byte 0x4d              ;66e9  4d          DATA 0x4d 'M'
-    .byte 0x20              ;66ea  20          DATA 0x20 ' '
-    .byte 0x4f              ;66eb  4f          DATA 0x4f 'O'
-    .byte 0x4e              ;66ec  4e          DATA 0x4e 'N'
-    .byte 0x45              ;66ed  45          DATA 0x45 'E'
+    .ascii "RANDOM ONE"
 
 random_all:
     .byte 0x0a              ;66ee  0a          DATA 0x0a        10 bytes follow:
-    .byte 0x52              ;66ef  52          DATA 0x52 'R'
-    .byte 0x41              ;66f0  41          DATA 0x41 'A'
-    .byte 0x4e              ;66f1  4e          DATA 0x4e 'N'
-    .byte 0x44              ;66f2  44          DATA 0x44 'D'
-    .byte 0x4f              ;66f3  4f          DATA 0x4f 'O'
-    .byte 0x4d              ;66f4  4d          DATA 0x4d 'M'
-    .byte 0x20              ;66f5  20          DATA 0x20 ' '
-    .byte 0x41              ;66f6  41          DATA 0x41 'A'
-    .byte 0x4c              ;66f7  4c          DATA 0x4c 'L'
-    .byte 0x4c              ;66f8  4c          DATA 0x4c 'L'
+    .ascii "RANDOM ALL"
 
 rev2:
     .byte 0x03              ;66f9  03          DATA 0x03        3 bytes follow:
-    .byte 0x52              ;66fa  52          DATA 0x52 'R'
-    .byte 0x45              ;66fb  45          DATA 0x45 'E'
-    .byte 0x56              ;66fc  56          DATA 0x56 'V'
+    .ascii "REV"
 
 fwd:
     .byte 0x03              ;66fd  03          DATA 0x03        3 bytes follow:
-    .byte 0x46              ;66fe  46          DATA 0x46 'F'
-    .byte 0x57              ;66ff  57          DATA 0x57 'W'
-    .byte 0x44              ;6700  44          DATA 0x44 'D'
+    .ascii "FWD"
 
 et:
     .byte 0x02              ;6701  02          DATA 0x02        2 bytes follow:
-    .byte 0x45              ;6702  45          DATA 0x45 'E'
-    .byte 0x54              ;6703  54          DATA 0x54 'T'
+    .ascii "ET"
 
 eltm:
     .byte 0x04              ;6704  04          DATA 0x04        4 bytes follow:
-    .byte 0x45              ;6705  45          DATA 0x45 'E'
-    .byte 0x4c              ;6706  4c          DATA 0x4c 'L'
-    .byte 0x54              ;6707  54          DATA 0x54 'T'
-    .byte 0x4d              ;6708  4d          DATA 0x4d 'M'
+    .ascii "ELTM"
 
 track_scan:
     .byte 0x0d              ;6709  0d          DATA 0x0d        13 bytes follow:
-    .byte 0x54              ;670a  54          DATA 0x54 'T'
-    .byte 0x52              ;670b  52          DATA 0x52 'R'
-    .byte 0x41              ;670c  41          DATA 0x41 'A'
-    .byte 0x43              ;670d  43          DATA 0x43 'C'
-    .byte 0x4b              ;670e  4b          DATA 0x4b 'K'
-    .byte 0x20              ;670f  20          DATA 0x20 ' '
-    .byte 0x53              ;6710  53          DATA 0x53 'S'
-    .byte 0x43              ;6711  43          DATA 0x43 'C'
-    .byte 0x41              ;6712  41          DATA 0x41 'A'
-    .byte 0x4e              ;6713  4e          DATA 0x4e 'N'
-    .byte 0x20              ;6714  20          DATA 0x20 ' '
-    .byte 0x20              ;6715  20          DATA 0x20 ' '
-    .byte 0x20              ;6716  20          DATA 0x20 ' '
+    .ascii "TRACK SCAN   "
 
 disc_scan:
     .byte 0x0d              ;6717  0d          DATA 0x0d        13 bytes follow:
-    .byte 0x44              ;6718  44          DATA 0x44 'D'
-    .byte 0x49              ;6719  49          DATA 0x49 'I'
-    .byte 0x53              ;671a  53          DATA 0x53 'S'
-    .byte 0x43              ;671b  43          DATA 0x43 'C'
-    .byte 0x20              ;671c  20          DATA 0x20 ' '
-    .byte 0x53              ;671d  53          DATA 0x53 'S'
-    .byte 0x43              ;671e  43          DATA 0x43 'C'
-    .byte 0x41              ;671f  41          DATA 0x41 'A'
-    .byte 0x4e              ;6720  4e          DATA 0x4e 'N'
-    .byte 0x20              ;6721  20          DATA 0x20 ' '
-    .byte 0x20              ;6722  20          DATA 0x20 ' '
-    .byte 0x20              ;6723  20          DATA 0x20 ' '
-    .byte 0x20              ;6724  20          DATA 0x20 ' '
+    .ascii "DISC SCAN    "
 
 check_cd:
     .byte 0x08              ;6725  08          DATA 0x08        8 bytes follow:
-    .byte 0x43              ;6726  43          DATA 0x43 'C'
-    .byte 0x68              ;6727  68          DATA 0x68 'h'
-    .byte 0x65              ;6728  65          DATA 0x65 'e'
-    .byte 0x63              ;6729  63          DATA 0x63 'c'
-    .byte 0x6b              ;672a  6b          DATA 0x6b 'k'
-    .byte 0x20              ;672b  20          DATA 0x20 ' '
-    .byte 0x43              ;672c  43          DATA 0x43 'C'
-    .byte 0x44              ;672d  44          DATA 0x44 'D'
+    .ascii "Check CD"
 
 player_error:
     .byte 0x0c              ;672e  0c          DATA 0x0c        12 bytes follow:
-    .byte 0x50              ;672f  50          DATA 0x50 'P'
-    .byte 0x6c              ;6730  6c          DATA 0x6c 'l'
-    .byte 0x61              ;6731  61          DATA 0x61 'a'
-    .byte 0x79              ;6732  79          DATA 0x79 'y'
-    .byte 0x65              ;6733  65          DATA 0x65 'e'
-    .byte 0x72              ;6734  72          DATA 0x72 'r'
-    .byte 0x20              ;6735  20          DATA 0x20 ' '
-    .byte 0x45              ;6736  45          DATA 0x45 'E'
-    .byte 0x72              ;6737  72          DATA 0x72 'r'
-    .byte 0x72              ;6738  72          DATA 0x72 'r'
-    .byte 0x6f              ;6739  6f          DATA 0x6f 'o'
-    .byte 0x72              ;673a  72          DATA 0x72 'r'
+    .ascii "Player Error"
 
 focus:
     .byte 0x05              ;673b  05          DATA 0x05        5 bytes follow:
-    .byte 0x46              ;673c  46          DATA 0x46 'F'
-    .byte 0x4f              ;673d  4f          DATA 0x4f 'O'
-    .byte 0x43              ;673e  43          DATA 0x43 'C'
-    .byte 0x55              ;673f  55          DATA 0x55 'U'
-    .byte 0x53              ;6740  53          DATA 0x53 'S'
+    .ascii "FOCUS"
 
 cd_door_open:
     .byte 0x0c              ;6741  0c          DATA 0x0c        12 bytes follow:
-    .byte 0x43              ;6742  43          DATA 0x43 'C'
-    .byte 0x44              ;6743  44          DATA 0x44 'D'
-    .byte 0x20              ;6744  20          DATA 0x20 ' '
-    .byte 0x44              ;6745  44          DATA 0x44 'D'
-    .byte 0x6f              ;6746  6f          DATA 0x6f 'o'
-    .byte 0x6f              ;6747  6f          DATA 0x6f 'o'
-    .byte 0x72              ;6748  72          DATA 0x72 'r'
-    .byte 0x20              ;6749  20          DATA 0x20 ' '
-    .byte 0x4f              ;674a  4f          DATA 0x4f 'O'
-    .byte 0x70              ;674b  70          DATA 0x70 'p'
-    .byte 0x65              ;674c  65          DATA 0x65 'e'
-    .byte 0x6e              ;674d  6e          DATA 0x6e 'n'
+    .ascii "CD Door Open"
 
 changer_error:
     .byte 0x0c              ;674e  0c          DATA 0x0c        12 bytes follow:
-    .byte 0x43              ;674f  43          DATA 0x43 'C'
-    .byte 0x68              ;6750  68          DATA 0x68 'h'
-    .byte 0x61              ;6751  61          DATA 0x61 'a'
-    .byte 0x6e              ;6752  6e          DATA 0x6e 'n'
-    .byte 0x67              ;6753  67          DATA 0x67 'g'
-    .byte 0x65              ;6754  65          DATA 0x65 'e'
-    .byte 0x72              ;6755  72          DATA 0x72 'r'
-    .byte 0x20              ;6756  20          DATA 0x20 ' '
-    .byte 0x45              ;6757  45          DATA 0x45 'E'
-    .byte 0x72              ;6758  72          DATA 0x72 'r'
-    .byte 0x72              ;6759  72          DATA 0x72 'r'
-    .byte 0x6f              ;675a  6f          DATA 0x6f 'o'
-    .byte 0x72              ;675b  72          DATA 0x72 'r'
+    .ascii "Changer Error"
 
 magazine:
     .byte 0x08              ;675c  08          DATA 0x08        8 bytes follow:
-    .byte 0x4d              ;675d  4d          DATA 0x4d 'M'
-    .byte 0x41              ;675e  41          DATA 0x41 'A'
-    .byte 0x47              ;675f  47          DATA 0x47 'G'
-    .byte 0x41              ;6760  41          DATA 0x41 'A'
-    .byte 0x5a              ;6761  5a          DATA 0x5a 'Z'
-    .byte 0x49              ;6762  49          DATA 0x49 'I'
-    .byte 0x4e              ;6763  4e          DATA 0x4e 'N'
-    .byte 0x45              ;6764  45          DATA 0x45 'E'
+    .ascii "MAGAZINE"
 
 no_magazin:
     .byte 0x0b              ;6765  0b          DATA 0x0b        11 bytes follow:
-    .byte 0x4e              ;6766  4e          DATA 0x4e 'N'
-    .byte 0x4f              ;6767  4f          DATA 0x4f 'O'
-    .byte 0x20              ;6768  20          DATA 0x20 ' '
-    .byte 0x20              ;6769  20          DATA 0x20 ' '
-    .byte 0x4d              ;676a  4d          DATA 0x4d 'M'
-    .byte 0x41              ;676b  41          DATA 0x41 'A'
-    .byte 0x47              ;676c  47          DATA 0x47 'G'
-    .byte 0x41              ;676d  41          DATA 0x41 'A'
-    .byte 0x5a              ;676e  5a          DATA 0x5a 'Z'
-    .byte 0x49              ;676f  49          DATA 0x49 'I'
-    .byte 0x4e              ;6770  4e          DATA 0x4e 'N'
+    .ascii "NO  MAGAZIN"
 
 no_changer:
     .byte 0x0b              ;6771  0b          DATA 0x0b        11 bytes follow:
-    .byte 0x4e              ;6772  4e          DATA 0x4e 'N'
-    .byte 0x4f              ;6773  4f          DATA 0x4f 'O'
-    .byte 0x20              ;6774  20          DATA 0x20 ' '
-    .byte 0x20              ;6775  20          DATA 0x20 ' '
-    .byte 0x43              ;6776  43          DATA 0x43 'C'
-    .byte 0x48              ;6777  48          DATA 0x48 'H'
-    .byte 0x41              ;6778  41          DATA 0x41 'A'
-    .byte 0x4e              ;6779  4e          DATA 0x4e 'N'
-    .byte 0x47              ;677a  47          DATA 0x47 'G'
-    .byte 0x45              ;677b  45          DATA 0x45 'E'
-    .byte 0x52              ;677c  52          DATA 0x52 'R'
+    .ascii "NO  CHANGER"
 
 no_disc:
     .byte 0x0b              ;677d  0b          DATA 0x0b        11 bytes follow:
-    .byte 0x20              ;677e  20          DATA 0x20 ' '
-    .byte 0x20              ;677f  20          DATA 0x20 ' '
-    .byte 0x20              ;6780  20          DATA 0x20 ' '
-    .byte 0x20              ;6781  20          DATA 0x20 ' '
-    .byte 0x4e              ;6782  4e          DATA 0x4e 'N'
-    .byte 0x4f              ;6783  4f          DATA 0x4f 'O'
-    .byte 0x20              ;6784  20          DATA 0x20 ' '
-    .byte 0x44              ;6785  44          DATA 0x44 'D'
-    .byte 0x49              ;6786  49          DATA 0x49 'I'
-    .byte 0x53              ;6787  53          DATA 0x53 'S'
-    .byte 0x43              ;6788  43          DATA 0x43 'C'
+    .ascii "    NO DISC"
 
 cd_cd_rom:
     .byte 0x0b              ;6789  0b          DATA 0x0b        11 bytes follow:
-    .byte 0x43              ;678a  43          DATA 0x43 'C'
-    .byte 0x44              ;678b  44          DATA 0x44 'D'
-    .byte 0x20              ;678c  20          DATA 0x20 ' '
-    .byte 0x20              ;678d  20          DATA 0x20 ' '
-    .byte 0x43              ;678e  43          DATA 0x43 'C'
-    .byte 0x44              ;678f  44          DATA 0x44 'D'
-    .byte 0x20              ;6790  20          DATA 0x20 ' '
-    .byte 0x52              ;6791  52          DATA 0x52 'R'
-    .byte 0x4f              ;6792  4f          DATA 0x4f 'O'
-    .byte 0x4d              ;6793  4d          DATA 0x4d 'M'
-    .byte 0x20              ;6794  20          DATA 0x20 ' '
+    .ascii "CD  CD ROM "
 
 cd_cd_err:
     .byte 0x0b              ;6795  0b          DATA 0x0b        11 bytes follow:
-    .byte 0x43              ;6796  43          DATA 0x43 'C'
-    .byte 0x44              ;6797  44          DATA 0x44 'D'
-    .byte 0x20              ;6798  20          DATA 0x20 ' '
-    .byte 0x20              ;6799  20          DATA 0x20 ' '
-    .byte 0x43              ;679a  43          DATA 0x43 'C'
-    .byte 0x44              ;679b  44          DATA 0x44 'D'
-    .byte 0x20              ;679c  20          DATA 0x20 ' '
-    .byte 0x45              ;679d  45          DATA 0x45 'E'
-    .byte 0x52              ;679e  52          DATA 0x52 'R'
-    .byte 0x52              ;679f  52          DATA 0x52 'R'
-    .byte 0x20              ;67a0  20          DATA 0x20 ' '
+    .ascii "CD  CD ERR "
 
 cd_error:
     .byte 0x0b              ;67a1  0b          DATA 0x0b        11 bytes follow:
-    .byte 0x20              ;67a2  20          DATA 0x20 ' '
-    .byte 0x43              ;67a3  43          DATA 0x43 'C'
-    .byte 0x44              ;67a4  44          DATA 0x44 'D'
-    .byte 0x20              ;67a5  20          DATA 0x20 ' '
-    .byte 0x20              ;67a6  20          DATA 0x20 ' '
-    .byte 0x45              ;67a7  45          DATA 0x45 'E'
-    .byte 0x52              ;67a8  52          DATA 0x52 'R'
-    .byte 0x52              ;67a9  52          DATA 0x52 'R'
-    .byte 0x4f              ;67aa  4f          DATA 0x4f 'O'
-    .byte 0x52              ;67ab  52          DATA 0x52 'R'
-    .byte 0x20              ;67ac  20          DATA 0x20 ' '
+    .ascii " CD  ERROR "
 
 chk_magazin:
     .byte 0x0b              ;67ad  0b          DATA 0x0b        11 bytes follow:
-    .byte 0x43              ;67ae  43          DATA 0x43 'C'
-    .byte 0x48              ;67af  48          DATA 0x48 'H'
-    .byte 0x4b              ;67b0  4b          DATA 0x4b 'K'
-    .byte 0x20              ;67b1  20          DATA 0x20 ' '
-    .byte 0x4d              ;67b2  4d          DATA 0x4d 'M'
-    .byte 0x41              ;67b3  41          DATA 0x41 'A'
-    .byte 0x47              ;67b4  47          DATA 0x47 'G'
-    .byte 0x41              ;67b5  41          DATA 0x41 'A'
-    .byte 0x5a              ;67b6  5a          DATA 0x5a 'Z'
-    .byte 0x49              ;67b7  49          DATA 0x49 'I'
-    .byte 0x4e              ;67b8  4e          DATA 0x4e 'N'
+    .ascii "CHK MAGAZIN"
 
 lock:
     .byte 0x04              ;67b9  04          DATA 0x04        4 bytes follow:
-    .byte 0x4c              ;67ba  4c          DATA 0x4c 'L'
-    .byte 0x4f              ;67bb  4f          DATA 0x4f 'O'
-    .byte 0x43              ;67bc  43          DATA 0x43 'C'
-    .byte 0x4b              ;67bd  4b          DATA 0x4b 'K'
+    .ascii "LOCK"
 
 sub_67be:
 ;Sets mem_f1a6 = 0xff
