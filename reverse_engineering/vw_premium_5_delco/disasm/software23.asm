@@ -91,6 +91,7 @@ mem_f1af = 0xf1af
 mem_f1b1 = 0xf1b1
 mem_f1b2 = 0xf1b2
 mem_f1b3 = 0xf1b3
+mem_f1b9 = 0xf1b9
 mem_f1c5 = 0xf1c5
 mem_f1c6 = 0xf1c6
 mem_f1c7 = 0xf1c7
@@ -10239,7 +10240,7 @@ lab_3722:
     bnz sub_3755            ;3728  bd 2b
     mov a,mem_fe2a          ;372a  f0 2a
     mov b,a                 ;372c  73
-    movw hl,#0xb041         ;372d  16 41 b0
+    movw hl,#mem_b040+1     ;372d  16 41 b0
     callf !sub_0c48         ;3730  4c 48
     bc sub_3755             ;3732  8d 21
     movw ax,#0x373b         ;3734  10 3b 37
@@ -11368,7 +11369,7 @@ intp1_3ecc:
     reti                    ;3ece  8f
 
 lab_3ecf:
-    movw de,#0xb0e4         ;3ecf  14 e4 b0
+    movw de,#mem_b0e4       ;3ecf  14 e4 b0
     mov a,#0xff             ;3ed2  a1 ff
     call !sub_5c64          ;3ed4  9a 64 5c
     cmp a,#0xff             ;3ed7  4d ff
@@ -11376,7 +11377,7 @@ lab_3ecf:
     mov b,#0x00             ;3edb  a3 00
 
 lab_3edd:
-    movw hl,#0xb0eb         ;3edd  16 eb b0
+    movw hl,#mem_b0eb       ;3edd  16 eb b0
     br lab_3f4a             ;3ee0  fa 68
 
 lab_3ee2:
@@ -12152,7 +12153,7 @@ lab_4395:
 sub_4396:
     mov a,mem_fe30          ;4396  f0 30
     mov b,#0x00             ;4398  a3 00
-    movw hl,#0xb0f5         ;439a  16 f5 b0
+    movw hl,#mem_b0f4+1     ;439a  16 f5 b0
     cmp a,[hl+b]            ;439d  31 4b
     bz lab_43ac             ;439f  ad 0b
 
@@ -12175,7 +12176,7 @@ lab_43b0:
 sub_43b1:
     push ax                 ;43b1  b1
     mov b,a                 ;43b2  73
-    movw hl,#0xb0f9         ;43b3  16 f9 b0
+    movw hl,#mem_b0f8+1     ;43b3  16 f9 b0
     callf !sub_0c48         ;43b6  4c 48
     pop bc                  ;43b8  b2
     bc lab_4400             ;43b9  8d 45
@@ -12255,7 +12256,7 @@ lab_442a:
 sub_442f:
     mov !mem_f191,a         ;442f  9e 91 f1
     mov b,a                 ;4432  73
-    movw hl,#0xb0f5         ;4433  16 f5 b0
+    movw hl,#mem_b0f4+1     ;4433  16 f5 b0
     mov a,[hl+b]            ;4436  ab
     ret                     ;4437  af
 
@@ -17326,7 +17327,7 @@ sub_60ac:
 lab_60c7:
     add a,x                 ;60c7  61 08
     movw hl,#mem_b3d2+1     ;60c9  16 d3 b3
-    movw de,#0xf1b9         ;60cc  14 b9 f1
+    movw de,#mem_f1b9       ;60cc  14 b9 f1
     mov mem_fed4,a          ;60cf  f2 d4
     call !sub_026e          ;60d1  9a 6e 02
 
@@ -18587,8 +18588,8 @@ lab_694d:
     ret                     ;6955  af
 
 lab_6956:
-    movw de,#0xb47e         ;6956  14 7e b4
-    movw hl,#0xb47c         ;6959  16 7c b4
+    movw de,#mem_b47e       ;6956  14 7e b4
+    movw hl,#mem_b47c       ;6959  16 7c b4
     br lab_6991             ;695c  fa 33
 
 lab_695e:
@@ -18604,24 +18605,24 @@ lab_6967:
 
 lab_696f:
     mov b,#0x02             ;696f  a3 02
-    movw de,#0xb4b1         ;6971  14 b1 b4
+    movw de,#mem_b4b1       ;6971  14 b1 b4
     movw hl,#lab_6978       ;6974  16 78 69
     ret                     ;6977  af
 
 lab_6978:
-    movw de,#0xb4d1         ;6978  14 d1 b4
-    movw hl,#0xb4c6         ;697b  16 c6 b4
+    movw de,#mem_b4d1       ;6978  14 d1 b4
+    movw hl,#mem_b4c6       ;697b  16 c6 b4
     br lab_6991             ;697e  fa 11
 
 lab_6980:
     mov b,#0x03             ;6980  a3 03
-    movw hl,#0x6989         ;6982  16 89 69
+    movw hl,#lab_6989       ;6982  16 89 69
     movw de,#mem_b4de+1     ;6985  14 df b4
     ret                     ;6988  af
 
 lab_6989:
-    movw de,#0xb50c         ;6989  14 0c b5
-    movw hl,#0xb4fe         ;698c  16 fe b4
+    movw de,#mem_b50b+1     ;6989  14 0c b5
+    movw hl,#mem_b4fe       ;698c  16 fe b4
     br lab_6991             ;698f  fa 00
 
 lab_6991:
@@ -19910,7 +19911,7 @@ lab_70d4:
     mov b,a                 ;70da  73
     push bc                 ;70db  b3
     mov !mem_f1a7,a         ;70dc  9e a7 f1
-    movw hl,#0xb536         ;70df  16 36 b5
+    movw hl,#mem_b535+1     ;70df  16 36 b5
     callf !sub_0c48         ;70e2  4c 48
     bnc lab_70ea            ;70e4  9d 04
     pop ax                  ;70e6  b0
@@ -22098,7 +22099,7 @@ lab_7ed2:
     mov b,a                 ;7eda  73
     cmp a,#0x0c             ;7edb  4d 0c
     bnc lab_7ef1            ;7edd  9d 12
-    movw hl,#0xb3b6+1       ;7edf  16 b7 b3
+    movw hl,#mem_b3b6+1     ;7edf  16 b7 b3
     mov a,[hl+b]            ;7ee2  ab
     cmp a,!mem_fb3a         ;7ee3  48 3a fb
     bc lab_7ef1             ;7ee6  8d 09
@@ -22427,7 +22428,7 @@ lab_80df:
 
 lab_80e5:
     mov b,a                 ;80e5  73
-    movw hl,#0xb7a9         ;80e6  16 a9 b7
+    movw hl,#mem_b7a8+1     ;80e6  16 a9 b7
     callf !sub_0c48         ;80e9  4c 48
     movw ax,#0x80f2         ;80eb  10 f2 80
     push ax                 ;80ee  b1
@@ -30602,6 +30603,7 @@ mem_af57:
     .word safe_code_1000    ;af6c   DATA
     .word sub_223a          ;af6e   DATA
 
+mem_af70:
     .byte 0x41              ;af70  41          DATA 0x41 'A'
     .byte 0x99              ;af71  99          DATA 0x99
     .byte 0x43              ;af72  43          DATA 0x43 'C'
@@ -30869,36 +30871,24 @@ kwp_unknown_b03b:
     .byte 0x25              ;b03e  25          DATA 0x25 '%'
     .byte 0x25              ;b03f  25          DATA 0x25 '%'
 
+mem_b040:
 ;unknown table
-    .byte 0x0f              ;b040  0f          DATA 0x0f
-    .byte 0x81              ;b041  81          DATA 0x81
-    .byte 0x37              ;b042  37          DATA 0x37 '7'
-    .byte 0x86              ;b043  86          DATA 0x86
-    .byte 0x37              ;b044  37          DATA 0x37 '7'
-    .byte 0xa7              ;b045  a7          DATA 0xa7
-    .byte 0x37              ;b046  37          DATA 0x37 '7'
-    .byte 0xb4              ;b047  b4          DATA 0xb4
-    .byte 0x37              ;b048  37          DATA 0x37 '7'
-    .byte 0xc5              ;b049  c5          DATA 0xc5
-    .byte 0x37              ;b04a  37          DATA 0x37 '7'
-    .byte 0xe2              ;b04b  e2          DATA 0xe2
-    .byte 0x37              ;b04c  37          DATA 0x37 '7'
-    .byte 0x0b              ;b04d  0b          DATA 0x0b
-    .byte 0x38              ;b04e  38          DATA 0x38 '8'
-    .byte 0x36              ;b04f  36          DATA 0x36 '6'
-    .byte 0x38              ;b050  38          DATA 0x38 '8'
-    .byte 0x68              ;b051  68          DATA 0x68 'h'
-    .byte 0x38              ;b052  38          DATA 0x38 '8'
-    .byte 0xb7              ;b053  b7          DATA 0xb7
-    .byte 0x38              ;b054  38          DATA 0x38 '8'
-    .byte 0x8d              ;b055  8d          DATA 0x8d
-    .byte 0x38              ;b056  38          DATA 0x38 '8'
-    .byte 0x9a              ;b057  9a          DATA 0x9a
-    .byte 0x38              ;b058  38          DATA 0x38 '8'
-    .byte 0xec              ;b059  ec          DATA 0xec
-    .byte 0x38              ;b05a  38          DATA 0x38 '8'
-    .byte 0x52              ;b05b  52          DATA 0x52 'R'
-    .byte 0x39              ;b05c  39          DATA 0x39 '9'
+    .byte 0x0f              ;b040  0f          DATA 0x0f        15 entries below:
+    .word 0x3781
+    .word 0x3786
+    .word 0x37a7
+    .word 0x37b4
+    .word 0x37c5
+    .word 0x37e2
+    .word 0x380b
+    .word 0x3836
+    .word 0x3868
+    .word 0x38b7
+    .word 0x388d
+    .word 0x389a
+    .word 0x38ec
+    .word 0x3952
+
     .byte 0x79              ;b05d  79          DATA 0x79 'y'
     .byte 0x39              ;b05e  39          DATA 0x39 '9'
     .byte 0x15              ;b05f  15          DATA 0x15
@@ -31023,6 +31013,7 @@ mem_b0d1:
     .word lab_12e3
     .word lab_129b
 
+mem_b0e4:
     .byte 0x01              ;b0e4  01          DATA 0x01
     .byte 0x00              ;b0e5  00          DATA 0x00
     .byte 0x00              ;b0e6  00          DATA 0x00
@@ -31030,6 +31021,8 @@ mem_b0d1:
     .byte 0xff              ;b0e8  ff          DATA 0xff
     .byte 0x01              ;b0e9  01          DATA 0x01
     .byte 0x02              ;b0ea  02          DATA 0x02
+
+mem_b0eb:
     .byte 0x20              ;b0eb  20          DATA 0x20 ' '
     .byte 0x40              ;b0ec  40          DATA 0x40 '@'
     .byte 0x20              ;b0ed  20          DATA 0x20 ' '
@@ -31041,14 +31034,20 @@ mem_b0ef:
     .word lab_3f76          ;b0f0   DATA
     .word lab_3f56          ;b0f2   DATA
 
-    .byte 0x03              ;b0f4  03          DATA 0x03
+mem_b0f4:
+;unknown table
+    .byte 0x03              ;b0f4  03          DATA 0x03        3 entries below:
     .byte 0x01              ;b0f5  01          DATA 0x01
     .byte 0x02              ;b0f6  02          DATA 0x02
     .byte 0x03              ;b0f7  03          DATA 0x03
-    .byte 0x03              ;b0f8  03          DATA 0x03
+
+mem_b0f8:
+;unknown table
+    .byte 0x03              ;b0f8  03          DATA 0x03        3 entries below:
     .byte 0x00              ;b0f9  00          DATA 0x00
     .byte 0x00              ;b0fa  00          DATA 0x00
     .byte 0x4c              ;b0fb  4c          DATA 0x4c 'L'
+
     .byte 0xfe              ;b0fc  fe          DATA 0xfe
     .byte 0x44              ;b0fd  44          DATA 0x44 'D'
     .byte 0xfe              ;b0fe  fe          DATA 0xfe
@@ -31200,26 +31199,27 @@ mem_b0ef:
 mem_b18f:
 ;table used with sub_0c48
     .byte 0x12              ;b18f  12          DATA 0x12        18 entries below:
-    .word 0xb190            ;DATA
-    .word 0xb1b5            ;DATA
-    .word 0xaf70            ;DATA
-    .word 0xaf70            ;DATA
+    .word .                 ;DATA  b190
+    .word mem_b1b4+1        ;DATA
+    .word mem_af70          ;DATA
+    .word mem_af70          ;DATA
     .word mem_fe30          ;DATA
-    .word 0xaf70            ;DATA
+    .word mem_af70          ;DATA
     .word mem_fb56          ;DATA
     .word mem_f225          ;DATA
     .word mem_fe57          ;DATA
     .word mem_f257          ;DATA
-    .word 0xfe43            ;DATA
+    .word mem_fe43          ;DATA
     .word mem_fbac          ;DATA
     .word mem_f1b3          ;DATA
-    .word 0xaf70            ;DATA
-    .word 0xf1b9            ;DATA
+    .word mem_af70          ;DATA
+    .word mem_f1b9          ;DATA
     .word mem_fe4c          ;DATA
     .word mem_fe44          ;DATA
     .word mem_fc75          ;DATA
 
 ;unknown table
+mem_b1b4:
     .byte 0x12              ;b1b4  12          DATA 0x12        18 entries below:
     .byte 0x4b              ;b1b5  4b          DATA 0x4b 'K'
     .byte 0x00              ;b1b6  00          DATA 0x00
@@ -31872,8 +31872,12 @@ mem_b471:
 
     .byte 0x00              ;b47a  00          DATA 0x00
     .byte 0x01              ;b47b  01          DATA 0x01
+
+mem_b47c:
     .byte 0xff              ;b47c  ff          DATA 0xff
     .byte 0x01              ;b47d  01          DATA 0x01
+
+mem_b47e:
     .byte 0x7b              ;b47e  7b          DATA 0x7b '{'
     .byte 0xb4              ;b47f  b4          DATA 0xb4
 
@@ -31923,6 +31927,8 @@ mem_b4a1:
     .byte 0x20              ;b4ae  20          DATA 0x20
     .byte 0x09              ;b4af  09          DATA 0x09
     .byte 0x0a              ;b4b0  0a          DATA 0x0a
+
+mem_b4b1:
     .byte 0x00              ;b4b1  00          DATA 0x00
     .byte 0x6b              ;b4b2  6b          DATA 0x6b
     .byte 0x0f              ;b4b3  0f          DATA 0x0f
@@ -31944,6 +31950,8 @@ mem_b4a1:
     .byte 0x33              ;b4c3  33          DATA 0x33
     .byte 0x6b              ;b4c4  6b          DATA 0x6b
     .byte 0x0a              ;b4c5  0a          DATA 0x0a
+
+mem_b4c6:
     .byte 0x02              ;b4c6  02          DATA 0x02
     .byte 0xff              ;b4c7  ff          DATA 0xff
     .byte 0xff              ;b4c8  ff          DATA 0xff
@@ -31955,6 +31963,8 @@ mem_b4a1:
     .byte 0xff              ;b4ce  ff          DATA 0xff
     .byte 0xff              ;b4cf  ff          DATA 0xff
     .byte 0x02              ;b4d0  02          DATA 0x02
+
+mem_b4d1:
     .byte 0xd6              ;b4d1  d6          DATA 0xd6
     .byte 0xb4              ;b4d2  b4          DATA 0xb4
     .byte 0xd9              ;b4d3  d9          DATA 0xd9
@@ -31991,6 +32001,8 @@ mem_b4de:
     .byte 0x00              ;b4fb  00          DATA 0x00
     .byte 0x02              ;b4fc  02          DATA 0x02
     .byte 0x0d              ;b4fd  0d          DATA 0x0d
+
+mem_b4fe:
     .byte 0x01              ;b4fe  01          DATA 0x01
     .byte 0x02              ;b4ff  02          DATA 0x02
     .byte 0x00              ;b500  00          DATA 0x00
@@ -32004,6 +32016,8 @@ mem_b4de:
     .byte 0x06              ;b508  06          DATA 0x06
     .byte 0xff              ;b509  ff          DATA 0xff
     .byte 0xff              ;b50a  ff          DATA 0xff
+
+mem_b50b:
     .byte 0x07              ;b50b  07          DATA 0x07
     .byte 0x1b              ;b50c  1b          DATA 0x1b
     .byte 0xb5              ;b50d  b5          DATA 0xb5
@@ -32049,6 +32063,7 @@ mem_b530:
     .byte 0x0a              ;b533  0a          DATA 0x0a
     .byte 0x0d              ;b534  0d          DATA 0x0d
 
+mem_b535:
 ;unknown table
     .byte 0x0d              ;b535  0d          DATA 0x0d    13 entries below:
     .byte 0x80              ;b536  80          DATA 0x80
@@ -32407,6 +32422,7 @@ mem_b5c5:
     .byte 0x00              ;b697  00          DATA 0x00
     .byte 0xeb              ;b698  eb          DATA 0xeb
     .byte 0x1d              ;b699  1d          DATA 0x1d
+
     .byte 0x04              ;b69a  04          DATA 0x04
     .byte 0xa6              ;b69b  a6          DATA 0xa6
     .byte 0x7d              ;b69c  7d          DATA 0x7d '}'
@@ -32416,6 +32432,7 @@ mem_b5c5:
     .byte 0x7e              ;b6a0  7e          DATA 0x7e '~'
     .byte 0x17              ;b6a1  17          DATA 0x17
     .byte 0x7f              ;b6a2  7f          DATA 0x7f
+
     .byte 0x03              ;b6a3  03          DATA 0x03
     .byte 0xaf              ;b6a4  af          DATA 0xaf
     .byte 0xb6              ;b6a5  b6          DATA 0xb6
@@ -32653,142 +32670,96 @@ mem_b5c5:
     .byte 0xd3              ;b78d  d3          DATA 0xd3
     .byte 0xb1              ;b78e  b1          DATA 0xb1
     .byte 0xd3              ;b78f  d3          DATA 0xd3
+
+mem_b790:
     .byte 0x05              ;b790  05          DATA 0x05
-    .byte 0xb7              ;b791  b7          DATA 0xb7
-    .byte 0xd1              ;b792  d1          DATA 0xd1
-    .byte 0xb1              ;b793  b1          DATA 0xb1
-    .byte 0xd1              ;b794  d1          DATA 0xd1
-    .byte 0xb1              ;b795  b1          DATA 0xb1
-    .byte 0xd1              ;b796  d1          DATA 0xd1
-    .byte 0xa5              ;b797  a5          DATA 0xa5
-    .byte 0xd1              ;b798  d1          DATA 0xd1
-    .byte 0x8a              ;b799  8a          DATA 0x8a
-    .byte 0xd1              ;b79a  d1          DATA 0xd1
+    .word lab_d1b7
+    .word lab_d1b1
+    .word lab_d1b1
+    .word lab_d1a5
+    .word lab_d18a
 
 mem_b79b:
 ;table used with sub_0c48
     .byte 0x06              ;b79b  06          DATA 0x06        6 entries below:
-    .byte 0xba              ;b79c  ba          DATA 0xba
-    .byte 0xb7              ;b79d  b7          DATA 0xb7
-    .byte 0xc7              ;b79e  c7          DATA 0xc7
-    .byte 0xb7              ;b79f  b7          DATA 0xb7
-    .byte 0xd4              ;b7a0  d4          DATA 0xd4
-    .byte 0xb7              ;b7a1  b7          DATA 0xb7
-    .byte 0xe1              ;b7a2  e1          DATA 0xe1
-    .byte 0xb7              ;b7a3  b7          DATA 0xb7
-    .byte 0xee              ;b7a4  ee          DATA 0xee
-    .byte 0xb7              ;b7a5  b7          DATA 0xb7
-    .byte 0xfb              ;b7a6  fb          DATA 0xfb
-    .byte 0xb7              ;b7a7  b7          DATA 0xb7
+    .word mem_b7b9+1
+    .word mem_b7c6+1
+    .word mem_b7d3+1
+    .word mem_b7e0+1
+    .word mem_b7ed+1
+    .word mem_b7fa+1
 
+mem_b7a8:
 ;unknown table
     .byte 0x08              ;b7a8  08          DATA 0x08        8 entries follow:
-    .byte 0xf6              ;b7a9  f6          DATA 0xf6
-    .byte 0x80              ;b7aa  80          DATA 0x80
-    .byte 0xf6              ;b7ab  f6          DATA 0xf6
-    .byte 0x80              ;b7ac  80          DATA 0x80
-    .byte 0xf6              ;b7ad  f6          DATA 0xf6
-    .byte 0x80              ;b7ae  80          DATA 0x80
-    .byte 0xf6              ;b7af  f6          DATA 0xf6
-    .byte 0x80              ;b7b0  80          DATA 0x80
-    .byte 0x08              ;b7b1  08          DATA 0x08
-    .byte 0x81              ;b7b2  81          DATA 0x81
-    .byte 0x0f              ;b7b3  0f          DATA 0x0f
-    .byte 0x81              ;b7b4  81          DATA 0x81
-    .byte 0x20              ;b7b5  20          DATA 0x20 ' '
-    .byte 0x81              ;b7b6  81          DATA 0x81
-    .byte 0x2c              ;b7b7  2c          DATA 0x2c ','
-    .byte 0x81              ;b7b8  81          DATA 0x81
+    .word lab_80f6
+    .word lab_80f6
+    .word lab_80f6
+    .word lab_80f6
+    .word lab_8108
+    .word lab_810f
+    .word lab_8120
+    .word lab_812c
 
+mem_b7b9:
 ;unknown table
     .byte 0x06              ;b7b9  06          DATA 0x06        6 entries follow:
-    .byte 0x8c              ;b7ba  8c          DATA 0x8c
-    .byte 0x87              ;b7bb  87          DATA 0x87
-    .byte 0x43              ;b7bc  43          DATA 0x43 'C'
-    .byte 0x82              ;b7bd  82          DATA 0x82
-    .byte 0x43              ;b7be  43          DATA 0x43 'C'
-    .byte 0x82              ;b7bf  82          DATA 0x82
-    .byte 0x43              ;b7c0  43          DATA 0x43 'C'
-    .byte 0x82              ;b7c1  82          DATA 0x82
-    .byte 0x43              ;b7c2  43          DATA 0x43 'C'
-    .byte 0x82              ;b7c3  82          DATA 0x82
-    .byte 0x43              ;b7c4  43          DATA 0x43 'C'
-    .byte 0x82              ;b7c5  82          DATA 0x82
+    .word 0x878c
+    .word 0x8243
+    .word 0x8243
+    .word 0x8243
+    .word 0x8243
+    .word 0x8243
 
+mem_b7c6:
 ;unknown table
     .byte 0x06              ;b7c6  06          DATA 0x06        6 entries follow:
-    .byte 0xb1              ;b7c7  b1          DATA 0xb1
-    .byte 0x83              ;b7c8  83          DATA 0x83
-    .byte 0x8c              ;b7c9  8c          DATA 0x8c
-    .byte 0x87              ;b7ca  87          DATA 0x87
-    .byte 0xc4              ;b7cb  c4          DATA 0xc4
-    .byte 0x83              ;b7cc  83          DATA 0x83
-    .byte 0xc4              ;b7cd  c4          DATA 0xc4
-    .byte 0x83              ;b7ce  83          DATA 0x83
-    .byte 0xc4              ;b7cf  c4          DATA 0xc4
-    .byte 0x83              ;b7d0  83          DATA 0x83
-    .byte 0xc4              ;b7d1  c4          DATA 0xc4
-    .byte 0x83              ;b7d2  83          DATA 0x83
+    .word 0x83b1
+    .word 0x878c
+    .word 0x83c4
+    .word 0x83c4
+    .word 0x83c4
+    .word 0x83c4
 
+mem_b7d3:
 ;unknown table
     .byte 0x06              ;b7d3  06          DATA 0x06        6 entries follow:
-    .byte 0xf5              ;b7d4  f5          DATA 0xf5
-    .byte 0x86              ;b7d5  86          DATA 0x86
-    .byte 0xf5              ;b7d6  f5          DATA 0xf5
-    .byte 0x86              ;b7d7  86          DATA 0x86
-    .byte 0x8c              ;b7d8  8c          DATA 0x8c
-    .byte 0x87              ;b7d9  87          DATA 0x87
-    .byte 0xf5              ;b7da  f5          DATA 0xf5
-    .byte 0x86              ;b7db  86          DATA 0x86
-    .byte 0xf5              ;b7dc  f5          DATA 0xf5
-    .byte 0x86              ;b7dd  86          DATA 0x86
-    .byte 0xf5              ;b7de  f5          DATA 0xf5
-    .byte 0x86              ;b7df  86          DATA 0x86
+    .word 0x86f5
+    .word 0x86f5
+    .word 0x878c
+    .word 0x86f5
+    .word 0x86f5
+    .word 0x86f5
 
+mem_b7e0:
 ;unknown table
     .byte 0x06              ;b7e0  06          DATA 0x06        6 entries follow:
-    .byte 0xf5              ;b7e1  f5          DATA 0xf5
-    .byte 0x86              ;b7e2  86          DATA 0x86
-    .byte 0xf5              ;b7e3  f5          DATA 0xf5
-    .byte 0x86              ;b7e4  86          DATA 0x86
-    .byte 0xf5              ;b7e5  f5          DATA 0xf5
-    .byte 0x86              ;b7e6  86          DATA 0x86
-    .byte 0x8c              ;b7e7  8c          DATA 0x8c
-    .byte 0x87              ;b7e8  87          DATA 0x87
-    .byte 0xf5              ;b7e9  f5          DATA 0xf5
-    .byte 0x86              ;b7ea  86          DATA 0x86
-    .byte 0xf5              ;b7eb  f5          DATA 0xf5
-    .byte 0x86              ;b7ec  86          DATA 0x86
+    .word 0x86f5
+    .word 0x86f5
+    .word 0x86f5
+    .word 0x878c
+    .word 0x86f5
+    .word 0x86f5
 
+mem_b7ed:
 ;unknown table
     .byte 0x06              ;b7ed  06          DATA 0x06        6 entries follow:
-    .byte 0x8e              ;b7ee  8e          DATA 0x8e
-    .byte 0x85              ;b7ef  85          DATA 0x85
-    .byte 0x8e              ;b7f0  8e          DATA 0x8e
-    .byte 0x85              ;b7f1  85          DATA 0x85
-    .byte 0x8e              ;b7f2  8e          DATA 0x8e
-    .byte 0x85              ;b7f3  85          DATA 0x85
-    .byte 0x8e              ;b7f4  8e          DATA 0x8e
-    .byte 0x85              ;b7f5  85          DATA 0x85
-    .byte 0x8c              ;b7f6  8c          DATA 0x8c
-    .byte 0x87              ;b7f7  87          DATA 0x87
-    .byte 0x8e              ;b7f8  8e          DATA 0x8e
-    .byte 0x85              ;b7f9  85          DATA 0x85
+    .word 0x858e
+    .word 0x858e
+    .word 0x858e
+    .word 0x858e
+    .word 0x878c
+    .word 0x858e
 
+mem_b7fa:
 ;unknown table
     .byte 0x06              ;b7fa  06          DATA 0x06        6 entries follow:
-    .byte 0x8e              ;b7fb  8e          DATA 0x8e
-    .byte 0x85              ;b7fc  85          DATA 0x85
-    .byte 0x8e              ;b7fd  8e          DATA 0x8e
-    .byte 0x85              ;b7fe  85          DATA 0x85
-    .byte 0x8e              ;b7ff  8e          DATA 0x8e
-    .byte 0x85              ;b800  85          DATA 0x85
-    .byte 0x8e              ;b801  8e          DATA 0x8e
-    .byte 0x85              ;b802  85          DATA 0x85
-    .byte 0x8e              ;b803  8e          DATA 0x8e
-    .byte 0x85              ;b804  85          DATA 0x85
-    .byte 0x8c              ;b805  8c          DATA 0x8c
-    .byte 0x87              ;b806  87          DATA 0x87
+    .word 0x858e
+    .word 0x858e
+    .word 0x858e
+    .word 0x858e
+    .word 0x858e
+    .word 0x878c
 
 mem_b807:
     .byte 0x2d              ;b807  2d          DATA 0x2d '-'    45 entries follow:
@@ -39493,7 +39464,7 @@ lab_d10e:
     mov a,#0x17             ;d113  a1 17
     callt [0x0046]          ;d115  c7
     call !sub_d164          ;d116  9a 64 d1
-    movw hl,#0xb791         ;d119  16 91 b7
+    movw hl,#mem_b790+1     ;d119  16 91 b7
     mov a,mem_fe45          ;d11c  f0 45
     mov b,a                 ;d11e  73
     br lab_d147             ;d11f  fa 26
