@@ -8195,10 +8195,12 @@ sub_2aba:
     mov a,!kwp_rx_buf+5     ;2ac6  8e 8f f0     KWP1281 rx buffer byte 5
     and a,#0x01             ;2ac9  5d 01
     mov x,a                 ;2acb  70
+
     mov a,!mem_f1fa         ;2acc  8e fa f1
     and a,#0xfe             ;2acf  5d fe
     or a,x                  ;2ad1  61 68
     mov !mem_f1fa,a         ;2ad3  9e fa f1
+
     mov a,!kwp_rx_buf+6     ;2ad6  8e 90 f0     KWP1281 rx buffer byte 6
     mov !mem_f1fb,a         ;2ad9  9e fb f1
     mov a,!kwp_rx_buf+7     ;2adc  8e 91 f0     KWP1281 rx buffer byte 7
@@ -9252,10 +9254,13 @@ sub_308f:
     bf mem_fe7a.2,lab_30e7  ;308f  31 23 7a 54
     bf mem_fe79.1,lab_30e7  ;3093  31 13 79 50
     bf p2.4,lab_30e7        ;3097  31 43 02 4c
+
     mov a,!mem_f06e         ;309b  8e 6e f0
     dec a                   ;309e  51
     mov !mem_f06e,a         ;309f  9e 6e f0
+
     bnz lab_30e7            ;30a2  bd 43
+
     clr1 mem_fe79.1         ;30a4  1b 79
     clr1 shadow_p2.5        ;30a6  5b cc
     mov a,shadow_p2         ;30a8  f0 cc
@@ -9264,12 +9269,15 @@ sub_308f:
     bt mem_fe79.3,lab_30cb  ;30af  bc 79 19
     bt mem_fe79.4,lab_30cf  ;30b2  cc 79 1a
     bt mem_fe79.5,lab_30d3  ;30b5  dc 79 1b
+
     mov a,!mem_f068         ;30b8  8e 68 f0
     and a,#0x0f             ;30bb  5d 0f
     mov b,a                 ;30bd  73
+
     mov a,!mem_f068         ;30be  8e 68 f0
     inc a                   ;30c1  41
     mov !mem_f068,a         ;30c2  9e 68 f0
+
     movw hl,#kwp_tx_buf     ;30c5  16 7a f0         HL = pointer to KWP1281 tx buffer
     mov a,[hl+b]            ;30c8  ab
     br lab_30de             ;30c9  fa 13
@@ -14917,6 +14925,7 @@ sub_5292:
 ;Call with B = index to kwp_lengths_b280
 ;Returns HL = pointer to KWP1281 tx buffer byte 0 (block length)
 ;Returns A = block length from kwp_lengths_b280 table
+;Returns X = block length from kwp_lengths_b280 table (again)
 ;Returns B = 3 (offset to first byte after block title)
 ;
     movw hl,#kwp_lengths_b280+1 ;5292  16 81 b2
@@ -14961,7 +14970,7 @@ lab_52b1:
     inc b                   ;52ce  43
     mov a,#0x03             ;52cf  a1 03        A = 0x03 block end
     mov [hl+b],a            ;52d1  bb           Store in KWP1281 tx buffer byte 8
-    br !sub_34f7            ;52d2  9b f7 34
+    br !sub_34f7            ;52d2  9b f7 34     Set flags to start sending the KWP1281 tx buffer
 
 lab_52d5:
 ;Send ascii/data response with "0001" and extras
@@ -15005,16 +15014,18 @@ lab_530a:
     mov a,#0x13             ;530a  a1 13
     cmp a,!mem_fbca         ;530c  48 ca fb
     bz lab_5322             ;530f  ad 11
-    br !sub_34f7            ;5311  9b f7 34
+    br !sub_34f7            ;5311  9b f7 34     Set flags to start sending the KWP1281 tx buffer
 
 lab_5314:
-    mov a,#0x0e             ;5314  a1 0e
+    mov a,#0x0e             ;5314  a1 0e        A = 14
     mov [hl],a              ;5316  97
     mov !mem_f06b,a         ;5317  9e 6b f0     Store block length
-    mov b,#0x0e             ;531a  a3 0e
-    mov a,#0x03             ;531c  a1 03
-    mov [hl+b],a            ;531e  bb
-    br !sub_34f7            ;531f  9b f7 34
+
+    mov b,#0x0e             ;531a  a3 0e        B = offset 14
+    mov a,#0x03             ;531c  a1 03        A = 0x03 block end
+    mov [hl+b],a            ;531e  bb           Store block end in KWP1281 tx buffer byte 14
+
+    br !sub_34f7            ;531f  9b f7 34     Set flags to start sending the KWP1281 tx buffer
 
 lab_5322:
     mov a,#0x0e             ;5322  a1 0e
@@ -15028,7 +15039,7 @@ lab_532a:
     call !sub_5292          ;532e  9a 92 52     Set block title, counter, length in KWP1281 tx buf
     mov a,#0x03             ;5331  a1 03        A = 0x03 block end
     mov [hl+b],a            ;5333  bb           Store in KWP1281 tx buffer byte 3
-    br !sub_34f7            ;5334  9b f7 34
+    br !sub_34f7            ;5334  9b f7 34     Set flags to start sending the KWP1281 tx buffer
 
 lab_5337:
 ;Send End Session response
@@ -15037,7 +15048,7 @@ lab_5337:
     set1 mem_fe7b.2         ;533c  2a 7b
     mov a,#0x03             ;533e  a1 03        A = 0x03 block end
     mov [hl+b],a            ;5340  bb           Store in KWP1281 tx buffer byte 3
-    br !sub_34f7            ;5341  9b f7 34
+    br !sub_34f7            ;5341  9b f7 34     Set flags to start sending the KWP1281 tx buffer
 
 lab_5344_bad      :
 ;Send NAK response (index 0x03)
@@ -15049,7 +15060,7 @@ lab_5344_bad      :
     inc b                   ;534e  43
     mov a,#0x03             ;534f  a1 03        A = 0x03 block end
     mov [hl+b],a            ;5351  bb           Store in KWP1281 tx buffer byte 4
-    br !sub_34f7            ;5352  9b f7 34
+    br !sub_34f7            ;5352  9b f7 34     Set flags to start sending the KWP1281 tx buffer
 
 lab_5355:
 ;Send NAK response (index 0x04)
@@ -15060,21 +15071,21 @@ lab_5355:
     inc b                   ;535e  43
     mov a,#0x03             ;535f  a1 03        A = 0x03 block end
     mov [hl+b],a            ;5361  bb           Store in KWP1281 tx buffer byte 4
-    br !sub_34f7            ;5362  9b f7 34
+    br !sub_34f7            ;5362  9b f7 34     Set flags to start sending the KWP1281 tx buffer
 
 lab_5365:
     mov b,#0x08             ;5365  a3 08        B = index 0x08 read identification
     call !sub_5292          ;5367  9a 92 52     Set block title, counter, length in KWP1281 tx buf
-    mov a,#0x03             ;536a  a1 03
-    mov [hl+b],a            ;536c  bb
-    br !sub_34f7            ;536d  9b f7 34
+    mov a,#0x03             ;536a  a1 03        A = 0x03 block end
+    mov [hl+b],a            ;536c  bb           Store in KWP1281 tx buffer byte 3
+    br !sub_34f7            ;536d  9b f7 34     Set flags to start sending the KWP1281 tx buffer
 
 lab_5370:
     mov b,#0x09             ;5370  a3 09        B = index 0x09 read faults
     call !sub_5292          ;5372  9a 92 52     Set block title, counter, length in KWP1281 tx buf
-    mov a,#0x03             ;5375  a1 03
-    mov [hl+b],a            ;5377  bb
-    br !sub_34f7            ;5378  9b f7 34
+    mov a,#0x03             ;5375  a1 03        A = 0x03 block end
+    mov [hl+b],a            ;5377  bb           Store in KWP1281 tx buffer byte 3
+    br !sub_34f7            ;5378  9b f7 34     Set flags to start sending the KWP1281 tx buffer
 
 lab_537b:
     set1 mem_fe66.1         ;537b  1a 66
@@ -15115,7 +15126,7 @@ lab_539f:
     mov [hl],a              ;53a7  97
     mov a,#0x03             ;53a8  a1 03
     mov [hl+b],a            ;53aa  bb
-    br !sub_34f7            ;53ab  9b f7 34
+    br !sub_34f7            ;53ab  9b f7 34     Set flags to start sending the KWP1281 tx buffer
 
 lab_53ae:
     mov a,!mem_fbcb         ;53ae  8e cb fb     A = block counter
@@ -15126,16 +15137,16 @@ lab_53ae:
 lab_53b9:
     mov b,#0x0b             ;53b9  a3 0b        B = index 0x0b clear faults
     call !sub_5292          ;53bb  9a 92 52     Set block title, counter, length in KWP1281 tx buf
-    mov a,#0x03             ;53be  a1 03
-    mov [hl+b],a            ;53c0  bb
-    br !sub_34f7            ;53c1  9b f7 34
+    mov a,#0x03             ;53be  a1 03        A = 0x03 block end
+    mov [hl+b],a            ;53c0  bb           Store in KWP1281 tx buffer byte 3
+    br !sub_34f7            ;53c1  9b f7 34     Set flags to start sending the KWP1281 tx buffer
 
 lab_53c4:
     mov b,#0x0c             ;53c4  a3 0c        B = index 0x0c output tests
     call !sub_5292          ;53c6  9a 92 52     Set block title, counter, length in KWP1281 tx buf
-    mov a,#0x03             ;53c9  a1 03
-    mov [hl+b],a            ;53cb  bb
-    br !sub_34f7            ;53cc  9b f7 34
+    mov a,#0x03             ;53c9  a1 03        A = 0x03 block end
+    mov [hl+b],a            ;53cb  bb           Store in KWP1281 tx buffer byte 3
+    br !sub_34f7            ;53cc  9b f7 34     Set flags to start sending the KWP1281 tx buffer
 
 lab_53cf:
 ;Jumped to from output tests
@@ -15156,21 +15167,21 @@ lab_53e4:
     inc b                   ;53e8  43
     mov a,#0x03             ;53e9  a1 03
     mov [hl+b],a            ;53eb  bb
-    br !sub_34f7            ;53ec  9b f7 34
+    br !sub_34f7            ;53ec  9b f7 34     Set flags to start sending the KWP1281 tx buffer
 
 lab_53ef:
     mov b,#0x0e             ;53ef  a3 0e        B = index 0x0e ? TODO
     call !sub_5292          ;53f1  9a 92 52     Set block title, counter, length in KWP1281 tx buf
-    mov a,#0x03             ;53f4  a1 03
-    mov [hl+b],a            ;53f6  bb
-    br !sub_34f7            ;53f7  9b f7 34
+    mov a,#0x03             ;53f4  a1 03        A = 0x03 block end
+    mov [hl+b],a            ;53f6  bb           Store block end in KWP1281 tx buffer byte 3
+    br !sub_34f7            ;53f7  9b f7 34     Set flags to start sending the KWP1281 tx buffer
 
 lab_53fa:
     mov b,#0x0f             ;53fa  a3 0f        B = index 0x0f ? TODO
     call !sub_5292          ;53fc  9a 92 52     Set block title, counter, length in KWP1281 tx buf
-    mov a,#0x03             ;53ff  a1 03
-    mov [hl+b],a            ;5401  bb
-    br !sub_34f7            ;5402  9b f7 34
+    mov a,#0x03             ;53ff  a1 03        A = 0x03 block end
+    mov [hl+b],a            ;5401  bb           Store block end in KWP1281 tx buffer byte 3
+    br !sub_34f7            ;5402  9b f7 34     Set flags to start sending the KWP1281 tx buffer
 
 lab_5405:
     br !lab_5355            ;5405  9b 55 53
@@ -15178,20 +15189,20 @@ lab_5405:
 lab_5408:
     mov b,#0x10             ;5408  a3 10        B = index 0x10 basic setting
     call !sub_5292          ;540a  9a 92 52     Set block title, counter, length in KWP1281 tx buf
-    mov [hl+b],a            ;540d  bb
-    inc b                   ;540e  43
-    mov a,#0x03             ;540f  a1 03
-    mov [hl+b],a            ;5411  bb
-    br !sub_34f7            ;5412  9b f7 34
+    mov [hl+b],a            ;540d  bb           Store block length in KWP1281 tx buffer at byte 3 (weird)
+    inc b                   ;540e  43           Increment B to offset 4
+    mov a,#0x03             ;540f  a1 03        A = 0x03 block end
+    mov [hl+b],a            ;5411  bb           Store block end in KWP1281 tx buffer byte 4
+    br !sub_34f7            ;5412  9b f7 34     Set flags to start sending the KWP1281 tx buffer
 
 lab_5415:
     mov b,#0x11             ;5415  a3 11        B = index 0x11 group reading
     call !sub_5292          ;5417  9a 92 52     Set block title, counter, length in KWP1281 tx buf
-    mov [hl+b],a            ;541a  bb
-    inc b                   ;541b  43
-    mov a,#0x03             ;541c  a1 03
-    mov [hl+b],a            ;541e  bb
-    br !sub_34f7            ;541f  9b f7 34
+    mov [hl+b],a            ;541a  bb           Store block length in KWP1281 tx buffer at byte 3 (weird)
+    inc b                   ;541b  43           Increment B to offset 4
+    mov a,#0x03             ;541c  a1 03        A = 0x03 block end
+    mov [hl+b],a            ;541e  bb           Store block end in KWP1281 tx buffer byte 4
+    br !sub_34f7            ;541f  9b f7 34     Set flags to start sending the KWP1281 tx buffer
 
 lab_5422:
 ;branched from group reading kwp_56_29_group_reading
@@ -15243,7 +15254,7 @@ lab_544c:
     mov !mem_f06b,a         ;5452  9e 6b f0     Store block length
     mov a,#0x03             ;5455  a1 03        A = 0x03 block end
     mov [hl+b],a            ;5457  bb           Store block end in KWP1281 tx buffer
-    br !sub_34f7            ;5458  9b f7 34
+    br !sub_34f7            ;5458  9b f7 34     Set flags to start sending the KWP1281 tx buffer
 
 lab_545b:
 ;TODO investigate this unknown kwp1281 code
@@ -15263,85 +15274,101 @@ lab_545b:
     inc b                   ;546f  43
     mov a,#0x03             ;5470  a1 03
     mov [hl+b],a            ;5472  bb
-    br !sub_34f7            ;5473  9b f7 34
+    br !sub_34f7            ;5473  9b f7 34     Set flags to start sending the KWP1281 tx buffer
 
 lab_5476:
 ;TODO investigate this unknown kwp1281 code
     mov b,#0x14             ;5476  a3 14        B = index 0x14 adaptation
     call !sub_5292          ;5478  9a 92 52     Set block title, counter, length in KWP1281 tx buf
-    mov [hl+b],a            ;547b  bb
-    inc b                   ;547c  43
-    mov a,#0x03             ;547d  a1 03
-    mov [hl+b],a            ;547f  bb
-    br !sub_34f7            ;5480  9b f7 34
+    mov [hl+b],a            ;547b  bb           Store block length in KWP1281 tx buffer at byte 3 (weird)
+
+    inc b                   ;547c  43           B = increment to offset 4
+    mov a,#0x03             ;547d  a1 03        A = 0x03 block end
+    mov [hl+b],a            ;547f  bb           Store block end in KWP1281 tx buffer byte 4
+
+    br !sub_34f7            ;5480  9b f7 34     Set flags to start sending the KWP1281 tx buffer
 
 lab_5483:
 ;TODO investigate this unknown kwp1281 code
     mov b,#0x15             ;5483  a3 15        B = index 0x15 ? TODO
     call !sub_5292          ;5485  9a 92 52     Set block title, counter, length in KWP1281 tx buf
-    mov [hl+b],a            ;5488  bb
-    inc b                   ;5489  43
-    mov [hl+b],a            ;548a  bb
-    inc b                   ;548b  43
-    mov a,x                 ;548c  60
-    mov [hl+b],a            ;548d  bb
-    inc b                   ;548e  43
-    mov a,#0x03             ;548f  a1 03
-    mov [hl+b],a            ;5491  bb
-    br !sub_34f7            ;5492  9b f7 34
+    mov [hl+b],a            ;5488  bb           Store block length in KWP1281 tx buffer at byte 3 (weird)
+
+    inc b                   ;5489  43           Increment to offset 4
+    mov [hl+b],a            ;548a  bb           Store block length in KWP1281 tx buffer at byte 4 (weird)
+
+    inc b                   ;548b  43           Increment to offset 5
+    mov a,x                 ;548c  60           A = block length (weird)
+    mov [hl+b],a            ;548d  bb           Store block length in KWP1281 tx buffer at byte 5 (weird)
+
+    inc b                   ;548e  43           Increment to offset 6
+    mov a,#0x03             ;548f  a1 03        A = 0x03 block end
+    mov [hl+b],a            ;5491  bb           Store block end in KWP1281 tx buffer byte 6
+
+    br !sub_34f7            ;5492  9b f7 34     Set flags to start sending the KWP1281 tx buffer
 
 lab_5495:
 ;TODO investigate this unknown kwp1281 code
     mov b,#0x16             ;5495  a3 16        B = index 0x16 ? TODO
     call !sub_5292          ;5497  9a 92 52     Set block title, counter, length in KWP1281 tx buf
-    mov [hl+b],a            ;549a  bb
-    inc b                   ;549b  43
-    mov [hl+b],a            ;549c  bb
-    inc b                   ;549d  43
-    mov a,x                 ;549e  60
-    mov [hl+b],a            ;549f  bb
-    inc b                   ;54a0  43
+    mov [hl+b],a            ;549a  bb           Store block length in KWP1281 tx buffer at byte 3 (weird)
+
+    inc b                   ;549b  43           Increment to offset 4
+    mov [hl+b],a            ;549c  bb           Store block length in KWP1281 tx buffer at byte 4 (weird)
+
+    inc b                   ;549d  43           Increment to offset 5
+    mov a,x                 ;549e  60           A = block length (weird)
+    mov [hl+b],a            ;549f  bb           Store block length in KWP1281 tx buffer at byte 5 (weird)
+
+    inc b                   ;54a0  43           Increment to offset 6
     call !sub_2b46          ;54a1  9a 46 2b
     mov a,x                 ;54a4  60
     and a,#0x01             ;54a5  5d 01
     mov [hl+b],a            ;54a7  bb
-    inc b                   ;54a8  43
+
+    inc b                   ;54a8  43           Increment to offset 7
     call !sub_2b4b          ;54a9  9a 4b 2b
     mov [hl+b],a            ;54ac  bb
     inc b                   ;54ad  43
     mov a,x                 ;54ae  60
     mov [hl+b],a            ;54af  bb
-    inc b                   ;54b0  43
-    mov a,#0x03             ;54b1  a1 03
-    mov [hl+b],a            ;54b3  bb
-    br !sub_34f7            ;54b4  9b f7 34
+
+    inc b                   ;54b0  43           Increment to offset 8
+    mov a,#0x03             ;54b1  a1 03        A = 0x03 block end
+    mov [hl+b],a            ;54b3  bb           Store block end in KWP1281 tx buffer byte 8
+    br !sub_34f7            ;54b4  9b f7 34     Set flags to start sending the KWP1281 tx buffer
 
 lab_54b7:
-    br !lab_5355            ;54b7  9b 55 53
+    br !lab_5355            ;54b7  9b 55 53     Branch to Send NAK response (index 0x04)
 
 lab_54ba:
 ;TODO investigate this unknown kwp1281 code
     mov b,#0x17             ;54ba  a3 17        B = index 0x17 ? TODO
     call !sub_5292          ;54bc  9a 92 52     Set block title, counter, length in KWP1281 tx buf
-    mov [hl+b],a            ;54bf  bb
-    inc b                   ;54c0  43
-    mov a,#0x03             ;54c1  a1 03
-    mov [hl+b],a            ;54c3  bb
-    br !sub_34f7            ;54c4  9b f7 34
+    mov [hl+b],a            ;54bf  bb           Store block length in KWP1281 tx buffer at byte 3 (weird)
+
+    inc b                   ;54c0  43           Increment to offset 4
+    mov a,#0x03             ;54c1  a1 03        A = 0x03 block end
+    mov [hl+b],a            ;54c3  bb           Store block end in KWP1281 tx buffer byte 4
+
+    br !sub_34f7            ;54c4  9b f7 34     Set flags to start sending the KWP1281 tx buffer
 
 lab_54c7:
-    br !lab_5355            ;54c7  9b 55 53
+    br !lab_5355            ;54c7  9b 55 53     Branch to Send NAK response (index 0x04)
 
 lab_54ca:
 ;TODO investigate this unknown kwp1281 code
     mov b,#0x18             ;54ca  a3 18        B = index 0x18 login
     call !sub_5292          ;54cc  9a 92 52     Set block title, counter, length in KWP1281 tx buf
+
     mov [hl+b],a            ;54cf  bb
     inc b                   ;54d0  43
     mov a,x                 ;54d1  60
     mov [hl+b],a            ;54d2  bb
+
     inc b                   ;54d3  43
     call !sub_2b46          ;54d4  9a 46 2b
+
     mov a,x                 ;54d7  60
     and a,#0x01             ;54d8  5d 01
     mov [hl+b],a            ;54da  bb
@@ -15354,7 +15381,7 @@ lab_54ca:
     inc b                   ;54e3  43
     mov a,#0x03             ;54e4  a1 03
     mov [hl+b],a            ;54e6  bb
-    br !sub_34f7            ;54e7  9b f7 34
+    br !sub_34f7            ;54e7  9b f7 34     Set flags to start sending the KWP1281 tx buffer
 
 lab_54ea:
 ;TODO investigate this unknown kwp1281 code
@@ -15366,7 +15393,7 @@ lab_54ea:
     mov !mem_f06b,a         ;54f2  9e 6b f0     Store block length
     mov a,#0x03             ;54f5  a1 03
     mov [hl+b],a            ;54f7  bb
-    br !sub_34f7            ;54f8  9b f7 34
+    br !sub_34f7            ;54f8  9b f7 34     Set flags to start sending the KWP1281 tx buffer
 
 lab_54fb:
 ;Send response to custom usage with data
@@ -15385,7 +15412,7 @@ lab_5503:
     mov !mem_f06b,a         ;550b  9e 6b f0     Store block length
     mov a,#0x03             ;550e  a1 03        3 = block end?
     mov [hl+b],a            ;5510  bb
-    br !sub_34f7            ;5511  9b f7 34
+    br !sub_34f7            ;5511  9b f7 34     Set flags to start sending the KWP1281 tx buffer
 
 lab_5514:
 ;TODO comment this unknown kwp1281 code
@@ -15401,7 +15428,7 @@ lab_5514:
     inc b                   ;5520  43
     mov a,#0x03             ;5521  a1 03
     mov [hl+b],a            ;5523  bb
-    br !sub_34f7            ;5524  9b f7 34
+    br !sub_34f7            ;5524  9b f7 34     Set flags to start sending the KWP1281 tx buffer
 
 lab_5527:
 ;send read ram response with faked address from mem_f000 and faked byte count from mem_f04c
@@ -15427,7 +15454,7 @@ lab_5544:
     add a,#0x03             ;5544  0d 03
     mov [hl],a              ;5546  97
     mov !mem_f06b,a         ;5547  9e 6b f0     Store block length
-    call !sub_34f7          ;554a  9a f7 34
+    call !sub_34f7          ;554a  9a f7 34     Set flags to start sending the KWP1281 tx buffer
 
 lab_554d:
     mov a,[de]              ;554d  85
@@ -15469,7 +15496,7 @@ lab_556b:
     inc b                   ;5577  43
     mov a,#0x03             ;5578  a1 03
     mov [hl+b],a            ;557a  bb
-    br !sub_34f7            ;557b  9b f7 34
+    br !sub_34f7            ;557b  9b f7 34     Set flags to start sending the KWP1281 tx buffer
 
 lab_557e:
 ;possible nak handling related
@@ -15494,7 +15521,7 @@ lab_559b:
     add a,#0x03             ;559b  0d 03
     mov [hl],a              ;559d  97
     mov !mem_f06b,a         ;559e  9e 6b f0     Store block length
-    call !sub_34f7          ;55a1  9a f7 34
+    call !sub_34f7          ;55a1  9a f7 34     Set flags to start sending the KWP1281 tx buffer
 
 lab_55a4:
     call !sub_2b6e          ;55a4  9a 6e 2b
@@ -15550,7 +15577,7 @@ lab_55c5:
     inc b                   ;55d7  43
     mov a,#0x03             ;55d8  a1 03        A = 0x03 block end
     mov [hl+b],a            ;55da  bb           Store in KWP1281 tx buffer byte 7
-    br !sub_34f7            ;55db  9b f7 34
+    br !sub_34f7            ;55db  9b f7 34     Set flags to start sending the KWP1281 tx buffer
 
 lab_55de:
     mov b,#0x21             ;55de  a3 21        B = 0x21 ? response to security access
@@ -15575,10 +15602,10 @@ lab_55de:
     inc b                   ;55f0  43
     mov a,#0x03             ;55f1  a1 03        A = 0x03 block end
     mov [hl+b],a            ;55f3  bb           Store in KWP1281 tx buffer byte 7
-    br !sub_34f7            ;55f4  9b f7 34
+    br !sub_34f7            ;55f4  9b f7 34     Set flags to start sending the KWP1281 tx buffer
 
 lab_55f7:
-    br !lab_5355            ;55f7  9b 55 53
+    br !lab_5355            ;55f7  9b 55 53     Branch to Send NAK response (index 0x04)
 
 lab_55fa:
     cmp a,#0x0a             ;55fa  4d 0a
