@@ -4914,7 +4914,7 @@ lab_15f9:
     br !lab_168d            ;15f9  9b 8d 16
 
 lab_15fc:
-    movw hl,#0xadaf         ;15fc  16 af ad
+    movw hl,#mem_adaf       ;15fc  16 af ad
     br lab_167b             ;15ff  fa 7a
 
 sub_1601:
@@ -12187,7 +12187,7 @@ sub_43a1:
     mov b,#0x03             ;43a1  a3 03
 
 lab_43a3:
-    movw hl,#0xb0f4         ;43a3  16 f4 b0
+    movw hl,#mem_b0f4       ;43a3  16 f4 b0
     cmp a,[hl+b]            ;43a6  31 4b
     bz lab_43b0             ;43a8  ad 06
     dbnz b,lab_43a3         ;43aa  8b f7
@@ -13995,7 +13995,7 @@ sub_4db6:
     bz lab_4dd7             ;4dbf  ad 16
     mov a,#0x00             ;4dc1  a1 00
     xch a,!mem_fbc8         ;4dc3  ce c8 fb
-    movw hl,#0xb1fb         ;4dc6  16 fb b1
+    movw hl,#mem_b1fb       ;4dc6  16 fb b1
     clr1 cy                 ;4dc9  21
     rolc a,1                ;4dca  27
     mov b,a                 ;4dcb  73
@@ -16712,7 +16712,7 @@ lab_5d02:
     and a,#0x1f             ;5d06  5d 1f
     mov b,a                 ;5d08  73
     push hl                 ;5d09  b7
-    movw hl,#0xb3b6+1       ;5d0a  16 b7 b3
+    movw hl,#mem_b3b6+1     ;5d0a  16 b7 b3
     callf !sub_0c7d         ;5d0d  4c 7d
     pop hl                  ;5d0f  b6
     bc lab_5d39             ;5d10  8d 27
@@ -16758,7 +16758,7 @@ lab_5d3d:
     ror a,1                 ;5d49  24
     mov b,a                 ;5d4a  73
     push hl                 ;5d4b  b7
-    movw hl,#0xb3cc+1       ;5d4c  16 cd b3
+    movw hl,#mem_b3cc+1     ;5d4c  16 cd b3
     callf !sub_0c7d         ;5d4f  4c 7d
     pop hl                  ;5d51  b6
     bc lab_5d39             ;5d52  8d e5
@@ -16795,7 +16795,7 @@ lab_5d88:
     mov a,mem_fed4          ;5d88  f0 d4
     and a,#0x07             ;5d8a  5d 07
     mov b,a                 ;5d8c  73
-    movw hl,#0xb3c3+1       ;5d8d  16 c4 b3
+    movw hl,#mem_b3c3+1     ;5d8d  16 c4 b3
     callf !sub_0c7d         ;5d90  4c 7d
     bc lab_5d39             ;5d92  8d a5
     mov !mem_fb10,a         ;5d94  9e 10 fb
@@ -22034,7 +22034,7 @@ lab_7e70:
     bz lab_7eb6             ;7e76  ad 3e
 
 lab_7e78:
-    movw hl,#0xb66c         ;7e78  16 6c b6
+    movw hl,#mem_b66c       ;7e78  16 6c b6
     callf !sub_0c7d         ;7e7b  4c 7d
     bc lab_7eb6             ;7e7d  8d 37
     mov mem_fe2f,a          ;7e7f  f2 2f
@@ -22168,7 +22168,7 @@ sub_7f4c:
 
 lab_7f5a:
     call !sub_7faa          ;7f5a  9a aa 7f
-    movw de,#0xb6a3         ;7f5d  14 a3 b6
+    movw de,#mem_b6a3       ;7f5d  14 a3 b6
     mov a,#0x02             ;7f60  a1 02
     cmp mem_fe30,#0x00      ;7f62  c8 30 00
     bnz lab_7f69            ;7f65  bd 02
@@ -22179,7 +22179,7 @@ lab_7f69:
     bz lab_7fa6             ;7f6c  ad 38
     cmp a,#0xff             ;7f6e  4d ff
     bz lab_7fa6             ;7f70  ad 34
-    movw hl,#0xb6b1         ;7f72  16 b1 b6
+    movw hl,#mem_b6b1       ;7f72  16 b1 b6
     br lab_7f9b             ;7f75  fa 24
 
 lab_7f77:
@@ -23743,10 +23743,10 @@ lab_894f:
     call !sub_8ac6          ;894f  9a c6 8a
     mov a,mem_fe4c          ;8952  f0 4c
     mov b,a                 ;8954  73
-    movw de,#0xb862         ;8955  14 62 b8
+    movw de,#mem_b862       ;8955  14 62 b8
     cmp mem_fefb,#0x08      ;8958  c8 fb 08
     bc lab_8963             ;895b  8d 06
-    movw de,#0xb910         ;895d  14 10 b9
+    movw de,#mem_b910       ;895d  14 10 b9
     sub mem_fefb,#0x08      ;8960  98 fb 08
 
 lab_8963:
@@ -24968,7 +24968,7 @@ lab_917c:
     br lab_91fd             ;918a  fa 71
 
 lab_918c:
-    movw hl,#0xbaa0         ;918c  16 a0 ba
+    movw hl,#mem_baa0       ;918c  16 a0 ba
     call !sub_9f33          ;918f  9a 33 9f
     bt mem_fe72.5,lab_91fc  ;9192  dc 72 67
 
@@ -24986,10 +24986,10 @@ lab_919f:
     call !sub_609e          ;91ab  9a 9e 60
 
 lab_91ae:
-    movw hl,#0xbaab         ;91ae  16 ab ba
+    movw hl,#mem_baab       ;91ae  16 ab ba
     bf mem_fe76.5,lab_91ba  ;91b1  31 53 76 05
     clr1 mem_fe76.5         ;91b5  5b 76
-    movw hl,#0xbab6         ;91b7  16 b6 ba
+    movw hl,#mem_bab6       ;91b7  16 b6 ba
 
 lab_91ba:
     call !sub_9f33          ;91ba  9a 33 9f
@@ -25015,7 +25015,7 @@ lab_91c8:
 lab_91dc:
     mov a,x                 ;91dc  60
     mov !mem_fb1f,a         ;91dd  9e 1f fb
-    movw hl,#0xbac1         ;91e0  16 c1 ba
+    movw hl,#mem_bac1       ;91e0  16 c1 ba
     call !sub_9f33          ;91e3  9a 33 9f
 
 lab_91e6:
@@ -25036,7 +25036,7 @@ lab_91fc:
 
 lab_91fd:
     mov a,mem_fe58          ;91fd  f0 58
-    movw hl,#0xcf7e         ;91ff  16 7e cf
+    movw hl,#mem_cf7e       ;91ff  16 7e cf
     cmp a,#0x00             ;9202  4d 00
     bz lab_922a             ;9204  ad 24
     cmp a,mem_fe54          ;9206  4e 54
@@ -25114,19 +25114,19 @@ lab_9274:
     set1 mem_fe74.2         ;927c  2a 74
 
 lab_927e:
-    movw hl,#0xba6d         ;927e  16 6d ba
+    movw hl,#mem_ba6d       ;927e  16 6d ba
     call !sub_9f33          ;9281  9a 33 9f
     mov a,#0x02             ;9284  a1 02
     call !sub_9137          ;9286  9a 37 91
-    movw hl,#0xba30         ;9289  16 30 ba
+    movw hl,#mem_ba30       ;9289  16 30 ba
     call !sub_9f33          ;928c  9a 33 9f
     mov a,#0x01             ;928f  a1 01
     call !sub_9137          ;9291  9a 37 91
-    movw hl,#0xba72         ;9294  16 72 ba
+    movw hl,#mem_ba72       ;9294  16 72 ba
     call !sub_9f33          ;9297  9a 33 9f
     mov a,#0x03             ;929a  a1 03
     call !sub_9137          ;929c  9a 37 91
-    movw hl,#0xba83         ;929f  16 83 ba
+    movw hl,#mem_ba83       ;929f  16 83 ba
     call !sub_9f33          ;92a2  9a 33 9f
     mov a,#0x04             ;92a5  a1 04
     call !sub_9137          ;92a7  9a 37 91
@@ -25135,27 +25135,27 @@ lab_927e:
     call !sub_9ec7          ;92b0  9a c7 9e
     mov a,#0x05             ;92b3  a1 05
     call !sub_9137          ;92b5  9a 37 91
-    movw hl,#0xbacc         ;92b8  16 cc ba
+    movw hl,#mem_bacc       ;92b8  16 cc ba
     bf mem_fe74.2,lab_92c2  ;92bb  31 23 74 03
-    movw hl,#0xbb06         ;92bf  16 06 bb
+    movw hl,#mem_bb06       ;92bf  16 06 bb
 
 lab_92c2:
     bf mem_fe74.6,lab_92d0  ;92c2  31 63 74 0a
-    movw hl,#0xbb2f         ;92c6  16 2f bb
+    movw hl,#mem_bb2f       ;92c6  16 2f bb
     bf mem_fe74.2,lab_92d0  ;92c9  31 23 74 03
-    movw hl,#0xbb42         ;92cd  16 42 bb
+    movw hl,#mem_bb42       ;92cd  16 42 bb
 
 lab_92d0:
     call !sub_9f33          ;92d0  9a 33 9f
     mov a,#0x06             ;92d3  a1 06
     call !sub_9137          ;92d5  9a 37 91
-    movw hl,#0xbadf         ;92d8  16 df ba
+    movw hl,#mem_badf       ;92d8  16 df ba
     call !sub_9f33          ;92db  9a 33 9f
     mov a,#0x07             ;92de  a1 07
     call !sub_9137          ;92e0  9a 37 91
-    movw hl,#0xbae4         ;92e3  16 e4 ba
+    movw hl,#mem_bae4       ;92e3  16 e4 ba
     bf mem_fe74.6,lab_92ed  ;92e6  31 63 74 03
-    movw hl,#0xbaf5         ;92ea  16 f5 ba
+    movw hl,#mem_baf5         ;92ea  16 f5 ba
 
 lab_92ed:
     call !sub_9f33          ;92ed  9a 33 9f
@@ -25177,7 +25177,7 @@ lab_9305:
 lab_930b:
     mov a,!mem_f200         ;930b  8e 00 f2
     mov b,a                 ;930e  73
-    movw hl,#0xcf69         ;930f  16 69 cf
+    movw hl,#mem_cf69       ;930f  16 69 cf
     callf !sub_0c48         ;9312  4c 48        Load DE with word at position B in table [HL]
     movw ax,de              ;9314  c4
     bt mem_fe74.7,lab_9319  ;9315  fc 74 01
@@ -25273,7 +25273,7 @@ lab_939f:
     mov a,!mem_f200         ;939f  8e 00 f2
     mov b,a                 ;93a2  73
     bt mem_fe74.2,lab_93ad  ;93a3  ac 74 07
-    movw hl,#0xc934         ;93a6  16 34 c9
+    movw hl,#mem_c933+1     ;93a6  16 34 c9
     callf !sub_0c48         ;93a9  4c 48        Load DE with word at position B in table [HL]
     br lab_93b2             ;93ab  fa 05
 
@@ -25574,11 +25574,11 @@ lab_95ce:
     call !sub_9f12          ;9641  9a 12 9f
     mov a,#0x2c             ;9644  a1 2c
     call !sub_9137          ;9646  9a 37 91
-    movw hl,#0xbd5b         ;9649  16 5b bd
+    movw hl,#mem_bd5b       ;9649  16 5b bd
     call !sub_9f33          ;964c  9a 33 9f
     mov a,#0x2d             ;964f  a1 2d
     call !sub_9137          ;9651  9a 37 91
-    movw hl,#0xbd60         ;9654  16 60 bd
+    movw hl,#mem_bd60       ;9654  16 60 bd
     call !sub_9f33          ;9657  9a 33 9f
     mov a,#0x2e             ;965a  a1 2e
     call !sub_9137          ;965c  9a 37 91
@@ -25595,15 +25595,15 @@ lab_95ce:
     call !sub_9f12          ;967c  9a 12 9f
     mov a,#0x2f             ;967f  a1 2f
     call !sub_9137          ;9681  9a 37 91
-    movw hl,#0xbd67         ;9684  16 67 bd
+    movw hl,#mem_bd67       ;9684  16 67 bd
     call !sub_9f33          ;9687  9a 33 9f
     mov a,#0x30             ;968a  a1 30
     call !sub_9137          ;968c  9a 37 91
-    movw hl,#0xbd6e         ;968f  16 6e bd
+    movw hl,#mem_bd6e       ;968f  16 6e bd
     call !sub_9f33          ;9692  9a 33 9f
     mov a,#0x31             ;9695  a1 31
     call !sub_9137          ;9697  9a 37 91
-    movw hl,#0xbd9c         ;969a  16 9c bd
+    movw hl,#mem_bd9c       ;969a  16 9c bd
     call !sub_9f33          ;969d  9a 33 9f
     mov a,#0x32             ;96a0  a1 32
     call !sub_9137          ;96a2  9a 37 91
@@ -25637,24 +25637,24 @@ lab_95ce:
     br !lab_99d7            ;96ea  9b d7 99
 
 lab_96ed:
-    movw hl,#0xbc7f         ;96ed  16 7f bc
+    movw hl,#mem_bc7f       ;96ed  16 7f bc
     call !sub_9f2a          ;96f0  9a 2a 9f
     mov mem_fe55,#0x01      ;96f3  11 55 01
     mov a,#0x36             ;96f6  a1 36
     call !sub_9137          ;96f8  9a 37 91
-    movw hl,#0xbc79         ;96fb  16 79 bc
+    movw hl,#mem_bc79       ;96fb  16 79 bc
     call !sub_9f2a          ;96fe  9a 2a 9f
     mov a,#0x37             ;9701  a1 37
     call !sub_9137          ;9703  9a 37 91
-    movw hl,#0xba4a         ;9706  16 4a ba
+    movw hl,#mem_ba4a       ;9706  16 4a ba
     call !sub_9f33          ;9709  9a 33 9f
     mov a,#0x38             ;970c  a1 38
     call !sub_9137          ;970e  9a 37 91
-    movw hl,#0xba58         ;9711  16 58 ba
+    movw hl,#mem_ba58       ;9711  16 58 ba
     call !sub_9f33          ;9714  9a 33 9f
     mov a,#0x39             ;9717  a1 39
     call !sub_9137          ;9719  9a 37 91
-    movw hl,#0xba35         ;971c  16 35 ba
+    movw hl,#mem_ba35       ;971c  16 35 ba
     call !sub_9f33          ;971f  9a 33 9f
     mov a,#0x0a             ;9722  a1 0a
     mov !mem_fbde,a         ;9724  9e de fb
@@ -25685,7 +25685,7 @@ lab_96ed:
     br lab_979b             ;9766  fa 33
 
 lab_9768:
-    movw hl,#0xbcd3         ;9768  16 d3 bc
+    movw hl,#mem_bcd3       ;9768  16 d3 bc
     mov a,[hl+0x03]         ;976b  ae 03
     mov !mem_fbde,a         ;976d  9e de fb
     mov a,[hl+0x04]         ;9770  ae 04
@@ -25783,7 +25783,7 @@ lab_979b:
     call !sub_9f12          ;9864  9a 12 9f
     mov a,#0x43             ;9867  a1 43
     call !sub_9137          ;9869  9a 37 91
-    movw hl,#0xbd03         ;986c  16 03 bd
+    movw hl,#mem_bd03       ;986c  16 03 bd
     call !sub_9f33          ;986f  9a 33 9f
     mov a,#0x06             ;9872  a1 06
     mov !mem_fbde,a         ;9874  9e de fb
@@ -25816,7 +25816,7 @@ lab_979b:
     call !sub_9f12          ;98b9  9a 12 9f
     mov a,#0x46             ;98bc  a1 46
     call !sub_9137          ;98be  9a 37 91
-    movw hl,#0xbd16         ;98c1  16 16 bd
+    movw hl,#mem_bd16       ;98c1  16 16 bd
     call !sub_9f33          ;98c4  9a 33 9f
     mov a,#0x47             ;98c7  a1 47
     call !sub_9137          ;98c9  9a 37 91
@@ -25842,31 +25842,31 @@ lab_979b:
     call !sub_9f12          ;98fc  9a 12 9f
     mov a,#0x49             ;98ff  a1 49
     call !sub_9137          ;9901  9a 37 91
-    movw hl,#0xbd29         ;9904  16 29 bd
+    movw hl,#mem_bd29       ;9904  16 29 bd
     call !sub_9f33          ;9907  9a 33 9f
     mov a,#0x4a             ;990a  a1 4a
     call !sub_9137          ;990c  9a 37 91
-    movw hl,#0xbd32         ;990f  16 32 bd
+    movw hl,#mem_bd32       ;990f  16 32 bd
     call !sub_9f33          ;9912  9a 33 9f
     mov a,#0x4b             ;9915  a1 4b
     call !sub_9137          ;9917  9a 37 91
-    movw hl,#0xbd37         ;991a  16 37 bd
+    movw hl,#mem_bd37       ;991a  16 37 bd
     call !sub_9f33          ;991d  9a 33 9f
     mov a,#0x4c             ;9920  a1 4c
     call !sub_9137          ;9922  9a 37 91
-    movw hl,#0xbd3c         ;9925  16 3c bd
+    movw hl,#mem_bd3c       ;9925  16 3c bd
     call !sub_9f33          ;9928  9a 33 9f
     mov a,#0x4d             ;992b  a1 4d
     call !sub_9137          ;992d  9a 37 91
-    movw hl,#0xbd41         ;9930  16 41 bd
+    movw hl,#mem_bd41       ;9930  16 41 bd
     call !sub_9f33          ;9933  9a 33 9f
     mov a,#0x4e             ;9936  a1 4e
     call !sub_9137          ;9938  9a 37 91
-    movw hl,#0xbd46         ;993b  16 46 bd
+    movw hl,#mem_bd46       ;993b  16 46 bd
     call !sub_9f33          ;993e  9a 33 9f
     mov a,#0x4f             ;9941  a1 4f
     call !sub_9137          ;9943  9a 37 91
-    movw hl,#0xbd4b         ;9946  16 4b bd
+    movw hl,#mem_bd4b       ;9946  16 4b bd
     call !sub_9f33          ;9949  9a 33 9f
     mov a,#0x50             ;994c  a1 50
     call !sub_9137          ;994e  9a 37 91
@@ -25914,35 +25914,35 @@ lab_979b:
     call !sub_9f12          ;99b9  9a 12 9f
     mov a,#0x54             ;99bc  a1 54
     call !sub_9137          ;99be  9a 37 91
-    movw hl,#0xbd52         ;99c1  16 52 bd
+    movw hl,#mem_bd52       ;99c1  16 52 bd
     call !sub_9f33          ;99c4  9a 33 9f
     mov a,#0x55             ;99c7  a1 55
     call !sub_9137          ;99c9  9a 37 91
-    movw hl,#0xbc9d         ;99cc  16 9d bc
+    movw hl,#mem_bc9d       ;99cc  16 9d bc
     call !sub_9f2a          ;99cf  9a 2a 9f
     mov a,#0x3f             ;99d2  a1 3f
     call !sub_9137          ;99d4  9a 37 91
 
 lab_99d7:
-    movw hl,#0xbb55         ;99d7  16 55 bb
+    movw hl,#mem_bb55       ;99d7  16 55 bb
     bf mem_fe74.2,lab_99e1  ;99da  31 23 74 03
-    movw hl,#0xbbeb         ;99de  16 eb bb
+    movw hl,#mem_bbeb       ;99de  16 eb bb
 
 lab_99e1:
     call !sub_9f33          ;99e1  9a 33 9f
     mov a,#0x5e             ;99e4  a1 5e
     call !sub_9137          ;99e6  9a 37 91
-    movw hl,#0xbb64         ;99e9  16 64 bb
+    movw hl,#mem_bb64       ;99e9  16 64 bb
     bf mem_fe74.2,lab_99f3  ;99ec  31 23 74 03
-    movw hl,#0xbbfa         ;99f0  16 fa bb
+    movw hl,#mem_bbfa       ;99f0  16 fa bb
 
 lab_99f3:
     call !sub_9f33          ;99f3  9a 33 9f
     mov a,#0x5f             ;99f6  a1 5f
     call !sub_9137          ;99f8  9a 37 91
-    movw hl,#0xbb7b         ;99fb  16 7b bb
+    movw hl,#mem_bb7b       ;99fb  16 7b bb
     bf mem_fe74.2,lab_9a05  ;99fe  31 23 74 03
-    movw hl,#0xbc11         ;9a02  16 11 bc
+    movw hl,#mem_bc11       ;9a02  16 11 bc
 
 lab_9a05:
     call !sub_9f33          ;9a05  9a 33 9f
@@ -26372,7 +26372,7 @@ sub_9d25:
     bz lab_9d3d             ;9d34  ad 07
 
 lab_9d36:
-    movw hl,#0xc2cd         ;9d36  16 cd c2
+    movw hl,#mem_c2cd       ;9d36  16 cd c2
     callf !sub_0c7d         ;9d39  4c 7d
     bnc lab_9d3f            ;9d3b  9d 02
 
@@ -26786,9 +26786,9 @@ lab_9fad:
     ret                     ;9fb0  af
 
 sub_9fb1:
-    movw hl,#0xbc2d         ;9fb1  16 2d bc
+    movw hl,#mem_bc2d       ;9fb1  16 2d bc
     bf mem_fe74.2,lab_9fbb  ;9fb4  31 23 74 03
-    movw hl,#0xbc3c         ;9fb8  16 3c bc
+    movw hl,#mem_bc3c       ;9fb8  16 3c bc
 
 lab_9fbb:
     call !sub_9f2a          ;9fbb  9a 2a 9f
@@ -28013,7 +28013,7 @@ sub_a780:
     xch a,b                 ;a78e  33
     mov a,mem_fe30          ;a78f  f0 30
     xch a,b                 ;a791  33
-    movw hl,#0xd0ad         ;a792  16 ad d0
+    movw hl,#mem_d0ad       ;a792  16 ad d0
     callf !sub_0c7d         ;a795  4c 7d
     bc lab_a7b8             ;a797  8d 1f
     mov b,a                 ;a799  73
@@ -28021,7 +28021,7 @@ sub_a780:
     bz lab_a7b8             ;a79c  ad 1a
     cmp a,mem_fe58          ;a79e  4e 58
     bnz lab_a7b8            ;a7a0  bd 16
-    movw hl,#0xd0b2         ;a7a2  16 b2 d0
+    movw hl,#mem_d0b2       ;a7a2  16 b2 d0
     callf !sub_0c7d         ;a7a5  4c 7d
     bc lab_a7b8             ;a7a7  8d 0f
     cmp a,mem_fe2f          ;a7a9  4e 2f
@@ -28432,7 +28432,7 @@ lab_aa0e:
 sub_aa14:
     mov a,mem_fe30          ;aa14  f0 30
     mov b,a                 ;aa16  73
-    movw hl,#0xd0ad         ;aa17  16 ad d0
+    movw hl,#mem_d0ad       ;aa17  16 ad d0
     callf !sub_0c7d         ;aa1a  4c 7d
     bc lab_aa3b             ;aa1c  8d 1d
     cmp a,#0x01             ;aa1e  4d 01
@@ -29182,6 +29182,8 @@ mem_ad34:
     .byte 0x27              ;adac  27          DATA 0x27 '''
     .byte 0xce              ;adad  ce          DATA 0xce
     .byte 0x1a              ;adae  1a          DATA 0x1a
+
+mem_adaf:
     .byte 0x98              ;adaf  98          DATA 0x98
     .byte 0x16              ;adb0  16          DATA 0x16
     .byte 0x2e              ;adb1  2e          DATA 0x2e '.'
@@ -30289,6 +30291,8 @@ mem_b1f4:
     .byte 0x00              ;b1f8  00          DATA 0x00
     .byte 0xf8              ;b1f9  f8          DATA 0xf8
     .byte 0x26              ;b1fa  26          DATA 0x26 '&'
+
+mem_b1fb:
     .byte 0xd2              ;b1fb  d2          DATA 0xd2
     .byte 0x4d              ;b1fc  4d          DATA 0x4d 'M'
     .byte 0x2a              ;b1fd  2a          DATA 0x2a '*'
@@ -31357,6 +31361,8 @@ mem_b5d6:
     .byte 0x80              ;b669  80          DATA 0x80
     .byte 0x91              ;b66a  91          DATA 0x91
     .byte 0x0f              ;b66b  0f          DATA 0x0f
+
+mem_b66c:
     .byte 0xff              ;b66c  ff          DATA 0xff
     .byte 0x03              ;b66d  03          DATA 0x03
     .byte 0x07              ;b66e  07          DATA 0x07
@@ -31400,6 +31406,7 @@ mem_b69a:
     .word lab_7ed2
     .word lab_7f17
 
+mem_b6a3:
     .byte 0x03              ;b6a3  03          DATA 0x03
     .byte 0xaf              ;b6a4  af          DATA 0xaf
     .byte 0xb6              ;b6a5  b6          DATA 0xb6
@@ -31414,6 +31421,8 @@ mem_b69a:
     .byte 0x03              ;b6ae  03          DATA 0x03
     .byte 0x01              ;b6af  01          DATA 0x01
     .byte 0x04              ;b6b0  04          DATA 0x04
+
+mem_b6b1:
     .byte 0xc7              ;b6b1  c7          DATA 0xc7
     .byte 0x7f              ;b6b2  7f          DATA 0x7f
     .byte 0xd0              ;b6b3  d0          DATA 0xd0
@@ -31794,6 +31803,8 @@ mem_b807:
     .byte 0x85              ;b85f  85          DATA 0x85
     .byte 0x2a              ;b860  2a          DATA 0x2a '*'
     .byte 0x85              ;b861  85          DATA 0x85
+
+mem_b862:
     .byte 0x39              ;b862  39          DATA 0x39 '9'
     .byte 0x85              ;b863  85          DATA 0x85
     .byte 0xb9              ;b864  b9          DATA 0xb9
@@ -31968,6 +31979,8 @@ mem_b807:
     .byte 0x32              ;b90d  32          DATA 0x32 '2'
     .byte 0xff              ;b90e  ff          DATA 0xff
     .byte 0x16              ;b90f  16          DATA 0x16
+
+mem_b910:
     .byte 0x26              ;b910  26          DATA 0x26 '&'
     .byte 0x85              ;b911  85          DATA 0x85
     .byte 0xb9              ;b912  b9          DATA 0xb9
@@ -32211,11 +32224,15 @@ mem_ba07:
     .byte 0x00              ;ba2d  00          DATA 0x00
     .byte 0x08              ;ba2e  08          DATA 0x08
     .byte 0x01              ;ba2f  01          DATA 0x01
+
+mem_ba30:
     .byte 0x04              ;ba30  04          DATA 0x04
     .byte 0xec              ;ba31  ec          DATA 0xec
     .byte 0xfb              ;ba32  fb          DATA 0xfb
     .byte 0x0f              ;ba33  0f          DATA 0x0f
     .byte 0x02              ;ba34  02          DATA 0x02
+
+mem_ba35:
     .byte 0x0b              ;ba35  0b          DATA 0x0b
     .byte 0xb5              ;ba36  b5          DATA 0xb5
     .byte 0x00              ;ba37  00          DATA 0x00
@@ -32240,6 +32257,8 @@ mem_ba43:
     .byte 0xfe              ;ba47  fe          DATA 0xfe
     .byte 0x0f              ;ba48  0f          DATA 0x0f
     .byte 0x02              ;ba49  02          DATA 0x02
+
+mem_ba4a:
     .byte 0x28              ;ba4a  28          DATA 0x28 '('
     .byte 0xed              ;ba4b  ed          DATA 0xed
     .byte 0x53              ;ba4c  53          DATA 0x53 'S'
@@ -32257,6 +32276,8 @@ mem_ba51:
     .byte 0xf9              ;ba55  f9          DATA 0xf9
     .byte 0x0f              ;ba56  0f          DATA 0x0f
     .byte 0x02              ;ba57  02          DATA 0x02
+
+mem_ba58:
     .byte 0x00              ;ba58  00          DATA 0x00
     .byte 0x20              ;ba59  20          DATA 0x20 ' '
     .byte 0x10              ;ba5a  10          DATA 0x10
@@ -32284,11 +32305,15 @@ mem_ba66:
     .byte 0xfd              ;ba6a  fd          DATA 0xfd
     .byte 0x0f              ;ba6b  0f          DATA 0x0f
     .byte 0x01              ;ba6c  01          DATA 0x01
+
+mem_ba6d:
     .byte 0x00              ;ba6d  00          DATA 0x00
     .byte 0x6c              ;ba6e  6c          DATA 0x6c 'l'
     .byte 0xb0              ;ba6f  b0          DATA 0xb0
     .byte 0x08              ;ba70  08          DATA 0x08
     .byte 0x07              ;ba71  07          DATA 0x07
+
+mem_ba72:
     .byte 0x01              ;ba72  01          DATA 0x01
     .byte 0xa7              ;ba73  a7          DATA 0xa7
     .byte 0x03              ;ba74  03          DATA 0x03
@@ -32306,6 +32331,8 @@ mem_ba66:
     .byte 0xbe              ;ba80  be          DATA 0xbe
     .byte 0x08              ;ba81  08          DATA 0x08
     .byte 0x07              ;ba82  07          DATA 0x07
+
+mem_ba83:
     .byte 0x01              ;ba83  01          DATA 0x01
     .byte 0xa7              ;ba84  a7          DATA 0xa7
     .byte 0x03              ;ba85  03          DATA 0x03
@@ -32339,6 +32366,8 @@ mem_ba9a:
     .byte 0xf4              ;ba9d  f4          DATA 0xf4
     .byte 0x08              ;ba9e  08          DATA 0x08
     .byte 0x04              ;ba9f  04          DATA 0x04
+
+mem_baa0:
     .byte 0x05              ;baa0  05          DATA 0x05
     .byte 0x18              ;baa1  18          DATA 0x18
     .byte 0x07              ;baa2  07          DATA 0x07
@@ -32350,6 +32379,8 @@ mem_ba9a:
     .byte 0xf4              ;baa8  f4          DATA 0xf4
     .byte 0x08              ;baa9  08          DATA 0x08
     .byte 0x04              ;baaa  04          DATA 0x04
+
+mem_baab:
     .byte 0x05              ;baab  05          DATA 0x05
     .byte 0xdd              ;baac  dd          DATA 0xdd
     .byte 0x07              ;baad  07          DATA 0x07
@@ -32361,6 +32392,8 @@ mem_ba9a:
     .byte 0xf4              ;bab3  f4          DATA 0xf4
     .byte 0x08              ;bab4  08          DATA 0x08
     .byte 0x04              ;bab5  04          DATA 0x04
+
+mem_bab6:
     .byte 0x06              ;bab6  06          DATA 0x06
     .byte 0x89              ;bab7  89          DATA 0x89
     .byte 0x07              ;bab8  07          DATA 0x07
@@ -32372,6 +32405,8 @@ mem_ba9a:
     .byte 0xf4              ;babe  f4          DATA 0xf4
     .byte 0x08              ;babf  08          DATA 0x08
     .byte 0x04              ;bac0  04          DATA 0x04
+
+mem_bac1:
     .byte 0x05              ;bac1  05          DATA 0x05
     .byte 0x74              ;bac2  74          DATA 0x74 't'
     .byte 0x07              ;bac3  07          DATA 0x07
@@ -32383,6 +32418,8 @@ mem_ba9a:
     .byte 0xe1              ;bac9  e1          DATA 0xe1
     .byte 0x08              ;baca  08          DATA 0x08
     .byte 0x08              ;bacb  08          DATA 0x08
+
+mem_bacc:
     .byte 0x02              ;bacc  02          DATA 0x02
     .byte 0x22              ;bacd  22          DATA 0x22 '"'
     .byte 0x03              ;bace  03          DATA 0x03
@@ -32402,11 +32439,15 @@ mem_ba9a:
     .byte 0xeb              ;badc  eb          DATA 0xeb
     .byte 0x08              ;badd  08          DATA 0x08
     .byte 0x01              ;bade  01          DATA 0x01
+
+mem_badf:
     .byte 0x02              ;badf  02          DATA 0x02
     .byte 0x00              ;bae0  00          DATA 0x00
     .byte 0xf9              ;bae1  f9          DATA 0xf9
     .byte 0x08              ;bae2  08          DATA 0x08
     .byte 0x07              ;bae3  07          DATA 0x07
+
+mem_bae4:
     .byte 0x09              ;bae4  09          DATA 0x09
     .byte 0x0d              ;bae5  0d          DATA 0x0d
     .byte 0x02              ;bae6  02          DATA 0x02
@@ -32424,6 +32465,8 @@ mem_ba9a:
     .byte 0xf9              ;baf2  f9          DATA 0xf9
     .byte 0x08              ;baf3  08          DATA 0x08
     .byte 0x07              ;baf4  07          DATA 0x07
+
+mem_baf5:
     .byte 0x09              ;baf5  09          DATA 0x09
     .byte 0x0d              ;baf6  0d          DATA 0x0d
     .byte 0x02              ;baf7  02          DATA 0x02
@@ -32441,6 +32484,8 @@ mem_ba9a:
     .byte 0xe1              ;bb03  e1          DATA 0xe1
     .byte 0x08              ;bb04  08          DATA 0x08
     .byte 0x08              ;bb05  08          DATA 0x08
+
+mem_bb06:
     .byte 0x02              ;bb06  02          DATA 0x02
     .byte 0x22              ;bb07  22          DATA 0x22 '"'
     .byte 0x03              ;bb08  03          DATA 0x03
@@ -32482,6 +32527,8 @@ mem_ba9a:
     .byte 0xe1              ;bb2c  e1          DATA 0xe1
     .byte 0x08              ;bb2d  08          DATA 0x08
     .byte 0x08              ;bb2e  08          DATA 0x08
+
+mem_bb2f:
     .byte 0x07              ;bb2f  07          DATA 0x07
     .byte 0x11              ;bb30  11          DATA 0x11
     .byte 0x03              ;bb31  03          DATA 0x03
@@ -32501,6 +32548,8 @@ mem_ba9a:
     .byte 0xe1              ;bb3f  e1          DATA 0xe1
     .byte 0x08              ;bb40  08          DATA 0x08
     .byte 0x08              ;bb41  08          DATA 0x08
+
+mem_bb42:
     .byte 0x05              ;bb42  05          DATA 0x05
     .byte 0x25              ;bb43  25          DATA 0x25 '%'
     .byte 0x03              ;bb44  03          DATA 0x03
@@ -32520,6 +32569,8 @@ mem_ba9a:
     .byte 0x27              ;bb52  27          DATA 0x27 '''
     .byte 0x09              ;bb53  09          DATA 0x09
     .byte 0x06              ;bb54  06          DATA 0x06
+
+mem_bb55:
     .byte 0x07              ;bb55  07          DATA 0x07
     .byte 0xff              ;bb56  ff          DATA 0xff
     .byte 0x07              ;bb57  07          DATA 0x07
@@ -32535,6 +32586,8 @@ mem_ba9a:
     .byte 0x31              ;bb61  31          DATA 0x31 '1'
     .byte 0x09              ;bb62  09          DATA 0x09
     .byte 0x0a              ;bb63  0a          DATA 0x0a
+
+mem_bb64:
     .byte 0x00              ;bb64  00          DATA 0x00
     .byte 0x00              ;bb65  00          DATA 0x00
     .byte 0x00              ;bb66  00          DATA 0x00
@@ -32558,6 +32611,8 @@ mem_ba9a:
     .byte 0x3b              ;bb78  3b          DATA 0x3b ';'
     .byte 0x09              ;bb79  09          DATA 0x09
     .byte 0x0a              ;bb7a  0a          DATA 0x0a
+
+mem_bb7b:
     .byte 0x00              ;bb7b  00          DATA 0x00
     .byte 0x0b              ;bb7c  0b          DATA 0x0b
     .byte 0x07              ;bb7d  07          DATA 0x07
@@ -32703,6 +32758,8 @@ mem_bbe4:
     .byte 0x27              ;bbe8  27          DATA 0x27 '''
     .byte 0x09              ;bbe9  09          DATA 0x09
     .byte 0x06              ;bbea  06          DATA 0x06
+
+mem_bbeb:
     .byte 0x07              ;bbeb  07          DATA 0x07
     .byte 0xff              ;bbec  ff          DATA 0xff
     .byte 0x07              ;bbed  07          DATA 0x07
@@ -32718,6 +32775,8 @@ mem_bbe4:
     .byte 0x31              ;bbf7  31          DATA 0x31 '1'
     .byte 0x09              ;bbf8  09          DATA 0x09
     .byte 0x0a              ;bbf9  0a          DATA 0x0a
+
+mem_bbfa:
     .byte 0x00              ;bbfa  00          DATA 0x00
     .byte 0x00              ;bbfb  00          DATA 0x00
     .byte 0x00              ;bbfc  00          DATA 0x00
@@ -32741,6 +32800,8 @@ mem_bbe4:
     .byte 0x3b              ;bc0e  3b          DATA 0x3b ';'
     .byte 0x09              ;bc0f  09          DATA 0x09
     .byte 0x0a              ;bc10  0a          DATA 0x0a
+
+mem_bc11:
     .byte 0x06              ;bc11  06          DATA 0x06
     .byte 0x72              ;bc12  72          DATA 0x72 'r'
     .byte 0x07              ;bc13  07          DATA 0x07
@@ -32772,6 +32833,8 @@ mem_bc28:
     .byte 0x20              ;bc2a  20          DATA 0x20 ' '
     .byte 0x01              ;bc2b  01          DATA 0x01
     .byte 0x04              ;bc2c  04          DATA 0x04
+
+mem_bc2d:
     .byte 0x00              ;bc2d  00          DATA 0x00
     .byte 0x00              ;bc2e  00          DATA 0x00
     .byte 0x00              ;bc2f  00          DATA 0x00
@@ -32787,6 +32850,8 @@ mem_bc28:
     .byte 0x20              ;bc39  20          DATA 0x20 ' '
     .byte 0x01              ;bc3a  01          DATA 0x01
     .byte 0x04              ;bc3b  04          DATA 0x04
+
+mem_bc3c:
     .byte 0x00              ;bc3c  00          DATA 0x00
     .byte 0x00              ;bc3d  00          DATA 0x00
     .byte 0x00              ;bc3e  00          DATA 0x00
@@ -32860,12 +32925,16 @@ mem_bc72:
     .byte 0x28              ;bc76  28          DATA 0x28 '('
     .byte 0x00              ;bc77  00          DATA 0x00
     .byte 0x01              ;bc78  01          DATA 0x01
+
+mem_bc79:
     .byte 0x01              ;bc79  01          DATA 0x01
     .byte 0xff              ;bc7a  ff          DATA 0xff
     .byte 0xff              ;bc7b  ff          DATA 0xff
     .byte 0x00              ;bc7c  00          DATA 0x00
     .byte 0x00              ;bc7d  00          DATA 0x00
     .byte 0x01              ;bc7e  01          DATA 0x01
+
+mem_bc7f:
     .byte 0x00              ;bc7f  00          DATA 0x00
     .byte 0x06              ;bc80  06          DATA 0x06
     .byte 0x00              ;bc81  00          DATA 0x00
@@ -32908,6 +32977,8 @@ mem_bc97:
     .byte 0x00              ;bc9a  00          DATA 0x00
     .byte 0x00              ;bc9b  00          DATA 0x00
     .byte 0x01              ;bc9c  01          DATA 0x01
+
+mem_bc9d:
     .byte 0x00              ;bc9d  00          DATA 0x00
     .byte 0x00              ;bc9e  00          DATA 0x00
     .byte 0x80              ;bc9f  80          DATA 0x80
@@ -32986,6 +33057,8 @@ mem_bccd:
     .byte 0x76              ;bcd0  76          DATA 0x76 'v'
     .byte 0x08              ;bcd1  08          DATA 0x08
     .byte 0x04              ;bcd2  04          DATA 0x04
+
+mem_bcd3:
     .byte 0x01              ;bcd3  01          DATA 0x01
     .byte 0x39              ;bcd4  39          DATA 0x39 '9'
     .byte 0x01              ;bcd5  01          DATA 0x01
@@ -33034,6 +33107,8 @@ mem_bccd:
     .byte 0x40              ;bd00  40          DATA 0x40 '@'
     .byte 0x08              ;bd01  08          DATA 0x08
     .byte 0x02              ;bd02  02          DATA 0x02
+
+mem_bd03:
     .byte 0x0a              ;bd03  0a          DATA 0x0a
     .byte 0xf6              ;bd04  f6          DATA 0xf6
     .byte 0x01              ;bd05  01          DATA 0x01
@@ -33053,6 +33128,8 @@ mem_bccd:
     .byte 0x67              ;bd13  67          DATA 0x67 'g'
     .byte 0x08              ;bd14  08          DATA 0x08
     .byte 0x02              ;bd15  02          DATA 0x02
+
+mem_bd16:
     .byte 0x00              ;bd16  00          DATA 0x00
     .byte 0x00              ;bd17  00          DATA 0x00
     .byte 0x00              ;bd18  00          DATA 0x00
@@ -33072,6 +33149,8 @@ mem_bccd:
     .byte 0x12              ;bd26  12          DATA 0x12
     .byte 0x09              ;bd27  09          DATA 0x09
     .byte 0x03              ;bd28  03          DATA 0x03
+
+mem_bd29:
     .byte 0x07              ;bd29  07          DATA 0x07
     .byte 0xff              ;bd2a  ff          DATA 0xff
     .byte 0x00              ;bd2b  00          DATA 0x00
@@ -33081,31 +33160,43 @@ mem_bccd:
     .byte 0x74              ;bd2f  74          DATA 0x74 't'
     .byte 0x08              ;bd30  08          DATA 0x08
     .byte 0x01              ;bd31  01          DATA 0x01
+
+mem_bd32:
     .byte 0x07              ;bd32  07          DATA 0x07
     .byte 0xff              ;bd33  ff          DATA 0xff
     .byte 0x7d              ;bd34  7d          DATA 0x7d '}'
     .byte 0x08              ;bd35  08          DATA 0x08
     .byte 0x01              ;bd36  01          DATA 0x01
+
+mem_bd37:
     .byte 0x05              ;bd37  05          DATA 0x05
     .byte 0x9e              ;bd38  9e          DATA 0x9e
     .byte 0x7b              ;bd39  7b          DATA 0x7b '{'
     .byte 0x08              ;bd3a  08          DATA 0x08
     .byte 0x01              ;bd3b  01          DATA 0x01
+
+mem_bd3c:
     .byte 0x02              ;bd3c  02          DATA 0x02
     .byte 0x60              ;bd3d  60          DATA 0x60 '`'
     .byte 0x51              ;bd3e  51          DATA 0x51 'Q'
     .byte 0x08              ;bd3f  08          DATA 0x08
     .byte 0x01              ;bd40  01          DATA 0x01
+
+mem_bd41:
     .byte 0x00              ;bd41  00          DATA 0x00
     .byte 0x14              ;bd42  14          DATA 0x14
     .byte 0x4c              ;bd43  4c          DATA 0x4c 'L'
     .byte 0x08              ;bd44  08          DATA 0x08
     .byte 0x01              ;bd45  01          DATA 0x01
+
+mem_bd46:
     .byte 0x01              ;bd46  01          DATA 0x01
     .byte 0xf0              ;bd47  f0          DATA 0xf0
     .byte 0x64              ;bd48  64          DATA 0x64 'd'
     .byte 0x08              ;bd49  08          DATA 0x08
     .byte 0x02              ;bd4a  02          DATA 0x02
+
+mem_bd4b:
     .byte 0x00              ;bd4b  00          DATA 0x00
     .byte 0x05              ;bd4c  05          DATA 0x05
     .byte 0x00              ;bd4d  00          DATA 0x00
@@ -33113,6 +33204,8 @@ mem_bccd:
     .byte 0x6f              ;bd4f  6f          DATA 0x6f 'o'
     .byte 0x08              ;bd50  08          DATA 0x08
     .byte 0x03              ;bd51  03          DATA 0x03
+
+mem_bd52:
     .byte 0x00              ;bd52  00          DATA 0x00
     .byte 0x05              ;bd53  05          DATA 0x05
     .byte 0x00              ;bd54  00          DATA 0x00
@@ -33122,11 +33215,15 @@ mem_bccd:
     .byte 0x39              ;bd58  39          DATA 0x39 '9'
     .byte 0x08              ;bd59  08          DATA 0x08
     .byte 0x01              ;bd5a  01          DATA 0x01
+
+mem_bd5b:
     .byte 0x01              ;bd5b  01          DATA 0x01
     .byte 0x1f              ;bd5c  1f          DATA 0x1f
     .byte 0x3b              ;bd5d  3b          DATA 0x3b ';'
     .byte 0x08              ;bd5e  08          DATA 0x08
     .byte 0x02              ;bd5f  02          DATA 0x02
+
+mem_bd60:
     .byte 0x00              ;bd60  00          DATA 0x00
     .byte 0x22              ;bd61  22          DATA 0x22 '"'
     .byte 0x01              ;bd62  01          DATA 0x01
@@ -33134,6 +33231,8 @@ mem_bccd:
     .byte 0x3f              ;bd64  3f          DATA 0x3f '?'
     .byte 0x08              ;bd65  08          DATA 0x08
     .byte 0x02              ;bd66  02          DATA 0x02
+
+mem_bd67:
     .byte 0x00              ;bd67  00          DATA 0x00
     .byte 0x07              ;bd68  07          DATA 0x07
     .byte 0x00              ;bd69  00          DATA 0x00
@@ -33141,6 +33240,8 @@ mem_bccd:
     .byte 0x6a              ;bd6b  6a          DATA 0x6a 'j'
     .byte 0x08              ;bd6c  08          DATA 0x08
     .byte 0x05              ;bd6d  05          DATA 0x05
+
+mem_bd6e:
     .byte 0x00              ;bd6e  00          DATA 0x00
     .byte 0x4b              ;bd6f  4b          DATA 0x4b 'K'
     .byte 0x0e              ;bd70  0e          DATA 0x0e
@@ -33187,6 +33288,8 @@ mem_bccd:
     .byte 0x45              ;bd99  45          DATA 0x45 'E'
     .byte 0x08              ;bd9a  08          DATA 0x08
     .byte 0x0f              ;bd9b  0f          DATA 0x0f
+
+mem_bd9c:
     .byte 0x00              ;bd9c  00          DATA 0x00
     .byte 0x51              ;bd9d  51          DATA 0x51 'Q'
     .byte 0x00              ;bd9e  00          DATA 0x00
@@ -34575,6 +34678,8 @@ mem_c26d:
     .byte 0xfb              ;c2ca  fb          DATA 0xfb
     .byte 0x07              ;c2cb  07          DATA 0x07
     .byte 0x04              ;c2cc  04          DATA 0x04
+
+mem_c2cd:
     .byte 0xf6              ;c2cd  f6          DATA 0xf6
     .byte 0x06              ;c2ce  06          DATA 0x06
     .byte 0x04              ;c2cf  04          DATA 0x04
@@ -37919,6 +38024,9 @@ mem_cee4:
     .byte 0xf0              ;cf66  f0          DATA 0xf0
     .byte 0xf0              ;cf67  f0          DATA 0xf0
     .byte 0x0a              ;cf68  0a          DATA 0x0a
+
+mem_cf69:
+;TODO table used by sub_0c48
     .byte 0x00              ;cf69  00          DATA 0x00
     .byte 0x00              ;cf6a  00          DATA 0x00
     .byte 0x03              ;cf6b  03          DATA 0x03
@@ -37940,6 +38048,8 @@ mem_cee4:
     .byte 0x00              ;cf7b  00          DATA 0x00
     .byte 0x00              ;cf7c  00          DATA 0x00
     .byte 0x72              ;cf7d  72          DATA 0x72 'r'
+
+mem_cf7e:
     .byte 0x4d              ;cf7e  4d          DATA 0x4d 'M'
     .byte 0x92              ;cf7f  92          DATA 0x92
     .byte 0x94              ;cf80  94          DATA 0x94
@@ -38243,6 +38353,8 @@ mem_cee4:
     .byte 0x21              ;d0aa  21          DATA 0x21 '!'
     .byte 0x09              ;d0ab  09          DATA 0x09
     .byte 0x04              ;d0ac  04          DATA 0x04
+
+mem_d0ad:
     .byte 0x00              ;d0ad  00          DATA 0x00
     .byte 0x01              ;d0ae  01          DATA 0x01
     .byte 0x02              ;d0af  02          DATA 0x02
