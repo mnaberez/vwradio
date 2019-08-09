@@ -10267,10 +10267,12 @@ lab_3722:
     movw hl,#mem_b040+1     ;372d  16 41 b0
     callf !sub_0c48         ;3730  4c 48        Load DE with word at position B in table [HL]
     bc sub_3755             ;3732  8d 21
-    movw ax,#0x373b         ;3734  10 3b 37
+    movw ax,#lab_373b       ;3734  10 3b 37
     push ax                 ;3737  b1
     movw ax,de              ;3738  c4
     br ax                   ;3739  31 98
+
+lab_373b:
     mov a,!mem_fb0c         ;373b  8e 0c fb
     cmp a,#0x00             ;373e  4d 00
     bnz lab_3747            ;3740  bd 05
@@ -10932,10 +10934,12 @@ lab_3bcc:
     movw hl,#mem_b0a1+1     ;3bd5  16 a2 b0
     callf !sub_0c48         ;3bd8  4c 48        Load DE with word at position B in table [HL]
     bc sub_3bea             ;3bda  8d 0e
-    movw ax,#0x3be3         ;3bdc  10 e3 3b
+    movw ax,#lab_3be3       ;3bdc  10 e3 3b
     push ax                 ;3bdf  b1
     movw ax,de              ;3be0  c4
     br ax                   ;3be1  31 98
+
+lab_3be3:
     call !sub_3e76          ;3be3  9a 76 3e
     mov b,#0x09             ;3be6  a3 09
     callt [0x0040]          ;3be8  c1
@@ -13995,7 +13999,7 @@ sub_4db6:
     bz lab_4dd7             ;4dbf  ad 16
     mov a,#0x00             ;4dc1  a1 00
     xch a,!mem_fbc8         ;4dc3  ce c8 fb
-    movw hl,#mem_b1fb       ;4dc6  16 fb b1
+    movw hl,#mem_b1fa+1     ;4dc6  16 fb b1
     clr1 cy                 ;4dc9  21
     rolc a,1                ;4dca  27
     mov b,a                 ;4dcb  73
@@ -15052,15 +15056,15 @@ lab_5355:
     br !sub_34f7            ;5362  9b f7 34
 
 lab_5365:
-    mov b,#0x08             ;5365  a3 08
-    call !sub_5292          ;5367  9a 92 52
+    mov b,#0x08             ;5365  a3 08        B = index 0x08 read identification
+    call !sub_5292          ;5367  9a 92 52     Set block title, counter, length in KWP1281 tx buf
     mov a,#0x03             ;536a  a1 03
     mov [hl+b],a            ;536c  bb
     br !sub_34f7            ;536d  9b f7 34
 
 lab_5370:
-    mov b,#0x09             ;5370  a3 09
-    call !sub_5292          ;5372  9a 92 52
+    mov b,#0x09             ;5370  a3 09        B = index 0x09 read faults
+    call !sub_5292          ;5372  9a 92 52     Set block title, counter, length in KWP1281 tx buf
     mov a,#0x03             ;5375  a1 03
     mov [hl+b],a            ;5377  bb
     br !sub_34f7            ;5378  9b f7 34
@@ -15113,15 +15117,15 @@ lab_53ae:
     br !lab_532a            ;53b6  9b 2a 53     Branch to send ACK response
 
 lab_53b9:
-    mov b,#0x0b             ;53b9  a3 0b
-    call !sub_5292          ;53bb  9a 92 52
+    mov b,#0x0b             ;53b9  a3 0b        B = index 0x0b clear faults
+    call !sub_5292          ;53bb  9a 92 52     Set block title, counter, length in KWP1281 tx buf
     mov a,#0x03             ;53be  a1 03
     mov [hl+b],a            ;53c0  bb
     br !sub_34f7            ;53c1  9b f7 34
 
 lab_53c4:
-    mov b,#0x0c             ;53c4  a3 0c
-    call !sub_5292          ;53c6  9a 92 52
+    mov b,#0x0c             ;53c4  a3 0c        B = index 0x0c output tests
+    call !sub_5292          ;53c6  9a 92 52     Set block title, counter, length in KWP1281 tx buf
     mov a,#0x03             ;53c9  a1 03
     mov [hl+b],a            ;53cb  bb
     br !sub_34f7            ;53cc  9b f7 34
@@ -15148,15 +15152,15 @@ lab_53e4:
     br !sub_34f7            ;53ec  9b f7 34
 
 lab_53ef:
-    mov b,#0x0e             ;53ef  a3 0e
-    call !sub_5292          ;53f1  9a 92 52
+    mov b,#0x0e             ;53ef  a3 0e        B = index 0x0e ? TODO
+    call !sub_5292          ;53f1  9a 92 52     Set block title, counter, length in KWP1281 tx buf
     mov a,#0x03             ;53f4  a1 03
     mov [hl+b],a            ;53f6  bb
     br !sub_34f7            ;53f7  9b f7 34
 
 lab_53fa:
-    mov b,#0x0f             ;53fa  a3 0f
-    call !sub_5292          ;53fc  9a 92 52
+    mov b,#0x0f             ;53fa  a3 0f        B = index 0x0f ? TODO
+    call !sub_5292          ;53fc  9a 92 52     Set block title, counter, length in KWP1281 tx buf
     mov a,#0x03             ;53ff  a1 03
     mov [hl+b],a            ;5401  bb
     br !sub_34f7            ;5402  9b f7 34
@@ -15165,8 +15169,8 @@ lab_5405:
     br !lab_5355            ;5405  9b 55 53
 
 lab_5408:
-    mov b,#0x10             ;5408  a3 10
-    call !sub_5292          ;540a  9a 92 52
+    mov b,#0x10             ;5408  a3 10        B = index 0x10 basic setting
+    call !sub_5292          ;540a  9a 92 52     Set block title, counter, length in KWP1281 tx buf
     mov [hl+b],a            ;540d  bb
     inc b                   ;540e  43
     mov a,#0x03             ;540f  a1 03
@@ -15174,8 +15178,8 @@ lab_5408:
     br !sub_34f7            ;5412  9b f7 34
 
 lab_5415:
-    mov b,#0x11             ;5415  a3 11
-    call !sub_5292          ;5417  9a 92 52
+    mov b,#0x11             ;5415  a3 11        B = index 0x11 group reading
+    call !sub_5292          ;5417  9a 92 52     Set block title, counter, length in KWP1281 tx buf
     mov [hl+b],a            ;541a  bb
     inc b                   ;541b  43
     mov a,#0x03             ;541c  a1 03
@@ -15236,8 +15240,8 @@ lab_544c:
 
 lab_545b:
 ;TODO investigate this unknown kwp1281 code
-    mov b,#0x13             ;545b  a3 13
-    call !sub_5292          ;545d  9a 92 52
+    mov b,#0x13             ;545b  a3 13        B = index 013 recoding
+    call !sub_5292          ;545d  9a 92 52     Set block title, counter, length in KWP1281 tx buf
     call !sub_2b46          ;5460  9a 46 2b
     mov [hl+b],a            ;5463  bb
     inc b                   ;5464  43
@@ -15256,8 +15260,8 @@ lab_545b:
 
 lab_5476:
 ;TODO investigate this unknown kwp1281 code
-    mov b,#0x14             ;5476  a3 14
-    call !sub_5292          ;5478  9a 92 52
+    mov b,#0x14             ;5476  a3 14        B = index 0x14 adaptation
+    call !sub_5292          ;5478  9a 92 52     Set block title, counter, length in KWP1281 tx buf
     mov [hl+b],a            ;547b  bb
     inc b                   ;547c  43
     mov a,#0x03             ;547d  a1 03
@@ -15266,8 +15270,8 @@ lab_5476:
 
 lab_5483:
 ;TODO investigate this unknown kwp1281 code
-    mov b,#0x15             ;5483  a3 15
-    call !sub_5292          ;5485  9a 92 52
+    mov b,#0x15             ;5483  a3 15        B = index 0x15 ? TODO
+    call !sub_5292          ;5485  9a 92 52     Set block title, counter, length in KWP1281 tx buf
     mov [hl+b],a            ;5488  bb
     inc b                   ;5489  43
     mov [hl+b],a            ;548a  bb
@@ -15281,8 +15285,8 @@ lab_5483:
 
 lab_5495:
 ;TODO investigate this unknown kwp1281 code
-    mov b,#0x16             ;5495  a3 16
-    call !sub_5292          ;5497  9a 92 52
+    mov b,#0x16             ;5495  a3 16        B = index 0x16 ? TODO
+    call !sub_5292          ;5497  9a 92 52     Set block title, counter, length in KWP1281 tx buf
     mov [hl+b],a            ;549a  bb
     inc b                   ;549b  43
     mov [hl+b],a            ;549c  bb
@@ -15310,8 +15314,8 @@ lab_54b7:
 
 lab_54ba:
 ;TODO investigate this unknown kwp1281 code
-    mov b,#0x17             ;54ba  a3 17
-    call !sub_5292          ;54bc  9a 92 52
+    mov b,#0x17             ;54ba  a3 17        B = index 0x17 ? TODO
+    call !sub_5292          ;54bc  9a 92 52     Set block title, counter, length in KWP1281 tx buf
     mov [hl+b],a            ;54bf  bb
     inc b                   ;54c0  43
     mov a,#0x03             ;54c1  a1 03
@@ -15323,8 +15327,8 @@ lab_54c7:
 
 lab_54ca:
 ;TODO investigate this unknown kwp1281 code
-    mov b,#0x18             ;54ca  a3 18
-    call !sub_5292          ;54cc  9a 92 52
+    mov b,#0x18             ;54ca  a3 18        B = index 0x18 login
+    call !sub_5292          ;54cc  9a 92 52     Set block title, counter, length in KWP1281 tx buf
     mov [hl+b],a            ;54cf  bb
     inc b                   ;54d0  43
     mov a,x                 ;54d1  60
@@ -15347,8 +15351,8 @@ lab_54ca:
 
 lab_54ea:
 ;TODO investigate this unknown kwp1281 code
-    mov b,#0x19             ;54ea  a3 19
-    call !sub_5292          ;54ec  9a 92 52
+    mov b,#0x19             ;54ea  a3 19        B = index 0x19 read eeprom
+    call !sub_5292          ;54ec  9a 92 52     Set block title, counter, length in KWP1281 tx buf
     inc b                   ;54ef  43
     mov a,b                 ;54f0  63
     mov [hl],a              ;54f1  97
@@ -15378,7 +15382,7 @@ lab_5503:
 
 lab_5514:
 ;TODO comment this unknown kwp1281 code
-    mov b,#0x1b             ;5514  a3 1b
+    mov b,#0x1b             ;5514  a3 1b        B = index 0x1b read ram
     call !sub_5292          ;5516  9a 92 52     Set block title, counter, length in KWP1281 tx buf
     mov [hl+b],a            ;5519  bb
     inc b                   ;551a  43
@@ -15446,8 +15450,8 @@ lab_555c:
 
 lab_556b:
 ;TODO comment this unknown KWP1281 code
-    mov b,#0x1d             ;556b  a3 1d
-    call !sub_5292          ;556d  9a 92 52
+    mov b,#0x1d             ;556b  a3 1d        B = index 0x1d
+    call !sub_5292          ;556d  9a 92 52     Set block title, counter, length in KWP1281 tx buf
     mov [hl+b],a            ;5570  bb
     inc b                   ;5571  43
     mov a,d                 ;5572  65
@@ -15456,7 +15460,7 @@ lab_556b:
     mov a,e                 ;5575  64
     mov [hl+b],a            ;5576  bb
     inc b                   ;5577  43
-    mov a,#0x03             ;5578  a1 03
+    mov a,#0x03             ;5578  a1 03        
     mov [hl+b],a            ;557a  bb
     br !sub_34f7            ;557b  9b f7 34
 
@@ -22046,10 +22050,12 @@ lab_7e78:
     bz lab_7eb6             ;7e8c  ad 28
     mov a,c                 ;7e8e  62
     mov !mem_fc2c,a         ;7e8f  9e 2c fc
-    movw ax,#0x7e99         ;7e92  10 99 7e
+    movw ax,#lab_7e99       ;7e92  10 99 7e
     push ax                 ;7e95  b1
     movw ax,de              ;7e96  c4
     br ax                   ;7e97  31 98
+
+lab_7e99:
     mov a,!mem_fc2c         ;7e99  8e 2c fc
     mov c,a                 ;7e9c  72
     mov a,!mem_fc29         ;7e9d  8e 29 fc
@@ -22208,7 +22214,7 @@ lab_7f8f:
 lab_7f9b:
     callf !sub_0c48         ;7f9b  4c 48        Load DE with word at position B in table [HL]
     bc sub_7faf             ;7f9d  8d 10
-    movw ax,#0x7fa6         ;7f9f  10 a6 7f
+    movw ax,#lab_7fa6       ;7f9f  10 a6 7f
     push ax                 ;7fa2  b1
     movw ax,de              ;7fa3  c4
     br ax                   ;7fa4  31 98
@@ -22424,10 +22430,12 @@ lab_80e5:
     mov b,a                 ;80e5  73
     movw hl,#mem_b7a8+1     ;80e6  16 a9 b7
     callf !sub_0c48         ;80e9  4c 48        Load DE with word at position B in table [HL]
-    movw ax,#0x80f2         ;80eb  10 f2 80
+    movw ax,#lab_80f2       ;80eb  10 f2 80
     push ax                 ;80ee  b1
     movw ax,de              ;80ef  c4
     br ax                   ;80f0  31 98
+
+lab_80f2:
     mov mem_fe4a,#0xff      ;80f2  11 4a ff
     ret                     ;80f5  af
 
@@ -25077,10 +25085,12 @@ lab_9240:
     mov b,a                 ;9240  73
     callf !sub_0c48         ;9241  4c 48        Load DE with word at position B in table [HL]
     bc lab_924d             ;9243  8d 08
-    movw ax,#0x924c         ;9245  10 4c 92
+    movw ax,#lab_924c       ;9245  10 4c 92
     push ax                 ;9248  b1
     movw ax,de              ;9249  c4
     br ax                   ;924a  31 98
+
+lab_924c:
     ret                     ;924c  af
 
 lab_924d:
@@ -30290,85 +30300,48 @@ mem_b1f4:
     .byte 0x20              ;b1f7  20          DATA 0x20 ' '
     .byte 0x00              ;b1f8  00          DATA 0x00
     .byte 0xf8              ;b1f9  f8          DATA 0xf8
-    .byte 0x26              ;b1fa  26          DATA 0x26 '&'
 
-mem_b1fb:
-    .byte 0xd2              ;b1fb  d2          DATA 0xd2
-    .byte 0x4d              ;b1fc  4d          DATA 0x4d 'M'
-    .byte 0x2a              ;b1fd  2a          DATA 0x2a '*'
-    .byte 0x53              ;b1fe  53          DATA 0x53 'S'
-    .byte 0x37              ;b1ff  37          DATA 0x37 '7'
-    .byte 0x53              ;b200  53          DATA 0x53 'S'
-    .byte 0x44              ;b201  44          DATA 0x44 'D'
-    .byte 0x53              ;b202  53          DATA 0x53 'S'
-    .byte 0x55              ;b203  55          DATA 0x55 'U'
-    .byte 0x53              ;b204  53          DATA 0x53 'S'
-    .byte 0x65              ;b205  65          DATA 0x65 'e'
-    .byte 0x53              ;b206  53          DATA 0x53 'S'
-    .byte 0xea              ;b207  ea          DATA 0xea
-    .byte 0x52              ;b208  52          DATA 0x52 'R'
-    .byte 0xe0              ;b209  e0          DATA 0xe0
-    .byte 0x52              ;b20a  52          DATA 0x52 'R'
-    .byte 0xd5              ;b20b  d5          DATA 0xd5
-    .byte 0x52              ;b20c  52          DATA 0x52 'R'
-    .byte 0xb1              ;b20d  b1          DATA 0xb1
-    .byte 0x52              ;b20e  52          DATA 0x52 'R'
-    .byte 0x70              ;b20f  70          DATA 0x70 'p'
-    .byte 0x53              ;b210  53          DATA 0x53 'S'
-    .byte 0x7b              ;b211  7b          DATA 0x7b '{'
-    .byte 0x53              ;b212  53          DATA 0x53 'S'
-    .byte 0xb9              ;b213  b9          DATA 0xb9
-    .byte 0x53              ;b214  53          DATA 0x53 'S'
-    .byte 0xc4              ;b215  c4          DATA 0xc4
-    .byte 0x53              ;b216  53          DATA 0x53 'S'
-    .byte 0xcf              ;b217  cf          DATA 0xcf
-    .byte 0x53              ;b218  53          DATA 0x53 'S'
-    .byte 0xef              ;b219  ef          DATA 0xef
-    .byte 0x53              ;b21a  53          DATA 0x53 'S'
-    .byte 0x05              ;b21b  05          DATA 0x05
-    .byte 0x54              ;b21c  54          DATA 0x54 'T'
-    .byte 0xfa              ;b21d  fa          DATA 0xfa
-    .byte 0x53              ;b21e  53          DATA 0x53 'S'
-    .byte 0x08              ;b21f  08          DATA 0x08
-    .byte 0x54              ;b220  54          DATA 0x54 'T'
-    .byte 0x22              ;b221  22          DATA 0x22 '"'
-    .byte 0x54              ;b222  54          DATA 0x54 'T'
-    .byte 0x15              ;b223  15          DATA 0x15
-    .byte 0x54              ;b224  54          DATA 0x54 'T'
-    .byte 0x5b              ;b225  5b          DATA 0x5b '['
-    .byte 0x54              ;b226  54          DATA 0x54 'T'
-    .byte 0x76              ;b227  76          DATA 0x76 'v'
-    .byte 0x54              ;b228  54          DATA 0x54 'T'
-    .byte 0x83              ;b229  83          DATA 0x83
-    .byte 0x54              ;b22a  54          DATA 0x54 'T'
-    .byte 0x95              ;b22b  95          DATA 0x95
-    .byte 0x54              ;b22c  54          DATA 0x54 'T'
-    .byte 0xb7              ;b22d  b7          DATA 0xb7
-    .byte 0x54              ;b22e  54          DATA 0x54 'T'
-    .byte 0xba              ;b22f  ba          DATA 0xba
-    .byte 0x54              ;b230  54          DATA 0x54 'T'
-    .byte 0xc7              ;b231  c7          DATA 0xc7
-    .byte 0x54              ;b232  54          DATA 0x54 'T'
-    .byte 0xca              ;b233  ca          DATA 0xca
-    .byte 0x54              ;b234  54          DATA 0x54 'T'
-    .byte 0xea              ;b235  ea          DATA 0xea
-    .byte 0x54              ;b236  54          DATA 0x54 'T'
-    .byte 0xfb              ;b237  fb          DATA 0xfb
-    .byte 0x54              ;b238  54          DATA 0x54 'T'
-    .byte 0x14              ;b239  14          DATA 0x14
-    .byte 0x55              ;b23a  55          DATA 0x55 'U'
-    .byte 0x2a              ;b23b  2a          DATA 0x2a '*'
-    .byte 0x55              ;b23c  55          DATA 0x55 'U'
-    .byte 0x6b              ;b23d  6b          DATA 0x6b 'k'
-    .byte 0x55              ;b23e  55          DATA 0x55 'U'
-    .byte 0x81              ;b23f  81          DATA 0x81
-    .byte 0x55              ;b240  55          DATA 0x55 'U'
-    .byte 0xc5              ;b241  c5          DATA 0xc5
-    .byte 0x55              ;b242  55          DATA 0x55 'U'
-    .byte 0xde              ;b243  de          DATA 0xde
-    .byte 0x55              ;b244  55          DATA 0x55 'U'
-    .byte 0xf7              ;b245  f7          DATA 0xf7
-    .byte 0x55              ;b246  55          DATA 0x55 'U'
+mem_b1fa:
+;TODO investigate this unknown table of kwp1281 procedures
+    .byte 0x26              ;b1fa  26          DATA 0x26 '&'      38 entries below:
+    .word lab_4dd2
+    .word lab_532a          ;Send ACK response
+    .word lab_5337          ;Send End Session response
+    .word lab_5344_bad      ;Bad title: Send NAK
+    .word lab_5355          ;Send NAK response
+    .word lab_5365
+    .word lab_52ea          ;Send ascii/data response with "1J0035180B"
+    .word lab_52e0          ;Send ascii/data response with "Radio DE2"
+    .word lab_52d5          ;Send ascii/data response with "0001" and extras
+    .word lab_52b1          ;Send ascii/data response with ... TODO
+    .word lab_5370
+    .word lab_537b
+    .word lab_53b9
+    .word lab_53c4
+    .word lab_53cf
+    .word lab_53ef
+    .word lab_5405
+    .word lab_53fa
+    .word lab_5408
+    .word lab_5422
+    .word lab_5415
+    .word lab_545b
+    .word lab_5476
+    .word lab_5483
+    .word lab_5495
+    .word lab_54b7
+    .word lab_54ba
+    .word lab_54c7
+    .word lab_54ca
+    .word lab_54ea
+    .word lab_54fb
+    .word lab_5514
+    .word lab_552a
+    .word lab_556b
+    .word lab_5581
+    .word lab_55c5
+    .word lab_55de
+    .word lab_55f7
 
 mem_b247:
     .byte 0x0a              ;b247              DATA 0x0a        10 entries below:
@@ -31192,10 +31165,10 @@ mem_b550:
     .byte 0x01              ;b5bf  01          DATA 0x01
 
 mem_b5c0:
-;table used wit sub_0c48
+;table used with sub_0c48
     .byte 0x02              ;b5c0  02          DATA 0x02        2 entries below:
-    .word 0x6933
-    .word 0x7697
+    .word lab_6933
+    .word sub_7697
 
 mem_b5c5:
 ;table used with sub_0c48
