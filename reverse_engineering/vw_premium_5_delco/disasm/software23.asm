@@ -9252,6 +9252,7 @@ lab_307b:
     ret                     ;307d  af
 
 intst0_307e:
+;UART0 transmit complete interrupt
     push ax                 ;307e  b1
     bt mem_fe7a.2,lab_308d  ;307f  ac 7a 0b
     clr1 mem_fe79.0         ;3082  0b 79
@@ -9279,10 +9280,10 @@ sub_308f:
     clr1 shadow_p2.5        ;30a6  5b cc
     mov a,shadow_p2         ;30a8  f0 cc
     mov p2,a                ;30aa  f2 02
-    bt mem_fe79.6,lab_30d7  ;30ac  ec 79 28
-    bt mem_fe79.3,lab_30cb  ;30af  bc 79 19
-    bt mem_fe79.4,lab_30cf  ;30b2  cc 79 1a
-    bt mem_fe79.5,lab_30d3  ;30b5  dc 79 1b
+    bt mem_fe79.6,lab_30d7  ;30ac  ec 79 28                 Branch to send complement of last byte received
+    bt mem_fe79.3,lab_30cb_send_0x55  ;30af  bc 79 19       Branch to send KWP1281 sync byte (0x55)
+    bt mem_fe79.4,lab_30cf_send_0x01  ;30b2  cc 79 1a       Branch to send KWP1281 first keyword byte (0x01)
+    bt mem_fe79.5,lab_30d3_send_0x8a  ;30b5  dc 79 1b       Branch to send KWP1281 second keyword byte (0x8A)
 
     mov a,!mem_f068         ;30b8  8e 68 f0
     and a,#0x0f             ;30bb  5d 0f
@@ -9292,28 +9293,30 @@ sub_308f:
     inc a                   ;30c1  41
     mov !mem_f068,a         ;30c2  9e 68 f0
 
-    movw hl,#kwp_tx_buf     ;30c5  16 7a f0         HL = pointer to KWP1281 tx buffer
+    movw hl,#kwp_tx_buf     ;30c5  16 7a f0       HL = pointer to KWP1281 tx buffer
     mov a,[hl+b]            ;30c8  ab
-    br lab_30de             ;30c9  fa 13
+    br lab_30de             ;30c9  fa 13          Branch to send KWP1281 byte in A out UART0
 
-lab_30cb:
-    mov a,#0x55             ;30cb  a1 55
-    br lab_30de             ;30cd  fa 0f
+lab_30cb_send_0x55:
+    mov a,#0x55             ;30cb  a1 55          A = KWP1281 sync byte (0x55)
+    br lab_30de             ;30cd  fa 0f          Branch to send KWP1281 byte in A out UART0
 
-lab_30cf:
-    mov a,#0x01             ;30cf  a1 01
-    br lab_30de             ;30d1  fa 0b
+lab_30cf_send_0x01:
+    mov a,#0x01             ;30cf  a1 01          A = KWP1281 first keyword byte (0x01)
+    br lab_30de             ;30d1  fa 0b          Branch to send KWP1281 byte in A out UART0
 
-lab_30d3:
-    mov a,#0x8a             ;30d3  a1 8a
-    br lab_30de             ;30d5  fa 07
+lab_30d3_send_0x8a:
+    mov a,#0x8a             ;30d3  a1 8a          A = KWP1281 second keyword byte (0x8A)
+    br lab_30de             ;30d5  fa 07          Branch to send KWP1281 byte in A out UART0
 
 lab_30d7:
+;Send complement of last byte received out UART0
     mov a,!mem_f06a         ;30d7  8e 6a f0
     xor a,#0xff             ;30da  7d ff
-    br lab_30de             ;30dc  fa 00
+    br lab_30de             ;30dc  fa 00          XXX useless branch (could just fall through)
 
 lab_30de:
+;Send byte in A out UART0
     set1 mem_fe79.0         ;30de  0a 79
     mov !mem_f06a,a         ;30e0  9e 6a f0
     mov rxb0_txs0,a         ;30e3  f2 18
@@ -9323,30 +9326,33 @@ lab_30e7:
     ret                     ;30e7  af
 
 intsr0_30e8:
+;UART0 receive complete interrupt
     push ax                 ;30e8  b1
     push bc                 ;30e9  b3
     push hl                 ;30ea  b7
     push de                 ;30eb  b5
-    mov a,rxb0_txs0         ;30ec  f0 18
+    mov a,rxb0_txs0         ;30ec  f0 18            A = KWP1281 byte received from UART
     bf mem_fe7a.2,lab_3148  ;30ee  31 23 7a 56
     btclr mem_fe79.0,lab_313f ;30f2  31 01 79 49
     btclr mem_fe79.7,lab_3142 ;30f6  31 71 79 48
-    btclr mem_fe79.3,lab_3158 ;30fa  31 31 79 5a
-    btclr mem_fe79.4,lab_3167 ;30fe  31 41 79 65
-    bt mem_fe79.5,lab_3176  ;3102  dc 79 71
-    bf mem_fe7a.0,lab_3153  ;3105  31 03 7a 4a
+    btclr mem_fe79.3,lab_3158 ;30fa  31 31 79 5a    Branch to check received KWP1281 sync byte (0x55)
+    btclr mem_fe79.4,lab_3167 ;30fe  31 41 79 65    Branch to check received KWP1281 first keyword byte (0x01)
+    bt mem_fe79.5,lab_3176  ;3102  dc 79 71         Branch to check received KWP1281 second keyword byte (0x8a)
+    bf mem_fe7a.0,lab_3153  ;3105  31 03 7a 4a      Branch to pop all registers off stack and return
     clr1 mem_fe79.2         ;3109  2b 79
-    mov x,a                 ;310b  70
+    mov x,a                 ;310b  70               X = Remember KWP1281 byte received from UART
+
     mov a,!mem_f069         ;310c  8e 69 f0
     mov c,a                 ;310f  72
     cmp a,#0x00             ;3110  4d 00
     bnz lab_3118            ;3112  bd 04
-    mov a,x                 ;3114  60
-    mov !mem_f06c,a         ;3115  9e 6c f0
+
+    mov a,x                 ;3114  60           A = Recall KWP1281 byte received from UART
+    mov !mem_f06c,a         ;3115  9e 6c f0     Save KWP1281 byte received from UART
 
 lab_3118:
     mov a,c                 ;3118  62
-    cmp a,!mem_f06c         ;3119  48 6c f0
+    cmp a,!mem_f06c         ;3119  48 6c f0     Compare to KWP1281 byte received from UART
     bz lab_3145             ;311c  ad 27
     cmp a,#0xff             ;311e  4d ff
     bc lab_3127             ;3120  8d 05
@@ -9368,7 +9374,7 @@ lab_312c:
     mov !mem_f06e,a         ;3136  9e 6e f0
     set1 mem_fe79.6         ;3139  6a 79
     set1 mem_fe79.1         ;313b  1a 79
-    br lab_3153             ;313d  fa 14
+    br lab_3153             ;313d  fa 14        Branch to pop all registers off stack and reti
 
 lab_313f:
     br !lab_3242            ;313f  9b 42 32
@@ -9382,12 +9388,13 @@ lab_3145:
 lab_3148:
     bf mem_fe2b.7,lab_3150  ;3148  31 73 2b 04
     clr1 mem_fe7b.6         ;314c  6b 7b
-    br lab_3153             ;314e  fa 03
+    br lab_3153             ;314e  fa 03        Branch to pop all registers off stack and reti
 
 lab_3150:
     clr1 asim0.6            ;3150  71 6b a0
 
 lab_3153:
+;Pop all registers off stack and return
     pop de                  ;3153  b4
     pop hl                  ;3154  b6
     pop bc                  ;3155  b2
@@ -9395,6 +9402,7 @@ lab_3153:
     reti                    ;3157  8f
 
 lab_3158:
+;Check received KWP1281 sync byte (0x55)
     cmp a,#0x55             ;3158  4d 55
     bnz lab_318a            ;315a  bd 2e
     mov a,#0x04             ;315c  a1 04
@@ -9404,6 +9412,7 @@ lab_3158:
     br lab_3153             ;3165  fa ec
 
 lab_3167:
+;Check received KWP1281 first keyword byte (0x01)
     cmp a,#0x01             ;3167  4d 01
     bnz lab_318a            ;3169  bd 1f
     mov a,#0x04             ;316b  a1 04
@@ -9413,6 +9422,7 @@ lab_3167:
     br lab_3153             ;3174  fa dd
 
 lab_3176:
+;Check received KWP1281 second keyword byte (0x8a)
     cmp a,#0x8a             ;3176  4d 8a
     bnz lab_318a            ;3178  bd 10
     mov !mem_f06a,a         ;317a  9e 6a f0
@@ -9503,9 +9513,11 @@ lab_31f6:
     clr1 mem_fe79.2         ;3208  2b 79
     clr1 mem_fe7a.0         ;320a  0b 7a
     clr1 mem_fe7b.3         ;320c  3b 7b
+
     mov a,#0xff             ;320e  a1 ff
     cmp a,!mem_f06c         ;3210  48 6c f0
     bc lab_3223             ;3213  8d 0e
+
     mov a,#0x00             ;3215  a1 00
     mov !mem_f079,a         ;3217  9e 79 f0
     set1 mem_fe7c.0         ;321a  0a 7c
@@ -9627,6 +9639,7 @@ lab_32dc:
     br !lab_3153            ;32dc  9b 53 31
 
 intser0_32df:
+;UART0 receive error interrupt
     push ax                 ;32df  b1
     push bc                 ;32e0  b3
     push hl                 ;32e1  b7
@@ -9640,13 +9653,13 @@ intser0_32df:
     bt mem_fe79.0,lab_3301  ;32f2  8c 79 0c
     bt mem_fe7a.1,lab_32fd  ;32f5  9c 7a 05
     bt mem_fe7a.0,lab_32ff  ;32f8  8c 7a 04
-    br lab_3324             ;32fb  fa 27
+    br lab_3324             ;32fb  fa 27          Branch to pop all registers off stack and return
 
 lab_32fd:
-    br lab_3324             ;32fd  fa 25
+    br lab_3324             ;32fd  fa 25          Branch to pop all registers off stack and return
 
 lab_32ff:
-    br lab_3324             ;32ff  fa 23
+    br lab_3324             ;32ff  fa 23          Branch to pop all registers off stack and return
 
 lab_3301:
     br !lab_323f            ;3301  9b 3f 32
@@ -9663,7 +9676,7 @@ lab_3304:
 
 lab_3318:
     clr1 mem_fe7b.6         ;3318  6b 7b
-    br lab_3324             ;331a  fa 08
+    br lab_3324             ;331a  fa 08          Branch to pop all registers off stack and return
 
 lab_331c:
     clr1 mem_fe7b.4         ;331c  4b 7b
@@ -9673,6 +9686,7 @@ lab_3321:
     clr1 asim0.6            ;3321  71 6b a0
 
 lab_3324:
+;Pop all registers off stack and return
     pop de                  ;3324  b4
     pop hl                  ;3325  b6
     pop bc                  ;3326  b2
@@ -10068,6 +10082,8 @@ lab_35ab:
     mov a,!mem_f074         ;35bf  8e 74 f0       A = KWP1281 address to transmit at 5 baud
     ror a,1                 ;35c2  24             Rotate one bit to the right
     mov !mem_f074,a         ;35c3  9e 74 f0       Save rotated value
+
+    ;TODO this looks like bit-bang transmitting the address at 5 baud
 
     mov1 mem_fe7a.6,cy      ;35c6  71 61 7a
     mov1 shadow_p2.5,cy     ;35c9  71 51 cc
@@ -13658,10 +13674,11 @@ lab_4bb3:
     movw hl,#upd_disp       ;4bb6  16 9a f1     HL = pointer to current uPD16432B display buffer
     mov a,#0x0b             ;4bb9  a1 0b        A = 11 bytes to compare
     callf !sub_0cca         ;4bbb  4c ca        Compare A bytes between [HL] to [DE]
-    bz lab_4bc2             ;4bbd  ad 03        Branch if equal (no update needs to be sent)
-    br !lab_4c5e            ;4bbf  9b 5e 4c
+    bz lab_4bc2             ;4bbd  ad 03        Branch if equal (no uPD16432B update needs to be sent)
+    br !lab_4c5e            ;4bbf  9b 5e 4c     Branch always (uPD16432B needs an update)
 
 lab_4bc2:
+;Display buffers are equal (no uPD16432B update needs to be sent)
     mov a,!mem_fb2b         ;4bc2  8e 2b fb
     cmp a,#0x00             ;4bc5  4d 00
     bz lab_4bcc             ;4bc7  ad 03
@@ -13775,18 +13792,22 @@ lab_4c59:
     br lab_4cd5             ;4c5c  fa 77
 
 lab_4c5e:
+;Display buffers are not equal (uPD16432B update needs to be sent)
+;
+    ;Copy upd_disp into upd_disp_old for next time around
     movw de,#upd_disp_old   ;4c5e  14 b2 fb     DE = pointer to last uPD16432B display buffer sent
                             ;                        (destination)
     movw hl,#upd_disp       ;4c61  16 9a f1     HL = pointer to current uPD16432B display buffer
                             ;                        (source)
     mov a,#0x0b             ;4c64  a1 0b        A = 0x0b bytes to copy
     callf !sub_0c9e         ;4c66  4c 9e        Copy A bytes from [HL] to [DE]
+
     mov a,#0x14             ;4c68  a1 14
     mov !mem_fb2a,a         ;4c6a  9e 2a fb
     set1 mem_fe60.3         ;4c6d  3a 60
     set1 mem_fe7c.2         ;4c6f  2a 7c
-    mov b,#0xff             ;4c71  a3 ff
 
+    mov b,#0xff             ;4c71  a3 ff
 lab_4c73:
     bt mem_fe5f.0,lab_4c78  ;4c73  8c 5f 02     Branch if SPI packet complete flag = complete
     dbnz b,lab_4c73         ;4c76  8b fb
@@ -13821,6 +13842,7 @@ lab_4c7e:
     set1 mem_fe5f.1         ;4c9b  1a 5f
     bnz lab_4cb0            ;4c9d  bd 11
     clr1 mem_fe5f.1         ;4c9f  1b 5f
+
     movw ax,#upd_disp       ;4ca1  10 9a f1
     movw hl,ax              ;4ca4  d6
     mov a,#0x0b             ;4ca5  a1 0b
@@ -13828,7 +13850,6 @@ lab_4c7e:
     decw hl                 ;4ca8  96
     mov a,#0xff             ;4ca9  a1 ff
     xor a,#0x00             ;4cab  7d 00
-
 lab_4cad:
     mov [hl+b],a            ;4cad  bb
     dbnz b,lab_4cad         ;4cae  8b fd
@@ -13842,9 +13863,9 @@ lab_4cb0:
     clr1 mk0h.4             ;4cb9  71 4b e5     CSIMK30
     clr1 pr0h.4             ;4cbc  71 4b e9     CSIPR30
 
-    movw ax,#upd_disp       ;4cbf  10 9a f1
+    movw ax,#upd_disp       ;4cbf  10 9a f1     AX = pointer to uPD16432 display buffer (11 bytes)
     push ax                 ;4cc2  b1           Push: pointer to buffer to transfer
-    mov a,#0x0b             ;4cc3  a1 0b
+    mov a,#0x0b             ;4cc3  a1 0b        A = 11 bytes to transfer
     push ax                 ;4cc5  b1           Push: number of bytes to transfer
 
     sel rb2                 ;4cc6  61 f0        Select register bank used by intcsi30_08a9
