@@ -29214,23 +29214,16 @@ lab_ac4e:
 mem_ad34:
 ;table used with sub_0c48
     .byte 0x08              ;ad34  08          DATA 0x08        8 entries below:
-    .byte 0x46              ;ad35  46          DATA 0x46 'F'
-    .byte 0xad              ;ad36  ad          DATA 0xad
-    .byte 0x5b              ;ad37  5b          DATA 0x5b '['
-    .byte 0xad              ;ad38  ad          DATA 0xad
-    .byte 0x70              ;ad39  70          DATA 0x70 'p'
-    .byte 0xad              ;ad3a  ad          DATA 0xad
-    .byte 0x85              ;ad3b  85          DATA 0x85
-    .byte 0xad              ;ad3c  ad          DATA 0xad
-    .byte 0x46              ;ad3d  46          DATA 0x46 'F'
-    .byte 0xad              ;ad3e  ad          DATA 0xad
-    .byte 0x46              ;ad3f  46          DATA 0x46 'F'
-    .byte 0xad              ;ad40  ad          DATA 0xad
-    .byte 0x46              ;ad41  46          DATA 0x46 'F'
-    .byte 0xad              ;ad42  ad          DATA 0xad
-    .byte 0x9a              ;ad43  9a          DATA 0x9a
-    .byte 0xad              ;ad44  ad          DATA 0xad
+    .word mem_ad45+1
+    .word mem_ad5a+1
+    .word mem_ad6f+1
+    .word mem_ad84+1
+    .word mem_ad45+1
+    .word mem_ad45+1
+    .word mem_ad45+1
+    .word mem_ad99+1
 
+mem_ad45:
     .byte 0x03              ;ad45  03          DATA 0x03
     .byte 0x10              ;ad46  10          DATA 0x10
     .byte 0x04              ;ad47  04          DATA 0x04
@@ -29252,6 +29245,8 @@ mem_ad34:
     .byte 0x00              ;ad57  00          DATA 0x00
     .byte 0x27              ;ad58  27          DATA 0x27 '''
     .byte 0xc4              ;ad59  c4          DATA 0xc4
+
+mem_ad5a:
     .byte 0x03              ;ad5a  03          DATA 0x03
     .byte 0x10              ;ad5b  10          DATA 0x10
     .byte 0x02              ;ad5c  02          DATA 0x02
@@ -29273,6 +29268,8 @@ mem_ad34:
     .byte 0x00              ;ad6c  00          DATA 0x00
     .byte 0x27              ;ad6d  27          DATA 0x27 '''
     .byte 0xcb              ;ad6e  cb          DATA 0xcb
+
+mem_ad6f:
     .byte 0x03              ;ad6f  03          DATA 0x03
     .byte 0x10              ;ad70  10          DATA 0x10
     .byte 0x02              ;ad71  02          DATA 0x02
@@ -29294,6 +29291,8 @@ mem_ad34:
     .byte 0x00              ;ad81  00          DATA 0x00
     .byte 0x27              ;ad82  27          DATA 0x27 '''
     .byte 0xc2              ;ad83  c2          DATA 0xc2
+
+mem_ad84:
     .byte 0x03              ;ad84  03          DATA 0x03
     .byte 0x10              ;ad85  10          DATA 0x10
     .byte 0x02              ;ad86  02          DATA 0x02
@@ -29315,6 +29314,8 @@ mem_ad34:
     .byte 0x00              ;ad96  00          DATA 0x00
     .byte 0x27              ;ad97  27          DATA 0x27 '''
     .byte 0xc2              ;ad98  c2          DATA 0xc2
+
+mem_ad99:
     .byte 0x03              ;ad99  03          DATA 0x03
     .byte 0x10              ;ad9a  10          DATA 0x10
     .byte 0x04              ;ad9b  04          DATA 0x04
