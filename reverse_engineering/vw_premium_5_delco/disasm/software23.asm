@@ -7361,7 +7361,8 @@ lab_256c:
     ret                     ;258d  af
 
 sub_258e:
-;mem_fed4 = mem_fed4 xor mem_fed6, mem_fed5 = mem_fed5 xor mem_fed7
+;mem_fed4 = mem_fed4 xor mem_fed6
+;mem_fed5 = mem_fed5 xor mem_fed7
     mov a,mem_fed4          ;258e  f0 d4
     xor a,mem_fed6          ;2590  7e d6
     mov mem_fed4,a          ;2592  f2 d4    mem_fed4 = mem_fed4 xor mem_fed6
@@ -7642,6 +7643,7 @@ lab_274a:
 
 
 sub_274e:
+;Unknown; uses table of KWP1281 fault codes at mem_afe8
     bt mem_fe5f.3,lab_2762  ;274e  bc 5f 11
     call !sub_2c98          ;2751  9a 98 2c
     bc lab_275c             ;2754  8d 06
@@ -7670,7 +7672,7 @@ lab_2762:
     movw hl,#mem_f20d       ;277a  16 0d f2
     call !sub_2cbe          ;277d  9a be 2c
     mov b,a                 ;2780  73
-    movw hl,#mem_afe8+1     ;2781  16 e9 af
+    movw hl,#mem_afe8+1     ;2781  16 e9 af     Table of KWP1281 fault codes
 
 lab_2784:
     callf !sub_0c48         ;2784  4c 48        Load DE with word at position B in table [HL]
@@ -15163,7 +15165,7 @@ lab_537d:
 lab_5384:
     push hl                 ;5384  b7
     push bc                 ;5385  b3
-    call !sub_274e          ;5386  9a 4e 27
+    call !sub_274e          ;5386  9a 4e 27     Unknown; uses table of KWP1281 fault codes at mem_afe8
     pop bc                  ;5389  b2
     pop hl                  ;538a  b6
     bc lab_539d             ;538b  8d 10
@@ -15412,7 +15414,7 @@ lab_54b7:
 
 lab_54ba:
 ;TODO investigate this unknown kwp1281 code
-    mov b,#0x17             ;54ba  a3 17        B = index 0x17 ? TODO
+    mov b,#0x17             ;54ba  a3 17        B = index 0x17 single reading
     call !sub_5292          ;54bc  9a 92 52     Set block title, counter, length in KWP1281 tx buf
     mov [hl+b],a            ;54bf  bb           Store block length in KWP1281 tx buffer at byte 3 (weird)
 
@@ -15555,7 +15557,7 @@ lab_555c:
 
 lab_556b:
 ;TODO comment this unknown KWP1281 code
-    mov b,#0x1d             ;556b  a3 1d        B = index 0x1d
+    mov b,#0x1d             ;556b  a3 1d        B = index 0x1d read rom or eeprom
     call !sub_5292          ;556d  9a 92 52     Set block title, counter, length in KWP1281 tx buf
     mov [hl+b],a            ;5570  bb
     inc b                   ;5571  43
@@ -16280,7 +16282,7 @@ lab_596e:
     inc mem_fe34            ;596e  81 34
     mov a,#0x05             ;5970  a1 05
     mov !mem_fb05,a         ;5972  9e 05 fb
-    br !lab_5a0e            ;5975  9b 0e 5a
+    br !lab_5a0e            ;5975  9b 0e 5a     Branch to pop registers and reti
 
 lab_5978:
     xch a,x                 ;5978  30
@@ -16295,7 +16297,7 @@ lab_5978:
     mov mem_fe34,#0x00      ;5989  11 34 00
     mov a,#0x9f             ;598c  a1 9f
     mov !mem_fb05,a         ;598e  9e 05 fb
-    br lab_5a0e             ;5991  fa 7b
+    br lab_5a0e             ;5991  fa 7b      Branch to pop registers and reti
 
 intp0_5933:
     push ax                 ;5993  b1
@@ -16328,7 +16330,7 @@ lab_59b7:
     bnc lab_59fd            ;59c0  9d 3b
     mov a,#0x64             ;59c2  a1 64
     mov !mem_fb0e,a         ;59c4  9e 0e fb
-    br lab_5a0e             ;59c7  fa 45
+    br lab_5a0e             ;59c7  fa 45        Branch to pop registers and reti
 
 lab_59c9:
     mov a,#0x00             ;59c9  a1 00
@@ -16368,6 +16370,7 @@ lab_59fd:
     clr1 egn.0              ;5a0b  71 0b 49
 
 lab_5a0e:
+;Pop registers and reti
     pop hl                  ;5a0e  b6
     pop de                  ;5a0f  b4
     pop bc                  ;5a10  b2
@@ -16396,7 +16399,7 @@ lab_5a27:
     movw !mem_f00e,ax       ;5a31  03 0e f0
     mov a,#0x0e             ;5a34  a1 0e
     mov !mem_fb05,a         ;5a36  9e 05 fb
-    br lab_5a0e             ;5a39  fa d3
+    br lab_5a0e             ;5a39  fa d3        Branch to pop registers and reti
 
 lab_5a3b:
     br lab_59fd             ;5a3b  fa c0
@@ -16411,7 +16414,7 @@ lab_5a3d:
     clr1 egn.0              ;5a4d  71 0b 49
     mov a,#0x07             ;5a50  a1 07
     mov !mem_fb05,a         ;5a52  9e 05 fb
-    br !lab_5a0e            ;5a55  9b 0e 5a
+    br !lab_5a0e            ;5a55  9b 0e 5a     Branch to pop registers and reti
 
 lab_5a58:
     cmpw ax,#0x1d7d         ;5a58  ea 7d 1d
@@ -16424,7 +16427,7 @@ lab_5a58:
     set1 mem_fe68.0         ;5a6a  0a 68
     mov a,#0x05             ;5a6c  a1 05
     mov !mem_fb05,a         ;5a6e  9e 05 fb
-    br !lab_5a0e            ;5a71  9b 0e 5a
+    br !lab_5a0e            ;5a71  9b 0e 5a     Branch to pop registers and reti
 
 lab_5a74:
     mov mem_fe34,#0x00      ;5a74  11 34 00
@@ -29886,32 +29889,20 @@ mem_afe4:
     .byte 0x06              ;afe7  06          DATA 0x06
 
 mem_afe8:
-;table used with sub_0c48
+;Table of KWP1281 fault codes used by sub_274e
     .byte 0x0c              ;afe8  0c          DATA 0x0c        12 entries below:
-    .byte 0x9c              ;afe9  9c          DATA 0x9c
-    .byte 0x02              ;afea  02          DATA 0x02
-    .byte 0x51              ;afeb  51          DATA 0x51 'Q'
-    .byte 0x03              ;afec  03          DATA 0x03
-    .byte 0x52              ;afed  52          DATA 0x52 'R'
-    .byte 0x03              ;afee  03          DATA 0x03
-    .byte 0x53              ;afef  53          DATA 0x53 'S'
-    .byte 0x03              ;aff0  03          DATA 0x03
-    .byte 0x54              ;aff1  54          DATA 0x54 'T'
-    .byte 0x03              ;aff2  03          DATA 0x03
-    .byte 0x55              ;aff3  55          DATA 0x55 'U'
-    .byte 0x03              ;aff4  03          DATA 0x03
-    .byte 0x56              ;aff5  56          DATA 0x56 'V'
-    .byte 0x03              ;aff6  03          DATA 0x03
-    .byte 0x57              ;aff7  57          DATA 0x57 'W'
-    .byte 0x03              ;aff8  03          DATA 0x03
-    .byte 0x58              ;aff9  58          DATA 0x58 'X'
-    .byte 0x03              ;affa  03          DATA 0x03
-    .byte 0x14              ;affb  14          DATA 0x14
-    .byte 0x04              ;affc  04          DATA 0x04
-    .byte 0xab              ;affd  ab          DATA 0xab
-    .byte 0x04              ;affe  04          DATA 0x04
-    .byte 0xff              ;afff  ff          DATA 0xff
-    .byte 0xff              ;b000  ff          DATA 0xff
+    .word 0x029c            ;00668 - Supply Voltage Terminal 30
+    .word 0x0351            ;00849 - S-contact at Ignition/Starter Switch (D)
+    .word 0x0352            ;00850 - Control Output Active; Radio Amplifier
+    .word 0x0353            ;00851 - Loudspeaker(s)
+    .word 0x0354            ;00852 - Loudspeaker(s); Front
+    .word 0x0355            ;00853 - Loudspeaker(s); Rear
+    .word 0x0356            ;00854 - Radio Display Output in Dash Panel Insert
+    .word 0x0357            ;00855 - Connection to CD changer
+    .word 0x0358            ;00856 - Radio Antenna
+    .word 0x0414            ;01044 - Control Module Incorrectly Coded
+    .word 0x04ab            ;01195 - End
+    .word 0xffff            ;65535 - Internal Control Module Memory Error
 
 mem_b001:
 ;table used with sub_0c48
@@ -30416,47 +30407,49 @@ mem_b1f4:
 
 mem_b1fa:
 ;TODO investigate this unknown table of kwp1281 procedures
+;indexed by mem_fbc8
     .byte 0x26              ;b1fa  26          DATA 0x26 '&'      38 entries below:
     .word lab_4dd2
     .word lab_532a          ;Send ACK response
     .word lab_5337          ;Send End Session response
     .word lab_5344_bad      ;Bad title: Send NAK
     .word lab_5355          ;Send NAK response
-    .word lab_5365
+    .word lab_5365          ;index 0x08 read identification
     .word lab_52ea          ;Send ascii/data response with "1J0035180B"
     .word lab_52e0          ;Send ascii/data response with "Radio DE2"
     .word lab_52d5          ;Send ascii/data response with "0001" and extras
     .word lab_52b1          ;Send ascii/data response with ... TODO
-    .word lab_5370
+    .word lab_5370          ;index 0x09 read faults
     .word lab_537b          ;Send index 0x0a response to read/clear faults
-    .word lab_53b9
-    .word lab_53c4
+    .word lab_53b9          ;index 0x0b clear faults
+    .word lab_53c4          ;index 0x0c output tests
     .word lab_53cf          ;Send index 0x0d response to output tests
-    .word lab_53ef
+    .word lab_53ef          ;index 0x0e ? TODO
     .word lab_5405          ;Send NAK response (index 0x04)
-    .word lab_53fa
-    .word lab_5408
+    .word lab_53fa          ;index 0x0f ? TODO
+    .word lab_5408          ;index 0x10 basic setting
     .word lab_5422          ;Send index 0x12 response to group reading
-    .word lab_5415
-    .word lab_545b          ;?? TODO unknown KWP1281 code
-    .word lab_5476          ;?? TODO unknown KWP1281 code
-    .word lab_5483          ;?? TODO unknown KWP1281 code
-    .word lab_5495          ;?? TODO unknown KWP1281 code
+    .word lab_5415          ;index 0x11 group reading
+    .word lab_545b          ;index 013 recoding
+    .word lab_5476          ;index 0x14 adaptation
+    .word lab_5483          ;index 0x15 ? TODO
+    .word lab_5495          ;index 0x16 ? TODO
     .word lab_54b7          ;Send NAK response (index 0x04)
-    .word lab_54ba          ;?? TODO unknown KWP1281 code
+    .word lab_54ba          ;index 0x17 single reading
     .word lab_54c7          ;Send NAK response (index 0x04)
-    .word lab_54ca          ;?? TODO unknown KWP1281 code
-    .word lab_54ea          ;?? TODO unknown KWP1281 code
+    .word lab_54ca          ;index 0x18 login
+    .word lab_54ea          ;index 0x19 read eeprom
     .word lab_54fb          ;Send response to title 0x1b custom usage with data
-    .word lab_5514          ;?? TODO unknown KWP1281 code
+    .word lab_5514          ;index 0x1b read ram
     .word lab_552a          ;Send 0x1c response to read ram or send nak
-    .word lab_556b          ;?? TODO unknown KWP1281 code
+    .word lab_556b          ;index 0x1d read rom or eeprom
     .word lab_5581          ;Send read EEPROM response
     .word lab_55c5          ;Send EEPROM write response
     .word lab_55de          ;Send 0x21 ? response to security access
     .word lab_55f7          ;Send NAK response (index 0x04)
 
 mem_b247:
+;indexed by mem_fbc9
     .byte 0x0a              ;b247              DATA 0x0a        10 entries below:
     .word lab_4df4          ;b248              VECTOR
     .word lab_51ca          ;b24a              VECTOR
