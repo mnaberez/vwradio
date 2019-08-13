@@ -4673,7 +4673,7 @@ lab_142e:
     cmp a,#0x00             ;1433  4d 00
     bz lab_1479             ;1435  ad 42
     bf mem_fe2c.3,lab_1479  ;1437  31 33 2c 3e
-    mov a,!mem_f1fe         ;143b  8e fe f1
+    mov a,!mem_f1fe         ;143b  8e fe f1       TODO coding, monsoon related
     cmp a,#0x03             ;143e  4d 03
     bz lab_1479             ;1440  ad 37
     cmp a,#0x03             ;1442  4d 03
@@ -4715,10 +4715,10 @@ lab_147c:
     clr1 mem_fe5f.5         ;147f  5b 5f
     mov a,!mem_f1a6         ;1481  8e a6 f1
     and a,#0x7f             ;1484  5d 7f
-    cmp a,#0x0f             ;1486  4d 0f
+    cmp a,#0x0f             ;1486  4d 0f        f Writes " DIAG  "
     bnz lab_148f            ;1488  bd 05
     mov a,#0xff             ;148a  a1 ff
-    mov !mem_f1a6,a         ;148c  9e a6 f1
+    mov !mem_f1a6,a         ;148c  9e a6 f1     f Writes " DIAG  "
 
 lab_148f:
     call !sub_333f          ;148f  9a 3f 33
@@ -7568,7 +7568,7 @@ sub_26d6:
     mov a,#0x32             ;26d9  a1 32
     mov !mem_fb2e,a         ;26db  9e 2e fb
     mov a,#0x8f             ;26de  a1 8f
-    mov !mem_f1a6,a         ;26e0  9e a6 f1
+    mov !mem_f1a6,a         ;26e0  9e a6 f1     f Writes " DIAG  "
     ret                     ;26e3  af
 
 
@@ -11045,17 +11045,19 @@ lab_3c3f:
     set1 mem_fe2c.7         ;3c41  7a 2c
     mov a,!mem_f1fe         ;3c43  8e fe f1
     cmp a,#0x03             ;3c46  4d 03
-    bz lab_3c4e             ;3c48  ad 04
+    bz lab_3c4e             ;3c48  ad 04          Branch if coded for Monsoon
     cmp a,#0x04             ;3c4a  4d 04
-    bnz lab_3c58            ;3c4c  bd 0a
+    bnz lab_3c58            ;3c4c  bd 0a          Branch if not Monsoon
 
 lab_3c4e:
+;Monsoon
     mov a,#0x80             ;3c4e  a1 80
-    mov !mem_f1a6,a         ;3c50  9e a6 f1
+    mov !mem_f1a6,a         ;3c50  9e a6 f1       0 Writes "    MONSOON"
     mov a,#0x1e             ;3c53  a1 1e
     mov !mem_fb2e,a         ;3c55  9e 2e fb
 
 lab_3c58:
+;Not Monsoon
     ret                     ;3c58  af
 
 lab_3c59:
@@ -11141,17 +11143,19 @@ lab_3cd4:
     set1 mem_fe2c.5         ;3cdb  5a 2c
     mov a,!mem_f1fe         ;3cdd  8e fe f1
     cmp a,#0x03             ;3ce0  4d 03
-    bz lab_3ce8             ;3ce2  ad 04
+    bz lab_3ce8             ;3ce2  ad 04          Branch if coded for Monsoon
     cmp a,#0x04             ;3ce4  4d 04
-    bnz lab_3cf2            ;3ce6  bd 0a
+    bnz lab_3cf2            ;3ce6  bd 0a          Branch if not Monsoon
 
 lab_3ce8:
+;Monsoon
     mov a,#0x80             ;3ce8  a1 80
-    mov !mem_f1a6,a         ;3cea  9e a6 f1
+    mov !mem_f1a6,a         ;3cea  9e a6 f1       0 Writes "    MONSOON"
     mov a,#0x1e             ;3ced  a1 1e
     mov !mem_fb2e,a         ;3cef  9e 2e fb
 
 lab_3cf2:
+;Not Monsoon
     ret                     ;3cf2  af
 
 lab_3cf3:
@@ -12268,14 +12272,14 @@ sub_43b1:
     mov a,#0x23             ;43d2  a1 23
     mov !mem_fb2e,a         ;43d4  9e 2e fb
     mov a,#0x0a             ;43d7  a1 0a
-    mov !mem_f1a6,a         ;43d9  9e a6 f1
+    mov !mem_f1a6,a         ;43d9  9e a6 f1       a Writes "TAPE ERROR "
     br lab_43fd             ;43dc  fa 1f
 
 lab_43de:
     mov a,#0x23             ;43de  a1 23
     mov !mem_fb2e,a         ;43e0  9e 2e fb
     mov a,#0x0b             ;43e3  a1 0b
-    mov !mem_f1a6,a         ;43e5  9e a6 f1
+    mov !mem_f1a6,a         ;43e5  9e a6 f1       b Writes "    NO TAPE"
     br lab_43fd             ;43e8  fa 13
 
 lab_43ea:
@@ -12286,7 +12290,7 @@ lab_43ea:
     mov a,#0x23             ;43f3  a1 23
     mov !mem_fb2e,a         ;43f5  9e 2e fb
     mov a,#0x06             ;43f8  a1 06
-    mov !mem_f1a6,a         ;43fa  9e a6 f1
+    mov !mem_f1a6,a         ;43fa  9e a6 f1       6 Writes "NO  CHANGER"
 
 lab_43fd:
     call !sub_4609          ;43fd  9a 09 46
@@ -12303,7 +12307,7 @@ lab_4402:
     bnz lab_4414            ;4409  bd 09
     mov a,#0x23             ;440b  a1 23
     mov !mem_fb2e,a         ;440d  9e 2e fb
-    mov a,#0x05             ;4410  a1 05
+    mov a,#0x05             ;4410  a1 05        5 Writes "NO  MAGAZIN"
     br lab_441f             ;4412  fa 0b
 
 lab_4414:
@@ -12311,7 +12315,7 @@ lab_4414:
     bnz lab_4427            ;4416  bd 0f
     mov a,#0x23             ;4418  a1 23
     mov !mem_fb2e,a         ;441a  9e 2e fb
-    mov a,#0x04             ;441d  a1 04
+    mov a,#0x04             ;441d  a1 04        4 Writes "    NO DISC"
 
 lab_441f:
     mov !mem_f1a6,a         ;441f  9e a6 f1
@@ -12474,14 +12478,14 @@ lab_4502:
     mov a,#0x23             ;4520  a1 23
     mov !mem_fb2e,a         ;4522  9e 2e fb
     mov a,#0x0a             ;4525  a1 0a
-    mov !mem_f1a6,a         ;4527  9e a6 f1
+    mov !mem_f1a6,a         ;4527  9e a6 f1       a Writes "TAPE ERROR "
     br lab_454b             ;452a  fa 1f
 
 lab_452c:
     mov a,#0x23             ;452c  a1 23
     mov !mem_fb2e,a         ;452e  9e 2e fb
     mov a,#0x0b             ;4531  a1 0b
-    mov !mem_f1a6,a         ;4533  9e a6 f1
+    mov !mem_f1a6,a         ;4533  9e a6 f1       b Writes "    NO TAPE"
     br lab_454b             ;4536  fa 13
 
 lab_4538:
@@ -12491,7 +12495,7 @@ lab_4538:
     bz lab_454e             ;453f  ad 0d
     mov a,#0x23             ;4541  a1 23
     mov !mem_fb2e,a         ;4543  9e 2e fb
-    mov a,#0x06             ;4546  a1 06
+    mov a,#0x06             ;4546  a1 06          6 Writes "NO  CHANGER"
     mov !mem_f1a6,a         ;4548  9e a6 f1
 
 lab_454b:
@@ -18397,10 +18401,10 @@ lock:
     .ascii "LOCK"
 
 sub_67be:
-;Sets mem_f1a6 = 0xff
+;Sets mem_f1a6 = 0xff (may result in "DIAG" being printed)
     mov a,#0xff             ;67be  a1 ff
     mov !mem_f1a6,a         ;67c0  9e a6 f1
-    ret                     ;67c3  af
+    ret                     ;67c3  af           f Writes " DIAG  "
 
 lab_67c4:
     rolc a,1                ;67c4  27
@@ -18817,9 +18821,9 @@ lab_6a0a:
 lab_6a10:
     mov a,!mem_f1fe         ;6a10  8e fe f1
     cmp a,#0x03             ;6a13  4d 03
-    bz lab_6a1b             ;6a15  ad 04
+    bz lab_6a1b             ;6a15  ad 04        Branch if coded for Monsoon
     cmp a,#0x04             ;6a17  4d 04
-    bnz lab_6a1f            ;6a19  bd 04
+    bnz lab_6a1f            ;6a19  bd 04        Branch if not Monsson
 
 lab_6a1b:
     mov a,#0x0a             ;6a1b  a1 0a
@@ -18877,7 +18881,7 @@ lab_6a64:
     mov a,!mem_fb2e         ;6a64  8e 2e fb
     cmp a,#0x00             ;6a67  4d 00
     bnz lab_6a71            ;6a69  bd 06
-    call !sub_67be          ;6a6b  9a be 67     Sets mem_f1a6 = 0xff
+    call !sub_67be          ;6a6b  9a be 67     Sets mem_f1a6 = 0xff (may result in "DIAG" being printed)
     mov !mem_f1a5,a         ;6a6e  9e a5 f1
 
 lab_6a71:
@@ -19931,7 +19935,7 @@ lab_7054:
     clr1 upd_pict+4.5       ;7054  5b 39        Turn off period pictograph
     mov a,!mem_f1a6         ;7056  8e a6 f1
     and a,#0x0f             ;7059  5d 0f
-    cmp a,#0x0e             ;705b  4d 0e
+    cmp a,#0x0e             ;705b  4d 0e        e Writes "  MIN  " or "  MAX  "
     bz lab_7065             ;705d  ad 06
     clr1 upd_pict+2.7       ;705f  7b 37        Turn off "METAL" pictograph
     clr1 upd_pict+1.2       ;7061  2b 36        Turn off "DOLBY" pictograph
@@ -19992,7 +19996,7 @@ lab_70ba:
     mov a,!mem_fb2e         ;70ba  8e 2e fb
     cmp a,#0x00             ;70bd  4d 00
     bnz lab_70c5            ;70bf  bd 04
-    call !sub_67be          ;70c1  9a be 67   Sets mem_f1a6 = 0xff
+    call !sub_67be          ;70c1  9a be 67   Sets mem_f1a6 = 0xff (may result in "DIAG" being printed)
     ret                     ;70c4  af
 
 lab_70c5:
@@ -20000,7 +20004,7 @@ lab_70c5:
     and a,#0x0f             ;70c8  5d 0f
     mov !mem_f1a6,a         ;70ca  9e a6 f1
     mov b,a                 ;70cd  73
-    movw hl,#mem_b435+1     ;70ce  16 36 b4     HL = pointer to CD, TAPE, DIAG related code table
+    movw hl,#mem_b435+1     ;70ce  16 36 b4   HL = pointer to CD, TAPE, DIAG related code table
     br !lab_704d            ;70d1  9b 4d 70
 
 lab_70d4:
@@ -20505,7 +20509,7 @@ lab_73e3:
 lab_73ec:
     mov a,!mem_f1a6         ;73ec  8e a6 f1
     and a,#0x0f             ;73ef  5d 0f
-    cmp a,#0x0e             ;73f1  4d 0e
+    cmp a,#0x0e             ;73f1  4d 0e        e Writes "  MIN  " or "  MAX  "
     bnz lab_73fa            ;73f3  bd 05
     mov a,#0x1e             ;73f5  a1 1e
     mov !mem_fb2e,a         ;73f7  9e 2e fb
@@ -20548,10 +20552,10 @@ lab_7424:
 lab_7433:
     mov a,!mem_f1a6         ;7433  8e a6 f1
     and a,#0x0f             ;7436  5d 0f
-    cmp a,#0x0e             ;7438  4d 0e
+    cmp a,#0x0e             ;7438  4d 0e        e Writes "  MIN  " or "  MAX  "
     bnz lab_7441            ;743a  bd 05
     mov a,#0xff             ;743c  a1 ff
-    mov !mem_f1a6,a         ;743e  9e a6 f1
+    mov !mem_f1a6,a         ;743e  9e a6 f1     f Writes " DIAG  "
 
 lab_7441:
     mov b,#0xff             ;7441  a3 ff
@@ -20599,10 +20603,10 @@ lab_747c:
 lab_7484:
     mov a,!mem_f1a6         ;7484  8e a6 f1
     and a,#0x0f             ;7487  5d 0f
-    cmp a,#0x0e             ;7489  4d 0e
+    cmp a,#0x0e             ;7489  4d 0e        e Writes "  MIN  " or "  MAX  "
     bnz lab_7492            ;748b  bd 05
     mov a,#0xff             ;748d  a1 ff
-    mov !mem_f1a6,a         ;748f  9e a6 f1
+    mov !mem_f1a6,a         ;748f  9e a6 f1      f Writes " DIAG  "
 
 lab_7492:
     mov b,#0xff             ;7492  a3 ff
@@ -20629,10 +20633,10 @@ lab_749d:
 lab_74bc:
     mov a,!mem_f1a6         ;74bc  8e a6 f1
     and a,#0x0f             ;74bf  5d 0f
-    cmp a,#0x0e             ;74c1  4d 0e
+    cmp a,#0x0e             ;74c1  4d 0e        e Writes "  MIN  " or "  MAX  "
     bnz lab_74ca            ;74c3  bd 05
     mov a,#0xff             ;74c5  a1 ff
-    mov !mem_f1a6,a         ;74c7  9e a6 f1
+    mov !mem_f1a6,a         ;74c7  9e a6 f1     f Writes " DIAG  "
 
 lab_74ca:
     mov b,#0xff             ;74ca  a3 ff
@@ -20959,9 +20963,10 @@ sub_7697:
     cmp mem_fe44,#0x05      ;76a7  c8 44 05
     bz lab_76c2             ;76aa  ad 16        Sets mem_f1a5 = 0xff and returns
     bt mem_fe47.5,lab_76c2  ;76ac  dc 47 13     Sets mem_f1a5 = 0xff and returns
+
     mov a,!mem_f1a6         ;76af  8e a6 f1
     and a,#0x7f             ;76b2  5d 7f
-    cmp a,#0x09             ;76b4  4d 09
+    cmp a,#0x09             ;76b4  4d 09        9 Writes "CD  CD ERR "
     bz lab_76c2             ;76b6  ad 0a        Sets mem_f1a5 = 0xff and returns
 
 lab_76b8:
@@ -24353,7 +24358,7 @@ lab_8cbf:
     bnz lab_8cd6            ;8cca  bd 0a
     mov a,#0x32             ;8ccc  a1 32
     mov !mem_fb2e,a         ;8cce  9e 2e fb
-    mov a,#0x8c             ;8cd1  a1 8c
+    mov a,#0x8c             ;8cd1  a1 8c        c Writes "TAPE METAL"
     mov !mem_f1a6,a         ;8cd3  9e a6 f1
 
 lab_8cd6:
@@ -27877,7 +27882,7 @@ lab_a615:
 lab_a61c:
     call !sub_7697          ;a61c  9a 97 76
     mov a,#0x8e             ;a61f  a1 8e
-    mov !mem_f1a6,a         ;a621  9e a6 f1
+    mov !mem_f1a6,a         ;a621  9e a6 f1       e Writes "  MIN  " or "  MAX  "
     mov a,#0x1e             ;a624  a1 1e
     mov !mem_fb2e,a         ;a626  9e 2e fb
     mov a,#0x0a             ;a629  a1 0a
@@ -27889,12 +27894,12 @@ lab_a630:
     mov !mem_fc9f,a         ;a632  9e 9f fc
     mov a,!mem_f1a6         ;a635  8e a6 f1
     and a,#0x7f             ;a638  5d 7f
-    cmp a,#0x0e             ;a63a  4d 0e
+    cmp a,#0x0e             ;a63a  4d 0e        e Writes "  MIN  " or "  MAX  "
     bnz lab_a648            ;a63c  bd 0a
     mov a,#0xff             ;a63e  a1 ff
     mov !mem_f1a6,a         ;a640  9e a6 f1
     mov a,#0x00             ;a643  a1 00
-    mov !mem_fb2e,a         ;a645  9e 2e fb
+    mov !mem_fb2e,a         ;a645  9e 2e fb     f Writes " DIAG  "
 
 lab_a648:
     ret                     ;a648  af
@@ -30865,7 +30870,8 @@ mem_b40e:
     .byte 0x20              ;b41a  20          DATA 0x20 ' '
 
 mem_b41b:
-;table used with sub_0c48
+;unknown table used by lab_7041
+;indexed by mem_fb2e & 0x0f
     .byte 0x05              ;b41b  05          DATA 0x05        5 entries below:
     .word lab_708f
     .word lab_70ba
@@ -30874,54 +30880,58 @@ mem_b41b:
     .word lab_7151
 
 mem_b426:
-;unknown table
+;unknown table used by lab_70a7
+;indexed by mem_f1a5 & 0x7f
     .byte 0x07              ;b426  07          DATA 0x07        7 entries below:
-    .word lab_7612          ;                  Writes "FADE"
-    .word lab_75c5          ;                  Writes "BAL"
-    .word lab_74e3          ;                  Writes "BASS"
-    .word lab_752f          ;                  Writes "MID"
-    .word lab_7579          ;                  Writes "TREB"
-    .word lab_765f          ;                  Writes "FLAT"
-    .word lab_766a          ;                  Writes "SELECT EQ #"
+    .word lab_7612          ;                  0 Writes "FADE"
+    .word lab_75c5          ;                  1 Writes "BAL"
+    .word lab_74e3          ;                  2 Writes "BASS"
+    .word lab_752f          ;                  3 Writes "MID"
+    .word lab_7579          ;                  4 Writes "TREB"
+    .word lab_765f          ;                  5 Writes "FLAT"
+    .word lab_766a          ;                  6 Writes "SELECT EQ #"
 
 mem_b435:
-;unknown table
+;unknown table used by lab_70c5
+;indexed by mem_f1a6 & 0x0f
     .byte 0x10              ;b435  10          DATA 0x10        16 entries below:
-    .word lab_6a10          ;b436              Writes "    MONSOON"
-    .word lab_6c9a          ;                  Writes [HL]
-    .word lab_6c6a          ;                  Writes "TRACK SCAN   "
-    .word lab_6c76          ;                  Writes "DISC SCAN    "
-    .word lab_71cf          ;                  Writes "    NO DISC"
-    .word lab_71c6          ;                  Writes "NO  MAGAZIN"
-    .word lab_71a7          ;                  Writes "NO  CHANGER"
-    .word lab_71b0          ;                  Writes "CD  CD ROM "
-    .word lab_6b9d          ;                  Writes "CD   NO CD "
-    .word lab_6b73          ;                  Writes "CD  CD ERR "
-    .word lab_717f          ;                  Writes "TAPE ERROR "
-    .word lab_7176          ;                  Writes "    NO TAPE"
-    .word lab_6b00          ;                  Writes "TAPE METAL"
-    .word lab_73bf          ;                  Writes "CUT TAPE"
-    .word lab_73cd          ;                  Writes "  MIN  " or "  MAX  "
-    .word lab_74d5          ;                  Writes " DIAG  "
+    .word lab_6a10          ;b436              0 Writes "    MONSOON"
+    .word lab_6c9a          ;                  1 Writes [HL]
+    .word lab_6c6a          ;                  2 Writes "TRACK SCAN   "
+    .word lab_6c76          ;                  3 Writes "DISC SCAN    "
+    .word lab_71cf          ;                  4 Writes "    NO DISC"
+    .word lab_71c6          ;                  5 Writes "NO  MAGAZIN"
+    .word lab_71a7          ;                  6 Writes "NO  CHANGER"
+    .word lab_71b0          ;                  7 Writes "CD  CD ROM "
+    .word lab_6b9d          ;                  8 Writes "CD   NO CD "
+    .word lab_6b73          ;                  9 Writes "CD  CD ERR "
+    .word lab_717f          ;                  a Writes "TAPE ERROR "
+    .word lab_7176          ;                  b Writes "    NO TAPE"
+    .word lab_6b00          ;                  c Writes "TAPE METAL"
+    .word lab_73bf          ;                  d Writes "CUT TAPE"
+    .word lab_73cd          ;                  e Writes "  MIN  " or "  MAX  "
+    .word lab_74d5          ;                  f Writes " DIAG  "
 
 mem_b456:
-;table used with sub_0c48
+;unknown table used by lab_7142
+;indexed by mem_f1a8 & 0x7f
     .byte 0x04              ;b456  04          DATA 0x04        4 entries below:
-    .word lab_71e3          ;b457             Writes "     SAFE  "
-    .word lab_71f2          ;b459             Writes "     SAFE  "
-    .word lab_7224          ;b45b             Writes "     SAFE  "
-    .word lab_7294          ;b45d             Writes "     SAFE  "
+    .word lab_71e3          ;b457              0 Writes "     SAFE  "
+    .word lab_71f2          ;b459              1 Writes "     SAFE  "
+    .word lab_7224          ;b45b              2 Writes "     SAFE  "
+    .word lab_7294          ;b45d              3 Writes "     SAFE  "
 
 mem_b459:
-;table used with sub_0c48
+;unknown table used by lab_715c
+;indexed by mem_f1a9 & 0x7f
     .byte 0x07              ;b45f  07          DATA 0x07        7 entries below:
-    .word lab_72de          ;b460             Writes "RAD   DE2  "
-    .word lab_72e9          ;b462             Writes "VersA99CZnn"
-    .word lab_7303          ;b464             Writes "           "
-    .word lab_733e          ;b466             Writes "FERN   ON  " or "FERN   ON  "
-    .word lab_7351          ;b468             Writes "SET ONVOL  "
-    .word lab_7387          ;b46a             Writes "SET CD MIX "
-    .word lab_73a3          ;b46c             Writes "TAPE SKIP  "
+    .word lab_72de          ;b460              0 Writes "RAD   DE2  "
+    .word lab_72e9          ;b462              1 Writes "VersA99CZnn"
+    .word lab_7303          ;b464              2 Writes "           "
+    .word lab_733e          ;b466              3 Writes "FERN   ON  " or "FERN   ON  "
+    .word lab_7351          ;b468              4 Writes "SET ONVOL  "
+    .word lab_7387          ;b46a              5 Writes "SET CD MIX "
+    .word lab_73a3          ;b46c              6 Writes "TAPE SKIP  "
 
 mem_b46e:
 ;table used at lab_6f81 with sub_0c48
@@ -38705,7 +38715,7 @@ lab_d21b:
 
 lab_d22f:
     mov a,#0xff             ;d22f  a1 ff
-    mov !mem_f1a6,a         ;d231  9e a6 f1
+    mov !mem_f1a6,a         ;d231  9e a6 f1       f Writes " DIAG  "
     call !sub_7697          ;d234  9a 97 76
     call !sub_dc2f          ;d237  9a 2f dc
     call !sub_d345          ;d23a  9a 45 d3
@@ -38723,7 +38733,7 @@ lab_d24b:
     set1 mem_fe80.0         ;d254  0a 80
     mov a,#0xff             ;d256  a1 ff
     mov !mem_f1ad,a         ;d258  9e ad f1
-    mov a,#0x08             ;d25b  a1 08
+    mov a,#0x08             ;d25b  a1 08        8 Writes "CD   NO CD "
     mov !mem_f1a6,a         ;d25d  9e a6 f1
     mov a,#0x1d             ;d260  a1 1d
     mov !mem_fb2e,a         ;d262  9e 2e fb
@@ -39190,7 +39200,7 @@ lab_d56f:
     mov a,#0xff             ;d572  a1 ff
     mov !mem_f1ad,a         ;d574  9e ad f1
     mov a,#0x05             ;d577  a1 05
-    mov !mem_f1a6,a         ;d579  9e a6 f1
+    mov !mem_f1a6,a         ;d579  9e a6 f1       5 Writes "NO  MAGAZIN"
     mov a,#0x1c             ;d57c  a1 1c
     mov !mem_fb2e,a         ;d57e  9e 2e fb
     br lab_d5a9             ;d581  fa 26
@@ -39200,7 +39210,7 @@ lab_d583:
     mov a,#0xff             ;d586  a1 ff
     mov !mem_f1ad,a         ;d588  9e ad f1
     mov a,#0x06             ;d58b  a1 06
-    mov !mem_f1a6,a         ;d58d  9e a6 f1
+    mov !mem_f1a6,a         ;d58d  9e a6 f1       6 Writes "NO  CHANGER"
     mov a,#0x1c             ;d590  a1 1c
     mov !mem_fb2e,a         ;d592  9e 2e fb
     br lab_d5a9             ;d595  fa 12
@@ -39210,7 +39220,7 @@ lab_d597:
     mov a,#0xff             ;d59a  a1 ff
     mov !mem_f1ad,a         ;d59c  9e ad f1
     mov a,#0x04             ;d59f  a1 04
-    mov !mem_f1a6,a         ;d5a1  9e a6 f1
+    mov !mem_f1a6,a         ;d5a1  9e a6 f1       4 Writes "    NO DISC"
     mov a,#0x1c             ;d5a4  a1 1c
     mov !mem_fb2e,a         ;d5a6  9e 2e fb
 
@@ -39435,7 +39445,7 @@ lab_d725:
     mov a,#0xff             ;d72d  a1 ff
     mov !mem_f1ad,a         ;d72f  9e ad f1
     mov a,#0x09             ;d732  a1 09
-    mov !mem_f1a6,a         ;d734  9e a6 f1
+    mov !mem_f1a6,a         ;d734  9e a6 f1       9 Writes "CD  CD ERR "
     mov a,#0x1d             ;d737  a1 1d
     mov !mem_fb2e,a         ;d739  9e 2e fb
     call !sub_a74b          ;d73c  9a 4b a7
@@ -39477,7 +39487,7 @@ lab_d773:
     mov a,#0xff             ;d781  a1 ff
     mov !mem_f1ad,a         ;d783  9e ad f1
     mov a,#0x07             ;d786  a1 07
-    mov !mem_f1a6,a         ;d788  9e a6 f1
+    mov !mem_f1a6,a         ;d788  9e a6 f1       7 Writes "CD  CD ROM "
     mov a,#0x1d             ;d78b  a1 1d
     mov !mem_fb2e,a         ;d78d  9e 2e fb
     call !sub_a74b          ;d790  9a 4b a7
@@ -39527,7 +39537,7 @@ lab_d7d3:
     mov a,#0xff             ;d7db  a1 ff
     mov !mem_f1ad,a         ;d7dd  9e ad f1
     mov a,#0x07             ;d7e0  a1 07
-    mov !mem_f1a6,a         ;d7e2  9e a6 f1
+    mov !mem_f1a6,a         ;d7e2  9e a6 f1       7 Writes "CD  CD ROM "
     mov a,#0x1d             ;d7e5  a1 1d
     mov !mem_fb2e,a         ;d7e7  9e 2e fb
     call !sub_dadd          ;d7ea  9a dd da
@@ -39995,7 +40005,7 @@ sub_da81:
     mov a,#0xff             ;daa9  a1 ff
     mov !mem_f1ad,a         ;daab  9e ad f1
     mov a,#0x07             ;daae  a1 07
-    mov !mem_f1a6,a         ;dab0  9e a6 f1
+    mov !mem_f1a6,a         ;dab0  9e a6 f1       7 Writes "CD  CD ROM "
     mov a,#0x1d             ;dab3  a1 1d
     mov !mem_fb2e,a         ;dab5  9e 2e fb
 
@@ -40154,7 +40164,7 @@ lab_dbb6:
     clr1 mem_fe46.2         ;dbc7  2b 46
     push ax                 ;dbc9  b1
     mov a,#0xff             ;dbca  a1 ff
-    mov !mem_f1a6,a         ;dbcc  9e a6 f1
+    mov !mem_f1a6,a         ;dbcc  9e a6 f1       f Writes " DIAG  "
     call !sub_7697          ;dbcf  9a 97 76
     pop ax                  ;dbd2  b0
 
@@ -40162,7 +40172,7 @@ lab_dbd3:
     bf mem_fe47.3,lab_dbee  ;dbd3  31 33 47 17
     mov b,a                 ;dbd7  73
     mov a,!mem_f1a6         ;dbd8  8e a6 f1
-    cmp a,#0x09             ;dbdb  4d 09
+    cmp a,#0x09             ;dbdb  4d 09          9 Writes "CD  CD ERR "
     bz lab_dc2e             ;dbdd  ad 4f
     mov a,b                 ;dbdf  63
     cmp a,#0x00             ;dbe0  4d 00
