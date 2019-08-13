@@ -29788,13 +29788,13 @@ mem_af96:
 ;pointer to data table for each group
 ;used with sub_0c48
     .byte 0x07              ;af96  07          DATA 0x07        7 entries below:
-    .word 0xafa6            ;af97              POINTER          Group 1 (General)
-    .word 0xafb3            ;af99              POINTER          Group 2 (Speakers)
-    .word 0xafc0            ;af9b              POINTER          Group 3 (Antenna)
-    .word 0xafca            ;af9d              POINTER          Group 4 (Amplifier)
-    .word 0xafce            ;af9f              POINTER          Group 5 (CD Changer)
-    .word 0xafd5            ;afa1              POINTER          Group 6 (External Display)
-    .word 0xafdc            ;afa3              POINTER          Group 7 (Steering Wheel Control)
+    .word mem_afa5+1        ;af97              POINTER          Group 1 (General)
+    .word mem_afb2+1        ;af99              POINTER          Group 2 (Speakers)
+    .word mem_afbf+1        ;af9b              POINTER          Group 3 (Antenna)
+    .word mem_afc9+1        ;af9d              POINTER          Group 4 (Amplifier)
+    .word mem_afcd+1        ;af9f              POINTER          Group 5 (CD Changer)
+    .word mem_afd4+1        ;afa1              POINTER          Group 6 (External Display)
+    .word mem_afdb+1        ;afa3              POINTER          Group 7 (Steering Wheel Control)
 
 mem_afa5:
 ;Group 1 (General)
@@ -29848,7 +29848,7 @@ mem_afc9:
     .byte 0x01              ;afcb  01          DATA 0x01        value a      Amplifier Output
     .byte 0xd1              ;afcc  d1          DATA 0xd1        value b     /
 
-mem_afce:
+mem_afcd:
 ;Group 5 (CD Changer)
     .byte 0x06              ;afcd  06          DATA 0x06        6 entries below:
     .byte 0x25              ;afce  25          DATA 0x25 '%'    type        \
