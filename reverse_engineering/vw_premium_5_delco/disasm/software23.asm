@@ -3914,7 +3914,7 @@ lab_0e39:
     set1 pm2.6              ;0e62  71 6a 22
     mov asim0,#0x00         ;0e65  13 a0 00
     mov brgc0,#0x39         ;0e68  13 a2 39     0x39 = 10400 baud
-    set1 shadow_p2.5        ;0e6b  5a cc
+    set1 shadow_p2.5        ;0e6b  5a cc        P25/TxD0 = 1
     mov a,shadow_p2         ;0e6d  f0 cc
     mov p2,a                ;0e6f  f2 02
     clr1 shadow_p2.6        ;0e71  6b cc
@@ -4036,7 +4036,7 @@ lab_0f1b:
     mov !mem_f04e,a         ;0f86  9e 4e f0
     clr1 mem_fe5f.5         ;0f89  5b 5f
     call !sub_2d35          ;0f8b  9a 35 2d     Clear bits in mem_fe5f and mem_fe60
-    set1 shadow_p2.5        ;0f8e  5a cc
+    set1 shadow_p2.5        ;0f8e  5a cc        P25/TxD0 = 1
     mov a,shadow_p2         ;0f90  f0 cc
     mov p2,a                ;0f92  f2 02
     clr1 shadow_p2.6        ;0f94  6b cc
@@ -9258,7 +9258,7 @@ intst0_307e:
     push ax                 ;307e  b1
     bt mem_fe7a.2,lab_308d  ;307f  ac 7a 0b
     clr1 mem_fe79.0         ;3082  0b 79
-    set1 shadow_p2.5        ;3084  5a cc
+    set1 shadow_p2.5        ;3084  5a cc        P25/TxD0 = 1
     mov a,shadow_p2         ;3086  f0 cc
     mov p2,a                ;3088  f2 02
     clr1 asim0.7            ;308a  71 7b a0
@@ -9270,7 +9270,7 @@ lab_308d:
 sub_308f:
     bf mem_fe7a.2,lab_30e7  ;308f  31 23 7a 54
     bf mem_fe79.1,lab_30e7  ;3093  31 13 79 50
-    bf p2.4,lab_30e7        ;3097  31 43 02 4c
+    bf p2.4,lab_30e7        ;3097  31 43 02 4c  Branch if P24/RxD0 = 0
 
     mov a,!mem_f06e         ;309b  8e 6e f0
     dec a                   ;309e  51
@@ -9279,7 +9279,7 @@ sub_308f:
     bnz lab_30e7            ;30a2  bd 43
 
     clr1 mem_fe79.1         ;30a4  1b 79
-    clr1 shadow_p2.5        ;30a6  5b cc
+    clr1 shadow_p2.5        ;30a6  5b cc        P25/TxD0 = 0
     mov a,shadow_p2         ;30a8  f0 cc
     mov p2,a                ;30aa  f2 02
     bt mem_fe79.6,lab_30d7  ;30ac  ec 79 28                 Branch to send complement of last byte received
@@ -9393,7 +9393,7 @@ lab_3148:
     br lab_3153             ;314e  fa 03        Branch to pop all registers off stack and reti
 
 lab_3150:
-    clr1 asim0.6            ;3150  71 6b a0
+    clr1 asim0.6            ;3150  71 6b a0     RXE0=0 (disable UART0 receive)
 
 lab_3153:
 ;Pop all registers off stack and return
@@ -9667,25 +9667,25 @@ lab_3301:
     br !lab_323f            ;3301  9b 3f 32
 
 lab_3304:
-    bf mem_fe2b.7,lab_3321  ;3304  31 73 2b 19
-    bf mem_fe2c.2,lab_3321  ;3308  31 23 2c 15
+    bf mem_fe2b.7,lab_3321  ;3304  31 73 2b 19    Branch to disable UART0 RX, pop registers, and reti
+    bf mem_fe2c.2,lab_3321  ;3308  31 23 2c 15    Branch to disable UART0 RX, pop registers, and reti
     mov a,x                 ;330c  60
     cmp a,#0x02             ;330d  4d 02
     bnz lab_3318            ;330f  bd 07
-    bt mem_fe7b.6,lab_3321  ;3311  ec 7b 0d
+    bt mem_fe7b.6,lab_3321  ;3311  ec 7b 0d       Branch to disable UART0 RX, pop registers, and reti
     set1 mem_fe7b.7         ;3314  7a 7b
-    br lab_3321             ;3316  fa 09
+    br lab_3321             ;3316  fa 09          Branch to disable UART0 RX, pop registers, and reti
 
 lab_3318:
     clr1 mem_fe7b.6         ;3318  6b 7b
-    br lab_3324             ;331a  fa 08          Branch to pop all registers off stack and return
+    br lab_3324             ;331a  fa 08          Branch to pop all registers off stack and reti
 
 lab_331c:
     clr1 mem_fe7b.4         ;331c  4b 7b
     call !sub_3468          ;331e  9a 68 34
 
 lab_3321:
-    clr1 asim0.6            ;3321  71 6b a0
+    clr1 asim0.6            ;3321  71 6b a0       RXE0=0 (disable UART0 receive)
 
 lab_3324:
 ;Pop all registers off stack and return
@@ -9713,7 +9713,7 @@ sub_333f:
     bf mem_fe79.1,lab_335d  ;3349  31 13 79 10
     cmp a,#0x00             ;334d  4d 00
     bz lab_335d             ;334f  ad 0c
-    bt p2.4,lab_336f        ;3351  cc 02 1b
+    bt p2.4,lab_336f        ;3351  cc 02 1b     Branch if P25/RxD0 = 1
     br lab_335d             ;3354  fa 07
 
 lab_3356:
@@ -9752,7 +9752,7 @@ sub_3370:
     set1 mem_fe7b.4         ;3390  4a 7b
 
 lab_3392:
-    set1 shadow_p2.5        ;3392  5a cc
+    set1 shadow_p2.5        ;3392  5a cc          P25/TxD0 = 1
     mov a,shadow_p2         ;3394  f0 cc
     mov p2,a                ;3396  f2 02
     mov asim0,#0x00         ;3398  13 a0 00
@@ -9883,7 +9883,7 @@ lab_3460:
 
 sub_3468:
     clr1 mem_fe7a.2         ;3468  2b 7a
-    set1 shadow_p2.5        ;346a  5a cc
+    set1 shadow_p2.5        ;346a  5a cc        P25/TxD0 = 1
     mov a,shadow_p2         ;346c  f0 cc
     mov p2,a                ;346e  f2 02
     btclr mem_fe7b.4,lab_348b ;3470  31 41 7b 17
@@ -9902,7 +9902,7 @@ lab_3481:
 lab_348b:
     mov a,#0x00             ;348b  a1 00
     mov !mem_fbc9,a         ;348d  9e c9 fb
-    bf mem_fe65.5,lab_34a2  ;3490  31 53 65 0e
+    bf mem_fe65.5,lab_34a2  ;3490  31 53 65 0e    Clears many state bits + 3 more
     set1 mem_fe7d.3         ;3494  3a 7d
     clr1 mem_fe61.4         ;3496  4b 61
     clr1 mem_fe5f.5         ;3498  5b 5f
@@ -9911,11 +9911,13 @@ lab_348b:
     mov !mem_f04e,a         ;349f  9e 4e f0
 
 lab_34a2:
+;Clears many state bits + 3 more
     clr1 mem_fe65.5         ;34a2  5b 65
     clr1 mem_fe65.7         ;34a4  7b 65
     clr1 mem_fe65.6         ;34a6  6b 65
 
 sub_34a8:
+;Clears many state bits
     clr1 mem_fe79.2         ;34a8  2b 79
     clr1 mem_fe79.1         ;34aa  1b 79
     clr1 mem_fe7a.0         ;34ac  0b 7a
@@ -9997,14 +9999,14 @@ sub_3518:
     bt mem_fe7a.2,lab_357b  ;351c  ac 7a 5c
     bt mem_fe7a.5,lab_357b  ;351f  dc 7a 59
     bt mem_fe62.1,lab_352a  ;3522  9c 62 05
-    bt p2.4,lab_3541        ;3525  cc 02 19
+    bt p2.4,lab_3541        ;3525  cc 02 19     Branch if P24/RxD0 = 1
     clr1 mem_fe7a.6         ;3528  6b 7a
 
 lab_352a:
     clr1 shadow_p2.6        ;352a  6b cc
     mov a,shadow_p2         ;352c  f0 cc
     mov p2,a                ;352e  f2 02
-    set1 shadow_p2.5        ;3530  5a cc
+    set1 shadow_p2.5        ;3530  5a cc        P25/TxD0 = 1
     mov a,shadow_p2         ;3532  f0 cc
     mov p2,a                ;3534  f2 02
     mov a,#0xdb             ;3536  a1 db
@@ -10029,7 +10031,7 @@ lab_3554:
     set1 shadow_p2.6        ;3557  6a cc
     mov a,shadow_p2         ;3559  f0 cc
     mov p2,a                ;355b  f2 02
-    clr1 shadow_p2.5        ;355d  5b cc
+    clr1 shadow_p2.5        ;355d  5b cc        P25/TxD0 = 0
     mov a,shadow_p2         ;355f  f0 cc
     mov p2,a                ;3561  f2 02
     mov a,#0x00             ;3563  a1 00
@@ -10037,8 +10039,8 @@ lab_3554:
     mov a,#0x00             ;3568  a1 00
     mov !mem_f076,a         ;356a  9e 76 f0
     clr1 mem_fe7a.6         ;356d  6b 7a
-    mov a,!mem_f073         ;356f  8e 73 f0       A = KWP1281 address
-    mov !mem_f074,a         ;3572  9e 74 f0       Copy it to location used for 5 baud init
+    mov a,!mem_f073         ;356f  8e 73 f0     A = KWP1281 address
+    mov !mem_f074,a         ;3572  9e 74 f0     Copy it to location used for 5 baud init
     clr1 mem_fe7a.3         ;3575  3b 7a
     set1 mem_fe7a.4         ;3577  4a 7a
     clr1 mem_fe7a.5         ;3579  5b 7a
@@ -10054,11 +10056,11 @@ sub_357c:
     cmp a,#0xcd             ;3587  4d cd
     bz lab_35ab             ;3589  ad 20
     bf mem_fe7a.6,lab_35e8  ;358b  31 63 7a 59
-    bt p2.4,lab_35e8        ;358f  cc 02 56
+    bt p2.4,lab_35e8        ;358f  cc 02 56     Branch if P24/RxD0 = 1
     clr1 shadow_p2.6        ;3592  6b cc
     mov a,shadow_p2         ;3594  f0 cc
     mov p2,a                ;3596  f2 02
-    set1 shadow_p2.5        ;3598  5a cc
+    set1 shadow_p2.5        ;3598  5a cc        P25/TxD0 = 1
     mov a,shadow_p2         ;359a  f0 cc
     mov p2,a                ;359c  f2 02
     mov a,#0xdb             ;359e  a1 db
@@ -10081,30 +10083,30 @@ lab_35ab:
     cmp a,#0x09             ;35bb  4d 09
     bnc lab_35dc            ;35bd  9d 1d
 
-    mov a,!mem_f074         ;35bf  8e 74 f0       A = KWP1281 address to transmit at 5 baud
-    ror a,1                 ;35c2  24             Rotate one bit to the right
-    mov !mem_f074,a         ;35c3  9e 74 f0       Save rotated value
+    mov a,!mem_f074         ;35bf  8e 74 f0     A = KWP1281 address to transmit at 5 baud
+    ror a,1                 ;35c2  24           Rotate one bit to the right
+    mov !mem_f074,a         ;35c3  9e 74 f0     Save rotated value
 
     ;TODO this looks like bit-bang transmitting the address at 5 baud
 
     mov1 mem_fe7a.6,cy      ;35c6  71 61 7a
-    mov1 shadow_p2.5,cy     ;35c9  71 51 cc
+    mov1 shadow_p2.5,cy     ;35c9  71 51 cc     P25/TxD0 = CY
     mov a,shadow_p2         ;35cc  f0 cc
     mov p2,a                ;35ce  f2 02
-    br lab_35e8             ;35d0  fa 16
+    br lab_35e8             ;35d0  fa 16        Branch to return
 
 lab_35d2:
     set1 mem_fe7a.6         ;35d2  6a 7a
-    set1 shadow_p2.5        ;35d4  5a cc
+    set1 shadow_p2.5        ;35d4  5a cc        P25/TxD0 = 1
     mov a,shadow_p2         ;35d6  f0 cc
     mov p2,a                ;35d8  f2 02
-    br lab_35e8             ;35da  fa 0c
+    br lab_35e8             ;35da  fa 0c        Branch to return
 
 lab_35dc:
     set1 mem_fe7c.0         ;35dc  0a 7c
     mov a,#0x03             ;35de  a1 03
     mov !mem_fbc9,a         ;35e0  9e c9 fb
-    call !sub_34a8          ;35e3  9a a8 34
+    call !sub_34a8          ;35e3  9a a8 34     Clears many state bits
     set1 mem_fe7a.2         ;35e6  2a 7a
 
 lab_35e8:
@@ -10121,7 +10123,7 @@ lab_35f6:
     bt mem_fe7a.2,lab_362d  ;35f6  ac 7a 34
     bt mem_fe7a.4,lab_362d  ;35f9  cc 7a 31
     bt mem_fe7a.5,lab_362f  ;35fc  dc 7a 30
-    bf p2.4,lab_3607        ;35ff  31 43 02 04
+    bf p2.4,lab_3607        ;35ff  31 43 02 04  Branch if P24/RxD0 = 0
     clr1 mem_fe7b.6         ;3603  6b 7b
     br lab_362d             ;3605  fa 26
 
@@ -10130,7 +10132,7 @@ lab_3607:
     clr1 shadow_p2.6        ;3609  6b cc
     mov a,shadow_p2         ;360b  f0 cc
     mov p2,a                ;360d  f2 02
-    set1 shadow_p2.5        ;360f  5a cc
+    set1 shadow_p2.5        ;360f  5a cc        P25/TxD0 = 1
     mov a,shadow_p2         ;3611  f0 cc
     mov p2,a                ;3613  f2 02
     bt mem_fe7b.6,lab_362d  ;3615  ec 7b 15
@@ -10149,7 +10151,7 @@ lab_362d:
 
 lab_362f:
     bt mem_fe7a.6,lab_3649  ;362f  ec 7a 17
-    bf p2.4,lab_3650        ;3632  31 43 02 1a
+    bf p2.4,lab_3650        ;3632  31 43 02 1a  Branch if P24/RxD0 = 0
     set1 mem_fe7a.6         ;3636  6a 7a
 
 lab_3638:
@@ -10163,7 +10165,7 @@ lab_3638:
     br lab_36ab             ;3647  fa 62
 
 lab_3649:
-    bt p2.4,lab_3650        ;3649  cc 02 04
+    bt p2.4,lab_3650        ;3649  cc 02 04     Branch if P24/RxD0 = 1
     clr1 mem_fe7a.6         ;364c  6b 7a
     br lab_3638             ;364e  fa e8
 
@@ -10181,10 +10183,14 @@ lab_365d:
     mov a,!mem_f076         ;3662  8e 76 f0
     inc a                   ;3665  41
     mov !mem_f076,a         ;3666  9e 76 f0
+
     cmp a,#0x09             ;3669  4d 09
-    bz lab_3697             ;366b  ad 2a
-    cmp a,#0x09             ;366d  4d 09
-    bnc lab_3699            ;366f  9d 28
+    bz lab_3697             ;366b  ad 2a        Branch to just return
+
+    cmp a,#0x09             ;366d  4d 09        All bits of KWP1281 address byte received?
+    bnc lab_3699            ;366f  9d 28        Yes: branch to process the address
+
+    ;Rotate new bit into the KWP1281 address byte being received
     mov a,!mem_f075         ;3671  8e 75 f0
     mov1 cy,mem_fe7a.6      ;3674  71 64 7a
     rorc a,1                ;3677  25
@@ -10206,7 +10212,7 @@ lab_3693:
     bf mem_fe7a.6,lab_36ae  ;3693  31 63 7a 17
 
 lab_3697:
-    br lab_36ad             ;3697  fa 14
+    br lab_36ad             ;3697  fa 14          Branch to just return
 
 lab_3699:
     bf mem_fe7a.6,lab_36ae  ;3699  31 63 7a 11
@@ -10214,7 +10220,7 @@ lab_3699:
     call !sub_36e1          ;36a0  9a e1 36
     bc lab_36ab             ;36a3  8d 06
     mov a,!mem_f075         ;36a5  8e 75 f0
-    call !sub_36bb          ;36a8  9a bb 36
+    call !sub_36bb          ;36a8  9a bb 36       Compare KWP1281 address in A, sets a bunch of state
 
 lab_36ab:
     clr1 mem_fe7a.5         ;36ab  5b 7a
@@ -10231,6 +10237,8 @@ lab_36ae:
     br lab_36ab             ;36b9  fa f0
 
 sub_36bb:
+;Compare KWP1281 address in A, sets a bunch of state
+;
     movw hl,#kwp_addresses+1 ;36bb  16 23 b0      HL = pointer to KWP1281 addresses table
 
     mov b,#0x03             ;36be  a3 03          B = index to last entry in table
@@ -10241,12 +10249,13 @@ lab_36c0:
     ret                     ;36c6  af
 
 lab_36c7:
-;
-    movw hl,#kwp_unknown_b027+1 ;36c7  16 28 b0
+;KWP1281 address found in table
+    movw hl,#kwp_unknown_b027+1 ;36c7  16 28 b0   Unknown table: returns 0 for all KWP1281 addresses
+                                ;                 except 0x3F.  Returns 1 address 0x3F.
     mov a,[hl+b]            ;36ca  ab
     cmp a,#0x00             ;36cb  4d 00
-    bz lab_36d0             ;36cd  ad 01
-    ret                     ;36cf  af
+    bz lab_36d0             ;36cd  ad 01          Branch if address is not 0x3F
+    ret                     ;36cf  af             Otherwise just return
 
 lab_36d0:
     mov a,b                 ;36d0  63
@@ -10254,7 +10263,7 @@ lab_36d0:
     set1 mem_fe7c.0         ;36d4  0a 7c
     mov a,#0x01             ;36d6  a1 01
     mov !mem_fbc9,a         ;36d8  9e c9 fb
-    call !sub_34a8          ;36db  9a a8 34
+    call !sub_34a8          ;36db  9a a8 34       Clears many state bits
     set1 mem_fe7a.2         ;36de  2a 7a
     ret                     ;36e0  af
 
@@ -10360,6 +10369,8 @@ sub_375d:
 sub_3781:
     mov a,#0x02             ;3781  a1 02
     mov !mem_fb0c,a         ;3783  9e 0c fb
+
+sub_3786:
     mov mem_fe2a,#0x01      ;3786  11 2a 01
     clr1 shadow_p9.7        ;3789  7b d3
     clr1 shadow_p9.4        ;378b  4b d3
@@ -10377,11 +10388,15 @@ lab_379a:
     mov p7,a                ;37a1  f2 07
     mov a,#0x01             ;37a3  a1 01
     callf !sub_09d3         ;37a5  1c d3
+
+lab_37a7:
     mov mem_fe2a,#0x02      ;37a7  11 2a 02
     clr1 shadow_p9.7        ;37aa  7b d3
     mov a,#0x00             ;37ac  a1 00
     mov !mem_fb0c,a         ;37ae  9e 0c fb
     mov !mem_fb1f,a         ;37b1  9e 1f fb
+
+lab_37b4:
     mov mem_fe2a,#0x03      ;37b4  11 2a 03
     clr1 shadow_p9.4        ;37b7  4b d3
     mov a,!mem_fb0c         ;37b9  8e 0c fb
@@ -10409,6 +10424,8 @@ lab_37da:
     mov mem_fe2a,#0x05      ;37da  11 2a 05
     mov a,#0x0a             ;37dd  a1 0a
     mov !mem_fb0c,a         ;37df  9e 0c fb
+
+lab_37e2:
     mov a,!mem_fb0c         ;37e2  8e 0c fb
     cmp a,#0x00             ;37e5  4d 00
     bz lab_37ea             ;37e7  ad 01
@@ -10465,6 +10482,8 @@ lab_3830:
     clr1 mem_fe61.4         ;3830  4b 61
     set1 shadow_p8.1        ;3832  1a d2
     set1 shadow_p8.2        ;3834  2a d2
+
+lab_3836:
     mov mem_fe2a,#0x07      ;3836  11 2a 07
     clr1 mem_fe2b.7         ;3839  7b 2b
     clr1 mem_fe2b.6         ;383b  6b 2b
@@ -10491,6 +10510,8 @@ lab_385d:
     mov mem_fe2a,#0x08      ;3860  11 2a 08
     mov a,#0x73             ;3863  a1 73
     mov !mem_fb0c,a         ;3865  9e 0c fb
+
+lab_3868:
     mov a,!mem_fb0c         ;3868  8e 0c fb
     cmp a,#0x00             ;386b  4d 00
     bz lab_3870             ;386d  ad 01
@@ -10512,11 +10533,15 @@ lab_387d:
     cmp a,#0xc3             ;3886  4d c3
     bnz lab_38a2            ;3888  bd 18
     mov mem_fe2a,#0x0a      ;388a  11 2a 0a
+
+lab_388d:
     bt mem_fe61.5,lab_38dc  ;388d  dc 61 4c
     clr1 shadow_p9.7        ;3890  7b d3
     mov mem_fe2a,#0x0b      ;3892  11 2a 0b
     mov a,#0x0a             ;3895  a1 0a
     mov !mem_fb0c,a         ;3897  9e 0c fb
+
+lab_389a:
     mov a,!mem_fb0c         ;389a  8e 0c fb
     cmp a,#0x00             ;389d  4d 00
     bz lab_38a2             ;389f  ad 01
@@ -10530,6 +10555,8 @@ lab_38a2:
     mov mem_fe2a,#0x09      ;38af  11 2a 09
     mov a,#0x55             ;38b2  a1 55
     mov !mem_fb0c,a         ;38b4  9e 0c fb
+
+lab_38b7:
     mov a,!mem_fb0c         ;38b7  8e 0c fb
     cmp a,#0x00             ;38ba  4d 00
     bz lab_38c3             ;38bc  ad 05
@@ -10628,6 +10655,8 @@ lab_393e:
     mov p9,a                ;394b  f2 09
     mov a,#0x04             ;394d  a1 04
     mov !mem_fb0c,a         ;394f  9e 0c fb
+
+lab_3952:
     mov mem_fe2a,#0x0d      ;3952  11 2a 0d
     mov a,!mem_fb0c         ;3955  8e 0c fb
     cmp a,#0x00             ;3958  4d 00
@@ -10661,10 +10690,10 @@ lab_397d:
 
 lab_3991:
     btclr mem_fe7b.5,lab_39ed ;3991  31 51 7b 58
-    bf p2.4,lab_39a2        ;3995  31 43 02 09
+    bf p2.4,lab_39a2        ;3995  31 43 02 09    Branch if P24/RxD0 = 0
     bf mem_fe7b.6,lab_39a2  ;3999  31 63 7b 05
     clr1 mem_fe7b.6         ;399d  6b 7b
-    set1 asim0.6            ;399f  71 6a a0
+    set1 asim0.6            ;399f  71 6a a0       RXE0=1 (enable UART0 receive)
 
 lab_39a2:
     call !sub_4902          ;39a2  9a 02 49
@@ -10737,7 +10766,7 @@ sub_3a10:
 sub_3a23:
     bf mem_fe7a.5,lab_3a41  ;3a23  31 53 7a 1a
     set1 mem_fe7a.6         ;3a27  6a 7a
-    bt p2.4,lab_3a5e        ;3a29  cc 02 32
+    bt p2.4,lab_3a5e        ;3a29  cc 02 32     Branch if P24/RxD0 = 1
     clr1 mem_fe7a.6         ;3a2c  6b 7a
     br lab_3a5e             ;3a2e  fa 2e
 
@@ -10979,7 +11008,7 @@ lab_3bcc:
     bz lab_3be9             ;3bd3  ad 14
     movw hl,#mem_b0a1+1     ;3bd5  16 a2 b0
     callf !sub_0c48         ;3bd8  4c 48        Load DE with word at position B in table [HL]
-    bc sub_3bea             ;3bda  8d 0e
+    bc sub_3bea             ;3bda  8d 0e        Branch if table lookup failed
     movw ax,#lab_3be3       ;3bdc  10 e3 3b
     push ax                 ;3bdf  b1
     movw ax,de              ;3be0  c4
@@ -12076,7 +12105,7 @@ lab_42a3:
     bt a.6,lab_42b7         ;42aa  31 6e 0a
     movw hl,#mem_b170+1     ;42ad  16 71 b1
     callf !sub_0c48         ;42b0  4c 48        Load DE with word at position B in table [HL]
-    bnc lab_42b7            ;42b2  9d 03
+    bnc lab_42b7            ;42b2  9d 03        Branch if table lookup succeeded
     br !sub_4234            ;42b4  9b 34 42
 
 lab_42b7:
@@ -12259,7 +12288,7 @@ sub_43b1:
     movw hl,#mem_b0f8+1     ;43b3  16 f9 b0
     callf !sub_0c48         ;43b6  4c 48        Load DE with word at position B in table [HL]
     pop bc                  ;43b8  b2
-    bc lab_4400             ;43b9  8d 45
+    bc lab_4400             ;43b9  8d 45        Branch if table lookup failed
     mov a,[de]              ;43bb  85
     cmp a,#0x00             ;43bc  4d 00
     xch a,b                 ;43be  33
@@ -18512,7 +18541,7 @@ lab_6832:
     bz sub_6853             ;6843  ad 0e
     movw hl,#mem_b5c0+1     ;6845  16 c1 b5
     callf !sub_0c48         ;6848  4c 48        Load DE with word at position B in table [HL]
-    bc sub_6853             ;684a  8d 07
+    bc sub_6853             ;684a  8d 07        Branch if table lookup failed
     movw ax,#sub_6853       ;684c  10 53 68
     push ax                 ;684f  b1
     movw ax,de              ;6850  c4
@@ -18743,7 +18772,7 @@ lab_6991:
     movw ax,de              ;699f  c4
     movw hl,ax              ;69a0  d6
     callf !sub_0c48         ;69a1  4c 48        Load DE with word at position B in table [HL]
-    bc lab_69a8             ;69a3  8d 03
+    bc lab_69a8             ;69a3  8d 03        Branch if table lookup failed
     movw ax,de              ;69a5  c4
     movw hl,ax              ;69a6  d6
     ret                     ;69a7  af
@@ -18809,7 +18838,7 @@ lab_69f6:
     mov !mem_f1ab,a         ;69fc  9e ab f1
     movw hl,#mem_b480+1     ;69ff  16 81 b4
     callf !sub_0c48         ;6a02  4c 48        Load DE with word at position B in table [HL]
-    bc lab_6a09             ;6a04  8d 03
+    bc lab_6a09             ;6a04  8d 03        Branch if table lookup failed
     movw ax,de              ;6a06  c4
     br ax                   ;6a07  31 98
 
@@ -20019,7 +20048,7 @@ lab_70d4:
     mov !mem_f1a7,a         ;70dc  9e a7 f1
     movw hl,#mem_b535+1     ;70df  16 36 b5
     callf !sub_0c48         ;70e2  4c 48        Load DE with word at position B in table [HL]
-    bnc lab_70ea            ;70e4  9d 04
+    bnc lab_70ea            ;70e4  9d 04        Branch if table lookup succeeded
     pop ax                  ;70e6  b0
     pop ax                  ;70e7  b0
     br lab_7105             ;70e8  fa 1b
@@ -22014,7 +22043,7 @@ lab_7d89:
     mov b,a                 ;7d8c  73
     movw hl,#mem_b69a+1     ;7d8d  16 9b b6
     callf !sub_0c48         ;7d90  4c 48        Load DE with word at position B in table [HL]
-    bnc lab_7d9b            ;7d92  9d 07
+    bnc lab_7d9b            ;7d92  9d 07        Branch if table lookup succeeded
     mov a,#0x00             ;7d94  a1 00
     mov !mem_fc2b,a         ;7d96  9e 2b fc
     br lab_7da2             ;7d99  fa 07
@@ -22116,7 +22145,7 @@ lab_7e2d:
     mov b,a                 ;7e33  73
     movw hl,#mem_b5d6+1     ;7e34  16 d7 b5
     callf !sub_0c48         ;7e37  4c 48        Load DE with word at position B in table [HL]
-    bnc lab_7e3e            ;7e39  9d 03
+    bnc lab_7e3e            ;7e39  9d 03        Branch if table lookup succeeded
     br !lab_7ed2            ;7e3b  9b d2 7e
 
 lab_7e3e:
@@ -22160,7 +22189,7 @@ lab_7e78:
     mov mem_fe2f,a          ;7e7f  f2 2f
     movw hl,#mem_b67b+1     ;7e81  16 7c b6
     callf !sub_0c48         ;7e84  4c 48        Load DE with word at position B in table [HL]
-    bc lab_7eb6             ;7e86  8d 2e
+    bc lab_7eb6             ;7e86  8d 2e        Branch if table lookup failed
     movw ax,de              ;7e88  c4
     cmpw ax,#0x0000         ;7e89  ea 00 00
     bz lab_7eb6             ;7e8c  ad 28
@@ -22329,7 +22358,7 @@ lab_7f8f:
 
 lab_7f9b:
     callf !sub_0c48         ;7f9b  4c 48        Load DE with word at position B in table [HL]
-    bc sub_7faf             ;7f9d  8d 10
+    bc sub_7faf             ;7f9d  8d 10        Branch if table lookup failed
     movw ax,#lab_7fa6       ;7f9f  10 a6 7f
     push ax                 ;7fa2  b1
     movw ax,de              ;7fa3  c4
@@ -24022,7 +24051,7 @@ lab_8a8a:
     mov a,!mem_f1e9         ;8a8a  8e e9 f1
     bf a.2,sub_8ad0         ;8a8d  31 2f 40
     callf !sub_0c48         ;8a90  4c 48        Load DE with word at position B in table [HL]
-    bnc lab_8a96            ;8a92  9d 02
+    bnc lab_8a96            ;8a92  9d 02        Branch if table lookup succeeded
     br sub_8ad0             ;8a94  fa 3a
 
 lab_8a96:
@@ -25200,7 +25229,7 @@ lab_9238:
 lab_9240:
     mov b,a                 ;9240  73
     callf !sub_0c48         ;9241  4c 48        Load DE with word at position B in table [HL]
-    bc lab_924d             ;9243  8d 08
+    bc lab_924d             ;9243  8d 08        Branch if table lookup failed
     movw ax,#lab_924c       ;9245  10 4c 92
     push ax                 ;9248  b1
     movw ax,de              ;9249  c4
@@ -29946,10 +29975,11 @@ kwp_addresses:
     .byte 0x00              ;b023  00          DATA 0x00        <not found>
     .byte 0x7c              ;b024  7c          DATA 0x7c '|'    DELCO manufacturing address (0x7C)
     .byte 0xd6              ;b025  d6          DATA 0xd6        Normal radio address (0xD6)
-    .byte 0xbf              ;b026  bf          DATA 0xbf
+    .byte 0xbf              ;b026  bf          DATA 0xbf        Cluster security(?) address (0x3F)
 
 kwp_unknown_b027:
 ;unknown; related to mem_f06d
+;same order as kwp_addresses
     .byte 0x04              ;b027  04          DATA 0x04        4 entries below:
     .byte 0x00              ;b028  00          DATA 0x00
     .byte 0x00              ;b029  00          DATA 0x00
@@ -29994,22 +30024,22 @@ kwp_unknown_b03b:
 
 mem_b040:
 ;unknown table
-;sub_0c48
+;indexed by mem_fe2a
     .byte 0x0f              ;b040  0f          DATA 0x0f        15 entries below:
-    .word 0x3781
-    .word 0x3786
-    .word 0x37a7
-    .word 0x37b4
-    .word 0x37c5
-    .word 0x37e2
-    .word 0x380b
-    .word 0x3836
-    .word 0x3868
-    .word 0x38b7
-    .word 0x388d
-    .word 0x389a
-    .word 0x38ec
-    .word 0x3952
+    .word sub_3781
+    .word sub_3786
+    .word lab_37a7
+    .word lab_37b4
+    .word lab_37c5
+    .word lab_37e2
+    .word lab_380b
+    .word lab_3836
+    .word lab_3868
+    .word lab_38b7
+    .word lab_388d
+    .word lab_389a
+    .word lab_38ec
+    .word lab_3952
 
     .byte 0x79              ;b05d  79          DATA 0x79 'y'
     .byte 0x39              ;b05e  39          DATA 0x39 '9'
