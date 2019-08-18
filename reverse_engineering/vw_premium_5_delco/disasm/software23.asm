@@ -320,7 +320,7 @@ mem_fbb1 = 0xfbb1
 upd_disp_old = 0xfbb2       ;uPD16432B last display buffer sent (11 bytes)
 upd_pict_old = 0xfbbd       ;uPD16432B last pictograph buffer sent (8 bytes)
 mem_fbc5 = 0xfbc5
-mem_fbc6 = 0xfbc6
+mem_fbc6 = 0xfbc6           ;KWP1281 radio to cluster(?) connection state
 mem_fbc7 = 0xfbc7
 mem_fbc8 = 0xfbc8
 mem_fbc9 = 0xfbc9
@@ -358,6 +358,7 @@ mem_fc14 = 0xfc14
 mem_fc16 = 0xfc16
 mem_fc17 = 0xfc17
 mem_fc1a = 0xfc1a
+mem_fc1c = 0xfc1c
 mem_fc23 = 0xfc23
 mem_fc24 = 0xfc24
 mem_fc25 = 0xfc25
@@ -2651,6 +2652,7 @@ lab_086f:
     ret                     ;0878  af
 
 sub_0879:
+;Just returns
     ret                     ;0879  af
 
 
@@ -7107,7 +7109,7 @@ sub_23e6:
     mov !mem_fb52,a         ;23eb  9e 52 fb     Save KWP1281 login rate limiter countdown
     bt mem_fe23.7,lab_23f8  ;23ee  fc 23 07
     bf mem_fe2c.2,lab_23f8  ;23f1  31 23 2c 03
-    call !sub_25fa          ;23f5  9a fa 25
+    call !sub_25fa          ;23f5  9a fa 25     If mem_fe63.0=0, set up to bit-bang 5 baud init to address 0x3F
 
 lab_23f8:
     bf mem_fe65.3,lab_2417  ;23f8  31 33 65 1b  Branch if not logged in
@@ -7304,7 +7306,11 @@ lab_2532:
     ret                     ;2536  af
 
 sub_2537:
-;called only from security access kwp_3f_3d_secure_access
+;Process title 0x3d security access response block
+;
+;TODO unknown constants 0xBDE7 and 0x0018 below are also found in the
+;Premium 4 firmware routine sub_e6ca which also seems to be security access related
+;
     movw hl,#kwp_rx_buf+3   ;2537  16 8d f0     HL = source address (KWP1281 rx buffer byte 3)
     movw de,#mem_fed4       ;253a  14 d4 fe     DE = destination address
     mov a,#0x04             ;253d  a1 04        A = 4 bytes to copy
@@ -7377,8 +7383,8 @@ sub_259b:
     ret                     ;259d  af
 
 sub_259e:
-;Unknown, related to security access
-;Returns A, X, D, E
+;Generate the 4 byte payload for the 0xD7 security access request block
+;Returns the 4 bytes in A, X, D, E
     movw ax,#mem_fe3d       ;259e  10 3d fe
     sub a,mem_fe3d          ;25a1  1e 3d
     xch a,x                 ;25a3  30
@@ -7448,12 +7454,14 @@ lab_25f9:
     ret                     ;25f9  af
 
 sub_25fa:
+;If mem_fe63.0=0, set up to bit-bang 5 baud init to address 0x3F
     bf mem_fe63.0,lab_25ff  ;25fa  31 03 63 01
     ret                     ;25fe  af
 
 lab_25ff:
-    mov a,#0xbf             ;25ff  a1 bf        TODO is this KWP1281 address 0x3F for cluster?
-    call !sub_3506          ;2601  9a 06 35
+;Set up to bit-bang 5 baud init to address 0x3F
+    mov a,#0xbf             ;25ff  a1 bf        A = KWP1281 address 0x3F (cluster security)?
+    call !sub_3506          ;2601  9a 06 35     Set up to bit-bang 5 baud init with address in A
     ret                     ;2604  af
 
 read_ee_safe:
@@ -7871,10 +7879,12 @@ lab_287a:
     movw !mem_f002,ax       ;2898  03 02 f0
     pop ax                  ;289b  b0
     push ax                 ;289c  b1
+
     mov a,!mem_f04f         ;289d  8e 4f f0     A = KWP1281 group number
     cmp a,#0x07             ;28a0  4d 07
     mov a,e                 ;28a2  64
     bnz lab_28e2            ;28a3  bd 3d
+
     ;group number = 7
     pop ax                  ;28a5  b0
     xch a,e                 ;28a6  34
@@ -7921,7 +7931,8 @@ lab_28e2:
     cmp a,#0xd1             ;28e9  4d d1
     bnz lab_2900            ;28eb  bd 13
     mov e,#0x00             ;28ed  a4 00
-    movw hl,#0xfc1c         ;28ef  16 1c fc
+
+    movw hl,#mem_fc1c       ;28ef  16 1c fc
     mov a,[hl]              ;28f2  87
     cmp a,#0x00             ;28f3  4d 00
     bz lab_28fd             ;28f5  ad 06
@@ -7930,6 +7941,7 @@ lab_28e2:
     mov e,#0x01             ;28fb  a4 01
 
 lab_28fd:
+;mem_fc1c = 0 or 0x88
     br !lab_29af            ;28fd  9b af 29
 
 lab_2900:
@@ -9738,11 +9750,13 @@ lab_336f:
 sub_3370:
     clr1 mem_fe79.2         ;3370  2b 79
     bf shadow_p2.6,lab_3392 ;3372  31 63 cc 1c
+
     mov a,!mem_f078         ;3376  8e 78 f0
     cmp a,#0x01             ;3379  4d 01
     bnc lab_3392            ;337b  9d 15
     inc a                   ;337d  41
     mov !mem_f078,a         ;337e  9e 78 f0
+
     mov a,!mem_f073         ;3381  8e 73 f0       A = KWP1281 address
     mov !mem_f074,a         ;3384  9e 74 f0       Copy it to location used for 5 baud init
     set1 mem_fe7a.3         ;3387  3a 7a
@@ -9985,6 +9999,7 @@ lab_34fc:
     ret                     ;3505  af
 
 sub_3506:
+;Set up to bit-bang 5 baud init with address in A
     mov !mem_f073,a         ;3506  9e 73 f0       KWP1281 address = A
     mov a,#0x00             ;3509  a1 00
     mov !mem_f078,a         ;350b  9e 78 f0
@@ -10258,6 +10273,7 @@ lab_36c7:
     ret                     ;36cf  af             Otherwise just return
 
 lab_36d0:
+;KWP1281 address is not 0x3F
     mov a,b                 ;36d0  63
     mov !mem_f06d,a         ;36d1  9e 6d f0
     set1 mem_fe7c.0         ;36d4  0a 7c
@@ -11156,7 +11172,7 @@ lab_3cbc:
     mov a,!mem_f18b         ;3cbc  8e 8b f1
     cmp a,#0x15             ;3cbf  4d 15
     bnc lab_3cc6            ;3cc1  9d 03
-    call !sub_25fa          ;3cc3  9a fa 25
+    call !sub_25fa          ;3cc3  9a fa 25       If mem_fe63.0=0, set up to bit-bang 5 baud init to address 0x3F
 
 lab_3cc6:
     mov a,!mem_fb71         ;3cc6  8e 71 fb
@@ -11562,11 +11578,11 @@ lab_3f55:
     ret                     ;3f55  af
 
 lab_3f56:
-    movw hl,#0x00c8         ;3f56  16 c8 00
-    movw de,#mem_fbdb       ;3f59  14 db fb
-    mov a,#0x01             ;3f5c  a1 01
-    call !sub_6238          ;3f5e  9a 38 62
-    bnc lab_3f70            ;3f61  9d 0d
+    movw hl,#0x00c8         ;3f56  16 c8 00     HL = EEPROM address to read
+    movw de,#mem_fbdb       ;3f59  14 db fb     DE = pointer to buffer to receive EEPROM contents
+    mov a,#0x01             ;3f5c  a1 01        A = 1 byte to read from EEPROM
+    call !sub_6238          ;3f5e  9a 38 62     Read A bytes from EEPROM address HL into [DE]
+    bnc lab_3f70            ;3f61  9d 0d        Branch if EEPROM read failed
     call !sub_4023          ;3f63  9a 23 40
     bnc lab_3f70            ;3f66  9d 08
     mov a,#0x00             ;3f68  a1 00
@@ -11635,10 +11651,10 @@ lab_3fcb:
     callf !sub_0d67         ;3fd1  5c 67
     mov a,mem_fed4          ;3fd3  f0 d4
     push hl                 ;3fd5  b7
-    movw de,#mem_fbdb       ;3fd6  14 db fb
-    call !sub_6238          ;3fd9  9a 38 62
+    movw de,#mem_fbdb       ;3fd6  14 db fb     DE = pointer to buffer to receive EEPROM contents
+    call !sub_6238          ;3fd9  9a 38 62     Read A bytes from EEPROM address HL into [DE]
     pop de                  ;3fdc  b4
-    bnc lab_3ff1            ;3fdd  9d 12
+    bnc lab_3ff1            ;3fdd  9d 12        Branch if EEPROM read failed
     mov c,#0x00             ;3fdf  a2 00
 
 lab_3fe1:
@@ -11681,9 +11697,9 @@ lab_3fff:
     movw de,ax              ;4011  d4
     pop ax                  ;4012  b0
     mov !mem_fbdd,a         ;4013  9e dd fb
-    mov a,#0x01             ;4016  a1 01
-    movw hl,#mem_fbdd       ;4018  16 dd fb
-    call !sub_628e          ;401b  9a 8e 62
+    mov a,#0x01             ;4016  a1 01        A = 1 byte to write to EERPOM
+    movw hl,#mem_fbdd       ;4018  16 dd fb     HL = pointer to buffer to write to EEPROM
+    call !sub_628e          ;401b  9a 8e 62     Write A bytes to EEPROM address DE from [HL]
     br lab_3ff5             ;401e  fa d5
 
 lab_4020:
@@ -11776,7 +11792,7 @@ sub_4092:
 
 lab_4095:
     cmp a,[hl+b]            ;4095  31 4b
-    bz lab_40d4             ;4097  ad 3b
+    bz lab_40d4             ;4097  ad 3b        Branch to pop bc and ret
     push ax                 ;4099  b1
     mov x,#0x00             ;409a  a0 00
     mov a,b                 ;409c  63
@@ -11789,9 +11805,9 @@ lab_4095:
     bc lab_40b1             ;40aa  8d 05
 
 lab_40ac:
-    callf !sub_0879         ;40ac  0c 79
+    callf !sub_0879         ;40ac  0c 79        Just returns
     pop ax                  ;40ae  b0
-    br lab_40d4             ;40af  fa 23
+    br lab_40d4             ;40af  fa 23        Branch to pop bc and ret
 
 lab_40b1:
     mov a,!mem_f26c         ;40b1  8e 6c f2
@@ -13018,11 +13034,13 @@ lab_4812:
     ret                     ;4821  af
 
 sub_4822:
+;Set mem_fb28 = 0 and return
     mov a,#0x00             ;4822  a1 00
     mov !mem_fb28,a         ;4824  9e 28 fb
     ret                     ;4827  af
 
 sub_4828:
+;If mem_fb28 = 0 then just return, else set mem_fb28 = 0x34
     mov a,!mem_fb28         ;4828  8e 28 fb
     cmp a,#0x00             ;482b  4d 00
     bz lab_4834             ;482d  ad 05
@@ -14061,7 +14079,7 @@ lab_4d88:
     clr1 mem_fe66.1         ;4d98  1b 66
     mov a,#0x00             ;4d9a  a1 00
     mov !mem_fbc5,a         ;4d9c  9e c5 fb
-    mov !mem_fbc6,a         ;4d9f  9e c6 fb
+    mov !mem_fbc6,a         ;4d9f  9e c6 fb     KWP1281 radio to cluster(?) connection state
     mov !mem_fbc7,a         ;4da2  9e c7 fb
     clr1 mem_fe65.3         ;4da5  3b 65
     clr1 mem_fe65.4         ;4da7  4b 65
@@ -14270,14 +14288,14 @@ lab_4ea0_title_ok:
 
 kwp_7c_09_ack:
 ;ack (kwp_7c_handlers)
-    call !sub_4828          ;4ead  9a 28 48
+    call !sub_4828          ;4ead  9a 28 48     If mem_fb28 = 0 then just return, else set mem_fb28 = 0x34
     br !lab_532a            ;4eb0  9b 2a 53     Branch to send ACK response
 
 kwp_7c_06_end_session:
 ;end session (kwp_7c_handlers)
     mov a,#0x00             ;4eb3  a1 00
     mov !mem_fbc7,a         ;4eb5  9e c7 fb
-    call !sub_4822          ;4eb8  9a 22 48
+    call !sub_4822          ;4eb8  9a 22 48     Sets mem_fb28 = 0 and returns
     br !sub_51c3            ;4ebb  9b c3 51     Branch to clear auth bits and end session
 
 lab_4ebe:
@@ -14327,7 +14345,7 @@ lab_4f00:
     mov a,#0x00             ;4f00  a1 00
     mov !mem_fbc7,a         ;4f02  9e c7 fb
     clr1 cy                 ;4f05  21
-    call !sub_4828          ;4f06  9a 28 48
+    call !sub_4828          ;4f06  9a 28 48     If mem_fb28 = 0 then just return, else set mem_fb28 = 0x34
     set1 cy                 ;4f09  20
     bc lab_4f0f             ;4f0a  8d 03
     br !lab_5355            ;4f0c  9b 55 53     Branch to Send NAK response (index 0x04)
@@ -14346,7 +14364,7 @@ lab_4f1c:
     mov a,#0x00             ;4f1c  a1 00
     mov !mem_fbc7,a         ;4f1e  9e c7 fb
     clr1 cy                 ;4f21  21
-    call !sub_4828          ;4f22  9a 28 48
+    call !sub_4828          ;4f22  9a 28 48     If mem_fb28 = 0 then just return, else set mem_fb28 = 0x34
     set1 cy                 ;4f25  20
     bc lab_4f2b             ;4f26  8d 03
     br !lab_5355            ;4f28  9b 55 53     Branch to Send NAK response (index 0x04)
@@ -14365,7 +14383,7 @@ lab_4f38:
     mov a,#0x00             ;4f38  a1 00
     mov !mem_fbc7,a         ;4f3a  9e c7 fb
     clr1 cy                 ;4f3d  21
-    call !sub_4828          ;4f3e  9a 28 48
+    call !sub_4828          ;4f3e  9a 28 48     If mem_fb28 = 0 then just return, else set mem_fb28 = 0x34
     set1 cy                 ;4f41  20
     bc lab_4f47             ;4f42  8d 03
 
@@ -14417,7 +14435,7 @@ lab_4f7a:
 lab_4f88:
     ;found a match in kwp_7c_1b_lengths
     push bc                 ;4f88  b3
-    call !sub_4828          ;4f89  9a 28 48
+    call !sub_4828          ;4f89  9a 28 48     If mem_fb28 = 0 then just return, else set mem_fb28 = 0x34
     pop bc                  ;4f8c  b2
     mov a,b                 ;4f8d  63
     movw hl,#kwp_7c_1b_handlers+1 ;4f8e  16 1a b3
@@ -14729,30 +14747,48 @@ lab_50ec:
     bc lab_50e9             ;50ef  8d f8        Branch to Send NAK response
     br !lab_55c5            ;50f1  9b c5 55     Branch to Send EEPROM write response
 
+;
+;mem_fbc6 is the state of the connection:
+;  kwp_3f_09_ack expects 0x01, then sets it to 0x02, then sends security access request (title 0xd7)
+;  kwp_3f_06_end_session unconditionally sets it to 0x00, then ends session
+;  kwp_3f_0a_nak expects 0x01, then sets it to 0x00
+;  kwp_3f_3d_secure_access expects 0x02, then sets it to 0x00, then ends session
+;
+;This flow is just like the Premium 4 firmware at mem_e3bd.
+;
+;Successful connection flow:
+;  Radio initiates KWP1281 connection to an unknown module on address 0x3F (cluster?).
+;  Radio expects to receive a title 0x09 ACK block.
+;  Radio sends a title 0xD7 security access request block (lab_55de).
+;  Radio expects to receive a title 0x3D response to security access block (sub_2537).
+;  Radio sends a title 0x06 end session block.
+;
+
 kwp_3f_09_ack:
 ;ack (kwp_3f_handlers)
-    mov a,!mem_fbc6         ;50f4  8e c6 fb
+    mov a,!mem_fbc6         ;50f4  8e c6 fb     A = KWP1281 radio to cluster(?) connection state
     cmp a,#0x01             ;50f7  4d 01
-    bz lab_50fe             ;50f9  ad 03
+    bz lab_50fe             ;50f9  ad 03        Branch if we are expecting this block
     br !lab_5355            ;50fb  9b 55 53     Branch to Send NAK response (index 0x04)
 
 lab_50fe:
+;we received a 0x09 ack block and we were expecting it
     mov a,#0x02             ;50fe  a1 02
-    mov !mem_fbc6,a         ;5100  9e c6 fb
-    br !lab_55de            ;5103  9b de 55     Branch to Send 0x21 ? response to security access
+    mov !mem_fbc6,a         ;5100  9e c6 fb     Store new KWP1281 radio to cluster(?) connection state
+    br !lab_55de            ;5103  9b de 55     Branch to Send Security Access Request (title 0xD7)
 
 kwp_3f_06_end_session:
 ;end session (kwp_3f_handlers)
     call !sub_259b          ;5106  9a 9b 25     Does "clr1 mem_fe23.7" only
     mov a,#0x00             ;5109  a1 00
-    mov !mem_fbc6,a         ;510b  9e c6 fb
+    mov !mem_fbc6,a         ;510b  9e c6 fb     Store new KWP1281 radio to cluster(?) connection state
     br !sub_51c3            ;510e  9b c3 51     Branch to clear auth bits and end session
 
 lab_5111:
     call !sub_259b          ;5111  9a 9b 25     Does "clr1 mem_fe23.7" only
     mov a,#0x00             ;5114  a1 00
-    mov !mem_fbc6,a         ;5116  9e c6 fb
-    br !lab_5337            ;5119  9b 37 53     Branch to Send End Session response
+    mov !mem_fbc6,a         ;5116  9e c6 fb     Store new KWP1281 radio to cluster(?) connection state
+    br !lab_5337            ;5119  9b 37 53     Branch to Send End Session
 
 kwp_3f_0a_nak:
 ;nak (kwp_3f_handlers)
@@ -14760,7 +14796,7 @@ kwp_3f_0a_nak:
     mov a,[hl+0x03]         ;511f  ae 03
     cmp a,[hl+0x01]         ;5121  49 01
     bz lab_5111             ;5123  ad ec
-    mov a,!mem_fbc6         ;5125  8e c6 fb
+    mov a,!mem_fbc6         ;5125  8e c6 fb     A = KWP1281 radio to cluster(?) connection state
     cmp a,#0x01             ;5128  4d 01
     bz lab_512f             ;512a  ad 03
     br !sub_34f7            ;512c  9b f7 34     Set flags to start sending the KWP1281 tx buffer
@@ -14768,21 +14804,22 @@ kwp_3f_0a_nak:
 lab_512f:
     call !sub_259b          ;512f  9a 9b 25     Does "clr1 mem_fe23.7" only
     mov a,#0x00             ;5132  a1 00
-    mov !mem_fbc6,a         ;5134  9e c6 fb
-    br !lab_5337            ;5137  9b 37 53     Branch to Send End Session response
+    mov !mem_fbc6,a         ;5134  9e c6 fb     Store new KWP1281 radio to cluster(?) connection state
+    br !lab_5337            ;5137  9b 37 53     Branch to Send End Session
 
 kwp_3f_3d_secure_access:
-;? security access (kwp_3f_handlers)
-    mov a,!mem_fbc6         ;513a  8e c6 fb
+;response to security access (title 0x3d) received (kwp_3f_handlers)
+    mov a,!mem_fbc6         ;513a  8e c6 fb     A = KWP1281 radio to cluster(?) connection state
     cmp a,#0x02             ;513d  4d 02
-    bz lab_5144             ;513f  ad 03
+    bz lab_5144             ;513f  ad 03        Branch if we are expecting this 0x3d block
     br !lab_5355            ;5141  9b 55 53     Branch to Send NAK response (index 0x04)
 
 lab_5144:
-    call !sub_2537          ;5144  9a 37 25
+;we received a 0x3d security access response block and we were expecting it
+    call !sub_2537          ;5144  9a 37 25     Process title 0x3d security access response block
     mov a,#0x00             ;5147  a1 00
-    mov !mem_fbc6,a         ;5149  9e c6 fb
-    br !lab_5337            ;514c  9b 37 53     Branch to Send End Session response
+    mov !mem_fbc6,a         ;5149  9e c6 fb     Store new KWP1281 radio to cluster(?) connection state
+    br !lab_5337            ;514c  9b 37 53     Branch to Send End Session
 
     ret                     ;514f  af
 
@@ -14998,7 +15035,7 @@ lab_527e:
 lab_528c:
 ;mem_f06d = 0x03 (address 0x3F)
     mov a,#0x01             ;528c  a1 01
-    mov !mem_fbc6,a         ;528e  9e c6 fb
+    mov !mem_fbc6,a         ;528e  9e c6 fb     Store new KWP1281 radio to cluster(?) connection state
     ret                     ;5291  af
 
 sub_5292:
@@ -15138,7 +15175,7 @@ lab_532a:
     br !sub_34f7            ;5334  9b f7 34     Set flags to start sending the KWP1281 tx buffer
 
 lab_5337:
-;Send End Session response
+;Send End Session (index 0x02)
     mov b,#0x02             ;5337  a3 02        B = index 0x02 end session
     call !sub_5292          ;5339  9a 92 52     Set block title, counter, length in KWP1281 tx buf
     set1 mem_fe7b.2         ;533c  2a 7b
@@ -15682,11 +15719,12 @@ lab_55c5:
     br !sub_34f7            ;55db  9b f7 34     Set flags to start sending the KWP1281 tx buffer
 
 lab_55de:
-    mov b,#0x21             ;55de  a3 21        B = 0x21 ? response to security access
+;Send Security Access Request (title 0xD7)
+    mov b,#0x21             ;55de  a3 21        B = index 0x21 title 0xd7 security access request
     call !sub_5292          ;55e0  9a 92 52     Set block title, counter, length in KWP1281 tx buf
 
-    call !sub_259e          ;55e3  9a 9e 25     Unknown, related to security access
-                            ;                   Returns A, X, D, E
+    call !sub_259e          ;55e3  9a 9e 25     Generate the 4 byte payload for the 0xD7 security access request block
+                            ;                   Returns the 4 bytes in A, X, D, E
 
     ;KWP1281 tx buffer byte 3 = value in A
     mov [hl+b],a            ;55e6  bb           Store A in KWP1281 tx buffer byte 3
@@ -17197,7 +17235,7 @@ lab_5f26:
 lab_5f2d:
     bt if0h.6,lab_5f35      ;5f2d  31 66 e1 04
     dbnz c,lab_5f2d         ;5f31  8a fa
-    callf !sub_0879         ;5f33  0c 79
+    callf !sub_0879         ;5f33  0c 79        Just returns
 
 lab_5f35:
     clr1 if0h.6             ;5f35  71 6b e1
@@ -17301,7 +17339,7 @@ lab_5fc0:
 lab_5fc2:
     bt if0h.6,lab_5fca      ;5fc2  31 66 e1 04
     dbnz c,lab_5fc2         ;5fc6  8a fa
-    callf !sub_0879         ;5fc8  0c 79
+    callf !sub_0879         ;5fc8  0c 79        Just returns
 
 lab_5fca:
     clr1 if0h.6             ;5fca  71 6b e1
@@ -17357,7 +17395,7 @@ lab_5fff:
 lab_6020:
     bt if0h.6,lab_6028      ;6020  31 66 e1 04
     dbnz c,lab_6020         ;6024  8a fa
-    callf !sub_0879         ;6026  0c 79
+    callf !sub_0879         ;6026  0c 79        Just returns
 
 lab_6028:
     clr1 if0h.6             ;6028  71 6b e1
@@ -30441,8 +30479,8 @@ mem_b1fa:
 ;indexed by mem_fbc8
     .byte 0x26              ;b1fa  26          DATA 0x26 '&'      38 entries below:
     .word lab_4dd2
-    .word lab_532a          ;Send ACK response
-    .word lab_5337          ;Send End Session response
+    .word lab_532a          ;Send ACK
+    .word lab_5337          ;Send End Session
     .word lab_5344_bad      ;Bad title: Send NAK
     .word lab_5355          ;Send NAK response
     .word lab_5365          ;index 0x08 read identification
@@ -30476,7 +30514,7 @@ mem_b1fa:
     .word lab_556b          ;index 0x1d read rom or eeprom
     .word lab_5581          ;Send read EEPROM response
     .word lab_55c5          ;Send EEPROM write response
-    .word lab_55de          ;Send 0x21 ? response to security access
+    .word lab_55de          ;Send Security Access Request (title 0xD7)
     .word lab_55f7          ;Send NAK response (index 0x04)
 
 mem_b247:
@@ -30530,8 +30568,8 @@ kwp_titles_b25c:
     .byte 0xfd              ;b27b  fd          DATA 0xfd        B=0x1e response to read rom, eeprom
     .byte 0x0c              ;b27c  0c          DATA 0x0c        B=0x1f write eeprom
     .byte 0xf9              ;b27d  f9          DATA 0xf9        B=0x20 response to write eeprom
-    .byte 0xd7              ;b27e  d7          DATA 0xd7        B=0x21 ? security access
-    .byte 0x3d              ;b27f  3d          DATA 0x3d '='    D=0x22 ? response to security access
+    .byte 0xd7              ;b27e  d7          DATA 0xd7        B=0x21 security access request
+    .byte 0x3d              ;b27f  3d          DATA 0x3d '='    D=0x22 response to security access
 
 kwp_lengths_b280:
 ;table of block lengths; same order as kwp_titles_b25c

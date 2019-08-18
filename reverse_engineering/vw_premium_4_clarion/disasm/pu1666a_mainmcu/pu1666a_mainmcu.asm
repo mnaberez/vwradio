@@ -18130,10 +18130,10 @@ kwp_ack_2:
     .byte 0x03              ;dd65  03          DATA '\x03'  Block end
 
 kwp_title_d7:
-;Unknown KWP1281 packet
+;KWP1281 Security Access Request (title 0xD7) block
     .byte 0x07              ;dd66  07          DATA '\x07'  Block length
     .byte 0x00              ;dd67  00          DATA '\x00'  Block counter
-    .byte 0xD7              ;dd68  d7          DATA '\xd7'  Block title (0xd7 = Security access? TODO what is this?)
+    .byte 0xD7              ;dd68  d7          DATA '\xd7'  Block title (0xD7 = Security Access Request)
     .byte 0x00              ;dd69  00          DATA '\x00'
     .byte 0x00              ;dd6a  00          DATA '\x00'
     .byte 0x00              ;dd6b  00          DATA '\x00'
@@ -19371,17 +19371,17 @@ mem_e3bd:
 ;Other table is at mem_e223
 ;
 ;Flow of mem_038b:
-;  0x01 sends kwp_title_d7 ->
+;  0x01 sends title 0xd7 security access request ->
 ;  0x0b set unknown counters ->
 ;  0x02 set unknown values ->
-;  0x03 if block title received is 0x3d security access ->
+;  0x03 if block title received is title 0x3d security access response ->
 ;  0x04 read 4 bytes from 4x buffer, call sub_e61f ->
 ;  0x06 end session
 ;
     .word lab_e480          ;VECTOR 0       Does nothing
-    .word lab_e3d9          ;VECTOR 1       Reads tchr, send kwp_title_d7, set mem_038b=0x0b
+    .word lab_e3d9          ;VECTOR 1       Read tchr, send block title 0xD7 security access request, set mem_038b=0x0b
     .word lab_e42a          ;VECTOR 2       Sets unknown values, set mem_038b=0x03
-    .word lab_e442          ;VECTOR 3       If received block title 0x3d (security access), set mem_038b=0x04
+    .word lab_e442          ;VECTOR 3       If received block title 0x3d (security access response), set mem_038b=0x04
                             ;               If received block title 0x0a (no acknowledge), set mem_038b=0x02
                             ;               If other received block title, send no acknowledge, set mem_038b=0x02
     .word lab_e4b5          ;VECTOR 4       Read 4 bytes from RX buffer, call sub_e61f, set mem_038b=0x06
@@ -19396,6 +19396,7 @@ mem_e3bd:
     .word lab_e59c          ;VECTOR 0x0d
 
 lab_e3d9:
+;Send title 0xD7 security access request block
 ;(mem_0388=2, mem_038b=1)
     call set_00fd_hi_nib_9  ;e3d9  31 e3 9a     Store 0x9 in mem_00fd high nibble
 
@@ -19413,7 +19414,7 @@ lab_e3d9:
     swap                    ;e3ea  10
     movw mem_03ad, a        ;e3eb  d4 03 ad
 
-    movw a, #kwp_title_d7   ;e3ee  e4 dd 66
+    movw a, #kwp_title_d7   ;e3ee  e4 dd 66     A = pointer to KWP1281 security access request (title 0xD7) block
     movw mem_0084, a        ;e3f1  d5 84        Pointer: source for KWP1281 buffer copy
     mov mem_00a5, #0x08     ;e3f3  85 a5 08     8 bytes in KWP1281 packet
     call sub_b136           ;e3f6  31 b1 36     Copy mem_00a5 bytes from @mem_0084 to KWP1281 TX Buffer
@@ -19536,7 +19537,8 @@ lab_e4a3:
     beq lab_e47d            ;e4b3  fd c8        BRANCH_ALWAYS_TAKEN
 
 lab_e4b5:
-;(mem_0388=2, mem_038b=4) (Block title 0x3d: Security access?)
+;Process received Block title 0x3d security access response
+;(mem_0388=2, mem_038b=4) (Block title 0x3d: Security access response)
     mov a, mem_0118+6       ;e4b5  60 01 1e     KWP1281 RX Buffer byte 6
     mov mem_03ab, a         ;e4b8  61 03 ab
 
@@ -19549,7 +19551,7 @@ lab_e4b5:
     mov a, mem_0118+3       ;e4c7  60 01 1b     KWP1281 RX Buffer byte 3
     mov mem_03ae, a         ;e4ca  61 03 ae
 
-    call sub_e61f           ;e4cd  31 e6 1f     Unknown, uses mem_e5aa table
+    call sub_e61f           ;e4cd  31 e6 1f     Unknown title 0x3d security access response processing, uses mem_e5aa table
     jmp lab_e4e5            ;e4d0  21 e4 e5
 
 sub_e4d3:
@@ -19781,8 +19783,8 @@ lab_e613:
 
 
 sub_e61f:
-;Unknown, uses e5aa table
-;Called from e4cd (Block title 0x3d security related)
+;Unknown title 0x3d security access response processing, uses mem_e5aa table
+;Called from e4cd (Block title 0x3d security access response)
 ;Also called from a11c (unknown)
 ;
 ;Inputs:

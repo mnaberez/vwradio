@@ -66,6 +66,7 @@ uint8_t kwp_component_2[16];    // "        0001"
 
 // Module Addresses
 #define KWP_ENGINE      0x01
+#define KWP_SAFE_UNLOCK 0x3F    // Instrument cluster?  Radio connects to this address to auto-unlock
 #define KWP_RADIO       0x56
 #define KWP_RADIO_MFG   0x7C    // Delco Premium 5, TechniSat Gamma 5
 
@@ -99,6 +100,8 @@ uint8_t kwp_component_2[16];    // "        0001"
 #define KWP_BASIC_SETTING       0x28  /* Basic Setting                                          */
 #define KWP_GROUP_READING       0x29  /* Group Reading                              X   X       */
 #define KWP_LOGIN               0x2B  /* Login                                      X   X       */
+#define KWP_R_SECURITY_ACCESS   0x3D  /* Response to Security Access                *3  *3      */
+#define KWP_SECURITY_ACCESS     0xD7  /* Security Access Request                    *3  *3      */
 #define KWP_R_GROUP_READING     0xE7  /* Response to Group Reading                  X   X       */
 #define KWP_SAFE_CODE           0xF0  /* Request or Response to R/W SAFE Code       X           */
 #define KWP_R_OUTPUT_TEST       0xF5  /* Response to Actuator/Output Tests          X   X       */
@@ -112,5 +115,9 @@ uint8_t kwp_component_2[16];    // "        0001"
 //    On Premium 5, block title 0x03 reads EEPROM (24C04)
 //
 // *2 Premium 5 only, and only when connected to address 0x7c
+//
+// *3 Radios use these block titles to communicate with an unknown module (the cluster?)
+//    on address 0x3F.  The radio will initiate the connection, send 0xD7 Security Access Request,
+//    and then expect to receive 0x3D Response to Security Access.
 
 #endif
