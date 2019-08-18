@@ -438,7 +438,7 @@ mem_fe1f = 0xfe1f
 mem_fe20 = 0xfe20
 mem_fe21 = 0xfe21
 mem_fe22 = 0xfe22
-mem_fe23 = 0xfe23
+mem_fe23 = 0xfe23           ;Bit 7: off = SAFE mode locked, on = SAFE mode unlocked
 mem_fe24 = 0xfe24
 mem_fe25 = 0xfe25
 mem_fe26 = 0xfe26
@@ -6752,7 +6752,7 @@ lab_2173:
     bt mem_fe62.7,lab_21f3  ;2173  fc 62 7d
     bf mem_fe2c.2,lab_218b  ;2176  31 23 2c 11
     bt mem_fe65.6,lab_21f3  ;217a  ec 65 76
-    bf mem_fe23.7,lab_218b  ;217d  31 73 23 0a
+    bf mem_fe23.7,lab_218b  ;217d  31 73 23 0a  Branch if SAFE mode = locked
     call !sub_246b          ;2181  9a 6b 24
     call !sub_248f          ;2184  9a 8f 24
     set1 mem_fe7d.3         ;2187  3a 7d
@@ -6867,7 +6867,7 @@ lab_2242:
     cmp a,#0xc3             ;2247  4d c3
     bnz lab_225a            ;2249  bd 0f
     bt mem_fe23.5,lab_225a  ;224b  dc 23 0c
-    bf mem_fe23.7,lab_225a  ;224e  31 73 23 08
+    bf mem_fe23.7,lab_225a  ;224e  31 73 23 08  Branch if SAFE mode = locked
     call !sub_246b          ;2252  9a 6b 24
     call !sub_248f          ;2255  9a 8f 24
     set1 mem_fe7d.3         ;2258  3a 7d
@@ -6969,16 +6969,18 @@ lab_22f9:
     br !sub_2227            ;22f9  9b 27 22
 
 sub_22fc:
-    bt mem_fe23.6,lab_234b  ;22fc  ec 23 4c
+;Unknown security access related; called from lab_256c only
+;title 0x3d security access response processing
+    bt mem_fe23.6,lab_234b  ;22fc  ec 23 4c     Branch to just return
     bt mem_fe23.5,lab_2317  ;22ff  dc 23 15
-    clr1 mem_fe23.7         ;2302  7b 23
+    clr1 mem_fe23.7         ;2302  7b 23        SAFE mode = locked
     mov a,!mem_fb73         ;2304  8e 73 fb
     cmp a,!mem_f208         ;2307  48 08 f2
     bnz lab_2327            ;230a  bd 1b
     mov a,!mem_fb74         ;230c  8e 74 fb
     cmp a,!mem_f209         ;230f  48 09 f2
     bnz lab_2327            ;2312  bd 13
-    set1 mem_fe23.7         ;2314  7a 23
+    set1 mem_fe23.7         ;2314  7a 23        SAFE mode = unlocked
     ret                     ;2316  af
 
 lab_2317:
@@ -6992,7 +6994,7 @@ lab_2317:
 lab_2327:
     mov a,!mem_fb71         ;2327  8e 71 fb
     cmp a,#0xc3             ;232a  4d c3
-    bz lab_234b             ;232c  ad 1d
+    bz lab_234b             ;232c  ad 1d        Branch to just return
     mov a,!mem_fb73         ;232e  8e 73 fb
     movw hl,#mem_f208       ;2331  16 08 f2
     call !sub_4092          ;2334  9a 92 40
@@ -7002,7 +7004,7 @@ lab_2327:
     call !sub_249c          ;2340  9a 9c 24
     movw hl,#mem_f20c       ;2343  16 0c f2
     call !sub_4092          ;2346  9a 92 40
-    set1 mem_fe23.7         ;2349  7a 23
+    set1 mem_fe23.7         ;2349  7a 23        SAFE mode = unlocked
 
 lab_234b:
     ret                     ;234b  af
@@ -7107,7 +7109,7 @@ sub_23e6:
     call !sub_246b          ;23e6  9a 6b 24
     mov a,#0x00             ;23e9  a1 00
     mov !mem_fb52,a         ;23eb  9e 52 fb     Save KWP1281 login rate limiter countdown
-    bt mem_fe23.7,lab_23f8  ;23ee  fc 23 07
+    bt mem_fe23.7,lab_23f8  ;23ee  fc 23 07     Branch if SAFE mode = unlocked
     bf mem_fe2c.2,lab_23f8  ;23f1  31 23 2c 03
     call !sub_25fa          ;23f5  9a fa 25     If mem_fe63.0=0, set up to bit-bang 5 baud init to address 0x3F
 
@@ -7144,7 +7146,7 @@ lab_242f:
 lab_2432:
 ;Entered SAFE code does not match actual SAFE code
     bt mem_fe23.6,lab_2438  ;2432  ec 23 03
-    bt mem_fe23.7,sub_23e6  ;2435  fc 23 ae
+    bt mem_fe23.7,sub_23e6  ;2435  fc 23 ae     Branch if SAFE mode = unlocked
 
 lab_2438:
     mov a,#0x07             ;2438  a1 07
@@ -7379,7 +7381,8 @@ sub_258e:
     ret                     ;259a  af
 
 sub_259b:
-    clr1 mem_fe23.7         ;259b  7b 23
+;Turn SAFE mode = locked
+    clr1 mem_fe23.7         ;259b  7b 23    SAFE mode = locked
     ret                     ;259d  af
 
 sub_259e:
@@ -11164,7 +11167,7 @@ lab_3cab:
 lab_3cad:
     mov a,!mem_f207         ;3cad  8e 07 f2
     bt a.6,lab_3ccd         ;3cb0  31 6e 1a
-    bt mem_fe23.7,lab_3cd4  ;3cb3  fc 23 1e
+    bt mem_fe23.7,lab_3cd4  ;3cb3  fc 23 1e       Branch if SAFE mode = unlocked
     bf a.2,lab_3cbc         ;3cb6  31 2f 03
     bt mem_fe5e.6,lab_3ccd  ;3cb9  ec 5e 11
 
@@ -11386,7 +11389,7 @@ lab_3df9:
 lab_3e14:
     call !sub_2482          ;3e14  9a 82 24
     call !sub_248f          ;3e17  9a 8f 24
-    clr1 mem_fe23.7         ;3e1a  7b 23
+    clr1 mem_fe23.7         ;3e1a  7b 23        SAFE mode = locked
 
 lab_3e1c:
     ret                     ;3e1c  af
@@ -11415,7 +11418,7 @@ lab_3e3f:
     push ax                 ;3e48  b1
     mov a,!mem_f207         ;3e49  8e 07 f2
     bt a.6,lab_3e71         ;3e4c  31 6e 22
-    bf mem_fe23.7,lab_3e5a  ;3e4f  31 73 23 07
+    bf mem_fe23.7,lab_3e5a  ;3e4f  31 73 23 07    Branch if SAFE mode = locked
     mov a,#0x00             ;3e53  a1 00
     mov !mem_f18b,a         ;3e55  9e 8b f1
     br lab_3e6f             ;3e58  fa 15
@@ -14779,13 +14782,13 @@ lab_50fe:
 
 kwp_3f_06_end_session:
 ;end session (kwp_3f_handlers)
-    call !sub_259b          ;5106  9a 9b 25     Does "clr1 mem_fe23.7" only
+    call !sub_259b          ;5106  9a 9b 25     Turn SAFE mode = locked
     mov a,#0x00             ;5109  a1 00
     mov !mem_fbc6,a         ;510b  9e c6 fb     Store new KWP1281 radio to cluster(?) connection state
     br !sub_51c3            ;510e  9b c3 51     Branch to clear auth bits and end session
 
 lab_5111:
-    call !sub_259b          ;5111  9a 9b 25     Does "clr1 mem_fe23.7" only
+    call !sub_259b          ;5111  9a 9b 25     Turn SAFE mode = locked
     mov a,#0x00             ;5114  a1 00
     mov !mem_fbc6,a         ;5116  9e c6 fb     Store new KWP1281 radio to cluster(?) connection state
     br !lab_5337            ;5119  9b 37 53     Branch to Send End Session
@@ -14802,7 +14805,7 @@ kwp_3f_0a_nak:
     br !sub_34f7            ;512c  9b f7 34     Set flags to start sending the KWP1281 tx buffer
 
 lab_512f:
-    call !sub_259b          ;512f  9a 9b 25     Does "clr1 mem_fe23.7" only
+    call !sub_259b          ;512f  9a 9b 25     Turn SAFE mode = locked
     mov a,#0x00             ;5132  a1 00
     mov !mem_fbc6,a         ;5134  9e c6 fb     Store new KWP1281 radio to cluster(?) connection state
     br !lab_5337            ;5137  9b 37 53     Branch to Send End Session
@@ -30688,7 +30691,7 @@ kwp_3f_titles:
     .byte 0x09              ;b2f2  09          DATA 0x09        B=1 ack
     .byte 0x06              ;b2f3  06          DATA 0x06        B=2 end session
     .byte 0x0a              ;b2f4  0a          DATA 0x0a        B=3 nak
-    .byte 0x3d              ;b2f5  3d          DATA 0x3d '='    B=4 ? security access
+    .byte 0x3d              ;b2f5  3d          DATA 0x3d '='    B=4 security access response
 
 kwp_3f_handlers:
 ;handlers for block titles on address 0x3f
@@ -30698,7 +30701,7 @@ kwp_3f_handlers:
     .word kwp_3f_09_ack             ;b2f9  f4 50       VECTOR           B=1 ack
     .word kwp_3f_06_end_session     ;b2fb  06 51       VECTOR           B=2 end session
     .word kwp_3f_0a_nak             ;b2fd  1c 51       VECTOR           B=3 nak
-    .word kwp_3f_3d_secure_access   ;b2ff  3a 51       VECTOR           B=4 ? security access
+    .word kwp_3f_3d_secure_access   ;b2ff  3a 51       VECTOR           B=4 security access response
 
 kwp_7c_1b_subtitles:
 ;subtitles accepted by block title 0x1b on address 0x7c
