@@ -11803,9 +11803,9 @@ lab_4095:
     xch a,x                 ;409f  30
     addc a,h                ;40a0  61 2f
     cmpw ax,#mem_f206       ;40a2  ea 06 f2
-    bc lab_40ac             ;40a5  8d 05
+    bc lab_40ac             ;40a5  8d 05        Branch to pop ax, pop bc, then ret
     cmpw ax,#mem_f26b       ;40a7  ea 6b f2
-    bc lab_40b1             ;40aa  8d 05
+    bc lab_40b1             ;40aa  8d 05        Branch to do more processing
 
 lab_40ac:
     callf !sub_0879         ;40ac  0c 79        Just returns
@@ -26732,80 +26732,51 @@ lab_9e41:
     xch a,x                 ;9e42  30
     ret                     ;9e43  af
 
-    .byte 0x9a              ;9e44  9a          DATA 0x9a
-    .byte 0x5d              ;9e45  5d          DATA 0x5d ']'
-    .byte 0x9e              ;9e46  9e          DATA 0x9e
-    .byte 0x9d              ;9e47  9d          DATA 0x9d
-    .byte 0x09              ;9e48  09          DATA 0x09
-    .byte 0x31              ;9e49  31          DATA 0x31 '1'
-    .byte 0x43              ;9e4a  43          DATA 0x43 'C'
-    .byte 0x74              ;9e4b  74          DATA 0x74 't'
-    .byte 0x0d              ;9e4c  0d          DATA 0x0d
-    .byte 0x3b              ;9e4d  3b          DATA 0x3b ';'
-    .byte 0x74              ;9e4e  74          DATA 0x74 't'
-    .byte 0x9b              ;9e4f  9b          DATA 0x9b
-    .byte 0x3f              ;9e50  3f          DATA 0x3f '?'
-    .byte 0x9a              ;9e51  9a          DATA 0x9a
-    .byte 0xcc              ;9e52  cc          DATA 0xcc
-    .byte 0x74              ;9e53  74          DATA 0x74 't'
-    .byte 0x05              ;9e54  05          DATA 0x05
-    .byte 0x3a              ;9e55  3a          DATA 0x3a ':'
-    .byte 0x74              ;9e56  74          DATA 0x74 't'
-    .byte 0x9b              ;9e57  9b          DATA 0x9b
-    .byte 0x3f              ;9e58  3f          DATA 0x3f '?'
-    .byte 0x9a              ;9e59  9a          DATA 0x9a
-    .byte 0x9b              ;9e5a  9b          DATA 0x9b
-    .byte 0x1f              ;9e5b  1f          DATA 0x1f
-    .byte 0x9d              ;9e5c  9d          DATA 0x9d
-    .byte 0x8e              ;9e5d  8e          DATA 0x8e
-    .byte 0x8d              ;9e5e  8d          DATA 0x8d
-    .byte 0xfc              ;9e5f  fc          DATA 0xfc
-    .byte 0x4d              ;9e60  4d          DATA 0x4d 'M'
-    .byte 0x0c              ;9e61  0c          DATA 0x0c
-    .byte 0x31              ;9e62  31          DATA 0x31 '1'
-    .byte 0x63              ;9e63  63          DATA 0x63 'c'
-    .byte 0x74              ;9e64  74          DATA 0x74 't'
-    .byte 0x02              ;9e65  02          DATA 0x02
-    .byte 0x4d              ;9e66  4d          DATA 0x4d 'M'
-    .byte 0x0c              ;9e67  0c          DATA 0x0c
-    .byte 0x9d              ;9e68  9d          DATA 0x9d
-    .byte 0x23              ;9e69  23          DATA 0x23 '#'
-    .byte 0x8e              ;9e6a  8e          DATA 0x8e
-    .byte 0x8c              ;9e6b  8c          DATA 0x8c
-    .byte 0xfc              ;9e6c  fc          DATA 0xfc
-    .byte 0x4d              ;9e6d  4d          DATA 0x4d 'M'
-    .byte 0x05              ;9e6e  05          DATA 0x05
-    .byte 0x31              ;9e6f  31          DATA 0x31 '1'
-    .byte 0x63              ;9e70  63          DATA 0x63 'c'
-    .byte 0x74              ;9e71  74          DATA 0x74 't'
-    .byte 0x02              ;9e72  02          DATA 0x02
-    .byte 0x4d              ;9e73  4d          DATA 0x4d 'M'
-    .byte 0x0c              ;9e74  0c          DATA 0x0c
-    .byte 0x9d              ;9e75  9d          DATA 0x9d
-    .byte 0x16              ;9e76  16          DATA 0x16
-    .byte 0x8e              ;9e77  8e          DATA 0x8e
-    .byte 0x00              ;9e78  00          DATA 0x00
-    .byte 0xf2              ;9e79  f2          DATA 0xf2
-    .byte 0x73              ;9e7a  73          DATA 0x73 's'
-    .byte 0x16              ;9e7b  16          DATA 0x16
-    .byte 0x5e              ;9e7c  5e          DATA 0x5e '^'
-    .byte 0xcf              ;9e7d  cf          DATA 0xcf
-    .byte 0x4c              ;9e7e  4c          DATA 0x4c 'L'
-    .byte 0x7d              ;9e7f  7d          DATA 0x7d '}'
-    .byte 0xec              ;9e80  ec          DATA 0xec
-    .byte 0x74              ;9e81  74          DATA 0x74 't'
-    .byte 0x06              ;9e82  06          DATA 0x06
-    .byte 0x5d              ;9e83  5d          DATA 0x5d ']'
-    .byte 0xf0              ;9e84  f0          DATA 0xf0
-    .byte 0x4d              ;9e85  4d          DATA 0x4d 'M'
-    .byte 0x01              ;9e86  01          DATA 0x01
-    .byte 0xfa              ;9e87  fa          DATA 0xfa
-    .byte 0x04              ;9e88  04          DATA 0x04
-    .byte 0x5d              ;9e89  5d          DATA 0x5d ']'
-    .byte 0x0f              ;9e8a  0f          DATA 0x0f
-    .byte 0x4d              ;9e8b  4d          DATA 0x4d 'M'
-    .byte 0x01              ;9e8c  01          DATA 0x01
-    .byte 0xaf              ;9e8d  af          DATA 0xaf
+lab_9e44:
+    call !sub_9e5d          ;9e44  9a 5d 9e
+    bnc lab_9e52            ;9e47  9d 09
+    bf mem_fe74.4,lab_9e5a  ;9e49  31 43 74 0d
+    clr1 mem_fe74.3         ;9e4d  3b 74
+    br !lab_9a3f            ;9e4f  9b 3f 9a
+
+lab_9e52:
+    bt mem_fe74.4,lab_9e5a  ;9e52  cc 74 05
+    set1 mem_fe74.3         ;9e55  3a 74
+    br !lab_9a3f            ;9e57  9b 3f 9a
+
+lab_9e5a:
+    br !lab_9d1f            ;9e5a  9b 1f 9d
+
+sub_9e5d:
+    mov a,!mem_fc8d         ;9e5d  8e 8d fc
+    cmp a,#0x0c             ;9e60  4d 0c
+    bf mem_fe74.6,lab_9e68  ;9e62  31 63 74 02
+    cmp a,#0x0c             ;9e66  4d 0c
+
+lab_9e68:
+    bnc lab_9e8d            ;9e68  9d 23
+    mov a,!mem_fc8c         ;9e6a  8e 8c fc
+    cmp a,#0x05             ;9e6d  4d 05
+    bf mem_fe74.6,lab_9e75  ;9e6f  31 63 74 02
+    cmp a,#0x0c             ;9e73  4d 0c
+
+lab_9e75:
+    bnc lab_9e8d            ;9e75  9d 16
+    mov a,!mem_f200         ;9e77  8e 00 f2
+    mov b,a                 ;9e7a  73
+    movw hl,#0xcf5e         ;9e7b  16 5e cf
+    callf !sub_0c7d         ;9e7e  4c 7d
+    bt mem_fe74.6,lab_9e89  ;9e80  ec 74 06
+    and a,#0xf0             ;9e83  5d f0
+    cmp a,#0x01             ;9e85  4d 01
+    br lab_9e8d             ;9e87  fa 04
+
+lab_9e89:
+    and a,#0x0f             ;9e89  5d 0f
+    cmp a,#0x01             ;9e8b  4d 01
+
+lab_9e8d:
+    ret                     ;9e8d  af
 
 sub_9e8e:
     mov !mem_fbdc,a         ;9e8e  9e dc fb
@@ -30612,8 +30583,8 @@ kwp_lengths_b280:
     .byte 0xff              ;b29f  ff          DATA 0xff        B=0x1e response to read rom, eeprom
     .byte 0xff              ;b2a0  ff          DATA 0xff        B=0x1f write eeprom
     .byte 0x07              ;b2a1  07          DATA 0x07        B=0x20 response to write eeprom
-    .byte 0x07              ;b2a2  07          DATA 0x07        B=0x21 ? security access
-    .byte 0x07              ;b2a3  07          DATA 0x07        B=0x22 ? response to security access
+    .byte 0x07              ;b2a2  07          DATA 0x07        B=0x21 security access request
+    .byte 0x07              ;b2a3  07          DATA 0x07        B=0x22 response to security access
 
 kwp_7c_titles:
 ;block titles accepted on address 0x7c
