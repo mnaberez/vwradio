@@ -1,4 +1,3 @@
-#include "main.h"
 #include "kwp1281.h"
 #include "technisat.h"
 #include "uart.h"

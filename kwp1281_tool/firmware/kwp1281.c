@@ -1,4 +1,3 @@
-#include "main.h"
 #include "autobaud.h"
 #include "kwp1281.h"
 #include "uart.h"

@@ -1,8 +1,9 @@
 PROJECT=kwp1281
 SOURCES=$(wildcard *.c)
 MMCU=atmega1284
+F_CPU=20000000
 ISPFLAGS=-c atmelice
-CFLAGS=-mmcu=$(MMCU) -g -Wall -Os -std=c99
+CFLAGS=-mmcu=$(MMCU) -g -Wall -Os -std=c99 -DF_CPU=$(F_CPU)
 
 $(PROJECT).hex: $(PROJECT).elf
 	avr-objcopy -j .text -j .data -O ihex $(PROJECT).elf $(PROJECT).hex

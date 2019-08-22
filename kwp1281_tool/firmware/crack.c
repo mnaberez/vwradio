@@ -1,7 +1,6 @@
 #include "kwp1281.h"
 #include "technisat.h"
 #include "uart.h"
-#include "main.h"
 #include <string.h>
 
 static void _print_hex16(char *label, uint16_t word)
