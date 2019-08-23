@@ -28,7 +28,7 @@ It connects in parallel with the M62419FP sound controller used in the Premium 4
 
 Here are some of the more interesting discoveries I made about the radios:
 
-- All of the radios studied support a common set of KWP1281 diagnostics functions on the normal radio address of 0x56.  Some radios (not all) also have protected KWP1281 commands on this same address.  The protected commands available vary by model but may include the ability to read the microcontroller's RAM or RAM, and to read/write serial EEPROM(s).  Accessing the protected commands requires sending a login block based on the SAFE code and also performing a group reading of a hidden group.
+- All of the radios studied support a common set of KWP1281 diagnostics functions on the normal radio address of 0x56.  Some radios (not all) also have protected KWP1281 commands on this same address.  The protected commands available vary by model but may include the ability to read the microcontroller's ROM or RAM, and to read/write serial EEPROM(s).  Accessing the protected commands requires sending a login block based on the SAFE code and also performing a group reading of a hidden group.
 
 - VW Premium 4 (Clarion) has an unprotected KWP1281 command 0xF0 that returns the SAFE code.  It also contains a hidden mode where the SAFE code can be changed via the faceplate.  Entering this mode requires pressing keys that do not exist on the faceplate.  I assume there was a special manufacturing faceplate used by the factory.
 
