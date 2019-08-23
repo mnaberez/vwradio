@@ -40,6 +40,9 @@ static uint16_t _baud_to_ubrr(uint32_t baud)
 {
     switch (baud) {
         case 115200:    return UART_UBRR_115200;
+        case 57600:     return UART_UBBR_57600;
+        case 38400:     return UART_UBBR_38400;
+        case 19200:     return UART_UBBR_19200;
         case 10400:     return UART_UBRR_10400;
         case 9600:      return UART_UBRR_9600;
         case 4800:      return UART_UBBR_4800;
@@ -57,12 +60,12 @@ void uart_init(uart_num_t uartnum, uint32_t baud)
         case UART0:
             UBRR0H = HIGH(ubrr);  // Baud Rate high
             UBRR0L = LOW(ubrr);   // Baud Rate low
-            UCSR0A = 0;           // Do not use 2X, clear error flags
+            UCSR0A = _BV(U2X0);   // Enable 2x, Clear error flags
             break;
         case UART1:
             UBRR1H = HIGH(ubrr);  // Baud Rate high
             UBRR1L = LOW(ubrr);   // Baud Rate low
-            UCSR1A = 0;           // Do not use 2X, clear error flags
+            UCSR1A = _BV(U2X1);   // Enable 2x, Clear error flags
             break;
         default:
             while(1);

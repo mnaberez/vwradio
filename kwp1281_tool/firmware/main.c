@@ -8,8 +8,8 @@
 
 int main()
 {
-    uart_init(UART_DEBUG, 115200);  // debug messages
-    uart_init(UART_KLINE,  10400);  // obd-ii kwp1281
+    uart_init(UART_DEBUG, 38400);  // debug messages
+    uart_init(UART_KLINE, 10400);  // obd-ii kwp1281
     sei();
 
     kwp_result_t result = kwp_retrying_connect(KWP_RADIO);
