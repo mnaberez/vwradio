@@ -343,7 +343,7 @@ tsat_result_t tsat_connect(uint8_t address, uint32_t baud)
         } else {
             return TSAT_UNEXPECTED;
         }
-    } if (result == TSAT_TIMEOUT) {
+    } else if (result == TSAT_TIMEOUT) {
         // radio didn't send a block (probably rhapsody)
         // send hello to see if it's there
         uart_puts(UART_DEBUG, "Timeout; trying hello\r\n");
