@@ -158,64 +158,6 @@ tsat_result_t tsat_disconnect()
     }
 }
 
-tsat_result_t tsat_and(uint16_t address, uint8_t mask) {
-    uart_puts(UART_DEBUG, "PERFORM AND\r\n");
-
-    uint8_t block[] = { 0x10, // only responds if this is 2-0xff
-                        0x01, // only responds if this is 1
-                        0x03, // number of parameters after command
-                        0x46, // command
-                        LOW(address),
-                        HIGH(address),
-                        (mask ^ 0xff),
-                        0     // checksum (will be calculated)
-                      };
-    tsat_result_t result = tsat_send_block(block);
-
-    result = tsat_receive_block();
-    if (result != TSAT_SUCCESS) { return result; }
-
-    // check status
-    if ((tsat_rx_buf[2] == 0x5e) && (tsat_rx_buf[3] == 0x00)) {
-        return TSAT_SUCCESS;
-    } else {
-        return TSAT_UNEXPECTED;
-    }
-}
-
-tsat_result_t tsat_or(uint16_t address, uint8_t mask) {
-    uart_puts(UART_DEBUG, "PERFORM OR\r\n");
-
-    uint8_t block[] = { 0x10, // only responds if this is 2-0xff
-                        0x01, // only responds if this is 1
-                        0x03, // number of parameters after command
-                        0x47, // command
-                        LOW(address),
-                        HIGH(address),
-                        mask,
-                        0     // checksum (will be calculated)
-                      };
-    tsat_result_t result = tsat_send_block(block);
-
-    result = tsat_receive_block();
-    if (result != TSAT_SUCCESS) { return result; }
-
-    // check status
-    if ((tsat_rx_buf[2] == 0x5e) && (tsat_rx_buf[3] == 0x00)) {
-        return TSAT_SUCCESS;
-    } else {
-        return TSAT_UNEXPECTED;
-    }
-}
-
-tsat_result_t tsat_write(uint16_t address, uint8_t value) {
-    tsat_result_t result = tsat_and(address, 0);
-    if (result != TSAT_SUCCESS) { return result; }
-
-    result = tsat_or(address, value);
-    return result;
-}
-
 
 tsat_result_t tsat_read_ram(uint16_t address, uint8_t count)
 {
