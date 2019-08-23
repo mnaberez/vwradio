@@ -137,7 +137,7 @@ tsat_result_t tsat_disconnect()
 {
     uart_puts(UART_DEBUG, "PERFORM DISCONNECT\r\n");
 
-    // send authentication block
+    // send disconnect block
     uint8_t block[] = { 0x10, // only responds if this is 2-0xff
                         0x01, // only responds if this is 1
                         0x00, // number of parameters after command
@@ -146,7 +146,7 @@ tsat_result_t tsat_disconnect()
                       };
     tsat_result_t result = tsat_send_block(block);
 
-    // receive authentication response block
+    // receive disconnect response block
     result = tsat_receive_block();
     if (result != TSAT_SUCCESS) { return result; }
 
@@ -163,6 +163,7 @@ tsat_result_t tsat_read_ram(uint16_t address, uint8_t count)
 {
     uart_puts(UART_DEBUG, "PERFORM READ RAM\r\n");
 
+    // send read ram block
     uint8_t block[] = { 0x10, // only responds if this is 2-0xff
                         0x01, // only responds if this is 1
                         0x03, // number of parameters after command
@@ -174,6 +175,7 @@ tsat_result_t tsat_read_ram(uint16_t address, uint8_t count)
                       };
     tsat_result_t result = tsat_send_block(block);
 
+    // receive read ram response block
     result = tsat_receive_block();
     if (result != TSAT_SUCCESS) { return result; }
 
@@ -190,6 +192,7 @@ tsat_result_t tsat_hello()
 {
     uart_puts(UART_DEBUG, "PERFORM HELLO\r\n");
 
+    // send hello block
     uint8_t block[] = { 0x10, // only responds if this is 2-0xff
                         0x01, // only responds if this is 1
                         0x00, // number of parameters after command
@@ -198,6 +201,7 @@ tsat_result_t tsat_hello()
                       };
     tsat_result_t result = tsat_send_block(block);
 
+    // receive hello response block
     result = tsat_receive_block();
     if (result != TSAT_SUCCESS) { return result; }
 
@@ -223,7 +227,7 @@ tsat_result_t tsat_disable_eeprom_filter()
                       };
     tsat_result_t result = tsat_send_block(block);
 
-    // receive authentication response block
+    // receive disable eeprom filter response block
     result = tsat_receive_block();
     if (result != TSAT_SUCCESS) { return result; }
 
