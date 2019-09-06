@@ -12,7 +12,7 @@ const char * kwp_describe_result(kwp_result_t result) {
         case KWP_SUCCESS:           return "Success";
         case KWP_TIMEOUT:           return "Timeout";
         case KWP_SYNC_BAD_BAUD:     return "Baud rate measured from sync is unachievable";
-        case KWP_SYNC_NOT_0X55:     return "Line activity during sync but not expected 0x55";
+        case KWP_SYNC_NOT_0X55:     return "Line activity during sync but not 0x55 as expected";
         case KWP_BAD_KEYWORD:       return "Bad keyword received (not KWP1281)";
         case KWP_BAD_ECHO:          return "Bad echo received";
         case KWP_BAD_COMPLEMENT:    return "Bad complement received";
