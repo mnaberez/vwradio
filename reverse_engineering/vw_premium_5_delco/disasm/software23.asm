@@ -14761,6 +14761,7 @@ lab_50ec:
 ;
 ;Successful connection flow:
 ;  Radio initiates KWP1281 connection to an unknown module on address 0x3F (cluster?).
+;    The module must use 10400 baud because the radio hardcodes the baud rate.
 ;  Radio expects to receive a title 0x09 ACK block.
 ;  Radio sends a title 0xD7 security access request block (lab_55de).
 ;  Radio expects to receive a title 0x3D response to security access block (sub_2537).
