@@ -587,12 +587,18 @@ static kwp_result_t _receive_all_ident_blocks()
  */
 static void _print_identification()
 {
+    // print vag number
     uart_puts(UART_DEBUG, "VAG Number: \"");
-    for (uint8_t i=0; i<12; i++) {
+    // the first byte of the vag number is special.  if it has bit 7
+    // set, it means that more identifying information can be requested
+    // by sending block title 0x00.  mask bit 7 to get the ascii char.
+    uart_put(UART_DEBUG, kwp_vag_number[0] & 0b01111111);
+    for (uint8_t i=1; i<12; i++) {
         uart_put(UART_DEBUG, kwp_vag_number[i]);
     }
     uart_puts(UART_DEBUG, "\"\r\n");
 
+    // print component info
     uart_puts(UART_DEBUG, "Component:  \"");
     for (uint8_t i=0; i<12; i++) {
         uart_put(UART_DEBUG, kwp_component_1[i]);
