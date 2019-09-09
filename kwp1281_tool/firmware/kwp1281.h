@@ -62,13 +62,15 @@ uint8_t kwp_component_1[16];    // " RADIO 3CP  "
 uint8_t kwp_component_2[16];    // "        0001"
 
 // Protocol Keywords
-#define KWP_1281        0x018a  // KWP1281 protocol
+#define KWP_1281        0x018a  /* KWP1281 protocol */
 
 // Module Addresses
-#define KWP_ENGINE      0x01
-#define KWP_SAFE_UNLOCK 0x3F    // Instrument cluster?  Radio connects to this address to auto-unlock
-#define KWP_RADIO       0x56
-#define KWP_RADIO_MFG   0x7C    // Delco Premium 5, TechniSat Gamma 5
+#define KWP_ENGINE        0x01
+#define KWP_CLUSTER       0x17    /* Instrument cluster; standard address */
+#define KWP_IMMOBILIZER   0x25    /* Immobilizer; usually part of cluster, sometimes separate box */
+#define KWP_CLUSTER_SAFE  0x3F    /* Instrument cluster; radio safe mode unlock address */
+#define KWP_RADIO         0x56
+#define KWP_RADIO_MFG     0x7C    /* Delco Premium 5, TechniSat Gamma 5 */
 
 // Delays (all in milliseconds)
 #define KWP_INTERBYTE_MS      1     /* Delay to wait between individual bytes in a block */
