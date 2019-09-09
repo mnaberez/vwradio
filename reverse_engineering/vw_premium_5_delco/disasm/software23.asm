@@ -48,7 +48,7 @@ mem_f069 = 0xf069
 mem_f06a = 0xf06a
 mem_f06b = 0xf06b           ;KWP1281 block length
 mem_f06c = 0xf06c
-mem_f06d = 0xf06d           ;KWP1281 mode: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster (?)
+mem_f06d = 0xf06d           ;KWP1281 mode: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
 mem_f06e = 0xf06e
 mem_f06f = 0xf06f
 mem_f070 = 0xf070
@@ -320,7 +320,7 @@ mem_fbb1 = 0xfbb1
 upd_disp_old = 0xfbb2       ;uPD16432B last display buffer sent (11 bytes)
 upd_pict_old = 0xfbbd       ;uPD16432B last pictograph buffer sent (8 bytes)
 mem_fbc5 = 0xfbc5
-mem_fbc6 = 0xfbc6           ;KWP1281 radio to cluster(?) connection state
+mem_fbc6 = 0xfbc6           ;KWP1281 radio to cluster connection state
 mem_fbc7 = 0xfbc7
 mem_fbc8 = 0xfbc8
 mem_fbc9 = 0xfbc9
@@ -7463,7 +7463,7 @@ sub_25fa:
 
 lab_25ff:
 ;Set up to bit-bang 5 baud init to address 0x3F
-    mov a,#0xbf             ;25ff  a1 bf        A = KWP1281 address 0x3F (cluster security)?
+    mov a,#0xbf             ;25ff  a1 bf        A = KWP1281 address 0x3F (cluster)
     call !sub_3506          ;2601  9a 06 35     Set up to bit-bang 5 baud init with address in A
     ret                     ;2604  af
 
@@ -14082,7 +14082,7 @@ lab_4d88:
     clr1 mem_fe66.1         ;4d98  1b 66
     mov a,#0x00             ;4d9a  a1 00
     mov !mem_fbc5,a         ;4d9c  9e c5 fb
-    mov !mem_fbc6,a         ;4d9f  9e c6 fb     KWP1281 radio to cluster(?) connection state
+    mov !mem_fbc6,a         ;4d9f  9e c6 fb     KWP1281 radio to cluster connection state
     mov !mem_fbc7,a         ;4da2  9e c7 fb
     clr1 mem_fe65.3         ;4da5  3b 65
     clr1 mem_fe65.4         ;4da7  4b 65
@@ -14264,7 +14264,7 @@ lab_4e81_title_ok:
 
 lab_4e8d_eq_3:
 ;used if mem_f06d = 0x03
-;Block title dispatch for address 0x3F (cluster security?)
+;Block title dispatch for address 0x3F (cluster)
     movw hl,#kwp_rx_buf     ;4e8d  16 8a f0     HL = pointer to KWP1281 rx buffer
     mov a,[hl+0x02]         ;4e90  ae 02        A = block title
     movw hl,#kwp_3f_titles+1 ;4e92  16 f1 b2    HL = pointer to table of block titles
@@ -14760,8 +14760,8 @@ lab_50ec:
 ;This flow is just like the Premium 4 firmware at mem_e3bd.
 ;
 ;Successful connection flow:
-;  Radio initiates KWP1281 connection to an unknown module on address 0x3F (cluster?).
-;    The module must use 10400 baud because the radio hardcodes the baud rate.
+;  Radio initiates KWP1281 connection to the instrument cluster on address 0x3F.
+;    The cluster must use 10400 baud because the radio hardcodes the baud rate.
 ;  Radio expects to receive a title 0x09 ACK block.
 ;  Radio sends a title 0xD7 security access request block (lab_55de).
 ;  Radio expects to receive a title 0x3D response to security access block (sub_2537).
@@ -14770,7 +14770,7 @@ lab_50ec:
 
 kwp_3f_09_ack:
 ;ack (kwp_3f_handlers)
-    mov a,!mem_fbc6         ;50f4  8e c6 fb     A = KWP1281 radio to cluster(?) connection state
+    mov a,!mem_fbc6         ;50f4  8e c6 fb     A = KWP1281 radio to cluster connection state
     cmp a,#0x01             ;50f7  4d 01
     bz lab_50fe             ;50f9  ad 03        Branch if we are expecting this block
     br !lab_5355            ;50fb  9b 55 53     Branch to Send NAK response (index 0x04)
@@ -14778,20 +14778,20 @@ kwp_3f_09_ack:
 lab_50fe:
 ;we received a 0x09 ack block and we were expecting it
     mov a,#0x02             ;50fe  a1 02
-    mov !mem_fbc6,a         ;5100  9e c6 fb     Store new KWP1281 radio to cluster(?) connection state
+    mov !mem_fbc6,a         ;5100  9e c6 fb     Store new KWP1281 radio to cluster connection state
     br !lab_55de            ;5103  9b de 55     Branch to Send Security Access Request (title 0xD7)
 
 kwp_3f_06_end_session:
 ;end session (kwp_3f_handlers)
     call !sub_259b          ;5106  9a 9b 25     Turn SAFE mode = locked
     mov a,#0x00             ;5109  a1 00
-    mov !mem_fbc6,a         ;510b  9e c6 fb     Store new KWP1281 radio to cluster(?) connection state
+    mov !mem_fbc6,a         ;510b  9e c6 fb     Store new KWP1281 radio to cluster connection state
     br !sub_51c3            ;510e  9b c3 51     Branch to clear auth bits and end session
 
 lab_5111:
     call !sub_259b          ;5111  9a 9b 25     Turn SAFE mode = locked
     mov a,#0x00             ;5114  a1 00
-    mov !mem_fbc6,a         ;5116  9e c6 fb     Store new KWP1281 radio to cluster(?) connection state
+    mov !mem_fbc6,a         ;5116  9e c6 fb     Store new KWP1281 radio to cluster connection state
     br !lab_5337            ;5119  9b 37 53     Branch to Send End Session
 
 kwp_3f_0a_nak:
@@ -14800,7 +14800,7 @@ kwp_3f_0a_nak:
     mov a,[hl+0x03]         ;511f  ae 03
     cmp a,[hl+0x01]         ;5121  49 01
     bz lab_5111             ;5123  ad ec
-    mov a,!mem_fbc6         ;5125  8e c6 fb     A = KWP1281 radio to cluster(?) connection state
+    mov a,!mem_fbc6         ;5125  8e c6 fb     A = KWP1281 radio to cluster connection state
     cmp a,#0x01             ;5128  4d 01
     bz lab_512f             ;512a  ad 03
     br !sub_34f7            ;512c  9b f7 34     Set flags to start sending the KWP1281 tx buffer
@@ -14808,12 +14808,12 @@ kwp_3f_0a_nak:
 lab_512f:
     call !sub_259b          ;512f  9a 9b 25     Turn SAFE mode = locked
     mov a,#0x00             ;5132  a1 00
-    mov !mem_fbc6,a         ;5134  9e c6 fb     Store new KWP1281 radio to cluster(?) connection state
+    mov !mem_fbc6,a         ;5134  9e c6 fb     Store new KWP1281 radio to cluster connection state
     br !lab_5337            ;5137  9b 37 53     Branch to Send End Session
 
 kwp_3f_3d_secure_access:
 ;response to security access (title 0x3d) received (kwp_3f_handlers)
-    mov a,!mem_fbc6         ;513a  8e c6 fb     A = KWP1281 radio to cluster(?) connection state
+    mov a,!mem_fbc6         ;513a  8e c6 fb     A = KWP1281 radio to cluster connection state
     cmp a,#0x02             ;513d  4d 02
     bz lab_5144             ;513f  ad 03        Branch if we are expecting this 0x3d block
     br !lab_5355            ;5141  9b 55 53     Branch to Send NAK response (index 0x04)
@@ -14822,7 +14822,7 @@ lab_5144:
 ;we received a 0x3d security access response block and we were expecting it
     call !sub_2537          ;5144  9a 37 25     Process title 0x3d security access response block
     mov a,#0x00             ;5147  a1 00
-    mov !mem_fbc6,a         ;5149  9e c6 fb     Store new KWP1281 radio to cluster(?) connection state
+    mov !mem_fbc6,a         ;5149  9e c6 fb     Store new KWP1281 radio to cluster connection state
     br !lab_5337            ;514c  9b 37 53     Branch to Send End Session
 
     ret                     ;514f  af
@@ -15039,7 +15039,7 @@ lab_527e:
 lab_528c:
 ;mem_f06d = 0x03 (address 0x3F)
     mov a,#0x01             ;528c  a1 01
-    mov !mem_fbc6,a         ;528e  9e c6 fb     Store new KWP1281 radio to cluster(?) connection state
+    mov !mem_fbc6,a         ;528e  9e c6 fb     Store new KWP1281 radio to cluster connection state
     ret                     ;5291  af
 
 sub_5292:
