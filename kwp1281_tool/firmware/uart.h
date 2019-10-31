@@ -1,5 +1,4 @@
-#ifndef UART_H
-#define UART_H
+#pragma once
 
 #include "main.h"
 #include <stdint.h>
@@ -71,5 +70,3 @@ uart_status_t uart_rx_ready(uart_num_t uartnum);
 void uart_blocking_put(uart_num_t uartnum, uint8_t c);
 uint8_t uart_blocking_get(uart_num_t uartnum);
 uart_status_t uart_blocking_get_with_timeout(uart_num_t uartnum, uint16_t timeout_ms, uint8_t *rx_byte_out);
-
-#endif

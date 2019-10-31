@@ -1,5 +1,4 @@
-#ifndef TECHNISAT_H
-#define TECHNISAT_H
+#pragma once
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -30,5 +29,3 @@ void tsat_panic_if_error(tsat_result_t result);
 
 uint8_t tsat_rx_buf[256];        // all bytes received for the current block
 uint8_t tsat_rx_size;            // number of bytes used in tsat_rx_buf
-
-#endif

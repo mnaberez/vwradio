@@ -1,5 +1,4 @@
-#ifndef KWP1281_H
-#define KWP1281_H
+#pragma once
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -121,5 +120,3 @@ uint8_t kwp_component_2[16];    // "        0001"
 // *3 Radios use these block titles to communicate with an unknown module (the cluster?)
 //    on address 0x3F.  The radio will initiate the connection, send 0xD7 Security Access Request,
 //    and then expect to receive 0x3D Response to Security Access.
-
-#endif
