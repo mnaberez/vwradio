@@ -8,8 +8,8 @@
  * UART Ring Buffers
  *************************************************************************/
 
-volatile uart_ringbuffer_t _rx_buffers[2];
-volatile uart_ringbuffer_t _tx_buffers[2];
+static volatile uart_ringbuffer_t _rx_buffers[2];
+static volatile uart_ringbuffer_t _tx_buffers[2];
 
 static void _buf_init(volatile uart_ringbuffer_t *buf)
 {
