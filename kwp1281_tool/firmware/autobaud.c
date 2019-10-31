@@ -47,7 +47,7 @@ static volatile uint16_t _autobaud_end_count;      // ICR1 at second negative ed
  * Start input capture.  The time between the first two negative
  * edges is measured, and the total number of edges received is counted.
  */
-void _start_input_capture()
+void _start_input_capture(void)
 {
     _autobaud_edges = 0;
     _autobaud_start_count = 0;
@@ -64,7 +64,7 @@ void _start_input_capture()
 /*
  * Stop input capture
  */
-void _stop_input_capture()
+void _stop_input_capture(void)
 {
     TIMSK1 &= ~_BV(ICIE1);  // disable capture interrupt
     TCCR1B = 0;             // no noise cancel, capture neg edge, stop timer
@@ -103,7 +103,7 @@ static uint32_t _normalize_baud_rate(uint32_t baud_rate)
  * Wait until all 5 negative edges of the 0x55 sync byte have been
  * received or timeout.
  */
-static void _wait_for_0x55_or_timeout()
+static void _wait_for_0x55_or_timeout(void)
 {
     uint16_t millis = 0;
     uint8_t submillis = 0;
@@ -162,7 +162,7 @@ kwp_result_t autobaud_sync(uint32_t *actual_baud_rate, uint32_t *normal_baud_rat
 /*
  * Print debug information
  */
-void autobaud_debug()
+void autobaud_debug(void)
 {
     char msg[60];
 

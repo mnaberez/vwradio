@@ -19,4 +19,4 @@
 #endif
 
 kwp_result_t autobaud_sync(uint32_t *actual_baud_rate, uint32_t *normal_baud_rate);
-void autobaud_debug();
+void autobaud_debug(void);

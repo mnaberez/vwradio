@@ -14,16 +14,16 @@ typedef enum
 } tsat_result_t;
 
 tsat_result_t tsat_connect(uint8_t address, uint32_t baud);
-tsat_result_t tsat_disconnect();
+tsat_result_t tsat_disconnect(void);
 tsat_result_t tsat_send_block(uint8_t *buf);
-tsat_result_t tsat_receive_block();
-tsat_result_t tsat_hello();
+tsat_result_t tsat_receive_block(void);
+tsat_result_t tsat_hello(void);
 tsat_result_t tsat_read_ram(uint16_t address, uint8_t count);
-tsat_result_t tsat_disable_eeprom_filter();
+tsat_result_t tsat_disable_eeprom_filter(void);
 tsat_result_t tsat_read_eeprom(uint16_t address, uint8_t size);
 tsat_result_t tsat_write_eeprom(uint16_t address, uint8_t size, uint8_t *data);
 tsat_result_t tsat_read_safe_code_bcd(uint16_t *safe_code);
-tsat_result_t tsat_disconnect();
+tsat_result_t tsat_disconnect(void);
 const char * tsat_describe_result(tsat_result_t result);
 void tsat_panic_if_error(tsat_result_t result);
 

@@ -158,7 +158,7 @@ kwp_result_t kwp_send_block(uint8_t *buf)
 
 
 // Receive a block
-kwp_result_t kwp_receive_block()
+kwp_result_t kwp_receive_block(void)
 {
     uart_puts(UART_DEBUG, "RECV: ");
 
@@ -229,7 +229,7 @@ kwp_result_t kwp_receive_block_expect(uint8_t title)
 }
 
 
-static kwp_result_t _send_ack_block()
+static kwp_result_t _send_ack_block(void)
 {
     uart_puts(UART_DEBUG, "PERFORM ACK\r\n");
     uint8_t block[] = {
@@ -248,7 +248,7 @@ static kwp_result_t _send_ack_block()
  * for some period of time.  This can be used to keep the connection
  * alive when no other commands need to be sent.
  */
-kwp_result_t kwp_acknowledge()
+kwp_result_t kwp_acknowledge(void)
 {
   kwp_result_t result = _send_ack_block();
   if (result != KWP_SUCCESS) { return result; }
@@ -308,7 +308,7 @@ kwp_result_t kwp_login_safe(uint16_t safe_code)
  * response.  This function will make as many requests as needed to
  * retrieve all of the faults.
  */
-static kwp_result_t _receive_all_fault_blocks()
+static kwp_result_t _receive_all_fault_blocks(void)
 {
     kwp_result_t result = kwp_receive_block_expect(KWP_R_FAULTS);
     if (result != KWP_SUCCESS) { return result; }
@@ -387,7 +387,7 @@ static kwp_result_t _receive_all_fault_blocks()
     return KWP_SUCCESS;
 }
 
-static kwp_result_t _send_read_faults_block()
+static kwp_result_t _send_read_faults_block(void)
 {
     uart_puts(UART_DEBUG, "PERFORM READ FAULTS\r\n");
     uint8_t block[] = {
@@ -403,7 +403,7 @@ static kwp_result_t _send_read_faults_block()
  * Read all fault codes (Diagnotic Trouble Codes / DTCs) in the
  * module and print them.
  */
-kwp_result_t kwp_read_faults()
+kwp_result_t kwp_read_faults(void)
 {
     kwp_result_t result = _send_read_faults_block();
     if (result != KWP_SUCCESS) { return result; }
@@ -411,7 +411,7 @@ kwp_result_t kwp_read_faults()
     return _receive_all_fault_blocks();
 }
 
-static kwp_result_t _send_clear_faults_block()
+static kwp_result_t _send_clear_faults_block(void)
 {
     uart_puts(UART_DEBUG, "PERFORM CLEAR FAULTS\r\n");
     uint8_t block[] = {
@@ -429,7 +429,7 @@ static kwp_result_t _send_clear_faults_block()
  * on if the module decides the faults can be cleared.  After
  * clearing, any remaining DTCs are read from the module and printed.
  */
-kwp_result_t kwp_clear_faults()
+kwp_result_t kwp_clear_faults(void)
 {
     kwp_result_t result = _send_clear_faults_block();
     if (result != KWP_SUCCESS) { return result; }
@@ -524,7 +524,7 @@ kwp_result_t kwp_read_group(uint8_t group)
 }
 
 
-static kwp_result_t _send_read_ident_block()
+static kwp_result_t _send_read_ident_block(void)
 {
     uart_puts(UART_DEBUG, "PERFORM READ IDENTIFICATION\r\n");
     uint8_t block[] = {
@@ -552,7 +552,7 @@ static kwp_result_t _send_read_ident_block()
  * In some rare cases, like the Premium 5 radio in manufacturing mode (address
  * 0x7C), there will be no ASCII/data blocks sent during the initial connection.
  */
-static kwp_result_t _receive_all_ident_blocks()
+static kwp_result_t _receive_all_ident_blocks(void)
 {
     uint8_t blocks_received = 0;
     while (1) {
@@ -585,7 +585,7 @@ static kwp_result_t _receive_all_ident_blocks()
  * stored in the globals.  The globals are populated after the
  * initial connection and after issuing a read identification.
  */
-static void _print_identification()
+static void _print_identification(void)
 {
     // print vag number
     uart_puts(UART_DEBUG, "VAG Number: \"");
@@ -613,7 +613,7 @@ static void _print_identification()
  * Read the module's identification, including its VAG part number
  * and component info.  Populate the globals and print them.
  */
-kwp_result_t kwp_read_identification()
+kwp_result_t kwp_read_identification(void)
 {
     kwp_result_t result = _send_read_ident_block();
     if (result != KWP_SUCCESS) { return result; }
@@ -699,7 +699,7 @@ kwp_result_t kwp_read_eeprom(uint16_t start_address, uint16_t total_size, uint8_
 
 // VW Premium 4 only ========================================================
 
-static kwp_result_t _send_f0_block()
+static kwp_result_t _send_f0_block(void)
 {
     uart_puts(UART_DEBUG, "PERFORM TITLE F0\r\n");
     uint8_t block[] = {
@@ -726,7 +726,7 @@ kwp_result_t kwp_p4_read_safe_code_bcd(uint16_t *safe_code)
 
 // VW Premium 5 mfg mode (address 0x7c) only ================================
 
-static kwp_result_t _delco_login_mfg()
+static kwp_result_t _delco_login_mfg(void)
 {
     kwp_result_t result = kwp_send_login_block(0x4f43, 0x4c, 0x4544);  // "OCLED"
     if (result != KWP_SUCCESS) { return result; }
@@ -747,7 +747,7 @@ static kwp_result_t _delco_read_safe_code_bcd(uint16_t eeprom_address, uint16_t 
     return KWP_SUCCESS;
 }
 
-kwp_result_t kwp_p5_login_mfg()
+kwp_result_t kwp_p5_login_mfg(void)
 {
     return _delco_login_mfg();
 }
@@ -758,7 +758,7 @@ kwp_result_t kwp_p5_read_safe_code_bcd(uint16_t *safe_code)
     return _delco_read_safe_code_bcd(eeprom_address, safe_code);
 }
 
-static kwp_result_t _send_calc_rom_checksum_block()
+static kwp_result_t _send_calc_rom_checksum_block(void)
 {
     uart_puts(UART_DEBUG, "PERFORM ROM CHECKSUM\r\n");
     uint8_t block[] = {
@@ -786,7 +786,7 @@ kwp_result_t kwp_p5_calc_rom_checksum(uint16_t *rom_checksum)
 
 // Seat Liceo mfg mode (address 0x7c) only ==================================
 
-kwp_result_t kwp_sl_login_mfg()
+kwp_result_t kwp_sl_login_mfg(void)
 {
     return _delco_login_mfg();
 }
@@ -899,7 +899,7 @@ kwp_result_t kwp_retrying_connect(uint8_t address)
     return KWP_TIMEOUT;
 }
 
-kwp_result_t kwp_disconnect()
+kwp_result_t kwp_disconnect(void)
 {
     _delay_ms(KWP_DISCONNECT_MS);
     return KWP_SUCCESS;

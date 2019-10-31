@@ -6,7 +6,7 @@
 #include <avr/interrupt.h>
 
 
-int main()
+int main(void)
 {
     uart_init(UART_DEBUG, 38400);  // debug messages
     uart_init(UART_KLINE, 10400);  // obd-ii kwp1281

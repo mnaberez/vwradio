@@ -10,7 +10,7 @@ static void _print_hex16(char *label, uint16_t word)
     uart_puts(UART_DEBUG, "\r\n");
 }
 
-static void _crack_clarion()
+static void _crack_clarion(void)
 {
     uint16_t safe_code;
     kwp_result_t result = kwp_p4_read_safe_code_bcd(&safe_code);
@@ -19,7 +19,7 @@ static void _crack_clarion()
     _print_hex16("\r\nSAFE Code: ", safe_code);
 }
 
-static void _crack_delco_vw_premium_5()
+static void _crack_delco_vw_premium_5(void)
 {
     kwp_disconnect();
 
@@ -35,7 +35,7 @@ static void _crack_delco_vw_premium_5()
     _print_hex16("\r\nSAFE Code: ", safe_code);
 }
 
-static void _crack_delco_seat_liceo()
+static void _crack_delco_seat_liceo(void)
 {
     kwp_disconnect();
 
@@ -51,7 +51,7 @@ static void _crack_delco_seat_liceo()
     _print_hex16("\r\nSAFE Code: ", safe_code);
 }
 
-static void _crack_technisat()
+static void _crack_technisat(void)
 {
     kwp_disconnect();
 
@@ -72,7 +72,7 @@ static void _crack_technisat()
     _print_hex16("\r\nSAFE Code: ", safe_code);
 }
 
-void crack()
+void crack(void)
 {
     if (memcmp(&kwp_component_1[7], "3CP", 3) == 0) {
         uart_puts(UART_DEBUG, "VW PREMIUM 4 (CLARION) DETECTED\r\n");
