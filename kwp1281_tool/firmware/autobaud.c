@@ -39,9 +39,9 @@
  * 10400 baud    96.15 us   192.30 us    961.50 us
  */
 
-static volatile uint8_t _autobaud_edges;           // Count of negative edges received
-static volatile uint16_t _autobaud_start_count;    // ICR1 at first negative edge
-static volatile uint16_t _autobaud_end_count;      // ICR1 at second negative edge
+static volatile uint8_t _edges;           // Count of negative edges received
+static volatile uint16_t _start_count;    // ICR1 at first negative edge
+static volatile uint16_t _end_count;      // ICR1 at second negative edge
 
 /*
  * Start input capture.  The time between the first two negative
@@ -49,9 +49,9 @@ static volatile uint16_t _autobaud_end_count;      // ICR1 at second negative ed
  */
 void _start_input_capture(void)
 {
-    _autobaud_edges = 0;
-    _autobaud_start_count = 0;
-    _autobaud_end_count = 0;
+    _edges = 0;
+    _start_count = 0;
+    _end_count = 0;
 
     TCCR1A = 0;                   // disable output compare and waveform generation
     TCCR1B = 0;                   // no noise cancel, capture neg edge, stop timer
@@ -111,7 +111,7 @@ static void _wait_for_0x55_or_timeout(void)
     // wait for the first negative edge of 0x55
     // after receiving its 5 baud address, the module will not start
     // transmitting for some time.  this will be tens of milliseconds.
-    while (_autobaud_edges == 0) {
+    while (_edges == 0) {
         _delay_us(50); // 50 us = 0.05 ms
         if (++submillis == 20) {  // 1 ms
             submillis = 0;
@@ -123,7 +123,7 @@ static void _wait_for_0x55_or_timeout(void)
     // now wait for the remaining 4 negative edges within 20ms or timeout
     // 20ms = over 2x the total time of the sync byte at 1200 baud
     for (millis=0; millis<20; millis++) {
-        if (_autobaud_edges == 5) { break; }
+        if (_edges == 5) { break; }
         _delay_ms(1);
     }
 
@@ -142,11 +142,11 @@ kwp_result_t autobaud_sync(uint32_t *actual_baud_rate, uint32_t *normal_baud_rat
     _wait_for_0x55_or_timeout();
     _stop_input_capture();
 
-    if (_autobaud_edges == 0) { return KWP_TIMEOUT; }
-    if (_autobaud_edges != 5) { return KWP_SYNC_NOT_0X55; }
+    if (_edges == 0) { return KWP_TIMEOUT; }
+    if (_edges != 5) { return KWP_SYNC_NOT_0X55; }
 
     // calculate actual baud rate
-    uint16_t ticks = _autobaud_end_count - _autobaud_start_count;
+    uint16_t ticks = _end_count - _start_count;
     float period = ticks * AUTOBAUD_PERIOD;
     float frequency = (2 * 1000000) / period;   // 2 * because 2 bits per tick
     uint16_t baud_rate = (uint16_t)frequency;
@@ -166,16 +166,16 @@ void autobaud_debug(void)
 {
     char msg[60];
 
-    sprintf(msg, "\r\nEDGES: %d\r\n", _autobaud_edges);
+    sprintf(msg, "\r\nEDGES: %d\r\n", _edges);
     uart_puts(UART_DEBUG, msg);
 
-    sprintf(msg, "START: 0x%04x\r\n", _autobaud_start_count);
+    sprintf(msg, "START: 0x%04x\r\n", _start_count);
     uart_puts(UART_DEBUG, msg);
 
-    sprintf(msg, "END:   0x%04x\r\n", _autobaud_end_count);
+    sprintf(msg, "END:   0x%04x\r\n", _end_count);
     uart_puts(UART_DEBUG, msg);
 
-    uint16_t ticks = _autobaud_end_count - _autobaud_start_count;
+    uint16_t ticks = _end_count - _start_count;
     sprintf(msg, "TICKS: 0x%04x\r\n\r\n", ticks);
     uart_puts(UART_DEBUG, msg);
 }
@@ -189,11 +189,11 @@ ISR(TIMER1_CAPT_vect)
 {
     uint16_t count = ICR1;
 
-    if (_autobaud_edges == 0) {
-        _autobaud_start_count = count;
-    } else if (_autobaud_edges == 1) {
-        _autobaud_end_count = count;
+    if (_edges == 0) {
+        _start_count = count;
+    } else if (_edges == 1) {
+        _end_count = count;
     }
 
-    _autobaud_edges++;
+    _edges++;
 }
