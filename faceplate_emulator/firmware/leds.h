@@ -10,7 +10,7 @@
 
 #define LED_CODE_BADISR 3
 
-void led_init();
+void led_init(void);
 void led_set(uint8_t lednum, uint8_t state);
 void led_blink(uint8_t lednum, uint16_t times);
 void led_fatal(uint8_t code);

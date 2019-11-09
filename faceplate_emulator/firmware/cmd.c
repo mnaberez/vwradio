@@ -18,7 +18,7 @@
  * Command Interpreter
  *************************************************************************/
 
-void cmd_init()
+void cmd_init(void)
 {
     cmd_buf_index = 0;
     cmd_expected_length = 0;
@@ -27,7 +27,7 @@ void cmd_init()
 /* Start or restart the command timeout timer.
  * Call this after each byte of the command is received.
  */
-static void _start_timer()
+static void _start_timer(void)
 {
     // set timer1 CTC mode (CS11=0, CS10=1 = prescaler 1024)
     TCCR1B = (1 << CS12) | (0 << CS11) | (1 << CS10);
@@ -45,7 +45,7 @@ static void _start_timer()
 /* Stop the command timeout timer.
  * Call this after the last byte of a command has been received.
  */
-static void _stop_timer()
+static void _stop_timer(void)
 {
     // stop timer1
     TCCR1B = 0;
@@ -76,7 +76,7 @@ static void _send_empty_reply(uint8_t error_code)
  * Reset the uPD16432B Emulator to its default state.  This does not
  * affect the UPD key data output bytes (upd_tx_key_data).
  */
-static void _do_emulated_upd_reset()
+static void _do_emulated_upd_reset(void)
 {
     if (cmd_buf_index != 1)
     {
@@ -143,7 +143,7 @@ static void _dump_upd_state_to_uart(upd_state_t *state)
  *
  * Dump the current state of the uPD16432B emulator.
  */
-static void _do_emulated_upd_dump_state()
+static void _do_emulated_upd_dump_state(void)
 {
     _dump_upd_state_to_uart(&emulated_upd_state);
 }
@@ -176,7 +176,7 @@ static uint8_t _populate_cmd_from_uart_cmd_buf(upd_command_t *cmd)
  * are the SPI bytes that would be received by the uPD16432B while it
  * is selected with STB high.
  */
-static void _do_emulated_upd_send_command()
+static void _do_emulated_upd_send_command(void)
 {
     upd_command_t cmd;
 
@@ -201,7 +201,7 @@ static void _do_emulated_upd_send_command()
  * The same bytes will be sent for every key data request until the bytes
  * are changed.  Set {0, 0, 0, 0} to indicate no keys pressed.
  */
-static void _do_emulated_upd_load_key_data()
+static void _do_emulated_upd_load_key_data(void)
 {
     if (cmd_buf_index != 5)
     {
@@ -231,7 +231,7 @@ static void _do_emulated_upd_load_key_data()
  * Arguments: none
  * Returns: <error>
  */
-static void _do_radio_state_reset()
+static void _do_radio_state_reset(void)
 {
     if (cmd_buf_index != 1)
     {
@@ -247,7 +247,7 @@ static void _do_radio_state_reset()
  * Arguments: <byte1>
  * Returns: <error>
  */
-static void _do_radio_state_parse()
+static void _do_radio_state_parse(void)
 {
     // -1 is because first byte in cmd_buf is the uart command byte
     uint8_t data_size = cmd_buf_index - 1;
@@ -276,7 +276,7 @@ static void _do_radio_state_parse()
  * Arguments: <byte1>
  * Returns: <error>
  */
-static void _do_radio_state_dump()
+static void _do_radio_state_dump(void)
 {
     if (cmd_buf_index != 1)
     {
@@ -330,7 +330,7 @@ static void _do_radio_state_dump()
  * Echoes the arguments received back to the client.  If no args were
  * received after the command byte, an empty success response is returned.
  */
-static void _do_echo()
+static void _do_echo(void)
 {
     uart_put(cmd_buf_index); // number of bytes to follow
     uart_put(CMD_ERROR_OK);
@@ -349,7 +349,7 @@ static void _do_echo()
  * Turns one of the LEDs on or off.  Returns an error if the LED
  * number is not recognized.
  */
-static void _do_set_led()
+static void _do_set_led(void)
 {
     if (cmd_buf_index != 3)
     {
@@ -386,7 +386,7 @@ static void _do_set_led()
  * mainly used for testing.  When stopped, commands from the radio are ignored
  * and the faceplate is not updated.
  */
-static void _do_set_run_mode()
+static void _do_set_run_mode(void)
 {
     if (cmd_buf_index != 2)
     {
@@ -413,7 +413,7 @@ static void _do_set_run_mode()
  * from the radio.  Set to 1 to enable passthru, or set to 0 to disable
  * passthru so the faceplate display can be taken over.
  */
-static void _do_set_auto_display_passthru()
+static void _do_set_auto_display_passthru(void)
 {
     if (cmd_buf_index != 2)
     {
@@ -451,7 +451,7 @@ static void _do_set_auto_display_passthru()
  * to the radio.  Set to 1 to enable passthru, or set to 0 to disable
  * passthru so the faceplate keys can be taken over.
  */
-static void _do_set_auto_key_passthru()
+static void _do_set_auto_key_passthru(void)
 {
     if (cmd_buf_index != 2)
     {
@@ -476,7 +476,7 @@ static void _do_set_auto_key_passthru()
  *
  * Dump the current state of the real uPD16432B on the faceplate.
  */
-static void _do_faceplate_upd_dump_state()
+static void _do_faceplate_upd_dump_state(void)
 {
     _dump_upd_state_to_uart(&faceplate_upd_state);
 }
@@ -487,7 +487,7 @@ static void _do_faceplate_upd_dump_state()
  *
  * Send an SPI command to the faceplate's uPD16432B.
  */
-static void _do_faceplate_upd_send_command()
+static void _do_faceplate_upd_send_command(void)
 {
     upd_command_t cmd;
 
@@ -508,7 +508,7 @@ static void _do_faceplate_upd_send_command()
  *
  * Sends SPI commands to initialize the faceplate and clear it.
  */
-static void _do_faceplate_upd_clear_display()
+static void _do_faceplate_upd_clear_display(void)
 {
     if (cmd_buf_index != 1)
     {
@@ -526,7 +526,7 @@ static void _do_faceplate_upd_clear_display()
  *
  * Reads the key data from the faceplate and returns the 4 raw key data bytes.
  */
- static void _do_faceplate_upd_read_key_data()
+ static void _do_faceplate_upd_read_key_data(void)
  {
      if (cmd_buf_index != 1)
      {
@@ -553,7 +553,7 @@ static void _do_faceplate_upd_clear_display()
  * bytes.  If the key code is bad, or the key is not supported by the
  * radio, an error is returned.
  */
-static void _do_convert_code_to_upd_key_data()
+static void _do_convert_code_to_upd_key_data(void)
 {
     if (cmd_buf_index != 2)
     {
@@ -586,7 +586,7 @@ static void _do_convert_code_to_upd_key_data()
  * or 2 key codes as indicated by <count>  Two key code bytes are always
  * returned; unused bytes are set to 0.
  */
-static void _do_convert_upd_key_data_to_codes()
+static void _do_convert_upd_key_data_to_codes(void)
 {
     // command byte + 4 key data bytes
     if (cmd_buf_index != 5)
@@ -615,7 +615,7 @@ static void _do_convert_upd_key_data_to_codes()
  * raw pictograph data bytes.  If the pictograph code is bad, or the pictograph
  * is not supported by the radio, an error is returned.
  */
-static void _do_convert_code_to_upd_pictograph_data()
+static void _do_convert_code_to_upd_pictograph_data(void)
 {
     if (cmd_buf_index != 2)
     {
@@ -649,7 +649,7 @@ static void _do_convert_code_to_upd_pictograph_data()
  * Returns 0-7 pictograph codes as indicated by <count>.  7 pictograph code
  * bytes are always returned; unused bytes are set to 0.
  */
-static void _do_convert_upd_pictograph_data_to_codes()
+static void _do_convert_upd_pictograph_data_to_codes(void)
 {
     // command byte + 8 pictograph data bytes
     if (cmd_buf_index != 9)
@@ -679,7 +679,7 @@ static void _do_convert_upd_pictograph_data_to_codes()
  * pressed.  It may return 0, 1, or 2 key codes as indicated by <count>.  Two
  * key code bytes are always returned; unused bytes are set to 0.
  */
-static void _do_read_keys()
+static void _do_read_keys(void)
 {
     if (cmd_buf_index != 1)
     {
@@ -718,7 +718,7 @@ static void _do_read_keys()
  * by two key code bytes.  If count < 2, the extra key code bytes are ignored.
  * To release all keys, send a count of 0.
  */
-static void _do_load_keys()
+static void _do_load_keys(void)
 {
     // command byte + count byte + 2 key code bytes
     if (cmd_buf_index != 4)
@@ -781,7 +781,7 @@ static void _do_load_keys()
  * command buffer has one or more bytes.  The first byte is the command byte.
  * Dispatch to a handler, or return an error if the command is unrecognized.
  */
-static void _cmd_dispatch()
+static void _cmd_dispatch(void)
 {
     switch (cmd_buf[0])
     {

@@ -14,7 +14,7 @@
 // driving the SPI lines or else ~4V will leak into MAIN5V when it's supposed
 // to be off, the effect of which is a malfunction where the radio can't be
 // turned back on after being turned off.
-void faceplate_service_lof()
+void faceplate_service_lof(void)
 {
     if (faceplate_lof_asserted()) {
         if (faceplate_online) {
@@ -32,7 +32,7 @@ void faceplate_service_lof()
 
 // Start SPI communication with the faceplate.  Don't use this directly;
 // call faceplate_service_lof() instead.
-void faceplate_spi_init()
+void faceplate_spi_init(void)
 {
     // PD2/RXD1 MISO as input (from faceplate's DAT)
     DDRD &= ~_BV(PD2);
@@ -64,7 +64,7 @@ void faceplate_spi_init()
 
 // Stop SPI communication with the faceplate.  Don't use this directly;
 // call faceplate_service_lof() instead.
-void faceplate_spi_release()
+void faceplate_spi_release(void)
 {
     DDRD &= ~(_BV(PD2) | _BV(PD3) | _BV(PD4) | _BV(PD5) | _BV(PD6));
     UCSR1C = 0;
@@ -75,7 +75,7 @@ void faceplate_spi_release()
 
 // Returns true if the radio is asserting /LOF to the faceplate's
 // uPD16432B meaning it has shut the faceplate off.
-uint8_t faceplate_lof_asserted()
+uint8_t faceplate_lof_asserted(void)
 {
     return (PINA & _BV(PA1)) == 0;
 }
@@ -137,7 +137,7 @@ void faceplate_send_upd_command(upd_command_t *cmd)
     upd_process_command(&faceplate_upd_state, cmd);
 }
 
-static void _prepare_display()
+static void _prepare_display(void)
 {
     upd_command_t cmd;
 
@@ -152,7 +152,7 @@ static void _prepare_display()
     faceplate_send_upd_command(&cmd);
 }
 
-void faceplate_clear_display()
+void faceplate_clear_display(void)
 {
     upd_command_t cmd;
 

@@ -8,7 +8,7 @@
  * SPI Slave interface to Radio
  *************************************************************************/
 
-void radio_spi_init()
+void radio_spi_init(void)
 {
     // initialize buffer to receive commands
     upd_rx_buf.read_index = 0;

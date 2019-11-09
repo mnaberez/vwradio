@@ -44,8 +44,7 @@ uint8_t cmd_buf[256];
 uint8_t cmd_buf_index;
 uint8_t cmd_expected_length;
 
-void cmd_init();
+void cmd_init(void);
 void cmd_receive_byte(uint8_t c);
 
 #endif
-

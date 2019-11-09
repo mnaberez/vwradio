@@ -34,7 +34,7 @@ uint8_t buf_has_byte(volatile ringbuffer_t *buf)
  * UART
  *************************************************************************/
 
-void uart_init()
+void uart_init(void)
 {
     // Baud Rate
     UBRR0H = UBRRH_VALUE;
@@ -54,7 +54,7 @@ void uart_init()
     buf_init(&uart_tx_buffer);
 }
 
-void uart_flush_tx()
+void uart_flush_tx(void)
 {
     while (buf_has_byte(&uart_tx_buffer)) {}
 }

@@ -63,7 +63,7 @@ ISR(SPI_STC_vect)
     }
 }
 
-int main()
+int main(void)
 {
     uart_init();
     led_init();

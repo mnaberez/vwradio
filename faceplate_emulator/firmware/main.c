@@ -24,7 +24,7 @@ ISR(BADISR_vect)
  * Main
  *************************************************************************/
 
-int main()
+int main(void)
 {
     radio_model = RADIO_MODEL_PREMIUM_4;
     run_mode = RUN_MODE_RUNNING;

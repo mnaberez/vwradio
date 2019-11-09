@@ -7,7 +7,7 @@
  * LED
  *************************************************************************/
 
-void led_init()
+void led_init(void)
 {
     LED_DDR = _BV(LED_GREEN) | _BV(LED_RED);
     LED_PORT = 0;

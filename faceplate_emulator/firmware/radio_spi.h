@@ -14,6 +14,6 @@ typedef struct
 } upd_rx_buf_t;
 volatile upd_rx_buf_t upd_rx_buf;
 
-void radio_spi_init();
+void radio_spi_init(void);
 
 #endif

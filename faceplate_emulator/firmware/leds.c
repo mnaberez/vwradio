@@ -7,7 +7,7 @@
  * LED
  *************************************************************************/
 
-void led_init()
+void led_init(void)
 {
     // set direction of led pins to output
     LED_DDR |= _BV(LED_GREEN) | _BV(LED_RED);
