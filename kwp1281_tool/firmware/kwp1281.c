@@ -864,7 +864,7 @@ kwp_result_t kwp_connect(uint8_t address)
 
     // Receive two-byte keyword that identifies the module's protocol
     uart_puts(UART_DEBUG, "KWRECV: ");
-    uint16_t keyword;
+    uint16_t keyword = 0;
     result = _recv_keyword(&keyword);
     if (result != KWP_SUCCESS) { return result; }
     if (keyword != KWP_1281) { return KWP_BAD_KEYWORD; }
