@@ -1,5 +1,4 @@
-#ifndef RADIO_SPI_H
-#define RADIO_SPI_H
+#pragma once
 
 #include <stdint.h>
 #include "updemu.h"
@@ -15,5 +14,3 @@ typedef struct
 volatile upd_rx_buf_t upd_rx_buf;
 
 void radio_spi_init(void);
-
-#endif

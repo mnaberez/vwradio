@@ -1,5 +1,6 @@
-#ifndef UART_H
-#define UART_H
+#pragma once
+
+#include <stdint.h>
 
 /*************************************************************************
  * Ring Buffers for UART
@@ -32,5 +33,3 @@ void uart_puts(uint8_t *str);
 void uart_puthex_nib(uint8_t c);
 void uart_puthex_byte(uint8_t c);
 void uart_puthex_16(uint16_t w);
-
-#endif

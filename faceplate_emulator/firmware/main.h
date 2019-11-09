@@ -1,5 +1,5 @@
-#ifndef MAIN_H
-#define MAIN_H
+#pragma once
+
 #define F_CPU 20000000UL
 #define BAUD 115200
 
@@ -32,5 +32,3 @@ volatile uint8_t auto_key_passthru;
 // key data bytes that will be transmitted if the radio sends
 // a read key data command
 volatile uint8_t upd_tx_key_data[4];
-
-#endif

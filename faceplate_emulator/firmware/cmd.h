@@ -1,5 +1,4 @@
-#ifndef CMD_H
-#define CMD_H
+#pragma once
 
 #include "updemu.h"
 
@@ -46,5 +45,3 @@ uint8_t cmd_expected_length;
 
 void cmd_init(void);
 void cmd_receive_byte(uint8_t c);
-
-#endif

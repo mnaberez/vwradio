@@ -1,5 +1,4 @@
-#ifndef FACEPLATE_H
-#define FACEPLATE_H
+#pragma once
 
 #include <stdint.h>
 #include "updemu.h"
@@ -14,5 +13,3 @@ void faceplate_update_from_upd_if_dirty(upd_state_t *state);
 void faceplate_read_key_data(volatile uint8_t *key_data);
 
 volatile uint8_t faceplate_online;
-
-#endif

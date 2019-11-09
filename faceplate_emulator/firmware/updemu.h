@@ -1,5 +1,4 @@
-#ifndef UPDEMU_H
-#define UPDEMU_H
+#pragma once
 
 // Selected RAM area
 #define UPD_RAM_NONE 0xFF
@@ -51,5 +50,3 @@ upd_state_t emulated_upd_state;
 // State of the real uPD16432B on the faceplate.  The uPD16432B doesn't have a
 // way to read its registers so an emulator instance is used to remember them.
 upd_state_t faceplate_upd_state;
-
-#endif

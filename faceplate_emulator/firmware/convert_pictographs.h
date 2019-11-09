@@ -1,5 +1,4 @@
-#ifndef CONVERT_PICTOGRAPHS_H
-#define CONVERT_PICTOGRAPHS_H
+#pragma once
 
 #include <avr/pgmspace.h>
 
@@ -16,5 +15,3 @@ uint8_t convert_upd_pictograph_data_to_codes(
     uint8_t *pictograph_data_in, uint8_t *pictograph_codes_out);
 uint8_t convert_code_to_upd_pictograph_data(
     uint8_t pictograph_code, uint8_t *pictograph_data_out);
-
-#endif

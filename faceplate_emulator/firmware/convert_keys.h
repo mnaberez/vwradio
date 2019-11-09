@@ -1,5 +1,4 @@
-#ifndef CONVERT_KEYS_H
-#define CONVERT_KEYS_H
+#pragma once
 
 #include <avr/pgmspace.h>
 
@@ -41,5 +40,3 @@
 
 uint8_t convert_upd_key_data_to_codes(uint8_t *key_data_in, uint8_t *key_codes_out);
 uint8_t convert_code_to_upd_key_data(uint8_t key_code, uint8_t *key_data_out);
-
-#endif
