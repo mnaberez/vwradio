@@ -145,6 +145,7 @@ tsat_result_t tsat_disconnect(void)
                         0     // checksum (will be calculated)
                       };
     tsat_result_t result = tsat_send_block(block);
+    if (result != TSAT_SUCCESS) { return result; }
 
     // receive disconnect response block
     result = tsat_receive_block();
@@ -174,6 +175,7 @@ tsat_result_t tsat_read_ram(uint16_t address, uint8_t count)
                         0     // checksum (will be calculated)
                       };
     tsat_result_t result = tsat_send_block(block);
+    if (result != TSAT_SUCCESS) { return result; }
 
     // receive read ram response block
     result = tsat_receive_block();
@@ -200,6 +202,7 @@ tsat_result_t tsat_hello(void)
                         0     // checksum (will be calculated)
                       };
     tsat_result_t result = tsat_send_block(block);
+    if (result != TSAT_SUCCESS) { return result; }
 
     // receive hello response block
     result = tsat_receive_block();
@@ -226,6 +229,7 @@ tsat_result_t tsat_disable_eeprom_filter(void)
                         0     // checksum (will be calculated)
                       };
     tsat_result_t result = tsat_send_block(block);
+    if (result != TSAT_SUCCESS) { return result; }
 
     // receive disable eeprom filter response block
     result = tsat_receive_block();
@@ -255,6 +259,7 @@ tsat_result_t tsat_read_eeprom(uint16_t address, uint8_t size)
                         0,              // checksum (will be calculated)
                       };
     tsat_result_t result = tsat_send_block(block);
+    if (result != TSAT_SUCCESS) { return result; }
 
     // receive read eeprom response block
     result = tsat_receive_block();

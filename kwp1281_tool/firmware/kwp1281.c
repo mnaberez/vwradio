@@ -740,7 +740,7 @@ static kwp_result_t _delco_read_safe_code_bcd(uint16_t eeprom_address, uint16_t 
     kwp_result_t result = _send_read_mem_block(KWP_READ_ROM_EEPROM, eeprom_address, 0x02);
     if (result != KWP_SUCCESS) { return result; }
 
-    kwp_receive_block_expect(KWP_R_READ_ROM_EEPROM);
+    result = kwp_receive_block_expect(KWP_R_READ_ROM_EEPROM);
     if (result != KWP_SUCCESS) { return result; }
 
     *safe_code = WORD(kwp_rx_buf[3], kwp_rx_buf[4]);
