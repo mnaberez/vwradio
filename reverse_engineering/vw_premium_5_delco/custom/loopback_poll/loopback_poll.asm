@@ -86,6 +86,7 @@ reset:
     mov wdtm,#0             ;Watchdog disabled
     mov ixs,#8              ;Expansion RAM size = 2K
     mov ims,#0xcf           ;High speed RAM size = 1K, ROM size = 60K
+    movw sp,#0xfe1f         ;Initialize stack pointer
     mov asim0,#0            ;Disable UART
     mov brgc0,#0x1b         ;Set baud rate to 38400 bps
     clr1 if0h.2             ;Clear receive complete interrupt flag
