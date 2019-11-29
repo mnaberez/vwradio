@@ -43,6 +43,7 @@ script:
   - make -C reverse_engineering/vw_premium_5_delco/custom/baudrate
   - make -C reverse_engineering/vw_premium_5_delco/custom/dumpram
   - make -C reverse_engineering/vw_premium_5_delco/custom/faultcodes
+  - make -C reverse_engineering/vw_premium_5_delco/custom/loopback
   - make -C reverse_engineering/vw_premium_5_delco/custom/remote
   - make -C reverse_engineering/vw_rhapsody_technisat/disasm
   - make -C volume_monitor/firmware
