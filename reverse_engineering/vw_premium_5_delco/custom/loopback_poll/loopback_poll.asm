@@ -12,73 +12,73 @@ ixs = 0xfff4                ;Internal expansion RAM size switching register
 wdtm = 0xfff9               ;Watchdog timer mode register
 pcc = 0xfffb                ;Processor clock control register
 
-    .word reset         ;VECTOR RST
-    .word forever       ;VECTOR (unused)
-    .word forever       ;VECTOR INTWDT
-    .word forever       ;VECTOR INTP0
-    .word forever       ;VECTOR INTP1
-    .word forever       ;VECTOR INTP2
-    .word forever       ;VECTOR INTP3
-    .word forever       ;VECTOR INTP4
-    .word forever       ;VECTOR INTP5
-    .word forever       ;VECTOR INTP6
-    .word forever       ;VECTOR INTP7
-    .word forever       ;VECTOR INTSER0
-    .word forever       ;VECTOR INTSR0
-    .word forever       ;VECTOR INTST0
-    .word forever       ;VECTOR INTCSI30
-    .word forever       ;VECTOR INTCSI31
-    .word forever       ;VECTOR INTIIC0
-    .word forever       ;VECTOR INTC2
-    .word forever       ;VECTOR INTWTNI0
-    .word forever       ;VECTOR INTTM000
-    .word forever       ;VECTOR INTTM010
-    .word forever       ;VECTOR INTTM001
-    .word forever       ;VECTOR INTTM011
-    .word forever       ;VECTOR INTAD00
-    .word forever       ;VECTOR INTAD01
-    .word forever       ;VECTOR (unused)
-    .word forever       ;VECTOR INTWTN0
-    .word forever       ;VECTOR INTKR
-    .word forever       ;VECTOR (unused)
-    .word forever       ;VECTOR (unused)
-    .word forever       ;VECTOR (unused)
-    .word forever       ;VECTOR BRK_I
-    .word forever       ;VECTOR CALLT #0
-    .word forever       ;VECTOR CALLT #1
-    .word forever       ;VECTOR CALLT #2
-    .word forever       ;VECTOR CALLT #3
-    .word forever       ;VECTOR CALLT #4
-    .word forever       ;VECTOR CALLT #5
-    .word forever       ;VECTOR CALLT #6
-    .word forever       ;VECTOR CALLT #7
-    .word forever       ;VECTOR CALLT #8
-    .word forever       ;VECTOR CALLT #9
-    .word forever       ;VECTOR CALLT #10
-    .word forever       ;VECTOR CALLT #11
-    .word forever       ;VECTOR CALLT #12
-    .word forever       ;VECTOR CALLT #13
-    .word forever       ;VECTOR CALLT #14
-    .word forever       ;VECTOR CALLT #15
-    .word forever       ;VECTOR CALLT #16
-    .word forever       ;VECTOR CALLT #17
-    .word forever       ;VECTOR CALLT #18
-    .word forever       ;VECTOR CALLT #19
-    .word forever       ;VECTOR CALLT #20
-    .word forever       ;VECTOR CALLT #21
-    .word forever       ;VECTOR CALLT #22
-    .word forever       ;VECTOR CALLT #23
-    .word forever       ;VECTOR CALLT #24
-    .word forever       ;VECTOR CALLT #25
-    .word forever       ;VECTOR CALLT #26
-    .word forever       ;VECTOR CALLT #27
-    .word forever       ;VECTOR CALLT #28
-    .word forever       ;VECTOR CALLT #29
-    .word forever       ;VECTOR CALLT #30
-    .word forever       ;VECTOR CALLT #31
+    .word reset             ;VECTOR RST
+    .word irq_unexpected    ;VECTOR (unused)
+    .word irq_unexpected    ;VECTOR INTWDT
+    .word irq_unexpected    ;VECTOR INTP0
+    .word irq_unexpected    ;VECTOR INTP1
+    .word irq_unexpected    ;VECTOR INTP2
+    .word irq_unexpected    ;VECTOR INTP3
+    .word irq_unexpected    ;VECTOR INTP4
+    .word irq_unexpected    ;VECTOR INTP5
+    .word irq_unexpected    ;VECTOR INTP6
+    .word irq_unexpected    ;VECTOR INTP7
+    .word irq_unexpected    ;VECTOR INTSER0
+    .word irq_unexpected    ;VECTOR INTSR0
+    .word irq_unexpected    ;VECTOR INTST0
+    .word irq_unexpected    ;VECTOR INTCSI30
+    .word irq_unexpected    ;VECTOR INTCSI31
+    .word irq_unexpected    ;VECTOR INTIIC0
+    .word irq_unexpected    ;VECTOR INTC2
+    .word irq_unexpected    ;VECTOR INTWTNI0
+    .word irq_unexpected    ;VECTOR INTTM000
+    .word irq_unexpected    ;VECTOR INTTM010
+    .word irq_unexpected    ;VECTOR INTTM001
+    .word irq_unexpected    ;VECTOR INTTM011
+    .word irq_unexpected    ;VECTOR INTAD00
+    .word irq_unexpected    ;VECTOR INTAD01
+    .word irq_unexpected    ;VECTOR (unused)
+    .word irq_unexpected    ;VECTOR INTWTN0
+    .word irq_unexpected    ;VECTOR INTKR
+    .word irq_unexpected    ;VECTOR (unused)
+    .word irq_unexpected    ;VECTOR (unused)
+    .word irq_unexpected    ;VECTOR (unused)
+    .word irq_unexpected    ;VECTOR BRK_I
+    .word irq_unexpected    ;VECTOR CALLT #0
+    .word irq_unexpected    ;VECTOR CALLT #1
+    .word irq_unexpected    ;VECTOR CALLT #2
+    .word irq_unexpected    ;VECTOR CALLT #3
+    .word irq_unexpected    ;VECTOR CALLT #4
+    .word irq_unexpected    ;VECTOR CALLT #5
+    .word irq_unexpected    ;VECTOR CALLT #6
+    .word irq_unexpected    ;VECTOR CALLT #7
+    .word irq_unexpected    ;VECTOR CALLT #8
+    .word irq_unexpected    ;VECTOR CALLT #9
+    .word irq_unexpected    ;VECTOR CALLT #10
+    .word irq_unexpected    ;VECTOR CALLT #11
+    .word irq_unexpected    ;VECTOR CALLT #12
+    .word irq_unexpected    ;VECTOR CALLT #13
+    .word irq_unexpected    ;VECTOR CALLT #14
+    .word irq_unexpected    ;VECTOR CALLT #15
+    .word irq_unexpected    ;VECTOR CALLT #16
+    .word irq_unexpected    ;VECTOR CALLT #17
+    .word irq_unexpected    ;VECTOR CALLT #18
+    .word irq_unexpected    ;VECTOR CALLT #19
+    .word irq_unexpected    ;VECTOR CALLT #20
+    .word irq_unexpected    ;VECTOR CALLT #21
+    .word irq_unexpected    ;VECTOR CALLT #22
+    .word irq_unexpected    ;VECTOR CALLT #23
+    .word irq_unexpected    ;VECTOR CALLT #24
+    .word irq_unexpected    ;VECTOR CALLT #25
+    .word irq_unexpected    ;VECTOR CALLT #26
+    .word irq_unexpected    ;VECTOR CALLT #27
+    .word irq_unexpected    ;VECTOR CALLT #28
+    .word irq_unexpected    ;VECTOR CALLT #29
+    .word irq_unexpected    ;VECTOR CALLT #30
+    .word irq_unexpected    ;VECTOR CALLT #31
 
-forever:
-    br forever
+irq_unexpected:
+    br irq_unexpected
 
 reset:
     di                      ;Disable interrupts
