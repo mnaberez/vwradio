@@ -78,7 +78,7 @@ pcc = 0xfffb                ;Processor clock control register
     .word forever       ;VECTOR CALLT #31
 
 forever:
-    br !forever
+    br forever
 
 reset:
     di                      ;Disable interrupts
@@ -94,15 +94,20 @@ reset:
     mov asim0,#0b11001010   ;Enable UART for tx/rx and 8-N-1
     clr1 pm2.5              ;PM25=output (TxD0)
 
-recv_wait:
-    bf if0h.2, recv_wait   ;Wait until IF0H.2=1 (receive complete)
+loop:
+    call recv_byte          ;Wait for a byte from UART0, store it in A
+    call send_byte          ;Send byte in A on UART0
+    br loop
+
+recv_byte:
+    bf if0h.2, recv_byte   ;Wait until IF0H.2=1 (receive complete)
     clr1 if0h.2            ;Clear receive complete interrupt flag
     mov a,rxb0_txs0        ;A = byte received
+    ret
 
-    mov rxb0_txs0,a        ;Send byte
+send_byte:
+    mov rxb0_txs0,a        ;Send byte in A
 send_wait:
     bf if0h.3, send_wait   ;Wait until IF0H.3=1 (transmit complete)
     clr1 if0h.3            ;Clear transmit complete interrupt flag
-
-    ;Do it again
-    br !recv_wait
+    ret
