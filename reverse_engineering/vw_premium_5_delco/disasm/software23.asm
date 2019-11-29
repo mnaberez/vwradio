@@ -2718,7 +2718,7 @@ lab_08b1:
 lab_08bd:
 ;All bytes have been transferred
     set1 mem_fe5f.0         ;08bd  0a 5f        SPI packet complete flag = complete
-    set1 mk0h.4             ;08bf  71 4a e5     CSIMK30
+    set1 mk0h.4             ;08bf  71 4a e5     Set CSIMK30
     bf mem_fe60.7,lab_08c9  ;08c2  31 73 60 03
     call !sub_2f48          ;08c6  9a 48 2f     p4.3=low, p4_.4=low, disable SIO30,
                             ;                     set mem_fe5e.7, clear mem_fe60.7
@@ -2730,13 +2730,13 @@ lab_08c9:
 
 sub_08cc:
 ;SPI transfer on SIO31 (sends byte in A, receives byte in A)
-    clr1 if0h.5             ;08cc  71 5b e1
+    clr1 if0h.5             ;08cc  71 5b e1     Clear CSIIF31
     mov sio31,a             ;08cf  f2 1b
     push bc                 ;08d1  b3
     mov b,#0x00             ;08d2  a3 00
 
 lab_08d4:
-    bt if0h.5,lab_08db      ;08d4  31 56 e1 03
+    bt if0h.5,lab_08db      ;08d4  31 56 e1 03  Branch if CSIIF31 is set
     dbnz b,lab_08d4         ;08d8  8b fa
     nop                     ;08da  00
 
@@ -4026,14 +4026,14 @@ lab_0f1b:
     set1 mem_fe5e.7         ;0f68  7a 5e
     set1 mem_fe5f.0         ;0f6a  0a 5f        SPI packet complete flag = complete
     set1 mem_fe5f.1         ;0f6c  1a 5f
-    clr1 if0h.4             ;0f6e  71 4b e1     CSIIF30
-    set1 mk0h.4             ;0f71  71 4a e5     CSIMK30
+    clr1 if0h.4             ;0f6e  71 4b e1     Clear CSIIF30
+    set1 mk0h.4             ;0f71  71 4a e5     Set CSIMK30
     call !sio31_disable     ;0f74  9a df 08     Disable SIO31 (unknown SPI)
     clr1 mem_fe5f.2         ;0f77  2b 5f
     mov a,#0x00             ;0f79  a1 00
     mov !mem_f032,a         ;0f7b  9e 32 f0
-    clr1 if0h.5             ;0f7e  71 5b e1
-    set1 mk0h.5             ;0f81  71 5a e5
+    clr1 if0h.5             ;0f7e  71 5b e1     Clear CSIIF31
+    set1 mk0h.5             ;0f81  71 5a e5     Set CSIMK31
     mov a,#0x00             ;0f84  a1 00
     mov !mem_f04e,a         ;0f86  9e 4e f0
     clr1 mem_fe5f.5         ;0f89  5b 5f
@@ -4050,11 +4050,11 @@ lab_0f1b:
     set1 pm2.4              ;0fa2  71 4a 22
     clr1 pm2.5              ;0fa5  71 5b 22
     clr1 pm2.6              ;0fa8  71 6b 22
-    clr1 mk0h.1             ;0fab  71 1b e5
+    clr1 mk0h.1             ;0fab  71 1b e5     Clear SERMK0 (enables INTSER0)
     set1 pr0h.1             ;0fae  71 1a e9
-    clr1 mk0h.2             ;0fb1  71 2b e5
+    clr1 mk0h.2             ;0fb1  71 2b e5     Clear SRMK0 (enables INTSR0)
     set1 pr0h.2             ;0fb4  71 2a e9
-    clr1 mk0h.3             ;0fb7  71 3b e5
+    clr1 mk0h.3             ;0fb7  71 3b e5     Clear STMK0 (enables INTST0)
     clr1 pr0h.3             ;0fba  71 3b e9
     clr1 mem_fe7a.3         ;0fbd  3b 7a
     set1 mem_fe7b.0         ;0fbf  0a 7b
@@ -4177,7 +4177,7 @@ lab_1036:
     mov a,#0x00             ;10d6  a1 00
     mov !mem_fb13,a         ;10d8  9e 13 fb
     call !sio31_enable      ;10db  9a 2f 26     Enable SIO31 (unknown SPI)
-    clr1 mk0h.5             ;10de  71 5b e5
+    clr1 mk0h.5             ;10de  71 5b e5     Clear CSIMK31
     clr1 pr0h.5             ;10e1  71 5b e9
     callf !sub_08cc         ;10e4  0c cc        SPI xfer on SIO31 (send byte in A, recv byte in A)
     call !sub_d16e          ;10e6  9a 6e d1
@@ -9185,9 +9185,9 @@ lab_2ff4:
     set1 pm4.5              ;2ff7  71 5a 24
     call !sio30_enable      ;2ffa  9a 17 26     Enable SIO30 (used for uPD16432B SPI)
     set1 mem_fe5f.1         ;2ffd  1a 5f
-    clr1 if0h.4             ;2fff  71 4b e1     CSIIF30
-    clr1 mk0h.4             ;3002  71 4b e5     CSIMK30
-    clr1 pr0h.4             ;3005  71 4b e9     CSIPR30
+    clr1 if0h.4             ;2fff  71 4b e1     Clear CSIIF30
+    clr1 mk0h.4             ;3002  71 4b e5     Clear CSIMK30
+    clr1 pr0h.4             ;3005  71 4b e9     Clear CSIPR30
 
     movw ax,!mem_f006       ;3008  02 06 f0
     push ax                 ;300b  b1           Push: pointer to buffer to transfer
@@ -9661,10 +9661,13 @@ intser0_32df:
     push bc                 ;32e0  b3
     push hl                 ;32e1  b7
     push de                 ;32e2  b5
-    mov a,asis0             ;32e3  f4 a1
-    mov x,a                 ;32e5  70
-    mov a,rxb0_txs0         ;32e6  f0 18
-    clr1 if0h.2             ;32e8  71 2b e1
+
+    mov a,asis0             ;32e3  f4 a1          A = UART0 status register when interrupt occurred
+    mov x,a                 ;32e5  70             Save UART0 status register in X
+
+    mov a,rxb0_txs0         ;32e6  f0 18          A = byte received
+    clr1 if0h.2             ;32e8  71 2b e1       Clear receive complete interrupt flag
+
     bf mem_fe7a.2,lab_3304  ;32eb  31 23 7a 15
     bt shadow_p2.6,lab_331c ;32ef  ec cc 2a
     bt mem_fe79.0,lab_3301  ;32f2  8c 79 0c
@@ -9684,14 +9687,18 @@ lab_3301:
 lab_3304:
     bf mem_fe2b.7,lab_3321  ;3304  31 73 2b 19    Branch to disable UART0 RX, pop registers, and reti
     bf mem_fe2c.2,lab_3321  ;3308  31 23 2c 15    Branch to disable UART0 RX, pop registers, and reti
-    mov a,x                 ;330c  60
-    cmp a,#0x02             ;330d  4d 02
-    bnz lab_3318            ;330f  bd 07
+
+    mov a,x                 ;330c  60             A = UART0 status register when interrupt occurred
+    cmp a,#0b00000010       ;330d  4d 02          Is it a framing error (FE0)?
+    bnz lab_3318            ;330f  bd 07            No: branch to handle non-framing error
+
+    ;Receive error is a framing error
     bt mem_fe7b.6,lab_3321  ;3311  ec 7b 0d       Branch to disable UART0 RX, pop registers, and reti
     set1 mem_fe7b.7         ;3314  7a 7b
     br lab_3321             ;3316  fa 09          Branch to disable UART0 RX, pop registers, and reti
 
 lab_3318:
+    ;Receive error is not a framing error
     clr1 mem_fe7b.6         ;3318  6b 7b
     br lab_3324             ;331a  fa 08          Branch to pop all registers off stack and reti
 
@@ -10805,7 +10812,7 @@ lab_3a41:
 
 lab_3a47:
     mov asim0,#0x00         ;3a47  13 a0 00
-    set1 mk0h.1             ;3a4a  71 1a e5
+    set1 mk0h.1             ;3a4a  71 1a e5     Set SERMK0 (disables INTSER0)
     set1 mem_fe7a.5         ;3a4d  5a 7a
     clr1 mem_fe7a.6         ;3a4f  6b 7a
     mov a,#0x00             ;3a51  a1 00
@@ -10873,7 +10880,7 @@ lab_3ab8:
     mov asim0,#0x00         ;3abc  13 a0 00
     mov brgc0,#0x7e         ;3abf  13 a2 7e
     mov asim0,#0x48         ;3ac2  13 a0 48
-    clr1 mk0h.1             ;3ac5  71 1b e5
+    clr1 mk0h.1             ;3ac5  71 1b e5     Clear SERMK0 (enables INTSER0)
     set1 pr0h.1             ;3ac8  71 1a e9
 
 lab_3acb:
@@ -13397,9 +13404,9 @@ lab_49db:
     mov a,shadow_p4         ;49dd  f0 ce
     mov p4,a                ;49df  f2 04
 
-    clr1 if0h.4             ;49e1  71 4b e1     CSIIF30
-    clr1 mk0h.4             ;49e4  71 4b e5     CSIMK30
-    clr1 pr0h.4             ;49e7  71 4b e9     CSIPR30
+    clr1 if0h.4             ;49e1  71 4b e1     Clear CSIIF30
+    clr1 mk0h.4             ;49e4  71 4b e5     Clear CSIMK30
+    clr1 pr0h.4             ;49e7  71 4b e9     Clear CSIPR30
 
     movw ax,hl              ;49ea  c6
     push ax                 ;49eb  b1           Push: pointer to buffer to transfer
@@ -13555,9 +13562,9 @@ lab_4ab0:
     mov a,shadow_p4         ;4ab2  f0 ce
     mov p4,a                ;4ab4  f2 04
 
-    clr1 if0h.4             ;4ab6  71 4b e1     CSIIF30
-    clr1 mk0h.4             ;4ab9  71 4b e5     CSIMK30
-    clr1 pr0h.4             ;4abc  71 4b e9     CSIPR30
+    clr1 if0h.4             ;4ab6  71 4b e1     Clear CSIIF30
+    clr1 mk0h.4             ;4ab9  71 4b e5     Clear CSIMK30
+    clr1 pr0h.4             ;4abc  71 4b e9     Clear CSIPR30
 
     movw ax,hl              ;4abf  c6
     push ax                 ;4ac0  b1           Push: pointer to buffer to transfer
@@ -13699,9 +13706,9 @@ lab_4b84:
     mov a,shadow_p4         ;4b86  f0 ce
     mov p4,a                ;4b88  f2 04
 
-    clr1 if0h.4             ;4b8a  71 4b e1     CSIIF30
-    clr1 mk0h.4             ;4b8d  71 4b e5     CSIMK30
-    clr1 pr0h.4             ;4b90  71 4b e9     CSIPR30
+    clr1 if0h.4             ;4b8a  71 4b e1     Clear CSIIF30
+    clr1 mk0h.4             ;4b8d  71 4b e5     Clear CSIMK30
+    clr1 pr0h.4             ;4b90  71 4b e9     Clear CSIPR30
 
     movw ax,#upd_pict       ;4b93  10 35 fe
     push ax                 ;4b96  b1           Push: pointer to buffer to transfer
@@ -13810,9 +13817,9 @@ lab_4c26:
     mov a,shadow_p4         ;4c28  f0 ce
     mov p4,a                ;4c2a  f2 04
 
-    clr1 if0h.4             ;4c2c  71 4b e1     CSIIF30
-    clr1 mk0h.4             ;4c2f  71 4b e5     CSIMK30
-    clr1 pr0h.4             ;4c32  71 4b e9     CSIPR30
+    clr1 if0h.4             ;4c2c  71 4b e1     Clear CSIIF30
+    clr1 mk0h.4             ;4c2f  71 4b e5     Clear CSIMK30
+    clr1 pr0h.4             ;4c32  71 4b e9     Clear CSIPR30
 
     movw ax,hl              ;4c35  c6
     push ax                 ;4c36  b1           Push: pointer to buffer to transfer
@@ -13915,9 +13922,9 @@ lab_4cb0:
     mov a,shadow_p4         ;4cb2  f0 ce
     mov p4,a                ;4cb4  f2 04
 
-    clr1 if0h.4             ;4cb6  71 4b e1     CSIIF30
-    clr1 mk0h.4             ;4cb9  71 4b e5     CSIMK30
-    clr1 pr0h.4             ;4cbc  71 4b e9     CSIPR30
+    clr1 if0h.4             ;4cb6  71 4b e1     Clear CSIIF30
+    clr1 mk0h.4             ;4cb9  71 4b e5     Clear CSIMK30
+    clr1 pr0h.4             ;4cbc  71 4b e9     Clear CSIPR30
 
     movw ax,#upd_disp       ;4cbf  10 9a f1     AX = pointer to uPD16432 display buffer (11 bytes)
     push ax                 ;4cc2  b1           Push: pointer to buffer to transfer
@@ -15988,9 +15995,9 @@ lab_574c:
     mov a,shadow_p4         ;574e  f0 ce
     mov p4,a                ;5750  f2 04
 
-    clr1 if0h.4             ;5752  71 4b e1     CSIIF30
-    clr1 mk0h.4             ;5755  71 4b e5     CSIMK30
-    clr1 pr0h.4             ;5758  71 4b e9     CSIPR30
+    clr1 if0h.4             ;5752  71 4b e1     Clear CSIIF30
+    clr1 mk0h.4             ;5755  71 4b e5     Clear CSIMK30
+    clr1 pr0h.4             ;5758  71 4b e9     Clear CSIPR30
 
     movw ax,#mem_fbd6       ;575b  10 d6 fb
     push ax                 ;575e  b1           Push: pointer to buffer to transfer
@@ -17237,12 +17244,12 @@ lab_5f26:
     mov c,#0x50             ;5f2b  a2 50
 
 lab_5f2d:
-    bt if0h.6,lab_5f35      ;5f2d  31 66 e1 04
+    bt if0h.6,lab_5f35      ;5f2d  31 66 e1 04  Branch if IICIF0 is set
     dbnz c,lab_5f2d         ;5f31  8a fa
     callf !sub_0879         ;5f33  0c 79        Just returns
 
 lab_5f35:
-    clr1 if0h.6             ;5f35  71 6b e1
+    clr1 if0h.6             ;5f35  71 6b e1     Clear IICIF0
     mov a,iic0              ;5f38  f0 1f
     mov [hl],a              ;5f3a  97
     dbnz b,lab_5f16         ;5f3b  8b d9
@@ -17341,12 +17348,12 @@ lab_5fc0:
     mov c,#0x50             ;5fc0  a2 50
 
 lab_5fc2:
-    bt if0h.6,lab_5fca      ;5fc2  31 66 e1 04
+    bt if0h.6,lab_5fca      ;5fc2  31 66 e1 04  Branch if IICIF0 is set
     dbnz c,lab_5fc2         ;5fc6  8a fa
     callf !sub_0879         ;5fc8  0c 79        Just returns
 
 lab_5fca:
-    clr1 if0h.6             ;5fca  71 6b e1
+    clr1 if0h.6             ;5fca  71 6b e1     Clear IICIF0
     cmp a,iic0              ;5fcd  4e 1f
     bnz lab_5feb            ;5fcf  bd 1a
     mov1 cy,iics0.2         ;5fd1  71 2c a9
@@ -17397,12 +17404,12 @@ lab_5fff:
     mov c,#0x50             ;601e  a2 50
 
 lab_6020:
-    bt if0h.6,lab_6028      ;6020  31 66 e1 04
+    bt if0h.6,lab_6028      ;6020  31 66 e1 04  Branch if IICIF0 is set
     dbnz c,lab_6020         ;6024  8a fa
     callf !sub_0879         ;6026  0c 79        Just returns
 
 lab_6028:
-    clr1 if0h.6             ;6028  71 6b e1
+    clr1 if0h.6             ;6028  71 6b e1     Clear IICIF0
     pop ax                  ;602b  b0
     ret                     ;602c  af
 
@@ -23727,7 +23734,7 @@ sub_8824:
     mov !mem_fb18,a         ;8826  9e 18 fb
 
 lab_8829:
-    clr1 mk0h.0             ;8829  71 0b e5
+    clr1 mk0h.0             ;8829  71 0b e5     Clear PMK7
     set1 pr0h.0             ;882c  71 0a e9
     clr1 egn.7              ;882f  71 7b 49
     set1 egp.7              ;8832  71 7a 48
@@ -23742,14 +23749,14 @@ intp7_883a:
     bz lab_884e             ;8840  ad 0c
     inc mem_fe4a            ;8842  81 4a
     bz lab_884b             ;8844  ad 05
-    clr1 if0h.0             ;8846  71 0b e1
+    clr1 if0h.0             ;8846  71 0b e1     Clear PIF7
     br lab_8851             ;8849  fa 06
 
 lab_884b:
     mov mem_fe4a,#0xff      ;884b  11 4a ff
 
 lab_884e:
-    set1 mk0h.0             ;884e  71 0a e5
+    set1 mk0h.0             ;884e  71 0a e5     Set PMK7
 
 lab_8851:
     pop ax                  ;8851  b0
