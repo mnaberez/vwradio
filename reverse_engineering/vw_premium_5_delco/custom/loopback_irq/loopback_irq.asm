@@ -82,30 +82,33 @@ pcc = 0xfffb                ;Processor clock control register
 irq_unexpected:
     br irq_unexpected
 
-;UART0 transmit complete interrupt
-irq_intst0:
-    reti
-
 ;UART0 receive error interrupt
 irq_intser0:
+    push ax
+
+    mov a,asis0             ;32e3  f4 a1          A = UART0 status register when interrupt occurred
+    mov x,a                 ;32e5  70             Save UART0 status register in X
+
+    mov a,rxb0_txs0         ;32e6  f0 18          A = byte received
+    clr1 if0h.2             ;32e8  71 2b e1       Clear receive complete interrupt flag
+
+    ;Status register value is in X and could be interrogated here
+
+    pop ax
     reti
 
 ;UART0 receive complete interrupt
 irq_intsr0:
-    ;Push all registers onto the stack
     push ax
-    push bc
-    push hl
-    push de
 
     mov a,rxb0_txs0         ;A = byte received from UART
     mov rxb0_txs0,a         ;Blindly transmit it back, assumes not currently transmitting
 
-    ;Pop all registers off the stack
-    pop de
-    pop hl
-    pop bc
     pop ax
+    reti
+
+;UART0 transmit complete interrupt
+irq_intst0:
     reti
 
 reset:
