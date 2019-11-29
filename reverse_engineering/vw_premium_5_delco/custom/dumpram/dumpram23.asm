@@ -53321,10 +53321,11 @@ dump_ram:
     mov wdtm,#0             ;Watchdog disabled
     mov ixs,#8              ;Expansion RAM size = 2K
     mov ims,#0xcf           ;High speed RAM size = 1K, ROM size = 60K
-    mov pm2,#0b11011111     ;PM25=output (TxD0), all others input
     mov asim0,#0            ;Disable UART
+    mov if0h,#0             ;Clear interrupt flags (UART tx & rx complete)
     mov brgc0,#0x1b         ;Set baud rate to 38400 bps
     mov asim0,#0x8a         ;Enable UART for transmit only and 8-N-1
+    mov pm2,#0b11011111     ;PM25=output (TxD0), all others input
 
     ;Send header string
 
