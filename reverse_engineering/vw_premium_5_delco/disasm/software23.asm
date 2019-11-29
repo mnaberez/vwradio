@@ -4051,11 +4051,11 @@ lab_0f1b:
     clr1 pm2.5              ;0fa5  71 5b 22
     clr1 pm2.6              ;0fa8  71 6b 22
     clr1 mk0h.1             ;0fab  71 1b e5     Clear SERMK0 (enables INTSER0)
-    set1 pr0h.1             ;0fae  71 1a e9
+    set1 pr0h.1             ;0fae  71 1a e9     Set SERPR0 (makes INTSER0 low priority)
     clr1 mk0h.2             ;0fb1  71 2b e5     Clear SRMK0 (enables INTSR0)
-    set1 pr0h.2             ;0fb4  71 2a e9
+    set1 pr0h.2             ;0fb4  71 2a        Set SRPR0 (makes INTSR0 low priority)
     clr1 mk0h.3             ;0fb7  71 3b e5     Clear STMK0 (enables INTST0)
-    clr1 pr0h.3             ;0fba  71 3b e9
+    clr1 pr0h.3             ;0fba  71 3b e9     Clear STPR0 (makes INTST0 high priority)
     clr1 mem_fe7a.3         ;0fbd  3b 7a
     set1 mem_fe7b.0         ;0fbf  0a 7b
     clr1 mem_fe7a.7         ;0fc1  7b 7a
@@ -4178,7 +4178,7 @@ lab_1036:
     mov !mem_fb13,a         ;10d8  9e 13 fb
     call !sio31_enable      ;10db  9a 2f 26     Enable SIO31 (unknown SPI)
     clr1 mk0h.5             ;10de  71 5b e5     Clear CSIMK31
-    clr1 pr0h.5             ;10e1  71 5b e9
+    clr1 pr0h.5             ;10e1  71 5b e9     Clear CSIPR31 (makes INTCSI31 high priority)
     callf !sub_08cc         ;10e4  0c cc        SPI xfer on SIO31 (send byte in A, recv byte in A)
     call !sub_d16e          ;10e6  9a 6e d1
     clr1 pm7.0              ;10e9  71 0b 27
@@ -10881,7 +10881,7 @@ lab_3ab8:
     mov brgc0,#0x7e         ;3abf  13 a2 7e
     mov asim0,#0x48         ;3ac2  13 a0 48
     clr1 mk0h.1             ;3ac5  71 1b e5     Clear SERMK0 (enables INTSER0)
-    set1 pr0h.1             ;3ac8  71 1a e9
+    set1 pr0h.1             ;3ac8  71 1a e9     Set SERPR0 (makes INTSER0 low priority)
 
 lab_3acb:
     ret                     ;3acb  af
@@ -23735,7 +23735,7 @@ sub_8824:
 
 lab_8829:
     clr1 mk0h.0             ;8829  71 0b e5     Clear PMK7
-    set1 pr0h.0             ;882c  71 0a e9
+    set1 pr0h.0             ;882c  71 0a e9     Set PPR7
     clr1 egn.7              ;882f  71 7b 49
     set1 egp.7              ;8832  71 7a 48
     mov a,#0x00             ;8835  a1 00
