@@ -3914,8 +3914,8 @@ lab_0e39:
     set1 pm2.5              ;0e5c  71 5a 22
     clr1 pu2.6              ;0e5f  71 6b 32
     set1 pm2.6              ;0e62  71 6a 22
-    mov asim0,#0x00         ;0e65  13 a0 00
-    mov brgc0,#0x39         ;0e68  13 a2 39     0x39 = 10400 baud
+    mov asim0,#0x00         ;0e65  13 a0 00     UART0 mode register = 0 (UART fully disabled)
+    mov brgc0,#0x39         ;0e68  13 a2 39     Baud rate generator 0 = 10400 baud
     set1 shadow_p2.5        ;0e6b  5a cc        P25/TxD0 = 1
     mov a,shadow_p2         ;0e6d  f0 cc
     mov p2,a                ;0e6f  f2 02
@@ -9276,7 +9276,7 @@ intst0_307e:
     set1 shadow_p2.5        ;3084  5a cc        P25/TxD0 = 1
     mov a,shadow_p2         ;3086  f0 cc
     mov p2,a                ;3088  f2 02
-    clr1 asim0.7            ;308a  71 7b a0
+    clr1 asim0.7            ;308a  71 7b a0     TXE0=0 (disable UART0 transmit)
 
 lab_308d:
     pop ax                  ;308d  b0
@@ -9641,7 +9641,7 @@ lab_32ba:
     mov a,!mem_f06d         ;32c6  8e 6d f0
     mov b,a                 ;32c9  73
     mov a,[hl+b]            ;32ca  ab
-    mov asim0,a             ;32cb  f6 a0
+    mov asim0,a             ;32cb  f6 a0        Load UART0 mode register
 
     movw hl,#kwp_unknown_b03b+1 ;32cd  16 3c b0
     mov a,!mem_f06d         ;32d0  8e 6d f0
@@ -9779,7 +9779,7 @@ lab_3392:
     set1 shadow_p2.5        ;3392  5a cc          P25/TxD0 = 1
     mov a,shadow_p2         ;3394  f0 cc
     mov p2,a                ;3396  f2 02
-    mov asim0,#0x00         ;3398  13 a0 00
+    mov asim0,#0x00         ;3398  13 a0 00       UART0 mode register = 0 (UART fully disabled)
     br !sub_3468            ;339b  9b 68 34
 
 sub_339e:
@@ -10052,7 +10052,7 @@ lab_3541:
     bnz lab_357b            ;3552  bd 27
 
 lab_3554:
-    mov asim0,#0x00         ;3554  13 a0 00
+    mov asim0,#0x00         ;3554  13 a0 00     UART0 mode register = 0 (UART fully disabled)
     set1 shadow_p2.6        ;3557  6a cc
     mov a,shadow_p2         ;3559  f0 cc
     mov p2,a                ;355b  f2 02
@@ -10691,9 +10691,9 @@ lab_3952:
 
 lab_395d:
     call !sub_3a10          ;395d  9a 10 3a
-    mov asim0,#0x00         ;3960  13 a0 00
-    mov brgc0,#0x7e         ;3963  13 a2 7e
-    mov asim0,#0x48         ;3966  13 a0 48
+    mov asim0,#0x00         ;3960  13 a0 00       UART0 mode register = 0 (UART fully disabled)
+    mov brgc0,#0x7e         ;3963  13 a2 7e       Baud rate generator = 546 baud (???)
+    mov asim0,#0x48         ;3966  13 a0 48       UART0 mode register = RX only, N81
     call !sub_3acf          ;3969  9a cf 3a
     mov mem_fe2a,#0x0e      ;396c  11 2a 0e
     mov mem_fe2b,#0x80      ;396f  11 2b 80
@@ -10811,7 +10811,7 @@ lab_3a41:
     br !lab_3acb            ;3a44  9b cb 3a
 
 lab_3a47:
-    mov asim0,#0x00         ;3a47  13 a0 00
+    mov asim0,#0x00         ;3a47  13 a0 00     UART0 mode register = 0 (UART fully disabled)
     set1 mk0h.1             ;3a4a  71 1a e5     Set SERMK0 (disables INTSER0)
     set1 mem_fe7a.5         ;3a4d  5a 7a
     clr1 mem_fe7a.6         ;3a4f  6b 7a
@@ -10877,9 +10877,9 @@ lab_3ab0:
 lab_3ab8:
     clr1 mem_fe7a.5         ;3ab8  5b 7a
     clr1 mem_fe7b.7         ;3aba  7b 7b
-    mov asim0,#0x00         ;3abc  13 a0 00
-    mov brgc0,#0x7e         ;3abf  13 a2 7e
-    mov asim0,#0x48         ;3ac2  13 a0 48
+    mov asim0,#0x00         ;3abc  13 a0 00     UART0 mode register = 0 (UART fully disabled)
+    mov brgc0,#0x7e         ;3abf  13 a2 7e     Baud rate generator 0 = 546 baud (???)
+    mov asim0,#0x48         ;3ac2  13 a0 48     UART0 mode register = RX only, N81
     clr1 mk0h.1             ;3ac5  71 1b e5     Clear SERMK0 (enables INTSER0)
     set1 pr0h.1             ;3ac8  71 1a e9     Set SERPR0 (makes INTSER0 low priority)
 
@@ -14924,9 +14924,11 @@ lab_51ca:
     mov a,!mem_f06d         ;51cd  8e 6d f0
     mov b,a                 ;51d0  73
     mov a,[hl+b]            ;51d1  ab
-    mov brgc0,a             ;51d2  f6 a2
-    mov a,#0xca             ;51d4  a1 ca
-    mov asim0,a             ;51d6  f6 a0
+    mov brgc0,a             ;51d2  f6 a2        Load baud rate generator 0 with A
+
+    mov a,#0xca             ;51d4  a1 ca        0xCA = UART TX & RX enabled, N81
+    mov asim0,a             ;51d6  f6 a0        Load UART0 mode register
+
     mov a,#0x2e             ;51d8  a1 2e
     mov !mem_f06e,a         ;51da  9e 6e f0
     set1 mem_fe79.1         ;51dd  1a 79
@@ -14938,9 +14940,11 @@ lab_51e2:
     mov a,!mem_f06d         ;51e5  8e 6d f0
     mov b,a                 ;51e8  73
     mov a,[hl+b]            ;51e9  ab
-    mov brgc0,a             ;51ea  f6 a2
-    mov a,#0xca             ;51ec  a1 ca
-    mov asim0,a             ;51ee  f6 a0
+    mov brgc0,a             ;51ea  f6 a2      Load baud rate generate 0 with A
+
+    mov a,#0xca             ;51ec  a1 ca      0xCA = UART TX & RX enabled, N81
+    mov asim0,a             ;51ee  f6 a0      Load UART0 mode register
+
     mov a,#0x79             ;51f0  a1 79
     mov !mem_f06e,a         ;51f2  9e 6e f0
     set1 mem_fe79.1         ;51f5  1a 79
@@ -14967,9 +14971,11 @@ lab_520b:
     mov a,!mem_f06d         ;5212  8e 6d f0
     mov b,a                 ;5215  73
     mov a,[hl+b]            ;5216  ab
-    mov brgc0,a             ;5217  f6 a2
-    mov a,#0xca             ;5219  a1 ca
-    mov asim0,a             ;521b  f6 a0
+    mov brgc0,a             ;5217  f6 a2          Load baud rate generator 0 with A
+
+    mov a,#0xca             ;5219  a1 ca          0xCA = UART TX & RX enabled, N81
+    mov asim0,a             ;521b  f6 a0          Load UART0 mode register
+
     mov a,#0x1c             ;521d  a1 1c
     mov !mem_f06f,a         ;521f  9e 6f f0
     set1 mem_fe79.3         ;5222  3a 79
@@ -15010,10 +15016,12 @@ lab_5252:
     mov a,!mem_f06d         ;5255  8e 6d f0
     mov b,a                 ;5258  73
     mov a,[hl+b]            ;5259  ab
-    mov brgc0,a             ;525a  f6 a2
+    mov brgc0,a             ;525a  f6 a2          Load baud rate generator 0 with A
+
     movw hl,#kwp_asim0_b031+1 ;525c  16 32 b0
     mov a,[hl+b]            ;525f  ab
-    mov asim0,a             ;5260  f6 a0
+    mov asim0,a             ;5260  f6 a0          Load UART0 mode register
+
     mov a,!mem_f06d         ;5262  8e 6d f0
     cmp a,#0x01             ;5265  4d 01
     bnz lab_526c            ;5267  bd 03
@@ -30020,10 +30028,10 @@ kwp_asim0_b031:
 ;values to be stored in ASIM0
 ;indexed by mem_f06d
     .byte 0x04              ;b031  04          DATA 0x04        4 entries below:
-    .byte 0x00              ;b032  00          DATA 0x00
-    .byte 0xca              ;b033  ca          DATA 0xca
-    .byte 0xca              ;b034  ca          DATA 0xca
-    .byte 0xca              ;b035  ca          DATA 0xca
+    .byte 0x00              ;b032  00          DATA 0x00          0x00 = UART fully disabled
+    .byte 0xca              ;b033  ca          DATA 0xca          0xCA = UART TX & RX enabled, N81
+    .byte 0xca              ;b034  ca          DATA 0xca          0xCA = UART TX & RX enabled, N81
+    .byte 0xca              ;b035  ca          DATA 0xca          0xCA = UART TX & RX enabled, N81
 
 kwp_unknown_b036:
 ;unknown values to be stored in mem_f06f
