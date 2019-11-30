@@ -9,6 +9,7 @@ out.bin:
 	rm -f out.asm
 	aslink out -i
 	srec_cat out.ihx -intel -fill 0xff 0x0000 0xf000 -o out.bin -binary
+	python ../../disasm/checksum.py update out.bin
 	rm out.hlr out.ihx out.rel
 
 clean:

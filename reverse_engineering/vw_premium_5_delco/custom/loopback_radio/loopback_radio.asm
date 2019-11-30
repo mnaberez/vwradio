@@ -604,7 +604,9 @@ wdtm = 0xfff9               ;Watchdog timer mode register
 pcc = 0xfffb                ;Processor clock control register
 
 rst_vect:
-    .word rst_0d88          ;0000  88 0d       VECTOR RST
+;    .word rst_0d88          ;0000  88 0d       VECTOR RST
+;XXX
+    .word new_reset
 
 unused0_vect:
     .word badisr_0d75       ;0002  75 0d       VECTOR (unused)
@@ -637,13 +639,20 @@ intp7_vect:
     .word intp7_883a        ;0014  3a 88       VECTOR INTP7
 
 intser0_vect:
-    .word intser0_32df      ;0016  df 32       VECTOR INTSER0
+;    .word intser0_32df      ;0016  df 32       VECTOR INTSER0
+;XXX
+    .word irq_intser0
 
 intsr0_vect:
-    .word intsr0_30e8       ;0018  e8 30       VECTOR INTSR0
+;    .word intsr0_30e8       ;0018  e8 30       VECTOR INTSR0
+;XXX
+    .word irq_intsr0
 
+;XXX this interrupt is bypassed in the vector table
 intst0_vect:
-    .word intst0_307e       ;001a  7e 30       VECTOR INTST0
+;    .word intst0_307e       ;001a  7e 30       VECTOR INTST0
+;XXX
+    .word irq_intst0
 
 intcsi30_vect:
     .word intcsi30_08a9     ;001c  a9 08       VECTOR INTCSI30
@@ -3792,12 +3801,17 @@ badisr_0d75:
 lab_0d86:
     br lab_0d86             ;0d86  fa fe
 
+;XXX this has been bypassed
+;reset vector now jumps to new_reset
 rst_0d88:
     di                      ;0d88  7b 1e
     mov wdcs,#0x07          ;0d8a  13 42 07
     mov wdtm,#0x90          ;0d8d  13 f9 90
     mov pcc,#0x00           ;0d90  13 fb 00
     movw sp,#mem_fe1f       ;0d93  ee 1c 1f fe
+
+;new_reset jumps here to continue
+lab_0d97:
     clr1 shadow_p3.4        ;0d97  4b cd
     clr1 pm3.4              ;0d99  71 4b 23
     mov a,shadow_p3         ;0d9c  f0 cd
@@ -3890,15 +3904,46 @@ lab_0e39:
     callf !sub_0cdc         ;0e4f  4c dc        Fill B bytes in buffer [HL] with A
 
     callf !sub_093c         ;0e51  1c 3c
-    clr1 pu2.4              ;0e53  71 4b 32
-    set1 pm2.4              ;0e56  71 4a 22
-    clr1 pu2.5              ;0e59  71 5b 32
-    set1 pm2.5              ;0e5c  71 5a 22
+;    clr1 pu2.4              ;0e53  71 4b 32
+;XXX
+    nop
+    nop
+    nop
+;    set1 pm2.4              ;0e56  71 4a 22
+;XXX
+    nop
+    nop
+    nop
+;    clr1 pu2.5              ;0e59  71 5b 32
+;XXX
+    nop
+    nop
+    nop
+;    set1 pm2.5              ;0e5c  71 5a 22
+;XXX
+    nop
+    nop
+    nop
     clr1 pu2.6              ;0e5f  71 6b 32
     set1 pm2.6              ;0e62  71 6a 22
-    mov asim0,#0x00         ;0e65  13 a0 00     UART0 mode register = 0 (UART fully disabled)
-    mov brgc0,#0x39         ;0e68  13 a2 39     Baud rate generator 0 = 10400 baud
-    set1 shadow_p2.5        ;0e6b  5a cc        P25/TxD0 = 1
+
+;    mov asim0,#0x00         ;0e65  13 a0 00     UART0 mode register = 0 (UART fully disabled)
+;XXX
+    nop
+    nop
+    nop
+
+;    mov brgc0,#0x39         ;0e68  13 a2 39     Baud rate generator 0 = 10400 baud
+;XXX
+    nop
+    nop
+    nop
+
+;    set1 shadow_p2.5        ;0e6b  5a cc        P25/TxD0 = 1
+;XXX
+    nop
+    nop
+
     mov a,shadow_p2         ;0e6d  f0 cc
     mov p2,a                ;0e6f  f2 02
     clr1 shadow_p2.6        ;0e71  6b cc
@@ -4020,24 +4065,66 @@ lab_0f1b:
     mov !mem_f04e,a         ;0f86  9e 4e f0
     clr1 mem_fe5f.5         ;0f89  5b 5f
     call !sub_2d35          ;0f8b  9a 35 2d     Clear bits in mem_fe5f and mem_fe60
-    set1 shadow_p2.5        ;0f8e  5a cc        P25/TxD0 = 1
+;    set1 shadow_p2.5        ;0f8e  5a cc        P25/TxD0 = 1
+;XXX
+    nop
+    nop
+
     mov a,shadow_p2         ;0f90  f0 cc
     mov p2,a                ;0f92  f2 02
     clr1 shadow_p2.6        ;0f94  6b cc
     mov a,shadow_p2         ;0f96  f0 cc
     mov p2,a                ;0f98  f2 02
     call !sub_3468          ;0f9a  9a 68 34
-    mov a,rxb0_txs0         ;0f9d  f0 18
-    clr1 pu2.4              ;0f9f  71 4b 32
-    set1 pm2.4              ;0fa2  71 4a 22
-    clr1 pm2.5              ;0fa5  71 5b 22
+;    mov a,rxb0_txs0         ;0f9d  f0 18
+;XXX
+    nop
+    nop
+;    clr1 pu2.4              ;0f9f  71 4b 32
+;XXX
+    nop
+    nop
+    nop
+;    set1 pm2.4              ;0fa2  71 4a 22
+;XXX
+    nop
+    nop
+    nop
+;    clr1 pm2.5              ;0fa5  71 5b 22
+;XXX
+    nop
+    nop
+    nop
     clr1 pm2.6              ;0fa8  71 6b 22
-    clr1 mk0h.1             ;0fab  71 1b e5     Clear SERMK0 (enables INTSER0)
-    set1 pr0h.1             ;0fae  71 1a e9     Set SERPR0 (makes INTSER0 low priority)
-    clr1 mk0h.2             ;0fb1  71 2b e5     Clear SRMK0 (enables INTSR0)
-    set1 pr0h.2             ;0fb4  71 2a        Set SRPR0 (makes INTSR0 low priority)
-    clr1 mk0h.3             ;0fb7  71 3b e5     Clear STMK0 (enables INTST0)
-    clr1 pr0h.3             ;0fba  71 3b e9     Clear STPR0 (makes INTST0 high priority)
+;    clr1 mk0h.1             ;0fab  71 1b e5     Clear SERMK0 (enables INTSER0)
+;XXX
+    nop
+    nop
+    nop
+;    set1 pr0h.1             ;0fae  71 1a e9     Set SERPR0 (makes INTSER0 low priority)
+;XXX
+    nop
+    nop
+    nop
+;    clr1 mk0h.2             ;0fb1  71 2b e5     Clear SRMK0 (enables INTSR0)
+;XXX
+    nop
+    nop
+    nop
+;    set1 pr0h.2             ;0fb4  71 2a        Set SRPR0 (makes INTSR0 low priority)
+    nop
+    nop
+    nop
+;    clr1 mk0h.3             ;0fb7  71 3b e5     Clear STMK0 (enables INTST0)
+;XXX
+    nop
+    nop
+    nop
+;    clr1 pr0h.3             ;0fba  71 3b e9     Clear STPR0 (makes INTST0 high priority)
+;XXX
+    nop
+    nop
+    nop
     clr1 mem_fe7a.3         ;0fbd  3b 7a
     set1 mem_fe7b.0         ;0fbf  0a 7b
     clr1 mem_fe7a.7         ;0fc1  7b 7a
@@ -9255,10 +9342,18 @@ intst0_307e:
     push ax                 ;307e  b1
     bt mem_fe7a.2,lab_308d  ;307f  ac 7a 0b
     clr1 mem_fe79.0         ;3082  0b 79
-    set1 shadow_p2.5        ;3084  5a cc        P25/TxD0 = 1
+;    set1 shadow_p2.5        ;3084  5a cc        P25/TxD0 = 1
+;XXX
+    nop
+    nop
     mov a,shadow_p2         ;3086  f0 cc
     mov p2,a                ;3088  f2 02
-    clr1 asim0.7            ;308a  71 7b a0     TXE0=0 (disable UART0 transmit)
+
+;    clr1 asim0.7            ;308a  71 7b a0     TXE0=0 (disable UART0 transmit)
+;XXX
+    nop
+    nop
+    nop
 
 lab_308d:
     pop ax                  ;308d  b0
@@ -9276,7 +9371,10 @@ sub_308f:
     bnz lab_30e7            ;30a2  bd 43
 
     clr1 mem_fe79.1         ;30a4  1b 79
-    clr1 shadow_p2.5        ;30a6  5b cc        P25/TxD0 = 0
+;    clr1 shadow_p2.5        ;30a6  5b cc        P25/TxD0 = 0
+;XXX
+    nop
+    nop
     mov a,shadow_p2         ;30a8  f0 cc
     mov p2,a                ;30aa  f2 02
     bt mem_fe79.6,lab_30d7  ;30ac  ec 79 28                 Branch to send complement of last byte received
@@ -9318,19 +9416,26 @@ lab_30de:
 ;Send byte in A out UART0
     set1 mem_fe79.0         ;30de  0a 79
     mov !mem_f06a,a         ;30e0  9e 6a f0
-    mov rxb0_txs0,a         ;30e3  f2 18
+;    mov rxb0_txs0,a         ;30e3  f2 18
+;XXX
+    nop
+    nop
     br lab_30e7             ;30e5  fa 00
 
 lab_30e7:
     ret                     ;30e7  af
 
+;XXX this interrupt is bypassed in the vector table
 intsr0_30e8:
 ;UART0 receive complete interrupt
     push ax                 ;30e8  b1
     push bc                 ;30e9  b3
     push hl                 ;30ea  b7
     push de                 ;30eb  b5
-    mov a,rxb0_txs0         ;30ec  f0 18            A = KWP1281 byte received from UART
+;    mov a,rxb0_txs0         ;30ec  f0 18            A = KWP1281 byte received from UART
+;XXX
+    nop
+    nop
     bf mem_fe7a.2,lab_3148  ;30ee  31 23 7a 56
     btclr mem_fe79.0,lab_313f ;30f2  31 01 79 49
     btclr mem_fe79.7,lab_3142 ;30f6  31 71 79 48
@@ -9390,7 +9495,11 @@ lab_3148:
     br lab_3153             ;314e  fa 03        Branch to pop all registers off stack and reti
 
 lab_3150:
-    clr1 asim0.6            ;3150  71 6b a0     RXE0=0 (disable UART0 receive)
+;    clr1 asim0.6            ;3150  71 6b a0     RXE0=0 (disable UART0 receive)
+;XXX
+    nop
+    nop
+    nop
 
 lab_3153:
 ;Pop all registers off stack and return
@@ -9623,7 +9732,11 @@ lab_32ba:
     mov a,!mem_f06d         ;32c6  8e 6d f0
     mov b,a                 ;32c9  73
     mov a,[hl+b]            ;32ca  ab
-    mov asim0,a             ;32cb  f6 a0        Load UART0 mode register
+
+;    mov asim0,a             ;32cb  f6 a0        Load UART0 mode register
+;XXX
+    nop
+    nop
 
     movw hl,#kwp_unknown_b03b+1 ;32cd  16 3c b0
     mov a,!mem_f06d         ;32d0  8e 6d f0
@@ -9637,6 +9750,7 @@ lab_32ba:
 lab_32dc:
     br !lab_3153            ;32dc  9b 53 31
 
+;XXX this interrupt is bypassed in the vector table
 intser0_32df:
 ;UART0 receive error interrupt
     push ax                 ;32df  b1
@@ -9644,10 +9758,17 @@ intser0_32df:
     push hl                 ;32e1  b7
     push de                 ;32e2  b5
 
-    mov a,asis0             ;32e3  f4 a1          A = UART0 status register when interrupt occurred
+;    mov a,asis0             ;32e3  f4 a1          A = UART0 status register when interrupt occurred
+;XXX
+    nop
+    nop
+
     mov x,a                 ;32e5  70             Save UART0 status register in X
 
-    mov a,rxb0_txs0         ;32e6  f0 18          A = byte received
+;    mov a,rxb0_txs0         ;32e6  f0 18          A = byte received
+;XXX
+    nop
+    nop
     clr1 if0h.2             ;32e8  71 2b e1       Clear receive complete interrupt flag
 
     bf mem_fe7a.2,lab_3304  ;32eb  31 23 7a 15
@@ -9689,7 +9810,11 @@ lab_331c:
     call !sub_3468          ;331e  9a 68 34
 
 lab_3321:
-    clr1 asim0.6            ;3321  71 6b a0       RXE0=0 (disable UART0 receive)
+;    clr1 asim0.6            ;3321  71 6b a0       RXE0=0 (disable UART0 receive)
+;XXX
+    nop
+    nop
+    nop
 
 lab_3324:
 ;Pop all registers off stack and return
@@ -9758,10 +9883,17 @@ sub_3370:
     set1 mem_fe7b.4         ;3390  4a 7b
 
 lab_3392:
-    set1 shadow_p2.5        ;3392  5a cc          P25/TxD0 = 1
+;    set1 shadow_p2.5        ;3392  5a cc          P25/TxD0 = 1
+;XXX
+    nop
+    nop
     mov a,shadow_p2         ;3394  f0 cc
     mov p2,a                ;3396  f2 02
-    mov asim0,#0x00         ;3398  13 a0 00       UART0 mode register = 0 (UART fully disabled)
+;    mov asim0,#0x00         ;3398  13 a0 00       UART0 mode register = 0 (UART fully disabled)
+;XXX
+    nop
+    nop
+    nop
     br !sub_3468            ;339b  9b 68 34
 
 sub_339e:
@@ -9889,7 +10021,10 @@ lab_3460:
 
 sub_3468:
     clr1 mem_fe7a.2         ;3468  2b 7a
-    set1 shadow_p2.5        ;346a  5a cc        P25/TxD0 = 1
+;    set1 shadow_p2.5        ;346a  5a cc        P25/TxD0 = 1
+;XXX
+    nop
+    nop
     mov a,shadow_p2         ;346c  f0 cc
     mov p2,a                ;346e  f2 02
     btclr mem_fe7b.4,lab_348b ;3470  31 41 7b 17
@@ -10013,7 +10148,10 @@ lab_352a:
     clr1 shadow_p2.6        ;352a  6b cc
     mov a,shadow_p2         ;352c  f0 cc
     mov p2,a                ;352e  f2 02
-    set1 shadow_p2.5        ;3530  5a cc        P25/TxD0 = 1
+;    set1 shadow_p2.5        ;3530  5a cc        P25/TxD0 = 1
+;XXX
+    nop
+    nop
     mov a,shadow_p2         ;3532  f0 cc
     mov p2,a                ;3534  f2 02
     mov a,#0xdb             ;3536  a1 db
@@ -10034,11 +10172,19 @@ lab_3541:
     bnz lab_357b            ;3552  bd 27
 
 lab_3554:
-    mov asim0,#0x00         ;3554  13 a0 00     UART0 mode register = 0 (UART fully disabled)
+;    mov asim0,#0x00         ;3554  13 a0 00     UART0 mode register = 0 (UART fully disabled)
+;XXX
+    nop
+    nop
+    nop
+
     set1 shadow_p2.6        ;3557  6a cc
     mov a,shadow_p2         ;3559  f0 cc
     mov p2,a                ;355b  f2 02
-    clr1 shadow_p2.5        ;355d  5b cc        P25/TxD0 = 0
+;    clr1 shadow_p2.5        ;355d  5b cc        P25/TxD0 = 0
+;XXX
+    nop
+    nop
     mov a,shadow_p2         ;355f  f0 cc
     mov p2,a                ;3561  f2 02
     mov a,#0x00             ;3563  a1 00
@@ -10067,7 +10213,10 @@ sub_357c:
     clr1 shadow_p2.6        ;3592  6b cc
     mov a,shadow_p2         ;3594  f0 cc
     mov p2,a                ;3596  f2 02
-    set1 shadow_p2.5        ;3598  5a cc        P25/TxD0 = 1
+;    set1 shadow_p2.5        ;3598  5a cc        P25/TxD0 = 1
+;XXX
+    nop
+    nop
     mov a,shadow_p2         ;359a  f0 cc
     mov p2,a                ;359c  f2 02
     mov a,#0xdb             ;359e  a1 db
@@ -10097,14 +10246,21 @@ lab_35ab:
     ;TODO this looks like bit-bang transmitting the address at 5 baud
 
     mov1 mem_fe7a.6,cy      ;35c6  71 61 7a
-    mov1 shadow_p2.5,cy     ;35c9  71 51 cc     P25/TxD0 = CY
+;    mov1 shadow_p2.5,cy     ;35c9  71 51 cc     P25/TxD0 = CY
+;XXX
+    nop
+    nop
+    nop
     mov a,shadow_p2         ;35cc  f0 cc
     mov p2,a                ;35ce  f2 02
     br lab_35e8             ;35d0  fa 16        Branch to return
 
 lab_35d2:
     set1 mem_fe7a.6         ;35d2  6a 7a
-    set1 shadow_p2.5        ;35d4  5a cc        P25/TxD0 = 1
+;    set1 shadow_p2.5        ;35d4  5a cc        P25/TxD0 = 1
+;XXX
+    nop
+    nop
     mov a,shadow_p2         ;35d6  f0 cc
     mov p2,a                ;35d8  f2 02
     br lab_35e8             ;35da  fa 0c        Branch to return
@@ -10139,7 +10295,10 @@ lab_3607:
     clr1 shadow_p2.6        ;3609  6b cc
     mov a,shadow_p2         ;360b  f0 cc
     mov p2,a                ;360d  f2 02
-    set1 shadow_p2.5        ;360f  5a cc        P25/TxD0 = 1
+;    set1 shadow_p2.5        ;360f  5a cc        P25/TxD0 = 1
+;XXX
+    nop
+    nop
     mov a,shadow_p2         ;3611  f0 cc
     mov p2,a                ;3613  f2 02
     bt mem_fe7b.6,lab_362d  ;3615  ec 7b 15
@@ -10673,9 +10832,24 @@ lab_3952:
 
 lab_395d:
     call !sub_3a10          ;395d  9a 10 3a
-    mov asim0,#0x00         ;3960  13 a0 00       UART0 mode register = 0 (UART fully disabled)
-    mov brgc0,#0x7e         ;3963  13 a2 7e       Baud rate generator = 546 baud (???)
-    mov asim0,#0x48         ;3966  13 a0 48       UART0 mode register = RX only, N81
+;    mov asim0,#0x00         ;3960  13 a0 00       UART0 mode register = 0 (UART fully disabled)
+;XXX
+    nop
+    nop
+    nop
+
+;    mov brgc0,#0x7e         ;3963  13 a2 7e       Baud rate generator = 546 baud (???)
+;XXX
+    nop
+    nop
+    nop
+
+;    mov asim0,#0x48         ;3966  13 a0 48       UART0 mode register = RX only, N81
+;XXX
+    nop
+    nop
+    nop
+
     call !sub_3acf          ;3969  9a cf 3a
     mov mem_fe2a,#0x0e      ;396c  11 2a 0e
     mov mem_fe2b,#0x80      ;396f  11 2b 80
@@ -10701,7 +10875,11 @@ lab_3991:
     bf p2.4,lab_39a2        ;3995  31 43 02 09    Branch if P24/RxD0 = 0
     bf mem_fe7b.6,lab_39a2  ;3999  31 63 7b 05
     clr1 mem_fe7b.6         ;399d  6b 7b
-    set1 asim0.6            ;399f  71 6a a0       RXE0=1 (enable UART0 receive)
+;    set1 asim0.6            ;399f  71 6a a0       RXE0=1 (enable UART0 receive)
+;XXX
+    nop
+    nop
+    nop
 
 lab_39a2:
     call !sub_4902          ;39a2  9a 02 49
@@ -10793,8 +10971,16 @@ lab_3a41:
     br !lab_3acb            ;3a44  9b cb 3a
 
 lab_3a47:
-    mov asim0,#0x00         ;3a47  13 a0 00     UART0 mode register = 0 (UART fully disabled)
-    set1 mk0h.1             ;3a4a  71 1a e5     Set SERMK0 (disables INTSER0)
+;    mov asim0,#0x00         ;3a47  13 a0 00     UART0 mode register = 0 (UART fully disabled)
+;XXX
+    nop
+    nop
+    nop
+;    set1 mk0h.1             ;3a4a  71 1a e5     Set SERMK0 (disables INTSER0)
+;XXX
+    nop
+    nop
+    nop
     set1 mem_fe7a.5         ;3a4d  5a 7a
     clr1 mem_fe7a.6         ;3a4f  6b 7a
     mov a,#0x00             ;3a51  a1 00
@@ -10859,11 +11045,32 @@ lab_3ab0:
 lab_3ab8:
     clr1 mem_fe7a.5         ;3ab8  5b 7a
     clr1 mem_fe7b.7         ;3aba  7b 7b
-    mov asim0,#0x00         ;3abc  13 a0 00     UART0 mode register = 0 (UART fully disabled)
-    mov brgc0,#0x7e         ;3abf  13 a2 7e     Baud rate generator 0 = 546 baud (???)
-    mov asim0,#0x48         ;3ac2  13 a0 48     UART0 mode register = RX only, N81
-    clr1 mk0h.1             ;3ac5  71 1b e5     Clear SERMK0 (enables INTSER0)
-    set1 pr0h.1             ;3ac8  71 1a e9     Set SERPR0 (makes INTSER0 low priority)
+;    mov asim0,#0x00         ;3abc  13 a0 00     UART0 mode register = 0 (UART fully disabled)
+;XXX
+    nop
+    nop
+    nop
+;    mov brgc0,#0x7e         ;3abf  13 a2 7e     Baud rate generator 0 = 546 baud (???)
+;XXX
+    nop
+    nop
+    nop
+;    mov asim0,#0x48         ;3ac2  13 a0 48     UART0 mode register = RX only, N81
+;XXX
+    nop
+    nop
+    nop
+
+;    clr1 mk0h.1             ;3ac5  71 1b e5     Clear SERMK0 (enables INTSER0)
+;XXX
+    nop
+    nop
+    nop
+;    set1 pr0h.1             ;3ac8  71 1a e9     Set SERPR0 (makes INTSER0 low priority)
+;XXX
+    nop
+    nop
+    nop
 
 lab_3acb:
     ret                     ;3acb  af
@@ -10875,10 +11082,26 @@ intp2_3acc:
 sub_3acf:
     call !sub_6078          ;3acf  9a 78 60
     call !sub_4d63          ;3ad2  9a 63 4d
-    clr1 pu2.4              ;3ad5  71 4b 32
-    set1 pm2.4              ;3ad8  71 4a 22
-    clr1 pu2.5              ;3adb  71 5b 32
-    set1 pm2.5              ;3ade  71 5a 22
+;    clr1 pu2.4              ;3ad5  71 4b 32
+;XXX
+    nop
+    nop
+    nop
+;    set1 pm2.4              ;3ad8  71 4a 22
+;XXX
+    nop
+    nop
+    nop
+;    clr1 pu2.5              ;3adb  71 5b 32
+;XXX
+    nop
+    nop
+    nop
+;    set1 pm2.5              ;3ade  71 5a 22
+;XXX
+    nop
+    nop
+    nop
     clr1 pu2.6              ;3ae1  71 6b 32
     set1 pm2.6              ;3ae4  71 6a 22
     clr1 shadow_p2.7        ;3ae7  7b cc
@@ -14906,10 +15129,16 @@ lab_51ca:
     mov a,!mem_f06d         ;51cd  8e 6d f0
     mov b,a                 ;51d0  73
     mov a,[hl+b]            ;51d1  ab
-    mov brgc0,a             ;51d2  f6 a2        Load baud rate generator 0 with A
+;    mov brgc0,a             ;51d2  f6 a2        Load baud rate generator 0 with A
+;XXX
+    nop
+    nop
 
     mov a,#0xca             ;51d4  a1 ca        0xCA = UART TX & RX enabled, N81
-    mov asim0,a             ;51d6  f6 a0        Load UART0 mode register
+;    mov asim0,a             ;51d6  f6 a0        Load UART0 mode register
+;XXX
+    nop
+    nop
 
     mov a,#0x2e             ;51d8  a1 2e
     mov !mem_f06e,a         ;51da  9e 6e f0
@@ -14922,10 +15151,16 @@ lab_51e2:
     mov a,!mem_f06d         ;51e5  8e 6d f0
     mov b,a                 ;51e8  73
     mov a,[hl+b]            ;51e9  ab
-    mov brgc0,a             ;51ea  f6 a2      Load baud rate generate 0 with A
+;    mov brgc0,a             ;51ea  f6 a2      Load baud rate generate 0 with A
+;XXX
+    nop
+    nop
 
     mov a,#0xca             ;51ec  a1 ca      0xCA = UART TX & RX enabled, N81
-    mov asim0,a             ;51ee  f6 a0      Load UART0 mode register
+;    mov asim0,a             ;51ee  f6 a0      Load UART0 mode register
+;XXX
+    nop
+    nop
 
     mov a,#0x79             ;51f0  a1 79
     mov !mem_f06e,a         ;51f2  9e 6e f0
@@ -14953,10 +15188,16 @@ lab_520b:
     mov a,!mem_f06d         ;5212  8e 6d f0
     mov b,a                 ;5215  73
     mov a,[hl+b]            ;5216  ab
-    mov brgc0,a             ;5217  f6 a2          Load baud rate generator 0 with A
+;    mov brgc0,a             ;5217  f6 a2          Load baud rate generator 0 with A
+;XXX
+    nop
+    nop
 
     mov a,#0xca             ;5219  a1 ca          0xCA = UART TX & RX enabled, N81
-    mov asim0,a             ;521b  f6 a0          Load UART0 mode register
+;    mov asim0,a             ;521b  f6 a0          Load UART0 mode register
+;XXX
+    nop
+    nop
 
     mov a,#0x1c             ;521d  a1 1c
     mov !mem_f06f,a         ;521f  9e 6f f0
@@ -14998,11 +15239,17 @@ lab_5252:
     mov a,!mem_f06d         ;5255  8e 6d f0
     mov b,a                 ;5258  73
     mov a,[hl+b]            ;5259  ab
-    mov brgc0,a             ;525a  f6 a2          Load baud rate generator 0 with A
+;    mov brgc0,a             ;525a  f6 a2          Load baud rate generator 0 with A
+;XXX
+    nop
+    nop
 
     movw hl,#kwp_asim0_b031+1 ;525c  16 32 b0
     mov a,[hl+b]            ;525f  ab
-    mov asim0,a             ;5260  f6 a0          Load UART0 mode register
+;    mov asim0,a             ;5260  f6 a0          Load UART0 mode register
+;XXX
+    nop
+    nop
 
     mov a,!mem_f06d         ;5262  8e 6d f0
     cmp a,#0x01             ;5265  4d 01
@@ -40283,5025 +40530,72 @@ lab_dc58:
 lab_dc63:
     ret                     ;dc63  af
 
-filler_dc64:
-    brk                     ;dc64  bf
-    brk                     ;dc65  bf
-    brk                     ;dc66  bf
-    brk                     ;dc67  bf
-    brk                     ;dc68  bf
-    brk                     ;dc69  bf
-    brk                     ;dc6a  bf
-    brk                     ;dc6b  bf
-    brk                     ;dc6c  bf
-    brk                     ;dc6d  bf
-    brk                     ;dc6e  bf
-    brk                     ;dc6f  bf
-    brk                     ;dc70  bf
-    brk                     ;dc71  bf
-    brk                     ;dc72  bf
-    brk                     ;dc73  bf
-    brk                     ;dc74  bf
-    brk                     ;dc75  bf
-    brk                     ;dc76  bf
-    brk                     ;dc77  bf
-    brk                     ;dc78  bf
-    brk                     ;dc79  bf
-    brk                     ;dc7a  bf
-    brk                     ;dc7b  bf
-    brk                     ;dc7c  bf
-    brk                     ;dc7d  bf
-    brk                     ;dc7e  bf
-    brk                     ;dc7f  bf
-    brk                     ;dc80  bf
-    brk                     ;dc81  bf
-    brk                     ;dc82  bf
-    brk                     ;dc83  bf
-    brk                     ;dc84  bf
-    brk                     ;dc85  bf
-    brk                     ;dc86  bf
-    brk                     ;dc87  bf
-    brk                     ;dc88  bf
-    brk                     ;dc89  bf
-    brk                     ;dc8a  bf
-    brk                     ;dc8b  bf
-    brk                     ;dc8c  bf
-    brk                     ;dc8d  bf
-    brk                     ;dc8e  bf
-    brk                     ;dc8f  bf
-    brk                     ;dc90  bf
-    brk                     ;dc91  bf
-    brk                     ;dc92  bf
-    brk                     ;dc93  bf
-    brk                     ;dc94  bf
-    brk                     ;dc95  bf
-    brk                     ;dc96  bf
-    brk                     ;dc97  bf
-    brk                     ;dc98  bf
-    brk                     ;dc99  bf
-    brk                     ;dc9a  bf
-    brk                     ;dc9b  bf
-    brk                     ;dc9c  bf
-    brk                     ;dc9d  bf
-    brk                     ;dc9e  bf
-    brk                     ;dc9f  bf
-    brk                     ;dca0  bf
-    brk                     ;dca1  bf
-    brk                     ;dca2  bf
-    brk                     ;dca3  bf
-    brk                     ;dca4  bf
-    brk                     ;dca5  bf
-    brk                     ;dca6  bf
-    brk                     ;dca7  bf
-    brk                     ;dca8  bf
-    brk                     ;dca9  bf
-    brk                     ;dcaa  bf
-    brk                     ;dcab  bf
-    brk                     ;dcac  bf
-    brk                     ;dcad  bf
-    brk                     ;dcae  bf
-    brk                     ;dcaf  bf
-    brk                     ;dcb0  bf
-    brk                     ;dcb1  bf
-    brk                     ;dcb2  bf
-    brk                     ;dcb3  bf
-    brk                     ;dcb4  bf
-    brk                     ;dcb5  bf
-    brk                     ;dcb6  bf
-    brk                     ;dcb7  bf
-    brk                     ;dcb8  bf
-    brk                     ;dcb9  bf
-    brk                     ;dcba  bf
-    brk                     ;dcbb  bf
-    brk                     ;dcbc  bf
-    brk                     ;dcbd  bf
-    brk                     ;dcbe  bf
-    brk                     ;dcbf  bf
-    brk                     ;dcc0  bf
-    brk                     ;dcc1  bf
-    brk                     ;dcc2  bf
-    brk                     ;dcc3  bf
-    brk                     ;dcc4  bf
-    brk                     ;dcc5  bf
-    brk                     ;dcc6  bf
-    brk                     ;dcc7  bf
-    brk                     ;dcc8  bf
-    brk                     ;dcc9  bf
-    brk                     ;dcca  bf
-    brk                     ;dccb  bf
-    brk                     ;dccc  bf
-    brk                     ;dccd  bf
-    brk                     ;dcce  bf
-    brk                     ;dccf  bf
-    brk                     ;dcd0  bf
-    brk                     ;dcd1  bf
-    brk                     ;dcd2  bf
-    brk                     ;dcd3  bf
-    brk                     ;dcd4  bf
-    brk                     ;dcd5  bf
-    brk                     ;dcd6  bf
-    brk                     ;dcd7  bf
-    brk                     ;dcd8  bf
-    brk                     ;dcd9  bf
-    brk                     ;dcda  bf
-    brk                     ;dcdb  bf
-    brk                     ;dcdc  bf
-    brk                     ;dcdd  bf
-    brk                     ;dcde  bf
-    brk                     ;dcdf  bf
-    brk                     ;dce0  bf
-    brk                     ;dce1  bf
-    brk                     ;dce2  bf
-    brk                     ;dce3  bf
-    brk                     ;dce4  bf
-    brk                     ;dce5  bf
-    brk                     ;dce6  bf
-    brk                     ;dce7  bf
-    brk                     ;dce8  bf
-    brk                     ;dce9  bf
-    brk                     ;dcea  bf
-    brk                     ;dceb  bf
-    brk                     ;dcec  bf
-    brk                     ;dced  bf
-    brk                     ;dcee  bf
-    brk                     ;dcef  bf
-    brk                     ;dcf0  bf
-    brk                     ;dcf1  bf
-    brk                     ;dcf2  bf
-    brk                     ;dcf3  bf
-    brk                     ;dcf4  bf
-    brk                     ;dcf5  bf
-    brk                     ;dcf6  bf
-    brk                     ;dcf7  bf
-    brk                     ;dcf8  bf
-    brk                     ;dcf9  bf
-    brk                     ;dcfa  bf
-    brk                     ;dcfb  bf
-    brk                     ;dcfc  bf
-    brk                     ;dcfd  bf
-    brk                     ;dcfe  bf
-    brk                     ;dcff  bf
-    brk                     ;dd00  bf
-    brk                     ;dd01  bf
-    brk                     ;dd02  bf
-    brk                     ;dd03  bf
-    brk                     ;dd04  bf
-    brk                     ;dd05  bf
-    brk                     ;dd06  bf
-    brk                     ;dd07  bf
-    brk                     ;dd08  bf
-    brk                     ;dd09  bf
-    brk                     ;dd0a  bf
-    brk                     ;dd0b  bf
-    brk                     ;dd0c  bf
-    brk                     ;dd0d  bf
-    brk                     ;dd0e  bf
-    brk                     ;dd0f  bf
-    brk                     ;dd10  bf
-    brk                     ;dd11  bf
-    brk                     ;dd12  bf
-    brk                     ;dd13  bf
-    brk                     ;dd14  bf
-    brk                     ;dd15  bf
-    brk                     ;dd16  bf
-    brk                     ;dd17  bf
-    brk                     ;dd18  bf
-    brk                     ;dd19  bf
-    brk                     ;dd1a  bf
-    brk                     ;dd1b  bf
-    brk                     ;dd1c  bf
-    brk                     ;dd1d  bf
-    brk                     ;dd1e  bf
-    brk                     ;dd1f  bf
-    brk                     ;dd20  bf
-    brk                     ;dd21  bf
-    brk                     ;dd22  bf
-    brk                     ;dd23  bf
-    brk                     ;dd24  bf
-    brk                     ;dd25  bf
-    brk                     ;dd26  bf
-    brk                     ;dd27  bf
-    brk                     ;dd28  bf
-    brk                     ;dd29  bf
-    brk                     ;dd2a  bf
-    brk                     ;dd2b  bf
-    brk                     ;dd2c  bf
-    brk                     ;dd2d  bf
-    brk                     ;dd2e  bf
-    brk                     ;dd2f  bf
-    brk                     ;dd30  bf
-    brk                     ;dd31  bf
-    brk                     ;dd32  bf
-    brk                     ;dd33  bf
-    brk                     ;dd34  bf
-    brk                     ;dd35  bf
-    brk                     ;dd36  bf
-    brk                     ;dd37  bf
-    brk                     ;dd38  bf
-    brk                     ;dd39  bf
-    brk                     ;dd3a  bf
-    brk                     ;dd3b  bf
-    brk                     ;dd3c  bf
-    brk                     ;dd3d  bf
-    brk                     ;dd3e  bf
-    brk                     ;dd3f  bf
-    brk                     ;dd40  bf
-    brk                     ;dd41  bf
-    brk                     ;dd42  bf
-    brk                     ;dd43  bf
-    brk                     ;dd44  bf
-    brk                     ;dd45  bf
-    brk                     ;dd46  bf
-    brk                     ;dd47  bf
-    brk                     ;dd48  bf
-    brk                     ;dd49  bf
-    brk                     ;dd4a  bf
-    brk                     ;dd4b  bf
-    brk                     ;dd4c  bf
-    brk                     ;dd4d  bf
-    brk                     ;dd4e  bf
-    brk                     ;dd4f  bf
-    brk                     ;dd50  bf
-    brk                     ;dd51  bf
-    brk                     ;dd52  bf
-    brk                     ;dd53  bf
-    brk                     ;dd54  bf
-    brk                     ;dd55  bf
-    brk                     ;dd56  bf
-    brk                     ;dd57  bf
-    brk                     ;dd58  bf
-    brk                     ;dd59  bf
-    brk                     ;dd5a  bf
-    brk                     ;dd5b  bf
-    brk                     ;dd5c  bf
-    brk                     ;dd5d  bf
-    brk                     ;dd5e  bf
-    brk                     ;dd5f  bf
-    brk                     ;dd60  bf
-    brk                     ;dd61  bf
-    brk                     ;dd62  bf
-    brk                     ;dd63  bf
-    brk                     ;dd64  bf
-    brk                     ;dd65  bf
-    brk                     ;dd66  bf
-    brk                     ;dd67  bf
-    brk                     ;dd68  bf
-    brk                     ;dd69  bf
-    brk                     ;dd6a  bf
-    brk                     ;dd6b  bf
-    brk                     ;dd6c  bf
-    brk                     ;dd6d  bf
-    brk                     ;dd6e  bf
-    brk                     ;dd6f  bf
-    brk                     ;dd70  bf
-    brk                     ;dd71  bf
-    brk                     ;dd72  bf
-    brk                     ;dd73  bf
-    brk                     ;dd74  bf
-    brk                     ;dd75  bf
-    brk                     ;dd76  bf
-    brk                     ;dd77  bf
-    brk                     ;dd78  bf
-    brk                     ;dd79  bf
-    brk                     ;dd7a  bf
-    brk                     ;dd7b  bf
-    brk                     ;dd7c  bf
-    brk                     ;dd7d  bf
-    brk                     ;dd7e  bf
-    brk                     ;dd7f  bf
-    brk                     ;dd80  bf
-    brk                     ;dd81  bf
-    brk                     ;dd82  bf
-    brk                     ;dd83  bf
-    brk                     ;dd84  bf
-    brk                     ;dd85  bf
-    brk                     ;dd86  bf
-    brk                     ;dd87  bf
-    brk                     ;dd88  bf
-    brk                     ;dd89  bf
-    brk                     ;dd8a  bf
-    brk                     ;dd8b  bf
-    brk                     ;dd8c  bf
-    brk                     ;dd8d  bf
-    brk                     ;dd8e  bf
-    brk                     ;dd8f  bf
-    brk                     ;dd90  bf
-    brk                     ;dd91  bf
-    brk                     ;dd92  bf
-    brk                     ;dd93  bf
-    brk                     ;dd94  bf
-    brk                     ;dd95  bf
-    brk                     ;dd96  bf
-    brk                     ;dd97  bf
-    brk                     ;dd98  bf
-    brk                     ;dd99  bf
-    brk                     ;dd9a  bf
-    brk                     ;dd9b  bf
-    brk                     ;dd9c  bf
-    brk                     ;dd9d  bf
-    brk                     ;dd9e  bf
-    brk                     ;dd9f  bf
-    brk                     ;dda0  bf
-    brk                     ;dda1  bf
-    brk                     ;dda2  bf
-    brk                     ;dda3  bf
-    brk                     ;dda4  bf
-    brk                     ;dda5  bf
-    brk                     ;dda6  bf
-    brk                     ;dda7  bf
-    brk                     ;dda8  bf
-    brk                     ;dda9  bf
-    brk                     ;ddaa  bf
-    brk                     ;ddab  bf
-    brk                     ;ddac  bf
-    brk                     ;ddad  bf
-    brk                     ;ddae  bf
-    brk                     ;ddaf  bf
-    brk                     ;ddb0  bf
-    brk                     ;ddb1  bf
-    brk                     ;ddb2  bf
-    brk                     ;ddb3  bf
-    brk                     ;ddb4  bf
-    brk                     ;ddb5  bf
-    brk                     ;ddb6  bf
-    brk                     ;ddb7  bf
-    brk                     ;ddb8  bf
-    brk                     ;ddb9  bf
-    brk                     ;ddba  bf
-    brk                     ;ddbb  bf
-    brk                     ;ddbc  bf
-    brk                     ;ddbd  bf
-    brk                     ;ddbe  bf
-    brk                     ;ddbf  bf
-    brk                     ;ddc0  bf
-    brk                     ;ddc1  bf
-    brk                     ;ddc2  bf
-    brk                     ;ddc3  bf
-    brk                     ;ddc4  bf
-    brk                     ;ddc5  bf
-    brk                     ;ddc6  bf
-    brk                     ;ddc7  bf
-    brk                     ;ddc8  bf
-    brk                     ;ddc9  bf
-    brk                     ;ddca  bf
-    brk                     ;ddcb  bf
-    brk                     ;ddcc  bf
-    brk                     ;ddcd  bf
-    brk                     ;ddce  bf
-    brk                     ;ddcf  bf
-    brk                     ;ddd0  bf
-    brk                     ;ddd1  bf
-    brk                     ;ddd2  bf
-    brk                     ;ddd3  bf
-    brk                     ;ddd4  bf
-    brk                     ;ddd5  bf
-    brk                     ;ddd6  bf
-    brk                     ;ddd7  bf
-    brk                     ;ddd8  bf
-    brk                     ;ddd9  bf
-    brk                     ;ddda  bf
-    brk                     ;dddb  bf
-    brk                     ;dddc  bf
-    brk                     ;dddd  bf
-    brk                     ;ddde  bf
-    brk                     ;dddf  bf
-    brk                     ;dde0  bf
-    brk                     ;dde1  bf
-    brk                     ;dde2  bf
-    brk                     ;dde3  bf
-    brk                     ;dde4  bf
-    brk                     ;dde5  bf
-    brk                     ;dde6  bf
-    brk                     ;dde7  bf
-    brk                     ;dde8  bf
-    brk                     ;dde9  bf
-    brk                     ;ddea  bf
-    brk                     ;ddeb  bf
-    brk                     ;ddec  bf
-    brk                     ;dded  bf
-    brk                     ;ddee  bf
-    brk                     ;ddef  bf
-    brk                     ;ddf0  bf
-    brk                     ;ddf1  bf
-    brk                     ;ddf2  bf
-    brk                     ;ddf3  bf
-    brk                     ;ddf4  bf
-    brk                     ;ddf5  bf
-    brk                     ;ddf6  bf
-    brk                     ;ddf7  bf
-    brk                     ;ddf8  bf
-    brk                     ;ddf9  bf
-    brk                     ;ddfa  bf
-    brk                     ;ddfb  bf
-    brk                     ;ddfc  bf
-    brk                     ;ddfd  bf
-    brk                     ;ddfe  bf
-    brk                     ;ddff  bf
-    brk                     ;de00  bf
-    brk                     ;de01  bf
-    brk                     ;de02  bf
-    brk                     ;de03  bf
-    brk                     ;de04  bf
-    brk                     ;de05  bf
-    brk                     ;de06  bf
-    brk                     ;de07  bf
-    brk                     ;de08  bf
-    brk                     ;de09  bf
-    brk                     ;de0a  bf
-    brk                     ;de0b  bf
-    brk                     ;de0c  bf
-    brk                     ;de0d  bf
-    brk                     ;de0e  bf
-    brk                     ;de0f  bf
-    brk                     ;de10  bf
-    brk                     ;de11  bf
-    brk                     ;de12  bf
-    brk                     ;de13  bf
-    brk                     ;de14  bf
-    brk                     ;de15  bf
-    brk                     ;de16  bf
-    brk                     ;de17  bf
-    brk                     ;de18  bf
-    brk                     ;de19  bf
-    brk                     ;de1a  bf
-    brk                     ;de1b  bf
-    brk                     ;de1c  bf
-    brk                     ;de1d  bf
-    brk                     ;de1e  bf
-    brk                     ;de1f  bf
-    brk                     ;de20  bf
-    brk                     ;de21  bf
-    brk                     ;de22  bf
-    brk                     ;de23  bf
-    brk                     ;de24  bf
-    brk                     ;de25  bf
-    brk                     ;de26  bf
-    brk                     ;de27  bf
-    brk                     ;de28  bf
-    brk                     ;de29  bf
-    brk                     ;de2a  bf
-    brk                     ;de2b  bf
-    brk                     ;de2c  bf
-    brk                     ;de2d  bf
-    brk                     ;de2e  bf
-    brk                     ;de2f  bf
-    brk                     ;de30  bf
-    brk                     ;de31  bf
-    brk                     ;de32  bf
-    brk                     ;de33  bf
-    brk                     ;de34  bf
-    brk                     ;de35  bf
-    brk                     ;de36  bf
-    brk                     ;de37  bf
-    brk                     ;de38  bf
-    brk                     ;de39  bf
-    brk                     ;de3a  bf
-    brk                     ;de3b  bf
-    brk                     ;de3c  bf
-    brk                     ;de3d  bf
-    brk                     ;de3e  bf
-    brk                     ;de3f  bf
-    brk                     ;de40  bf
-    brk                     ;de41  bf
-    brk                     ;de42  bf
-    brk                     ;de43  bf
-    brk                     ;de44  bf
-    brk                     ;de45  bf
-    brk                     ;de46  bf
-    brk                     ;de47  bf
-    brk                     ;de48  bf
-    brk                     ;de49  bf
-    brk                     ;de4a  bf
-    brk                     ;de4b  bf
-    brk                     ;de4c  bf
-    brk                     ;de4d  bf
-    brk                     ;de4e  bf
-    brk                     ;de4f  bf
-    brk                     ;de50  bf
-    brk                     ;de51  bf
-    brk                     ;de52  bf
-    brk                     ;de53  bf
-    brk                     ;de54  bf
-    brk                     ;de55  bf
-    brk                     ;de56  bf
-    brk                     ;de57  bf
-    brk                     ;de58  bf
-    brk                     ;de59  bf
-    brk                     ;de5a  bf
-    brk                     ;de5b  bf
-    brk                     ;de5c  bf
-    brk                     ;de5d  bf
-    brk                     ;de5e  bf
-    brk                     ;de5f  bf
-    brk                     ;de60  bf
-    brk                     ;de61  bf
-    brk                     ;de62  bf
-    brk                     ;de63  bf
-    brk                     ;de64  bf
-    brk                     ;de65  bf
-    brk                     ;de66  bf
-    brk                     ;de67  bf
-    brk                     ;de68  bf
-    brk                     ;de69  bf
-    brk                     ;de6a  bf
-    brk                     ;de6b  bf
-    brk                     ;de6c  bf
-    brk                     ;de6d  bf
-    brk                     ;de6e  bf
-    brk                     ;de6f  bf
-    brk                     ;de70  bf
-    brk                     ;de71  bf
-    brk                     ;de72  bf
-    brk                     ;de73  bf
-    brk                     ;de74  bf
-    brk                     ;de75  bf
-    brk                     ;de76  bf
-    brk                     ;de77  bf
-    brk                     ;de78  bf
-    brk                     ;de79  bf
-    brk                     ;de7a  bf
-    brk                     ;de7b  bf
-    brk                     ;de7c  bf
-    brk                     ;de7d  bf
-    brk                     ;de7e  bf
-    brk                     ;de7f  bf
-    brk                     ;de80  bf
-    brk                     ;de81  bf
-    brk                     ;de82  bf
-    brk                     ;de83  bf
-    brk                     ;de84  bf
-    brk                     ;de85  bf
-    brk                     ;de86  bf
-    brk                     ;de87  bf
-    brk                     ;de88  bf
-    brk                     ;de89  bf
-    brk                     ;de8a  bf
-    brk                     ;de8b  bf
-    brk                     ;de8c  bf
-    brk                     ;de8d  bf
-    brk                     ;de8e  bf
-    brk                     ;de8f  bf
-    brk                     ;de90  bf
-    brk                     ;de91  bf
-    brk                     ;de92  bf
-    brk                     ;de93  bf
-    brk                     ;de94  bf
-    brk                     ;de95  bf
-    brk                     ;de96  bf
-    brk                     ;de97  bf
-    brk                     ;de98  bf
-    brk                     ;de99  bf
-    brk                     ;de9a  bf
-    brk                     ;de9b  bf
-    brk                     ;de9c  bf
-    brk                     ;de9d  bf
-    brk                     ;de9e  bf
-    brk                     ;de9f  bf
-    brk                     ;dea0  bf
-    brk                     ;dea1  bf
-    brk                     ;dea2  bf
-    brk                     ;dea3  bf
-    brk                     ;dea4  bf
-    brk                     ;dea5  bf
-    brk                     ;dea6  bf
-    brk                     ;dea7  bf
-    brk                     ;dea8  bf
-    brk                     ;dea9  bf
-    brk                     ;deaa  bf
-    brk                     ;deab  bf
-    brk                     ;deac  bf
-    brk                     ;dead  bf
-    brk                     ;deae  bf
-    brk                     ;deaf  bf
-    brk                     ;deb0  bf
-    brk                     ;deb1  bf
-    brk                     ;deb2  bf
-    brk                     ;deb3  bf
-    brk                     ;deb4  bf
-    brk                     ;deb5  bf
-    brk                     ;deb6  bf
-    brk                     ;deb7  bf
-    brk                     ;deb8  bf
-    brk                     ;deb9  bf
-    brk                     ;deba  bf
-    brk                     ;debb  bf
-    brk                     ;debc  bf
-    brk                     ;debd  bf
-    brk                     ;debe  bf
-    brk                     ;debf  bf
-    brk                     ;dec0  bf
-    brk                     ;dec1  bf
-    brk                     ;dec2  bf
-    brk                     ;dec3  bf
-    brk                     ;dec4  bf
-    brk                     ;dec5  bf
-    brk                     ;dec6  bf
-    brk                     ;dec7  bf
-    brk                     ;dec8  bf
-    brk                     ;dec9  bf
-    brk                     ;deca  bf
-    brk                     ;decb  bf
-    brk                     ;decc  bf
-    brk                     ;decd  bf
-    brk                     ;dece  bf
-    brk                     ;decf  bf
-    brk                     ;ded0  bf
-    brk                     ;ded1  bf
-    brk                     ;ded2  bf
-    brk                     ;ded3  bf
-    brk                     ;ded4  bf
-    brk                     ;ded5  bf
-    brk                     ;ded6  bf
-    brk                     ;ded7  bf
-    brk                     ;ded8  bf
-    brk                     ;ded9  bf
-    brk                     ;deda  bf
-    brk                     ;dedb  bf
-    brk                     ;dedc  bf
-    brk                     ;dedd  bf
-    brk                     ;dede  bf
-    brk                     ;dedf  bf
-    brk                     ;dee0  bf
-    brk                     ;dee1  bf
-    brk                     ;dee2  bf
-    brk                     ;dee3  bf
-    brk                     ;dee4  bf
-    brk                     ;dee5  bf
-    brk                     ;dee6  bf
-    brk                     ;dee7  bf
-    brk                     ;dee8  bf
-    brk                     ;dee9  bf
-    brk                     ;deea  bf
-    brk                     ;deeb  bf
-    brk                     ;deec  bf
-    brk                     ;deed  bf
-    brk                     ;deee  bf
-    brk                     ;deef  bf
-    brk                     ;def0  bf
-    brk                     ;def1  bf
-    brk                     ;def2  bf
-    brk                     ;def3  bf
-    brk                     ;def4  bf
-    brk                     ;def5  bf
-    brk                     ;def6  bf
-    brk                     ;def7  bf
-    brk                     ;def8  bf
-    brk                     ;def9  bf
-    brk                     ;defa  bf
-    brk                     ;defb  bf
-    brk                     ;defc  bf
-    brk                     ;defd  bf
-    brk                     ;defe  bf
-    brk                     ;deff  bf
-    brk                     ;df00  bf
-    brk                     ;df01  bf
-    brk                     ;df02  bf
-    brk                     ;df03  bf
-    brk                     ;df04  bf
-    brk                     ;df05  bf
-    brk                     ;df06  bf
-    brk                     ;df07  bf
-    brk                     ;df08  bf
-    brk                     ;df09  bf
-    brk                     ;df0a  bf
-    brk                     ;df0b  bf
-    brk                     ;df0c  bf
-    brk                     ;df0d  bf
-    brk                     ;df0e  bf
-    brk                     ;df0f  bf
-    brk                     ;df10  bf
-    brk                     ;df11  bf
-    brk                     ;df12  bf
-    brk                     ;df13  bf
-    brk                     ;df14  bf
-    brk                     ;df15  bf
-    brk                     ;df16  bf
-    brk                     ;df17  bf
-    brk                     ;df18  bf
-    brk                     ;df19  bf
-    brk                     ;df1a  bf
-    brk                     ;df1b  bf
-    brk                     ;df1c  bf
-    brk                     ;df1d  bf
-    brk                     ;df1e  bf
-    brk                     ;df1f  bf
-    brk                     ;df20  bf
-    brk                     ;df21  bf
-    brk                     ;df22  bf
-    brk                     ;df23  bf
-    brk                     ;df24  bf
-    brk                     ;df25  bf
-    brk                     ;df26  bf
-    brk                     ;df27  bf
-    brk                     ;df28  bf
-    brk                     ;df29  bf
-    brk                     ;df2a  bf
-    brk                     ;df2b  bf
-    brk                     ;df2c  bf
-    brk                     ;df2d  bf
-    brk                     ;df2e  bf
-    brk                     ;df2f  bf
-    brk                     ;df30  bf
-    brk                     ;df31  bf
-    brk                     ;df32  bf
-    brk                     ;df33  bf
-    brk                     ;df34  bf
-    brk                     ;df35  bf
-    brk                     ;df36  bf
-    brk                     ;df37  bf
-    brk                     ;df38  bf
-    brk                     ;df39  bf
-    brk                     ;df3a  bf
-    brk                     ;df3b  bf
-    brk                     ;df3c  bf
-    brk                     ;df3d  bf
-    brk                     ;df3e  bf
-    brk                     ;df3f  bf
-    brk                     ;df40  bf
-    brk                     ;df41  bf
-    brk                     ;df42  bf
-    brk                     ;df43  bf
-    brk                     ;df44  bf
-    brk                     ;df45  bf
-    brk                     ;df46  bf
-    brk                     ;df47  bf
-    brk                     ;df48  bf
-    brk                     ;df49  bf
-    brk                     ;df4a  bf
-    brk                     ;df4b  bf
-    brk                     ;df4c  bf
-    brk                     ;df4d  bf
-    brk                     ;df4e  bf
-    brk                     ;df4f  bf
-    brk                     ;df50  bf
-    brk                     ;df51  bf
-    brk                     ;df52  bf
-    brk                     ;df53  bf
-    brk                     ;df54  bf
-    brk                     ;df55  bf
-    brk                     ;df56  bf
-    brk                     ;df57  bf
-    brk                     ;df58  bf
-    brk                     ;df59  bf
-    brk                     ;df5a  bf
-    brk                     ;df5b  bf
-    brk                     ;df5c  bf
-    brk                     ;df5d  bf
-    brk                     ;df5e  bf
-    brk                     ;df5f  bf
-    brk                     ;df60  bf
-    brk                     ;df61  bf
-    brk                     ;df62  bf
-    brk                     ;df63  bf
-    brk                     ;df64  bf
-    brk                     ;df65  bf
-    brk                     ;df66  bf
-    brk                     ;df67  bf
-    brk                     ;df68  bf
-    brk                     ;df69  bf
-    brk                     ;df6a  bf
-    brk                     ;df6b  bf
-    brk                     ;df6c  bf
-    brk                     ;df6d  bf
-    brk                     ;df6e  bf
-    brk                     ;df6f  bf
-    brk                     ;df70  bf
-    brk                     ;df71  bf
-    brk                     ;df72  bf
-    brk                     ;df73  bf
-    brk                     ;df74  bf
-    brk                     ;df75  bf
-    brk                     ;df76  bf
-    brk                     ;df77  bf
-    brk                     ;df78  bf
-    brk                     ;df79  bf
-    brk                     ;df7a  bf
-    brk                     ;df7b  bf
-    brk                     ;df7c  bf
-    brk                     ;df7d  bf
-    brk                     ;df7e  bf
-    brk                     ;df7f  bf
-    brk                     ;df80  bf
-    brk                     ;df81  bf
-    brk                     ;df82  bf
-    brk                     ;df83  bf
-    brk                     ;df84  bf
-    brk                     ;df85  bf
-    brk                     ;df86  bf
-    brk                     ;df87  bf
-    brk                     ;df88  bf
-    brk                     ;df89  bf
-    brk                     ;df8a  bf
-    brk                     ;df8b  bf
-    brk                     ;df8c  bf
-    brk                     ;df8d  bf
-    brk                     ;df8e  bf
-    brk                     ;df8f  bf
-    brk                     ;df90  bf
-    brk                     ;df91  bf
-    brk                     ;df92  bf
-    brk                     ;df93  bf
-    brk                     ;df94  bf
-    brk                     ;df95  bf
-    brk                     ;df96  bf
-    brk                     ;df97  bf
-    brk                     ;df98  bf
-    brk                     ;df99  bf
-    brk                     ;df9a  bf
-    brk                     ;df9b  bf
-    brk                     ;df9c  bf
-    brk                     ;df9d  bf
-    brk                     ;df9e  bf
-    brk                     ;df9f  bf
-    brk                     ;dfa0  bf
-    brk                     ;dfa1  bf
-    brk                     ;dfa2  bf
-    brk                     ;dfa3  bf
-    brk                     ;dfa4  bf
-    brk                     ;dfa5  bf
-    brk                     ;dfa6  bf
-    brk                     ;dfa7  bf
-    brk                     ;dfa8  bf
-    brk                     ;dfa9  bf
-    brk                     ;dfaa  bf
-    brk                     ;dfab  bf
-    brk                     ;dfac  bf
-    brk                     ;dfad  bf
-    brk                     ;dfae  bf
-    brk                     ;dfaf  bf
-    brk                     ;dfb0  bf
-    brk                     ;dfb1  bf
-    brk                     ;dfb2  bf
-    brk                     ;dfb3  bf
-    brk                     ;dfb4  bf
-    brk                     ;dfb5  bf
-    brk                     ;dfb6  bf
-    brk                     ;dfb7  bf
-    brk                     ;dfb8  bf
-    brk                     ;dfb9  bf
-    brk                     ;dfba  bf
-    brk                     ;dfbb  bf
-    brk                     ;dfbc  bf
-    brk                     ;dfbd  bf
-    brk                     ;dfbe  bf
-    brk                     ;dfbf  bf
-    brk                     ;dfc0  bf
-    brk                     ;dfc1  bf
-    brk                     ;dfc2  bf
-    brk                     ;dfc3  bf
-    brk                     ;dfc4  bf
-    brk                     ;dfc5  bf
-    brk                     ;dfc6  bf
-    brk                     ;dfc7  bf
-    brk                     ;dfc8  bf
-    brk                     ;dfc9  bf
-    brk                     ;dfca  bf
-    brk                     ;dfcb  bf
-    brk                     ;dfcc  bf
-    brk                     ;dfcd  bf
-    brk                     ;dfce  bf
-    brk                     ;dfcf  bf
-    brk                     ;dfd0  bf
-    brk                     ;dfd1  bf
-    brk                     ;dfd2  bf
-    brk                     ;dfd3  bf
-    brk                     ;dfd4  bf
-    brk                     ;dfd5  bf
-    brk                     ;dfd6  bf
-    brk                     ;dfd7  bf
-    brk                     ;dfd8  bf
-    brk                     ;dfd9  bf
-    brk                     ;dfda  bf
-    brk                     ;dfdb  bf
-    brk                     ;dfdc  bf
-    brk                     ;dfdd  bf
-    brk                     ;dfde  bf
-    brk                     ;dfdf  bf
-    brk                     ;dfe0  bf
-    brk                     ;dfe1  bf
-    brk                     ;dfe2  bf
-    brk                     ;dfe3  bf
-    brk                     ;dfe4  bf
-    brk                     ;dfe5  bf
-    brk                     ;dfe6  bf
-    brk                     ;dfe7  bf
-    brk                     ;dfe8  bf
-    brk                     ;dfe9  bf
-    brk                     ;dfea  bf
-    brk                     ;dfeb  bf
-    brk                     ;dfec  bf
-    brk                     ;dfed  bf
-    brk                     ;dfee  bf
-    brk                     ;dfef  bf
-    brk                     ;dff0  bf
-    brk                     ;dff1  bf
-    brk                     ;dff2  bf
-    brk                     ;dff3  bf
-    brk                     ;dff4  bf
-    brk                     ;dff5  bf
-    brk                     ;dff6  bf
-    brk                     ;dff7  bf
-    brk                     ;dff8  bf
-    brk                     ;dff9  bf
-    brk                     ;dffa  bf
-    brk                     ;dffb  bf
-    brk                     ;dffc  bf
-    brk                     ;dffd  bf
-    brk                     ;dffe  bf
-    brk                     ;dfff  bf
-    brk                     ;e000  bf
-    brk                     ;e001  bf
-    brk                     ;e002  bf
-    brk                     ;e003  bf
-    brk                     ;e004  bf
-    brk                     ;e005  bf
-    brk                     ;e006  bf
-    brk                     ;e007  bf
-    brk                     ;e008  bf
-    brk                     ;e009  bf
-    brk                     ;e00a  bf
-    brk                     ;e00b  bf
-    brk                     ;e00c  bf
-    brk                     ;e00d  bf
-    brk                     ;e00e  bf
-    brk                     ;e00f  bf
-    brk                     ;e010  bf
-    brk                     ;e011  bf
-    brk                     ;e012  bf
-    brk                     ;e013  bf
-    brk                     ;e014  bf
-    brk                     ;e015  bf
-    brk                     ;e016  bf
-    brk                     ;e017  bf
-    brk                     ;e018  bf
-    brk                     ;e019  bf
-    brk                     ;e01a  bf
-    brk                     ;e01b  bf
-    brk                     ;e01c  bf
-    brk                     ;e01d  bf
-    brk                     ;e01e  bf
-    brk                     ;e01f  bf
-    brk                     ;e020  bf
-    brk                     ;e021  bf
-    brk                     ;e022  bf
-    brk                     ;e023  bf
-    brk                     ;e024  bf
-    brk                     ;e025  bf
-    brk                     ;e026  bf
-    brk                     ;e027  bf
-    brk                     ;e028  bf
-    brk                     ;e029  bf
-    brk                     ;e02a  bf
-    brk                     ;e02b  bf
-    brk                     ;e02c  bf
-    brk                     ;e02d  bf
-    brk                     ;e02e  bf
-    brk                     ;e02f  bf
-    brk                     ;e030  bf
-    brk                     ;e031  bf
-    brk                     ;e032  bf
-    brk                     ;e033  bf
-    brk                     ;e034  bf
-    brk                     ;e035  bf
-    brk                     ;e036  bf
-    brk                     ;e037  bf
-    brk                     ;e038  bf
-    brk                     ;e039  bf
-    brk                     ;e03a  bf
-    brk                     ;e03b  bf
-    brk                     ;e03c  bf
-    brk                     ;e03d  bf
-    brk                     ;e03e  bf
-    brk                     ;e03f  bf
-    brk                     ;e040  bf
-    brk                     ;e041  bf
-    brk                     ;e042  bf
-    brk                     ;e043  bf
-    brk                     ;e044  bf
-    brk                     ;e045  bf
-    brk                     ;e046  bf
-    brk                     ;e047  bf
-    brk                     ;e048  bf
-    brk                     ;e049  bf
-    brk                     ;e04a  bf
-    brk                     ;e04b  bf
-    brk                     ;e04c  bf
-    brk                     ;e04d  bf
-    brk                     ;e04e  bf
-    brk                     ;e04f  bf
-    brk                     ;e050  bf
-    brk                     ;e051  bf
-    brk                     ;e052  bf
-    brk                     ;e053  bf
-    brk                     ;e054  bf
-    brk                     ;e055  bf
-    brk                     ;e056  bf
-    brk                     ;e057  bf
-    brk                     ;e058  bf
-    brk                     ;e059  bf
-    brk                     ;e05a  bf
-    brk                     ;e05b  bf
-    brk                     ;e05c  bf
-    brk                     ;e05d  bf
-    brk                     ;e05e  bf
-    brk                     ;e05f  bf
-    brk                     ;e060  bf
-    brk                     ;e061  bf
-    brk                     ;e062  bf
-    brk                     ;e063  bf
-    brk                     ;e064  bf
-    brk                     ;e065  bf
-    brk                     ;e066  bf
-    brk                     ;e067  bf
-    brk                     ;e068  bf
-    brk                     ;e069  bf
-    brk                     ;e06a  bf
-    brk                     ;e06b  bf
-    brk                     ;e06c  bf
-    brk                     ;e06d  bf
-    brk                     ;e06e  bf
-    brk                     ;e06f  bf
-    brk                     ;e070  bf
-    brk                     ;e071  bf
-    brk                     ;e072  bf
-    brk                     ;e073  bf
-    brk                     ;e074  bf
-    brk                     ;e075  bf
-    brk                     ;e076  bf
-    brk                     ;e077  bf
-    brk                     ;e078  bf
-    brk                     ;e079  bf
-    brk                     ;e07a  bf
-    brk                     ;e07b  bf
-    brk                     ;e07c  bf
-    brk                     ;e07d  bf
-    brk                     ;e07e  bf
-    brk                     ;e07f  bf
-    brk                     ;e080  bf
-    brk                     ;e081  bf
-    brk                     ;e082  bf
-    brk                     ;e083  bf
-    brk                     ;e084  bf
-    brk                     ;e085  bf
-    brk                     ;e086  bf
-    brk                     ;e087  bf
-    brk                     ;e088  bf
-    brk                     ;e089  bf
-    brk                     ;e08a  bf
-    brk                     ;e08b  bf
-    brk                     ;e08c  bf
-    brk                     ;e08d  bf
-    brk                     ;e08e  bf
-    brk                     ;e08f  bf
-    brk                     ;e090  bf
-    brk                     ;e091  bf
-    brk                     ;e092  bf
-    brk                     ;e093  bf
-    brk                     ;e094  bf
-    brk                     ;e095  bf
-    brk                     ;e096  bf
-    brk                     ;e097  bf
-    brk                     ;e098  bf
-    brk                     ;e099  bf
-    brk                     ;e09a  bf
-    brk                     ;e09b  bf
-    brk                     ;e09c  bf
-    brk                     ;e09d  bf
-    brk                     ;e09e  bf
-    brk                     ;e09f  bf
-    brk                     ;e0a0  bf
-    brk                     ;e0a1  bf
-    brk                     ;e0a2  bf
-    brk                     ;e0a3  bf
-    brk                     ;e0a4  bf
-    brk                     ;e0a5  bf
-    brk                     ;e0a6  bf
-    brk                     ;e0a7  bf
-    brk                     ;e0a8  bf
-    brk                     ;e0a9  bf
-    brk                     ;e0aa  bf
-    brk                     ;e0ab  bf
-    brk                     ;e0ac  bf
-    brk                     ;e0ad  bf
-    brk                     ;e0ae  bf
-    brk                     ;e0af  bf
-    brk                     ;e0b0  bf
-    brk                     ;e0b1  bf
-    brk                     ;e0b2  bf
-    brk                     ;e0b3  bf
-    brk                     ;e0b4  bf
-    brk                     ;e0b5  bf
-    brk                     ;e0b6  bf
-    brk                     ;e0b7  bf
-    brk                     ;e0b8  bf
-    brk                     ;e0b9  bf
-    brk                     ;e0ba  bf
-    brk                     ;e0bb  bf
-    brk                     ;e0bc  bf
-    brk                     ;e0bd  bf
-    brk                     ;e0be  bf
-    brk                     ;e0bf  bf
-    brk                     ;e0c0  bf
-    brk                     ;e0c1  bf
-    brk                     ;e0c2  bf
-    brk                     ;e0c3  bf
-    brk                     ;e0c4  bf
-    brk                     ;e0c5  bf
-    brk                     ;e0c6  bf
-    brk                     ;e0c7  bf
-    brk                     ;e0c8  bf
-    brk                     ;e0c9  bf
-    brk                     ;e0ca  bf
-    brk                     ;e0cb  bf
-    brk                     ;e0cc  bf
-    brk                     ;e0cd  bf
-    brk                     ;e0ce  bf
-    brk                     ;e0cf  bf
-    brk                     ;e0d0  bf
-    brk                     ;e0d1  bf
-    brk                     ;e0d2  bf
-    brk                     ;e0d3  bf
-    brk                     ;e0d4  bf
-    brk                     ;e0d5  bf
-    brk                     ;e0d6  bf
-    brk                     ;e0d7  bf
-    brk                     ;e0d8  bf
-    brk                     ;e0d9  bf
-    brk                     ;e0da  bf
-    brk                     ;e0db  bf
-    brk                     ;e0dc  bf
-    brk                     ;e0dd  bf
-    brk                     ;e0de  bf
-    brk                     ;e0df  bf
-    brk                     ;e0e0  bf
-    brk                     ;e0e1  bf
-    brk                     ;e0e2  bf
-    brk                     ;e0e3  bf
-    brk                     ;e0e4  bf
-    brk                     ;e0e5  bf
-    brk                     ;e0e6  bf
-    brk                     ;e0e7  bf
-    brk                     ;e0e8  bf
-    brk                     ;e0e9  bf
-    brk                     ;e0ea  bf
-    brk                     ;e0eb  bf
-    brk                     ;e0ec  bf
-    brk                     ;e0ed  bf
-    brk                     ;e0ee  bf
-    brk                     ;e0ef  bf
-    brk                     ;e0f0  bf
-    brk                     ;e0f1  bf
-    brk                     ;e0f2  bf
-    brk                     ;e0f3  bf
-    brk                     ;e0f4  bf
-    brk                     ;e0f5  bf
-    brk                     ;e0f6  bf
-    brk                     ;e0f7  bf
-    brk                     ;e0f8  bf
-    brk                     ;e0f9  bf
-    brk                     ;e0fa  bf
-    brk                     ;e0fb  bf
-    brk                     ;e0fc  bf
-    brk                     ;e0fd  bf
-    brk                     ;e0fe  bf
-    brk                     ;e0ff  bf
-    brk                     ;e100  bf
-    brk                     ;e101  bf
-    brk                     ;e102  bf
-    brk                     ;e103  bf
-    brk                     ;e104  bf
-    brk                     ;e105  bf
-    brk                     ;e106  bf
-    brk                     ;e107  bf
-    brk                     ;e108  bf
-    brk                     ;e109  bf
-    brk                     ;e10a  bf
-    brk                     ;e10b  bf
-    brk                     ;e10c  bf
-    brk                     ;e10d  bf
-    brk                     ;e10e  bf
-    brk                     ;e10f  bf
-    brk                     ;e110  bf
-    brk                     ;e111  bf
-    brk                     ;e112  bf
-    brk                     ;e113  bf
-    brk                     ;e114  bf
-    brk                     ;e115  bf
-    brk                     ;e116  bf
-    brk                     ;e117  bf
-    brk                     ;e118  bf
-    brk                     ;e119  bf
-    brk                     ;e11a  bf
-    brk                     ;e11b  bf
-    brk                     ;e11c  bf
-    brk                     ;e11d  bf
-    brk                     ;e11e  bf
-    brk                     ;e11f  bf
-    brk                     ;e120  bf
-    brk                     ;e121  bf
-    brk                     ;e122  bf
-    brk                     ;e123  bf
-    brk                     ;e124  bf
-    brk                     ;e125  bf
-    brk                     ;e126  bf
-    brk                     ;e127  bf
-    brk                     ;e128  bf
-    brk                     ;e129  bf
-    brk                     ;e12a  bf
-    brk                     ;e12b  bf
-    brk                     ;e12c  bf
-    brk                     ;e12d  bf
-    brk                     ;e12e  bf
-    brk                     ;e12f  bf
-    brk                     ;e130  bf
-    brk                     ;e131  bf
-    brk                     ;e132  bf
-    brk                     ;e133  bf
-    brk                     ;e134  bf
-    brk                     ;e135  bf
-    brk                     ;e136  bf
-    brk                     ;e137  bf
-    brk                     ;e138  bf
-    brk                     ;e139  bf
-    brk                     ;e13a  bf
-    brk                     ;e13b  bf
-    brk                     ;e13c  bf
-    brk                     ;e13d  bf
-    brk                     ;e13e  bf
-    brk                     ;e13f  bf
-    brk                     ;e140  bf
-    brk                     ;e141  bf
-    brk                     ;e142  bf
-    brk                     ;e143  bf
-    brk                     ;e144  bf
-    brk                     ;e145  bf
-    brk                     ;e146  bf
-    brk                     ;e147  bf
-    brk                     ;e148  bf
-    brk                     ;e149  bf
-    brk                     ;e14a  bf
-    brk                     ;e14b  bf
-    brk                     ;e14c  bf
-    brk                     ;e14d  bf
-    brk                     ;e14e  bf
-    brk                     ;e14f  bf
-    brk                     ;e150  bf
-    brk                     ;e151  bf
-    brk                     ;e152  bf
-    brk                     ;e153  bf
-    brk                     ;e154  bf
-    brk                     ;e155  bf
-    brk                     ;e156  bf
-    brk                     ;e157  bf
-    brk                     ;e158  bf
-    brk                     ;e159  bf
-    brk                     ;e15a  bf
-    brk                     ;e15b  bf
-    brk                     ;e15c  bf
-    brk                     ;e15d  bf
-    brk                     ;e15e  bf
-    brk                     ;e15f  bf
-    brk                     ;e160  bf
-    brk                     ;e161  bf
-    brk                     ;e162  bf
-    brk                     ;e163  bf
-    brk                     ;e164  bf
-    brk                     ;e165  bf
-    brk                     ;e166  bf
-    brk                     ;e167  bf
-    brk                     ;e168  bf
-    brk                     ;e169  bf
-    brk                     ;e16a  bf
-    brk                     ;e16b  bf
-    brk                     ;e16c  bf
-    brk                     ;e16d  bf
-    brk                     ;e16e  bf
-    brk                     ;e16f  bf
-    brk                     ;e170  bf
-    brk                     ;e171  bf
-    brk                     ;e172  bf
-    brk                     ;e173  bf
-    brk                     ;e174  bf
-    brk                     ;e175  bf
-    brk                     ;e176  bf
-    brk                     ;e177  bf
-    brk                     ;e178  bf
-    brk                     ;e179  bf
-    brk                     ;e17a  bf
-    brk                     ;e17b  bf
-    brk                     ;e17c  bf
-    brk                     ;e17d  bf
-    brk                     ;e17e  bf
-    brk                     ;e17f  bf
-    brk                     ;e180  bf
-    brk                     ;e181  bf
-    brk                     ;e182  bf
-    brk                     ;e183  bf
-    brk                     ;e184  bf
-    brk                     ;e185  bf
-    brk                     ;e186  bf
-    brk                     ;e187  bf
-    brk                     ;e188  bf
-    brk                     ;e189  bf
-    brk                     ;e18a  bf
-    brk                     ;e18b  bf
-    brk                     ;e18c  bf
-    brk                     ;e18d  bf
-    brk                     ;e18e  bf
-    brk                     ;e18f  bf
-    brk                     ;e190  bf
-    brk                     ;e191  bf
-    brk                     ;e192  bf
-    brk                     ;e193  bf
-    brk                     ;e194  bf
-    brk                     ;e195  bf
-    brk                     ;e196  bf
-    brk                     ;e197  bf
-    brk                     ;e198  bf
-    brk                     ;e199  bf
-    brk                     ;e19a  bf
-    brk                     ;e19b  bf
-    brk                     ;e19c  bf
-    brk                     ;e19d  bf
-    brk                     ;e19e  bf
-    brk                     ;e19f  bf
-    brk                     ;e1a0  bf
-    brk                     ;e1a1  bf
-    brk                     ;e1a2  bf
-    brk                     ;e1a3  bf
-    brk                     ;e1a4  bf
-    brk                     ;e1a5  bf
-    brk                     ;e1a6  bf
-    brk                     ;e1a7  bf
-    brk                     ;e1a8  bf
-    brk                     ;e1a9  bf
-    brk                     ;e1aa  bf
-    brk                     ;e1ab  bf
-    brk                     ;e1ac  bf
-    brk                     ;e1ad  bf
-    brk                     ;e1ae  bf
-    brk                     ;e1af  bf
-    brk                     ;e1b0  bf
-    brk                     ;e1b1  bf
-    brk                     ;e1b2  bf
-    brk                     ;e1b3  bf
-    brk                     ;e1b4  bf
-    brk                     ;e1b5  bf
-    brk                     ;e1b6  bf
-    brk                     ;e1b7  bf
-    brk                     ;e1b8  bf
-    brk                     ;e1b9  bf
-    brk                     ;e1ba  bf
-    brk                     ;e1bb  bf
-    brk                     ;e1bc  bf
-    brk                     ;e1bd  bf
-    brk                     ;e1be  bf
-    brk                     ;e1bf  bf
-    brk                     ;e1c0  bf
-    brk                     ;e1c1  bf
-    brk                     ;e1c2  bf
-    brk                     ;e1c3  bf
-    brk                     ;e1c4  bf
-    brk                     ;e1c5  bf
-    brk                     ;e1c6  bf
-    brk                     ;e1c7  bf
-    brk                     ;e1c8  bf
-    brk                     ;e1c9  bf
-    brk                     ;e1ca  bf
-    brk                     ;e1cb  bf
-    brk                     ;e1cc  bf
-    brk                     ;e1cd  bf
-    brk                     ;e1ce  bf
-    brk                     ;e1cf  bf
-    brk                     ;e1d0  bf
-    brk                     ;e1d1  bf
-    brk                     ;e1d2  bf
-    brk                     ;e1d3  bf
-    brk                     ;e1d4  bf
-    brk                     ;e1d5  bf
-    brk                     ;e1d6  bf
-    brk                     ;e1d7  bf
-    brk                     ;e1d8  bf
-    brk                     ;e1d9  bf
-    brk                     ;e1da  bf
-    brk                     ;e1db  bf
-    brk                     ;e1dc  bf
-    brk                     ;e1dd  bf
-    brk                     ;e1de  bf
-    brk                     ;e1df  bf
-    brk                     ;e1e0  bf
-    brk                     ;e1e1  bf
-    brk                     ;e1e2  bf
-    brk                     ;e1e3  bf
-    brk                     ;e1e4  bf
-    brk                     ;e1e5  bf
-    brk                     ;e1e6  bf
-    brk                     ;e1e7  bf
-    brk                     ;e1e8  bf
-    brk                     ;e1e9  bf
-    brk                     ;e1ea  bf
-    brk                     ;e1eb  bf
-    brk                     ;e1ec  bf
-    brk                     ;e1ed  bf
-    brk                     ;e1ee  bf
-    brk                     ;e1ef  bf
-    brk                     ;e1f0  bf
-    brk                     ;e1f1  bf
-    brk                     ;e1f2  bf
-    brk                     ;e1f3  bf
-    brk                     ;e1f4  bf
-    brk                     ;e1f5  bf
-    brk                     ;e1f6  bf
-    brk                     ;e1f7  bf
-    brk                     ;e1f8  bf
-    brk                     ;e1f9  bf
-    brk                     ;e1fa  bf
-    brk                     ;e1fb  bf
-    brk                     ;e1fc  bf
-    brk                     ;e1fd  bf
-    brk                     ;e1fe  bf
-    brk                     ;e1ff  bf
-    brk                     ;e200  bf
-    brk                     ;e201  bf
-    brk                     ;e202  bf
-    brk                     ;e203  bf
-    brk                     ;e204  bf
-    brk                     ;e205  bf
-    brk                     ;e206  bf
-    brk                     ;e207  bf
-    brk                     ;e208  bf
-    brk                     ;e209  bf
-    brk                     ;e20a  bf
-    brk                     ;e20b  bf
-    brk                     ;e20c  bf
-    brk                     ;e20d  bf
-    brk                     ;e20e  bf
-    brk                     ;e20f  bf
-    brk                     ;e210  bf
-    brk                     ;e211  bf
-    brk                     ;e212  bf
-    brk                     ;e213  bf
-    brk                     ;e214  bf
-    brk                     ;e215  bf
-    brk                     ;e216  bf
-    brk                     ;e217  bf
-    brk                     ;e218  bf
-    brk                     ;e219  bf
-    brk                     ;e21a  bf
-    brk                     ;e21b  bf
-    brk                     ;e21c  bf
-    brk                     ;e21d  bf
-    brk                     ;e21e  bf
-    brk                     ;e21f  bf
-    brk                     ;e220  bf
-    brk                     ;e221  bf
-    brk                     ;e222  bf
-    brk                     ;e223  bf
-    brk                     ;e224  bf
-    brk                     ;e225  bf
-    brk                     ;e226  bf
-    brk                     ;e227  bf
-    brk                     ;e228  bf
-    brk                     ;e229  bf
-    brk                     ;e22a  bf
-    brk                     ;e22b  bf
-    brk                     ;e22c  bf
-    brk                     ;e22d  bf
-    brk                     ;e22e  bf
-    brk                     ;e22f  bf
-    brk                     ;e230  bf
-    brk                     ;e231  bf
-    brk                     ;e232  bf
-    brk                     ;e233  bf
-    brk                     ;e234  bf
-    brk                     ;e235  bf
-    brk                     ;e236  bf
-    brk                     ;e237  bf
-    brk                     ;e238  bf
-    brk                     ;e239  bf
-    brk                     ;e23a  bf
-    brk                     ;e23b  bf
-    brk                     ;e23c  bf
-    brk                     ;e23d  bf
-    brk                     ;e23e  bf
-    brk                     ;e23f  bf
-    brk                     ;e240  bf
-    brk                     ;e241  bf
-    brk                     ;e242  bf
-    brk                     ;e243  bf
-    brk                     ;e244  bf
-    brk                     ;e245  bf
-    brk                     ;e246  bf
-    brk                     ;e247  bf
-    brk                     ;e248  bf
-    brk                     ;e249  bf
-    brk                     ;e24a  bf
-    brk                     ;e24b  bf
-    brk                     ;e24c  bf
-    brk                     ;e24d  bf
-    brk                     ;e24e  bf
-    brk                     ;e24f  bf
-    brk                     ;e250  bf
-    brk                     ;e251  bf
-    brk                     ;e252  bf
-    brk                     ;e253  bf
-    brk                     ;e254  bf
-    brk                     ;e255  bf
-    brk                     ;e256  bf
-    brk                     ;e257  bf
-    brk                     ;e258  bf
-    brk                     ;e259  bf
-    brk                     ;e25a  bf
-    brk                     ;e25b  bf
-    brk                     ;e25c  bf
-    brk                     ;e25d  bf
-    brk                     ;e25e  bf
-    brk                     ;e25f  bf
-    brk                     ;e260  bf
-    brk                     ;e261  bf
-    brk                     ;e262  bf
-    brk                     ;e263  bf
-    brk                     ;e264  bf
-    brk                     ;e265  bf
-    brk                     ;e266  bf
-    brk                     ;e267  bf
-    brk                     ;e268  bf
-    brk                     ;e269  bf
-    brk                     ;e26a  bf
-    brk                     ;e26b  bf
-    brk                     ;e26c  bf
-    brk                     ;e26d  bf
-    brk                     ;e26e  bf
-    brk                     ;e26f  bf
-    brk                     ;e270  bf
-    brk                     ;e271  bf
-    brk                     ;e272  bf
-    brk                     ;e273  bf
-    brk                     ;e274  bf
-    brk                     ;e275  bf
-    brk                     ;e276  bf
-    brk                     ;e277  bf
-    brk                     ;e278  bf
-    brk                     ;e279  bf
-    brk                     ;e27a  bf
-    brk                     ;e27b  bf
-    brk                     ;e27c  bf
-    brk                     ;e27d  bf
-    brk                     ;e27e  bf
-    brk                     ;e27f  bf
-    brk                     ;e280  bf
-    brk                     ;e281  bf
-    brk                     ;e282  bf
-    brk                     ;e283  bf
-    brk                     ;e284  bf
-    brk                     ;e285  bf
-    brk                     ;e286  bf
-    brk                     ;e287  bf
-    brk                     ;e288  bf
-    brk                     ;e289  bf
-    brk                     ;e28a  bf
-    brk                     ;e28b  bf
-    brk                     ;e28c  bf
-    brk                     ;e28d  bf
-    brk                     ;e28e  bf
-    brk                     ;e28f  bf
-    brk                     ;e290  bf
-    brk                     ;e291  bf
-    brk                     ;e292  bf
-    brk                     ;e293  bf
-    brk                     ;e294  bf
-    brk                     ;e295  bf
-    brk                     ;e296  bf
-    brk                     ;e297  bf
-    brk                     ;e298  bf
-    brk                     ;e299  bf
-    brk                     ;e29a  bf
-    brk                     ;e29b  bf
-    brk                     ;e29c  bf
-    brk                     ;e29d  bf
-    brk                     ;e29e  bf
-    brk                     ;e29f  bf
-    brk                     ;e2a0  bf
-    brk                     ;e2a1  bf
-    brk                     ;e2a2  bf
-    brk                     ;e2a3  bf
-    brk                     ;e2a4  bf
-    brk                     ;e2a5  bf
-    brk                     ;e2a6  bf
-    brk                     ;e2a7  bf
-    brk                     ;e2a8  bf
-    brk                     ;e2a9  bf
-    brk                     ;e2aa  bf
-    brk                     ;e2ab  bf
-    brk                     ;e2ac  bf
-    brk                     ;e2ad  bf
-    brk                     ;e2ae  bf
-    brk                     ;e2af  bf
-    brk                     ;e2b0  bf
-    brk                     ;e2b1  bf
-    brk                     ;e2b2  bf
-    brk                     ;e2b3  bf
-    brk                     ;e2b4  bf
-    brk                     ;e2b5  bf
-    brk                     ;e2b6  bf
-    brk                     ;e2b7  bf
-    brk                     ;e2b8  bf
-    brk                     ;e2b9  bf
-    brk                     ;e2ba  bf
-    brk                     ;e2bb  bf
-    brk                     ;e2bc  bf
-    brk                     ;e2bd  bf
-    brk                     ;e2be  bf
-    brk                     ;e2bf  bf
-    brk                     ;e2c0  bf
-    brk                     ;e2c1  bf
-    brk                     ;e2c2  bf
-    brk                     ;e2c3  bf
-    brk                     ;e2c4  bf
-    brk                     ;e2c5  bf
-    brk                     ;e2c6  bf
-    brk                     ;e2c7  bf
-    brk                     ;e2c8  bf
-    brk                     ;e2c9  bf
-    brk                     ;e2ca  bf
-    brk                     ;e2cb  bf
-    brk                     ;e2cc  bf
-    brk                     ;e2cd  bf
-    brk                     ;e2ce  bf
-    brk                     ;e2cf  bf
-    brk                     ;e2d0  bf
-    brk                     ;e2d1  bf
-    brk                     ;e2d2  bf
-    brk                     ;e2d3  bf
-    brk                     ;e2d4  bf
-    brk                     ;e2d5  bf
-    brk                     ;e2d6  bf
-    brk                     ;e2d7  bf
-    brk                     ;e2d8  bf
-    brk                     ;e2d9  bf
-    brk                     ;e2da  bf
-    brk                     ;e2db  bf
-    brk                     ;e2dc  bf
-    brk                     ;e2dd  bf
-    brk                     ;e2de  bf
-    brk                     ;e2df  bf
-    brk                     ;e2e0  bf
-    brk                     ;e2e1  bf
-    brk                     ;e2e2  bf
-    brk                     ;e2e3  bf
-    brk                     ;e2e4  bf
-    brk                     ;e2e5  bf
-    brk                     ;e2e6  bf
-    brk                     ;e2e7  bf
-    brk                     ;e2e8  bf
-    brk                     ;e2e9  bf
-    brk                     ;e2ea  bf
-    brk                     ;e2eb  bf
-    brk                     ;e2ec  bf
-    brk                     ;e2ed  bf
-    brk                     ;e2ee  bf
-    brk                     ;e2ef  bf
-    brk                     ;e2f0  bf
-    brk                     ;e2f1  bf
-    brk                     ;e2f2  bf
-    brk                     ;e2f3  bf
-    brk                     ;e2f4  bf
-    brk                     ;e2f5  bf
-    brk                     ;e2f6  bf
-    brk                     ;e2f7  bf
-    brk                     ;e2f8  bf
-    brk                     ;e2f9  bf
-    brk                     ;e2fa  bf
-    brk                     ;e2fb  bf
-    brk                     ;e2fc  bf
-    brk                     ;e2fd  bf
-    brk                     ;e2fe  bf
-    brk                     ;e2ff  bf
-    brk                     ;e300  bf
-    brk                     ;e301  bf
-    brk                     ;e302  bf
-    brk                     ;e303  bf
-    brk                     ;e304  bf
-    brk                     ;e305  bf
-    brk                     ;e306  bf
-    brk                     ;e307  bf
-    brk                     ;e308  bf
-    brk                     ;e309  bf
-    brk                     ;e30a  bf
-    brk                     ;e30b  bf
-    brk                     ;e30c  bf
-    brk                     ;e30d  bf
-    brk                     ;e30e  bf
-    brk                     ;e30f  bf
-    brk                     ;e310  bf
-    brk                     ;e311  bf
-    brk                     ;e312  bf
-    brk                     ;e313  bf
-    brk                     ;e314  bf
-    brk                     ;e315  bf
-    brk                     ;e316  bf
-    brk                     ;e317  bf
-    brk                     ;e318  bf
-    brk                     ;e319  bf
-    brk                     ;e31a  bf
-    brk                     ;e31b  bf
-    brk                     ;e31c  bf
-    brk                     ;e31d  bf
-    brk                     ;e31e  bf
-    brk                     ;e31f  bf
-    brk                     ;e320  bf
-    brk                     ;e321  bf
-    brk                     ;e322  bf
-    brk                     ;e323  bf
-    brk                     ;e324  bf
-    brk                     ;e325  bf
-    brk                     ;e326  bf
-    brk                     ;e327  bf
-    brk                     ;e328  bf
-    brk                     ;e329  bf
-    brk                     ;e32a  bf
-    brk                     ;e32b  bf
-    brk                     ;e32c  bf
-    brk                     ;e32d  bf
-    brk                     ;e32e  bf
-    brk                     ;e32f  bf
-    brk                     ;e330  bf
-    brk                     ;e331  bf
-    brk                     ;e332  bf
-    brk                     ;e333  bf
-    brk                     ;e334  bf
-    brk                     ;e335  bf
-    brk                     ;e336  bf
-    brk                     ;e337  bf
-    brk                     ;e338  bf
-    brk                     ;e339  bf
-    brk                     ;e33a  bf
-    brk                     ;e33b  bf
-    brk                     ;e33c  bf
-    brk                     ;e33d  bf
-    brk                     ;e33e  bf
-    brk                     ;e33f  bf
-    brk                     ;e340  bf
-    brk                     ;e341  bf
-    brk                     ;e342  bf
-    brk                     ;e343  bf
-    brk                     ;e344  bf
-    brk                     ;e345  bf
-    brk                     ;e346  bf
-    brk                     ;e347  bf
-    brk                     ;e348  bf
-    brk                     ;e349  bf
-    brk                     ;e34a  bf
-    brk                     ;e34b  bf
-    brk                     ;e34c  bf
-    brk                     ;e34d  bf
-    brk                     ;e34e  bf
-    brk                     ;e34f  bf
-    brk                     ;e350  bf
-    brk                     ;e351  bf
-    brk                     ;e352  bf
-    brk                     ;e353  bf
-    brk                     ;e354  bf
-    brk                     ;e355  bf
-    brk                     ;e356  bf
-    brk                     ;e357  bf
-    brk                     ;e358  bf
-    brk                     ;e359  bf
-    brk                     ;e35a  bf
-    brk                     ;e35b  bf
-    brk                     ;e35c  bf
-    brk                     ;e35d  bf
-    brk                     ;e35e  bf
-    brk                     ;e35f  bf
-    brk                     ;e360  bf
-    brk                     ;e361  bf
-    brk                     ;e362  bf
-    brk                     ;e363  bf
-    brk                     ;e364  bf
-    brk                     ;e365  bf
-    brk                     ;e366  bf
-    brk                     ;e367  bf
-    brk                     ;e368  bf
-    brk                     ;e369  bf
-    brk                     ;e36a  bf
-    brk                     ;e36b  bf
-    brk                     ;e36c  bf
-    brk                     ;e36d  bf
-    brk                     ;e36e  bf
-    brk                     ;e36f  bf
-    brk                     ;e370  bf
-    brk                     ;e371  bf
-    brk                     ;e372  bf
-    brk                     ;e373  bf
-    brk                     ;e374  bf
-    brk                     ;e375  bf
-    brk                     ;e376  bf
-    brk                     ;e377  bf
-    brk                     ;e378  bf
-    brk                     ;e379  bf
-    brk                     ;e37a  bf
-    brk                     ;e37b  bf
-    brk                     ;e37c  bf
-    brk                     ;e37d  bf
-    brk                     ;e37e  bf
-    brk                     ;e37f  bf
-    brk                     ;e380  bf
-    brk                     ;e381  bf
-    brk                     ;e382  bf
-    brk                     ;e383  bf
-    brk                     ;e384  bf
-    brk                     ;e385  bf
-    brk                     ;e386  bf
-    brk                     ;e387  bf
-    brk                     ;e388  bf
-    brk                     ;e389  bf
-    brk                     ;e38a  bf
-    brk                     ;e38b  bf
-    brk                     ;e38c  bf
-    brk                     ;e38d  bf
-    brk                     ;e38e  bf
-    brk                     ;e38f  bf
-    brk                     ;e390  bf
-    brk                     ;e391  bf
-    brk                     ;e392  bf
-    brk                     ;e393  bf
-    brk                     ;e394  bf
-    brk                     ;e395  bf
-    brk                     ;e396  bf
-    brk                     ;e397  bf
-    brk                     ;e398  bf
-    brk                     ;e399  bf
-    brk                     ;e39a  bf
-    brk                     ;e39b  bf
-    brk                     ;e39c  bf
-    brk                     ;e39d  bf
-    brk                     ;e39e  bf
-    brk                     ;e39f  bf
-    brk                     ;e3a0  bf
-    brk                     ;e3a1  bf
-    brk                     ;e3a2  bf
-    brk                     ;e3a3  bf
-    brk                     ;e3a4  bf
-    brk                     ;e3a5  bf
-    brk                     ;e3a6  bf
-    brk                     ;e3a7  bf
-    brk                     ;e3a8  bf
-    brk                     ;e3a9  bf
-    brk                     ;e3aa  bf
-    brk                     ;e3ab  bf
-    brk                     ;e3ac  bf
-    brk                     ;e3ad  bf
-    brk                     ;e3ae  bf
-    brk                     ;e3af  bf
-    brk                     ;e3b0  bf
-    brk                     ;e3b1  bf
-    brk                     ;e3b2  bf
-    brk                     ;e3b3  bf
-    brk                     ;e3b4  bf
-    brk                     ;e3b5  bf
-    brk                     ;e3b6  bf
-    brk                     ;e3b7  bf
-    brk                     ;e3b8  bf
-    brk                     ;e3b9  bf
-    brk                     ;e3ba  bf
-    brk                     ;e3bb  bf
-    brk                     ;e3bc  bf
-    brk                     ;e3bd  bf
-    brk                     ;e3be  bf
-    brk                     ;e3bf  bf
-    brk                     ;e3c0  bf
-    brk                     ;e3c1  bf
-    brk                     ;e3c2  bf
-    brk                     ;e3c3  bf
-    brk                     ;e3c4  bf
-    brk                     ;e3c5  bf
-    brk                     ;e3c6  bf
-    brk                     ;e3c7  bf
-    brk                     ;e3c8  bf
-    brk                     ;e3c9  bf
-    brk                     ;e3ca  bf
-    brk                     ;e3cb  bf
-    brk                     ;e3cc  bf
-    brk                     ;e3cd  bf
-    brk                     ;e3ce  bf
-    brk                     ;e3cf  bf
-    brk                     ;e3d0  bf
-    brk                     ;e3d1  bf
-    brk                     ;e3d2  bf
-    brk                     ;e3d3  bf
-    brk                     ;e3d4  bf
-    brk                     ;e3d5  bf
-    brk                     ;e3d6  bf
-    brk                     ;e3d7  bf
-    brk                     ;e3d8  bf
-    brk                     ;e3d9  bf
-    brk                     ;e3da  bf
-    brk                     ;e3db  bf
-    brk                     ;e3dc  bf
-    brk                     ;e3dd  bf
-    brk                     ;e3de  bf
-    brk                     ;e3df  bf
-    brk                     ;e3e0  bf
-    brk                     ;e3e1  bf
-    brk                     ;e3e2  bf
-    brk                     ;e3e3  bf
-    brk                     ;e3e4  bf
-    brk                     ;e3e5  bf
-    brk                     ;e3e6  bf
-    brk                     ;e3e7  bf
-    brk                     ;e3e8  bf
-    brk                     ;e3e9  bf
-    brk                     ;e3ea  bf
-    brk                     ;e3eb  bf
-    brk                     ;e3ec  bf
-    brk                     ;e3ed  bf
-    brk                     ;e3ee  bf
-    brk                     ;e3ef  bf
-    brk                     ;e3f0  bf
-    brk                     ;e3f1  bf
-    brk                     ;e3f2  bf
-    brk                     ;e3f3  bf
-    brk                     ;e3f4  bf
-    brk                     ;e3f5  bf
-    brk                     ;e3f6  bf
-    brk                     ;e3f7  bf
-    brk                     ;e3f8  bf
-    brk                     ;e3f9  bf
-    brk                     ;e3fa  bf
-    brk                     ;e3fb  bf
-    brk                     ;e3fc  bf
-    brk                     ;e3fd  bf
-    brk                     ;e3fe  bf
-    brk                     ;e3ff  bf
-    brk                     ;e400  bf
-    brk                     ;e401  bf
-    brk                     ;e402  bf
-    brk                     ;e403  bf
-    brk                     ;e404  bf
-    brk                     ;e405  bf
-    brk                     ;e406  bf
-    brk                     ;e407  bf
-    brk                     ;e408  bf
-    brk                     ;e409  bf
-    brk                     ;e40a  bf
-    brk                     ;e40b  bf
-    brk                     ;e40c  bf
-    brk                     ;e40d  bf
-    brk                     ;e40e  bf
-    brk                     ;e40f  bf
-    brk                     ;e410  bf
-    brk                     ;e411  bf
-    brk                     ;e412  bf
-    brk                     ;e413  bf
-    brk                     ;e414  bf
-    brk                     ;e415  bf
-    brk                     ;e416  bf
-    brk                     ;e417  bf
-    brk                     ;e418  bf
-    brk                     ;e419  bf
-    brk                     ;e41a  bf
-    brk                     ;e41b  bf
-    brk                     ;e41c  bf
-    brk                     ;e41d  bf
-    brk                     ;e41e  bf
-    brk                     ;e41f  bf
-    brk                     ;e420  bf
-    brk                     ;e421  bf
-    brk                     ;e422  bf
-    brk                     ;e423  bf
-    brk                     ;e424  bf
-    brk                     ;e425  bf
-    brk                     ;e426  bf
-    brk                     ;e427  bf
-    brk                     ;e428  bf
-    brk                     ;e429  bf
-    brk                     ;e42a  bf
-    brk                     ;e42b  bf
-    brk                     ;e42c  bf
-    brk                     ;e42d  bf
-    brk                     ;e42e  bf
-    brk                     ;e42f  bf
-    brk                     ;e430  bf
-    brk                     ;e431  bf
-    brk                     ;e432  bf
-    brk                     ;e433  bf
-    brk                     ;e434  bf
-    brk                     ;e435  bf
-    brk                     ;e436  bf
-    brk                     ;e437  bf
-    brk                     ;e438  bf
-    brk                     ;e439  bf
-    brk                     ;e43a  bf
-    brk                     ;e43b  bf
-    brk                     ;e43c  bf
-    brk                     ;e43d  bf
-    brk                     ;e43e  bf
-    brk                     ;e43f  bf
-    brk                     ;e440  bf
-    brk                     ;e441  bf
-    brk                     ;e442  bf
-    brk                     ;e443  bf
-    brk                     ;e444  bf
-    brk                     ;e445  bf
-    brk                     ;e446  bf
-    brk                     ;e447  bf
-    brk                     ;e448  bf
-    brk                     ;e449  bf
-    brk                     ;e44a  bf
-    brk                     ;e44b  bf
-    brk                     ;e44c  bf
-    brk                     ;e44d  bf
-    brk                     ;e44e  bf
-    brk                     ;e44f  bf
-    brk                     ;e450  bf
-    brk                     ;e451  bf
-    brk                     ;e452  bf
-    brk                     ;e453  bf
-    brk                     ;e454  bf
-    brk                     ;e455  bf
-    brk                     ;e456  bf
-    brk                     ;e457  bf
-    brk                     ;e458  bf
-    brk                     ;e459  bf
-    brk                     ;e45a  bf
-    brk                     ;e45b  bf
-    brk                     ;e45c  bf
-    brk                     ;e45d  bf
-    brk                     ;e45e  bf
-    brk                     ;e45f  bf
-    brk                     ;e460  bf
-    brk                     ;e461  bf
-    brk                     ;e462  bf
-    brk                     ;e463  bf
-    brk                     ;e464  bf
-    brk                     ;e465  bf
-    brk                     ;e466  bf
-    brk                     ;e467  bf
-    brk                     ;e468  bf
-    brk                     ;e469  bf
-    brk                     ;e46a  bf
-    brk                     ;e46b  bf
-    brk                     ;e46c  bf
-    brk                     ;e46d  bf
-    brk                     ;e46e  bf
-    brk                     ;e46f  bf
-    brk                     ;e470  bf
-    brk                     ;e471  bf
-    brk                     ;e472  bf
-    brk                     ;e473  bf
-    brk                     ;e474  bf
-    brk                     ;e475  bf
-    brk                     ;e476  bf
-    brk                     ;e477  bf
-    brk                     ;e478  bf
-    brk                     ;e479  bf
-    brk                     ;e47a  bf
-    brk                     ;e47b  bf
-    brk                     ;e47c  bf
-    brk                     ;e47d  bf
-    brk                     ;e47e  bf
-    brk                     ;e47f  bf
-    brk                     ;e480  bf
-    brk                     ;e481  bf
-    brk                     ;e482  bf
-    brk                     ;e483  bf
-    brk                     ;e484  bf
-    brk                     ;e485  bf
-    brk                     ;e486  bf
-    brk                     ;e487  bf
-    brk                     ;e488  bf
-    brk                     ;e489  bf
-    brk                     ;e48a  bf
-    brk                     ;e48b  bf
-    brk                     ;e48c  bf
-    brk                     ;e48d  bf
-    brk                     ;e48e  bf
-    brk                     ;e48f  bf
-    brk                     ;e490  bf
-    brk                     ;e491  bf
-    brk                     ;e492  bf
-    brk                     ;e493  bf
-    brk                     ;e494  bf
-    brk                     ;e495  bf
-    brk                     ;e496  bf
-    brk                     ;e497  bf
-    brk                     ;e498  bf
-    brk                     ;e499  bf
-    brk                     ;e49a  bf
-    brk                     ;e49b  bf
-    brk                     ;e49c  bf
-    brk                     ;e49d  bf
-    brk                     ;e49e  bf
-    brk                     ;e49f  bf
-    brk                     ;e4a0  bf
-    brk                     ;e4a1  bf
-    brk                     ;e4a2  bf
-    brk                     ;e4a3  bf
-    brk                     ;e4a4  bf
-    brk                     ;e4a5  bf
-    brk                     ;e4a6  bf
-    brk                     ;e4a7  bf
-    brk                     ;e4a8  bf
-    brk                     ;e4a9  bf
-    brk                     ;e4aa  bf
-    brk                     ;e4ab  bf
-    brk                     ;e4ac  bf
-    brk                     ;e4ad  bf
-    brk                     ;e4ae  bf
-    brk                     ;e4af  bf
-    brk                     ;e4b0  bf
-    brk                     ;e4b1  bf
-    brk                     ;e4b2  bf
-    brk                     ;e4b3  bf
-    brk                     ;e4b4  bf
-    brk                     ;e4b5  bf
-    brk                     ;e4b6  bf
-    brk                     ;e4b7  bf
-    brk                     ;e4b8  bf
-    brk                     ;e4b9  bf
-    brk                     ;e4ba  bf
-    brk                     ;e4bb  bf
-    brk                     ;e4bc  bf
-    brk                     ;e4bd  bf
-    brk                     ;e4be  bf
-    brk                     ;e4bf  bf
-    brk                     ;e4c0  bf
-    brk                     ;e4c1  bf
-    brk                     ;e4c2  bf
-    brk                     ;e4c3  bf
-    brk                     ;e4c4  bf
-    brk                     ;e4c5  bf
-    brk                     ;e4c6  bf
-    brk                     ;e4c7  bf
-    brk                     ;e4c8  bf
-    brk                     ;e4c9  bf
-    brk                     ;e4ca  bf
-    brk                     ;e4cb  bf
-    brk                     ;e4cc  bf
-    brk                     ;e4cd  bf
-    brk                     ;e4ce  bf
-    brk                     ;e4cf  bf
-    brk                     ;e4d0  bf
-    brk                     ;e4d1  bf
-    brk                     ;e4d2  bf
-    brk                     ;e4d3  bf
-    brk                     ;e4d4  bf
-    brk                     ;e4d5  bf
-    brk                     ;e4d6  bf
-    brk                     ;e4d7  bf
-    brk                     ;e4d8  bf
-    brk                     ;e4d9  bf
-    brk                     ;e4da  bf
-    brk                     ;e4db  bf
-    brk                     ;e4dc  bf
-    brk                     ;e4dd  bf
-    brk                     ;e4de  bf
-    brk                     ;e4df  bf
-    brk                     ;e4e0  bf
-    brk                     ;e4e1  bf
-    brk                     ;e4e2  bf
-    brk                     ;e4e3  bf
-    brk                     ;e4e4  bf
-    brk                     ;e4e5  bf
-    brk                     ;e4e6  bf
-    brk                     ;e4e7  bf
-    brk                     ;e4e8  bf
-    brk                     ;e4e9  bf
-    brk                     ;e4ea  bf
-    brk                     ;e4eb  bf
-    brk                     ;e4ec  bf
-    brk                     ;e4ed  bf
-    brk                     ;e4ee  bf
-    brk                     ;e4ef  bf
-    brk                     ;e4f0  bf
-    brk                     ;e4f1  bf
-    brk                     ;e4f2  bf
-    brk                     ;e4f3  bf
-    brk                     ;e4f4  bf
-    brk                     ;e4f5  bf
-    brk                     ;e4f6  bf
-    brk                     ;e4f7  bf
-    brk                     ;e4f8  bf
-    brk                     ;e4f9  bf
-    brk                     ;e4fa  bf
-    brk                     ;e4fb  bf
-    brk                     ;e4fc  bf
-    brk                     ;e4fd  bf
-    brk                     ;e4fe  bf
-    brk                     ;e4ff  bf
-    brk                     ;e500  bf
-    brk                     ;e501  bf
-    brk                     ;e502  bf
-    brk                     ;e503  bf
-    brk                     ;e504  bf
-    brk                     ;e505  bf
-    brk                     ;e506  bf
-    brk                     ;e507  bf
-    brk                     ;e508  bf
-    brk                     ;e509  bf
-    brk                     ;e50a  bf
-    brk                     ;e50b  bf
-    brk                     ;e50c  bf
-    brk                     ;e50d  bf
-    brk                     ;e50e  bf
-    brk                     ;e50f  bf
-    brk                     ;e510  bf
-    brk                     ;e511  bf
-    brk                     ;e512  bf
-    brk                     ;e513  bf
-    brk                     ;e514  bf
-    brk                     ;e515  bf
-    brk                     ;e516  bf
-    brk                     ;e517  bf
-    brk                     ;e518  bf
-    brk                     ;e519  bf
-    brk                     ;e51a  bf
-    brk                     ;e51b  bf
-    brk                     ;e51c  bf
-    brk                     ;e51d  bf
-    brk                     ;e51e  bf
-    brk                     ;e51f  bf
-    brk                     ;e520  bf
-    brk                     ;e521  bf
-    brk                     ;e522  bf
-    brk                     ;e523  bf
-    brk                     ;e524  bf
-    brk                     ;e525  bf
-    brk                     ;e526  bf
-    brk                     ;e527  bf
-    brk                     ;e528  bf
-    brk                     ;e529  bf
-    brk                     ;e52a  bf
-    brk                     ;e52b  bf
-    brk                     ;e52c  bf
-    brk                     ;e52d  bf
-    brk                     ;e52e  bf
-    brk                     ;e52f  bf
-    brk                     ;e530  bf
-    brk                     ;e531  bf
-    brk                     ;e532  bf
-    brk                     ;e533  bf
-    brk                     ;e534  bf
-    brk                     ;e535  bf
-    brk                     ;e536  bf
-    brk                     ;e537  bf
-    brk                     ;e538  bf
-    brk                     ;e539  bf
-    brk                     ;e53a  bf
-    brk                     ;e53b  bf
-    brk                     ;e53c  bf
-    brk                     ;e53d  bf
-    brk                     ;e53e  bf
-    brk                     ;e53f  bf
-    brk                     ;e540  bf
-    brk                     ;e541  bf
-    brk                     ;e542  bf
-    brk                     ;e543  bf
-    brk                     ;e544  bf
-    brk                     ;e545  bf
-    brk                     ;e546  bf
-    brk                     ;e547  bf
-    brk                     ;e548  bf
-    brk                     ;e549  bf
-    brk                     ;e54a  bf
-    brk                     ;e54b  bf
-    brk                     ;e54c  bf
-    brk                     ;e54d  bf
-    brk                     ;e54e  bf
-    brk                     ;e54f  bf
-    brk                     ;e550  bf
-    brk                     ;e551  bf
-    brk                     ;e552  bf
-    brk                     ;e553  bf
-    brk                     ;e554  bf
-    brk                     ;e555  bf
-    brk                     ;e556  bf
-    brk                     ;e557  bf
-    brk                     ;e558  bf
-    brk                     ;e559  bf
-    brk                     ;e55a  bf
-    brk                     ;e55b  bf
-    brk                     ;e55c  bf
-    brk                     ;e55d  bf
-    brk                     ;e55e  bf
-    brk                     ;e55f  bf
-    brk                     ;e560  bf
-    brk                     ;e561  bf
-    brk                     ;e562  bf
-    brk                     ;e563  bf
-    brk                     ;e564  bf
-    brk                     ;e565  bf
-    brk                     ;e566  bf
-    brk                     ;e567  bf
-    brk                     ;e568  bf
-    brk                     ;e569  bf
-    brk                     ;e56a  bf
-    brk                     ;e56b  bf
-    brk                     ;e56c  bf
-    brk                     ;e56d  bf
-    brk                     ;e56e  bf
-    brk                     ;e56f  bf
-    brk                     ;e570  bf
-    brk                     ;e571  bf
-    brk                     ;e572  bf
-    brk                     ;e573  bf
-    brk                     ;e574  bf
-    brk                     ;e575  bf
-    brk                     ;e576  bf
-    brk                     ;e577  bf
-    brk                     ;e578  bf
-    brk                     ;e579  bf
-    brk                     ;e57a  bf
-    brk                     ;e57b  bf
-    brk                     ;e57c  bf
-    brk                     ;e57d  bf
-    brk                     ;e57e  bf
-    brk                     ;e57f  bf
-    brk                     ;e580  bf
-    brk                     ;e581  bf
-    brk                     ;e582  bf
-    brk                     ;e583  bf
-    brk                     ;e584  bf
-    brk                     ;e585  bf
-    brk                     ;e586  bf
-    brk                     ;e587  bf
-    brk                     ;e588  bf
-    brk                     ;e589  bf
-    brk                     ;e58a  bf
-    brk                     ;e58b  bf
-    brk                     ;e58c  bf
-    brk                     ;e58d  bf
-    brk                     ;e58e  bf
-    brk                     ;e58f  bf
-    brk                     ;e590  bf
-    brk                     ;e591  bf
-    brk                     ;e592  bf
-    brk                     ;e593  bf
-    brk                     ;e594  bf
-    brk                     ;e595  bf
-    brk                     ;e596  bf
-    brk                     ;e597  bf
-    brk                     ;e598  bf
-    brk                     ;e599  bf
-    brk                     ;e59a  bf
-    brk                     ;e59b  bf
-    brk                     ;e59c  bf
-    brk                     ;e59d  bf
-    brk                     ;e59e  bf
-    brk                     ;e59f  bf
-    brk                     ;e5a0  bf
-    brk                     ;e5a1  bf
-    brk                     ;e5a2  bf
-    brk                     ;e5a3  bf
-    brk                     ;e5a4  bf
-    brk                     ;e5a5  bf
-    brk                     ;e5a6  bf
-    brk                     ;e5a7  bf
-    brk                     ;e5a8  bf
-    brk                     ;e5a9  bf
-    brk                     ;e5aa  bf
-    brk                     ;e5ab  bf
-    brk                     ;e5ac  bf
-    brk                     ;e5ad  bf
-    brk                     ;e5ae  bf
-    brk                     ;e5af  bf
-    brk                     ;e5b0  bf
-    brk                     ;e5b1  bf
-    brk                     ;e5b2  bf
-    brk                     ;e5b3  bf
-    brk                     ;e5b4  bf
-    brk                     ;e5b5  bf
-    brk                     ;e5b6  bf
-    brk                     ;e5b7  bf
-    brk                     ;e5b8  bf
-    brk                     ;e5b9  bf
-    brk                     ;e5ba  bf
-    brk                     ;e5bb  bf
-    brk                     ;e5bc  bf
-    brk                     ;e5bd  bf
-    brk                     ;e5be  bf
-    brk                     ;e5bf  bf
-    brk                     ;e5c0  bf
-    brk                     ;e5c1  bf
-    brk                     ;e5c2  bf
-    brk                     ;e5c3  bf
-    brk                     ;e5c4  bf
-    brk                     ;e5c5  bf
-    brk                     ;e5c6  bf
-    brk                     ;e5c7  bf
-    brk                     ;e5c8  bf
-    brk                     ;e5c9  bf
-    brk                     ;e5ca  bf
-    brk                     ;e5cb  bf
-    brk                     ;e5cc  bf
-    brk                     ;e5cd  bf
-    brk                     ;e5ce  bf
-    brk                     ;e5cf  bf
-    brk                     ;e5d0  bf
-    brk                     ;e5d1  bf
-    brk                     ;e5d2  bf
-    brk                     ;e5d3  bf
-    brk                     ;e5d4  bf
-    brk                     ;e5d5  bf
-    brk                     ;e5d6  bf
-    brk                     ;e5d7  bf
-    brk                     ;e5d8  bf
-    brk                     ;e5d9  bf
-    brk                     ;e5da  bf
-    brk                     ;e5db  bf
-    brk                     ;e5dc  bf
-    brk                     ;e5dd  bf
-    brk                     ;e5de  bf
-    brk                     ;e5df  bf
-    brk                     ;e5e0  bf
-    brk                     ;e5e1  bf
-    brk                     ;e5e2  bf
-    brk                     ;e5e3  bf
-    brk                     ;e5e4  bf
-    brk                     ;e5e5  bf
-    brk                     ;e5e6  bf
-    brk                     ;e5e7  bf
-    brk                     ;e5e8  bf
-    brk                     ;e5e9  bf
-    brk                     ;e5ea  bf
-    brk                     ;e5eb  bf
-    brk                     ;e5ec  bf
-    brk                     ;e5ed  bf
-    brk                     ;e5ee  bf
-    brk                     ;e5ef  bf
-    brk                     ;e5f0  bf
-    brk                     ;e5f1  bf
-    brk                     ;e5f2  bf
-    brk                     ;e5f3  bf
-    brk                     ;e5f4  bf
-    brk                     ;e5f5  bf
-    brk                     ;e5f6  bf
-    brk                     ;e5f7  bf
-    brk                     ;e5f8  bf
-    brk                     ;e5f9  bf
-    brk                     ;e5fa  bf
-    brk                     ;e5fb  bf
-    brk                     ;e5fc  bf
-    brk                     ;e5fd  bf
-    brk                     ;e5fe  bf
-    brk                     ;e5ff  bf
-    brk                     ;e600  bf
-    brk                     ;e601  bf
-    brk                     ;e602  bf
-    brk                     ;e603  bf
-    brk                     ;e604  bf
-    brk                     ;e605  bf
-    brk                     ;e606  bf
-    brk                     ;e607  bf
-    brk                     ;e608  bf
-    brk                     ;e609  bf
-    brk                     ;e60a  bf
-    brk                     ;e60b  bf
-    brk                     ;e60c  bf
-    brk                     ;e60d  bf
-    brk                     ;e60e  bf
-    brk                     ;e60f  bf
-    brk                     ;e610  bf
-    brk                     ;e611  bf
-    brk                     ;e612  bf
-    brk                     ;e613  bf
-    brk                     ;e614  bf
-    brk                     ;e615  bf
-    brk                     ;e616  bf
-    brk                     ;e617  bf
-    brk                     ;e618  bf
-    brk                     ;e619  bf
-    brk                     ;e61a  bf
-    brk                     ;e61b  bf
-    brk                     ;e61c  bf
-    brk                     ;e61d  bf
-    brk                     ;e61e  bf
-    brk                     ;e61f  bf
-    brk                     ;e620  bf
-    brk                     ;e621  bf
-    brk                     ;e622  bf
-    brk                     ;e623  bf
-    brk                     ;e624  bf
-    brk                     ;e625  bf
-    brk                     ;e626  bf
-    brk                     ;e627  bf
-    brk                     ;e628  bf
-    brk                     ;e629  bf
-    brk                     ;e62a  bf
-    brk                     ;e62b  bf
-    brk                     ;e62c  bf
-    brk                     ;e62d  bf
-    brk                     ;e62e  bf
-    brk                     ;e62f  bf
-    brk                     ;e630  bf
-    brk                     ;e631  bf
-    brk                     ;e632  bf
-    brk                     ;e633  bf
-    brk                     ;e634  bf
-    brk                     ;e635  bf
-    brk                     ;e636  bf
-    brk                     ;e637  bf
-    brk                     ;e638  bf
-    brk                     ;e639  bf
-    brk                     ;e63a  bf
-    brk                     ;e63b  bf
-    brk                     ;e63c  bf
-    brk                     ;e63d  bf
-    brk                     ;e63e  bf
-    brk                     ;e63f  bf
-    brk                     ;e640  bf
-    brk                     ;e641  bf
-    brk                     ;e642  bf
-    brk                     ;e643  bf
-    brk                     ;e644  bf
-    brk                     ;e645  bf
-    brk                     ;e646  bf
-    brk                     ;e647  bf
-    brk                     ;e648  bf
-    brk                     ;e649  bf
-    brk                     ;e64a  bf
-    brk                     ;e64b  bf
-    brk                     ;e64c  bf
-    brk                     ;e64d  bf
-    brk                     ;e64e  bf
-    brk                     ;e64f  bf
-    brk                     ;e650  bf
-    brk                     ;e651  bf
-    brk                     ;e652  bf
-    brk                     ;e653  bf
-    brk                     ;e654  bf
-    brk                     ;e655  bf
-    brk                     ;e656  bf
-    brk                     ;e657  bf
-    brk                     ;e658  bf
-    brk                     ;e659  bf
-    brk                     ;e65a  bf
-    brk                     ;e65b  bf
-    brk                     ;e65c  bf
-    brk                     ;e65d  bf
-    brk                     ;e65e  bf
-    brk                     ;e65f  bf
-    brk                     ;e660  bf
-    brk                     ;e661  bf
-    brk                     ;e662  bf
-    brk                     ;e663  bf
-    brk                     ;e664  bf
-    brk                     ;e665  bf
-    brk                     ;e666  bf
-    brk                     ;e667  bf
-    brk                     ;e668  bf
-    brk                     ;e669  bf
-    brk                     ;e66a  bf
-    brk                     ;e66b  bf
-    brk                     ;e66c  bf
-    brk                     ;e66d  bf
-    brk                     ;e66e  bf
-    brk                     ;e66f  bf
-    brk                     ;e670  bf
-    brk                     ;e671  bf
-    brk                     ;e672  bf
-    brk                     ;e673  bf
-    brk                     ;e674  bf
-    brk                     ;e675  bf
-    brk                     ;e676  bf
-    brk                     ;e677  bf
-    brk                     ;e678  bf
-    brk                     ;e679  bf
-    brk                     ;e67a  bf
-    brk                     ;e67b  bf
-    brk                     ;e67c  bf
-    brk                     ;e67d  bf
-    brk                     ;e67e  bf
-    brk                     ;e67f  bf
-    brk                     ;e680  bf
-    brk                     ;e681  bf
-    brk                     ;e682  bf
-    brk                     ;e683  bf
-    brk                     ;e684  bf
-    brk                     ;e685  bf
-    brk                     ;e686  bf
-    brk                     ;e687  bf
-    brk                     ;e688  bf
-    brk                     ;e689  bf
-    brk                     ;e68a  bf
-    brk                     ;e68b  bf
-    brk                     ;e68c  bf
-    brk                     ;e68d  bf
-    brk                     ;e68e  bf
-    brk                     ;e68f  bf
-    brk                     ;e690  bf
-    brk                     ;e691  bf
-    brk                     ;e692  bf
-    brk                     ;e693  bf
-    brk                     ;e694  bf
-    brk                     ;e695  bf
-    brk                     ;e696  bf
-    brk                     ;e697  bf
-    brk                     ;e698  bf
-    brk                     ;e699  bf
-    brk                     ;e69a  bf
-    brk                     ;e69b  bf
-    brk                     ;e69c  bf
-    brk                     ;e69d  bf
-    brk                     ;e69e  bf
-    brk                     ;e69f  bf
-    brk                     ;e6a0  bf
-    brk                     ;e6a1  bf
-    brk                     ;e6a2  bf
-    brk                     ;e6a3  bf
-    brk                     ;e6a4  bf
-    brk                     ;e6a5  bf
-    brk                     ;e6a6  bf
-    brk                     ;e6a7  bf
-    brk                     ;e6a8  bf
-    brk                     ;e6a9  bf
-    brk                     ;e6aa  bf
-    brk                     ;e6ab  bf
-    brk                     ;e6ac  bf
-    brk                     ;e6ad  bf
-    brk                     ;e6ae  bf
-    brk                     ;e6af  bf
-    brk                     ;e6b0  bf
-    brk                     ;e6b1  bf
-    brk                     ;e6b2  bf
-    brk                     ;e6b3  bf
-    brk                     ;e6b4  bf
-    brk                     ;e6b5  bf
-    brk                     ;e6b6  bf
-    brk                     ;e6b7  bf
-    brk                     ;e6b8  bf
-    brk                     ;e6b9  bf
-    brk                     ;e6ba  bf
-    brk                     ;e6bb  bf
-    brk                     ;e6bc  bf
-    brk                     ;e6bd  bf
-    brk                     ;e6be  bf
-    brk                     ;e6bf  bf
-    brk                     ;e6c0  bf
-    brk                     ;e6c1  bf
-    brk                     ;e6c2  bf
-    brk                     ;e6c3  bf
-    brk                     ;e6c4  bf
-    brk                     ;e6c5  bf
-    brk                     ;e6c6  bf
-    brk                     ;e6c7  bf
-    brk                     ;e6c8  bf
-    brk                     ;e6c9  bf
-    brk                     ;e6ca  bf
-    brk                     ;e6cb  bf
-    brk                     ;e6cc  bf
-    brk                     ;e6cd  bf
-    brk                     ;e6ce  bf
-    brk                     ;e6cf  bf
-    brk                     ;e6d0  bf
-    brk                     ;e6d1  bf
-    brk                     ;e6d2  bf
-    brk                     ;e6d3  bf
-    brk                     ;e6d4  bf
-    brk                     ;e6d5  bf
-    brk                     ;e6d6  bf
-    brk                     ;e6d7  bf
-    brk                     ;e6d8  bf
-    brk                     ;e6d9  bf
-    brk                     ;e6da  bf
-    brk                     ;e6db  bf
-    brk                     ;e6dc  bf
-    brk                     ;e6dd  bf
-    brk                     ;e6de  bf
-    brk                     ;e6df  bf
-    brk                     ;e6e0  bf
-    brk                     ;e6e1  bf
-    brk                     ;e6e2  bf
-    brk                     ;e6e3  bf
-    brk                     ;e6e4  bf
-    brk                     ;e6e5  bf
-    brk                     ;e6e6  bf
-    brk                     ;e6e7  bf
-    brk                     ;e6e8  bf
-    brk                     ;e6e9  bf
-    brk                     ;e6ea  bf
-    brk                     ;e6eb  bf
-    brk                     ;e6ec  bf
-    brk                     ;e6ed  bf
-    brk                     ;e6ee  bf
-    brk                     ;e6ef  bf
-    brk                     ;e6f0  bf
-    brk                     ;e6f1  bf
-    brk                     ;e6f2  bf
-    brk                     ;e6f3  bf
-    brk                     ;e6f4  bf
-    brk                     ;e6f5  bf
-    brk                     ;e6f6  bf
-    brk                     ;e6f7  bf
-    brk                     ;e6f8  bf
-    brk                     ;e6f9  bf
-    brk                     ;e6fa  bf
-    brk                     ;e6fb  bf
-    brk                     ;e6fc  bf
-    brk                     ;e6fd  bf
-    brk                     ;e6fe  bf
-    brk                     ;e6ff  bf
-    brk                     ;e700  bf
-    brk                     ;e701  bf
-    brk                     ;e702  bf
-    brk                     ;e703  bf
-    brk                     ;e704  bf
-    brk                     ;e705  bf
-    brk                     ;e706  bf
-    brk                     ;e707  bf
-    brk                     ;e708  bf
-    brk                     ;e709  bf
-    brk                     ;e70a  bf
-    brk                     ;e70b  bf
-    brk                     ;e70c  bf
-    brk                     ;e70d  bf
-    brk                     ;e70e  bf
-    brk                     ;e70f  bf
-    brk                     ;e710  bf
-    brk                     ;e711  bf
-    brk                     ;e712  bf
-    brk                     ;e713  bf
-    brk                     ;e714  bf
-    brk                     ;e715  bf
-    brk                     ;e716  bf
-    brk                     ;e717  bf
-    brk                     ;e718  bf
-    brk                     ;e719  bf
-    brk                     ;e71a  bf
-    brk                     ;e71b  bf
-    brk                     ;e71c  bf
-    brk                     ;e71d  bf
-    brk                     ;e71e  bf
-    brk                     ;e71f  bf
-    brk                     ;e720  bf
-    brk                     ;e721  bf
-    brk                     ;e722  bf
-    brk                     ;e723  bf
-    brk                     ;e724  bf
-    brk                     ;e725  bf
-    brk                     ;e726  bf
-    brk                     ;e727  bf
-    brk                     ;e728  bf
-    brk                     ;e729  bf
-    brk                     ;e72a  bf
-    brk                     ;e72b  bf
-    brk                     ;e72c  bf
-    brk                     ;e72d  bf
-    brk                     ;e72e  bf
-    brk                     ;e72f  bf
-    brk                     ;e730  bf
-    brk                     ;e731  bf
-    brk                     ;e732  bf
-    brk                     ;e733  bf
-    brk                     ;e734  bf
-    brk                     ;e735  bf
-    brk                     ;e736  bf
-    brk                     ;e737  bf
-    brk                     ;e738  bf
-    brk                     ;e739  bf
-    brk                     ;e73a  bf
-    brk                     ;e73b  bf
-    brk                     ;e73c  bf
-    brk                     ;e73d  bf
-    brk                     ;e73e  bf
-    brk                     ;e73f  bf
-    brk                     ;e740  bf
-    brk                     ;e741  bf
-    brk                     ;e742  bf
-    brk                     ;e743  bf
-    brk                     ;e744  bf
-    brk                     ;e745  bf
-    brk                     ;e746  bf
-    brk                     ;e747  bf
-    brk                     ;e748  bf
-    brk                     ;e749  bf
-    brk                     ;e74a  bf
-    brk                     ;e74b  bf
-    brk                     ;e74c  bf
-    brk                     ;e74d  bf
-    brk                     ;e74e  bf
-    brk                     ;e74f  bf
-    brk                     ;e750  bf
-    brk                     ;e751  bf
-    brk                     ;e752  bf
-    brk                     ;e753  bf
-    brk                     ;e754  bf
-    brk                     ;e755  bf
-    brk                     ;e756  bf
-    brk                     ;e757  bf
-    brk                     ;e758  bf
-    brk                     ;e759  bf
-    brk                     ;e75a  bf
-    brk                     ;e75b  bf
-    brk                     ;e75c  bf
-    brk                     ;e75d  bf
-    brk                     ;e75e  bf
-    brk                     ;e75f  bf
-    brk                     ;e760  bf
-    brk                     ;e761  bf
-    brk                     ;e762  bf
-    brk                     ;e763  bf
-    brk                     ;e764  bf
-    brk                     ;e765  bf
-    brk                     ;e766  bf
-    brk                     ;e767  bf
-    brk                     ;e768  bf
-    brk                     ;e769  bf
-    brk                     ;e76a  bf
-    brk                     ;e76b  bf
-    brk                     ;e76c  bf
-    brk                     ;e76d  bf
-    brk                     ;e76e  bf
-    brk                     ;e76f  bf
-    brk                     ;e770  bf
-    brk                     ;e771  bf
-    brk                     ;e772  bf
-    brk                     ;e773  bf
-    brk                     ;e774  bf
-    brk                     ;e775  bf
-    brk                     ;e776  bf
-    brk                     ;e777  bf
-    brk                     ;e778  bf
-    brk                     ;e779  bf
-    brk                     ;e77a  bf
-    brk                     ;e77b  bf
-    brk                     ;e77c  bf
-    brk                     ;e77d  bf
-    brk                     ;e77e  bf
-    brk                     ;e77f  bf
-    brk                     ;e780  bf
-    brk                     ;e781  bf
-    brk                     ;e782  bf
-    brk                     ;e783  bf
-    brk                     ;e784  bf
-    brk                     ;e785  bf
-    brk                     ;e786  bf
-    brk                     ;e787  bf
-    brk                     ;e788  bf
-    brk                     ;e789  bf
-    brk                     ;e78a  bf
-    brk                     ;e78b  bf
-    brk                     ;e78c  bf
-    brk                     ;e78d  bf
-    brk                     ;e78e  bf
-    brk                     ;e78f  bf
-    brk                     ;e790  bf
-    brk                     ;e791  bf
-    brk                     ;e792  bf
-    brk                     ;e793  bf
-    brk                     ;e794  bf
-    brk                     ;e795  bf
-    brk                     ;e796  bf
-    brk                     ;e797  bf
-    brk                     ;e798  bf
-    brk                     ;e799  bf
-    brk                     ;e79a  bf
-    brk                     ;e79b  bf
-    brk                     ;e79c  bf
-    brk                     ;e79d  bf
-    brk                     ;e79e  bf
-    brk                     ;e79f  bf
-    brk                     ;e7a0  bf
-    brk                     ;e7a1  bf
-    brk                     ;e7a2  bf
-    brk                     ;e7a3  bf
-    brk                     ;e7a4  bf
-    brk                     ;e7a5  bf
-    brk                     ;e7a6  bf
-    brk                     ;e7a7  bf
-    brk                     ;e7a8  bf
-    brk                     ;e7a9  bf
-    brk                     ;e7aa  bf
-    brk                     ;e7ab  bf
-    brk                     ;e7ac  bf
-    brk                     ;e7ad  bf
-    brk                     ;e7ae  bf
-    brk                     ;e7af  bf
-    brk                     ;e7b0  bf
-    brk                     ;e7b1  bf
-    brk                     ;e7b2  bf
-    brk                     ;e7b3  bf
-    brk                     ;e7b4  bf
-    brk                     ;e7b5  bf
-    brk                     ;e7b6  bf
-    brk                     ;e7b7  bf
-    brk                     ;e7b8  bf
-    brk                     ;e7b9  bf
-    brk                     ;e7ba  bf
-    brk                     ;e7bb  bf
-    brk                     ;e7bc  bf
-    brk                     ;e7bd  bf
-    brk                     ;e7be  bf
-    brk                     ;e7bf  bf
-    brk                     ;e7c0  bf
-    brk                     ;e7c1  bf
-    brk                     ;e7c2  bf
-    brk                     ;e7c3  bf
-    brk                     ;e7c4  bf
-    brk                     ;e7c5  bf
-    brk                     ;e7c6  bf
-    brk                     ;e7c7  bf
-    brk                     ;e7c8  bf
-    brk                     ;e7c9  bf
-    brk                     ;e7ca  bf
-    brk                     ;e7cb  bf
-    brk                     ;e7cc  bf
-    brk                     ;e7cd  bf
-    brk                     ;e7ce  bf
-    brk                     ;e7cf  bf
-    brk                     ;e7d0  bf
-    brk                     ;e7d1  bf
-    brk                     ;e7d2  bf
-    brk                     ;e7d3  bf
-    brk                     ;e7d4  bf
-    brk                     ;e7d5  bf
-    brk                     ;e7d6  bf
-    brk                     ;e7d7  bf
-    brk                     ;e7d8  bf
-    brk                     ;e7d9  bf
-    brk                     ;e7da  bf
-    brk                     ;e7db  bf
-    brk                     ;e7dc  bf
-    brk                     ;e7dd  bf
-    brk                     ;e7de  bf
-    brk                     ;e7df  bf
-    brk                     ;e7e0  bf
-    brk                     ;e7e1  bf
-    brk                     ;e7e2  bf
-    brk                     ;e7e3  bf
-    brk                     ;e7e4  bf
-    brk                     ;e7e5  bf
-    brk                     ;e7e6  bf
-    brk                     ;e7e7  bf
-    brk                     ;e7e8  bf
-    brk                     ;e7e9  bf
-    brk                     ;e7ea  bf
-    brk                     ;e7eb  bf
-    brk                     ;e7ec  bf
-    brk                     ;e7ed  bf
-    brk                     ;e7ee  bf
-    brk                     ;e7ef  bf
-    brk                     ;e7f0  bf
-    brk                     ;e7f1  bf
-    brk                     ;e7f2  bf
-    brk                     ;e7f3  bf
-    brk                     ;e7f4  bf
-    brk                     ;e7f5  bf
-    brk                     ;e7f6  bf
-    brk                     ;e7f7  bf
-    brk                     ;e7f8  bf
-    brk                     ;e7f9  bf
-    brk                     ;e7fa  bf
-    brk                     ;e7fb  bf
-    brk                     ;e7fc  bf
-    brk                     ;e7fd  bf
-    brk                     ;e7fe  bf
-    brk                     ;e7ff  bf
-    brk                     ;e800  bf
-    brk                     ;e801  bf
-    brk                     ;e802  bf
-    brk                     ;e803  bf
-    brk                     ;e804  bf
-    brk                     ;e805  bf
-    brk                     ;e806  bf
-    brk                     ;e807  bf
-    brk                     ;e808  bf
-    brk                     ;e809  bf
-    brk                     ;e80a  bf
-    brk                     ;e80b  bf
-    brk                     ;e80c  bf
-    brk                     ;e80d  bf
-    brk                     ;e80e  bf
-    brk                     ;e80f  bf
-    brk                     ;e810  bf
-    brk                     ;e811  bf
-    brk                     ;e812  bf
-    brk                     ;e813  bf
-    brk                     ;e814  bf
-    brk                     ;e815  bf
-    brk                     ;e816  bf
-    brk                     ;e817  bf
-    brk                     ;e818  bf
-    brk                     ;e819  bf
-    brk                     ;e81a  bf
-    brk                     ;e81b  bf
-    brk                     ;e81c  bf
-    brk                     ;e81d  bf
-    brk                     ;e81e  bf
-    brk                     ;e81f  bf
-    brk                     ;e820  bf
-    brk                     ;e821  bf
-    brk                     ;e822  bf
-    brk                     ;e823  bf
-    brk                     ;e824  bf
-    brk                     ;e825  bf
-    brk                     ;e826  bf
-    brk                     ;e827  bf
-    brk                     ;e828  bf
-    brk                     ;e829  bf
-    brk                     ;e82a  bf
-    brk                     ;e82b  bf
-    brk                     ;e82c  bf
-    brk                     ;e82d  bf
-    brk                     ;e82e  bf
-    brk                     ;e82f  bf
-    brk                     ;e830  bf
-    brk                     ;e831  bf
-    brk                     ;e832  bf
-    brk                     ;e833  bf
-    brk                     ;e834  bf
-    brk                     ;e835  bf
-    brk                     ;e836  bf
-    brk                     ;e837  bf
-    brk                     ;e838  bf
-    brk                     ;e839  bf
-    brk                     ;e83a  bf
-    brk                     ;e83b  bf
-    brk                     ;e83c  bf
-    brk                     ;e83d  bf
-    brk                     ;e83e  bf
-    brk                     ;e83f  bf
-    brk                     ;e840  bf
-    brk                     ;e841  bf
-    brk                     ;e842  bf
-    brk                     ;e843  bf
-    brk                     ;e844  bf
-    brk                     ;e845  bf
-    brk                     ;e846  bf
-    brk                     ;e847  bf
-    brk                     ;e848  bf
-    brk                     ;e849  bf
-    brk                     ;e84a  bf
-    brk                     ;e84b  bf
-    brk                     ;e84c  bf
-    brk                     ;e84d  bf
-    brk                     ;e84e  bf
-    brk                     ;e84f  bf
-    brk                     ;e850  bf
-    brk                     ;e851  bf
-    brk                     ;e852  bf
-    brk                     ;e853  bf
-    brk                     ;e854  bf
-    brk                     ;e855  bf
-    brk                     ;e856  bf
-    brk                     ;e857  bf
-    brk                     ;e858  bf
-    brk                     ;e859  bf
-    brk                     ;e85a  bf
-    brk                     ;e85b  bf
-    brk                     ;e85c  bf
-    brk                     ;e85d  bf
-    brk                     ;e85e  bf
-    brk                     ;e85f  bf
-    brk                     ;e860  bf
-    brk                     ;e861  bf
-    brk                     ;e862  bf
-    brk                     ;e863  bf
-    brk                     ;e864  bf
-    brk                     ;e865  bf
-    brk                     ;e866  bf
-    brk                     ;e867  bf
-    brk                     ;e868  bf
-    brk                     ;e869  bf
-    brk                     ;e86a  bf
-    brk                     ;e86b  bf
-    brk                     ;e86c  bf
-    brk                     ;e86d  bf
-    brk                     ;e86e  bf
-    brk                     ;e86f  bf
-    brk                     ;e870  bf
-    brk                     ;e871  bf
-    brk                     ;e872  bf
-    brk                     ;e873  bf
-    brk                     ;e874  bf
-    brk                     ;e875  bf
-    brk                     ;e876  bf
-    brk                     ;e877  bf
-    brk                     ;e878  bf
-    brk                     ;e879  bf
-    brk                     ;e87a  bf
-    brk                     ;e87b  bf
-    brk                     ;e87c  bf
-    brk                     ;e87d  bf
-    brk                     ;e87e  bf
-    brk                     ;e87f  bf
-    brk                     ;e880  bf
-    brk                     ;e881  bf
-    brk                     ;e882  bf
-    brk                     ;e883  bf
-    brk                     ;e884  bf
-    brk                     ;e885  bf
-    brk                     ;e886  bf
-    brk                     ;e887  bf
-    brk                     ;e888  bf
-    brk                     ;e889  bf
-    brk                     ;e88a  bf
-    brk                     ;e88b  bf
-    brk                     ;e88c  bf
-    brk                     ;e88d  bf
-    brk                     ;e88e  bf
-    brk                     ;e88f  bf
-    brk                     ;e890  bf
-    brk                     ;e891  bf
-    brk                     ;e892  bf
-    brk                     ;e893  bf
-    brk                     ;e894  bf
-    brk                     ;e895  bf
-    brk                     ;e896  bf
-    brk                     ;e897  bf
-    brk                     ;e898  bf
-    brk                     ;e899  bf
-    brk                     ;e89a  bf
-    brk                     ;e89b  bf
-    brk                     ;e89c  bf
-    brk                     ;e89d  bf
-    brk                     ;e89e  bf
-    brk                     ;e89f  bf
-    brk                     ;e8a0  bf
-    brk                     ;e8a1  bf
-    brk                     ;e8a2  bf
-    brk                     ;e8a3  bf
-    brk                     ;e8a4  bf
-    brk                     ;e8a5  bf
-    brk                     ;e8a6  bf
-    brk                     ;e8a7  bf
-    brk                     ;e8a8  bf
-    brk                     ;e8a9  bf
-    brk                     ;e8aa  bf
-    brk                     ;e8ab  bf
-    brk                     ;e8ac  bf
-    brk                     ;e8ad  bf
-    brk                     ;e8ae  bf
-    brk                     ;e8af  bf
-    brk                     ;e8b0  bf
-    brk                     ;e8b1  bf
-    brk                     ;e8b2  bf
-    brk                     ;e8b3  bf
-    brk                     ;e8b4  bf
-    brk                     ;e8b5  bf
-    brk                     ;e8b6  bf
-    brk                     ;e8b7  bf
-    brk                     ;e8b8  bf
-    brk                     ;e8b9  bf
-    brk                     ;e8ba  bf
-    brk                     ;e8bb  bf
-    brk                     ;e8bc  bf
-    brk                     ;e8bd  bf
-    brk                     ;e8be  bf
-    brk                     ;e8bf  bf
-    brk                     ;e8c0  bf
-    brk                     ;e8c1  bf
-    brk                     ;e8c2  bf
-    brk                     ;e8c3  bf
-    brk                     ;e8c4  bf
-    brk                     ;e8c5  bf
-    brk                     ;e8c6  bf
-    brk                     ;e8c7  bf
-    brk                     ;e8c8  bf
-    brk                     ;e8c9  bf
-    brk                     ;e8ca  bf
-    brk                     ;e8cb  bf
-    brk                     ;e8cc  bf
-    brk                     ;e8cd  bf
-    brk                     ;e8ce  bf
-    brk                     ;e8cf  bf
-    brk                     ;e8d0  bf
-    brk                     ;e8d1  bf
-    brk                     ;e8d2  bf
-    brk                     ;e8d3  bf
-    brk                     ;e8d4  bf
-    brk                     ;e8d5  bf
-    brk                     ;e8d6  bf
-    brk                     ;e8d7  bf
-    brk                     ;e8d8  bf
-    brk                     ;e8d9  bf
-    brk                     ;e8da  bf
-    brk                     ;e8db  bf
-    brk                     ;e8dc  bf
-    brk                     ;e8dd  bf
-    brk                     ;e8de  bf
-    brk                     ;e8df  bf
-    brk                     ;e8e0  bf
-    brk                     ;e8e1  bf
-    brk                     ;e8e2  bf
-    brk                     ;e8e3  bf
-    brk                     ;e8e4  bf
-    brk                     ;e8e5  bf
-    brk                     ;e8e6  bf
-    brk                     ;e8e7  bf
-    brk                     ;e8e8  bf
-    brk                     ;e8e9  bf
-    brk                     ;e8ea  bf
-    brk                     ;e8eb  bf
-    brk                     ;e8ec  bf
-    brk                     ;e8ed  bf
-    brk                     ;e8ee  bf
-    brk                     ;e8ef  bf
-    brk                     ;e8f0  bf
-    brk                     ;e8f1  bf
-    brk                     ;e8f2  bf
-    brk                     ;e8f3  bf
-    brk                     ;e8f4  bf
-    brk                     ;e8f5  bf
-    brk                     ;e8f6  bf
-    brk                     ;e8f7  bf
-    brk                     ;e8f8  bf
-    brk                     ;e8f9  bf
-    brk                     ;e8fa  bf
-    brk                     ;e8fb  bf
-    brk                     ;e8fc  bf
-    brk                     ;e8fd  bf
-    brk                     ;e8fe  bf
-    brk                     ;e8ff  bf
-    brk                     ;e900  bf
-    brk                     ;e901  bf
-    brk                     ;e902  bf
-    brk                     ;e903  bf
-    brk                     ;e904  bf
-    brk                     ;e905  bf
-    brk                     ;e906  bf
-    brk                     ;e907  bf
-    brk                     ;e908  bf
-    brk                     ;e909  bf
-    brk                     ;e90a  bf
-    brk                     ;e90b  bf
-    brk                     ;e90c  bf
-    brk                     ;e90d  bf
-    brk                     ;e90e  bf
-    brk                     ;e90f  bf
-    brk                     ;e910  bf
-    brk                     ;e911  bf
-    brk                     ;e912  bf
-    brk                     ;e913  bf
-    brk                     ;e914  bf
-    brk                     ;e915  bf
-    brk                     ;e916  bf
-    brk                     ;e917  bf
-    brk                     ;e918  bf
-    brk                     ;e919  bf
-    brk                     ;e91a  bf
-    brk                     ;e91b  bf
-    brk                     ;e91c  bf
-    brk                     ;e91d  bf
-    brk                     ;e91e  bf
-    brk                     ;e91f  bf
-    brk                     ;e920  bf
-    brk                     ;e921  bf
-    brk                     ;e922  bf
-    brk                     ;e923  bf
-    brk                     ;e924  bf
-    brk                     ;e925  bf
-    brk                     ;e926  bf
-    brk                     ;e927  bf
-    brk                     ;e928  bf
-    brk                     ;e929  bf
-    brk                     ;e92a  bf
-    brk                     ;e92b  bf
-    brk                     ;e92c  bf
-    brk                     ;e92d  bf
-    brk                     ;e92e  bf
-    brk                     ;e92f  bf
-    brk                     ;e930  bf
-    brk                     ;e931  bf
-    brk                     ;e932  bf
-    brk                     ;e933  bf
-    brk                     ;e934  bf
-    brk                     ;e935  bf
-    brk                     ;e936  bf
-    brk                     ;e937  bf
-    brk                     ;e938  bf
-    brk                     ;e939  bf
-    brk                     ;e93a  bf
-    brk                     ;e93b  bf
-    brk                     ;e93c  bf
-    brk                     ;e93d  bf
-    brk                     ;e93e  bf
-    brk                     ;e93f  bf
-    brk                     ;e940  bf
-    brk                     ;e941  bf
-    brk                     ;e942  bf
-    brk                     ;e943  bf
-    brk                     ;e944  bf
-    brk                     ;e945  bf
-    brk                     ;e946  bf
-    brk                     ;e947  bf
-    brk                     ;e948  bf
-    brk                     ;e949  bf
-    brk                     ;e94a  bf
-    brk                     ;e94b  bf
-    brk                     ;e94c  bf
-    brk                     ;e94d  bf
-    brk                     ;e94e  bf
-    brk                     ;e94f  bf
-    brk                     ;e950  bf
-    brk                     ;e951  bf
-    brk                     ;e952  bf
-    brk                     ;e953  bf
-    brk                     ;e954  bf
-    brk                     ;e955  bf
-    brk                     ;e956  bf
-    brk                     ;e957  bf
-    brk                     ;e958  bf
-    brk                     ;e959  bf
-    brk                     ;e95a  bf
-    brk                     ;e95b  bf
-    brk                     ;e95c  bf
-    brk                     ;e95d  bf
-    brk                     ;e95e  bf
-    brk                     ;e95f  bf
-    brk                     ;e960  bf
-    brk                     ;e961  bf
-    brk                     ;e962  bf
-    brk                     ;e963  bf
-    brk                     ;e964  bf
-    brk                     ;e965  bf
-    brk                     ;e966  bf
-    brk                     ;e967  bf
-    brk                     ;e968  bf
-    brk                     ;e969  bf
-    brk                     ;e96a  bf
-    brk                     ;e96b  bf
-    brk                     ;e96c  bf
-    brk                     ;e96d  bf
-    brk                     ;e96e  bf
-    brk                     ;e96f  bf
-    brk                     ;e970  bf
-    brk                     ;e971  bf
-    brk                     ;e972  bf
-    brk                     ;e973  bf
-    brk                     ;e974  bf
-    brk                     ;e975  bf
-    brk                     ;e976  bf
-    brk                     ;e977  bf
-    brk                     ;e978  bf
-    brk                     ;e979  bf
-    brk                     ;e97a  bf
-    brk                     ;e97b  bf
-    brk                     ;e97c  bf
-    brk                     ;e97d  bf
-    brk                     ;e97e  bf
-    brk                     ;e97f  bf
-    brk                     ;e980  bf
-    brk                     ;e981  bf
-    brk                     ;e982  bf
-    brk                     ;e983  bf
-    brk                     ;e984  bf
-    brk                     ;e985  bf
-    brk                     ;e986  bf
-    brk                     ;e987  bf
-    brk                     ;e988  bf
-    brk                     ;e989  bf
-    brk                     ;e98a  bf
-    brk                     ;e98b  bf
-    brk                     ;e98c  bf
-    brk                     ;e98d  bf
-    brk                     ;e98e  bf
-    brk                     ;e98f  bf
-    brk                     ;e990  bf
-    brk                     ;e991  bf
-    brk                     ;e992  bf
-    brk                     ;e993  bf
-    brk                     ;e994  bf
-    brk                     ;e995  bf
-    brk                     ;e996  bf
-    brk                     ;e997  bf
-    brk                     ;e998  bf
-    brk                     ;e999  bf
-    brk                     ;e99a  bf
-    brk                     ;e99b  bf
-    brk                     ;e99c  bf
-    brk                     ;e99d  bf
-    brk                     ;e99e  bf
-    brk                     ;e99f  bf
-    brk                     ;e9a0  bf
-    brk                     ;e9a1  bf
-    brk                     ;e9a2  bf
-    brk                     ;e9a3  bf
-    brk                     ;e9a4  bf
-    brk                     ;e9a5  bf
-    brk                     ;e9a6  bf
-    brk                     ;e9a7  bf
-    brk                     ;e9a8  bf
-    brk                     ;e9a9  bf
-    brk                     ;e9aa  bf
-    brk                     ;e9ab  bf
-    brk                     ;e9ac  bf
-    brk                     ;e9ad  bf
-    brk                     ;e9ae  bf
-    brk                     ;e9af  bf
-    brk                     ;e9b0  bf
-    brk                     ;e9b1  bf
-    brk                     ;e9b2  bf
-    brk                     ;e9b3  bf
-    brk                     ;e9b4  bf
-    brk                     ;e9b5  bf
-    brk                     ;e9b6  bf
-    brk                     ;e9b7  bf
-    brk                     ;e9b8  bf
-    brk                     ;e9b9  bf
-    brk                     ;e9ba  bf
-    brk                     ;e9bb  bf
-    brk                     ;e9bc  bf
-    brk                     ;e9bd  bf
-    brk                     ;e9be  bf
-    brk                     ;e9bf  bf
-    brk                     ;e9c0  bf
-    brk                     ;e9c1  bf
-    brk                     ;e9c2  bf
-    brk                     ;e9c3  bf
-    brk                     ;e9c4  bf
-    brk                     ;e9c5  bf
-    brk                     ;e9c6  bf
-    brk                     ;e9c7  bf
-    brk                     ;e9c8  bf
-    brk                     ;e9c9  bf
-    brk                     ;e9ca  bf
-    brk                     ;e9cb  bf
-    brk                     ;e9cc  bf
-    brk                     ;e9cd  bf
-    brk                     ;e9ce  bf
-    brk                     ;e9cf  bf
-    brk                     ;e9d0  bf
-    brk                     ;e9d1  bf
-    brk                     ;e9d2  bf
-    brk                     ;e9d3  bf
-    brk                     ;e9d4  bf
-    brk                     ;e9d5  bf
-    brk                     ;e9d6  bf
-    brk                     ;e9d7  bf
-    brk                     ;e9d8  bf
-    brk                     ;e9d9  bf
-    brk                     ;e9da  bf
-    brk                     ;e9db  bf
-    brk                     ;e9dc  bf
-    brk                     ;e9dd  bf
-    brk                     ;e9de  bf
-    brk                     ;e9df  bf
-    brk                     ;e9e0  bf
-    brk                     ;e9e1  bf
-    brk                     ;e9e2  bf
-    brk                     ;e9e3  bf
-    brk                     ;e9e4  bf
-    brk                     ;e9e5  bf
-    brk                     ;e9e6  bf
-    brk                     ;e9e7  bf
-    brk                     ;e9e8  bf
-    brk                     ;e9e9  bf
-    brk                     ;e9ea  bf
-    brk                     ;e9eb  bf
-    brk                     ;e9ec  bf
-    brk                     ;e9ed  bf
-    brk                     ;e9ee  bf
-    brk                     ;e9ef  bf
-    brk                     ;e9f0  bf
-    brk                     ;e9f1  bf
-    brk                     ;e9f2  bf
-    brk                     ;e9f3  bf
-    brk                     ;e9f4  bf
-    brk                     ;e9f5  bf
-    brk                     ;e9f6  bf
-    brk                     ;e9f7  bf
-    brk                     ;e9f8  bf
-    brk                     ;e9f9  bf
-    brk                     ;e9fa  bf
-    brk                     ;e9fb  bf
-    brk                     ;e9fc  bf
-    brk                     ;e9fd  bf
-    brk                     ;e9fe  bf
-    brk                     ;e9ff  bf
-    brk                     ;ea00  bf
-    brk                     ;ea01  bf
-    brk                     ;ea02  bf
-    brk                     ;ea03  bf
-    brk                     ;ea04  bf
-    brk                     ;ea05  bf
-    brk                     ;ea06  bf
-    brk                     ;ea07  bf
-    brk                     ;ea08  bf
-    brk                     ;ea09  bf
-    brk                     ;ea0a  bf
-    brk                     ;ea0b  bf
-    brk                     ;ea0c  bf
-    brk                     ;ea0d  bf
-    brk                     ;ea0e  bf
-    brk                     ;ea0f  bf
-    brk                     ;ea10  bf
-    brk                     ;ea11  bf
-    brk                     ;ea12  bf
-    brk                     ;ea13  bf
-    brk                     ;ea14  bf
-    brk                     ;ea15  bf
-    brk                     ;ea16  bf
-    brk                     ;ea17  bf
-    brk                     ;ea18  bf
-    brk                     ;ea19  bf
-    brk                     ;ea1a  bf
-    brk                     ;ea1b  bf
-    brk                     ;ea1c  bf
-    brk                     ;ea1d  bf
-    brk                     ;ea1e  bf
-    brk                     ;ea1f  bf
-    brk                     ;ea20  bf
-    brk                     ;ea21  bf
-    brk                     ;ea22  bf
-    brk                     ;ea23  bf
-    brk                     ;ea24  bf
-    brk                     ;ea25  bf
-    brk                     ;ea26  bf
-    brk                     ;ea27  bf
-    brk                     ;ea28  bf
-    brk                     ;ea29  bf
-    brk                     ;ea2a  bf
-    brk                     ;ea2b  bf
-    brk                     ;ea2c  bf
-    brk                     ;ea2d  bf
-    brk                     ;ea2e  bf
-    brk                     ;ea2f  bf
-    brk                     ;ea30  bf
-    brk                     ;ea31  bf
-    brk                     ;ea32  bf
-    brk                     ;ea33  bf
-    brk                     ;ea34  bf
-    brk                     ;ea35  bf
-    brk                     ;ea36  bf
-    brk                     ;ea37  bf
-    brk                     ;ea38  bf
-    brk                     ;ea39  bf
-    brk                     ;ea3a  bf
-    brk                     ;ea3b  bf
-    brk                     ;ea3c  bf
-    brk                     ;ea3d  bf
-    brk                     ;ea3e  bf
-    brk                     ;ea3f  bf
-    brk                     ;ea40  bf
-    brk                     ;ea41  bf
-    brk                     ;ea42  bf
-    brk                     ;ea43  bf
-    brk                     ;ea44  bf
-    brk                     ;ea45  bf
-    brk                     ;ea46  bf
-    brk                     ;ea47  bf
-    brk                     ;ea48  bf
-    brk                     ;ea49  bf
-    brk                     ;ea4a  bf
-    brk                     ;ea4b  bf
-    brk                     ;ea4c  bf
-    brk                     ;ea4d  bf
-    brk                     ;ea4e  bf
-    brk                     ;ea4f  bf
-    brk                     ;ea50  bf
-    brk                     ;ea51  bf
-    brk                     ;ea52  bf
-    brk                     ;ea53  bf
-    brk                     ;ea54  bf
-    brk                     ;ea55  bf
-    brk                     ;ea56  bf
-    brk                     ;ea57  bf
-    brk                     ;ea58  bf
-    brk                     ;ea59  bf
-    brk                     ;ea5a  bf
-    brk                     ;ea5b  bf
-    brk                     ;ea5c  bf
-    brk                     ;ea5d  bf
-    brk                     ;ea5e  bf
-    brk                     ;ea5f  bf
-    brk                     ;ea60  bf
-    brk                     ;ea61  bf
-    brk                     ;ea62  bf
-    brk                     ;ea63  bf
-    brk                     ;ea64  bf
-    brk                     ;ea65  bf
-    brk                     ;ea66  bf
-    brk                     ;ea67  bf
-    brk                     ;ea68  bf
-    brk                     ;ea69  bf
-    brk                     ;ea6a  bf
-    brk                     ;ea6b  bf
-    brk                     ;ea6c  bf
-    brk                     ;ea6d  bf
-    brk                     ;ea6e  bf
-    brk                     ;ea6f  bf
-    brk                     ;ea70  bf
-    brk                     ;ea71  bf
-    brk                     ;ea72  bf
-    brk                     ;ea73  bf
-    brk                     ;ea74  bf
-    brk                     ;ea75  bf
-    brk                     ;ea76  bf
-    brk                     ;ea77  bf
-    brk                     ;ea78  bf
-    brk                     ;ea79  bf
-    brk                     ;ea7a  bf
-    brk                     ;ea7b  bf
-    brk                     ;ea7c  bf
-    brk                     ;ea7d  bf
-    brk                     ;ea7e  bf
-    brk                     ;ea7f  bf
-    brk                     ;ea80  bf
-    brk                     ;ea81  bf
-    brk                     ;ea82  bf
-    brk                     ;ea83  bf
-    brk                     ;ea84  bf
-    brk                     ;ea85  bf
-    brk                     ;ea86  bf
-    brk                     ;ea87  bf
-    brk                     ;ea88  bf
-    brk                     ;ea89  bf
-    brk                     ;ea8a  bf
-    brk                     ;ea8b  bf
-    brk                     ;ea8c  bf
-    brk                     ;ea8d  bf
-    brk                     ;ea8e  bf
-    brk                     ;ea8f  bf
-    brk                     ;ea90  bf
-    brk                     ;ea91  bf
-    brk                     ;ea92  bf
-    brk                     ;ea93  bf
-    brk                     ;ea94  bf
-    brk                     ;ea95  bf
-    brk                     ;ea96  bf
-    brk                     ;ea97  bf
-    brk                     ;ea98  bf
-    brk                     ;ea99  bf
-    brk                     ;ea9a  bf
-    brk                     ;ea9b  bf
-    brk                     ;ea9c  bf
-    brk                     ;ea9d  bf
-    brk                     ;ea9e  bf
-    brk                     ;ea9f  bf
-    brk                     ;eaa0  bf
-    brk                     ;eaa1  bf
-    brk                     ;eaa2  bf
-    brk                     ;eaa3  bf
-    brk                     ;eaa4  bf
-    brk                     ;eaa5  bf
-    brk                     ;eaa6  bf
-    brk                     ;eaa7  bf
-    brk                     ;eaa8  bf
-    brk                     ;eaa9  bf
-    brk                     ;eaaa  bf
-    brk                     ;eaab  bf
-    brk                     ;eaac  bf
-    brk                     ;eaad  bf
-    brk                     ;eaae  bf
-    brk                     ;eaaf  bf
-    brk                     ;eab0  bf
-    brk                     ;eab1  bf
-    brk                     ;eab2  bf
-    brk                     ;eab3  bf
-    brk                     ;eab4  bf
-    brk                     ;eab5  bf
-    brk                     ;eab6  bf
-    brk                     ;eab7  bf
-    brk                     ;eab8  bf
-    brk                     ;eab9  bf
-    brk                     ;eaba  bf
-    brk                     ;eabb  bf
-    brk                     ;eabc  bf
-    brk                     ;eabd  bf
-    brk                     ;eabe  bf
-    brk                     ;eabf  bf
-    brk                     ;eac0  bf
-    brk                     ;eac1  bf
-    brk                     ;eac2  bf
-    brk                     ;eac3  bf
-    brk                     ;eac4  bf
-    brk                     ;eac5  bf
-    brk                     ;eac6  bf
-    brk                     ;eac7  bf
-    brk                     ;eac8  bf
-    brk                     ;eac9  bf
-    brk                     ;eaca  bf
-    brk                     ;eacb  bf
-    brk                     ;eacc  bf
-    brk                     ;eacd  bf
-    brk                     ;eace  bf
-    brk                     ;eacf  bf
-    brk                     ;ead0  bf
-    brk                     ;ead1  bf
-    brk                     ;ead2  bf
-    brk                     ;ead3  bf
-    brk                     ;ead4  bf
-    brk                     ;ead5  bf
-    brk                     ;ead6  bf
-    brk                     ;ead7  bf
-    brk                     ;ead8  bf
-    brk                     ;ead9  bf
-    brk                     ;eada  bf
-    brk                     ;eadb  bf
-    brk                     ;eadc  bf
-    brk                     ;eadd  bf
-    brk                     ;eade  bf
-    brk                     ;eadf  bf
-    brk                     ;eae0  bf
-    brk                     ;eae1  bf
-    brk                     ;eae2  bf
-    brk                     ;eae3  bf
-    brk                     ;eae4  bf
-    brk                     ;eae5  bf
-    brk                     ;eae6  bf
-    brk                     ;eae7  bf
-    brk                     ;eae8  bf
-    brk                     ;eae9  bf
-    brk                     ;eaea  bf
-    brk                     ;eaeb  bf
-    brk                     ;eaec  bf
-    brk                     ;eaed  bf
-    brk                     ;eaee  bf
-    brk                     ;eaef  bf
-    brk                     ;eaf0  bf
-    brk                     ;eaf1  bf
-    brk                     ;eaf2  bf
-    brk                     ;eaf3  bf
-    brk                     ;eaf4  bf
-    brk                     ;eaf5  bf
-    brk                     ;eaf6  bf
-    brk                     ;eaf7  bf
-    brk                     ;eaf8  bf
-    brk                     ;eaf9  bf
-    brk                     ;eafa  bf
-    brk                     ;eafb  bf
-    brk                     ;eafc  bf
-    brk                     ;eafd  bf
-    brk                     ;eafe  bf
-    brk                     ;eaff  bf
-    brk                     ;eb00  bf
-    brk                     ;eb01  bf
-    brk                     ;eb02  bf
-    brk                     ;eb03  bf
-    brk                     ;eb04  bf
-    brk                     ;eb05  bf
-    brk                     ;eb06  bf
-    brk                     ;eb07  bf
-    brk                     ;eb08  bf
-    brk                     ;eb09  bf
-    brk                     ;eb0a  bf
-    brk                     ;eb0b  bf
-    brk                     ;eb0c  bf
-    brk                     ;eb0d  bf
-    brk                     ;eb0e  bf
-    brk                     ;eb0f  bf
-    brk                     ;eb10  bf
-    brk                     ;eb11  bf
-    brk                     ;eb12  bf
-    brk                     ;eb13  bf
-    brk                     ;eb14  bf
-    brk                     ;eb15  bf
-    brk                     ;eb16  bf
-    brk                     ;eb17  bf
-    brk                     ;eb18  bf
-    brk                     ;eb19  bf
-    brk                     ;eb1a  bf
-    brk                     ;eb1b  bf
-    brk                     ;eb1c  bf
-    brk                     ;eb1d  bf
-    brk                     ;eb1e  bf
-    brk                     ;eb1f  bf
-    brk                     ;eb20  bf
-    brk                     ;eb21  bf
-    brk                     ;eb22  bf
-    brk                     ;eb23  bf
-    brk                     ;eb24  bf
-    brk                     ;eb25  bf
-    brk                     ;eb26  bf
-    brk                     ;eb27  bf
-    brk                     ;eb28  bf
-    brk                     ;eb29  bf
-    brk                     ;eb2a  bf
-    brk                     ;eb2b  bf
-    brk                     ;eb2c  bf
-    brk                     ;eb2d  bf
-    brk                     ;eb2e  bf
-    brk                     ;eb2f  bf
-    brk                     ;eb30  bf
-    brk                     ;eb31  bf
-    brk                     ;eb32  bf
-    brk                     ;eb33  bf
-    brk                     ;eb34  bf
-    brk                     ;eb35  bf
-    brk                     ;eb36  bf
-    brk                     ;eb37  bf
-    brk                     ;eb38  bf
-    brk                     ;eb39  bf
-    brk                     ;eb3a  bf
-    brk                     ;eb3b  bf
-    brk                     ;eb3c  bf
-    brk                     ;eb3d  bf
-    brk                     ;eb3e  bf
-    brk                     ;eb3f  bf
-    brk                     ;eb40  bf
-    brk                     ;eb41  bf
-    brk                     ;eb42  bf
-    brk                     ;eb43  bf
-    brk                     ;eb44  bf
-    brk                     ;eb45  bf
-    brk                     ;eb46  bf
-    brk                     ;eb47  bf
-    brk                     ;eb48  bf
-    brk                     ;eb49  bf
-    brk                     ;eb4a  bf
-    brk                     ;eb4b  bf
-    brk                     ;eb4c  bf
-    brk                     ;eb4d  bf
-    brk                     ;eb4e  bf
-    brk                     ;eb4f  bf
-    brk                     ;eb50  bf
-    brk                     ;eb51  bf
-    brk                     ;eb52  bf
-    brk                     ;eb53  bf
-    brk                     ;eb54  bf
-    brk                     ;eb55  bf
-    brk                     ;eb56  bf
-    brk                     ;eb57  bf
-    brk                     ;eb58  bf
-    brk                     ;eb59  bf
-    brk                     ;eb5a  bf
-    brk                     ;eb5b  bf
-    brk                     ;eb5c  bf
-    brk                     ;eb5d  bf
-    brk                     ;eb5e  bf
-    brk                     ;eb5f  bf
-    brk                     ;eb60  bf
-    brk                     ;eb61  bf
-    brk                     ;eb62  bf
-    brk                     ;eb63  bf
-    brk                     ;eb64  bf
-    brk                     ;eb65  bf
-    brk                     ;eb66  bf
-    brk                     ;eb67  bf
-    brk                     ;eb68  bf
-    brk                     ;eb69  bf
-    brk                     ;eb6a  bf
-    brk                     ;eb6b  bf
-    brk                     ;eb6c  bf
-    brk                     ;eb6d  bf
-    brk                     ;eb6e  bf
-    brk                     ;eb6f  bf
-    brk                     ;eb70  bf
-    brk                     ;eb71  bf
-    brk                     ;eb72  bf
-    brk                     ;eb73  bf
-    brk                     ;eb74  bf
-    brk                     ;eb75  bf
-    brk                     ;eb76  bf
-    brk                     ;eb77  bf
-    brk                     ;eb78  bf
-    brk                     ;eb79  bf
-    brk                     ;eb7a  bf
-    brk                     ;eb7b  bf
-    brk                     ;eb7c  bf
-    brk                     ;eb7d  bf
-    brk                     ;eb7e  bf
-    brk                     ;eb7f  bf
-    brk                     ;eb80  bf
-    brk                     ;eb81  bf
-    brk                     ;eb82  bf
-    brk                     ;eb83  bf
-    brk                     ;eb84  bf
-    brk                     ;eb85  bf
-    brk                     ;eb86  bf
-    brk                     ;eb87  bf
-    brk                     ;eb88  bf
-    brk                     ;eb89  bf
-    brk                     ;eb8a  bf
-    brk                     ;eb8b  bf
-    brk                     ;eb8c  bf
-    brk                     ;eb8d  bf
-    brk                     ;eb8e  bf
-    brk                     ;eb8f  bf
-    brk                     ;eb90  bf
-    brk                     ;eb91  bf
-    brk                     ;eb92  bf
-    brk                     ;eb93  bf
-    brk                     ;eb94  bf
-    brk                     ;eb95  bf
-    brk                     ;eb96  bf
-    brk                     ;eb97  bf
-    brk                     ;eb98  bf
-    brk                     ;eb99  bf
-    brk                     ;eb9a  bf
-    brk                     ;eb9b  bf
-    brk                     ;eb9c  bf
-    brk                     ;eb9d  bf
-    brk                     ;eb9e  bf
-    brk                     ;eb9f  bf
-    brk                     ;eba0  bf
-    brk                     ;eba1  bf
-    brk                     ;eba2  bf
-    brk                     ;eba3  bf
-    brk                     ;eba4  bf
-    brk                     ;eba5  bf
-    brk                     ;eba6  bf
-    brk                     ;eba7  bf
-    brk                     ;eba8  bf
-    brk                     ;eba9  bf
-    brk                     ;ebaa  bf
-    brk                     ;ebab  bf
-    brk                     ;ebac  bf
-    brk                     ;ebad  bf
-    brk                     ;ebae  bf
-    brk                     ;ebaf  bf
-    brk                     ;ebb0  bf
-    brk                     ;ebb1  bf
-    brk                     ;ebb2  bf
-    brk                     ;ebb3  bf
-    brk                     ;ebb4  bf
-    brk                     ;ebb5  bf
-    brk                     ;ebb6  bf
-    brk                     ;ebb7  bf
-    brk                     ;ebb8  bf
-    brk                     ;ebb9  bf
-    brk                     ;ebba  bf
-    brk                     ;ebbb  bf
-    brk                     ;ebbc  bf
-    brk                     ;ebbd  bf
-    brk                     ;ebbe  bf
-    brk                     ;ebbf  bf
-    brk                     ;ebc0  bf
-    brk                     ;ebc1  bf
-    brk                     ;ebc2  bf
-    brk                     ;ebc3  bf
-    brk                     ;ebc4  bf
-    brk                     ;ebc5  bf
-    brk                     ;ebc6  bf
-    brk                     ;ebc7  bf
-    brk                     ;ebc8  bf
-    brk                     ;ebc9  bf
-    brk                     ;ebca  bf
-    brk                     ;ebcb  bf
-    brk                     ;ebcc  bf
-    brk                     ;ebcd  bf
-    brk                     ;ebce  bf
-    brk                     ;ebcf  bf
-    brk                     ;ebd0  bf
-    brk                     ;ebd1  bf
-    brk                     ;ebd2  bf
-    brk                     ;ebd3  bf
-    brk                     ;ebd4  bf
-    brk                     ;ebd5  bf
-    brk                     ;ebd6  bf
-    brk                     ;ebd7  bf
-    brk                     ;ebd8  bf
-    brk                     ;ebd9  bf
-    brk                     ;ebda  bf
-    brk                     ;ebdb  bf
-    brk                     ;ebdc  bf
-    brk                     ;ebdd  bf
-    brk                     ;ebde  bf
-    brk                     ;ebdf  bf
-    brk                     ;ebe0  bf
-    brk                     ;ebe1  bf
-    brk                     ;ebe2  bf
-    brk                     ;ebe3  bf
-    brk                     ;ebe4  bf
-    brk                     ;ebe5  bf
-    brk                     ;ebe6  bf
-    brk                     ;ebe7  bf
-    brk                     ;ebe8  bf
-    brk                     ;ebe9  bf
-    brk                     ;ebea  bf
-    brk                     ;ebeb  bf
-    brk                     ;ebec  bf
-    brk                     ;ebed  bf
-    brk                     ;ebee  bf
-    brk                     ;ebef  bf
-    brk                     ;ebf0  bf
-    brk                     ;ebf1  bf
-    brk                     ;ebf2  bf
-    brk                     ;ebf3  bf
-    brk                     ;ebf4  bf
-    brk                     ;ebf5  bf
-    brk                     ;ebf6  bf
-    brk                     ;ebf7  bf
-    brk                     ;ebf8  bf
-    brk                     ;ebf9  bf
-    brk                     ;ebfa  bf
-    brk                     ;ebfb  bf
-    brk                     ;ebfc  bf
-    brk                     ;ebfd  bf
-    brk                     ;ebfe  bf
-    brk                     ;ebff  bf
-    brk                     ;ec00  bf
-    brk                     ;ec01  bf
-    brk                     ;ec02  bf
-    brk                     ;ec03  bf
-    brk                     ;ec04  bf
-    brk                     ;ec05  bf
-    brk                     ;ec06  bf
-    brk                     ;ec07  bf
-    brk                     ;ec08  bf
-    brk                     ;ec09  bf
-    brk                     ;ec0a  bf
-    brk                     ;ec0b  bf
-    brk                     ;ec0c  bf
-    brk                     ;ec0d  bf
-    brk                     ;ec0e  bf
-    brk                     ;ec0f  bf
-    brk                     ;ec10  bf
-    brk                     ;ec11  bf
-    brk                     ;ec12  bf
-    brk                     ;ec13  bf
-    brk                     ;ec14  bf
-    brk                     ;ec15  bf
-    brk                     ;ec16  bf
-    brk                     ;ec17  bf
-    brk                     ;ec18  bf
-    brk                     ;ec19  bf
-    brk                     ;ec1a  bf
-    brk                     ;ec1b  bf
-    brk                     ;ec1c  bf
-    brk                     ;ec1d  bf
-    brk                     ;ec1e  bf
-    brk                     ;ec1f  bf
-    brk                     ;ec20  bf
-    brk                     ;ec21  bf
-    brk                     ;ec22  bf
-    brk                     ;ec23  bf
-    brk                     ;ec24  bf
-    brk                     ;ec25  bf
-    brk                     ;ec26  bf
-    brk                     ;ec27  bf
-    brk                     ;ec28  bf
-    brk                     ;ec29  bf
-    brk                     ;ec2a  bf
-    brk                     ;ec2b  bf
-    brk                     ;ec2c  bf
-    brk                     ;ec2d  bf
-    brk                     ;ec2e  bf
-    brk                     ;ec2f  bf
-    brk                     ;ec30  bf
-    brk                     ;ec31  bf
-    brk                     ;ec32  bf
-    brk                     ;ec33  bf
-    brk                     ;ec34  bf
-    brk                     ;ec35  bf
-    brk                     ;ec36  bf
-    brk                     ;ec37  bf
-    brk                     ;ec38  bf
-    brk                     ;ec39  bf
-    brk                     ;ec3a  bf
-    brk                     ;ec3b  bf
-    brk                     ;ec3c  bf
-    brk                     ;ec3d  bf
-    brk                     ;ec3e  bf
-    brk                     ;ec3f  bf
-    brk                     ;ec40  bf
-    brk                     ;ec41  bf
-    brk                     ;ec42  bf
-    brk                     ;ec43  bf
-    brk                     ;ec44  bf
-    brk                     ;ec45  bf
-    brk                     ;ec46  bf
-    brk                     ;ec47  bf
-    brk                     ;ec48  bf
-    brk                     ;ec49  bf
-    brk                     ;ec4a  bf
-    brk                     ;ec4b  bf
-    brk                     ;ec4c  bf
-    brk                     ;ec4d  bf
-    brk                     ;ec4e  bf
-    brk                     ;ec4f  bf
-    brk                     ;ec50  bf
-    brk                     ;ec51  bf
-    brk                     ;ec52  bf
-    brk                     ;ec53  bf
-    brk                     ;ec54  bf
-    brk                     ;ec55  bf
-    brk                     ;ec56  bf
-    brk                     ;ec57  bf
-    brk                     ;ec58  bf
-    brk                     ;ec59  bf
-    brk                     ;ec5a  bf
-    brk                     ;ec5b  bf
-    brk                     ;ec5c  bf
-    brk                     ;ec5d  bf
-    brk                     ;ec5e  bf
-    brk                     ;ec5f  bf
-    brk                     ;ec60  bf
-    brk                     ;ec61  bf
-    brk                     ;ec62  bf
-    brk                     ;ec63  bf
-    brk                     ;ec64  bf
-    brk                     ;ec65  bf
-    brk                     ;ec66  bf
-    brk                     ;ec67  bf
-    brk                     ;ec68  bf
-    brk                     ;ec69  bf
-    brk                     ;ec6a  bf
-    brk                     ;ec6b  bf
-    brk                     ;ec6c  bf
-    brk                     ;ec6d  bf
-    brk                     ;ec6e  bf
-    brk                     ;ec6f  bf
-    brk                     ;ec70  bf
-    brk                     ;ec71  bf
-    brk                     ;ec72  bf
-    brk                     ;ec73  bf
-    brk                     ;ec74  bf
-    brk                     ;ec75  bf
-    brk                     ;ec76  bf
-    brk                     ;ec77  bf
-    brk                     ;ec78  bf
-    brk                     ;ec79  bf
-    brk                     ;ec7a  bf
-    brk                     ;ec7b  bf
-    brk                     ;ec7c  bf
-    brk                     ;ec7d  bf
-    brk                     ;ec7e  bf
-    brk                     ;ec7f  bf
-    brk                     ;ec80  bf
-    brk                     ;ec81  bf
-    brk                     ;ec82  bf
-    brk                     ;ec83  bf
-    brk                     ;ec84  bf
-    brk                     ;ec85  bf
-    brk                     ;ec86  bf
-    brk                     ;ec87  bf
-    brk                     ;ec88  bf
-    brk                     ;ec89  bf
-    brk                     ;ec8a  bf
-    brk                     ;ec8b  bf
-    brk                     ;ec8c  bf
-    brk                     ;ec8d  bf
-    brk                     ;ec8e  bf
-    brk                     ;ec8f  bf
-    brk                     ;ec90  bf
-    brk                     ;ec91  bf
-    brk                     ;ec92  bf
-    brk                     ;ec93  bf
-    brk                     ;ec94  bf
-    brk                     ;ec95  bf
-    brk                     ;ec96  bf
-    brk                     ;ec97  bf
-    brk                     ;ec98  bf
-    brk                     ;ec99  bf
-    brk                     ;ec9a  bf
-    brk                     ;ec9b  bf
-    brk                     ;ec9c  bf
-    brk                     ;ec9d  bf
-    brk                     ;ec9e  bf
-    brk                     ;ec9f  bf
-    brk                     ;eca0  bf
-    brk                     ;eca1  bf
-    brk                     ;eca2  bf
-    brk                     ;eca3  bf
-    brk                     ;eca4  bf
-    brk                     ;eca5  bf
-    brk                     ;eca6  bf
-    brk                     ;eca7  bf
-    brk                     ;eca8  bf
-    brk                     ;eca9  bf
-    brk                     ;ecaa  bf
-    brk                     ;ecab  bf
-    brk                     ;ecac  bf
-    brk                     ;ecad  bf
-    brk                     ;ecae  bf
-    brk                     ;ecaf  bf
-    brk                     ;ecb0  bf
-    brk                     ;ecb1  bf
-    brk                     ;ecb2  bf
-    brk                     ;ecb3  bf
-    brk                     ;ecb4  bf
-    brk                     ;ecb5  bf
-    brk                     ;ecb6  bf
-    brk                     ;ecb7  bf
-    brk                     ;ecb8  bf
-    brk                     ;ecb9  bf
-    brk                     ;ecba  bf
-    brk                     ;ecbb  bf
-    brk                     ;ecbc  bf
-    brk                     ;ecbd  bf
-    brk                     ;ecbe  bf
-    brk                     ;ecbf  bf
-    brk                     ;ecc0  bf
-    brk                     ;ecc1  bf
-    brk                     ;ecc2  bf
-    brk                     ;ecc3  bf
-    brk                     ;ecc4  bf
-    brk                     ;ecc5  bf
-    brk                     ;ecc6  bf
-    brk                     ;ecc7  bf
-    brk                     ;ecc8  bf
-    brk                     ;ecc9  bf
-    brk                     ;ecca  bf
-    brk                     ;eccb  bf
-    brk                     ;eccc  bf
-    brk                     ;eccd  bf
-    brk                     ;ecce  bf
-    brk                     ;eccf  bf
-    brk                     ;ecd0  bf
-    brk                     ;ecd1  bf
-    brk                     ;ecd2  bf
-    brk                     ;ecd3  bf
-    brk                     ;ecd4  bf
-    brk                     ;ecd5  bf
-    brk                     ;ecd6  bf
-    brk                     ;ecd7  bf
-    brk                     ;ecd8  bf
-    brk                     ;ecd9  bf
-    brk                     ;ecda  bf
-    brk                     ;ecdb  bf
-    brk                     ;ecdc  bf
-    brk                     ;ecdd  bf
-    brk                     ;ecde  bf
-    brk                     ;ecdf  bf
-    brk                     ;ece0  bf
-    brk                     ;ece1  bf
-    brk                     ;ece2  bf
-    brk                     ;ece3  bf
-    brk                     ;ece4  bf
-    brk                     ;ece5  bf
-    brk                     ;ece6  bf
-    brk                     ;ece7  bf
-    brk                     ;ece8  bf
-    brk                     ;ece9  bf
-    brk                     ;ecea  bf
-    brk                     ;eceb  bf
-    brk                     ;ecec  bf
-    brk                     ;eced  bf
-    brk                     ;ecee  bf
-    brk                     ;ecef  bf
-    brk                     ;ecf0  bf
-    brk                     ;ecf1  bf
-    brk                     ;ecf2  bf
-    brk                     ;ecf3  bf
-    brk                     ;ecf4  bf
-    brk                     ;ecf5  bf
-    brk                     ;ecf6  bf
-    brk                     ;ecf7  bf
-    brk                     ;ecf8  bf
-    brk                     ;ecf9  bf
-    brk                     ;ecfa  bf
-    brk                     ;ecfb  bf
-    brk                     ;ecfc  bf
-    brk                     ;ecfd  bf
-    brk                     ;ecfe  bf
-    brk                     ;ecff  bf
-    brk                     ;ed00  bf
-    brk                     ;ed01  bf
-    brk                     ;ed02  bf
-    brk                     ;ed03  bf
-    brk                     ;ed04  bf
-    brk                     ;ed05  bf
-    brk                     ;ed06  bf
-    brk                     ;ed07  bf
-    brk                     ;ed08  bf
-    brk                     ;ed09  bf
-    brk                     ;ed0a  bf
-    brk                     ;ed0b  bf
-    brk                     ;ed0c  bf
-    brk                     ;ed0d  bf
-    brk                     ;ed0e  bf
-    brk                     ;ed0f  bf
-    brk                     ;ed10  bf
-    brk                     ;ed11  bf
-    brk                     ;ed12  bf
-    brk                     ;ed13  bf
-    brk                     ;ed14  bf
-    brk                     ;ed15  bf
-    brk                     ;ed16  bf
-    brk                     ;ed17  bf
-    brk                     ;ed18  bf
-    brk                     ;ed19  bf
-    brk                     ;ed1a  bf
-    brk                     ;ed1b  bf
-    brk                     ;ed1c  bf
-    brk                     ;ed1d  bf
-    brk                     ;ed1e  bf
-    brk                     ;ed1f  bf
-    brk                     ;ed20  bf
-    brk                     ;ed21  bf
-    brk                     ;ed22  bf
-    brk                     ;ed23  bf
-    brk                     ;ed24  bf
-    brk                     ;ed25  bf
-    brk                     ;ed26  bf
-    brk                     ;ed27  bf
-    brk                     ;ed28  bf
-    brk                     ;ed29  bf
-    brk                     ;ed2a  bf
-    brk                     ;ed2b  bf
-    brk                     ;ed2c  bf
-    brk                     ;ed2d  bf
-    brk                     ;ed2e  bf
-    brk                     ;ed2f  bf
-    brk                     ;ed30  bf
-    brk                     ;ed31  bf
-    brk                     ;ed32  bf
-    brk                     ;ed33  bf
-    brk                     ;ed34  bf
-    brk                     ;ed35  bf
-    brk                     ;ed36  bf
-    brk                     ;ed37  bf
-    brk                     ;ed38  bf
-    brk                     ;ed39  bf
-    brk                     ;ed3a  bf
-    brk                     ;ed3b  bf
-    brk                     ;ed3c  bf
-    brk                     ;ed3d  bf
-    brk                     ;ed3e  bf
-    brk                     ;ed3f  bf
-    brk                     ;ed40  bf
-    brk                     ;ed41  bf
-    brk                     ;ed42  bf
-    brk                     ;ed43  bf
-    brk                     ;ed44  bf
-    brk                     ;ed45  bf
-    brk                     ;ed46  bf
-    brk                     ;ed47  bf
-    brk                     ;ed48  bf
-    brk                     ;ed49  bf
-    brk                     ;ed4a  bf
-    brk                     ;ed4b  bf
-    brk                     ;ed4c  bf
-    brk                     ;ed4d  bf
-    brk                     ;ed4e  bf
-    brk                     ;ed4f  bf
-    brk                     ;ed50  bf
-    brk                     ;ed51  bf
-    brk                     ;ed52  bf
-    brk                     ;ed53  bf
-    brk                     ;ed54  bf
-    brk                     ;ed55  bf
-    brk                     ;ed56  bf
-    brk                     ;ed57  bf
-    brk                     ;ed58  bf
-    brk                     ;ed59  bf
-    brk                     ;ed5a  bf
-    brk                     ;ed5b  bf
-    brk                     ;ed5c  bf
-    brk                     ;ed5d  bf
-    brk                     ;ed5e  bf
-    brk                     ;ed5f  bf
-    brk                     ;ed60  bf
-    brk                     ;ed61  bf
-    brk                     ;ed62  bf
-    brk                     ;ed63  bf
-    brk                     ;ed64  bf
-    brk                     ;ed65  bf
-    brk                     ;ed66  bf
-    brk                     ;ed67  bf
-    brk                     ;ed68  bf
-    brk                     ;ed69  bf
-    brk                     ;ed6a  bf
-    brk                     ;ed6b  bf
-    brk                     ;ed6c  bf
-    brk                     ;ed6d  bf
-    brk                     ;ed6e  bf
-    brk                     ;ed6f  bf
-    brk                     ;ed70  bf
-    brk                     ;ed71  bf
-    brk                     ;ed72  bf
-    brk                     ;ed73  bf
-    brk                     ;ed74  bf
-    brk                     ;ed75  bf
-    brk                     ;ed76  bf
-    brk                     ;ed77  bf
-    brk                     ;ed78  bf
-    brk                     ;ed79  bf
-    brk                     ;ed7a  bf
-    brk                     ;ed7b  bf
-    brk                     ;ed7c  bf
-    brk                     ;ed7d  bf
-    brk                     ;ed7e  bf
-    brk                     ;ed7f  bf
-    brk                     ;ed80  bf
-    brk                     ;ed81  bf
-    brk                     ;ed82  bf
-    brk                     ;ed83  bf
-    brk                     ;ed84  bf
-    brk                     ;ed85  bf
-    brk                     ;ed86  bf
-    brk                     ;ed87  bf
-    brk                     ;ed88  bf
-    brk                     ;ed89  bf
-    brk                     ;ed8a  bf
-    brk                     ;ed8b  bf
-    brk                     ;ed8c  bf
-    brk                     ;ed8d  bf
-    brk                     ;ed8e  bf
-    brk                     ;ed8f  bf
-    brk                     ;ed90  bf
-    brk                     ;ed91  bf
-    brk                     ;ed92  bf
-    brk                     ;ed93  bf
-    brk                     ;ed94  bf
-    brk                     ;ed95  bf
-    brk                     ;ed96  bf
-    brk                     ;ed97  bf
-    brk                     ;ed98  bf
-    brk                     ;ed99  bf
-    brk                     ;ed9a  bf
-    brk                     ;ed9b  bf
-    brk                     ;ed9c  bf
-    brk                     ;ed9d  bf
-    brk                     ;ed9e  bf
-    brk                     ;ed9f  bf
-    brk                     ;eda0  bf
-    brk                     ;eda1  bf
-    brk                     ;eda2  bf
-    brk                     ;eda3  bf
-    brk                     ;eda4  bf
-    brk                     ;eda5  bf
-    brk                     ;eda6  bf
-    brk                     ;eda7  bf
-    brk                     ;eda8  bf
-    brk                     ;eda9  bf
-    brk                     ;edaa  bf
-    brk                     ;edab  bf
-    brk                     ;edac  bf
-    brk                     ;edad  bf
-    brk                     ;edae  bf
-    brk                     ;edaf  bf
-    brk                     ;edb0  bf
-    brk                     ;edb1  bf
-    brk                     ;edb2  bf
-    brk                     ;edb3  bf
-    brk                     ;edb4  bf
-    brk                     ;edb5  bf
-    brk                     ;edb6  bf
-    brk                     ;edb7  bf
-    brk                     ;edb8  bf
-    brk                     ;edb9  bf
-    brk                     ;edba  bf
-    brk                     ;edbb  bf
-    brk                     ;edbc  bf
-    brk                     ;edbd  bf
-    brk                     ;edbe  bf
-    brk                     ;edbf  bf
-    brk                     ;edc0  bf
-    brk                     ;edc1  bf
-    brk                     ;edc2  bf
-    brk                     ;edc3  bf
-    brk                     ;edc4  bf
-    brk                     ;edc5  bf
-    brk                     ;edc6  bf
-    brk                     ;edc7  bf
-    brk                     ;edc8  bf
-    brk                     ;edc9  bf
-    brk                     ;edca  bf
-    brk                     ;edcb  bf
-    brk                     ;edcc  bf
-    brk                     ;edcd  bf
-    brk                     ;edce  bf
-    brk                     ;edcf  bf
-    brk                     ;edd0  bf
-    brk                     ;edd1  bf
-    brk                     ;edd2  bf
-    brk                     ;edd3  bf
-    brk                     ;edd4  bf
-    brk                     ;edd5  bf
-    brk                     ;edd6  bf
-    brk                     ;edd7  bf
-    brk                     ;edd8  bf
-    brk                     ;edd9  bf
-    brk                     ;edda  bf
-    brk                     ;eddb  bf
-    brk                     ;eddc  bf
-    brk                     ;eddd  bf
-    brk                     ;edde  bf
-    brk                     ;eddf  bf
-    brk                     ;ede0  bf
-    brk                     ;ede1  bf
-    brk                     ;ede2  bf
-    brk                     ;ede3  bf
-    brk                     ;ede4  bf
-    brk                     ;ede5  bf
-    brk                     ;ede6  bf
-    brk                     ;ede7  bf
-    brk                     ;ede8  bf
-    brk                     ;ede9  bf
-    brk                     ;edea  bf
-    brk                     ;edeb  bf
-    brk                     ;edec  bf
-    brk                     ;eded  bf
-    brk                     ;edee  bf
-    brk                     ;edef  bf
-    brk                     ;edf0  bf
-    brk                     ;edf1  bf
-    brk                     ;edf2  bf
-    brk                     ;edf3  bf
-    brk                     ;edf4  bf
-    brk                     ;edf5  bf
-    brk                     ;edf6  bf
-    brk                     ;edf7  bf
-    brk                     ;edf8  bf
-    brk                     ;edf9  bf
-    brk                     ;edfa  bf
-    brk                     ;edfb  bf
-    brk                     ;edfc  bf
-    brk                     ;edfd  bf
-    brk                     ;edfe  bf
-    brk                     ;edff  bf
-    brk                     ;ee00  bf
-    brk                     ;ee01  bf
-    brk                     ;ee02  bf
-    brk                     ;ee03  bf
-    brk                     ;ee04  bf
-    brk                     ;ee05  bf
-    brk                     ;ee06  bf
-    brk                     ;ee07  bf
-    brk                     ;ee08  bf
-    brk                     ;ee09  bf
-    brk                     ;ee0a  bf
-    brk                     ;ee0b  bf
-    brk                     ;ee0c  bf
-    brk                     ;ee0d  bf
-    brk                     ;ee0e  bf
-    brk                     ;ee0f  bf
-    brk                     ;ee10  bf
-    brk                     ;ee11  bf
-    brk                     ;ee12  bf
-    brk                     ;ee13  bf
-    brk                     ;ee14  bf
-    brk                     ;ee15  bf
-    brk                     ;ee16  bf
-    brk                     ;ee17  bf
-    brk                     ;ee18  bf
-    brk                     ;ee19  bf
-    brk                     ;ee1a  bf
-    brk                     ;ee1b  bf
-    brk                     ;ee1c  bf
-    brk                     ;ee1d  bf
-    brk                     ;ee1e  bf
-    brk                     ;ee1f  bf
-    brk                     ;ee20  bf
-    brk                     ;ee21  bf
-    brk                     ;ee22  bf
-    brk                     ;ee23  bf
-    brk                     ;ee24  bf
-    brk                     ;ee25  bf
-    brk                     ;ee26  bf
-    brk                     ;ee27  bf
-    brk                     ;ee28  bf
-    brk                     ;ee29  bf
-    brk                     ;ee2a  bf
-    brk                     ;ee2b  bf
-    brk                     ;ee2c  bf
-    brk                     ;ee2d  bf
-    brk                     ;ee2e  bf
-    brk                     ;ee2f  bf
-    brk                     ;ee30  bf
-    brk                     ;ee31  bf
-    brk                     ;ee32  bf
-    brk                     ;ee33  bf
-    brk                     ;ee34  bf
-    brk                     ;ee35  bf
-    brk                     ;ee36  bf
-    brk                     ;ee37  bf
-    brk                     ;ee38  bf
-    brk                     ;ee39  bf
-    brk                     ;ee3a  bf
-    brk                     ;ee3b  bf
-    brk                     ;ee3c  bf
-    brk                     ;ee3d  bf
-    brk                     ;ee3e  bf
-    brk                     ;ee3f  bf
-    brk                     ;ee40  bf
-    brk                     ;ee41  bf
-    brk                     ;ee42  bf
-    brk                     ;ee43  bf
-    brk                     ;ee44  bf
-    brk                     ;ee45  bf
-    brk                     ;ee46  bf
-    brk                     ;ee47  bf
-    brk                     ;ee48  bf
-    brk                     ;ee49  bf
-    brk                     ;ee4a  bf
-    brk                     ;ee4b  bf
-    brk                     ;ee4c  bf
-    brk                     ;ee4d  bf
-    brk                     ;ee4e  bf
-    brk                     ;ee4f  bf
-    brk                     ;ee50  bf
-    brk                     ;ee51  bf
-    brk                     ;ee52  bf
-    brk                     ;ee53  bf
-    brk                     ;ee54  bf
-    brk                     ;ee55  bf
-    brk                     ;ee56  bf
-    brk                     ;ee57  bf
-    brk                     ;ee58  bf
-    brk                     ;ee59  bf
-    brk                     ;ee5a  bf
-    brk                     ;ee5b  bf
-    brk                     ;ee5c  bf
-    brk                     ;ee5d  bf
-    brk                     ;ee5e  bf
-    brk                     ;ee5f  bf
-    brk                     ;ee60  bf
-    brk                     ;ee61  bf
-    brk                     ;ee62  bf
-    brk                     ;ee63  bf
-    brk                     ;ee64  bf
-    brk                     ;ee65  bf
-    brk                     ;ee66  bf
-    brk                     ;ee67  bf
-    brk                     ;ee68  bf
-    brk                     ;ee69  bf
-    brk                     ;ee6a  bf
-    brk                     ;ee6b  bf
-    brk                     ;ee6c  bf
-    brk                     ;ee6d  bf
-    brk                     ;ee6e  bf
-    brk                     ;ee6f  bf
-    brk                     ;ee70  bf
-    brk                     ;ee71  bf
-    brk                     ;ee72  bf
-    brk                     ;ee73  bf
-    brk                     ;ee74  bf
-    brk                     ;ee75  bf
-    brk                     ;ee76  bf
-    brk                     ;ee77  bf
-    brk                     ;ee78  bf
-    brk                     ;ee79  bf
-    brk                     ;ee7a  bf
-    brk                     ;ee7b  bf
-    brk                     ;ee7c  bf
-    brk                     ;ee7d  bf
-    brk                     ;ee7e  bf
-    brk                     ;ee7f  bf
-    brk                     ;ee80  bf
-    brk                     ;ee81  bf
-    brk                     ;ee82  bf
-    brk                     ;ee83  bf
-    brk                     ;ee84  bf
-    brk                     ;ee85  bf
-    brk                     ;ee86  bf
-    brk                     ;ee87  bf
-    brk                     ;ee88  bf
-    brk                     ;ee89  bf
-    brk                     ;ee8a  bf
-    brk                     ;ee8b  bf
-    brk                     ;ee8c  bf
-    brk                     ;ee8d  bf
-    brk                     ;ee8e  bf
-    brk                     ;ee8f  bf
-    brk                     ;ee90  bf
-    brk                     ;ee91  bf
-    brk                     ;ee92  bf
-    brk                     ;ee93  bf
-    brk                     ;ee94  bf
-    brk                     ;ee95  bf
-    brk                     ;ee96  bf
-    brk                     ;ee97  bf
-    brk                     ;ee98  bf
-    brk                     ;ee99  bf
-    brk                     ;ee9a  bf
-    brk                     ;ee9b  bf
-    brk                     ;ee9c  bf
-    brk                     ;ee9d  bf
-    brk                     ;ee9e  bf
-    brk                     ;ee9f  bf
-    brk                     ;eea0  bf
-    brk                     ;eea1  bf
-    brk                     ;eea2  bf
-    brk                     ;eea3  bf
-    brk                     ;eea4  bf
-    brk                     ;eea5  bf
-    brk                     ;eea6  bf
-    brk                     ;eea7  bf
-    brk                     ;eea8  bf
-    brk                     ;eea9  bf
-    brk                     ;eeaa  bf
-    brk                     ;eeab  bf
-    brk                     ;eeac  bf
-    brk                     ;eead  bf
-    brk                     ;eeae  bf
-    brk                     ;eeaf  bf
-    brk                     ;eeb0  bf
-    brk                     ;eeb1  bf
-    brk                     ;eeb2  bf
-    brk                     ;eeb3  bf
-    brk                     ;eeb4  bf
-    brk                     ;eeb5  bf
-    brk                     ;eeb6  bf
-    brk                     ;eeb7  bf
-    brk                     ;eeb8  bf
-    brk                     ;eeb9  bf
-    brk                     ;eeba  bf
-    brk                     ;eebb  bf
-    brk                     ;eebc  bf
-    brk                     ;eebd  bf
-    brk                     ;eebe  bf
-    brk                     ;eebf  bf
-    brk                     ;eec0  bf
-    brk                     ;eec1  bf
-    brk                     ;eec2  bf
-    brk                     ;eec3  bf
-    brk                     ;eec4  bf
-    brk                     ;eec5  bf
-    brk                     ;eec6  bf
-    brk                     ;eec7  bf
-    brk                     ;eec8  bf
-    brk                     ;eec9  bf
-    brk                     ;eeca  bf
-    brk                     ;eecb  bf
-    brk                     ;eecc  bf
-    brk                     ;eecd  bf
-    brk                     ;eece  bf
-    brk                     ;eecf  bf
-    brk                     ;eed0  bf
-    brk                     ;eed1  bf
-    brk                     ;eed2  bf
-    brk                     ;eed3  bf
-    brk                     ;eed4  bf
-    brk                     ;eed5  bf
-    brk                     ;eed6  bf
-    brk                     ;eed7  bf
-    brk                     ;eed8  bf
-    brk                     ;eed9  bf
-    brk                     ;eeda  bf
-    brk                     ;eedb  bf
-    brk                     ;eedc  bf
-    brk                     ;eedd  bf
-    brk                     ;eede  bf
-    brk                     ;eedf  bf
-    brk                     ;eee0  bf
-    brk                     ;eee1  bf
-    brk                     ;eee2  bf
-    brk                     ;eee3  bf
-    brk                     ;eee4  bf
-    brk                     ;eee5  bf
-    brk                     ;eee6  bf
-    brk                     ;eee7  bf
-    brk                     ;eee8  bf
-    brk                     ;eee9  bf
-    brk                     ;eeea  bf
-    brk                     ;eeeb  bf
-    brk                     ;eeec  bf
-    brk                     ;eeed  bf
-    brk                     ;eeee  bf
-    brk                     ;eeef  bf
-    brk                     ;eef0  bf
-    brk                     ;eef1  bf
-    brk                     ;eef2  bf
-    brk                     ;eef3  bf
-    brk                     ;eef4  bf
-    brk                     ;eef5  bf
-    brk                     ;eef6  bf
-    brk                     ;eef7  bf
-    brk                     ;eef8  bf
-    brk                     ;eef9  bf
-    brk                     ;eefa  bf
-    brk                     ;eefb  bf
-    brk                     ;eefc  bf
-    brk                     ;eefd  bf
-    brk                     ;eefe  bf
-    brk                     ;eeff  bf
-    brk                     ;ef00  bf
-    brk                     ;ef01  bf
-    brk                     ;ef02  bf
-    brk                     ;ef03  bf
-    brk                     ;ef04  bf
-    brk                     ;ef05  bf
-    brk                     ;ef06  bf
-    brk                     ;ef07  bf
-    brk                     ;ef08  bf
-    brk                     ;ef09  bf
-    brk                     ;ef0a  bf
-    brk                     ;ef0b  bf
-    brk                     ;ef0c  bf
-    brk                     ;ef0d  bf
-    brk                     ;ef0e  bf
-    brk                     ;ef0f  bf
-    brk                     ;ef10  bf
-    brk                     ;ef11  bf
-    brk                     ;ef12  bf
-    brk                     ;ef13  bf
-    brk                     ;ef14  bf
-    brk                     ;ef15  bf
-    brk                     ;ef16  bf
-    brk                     ;ef17  bf
-    brk                     ;ef18  bf
-    brk                     ;ef19  bf
-    brk                     ;ef1a  bf
-    brk                     ;ef1b  bf
-    brk                     ;ef1c  bf
-    brk                     ;ef1d  bf
-    brk                     ;ef1e  bf
-    brk                     ;ef1f  bf
-    brk                     ;ef20  bf
-    brk                     ;ef21  bf
-    brk                     ;ef22  bf
-    brk                     ;ef23  bf
-    brk                     ;ef24  bf
-    brk                     ;ef25  bf
-    brk                     ;ef26  bf
-    brk                     ;ef27  bf
-    brk                     ;ef28  bf
-    brk                     ;ef29  bf
-    brk                     ;ef2a  bf
-    brk                     ;ef2b  bf
-    brk                     ;ef2c  bf
-    brk                     ;ef2d  bf
-    brk                     ;ef2e  bf
-    brk                     ;ef2f  bf
-    brk                     ;ef30  bf
-    brk                     ;ef31  bf
-    brk                     ;ef32  bf
-    brk                     ;ef33  bf
-    brk                     ;ef34  bf
-    brk                     ;ef35  bf
-    brk                     ;ef36  bf
-    brk                     ;ef37  bf
-    brk                     ;ef38  bf
-    brk                     ;ef39  bf
-    brk                     ;ef3a  bf
-    brk                     ;ef3b  bf
-    brk                     ;ef3c  bf
-    brk                     ;ef3d  bf
-    brk                     ;ef3e  bf
-    brk                     ;ef3f  bf
-    brk                     ;ef40  bf
-    brk                     ;ef41  bf
-    brk                     ;ef42  bf
-    brk                     ;ef43  bf
-    brk                     ;ef44  bf
-    brk                     ;ef45  bf
-    brk                     ;ef46  bf
-    brk                     ;ef47  bf
-    brk                     ;ef48  bf
-    brk                     ;ef49  bf
-    brk                     ;ef4a  bf
-    brk                     ;ef4b  bf
-    brk                     ;ef4c  bf
-    brk                     ;ef4d  bf
-    brk                     ;ef4e  bf
-    brk                     ;ef4f  bf
-    brk                     ;ef50  bf
-    brk                     ;ef51  bf
-    brk                     ;ef52  bf
-    brk                     ;ef53  bf
-    brk                     ;ef54  bf
-    brk                     ;ef55  bf
-    brk                     ;ef56  bf
-    brk                     ;ef57  bf
-    brk                     ;ef58  bf
-    brk                     ;ef59  bf
-    brk                     ;ef5a  bf
-    brk                     ;ef5b  bf
-    brk                     ;ef5c  bf
-    brk                     ;ef5d  bf
-    brk                     ;ef5e  bf
-    brk                     ;ef5f  bf
-    brk                     ;ef60  bf
-    brk                     ;ef61  bf
-    brk                     ;ef62  bf
-    brk                     ;ef63  bf
-    brk                     ;ef64  bf
-    brk                     ;ef65  bf
-    brk                     ;ef66  bf
-    brk                     ;ef67  bf
-    brk                     ;ef68  bf
-    brk                     ;ef69  bf
-    brk                     ;ef6a  bf
-    brk                     ;ef6b  bf
-    brk                     ;ef6c  bf
-    brk                     ;ef6d  bf
-    brk                     ;ef6e  bf
-    brk                     ;ef6f  bf
-    brk                     ;ef70  bf
-    brk                     ;ef71  bf
-    brk                     ;ef72  bf
-    brk                     ;ef73  bf
-    brk                     ;ef74  bf
-    brk                     ;ef75  bf
-    brk                     ;ef76  bf
-    brk                     ;ef77  bf
-    brk                     ;ef78  bf
-    brk                     ;ef79  bf
-    brk                     ;ef7a  bf
-    brk                     ;ef7b  bf
-    brk                     ;ef7c  bf
-    brk                     ;ef7d  bf
-    brk                     ;ef7e  bf
-    brk                     ;ef7f  bf
-    brk                     ;ef80  bf
-    brk                     ;ef81  bf
-    brk                     ;ef82  bf
-    brk                     ;ef83  bf
-    brk                     ;ef84  bf
-    brk                     ;ef85  bf
-    brk                     ;ef86  bf
-    brk                     ;ef87  bf
-    brk                     ;ef88  bf
-    brk                     ;ef89  bf
-    brk                     ;ef8a  bf
-    brk                     ;ef8b  bf
-    brk                     ;ef8c  bf
-    brk                     ;ef8d  bf
-    brk                     ;ef8e  bf
-    brk                     ;ef8f  bf
-    brk                     ;ef90  bf
-    brk                     ;ef91  bf
-    brk                     ;ef92  bf
-    brk                     ;ef93  bf
-    brk                     ;ef94  bf
-    brk                     ;ef95  bf
-    brk                     ;ef96  bf
-    brk                     ;ef97  bf
-    brk                     ;ef98  bf
-    brk                     ;ef99  bf
-    brk                     ;ef9a  bf
-    brk                     ;ef9b  bf
-    brk                     ;ef9c  bf
-    brk                     ;ef9d  bf
-    brk                     ;ef9e  bf
-    brk                     ;ef9f  bf
-    brk                     ;efa0  bf
-    brk                     ;efa1  bf
-    brk                     ;efa2  bf
-    brk                     ;efa3  bf
-    brk                     ;efa4  bf
-    brk                     ;efa5  bf
-    brk                     ;efa6  bf
-    brk                     ;efa7  bf
-    brk                     ;efa8  bf
-    brk                     ;efa9  bf
-    brk                     ;efaa  bf
-    brk                     ;efab  bf
-    brk                     ;efac  bf
-    brk                     ;efad  bf
-    brk                     ;efae  bf
-    brk                     ;efaf  bf
-    brk                     ;efb0  bf
-    brk                     ;efb1  bf
-    brk                     ;efb2  bf
-    brk                     ;efb3  bf
-    brk                     ;efb4  bf
-    brk                     ;efb5  bf
-    brk                     ;efb6  bf
-    brk                     ;efb7  bf
-    brk                     ;efb8  bf
-    brk                     ;efb9  bf
-    brk                     ;efba  bf
-    brk                     ;efbb  bf
-    brk                     ;efbc  bf
-    brk                     ;efbd  bf
-    brk                     ;efbe  bf
-    brk                     ;efbf  bf
-    brk                     ;efc0  bf
-    brk                     ;efc1  bf
-    brk                     ;efc2  bf
-    brk                     ;efc3  bf
-    brk                     ;efc4  bf
-    brk                     ;efc5  bf
-    brk                     ;efc6  bf
-    brk                     ;efc7  bf
-    brk                     ;efc8  bf
-    brk                     ;efc9  bf
-    brk                     ;efca  bf
-    brk                     ;efcb  bf
-    brk                     ;efcc  bf
-    brk                     ;efcd  bf
-    brk                     ;efce  bf
-    brk                     ;efcf  bf
-    brk                     ;efd0  bf
-    brk                     ;efd1  bf
-    brk                     ;efd2  bf
-    brk                     ;efd3  bf
-    brk                     ;efd4  bf
-    brk                     ;efd5  bf
-    brk                     ;efd6  bf
-    brk                     ;efd7  bf
-    brk                     ;efd8  bf
-    brk                     ;efd9  bf
-    brk                     ;efda  bf
-    brk                     ;efdb  bf
-    brk                     ;efdc  bf
-    brk                     ;efdd  bf
-    brk                     ;efde  bf
-    brk                     ;efdf  bf
-    brk                     ;efe0  bf
-    brk                     ;efe1  bf
-    brk                     ;efe2  bf
-    brk                     ;efe3  bf
-    brk                     ;efe4  bf
-    brk                     ;efe5  bf
-    brk                     ;efe6  bf
-    brk                     ;efe7  bf
-    brk                     ;efe8  bf
-    brk                     ;efe9  bf
-    brk                     ;efea  bf
-    brk                     ;efeb  bf
-    brk                     ;efec  bf
-    brk                     ;efed  bf
-    brk                     ;efee  bf
-    brk                     ;efef  bf
-    brk                     ;eff0  bf
-    brk                     ;eff1  bf
-    brk                     ;eff2  bf
-    brk                     ;eff3  bf
-    brk                     ;eff4  bf
-    brk                     ;eff5  bf
-    brk                     ;eff6  bf
-    brk                     ;eff7  bf
-    brk                     ;eff8  bf
-    brk                     ;eff9  bf
-    brk                     ;effa  bf
-    brk                     ;effb  bf
-    brk                     ;effc  bf
-    brk                     ;effd  bf
+    .org 0xdc64
 
+    ;From here to the checksum used to be filler and is available for new code.
+
+;Reset
+new_reset:
+    ;this is copied from original reset
+    di                      ;0d88  7b 1e
+    mov wdcs,#0x07          ;0d8a  13 42 07
+    mov wdtm,#0x90          ;0d8d  13 f9 90
+    mov pcc,#0x00           ;0d90  13 fb 00
+    movw sp,#mem_fe1f       ;0d93  ee 1c 1f fe
+
+    ;new work is done here
+    mov asim0,#0            ;Disable UART
+    mov brgc0,#0x1b         ;Set baud rate to 38400 bps
+
+    clr1 if0h.1             ;Clear SERIF0 (UART0 receive error INTSER0) interrupt flag
+    clr1 mk0h.1             ;Clear SERMK0 (enables INTSER0)
+    set1 pr0h.1             ;Set SERPR0 (makes INTSER0 low priority)
+
+    clr1 if0h.2             ;Clear SRIF0 (UART0 receive complete INTSR0) interrupt flag
+    clr1 mk0h.2             ;Clear SRMK0 (enables INTSR0)
+    set1 pr0h.2             ;Set SRPR0 (makes INTSR0 low priority)
+
+    clr1 if0h.3             ;Clear STIF0 (UART0 transmit complete INTST0) interrupt flag
+    clr1 mk0h.3             ;Clear STMK0 (enables INTST0)
+    set1 pr0h.3             ;Set STPR0 (makes INTST0 low priority)
+
+    mov asim0,#0b11001010   ;Enable UART for tx/rx and 8-N-1
+    clr1 pm2.5              ;PM25=output (TxD0)
+
+    ;continue with original reset
+    br !lab_0d97
+
+;UART0 receive error interrupt
+irq_intser0:
+    push ax
+
+    mov a,asis0             ;32e3  f4 a1          A = UART0 status register when interrupt occurred
+    mov x,a                 ;32e5  70             Save UART0 status register in X
+
+    mov a,rxb0_txs0         ;32e6  f0 18          A = byte received
+    clr1 if0h.2             ;32e8  71 2b e1       Clear receive complete interrupt flag
+
+    ;Status register value is in X and could be interrogated here
+
+    pop ax
+    reti
+
+;UART0 receive complete interrupt
+irq_intsr0:
+    push ax
+
+    mov a,rxb0_txs0         ;A = byte received from UART
+    mov rxb0_txs0,a         ;Blindly transmit it back, assumes not currently transmitting
+
+    pop ax
+    reti
+
+;UART0 transmit complete interrupt
+irq_intst0:
+    reti
+
+    .org 0xeffe
+
+;Checksum is computed in the Makefile and inserted here
 checksum:
-    .word 0x4e1b            ;effe  1b 4e       DATA
+    .word 0
