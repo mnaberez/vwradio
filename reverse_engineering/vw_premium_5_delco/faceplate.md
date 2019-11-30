@@ -29,7 +29,7 @@
 TODO How are the Power and Eject keys read on Premium 5?
 
 
-# Pictographs
+## Pictographs
 
 Pictographs are symbols on the display like the Dolby logo.
 
@@ -44,7 +44,7 @@ Pictographs are symbols on the display like the Dolby logo.
 |Dolby       |    1        |   2      |
 |Mix         |    5        |   1      |
 
-# Dot Matrix Characters
+## Dot Matrix Characters
 
 Every character is a 5x7 matrix but some are physically smaller on the LCD
 11 characters total on the LCD (4 small on left, 7 large on right)
@@ -62,7 +62,7 @@ Display:     "    4321   "
 Display RAM: [0x20, 0x20, 0x20, 0x20, 0x34, 0x33, 0x32, 0x31, 0x20, 0x20, 0x20, ?...]
 ```
 
-# Character ROM
+## Character ROM
 
 Character codes 0x10-0xFF are stored in ROM.  These have been sent from the
 radio and seen on the LCD:
@@ -112,8 +112,7 @@ radio and seen on the LCD:
 0x7a: "z"
 ```
 
-Character RAM
--------------
+## Character RAM
 
 Character codes 0x00-0x0F are programmable.  The radio sends these:
 
@@ -138,7 +137,7 @@ Character codes 0x00-0x0F are programmable.  The radio sends these:
  - 0x07: Narrow "6" for AM/FM preset 3
  - 0x08: All bits on; has not been seen on LCD
 
-# Messages
+## Messages
 
 ```text
 SAFE mode
@@ -253,3 +252,7 @@ Test Mode
   Decoded Display RAM: ' 8770 5 3 0' (Signal Strength: FM  87.7Mhz = 0x0530)
   Decoded Display RAM: '10770 6 4 0' (Signal Strength: FM 107.0MHz = 0x0640)
 ```
+
+## LED Output Latch
+
+Writing `0x00` and `0xFF` to the LED Output Latch of the uPD16432B produced no visible effects on the faceplate.  The `SOFTWARE 23` firmware does write different values to the output latch (search for `mem_fe3e`) but the purpose of this is not known.
