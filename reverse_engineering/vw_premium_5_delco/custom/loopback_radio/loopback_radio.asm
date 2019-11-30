@@ -3801,17 +3801,15 @@ badisr_0d75:
 lab_0d86:
     br lab_0d86             ;0d86  fa fe
 
-;XXX this has been bypassed
-;reset vector now jumps to new_reset
+;XXX this has been bypassed.
+;the reset vector used to jump here but now it jumps to new_reset.
+;new_reset jumps here when it is done.
 rst_0d88:
     di                      ;0d88  7b 1e
     mov wdcs,#0x07          ;0d8a  13 42 07
     mov wdtm,#0x90          ;0d8d  13 f9 90
     mov pcc,#0x00           ;0d90  13 fb 00
     movw sp,#mem_fe1f       ;0d93  ee 1c 1f fe
-
-;new_reset jumps here to continue
-lab_0d97:
     clr1 shadow_p3.4        ;0d97  4b cd
     clr1 pm3.4              ;0d99  71 4b 23
     mov a,shadow_p3         ;0d9c  f0 cd
@@ -40536,7 +40534,7 @@ lab_dc63:
 
 ;Reset
 new_reset:
-    ;this is copied from original reset
+    ;this setup code was copied from the original reset code (rst_0d88)
     di                      ;0d88  7b 1e
     mov wdcs,#0x07          ;0d8a  13 42 07
     mov wdtm,#0x90          ;0d8d  13 f9 90
@@ -40562,8 +40560,8 @@ new_reset:
     mov asim0,#0b11001010   ;Enable UART for tx/rx and 8-N-1
     clr1 pm2.5              ;PM25=output (TxD0)
 
-    ;continue with original reset
-    br !lab_0d97
+    ;continue with the original reset code
+    br !rst_0d88
 
 ;UART0 receive error interrupt
 irq_intser0:
