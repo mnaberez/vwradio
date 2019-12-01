@@ -11,6 +11,7 @@
 |Pin 46     |P20/SI31   |TODO: Unknown SPI bus     |
 |Pin 47     |P21/SO31   |TODO: Unknown SPI bus     |
 |Pin 48     |P22/SCK31  |TODO: Unknown SPI bus     |
-|Pin 49     |P04/INTP4  |Power key (0=pressed)     |
+|Pin 49     |P04/INTP4  |POWER key (0=pressed)     |
+|Pin 51     |P06/INTP6  |STOP/EJECT key (0=pressed)|
 |Pin 54     |P24/RxD0   |L9637D RX (K-line)        |
 |Pin 55     |P25/TxD0   |L9637D TX (K-line)        |

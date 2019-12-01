@@ -4127,8 +4127,8 @@ lab_1036:
     set1 egp.4              ;1059  71 4a 48     Enable INTP4 on rising edge (POWER key)
     clr1 mk0l.7             ;105c  71 7b e4
     set1 pr0l.7             ;105f  71 7a e8
-    set1 egn.6              ;1062  71 6a 49
-    clr1 egp.6              ;1065  71 6b 48
+    set1 egn.6              ;1062  71 6a 49     Enable INTP6 on falling edge (STOP/EJECT key)
+    clr1 egp.6              ;1065  71 6b 48     Disable INTP6 on rising edge (STOP/EJECT key)
     clr1 mem_fe66.6         ;1068  6b 66
     mov tmc01,#0x00         ;106a  13 68 00
     set1 mk1l.3             ;106d  71 3a e6
@@ -16300,7 +16300,7 @@ lab_58fa:
 lab_5903:
     ret                     ;5903  af
 
-;INT4 external interrupt
+;INTP4 external interrupt
 ;Fires on the rising or falling edge of the POWER key
 ;POWER key is P04 (0=pressed, 1=not pressed)
 intp4_5904:
@@ -16340,6 +16340,9 @@ lab_5924:
 lab_593a:
     ret                     ;593a  af
 
+;INTP6 external interrupt
+;Fires on the falling edge of the STOP/EJECT key
+;STOP/EJECT key is P06 (0=pressed, 1=not pressed)
 intp6_5904:
     bt mem_fe62.1,lab_5940  ;593b  9c 62 02
     set1 mem_fe7d.7         ;593e  7a 7d

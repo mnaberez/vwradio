@@ -28,9 +28,8 @@
 
 The POWER and STOP/EJECT keys are not connected to the uPD16432B.
 
-- POWER connects to P04/INT4 on the uPD78F0831Y.
-
-TODO How is the STOP/EJECT key read on Premium 5?
+- POWER connects to P04/INTP4 on the uPD78F0831Y.
+- STOP/EJECT connects to P06/INTP6 on the uPD78F0831Y.
 
 ## Pictographs
 
