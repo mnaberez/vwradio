@@ -4123,8 +4123,8 @@ lab_1036:
     mov !mem_fbcc,a         ;104d  9e cc fb
     clr1 mk0l.5             ;1050  71 5b e4
     set1 pr0l.5             ;1053  71 5a e8
-    set1 egn.4              ;1056  71 4a 49
-    set1 egp.4              ;1059  71 4a 48
+    set1 egn.4              ;1056  71 4a 49     Enable INTP4 on falling edge (POWER key)
+    set1 egp.4              ;1059  71 4a 48     Enable INTP4 on rising edge (POWER key)
     clr1 mk0l.7             ;105c  71 7b e4
     set1 pr0l.7             ;105f  71 7a e8
     set1 egn.6              ;1062  71 6a 49
@@ -10728,7 +10728,9 @@ lab_39a2:
     bt mem_fe67.0,lab_39ed  ;39ab  8c 67 3f
     mov a,!mem_f1e9         ;39ae  8e e9 f1
     bf a.0,lab_39bf         ;39b1  31 0f 0b
-    bt p0.4,lab_39bc        ;39b4  cc 00 05
+    bt p0.4,lab_39bc        ;39b4  cc 00 05       Branch if the POWER key is not being pressed
+
+    ;POWER key is being pressed
     bt mem_fe66.7,lab_39bf  ;39b7  fc 66 05
     br lab_39ed             ;39ba  fa 31
 
@@ -16274,7 +16276,9 @@ lab_58d5:
 sub_58d8:
     mov a,!mem_f1e9         ;58d8  8e e9 f1
     bf a.0,lab_5903         ;58db  31 0f 25
-    bt p0.4,lab_58fa        ;58de  cc 00 19
+    bt p0.4,lab_58fa        ;58de  cc 00 19       Branch if the POWER key is not being pressed
+
+    ;POWER key is being pressed
     bt mem_fe66.7,lab_5903  ;58e1  fc 66 1f
     bf mem_fe2c.3,lab_58eb  ;58e4  31 33 2c 03
     set1 mem_fe66.7         ;58e8  7a 66
@@ -16296,12 +16300,17 @@ lab_58fa:
 lab_5903:
     ret                     ;5903  af
 
+;INT4 external interrupt
+;Fires on the rising or falling edge of the POWER key
+;POWER key is P04 (0=pressed, 1=not pressed)
 intp4_5904:
     clr1 mem_fe67.2         ;5904  2b 67
     push ax                 ;5906  b1
     mov a,!mem_f1e9         ;5907  8e e9 f1
     bt a.0,lab_5913         ;590a  31 0e 06
-    bt p0.4,lab_5913        ;590d  cc 00 03
+    bt p0.4,lab_5913        ;590d  cc 00 03       Branch if the POWER key is not being pressed
+                            ;                       (rising edge)
+    ;POWER key is being pressed (falling edge)
     call !sub_5915          ;5910  9a 15 59
 
 lab_5913:
