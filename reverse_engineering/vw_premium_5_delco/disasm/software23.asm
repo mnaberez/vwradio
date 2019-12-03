@@ -2658,19 +2658,25 @@ sub_0879:
 
 sub_087a:
 ;SPI xfer on SIO30 (send byte in A, recv byte in A)
-    clr1 if0h.4             ;087a  71 4b e1     Clear CSIIF30
+;Performs a single byte SPI transfer without using INTCSI30.
+;
+;Flag bit mem_fe5f.0 indicates completion:
+;  0 = Not complete (failed)
+;  1 = Complete (success)
+    clr1 if0h.4             ;087a  71 4b e1     Clear CSIIF30 (INTCSI0 interrupt flag)
     set1 mem_fe5f.0         ;087d  0a 5f        SPI packet complete flag = complete
-    mov sio30,a             ;087f  f2 1a
+                            ;                     (will be changed below if transfer fails)
+    mov sio30,a             ;087f  f2 1a        Send byte in A out SPI
     push bc                 ;0881  b3
     mov b,#0x00             ;0882  a3 00
 lab_0884:
     bt if0h.4,lab_088d      ;0884  31 46 e1 05  Branch if CSIIF30 indicates transfer complete
-    ;transfer not complete
-    dbnz b,lab_0884         ;0888  8b fa
+    dbnz b,lab_0884         ;0888  8b fa        Keep waiting until B reaches zero
+    ;SPI transfer not complete
     nop                     ;088a  00
     clr1 mem_fe5f.0         ;088b  0b 5f        SPI packet complete flag = not complete
 lab_088d:
-    ;transfer complete
+    ;SPI transfer complete or B reached zero
     mov a,sio30             ;088d  f0 1a
     pop bc                  ;088f  b2
     ret                     ;0890  af
@@ -2729,16 +2735,16 @@ lab_08b1:
     inc c                   ;08b7  42           Increment number of bytes transferred
     mov a,[hl]              ;08b8  87           A = current byte in buffer
     mov sio30,a             ;08b9  f2 1a        Send A out SPI
-    br lab_08c9             ;08bb  fa 0c
+    br lab_08c9             ;08bb  fa 0c        Branch to SEL RB0 and RETI
 
 lab_08bd:
 ;All bytes have been transferred
     set1 mem_fe5f.0         ;08bd  0a 5f        SPI packet complete flag = complete
-    set1 mk0h.4             ;08bf  71 4a e5     Set CSIMK30
+    set1 mk0h.4             ;08bf  71 4a e5     Set CSIMK30 (disables INTCSI30)
     bf mem_fe60.7,lab_08c9  ;08c2  31 73 60 03
     call !sub_2f48          ;08c6  9a 48 2f     p4.3=low, p4_.4=low, disable SIO30,
                             ;                     set mem_fe5e.7, clear mem_fe60.7
-
+                            ;Fall through
 lab_08c9:
     sel rb0                 ;08c9  61 d0        Select normal register bank
     reti                    ;08cb  8f
@@ -4042,8 +4048,8 @@ lab_0f1b:
     set1 mem_fe5e.7         ;0f68  7a 5e
     set1 mem_fe5f.0         ;0f6a  0a 5f        SPI packet complete flag = complete
     set1 mem_fe5f.1         ;0f6c  1a 5f        SPI mode flag = transmit only
-    clr1 if0h.4             ;0f6e  71 4b e1     Clear CSIIF30
-    set1 mk0h.4             ;0f71  71 4a e5     Set CSIMK30
+    clr1 if0h.4             ;0f6e  71 4b e1     Clear CSIIF30 (INTCSI0 interrupt flag)
+    set1 mk0h.4             ;0f71  71 4a e5     Set CSIMK30 (disables INTCSI30)
     call !sio31_disable     ;0f74  9a df 08     Disable SIO31 (unknown SPI)
     clr1 mem_fe5f.2         ;0f77  2b 5f
     mov a,#0x00             ;0f79  a1 00
@@ -9201,9 +9207,9 @@ lab_2ff4:
     set1 pm4.5              ;2ff7  71 5a 24
     call !sio30_enable      ;2ffa  9a 17 26     Enable SIO30 (used for uPD16432B SPI)
     set1 mem_fe5f.1         ;2ffd  1a 5f        SPI mode flag = transmit only
-    clr1 if0h.4             ;2fff  71 4b e1     Clear CSIIF30
-    clr1 mk0h.4             ;3002  71 4b e5     Clear CSIMK30
-    clr1 pr0h.4             ;3005  71 4b e9     Clear CSIPR30
+    clr1 if0h.4             ;2fff  71 4b e1     Clear CSIIF30 (INTCSI0 interrupt flag)
+    clr1 mk0h.4             ;3002  71 4b e5     Clear CSIMK30 (enables INTCSI30)
+    clr1 pr0h.4             ;3005  71 4b e9     Clear CSIPR30 (makes INTCSI30 high priority)
 
     movw ax,!mem_f006       ;3008  02 06 f0
     push ax                 ;300b  b1           Push: pointer to buffer to transfer
@@ -9211,16 +9217,16 @@ lab_2ff4:
     push ax                 ;300e  b1           Push: number of bytes to transfer
 
     sel rb2                 ;300f  61 f0        Select register bank used by intcsi30_08a9
-    pop bc                  ;3011  b2           Pop: B  = number of bytes to transfer
-    pop hl                  ;3012  b6           Pop: HL = pointer to buffer to transfer
+    pop bc                  ;3011  b2           Pop: B  = number of bytes to transfer (1)
+    pop hl                  ;3012  b6           Pop: HL = pointer to buffer to transfer (mem_f006)
 
     clr1 mem_fe5f.0         ;3013  0b 5f        SPI packet complete flag = not complete
     mov c,#0x01             ;3015  a2 01        C = number of bytes sent
     mov a,[hl]              ;3017  87           A = first byte in buffer to transfer
     ei                      ;3018  7a 1e
-    mov sio30,a             ;301a  f2 1a        Send the first byte in the buffer
-    sel rb0                 ;301c  61 d0        Select normal register bank
+    mov sio30,a             ;301a  f2 1a        Send first byte in buffer (INTCSI30 sends the rest)
 
+    sel rb0                 ;301c  61 d0        Select normal register bank
     movw ax,!mem_f006       ;301e  02 06 f0
     incw ax                 ;3021  80
     movw !mem_f006,ax       ;3022  03 06 f0
@@ -13368,7 +13374,7 @@ lab_4990:
                             ;                           Address = 00
 
     clr1 shadow_p4.7        ;4996  7b ce        Deselect uPD16432B (STB=low)
-    clr1 pm4.7              ;4998  71 7b 24
+    clr1 pm4.7              ;4998  71 7b 24     PM47=output (P47)
     mov a,shadow_p4         ;499b  f0 ce
     mov p4,a                ;499d  f2 04
 
@@ -13388,7 +13394,7 @@ lab_4990:
 
 lab_49af:
     clr1 shadow_p4.7        ;49af  7b ce        Deselect uPD16432B (STB=low)
-    clr1 pm4.7              ;49b1  71 7b 24
+    clr1 pm4.7              ;49b1  71 7b 24     PM47=output (P47)
     mov a,shadow_p4         ;49b4  f0 ce
     mov p4,a                ;49b6  f2 04
 
@@ -13400,10 +13406,13 @@ lab_49af:
     addw ax,#0x0007         ;49bf  ca 07 00
     movw de,ax              ;49c2  d4
     push bc                 ;49c3  b3
+
     mov a,#0x00             ;49c4  a1 00
-    cmp a,#0x01             ;49c6  4d 01
+    cmp a,#0x01             ;49c6  4d 01      XXX useless comparison
     set1 mem_fe5f.1         ;49c8  1a 5f      SPI mode flag = transmit only
-    bnz lab_49db            ;49ca  bd 0f
+    bnz lab_49db            ;49ca  bd 0f      XXX always branches
+
+    ;XXX this code is unreachable
     clr1 mem_fe5f.1         ;49cc  1b 5f      SPI mode flag = transmit and receive
     movw ax,hl              ;49ce  c6
     movw hl,ax              ;49cf  d6
@@ -13411,20 +13420,20 @@ lab_49af:
     mov b,a                 ;49d2  73
     decw hl                 ;49d3  96
     mov a,#0xff             ;49d4  a1 ff
-    xor a,#0x00             ;49d6  7d 00
-
+    xor a,#0x00             ;49d6  7d 00      XXX useless XOR.  A is still 0xFF.
 lab_49d8:
     mov [hl+b],a            ;49d8  bb
     dbnz b,lab_49d8         ;49d9  8b fd
+    ;XXX end of unreachable code
 
 lab_49db:
     set1 shadow_p4.7        ;49db  7a ce        Select uPD16432B (STB=high)
     mov a,shadow_p4         ;49dd  f0 ce
     mov p4,a                ;49df  f2 04
 
-    clr1 if0h.4             ;49e1  71 4b e1     Clear CSIIF30
-    clr1 mk0h.4             ;49e4  71 4b e5     Clear CSIMK30
-    clr1 pr0h.4             ;49e7  71 4b e9     Clear CSIPR30
+    clr1 if0h.4             ;49e1  71 4b e1     Clear CSIIF30 (INTCSI0 interrupt flag)
+    clr1 mk0h.4             ;49e4  71 4b e5     Clear CSIMK30 (enables INTCSI30)
+    clr1 pr0h.4             ;49e7  71 4b e9     Clear CSIPR30 (makes INTCSI30 high priority)
 
     movw ax,hl              ;49ea  c6
     push ax                 ;49eb  b1           Push: pointer to buffer to transfer
@@ -13432,14 +13441,15 @@ lab_49db:
     push ax                 ;49ee  b1           Push: number of bytes to transfer
 
     sel rb2                 ;49ef  61 f0        Select register bank used by intcsi30_08a9
-    pop bc                  ;49f1  b2           Pop: B  = number of bytes to transfer
+    pop bc                  ;49f1  b2           Pop: B  = number of bytes to transfer (7)
     pop hl                  ;49f2  b6           Pop: HL = pointer to buffer to transfer
 
     clr1 mem_fe5f.0         ;49f3  0b 5f        SPI packet complete flag = not complete
     mov c,#0x01             ;49f5  a2 01        C = number of bytes sent
     mov a,[hl]              ;49f7  87           A = first byte in buffer to transfer
     ei                      ;49f8  7a 1e
-    mov sio30,a             ;49fa  f2 1a        Send the first byte in the buffer
+    mov sio30,a             ;49fa  f2 1a        Send first byte in buffer (INTCSI30 sends the rest)
+
     sel rb0                 ;49fc  61 d0        Select normal register bank
     inc mem_fed4            ;49fe  81 d4        Increment uPD16432B Address Setting Command
                             ;                     to next address
@@ -13447,13 +13457,17 @@ lab_49db:
     mov b,#0xff             ;4a00  a3 ff
 lab_4a02:
     bt mem_fe5f.0,lab_4a07  ;4a02  8c 5f 02     Branch if SPI packet complete flag = complete
-    dbnz b,lab_4a02         ;4a05  8b fb
+    dbnz b,lab_4a02         ;4a05  8b fb        Keep waiting until B reaches zero
+
+    ;SPI transfer is complete or B reached zero
 
 lab_4a07:
     mov b,#0xff             ;4a07  a3 ff
 lab_4a09:
     bt mem_fe5f.0,lab_4a0e  ;4a09  8c 5f 02     Branch if SPI packet complete flag = complete
-    dbnz b,lab_4a09         ;4a0c  8b fb
+    dbnz b,lab_4a09         ;4a0c  8b fb        Keep waiting until B reaches zero
+
+    ;SPI transfer is complete or B reached zero again
 
 lab_4a0e:
     pop bc                  ;4a0e  b2
@@ -13490,7 +13504,7 @@ lab_4a0e:
     mov p3,a                ;4a2e  f2 03
 
     clr1 shadow_p4.7        ;4a30  7b ce        Deselect uPD16432B (STB=low)
-    clr1 pm4.7              ;4a32  71 7b 24
+    clr1 pm4.7              ;4a32  71 7b 24     PM47=output (P47)
     mov a,shadow_p4         ;4a35  f0 ce
     mov p4,a                ;4a37  f2 04
 
@@ -13526,7 +13540,7 @@ lab_4a65:
     mov mem_fed4,#0x80      ;4a68  11 d4 80
 
     clr1 shadow_p4.7        ;4a6b  7b ce        Deselect uPD16432B (STB=low)
-    clr1 pm4.7              ;4a6d  71 7b 24
+    clr1 pm4.7              ;4a6d  71 7b 24     PM47=output (P47)
     mov a,shadow_p4         ;4a70  f0 ce
     mov p4,a                ;4a72  f2 04
 
@@ -13546,7 +13560,7 @@ lab_4a65:
 
 lab_4a84:
     clr1 shadow_p4.7        ;4a84  7b ce        Deselect uPD16432B (STB=low)
-    clr1 pm4.7              ;4a86  71 7b 24
+    clr1 pm4.7              ;4a86  71 7b 24     PM47=output (P47)
     mov a,shadow_p4         ;4a89  f0 ce
     mov p4,a                ;4a8b  f2 04
 
@@ -13558,10 +13572,13 @@ lab_4a84:
     addw ax,#0x0007         ;4a94  ca 07 00
     movw de,ax              ;4a97  d4
     push bc                 ;4a98  b3
+
     mov a,#0x00             ;4a99  a1 00
-    cmp a,#0x01             ;4a9b  4d 01
+    cmp a,#0x01             ;4a9b  4d 01      XXX useless comparison
     set1 mem_fe5f.1         ;4a9d  1a 5f      SPI mode flag = transmit only
-    bnz lab_4ab0            ;4a9f  bd 0f
+    bnz lab_4ab0            ;4a9f  bd 0f      XXX always branches
+
+    ;XXX this code is unreachable
     clr1 mem_fe5f.1         ;4aa1  1b 5f      SPI mode flag = transmit and receive
     movw ax,hl              ;4aa3  c6
     movw hl,ax              ;4aa4  d6
@@ -13569,20 +13586,20 @@ lab_4a84:
     mov b,a                 ;4aa7  73
     decw hl                 ;4aa8  96
     mov a,#0xff             ;4aa9  a1 ff
-    xor a,#0x00             ;4aab  7d 00
-
+    xor a,#0x00             ;4aab  7d 00      XXX useless XOR.  A is still 0xFF.
 lab_4aad:
     mov [hl+b],a            ;4aad  bb
     dbnz b,lab_4aad         ;4aae  8b fd
+    ;XXX end of unreachable code
 
 lab_4ab0:
     set1 shadow_p4.7        ;4ab0  7a ce        Select uPD16432B (STB=high)
     mov a,shadow_p4         ;4ab2  f0 ce
     mov p4,a                ;4ab4  f2 04
 
-    clr1 if0h.4             ;4ab6  71 4b e1     Clear CSIIF30
-    clr1 mk0h.4             ;4ab9  71 4b e5     Clear CSIMK30
-    clr1 pr0h.4             ;4abc  71 4b e9     Clear CSIPR30
+    clr1 if0h.4             ;4ab6  71 4b e1     Clear CSIIF30 (INTCSI0 interrupt flag)
+    clr1 mk0h.4             ;4ab9  71 4b e5     Clear CSIMK30 (enables INTCSI30)
+    clr1 pr0h.4             ;4abc  71 4b e9     Clear CSIPR30 (makes INTCSI30 high priority)
 
     movw ax,hl              ;4abf  c6
     push ax                 ;4ac0  b1           Push: pointer to buffer to transfer
@@ -13590,16 +13607,16 @@ lab_4ab0:
     push ax                 ;4ac3  b1           Push: number of bytes to transfer
 
     sel rb2                 ;4ac4  61 f0        Select register bank used by intcsi30_08a9
-    pop bc                  ;4ac6  b2           Pop: B  = number of bytes to transfer
+    pop bc                  ;4ac6  b2           Pop: B  = number of bytes to transfer (7)
     pop hl                  ;4ac7  b6           Pop: HL = pointer to buffer to transfer
 
     clr1 mem_fe5f.0         ;4ac8  0b 5f        SPI packet complete flag = not complete
     mov c,#0x01             ;4aca  a2 01        C = number of bytes sent
     mov a,[hl]              ;4acc  87           A = first byte in buffer to transfer
     ei                      ;4acd  7a 1e
-    mov sio30,a             ;4acf  f2 1a        Send the first byte in the buffer
-    sel rb0                 ;4ad1  61 d0        Select normal register bank
+    mov sio30,a             ;4acf  f2 1a        Send first byte in buffer (INTCSI30 sends the rest)
 
+    sel rb0                 ;4ad1  61 d0        Select normal register bank
     inc mem_fed4            ;4ad3  81 d4
 
     mov b,#0xff             ;4ad5  a3 ff
@@ -13626,7 +13643,7 @@ lab_4ae3:
     mov p3,a                ;4aed  f2 03
 
     clr1 shadow_p4.7        ;4aef  7b ce        Deselect uPD16432B (STB=low)
-    clr1 pm4.7              ;4af1  71 7b 24
+    clr1 pm4.7              ;4af1  71 7b 24     PM47=output (P47)
     mov a,shadow_p4         ;4af4  f0 ce
     mov p4,a                ;4af6  f2 04
 
@@ -13686,7 +13703,7 @@ lab_4b3f:
     set1 mem_fe7c.2         ;4b50  2a 7c
 
     clr1 shadow_p4.7        ;4b52  7b ce        Deselect uPD16432B (STB=low)
-    clr1 pm4.7              ;4b54  71 7b 24
+    clr1 pm4.7              ;4b54  71 7b 24     PM47=output (P47)
     mov a,shadow_p4         ;4b57  f0 ce
     mov p4,a                ;4b59  f2 04
 
@@ -13706,9 +13723,11 @@ lab_4b3f:
     call !upd_send_byte     ;4b68  9a 4d 4d     Select uPD16432B (STB=high), then send a byte to it
 
     mov a,#0x00             ;4b6b  a1 00
-    cmp a,#0x01             ;4b6d  4d 01
+    cmp a,#0x01             ;4b6d  4d 01        XXX useless comparsion
     set1 mem_fe5f.1         ;4b6f  1a 5f        SPI mode flag = transmit only
-    bnz lab_4b84            ;4b71  bd 11
+    bnz lab_4b84            ;4b71  bd 11        XXX always branches
+
+    ;XXX this code is unreachable
     clr1 mem_fe5f.1         ;4b73  1b 5f        SPI mode flag = transmit and receive
     movw ax,#upd_pict       ;4b75  10 35 fe
     movw hl,ax              ;4b78  d6
@@ -13716,20 +13735,20 @@ lab_4b3f:
     mov b,a                 ;4b7b  73
     decw hl                 ;4b7c  96
     mov a,#0xff             ;4b7d  a1 ff
-    xor a,#0x00             ;4b7f  7d 00
-
+    xor a,#0x00             ;4b7f  7d 00        XXX useless XOR.  A is still 0xFF.
 lab_4b81:
     mov [hl+b],a            ;4b81  bb
     dbnz b,lab_4b81         ;4b82  8b fd
+    ;XXX end of unreachable code
 
 lab_4b84:
     set1 shadow_p4.7        ;4b84  7a ce        Select uPD16432B (STB=high)
     mov a,shadow_p4         ;4b86  f0 ce
     mov p4,a                ;4b88  f2 04
 
-    clr1 if0h.4             ;4b8a  71 4b e1     Clear CSIIF30
-    clr1 mk0h.4             ;4b8d  71 4b e5     Clear CSIMK30
-    clr1 pr0h.4             ;4b90  71 4b e9     Clear CSIPR30
+    clr1 if0h.4             ;4b8a  71 4b e1     Clear CSIIF30 (INTCSI0 interrupt flag)
+    clr1 mk0h.4             ;4b8d  71 4b e5     Clear CSIMK30 (enables INTCSI30)
+    clr1 pr0h.4             ;4b90  71 4b e9     Clear CSIPR30 (makes INTCSI30 high priority)
 
     movw ax,#upd_pict       ;4b93  10 35 fe
     push ax                 ;4b96  b1           Push: pointer to buffer to transfer
@@ -13737,14 +13756,15 @@ lab_4b84:
     push ax                 ;4b99  b1           Push: number of bytes to transfer
 
     sel rb2                 ;4b9a  61 f0        Select register bank used by intcsi30_08a9
-    pop bc                  ;4b9c  b2           Pop: B  = number of bytes to transfer
-    pop hl                  ;4b9d  b6           Pop: HL = pointer to buffer to transfer
+    pop bc                  ;4b9c  b2           Pop: B  = number of bytes to transfer (7)
+    pop hl                  ;4b9d  b6           Pop: HL = pointer to buffer to transfer (upd_pict)
 
     clr1 mem_fe5f.0         ;4b9e  0b 5f        SPI packet complete flag = not complete
     mov c,#0x01             ;4ba0  a2 01        C = number of bytes sent
     mov a,[hl]              ;4ba2  87           A = first byte in buffer to transfer
     ei                      ;4ba3  7a 1e
-    mov sio30,a             ;4ba5  f2 1a        Send the first byte in the buffer
+    mov sio30,a             ;4ba5  f2 1a        Send first byte in buffer (INTCSI30 sends the rest)
+
     sel rb0                 ;4ba7  61 d0        Select normal register bank
 
 lab_4ba9:
@@ -13783,13 +13803,13 @@ lab_4bd3:
     br !lab_4d05            ;4bd6  9b 05 4d     Branch to deselect uPD16432B and return
 
 lab_4bd9:
-    ;SPI transfer is complete
+    ;SPI transfer of character data is complete
     mov a,#0x32             ;4bd9  a1 32
     mov !mem_fb2b,a         ;4bdb  9e 2b fb
     mov mem_fed4,#0x80      ;4bde  11 d4 80
 
     clr1 shadow_p4.7        ;4be1  7b ce        Deselect uPD16432B (STB=low)
-    clr1 pm4.7              ;4be3  71 7b 24
+    clr1 pm4.7              ;4be3  71 7b 24     PM47=output (P47)
     mov a,shadow_p4         ;4be6  f0 ce
     mov p4,a                ;4be8  f2 04
 
@@ -13809,7 +13829,7 @@ lab_4bd9:
 
 lab_4bfa:
     clr1 shadow_p4.7        ;4bfa  7b ce        Deselect uPD16432B (STB=low)
-    clr1 pm4.7              ;4bfc  71 7b 24
+    clr1 pm4.7              ;4bfc  71 7b 24     PM47=output (P47)
     mov a,shadow_p4         ;4bff  f0 ce
     mov p4,a                ;4c01  f2 04
 
@@ -13821,10 +13841,13 @@ lab_4bfa:
     addw ax,#0x0007         ;4c0a  ca 07 00
     movw de,ax              ;4c0d  d4
     push bc                 ;4c0e  b3
+
     mov a,#0x00             ;4c0f  a1 00
-    cmp a,#0x01             ;4c11  4d 01
+    cmp a,#0x01             ;4c11  4d 01      XXX useless comparision
     set1 mem_fe5f.1         ;4c13  1a 5f      SPI mode flag = transmit only
-    bnz lab_4c26            ;4c15  bd 0f
+    bnz lab_4c26            ;4c15  bd 0f      XXX always branches
+
+    ;XXX this code is unreachable
     clr1 mem_fe5f.1         ;4c17  1b 5f      SPI mode flag = transmit and receive
     movw ax,hl              ;4c19  c6
     movw hl,ax              ;4c1a  d6
@@ -13832,20 +13855,20 @@ lab_4bfa:
     mov b,a                 ;4c1d  73
     decw hl                 ;4c1e  96
     mov a,#0xff             ;4c1f  a1 ff
-    xor a,#0x00             ;4c21  7d 00
-
+    xor a,#0x00             ;4c21  7d 00      XXX useless XOR.  A is still 0xFF.
 lab_4c23:
     mov [hl+b],a            ;4c23  bb
     dbnz b,lab_4c23         ;4c24  8b fd
+    ;XXX end of unreachable code
 
 lab_4c26:
     set1 shadow_p4.7        ;4c26  7a ce        Select uPD16432B (STB=high)
     mov a,shadow_p4         ;4c28  f0 ce
     mov p4,a                ;4c2a  f2 04
 
-    clr1 if0h.4             ;4c2c  71 4b e1     Clear CSIIF30
-    clr1 mk0h.4             ;4c2f  71 4b e5     Clear CSIMK30
-    clr1 pr0h.4             ;4c32  71 4b e9     Clear CSIPR30
+    clr1 if0h.4             ;4c2c  71 4b e1     Clear CSIIF30 (INTCSI0 interrupt flag)
+    clr1 mk0h.4             ;4c2f  71 4b e5     Clear CSIMK30 (enables INTCSI30)
+    clr1 pr0h.4             ;4c32  71 4b e9     Clear CSIPR30 (makes INTCSI30 high priority)
 
     movw ax,hl              ;4c35  c6
     push ax                 ;4c36  b1           Push: pointer to buffer to transfer
@@ -13853,14 +13876,15 @@ lab_4c26:
     push ax                 ;4c39  b1           Push: number of bytes to transfer
 
     sel rb2                 ;4c3a  61 f0        Select register bank used by intcsi30_08a9
-    pop bc                  ;4c3c  b2           Pop: B  = number of bytes to transfer
+    pop bc                  ;4c3c  b2           Pop: B  = number of bytes to transfer (7)
     pop hl                  ;4c3d  b6           Pop: HL = pointer to buffer to transfer
 
     clr1 mem_fe5f.0         ;4c3e  0b 5f        SPI packet complete flag = not complete
     mov c,#0x01             ;4c40  a2 01        C = number of bytes sent
     mov a,[hl]              ;4c42  87           A = first byte in buffer to transfer
     ei                      ;4c43  7a 1e
-    mov sio30,a             ;4c45  f2 1a        Send the first byte in the buffer
+    mov sio30,a             ;4c45  f2 1a        Send first byte in buffer (INTCSI30 sends the rest)
+
     sel rb0                 ;4c47  61 d0        Select normal register bank
     inc mem_fed4            ;4c49  81 d4
 
@@ -13903,7 +13927,9 @@ lab_4c5e:
     mov b,#0xff             ;4c71  a3 ff
 lab_4c73:
     bt mem_fe5f.0,lab_4c78  ;4c73  8c 5f 02     Branch if SPI packet complete flag = complete
-    dbnz b,lab_4c73         ;4c76  8b fb
+    dbnz b,lab_4c73         ;4c76  8b fb        Keep waiting until B reaches zero
+
+    ;SPI transfer is complete or B reached zero
 
 lab_4c78:
     bt mem_fe5f.0,lab_4c7e  ;4c78  8c 5f 03     Branch if SPI packet complete flag = complete
@@ -13912,9 +13938,9 @@ lab_4c78:
     br !lab_4d05            ;4c7b  9b 05 4d     Branch to deslect uPD16432B and return
 
 lab_4c7e:
-    ;SPI transfer is complete
+    ;SPI transfer of character data is complete
     clr1 shadow_p4.7        ;4c7e  7b ce        Deselect uPD16432B (STB=low)
-    clr1 pm4.7              ;4c80  71 7b 24
+    clr1 pm4.7              ;4c80  71 7b 24     PM47=output (P47)
     mov a,shadow_p4         ;4c83  f0 ce
     mov p4,a                ;4c85  f2 04
 
@@ -13934,30 +13960,32 @@ lab_4c7e:
     call !upd_send_byte     ;4c94  9a 4d 4d     Select uPD16432B (STB=high), then send a byte to it
 
     mov a,#0x00             ;4c97  a1 00
-    cmp a,#0x01             ;4c99  4d 01
+    cmp a,#0x01             ;4c99  4d 01        XXX useless comparsion
     set1 mem_fe5f.1         ;4c9b  1a 5f        SPI mode flag = transmit only
-    bnz lab_4cb0            ;4c9d  bd 11
-    clr1 mem_fe5f.1         ;4c9f  1b 5f        SPI mode flag = transmit and receive
+    bnz lab_4cb0            ;4c9d  bd 11        XXX always branches
 
+    ;XXX this code is unreachable
+    clr1 mem_fe5f.1         ;4c9f  1b 5f        SPI mode flag = transmit and receive
     movw ax,#upd_disp       ;4ca1  10 9a f1
     movw hl,ax              ;4ca4  d6
     mov a,#0x0b             ;4ca5  a1 0b
     mov b,a                 ;4ca7  73
     decw hl                 ;4ca8  96
     mov a,#0xff             ;4ca9  a1 ff
-    xor a,#0x00             ;4cab  7d 00
+    xor a,#0x00             ;4cab  7d 00        XXX useless XOR.  A is still 0xFF.
 lab_4cad:
     mov [hl+b],a            ;4cad  bb
     dbnz b,lab_4cad         ;4cae  8b fd
+    ;XXX end of unreachable code
 
 lab_4cb0:
     set1 shadow_p4.7        ;4cb0  7a ce        Select uPD16432B (STB=high)
     mov a,shadow_p4         ;4cb2  f0 ce
     mov p4,a                ;4cb4  f2 04
 
-    clr1 if0h.4             ;4cb6  71 4b e1     Clear CSIIF30
-    clr1 mk0h.4             ;4cb9  71 4b e5     Clear CSIMK30
-    clr1 pr0h.4             ;4cbc  71 4b e9     Clear CSIPR30
+    clr1 if0h.4             ;4cb6  71 4b e1     Clear CSIIF30 (INTCSI0 interrupt flag)
+    clr1 mk0h.4             ;4cb9  71 4b e5     Clear CSIMK30 (enables INTCSI30)
+    clr1 pr0h.4             ;4cbc  71 4b e9     Clear CSIPR30 (makes INTCSI30 high priority)
 
     movw ax,#upd_disp       ;4cbf  10 9a f1     AX = pointer to uPD16432 display buffer (11 bytes)
     push ax                 ;4cc2  b1           Push: pointer to buffer to transfer
@@ -13965,14 +13993,15 @@ lab_4cb0:
     push ax                 ;4cc5  b1           Push: number of bytes to transfer
 
     sel rb2                 ;4cc6  61 f0        Select register bank used by intcsi30_08a9
-    pop bc                  ;4cc8  b2           Pop: B  = number of bytes to transfer
-    pop hl                  ;4cc9  b6           Pop: HL = pointer to buffer to transfer
+    pop bc                  ;4cc8  b2           Pop: B  = number of bytes to transfer (11)
+    pop hl                  ;4cc9  b6           Pop: HL = pointer to buffer to transfer (upd_disp)
 
     clr1 mem_fe5f.0         ;4cca  0b 5f        SPI packet complete flag = not complete
     mov c,#0x01             ;4ccc  a2 01        C = number of bytes sent
     mov a,[hl]              ;4cce  87           A = first byte in buffer to transfer
     ei                      ;4ccf  7a 1e
-    mov sio30,a             ;4cd1  f2 1a        Send the first byte in the buffer
+    mov sio30,a             ;4cd1  f2 1a        Send first byte in buffer (INTCSI30 sends the rest)
+
     sel rb0                 ;4cd3  61 d0        Select normal register bank
 
 lab_4cd5:
@@ -13986,14 +14015,16 @@ lab_4ce1:
     mov b,#0xff             ;4ce1  a3 ff
 lab_4ce3:
     bt mem_fe5f.0,lab_4ce8  ;4ce3  8c 5f 02     Branch if SPI packet complete flag = complete
-    dbnz b,lab_4ce3         ;4ce6  8b fb
+    dbnz b,lab_4ce3         ;4ce6  8b fb        Keep waiting until B reaches zero
+
+    ;SPI transfer complete or B reached zero
 
 lab_4ce8:
     bf mem_fe5f.0,lab_4d05  ;4ce8  31 03 5f 19  If packet complete flag = not complete
                             ;                     branch to deslect uPD16432B and return
 
     clr1 shadow_p4.7        ;4cec  7b ce        Deselect uPD16432B (STB=low)
-    clr1 pm4.7              ;4cee  71 7b 24
+    clr1 pm4.7              ;4cee  71 7b 24     PM47=output (P47)
     mov a,shadow_p4         ;4cf1  f0 ce
     mov p4,a                ;4cf3  f2 04
 
@@ -14018,7 +14049,7 @@ lab_4d05:
     mov p3,a                ;4d0c  f2 03
 
     clr1 shadow_p4.7        ;4d0e  7b ce        Deselect uPD16432B (STB=low)
-    clr1 pm4.7              ;4d10  71 7b 24
+    clr1 pm4.7              ;4d10  71 7b 24     PM47=output (P47)
     mov a,shadow_p4         ;4d13  f0 ce
     mov p4,a                ;4d15  f2 04
 
@@ -14034,7 +14065,7 @@ sub_4d1a:
     mov p4,a                ;4d21  f2 04
 
     clr1 shadow_p4.7        ;4d23  7b ce        Deselect uPD16432B (STB=low)
-    clr1 pm4.7              ;4d25  71 7b 24
+    clr1 pm4.7              ;4d25  71 7b 24     PM47=output (P47)
     mov a,shadow_p4         ;4d28  f0 ce
     mov p4,a                ;4d2a  f2 04
 
@@ -14044,7 +14075,7 @@ sub_4d1a:
 upd_display_on:
 ;Turn uPD16432B display on
     clr1 shadow_p4.7        ;4d2d  7b ce        Deselect uPD16432B (STB=low)
-    clr1 pm4.7              ;4d2f  71 7b 24
+    clr1 pm4.7              ;4d2f  71 7b 24     PM47=output (P47)
     mov a,shadow_p4         ;4d32  f0 ce
     mov p4,a                ;4d34  f2 04
 
@@ -14105,7 +14136,7 @@ sub_4d63:
     clr1 pu3.1              ;4d6c  71 1b 33
     set1 pm3.1              ;4d6f  71 1a 23
     clr1 pu4.7              ;4d72  71 7b 34
-    set1 pm4.7              ;4d75  71 7a 24
+    set1 pm4.7              ;4d75  71 7a 24     PM47=input (P47)
     clr1 pu4.6              ;4d78  71 6b 34
     set1 pm4.6              ;4d7b  71 6a 24
     ret                     ;4d7e  af
@@ -15994,7 +16025,7 @@ lab_5713:
 
 lab_5718:
     clr1 shadow_p4.7        ;5718  7b ce        Deselect uPD16432B (STB=low)
-    clr1 pm4.7              ;571a  71 7b 24
+    clr1 pm4.7              ;571a  71 7b 24     PM47=output (P47)
     mov a,shadow_p4         ;571d  f0 ce
     mov p4,a                ;571f  f2 04
 
@@ -16018,48 +16049,53 @@ lab_5718:
     br !lab_58d5            ;5730  9b d5 58     Branch to clr1 mem_fe66.5 and return
 
 lab_5733:
-    ;SPI transfer is complete
+    ;SPI transfer of "Read key data" command is complete
     mov a,#0x01             ;5733  a1 01
-    cmp a,#0x01             ;5735  4d 01
+    cmp a,#0x01             ;5735  4d 01        XXX useless comparison
     set1 mem_fe5f.1         ;5737  1a 5f        SPI mode flag = transmit only
-    bnz lab_574c            ;5739  bd 11
-    clr1 mem_fe5f.1         ;573b  1b 5f        SPI mode flag = transmit and receive
-    movw ax,#mem_fbd6       ;573d  10 d6 fb     TODO mem_fbd6 is the buffer that receives the
-                            ;                         key scan data from SPI
-    movw hl,ax              ;5740  d6
-    mov a,#0x04             ;5741  a1 04
-    mov b,a                 ;5743  73
-    decw hl                 ;5744  96
-    mov a,#0xff             ;5745  a1 ff
-    xor a,#0x00             ;5747  7d 00
+    bnz lab_574c            ;5739  bd 11        XXX never branches
 
+    clr1 mem_fe5f.1         ;573b  1b 5f        SPI mode flag = transmit and receive
+
+    ;Fill key data buffer (4 bytes: mem_fbd6 - mem_fbd9) with 0xFF
+    movw ax,#mem_fbd6       ;573d  10 d6 fb     AX = pointer to mem_fbd6 key data buffer (4 bytes)
+    movw hl,ax              ;5740  d6
+    mov a,#0x04             ;5741  a1 04        A = 4 bytes to fill
+    mov b,a                 ;5743  73
+    decw hl                 ;5744  96           Decrement HL so HL+B = last byte of key data buffer
+    mov a,#0xff             ;5745  a1 ff        A = byte to fill (0xFF)
+    xor a,#0x00             ;5747  7d 00        XXX useless XOR.  A is still 0xFF.
 lab_5749:
-    mov [hl+b],a            ;5749  bb
-    dbnz b,lab_5749         ;574a  8b fd
+    mov [hl+b],a            ;5749  bb           Write 0xFF to the key data buffer
+    dbnz b,lab_5749         ;574a  8b fd        Continue until all 4 bytes have been filled
+
+    ;Key data buffer (4 bytes: mem_fbd6 - mem_fbd9) is now filled with 0xFF
+    ;This will be transmitted to the uPD16432B during key data read
 
 lab_574c:
     set1 shadow_p4.7        ;574c  7a ce        Select uPD16432B (STB=high)
     mov a,shadow_p4         ;574e  f0 ce
     mov p4,a                ;5750  f2 04
 
-    clr1 if0h.4             ;5752  71 4b e1     Clear CSIIF30
-    clr1 mk0h.4             ;5755  71 4b e5     Clear CSIMK30
-    clr1 pr0h.4             ;5758  71 4b e9     Clear CSIPR30
+    clr1 if0h.4             ;5752  71 4b e1     Clear CSIIF30 (INTCSI0 interrupt flag)
+    clr1 mk0h.4             ;5755  71 4b e5     Clear CSIMK30 (enables INTCSI30)
+    clr1 pr0h.4             ;5758  71 4b e9     Clear CSIPR30 (makes INTCSI30 high priority)
 
     movw ax,#mem_fbd6       ;575b  10 d6 fb
-    push ax                 ;575e  b1           Push: pointer to buffer to transfer
+    push ax                 ;575e  b1           Push: pointer to buffer to transfer (key data)
     mov a,#0x04             ;575f  a1 04
-    push ax                 ;5761  b1           Push: number of bytes to transfer
+    push ax                 ;5761  b1           Push: number of bytes to transfer (4)
 
     sel rb2                 ;5762  61 f0        Select register bank used by intcsi30_08a9
-    pop bc                  ;5764  b2           Pop: B  = number of bytes to transfer
-    pop hl                  ;5765  b6           Pop: HL = pointer to buffer to transfer
+    pop bc                  ;5764  b2           Pop: B  = number of bytes to transfer (4)
+    pop hl                  ;5765  b6           Pop: HL = pointer to buffer to transfer (mem_fbd6)
 
     clr1 mem_fe5f.0         ;5766  0b 5f        SPI packet complete flag = not complete
     mov c,#0x01             ;5768  a2 01        C = number of bytes sent
     mov a,[hl]              ;576a  87           A = first byte in buffer to transfer
     ei                      ;576b  7a 1e
-    mov sio30,a             ;576d  f2 1a        Send the first byte in the buffer
+    mov sio30,a             ;576d  f2 1a        Send first byte in buffer (INTCSI30 sends the rest)
+
     sel rb0                 ;576f  61 d0        Select normal register bank
 
     mov b,#0xff             ;5771  a3 ff
@@ -16076,7 +16112,7 @@ lab_5778:
     mov p3,a                ;577f  f2 03
 
     clr1 shadow_p4.7        ;5781  7b ce        Deselect uPD16432B (STB=low)
-    clr1 pm4.7              ;5783  71 7b 24
+    clr1 pm4.7              ;5783  71 7b 24     PM47=output (P47)
     mov a,shadow_p4         ;5786  f0 ce
     mov p4,a                ;5788  f2 04
 
@@ -16087,18 +16123,19 @@ lab_5778:
     br !lab_58d5            ;578f  9b d5 58     Branch to clr1 mem_fe66.5 and return
 
 lab_5792:
-    ;SPI transfer is complete
-    mov b,#0x04             ;5792  a3 04
+    ;SPI transfer of key data is complete
+    ;Key data buffer (4 bytes: mem_fbd6 - mem_fbd9) now contains key data from uPD16432B
 
+    mov b,#0x04             ;5792  a3 04
 lab_5794:
     movw hl,#key_matrix_end_2 ;5794  16 a7 b3
     mov a,[hl+b]            ;5797  ab
-    movw hl,#mem_fbd5       ;5798  16 d5 fb
+    movw hl,#mem_fbd6-1     ;5798  16 d5 fb
     and a,[hl+b]            ;579b  31 5b
     mov [hl+b],a            ;579d  bb
     dbnz b,lab_5794         ;579e  8b f4
 
-    ;Copy 4 bytes key data from SPI (mem_fbd6) to mem_fed5
+    ;Copy 4 bytes key data from uPD16432B (mem_fbd6) to mem_fed5
     movw hl,#mem_fbd6       ;57a0  16 d6 fb     HL = source address
     movw de,#mem_fed5       ;57a3  14 d5 fe     HL = destination address
     mov a,#0x04             ;57a6  a1 04        A = 4 bytes to copy
@@ -16111,9 +16148,9 @@ lab_5794:
     callf !sub_0cca         ;57b2  4c ca        Compare A bytes between [HL] to [DE]
     bz lab_57c3             ;57b4  ad 0d        Branch if buffers are equal
 
-    ;Buffers mem_fed5 and mem_fbd1 are not equal
+    ;Key data buffers mem_fed5 and mem_fbd1 are not equal
 
-    ;Copy buffer mem_fed5 into memfbd1
+    ;Copy buffer mem_fed5 into mem_fbd1
     movw hl,#mem_fed5       ;57b6  16 d5 fe     HL = source address
     movw de,#mem_fbd1       ;57b9  14 d1 fb     DE = destination address
     mov a,#0x04             ;57bc  a1 04        A = 4 bytes to copy
@@ -16121,10 +16158,10 @@ lab_5794:
     br !lab_58d5            ;57c0  9b d5 58     Branch to clr1 mem_fe66.5 and return
 
 lab_57c3:
-;Buffers mem_fed5 and mem_fbd1 are equal
+;Key data buffers mem_fed5 and mem_fbd1 are equal
     mov c,#0x04             ;57c3  a2 04
     mov a,#0x00             ;57c5  a1 00
-    movw hl,#mem_fbd0       ;57c7  16 d0 fb
+    movw hl,#mem_fbd1-1     ;57c7  16 d0 fb
 
 lab_57ca:
     cmp a,[hl+c]            ;57ca  31 4a
