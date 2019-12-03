@@ -2700,9 +2700,25 @@ intcsi30_08a9:
 ;   B = total number of bytes to transfer
 ;   C = number of bytes transferred so far
 ;
+;Flag bit mem_fe5f1.1 sets the data direction:
+;  0 = Transmit and receive.  Buffer at HL will be transmitted and
+;      overwritten with the bytes received.
+;  1 = Transmit only.  Buffer at HL will be transmitted and preserved.
+;      Bytes received will be ignored.
+;
+;Flag bit mem_fe5f.0 indicates completion:
+;  0 = Not complete
+;  1 = Complete
+;
+;Code running in the main loop initiates the transfer by setting
+;up the values in RB2, initializing the two flag bits above, enabling
+;this interrupt, and then sending the first byte itself ("mov sio30,a").
+;This ISR then takes over the rest of the transfer and sets mem_fe5f
+;when the transfer is complete.
+;
     sel rb2                 ;08a9  61 f0        Select register bank used by this ISR
     mov a,sio30             ;08ab  f0 1a        A = SPI byte received
-    bt mem_fe5f.1,lab_08b1  ;08ad  9c 5f 01     Branch if ??
+    bt mem_fe5f.1,lab_08b1  ;08ad  9c 5f 01     Branch if SPI direction flag = transmit only
     mov [hl],a              ;08b0  97           Store A in receive buffer
 
 lab_08b1:
@@ -4025,7 +4041,7 @@ lab_0f1b:
     call !sio30_disable     ;0f65  9a 91 08     Disable SIO30 (used for uPD16432B SPI)
     set1 mem_fe5e.7         ;0f68  7a 5e
     set1 mem_fe5f.0         ;0f6a  0a 5f        SPI packet complete flag = complete
-    set1 mem_fe5f.1         ;0f6c  1a 5f
+    set1 mem_fe5f.1         ;0f6c  1a 5f        SPI mode flag = transmit only
     clr1 if0h.4             ;0f6e  71 4b e1     Clear CSIIF30
     set1 mk0h.4             ;0f71  71 4a e5     Set CSIMK30
     call !sio31_disable     ;0f74  9a df 08     Disable SIO31 (unknown SPI)
@@ -9184,7 +9200,7 @@ lab_2ff4:
     clr1 pu4.5              ;2ff4  71 5b 34
     set1 pm4.5              ;2ff7  71 5a 24
     call !sio30_enable      ;2ffa  9a 17 26     Enable SIO30 (used for uPD16432B SPI)
-    set1 mem_fe5f.1         ;2ffd  1a 5f
+    set1 mem_fe5f.1         ;2ffd  1a 5f        SPI mode flag = transmit only
     clr1 if0h.4             ;2fff  71 4b e1     Clear CSIIF30
     clr1 mk0h.4             ;3002  71 4b e5     Clear CSIMK30
     clr1 pr0h.4             ;3005  71 4b e9     Clear CSIPR30
@@ -13386,9 +13402,9 @@ lab_49af:
     push bc                 ;49c3  b3
     mov a,#0x00             ;49c4  a1 00
     cmp a,#0x01             ;49c6  4d 01
-    set1 mem_fe5f.1         ;49c8  1a 5f
+    set1 mem_fe5f.1         ;49c8  1a 5f      SPI mode flag = transmit only
     bnz lab_49db            ;49ca  bd 0f
-    clr1 mem_fe5f.1         ;49cc  1b 5f
+    clr1 mem_fe5f.1         ;49cc  1b 5f      SPI mode flag = transmit and receive
     movw ax,hl              ;49ce  c6
     movw hl,ax              ;49cf  d6
     mov a,#0x07             ;49d0  a1 07
@@ -13544,9 +13560,9 @@ lab_4a84:
     push bc                 ;4a98  b3
     mov a,#0x00             ;4a99  a1 00
     cmp a,#0x01             ;4a9b  4d 01
-    set1 mem_fe5f.1         ;4a9d  1a 5f
+    set1 mem_fe5f.1         ;4a9d  1a 5f      SPI mode flag = transmit only
     bnz lab_4ab0            ;4a9f  bd 0f
-    clr1 mem_fe5f.1         ;4aa1  1b 5f
+    clr1 mem_fe5f.1         ;4aa1  1b 5f      SPI mode flag = transmit and receive
     movw ax,hl              ;4aa3  c6
     movw hl,ax              ;4aa4  d6
     mov a,#0x07             ;4aa5  a1 07
@@ -13585,18 +13601,21 @@ lab_4ab0:
     sel rb0                 ;4ad1  61 d0        Select normal register bank
 
     inc mem_fed4            ;4ad3  81 d4
-    mov b,#0xff             ;4ad5  a3 ff
 
+    mov b,#0xff             ;4ad5  a3 ff
 lab_4ad7:
-    bt mem_fe5f.0,lab_4adc  ;4ad7  8c 5f 02
-    dbnz b,lab_4ad7         ;4ada  8b fb
+    bt mem_fe5f.0,lab_4adc  ;4ad7  8c 5f 02     Branch if SPI packet complete flag = complete
+    dbnz b,lab_4ad7         ;4ada  8b fb        Keep waiting until B reaches zero
+
+    ;SPI transfer is complete or B reached zero
 
 lab_4adc:
     mov b,#0xff             ;4adc  a3 ff
-
 lab_4ade:
-    bt mem_fe5f.0,lab_4ae3  ;4ade  8c 5f 02
-    dbnz b,lab_4ade         ;4ae1  8b fb
+    bt mem_fe5f.0,lab_4ae3  ;4ade  8c 5f 02     Branch if SPI packet complete flag = complete
+    dbnz b,lab_4ade         ;4ae1  8b fb        Keep waiting until B reaches zero
+
+    ;SPI transfer is complete or B reached zero again
 
 lab_4ae3:
     pop bc                  ;4ae3  b2
@@ -13688,9 +13707,9 @@ lab_4b3f:
 
     mov a,#0x00             ;4b6b  a1 00
     cmp a,#0x01             ;4b6d  4d 01
-    set1 mem_fe5f.1         ;4b6f  1a 5f
+    set1 mem_fe5f.1         ;4b6f  1a 5f        SPI mode flag = transmit only
     bnz lab_4b84            ;4b71  bd 11
-    clr1 mem_fe5f.1         ;4b73  1b 5f
+    clr1 mem_fe5f.1         ;4b73  1b 5f        SPI mode flag = transmit and receive
     movw ax,#upd_pict       ;4b75  10 35 fe
     movw hl,ax              ;4b78  d6
     mov a,#0x08             ;4b79  a1 08
@@ -13753,13 +13772,18 @@ lab_4bcc:
     mov b,#0xff             ;4bcc  a3 ff
 lab_4bce:
     bt mem_fe5f.0,lab_4bd3  ;4bce  8c 5f 02     Branch if SPI packet complete flag = complete
-    dbnz b,lab_4bce         ;4bd1  8b fb
+    dbnz b,lab_4bce         ;4bd1  8b fb        Keep waiting until B reaches zero
+
+    ;SPI transfer complete or B reached zero
 
 lab_4bd3:
     bt mem_fe5f.0,lab_4bd9  ;4bd3  8c 5f 03     Branch if SPI packet complete flag = complete
-    br !lab_4d05            ;4bd6  9b 05 4d
+
+    ;SPI transfer did not complete
+    br !lab_4d05            ;4bd6  9b 05 4d     Branch to deselect uPD16432B and return
 
 lab_4bd9:
+    ;SPI transfer is complete
     mov a,#0x32             ;4bd9  a1 32
     mov !mem_fb2b,a         ;4bdb  9e 2b fb
     mov mem_fed4,#0x80      ;4bde  11 d4 80
@@ -13799,9 +13823,9 @@ lab_4bfa:
     push bc                 ;4c0e  b3
     mov a,#0x00             ;4c0f  a1 00
     cmp a,#0x01             ;4c11  4d 01
-    set1 mem_fe5f.1         ;4c13  1a 5f
+    set1 mem_fe5f.1         ;4c13  1a 5f      SPI mode flag = transmit only
     bnz lab_4c26            ;4c15  bd 0f
-    clr1 mem_fe5f.1         ;4c17  1b 5f
+    clr1 mem_fe5f.1         ;4c17  1b 5f      SPI mode flag = transmit and receive
     movw ax,hl              ;4c19  c6
     movw hl,ax              ;4c1a  d6
     mov a,#0x07             ;4c1b  a1 07
@@ -13839,17 +13863,21 @@ lab_4c26:
     mov sio30,a             ;4c45  f2 1a        Send the first byte in the buffer
     sel rb0                 ;4c47  61 d0        Select normal register bank
     inc mem_fed4            ;4c49  81 d4
-    mov b,#0xff             ;4c4b  a3 ff
 
+    mov b,#0xff             ;4c4b  a3 ff
 lab_4c4d:
     bt mem_fe5f.0,lab_4c52  ;4c4d  8c 5f 02     Branch if SPI packet complete flag = complete
-    dbnz b,lab_4c4d         ;4c50  8b fb
+    dbnz b,lab_4c4d         ;4c50  8b fb        Keep waiting until B reaches zero
+
+    ;SPI transfer complete or B reached zero
 
 lab_4c52:
     mov b,#0xff             ;4c52  a3 ff
 lab_4c54:
     bt mem_fe5f.0,lab_4c59  ;4c54  8c 5f 02     Branch if SPI packet complete flag = complete
     dbnz b,lab_4c54         ;4c57  8b fb
+
+    ;SPI transfer complete or B reached zero again
 
 lab_4c59:
     pop bc                  ;4c59  b2
@@ -13879,9 +13907,12 @@ lab_4c73:
 
 lab_4c78:
     bt mem_fe5f.0,lab_4c7e  ;4c78  8c 5f 03     Branch if SPI packet complete flag = complete
-    br !lab_4d05            ;4c7b  9b 05 4d
+
+    ;SPI transfer did not complete
+    br !lab_4d05            ;4c7b  9b 05 4d     Branch to deslect uPD16432B and return
 
 lab_4c7e:
+    ;SPI transfer is complete
     clr1 shadow_p4.7        ;4c7e  7b ce        Deselect uPD16432B (STB=low)
     clr1 pm4.7              ;4c80  71 7b 24
     mov a,shadow_p4         ;4c83  f0 ce
@@ -13904,9 +13935,9 @@ lab_4c7e:
 
     mov a,#0x00             ;4c97  a1 00
     cmp a,#0x01             ;4c99  4d 01
-    set1 mem_fe5f.1         ;4c9b  1a 5f
+    set1 mem_fe5f.1         ;4c9b  1a 5f        SPI mode flag = transmit only
     bnz lab_4cb0            ;4c9d  bd 11
-    clr1 mem_fe5f.1         ;4c9f  1b 5f
+    clr1 mem_fe5f.1         ;4c9f  1b 5f        SPI mode flag = transmit and receive
 
     movw ax,#upd_disp       ;4ca1  10 9a f1
     movw hl,ax              ;4ca4  d6
@@ -13958,7 +13989,8 @@ lab_4ce3:
     dbnz b,lab_4ce3         ;4ce6  8b fb
 
 lab_4ce8:
-    bf mem_fe5f.0,lab_4d05  ;4ce8  31 03 5f 19  Branch if packet complete flag = not complete
+    bf mem_fe5f.0,lab_4d05  ;4ce8  31 03 5f 19  If packet complete flag = not complete
+                            ;                     branch to deslect uPD16432B and return
 
     clr1 shadow_p4.7        ;4cec  7b ce        Deselect uPD16432B (STB=low)
     clr1 pm4.7              ;4cee  71 7b 24
@@ -13978,6 +14010,8 @@ lab_4ce8:
     mov p4,a                ;4d03  f2 04
 
 lab_4d05:
+    ;Deselect uPD16432B and return
+
     set1 shadow_p3.1        ;4d05  1a cd        uPD16432B DAT out
     clr1 pm3.1              ;4d07  71 1b 23
     mov a,shadow_p3         ;4d0a  f0 cd
@@ -15978,15 +16012,18 @@ lab_5718:
                             ;                         Command implies reset to addr 0; addr = 0
     callf !sub_087a         ;572b  0c 7a        SPI xfer on SIO30 (send byte in A, recv byte in A)
 
-    bt mem_fe5f.0,lab_5733  ;572d  8c 5f 03
+    bt mem_fe5f.0,lab_5733  ;572d  8c 5f 03     Branch if SPI transfer is complete
+
+    ;SPI transfer did not complete
     br !lab_58d5            ;5730  9b d5 58     Branch to clr1 mem_fe66.5 and return
 
 lab_5733:
+    ;SPI transfer is complete
     mov a,#0x01             ;5733  a1 01
     cmp a,#0x01             ;5735  4d 01
-    set1 mem_fe5f.1         ;5737  1a 5f
+    set1 mem_fe5f.1         ;5737  1a 5f        SPI mode flag = transmit only
     bnz lab_574c            ;5739  bd 11
-    clr1 mem_fe5f.1         ;573b  1b 5f
+    clr1 mem_fe5f.1         ;573b  1b 5f        SPI mode flag = transmit and receive
     movw ax,#mem_fbd6       ;573d  10 d6 fb     TODO mem_fbd6 is the buffer that receives the
                             ;                         key scan data from SPI
     movw hl,ax              ;5740  d6
@@ -16026,10 +16063,11 @@ lab_574c:
     sel rb0                 ;576f  61 d0        Select normal register bank
 
     mov b,#0xff             ;5771  a3 ff
-
 lab_5773:
-    bt mem_fe5f.0,lab_5778  ;5773  8c 5f 02
-    dbnz b,lab_5773         ;5776  8b fb
+    bt mem_fe5f.0,lab_5778  ;5773  8c 5f 02     Branch if SPI transfer is complete
+    dbnz b,lab_5773         ;5776  8b fb        Keep waiting until B reaches zero
+
+    ;SPI transfer is complete or B reached zero
 
 lab_5778:
     set1 shadow_p3.1        ;5778  1a cd
@@ -16043,10 +16081,13 @@ lab_5778:
     mov p4,a                ;5788  f2 04
 
     set1 mem_fe5e.7         ;578a  7a 5e
-    bt mem_fe5f.0,lab_5792  ;578c  8c 5f 03
+    bt mem_fe5f.0,lab_5792  ;578c  8c 5f 03     Branch if SPI transfer is complete
+
+    ;SPI transfer is not complete
     br !lab_58d5            ;578f  9b d5 58     Branch to clr1 mem_fe66.5 and return
 
 lab_5792:
+    ;SPI transfer is complete
     mov b,#0x04             ;5792  a3 04
 
 lab_5794:
