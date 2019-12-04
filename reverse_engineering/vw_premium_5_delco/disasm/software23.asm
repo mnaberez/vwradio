@@ -457,7 +457,7 @@ mem_fe32 = 0xfe32
 mem_fe34 = 0xfe34
 upd_pict = 0xfe35           ;uPD16432B pictograph buffer (8 bytes)
 mem_fe3d = 0xfe3d
-mem_fe3e = 0xfe3e           ;Value to write to uPD16432B LED output latch
+upd_leds = 0xfe3e           ;Value to write to uPD16432B LED output latch
 mem_fe3f = 0xfe3f
 mem_fe40 = 0xfe40
 mem_fe41 = 0xfe41
@@ -4000,7 +4000,7 @@ lab_0e39:
     call !sub_4d1a          ;0efa  9a 1a 4d
     call !sub_7697          ;0efd  9a 97 76
     call !sub_76c9          ;0f00  9a c9 76
-    mov mem_fe3e,#0x0f      ;0f03  11 3e 0f     Value to write to uPD16432B LED output latch
+    mov upd_leds,#0x0f      ;0f03  11 3e 0f     Value to write to uPD16432B LED output latch
     clr1 mem_fe6f.4         ;0f06  4b 6f        Dolby = off
     clr1 mem_fe6d.3         ;0f08  3b 6d
 
@@ -13159,18 +13159,18 @@ sub_4889:
     bt mem_fe65.1,lab_4895  ;488c  9c 65 06
     cmp a,#0x12             ;488f  4d 12
     bnc lab_48a5            ;4891  9d 12
-    br lab_4899             ;4893  fa 04
+    br lab_4899_leds_0b1111 ;4893  fa 04
 
 lab_4895:
     cmp a,#0x0a             ;4895  4d 0a
     bnc lab_48a5            ;4897  9d 0c
 
-lab_4899:
+lab_4899_leds_0b1111:
     clr1 mem_fe65.1         ;4899  1b 65
-    set1 mem_fe3e.3         ;489b  3a 3e
-    set1 mem_fe3e.2         ;489d  2a 3e
-    set1 mem_fe3e.1         ;489f  1a 3e
-    set1 mem_fe3e.0         ;48a1  0a 3e
+    set1 upd_leds.3         ;489b  3a 3e        uPD16432B LED output latch bit 3 = on
+    set1 upd_leds.2         ;489d  2a 3e        uPD16432B LED output latch bit 2 = on
+    set1 upd_leds.1         ;489f  1a 3e        uPD16432B LED output latch bit 1 = on
+    set1 upd_leds.0         ;48a1  0a 3e        uPD16432B LED output latch bit 0 = on
     br lab_48d0             ;48a3  fa 2b
 
 lab_48a5:
@@ -13181,23 +13181,23 @@ lab_48a5:
     mov !mem_fbb1,a         ;48ae  9e b1 fb
 
 lab_48b1:
-    set1 mem_fe65.1         ;48b1  1a 65
-    bt mem_fe2c.5,lab_48be  ;48b3  dc 2c 08
-    bf mem_fe2c.3,lab_48c8  ;48b6  31 33 2c 0e
-    bf mem_fe6a.0,lab_48c8  ;48ba  31 03 6a 0a
+    set1 mem_fe65.1                     ;48b1  1a 65
+    bt mem_fe2c.5,lab_48be_leds_0b0000  ;48b3  dc 2c 08
+    bf mem_fe2c.3,lab_48c8_leds_0b0001  ;48b6  31 33 2c 0e
+    bf mem_fe6a.0,lab_48c8_leds_0b0001  ;48ba  31 03 6a 0a
 
-lab_48be:
-    clr1 mem_fe3e.3         ;48be  3b 3e
-    clr1 mem_fe3e.2         ;48c0  2b 3e
-    clr1 mem_fe3e.1         ;48c2  1b 3e
-    clr1 mem_fe3e.0         ;48c4  0b 3e
+lab_48be_leds_0b0000:
+    clr1 upd_leds.3         ;48be  3b 3e        uPD16432B LED output latch bit 3 = off
+    clr1 upd_leds.2         ;48c0  2b 3e        uPD16432B LED output latch bit 2 = off
+    clr1 upd_leds.1         ;48c2  1b 3e        uPD16432B LED output latch bit 1 = off
+    clr1 upd_leds.0         ;48c4  0b 3e        uPD16432B LED output latch bit 0 = off
     br lab_48d0             ;48c6  fa 08
 
-lab_48c8:
-    clr1 mem_fe3e.3         ;48c8  3b 3e
-    clr1 mem_fe3e.2         ;48ca  2b 3e
-    clr1 mem_fe3e.1         ;48cc  1b 3e
-    set1 mem_fe3e.0         ;48ce  0a 3e
+lab_48c8_leds_0b0001:
+    clr1 upd_leds.3         ;48c8  3b 3e        uPD16432B LED output latch bit 3 = off
+    clr1 upd_leds.2         ;48ca  2b 3e        uPD16432B LED output latch bit 2 = off
+    clr1 upd_leds.1         ;48cc  1b 3e        uPD16432B LED output latch bit 1 = off
+    set1 upd_leds.0         ;48ce  0a 3e        uPD16432B LED output latch bit 0 = on
 
 lab_48d0:
     movw ax,#0x0000         ;48d0  10 00 00
@@ -13259,7 +13259,11 @@ lab_491e:
 lab_4920:
     ret                     ;4920  af
 
-charset_fm1:
+charset:
+;Custom 5x7 characters loaded into the uPD16432B
+;as character codes 0x00 - 0x08
+
+charset_0x00_fm1:
     .byte 0x08              ;4921  08          DATA 0x08
     .byte 0x28              ;4922  28          DATA 0x28 '('
     .byte 0x48              ;4923  48          DATA 0x48 'H'
@@ -13268,7 +13272,7 @@ charset_fm1:
     .byte 0xa8              ;4926  a8          DATA 0xa8
     .byte 0xc8              ;4927  c8          DATA 0xc8
 
-charset_fm2:
+charset_0x01_fm2:
     .byte 0x1c              ;4928  1c          DATA 0x1c
     .byte 0x24              ;4929  24          DATA 0x24 '$'
     .byte 0x44              ;492a  44          DATA 0x44 'D'
@@ -13277,7 +13281,7 @@ charset_fm2:
     .byte 0xb0              ;492d  b0          DATA 0xb0
     .byte 0xdc              ;492e  dc          DATA 0xdc
 
-charset_preset_1:
+charset_0x02_preset_1:
     .byte 0x01              ;492f  01          DATA 0x01
     .byte 0x21              ;4930  21          DATA 0x21 '!'
     .byte 0x41              ;4931  41          DATA 0x41 'A'
@@ -13286,7 +13290,7 @@ charset_preset_1:
     .byte 0xa1              ;4934  a1          DATA 0xa1
     .byte 0xc1              ;4935  c1          DATA 0xc1
 
-charset_preset_2:
+charset_0x03_preset_2:
     .byte 0x07              ;4936  07          DATA 0x07
     .byte 0x21              ;4937  21          DATA 0x21 '!'
     .byte 0x41              ;4938  41          DATA 0x41 'A'
@@ -13295,7 +13299,7 @@ charset_preset_2:
     .byte 0xa4              ;493b  a4          DATA 0xa4
     .byte 0xc7              ;493c  c7          DATA 0xc7
 
-charset_preset_3:
+charset_0x04_preset_3:
     .byte 0x07              ;493d  07          DATA 0x07
     .byte 0x21              ;493e  21          DATA 0x21 '!'
     .byte 0x41              ;493f  41          DATA 0x41 'A'
@@ -13304,7 +13308,7 @@ charset_preset_3:
     .byte 0xa1              ;4942  a1          DATA 0xa1
     .byte 0xc7              ;4943  c7          DATA 0xc7
 
-charset_preset_4:
+charset_0x05_preset_4:
     .byte 0x05              ;4944  05          DATA 0x05
     .byte 0x25              ;4945  25          DATA 0x25 '%'
     .byte 0x45              ;4946  45          DATA 0x45 'E'
@@ -13313,7 +13317,7 @@ charset_preset_4:
     .byte 0xa1              ;4949  a1          DATA 0xa1
     .byte 0xc1              ;494a  c1          DATA 0xc1
 
-charset_preset_5:
+charset_0x06_preset_5:
     .byte 0x07              ;494b  07          DATA 0x07
     .byte 0x24              ;494c  24          DATA 0x24 '$'
     .byte 0x44              ;494d  44          DATA 0x44 'D'
@@ -13322,7 +13326,7 @@ charset_preset_5:
     .byte 0xa1              ;4950  a1          DATA 0xa1
     .byte 0xc6              ;4951  c6          DATA 0xc6
 
-charset_preset_6:
+charset_0x07_preset_6:
     .byte 0x07              ;4952  07          DATA 0x07
     .byte 0x24              ;4953  24          DATA 0x24 '$'
     .byte 0x44              ;4954  44          DATA 0x44 'D'
@@ -13331,7 +13335,7 @@ charset_preset_6:
     .byte 0xa5              ;4957  a5          DATA 0xa5
     .byte 0xc7              ;4958  c7          DATA 0xc7
 
-charset_solid_block:
+charset_0x08_solid_block:
     .byte 0x1f              ;4959  1f          DATA 0x1f
     .byte 0x3f              ;495a  3f          DATA 0x3f '?'
     .byte 0x5f              ;495b  5f          DATA 0x5f '_'
@@ -13389,8 +13393,8 @@ lab_4990:
     mov a,shadow_p4         ;49a6  f0 ce
     mov p4,a                ;49a8  f2 04
 
-    mov b,#0x09             ;49aa  a3 09
-    movw de,#charset_fm1    ;49ac  14 21 49     DE = pointer to chargen data
+    mov b,#0x09             ;49aa  a3 09        B = 9 custom characters to send
+    movw de,#charset        ;49ac  14 21 49     DE = pointer to start of character data
 
 lab_49af:
     clr1 shadow_p4.7        ;49af  7b ce        Deselect uPD16432B (STB=low)
@@ -13401,26 +13405,30 @@ lab_49af:
     mov a,mem_fed4          ;49b8  f0 d4        A = uPD16432B Address Setting Command
     call !upd_send_byte     ;49ba  9a 4d 4d     Select uPD16432B (STB=high), then send a byte to it
 
-    movw ax,de              ;49bd  c4
-    movw hl,ax              ;49be  d6
-    addw ax,#0x0007         ;49bf  ca 07 00
-    movw de,ax              ;49c2  d4
-    push bc                 ;49c3  b3
+    ;HL = pointer to data for this character
+    movw ax,de              ;49bd  c4           AX = pointer to data for this character
+    movw hl,ax              ;49be  d6           Save it in HL
+
+    ;DE = pointer to data for next character
+    addw ax,#0x0007         ;49bf  ca 07 00     Advance number of bytes per character (7)
+    movw de,ax              ;49c2  d4           DE = pointer to data for next character
+
+    push bc                 ;49c3  b3           Push number of custom characters left to send
 
     mov a,#0x00             ;49c4  a1 00
-    cmp a,#0x01             ;49c6  4d 01      XXX useless comparison
-    set1 mem_fe5f.1         ;49c8  1a 5f      SPI mode flag = transmit only
-    bnz lab_49db            ;49ca  bd 0f      XXX always branches
+    cmp a,#0x01             ;49c6  4d 01        XXX useless comparison
+    set1 mem_fe5f.1         ;49c8  1a 5f        SPI mode flag = transmit only
+    bnz lab_49db            ;49ca  bd 0f        XXX always branches
 
     ;XXX this code is unreachable
-    clr1 mem_fe5f.1         ;49cc  1b 5f      SPI mode flag = transmit and receive
+    clr1 mem_fe5f.1         ;49cc  1b 5f        SPI mode flag = transmit and receive
     movw ax,hl              ;49ce  c6
     movw hl,ax              ;49cf  d6
     mov a,#0x07             ;49d0  a1 07
     mov b,a                 ;49d2  73
     decw hl                 ;49d3  96
     mov a,#0xff             ;49d4  a1 ff
-    xor a,#0x00             ;49d6  7d 00      XXX useless XOR.  A is still 0xFF.
+    xor a,#0x00             ;49d6  7d 00        XXX useless XOR.  A is still 0xFF.
 lab_49d8:
     mov [hl+b],a            ;49d8  bb
     dbnz b,lab_49d8         ;49d9  8b fd
@@ -13435,9 +13443,9 @@ lab_49db:
     clr1 mk0h.4             ;49e4  71 4b e5     Clear CSIMK30 (enables INTCSI30)
     clr1 pr0h.4             ;49e7  71 4b e9     Clear CSIPR30 (makes INTCSI30 high priority)
 
-    movw ax,hl              ;49ea  c6
+    movw ax,hl              ;49ea  c6           AX = pointer to start of this character's data
     push ax                 ;49eb  b1           Push: pointer to buffer to transfer
-    mov a,#0x07             ;49ec  a1 07
+    mov a,#0x07             ;49ec  a1 07        A = 7 bytes of character data to send
     push ax                 ;49ee  b1           Push: number of bytes to transfer
 
     sel rb2                 ;49ef  61 f0        Select register bank used by intcsi30_08a9
@@ -13468,10 +13476,13 @@ lab_4a09:
     dbnz b,lab_4a09         ;4a0c  8b fb        Keep waiting until B reaches zero
 
     ;SPI transfer is complete or B reached zero again
+    ;The 7 bytes of data for this custom character have been sent
 
 lab_4a0e:
-    pop bc                  ;4a0e  b2
-    dbnz b,lab_49af         ;4a0f  8b 9e
+    pop bc                  ;4a0e  b2           B = number of custom characters left to send
+    dbnz b,lab_49af         ;4a0f  8b 9e        Decrement and loop until all are sent
+
+    ;All custom characters have been sent
 
     mov a,#0xc1             ;4a11  a1 c1        A = uPD16432B Command Byte 0xc1 (0b11000001)
                             ;                       Status command
@@ -13536,27 +13547,30 @@ lab_4a45:
     mov p3,a                ;4a63  f2 03
 
 lab_4a65:
-    call !upd_display_on    ;4a65  9a 2d 4d
-    mov mem_fed4,#0x80      ;4a68  11 d4 80
+    call !upd_display_on    ;4a65  9a 2d 4d     Turn uPD16432B display on
+
+    mov mem_fed4,#0x80      ;4993  11 d4 80     A = uPD16432B Command Byte 0x80 (0b10000000)
+                            ;                       Address Setting Command
+                            ;                           Address = 00
 
     clr1 shadow_p4.7        ;4a6b  7b ce        Deselect uPD16432B (STB=low)
     clr1 pm4.7              ;4a6d  71 7b 24     PM47=output (P47)
     mov a,shadow_p4         ;4a70  f0 ce
     mov p4,a                ;4a72  f2 04
 
-
     mov a,#0x4a             ;4a74  a1 4a        A = uPD16432B Command Byte 0x4a (0b01001010)
                             ;                       Data Setting Command
                             ;                           2=Write to chargen ram
                             ;                           Command implies address incr; incr = on
                             ;                           Command implies reset to addr 0; addr = 0
-    call !upd_send_byte     ;4a76  9a 4d 4d
+    call !upd_send_byte     ;4a76  9a 4d 4d     Select uPD16432B (STB=high), then send a byte to it
 
     clr1 shadow_p4.7        ;4a79  7b ce        Deselect uPD16432B (STB=low)
     mov a,shadow_p4         ;4a7b  f0 ce
     mov p4,a                ;4a7d  f2 04
-    mov b,#0x09             ;4a7f  a3 09
-    movw de,#charset_fm1    ;4a81  14 21 49
+
+    mov b,#0x09             ;4a7f  a3 09        B = 9 custom characters to send
+    movw de,#charset        ;4a81  14 21 49     DE = pointer to start of character data
 
 lab_4a84:
     clr1 shadow_p4.7        ;4a84  7b ce        Deselect uPD16432B (STB=low)
@@ -13564,29 +13578,33 @@ lab_4a84:
     mov a,shadow_p4         ;4a89  f0 ce
     mov p4,a                ;4a8b  f2 04
 
-    mov a,mem_fed4          ;4a8d  f0 d4
+    mov a,mem_fed4          ;4a8d  f0 d4        A = uPD16432B Address Setting Command
     call !upd_send_byte     ;4a8f  9a 4d 4d     Select uPD16432B (STB=high), then send a byte to it
 
-    movw ax,de              ;4a92  c4
-    movw hl,ax              ;4a93  d6
-    addw ax,#0x0007         ;4a94  ca 07 00
-    movw de,ax              ;4a97  d4
-    push bc                 ;4a98  b3
+    ;HL = pointer to data for this character
+    movw ax,de              ;4a92  c4           AX = pointer to data for this character
+    movw hl,ax              ;4a93  d6           Save it in HL
+
+    ;DE = pointer to data for next character
+    addw ax,#0x0007         ;4a94  ca 07 00     Advance number of bytes per character (7)
+    movw de,ax              ;4a97  d4           DE = pointer to data for next character
+
+    push bc                 ;4a98  b3           Push number of custom characters left to send
 
     mov a,#0x00             ;4a99  a1 00
-    cmp a,#0x01             ;4a9b  4d 01      XXX useless comparison
-    set1 mem_fe5f.1         ;4a9d  1a 5f      SPI mode flag = transmit only
-    bnz lab_4ab0            ;4a9f  bd 0f      XXX always branches
+    cmp a,#0x01             ;4a9b  4d 01        XXX useless comparison
+    set1 mem_fe5f.1         ;4a9d  1a 5f        SPI mode flag = transmit only
+    bnz lab_4ab0            ;4a9f  bd 0f        XXX always branches
 
     ;XXX this code is unreachable
-    clr1 mem_fe5f.1         ;4aa1  1b 5f      SPI mode flag = transmit and receive
+    clr1 mem_fe5f.1         ;4aa1  1b 5f        SPI mode flag = transmit and receive
     movw ax,hl              ;4aa3  c6
     movw hl,ax              ;4aa4  d6
     mov a,#0x07             ;4aa5  a1 07
     mov b,a                 ;4aa7  73
     decw hl                 ;4aa8  96
     mov a,#0xff             ;4aa9  a1 ff
-    xor a,#0x00             ;4aab  7d 00      XXX useless XOR.  A is still 0xFF.
+    xor a,#0x00             ;4aab  7d 00        XXX useless XOR.  A is still 0xFF.
 lab_4aad:
     mov [hl+b],a            ;4aad  bb
     dbnz b,lab_4aad         ;4aae  8b fd
@@ -13601,9 +13619,9 @@ lab_4ab0:
     clr1 mk0h.4             ;4ab9  71 4b e5     Clear CSIMK30 (enables INTCSI30)
     clr1 pr0h.4             ;4abc  71 4b e9     Clear CSIPR30 (makes INTCSI30 high priority)
 
-    movw ax,hl              ;4abf  c6
+    movw ax,hl              ;4abf  c6           AX = pointer to start of this character's data
     push ax                 ;4ac0  b1           Push: pointer to buffer to transfer
-    mov a,#0x07             ;4ac1  a1 07
+    mov a,#0x07             ;4ac1  a1 07        A = 7 bytes of character data to send
     push ax                 ;4ac3  b1           Push: number of bytes to transfer
 
     sel rb2                 ;4ac4  61 f0        Select register bank used by intcsi30_08a9
@@ -13617,7 +13635,8 @@ lab_4ab0:
     mov sio30,a             ;4acf  f2 1a        Send first byte in buffer (INTCSI30 sends the rest)
 
     sel rb0                 ;4ad1  61 d0        Select normal register bank
-    inc mem_fed4            ;4ad3  81 d4
+    inc mem_fed4            ;4ad3  81 d4        Increment uPD16432B Address Setting Command
+                            ;                     to next address
 
     mov b,#0xff             ;4ad5  a3 ff
 lab_4ad7:
@@ -13633,10 +13652,14 @@ lab_4ade:
     dbnz b,lab_4ade         ;4ae1  8b fb        Keep waiting until B reaches zero
 
     ;SPI transfer is complete or B reached zero again
+    ;The 7 bytes of data for this custom character have been sent
 
 lab_4ae3:
-    pop bc                  ;4ae3  b2
-    dbnz b,lab_4a84         ;4ae4  8b 9e
+    pop bc                  ;4ae3  b2           B = number of custom characters left to send
+    dbnz b,lab_4a84         ;4ae4  8b 9e        Decrement and loop until all are sent
+
+    ;All custom characters have been sent
+
     set1 shadow_p3.1        ;4ae6  1a cd
     clr1 pm3.1              ;4ae8  71 1b 23
     mov a,shadow_p3         ;4aeb  f0 cd
@@ -13684,6 +13707,7 @@ lab_4b29:
     mov a,!mem_fb29         ;4b2c  8e 29 fb
     cmp a,#0x00             ;4b2f  4d 00
     bz lab_4b3f             ;4b31  ad 0c
+
     movw de,#upd_pict_old   ;4b33  14 bd fb     DE = pointer to last uPD16432B pictograph buf sent
     movw hl,#upd_pict       ;4b36  16 35 fe     HL = pointer to current uPD16432B pictograph buffer
     mov a,#0x08             ;4b39  a1 08        A = 8 bytes to compare
@@ -13750,9 +13774,9 @@ lab_4b84:
     clr1 mk0h.4             ;4b8d  71 4b e5     Clear CSIMK30 (enables INTCSI30)
     clr1 pr0h.4             ;4b90  71 4b e9     Clear CSIPR30 (makes INTCSI30 high priority)
 
-    movw ax,#upd_pict       ;4b93  10 35 fe
+    movw ax,#upd_pict       ;4b93  10 35 fe     AX = pointer to start of pictograph buffer
     push ax                 ;4b96  b1           Push: pointer to buffer to transfer
-    mov a,#0x08             ;4b97  a1 08
+    mov a,#0x08             ;4b97  a1 08        A = 8 bytes of pictograph data
     push ax                 ;4b99  b1           Push: number of bytes to transfer
 
     sel rb2                 ;4b9a  61 f0        Select register bank used by intcsi30_08a9
@@ -13803,29 +13827,33 @@ lab_4bd3:
     br !lab_4d05            ;4bd6  9b 05 4d     Branch to deselect uPD16432B and return
 
 lab_4bd9:
-    ;SPI transfer of character data is complete
+    ;SPI transfer of display buffer (upd_disp) is complete
+
     mov a,#0x32             ;4bd9  a1 32
     mov !mem_fb2b,a         ;4bdb  9e 2b fb
-    mov mem_fed4,#0x80      ;4bde  11 d4 80
+
+    mov mem_fed4,#0x80      ;4993  11 d4 80     A = uPD16432B Command Byte 0x80 (0b10000000)
+                            ;                       Address Setting Command
+                            ;                           Address = 00
 
     clr1 shadow_p4.7        ;4be1  7b ce        Deselect uPD16432B (STB=low)
     clr1 pm4.7              ;4be3  71 7b 24     PM47=output (P47)
     mov a,shadow_p4         ;4be6  f0 ce
     mov p4,a                ;4be8  f2 04
 
-    mov a,#0x4a             ;4bea  a1 4a        A = Command Byte 0x4a (0b01001010)
-                            ;                   Data Setting Command
-                            ;                       2=Write to chargen ram
-                            ;                       Command implies address incr; incr = on
-                            ;                       Command implies reset to addr 0; addr = 0
+    mov a,#0x4a             ;4bea  a1 4a        A = uPD16432B Command Byte 0x4a (0b01001010)
+                            ;                       Data Setting Command
+                            ;                           2=Write to chargen ram
+                            ;                           Command implies address incr; incr = on
+                            ;                           Command implies reset to addr 0; addr = 0
     call !upd_send_byte     ;4bec  9a 4d 4d     Select uPD16432B (STB=high), then send a byte to it
 
     clr1 shadow_p4.7        ;4bef  7b ce        Deselect uPD16432B (STB=low)
     mov a,shadow_p4         ;4bf1  f0 ce
     mov p4,a                ;4bf3  f2 04
 
-    mov b,#0x09             ;4bf5  a3 09
-    movw de,#charset_fm1    ;4bf7  14 21 49
+    mov b,#0x09             ;4bf5  a3 09        B = 9 custom characters to send
+    movw de,#charset        ;4bf7  14 21 49     DE = pointer to start of character data
 
 lab_4bfa:
     clr1 shadow_p4.7        ;4bfa  7b ce        Deselect uPD16432B (STB=low)
@@ -13833,29 +13861,33 @@ lab_4bfa:
     mov a,shadow_p4         ;4bff  f0 ce
     mov p4,a                ;4c01  f2 04
 
-    mov a,mem_fed4          ;4c03  f0 d4
+    mov a,mem_fed4          ;4c03  f0 d4        A = uPD16432B Address Setting Command
     call !upd_send_byte     ;4c05  9a 4d 4d     Select uPD16432B (STB=high), then send a byte to it
 
-    movw ax,de              ;4c08  c4
-    movw hl,ax              ;4c09  d6
-    addw ax,#0x0007         ;4c0a  ca 07 00
-    movw de,ax              ;4c0d  d4
-    push bc                 ;4c0e  b3
+    ;HL = pointer to data for this character
+    movw ax,de              ;4c08  c4           AX = pointer to data for this character
+    movw hl,ax              ;4c09  d6           Save it in HL
+
+    ;DE = pointer to data for next character
+    addw ax,#0x0007         ;4c0a  ca 07 00     Advance number of bytes per character (7)
+    movw de,ax              ;4c0d  d4           DE = pointer to data for next character
+
+    push bc                 ;4c0e  b3           Push number of custom characters left to send
 
     mov a,#0x00             ;4c0f  a1 00
-    cmp a,#0x01             ;4c11  4d 01      XXX useless comparision
-    set1 mem_fe5f.1         ;4c13  1a 5f      SPI mode flag = transmit only
-    bnz lab_4c26            ;4c15  bd 0f      XXX always branches
+    cmp a,#0x01             ;4c11  4d 01        XXX useless comparison
+    set1 mem_fe5f.1         ;4c13  1a 5f        SPI mode flag = transmit only
+    bnz lab_4c26            ;4c15  bd 0f        XXX always branches
 
     ;XXX this code is unreachable
-    clr1 mem_fe5f.1         ;4c17  1b 5f      SPI mode flag = transmit and receive
+    clr1 mem_fe5f.1         ;4c17  1b 5f        SPI mode flag = transmit and receive
     movw ax,hl              ;4c19  c6
     movw hl,ax              ;4c1a  d6
     mov a,#0x07             ;4c1b  a1 07
     mov b,a                 ;4c1d  73
     decw hl                 ;4c1e  96
     mov a,#0xff             ;4c1f  a1 ff
-    xor a,#0x00             ;4c21  7d 00      XXX useless XOR.  A is still 0xFF.
+    xor a,#0x00             ;4c21  7d 00        XXX useless XOR.  A is still 0xFF.
 lab_4c23:
     mov [hl+b],a            ;4c23  bb
     dbnz b,lab_4c23         ;4c24  8b fd
@@ -13870,9 +13902,9 @@ lab_4c26:
     clr1 mk0h.4             ;4c2f  71 4b e5     Clear CSIMK30 (enables INTCSI30)
     clr1 pr0h.4             ;4c32  71 4b e9     Clear CSIPR30 (makes INTCSI30 high priority)
 
-    movw ax,hl              ;4c35  c6
+    movw ax,hl              ;4c35  c6           AX = pointer to start of this character's data
     push ax                 ;4c36  b1           Push: pointer to buffer to transfer
-    mov a,#0x07             ;4c37  a1 07
+    mov a,#0x07             ;4c37  a1 07        A = 7 bytes per character
     push ax                 ;4c39  b1           Push: number of bytes to transfer
 
     sel rb2                 ;4c3a  61 f0        Select register bank used by intcsi30_08a9
@@ -13886,7 +13918,8 @@ lab_4c26:
     mov sio30,a             ;4c45  f2 1a        Send first byte in buffer (INTCSI30 sends the rest)
 
     sel rb0                 ;4c47  61 d0        Select normal register bank
-    inc mem_fed4            ;4c49  81 d4
+    inc mem_fed4            ;4c49  81 d4        Increment uPD16432B Address Setting Command
+                            ;                     to next address
 
     mov b,#0xff             ;4c4b  a3 ff
 lab_4c4d:
@@ -13902,10 +13935,14 @@ lab_4c54:
     dbnz b,lab_4c54         ;4c57  8b fb
 
     ;SPI transfer complete or B reached zero again
+    ;The 7 bytes of data for this custom character have been sent
 
 lab_4c59:
-    pop bc                  ;4c59  b2
-    dbnz b,lab_4bfa         ;4c5a  8b 9e
+    pop bc                  ;4c59  b2           B = number of cutom characters left to send
+    dbnz b,lab_4bfa         ;4c5a  8b 9e        Decrement and loop until all are sent
+
+    ;All custom characters have been sent
+
     br lab_4cd5             ;4c5c  fa 77
 
 lab_4c5e:
@@ -13987,9 +14024,9 @@ lab_4cb0:
     clr1 mk0h.4             ;4cb9  71 4b e5     Clear CSIMK30 (enables INTCSI30)
     clr1 pr0h.4             ;4cbc  71 4b e9     Clear CSIPR30 (makes INTCSI30 high priority)
 
-    movw ax,#upd_disp       ;4cbf  10 9a f1     AX = pointer to uPD16432 display buffer (11 bytes)
+    movw ax,#upd_disp       ;4cbf  10 9a f1     AX = pointer to display buffer (11 bytes)
     push ax                 ;4cc2  b1           Push: pointer to buffer to transfer
-    mov a,#0x0b             ;4cc3  a1 0b        A = 11 bytes to transfer
+    mov a,#0x0b             ;4cc3  a1 0b        A = 11 bytes of display buffer
     push ax                 ;4cc5  b1           Push: number of bytes to transfer
 
     sel rb2                 ;4cc6  61 f0        Select register bank used by intcsi30_08a9
@@ -14008,6 +14045,7 @@ lab_4cd5:
     mov a,!mem_f1a5         ;4cd5  8e a5 f1
     cmp a,#0xff             ;4cd8  4d ff
     bz lab_4ce1             ;4cda  ad 05
+
     mov a,!mem_fb2e         ;4cdc  8e 2e fb
     bz lab_4ce1             ;4cdf  ad 00
 
@@ -14021,7 +14059,7 @@ lab_4ce3:
 
 lab_4ce8:
     bf mem_fe5f.0,lab_4d05  ;4ce8  31 03 5f 19  If packet complete flag = not complete
-                            ;                     branch to deslect uPD16432B and return
+                            ;                     branch to deselect uPD16432B and return
 
     clr1 shadow_p4.7        ;4cec  7b ce        Deselect uPD16432B (STB=low)
     clr1 pm4.7              ;4cee  71 7b 24     PM47=output (P47)
@@ -14033,7 +14071,7 @@ lab_4ce8:
                             ;                           3=Write to LED output latch
     call !upd_send_byte     ;4cf7  9a 4d 4d     Select uPD16432B (STB=high), then send a byte to it
 
-    mov a,mem_fe3e          ;4cfa  f0 3e        A = uPD16432B Data Byte
+    mov a,upd_leds          ;4cfa  f0 3e        A = uPD16432B Data Byte
     call !upd_send_byte     ;4cfc  9a 4d 4d     Select uPD16432B (STB=high), then send a byte to it
 
     clr1 shadow_p4.7        ;4cff  7b ce        Deselect uPD16432B (STB=low)
