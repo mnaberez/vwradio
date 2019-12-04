@@ -77,7 +77,7 @@ mem_f197 = 0xf197
 mem_f198 = 0xf198
 mem_f199 = 0xf199
 mem_f19a = 0xf19a
-upd_disp = 0xf19a           ;uPD16432B display buffer (11 bytes)
+upd_disp = 0xf19a           ;uPD16432B display buffer to send to uPD16432B (11 bytes)
 mem_f1a3 = 0xf1a3
 mem_f1a5 = 0xf1a5
 mem_f1a6 = 0xf1a6
@@ -333,7 +333,7 @@ mem_fbcf = 0xfbcf
 mem_fbd0 = 0xfbd0
 mem_fbd1 = 0xfbd1           ;uPD16432B key scan data (4 bytes)
 mem_fbd5 = 0xfbd5
-mem_fbd6 = 0xfbd6           ;uPD16432B key scan data from SPI (4 bytes)
+upd_keys = 0xfbd6           ;uPD16432B key scan data received from uPD16432B (4 bytes)
 mem_fbda = 0xfbda
 mem_fbdb = 0xfbdb
 mem_fbdc = 0xfbdc
@@ -16057,8 +16057,8 @@ lab_5733:
 
     clr1 mem_fe5f.1         ;573b  1b 5f        SPI mode flag = transmit and receive
 
-    ;Fill key data buffer (4 bytes: mem_fbd6 - mem_fbd9) with 0xFF
-    movw ax,#mem_fbd6       ;573d  10 d6 fb     AX = pointer to mem_fbd6 key data buffer (4 bytes)
+    ;Fill key data buffer (4 bytes at upd_keys) with 0xFF
+    movw ax,#upd_keys       ;573d  10 d6 fb     AX = pointer to upd_keys key data buffer (4 bytes)
     movw hl,ax              ;5740  d6
     mov a,#0x04             ;5741  a1 04        A = 4 bytes to fill
     mov b,a                 ;5743  73
@@ -16069,7 +16069,7 @@ lab_5749:
     mov [hl+b],a            ;5749  bb           Write 0xFF to the key data buffer
     dbnz b,lab_5749         ;574a  8b fd        Continue until all 4 bytes have been filled
 
-    ;Key data buffer (4 bytes: mem_fbd6 - mem_fbd9) is now filled with 0xFF
+    ;Key data buffer (4 bytes at upd_keys) is now filled with 0xFF
     ;This will be transmitted to the uPD16432B during key data read
 
 lab_574c:
@@ -16081,14 +16081,14 @@ lab_574c:
     clr1 mk0h.4             ;5755  71 4b e5     Clear CSIMK30 (enables INTCSI30)
     clr1 pr0h.4             ;5758  71 4b e9     Clear CSIPR30 (makes INTCSI30 high priority)
 
-    movw ax,#mem_fbd6       ;575b  10 d6 fb
+    movw ax,#upd_keys       ;575b  10 d6 fb
     push ax                 ;575e  b1           Push: pointer to buffer to transfer (key data)
     mov a,#0x04             ;575f  a1 04
     push ax                 ;5761  b1           Push: number of bytes to transfer (4)
 
     sel rb2                 ;5762  61 f0        Select register bank used by intcsi30_08a9
     pop bc                  ;5764  b2           Pop: B  = number of bytes to transfer (4)
-    pop hl                  ;5765  b6           Pop: HL = pointer to buffer to transfer (mem_fbd6)
+    pop hl                  ;5765  b6           Pop: HL = pointer to buffer to transfer (upd_keys)
 
     clr1 mem_fe5f.0         ;5766  0b 5f        SPI packet complete flag = not complete
     mov c,#0x01             ;5768  a2 01        C = number of bytes sent
@@ -16124,19 +16124,19 @@ lab_5778:
 
 lab_5792:
     ;SPI transfer of key data is complete
-    ;Key data buffer (4 bytes: mem_fbd6 - mem_fbd9) now contains key data from uPD16432B
+    ;Key data buffer (4 bytes at upd_keys) now contains key data from uPD16432B
 
     mov b,#0x04             ;5792  a3 04
 lab_5794:
     movw hl,#key_matrix_end_2 ;5794  16 a7 b3
     mov a,[hl+b]            ;5797  ab
-    movw hl,#mem_fbd6-1     ;5798  16 d5 fb
+    movw hl,#upd_keys-1     ;5798  16 d5 fb
     and a,[hl+b]            ;579b  31 5b
     mov [hl+b],a            ;579d  bb
     dbnz b,lab_5794         ;579e  8b f4
 
-    ;Copy 4 bytes key data from uPD16432B (mem_fbd6) to mem_fed5
-    movw hl,#mem_fbd6       ;57a0  16 d6 fb     HL = source address
+    ;Copy 4 bytes key data from uPD16432B (upd_keys) to mem_fed5
+    movw hl,#upd_keys       ;57a0  16 d6 fb     HL = source address
     movw de,#mem_fed5       ;57a3  14 d5 fe     HL = destination address
     mov a,#0x04             ;57a6  a1 04        A = 4 bytes to copy
     callf !sub_0c9e         ;57a8  4c 9e        Copy A bytes from [HL] to [DE]
