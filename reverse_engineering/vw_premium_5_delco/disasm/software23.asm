@@ -16126,14 +16126,15 @@ lab_5792:
     ;SPI transfer of key data is complete
     ;Key data buffer (4 bytes at upd_keys) now contains key data from uPD16432B
 
-    mov b,#0x04             ;5792  a3 04
+    ;Mask 4 bytes key data from uPD16432B (upd_keys) to remove bits not used by the faceplate
+    mov b,#0x04             ;5792  a3 04        B = 4 bytes to mask
 lab_5794:
-    movw hl,#key_matrix_end_2 ;5794  16 a7 b3
-    mov a,[hl+b]            ;5797  ab
-    movw hl,#upd_keys-1     ;5798  16 d5 fb
-    and a,[hl+b]            ;579b  31 5b
-    mov [hl+b],a            ;579d  bb
-    dbnz b,lab_5794         ;579e  8b f4
+    movw hl,#key_mask-1     ;5794  16 a7 b3     HL+B will point into key mask bytes
+    mov a,[hl+b]            ;5797  ab           A = key mask
+    movw hl,#upd_keys-1     ;5798  16 d5 fb     HL+B will point into key data buffer
+    and a,[hl+b]            ;579b  31 5b        A = mask byte AND key data byte
+    mov [hl+b],a            ;579d  bb           Replace key data value with masked value
+    dbnz b,lab_5794         ;579e  8b f4        Keep going until all 4 bytes are masked
 
     ;Copy 4 bytes key data from uPD16432B (upd_keys) to mem_fed5
     movw hl,#upd_keys       ;57a0  16 d6 fb     HL = source address
@@ -16173,9 +16174,9 @@ lab_57ca:
 ;Look up the key code in the key matrix table
 
 lab_57d2:
-    mov c,#0x18             ;57d2  a2 18        C = 24 entries in scan codes table
-    movw de,#key_matrix_end_1 ;57d4  14 a4 b3     DE = pointer last 4-byte scan code group in
-                            ;                           uPD16432B scan codes tables
+    mov c,#0x18                ;57d2  a2 18        C = 24 entries in scan codes table
+    movw de,#key_matrix_0x18+1 ;57d4  14 a4 b3     DE = pointer last 4-byte scan code group in
+                               ;                           uPD16432B scan codes tables
 
 lab_57d7:
     movw hl,#mem_fbd1       ;57d7  16 d1 fb
@@ -30832,6 +30833,7 @@ key_matrix:
 ;On each line, the first byte is an arbitrary number.  The four bytes
 ;are uPD16432B key scan codes (only 1 bit is set in all 4 bytes).
 ;
+;   <key code>    <uPD16432B key data bytes>
     .byte 0x01,   0x00, 0x00, 0x04, 0x00    ;PRESET_1
     .byte 0x02,   0x00, 0x00, 0x02, 0x00    ;PRESET_2
     .byte 0x03,   0x00, 0x00, 0x01, 0x00    ;PRESET_3
@@ -30855,12 +30857,13 @@ key_matrix:
     .byte 0x15,   0x00, 0x08, 0x00, 0x00    ;MODE_TAPE
     .byte 0x16,   0x00, 0x00, 0x00, 0x80    ;MODE_AM
     .byte 0x17,   0x00, 0x00, 0x80, 0x00    ;MODE_FM
-    .byte 0x18,   0x00, 0x00, 0x10, 0x00    ; ???      <- 0xb3a4 is second byte on this line
-                                            ;          <- 0xb3a7 is the last byte on the same line
-    .byte 0x00,   0xFF, 0xFF, 0xFF          ;End of table marker
+key_matrix_0x18:
+    .byte 0x18,   0x00, 0x00, 0x10, 0x00    ; ???
 
-key_matrix_end_1 = . - 8  ;0xb3a4
-key_matrix_end_2 = . - 5  ;0xb3a7
+key_mask:
+;Mask bytes that are AND'ed with the key data buffer (upd_keys) to
+;remove unused key bits.  Byte 0 is not used by the faceplate.
+    .byte 0x00, 0xFF, 0xFF, 0xFF
 
 mem_b3ac:
 ;table used with sub_0b0d
