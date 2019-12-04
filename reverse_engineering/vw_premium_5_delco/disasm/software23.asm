@@ -331,7 +331,7 @@ mem_fbcd = 0xfbcd
 mem_fbce = 0xfbce
 mem_fbcf = 0xfbcf
 mem_fbd0 = 0xfbd0
-mem_fbd1 = 0xfbd1           ;uPD16432B key scan data (4 bytes)
+upd_keys_1 = 0xfbd1         ;uPD16432B key scan data (4 bytes)
 mem_fbd5 = 0xfbd5
 upd_keys = 0xfbd6           ;uPD16432B key scan data received from uPD16432B (4 bytes)
 mem_fbda = 0xfbda
@@ -4075,7 +4075,7 @@ lab_0f1b:
     clr1 mk0h.1             ;0fab  71 1b e5     Clear SERMK0 (enables INTSER0)
     set1 pr0h.1             ;0fae  71 1a e9     Set SERPR0 (makes INTSER0 low priority)
     clr1 mk0h.2             ;0fb1  71 2b e5     Clear SRMK0 (enables INTSR0)
-    set1 pr0h.2             ;0fb4  71 2a        Set SRPR0 (makes INTSR0 low priority)
+    set1 pr0h.2             ;0fb4  71 2a e9     Set SRPR0 (makes INTSR0 low priority)
     clr1 mk0h.3             ;0fb7  71 3b e5     Clear STMK0 (enables INTST0)
     clr1 pr0h.3             ;0fba  71 3b e9     Clear STPR0 (makes INTST0 high priority)
     clr1 mem_fe7a.3         ;0fbd  3b 7a
@@ -16142,53 +16142,59 @@ lab_5794:
     mov a,#0x04             ;57a6  a1 04        A = 4 bytes to copy
     callf !sub_0c9e         ;57a8  4c 9e        Copy A bytes from [HL] to [DE]
 
-    ;Compare 4 byte key data buffer mem_fed5 with mem_fbd1
+    ;Compare 4 byte key data buffer mem_fed5 with upd_keys_1
     movw hl,#mem_fed5       ;57aa  16 d5 fe     HL = source address
-    movw de,#mem_fbd1       ;57ad  14 d1 fb     DE = destination address
+    movw de,#upd_keys_1     ;57ad  14 d1 fb     DE = destination address
     mov a,#0x04             ;57b0  a1 04        A = 4 bytes to compare
     callf !sub_0cca         ;57b2  4c ca        Compare A bytes between [HL] to [DE]
     bz lab_57c3             ;57b4  ad 0d        Branch if buffers are equal
 
-    ;Key data buffers mem_fed5 and mem_fbd1 are not equal
+    ;Key data buffers mem_fed5 and upd_keys_1 are not equal
 
-    ;Copy buffer mem_fed5 into mem_fbd1
+    ;Copy buffer mem_fed5 into upd_keys_1
     movw hl,#mem_fed5       ;57b6  16 d5 fe     HL = source address
-    movw de,#mem_fbd1       ;57b9  14 d1 fb     DE = destination address
+    movw de,#upd_keys_1     ;57b9  14 d1 fb     DE = destination address
     mov a,#0x04             ;57bc  a1 04        A = 4 bytes to copy
     callf !sub_0c9e         ;57be  4c 9e        Copy A bytes from [HL] to [DE]
     br !lab_58d5            ;57c0  9b d5 58     Branch to clr1 mem_fe66.5 and return
 
 lab_57c3:
-;Key data buffers mem_fed5 and mem_fbd1 are equal
-    mov c,#0x04             ;57c3  a2 04
-    mov a,#0x00             ;57c5  a1 00
-    movw hl,#mem_fbd1-1     ;57c7  16 d0 fb
+;Key data buffers mem_fed5 and upd_keys_1 are equal
 
+    ;Check if any bit is set in the upd_keys_1 key data buffer
+    mov c,#0x04             ;57c3  a2 04        C = 4 bytes to compare
+    mov a,#0x00             ;57c5  a1 00        A = compare with zero
+    movw hl,#upd_keys_1-1   ;57c7  16 d0 fb     HL+C will point to a key data byte in upd_keys_1
 lab_57ca:
-    cmp a,[hl+c]            ;57ca  31 4a
+    cmp a,[hl+c]            ;57ca  31 4a        Compare key data byte at HL+B with zero
     bnz lab_57d2            ;57cc  bd 04        Branch if not zero (a key scan bit is set)
     dbnz c,lab_57ca         ;57ce  8a fa        Not set, continue to next bit
     br lab_57f2             ;57d0  fa 20        No uPD16432B key scan bit is set (no key pressed)
 
+lab_57d2:
 ;A uPD16432B key scan bit is set (a key was pressed)
 ;Look up the key code in the key matrix table
 
-lab_57d2:
-    mov c,#0x18                ;57d2  a2 18        C = 24 entries in scan codes table
-    movw de,#key_matrix_0x18+1 ;57d4  14 a4 b3     DE = pointer last 4-byte scan code group in
-                               ;                           uPD16432B scan codes tables
+    mov c,#0x18                ;57d2  a2 18     C = 24 entries in scan codes table
 
+    movw de,#key_matrix_0x18+1 ;57d4  14 a4 b3  DE = pointer to the first byte scan code data
+                               ;                     in the last key_matrix table entry
 lab_57d7:
-    movw hl,#mem_fbd1       ;57d7  16 d1 fb
-    mov a,#0x04             ;57da  a1 04
-    push de                 ;57dc  b5
+    movw hl,#upd_keys_1     ;57d7  16 d1 fb     HL = pointer to upd_keys_1 key data buffer
+    mov a,#0x04             ;57da  a1 04        A = 4 bytes to compare
+    push de                 ;57dc  b5           Save pointer to key_matrix table
     callf !sub_0cca         ;57dd  4c ca        Compare A bytes between [HL] to [DE]
-    pop ax                  ;57df  b0
-    bz lab_581a             ;57e0  ad 38        Branch if buffers are equal
+    pop ax                  ;57df  b0           AX = Recall pointer to key_matrix table
+    bz lab_581a             ;57e0  ad 38        Branch if key_matrix table bytes matched
 
-    subw ax,#0x0005         ;57e2  da 05 00     5 = key_matrix table spacing
-    movw de,ax              ;57e5  d4
-    dbnz c,lab_57d7         ;57e6  8a ef
+    subw ax,#0x0005         ;57e2  da 05 00     Move key_matrix table pointer back so it points
+                            ;                   to the first byte of scan code in the previous
+                            ;                   key_matrix table entry
+    movw de,ax              ;57e5  d4           DE = pointer to key_matrix for next comparison
+    dbnz c,lab_57d7         ;57e6  8a ef        Loop until entire key_matrix table is compared
+
+    ;No match was found in the key_matrix table
+
     mov a,!mem_fc27         ;57e8  8e 27 fc
     cmp a,#0x00             ;57eb  4d 00
     bnz lab_586a            ;57ed  bd 7b
@@ -16221,16 +16227,18 @@ lab_5818:
     br lab_5894             ;5818  fa 7a
 
 lab_581a:
-;Buffers are equal (uPD16432B key scan bytes match)
-    mov a,c                 ;581a  62
-    dec a                   ;581b  51
-    mov x,#0x05             ;581c  a0 05        5 = key matrix table spacing
-    mulu x                  ;581e  31 88
-    addw ax,#key_matrix     ;5820  ca 30 b3
-    movw hl,ax              ;5823  d6
-    mov a,[hl]              ;5824  87           A = key code from table?
-    or a,#0x80              ;5825  6d 80
-    mov b,a                 ;5827  73
+;A match in the key_matrix table was found for the key data bytes in upd_keys_1
+
+    mov a,c                 ;581a  62           A = index in key_matrix table where
+                            ;                       the match was found
+    dec a                   ;581b  51           Decrement to prepare for multiply
+    mov x,#0x05             ;581c  a0 05        X = 5 (key matrix table spacing)
+    mulu x                  ;581e  31 88        AX = A * X
+    addw ax,#key_matrix     ;5820  ca 30 b3     AX = AX + key_matrix
+    movw hl,ax              ;5823  d6           HL = address of key code byte in key_matrix table
+    mov a,[hl]              ;5824  87           A = key code from table
+    or a,#0x80              ;5825  6d 80        Turn on bit 7
+    mov b,a                 ;5827  73           B = (key code | 0x80)
 
     mov a,!mem_fc27         ;5828  8e 27 fc
     cmp a,#0x00             ;582b  4d 00
