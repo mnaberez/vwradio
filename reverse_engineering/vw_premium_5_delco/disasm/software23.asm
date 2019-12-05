@@ -19,6 +19,8 @@
     .area CODE1 (ABS)
     .org 0x0000
 
+;Expansion RAM: 0xF000 - 0xF7FF (2K)
+
 mem_f000 = 0xf000           ;memory address for KWP1281 read ram or read eeprom (2 bytes)
 mem_f002 = 0xf002           ;eeprom address for KWP1281 write eeprom (2 bytes)
 mem_f004 = 0xf004
@@ -187,6 +189,9 @@ mem_f26b = 0xf26b
 mem_f26c = 0xf26c
 mem_f26d = 0xf26d
 mem_faff = 0xfaff
+
+;High Speed RAM: 0xFB00 - 0xFEFF (1K)
+
 mem_fb00 = 0xfb00
 mem_fb01 = 0xfb01
 mem_fb02 = 0xfb02
@@ -452,7 +457,7 @@ mem_fca2 = 0xfca2
 mem_fca3 = 0xfca3
 mem_fca4 = 0xfca4
 mem_fca5 = 0xfca5
-mem_fe1f = 0xfe1f
+stack_top = 0xfe1f          ;Stack starts at 0xFF1E and grows down (??? bytes)
 mem_fe20 = 0xfe20
 mem_fe21 = 0xfe21
 mem_fe22 = 0xfe22
@@ -542,6 +547,9 @@ mem_fe7f = 0xfe7f
 mem_fe80 = 0xfe80
 mem_fe81 = 0xfe81
 mem_fea1 = 0xfea1
+
+;High Speed RAM from 0xFECB to 0xFEFF is not cleared on reset:
+
 shadow_p0 = 0xfecb          ;Copy of P0 that will be changed and then written to P0
 shadow_p2 = 0xfecc          ;Copy of P2 that will be changed and then written to P2
 shadow_p3 = 0xfecd          ;Copy of P3 that will be changed and then written to P3
@@ -568,6 +576,9 @@ mem_fefb = 0xfefb
 mem_fefd = 0xfefd
 mem_fefe = 0xfefe
 mem_feff = 0xfeff
+
+;Peripheral Registers:
+
 p0 = 0xff00                 ;Port 0
 p2 = 0xff02                 ;Port 2
 p3 = 0xff03                 ;Port 3
@@ -3861,7 +3872,7 @@ rst_0d88:
     mov wdcs,#0x07          ;0d8a  13 42 07
     mov wdtm,#0x90          ;0d8d  13 f9 90
     mov pcc,#0x00           ;0d90  13 fb 00
-    movw sp,#mem_fe1f       ;0d93  ee 1c 1f fe
+    movw sp,#stack_top      ;0d93  ee 1c 1f fe  Initialize stack pointer (stack grows down)
     clr1 shadow_p3.4        ;0d97  4b cd
     clr1 pm3.4              ;0d99  71 4b 23
     mov a,shadow_p3         ;0d9c  f0 cd
@@ -3890,7 +3901,7 @@ rst_0d88:
 lab_0dcf:
     mov ixs,#0x08           ;0dcf  13 f4 08
     mov ims,#0xcf           ;0dd2  13 f0 cf
-    movw sp,#mem_fe1f       ;0dd5  ee 1c 1f fe
+    movw sp,#stack_top      ;0dd5  ee 1c 1f fe  Initialize stack pointer (stack grows down)
     mov a,#0x07             ;0dd9  a1 07
     mov wdcs,a              ;0ddb  f6 42
     mov a,#0x90             ;0ddd  a1 90
@@ -3905,51 +3916,66 @@ lab_0dcf:
     clr1 pr0l.3             ;0df3  71 3b e8
     clr1 egn.2              ;0df6  71 2b 49
     set1 egp.2              ;0df9  71 2a 48
+
+    ;Inspect RAM to see if we can warm start
+
     callf !sub_093c         ;0dfc  1c 3c
-    bnz lab_0e1b            ;0dfe  bd 1b
+    bnz cold_start          ;0dfe  bd 1b      Check failed
+
     mov a,#0x55             ;0e00  a1 55
     cmp a,!mem_f18e         ;0e02  48 8e f1
-    bnz lab_0e1b            ;0e05  bd 14
-    cmp a,!mem_fca5         ;0e07  48 a5 fc
-    bnz lab_0e1b            ;0e0a  bd 0f
-    mov a,#0xaa             ;0e0c  a1 aa
-    cmp a,!mem_fe1f         ;0e0e  48 1f fe
-    bnz lab_0e1b            ;0e11  bd 08
-    cmp a,!mem_fb91         ;0e13  48 91 fb
-    bnz lab_0e1b            ;0e16  bd 03
-    br !lab_0f13            ;0e18  9b 13 0f
+    bnz cold_start          ;0e05  bd 14      Check failed
 
-lab_0e1b:
+    cmp a,!mem_fca5         ;0e07  48 a5 fc
+    bnz cold_start          ;0e0a  bd 0f      Check failed
+
+    mov a,#0xaa             ;0e0c  a1 aa
+    cmp a,!stack_top        ;0e0e  48 1f fe
+    bnz cold_start          ;0e11  bd 08      Check failed
+
+    cmp a,!mem_fb91         ;0e13  48 91 fb
+    bnz cold_start          ;0e16  bd 03      Check failed
+
+    ;RAM is intact so we can warm start
+
+    br !warm_start          ;0e18  9b 13 0f
+
+;Cold start the system
+;Wipes all RAM and starts fresh.
+cold_start:
     di                      ;0e1b  7b 1e
     mov a,#0x07             ;0e1d  a1 07
     mov wdcs,a              ;0e1f  f6 42
     mov a,#0x90             ;0e21  a1 90
     mov wdtm,a              ;0e23  f6 f9
 
-    ;Clear RAM: 0xfb00 - 0xfeca
+    ;Clear RAM: most of High Speed RAM
+    ;Almost 1K: 0xFB00 - 0xFECA
+    ;Includes the stack area, stops before peripheral register shadows
     movw hl,#mem_fb00       ;0e25  16 00 fb
     mov a,#0x00             ;0e28  a1 00
 lab_0e2a:
     mov [hl],a              ;0e2a  97
     incw hl                 ;0e2b  86
     xchw ax,hl              ;0e2c  e6
-    cmpw ax,#shadow_p0      ;0e2d  ea cb fe
+    cmpw ax,#shadow_p0      ;0e2d  ea cb fe     Stop at GPIO shadow locations
     xchw ax,hl              ;0e30  e6
     bc lab_0e2a             ;0e31  8d f7
 
-    mov wdtm,#0x90          ;0e33  13 f9 90
+    mov wdtm,#0x90          ;0e33  13 f9 90     Keep watchdog happy
 
-    ;Clear RAM: 0xf000 - 0xf7ff
+    ;Clear RAM: all of Expansion RAM
+    ;2K: 0xF000 - 0xF7FF
     movw hl,#mem_f000       ;0e36  16 00 f0
 lab_0e39:
     mov [hl],a              ;0e39  97
     incw hl                 ;0e3a  86
     xchw ax,hl              ;0e3b  e6
-    cmpw ax,#0xf800         ;0e3c  ea 00 f8
+    cmpw ax,#0xf800         ;0e3c  ea 00 f8     Stop at end of Expansion RAM
     xchw ax,hl              ;0e3f  e6
     bc lab_0e39             ;0e40  8d f7
 
-    mov wdtm,#0x90          ;0e42  13 f9 90
+    mov wdtm,#0x90          ;0e42  13 f9 90     Keep watchdog happy
 
     call !sub_0a17          ;0e45  9a 17 0a
 
@@ -3976,8 +4002,10 @@ lab_0e39:
     mov a,#0xdb             ;0e77  a1 db
     mov !mem_f077,a         ;0e79  9e 77 f0
 
-    ;Clear RAM: 0xf068 - 0xf079 (except 0xf077!)
-    ;These are all or mostly KWP1281 variables
+    ;Clear RAM: 0xF068 - 0xF079 (except 0xF077!)
+    ;These are all or mostly KWP1281 variables.
+    ;XXX Note that this is redundant because these addresses are all
+    ;    in expansion RAM which was already cleared above at lab_0e39.
     mov a,#0x00             ;0e7c  a1 00
     mov !mem_f068,a         ;0e7e  9e 68 f0
     mov !mem_f069,a         ;0e81  9e 69 f0
@@ -4043,7 +4071,11 @@ lab_0e39:
     movw hl,#mem_fca2       ;0f0e  16 a2 fc     HL = pointer to buffer to fill
     callf !sub_0cdc         ;0f11  4c dc        Fill B bytes in buffer [HL] with A
 
-lab_0f13:
+    ;Cold start finished; fall throgh into warm start
+
+;Warm start the system
+;Reset occurred but RAM is intact (or cold start was just done).
+warm_start:
     mov mem_fe7c,#0x00      ;0f13  11 7c 00
     mov b,#0x0b             ;0f16  a3 0b
     movw hl,#mem_fb85       ;0f18  16 85 fb
@@ -4260,11 +4292,11 @@ lab_1036:
     mov !mem_f18e,a         ;110a  9e 8e f1
     mov !mem_fca5,a         ;110d  9e a5 fc
     mov a,#0xaa             ;1110  a1 aa
-    mov !mem_fe1f,a         ;1112  9e 1f fe
+    mov !stack_top,a        ;1112  9e 1f fe
     mov !mem_fb91,a         ;1115  9e 91 fb
 
 lab_1118:
-    mov wdtm,#0x90          ;1118  13 f9 90
+    mov wdtm,#0x90          ;1118  13 f9 90     Keep watchdog happy
     mov a,!mem_fb4e         ;111b  8e 4e fb
     cmp a,#0x00             ;111e  4d 00
     bnz lab_1123            ;1120  bd 01
@@ -4319,7 +4351,7 @@ lab_117a:
     halt                    ;117a  71 10
 
 lab_117c:
-    mov wdtm,#0x90          ;117c  13 f9 90
+    mov wdtm,#0x90          ;117c  13 f9 90     Keep watchdog happy
     bt p0.2,lab_117a        ;117f  ac 00 f8
     set1 mk0l.3             ;1182  71 3a e4
     clr1 if0l.3             ;1185  71 3b e0
@@ -4820,7 +4852,7 @@ lab_14c2:
 
 lab_14c9:
     mov a,#0xaa             ;14c9  a1 aa
-    cmp a,!mem_fe1f         ;14cb  48 1f fe
+    cmp a,!stack_top        ;14cb  48 1f fe
     bnz lab_14d5            ;14ce  bd 05
     cmp a,!mem_fb91         ;14d0  48 91 fb
     bz lab_14d6             ;14d3  ad 01
