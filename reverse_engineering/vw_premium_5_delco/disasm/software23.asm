@@ -29,6 +29,7 @@ mem_f016 = 0xf016
 mem_f01a = 0xf01a
 mem_f020 = 0xf020
 mem_f021 = 0xf021
+mem_f022 = 0xf022
 mem_f032 = 0xf032
 mem_f033 = 0xf033
 mem_f034 = 0xf034
@@ -63,6 +64,7 @@ mem_f078 = 0xf078
 mem_f079 = 0xf079
 kwp_tx_buf = 0xf07a         ;KWP1281 transmit buffer; 16 bytes?
 kwp_rx_buf = 0xf08a         ;KWP1281 receive buffer; 16 bytes?
+mem_f18a = 0xf18a
 mem_f18b = 0xf18b
 mem_f18c = 0xf18c
 mem_f18d = 0xf18d
@@ -92,7 +94,11 @@ mem_f1af = 0xf1af
 mem_f1b1 = 0xf1b1
 mem_f1b2 = 0xf1b2
 mem_f1b3 = 0xf1b3
+mem_f1b6 = 0xf1b6
 mem_f1b9 = 0xf1b9
+mem_f1be = 0xf1be
+mem_f1c0 = 0xf1c0
+mem_f1c2 = 0xf1c2
 mem_f1c5 = 0xf1c5
 mem_f1c6 = 0xf1c6
 mem_f1c7 = 0xf1c7
@@ -176,6 +182,7 @@ mem_f257 = 0xf257
 mem_f258 = 0xf258
 mem_f259 = 0xf259
 mem_f268 = 0xf268
+mem_f269 = 0xf269
 mem_f26b = 0xf26b
 mem_f26c = 0xf26c
 mem_f26d = 0xf26d
@@ -359,6 +366,11 @@ mem_fc16 = 0xfc16
 mem_fc17 = 0xfc17
 mem_fc1a = 0xfc1a
 mem_fc1c = 0xfc1c
+mem_fc1e = 0xfc1e
+mem_fc1f = 0xfc1f
+mem_fc20 = 0xfc20
+mem_fc21 = 0xfc21
+mem_fc22 = 0xfc22
 mem_fc23 = 0xfc23
 mem_fc24 = 0xfc24
 mem_fc25 = 0xfc25
@@ -369,9 +381,11 @@ mem_fc29 = 0xfc29
 mem_fc2a = 0xfc2a
 mem_fc2b = 0xfc2b
 mem_fc2c = 0xfc2c
+mem_fc2d = 0xfc2d
 mem_fc2f = 0xfc2f
 mem_fc30 = 0xfc30
 mem_fc34 = 0xfc34
+mem_fc3c = 0xfc3c
 mem_fc3d = 0xfc3d
 mem_fc3e = 0xfc3e
 mem_fc3f = 0xfc3f
@@ -379,7 +393,11 @@ mem_fc40 = 0xfc40
 mem_fc41 = 0xfc41
 mem_fc42 = 0xfc42
 mem_fc43 = 0xfc43
+mem_fc45 = 0xfc45
 mem_fc48 = 0xfc48
+mem_fc4e = 0xfc4e
+mem_fc4f = 0xfc4f
+mem_fc67 = 0xfc67
 mem_fc6b = 0xfc6b
 mem_fc6c = 0xfc6c
 mem_fc6d = 0xfc6d
@@ -5055,7 +5073,7 @@ lab_16a7:
 lab_16b1:
     bt mem_fe5c.3,lab_16f5  ;16b1  bc 5c 41
     mov mem_fe21,#0x00      ;16b4  11 21 00
-    call !sub_080b          ;16b7  9a 0b 08
+    call !sub_080b          ;16b7  9a 0b 08     Return mem_f252 in A, also copy it into mem_fb57
     mov b,a                 ;16ba  73
     movw hl,#mem_fb5b       ;16bb  16 5b fb
     mov a,mem_fe43          ;16be  f0 43
@@ -5765,8 +5783,8 @@ lab_1b09:
     mov a,!mem_fc9c         ;1b0e  8e 9c fc
     mov b,#0x01             ;1b11  a3 01
     call !sub_408f          ;1b13  9a 8f 40
-    movw hl,#0xf24f         ;1b16  16 4f f2
-    call !sub_080b          ;1b19  9a 0b 08
+    movw hl,#mem_f24f       ;1b16  16 4f f2
+    call !sub_080b          ;1b19  9a 0b 08     Return mem_f252 in A, also copy it into mem_fb57
     mov b,a                 ;1b1c  73
     mov a,!mem_fc9c         ;1b1d  8e 9c fc
     call !sub_408f          ;1b20  9a 8f 40
@@ -5821,7 +5839,7 @@ lab_1b5e:
     mov mem_fed4,#0x01      ;1b67  11 d4 01
 
 lab_1b6a:
-    call !sub_080b          ;1b6a  9a 0b 08
+    call !sub_080b          ;1b6a  9a 0b 08     Return mem_f252 in A, also copy it into mem_fb57
     inc a                   ;1b6d  41
     movw hl,#mem_f252       ;1b6e  16 52 f2
     mov !mem_fb57,a         ;1b71  9e 57 fb
@@ -5844,7 +5862,7 @@ lab_1b92:
     mov a,mem_fed4          ;1b92  f0 d4
     mov !mem_fb5a,a         ;1b94  9e 5a fb
     movw hl,#mem_fb5b       ;1b97  16 5b fb
-    call !sub_080b          ;1b9a  9a 0b 08
+    call !sub_080b          ;1b9a  9a 0b 08     Return mem_f252 in A, also copy it into mem_fb57
     mov c,a                 ;1b9d  72
     mov a,!mem_fb5a         ;1b9e  8e 5a fb
     mov [hl+c],a            ;1ba1  ba
@@ -5860,7 +5878,7 @@ lab_1bac:
     call !sub_0800          ;1baf  9a 00 08
     cmp a,#0x01             ;1bb2  4d 01
     bnz lab_1bac            ;1bb4  bd f6
-    call !sub_080b          ;1bb6  9a 0b 08
+    call !sub_080b          ;1bb6  9a 0b 08     Return mem_f252 in A, also copy it into mem_fb57
     br lab_1bf4             ;1bb9  fa 39
 
 sub_1bbb:
@@ -5874,14 +5892,14 @@ sub_1bc2:
     br lab_1bf4             ;1bc6  fa 2c
 
 sub_1bc8:
-    call !sub_080b          ;1bc8  9a 0b 08
+    call !sub_080b          ;1bc8  9a 0b 08     Return mem_f252 in A, also copy it into mem_fb57
     inc a                   ;1bcb  41
     movw hl,#mem_f252       ;1bcc  16 52 f2
     mov !mem_fb57,a         ;1bcf  9e 57 fb
     call !sub_4092          ;1bd2  9a 92 40
     call !sub_1c32          ;1bd5  9a 32 1c
     bnc lab_1bee            ;1bd8  9d 14
-    call !sub_080b          ;1bda  9a 0b 08
+    call !sub_080b          ;1bda  9a 0b 08     Return mem_f252 in A, also copy it into mem_fb57
     cmp a,#0x05             ;1bdd  4d 05
     bc sub_1bc8             ;1bdf  8d e7
     mov a,#0xff             ;1be1  a1 ff
@@ -6132,7 +6150,7 @@ sub_1d4f:
 
 sub_1d59:
     clr1 mem_fe5c.2         ;1d59  2b 5c
-    call !sub_080b          ;1d5b  9a 0b 08
+    call !sub_080b          ;1d5b  9a 0b 08     Return mem_f252 in A, also copy it into mem_fb57
     mov c,a                 ;1d5e  72
     movw hl,#mem_fb5b       ;1d5f  16 5b fb
     mov a,#0x00             ;1d62  a1 00
@@ -7277,7 +7295,7 @@ lab_24d9:
 
 lab_24e5:
     mov b,#0x02             ;24e5  a3 02
-    movw hl,#0xf1b6         ;24e7  16 b6 f1
+    movw hl,#mem_f1b6       ;24e7  16 b6 f1
     call !sub_24a8          ;24ea  9a a8 24
     bnc lab_24f0            ;24ed  9d 01
 
@@ -7992,7 +8010,7 @@ lab_291b:
 lab_291e:
     cmp a,#0xe1             ;291e  4d e1
     bnz lab_292c            ;2920  bd 0a
-    movw hl,#0xfc1e         ;2922  16 1e fc
+    movw hl,#mem_fc1e       ;2922  16 1e fc
     mov a,[hl]              ;2925  87
     call !sub_26b6          ;2926  9a b6 26
     br !lab_29af            ;2929  9b af 29
@@ -8000,7 +8018,7 @@ lab_291e:
 lab_292c:
     cmp a,#0xe2             ;292c  4d e2
     bnz lab_2939            ;292e  bd 09
-    movw hl,#0xfc1f         ;2930  16 1f fc
+    movw hl,#mem_fc1f       ;2930  16 1f fc
     mov a,[hl]              ;2933  87
     call !sub_26b6          ;2934  9a b6 26
     br lab_29af             ;2937  fa 76
@@ -8019,7 +8037,7 @@ lab_2947:
 lab_2949:
     cmp a,#0xe4             ;2949  4d e4
     bnz lab_2956            ;294b  bd 09
-    movw hl,#0xfc22         ;294d  16 22 fc
+    movw hl,#mem_fc22       ;294d  16 22 fc
     mov a,[hl]              ;2950  87
     call !sub_26b6          ;2951  9a b6 26
     br lab_29af             ;2954  fa 59
@@ -8027,7 +8045,7 @@ lab_2949:
 lab_2956:
     cmp a,#0xe5             ;2956  4d e5
     bnz lab_2963            ;2958  bd 09
-    movw hl,#0xfc21         ;295a  16 21 fc
+    movw hl,#mem_fc21       ;295a  16 21 fc
     mov a,[hl]              ;295d  87
     call !sub_26c9          ;295e  9a c9 26
     br lab_29af             ;2961  fa 4c
@@ -8035,7 +8053,7 @@ lab_2956:
 lab_2963:
     cmp a,#0xe6             ;2963  4d e6
     bnz lab_2970            ;2965  bd 09
-    movw hl,#0xfc20         ;2967  16 20 fc
+    movw hl,#mem_fc20         ;2967  16 20 fc
     mov a,[hl]              ;296a  87
     call !sub_26c9          ;296b  9a c9 26
     br lab_29af             ;296e  fa 3f
@@ -11042,7 +11060,7 @@ lab_3bb2:
 lab_3bb3:
     call !sub_3bf7          ;3bb3  9a f7 3b
     bnz sub_3bea            ;3bb6  bd 32
-    movw de,#0xb05f         ;3bb8  14 5f b0
+    movw de,#mem_b05f       ;3bb8  14 5f b0
     mov a,#0x20             ;3bbb  a1 20
     bt mem_fe2c.5,lab_3bcc  ;3bbd  dc 2c 0c
     mov a,#0x08             ;3bc0  a1 08
@@ -11081,7 +11099,7 @@ sub_3bea:
     call !sub_3dbd          ;3bf4  9a bd 3d
 
 sub_3bf7:
-    movw de,#0xf18a         ;3bf7  14 8a f1
+    movw de,#mem_f18a       ;3bf7  14 8a f1
     movw hl,#mem_fe2c       ;3bfa  16 2c fe
     mov b,#0x01             ;3bfd  a3 01
     br !lab_0bf4            ;3bff  9b f4 0b
@@ -12107,12 +12125,12 @@ lab_4243:
     mov a,!mem_f190         ;424d  8e 90 f1
     cmp a,#0x04             ;4250  4d 04
     bnc sub_4234            ;4252  9d e0
-    movw de,#0xb0ff         ;4254  14 ff b0
+    movw de,#mem_b0ff       ;4254  14 ff b0
     bt mem_fe64.1,lab_4266  ;4257  9c 64 0c
     mov a,mem_fe30          ;425a  f0 30
     cmp a,#0x00             ;425c  4d 00
     bnz lab_4266            ;425e  bd 06
-    movw de,#0xb150         ;4260  14 50 b1
+    movw de,#mem_b150       ;4260  14 50 b1
     mov a,!mem_f18f         ;4263  8e 8f f1
 
 lab_4266:
@@ -12486,7 +12504,7 @@ sub_4495:
     movw hl,#mem_fe30       ;4498  16 30 fe
     mov b,#0x01             ;449b  a3 01
     callf !sub_0bef         ;449d  3c ef
-    movw hl,#0xf18f         ;449f  16 8f f1
+    movw hl,#mem_f18f       ;449f  16 8f f1
     mov b,#0x03             ;44a2  a3 03
     br !sub_0bf6            ;44a4  9b f6 0b
 
@@ -13027,7 +13045,7 @@ sub_47d2:
     mov a,!kwp_rx_buf+7     ;47e7  8e 91 f0     KWP1281 rx buffer byte 7
     and a,#0x03             ;47ea  5d 03
     mov !mem_fb9f,a         ;47ec  9e 9f fb
-    movw hl,#0xf092         ;47ef  16 92 f0
+    movw hl,#kwp_rx_buf+8   ;47ef  16 92 f0     KWP1281 rx buffer byte 8
     call !sub_4862          ;47f2  9a 62 48     EEPROM write related(?) gated by mem_fe65
 
 lab_47f5:
@@ -13904,7 +13922,7 @@ lab_4c26:
 
     movw ax,hl              ;4c35  c6           AX = pointer to start of this character's data
     push ax                 ;4c36  b1           Push: pointer to buffer to transfer
-    mov a,#0x07             ;4c37  a1 07        A = 7 bytes per character
+    mov a,#0x07             ;4c37  a1 07        A = 7 bytes of character data to send
     push ax                 ;4c39  b1           Push: number of bytes to transfer
 
     sel rb2                 ;4c3a  61 f0        Select register bank used by intcsi30_08a9
@@ -13926,19 +13944,19 @@ lab_4c4d:
     bt mem_fe5f.0,lab_4c52  ;4c4d  8c 5f 02     Branch if SPI packet complete flag = complete
     dbnz b,lab_4c4d         ;4c50  8b fb        Keep waiting until B reaches zero
 
-    ;SPI transfer complete or B reached zero
+    ;SPI transfer is complete or B reached zero
 
 lab_4c52:
     mov b,#0xff             ;4c52  a3 ff
 lab_4c54:
     bt mem_fe5f.0,lab_4c59  ;4c54  8c 5f 02     Branch if SPI packet complete flag = complete
-    dbnz b,lab_4c54         ;4c57  8b fb
+    dbnz b,lab_4c54         ;4c57  8b fb        Keep waiting until B reaches zero
 
-    ;SPI transfer complete or B reached zero again
+    ;SPI transfer is complete or B reached zero again
     ;The 7 bytes of data for this custom character have been sent
 
 lab_4c59:
-    pop bc                  ;4c59  b2           B = number of cutom characters left to send
+    pop bc                  ;4c59  b2           B = number of custom characters left to send
     dbnz b,lab_4bfa         ;4c5a  8b 9e        Decrement and loop until all are sent
 
     ;All custom characters have been sent
@@ -17159,7 +17177,7 @@ lab_5da3:
     bz lab_5db4             ;5da7  ad 0b
     inc a                   ;5da9  41
     push hl                 ;5daa  b7
-    movw hl,#0xfef8         ;5dab  16 f8 fe
+    movw hl,#mem_fef8       ;5dab  16 f8 fe
     call !sub_5e2a          ;5dae  9a 2a 5e
     pop hl                  ;5db1  b6
     bc lab_5e25             ;5db2  8d 71
@@ -17356,7 +17374,7 @@ lab_5ef2:
     bz lab_5f05             ;5ef6  ad 0d
     inc a                   ;5ef8  41
     push hl                 ;5ef9  b7
-    movw hl,#0xfef8         ;5efa  16 f8 fe
+    movw hl,#mem_fef8       ;5efa  16 f8 fe
     call !sub_5f51          ;5efd  9a 51 5f
     pop hl                  ;5f00  b6
     bnc lab_5f05            ;5f01  9d 02
@@ -17722,13 +17740,13 @@ lab_611f:
 
 lab_612c:
     mov b,a                 ;612c  73
-    movw hl,#0xf1be         ;612d  16 be f1
+    movw hl,#mem_f1be         ;612d  16 be f1
     mov a,[hl+b]            ;6130  ab
     mov mem_fed8,a          ;6131  f2 d8
-    movw hl,#0xf1c0         ;6133  16 c0 f1
+    movw hl,#mem_f1c0         ;6133  16 c0 f1
     mov a,[hl+b]            ;6136  ab
     mov mem_fed9,a          ;6137  f2 d9
-    movw hl,#0xf1c2         ;6139  16 c2 f1
+    movw hl,#mem_f1c2         ;6139  16 c2 f1
     mov a,[hl+b]            ;613c  ab
     mov mem_feda,a          ;613d  f2 da
     mov a,#0xc7             ;613f  a1 c7
@@ -18717,14 +18735,14 @@ lab_6826:
     ret                     ;6826  af
 
 lab_6827:
-    movw hl,#0xf19e         ;6827  16 9e f1
+    movw hl,#upd_disp+4     ;6827  16 9e f1
     mov b,#0x0b             ;682a  a3 0b
     mov a,#0x20             ;682c  a1 20
-    call !sub_0cdc          ;682e  9a dc 0c
+    call !sub_0cdc          ;682e  9a dc 0c     Fill B bytes in buffer [HL] with A
     ret                     ;6831  af
 
 lab_6832:
-    movw de,#0xb56b         ;6832  14 6b b5
+    movw de,#mem_b56b       ;6832  14 6b b5
     mov a,mem_fe30          ;6835  f0 30
     mov b,a                 ;6837  73
     movw hl,#mem_af75       ;6838  16 75 af
@@ -18742,7 +18760,7 @@ lab_6832:
     br ax                   ;6851  31 98
 
 sub_6853:
-    call !clear_upd_all     ;6853  9a c9 6f
+    call !clear_upd_all     ;6853  9a c9 6f     Clear upd_disp and upd_pict buffers
 
 lab_6856:
     call !sub_6f78          ;6856  9a 78 6f
@@ -20040,6 +20058,7 @@ lab_6fc8:
 
 
 clear_upd_all:
+;Clear upd_disp and upd_pict buffers
     call !clear_upd_disp    ;6fc9  9a d0 6f
     call !clear_upd_pict    ;6fcc  9a e1 6f
     ret                     ;6fcf  af
@@ -21684,7 +21703,7 @@ lab_79ba:
     bt mem_fe65.5,lab_7a0d  ;79bc  dc 65 4e
     bt mem_fe6b.4,lab_7a0d  ;79bf  cc 6b 4b
     bt mem_fe41.5,lab_79e9  ;79c2  dc 41 24
-    movw hl,#0xfc17         ;79c5  16 17 fc
+    movw hl,#mem_fc17       ;79c5  16 17 fc
     mov a,[hl+0x00]         ;79c8  ae 00
     mov mem_feda,a          ;79ca  f2 da
     and a,#0x0f             ;79cc  5d 0f
@@ -21707,7 +21726,7 @@ lab_79da:
     br !lab_7a70            ;79e6  9b 70 7a
 
 lab_79e9:
-    movw hl,#0xfc17         ;79e9  16 17 fc
+    movw hl,#mem_fc17       ;79e9  16 17 fc
     mov a,[hl+0x01]         ;79ec  ae 01
     mov mem_feda,a          ;79ee  f2 da
     and a,#0xfc             ;79f0  5d fc
@@ -22371,7 +22390,7 @@ lab_7e4e:
     br lab_7e78             ;7e6e  fa 08
 
 lab_7e70:
-    movw hl,#0xfc2d         ;7e70  16 2d fc
+    movw hl,#mem_fc2d       ;7e70  16 2d fc
     mov a,[hl+b]            ;7e73  ab
     cmp a,#0x00             ;7e74  4d 00
     bz lab_7eb6             ;7e76  ad 3e
@@ -22487,14 +22506,14 @@ lab_7f2f:
 
 sub_7f33:
     movw hl,#mem_fc2b       ;7f33  16 2b fc
-    movw de,#0xfc3c         ;7f36  14 3c fc
+    movw de,#mem_fc3c       ;7f36  14 3c fc
     mov b,#0x11             ;7f39  a3 11
     br !lab_0bf4            ;7f3b  9b f4 0b
 
 sub_7f3e:
     mov a,!mem_fc2c         ;7f3e  8e 2c fc
     mov b,a                 ;7f41  73
-    movw hl,#0xfc2d         ;7f42  16 2d fc
+    movw hl,#mem_fc2d       ;7f42  16 2d fc
     mov a,[hl+b]            ;7f45  ab
     mov mem_fed6,a          ;7f46  f2 d6
     ret                     ;7f48  af
@@ -22505,7 +22524,7 @@ lab_7f49:
 sub_7f4c:
     mov a,!mem_fc2c         ;7f4c  8e 2c fc
     mov b,a                 ;7f4f  73
-    movw hl,#0xfc2d         ;7f50  16 2d fc
+    movw hl,#mem_fc2d       ;7f50  16 2d fc
     mov a,mem_fed6          ;7f53  f0 d6
     mov [hl+b],a            ;7f55  bb
     call !sub_7f33          ;7f56  9a 33 7f
@@ -22693,9 +22712,9 @@ lab_807d:
     ret                     ;8084  af
 
 sub_8085:
-    movw hl,#0xfc3d         ;8085  16 3d fc
+    movw hl,#mem_fc3d       ;8085  16 3d fc
     mov b,#0x08             ;8088  a3 08
-    movw de,#0xfc45         ;808a  14 45 fc
+    movw de,#mem_fc45       ;808a  14 45 fc
     br !lab_0bf4            ;808d  9b f4 0b
 
 sub_8090:
@@ -26917,7 +26936,7 @@ lab_9e75:
     bnc lab_9e8d            ;9e75  9d 16
     mov a,!mem_f200         ;9e77  8e 00 f2
     mov b,a                 ;9e7a  73
-    movw hl,#0xcf5e         ;9e7b  16 5e cf
+    movw hl,#mem_cf5e       ;9e7b  16 5e cf
     callf !sub_0c7d         ;9e7e  4c 7d
     bt mem_fe74.6,lab_9e89  ;9e80  ec 74 06
     and a,#0xf0             ;9e83  5d f0
@@ -26971,7 +26990,7 @@ lab_9ed1:
     movw hl,#mem_fbdb       ;9edf  16 db fb
     call !sub_5f51          ;9ee2  9a 51 5f
     mov a,#0x4e             ;9ee5  a1 4e
-    movw hl,#0xf022         ;9ee7  16 22 f0
+    movw hl,#mem_f022       ;9ee7  16 22 f0
     call !sub_5f51          ;9eea  9a 51 5f
     movw hl,#mem_ba94       ;9eed  16 94 ba
     bf mem_fe73.7,lab_9ef7  ;9ef0  31 73 73 03
@@ -27895,7 +27914,7 @@ lab_a4e6:
     clr1 a.1                ;a4eb  61 9b
 
 lab_a4ed:
-    movw de,#0xd062         ;a4ed  14 62 d0
+    movw de,#mem_d062       ;a4ed  14 62 d0
     call !sub_5c64          ;a4f0  9a 64 5c
     cmp a,#0xff             ;a4f3  4d ff
     bnz lab_a4f9            ;a4f5  bd 02
@@ -28363,7 +28382,7 @@ sub_a7b9:
     bnc lab_a7cd            ;a7c1  9d 0a
     mov b,a                 ;a7c3  73
     dec b                   ;a7c4  53
-    movw hl,#0xf269         ;a7c5  16 69 f2
+    movw hl,#mem_f269       ;a7c5  16 69 f2
     callf !sub_0c6b         ;a7c8  4c 6b
     mov !mem_fc9c,a         ;a7ca  9e 9c fc
 
@@ -28385,7 +28404,7 @@ sub_a7ce:
     bnc lab_a7ed            ;a7e4  9d 07
     xch a,b                 ;a7e6  33
     dec b                   ;a7e7  53
-    movw hl,#0xf269         ;a7e8  16 69 f2
+    movw hl,#mem_f269       ;a7e8  16 69 f2
     callf !sub_0b68         ;a7eb  3c 68
 
 lab_a7ed:
@@ -28396,7 +28415,7 @@ sub_a7ee:
     bz lab_a7fd             ;a7f1  ad 0a
     call !sub_a80e          ;a7f3  9a 0e a8
     movw de,ax              ;a7f6  d4
-    movw hl,#0xf259         ;a7f7  16 59 f2
+    movw hl,#mem_f259       ;a7f7  16 59 f2
     call !sub_a82e          ;a7fa  9a 2e a8
 
 lab_a7fd:
@@ -28407,7 +28426,7 @@ sub_a7fe:
     bz lab_a80d             ;a801  ad 0a
     call !sub_a80e          ;a803  9a 0e a8
     movw hl,ax              ;a806  d6
-    movw de,#0xf259         ;a807  14 59 f2
+    movw de,#mem_f259       ;a807  14 59 f2
     call !sub_a82e          ;a80a  9a 2e a8
 
 lab_a80d:
@@ -28416,7 +28435,7 @@ lab_a80d:
 sub_a80e:
     cmp mem_fe58,#0x01      ;a80e  c8 58 01
     bnz lab_a822            ;a811  bd 0f
-    call !sub_080b          ;a813  9a 0b 08
+    call !sub_080b          ;a813  9a 0b 08       Return mem_f252 in A, also copy it into mem_fb57
     cmp a,#0x02             ;a816  4d 02
     movw ax,#0xf25c         ;a818  10 5c f2
     bnz lab_a82d            ;a81b  bd 10
@@ -30209,6 +30228,8 @@ mem_b040:
 
     .byte 0x79              ;b05d  79          DATA 0x79 'y'
     .byte 0x39              ;b05e  39          DATA 0x39 '9'
+
+mem_b05f:
     .byte 0x15              ;b05f  15          DATA 0x15
     .byte 0x00              ;b060  00          DATA 0x00
     .byte 0x00              ;b061  00          DATA 0x00
@@ -30362,6 +30383,8 @@ mem_b0f8:
     .byte 0xfe              ;b0fc  fe          DATA 0xfe
     .byte 0x44              ;b0fd  44          DATA 0x44 'D'
     .byte 0xfe              ;b0fe  fe          DATA 0xfe
+
+mem_b0ff:
     .byte 0x1a              ;b0ff  1a          DATA 0x1a
     .byte 0x00              ;b100  00          DATA 0x00
     .byte 0x00              ;b101  00          DATA 0x00
@@ -30443,6 +30466,8 @@ mem_b0f8:
     .byte 0x26              ;b14d  26          DATA 0x26 '&'
     .byte 0xff              ;b14e  ff          DATA 0xff
     .byte 0x01              ;b14f  01          DATA 0x01
+
+mem_b150:
     .byte 0x09              ;b150  09          DATA 0x09
     .byte 0x00              ;b151  00          DATA 0x00
     .byte 0x00              ;b152  00          DATA 0x00
@@ -31390,6 +31415,7 @@ mem_b550:
     .byte 0x9d              ;b569  9d          DATA 0x9d
     .byte 0x6b              ;b56a  6b          DATA 0x6b 'k'
 
+mem_b56b:
     .byte 0x1b              ;b56b  1b          DATA 0x1b
     .byte 0xbf              ;b56c  bf          DATA 0xbf
     .byte 0xb5              ;b56d  b5          DATA 0xb5
@@ -31725,6 +31751,7 @@ mem_b6b9:
     .word lab_804a
     .word lab_8065
 
+mem_b6c2:
     .byte 0x21              ;b6c2  21          DATA 0x21 '!'
     .byte 0x28              ;b6c3  28          DATA 0x28 '('
     .byte 0xb7              ;b6c4  b7          DATA 0xb7
@@ -38298,6 +38325,9 @@ mem_cee4:
     .byte 0xd4              ;cf5b  d4          DATA 0xd4
     .byte 0xce              ;cf5c  ce          DATA 0xce
     .byte 0x0a              ;cf5d  0a          DATA 0x0a
+
+mem_cf5e:
+;TODO table used with sub_0c7d
     .byte 0x00              ;cf5e  00          DATA 0x00
     .byte 0x00              ;cf5f  00          DATA 0x00
     .byte 0x00              ;cf60  00          DATA 0x00
@@ -38563,6 +38593,8 @@ mem_cf7e:
     .byte 0xa4              ;d05f  a4          DATA 0xa4
     .byte 0x53              ;d060  53          DATA 0x53 'S'
     .byte 0xa4              ;d061  a4          DATA 0xa4
+
+mem_d062:
     .byte 0x0e              ;d062  0e          DATA 0x0e
     .byte 0x8f              ;d063  8f          DATA 0x8f
     .byte 0xd0              ;d064  d0          DATA 0xd0
@@ -38737,7 +38769,7 @@ lab_d10e:
 
 lab_d121:
     call !sub_d164          ;d121  9a 64 d1
-    movw de,#0xb6c2         ;d124  14 c2 b6
+    movw de,#mem_b6c2       ;d124  14 c2 b6
     mov a,mem_fe44          ;d127  f0 44
     mov b,a                 ;d129  73
     movw hl,#mem_af75       ;d12a  16 75 af
@@ -38889,7 +38921,7 @@ lab_d1f0:
     mov a,!mem_fc7b         ;d20d  8e 7b fc
     cmp a,c                 ;d210  61 4a
     bz lab_d22f             ;d212  ad 1b
-    movw hl,#0xfc48         ;d214  16 48 fc
+    movw hl,#mem_fc48       ;d214  16 48 fc
     mov a,[hl+c]            ;d217  aa
     bf a.6,lab_d24b         ;d218  31 6f 30
 
@@ -39790,7 +39822,7 @@ lab_d83e:
     and a,#0x0f             ;d83f  5d 0f
     cmp a,#0x0d             ;d841  4d 0d
     bnc lab_d864            ;d843  9d 1f
-    movw hl,#0xfc48         ;d845  16 48 fc
+    movw hl,#mem_fc48       ;d845  16 48 fc
     mov b,a                 ;d848  73
     mov a,[hl+b]            ;d849  ab
     and a,#0x0f             ;d84a  5d 0f
@@ -39802,8 +39834,8 @@ lab_d83e:
     rol a,1                 ;d853  26
     rol a,1                 ;d854  26
     mov b,a                 ;d855  73
-    movw hl,#0xfc4f         ;d856  16 4f fc
-    movw de,#0xfc6f         ;d859  14 6f fc
+    movw hl,#mem_fc4f       ;d856  16 4f fc
+    movw de,#mem_fc6f       ;d859  14 6f fc
     mov c,#0x04             ;d85c  a2 04
 
 lab_d85e:
@@ -39880,7 +39912,7 @@ lab_d8b3:
     cmp a,#0x05             ;d8d6  4d 05
     bc lab_d8f0             ;d8d8  8d 16
     set1 mem_fe47.6         ;d8da  6a 47
-    movw hl,#0xfc48         ;d8dc  16 48 fc
+    movw hl,#mem_fc48       ;d8dc  16 48 fc
     mov a,!mem_fc75         ;d8df  8e 75 fc     A = CD track number
     mov b,a                 ;d8e2  73
     mov a,[hl+b]            ;d8e3  ab
@@ -39906,13 +39938,13 @@ sub_d8fd:
     movw hl,#mem_fe44       ;d900  16 44 fe
     mov b,#0x06             ;d903  a3 06
     callf !sub_0bef         ;d905  3c ef
-    movw hl,#0xfc48         ;d907  16 48 fc
+    movw hl,#mem_fc48       ;d907  16 48 fc
     mov b,#0x25             ;d90a  a3 25
     callf !sub_0bf6         ;d90c  3c f6
     ret                     ;d90e  af
 
 sub_d90f:
-    movw hl,#0xfc48         ;d90f  16 48 fc
+    movw hl,#mem_fc48       ;d90f  16 48 fc
     mov b,#0x06             ;d912  a3 06
 
 lab_d914:
@@ -39951,7 +39983,7 @@ lab_d939:
     ret                     ;d93d  af
 
 sub_d93e:
-    movw hl,#0xfc48         ;d93e  16 48 fc
+    movw hl,#mem_fc48       ;d93e  16 48 fc
     mov b,#0x06             ;d941  a3 06
 
 lab_d943:
@@ -39972,7 +40004,7 @@ sub_d950:
     push ax                 ;d950  b1
     push bc                 ;d951  b3
     push hl                 ;d952  b7
-    movw hl,#0xfc48         ;d953  16 48 fc
+    movw hl,#mem_fc48       ;d953  16 48 fc
     mov b,#0x06             ;d956  a3 06
 
 lab_d958:
@@ -39992,7 +40024,7 @@ sub_d966:
     mov a,!mem_fc75         ;d966  8e 75 fc
     mov x,a                 ;d969  70
     mov b,a                 ;d96a  73
-    movw hl,#0xfc48         ;d96b  16 48 fc
+    movw hl,#mem_fc48         ;d96b  16 48 fc
     mov c,#0x06             ;d96e  a2 06
     inc c                   ;d970  42
 
@@ -40023,7 +40055,7 @@ sub_d98a:
     rol a,1                 ;d98d  26
     rol a,1                 ;d98e  26
     mov b,a                 ;d98f  73
-    movw hl,#0xfc4f         ;d990  16 4f fc
+    movw hl,#mem_fc4f       ;d990  16 4f fc
     mov a,[hl+b]            ;d993  ab
     cmp a,#0xff             ;d994  4d ff
     bz lab_d99a             ;d996  ad 02
@@ -40036,8 +40068,8 @@ lab_d99a:
 
 sub_d99c:
     mov b,#0x06             ;d99c  a3 06
-    movw hl,#0xfc67         ;d99e  16 67 fc
-    movw de,#0xfc4e         ;d9a1  14 4e fc
+    movw hl,#mem_fc67       ;d99e  16 67 fc
+    movw de,#mem_fc4e       ;d9a1  14 4e fc
 
 lab_d9a4:
     mov a,#0xff             ;d9a4  a1 ff
@@ -40053,8 +40085,8 @@ lab_d9a4:
 
 sub_d9b3:
     mov b,#0x06             ;d9b3  a3 06
-    movw hl,#0xfc67         ;d9b5  16 67 fc
-    movw de,#0xfc4e         ;d9b8  14 4e fc
+    movw hl,#mem_fc67       ;d9b5  16 67 fc
+    movw de,#mem_fc4e       ;d9b8  14 4e fc
 
 lab_d9bb:
     mov a,[hl]              ;d9bb  87
@@ -40078,7 +40110,7 @@ lab_d9cf:
 sub_d9d1:
     mov a,!mem_fc75         ;d9d1  8e 75 fc
     mov b,a                 ;d9d4  73
-    movw hl,#0xfc48         ;d9d5  16 48 fc
+    movw hl,#mem_fc48       ;d9d5  16 48 fc
     mov a,[hl+b]            ;d9d8  ab
     bf a.6,lab_d9e1         ;d9d9  31 6f 05
     bf a.5,lab_d9e1         ;d9dc  31 5f 02
