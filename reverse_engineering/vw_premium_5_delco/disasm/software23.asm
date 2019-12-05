@@ -457,7 +457,7 @@ mem_fe20 = 0xfe20
 mem_fe21 = 0xfe21
 mem_fe22 = 0xfe22
 mem_fe23 = 0xfe23           ;Bit 7: off = SAFE mode locked, on = SAFE mode unlocked
-mem_fe24 = 0xfe24
+mem_fe24 = 0xfe24           ;Alarm LED blink countdown
 mem_fe25 = 0xfe25
 mem_fe26 = 0xfe26
 mem_fe27 = 0xfe27
@@ -1025,14 +1025,14 @@ mem_00ee:
 intwtni0_0135:
     sel rb1                 ;0135  61 d8
     bf mem_fe2b.7,lab_0148  ;0137  31 73 2b 0d
-    mov wtnm0,#0x73         ;013b  13 41 73
+    mov wtnm0,#0b01110011   ;013b  13 41 73
     clr1 mk1l.0             ;013e  71 0b e6
     clr1 pr1l.0             ;0141  71 0b ea
-    call !sub_251a          ;0144  9a 1a 25
+    call !blink_led         ;0144  9a 1a 25       Decrement LED blink counter and set LED pin state
     reti                    ;0147  8f
 
 lab_0148:
-    mov wtnm0,#0x13         ;0148  13 41 13
+    mov wtnm0,#0b00010011   ;0148  13 41 13
     clr1 mk1l.0             ;014b  71 0b e6
     clr1 pr1l.0             ;014e  71 0b ea
     inc mem_fe28            ;0151  81 28
@@ -1040,8 +1040,8 @@ lab_0148:
     br !lab_0265            ;0157  9b 65 02
 
 lab_015a:
-    clr1 if1l.0             ;015a  71 0b e2
-    set1 mk1h.0             ;015d  71 0a e7
+    clr1 if1l.0             ;015a  71 0b e2       Clear WTNIIF0 (WTNIIF0 interrupt flag)
+    set1 mk1h.0             ;015d  71 0a e7       Set WTNMK0 (disables INTWTN0)
 
 lab_0160:
     ei                      ;0160  7a 1e
@@ -1168,7 +1168,7 @@ lab_025a:
     di                      ;025a  7b 1e
     dbnz mem_fe28,lab_0266  ;025c  04 28 07
     mov mem_fe28,#0x80      ;025f  11 28 80
-    set1 mk1h.0             ;0262  71 0a e7
+    set1 mk1h.0             ;0262  71 0a e7     Set WTNMK0 (disables INTWTN0)
 
 lab_0265:
     reti                    ;0265  8f
@@ -4020,7 +4020,7 @@ lab_0e39:
     call !sub_76c9          ;0f00  9a c9 76
     mov upd_leds,#0x0f      ;0f03  11 3e 0f     Value to write to uPD16432B LED output latch
     clr1 mem_fe6f.4         ;0f06  4b 6f        Dolby = off
-    clr1 mem_fe6d.3         ;0f08  3b 6d
+    clr1 mem_fe6d.3         ;0f08  3b 6d        ROM checksum calculation = not performed
 
     mov b,#0x03             ;0f0a  a3 03        B = 3 bytes to fill
     mov a,#0x7f             ;0f0c  a1 7f        A = fill value 0x7f
@@ -4099,7 +4099,7 @@ lab_0f1b:
     clr1 mem_fe7a.3         ;0fbd  3b 7a
     set1 mem_fe7b.0         ;0fbf  0a 7b
     clr1 mem_fe7a.7         ;0fc1  7b 7a
-    mov wtnm0,#0x13         ;0fc3  13 41 13
+    mov wtnm0,#0b00010011   ;0fc3  13 41 13
     clr1 mk1l.0             ;0fc6  71 0b e6
     clr1 pr1l.0             ;0fc9  71 0b ea
     mov a,#0x0a             ;0fcc  a1 0a
@@ -4269,7 +4269,7 @@ lab_1123:
     mov a,shadow_p9         ;1145  f0 d3
     mov p9,a                ;1147  f2 09
     ei                      ;1149  7a 1e
-    mov wtnm0,#0x13         ;114b  13 41 13
+    mov wtnm0,#0b00010011   ;114b  13 41 13
     clr1 mk1l.0             ;114e  71 0b e6
     clr1 pr1l.0             ;1151  71 0b ea
     btclr mem_fe61.7,lab_115c ;1154  31 71 61 04
@@ -6621,8 +6621,8 @@ lab_2057:
     clr1 mem_fe5e.5         ;205d  5b 5e
     mov a,b                 ;205f  63
     mov mem_fed4,a          ;2060  f2 d4
-    mov mem_fe24,#0x30      ;2062  11 24 30
-    call !sub_251a          ;2065  9a 1a 25
+    mov mem_fe24,#0x30      ;2062  11 24 30     Set initial value for LED blink countdown
+    call !blink_led         ;2065  9a 1a 25     Decrement LED blink counter and set LED pin state
     bt mem_fe63.7,lab_206e  ;2068  fc 63 03
     br !lab_2133            ;206b  9b 33 21
 
@@ -7327,20 +7327,21 @@ lab_2515:
     mov a,#0x3e             ;2515  a1 3e
     mov !mem_fb00,a         ;2517  9e 00 fb
 
-sub_251a:
-    cmp mem_fe24,#0x30      ;251a  c8 24 30
-    bnc lab_2521            ;251d  9d 02
-    set1 shadow_p3.3        ;251f  3a cd
+blink_led:
+;Decrement LED blink counter and set LED pin state
+    cmp mem_fe24,#0x30      ;251a  c8 24 30     Compare LED blink countdown
+    bnc lab_2521            ;251d  9d 02        Skip turning LED ? if not counted down yet
+    set1 shadow_p3.3        ;251f  3a cd        LED = ?
 
 lab_2521:
-    dbnz mem_fe24,lab_2532  ;2521  04 24 0e
-    bt mem_fe2c.2,lab_252f  ;2524  ac 2c 08
-    bt mem_fe2c.3,lab_252f  ;2527  bc 2c 05
-    clr1 pm3.3              ;252a  71 3b 23
-    clr1 shadow_p3.3        ;252d  3b cd
+    dbnz mem_fe24,lab_2532  ;2521  04 24 0e     Decrement LED blink countdown
+    bt mem_fe2c.2,lab_252f  ;2524  ac 2c 08     Skip turning LED on if ??? bit is set
+    bt mem_fe2c.3,lab_252f  ;2527  bc 2c 05     Skip turning LED on if ??? bit is set
+    clr1 pm3.3              ;252a  71 3b 23     PM33=output (alarm LED)
+    clr1 shadow_p3.3        ;252d  3b cd        LED = ?
 
 lab_252f:
-    mov mem_fe24,#0x30      ;252f  11 24 30
+    mov mem_fe24,#0x30      ;252f  11 24 30     Reset blink countdown
 
 lab_2532:
     mov a,shadow_p3         ;2532  f0 cd
@@ -7769,7 +7770,7 @@ lab_27b0:
     movw hl,#mem_f219       ;27c4  16 19 f2
     mov a,#0x00             ;27c7  a1 00
     call !sub_4092          ;27c9  9a 92 40
-    clr1 mem_fe6d.3         ;27cc  3b 6d
+    clr1 mem_fe6d.3         ;27cc  3b 6d        ROM checksum calculation = not performed
 
 lab_27ce:
     ret                     ;27ce  af
@@ -10712,12 +10713,12 @@ lab_392c:
     call !sub_2cae          ;393b  9a ae 2c
 
 lab_393e:
-    call !sub_8090          ;393e  9a 90 80
+    call !sub_8090          ;393e  9a 90 80       Perform ROM checksum if not already performed
     mov a,#0x01             ;3941  a1 01
     callf !sub_09d7         ;3943  1c d7
-    clr1 shadow_p9.7         ;3945  7b d3
-    clr1 shadow_p9.4         ;3947  4b d3
-    mov a,shadow_p9          ;3949  f0 d3
+    clr1 shadow_p9.7        ;3945  7b d3
+    clr1 shadow_p9.4        ;3947  4b d3
+    mov a,shadow_p9         ;3949  f0 d3
     mov p9,a                ;394b  f2 09
     mov a,#0x04             ;394d  a1 04
     mov !mem_fb0c,a         ;394f  9e 0c fb
@@ -10730,11 +10731,11 @@ lab_3952:
     ret                     ;395c  af
 
 lab_395d:
-    call !sub_3a10          ;395d  9a 10 3a
+    call !sub_3a10          ;395d  9a 10 3a       Does something with pins P80 and P70
     mov asim0,#0x00         ;3960  13 a0 00       UART0 mode register = 0 (UART fully disabled)
     mov brgc0,#0x7e         ;3963  13 a2 7e       Baud rate generator = 546 baud (???)
     mov asim0,#0x48         ;3966  13 a0 48       UART0 mode register = RX only, N81
-    call !sub_3acf          ;3969  9a cf 3a
+    call !sub_3acf          ;3969  9a cf 3a       Sets a lot of different port bits
     mov mem_fe2a,#0x0e      ;396c  11 2a 0e
     mov mem_fe2b,#0x80      ;396f  11 2b 80
     call !lab_374a          ;3972  9a 4a 37
@@ -10821,6 +10822,7 @@ sub_3a06:
     ret                     ;3a0f  af
 
 sub_3a10:
+;Does something with pins P80 and P70
     clr1 pm8.0              ;3a10  71 0b 28
     clr1 shadow_p8.0         ;3a13  0b d2
     mov a,shadow_p8          ;3a15  f0 d2
@@ -10933,6 +10935,7 @@ intp2_3acc:
     reti                    ;3ace  8f
 
 sub_3acf:
+;Sets a lot of different port bits
     call !sub_6078          ;3acf  9a 78 60
     call !sub_4d63          ;3ad2  9a 63 4d
     clr1 pu2.4              ;3ad5  71 4b 32
@@ -16457,10 +16460,12 @@ intp4_5904:
     call !sub_5915          ;5910  9a 15 59
 
 lab_5913:
+    ;POWER key is not being pressed (rising edge)
     pop ax                  ;5913  b0
     reti                    ;5914  8f
 
 sub_5915:
+    ;POWER key is being pressed (falling edge)
     bt mem_fe2d.0,lab_5924  ;5915  8c 2d 0c
     set1 mem_fe67.0         ;5918  0a 67
     mov a,#0x00             ;591a  a1 00
@@ -16469,6 +16474,7 @@ sub_5915:
     br lab_593a             ;5922  fa 16
 
 lab_5924:
+    ;mem_fe67.0 = 1
     set1 mem_fe7d.6         ;5924  6a 7d
     clr1 mem_fe66.6         ;5926  6b 66
     mov a,!mem_fc27         ;5928  8e 27 fc
@@ -22718,9 +22724,10 @@ sub_8085:
     br !lab_0bf4            ;808d  9b f4 0b
 
 sub_8090:
-    bt mem_fe6d.3,lab_80b0  ;8090  bc 6d 1d
+;Perform ROM checksum if not already performed
+    bt mem_fe6d.3,lab_80b0  ;8090  bc 6d 1d     Branch if ROM checksum already performed
     call !sub_47fb          ;8093  9a fb 47     Calculate ROM checksum, store in mem_fb9d-mem_fb9e
-    set1 mem_fe6d.3         ;8096  3a 6d
+    set1 mem_fe6d.3         ;8096  3a 6d        ROM checksum calculation = performed
     xch a,x                 ;8098  30
     movw hl,#checksum       ;8099  16 fe ef
     cmp a,[hl]              ;809c  4f

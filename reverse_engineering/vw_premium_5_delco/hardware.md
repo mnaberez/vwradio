@@ -8,6 +8,7 @@
 |Pin 29     |P30/SI30   |uPD16432B DAT in          |
 |Pin 30     |P31/SO30   |uPD16432B DAT out         |
 |Pin 31     |P32/SCK30  |uPD16432B CLK             |
+|Pin 33     |P33        |Alarm LED                 |
 |Pin 46     |P20/SI31   |TODO: Unknown SPI bus     |
 |Pin 47     |P21/SO31   |TODO: Unknown SPI bus     |
 |Pin 48     |P22/SCK31  |TODO: Unknown SPI bus     |
