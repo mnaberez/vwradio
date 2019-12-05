@@ -1022,19 +1022,25 @@ mem_00ee:
     .byte 0x06              ;0133  06          DATA 0x06
     .byte 0x55              ;0134  55          DATA 0x55 'U'
 
+;Watch timer interrupt handler
 intwtni0_0135:
     sel rb1                 ;0135  61 d8
     bf mem_fe2b.7,lab_0148  ;0137  31 73 2b 0d
+
+    ;Enable watch timer interrupts
     mov wtnm0,#0b01110011   ;013b  13 41 73
-    clr1 mk1l.0             ;013e  71 0b e6
-    clr1 pr1l.0             ;0141  71 0b ea
+    clr1 mk1l.0             ;013e  71 0b e6       Clear WTNIMK0 (enables INTWTNI0)
+    clr1 pr1l.0             ;0141  71 0b ea       Clear WTNIPR0 (makes INTWTNI0 high priority)
+
     call !blink_led         ;0144  9a 1a 25       Decrement LED blink counter and set LED pin state
     reti                    ;0147  8f
 
 lab_0148:
+    ;Enable watch timer interrupts
     mov wtnm0,#0b00010011   ;0148  13 41 13
-    clr1 mk1l.0             ;014b  71 0b e6
-    clr1 pr1l.0             ;014e  71 0b ea
+    clr1 mk1l.0             ;014b  71 0b e6       Clear WTNIMK0 (enables INTWTNI0)
+    clr1 pr1l.0             ;014e  71 0b ea       Clear WTNIPR0 (makes INTWTNI0 high priority)
+
     inc mem_fe28            ;0151  81 28
     btclr mem_fe28.7,lab_015a ;0153  31 71 28 03
     br !lab_0265            ;0157  9b 65 02
@@ -2709,8 +2715,8 @@ sio30_disable:
 
     mov csim30,#0x00        ;0899  13 b0 00     SIO30 = operation stopped
 
-    clr1 pm3.2              ;089c  71 2b 23
-    clr1 pm3.1              ;089f  71 1b 23
+    clr1 pm3.2              ;089c  71 2b 23     PM32=output (uPD16432B CLK)
+    clr1 pm3.1              ;089f  71 1b 23     PM31=output (uPD16432B DAT)
     clr1 pu3.0              ;08a2  71 0b 33
     set1 pm3.0              ;08a5  71 0a 23
     ret                     ;08a8  af
@@ -2760,7 +2766,7 @@ lab_08bd:
     set1 mem_fe5f.0         ;08bd  0a 5f        SPI packet complete flag = complete
     set1 mk0h.4             ;08bf  71 4a e5     Set CSIMK30 (disables INTCSI30)
     bf mem_fe60.7,lab_08c9  ;08c2  31 73 60 03
-    call !sub_2f48          ;08c6  9a 48 2f     p4.3=low, p4_.4=low, disable SIO30,
+    call !sub_2f48          ;08c6  9a 48 2f     p4.3=low, p4.4=low, disable SIO30,
                             ;                     set mem_fe5e.7, clear mem_fe60.7
                             ;Fall through
 lab_08c9:
@@ -3919,9 +3925,10 @@ lab_0e1b:
     mov wdcs,a              ;0e1f  f6 42
     mov a,#0x90             ;0e21  a1 90
     mov wdtm,a              ;0e23  f6 f9
+
+    ;Clear RAM: 0xfb00 - 0xfeca
     movw hl,#mem_fb00       ;0e25  16 00 fb
     mov a,#0x00             ;0e28  a1 00
-
 lab_0e2a:
     mov [hl],a              ;0e2a  97
     incw hl                 ;0e2b  86
@@ -3929,9 +3936,11 @@ lab_0e2a:
     cmpw ax,#shadow_p0      ;0e2d  ea cb fe
     xchw ax,hl              ;0e30  e6
     bc lab_0e2a             ;0e31  8d f7
-    mov wdtm,#0x90          ;0e33  13 f9 90
-    movw hl,#mem_f000       ;0e36  16 00 f0
 
+    mov wdtm,#0x90          ;0e33  13 f9 90
+
+    ;Clear RAM: 0xf000 - 0xf7ff
+    movw hl,#mem_f000       ;0e36  16 00 f0
 lab_0e39:
     mov [hl],a              ;0e39  97
     incw hl                 ;0e3a  86
@@ -3939,7 +3948,9 @@ lab_0e39:
     cmpw ax,#0xf800         ;0e3c  ea 00 f8
     xchw ax,hl              ;0e3f  e6
     bc lab_0e39             ;0e40  8d f7
+
     mov wdtm,#0x90          ;0e42  13 f9 90
+
     call !sub_0a17          ;0e45  9a 17 0a
 
     mov b,#0x0b             ;0e48  a3 0b        B = 0x0b bytes to fill
@@ -3964,6 +3975,9 @@ lab_0e39:
     mov p2,a                ;0e75  f2 02
     mov a,#0xdb             ;0e77  a1 db
     mov !mem_f077,a         ;0e79  9e 77 f0
+
+    ;Clear RAM: 0xf068 - 0xf079 (except 0xf077!)
+    ;These are all or mostly KWP1281 variables
     mov a,#0x00             ;0e7c  a1 00
     mov !mem_f068,a         ;0e7e  9e 68 f0
     mov !mem_f069,a         ;0e81  9e 69 f0
@@ -3980,8 +3994,10 @@ lab_0e39:
     mov !mem_f074,a         ;0ea2  9e 74 f0     Copy of KWP1281 address used for 5 baud init = 0
     mov !mem_f075,a         ;0ea5  9e 75 f0
     mov !mem_f076,a         ;0ea8  9e 76 f0
+    ;XXX does not clear mem_f077
     mov !mem_f078,a         ;0eab  9e 78 f0
     mov !mem_f079,a         ;0eae  9e 79 f0
+
     clr1 mem_fe7a.2         ;0eb1  2b 7a
     clr1 mem_fe79.0         ;0eb3  0b 79
     clr1 mem_fe79.1         ;0eb5  1b 79
@@ -4090,18 +4106,24 @@ lab_0f1b:
     set1 pm2.4              ;0fa2  71 4a 22
     clr1 pm2.5              ;0fa5  71 5b 22
     clr1 pm2.6              ;0fa8  71 6b 22
+
+    ;Enable UART0 interrupts
     clr1 mk0h.1             ;0fab  71 1b e5     Clear SERMK0 (enables INTSER0)
     set1 pr0h.1             ;0fae  71 1a e9     Set SERPR0 (makes INTSER0 low priority)
     clr1 mk0h.2             ;0fb1  71 2b e5     Clear SRMK0 (enables INTSR0)
     set1 pr0h.2             ;0fb4  71 2a e9     Set SRPR0 (makes INTSR0 low priority)
     clr1 mk0h.3             ;0fb7  71 3b e5     Clear STMK0 (enables INTST0)
     clr1 pr0h.3             ;0fba  71 3b e9     Clear STPR0 (makes INTST0 high priority)
+
     clr1 mem_fe7a.3         ;0fbd  3b 7a
     set1 mem_fe7b.0         ;0fbf  0a 7b
     clr1 mem_fe7a.7         ;0fc1  7b 7a
+
+    ;Enable watch timer interrupts
     mov wtnm0,#0b00010011   ;0fc3  13 41 13
-    clr1 mk1l.0             ;0fc6  71 0b e6
-    clr1 pr1l.0             ;0fc9  71 0b ea
+    clr1 mk1l.0             ;0fc6  71 0b e6     Clear WTNIMK0 (enables INTWTNI0)
+    clr1 pr1l.0             ;0fc9  71 0b ea     Clear WTNIPR0 (makes INTWTNI0 high priority)
+
     mov a,#0x0a             ;0fcc  a1 0a
     mov !mem_fb03,a         ;0fce  9e 03 fb
     mov !mem_fb0b,a         ;0fd1  9e 0b fb
@@ -4269,9 +4291,12 @@ lab_1123:
     mov a,shadow_p9         ;1145  f0 d3
     mov p9,a                ;1147  f2 09
     ei                      ;1149  7a 1e
+
+    ;Enable watch timer interrupts
     mov wtnm0,#0b00010011   ;114b  13 41 13
-    clr1 mk1l.0             ;114e  71 0b e6
-    clr1 pr1l.0             ;1151  71 0b ea
+    clr1 mk1l.0             ;114e  71 0b e6       Clear WTNIMK0 (enables INTWTNI0)
+    clr1 pr1l.0             ;1151  71 0b ea       Clear WTNIPR0 (makes INTWTNI0 high priority)
+
     btclr mem_fe61.7,lab_115c ;1154  31 71 61 04
     bf p0.2,lab_118f        ;1158  31 23 00 33
 
@@ -7531,12 +7556,12 @@ lab_2616:
 sio30_enable:
 ;Enable SIO30 (used for uPD16432B SPI)
     mov csim30,#0x83        ;2617  13 b0 83     SIO30 mode = ena, tx & rx, clock = fx/2^6 (65.5 kHz)
-    clr1 pm3.2              ;261a  71 2b 23
-    clr1 pm3.1              ;261d  71 1b 23
+    clr1 pm3.2              ;261a  71 2b 23     PM32=output (uPD16432B CLK)
+    clr1 pm3.1              ;261d  71 1b 23     PM31=output (uPD16432B DAT)
     clr1 pu3.0              ;2620  71 0b 33
     set1 pm3.0              ;2623  71 0a 23
     clr1 shadow_p3.2        ;2626  2b cd        uPD16432B CLK = low
-    clr1 shadow_p3.1        ;2628  1b cd        uPD16432B DAT out = low
+    clr1 shadow_p3.1        ;2628  1b cd        uPD16432B DAT = low
     mov a,shadow_p3         ;262a  f0 cd
     mov p3,a                ;262c  f2 03
     ret                     ;262e  af
@@ -13378,12 +13403,12 @@ lab_496b:
     mov a,shadow_p4         ;4970  f0 ce
     mov p4,a                ;4972  f2 04
     mov csim30,#0x82        ;4974  13 b0 82     SIO30 mode = ena, tx & rx, clock = fx/2^4 (262 kHz)
-    clr1 pm3.2              ;4977  71 2b 23
-    clr1 pm3.1              ;497a  71 1b 23
+    clr1 pm3.2              ;4977  71 2b 23     PM32=output (uPD16432B CLK)
+    clr1 pm3.1              ;497a  71 1b 23     PM31=output (uPD16432B DAT)
     clr1 pu3.0              ;497d  71 0b 33
     set1 pm3.0              ;4980  71 0a 23
     clr1 shadow_p3.2        ;4983  2b cd        uPD16432B CLK = low
-    clr1 shadow_p3.1        ;4985  1b cd        uPD16432B DAT out = low
+    clr1 shadow_p3.1        ;4985  1b cd        uPD16432B DAT = low
     mov a,shadow_p3         ;4987  f0 cd
     mov p3,a                ;4989  f2 03
 
@@ -13530,8 +13555,8 @@ lab_4a0e:
     mov a,shadow_p4         ;4a23  f0 ce
     mov p4,a                ;4a25  f2 04
 
-    set1 shadow_p3.1        ;4a27  1a cd        uPD16432B DAT out
-    clr1 pm3.1              ;4a29  71 1b 23
+    set1 shadow_p3.1        ;4a27  1a cd        uPD16432B DAT = high
+    clr1 pm3.1              ;4a29  71 1b 23     PM31=output (uPD16432B DAT)
     mov a,shadow_p3         ;4a2c  f0 cd
     mov p3,a                ;4a2e  f2 03
 
@@ -13558,12 +13583,12 @@ lab_4a45:
     mov a,shadow_p4         ;4a4a  f0 ce
     mov p4,a                ;4a4c  f2 04
     mov csim30,#0x82        ;4a4e  13 b0 82
-    clr1 pm3.2              ;4a51  71 2b 23
-    clr1 pm3.1              ;4a54  71 1b 23
+    clr1 pm3.2              ;4a51  71 2b 23     PM32=output (uPD16432B CLK)
+    clr1 pm3.1              ;4a54  71 1b 23     PM31=output (uPD16432B DAT)
     clr1 pu3.0              ;4a57  71 0b 33
     set1 pm3.0              ;4a5a  71 0a 23
-    clr1 shadow_p3.2        ;4a5d  2b cd
-    clr1 shadow_p3.1        ;4a5f  1b cd
+    clr1 shadow_p3.2        ;4a5d  2b cd        uPD16432B CLK = low
+    clr1 shadow_p3.1        ;4a5f  1b cd        uPD16432B DAT = low
     mov a,shadow_p3         ;4a61  f0 cd
     mov p3,a                ;4a63  f2 03
 
@@ -13681,8 +13706,8 @@ lab_4ae3:
 
     ;All custom characters have been sent
 
-    set1 shadow_p3.1        ;4ae6  1a cd
-    clr1 pm3.1              ;4ae8  71 1b 23
+    set1 shadow_p3.1        ;4ae6  1a cd        uPD16432B DAT = high
+    clr1 pm3.1              ;4ae8  71 1b 23     PM31=output (uPD16432B DAT)
     mov a,shadow_p3         ;4aeb  f0 cd
     mov p3,a                ;4aed  f2 03
 
@@ -13709,12 +13734,12 @@ lab_4b04:
     mov a,shadow_p4         ;4b09  f0 ce
     mov p4,a                ;4b0b  f2 04
     mov csim30,#0x82        ;4b0d  13 b0 82     SIO30 mode = ena, tx & rx, clock = fx/2^4 (262 kHz)
-    clr1 pm3.2              ;4b10  71 2b 23
-    clr1 pm3.1              ;4b13  71 1b 23
+    clr1 pm3.2              ;4b10  71 2b 23     PM32=output (uPD16432B CLK)
+    clr1 pm3.1              ;4b13  71 1b 23     PM31=output (uPD16432B DAT)
     clr1 pu3.0              ;4b16  71 0b 33
     set1 pm3.0              ;4b19  71 0a 23
     clr1 shadow_p3.2        ;4b1c  2b cd        uPD16432B CLK = low
-    clr1 shadow_p3.1        ;4b1e  1b cd        uPD16432B DAT out = low
+    clr1 shadow_p3.1        ;4b1e  1b cd        uPD16432B DAT = low
     mov a,shadow_p3         ;4b20  f0 cd
     mov p3,a                ;4b22  f2 03
 
@@ -14102,8 +14127,8 @@ lab_4ce8:
 lab_4d05:
     ;Deselect uPD16432B and return
 
-    set1 shadow_p3.1        ;4d05  1a cd        uPD16432B DAT out
-    clr1 pm3.1              ;4d07  71 1b 23
+    set1 shadow_p3.1        ;4d05  1a cd        uPD16432B DAT = high
+    clr1 pm3.1              ;4d07  71 1b 23     PM31=output (uPD16432B DAT)
     mov a,shadow_p3         ;4d0a  f0 cd
     mov p3,a                ;4d0c  f2 03
 
@@ -14190,12 +14215,15 @@ upd_recv_byte:
 
 sub_4d63:
     call !sub_3b3a          ;4d63  9a 3a 3b
-    clr1 pu3.2              ;4d66  71 2b 33
-    set1 pm3.2              ;4d69  71 2a 23
-    clr1 pu3.1              ;4d6c  71 1b 33
-    set1 pm3.1              ;4d6f  71 1a 23
+    clr1 pu3.2              ;4d66  71 2b 33     PU32 pull-up resistor disabled (uPD16432B CLK)
+    set1 pm3.2              ;4d69  71 2a 23     PM32=input (uPD16432B CLK)
+
+    clr1 pu3.1              ;4d6c  71 1b 33     PU31 pull-up resistor disabled (uPD16432B DAT)
+    set1 pm3.1              ;4d6f  71 1a 23     PM31=input (uPD16432B DAT)
+
     clr1 pu4.7              ;4d72  71 7b 34
     set1 pm4.7              ;4d75  71 7a 24     PM47=input (P47)
+
     clr1 pu4.6              ;4d78  71 6b 34
     set1 pm4.6              ;4d7b  71 6a 24
     ret                     ;4d7e  af
@@ -16069,13 +16097,13 @@ lab_56f3:
     mov a,shadow_p4          ;56f8  f0 ce
     mov p4,a                ;56fa  f2 04
     mov csim30,#0x82        ;56fc  13 b0 82
-    clr1 pm3.2              ;56ff  71 2b 23
-    clr1 pm3.1              ;5702  71 1b 23
+    clr1 pm3.2              ;56ff  71 2b 23     PM32=output (uPD16432B CLK)
+    clr1 pm3.1              ;5702  71 1b 23     PM31=output (uPD16432B DAT)
     clr1 pu3.0              ;5705  71 0b 33
     set1 pm3.0              ;5708  71 0a 23
-    clr1 shadow_p3.2         ;570b  2b cd
-    clr1 shadow_p3.1         ;570d  1b cd
-    mov a,shadow_p3          ;570f  f0 cd
+    clr1 shadow_p3.2        ;570b  2b cd        uPD16432B CLK = low
+    clr1 shadow_p3.1        ;570d  1b cd        uPD16432B DAT = low
+    mov a,shadow_p3         ;570f  f0 cd
     mov p3,a                ;5711  f2 03
 
 lab_5713:
@@ -16165,8 +16193,8 @@ lab_5773:
     ;SPI transfer is complete or B reached zero
 
 lab_5778:
-    set1 shadow_p3.1        ;5778  1a cd
-    clr1 pm3.1              ;577a  71 1b 23
+    set1 shadow_p3.1        ;5778  1a cd        uPD16432B DAT = high
+    clr1 pm3.1              ;577a  71 1b 23     PM31=output (uPD16432B DAT)
     mov a,shadow_p3         ;577d  f0 cd
     mov p3,a                ;577f  f2 03
 
