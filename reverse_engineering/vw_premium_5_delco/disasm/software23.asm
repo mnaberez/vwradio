@@ -183,12 +183,15 @@ mem_f256 = 0xf256
 mem_f257 = 0xf257
 mem_f258 = 0xf258
 mem_f259 = 0xf259
+mem_f25c = 0xf25c
+mem_f25f = 0xf25f
+mem_f262 = 0xf262
+mem_f265 = 0xf265
 mem_f268 = 0xf268
 mem_f269 = 0xf269
 mem_f26b = 0xf26b
 mem_f26c = 0xf26c
 mem_f26d = 0xf26d
-mem_faff = 0xfaff
 
 ;High Speed RAM: 0xFB00 - 0xFEFF (1K)
 
@@ -457,7 +460,7 @@ mem_fca2 = 0xfca2
 mem_fca3 = 0xfca3
 mem_fca4 = 0xfca4
 mem_fca5 = 0xfca5
-stack_top = 0xfe1f          ;Stack starts at 0xFF1E and grows down (??? bytes)
+stack_top = 0xfe1f          ;Stack starts at 0xFE1F and grows down (??? bytes)
 mem_fe20 = 0xfe20
 mem_fe21 = 0xfe21
 mem_fe22 = 0xfe22
@@ -1062,7 +1065,7 @@ lab_015a:
 
 lab_0160:
     ei                      ;0160  7a 1e
-    movw hl,#mem_faff       ;0162  16 ff fa
+    movw hl,#mem_fb00-1     ;0162  16 ff fa
     mov a,#0x08             ;0165  a1 08
     sub a,#0x00             ;0167  1d 00
     callf !sub_0932         ;0169  1c 32
@@ -2861,13 +2864,12 @@ lab_0925:
 
 sub_0932:
     mov b,a                 ;0932  73
-
 lab_0933:
     mov a,[hl+b]            ;0933  ab
     sub a,#0x01             ;0934  1d 01
     bc lab_0939             ;0936  8d 01
-    mov [hl+b],a            ;0938  bb
 
+    mov [hl+b],a            ;0938  bb
 lab_0939:
     dbnz b,lab_0933         ;0939  8b f8
     ret                     ;093b  af
@@ -2877,7 +2879,6 @@ sub_093c:
     add a,mem_fe2d          ;093e  0e 2d
     add a,mem_fe2f          ;0940  0e 2f
     mov b,#0x0b             ;0942  a3 0b
-
 lab_0944:
     movw hl,#mem_fb85       ;0944  16 85 fb
     add a,[hl+b]            ;0947  31 0b
@@ -4071,7 +4072,7 @@ lab_0e39:
     movw hl,#mem_fca2       ;0f0e  16 a2 fc     HL = pointer to buffer to fill
     callf !sub_0cdc         ;0f11  4c dc        Fill B bytes in buffer [HL] with A
 
-    ;Cold start finished; fall throgh into warm start
+    ;Cold start finished; fall through into warm start
 
 ;Warm start the system
 ;Reset occurred but RAM is intact (or cold start was just done).
@@ -28504,16 +28505,16 @@ sub_a80e:
     bnz lab_a822            ;a811  bd 0f
     call !sub_080b          ;a813  9a 0b 08       Return mem_f252 in A, also copy it into mem_fb57
     cmp a,#0x02             ;a816  4d 02
-    movw ax,#0xf25c         ;a818  10 5c f2
+    movw ax,#mem_f25c       ;a818  10 5c f2
     bnz lab_a82d            ;a81b  bd 10
-    movw ax,#0xf25f         ;a81d  10 5f f2
+    movw ax,#mem_f25f       ;a81d  10 5f f2
     br lab_a82d             ;a820  fa 0b
 
 lab_a822:
-    movw ax,#0xf262         ;a822  10 62 f2
+    movw ax,#mem_f262       ;a822  10 62 f2
     cmp mem_fe58,#0x02      ;a825  c8 58 02
     bz lab_a82d             ;a828  ad 03
-    movw ax,#0xf265         ;a82a  10 65 f2
+    movw ax,#mem_f265       ;a82a  10 65 f2
 
 lab_a82d:
     ret                     ;a82d  af
