@@ -2790,13 +2790,13 @@ lab_08c9:
 
 sub_08cc:
 ;SPI transfer on SIO31 (sends byte in A, receives byte in A)
-    clr1 if0h.5             ;08cc  71 5b e1     Clear CSIIF31
+    clr1 if0h.5             ;08cc  71 5b e1     Clear CSIIF31 (INTCSI31 interrupt flag)
     mov sio31,a             ;08cf  f2 1b
     push bc                 ;08d1  b3
     mov b,#0x00             ;08d2  a3 00
 
 lab_08d4:
-    bt if0h.5,lab_08db      ;08d4  31 56 e1 03  Branch if CSIIF31 is set
+    bt if0h.5,lab_08db      ;08d4  31 56 e1 03  Branch if CSIIF31 (INTCSI31 interrupt flag) is set
     dbnz b,lab_08d4         ;08d8  8b fa
     nop                     ;08da  00
 
@@ -3900,8 +3900,8 @@ rst_0d88:
     mov !mem_f18e,a         ;0dcc  9e 8e f1
 
 lab_0dcf:
-    mov ixs,#0x08           ;0dcf  13 f4 08
-    mov ims,#0xcf           ;0dd2  13 f0 cf
+    mov ixs,#0x08           ;0dcf  13 f4 08     Internal expansion RAM size = 2048 bytes
+    mov ims,#0xcf           ;0dd2  13 f0 cf     Internal high-speed RAM size = 1024 bytes
     movw sp,#stack_top      ;0dd5  ee 1c 1f fe  Initialize stack pointer (stack grows down)
     mov a,#0x07             ;0dd9  a1 07
     mov wdcs,a              ;0ddb  f6 42
@@ -3913,10 +3913,10 @@ lab_0dcf:
     mov p9,a                ;0de8  f2 09
     clr1 pu0.2              ;0dea  71 2b 30
     set1 pm0.2              ;0ded  71 2a 20
-    clr1 mk0l.3             ;0df0  71 3b e4
-    clr1 pr0l.3             ;0df3  71 3b e8
-    clr1 egn.2              ;0df6  71 2b 49
-    set1 egp.2              ;0df9  71 2a 48
+    clr1 mk0l.3             ;0df0  71 3b e4     Clear PMK2 (enables INTP2)
+    clr1 pr0l.3             ;0df3  71 3b e8     Clear INTP2 (makes INTP2 high priority)
+    clr1 egn.2              ;0df6  71 2b 49     Clear EGN2 (disables INTP2 on falling edge)
+    set1 egp.2              ;0df9  71 2a 48     Set EGP2 (enables INTP2 on rising edge)
 
     ;Inspect RAM to see if we can warm start
 
@@ -3926,14 +3926,12 @@ lab_0dcf:
     mov a,#0x55             ;0e00  a1 55
     cmp a,!mem_f18e         ;0e02  48 8e f1
     bnz cold_start          ;0e05  bd 14      Check failed
-
     cmp a,!mem_fca5         ;0e07  48 a5 fc
     bnz cold_start          ;0e0a  bd 0f      Check failed
 
     mov a,#0xaa             ;0e0c  a1 aa
     cmp a,!stack_top        ;0e0e  48 1f fe
     bnz cold_start          ;0e11  bd 08      Check failed
-
     cmp a,!mem_fb91         ;0e13  48 91 fb
     bnz cold_start          ;0e16  bd 03      Check failed
 
@@ -4115,14 +4113,17 @@ lab_0f1b:
     set1 mem_fe5e.7         ;0f68  7a 5e
     set1 mem_fe5f.0         ;0f6a  0a 5f        SPI packet complete flag = complete
     set1 mem_fe5f.1         ;0f6c  1a 5f        SPI mode flag = transmit only
+
     clr1 if0h.4             ;0f6e  71 4b e1     Clear CSIIF30 (INTCSI0 interrupt flag)
     set1 mk0h.4             ;0f71  71 4a e5     Set CSIMK30 (disables INTCSI30)
+
     call !sio31_disable     ;0f74  9a df 08     Disable SIO31 (unknown SPI)
     clr1 mem_fe5f.2         ;0f77  2b 5f
     mov a,#0x00             ;0f79  a1 00
     mov !mem_f032,a         ;0f7b  9e 32 f0
-    clr1 if0h.5             ;0f7e  71 5b e1     Clear CSIIF31
-    set1 mk0h.5             ;0f81  71 5a e5     Set CSIMK31
+    clr1 if0h.5             ;0f7e  71 5b e1     Clear CSIIF31 (CSIIF31 interrupt flag)
+    set1 mk0h.5             ;0f81  71 5a e5     Set CSIMK31 (disables INTCSI31)
+
     mov a,#0x00             ;0f84  a1 00
     mov !mem_f04e,a         ;0f86  9e 4e f0
     clr1 mem_fe5f.5         ;0f89  5b 5f
@@ -4191,9 +4192,9 @@ lab_1012:
     mov !mem_f18d,a         ;1014  9e 8d f1
     mov a,#0x7f             ;1017  a1 7f
     mov !mem_fca2,a         ;1019  9e a2 fc
-    clr1 mk0l.2             ;101c  71 2b e4
-    clr1 pr0l.2             ;101f  71 2b e8
-    set1 egn.1              ;1022  71 1a 49
+    clr1 mk0l.2             ;101c  71 2b e4     Clear PMK1 (enables INTP1)
+    clr1 pr0l.2             ;101f  71 2b e8     Clear PPR1 (makes INTP1 high priority)
+    set1 egn.1              ;1022  71 1a 49     Set EGN1 (enables INTP1 on falling edge)
     mov a,#0x02             ;1025  a1 02
     mov !mem_f18c,a         ;1027  9e 8c f1
     call !sub_3bf7          ;102a  9a f7 3b
@@ -4216,20 +4217,23 @@ lab_1036:
     mov a,#0x00             ;1048  a1 00
     mov !mem_fbcd,a         ;104a  9e cd fb
     mov !mem_fbcc,a         ;104d  9e cc fb
-    clr1 mk0l.5             ;1050  71 5b e4
-    set1 pr0l.5             ;1053  71 5a e8
-    set1 egn.4              ;1056  71 4a 49     Enable INTP4 on falling edge (POWER key)
-    set1 egp.4              ;1059  71 4a 48     Enable INTP4 on rising edge (POWER key)
-    clr1 mk0l.7             ;105c  71 7b e4
-    set1 pr0l.7             ;105f  71 7a e8
-    set1 egn.6              ;1062  71 6a 49     Enable INTP6 on falling edge (STOP/EJECT key)
-    clr1 egp.6              ;1065  71 6b 48     Disable INTP6 on rising edge (STOP/EJECT key)
+
+    clr1 mk0l.5             ;1050  71 5b e4     Clear PMK4 (enables INTP4)
+    set1 pr0l.5             ;1053  71 5a e8     Set PPR4 (makes INTP4 low priority)
+    set1 egn.4              ;1056  71 4a 49     Set EGN4 (diables INTP4 on falling edge) (POWER key)
+    set1 egp.4              ;1059  71 4a 48     Set EGP4 (enables INTP4 on rising edge) (POWER key)
+
+    clr1 mk0l.7             ;105c  71 7b e4     Clear PMK6 (enables INTP6)
+    set1 pr0l.7             ;105f  71 7a e8     Set PPR6 (makes INTP6 low priority)
+    set1 egn.6              ;1062  71 6a 49     Set EGN6 (enables INTP6 on falling edge) (STOP/EJECT key)
+    clr1 egp.6              ;1065  71 6b 48     Clear EGP6 (disables INTP6 on rising edge) (STOP/EJECT key)
+
     clr1 mem_fe66.6         ;1068  6b 66
     mov tmc01,#0x00         ;106a  13 68 00
-    set1 mk1l.3             ;106d  71 3a e6
-    set1 mk1l.4             ;1070  71 4a e6
+    set1 mk1l.3             ;106d  71 3a e6     Set TMMK001 (disables INTTM001)
+    set1 mk1l.4             ;1070  71 4a e6     Set TMMK011 (disables INTTM011)
     mov tmc01,#0x04         ;1073  13 68 04
-    set1 mk0l.1             ;1076  71 1a e4
+    set1 mk0l.1             ;1076  71 1a e4     Set PMK0 (disables INTP0)
     mov a,#0x00             ;1079  a1 00
     mov mem_fe34,a          ;107b  f2 34
     mov !mem_f198,a         ;107d  9e 98 f1
@@ -4239,12 +4243,15 @@ lab_1036:
     clr1 mem_fe67.4         ;1087  4b 67
     clr1 mem_fe67.7         ;1089  7b 67
     clr1 mem_fe68.0         ;108b  0b 68
-    clr1 mk0l.1             ;108d  71 1b e4
-    clr1 pr0l.1             ;1090  71 1b e8
-    clr1 egn.0              ;1093  71 0b 49
-    set1 egp.0              ;1096  71 0a 48
-    set1 egp.0              ;1099  71 0a 48
-    clr1 egn.0              ;109c  71 0b 49
+
+    clr1 mk0l.1             ;108d  71 1b e4     Clear PMK0 (enables INTP0)
+    clr1 pr0l.1             ;1090  71 1b e8     Clear PPR0 (makes INTP0 high priority)
+    clr1 egn.0              ;1093  71 0b 49     Clear EGN0 (disables INTP0 on falling edge)
+    set1 egp.0              ;1096  71 0a 48     Set EGN0 (enables INTP0 on rising edge)
+    ;XXX redundant, sets EGN0 and EGP0 the same again
+    set1 egp.0              ;1099  71 0a 48     Set EGN0 (enables INTP0 on rising edge)
+    clr1 egn.0              ;109c  71 0b 49     Clear EGN0 (disables INTP0 on falling edge)
+
     clr1 pm5.7              ;109f  71 7b 25
     set1 shadow_p5.7        ;10a2  7a cf
     mov a,shadow_p5         ;10a4  f0 cf
@@ -4272,7 +4279,7 @@ lab_1036:
     mov a,#0x00             ;10d6  a1 00
     mov !mem_fb13,a         ;10d8  9e 13 fb
     call !sio31_enable      ;10db  9a 2f 26     Enable SIO31 (unknown SPI)
-    clr1 mk0h.5             ;10de  71 5b e5     Clear CSIMK31
+    clr1 mk0h.5             ;10de  71 5b e5     Clear CSIMK31 (enables INTCSI31)
     clr1 pr0h.5             ;10e1  71 5b e9     Clear CSIPR31 (makes INTCSI31 high priority)
     callf !sub_08cc         ;10e4  0c cc        SPI xfer on SIO31 (send byte in A, recv byte in A)
     call !sub_d16e          ;10e6  9a 6e d1
@@ -4330,7 +4337,8 @@ lab_1123:
     clr1 mk1l.0             ;114e  71 0b e6       Clear WTNIMK0 (enables INTWTNI0)
     clr1 pr1l.0             ;1151  71 0b ea       Clear WTNIPR0 (makes INTWTNI0 high priority)
 
-    btclr mem_fe61.7,lab_115c ;1154  31 71 61 04
+    btclr mem_fe61.7,lab_115c ;1154  31 71 61 04  If bit is set indicating INTP2 occurred,
+                              ;                     clear that bit and branch
     bf p0.2,lab_118f        ;1158  31 23 00 33
 
 lab_115c:
@@ -4354,10 +4362,10 @@ lab_117a:
 lab_117c:
     mov wdtm,#0x90          ;117c  13 f9 90     Keep watchdog happy
     bt p0.2,lab_117a        ;117f  ac 00 f8
-    set1 mk0l.3             ;1182  71 3a e4
-    clr1 if0l.3             ;1185  71 3b e0
+    set1 mk0l.3             ;1182  71 3a e4     Set INTP2 (disables INTP2)
+    clr1 if0l.3             ;1185  71 3b e0     Clear PIF2 (INTP2 interrupt flag)
     set1 mem_fe7d.1         ;1188  1a 7d
-    clr1 mem_fe61.7         ;118a  7b 61
+    clr1 mem_fe61.7         ;118a  7b 61        Clear bit indicating INTP2 occurred
     br !lab_0dcf            ;118c  9b cf 0d
 
 lab_118f:
@@ -4876,7 +4884,7 @@ lab_14d6:
     callt [0x0040]          ;14eb  c1
 
 lab_14ec:
-    bt mem_fe61.7,lab_150c  ;14ec  fc 61 1d
+    bt mem_fe61.7,lab_150c  ;14ec  fc 61 1d     Branch if INTP2 occurred
     bt mem_fe61.6,lab_150c  ;14ef  ec 61 1a
     call !sub_0a60          ;14f2  9a 60 0a
     bf mem_fe63.7,lab_150c  ;14f5  31 73 63 13
@@ -9765,7 +9773,7 @@ intser0_32df:
     mov x,a                 ;32e5  70             Save UART0 status register in X
 
     mov a,rxb0_txs0         ;32e6  f0 18          A = byte received
-    clr1 if0h.2             ;32e8  71 2b e1       Clear receive complete interrupt flag
+    clr1 if0h.2             ;32e8  71 2b e1       Clear SRIF0 (INTSR0 interrupt flag)
 
     bf mem_fe7a.2,lab_3304  ;32eb  31 23 7a 15
     bt shadow_p2.6,lab_331c ;32ef  ec cc 2a
@@ -10979,17 +10987,17 @@ lab_3ab0:
 lab_3ab8:
     clr1 mem_fe7a.5         ;3ab8  5b 7a
     clr1 mem_fe7b.7         ;3aba  7b 7b
-    mov asim0,#0x00         ;3abc  13 a0 00     UART0 mode register = 0 (UART fully disabled)
-    mov brgc0,#0x7e         ;3abf  13 a2 7e     Baud rate generator 0 = 546 baud (???)
-    mov asim0,#0x48         ;3ac2  13 a0 48     UART0 mode register = RX only, N81
-    clr1 mk0h.1             ;3ac5  71 1b e5     Clear SERMK0 (enables INTSER0)
-    set1 pr0h.1             ;3ac8  71 1a e9     Set SERPR0 (makes INTSER0 low priority)
+    mov asim0,#0x00         ;3abc  13 a0 00   UART0 mode register = 0 (UART fully disabled)
+    mov brgc0,#0x7e         ;3abf  13 a2 7e   Baud rate generator 0 = 546 baud (???)
+    mov asim0,#0x48         ;3ac2  13 a0 48   UART0 mode register = RX only, N81
+    clr1 mk0h.1             ;3ac5  71 1b e5   Clear SERMK0 (enables INTSER0)
+    set1 pr0h.1             ;3ac8  71 1a e9   Set SERPR0 (makes INTSER0 low priority)
 
 lab_3acb:
     ret                     ;3acb  af
 
 intp2_3acc:
-    set1 mem_fe61.7         ;3acc  7a 61
+    set1 mem_fe61.7         ;3acc  7a 61      Set bit to indicate INTP2 occurred
     reti                    ;3ace  8f
 
 sub_3acf:
@@ -11049,8 +11057,8 @@ lab_3b37:
 sub_3b3a:
     mov tmc00,#0x00         ;3b3a  13 60 00
     mov toc00,#0x00         ;3b3d  13 63 00
-    set1 mk1l.1             ;3b40  71 1a e6
-    set1 mk1l.2             ;3b43  71 2a e6
+    set1 mk1l.1             ;3b40  71 1a e6     Set WTNIMK0 (disables INTWTNI0)
+    set1 mk1l.2             ;3b43  71 2a e6     Set TMMK000 (disables INTTM000)
     movw ax,#0x0000         ;3b46  10 00 00
     movw !0xf00a,ax         ;3b49  03 0a f0
     ret                     ;3b4c  af
@@ -11075,8 +11083,8 @@ lab_3b6a:
     cmpw ax,#0x0000         ;3b6b  ea 00 00
     bz sub_3b35             ;3b6e  ad c5
     movw !0xf00a,ax         ;3b70  03 0a f0
-    clr1 if1l.1             ;3b73  71 1b e2
-    clr1 mk1l.1             ;3b76  71 1b e6
+    clr1 if1l.1             ;3b73  71 1b e2     Clear TMIF000 (INTTM000 interrupt flag)
+    clr1 mk1l.1             ;3b76  71 1b e6     Clear WTNIMK0 (enables INTWTNI0)
 
 lab_3b79:
     mov a,tmc00             ;3b79  f4 60
@@ -11088,8 +11096,8 @@ lab_3b7f:
 
 sub_3b80:
     mov tmc00,#0x00         ;3b80  13 60 00
-    set1 mk1l.1             ;3b83  71 1a e6
-    set1 mk1l.2             ;3b86  71 2a e6
+    set1 mk1l.1             ;3b83  71 1a e6     Set WTNIMK0 (disables INTWTNI0)
+    set1 mk1l.2             ;3b86  71 2a e6     Set TMMK000 (disables INTTM000)
     movw ax,!0xf00a         ;3b89  02 0a f0
     movw cr010,ax           ;3b8c  99 0c
     movw ax,!0xf008         ;3b8e  02 08 f0
@@ -16674,8 +16682,8 @@ lab_59fd:
     mov !mem_fb05,a         ;5a01  9e 05 fb
     clr1 mem_fe67.4         ;5a04  4b 67
     clr1 mem_fe67.5         ;5a06  5b 67
-    set1 egp.0              ;5a08  71 0a 48
-    clr1 egn.0              ;5a0b  71 0b 49
+    set1 egp.0              ;5a08  71 0a 48     Set EGP0 (enables INTP0 on rising edge)
+    clr1 egn.0              ;5a0b  71 0b 49     Clear EGN0 (disables INTP0 on falling edge)
 
 lab_5a0e:
 ;Pop registers and reti
@@ -16701,8 +16709,8 @@ lab_5a23:
 
 lab_5a27:
     mov mem_fe34,#0x01      ;5a27  11 34 01
-    set1 egn.0              ;5a2a  71 0a 49
-    clr1 egp.0              ;5a2d  71 0b 48
+    set1 egn.0              ;5a2a  71 0a 49     Set EGN0 (enables INTP0 on falling edge)
+    clr1 egp.0              ;5a2d  71 0b 48     Clear EGP0 (disables INTP0 on rising edge)
     movw ax,de              ;5a30  c4
     movw !mem_f00e,ax       ;5a31  03 0e f0
     mov a,#0x0e             ;5a34  a1 0e
@@ -16718,8 +16726,8 @@ lab_5a3d:
     cmpw ax,#0xc49c         ;5a42  ea 9c c4
     bnc lab_59fd            ;5a45  9d b6
     mov mem_fe34,#0x02      ;5a47  11 34 02
-    set1 egp.0              ;5a4a  71 0a 48
-    clr1 egn.0              ;5a4d  71 0b 49
+    set1 egp.0              ;5a4a  71 0a 48     Set EGP0 (enables INTP0 on rising edge)
+    clr1 egn.0              ;5a4d  71 0b 49     Clear EGN0 (disables INTP0 on falling edge)
     mov a,#0x07             ;5a50  a1 07
     mov !mem_fb05,a         ;5a52  9e 05 fb
     br !lab_5a0e            ;5a55  9b 0e 5a     Branch to pop registers and reti
@@ -16775,9 +16783,9 @@ sub_5a85:
     movw cr011,ax           ;5abb  99 12
     movw !0xf018,ax         ;5abd  03 18 f0
     clr1 mem_fe68.2         ;5ac0  2b 68
-    clr1 pr1l.4             ;5ac2  71 4b ea
-    clr1 if1l.4             ;5ac5  71 4b e2
-    clr1 mk1l.4             ;5ac8  71 4b e6
+    clr1 pr1l.4             ;5ac2  71 4b ea     Clear TMPR011 (makes INTTM011 high priority)
+    clr1 if1l.4             ;5ac5  71 4b e2     Clear TMIF001 (INTWTNI0 interrupt flag)
+    clr1 mk1l.4             ;5ac8  71 4b e6     Clear TMMK011 (enables INTTM011)
     set1 mem_fe68.3         ;5acb  3a 68
     set1 cy                 ;5acd  20
     ret                     ;5ace  af
@@ -16900,7 +16908,7 @@ lab_5b90:
     set1 shadow_p5.7        ;5b97  7a cf
     mov a,shadow_p5         ;5b99  f0 cf
     mov p5,a                ;5b9b  f2 05
-    set1 mk1l.4             ;5b9d  71 4a e6
+    set1 mk1l.4             ;5b9d  71 4a e6     Set TMMK011 (disables INTTM011)
 
 lab_5ba0:
     pop hl                  ;5ba0  b6
@@ -17460,7 +17468,7 @@ lab_5f0d:
     decw hl                 ;5f15  96
 
 lab_5f16:
-    bt mem_fe61.7,lab_5f4b  ;5f16  fc 61 32
+    bt mem_fe61.7,lab_5f4b  ;5f16  fc 61 32     Branch if INTP2 occurred
     dec b                   ;5f19  53
     bnz lab_5f26            ;5f1a  bd 0a
     bf mem_fe68.5,lab_5f26  ;5f1c  31 53 68 06
@@ -17474,12 +17482,12 @@ lab_5f26:
     mov c,#0x50             ;5f2b  a2 50
 
 lab_5f2d:
-    bt if0h.6,lab_5f35      ;5f2d  31 66 e1 04  Branch if IICIF0 is set
+    bt if0h.6,lab_5f35      ;5f2d  31 66 e1 04  Branch if IICIF0 (INTIIC0 interrupt flag) is set
     dbnz c,lab_5f2d         ;5f31  8a fa
     callf !sub_0879         ;5f33  0c 79        Just returns
 
 lab_5f35:
-    clr1 if0h.6             ;5f35  71 6b e1     Clear IICIF0
+    clr1 if0h.6             ;5f35  71 6b e1     Clear IICIF0 (INTIIC0 interrupt flag)
     mov a,iic0              ;5f38  f0 1f
     mov [hl],a              ;5f3a  97
     dbnz b,lab_5f16         ;5f3b  8b d9
@@ -17562,7 +17570,7 @@ lab_5fa9:
     mov b,a                 ;5fad  73
 
 lab_5fae:
-    bt mem_fe61.7,lab_5feb  ;5fae  fc 61 3a
+    bt mem_fe61.7,lab_5feb  ;5fae  fc 61 3a     Branch if INTP2 occurred
     mov a,[hl]              ;5fb1  87
     mov iic0,a              ;5fb2  f2 1f
     incw hl                 ;5fb4  86
@@ -17578,12 +17586,12 @@ lab_5fc0:
     mov c,#0x50             ;5fc0  a2 50
 
 lab_5fc2:
-    bt if0h.6,lab_5fca      ;5fc2  31 66 e1 04  Branch if IICIF0 is set
+    bt if0h.6,lab_5fca      ;5fc2  31 66 e1 04  Branch if IICIF0 (INTIIC0 interrupt flag) is set
     dbnz c,lab_5fc2         ;5fc6  8a fa
     callf !sub_0879         ;5fc8  0c 79        Just returns
 
 lab_5fca:
-    clr1 if0h.6             ;5fca  71 6b e1     Clear IICIF0
+    clr1 if0h.6             ;5fca  71 6b e1     Clear IICIF0 (INTIIC0 interrupt flag)
     cmp a,iic0              ;5fcd  4e 1f
     bnz lab_5feb            ;5fcf  bd 1a
     mov1 cy,iics0.2         ;5fd1  71 2c a9
@@ -17634,12 +17642,12 @@ lab_5fff:
     mov c,#0x50             ;601e  a2 50
 
 lab_6020:
-    bt if0h.6,lab_6028      ;6020  31 66 e1 04  Branch if IICIF0 is set
+    bt if0h.6,lab_6028      ;6020  31 66 e1 04  Branch if IICIF0 (INTIIC0 interrupt flag) is set
     dbnz c,lab_6020         ;6024  8a fa
     callf !sub_0879         ;6026  0c 79        Just returns
 
 lab_6028:
-    clr1 if0h.6             ;6028  71 6b e1     Clear IICIF0
+    clr1 if0h.6             ;6028  71 6b e1     Clear IICIF0 (INTIIC0 interrupt flag)
     pop ax                  ;602b  b0
     ret                     ;602c  af
 
@@ -23966,10 +23974,10 @@ sub_8824:
     mov !mem_fb18,a         ;8826  9e 18 fb
 
 lab_8829:
-    clr1 mk0h.0             ;8829  71 0b e5     Clear PMK7
-    set1 pr0h.0             ;882c  71 0a e9     Set PPR7
-    clr1 egn.7              ;882f  71 7b 49
-    set1 egp.7              ;8832  71 7a 48
+    clr1 mk0h.0             ;8829  71 0b e5     Clear PMK7 (enables INTP7)
+    set1 pr0h.0             ;882c  71 0a e9     Set PPR7 (makes INTP7 low priority)
+    clr1 egn.7              ;882f  71 7b 49     Clear EGN7 (disables INTP7 on falling edge)
+    set1 egp.7              ;8832  71 7a 48     Set EGP7 (enables INTP7 on rising edge)
     mov a,#0x00             ;8835  a1 00
     mov mem_fe4a,a          ;8837  f2 4a
     ret                     ;8839  af
@@ -23981,14 +23989,14 @@ intp7_883a:
     bz lab_884e             ;8840  ad 0c
     inc mem_fe4a            ;8842  81 4a
     bz lab_884b             ;8844  ad 05
-    clr1 if0h.0             ;8846  71 0b e1     Clear PIF7
+    clr1 if0h.0             ;8846  71 0b e1     Clear PIF7 (INTP7 interrupt flag)
     br lab_8851             ;8849  fa 06
 
 lab_884b:
     mov mem_fe4a,#0xff      ;884b  11 4a ff
 
 lab_884e:
-    set1 mk0h.0             ;884e  71 0a e5     Set PMK7
+    set1 mk0h.0             ;884e  71 0a e5     Set PMK7 (disables INTP7)
 
 lab_8851:
     pop ax                  ;8851  b0
@@ -29188,13 +29196,13 @@ sub_abf5:
     mov a,b                 ;ac04  63
     mov ads00,a             ;ac05  f6 81
     mov adm00,#0x00         ;ac07  13 80 00
-    clr1 if1l.5             ;ac0a  71 5b e2
-    set1 mk1l.5             ;ac0d  71 5a e6
+    clr1 if1l.5             ;ac0a  71 5b e2     Clear ADIF00 (INTAD00 interrupt flag)
+    set1 mk1l.5             ;ac0d  71 5a e6     Set ADMK00 (disables INTAD00)
     set1 adm00.7            ;ac10  71 7a 80
     mov b,#0x1e             ;ac13  a3 1e
 
 lab_ac15:
-    bt if1l.5,lab_ac1e      ;ac15  31 56 e2 05
+    bt if1l.5,lab_ac1e      ;ac15  31 56 e2 05  Branch if ADIF00 (INTAD00 interrupt flag) is set
     dbnz b,lab_ac15         ;ac19  8b fa
     set1 cy                 ;ac1b  20
     br lab_ac21             ;ac1c  fa 03
@@ -29217,13 +29225,13 @@ lab_ac25:
     mov a,b                 ;ac31  63
     mov ads01,a             ;ac32  f6 89
     mov adm01,#0x00         ;ac34  13 88 00
-    clr1 if1l.6             ;ac37  71 6b e2
-    set1 mk1l.6             ;ac3a  71 6a e6
+    clr1 if1l.6             ;ac37  71 6b e2     Clear ADIF01 (INTAD01 interrupt flag)
+    set1 mk1l.6             ;ac3a  71 6a e6     Set ADMK01 (disables INTAD01)
     set1 adm01.7            ;ac3d  71 7a 88
     mov b,#0x1e             ;ac40  a3 1e
 
 lab_ac42:
-    bt if1l.6,lab_ac4b      ;ac42  31 66 e2 05
+    bt if1l.6,lab_ac4b      ;ac42  31 66 e2 05  Branch if ADIF01 (INTAD01 interrupt flag) is set
     dbnz b,lab_ac42         ;ac46  8b fa
     set1 cy                 ;ac48  20
     br lab_ac4e             ;ac49  fa 03
