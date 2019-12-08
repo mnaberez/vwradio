@@ -3745,7 +3745,8 @@ lab_0cf2:
     ret                     ;0cf3  af
 
 sub_0cf4:
-;Probably binary to BCD
+;Convert binary number in A to BCD number in AX
+;Example: A=123 -> AX=0x0123
     push de                 ;0cf4  b5
     movw de,#0x0000         ;0cf5  14 00 00
     mov b,#0x08             ;0cf8  a3 08
@@ -3832,6 +3833,8 @@ lab_0d5e:
     mulu x                  ;0d5e  31 88
 
 sub_0d60:
+;HL = HL + AX, preserves AX
+;Example: HL=0x1234, AX=0x0101 -> HL=0x1335, AX=0x0101
     xch a,x                 ;0d60  30
     add l,a                 ;0d61  61 06
     xch a,x                 ;0d63  30
@@ -3970,7 +3973,7 @@ lab_0e39:
     mov [hl],a              ;0e39  97
     incw hl                 ;0e3a  86
     xchw ax,hl              ;0e3b  e6
-    cmpw ax,#0xf800         ;0e3c  ea 00 f8     Stop at end of Expansion RAM
+    cmpw ax,#mem_f000+0x800 ;0e3c  ea 00 f8     Stop at end of Expansion RAM
     xchw ax,hl              ;0e3f  e6
     bc lab_0e39             ;0e40  8d f7
 
@@ -4296,9 +4299,14 @@ lab_1036:
     mov !mem_fc8a,a         ;1101  9e 8a fc
     mov a,#0x02             ;1104  a1 02
     mov mem_fe54,a          ;1106  f2 54
+
+    ;Leave 0x55 and 0xAA cookies in RAM that are checked on reset
+    ;to determine if a warm start can be performed.
+
     mov a,#0x55             ;1108  a1 55
     mov !mem_f18e,a         ;110a  9e 8e f1
     mov !mem_fca5,a         ;110d  9e a5 fc
+
     mov a,#0xaa             ;1110  a1 aa
     mov !stack_top,a        ;1112  9e 1f fe
     mov !mem_fb91,a         ;1115  9e 91 fb
@@ -4860,7 +4868,7 @@ lab_14c2:
     br !lab_0dcf            ;14c6  9b cf 0d
 
 lab_14c9:
-    mov a,#0xaa             ;14c9  a1 aa
+    mov a,#0xaa             ;14c9  a1 aa        A = 0xAA cookie that should not be touched
     cmp a,!stack_top        ;14cb  48 1f fe
     bnz lab_14d5            ;14ce  bd 05
     cmp a,!mem_fb91         ;14d0  48 91 fb
@@ -7620,7 +7628,7 @@ sio31_enable:
     mov p2,a                ;2645  f2 02
     ret                     ;2647  af
 
-lab_2648:
+sub_2648:
     cmp a,#0x0a             ;2648  4d 0a
     bc lab_2652             ;264a  8d 06
     sub a,#0x0a             ;264c  1d 0a
@@ -8746,7 +8754,7 @@ lab_2cde:
 
 sub_2cdf:
 ;Returns carry set = failure, carry clear = success
-    callf !sub_0d60         ;2cdf  5c 60
+    callf !sub_0d60         ;2cdf  5c 60      HL = HL + AX, preserves AX
     xchw ax,hl              ;2ce1  e6
     bc lab_2d0f_failed      ;2ce2  8d 2b
     bt mem_fe60.2,lab_2d08  ;2ce4  ac 60 21
@@ -20376,7 +20384,7 @@ lab_710b:
     br !lab_7054            ;7119  9b 54 70
 
 lab_711c:
-    callf !sub_0cf4         ;711c  4c f4        Probably binary to BCD
+    callf !sub_0cf4         ;711c  4c f4        Convert binary number in A to BCD number in AX
     push ax                 ;711e  b1
     push ax                 ;711f  b1
 
@@ -20526,7 +20534,7 @@ lab_71f2:
 
     movw hl,#upd_disp       ;7201  16 9a f1
     mov a,!mem_f206         ;7204  8e 06 f2
-    call !sub_0cf4          ;7207  9a f4 0c
+    call !sub_0cf4          ;7207  9a f4 0c     Convert binary number in A to BCD number in AX
     mov a,x                 ;720a  60
     and a,#0x0f             ;720b  5d 0f
     add a,#'0               ;720d  0d 30        Convert it to ASCII
@@ -20734,7 +20742,7 @@ lab_7351:
     mov a,!mem_f254         ;735b  8e 54 f2     ONVOL related
     clr1 a.0                ;735e  61 8b
     ror a,1                 ;7360  24
-    call !sub_0cf4          ;7361  9a f4 0c     Probably binary to BCD
+    call !sub_0cf4          ;7361  9a f4 0c     Convert binary number in A to BCD number in AX
 
     mov a,x                 ;7364  60
     and a,#0x0f             ;7365  5d 0f
