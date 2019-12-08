@@ -70,7 +70,7 @@ mem_f18a = 0xf18a
 mem_f18b = 0xf18b
 mem_f18c = 0xf18c
 mem_f18d = 0xf18d
-mem_f18e = 0xf18e
+mem_f18e = 0xf18e           ;Cookie used to determine whether to cold or warm start
 mem_f18f = 0xf18f
 mem_f190 = 0xf190
 mem_f191 = 0xf191
@@ -1214,7 +1214,7 @@ lab_0271:
     push psw                ;0276  22
     push de                 ;0277  b5
     pop hl                  ;0278  b6
-    callf !sub_0d6d         ;0279  5c 6d
+    callf !sub_0d6d         ;0279  5c 6d        HL = HL + B
     mov x,#0x00             ;027b  a0 00
     mov a,[hl]              ;027d  87
     pop psw                 ;027e  23
@@ -1248,7 +1248,7 @@ lab_0294:
     rol a,1                 ;029b  26
     push de                 ;029c  b5
     pop hl                  ;029d  b6
-    callf !sub_0d67         ;029e  5c 67
+    callf !sub_0d67         ;029e  5c 67        HL = HL + A
     mov a,[hl]              ;02a0  87
     mov x,a                 ;02a1  70
     mov a,[hl+0x01]         ;02a2  ae 01
@@ -3624,7 +3624,7 @@ lab_0c85:
     not1 cy                 ;0c85  01
     ret                     ;0c86  af
 
-lab_0c87:
+sub_0c87:
     push bc                 ;0c87  b3
     mov a,b                 ;0c88  63
     ror a,1                 ;0c89  24
@@ -3752,7 +3752,7 @@ sub_0cf4:
     movw de,#0x0000         ;0cf5  14 00 00
     mov b,#0x08             ;0cf8  a3 08
 
-lab_0cfa:
+sub_0cfa:
     rolc a,1                ;0cfa  27
     mov x,a                 ;0cfb  70
     mov a,e                 ;0cfc  64
@@ -3763,12 +3763,12 @@ lab_0cfa:
     addc a,d                ;0d03  61 2d
     mov d,a                 ;0d05  75
     mov a,x                 ;0d06  60
-    dbnz b,lab_0cfa         ;0d07  8b f1
+    dbnz b,sub_0cfa         ;0d07  8b f1
     movw ax,de              ;0d09  c4
     pop de                  ;0d0a  b4
     ret                     ;0d0b  af
 
-lab_0d0c:
+sub_0d0c:
     mov a,c                 ;0d0c  62
     and a,#0x0f             ;0d0d  5d 0f
     add a,#0x30             ;0d0f  0d 30
@@ -3813,7 +3813,7 @@ sub_0d3b:
     add a,x                 ;0d46  61 08
     ret                     ;0d48  af
 
-lab_0d49:
+sub_0d49:
     push ax                 ;0d49  b1
     mov a,x                 ;0d4a  60
     callf !sub_0d3b         ;0d4b  5c 3b
@@ -3830,8 +3830,10 @@ lab_0d49:
     addc a,#0x00            ;0d5b  2d 00
     ret                     ;0d5d  af
 
-lab_0d5e:
-    mulu x                  ;0d5e  31 88
+sub_0d5e:
+;HL = HL + (A * X)
+    mulu x                  ;0d5e  31 88      AX = A * X
+                            ;Fall through
 
 sub_0d60:
 ;HL = HL + AX, preserves AX
@@ -3843,30 +3845,33 @@ sub_0d60:
     ret                     ;0d66  af
 
 sub_0d67:
+;HL = HL + A
     add l,a                 ;0d67  61 06
     bnc lab_0d6c            ;0d69  9d 01
     inc h                   ;0d6b  47
-
 lab_0d6c:
     ret                     ;0d6c  af
 
 sub_0d6d:
+;HL = HL + B
     xch a,b                 ;0d6d  33
     add l,a                 ;0d6e  61 06
     bnc lab_0d73            ;0d70  9d 01
     inc h                   ;0d72  47
-
 lab_0d73:
     xch a,b                 ;0d73  33
     ret                     ;0d74  af
 
 badisr_0d75:
+;Force cold start
+;Handles any unexpected interrupt
+;kwp_7c_1b_2f also branches here
     clr1 shadow_p9.7        ;0d75  7b d3
     clr1 pm9.7              ;0d77  71 7b 29
     mov a,shadow_p9         ;0d7a  f0 d3
     mov p9,a                ;0d7c  f2 09
     mov a,#0x00             ;0d7e  a1 00
-    mov !mem_f18e,a         ;0d80  9e 8e f1
+    mov !mem_f18e,a         ;0d80  9e 8e f1     Clear cookie to cause a cold start
     mov wdtm,#0x98          ;0d83  13 f9 98
 
 lab_0d86:
@@ -3901,7 +3906,7 @@ rst_0d88:
     call !sub_4076          ;0dc5  9a 76 40
     bz lab_0dcf             ;0dc8  ad 05
     mov a,#0x00             ;0dca  a1 00
-    mov !mem_f18e,a         ;0dcc  9e 8e f1
+    mov !mem_f18e,a         ;0dcc  9e 8e f1     Clear cookie to cause a cold start
 
 lab_0dcf:
     mov ixs,#0x08           ;0dcf  13 f4 08     Internal expansion RAM size = 2048 bytes
@@ -8426,7 +8431,9 @@ sub_2b53:
 ;Called from lab_5581 (read eeprom related)
     push hl                 ;2b53  b7
     call !sub_2d35          ;2b54  9a 35 2d     Clear bits in mem_fe5f and mem_fe60
-    set1 mem_fe60.2         ;2b57  2a 60
+
+    set1 mem_fe60.2         ;2b57  2a 60        Set bit = address is an EEPROM address
+
     call !read_kwp_rx_3     ;2b59  9a 8b 2c     Read 3 bytes from KWP1281 rx buffer:
                             ;                       A = KWP1281 rx buffer byte 3 (number of bytes)
                             ;                       D = KWP1281 rx buffer byte 4 (address high)
@@ -8534,8 +8541,8 @@ sub_2bd4:
     mov l,a                 ;2be2  76
     mov h,#0x00             ;2be3  a7 00
     movw ax,!mem_f002       ;2be5  02 02 f0
-    call !sub_2cdf          ;2be8  9a df 2c
-    bc lab_2bf3             ;2beb  8d 06
+    call !sub_2cdf          ;2be8  9a df 2c     Check if a region in memory or EEPROM is valid
+    bc lab_2bf3             ;2beb  8d 06        Branch if invalid
     movw !mem_f002,ax       ;2bed  03 02 f0
     movw ax,hl              ;2bf0  c6
     movw de,ax              ;2bf1  d4
@@ -8549,7 +8556,7 @@ sub_2bf4:
     set1 cy                 ;2bf5  20
     bf mem_fe5f.7,lab_2c05  ;2bf6  31 73 5f 0b
     clr1 mem_fe5f.7         ;2bfa  7b 5f
-    set1 mem_fe60.2         ;2bfc  2a 60
+    set1 mem_fe60.2         ;2bfc  2a 60        Set bit = address is an EEPROM address
     call !sub_2c1a          ;2bfe  9a 1a 2c
     bc lab_2c05             ;2c01  8d 02
     set1 mem_fe5f.7         ;2c03  7a 5f
@@ -8563,7 +8570,7 @@ sub_2c07:
     set1 cy                 ;2c08  20
     bf mem_fe5f.6,lab_2c18  ;2c09  31 63 5f 0b
     clr1 mem_fe5f.6         ;2c0d  6b 5f
-    clr1 mem_fe60.2         ;2c0f  2b 60
+    clr1 mem_fe60.2         ;2c0f  2b 60        Set bit = address is not an EEPROM address
     call !sub_2c1a          ;2c11  9a 1a 2c
     bc lab_2c18             ;2c14  8d 02
     set1 mem_fe5f.6         ;2c16  6a 5f
@@ -8579,8 +8586,8 @@ sub_2c1a:
     mov l,a                 ;2c21  76
     mov h,#0x00             ;2c22  a7 00
     movw ax,!mem_f002       ;2c24  02 02 f0
-    call !sub_2cdf          ;2c27  9a df 2c
-    bc lab_2c32             ;2c2a  8d 06
+    call !sub_2cdf          ;2c27  9a df 2c     Check if a region in memory or EEPROM is valid
+    bc lab_2c32             ;2c2a  8d 06        Branch if invalid
     movw !mem_f002,ax       ;2c2c  03 02 f0
     movw ax,hl              ;2c2f  c6
     movw de,ax              ;2c30  d4
@@ -8597,19 +8604,24 @@ sub_2c33:
     bnc sub_2c33            ;2c36  9d fb        Repeat until success
 
     call !sub_2d35          ;2c38  9a 35 2d     Clear bits in mem_fe5f and mem_fe60
-    set1 mem_fe60.2         ;2c3b  2a 60
+
+    set1 mem_fe60.2         ;2c3b  2a 60        Set bit to indicate region is in EEPROM
+
     call !read_kwp_rx_3     ;2c3d  9a 8b 2c     Read 3 bytes from KWP1281 rx buffer:
                             ;                       A = KWP1281 rx buffer byte 3 (number of bytes)
                             ;                       D = KWP1281 rx buffer byte 4 (EEPROM addr high)
                             ;                       E = KWP1281 rx buffer byte 5 (EEPROM addr low)
-    mov !mem_f04c,a         ;2c40  9e 4c f0
-    mov l,a                 ;2c43  76
-    mov h,#0x00             ;2c44  a7 00
-    movw ax,de              ;2c46  c4
-    movw !mem_f004,ax       ;2c47  03 04 f0
 
-    call !sub_2cdf          ;2c4a  9a df 2c
-    bc lab_2c7b_failed      ;2c4d  8d 2c
+    mov !mem_f04c,a         ;2c40  9e 4c f0     Store number of bytes to write
+
+    mov l,a                 ;2c43  76           HL = number of bytes to write
+    mov h,#0x00             ;2c44  a7 00
+
+    movw ax,de              ;2c46  c4           AX = EEPROM address to write
+    movw !mem_f004,ax       ;2c47  03 04 f0     Store EEPROM address
+
+    call !sub_2cdf          ;2c4a  9a df 2c     Check if a region in memory or EEPROM is valid
+    bc lab_2c7b_failed      ;2c4d  8d 2c        Branch if invalid
 
     bf mem_fe65.5,lab_2c6c_write ;2c4f  31 53 65 19   Skip protection checks if ?? bit is off
 
@@ -8754,39 +8766,70 @@ lab_2cde:
 
 
 sub_2cdf:
-;Returns carry set = failure, carry clear = success
+;Check if a region in memory or EEPROM is valid for
+;KWP1281 read or write.
+;
+;Called with:
+;  AX = start address
+;  HL = number of bytes
+;  mem_fe60.2 = address type (0=EEPROM, 1=memory)
+;
+;Valid regions (range inclusive):
+;  EEPROM:
+;    0x0000 - 0x01FF    All 512 bytes of M24C04
+;  Memory:
+;    0x0000 - 0xEFFE    All of Flash ROM except last byte
+;    0xF000 - 0xF7FD    All of Expansion RAM except last 2 bytes
+;    0xFB00 - 0xFFFE    All of High Speed RAM except last byte
+;
+;XXX The regions above were determined by running this code
+;    with AX=address and HL=1.  The missing bytes at the end
+;    of the regions is mostly likely a bug.
+;
+;Returns carry set = invalid, carry clear = valid
+;
     callf !sub_0d60         ;2cdf  5c 60      HL = HL + AX, preserves AX
-    xchw ax,hl              ;2ce1  e6
-    bc lab_2d0f_failed      ;2ce2  8d 2b
-    bt mem_fe60.2,lab_2d08  ;2ce4  ac 60 21
+                            ;                 HL now contains end address of region + 1
+
+    xchw ax,hl              ;2ce1  e6         HL = start address of region
+                            ;                 AX = end address of region + 1
+
+    bc lab_2d0f_invalid      ;2ce2  8d 2b
+
+    bt mem_fe60.2,lab_2d08  ;2ce4  ac 60 21   Branch if address is an EEPROM address
+
+    ;Address is memory (not EEPROM)
+
     cmpw ax,#mem_f000       ;2ce7  ea 00 f0
     bnc lab_2cee            ;2cea  9d 02
-    br lab_2d0f_success     ;2cec  fa 1f
+    br lab_2d0f_valid       ;2cec  fa 1f
 
 lab_2cee:
     xchw ax,hl              ;2cee  e6
     cmpw ax,#mem_fb00       ;2cef  ea 00 fb
     xchw ax,hl              ;2cf2  e6
-    bnc lab_2d0f_success    ;2cf3  9d 18
+    bnc lab_2d0f_valid      ;2cf3  9d 18
     cmpw ax,#mem_f000       ;2cf5  ea 00 f0
-    bc lab_2d0f_failed      ;2cf8  8d 15
-    cmpw ax,#0xf7ff         ;2cfa  ea ff f7
-    bnc lab_2d0f_failed     ;2cfd  9d 10
+    bc lab_2d0f_invalid     ;2cf8  8d 15
+    cmpw ax,#mem_f000+0x7ff ;2cfa  ea ff f7
+    bnc lab_2d0f_invalid    ;2cfd  9d 10
     xchw ax,hl              ;2cff  e6
     cmpw ax,#mem_f000       ;2d00  ea 00 f0
     xchw ax,hl              ;2d03  e6
-    bnc lab_2d0f_success    ;2d04  9d 07
-    br lab_2d0f_failed      ;2d06  fa 07
+    bnc lab_2d0f_valid      ;2d04  9d 07
+    br lab_2d0f_invalid     ;2d06  fa 07
 
 lab_2d08:
-    cmpw ax,#0x0201         ;2d08  ea 01 02
-    bnc lab_2d0f_failed     ;2d0b  9d 02
+    ;Address is EEPROM (not memory)
 
-lab_2d0f_success:
+    cmpw ax,#512+1          ;2d08  ea 01 02
+    bnc lab_2d0f_invalid    ;2d0b  9d 02
+
+lab_2d0f_valid:
     clr1 cy                 ;2d0d  21
     ret                     ;2d0e  af
 
-lab_2d0f_failed:
+lab_2d0f_invalid:
     set1 cy                 ;2d0f  20
     ret                     ;2d10  af
 
@@ -8825,7 +8868,7 @@ sub_2d35:
     clr1 mem_fe5f.7         ;2d3b  7b 5f
     clr1 mem_fe60.0         ;2d3d  0b 60
     clr1 mem_fe60.1         ;2d3f  1b 60
-    clr1 mem_fe60.2         ;2d41  2b 60
+    clr1 mem_fe60.2         ;2d41  2b 60      Clear bit = address is not an EEPROM address
     ret                     ;2d43  af
 
 sub_2d44:
@@ -11778,7 +11821,7 @@ lab_3fcb:
     movw ax,de              ;3fcd  c4
     movw hl,ax              ;3fce  d6
     mov a,mem_fed7          ;3fcf  f0 d7
-    callf !sub_0d67         ;3fd1  5c 67
+    callf !sub_0d67         ;3fd1  5c 67        HL = HL + A
     mov a,mem_fed4          ;3fd3  f0 d4
     push hl                 ;3fd5  b7
     movw de,#mem_fbdb       ;3fd6  14 db fb     DE = pointer to buffer to receive EEPROM contents
@@ -11822,7 +11865,7 @@ lab_3fff:
     pop hl                  ;400b  b6
     push ax                 ;400c  b1
     mov a,c                 ;400d  62
-    callf !sub_0d67         ;400e  5c 67
+    callf !sub_0d67         ;400e  5c 67        HL = HL + A
     movw ax,hl              ;4010  c6
     movw de,ax              ;4011  d4
     pop ax                  ;4012  b0
@@ -11987,12 +12030,12 @@ lab_40e9:
     bnc lab_4104            ;40ef  9d 13        Branch if EEPROM read failed
     cmp mem_fed5,#0x00      ;40f1  c8 d5 00
     bz lab_4103             ;40f4  ad 0d
-    callf !sub_0d67         ;40f6  5c 67
+    callf !sub_0d67         ;40f6  5c 67        HL = HL + A
     push hl                 ;40f8  b7
     movw ax,de              ;40f9  c4
     movw hl,ax              ;40fa  d6
     mov a,b                 ;40fb  63
-    callf !sub_0d67         ;40fc  5c 67
+    callf !sub_0d67         ;40fc  5c 67        HL = HL + A
     movw ax,hl              ;40fe  c6
     movw de,ax              ;40ff  d4
     pop hl                  ;4100  b6
@@ -12130,13 +12173,13 @@ lab_41d4:
     movw ax,de              ;41de  c4
     movw hl,ax              ;41df  d6
     pop ax                  ;41e0  b0
-    callf !sub_0d67         ;41e1  5c 67
+    callf !sub_0d67         ;41e1  5c 67        HL = HL + A
     push ax                 ;41e3  b1
     movw ax,hl              ;41e4  c6
     movw de,ax              ;41e5  d4
     pop ax                  ;41e6  b0
     pop hl                  ;41e7  b6
-    callf !sub_0d67         ;41e8  5c 67
+    callf !sub_0d67         ;41e8  5c 67        HL = HL + A
     br lab_41c8             ;41ea  fa dc
 
 lab_41ec:
@@ -17137,7 +17180,7 @@ lab_5ce5:
     mov a,b                 ;5ceb  63
     dec a                   ;5cec  51
     rol a,1                 ;5ced  26
-    callf !sub_0d67         ;5cee  5c 67
+    callf !sub_0d67         ;5cee  5c 67        HL = HL + A
 
 lab_5cf0:
     mov a,[hl]              ;5cf0  87
