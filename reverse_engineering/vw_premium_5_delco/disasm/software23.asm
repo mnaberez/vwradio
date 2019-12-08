@@ -2819,6 +2819,7 @@ sio31_disable:
     set1 pm2.0              ;08f3  71 0a 22
     ret                     ;08f6  af
 
+;TODO CSI31 is probably the CD changer interface
 intcsi31_08f7:
     push ax                 ;08f7  b1
     push bc                 ;08f8  b3
