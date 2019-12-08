@@ -3557,10 +3557,19 @@ lab_0c47:
 
 sub_0c48:
 ;Load DE with word at position B in table [HL]
-;Returns carry set = failed, carry clear = success
-    decw hl                 ;0c48  96       HL = pointer to number of words in table
-    mov a,[hl]              ;0c49  87       A = number of entries in table
-    incw hl                 ;0c4a  86       HL = pointer to first word in table
+;
+;Called with:
+;  HL = first entry in table of words
+;       note: the byte before it must be the table size
+;  B = index of byte to retrieve
+;
+;Returns:
+;  DE = word from table
+;  carry set = failed (B is out of range), carry clear = success
+;
+    decw hl                 ;0c48  96       HL = back up to read number of words in table
+    mov a,[hl]              ;0c49  87       A = number of words in table
+    incw hl                 ;0c4a  86       HL = forward again to the first entry
     cmp b,a                 ;0c4b  61 43
     bnc lab_0c62            ;0c4d  9d 13
     mov a,b                 ;0c4f  63
@@ -3618,12 +3627,22 @@ lab_0c7b:
 
 
 sub_0c7d:
-;table of bytes lookup
-    decw hl                 ;0c7d  96
-    mov a,[hl]              ;0c7e  87
-    incw hl                 ;0c7f  86
+;Load A with byte at position B in table [HL]
+;
+;Called with:
+;  HL = first entry in table of bytes
+;       note: the byte before it must be the table size
+;  B = index of byte to retrieve
+;
+;Returns:
+;  A = byte from table
+;  carry set = failed (B is out of range), carry clear = success
+;
+    decw hl                 ;0c7d  96       HL = back up to read number of bytes in table
+    mov a,[hl]              ;0c7e  87       A = number of bytes in table
+    incw hl                 ;0c7f  86       HL = forward again to the first entry
     cmp b,a                 ;0c80  61 43
-    bnc lab_0c85            ;0c82  9d 01
+    bnc lab_0c85            ;0c82  9d 01    Branch if out of range
     mov a,[hl+b]            ;0c84  ab
 lab_0c85:
     not1 cy                 ;0c85  01
@@ -4657,8 +4676,8 @@ lab_1326:
     call !sub_0b0d          ;1330  9a 0d 0b
     bnc lab_12f8            ;1333  9d c3
     movw hl,#mem_b3b1+1     ;1335  16 b2 b3
-    callf !sub_0c7d         ;1338  4c 7d
-    bc lab_12f8             ;133a  8d bc
+    callf !sub_0c7d         ;1338  4c 7d      Load A with byte at position B in table [HL]
+    bc lab_12f8             ;133a  8d bc      Branch if lookup failed
     set1 a.7                ;133c  61 fa
 
 lab_133e:
@@ -6513,7 +6532,7 @@ lab_1f25:
     dec b                   ;1f28  53
     movw ax,mem_fedc        ;1f29  89 dc
     movw hl,ax              ;1f2b  d6
-    callf !sub_0c7d         ;1f2c  4c 7d
+    callf !sub_0c7d         ;1f2c  4c 7d        Load A with byte at position B in table [HL]
     cmp a,mem_fed9          ;1f2e  4e d9
     bc lab_1f35             ;1f30  8d 03
     dbnz mem_fed8,lab_1f25  ;1f32  04 d8 f0
@@ -6811,8 +6830,8 @@ lab_210e:
     mov a,!mem_fb70         ;210e  8e 70 fb
     mov b,a                 ;2111  73
     movw hl,#mem_aef1+1     ;2112  16 f2 ae
-    callf !sub_0c7d         ;2115  4c 7d
-    bnc lab_211b            ;2117  9d 02
+    callf !sub_0c7d         ;2115  4c 7d        Load A with byte at position B in table [HL]
+    bnc lab_211b            ;2117  9d 02        Branch if lookup succeeded
     mov a,#0xff             ;2119  a1 ff
 
 lab_211b:
@@ -6940,7 +6959,7 @@ sub_21f4:
     mov a,!mem_fb70         ;21f4  8e 70 fb
     mov b,a                 ;21f7  73
     movw hl,#mem_aed3+1     ;21f8  16 d4 ae
-    callf !sub_0c7d         ;21fb  4c 7d
+    callf !sub_0c7d         ;21fb  4c 7d        Load A with byte at position B in table [HL]
     mov !mem_fb22,a         ;21fd  9e 22 fb
     ret                     ;2200  af
 
@@ -6953,17 +6972,17 @@ sub_2201:
 lab_220b:
     mov b,a                 ;220b  73
     movw hl,#mem_aee7+1     ;220c  16 e8 ae
-    callf !sub_0c7d         ;220f  4c 7d
+    callf !sub_0c7d         ;220f  4c 7d        Load A with byte at position B in table [HL]
     br lab_221c             ;2211  fa 09
 
 lab_2213:
     mov a,!mem_fb70         ;2213  8e 70 fb
     mov b,a                 ;2216  73
     movw hl,#mem_aedd+1     ;2217  16 de ae
-    callf !sub_0c7d         ;221a  4c 7d
+    callf !sub_0c7d         ;221a  4c 7d        Load A with byte at position B in table [HL]
 
 lab_221c:
-    bc lab_2225             ;221c  8d 07
+    bc lab_2225             ;221c  8d 07        Branch if lookup failed
     cmp a,#0xff             ;221e  4d ff
     bnz sub_2227            ;2220  bd 05
     br !sub_248f            ;2222  9b 8f 24
@@ -12993,8 +13012,8 @@ lab_46c9:
     movw hl,#mem_b1df+1     ;46e1  16 e0 b1
 
 lab_46e4:
-    callf !sub_0c7d         ;46e4  4c 7d
-    bc lab_46f0             ;46e6  8d 08
+    callf !sub_0c7d         ;46e4  4c 7d      Load A with byte at position B in table [HL]
+    bc lab_46f0             ;46e6  8d 08      Branch if lookup failed
 
 lab_46e8:
     set1 a.7                ;46e8  61 fa
@@ -17205,9 +17224,9 @@ lab_5d02:
     mov b,a                 ;5d08  73
     push hl                 ;5d09  b7
     movw hl,#mem_b3b6+1     ;5d0a  16 b7 b3
-    callf !sub_0c7d         ;5d0d  4c 7d
+    callf !sub_0c7d         ;5d0d  4c 7d        Load A with byte at position B in table [HL]
     pop hl                  ;5d0f  b6
-    bc lab_5d39             ;5d10  8d 27
+    bc lab_5d39             ;5d10  8d 27        Branch if lookup failed
     cmp a,!mem_fb3a         ;5d12  48 3a fb
     bc lab_5d3c             ;5d15  8d 25
     bt mem_fed4.5,lab_5d31  ;5d17  dc d4 17
@@ -17251,9 +17270,9 @@ lab_5d3d:
     mov b,a                 ;5d4a  73
     push hl                 ;5d4b  b7
     movw hl,#mem_b3cc+1     ;5d4c  16 cd b3
-    callf !sub_0c7d         ;5d4f  4c 7d
+    callf !sub_0c7d         ;5d4f  4c 7d        Load A with byte at position B in table [HL]
     pop hl                  ;5d51  b6
-    bc lab_5d39             ;5d52  8d e5
+    bc lab_5d39             ;5d52  8d e5        Branch if lookup failed
     mov !mem_fbda,a         ;5d54  9e da fb
     bf mem_fed5.7,lab_5d88  ;5d57  31 73 d5 2d
 
@@ -17288,8 +17307,8 @@ lab_5d88:
     and a,#0x07             ;5d8a  5d 07
     mov b,a                 ;5d8c  73
     movw hl,#mem_b3c3+1     ;5d8d  16 c4 b3
-    callf !sub_0c7d         ;5d90  4c 7d
-    bc lab_5d39             ;5d92  8d a5
+    callf !sub_0c7d         ;5d90  4c 7d        Load A with byte at position B in table [HL]
+    bc lab_5d39             ;5d92  8d a5        Branch if lookup failed
     mov !mem_fb10,a         ;5d94  9e 10 fb
     br lab_5d3c             ;5d97  fa a3
 
@@ -19108,8 +19127,8 @@ lab_6991:
     mov a,mem_fed4          ;6991  f0 d4
     and a,#0x0f             ;6993  5d 0f
     mov b,a                 ;6995  73
-    callf !sub_0c7d         ;6996  4c 7d
-    bc lab_69a8             ;6998  8d 0e
+    callf !sub_0c7d         ;6996  4c 7d        Load A with byte at position B in table [HL]
+    bc lab_69a8             ;6998  8d 0e        Branch if lookup failed
     cmp a,#0xff             ;699a  4d ff
     bz lab_69ab             ;699c  ad 0d
     mov b,a                 ;699e  73
@@ -20181,8 +20200,8 @@ sub_6fb9:
     ror a,1                 ;6fbf  24
     ror a,1                 ;6fc0  24
     mov b,a                 ;6fc1  73
-    callf !sub_0c7d         ;6fc2  4c 7d
-    bnc lab_6fc8            ;6fc4  9d 02
+    callf !sub_0c7d         ;6fc2  4c 7d      Load A with byte at position B in table [HL]
+    bnc lab_6fc8            ;6fc4  9d 02      Branch if lookup succeeded
     mov a,#0x00             ;6fc6  a1 00
 
 lab_6fc8:
@@ -22528,9 +22547,9 @@ lab_7e70:
     bz lab_7eb6             ;7e76  ad 3e
 
 lab_7e78:
-    movw hl,#mem_b66c       ;7e78  16 6c b6
-    callf !sub_0c7d         ;7e7b  4c 7d
-    bc lab_7eb6             ;7e7d  8d 37
+    movw hl,#mem_b66b+1     ;7e78  16 6c b6
+    callf !sub_0c7d         ;7e7b  4c 7d        Load A with byte at position B in table [HL]
+    bc lab_7eb6             ;7e7d  8d 37        Branch if lookup failed
     mov mem_fe2f,a          ;7e7f  f2 2f
     movw hl,#mem_b67b+1     ;7e81  16 7c b6
     callf !sub_0c48         ;7e84  4c 48        Load DE with word at position B in table [HL]
@@ -25399,8 +25418,8 @@ sub_911b:
     callf !sub_0aa7         ;9120  2c a7
     bnc lab_912b            ;9122  9d 07
     movw hl,#mem_ba07+1     ;9124  16 08 ba
-    callf !sub_0c7d         ;9127  4c 7d
-    bnc lab_912d            ;9129  9d 02
+    callf !sub_0c7d         ;9127  4c 7d        Load A with byte at position B in table [HL]
+    bnc lab_912d            ;9129  9d 02        Branch if lookup succeeded
 
 lab_912b:
     mov a,#0x00             ;912b  a1 00
@@ -25678,7 +25697,7 @@ lab_9305:
 lab_930b:
     mov a,!mem_f200         ;930b  8e 00 f2
     mov b,a                 ;930e  73
-    movw hl,#mem_cf69       ;930f  16 69 cf
+    movw hl,#mem_cf68+1     ;930f  16 69 cf
     callf !sub_0c48         ;9312  4c 48        Load DE with word at position B in table [HL]
     movw ax,de              ;9314  c4
     bt mem_fe74.7,lab_9319  ;9315  fc 74 01
@@ -26505,7 +26524,7 @@ lab_9a4d:
 
 lab_9a70:
     movw hl,#mem_be1b+1     ;9a70  16 1c be
-    call !sub_0c7d          ;9a73  9a 7d 0c
+    call !sub_0c7d          ;9a73  9a 7d 0c     Load A with byte at position B in table [HL]
     cmp a,!mem_fc99         ;9a76  48 99 fc
     bz lab_9a80             ;9a79  ad 05
     mov !mem_fc99,a         ;9a7b  9e 99 fc
@@ -26873,9 +26892,9 @@ sub_9d25:
     bz lab_9d3d             ;9d34  ad 07
 
 lab_9d36:
-    movw hl,#mem_c2cd       ;9d36  16 cd c2
-    callf !sub_0c7d         ;9d39  4c 7d
-    bnc lab_9d3f            ;9d3b  9d 02
+    movw hl,#mem_c2cc+1     ;9d36  16 cd c2
+    callf !sub_0c7d         ;9d39  4c 7d        Load A with byte at position B in table [HL]
+    bnc lab_9d3f            ;9d3b  9d 02        Branch if lookup succeeded
 
 lab_9d3d:
     mov a,#0xf6             ;9d3d  a1 f6
@@ -27069,8 +27088,8 @@ lab_9e75:
     bnc lab_9e8d            ;9e75  9d 16
     mov a,!mem_f200         ;9e77  8e 00 f2
     mov b,a                 ;9e7a  73
-    movw hl,#mem_cf5e       ;9e7b  16 5e cf
-    callf !sub_0c7d         ;9e7e  4c 7d
+    movw hl,#mem_cf5d+1     ;9e7b  16 5e cf
+    callf !sub_0c7d         ;9e7e  4c 7d        Load A with byte at position B in table [HL]
     bt mem_fe74.6,lab_9e89  ;9e80  ec 74 06
     and a,#0xf0             ;9e83  5d f0
     cmp a,#0x01             ;9e85  4d 01
@@ -28446,7 +28465,7 @@ lab_a754:
     mov b,#0x03             ;a756  a3 03
 
 lab_a758:
-    movw hl,#mem_d0b2       ;a758  16 b2 d0
+    movw hl,#mem_d0b1+1     ;a758  16 b2 d0
     cmp a,[hl+b]            ;a75b  31 4b
     bz lab_a763             ;a75d  ad 04
     dbnz b,lab_a758         ;a75f  8b f7
@@ -28485,17 +28504,17 @@ sub_a780:
     xch a,b                 ;a78e  33
     mov a,mem_fe30          ;a78f  f0 30
     xch a,b                 ;a791  33
-    movw hl,#mem_d0ad       ;a792  16 ad d0
-    callf !sub_0c7d         ;a795  4c 7d
-    bc lab_a7b8             ;a797  8d 1f
+    movw hl,#mem_d0ac+1     ;a792  16 ad d0
+    callf !sub_0c7d         ;a795  4c 7d        Load A with byte at position B in table [HL]
+    bc lab_a7b8             ;a797  8d 1f        Branch if lookup failed
     mov b,a                 ;a799  73
     cmp a,#0x00             ;a79a  4d 00
     bz lab_a7b8             ;a79c  ad 1a
     cmp a,mem_fe58          ;a79e  4e 58
     bnz lab_a7b8            ;a7a0  bd 16
-    movw hl,#mem_d0b2       ;a7a2  16 b2 d0
-    callf !sub_0c7d         ;a7a5  4c 7d
-    bc lab_a7b8             ;a7a7  8d 0f
+    movw hl,#mem_d0b1+1     ;a7a2  16 b2 d0
+    callf !sub_0c7d         ;a7a5  4c 7d        Load A with byte at position B in table [HL]
+    bc lab_a7b8             ;a7a7  8d 0f        Branch if lookup failed
     cmp a,mem_fe2f          ;a7a9  4e 2f
     bnz lab_a7b8            ;a7ab  bd 0b
     clr1 mem_fe76.6         ;a7ad  6b 76
@@ -28771,8 +28790,8 @@ sub_a937:
     mov a,!mem_fc9e         ;a937  8e 9e fc
     mov b,a                 ;a93a  73
     movw hl,#mem_d0c1+1     ;a93b  16 c2 d0
-    callf !sub_0c7d         ;a93e  4c 7d
-    bc lab_a95d             ;a940  8d 1b
+    callf !sub_0c7d         ;a93e  4c 7d        Load A with byte at position B in table [HL]
+    bc lab_a95d             ;a940  8d 1b        Branch if lookup failed
     push ax                 ;a942  b1
     and a,#0x7f             ;a943  5d 7f
     mov b,a                 ;a945  73
@@ -28904,9 +28923,9 @@ lab_aa0e:
 sub_aa14:
     mov a,mem_fe30          ;aa14  f0 30
     mov b,a                 ;aa16  73
-    movw hl,#mem_d0ad       ;aa17  16 ad d0
-    callf !sub_0c7d         ;aa1a  4c 7d
-    bc lab_aa3b             ;aa1c  8d 1d
+    movw hl,#mem_d0ac+1     ;aa17  16 ad d0
+    callf !sub_0c7d         ;aa1a  4c 7d        Load A with byte at position B in table [HL]
+    bc lab_aa3b             ;aa1c  8d 1d        Branch if lookup failed
     cmp a,#0x01             ;aa1e  4d 01
     bnz lab_aa3d            ;aa20  bd 1b
     call !sub_0800          ;aa22  9a 00 08
@@ -29529,7 +29548,7 @@ lab_ac4e:
     .byte 0x16              ;ad33  16          DATA 0x16
 
 mem_ad34:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x08              ;ad34  08          DATA 0x08        8 entries below:
     .word mem_ad45+1
     .word mem_ad5a+1
@@ -29711,7 +29730,7 @@ mem_adaf:
     .byte 0x17              ;ade2  17          DATA 0x17
 
 mem_ade3:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x15              ;ade3  15          DATA 0x15        21 entries below:
     .word lab_1698
     .word lab_173a
@@ -29736,7 +29755,7 @@ mem_ade3:
     .word lab_1945
 
 mem_ae0e:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x0b              ;ae0e  0b          DATA 0x0b        11 entries below:
     .word sub_1d4f
     .word lab_1d11
@@ -29907,7 +29926,7 @@ mem_ae70:
     .byte 0xff              ;aebb  ff          DATA 0xff
 
 mem_aebc:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x0b              ;aebc  0b          DATA 0x0b        11 entries below:
     .word lab_1e0e
     .word lab_1e12
@@ -29922,7 +29941,7 @@ mem_aebc:
     .word lab_1faa
 
 mem_aed3:
-;table used with sub_0c7d
+;table of bytes used with sub_0c7d
     .byte 0x09              ;aed3  09          DATA 0x09    9 entries below:
     .byte 0x1e              ;aed4  1e          DATA 0x1e
     .byte 0x01              ;aed5  01          DATA 0x01
@@ -29935,7 +29954,7 @@ mem_aed3:
     .byte 0x0a              ;aedc  0a          DATA 0x0a
 
 mem_aedd:
-;table used with sub_0c7d
+;table of bytes used with sub_0c7d
     .byte 0x09              ;aedd  09          DATA 0x09    9 entries below:
     .byte 0x00              ;aede  00          DATA 0x00
     .byte 0x07              ;aedf  07          DATA 0x07
@@ -29948,7 +29967,7 @@ mem_aedd:
     .byte 0x08              ;aee6  08          DATA 0x08
 
 mem_aee7:
-;table used with sub_0c7d
+;table of bytes used with sub_0c7d
     .byte 0x09              ;aee7  09          DATA 0x09    9 entries below:
     .byte 0x01              ;aee8  01          DATA 0x01
     .byte 0x07              ;aee9  07          DATA 0x07
@@ -29961,7 +29980,7 @@ mem_aee7:
     .byte 0x08              ;aef0  08          DATA 0x08
 
 mem_aef1:
-;table used with sub_0c7d
+;table of bytes used with sub_0c7d
     .byte 0x09              ;aef1  09          DATA 0x09    9 entries below:
     .byte 0x00              ;aef2  00          DATA 0x00
     .byte 0x03              ;aef3  03          DATA 0x03
@@ -30252,7 +30271,7 @@ mem_afe8:
     .word 0xffff            ;65535 - Internal Control Module Memory Error
 
 mem_b001:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x03              ;b001  03          DATA 0x03        3 entries below:
     .byte 0x53              ;b002  53          DATA 0x53 'S'
     .byte 0x03              ;b003  03          DATA 0x03
@@ -30274,14 +30293,14 @@ mem_b008:
     .byte 0x2a              ;b011  2a          DATA 0x2a '*'
 
 mem_b012:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x03              ;b012  03          DATA 0x03        3 entries below:
     .word lab_2f39          ;b013   DATA
     .word lab_2f3e          ;b015   DATA
     .word lab_2f43          ;b017   DATA
 
 mem_b019:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x04              ;b019  04          DATA 0x04        4 entries below:
     .word lab_2f61          ;b01a   DATA
     .word lab_2faa          ;b01c   DATA
@@ -30431,7 +30450,7 @@ mem_b05f:
     .byte 0x01              ;b0a0  01          DATA 0x01
 
 mem_b0a1:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x0a              ;b0a1  0a          DATA 0x0a        10 entries below:
     .word lab_3c02
     .word lab_3c03
@@ -30445,7 +30464,7 @@ mem_b0a1:
     .word lab_3c64
 
 mem_b0b6:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x0b              ;b0b6  0b          DATA 0x0b        11 words below:
     .word lab_7d5c          ;b0b7
     .word lab_2037          ;b0b9
@@ -30466,7 +30485,7 @@ mem_b0cd:
     .byte 0x02              ;b0d0  02          DATA 0x02
 
 mem_b0d1:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x09              ;b0d1  09          DATA 0x09        9 entries below:
     .word lab_12d7
     .word lab_15a2
@@ -30494,7 +30513,7 @@ mem_b0eb:
     .byte 0x40              ;b0ee  40          DATA 0x40 '@'
 
 mem_b0ef:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x02              ;b0ef  02          DATA 0x02        2 entries below:
     .word lab_3f76          ;b0f0   DATA
     .word lab_3f56          ;b0f2   DATA
@@ -30635,7 +30654,7 @@ mem_b150:
     .byte 0x00              ;b16f  00          DATA 0x00
 
 mem_b170:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x0f              ;b170  0f          DATA 0x0f
     .word lab_4307
     .word sub_432d
@@ -30654,7 +30673,7 @@ mem_b170:
     .word lab_4438
 
 mem_b18f:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x12              ;b18f  12          DATA 0x12        18 entries below:
     .word .                 ;DATA  b190
     .word mem_b1b4+1        ;DATA
@@ -30698,7 +30717,7 @@ mem_b1b4:
     .byte 0x07              ;b1c6  07          DATA 0x07
 
 mem_b1c7:
-;table used with sub_0c7d
+;table of bytes used with sub_0c7d
     .byte 0x0b              ;b1c7  0b          DATA 0x0b        11 entries below:
     .byte 0x00              ;b1c8  00          DATA 0x00
     .byte 0x08              ;b1c9  08          DATA 0x08
@@ -30713,7 +30732,7 @@ mem_b1c7:
     .byte 0x13              ;b1d2  13          DATA 0x13
 
 mem_b1d3:
-;table used with sub_0c7d
+;table of bytes used with sub_0c7d
     .byte 0x0b              ;b1d3  0b          DATA 0x0b        11 entries below:
     .byte 0x00              ;b1d4  00          DATA 0x00
     .byte 0x08              ;b1d5  08          DATA 0x08
@@ -30728,7 +30747,7 @@ mem_b1d3:
     .byte 0x13              ;b1de  13          DATA 0x13
 
 mem_b1df:
-;table used with sub_0c7d
+;table of bytes used with sub_0c7d
     .byte 0x0b              ;b1df  0b          DATA 0x0b        11 entries below:
     .byte 0x00              ;b1e0  00          DATA 0x00
     .byte 0x1c              ;b1e1  1c          DATA 0x1c
@@ -31133,7 +31152,7 @@ mem_b3d2:
     .byte 0xa2              ;b3d8  a2          DATA 0xa2
 
 mem_b3d9:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x08              ;b3d9  08          DATA 0x08        8 entries below:
     .word mem_b3ea+1
     .word mem_b3f9+1
@@ -31307,7 +31326,7 @@ mem_b47e:
     .byte 0xb4              ;b47f  b4          DATA 0xb4
 
 mem_b480:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x0a              ;b480  0a          DATA 0x0a        10 entries below:
     .word lab_6a5c          ;b481
     .word lab_6a64          ;b483
@@ -31405,7 +31424,7 @@ mem_b4d1:
     .byte 0x01              ;b4dd  01          DATA 0x01
 
 mem_b4de:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x0d              ;b4de  0d          DATA 0x0d        13 entries below:
     .word lab_6c58          ;b4df   DATA      "CD   TR    "
     .word lab_6c82          ;b4e1   DATA
@@ -31519,7 +31538,7 @@ mem_b535:
     .byte 0x03              ;b54f  03          DATA 0x03
 
 mem_b550:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x0d              ;b550  0d          DATA 0x0d        13 entries below:
     .byte 0x6b              ;b551  6b          DATA 0x6b 'k'
     .byte 0x71              ;b552  71          DATA 0x71 'q'
@@ -31636,13 +31655,13 @@ mem_b56b:
     .byte 0x01              ;b5bf  01          DATA 0x01
 
 mem_b5c0:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x02              ;b5c0  02          DATA 0x02        2 entries below:
     .word lab_6933
     .word sub_7697
 
 mem_b5c5:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x08              ;b5c5  08          DATA 0x08        8 entries below:
     .word lab_7bbb
     .word lab_7b83
@@ -31654,7 +31673,7 @@ mem_b5c5:
     .word lab_7808
 
 mem_b5d6:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x4a              ;b5d6  4a          DATA 0x4a 'J'    74 entries below:
     .byte 0x00              ;b5d7  00          DATA 0x00
     .byte 0x00              ;b5d8  00          DATA 0x00
@@ -31804,9 +31823,10 @@ mem_b5d6:
     .byte 0xb0              ;b668  b0          DATA 0xb0
     .byte 0x80              ;b669  80          DATA 0x80
     .byte 0x91              ;b66a  91          DATA 0x91
-    .byte 0x0f              ;b66b  0f          DATA 0x0f
 
-mem_b66c:
+mem_b66b:
+;table of bytes used with sub_0c7d
+    .byte 0x0f              ;b66b  0f          DATA 0x0f        15 entries below:
     .byte 0xff              ;b66c  ff          DATA 0xff
     .byte 0x03              ;b66d  03          DATA 0x03
     .byte 0x07              ;b66e  07          DATA 0x07
@@ -31824,7 +31844,7 @@ mem_b66c:
     .byte 0xff              ;b67a  ff          DATA 0xff
 
 mem_b67b:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x0f              ;b67b  0f          DATA 0x0f          15 entries below:
     .word 0x4243
     .word 0xa4d7
@@ -31843,7 +31863,7 @@ mem_b67b:
     .word 0x1deb
 
 mem_b69a:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x04              ;b69a  04          DATA 0x04
     .word lab_7da6
     .word lab_7e2d
@@ -31877,7 +31897,7 @@ mem_b6b1:
     .byte 0x7f              ;b6b8  7f          DATA 0x7f
 
 mem_b6b9:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x04              ;b6b9  04          DATA 0x04
     .word lab_7ff6
     .word lab_801f
@@ -32034,7 +32054,7 @@ mem_b6c2:
     .byte 0x00              ;b754  00          DATA 0x00
 
 mem_b755:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x1d              ;b755  1d          DATA 0x1d    29 entries below:
     .word lab_d1cd
     .word lab_d1ce
@@ -32075,7 +32095,7 @@ mem_b790:
     .word lab_d18a
 
 mem_b79b:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x06              ;b79b  06          DATA 0x06        6 entries below:
     .word mem_b7b9+1
     .word mem_b7c6+1
@@ -32563,7 +32583,7 @@ mem_b910:
     .byte 0xaf              ;b996  af          DATA 0xaf
 
 mem_b997:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x20              ;b997  20          DATA 0x20 ' '    32 entries below:
     .word lab_8c7a
     .word lab_8c7f
@@ -32599,7 +32619,7 @@ mem_b997:
     .word lab_8157
 
 mem_b9d8:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x17              ;b9d8  17          DATA 0x17      23 entries below:
     .word lab_8afa
     .word lab_8b12
@@ -32626,7 +32646,7 @@ mem_b9d8:
     .word lab_8fa5
 
 mem_ba07:
-;table used with sub_0c7d
+;table of bytes used with sub_0c7d
     .byte 0x25              ;ba07  25          DATA 0x25 '%'    37 entries below:
     .byte 0x23              ;ba08  23          DATA 0x23 '#'
     .byte 0x24              ;ba09  24          DATA 0x24 '$'
@@ -33890,7 +33910,7 @@ mem_be0f:
     .byte 0x0d              ;be1a  0d          DATA 0x0d
 
 mem_be1b:
-;table used with sub_0c7d
+;table of bytes used with sub_0c7d
     .byte 0x0f              ;be1b  0f          DATA 0x0f        15 entries below:
     .byte 0x00              ;be1c  00          DATA 0x00
     .byte 0x02              ;be1d  02          DATA 0x02
@@ -33909,7 +33929,7 @@ mem_be1b:
     .byte 0x14              ;be2a  14          DATA 0x14
 
 mem_be2b:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x3e              ;be2b  3e          DATA 0x3e '>'    62 entries below:
     .byte 0x80              ;be2c  80          DATA 0x80
     .byte 0x0f              ;be2d  0f          DATA 0x0f
@@ -34037,7 +34057,7 @@ mem_be2b:
     .byte 0x0d              ;bea7  0d          DATA 0x0d
 
 mem_bea8:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x3e              ;bea8  3e          DATA 0x3e '>'    62 entries below:
     .byte 0xff              ;bea9  ff          DATA 0xff
     .byte 0x0f              ;beaa  0f          DATA 0x0f
@@ -34165,7 +34185,7 @@ mem_bea8:
     .byte 0x08              ;bf24  08          DATA 0x08
 
 mem_bf25:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x3e              ;bf25  3e          DATA 0x3e '>'    62 entries below:
     .byte 0x80              ;bf26  80          DATA 0x80
     .byte 0x0f              ;bf27  0f          DATA 0x0f
@@ -34547,7 +34567,7 @@ mem_c020:
     .byte 0x07              ;c09b  07          DATA 0x07
 
 mem_c09c:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x2e              ;c09c  2e          DATA 0x2e '.'    46 entries below:
     .byte 0x80              ;c09d  80          DATA 0x80
     .byte 0x0f              ;c09e  0f          DATA 0x0f
@@ -34643,7 +34663,7 @@ mem_c09c:
     .byte 0x0e              ;c0f8  0e          DATA 0x0e
 
 mem_c0f9:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x2e              ;c0f9  2e          DATA 0x2e '.'    46 entries below:
     .byte 0x80              ;c0fa  80          DATA 0x80
     .byte 0x0f              ;c0fb  0f          DATA 0x0f
@@ -34739,7 +34759,7 @@ mem_c0f9:
     .byte 0x0f              ;c155  0f          DATA 0x0f
 
 mem_c156:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x2e              ;c156  2e          DATA 0x2e '.'    46 entries below:
     .byte 0xff              ;c157  ff          DATA 0xff
     .byte 0x0f              ;c158  0f          DATA 0x0f
@@ -34835,7 +34855,7 @@ mem_c156:
     .byte 0x08              ;c1b2  08          DATA 0x08
 
 mem_c1b3:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x2e              ;c1b3  2e          DATA 0x2e '.'    46 entries below:
     .byte 0xff              ;c1b4  ff          DATA 0xff
     .byte 0x0f              ;c1b5  0f          DATA 0x0f
@@ -35026,7 +35046,7 @@ mem_c210:
     .byte 0x07              ;c26c  07          DATA 0x07
 
 mem_c26d:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x2f              ;c26d  2f          DATA 0x2f '/'    47 entries below:
     .byte 0x0a              ;c26e  0a          DATA 0x0a
     .byte 0x00              ;c26f  00          DATA 0x00
@@ -35122,16 +35142,16 @@ mem_c26d:
     .byte 0x07              ;c2c9  07          DATA 0x07
     .byte 0xfb              ;c2ca  fb          DATA 0xfb
     .byte 0x07              ;c2cb  07          DATA 0x07
-    .byte 0x04              ;c2cc  04          DATA 0x04
 
-mem_c2cd:
+mem_c2cc:
+    .byte 0x04              ;c2cc  04          DATA 0x04        4 entries below:
     .byte 0xf6              ;c2cd  f6          DATA 0xf6
     .byte 0x06              ;c2ce  06          DATA 0x06
     .byte 0x04              ;c2cf  04          DATA 0x04
     .byte 0xfc              ;c2d0  fc          DATA 0xfc
 
 mem_c2d1:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x15              ;c2d1  15          DATA 0x15        21 entries below:
     .byte 0x69              ;c2d2  69          DATA 0x69 'i'
     .byte 0x00              ;c2d3  00          DATA 0x00
@@ -35177,7 +35197,7 @@ mem_c2d1:
     .byte 0x00              ;c2fb  00          DATA 0x00
 
 mem_c2fc:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x15              ;c2fc  15          DATA 0x15        21 entries below:
     .byte 0x10              ;c2fd  10          DATA 0x10
     .byte 0x75              ;c2fe  75          DATA 0x75 'u'
@@ -35223,7 +35243,7 @@ mem_c2fc:
     .byte 0x2f              ;c326  2f          DATA 0x2f '/'
 
 mem_c327:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x15              ;c327  15          DATA 0x15        21 entries below:
     .byte 0xd7              ;c328  d7          DATA 0xd7
     .byte 0x00              ;c329  00          DATA 0x00
@@ -35269,7 +35289,7 @@ mem_c327:
     .byte 0x01              ;c351  01          DATA 0x01
 
 mem_c352:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x15              ;c352  15          DATA 0x15        21 entries below:
     .byte 0x28              ;c353  28          DATA 0x28 '('
     .byte 0x6d              ;c354  6d          DATA 0x6d 'm'
@@ -35315,7 +35335,7 @@ mem_c352:
     .byte 0x75              ;c37c  75          DATA 0x75 'u'
 
 mem_c37d:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x15              ;c37d  15          DATA 0x15        21 entries below:
     .byte 0x69              ;c37e  69          DATA 0x69 'i'
     .byte 0x00              ;c37f  00          DATA 0x00
@@ -35361,7 +35381,7 @@ mem_c37d:
     .byte 0x00              ;c3a7  00          DATA 0x00
 
 mem_c3a8:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x15              ;c3a8  15          DATA 0x15        21 entries below:
     .byte 0x10              ;c3a9  10          DATA 0x10
     .byte 0x75              ;c3aa  75          DATA 0x75 'u'
@@ -35407,7 +35427,7 @@ mem_c3a8:
     .byte 0x4f              ;c3d2  4f          DATA 0x4f 'O'
 
 mem_c3d3:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x15              ;c3d3  15          DATA 0x15        21 entries below:
     .byte 0xd7              ;c3d4  d7          DATA 0xd7
     .byte 0x00              ;c3d5  00          DATA 0x00
@@ -35498,7 +35518,7 @@ mem_c3fe:
     .byte 0x75              ;c428  75          DATA 0x75 'u'
 
 mem_c429:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x15              ;c429  15          DATA 0x15        21 entries below:
     .byte 0x06              ;c42a  06          DATA 0x06
     .byte 0x01              ;c42b  01          DATA 0x01
@@ -35544,7 +35564,7 @@ mem_c429:
     .byte 0x02              ;c453  02          DATA 0x02
 
 mem_c454:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x15              ;c454  15          DATA 0x15        21 entries below:
     .byte 0x10              ;c455  10          DATA 0x10
     .byte 0x7c              ;c456  7c          DATA 0x7c '|'
@@ -35590,7 +35610,7 @@ mem_c454:
     .byte 0x44              ;c47e  44          DATA 0x44 'D'
 
 mem_c47f:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x15              ;c47f  15          DATA 0x15        21 entries below:
     .byte 0x06              ;c480  06          DATA 0x06
     .byte 0x01              ;c481  01          DATA 0x01
@@ -35636,7 +35656,7 @@ mem_c47f:
     .byte 0x02              ;c4a9  02          DATA 0x02
 
 mem_c4aa:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x15              ;c4aa  15          DATA 0x15        21 entries below:
     .byte 0x10              ;c4ab  10          DATA 0x10
     .byte 0x7c              ;c4ac  7c          DATA 0x7c '|'
@@ -35682,7 +35702,7 @@ mem_c4aa:
     .byte 0x44              ;c4d4  44          DATA 0x44 'D'
 
 mem_c4d5:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x15              ;c4d5  15          DATA 0x15        21 entries below:
     .byte 0x87              ;c4d6  87          DATA 0x87
     .byte 0x01              ;c4d7  01          DATA 0x01
@@ -35773,7 +35793,7 @@ mem_c500:
     .byte 0x75              ;c52a  75          DATA 0x75 'u'
 
 mem_c52b:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x15              ;c52b  15          DATA 0x15        21 entries below:
     .byte 0x49              ;c52c  49          DATA 0x49 'I'
     .byte 0x00              ;c52d  00          DATA 0x00
@@ -35819,7 +35839,7 @@ mem_c52b:
     .byte 0x00              ;c555  00          DATA 0x00
 
 mem_c556:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x15              ;c556  15          DATA 0x15        21 entries below:
     .byte 0x10              ;c557  10          DATA 0x10
     .byte 0x5d              ;c558  5d          DATA 0x5d ']'
@@ -35865,7 +35885,7 @@ mem_c556:
     .byte 0x27              ;c580  27          DATA 0x27 '''
 
 mem_c581:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x15              ;c581  15          DATA 0x15        21 entries below:
     .byte 0xa7              ;c582  a7          DATA 0xa7
     .byte 0x00              ;c583  00          DATA 0x00
@@ -35956,7 +35976,7 @@ mem_c5ac:
     .byte 0x65              ;c5d6  65          DATA 0x65 'e'
 
 mem_c5d7:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x15              ;c5d7  15          DATA 0x15        21 entries below:
     .byte 0xf3              ;c5d8  f3          DATA 0xf3
     .byte 0x0d              ;c5d9  0d          DATA 0x0d
@@ -36002,7 +36022,7 @@ mem_c5d7:
     .byte 0x0d              ;c601  0d          DATA 0x0d
 
 mem_c602:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x15              ;c602  15          DATA 0x15        21 entries below:
     .byte 0x1e              ;c603  1e          DATA 0x1e
     .byte 0x40              ;c604  40          DATA 0x40 '@'
@@ -36048,7 +36068,7 @@ mem_c602:
     .byte 0x49              ;c62c  49          DATA 0x49 'I'
 
 mem_c62d:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x15              ;c62d  15          DATA 0x15        21 entries below:
     .byte 0x63              ;c62e  63          DATA 0x63 'c'
     .byte 0x0a              ;c62f  0a          DATA 0x0a
@@ -36094,7 +36114,7 @@ mem_c62d:
     .byte 0x0a              ;c657  0a          DATA 0x0a
 
 mem_c658:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x15              ;c658  15          DATA 0x15        21 entries below:
     .byte 0x1e              ;c659  1e          DATA 0x1e
     .byte 0x79              ;c65a  79          DATA 0x79 'y'
@@ -36140,7 +36160,7 @@ mem_c658:
     .byte 0x7a              ;c682  7a          DATA 0x7a 'z'
 
 mem_c683:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x15              ;c683  15          DATA 0x15        21 entries below:
     .byte 0x53              ;c684  53          DATA 0x53 'S'
     .byte 0x1f              ;c685  1f          DATA 0x1f
@@ -36186,7 +36206,7 @@ mem_c683:
     .byte 0x1f              ;c6ad  1f          DATA 0x1f
 
 mem_c6ae:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x15              ;c6ae  15          DATA 0x15        21 entries below:
     .byte 0x10              ;c6af  10          DATA 0x10
     .byte 0x60              ;c6b0  60          DATA 0x60 '`'
@@ -36277,7 +36297,7 @@ mem_c6d9:
     .byte 0x17              ;c703  17          DATA 0x17
 
 mem_c704:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x15              ;c704  15          DATA 0x15        21 entries below:
     .byte 0x10              ;c705  10          DATA 0x10
     .byte 0x58              ;c706  58          DATA 0x58 'X'
@@ -36323,7 +36343,7 @@ mem_c704:
     .byte 0x59              ;c72e  59          DATA 0x59 'Y'
 
 mem_c72f:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x15              ;c72f  15          DATA 0x15        21 entries below:
     .byte 0xfa              ;c730  fa          DATA 0xfa
     .byte 0x03              ;c731  03          DATA 0x03
@@ -36594,7 +36614,7 @@ mem_c806:
     .byte 0xe0              ;c830  e0          DATA 0xe0
 
 mem_c831:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x15              ;c831  15          DATA 0x15        21 entries below:
     .byte 0xf9              ;c832  f9          DATA 0xf9
     .byte 0xb6              ;c833  b6          DATA 0xb6
@@ -36640,7 +36660,7 @@ mem_c831:
     .byte 0xdb              ;c85b  db          DATA 0xdb
 
 mem_c85c:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x15              ;c85c  15          DATA 0x15        21 entries below:
     .byte 0x06              ;c85d  06          DATA 0x06
     .byte 0x7d              ;c85e  7d          DATA 0x7d '}'
@@ -36686,7 +36706,7 @@ mem_c85c:
     .byte 0x1f              ;c886  1f          DATA 0x1f
 
 mem_c887:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x15              ;c887  15          DATA 0x15        21 entries below:
     .byte 0x07              ;c888  07          DATA 0x07
     .byte 0x3e              ;c889  3e          DATA 0x3e '>'
@@ -36777,7 +36797,7 @@ mem_c8b2:
     .byte 0x3f              ;c8dc  3f          DATA 0x3f '?'
 
 mem_c8dd:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x15              ;c8dd  15          DATA 0x15        21 entries below:
     .byte 0x06              ;c8de  06          DATA 0x06
     .byte 0xae              ;c8df  ae          DATA 0xae
@@ -36823,7 +36843,7 @@ mem_c8dd:
     .byte 0xa9              ;c907  a9          DATA 0xa9
 
 mem_c908:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x15              ;c908  15          DATA 0x15        21 entries below:
     .byte 0x07              ;c909  07          DATA 0x07
     .byte 0x57              ;c90a  57          DATA 0x57 'W'
@@ -36869,7 +36889,7 @@ mem_c908:
     .byte 0xd4              ;c932  d4          DATA 0xd4
 
 mem_c933:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x0a              ;c933  0a          DATA 0x0a        10 entries below:
     .word 0x0177
     .word 0x0286
@@ -36929,7 +36949,7 @@ mem_c95d:
     .byte 0x00              ;c971  00          DATA 0x00
 
 mem_c972:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x0a              ;c972  0a          DATA 0x0a        10 entries below:
     .word 0x4540
     .word 0x7d24
@@ -36951,7 +36971,7 @@ mem_c98a:
     .byte 0x85              ;c98b  85          DATA 0x85
 
 mem_c98c:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x0b              ;c98c  0b          DATA 0x0b        11 entries below:
     .byte 0x00              ;c98d  00          DATA 0x00
     .byte 0x00              ;c98e  00          DATA 0x00
@@ -36977,7 +36997,7 @@ mem_c98c:
     .byte 0x08              ;c9a2  08          DATA 0x08
 
 mem_c9a3:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x0b              ;c9a3  0b          DATA 0x0b        11 entries below:
     .byte 0x10              ;c9a4  10          DATA 0x10
     .byte 0x05              ;c9a5  05          DATA 0x05
@@ -37003,7 +37023,7 @@ mem_c9a3:
     .byte 0x20              ;c9b9  20          DATA 0x20 ' '
 
 mem_c9ba:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x0b              ;c9ba  0b          DATA 0x0b        11 entries below:
     .byte 0x00              ;c9bb  00          DATA 0x00
     .byte 0x00              ;c9bc  00          DATA 0x00
@@ -37029,7 +37049,7 @@ mem_c9ba:
     .byte 0x20              ;c9d0  20          DATA 0x20 ' '
 
 mem_c9d1:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x15              ;c9d1  15          DATA 0x15        21 entries below:
     .byte 0x00              ;c9d2  00          DATA 0x00
     .byte 0x08              ;c9d3  08          DATA 0x08
@@ -38335,7 +38355,7 @@ mem_ca27:
     .byte 0xa0              ;cee3  a0          DATA 0xa0
 
 mem_cee4:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x3c              ;cee4  3c          DATA 0x3c '<'    60 entries below:
     .byte 0x73              ;cee5  73          DATA 0x73 's'
     .byte 0xca              ;cee6  ca          DATA 0xca
@@ -38457,10 +38477,10 @@ mem_cee4:
     .byte 0xce              ;cf5a  ce          DATA 0xce
     .byte 0xd4              ;cf5b  d4          DATA 0xd4
     .byte 0xce              ;cf5c  ce          DATA 0xce
-    .byte 0x0a              ;cf5d  0a          DATA 0x0a
 
-mem_cf5e:
-;TODO table used with sub_0c7d
+mem_cf5d:
+;table of bytes used with sub_0c7d
+    .byte 0x0a              ;cf5d  0a          DATA 0x0a    10 entries below:
     .byte 0x00              ;cf5e  00          DATA 0x00
     .byte 0x00              ;cf5f  00          DATA 0x00
     .byte 0x00              ;cf60  00          DATA 0x00
@@ -38471,10 +38491,9 @@ mem_cf5e:
     .byte 0x00              ;cf65  00          DATA 0x00
     .byte 0xf0              ;cf66  f0          DATA 0xf0
     .byte 0xf0              ;cf67  f0          DATA 0xf0
-    .byte 0x0a              ;cf68  0a          DATA 0x0a
 
-mem_cf69:
-;TODO table used by sub_0c48
+mem_cf68:
+    .byte 0x0a              ;cf68  0a          DATA 0x0a    10 entries below:
     .byte 0x00              ;cf69  00          DATA 0x00
     .byte 0x00              ;cf6a  00          DATA 0x00
     .byte 0x03              ;cf6b  03          DATA 0x03
@@ -38802,23 +38821,25 @@ mem_d062:
     .byte 0x00              ;d0a9  00          DATA 0x00
     .byte 0x21              ;d0aa  21          DATA 0x21 '!'
     .byte 0x09              ;d0ab  09          DATA 0x09
-    .byte 0x04              ;d0ac  04          DATA 0x04
 
-mem_d0ad:
+mem_d0ac:
+;table of bytes used with sub_0c7d
+    .byte 0x04              ;d0ac  04          DATA 0x04
     .byte 0x00              ;d0ad  00          DATA 0x00
     .byte 0x01              ;d0ae  01          DATA 0x01
     .byte 0x02              ;d0af  02          DATA 0x02
     .byte 0x03              ;d0b0  03          DATA 0x03
-    .byte 0x04              ;d0b1  04          DATA 0x04
 
-mem_d0b2:
+mem_d0b1:
+;table of bytes used with sub_0c7d
+    .byte 0x04              ;d0b1  04          DATA 0x04        4 entries below:
     .byte 0xff              ;d0b2  ff          DATA 0xff
     .byte 0x07              ;d0b3  07          DATA 0x07
     .byte 0x05              ;d0b4  05          DATA 0x05
     .byte 0x06              ;d0b5  06          DATA 0x06
 
 mem_d0b6:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x05              ;d0b6  05          DATA 0x05        5 entries below:
     .word 0xf259
     .word 0xf25a
@@ -38827,19 +38848,19 @@ mem_d0b6:
     .word 0xf258
 
 mem_d0c1:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x05              ;d0c1  05          DATA 0x05        5 entries below:
     .word 0x8382
     .word 0x8084
     .word 0x0281
 
 mem_d0c8:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .word 0xa547
     .word 0xa95e
 
 mem_d0cc:
-;table used with sub_0c48
+;table of words used with sub_0c48
     .byte 0x0e              ;d0cc  0e          DATA 0x0e        14 entries below:
     .word lab_a547
     .word lab_aa99
