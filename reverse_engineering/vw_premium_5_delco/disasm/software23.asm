@@ -2907,6 +2907,7 @@ sub_0955:
 lab_096b:
     ret                     ;096b  af
 
+;CALLT #3 (0x0046)
 sub_096c:
     xch a,b                 ;096c  33
     mov a,mem_fe2f          ;096d  f0 2f
@@ -2940,6 +2941,7 @@ sub_0991:
     mov a,mem_fe2f          ;0991  f0 2f
     mov b,a                 ;0993  73
 
+;CALLT #0 (0x0040)
 sub_0994:
     movw hl,#mem_fb86       ;0994  16 86 fb
     mov a,[hl+b]            ;0997  ab
@@ -2954,6 +2956,7 @@ sub_099c:
     or a,#0x03              ;09a3  6d 03
     br lab_097a             ;09a5  fa d3
 
+;CALLT #4 (0x0048)
 sub_09a7:
     xch a,b                 ;09a7  33
     mov a,mem_fe2f          ;09a8  f0 2f
@@ -2966,6 +2969,7 @@ sub_09a7:
     set1 a.0                ;09b5  61 8a
     br lab_097a             ;09b7  fa c1
 
+;CALLT #1 (0x0042)
 sub_09b9:
     xch a,b                 ;09b9  33
     mov a,mem_fe2f          ;09ba  f0 2f
@@ -2975,6 +2979,7 @@ sub_09b9:
     and a,[hl+b]            ;09c2  31 5b
     br lab_097a             ;09c4  fa b4
 
+;CALLT #2 (0x0044)
 sub_09c6:
     xch a,b                 ;09c6  33
     mov a,mem_fe2f          ;09c7  f0 2f
