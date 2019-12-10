@@ -6479,23 +6479,24 @@ lab_2654:
 
 kwp_1j003b180b:
     .ascii "1J0035180 B "
-    .byte 0x03
+    .byte 0x03 ;KWP1281 block end
 
 kwp_1c0035180a:
     .ascii "1C0035180 A "
-    .byte 0x03
+    .byte 0x03 ;KWP1281 block end
 
 kwp_radio_de2:
     .ascii " Radio DE2  "
-    .byte 0x03
+    .byte 0x03 ;KWP1281 block end
 
 kwp_radio_delco:
     .ascii " Radio DELCO"
-    .byte 0x03
+    .byte 0x03 ;KWP1281 block end
 
 kwp_0001:
     .ascii "       0001"
-    .byte 0x00, 0x03
+    .byte 0x00
+    .byte 0x03 ;KWP1281 block end
 
 display_test:
     .ascii "DISPLAY   TEST  "
@@ -6555,13 +6556,15 @@ kwp_radio_str:
     movw de,#kwp_radio_de2  ;26f9  14 6f 26
     mov a,!mem_f1e9         ;26fc  8e e9 f1
     bf a.7,lab_2705         ;26ff  31 7f 03
+
+    ;"DELCO mode" is on (see also sub_2706)
     movw de,#kwp_radio_delco ;2702  14 7c 26    DE = destination address
 lab_2705:
     ret                     ;2705  af
 
 
 sub_2706:
-    movw hl,#kwp_0001       ;2706  16 89 26     HL = source address
+    movw hl,#kwp_0001       ;2706  16 89 26     HL = source address of "       0001",0x00,0x03
     movw de,#mem_f03b       ;2709  14 3b f0     DE = destination address
     mov a,#0x0d             ;270c  a1 0d        A = number of bytes to copy
     callf !sub_0c9e         ;270e  4c 9e        Copy A bytes from [HL] to [DE]
@@ -6598,6 +6601,7 @@ sub_2706:
     mov a,!mem_f1e9         ;273f  8e e9 f1
     bf a.7,lab_274a         ;2742  31 7f 05
 
+    ;"DELCO mode" is on (see also kwp_radio_str)
     mov a,!mem_f1ea         ;2745  8e ea f1
     mov [hl+0x07],a         ;2748  be 07
 
@@ -6709,30 +6713,39 @@ lab_27e6:
     movw hl,#mem_b001+1     ;27eb  16 02 b0
     callf !sub_0c48         ;27ee  4c 48        Load DE with word at position B in table [HL]
     bc lab_2818             ;27f0  8d 26        Branch if table lookup failed
+                            ;                     (branches to pop registers, clear carry, and ret)
+
     movw ax,de              ;27f2  c4
-    cmpw ax,#0x0353         ;27f3  ea 53 03
+    cmpw ax,#0x0353         ;27f3  ea 53 03     Compare with 00851 - Loudspeaker(s)
     bnz lab_27ff            ;27f6  bd 07
+
+    ;AX = 0x0353 (00851 - Loudspeaker(s))
+    ;XXX redundant: this push/call/pop does nothing
     push ax                 ;27f8  b1
-    call !sub_7bbd          ;27f9  9a bd 7b
+    call !sub_7bbd          ;27f9  9a bd 7b     Just returns
     pop ax                  ;27fc  b0
-    br lab_2818             ;27fd  fa 19
+    br lab_2818             ;27fd  fa 19        Branch to pop registers, clear carry, and return
 
 lab_27ff:
-    cmpw ax,#0x0356         ;27ff  ea 56 03
+    cmpw ax,#0x0356         ;27ff  ea 56 03     Compare with 00854 - Radio Display Output in Dash Panel Insert
     bnz lab_280e            ;2802  bd 0a
+
+    ;AX = 0x0356 (00854 - Radio Display Output in Dash Panel Insert)
     push ax                 ;2804  b1
     call !sub_7bbe          ;2805  9a be 7b
-    call !sub_2821          ;2808  9a 21 28
+    call !sub_2821          ;2808  9a 21 28     Copy display_test text into fis_tx_buf
     pop ax                  ;280b  b0
-    br lab_2818             ;280c  fa 0a
+    br lab_2818             ;280c  fa 0a        Branch to pop registers, clear carry, and return
 
 lab_280e:
-    cmpw ax,#0x04ab         ;280e  ea ab 04
-    bnz lab_2818            ;2811  bd 05
-    push ax                 ;2813  b1
-    call !sub_281c          ;2814  9a 1c 28
-    pop ax                  ;2817  b0
+    cmpw ax,#0x04ab         ;280e  ea ab 04     Compare with 01195 - End
+    bnz lab_2818            ;2811  bd 05        Branch to pop registers, clear carry, and return
 
+    ;AX = 0x04ab (01195 - End)
+    push ax                 ;2813  b1
+    call !sub_281c          ;2814  9a 1c 28     Copy display_test_end text into fis_tx_buf
+    pop ax                  ;2817  b0
+                            ;                   Fall through to pop registers, clear carry, and ret
 lab_2818:
     pop bc                  ;2818  b2
     pop hl                  ;2819  b6
@@ -6740,11 +6753,13 @@ lab_2818:
     ret                     ;281b  af
 
 sub_281c:
-    movw hl,#display_test_end ;281c  16 a6 26   HL = source address
+;Copy display_test_end text into fis_tx_buf
+    movw hl,#display_test_end ;281c  16 a6 26   HL = source address of "          END   "
     br lab_2824             ;281f  fa 03
 
 sub_2821:
-    movw hl,#display_test   ;2821  16 96 26     HL = source address
+;Copy display_test text into fis_tx_buf
+    movw hl,#display_test   ;2821  16 96 26     HL = source address of "DISPLAY   TEST  "
 
 lab_2824:
     movw de,#fis_tx_buf+3   ;2824  14 55 f0     DE = destination address
@@ -6761,45 +6776,55 @@ sub_2830:
     mov a,!kwp_rx_buf+3     ;2833  8e 8d f0     A = KWP1281 rx buffer byte 3 (group number)
     mov !mem_f04f,a         ;2836  9e 4f f0     Store group number in mem_f04f
 
-    cmp a,#0x19             ;2839  4d 19        Is it KWP1281 group 0x19 (protection)?
-    bz lab_285e             ;283b  ad 21          Yes: branch to lab_285e
+    cmp a,#0x19                 ;2839  4d 19    Is it KWP1281 group 0x19 (protection)?
+    bz lab_285e_group_0x19      ;283b  ad 21      Yes: branch to lab_285e_group_0x19
 
-    cmp a,#0x06             ;283d  4d 06        Is it KWP1281 group 6 (external display)?
-    bnz lab_2849            ;283f  bd 08          No: branch to lab_2849
+    cmp a,#0x06                 ;283d  4d 06    Is it KWP1281 group 6 (external display)?
+    bnz lab_2849_not_0x19_0x06  ;283f  bd 08      No: branch to lab_2849_not_0x19_0x06
 
-    ;group number = 6 (external display)
+    ;Group number = 6 (external display)
     mov a,!mem_f1e9         ;2841  8e e9 f1
-    bt a.0,lab_2858         ;2844  31 0e 11
+    bt a.0,lab_2858_failed  ;2844  31 0e 11     Branch if FIS display is disabled
+                            ;                     TODO: is that what bit 0 really means?
     mov a,#0x06             ;2847  a1 06
+    ;Fall through
 
-lab_2849:
+lab_2849_not_0x19_0x06:
+;Group is not 0x19 or 0x06
     movw hl,#mem_af8d+1     ;2849  16 8e af     HL = pointer to table of valid group numbers
     call !sub_0b0d          ;284c  9a 0d 0b     Find A in table [HL] and load its position in B
-    bnc lab_2858            ;284f  9d 07        Branch if find failed
+    bnc lab_2858_failed     ;284f  9d 07        Branch if find failed
 
     movw hl,#mem_af96+1     ;2851  16 97 af     HL = pointer to table of group data pointers
     callf !sub_0c48         ;2854  4c 48        Load DE with word at position B in table [HL]
-    bnc lab_2862            ;2856  9d 0a        Branch if table lookup succeeded
+    bnc lab_2862_group_ok   ;2856  9d 0a        Branch if table lookup succeeded
 
-lab_2858:
+lab_2858_failed:
+;Failure
     mov d,#0x0f             ;2858  a5 0f
+    ;Fall through
 
-lab_285a:
+lab_285a_success:
+;Success
     clr1 mem_fe5f.4         ;285a  4b 5f
     set1 cy                 ;285c  20
     ret                     ;285d  af
 
-lab_285e:
-    ;group number = 0x19
+lab_285e_group_0x19:
+;group number = 0x19
     set1 mem_fe65.4         ;285e  4a 65        Set bit to indicate group read 0x19 was performed
-    br lab_2858             ;2860  fa f6
+    br lab_2858_failed      ;2860  fa f6        Branch to failure
 
-lab_2862:
-    movw ax,de              ;2862  c4
-    movw !mem_f002,ax       ;2863  03 02 f0
-    decw de                 ;2866  94
-    mov a,[de]              ;2867  85
-    incw de                 ;2868  84
+lab_2862_group_ok:
+;Group number lookup succeeded
+;DE contains one of the pointers to group reading data from table at mem_af96+1
+    movw ax,de              ;2862  c4           AX = pointer to group reading data
+    movw !mem_f002,ax       ;2863  03 02 f0     Save it in mem_f002
+
+    decw de                 ;2866  94           DE = back up one to read number of entries in table
+    mov a,[de]              ;2867  85           A = number of entries in group reading data table
+    incw de                 ;2868  84           DE = forward to point to first entry again
+
     mov x,a                 ;2869  70
     mov a,#0x00             ;286a  a1 00
     mov c,#0x03             ;286c  a2 03
@@ -6816,7 +6841,7 @@ lab_287a:
     mov d,#0x00             ;287a  a5 00
     mov a,!mem_f050         ;287c  8e 50 f0
     cmp a,#0x00             ;287f  4d 00
-    bz lab_285a             ;2881  ad d7
+    bz lab_285a_success     ;2881  ad d7
     dec a                   ;2883  51
     mov !mem_f050,a         ;2884  9e 50 f0
     set1 mem_fe5f.4         ;2887  4a 5f
@@ -28961,7 +28986,7 @@ mem_af8d:
 
 mem_af96:
 ;group reading related
-;pointer to data table for each group
+;pointer to data table for each group, same order as mem_af8d
 ;used with sub_0c48
     .byte 0x07              ;af96  07          DATA 0x07        7 entries below:
     .word mem_afa5+1        ;af97              POINTER          Group 1 (General)
@@ -29083,12 +29108,9 @@ mem_afe8:
 mem_b001:
 ;table of words used with sub_0c48
     .byte 0x03              ;b001  03          DATA 0x03        3 entries below:
-    .byte 0x53              ;b002  53          DATA 0x53 'S'
-    .byte 0x03              ;b003  03          DATA 0x03
-    .byte 0x56              ;b004  56          DATA 0x56 'V'
-    .byte 0x03              ;b005  03          DATA 0x03
-    .byte 0xab              ;b006  ab          DATA 0xab
-    .byte 0x04              ;b007  04          DATA 0x04
+    .word 0x0353            ;00851 - Loudspeaker(s)
+    .word 0x0356            ;00854 - Radio Display Output in Dash Panel Insert
+    .word 0x04ab            ;01195 - End
 
 mem_b008:
     .byte 0x09              ;b008  09          DATA 0x09        9 entries below:
