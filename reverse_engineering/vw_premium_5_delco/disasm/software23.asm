@@ -2041,7 +2041,8 @@ sub_0b0d:
 ;
 ;Called with:
 ;  A = byte to find in the table
-;  HL = pointer to the table
+;  HL = first entry in table of bytes
+;       note: the byte before it must be the table size
 ;
 ;On success:
 ;  Carry = set
@@ -2051,12 +2052,12 @@ sub_0b0d:
 ;On failure:
 ;  Carry = clear
 ;  B = 0xFF
-;  HL = pointer to the last byte in the table
+;  HL = pointer to the last byte in the table + 1
 ;
-    mov c,a                 ;0b0d  72       C = Save byte to find in table
-    decw hl                 ;0b0e  96       HL = Decrement to point ot number of table entries
+    mov c,a                 ;0b0d  72       C = byte to find in table
+    decw hl                 ;0b0e  96       HL = back up to read number of bytes in table
     mov a,[hl]              ;0b0f  87       A = number of table entries
-    incw hl                 ;0b10  86       HL = Increment to point to first entry again
+    incw hl                 ;0b10  86       HL = forward to point to first entry again
 
     ;XXX redundant swaps can be removed
     xch a,c                 ;0b11  32       Swap A and C so that:
