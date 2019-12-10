@@ -2037,29 +2037,62 @@ lab_0b0c:
     ret                     ;0b0c  af
 
 sub_0b0d:
-    mov c,a                 ;0b0d  72
-    decw hl                 ;0b0e  96
-    mov a,[hl]              ;0b0f  87
-    incw hl                 ;0b10  86
-    xch a,c                 ;0b11  32
-    xch a,c                 ;0b12  32
-    cmp a,#0x00             ;0b13  4d 00
-    xch a,c                 ;0b15  32
-    bz lab_0b21             ;0b16  ad 09
-    mov b,#0x00             ;0b18  a3 00
+;Find A in table [HL] and load its position in B
+;
+;Called with:
+;  A = byte to find in the table
+;  HL = pointer to the table
+;
+;On success:
+;  Carry = set
+;  B = index of the byte in the table
+;  HL = pointer to the byte in the table
+;
+;On failure:
+;  Carry = clear
+;  B = 0xFF
+;  HL = pointer to the last byte in the table
+;
+    mov c,a                 ;0b0d  72       C = Save byte to find in table
+    decw hl                 ;0b0e  96       HL = Decrement to point ot number of table entries
+    mov a,[hl]              ;0b0f  87       A = number of table entries
+    incw hl                 ;0b10  86       HL = Increment to point to first entry again
 
+    ;XXX redundant swaps can be removed
+    xch a,c                 ;0b11  32       Swap A and C so that:
+                            ;                 A = byte to find in table
+                            ;                 C = number of table entries
+    xch a,c                 ;0b12  32       Swap A and C again so that:
+                            ;                 A = number of table entries
+                            ;                 C = byte to find in table
+
+    cmp a,#0x00             ;0b13  4d 00    Number of table entries zero?
+
+    xch a,c                 ;0b15  32       Swap A and C so that:
+                            ;                 A = byte to find in table
+                            ;                 C = number of table entries
+
+    bz lab_0b21             ;0b16  ad 09    Branch if number of table entries is zero
+
+    ;Number of table entries is not zero
+
+    mov b,#0x00             ;0b18  a3 00
 lab_0b1a:
-    cmp a,[hl]              ;0b1a  4f
-    bz lab_0b24             ;0b1b  ad 07
-    incw hl                 ;0b1d  86
-    inc b                   ;0b1e  43
-    dbnz c,lab_0b1a         ;0b1f  8a f9
+    cmp a,[hl]              ;0b1a  4f       Compare A to current table entry
+    bz lab_0b24             ;0b1b  ad 07    Branch if equal
+
+    incw hl                 ;0b1d  86       Increment table pointer
+    inc b                   ;0b1e  43       Increment current table index
+    dbnz c,lab_0b1a         ;0b1f  8a f9    Decrement entries remaining and loop until end
 
 lab_0b21:
+    ;Table empty or byte not found
     mov b,#0xff             ;0b21  a3 ff
     set1 cy                 ;0b23  20
+    ;Fall through
 
 lab_0b24:
+    ;Byte found in table or fell through
     not1 cy                 ;0b24  01
     ret                     ;0b25  af
 
@@ -3445,11 +3478,13 @@ lab_1326:
     clr1 mem_fe67.5         ;1328  5b 67
     mov a,!mem_f197         ;132a  8e 97 f1
     movw hl,#mem_b3ac+1     ;132d  16 ad b3
-    call !sub_0b0d          ;1330  9a 0d 0b
-    bnc lab_12f8            ;1333  9d c3
+    call !sub_0b0d          ;1330  9a 0d 0b   Find A in table [HL] and return its position in B
+    bnc lab_12f8            ;1333  9d c3      Branch if find failed
+
     movw hl,#mem_b3b1+1     ;1335  16 b2 b3
     callf !sub_0c7d         ;1338  4c 7d      Load A with byte at position B in table [HL]
     bc lab_12f8             ;133a  8d bc      Branch if lookup failed
+
     set1 a.7                ;133c  61 fa
 
 lab_133e:
@@ -6738,8 +6773,9 @@ sub_2830:
 
 lab_2849:
     movw hl,#mem_af8d+1     ;2849  16 8e af     HL = pointer to table of valid group numbers
-    call !sub_0b0d          ;284c  9a 0d 0b
-    bnc lab_2858            ;284f  9d 07
+    call !sub_0b0d          ;284c  9a 0d 0b     Find A in table [HL] and load its position in B
+    bnc lab_2858            ;284f  9d 07        Branch if find failed
+
     movw hl,#mem_af96+1     ;2851  16 97 af     HL = pointer to table of group data pointers
     callf !sub_0c48         ;2854  4c 48        Load DE with word at position B in table [HL]
     bnc lab_2862            ;2856  9d 0a        Branch if table lookup succeeded
@@ -16792,8 +16828,9 @@ sub_61e7:
     movw ax,de              ;61fd  c4
     movw hl,ax              ;61fe  d6
     mov a,!mem_fb56         ;61ff  8e 56 fb
-    call !sub_0b0d          ;6202  9a 0d 0b
-    bnc lab_6209            ;6205  9d 02
+    call !sub_0b0d          ;6202  9a 0d 0b     Find A in table [HL] and load its position in B
+    bnc lab_6209            ;6205  9d 02        Branch if find failed
+
     set1 mem_fe69.7         ;6207  7a 69
 
 lab_6209:
@@ -29869,7 +29906,7 @@ mem_b3ac:
     .byte 0x0b              ;b3b0  0b          DATA 0x0b
 
 mem_b3b1:
-;table used with sub_0b0d
+;table used with sub_0c7d
     .byte 0x04              ;b3b1  04          DATA 0x04        4 entries below:
     .byte 0x1f              ;b3b2  1f          DATA 0x1f
     .byte 0x1e              ;b3b3  1e          DATA 0x1e
