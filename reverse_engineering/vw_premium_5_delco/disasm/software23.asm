@@ -1840,39 +1840,57 @@ lab_0a34:
     ret                     ;0a36  af
 
 sub_0a37:
+;Reads 2 bytes from EEPROM at address in HL
+;Receives EEPROM address in HL
+;If EEPROM read fails, returns carry clear (failure).
+;If either byte is 0x55, returns carry set (success).
+;TODO Returns some status in Z
+;Carry clear = failure, carry set = success
     push de                 ;0a37  b5
     push bc                 ;0a38  b3
-    mov b,#0x02             ;0a39  a3 02
+    mov b,#0x02             ;0a39  a3 02        B = 2 bytes to read from EEPROM in total
     movw de,#mem_fbdb       ;0a3b  14 db fb     DE = destination buffer
 
-lab_0a3e:
-    mov a,#0x01             ;0a3e  a1 01        A = 1 byte to read from EEPROM
+lab_0a3e_loop:
+    mov a,#0x01             ;0a3e  a1 01        A = 1 byte to read from EEPROM this time
     call !sub_6238          ;0a40  9a 38 62     Read A bytes from EEPROM address HL into [DE]
-    bnc lab_0a59            ;0a43  9d 14        Branch if EEPROM read failed
-    mov a,!mem_fbdb         ;0a45  8e db fb
-    cmp a,#0x55             ;0a48  4d 55
-    bz lab_0a58             ;0a4a  ad 0c
-    dec b                   ;0a4c  53
-    bz lab_0a53             ;0a4d  ad 04
-    mov mem_fede,a          ;0a4f  f2 de
-    br lab_0a3e             ;0a51  fa eb
+    bnc lab_0a59_ret        ;0a43  9d 14        Branch if EEPROM read failed.  This will
+                            ;                     return carry clear (failure).
 
-lab_0a53:
+    ;EEPROM read succeeded
+    ;Carry is clear
+
+    mov a,!mem_fbdb         ;0a45  8e db fb     A = byte we just read from the EEPROM
+    cmp a,#0x55             ;0a48  4d 55        Is it 0x55?
+    bz lab_0a58_not1_cy_ret ;0a4a  ad 0c          Yes: Branch to invert carry, which will return
+                            ;                          carry set (success).
+
+    ;Byte read from EEPROM is not 0x55
+
+    dec b                   ;0a4c  53           Decrement bytes to read from EEPROM in total
+    bz lab_0a53_b_eq_0     ;0a4d  ad 04
+
+    mov mem_fede,a          ;0a4f  f2 de
+    br lab_0a3e_loop        ;0a51  fa eb
+
+lab_0a53_b_eq_0:
     cmp a,mem_fede          ;0a53  4e de
     bz lab_0a5c             ;0a55  ad 05
-    set1 cy                 ;0a57  20
 
-lab_0a58:
+    set1 cy                 ;0a57  20           Set carry and fall through to invert the carry,
+                            ;                     which will return carry clear (failure).
+lab_0a58_not1_cy_ret:
     not1 cy                 ;0a58  01
 
-lab_0a59:
+lab_0a59_ret:
     pop bc                  ;0a59  b2
     pop de                  ;0a5a  b4
     ret                     ;0a5b  af
 
 lab_0a5c:
-    clr1 psw.6              ;0a5c  6b 1e
-    br lab_0a58             ;0a5e  fa f8
+    clr1 psw.6              ;0a5c  6b 1e        Clear the Z flag
+    br lab_0a58_not1_cy_ret ;0a5e  fa f8
+
 
 sub_0a60:
     bf mem_fe63.7,lab_0a7e  ;0a60  31 73 63 1a
@@ -2734,11 +2752,12 @@ rst_0d88:
     mov a,shadow_p7         ;0dc1  f0 d1
     mov p7,a                ;0dc3  f2 07
     call !sub_4076          ;0dc5  9a 76 40
-    bz lab_0dcf             ;0dc8  ad 05
+    bz cold_or_warm_start   ;0dc8  ad 05
     mov a,#0x00             ;0dca  a1 00
     mov !mem_f18e,a         ;0dcc  9e 8e f1     Clear cookie to cause a cold start
 
-lab_0dcf:
+cold_or_warm_start:
+;Perform some init then do either a cold or warm start
     mov ixs,#0x08           ;0dcf  13 f4 08     Internal expansion RAM size = 2048 bytes
     mov ims,#0xcf           ;0dd2  13 f0 cf     Internal high-speed RAM size = 1024 bytes
     movw sp,#stack_top      ;0dd5  ee 1c 1f fe  Initialize stack pointer (stack grows down)
@@ -2778,9 +2797,9 @@ lab_0dcf:
 
     br !warm_start          ;0e18  9b 13 0f
 
+cold_start:
 ;Cold start the system
 ;Wipes all RAM and starts fresh.
-cold_start:
     di                      ;0e1b  7b 1e
     mov a,#0x07             ;0e1d  a1 07
     mov wdcs,a              ;0e1f  f6 42
@@ -3210,7 +3229,7 @@ lab_117c:
     clr1 if0l.3             ;1185  71 3b e0     Clear PIF2 (INTP2 interrupt flag)
     set1 mem_fe7d.1         ;1188  1a 7d
     clr1 mem_fe61.7         ;118a  7b 61        Clear bit indicating INTP2 occurred
-    br !lab_0dcf            ;118c  9b cf 0d
+    br !cold_or_warm_start  ;118c  9b cf 0d
 
 lab_118f:
     call !sub_3dd4          ;118f  9a d4 3d
@@ -3703,7 +3722,7 @@ lab_14bc:
 lab_14c2:
     callf !sub_093c         ;14c2  1c 3c
     bz lab_14c9             ;14c4  ad 03
-    br !lab_0dcf            ;14c6  9b cf 0d
+    br !cold_or_warm_start  ;14c6  9b cf 0d
 
 lab_14c9:
     mov a,#0xaa             ;14c9  a1 aa        A = 0xAA cookie that should not be touched
@@ -9788,7 +9807,7 @@ lab_39ed:
     mov mem_fe2a,#0x00      ;39fb  11 2a 00
     mov a,#0x02             ;39fe  a1 02
     call !sub_3dbd          ;3a00  9a bd 3d
-    br !lab_0dcf            ;3a03  9b cf 0d
+    br !cold_or_warm_start  ;3a03  9b cf 0d
 
 sub_3a06:
     clr1 pm8.0              ;3a06  71 0b 28
@@ -10551,23 +10570,24 @@ lab_3ee2:
 lab_3efb:
     bf mem_fefb.6,lab_3f2f  ;3efb  31 63 fb 30
     clr1 mem_fe63.6         ;3eff  6b 63
-    call !sub_6217          ;3f01  9a 17 62
-    bnc lab_3f2e            ;3f04  9d 28
+    call !sub_6217          ;3f01  9a 17 62     Unknown; EEPROM related
+    bnc lab_3f2e            ;3f04  9d 28        Branch to just return if failed
 
 lab_3f06:
     mov a,!mem_fb9a         ;3f06  8e 9a fb
     cmp a,#0x55             ;3f09  4d 55
     bz lab_3f26             ;3f0b  ad 19
     call !sub_4109          ;3f0d  9a 09 41
-    bt mem_fe63.4,lab_3f2e  ;3f10  cc 63 1b
+    bt mem_fe63.4,lab_3f2e  ;3f10  cc 63 1b     Branch to just return
     mov a,!mem_fb9a         ;3f13  8e 9a fb
     cmp a,#0x55             ;3f16  4d 55
     bz lab_3f22             ;3f18  ad 08
 
 lab_3f1a:
-    call !sub_6217          ;3f1a  9a 17 62
-    bnc lab_3f1a            ;3f1d  9d fb
-    br !lab_0dcf            ;3f1f  9b cf 0d
+    call !sub_6217          ;3f1a  9a 17 62     Unknown; EEPROM related
+    bnc lab_3f1a            ;3f1d  9d fb        Repeat until success
+
+    br !cold_or_warm_start  ;3f1f  9b cf 0d
 
 lab_3f22:
     btclr mem_fe63.3,lab_3f1a ;3f22  31 31 63 f4
@@ -10584,8 +10604,10 @@ lab_3f2e:
 lab_3f2f:
     mov a,#0x00             ;3f2f  a1 00
     mov !mem_fb9a,a         ;3f31  9e 9a fb
-    call !sub_6217          ;3f34  9a 17 62
-    bnc lab_3f2e            ;3f37  9d f5
+
+    call !sub_6217          ;3f34  9a 17 62     Unknown; EEPROM related
+    bnc lab_3f2e            ;3f37  9d f5        Branch to just return if unknown check failed
+
     callf !sub_099c         ;3f39  1c 9c
     callf !sub_09e6         ;3f3b  1c e6
     callf !sub_0c0d         ;3f3d  4c 0d
@@ -10593,13 +10615,14 @@ lab_3f2f:
     br lab_3f06             ;3f41  fa c3
 
 lab_3f43:
-    movw hl,#mem_b0ef+1     ;3f43  16 f0 b0
+    movw hl,#mem_b0ef+1     ;3f43  16 f0 b0     HL = pointer to table to read with sub_0c48
     mov a,!mem_fb96         ;3f46  8e 96 fb
-    mov b,a                 ;3f49  73
+    mov b,a                 ;3f49  73           B = table position for sub_0c48
 
 lab_3f4a:
     callf !sub_0c48         ;3f4a  4c 48        Load DE with word at position B in table [HL]
     bc lab_3f56             ;3f4c  8d 08        Branch if table lookup failed
+
     movw ax,#lab_3f55       ;3f4e  10 55 3f
     push ax                 ;3f51  b1
     movw ax,de              ;3f52  c4
@@ -10609,16 +10632,23 @@ lab_3f55:
     ret                     ;3f55  af
 
 lab_3f56:
+    ;Value in mem_fb96 is not a valid index for the table at mem_b0ef
+
     movw hl,#0x00c8         ;3f56  16 c8 00     HL = EEPROM address to read
     movw de,#mem_fbdb       ;3f59  14 db fb     DE = pointer to buffer to receive EEPROM contents
     mov a,#0x01             ;3f5c  a1 01        A = 1 byte to read from EEPROM
     call !sub_6238          ;3f5e  9a 38 62     Read A bytes from EEPROM address HL into [DE]
     bnc lab_3f70            ;3f61  9d 0d        Branch if EEPROM read failed
+
+    ;EEPROM read succeeded, mem_fbdb = value from EEPROM address 0x00c8
+
     call !sub_4023          ;3f63  9a 23 40
     bnc lab_3f70            ;3f66  9d 08
+
     mov a,#0x00             ;3f68  a1 00
     mov !mem_fb96,a         ;3f6a  9e 96 fb
-    br !lab_0dcf            ;3f6d  9b cf 0d
+
+    br !cold_or_warm_start  ;3f6d  9b cf 0d
 
 lab_3f70:
     mov a,#0x01             ;3f70  a1 01
@@ -10638,7 +10668,7 @@ lab_3f76:
     xch a,!mem_fb55         ;3f8c  ce 55 fb
     cmp a,#0x00             ;3f8f  4d 00
     bz lab_3f96             ;3f91  ad 03
-    bt mem_fe63.6,lab_3f2e  ;3f93  ec 63 98
+    bt mem_fe63.6,lab_3f2e  ;3f93  ec 63 98     Branch to just return
 
 lab_3f96:
     set1 mem_fe63.5         ;3f96  5a 63
@@ -10740,12 +10770,13 @@ lab_4021:
     set1 mem_fe63.2         ;4021  2a 63
 
 sub_4023:
-    call !sub_6217          ;4023  9a 17 62
-    bnc sub_4023            ;4026  9d fb
+    call !sub_6217          ;4023  9a 17 62     Unknown; EEPROM related
+    bnc sub_4023            ;4026  9d fb        Repeat until success
+
     callf !sub_0a0d         ;4028  2c 0d
-    movw hl,#0x00c8         ;402a  16 c8 00
+    movw hl,#0x00c8         ;402a  16 c8 00     HL = EEPROM address to read
     movw de,#mem_f206       ;402d  14 06 f2
-    callf !sub_0a37         ;4030  2c 37
+    callf !sub_0a37         ;4030  2c 37        TODO does something with the EEPROM
     bnc lab_4040            ;4032  9d 0c
     bnz lab_4042            ;4034  bd 0c
     mov a,mem_fed6          ;4036  f0 d6
@@ -10780,7 +10811,7 @@ sub_4053:
     pop hl                  ;4061  b6
     bf mem_fe63.2,lab_406b  ;4062  31 23 63 05
     clr1 mem_fe63.2         ;4066  2b 63
-    br !lab_0dcf            ;4068  9b cf 0d
+    br !cold_or_warm_start  ;4068  9b cf 0d
 
 lab_406b:
     ret                     ;406b  af
@@ -11324,7 +11355,7 @@ lab_43a3:
 
 lab_43ac:
     mov b,#0xff             ;43ac  a3 ff
-    clr1 psw.6              ;43ae  6b 1e
+    clr1 psw.6              ;43ae  6b 1e        Clear the Z flag
 
 lab_43b0:
     ret                     ;43b0  af
@@ -22253,8 +22284,8 @@ lab_840b:
     push psw                ;840e  22
     bf mem_fe4d.4,lab_841b  ;840f  31 43 4d 08
     pop psw                 ;8413  23
-    btclr psw.6,lab_841a    ;8414  31 61 1e 02
-    set1 psw.6              ;8418  6a 1e
+    btclr psw.6,lab_841a    ;8414  31 61 1e 02    If Z flag is set, clear it and branch
+    set1 psw.6              ;8418  6a 1e          Set the Z flag
 
 lab_841a:
     push psw                ;841a  22
@@ -22865,14 +22896,14 @@ sub_880b:
     bf mem_fe4d.6,lab_881a  ;880f  31 63 4d 07
 
 lab_8813:
-    clr1 psw.6              ;8813  6b 1e
+    clr1 psw.6              ;8813  6b 1e        Clear the Z flag
     ret                     ;8815  af
 
 sub_8816:
     bf mem_fe4d.6,lab_8813  ;8816  31 63 4d f9
 
 lab_881a:
-    set1 psw.6              ;881a  6a 1e
+    set1 psw.6              ;881a  6a 1e        Set the Z flag
     ret                     ;881c  af
 
 sub_881d:
