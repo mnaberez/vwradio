@@ -25459,7 +25459,7 @@ lab_9ac4:
 lab_9aca:
     movw hl,#mem_bea8+1     ;9aca  16 a9 be
     bf mem_fe74.3,lab_9ad4  ;9acd  31 33 74 03
-    movw hl,#mem_bfa3       ;9ad1  16 a3 bf
+    movw hl,#mem_bfa2+1     ;9ad1  16 a3 bf
 
 lab_9ad4:
     bf mem_fe74.6,lab_9ae2  ;9ad4  31 63 74 0a
@@ -25498,7 +25498,7 @@ lab_9b0f:
     call !sub_9f07          ;9b19  9a 07 9f
     mov a,!mem_fc96         ;9b1c  8e 96 fc
     mov b,a                 ;9b1f  73
-    movw hl,#mem_c020       ;9b20  16 20 c0
+    movw hl,#mem_c019+1       ;9b20  16 20 c0
     bf mem_fe74.6,lab_9b2a  ;9b23  31 63 74 03
     movw hl,#mem_c210+1     ;9b27  16 11 c2
 
@@ -30384,64 +30384,38 @@ mem_b530:
     .byte 0x0d              ;b534  0d          DATA 0x0d
 
 mem_b535:
-;unknown table
+;table of words used with sub_0c48
     .byte 0x0d              ;b535  0d          DATA 0x0d    13 entries below:
-    .byte 0x80              ;b536  80          DATA 0x80
-    .byte 0x05              ;b537  05          DATA 0x05
-    .byte 0x81              ;b538  81          DATA 0x81
-    .byte 0x05              ;b539  05          DATA 0x05
-    .byte 0x82              ;b53a  82          DATA 0x82
-    .byte 0x05              ;b53b  05          DATA 0x05
-    .byte 0x83              ;b53c  83          DATA 0x83
-    .byte 0x05              ;b53d  05          DATA 0x05
-    .byte 0x84              ;b53e  84          DATA 0x84
-    .byte 0x0a              ;b53f  0a          DATA 0x0a
-    .byte 0x85              ;b540  85          DATA 0x85
-    .byte 0x0a              ;b541  0a          DATA 0x0a
-    .byte 0x86              ;b542  86          DATA 0x86
-    .byte 0x0a              ;b543  0a          DATA 0x0a
-    .byte 0x87              ;b544  87          DATA 0x87
-    .byte 0x0a              ;b545  0a          DATA 0x0a
-    .byte 0x88              ;b546  88          DATA 0x88
-    .byte 0x04              ;b547  04          DATA 0x04
-    .byte 0x89              ;b548  89          DATA 0x89
-    .byte 0x04              ;b549  04          DATA 0x04
-    .byte 0x8a              ;b54a  8a          DATA 0x8a
-    .byte 0x04              ;b54b  04          DATA 0x04
-    .byte 0x8b              ;b54c  8b          DATA 0x8b
-    .byte 0x03              ;b54d  03          DATA 0x03
-    .byte 0x8c              ;b54e  8c          DATA 0x8c
-    .byte 0x03              ;b54f  03          DATA 0x03
+    .word 0x0580
+    .word 0x0581
+    .word 0x0582
+    .word 0x0583
+    .word 0x0a84
+    .word 0x0a85
+    .word 0x0a86
+    .word 0x0a87
+    .word 0x0488
+    .word 0x0489
+    .word 0x048a
+    .word 0x038b
+    .word 0x038c
 
 mem_b550:
 ;table of words used with sub_0c48
     .byte 0x0d              ;b550  0d          DATA 0x0d        13 entries below:
-    .byte 0x6b              ;b551  6b          DATA 0x6b 'k'
-    .byte 0x71              ;b552  71          DATA 0x71 'q'
-    .byte 0x7f              ;b553  7f          DATA 0x7f
-    .byte 0x71              ;b554  71          DATA 0x71 'q'
-    .byte 0x88              ;b555  88          DATA 0x88
-    .byte 0x71              ;b556  71          DATA 0x71 'q'
-    .byte 0x91              ;b557  91          DATA 0x91
-    .byte 0x71              ;b558  71          DATA 0x71 'q'
-    .byte 0x9a              ;b559  9a          DATA 0x9a
-    .byte 0x71              ;b55a  71          DATA 0x71 'q'
-    .byte 0x9c              ;b55b  9c          DATA 0x9c
-    .byte 0x71              ;b55c  71          DATA 0x71 'q'
-    .byte 0x9e              ;b55d  9e          DATA 0x9e
-    .byte 0x71              ;b55e  71          DATA 0x71 'q'
-    .byte 0xda              ;b55f  da          DATA 0xda
-    .byte 0x71              ;b560  71          DATA 0x71 'q'
-    .byte 0xc6              ;b561  c6          DATA 0xc6
-    .byte 0x71              ;b562  71          DATA 0x71 'q'
-    .byte 0xcf              ;b563  cf          DATA 0xcf
-    .byte 0x71              ;b564  71          DATA 0x71 'q'
-    .byte 0xa7              ;b565  a7          DATA 0xa7
-    .byte 0x71              ;b566  71          DATA 0x71 'q'
-    .byte 0xb0              ;b567  b0          DATA 0xb0
-    .byte 0x71              ;b568  71          DATA 0x71 'q'
-    .byte 0x9d              ;b569  9d          DATA 0x9d
-    .byte 0x6b              ;b56a  6b          DATA 0x6b 'k'
+    .word 0x716b
+    .word 0x717f
+    .word 0x7188
+    .word 0x7191
+    .word 0x719a
+    .word 0x719c
+    .word 0x719e
+    .word 0x71da
+    .word 0x71c6
+    .word 0x71cf
+    .word 0x71a7
+    .word 0x71b0
+    .word 0x6b9d
 
 mem_b56b:
     .byte 0x1b              ;b56b  1b          DATA 0x1b
@@ -30551,154 +30525,80 @@ mem_b5c5:
 mem_b5d6:
 ;table of words used with sub_0c48
     .byte 0x4a              ;b5d6  4a          DATA 0x4a 'J'    74 entries below:
-    .byte 0x00              ;b5d7  00          DATA 0x00
-    .byte 0x00              ;b5d8  00          DATA 0x00
-    .byte 0x98              ;b5d9  98          DATA 0x98
-    .byte 0xb0              ;b5da  b0          DATA 0xb0
-    .byte 0x98              ;b5db  98          DATA 0x98
-    .byte 0xb0              ;b5dc  b0          DATA 0xb0
-    .byte 0x98              ;b5dd  98          DATA 0x98
-    .byte 0xb0              ;b5de  b0          DATA 0xb0
-    .byte 0x98              ;b5df  98          DATA 0x98
-    .byte 0xb0              ;b5e0  b0          DATA 0xb0
-    .byte 0x90              ;b5e1  90          DATA 0x90
-    .byte 0xb0              ;b5e2  b0          DATA 0xb0
-    .byte 0x90              ;b5e3  90          DATA 0x90
-    .byte 0xb0              ;b5e4  b0          DATA 0xb0
-    .byte 0x92              ;b5e5  92          DATA 0x92
-    .byte 0xb1              ;b5e6  b1          DATA 0xb1
-    .byte 0x9a              ;b5e7  9a          DATA 0x9a
-    .byte 0xb1              ;b5e8  b1          DATA 0xb1
-    .byte 0x92              ;b5e9  92          DATA 0x92
-    .byte 0xb1              ;b5ea  b1          DATA 0xb1
-    .byte 0x1a              ;b5eb  1a          DATA 0x1a
-    .byte 0xb1              ;b5ec  b1          DATA 0xb1
-    .byte 0x12              ;b5ed  12          DATA 0x12
-    .byte 0xb1              ;b5ee  b1          DATA 0xb1
-    .byte 0x02              ;b5ef  02          DATA 0x02
-    .byte 0x40              ;b5f0  40          DATA 0x40 '@'
-    .byte 0x00              ;b5f1  00          DATA 0x00
-    .byte 0x40              ;b5f2  40          DATA 0x40 '@'
-    .byte 0x00              ;b5f3  00          DATA 0x00
-    .byte 0x40              ;b5f4  40          DATA 0x40 '@'
-    .byte 0x00              ;b5f5  00          DATA 0x00
-    .byte 0x40              ;b5f6  40          DATA 0x40 '@'
-    .byte 0x80              ;b5f7  80          DATA 0x80
-    .byte 0x11              ;b5f8  11          DATA 0x11
-    .byte 0x00              ;b5f9  00          DATA 0x00
-    .byte 0x81              ;b5fa  81          DATA 0x81
-    .byte 0x00              ;b5fb  00          DATA 0x00
-    .byte 0x11              ;b5fc  11          DATA 0x11
-    .byte 0x80              ;b5fd  80          DATA 0x80
-    .byte 0x91              ;b5fe  91          DATA 0x91
-    .byte 0x92              ;b5ff  92          DATA 0x92
-    .byte 0xb1              ;b600  b1          DATA 0xb1
-    .byte 0x92              ;b601  92          DATA 0x92
-    .byte 0xb9              ;b602  b9          DATA 0xb9
-    .byte 0x90              ;b603  90          DATA 0x90
-    .byte 0xb9              ;b604  b9          DATA 0xb9
-    .byte 0x90              ;b605  90          DATA 0x90
-    .byte 0xb9              ;b606  b9          DATA 0xb9
-    .byte 0x00              ;b607  00          DATA 0x00
-    .byte 0x81              ;b608  81          DATA 0x81
-    .byte 0x02              ;b609  02          DATA 0x02
-    .byte 0x48              ;b60a  48          DATA 0x48 'H'
-    .byte 0x08              ;b60b  08          DATA 0x08
-    .byte 0x08              ;b60c  08          DATA 0x08
-    .byte 0x80              ;b60d  80          DATA 0x80
-    .byte 0x10              ;b60e  10          DATA 0x10
-    .byte 0x9a              ;b60f  9a          DATA 0x9a
-    .byte 0xb1              ;b610  b1          DATA 0xb1
-    .byte 0x92              ;b611  92          DATA 0x92
-    .byte 0xb1              ;b612  b1          DATA 0xb1
-    .byte 0x00              ;b613  00          DATA 0x00
-    .byte 0xc0              ;b614  c0          DATA 0xc0
-    .byte 0x00              ;b615  00          DATA 0x00
-    .byte 0xc0              ;b616  c0          DATA 0xc0
-    .byte 0x90              ;b617  90          DATA 0x90
-    .byte 0x31              ;b618  31          DATA 0x31 '1'
-    .byte 0x90              ;b619  90          DATA 0x90
-    .byte 0x31              ;b61a  31          DATA 0x31 '1'
-    .byte 0x00              ;b61b  00          DATA 0x00
-    .byte 0x00              ;b61c  00          DATA 0x00
-    .byte 0x88              ;b61d  88          DATA 0x88
-    .byte 0xc8              ;b61e  c8          DATA 0xc8
-    .byte 0x88              ;b61f  88          DATA 0x88
-    .byte 0x88              ;b620  88          DATA 0x88
-    .byte 0x00              ;b621  00          DATA 0x00
-    .byte 0x88              ;b622  88          DATA 0x88
-    .byte 0x02              ;b623  02          DATA 0x02
-    .byte 0xd1              ;b624  d1          DATA 0xd1
-    .byte 0x80              ;b625  80          DATA 0x80
-    .byte 0xa9              ;b626  a9          DATA 0xa9
-    .byte 0x9a              ;b627  9a          DATA 0x9a
-    .byte 0xd8              ;b628  d8          DATA 0xd8
-    .byte 0x9a              ;b629  9a          DATA 0x9a
-    .byte 0x98              ;b62a  98          DATA 0x98
-    .byte 0x9a              ;b62b  9a          DATA 0x9a
-    .byte 0x98              ;b62c  98          DATA 0x98
-    .byte 0x02              ;b62d  02          DATA 0x02
-    .byte 0x40              ;b62e  40          DATA 0x40 '@'
-    .byte 0x02              ;b62f  02          DATA 0x02
-    .byte 0x40              ;b630  40          DATA 0x40 '@'
-    .byte 0x10              ;b631  10          DATA 0x10
-    .byte 0x00              ;b632  00          DATA 0x00
-    .byte 0x10              ;b633  10          DATA 0x10
-    .byte 0x00              ;b634  00          DATA 0x00
-    .byte 0x00              ;b635  00          DATA 0x00
-    .byte 0x40              ;b636  40          DATA 0x40 '@'
-    .byte 0xe8              ;b637  e8          DATA 0xe8
-    .byte 0xa9              ;b638  a9          DATA 0xa9
-    .byte 0x00              ;b639  00          DATA 0x00
-    .byte 0x02              ;b63a  02          DATA 0x02
-    .byte 0xc8              ;b63b  c8          DATA 0xc8
-    .byte 0xa9              ;b63c  a9          DATA 0xa9
-    .byte 0x88              ;b63d  88          DATA 0x88
-    .byte 0x8b              ;b63e  8b          DATA 0x8b
-    .byte 0x08              ;b63f  08          DATA 0x08
-    .byte 0x81              ;b640  81          DATA 0x81
-    .byte 0x08              ;b641  08          DATA 0x08
-    .byte 0x81              ;b642  81          DATA 0x81
-    .byte 0x08              ;b643  08          DATA 0x08
-    .byte 0x81              ;b644  81          DATA 0x81
-    .byte 0x80              ;b645  80          DATA 0x80
-    .byte 0x88              ;b646  88          DATA 0x88
-    .byte 0x80              ;b647  80          DATA 0x80
-    .byte 0x0c              ;b648  0c          DATA 0x0c
-    .byte 0x80              ;b649  80          DATA 0x80
-    .byte 0x00              ;b64a  00          DATA 0x00
-    .byte 0x80              ;b64b  80          DATA 0x80
-    .byte 0x00              ;b64c  00          DATA 0x00
-    .byte 0x80              ;b64d  80          DATA 0x80
-    .byte 0x80              ;b64e  80          DATA 0x80
-    .byte 0x80              ;b64f  80          DATA 0x80
-    .byte 0x88              ;b650  88          DATA 0x88
-    .byte 0x80              ;b651  80          DATA 0x80
-    .byte 0x80              ;b652  80          DATA 0x80
-    .byte 0x08              ;b653  08          DATA 0x08
-    .byte 0x88              ;b654  88          DATA 0x88
-    .byte 0x08              ;b655  08          DATA 0x08
-    .byte 0x88              ;b656  88          DATA 0x88
-    .byte 0xc8              ;b657  c8          DATA 0xc8
-    .byte 0x80              ;b658  80          DATA 0x80
-    .byte 0x08              ;b659  08          DATA 0x08
-    .byte 0x08              ;b65a  08          DATA 0x08
-    .byte 0x00              ;b65b  00          DATA 0x00
-    .byte 0x00              ;b65c  00          DATA 0x00
-    .byte 0x00              ;b65d  00          DATA 0x00
-    .byte 0x08              ;b65e  08          DATA 0x08
-    .byte 0x82              ;b65f  82          DATA 0x82
-    .byte 0x21              ;b660  21          DATA 0x21 '!'
-    .byte 0x80              ;b661  80          DATA 0x80
-    .byte 0x21              ;b662  21          DATA 0x21 '!'
-    .byte 0x80              ;b663  80          DATA 0x80
-    .byte 0x21              ;b664  21          DATA 0x21 '!'
-    .byte 0x80              ;b665  80          DATA 0x80
-    .byte 0x21              ;b666  21          DATA 0x21 '!'
-    .byte 0x80              ;b667  80          DATA 0x80
-    .byte 0xb0              ;b668  b0          DATA 0xb0
-    .byte 0x80              ;b669  80          DATA 0x80
-    .byte 0x91              ;b66a  91          DATA 0x91
+    .word 0x0000
+    .word 0xb098
+    .word 0xb098
+    .word 0xb098
+    .word 0xb098
+    .word 0xb090
+    .word 0xb090
+    .word 0xb192
+    .word 0xb19a
+    .word 0xb192
+    .word 0xb11a
+    .word 0xb112
+    .word 0x4002
+    .word 0x4000
+    .word 0x4000
+    .word 0x4000
+    .word 0x1180
+    .word 0x8100
+    .word 0x1100
+    .word 0x9180
+    .word 0xb192
+    .word 0xb992
+    .word 0xb990
+    .word 0xb990
+    .word 0x8100
+    .word 0x4802
+    .word 0x0808
+    .word 0x1080
+    .word 0xb19a
+    .word 0xb192
+    .word 0xc000
+    .word 0xc000
+    .word 0x3190
+    .word 0x3190
+    .word 0x0000
+    .word 0xc888
+    .word 0x8888
+    .word 0x8800
+    .word 0xd102
+    .word 0xa980
+    .word 0xd89a
+    .word 0x989a
+    .word 0x989a
+    .word 0x4002
+    .word 0x4002
+    .word 0x0010
+    .word 0x0010
+    .word 0x4000
+    .word 0xa9e8
+    .word 0x0200
+    .word 0xa9c8
+    .word 0x8b88
+    .word 0x8108
+    .word 0x8108
+    .word 0x8108
+    .word 0x8880
+    .word 0x0c80
+    .word 0x0080
+    .word 0x0080
+    .word 0x8080
+    .word 0x8880
+    .word 0x8080
+    .word 0x8808
+    .word 0x8808
+    .word 0x80c8
+    .word 0x0808
+    .word 0x0000
+    .word 0x0800
+    .word 0x2182
+    .word 0x2180
+    .word 0x2180
+    .word 0x2180
+    .word 0xb080
+    .word 0x9180
 
 mem_b66b:
 ;table of bytes used with sub_0c7d
@@ -32807,1219 +32707,636 @@ mem_be1b:
 mem_be2b:
 ;table of words used with sub_0c48
     .byte 0x3e              ;be2b  3e          DATA 0x3e '>'    62 entries below:
-    .byte 0x80              ;be2c  80          DATA 0x80
-    .byte 0x0f              ;be2d  0f          DATA 0x0f
-    .byte 0x80              ;be2e  80          DATA 0x80
-    .byte 0x0f              ;be2f  0f          DATA 0x0f
-    .byte 0x80              ;be30  80          DATA 0x80
-    .byte 0x0f              ;be31  0f          DATA 0x0f
-    .byte 0x80              ;be32  80          DATA 0x80
-    .byte 0x0f              ;be33  0f          DATA 0x0f
-    .byte 0x80              ;be34  80          DATA 0x80
-    .byte 0x0f              ;be35  0f          DATA 0x0f
-    .byte 0x80              ;be36  80          DATA 0x80
-    .byte 0x0f              ;be37  0f          DATA 0x0f
-    .byte 0x80              ;be38  80          DATA 0x80
-    .byte 0x0f              ;be39  0f          DATA 0x0f
-    .byte 0x80              ;be3a  80          DATA 0x80
-    .byte 0x0f              ;be3b  0f          DATA 0x0f
-    .byte 0x80              ;be3c  80          DATA 0x80
-    .byte 0x0f              ;be3d  0f          DATA 0x0f
-    .byte 0x80              ;be3e  80          DATA 0x80
-    .byte 0x0f              ;be3f  0f          DATA 0x0f
-    .byte 0x80              ;be40  80          DATA 0x80
-    .byte 0x0f              ;be41  0f          DATA 0x0f
-    .byte 0x80              ;be42  80          DATA 0x80
-    .byte 0x0f              ;be43  0f          DATA 0x0f
-    .byte 0x80              ;be44  80          DATA 0x80
-    .byte 0x0f              ;be45  0f          DATA 0x0f
-    .byte 0x80              ;be46  80          DATA 0x80
-    .byte 0x0f              ;be47  0f          DATA 0x0f
-    .byte 0x80              ;be48  80          DATA 0x80
-    .byte 0x0f              ;be49  0f          DATA 0x0f
-    .byte 0x80              ;be4a  80          DATA 0x80
-    .byte 0x0f              ;be4b  0f          DATA 0x0f
-    .byte 0x80              ;be4c  80          DATA 0x80
-    .byte 0x0f              ;be4d  0f          DATA 0x0f
-    .byte 0x80              ;be4e  80          DATA 0x80
-    .byte 0x0f              ;be4f  0f          DATA 0x0f
-    .byte 0x80              ;be50  80          DATA 0x80
-    .byte 0x0f              ;be51  0f          DATA 0x0f
-    .byte 0x80              ;be52  80          DATA 0x80
-    .byte 0x0f              ;be53  0f          DATA 0x0f
-    .byte 0x80              ;be54  80          DATA 0x80
-    .byte 0x0f              ;be55  0f          DATA 0x0f
-    .byte 0x80              ;be56  80          DATA 0x80
-    .byte 0x0f              ;be57  0f          DATA 0x0f
-    .byte 0x80              ;be58  80          DATA 0x80
-    .byte 0x0f              ;be59  0f          DATA 0x0f
-    .byte 0x80              ;be5a  80          DATA 0x80
-    .byte 0x0f              ;be5b  0f          DATA 0x0f
-    .byte 0x80              ;be5c  80          DATA 0x80
-    .byte 0x0f              ;be5d  0f          DATA 0x0f
-    .byte 0x80              ;be5e  80          DATA 0x80
-    .byte 0x0f              ;be5f  0f          DATA 0x0f
-    .byte 0x80              ;be60  80          DATA 0x80
-    .byte 0x0f              ;be61  0f          DATA 0x0f
-    .byte 0x80              ;be62  80          DATA 0x80
-    .byte 0x0f              ;be63  0f          DATA 0x0f
-    .byte 0x80              ;be64  80          DATA 0x80
-    .byte 0x0f              ;be65  0f          DATA 0x0f
-    .byte 0x80              ;be66  80          DATA 0x80
-    .byte 0x0f              ;be67  0f          DATA 0x0f
-    .byte 0x80              ;be68  80          DATA 0x80
-    .byte 0x0f              ;be69  0f          DATA 0x0f
-    .byte 0x80              ;be6a  80          DATA 0x80
-    .byte 0x0f              ;be6b  0f          DATA 0x0f
-    .byte 0x80              ;be6c  80          DATA 0x80
-    .byte 0x0f              ;be6d  0f          DATA 0x0f
-    .byte 0x80              ;be6e  80          DATA 0x80
-    .byte 0x0f              ;be6f  0f          DATA 0x0f
-    .byte 0x80              ;be70  80          DATA 0x80
-    .byte 0x0f              ;be71  0f          DATA 0x0f
-    .byte 0x80              ;be72  80          DATA 0x80
-    .byte 0x0f              ;be73  0f          DATA 0x0f
-    .byte 0x80              ;be74  80          DATA 0x80
-    .byte 0x0f              ;be75  0f          DATA 0x0f
-    .byte 0x80              ;be76  80          DATA 0x80
-    .byte 0x0f              ;be77  0f          DATA 0x0f
-    .byte 0x80              ;be78  80          DATA 0x80
-    .byte 0x0f              ;be79  0f          DATA 0x0f
-    .byte 0x80              ;be7a  80          DATA 0x80
-    .byte 0x0f              ;be7b  0f          DATA 0x0f
-    .byte 0x80              ;be7c  80          DATA 0x80
-    .byte 0x0f              ;be7d  0f          DATA 0x0f
-    .byte 0x80              ;be7e  80          DATA 0x80
-    .byte 0x0f              ;be7f  0f          DATA 0x0f
-    .byte 0x80              ;be80  80          DATA 0x80
-    .byte 0x0f              ;be81  0f          DATA 0x0f
-    .byte 0x80              ;be82  80          DATA 0x80
-    .byte 0x0f              ;be83  0f          DATA 0x0f
-    .byte 0x80              ;be84  80          DATA 0x80
-    .byte 0x0f              ;be85  0f          DATA 0x0f
-    .byte 0x80              ;be86  80          DATA 0x80
-    .byte 0x0f              ;be87  0f          DATA 0x0f
-    .byte 0x80              ;be88  80          DATA 0x80
-    .byte 0x0f              ;be89  0f          DATA 0x0f
-    .byte 0x80              ;be8a  80          DATA 0x80
-    .byte 0x0f              ;be8b  0f          DATA 0x0f
-    .byte 0x71              ;be8c  71          DATA 0x71 'q'
-    .byte 0x0f              ;be8d  0f          DATA 0x0f
-    .byte 0x5f              ;be8e  5f          DATA 0x5f '_'
-    .byte 0x0f              ;be8f  0f          DATA 0x0f
-    .byte 0x4c              ;be90  4c          DATA 0x4c 'L'
-    .byte 0x0f              ;be91  0f          DATA 0x0f
-    .byte 0x36              ;be92  36          DATA 0x36 '6'
-    .byte 0x0f              ;be93  0f          DATA 0x0f
-    .byte 0x1d              ;be94  1d          DATA 0x1d
-    .byte 0x0f              ;be95  0f          DATA 0x0f
-    .byte 0x01              ;be96  01          DATA 0x01
-    .byte 0x0f              ;be97  0f          DATA 0x0f
-    .byte 0xe2              ;be98  e2          DATA 0xe2
-    .byte 0x0e              ;be99  0e          DATA 0x0e
-    .byte 0xbf              ;be9a  bf          DATA 0xbf
-    .byte 0x0e              ;be9b  0e          DATA 0x0e
-    .byte 0x98              ;be9c  98          DATA 0x98
-    .byte 0x0e              ;be9d  0e          DATA 0x0e
-    .byte 0x6c              ;be9e  6c          DATA 0x6c 'l'
-    .byte 0x0e              ;be9f  0e          DATA 0x0e
-    .byte 0x3a              ;bea0  3a          DATA 0x3a ':'
-    .byte 0x0e              ;bea1  0e          DATA 0x0e
-    .byte 0x03              ;bea2  03          DATA 0x03
-    .byte 0x0e              ;bea3  0e          DATA 0x0e
-    .byte 0xc5              ;bea4  c5          DATA 0xc5
-    .byte 0x0d              ;bea5  0d          DATA 0x0d
-    .byte 0x7f              ;bea6  7f          DATA 0x7f
-    .byte 0x0d              ;bea7  0d          DATA 0x0d
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f71
+    .word 0x0f5f
+    .word 0x0f4c
+    .word 0x0f36
+    .word 0x0f1d
+    .word 0x0f01
+    .word 0x0ee2
+    .word 0x0ebf
+    .word 0x0e98
+    .word 0x0e6c
+    .word 0x0e3a
+    .word 0x0e03
+    .word 0x0dc5
+    .word 0x0d7f
 
 mem_bea8:
 ;table of words used with sub_0c48
     .byte 0x3e              ;bea8  3e          DATA 0x3e '>'    62 entries below:
-    .byte 0xff              ;bea9  ff          DATA 0xff
-    .byte 0x0f              ;beaa  0f          DATA 0x0f
-    .byte 0xfb              ;beab  fb          DATA 0xfb
-    .byte 0x0f              ;beac  0f          DATA 0x0f
-    .byte 0xf9              ;bead  f9          DATA 0xf9
-    .byte 0x0f              ;beae  0f          DATA 0x0f
-    .byte 0xf7              ;beaf  f7          DATA 0xf7
-    .byte 0x0f              ;beb0  0f          DATA 0x0f
-    .byte 0xf5              ;beb1  f5          DATA 0xf5
-    .byte 0x0f              ;beb2  0f          DATA 0x0f
-    .byte 0xf2              ;beb3  f2          DATA 0xf2
-    .byte 0x0f              ;beb4  0f          DATA 0x0f
-    .byte 0xee              ;beb5  ee          DATA 0xee
-    .byte 0x0f              ;beb6  0f          DATA 0x0f
-    .byte 0xec              ;beb7  ec          DATA 0xec
-    .byte 0x0f              ;beb8  0f          DATA 0x0f
-    .byte 0xea              ;beb9  ea          DATA 0xea
-    .byte 0x0f              ;beba  0f          DATA 0x0f
-    .byte 0xe7              ;bebb  e7          DATA 0xe7
-    .byte 0x0f              ;bebc  0f          DATA 0x0f
-    .byte 0xe4              ;bebd  e4          DATA 0xe4
-    .byte 0x0f              ;bebe  0f          DATA 0x0f
-    .byte 0xe0              ;bebf  e0          DATA 0xe0
-    .byte 0x0f              ;bec0  0f          DATA 0x0f
-    .byte 0xdc              ;bec1  dc          DATA 0xdc
-    .byte 0x0f              ;bec2  0f          DATA 0x0f
-    .byte 0xd8              ;bec3  d8          DATA 0xd8
-    .byte 0x0f              ;bec4  0f          DATA 0x0f
-    .byte 0xd3              ;bec5  d3          DATA 0xd3
-    .byte 0x0f              ;bec6  0f          DATA 0x0f
-    .byte 0xcd              ;bec7  cd          DATA 0xcd
-    .byte 0x0f              ;bec8  0f          DATA 0x0f
-    .byte 0xc7              ;bec9  c7          DATA 0xc7
-    .byte 0x0f              ;beca  0f          DATA 0x0f
-    .byte 0xc0              ;becb  c0          DATA 0xc0
-    .byte 0x0f              ;becc  0f          DATA 0x0f
-    .byte 0xb8              ;becd  b8          DATA 0xb8
-    .byte 0x0f              ;bece  0f          DATA 0x0f
-    .byte 0xaf              ;becf  af          DATA 0xaf
-    .byte 0x0f              ;bed0  0f          DATA 0x0f
-    .byte 0xa5              ;bed1  a5          DATA 0xa5
-    .byte 0x0f              ;bed2  0f          DATA 0x0f
-    .byte 0x9a              ;bed3  9a          DATA 0x9a
-    .byte 0x0f              ;bed4  0f          DATA 0x0f
-    .byte 0x8d              ;bed5  8d          DATA 0x8d
-    .byte 0x0f              ;bed6  0f          DATA 0x0f
-    .byte 0x7f              ;bed7  7f          DATA 0x7f
-    .byte 0x0f              ;bed8  0f          DATA 0x0f
-    .byte 0x70              ;bed9  70          DATA 0x70 'p'
-    .byte 0x0f              ;beda  0f          DATA 0x0f
-    .byte 0x5e              ;bedb  5e          DATA 0x5e '^'
-    .byte 0x0f              ;bedc  0f          DATA 0x0f
-    .byte 0x4a              ;bedd  4a          DATA 0x4a 'J'
-    .byte 0x0f              ;bede  0f          DATA 0x0f
-    .byte 0x34              ;bedf  34          DATA 0x34 '4'
-    .byte 0x0f              ;bee0  0f          DATA 0x0f
-    .byte 0x1b              ;bee1  1b          DATA 0x1b
-    .byte 0x0f              ;bee2  0f          DATA 0x0f
-    .byte 0xff              ;bee3  ff          DATA 0xff
-    .byte 0x0e              ;bee4  0e          DATA 0x0e
-    .byte 0xdf              ;bee5  df          DATA 0xdf
-    .byte 0x0e              ;bee6  0e          DATA 0x0e
-    .byte 0xbc              ;bee7  bc          DATA 0xbc
-    .byte 0x0e              ;bee8  0e          DATA 0x0e
-    .byte 0x94              ;bee9  94          DATA 0x94
-    .byte 0x0e              ;beea  0e          DATA 0x0e
-    .byte 0x68              ;beeb  68          DATA 0x68 'h'
-    .byte 0x0e              ;beec  0e          DATA 0x0e
-    .byte 0x36              ;beed  36          DATA 0x36 '6'
-    .byte 0x0e              ;beee  0e          DATA 0x0e
-    .byte 0xfe              ;beef  fe          DATA 0xfe
-    .byte 0x0d              ;bef0  0d          DATA 0x0d
-    .byte 0xbf              ;bef1  bf          DATA 0xbf
-    .byte 0x0d              ;bef2  0d          DATA 0x0d
-    .byte 0x79              ;bef3  79          DATA 0x79 'y'
-    .byte 0x0d              ;bef4  0d          DATA 0x0d
-    .byte 0x2a              ;bef5  2a          DATA 0x2a '*'
-    .byte 0x0d              ;bef6  0d          DATA 0x0d
-    .byte 0xd1              ;bef7  d1          DATA 0xd1
-    .byte 0x0c              ;bef8  0c          DATA 0x0c
-    .byte 0x6e              ;bef9  6e          DATA 0x6e 'n'
-    .byte 0x0c              ;befa  0c          DATA 0x0c
-    .byte 0xfe              ;befb  fe          DATA 0xfe
-    .byte 0x0b              ;befc  0b          DATA 0x0b
-    .byte 0x81              ;befd  81          DATA 0x81
-    .byte 0x0b              ;befe  0b          DATA 0x0b
-    .byte 0xf4              ;beff  f4          DATA 0xf4
-    .byte 0x0a              ;bf00  0a          DATA 0x0a
-    .byte 0x57              ;bf01  57          DATA 0x57 'W'
-    .byte 0x0a              ;bf02  0a          DATA 0x0a
-    .byte 0xa6              ;bf03  a6          DATA 0xa6
-    .byte 0x09              ;bf04  09          DATA 0x09
-    .byte 0xdf              ;bf05  df          DATA 0xdf
-    .byte 0x08              ;bf06  08          DATA 0x08
-    .byte 0x00              ;bf07  00          DATA 0x00
-    .byte 0x08              ;bf08  08          DATA 0x08
-    .byte 0x00              ;bf09  00          DATA 0x00
-    .byte 0x08              ;bf0a  08          DATA 0x08
-    .byte 0x00              ;bf0b  00          DATA 0x00
-    .byte 0x08              ;bf0c  08          DATA 0x08
-    .byte 0x00              ;bf0d  00          DATA 0x00
-    .byte 0x08              ;bf0e  08          DATA 0x08
-    .byte 0x00              ;bf0f  00          DATA 0x00
-    .byte 0x08              ;bf10  08          DATA 0x08
-    .byte 0x00              ;bf11  00          DATA 0x00
-    .byte 0x08              ;bf12  08          DATA 0x08
-    .byte 0x00              ;bf13  00          DATA 0x00
-    .byte 0x08              ;bf14  08          DATA 0x08
-    .byte 0x00              ;bf15  00          DATA 0x00
-    .byte 0x08              ;bf16  08          DATA 0x08
-    .byte 0x00              ;bf17  00          DATA 0x00
-    .byte 0x08              ;bf18  08          DATA 0x08
-    .byte 0x00              ;bf19  00          DATA 0x00
-    .byte 0x08              ;bf1a  08          DATA 0x08
-    .byte 0x00              ;bf1b  00          DATA 0x00
-    .byte 0x08              ;bf1c  08          DATA 0x08
-    .byte 0x00              ;bf1d  00          DATA 0x00
-    .byte 0x08              ;bf1e  08          DATA 0x08
-    .byte 0x00              ;bf1f  00          DATA 0x00
-    .byte 0x08              ;bf20  08          DATA 0x08
-    .byte 0x00              ;bf21  00          DATA 0x00
-    .byte 0x08              ;bf22  08          DATA 0x08
-    .byte 0x00              ;bf23  00          DATA 0x00
-    .byte 0x08              ;bf24  08          DATA 0x08
+    .word 0x0fff
+    .word 0x0ffb
+    .word 0x0ff9
+    .word 0x0ff7
+    .word 0x0ff5
+    .word 0x0ff2
+    .word 0x0fee
+    .word 0x0fec
+    .word 0x0fea
+    .word 0x0fe7
+    .word 0x0fe4
+    .word 0x0fe0
+    .word 0x0fdc
+    .word 0x0fd8
+    .word 0x0fd3
+    .word 0x0fcd
+    .word 0x0fc7
+    .word 0x0fc0
+    .word 0x0fb8
+    .word 0x0faf
+    .word 0x0fa5
+    .word 0x0f9a
+    .word 0x0f8d
+    .word 0x0f7f
+    .word 0x0f70
+    .word 0x0f5e
+    .word 0x0f4a
+    .word 0x0f34
+    .word 0x0f1b
+    .word 0x0eff
+    .word 0x0edf
+    .word 0x0ebc
+    .word 0x0e94
+    .word 0x0e68
+    .word 0x0e36
+    .word 0x0dfe
+    .word 0x0dbf
+    .word 0x0d79
+    .word 0x0d2a
+    .word 0x0cd1
+    .word 0x0c6e
+    .word 0x0bfe
+    .word 0x0b81
+    .word 0x0af4
+    .word 0x0a57
+    .word 0x09a6
+    .word 0x08df
+    .word 0x0800
+    .word 0x0800
+    .word 0x0800
+    .word 0x0800
+    .word 0x0800
+    .word 0x0800
+    .word 0x0800
+    .word 0x0800
+    .word 0x0800
+    .word 0x0800
+    .word 0x0800
+    .word 0x0800
+    .word 0x0800
+    .word 0x0800
+    .word 0x0800
 
 mem_bf25:
 ;table of words used with sub_0c48
     .byte 0x3e              ;bf25  3e          DATA 0x3e '>'    62 entries below:
-    .byte 0x80              ;bf26  80          DATA 0x80
-    .byte 0x0f              ;bf27  0f          DATA 0x0f
-    .byte 0x80              ;bf28  80          DATA 0x80
-    .byte 0x0f              ;bf29  0f          DATA 0x0f
-    .byte 0x80              ;bf2a  80          DATA 0x80
-    .byte 0x0f              ;bf2b  0f          DATA 0x0f
-    .byte 0x80              ;bf2c  80          DATA 0x80
-    .byte 0x0f              ;bf2d  0f          DATA 0x0f
-    .byte 0x80              ;bf2e  80          DATA 0x80
-    .byte 0x0f              ;bf2f  0f          DATA 0x0f
-    .byte 0x80              ;bf30  80          DATA 0x80
-    .byte 0x0f              ;bf31  0f          DATA 0x0f
-    .byte 0x80              ;bf32  80          DATA 0x80
-    .byte 0x0f              ;bf33  0f          DATA 0x0f
-    .byte 0x80              ;bf34  80          DATA 0x80
-    .byte 0x0f              ;bf35  0f          DATA 0x0f
-    .byte 0x80              ;bf36  80          DATA 0x80
-    .byte 0x0f              ;bf37  0f          DATA 0x0f
-    .byte 0x80              ;bf38  80          DATA 0x80
-    .byte 0x0f              ;bf39  0f          DATA 0x0f
-    .byte 0x80              ;bf3a  80          DATA 0x80
-    .byte 0x0f              ;bf3b  0f          DATA 0x0f
-    .byte 0x80              ;bf3c  80          DATA 0x80
-    .byte 0x0f              ;bf3d  0f          DATA 0x0f
-    .byte 0x80              ;bf3e  80          DATA 0x80
-    .byte 0x0f              ;bf3f  0f          DATA 0x0f
-    .byte 0x80              ;bf40  80          DATA 0x80
-    .byte 0x0f              ;bf41  0f          DATA 0x0f
-    .byte 0x80              ;bf42  80          DATA 0x80
-    .byte 0x0f              ;bf43  0f          DATA 0x0f
-    .byte 0x80              ;bf44  80          DATA 0x80
-    .byte 0x0f              ;bf45  0f          DATA 0x0f
-    .byte 0x80              ;bf46  80          DATA 0x80
-    .byte 0x0f              ;bf47  0f          DATA 0x0f
-    .byte 0x80              ;bf48  80          DATA 0x80
-    .byte 0x0f              ;bf49  0f          DATA 0x0f
-    .byte 0x80              ;bf4a  80          DATA 0x80
-    .byte 0x0f              ;bf4b  0f          DATA 0x0f
-    .byte 0x80              ;bf4c  80          DATA 0x80
-    .byte 0x0f              ;bf4d  0f          DATA 0x0f
-    .byte 0x80              ;bf4e  80          DATA 0x80
-    .byte 0x0f              ;bf4f  0f          DATA 0x0f
-    .byte 0x80              ;bf50  80          DATA 0x80
-    .byte 0x0f              ;bf51  0f          DATA 0x0f
-    .byte 0x80              ;bf52  80          DATA 0x80
-    .byte 0x0f              ;bf53  0f          DATA 0x0f
-    .byte 0x80              ;bf54  80          DATA 0x80
-    .byte 0x0f              ;bf55  0f          DATA 0x0f
-    .byte 0x80              ;bf56  80          DATA 0x80
-    .byte 0x0f              ;bf57  0f          DATA 0x0f
-    .byte 0x80              ;bf58  80          DATA 0x80
-    .byte 0x0f              ;bf59  0f          DATA 0x0f
-    .byte 0x80              ;bf5a  80          DATA 0x80
-    .byte 0x0f              ;bf5b  0f          DATA 0x0f
-    .byte 0x80              ;bf5c  80          DATA 0x80
-    .byte 0x0f              ;bf5d  0f          DATA 0x0f
-    .byte 0x80              ;bf5e  80          DATA 0x80
-    .byte 0x0f              ;bf5f  0f          DATA 0x0f
-    .byte 0x80              ;bf60  80          DATA 0x80
-    .byte 0x0f              ;bf61  0f          DATA 0x0f
-    .byte 0x80              ;bf62  80          DATA 0x80
-    .byte 0x0f              ;bf63  0f          DATA 0x0f
-    .byte 0x80              ;bf64  80          DATA 0x80
-    .byte 0x0f              ;bf65  0f          DATA 0x0f
-    .byte 0x80              ;bf66  80          DATA 0x80
-    .byte 0x0f              ;bf67  0f          DATA 0x0f
-    .byte 0x80              ;bf68  80          DATA 0x80
-    .byte 0x0f              ;bf69  0f          DATA 0x0f
-    .byte 0x80              ;bf6a  80          DATA 0x80
-    .byte 0x0f              ;bf6b  0f          DATA 0x0f
-    .byte 0x80              ;bf6c  80          DATA 0x80
-    .byte 0x0f              ;bf6d  0f          DATA 0x0f
-    .byte 0x80              ;bf6e  80          DATA 0x80
-    .byte 0x0f              ;bf6f  0f          DATA 0x0f
-    .byte 0x80              ;bf70  80          DATA 0x80
-    .byte 0x0f              ;bf71  0f          DATA 0x0f
-    .byte 0x80              ;bf72  80          DATA 0x80
-    .byte 0x0f              ;bf73  0f          DATA 0x0f
-    .byte 0x80              ;bf74  80          DATA 0x80
-    .byte 0x0f              ;bf75  0f          DATA 0x0f
-    .byte 0x80              ;bf76  80          DATA 0x80
-    .byte 0x0f              ;bf77  0f          DATA 0x0f
-    .byte 0x80              ;bf78  80          DATA 0x80
-    .byte 0x0f              ;bf79  0f          DATA 0x0f
-    .byte 0x71              ;bf7a  71          DATA 0x71 'q'
-    .byte 0x0f              ;bf7b  0f          DATA 0x0f
-    .byte 0x5f              ;bf7c  5f          DATA 0x5f '_'
-    .byte 0x0f              ;bf7d  0f          DATA 0x0f
-    .byte 0x4c              ;bf7e  4c          DATA 0x4c 'L'
-    .byte 0x0f              ;bf7f  0f          DATA 0x0f
-    .byte 0x36              ;bf80  36          DATA 0x36 '6'
-    .byte 0x0f              ;bf81  0f          DATA 0x0f
-    .byte 0x1d              ;bf82  1d          DATA 0x1d
-    .byte 0x0f              ;bf83  0f          DATA 0x0f
-    .byte 0x01              ;bf84  01          DATA 0x01
-    .byte 0x0f              ;bf85  0f          DATA 0x0f
-    .byte 0xe2              ;bf86  e2          DATA 0xe2
-    .byte 0x0e              ;bf87  0e          DATA 0x0e
-    .byte 0xbf              ;bf88  bf          DATA 0xbf
-    .byte 0x0e              ;bf89  0e          DATA 0x0e
-    .byte 0x98              ;bf8a  98          DATA 0x98
-    .byte 0x0e              ;bf8b  0e          DATA 0x0e
-    .byte 0x6c              ;bf8c  6c          DATA 0x6c 'l'
-    .byte 0x0e              ;bf8d  0e          DATA 0x0e
-    .byte 0x3a              ;bf8e  3a          DATA 0x3a ':'
-    .byte 0x0e              ;bf8f  0e          DATA 0x0e
-    .byte 0x03              ;bf90  03          DATA 0x03
-    .byte 0x0e              ;bf91  0e          DATA 0x0e
-    .byte 0xc5              ;bf92  c5          DATA 0xc5
-    .byte 0x0d              ;bf93  0d          DATA 0x0d
-    .byte 0x7f              ;bf94  7f          DATA 0x7f
-    .byte 0x0d              ;bf95  0d          DATA 0x0d
-    .byte 0x31              ;bf96  31          DATA 0x31 '1'
-    .byte 0x0d              ;bf97  0d          DATA 0x0d
-    .byte 0xd9              ;bf98  d9          DATA 0xd9
-    .byte 0x0c              ;bf99  0c          DATA 0x0c
-    .byte 0x76              ;bf9a  76          DATA 0x76 'v'
-    .byte 0x0c              ;bf9b  0c          DATA 0x0c
-    .byte 0x08              ;bf9c  08          DATA 0x08
-    .byte 0x0c              ;bf9d  0c          DATA 0x0c
-    .byte 0x8c              ;bf9e  8c          DATA 0x8c
-    .byte 0x0b              ;bf9f  0b          DATA 0x0b
-    .byte 0x00              ;bfa0  00          DATA 0x00
-    .byte 0x0b              ;bfa1  0b          DATA 0x0b
-    .byte 0x3e              ;bfa2  3e          DATA 0x3e '>'
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f71
+    .word 0x0f5f
+    .word 0x0f4c
+    .word 0x0f36
+    .word 0x0f1d
+    .word 0x0f01
+    .word 0x0ee2
+    .word 0x0ebf
+    .word 0x0e98
+    .word 0x0e6c
+    .word 0x0e3a
+    .word 0x0e03
+    .word 0x0dc5
+    .word 0x0d7f
+    .word 0x0d31
+    .word 0x0cd9
+    .word 0x0c76
+    .word 0x0c08
+    .word 0x0b8c
+    .word 0x0b00
 
-mem_bfa3:
-    .byte 0xff              ;bfa3  ff          DATA 0xff
-    .byte 0x0f              ;bfa4  0f          DATA 0x0f
-    .byte 0xf6              ;bfa5  f6          DATA 0xf6
-    .byte 0x0f              ;bfa6  0f          DATA 0x0f
-    .byte 0xf2              ;bfa7  f2          DATA 0xf2
-    .byte 0x0f              ;bfa8  0f          DATA 0x0f
-    .byte 0xee              ;bfa9  ee          DATA 0xee
-    .byte 0x0f              ;bfaa  0f          DATA 0x0f
-    .byte 0xea              ;bfab  ea          DATA 0xea
-    .byte 0x0f              ;bfac  0f          DATA 0x0f
-    .byte 0xe4              ;bfad  e4          DATA 0xe4
-    .byte 0x0f              ;bfae  0f          DATA 0x0f
-    .byte 0xdc              ;bfaf  dc          DATA 0xdc
-    .byte 0x0f              ;bfb0  0f          DATA 0x0f
-    .byte 0xd8              ;bfb1  d8          DATA 0xd8
-    .byte 0x0f              ;bfb2  0f          DATA 0x0f
-    .byte 0xd3              ;bfb3  d3          DATA 0xd3
-    .byte 0x0f              ;bfb4  0f          DATA 0x0f
-    .byte 0xcd              ;bfb5  cd          DATA 0xcd
-    .byte 0x0f              ;bfb6  0f          DATA 0x0f
-    .byte 0xc7              ;bfb7  c7          DATA 0xc7
-    .byte 0x0f              ;bfb8  0f          DATA 0x0f
-    .byte 0xc0              ;bfb9  c0          DATA 0xc0
-    .byte 0x0f              ;bfba  0f          DATA 0x0f
-    .byte 0xb8              ;bfbb  b8          DATA 0xb8
-    .byte 0x0f              ;bfbc  0f          DATA 0x0f
-    .byte 0xaf              ;bfbd  af          DATA 0xaf
-    .byte 0x0f              ;bfbe  0f          DATA 0x0f
-    .byte 0xa5              ;bfbf  a5          DATA 0xa5
-    .byte 0x0f              ;bfc0  0f          DATA 0x0f
-    .byte 0x9a              ;bfc1  9a          DATA 0x9a
-    .byte 0x0f              ;bfc2  0f          DATA 0x0f
-    .byte 0x8d              ;bfc3  8d          DATA 0x8d
-    .byte 0x0f              ;bfc4  0f          DATA 0x0f
-    .byte 0x7f              ;bfc5  7f          DATA 0x7f
-    .byte 0x0f              ;bfc6  0f          DATA 0x0f
-    .byte 0x70              ;bfc7  70          DATA 0x70 'p'
-    .byte 0x0f              ;bfc8  0f          DATA 0x0f
-    .byte 0x5e              ;bfc9  5e          DATA 0x5e '^'
-    .byte 0x0f              ;bfca  0f          DATA 0x0f
-    .byte 0x4a              ;bfcb  4a          DATA 0x4a 'J'
-    .byte 0x0f              ;bfcc  0f          DATA 0x0f
-    .byte 0x34              ;bfcd  34          DATA 0x34 '4'
-    .byte 0x0f              ;bfce  0f          DATA 0x0f
-    .byte 0x1b              ;bfcf  1b          DATA 0x1b
-    .byte 0x0f              ;bfd0  0f          DATA 0x0f
-    .byte 0xff              ;bfd1  ff          DATA 0xff
-    .byte 0x0e              ;bfd2  0e          DATA 0x0e
-    .byte 0xdf              ;bfd3  df          DATA 0xdf
-    .byte 0x0e              ;bfd4  0e          DATA 0x0e
-    .byte 0xbc              ;bfd5  bc          DATA 0xbc
-    .byte 0x0e              ;bfd6  0e          DATA 0x0e
-    .byte 0x94              ;bfd7  94          DATA 0x94
-    .byte 0x0e              ;bfd8  0e          DATA 0x0e
-    .byte 0x68              ;bfd9  68          DATA 0x68 'h'
-    .byte 0x0e              ;bfda  0e          DATA 0x0e
-    .byte 0x36              ;bfdb  36          DATA 0x36 '6'
-    .byte 0x0e              ;bfdc  0e          DATA 0x0e
-    .byte 0xfe              ;bfdd  fe          DATA 0xfe
-    .byte 0x0d              ;bfde  0d          DATA 0x0d
-    .byte 0xbf              ;bfdf  bf          DATA 0xbf
-    .byte 0x0d              ;bfe0  0d          DATA 0x0d
-    .byte 0x79              ;bfe1  79          DATA 0x79 'y'
-    .byte 0x0d              ;bfe2  0d          DATA 0x0d
-    .byte 0x2a              ;bfe3  2a          DATA 0x2a '*'
-    .byte 0x0d              ;bfe4  0d          DATA 0x0d
-    .byte 0xd1              ;bfe5  d1          DATA 0xd1
-    .byte 0x0c              ;bfe6  0c          DATA 0x0c
-    .byte 0x6e              ;bfe7  6e          DATA 0x6e 'n'
-    .byte 0x0c              ;bfe8  0c          DATA 0x0c
-    .byte 0xfe              ;bfe9  fe          DATA 0xfe
-    .byte 0x0b              ;bfea  0b          DATA 0x0b
-    .byte 0x81              ;bfeb  81          DATA 0x81
-    .byte 0x0b              ;bfec  0b          DATA 0x0b
-    .byte 0xf4              ;bfed  f4          DATA 0xf4
-    .byte 0x0a              ;bfee  0a          DATA 0x0a
-    .byte 0x57              ;bfef  57          DATA 0x57 'W'
-    .byte 0x0a              ;bff0  0a          DATA 0x0a
-    .byte 0xa6              ;bff1  a6          DATA 0xa6
-    .byte 0x09              ;bff2  09          DATA 0x09
-    .byte 0xdf              ;bff3  df          DATA 0xdf
-    .byte 0x08              ;bff4  08          DATA 0x08
-    .byte 0x00              ;bff5  00          DATA 0x00
-    .byte 0x08              ;bff6  08          DATA 0x08
-    .byte 0x00              ;bff7  00          DATA 0x00
-    .byte 0x08              ;bff8  08          DATA 0x08
-    .byte 0x00              ;bff9  00          DATA 0x00
-    .byte 0x08              ;bffa  08          DATA 0x08
-    .byte 0x00              ;bffb  00          DATA 0x00
-    .byte 0x08              ;bffc  08          DATA 0x08
-    .byte 0x00              ;bffd  00          DATA 0x00
-    .byte 0x08              ;bffe  08          DATA 0x08
-    .byte 0x00              ;bfff  00          DATA 0x00
-    .byte 0x08              ;c000  08          DATA 0x08
-    .byte 0x00              ;c001  00          DATA 0x00
-    .byte 0x08              ;c002  08          DATA 0x08
-    .byte 0x00              ;c003  00          DATA 0x00
-    .byte 0x08              ;c004  08          DATA 0x08
-    .byte 0x00              ;c005  00          DATA 0x00
-    .byte 0x08              ;c006  08          DATA 0x08
-    .byte 0x00              ;c007  00          DATA 0x00
-    .byte 0x08              ;c008  08          DATA 0x08
-    .byte 0x00              ;c009  00          DATA 0x00
-    .byte 0x08              ;c00a  08          DATA 0x08
-    .byte 0x00              ;c00b  00          DATA 0x00
-    .byte 0x08              ;c00c  08          DATA 0x08
-    .byte 0x00              ;c00d  00          DATA 0x00
-    .byte 0x08              ;c00e  08          DATA 0x08
-    .byte 0x00              ;c00f  00          DATA 0x00
-    .byte 0x08              ;c010  08          DATA 0x08
-    .byte 0x00              ;c011  00          DATA 0x00
-    .byte 0x08              ;c012  08          DATA 0x08
-    .byte 0x00              ;c013  00          DATA 0x00
-    .byte 0x08              ;c014  08          DATA 0x08
-    .byte 0x00              ;c015  00          DATA 0x00
-    .byte 0x08              ;c016  08          DATA 0x08
-    .byte 0x00              ;c017  00          DATA 0x00
-    .byte 0x08              ;c018  08          DATA 0x08
-    .byte 0x00              ;c019  00          DATA 0x00
-    .byte 0x08              ;c01a  08          DATA 0x08
-    .byte 0x00              ;c01b  00          DATA 0x00
-    .byte 0x08              ;c01c  08          DATA 0x08
-    .byte 0x00              ;c01d  00          DATA 0x00
-    .byte 0x08              ;c01e  08          DATA 0x08
-    .byte 0x3e              ;c01f  3e          DATA 0x3e '>'
+mem_bfa2:
+;table of words used with sub_0c48
+    .byte 0x3e              ;bfa2  3e          DATA 0x3e '>'  62 entries below:
+    .word 0x0fff
+    .word 0x0ff6
+    .word 0x0ff2
+    .word 0x0fee
+    .word 0x0fea
+    .word 0x0fe4
+    .word 0x0fdc
+    .word 0x0fd8
+    .word 0x0fd3
+    .word 0x0fcd
+    .word 0x0fc7
+    .word 0x0fc0
+    .word 0x0fb8
+    .word 0x0faf
+    .word 0x0fa5
+    .word 0x0f9a
+    .word 0x0f8d
+    .word 0x0f7f
+    .word 0x0f70
+    .word 0x0f5e
+    .word 0x0f4a
+    .word 0x0f34
+    .word 0x0f1b
+    .word 0x0eff
+    .word 0x0edf
+    .word 0x0ebc
+    .word 0x0e94
+    .word 0x0e68
+    .word 0x0e36
+    .word 0x0dfe
+    .word 0x0dbf
+    .word 0x0d79
+    .word 0x0d2a
+    .word 0x0cd1
+    .word 0x0c6e
+    .word 0x0bfe
+    .word 0x0b81
+    .word 0x0af4
+    .word 0x0a57
+    .word 0x09a6
+    .word 0x08df
+    .word 0x0800
+    .word 0x0800
+    .word 0x0800
+    .word 0x0800
+    .word 0x0800
+    .word 0x0800
+    .word 0x0800
+    .word 0x0800
+    .word 0x0800
+    .word 0x0800
+    .word 0x0800
+    .word 0x0800
+    .word 0x0800
+    .word 0x0800
+    .word 0x0800
+    .word 0x0800
+    .word 0x0800
+    .word 0x0800
+    .word 0x0800
+    .word 0x0800
+    .word 0x0800
 
-mem_c020:
-    .byte 0x00              ;c020  00          DATA 0x00
-    .byte 0x00              ;c021  00          DATA 0x00
-    .byte 0x00              ;c022  00          DATA 0x00
-    .byte 0x00              ;c023  00          DATA 0x00
-    .byte 0x00              ;c024  00          DATA 0x00
-    .byte 0x00              ;c025  00          DATA 0x00
-    .byte 0x00              ;c026  00          DATA 0x00
-    .byte 0x00              ;c027  00          DATA 0x00
-    .byte 0x00              ;c028  00          DATA 0x00
-    .byte 0x00              ;c029  00          DATA 0x00
-    .byte 0x00              ;c02a  00          DATA 0x00
-    .byte 0x00              ;c02b  00          DATA 0x00
-    .byte 0x00              ;c02c  00          DATA 0x00
-    .byte 0x00              ;c02d  00          DATA 0x00
-    .byte 0x00              ;c02e  00          DATA 0x00
-    .byte 0x00              ;c02f  00          DATA 0x00
-    .byte 0x00              ;c030  00          DATA 0x00
-    .byte 0x00              ;c031  00          DATA 0x00
-    .byte 0x00              ;c032  00          DATA 0x00
-    .byte 0x00              ;c033  00          DATA 0x00
-    .byte 0x00              ;c034  00          DATA 0x00
-    .byte 0x00              ;c035  00          DATA 0x00
-    .byte 0x00              ;c036  00          DATA 0x00
-    .byte 0x00              ;c037  00          DATA 0x00
-    .byte 0x8d              ;c038  8d          DATA 0x8d
-    .byte 0x00              ;c039  00          DATA 0x00
-    .byte 0x17              ;c03a  17          DATA 0x17
-    .byte 0x01              ;c03b  01          DATA 0x01
-    .byte 0x9d              ;c03c  9d          DATA 0x9d
-    .byte 0x01              ;c03d  01          DATA 0x01
-    .byte 0x1e              ;c03e  1e          DATA 0x1e
-    .byte 0x02              ;c03f  02          DATA 0x02
-    .byte 0x9b              ;c040  9b          DATA 0x9b
-    .byte 0x02              ;c041  02          DATA 0x02
-    .byte 0x14              ;c042  14          DATA 0x14
-    .byte 0x03              ;c043  03          DATA 0x03
-    .byte 0x50              ;c044  50          DATA 0x50 'P'
-    .byte 0x03              ;c045  03          DATA 0x03
-    .byte 0x8c              ;c046  8c          DATA 0x8c
-    .byte 0x03              ;c047  03          DATA 0x03
-    .byte 0xc7              ;c048  c7          DATA 0xc7
-    .byte 0x03              ;c049  03          DATA 0x03
-    .byte 0x02              ;c04a  02          DATA 0x02
-    .byte 0x04              ;c04b  04          DATA 0x04
-    .byte 0x3d              ;c04c  3d          DATA 0x3d '='
-    .byte 0x04              ;c04d  04          DATA 0x04
-    .byte 0x78              ;c04e  78          DATA 0x78 'x'
-    .byte 0x04              ;c04f  04          DATA 0x04
-    .byte 0xb4              ;c050  b4          DATA 0xb4
-    .byte 0x04              ;c051  04          DATA 0x04
-    .byte 0xf0              ;c052  f0          DATA 0xf0
-    .byte 0x04              ;c053  04          DATA 0x04
-    .byte 0x2e              ;c054  2e          DATA 0x2e '.'
-    .byte 0x05              ;c055  05          DATA 0x05
-    .byte 0x6e              ;c056  6e          DATA 0x6e 'n'
-    .byte 0x05              ;c057  05          DATA 0x05
-    .byte 0xb0              ;c058  b0          DATA 0xb0
-    .byte 0x05              ;c059  05          DATA 0x05
-    .byte 0xf6              ;c05a  f6          DATA 0xf6
-    .byte 0x05              ;c05b  05          DATA 0x05
-    .byte 0x43              ;c05c  43          DATA 0x43 'C'
-    .byte 0x06              ;c05d  06          DATA 0x06
-    .byte 0x9a              ;c05e  9a          DATA 0x9a
-    .byte 0x06              ;c05f  06          DATA 0x06
-    .byte 0x06              ;c060  06          DATA 0x06
-    .byte 0x07              ;c061  07          DATA 0x07
-    .byte 0xff              ;c062  ff          DATA 0xff
-    .byte 0x07              ;c063  07          DATA 0x07
-    .byte 0xff              ;c064  ff          DATA 0xff
-    .byte 0x07              ;c065  07          DATA 0x07
-    .byte 0xff              ;c066  ff          DATA 0xff
-    .byte 0x07              ;c067  07          DATA 0x07
-    .byte 0xff              ;c068  ff          DATA 0xff
-    .byte 0x07              ;c069  07          DATA 0x07
-    .byte 0xff              ;c06a  ff          DATA 0xff
-    .byte 0x07              ;c06b  07          DATA 0x07
-    .byte 0xff              ;c06c  ff          DATA 0xff
-    .byte 0x07              ;c06d  07          DATA 0x07
-    .byte 0xff              ;c06e  ff          DATA 0xff
-    .byte 0x07              ;c06f  07          DATA 0x07
-    .byte 0xff              ;c070  ff          DATA 0xff
-    .byte 0x07              ;c071  07          DATA 0x07
-    .byte 0xff              ;c072  ff          DATA 0xff
-    .byte 0x07              ;c073  07          DATA 0x07
-    .byte 0xff              ;c074  ff          DATA 0xff
-    .byte 0x07              ;c075  07          DATA 0x07
-    .byte 0xff              ;c076  ff          DATA 0xff
-    .byte 0x07              ;c077  07          DATA 0x07
-    .byte 0xff              ;c078  ff          DATA 0xff
-    .byte 0x07              ;c079  07          DATA 0x07
-    .byte 0xff              ;c07a  ff          DATA 0xff
-    .byte 0x07              ;c07b  07          DATA 0x07
-    .byte 0xff              ;c07c  ff          DATA 0xff
-    .byte 0x07              ;c07d  07          DATA 0x07
-    .byte 0xff              ;c07e  ff          DATA 0xff
-    .byte 0x07              ;c07f  07          DATA 0x07
-    .byte 0xff              ;c080  ff          DATA 0xff
-    .byte 0x07              ;c081  07          DATA 0x07
-    .byte 0xff              ;c082  ff          DATA 0xff
-    .byte 0x07              ;c083  07          DATA 0x07
-    .byte 0xff              ;c084  ff          DATA 0xff
-    .byte 0x07              ;c085  07          DATA 0x07
-    .byte 0xff              ;c086  ff          DATA 0xff
-    .byte 0x07              ;c087  07          DATA 0x07
-    .byte 0xff              ;c088  ff          DATA 0xff
-    .byte 0x07              ;c089  07          DATA 0x07
-    .byte 0xff              ;c08a  ff          DATA 0xff
-    .byte 0x07              ;c08b  07          DATA 0x07
-    .byte 0xff              ;c08c  ff          DATA 0xff
-    .byte 0x07              ;c08d  07          DATA 0x07
-    .byte 0xff              ;c08e  ff          DATA 0xff
-    .byte 0x07              ;c08f  07          DATA 0x07
-    .byte 0xff              ;c090  ff          DATA 0xff
-    .byte 0x07              ;c091  07          DATA 0x07
-    .byte 0xff              ;c092  ff          DATA 0xff
-    .byte 0x07              ;c093  07          DATA 0x07
-    .byte 0xff              ;c094  ff          DATA 0xff
-    .byte 0x07              ;c095  07          DATA 0x07
-    .byte 0xff              ;c096  ff          DATA 0xff
-    .byte 0x07              ;c097  07          DATA 0x07
-    .byte 0xff              ;c098  ff          DATA 0xff
-    .byte 0x07              ;c099  07          DATA 0x07
-    .byte 0xff              ;c09a  ff          DATA 0xff
-    .byte 0x07              ;c09b  07          DATA 0x07
+mem_c019:
+;table of words used with sub_0c48
+    .byte 0x3e              ;c01f  3e          DATA 0x3e '>'  62 entries below:
+    .word 0x0000
+    .word 0x0000
+    .word 0x0000
+    .word 0x0000
+    .word 0x0000
+    .word 0x0000
+    .word 0x0000
+    .word 0x0000
+    .word 0x0000
+    .word 0x0000
+    .word 0x0000
+    .word 0x0000
+    .word 0x008d
+    .word 0x0117
+    .word 0x019d
+    .word 0x021e
+    .word 0x029b
+    .word 0x0314
+    .word 0x0350
+    .word 0x038c
+    .word 0x03c7
+    .word 0x0402
+    .word 0x043d
+    .word 0x0478
+    .word 0x04b4
+    .word 0x04f0
+    .word 0x052e
+    .word 0x056e
+    .word 0x05b0
+    .word 0x05f6
+    .word 0x0643
+    .word 0x069a
+    .word 0x0706
+    .word 0x07ff
+    .word 0x07ff
+    .word 0x07ff
+    .word 0x07ff
+    .word 0x07ff
+    .word 0x07ff
+    .word 0x07ff
+    .word 0x07ff
+    .word 0x07ff
+    .word 0x07ff
+    .word 0x07ff
+    .word 0x07ff
+    .word 0x07ff
+    .word 0x07ff
+    .word 0x07ff
+    .word 0x07ff
+    .word 0x07ff
+    .word 0x07ff
+    .word 0x07ff
+    .word 0x07ff
+    .word 0x07ff
+    .word 0x07ff
+    .word 0x07ff
+    .word 0x07ff
+    .word 0x07ff
+    .word 0x07ff
+    .word 0x07ff
+    .word 0x07ff
+    .word 0x07ff
 
 mem_c09c:
 ;table of words used with sub_0c48
     .byte 0x2e              ;c09c  2e          DATA 0x2e '.'    46 entries below:
-    .byte 0x80              ;c09d  80          DATA 0x80
-    .byte 0x0f              ;c09e  0f          DATA 0x0f
-    .byte 0x80              ;c09f  80          DATA 0x80
-    .byte 0x0f              ;c0a0  0f          DATA 0x0f
-    .byte 0x80              ;c0a1  80          DATA 0x80
-    .byte 0x0f              ;c0a2  0f          DATA 0x0f
-    .byte 0x80              ;c0a3  80          DATA 0x80
-    .byte 0x0f              ;c0a4  0f          DATA 0x0f
-    .byte 0x80              ;c0a5  80          DATA 0x80
-    .byte 0x0f              ;c0a6  0f          DATA 0x0f
-    .byte 0x80              ;c0a7  80          DATA 0x80
-    .byte 0x0f              ;c0a8  0f          DATA 0x0f
-    .byte 0x80              ;c0a9  80          DATA 0x80
-    .byte 0x0f              ;c0aa  0f          DATA 0x0f
-    .byte 0x80              ;c0ab  80          DATA 0x80
-    .byte 0x0f              ;c0ac  0f          DATA 0x0f
-    .byte 0x80              ;c0ad  80          DATA 0x80
-    .byte 0x0f              ;c0ae  0f          DATA 0x0f
-    .byte 0x80              ;c0af  80          DATA 0x80
-    .byte 0x0f              ;c0b0  0f          DATA 0x0f
-    .byte 0x80              ;c0b1  80          DATA 0x80
-    .byte 0x0f              ;c0b2  0f          DATA 0x0f
-    .byte 0x80              ;c0b3  80          DATA 0x80
-    .byte 0x0f              ;c0b4  0f          DATA 0x0f
-    .byte 0x80              ;c0b5  80          DATA 0x80
-    .byte 0x0f              ;c0b6  0f          DATA 0x0f
-    .byte 0x80              ;c0b7  80          DATA 0x80
-    .byte 0x0f              ;c0b8  0f          DATA 0x0f
-    .byte 0x80              ;c0b9  80          DATA 0x80
-    .byte 0x0f              ;c0ba  0f          DATA 0x0f
-    .byte 0x80              ;c0bb  80          DATA 0x80
-    .byte 0x0f              ;c0bc  0f          DATA 0x0f
-    .byte 0x80              ;c0bd  80          DATA 0x80
-    .byte 0x0f              ;c0be  0f          DATA 0x0f
-    .byte 0x80              ;c0bf  80          DATA 0x80
-    .byte 0x0f              ;c0c0  0f          DATA 0x0f
-    .byte 0x80              ;c0c1  80          DATA 0x80
-    .byte 0x0f              ;c0c2  0f          DATA 0x0f
-    .byte 0x80              ;c0c3  80          DATA 0x80
-    .byte 0x0f              ;c0c4  0f          DATA 0x0f
-    .byte 0x80              ;c0c5  80          DATA 0x80
-    .byte 0x0f              ;c0c6  0f          DATA 0x0f
-    .byte 0x80              ;c0c7  80          DATA 0x80
-    .byte 0x0f              ;c0c8  0f          DATA 0x0f
-    .byte 0x80              ;c0c9  80          DATA 0x80
-    .byte 0x0f              ;c0ca  0f          DATA 0x0f
-    .byte 0x80              ;c0cb  80          DATA 0x80
-    .byte 0x0f              ;c0cc  0f          DATA 0x0f
-    .byte 0x80              ;c0cd  80          DATA 0x80
-    .byte 0x0f              ;c0ce  0f          DATA 0x0f
-    .byte 0x80              ;c0cf  80          DATA 0x80
-    .byte 0x0f              ;c0d0  0f          DATA 0x0f
-    .byte 0x80              ;c0d1  80          DATA 0x80
-    .byte 0x0f              ;c0d2  0f          DATA 0x0f
-    .byte 0x80              ;c0d3  80          DATA 0x80
-    .byte 0x0f              ;c0d4  0f          DATA 0x0f
-    .byte 0x80              ;c0d5  80          DATA 0x80
-    .byte 0x0f              ;c0d6  0f          DATA 0x0f
-    .byte 0x80              ;c0d7  80          DATA 0x80
-    .byte 0x0f              ;c0d8  0f          DATA 0x0f
-    .byte 0x80              ;c0d9  80          DATA 0x80
-    .byte 0x0f              ;c0da  0f          DATA 0x0f
-    .byte 0x80              ;c0db  80          DATA 0x80
-    .byte 0x0f              ;c0dc  0f          DATA 0x0f
-    .byte 0x80              ;c0dd  80          DATA 0x80
-    .byte 0x0f              ;c0de  0f          DATA 0x0f
-    .byte 0x80              ;c0df  80          DATA 0x80
-    .byte 0x0f              ;c0e0  0f          DATA 0x0f
-    .byte 0x80              ;c0e1  80          DATA 0x80
-    .byte 0x0f              ;c0e2  0f          DATA 0x0f
-    .byte 0x80              ;c0e3  80          DATA 0x80
-    .byte 0x0f              ;c0e4  0f          DATA 0x0f
-    .byte 0x71              ;c0e5  71          DATA 0x71 'q'
-    .byte 0x0f              ;c0e6  0f          DATA 0x0f
-    .byte 0x5f              ;c0e7  5f          DATA 0x5f '_'
-    .byte 0x0f              ;c0e8  0f          DATA 0x0f
-    .byte 0x4c              ;c0e9  4c          DATA 0x4c 'L'
-    .byte 0x0f              ;c0ea  0f          DATA 0x0f
-    .byte 0x36              ;c0eb  36          DATA 0x36 '6'
-    .byte 0x0f              ;c0ec  0f          DATA 0x0f
-    .byte 0x1d              ;c0ed  1d          DATA 0x1d
-    .byte 0x0f              ;c0ee  0f          DATA 0x0f
-    .byte 0x01              ;c0ef  01          DATA 0x01
-    .byte 0x0f              ;c0f0  0f          DATA 0x0f
-    .byte 0xe2              ;c0f1  e2          DATA 0xe2
-    .byte 0x0e              ;c0f2  0e          DATA 0x0e
-    .byte 0xbf              ;c0f3  bf          DATA 0xbf
-    .byte 0x0e              ;c0f4  0e          DATA 0x0e
-    .byte 0x98              ;c0f5  98          DATA 0x98
-    .byte 0x0e              ;c0f6  0e          DATA 0x0e
-    .byte 0x6c              ;c0f7  6c          DATA 0x6c 'l'
-    .byte 0x0e              ;c0f8  0e          DATA 0x0e
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f71
+    .word 0x0f5f
+    .word 0x0f4c
+    .word 0x0f36
+    .word 0x0f1d
+    .word 0x0f01
+    .word 0x0ee2
+    .word 0x0ebf
+    .word 0x0e98
+    .word 0x0e6c
 
 mem_c0f9:
 ;table of words used with sub_0c48
     .byte 0x2e              ;c0f9  2e          DATA 0x2e '.'    46 entries below:
-    .byte 0x80              ;c0fa  80          DATA 0x80
-    .byte 0x0f              ;c0fb  0f          DATA 0x0f
-    .byte 0x80              ;c0fc  80          DATA 0x80
-    .byte 0x0f              ;c0fd  0f          DATA 0x0f
-    .byte 0x80              ;c0fe  80          DATA 0x80
-    .byte 0x0f              ;c0ff  0f          DATA 0x0f
-    .byte 0x80              ;c100  80          DATA 0x80
-    .byte 0x0f              ;c101  0f          DATA 0x0f
-    .byte 0x80              ;c102  80          DATA 0x80
-    .byte 0x0f              ;c103  0f          DATA 0x0f
-    .byte 0x80              ;c104  80          DATA 0x80
-    .byte 0x0f              ;c105  0f          DATA 0x0f
-    .byte 0x80              ;c106  80          DATA 0x80
-    .byte 0x0f              ;c107  0f          DATA 0x0f
-    .byte 0x80              ;c108  80          DATA 0x80
-    .byte 0x0f              ;c109  0f          DATA 0x0f
-    .byte 0x80              ;c10a  80          DATA 0x80
-    .byte 0x0f              ;c10b  0f          DATA 0x0f
-    .byte 0x80              ;c10c  80          DATA 0x80
-    .byte 0x0f              ;c10d  0f          DATA 0x0f
-    .byte 0x80              ;c10e  80          DATA 0x80
-    .byte 0x0f              ;c10f  0f          DATA 0x0f
-    .byte 0x80              ;c110  80          DATA 0x80
-    .byte 0x0f              ;c111  0f          DATA 0x0f
-    .byte 0x80              ;c112  80          DATA 0x80
-    .byte 0x0f              ;c113  0f          DATA 0x0f
-    .byte 0x80              ;c114  80          DATA 0x80
-    .byte 0x0f              ;c115  0f          DATA 0x0f
-    .byte 0x80              ;c116  80          DATA 0x80
-    .byte 0x0f              ;c117  0f          DATA 0x0f
-    .byte 0x80              ;c118  80          DATA 0x80
-    .byte 0x0f              ;c119  0f          DATA 0x0f
-    .byte 0x80              ;c11a  80          DATA 0x80
-    .byte 0x0f              ;c11b  0f          DATA 0x0f
-    .byte 0x80              ;c11c  80          DATA 0x80
-    .byte 0x0f              ;c11d  0f          DATA 0x0f
-    .byte 0x80              ;c11e  80          DATA 0x80
-    .byte 0x0f              ;c11f  0f          DATA 0x0f
-    .byte 0x80              ;c120  80          DATA 0x80
-    .byte 0x0f              ;c121  0f          DATA 0x0f
-    .byte 0x80              ;c122  80          DATA 0x80
-    .byte 0x0f              ;c123  0f          DATA 0x0f
-    .byte 0x80              ;c124  80          DATA 0x80
-    .byte 0x0f              ;c125  0f          DATA 0x0f
-    .byte 0x80              ;c126  80          DATA 0x80
-    .byte 0x0f              ;c127  0f          DATA 0x0f
-    .byte 0x80              ;c128  80          DATA 0x80
-    .byte 0x0f              ;c129  0f          DATA 0x0f
-    .byte 0x80              ;c12a  80          DATA 0x80
-    .byte 0x0f              ;c12b  0f          DATA 0x0f
-    .byte 0x80              ;c12c  80          DATA 0x80
-    .byte 0x0f              ;c12d  0f          DATA 0x0f
-    .byte 0x80              ;c12e  80          DATA 0x80
-    .byte 0x0f              ;c12f  0f          DATA 0x0f
-    .byte 0x80              ;c130  80          DATA 0x80
-    .byte 0x0f              ;c131  0f          DATA 0x0f
-    .byte 0x80              ;c132  80          DATA 0x80
-    .byte 0x0f              ;c133  0f          DATA 0x0f
-    .byte 0x80              ;c134  80          DATA 0x80
-    .byte 0x0f              ;c135  0f          DATA 0x0f
-    .byte 0x80              ;c136  80          DATA 0x80
-    .byte 0x0f              ;c137  0f          DATA 0x0f
-    .byte 0x80              ;c138  80          DATA 0x80
-    .byte 0x0f              ;c139  0f          DATA 0x0f
-    .byte 0x80              ;c13a  80          DATA 0x80
-    .byte 0x0f              ;c13b  0f          DATA 0x0f
-    .byte 0x80              ;c13c  80          DATA 0x80
-    .byte 0x0f              ;c13d  0f          DATA 0x0f
-    .byte 0x80              ;c13e  80          DATA 0x80
-    .byte 0x0f              ;c13f  0f          DATA 0x0f
-    .byte 0x80              ;c140  80          DATA 0x80
-    .byte 0x0f              ;c141  0f          DATA 0x0f
-    .byte 0x80              ;c142  80          DATA 0x80
-    .byte 0x0f              ;c143  0f          DATA 0x0f
-    .byte 0x80              ;c144  80          DATA 0x80
-    .byte 0x0f              ;c145  0f          DATA 0x0f
-    .byte 0x80              ;c146  80          DATA 0x80
-    .byte 0x0f              ;c147  0f          DATA 0x0f
-    .byte 0x80              ;c148  80          DATA 0x80
-    .byte 0x0f              ;c149  0f          DATA 0x0f
-    .byte 0x80              ;c14a  80          DATA 0x80
-    .byte 0x0f              ;c14b  0f          DATA 0x0f
-    .byte 0x80              ;c14c  80          DATA 0x80
-    .byte 0x0f              ;c14d  0f          DATA 0x0f
-    .byte 0x71              ;c14e  71          DATA 0x71 'q'
-    .byte 0x0f              ;c14f  0f          DATA 0x0f
-    .byte 0x5f              ;c150  5f          DATA 0x5f '_'
-    .byte 0x0f              ;c151  0f          DATA 0x0f
-    .byte 0x4c              ;c152  4c          DATA 0x4c 'L'
-    .byte 0x0f              ;c153  0f          DATA 0x0f
-    .byte 0x36              ;c154  36          DATA 0x36 '6'
-    .byte 0x0f              ;c155  0f          DATA 0x0f
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f80
+    .word 0x0f71
+    .word 0x0f5f
+    .word 0x0f4c
+    .word 0x0f36
 
 mem_c156:
 ;table of words used with sub_0c48
     .byte 0x2e              ;c156  2e          DATA 0x2e '.'    46 entries below:
-    .byte 0xff              ;c157  ff          DATA 0xff
-    .byte 0x0f              ;c158  0f          DATA 0x0f
-    .byte 0xf5              ;c159  f5          DATA 0xf5
-    .byte 0x0f              ;c15a  0f          DATA 0x0f
-    .byte 0xf2              ;c15b  f2          DATA 0xf2
-    .byte 0x0f              ;c15c  0f          DATA 0x0f
-    .byte 0xee              ;c15d  ee          DATA 0xee
-    .byte 0x0f              ;c15e  0f          DATA 0x0f
-    .byte 0xea              ;c15f  ea          DATA 0xea
-    .byte 0x0f              ;c160  0f          DATA 0x0f
-    .byte 0xe4              ;c161  e4          DATA 0xe4
-    .byte 0x0f              ;c162  0f          DATA 0x0f
-    .byte 0xdc              ;c163  dc          DATA 0xdc
-    .byte 0x0f              ;c164  0f          DATA 0x0f
-    .byte 0xd3              ;c165  d3          DATA 0xd3
-    .byte 0x0f              ;c166  0f          DATA 0x0f
-    .byte 0xc7              ;c167  c7          DATA 0xc7
-    .byte 0x0f              ;c168  0f          DATA 0x0f
-    .byte 0xb8              ;c169  b8          DATA 0xb8
-    .byte 0x0f              ;c16a  0f          DATA 0x0f
-    .byte 0xa5              ;c16b  a5          DATA 0xa5
-    .byte 0x0f              ;c16c  0f          DATA 0x0f
-    .byte 0x8d              ;c16d  8d          DATA 0x8d
-    .byte 0x0f              ;c16e  0f          DATA 0x0f
-    .byte 0x70              ;c16f  70          DATA 0x70 'p'
-    .byte 0x0f              ;c170  0f          DATA 0x0f
-    .byte 0x5e              ;c171  5e          DATA 0x5e '^'
-    .byte 0x0f              ;c172  0f          DATA 0x0f
-    .byte 0x4a              ;c173  4a          DATA 0x4a 'J'
-    .byte 0x0f              ;c174  0f          DATA 0x0f
-    .byte 0x34              ;c175  34          DATA 0x34 '4'
-    .byte 0x0f              ;c176  0f          DATA 0x0f
-    .byte 0x1b              ;c177  1b          DATA 0x1b
-    .byte 0x0f              ;c178  0f          DATA 0x0f
-    .byte 0xff              ;c179  ff          DATA 0xff
-    .byte 0x0e              ;c17a  0e          DATA 0x0e
-    .byte 0xdf              ;c17b  df          DATA 0xdf
-    .byte 0x0e              ;c17c  0e          DATA 0x0e
-    .byte 0xbc              ;c17d  bc          DATA 0xbc
-    .byte 0x0e              ;c17e  0e          DATA 0x0e
-    .byte 0x94              ;c17f  94          DATA 0x94
-    .byte 0x0e              ;c180  0e          DATA 0x0e
-    .byte 0x68              ;c181  68          DATA 0x68 'h'
-    .byte 0x0e              ;c182  0e          DATA 0x0e
-    .byte 0x36              ;c183  36          DATA 0x36 '6'
-    .byte 0x0e              ;c184  0e          DATA 0x0e
-    .byte 0xfe              ;c185  fe          DATA 0xfe
-    .byte 0x0d              ;c186  0d          DATA 0x0d
-    .byte 0xbf              ;c187  bf          DATA 0xbf
-    .byte 0x0d              ;c188  0d          DATA 0x0d
-    .byte 0x79              ;c189  79          DATA 0x79 'y'
-    .byte 0x0d              ;c18a  0d          DATA 0x0d
-    .byte 0x2a              ;c18b  2a          DATA 0x2a '*'
-    .byte 0x0d              ;c18c  0d          DATA 0x0d
-    .byte 0xd1              ;c18d  d1          DATA 0xd1
-    .byte 0x0c              ;c18e  0c          DATA 0x0c
-    .byte 0x6e              ;c18f  6e          DATA 0x6e 'n'
-    .byte 0x0c              ;c190  0c          DATA 0x0c
-    .byte 0xfe              ;c191  fe          DATA 0xfe
-    .byte 0x0b              ;c192  0b          DATA 0x0b
-    .byte 0x81              ;c193  81          DATA 0x81
-    .byte 0x0b              ;c194  0b          DATA 0x0b
-    .byte 0xf4              ;c195  f4          DATA 0xf4
-    .byte 0x0a              ;c196  0a          DATA 0x0a
-    .byte 0x57              ;c197  57          DATA 0x57 'W'
-    .byte 0x0a              ;c198  0a          DATA 0x0a
-    .byte 0xa6              ;c199  a6          DATA 0xa6
-    .byte 0x09              ;c19a  09          DATA 0x09
-    .byte 0xdf              ;c19b  df          DATA 0xdf
-    .byte 0x08              ;c19c  08          DATA 0x08
-    .byte 0x00              ;c19d  00          DATA 0x00
-    .byte 0x08              ;c19e  08          DATA 0x08
-    .byte 0x00              ;c19f  00          DATA 0x00
-    .byte 0x08              ;c1a0  08          DATA 0x08
-    .byte 0x00              ;c1a1  00          DATA 0x00
-    .byte 0x08              ;c1a2  08          DATA 0x08
-    .byte 0x00              ;c1a3  00          DATA 0x00
-    .byte 0x08              ;c1a4  08          DATA 0x08
-    .byte 0x00              ;c1a5  00          DATA 0x00
-    .byte 0x08              ;c1a6  08          DATA 0x08
-    .byte 0x00              ;c1a7  00          DATA 0x00
-    .byte 0x08              ;c1a8  08          DATA 0x08
-    .byte 0x00              ;c1a9  00          DATA 0x00
-    .byte 0x08              ;c1aa  08          DATA 0x08
-    .byte 0x00              ;c1ab  00          DATA 0x00
-    .byte 0x08              ;c1ac  08          DATA 0x08
-    .byte 0x00              ;c1ad  00          DATA 0x00
-    .byte 0x08              ;c1ae  08          DATA 0x08
-    .byte 0x00              ;c1af  00          DATA 0x00
-    .byte 0x08              ;c1b0  08          DATA 0x08
-    .byte 0x00              ;c1b1  00          DATA 0x00
-    .byte 0x08              ;c1b2  08          DATA 0x08
+    .word 0x0fff
+    .word 0x0ff5
+    .word 0x0ff2
+    .word 0x0fee
+    .word 0x0fea
+    .word 0x0fe4
+    .word 0x0fdc
+    .word 0x0fd3
+    .word 0x0fc7
+    .word 0x0fb8
+    .word 0x0fa5
+    .word 0x0f8d
+    .word 0x0f70
+    .word 0x0f5e
+    .word 0x0f4a
+    .word 0x0f34
+    .word 0x0f1b
+    .word 0x0eff
+    .word 0x0edf
+    .word 0x0ebc
+    .word 0x0e94
+    .word 0x0e68
+    .word 0x0e36
+    .word 0x0dfe
+    .word 0x0dbf
+    .word 0x0d79
+    .word 0x0d2a
+    .word 0x0cd1
+    .word 0x0c6e
+    .word 0x0bfe
+    .word 0x0b81
+    .word 0x0af4
+    .word 0x0a57
+    .word 0x09a6
+    .word 0x08df
+    .word 0x0800
+    .word 0x0800
+    .word 0x0800
+    .word 0x0800
+    .word 0x0800
+    .word 0x0800
+    .word 0x0800
+    .word 0x0800
+    .word 0x0800
+    .word 0x0800
+    .word 0x0800
 
 mem_c1b3:
 ;table of words used with sub_0c48
     .byte 0x2e              ;c1b3  2e          DATA 0x2e '.'    46 entries below:
-    .byte 0xff              ;c1b4  ff          DATA 0xff
-    .byte 0x0f              ;c1b5  0f          DATA 0x0f
-    .byte 0xfb              ;c1b6  fb          DATA 0xfb
-    .byte 0x0f              ;c1b7  0f          DATA 0x0f
-    .byte 0xf9              ;c1b8  f9          DATA 0xf9
-    .byte 0x0f              ;c1b9  0f          DATA 0x0f
-    .byte 0xf7              ;c1ba  f7          DATA 0xf7
-    .byte 0x0f              ;c1bb  0f          DATA 0x0f
-    .byte 0xf5              ;c1bc  f5          DATA 0xf5
-    .byte 0x0f              ;c1bd  0f          DATA 0x0f
-    .byte 0xf2              ;c1be  f2          DATA 0xf2
-    .byte 0x0f              ;c1bf  0f          DATA 0x0f
-    .byte 0xee              ;c1c0  ee          DATA 0xee
-    .byte 0x0f              ;c1c1  0f          DATA 0x0f
-    .byte 0xea              ;c1c2  ea          DATA 0xea
-    .byte 0x0f              ;c1c3  0f          DATA 0x0f
-    .byte 0xe4              ;c1c4  e4          DATA 0xe4
-    .byte 0x0f              ;c1c5  0f          DATA 0x0f
-    .byte 0xdc              ;c1c6  dc          DATA 0xdc
-    .byte 0x0f              ;c1c7  0f          DATA 0x0f
-    .byte 0xd3              ;c1c8  d3          DATA 0xd3
-    .byte 0x0f              ;c1c9  0f          DATA 0x0f
-    .byte 0xc7              ;c1ca  c7          DATA 0xc7
-    .byte 0x0f              ;c1cb  0f          DATA 0x0f
-    .byte 0xb8              ;c1cc  b8          DATA 0xb8
-    .byte 0x0f              ;c1cd  0f          DATA 0x0f
-    .byte 0xaf              ;c1ce  af          DATA 0xaf
-    .byte 0x0f              ;c1cf  0f          DATA 0x0f
-    .byte 0xa5              ;c1d0  a5          DATA 0xa5
-    .byte 0x0f              ;c1d1  0f          DATA 0x0f
-    .byte 0x9a              ;c1d2  9a          DATA 0x9a
-    .byte 0x0f              ;c1d3  0f          DATA 0x0f
-    .byte 0x8d              ;c1d4  8d          DATA 0x8d
-    .byte 0x0f              ;c1d5  0f          DATA 0x0f
-    .byte 0x7f              ;c1d6  7f          DATA 0x7f
-    .byte 0x0f              ;c1d7  0f          DATA 0x0f
-    .byte 0x70              ;c1d8  70          DATA 0x70 'p'
-    .byte 0x0f              ;c1d9  0f          DATA 0x0f
-    .byte 0x5e              ;c1da  5e          DATA 0x5e '^'
-    .byte 0x0f              ;c1db  0f          DATA 0x0f
-    .byte 0x4a              ;c1dc  4a          DATA 0x4a 'J'
-    .byte 0x0f              ;c1dd  0f          DATA 0x0f
-    .byte 0x34              ;c1de  34          DATA 0x34 '4'
-    .byte 0x0f              ;c1df  0f          DATA 0x0f
-    .byte 0x1b              ;c1e0  1b          DATA 0x1b
-    .byte 0x0f              ;c1e1  0f          DATA 0x0f
-    .byte 0xff              ;c1e2  ff          DATA 0xff
-    .byte 0x0e              ;c1e3  0e          DATA 0x0e
-    .byte 0xdf              ;c1e4  df          DATA 0xdf
-    .byte 0x0e              ;c1e5  0e          DATA 0x0e
-    .byte 0xbc              ;c1e6  bc          DATA 0xbc
-    .byte 0x0e              ;c1e7  0e          DATA 0x0e
-    .byte 0x94              ;c1e8  94          DATA 0x94
-    .byte 0x0e              ;c1e9  0e          DATA 0x0e
-    .byte 0x68              ;c1ea  68          DATA 0x68 'h'
-    .byte 0x0e              ;c1eb  0e          DATA 0x0e
-    .byte 0x36              ;c1ec  36          DATA 0x36 '6'
-    .byte 0x0e              ;c1ed  0e          DATA 0x0e
-    .byte 0xfe              ;c1ee  fe          DATA 0xfe
-    .byte 0x0d              ;c1ef  0d          DATA 0x0d
-    .byte 0xbf              ;c1f0  bf          DATA 0xbf
-    .byte 0x0d              ;c1f1  0d          DATA 0x0d
-    .byte 0x79              ;c1f2  79          DATA 0x79 'y'
-    .byte 0x0d              ;c1f3  0d          DATA 0x0d
-    .byte 0x2a              ;c1f4  2a          DATA 0x2a '*'
-    .byte 0x0d              ;c1f5  0d          DATA 0x0d
-    .byte 0xd1              ;c1f6  d1          DATA 0xd1
-    .byte 0x0c              ;c1f7  0c          DATA 0x0c
-    .byte 0x6e              ;c1f8  6e          DATA 0x6e 'n'
-    .byte 0x0c              ;c1f9  0c          DATA 0x0c
-    .byte 0xfe              ;c1fa  fe          DATA 0xfe
-    .byte 0x0b              ;c1fb  0b          DATA 0x0b
-    .byte 0x81              ;c1fc  81          DATA 0x81
-    .byte 0x0b              ;c1fd  0b          DATA 0x0b
-    .byte 0xf4              ;c1fe  f4          DATA 0xf4
-    .byte 0x0a              ;c1ff  0a          DATA 0x0a
-    .byte 0x57              ;c200  57          DATA 0x57 'W'
-    .byte 0x0a              ;c201  0a          DATA 0x0a
-    .byte 0xa6              ;c202  a6          DATA 0xa6
-    .byte 0x09              ;c203  09          DATA 0x09
-    .byte 0xdf              ;c204  df          DATA 0xdf
-    .byte 0x08              ;c205  08          DATA 0x08
-    .byte 0x00              ;c206  00          DATA 0x00
-    .byte 0x08              ;c207  08          DATA 0x08
-    .byte 0x00              ;c208  00          DATA 0x00
-    .byte 0x08              ;c209  08          DATA 0x08
-    .byte 0x00              ;c20a  00          DATA 0x00
-    .byte 0x08              ;c20b  08          DATA 0x08
-    .byte 0x00              ;c20c  00          DATA 0x00
-    .byte 0x08              ;c20d  08          DATA 0x08
-    .byte 0x00              ;c20e  00          DATA 0x00
-    .byte 0x08              ;c20f  08          DATA 0x08
+    .word 0x0fff
+    .word 0x0ffb
+    .word 0x0ff9
+    .word 0x0ff7
+    .word 0x0ff5
+    .word 0x0ff2
+    .word 0x0fee
+    .word 0x0fea
+    .word 0x0fe4
+    .word 0x0fdc
+    .word 0x0fd3
+    .word 0x0fc7
+    .word 0x0fb8
+    .word 0x0faf
+    .word 0x0fa5
+    .word 0x0f9a
+    .word 0x0f8d
+    .word 0x0f7f
+    .word 0x0f70
+    .word 0x0f5e
+    .word 0x0f4a
+    .word 0x0f34
+    .word 0x0f1b
+    .word 0x0eff
+    .word 0x0edf
+    .word 0x0ebc
+    .word 0x0e94
+    .word 0x0e68
+    .word 0x0e36
+    .word 0x0dfe
+    .word 0x0dbf
+    .word 0x0d79
+    .word 0x0d2a
+    .word 0x0cd1
+    .word 0x0c6e
+    .word 0x0bfe
+    .word 0x0b81
+    .word 0x0af4
+    .word 0x0a57
+    .word 0x09a6
+    .word 0x08df
+    .word 0x0800
+    .word 0x0800
+    .word 0x0800
+    .word 0x0800
+    .word 0x0800
 
 mem_c210:
+;table of words used with sub_0c48
     .byte 0x2e              ;c210  2e          DATA 0x2e '.'    46 entries follow:
-    .byte 0x00              ;c211  00          DATA 0x00
-    .byte 0x00              ;c212  00          DATA 0x00
-    .byte 0x1a              ;c213  1a          DATA 0x1a
-    .byte 0x00              ;c214  00          DATA 0x00
-    .byte 0x70              ;c215  70          DATA 0x70 'p'
-    .byte 0x00              ;c216  00          DATA 0x00
-    .byte 0xc5              ;c217  c5          DATA 0xc5
-    .byte 0x00              ;c218  00          DATA 0x00
-    .byte 0x17              ;c219  17          DATA 0x17
-    .byte 0x01              ;c21a  01          DATA 0x01
-    .byte 0x68              ;c21b  68          DATA 0x68 'h'
-    .byte 0x01              ;c21c  01          DATA 0x01
-    .byte 0xb7              ;c21d  b7          DATA 0xb7
-    .byte 0x01              ;c21e  01          DATA 0x01
-    .byte 0x04              ;c21f  04          DATA 0x04
-    .byte 0x02              ;c220  02          DATA 0x02
-    .byte 0x50              ;c221  50          DATA 0x50 'P'
-    .byte 0x02              ;c222  02          DATA 0x02
-    .byte 0x9b              ;c223  9b          DATA 0x9b
-    .byte 0x02              ;c224  02          DATA 0x02
-    .byte 0xcc              ;c225  cc          DATA 0xcc
-    .byte 0x02              ;c226  02          DATA 0x02
-    .byte 0xfc              ;c227  fc          DATA 0xfc
-    .byte 0x02              ;c228  02          DATA 0x02
-    .byte 0x2c              ;c229  2c          DATA 0x2c ','
-    .byte 0x03              ;c22a  03          DATA 0x03
-    .byte 0x5c              ;c22b  5c          DATA 0x5c '\'
-    .byte 0x03              ;c22c  03          DATA 0x03
-    .byte 0x8c              ;c22d  8c          DATA 0x8c
-    .byte 0x03              ;c22e  03          DATA 0x03
-    .byte 0xbb              ;c22f  bb          DATA 0xbb
-    .byte 0x03              ;c230  03          DATA 0x03
-    .byte 0xea              ;c231  ea          DATA 0xea
-    .byte 0x03              ;c232  03          DATA 0x03
-    .byte 0x1a              ;c233  1a          DATA 0x1a
-    .byte 0x04              ;c234  04          DATA 0x04
-    .byte 0x49              ;c235  49          DATA 0x49 'I'
-    .byte 0x04              ;c236  04          DATA 0x04
-    .byte 0x78              ;c237  78          DATA 0x78 'x'
-    .byte 0x04              ;c238  04          DATA 0x04
-    .byte 0xa8              ;c239  a8          DATA 0xa8
-    .byte 0x04              ;c23a  04          DATA 0x04
-    .byte 0xd8              ;c23b  d8          DATA 0xd8
-    .byte 0x04              ;c23c  04          DATA 0x04
-    .byte 0x09              ;c23d  09          DATA 0x09
-    .byte 0x05              ;c23e  05          DATA 0x05
-    .byte 0x3b              ;c23f  3b          DATA 0x3b ';'
-    .byte 0x05              ;c240  05          DATA 0x05
-    .byte 0x6e              ;c241  6e          DATA 0x6e 'n'
-    .byte 0x05              ;c242  05          DATA 0x05
-    .byte 0xa3              ;c243  a3          DATA 0xa3
-    .byte 0x05              ;c244  05          DATA 0x05
-    .byte 0xbe              ;c245  be          DATA 0xbe
-    .byte 0x05              ;c246  05          DATA 0x05
-    .byte 0xda              ;c247  da          DATA 0xda
-    .byte 0x05              ;c248  05          DATA 0x05
-    .byte 0xf6              ;c249  f6          DATA 0xf6
-    .byte 0x05              ;c24a  05          DATA 0x05
-    .byte 0x14              ;c24b  14          DATA 0x14
-    .byte 0x06              ;c24c  06          DATA 0x06
-    .byte 0x33              ;c24d  33          DATA 0x33 '3'
-    .byte 0x06              ;c24e  06          DATA 0x06
-    .byte 0x53              ;c24f  53          DATA 0x53 'S'
-    .byte 0x06              ;c250  06          DATA 0x06
-    .byte 0x75              ;c251  75          DATA 0x75 'u'
-    .byte 0x06              ;c252  06          DATA 0x06
-    .byte 0x9a              ;c253  9a          DATA 0x9a
-    .byte 0x06              ;c254  06          DATA 0x06
-    .byte 0xc1              ;c255  c1          DATA 0xc1
-    .byte 0x06              ;c256  06          DATA 0x06
-    .byte 0xee              ;c257  ee          DATA 0xee
-    .byte 0x06              ;c258  06          DATA 0x06
-    .byte 0x21              ;c259  21          DATA 0x21 '!'
-    .byte 0x07              ;c25a  07          DATA 0x07
-    .byte 0x63              ;c25b  63          DATA 0x63 'c'
-    .byte 0x07              ;c25c  07          DATA 0x07
-    .byte 0xff              ;c25d  ff          DATA 0xff
-    .byte 0x07              ;c25e  07          DATA 0x07
-    .byte 0xff              ;c25f  ff          DATA 0xff
-    .byte 0x07              ;c260  07          DATA 0x07
-    .byte 0xff              ;c261  ff          DATA 0xff
-    .byte 0x07              ;c262  07          DATA 0x07
-    .byte 0xff              ;c263  ff          DATA 0xff
-    .byte 0x07              ;c264  07          DATA 0x07
-    .byte 0xff              ;c265  ff          DATA 0xff
-    .byte 0x07              ;c266  07          DATA 0x07
-    .byte 0xff              ;c267  ff          DATA 0xff
-    .byte 0x07              ;c268  07          DATA 0x07
-    .byte 0xff              ;c269  ff          DATA 0xff
-    .byte 0x07              ;c26a  07          DATA 0x07
-    .byte 0xff              ;c26b  ff          DATA 0xff
-    .byte 0x07              ;c26c  07          DATA 0x07
+    .word 0x0000
+    .word 0x001a
+    .word 0x0070
+    .word 0x00c5
+    .word 0x0117
+    .word 0x0168
+    .word 0x01b7
+    .word 0x0204
+    .word 0x0250
+    .word 0x029b
+    .word 0x02cc
+    .word 0x02fc
+    .word 0x032c
+    .word 0x035c
+    .word 0x038c
+    .word 0x03bb
+    .word 0x03ea
+    .word 0x041a
+    .word 0x0449
+    .word 0x0478
+    .word 0x04a8
+    .word 0x04d8
+    .word 0x0509
+    .word 0x053b
+    .word 0x056e
+    .word 0x05a3
+    .word 0x05be
+    .word 0x05da
+    .word 0x05f6
+    .word 0x0614
+    .word 0x0633
+    .word 0x0653
+    .word 0x0675
+    .word 0x069a
+    .word 0x06c1
+    .word 0x06ee
+    .word 0x0721
+    .word 0x0763
+    .word 0x07ff
+    .word 0x07ff
+    .word 0x07ff
+    .word 0x07ff
+    .word 0x07ff
+    .word 0x07ff
+    .word 0x07ff
+    .word 0x07ff
 
 mem_c26d:
 ;table of words used with sub_0c48
     .byte 0x2f              ;c26d  2f          DATA 0x2f '/'    47 entries below:
-    .byte 0x0a              ;c26e  0a          DATA 0x0a
-    .byte 0x00              ;c26f  00          DATA 0x00
-    .byte 0x0b              ;c270  0b          DATA 0x0b
-    .byte 0x00              ;c271  00          DATA 0x00
-    .byte 0x0d              ;c272  0d          DATA 0x0d
-    .byte 0x00              ;c273  00          DATA 0x00
-    .byte 0x0e              ;c274  0e          DATA 0x0e
-    .byte 0x00              ;c275  00          DATA 0x00
-    .byte 0x10              ;c276  10          DATA 0x10
-    .byte 0x00              ;c277  00          DATA 0x00
-    .byte 0x12              ;c278  12          DATA 0x12
-    .byte 0x00              ;c279  00          DATA 0x00
-    .byte 0x14              ;c27a  14          DATA 0x14
-    .byte 0x00              ;c27b  00          DATA 0x00
-    .byte 0x17              ;c27c  17          DATA 0x17
-    .byte 0x00              ;c27d  00          DATA 0x00
-    .byte 0x1a              ;c27e  1a          DATA 0x1a
-    .byte 0x00              ;c27f  00          DATA 0x00
-    .byte 0x1d              ;c280  1d          DATA 0x1d
-    .byte 0x00              ;c281  00          DATA 0x00
-    .byte 0x20              ;c282  20          DATA 0x20 ' '
-    .byte 0x00              ;c283  00          DATA 0x00
-    .byte 0x24              ;c284  24          DATA 0x24 '$'
-    .byte 0x00              ;c285  00          DATA 0x00
-    .byte 0x29              ;c286  29          DATA 0x29 ')'
-    .byte 0x00              ;c287  00          DATA 0x00
-    .byte 0x2e              ;c288  2e          DATA 0x2e '.'
-    .byte 0x00              ;c289  00          DATA 0x00
-    .byte 0x33              ;c28a  33          DATA 0x33 '3'
-    .byte 0x00              ;c28b  00          DATA 0x00
-    .byte 0x3a              ;c28c  3a          DATA 0x3a ':'
-    .byte 0x00              ;c28d  00          DATA 0x00
-    .byte 0x41              ;c28e  41          DATA 0x41 'A'
-    .byte 0x00              ;c28f  00          DATA 0x00
-    .byte 0x48              ;c290  48          DATA 0x48 'H'
-    .byte 0x00              ;c291  00          DATA 0x00
-    .byte 0x51              ;c292  51          DATA 0x51 'Q'
-    .byte 0x00              ;c293  00          DATA 0x00
-    .byte 0x5b              ;c294  5b          DATA 0x5b '['
-    .byte 0x00              ;c295  00          DATA 0x00
-    .byte 0x66              ;c296  66          DATA 0x66 'f'
-    .byte 0x00              ;c297  00          DATA 0x00
-    .byte 0x73              ;c298  73          DATA 0x73 's'
-    .byte 0x00              ;c299  00          DATA 0x00
-    .byte 0x81              ;c29a  81          DATA 0x81
-    .byte 0x00              ;c29b  00          DATA 0x00
-    .byte 0x91              ;c29c  91          DATA 0x91
-    .byte 0x00              ;c29d  00          DATA 0x00
-    .byte 0xa2              ;c29e  a2          DATA 0xa2
-    .byte 0x00              ;c29f  00          DATA 0x00
-    .byte 0xb6              ;c2a0  b6          DATA 0xb6
-    .byte 0x00              ;c2a1  00          DATA 0x00
-    .byte 0xcc              ;c2a2  cc          DATA 0xcc
-    .byte 0x00              ;c2a3  00          DATA 0x00
-    .byte 0xe5              ;c2a4  e5          DATA 0xe5
-    .byte 0x00              ;c2a5  00          DATA 0x00
-    .byte 0x01              ;c2a6  01          DATA 0x01
-    .byte 0x01              ;c2a7  01          DATA 0x01
-    .byte 0x21              ;c2a8  21          DATA 0x21 '!'
-    .byte 0x01              ;c2a9  01          DATA 0x01
-    .byte 0x44              ;c2aa  44          DATA 0x44 'D'
-    .byte 0x01              ;c2ab  01          DATA 0x01
-    .byte 0x6b              ;c2ac  6b          DATA 0x6b 'k'
-    .byte 0x01              ;c2ad  01          DATA 0x01
-    .byte 0x98              ;c2ae  98          DATA 0x98
-    .byte 0x01              ;c2af  01          DATA 0x01
-    .byte 0xc9              ;c2b0  c9          DATA 0xc9
-    .byte 0x01              ;c2b1  01          DATA 0x01
-    .byte 0x01              ;c2b2  01          DATA 0x01
-    .byte 0x02              ;c2b3  02          DATA 0x02
-    .byte 0x40              ;c2b4  40          DATA 0x40 '@'
-    .byte 0x02              ;c2b5  02          DATA 0x02
-    .byte 0x86              ;c2b6  86          DATA 0x86
-    .byte 0x02              ;c2b7  02          DATA 0x02
-    .byte 0xd5              ;c2b8  d5          DATA 0xd5
-    .byte 0x02              ;c2b9  02          DATA 0x02
-    .byte 0x2d              ;c2ba  2d          DATA 0x2d '-'
-    .byte 0x03              ;c2bb  03          DATA 0x03
-    .byte 0x91              ;c2bc  91          DATA 0x91
-    .byte 0x03              ;c2bd  03          DATA 0x03
-    .byte 0x00              ;c2be  00          DATA 0x00
-    .byte 0x04              ;c2bf  04          DATA 0x04
-    .byte 0x7d              ;c2c0  7d          DATA 0x7d '}'
-    .byte 0x04              ;c2c1  04          DATA 0x04
-    .byte 0x09              ;c2c2  09          DATA 0x09
-    .byte 0x05              ;c2c3  05          DATA 0x05
-    .byte 0xa6              ;c2c4  a6          DATA 0xa6
-    .byte 0x05              ;c2c5  05          DATA 0x05
-    .byte 0x57              ;c2c6  57          DATA 0x57 'W'
-    .byte 0x06              ;c2c7  06          DATA 0x06
-    .byte 0x1d              ;c2c8  1d          DATA 0x1d
-    .byte 0x07              ;c2c9  07          DATA 0x07
-    .byte 0xfb              ;c2ca  fb          DATA 0xfb
-    .byte 0x07              ;c2cb  07          DATA 0x07
+    .word 0x000a
+    .word 0x000b
+    .word 0x000d
+    .word 0x000e
+    .word 0x0010
+    .word 0x0012
+    .word 0x0014
+    .word 0x0017
+    .word 0x001a
+    .word 0x001d
+    .word 0x0020
+    .word 0x0024
+    .word 0x0029
+    .word 0x002e
+    .word 0x0033
+    .word 0x003a
+    .word 0x0041
+    .word 0x0048
+    .word 0x0051
+    .word 0x005b
+    .word 0x0066
+    .word 0x0073
+    .word 0x0081
+    .word 0x0091
+    .word 0x00a2
+    .word 0x00b6
+    .word 0x00cc
+    .word 0x00e5
+    .word 0x0101
+    .word 0x0121
+    .word 0x0144
+    .word 0x016b
+    .word 0x0198
+    .word 0x01c9
+    .word 0x0201
+    .word 0x0240
+    .word 0x0286
+    .word 0x02d5
+    .word 0x032d
+    .word 0x0391
+    .word 0x0400
+    .word 0x047d
+    .word 0x0509
+    .word 0x05a6
+    .word 0x0657
+    .word 0x071d
+    .word 0x07fb
 
 mem_c2cc:
+;table of bytes used with sub_0c7d
     .byte 0x04              ;c2cc  04          DATA 0x04        4 entries below:
     .byte 0xf6              ;c2cd  f6          DATA 0xf6
     .byte 0x06              ;c2ce  06          DATA 0x06
@@ -34029,369 +33346,201 @@ mem_c2cc:
 mem_c2d1:
 ;table of words used with sub_0c48
     .byte 0x15              ;c2d1  15          DATA 0x15        21 entries below:
-    .byte 0x69              ;c2d2  69          DATA 0x69 'i'
-    .byte 0x00              ;c2d3  00          DATA 0x00
-    .byte 0x69              ;c2d4  69          DATA 0x69 'i'
-    .byte 0x00              ;c2d5  00          DATA 0x00
-    .byte 0x69              ;c2d6  69          DATA 0x69 'i'
-    .byte 0x00              ;c2d7  00          DATA 0x00
-    .byte 0x69              ;c2d8  69          DATA 0x69 'i'
-    .byte 0x00              ;c2d9  00          DATA 0x00
-    .byte 0x69              ;c2da  69          DATA 0x69 'i'
-    .byte 0x00              ;c2db  00          DATA 0x00
-    .byte 0x69              ;c2dc  69          DATA 0x69 'i'
-    .byte 0x00              ;c2dd  00          DATA 0x00
-    .byte 0x69              ;c2de  69          DATA 0x69 'i'
-    .byte 0x00              ;c2df  00          DATA 0x00
-    .byte 0x69              ;c2e0  69          DATA 0x69 'i'
-    .byte 0x00              ;c2e1  00          DATA 0x00
-    .byte 0x69              ;c2e2  69          DATA 0x69 'i'
-    .byte 0x00              ;c2e3  00          DATA 0x00
-    .byte 0x69              ;c2e4  69          DATA 0x69 'i'
-    .byte 0x00              ;c2e5  00          DATA 0x00
-    .byte 0x69              ;c2e6  69          DATA 0x69 'i'
-    .byte 0x00              ;c2e7  00          DATA 0x00
-    .byte 0x69              ;c2e8  69          DATA 0x69 'i'
-    .byte 0x00              ;c2e9  00          DATA 0x00
-    .byte 0x69              ;c2ea  69          DATA 0x69 'i'
-    .byte 0x00              ;c2eb  00          DATA 0x00
-    .byte 0x69              ;c2ec  69          DATA 0x69 'i'
-    .byte 0x00              ;c2ed  00          DATA 0x00
-    .byte 0x69              ;c2ee  69          DATA 0x69 'i'
-    .byte 0x00              ;c2ef  00          DATA 0x00
-    .byte 0x69              ;c2f0  69          DATA 0x69 'i'
-    .byte 0x00              ;c2f1  00          DATA 0x00
-    .byte 0x69              ;c2f2  69          DATA 0x69 'i'
-    .byte 0x00              ;c2f3  00          DATA 0x00
-    .byte 0x69              ;c2f4  69          DATA 0x69 'i'
-    .byte 0x00              ;c2f5  00          DATA 0x00
-    .byte 0x69              ;c2f6  69          DATA 0x69 'i'
-    .byte 0x00              ;c2f7  00          DATA 0x00
-    .byte 0x69              ;c2f8  69          DATA 0x69 'i'
-    .byte 0x00              ;c2f9  00          DATA 0x00
-    .byte 0x69              ;c2fa  69          DATA 0x69 'i'
-    .byte 0x00              ;c2fb  00          DATA 0x00
+    .word 0x0069
+    .word 0x0069
+    .word 0x0069
+    .word 0x0069
+    .word 0x0069
+    .word 0x0069
+    .word 0x0069
+    .word 0x0069
+    .word 0x0069
+    .word 0x0069
+    .word 0x0069
+    .word 0x0069
+    .word 0x0069
+    .word 0x0069
+    .word 0x0069
+    .word 0x0069
+    .word 0x0069
+    .word 0x0069
+    .word 0x0069
+    .word 0x0069
+    .word 0x0069
 
 mem_c2fc:
 ;table of words used with sub_0c48
     .byte 0x15              ;c2fc  15          DATA 0x15        21 entries below:
-    .byte 0x10              ;c2fd  10          DATA 0x10
-    .byte 0x75              ;c2fe  75          DATA 0x75 'u'
-    .byte 0x10              ;c2ff  10          DATA 0x10
-    .byte 0x75              ;c300  75          DATA 0x75 'u'
-    .byte 0x12              ;c301  12          DATA 0x12
-    .byte 0x65              ;c302  65          DATA 0x65 'e'
-    .byte 0x14              ;c303  14          DATA 0x14
-    .byte 0x4d              ;c304  4d          DATA 0x4d 'M'
-    .byte 0x16              ;c305  16          DATA 0x16
-    .byte 0x6e              ;c306  6e          DATA 0x6e 'n'
-    .byte 0x1c              ;c307  1c          DATA 0x1c
-    .byte 0x56              ;c308  56          DATA 0x56 'V'
-    .byte 0x20              ;c309  20          DATA 0x20 ' '
-    .byte 0x67              ;c30a  67          DATA 0x67 'g'
-    .byte 0x28              ;c30b  28          DATA 0x28 '('
-    .byte 0x4f              ;c30c  4f          DATA 0x4f 'O'
-    .byte 0x2e              ;c30d  2e          DATA 0x2e '.'
-    .byte 0x47              ;c30e  47          DATA 0x47 'G'
-    .byte 0x32              ;c30f  32          DATA 0x32 '2'
-    .byte 0x2f              ;c310  2f          DATA 0x2f '/'
-    .byte 0x32              ;c311  32          DATA 0x32 '2'
-    .byte 0x2f              ;c312  2f          DATA 0x2f '/'
-    .byte 0x32              ;c313  32          DATA 0x32 '2'
-    .byte 0x2f              ;c314  2f          DATA 0x2f '/'
-    .byte 0x32              ;c315  32          DATA 0x32 '2'
-    .byte 0x2f              ;c316  2f          DATA 0x2f '/'
-    .byte 0x32              ;c317  32          DATA 0x32 '2'
-    .byte 0x2f              ;c318  2f          DATA 0x2f '/'
-    .byte 0x32              ;c319  32          DATA 0x32 '2'
-    .byte 0x2f              ;c31a  2f          DATA 0x2f '/'
-    .byte 0x32              ;c31b  32          DATA 0x32 '2'
-    .byte 0x2f              ;c31c  2f          DATA 0x2f '/'
-    .byte 0x32              ;c31d  32          DATA 0x32 '2'
-    .byte 0x2f              ;c31e  2f          DATA 0x2f '/'
-    .byte 0x32              ;c31f  32          DATA 0x32 '2'
-    .byte 0x2f              ;c320  2f          DATA 0x2f '/'
-    .byte 0x32              ;c321  32          DATA 0x32 '2'
-    .byte 0x2f              ;c322  2f          DATA 0x2f '/'
-    .byte 0x32              ;c323  32          DATA 0x32 '2'
-    .byte 0x2f              ;c324  2f          DATA 0x2f '/'
-    .byte 0x32              ;c325  32          DATA 0x32 '2'
-    .byte 0x2f              ;c326  2f          DATA 0x2f '/'
+    .word 0x7510
+    .word 0x7510
+    .word 0x6512
+    .word 0x4d14
+    .word 0x6e16
+    .word 0x561c
+    .word 0x6720
+    .word 0x4f28
+    .word 0x472e
+    .word 0x2f32
+    .word 0x2f32
+    .word 0x2f32
+    .word 0x2f32
+    .word 0x2f32
+    .word 0x2f32
+    .word 0x2f32
+    .word 0x2f32
+    .word 0x2f32
+    .word 0x2f32
+    .word 0x2f32
+    .word 0x2f32
 
 mem_c327:
 ;table of words used with sub_0c48
     .byte 0x15              ;c327  15          DATA 0x15        21 entries below:
-    .byte 0xd7              ;c328  d7          DATA 0xd7
-    .byte 0x00              ;c329  00          DATA 0x00
-    .byte 0xd7              ;c32a  d7          DATA 0xd7
-    .byte 0x00              ;c32b  00          DATA 0x00
-    .byte 0xd7              ;c32c  d7          DATA 0xd7
-    .byte 0x00              ;c32d  00          DATA 0x00
-    .byte 0xd7              ;c32e  d7          DATA 0xd7
-    .byte 0x00              ;c32f  00          DATA 0x00
-    .byte 0xd7              ;c330  d7          DATA 0xd7
-    .byte 0x00              ;c331  00          DATA 0x00
-    .byte 0xd7              ;c332  d7          DATA 0xd7
-    .byte 0x00              ;c333  00          DATA 0x00
-    .byte 0xf7              ;c334  f7          DATA 0xf7
-    .byte 0x00              ;c335  00          DATA 0x00
-    .byte 0xf7              ;c336  f7          DATA 0xf7
-    .byte 0x00              ;c337  00          DATA 0x00
-    .byte 0xd7              ;c338  d7          DATA 0xd7
-    .byte 0x00              ;c339  00          DATA 0x00
-    .byte 0xd7              ;c33a  d7          DATA 0xd7
-    .byte 0x00              ;c33b  00          DATA 0x00
-    .byte 0xd7              ;c33c  d7          DATA 0xd7
-    .byte 0x00              ;c33d  00          DATA 0x00
-    .byte 0xd7              ;c33e  d7          DATA 0xd7
-    .byte 0x00              ;c33f  00          DATA 0x00
-    .byte 0xd7              ;c340  d7          DATA 0xd7
-    .byte 0x00              ;c341  00          DATA 0x00
-    .byte 0xf7              ;c342  f7          DATA 0xf7
-    .byte 0x00              ;c343  00          DATA 0x00
-    .byte 0x07              ;c344  07          DATA 0x07
-    .byte 0x01              ;c345  01          DATA 0x01
-    .byte 0x27              ;c346  27          DATA 0x27 '''
-    .byte 0x01              ;c347  01          DATA 0x01
-    .byte 0x47              ;c348  47          DATA 0x47 'G'
-    .byte 0x01              ;c349  01          DATA 0x01
-    .byte 0x47              ;c34a  47          DATA 0x47 'G'
-    .byte 0x01              ;c34b  01          DATA 0x01
-    .byte 0x77              ;c34c  77          DATA 0x77 'w'
-    .byte 0x01              ;c34d  01          DATA 0x01
-    .byte 0x26              ;c34e  26          DATA 0x26 '&'
-    .byte 0x01              ;c34f  01          DATA 0x01
-    .byte 0x86              ;c350  86          DATA 0x86
-    .byte 0x01              ;c351  01          DATA 0x01
+    .word 0x00d7
+    .word 0x00d7
+    .word 0x00d7
+    .word 0x00d7
+    .word 0x00d7
+    .word 0x00d7
+    .word 0x00f7
+    .word 0x00f7
+    .word 0x00d7
+    .word 0x00d7
+    .word 0x00d7
+    .word 0x00d7
+    .word 0x00d7
+    .word 0x00f7
+    .word 0x0107
+    .word 0x0127
+    .word 0x0147
+    .word 0x0147
+    .word 0x0177
+    .word 0x0126
+    .word 0x0186
 
 mem_c352:
 ;table of words used with sub_0c48
     .byte 0x15              ;c352  15          DATA 0x15        21 entries below:
-    .byte 0x28              ;c353  28          DATA 0x28 '('
-    .byte 0x6d              ;c354  6d          DATA 0x6d 'm'
-    .byte 0x32              ;c355  32          DATA 0x32 '2'
-    .byte 0x5d              ;c356  5d          DATA 0x5d ']'
-    .byte 0x3a              ;c357  3a          DATA 0x3a ':'
-    .byte 0x5e              ;c358  5e          DATA 0x5e '^'
-    .byte 0x3a              ;c359  3a          DATA 0x3a ':'
-    .byte 0x5e              ;c35a  5e          DATA 0x5e '^'
-    .byte 0x40              ;c35b  40          DATA 0x40 '@'
-    .byte 0x56              ;c35c  56          DATA 0x56 'V'
-    .byte 0x4c              ;c35d  4c          DATA 0x4c 'L'
-    .byte 0x56              ;c35e  56          DATA 0x56 'V'
-    .byte 0x50              ;c35f  50          DATA 0x50 'P'
-    .byte 0x7f              ;c360  7f          DATA 0x7f
-    .byte 0x5a              ;c361  5a          DATA 0x5a 'Z'
-    .byte 0x7f              ;c362  7f          DATA 0x7f
-    .byte 0x60              ;c363  60          DATA 0x60 '`'
-    .byte 0x46              ;c364  46          DATA 0x46 'F'
-    .byte 0x6c              ;c365  6c          DATA 0x6c 'l'
-    .byte 0x56              ;c366  56          DATA 0x56 'V'
-    .byte 0x6c              ;c367  6c          DATA 0x6c 'l'
-    .byte 0x56              ;c368  56          DATA 0x56 'V'
-    .byte 0x6c              ;c369  6c          DATA 0x6c 'l'
-    .byte 0x56              ;c36a  56          DATA 0x56 'V'
-    .byte 0x78              ;c36b  78          DATA 0x78 'x'
-    .byte 0x56              ;c36c  56          DATA 0x56 'V'
-    .byte 0x88              ;c36d  88          DATA 0x88
-    .byte 0x5e              ;c36e  5e          DATA 0x5e '^'
-    .byte 0x90              ;c36f  90          DATA 0x90
-    .byte 0x5e              ;c370  5e          DATA 0x5e '^'
-    .byte 0xa0              ;c371  a0          DATA 0xa0
-    .byte 0x66              ;c372  66          DATA 0x66 'f'
-    .byte 0xaa              ;c373  aa          DATA 0xaa
-    .byte 0x6e              ;c374  6e          DATA 0x6e 'n'
-    .byte 0xc0              ;c375  c0          DATA 0xc0
-    .byte 0x6e              ;c376  6e          DATA 0x6e 'n'
-    .byte 0xca              ;c377  ca          DATA 0xca
-    .byte 0x6e              ;c378  6e          DATA 0x6e 'n'
-    .byte 0xe4              ;c379  e4          DATA 0xe4
-    .byte 0x55              ;c37a  55          DATA 0x55 'U'
-    .byte 0xfe              ;c37b  fe          DATA 0xfe
-    .byte 0x75              ;c37c  75          DATA 0x75 'u'
+    .word 0x6d28
+    .word 0x5d32
+    .word 0x5e3a
+    .word 0x5e3a
+    .word 0x5640
+    .word 0x564c
+    .word 0x7f50
+    .word 0x7f5a
+    .word 0x4660
+    .word 0x566c
+    .word 0x566c
+    .word 0x566c
+    .word 0x5678
+    .word 0x5e88
+    .word 0x5e90
+    .word 0x66a0
+    .word 0x6eaa
+    .word 0x6ec0
+    .word 0x6eca
+    .word 0x55e4
+    .word 0x75fe
 
 mem_c37d:
 ;table of words used with sub_0c48
     .byte 0x15              ;c37d  15          DATA 0x15        21 entries below:
-    .byte 0x69              ;c37e  69          DATA 0x69 'i'
-    .byte 0x00              ;c37f  00          DATA 0x00
-    .byte 0x69              ;c380  69          DATA 0x69 'i'
-    .byte 0x00              ;c381  00          DATA 0x00
-    .byte 0x69              ;c382  69          DATA 0x69 'i'
-    .byte 0x00              ;c383  00          DATA 0x00
-    .byte 0x69              ;c384  69          DATA 0x69 'i'
-    .byte 0x00              ;c385  00          DATA 0x00
-    .byte 0x69              ;c386  69          DATA 0x69 'i'
-    .byte 0x00              ;c387  00          DATA 0x00
-    .byte 0x69              ;c388  69          DATA 0x69 'i'
-    .byte 0x00              ;c389  00          DATA 0x00
-    .byte 0x69              ;c38a  69          DATA 0x69 'i'
-    .byte 0x00              ;c38b  00          DATA 0x00
-    .byte 0x69              ;c38c  69          DATA 0x69 'i'
-    .byte 0x00              ;c38d  00          DATA 0x00
-    .byte 0x69              ;c38e  69          DATA 0x69 'i'
-    .byte 0x00              ;c38f  00          DATA 0x00
-    .byte 0x69              ;c390  69          DATA 0x69 'i'
-    .byte 0x00              ;c391  00          DATA 0x00
-    .byte 0x69              ;c392  69          DATA 0x69 'i'
-    .byte 0x00              ;c393  00          DATA 0x00
-    .byte 0x69              ;c394  69          DATA 0x69 'i'
-    .byte 0x00              ;c395  00          DATA 0x00
-    .byte 0x69              ;c396  69          DATA 0x69 'i'
-    .byte 0x00              ;c397  00          DATA 0x00
-    .byte 0x69              ;c398  69          DATA 0x69 'i'
-    .byte 0x00              ;c399  00          DATA 0x00
-    .byte 0x69              ;c39a  69          DATA 0x69 'i'
-    .byte 0x00              ;c39b  00          DATA 0x00
-    .byte 0x69              ;c39c  69          DATA 0x69 'i'
-    .byte 0x00              ;c39d  00          DATA 0x00
-    .byte 0x69              ;c39e  69          DATA 0x69 'i'
-    .byte 0x00              ;c39f  00          DATA 0x00
-    .byte 0x69              ;c3a0  69          DATA 0x69 'i'
-    .byte 0x00              ;c3a1  00          DATA 0x00
-    .byte 0x69              ;c3a2  69          DATA 0x69 'i'
-    .byte 0x00              ;c3a3  00          DATA 0x00
-    .byte 0x69              ;c3a4  69          DATA 0x69 'i'
-    .byte 0x00              ;c3a5  00          DATA 0x00
-    .byte 0x69              ;c3a6  69          DATA 0x69 'i'
-    .byte 0x00              ;c3a7  00          DATA 0x00
+    .word 0x0069
+    .word 0x0069
+    .word 0x0069
+    .word 0x0069
+    .word 0x0069
+    .word 0x0069
+    .word 0x0069
+    .word 0x0069
+    .word 0x0069
+    .word 0x0069
+    .word 0x0069
+    .word 0x0069
+    .word 0x0069
+    .word 0x0069
+    .word 0x0069
+    .word 0x0069
+    .word 0x0069
+    .word 0x0069
+    .word 0x0069
+    .word 0x0069
+    .word 0x0069
 
 mem_c3a8:
 ;table of words used with sub_0c48
     .byte 0x15              ;c3a8  15          DATA 0x15        21 entries below:
-    .byte 0x10              ;c3a9  10          DATA 0x10
-    .byte 0x75              ;c3aa  75          DATA 0x75 'u'
-    .byte 0x10              ;c3ab  10          DATA 0x10
-    .byte 0x75              ;c3ac  75          DATA 0x75 'u'
-    .byte 0x12              ;c3ad  12          DATA 0x12
-    .byte 0x65              ;c3ae  65          DATA 0x65 'e'
-    .byte 0x12              ;c3af  12          DATA 0x12
-    .byte 0x55              ;c3b0  55          DATA 0x55 'U'
-    .byte 0x14              ;c3b1  14          DATA 0x14
-    .byte 0x4d              ;c3b2  4d          DATA 0x4d 'M'
-    .byte 0x16              ;c3b3  16          DATA 0x16
-    .byte 0x76              ;c3b4  76          DATA 0x76 'v'
-    .byte 0x1a              ;c3b5  1a          DATA 0x1a
-    .byte 0x5e              ;c3b6  5e          DATA 0x5e '^'
-    .byte 0x1c              ;c3b7  1c          DATA 0x1c
-    .byte 0x7f              ;c3b8  7f          DATA 0x7f
-    .byte 0x1e              ;c3b9  1e          DATA 0x1e
-    .byte 0x7f              ;c3ba  7f          DATA 0x7f
-    .byte 0x20              ;c3bb  20          DATA 0x20 ' '
-    .byte 0x67              ;c3bc  67          DATA 0x67 'g'
-    .byte 0x20              ;c3bd  20          DATA 0x20 ' '
-    .byte 0x67              ;c3be  67          DATA 0x67 'g'
-    .byte 0x20              ;c3bf  20          DATA 0x20 ' '
-    .byte 0x67              ;c3c0  67          DATA 0x67 'g'
-    .byte 0x24              ;c3c1  24          DATA 0x24 '$'
-    .byte 0x57              ;c3c2  57          DATA 0x57 'W'
-    .byte 0x28              ;c3c3  28          DATA 0x28 '('
-    .byte 0x4f              ;c3c4  4f          DATA 0x4f 'O'
-    .byte 0x28              ;c3c5  28          DATA 0x28 '('
-    .byte 0x4f              ;c3c6  4f          DATA 0x4f 'O'
-    .byte 0x28              ;c3c7  28          DATA 0x28 '('
-    .byte 0x4f              ;c3c8  4f          DATA 0x4f 'O'
-    .byte 0x28              ;c3c9  28          DATA 0x28 '('
-    .byte 0x4f              ;c3ca  4f          DATA 0x4f 'O'
-    .byte 0x28              ;c3cb  28          DATA 0x28 '('
-    .byte 0x4f              ;c3cc  4f          DATA 0x4f 'O'
-    .byte 0x28              ;c3cd  28          DATA 0x28 '('
-    .byte 0x4f              ;c3ce  4f          DATA 0x4f 'O'
-    .byte 0x28              ;c3cf  28          DATA 0x28 '('
-    .byte 0x4f              ;c3d0  4f          DATA 0x4f 'O'
-    .byte 0x28              ;c3d1  28          DATA 0x28 '('
-    .byte 0x4f              ;c3d2  4f          DATA 0x4f 'O'
+    .word 0x7510
+    .word 0x7510
+    .word 0x6512
+    .word 0x5512
+    .word 0x4d14
+    .word 0x7616
+    .word 0x5e1a
+    .word 0x7f1c
+    .word 0x7f1e
+    .word 0x6720
+    .word 0x6720
+    .word 0x6720
+    .word 0x5724
+    .word 0x4f28
+    .word 0x4f28
+    .word 0x4f28
+    .word 0x4f28
+    .word 0x4f28
+    .word 0x4f28
+    .word 0x4f28
+    .word 0x4f28
 
 mem_c3d3:
 ;table of words used with sub_0c48
     .byte 0x15              ;c3d3  15          DATA 0x15        21 entries below:
-    .byte 0xd7              ;c3d4  d7          DATA 0xd7
-    .byte 0x00              ;c3d5  00          DATA 0x00
-    .byte 0xd7              ;c3d6  d7          DATA 0xd7
-    .byte 0x00              ;c3d7  00          DATA 0x00
-    .byte 0xd7              ;c3d8  d7          DATA 0xd7
-    .byte 0x00              ;c3d9  00          DATA 0x00
-    .byte 0xd7              ;c3da  d7          DATA 0xd7
-    .byte 0x00              ;c3db  00          DATA 0x00
-    .byte 0xd7              ;c3dc  d7          DATA 0xd7
-    .byte 0x00              ;c3dd  00          DATA 0x00
-    .byte 0xd7              ;c3de  d7          DATA 0xd7
-    .byte 0x00              ;c3df  00          DATA 0x00
-    .byte 0xd7              ;c3e0  d7          DATA 0xd7
-    .byte 0x00              ;c3e1  00          DATA 0x00
-    .byte 0xd7              ;c3e2  d7          DATA 0xd7
-    .byte 0x00              ;c3e3  00          DATA 0x00
-    .byte 0xd7              ;c3e4  d7          DATA 0xd7
-    .byte 0x00              ;c3e5  00          DATA 0x00
-    .byte 0xd7              ;c3e6  d7          DATA 0xd7
-    .byte 0x00              ;c3e7  00          DATA 0x00
-    .byte 0xd7              ;c3e8  d7          DATA 0xd7
-    .byte 0x00              ;c3e9  00          DATA 0x00
-    .byte 0xd7              ;c3ea  d7          DATA 0xd7
-    .byte 0x00              ;c3eb  00          DATA 0x00
-    .byte 0xd7              ;c3ec  d7          DATA 0xd7
-    .byte 0x00              ;c3ed  00          DATA 0x00
-    .byte 0xf7              ;c3ee  f7          DATA 0xf7
-    .byte 0x00              ;c3ef  00          DATA 0x00
-    .byte 0x07              ;c3f0  07          DATA 0x07
-    .byte 0x01              ;c3f1  01          DATA 0x01
-    .byte 0x27              ;c3f2  27          DATA 0x27 '''
-    .byte 0x01              ;c3f3  01          DATA 0x01
-    .byte 0x47              ;c3f4  47          DATA 0x47 'G'
-    .byte 0x01              ;c3f5  01          DATA 0x01
-    .byte 0x47              ;c3f6  47          DATA 0x47 'G'
-    .byte 0x01              ;c3f7  01          DATA 0x01
-    .byte 0x77              ;c3f8  77          DATA 0x77 'w'
-    .byte 0x01              ;c3f9  01          DATA 0x01
-    .byte 0x26              ;c3fa  26          DATA 0x26 '&'
-    .byte 0x01              ;c3fb  01          DATA 0x01
-    .byte 0x86              ;c3fc  86          DATA 0x86
-    .byte 0x01              ;c3fd  01          DATA 0x01
+    .word 0x00d7
+    .word 0x00d7
+    .word 0x00d7
+    .word 0x00d7
+    .word 0x00d7
+    .word 0x00d7
+    .word 0x00d7
+    .word 0x00d7
+    .word 0x00d7
+    .word 0x00d7
+    .word 0x00d7
+    .word 0x00d7
+    .word 0x00d7
+    .word 0x00f7
+    .word 0x0107
+    .word 0x0127
+    .word 0x0147
+    .word 0x0147
+    .word 0x0177
+    .word 0x0126
+    .word 0x0186
 
 mem_c3fe:
     .byte 0x15              ;c3fe  15          DATA 0x15        21 entries below:
-    .byte 0x28              ;c3ff  28          DATA 0x28 '('
-    .byte 0x6d              ;c400  6d          DATA 0x6d 'm'
-    .byte 0x2e              ;c401  2e          DATA 0x2e '.'
-    .byte 0x65              ;c402  65          DATA 0x65 'e'
-    .byte 0x2e              ;c403  2e          DATA 0x2e '.'
-    .byte 0x65              ;c404  65          DATA 0x65 'e'
-    .byte 0x2e              ;c405  2e          DATA 0x2e '.'
-    .byte 0x4d              ;c406  4d          DATA 0x4d 'M'
-    .byte 0x32              ;c407  32          DATA 0x32 '2'
-    .byte 0x45              ;c408  45          DATA 0x45 'E'
-    .byte 0x32              ;c409  32          DATA 0x32 '2'
-    .byte 0x45              ;c40a  45          DATA 0x45 'E'
-    .byte 0x32              ;c40b  32          DATA 0x32 '2'
-    .byte 0x6e              ;c40c  6e          DATA 0x6e 'n'
-    .byte 0x32              ;c40d  32          DATA 0x32 '2'
-    .byte 0x6e              ;c40e  6e          DATA 0x6e 'n'
-    .byte 0x3a              ;c40f  3a          DATA 0x3a ':'
-    .byte 0x5e              ;c410  5e          DATA 0x5e '^'
-    .byte 0x3c              ;c411  3c          DATA 0x3c '<'
-    .byte 0x5e              ;c412  5e          DATA 0x5e '^'
-    .byte 0x3c              ;c413  3c          DATA 0x3c '<'
-    .byte 0x5e              ;c414  5e          DATA 0x5e '^'
-    .byte 0x3c              ;c415  3c          DATA 0x3c '<'
-    .byte 0x5e              ;c416  5e          DATA 0x5e '^'
-    .byte 0x40              ;c417  40          DATA 0x40 '@'
-    .byte 0x56              ;c418  56          DATA 0x56 'V'
-    .byte 0x48              ;c419  48          DATA 0x48 'H'
-    .byte 0x5e              ;c41a  5e          DATA 0x5e '^'
-    .byte 0x50              ;c41b  50          DATA 0x50 'P'
-    .byte 0x5e              ;c41c  5e          DATA 0x5e '^'
-    .byte 0x5a              ;c41d  5a          DATA 0x5a 'Z'
-    .byte 0x66              ;c41e  66          DATA 0x66 'f'
-    .byte 0x60              ;c41f  60          DATA 0x60 '`'
-    .byte 0x6e              ;c420  6e          DATA 0x6e 'n'
-    .byte 0x6c              ;c421  6c          DATA 0x6c 'l'
-    .byte 0x6e              ;c422  6e          DATA 0x6e 'n'
-    .byte 0x78              ;c423  78          DATA 0x78 'x'
-    .byte 0x7e              ;c424  7e          DATA 0x7e '~'
-    .byte 0x80              ;c425  80          DATA 0x80
-    .byte 0x55              ;c426  55          DATA 0x55 'U'
-    .byte 0x90              ;c427  90          DATA 0x90
-    .byte 0x75              ;c428  75          DATA 0x75 'u'
+    .word 0x6d28
+    .word 0x652e
+    .word 0x652e
+    .word 0x4d2e
+    .word 0x4532
+    .word 0x4532
+    .word 0x6e32
+    .word 0x6e32
+    .word 0x5e3a
+    .word 0x5e3c
+    .word 0x5e3c
+    .word 0x5e3c
+    .word 0x5640
+    .word 0x5e48
+    .word 0x5e50
+    .word 0x665a
+    .word 0x6e60
+    .word 0x6e6c
+    .word 0x7e78
+    .word 0x5580
+    .word 0x7590
 
 mem_c429:
 ;table of words used with sub_0c48
@@ -34442,1327 +33591,727 @@ mem_c429:
 mem_c454:
 ;table of words used with sub_0c48
     .byte 0x15              ;c454  15          DATA 0x15        21 entries below:
-    .byte 0x10              ;c455  10          DATA 0x10
-    .byte 0x7c              ;c456  7c          DATA 0x7c '|'
-    .byte 0x12              ;c457  12          DATA 0x12
-    .byte 0x74              ;c458  74          DATA 0x74 't'
-    .byte 0x16              ;c459  16          DATA 0x16
-    .byte 0x5c              ;c45a  5c          DATA 0x5c '\'
-    .byte 0x1a              ;c45b  1a          DATA 0x1a
-    .byte 0x54              ;c45c  54          DATA 0x54 'T'
-    .byte 0x1e              ;c45d  1e          DATA 0x1e
-    .byte 0x44              ;c45e  44          DATA 0x44 'D'
-    .byte 0x22              ;c45f  22          DATA 0x22 '"'
-    .byte 0x7d              ;c460  7d          DATA 0x7d '}'
-    .byte 0x28              ;c461  28          DATA 0x28 '('
-    .byte 0x6d              ;c462  6d          DATA 0x6d 'm'
-    .byte 0x30              ;c463  30          DATA 0x30 '0'
-    .byte 0x5d              ;c464  5d          DATA 0x5d ']'
-    .byte 0x38              ;c465  38          DATA 0x38 '8'
-    .byte 0x4d              ;c466  4d          DATA 0x4d 'M'
-    .byte 0x40              ;c467  40          DATA 0x40 '@'
-    .byte 0x7e              ;c468  7e          DATA 0x7e '~'
-    .byte 0x40              ;c469  40          DATA 0x40 '@'
-    .byte 0x7e              ;c46a  7e          DATA 0x7e '~'
-    .byte 0x40              ;c46b  40          DATA 0x40 '@'
-    .byte 0x7e              ;c46c  7e          DATA 0x7e '~'
-    .byte 0x48              ;c46d  48          DATA 0x48 'H'
-    .byte 0x7e              ;c46e  7e          DATA 0x7e '~'
-    .byte 0x50              ;c46f  50          DATA 0x50 'P'
-    .byte 0x7e              ;c470  7e          DATA 0x7e '~'
-    .byte 0x5a              ;c471  5a          DATA 0x5a 'Z'
-    .byte 0x7e              ;c472  7e          DATA 0x7e '~'
-    .byte 0x60              ;c473  60          DATA 0x60 '`'
-    .byte 0x4d              ;c474  4d          DATA 0x4d 'M'
-    .byte 0x66              ;c475  66          DATA 0x66 'f'
-    .byte 0x55              ;c476  55          DATA 0x55 'U'
-    .byte 0x6c              ;c477  6c          DATA 0x6c 'l'
-    .byte 0x6d              ;c478  6d          DATA 0x6d 'm'
-    .byte 0x72              ;c479  72          DATA 0x72 'r'
-    .byte 0x75              ;c47a  75          DATA 0x75 'u'
-    .byte 0x80              ;c47b  80          DATA 0x80
-    .byte 0x7d              ;c47c  7d          DATA 0x7d '}'
-    .byte 0x88              ;c47d  88          DATA 0x88
-    .byte 0x44              ;c47e  44          DATA 0x44 'D'
+    .word 0x7c10
+    .word 0x7412
+    .word 0x5c16
+    .word 0x541a
+    .word 0x441e
+    .word 0x7d22
+    .word 0x6d28
+    .word 0x5d30
+    .word 0x4d38
+    .word 0x7e40
+    .word 0x7e40
+    .word 0x7e40
+    .word 0x7e48
+    .word 0x7e50
+    .word 0x7e5a
+    .word 0x4d60
+    .word 0x5566
+    .word 0x6d6c
+    .word 0x7572
+    .word 0x7d80
+    .word 0x4488
 
 mem_c47f:
 ;table of words used with sub_0c48
     .byte 0x15              ;c47f  15          DATA 0x15        21 entries below:
-    .byte 0x06              ;c480  06          DATA 0x06
-    .byte 0x01              ;c481  01          DATA 0x01
-    .byte 0x06              ;c482  06          DATA 0x06
-    .byte 0x01              ;c483  01          DATA 0x01
-    .byte 0x06              ;c484  06          DATA 0x06
-    .byte 0x01              ;c485  01          DATA 0x01
-    .byte 0x06              ;c486  06          DATA 0x06
-    .byte 0x01              ;c487  01          DATA 0x01
-    .byte 0x06              ;c488  06          DATA 0x06
-    .byte 0x01              ;c489  01          DATA 0x01
-    .byte 0x06              ;c48a  06          DATA 0x06
-    .byte 0x01              ;c48b  01          DATA 0x01
-    .byte 0x06              ;c48c  06          DATA 0x06
-    .byte 0x01              ;c48d  01          DATA 0x01
-    .byte 0x06              ;c48e  06          DATA 0x06
-    .byte 0x01              ;c48f  01          DATA 0x01
-    .byte 0x06              ;c490  06          DATA 0x06
-    .byte 0x01              ;c491  01          DATA 0x01
-    .byte 0x06              ;c492  06          DATA 0x06
-    .byte 0x01              ;c493  01          DATA 0x01
-    .byte 0x06              ;c494  06          DATA 0x06
-    .byte 0x01              ;c495  01          DATA 0x01
-    .byte 0x06              ;c496  06          DATA 0x06
-    .byte 0x01              ;c497  01          DATA 0x01
-    .byte 0x06              ;c498  06          DATA 0x06
-    .byte 0x01              ;c499  01          DATA 0x01
-    .byte 0x06              ;c49a  06          DATA 0x06
-    .byte 0x01              ;c49b  01          DATA 0x01
-    .byte 0x06              ;c49c  06          DATA 0x06
-    .byte 0x01              ;c49d  01          DATA 0x01
-    .byte 0x46              ;c49e  46          DATA 0x46 'F'
-    .byte 0x01              ;c49f  01          DATA 0x01
-    .byte 0x86              ;c4a0  86          DATA 0x86
-    .byte 0x01              ;c4a1  01          DATA 0x01
-    .byte 0xc6              ;c4a2  c6          DATA 0xc6
-    .byte 0x01              ;c4a3  01          DATA 0x01
-    .byte 0x16              ;c4a4  16          DATA 0x16
-    .byte 0x02              ;c4a5  02          DATA 0x02
-    .byte 0x66              ;c4a6  66          DATA 0x66 'f'
-    .byte 0x02              ;c4a7  02          DATA 0x02
-    .byte 0xb6              ;c4a8  b6          DATA 0xb6
-    .byte 0x02              ;c4a9  02          DATA 0x02
+    .word 0x0106
+    .word 0x0106
+    .word 0x0106
+    .word 0x0106
+    .word 0x0106
+    .word 0x0106
+    .word 0x0106
+    .word 0x0106
+    .word 0x0106
+    .word 0x0106
+    .word 0x0106
+    .word 0x0106
+    .word 0x0106
+    .word 0x0106
+    .word 0x0106
+    .word 0x0146
+    .word 0x0186
+    .word 0x01c6
+    .word 0x0216
+    .word 0x0266
+    .word 0x02b6
 
 mem_c4aa:
 ;table of words used with sub_0c48
     .byte 0x15              ;c4aa  15          DATA 0x15        21 entries below:
-    .byte 0x10              ;c4ab  10          DATA 0x10
-    .byte 0x7c              ;c4ac  7c          DATA 0x7c '|'
-    .byte 0x12              ;c4ad  12          DATA 0x12
-    .byte 0x74              ;c4ae  74          DATA 0x74 't'
-    .byte 0x14              ;c4af  14          DATA 0x14
-    .byte 0x64              ;c4b0  64          DATA 0x64 'd'
-    .byte 0x16              ;c4b1  16          DATA 0x16
-    .byte 0x5c              ;c4b2  5c          DATA 0x5c '\'
-    .byte 0x18              ;c4b3  18          DATA 0x18
-    .byte 0x54              ;c4b4  54          DATA 0x54 'T'
-    .byte 0x1a              ;c4b5  1a          DATA 0x1a
-    .byte 0x54              ;c4b6  54          DATA 0x54 'T'
-    .byte 0x1c              ;c4b7  1c          DATA 0x1c
-    .byte 0x4c              ;c4b8  4c          DATA 0x4c 'L'
-    .byte 0x1e              ;c4b9  1e          DATA 0x1e
-    .byte 0x44              ;c4ba  44          DATA 0x44 'D'
-    .byte 0x22              ;c4bb  22          DATA 0x22 '"'
-    .byte 0x7d              ;c4bc  7d          DATA 0x7d '}'
-    .byte 0x24              ;c4bd  24          DATA 0x24 '$'
-    .byte 0x75              ;c4be  75          DATA 0x75 'u'
-    .byte 0x24              ;c4bf  24          DATA 0x24 '$'
-    .byte 0x75              ;c4c0  75          DATA 0x75 'u'
-    .byte 0x24              ;c4c1  24          DATA 0x24 '$'
-    .byte 0x75              ;c4c2  75          DATA 0x75 'u'
-    .byte 0x28              ;c4c3  28          DATA 0x28 '('
-    .byte 0x6d              ;c4c4  6d          DATA 0x6d 'm'
-    .byte 0x2a              ;c4c5  2a          DATA 0x2a '*'
-    .byte 0x65              ;c4c6  65          DATA 0x65 'e'
-    .byte 0x2e              ;c4c7  2e          DATA 0x2e '.'
-    .byte 0x5d              ;c4c8  5d          DATA 0x5d ']'
-    .byte 0x32              ;c4c9  32          DATA 0x32 '2'
-    .byte 0x5d              ;c4ca  5d          DATA 0x5d ']'
-    .byte 0x36              ;c4cb  36          DATA 0x36 '6'
-    .byte 0x5d              ;c4cc  5d          DATA 0x5d ']'
-    .byte 0x3c              ;c4cd  3c          DATA 0x3c '<'
-    .byte 0x75              ;c4ce  75          DATA 0x75 'u'
-    .byte 0x40              ;c4cf  40          DATA 0x40 '@'
-    .byte 0x75              ;c4d0  75          DATA 0x75 'u'
-    .byte 0x46              ;c4d1  46          DATA 0x46 'F'
-    .byte 0x7d              ;c4d2  7d          DATA 0x7d '}'
-    .byte 0x4c              ;c4d3  4c          DATA 0x4c 'L'
-    .byte 0x44              ;c4d4  44          DATA 0x44 'D'
+    .word 0x7c10
+    .word 0x7412
+    .word 0x6414
+    .word 0x5c16
+    .word 0x5418
+    .word 0x541a
+    .word 0x4c1c
+    .word 0x441e
+    .word 0x7d22
+    .word 0x7524
+    .word 0x7524
+    .word 0x7524
+    .word 0x6d28
+    .word 0x652a
+    .word 0x5d2e
+    .word 0x5d32
+    .word 0x5d36
+    .word 0x753c
+    .word 0x7540
+    .word 0x7d46
+    .word 0x444c
 
 mem_c4d5:
 ;table of words used with sub_0c48
     .byte 0x15              ;c4d5  15          DATA 0x15        21 entries below:
-    .byte 0x87              ;c4d6  87          DATA 0x87
-    .byte 0x01              ;c4d7  01          DATA 0x01
-    .byte 0x87              ;c4d8  87          DATA 0x87
-    .byte 0x01              ;c4d9  01          DATA 0x01
-    .byte 0x87              ;c4da  87          DATA 0x87
-    .byte 0x01              ;c4db  01          DATA 0x01
-    .byte 0x87              ;c4dc  87          DATA 0x87
-    .byte 0x01              ;c4dd  01          DATA 0x01
-    .byte 0x87              ;c4de  87          DATA 0x87
-    .byte 0x01              ;c4df  01          DATA 0x01
-    .byte 0x87              ;c4e0  87          DATA 0x87
-    .byte 0x01              ;c4e1  01          DATA 0x01
-    .byte 0x87              ;c4e2  87          DATA 0x87
-    .byte 0x01              ;c4e3  01          DATA 0x01
-    .byte 0x87              ;c4e4  87          DATA 0x87
-    .byte 0x01              ;c4e5  01          DATA 0x01
-    .byte 0x87              ;c4e6  87          DATA 0x87
-    .byte 0x01              ;c4e7  01          DATA 0x01
-    .byte 0x87              ;c4e8  87          DATA 0x87
-    .byte 0x01              ;c4e9  01          DATA 0x01
-    .byte 0x87              ;c4ea  87          DATA 0x87
-    .byte 0x01              ;c4eb  01          DATA 0x01
-    .byte 0x87              ;c4ec  87          DATA 0x87
-    .byte 0x01              ;c4ed  01          DATA 0x01
-    .byte 0x87              ;c4ee  87          DATA 0x87
-    .byte 0x01              ;c4ef  01          DATA 0x01
-    .byte 0x87              ;c4f0  87          DATA 0x87
-    .byte 0x01              ;c4f1  01          DATA 0x01
-    .byte 0x87              ;c4f2  87          DATA 0x87
-    .byte 0x01              ;c4f3  01          DATA 0x01
-    .byte 0xd7              ;c4f4  d7          DATA 0xd7
-    .byte 0x01              ;c4f5  01          DATA 0x01
-    .byte 0x26              ;c4f6  26          DATA 0x26 '&'
-    .byte 0x01              ;c4f7  01          DATA 0x01
-    .byte 0x56              ;c4f8  56          DATA 0x56 'V'
-    .byte 0x01              ;c4f9  01          DATA 0x01
-    .byte 0x86              ;c4fa  86          DATA 0x86
-    .byte 0x01              ;c4fb  01          DATA 0x01
-    .byte 0xc6              ;c4fc  c6          DATA 0xc6
-    .byte 0x01              ;c4fd  01          DATA 0x01
-    .byte 0x06              ;c4fe  06          DATA 0x06
-    .byte 0x02              ;c4ff  02          DATA 0x02
+    .word 0x0187
+    .word 0x0187
+    .word 0x0187
+    .word 0x0187
+    .word 0x0187
+    .word 0x0187
+    .word 0x0187
+    .word 0x0187
+    .word 0x0187
+    .word 0x0187
+    .word 0x0187
+    .word 0x0187
+    .word 0x0187
+    .word 0x0187
+    .word 0x0187
+    .word 0x01d7
+    .word 0x0126
+    .word 0x0156
+    .word 0x0186
+    .word 0x01c6
+    .word 0x0206
 
 mem_c500:
+;table of words used with sub_0c48
     .byte 0x15              ;c500  15          DATA 0x15        21 entries below:
-    .byte 0x10              ;c501  10          DATA 0x10
-    .byte 0x6c              ;c502  6c          DATA 0x6c 'l'
-    .byte 0x12              ;c503  12          DATA 0x12
-    .byte 0x64              ;c504  64          DATA 0x64 'd'
-    .byte 0x16              ;c505  16          DATA 0x16
-    .byte 0x54              ;c506  54          DATA 0x54 'T'
-    .byte 0x1a              ;c507  1a          DATA 0x1a
-    .byte 0x44              ;c508  44          DATA 0x44 'D'
-    .byte 0x1e              ;c509  1e          DATA 0x1e
-    .byte 0x7d              ;c50a  7d          DATA 0x7d '}'
-    .byte 0x22              ;c50b  22          DATA 0x22 '"'
-    .byte 0x6d              ;c50c  6d          DATA 0x6d 'm'
-    .byte 0x28              ;c50d  28          DATA 0x28 '('
-    .byte 0x5d              ;c50e  5d          DATA 0x5d ']'
-    .byte 0x30              ;c50f  30          DATA 0x30 '0'
-    .byte 0x4d              ;c510  4d          DATA 0x4d 'M'
-    .byte 0x38              ;c511  38          DATA 0x38 '8'
-    .byte 0x7e              ;c512  7e          DATA 0x7e '~'
-    .byte 0x40              ;c513  40          DATA 0x40 '@'
-    .byte 0x76              ;c514  76          DATA 0x76 'v'
-    .byte 0x40              ;c515  40          DATA 0x40 '@'
-    .byte 0x76              ;c516  76          DATA 0x76 'v'
-    .byte 0x40              ;c517  40          DATA 0x40 '@'
-    .byte 0x76              ;c518  76          DATA 0x76 'v'
-    .byte 0x48              ;c519  48          DATA 0x48 'H'
-    .byte 0x76              ;c51a  76          DATA 0x76 'v'
-    .byte 0x50              ;c51b  50          DATA 0x50 'P'
-    .byte 0x76              ;c51c  76          DATA 0x76 'v'
-    .byte 0x5a              ;c51d  5a          DATA 0x5a 'Z'
-    .byte 0x76              ;c51e  76          DATA 0x76 'v'
-    .byte 0x60              ;c51f  60          DATA 0x60 '`'
-    .byte 0x7e              ;c520  7e          DATA 0x7e '~'
-    .byte 0x66              ;c521  66          DATA 0x66 'f'
-    .byte 0x45              ;c522  45          DATA 0x45 'E'
-    .byte 0x6c              ;c523  6c          DATA 0x6c 'l'
-    .byte 0x5d              ;c524  5d          DATA 0x5d ']'
-    .byte 0x72              ;c525  72          DATA 0x72 'r'
-    .byte 0x65              ;c526  65          DATA 0x65 'e'
-    .byte 0x80              ;c527  80          DATA 0x80
-    .byte 0x6d              ;c528  6d          DATA 0x6d 'm'
-    .byte 0x88              ;c529  88          DATA 0x88
-    .byte 0x75              ;c52a  75          DATA 0x75 'u'
+    .word 0x6c10
+    .word 0x6412
+    .word 0x5416
+    .word 0x441a
+    .word 0x7d1e
+    .word 0x6d22
+    .word 0x5d28
+    .word 0x4d30
+    .word 0x7e38
+    .word 0x7640
+    .word 0x7640
+    .word 0x7640
+    .word 0x7648
+    .word 0x7650
+    .word 0x765a
+    .word 0x7e60
+    .word 0x4566
+    .word 0x5d6c
+    .word 0x6572
+    .word 0x6d80
+    .word 0x7588
 
 mem_c52b:
 ;table of words used with sub_0c48
     .byte 0x15              ;c52b  15          DATA 0x15        21 entries below:
-    .byte 0x49              ;c52c  49          DATA 0x49 'I'
-    .byte 0x00              ;c52d  00          DATA 0x00
-    .byte 0x49              ;c52e  49          DATA 0x49 'I'
-    .byte 0x00              ;c52f  00          DATA 0x00
-    .byte 0x49              ;c530  49          DATA 0x49 'I'
-    .byte 0x00              ;c531  00          DATA 0x00
-    .byte 0x49              ;c532  49          DATA 0x49 'I'
-    .byte 0x00              ;c533  00          DATA 0x00
-    .byte 0x49              ;c534  49          DATA 0x49 'I'
-    .byte 0x00              ;c535  00          DATA 0x00
-    .byte 0x49              ;c536  49          DATA 0x49 'I'
-    .byte 0x00              ;c537  00          DATA 0x00
-    .byte 0x49              ;c538  49          DATA 0x49 'I'
-    .byte 0x00              ;c539  00          DATA 0x00
-    .byte 0x49              ;c53a  49          DATA 0x49 'I'
-    .byte 0x00              ;c53b  00          DATA 0x00
-    .byte 0x49              ;c53c  49          DATA 0x49 'I'
-    .byte 0x00              ;c53d  00          DATA 0x00
-    .byte 0x49              ;c53e  49          DATA 0x49 'I'
-    .byte 0x00              ;c53f  00          DATA 0x00
-    .byte 0x49              ;c540  49          DATA 0x49 'I'
-    .byte 0x00              ;c541  00          DATA 0x00
-    .byte 0x49              ;c542  49          DATA 0x49 'I'
-    .byte 0x00              ;c543  00          DATA 0x00
-    .byte 0x49              ;c544  49          DATA 0x49 'I'
-    .byte 0x00              ;c545  00          DATA 0x00
-    .byte 0x49              ;c546  49          DATA 0x49 'I'
-    .byte 0x00              ;c547  00          DATA 0x00
-    .byte 0x49              ;c548  49          DATA 0x49 'I'
-    .byte 0x00              ;c549  00          DATA 0x00
-    .byte 0x49              ;c54a  49          DATA 0x49 'I'
-    .byte 0x00              ;c54b  00          DATA 0x00
-    .byte 0x49              ;c54c  49          DATA 0x49 'I'
-    .byte 0x00              ;c54d  00          DATA 0x00
-    .byte 0x49              ;c54e  49          DATA 0x49 'I'
-    .byte 0x00              ;c54f  00          DATA 0x00
-    .byte 0x49              ;c550  49          DATA 0x49 'I'
-    .byte 0x00              ;c551  00          DATA 0x00
-    .byte 0x49              ;c552  49          DATA 0x49 'I'
-    .byte 0x00              ;c553  00          DATA 0x00
-    .byte 0x49              ;c554  49          DATA 0x49 'I'
-    .byte 0x00              ;c555  00          DATA 0x00
+    .word 0x0049
+    .word 0x0049
+    .word 0x0049
+    .word 0x0049
+    .word 0x0049
+    .word 0x0049
+    .word 0x0049
+    .word 0x0049
+    .word 0x0049
+    .word 0x0049
+    .word 0x0049
+    .word 0x0049
+    .word 0x0049
+    .word 0x0049
+    .word 0x0049
+    .word 0x0049
+    .word 0x0049
+    .word 0x0049
+    .word 0x0049
+    .word 0x0049
+    .word 0x0049
 
 mem_c556:
 ;table of words used with sub_0c48
     .byte 0x15              ;c556  15          DATA 0x15        21 entries below:
-    .byte 0x10              ;c557  10          DATA 0x10
-    .byte 0x5d              ;c558  5d          DATA 0x5d ']'
-    .byte 0x10              ;c559  10          DATA 0x10
-    .byte 0x5d              ;c55a  5d          DATA 0x5d ']'
-    .byte 0x12              ;c55b  12          DATA 0x12
-    .byte 0x55              ;c55c  55          DATA 0x55 'U'
-    .byte 0x14              ;c55d  14          DATA 0x14
-    .byte 0x7e              ;c55e  7e          DATA 0x7e '~'
-    .byte 0x16              ;c55f  16          DATA 0x16
-    .byte 0x56              ;c560  56          DATA 0x56 'V'
-    .byte 0x1c              ;c561  1c          DATA 0x1c
-    .byte 0x46              ;c562  46          DATA 0x46 'F'
-    .byte 0x20              ;c563  20          DATA 0x20 ' '
-    .byte 0x4f              ;c564  4f          DATA 0x4f 'O'
-    .byte 0x28              ;c565  28          DATA 0x28 '('
-    .byte 0x47              ;c566  47          DATA 0x47 'G'
-    .byte 0x2e              ;c567  2e          DATA 0x2e '.'
-    .byte 0x3f              ;c568  3f          DATA 0x3f '?'
-    .byte 0x32              ;c569  32          DATA 0x32 '2'
-    .byte 0x27              ;c56a  27          DATA 0x27 '''
-    .byte 0x32              ;c56b  32          DATA 0x32 '2'
-    .byte 0x27              ;c56c  27          DATA 0x27 '''
-    .byte 0x32              ;c56d  32          DATA 0x32 '2'
-    .byte 0x27              ;c56e  27          DATA 0x27 '''
-    .byte 0x32              ;c56f  32          DATA 0x32 '2'
-    .byte 0x27              ;c570  27          DATA 0x27 '''
-    .byte 0x32              ;c571  32          DATA 0x32 '2'
-    .byte 0x27              ;c572  27          DATA 0x27 '''
-    .byte 0x32              ;c573  32          DATA 0x32 '2'
-    .byte 0x27              ;c574  27          DATA 0x27 '''
-    .byte 0x32              ;c575  32          DATA 0x32 '2'
-    .byte 0x27              ;c576  27          DATA 0x27 '''
-    .byte 0x32              ;c577  32          DATA 0x32 '2'
-    .byte 0x27              ;c578  27          DATA 0x27 '''
-    .byte 0x32              ;c579  32          DATA 0x32 '2'
-    .byte 0x27              ;c57a  27          DATA 0x27 '''
-    .byte 0x32              ;c57b  32          DATA 0x32 '2'
-    .byte 0x27              ;c57c  27          DATA 0x27 '''
-    .byte 0x32              ;c57d  32          DATA 0x32 '2'
-    .byte 0x27              ;c57e  27          DATA 0x27 '''
-    .byte 0x32              ;c57f  32          DATA 0x32 '2'
-    .byte 0x27              ;c580  27          DATA 0x27 '''
+    .word 0x5d10
+    .word 0x5d10
+    .word 0x5512
+    .word 0x7e14
+    .word 0x5616
+    .word 0x461c
+    .word 0x4f20
+    .word 0x4728
+    .word 0x3f2e
+    .word 0x2732
+    .word 0x2732
+    .word 0x2732
+    .word 0x2732
+    .word 0x2732
+    .word 0x2732
+    .word 0x2732
+    .word 0x2732
+    .word 0x2732
+    .word 0x2732
+    .word 0x2732
+    .word 0x2732
 
 mem_c581:
 ;table of words used with sub_0c48
     .byte 0x15              ;c581  15          DATA 0x15        21 entries below:
-    .byte 0xa7              ;c582  a7          DATA 0xa7
-    .byte 0x00              ;c583  00          DATA 0x00
-    .byte 0xa7              ;c584  a7          DATA 0xa7
-    .byte 0x00              ;c585  00          DATA 0x00
-    .byte 0xa7              ;c586  a7          DATA 0xa7
-    .byte 0x00              ;c587  00          DATA 0x00
-    .byte 0xa7              ;c588  a7          DATA 0xa7
-    .byte 0x00              ;c589  00          DATA 0x00
-    .byte 0xa7              ;c58a  a7          DATA 0xa7
-    .byte 0x00              ;c58b  00          DATA 0x00
-    .byte 0xa7              ;c58c  a7          DATA 0xa7
-    .byte 0x00              ;c58d  00          DATA 0x00
-    .byte 0xb7              ;c58e  b7          DATA 0xb7
-    .byte 0x00              ;c58f  00          DATA 0x00
-    .byte 0xb7              ;c590  b7          DATA 0xb7
-    .byte 0x00              ;c591  00          DATA 0x00
-    .byte 0xa7              ;c592  a7          DATA 0xa7
-    .byte 0x00              ;c593  00          DATA 0x00
-    .byte 0xa7              ;c594  a7          DATA 0xa7
-    .byte 0x00              ;c595  00          DATA 0x00
-    .byte 0xa7              ;c596  a7          DATA 0xa7
-    .byte 0x00              ;c597  00          DATA 0x00
-    .byte 0xa7              ;c598  a7          DATA 0xa7
-    .byte 0x00              ;c599  00          DATA 0x00
-    .byte 0xa7              ;c59a  a7          DATA 0xa7
-    .byte 0x00              ;c59b  00          DATA 0x00
-    .byte 0xb7              ;c59c  b7          DATA 0xb7
-    .byte 0x00              ;c59d  00          DATA 0x00
-    .byte 0xc7              ;c59e  c7          DATA 0xc7
-    .byte 0x00              ;c59f  00          DATA 0x00
-    .byte 0xd7              ;c5a0  d7          DATA 0xd7
-    .byte 0x00              ;c5a1  00          DATA 0x00
-    .byte 0xf7              ;c5a2  f7          DATA 0xf7
-    .byte 0x00              ;c5a3  00          DATA 0x00
-    .byte 0xf7              ;c5a4  f7          DATA 0xf7
-    .byte 0x00              ;c5a5  00          DATA 0x00
-    .byte 0x17              ;c5a6  17          DATA 0x17
-    .byte 0x01              ;c5a7  01          DATA 0x01
-    .byte 0xb7              ;c5a8  b7          DATA 0xb7
-    .byte 0x01              ;c5a9  01          DATA 0x01
-    .byte 0x26              ;c5aa  26          DATA 0x26 '&'
-    .byte 0x01              ;c5ab  01          DATA 0x01
+    .word 0x00a7
+    .word 0x00a7
+    .word 0x00a7
+    .word 0x00a7
+    .word 0x00a7
+    .word 0x00a7
+    .word 0x00b7
+    .word 0x00b7
+    .word 0x00a7
+    .word 0x00a7
+    .word 0x00a7
+    .word 0x00a7
+    .word 0x00a7
+    .word 0x00b7
+    .word 0x00c7
+    .word 0x00d7
+    .word 0x00f7
+    .word 0x00f7
+    .word 0x0117
+    .word 0x01b7
+    .word 0x0126
 
 mem_c5ac:
+;table of words used with sub_0c48
     .byte 0x15              ;c5ac  15          DATA 0x15        21 entries below:
-    .byte 0x28              ;c5ad  28          DATA 0x28 '('
-    .byte 0x65              ;c5ae  65          DATA 0x65 'e'
-    .byte 0x32              ;c5af  32          DATA 0x32 '2'
-    .byte 0x4d              ;c5b0  4d          DATA 0x4d 'M'
-    .byte 0x3a              ;c5b1  3a          DATA 0x3a ':'
-    .byte 0x56              ;c5b2  56          DATA 0x56 'V'
-    .byte 0x3a              ;c5b3  3a          DATA 0x3a ':'
-    .byte 0x56              ;c5b4  56          DATA 0x56 'V'
-    .byte 0x40              ;c5b5  40          DATA 0x40 '@'
-    .byte 0x4e              ;c5b6  4e          DATA 0x4e 'N'
-    .byte 0x4c              ;c5b7  4c          DATA 0x4c 'L'
-    .byte 0x4e              ;c5b8  4e          DATA 0x4e 'N'
-    .byte 0x50              ;c5b9  50          DATA 0x50 'P'
-    .byte 0x6f              ;c5ba  6f          DATA 0x6f 'o'
-    .byte 0x5a              ;c5bb  5a          DATA 0x5a 'Z'
-    .byte 0x6f              ;c5bc  6f          DATA 0x6f 'o'
-    .byte 0x60              ;c5bd  60          DATA 0x60 '`'
-    .byte 0x7f              ;c5be  7f          DATA 0x7f
-    .byte 0x6c              ;c5bf  6c          DATA 0x6c 'l'
-    .byte 0x4e              ;c5c0  4e          DATA 0x4e 'N'
-    .byte 0x6c              ;c5c1  6c          DATA 0x6c 'l'
-    .byte 0x4e              ;c5c2  4e          DATA 0x4e 'N'
-    .byte 0x6c              ;c5c3  6c          DATA 0x6c 'l'
-    .byte 0x4e              ;c5c4  4e          DATA 0x4e 'N'
-    .byte 0x78              ;c5c5  78          DATA 0x78 'x'
-    .byte 0x4e              ;c5c6  4e          DATA 0x4e 'N'
-    .byte 0x88              ;c5c7  88          DATA 0x88
-    .byte 0x4e              ;c5c8  4e          DATA 0x4e 'N'
-    .byte 0x90              ;c5c9  90          DATA 0x90
-    .byte 0x56              ;c5ca  56          DATA 0x56 'V'
-    .byte 0xa0              ;c5cb  a0          DATA 0xa0
-    .byte 0x56              ;c5cc  56          DATA 0x56 'V'
-    .byte 0xaa              ;c5cd  aa          DATA 0xaa
-    .byte 0x5e              ;c5ce  5e          DATA 0x5e '^'
-    .byte 0xc0              ;c5cf  c0          DATA 0xc0
-    .byte 0x5e              ;c5d0  5e          DATA 0x5e '^'
-    .byte 0xca              ;c5d1  ca          DATA 0xca
-    .byte 0x66              ;c5d2  66          DATA 0x66 'f'
-    .byte 0xe4              ;c5d3  e4          DATA 0xe4
-    .byte 0x4d              ;c5d4  4d          DATA 0x4d 'M'
-    .byte 0xfe              ;c5d5  fe          DATA 0xfe
-    .byte 0x65              ;c5d6  65          DATA 0x65 'e'
+    .word 0x6528
+    .word 0x4d32
+    .word 0x563a
+    .word 0x563a
+    .word 0x4e40
+    .word 0x4e4c
+    .word 0x6f50
+    .word 0x6f5a
+    .word 0x7f60
+    .word 0x4e6c
+    .word 0x4e6c
+    .word 0x4e6c
+    .word 0x4e78
+    .word 0x4e88
+    .word 0x5690
+    .word 0x56a0
+    .word 0x5eaa
+    .word 0x5ec0
+    .word 0x66ca
+    .word 0x4de4
+    .word 0x65fe
 
 mem_c5d7:
 ;table of words used with sub_0c48
     .byte 0x15              ;c5d7  15          DATA 0x15        21 entries below:
-    .byte 0xf3              ;c5d8  f3          DATA 0xf3
-    .byte 0x0d              ;c5d9  0d          DATA 0x0d
-    .byte 0xf3              ;c5da  f3          DATA 0xf3
-    .byte 0x0d              ;c5db  0d          DATA 0x0d
-    .byte 0xf3              ;c5dc  f3          DATA 0xf3
-    .byte 0x0d              ;c5dd  0d          DATA 0x0d
-    .byte 0xf3              ;c5de  f3          DATA 0xf3
-    .byte 0x0d              ;c5df  0d          DATA 0x0d
-    .byte 0xf3              ;c5e0  f3          DATA 0xf3
-    .byte 0x0d              ;c5e1  0d          DATA 0x0d
-    .byte 0xf3              ;c5e2  f3          DATA 0xf3
-    .byte 0x0d              ;c5e3  0d          DATA 0x0d
-    .byte 0xf3              ;c5e4  f3          DATA 0xf3
-    .byte 0x0d              ;c5e5  0d          DATA 0x0d
-    .byte 0xf3              ;c5e6  f3          DATA 0xf3
-    .byte 0x0d              ;c5e7  0d          DATA 0x0d
-    .byte 0xf3              ;c5e8  f3          DATA 0xf3
-    .byte 0x0d              ;c5e9  0d          DATA 0x0d
-    .byte 0xf3              ;c5ea  f3          DATA 0xf3
-    .byte 0x0d              ;c5eb  0d          DATA 0x0d
-    .byte 0xf3              ;c5ec  f3          DATA 0xf3
-    .byte 0x0d              ;c5ed  0d          DATA 0x0d
-    .byte 0xf3              ;c5ee  f3          DATA 0xf3
-    .byte 0x0d              ;c5ef  0d          DATA 0x0d
-    .byte 0xf3              ;c5f0  f3          DATA 0xf3
-    .byte 0x0d              ;c5f1  0d          DATA 0x0d
-    .byte 0xf3              ;c5f2  f3          DATA 0xf3
-    .byte 0x0d              ;c5f3  0d          DATA 0x0d
-    .byte 0xf3              ;c5f4  f3          DATA 0xf3
-    .byte 0x0d              ;c5f5  0d          DATA 0x0d
-    .byte 0xf3              ;c5f6  f3          DATA 0xf3
-    .byte 0x0d              ;c5f7  0d          DATA 0x0d
-    .byte 0xf3              ;c5f8  f3          DATA 0xf3
-    .byte 0x0d              ;c5f9  0d          DATA 0x0d
-    .byte 0xf3              ;c5fa  f3          DATA 0xf3
-    .byte 0x0d              ;c5fb  0d          DATA 0x0d
-    .byte 0xf3              ;c5fc  f3          DATA 0xf3
-    .byte 0x0d              ;c5fd  0d          DATA 0x0d
-    .byte 0xf3              ;c5fe  f3          DATA 0xf3
-    .byte 0x0d              ;c5ff  0d          DATA 0x0d
-    .byte 0xf3              ;c600  f3          DATA 0xf3
-    .byte 0x0d              ;c601  0d          DATA 0x0d
+    .word 0x0df3
+    .word 0x0df3
+    .word 0x0df3
+    .word 0x0df3
+    .word 0x0df3
+    .word 0x0df3
+    .word 0x0df3
+    .word 0x0df3
+    .word 0x0df3
+    .word 0x0df3
+    .word 0x0df3
+    .word 0x0df3
+    .word 0x0df3
+    .word 0x0df3
+    .word 0x0df3
+    .word 0x0df3
+    .word 0x0df3
+    .word 0x0df3
+    .word 0x0df3
+    .word 0x0df3
+    .word 0x0df3
 
 mem_c602:
 ;table of words used with sub_0c48
     .byte 0x15              ;c602  15          DATA 0x15        21 entries below:
-    .byte 0x1e              ;c603  1e          DATA 0x1e
-    .byte 0x40              ;c604  40          DATA 0x40 '@'
-    .byte 0x22              ;c605  22          DATA 0x22 '"'
-    .byte 0x69              ;c606  69          DATA 0x69 'i'
-    .byte 0x28              ;c607  28          DATA 0x28 '('
-    .byte 0x61              ;c608  61          DATA 0x61 'a'
-    .byte 0x2a              ;c609  2a          DATA 0x2a '*'
-    .byte 0x59              ;c60a  59          DATA 0x59 'Y'
-    .byte 0x2e              ;c60b  2e          DATA 0x2e '.'
-    .byte 0x41              ;c60c  41          DATA 0x41 'A'
-    .byte 0x32              ;c60d  32          DATA 0x32 '2'
-    .byte 0x7a              ;c60e  7a          DATA 0x7a 'z'
-    .byte 0x36              ;c60f  36          DATA 0x36 '6'
-    .byte 0x72              ;c610  72          DATA 0x72 'r'
-    .byte 0x3a              ;c611  3a          DATA 0x3a ':'
-    .byte 0x6a              ;c612  6a          DATA 0x6a 'j'
-    .byte 0x3c              ;c613  3c          DATA 0x3c '<'
-    .byte 0x6a              ;c614  6a          DATA 0x6a 'j'
-    .byte 0x40              ;c615  40          DATA 0x40 '@'
-    .byte 0x62              ;c616  62          DATA 0x62 'b'
-    .byte 0x40              ;c617  40          DATA 0x40 '@'
-    .byte 0x62              ;c618  62          DATA 0x62 'b'
-    .byte 0x40              ;c619  40          DATA 0x40 '@'
-    .byte 0x62              ;c61a  62          DATA 0x62 'b'
-    .byte 0x44              ;c61b  44          DATA 0x44 'D'
-    .byte 0x62              ;c61c  62          DATA 0x62 'b'
-    .byte 0x48              ;c61d  48          DATA 0x48 'H'
-    .byte 0x62              ;c61e  62          DATA 0x62 'b'
-    .byte 0x4c              ;c61f  4c          DATA 0x4c 'L'
-    .byte 0x62              ;c620  62          DATA 0x62 'b'
-    .byte 0x50              ;c621  50          DATA 0x50 'P'
-    .byte 0x62              ;c622  62          DATA 0x62 'b'
-    .byte 0x5a              ;c623  5a          DATA 0x5a 'Z'
-    .byte 0x62              ;c624  62          DATA 0x62 'b'
-    .byte 0x60              ;c625  60          DATA 0x60 '`'
-    .byte 0x7a              ;c626  7a          DATA 0x7a 'z'
-    .byte 0x66              ;c627  66          DATA 0x66 'f'
-    .byte 0x7a              ;c628  7a          DATA 0x7a 'z'
-    .byte 0x72              ;c629  72          DATA 0x72 'r'
-    .byte 0x7a              ;c62a  7a          DATA 0x7a 'z'
-    .byte 0x80              ;c62b  80          DATA 0x80
-    .byte 0x49              ;c62c  49          DATA 0x49 'I'
+    .word 0x401e
+    .word 0x6922
+    .word 0x6128
+    .word 0x592a
+    .word 0x412e
+    .word 0x7a32
+    .word 0x7236
+    .word 0x6a3a
+    .word 0x6a3c
+    .word 0x6240
+    .word 0x6240
+    .word 0x6240
+    .word 0x6244
+    .word 0x6248
+    .word 0x624c
+    .word 0x6250
+    .word 0x625a
+    .word 0x7a60
+    .word 0x7a66
+    .word 0x7a72
+    .word 0x4980
 
 mem_c62d:
 ;table of words used with sub_0c48
     .byte 0x15              ;c62d  15          DATA 0x15        21 entries below:
-    .byte 0x63              ;c62e  63          DATA 0x63 'c'
-    .byte 0x0a              ;c62f  0a          DATA 0x0a
-    .byte 0x63              ;c630  63          DATA 0x63 'c'
-    .byte 0x0a              ;c631  0a          DATA 0x0a
-    .byte 0x63              ;c632  63          DATA 0x63 'c'
-    .byte 0x0a              ;c633  0a          DATA 0x0a
-    .byte 0x63              ;c634  63          DATA 0x63 'c'
-    .byte 0x0a              ;c635  0a          DATA 0x0a
-    .byte 0x63              ;c636  63          DATA 0x63 'c'
-    .byte 0x0a              ;c637  0a          DATA 0x0a
-    .byte 0x63              ;c638  63          DATA 0x63 'c'
-    .byte 0x0a              ;c639  0a          DATA 0x0a
-    .byte 0x63              ;c63a  63          DATA 0x63 'c'
-    .byte 0x0a              ;c63b  0a          DATA 0x0a
-    .byte 0x63              ;c63c  63          DATA 0x63 'c'
-    .byte 0x0a              ;c63d  0a          DATA 0x0a
-    .byte 0x63              ;c63e  63          DATA 0x63 'c'
-    .byte 0x0a              ;c63f  0a          DATA 0x0a
-    .byte 0x63              ;c640  63          DATA 0x63 'c'
-    .byte 0x0a              ;c641  0a          DATA 0x0a
-    .byte 0x63              ;c642  63          DATA 0x63 'c'
-    .byte 0x0a              ;c643  0a          DATA 0x0a
-    .byte 0x63              ;c644  63          DATA 0x63 'c'
-    .byte 0x0a              ;c645  0a          DATA 0x0a
-    .byte 0x63              ;c646  63          DATA 0x63 'c'
-    .byte 0x0a              ;c647  0a          DATA 0x0a
-    .byte 0x63              ;c648  63          DATA 0x63 'c'
-    .byte 0x0a              ;c649  0a          DATA 0x0a
-    .byte 0x63              ;c64a  63          DATA 0x63 'c'
-    .byte 0x0a              ;c64b  0a          DATA 0x0a
-    .byte 0x63              ;c64c  63          DATA 0x63 'c'
-    .byte 0x0a              ;c64d  0a          DATA 0x0a
-    .byte 0x63              ;c64e  63          DATA 0x63 'c'
-    .byte 0x0a              ;c64f  0a          DATA 0x0a
-    .byte 0x63              ;c650  63          DATA 0x63 'c'
-    .byte 0x0a              ;c651  0a          DATA 0x0a
-    .byte 0x63              ;c652  63          DATA 0x63 'c'
-    .byte 0x0a              ;c653  0a          DATA 0x0a
-    .byte 0x63              ;c654  63          DATA 0x63 'c'
-    .byte 0x0a              ;c655  0a          DATA 0x0a
-    .byte 0x63              ;c656  63          DATA 0x63 'c'
-    .byte 0x0a              ;c657  0a          DATA 0x0a
+    .word 0x0a63
+    .word 0x0a63
+    .word 0x0a63
+    .word 0x0a63
+    .word 0x0a63
+    .word 0x0a63
+    .word 0x0a63
+    .word 0x0a63
+    .word 0x0a63
+    .word 0x0a63
+    .word 0x0a63
+    .word 0x0a63
+    .word 0x0a63
+    .word 0x0a63
+    .word 0x0a63
+    .word 0x0a63
+    .word 0x0a63
+    .word 0x0a63
+    .word 0x0a63
+    .word 0x0a63
+    .word 0x0a63
 
 mem_c658:
 ;table of words used with sub_0c48
     .byte 0x15              ;c658  15          DATA 0x15        21 entries below:
-    .byte 0x1e              ;c659  1e          DATA 0x1e
-    .byte 0x79              ;c65a  79          DATA 0x79 'y'
-    .byte 0x22              ;c65b  22          DATA 0x22 '"'
-    .byte 0x61              ;c65c  61          DATA 0x61 'a'
-    .byte 0x28              ;c65d  28          DATA 0x28 '('
-    .byte 0x51              ;c65e  51          DATA 0x51 'Q'
-    .byte 0x2a              ;c65f  2a          DATA 0x2a '*'
-    .byte 0x51              ;c660  51          DATA 0x51 'Q'
-    .byte 0x2e              ;c661  2e          DATA 0x2e '.'
-    .byte 0x72              ;c662  72          DATA 0x72 'r'
-    .byte 0x32              ;c663  32          DATA 0x32 '2'
-    .byte 0x6a              ;c664  6a          DATA 0x6a 'j'
-    .byte 0x36              ;c665  36          DATA 0x36 '6'
-    .byte 0x62              ;c666  62          DATA 0x62 'b'
-    .byte 0x3a              ;c667  3a          DATA 0x3a ':'
-    .byte 0x5a              ;c668  5a          DATA 0x5a 'Z'
-    .byte 0x3c              ;c669  3c          DATA 0x3c '<'
-    .byte 0x5a              ;c66a  5a          DATA 0x5a 'Z'
-    .byte 0x40              ;c66b  40          DATA 0x40 '@'
-    .byte 0x52              ;c66c  52          DATA 0x52 'R'
-    .byte 0x40              ;c66d  40          DATA 0x40 '@'
-    .byte 0x52              ;c66e  52          DATA 0x52 'R'
-    .byte 0x40              ;c66f  40          DATA 0x40 '@'
-    .byte 0x52              ;c670  52          DATA 0x52 'R'
-    .byte 0x44              ;c671  44          DATA 0x44 'D'
-    .byte 0x52              ;c672  52          DATA 0x52 'R'
-    .byte 0x48              ;c673  48          DATA 0x48 'H'
-    .byte 0x52              ;c674  52          DATA 0x52 'R'
-    .byte 0x4c              ;c675  4c          DATA 0x4c 'L'
-    .byte 0x52              ;c676  52          DATA 0x52 'R'
-    .byte 0x50              ;c677  50          DATA 0x50 'P'
-    .byte 0x52              ;c678  52          DATA 0x52 'R'
-    .byte 0x5a              ;c679  5a          DATA 0x5a 'Z'
-    .byte 0x52              ;c67a  52          DATA 0x52 'R'
-    .byte 0x60              ;c67b  60          DATA 0x60 '`'
-    .byte 0x72              ;c67c  72          DATA 0x72 'r'
-    .byte 0x66              ;c67d  66          DATA 0x66 'f'
-    .byte 0x72              ;c67e  72          DATA 0x72 'r'
-    .byte 0x72              ;c67f  72          DATA 0x72 'r'
-    .byte 0x72              ;c680  72          DATA 0x72 'r'
-    .byte 0x80              ;c681  80          DATA 0x80
-    .byte 0x7a              ;c682  7a          DATA 0x7a 'z'
+    .word 0x791e
+    .word 0x6122
+    .word 0x5128
+    .word 0x512a
+    .word 0x722e
+    .word 0x6a32
+    .word 0x6236
+    .word 0x5a3a
+    .word 0x5a3c
+    .word 0x5240
+    .word 0x5240
+    .word 0x5240
+    .word 0x5244
+    .word 0x5248
+    .word 0x524c
+    .word 0x5250
+    .word 0x525a
+    .word 0x7260
+    .word 0x7266
+    .word 0x7272
+    .word 0x7a80
 
 mem_c683:
 ;table of words used with sub_0c48
     .byte 0x15              ;c683  15          DATA 0x15        21 entries below:
-    .byte 0x53              ;c684  53          DATA 0x53 'S'
-    .byte 0x1f              ;c685  1f          DATA 0x1f
-    .byte 0x53              ;c686  53          DATA 0x53 'S'
-    .byte 0x1f              ;c687  1f          DATA 0x1f
-    .byte 0x53              ;c688  53          DATA 0x53 'S'
-    .byte 0x1f              ;c689  1f          DATA 0x1f
-    .byte 0x53              ;c68a  53          DATA 0x53 'S'
-    .byte 0x1f              ;c68b  1f          DATA 0x1f
-    .byte 0x53              ;c68c  53          DATA 0x53 'S'
-    .byte 0x1f              ;c68d  1f          DATA 0x1f
-    .byte 0x53              ;c68e  53          DATA 0x53 'S'
-    .byte 0x1f              ;c68f  1f          DATA 0x1f
-    .byte 0x53              ;c690  53          DATA 0x53 'S'
-    .byte 0x1f              ;c691  1f          DATA 0x1f
-    .byte 0x53              ;c692  53          DATA 0x53 'S'
-    .byte 0x1f              ;c693  1f          DATA 0x1f
-    .byte 0x53              ;c694  53          DATA 0x53 'S'
-    .byte 0x1f              ;c695  1f          DATA 0x1f
-    .byte 0x53              ;c696  53          DATA 0x53 'S'
-    .byte 0x1f              ;c697  1f          DATA 0x1f
-    .byte 0x53              ;c698  53          DATA 0x53 'S'
-    .byte 0x1f              ;c699  1f          DATA 0x1f
-    .byte 0x53              ;c69a  53          DATA 0x53 'S'
-    .byte 0x1f              ;c69b  1f          DATA 0x1f
-    .byte 0x53              ;c69c  53          DATA 0x53 'S'
-    .byte 0x1f              ;c69d  1f          DATA 0x1f
-    .byte 0x53              ;c69e  53          DATA 0x53 'S'
-    .byte 0x1f              ;c69f  1f          DATA 0x1f
-    .byte 0x53              ;c6a0  53          DATA 0x53 'S'
-    .byte 0x1f              ;c6a1  1f          DATA 0x1f
-    .byte 0x53              ;c6a2  53          DATA 0x53 'S'
-    .byte 0x1f              ;c6a3  1f          DATA 0x1f
-    .byte 0x53              ;c6a4  53          DATA 0x53 'S'
-    .byte 0x1f              ;c6a5  1f          DATA 0x1f
-    .byte 0x53              ;c6a6  53          DATA 0x53 'S'
-    .byte 0x1f              ;c6a7  1f          DATA 0x1f
-    .byte 0x53              ;c6a8  53          DATA 0x53 'S'
-    .byte 0x1f              ;c6a9  1f          DATA 0x1f
-    .byte 0x53              ;c6aa  53          DATA 0x53 'S'
-    .byte 0x1f              ;c6ab  1f          DATA 0x1f
-    .byte 0x53              ;c6ac  53          DATA 0x53 'S'
-    .byte 0x1f              ;c6ad  1f          DATA 0x1f
+    .word 0x1f53
+    .word 0x1f53
+    .word 0x1f53
+    .word 0x1f53
+    .word 0x1f53
+    .word 0x1f53
+    .word 0x1f53
+    .word 0x1f53
+    .word 0x1f53
+    .word 0x1f53
+    .word 0x1f53
+    .word 0x1f53
+    .word 0x1f53
+    .word 0x1f53
+    .word 0x1f53
+    .word 0x1f53
+    .word 0x1f53
+    .word 0x1f53
+    .word 0x1f53
+    .word 0x1f53
+    .word 0x1f53
 
 mem_c6ae:
 ;table of words used with sub_0c48
     .byte 0x15              ;c6ae  15          DATA 0x15        21 entries below:
-    .byte 0x10              ;c6af  10          DATA 0x10
-    .byte 0x60              ;c6b0  60          DATA 0x60 '`'
-    .byte 0x12              ;c6b1  12          DATA 0x12
-    .byte 0x58              ;c6b2  58          DATA 0x58 'X'
-    .byte 0x16              ;c6b3  16          DATA 0x16
-    .byte 0x50              ;c6b4  50          DATA 0x50 'P'
-    .byte 0x1a              ;c6b5  1a          DATA 0x1a
-    .byte 0x48              ;c6b6  48          DATA 0x48 'H'
-    .byte 0x1e              ;c6b7  1e          DATA 0x1e
-    .byte 0x79              ;c6b8  79          DATA 0x79 'y'
-    .byte 0x22              ;c6b9  22          DATA 0x22 '"'
-    .byte 0x71              ;c6ba  71          DATA 0x71 'q'
-    .byte 0x28              ;c6bb  28          DATA 0x28 '('
-    .byte 0x69              ;c6bc  69          DATA 0x69 'i'
-    .byte 0x30              ;c6bd  30          DATA 0x30 '0'
-    .byte 0x59              ;c6be  59          DATA 0x59 'Y'
-    .byte 0x38              ;c6bf  38          DATA 0x38 '8'
-    .byte 0x51              ;c6c0  51          DATA 0x51 'Q'
-    .byte 0x40              ;c6c1  40          DATA 0x40 '@'
-    .byte 0x49              ;c6c2  49          DATA 0x49 'I'
-    .byte 0x40              ;c6c3  40          DATA 0x40 '@'
-    .byte 0x49              ;c6c4  49          DATA 0x49 'I'
-    .byte 0x40              ;c6c5  40          DATA 0x40 '@'
-    .byte 0x49              ;c6c6  49          DATA 0x49 'I'
-    .byte 0x44              ;c6c7  44          DATA 0x44 'D'
-    .byte 0x49              ;c6c8  49          DATA 0x49 'I'
-    .byte 0x48              ;c6c9  48          DATA 0x48 'H'
-    .byte 0x49              ;c6ca  49          DATA 0x49 'I'
-    .byte 0x4c              ;c6cb  4c          DATA 0x4c 'L'
-    .byte 0x49              ;c6cc  49          DATA 0x49 'I'
-    .byte 0x50              ;c6cd  50          DATA 0x50 'P'
-    .byte 0x49              ;c6ce  49          DATA 0x49 'I'
-    .byte 0x5a              ;c6cf  5a          DATA 0x5a 'Z'
-    .byte 0x49              ;c6d0  49          DATA 0x49 'I'
-    .byte 0x60              ;c6d1  60          DATA 0x60 '`'
-    .byte 0x59              ;c6d2  59          DATA 0x59 'Y'
-    .byte 0x66              ;c6d3  66          DATA 0x66 'f'
-    .byte 0x59              ;c6d4  59          DATA 0x59 'Y'
-    .byte 0x72              ;c6d5  72          DATA 0x72 'r'
-    .byte 0x59              ;c6d6  59          DATA 0x59 'Y'
-    .byte 0x80              ;c6d7  80          DATA 0x80
-    .byte 0x69              ;c6d8  69          DATA 0x69 'i'
+    .word 0x6010
+    .word 0x5812
+    .word 0x5016
+    .word 0x481a
+    .word 0x791e
+    .word 0x7122
+    .word 0x6928
+    .word 0x5930
+    .word 0x5138
+    .word 0x4940
+    .word 0x4940
+    .word 0x4940
+    .word 0x4944
+    .word 0x4948
+    .word 0x494c
+    .word 0x4950
+    .word 0x495a
+    .word 0x5960
+    .word 0x5966
+    .word 0x5972
+    .word 0x6980
 
 mem_c6d9:
+;table of words used with sub_0c48
     .byte 0x15              ;c6d9  15          DATA 0x15        21 entries below:
-    .byte 0x53              ;c6da  53          DATA 0x53 'S'
-    .byte 0x17              ;c6db  17          DATA 0x17
-    .byte 0x53              ;c6dc  53          DATA 0x53 'S'
-    .byte 0x17              ;c6dd  17          DATA 0x17
-    .byte 0x53              ;c6de  53          DATA 0x53 'S'
-    .byte 0x17              ;c6df  17          DATA 0x17
-    .byte 0x53              ;c6e0  53          DATA 0x53 'S'
-    .byte 0x17              ;c6e1  17          DATA 0x17
-    .byte 0x53              ;c6e2  53          DATA 0x53 'S'
-    .byte 0x17              ;c6e3  17          DATA 0x17
-    .byte 0x53              ;c6e4  53          DATA 0x53 'S'
-    .byte 0x17              ;c6e5  17          DATA 0x17
-    .byte 0x53              ;c6e6  53          DATA 0x53 'S'
-    .byte 0x17              ;c6e7  17          DATA 0x17
-    .byte 0x53              ;c6e8  53          DATA 0x53 'S'
-    .byte 0x17              ;c6e9  17          DATA 0x17
-    .byte 0x53              ;c6ea  53          DATA 0x53 'S'
-    .byte 0x17              ;c6eb  17          DATA 0x17
-    .byte 0x53              ;c6ec  53          DATA 0x53 'S'
-    .byte 0x17              ;c6ed  17          DATA 0x17
-    .byte 0x53              ;c6ee  53          DATA 0x53 'S'
-    .byte 0x17              ;c6ef  17          DATA 0x17
-    .byte 0x53              ;c6f0  53          DATA 0x53 'S'
-    .byte 0x17              ;c6f1  17          DATA 0x17
-    .byte 0x53              ;c6f2  53          DATA 0x53 'S'
-    .byte 0x17              ;c6f3  17          DATA 0x17
-    .byte 0x53              ;c6f4  53          DATA 0x53 'S'
-    .byte 0x17              ;c6f5  17          DATA 0x17
-    .byte 0x53              ;c6f6  53          DATA 0x53 'S'
-    .byte 0x17              ;c6f7  17          DATA 0x17
-    .byte 0x53              ;c6f8  53          DATA 0x53 'S'
-    .byte 0x17              ;c6f9  17          DATA 0x17
-    .byte 0x53              ;c6fa  53          DATA 0x53 'S'
-    .byte 0x17              ;c6fb  17          DATA 0x17
-    .byte 0x53              ;c6fc  53          DATA 0x53 'S'
-    .byte 0x17              ;c6fd  17          DATA 0x17
-    .byte 0x53              ;c6fe  53          DATA 0x53 'S'
-    .byte 0x17              ;c6ff  17          DATA 0x17
-    .byte 0x53              ;c700  53          DATA 0x53 'S'
-    .byte 0x17              ;c701  17          DATA 0x17
-    .byte 0x53              ;c702  53          DATA 0x53 'S'
-    .byte 0x17              ;c703  17          DATA 0x17
+    .word 0x1753
+    .word 0x1753
+    .word 0x1753
+    .word 0x1753
+    .word 0x1753
+    .word 0x1753
+    .word 0x1753
+    .word 0x1753
+    .word 0x1753
+    .word 0x1753
+    .word 0x1753
+    .word 0x1753
+    .word 0x1753
+    .word 0x1753
+    .word 0x1753
+    .word 0x1753
+    .word 0x1753
+    .word 0x1753
+    .word 0x1753
+    .word 0x1753
+    .word 0x1753
 
 mem_c704:
 ;table of words used with sub_0c48
     .byte 0x15              ;c704  15          DATA 0x15        21 entries below:
-    .byte 0x10              ;c705  10          DATA 0x10
-    .byte 0x58              ;c706  58          DATA 0x58 'X'
-    .byte 0x12              ;c707  12          DATA 0x12
-    .byte 0x50              ;c708  50          DATA 0x50 'P'
-    .byte 0x16              ;c709  16          DATA 0x16
-    .byte 0x48              ;c70a  48          DATA 0x48 'H'
-    .byte 0x1a              ;c70b  1a          DATA 0x1a
-    .byte 0x79              ;c70c  79          DATA 0x79 'y'
-    .byte 0x1e              ;c70d  1e          DATA 0x1e
-    .byte 0x71              ;c70e  71          DATA 0x71 'q'
-    .byte 0x22              ;c70f  22          DATA 0x22 '"'
-    .byte 0x69              ;c710  69          DATA 0x69 'i'
-    .byte 0x28              ;c711  28          DATA 0x28 '('
-    .byte 0x59              ;c712  59          DATA 0x59 'Y'
-    .byte 0x30              ;c713  30          DATA 0x30 '0'
-    .byte 0x51              ;c714  51          DATA 0x51 'Q'
-    .byte 0x38              ;c715  38          DATA 0x38 '8'
-    .byte 0x41              ;c716  41          DATA 0x41 'A'
-    .byte 0x40              ;c717  40          DATA 0x40 '@'
-    .byte 0x7a              ;c718  7a          DATA 0x7a 'z'
-    .byte 0x40              ;c719  40          DATA 0x40 '@'
-    .byte 0x7a              ;c71a  7a          DATA 0x7a 'z'
-    .byte 0x40              ;c71b  40          DATA 0x40 '@'
-    .byte 0x7a              ;c71c  7a          DATA 0x7a 'z'
-    .byte 0x44              ;c71d  44          DATA 0x44 'D'
-    .byte 0x7a              ;c71e  7a          DATA 0x7a 'z'
-    .byte 0x48              ;c71f  48          DATA 0x48 'H'
-    .byte 0x7a              ;c720  7a          DATA 0x7a 'z'
-    .byte 0x4c              ;c721  4c          DATA 0x4c 'L'
-    .byte 0x7a              ;c722  7a          DATA 0x7a 'z'
-    .byte 0x50              ;c723  50          DATA 0x50 'P'
-    .byte 0x7a              ;c724  7a          DATA 0x7a 'z'
-    .byte 0x5a              ;c725  5a          DATA 0x5a 'Z'
-    .byte 0x7a              ;c726  7a          DATA 0x7a 'z'
-    .byte 0x60              ;c727  60          DATA 0x60 '`'
-    .byte 0x51              ;c728  51          DATA 0x51 'Q'
-    .byte 0x66              ;c729  66          DATA 0x66 'f'
-    .byte 0x51              ;c72a  51          DATA 0x51 'Q'
-    .byte 0x72              ;c72b  72          DATA 0x72 'r'
-    .byte 0x51              ;c72c  51          DATA 0x51 'Q'
-    .byte 0x80              ;c72d  80          DATA 0x80
-    .byte 0x59              ;c72e  59          DATA 0x59 'Y'
+    .word 0x5810
+    .word 0x5012
+    .word 0x4816
+    .word 0x791a
+    .word 0x711e
+    .word 0x6922
+    .word 0x5928
+    .word 0x5130
+    .word 0x4138
+    .word 0x7a40
+    .word 0x7a40
+    .word 0x7a40
+    .word 0x7a44
+    .word 0x7a48
+    .word 0x7a4c
+    .word 0x7a50
+    .word 0x7a5a
+    .word 0x5160
+    .word 0x5166
+    .word 0x5172
+    .word 0x5980
 
 mem_c72f:
 ;table of words used with sub_0c48
     .byte 0x15              ;c72f  15          DATA 0x15        21 entries below:
-    .byte 0xfa              ;c730  fa          DATA 0xfa
-    .byte 0x03              ;c731  03          DATA 0x03
-    .byte 0xfa              ;c732  fa          DATA 0xfa
-    .byte 0x64              ;c733  64          DATA 0x64 'd'
-    .byte 0xfa              ;c734  fa          DATA 0xfa
-    .byte 0xd7              ;c735  d7          DATA 0xd7
-    .byte 0xfb              ;c736  fb          DATA 0xfb
-    .byte 0x60              ;c737  60          DATA 0x60 '`'
-    .byte 0xfc              ;c738  fc          DATA 0xfc
-    .byte 0x03              ;c739  03          DATA 0x03
-    .byte 0xfc              ;c73a  fc          DATA 0xfc
-    .byte 0xc4              ;c73b  c4          DATA 0xc4
-    .byte 0xfd              ;c73c  fd          DATA 0xfd
-    .byte 0xaa              ;c73d  aa          DATA 0xaa
-    .byte 0xfe              ;c73e  fe          DATA 0xfe
-    .byte 0xbc              ;c73f  bc          DATA 0xbc
-    .byte 0x00              ;c740  00          DATA 0x00
-    .byte 0x00              ;c741  00          DATA 0x00
-    .byte 0x00              ;c742  00          DATA 0x00
-    .byte 0xde              ;c743  de          DATA 0xde
-    .byte 0x00              ;c744  00          DATA 0x00
-    .byte 0xde              ;c745  de          DATA 0xde
-    .byte 0x00              ;c746  00          DATA 0x00
-    .byte 0xde              ;c747  de          DATA 0xde
-    .byte 0x01              ;c748  01          DATA 0x01
-    .byte 0xa5              ;c749  a5          DATA 0xa5
-    .byte 0x02              ;c74a  02          DATA 0x02
-    .byte 0x56              ;c74b  56          DATA 0x56 'V'
-    .byte 0x02              ;c74c  02          DATA 0x02
-    .byte 0xa7              ;c74d  a7          DATA 0xa7
-    .byte 0x03              ;c74e  03          DATA 0x03
-    .byte 0x80              ;c74f  80          DATA 0x80
-    .byte 0x03              ;c750  03          DATA 0x03
-    .byte 0xfd              ;c751  fd          DATA 0xfd
-    .byte 0x04              ;c752  04          DATA 0x04
-    .byte 0x82              ;c753  82          DATA 0x82
-    .byte 0x04              ;c754  04          DATA 0x04
-    .byte 0xfe              ;c755  fe          DATA 0xfe
-    .byte 0x05              ;c756  05          DATA 0x05
-    .byte 0x51              ;c757  51          DATA 0x51 'Q'
-    .byte 0x05              ;c758  05          DATA 0x05
-    .byte 0x87              ;c759  87          DATA 0x87
+    .word 0x03fa
+    .word 0x64fa
+    .word 0xd7fa
+    .word 0x60fb
+    .word 0x03fc
+    .word 0xc4fc
+    .word 0xaafd
+    .word 0xbcfe
+    .word 0x0000
+    .word 0xde00
+    .word 0xde00
+    .word 0xde00
+    .word 0xa501
+    .word 0x5602
+    .word 0xa702
+    .word 0x8003
+    .word 0xfd03
+    .word 0x8204
+    .word 0xfe04
+    .word 0x5105
+    .word 0x8705
 
 mem_c75a:
+;table of words used with sub_0c48
     .byte 0x15              ;c75a  15          DATA 0x15        21 entries below:
-    .byte 0x07              ;c75b  07          DATA 0x07
-    .byte 0xff              ;c75c  ff          DATA 0xff
-    .byte 0x07              ;c75d  07          DATA 0x07
-    .byte 0xff              ;c75e  ff          DATA 0xff
-    .byte 0x07              ;c75f  07          DATA 0x07
-    .byte 0xff              ;c760  ff          DATA 0xff
-    .byte 0x07              ;c761  07          DATA 0x07
-    .byte 0xff              ;c762  ff          DATA 0xff
-    .byte 0x07              ;c763  07          DATA 0x07
-    .byte 0xff              ;c764  ff          DATA 0xff
-    .byte 0x07              ;c765  07          DATA 0x07
-    .byte 0xff              ;c766  ff          DATA 0xff
-    .byte 0x07              ;c767  07          DATA 0x07
-    .byte 0xff              ;c768  ff          DATA 0xff
-    .byte 0x07              ;c769  07          DATA 0x07
-    .byte 0xff              ;c76a  ff          DATA 0xff
-    .byte 0x07              ;c76b  07          DATA 0x07
-    .byte 0xff              ;c76c  ff          DATA 0xff
-    .byte 0x07              ;c76d  07          DATA 0x07
-    .byte 0x21              ;c76e  21          DATA 0x21 '!'
-    .byte 0x07              ;c76f  07          DATA 0x07
-    .byte 0x21              ;c770  21          DATA 0x21 '!'
-    .byte 0x07              ;c771  07          DATA 0x07
-    .byte 0x21              ;c772  21          DATA 0x21 '!'
-    .byte 0x06              ;c773  06          DATA 0x06
-    .byte 0x5a              ;c774  5a          DATA 0x5a 'Z'
-    .byte 0x05              ;c775  05          DATA 0x05
-    .byte 0xa9              ;c776  a9          DATA 0xa9
-    .byte 0x05              ;c777  05          DATA 0x05
-    .byte 0x58              ;c778  58          DATA 0x58 'X'
-    .byte 0x04              ;c779  04          DATA 0x04
-    .byte 0x7f              ;c77a  7f          DATA 0x7f
-    .byte 0x04              ;c77b  04          DATA 0x04
-    .byte 0x02              ;c77c  02          DATA 0x02
-    .byte 0x03              ;c77d  03          DATA 0x03
-    .byte 0x7d              ;c77e  7d          DATA 0x7d '}'
-    .byte 0x03              ;c77f  03          DATA 0x03
-    .byte 0x01              ;c780  01          DATA 0x01
-    .byte 0x02              ;c781  02          DATA 0x02
-    .byte 0xae              ;c782  ae          DATA 0xae
-    .byte 0x02              ;c783  02          DATA 0x02
-    .byte 0x78              ;c784  78          DATA 0x78 'x'
+    .word 0xff07
+    .word 0xff07
+    .word 0xff07
+    .word 0xff07
+    .word 0xff07
+    .word 0xff07
+    .word 0xff07
+    .word 0xff07
+    .word 0xff07
+    .word 0x2107
+    .word 0x2107
+    .word 0x2107
+    .word 0x5a06
+    .word 0xa905
+    .word 0x5805
+    .word 0x7f04
+    .word 0x0204
+    .word 0x7d03
+    .word 0x0103
+    .word 0xae02
+    .word 0x7802
 
 mem_c785:
+;table of words used with sub_0c48
     .byte 0x15              ;c785  15          DATA 0x15        21 entries below:
-    .byte 0x05              ;c786  05          DATA 0x05
-    .byte 0xb3              ;c787  b3          DATA 0xb3
-    .byte 0x05              ;c788  05          DATA 0x05
-    .byte 0x55              ;c789  55          DATA 0x55 'U'
-    .byte 0x04              ;c78a  04          DATA 0x04
-    .byte 0xe9              ;c78b  e9          DATA 0xe9
-    .byte 0x04              ;c78c  04          DATA 0x04
-    .byte 0x70              ;c78d  70          DATA 0x70 'p'
-    .byte 0x03              ;c78e  03          DATA 0x03
-    .byte 0xe7              ;c78f  e7          DATA 0xe7
-    .byte 0x03              ;c790  03          DATA 0x03
-    .byte 0x4d              ;c791  4d          DATA 0x4d 'M'
-    .byte 0x02              ;c792  02          DATA 0x02
-    .byte 0xa0              ;c793  a0          DATA 0xa0
-    .byte 0x01              ;c794  01          DATA 0x01
-    .byte 0xdd              ;c795  dd          DATA 0xdd
-    .byte 0x00              ;c796  00          DATA 0x00
-    .byte 0xff              ;c797  ff          DATA 0xff
-    .byte 0x00              ;c798  00          DATA 0x00
-    .byte 0xff              ;c799  ff          DATA 0xff
-    .byte 0x00              ;c79a  00          DATA 0x00
-    .byte 0xff              ;c79b  ff          DATA 0xff
-    .byte 0x00              ;c79c  00          DATA 0x00
-    .byte 0xff              ;c79d  ff          DATA 0xff
-    .byte 0x00              ;c79e  00          DATA 0x00
-    .byte 0xff              ;c79f  ff          DATA 0xff
-    .byte 0x00              ;c7a0  00          DATA 0x00
-    .byte 0xff              ;c7a1  ff          DATA 0xff
-    .byte 0x00              ;c7a2  00          DATA 0x00
-    .byte 0xff              ;c7a3  ff          DATA 0xff
-    .byte 0x00              ;c7a4  00          DATA 0x00
-    .byte 0xff              ;c7a5  ff          DATA 0xff
-    .byte 0x00              ;c7a6  00          DATA 0x00
-    .byte 0xff              ;c7a7  ff          DATA 0xff
-    .byte 0x00              ;c7a8  00          DATA 0x00
-    .byte 0xff              ;c7a9  ff          DATA 0xff
-    .byte 0x00              ;c7aa  00          DATA 0x00
-    .byte 0xff              ;c7ab  ff          DATA 0xff
-    .byte 0x00              ;c7ac  00          DATA 0x00
-    .byte 0xff              ;c7ad  ff          DATA 0xff
-    .byte 0x00              ;c7ae  00          DATA 0x00
-    .byte 0xff              ;c7af  ff          DATA 0xff
+    .word 0xb305
+    .word 0x5505
+    .word 0xe904
+    .word 0x7004
+    .word 0xe703
+    .word 0x4d03
+    .word 0xa002
+    .word 0xdd01
+    .word 0xff00
+    .word 0xff00
+    .word 0xff00
+    .word 0xff00
+    .word 0xff00
+    .word 0xff00
+    .word 0xff00
+    .word 0xff00
+    .word 0xff00
+    .word 0xff00
+    .word 0xff00
+    .word 0xff00
+    .word 0xff00
 
 mem_c7b0:
+;table of words used with sub_0c48
     .byte 0x15              ;c7b0  15          DATA 0x15        21 entries below:
-    .byte 0x06              ;c7b1  06          DATA 0x06
-    .byte 0xd9              ;c7b2  d9          DATA 0xd9
-    .byte 0x06              ;c7b3  06          DATA 0x06
-    .byte 0xaa              ;c7b4  aa          DATA 0xaa
-    .byte 0x06              ;c7b5  06          DATA 0x06
-    .byte 0x74              ;c7b6  74          DATA 0x74 't'
-    .byte 0x06              ;c7b7  06          DATA 0x06
-    .byte 0x38              ;c7b8  38          DATA 0x38 '8'
-    .byte 0x05              ;c7b9  05          DATA 0x05
-    .byte 0xf3              ;c7ba  f3          DATA 0xf3
-    .byte 0x05              ;c7bb  05          DATA 0x05
-    .byte 0xa6              ;c7bc  a6          DATA 0xa6
-    .byte 0x05              ;c7bd  05          DATA 0x05
-    .byte 0x50              ;c7be  50          DATA 0x50 'P'
-    .byte 0x04              ;c7bf  04          DATA 0x04
-    .byte 0xee              ;c7c0  ee          DATA 0xee
-    .byte 0x04              ;c7c1  04          DATA 0x04
-    .byte 0x7f              ;c7c2  7f          DATA 0x7f
-    .byte 0x04              ;c7c3  04          DATA 0x04
-    .byte 0x7f              ;c7c4  7f          DATA 0x7f
-    .byte 0x04              ;c7c5  04          DATA 0x04
-    .byte 0x7f              ;c7c6  7f          DATA 0x7f
-    .byte 0x04              ;c7c7  04          DATA 0x04
-    .byte 0x7f              ;c7c8  7f          DATA 0x7f
-    .byte 0x04              ;c7c9  04          DATA 0x04
-    .byte 0x7f              ;c7ca  7f          DATA 0x7f
-    .byte 0x04              ;c7cb  04          DATA 0x04
-    .byte 0x7f              ;c7cc  7f          DATA 0x7f
-    .byte 0x04              ;c7cd  04          DATA 0x04
-    .byte 0x7f              ;c7ce  7f          DATA 0x7f
-    .byte 0x04              ;c7cf  04          DATA 0x04
-    .byte 0x7f              ;c7d0  7f          DATA 0x7f
-    .byte 0x04              ;c7d1  04          DATA 0x04
-    .byte 0x7f              ;c7d2  7f          DATA 0x7f
-    .byte 0x04              ;c7d3  04          DATA 0x04
-    .byte 0x7f              ;c7d4  7f          DATA 0x7f
-    .byte 0x04              ;c7d5  04          DATA 0x04
-    .byte 0x7f              ;c7d6  7f          DATA 0x7f
-    .byte 0x04              ;c7d7  04          DATA 0x04
-    .byte 0x7f              ;c7d8  7f          DATA 0x7f
-    .byte 0x04              ;c7d9  04          DATA 0x04
-    .byte 0x7f              ;c7da  7f          DATA 0x7f
+    .word 0xd906
+    .word 0xaa06
+    .word 0x7406
+    .word 0x3806
+    .word 0xf305
+    .word 0xa605
+    .word 0x5005
+    .word 0xee04
+    .word 0x7f04
+    .word 0x7f04
+    .word 0x7f04
+    .word 0x7f04
+    .word 0x7f04
+    .word 0x7f04
+    .word 0x7f04
+    .word 0x7f04
+    .word 0x7f04
+    .word 0x7f04
+    .word 0x7f04
+    .word 0x7f04
+    .word 0x7f04
 
 mem_c7db:
+;table of words used with sub_0c48
     .byte 0x15              ;c7db  15          DATA 0x15        21 entries below:
-    .byte 0x05              ;c7dc  05          DATA 0x05
-    .byte 0xfb              ;c7dd  fb          DATA 0xfb
-    .byte 0x05              ;c7de  05          DATA 0x05
-    .byte 0xa7              ;c7df  a7          DATA 0xa7
-    .byte 0x05              ;c7e0  05          DATA 0x05
-    .byte 0x47              ;c7e1  47          DATA 0x47 'G'
-    .byte 0x04              ;c7e2  04          DATA 0x04
-    .byte 0xd9              ;c7e3  d9          DATA 0xd9
-    .byte 0x04              ;c7e4  04          DATA 0x04
-    .byte 0x5e              ;c7e5  5e          DATA 0x5e '^'
-    .byte 0x03              ;c7e6  03          DATA 0x03
-    .byte 0xd3              ;c7e7  d3          DATA 0xd3
-    .byte 0x03              ;c7e8  03          DATA 0x03
-    .byte 0x36              ;c7e9  36          DATA 0x36 '6'
-    .byte 0x02              ;c7ea  02          DATA 0x02
-    .byte 0x86              ;c7eb  86          DATA 0x86
-    .byte 0x01              ;c7ec  01          DATA 0x01
-    .byte 0xc0              ;c7ed  c0          DATA 0xc0
-    .byte 0x01              ;c7ee  01          DATA 0x01
-    .byte 0xc0              ;c7ef  c0          DATA 0xc0
-    .byte 0x01              ;c7f0  01          DATA 0x01
-    .byte 0xc0              ;c7f1  c0          DATA 0xc0
-    .byte 0x01              ;c7f2  01          DATA 0x01
-    .byte 0xc0              ;c7f3  c0          DATA 0xc0
-    .byte 0x01              ;c7f4  01          DATA 0x01
-    .byte 0xc0              ;c7f5  c0          DATA 0xc0
-    .byte 0x01              ;c7f6  01          DATA 0x01
-    .byte 0xc0              ;c7f7  c0          DATA 0xc0
-    .byte 0x01              ;c7f8  01          DATA 0x01
-    .byte 0xc0              ;c7f9  c0          DATA 0xc0
-    .byte 0x01              ;c7fa  01          DATA 0x01
-    .byte 0xc0              ;c7fb  c0          DATA 0xc0
-    .byte 0x01              ;c7fc  01          DATA 0x01
-    .byte 0xc0              ;c7fd  c0          DATA 0xc0
-    .byte 0x01              ;c7fe  01          DATA 0x01
-    .byte 0xc0              ;c7ff  c0          DATA 0xc0
-    .byte 0x01              ;c800  01          DATA 0x01
-    .byte 0xc0              ;c801  c0          DATA 0xc0
-    .byte 0x01              ;c802  01          DATA 0x01
-    .byte 0xc0              ;c803  c0          DATA 0xc0
-    .byte 0x01              ;c804  01          DATA 0x01
-    .byte 0xc0              ;c805  c0          DATA 0xc0
+    .word 0xfb05
+    .word 0xa705
+    .word 0x4705
+    .word 0xd904
+    .word 0x5e04
+    .word 0xd303
+    .word 0x3603
+    .word 0x8602
+    .word 0xc001
+    .word 0xc001
+    .word 0xc001
+    .word 0xc001
+    .word 0xc001
+    .word 0xc001
+    .word 0xc001
+    .word 0xc001
+    .word 0xc001
+    .word 0xc001
+    .word 0xc001
+    .word 0xc001
+    .word 0xc001
 
 mem_c806:
+;table of words used with sub_0c48
     .byte 0x15              ;c806  15          DATA 0x15        21 entries below:
-    .byte 0x06              ;c807  06          DATA 0x06
-    .byte 0xfd              ;c808  fd          DATA 0xfd
-    .byte 0x06              ;c809  06          DATA 0x06
-    .byte 0xd3              ;c80a  d3          DATA 0xd3
-    .byte 0x06              ;c80b  06          DATA 0x06
-    .byte 0xa3              ;c80c  a3          DATA 0xa3
-    .byte 0x06              ;c80d  06          DATA 0x06
-    .byte 0x6c              ;c80e  6c          DATA 0x6c 'l'
-    .byte 0x06              ;c80f  06          DATA 0x06
-    .byte 0x2f              ;c810  2f          DATA 0x2f '/'
-    .byte 0x05              ;c811  05          DATA 0x05
-    .byte 0xe9              ;c812  e9          DATA 0xe9
-    .byte 0x05              ;c813  05          DATA 0x05
-    .byte 0x9b              ;c814  9b          DATA 0x9b
-    .byte 0x05              ;c815  05          DATA 0x05
-    .byte 0x43              ;c816  43          DATA 0x43 'C'
-    .byte 0x04              ;c817  04          DATA 0x04
-    .byte 0xe0              ;c818  e0          DATA 0xe0
-    .byte 0x04              ;c819  04          DATA 0x04
-    .byte 0xe0              ;c81a  e0          DATA 0xe0
-    .byte 0x04              ;c81b  04          DATA 0x04
-    .byte 0xe0              ;c81c  e0          DATA 0xe0
-    .byte 0x04              ;c81d  04          DATA 0x04
-    .byte 0xe0              ;c81e  e0          DATA 0xe0
-    .byte 0x04              ;c81f  04          DATA 0x04
-    .byte 0xe0              ;c820  e0          DATA 0xe0
-    .byte 0x04              ;c821  04          DATA 0x04
-    .byte 0xe0              ;c822  e0          DATA 0xe0
-    .byte 0x04              ;c823  04          DATA 0x04
-    .byte 0xe0              ;c824  e0          DATA 0xe0
-    .byte 0x04              ;c825  04          DATA 0x04
-    .byte 0xe0              ;c826  e0          DATA 0xe0
-    .byte 0x04              ;c827  04          DATA 0x04
-    .byte 0xe0              ;c828  e0          DATA 0xe0
-    .byte 0x04              ;c829  04          DATA 0x04
-    .byte 0xe0              ;c82a  e0          DATA 0xe0
-    .byte 0x04              ;c82b  04          DATA 0x04
-    .byte 0xe0              ;c82c  e0          DATA 0xe0
-    .byte 0x04              ;c82d  04          DATA 0x04
-    .byte 0xe0              ;c82e  e0          DATA 0xe0
-    .byte 0x04              ;c82f  04          DATA 0x04
-    .byte 0xe0              ;c830  e0          DATA 0xe0
+    .word 0xfd06
+    .word 0xd306
+    .word 0xa306
+    .word 0x6c06
+    .word 0x2f06
+    .word 0xe905
+    .word 0x9b05
+    .word 0x4305
+    .word 0xe004
+    .word 0xe004
+    .word 0xe004
+    .word 0xe004
+    .word 0xe004
+    .word 0xe004
+    .word 0xe004
+    .word 0xe004
+    .word 0xe004
+    .word 0xe004
+    .word 0xe004
+    .word 0xe004
+    .word 0xe004
 
 mem_c831:
 ;table of words used with sub_0c48
     .byte 0x15              ;c831  15          DATA 0x15        21 entries below:
-    .byte 0xf9              ;c832  f9          DATA 0xf9
-    .byte 0xb6              ;c833  b6          DATA 0xb6
-    .byte 0xfa              ;c834  fa          DATA 0xfa
-    .byte 0x08              ;c835  08          DATA 0x08
-    .byte 0xfa              ;c836  fa          DATA 0xfa
-    .byte 0x62              ;c837  62          DATA 0x62 'b'
-    .byte 0xfa              ;c838  fa          DATA 0xfa
-    .byte 0xce              ;c839  ce          DATA 0xce
-    .byte 0xfb              ;c83a  fb          DATA 0xfb
-    .byte 0x58              ;c83b  58          DATA 0x58 'X'
-    .byte 0xfb              ;c83c  fb          DATA 0xfb
-    .byte 0xf3              ;c83d  f3          DATA 0xf3
-    .byte 0xfc              ;c83e  fc          DATA 0xfc
-    .byte 0xad              ;c83f  ad          DATA 0xad
-    .byte 0xfd              ;c840  fd          DATA 0xfd
-    .byte 0xa0              ;c841  a0          DATA 0xa0
-    .byte 0xfe              ;c842  fe          DATA 0xfe
-    .byte 0xb3              ;c843  b3          DATA 0xb3
-    .byte 0x00              ;c844  00          DATA 0x00
-    .byte 0x00              ;c845  00          DATA 0x00
-    .byte 0x00              ;c846  00          DATA 0x00
-    .byte 0x00              ;c847  00          DATA 0x00
-    .byte 0x00              ;c848  00          DATA 0x00
-    .byte 0x00              ;c849  00          DATA 0x00
-    .byte 0x00              ;c84a  00          DATA 0x00
-    .byte 0x8a              ;c84b  8a          DATA 0x8a
-    .byte 0x01              ;c84c  01          DATA 0x01
-    .byte 0x10              ;c84d  10          DATA 0x10
-    .byte 0x01              ;c84e  01          DATA 0x01
-    .byte 0x90              ;c84f  90          DATA 0x90
-    .byte 0x02              ;c850  02          DATA 0x02
-    .byte 0x0a              ;c851  0a          DATA 0x0a
-    .byte 0x02              ;c852  02          DATA 0x02
-    .byte 0x80              ;c853  80          DATA 0x80
-    .byte 0x02              ;c854  02          DATA 0x02
-    .byte 0xf0              ;c855  f0          DATA 0xf0
-    .byte 0x03              ;c856  03          DATA 0x03
-    .byte 0xc2              ;c857  c2          DATA 0xc2
-    .byte 0x04              ;c858  04          DATA 0x04
-    .byte 0x82              ;c859  82          DATA 0x82
-    .byte 0x04              ;c85a  04          DATA 0x04
-    .byte 0xdb              ;c85b  db          DATA 0xdb
+    .word 0xb6f9
+    .word 0x08fa
+    .word 0x62fa
+    .word 0xcefa
+    .word 0x58fb
+    .word 0xf3fb
+    .word 0xadfc
+    .word 0xa0fd
+    .word 0xb3fe
+    .word 0x0000
+    .word 0x0000
+    .word 0x0000
+    .word 0x8a00
+    .word 0x1001
+    .word 0x9001
+    .word 0x0a02
+    .word 0x8002
+    .word 0xf002
+    .word 0xc203
+    .word 0x8204
+    .word 0xdb04
 
 mem_c85c:
 ;table of words used with sub_0c48
     .byte 0x15              ;c85c  15          DATA 0x15        21 entries below:
-    .byte 0x06              ;c85d  06          DATA 0x06
-    .byte 0x7d              ;c85e  7d          DATA 0x7d '}'
-    .byte 0x06              ;c85f  06          DATA 0x06
-    .byte 0x40              ;c860  40          DATA 0x40 '@'
-    .byte 0x06              ;c861  06          DATA 0x06
-    .byte 0x00              ;c862  00          DATA 0x00
-    .byte 0x05              ;c863  05          DATA 0x05
-    .byte 0xb8              ;c864  b8          DATA 0xb8
-    .byte 0x05              ;c865  05          DATA 0x05
-    .byte 0x61              ;c866  61          DATA 0x61 'a'
-    .byte 0x05              ;c867  05          DATA 0x05
-    .byte 0x06              ;c868  06          DATA 0x06
-    .byte 0x04              ;c869  04          DATA 0x04
-    .byte 0xa1              ;c86a  a1          DATA 0xa1
-    .byte 0x04              ;c86b  04          DATA 0x04
-    .byte 0x27              ;c86c  27          DATA 0x27 '''
-    .byte 0x03              ;c86d  03          DATA 0x03
-    .byte 0xaa              ;c86e  aa          DATA 0xaa
-    .byte 0x03              ;c86f  03          DATA 0x03
-    .byte 0x1f              ;c870  1f          DATA 0x1f
-    .byte 0x03              ;c871  03          DATA 0x03
-    .byte 0x1f              ;c872  1f          DATA 0x1f
-    .byte 0x03              ;c873  03          DATA 0x03
-    .byte 0x1f              ;c874  1f          DATA 0x1f
-    .byte 0x03              ;c875  03          DATA 0x03
-    .byte 0x1f              ;c876  1f          DATA 0x1f
-    .byte 0x03              ;c877  03          DATA 0x03
-    .byte 0x1f              ;c878  1f          DATA 0x1f
-    .byte 0x03              ;c879  03          DATA 0x03
-    .byte 0x1f              ;c87a  1f          DATA 0x1f
-    .byte 0x03              ;c87b  03          DATA 0x03
-    .byte 0x1f              ;c87c  1f          DATA 0x1f
-    .byte 0x03              ;c87d  03          DATA 0x03
-    .byte 0x1f              ;c87e  1f          DATA 0x1f
-    .byte 0x03              ;c87f  03          DATA 0x03
-    .byte 0x1f              ;c880  1f          DATA 0x1f
-    .byte 0x03              ;c881  03          DATA 0x03
-    .byte 0x1f              ;c882  1f          DATA 0x1f
-    .byte 0x03              ;c883  03          DATA 0x03
-    .byte 0x1f              ;c884  1f          DATA 0x1f
-    .byte 0x03              ;c885  03          DATA 0x03
-    .byte 0x1f              ;c886  1f          DATA 0x1f
+    .word 0x7d06
+    .word 0x4006
+    .word 0x0006
+    .word 0xb805
+    .word 0x6105
+    .word 0x0605
+    .word 0xa104
+    .word 0x2704
+    .word 0xaa03
+    .word 0x1f03
+    .word 0x1f03
+    .word 0x1f03
+    .word 0x1f03
+    .word 0x1f03
+    .word 0x1f03
+    .word 0x1f03
+    .word 0x1f03
+    .word 0x1f03
+    .word 0x1f03
+    .word 0x1f03
+    .word 0x1f03
 
 mem_c887:
 ;table of words used with sub_0c48
     .byte 0x15              ;c887  15          DATA 0x15        21 entries below:
-    .byte 0x07              ;c888  07          DATA 0x07
-    .byte 0x3e              ;c889  3e          DATA 0x3e '>'
-    .byte 0x07              ;c88a  07          DATA 0x07
-    .byte 0x20              ;c88b  20          DATA 0x20 ' '
-    .byte 0x07              ;c88c  07          DATA 0x07
-    .byte 0x00              ;c88d  00          DATA 0x00
-    .byte 0x06              ;c88e  06          DATA 0x06
-    .byte 0xdc              ;c88f  dc          DATA 0xdc
-    .byte 0x06              ;c890  06          DATA 0x06
-    .byte 0xb0              ;c891  b0          DATA 0xb0
-    .byte 0x06              ;c892  06          DATA 0x06
-    .byte 0x83              ;c893  83          DATA 0x83
-    .byte 0x06              ;c894  06          DATA 0x06
-    .byte 0x50              ;c895  50          DATA 0x50 'P'
-    .byte 0x06              ;c896  06          DATA 0x06
-    .byte 0x13              ;c897  13          DATA 0x13
-    .byte 0x05              ;c898  05          DATA 0x05
-    .byte 0xd5              ;c899  d5          DATA 0xd5
-    .byte 0x05              ;c89a  05          DATA 0x05
-    .byte 0x8f              ;c89b  8f          DATA 0x8f
-    .byte 0x05              ;c89c  05          DATA 0x05
-    .byte 0x8f              ;c89d  8f          DATA 0x8f
-    .byte 0x05              ;c89e  05          DATA 0x05
-    .byte 0x8f              ;c89f  8f          DATA 0x8f
-    .byte 0x05              ;c8a0  05          DATA 0x05
-    .byte 0x8f              ;c8a1  8f          DATA 0x8f
-    .byte 0x05              ;c8a2  05          DATA 0x05
-    .byte 0x8f              ;c8a3  8f          DATA 0x8f
-    .byte 0x05              ;c8a4  05          DATA 0x05
-    .byte 0x8f              ;c8a5  8f          DATA 0x8f
-    .byte 0x05              ;c8a6  05          DATA 0x05
-    .byte 0x8f              ;c8a7  8f          DATA 0x8f
-    .byte 0x05              ;c8a8  05          DATA 0x05
-    .byte 0x8f              ;c8a9  8f          DATA 0x8f
-    .byte 0x05              ;c8aa  05          DATA 0x05
-    .byte 0x8f              ;c8ab  8f          DATA 0x8f
-    .byte 0x05              ;c8ac  05          DATA 0x05
-    .byte 0x8f              ;c8ad  8f          DATA 0x8f
-    .byte 0x05              ;c8ae  05          DATA 0x05
-    .byte 0x8f              ;c8af  8f          DATA 0x8f
-    .byte 0x05              ;c8b0  05          DATA 0x05
-    .byte 0x8f              ;c8b1  8f          DATA 0x8f
+    .word 0x3e07
+    .word 0x2007
+    .word 0x0007
+    .word 0xdc06
+    .word 0xb006
+    .word 0x8306
+    .word 0x5006
+    .word 0x1306
+    .word 0xd505
+    .word 0x8f05
+    .word 0x8f05
+    .word 0x8f05
+    .word 0x8f05
+    .word 0x8f05
+    .word 0x8f05
+    .word 0x8f05
+    .word 0x8f05
+    .word 0x8f05
+    .word 0x8f05
+    .word 0x8f05
+    .word 0x8f05
 
 mem_c8b2:
+;table of words used with sub_0c48
     .byte 0x15              ;c8b2  15          DATA 0x15        21 entries below:
-    .byte 0x07              ;c8b3  07          DATA 0x07
-    .byte 0xff              ;c8b4  ff          DATA 0xff
-    .byte 0x07              ;c8b5  07          DATA 0x07
-    .byte 0xff              ;c8b6  ff          DATA 0xff
-    .byte 0x07              ;c8b7  07          DATA 0x07
-    .byte 0xff              ;c8b8  ff          DATA 0xff
-    .byte 0x07              ;c8b9  07          DATA 0x07
-    .byte 0xff              ;c8ba  ff          DATA 0xff
-    .byte 0x07              ;c8bb  07          DATA 0x07
-    .byte 0xff              ;c8bc  ff          DATA 0xff
-    .byte 0x07              ;c8bd  07          DATA 0x07
-    .byte 0xff              ;c8be  ff          DATA 0xff
-    .byte 0x07              ;c8bf  07          DATA 0x07
-    .byte 0xff              ;c8c0  ff          DATA 0xff
-    .byte 0x07              ;c8c1  07          DATA 0x07
-    .byte 0xff              ;c8c2  ff          DATA 0xff
-    .byte 0x07              ;c8c3  07          DATA 0x07
-    .byte 0xff              ;c8c4  ff          DATA 0xff
-    .byte 0x07              ;c8c5  07          DATA 0x07
-    .byte 0xff              ;c8c6  ff          DATA 0xff
-    .byte 0x07              ;c8c7  07          DATA 0x07
-    .byte 0xff              ;c8c8  ff          DATA 0xff
-    .byte 0x07              ;c8c9  07          DATA 0x07
-    .byte 0xff              ;c8ca  ff          DATA 0xff
-    .byte 0x07              ;c8cb  07          DATA 0x07
-    .byte 0x8d              ;c8cc  8d          DATA 0x8d
-    .byte 0x07              ;c8cd  07          DATA 0x07
-    .byte 0x21              ;c8ce  21          DATA 0x21 '!'
-    .byte 0x06              ;c8cf  06          DATA 0x06
-    .byte 0xbb              ;c8d0  bb          DATA 0xbb
-    .byte 0x06              ;c8d1  06          DATA 0x06
-    .byte 0x5a              ;c8d2  5a          DATA 0x5a 'Z'
-    .byte 0x05              ;c8d3  05          DATA 0x05
-    .byte 0xff              ;c8d4  ff          DATA 0xff
-    .byte 0x05              ;c8d5  05          DATA 0x05
-    .byte 0xa9              ;c8d6  a9          DATA 0xa9
-    .byte 0x05              ;c8d7  05          DATA 0x05
-    .byte 0x0c              ;c8d8  0c          DATA 0x0c
-    .byte 0x04              ;c8d9  04          DATA 0x04
-    .byte 0x7f              ;c8da  7f          DATA 0x7f
-    .byte 0x04              ;c8db  04          DATA 0x04
-    .byte 0x3f              ;c8dc  3f          DATA 0x3f '?'
+    .word 0xff07
+    .word 0xff07
+    .word 0xff07
+    .word 0xff07
+    .word 0xff07
+    .word 0xff07
+    .word 0xff07
+    .word 0xff07
+    .word 0xff07
+    .word 0xff07
+    .word 0xff07
+    .word 0xff07
+    .word 0x8d07
+    .word 0x2107
+    .word 0xbb06
+    .word 0x5a06
+    .word 0xff05
+    .word 0xa905
+    .word 0x0c05
+    .word 0x7f04
+    .word 0x3f04
 
 mem_c8dd:
 ;table of words used with sub_0c48
     .byte 0x15              ;c8dd  15          DATA 0x15        21 entries below:
-    .byte 0x06              ;c8de  06          DATA 0x06
-    .byte 0xae              ;c8df  ae          DATA 0xae
-    .byte 0x06              ;c8e0  06          DATA 0x06
-    .byte 0x79              ;c8e1  79          DATA 0x79 'y'
-    .byte 0x06              ;c8e2  06          DATA 0x06
-    .byte 0x40              ;c8e3  40          DATA 0x40 '@'
-    .byte 0x06              ;c8e4  06          DATA 0x06
-    .byte 0x00              ;c8e5  00          DATA 0x00
-    .byte 0x05              ;c8e6  05          DATA 0x05
-    .byte 0xb2              ;c8e7  b2          DATA 0xb2
-    .byte 0x05              ;c8e8  05          DATA 0x05
-    .byte 0x60              ;c8e9  60          DATA 0x60 '`'
-    .byte 0x05              ;c8ea  05          DATA 0x05
-    .byte 0x05              ;c8eb  05          DATA 0x05
-    .byte 0x04              ;c8ec  04          DATA 0x04
-    .byte 0x98              ;c8ed  98          DATA 0x98
-    .byte 0x04              ;c8ee  04          DATA 0x04
-    .byte 0x26              ;c8ef  26          DATA 0x26 '&'
-    .byte 0x03              ;c8f0  03          DATA 0x03
-    .byte 0xa9              ;c8f1  a9          DATA 0xa9
-    .byte 0x03              ;c8f2  03          DATA 0x03
-    .byte 0xa9              ;c8f3  a9          DATA 0xa9
-    .byte 0x03              ;c8f4  03          DATA 0x03
-    .byte 0xa9              ;c8f5  a9          DATA 0xa9
-    .byte 0x03              ;c8f6  03          DATA 0x03
-    .byte 0xa9              ;c8f7  a9          DATA 0xa9
-    .byte 0x03              ;c8f8  03          DATA 0x03
-    .byte 0xa9              ;c8f9  a9          DATA 0xa9
-    .byte 0x03              ;c8fa  03          DATA 0x03
-    .byte 0xa9              ;c8fb  a9          DATA 0xa9
-    .byte 0x03              ;c8fc  03          DATA 0x03
-    .byte 0xa9              ;c8fd  a9          DATA 0xa9
-    .byte 0x03              ;c8fe  03          DATA 0x03
-    .byte 0xa9              ;c8ff  a9          DATA 0xa9
-    .byte 0x03              ;c900  03          DATA 0x03
-    .byte 0xa9              ;c901  a9          DATA 0xa9
-    .byte 0x03              ;c902  03          DATA 0x03
-    .byte 0xa9              ;c903  a9          DATA 0xa9
-    .byte 0x03              ;c904  03          DATA 0x03
-    .byte 0xa9              ;c905  a9          DATA 0xa9
-    .byte 0x03              ;c906  03          DATA 0x03
-    .byte 0xa9              ;c907  a9          DATA 0xa9
+    .word 0xae06
+    .word 0x7906
+    .word 0x4006
+    .word 0x0006
+    .word 0xb205
+    .word 0x6005
+    .word 0x0505
+    .word 0x9804
+    .word 0x2604
+    .word 0xa903
+    .word 0xa903
+    .word 0xa903
+    .word 0xa903
+    .word 0xa903
+    .word 0xa903
+    .word 0xa903
+    .word 0xa903
+    .word 0xa903
+    .word 0xa903
+    .word 0xa903
+    .word 0xa903
 
 mem_c908:
 ;table of words used with sub_0c48
     .byte 0x15              ;c908  15          DATA 0x15        21 entries below:
-    .byte 0x07              ;c909  07          DATA 0x07
-    .byte 0x57              ;c90a  57          DATA 0x57 'W'
-    .byte 0x07              ;c90b  07          DATA 0x07
-    .byte 0x3c              ;c90c  3c          DATA 0x3c '<'
-    .byte 0x07              ;c90d  07          DATA 0x07
-    .byte 0x20              ;c90e  20          DATA 0x20 ' '
-    .byte 0x07              ;c90f  07          DATA 0x07
-    .byte 0x00              ;c910  00          DATA 0x00
-    .byte 0x06              ;c911  06          DATA 0x06
-    .byte 0xd9              ;c912  d9          DATA 0xd9
-    .byte 0x06              ;c913  06          DATA 0x06
-    .byte 0xb0              ;c914  b0          DATA 0xb0
-    .byte 0x06              ;c915  06          DATA 0x06
-    .byte 0x82              ;c916  82          DATA 0x82
-    .byte 0x06              ;c917  06          DATA 0x06
-    .byte 0x4c              ;c918  4c          DATA 0x4c 'L'
-    .byte 0x06              ;c919  06          DATA 0x06
-    .byte 0x13              ;c91a  13          DATA 0x13
-    .byte 0x05              ;c91b  05          DATA 0x05
-    .byte 0xd4              ;c91c  d4          DATA 0xd4
-    .byte 0x05              ;c91d  05          DATA 0x05
-    .byte 0xd4              ;c91e  d4          DATA 0xd4
-    .byte 0x05              ;c91f  05          DATA 0x05
-    .byte 0xd4              ;c920  d4          DATA 0xd4
-    .byte 0x05              ;c921  05          DATA 0x05
-    .byte 0xd4              ;c922  d4          DATA 0xd4
-    .byte 0x05              ;c923  05          DATA 0x05
-    .byte 0xd4              ;c924  d4          DATA 0xd4
-    .byte 0x05              ;c925  05          DATA 0x05
-    .byte 0xd4              ;c926  d4          DATA 0xd4
-    .byte 0x05              ;c927  05          DATA 0x05
-    .byte 0xd4              ;c928  d4          DATA 0xd4
-    .byte 0x05              ;c929  05          DATA 0x05
-    .byte 0xd4              ;c92a  d4          DATA 0xd4
-    .byte 0x05              ;c92b  05          DATA 0x05
-    .byte 0xd4              ;c92c  d4          DATA 0xd4
-    .byte 0x05              ;c92d  05          DATA 0x05
-    .byte 0xd4              ;c92e  d4          DATA 0xd4
-    .byte 0x05              ;c92f  05          DATA 0x05
-    .byte 0xd4              ;c930  d4          DATA 0xd4
-    .byte 0x05              ;c931  05          DATA 0x05
-    .byte 0xd4              ;c932  d4          DATA 0xd4
+    .word 0x5707
+    .word 0x3c07
+    .word 0x2007
+    .word 0x0007
+    .word 0xd906
+    .word 0xb006
+    .word 0x8206
+    .word 0x4c06
+    .word 0x1306
+    .word 0xd405
+    .word 0xd405
+    .word 0xd405
+    .word 0xd405
+    .word 0xd405
+    .word 0xd405
+    .word 0xd405
+    .word 0xd405
+    .word 0xd405
+    .word 0xd405
+    .word 0xd405
+    .word 0xd405
 
 mem_c933:
 ;table of words used with sub_0c48
@@ -35779,50 +34328,32 @@ mem_c933:
     .word 0x00e7
 
 mem_c948:
+;table of words used with sub_0c48
     .byte 0x0a              ;c948  0a          DATA 0x0a        10 entries below:
-    .byte 0x40              ;c949  40          DATA 0x40 '@'
-    .byte 0x55              ;c94a  55          DATA 0x55 'U'
-    .byte 0x24              ;c94b  24          DATA 0x24 '$'
-    .byte 0x4c              ;c94c  4c          DATA 0x4c 'L'
-    .byte 0x1a              ;c94d  1a          DATA 0x1a
-    .byte 0x54              ;c94e  54          DATA 0x54 'T'
-    .byte 0x40              ;c94f  40          DATA 0x40 '@'
-    .byte 0x55              ;c950  55          DATA 0x55 'U'
-    .byte 0x5a              ;c951  5a          DATA 0x5a 'Z'
-    .byte 0x6a              ;c952  6a          DATA 0x6a 'j'
-    .byte 0x1a              ;c953  1a          DATA 0x1a
-    .byte 0x4d              ;c954  4d          DATA 0x4d 'M'
-    .byte 0x80              ;c955  80          DATA 0x80
-    .byte 0x5f              ;c956  5f          DATA 0x5f '_'
-    .byte 0x2e              ;c957  2e          DATA 0x2e '.'
-    .byte 0x61              ;c958  61          DATA 0x61 'a'
-    .byte 0x40              ;c959  40          DATA 0x40 '@'
-    .byte 0x55              ;c95a  55          DATA 0x55 'U'
-    .byte 0x66              ;c95b  66          DATA 0x66 'f'
-    .byte 0x77              ;c95c  77          DATA 0x77 'w'
+    .word 0x5540
+    .word 0x4c24
+    .word 0x541a
+    .word 0x5540
+    .word 0x6a5a
+    .word 0x4d1a
+    .word 0x5f80
+    .word 0x612e
+    .word 0x5540
+    .word 0x7766
 
 mem_c95d:
+;table of words used with sub_0c48
     .byte 0x0a              ;c95d  0a          DATA 0x0a        10 entries below:
-    .byte 0x77              ;c95e  77          DATA 0x77 'w'
-    .byte 0x01              ;c95f  01          DATA 0x01
-    .byte 0xe6              ;c960  e6          DATA 0xe6
-    .byte 0x01              ;c961  01          DATA 0x01
-    .byte 0xe6              ;c962  e6          DATA 0xe6
-    .byte 0x01              ;c963  01          DATA 0x01
-    .byte 0x77              ;c964  77          DATA 0x77 'w'
-    .byte 0x01              ;c965  01          DATA 0x01
-    .byte 0xa2              ;c966  a2          DATA 0xa2
-    .byte 0x14              ;c967  14          DATA 0x14
-    .byte 0x56              ;c968  56          DATA 0x56 'V'
-    .byte 0x01              ;c969  01          DATA 0x01
-    .byte 0xb7              ;c96a  b7          DATA 0xb7
-    .byte 0x00              ;c96b  00          DATA 0x00
-    .byte 0xa2              ;c96c  a2          DATA 0xa2
-    .byte 0x14              ;c96d  14          DATA 0x14
-    .byte 0x77              ;c96e  77          DATA 0x77 'w'
-    .byte 0x01              ;c96f  01          DATA 0x01
-    .byte 0xb7              ;c970  b7          DATA 0xb7
-    .byte 0x00              ;c971  00          DATA 0x00
+    .word 0x0177
+    .word 0x01e6
+    .word 0x01e6
+    .word 0x0177
+    .word 0x14a2
+    .word 0x0156
+    .word 0x00b7
+    .word 0x14a2
+    .word 0x0177
+    .word 0x00b7
 
 mem_c972:
 ;table of words used with sub_0c48
@@ -35849,171 +34380,97 @@ mem_c98a:
 mem_c98c:
 ;table of words used with sub_0c48
     .byte 0x0b              ;c98c  0b          DATA 0x0b        11 entries below:
-    .byte 0x00              ;c98d  00          DATA 0x00
-    .byte 0x00              ;c98e  00          DATA 0x00
-    .byte 0x4a              ;c98f  4a          DATA 0x4a 'J'
-    .byte 0x0f              ;c990  0f          DATA 0x0f
-    .byte 0x94              ;c991  94          DATA 0x94
-    .byte 0x0e              ;c992  0e          DATA 0x0e
-    .byte 0xfe              ;c993  fe          DATA 0xfe
-    .byte 0x0d              ;c994  0d          DATA 0x0d
-    .byte 0x79              ;c995  79          DATA 0x79 'y'
-    .byte 0x0d              ;c996  0d          DATA 0x0d
-    .byte 0xd1              ;c997  d1          DATA 0xd1
-    .byte 0x0c              ;c998  0c          DATA 0x0c
-    .byte 0xfe              ;c999  fe          DATA 0xfe
-    .byte 0x0b              ;c99a  0b          DATA 0x0b
-    .byte 0xf4              ;c99b  f4          DATA 0xf4
-    .byte 0x0a              ;c99c  0a          DATA 0x0a
-    .byte 0xa6              ;c99d  a6          DATA 0xa6
-    .byte 0x09              ;c99e  09          DATA 0x09
-    .byte 0x00              ;c99f  00          DATA 0x00
-    .byte 0x08              ;c9a0  08          DATA 0x08
-    .byte 0x00              ;c9a1  00          DATA 0x00
-    .byte 0x08              ;c9a2  08          DATA 0x08
+    .word 0x0000
+    .word 0x0f4a
+    .word 0x0e94
+    .word 0x0dfe
+    .word 0x0d79
+    .word 0x0cd1
+    .word 0x0bfe
+    .word 0x0af4
+    .word 0x09a6
+    .word 0x0800
+    .word 0x0800
 
 mem_c9a3:
 ;table of words used with sub_0c48
     .byte 0x0b              ;c9a3  0b          DATA 0x0b        11 entries below:
-    .byte 0x10              ;c9a4  10          DATA 0x10
-    .byte 0x05              ;c9a5  05          DATA 0x05
-    .byte 0x60              ;c9a6  60          DATA 0x60 '`'
-    .byte 0x06              ;c9a7  06          DATA 0x06
-    .byte 0x08              ;c9a8  08          DATA 0x08
-    .byte 0x08              ;c9a9  08          DATA 0x08
-    .byte 0x1c              ;c9aa  1c          DATA 0x1c
-    .byte 0x0a              ;c9ab  0a          DATA 0x0a
-    .byte 0xbc              ;c9ac  bc          DATA 0xbc
-    .byte 0x0c              ;c9ad  0c          DATA 0x0c
-    .byte 0x08              ;c9ae  08          DATA 0x08
-    .byte 0x10              ;c9af  10          DATA 0x10
-    .byte 0x30              ;c9b0  30          DATA 0x30 '0'
-    .byte 0x14              ;c9b1  14          DATA 0x14
-    .byte 0x68              ;c9b2  68          DATA 0x68 'h'
-    .byte 0x19              ;c9b3  19          DATA 0x19
-    .byte 0x84              ;c9b4  84          DATA 0x84
-    .byte 0x1c              ;c9b5  1c          DATA 0x1c
-    .byte 0x00              ;c9b6  00          DATA 0x00
-    .byte 0x20              ;c9b7  20          DATA 0x20 ' '
-    .byte 0x00              ;c9b8  00          DATA 0x00
-    .byte 0x20              ;c9b9  20          DATA 0x20 ' '
+    .word 0x0510
+    .word 0x0660
+    .word 0x0808
+    .word 0x0a1c
+    .word 0x0cbc
+    .word 0x1008
+    .word 0x1430
+    .word 0x1968
+    .word 0x1c84
+    .word 0x2000
+    .word 0x2000
 
 mem_c9ba:
 ;table of words used with sub_0c48
     .byte 0x0b              ;c9ba  0b          DATA 0x0b        11 entries below:
-    .byte 0x00              ;c9bb  00          DATA 0x00
-    .byte 0x00              ;c9bc  00          DATA 0x00
-    .byte 0xd9              ;c9bd  d9          DATA 0xd9
-    .byte 0x02              ;c9be  02          DATA 0x02
-    .byte 0xb0              ;c9bf  b0          DATA 0xb0
-    .byte 0x05              ;c9c0  05          DATA 0x05
-    .byte 0x1c              ;c9c1  1c          DATA 0x1c
-    .byte 0x0a              ;c9c2  0a          DATA 0x0a
-    .byte 0xbc              ;c9c3  bc          DATA 0xbc
-    .byte 0x0c              ;c9c4  0c          DATA 0x0c
-    .byte 0x08              ;c9c5  08          DATA 0x08
-    .byte 0x10              ;c9c6  10          DATA 0x10
-    .byte 0x30              ;c9c7  30          DATA 0x30 '0'
-    .byte 0x14              ;c9c8  14          DATA 0x14
-    .byte 0x68              ;c9c9  68          DATA 0x68 'h'
-    .byte 0x19              ;c9ca  19          DATA 0x19
-    .byte 0x84              ;c9cb  84          DATA 0x84
-    .byte 0x1c              ;c9cc  1c          DATA 0x1c
-    .byte 0x00              ;c9cd  00          DATA 0x00
-    .byte 0x20              ;c9ce  20          DATA 0x20 ' '
-    .byte 0x00              ;c9cf  00          DATA 0x00
-    .byte 0x20              ;c9d0  20          DATA 0x20 ' '
+    .word 0x0000
+    .word 0x02d9
+    .word 0x05b0
+    .word 0x0a1c
+    .word 0x0cbc
+    .word 0x1008
+    .word 0x1430
+    .word 0x1968
+    .word 0x1c84
+    .word 0x2000
+    .word 0x2000
 
 mem_c9d1:
 ;table of words used with sub_0c48
     .byte 0x15              ;c9d1  15          DATA 0x15        21 entries below:
-    .byte 0x00              ;c9d2  00          DATA 0x00
-    .byte 0x08              ;c9d3  08          DATA 0x08
-    .byte 0x00              ;c9d4  00          DATA 0x00
-    .byte 0x08              ;c9d5  08          DATA 0x08
-    .byte 0x00              ;c9d6  00          DATA 0x00
-    .byte 0x08              ;c9d7  08          DATA 0x08
-    .byte 0x00              ;c9d8  00          DATA 0x00
-    .byte 0x08              ;c9d9  08          DATA 0x08
-    .byte 0x00              ;c9da  00          DATA 0x00
-    .byte 0x08              ;c9db  08          DATA 0x08
-    .byte 0x00              ;c9dc  00          DATA 0x00
-    .byte 0x08              ;c9dd  08          DATA 0x08
-    .byte 0x00              ;c9de  00          DATA 0x00
-    .byte 0x08              ;c9df  08          DATA 0x08
-    .byte 0x00              ;c9e0  00          DATA 0x00
-    .byte 0x08              ;c9e1  08          DATA 0x08
-    .byte 0x00              ;c9e2  00          DATA 0x00
-    .byte 0x08              ;c9e3  08          DATA 0x08
-    .byte 0xf8              ;c9e4  f8          DATA 0xf8
-    .byte 0x08              ;c9e5  08          DATA 0x08
-    .byte 0xf8              ;c9e6  f8          DATA 0xf8
-    .byte 0x08              ;c9e7  08          DATA 0x08
-    .byte 0xf8              ;c9e8  f8          DATA 0xf8
-    .byte 0x08              ;c9e9  08          DATA 0x08
-    .byte 0x10              ;c9ea  10          DATA 0x10
-    .byte 0x0a              ;c9eb  0a          DATA 0x0a
-    .byte 0x48              ;c9ec  48          DATA 0x48 'H'
-    .byte 0x0b              ;c9ed  0b          DATA 0x0b
-    .byte 0xf8              ;c9ee  f8          DATA 0xf8
-    .byte 0x0b              ;c9ef  0b          DATA 0x0b
-    .byte 0x38              ;c9f0  38          DATA 0x38 '8'
-    .byte 0x0e              ;c9f1  0e          DATA 0x0e
-    .byte 0xf0              ;c9f2  f0          DATA 0xf0
-    .byte 0x0f              ;c9f3  0f          DATA 0x0f
-    .byte 0x50              ;c9f4  50          DATA 0x50 'P'
-    .byte 0x12              ;c9f5  12          DATA 0x12
-    .byte 0x48              ;c9f6  48          DATA 0x48 'H'
-    .byte 0x15              ;c9f7  15          DATA 0x15
-    .byte 0xe0              ;c9f8  e0          DATA 0xe0
-    .byte 0x17              ;c9f9  17          DATA 0x17
-    .byte 0xe0              ;c9fa  e0          DATA 0xe0
-    .byte 0x19              ;c9fb  19          DATA 0x19
+    .word 0x0800
+    .word 0x0800
+    .word 0x0800
+    .word 0x0800
+    .word 0x0800
+    .word 0x0800
+    .word 0x0800
+    .word 0x0800
+    .word 0x0800
+    .word 0x08f8
+    .word 0x08f8
+    .word 0x08f8
+    .word 0x0a10
+    .word 0x0b48
+    .word 0x0bf8
+    .word 0x0e38
+    .word 0x0ff0
+    .word 0x1250
+    .word 0x1548
+    .word 0x17e0
+    .word 0x19e0
 
 mem_c9fc:
+;table of words used with sub_0c48
     .byte 0x15              ;c9fc  15          DATA 0x15        21 entries below:
-    .byte 0x60              ;c9fd  60          DATA 0x60 '`'
-    .byte 0x08              ;c9fe  08          DATA 0x08
-    .byte 0x58              ;c9ff  58          DATA 0x58 'X'
-    .byte 0x08              ;ca00  08          DATA 0x08
-    .byte 0x48              ;ca01  48          DATA 0x48 'H'
-    .byte 0x08              ;ca02  08          DATA 0x08
-    .byte 0x40              ;ca03  40          DATA 0x40 '@'
-    .byte 0x08              ;ca04  08          DATA 0x08
-    .byte 0x30              ;ca05  30          DATA 0x30 '0'
-    .byte 0x08              ;ca06  08          DATA 0x08
-    .byte 0x20              ;ca07  20          DATA 0x20 ' '
-    .byte 0x08              ;ca08  08          DATA 0x08
-    .byte 0x18              ;ca09  18          DATA 0x18
-    .byte 0x08              ;ca0a  08          DATA 0x08
-    .byte 0x08              ;ca0b  08          DATA 0x08
-    .byte 0x08              ;ca0c  08          DATA 0x08
-    .byte 0x00              ;ca0d  00          DATA 0x00
-    .byte 0x08              ;ca0e  08          DATA 0x08
-    .byte 0x00              ;ca0f  00          DATA 0x00
-    .byte 0x08              ;ca10  08          DATA 0x08
-    .byte 0x00              ;ca11  00          DATA 0x00
-    .byte 0x08              ;ca12  08          DATA 0x08
-    .byte 0x00              ;ca13  00          DATA 0x00
-    .byte 0x08              ;ca14  08          DATA 0x08
-    .byte 0x78              ;ca15  78          DATA 0x78 'x'
-    .byte 0x08              ;ca16  08          DATA 0x08
-    .byte 0xf8              ;ca17  f8          DATA 0xf8
-    .byte 0x08              ;ca18  08          DATA 0x08
-    .byte 0x80              ;ca19  80          DATA 0x80
-    .byte 0x09              ;ca1a  09          DATA 0x09
-    .byte 0x18              ;ca1b  18          DATA 0x18
-    .byte 0x0a              ;ca1c  0a          DATA 0x0a
-    .byte 0xb8              ;ca1d  b8          DATA 0xb8
-    .byte 0x0a              ;ca1e  0a          DATA 0x0a
-    .byte 0x60              ;ca1f  60          DATA 0x60 '`'
-    .byte 0x0b              ;ca20  0b          DATA 0x0b
-    .byte 0xd0              ;ca21  d0          DATA 0xd0
-    .byte 0x0c              ;ca22  0c          DATA 0x0c
-    .byte 0x70              ;ca23  70          DATA 0x70 'p'
-    .byte 0x0e              ;ca24  0e          DATA 0x0e
-    .byte 0x58              ;ca25  58          DATA 0x58 'X'
-    .byte 0x0f              ;ca26  0f          DATA 0x0f
+    .word 0x0860
+    .word 0x0858
+    .word 0x0848
+    .word 0x0840
+    .word 0x0830
+    .word 0x0820
+    .word 0x0818
+    .word 0x0808
+    .word 0x0800
+    .word 0x0800
+    .word 0x0800
+    .word 0x0800
+    .word 0x0878
+    .word 0x08f8
+    .word 0x0980
+    .word 0x0a18
+    .word 0x0ab8
+    .word 0x0b60
+    .word 0x0cd0
+    .word 0x0e70
+    .word 0x0f58
 
 mem_ca27:
     .byte 0x24              ;ca27  24          DATA 0x24 '$'    36 entries below:
@@ -37233,126 +35690,66 @@ mem_ca27:
 mem_cee4:
 ;table of words used with sub_0c48
     .byte 0x3c              ;cee4  3c          DATA 0x3c '<'    60 entries below:
-    .byte 0x73              ;cee5  73          DATA 0x73 's'
-    .byte 0xca              ;cee6  ca          DATA 0xca
-    .byte 0xac              ;cee7  ac          DATA 0xac
-    .byte 0xca              ;cee8  ca          DATA 0xca
-    .byte 0x7e              ;cee9  7e          DATA 0x7e '~'
-    .byte 0xca              ;ceea  ca          DATA 0xca
-    .byte 0xb7              ;ceeb  b7          DATA 0xb7
-    .byte 0xca              ;ceec  ca          DATA 0xca
-    .byte 0x99              ;ceed  99          DATA 0x99
-    .byte 0xca              ;ceee  ca          DATA 0xca
-    .byte 0xd2              ;ceef  d2          DATA 0xd2
-    .byte 0xca              ;cef0  ca          DATA 0xca
-    .byte 0xe5              ;cef1  e5          DATA 0xe5
-    .byte 0xca              ;cef2  ca          DATA 0xca
-    .byte 0x1e              ;cef3  1e          DATA 0x1e
-    .byte 0xcb              ;cef4  cb          DATA 0xcb
-    .byte 0xf0              ;cef5  f0          DATA 0xf0
-    .byte 0xca              ;cef6  ca          DATA 0xca
-    .byte 0x29              ;cef7  29          DATA 0x29 ')'
-    .byte 0xcb              ;cef8  cb          DATA 0xcb
-    .byte 0x0b              ;cef9  0b          DATA 0x0b
-    .byte 0xcb              ;cefa  cb          DATA 0xcb
-    .byte 0x44              ;cefb  44          DATA 0x44 'D'
-    .byte 0xcb              ;cefc  cb          DATA 0xcb
-    .byte 0x57              ;cefd  57          DATA 0x57 'W'
-    .byte 0xcb              ;cefe  cb          DATA 0xcb
-    .byte 0x90              ;ceff  90          DATA 0x90
-    .byte 0xcb              ;cf00  cb          DATA 0xcb
-    .byte 0x62              ;cf01  62          DATA 0x62 'b'
-    .byte 0xcb              ;cf02  cb          DATA 0xcb
-    .byte 0x9b              ;cf03  9b          DATA 0x9b
-    .byte 0xcb              ;cf04  cb          DATA 0xcb
-    .byte 0x7d              ;cf05  7d          DATA 0x7d '}'
-    .byte 0xcb              ;cf06  cb          DATA 0xcb
-    .byte 0xb6              ;cf07  b6          DATA 0xb6
-    .byte 0xcb              ;cf08  cb          DATA 0xcb
-    .byte 0xc9              ;cf09  c9          DATA 0xc9
-    .byte 0xcb              ;cf0a  cb          DATA 0xcb
-    .byte 0x02              ;cf0b  02          DATA 0x02
-    .byte 0xcc              ;cf0c  cc          DATA 0xcc
-    .byte 0xd4              ;cf0d  d4          DATA 0xd4
-    .byte 0xcb              ;cf0e  cb          DATA 0xcb
-    .byte 0x0d              ;cf0f  0d          DATA 0x0d
-    .byte 0xcc              ;cf10  cc          DATA 0xcc
-    .byte 0xef              ;cf11  ef          DATA 0xef
-    .byte 0xcb              ;cf12  cb          DATA 0xcb
-    .byte 0x28              ;cf13  28          DATA 0x28 '('
-    .byte 0xcc              ;cf14  cc          DATA 0xcc
-    .byte 0x3b              ;cf15  3b          DATA 0x3b ';'
-    .byte 0xcc              ;cf16  cc          DATA 0xcc
-    .byte 0x74              ;cf17  74          DATA 0x74 't'
-    .byte 0xcc              ;cf18  cc          DATA 0xcc
-    .byte 0x46              ;cf19  46          DATA 0x46 'F'
-    .byte 0xcc              ;cf1a  cc          DATA 0xcc
-    .byte 0x7f              ;cf1b  7f          DATA 0x7f
-    .byte 0xcc              ;cf1c  cc          DATA 0xcc
-    .byte 0x61              ;cf1d  61          DATA 0x61 'a'
-    .byte 0xcc              ;cf1e  cc          DATA 0xcc
-    .byte 0x9a              ;cf1f  9a          DATA 0x9a
-    .byte 0xcc              ;cf20  cc          DATA 0xcc
-    .byte 0xad              ;cf21  ad          DATA 0xad
-    .byte 0xcc              ;cf22  cc          DATA 0xcc
-    .byte 0xe6              ;cf23  e6          DATA 0xe6
-    .byte 0xcc              ;cf24  cc          DATA 0xcc
-    .byte 0xb8              ;cf25  b8          DATA 0xb8
-    .byte 0xcc              ;cf26  cc          DATA 0xcc
-    .byte 0xf1              ;cf27  f1          DATA 0xf1
-    .byte 0xcc              ;cf28  cc          DATA 0xcc
-    .byte 0xd3              ;cf29  d3          DATA 0xd3
-    .byte 0xcc              ;cf2a  cc          DATA 0xcc
-    .byte 0x0c              ;cf2b  0c          DATA 0x0c
-    .byte 0xcd              ;cf2c  cd          DATA 0xcd
-    .byte 0x1f              ;cf2d  1f          DATA 0x1f
-    .byte 0xcd              ;cf2e  cd          DATA 0xcd
-    .byte 0x58              ;cf2f  58          DATA 0x58 'X'
-    .byte 0xcd              ;cf30  cd          DATA 0xcd
-    .byte 0x2a              ;cf31  2a          DATA 0x2a '*'
-    .byte 0xcd              ;cf32  cd          DATA 0xcd
-    .byte 0x63              ;cf33  63          DATA 0x63 'c'
-    .byte 0xcd              ;cf34  cd          DATA 0xcd
-    .byte 0x45              ;cf35  45          DATA 0x45 'E'
-    .byte 0xcd              ;cf36  cd          DATA 0xcd
-    .byte 0x7e              ;cf37  7e          DATA 0x7e '~'
-    .byte 0xcd              ;cf38  cd          DATA 0xcd
-    .byte 0x91              ;cf39  91          DATA 0x91
-    .byte 0xcd              ;cf3a  cd          DATA 0xcd
-    .byte 0xca              ;cf3b  ca          DATA 0xca
-    .byte 0xcd              ;cf3c  cd          DATA 0xcd
-    .byte 0x9c              ;cf3d  9c          DATA 0x9c
-    .byte 0xcd              ;cf3e  cd          DATA 0xcd
-    .byte 0xd5              ;cf3f  d5          DATA 0xd5
-    .byte 0xcd              ;cf40  cd          DATA 0xcd
-    .byte 0xb7              ;cf41  b7          DATA 0xb7
-    .byte 0xcd              ;cf42  cd          DATA 0xcd
-    .byte 0xf0              ;cf43  f0          DATA 0xf0
-    .byte 0xcd              ;cf44  cd          DATA 0xcd
-    .byte 0x03              ;cf45  03          DATA 0x03
-    .byte 0xce              ;cf46  ce          DATA 0xce
-    .byte 0x3c              ;cf47  3c          DATA 0x3c '<'
-    .byte 0xce              ;cf48  ce          DATA 0xce
-    .byte 0x0e              ;cf49  0e          DATA 0x0e
-    .byte 0xce              ;cf4a  ce          DATA 0xce
-    .byte 0x47              ;cf4b  47          DATA 0x47 'G'
-    .byte 0xce              ;cf4c  ce          DATA 0xce
-    .byte 0x29              ;cf4d  29          DATA 0x29 ')'
-    .byte 0xce              ;cf4e  ce          DATA 0xce
-    .byte 0x62              ;cf4f  62          DATA 0x62 'b'
-    .byte 0xce              ;cf50  ce          DATA 0xce
-    .byte 0x75              ;cf51  75          DATA 0x75 'u'
-    .byte 0xce              ;cf52  ce          DATA 0xce
-    .byte 0xae              ;cf53  ae          DATA 0xae
-    .byte 0xce              ;cf54  ce          DATA 0xce
-    .byte 0x80              ;cf55  80          DATA 0x80
-    .byte 0xce              ;cf56  ce          DATA 0xce
-    .byte 0xb9              ;cf57  b9          DATA 0xb9
-    .byte 0xce              ;cf58  ce          DATA 0xce
-    .byte 0x9b              ;cf59  9b          DATA 0x9b
-    .byte 0xce              ;cf5a  ce          DATA 0xce
-    .byte 0xd4              ;cf5b  d4          DATA 0xd4
-    .byte 0xce              ;cf5c  ce          DATA 0xce
+    .word 0xca73
+    .word 0xcaac
+    .word 0xca7e
+    .word 0xcab7
+    .word 0xca99
+    .word 0xcad2
+    .word 0xcae5
+    .word 0xcb1e
+    .word 0xcaf0
+    .word 0xcb29
+    .word 0xcb0b
+    .word 0xcb44
+    .word 0xcb57
+    .word 0xcb90
+    .word 0xcb62
+    .word 0xcb9b
+    .word 0xcb7d
+    .word 0xcbb6
+    .word 0xcbc9
+    .word 0xcc02
+    .word 0xcbd4
+    .word 0xcc0d
+    .word 0xcbef
+    .word 0xcc28
+    .word 0xcc3b
+    .word 0xcc74
+    .word 0xcc46
+    .word 0xcc7f
+    .word 0xcc61
+    .word 0xcc9a
+    .word 0xccad
+    .word 0xcce6
+    .word 0xccb8
+    .word 0xccf1
+    .word 0xccd3
+    .word 0xcd0c
+    .word 0xcd1f
+    .word 0xcd58
+    .word 0xcd2a
+    .word 0xcd63
+    .word 0xcd45
+    .word 0xcd7e
+    .word 0xcd91
+    .word 0xcdca
+    .word 0xcd9c
+    .word 0xcdd5
+    .word 0xcdb7
+    .word 0xcdf0
+    .word 0xce03
+    .word 0xce3c
+    .word 0xce0e
+    .word 0xce47
+    .word 0xce29
+    .word 0xce62
+    .word 0xce75
+    .word 0xceae
+    .word 0xce80
+    .word 0xceb9
+    .word 0xce9b
+    .word 0xced4
 
 mem_cf5d:
 ;table of bytes used with sub_0c7d
