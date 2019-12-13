@@ -459,8 +459,11 @@ mem_fc9f = 0xfc9f
 mem_fca2 = 0xfca2
 mem_fca3 = 0xfca3
 mem_fca4 = 0xfca4
-mem_fca5 = 0xfca5
-stack_top = 0xfe1f          ;Stack starts at 0xFE1F and grows down (??? bytes)
+stack_bottom = 0xfca5       ;Bottom of stack cookie (value 0x55)
+                            ;Stack occupies 375 bytes at 0xFCA6-0xFE1E.  Stack pointer
+                            ;is initialized to stack_top.  PUSH decrements SP before
+                            ;putting an item on the stack.
+stack_top = 0xfe1f          ;Top of stack cookie (value 0xAA)
 mem_fe20 = 0xfe20
 mem_fe21 = 0xfe21
 mem_fe22 = 0xfe22
@@ -2784,7 +2787,7 @@ cold_or_warm_start:
     mov a,#0x55             ;0e00  a1 55
     cmp a,!mem_f18e         ;0e02  48 8e f1
     bnz cold_start          ;0e05  bd 14      Check failed
-    cmp a,!mem_fca5         ;0e07  48 a5 fc
+    cmp a,!stack_bottom     ;0e07  48 a5 fc
     bnz cold_start          ;0e0a  bd 0f      Check failed
 
     mov a,#0xaa             ;0e0c  a1 aa
@@ -3160,7 +3163,7 @@ lab_1036:
 
     mov a,#0x55             ;1108  a1 55
     mov !mem_f18e,a         ;110a  9e 8e f1
-    mov !mem_fca5,a         ;110d  9e a5 fc
+    mov !stack_bottom,a     ;110d  9e a5 fc
 
     mov a,#0xaa             ;1110  a1 aa
     mov !stack_top,a        ;1112  9e 1f fe
