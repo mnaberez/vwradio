@@ -1852,7 +1852,7 @@ sub_0a37:
     push de                 ;0a37  b5
     push bc                 ;0a38  b3
     mov b,#0x02             ;0a39  a3 02        B = 2 bytes to read from EEPROM in total
-    movw de,#mem_fbdb       ;0a3b  14 db fb     DE = destination buffer
+    movw de,#mem_fbdb       ;0a3b  14 db fb     DE = destination buffer (only 1 byte used)
 
 lab_0a3e_loop:
     mov a,#0x01             ;0a3e  a1 01        A = 1 byte to read from EEPROM this time
@@ -1871,12 +1871,13 @@ lab_0a3e_loop:
     ;Byte read from EEPROM is not 0x55
 
     dec b                   ;0a4c  53           Decrement bytes to read from EEPROM in total
-    bz lab_0a53_b_eq_0     ;0a4d  ad 04
+    bz lab_0a53_b_eq_0      ;0a4d  ad 04
 
-    mov mem_fede,a          ;0a4f  f2 de
-    br lab_0a3e_loop        ;0a51  fa eb
+    mov mem_fede,a          ;0a4f  f2 de        Store byte from EEPROM in mem_fede
+    br lab_0a3e_loop        ;0a51  fa eb        Do it all again for the second byte
 
 lab_0a53_b_eq_0:
+;B reached 0 so 2 bytes have been read from the EEPROM (addresses 0x00c8 and 0x00c9)
     cmp a,mem_fede          ;0a53  4e de
     bz lab_0a5c             ;0a55  ad 05
 
@@ -10641,19 +10642,19 @@ lab_3f56:
     movw de,#mem_fbdb       ;3f59  14 db fb     DE = pointer to buffer to receive EEPROM contents
     mov a,#0x01             ;3f5c  a1 01        A = 1 byte to read from EEPROM
     call !sub_6238          ;3f5e  9a 38 62     Read A bytes from EEPROM address HL into [DE]
-    bnc lab_3f70            ;3f61  9d 0d        Branch if EEPROM read failed
+    bnc lab_3f70_failed     ;3f61  9d 0d        Branch if EEPROM read failed
 
     ;EEPROM read succeeded, mem_fbdb = value from EEPROM address 0x00c8
 
     call !sub_4023          ;3f63  9a 23 40
-    bnc lab_3f70            ;3f66  9d 08
+    bnc lab_3f70_failed     ;3f66  9d 08        Branch if sub_4023 failed
 
     mov a,#0x00             ;3f68  a1 00
     mov !mem_fb96,a         ;3f6a  9e 96 fb
 
     br !cold_or_warm_start  ;3f6d  9b cf 0d
 
-lab_3f70:
+lab_3f70_failed:
     mov a,#0x01             ;3f70  a1 01
     mov !mem_fb96,a         ;3f72  9e 96 fb
     ret                     ;3f75  af
@@ -10773,26 +10774,34 @@ lab_4021:
     set1 mem_fe63.2         ;4021  2a 63
 
 sub_4023:
+;Returns carry clear = failure, carry set = success
     call !sub_6217          ;4023  9a 17 62     Unknown; EEPROM related
     bnc sub_4023            ;4026  9d fb        Repeat until success
 
     callf !sub_0a0d         ;4028  2c 0d
+
     movw hl,#0x00c8         ;402a  16 c8 00     HL = EEPROM address to read
-    movw de,#mem_f206       ;402d  14 06 f2
+    movw de,#mem_f206       ;402d  14 06 f2     DE = destination buffer used at lab_4042_nonzero
     callf !sub_0a37         ;4030  2c 37        TODO does something with the EEPROM
-    bnc lab_4040            ;4032  9d 0c
-    bnz lab_4042            ;4034  bd 0c
+    bnc lab_4040_failed     ;4032  9d 0c        Branch if sub_0a37 failed
+    bnz lab_4042_nonzero    ;4034  bd 0c
+
+    ;sub_0a37 succeeded and Z flag is set
+
     mov a,mem_fed6          ;4036  f0 d6
     movw hl,#0x0063         ;4038  16 63 00
     call !sub_40df          ;403b  9a df 40
     bc lab_4049             ;403e  8d 09
 
-lab_4040:
-    br lab_406c             ;4040  fa 2a
+lab_4040_failed:
+;sub_0a37 failed
+    br lab_406c_failed      ;4040  fa 2a
 
-lab_4042:
-    mov a,mem_fed6          ;4042  f0 d6
-    movw hl,#mem_00cf       ;4044  16 cf 00
+lab_4042_nonzero:
+;sub_0a37 returned nonzero
+    mov a,mem_fed6          ;4042  f0 d6        A = number of bytes to copy
+    movw hl,#mem_00cf       ;4044  16 cf 00     HL = source address
+                            ;                   DE already contains destination (mem_f206)
     callf !sub_0c9e         ;4047  4c 9e        Copy A bytes from [HL] to [DE]
 
 lab_4049:
@@ -10819,7 +10828,8 @@ sub_4053:
 lab_406b:
     ret                     ;406b  af
 
-lab_406c:
+lab_406c_failed:
+;Branched from lab_406c_failed when sub_0a37 fails
     push psw                ;406c  22
     mov a,#0x01             ;406d  a1 01
     mov !mem_fb96,a         ;406f  9e 96 fb
