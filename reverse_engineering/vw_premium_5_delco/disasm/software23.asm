@@ -29297,9 +29297,7 @@ mem_b040:
     .word lab_389a
     .word lab_38ec
     .word lab_3952
-
-    .byte 0x79              ;b05d  79          DATA 0x79 'y'
-    .byte 0x39              ;b05e  39          DATA 0x39 '9'
+    .word lab_3979
 
 mem_b05f:
     .byte 0x15              ;b05f  15          DATA 0x15
