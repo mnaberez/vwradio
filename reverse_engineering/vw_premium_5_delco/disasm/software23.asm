@@ -3120,7 +3120,7 @@ lab_1036:
     mov p5,a                ;10a6  f2 05
     mov a,#0x02             ;10a8  a1 02
     callf !sub_09d7         ;10aa  1c d7
-    call !sub_6947          ;10ac  9a 47 69
+    call !sub_6947          ;10ac  9a 47 69     Store 0x80 in mem_f1aa and return
     set1 mem_fe6a.2         ;10af  2a 6a
     clr1 mem_fe6a.0         ;10b1  0b 6a
     clr1 mem_fe6a.1         ;10b3  1b 6a
@@ -34511,6 +34511,8 @@ mem_ca27:
     .byte 0x80              ;ca70  80          DATA 0x80
     .byte 0x0f              ;ca71  0f          DATA 0x0f
     .byte 0x04              ;ca72  04          DATA 0x04
+
+mem_ca73:
     .byte 0x30              ;ca73  30          DATA 0x30 '0'
     .byte 0xb1              ;ca74  b1          DATA 0xb1
     .byte 0x36              ;ca75  36          DATA 0x36 '6'
@@ -34522,6 +34524,8 @@ mem_ca27:
     .byte 0x8c              ;ca7b  8c          DATA 0x8c
     .byte 0x0f              ;ca7c  0f          DATA 0x0f
     .byte 0x0c              ;ca7d  0c          DATA 0x0c
+
+mem_ca7e:
     .byte 0x21              ;ca7e  21          DATA 0x21 '!'
     .byte 0x22              ;ca7f  22          DATA 0x22 '"'
     .byte 0x1e              ;ca80  1e          DATA 0x1e
@@ -34549,6 +34553,8 @@ mem_ca27:
     .byte 0xa0              ;ca96  a0          DATA 0xa0
     .byte 0x0f              ;ca97  0f          DATA 0x0f
     .byte 0x08              ;ca98  08          DATA 0x08
+
+mem_ca99:
     .byte 0x72              ;ca99  72          DATA 0x72 'r'
     .byte 0x1c              ;ca9a  1c          DATA 0x1c
     .byte 0x7a              ;ca9b  7a          DATA 0x7a 'z'
@@ -34568,6 +34574,8 @@ mem_ca27:
     .byte 0x80              ;caa9  80          DATA 0x80
     .byte 0x0f              ;caaa  0f          DATA 0x0f
     .byte 0x04              ;caab  04          DATA 0x04
+
+mem_caac:
     .byte 0x24              ;caac  24          DATA 0x24 '$'
     .byte 0x81              ;caad  81          DATA 0x81
     .byte 0x28              ;caae  28          DATA 0x28 '('
@@ -34579,6 +34587,8 @@ mem_ca27:
     .byte 0x8c              ;cab4  8c          DATA 0x8c
     .byte 0x0f              ;cab5  0f          DATA 0x0f
     .byte 0x0c              ;cab6  0c          DATA 0x0c
+
+mem_cab7:
     .byte 0x18              ;cab7  18          DATA 0x18
     .byte 0xa2              ;cab8  a2          DATA 0xa2
     .byte 0x16              ;cab9  16          DATA 0x16
@@ -34606,6 +34616,8 @@ mem_ca27:
     .byte 0xa0              ;cacf  a0          DATA 0xa0
     .byte 0x0f              ;cad0  0f          DATA 0x0f
     .byte 0x08              ;cad1  08          DATA 0x08
+
+mem_cad2:
     .byte 0x6a              ;cad2  6a          DATA 0x6a 'j'
     .byte 0x1c              ;cad3  1c          DATA 0x1c
     .byte 0x72              ;cad4  72          DATA 0x72 'r'
@@ -34625,6 +34637,8 @@ mem_ca27:
     .byte 0x80              ;cae2  80          DATA 0x80
     .byte 0x0f              ;cae3  0f          DATA 0x0f
     .byte 0x04              ;cae4  04          DATA 0x04
+
+mem_cae5:
     .byte 0x09              ;cae5  09          DATA 0x09
     .byte 0x53              ;cae6  53          DATA 0x53 'S'
     .byte 0x0b              ;cae7  0b          DATA 0x0b
@@ -34636,6 +34650,8 @@ mem_ca27:
     .byte 0x8c              ;caed  8c          DATA 0x8c
     .byte 0x0f              ;caee  0f          DATA 0x0f
     .byte 0x0c              ;caef  0c          DATA 0x0c
+
+mem_caf0:
     .byte 0x18              ;caf0  18          DATA 0x18
     .byte 0x73              ;caf1  73          DATA 0x73 's'
     .byte 0x19              ;caf2  19          DATA 0x19
@@ -34663,6 +34679,8 @@ mem_ca27:
     .byte 0xa0              ;cb08  a0          DATA 0xa0
     .byte 0x0f              ;cb09  0f          DATA 0x0f
     .byte 0x08              ;cb0a  08          DATA 0x08
+
+mem_cb0b:
     .byte 0x5a              ;cb0b  5a          DATA 0x5a 'Z'
     .byte 0x14              ;cb0c  14          DATA 0x14
     .byte 0x4a              ;cb0d  4a          DATA 0x4a 'J'
@@ -34682,6 +34700,8 @@ mem_ca27:
     .byte 0x80              ;cb1b  80          DATA 0x80
     .byte 0x0f              ;cb1c  0f          DATA 0x0f
     .byte 0x04              ;cb1d  04          DATA 0x04
+
+mem_cb1e:
     .byte 0x0d              ;cb1e  0d          DATA 0x0d
     .byte 0xe4              ;cb1f  e4          DATA 0xe4
     .byte 0x08              ;cb20  08          DATA 0x08
@@ -34693,6 +34713,8 @@ mem_ca27:
     .byte 0x8c              ;cb26  8c          DATA 0x8c
     .byte 0x0f              ;cb27  0f          DATA 0x0f
     .byte 0x0c              ;cb28  0c          DATA 0x0c
+
+mem_cb29:
     .byte 0x12              ;cb29  12          DATA 0x12
     .byte 0x33              ;cb2a  33          DATA 0x33 '3'
     .byte 0x12              ;cb2b  12          DATA 0x12
@@ -34720,6 +34742,8 @@ mem_ca27:
     .byte 0xa0              ;cb41  a0          DATA 0xa0
     .byte 0x0f              ;cb42  0f          DATA 0x0f
     .byte 0x08              ;cb43  08          DATA 0x08
+
+mem_cb44:
     .byte 0x4a              ;cb44  4a          DATA 0x4a 'J'
     .byte 0x14              ;cb45  14          DATA 0x14
     .byte 0x7b              ;cb46  7b          DATA 0x7b '{'
@@ -34739,6 +34763,8 @@ mem_ca27:
     .byte 0x80              ;cb54  80          DATA 0x80
     .byte 0x0f              ;cb55  0f          DATA 0x0f
     .byte 0x04              ;cb56  04          DATA 0x04
+
+mem_cb57:
     .byte 0x13              ;cb57  13          DATA 0x13
     .byte 0x72              ;cb58  72          DATA 0x72 'r'
     .byte 0x1a              ;cb59  1a          DATA 0x1a
@@ -34750,6 +34776,8 @@ mem_ca27:
     .byte 0x8c              ;cb5f  8c          DATA 0x8c
     .byte 0x0f              ;cb60  0f          DATA 0x0f
     .byte 0x0c              ;cb61  0c          DATA 0x0c
+
+mem_cb62:
     .byte 0x34              ;cb62  34          DATA 0x34 '4'
     .byte 0xe2              ;cb63  e2          DATA 0xe2
     .byte 0x3e              ;cb64  3e          DATA 0x3e '>'
@@ -34777,6 +34805,8 @@ mem_ca27:
     .byte 0xa0              ;cb7a  a0          DATA 0xa0
     .byte 0x0f              ;cb7b  0f          DATA 0x0f
     .byte 0x08              ;cb7c  08          DATA 0x08
+
+mem_cb7d:
     .byte 0x49              ;cb7d  49          DATA 0x49 'I'
     .byte 0x66              ;cb7e  66          DATA 0x66 'f'
     .byte 0x71              ;cb7f  71          DATA 0x71 'q'
@@ -34796,6 +34826,8 @@ mem_ca27:
     .byte 0x80              ;cb8d  80          DATA 0x80
     .byte 0x0f              ;cb8e  0f          DATA 0x0f
     .byte 0x04              ;cb8f  04          DATA 0x04
+
+mem_cb90:
     .byte 0x1c              ;cb90  1c          DATA 0x1c
     .byte 0xe3              ;cb91  e3          DATA 0xe3
     .byte 0x13              ;cb92  13          DATA 0x13
@@ -34807,6 +34839,8 @@ mem_ca27:
     .byte 0x8c              ;cb98  8c          DATA 0x8c
     .byte 0x0f              ;cb99  0f          DATA 0x0f
     .byte 0x0c              ;cb9a  0c          DATA 0x0c
+
+mem_cb9b:
     .byte 0x27              ;cb9b  27          DATA 0x27 '''
     .byte 0x72              ;cb9c  72          DATA 0x72 'r'
     .byte 0x2e              ;cb9d  2e          DATA 0x2e '.'
@@ -34834,6 +34868,8 @@ mem_ca27:
     .byte 0xa0              ;cbb3  a0          DATA 0xa0
     .byte 0x0f              ;cbb4  0f          DATA 0x0f
     .byte 0x08              ;cbb5  08          DATA 0x08
+
+mem_cbb6:
     .byte 0x41              ;cbb6  41          DATA 0x41 'A'
     .byte 0x66              ;cbb7  66          DATA 0x66 'f'
     .byte 0x69              ;cbb8  69          DATA 0x69 'i'
@@ -34853,6 +34889,8 @@ mem_ca27:
     .byte 0x80              ;cbc6  80          DATA 0x80
     .byte 0x0f              ;cbc7  0f          DATA 0x0f
     .byte 0x04              ;cbc8  04          DATA 0x04
+
+mem_cbc9:
     .byte 0x08              ;cbc9  08          DATA 0x08
     .byte 0x23              ;cbca  23          DATA 0x23 '#'
     .byte 0x08              ;cbcb  08          DATA 0x08
@@ -34864,6 +34902,8 @@ mem_ca27:
     .byte 0x8c              ;cbd1  8c          DATA 0x8c
     .byte 0x0f              ;cbd2  0f          DATA 0x0f
     .byte 0x0c              ;cbd3  0c          DATA 0x0c
+
+mem_cbd4:
     .byte 0x1c              ;cbd4  1c          DATA 0x1c
     .byte 0xb3              ;cbd5  b3          DATA 0xb3
     .byte 0x16              ;cbd6  16          DATA 0x16
@@ -34891,6 +34931,8 @@ mem_ca27:
     .byte 0xa0              ;cbec  a0          DATA 0xa0
     .byte 0x0f              ;cbed  0f          DATA 0x0f
     .byte 0x08              ;cbee  08          DATA 0x08
+
+mem_cbef:
     .byte 0x52              ;cbef  52          DATA 0x52 'R'
     .byte 0x14              ;cbf0  14          DATA 0x14
     .byte 0x6a              ;cbf1  6a          DATA 0x6a 'j'
@@ -34910,6 +34952,8 @@ mem_ca27:
     .byte 0x80              ;cbff  80          DATA 0x80
     .byte 0x0f              ;cc00  0f          DATA 0x0f
     .byte 0x04              ;cc01  04          DATA 0x04
+
+mem_cc02:
     .byte 0x0c              ;cc02  0c          DATA 0x0c
     .byte 0x24              ;cc03  24          DATA 0x24 '$'
     .byte 0x0d              ;cc04  0d          DATA 0x0d
@@ -34921,6 +34965,8 @@ mem_ca27:
     .byte 0x8c              ;cc0a  8c          DATA 0x8c
     .byte 0x0f              ;cc0b  0f          DATA 0x0f
     .byte 0x0c              ;cc0c  0c          DATA 0x0c
+
+mem_cc0d:
     .byte 0x15              ;cc0d  15          DATA 0x15
     .byte 0x53              ;cc0e  53          DATA 0x53 'S'
     .byte 0x10              ;cc0f  10          DATA 0x10
@@ -34948,6 +34994,8 @@ mem_ca27:
     .byte 0xa0              ;cc25  a0          DATA 0xa0
     .byte 0x0f              ;cc26  0f          DATA 0x0f
     .byte 0x08              ;cc27  08          DATA 0x08
+
+mem_cc28:
     .byte 0x4a              ;cc28  4a          DATA 0x4a 'J'
     .byte 0x1a              ;cc29  1a          DATA 0x1a
     .byte 0x5a              ;cc2a  5a          DATA 0x5a 'Z'
@@ -34967,6 +35015,8 @@ mem_ca27:
     .byte 0x80              ;cc38  80          DATA 0x80
     .byte 0x0f              ;cc39  0f          DATA 0x0f
     .byte 0x04              ;cc3a  04          DATA 0x04
+
+mem_cc3b:
     .byte 0x36              ;cc3b  36          DATA 0x36 '6'
     .byte 0x01              ;cc3c  01          DATA 0x01
     .byte 0x36              ;cc3d  36          DATA 0x36 '6'
@@ -34978,6 +35028,8 @@ mem_ca27:
     .byte 0x8c              ;cc43  8c          DATA 0x8c
     .byte 0x0f              ;cc44  0f          DATA 0x0f
     .byte 0x0c              ;cc45  0c          DATA 0x0c
+
+mem_cc46:
     .byte 0x20              ;cc46  20          DATA 0x20 ' '
     .byte 0xb2              ;cc47  b2          DATA 0xb2
     .byte 0x20              ;cc48  20          DATA 0x20 ' '
@@ -35005,6 +35057,8 @@ mem_ca27:
     .byte 0xa0              ;cc5e  a0          DATA 0xa0
     .byte 0x0f              ;cc5f  0f          DATA 0x0f
     .byte 0x08              ;cc60  08          DATA 0x08
+
+mem_cc61:
     .byte 0x62              ;cc61  62          DATA 0x62 'b'
     .byte 0x12              ;cc62  12          DATA 0x12
     .byte 0x62              ;cc63  62          DATA 0x62 'b'
@@ -35024,6 +35078,8 @@ mem_ca27:
     .byte 0x80              ;cc71  80          DATA 0x80
     .byte 0x0f              ;cc72  0f          DATA 0x0f
     .byte 0x04              ;cc73  04          DATA 0x04
+
+mem_cc74:
     .byte 0x28              ;cc74  28          DATA 0x28 '('
     .byte 0x71              ;cc75  71          DATA 0x71 'q'
     .byte 0x28              ;cc76  28          DATA 0x28 '('
@@ -35035,6 +35091,8 @@ mem_ca27:
     .byte 0x8c              ;cc7c  8c          DATA 0x8c
     .byte 0x0f              ;cc7d  0f          DATA 0x0f
     .byte 0x0c              ;cc7e  0c          DATA 0x0c
+
+mem_cc7f:
     .byte 0x18              ;cc7f  18          DATA 0x18
     .byte 0x52              ;cc80  52          DATA 0x52 'R'
     .byte 0x18              ;cc81  18          DATA 0x18
@@ -35062,6 +35120,8 @@ mem_ca27:
     .byte 0xa0              ;cc97  a0          DATA 0xa0
     .byte 0x0f              ;cc98  0f          DATA 0x0f
     .byte 0x08              ;cc99  08          DATA 0x08
+
+mem_cc9a:
     .byte 0x5a              ;cc9a  5a          DATA 0x5a 'Z'
     .byte 0x12              ;cc9b  12          DATA 0x12
     .byte 0x5a              ;cc9c  5a          DATA 0x5a 'Z'
@@ -35081,6 +35141,8 @@ mem_ca27:
     .byte 0x80              ;ccaa  80          DATA 0x80
     .byte 0x0f              ;ccab  0f          DATA 0x0f
     .byte 0x04              ;ccac  04          DATA 0x04
+
+mem_ccad:
     .byte 0x3a              ;ccad  3a          DATA 0x3a ':'
     .byte 0xb1              ;ccae  b1          DATA 0xb1
     .byte 0x3a              ;ccaf  3a          DATA 0x3a ':'
@@ -35092,6 +35154,8 @@ mem_ca27:
     .byte 0x8c              ;ccb5  8c          DATA 0x8c
     .byte 0x0f              ;ccb6  0f          DATA 0x0f
     .byte 0x0c              ;ccb7  0c          DATA 0x0c
+
+mem_ccb8:
     .byte 0x20              ;ccb8  20          DATA 0x20 ' '
     .byte 0xb2              ;ccb9  b2          DATA 0xb2
     .byte 0x20              ;ccba  20          DATA 0x20 ' '
@@ -35119,6 +35183,8 @@ mem_ca27:
     .byte 0xa0              ;ccd0  a0          DATA 0xa0
     .byte 0x0f              ;ccd1  0f          DATA 0x0f
     .byte 0x08              ;ccd2  08          DATA 0x08
+
+mem_ccd3:
     .byte 0x52              ;ccd3  52          DATA 0x52 'R'
     .byte 0x16              ;ccd4  16          DATA 0x16
     .byte 0x5a              ;ccd5  5a          DATA 0x5a 'Z'
@@ -35138,6 +35204,8 @@ mem_ca27:
     .byte 0x80              ;cce3  80          DATA 0x80
     .byte 0x0f              ;cce4  0f          DATA 0x0f
     .byte 0x04              ;cce5  04          DATA 0x04
+
+mem_cce6:
     .byte 0x2c              ;cce6  2c          DATA 0x2c ','
     .byte 0x11              ;cce7  11          DATA 0x11
     .byte 0x2c              ;cce8  2c          DATA 0x2c ','
@@ -35149,6 +35217,8 @@ mem_ca27:
     .byte 0x8c              ;ccee  8c          DATA 0x8c
     .byte 0x0f              ;ccef  0f          DATA 0x0f
     .byte 0x0c              ;ccf0  0c          DATA 0x0c
+
+mem_ccf1:
     .byte 0x18              ;ccf1  18          DATA 0x18
     .byte 0x52              ;ccf2  52          DATA 0x52 'R'
     .byte 0x18              ;ccf3  18          DATA 0x18
@@ -35176,6 +35246,8 @@ mem_ca27:
     .byte 0xa0              ;cd09  a0          DATA 0xa0
     .byte 0x0f              ;cd0a  0f          DATA 0x0f
     .byte 0x08              ;cd0b  08          DATA 0x08
+
+mem_cd0c:
     .byte 0x4a              ;cd0c  4a          DATA 0x4a 'J'
     .byte 0x16              ;cd0d  16          DATA 0x16
     .byte 0x52              ;cd0e  52          DATA 0x52 'R'
@@ -35195,6 +35267,8 @@ mem_ca27:
     .byte 0x80              ;cd1c  80          DATA 0x80
     .byte 0x0f              ;cd1d  0f          DATA 0x0f
     .byte 0x04              ;cd1e  04          DATA 0x04
+
+mem_cd1f:
     .byte 0x3a              ;cd1f  3a          DATA 0x3a ':'
     .byte 0xb1              ;cd20  b1          DATA 0xb1
     .byte 0x3a              ;cd21  3a          DATA 0x3a ':'
@@ -35206,6 +35280,8 @@ mem_ca27:
     .byte 0x8c              ;cd27  8c          DATA 0x8c
     .byte 0x0f              ;cd28  0f          DATA 0x0f
     .byte 0x0c              ;cd29  0c          DATA 0x0c
+
+mem_cd2a:
     .byte 0x20              ;cd2a  20          DATA 0x20 ' '
     .byte 0xb2              ;cd2b  b2          DATA 0xb2
     .byte 0x20              ;cd2c  20          DATA 0x20 ' '
@@ -35233,6 +35309,8 @@ mem_ca27:
     .byte 0xa0              ;cd42  a0          DATA 0xa0
     .byte 0x0f              ;cd43  0f          DATA 0x0f
     .byte 0x08              ;cd44  08          DATA 0x08
+
+mem_cd45:
     .byte 0x52              ;cd45  52          DATA 0x52 'R'
     .byte 0x16              ;cd46  16          DATA 0x16
     .byte 0x5a              ;cd47  5a          DATA 0x5a 'Z'
@@ -35252,6 +35330,8 @@ mem_ca27:
     .byte 0x80              ;cd55  80          DATA 0x80
     .byte 0x0f              ;cd56  0f          DATA 0x0f
     .byte 0x04              ;cd57  04          DATA 0x04
+
+mem_cd58:
     .byte 0x2c              ;cd58  2c          DATA 0x2c ','
     .byte 0x11              ;cd59  11          DATA 0x11
     .byte 0x2c              ;cd5a  2c          DATA 0x2c ','
@@ -35263,6 +35343,8 @@ mem_ca27:
     .byte 0x8c              ;cd60  8c          DATA 0x8c
     .byte 0x0f              ;cd61  0f          DATA 0x0f
     .byte 0x0c              ;cd62  0c          DATA 0x0c
+
+mem_cd63:
     .byte 0x18              ;cd63  18          DATA 0x18
     .byte 0x52              ;cd64  52          DATA 0x52 'R'
     .byte 0x18              ;cd65  18          DATA 0x18
@@ -35290,6 +35372,8 @@ mem_ca27:
     .byte 0xa0              ;cd7b  a0          DATA 0xa0
     .byte 0x0f              ;cd7c  0f          DATA 0x0f
     .byte 0x08              ;cd7d  08          DATA 0x08
+
+mem_cd7e:
     .byte 0x4a              ;cd7e  4a          DATA 0x4a 'J'
     .byte 0x16              ;cd7f  16          DATA 0x16
     .byte 0x52              ;cd80  52          DATA 0x52 'R'
@@ -35309,6 +35393,8 @@ mem_ca27:
     .byte 0x80              ;cd8e  80          DATA 0x80
     .byte 0x0f              ;cd8f  0f          DATA 0x0f
     .byte 0x04              ;cd90  04          DATA 0x04
+
+mem_cd91:
     .byte 0x3a              ;cd91  3a          DATA 0x3a ':'
     .byte 0xb1              ;cd92  b1          DATA 0xb1
     .byte 0x3a              ;cd93  3a          DATA 0x3a ':'
@@ -35320,6 +35406,8 @@ mem_ca27:
     .byte 0x8c              ;cd99  8c          DATA 0x8c
     .byte 0x0f              ;cd9a  0f          DATA 0x0f
     .byte 0x0c              ;cd9b  0c          DATA 0x0c
+
+mem_cd9c:
     .byte 0x20              ;cd9c  20          DATA 0x20 ' '
     .byte 0xb2              ;cd9d  b2          DATA 0xb2
     .byte 0x20              ;cd9e  20          DATA 0x20 ' '
@@ -35347,6 +35435,8 @@ mem_ca27:
     .byte 0xa0              ;cdb4  a0          DATA 0xa0
     .byte 0x0f              ;cdb5  0f          DATA 0x0f
     .byte 0x08              ;cdb6  08          DATA 0x08
+
+mem_cdb7:
     .byte 0x52              ;cdb7  52          DATA 0x52 'R'
     .byte 0x16              ;cdb8  16          DATA 0x16
     .byte 0x5a              ;cdb9  5a          DATA 0x5a 'Z'
@@ -35366,6 +35456,8 @@ mem_ca27:
     .byte 0x80              ;cdc7  80          DATA 0x80
     .byte 0x0f              ;cdc8  0f          DATA 0x0f
     .byte 0x04              ;cdc9  04          DATA 0x04
+
+mem_cdca:
     .byte 0x2c              ;cdca  2c          DATA 0x2c ','
     .byte 0x11              ;cdcb  11          DATA 0x11
     .byte 0x2c              ;cdcc  2c          DATA 0x2c ','
@@ -35377,6 +35469,8 @@ mem_ca27:
     .byte 0x8c              ;cdd2  8c          DATA 0x8c
     .byte 0x0f              ;cdd3  0f          DATA 0x0f
     .byte 0x0c              ;cdd4  0c          DATA 0x0c
+
+mem_cdd5:
     .byte 0x18              ;cdd5  18          DATA 0x18
     .byte 0x52              ;cdd6  52          DATA 0x52 'R'
     .byte 0x18              ;cdd7  18          DATA 0x18
@@ -35404,6 +35498,8 @@ mem_ca27:
     .byte 0xa0              ;cded  a0          DATA 0xa0
     .byte 0x0f              ;cdee  0f          DATA 0x0f
     .byte 0x08              ;cdef  08          DATA 0x08
+
+mem_cdf0:
     .byte 0x4a              ;cdf0  4a          DATA 0x4a 'J'
     .byte 0x16              ;cdf1  16          DATA 0x16
     .byte 0x52              ;cdf2  52          DATA 0x52 'R'
@@ -35423,6 +35519,8 @@ mem_ca27:
     .byte 0x80              ;ce00  80          DATA 0x80
     .byte 0x0f              ;ce01  0f          DATA 0x0f
     .byte 0x04              ;ce02  04          DATA 0x04
+
+mem_ce03:
     .byte 0x2a              ;ce03  2a          DATA 0x2a '*'
     .byte 0x41              ;ce04  41          DATA 0x41 'A'
     .byte 0x32              ;ce05  32          DATA 0x32 '2'
@@ -35434,6 +35532,8 @@ mem_ca27:
     .byte 0x8c              ;ce0b  8c          DATA 0x8c
     .byte 0x0f              ;ce0c  0f          DATA 0x0f
     .byte 0x0c              ;ce0d  0c          DATA 0x0c
+
+mem_ce0e:
     .byte 0x0f              ;ce0e  0f          DATA 0x0f
     .byte 0xa4              ;ce0f  a4          DATA 0xa4
     .byte 0x0f              ;ce10  0f          DATA 0x0f
@@ -35461,6 +35561,8 @@ mem_ca27:
     .byte 0xa0              ;ce26  a0          DATA 0xa0
     .byte 0x0f              ;ce27  0f          DATA 0x0f
     .byte 0x08              ;ce28  08          DATA 0x08
+
+mem_ce29:
     .byte 0x6b              ;ce29  6b          DATA 0x6b 'k'
     .byte 0x1c              ;ce2a  1c          DATA 0x1c
     .byte 0x5b              ;ce2b  5b          DATA 0x5b '['
@@ -35480,6 +35582,8 @@ mem_ca27:
     .byte 0x80              ;ce39  80          DATA 0x80
     .byte 0x0f              ;ce3a  0f          DATA 0x0f
     .byte 0x04              ;ce3b  04          DATA 0x04
+
+mem_ce3c:
     .byte 0x3f              ;ce3c  3f          DATA 0x3f '?'
     .byte 0x32              ;ce3d  32          DATA 0x32 '2'
     .byte 0x26              ;ce3e  26          DATA 0x26 '&'
@@ -35491,6 +35595,8 @@ mem_ca27:
     .byte 0x8c              ;ce44  8c          DATA 0x8c
     .byte 0x0f              ;ce45  0f          DATA 0x0f
     .byte 0x0c              ;ce46  0c          DATA 0x0c
+
+mem_ce47:
     .byte 0x0b              ;ce47  0b          DATA 0x0b
     .byte 0xa4              ;ce48  a4          DATA 0xa4
     .byte 0x0b              ;ce49  0b          DATA 0x0b
@@ -35518,6 +35624,8 @@ mem_ca27:
     .byte 0xa0              ;ce5f  a0          DATA 0xa0
     .byte 0x0f              ;ce60  0f          DATA 0x0f
     .byte 0x08              ;ce61  08          DATA 0x08
+
+mem_ce62:
     .byte 0x5b              ;ce62  5b          DATA 0x5b '['
     .byte 0x1c              ;ce63  1c          DATA 0x1c
     .byte 0x4b              ;ce64  4b          DATA 0x4b 'K'
@@ -35537,6 +35645,8 @@ mem_ca27:
     .byte 0x80              ;ce72  80          DATA 0x80
     .byte 0x0f              ;ce73  0f          DATA 0x0f
     .byte 0x04              ;ce74  04          DATA 0x04
+
+mem_ce75:
     .byte 0x3a              ;ce75  3a          DATA 0x3a ':'
     .byte 0xb1              ;ce76  b1          DATA 0xb1
     .byte 0x3a              ;ce77  3a          DATA 0x3a ':'
@@ -35548,6 +35658,8 @@ mem_ca27:
     .byte 0x8c              ;ce7d  8c          DATA 0x8c
     .byte 0x0f              ;ce7e  0f          DATA 0x0f
     .byte 0x0c              ;ce7f  0c          DATA 0x0c
+
+mem_ce80:
     .byte 0x20              ;ce80  20          DATA 0x20 ' '
     .byte 0xb2              ;ce81  b2          DATA 0xb2
     .byte 0x20              ;ce82  20          DATA 0x20 ' '
@@ -35575,6 +35687,8 @@ mem_ca27:
     .byte 0xa0              ;ce98  a0          DATA 0xa0
     .byte 0x0f              ;ce99  0f          DATA 0x0f
     .byte 0x08              ;ce9a  08          DATA 0x08
+
+mem_ce9b:
     .byte 0x52              ;ce9b  52          DATA 0x52 'R'
     .byte 0x16              ;ce9c  16          DATA 0x16
     .byte 0x5a              ;ce9d  5a          DATA 0x5a 'Z'
@@ -35594,6 +35708,8 @@ mem_ca27:
     .byte 0x80              ;ceab  80          DATA 0x80
     .byte 0x0f              ;ceac  0f          DATA 0x0f
     .byte 0x04              ;cead  04          DATA 0x04
+
+mem_ceae:
     .byte 0x2c              ;ceae  2c          DATA 0x2c ','
     .byte 0x11              ;ceaf  11          DATA 0x11
     .byte 0x2c              ;ceb0  2c          DATA 0x2c ','
@@ -35605,6 +35721,8 @@ mem_ca27:
     .byte 0x8c              ;ceb6  8c          DATA 0x8c
     .byte 0x0f              ;ceb7  0f          DATA 0x0f
     .byte 0x0c              ;ceb8  0c          DATA 0x0c
+
+mem_ceb9:
     .byte 0x18              ;ceb9  18          DATA 0x18
     .byte 0x52              ;ceba  52          DATA 0x52 'R'
     .byte 0x18              ;cebb  18          DATA 0x18
@@ -35632,6 +35750,8 @@ mem_ca27:
     .byte 0xa0              ;ced1  a0          DATA 0xa0
     .byte 0x0f              ;ced2  0f          DATA 0x0f
     .byte 0x08              ;ced3  08          DATA 0x08
+
+mem_ced4:
     .byte 0x4a              ;ced4  4a          DATA 0x4a 'J'
     .byte 0x16              ;ced5  16          DATA 0x16
     .byte 0x52              ;ced6  52          DATA 0x52 'R'
@@ -35652,66 +35772,66 @@ mem_ca27:
 mem_cee4:
 ;table of words used with sub_0c48
     .byte 0x3c              ;cee4  3c          DATA 0x3c '<'    60 entries below:
-    .word 0xca73
-    .word 0xcaac
-    .word 0xca7e
-    .word 0xcab7
-    .word 0xca99
-    .word 0xcad2
-    .word 0xcae5
-    .word 0xcb1e
-    .word 0xcaf0
-    .word 0xcb29
-    .word 0xcb0b
-    .word 0xcb44
-    .word 0xcb57
-    .word 0xcb90
-    .word 0xcb62
-    .word 0xcb9b
-    .word 0xcb7d
-    .word 0xcbb6
-    .word 0xcbc9
-    .word 0xcc02
-    .word 0xcbd4
-    .word 0xcc0d
-    .word 0xcbef
-    .word 0xcc28
-    .word 0xcc3b
-    .word 0xcc74
-    .word 0xcc46
-    .word 0xcc7f
-    .word 0xcc61
-    .word 0xcc9a
-    .word 0xccad
-    .word 0xcce6
-    .word 0xccb8
-    .word 0xccf1
-    .word 0xccd3
-    .word 0xcd0c
-    .word 0xcd1f
-    .word 0xcd58
-    .word 0xcd2a
-    .word 0xcd63
-    .word 0xcd45
-    .word 0xcd7e
-    .word 0xcd91
-    .word 0xcdca
-    .word 0xcd9c
-    .word 0xcdd5
-    .word 0xcdb7
-    .word 0xcdf0
-    .word 0xce03
-    .word 0xce3c
-    .word 0xce0e
-    .word 0xce47
-    .word 0xce29
-    .word 0xce62
-    .word 0xce75
-    .word 0xceae
-    .word 0xce80
-    .word 0xceb9
-    .word 0xce9b
-    .word 0xced4
+    .word mem_ca73
+    .word mem_caac
+    .word mem_ca7e
+    .word mem_cab7
+    .word mem_ca99
+    .word mem_cad2
+    .word mem_cae5
+    .word mem_cb1e
+    .word mem_caf0
+    .word mem_cb29
+    .word mem_cb0b
+    .word mem_cb44
+    .word mem_cb57
+    .word mem_cb90
+    .word mem_cb62
+    .word mem_cb9b
+    .word mem_cb7d
+    .word mem_cbb6
+    .word mem_cbc9
+    .word mem_cc02
+    .word mem_cbd4
+    .word mem_cc0d
+    .word mem_cbef
+    .word mem_cc28
+    .word mem_cc3b
+    .word mem_cc74
+    .word mem_cc46
+    .word mem_cc7f
+    .word mem_cc61
+    .word mem_cc9a
+    .word mem_ccad
+    .word mem_cce6
+    .word mem_ccb8
+    .word mem_ccf1
+    .word mem_ccd3
+    .word mem_cd0c
+    .word mem_cd1f
+    .word mem_cd58
+    .word mem_cd2a
+    .word mem_cd63
+    .word mem_cd45
+    .word mem_cd7e
+    .word mem_cd91
+    .word mem_cdca
+    .word mem_cd9c
+    .word mem_cdd5
+    .word mem_cdb7
+    .word mem_cdf0
+    .word mem_ce03
+    .word mem_ce3c
+    .word mem_ce0e
+    .word mem_ce47
+    .word mem_ce29
+    .word mem_ce62
+    .word mem_ce75
+    .word mem_ceae
+    .word mem_ce80
+    .word mem_ceb9
+    .word mem_ce9b
+    .word mem_ced4
 
 mem_cf5d:
 ;table of bytes used with sub_0c7d
