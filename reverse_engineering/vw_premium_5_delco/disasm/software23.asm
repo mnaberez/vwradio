@@ -64,8 +64,8 @@ mem_f076 = 0xf076
 mem_f077 = 0xf077
 mem_f078 = 0xf078
 mem_f079 = 0xf079
-kwp_tx_buf = 0xf07a         ;KWP1281 transmit buffer; 16 bytes?
-kwp_rx_buf = 0xf08a         ;KWP1281 receive buffer; 16 bytes?
+kwp_tx_buf = 0xf07a         ;KWP1281 transmit buffer (16 bytes)
+kwp_rx_buf = 0xf08a         ;KWP1281 receive buffer (16 bytes)
 mem_f18a = 0xf18a
 mem_f18b = 0xf18b
 mem_f18c = 0xf18c
@@ -7168,6 +7168,7 @@ lab_2a5e:
     br lab_2a5e             ;2a63  fa f9        Repeat until success
 
 lab_2a65:
+    ;TODO EEPROM addresses 0x0058-0x0061 are protected in lab_2c60
     movw hl,#0x0058         ;2a65  16 58 00     HL = EEPROM address 0x0058
     movw de,#mem_fed6       ;2a68  14 d6 fe     DE = pointer to buffer to receive EEPROM contents
     mov a,#0x09             ;2a6b  a1 09        A = 9 bytes to read from EEPROM
@@ -7202,6 +7203,7 @@ lab_2a9f:
     bnc lab_2a9f            ;2aa2  9d fb        Repeat until success
 
     movw hl,#mem_f1f9       ;2aa4  16 f9 f1     HL = pointer to buffer to write to EEPROM
+    ;TODO EEPROM addresses 0x0058-0x0061 are protected in lab_2c60
     movw de,#0x0058         ;2aa7  14 58 00     DE = EEPROM address 0x0058
     mov a,#0x09             ;2aaa  a1 09        A = 9 bytes to write to EEPROM
     call !sub_628e          ;2aac  9a 8e 62     Write A bytes to EEPROM address DE from [HL]
@@ -7249,6 +7251,7 @@ lab_2af4:
     br lab_2af4             ;2af9  fa f9        Repeat until success
 
 lab_2afb:
+    ;TODO EEPROM addresses 0x0058-0x0061 are protected in lab_2c60
     movw hl,#0x0058         ;2afb  16 58 00     HL = EEPROM address 0x0058
     movw de,#mem_fed6       ;2afe  14 d6 fe     DE = pointer to buffer to receive EEPROM contents
     mov a,#0x09             ;2b01  a1 09        A = 9 bytes to read from EEPROM
@@ -7323,8 +7326,8 @@ sub_2b53:
     xchw ax,de              ;2b5f  e4
     movw !mem_f000,ax       ;2b60  03 00 f0     Store as mem addr for KWP1281 read ram / read eeprom
     xchw ax,de              ;2b63  e4
-    call !sub_2bd4          ;2b64  9a d4 2b
-    bc lab_2b6c             ;2b67  8d 03
+    call !sub_2bd4          ;2b64  9a d4 2b     Prepare for KWP1281 read RAM or read EEPROM
+    bc lab_2b6c             ;2b67  8d 03        Branch if invalid
     mov a,!mem_f04c         ;2b69  8e 4c f0
 
 lab_2b6c:
@@ -7400,11 +7403,12 @@ sub_2bb9:
     mov !mem_f04c,a         ;2bc0  9e 4c f0     Store number of bytes to read
 
     xchw ax,de              ;2bc3  e4
-    movw !mem_f000,ax       ;2bc4  03 00 f0
-
+    movw !mem_f000,ax       ;2bc4  03 00 f0     Store memory address to read
     xchw ax,de              ;2bc7  e4
-    call !sub_2bd4          ;2bc8  9a d4 2b
-    bc lab_2bd2             ;2bcb  8d 05
+
+    call !sub_2bd4          ;2bc8  9a d4 2b     Prepare for KWP1281 read RAM or read EEPROM
+    bc lab_2bd2             ;2bcb  8d 05        Branch if invalid
+
     mov a,!mem_f04c         ;2bcd  8e 4c f0
     set1 mem_fe5f.6         ;2bd0  6a 5f
 
@@ -7413,23 +7417,33 @@ lab_2bd2:
     ret                     ;2bd3  af
 
 sub_2bd4:
-    cmp a,#0x01             ;2bd4  4d 01
-    bc lab_2bf3             ;2bd6  8d 1b
+;Prepare for KWP1281 read RAM or read EEPROM
+;Checks if number of bytes to read != 0
+;Checks if all addresses that would be read are valid
+;Returns carry set = failure, carry clear = success
+    cmp a,#0x01             ;2bd4  4d 01        Number of bytes to read = 0?
+    bc lab_2bf3_ret         ;2bd6  8d 1b          Yes: branch to exit on failure
+
     mov !mem_f04b,a         ;2bd8  9e 4b f0
     movw ax,de              ;2bdb  c4
     movw !mem_f002,ax       ;2bdc  03 02 f0
     call !sub_2d11          ;2bdf  9a 11 2d
-    mov l,a                 ;2be2  76
+
+    mov l,a                 ;2be2  76           HL = number of bytes to read
     mov h,#0x00             ;2be3  a7 00
+
     movw ax,!mem_f002       ;2be5  02 02 f0
     call !sub_2cdf          ;2be8  9a df 2c     Check if a region in memory or EEPROM is valid
-    bc lab_2bf3             ;2beb  8d 06        Branch if invalid
+                            ;                       AX = start address
+                            ;                       HL = number of bytes
+                            ;                       mem_fe60.2 = address type (0=EEPROM, 1=memory)
+    bc lab_2bf3_ret         ;2beb  8d 06        Branch if invalid
     movw !mem_f002,ax       ;2bed  03 02 f0
     movw ax,hl              ;2bf0  c6
     movw de,ax              ;2bf1  d4
-    clr1 cy                 ;2bf2  21
+    clr1 cy                 ;2bf2  21           Carry clear = success
 
-lab_2bf3:
+lab_2bf3_ret:
     ret                     ;2bf3  af
 
 sub_2bf4:
@@ -7439,7 +7453,7 @@ sub_2bf4:
     clr1 mem_fe5f.7         ;2bfa  7b 5f
     set1 mem_fe60.2         ;2bfc  2a 60        Set bit = address is an EEPROM address
     call !sub_2c1a          ;2bfe  9a 1a 2c
-    bc lab_2c05             ;2c01  8d 02
+    bc lab_2c05             ;2c01  8d 02        Branch if invalid
     set1 mem_fe5f.7         ;2c03  7a 5f
 
 lab_2c05:
@@ -7453,7 +7467,7 @@ sub_2c07:
     clr1 mem_fe5f.6         ;2c0d  6b 5f
     clr1 mem_fe60.2         ;2c0f  2b 60        Set bit = address is not an EEPROM address
     call !sub_2c1a          ;2c11  9a 1a 2c
-    bc lab_2c18             ;2c14  8d 02
+    bc lab_2c18             ;2c14  8d 02        Branch if invalid
     set1 mem_fe5f.6         ;2c16  6a 5f
 
 lab_2c18:
@@ -7461,18 +7475,22 @@ lab_2c18:
     ret                     ;2c19  af
 
 sub_2c1a:
+;Returns carry set = invalid, carry clear = valid
     call !sub_2d23          ;2c1a  9a 23 2d
     cmp a,#0x01             ;2c1d  4d 01
     bc lab_2c32             ;2c1f  8d 11
     mov l,a                 ;2c21  76
     mov h,#0x00             ;2c22  a7 00
     movw ax,!mem_f002       ;2c24  02 02 f0
-    call !sub_2cdf          ;2c27  9a df 2c     Check if a region in memory or EEPROM is valid
-    bc lab_2c32             ;2c2a  8d 06        Branch if invalid
+    call !sub_2cdf          ;2c27  9a df 2c   Check if a region in memory or EEPROM is valid
+                            ;                     AX = start address
+                            ;                     HL = number of bytes
+                            ;                     mem_fe60.2 = address type (0=EEPROM, 1=memory)
+    bc lab_2c32             ;2c2a  8d 06      Branch if invalid
     movw !mem_f002,ax       ;2c2c  03 02 f0
     movw ax,hl              ;2c2f  c6
     movw de,ax              ;2c30  d4
-    clr1 cy                 ;2c31  21
+    clr1 cy                 ;2c31  21         Carry clear = success
 
 lab_2c32:
     ret                     ;2c32  af
@@ -7502,6 +7520,9 @@ sub_2c33:
     movw !mem_f004,ax       ;2c47  03 04 f0     Store EEPROM address
 
     call !sub_2cdf          ;2c4a  9a df 2c     Check if a region in memory or EEPROM is valid
+                            ;                       AX = start address
+                            ;                       HL = number of bytes
+                            ;                       mem_fe60.2 = address type (0=EEPROM, 1=memory)
     bc lab_2c7b_failed      ;2c4d  8d 2c        Branch if invalid
 
     bf mem_fe65.5,lab_2c6c_write ;2c4f  31 53 65 19   Skip protection checks if ?? bit is off
@@ -11089,6 +11110,7 @@ lab_41ec:
 
 lab_41ed:
     set1 mem_fe64.0         ;41ed  0a 64
+    ;TODO EEPROM addresses 0x0058-0x0061 are protected in lab_2c60
     movw hl,#0x0058         ;41ef  16 58 00
     movw de,#0x0061         ;41f2  14 61 00
     callf !sub_09ef         ;41f5  1c ef
