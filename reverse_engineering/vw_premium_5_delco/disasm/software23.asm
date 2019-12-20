@@ -5776,7 +5776,7 @@ lab_21a3:
     mov !mem_fb70,a         ;21bf  9e 70 fb
     mov a,#0xc3             ;21c2  a1 c3
     call !sub_2482          ;21c4  9a 82 24
-    call !safe_code_1000    ;21c7  9a 9c 23
+    call !safe_code_1000    ;21c7  9a 9c 23     Set entered SAFE code to default of 1000
     br lab_21f3             ;21ca  fa 27
 
 lab_21cc:
@@ -5998,13 +5998,21 @@ lab_2327:
 lab_234b:
     ret                     ;234b  af
 
-lab_234c:
+lab_234c_thous:
+;Increment Entered SAFE code BCD thousands place
+;Examples: 0000 -> 1000
+;          1000 -> 2000
+;          9000 -> 0000
     mov a,!mem_fb75         ;234c  8e 75 fb     A = Entered SAFE code (BCD high byte)
     add a,#0x10             ;234f  0d 10
     adjba                   ;2351  61 80
     br lab_2364             ;2353  fa 0f
 
-lab_2355:
+lab_2355_hunds:
+;Increment Entered SAFE code BCD hundreds place
+;Examples: 0000 -> 0100
+;          0100 -> 0200
+;          0900 -> 0000
     mov a,!mem_fb75         ;2355  8e 75 fb     A = Entered SAFE code (BCD high byte)
     mov x,a                 ;2358  70
     add a,#0x01             ;2359  0d 01
@@ -6024,13 +6032,21 @@ lab_2364:
 lab_2371:
     br !lab_2213            ;2371  9b 13 22
 
-lab_2374:
+lab_2374_tens:
+;Increment Entered SAFE code BCD tens place
+;Examples: 0000 -> 0010
+;          0010 -> 0020
+;          0090 -> 0000
     mov a,!mem_fb76         ;2374  8e 76 fb     A = Entered SAFE code (BCD low byte)
     add a,#0x10             ;2377  0d 10
     adjba                   ;2379  61 80
     br lab_238c             ;237b  fa 0f
 
-lab_237d:
+lab_237d_ones:
+;Increment Entered SAFE code BCD ones place
+;Examples: 0000 -> 0001
+;          0001 -> 0002
+;          0009 -> 0000
     mov a,!mem_fb76         ;237d  8e 76 fb     A = Entered SAFE code (BCD low byte)
     mov x,a                 ;2380  70
     add a,#0x01             ;2381  0d 01
@@ -7155,7 +7171,7 @@ lab_2a10:
     mov a,mem_fed4          ;2a2a  f0 d4
     and a,#0xf0             ;2a2c  5d f0
     callf !ror_a_4          ;2a2e  2c 9e        A = A >> 4
-    mov !mem_f1fe,a         ;2a30  9e fe f1
+    mov !mem_f1fe,a         ;2a30  9e fe f1     TODO coding, monsoon related
     mov a,mem_fed5          ;2a33  f0 d5
     and a,#0x0f             ;2a35  5d 0f
     mov !mem_f1ff,a         ;2a37  9e ff f1
@@ -10179,7 +10195,7 @@ lab_3c29:
 lab_3c3f:
     set1 mem_fe2c.5         ;3c3f  5a 2c
     set1 mem_fe2c.7         ;3c41  7a 2c
-    mov a,!mem_f1fe         ;3c43  8e fe f1
+    mov a,!mem_f1fe         ;3c43  8e fe f1       TODO coding, monsoon related
     cmp a,#0x03             ;3c46  4d 03
     bz lab_3c4e             ;3c48  ad 04          Branch if coded for Monsoon
     cmp a,#0x04             ;3c4a  4d 04
@@ -10277,7 +10293,7 @@ lab_3cd4:
     bf mem_fe2c.3,lab_3cf2  ;3cd4  31 33 2c 1a
     bt mem_fe2c.5,lab_3cf2  ;3cd8  dc 2c 17
     set1 mem_fe2c.5         ;3cdb  5a 2c
-    mov a,!mem_f1fe         ;3cdd  8e fe f1
+    mov a,!mem_f1fe         ;3cdd  8e fe f1       TODO coding, monsoon related
     cmp a,#0x03             ;3ce0  4d 03
     bz lab_3ce8             ;3ce2  ad 04          Branch if coded for Monsoon
     cmp a,#0x04             ;3ce4  4d 04
@@ -18130,7 +18146,7 @@ lab_6a0a:
     ret                     ;6a0f  af
 
 lab_6a10:
-    mov a,!mem_f1fe         ;6a10  8e fe f1
+    mov a,!mem_f1fe         ;6a10  8e fe f1     TODO coding, monsoon related
     cmp a,#0x03             ;6a13  4d 03
     bz lab_6a1b             ;6a15  ad 04        Branch if coded for Monsoon
     cmp a,#0x04             ;6a17  4d 04
@@ -24395,7 +24411,7 @@ lab_915e:
     bnz lab_915d            ;9163  bd f8
     clr1 mem_fe74.6         ;9165  6b 74
     clr1 mem_fe74.7         ;9167  7b 74
-    mov a,!mem_f1fe         ;9169  8e fe f1
+    mov a,!mem_f1fe         ;9169  8e fe f1     TODO coding, monsoon related
     cmp a,#0x00             ;916c  4d 00
     bz lab_917c             ;916e  ad 0c
     cmp a,#0x03             ;9170  4d 03
@@ -29026,14 +29042,14 @@ mem_af57:
     .word sub_214e          ;af58   DATA
     .word sub_2201          ;af5a   DATA
     .word lab_2213          ;af5c   DATA
-    .word lab_234c          ;af5e   DATA
-    .word lab_2355          ;af60   DATA
-    .word lab_2374          ;af62   DATA
-    .word lab_237d          ;af64   DATA
+    .word lab_234c_thous    ;af5e   DATA  Increment Entered SAFE code thousands place
+    .word lab_2355_hunds    ;af60   DATA  Increment Entered SAFE code hundreds place
+    .word lab_2374_tens     ;af62   DATA  Increment Entered SAFE code tens place
+    .word lab_237d_ones     ;af64   DATA  Increment Entered SAFE code ones place
     .word lab_22c8          ;af66   DATA
     .word sub_2296          ;af68   DATA
     .word lab_23a7          ;af6a   DATA
-    .word safe_code_1000    ;af6c   DATA
+    .word safe_code_1000    ;af6c   DATA  Set entered SAFE code to default of 1000
     .word sub_223a          ;af6e   DATA
 
 mem_af70:
