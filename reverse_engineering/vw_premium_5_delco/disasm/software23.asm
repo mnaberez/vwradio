@@ -2514,7 +2514,8 @@ lab_0caa:
     pop bc                  ;0caa  b2
     ret                     ;0cab  af
 
-lab_0cac:
+sub_0cac:
+;Swap A bytes between [HL] and [DE]
     push bc                 ;0cac  b3
     push de                 ;0cad  b5
     push hl                 ;0cae  b7
@@ -2536,7 +2537,7 @@ lab_0cbb:
     pop bc                  ;0cbd  b2
     ret                     ;0cbe  af
 
-lab_0cbf:
+sub_0cbf:
     push ax                 ;0cbf  b1
     add a,#0x80             ;0cc0  0d 80
     xch a,x                 ;0cc2  30
@@ -2604,7 +2605,7 @@ sub_0cf4:
     movw de,#0x0000         ;0cf5  14 00 00
     mov b,#0x08             ;0cf8  a3 08
 
-sub_0cfa:
+lab_0cfa:
     rolc a,1                ;0cfa  27
     mov x,a                 ;0cfb  70
     mov a,e                 ;0cfc  64
@@ -2615,12 +2616,22 @@ sub_0cfa:
     addc a,d                ;0d03  61 2d
     mov d,a                 ;0d05  75
     mov a,x                 ;0d06  60
-    dbnz b,sub_0cfa         ;0d07  8b f1
+    dbnz b,lab_0cfa         ;0d07  8b f1
     movw ax,de              ;0d09  c4
     pop de                  ;0d0a  b4
     ret                     ;0d0b  af
 
 sub_0d0c:
+;Convert BCD number in BC to four ASCII digits, backwards, at 0xFEDA.
+;If the hundreds or thousands place is 0, use a space instead of "0".
+;
+;Examples:
+;  BC=0x0000 -> 0xFEDA-0xFEDD: "00  "
+;  BC=0x0001 -> 0xFEDA-0xFEDD: "01  "
+;  BC=0x0012 -> 0xFEDA-0xFEDD: "21  "
+;  BC=0x0123 -> 0xFEDA-0xFEDD: "321 "
+;  BC=0x1234 -> 0xFEDA-0xFEDD: "4321"
+;
     mov a,c                 ;0d0c  62
     and a,#0x0f             ;0d0d  5d 0f
     add a,#0x30             ;0d0f  0d 30
@@ -2631,14 +2642,14 @@ sub_0d0c:
     ror a,1                 ;0d16  24
     ror a,1                 ;0d17  24
     and a,#0x0f             ;0d18  5d 0f
-    add a,#0x30             ;0d1a  0d 30
+    add a,#'0               ;0d1a  0d 30
     mov mem_fedb,a          ;0d1c  f2 db
-    movw mem_fedc,#0x2020   ;0d1e  ee dc 20 20
+    movw mem_fedc,#0x2020   ;0d1e  ee dc 20 20    two space characters
     mov a,b                 ;0d22  63
     cmp a,#0x00             ;0d23  4d 00
     bz lab_0d3a             ;0d25  ad 13
     and a,#0x0f             ;0d27  5d 0f
-    add a,#0x30             ;0d29  0d 30
+    add a,#'0               ;0d29  0d 30
     mov mem_fedc,a          ;0d2b  f2 dc
     mov a,b                 ;0d2d  63
     and a,#0xf0             ;0d2e  5d f0
@@ -2647,13 +2658,14 @@ sub_0d0c:
     ror a,1                 ;0d33  24
     ror a,1                 ;0d34  24
     ror a,1                 ;0d35  24
-    add a,#0x30             ;0d36  0d 30
+    add a,#'0               ;0d36  0d 30
     mov mem_fedd,a          ;0d38  f2 dd
 
 lab_0d3a:
     ret                     ;0d3a  af
 
 sub_0d3b:
+;Helper subroutine used only by sub_0d49
     mov x,a                 ;0d3b  70
     and a,#0x0f             ;0d3c  5d 0f
     xch a,x                 ;0d3e  30
@@ -2666,6 +2678,8 @@ sub_0d3b:
     ret                     ;0d48  af
 
 sub_0d49:
+;Convert BCD number in AX to binary
+;Example: AX=0x1234 -> AX=0x04D2
     push ax                 ;0d49  b1
     mov a,x                 ;0d4a  60
     callf !sub_0d3b         ;0d4b  5c 3b
