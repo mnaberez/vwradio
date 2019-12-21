@@ -21885,34 +21885,37 @@ lab_80a4_bad:
 lab_80b0_ret:
     ret                     ;80b0  af
 
-lab_80b1:
+sub_80b1:
+;Convert lower nibble of A to an ASCII hex digit
     cmp a,#0x0a             ;80b1  4d 0a
-    bc lab_80bb             ;80b3  8d 06
-    sub a,#0x0a             ;80b5  1d 0a
-    add a,#0x41             ;80b7  0d 41
-    br lab_80bd             ;80b9  fa 02
-
-lab_80bb:
-    add a,#0x30             ;80bb  0d 30
-
-lab_80bd:
+    bc lab_80bb_lt_0x0a     ;80b3  8d 06      Branch if A < 0x0A
+    ;A >= 0x0A
+    sub a,#0x0a             ;80b5  1d 0a      A = A - 0x0A
+    add a,#'A               ;80b7  0d 41      Convert to ASCII 'A'-'F'
+    br lab_80bd_ret         ;80b9  fa 02
+lab_80bb_lt_0x0a:
+    ;A < 0x0A
+    add a,#'0               ;80bb  0d 30      Convert to ASCII '0'-'9'
+lab_80bd_ret:
     ret                     ;80bd  af
 
-lab_80be:
+sub_80be:
     cmp mem_fe30,#0x03      ;80be  c8 30 03
     ret                     ;80c1  af
 
-lab_80c2:
+sub_80c2:
+;Convert lower nibble of A to an ASCII hex digit
+;XXX redundant: this routine is identical to sub_80b1 above
     cmp a,#0x0a             ;80c2  4d 0a
-    bc lab_80cc             ;80c4  8d 06
-    sub a,#0x0a             ;80c6  1d 0a
-    add a,#0x41             ;80c8  0d 41
-    br lab_80ce             ;80ca  fa 02
-
-lab_80cc:
-    add a,#0x30             ;80cc  0d 30
-
-lab_80ce:
+    bc lab_80cc_lt_0x0a     ;80c4  8d 06      Branch if A < 0x0A
+    ;A >= 0x0A
+    sub a,#0x0a             ;80c6  1d 0a      A = A - 0x0A
+    add a,#'A               ;80c8  0d 41      Convert to ASCII 'A'-'F'
+    br lab_80ce_ret         ;80ca  fa 02
+lab_80cc_lt_0x0a:
+    ;A < 0x0A
+    add a,#'0               ;80cc  0d 30      Convert to ASCII '0'-'9'
+lab_80ce_ret:
     ret                     ;80ce  af
 
 sub_80cf:
