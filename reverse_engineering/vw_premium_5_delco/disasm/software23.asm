@@ -7343,6 +7343,7 @@ lab_2b4e:
 
 sub_2b53:
 ;Called from lab_5581 (read eeprom related)
+;Returns carry clear = success, carry set = failure
     push hl                 ;2b53  b7
     call !sub_2d35          ;2b54  9a 35 2d     Clear bits in mem_fe5f and mem_fe60
 
@@ -7352,10 +7353,20 @@ sub_2b53:
                             ;                       A = KWP1281 rx buffer byte 3 (number of bytes)
                             ;                       D = KWP1281 rx buffer byte 4 (address high)
                             ;                       E = KWP1281 rx buffer byte 5 (address low)
-    mov !mem_f04c,a         ;2b5c  9e 4c f0
-    xchw ax,de              ;2b5f  e4
+
+    mov !mem_f04c,a         ;2b5c  9e 4c f0     mem_f04c = number of bytes to read
+
+    xchw ax,de              ;2b5f  e4           Swap so that:
+                            ;                     AX = EEPROM address
+                            ;                     D  = number of bytes
     movw !mem_f000,ax       ;2b60  03 00 f0     Store as mem addr for KWP1281 read ram / read eeprom
-    xchw ax,de              ;2b63  e4
+    xchw ax,de              ;2b63  e4           Swap again so that:
+                            ;                     DE = EEPROM address
+                            ;                     A  = number of bytes
+
+    ;At this point:
+    ;  mem_f000: EEPROM address to read (2 bytes)
+    ;  mem_f04c: number of bytes to read
     call !sub_2bd4          ;2b64  9a d4 2b     Prepare for KWP1281 read RAM or read EEPROM
     bc lab_2b6c             ;2b67  8d 03        Branch if invalid
     mov a,!mem_f04c         ;2b69  8e 4c f0
@@ -7365,6 +7376,7 @@ lab_2b6c:
     ret                     ;2b6d  af
 
 sub_2b6e:
+;Called from KWP1281 Read EEPROM
     push hl                 ;2b6e  b7
     movw ax,de              ;2b6f  c4
     push ax                 ;2b70  b1
@@ -7466,7 +7478,7 @@ sub_2bd4:
     call !sub_2cdf          ;2be8  9a df 2c     Check if a region in memory or EEPROM is valid
                             ;                       AX = start address
                             ;                       HL = number of bytes
-                            ;                       mem_fe60.2 = address type (0=EEPROM, 1=memory)
+                            ;                       mem_fe60.2 = address type (0=memory, 1=EEPROM)
     bc lab_2bf3_ret         ;2beb  8d 06        Branch if invalid
     movw !mem_f002,ax       ;2bed  03 02 f0
     movw ax,hl              ;2bf0  c6
@@ -7515,7 +7527,7 @@ sub_2c1a:
     call !sub_2cdf          ;2c27  9a df 2c   Check if a region in memory or EEPROM is valid
                             ;                     AX = start address
                             ;                     HL = number of bytes
-                            ;                     mem_fe60.2 = address type (0=EEPROM, 1=memory)
+                            ;                     mem_fe60.2 = address type (0=memory, 1=EEPROM)
     bc lab_2c32             ;2c2a  8d 06      Branch if invalid
     movw !mem_f002,ax       ;2c2c  03 02 f0
     movw ax,hl              ;2c2f  c6
@@ -7552,7 +7564,7 @@ sub_2c33:
     call !sub_2cdf          ;2c4a  9a df 2c     Check if a region in memory or EEPROM is valid
                             ;                       AX = start address
                             ;                       HL = number of bytes
-                            ;                       mem_fe60.2 = address type (0=EEPROM, 1=memory)
+                            ;                       mem_fe60.2 = address type (0=memory, 1=EEPROM)
     bc lab_2c7b_failed      ;2c4d  8d 2c        Branch if invalid
 
     bf mem_fe65.5,lab_2c6c_write ;2c4f  31 53 65 19   Skip protection checks if ?? bit is off
@@ -7704,7 +7716,7 @@ sub_2cdf:
 ;Called with:
 ;  AX = start address
 ;  HL = number of bytes
-;  mem_fe60.2 = address type (0=EEPROM, 1=memory)
+;  mem_fe60.2 = address type (0=memory, 1=EEPROM)
 ;
 ;Valid regions (range inclusive):
 ;  EEPROM:
@@ -7780,9 +7792,10 @@ lab_2d21:
     ret                     ;2d22  af
 
 sub_2d23:
+;TODO seems to be length check for EEPROM read
     mov a,#0x00             ;2d23  a1 00
     xch a,!mem_f04b         ;2d25  ce 4b f0
-    cmp a,#0x11             ;2d28  4d 11
+    cmp a,#0x11             ;2d28  4d 11          maximum 11
     bc lab_2d33             ;2d2a  8d 07
     sub a,#0x10             ;2d2c  1d 10
     mov !mem_f04b,a         ;2d2e  9e 4b f0
@@ -7800,7 +7813,7 @@ sub_2d35:
     clr1 mem_fe5f.7         ;2d3b  7b 5f
     clr1 mem_fe60.0         ;2d3d  0b 60
     clr1 mem_fe60.1         ;2d3f  1b 60
-    clr1 mem_fe60.2         ;2d41  2b 60      Clear bit = address is not an EEPROM address
+    clr1 mem_fe60.2         ;2d41  2b 60      Clear bit = address is memory (not EEPROM)
     ret                     ;2d43  af
 
 sub_2d44:
@@ -13930,7 +13943,9 @@ lab_50ca:
     br !lab_5355            ;50ce  9b 55 53     Branch to Send NAK response (index 0x04)
 
 lab_50d1:
-    br !lab_5581            ;50d1  9b 81 55     Branch to send read EEPROM response
+;Login and Group 0x19 verified
+;Proceed to read the EEPROm
+    br !lab_5581            ;50d1  9b 81 55     Branch to Read EEPROM and send response
 
 kwp_56_0c_write_eeprom:
 ;write eeprom (kwp_56_handlers)
@@ -14863,27 +14878,34 @@ lab_557e:
 ;branched to when mem_fbca = 0x02
     call !sub_2dd6          ;557e  9a d6 2d     Fake KWP1281 address, byte count in KWP1281 rx buf
                             ;                   Read addr from mem_f000, byte count from mem_f04c
+
 lab_5581:
-;branched from both read eeprom
+;KWP1281 Read EEPROM
+;Login and Group 0x19 have already been verified
+;
     mov a,#0x02             ;5581  a1 02
     mov !mem_fbca,a         ;5583  9e ca fb
     mov b,#0x1e             ;5586  a3 1e        B = index 0x1e response to read eeprom
     call !sub_5292          ;5588  9a 92 52     Set block title, counter, length in KWP1281 tx buf
-    call !sub_2b53          ;558b  9a 53 2b
-    bnc lab_559b            ;558e  9d 0b
+
+    call !sub_2b53          ;558b  9a 53 2b     TODO something related to EEPROM
+    bnc lab_559b            ;558e  9d 0b        Branch if failed
+
+    ;Something related to EEPROM failed
     mov a,!mem_fbcb         ;5590  8e cb fb     A = block counter
     sub a,#0x01             ;5593  1d 01        Decrement it
     mov !mem_fbcb,a         ;5595  9e cb fb     Store block counter
     br !lab_5355            ;5598  9b 55 53     Branch to Send NAK response (index 0x04)
 
 lab_559b:
+    ;Something related to EEPROM succeeded
     add a,#0x03             ;559b  0d 03
     mov [hl],a              ;559d  97
     mov !mem_f06b,a         ;559e  9e 6b f0     Store block length
     call !sub_34f7          ;55a1  9a f7 34     Set flags to start sending the KWP1281 tx buffer
 
 lab_55a4:
-    call !sub_2b6e          ;55a4  9a 6e 2b
+    call !sub_2b6e          ;55a4  9a 6e 2b     Actual EEPROM read is performed here
 
 lab_55a7:
     mov a,[de]              ;55a7  85
