@@ -7479,6 +7479,9 @@ sub_2bd4:
                             ;                       AX = start address
                             ;                       HL = number of bytes
                             ;                       mem_fe60.2 = address type (0=memory, 1=EEPROM)
+                            ;                   Returns:
+                            ;                       AX = end address
+                            ;                       HL = start address
     bc lab_2bf3_ret         ;2beb  8d 06        Branch if invalid
     movw !mem_f002,ax       ;2bed  03 02 f0
     movw ax,hl              ;2bf0  c6
@@ -7528,6 +7531,9 @@ sub_2c1a:
                             ;                     AX = start address
                             ;                     HL = number of bytes
                             ;                     mem_fe60.2 = address type (0=memory, 1=EEPROM)
+                            ;                 Returns:
+                            ;                     AX = end address
+                            ;                     HL = start address
     bc lab_2c32             ;2c2a  8d 06      Branch if invalid
     movw !mem_f002,ax       ;2c2c  03 02 f0
     movw ax,hl              ;2c2f  c6
@@ -7565,6 +7571,9 @@ sub_2c33:
                             ;                       AX = start address
                             ;                       HL = number of bytes
                             ;                       mem_fe60.2 = address type (0=memory, 1=EEPROM)
+                            ;                   Returns:
+                            ;                       AX = end address
+                            ;                       HL = start address
     bc lab_2c7b_failed      ;2c4d  8d 2c        Branch if invalid
 
     bf mem_fe65.5,lab_2c6c_write ;2c4f  31 53 65 19   Skip protection checks if ?? bit is off
@@ -7730,7 +7739,12 @@ sub_2cdf:
 ;    with AX=address and HL=1.  The missing bytes at the end
 ;    of the regions is mostly likely a bug.
 ;
-;Returns carry set = invalid, carry clear = valid
+;Returns:
+;  HL = start address
+;  AX = end address
+;  Carry set = invalid, carry clear = valid
+;
+;Preserves BC and DE.
 ;
     callf !sub_0d60         ;2cdf  5c 60      HL = HL + AX, preserves AX
                             ;                 HL now contains end address of region + 1
@@ -12148,29 +12162,49 @@ sub_47f6:
 
 sub_47fb:
 ;Title=0x1b  Subtitle=0x32  Block length=0x05
-;Calculate ROM checksum, store in mem_fb9d-mem_fb9e
+;Calculate ROM checksum
+;
+;Returns:
+;  AX = checksum in reverse order (A=low, X=high)
+;  mem_fb9e: Checksum low byte
+;  mem_fb9d: Checksum high byte
+;
     mov a,#0x04             ;47fb  a1 04
     mov !mem_fbaf,a         ;47fd  9e af fb
+
     mov a,#0x02             ;4800  a1 02        A = 2 bytes to copy
     call !sub_486f          ;4802  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to mem_fb9b
-    movw hl,#0x0000         ;4805  16 00 00
-    movw ax,#0x5555         ;4808  10 55 55
+                            ;                   XXX these two bytes are never used.
 
-lab_480b:
-    add a,[hl]              ;480b  0f
-    bnc lab_4812            ;480c  9d 04
-    inc x                   ;480e  40
-    mov wdtm,#0x80          ;480f  13 f9 80
+    movw hl,#rst_vect       ;4805  16 00 00     HL = start address (beginning of this ROM)
+    movw ax,#0x5555         ;4808  10 55 55     AX = initial value of checksum
 
-lab_4812:
-    incw hl                 ;4812  86
-    xchw ax,hl              ;4813  e6
-    cmpw ax,#checksum       ;4814  ea fe ef
-    xchw ax,hl              ;4817  e6
-    bc lab_480b             ;4818  8d f1
-    mov !mem_fb9e,a         ;481a  9e 9e fb
+lab_480b_loop:
+    add a,[hl]              ;480b  0f           Add to checksum low byte
+    bnc lab_4812_nc         ;480c  9d 04
+
+    inc x                   ;480e  40           Increment checksum high byte
+    mov wdtm,#0x80          ;480f  13 f9 80     Keep watchdog happy
+
+lab_4812_nc:
+    incw hl                 ;4812  86           Increment current address
+
+    xchw ax,hl              ;4813  e6           Swap so that:
+                            ;                     AX = current address
+                            ;                     HL = checksum
+    cmpw ax,#checksum       ;4814  ea fe ef     Compare current address to checksum location
+    xchw ax,hl              ;4817  e6           Swap again so that:
+                            ;                     HL = checksum
+                            ;                     AX = current address
+    bc lab_480b_loop        ;4818  8d f1        Branch if current address < checksum location
+
+    ;Checksum finished
+    ;  A = Checksum low byte    \  Note: this is the reverse order of how words are
+    ;  X = Checksum high byte   /        stored for the 16-bit operations like MOVW.
+
+    mov !mem_fb9e,a         ;481a  9e 9e fb     mem_fb9e = Checksum low byte
     xch a,x                 ;481d  30
-    mov !mem_fb9d,a         ;481e  9e 9d fb
+    mov !mem_fb9d,a         ;481e  9e 9d fb     mem_fb9d = Checksum high byte
     ret                     ;4821  af
 
 sub_4822:
@@ -21824,26 +21858,31 @@ sub_8085:
 
 sub_8090:
 ;Perform ROM checksum if not already performed
-    bt mem_fe6d.3,lab_80b0  ;8090  bc 6d 1d     Branch if ROM checksum already performed
-    call !sub_47fb          ;8093  9a fb 47     Calculate ROM checksum, store in mem_fb9d-mem_fb9e
-    set1 mem_fe6d.3         ;8096  3a 6d        ROM checksum calculation = performed
-    xch a,x                 ;8098  30
-    movw hl,#checksum       ;8099  16 fe ef
-    cmp a,[hl]              ;809c  4f
-    bnz lab_80a4            ;809d  bd 05
-    incw hl                 ;809f  86
-    xch a,x                 ;80a0  30
-    cmp a,[hl]              ;80a1  4f
-    bz lab_80b0             ;80a2  ad 0c
+    bt mem_fe6d.3,lab_80b0_ret ;8090  bc 6d 1d  Branch if ROM checksum already performed
 
-lab_80a4:
+    call !sub_47fb          ;8093  9a fb 47     Calculate ROM checksum, store in mem_fb9d-mem_fb9e
+                            ;                   AX = checksum in reverse order (A=low, X=high)
+    set1 mem_fe6d.3         ;8096  3a 6d        ROM checksum calculation = performed
+    xch a,x                 ;8098  30           AX = checksum in standard order (A=high, X=low)
+
+    movw hl,#checksum       ;8099  16 fe ef     HL = address of checksum high byte in ROM
+    cmp a,[hl]              ;809c  4f           Does the high byte match?
+    bnz lab_80a4_bad        ;809d  bd 05          No: branch
+
+    incw hl                 ;809f  86           HL = address of checksum low byte in ROM
+    xch a,x                 ;80a0  30           A = calculated low byte
+    cmp a,[hl]              ;80a1  4f           Does the low byte match?
+    bz lab_80b0_ret         ;80a2  ad 0c          Yes: branch
+
+lab_80a4_bad:
+;ROM checksum does not match
     mov a,!mem_f219         ;80a4  8e 19 f2
     cmp a,#0x03             ;80a7  4d 03
-    bz lab_80b0             ;80a9  ad 05
+    bz lab_80b0_ret         ;80a9  ad 05
     mov a,#0x02             ;80ab  a1 02
     call !sub_2cae          ;80ad  9a ae 2c
 
-lab_80b0:
+lab_80b0_ret:
     ret                     ;80b0  af
 
 lab_80b1:
