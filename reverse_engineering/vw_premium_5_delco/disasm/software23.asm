@@ -21887,6 +21887,7 @@ lab_80b0_ret:
 
 sub_80b1:
 ;Convert lower nibble of A to an ASCII hex digit
+;XXX redundant: identical routines at sub_80b1, sub_80c2, sub_8939
     cmp a,#0x0a             ;80b1  4d 0a
     bc lab_80bb_lt_0x0a     ;80b3  8d 06      Branch if A < 0x0A
     ;A >= 0x0A
@@ -21905,7 +21906,7 @@ sub_80be:
 
 sub_80c2:
 ;Convert lower nibble of A to an ASCII hex digit
-;XXX redundant: this routine is identical to sub_80b1 above
+;XXX redundant: identical routines at sub_80b1, sub_80c2, sub_8939
     cmp a,#0x0a             ;80c2  4d 0a
     bc lab_80cc_lt_0x0a     ;80c4  8d 06      Branch if A < 0x0A
     ;A >= 0x0A
@@ -23246,17 +23247,18 @@ sub_892a:
     pop ax                  ;8937  b0
     ret                     ;8938  af
 
-lab_8939:
+sub_8939:
+;Convert lower nibble of A to an ASCII hex digit
+;XXX redundant: identical routines at sub_80b1, sub_80c2, sub_8939
     cmp a,#0x0a             ;8939  4d 0a
-    bc lab_8943             ;893b  8d 06
-    sub a,#0x0a             ;893d  1d 0a
-    add a,#0x41             ;893f  0d 41
-    br lab_8945             ;8941  fa 02
-
-lab_8943:
-    add a,#0x30             ;8943  0d 30
-
-lab_8945:
+    bc lab_8943_lt_0x0a     ;893b  8d 06      Branch if A < 0x0A
+    ;A >= 0x0A
+    sub a,#0x0a             ;893d  1d 0a      A = A - 0x0A
+    add a,#'A               ;893f  0d 41      Convert to ASCII 'A'-'F'
+    br lab_8945_ret         ;8941  fa 02
+lab_8943_lt_0x0a:
+    add a,#'0               ;8943  0d 30      Convert to ASCII '0'-'9'
+lab_8945_ret:
     ret                     ;8945  af
 
 sub_8946:
