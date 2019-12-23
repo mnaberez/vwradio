@@ -2238,6 +2238,13 @@ lab_0b99:
     ret                     ;0b9b  af
 
 sub_0b9c:
+;CDE = C * DE
+;Examples:
+;  BC=0x0000, DE=0x0000 -> BC=0x0000, DE=0x0000  (0x00 * 0x0000 = 0x000000)
+;  BC=0x0002, DE=0x1234 -> BC=0x0000, DE=0x2468  (0x02 * 0x1234 = 0x002468)
+;  BC=0x00FF, DE=0xFFFF -> BC=0x00FE, DE=0xFF01  (0xFF * 0xFFFF = 0xFEFF01)
+;Preserves B, HL.
+;Destroys AX.
     movw ax,bc              ;0b9c  c2
     mov a,e                 ;0b9d  64
     mulu x                  ;0b9e  31 88
