@@ -552,7 +552,6 @@ mem_fe7e = 0xfe7e
 mem_fe7f = 0xfe7f
 mem_fe80 = 0xfe80
 mem_fe81 = 0xfe81
-mem_fea1 = 0xfea1
 
 ;High Speed RAM from 0xFECB to 0xFEFF is not cleared on reset:
 
