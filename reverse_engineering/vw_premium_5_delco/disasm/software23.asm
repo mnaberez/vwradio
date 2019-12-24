@@ -1782,10 +1782,13 @@ lab_09db:
 sub_09e6:
     movw hl,#mem_f1b3       ;09e6  16 b3 f1
     movw de,#mem_f202       ;09e9  14 02 f2
-    callf !sub_09ef         ;09ec  1c ef
+    callf !sub_09ef         ;09ec  1c ef      A = DE - HL
     ret                     ;09ee  af
 
 sub_09ef:
+;A = DE - HL
+;Does AX = DE - HL but swaps A & X at the end so A=low and X=high.
+;Preserves DE and HL.
     movw ax,de              ;09ef  c4
     xch a,x                 ;09f0  30
     sub a,l                 ;09f1  61 1e
@@ -1827,7 +1830,7 @@ sub_0a17:
 sub_0a1c:
     movw hl,#mem_f1b3       ;0a1c  16 b3 f1
     movw de,#mem_f202       ;0a1f  14 02 f2
-    callf !sub_09ef         ;0a22  1c ef
+    callf !sub_09ef         ;0a22  1c ef        A = DE - HL
     movw hl,#mem_0080       ;0a24  16 80 00     HL = source address
     movw de,#mem_f1b3       ;0a27  14 b3 f1     DE = destination address
     br lab_0a34             ;0a2a  fa 08        Branch to Copy A bytes from [HL] to [DE] and return
@@ -11062,7 +11065,7 @@ lab_4114:
     xch a,!mem_f205         ;4123  ce 05 f2
     movw hl,#0x0010         ;4126  16 10 00
     movw de,#0x0046         ;4129  14 46 00
-    callf !sub_09ef         ;412c  1c ef
+    callf !sub_09ef         ;412c  1c ef        A = DE - HL
     sub a,#0x02             ;412e  1d 02
     bz lab_4165             ;4130  ad 33
     movw de,#mem_f1b3       ;4132  14 b3 f1
@@ -11092,7 +11095,7 @@ lab_4114:
 lab_4165:
     movw hl,#0x0046         ;4165  16 46 00
     movw de,#0x0063         ;4168  14 63 00
-    callf !sub_09ef         ;416b  1c ef
+    callf !sub_09ef         ;416b  1c ef        A = DE - HL
     bt mem_fe64.5,lab_4187  ;416d  dc 64 17
     movw de,#mem_f1e7       ;4170  14 e7 f1
     call !sub_40df          ;4173  9a df 40
@@ -11182,7 +11185,7 @@ lab_41ed:
     ;TODO EEPROM addresses 0x0058-0x0061 are protected in lab_2c60
     movw hl,#0x0058         ;41ef  16 58 00
     movw de,#0x0061         ;41f2  14 61 00
-    callf !sub_09ef         ;41f5  1c ef
+    callf !sub_09ef         ;41f5  1c ef        A = DE - HL
     movw hl,#mem_00c6       ;41f7  16 c6 00
     movw de,#mem_f1f9       ;41fa  14 f9 f1
     callf !sub_0c9e         ;41fd  4c 9e        Copy A bytes from [HL] to [DE]
@@ -11190,7 +11193,7 @@ lab_41ed:
 lab_41ff:
     movw hl,#0x0046         ;41ff  16 46 00
     movw de,#0x0061         ;4202  14 61 00
-    callf !sub_09ef         ;4205  1c ef
+    callf !sub_09ef         ;4205  1c ef        A = DE - HL
     push ax                 ;4207  b1
     movw hl,#mem_f1e7       ;4208  16 e7 f1
     movw de,#mem_f202       ;420b  14 02 f2
