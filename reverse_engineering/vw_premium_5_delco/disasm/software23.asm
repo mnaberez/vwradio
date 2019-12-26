@@ -1198,7 +1198,7 @@ lab_0265:
 lab_0266:
     br !lab_0160            ;0266  9b 60 01
 
-lab_0269:
+sub_0269:
     decw de                 ;0269  94
     mov a,[de]              ;026a  85
     incw de                 ;026b  84
@@ -2168,7 +2168,7 @@ lab_0b55:
     pop bc                  ;0b56  b2
     ret                     ;0b57  af
 
-lab_0b58:
+sub_0b58:
     mulu x                  ;0b58  31 88
     push bc                 ;0b5a  b3
     xch a,c                 ;0b5b  32
@@ -2437,7 +2437,27 @@ lab_0c62:
     not1 cy                 ;0c62  01
     ret                     ;0c63  af
 
-lab_0c64:
+sub_0c64:
+;Load A with nibble at position B in table [HL]
+;
+;Call with:
+;  HL = address of table
+;       note: the byte before it must be the table size in nibbles
+;  B = index of nibble in table
+;
+;Returns:
+;  A = nibble from table (in low nibble, high nibble zero)
+;  carry set = failed (B is out of range), carry clear = success
+;
+;Preserves X, BC, DE, HL.
+;
+;Example:
+;  0xFB00  4          HL=0xFB01,B=0 -> A=0x0A, CY=0
+;  0xFB01  0xBA       HL=0xFB01,B=1 -> A=0x0B, CY=0
+;  0xFB02  0xDC       HL=0xFB01,B=2 -> A=0x0C, CY=0
+;                     HL=0xFB01,B=3 -> A=0x0D, CY=0
+;                     HL=0xFB01,B=4 -> CY=1 (failed)
+;
     decw hl                 ;0c64  96
     mov a,[hl]              ;0c65  87
     incw hl                 ;0c66  86
@@ -15372,9 +15392,9 @@ lab_57c3:
     movw hl,#upd_keys_1-1   ;57c7  16 d0 fb     HL+C will point to a key data byte in upd_keys_1
 lab_57ca:
     cmp a,[hl+c]            ;57ca  31 4a        Compare key data byte at HL+B with zero
-    bnz lab_57d2            ;57cc  bd 04        Branch if not zero (a key scan bit is set)
-    dbnz c,lab_57ca         ;57ce  8a fa        Not set, continue to next bit
-    br lab_57f2             ;57d0  fa 20        No uPD16432B key scan bit is set (no key pressed)
+    bnz lab_57d2            ;57cc  bd 04        Branch if nonzero (a key scan bit is set)
+    dbnz c,lab_57ca         ;57ce  8a fa        Not set, continue to next byte
+    br lab_57f2             ;57d0  fa 20        No key scan byte is nonzero (no key pressed)
 
 lab_57d2:
 ;A uPD16432B key scan bit is set (a key was pressed)
