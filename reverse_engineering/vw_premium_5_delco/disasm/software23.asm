@@ -2530,6 +2530,14 @@ sub_0c87:
 
 sub_0c9e:
 ;Copy A bytes from [HL] to [DE]
+;
+;Preserves X, BC.
+;
+;Returns:
+;  A = last byte copied
+;  HL = pointer to next byte after area read
+;  DE = pointer to next byte after area written
+;
     push bc                 ;0c9e  b3
     mov b,a                 ;0c9f  73
     cmp a,#0x00             ;0ca0  4d 00
@@ -6586,10 +6594,12 @@ kwp_0001:
     .byte 0x03 ;KWP1281 block end
 
 display_test:
-    .ascii "DISPLAY   TEST  "
+    .ascii "DISPLAY "   ;FIS line 1
+    .ascii "  TEST  "   ;FIS line 2
 
 display_test_end:
-    .ascii "          END   "
+    .ascii "        "   ;FIS line 1
+    .ascii "  END   "   ;FIS line 2
 
 sub_26b6:
     mov e,#0xc2             ;26b6  a4 c2
@@ -6841,12 +6851,14 @@ lab_2818:
 
 sub_281c:
 ;Copy display_test_end text into fis_tx_buf
-    movw hl,#display_test_end ;281c  16 a6 26   HL = source address of "          END   "
-    br lab_2824             ;281f  fa 03
+    movw hl,#display_test_end ;281c  16 a6 26   HL = source address of "        " (FIS line 1)
+                              ;                                        "  END   " (FIS line 2)
+    br lab_2824               ;281f  fa 03
 
 sub_2821:
 ;Copy display_test text into fis_tx_buf
-    movw hl,#display_test   ;2821  16 96 26     HL = source address of "DISPLAY   TEST  "
+    movw hl,#display_test   ;2821  16 96 26     HL = source address of "DISPLAY " (FIS line 1)
+                            ;                                          "  TEST  " (FIS line 2)
 
 lab_2824:
     movw de,#fis_tx_buf+3   ;2824  14 55 f0     DE = destination address
@@ -7895,18 +7907,18 @@ sub_2d6e:
     mov a,mem_fed4          ;2d6e  f0 d4
     and a,#0x0f             ;2d70  5d 0f
     cmp a,#0x08             ;2d72  4d 08
-    bnc lab_2dd5            ;2d74  9d 5f
+    bnc lab_2dd5_ret        ;2d74  9d 5f
     cmp a,#0x04             ;2d76  4d 04
     bc lab_2d80             ;2d78  8d 06
     mov a,!mem_f1e9         ;2d7a  8e e9 f1
-    bt a.0,lab_2dd5         ;2d7d  31 0e 55
+    bt a.0,lab_2dd5_ret     ;2d7d  31 0e 55
 
 lab_2d80:
     mov a,mem_fed4          ;2d80  f0 d4
     and a,#0xf0             ;2d82  5d f0
     callf !ror_a_4          ;2d84  2c 9e        A = A >> 4
     cmp a,#0x05             ;2d86  4d 05
-    bnc lab_2dd5            ;2d88  9d 4b
+    bnc lab_2dd5_ret        ;2d88  9d 4b
     cmp a,#0x00             ;2d8a  4d 00
     bz lab_2dc4             ;2d8c  ad 36
     cmp a,#0x03             ;2d8e  4d 03
@@ -7914,7 +7926,7 @@ lab_2d80:
     cmp a,#0x04             ;2d92  4d 04
     bz lab_2d9a             ;2d94  ad 04
     clr1 cy                 ;2d96  21
-    br !lab_2dd5            ;2d97  9b d5 2d
+    br !lab_2dd5_ret        ;2d97  9b d5 2d
 
 lab_2d9a:
     mov a,mem_fed5          ;2d9a  f0 d5
@@ -7930,7 +7942,7 @@ lab_2da5:
     bz lab_2dc4             ;2da7  ad 1b
     dbnz b,lab_2da5         ;2da9  8b fa
     clr1 cy                 ;2dab  21
-    br !lab_2dd5            ;2dac  9b d5 2d
+    br !lab_2dd5_ret        ;2dac  9b d5 2d
 
 lab_2daf:
     mov a,mem_fed5          ;2daf  f0 d5
@@ -7946,20 +7958,20 @@ lab_2dba:
     bz lab_2dc4             ;2dbc  ad 06
     dbnz b,lab_2dba         ;2dbe  8b fa
     clr1 cy                 ;2dc0  21
-    br !lab_2dd5            ;2dc1  9b d5 2d
+    br !lab_2dd5_ret        ;2dc1  9b d5 2d
 
 lab_2dc4:
     mov a,mem_fed5          ;2dc4  f0 d5
     and a,#0x0f             ;2dc6  5d 0f
     cmp a,#0x05             ;2dc8  4d 05
-    bnc lab_2dd5            ;2dca  9d 09
+    bnc lab_2dd5_ret        ;2dca  9d 09
     mov a,mem_fed6          ;2dcc  f0 d6
     and a,#0x0f             ;2dce  5d 0f
     cmp a,#0x01             ;2dd0  4d 01
-    bnc lab_2dd5            ;2dd2  9d 01
+    bnc lab_2dd5_ret        ;2dd2  9d 01
     set1 cy                 ;2dd4  20
 
-lab_2dd5:
+lab_2dd5_ret:
     ret                     ;2dd5  af
 
 
@@ -8021,7 +8033,7 @@ sub_2e0a:
     add a,#'A               ;2e10  0d 41      Convert to ASCII 'A'-'F'
     br lab_2e16_ret         ;2e12  fa 02
 lab_2e14_lt_0x0a:
-    add a,#0x30             ;2e14  0d 30      Convert to ASCII '0'-'9'
+    add a,#'0               ;2e14  0d 30      Convert to ASCII '0'-'9'
 lab_2e16_ret:
     ret                     ;2e16  af
 
@@ -8080,6 +8092,25 @@ sub_2e5d:
 
 sub_2e6c:
 ;Compute FIS buffer checksum
+;
+;Buffer is 20 bytes at fis_tx_buf, containing:
+;
+;    fis_tx_buf+0x00   0x81   Command 0x81
+;    fis_tx_buf+0x01     19   Length (includes checksum)
+;    fis_tx_buf+0x02   0xF0   Constant 0xF0
+;    fis_tx_buf+0x03   <FIS line 1: 8 bytes at 0x03 - 0x0a>
+;    fis_tx_buf+0x0b   <FIS line 2: 8 bytes at 0x0b - 0x12>
+;    fis_tx_buf+0x13   Checksum
+;
+;XXX Hardcoded Length
+;
+;    This routine is hardcoded for a length of 19 bytes:
+;        mov b,#19
+;
+;    It could be generalized so other FIS commands could be sent:
+;        mov a,fis_tx_buf+0x01
+;        mov b,a
+;
     mov b,#19               ;2e6c  a3 13        B=19 bytes to checksum
     movw hl,#fis_tx_buf-1   ;2e6e  16 51 f0     HL = pointer to FIS buffer
     mov x,#0x00             ;2e71  a0 00        Checksum initial value = 0
@@ -8089,37 +8120,44 @@ lab_2e73_loop:
     dbnz b,lab_2e73_loop    ;2e76  8b fb        Loop until all bytes are XOR'ed
     mov a,x                 ;2e78  60           A = checksum
     dec a                   ;2e79  51           Decrement checksum by 1
-    mov !fis_tx_buf+19,a    ;2e7a  9e 65 f0     Store it in the FIS buffer
+    mov !fis_tx_buf+0x13,a  ;2e7a  9e 65 f0     Store it in the FIS buffer
     ret                     ;2e7d  af
 
 sub_2e7e:
-;Fill 16 bytes at fis_tx_buf+3 buffer with 0x20 (space)
-    mov b,#0x10             ;2e7e  a3 10        B = 16 bytes to fill
+;Fill all characters on the FIS display with 0x20 (space)
+    mov b,#16               ;2e7e  a3 10        B = 16 bytes to fill (8 chars * 2 lines)
     movw hl,#fis_tx_buf+3   ;2e80  16 55 f0     HL = pointer to buffer to fill
     mov a,#0x20             ;2e83  a1 20        A = fill value (space character)
     callf !sub_0cdc         ;2e85  4c dc        Fill B bytes in buffer [HL] with A
     ret                     ;2e87  af
 
 sub_2e88:
-;Fill 16 bytes at fis_tx_buf+3 buffer with 0
-    mov b,#0x10             ;2e88  a3 10        B = 16 bytes to fill
+;Fill all characters on the FIS display with 0
+    mov b,#16               ;2e88  a3 10        B = 16 bytes to fill (8 chars * 2 lines)
     movw hl,#fis_tx_buf+3   ;2e8a  16 55 f0     HL = pointer to buffer to fill
     callf !sub_0cda         ;2e8d  4c da        Fill B bytes in buffer [HL] with 0
     ret                     ;2e8f  af
 
 sub_2e90:
 ;Convert uPD16432B display to FIS display
+;
 ;Returns carry set = blank, carry clear = not blank
+;
     call !sub_2efc          ;2e90  9a fc 2e     Check if upd_disp is blank (all spaces)
     bnz lab_2e9a_not_blank  ;2e93  bd 05        Branch if not blank
 
     ;upd_disp is blank
-    call !sub_2e88          ;2e95  9a 88 2e     Fill 16 bytes at fis_tx_buf+3 buffer with 0
+    call !sub_2e88          ;2e95  9a 88 2e     Fill all chars on FIS display with 0
     set1 cy                 ;2e98  20           Carry set = blank
     ret                     ;2e99  af
 
 lab_2e9a_not_blank:
 ;upd_disp is not blank
+    ;Copy from uPD16432B:
+    ;   "XX........."
+    ;to FIS:
+    ;   "XX......"
+    ;   "........"
     mov a,#0x02             ;2e9a  a1 02        A = 2 bytes to copy
     movw hl,#upd_disp       ;2e9c  16 9a f1     HL = source address
     movw de,#fis_tx_buf+3   ;2e9f  14 55 f0     DE = destination address
@@ -8128,6 +8166,11 @@ lab_2e9a_not_blank:
     cmp mem_fe30,#0x01      ;2ea4  c8 30 01
     bz lab_2eb5             ;2ea7  ad 0c
 
+    ;Copy from uPD16432B:
+    ;    "..XX......."
+    ;to FIS:
+    ;    "..XX...."
+    ;    "........"
     mov a,#0x02             ;2ea9  a1 02        A = 2 bytes to copy
     movw hl,#upd_disp+2     ;2eab  16 9c f1     HL = source address
     movw de,#fis_tx_buf+5   ;2eae  14 57 f0     DE = destination address
@@ -8138,9 +8181,13 @@ lab_2e9a_not_blank:
 lab_2eb5:
 ;mem_fe30 = 0x01
     call !sub_0800          ;2eb5  9a 00 08     Return mem_f253 in A, also copy it into mem_fb58
+
+    ;Compare uPD16432B:
+    ;  "..X........" to "2" (e.g. the "2" in "FM2")
     cmp a,#0x02             ;2eb8  4d 02
     mov a,!upd_disp+2       ;2eba  8e 9c f1
     bz lab_2ec5             ;2ebd  ad 06
+
     cmp a,#0x20             ;2ebf  4d 20        Compare to space character
     bnc lab_2ec5            ;2ec1  9d 02        Branch if >= space
 
@@ -8148,9 +8195,19 @@ lab_2eb5:
     add a,#'1               ;2ec3  0d 31
 
 lab_2ec5:
+    ;Copy to FIS:
+    ;    "..X....."
+    ;    "........"
     mov !fis_tx_buf+5,a     ;2ec5  9e 57 f0
+
+    ;Read from uPD16432B:
+    ;    "...X......."
     mov a,!upd_disp+3       ;2ec8  8e 9d f1     A = preset character
-    movw hl,#fis_tx_buf+6   ;2ecb  16 58 f0
+
+    ;Set up HL pointer to FIS:
+    ;    "...X...."
+    ;    "........"
+    movw hl,#fis_tx_buf+6   ;2ecb  16 58 f0     HL = pointer to FIS first line, fourth char
     bf mem_fe5c.2,lab_2edb  ;2ece  31 23 5c 09
 
     cmp a,#0x20             ;2ed2  4d 20        Compare to space character
@@ -8159,30 +8216,66 @@ lab_2ec5:
     ;A < space
     add a,#'0-1             ;2ed6  0d 2f        Convert character code for preset to ASCII
                             ;                     (preset 1 = code 2)
-    movw hl,#fis_tx_buf+7   ;2ed8  16 59 f0
+
+    ;Set up HL pointer to FIS:
+    ;    "....X..."
+    ;    "........"
+    movw hl,#fis_tx_buf+7   ;2ed8  16 59 f0     HL = pointer to FIS first line, fifth char
 
 lab_2edb:
+    ;A contains this char from uPD16432B:
+    ;    "...X......."
+    ;
+    ;Write it to FIS dispay at pointer.  One of:
+    ;    "...X...."     "....X..."
+    ;    "........"     "........"
     mov [hl],a              ;2edb  97           Write A into fis_tx_buf
+                            ;                     at first line, either fourth or fifth char
 
 lab_2edc:
-    mov a,#0x03             ;2edc  a1 03        A = 3 bytes to copy
-    movw hl,#upd_disp+4     ;2ede  16 9e f1     HL = source address
-    movw de,#fis_tx_buf+11  ;2ee1  14 5d f0     DE = destination address
-    callf !sub_0c9e         ;2ee4  4c 9e        Copy A bytes from [HL] to [DE]
+    ;Copy 3 bytes from uPD16432B:
+    ;    "....XXX...."
+    ;
+    ;to FIS:
+    ;    "........"
+    ;    "XXX....."
+    mov a,#0x03               ;2edc  a1 03        A = 3 bytes to copy
+    movw hl,#upd_disp+4       ;2ede  16 9e f1     HL = source address
+    movw de,#fis_tx_buf+0x0b  ;2ee1  14 5d f0     DE = destination address
+    callf !sub_0c9e           ;2ee4  4c 9e        Copy A bytes from [HL] to [DE]
+
+    ;HL now points to uPD16432B:
+    ;    ".......X...."
+    ;
+    ;DE now points to FIS:
+    ;    "........"
+    ;    "...X...."
 
     bf upd_pict+4.5,lab_2eee ;2ee6  31 53 39 04  Branch if period pictograph is off
 
     ;Period pictograph is on
+    ;Write a period pictograph to FIS:
+    ;    "........"
+    ;    "...X...."
     mov a,#'.               ;2eea  a1 2e        A = period character
     mov [de],a              ;2eec  95           Write it into the FIS buffer
+
+    ;Increment FIS pointer to:
+    ;    "........"
+    ;    "....X..."
     incw de                 ;2eed  84           Increment FIS buffer pointer
 
 lab_2eee:
+    ;Copy 4 bytes from uPD16432B
+
     mov a,#0x04             ;2eee  a1 04        A = 4 bytes to copy
     callf !sub_0c9e         ;2ef0  4c 9e        Copy A bytes from [HL] to [DE]
 
-    mov b,#0x10             ;2ef2  a3 10        B = number of bytes to convert
-    movw hl,#fis_tx_buf+2   ;2ef4  16 54 f0     HL = buffer address
+    ;Convert the entire FIS display to uppercase:
+    ;    "XXXXXXXX"
+    ;    "XXXXXXXX"
+    mov b,#16               ;2ef2  a3 10        B = number of bytes to convert (8 chars * 2 lines)
+    movw hl,#fis_tx_buf+3-1 ;2ef4  16 54 f0     HL = buffer address
     call !sub_306f          ;2ef7  9a 6f 30     Convert B bytes in [HL] to uppercase
 
     clr1 cy                 ;2efa  21           Carry clear = not blank
@@ -8274,7 +8367,7 @@ lab_2f61:
     bf mem_fe61.1,lab_2fa9_ret  ;2f67  31 13 61 3e
 
 lab_2f6b:
-    bt mem_fe5f.5,lab_2f95  ;2f6b  dc 5f 27
+    bt mem_fe5f.5,lab_2f95  ;2f6b  dc 5f 27     Compute checksum and start sending FIS buf
     bf mem_fe6a.2,lab_2f8a  ;2f6e  31 23 6a 18
     cmp mem_fe27,#0x00      ;2f72  c8 27 00
     bnz lab_2f79            ;2f75  bd 02
@@ -8282,8 +8375,8 @@ lab_2f6b:
 
 lab_2f79:
     dec mem_fe27            ;2f79  91 27
-    call !sub_2e88          ;2f7b  9a 88 2e     Fill 16 bytes at fis_tx_buf+3 buffer with 0
-    br lab_2f95             ;2f7e  fa 15
+    call !sub_2e88          ;2f7b  9a 88 2e     Fill all chars on FIS display with 0
+    br lab_2f95             ;2f7e  fa 15        Compute checksum and start sending FIS buf
 
 lab_2f80:
     bt mem_fe65.5,lab_2f8a  ;2f80  dc 65 07
@@ -8292,10 +8385,11 @@ lab_2f80:
     br lab_2fa9_ret         ;2f88  fa 1f
 
 lab_2f8a:
-    call !sub_2e7e          ;2f8a  9a 7e 2e     Fill 16 bytes at fis_tx_buf+3 buffer with space
+    call !sub_2e7e          ;2f8a  9a 7e 2e     Fill all chars on FIS display with space
     call !sub_2e90          ;2f8d  9a 90 2e     Convert uPD16432B display to FIS display
     bc lab_2fa9_ret         ;2f90  8d 17        Branch if display is blank
     mov mem_fe27,#0x03      ;2f92  11 27 03
+    ;Fall through to compute checksum and start sending FIS buf
 
 lab_2f95:
     call !sub_2e6c          ;2f95  9a 6c 2e     Compute FIS buffer checksum
@@ -8303,7 +8397,7 @@ lab_2f95:
     clr1 mem_fe60.3         ;2f9a  3b 60
     movw ax,#fis_tx_buf     ;2f9c  10 52 f0
     movw !mem_f006,ax       ;2f9f  03 06 f0
-    mov a,#20               ;2fa2  a1 14
+    mov a,#20               ;2fa2  a1 14        A = 20 bytes in FIS buffer to send
     mov !mem_f066,a         ;2fa4  9e 66 f0
     br lab_2faa             ;2fa7  fa 01
 
