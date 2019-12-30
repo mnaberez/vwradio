@@ -8111,6 +8111,8 @@ sub_2e6c:
 ;        mov a,fis_tx_buf+0x01
 ;        mov b,a
 ;
+;    Note: the length is also hardcoded in lab_2f95 and lab_2fb9.
+;
     mov b,#19               ;2e6c  a3 13        B=19 bytes to checksum
     movw hl,#fis_tx_buf-1   ;2e6e  16 51 f0     HL = pointer to FIS buffer
     mov x,#0x00             ;2e71  a0 00        Checksum initial value = 0
@@ -8392,12 +8394,14 @@ lab_2f8a:
     ;Fall through to compute checksum and start sending FIS buf
 
 lab_2f95:
+;Compute checksum and start sending FIS buf
     call !sub_2e6c          ;2f95  9a 6c 2e     Compute FIS buffer checksum
     set1 mem_fe61.0         ;2f98  0a 61
     clr1 mem_fe60.3         ;2f9a  3b 60
     movw ax,#fis_tx_buf     ;2f9c  10 52 f0
     movw !mem_f006,ax       ;2f9f  03 06 f0
     mov a,#20               ;2fa2  a1 14        A = 20 bytes in FIS buffer to send
+                            ;                       XXX hardcoded FIS command length
     mov !mem_f066,a         ;2fa4  9e 66 f0
     br lab_2faa             ;2fa7  fa 01
 
@@ -8417,16 +8421,20 @@ lab_2fb5:
 
 lab_2fb9:
     mov a,!mem_f066         ;2fb9  8e 66 f0
-    cmp a,#20+1             ;2fbc  4d 15
-    bc lab_2fc3             ;2fbe  8d 03
+    cmp a,#20+1             ;2fbc  4d 15        Compare to FIS command length + 1
+                            ;                     XXX hardcoded FIS command length
+    bc lab_2fc3             ;2fbe  8d 03        Branch if less
     br !lab_3066            ;2fc0  9b 66 30
 
 lab_2fc3:
-    cmp a,#0x00             ;2fc3  4d 00
-    bnz lab_2fca            ;2fc5  bd 03
+    cmp a,#0x00             ;2fc3  4d 00        0 bytes remaning?
+    bnz lab_2fca            ;2fc5  bd 03          No: Branch to send next byte?
+
+    ;No bytes remaining: the complete FIS packet has been sent
     br !lab_3066            ;2fc7  9b 66 30
 
 lab_2fca:
+;More bytes left to send in FIS packet
     set1 mem_fe60.6         ;2fca  6a 60
     set1 mem_fe60.7         ;2fcc  7a 60
     callf !sio30_disable    ;2fce  0c 91        Disable SIO30 (used for uPD16432B SPI)
@@ -8440,12 +8448,14 @@ lab_2fca:
     clr1 pm4.4              ;2fe1  71 4b 24
     mov a,shadow_p4         ;2fe4  f0 ce
     mov p4,a                ;2fe6  f2 04
+
+    ;Busy loop
     push bc                 ;2fe8  b3
     mov b,#0x0e             ;2fe9  a3 0e
-
 lab_2feb:
     dbnz b,lab_2feb         ;2feb  8b fe
     pop bc                  ;2fed  b2
+
     clr1 shadow_p4.4        ;2fee  4b ce
     mov a,shadow_p4         ;2ff0  f0 ce
     mov p4,a                ;2ff2  f2 04
