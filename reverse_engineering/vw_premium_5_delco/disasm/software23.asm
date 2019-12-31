@@ -6826,7 +6826,7 @@ lab_27ff:
     ;AX = 0x0356 (00854 - Radio Display Output in Dash Panel Insert)
     push ax                 ;2804  b1
     call !sub_7bbe          ;2805  9a be 7b
-    call !sub_2821          ;2808  9a 21 28     Copy display_test text into fis_tx_buf
+    call !fis_display_test  ;2808  9a 21 28     Copy display_test text into fis_tx_buf
     pop ax                  ;280b  b0
     br lab_2818             ;280c  fa 0a        Branch to pop registers, clear carry, and return
 
@@ -6835,30 +6835,30 @@ lab_280e:
     bnz lab_2818            ;2811  bd 05        Branch to pop registers, clear carry, and return
 
     ;AX = 0x04ab (01195 - End)
-    push ax                 ;2813  b1
-    call !sub_281c          ;2814  9a 1c 28     Copy display_test_end text into fis_tx_buf
-    pop ax                  ;2817  b0
-                            ;                   Fall through to pop registers, clear carry, and ret
+    push ax                     ;2813  b1
+    call !fis_display_test_end  ;2814  9a 1c 28     Copy display_test_end text into fis_tx_buf
+    pop ax                      ;2817  b0
+                                ;                   Fall through to pop registers, clear carry, and ret
 lab_2818:
     pop bc                  ;2818  b2
     pop hl                  ;2819  b6
     clr1 cy                 ;281a  21
     ret                     ;281b  af
 
-sub_281c:
+fis_display_test_end:
 ;Copy display_test_end text into fis_tx_buf
     movw hl,#display_test_end ;281c  16 a6 26   HL = source address of "        " (FIS line 1)
                               ;                                        "  END   " (FIS line 2)
     br lab_2824               ;281f  fa 03
 
-sub_2821:
+fis_display_test:
 ;Copy display_test text into fis_tx_buf
     movw hl,#display_test   ;2821  16 96 26     HL = source address of "DISPLAY " (FIS line 1)
                             ;                                          "  TEST  " (FIS line 2)
 
 lab_2824:
     movw de,#fis_tx_buf+3   ;2824  14 55 f0     DE = destination address
-    mov a,#0x10             ;2827  a1 10        A = 0x10 bytes to copy
+    mov a,#16             ;2827  a1 10          A = 16 bytes to copy (9 chars * 2 lines)
     callf !sub_0c9e         ;2829  4c 9e        Copy A bytes from [HL] to [DE]
     set1 mem_fe60.3         ;282b  3a 60
     set1 mem_fe5f.5         ;282d  5a 5f
@@ -8088,7 +8088,7 @@ sub_2e5d:
     clr1 mem_fe60.7         ;2e69  7b 60
     ret                     ;2e6b  af
 
-sub_2e6c:
+fis_checksum:
 ;Compute FIS buffer checksum
 ;
 ;Buffer is 20 bytes at fis_tx_buf, containing:
@@ -8109,7 +8109,7 @@ sub_2e6c:
 ;        mov a,fis_tx_buf+0x01
 ;        mov b,a
 ;
-;    Note: the length is also hardcoded in lab_2f95 and lab_2fb9.
+;    Note: the length is also hardcoded in fis_cksum_and_send and lab_2fb9.
 ;
     mov b,#19               ;2e6c  a3 13        B=19 bytes to checksum
     movw hl,#fis_tx_buf-1   ;2e6e  16 51 f0     HL = pointer to FIS buffer
@@ -8123,7 +8123,7 @@ lab_2e73_loop:
     mov !fis_tx_buf+0x13,a  ;2e7a  9e 65 f0     Store it in the FIS buffer
     ret                     ;2e7d  af
 
-sub_2e7e:
+fis_clear:
 ;Fill all characters on the FIS display with 0x20 (space)
     mov b,#16               ;2e7e  a3 10        B = 16 bytes to fill (8 chars * 2 lines)
     movw hl,#fis_tx_buf+3   ;2e80  16 55 f0     HL = pointer to buffer to fill
@@ -8131,23 +8131,24 @@ sub_2e7e:
     callf !sub_0cdc         ;2e85  4c dc        Fill B bytes in buffer [HL] with A
     ret                     ;2e87  af
 
-sub_2e88:
+fis_zero:
 ;Fill all characters on the FIS display with 0
     mov b,#16               ;2e88  a3 10        B = 16 bytes to fill (8 chars * 2 lines)
     movw hl,#fis_tx_buf+3   ;2e8a  16 55 f0     HL = pointer to buffer to fill
     callf !sub_0cda         ;2e8d  4c da        Fill B bytes in buffer [HL] with 0
     ret                     ;2e8f  af
 
-sub_2e90:
-;Convert uPD16432B display to FIS display
+fis_build_from_upd:
+;Build the FIS display from the uPD16432B display.
+;Assumes FIS display has already been cleared to all spaces.
 ;
 ;Returns carry set = blank, carry clear = not blank
 ;
-    call !sub_2efc          ;2e90  9a fc 2e     Check if upd_disp is blank (all spaces)
+    call !upd_is_blank      ;2e90  9a fc 2e     Check if upd_disp is blank (all spaces)
     bnz lab_2e9a_not_blank  ;2e93  bd 05        Branch if not blank
 
     ;upd_disp is blank
-    call !sub_2e88          ;2e95  9a 88 2e     Fill all chars on FIS display with 0
+    call !fis_zero          ;2e95  9a 88 2e     Fill all chars on FIS display with 0
     set1 cy                 ;2e98  20           Carry set = blank
     ret                     ;2e99  af
 
@@ -8281,7 +8282,7 @@ lab_2eee:
     clr1 cy                 ;2efa  21           Carry clear = not blank
     ret                     ;2efb  af
 
-sub_2efc:
+upd_is_blank:
 ;Check if upd_disp is blank (all spaces)
 ;Returns Z=1 if blank, Z=0 if not blank
 ;
@@ -8362,46 +8363,49 @@ sub_2f48:
     ret                     ;2f60  af
 
 lab_2f61:
-    bt mem_fe60.4,lab_2fa9_ret  ;2f61  cc 60 45
-    bt mem_fe60.3,lab_2f6b      ;2f64  bc 60 04
-    bf mem_fe61.1,lab_2fa9_ret  ;2f67  31 13 61 3e
+    bt mem_fe60.4,lab_2fa9_ret          ;2f61  cc 60 45       Branch to return
+    bt mem_fe60.3,lab_2f6b              ;2f64  bc 60 04
+    bf mem_fe61.1,lab_2fa9_ret          ;2f67  31 13 61 3e    Branch to return
 
 lab_2f6b:
-    bt mem_fe5f.5,lab_2f95  ;2f6b  dc 5f 27     Compute checksum and start sending FIS buf
-    bf mem_fe6a.2,lab_2f8a  ;2f6e  31 23 6a 18
-    cmp mem_fe27,#0x00      ;2f72  c8 27 00
-    bnz lab_2f79            ;2f75  bd 02
-    br lab_2fa9_ret         ;2f77  fa 30
+;mem_fe60.3 = 1
+    bt mem_fe5f.5,fis_cksum_and_send    ;2f6b  dc 5f 27     Compute checksum and start sending FIS buf
+    bf mem_fe6a.2,fis_clear_build_send  ;2f6e  31 23 6a 18
+    cmp mem_fe27,#0x00                  ;2f72  c8 27 00
+    bnz lab_2f79                        ;2f75  bd 02
+    br lab_2fa9_ret                     ;2f77  fa 30        Branch to return
 
 lab_2f79:
-    dec mem_fe27            ;2f79  91 27
-    call !sub_2e88          ;2f7b  9a 88 2e     Fill all chars on FIS display with 0
-    br lab_2f95             ;2f7e  fa 15        Compute checksum and start sending FIS buf
+;mem_fe27 != 0
+    dec mem_fe27                        ;2f79  91 27
+    call !fis_zero                      ;2f7b  9a 88 2e     Fill all chars on FIS display with 0
+    br fis_cksum_and_send               ;2f7e  fa 15        Compute checksum and start sending FIS buf
 
 lab_2f80:
-    bt mem_fe65.5,lab_2f8a  ;2f80  dc 65 07
-    bt mem_fe2c.3,lab_2f8a  ;2f83  bc 2c 04
-    clr1 mem_fe60.3         ;2f86  3b 60
-    br lab_2fa9_ret         ;2f88  fa 1f
+    bt mem_fe65.5,fis_clear_build_send  ;2f80  dc 65 07
+    bt mem_fe2c.3,fis_clear_build_send  ;2f83  bc 2c 04
+    clr1 mem_fe60.3                     ;2f86  3b 60
+    br lab_2fa9_ret                     ;2f88  fa 1f        Branch to return
 
-lab_2f8a:
-    call !sub_2e7e          ;2f8a  9a 7e 2e     Fill all chars on FIS display with space
-    call !sub_2e90          ;2f8d  9a 90 2e     Convert uPD16432B display to FIS display
-    bc lab_2fa9_ret         ;2f90  8d 17        Branch if display is blank
-    mov mem_fe27,#0x03      ;2f92  11 27 03
+fis_clear_build_send:
+;mem_fe65.5 = 1 or mem_fe2c.3 = 1
+    call !fis_clear                     ;2f8a  9a 7e 2e     Fill all chars on FIS display with space
+    call !fis_build_from_upd            ;2f8d  9a 90 2e     Build the FIS display from the uPD16432B display
+    bc lab_2fa9_ret                     ;2f90  8d 17        Branch to return if display is blank
+    mov mem_fe27,#0x03                  ;2f92  11 27 03
     ;Fall through to compute checksum and start sending FIS buf
 
-lab_2f95:
+fis_cksum_and_send:
 ;Compute checksum and start sending FIS buf
-    call !sub_2e6c          ;2f95  9a 6c 2e     Compute FIS buffer checksum
-    set1 mem_fe61.0         ;2f98  0a 61
-    clr1 mem_fe60.3         ;2f9a  3b 60
-    movw ax,#fis_tx_buf     ;2f9c  10 52 f0
-    movw !mem_f006,ax       ;2f9f  03 06 f0
-    mov a,#20               ;2fa2  a1 14        A = 20 bytes in FIS buffer to send
-                            ;                       XXX hardcoded FIS command length
-    mov !mem_f066,a         ;2fa4  9e 66 f0
-    br lab_2faa             ;2fa7  fa 01
+    call !fis_checksum                  ;2f95  9a 6c 2e     Compute FIS buffer checksum
+    set1 mem_fe61.0                     ;2f98  0a 61
+    clr1 mem_fe60.3                     ;2f9a  3b 60
+    movw ax,#fis_tx_buf                 ;2f9c  10 52 f0
+    movw !mem_f006,ax                   ;2f9f  03 06 f0
+    mov a,#20                           ;2fa2  a1 14        A = 20 bytes in FIS buffer to send
+                                        ;                       XXX hardcoded FIS command length
+    mov !mem_f066,a                     ;2fa4  9e 66 f0
+    br lab_2faa                         ;2fa7  fa 01
 
 lab_2fa9_ret:
     ret                     ;2fa9  af
@@ -18193,7 +18197,7 @@ lab_6832:
     br ax                   ;6851  31 98
 
 sub_6853:
-    call !clear_upd_all     ;6853  9a c9 6f     Clear upd_disp and upd_pict buffers
+    call !upd_clear_all     ;6853  9a c9 6f     Clear upd_disp and upd_pict buffers
 
 lab_6856:
     call !sub_6f78          ;6856  9a 78 6f
@@ -19491,14 +19495,14 @@ lab_6fc8:
     ret                     ;6fc8  af
 
 
-clear_upd_all:
+upd_clear_all:
 ;Clear upd_disp and upd_pict buffers
-    call !clear_upd_disp    ;6fc9  9a d0 6f
-    call !clear_upd_pict    ;6fcc  9a e1 6f
+    call !upd_clear_disp    ;6fc9  9a d0 6f
+    call !upd_clear_pict    ;6fcc  9a e1 6f
     ret                     ;6fcf  af
 
 
-clear_upd_disp:
+upd_clear_disp:
 ;Fill all characters with spaces in upd_disp buffer
     movw hl,#upd_disp       ;6fd0  16 9a f1     HL = pointer to buffer to fill
     mov a,#0x0b             ;6fd3  a1 0b        A = 11 bytes to fill
@@ -19513,7 +19517,7 @@ lab_6fe0:
     ret                     ;6fe0  af
 
 
-clear_upd_pict:
+upd_clear_pict:
 ;Turn off all pictographs in upd_pict buffer
     mov b,#0x08             ;6fe1  a3 08        B = 8 bytes to fill
     bz lab_6fea             ;6fe3  ad 05
@@ -19868,7 +19872,7 @@ lab_71da:
 
 lab_71e3:
     set1 mem_fe6a.0         ;71e3  0a 6a
-    call !clear_upd_pict    ;71e5  9a e1 6f     Turn off all pictographs in upd_pict buffer
+    call !upd_clear_pict    ;71e5  9a e1 6f     Turn off all pictographs in upd_pict buffer
     mov b,#0x0a             ;71e8  a3 0a
     movw hl,#safe           ;71ea  16 f9 64     HL = pointer to 11,"     SAFE  "
     mov a,#0xff             ;71ed  a1 ff
@@ -19876,7 +19880,7 @@ lab_71e3:
 
 lab_71f2:
     set1 mem_fe6a.0         ;71f2  0a 6a
-    call !clear_upd_pict    ;71f4  9a e1 6f     Turn off all pictographs in upd_pict buffer
+    call !upd_clear_pict    ;71f4  9a e1 6f     Turn off all pictographs in upd_pict buffer
 
     mov b,#0x0a             ;71f7  a3 0a
     movw hl,#safe           ;71f9  16 f9 64     HL = pointer to 11,"     SAFE  "
@@ -19909,7 +19913,7 @@ lab_7224:
     cmp a,#0x00             ;7227  4d 00
     bnz lab_7249            ;7229  bd 1e
     set1 mem_fe6a.0         ;722b  0a 6a
-    call !clear_upd_pict    ;722d  9a e1 6f     Turn off all pictographs in upd_pict buffer
+    call !upd_clear_pict    ;722d  9a e1 6f     Turn off all pictographs in upd_pict buffer
 
     mov b,#0x0a             ;7230  a3 0a
     movw hl,#safe           ;7232  16 f9 64     HL = pointer to 11,"     SAFE  "
@@ -19925,7 +19929,7 @@ lab_7224:
     br lab_7290             ;7247  fa 47        Branch to copy msg from [HL] to display buf and return
 
 lab_7249:
-    call !clear_upd_pict    ;7249  9a e1 6f     Turn off all pictographs in upd_pict buffer
+    call !upd_clear_pict    ;7249  9a e1 6f     Turn off all pictographs in upd_pict buffer
 
     mov b,#0x0a             ;724c  a3 0a
     movw hl,#safe           ;724e  16 f9 64     HL = pointer to 11,"     SAFE  "
@@ -20325,7 +20329,7 @@ lab_74ca:
     ret                     ;74d4  af
 
 lab_74d5:
-    call !clear_upd_disp    ;74d5  9a d0 6f     Fill all characters with spaces in upd_disp buffer
+    call !upd_clear_disp    ;74d5  9a d0 6f     Fill all characters with spaces in upd_disp buffer
     mov a,#0xff             ;74d8  a1 ff
     mov b,#0x0a             ;74da  a3 0a
     movw hl,#diag           ;74dc  16 93 65     HL = pointer to 7," DIAG  "
