@@ -28,7 +28,7 @@ mem_f006 = 0xf006
 mem_f00e = 0xf00e
 mem_f00f = 0xf00f
 mem_f016 = 0xf016
-mem_f01a = 0xf01a
+mem_f01a = 0xf01a           ;EEPROM address for I2C read or write EEPROM (2 bytes)
 mem_f020 = 0xf020
 mem_f021 = 0xf021
 mem_f022 = 0xf022
@@ -349,25 +349,15 @@ upd_keys_1 = 0xfbd1         ;uPD16432B key scan data (4 bytes)
 mem_fbd5 = 0xfbd5
 upd_keys = 0xfbd6           ;uPD16432B key scan data received from uPD16432B (4 bytes)
 mem_fbda = 0xfbda
-mem_fbdb = 0xfbdb
-mem_fbdc = 0xfbdc
-mem_fbdd = 0xfbdd
-mem_fbde = 0xfbde
-mem_fbdf = 0xfbdf
-mem_fbe0 = 0xfbe0
-mem_fbe1 = 0xfbe1
-mem_fbe2 = 0xfbe2
-mem_fbe3 = 0xfbe3
-mem_fbe4 = 0xfbe4
-mem_fbe5 = 0xfbe5
+i2c_buf  = 0xfbdb           ;I2C buffer (18 bytes?)
 mem_fbfc = 0xfbfc
 mem_fbfd = 0xfbfd
 mem_fbfe = 0xfbfe
-mem_fbff = 0xfbff
-mem_fc00 = 0xfc00
+mem_fbff = 0xfbff           ;I2C attempt counter used in sub_6293 (write EEPROM) and elsewhere
+i2c_tmp_buf = 0xfc00        ;I2C temporary buffer (16 bytes) used during EEPROM write
 mem_fc10 = 0xfc10
 mem_fc11 = 0xfc11
-mem_fc12 = 0xfc12
+mem_fc12 = 0xfc12           ;I2C attempt counter used in sub_623d (read EEPROM)
 mem_fc14 = 0xfc14
 mem_fc16 = 0xfc16
 mem_fc17 = 0xfc17
@@ -1797,21 +1787,27 @@ sub_09ef:
     ret                     ;09f7  af
 
 sub_09f8:
-    mov a,mem_fed5          ;09f8  f0 d5
-    mov b,a                 ;09fa  73
-    cmp a,#0x11             ;09fb  4d 11
-    bc lab_0a07             ;09fd  8d 08
-    sub a,#0x10             ;09ff  1d 10
-    mov mem_fed5,a          ;0a01  f2 d5
-    mov a,#0x10             ;0a03  a1 10
-    br lab_0a0c             ;0a05  fa 05
+;Called before read or write EEPROM
+;TODO 16 might be the EEPROM page size
+    mov a,mem_fed5          ;09f8  f0 d5      A = mem_fed5
+    mov b,a                 ;09fa  73         Preserve original mem_fed5 in B
+    cmp a,#16+1             ;09fb  4d 11
+    bc lab_0a07_lt_17       ;09fd  8d 08      Branch if < 16+1
 
-lab_0a07:
-    mov a,#0x00             ;0a07  a1 00
-    mov mem_fed5,a          ;0a09  f2 d5
-    mov a,b                 ;0a0b  63
+    ;A >= 16+1
+    sub a,#16               ;09ff  1d 10      A = A - 16
+    mov mem_fed5,a          ;0a01  f2 d5      mem_fed5 = A
+    mov a,#16               ;0a03  a1 10      A = 16
+    br lab_0a0c_ret         ;0a05  fa 05      Branch to return
 
-lab_0a0c:
+lab_0a07_lt_17:
+    ;A < 16+1
+    mov a,#0                ;0a07  a1 00      A = 0
+    mov mem_fed5,a          ;0a09  f2 d5      mem_fed5 = 0
+    mov a,b                 ;0a0b  63         A = Recall original mem_fed5
+    ;Fall through to return
+
+lab_0a0c_ret:
     ret                     ;0a0c  af
 
 sub_0a0d:
@@ -1853,7 +1849,7 @@ sub_0a37:
     push de                 ;0a37  b5
     push bc                 ;0a38  b3
     mov b,#0x02             ;0a39  a3 02        B = 2 bytes to read from EEPROM in total
-    movw de,#mem_fbdb       ;0a3b  14 db fb     DE = destination buffer (only 1 byte used)
+    movw de,#i2c_buf        ;0a3b  14 db fb     DE = destination buffer (only 1 byte used)
 
 lab_0a3e_loop:
     mov a,#0x01             ;0a3e  a1 01        A = 1 byte to read from EEPROM this time
@@ -1864,7 +1860,7 @@ lab_0a3e_loop:
     ;EEPROM read succeeded
     ;Carry is clear
 
-    mov a,!mem_fbdb         ;0a45  8e db fb     A = byte we just read from the EEPROM
+    mov a,!i2c_buf          ;0a45  8e db fb     A = byte we just read from the EEPROM
     cmp a,#0x55             ;0a48  4d 55        Is it 0x55?
     bz lab_0a58_not1_cy_ret ;0a4a  ad 0c          Yes: Branch to invert carry, which will return
                             ;                          carry set (success).
@@ -3825,14 +3821,14 @@ lab_150c:
 lab_150f:
     mov mem_fe28,#0x80      ;150f  11 28 80
     bf mem_fe69.0,lab_1534  ;1512  31 03 69 1e
-    mov iiccl0,#0x0c        ;1516  13 aa 0c
+    mov iiccl0,#0b00001100  ;1516  13 aa 0c
     clr1 iicc0.6            ;1519  71 6b a8
     clr1 iicc0.4            ;151c  71 4b a8
-    clr1 shadow_p7.2         ;151f  2b d1
-    mov a,shadow_p7          ;1521  f0 d1
+    clr1 shadow_p7.2        ;151f  2b d1
+    mov a,shadow_p7         ;1521  f0 d1
     mov p7,a                ;1523  f2 07
-    clr1 shadow_p7.1         ;1525  1b d1
-    mov a,shadow_p7          ;1527  f0 d1
+    clr1 shadow_p7.1        ;1525  1b d1
+    mov a,shadow_p7         ;1527  f0 d1
     mov p7,a                ;1529  f2 07
     set1 iicc0.7            ;152b  71 7a a8
     clr1 pm7.2              ;152e  71 2b 27
@@ -9914,7 +9910,7 @@ lab_38fb:
     bz lab_392c             ;3900  ad 2a
     call !sub_a74b          ;3902  9a 4b a7
     bc lab_390e             ;3905  8d 07
-    mov a,!mem_fbff         ;3907  8e ff fb
+    mov a,!mem_fbff         ;3907  8e ff fb       TODO mem_fbff is I2C attempt counter
     cmp a,#0x00             ;390a  4d 00
     bz lab_390f             ;390c  ad 01
 
@@ -10881,12 +10877,12 @@ lab_3f56:
     ;Value in mem_fb96 is not a valid index for the table at mem_b0ef
 
     movw hl,#0x00c8         ;3f56  16 c8 00     HL = EEPROM address to read
-    movw de,#mem_fbdb       ;3f59  14 db fb     DE = pointer to buffer to receive EEPROM contents
+    movw de,#i2c_buf        ;3f59  14 db fb     DE = pointer to buffer to receive EEPROM contents
     mov a,#0x01             ;3f5c  a1 01        A = 1 byte to read from EEPROM
     call !sub_6238          ;3f5e  9a 38 62     Read A bytes from EEPROM address HL into [DE]
     bnc lab_3f70_failed     ;3f61  9d 0d        Branch if EEPROM read failed
 
-    ;EEPROM read succeeded, mem_fbdb = value from EEPROM address 0x00c8
+    ;EEPROM read succeeded, i2c_buf = value from EEPROM address 0x00c8
 
     call !sub_4023          ;3f63  9a 23 40
     bnc lab_3f70_failed     ;3f66  9d 08        Branch if sub_4023 failed
@@ -10958,14 +10954,14 @@ lab_3fcb:
     callf !sub_0d67         ;3fd1  5c 67        HL = HL + A
     mov a,mem_fed4          ;3fd3  f0 d4
     push hl                 ;3fd5  b7
-    movw de,#mem_fbdb       ;3fd6  14 db fb     DE = pointer to buffer to receive EEPROM contents
+    movw de,#i2c_buf        ;3fd6  14 db fb     DE = pointer to buffer to receive EEPROM contents
     call !sub_6238          ;3fd9  9a 38 62     Read A bytes from EEPROM address HL into [DE]
     pop de                  ;3fdc  b4
     bnc lab_3ff1            ;3fdd  9d 12        Branch if EEPROM read failed
     mov c,#0x00             ;3fdf  a2 00
 
 lab_3fe1:
-    movw hl,#mem_fbdb       ;3fe1  16 db fb
+    movw hl,#i2c_buf        ;3fe1  16 db fb
     mov a,[hl+c]            ;3fe4  aa
     movw hl,#mem_f206       ;3fe5  16 06 f2
     cmp a,[hl+b]            ;3fe8  31 4b
@@ -11003,9 +10999,9 @@ lab_3fff:
     movw ax,hl              ;4010  c6
     movw de,ax              ;4011  d4
     pop ax                  ;4012  b0
-    mov !mem_fbdd,a         ;4013  9e dd fb
+    mov !i2c_buf+2,a        ;4013  9e dd fb
     mov a,#0x01             ;4016  a1 01        A = 1 byte to write to EERPOM
-    movw hl,#mem_fbdd       ;4018  16 dd fb     HL = pointer to buffer to write to EEPROM
+    movw hl,#i2c_buf+2      ;4018  16 dd fb     HL = pointer to buffer to write to EEPROM
     call !sub_628e          ;401b  9a 8e 62     Write A bytes to EEPROM address DE from [HL]
     br lab_3ff5             ;401e  fa d5
 
@@ -11164,14 +11160,15 @@ sub_40df:
     push bc                 ;40e1  b3
     push ax                 ;40e2  b1
     cmp a,#0x00             ;40e3  4d 00
-    bz lab_4104             ;40e5  ad 1d
+    bz lab_4104_pop_ret     ;40e5  ad 1d      Branch to pop registers and return
+
     mov mem_fed5,a          ;40e7  f2 d5
 
-lab_40e9:
+lab_40e9_loop:
     callf !sub_09f8         ;40e9  1c f8
     mov b,a                 ;40eb  73
     call !sub_6238          ;40ec  9a 38 62     Read A bytes from EEPROM address HL into [DE]
-    bnc lab_4104            ;40ef  9d 13        Branch if EEPROM read failed
+    bnc lab_4104_pop_ret            ;40ef  9d 13        Branch if EEPROM read failed
     cmp mem_fed5,#0x00      ;40f1  c8 d5 00
     bz lab_4103             ;40f4  ad 0d
     callf !sub_0d67         ;40f6  5c 67        HL = HL + A
@@ -11183,12 +11180,13 @@ lab_40e9:
     movw ax,hl              ;40fe  c6
     movw de,ax              ;40ff  d4
     pop hl                  ;4100  b6
-    br lab_40e9             ;4101  fa e6
+    br lab_40e9_loop        ;4101  fa e6
 
 lab_4103:
     not1 cy                 ;4103  01
+    ;Fall through to pop registers and return
 
-lab_4104:
+lab_4104_pop_ret:
     pop ax                  ;4104  b0
     pop bc                  ;4105  b2
     pop de                  ;4106  b4
@@ -11299,7 +11297,8 @@ lab_41c1:
     bnc lab_41c1            ;41c4  9d fb        Repeat until success
 
     mov mem_fed5,a          ;41c6  f2 d5
-lab_41c8:
+
+lab_41c8_loop:
     callf !sub_09f8         ;41c8  1c f8
     call !sub_628e          ;41ca  9a 8e 62     Write A bytes to EEPROM address DE from [HL]
     bnc lab_41ec            ;41cd  9d 1d        Branch if write failed
@@ -11324,7 +11323,7 @@ lab_41d4:
     pop ax                  ;41e6  b0
     pop hl                  ;41e7  b6
     callf !sub_0d67         ;41e8  5c 67        HL = HL + A
-    br lab_41c8             ;41ea  fa dc
+    br lab_41c8_loop        ;41ea  fa dc
 
 lab_41ec:
     ret                     ;41ec  af
@@ -12175,11 +12174,11 @@ lab_4712:
     bnc lab_4712            ;4715  9d fb        Repeat until success
 
     mov a,#0x04             ;4717  a1 04        A = 4 bytes to read from EEPROM
-    movw de,#mem_fbdb       ;4719  14 db fb     DE = pointer to buffer to receive EEPROM contents
+    movw de,#i2c_buf        ;4719  14 db fb     DE = pointer to buffer to receive EEPROM contents
     call !sub_6238          ;471c  9a 38 62     Read A bytes from EEPROM address HL into [DE]
     bnc lab_4730            ;471f  9d 0f        Branch if EEPROM read failed
 
-    movw hl,#mem_fbdb       ;4721  16 db fb     HL = source address
+    movw hl,#i2c_buf        ;4721  16 db fb     HL = source address
 lab_4724:
     movw de,#mem_fb9f       ;4724  14 9f fb     DE = destination address
     mov a,#0x04             ;4727  a1 04        A = 4 bytes to copy
@@ -12251,7 +12250,7 @@ lab_476e:
     br lab_4795             ;4790  fa 03
 
 lab_4792:
-    call !sub_5ee8          ;4792  9a e8 5e
+    call !sub_5ee8          ;4792  9a e8 5e     TODO perform I2C read?
 
 lab_4795:
     set1 cy                 ;4795  20
@@ -12261,7 +12260,7 @@ sub_4797:
     mov a,#0x08             ;4797  a1 08        A = 8 bytes to copy
     mov !mem_fbaf,a         ;4799  9e af fb
     call !sub_486f          ;479c  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to mem_fb9b
-    movw de,#mem_fbdb       ;479f  14 db fb
+    movw de,#i2c_buf        ;479f  14 db fb
     call !sub_4746          ;47a2  9a 46 47
     mov a,#0x05             ;47a5  a1 05        A = 5 bytes to copy
     movw hl,#mem_fba7       ;47a7  16 a7 fb     HL = source address
@@ -12277,7 +12276,7 @@ sub_4797:
 
 lab_47ba:
     or a,mem_fed4           ;47ba  6e d4
-    movw hl,#mem_fbdb       ;47bc  16 db fb
+    movw hl,#i2c_buf        ;47bc  16 db fb
     push ax                 ;47bf  b1
     mov a,[hl]              ;47c0  87
     and a,#0xfe             ;47c1  5d fe
@@ -12288,7 +12287,7 @@ lab_47ba:
     br lab_47d0             ;47cb  fa 03
 
 lab_47cd:
-    call !sub_5f51          ;47cd  9a 51 5f
+    call !sub_5f51          ;47cd  9a 51 5f     TOOD perform I2C write?
 
 lab_47d0:
     clr1 cy                 ;47d0  21
@@ -16660,12 +16659,14 @@ lab_5ec9:
     ret                     ;5ee7  af
 
 sub_5ee8:
+;TODO perform I2C read?
+;Returns carry clear on success, carry set on failure
     push ax                 ;5ee8  b1
-    and a,#0x3f             ;5ee9  5d 3f
+    and a,#0b00111111       ;5ee9  5d 3f
     cmp a,#0x22             ;5eeb  4d 22
     pop ax                  ;5eed  b0
-    bc lab_5ef2             ;5eee  8d 02
-    set1 cy                 ;5ef0  20
+    bc lab_5ef2             ;5eee  8d 02      Branch if less
+    set1 cy                 ;5ef0  20         Set carry to indicate failure
     ret                     ;5ef1  af
 
 lab_5ef2:
@@ -16676,9 +16677,9 @@ lab_5ef2:
     inc a                   ;5ef8  41
     push hl                 ;5ef9  b7
     movw hl,#mem_fef8       ;5efa  16 f8 fe
-    call !sub_5f51          ;5efd  9a 51 5f
+    call !sub_5f51          ;5efd  9a 51 5f     TODO perform I2C write?
     pop hl                  ;5f00  b6
-    bnc lab_5f05            ;5f01  9d 02
+    bnc lab_5f05            ;5f01  9d 02        Branch if success
     br lab_5f45             ;5f03  fa 40
 
 lab_5f05:
@@ -16717,10 +16718,10 @@ lab_5f35:
     mov a,iic0              ;5f38  f0 1f
     mov [hl],a              ;5f3a  97
     dbnz b,lab_5f16         ;5f3b  8b d9
-    bf mem_fe68.5,lab_5f44  ;5f3d  31 53 68 03
+    bf mem_fe68.5,lab_5f44_success  ;5f3d  31 53 68 03
     set1 iicc0.0            ;5f41  71 0a a8
 
-lab_5f44:
+lab_5f44_success:
     clr1 cy                 ;5f44  21
 
 lab_5f45:
@@ -16736,6 +16737,12 @@ lab_5f4e:
     movw hl,#mem_fed4       ;5f4e  16 d4 fe
 
 sub_5f51:
+;TODO perform I2C write?
+;
+;Always called with something in A
+;and a pointer to a buffer in HL
+;
+;Returns carry clear on success, carry set on failure
     bt mem_fe69.0,lab_5f64  ;5f51  8c 69 10
     bf mem_fe2d.0,lab_5f5f  ;5f54  31 03 2d 07
     call !sub_5ff5          ;5f58  9a f5 5f
@@ -16847,7 +16854,7 @@ lab_5ff3:
     ret                     ;5ff4  af
 
 sub_5ff5:
-    mov iiccl0,#0x0c        ;5ff5  13 aa 0c
+    mov iiccl0,#0b00001100  ;5ff5  13 aa 0c
     bf mem_fe69.1,lab_5fff  ;5ff8  31 13 69 03
     clr1 iiccl0.3           ;5ffc  71 3b aa
 
@@ -17193,7 +17200,7 @@ sub_6217:
     push hl                 ;621a  b7
     bf mem_fe2d.0,lab_622c  ;621b  31 03 2d 0d
     call !sub_6305          ;621f  9a 05 63
-    xch a,!mem_fbff         ;6222  ce ff fb
+    xch a,!mem_fbff         ;6222  ce ff fb   TODO mem_fbff is I2C attempt counter
     cmp a,#0x00             ;6225  4d 00
     xch a,!mem_fbff         ;6227  ce ff fb
     bz lab_6230             ;622a  ad 04
@@ -17242,23 +17249,41 @@ sub_623d:
     push de                 ;6240  b5
     call !sub_6364          ;6241  9a 64 63     Check EEPROM address HL and number of bytes A are valid
     bnc lab_628b_failed     ;6244  9d 45        Branch to clear carry, pop regs, and return if invalid
-    mov a,#0x05             ;6246  a1 05
-    mov !mem_fc12,a         ;6248  9e 12 fc
-    movw ax,hl              ;624b  c6           HL = EEPROM start address
-    movw !mem_f01a,ax       ;624c  03 1a f0
 
-lab_624f:
-    mov a,l                 ;624f  66
-    mov !mem_fbdc,a         ;6250  9e dc fb
-    mov a,h                 ;6253  67
-    and a,#0x07             ;6254  5d 07
-    rol a,1                 ;6256  26
-    or a,#0x50<<1           ;6257  6d a0        0x50 = EEPROM I2C address
-    mov !mem_fbdb,a         ;6259  9e db fb
+    mov a,#0x05             ;6246  a1 05        A = 5 attempts remaining
+    mov !mem_fc12,a         ;6248  9e 12 fc     Store as attempt count
+
+    movw ax,hl              ;624b  c6           HL = EEPROM start address
+    movw !mem_f01a,ax       ;624c  03 1a f0     Remember EEPROM start address in mem_f01a
+
+lab_624f_attempt:
+    ;I2C Buffer Offset 1 = Address Byte
+    mov a,l                 ;624f  66           A = low byte of EEPROM start address
+    mov !i2c_buf+1,a        ;6250  9e dc fb     Store 24C04 Address byte
+
+    ;24C04 Device Select Byte
+    ;Bits 7-0: Device Type Identifier
+    ;Bit 3: E2 (must always be 0 since M24C04's E2 pin is grounded)
+    ;Bit 2: E1 (must always be 0 since M24C04's E1 pin is grounded)
+    ;Bit 1: A8
+    ;Bit 0: R=1, W=0
+
+    ;I2C Buffer Offset 0 = Device Select Byte
+    mov a,h                 ;6253  67           A = EEPROM address high byte
+    and a,#0b00000111       ;6254  5d 07
+    rol a,1                 ;6256  26           After rotation:
+                            ;                   Bits 7-4: 0
+                            ;                   Bit 3: E2=0 (EEPROM high byte bit 2 is always 0)
+                            ;                   Bit 2: E1=0 (EEPROM high byte bit 1 is always 0)
+                            ;                   Bit 1: A8 (EEPROM high byte bit 0)
+                            ;                   Bit 0 = R/W=0 (write)
+    or a,#0x50<<1           ;6257  6d a0        0x50 = EEPROM I2C address (bits 7-4)
+    mov !i2c_buf,a          ;6259  9e db fb     Store 24C04 Device Select byte
+
     push ax                 ;625c  b1
     mov a,#0x82             ;625d  a1 82
-    movw hl,#mem_fbdb       ;625f  16 db fb
-    call !sub_5f51          ;6262  9a 51 5f
+    movw hl,#i2c_buf        ;625f  16 db fb
+    call !sub_5f51          ;6262  9a 51 5f     TODO perform I2C write?
     pop ax                  ;6265  b0
     set1 a.0                ;6266  61 8a
     mov x,a                 ;6268  70
@@ -17266,10 +17291,11 @@ lab_624f:
     or a,#0xc0              ;626c  6d c0
     pop hl                  ;626e  b6
     push hl                 ;626f  b7
-    call !sub_5ee8          ;6270  9a e8 5e
-    bc lab_627b             ;6273  8d 06
+    call !sub_5ee8          ;6270  9a e8 5e     TODO perform I2C read?
+    bc lab_627b             ;6273  8d 06        Branch if failed
 
 lab_6275_success:
+;Attempt succeeded
 ;Set carry, pop registers, and return
     set1 cy                 ;6275  20
     ;Fall through to pop registers and return
@@ -17283,13 +17309,16 @@ lab_6276_pop_ret:
     ret                     ;627a  af
 
 lab_627b:
-    mov a,!mem_fc12         ;627b  8e 12 fc
-    sub a,#0x01             ;627e  1d 01
-    bc lab_628b_failed      ;6280  8d 09        Branch to clear carry, pop registers, and return
-    mov !mem_fc12,a         ;6282  9e 12 fc
-    movw ax,!mem_f01a       ;6285  02 1a f0
-    movw hl,ax              ;6288  d6
-    br lab_624f             ;6289  fa c4
+;Attempt failed
+    mov a,!mem_fc12         ;627b  8e 12 fc     A = attempt count
+    sub a,#0x01             ;627e  1d 01        Decrement it
+    bc lab_628b_failed      ;6280  8d 09        If no more attempts remaining:
+                            ;                     Branch to clear carry, pop registers, and return
+    ;More attempts remaining
+    mov !mem_fc12,a         ;6282  9e 12 fc     Store updated attempt count
+    movw ax,!mem_f01a       ;6285  02 1a f0     AX = EEPROM start address
+    movw hl,ax              ;6288  d6           HL = EEPROM start address
+    br lab_624f_attempt     ;6289  fa c4        Branch to attempt again
 
 lab_628b_failed:
 ;Clear carry, pop registers, and return
@@ -17310,6 +17339,13 @@ sub_628e:
 
 sub_6293:
 ;Write A bytes to EEPROM address DE from [HL] without sub_6217 check
+;
+;HL = pointer to buffer to write to EEPROM
+;DE = EEPROM address to write
+;A = number of bytes to write
+;
+;Returns carry set on success, carry clear on failure
+;
     push hl                 ;6293  b7
     push bc                 ;6294  b3
     push ax                 ;6295  b1
@@ -17328,16 +17364,18 @@ sub_6293:
     call !sub_6364          ;629a  9a 64 63     Check EEPROM address HL and number of bytes A are valid
     bnc lab_628b_failed     ;629d  9d ec        Branch to clear carry, pop regs, and return if invalid
 
-    movw ax,hl              ;629f  c6           AX = EEPROM address
-    movw !mem_f01a,ax       ;62a0  03 1a f0
+    movw ax,hl              ;629f  c6           AX = EEPROM start address
+    movw !mem_f01a,ax       ;62a0  03 1a f0     Store EEPROM start address
 
     call !sub_637e          ;62a3  9a 7e 63     Unknown; EEPROM related - called only from write EEPROM
 
+    ;Copy from [DE] buffer to i2c_tmp_buf
     movw ax,de              ;62a6  c4
-    movw hl,ax              ;62a7  d6
-    movw de,#mem_fc00       ;62a8  14 00 fc     DE = destination address
+    movw hl,ax              ;62a7  d6           HL = source address (pointer to buffer to write to EEPROM)
+    movw de,#i2c_tmp_buf    ;62a8  14 00 fc     DE = destination address
     mov a,!mem_fc10         ;62ab  8e 10 fc     A = number of bytes to copy
     callf !sub_0c9e         ;62ae  4c 9e        Copy A bytes from [HL] to [DE]
+
     mov a,!mem_fc11         ;62b0  8e 11 fc
     mov b,a                 ;62b3  73
     movw ax,de              ;62b4  c4
@@ -17350,35 +17388,61 @@ sub_6293:
     sub a,b                 ;62c1  61 1b
     mov !mem_fc10,a         ;62c3  9e 10 fc
 
-lab_62c6:
-    movw hl,#mem_fc00       ;62c6  16 00 fc     HL = source address
-    movw de,#mem_fbdd       ;62c9  14 dd fb     DE = destination address
+lab_62c6_attempt:
+    ;Copy from i2c_tmp_buf to i2c_buf+2
+    movw hl,#i2c_tmp_buf    ;62c6  16 00 fc     HL = source address
+    movw de,#i2c_buf+2      ;62c9  14 dd fb     DE = destination address
     mov a,!mem_fc10         ;62cc  8e 10 fc     A = number of bytes to copy
     callf !sub_0c9e         ;62cf  4c 9e        Copy A bytes from [HL] to [DE]
-    movw ax,!mem_f01a       ;62d1  02 1a f0
-    and a,#0x07             ;62d4  5d 07
-    rol a,1                 ;62d6  26
+
+    ;24C04 Device Select Byte
+    ;Bits 7-0: Device Type Identifier
+    ;Bit 3: E2 (must always be 0 since M24C04's E2 pin is grounded)
+    ;Bit 2: E1 (must always be 0 since M24C04's E1 pin is grounded)
+    ;Bit 1: A8
+    ;Bit 0: R=1, W=0
+
+    ;I2C Buffer Offset 0 = Device Select Byte
+    movw ax,!mem_f01a       ;62d1  02 1a f0     A = EEPROM address high
+                            ;                   X = EEPROM address low
+    and a,#0b00000111       ;62d4  5d 07
+    rol a,1                 ;62d6  26           After rotation:
+                            ;                     Bits 7-4: 0
+                            ;                     Bit 3: E2=0 (EEPROM high byte bit 2 is always 0)
+                            ;                     Bit 2: E1=0 (EEPROM high byte bit 1 is always 0)
+                            ;                     Bit 1: A8 (EEPROM high byte bit 0)
+                            ;                     Bit 0 = R/W=0 (write)
     or a,#0x50<<1           ;62d7  6d a0        0x50 = EEPROM I2C address
-    mov !mem_fbdb,a         ;62d9  9e db fb
-    mov a,x                 ;62dc  60
-    mov !mem_fbdc,a         ;62dd  9e dc fb
-    movw hl,#mem_fbdb       ;62e0  16 db fb
+    mov !i2c_buf,a          ;62d9  9e db fb     Store 24C04 Device Select byte
+
+    ;I2C Buffer Offset 1 = Address Byte
+    mov a,x                 ;62dc  60           A = EEPROM address low
+    mov !i2c_buf+1,a        ;62dd  9e dc fb     Store 24C04 Device Select byte
+
+    movw hl,#i2c_buf        ;62e0  16 db fb
     mov a,!mem_fc10         ;62e3  8e 10 fc
     add a,#0xc2             ;62e6  0d c2
-    call !sub_5f51          ;62e8  9a 51 5f
-    bc lab_628b_failed      ;62eb  8d 9e        Branch to clear carry, pop registers, and return
+    call !sub_5f51          ;62e8  9a 51 5f     TODO perform I2C write?
+    bc lab_628b_failed      ;62eb  8d 9e        Failed; branch to clear carry, pop registers, and return
+
+    ;TODO I2C write? succeeded
+
     mov a,#0x0b             ;62ed  a1 0b
     mov !mem_fb06,a         ;62ef  9e 06 fb
     mov a,#0x02             ;62f2  a1 02
     callf !sub_09d7         ;62f4  1c d7
-    mov a,!mem_fbff         ;62f6  8e ff fb
-    cmp a,#0x00             ;62f9  4d 00
-    bnz lab_6302            ;62fb  bd 05
-    mov a,#0x03             ;62fd  a1 03
-    mov !mem_fbff,a         ;62ff  9e ff fb
 
-lab_6302:
-    br !lab_6275_success    ;6302  9b 75 62
+    mov a,!mem_fbff         ;62f6  8e ff fb     A = I2C attempts remaining
+    cmp a,#0x00             ;62f9  4d 00        Is it zero?
+    bnz lab_6302_success    ;62fb  bd 05          No: branch to success
+
+    ;I2C attempt count is zero
+
+    mov a,#0x03             ;62fd  a1 03        A = 3 attempts remaining
+    mov !mem_fbff,a         ;62ff  9e ff fb     Store as attempt count
+
+lab_6302_success:
+    br !lab_6275_success    ;6302  9b 75 62     Branch to set carry, pop registers, and return
 
 sub_6305:
     bt mem_fe2d.0,lab_630d  ;6305  8c 2d 05
@@ -17387,41 +17451,50 @@ sub_6305:
     ret                     ;630c  af
 
 lab_630d:
-    mov a,!mem_fbff         ;630d  8e ff fb
-    cmp a,#0x00             ;6310  4d 00
-    bz lab_634a             ;6312  ad 36
+    mov a,!mem_fbff         ;630d  8e ff fb     A = attempt count
+    cmp a,#0x00             ;6310  4d 00        Is it zero?
+    bz lab_634a             ;6312  ad 36          Yes: branch to no more attempts
+
     mov a,!mem_fb06         ;6314  8e 06 fb
     cmp a,#0x00             ;6317  4d 00
     bnz lab_6363            ;6319  bd 48
-    movw ax,!mem_f01a       ;631b  02 1a f0
-    movw hl,ax              ;631e  d6
-    movw de,#mem_fbdb       ;631f  14 db fb
+    movw ax,!mem_f01a       ;631b  02 1a f0     AX = EEPROM address
+    movw hl,ax              ;631e  d6           HL = EEPROM address
+    movw de,#i2c_buf        ;631f  14 db fb
     mov a,!mem_fc10         ;6322  8e 10 fc
+
     call !sub_623d          ;6325  9a 3d 62     Read A bytes from EEPROM address HL into [DE]
                             ;                     without sub_6217 check
-    bnc lab_6334            ;6328  9d 0a
-    movw hl,#mem_fc00       ;632a  16 00 fc     HL = pointer to first buffer
+    bnc lab_6334            ;6328  9d 0a        Branch if EEPROM read failed
+
+    ;EEPROM read succeeded
+
+    movw hl,#i2c_tmp_buf    ;632a  16 00 fc     HL = pointer to first buffer
     mov a,!mem_fc10         ;632d  8e 10 fc
     callf !sub_0cca         ;6330  4c ca        Compare A bytes between [HL] to [DE]
     bz lab_6345             ;6332  ad 11        Branch if buffers are equal
 
 lab_6334:
-    mov a,!mem_fbff         ;6334  8e ff fb
-    dec a                   ;6337  51
-    mov !mem_fbff,a         ;6338  9e ff fb
-    bz lab_6343             ;633b  ad 06
+;Attempt failed
+    mov a,!mem_fbff         ;6334  8e ff fb     A = attempt count
+    dec a                   ;6337  51           Decrement it
+    mov !mem_fbff,a         ;6338  9e ff fb     Store decremented attempt count
+    bz lab_6343             ;633b  ad 06        Branch if no more attempts remaining
+
+    ;More attempts are remaining
+
     push hl                 ;633d  b7
     push bc                 ;633e  b3
     push ax                 ;633f  b1
     push de                 ;6340  b5
-    br lab_62c6             ;6341  fa 83
+    br lab_62c6_attempt     ;6341  fa 83        Branch to attempt again
 
 lab_6343:
-    br lab_6345             ;6343  fa 00
+    br lab_6345             ;6343  fa 00        XXX redundant branch; lab_6345 is the next line
 
 lab_6345:
-    mov a,#0x00             ;6345  a1 00
-    mov !mem_fbff,a         ;6347  9e ff fb
+    mov a,#0x00             ;6345  a1 00        A = 0 attempts
+    mov !mem_fbff,a         ;6347  9e ff fb     Store as attempts remaining
 
 lab_634a:
     mov a,#0x02             ;634a  a1 02
@@ -20669,12 +20742,12 @@ lab_771a:
     mov a,#0x0c             ;771a  a1 0c
     mov !mem_fb12,a         ;771c  9e 12 fb
     mov a,#0x22<<1          ;771f  a1 44        0x22 = TDA7476 I2C address
-    mov !mem_fbdb,a         ;7721  9e db fb
+    mov !i2c_buf,a          ;7721  9e db fb
     mov a,#0xc1             ;7724  a1 c1
-    movw hl,#mem_fbdb       ;7726  16 db fb
-    call !sub_5f51          ;7729  9a 51 5f
+    movw hl,#i2c_buf        ;7726  16 db fb
+    call !sub_5f51          ;7729  9a 51 5f     TODO perform I2C write?
     clr1 mem_fe40.0         ;772c  0b 40
-    bc lab_7734             ;772e  8d 04
+    bc lab_7734             ;772e  8d 04        Branch if failed
     set1 mem_fe40.0         ;7730  0a 40
     set1 mem_fe40.1         ;7732  1a 40
 
@@ -20694,9 +20767,9 @@ sub_7735:
     set1 mem_fe69.3         ;7748  3a 69
 
 lab_774a:
-    call !sub_5ee8          ;774a  9a e8 5e
+    call !sub_5ee8          ;774a  9a e8 5e     TODO perform I2C read?
     clr1 mem_fe69.3         ;774d  3b 69
-    bnc lab_7761            ;774f  9d 10
+    bnc lab_7761            ;774f  9d 10        Branch if succeeded
     mov a,!mem_fc14         ;7751  8e 14 fc
     cmp a,#0x00             ;7754  4d 00
     bz lab_775e             ;7756  ad 06
@@ -25159,13 +25232,13 @@ lab_9485:
     mov a,#0x1a             ;94c1  a1 1a
     call !sub_9137          ;94c3  9a 37 91
     mov a,!mem_f1e3         ;94c6  8e e3 f1
-    mov !mem_fbde,a         ;94c9  9e de fb
+    mov !i2c_buf+3,a        ;94c9  9e de fb
     mov a,!mem_f1e4         ;94cc  8e e4 f1
-    mov !mem_fbdf,a         ;94cf  9e df fb
+    mov !i2c_buf+4,a        ;94cf  9e df fb
     mov a,!mem_f1e5         ;94d2  8e e5 f1
-    mov !mem_fbe0,a         ;94d5  9e e0 fb
+    mov !i2c_buf+5,a        ;94d5  9e e0 fb
     mov a,!mem_f1e6         ;94d8  8e e6 f1
-    mov !mem_fbe1,a         ;94db  9e e1 fb
+    mov !i2c_buf+6,a        ;94db  9e e1 fb
     movw ax,#0x0853         ;94de  10 53 08
     mov b,#0x07             ;94e1  a3 07
     call !sub_9f12          ;94e3  9a 12 9f
@@ -25222,11 +25295,11 @@ lab_9525:
     sub a,#0x02             ;9549  1d 02
     mov x,#0x4c             ;954b  a0 4c
     mulu x                  ;954d  31 88
-    mov !mem_fbdf,a         ;954f  9e df fb
+    mov !i2c_buf+4,a        ;954f  9e df fb
     xch a,x                 ;9552  30
-    mov !mem_fbe0,a         ;9553  9e e0 fb
+    mov !i2c_buf+5,a        ;9553  9e e0 fb
     mov a,#0x00             ;9556  a1 00
-    mov !mem_fbde,a         ;9558  9e de fb
+    mov !i2c_buf+3,a        ;9558  9e de fb
     movw ax,#0x0052         ;955b  10 52 00
     mov b,#0x06             ;955e  a3 06
     call !sub_9f12          ;9560  9a 12 9f
@@ -25298,26 +25371,26 @@ lab_95ce:
     mov a,#0x2a             ;95fa  a1 2a
     call !sub_9137          ;95fc  9a 37 91
     mov a,!mem_f1d7         ;95ff  8e d7 f1
-    mov !mem_fbde,a         ;9602  9e de fb
+    mov !i2c_buf+3,a        ;9602  9e de fb
     mov a,!mem_f1d8         ;9605  8e d8 f1
-    mov !mem_fbdf,a         ;9608  9e df fb
+    mov !i2c_buf+4,a        ;9608  9e df fb
     mov a,!mem_f1d9         ;960b  8e d9 f1
-    mov !mem_fbe0,a         ;960e  9e e0 fb
+    mov !i2c_buf+5,a        ;960e  9e e0 fb
     mov a,!mem_f1da         ;9611  8e da f1
-    mov !mem_fbe1,a         ;9614  9e e1 fb
+    mov !i2c_buf+6,a        ;9614  9e e1 fb
     movw ax,#0x081d         ;9617  10 1d 08
     mov b,#0x07             ;961a  a3 07
     call !sub_9f12          ;961c  9a 12 9f
     mov a,#0x2b             ;961f  a1 2b
     call !sub_9137          ;9621  9a 37 91
     mov a,!mem_f1db         ;9624  8e db f1
-    mov !mem_fbde,a         ;9627  9e de fb
+    mov !i2c_buf+3,a        ;9627  9e de fb
     mov a,!mem_f1dc         ;962a  8e dc f1
-    mov !mem_fbdf,a         ;962d  9e df fb
+    mov !i2c_buf+4,a        ;962d  9e df fb
     mov a,!mem_f1dd         ;9630  8e dd f1
-    mov !mem_fbe0,a         ;9633  9e e0 fb
+    mov !i2c_buf+5,a        ;9633  9e e0 fb
     mov a,!mem_f1de         ;9636  8e de f1
-    mov !mem_fbe1,a         ;9639  9e e1 fb
+    mov !i2c_buf+6,a        ;9639  9e e1 fb
     movw ax,#0x0837         ;963c  10 37 08
     mov b,#0x07             ;963f  a3 07
     call !sub_9f12          ;9641  9a 12 9f
@@ -25332,13 +25405,13 @@ lab_95ce:
     mov a,#0x2e             ;965a  a1 2e
     call !sub_9137          ;965c  9a 37 91
     mov a,!mem_f1df         ;965f  8e df f1
-    mov !mem_fbde,a         ;9662  9e de fb
+    mov !i2c_buf+3,a        ;9662  9e de fb
     mov a,!mem_f1e0         ;9665  8e e0 f1
-    mov !mem_fbdf,a         ;9668  9e df fb
+    mov !i2c_buf+4,a        ;9668  9e df fb
     mov a,!mem_f1e1         ;966b  8e e1 f1
-    mov !mem_fbe0,a         ;966e  9e e0 fb
+    mov !i2c_buf+5,a        ;966e  9e e0 fb
     mov a,!mem_f1e2         ;9671  8e e2 f1
-    mov !mem_fbe1,a         ;9674  9e e1 fb
+    mov !i2c_buf+6,a        ;9674  9e e1 fb
     movw ax,#0x083d         ;9677  10 3d 08
     mov b,#0x07             ;967a  a3 07
     call !sub_9f12          ;967c  9a 12 9f
@@ -25357,27 +25430,27 @@ lab_95ce:
     mov a,#0x32             ;96a0  a1 32
     call !sub_9137          ;96a2  9a 37 91
     mov a,#0x01             ;96a5  a1 01
-    mov !mem_fbde,a         ;96a7  9e de fb
+    mov !i2c_buf+3,a        ;96a7  9e de fb
     mov a,#0xf0             ;96aa  a1 f0
-    mov !mem_fbdf,a         ;96ac  9e df fb
+    mov !i2c_buf+4,a        ;96ac  9e df fb
     movw ax,#0x0862         ;96af  10 62 08
     mov b,#0x05             ;96b2  a3 05
     call !sub_9f12          ;96b4  9a 12 9f
     mov a,#0x33             ;96b7  a1 33
     call !sub_9137          ;96b9  9a 37 91
     mov a,#0x00             ;96bc  a1 00
-    mov !mem_fbde,a         ;96be  9e de fb
+    mov !i2c_buf+3,a        ;96be  9e de fb
     mov a,#0x00             ;96c1  a1 00
-    mov !mem_fbdf,a         ;96c3  9e df fb
+    mov !i2c_buf+4,a        ;96c3  9e df fb
     movw ax,#0x0866         ;96c6  10 66 08
     mov b,#0x05             ;96c9  a3 05
     call !sub_9f12          ;96cb  9a 12 9f
     mov a,#0x42             ;96ce  a1 42
     call !sub_9137          ;96d0  9a 37 91
     mov a,#0x00             ;96d3  a1 00
-    mov !mem_fbde,a         ;96d5  9e de fb
+    mov !i2c_buf+3,a        ;96d5  9e de fb
     mov a,#0x20             ;96d8  a1 20
-    mov !mem_fbdf,a         ;96da  9e df fb
+    mov !i2c_buf+4,a        ;96da  9e df fb
     movw ax,#0x0864         ;96dd  10 64 08
     mov b,#0x05             ;96e0  a3 05
     call !sub_9f12          ;96e2  9a 12 9f
@@ -25406,22 +25479,22 @@ lab_96ed:
     movw hl,#mem_ba35       ;971c  16 35 ba
     call !sub_9f33          ;971f  9a 33 9f
     mov a,#0x0a             ;9722  a1 0a
-    mov !mem_fbde,a         ;9724  9e de fb
+    mov !i2c_buf+3,a        ;9724  9e de fb
     mov a,#0xed             ;9727  a1 ed
-    mov !mem_fbdf,a         ;9729  9e df fb
+    mov !i2c_buf+4,a        ;9729  9e df fb
     mov a,#0xe0             ;972c  a1 e0
-    mov !mem_fbe0,a         ;972e  9e e0 fb
+    mov !i2c_buf+5,a        ;972e  9e e0 fb
     mov a,#0x48             ;9731  a1 48
-    mov !mem_fbe1,a         ;9733  9e e1 fb
+    mov !i2c_buf+6,a        ;9733  9e e1 fb
     movw ax,#0x0ffb         ;9736  10 fb 0f
     mov b,#0x07             ;9739  a3 07
     call !sub_9f12          ;973b  9a 12 9f
     mov a,#0x3a             ;973e  a1 3a
     call !sub_9137          ;9740  9a 37 91
     mov a,!mem_f1c5         ;9743  8e c5 f1
-    mov !mem_fbde,a         ;9746  9e de fb
+    mov !i2c_buf+3,a        ;9746  9e de fb
     mov a,!mem_f1c6         ;9749  8e c6 f1
-    mov !mem_fbdf,a         ;974c  9e df fb
+    mov !i2c_buf+4,a        ;974c  9e df fb
     movw ax,#0x0831         ;974f  10 31 08
     mov b,#0x05             ;9752  a3 05
     call !sub_9f12          ;9754  9a 12 9f
@@ -25436,21 +25509,21 @@ lab_96ed:
 lab_9768:
     movw hl,#mem_bcd3       ;9768  16 d3 bc
     mov a,[hl+0x03]         ;976b  ae 03
-    mov !mem_fbde,a         ;976d  9e de fb
+    mov !i2c_buf+3,a        ;976d  9e de fb
     mov a,[hl+0x04]         ;9770  ae 04
-    mov !mem_fbdf,a         ;9772  9e df fb
+    mov !i2c_buf+4,a        ;9772  9e df fb
     mov a,[hl+0x05]         ;9775  ae 05
-    mov !mem_fbe0,a         ;9777  9e e0 fb
+    mov !i2c_buf+5,a        ;9777  9e e0 fb
     mov a,[hl+0x06]         ;977a  ae 06
-    mov !mem_fbe1,a         ;977c  9e e1 fb
+    mov !i2c_buf+6,a        ;977c  9e e1 fb
     mov a,#0x03             ;977f  a1 03
-    mov !mem_fbe2,a         ;9781  9e e2 fb
+    mov !i2c_buf+7,a        ;9781  9e e2 fb
     mov a,#0xf8             ;9784  a1 f8
-    mov !mem_fbe3,a         ;9786  9e e3 fb
+    mov !i2c_buf+8,a        ;9786  9e e3 fb
     mov a,#0x02             ;9789  a1 02
-    mov !mem_fbe4,a         ;978b  9e e4 fb
+    mov !i2c_buf+9,a        ;978b  9e e4 fb
     mov a,#0x08             ;978e  a1 08
-    mov !mem_fbe5,a         ;9790  9e e5 fb
+    mov !i2c_buf+0x0a,a         ;9790  9e e5 fb
     movw ax,#0x0876         ;9793  10 76 08
     mov b,#0x0b             ;9796  a3 0b
     call !sub_9f12          ;9798  9a 12 9f
@@ -25459,74 +25532,74 @@ lab_979b:
     mov a,#0x3c             ;979b  a1 3c
     call !sub_9137          ;979d  9a 37 91
     mov a,!mem_f1c7         ;97a0  8e c7 f1
-    mov !mem_fbde,a         ;97a3  9e de fb
+    mov !i2c_buf+3,a        ;97a3  9e de fb
     mov a,!mem_f1c8         ;97a6  8e c8 f1
-    mov !mem_fbdf,a         ;97a9  9e df fb
+    mov !i2c_buf+4,a        ;97a9  9e df fb
     mov a,!mem_f1c9         ;97ac  8e c9 f1
-    mov !mem_fbe0,a         ;97af  9e e0 fb
+    mov !i2c_buf+5,a        ;97af  9e e0 fb
     mov a,!mem_f1ca         ;97b2  8e ca f1
-    mov !mem_fbe1,a         ;97b5  9e e1 fb
+    mov !i2c_buf+6,a        ;97b5  9e e1 fb
     movw ax,#0x081d         ;97b8  10 1d 08
     mov b,#0x07             ;97bb  a3 07
     call !sub_9f12          ;97bd  9a 12 9f
     mov a,#0x3d             ;97c0  a1 3d
     call !sub_9137          ;97c2  9a 37 91
     mov a,!mem_f1cb         ;97c5  8e cb f1
-    mov !mem_fbde,a         ;97c8  9e de fb
+    mov !i2c_buf+3,a        ;97c8  9e de fb
     mov a,!mem_f1cc         ;97cb  8e cc f1
-    mov !mem_fbdf,a         ;97ce  9e df fb
+    mov !i2c_buf+4,a        ;97ce  9e df fb
     mov a,!mem_f1cd         ;97d1  8e cd f1
-    mov !mem_fbe0,a         ;97d4  9e e0 fb
+    mov !i2c_buf+5,a        ;97d4  9e e0 fb
     mov a,!mem_f1ce         ;97d7  8e ce f1
-    mov !mem_fbe1,a         ;97da  9e e1 fb
+    mov !i2c_buf+6,a        ;97da  9e e1 fb
     movw ax,#0x084d         ;97dd  10 4d 08
     mov b,#0x07             ;97e0  a3 07
     call !sub_9f12          ;97e2  9a 12 9f
     mov a,#0x3e             ;97e5  a1 3e
     call !sub_9137          ;97e7  9a 37 91
     mov a,#0x02             ;97ea  a1 02
-    mov !mem_fbde,a         ;97ec  9e de fb
+    mov !i2c_buf+3,a        ;97ec  9e de fb
     mov a,#0xdf             ;97ef  a1 df
-    mov !mem_fbdf,a         ;97f1  9e df fb
+    mov !i2c_buf+4,a        ;97f1  9e df fb
     movw ax,#0x084f         ;97f4  10 4f 08
     mov b,#0x05             ;97f7  a3 05
     call !sub_9f12          ;97f9  9a 12 9f
     mov a,#0x40             ;97fc  a1 40
     call !sub_9137          ;97fe  9a 37 91
     mov a,!mem_f1cf         ;9801  8e cf f1
-    mov !mem_fbde,a         ;9804  9e de fb
+    mov !i2c_buf+3,a        ;9804  9e de fb
     mov a,!mem_f1d0         ;9807  8e d0 f1
-    mov !mem_fbdf,a         ;980a  9e df fb
+    mov !i2c_buf+4,a        ;980a  9e df fb
     mov a,!mem_f1d1         ;980d  8e d1 f1
-    mov !mem_fbe0,a         ;9810  9e e0 fb
+    mov !i2c_buf+5,a        ;9810  9e e0 fb
     mov a,!mem_f1d2         ;9813  8e d2 f1
-    mov !mem_fbe1,a         ;9816  9e e1 fb
+    mov !i2c_buf+6,a        ;9816  9e e1 fb
     movw ax,#0x0861         ;9819  10 61 08
     mov b,#0x07             ;981c  a3 07
     call !sub_9f12          ;981e  9a 12 9f
     mov a,#0x41             ;9821  a1 41
     call !sub_9137          ;9823  9a 37 91
     mov a,#0x0c             ;9826  a1 0c
-    mov !mem_fbde,a         ;9828  9e de fb
+    mov !i2c_buf+3,a        ;9828  9e de fb
     mov a,#0x28             ;982b  a1 28
-    mov !mem_fbdf,a         ;982d  9e df fb
+    mov !i2c_buf+4,a        ;982d  9e df fb
     mov a,#0x03             ;9830  a1 03
-    mov !mem_fbe0,a         ;9832  9e e0 fb
+    mov !i2c_buf+5,a        ;9832  9e e0 fb
     mov a,#0x80             ;9835  a1 80
-    mov !mem_fbe1,a         ;9837  9e e1 fb
+    mov !i2c_buf+6,a        ;9837  9e e1 fb
     movw ax,#0x0853         ;983a  10 53 08
     mov b,#0x07             ;983d  a3 07
     call !sub_9f12          ;983f  9a 12 9f
     mov a,#0x42             ;9842  a1 42
     call !sub_9137          ;9844  9a 37 91
     mov a,!mem_f1d3         ;9847  8e d3 f1
-    mov !mem_fbde,a         ;984a  9e de fb
+    mov !i2c_buf+3,a        ;984a  9e de fb
     mov a,!mem_f1d4         ;984d  8e d4 f1
-    mov !mem_fbdf,a         ;9850  9e df fb
+    mov !i2c_buf+4,a        ;9850  9e df fb
     mov a,!mem_f1d5         ;9853  8e d5 f1
-    mov !mem_fbe0,a         ;9856  9e e0 fb
+    mov !i2c_buf+5,a        ;9856  9e e0 fb
     mov a,!mem_f1d6         ;9859  8e d6 f1
-    mov !mem_fbe1,a         ;985c  9e e1 fb
+    mov !i2c_buf+6,a        ;985c  9e e1 fb
     movw ax,#0x086d         ;985f  10 6d 08
     mov b,#0x07             ;9862  a3 07
     call !sub_9f12          ;9864  9a 12 9f
@@ -25535,31 +25608,31 @@ lab_979b:
     movw hl,#mem_bd03       ;986c  16 03 bd
     call !sub_9f33          ;986f  9a 33 9f
     mov a,#0x06             ;9872  a1 06
-    mov !mem_fbde,a         ;9874  9e de fb
+    mov !i2c_buf+3,a        ;9874  9e de fb
     mov a,#0x5b             ;9877  a1 5b
-    mov !mem_fbdf,a         ;9879  9e df fb
+    mov !i2c_buf+4,a        ;9879  9e df fb
     movw ax,#0x0842         ;987c  10 42 08
     mov b,#0x05             ;987f  a3 05
     call !sub_9f12          ;9881  9a 12 9f
     mov a,#0x44             ;9884  a1 44
     call !sub_9137          ;9886  9a 37 91
     mov a,#0x0a             ;9889  a1 0a
-    mov !mem_fbde,a         ;988b  9e de fb
+    mov !i2c_buf+3,a        ;988b  9e de fb
     mov a,#0xf6             ;988e  a1 f6
-    mov !mem_fbdf,a         ;9890  9e df fb
+    mov !i2c_buf+4,a        ;9890  9e df fb
     mov a,#0x01             ;9893  a1 01
-    mov !mem_fbe0,a         ;9895  9e e0 fb
+    mov !i2c_buf+5,a        ;9895  9e e0 fb
     mov a,#0x5c             ;9898  a1 5c
-    mov !mem_fbe1,a         ;989a  9e e1 fb
+    mov !i2c_buf+6,a        ;989a  9e e1 fb
     movw ax,#0x085c         ;989d  10 5c 08
     mov b,#0x07             ;98a0  a3 07
     call !sub_9f12          ;98a2  9a 12 9f
     mov a,#0x45             ;98a5  a1 45
     call !sub_9137          ;98a7  9a 37 91
     mov a,#0x00             ;98aa  a1 00
-    mov !mem_fbde,a         ;98ac  9e de fb
+    mov !i2c_buf+3,a        ;98ac  9e de fb
     mov a,#0x00             ;98af  a1 00
-    mov !mem_fbdf,a         ;98b1  9e df fb
+    mov !i2c_buf+4,a        ;98b1  9e df fb
     movw ax,#0x0873         ;98b4  10 73 08
     mov b,#0x05             ;98b7  a3 05
     call !sub_9f12          ;98b9  9a 12 9f
@@ -25570,22 +25643,22 @@ lab_979b:
     mov a,#0x47             ;98c7  a1 47
     call !sub_9137          ;98c9  9a 37 91
     mov a,#0x00             ;98cc  a1 00
-    mov !mem_fbde,a         ;98ce  9e de fb
+    mov !i2c_buf+3,a        ;98ce  9e de fb
     mov a,#0x00             ;98d1  a1 00
-    mov !mem_fbdf,a         ;98d3  9e df fb
+    mov !i2c_buf+4,a        ;98d3  9e df fb
     mov a,#0x07             ;98d6  a1 07
-    mov !mem_fbe0,a         ;98d8  9e e0 fb
+    mov !i2c_buf+5,a        ;98d8  9e e0 fb
     mov a,#0xff             ;98db  a1 ff
-    mov !mem_fbe1,a         ;98dd  9e e1 fb
+    mov !i2c_buf+6,a        ;98dd  9e e1 fb
     movw ax,#0x085a         ;98e0  10 5a 08
     mov b,#0x07             ;98e3  a3 07
     call !sub_9f12          ;98e5  9a 12 9f
     mov a,#0x48             ;98e8  a1 48
     call !sub_9137          ;98ea  9a 37 91
     mov a,#0x00             ;98ed  a1 00
-    mov !mem_fbde,a         ;98ef  9e de fb
+    mov !i2c_buf+3,a        ;98ef  9e de fb
     mov a,#0x00             ;98f2  a1 00
-    mov !mem_fbdf,a         ;98f4  9e df fb
+    mov !i2c_buf+4,a        ;98f4  9e df fb
     movw ax,#0x0872         ;98f7  10 72 08
     mov b,#0x05             ;98fa  a3 05
     call !sub_9f12          ;98fc  9a 12 9f
@@ -25620,44 +25693,44 @@ lab_979b:
     mov a,#0x50             ;994c  a1 50
     call !sub_9137          ;994e  9a 37 91
     mov a,#0x00             ;9951  a1 00
-    mov !mem_fbde,a         ;9953  9e de fb
+    mov !i2c_buf+3,a        ;9953  9e de fb
     mov a,#0x13             ;9956  a1 13
-    mov !mem_fbdf,a         ;9958  9e df fb
+    mov !i2c_buf+4,a        ;9958  9e df fb
     mov a,#0x00             ;995b  a1 00
-    mov !mem_fbe0,a         ;995d  9e e0 fb
+    mov !i2c_buf+5,a        ;995d  9e e0 fb
     mov a,#0x03             ;9960  a1 03
-    mov !mem_fbe1,a         ;9962  9e e1 fb
+    mov !i2c_buf+6,a        ;9962  9e e1 fb
     movw ax,#0x0855         ;9965  10 55 08
     mov b,#0x07             ;9968  a3 07
     call !sub_9f12          ;996a  9a 12 9f
     mov a,#0x51             ;996d  a1 51
     call !sub_9137          ;996f  9a 37 91
     mov a,#0x00             ;9972  a1 00
-    mov !mem_fbde,a         ;9974  9e de fb
+    mov !i2c_buf+3,a        ;9974  9e de fb
     mov a,#0x13             ;9977  a1 13
-    mov !mem_fbdf,a         ;9979  9e df fb
+    mov !i2c_buf+4,a        ;9979  9e df fb
     mov a,#0x00             ;997c  a1 00
-    mov !mem_fbe0,a         ;997e  9e e0 fb
+    mov !i2c_buf+5,a        ;997e  9e e0 fb
     mov a,#0x03             ;9981  a1 03
-    mov !mem_fbe1,a         ;9983  9e e1 fb
+    mov !i2c_buf+6,a        ;9983  9e e1 fb
     movw ax,#0x085e         ;9986  10 5e 08
     mov b,#0x07             ;9989  a3 07
     call !sub_9f12          ;998b  9a 12 9f
     mov a,#0x52             ;998e  a1 52
     call !sub_9137          ;9990  9a 37 91
     mov a,#0x0d             ;9993  a1 0d
-    mov !mem_fbde,a         ;9995  9e de fb
+    mov !i2c_buf+3,a        ;9995  9e de fb
     mov a,#0x80             ;9998  a1 80
-    mov !mem_fbdf,a         ;999a  9e df fb
+    mov !i2c_buf+4,a        ;999a  9e df fb
     movw ax,#0x0821         ;999d  10 21 08
     mov b,#0x05             ;99a0  a3 05
     call !sub_9f12          ;99a2  9a 12 9f
     mov a,#0x53             ;99a5  a1 53
     call !sub_9137          ;99a7  9a 37 91
     mov a,#0x01             ;99aa  a1 01
-    mov !mem_fbde,a         ;99ac  9e de fb
+    mov !i2c_buf+3,a        ;99ac  9e de fb
     mov a,#0xeb             ;99af  a1 eb
-    mov !mem_fbdf,a         ;99b1  9e df fb
+    mov !i2c_buf+4,a        ;99b1  9e df fb
     movw ax,#0x083e         ;99b4  10 3e 08
     mov b,#0x05             ;99b7  a3 05
     call !sub_9f12          ;99b9  9a 12 9f
@@ -25708,9 +25781,9 @@ lab_9a1a:
 
 lab_9a1e:
     call !sub_9d25          ;9a1e  9a 25 9d
-    mov !mem_fbde,a         ;9a21  9e de fb
+    mov !i2c_buf+3,a        ;9a21  9e de fb
     xch a,x                 ;9a24  30
-    mov !mem_fbdf,a         ;9a25  9e df fb
+    mov !i2c_buf+4,a        ;9a25  9e df fb
     movw ax,#0x08f3         ;9a28  10 f3 08
     mov b,#0x05             ;9a2b  a3 05
     call !sub_9f12          ;9a2d  9a 12 9f
@@ -26045,15 +26118,15 @@ lab_9c9f:
 
 lab_9ca3:
     movw ax,#sub_0800       ;9ca3  10 00 08
-    mov !mem_fbde,a         ;9ca6  9e de fb
-    mov !mem_fbe0,a         ;9ca9  9e e0 fb
-    mov !mem_fbe2,a         ;9cac  9e e2 fb
-    mov !mem_fbe4,a         ;9caf  9e e4 fb
+    mov !i2c_buf+3,a        ;9ca6  9e de fb
+    mov !i2c_buf+5,a        ;9ca9  9e e0 fb
+    mov !i2c_buf+7,a        ;9cac  9e e2 fb
+    mov !i2c_buf+9,a        ;9caf  9e e4 fb
     xch a,x                 ;9cb2  30
-    mov !mem_fbdf,a         ;9cb3  9e df fb
-    mov !mem_fbe1,a         ;9cb6  9e e1 fb
-    mov !mem_fbe3,a         ;9cb9  9e e3 fb
-    mov !mem_fbe5,a         ;9cbc  9e e5 fb
+    mov !i2c_buf+4,a        ;9cb3  9e df fb
+    mov !i2c_buf+6,a        ;9cb6  9e e1 fb
+    mov !i2c_buf+8,a        ;9cb9  9e e3 fb
+    mov !i2c_buf+0x0a,a         ;9cbc  9e e5 fb
     call !sub_aaae          ;9cbf  9a ae aa
     mov b,a                 ;9cc2  73
     cmp a,#0x0a             ;9cc3  4d 0a
@@ -26061,11 +26134,11 @@ lab_9ca3:
     movw hl,#mem_c98c+1     ;9cc7  16 8d c9
     callf !sub_0c48         ;9cca  4c 48        Load DE with word at position B in table [HL]
     movw ax,de              ;9ccc  c4
-    mov !mem_fbde,a         ;9ccd  9e de fb
-    mov !mem_fbe0,a         ;9cd0  9e e0 fb
+    mov !i2c_buf+3,a        ;9ccd  9e de fb
+    mov !i2c_buf+5,a        ;9cd0  9e e0 fb
     xch a,x                 ;9cd3  30
-    mov !mem_fbdf,a         ;9cd4  9e df fb
-    mov !mem_fbe1,a         ;9cd7  9e e1 fb
+    mov !i2c_buf+4,a        ;9cd4  9e df fb
+    mov !i2c_buf+6,a        ;9cd7  9e e1 fb
     br lab_9cf4             ;9cda  fa 18
 
 lab_9cdc:
@@ -26075,11 +26148,11 @@ lab_9cdc:
     movw hl,#mem_c98c+1     ;9ce1  16 8d c9
     callf !sub_0c48         ;9ce4  4c 48        Load DE with word at position B in table [HL]
     movw ax,de              ;9ce6  c4
-    mov !mem_fbe2,a         ;9ce7  9e e2 fb
-    mov !mem_fbe4,a         ;9cea  9e e4 fb
+    mov !i2c_buf+7,a        ;9ce7  9e e2 fb
+    mov !i2c_buf+9,a        ;9cea  9e e4 fb
     xch a,x                 ;9ced  30
-    mov !mem_fbe3,a         ;9cee  9e e3 fb
-    mov !mem_fbe5,a         ;9cf1  9e e5 fb
+    mov !i2c_buf+8,a        ;9cee  9e e3 fb
+    mov !i2c_buf+0x0a,a         ;9cf1  9e e5 fb
 
 lab_9cf4:
     mov b,#0x0b             ;9cf4  a3 0b
@@ -26332,27 +26405,27 @@ lab_9e8d:
     ret                     ;9e8d  af
 
 sub_9e8e:
-    mov !mem_fbdc,a         ;9e8e  9e dc fb
+    mov !i2c_buf+1,a        ;9e8e  9e dc fb
     xch a,x                 ;9e91  30
-    mov !mem_fbdd,a         ;9e92  9e dd fb
+    mov !i2c_buf+2,a        ;9e92  9e dd fb
     mov a,#0x1C<<1          ;9e95  a1 38        0x1C = SAA7705H I2C address
-    mov !mem_fbdb,a         ;9e97  9e db fb
+    mov !i2c_buf,a          ;9e97  9e db fb
     movw ax,de              ;9e9a  c4
-    mov !mem_fbde,a         ;9e9b  9e de fb
+    mov !i2c_buf+3,a        ;9e9b  9e de fb
     xch a,x                 ;9e9e  30
-    mov !mem_fbdf,a         ;9e9f  9e df fb
+    mov !i2c_buf+4,a        ;9e9f  9e df fb
     mov a,#0x85             ;9ea2  a1 85
-    movw hl,#mem_fbdb       ;9ea4  16 db fb
-    call !sub_5f51          ;9ea7  9a 51 5f
+    movw hl,#i2c_buf        ;9ea4  16 db fb
+    call !sub_5f51          ;9ea7  9a 51 5f     TODO perform I2C write?
     mov a,#0x02             ;9eaa  a1 02
-    movw hl,#mem_fbde       ;9eac  16 de fb
-    call !sub_5f51          ;9eaf  9a 51 5f
+    movw hl,#i2c_buf+3      ;9eac  16 de fb
+    call !sub_5f51          ;9eaf  9a 51 5f     TODO perform I2C write?
     mov a,#0x02             ;9eb2  a1 02
-    movw hl,#mem_fbde       ;9eb4  16 de fb
-    call !sub_5f51          ;9eb7  9a 51 5f
+    movw hl,#i2c_buf+3      ;9eb4  16 de fb
+    call !sub_5f51          ;9eb7  9a 51 5f     TODO perform I2C write?
     mov a,#0x42             ;9eba  a1 42
-    movw hl,#mem_fbde       ;9ebc  16 de fb
-    call !sub_5f51          ;9ebf  9a 51 5f
+    movw hl,#i2c_buf+3      ;9ebc  16 de fb
+    call !sub_5f51          ;9ebf  9a 51 5f     TODO perform I2C write?
     mov a,#0x0b             ;9ec2  a1 0b
     br !sub_9f9f            ;9ec4  9b 9f 9f
 
@@ -26362,17 +26435,17 @@ sub_9ec7:
     movw ax,#0x08c5         ;9ece  10 c5 08
 
 lab_9ed1:
-    mov !mem_fbdc,a         ;9ed1  9e dc fb
+    mov !i2c_buf+1,a        ;9ed1  9e dc fb
     xch a,x                 ;9ed4  30
-    mov !mem_fbdd,a         ;9ed5  9e dd fb
+    mov !i2c_buf+2,a        ;9ed5  9e dd fb
     mov a,#0x1C<<1          ;9ed8  a1 38        0x1C = SAA7705H I2C address
-    mov !mem_fbdb,a         ;9eda  9e db fb
+    mov !i2c_buf,a          ;9eda  9e db fb
     mov a,#0x83             ;9edd  a1 83
-    movw hl,#mem_fbdb       ;9edf  16 db fb
-    call !sub_5f51          ;9ee2  9a 51 5f
+    movw hl,#i2c_buf        ;9edf  16 db fb
+    call !sub_5f51          ;9ee2  9a 51 5f     TODO perform I2C write?
     mov a,#0x4e             ;9ee5  a1 4e
     movw hl,#mem_f022       ;9ee7  16 22 f0
-    call !sub_5f51          ;9eea  9a 51 5f
+    call !sub_5f51          ;9eea  9a 51 5f     TODO perform I2C write?
     movw hl,#mem_ba94       ;9eed  16 94 ba
     bf mem_fe73.7,lab_9ef7  ;9ef0  31 73 73 03
     movw hl,#mem_ba9a       ;9ef4  16 9a ba
@@ -26389,22 +26462,22 @@ lab_9ef7:
 sub_9f07:
     mov b,#0x05             ;9f07  a3 05
     xchw ax,de              ;9f09  e4
-    mov !mem_fbde,a         ;9f0a  9e de fb
+    mov !i2c_buf+3,a        ;9f0a  9e de fb
     mov a,x                 ;9f0d  60
-    mov !mem_fbdf,a         ;9f0e  9e df fb
+    mov !i2c_buf+4,a        ;9f0e  9e df fb
     xchw ax,de              ;9f11  e4
 
 sub_9f12:
-    mov !mem_fbdc,a         ;9f12  9e dc fb
+    mov !i2c_buf+1,a        ;9f12  9e dc fb
     mov a,x                 ;9f15  60
-    mov !mem_fbdd,a         ;9f16  9e dd fb
+    mov !i2c_buf+2,a        ;9f16  9e dd fb
     mov a,#0x1C<<1          ;9f19  a1 38        0x1C = SAA7705H I2C address
-    mov !mem_fbdb,a         ;9f1b  9e db fb
+    mov !i2c_buf,a          ;9f1b  9e db fb
     mov a,b                 ;9f1e  63
     call !sub_9f9f          ;9f1f  9a 9f 9f
     or a,#0xc0              ;9f22  6d c0
-    movw hl,#mem_fbdb       ;9f24  16 db fb
-    br !sub_5f51            ;9f27  9b 51 5f
+    movw hl,#i2c_buf        ;9f24  16 db fb
+    br !sub_5f51            ;9f27  9b 51 5f     TODO perform I2C write?
 
 sub_9f2a:
     call !sub_9f8a          ;9f2a  9a 8a 9f
@@ -26447,12 +26520,12 @@ lab_9f59:
     set1 mem_fe74.1         ;9f59  1a 74
 
 lab_9f5b:
-    movw de,#mem_fbde       ;9f5b  14 de fb     DE = destination address
+    movw de,#i2c_buf+3      ;9f5b  14 de fb     DE = destination address
     push ax                 ;9f5e  b1
     sub a,#0x03             ;9f5f  1d 03
     call !sub_0c9e          ;9f61  9a 9e 0c     Copy A bytes from [HL] to [DE]
     pop ax                  ;9f64  b0
-    movw hl,#mem_fbdb       ;9f65  16 db fb
+    movw hl,#i2c_buf        ;9f65  16 db fb
     bf mem_fe74.0,lab_9f70  ;9f68  31 03 74 04
     or a,#0x80              ;9f6c  6d 80
     clr1 mem_fe74.0         ;9f6e  0b 74
@@ -26462,7 +26535,7 @@ lab_9f70:
     or a,#0x40              ;9f74  6d 40
 
 lab_9f76:
-    br !sub_5f51            ;9f76  9b 51 5f
+    br !sub_5f51            ;9f76  9b 51 5f     TODO perform I2C write?
 
 lab_9f79:
     push hl                 ;9f79  b7
@@ -26473,19 +26546,19 @@ lab_9f79:
     call !sub_9f9f          ;9f81  9a 9f 9f
     or a,#0x40              ;9f84  6d 40
     pop hl                  ;9f86  b6
-    br !sub_5f51            ;9f87  9b 51 5f
+    br !sub_5f51            ;9f87  9b 51 5f     TODO perform I2C write?
 
 sub_9f8a:
     mov a,#0x1C<<1          ;9f8a  a1 38        0x1C = SAA7705H I2C address
-    mov !mem_fbdb,a         ;9f8c  9e db fb
+    mov !i2c_buf,a          ;9f8c  9e db fb
     decw hl                 ;9f8f  96
     decw hl                 ;9f90  96
     decw hl                 ;9f91  96
     mov a,[hl]              ;9f92  87
-    mov !mem_fbdd,a         ;9f93  9e dd fb
+    mov !i2c_buf+2,a        ;9f93  9e dd fb
     incw hl                 ;9f96  86
     mov a,[hl]              ;9f97  87
-    mov !mem_fbdc,a         ;9f98  9e dc fb
+    mov !i2c_buf+1,a        ;9f98  9e dc fb
     incw hl                 ;9f9b  86
     mov a,[hl]              ;9f9c  87
     incw hl                 ;9f9d  86
@@ -26584,18 +26657,18 @@ sub_a04a:
     movw ax,#0x00db         ;a04a  10 db 00
 
 sub_a04d:
-    mov !mem_fbdc,a         ;a04d  9e dc fb
+    mov !i2c_buf+1,a        ;a04d  9e dc fb
     mov a,x                 ;a050  60
-    mov !mem_fbdd,a         ;a051  9e dd fb
+    mov !i2c_buf+2,a        ;a051  9e dd fb
     mov a,#0x1C<<1          ;a054  a1 38         0x1C = SAA7705H I2C address
-    mov !mem_fbdb,a         ;a056  9e db fb
+    mov !i2c_buf,a          ;a056  9e db fb
     mov a,#0x83             ;a059  a1 83
-    movw hl,#mem_fbdb       ;a05b  16 db fb
-    call !sub_5f51          ;a05e  9a 51 5f
+    movw hl,#i2c_buf        ;a05b  16 db fb
+    call !sub_5f51          ;a05e  9a 51 5f     TODO perform I2C write?
     mov x,#0x39             ;a061  a0 39
     movw hl,#mem_fed4       ;a063  16 d4 fe
     mov a,#0xc3             ;a066  a1 c3
-    br !sub_5ee8            ;a068  9b e8 5e
+    br !sub_5ee8            ;a068  9b e8 5e     TODO perform I2C read?
 
 sub_a06b:
     mov a,#0x32             ;a06b  a1 32
