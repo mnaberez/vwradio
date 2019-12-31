@@ -17253,7 +17253,7 @@ lab_624f:
     mov a,h                 ;6253  67
     and a,#0x07             ;6254  5d 07
     rol a,1                 ;6256  26
-    or a,#0xa0              ;6257  6d a0
+    or a,#0x50<<1           ;6257  6d a0        0x50 = EEPROM I2C address
     mov !mem_fbdb,a         ;6259  9e db fb
     push ax                 ;625c  b1
     mov a,#0x82             ;625d  a1 82
@@ -17358,7 +17358,7 @@ lab_62c6:
     movw ax,!mem_f01a       ;62d1  02 1a f0
     and a,#0x07             ;62d4  5d 07
     rol a,1                 ;62d6  26
-    or a,#0xa0              ;62d7  6d a0
+    or a,#0x50<<1           ;62d7  6d a0        0x50 = EEPROM I2C address
     mov !mem_fbdb,a         ;62d9  9e db fb
     mov a,x                 ;62dc  60
     mov !mem_fbdc,a         ;62dd  9e dc fb
@@ -20668,7 +20668,7 @@ sub_7712:
 lab_771a:
     mov a,#0x0c             ;771a  a1 0c
     mov !mem_fb12,a         ;771c  9e 12 fb
-    mov a,#0x44             ;771f  a1 44
+    mov a,#0x22<<1          ;771f  a1 44        0x22 = TDA7476 I2C address
     mov !mem_fbdb,a         ;7721  9e db fb
     mov a,#0xc1             ;7724  a1 c1
     movw hl,#mem_fbdb       ;7726  16 db fb
@@ -26335,7 +26335,7 @@ sub_9e8e:
     mov !mem_fbdc,a         ;9e8e  9e dc fb
     xch a,x                 ;9e91  30
     mov !mem_fbdd,a         ;9e92  9e dd fb
-    mov a,#0x38             ;9e95  a1 38
+    mov a,#0x1C<<1          ;9e95  a1 38        0x1C = SAA7705H I2C address
     mov !mem_fbdb,a         ;9e97  9e db fb
     movw ax,de              ;9e9a  c4
     mov !mem_fbde,a         ;9e9b  9e de fb
@@ -26365,7 +26365,7 @@ lab_9ed1:
     mov !mem_fbdc,a         ;9ed1  9e dc fb
     xch a,x                 ;9ed4  30
     mov !mem_fbdd,a         ;9ed5  9e dd fb
-    mov a,#0x38             ;9ed8  a1 38
+    mov a,#0x1C<<1          ;9ed8  a1 38        0x1C = SAA7705H I2C address
     mov !mem_fbdb,a         ;9eda  9e db fb
     mov a,#0x83             ;9edd  a1 83
     movw hl,#mem_fbdb       ;9edf  16 db fb
@@ -26398,7 +26398,7 @@ sub_9f12:
     mov !mem_fbdc,a         ;9f12  9e dc fb
     mov a,x                 ;9f15  60
     mov !mem_fbdd,a         ;9f16  9e dd fb
-    mov a,#0x38             ;9f19  a1 38
+    mov a,#0x1C<<1          ;9f19  a1 38        0x1C = SAA7705H I2C address
     mov !mem_fbdb,a         ;9f1b  9e db fb
     mov a,b                 ;9f1e  63
     call !sub_9f9f          ;9f1f  9a 9f 9f
@@ -26476,7 +26476,7 @@ lab_9f79:
     br !sub_5f51            ;9f87  9b 51 5f
 
 sub_9f8a:
-    mov a,#0x38             ;9f8a  a1 38
+    mov a,#0x1C<<1          ;9f8a  a1 38        0x1C = SAA7705H I2C address
     mov !mem_fbdb,a         ;9f8c  9e db fb
     decw hl                 ;9f8f  96
     decw hl                 ;9f90  96
@@ -26587,7 +26587,7 @@ sub_a04d:
     mov !mem_fbdc,a         ;a04d  9e dc fb
     mov a,x                 ;a050  60
     mov !mem_fbdd,a         ;a051  9e dd fb
-    mov a,#0x38             ;a054  a1 38
+    mov a,#0x1C<<1          ;a054  a1 38         0x1C = SAA7705H I2C address
     mov !mem_fbdb,a         ;a056  9e db fb
     mov a,#0x83             ;a059  a1 83
     movw hl,#mem_fbdb       ;a05b  16 db fb
