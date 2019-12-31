@@ -7792,6 +7792,8 @@ sub_2cdf:
 ;
 ;Preserves BC and DE.
 ;
+;See also sub_6364 for another EEPROM range check.
+;
     callf !sub_0d60         ;2cdf  5c 60      HL = HL + AX, preserves AX
                             ;                 HL now contains end address of region + 1
 
@@ -17227,15 +17229,22 @@ sub_6238:
 
 sub_623d:
 ;Read A bytes from EEPROM address HL into [DE] without sub_6217 check
+;
+;HL = EEPROM address to read
+;DE = buffer to receive EEPROM contents
+;A = number of bytes to read
+;
+;Returns carry set on success, carry clear on failure
+;
     push hl                 ;623d  b7
     push bc                 ;623e  b3
     push ax                 ;623f  b1
     push de                 ;6240  b5
-    call !sub_6364          ;6241  9a 64 63
-    bnc lab_628b            ;6244  9d 45
+    call !sub_6364          ;6241  9a 64 63     Check EEPROM address HL and number of bytes A are valid
+    bnc lab_628b_failed     ;6244  9d 45        Branch to clear carry, pop regs, and return if invalid
     mov a,#0x05             ;6246  a1 05
     mov !mem_fc12,a         ;6248  9e 12 fc
-    movw ax,hl              ;624b  c6
+    movw ax,hl              ;624b  c6           HL = EEPROM start address
     movw !mem_f01a,ax       ;624c  03 1a f0
 
 lab_624f:
@@ -17260,10 +17269,13 @@ lab_624f:
     call !sub_5ee8          ;6270  9a e8 5e
     bc lab_627b             ;6273  8d 06
 
-lab_6275:
+lab_6275_success:
+;Set carry, pop registers, and return
     set1 cy                 ;6275  20
+    ;Fall through to pop registers and return
 
-lab_6276:
+lab_6276_pop_ret:
+;Pop registers and return
     pop de                  ;6276  b4
     pop ax                  ;6277  b0
     pop bc                  ;6278  b2
@@ -17273,15 +17285,16 @@ lab_6276:
 lab_627b:
     mov a,!mem_fc12         ;627b  8e 12 fc
     sub a,#0x01             ;627e  1d 01
-    bc lab_628b             ;6280  8d 09
+    bc lab_628b_failed      ;6280  8d 09        Branch to clear carry, pop registers, and return
     mov !mem_fc12,a         ;6282  9e 12 fc
     movw ax,!mem_f01a       ;6285  02 1a f0
     movw hl,ax              ;6288  d6
     br lab_624f             ;6289  fa c4
 
-lab_628b:
+lab_628b_failed:
+;Clear carry, pop registers, and return
     clr1 cy                 ;628b  21
-    br lab_6276             ;628c  fa e8
+    br lab_6276_pop_ret     ;628c  fa e8        Branch to pop registers and return
 
 sub_628e:
 ;Write A bytes to EEPROM address DE from [HL]
@@ -17301,18 +17314,29 @@ sub_6293:
     push bc                 ;6294  b3
     push ax                 ;6295  b1
     push de                 ;6296  b5
+
+    ;Exchange DE and HL
     xchw ax,hl              ;6297  e6
     xchw ax,de              ;6298  e4
     xchw ax,hl              ;6299  e6
-    call !sub_6364          ;629a  9a 64 63
-    bnc lab_628b            ;629d  9d ec
-    movw ax,hl              ;629f  c6
+
+    ;Registers now contain:
+    ;  HL = EEPROM address to write
+    ;  DE = pointer to buffer to write to EEPROM
+    ;  A = number of bytes to write
+
+    call !sub_6364          ;629a  9a 64 63     Check EEPROM address HL and number of bytes A are valid
+    bnc lab_628b_failed     ;629d  9d ec        Branch to clear carry, pop regs, and return if invalid
+
+    movw ax,hl              ;629f  c6           AX = EEPROM address
     movw !mem_f01a,ax       ;62a0  03 1a f0
-    call !sub_637e          ;62a3  9a 7e 63
+
+    call !sub_637e          ;62a3  9a 7e 63     Unknown; EEPROM related - called only from write EEPROM
+
     movw ax,de              ;62a6  c4
     movw hl,ax              ;62a7  d6
     movw de,#mem_fc00       ;62a8  14 00 fc     DE = destination address
-    mov a,!mem_fc10         ;62ab  8e 10 fc
+    mov a,!mem_fc10         ;62ab  8e 10 fc     A = number of bytes to copy
     callf !sub_0c9e         ;62ae  4c 9e        Copy A bytes from [HL] to [DE]
     mov a,!mem_fc11         ;62b0  8e 11 fc
     mov b,a                 ;62b3  73
@@ -17329,7 +17353,7 @@ sub_6293:
 lab_62c6:
     movw hl,#mem_fc00       ;62c6  16 00 fc     HL = source address
     movw de,#mem_fbdd       ;62c9  14 dd fb     DE = destination address
-    mov a,!mem_fc10         ;62cc  8e 10 fc
+    mov a,!mem_fc10         ;62cc  8e 10 fc     A = number of bytes to copy
     callf !sub_0c9e         ;62cf  4c 9e        Copy A bytes from [HL] to [DE]
     movw ax,!mem_f01a       ;62d1  02 1a f0
     and a,#0x07             ;62d4  5d 07
@@ -17342,7 +17366,7 @@ lab_62c6:
     mov a,!mem_fc10         ;62e3  8e 10 fc
     add a,#0xc2             ;62e6  0d c2
     call !sub_5f51          ;62e8  9a 51 5f
-    bc lab_628b             ;62eb  8d 9e
+    bc lab_628b_failed      ;62eb  8d 9e        Branch to clear carry, pop registers, and return
     mov a,#0x0b             ;62ed  a1 0b
     mov !mem_fb06,a         ;62ef  9e 06 fb
     mov a,#0x02             ;62f2  a1 02
@@ -17354,7 +17378,7 @@ lab_62c6:
     mov !mem_fbff,a         ;62ff  9e ff fb
 
 lab_6302:
-    br !lab_6275            ;6302  9b 75 62
+    br !lab_6275_success    ;6302  9b 75 62
 
 sub_6305:
     bt mem_fe2d.0,lab_630d  ;6305  8c 2d 05
@@ -17417,24 +17441,53 @@ lab_6363:
     ret                     ;6363  af
 
 sub_6364:
-    cmp a,#0x00             ;6364  4d 00
-    bz lab_637d             ;6366  ad 15
-    cmp a,#0x11             ;6368  4d 11
-    bnc lab_637d            ;636a  9d 11
+;Check EEPROM address HL and number of bytes A are valid
+;
+;Checks:
+; - Number of bytes A is between 1-16.
+; - Addresses are all between 0x0000-0x01FF (512 byte 24C04)
+;
+;Call with:
+; HL = start address in EEPROM
+;  A = number of bytes
+;
+;Returns:
+; AX = EEPROM "stop" address (last address in range + 1)
+; Carry set on success, carry clear on failure
+;
+;Preserves HL, DE, BC.
+;
+;See also sub_2cdf for another EEPROM range check.
+;
+    cmp a,#0                ;6364  4d 00
+    bz lab_637d             ;6366  ad 15      Branch if = 0 (failure)
+    cmp a,#16+1             ;6368  4d 11
+    bnc lab_637d            ;636a  9d 11      Branch if >= 16 (failure)
     mov !mem_fc10,a         ;636c  9e 10 fc
-    xchw ax,hl              ;636f  e6
-    subw ax,#0x0000         ;6370  da 00 00
-    xchw ax,hl              ;6373  e6
-    add a,l                 ;6374  61 0e
-    mov x,a                 ;6376  70
-    mov a,h                 ;6377  67
-    addc a,#0x00            ;6378  2d 00
-    cmpw ax,#0x0201         ;637a  ea 01 02
+
+    ;Subtract 0 from EEPROM address in HL
+    xchw ax,hl              ;636f  e6         Swap so that:
+                            ;                   AX=EEPROM address
+                            ;                    H=undefined, L=number of bytes
+    subw ax,#0              ;6370  da 00 00   EEPROM address = EEPROM address - 0
+    xchw ax,hl              ;6373  e6         Swap again so that:
+                            ;                    A=number of bytes, X=undefined
+                            ;                   HL=EEPROM address
+
+    ;AX = HL + A
+    add a,l                 ;6374  61 0e      A = A + L
+    mov x,a                 ;6376  70         X = A
+    mov a,h                 ;6377  67         A = H
+    addc a,#0x00            ;6378  2d 00      A = A + CY
+
+    cmpw ax,#512+1          ;637a  ea 01 02   512 = number of bytes in EEPROM
 
 lab_637d:
     ret                     ;637d  af
 
 sub_637e:
+;Unknown; EEPROM related
+;Called only from Write EEPROM
     push ax                 ;637e  b1
     mov a,!mem_fc10         ;637f  8e 10 fc
     mov b,a                 ;6382  73
