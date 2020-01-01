@@ -30956,41 +30956,49 @@ mem_b4fe:
     .byte 0xff              ;b50a  ff          DATA 0xff
 
 mem_b50b:
+;table used with sub_0c48
     .byte 0x07              ;b50b  07          DATA 0x07
-    .byte 0x1b              ;b50c  1b          DATA 0x1b
-    .byte 0xb5              ;b50d  b5          DATA 0xb5
-    .byte 0x1e              ;b50e  1e          DATA 0x1e
-    .byte 0xb5              ;b50f  b5          DATA 0xb5
-    .byte 0x21              ;b510  21          DATA 0x21 '!'
-    .byte 0xb5              ;b511  b5          DATA 0xb5
-    .byte 0x24              ;b512  24          DATA 0x24 '$'
-    .byte 0xb5              ;b513  b5          DATA 0xb5
-    .byte 0x28              ;b514  28          DATA 0x28 '('
-    .byte 0xb5              ;b515  b5          DATA 0xb5
-    .byte 0x2b              ;b516  2b          DATA 0x2b '+'
-    .byte 0xb5              ;b517  b5          DATA 0xb5
-    .byte 0x2e              ;b518  2e          DATA 0x2e '.'
-    .byte 0xb5              ;b519  b5          DATA 0xb5
-    .byte 0x02              ;b51a  02          DATA 0x02
+    .word mem_b51a+1
+    .word mem_b51d+1
+    .word mem_b520+1
+    .word mem_b523+1
+    .word mem_b527+1
+    .word mem_b52a+1
+    .word mem_b52d+1
+
+mem_b51a:
+    .byte 0x02              ;b51a  02          DATA 0x02      2 entries below:
     .byte 0x52              ;b51b  52          DATA 0x52 'R'
     .byte 0x05              ;b51c  05          DATA 0x05
-    .byte 0x02              ;b51d  02          DATA 0x02
+
+mem_b51d:
+    .byte 0x02              ;b51d  02          DATA 0x02      2 entries below:
     .byte 0x20              ;b51e  20          DATA 0x20 ' '
     .byte 0x0c              ;b51f  0c          DATA 0x0c
-    .byte 0x02              ;b520  02          DATA 0x02
+
+mem_b520:
+    .byte 0x02              ;b520  02          DATA 0x02      2 entries below:
     .byte 0x51              ;b521  51          DATA 0x51 'Q'
     .byte 0x05              ;b522  05          DATA 0x05
-    .byte 0x03              ;b523  03          DATA 0x03
+
+mem_b523:
+    .byte 0x03              ;b523  03          DATA 0x03      3 entries below:
     .byte 0x50              ;b524  50          DATA 0x50 'P'
     .byte 0x51              ;b525  51          DATA 0x51 'Q'
     .byte 0x05              ;b526  05          DATA 0x05
-    .byte 0x02              ;b527  02          DATA 0x02
+
+mem_b527:
+    .byte 0x02              ;b527  02          DATA 0x02      2 entries below:
     .byte 0x58              ;b528  58          DATA 0x58 'X'
     .byte 0x00              ;b529  00          DATA 0x00
-    .byte 0x02              ;b52a  02          DATA 0x02
+
+mem_b52a:
+    .byte 0x02              ;b52a  02          DATA 0x02      2 entries below:
     .byte 0x59              ;b52b  59          DATA 0x59 'Y'
     .byte 0x00              ;b52c  00          DATA 0x00
-    .byte 0x02              ;b52d  02          DATA 0x02
+
+mem_b52d:
+    .byte 0x02              ;b52d  02          DATA 0x02      2 entries below:
     .byte 0x3a              ;b52e  3a          DATA 0x3a ':'
     .byte 0x0c              ;b52f  0c          DATA 0x0c
 
