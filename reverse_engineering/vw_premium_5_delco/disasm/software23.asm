@@ -6858,7 +6858,7 @@ fis_display_test:
 
 lab_2824:
     movw de,#fis_tx_buf+3   ;2824  14 55 f0     DE = destination address
-    mov a,#16             ;2827  a1 10          A = 16 bytes to copy (9 chars * 2 lines)
+    mov a,#16             ;2827  a1 10          A = 16 bytes to copy (8 chars * 2 lines)
     callf !sub_0c9e         ;2829  4c 9e        Copy A bytes from [HL] to [DE]
     set1 mem_fe60.3         ;282b  3a 60
     set1 mem_fe5f.5         ;282d  5a 5f
@@ -8276,8 +8276,8 @@ lab_2eee:
     ;    "XXXXXXXX"
     ;    "XXXXXXXX"
     mov b,#16               ;2ef2  a3 10        B = number of bytes to convert (8 chars * 2 lines)
-    movw hl,#fis_tx_buf+3-1 ;2ef4  16 54 f0     HL = buffer address
-    call !sub_306f          ;2ef7  9a 6f 30     Convert B bytes in [HL] to uppercase
+    movw hl,#fis_tx_buf+3-1 ;2ef4  16 54 f0     HL = buffer address - 1
+    call !sub_306f          ;2ef7  9a 6f 30     Convert B bytes in [HL+1] to uppercase
 
     clr1 cy                 ;2efa  21           Carry clear = not blank
     ret                     ;2efb  af
@@ -8538,14 +8538,15 @@ lab_3066:
     ret                     ;306e  af
 
 sub_306f:
-;Convert B bytes in [HL] to uppercase
+;Convert B bytes in [HL+1] to uppercase
+;
     mov a,[hl+b]            ;306f  ab           A = byte from buffer
     cmp a,#'a               ;3070  4d 61
     bc lab_307b_next        ;3072  8d 07        Branch if < 'a'
     cmp a,#'z+1             ;3074  4d 7b
     bnc lab_307b_next       ;3076  9d 03        Branch if >= 'z'+1
     ;A >= 'a', A <= 'z'
-    sub a,#0x20             ;3078  1d 20        Convert lowercase to uppercase
+    sub a,#'a-'A            ;3078  1d 20        Convert lowercase to uppercase
     mov [hl+b],a            ;307a  bb           Write it to the buffer
 lab_307b_next:
     dbnz b,sub_306f         ;307b  8b f2        Loop until entire buffer is converted
