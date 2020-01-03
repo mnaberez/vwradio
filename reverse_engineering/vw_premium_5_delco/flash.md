@@ -1,39 +1,29 @@
 # Flash Programming
 
-## Internal / External
+## Hardware
 
-| FL-PR3 Probe  | Connection                | Method               |
-|---------------|---------------------------|----------------------|
-| SCK (White)   | TODO CDC port CLK (Black) | Plug                 | TODO verify me
-| SO (Yellow)   | TODO CDC port DI (Green)  | Plug                 | TODO verify me
-| SI (Blue)     | TODO CDC port DO (Blue)   | Plug                 | TODO verify me
-| VSS (Black)   | TODO CDC port GND (Black) | Plug                 |
-| RESET (Green) | uPD78F0831Y Pin 64 /RESET | Solder               |
-| VPP (Green)   | uPD78F0831Y Pin 65 IC/VPP | Solder               |
-| VDD (Red)     | TDAxxxx Pin xx VDD        | Clip                 |
+![Flash Connections](photos/flpr3-connections.jpg)
 
-Internal / external requires:
+| FL-PR3 Probe  | uPD78F0831Y                  |
+|---------------|------------------------------|
+| SCK (White)   | uPD78F0831Y Pin 48 P22/SCK31 |
+| SO (Yellow)   | uPD78F0831Y Pin 46 P20/SI31  | TODO verify me
+| SI (Blue)     | uPD78F0831Y Pin 47 P21/SO31  | TODO verify me 
+| RESET (Green) | uPD78F0831Y Pin 64 /RESET    |
+| VPP (Green)   | uPD78F0831Y Pin 65 IC/VPP    |
+| VDD (Red)     | uPD78F0831Y Pin 69 VDD       |
+| VSS (Black)   | TA2025P Pin 5 VSS            |
 
- - Plugging into 4 connections on the CDC port (SCK, SO, SI, VSS)
- - Soldering 2 connections to vias or the uPD78F0831Y (RESET, VPP)
- - Clipping 1 connection on the TDAxxxx DIP package (VSS)
- - Does not require desoldering the HEFxxx chip
+Notes:
 
-# Internal Only
+ - The 16181209 (16-pin SOIC package near the L9673D) must be temporarily
+   desoldered during flash programming.
 
-| FL-PR3 Probe  | Connection                   | Method         |
-|---------------|------------------------------|----------------|
-| SCK (White)   | uPD78F0831Y Pin 48 P22/SCK31 | Solder         |
-| SO (Yellow)   | uPD78F0831Y Pin 46 P20/SI31  | Solder         | TODO verify me internal
-| SI (Blue)     | uPD78F0831Y Pin 47 P21/SO31  | Solder         | TODO verify me internal
-| RESET (Green) | uPD78F0831Y Pin 64 /RESET    | Solder         |
-| VPP (Green)   | uPD78F0831Y Pin 65 IC/VPP    | Solder         |
-| VSS (Black)   | TDAxxxx Pin xx VSS           | Clip           | TODO TDA verify me
-| VDD (Red)     | TDAxxxx Pin xx VDD           | Clip           | TODO TDA verify me
+ - VSS (GND) can also be obtained by clipping onto pin 8 of the TA2025P
+   (16-pin DIP package).
 
-Internal only requires:
+## FL-PR3 Settings
 
- - Soldering 5 connections to vias or the uPD78F0831Y (SCK, SO, SI, RESET, VPP)
- - Clipping 2 connections at the TDAxxxx DIP package (VSS, VDD)
- - Desoldering the HEFxxx chip
+![FL-PR3 Connections](photos/flpr3-settings.png)
 
+![FL-PR3 Signature](photos/flpr3-signature.png)
