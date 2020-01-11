@@ -16,8 +16,8 @@
 
 Notes:
 
- - The 16181209 (16-pin SOIC package near the L9673D) must be temporarily
-   desoldered during flash programming.
+ - The 16-pin SOIC chip near the L9637D, which is marked as Delco 16181209 or as
+   Philips HEF40106BT, must be temporarily desoldered during flash programming.
 
  - VSS (GND) can also be obtained by clipping onto pin 8 of the TA2025P
    (16-pin DIP package).
