@@ -4,7 +4,7 @@
 |----------|------------------|---------------------------------------------------|
 |09370082 N60 FLASH | NEC uPD78F0831Y  | 78K0 Microcontroller similar to uPD78F0833Y *[1]*  |
 |16246476  | Philips TEA6840H | New In Car Entertainment (NICE) Car Radio *[2]*     |
-|16181209  | Philips HEF40160B| 4-bit sync decade counter with aync reset *[3]*     |
+|16181209  | Philips HEF40106BT| Hex inverting Schmitt trigger *[3]*     |
 |9355092   | ST M24C04        | 512 Byte I2C EEPROM *[4]*                           |
 
 *Note 1*:
@@ -14,7 +14,7 @@ I had the 09370082 ("N60 FLASH") chip decapsulated and the part number "D78F0831
 I had the 16246476 chip decapsulated but there was no part number marked on the die.  Using many Philips datasheets, I suspected it was a TEA6840H after comparing the package size along with the power, ground, and crystal pins. I then installed a TEA6840H into the radio and it was fully functional.  I then had a TEA6840H chip decapsulated.  I compared those die photos to the photos of the 16246476 and they were the same.
 
 *Note 3*:
-In one radio, serial number VWZ4Z7X7040815, I found this chip with the real part number on the outside of the package (HEF40160B).  All other radios I looked at had the Delco number on this chip.
+In one radio, serial numbers VWZ4Z7X7040815 and VWZ4Z7X5050891, I found this chip with the real part number on the outside of the package (HEF401060BT).  All other radios I looked at had the Delco number on this chip.
 
 *Note 4*:
 M24C04 is a guess.  The EEPROM reads and writes in a device programmer as an M24C04.  In SOFTWARE23, the subroutine `sub_2cdf` checks that an EEPROM address for read or write is within 0x0000-0x01FF (512 bytes), which consistent with a M24C04.
