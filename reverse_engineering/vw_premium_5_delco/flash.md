@@ -4,15 +4,15 @@
 
 ![Flash Connections](photos/flpr3-connections.jpg)
 
-| FL-PR3 Probe  | uPD78F0831Y                  |
-|---------------|------------------------------|
-| SCK (White)   | uPD78F0831Y Pin 48 P22/SCK31 |
-| SO (Yellow)   | uPD78F0831Y Pin 46 P20/SI31  | TODO verify me
-| SI (Blue)     | uPD78F0831Y Pin 47 P21/SO31  | TODO verify me 
-| RESET (Green) | uPD78F0831Y Pin 64 /RESET    |
-| VPP (Green)   | uPD78F0831Y Pin 65 IC/VPP    |
-| VDD (Red)     | uPD78F0831Y Pin 69 VDD       |
-| VSS (Black)   | TA2025P Pin 5 VSS            |
+| FL-PR3 Probe  | uPD78F0831Y "N60 FLASH"  |
+|---------------|--------------------------|
+| SCK (White)   | Pin 48 P22/SCK31         |
+| SO (Yellow)   | Pin 46 P20/SI31          | TODO verify me
+| SI (Blue)     | Pin 47 P21/SO31          | TODO verify me
+| RESET (Green) | Pin 64 /RESET            |
+| VPP (Green)   | Pin 65 IC/VPP            |
+| VDD (Red)     | Pin 69 VDD               |
+| VSS (Black)   | Pin 27 VSS               |
 
 Notes:
 
