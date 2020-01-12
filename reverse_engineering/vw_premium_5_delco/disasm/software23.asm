@@ -1570,7 +1570,7 @@ lab_08db:
 
 
 sio31_disable:
-;Disable SIO31 (unknown SPI)
+;Disable SIO31 (CDC SPI)
     set1 shadow_p2.2        ;08df  2a cc
     set1 shadow_p2.1        ;08e1  1a cc
     mov a,shadow_p2         ;08e3  f0 cc
@@ -1582,7 +1582,7 @@ sio31_disable:
     set1 pm2.0              ;08f3  71 0a 22
     ret                     ;08f6  af
 
-;TODO CSI31 is probably the CD changer interface
+;CSI31 is the CD changer interface (CDC)
 intcsi31_08f7:
     push ax                 ;08f7  b1
     push bc                 ;08f8  b3
