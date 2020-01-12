@@ -15845,6 +15845,19 @@ lab_5978:
     mov !mem_fb05,a         ;598e  9e 05 fb
     br lab_5a0e             ;5991  fa 7b      Branch to pop registers and reti
 
+;MFSW (Multi-Function Steering Wheel)
+;
+;Note:
+;  Signal is inverted by HEF40106BT
+;  P0.0 idles low
+;  Grounding MFSW pin makes P0.0 high
+;
+;Connections:
+;   MFSW pin at back of radio ->
+;   HEF40106BT inverter pin 12 in ->
+;   HEF40106BT inverter pin 13 out ->
+;   P0.0
+;
 intp0_5933:
     push ax                 ;5993  b1
     movw ax,tm01            ;5994  89 14
@@ -15863,6 +15876,7 @@ lab_59a9:
     bf p0.0,lab_59c9        ;59a9  31 03 00 1c
 
 lab_59ad:
+;P0.0 = low
     mov a,#0x00             ;59ad  a1 00
     cmp a,!mem_fb0e         ;59af  48 0e fb
     bnz lab_59b7            ;59b2  bd 03
@@ -15879,6 +15893,7 @@ lab_59b7:
     br lab_5a0e             ;59c7  fa 45        Branch to pop registers and reti
 
 lab_59c9:
+;P0.0 = high
     mov a,#0x00             ;59c9  a1 00
     mov !mem_f198,a         ;59cb  9e 98 f1
     mov a,!mem_fb05         ;59ce  8e 05 fb
@@ -15982,7 +15997,7 @@ lab_5a74:
     clr1 mem_fe67.7         ;5a7b  7b 67
     mov a,#0xd7             ;5a7d  a1 d7
     mov !mem_fb05,a         ;5a7f  9e 05 fb
-    br !lab_5a0e            ;5a82  9b 0e 5a
+    br !lab_5a0e            ;5a82  9b 0e 5a     Branch to pop registers and reti
 
 sub_5a85:
     xch a,x                 ;5a85  30
@@ -15991,7 +16006,7 @@ sub_5a85:
     and a,#0x7f             ;5a8b  5d 7f
     dec a                   ;5a8d  51
     cmp a,#0x03             ;5a8e  4d 03
-    bnc lab_5acf            ;5a90  9d 3d
+    bnc lab_5acf            ;5a90  9d 3d        Branch to clear carry and return
     mov !mem_f199,a         ;5a92  9e 99 f1
     xchw ax,bc              ;5a95  e2
     movw !mem_f016,ax       ;5a96  03 16 f0
@@ -16035,7 +16050,7 @@ lab_5ad1:
     movw cr011,ax           ;5ade  99 12
     movw !0xf018,ax         ;5ae0  03 18 f0
     set1 mem_fe68.2         ;5ae3  2a 68
-    br !lab_5ba0            ;5ae5  9b a0 5b
+    br !lab_5ba0            ;5ae5  9b a0 5b     Branch to pop registers and reti
 
 lab_5ae8:
     movw ax,#0x0608         ;5ae8  10 08 06
@@ -16045,7 +16060,7 @@ lab_5ae8:
     movw cr011,ax           ;5af2  99 12
     movw !0xf018,ax         ;5af4  03 18 f0
     clr1 mem_fe68.2         ;5af7  2b 68
-    br !lab_5ba0            ;5af9  9b a0 5b
+    br !lab_5ba0            ;5af9  9b a0 5b     Branch to pop registers and reti
 
 lab_5afc:
     xch a,x                 ;5afc  30
@@ -16058,7 +16073,7 @@ lab_5b04:
     bz lab_5b0f             ;5b06  ad 07
     xch a,x                 ;5b08  30
     movw !0xf010,ax         ;5b09  03 10 f0
-    br !lab_5ba0            ;5b0c  9b a0 5b
+    br !lab_5ba0            ;5b0c  9b a0 5b     Branch to pop registers and reti
 
 lab_5b0f:
     movw ax,#0x0000         ;5b0f  10 00 00
@@ -16072,7 +16087,7 @@ lab_5b1b:
     addw ax,#lab_312c       ;5b1f  ca 2c 31
     movw cr011,ax           ;5b22  99 12
     movw !0xf018,ax         ;5b24  03 18 f0
-    br !lab_5ba0            ;5b27  9b a0 5b
+    br !lab_5ba0            ;5b27  9b a0 5b     Branch to pop registers and reti
 
 lab_5b2a:
     mov a,!mem_f199         ;5b2a  8e 99 f1
@@ -16095,7 +16110,7 @@ lab_5b2a:
     movw cr011,ax           ;5b51  99 12
     movw !0xf018,ax         ;5b53  03 18 f0
     clr1 mem_fe68.2         ;5b56  2b 68
-    br lab_5ba0             ;5b58  fa 46
+    br lab_5ba0             ;5b58  fa 46      Branch to pop registers and reti
 
 lab_5b5a:
     br !lab_5c31            ;5b5a  9b 31 5c
@@ -16139,8 +16154,10 @@ lab_5b90:
     mov a,shadow_p5         ;5b99  f0 cf
     mov p5,a                ;5b9b  f2 05
     set1 mk1l.4             ;5b9d  71 4a e6     Set TMMK011 (disables INTTM011)
+    ;Fall through to pop registers and reti
 
 lab_5ba0:
+;Pop registers and return
     pop hl                  ;5ba0  b6
     pop de                  ;5ba1  b4
     pop ax                  ;5ba2  b0
@@ -16157,7 +16174,7 @@ lab_5ba4:
     movw cr011,ax           ;5bb1  99 12
     movw !0xf018,ax         ;5bb3  03 18 f0
     set1 mem_fe68.2         ;5bb6  2a 68
-    br !lab_5ba0            ;5bb8  9b a0 5b
+    br !lab_5ba0            ;5bb8  9b a0 5b     Branch to pop registers and reti
 
 lab_5bbb:
     movw ax,#0x0220         ;5bbb  10 20 02
@@ -16167,7 +16184,7 @@ lab_5bbb:
     movw cr011,ax           ;5bc5  99 12
     movw !0xf018,ax         ;5bc7  03 18 f0
     clr1 mem_fe68.2         ;5bca  2b 68
-    br !lab_5ba0            ;5bcc  9b a0 5b
+    br !lab_5ba0            ;5bcc  9b a0 5b     Branch to pop registers and reti
 
 lab_5bcf:
     xch a,x                 ;5bcf  30
@@ -16193,14 +16210,14 @@ lab_5be8:
     addw ax,#0x0937         ;5bed  ca 37 09
     movw cr011,ax           ;5bf0  99 12
     movw !0xf018,ax         ;5bf2  03 18 f0
-    br !lab_5ba0            ;5bf5  9b a0 5b
+    br !lab_5ba0            ;5bf5  9b a0 5b     Branch to pop registers and reti
 
 lab_5bf8:
     movw ax,de              ;5bf8  c4
     addw ax,#0x1ba5         ;5bf9  ca a5 1b
     movw cr011,ax           ;5bfc  99 12
     movw !0xf018,ax         ;5bfe  03 18 f0
-    br !lab_5ba0            ;5c01  9b a0 5b
+    br !lab_5ba0            ;5c01  9b a0 5b     Branch to pop registers and reti
 
 lab_5c04:
     xch a,x                 ;5c04  30
@@ -16210,7 +16227,7 @@ lab_5c04:
     movw cr011,ax           ;5c0c  99 12
     movw !0xf018,ax         ;5c0e  03 18 f0
     set1 mem_fe68.2         ;5c11  2a 68
-    br !lab_5ba0            ;5c13  9b a0 5b
+    br !lab_5ba0            ;5c13  9b a0 5b     Branch to pop registers and reti
 
 lab_5c16:
     xch a,x                 ;5c16  30
@@ -16238,7 +16255,7 @@ lab_5c31:
     bz lab_5c41             ;5c38  ad 07
     xch a,x                 ;5c3a  30
     movw !0xf010,ax         ;5c3b  03 10 f0
-    br !lab_5ba0            ;5c3e  9b a0 5b
+    br !lab_5ba0            ;5c3e  9b a0 5b     Branch to pop registers and reti
 
 lab_5c41:
     bf mem_fe68.1,lab_5c4d  ;5c41  31 13 68 08
@@ -16250,14 +16267,14 @@ lab_5c4d:
     movw ax,#0x0000         ;5c4d  10 00 00
     movw !0xf010,ax         ;5c50  03 10 f0
     set1 mem_fe68.2         ;5c53  2a 68
-    br !lab_5ba0            ;5c55  9b a0 5b
+    br !lab_5ba0            ;5c55  9b a0 5b     Branch to pop registers and reti
 
 lab_5c58:
     movw ax,de              ;5c58  c4
     addw ax,#0xa9fd         ;5c59  ca fd a9
     movw cr011,ax           ;5c5c  99 12
     movw !0xf018,ax         ;5c5e  03 18 f0
-    br !lab_5ba0            ;5c61  9b a0 5b
+    br !lab_5ba0            ;5c61  9b a0 5b     Branch to pop registers and reti
 
 sub_5c64:
     mov mem_fed4,a          ;5c64  f2 d4
