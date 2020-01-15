@@ -2789,10 +2789,12 @@ rst_0d88:
     clr1 pm3.4              ;0d99  71 4b 23
     mov a,shadow_p3         ;0d9c  f0 cd
     mov p3,a                ;0d9e  f2 03
-    clr1 shadow_p4.6        ;0da0  6b ce
-    clr1 pm4.6              ;0da2  71 6b 24
+
+    clr1 shadow_p4.6        ;0da0  6b ce        uPD16432B /LCDOFF = 0 (turns LCD off)
+    clr1 pm4.6              ;0da2  71 6b 24     PM46 = output
     mov a,shadow_p4         ;0da5  f0 ce
     mov p4,a                ;0da7  f2 04
+
     mov a,#0x01             ;0da9  a1 01
     callf !sub_09d7         ;0dab  1c d7
     call !sub_3781          ;0dad  9a 81 37
@@ -2970,7 +2972,7 @@ lab_0e39:
     call !sub_4569          ;0ef2  9a 69 45
     mov a,#0xff             ;0ef5  a1 ff
     mov !mem_fbad,a         ;0ef7  9e ad fb
-    call !sub_4d1a          ;0efa  9a 1a 4d
+    call !upd_display_off   ;0efa  9a 1a 4d     Turn uPD16432B display off
     call !sub_7697          ;0efd  9a 97 76
     call !sub_76c9          ;0f00  9a c9 76
     mov upd_leds,#0x0f      ;0f03  11 3e 0f     Value to write to uPD16432B LED output latch
@@ -12653,7 +12655,7 @@ charset_0x08_solid_block:
     .byte 0xdf              ;495f  df          DATA 0xdf
 
 sub_4960:
-    call !sub_4d1a          ;4960  9a 1a 4d
+    call !upd_display_off   ;4960  9a 1a 4d     Turn uPD16432B display off
     clr1 cy                 ;4963  21
     btclr mem_fe5e.7,lab_496b ;4964  31 71 5e 03
     set1 cy                 ;4968  20
@@ -13404,9 +13406,11 @@ lab_4d05:
 lab_4d19:
     ret                     ;4d19  af
 
-sub_4d1a:
-    clr1 shadow_p4.6        ;4d1a  6b ce
-    clr1 pm4.6              ;4d1c  71 6b 24
+
+upd_display_off:
+;Turn uPD16432B display off
+    clr1 shadow_p4.6        ;4d1a  6b ce        uPD16432B /LCDOFF = 0 (turns LCD off)
+    clr1 pm4.6              ;4d1c  71 6b 24     PM46 = output
     mov a,shadow_p4         ;4d1f  f0 ce
     mov p4,a                ;4d21  f2 04
 
@@ -18331,11 +18335,13 @@ lab_68f4:
     bt mem_fe65.5,lab_6915  ;68fb  dc 65 17
     bt mem_fe2c.3,lab_6912  ;68fe  bc 2c 11
     set1 mem_fe6a.2         ;6901  2a 6a
-    bf shadow_p4.6,lab_6923 ;6903  31 63 ce 1c
-    clr1 shadow_p4.6        ;6907  6b ce
-    clr1 pm4.6              ;6909  71 6b 24
+    bf shadow_p4.6,lab_6923 ;6903  31 63 ce 1c  Branch if uPD16432B /LCDOFF = 0 (LCD is off)
+
+    clr1 shadow_p4.6        ;6907  6b ce        uPD16432B /LCDOFF = 0 (turns LCD off)
+    clr1 pm4.6              ;6909  71 6b 24     PM46 = output
     mov a,shadow_p4         ;690c  f0 ce
     mov p4,a                ;690e  f2 04
+
     br lab_6923             ;6910  fa 11
 
 lab_6912:
@@ -18343,9 +18349,10 @@ lab_6912:
 
 lab_6915:
     clr1 mem_fe6a.2         ;6915  2b 6a
-    bt shadow_p4.6,lab_6923 ;6917  ec ce 09
-    set1 shadow_p4.6        ;691a  6a ce
-    clr1 pm4.6              ;691c  71 6b 24
+    bt shadow_p4.6,lab_6923 ;6917  ec ce 09     Branch if uPD16432B /LCDOFF = 1 (LCD is on)
+
+    set1 shadow_p4.6        ;691a  6a ce        uPD16432B /LCDOFF = 1 (turns LCD on)
+    clr1 pm4.6              ;691c  71 6b 24     PM46 = output
     mov a,shadow_p4         ;691f  f0 ce
     mov p4,a                ;6921  f2 04
 
@@ -18546,27 +18553,27 @@ lab_6a2f:
     mov b,#0xff             ;6a31  a3 ff
     movw hl,#blank          ;6a33  16 11 65     HL = pointer to 11,"           "
     mov1 cy,mem_fe62.2      ;6a36  71 24 62
-    bc lab_6a40             ;6a39  8d 05
-    bt mem_fe62.1,lab_6a4b  ;6a3b  9c 62 0d
-    br lab_6a56             ;6a3e  fa 16
+    bc lab_6a40_lcd_on      ;6a39  8d 05
+    bt mem_fe62.1,lab_6a40_lcd_off  ;6a3b  9c 62 0d
+    br lab_6a56             ;6a3e  fa 16      Branch to copy message to display buf and return
 
-lab_6a40:
-    set1 shadow_p4.6        ;6a40  6a ce
-    clr1 pm4.6              ;6a42  71 6b 24
+lab_6a40_lcd_on:
+    set1 shadow_p4.6        ;6a40  6a ce      uPD16432B /LCDOFF = 1 (turns LCD on)
+    clr1 pm4.6              ;6a42  71 6b 24   PM46 = output
     mov a,shadow_p4         ;6a45  f0 ce
     mov p4,a                ;6a47  f2 04
-    br lab_6a5b             ;6a49  fa 10
+    br lab_6a5b             ;6a49  fa 10      Branch to return
 
-lab_6a4b:
-    clr1 shadow_p4.6        ;6a4b  6b ce
-    clr1 pm4.6              ;6a4d  71 6b 24
+lab_6a40_lcd_off:
+    clr1 shadow_p4.6        ;6a4b  6b ce      uPD16432B /LCDOFF = 0 (turns LCD off)
+    clr1 pm4.6              ;6a4d  71 6b 24   PM46 = output
     mov a,shadow_p4         ;6a50  f0 ce
     mov p4,a                ;6a52  f2 04
-    br lab_6a5b             ;6a54  fa 05
+    br lab_6a5b             ;6a54  fa 05      Branch to return
 
 lab_6a56:
-    call !sub_6e70          ;6a56  9a 70 6e     Copy message from [HL] to display buf; uses A, B
-    br lab_6a5b             ;6a59  fa 00
+    call !sub_6e70          ;6a56  9a 70 6e   Copy message from [HL] to display buf; uses A, B
+    br lab_6a5b             ;6a59  fa 00      Branch to return
 
 lab_6a5b:
     ret                     ;6a5b  af
@@ -19965,23 +19972,23 @@ lab_7249:
     mov b,#0xff             ;7269  a3 ff
     movw hl,#blank          ;726b  16 11 65     HL = pointer to 11,"           "
     mov1 cy,mem_fe62.2      ;726e  71 24 62
-    bc lab_7278             ;7271  8d 05
-    bt mem_fe62.1,lab_7284  ;7273  9c 62 0e
+    bc lab_7278_lcd_on      ;7271  8d 05
+    bt mem_fe62.1,lab_7284_lcd_off  ;7273  9c 62 0e
     br lab_7290             ;7276  fa 18        Branch to copy msg from [HL] to display buf and return
 
-lab_7278:
-    set1 shadow_p4.6        ;7278  6a ce
-    clr1 pm4.6              ;727a  71 6b 24
+lab_7278_lcd_on:
+    set1 shadow_p4.6        ;7278  6a ce        uPD16432B /LCDOFF = 1 (turns LCD on)
+    clr1 pm4.6              ;727a  71 6b 24     PM46 = output
     mov a,shadow_p4         ;727d  f0 ce
     mov p4,a                ;727f  f2 04
-    br !lab_6a5b            ;7281  9b 5b 6a
+    br !lab_6a5b            ;7281  9b 5b 6a     Branch to return
 
-lab_7284:
-    clr1 shadow_p4.6        ;7284  6b ce
-    clr1 pm4.6              ;7286  71 6b 24
+lab_7284_lcd_off:
+    clr1 shadow_p4.6        ;7284  6b ce        uPD16432B /LCDOFF = 0 (turns LCD off)
+    clr1 pm4.6              ;7286  71 6b 24     PM46 = output
     mov a,shadow_p4         ;7289  f0 ce
     mov p4,a                ;728b  f2 04
-    br !lab_6a5b            ;728d  9b 5b 6a
+    br !lab_6a5b            ;728d  9b 5b 6a     Branch to return
 
 lab_7290:
     call !sub_6e70          ;7290  9a 70 6e     Copy message from [HL] to display buf; uses A, B
