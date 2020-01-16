@@ -672,7 +672,7 @@ intp5_vect:
     .word badisr_0d75       ;0010  75 0d       VECTOR INTP5
 
 intp6_vect:
-    .word intp6_5904        ;0012  3b 59       VECTOR INTP6
+    .word intp6_593b        ;0012  3b 59       VECTOR INTP6
 
 intp7_vect:
     .word intp7_883a        ;0014  3a 88       VECTOR INTP7
@@ -15795,7 +15795,7 @@ lab_593a:
 ;INTP6 external interrupt
 ;Fires on the falling edge of the STOP/EJECT key
 ;STOP/EJECT key is P06 (0=pressed, 1=not pressed)
-intp6_5904:
+intp6_593b:
     bt mem_fe62.1,lab_5940  ;593b  9c 62 02
     set1 mem_fe7d.7         ;593e  7a 7d
 
