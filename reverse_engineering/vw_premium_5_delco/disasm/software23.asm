@@ -10036,7 +10036,7 @@ lab_39d4:
 
 lab_39d7:
     bt mem_fe2c.3,lab_39ed  ;39d7  bc 2c 13
-    bt mem_fe62.5,lab_39ed  ;39da  dc 62 10
+    bt mem_fe62.5,lab_39ed  ;39da  dc 62 10     Branch if INTP1 occurred
     bf p6.7,lab_39eb        ;39dd  31 73 06 0a
     cmp mem_fe4c,#0x00      ;39e1  c8 4c 00
     bnz lab_39eb            ;39e4  bd 05
@@ -10648,7 +10648,8 @@ lab_3dd3:
     ret                     ;3dd3  af
 
 sub_3dd4:
-    btclr mem_fe62.5,lab_3df9 ;3dd4  31 51 62 21
+    btclr mem_fe62.5,lab_3df9 ;3dd4  31 51 62 21  If bit is set indicating INTP1 occurred,
+                              ;                     clear that bit and branch
     bf p0.1,lab_3df9        ;3dd8  31 13 00 1d
     bt mem_fe62.4,lab_3df1  ;3ddc  cc 62 12
     mov a,#0x00             ;3ddf  a1 00
@@ -10789,7 +10790,7 @@ lab_3ec9:
     br !sub_3bf7            ;3ec9  9b f7 3b
 
 intp1_3ecc:
-    set1 mem_fe62.5         ;3ecc  5a 62
+    set1 mem_fe62.5         ;3ecc  5a 62      Set bit to indicate INTP1 occurred
     reti                    ;3ece  8f
 
 lab_3ecf:
