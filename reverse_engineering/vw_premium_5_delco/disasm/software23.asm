@@ -654,7 +654,7 @@ intwdt_vect:
     .word badisr_0d75       ;0004  75 0d       VECTOR INTWDT
 
 intp0_vect:
-    .word intp0_5933        ;0006  93 59       VECTOR INTP0
+    .word intp0_mfsw        ;0006  93 59       VECTOR INTP0
 
 intp1_vect:
     .word intp1_3ecc        ;0008  cc 3e       VECTOR INTP1
@@ -666,13 +666,13 @@ intp3_vect:
     .word badisr_0d75       ;000c  75 0d       VECTOR INTP3
 
 intp4_vect:
-    .word intp4_5904        ;000e  04 59       VECTOR INTP4
+    .word intp4_power_key   ;000e  04 59       VECTOR INTP4
 
 intp5_vect:
     .word badisr_0d75       ;0010  75 0d       VECTOR INTP5
 
 intp6_vect:
-    .word intp6_593b        ;0012  3b 59       VECTOR INTP6
+    .word intp6_stop_key    ;0012  3b 59       VECTOR INTP6
 
 intp7_vect:
     .word intp7_883a        ;0014  3a 88       VECTOR INTP7
@@ -15753,7 +15753,7 @@ lab_5903:
 ;INTP4 external interrupt
 ;Fires on the rising or falling edge of the POWER key
 ;POWER key is P04 (0=pressed, 1=not pressed)
-intp4_5904:
+intp4_power_key:
     clr1 mem_fe67.2         ;5904  2b 67
     push ax                 ;5906  b1
     mov a,!mem_f1e9         ;5907  8e e9 f1
@@ -15796,7 +15796,7 @@ lab_593a:
 ;INTP6 external interrupt
 ;Fires on the falling edge of the STOP/EJECT key
 ;STOP/EJECT key is P06 (0=pressed, 1=not pressed)
-intp6_593b:
+intp6_stop_key:
     bt mem_fe62.1,lab_5940  ;593b  9c 62 02
     set1 mem_fe7d.7         ;593e  7a 7d
 
@@ -15863,7 +15863,7 @@ lab_5978:
 ;   HEF40106BT inverter pin 13 out ->
 ;   P0.0
 ;
-intp0_5933:
+intp0_mfsw:
     push ax                 ;5993  b1
     movw ax,tm01            ;5994  89 14
     push bc                 ;5996  b3
