@@ -4,7 +4,8 @@
 |-----------|-----------|---------------------------------|
 |Pin  2     |P71/SDA0   |I2C SDA (see i2c.md file)        |      
 |Pin  3     |P72/SCL0   |I2C SCL (see i2c.md file)        |
-|Pin  7     |P00/INT0   |MFSW (inverted)                  |
+|Pin  7     |P00/INTP0  |MFSW (inverted)                  |
+|Pin 50     |P05/INTP5  |uPD16432B KEYREQ                 |
 |Pin 27     |P46        |uPD16432B /LCDOFF                |
 |Pin 28     |P47        |uPD16432B STB                    |
 |Pin 29     |P30/SI30   |uPD16432B DAT in                 |

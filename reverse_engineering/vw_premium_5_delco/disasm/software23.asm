@@ -669,6 +669,9 @@ intp4_vect:
     .word intp4_power_key   ;000e  04 59       VECTOR INTP4
 
 intp5_vect:
+;Note: P05 is connected to the uPD16432B's KEYREQ line (goes high
+;whenever a key is being pressed).  This could be detected with
+;INTP5 but is not.  The firmware does seem to use P05 at all.
     .word badisr_0d75       ;0010  75 0d       VECTOR INTP5
 
 intp6_vect:
@@ -23362,6 +23365,8 @@ lab_8829:
     mov mem_fe4a,a          ;8837  f2 4a
     ret                     ;8839  af
 
+;INTP7 external interrupt
+;Fires on the rising edge of P07
 intp7_883a:
     push ax                 ;883a  b1
     mov a,!mem_fb18         ;883b  8e 18 fb
