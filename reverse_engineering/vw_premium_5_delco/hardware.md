@@ -17,5 +17,6 @@
 |Pin 49     |P04/INTP4  |POWER key (0=pressed)            |
 |Pin 50     |P05/INTP5  |uPD16432B KEYREQ                 |
 |Pin 51     |P06/INTP6  |STOP/EJECT key (0=pressed)       |
+|Pin 53     |P23        |Tape METAL sense (1=metal)       |
 |Pin 54     |P24/RxD0   |L9637D RX (K-line)               |
 |Pin 55     |P25/TxD0   |L9637D TX (K-line)               |

@@ -18684,7 +18684,9 @@ lab_6af5:
     ret                     ;6aff  af
 
 lab_6b00:
-    bf mem_fe71.4,lab_6b0e  ;6b00  31 43 71 0a
+    bf mem_fe71.4,lab_6b0e  ;6b00  31 43 71 0a  Branch if METAL sense is off (normal tape)
+
+    ;METAL tape
     mov b,#0xff             ;6b04  a3 ff
     mov a,#0x0a             ;6b06  a1 0a
     movw hl,#tape_metal     ;6b08  16 ff 65     HL = pointer to 11,"TAPE METAL"
@@ -19231,7 +19233,9 @@ lab_6e5e:
 
 lab_6e66:
     clr1 upd_pict+2.7       ;6e66  7b 37            Turn off "METAL" pictograph
-    bf mem_fe71.4,sub_6e6e  ;6e68  31 43 71 02
+    bf mem_fe71.4,sub_6e6e  ;6e68  31 43 71 02      Branch if METAL sense is off (normal tape)
+
+    ;METAL tape
     set1 upd_pict+2.7       ;6e6c  7a 37            Turn on "METAL pictograph
 
 sub_6e6e:
@@ -20309,7 +20313,9 @@ lab_7474:
 
 lab_747c:
     clr1 upd_pict+2.7       ;747c  7b 37        Turn off "METAL" pictograph
-    bf mem_fe71.4,lab_7484  ;747e  31 43 71 02
+    bf mem_fe71.4,lab_7484  ;747e  31 43 71 02  Branch if METAL sense is off
+
+    ;METAL tape
     set1 upd_pict+2.7       ;7482  7a 37        Turn on "METAL" pictograph
 
 lab_7484:
@@ -24057,9 +24063,11 @@ lab_8cb6:
     br lab_8cdd             ;8cbd  fa 1e
 
 lab_8cbf:
-    mov1 cy,p2.3            ;8cbf  71 34 02
-    mov1 mem_fe71.4,cy      ;8cc2  71 41 71
-    bnc lab_8cd6            ;8cc5  9d 0f
+    mov1 cy,p2.3            ;8cbf  71 34 02     Carry = Tape METAL sense (1=metal)
+    mov1 mem_fe71.4,cy      ;8cc2  71 41 71     Store METAL sense
+    bnc lab_8cd6            ;8cc5  9d 0f        Branch if METAL sense is off
+
+    ;METAL tape
     cmp mem_fe30,#0x02      ;8cc7  c8 30 02
     bnz lab_8cd6            ;8cca  bd 0a
     mov a,#0x32             ;8ccc  a1 32
@@ -24451,19 +24459,19 @@ sub_8f65:
     bnz sub_8f87            ;8f69  bd 1c
     mov a,mem_fe50          ;8f6b  f0 50
     cmp a,#0x04             ;8f6d  4d 04
-    bz lab_8f80             ;8f6f  ad 0f
+    bz lab_8f80             ;8f6f  ad 0f      Branch to read METAL sense and return
     cmp a,#0x05             ;8f71  4d 05
-    bz lab_8f80             ;8f73  ad 0b
+    bz lab_8f80             ;8f73  ad 0b      Branch to read METAL sense and return
     cmp a,#0x03             ;8f75  4d 03
-    bz lab_8f80             ;8f77  ad 07
+    bz lab_8f80             ;8f77  ad 07      Branch to read METAL sense and return
     cmp a,#0x02             ;8f79  4d 02
-    bz lab_8f80             ;8f7b  ad 03
+    bz lab_8f80             ;8f7b  ad 03      Branch to read METAL sense and return
     set1 mem_fe7e.6         ;8f7d  6a 7e
     ret                     ;8f7f  af
 
 lab_8f80:
-    mov1 cy,p2.3            ;8f80  71 34 02
-    mov1 mem_fe71.4,cy      ;8f83  71 41 71
+    mov1 cy,p2.3            ;8f80  71 34 02     Carry = Tape METAL sense (1=metal)
+    mov1 mem_fe71.4,cy      ;8f83  71 41 71     Store METAL sense
     ret                     ;8f86  af
 
 sub_8f87:
