@@ -47,7 +47,6 @@ script:
   - make -C reverse_engineering/vw_premium_5_delco/custom/faultcodes
   - make -C reverse_engineering/vw_premium_5_delco/custom/loopback_irq
   - make -C reverse_engineering/vw_premium_5_delco/custom/loopback_poll
-  - make -C reverse_engineering/vw_premium_5_delco/custom/remote
   - make -C reverse_engineering/vw_rhapsody_technisat/disasm
   - make -C volume_monitor/firmware
   - make -C tape_emulator/firmware
