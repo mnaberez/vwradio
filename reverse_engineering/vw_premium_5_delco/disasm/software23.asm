@@ -1496,9 +1496,9 @@ sio30_disable:
     mov csim30,#0x00        ;0899  13 b0 00     SIO30 = operation stopped
 
     clr1 pm3.2              ;089c  71 2b 23     PM32=output (uPD16432B CLK)
-    clr1 pm3.1              ;089f  71 1b 23     PM31=output (uPD16432B DAT)
-    clr1 pu3.0              ;08a2  71 0b 33
-    set1 pm3.0              ;08a5  71 0a 23
+    clr1 pm3.1              ;089f  71 1b 23     PM31=output (uPD16432B DAT out)
+    clr1 pu3.0              ;08a2  71 0b 33     PU30 pull-up resistor disabled (uPD16432B DAT in)
+    set1 pm3.0              ;08a5  71 0a 23     PM30=input (uPD16432B DAT in)
     ret                     ;08a8  af
 
 
@@ -1582,7 +1582,7 @@ sio31_disable:
     clr1 pm2.2              ;08ea  71 2b 22
     clr1 pm2.1              ;08ed  71 1b 22
     clr1 pu2.0              ;08f0  71 0b 32
-    set1 pm2.0              ;08f3  71 0a 22
+    set1 pm2.0              ;08f3  71 0a 22     PM20 = input
     ret                     ;08f6  af
 
 ;CSI31 is the CD changer interface (CDC)
@@ -2788,8 +2788,9 @@ rst_0d88:
     mov wdtm,#0x90          ;0d8d  13 f9 90
     mov pcc,#0x00           ;0d90  13 fb 00
     movw sp,#stack_top      ;0d93  ee 1c 1f fe  Initialize stack pointer (stack grows down)
-    clr1 shadow_p3.4        ;0d97  4b cd
-    clr1 pm3.4              ;0d99  71 4b 23
+
+    clr1 shadow_p3.4        ;0d97  4b cd        P34 = 0
+    clr1 pm3.4              ;0d99  71 4b 23     PM34 = output
     mov a,shadow_p3         ;0d9c  f0 cd
     mov p3,a                ;0d9e  f2 03
 
@@ -3021,7 +3022,7 @@ lab_0f1b:
     clr1 pu4.2              ;0f4a  71 2b 34
     set1 pm4.2              ;0f4d  71 2a 24
     clr1 pu3.5              ;0f50  71 5b 33
-    set1 pm3.5              ;0f53  71 5a 23
+    set1 pm3.5              ;0f53  71 5a 23     PM35 = input
     set1 pm9.3              ;0f56  71 3a 29
     set1 pm9.6              ;0f59  71 6a 29
     mov a,#0x00             ;0f5c  a1 00
@@ -3862,7 +3863,7 @@ lab_153e:
     clr1 pu4.2              ;1556  71 2b 34
     set1 pm4.2              ;1559  71 2a 24
     clr1 pu3.5              ;155c  71 5b 33
-    set1 pm3.5              ;155f  71 5a 23
+    set1 pm3.5              ;155f  71 5a 23     PM35 = input
     set1 pm9.3              ;1562  71 3a 29
     set1 pm9.6              ;1565  71 6a 29
     clr1 mem_fe64.2         ;1568  2b 64
@@ -6542,11 +6543,11 @@ sio30_enable:
 ;Enable SIO30 (used for uPD16432B SPI)
     mov csim30,#0x83        ;2617  13 b0 83     SIO30 mode = ena, tx & rx, clock = fx/2^6 (65.5 kHz)
     clr1 pm3.2              ;261a  71 2b 23     PM32=output (uPD16432B CLK)
-    clr1 pm3.1              ;261d  71 1b 23     PM31=output (uPD16432B DAT)
-    clr1 pu3.0              ;2620  71 0b 33
-    set1 pm3.0              ;2623  71 0a 23
+    clr1 pm3.1              ;261d  71 1b 23     PM31=output (uPD16432B DAT out)
+    clr1 pu3.0              ;2620  71 0b 33     PU30 pull-up resistor disabled (uPD16432B DAT in)
+    set1 pm3.0              ;2623  71 0a 23     PM30=input (uPD16432B DAT in)
     clr1 shadow_p3.2        ;2626  2b cd        uPD16432B CLK = low
-    clr1 shadow_p3.1        ;2628  1b cd        uPD16432B DAT = low
+    clr1 shadow_p3.1        ;2628  1b cd        uPD16432B DAT out = low
     mov a,shadow_p3         ;262a  f0 cd
     mov p3,a                ;262c  f2 03
     ret                     ;262e  af
@@ -10241,21 +10242,22 @@ inttm000_3b2b:
     pop ax                  ;3b2f  b0
     reti                    ;3b30  8f
 
+;XXX lab_3b31 appears unused
 lab_3b31:
-    set1 shadow_p3.4         ;3b31  4a cd
+    set1 shadow_p3.4        ;3b31  4a cd      P34 = 1
     br lab_3b37             ;3b33  fa 02
 
 sub_3b35:
-    clr1 shadow_p3.4         ;3b35  4b cd
+    clr1 shadow_p3.4        ;3b35  4b cd      P34 = 0
 
 lab_3b37:
-    clr1 pm3.4              ;3b37  71 4b 23
+    clr1 pm3.4              ;3b37  71 4b 23   PM34 = output
 
 sub_3b3a:
     mov tmc00,#0x00         ;3b3a  13 60 00
     mov toc00,#0x00         ;3b3d  13 63 00
-    set1 mk1l.1             ;3b40  71 1a e6     Set WTNIMK0 (disables INTWTNI0)
-    set1 mk1l.2             ;3b43  71 2a e6     Set TMMK000 (disables INTTM000)
+    set1 mk1l.1             ;3b40  71 1a e6   Set WTNIMK0 (disables INTWTNI0)
+    set1 mk1l.2             ;3b43  71 2a e6   Set TMMK000 (disables INTTM000)
     movw ax,#0x0000         ;3b46  10 00 00
     movw !0xf00a,ax         ;3b49  03 0a f0
     ret                     ;3b4c  af
@@ -10301,8 +10303,8 @@ sub_3b80:
     movw cr000,ax           ;3b91  99 0a
     mov crc00,#0x00         ;3b93  13 62 00
     mov toc00,#0x1b         ;3b96  13 63 1b
-    clr1 pm3.4              ;3b99  71 4b 23
-    clr1 shadow_p3.4        ;3b9c  4b cd
+    clr1 pm3.4              ;3b99  71 4b 23     PM34 = output
+    clr1 shadow_p3.4        ;3b9c  4b cd        P34 = 0
     mov tmc00,#0x0c         ;3b9e  13 60 0c
     ret                     ;3ba1  af
 
@@ -12688,11 +12690,11 @@ lab_496b:
     mov p4,a                ;4972  f2 04
     mov csim30,#0x82        ;4974  13 b0 82     SIO30 mode = ena, tx & rx, clock = fx/2^4 (262 kHz)
     clr1 pm3.2              ;4977  71 2b 23     PM32=output (uPD16432B CLK)
-    clr1 pm3.1              ;497a  71 1b 23     PM31=output (uPD16432B DAT)
-    clr1 pu3.0              ;497d  71 0b 33
-    set1 pm3.0              ;4980  71 0a 23
+    clr1 pm3.1              ;497a  71 1b 23     PM31=output (uPD16432B DAT out)
+    clr1 pu3.0              ;497d  71 0b 33     PU30 pull-up resistor disabled (uPD16432B DAT in)
+    set1 pm3.0              ;4980  71 0a 23     PM30=input (uPD16432B DAT in)
     clr1 shadow_p3.2        ;4983  2b cd        uPD16432B CLK = low
-    clr1 shadow_p3.1        ;4985  1b cd        uPD16432B DAT = low
+    clr1 shadow_p3.1        ;4985  1b cd        uPD16432B DAT out = low
     mov a,shadow_p3         ;4987  f0 cd
     mov p3,a                ;4989  f2 03
 
@@ -12840,7 +12842,7 @@ lab_4a0e:
     mov p4,a                ;4a25  f2 04
 
     set1 shadow_p3.1        ;4a27  1a cd        uPD16432B DAT = high
-    clr1 pm3.1              ;4a29  71 1b 23     PM31=output (uPD16432B DAT)
+    clr1 pm3.1              ;4a29  71 1b 23     PM31=output (uPD16432B DAT out)
     mov a,shadow_p3         ;4a2c  f0 cd
     mov p3,a                ;4a2e  f2 03
 
@@ -12868,11 +12870,11 @@ lab_4a45:
     mov p4,a                ;4a4c  f2 04
     mov csim30,#0x82        ;4a4e  13 b0 82
     clr1 pm3.2              ;4a51  71 2b 23     PM32=output (uPD16432B CLK)
-    clr1 pm3.1              ;4a54  71 1b 23     PM31=output (uPD16432B DAT)
-    clr1 pu3.0              ;4a57  71 0b 33
-    set1 pm3.0              ;4a5a  71 0a 23
+    clr1 pm3.1              ;4a54  71 1b 23     PM31=output (uPD16432B DAT out)
+    clr1 pu3.0              ;4a57  71 0b 33     PU30 pull-up resistor disabled (uPD16432B DAT in)
+    set1 pm3.0              ;4a5a  71 0a 23     PM30=input (uPD16432B DAT in)
     clr1 shadow_p3.2        ;4a5d  2b cd        uPD16432B CLK = low
-    clr1 shadow_p3.1        ;4a5f  1b cd        uPD16432B DAT = low
+    clr1 shadow_p3.1        ;4a5f  1b cd        uPD16432B DAT out = low
     mov a,shadow_p3         ;4a61  f0 cd
     mov p3,a                ;4a63  f2 03
 
@@ -12991,7 +12993,7 @@ lab_4ae3:
     ;All custom characters have been sent
 
     set1 shadow_p3.1        ;4ae6  1a cd        uPD16432B DAT = high
-    clr1 pm3.1              ;4ae8  71 1b 23     PM31=output (uPD16432B DAT)
+    clr1 pm3.1              ;4ae8  71 1b 23     PM31=output (uPD16432B DAT out)
     mov a,shadow_p3         ;4aeb  f0 cd
     mov p3,a                ;4aed  f2 03
 
@@ -13019,11 +13021,11 @@ lab_4b04:
     mov p4,a                ;4b0b  f2 04
     mov csim30,#0x82        ;4b0d  13 b0 82     SIO30 mode = ena, tx & rx, clock = fx/2^4 (262 kHz)
     clr1 pm3.2              ;4b10  71 2b 23     PM32=output (uPD16432B CLK)
-    clr1 pm3.1              ;4b13  71 1b 23     PM31=output (uPD16432B DAT)
-    clr1 pu3.0              ;4b16  71 0b 33
-    set1 pm3.0              ;4b19  71 0a 23
+    clr1 pm3.1              ;4b13  71 1b 23     PM31=output (uPD16432B DAT out)
+    clr1 pu3.0              ;4b16  71 0b 33     PU30 pull-up resistor disabled (uPD16432B DAT in)
+    set1 pm3.0              ;4b19  71 0a 23     PM30=input (uPD16432B DAT in)
     clr1 shadow_p3.2        ;4b1c  2b cd        uPD16432B CLK = low
-    clr1 shadow_p3.1        ;4b1e  1b cd        uPD16432B DAT = low
+    clr1 shadow_p3.1        ;4b1e  1b cd        uPD16432B DAT out = low
     mov a,shadow_p3         ;4b20  f0 cd
     mov p3,a                ;4b22  f2 03
 
@@ -13412,7 +13414,7 @@ lab_4d05:
     ;Deselect uPD16432B and return
 
     set1 shadow_p3.1        ;4d05  1a cd        uPD16432B DAT = high
-    clr1 pm3.1              ;4d07  71 1b 23     PM31=output (uPD16432B DAT)
+    clr1 pm3.1              ;4d07  71 1b 23     PM31=output (uPD16432B DAT out)
     mov a,shadow_p3         ;4d0a  f0 cd
     mov p3,a                ;4d0c  f2 03
 
@@ -15393,11 +15395,11 @@ lab_56f3:
     mov p4,a                ;56fa  f2 04
     mov csim30,#0x82        ;56fc  13 b0 82
     clr1 pm3.2              ;56ff  71 2b 23     PM32=output (uPD16432B CLK)
-    clr1 pm3.1              ;5702  71 1b 23     PM31=output (uPD16432B DAT)
-    clr1 pu3.0              ;5705  71 0b 33
-    set1 pm3.0              ;5708  71 0a 23
+    clr1 pm3.1              ;5702  71 1b 23     PM31=output (uPD16432B DAT out)
+    clr1 pu3.0              ;5705  71 0b 33     PU30 pull-up resistor disabled (uPD16432B DAT in)
+    set1 pm3.0              ;5708  71 0a 23     PM30=input (uPD16432B DAT in)
     clr1 shadow_p3.2        ;570b  2b cd        uPD16432B CLK = low
-    clr1 shadow_p3.1        ;570d  1b cd        uPD16432B DAT = low
+    clr1 shadow_p3.1        ;570d  1b cd        uPD16432B DAT out = low
     mov a,shadow_p3         ;570f  f0 cd
     mov p3,a                ;5711  f2 03
 
@@ -15489,7 +15491,7 @@ lab_5773:
 
 lab_5778:
     set1 shadow_p3.1        ;5778  1a cd        uPD16432B DAT = high
-    clr1 pm3.1              ;577a  71 1b 23     PM31=output (uPD16432B DAT)
+    clr1 pm3.1              ;577a  71 1b 23     PM31=output (uPD16432B DAT out)
     mov a,shadow_p3         ;577d  f0 cd
     mov p3,a                ;577f  f2 03
 
