@@ -12,9 +12,9 @@
 |Pin  8 |P01/INTP1    |INTP1: Unknown input                           |
 |Pin  9 |P02/INTP2    |INTP2: Unknown input                           |
 |Pin 10 |P03/INTP3    |Unknown input (not used as INTP3)              |
-|Pin 12 |P80/ANI01    |Unknown output                                 |
+|Pin 12 |P80/ANI01    |Unknown output (some kind of 12V power control)|
 |Pin 13 |P81/ANI11    |Unknown output                                 |
-|Pin 14 |P82/ANI21    |Unknown output                                 |
+|Pin 14 |P82/ANI21    |Monsoon amplifier power 12V out (0=off, 1=on)  |
 |Pin 15 |P83/ANI31    |Unknown input                                  |
 |Pin 16 |P84/ANI41    |Unknown input                                  |
 |Pin 17 |P85/ANI51    |Unknown input                                  |
@@ -24,7 +24,7 @@
 |Pin 22 |P41          |Unknown input                                  |
 |Pin 23 |P42          |Unknown input                                  |
 |Pin 24 |P43          |Unknown output                                 |
-|Pin 25 |P44          |Unknown output                                 |
+|Pin 25 |P44          |FIS ENA out                                    |
 |Pin 26 |P45          |Unknown input                                  |
 |Pin 27 |P46          |uPD16432B /LCDOFF                              |
 |Pin 28 |P47          |uPD16432B STB                                  |

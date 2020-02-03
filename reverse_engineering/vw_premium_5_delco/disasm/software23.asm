@@ -1546,7 +1546,7 @@ lab_08bd:
     set1 mem_fe5f.0         ;08bd  0a 5f        SPI packet complete flag = complete
     set1 mk0h.4             ;08bf  71 4a e5     Set CSIMK30 (disables INTCSI30)
     bf mem_fe60.7,lab_08c9  ;08c2  31 73 60 03
-    call !sub_2f48          ;08c6  9a 48 2f     p4.3=low, p4.4=low, disable SIO30,
+    call !sub_2f48          ;08c6  9a 48 2f     p4.3=low, p4.4=low (FIS ENA), disable SIO30,
                             ;                     set mem_fe5e.7, clear mem_fe60.7
                             ;Fall through
 lab_08c9:
@@ -8356,13 +8356,13 @@ lab_2f43:
     ret                     ;2f47  af
 
 sub_2f48:
-;p4.3=low, p4.4=low, disable SIO30, set mem_fe5e.7, clear mem_fe60.7
+;p4.3=low, p4.4=low (FIS ENA), disable SIO30, set mem_fe5e.7, clear mem_fe60.7
     clr1 shadow_p4.3        ;2f48  3b ce        P43 = 0
     clr1 pm4.3              ;2f4a  71 3b 24     PM43 = output
     mov a,shadow_p4         ;2f4d  f0 ce
     mov p4,a                ;2f4f  f2 04
 
-    clr1 shadow_p4.4        ;2f51  4b ce        P44 = 0
+    clr1 shadow_p4.4        ;2f51  4b ce        P44 = 0 (FIS ENA)
     clr1 pm4.4              ;2f53  71 4b 24     PM44 = output
     mov a,shadow_p4         ;2f56  f0 ce
     mov p4,a                ;2f58  f2 04
@@ -8460,7 +8460,7 @@ lab_2fca:
 
     clr1 mem_fe61.0         ;2fdd  0b 61
 
-    set1 shadow_p4.4        ;2fdf  4a ce        P44=1
+    set1 shadow_p4.4        ;2fdf  4a ce        P44=1 (FIS ENA)
     clr1 pm4.4              ;2fe1  71 4b 24     PM44=output
     mov a,shadow_p4         ;2fe4  f0 ce
     mov p4,a                ;2fe6  f2 04
@@ -8472,7 +8472,7 @@ lab_2feb:
     dbnz b,lab_2feb         ;2feb  8b fe
     pop bc                  ;2fed  b2
 
-    clr1 shadow_p4.4        ;2fee  4b ce        P44=0
+    clr1 shadow_p4.4        ;2fee  4b ce        P44=0 (FIS ENA)
     mov a,shadow_p4         ;2ff0  f0 ce
     mov p4,a                ;2ff2  f2 04
 
@@ -8545,7 +8545,7 @@ lab_3065:
     ret                     ;3065  af
 
 lab_3066:
-    call !sub_2f48          ;3066  9a 48 2f     p4.3=low, p4.4=low, disable SIO30,
+    call !sub_2f48          ;3066  9a 48 2f     p4.3=low, p4.4=low (FIS ENA), disable SIO30,
                             ;                     set mem_fe5e.7, clear mem_fe60.7
     clr1 mem_fe60.6         ;3069  6b 60
     mov mem_fe25,#0x00      ;306b  11 25 00
@@ -9709,7 +9709,7 @@ sub_3786:
     mov mem_fe2a,#0x01      ;3786  11 2a 01
     clr1 shadow_p9.7        ;3789  7b d3
     clr1 shadow_p9.4        ;378b  4b d3
-    clr1 shadow_p8.2        ;378d  2b d2
+    clr1 shadow_p8.2        ;378d  2b d2        P82=0 (Monsoon amplifier power off)
     call !sub_3a06          ;378f  9a 06 3a     PM80=output, P80=1
     mov a,!mem_fb0c         ;3792  8e 0c fb
     cmp a,#0x00             ;3795  4d 00
@@ -9773,7 +9773,7 @@ lab_37ea:
 
 lab_37ef:
     bt mem_fe65.5,lab_37f6  ;37ef  dc 65 04
-    clr1 shadow_p8.2        ;37f2  2b d2
+    clr1 shadow_p8.2        ;37f2  2b d2        P82=0 (Monsoon amplifier power off)
     clr1 shadow_p8.1        ;37f4  1b d2
 
 lab_37f6:
@@ -9817,7 +9817,7 @@ lab_3828:
 lab_3830:
     clr1 mem_fe61.4         ;3830  4b 61
     set1 shadow_p8.1        ;3832  1a d2
-    set1 shadow_p8.2        ;3834  2a d2
+    set1 shadow_p8.2        ;3834  2a d2        P82=1 (Monsoon amplifier power on)
 
 lab_3836:
     mov mem_fe2a,#0x07      ;3836  11 2a 07
@@ -9915,7 +9915,7 @@ lab_38d0:
     call !sub_a74b          ;38d0  9a 4b a7
     set1 mem_fe7d.4         ;38d3  4a 7d
     clr1 shadow_p8.1        ;38d5  1b d2
-    clr1 shadow_p8.2        ;38d7  2b d2
+    clr1 shadow_p8.2        ;38d7  2b d2        P82=0 (Monsoon amplifier power off)
     br !lab_37c3            ;38d9  9b c3 37
 
 lab_38dc:
@@ -21030,8 +21030,8 @@ lab_78a4:
     bnz lab_78b4            ;78a8  bd 0a
 
 lab_78aa:
-    bt shadow_p8.2,lab_78df  ;78aa  ac d2 32
-    set1 shadow_p8.2         ;78ad  2a d2
+    bt shadow_p8.2,lab_78df  ;78aa  ac d2 32    Branch if P82=1 (Monsoon amplifier power is on)
+    set1 shadow_p8.2         ;78ad  2a d2       P82=1 (Monsoon amplifier power on)
     mov a,shadow_p8          ;78af  f0 d2
     mov p8,a                ;78b1  f2 08
     ret                     ;78b3  af
@@ -21108,8 +21108,8 @@ lab_7929:
     br lab_794b             ;792f  fa 1a
 
 lab_7931:
-    clr1 shadow_p8.2         ;7931  2b d2
-    mov a,shadow_p8          ;7933  f0 d2
+    clr1 shadow_p8.2        ;7931  2b d2        P82=0 (Monsoon amplifier power off)
+    mov a,shadow_p8         ;7933  f0 d2
     mov p8,a                ;7935  f2 08
     br lab_7958             ;7937  fa 1f
 
