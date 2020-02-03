@@ -1067,10 +1067,10 @@ lab_0160:
     inc a                   ;016e  41
     mov !mem_fb79,a         ;016f  9e 79 fb
     bt mem_fe60.6,lab_018b  ;0172  ec 60 16
-    clr1 pu4.5              ;0175  71 5b 34
-    set1 pm4.5              ;0178  71 5a 24
+    clr1 pu4.5              ;0175  71 5b 34     PU45 pull-up resistor disabled
+    set1 pm4.5              ;0178  71 5a 24     PM45=input
     set1 mem_fe60.5         ;017b  5a 60
-    bf p4.5,lab_01a0        ;017d  31 53 04 1f
+    bf p4.5,lab_01a0        ;017d  31 53 04 1f  Branch if P4.5=0
     clr1 mem_fe60.5         ;0181  5b 60
     set1 mem_fe60.4         ;0183  4a 60
     set1 mem_fe61.2         ;0185  2a 61
@@ -1081,9 +1081,9 @@ lab_018b:
     mov a,!mem_f066         ;018b  8e 66 f0
     cmp a,#0x01             ;018e  4d 01
     bz lab_019c             ;0190  ad 0a
-    clr1 pu4.5              ;0192  71 5b 34
-    set1 pm4.5              ;0195  71 5a 24
-    bf p4.5,lab_01a0        ;0198  31 53 04 04
+    clr1 pu4.5              ;0192  71 5b 34     PU45 pull-up resistor disabled
+    set1 pm4.5              ;0195  71 5a 24     PM45=input
+    bf p4.5,lab_01a0        ;0198  31 53 04 04  Branch if P4.5=0
 
 lab_019c:
     set1 mem_fe61.2         ;019c  2a 61
@@ -3834,15 +3834,15 @@ lab_150f:
     mov iiccl0,#0b00001100  ;1516  13 aa 0c
     clr1 iicc0.6            ;1519  71 6b a8
     clr1 iicc0.4            ;151c  71 4b a8
-    clr1 shadow_p7.2        ;151f  2b d1
+    clr1 shadow_p7.2        ;151f  2b d1        P72=0 (I2C SCL)
     mov a,shadow_p7         ;1521  f0 d1
     mov p7,a                ;1523  f2 07
-    clr1 shadow_p7.1        ;1525  1b d1
+    clr1 shadow_p7.1        ;1525  1b d1        P71=0 (I2C SDA)
     mov a,shadow_p7         ;1527  f0 d1
     mov p7,a                ;1529  f2 07
     set1 iicc0.7            ;152b  71 7a a8
-    clr1 pm7.2              ;152e  71 2b 27
-    clr1 pm7.1              ;1531  71 1b 27
+    clr1 pm7.2              ;152e  71 2b 27     PM72=output (I2C SCL)
+    clr1 pm7.1              ;1531  71 1b 27     PM71=output (I2C SDA)
 
 lab_1534:
     br !lab_12d7            ;1534  9b d7 12
@@ -7044,8 +7044,8 @@ lab_2903:
     bnz lab_291e            ;290d  bd 0f
     set1 mem_fe63.0         ;290f  0a 63
     mov e,#0x87             ;2911  a4 87
-    set1 pm9.0              ;2913  71 0a 29
-    bt p9.0,lab_291b        ;2916  8c 09 02
+    set1 pm9.0              ;2913  71 0a 29     PM90=input
+    bt p9.0,lab_291b        ;2916  8c 09 02     Branch if P90=1
     mov e,#0x88             ;2919  a4 88
 
 lab_291b:
@@ -8357,13 +8357,13 @@ lab_2f43:
 
 sub_2f48:
 ;p4.3=low, p4.4=low, disable SIO30, set mem_fe5e.7, clear mem_fe60.7
-    clr1 shadow_p4.3        ;2f48  3b ce        P4.3 = low
-    clr1 pm4.3              ;2f4a  71 3b 24
+    clr1 shadow_p4.3        ;2f48  3b ce        P43 = 0
+    clr1 pm4.3              ;2f4a  71 3b 24     PM43 = output
     mov a,shadow_p4         ;2f4d  f0 ce
     mov p4,a                ;2f4f  f2 04
 
-    clr1 shadow_p4.4        ;2f51  4b ce        P4.4 = low
-    clr1 pm4.4              ;2f53  71 4b 24
+    clr1 shadow_p4.4        ;2f51  4b ce        P44 = 0
+    clr1 pm4.4              ;2f53  71 4b 24     PM44 = output
     mov a,shadow_p4         ;2f56  f0 ce
     mov p4,a                ;2f58  f2 04
 
@@ -8450,14 +8450,18 @@ lab_2fca:
     set1 mem_fe60.6         ;2fca  6a 60
     set1 mem_fe60.7         ;2fcc  7a 60
     callf !sio30_disable    ;2fce  0c 91        Disable SIO30 (used for uPD16432B SPI)
-    set1 shadow_p4.3        ;2fd0  3a ce
-    clr1 pm4.3              ;2fd2  71 3b 24
+
+    set1 shadow_p4.3        ;2fd0  3a ce        P43=1
+    clr1 pm4.3              ;2fd2  71 3b 24     PM43=output
     mov a,shadow_p4         ;2fd5  f0 ce
     mov p4,a                ;2fd7  f2 04
+
     bf mem_fe61.0,lab_2ff4  ;2fd9  31 03 61 17
+
     clr1 mem_fe61.0         ;2fdd  0b 61
-    set1 shadow_p4.4        ;2fdf  4a ce
-    clr1 pm4.4              ;2fe1  71 4b 24
+
+    set1 shadow_p4.4        ;2fdf  4a ce        P44=1
+    clr1 pm4.4              ;2fe1  71 4b 24     PM44=output
     mov a,shadow_p4         ;2fe4  f0 ce
     mov p4,a                ;2fe6  f2 04
 
@@ -8468,13 +8472,13 @@ lab_2feb:
     dbnz b,lab_2feb         ;2feb  8b fe
     pop bc                  ;2fed  b2
 
-    clr1 shadow_p4.4        ;2fee  4b ce
+    clr1 shadow_p4.4        ;2fee  4b ce        P44=0
     mov a,shadow_p4         ;2ff0  f0 ce
     mov p4,a                ;2ff2  f2 04
 
 lab_2ff4:
-    clr1 pu4.5              ;2ff4  71 5b 34
-    set1 pm4.5              ;2ff7  71 5a 24
+    clr1 pu4.5              ;2ff4  71 5b 34     PU45 pull-up resistor disabled
+    set1 pm4.5              ;2ff7  71 5a 24     PM45=input
     call !sio30_enable      ;2ffa  9a 17 26     Enable SIO30 (used for uPD16432B SPI)
     set1 mem_fe5f.1         ;2ffd  1a 5f        SPI mode flag = transmit only
     clr1 if0h.4             ;2fff  71 4b e1     Clear CSIIF30 (INTCSI0 interrupt flag)
@@ -8509,12 +8513,12 @@ lab_302d:
     ret                     ;302d  af
 
 lab_302e:
-    clr1 pu4.5              ;302e  71 5b 34
-    set1 pm4.5              ;3031  71 5a 24
+    clr1 pu4.5              ;302e  71 5b 34     PU45 pull-up resistor disabled
+    set1 pm4.5              ;3031  71 5a 24     PM45=input
     mov a,!mem_f066         ;3034  8e 66 f0
     cmp a,#0x01             ;3037  4d 01
     bz lab_3066             ;3039  ad 2b
-    bf p4.5,lab_304b        ;303b  31 53 04 0c
+    bf p4.5,lab_304b        ;303b  31 53 04 0c  Branch if P4.5=0
     dec a                   ;303f  51
     mov !mem_f066,a         ;3040  9e 66 f0
     mov a,#0x0a             ;3043  a1 0a
@@ -9706,17 +9710,18 @@ sub_3786:
     clr1 shadow_p9.7        ;3789  7b d3
     clr1 shadow_p9.4        ;378b  4b d3
     clr1 shadow_p8.2        ;378d  2b d2
-    call !sub_3a06          ;378f  9a 06 3a
+    call !sub_3a06          ;378f  9a 06 3a     PM80=output, P80=1
     mov a,!mem_fb0c         ;3792  8e 0c fb
     cmp a,#0x00             ;3795  4d 00
     bz lab_379a             ;3797  ad 01
     ret                     ;3799  af
 
 lab_379a:
-    clr1 pm7.0              ;379a  71 0b 27
-    clr1 shadow_p7.0        ;379d  0b d1
+    clr1 pm7.0              ;379a  71 0b 27     PM70=output
+    clr1 shadow_p7.0        ;379d  0b d1        P70=0
     mov a,shadow_p7         ;379f  f0 d1
     mov p7,a                ;37a1  f2 07
+
     mov a,#0x01             ;37a3  a1 01
     callf !sub_09d3         ;37a5  1c d3
 
@@ -9746,7 +9751,7 @@ lab_37c5:
     mov a,#0x01             ;37c8  a1 01
     callf !sub_09d3         ;37ca  1c d3
     mov mem_fe2b,#0x40      ;37cc  11 2b 40
-    call !sub_3a06          ;37cf  9a 06 3a
+    call !sub_3a06          ;37cf  9a 06 3a     PM80=output, P80=1
     bf mem_fe61.5,lab_37da  ;37d2  31 53 61 04
     set1 shadow_p9.4        ;37d6  4a d3
     br lab_37ef             ;37d8  fa 15
@@ -9788,7 +9793,7 @@ lab_3804:
 lab_380b:
     mov mem_fe2a,#0x06      ;380b  11 2a 06
     mov mem_fe2b,#0x20      ;380e  11 2b 20
-    call !sub_3a06          ;3811  9a 06 3a
+    call !sub_3a06          ;3811  9a 06 3a     PM80=output, P80=1
     bf mem_fe61.5,lab_381c  ;3814  31 53 61 04
     set1 shadow_p9.4         ;3818  4a d3
     br lab_381e             ;381a  fa 02
@@ -9881,7 +9886,7 @@ lab_389a:
 lab_38a2:
     mov mem_fe2a,#0x07      ;38a2  11 2a 07
     bf mem_fe2c.5,lab_38dc  ;38a5  31 53 2c 33
-    call !sub_3a06          ;38a9  9a 06 3a
+    call !sub_3a06          ;38a9  9a 06 3a     PM80=output, P80=1
     bt mem_fe61.4,lab_38c7  ;38ac  cc 61 18
     mov mem_fe2a,#0x09      ;38af  11 2a 09
     mov a,#0x55             ;38b2  a1 55
@@ -9995,11 +10000,11 @@ lab_3952:
     ret                     ;395c  af
 
 lab_395d:
-    call !sub_3a10          ;395d  9a 10 3a       Does something with pins P80 and P70
-    mov asim0,#0x00         ;3960  13 a0 00       UART0 mode register = 0 (UART fully disabled)
-    mov brgc0,#0x7e         ;3963  13 a2 7e       Baud rate generator = 546 baud (???)
-    mov asim0,#0x48         ;3966  13 a0 48       UART0 mode register = RX only, N81
-    call !sub_3acf          ;3969  9a cf 3a       Sets a lot of different port bits
+    call !sub_3a10          ;395d  9a 10 3a     PM80=output, P80=0, PM70=output, P7.0=1
+    mov asim0,#0x00         ;3960  13 a0 00     UART0 mode register = 0 (UART fully disabled)
+    mov brgc0,#0x7e         ;3963  13 a2 7e     Baud rate generator = 546 baud (???)
+    mov asim0,#0x48         ;3966  13 a0 48     UART0 mode register = RX only, N81
+    call !sub_3acf          ;3969  9a cf 3a     Sets a lot of different port bits
     mov mem_fe2a,#0x0e      ;396c  11 2a 0e
     mov mem_fe2b,#0x80      ;396f  11 2b 80
     call !lab_374a          ;3972  9a 4a 37
@@ -10007,6 +10012,7 @@ lab_395d:
     clr1 mem_fe7a.5         ;3977  5b 7a
 
 lab_3979:
+;Enable interrupts then halt
     ei                      ;3979  7a 1e
     halt                    ;397b  71 10
 
@@ -10017,10 +10023,10 @@ lab_397d:
     call !sub_3a23          ;3986  9a 23 3a
     bf mem_fe7b.5,lab_3991  ;3989  31 53 7b 04
     clr1 mem_fe7b.5         ;398d  5b 7b
-    br lab_39ed             ;398f  fa 5c
+    br lab_39ed             ;398f  fa 5c        Branch to turn on P70 and P80, call unknown, then cold or warm start
 
 lab_3991:
-    btclr mem_fe7b.5,lab_39ed ;3991  31 51 7b 58
+    btclr mem_fe7b.5,lab_39ed ;3991  31 51 7b 58  If ??? clear bit and branch to turn on P70 and P80, call unknown, then cold or warm start
     bf p2.4,lab_39a2        ;3995  31 43 02 09    Branch if P24/RxD0 = 0
     bf mem_fe7b.6,lab_39a2  ;3999  31 63 7b 05
     clr1 mem_fe7b.6         ;399d  6b 7b
@@ -10028,23 +10034,23 @@ lab_3991:
 
 lab_39a2:
     call !sub_4902          ;39a2  9a 02 49
-    bt mem_fe65.1,lab_39ed  ;39a5  9c 65 45
-    bt mem_fe7d.6,lab_39ed  ;39a8  ec 7d 42
-    bt mem_fe67.0,lab_39ed  ;39ab  8c 67 3f
+    bt mem_fe65.1,lab_39ed  ;39a5  9c 65 45     If ??? branch to turn on P70 and P80, call unknown, then cold or warm start
+    bt mem_fe7d.6,lab_39ed  ;39a8  ec 7d 42     If ??? branch to turn on P70 and P80, call unknown, then cold or warm start
+    bt mem_fe67.0,lab_39ed  ;39ab  8c 67 3f     If ??? branch to turn on P70 and P80, call unknown, then cold or warm start
     mov a,!mem_f1e9         ;39ae  8e e9 f1
     bf a.0,lab_39bf         ;39b1  31 0f 0b
-    bt p0.4,lab_39bc        ;39b4  cc 00 05       Branch if the POWER key is not being pressed
+    bt p0.4,lab_39bc        ;39b4  cc 00 05     Branch if the POWER key is not being pressed
 
     ;POWER key is being pressed
     bt mem_fe66.7,lab_39bf  ;39b7  fc 66 05
-    br lab_39ed             ;39ba  fa 31
+    br lab_39ed             ;39ba  fa 31        If ??? branch to turn on P70 and P80, call unknown, then cold or warm start
 
 lab_39bc:
-    bt mem_fe66.7,lab_39ed  ;39bc  fc 66 2e
+    bt mem_fe66.7,lab_39ed  ;39bc  fc 66 2e     If ??? branch to turn on P70 and P80, call unknown, then cold or warm start
 
 lab_39bf:
-    bt mem_fe7d.7,lab_39ed  ;39bf  fc 7d 2b
-    set1 pm9.0              ;39c2  71 0a 29
+    bt mem_fe7d.7,lab_39ed  ;39bf  fc 7d 2b     If ??? branch to turn on P70 and P80, call unknown, then cold or warm start
+    set1 pm9.0              ;39c2  71 0a 29     PM90=input
     bf mem_fe2c.2,lab_39d4  ;39c5  31 23 2c 0b
     mov1 cy,p9.0            ;39c9  71 04 09
     mov1 mem_fe2c.2,cy      ;39cc  71 21 2c
@@ -10052,26 +10058,32 @@ lab_39bf:
     br lab_39d7             ;39d2  fa 03
 
 lab_39d4:
-    bt p9.0,lab_39ed        ;39d4  8c 09 16
+    bt p9.0,lab_39ed        ;39d4  8c 09 16     If P90=1 branch to turn on P70 and P80, call unknown, then cold or warm start
 
 lab_39d7:
-    bt mem_fe2c.3,lab_39ed  ;39d7  bc 2c 13
-    bt mem_fe62.5,lab_39ed  ;39da  dc 62 10     Branch if INTP1 occurred
+    bt mem_fe2c.3,lab_39ed  ;39d7  bc 2c 13     If ??? branch to turn on P70 and P80, call unknown, then cold or warm start
+    bt mem_fe62.5,lab_39ed  ;39da  dc 62 10     If INTP1 occurred branch to turn on P70 and P80, call unknown, then cold or warm start
     bf p6.7,lab_39eb        ;39dd  31 73 06 0a
     cmp mem_fe4c,#0x00      ;39e1  c8 4c 00
     bnz lab_39eb            ;39e4  bd 05
     cmp mem_fe50,#0x01      ;39e6  c8 50 01
-    bnz lab_39ed            ;39e9  bd 02
+    bnz lab_39ed            ;39e9  bd 02        Branch to turn on P70 and P80, call unknown, then cold or warm start
 
 lab_39eb:
-    br lab_3979             ;39eb  fa 8c
+    br lab_3979             ;39eb  fa 8c        Branch to enable interrupts then halt
 
 lab_39ed:
-    clr1 pm7.0              ;39ed  71 0b 27
-    set1 shadow_p7.0         ;39f0  0a d1
-    mov a,shadow_p7          ;39f2  f0 d1
+;PM70=output, P70=1, PM80=output
+;P80=1
+;Call unknown subroutine sub_3dbd
+;Branch to cold or warm start
+    clr1 pm7.0              ;39ed  71 0b 27     PM70=output
+    set1 shadow_p7.0        ;39f0  0a d1        P70=1
+    mov a,shadow_p7         ;39f2  f0 d1
     mov p7,a                ;39f4  f2 07
-    call !sub_3a06          ;39f6  9a 06 3a
+
+    call !sub_3a06          ;39f6  9a 06 3a     PM80=output, P80=1
+
     clr1 mem_fe2b.7         ;39f9  7b 2b
     mov mem_fe2a,#0x00      ;39fb  11 2a 00
     mov a,#0x02             ;39fe  a1 02
@@ -10079,21 +10091,23 @@ lab_39ed:
     br !cold_or_warm_start  ;3a03  9b cf 0d
 
 sub_3a06:
-    clr1 pm8.0              ;3a06  71 0b 28
-    set1 shadow_p8.0        ;3a09  0a d2
+;PM80=output, P80=1
+    clr1 pm8.0              ;3a06  71 0b 28     PM80 = output
+    set1 shadow_p8.0        ;3a09  0a d2        P80 = 1
     mov a,shadow_p8         ;3a0b  f0 d2
     mov p8,a                ;3a0d  f2 08
     ret                     ;3a0f  af
 
 sub_3a10:
-;Does something with pins P80 and P70
-    clr1 pm8.0              ;3a10  71 0b 28
-    clr1 shadow_p8.0         ;3a13  0b d2
-    mov a,shadow_p8          ;3a15  f0 d2
+;PM80=output, P80=0, PM70=output, P7.0=1
+    clr1 pm8.0              ;3a10  71 0b 28     PM80 = output
+    clr1 shadow_p8.0        ;3a13  0b d2        P80 = 0
+    mov a,shadow_p8         ;3a15  f0 d2
     mov p8,a                ;3a17  f2 08
-    clr1 pm7.0              ;3a19  71 0b 27
-    set1 shadow_p7.0         ;3a1c  0a d1
-    mov a,shadow_p7          ;3a1e  f0 d1
+
+    clr1 pm7.0              ;3a19  71 0b 27     PM70 = output
+    set1 shadow_p7.0        ;3a1c  0a d1        P70 = 1
+    mov a,shadow_p7         ;3a1e  f0 d1
     mov p7,a                ;3a20  f2 07
     ret                     ;3a22  af
 
@@ -10713,11 +10727,11 @@ lab_3e1c:
     ret                     ;3e1c  af
 
 sub_3e1d:
-    set1 pm9.0              ;3e1d  71 0a 29
+    set1 pm9.0              ;3e1d  71 0a 29     PM90=input
     bt mem_fe63.0,lab_3e75  ;3e20  8c 63 52
     bt mem_fe2c.2,lab_3e3f  ;3e23  ac 2c 19
     mov a,#0x02             ;3e26  a1 02
-    bf p9.0,lab_3e72        ;3e28  31 03 09 46
+    bf p9.0,lab_3e72        ;3e28  31 03 09 46  Branch if P90=0
     bf mem_fe63.7,lab_3e75  ;3e2c  31 73 63 45
 
 lab_3e30:
@@ -10731,7 +10745,7 @@ lab_3e30:
 
 lab_3e3f:
     mov a,#0x08             ;3e3f  a1 08
-    bf p9.0,lab_3e30        ;3e41  31 03 09 eb
+    bf p9.0,lab_3e30        ;3e41  31 03 09 eb    Branch if P90=0
     bt mem_fe63.1,lab_3e72  ;3e45  9c 63 2a
     push ax                 ;3e48  b1
     mov a,!mem_f207         ;3e49  8e 07 f2
@@ -12684,10 +12698,11 @@ sub_4960:
     br lab_498b             ;4969  fa 20
 
 lab_496b:
-    clr1 shadow_p4.3        ;496b  3b ce
-    clr1 pm4.3              ;496d  71 3b 24
+    clr1 shadow_p4.3        ;496b  3b ce        P43=0
+    clr1 pm4.3              ;496d  71 3b 24     PM43=output
     mov a,shadow_p4         ;4970  f0 ce
     mov p4,a                ;4972  f2 04
+
     mov csim30,#0x82        ;4974  13 b0 82     SIO30 mode = ena, tx & rx, clock = fx/2^4 (262 kHz)
     clr1 pm3.2              ;4977  71 2b 23     PM32=output (uPD16432B CLK)
     clr1 pm3.1              ;497a  71 1b 23     PM31=output (uPD16432B DAT out)
@@ -12864,10 +12879,11 @@ lab_4a3d:
     br lab_4a65             ;4a43  fa 20
 
 lab_4a45:
-    clr1 shadow_p4.3        ;4a45  3b ce
-    clr1 pm4.3              ;4a47  71 3b 24
+    clr1 shadow_p4.3        ;4a45  3b ce        P43=0
+    clr1 pm4.3              ;4a47  71 3b 24     PM43=output
     mov a,shadow_p4         ;4a4a  f0 ce
     mov p4,a                ;4a4c  f2 04
+
     mov csim30,#0x82        ;4a4e  13 b0 82
     clr1 pm3.2              ;4a51  71 2b 23     PM32=output (uPD16432B CLK)
     clr1 pm3.1              ;4a54  71 1b 23     PM31=output (uPD16432B DAT out)
@@ -13015,10 +13031,11 @@ sub_4afc:
     br lab_4b24             ;4b02  fa 20
 
 lab_4b04:
-    clr1 shadow_p4.3        ;4b04  3b ce
-    clr1 pm4.3              ;4b06  71 3b 24
+    clr1 shadow_p4.3        ;4b04  3b ce        P43=0
+    clr1 pm4.3              ;4b06  71 3b 24     PM43=output
     mov a,shadow_p4         ;4b09  f0 ce
     mov p4,a                ;4b0b  f2 04
+
     mov csim30,#0x82        ;4b0d  13 b0 82     SIO30 mode = ena, tx & rx, clock = fx/2^4 (262 kHz)
     clr1 pm3.2              ;4b10  71 2b 23     PM32=output (uPD16432B CLK)
     clr1 pm3.1              ;4b13  71 1b 23     PM31=output (uPD16432B DAT out)
@@ -15389,10 +15406,11 @@ lab_56eb:
     br lab_5713             ;56f1  fa 20
 
 lab_56f3:
-    clr1 shadow_p4.3         ;56f3  3b ce
-    clr1 pm4.3              ;56f5  71 3b 24
-    mov a,shadow_p4          ;56f8  f0 ce
+    clr1 shadow_p4.3        ;56f3  3b ce        P43=0
+    clr1 pm4.3              ;56f5  71 3b 24     PM43=output
+    mov a,shadow_p4         ;56f8  f0 ce
     mov p4,a                ;56fa  f2 04
+
     mov csim30,#0x82        ;56fc  13 b0 82
     clr1 pm3.2              ;56ff  71 2b 23     PM32=output (uPD16432B CLK)
     clr1 pm3.1              ;5702  71 1b 23     PM31=output (uPD16432B DAT out)
@@ -16910,15 +16928,15 @@ lab_5fff:
     mov iicc0,#0x0c         ;5fff  13 a8 0c
     push ax                 ;6002  b1
     clr1 iicc0.7            ;6003  71 7b a8
-    clr1 shadow_p7.2        ;6006  2b d1
+    clr1 shadow_p7.2        ;6006  2b d1        P72=0 (I2C SCL)
     mov a,shadow_p7         ;6008  f0 d1
     mov p7,a                ;600a  f2 07
-    clr1 shadow_p7.1        ;600c  1b d1
+    clr1 shadow_p7.1        ;600c  1b d1        P71=0 (I2C SDA)
     mov a,shadow_p7         ;600e  f0 d1
     mov p7,a                ;6010  f2 07
     set1 iicc0.7            ;6012  71 7a a8
-    clr1 pm7.2              ;6015  71 2b 27
-    clr1 pm7.1              ;6018  71 1b 27
+    clr1 pm7.2              ;6015  71 2b 27     PM72=output (I2C SCL)
+    clr1 pm7.1              ;6018  71 1b 27     PM71=output (I2C SDA)
     set1 iicc0.0            ;601b  71 0a a8
     mov c,#0x50             ;601e  a2 50
 
@@ -16937,12 +16955,12 @@ sub_602d:
     push bc                 ;602e  b3
     clr1 iicc0.7            ;602f  71 7b a8
     mov c,#0x09             ;6032  a2 09
-    set1 shadow_p7.1        ;6034  1a d1
-    set1 pm7.1              ;6036  71 1a 27
-    clr1 shadow_p7.2        ;6039  2b d1
+    set1 shadow_p7.1        ;6034  1a d1        P71=1 (I2C SDA)
+    set1 pm7.1              ;6036  71 1a 27     PM71=input (I2C SDA)
+    clr1 shadow_p7.2        ;6039  2b d1        P72=0 (I2C SCL)
     mov a,shadow_p7         ;603b  f0 d1
     mov p7,a                ;603d  f2 07
-    clr1 pm7.2              ;603f  71 2b 27
+    clr1 pm7.2              ;603f  71 2b 27     PM72=output (I2C SCL)
 
 lab_6042:
     cmp mem_fefb,#0x00      ;6042  c8 fb 00
@@ -16950,30 +16968,30 @@ lab_6042:
     nop                     ;6048  00
     nop                     ;6049  00
     nop                     ;604a  00
-    set1 shadow_p7.2        ;604b  2a d1
-    set1 pm7.2              ;604d  71 2a 27
+    set1 shadow_p7.2        ;604b  2a d1        P72=1 (I2C SCL)
+    set1 pm7.2              ;604d  71 2a 27     PM72=input (I2C SCL)
     push bc                 ;6050  b3
     mov b,#0x01             ;6051  a3 01
 
 lab_6053:
     dbnz b,lab_6053         ;6053  8b fe
     pop bc                  ;6055  b2
-    clr1 pm7.2              ;6056  71 2b 27
+    clr1 pm7.2              ;6056  71 2b 27     PM72=output (I2C SCL)
     dbnz c,lab_6042         ;6059  8a e7
-    clr1 shadow_p7.1        ;605b  1b d1
+    clr1 shadow_p7.1        ;605b  1b d1        P71=0 (I2C SDA)
     mov a,shadow_p7         ;605d  f0 d1
     mov p7,a                ;605f  f2 07
-    clr1 pm7.1              ;6061  71 1b 27
-    set1 shadow_p7.2        ;6064  2a d1
-    set1 pm7.2              ;6066  71 2a 27
+    clr1 pm7.1              ;6061  71 1b 27     PM71=output (I2C SDA)
+    set1 shadow_p7.2        ;6064  2a d1        P72=1 (I2C SCL)
+    set1 pm7.2              ;6066  71 2a 27     PM72=input (I2C SCL)
     push bc                 ;6069  b3
     mov b,#0x01             ;606a  a3 01
 
 lab_606c:
     dbnz b,lab_606c         ;606c  8b fe
     pop bc                  ;606e  b2
-    set1 shadow_p7.1        ;606f  1a d1
-    set1 pm7.1              ;6071  71 1a 27
+    set1 shadow_p7.1        ;606f  1a d1        P71=1 (I2C SDA)
+    set1 pm7.1              ;6071  71 1a 27     PM71=input (I2C SDA)
     clr1 cy                 ;6074  21
     pop bc                  ;6075  b2
     pop ax                  ;6076  b0
@@ -16982,10 +17000,10 @@ lab_606c:
 sub_6078:
     clr1 mem_fe69.0         ;6078  0b 69
     clr1 iicc0.7            ;607a  71 7b a8
-    set1 shadow_p7.2        ;607d  2a d1
-    set1 pm7.2              ;607f  71 2a 27
-    set1 shadow_p7.1        ;6082  1a d1
-    set1 pm7.1              ;6084  71 1a 27
+    set1 shadow_p7.2        ;607d  2a d1        P72=1 (I2C SCL)
+    set1 pm7.2              ;607f  71 2a 27     PM72=input (I2C SCL)
+    set1 shadow_p7.1        ;6082  1a d1        P71=1 (I2C SDA)
+    set1 pm7.1              ;6084  71 1a 27     PM71=input (I2C SDA)
     ret                     ;6087  af
 
 lab_6088:
@@ -29926,7 +29944,7 @@ mem_b040:
     .word lab_389a
     .word lab_38ec
     .word lab_3952
-    .word lab_3979
+    .word lab_3979          ;Enable interrupts then halt
 
 mem_b05f:
     .byte 0x15              ;b05f  15          DATA 0x15
