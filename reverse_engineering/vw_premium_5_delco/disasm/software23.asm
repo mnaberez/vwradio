@@ -3092,7 +3092,7 @@ lab_0f1b:
     call !sub_3ba2          ;0fe5  9a a2 3b
     call !sub_3b27          ;0fe8  9a 27 3b
     bt mem_fe65.1,lab_0ff1  ;0feb  9c 65 03
-    call !sub_3b3a          ;0fee  9a 3a 3b
+    call !sub_3b3a          ;0fee  9a 3a 3b     Disable timers and their interrupts
 
 lab_0ff1:
     clr1 pu0.1              ;0ff1  71 1b 30
@@ -3130,7 +3130,7 @@ lab_1030:
 
 lab_1036:
     clr1 mem_fe64.7         ;1036  7b 64        Clear bit to indicate no DELCO login
-    call !sub_4902          ;1038  9a 02 49
+    call !sub_4902          ;1038  9a 02 49     Read analog input 2 and ???
     mov a,#0x00             ;103b  a1 00
     mov !mem_fb29,a         ;103d  9e 29 fb
     mov !mem_fb2a,a         ;1040  9e 2a fb
@@ -3281,7 +3281,7 @@ lab_115c:
     mov a,shadow_p9         ;1171  f0 d3
     mov p9,a                ;1173  f2 09
     set1 mem_fe2b.7         ;1175  7a 2b
-    call !sub_3acf          ;1177  9a cf 3a
+    call !sub_3acf          ;1177  9a cf 3a     Disable I2C, disable timers, set many pins to inputs
 
 lab_117a:
     halt                    ;117a  71 10
@@ -3760,7 +3760,7 @@ lab_147c:
 lab_148f:
     call !sub_333f          ;148f  9a 3f 33
     call !sub_3e1d          ;1492  9a 1d 3e
-    call !sub_3d09          ;1495  9a 09 3d
+    call !sub_3d09          ;1495  9a 09 3d     Read analog input 0x01 and ???
     call !sub_4889          ;1498  9a 89 48
     call !sub_58d8          ;149b  9a d8 58
     call !sub_56cc          ;149e  9a cc 56
@@ -3768,7 +3768,7 @@ lab_148f:
     call !sub_9140          ;14a5  9a 40 91
 
 lab_14a8:
-    call !sub_ab7b          ;14a8  9a 7b ab
+    call !sub_ab7b          ;14a8  9a 7b ab     Table-driven analog input routine
     br !lab_12d7            ;14ab  9b d7 12
 
 lab_14ae:
@@ -7097,7 +7097,7 @@ lab_2956:
 lab_2963:
     cmp a,#0xe6             ;2963  4d e6
     bnz lab_2970            ;2965  bd 09
-    movw hl,#mem_fc20         ;2967  16 20 fc
+    movw hl,#mem_fc20       ;2967  16 20 fc
     mov a,[hl]              ;296a  87
     call !sub_26c9          ;296b  9a c9 26
     br lab_29af             ;296e  fa 3f
@@ -10004,7 +10004,7 @@ lab_395d:
     mov asim0,#0x00         ;3960  13 a0 00     UART0 mode register = 0 (UART fully disabled)
     mov brgc0,#0x7e         ;3963  13 a2 7e     Baud rate generator = 546 baud (???)
     mov asim0,#0x48         ;3966  13 a0 48     UART0 mode register = RX only, N81
-    call !sub_3acf          ;3969  9a cf 3a     Sets a lot of different port bits
+    call !sub_3acf          ;3969  9a cf 3a     Disable I2C, disable timers, set many pins to inputs
     mov mem_fe2a,#0x0e      ;396c  11 2a 0e
     mov mem_fe2b,#0x80      ;396f  11 2b 80
     call !lab_374a          ;3972  9a 4a 37
@@ -10033,7 +10033,7 @@ lab_3991:
     set1 asim0.6            ;399f  71 6a a0       RXE0=1 (enable UART0 receive)
 
 lab_39a2:
-    call !sub_4902          ;39a2  9a 02 49
+    call !sub_4902          ;39a2  9a 02 49     Read analog input 2 and ???
     bt mem_fe65.1,lab_39ed  ;39a5  9c 65 45     If ??? branch to turn on P70 and P80, call unknown, then cold or warm start
     bt mem_fe7d.6,lab_39ed  ;39a8  ec 7d 42     If ??? branch to turn on P70 and P80, call unknown, then cold or warm start
     bt mem_fe67.0,lab_39ed  ;39ab  8c 67 3f     If ??? branch to turn on P70 and P80, call unknown, then cold or warm start
@@ -10213,9 +10213,9 @@ intp2_3acc:
     reti                    ;3ace  8f
 
 sub_3acf:
-;Sets a lot of different port bits
-    call !sub_6078          ;3acf  9a 78 60
-    call !sub_4d63          ;3ad2  9a 63 4d
+;Disable I2C, disable timers, set many pins to inputs
+    call !sub_6078          ;3acf  9a 78 60   Disable I2C, set SCL and SDA pins to inputs
+    call !sub_4d63          ;3ad2  9a 63 4d   Disable timers and their interrupts, set uPD16432B pins to inputs
     clr1 pu2.4              ;3ad5  71 4b 32
     set1 pm2.4              ;3ad8  71 4a 22
     clr1 pu2.5              ;3adb  71 5b 32
@@ -10268,6 +10268,7 @@ lab_3b37:
     clr1 pm3.4              ;3b37  71 4b 23   PM34 = output
 
 sub_3b3a:
+;Disable timers and their interrupts
     mov tmc00,#0x00         ;3b3a  13 60 00
     mov toc00,#0x00         ;3b3d  13 63 00
     set1 mk1l.1             ;3b40  71 1a e6   Set WTNIMK0 (disables INTWTNI0)
@@ -10554,10 +10555,12 @@ lab_3d00:
     ret                     ;3d08  af
 
 sub_3d09:
+;Read analog input 0x01 and ???
     bf mem_fe62.1,lab_3d18  ;3d09  31 13 62 0b
-    movw ax,#0x017f         ;3d0d  10 7f 01
-    call !sub_abc3          ;3d10  9a c3 ab
-    bc lab_3d57             ;3d13  8d 42
+    movw ax,#0x017f         ;3d0d  10 7f 01     A = analog input 0x01
+                            ;                   X = 0x7f ???
+    call !sub_abc3          ;3d10  9a c3 ab     Read analog input number A and do ???
+    bc lab_3d57_ret         ;3d13  8d 42        Branch to return if failed
     mov !mem_fca2,a         ;3d15  9e a2 fc
 
 lab_3d18:
@@ -10570,7 +10573,7 @@ lab_3d18:
     bc lab_3d4d             ;3d25  8d 26
     mov a,!mem_f18d         ;3d27  8e 8d f1
     cmp a,#0x00             ;3d2a  4d 00
-    bz lab_3d57             ;3d2c  ad 29
+    bz lab_3d57_ret          ;3d2c  ad 29
     dec a                   ;3d2e  51
     mov !mem_f18d,a         ;3d2f  9e 8d f1
     br lab_3d55             ;3d32  fa 21
@@ -10591,13 +10594,13 @@ lab_3d47:
     br lab_3d55             ;3d4b  fa 08
 
 lab_3d4d:
-    bf mem_fe62.1,lab_3d57  ;3d4d  31 13 62 06
-    bf mem_fe65.5,lab_3d57  ;3d51  31 53 65 02
+    bf mem_fe62.1,lab_3d57_ret  ;3d4d  31 13 62 06
+    bf mem_fe65.5,lab_3d57_ret  ;3d51  31 53 65 02
 
 lab_3d55:
     set1 mem_fe7e.3         ;3d55  3a 7e
 
-lab_3d57:
+lab_3d57_ret:
     ret                     ;3d57  af
 
 lab_3d58:
@@ -12079,8 +12082,8 @@ lab_463c:
     cmp a,#0xff             ;4644  4d ff
     bz lab_4654             ;4646  ad 0c
     mov x,a                 ;4648  70
-    mov a,!mem_fbae         ;4649  8e ae fb
-    call !sub_abc3          ;464c  9a c3 ab
+    mov a,!mem_fbae         ;4649  8e ae fb     A = analog number number to read
+    call !sub_abc3          ;464c  9a c3 ab     Read analog input number A and do ???
     mov !mem_fbac,a         ;464f  9e ac fb
     clr1 mem_fe78.1         ;4652  1b 78
 
@@ -12581,15 +12584,17 @@ lab_4901:
     ret                     ;4901  af
 
 sub_4902:
-    movw ax,#0x027f         ;4902  10 7f 02
-    call !sub_abc3          ;4905  9a c3 ab
-    bc lab_4913             ;4908  8d 09
+;Read analog input 2 and ???
+    movw ax,#0x027f         ;4902  10 7f 02     A = analog input 0x02
+                            ;                   X = 0x7f ???
+    call !sub_abc3          ;4905  9a c3 ab     Read analog input number A and do ???
+    bc lab_4913_ret         ;4908  8d 09        Branch to return if analog read failed
     mov !mem_fca3,a         ;490a  9e a3 fc
     cmp a,#0x12             ;490d  4d 12
-    bc lab_4913             ;490f  8d 02
+    bc lab_4913_ret         ;490f  8d 02
     set1 mem_fe65.1         ;4911  1a 65
 
-lab_4913:
+lab_4913_ret:
     ret                     ;4913  af
 
 sub_4914:
@@ -13519,18 +13524,19 @@ upd_recv_byte:
     ret                     ;4d62  af
 
 sub_4d63:
-    call !sub_3b3a          ;4d63  9a 3a 3b
+;Disable timers and their interrupts, set uPD16432B pins to inputs
+    call !sub_3b3a          ;4d63  9a 3a 3b     Disable timers and their interrupts
     clr1 pu3.2              ;4d66  71 2b 33     PU32 pull-up resistor disabled (uPD16432B CLK)
     set1 pm3.2              ;4d69  71 2a 23     PM32=input (uPD16432B CLK)
 
     clr1 pu3.1              ;4d6c  71 1b 33     PU31 pull-up resistor disabled (uPD16432B DAT)
     set1 pm3.1              ;4d6f  71 1a 23     PM31=input (uPD16432B DAT)
 
-    clr1 pu4.7              ;4d72  71 7b 34
+    clr1 pu4.7              ;4d72  71 7b 34     PU47 pull-up resistor disabled (uPD16432B STB)
     set1 pm4.7              ;4d75  71 7a 24     PM47=input (P47)
 
-    clr1 pu4.6              ;4d78  71 6b 34
-    set1 pm4.6              ;4d7b  71 6a 24
+    clr1 pu4.6              ;4d78  71 6b 34     PU46 pull-up resistor disabled (uPD16432B /LCDOFF)
+    set1 pm4.6              ;4d7b  71 6a 24     PM47=input (uPD16432B /LCDOFF)
     ret                     ;4d7e  af
 
 lab_4d7f:
@@ -16998,6 +17004,7 @@ lab_606c:
     ret                     ;6077  af
 
 sub_6078:
+;Disable I2C, set SCL and SDA pins to inputs
     clr1 mem_fe69.0         ;6078  0b 69
     clr1 iicc0.7            ;607a  71 7b a8
     set1 shadow_p7.2        ;607d  2a d1        P72=1 (I2C SCL)
@@ -28735,6 +28742,7 @@ lab_ab75:
     ret                     ;ab7a  af
 
 sub_ab7b:
+;Table-driven analog input routine
     bf mem_fe2d.0,lab_abc2  ;ab7b  31 03 2d 43
     bt mem_fe31.1,lab_abc2  ;ab7f  9c 31 40
     mov mem_fed6,#0x03      ;ab82  11 d6 03
@@ -28746,9 +28754,9 @@ lab_ab8b:
     mov x,a                 ;ab8d  70
     mov a,[hl+0x01]         ;ab8e  ae 01
     push hl                 ;ab90  b7
-    call !sub_abc3          ;ab91  9a c3 ab
+    call !sub_abc3          ;ab91  9a c3 ab     Read analog input number A and do ???
     pop hl                  ;ab94  b6
-    bc lab_abb9             ;ab95  8d 22
+    bc lab_abb9             ;ab95  8d 22        Branch if analog read failed
     mov x,a                 ;ab97  70
     mov a,[hl+0x02]         ;ab98  ae 02
     bf a.7,lab_aba3         ;ab9a  31 7f 06
@@ -28786,8 +28794,14 @@ lab_abc2:
     ret                     ;abc2  af
 
 sub_abc3:
-    call !sub_abf5          ;abc3  9a f5 ab
-    bc lab_abef             ;abc6  8d 27
+;Read analog input number A and do ???
+;
+;Returns:
+;  AX = ???
+;  carry set = failed, carry clear = success
+;
+    call !sub_abf5          ;abc3  9a f5 ab   Read analog input number A
+    bc lab_abef_failed      ;abc6  8d 27      Branch if analog read failed
     mov c,a                 ;abc8  72
     mov a,x                 ;abc9  60
     cmp a,#0x7f             ;abca  4d 7f
@@ -28797,10 +28811,10 @@ sub_abc3:
     br lab_abeb             ;abd1  fa 18
 
 lab_abd3:
-    call !sub_abf5          ;abd3  9a f5 ab
-    bc lab_abef             ;abd6  8d 17
+    call !sub_abf5          ;abd3  9a f5 ab   Read analog input number A
+    bc lab_abef_failed      ;abd6  8d 17      Branch if analog read failed
     cmp a,#0x55             ;abd8  4d 55
-    bc lab_abef             ;abda  8d 13
+    bc lab_abef_failed      ;abda  8d 13
     xch a,c                 ;abdc  32
     cmp a,c                 ;abdd  61 4a
     bc lab_abe6             ;abdf  8d 05
@@ -28819,35 +28833,49 @@ lab_abec:
     clr1 mem_fe78.1         ;abec  1b 78
     ret                     ;abee  af
 
-lab_abef:
+lab_abef_failed:
     set1 cy                 ;abef  20
     movw ax,#0x0000         ;abf0  10 00 00
     br lab_abec             ;abf3  fa f7
 
+
 sub_abf5:
+;Read analog input number A
+;
+;Call with:
+;  A = analog input number
+;
+;Returns:
+;  A = value read from an A/D conversion result register
+;  carry set = failed, carry clear = success
     bt a.3,lab_ac25         ;abf5  31 3e 2d
-    and a,#0x07             ;abf8  5d 07
+
+    ;Set corresponding port mode bit in PM9 to input
+    and a,#0b00000111       ;abf8  5d 07
     mov b,a                 ;abfa  73
     movw hl,#mem_af75       ;abfb  16 75 af
     mov a,pm9               ;abfe  f4 29
-    or a,[hl+b]             ;ac00  31 6b
+    or a,[hl+b]             ;ac00  31 6b          OR with mask to turn a bit on (make it an input)
     mov pm9,a               ;ac02  f6 29
+
     mov a,b                 ;ac04  63
     mov ads00,a             ;ac05  f6 81
     mov adm00,#0x00         ;ac07  13 80 00
-    clr1 if1l.5             ;ac0a  71 5b e2     Clear ADIF00 (INTAD00 interrupt flag)
-    set1 mk1l.5             ;ac0d  71 5a e6     Set ADMK00 (disables INTAD00)
+    clr1 if1l.5             ;ac0a  71 5b e2       Clear ADIF00 (INTAD00 interrupt flag)
+    set1 mk1l.5             ;ac0d  71 5a e6       Set ADMK00 (disables INTAD00)
     set1 adm00.7            ;ac10  71 7a 80
-    mov b,#0x1e             ;ac13  a3 1e
 
+    mov b,#0x1e             ;ac13  a3 1e          0x1E = number of loops to busy wait
 lab_ac15:
-    bt if1l.5,lab_ac1e      ;ac15  31 56 e2 05  Branch if ADIF00 (INTAD00 interrupt flag) is set
-    dbnz b,lab_ac15         ;ac19  8b fa
-    set1 cy                 ;ac1b  20
-    br lab_ac21             ;ac1c  fa 03
+    bt if1l.5,lab_ac1e      ;ac15  31 56 e2 05    Branch if ADIF00 (INTAD00 interrupt flag) is set
+    dbnz b,lab_ac15         ;ac19  8b fa          Busy wait until ADIF00 is set or timeout
+
+    ;Timeout waiting for ADIF00=1
+    set1 cy                 ;ac1b  20             Set carry to indicate timeout
+    br lab_ac21             ;ac1c  fa 03          Branch to clear ADM00 and then RET
 
 lab_ac1e:
-    mov a,adcr00            ;ac1e  f0 17
+    mov a,adcr00            ;ac1e  f0 17          A = A/D conversion result register 00
     clr1 cy                 ;ac20  21
 
 lab_ac21:
@@ -28855,25 +28883,29 @@ lab_ac21:
     ret                     ;ac24  af
 
 lab_ac25:
-    and a,#0x07             ;ac25  5d 07
+    ;Set corresponding port mode bit in PM8 to input
+    and a,#0b00000111       ;ac25  5d 07
     mov b,a                 ;ac27  73
     movw hl,#mem_af75       ;ac28  16 75 af
     mov a,pm8               ;ac2b  f4 28
-    or a,[hl+b]             ;ac2d  31 6b
+    or a,[hl+b]             ;ac2d  31 6b        OR with mask to turn a bit on (make it an input)
     mov pm8,a               ;ac2f  f6 28
+
     mov a,b                 ;ac31  63
     mov ads01,a             ;ac32  f6 89
     mov adm01,#0x00         ;ac34  13 88 00
     clr1 if1l.6             ;ac37  71 6b e2     Clear ADIF01 (INTAD01 interrupt flag)
     set1 mk1l.6             ;ac3a  71 6a e6     Set ADMK01 (disables INTAD01)
     set1 adm01.7            ;ac3d  71 7a 88
-    mov b,#0x1e             ;ac40  a3 1e
 
+    mov b,#0x1e             ;ac40  a3 1e        0x1E = number of loops to busy wait
 lab_ac42:
     bt if1l.6,lab_ac4b      ;ac42  31 66 e2 05  Branch if ADIF01 (INTAD01 interrupt flag) is set
-    dbnz b,lab_ac42         ;ac46  8b fa
-    set1 cy                 ;ac48  20
-    br lab_ac4e             ;ac49  fa 03
+    dbnz b,lab_ac42         ;ac46  8b fa        Busy wait until ADIF00 is set or timeout
+
+    ;Timeout waiting for ADIF01=1
+    set1 cy                 ;ac48  20           Set carry to indicate timeout
+    br lab_ac4e             ;ac49  fa 03        Branch to clear ADM01 and then RET
 
 lab_ac4b:
     mov a,adcr01            ;ac4b  f4 8b
@@ -29677,30 +29709,32 @@ mem_af70:
     .byte 0x23              ;af74  23          DATA 0x23 '#'
 
 mem_af75:
-    .byte 0x01              ;af75  01          DATA 0x01
-    .byte 0x02              ;af76  02          DATA 0x02
-    .byte 0x04              ;af77  04          DATA 0x04
-    .byte 0x08              ;af78  08          DATA 0x08
-    .byte 0x10              ;af79  10          DATA 0x10
-    .byte 0x20              ;af7a  20          DATA 0x20 ' '
-    .byte 0x40              ;af7b  40          DATA 0x40 '@'
-    .byte 0x80              ;af7c  80          DATA 0x80
-    .byte 0xfe              ;af7d  fe          DATA 0xfe
-    .byte 0xfd              ;af7e  fd          DATA 0xfd
-    .byte 0xfb              ;af7f  fb          DATA 0xfb
-    .byte 0xf7              ;af80  f7          DATA 0xf7
-    .byte 0xef              ;af81  ef          DATA 0xef
-    .byte 0xdf              ;af82  df          DATA 0xdf
-    .byte 0xbf              ;af83  bf          DATA 0xbf
-    .byte 0x7f              ;af84  7f          DATA 0x7f
-    .byte 0x01              ;af85  01          DATA 0x01
-    .byte 0x03              ;af86  03          DATA 0x03
-    .byte 0x07              ;af87  07          DATA 0x07
-    .byte 0x0f              ;af88  0f          DATA 0x0f
-    .byte 0x1f              ;af89  1f          DATA 0x1f
-    .byte 0x3f              ;af8a  3f          DATA 0x3f '?'
-    .byte 0x7f              ;af8b  7f          DATA 0x7f
-    .byte 0xff              ;af8c  ff          DATA 0xff
+    .byte 0b00000001        ;af75  01          DATA 0x01
+    .byte 0b00000010        ;af76  02          DATA 0x02
+    .byte 0b00000100        ;af77  04          DATA 0x04
+    .byte 0b00001000        ;af78  08          DATA 0x08
+    .byte 0b00010000        ;af79  10          DATA 0x10
+    .byte 0b00100000        ;af7a  20          DATA 0x20 ' '
+    .byte 0b01000000        ;af7b  40          DATA 0x40 '@'
+    .byte 0b10000000        ;af7c  80          DATA 0x80
+
+    .byte 0b11111110        ;af7d  fe          DATA 0xfe
+    .byte 0b11111101        ;af7e  fd          DATA 0xfd
+    .byte 0b11111011        ;af7f  fb          DATA 0xfb
+    .byte 0b11110111        ;af80  f7          DATA 0xf7
+    .byte 0b11101111        ;af81  ef          DATA 0xef
+    .byte 0b11011111        ;af82  df          DATA 0xdf
+    .byte 0b10111111        ;af83  bf          DATA 0xbf
+    .byte 0b01111111        ;af84  7f          DATA 0x7f
+
+    .byte 0b00000001        ;af85  01          DATA 0x01
+    .byte 0b00000011        ;af86  03          DATA 0x03
+    .byte 0b00000111        ;af87  07          DATA 0x07
+    .byte 0b00001111        ;af88  0f          DATA 0x0f
+    .byte 0b00011111        ;af89  1f          DATA 0x1f
+    .byte 0b00111111        ;af8a  3f          DATA 0x3f '?'
+    .byte 0b01111111        ;af8b  7f          DATA 0x7f
+    .byte 0b11111111        ;af8c  ff          DATA 0xff
 
 mem_af8d:
 ;group reading related
@@ -36795,19 +36829,22 @@ mem_d0cc:
     .word lab_ab33
 
 mem_d0e9:
-    .byte 0x03              ;d0e9  03          DATA 0x03
-    .byte 0x7f              ;d0ea  7f          DATA 0x7f
-    .byte 0x01              ;d0eb  01          DATA 0x01
-    .byte 0x01              ;d0ec  01          DATA 0x01
-    .byte 0xff              ;d0ed  ff          DATA 0xff
-    .byte 0x7f              ;d0ee  7f          DATA 0x7f
-    .byte 0x02              ;d0ef  02          DATA 0x02
-    .byte 0x03              ;d0f0  03          DATA 0x03
-    .byte 0xff              ;d0f1  ff          DATA 0xff
-    .byte 0x7f              ;d0f2  7f          DATA 0x7f
-    .byte 0x05              ;d0f3  05          DATA 0x05
-    .byte 0x03              ;d0f4  03          DATA 0x03
-    .byte 0xff              ;d0f5  ff          DATA 0xff
+    .byte 0x03              ;d0e9  03          DATA 0x03    3 groups of 4 bytes below:
+
+    .byte 0x7f              ;d0ea  7f          DATA 0x7f    HL+0
+    .byte 0x01              ;d0eb  01          DATA 0x01    HL+1 Analog input number 1
+    .byte 0x01              ;d0ec  01          DATA 0x01    HL+2
+    .byte 0xff              ;d0ed  ff          DATA 0xff    HL+3
+
+    .byte 0x7f              ;d0ee  7f          DATA 0x7f    HL+0
+    .byte 0x02              ;d0ef  02          DATA 0x02    HL+1 Analog input number 2
+    .byte 0x03              ;d0f0  03          DATA 0x03    HL+2
+    .byte 0xff              ;d0f1  ff          DATA 0xff    HL+3
+
+    .byte 0x7f              ;d0f2  7f          DATA 0x7f    HL+0
+    .byte 0x05              ;d0f3  05          DATA 0x05    HL+1 Analog input number 5
+    .byte 0x03              ;d0f4  03          DATA 0x03    HL+2
+    .byte 0xff              ;d0f5  ff          DATA 0xff    HL+3
 
 lab_d0f6:
     bt mem_fefb.7,lab_d0fe  ;d0f6  fc fb 05
