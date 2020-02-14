@@ -48,6 +48,8 @@ I also developed several other projects as a side effect of this work:
 
 - [k0dasm](https://github.com/mnaberez/k0dasm): NEC 78K0 disassembler that generates output compatible with the [as78k0](http://shop-pdp.net/ashtml/as78k0.htm) assember
 
+- [k0emu](https://github.com/mnaberez/k0emu): NEC 78K0 emulator capable of running large portions of the VW Premium 5 firmware
+
 - [m740dasm](https://github.com/mnaberez/m740dasm): Mitsubishi 740 disassembler that generates output compatible with the [as740](http://shop-pdp.net/ashtml/as740.htm) assember
 
 ## Author
