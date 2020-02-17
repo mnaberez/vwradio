@@ -48,10 +48,18 @@
 |Pin 56 |P26          |K-line mode (0=normal, 1=radio as tester)      |
 |Pin 57 |P27/TI51/TO51|Unknown output                                 |
 |Pin 72 |P90/ANI00    |Unknown input                                  |
-|Pin 73 |P91/ANI10    |Unknown input                                  |
-|Pin 74 |P92/ANI20    |Unknown input                                  |
+|Pin 73 |P91/ANI10    |Unknown input (used as analog; mem_fca2)       |
+|Pin 74 |P92/ANI20    |Illumination analog input (0=off, 0xff=full)   |
 |Pin 75 |P93/ANI30    |Unknown input                                  |
 |Pin 76 |P94/ANI40    |Unknown output                                 |
-|Pin 77 |P95/ANI50    |Unknown input                                  |
+|Pin 77 |P95/ANI50    |Unknown input (used as analog; mem_fca4)       |
 |Pin 78 |P96/ANI60    |Unknown input                                  |
 |Pin 79 |P97/ANI70    |Unknown output                                 |
+
+Operation of the S-contact:
+  When the key is not inserted or has been inserted but not turned,
+  the S-contact is off.  When the key is turned one click to the
+  accessory position, the S-contact turns on it.  It will remain on
+  if the key is turned again to the ignition position.  Once the
+  S-contact is turned on, it will remain on until the key is removed
+  from the ignition, even if the key is turned al the way back.
