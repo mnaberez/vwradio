@@ -1772,6 +1772,7 @@ lab_09db:
     ret                     ;09e5  af
 
 sub_09e6:
+;HL = #mem_f1b3, DE = #mem_f202, A = DE - HL
     movw hl,#mem_f1b3       ;09e6  16 b3 f1
     movw de,#mem_f202       ;09e9  14 02 f2
     callf !sub_09ef         ;09ec  1c ef      A = DE - HL
@@ -1814,6 +1815,7 @@ lab_0a0c_ret:
     ret                     ;0a0c  af
 
 sub_0a0d:
+;A=0x66, mem_fed6=0x66 (difference of #mem_f26c - #mem_f206)
     movw ax,#mem_f26c       ;0a0d  10 6c f2
     subw ax,#mem_f206       ;0a10  da 06 f2
     mov a,x                 ;0a13  60
@@ -1821,20 +1823,25 @@ sub_0a0d:
     ret                     ;0a16  af
 
 sub_0a17:
-    callf !sub_0a1c         ;0a17  2c 1c
-    callf !sub_0a2c         ;0a19  2c 2c
+;Copy 0x4F bytes from mem_0080 to mem_f1b3
+;Copy 0x66 bytes from mem_00cf to mem_f206
+    callf !sub_0a1c         ;0a17  2c 1c        Copy 0x4F bytes from mem_0080 to mem_f1b3
+    callf !sub_0a2c         ;0a19  2c 2c        Copy 0x66 bytes from mem_00cf to mem_f206
     ret                     ;0a1b  af
 
 sub_0a1c:
+;Copy 0x4F bytes from mem_0080 to mem_f1b3
     movw hl,#mem_f1b3       ;0a1c  16 b3 f1
     movw de,#mem_f202       ;0a1f  14 02 f2
     callf !sub_09ef         ;0a22  1c ef        A = DE - HL
+                            ;                   Results in A=0x4F
     movw hl,#mem_0080       ;0a24  16 80 00     HL = source address
     movw de,#mem_f1b3       ;0a27  14 b3 f1     DE = destination address
     br lab_0a34             ;0a2a  fa 08        Branch to Copy A bytes from [HL] to [DE] and return
 
 sub_0a2c:
-    callf !sub_0a0d         ;0a2c  2c 0d
+;Copy 0x66 bytes from mem_00cf to mem_f206
+    callf !sub_0a0d         ;0a2c  2c 0d        A=0x66, mem_fed6=0x66 (0x66 = #mem_f26c - #mem_f206)
     movw hl,#mem_00cf       ;0a2e  16 cf 00     HL = source address
     movw de,#mem_f206       ;0a31  14 06 f2     DE = destination address
 
@@ -1900,13 +1907,17 @@ sub_0a60:
     bf mem_fe63.7,lab_0a7e  ;0a60  31 73 63 1a
     mov a,!mem_f207         ;0a64  8e 07 f2
     bf a.6,lab_0a7e         ;0a67  31 6f 14
+
+    ;Copy 0x47 bytes from mem_00ee to mem_f225
     movw hl,#mem_00ee       ;0a6a  16 ee 00     HL = source address
     movw de,#mem_f225       ;0a6d  14 25 f2     DE = destination address
-    movw ax,#mem_f26c       ;0a70  10 6c f2
-    subw ax,#mem_f225       ;0a73  da 25 f2
-    mov a,x                 ;0a76  60           A = number of bytes to copy
+    movw ax,#mem_f26c       ;0a70  10 6c f2     AX = #mem_f26c
+    subw ax,#mem_f225       ;0a73  da 25 f2     AX = #mem_f26c - #mem_f225 = 0x47
+    mov a,x                 ;0a76  60           A = number of bytes to copy (0x47)
     callf !sub_0c9e         ;0a77  4c 9e        Copy A bytes from [HL] to [DE]
+
     call !sub_4053          ;0a79  9a 53 40
+
     clr1 mem_fe63.6         ;0a7c  6b 63
 
 lab_0a7e:
@@ -2144,7 +2155,7 @@ lab_0b2c:
     and a,#0x07             ;0b3d  5d 07
     mov b,a                 ;0b3f  73
     push hl                 ;0b40  b7
-    movw hl,#mem_af75       ;0b41  16 75 af
+    movw hl,#mem_af75       ;0b41  16 75 af     HL = pointer to table of bit patterns
     mov a,[hl+b]            ;0b44  ab
     pop hl                  ;0b45  b6
     xch a,e                 ;0b46  34
@@ -2519,7 +2530,7 @@ sub_0c87:
     xch a,b                 ;0c90  33
     and a,#0x07             ;0c91  5d 07
     push hl                 ;0c93  b7
-    movw hl,#mem_af75       ;0c94  16 75 af
+    movw hl,#mem_af75       ;0c94  16 75 af     HL = pointer to table of bit patterns
     mov c,a                 ;0c97  72
     mov a,[hl+c]            ;0c98  aa
     pop hl                  ;0c99  b6
@@ -2894,7 +2905,8 @@ lab_0e39:
 
     mov wdtm,#0x90          ;0e42  13 f9 90     Keep watchdog happy
 
-    call !sub_0a17          ;0e45  9a 17 0a
+    call !sub_0a17          ;0e45  9a 17 0a     Copy 0x4F bytes from mem_0080 to mem_f1b3
+                            ;                   Copy 0x66 bytes from mem_00cf to mem_f206
 
     mov b,#0x0b             ;0e48  a3 0b        B = 0x0b bytes to fill
     mov a,#0x80             ;0e4a  a1 80        A = 0x80 value to fill
@@ -3929,7 +3941,7 @@ lab_15b7:
     movw de,#0xaca7         ;15c8  14 a7 ac
     mov a,mem_fe20          ;15cb  f0 20
     mov b,a                 ;15cd  73
-    movw hl,#mem_af75       ;15ce  16 75 af
+    movw hl,#mem_af75       ;15ce  16 75 af   HL = pointer to table of bit patterns
     mov a,[hl+b]            ;15d1  ab
     call !sub_5c64          ;15d2  9a 64 5c
     bz lab_15f9             ;15d5  ad 22
@@ -5241,7 +5253,7 @@ lab_1deb:
     movw de,#0xae27         ;1deb  14 27 ae
     mov a,!mem_fb68         ;1dee  8e 68 fb
     mov b,a                 ;1df1  73
-    movw hl,#mem_af75       ;1df2  16 75 af
+    movw hl,#mem_af75       ;1df2  16 75 af     HL = pointer to table of bit patterns
     mov a,[hl+b]            ;1df5  ab
     call !sub_5c64          ;1df6  9a 64 5c
     bz lab_1e0d             ;1df9  ad 12
@@ -5267,12 +5279,12 @@ lab_1e0f:
 
 lab_1e12:
     bt mem_fe2c.5,lab_1e18  ;1e12  dc 2c 03
-    br !lab_1f46            ;1e15  9b 46 1f
+    br !lab_1f46_ret        ;1e15  9b 46 1f
 
 lab_1e18:
     cmp mem_fe30,#0x01      ;1e18  c8 30 01
     bz lab_1e20             ;1e1b  ad 03
-    br !lab_1f46            ;1e1d  9b 46 1f
+    br !lab_1f46_ret        ;1e1d  9b 46 1f
 
 lab_1e20:
     call !sub_7697          ;1e20  9a 97 76
@@ -5330,7 +5342,7 @@ lab_1e77:
     bf mem_fe5e.0,lab_1eae  ;1e79  31 03 5e 31
     mov a,!mem_fb6e         ;1e7d  8e 6e fb
     movw hl,#mem_f254       ;1e80  16 54 f2
-    call !sub_1f47          ;1e83  9a 47 1f
+    call !sub_1f47          ;1e83  9a 47 1f     Just calls sub_4092 and returns
     clr1 mem_fe5e.0         ;1e86  0b 5e
     br lab_1eae             ;1e88  fa 24
 
@@ -5345,7 +5357,7 @@ lab_1e8a:
     set1 mem_fe73.3         ;1e9e  3a 73
     mov a,!mem_fb6f         ;1ea0  8e 6f fb
     movw hl,#mem_f255       ;1ea3  16 55 f2
-    call !sub_1f47          ;1ea6  9a 47 1f
+    call !sub_1f47          ;1ea6  9a 47 1f     Just calls sub_4092 and returns
     set1 mem_fe80.0         ;1ea9  0a 80
     call !sub_7697          ;1eab  9a 97 76
 
@@ -5354,7 +5366,7 @@ lab_1eae:
     mov !mem_fb68,a         ;1eb0  9e 68 fb
     mov !mem_fb4a,a         ;1eb3  9e 4a fb
     call !sub_dc4b          ;1eb6  9a 4b dc
-    br !lab_1f46            ;1eb9  9b 46 1f
+    br !lab_1f46_ret        ;1eb9  9b 46 1f
 
 lab_1ebc:
     mov !mem_fb68,a         ;1ebc  9e 68 fb
@@ -5370,7 +5382,7 @@ sub_1ec3:
 
 lab_1ed0:
     btclr mem_fe5e.2,lab_1ed6 ;1ed0  31 21 5e 02
-    br lab_1f46             ;1ed4  fa 70
+    br lab_1f46_ret         ;1ed4  fa 70
 
 lab_1ed6:
     mov a,!mem_f254         ;1ed6  8e 54 f2
@@ -5386,7 +5398,7 @@ lab_1ed6:
 
 lab_1ef0:
     call !sub_1ffe          ;1ef0  9a fe 1f
-    br lab_1f46             ;1ef3  fa 51
+    br lab_1f46_ret         ;1ef3  fa 51
 
 lab_1ef5:
     mov a,!mem_fbfc         ;1ef5  8e fc fb
@@ -5435,18 +5447,19 @@ lab_1f35:
     inc c                   ;1f3b  42
     dbnz c,lab_1f11         ;1f3c  8a d3
     clr1 mem_fe5e.1         ;1f3e  1b 5e
-    bf shadow_p8.1,lab_1f46  ;1f40  31 13 d2 02
+    bf shadow_p8.1,lab_1f46_ret  ;1f40  31 13 d2 02
     set1 mem_fe5e.1         ;1f44  1a 5e
 
-lab_1f46:
+lab_1f46_ret:
     ret                     ;1f46  af
 
 sub_1f47:
+;Just calls sub_4092 and returns
     call !sub_4092          ;1f47  9a 92 40
-    br lab_1f46             ;1f4a  fa fa
+    br lab_1f46_ret         ;1f4a  fa fa        Branch to return
 
 lab_1f4c:
-    bf mem_fe2c.5,lab_1f46  ;1f4c  31 53 2c f6
+    bf mem_fe2c.5,lab_1f46_ret  ;1f4c  31 53 2c f6
     bf mem_fe66.6,lab_1f57  ;1f50  31 63 66 03
     clr1 mem_fe66.6         ;1f54  6b 66
     ret                     ;1f56  af
@@ -5506,7 +5519,7 @@ lab_1fbb:
     bz lab_1fdb             ;1fc4  ad 15
     mov a,!mem_fe57         ;1fc6  8e 57 fe
     movw hl,#mem_f254       ;1fc9  16 54 f2
-    br !sub_1f47            ;1fcc  9b 47 1f
+    br !sub_1f47            ;1fcc  9b 47 1f     Just calls sub_4092 and returns
 
 lab_1fcf:
     mov a,!mem_fb6f         ;1fcf  8e 6f fb
@@ -5694,7 +5707,7 @@ lab_20e0:
     mov b,#0x07             ;20ea  a3 07
 
 lab_20ec:
-    movw hl,#mem_af75       ;20ec  16 75 af
+    movw hl,#mem_af75       ;20ec  16 75 af     HL = pointer to table of bit patterns
     mov a,[hl+b]            ;20ef  ab
     call !sub_5c64          ;20f0  9a 64 5c
     cmp a,#0xff             ;20f3  4d ff
@@ -6009,12 +6022,15 @@ sub_22fc:
     bt mem_fe23.6,lab_234b  ;22fc  ec 23 4c     Branch to just return
     bt mem_fe23.5,lab_2317  ;22ff  dc 23 15
     clr1 mem_fe23.7         ;2302  7b 23        SAFE mode = locked
+
     mov a,!mem_fb73         ;2304  8e 73 fb
     cmp a,!mem_f208         ;2307  48 08 f2
     bnz lab_2327            ;230a  bd 1b
+
     mov a,!mem_fb74         ;230c  8e 74 fb
     cmp a,!mem_f209         ;230f  48 09 f2
     bnz lab_2327            ;2312  bd 13
+
     set1 mem_fe23.7         ;2314  7a 23        SAFE mode = unlocked
     ret                     ;2316  af
 
@@ -6030,15 +6046,19 @@ lab_2327:
     mov a,!mem_fb71         ;2327  8e 71 fb
     cmp a,#0xc3             ;232a  4d c3
     bz lab_234b             ;232c  ad 1d        Branch to just return
+
     mov a,!mem_fb73         ;232e  8e 73 fb
     movw hl,#mem_f208       ;2331  16 08 f2
     call !sub_4092          ;2334  9a 92 40
+
     mov a,!mem_fb74         ;2337  8e 74 fb
     movw hl,#mem_f209       ;233a  16 09 f2
     call !sub_4092          ;233d  9a 92 40
-    call !sub_249c          ;2340  9a 9c 24
+
+    call !sub_249c          ;2340  9a 9c 24     A = 1 + sum of 6 bytes at mem_f206 - mem_f20b
     movw hl,#mem_f20c       ;2343  16 0c f2
     call !sub_4092          ;2346  9a 92 40
+
     set1 mem_fe23.7         ;2349  7a 23        SAFE mode = unlocked
 
 lab_234b:
@@ -6133,7 +6153,7 @@ lab_23a7:
     mov a,#0x00             ;23bf  a1 00
     movw hl,#mem_f20a       ;23c1  16 0a f2
     call !sub_4092          ;23c4  9a 92 40
-    call !sub_249c          ;23c7  9a 9c 24
+    call !sub_249c          ;23c7  9a 9c 24     A = 1 + sum of 6 bytes at mem_f206 - mem_f20b
     movw hl,#mem_f20c       ;23ca  16 0c f2
     call !sub_4092          ;23cd  9a 92 40
 
@@ -6241,7 +6261,7 @@ sub_246b:
 
 sub_2482:
     mov !mem_fb71,a         ;2482  9e 71 fb
-    call !sub_249c          ;2485  9a 9c 24
+    call !sub_249c          ;2485  9a 9c 24     A = 1 + sum of 6 bytes at mem_f206 - mem_f20b
     movw hl,#mem_f20c       ;2488  16 0c f2
     call !sub_4092          ;248b  9a 92 40
     ret                     ;248e  af
@@ -6255,7 +6275,8 @@ sub_248f:
     br !sub_2227            ;2499  9b 27 22
 
 sub_249c:
-    movw hl,#mem_f205       ;249c  16 05 f2
+;A = 1 + sum of 6 bytes at mem_f206 - mem_f20b
+    movw hl,#mem_f206-1     ;249c  16 05 f2
     mov b,#0x06             ;249f  a3 06
     mov a,#0x01             ;24a1  a1 01
 
@@ -6299,7 +6320,7 @@ lab_24c5:
 
 lab_24d9:
     clr1 mem_fe5e.4         ;24d9  4b 5e
-    call !sub_249c          ;24db  9a 9c 24
+    call !sub_249c          ;24db  9a 9c 24     A = 1 + sum of 6 bytes at mem_f206 - mem_f20b
     cmp a,!mem_f20c         ;24de  48 0c f2
     bnz lab_24ef            ;24e1  bd 0c
     set1 mem_fe5e.4         ;24e3  4a 5e
@@ -6317,7 +6338,7 @@ lab_24f0:
     ret                     ;24f0  af
 
 sub_24f1:
-    call !sub_249c          ;24f1  9a 9c 24
+    call !sub_249c          ;24f1  9a 9c 24     A = 1 + sum of 6 bytes at mem_f206 - mem_f20b
     movw hl,#mem_f20c       ;24f4  16 0c f2
     call !sub_4092          ;24f7  9a 92 40
     movw de,#mem_fb77       ;24fa  14 77 fb
@@ -6715,11 +6736,16 @@ lab_274a:
 
 sub_274e:
 ;Unknown; uses table of KWP1281 fault codes at mem_afe8
-    bt mem_fe5f.3,lab_2762  ;274e  bc 5f 11
+;Returns carry clear = fault, carry set = no fault
+;Returns KWP1281 fault code in AX and fault elaboration in E
+    bt mem_fe5f.3,lab_2762_loop  ;274e  bc 5f 11
     call !sub_2c98          ;2751  9a 98 2c
-    bc lab_275c             ;2754  8d 06
-    mov e,#0x88             ;2756  a4 88
-    movw ax,#0xffff         ;2758  10 ff ff
+    bc lab_275c             ;2754  8d 06      Branch if sub_2c98 returned a fault
+
+    ;sub_2c98 did not return a fault
+    ;carry is clear
+    mov e,#0x88             ;2756  a4 88      0x88 = fault elaboration for "no fault"
+    movw ax,#0xffff         ;2758  10 ff ff   0xFF = fault code for "no fault"
     ret                     ;275b  af
 
 lab_275c:
@@ -6727,72 +6753,82 @@ lab_275c:
     movw ax,hl              ;275e  c6
     movw !mem_f002,ax       ;275f  03 02 f0
 
-lab_2762:
+lab_2762_loop:
     movw ax,!mem_f002       ;2762  02 02 f0
     cmpw ax,#mem_f20d       ;2765  ea 0d f2
-    bc lab_278c             ;2768  8d 22
+    bc lab_278c_cy1         ;2768  8d 22
     cmpw ax,#mem_f219       ;276a  ea 19 f2
-    bnc lab_278c            ;276d  9d 1d
+    bnc lab_278c_cy1        ;276d  9d 1d
     movw de,ax              ;276f  d4
     incw ax                 ;2770  80
     movw !mem_f002,ax       ;2771  03 02 f0
     mov a,[de]              ;2774  85
-    cmp a,#0x88             ;2775  4d 88
-    bz lab_2762             ;2777  ad e9
+    cmp a,#0x88             ;2775  4d 88        0x88 = fault elaboration for "no fault"
+    bz lab_2762_loop        ;2777  ad e9        Loop if no fault
     push ax                 ;2779  b1
     movw hl,#mem_f20d       ;277a  16 0d f2
-    call !sub_2cbe          ;277d  9a be 2c
+    call !sub_2cbe          ;277d  9a be 2c     A = DE - HL
     mov b,a                 ;2780  73
-    movw hl,#mem_afe8+1     ;2781  16 e9 af     Table of KWP1281 fault codes
-
-lab_2784:
+    movw hl,#mem_afe8+1     ;2781  16 e9 af     HL = pointer to table of KWP1281 fault codes
     callf !sub_0c48         ;2784  4c 48        Load DE with word at position B in table [HL]
     pop ax                  ;2786  b0
-    bc lab_278c             ;2787  8d 03        Branch if table lookup failed
+    bc lab_278c_cy1         ;2787  8d 03        Branch if table lookup failed
     mov x,a                 ;2789  70
     xchw ax,de              ;278a  e4
     ret                     ;278b  af
 
-lab_278c:
+lab_278c_cy1:
     clr1 mem_fe5f.3         ;278c  3b 5f
     set1 cy                 ;278e  20
     ret                     ;278f  af
 
+
 sub_2790:
+;Clear faults
+;Called from kwp_56_05_clear_faults
     call !sub_2d35          ;2790  9a 35 2d     Clear bits in mem_fe5f and mem_fe60
+
     movw hl,#mem_f20c       ;2793  16 0c f2
     movw de,#mem_f215       ;2796  14 15 f2
-    call !sub_2cbe          ;2799  9a be 2c
+    call !sub_2cbe          ;2799  9a be 2c     A = DE - HL
+                            ;                   Results in A=0x9
+
     cmp a,#0x00             ;279c  4d 00
-    bz lab_27ce             ;279e  ad 2e
+    bz lab_27ce_ret         ;279e  ad 2e        XXX redundant; never branches
+
     mov b,a                 ;27a0  73
     movw de,#mem_fc1a       ;27a1  14 1a fc
     movw hl,#mem_f20d       ;27a4  16 0d f2
 
-lab_27a7:
+lab_27a7_loop:
     mov a,[de]              ;27a7  85
     cmp a,[hl]              ;27a8  4f
     bz lab_27b0             ;27a9  ad 05
-    mov a,#0x88             ;27ab  a1 88
+    mov a,#0x88             ;27ab  a1 88        0x88 = fault elaboration for "no fault"
     call !sub_4092          ;27ad  9a 92 40
 
 lab_27b0:
     incw hl                 ;27b0  86
     incw de                 ;27b1  84
-    dbnz b,lab_27a7         ;27b2  8b f3
+    dbnz b,lab_27a7_loop    ;27b2  8b f3
+
     movw hl,#mem_f217       ;27b4  16 17 f2
-    mov a,#0x88             ;27b7  a1 88
+    mov a,#0x88             ;27b7  a1 88        0x88 = fault elaboration for "no fault"
     call !sub_4092          ;27b9  9a 92 40
+
     movw hl,#mem_f218       ;27bc  16 18 f2
-    mov a,#0x88             ;27bf  a1 88
+    mov a,#0x88             ;27bf  a1 88        0x88 = fault elaboration for "no fault"
     call !sub_4092          ;27c1  9a 92 40
+
     movw hl,#mem_f219       ;27c4  16 19 f2
     mov a,#0x00             ;27c7  a1 00
     call !sub_4092          ;27c9  9a 92 40
+
     clr1 mem_fe6d.3         ;27cc  3b 6d        ROM checksum calculation = not performed
 
-lab_27ce:
+lab_27ce_ret:
     ret                     ;27ce  af
+
 
 sub_27cf:
     push hl                 ;27cf  b7
@@ -6827,6 +6863,7 @@ lab_27e6:
     push ax                 ;27f8  b1
     call !sub_7bbd          ;27f9  9a bd 7b     Just returns
     pop ax                  ;27fc  b0
+
     br lab_2818             ;27fd  fa 19        Branch to pop registers, clear carry, and return
 
 lab_27ff:
@@ -7695,37 +7732,39 @@ read_kwp_rx_3:
 ;
     movw hl,#kwp_rx_buf+3   ;2c8b  16 8d f0
     mov a,[hl]              ;2c8e  87
-    mov e,a                 ;2c8f  74           ;E = KWP1281 rx buffer byte 3
+    mov e,a                 ;2c8f  74         E = KWP1281 rx buffer byte 3
 
     incw hl                 ;2c90  86
     mov a,[hl]              ;2c91  87
-    mov d,a                 ;2c92  75           ;D = KWP1281 rx buffer byte 4
+    mov d,a                 ;2c92  75         D = KWP1281 rx buffer byte 4
 
     incw hl                 ;2c93  86
-    mov a,[hl]              ;2c94  87           ;A = KWP1281 rx buffer byte 5
+    mov a,[hl]              ;2c94  87         A = KWP1281 rx buffer byte 5
 
-    xch a,e                 ;2c95  34           ;Swap A and E
+    xch a,e                 ;2c95  34         Swap A and E
 
     ret                     ;2c96  af
 
     ret                     ;2c97  af
 
 sub_2c98:
+;Returns carry set = fault, carry clear = no fault
     movw hl,#mem_f20d       ;2c98  16 0d f2
     movw de,#mem_f219       ;2c9b  14 19 f2
-    call !sub_2cbe          ;2c9e  9a be 2c
+    call !sub_2cbe          ;2c9e  9a be 2c   A = DE - HL
+                            ;                 Results in A=0x0c
     mov b,a                 ;2ca1  73
 
-lab_2ca2:
+lab_2ca2_loop:
     mov a,[hl]              ;2ca2  87
-    cmp a,#0x88             ;2ca3  4d 88
-    bnz lab_2cac            ;2ca5  bd 05
+    cmp a,#0x88             ;2ca3  4d 88      0x88 = fault elaboration for "no fault"
+    bnz lab_2cac_cy1        ;2ca5  bd 05
     incw hl                 ;2ca7  86
-    dbnz b,lab_2ca2         ;2ca8  8b f8
+    dbnz b,lab_2ca2_loop    ;2ca8  8b f8
     clr1 cy                 ;2caa  21
     ret                     ;2cab  af
 
-lab_2cac:
+lab_2cac_cy1:
     set1 cy                 ;2cac  20
     ret                     ;2cad  af
 
@@ -7743,6 +7782,12 @@ sub_2cb0:
     ret                     ;2cbd  af
 
 sub_2cbe:
+;A = DE - HL
+;
+;Note: it actually performs AX = DE - HL and then swaps
+;A and X, so A contains the low byte of the difference and
+;X contains the high byte.  However, no callers use X.
+;
     movw ax,de              ;2cbe  c4
     xch a,x                 ;2cbf  30
     sub a,l                 ;2cc0  61 1e
@@ -10263,15 +10308,15 @@ inttm000_3b2b:
     pop ax                  ;3b2f  b0
     reti                    ;3b30  8f
 
-;XXX lab_3b31 appears unused
-lab_3b31:
+;XXX sub_3b31 appears unused
+sub_3b31:
     set1 shadow_p3.4        ;3b31  4a cd      P34 = 1
-    br lab_3b37             ;3b33  fa 02
+    br sub_3b37             ;3b33  fa 02
 
 sub_3b35:
     clr1 shadow_p3.4        ;3b35  4b cd      P34 = 0
 
-lab_3b37:
+sub_3b37:
     clr1 pm3.4              ;3b37  71 4b 23   PM34 = output
 
 sub_3b3a:
@@ -10904,7 +10949,7 @@ lab_3f2f:
     bnc lab_3f2e            ;3f37  9d f5        Branch to just return if unknown check failed
 
     callf !sub_099c         ;3f39  1c 9c
-    callf !sub_09e6         ;3f3b  1c e6
+    callf !sub_09e6         ;3f3b  1c e6        HL = #mem_f1b3, DE = #mem_f202, A = DE - HL
     callf !sub_0c0d         ;3f3d  4c 0d
     bz lab_3f43             ;3f3f  ad 02
     br lab_3f06             ;3f41  fa c3
@@ -10969,7 +11014,7 @@ lab_3f96:
     set1 mem_fe63.5         ;3f96  5a 63
     mov a,#0x20             ;3f98  a1 20
     callt [0x0044]          ;3f9a  c5           Calls sub_09c6
-    callf !sub_0a0d         ;3f9b  2c 0d
+    callf !sub_0a0d         ;3f9b  2c 0d        A=0x66, mem_fed6=0x66 (0x66 = #mem_f26c - #mem_f206)
     mov a,!mem_fb99         ;3f9d  8e 99 fb
     mov b,a                 ;3fa0  73
     movw de,#0x0063         ;3fa1  14 63 00
@@ -11069,7 +11114,7 @@ sub_4023:
     call !sub_6217          ;4023  9a 17 62     Unknown; EEPROM related
     bnc sub_4023            ;4026  9d fb        Repeat until success
 
-    callf !sub_0a0d         ;4028  2c 0d
+    callf !sub_0a0d         ;4028  2c 0d        A=0x66, mem_fed6=0x66 (0x66 = #mem_f26c - #mem_f206)
 
     movw hl,#0x00c8         ;402a  16 c8 00     HL = EEPROM address to read
     movw de,#mem_f206       ;402d  14 06 f2     DE = destination buffer used at lab_4042_nonzero
@@ -11107,7 +11152,7 @@ sub_4053:
     push de                 ;4054  b5
     movw hl,#mem_f206       ;4055  16 06 f2
     movw de,#mem_f26c       ;4058  14 6c f2
-    callf !sub_0a0d         ;405b  2c 0d
+    callf !sub_0a0d         ;405b  2c 0d        A=0x66, mem_fed6=0x66 (0x66 = #mem_f26c - #mem_f206)
     mov b,a                 ;405d  73
     callf !sub_0c12         ;405e  4c 12
     pop de                  ;4060  b4
@@ -11133,7 +11178,7 @@ sub_4076:
     push de                 ;4077  b5
     movw hl,#mem_f206       ;4078  16 06 f2
     movw de,#mem_f26c       ;407b  14 6c f2
-    callf !sub_0a0d         ;407e  2c 0d
+    callf !sub_0a0d         ;407e  2c 0d        A=0x66, mem_fed6=0x66 (0x66 = #mem_f26c - #mem_f206)
     mov b,a                 ;4080  73
     callf !sub_0c0d         ;4081  4c 0d
     pop de                  ;4083  b4
@@ -11149,33 +11194,50 @@ lab_408e:
     ret                     ;408e  af
 
 sub_408f:
+;Possibly EEPROM related?
+;Called with:
+;  HL = an address
+;  B = index to add to the address
+;  A = value
     push bc                 ;408f  b3
     br lab_4095             ;4090  fa 03
 
 sub_4092:
+;Possibly EEPROM related?
+;Called with:
+;  HL = an address
+;  A = value
     push bc                 ;4092  b3
     mov b,#0x00             ;4093  a3 00
 
 lab_4095:
     cmp a,[hl+b]            ;4095  31 4b
-    bz lab_40d4             ;4097  ad 3b        Branch to pop bc and ret
+    bz lab_40d4_done        ;4097  ad 3b        If [HL+B] = A then branch (nothing to do)
+
     push ax                 ;4099  b1
+
+    ;AX = HL + B
     mov x,#0x00             ;409a  a0 00
     mov a,b                 ;409c  63
     add a,l                 ;409d  61 0e
     xch a,x                 ;409f  30
     addc a,h                ;40a0  61 2f
-    cmpw ax,#mem_f206       ;40a2  ea 06 f2
-    bc lab_40ac             ;40a5  8d 05        Branch to pop ax, pop bc, then ret
-    cmpw ax,#mem_f26b       ;40a7  ea 6b f2
-    bc lab_40b1             ;40aa  8d 05        Branch to do more processing
 
-lab_40ac:
+    ;Check if AX is in range #mem_f206 - #mem_f26b (inclusive)
+    cmpw ax,#mem_f206       ;40a2  ea 06 f2
+    bc lab_40ac_out_of_range ;40a5  8d 05       If AX < #mem_f206 then branch (out of range)
+    cmpw ax,#mem_f26b       ;40a7  ea 6b f2
+    bc lab_40b1_in_range    ;40aa  8d 05        If AX < #mem_f26b then branch (out of range)
+    ;Fall through to out of range
+
+lab_40ac_out_of_range:
+;AX is out of range
     callf !sub_0879         ;40ac  0c 79        Just returns
     pop ax                  ;40ae  b0
-    br lab_40d4             ;40af  fa 23        Branch to pop bc and ret
+    br lab_40d4_done        ;40af  fa 23        Branch to pop bc and ret
 
-lab_40b1:
+lab_40b1_in_range:
+;AX is within range of #mem_f206 - #mem_f26b (inclusive)
     mov a,!mem_f26c         ;40b1  8e 6c f2
     sub a,[hl+b]            ;40b4  31 1b
     mov c,a                 ;40b6  72
@@ -11194,18 +11256,20 @@ lab_40b1:
     clr1 mem_fe63.6         ;40d0  6b 63
     set1 mem_fe63.5         ;40d2  5a 63
 
-lab_40d4:
+lab_40d4_done:
     pop bc                  ;40d4  b2
     ret                     ;40d5  af
 
-lab_40d6:
+
+sub_40d6:
     mov a,#0x00             ;40d6  a1 00
 
-lab_40d8:
+lab_40d8_loop:
     call !sub_4092          ;40d8  9a 92 40
     incw hl                 ;40db  86
-    dbnz b,lab_40d8         ;40dc  8b fa
+    dbnz b,lab_40d8_loop    ;40dc  8b fa
     ret                     ;40de  af
+
 
 sub_40df:
     push hl                 ;40df  b7
@@ -11221,7 +11285,7 @@ lab_40e9_loop:
     callf !sub_09f8         ;40e9  1c f8
     mov b,a                 ;40eb  73
     call !sub_6238          ;40ec  9a 38 62     Read A bytes from EEPROM address HL into [DE]
-    bnc lab_4104_pop_ret            ;40ef  9d 13        Branch if EEPROM read failed
+    bnc lab_4104_pop_ret    ;40ef  9d 13        Branch if EEPROM read failed
     cmp mem_fed5,#0x00      ;40f1  c8 d5 00
     bz lab_4103             ;40f4  ad 0d
     callf !sub_0d67         ;40f6  5c 67        HL = HL + A
@@ -11328,7 +11392,7 @@ lab_41a1:
     clr1 mem_fe63.4         ;41a1  4b 63
     mov a,#0x55             ;41a3  a1 55
     mov !mem_fb9a,a         ;41a5  9e 9a fb
-    callf !sub_09e6         ;41a8  1c e6
+    callf !sub_09e6         ;41a8  1c e6        HL = #mem_f1b3, DE = #mem_f202, A = DE - HL
     callf !sub_0c12         ;41aa  4c 12
     movw hl,#mem_f202       ;41ac  16 02 f2     HL = pointer to first buffer
     movw de,#mem_f204       ;41af  14 04 f2     DE = pointer to second buffer
@@ -11453,7 +11517,7 @@ lab_4243:
 
 lab_4266:
     mov b,a                 ;4266  73
-    movw hl,#mem_af75       ;4267  16 75 af
+    movw hl,#mem_af75       ;4267  16 75 af     HL = pointer to table of bit patterns
     mov a,[hl+b]            ;426a  ab
     call !sub_5c64          ;426b  9a 64 5c
     bz sub_42be             ;426e  ad 4e
@@ -14716,47 +14780,69 @@ lab_5370:
     br !sub_34f7            ;5378  9b f7 34     Set flags to start sending the KWP1281 tx buffer
 
 lab_537b:
+;Send response to read or clear faults (index 0x0a)
     set1 mem_fe66.1         ;537b  1a 66
 
 lab_537d:
+;Send response to read or clear faults (index 0x0a) without setting mem_fe66.1
     mov b,#0x0a             ;537d  a3 0a        B = index 0x0a response to read/clear faults
     call !sub_5292          ;537f  9a 92 52     Set block title, counter, length in KWP1281 tx buf
-    mov c,#0x04             ;5382  a2 04
+    mov c,#0x04             ;5382  a2 04        C = 4 faults in this block?
 
-lab_5384:
-    push hl                 ;5384  b7
-    push bc                 ;5385  b3
+lab_5384_loop:
+    push hl                 ;5384  b7           Push KWP1281 tx buffer pointer
+    push bc                 ;5385  b3           Push index into tx buffer pointer, fault countdown
+
     call !sub_274e          ;5386  9a 4e 27     Unknown; uses table of KWP1281 fault codes at mem_afe8
-    pop bc                  ;5389  b2
-    pop hl                  ;538a  b6
-    bc lab_539d             ;538b  8d 10
-    mov [hl+b],a            ;538d  bb           TODO offset
+                            ;                     Returns carry clear = fault, carry set = no fault
+                            ;                     Returns KWP1281 fault code in AX and fault elaboration in E
+
+    pop bc                  ;5389  b2           Pop index into B=tx buffer pointer, C=fault countdown
+    pop hl                  ;538a  b6           Pop HL = KWP1281 tx buffer pointer
+
+    bc lab_539d             ;538b  8d 10        Branch if sub_274e did not return a fault
+
+    ;sub_274e returned a fault
+    ;AX=fault code, E=fault elaboration code
+
+    mov [hl+b],a            ;538d  bb           Write fault code high byte into KWP1281 tx buffer
+
     inc b                   ;538e  43
     mov a,x                 ;538f  60
-    mov [hl+b],a            ;5390  bb
+    mov [hl+b],a            ;5390  bb           Write fault code low byte into KWP1281 tx buffer
+
     inc b                   ;5391  43
     mov a,e                 ;5392  64
-    mov [hl+b],a            ;5393  bb
+    mov [hl+b],a            ;5393  bb           Write fault elaboration code byte into KWP1281 tx buffer
+
     inc b                   ;5394  43
-    cmp a,#0x88             ;5395  4d 88
+    cmp a,#0x88             ;5395  4d 88        0x88 = fault elaboration for "no fault"
     bz lab_539d             ;5397  ad 04
-    dbnz c,lab_5384         ;5399  8a e9
+    dbnz c,lab_5384_loop    ;5399  8a e9
     br lab_539f             ;539b  fa 02
 
 lab_539d:
     clr1 mem_fe66.1         ;539d  1b 66
 
 lab_539f:
-    mov a,b                 ;539f  63
-    cmp a,#0x03             ;53a0  4d 03
-    bz lab_53ae             ;53a2  ad 0a
+    mov a,b                 ;539f  63           B = index to KWP1281 tx buffer
+    cmp a,#0x03             ;53a0  4d 03        Is it pointing to the first byte after the block title?
+    bz lab_53ae             ;53a2  ad 0a          Yes: we did not write any faults into the buffer, so
+                            ;                          branch to send an ACK response instead of a faults response
+
+    ;At least one fault was written to the KWP1281 tx buffer
+    ;Finish sending a faults response
+
     mov !mem_f06b,a         ;53a4  9e 6b f0     Store block length
-    mov [hl],a              ;53a7  97
-    mov a,#0x03             ;53a8  a1 03
-    mov [hl+b],a            ;53aa  bb
+    mov [hl],a              ;53a7  97           Write block length to KWP1281 tx buffer
+
+    mov a,#0x03             ;53a8  a1 03        0x03 = block end
+    mov [hl+b],a            ;53aa  bb           Write block end to KWP1281 tx buffer
+
     br !sub_34f7            ;53ab  9b f7 34     Set flags to start sending the KWP1281 tx buffer
 
 lab_53ae:
+;No faults; send an ACK response instead of a faults response
     mov a,!mem_fbcb         ;53ae  8e cb fb     A = block counter
     sub a,#0x01             ;53b1  1d 01        Decrement it
     mov !mem_fbcb,a         ;53b3  9e cb fb     Store block counter
@@ -18260,7 +18346,7 @@ lab_6832:
     movw de,#mem_b56b       ;6832  14 6b b5
     mov a,mem_fe30          ;6835  f0 30
     mov b,a                 ;6837  73
-    movw hl,#mem_af75       ;6838  16 75 af
+    movw hl,#mem_af75       ;6838  16 75 af     HL = pointer to table of bit patterns
     mov a,[hl+b]            ;683b  ab
     call !sub_5c64          ;683c  9a 64 5c
     bz sub_6853             ;683f  ad 12
@@ -19654,7 +19740,7 @@ lab_700c:
     ror a,1                 ;7013  24
     ror a,1                 ;7014  24
     mov b,a                 ;7015  73
-    movw hl,#mem_af75       ;7016  16 75 af
+    movw hl,#mem_af75       ;7016  16 75 af     HL = pointer to table of bit patterns
     mov a,[hl+b]            ;7019  ab
     mov b,a                 ;701a  73
     pop ax                  ;701b  b0
@@ -23635,7 +23721,7 @@ lab_894f:
     sub mem_fefb,#0x08      ;8960  98 fb 08
 
 lab_8963:
-    movw hl,#mem_af75       ;8963  16 75 af
+    movw hl,#mem_af75       ;8963  16 75 af     HL = pointer to table of bit patterns
     mov a,[hl+b]            ;8966  ab
     call !sub_5c64          ;8967  9a 64 5c
     cmp mem_fefb,#0x00      ;896a  c8 fb 00
@@ -28878,7 +28964,7 @@ sub_abf5:
     ;Set corresponding port mode bit in PM9 to input
     and a,#0b00000111       ;abf8  5d 07
     mov b,a                 ;abfa  73
-    movw hl,#mem_af75       ;abfb  16 75 af
+    movw hl,#mem_af75       ;abfb  16 75 af       HL = pointer to table of bit patterns
     mov a,pm9               ;abfe  f4 29
     or a,[hl+b]             ;ac00  31 6b          OR with mask to turn a bit on (make it an input)
     mov pm9,a               ;ac02  f6 29
@@ -28911,7 +28997,7 @@ lab_ac25:
     ;Set corresponding port mode bit in PM8 to input
     and a,#0b00000111       ;ac25  5d 07
     mov b,a                 ;ac27  73
-    movw hl,#mem_af75       ;ac28  16 75 af
+    movw hl,#mem_af75       ;ac28  16 75 af     HL = pointer to table of bit patterns
     mov a,pm8               ;ac2b  f4 28
     or a,[hl+b]             ;ac2d  31 6b        OR with mask to turn a bit on (make it an input)
     mov pm8,a               ;ac2f  f6 28
@@ -29734,6 +29820,7 @@ mem_af70:
     .byte 0x23              ;af74  23          DATA 0x23 '#'
 
 mem_af75:
+;Table of bit patterns
     .byte 0b00000001        ;af75  01          DATA 0x01
     .byte 0b00000010        ;af76  02          DATA 0x02
     .byte 0b00000100        ;af77  04          DATA 0x04
@@ -36909,7 +36996,7 @@ lab_d121:
     movw de,#mem_b6c2       ;d124  14 c2 b6
     mov a,mem_fe44          ;d127  f0 44
     mov b,a                 ;d129  73
-    movw hl,#mem_af75       ;d12a  16 75 af
+    movw hl,#mem_af75       ;d12a  16 75 af     HL = pointer to table of bit patterns
     mov a,[hl+b]            ;d12d  ab
     call !sub_5c64          ;d12e  9a 64 5c
     bf mem_fe5d.7,lab_d137  ;d131  31 73 5d 02
