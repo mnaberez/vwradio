@@ -300,13 +300,20 @@ kwp_result_t kwp_login_safe(uint16_t safe_code)
  * for both reading faults and clearing faults.
  *
  * It has been observed with several modules that if there are no
- * faults, the response will contain one special fault that means
- * "no fault".  Otherwise, it has been observed that the module will
- * send up to 4 faults for the first request.  Each successive request
- * will return up to 4 more.  This function does not assume 4 is a
- * magic number and will process as many faults as are returned in each
- * response.  This function will make as many requests as needed to
- * retrieve all of the faults.
+ * faults, the module will send a faults response block with one
+ * special fault that means "no fault" (code=0xFFFF, elaboration=0x88).
+ *
+ * Otherwise, it has been observed that the module will send a faults
+ * response block with up to 4 faults.  We must reply with ACK.  The
+ * module will then send a faults response with up to 4 more faults, or
+ * it will reply with ACK to indicate no more faults.  We must ACK each
+ * successive faults response until the module finally replies with
+ * an ACK block to indicate it has sent all its faults.
+ *
+ * This function does not assume 4 faults is a magic number and will
+ * process as many faults as are returned in each response block.  This
+ * function will make as many requests as needed to retrieve all of
+ * the faults.
  */
 static kwp_result_t _receive_all_fault_blocks(void)
 {
