@@ -2223,7 +2223,7 @@ lab_0b83:
     or a,c                  ;0b83  61 6a
     pop psw                 ;0b85  23
     bnc lab_0b8d            ;0b86  9d 05
-    call !sub_408f          ;0b88  9a 8f 40
+    call !sub_408f          ;0b88  9a 8f 40     Write A to [HL+B] then do unknown calculation with mem_f26c/mem_f26d
     br lab_0b8e             ;0b8b  fa 01
 
 lab_0b8d:
@@ -2654,7 +2654,6 @@ sub_0cf4:
     push de                 ;0cf4  b5
     movw de,#0x0000         ;0cf5  14 00 00
     mov b,#0x08             ;0cf8  a3 08
-
 lab_0cfa:
     rolc a,1                ;0cfa  27
     mov x,a                 ;0cfb  70
@@ -3977,14 +3976,17 @@ lab_15fc:
 sub_1601:
     mov mem_fe20,#0x00      ;1601  11 20 00
     mov mem_fe21,#0x00      ;1604  11 21 00
+
     mov a,#0x00             ;1607  a1 00
     mov !mem_fb57,a         ;1609  9e 57 fb
     movw hl,#mem_f252       ;160c  16 52 f2
-    call !sub_4092          ;160f  9a 92 40
+    call !sub_4092          ;160f  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+
     mov a,#0x01             ;1612  a1 01
     mov !mem_fb58,a         ;1614  9e 58 fb
     movw hl,#mem_f253       ;1617  16 53 f2
-    call !sub_4092          ;161a  9a 92 40
+    call !sub_4092          ;161a  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+
     mov a,#0x00             ;161d  a1 00
     mov !mem_fc2f,a         ;161f  9e 2f fc
     clr1 mem_fe5c.7         ;1622  7b 5c
@@ -4628,11 +4630,11 @@ sub_1a2c:
     bnz lab_1a3c            ;1a32  bd 08
     mov a,!mem_fc9c         ;1a34  8e 9c fc
     mov b,#0x01             ;1a37  a3 01
-    call !sub_408f          ;1a39  9a 8f 40
+    call !sub_408f          ;1a39  9a 8f 40     Write A to [HL+B] then do unknown calculation with mem_f26c/mem_f26d
 
 lab_1a3c:
     mov a,!mem_fb56         ;1a3c  8e 56 fb
-    call !sub_4092          ;1a3f  9a 92 40
+    call !sub_4092          ;1a3f  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
     ret                     ;1a42  af
 
 sub_1a43:
@@ -4647,7 +4649,7 @@ sub_1a51:
     mov a,!mem_fb5e         ;1a51  8e 5e fb
     mov !mem_fb57,a         ;1a54  9e 57 fb
     movw hl,#mem_f252       ;1a57  16 52 f2
-    call !sub_4092          ;1a5a  9a 92 40
+    call !sub_4092          ;1a5a  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
 
 sub_1a5d:
     mov b,#0x00             ;1a5d  a3 00
@@ -4789,12 +4791,12 @@ lab_1b09:
     call !sub_1aea          ;1b0b  9a ea 1a
     mov a,!mem_fc9c         ;1b0e  8e 9c fc
     mov b,#0x01             ;1b11  a3 01
-    call !sub_408f          ;1b13  9a 8f 40
+    call !sub_408f          ;1b13  9a 8f 40     Write A to [HL+B] then do unknown calculation with mem_f26c/mem_f26d
     movw hl,#mem_f24f       ;1b16  16 4f f2
     call !sub_080b          ;1b19  9a 0b 08     Return mem_f252 in A, also copy it into mem_fb57
     mov b,a                 ;1b1c  73
     mov a,!mem_fc9c         ;1b1d  8e 9c fc
-    call !sub_408f          ;1b20  9a 8f 40
+    call !sub_408f          ;1b20  9a 8f 40     Write A to [HL+B] then do unknown calculation with mem_f26c/mem_f26d
     ret                     ;1b23  af
 
 sub_1b24:
@@ -4850,13 +4852,16 @@ lab_1b6a:
     inc a                   ;1b6d  41
     movw hl,#mem_f252       ;1b6e  16 52 f2
     mov !mem_fb57,a         ;1b71  9e 57 fb
-    call !sub_4092          ;1b74  9a 92 40
+    call !sub_4092          ;1b74  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+
     call !sub_1c32          ;1b77  9a 32 1c
     bnc lab_1b89            ;1b7a  9d 0d
+
     mov a,#0xff             ;1b7c  a1 ff
     mov !mem_fb57,a         ;1b7e  9e 57 fb
     movw hl,#mem_f252       ;1b81  16 52 f2
-    call !sub_4092          ;1b84  9a 92 40
+    call !sub_4092          ;1b84  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+
     br lab_1b6a             ;1b87  fa e1
 
 lab_1b89:
@@ -4903,16 +4908,19 @@ sub_1bc8:
     inc a                   ;1bcb  41
     movw hl,#mem_f252       ;1bcc  16 52 f2
     mov !mem_fb57,a         ;1bcf  9e 57 fb
-    call !sub_4092          ;1bd2  9a 92 40
+    call !sub_4092          ;1bd2  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+
     call !sub_1c32          ;1bd5  9a 32 1c
     bnc lab_1bee            ;1bd8  9d 14
     call !sub_080b          ;1bda  9a 0b 08     Return mem_f252 in A, also copy it into mem_fb57
     cmp a,#0x05             ;1bdd  4d 05
     bc sub_1bc8             ;1bdf  8d e7
+
     mov a,#0xff             ;1be1  a1 ff
     mov !mem_fb57,a         ;1be3  9e 57 fb
     movw hl,#mem_f252       ;1be6  16 52 f2
-    call !sub_4092          ;1be9  9a 92 40
+    call !sub_4092          ;1be9  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+
     br sub_1bc8             ;1bec  fa da
 
 lab_1bee:
@@ -4925,7 +4933,7 @@ lab_1bf4:
     and a,#0x0f             ;1bf4  5d 0f
     movw hl,#mem_f252       ;1bf6  16 52 f2
     mov !mem_fb57,a         ;1bf9  9e 57 fb
-    call !sub_4092          ;1bfc  9a 92 40
+    call !sub_4092          ;1bfc  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
 
 sub_1bff:
     call !sub_1c32          ;1bff  9a 32 1c
@@ -4937,7 +4945,8 @@ sub_1bff:
     push hl                 ;1c08  b7
     movw hl,#mem_f253       ;1c09  16 53 f2
     mov !mem_fb58,a         ;1c0c  9e 58 fb
-    call !sub_4092          ;1c0f  9a 92 40
+    call !sub_4092          ;1c0f  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+
     pop hl                  ;1c12  b6
     dec a                   ;1c13  51
     mov x,#0x02             ;1c14  a0 02
@@ -5342,7 +5351,7 @@ lab_1e77:
     bf mem_fe5e.0,lab_1eae  ;1e79  31 03 5e 31
     mov a,!mem_fb6e         ;1e7d  8e 6e fb
     movw hl,#mem_f254       ;1e80  16 54 f2
-    call !sub_1f47          ;1e83  9a 47 1f     Just calls sub_4092 and returns
+    call !sub_1f47          ;1e83  9a 47 1f     Just calls sub_4092 and returns (Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d)
     clr1 mem_fe5e.0         ;1e86  0b 5e
     br lab_1eae             ;1e88  fa 24
 
@@ -5357,7 +5366,7 @@ lab_1e8a:
     set1 mem_fe73.3         ;1e9e  3a 73
     mov a,!mem_fb6f         ;1ea0  8e 6f fb
     movw hl,#mem_f255       ;1ea3  16 55 f2
-    call !sub_1f47          ;1ea6  9a 47 1f     Just calls sub_4092 and returns
+    call !sub_1f47          ;1ea6  9a 47 1f     Just calls sub_4092 and returns (Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d)
     set1 mem_fe80.0         ;1ea9  0a 80
     call !sub_7697          ;1eab  9a 97 76
 
@@ -5455,7 +5464,7 @@ lab_1f46_ret:
 
 sub_1f47:
 ;Just calls sub_4092 and returns
-    call !sub_4092          ;1f47  9a 92 40
+    call !sub_4092          ;1f47  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
     br lab_1f46_ret         ;1f4a  fa fa        Branch to return
 
 lab_1f4c:
@@ -5469,19 +5478,23 @@ lab_1f57:
     set1 mem_fe5d.7         ;1f59  7a 5d
     set1 mem_fe5e.0         ;1f5b  0a 5e
     call !sub_1ff3          ;1f5d  9a f3 1f
+
     mov a,#0x1e             ;1f60  a1 1e
     mov !mem_fb4a,a         ;1f62  9e 4a fb
     mov a,!mem_fe57         ;1f65  8e 57 fe
     movw hl,#mem_f268       ;1f68  16 68 f2
-    call !sub_4092          ;1f6b  9a 92 40
+    call !sub_4092          ;1f6b  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+
     mov !mem_fb6d,a         ;1f6e  9e 6d fb
     mov a,!mem_f254         ;1f71  8e 54 f2
     bf mem_fe74.6,lab_1f86  ;1f74  31 63 74 0e
     cmp a,#0x5b             ;1f78  4d 5b
     bc lab_1f8c             ;1f7a  8d 10
+
     mov a,#0x5a             ;1f7c  a1 5a
     movw hl,#mem_f254       ;1f7e  16 54 f2
-    call !sub_4092          ;1f81  9a 92 40
+    call !sub_4092          ;1f81  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+
     br lab_1f8c             ;1f84  fa 06
 
 lab_1f86:
@@ -5519,7 +5532,7 @@ lab_1fbb:
     bz lab_1fdb             ;1fc4  ad 15
     mov a,!mem_fe57         ;1fc6  8e 57 fe
     movw hl,#mem_f254       ;1fc9  16 54 f2
-    br !sub_1f47            ;1fcc  9b 47 1f     Just calls sub_4092 and returns
+    br !sub_1f47            ;1fcc  9b 47 1f     Just calls sub_4092 and returns (Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d)
 
 lab_1fcf:
     mov a,!mem_fb6f         ;1fcf  8e 6f fb
@@ -5783,9 +5796,10 @@ sub_214e:
     mov a,!mem_fb52         ;2155  8e 52 fb     A = KWP1281 Login rate limiter countdown
     cmp a,#0x00             ;2158  4d 00
     bnz lab_2164            ;215a  bd 08
+
     mov a,#0x00             ;215c  a1 00
     movw hl,#mem_f20a       ;215e  16 0a f2
-    call !sub_4092          ;2161  9a 92 40
+    call !sub_4092          ;2161  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
 
 lab_2164:
     mov a,!mem_fb70         ;2164  8e 70 fb
@@ -5828,9 +5842,11 @@ lab_21a3:
     mov a,!mem_fb51         ;21ae  8e 51 fb
     cmp a,#0x00             ;21b1  4d 00
     bnz lab_21f3            ;21b3  bd 3e
+
     mov a,#0x00             ;21b5  a1 00
     movw hl,#mem_f20b       ;21b7  16 0b f2     HL = pointer to SAFE code attempt counter
-    call !sub_4092          ;21ba  9a 92 40
+    call !sub_4092          ;21ba  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+
     mov a,#0x01             ;21bd  a1 01
     mov !mem_fb70,a         ;21bf  9e 70 fb
     mov a,#0xc3             ;21c2  a1 c3
@@ -5848,7 +5864,7 @@ lab_21cc:
     call !sub_9118          ;21dc  9a 18 91
     call !sub_1dc4          ;21df  9a c4 1d
     call !sub_461b          ;21e2  9a 1b 46
-    bf mem_fe65.3,lab_21ec  ;21e5  31 33 65 03
+    bf mem_fe65.3,lab_21ec  ;21e5  31 33 65 03  Branch if not logged in
     call !sub_ab3c          ;21e9  9a 3c ab
 
 lab_21ec:
@@ -6010,7 +6026,7 @@ lab_22dc:
 
 lab_22f1:
     movw hl,#mem_f206       ;22f1  16 06 f2
-    call !sub_4092          ;22f4  9a 92 40
+    call !sub_4092          ;22f4  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
     mov a,#0x06             ;22f7  a1 06
 
 lab_22f9:
@@ -6040,7 +6056,7 @@ lab_2317:
     mov1 cy,mem_fe23.5      ;231c  71 54 23
     mov1 a.2,cy             ;231f  61 a9
     movw hl,#mem_f207       ;2321  16 07 f2
-    call !sub_4092          ;2324  9a 92 40
+    call !sub_4092          ;2324  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
 
 lab_2327:
     mov a,!mem_fb71         ;2327  8e 71 fb
@@ -6049,15 +6065,15 @@ lab_2327:
 
     mov a,!mem_fb73         ;232e  8e 73 fb
     movw hl,#mem_f208       ;2331  16 08 f2
-    call !sub_4092          ;2334  9a 92 40
+    call !sub_4092          ;2334  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
 
     mov a,!mem_fb74         ;2337  8e 74 fb
     movw hl,#mem_f209       ;233a  16 09 f2
-    call !sub_4092          ;233d  9a 92 40
+    call !sub_4092          ;233d  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
 
     call !sub_249c          ;2340  9a 9c 24     A = 1 + sum of 6 bytes at mem_f206 - mem_f20b
     movw hl,#mem_f20c       ;2343  16 0c f2
-    call !sub_4092          ;2346  9a 92 40
+    call !sub_4092          ;2346  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
 
     set1 mem_fe23.7         ;2349  7a 23        SAFE mode = unlocked
 
@@ -6144,18 +6160,22 @@ lab_23a7:
     call !sub_24b9          ;23a7  9a b9 24
     bnc lab_23d0            ;23aa  9d 24
     bt mem_fe5e.4,lab_23d0  ;23ac  cc 5e 21
+
     mov a,#0x44             ;23af  a1 44
     movw hl,#mem_f207       ;23b1  16 07 f2
-    call !sub_4092          ;23b4  9a 92 40
+    call !sub_4092          ;23b4  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+
     mov a,#0x00             ;23b7  a1 00
     movw hl,#mem_f20b       ;23b9  16 0b f2     HL = pointer to SAFE code attempt counter
-    call !sub_4092          ;23bc  9a 92 40
+    call !sub_4092          ;23bc  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+
     mov a,#0x00             ;23bf  a1 00
     movw hl,#mem_f20a       ;23c1  16 0a f2
-    call !sub_4092          ;23c4  9a 92 40
+    call !sub_4092          ;23c4  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+
     call !sub_249c          ;23c7  9a 9c 24     A = 1 + sum of 6 bytes at mem_f206 - mem_f20b
     movw hl,#mem_f20c       ;23ca  16 0c f2
-    call !sub_4092          ;23cd  9a 92 40
+    call !sub_4092          ;23cd  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
 
 lab_23d0:
     set1 mem_fe61.5         ;23d0  5a 61
@@ -6209,7 +6229,7 @@ lab_2419:
     mov1 cy,mem_fe23.6      ;2424  71 64 23
     mov1 a.6,cy             ;2427  61 e9
     movw hl,#mem_f207       ;2429  16 07 f2
-    call !sub_4092          ;242c  9a 92 40
+    call !sub_4092          ;242c  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
 
 lab_242f:
     br !lab_2213            ;242f  9b 13 22
@@ -6233,7 +6253,7 @@ lab_2442:
     cmp a,#0x03             ;244b  4d 03
     bnc lab_245e            ;244d  9d 0f
     movw hl,#mem_f20b       ;244f  16 0b f2     HL = pointer to SAFE code attempt counter
-    call !sub_4092          ;2452  9a 92 40
+    call !sub_4092          ;2452  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
     cmp a,#0x02             ;2455  4d 02
     bnc lab_245e            ;2457  9d 05
     mov a,#0x02             ;2459  a1 02
@@ -6253,7 +6273,7 @@ sub_246b:
     mov b,a                 ;2470  73
     mov a,#0x00             ;2471  a1 00
     movw hl,#mem_f20b       ;2473  16 0b f2     HL = pointer to SAFE code attempt counter
-    call !sub_4092          ;2476  9a 92 40
+    call !sub_4092          ;2476  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
     movw hl,#mem_2033       ;2479  16 33 20
     mov a,#0xe1             ;247c  a1 e1
     call !sub_2482          ;247e  9a 82 24
@@ -6261,9 +6281,11 @@ sub_246b:
 
 sub_2482:
     mov !mem_fb71,a         ;2482  9e 71 fb
+
     call !sub_249c          ;2485  9a 9c 24     A = 1 + sum of 6 bytes at mem_f206 - mem_f20b
     movw hl,#mem_f20c       ;2488  16 0c f2
-    call !sub_4092          ;248b  9a 92 40
+    call !sub_4092          ;248b  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+
     ret                     ;248e  af
 
 sub_248f:
@@ -6340,7 +6362,8 @@ lab_24f0:
 sub_24f1:
     call !sub_249c          ;24f1  9a 9c 24     A = 1 + sum of 6 bytes at mem_f206 - mem_f20b
     movw hl,#mem_f20c       ;24f4  16 0c f2
-    call !sub_4092          ;24f7  9a 92 40
+    call !sub_4092          ;24f7  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+
     movw de,#mem_fb77       ;24fa  14 77 fb
     movw hl,#mem_fe23       ;24fd  16 23 fe
     mov b,#0x01             ;2500  a3 01
@@ -6517,7 +6540,8 @@ lab_25e0_fail:
     cmp a,#0x03             ;25e4  4d 03
     bnc lab_25f4            ;25e6  9d 0c
     movw hl,#mem_f20a       ;25e8  16 0a f2
-    call !sub_4092          ;25eb  9a 92 40
+    call !sub_4092          ;25eb  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+
     cmp a,#0x02             ;25ee  4d 02
     bnc lab_25f4            ;25f0  9d 02
     br lab_25f9             ;25f2  fa 05
@@ -6805,7 +6829,7 @@ lab_27a7_loop:
     cmp a,[hl]              ;27a8  4f
     bz lab_27b0             ;27a9  ad 05
     mov a,#0x88             ;27ab  a1 88        0x88 = fault elaboration for "no fault"
-    call !sub_4092          ;27ad  9a 92 40
+    call !sub_4092          ;27ad  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
 
 lab_27b0:
     incw hl                 ;27b0  86
@@ -6814,15 +6838,15 @@ lab_27b0:
 
     movw hl,#mem_f217       ;27b4  16 17 f2
     mov a,#0x88             ;27b7  a1 88        0x88 = fault elaboration for "no fault"
-    call !sub_4092          ;27b9  9a 92 40
+    call !sub_4092          ;27b9  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
 
     movw hl,#mem_f218       ;27bc  16 18 f2
     mov a,#0x88             ;27bf  a1 88        0x88 = fault elaboration for "no fault"
-    call !sub_4092          ;27c1  9a 92 40
+    call !sub_4092          ;27c1  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
 
     movw hl,#mem_f219       ;27c4  16 19 f2
     mov a,#0x00             ;27c7  a1 00
-    call !sub_4092          ;27c9  9a 92 40
+    call !sub_4092          ;27c9  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
 
     clr1 mem_fe6d.3         ;27cc  3b 6d        ROM checksum calculation = not performed
 
@@ -7222,35 +7246,40 @@ lab_29ce:
     and a,!mem_f1fd         ;29d0  58 fd f1
     mov b,a                 ;29d3  73
     bt a.0,lab_29df         ;29d4  31 0e 08
+
     movw hl,#mem_f215       ;29d7  16 15 f2
     mov a,#0x88             ;29da  a1 88
-    call !sub_4092          ;29dc  9a 92 40
+    call !sub_4092          ;29dc  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
 
 lab_29df:
     mov a,b                 ;29df  63
     bt a.1,lab_29eb         ;29e0  31 1e 08
+
     movw hl,#mem_f214       ;29e3  16 14 f2
     mov a,#0x88             ;29e6  a1 88
-    call !sub_4092          ;29e8  9a 92 40
+    call !sub_4092          ;29e8  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
 
 lab_29eb:
     mov a,b                 ;29eb  63
     bt a.2,lab_29f7         ;29ec  31 2e 08
+
     movw hl,#mem_f213       ;29ef  16 13 f2
     mov a,#0x88             ;29f2  a1 88
-    call !sub_4092          ;29f4  9a 92 40
+    call !sub_4092          ;29f4  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
 
 lab_29f7:
     mov a,mem_fed5          ;29f7  f0 d5
     and a,#0x0f             ;29f9  5d 0f
     cmp a,!mem_f1ff         ;29fb  48 ff f1
     bz lab_2a10             ;29fe  ad 10
+
     movw hl,#mem_f211       ;2a00  16 11 f2
     mov a,#0x88             ;2a03  a1 88
-    call !sub_4092          ;2a05  9a 92 40
+    call !sub_4092          ;2a05  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+
     movw hl,#mem_f212       ;2a08  16 12 f2
     mov a,#0x88             ;2a0b  a1 88
-    call !sub_4092          ;2a0d  9a 92 40
+    call !sub_4092          ;2a0d  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
 
 lab_2a10:
     movw hl,#mem_f1f9       ;2a10  16 f9 f1
@@ -7337,7 +7366,7 @@ lab_2a9f:
 
     movw hl,#mem_f216       ;2ab1  16 16 f2
     mov a,#0x88             ;2ab4  a1 88
-    call !sub_4092          ;2ab6  9a 92 40
+    call !sub_4092          ;2ab6  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
 
 lab_2ab9:
     ret                     ;2ab9  af
@@ -7775,10 +7804,10 @@ sub_2cb0:
     push ax                 ;2cb0  b1
     xch a,x                 ;2cb1  30
     movw hl,#mem_f218       ;2cb2  16 18 f2
-    call !sub_4092          ;2cb5  9a 92 40
+    call !sub_4092          ;2cb5  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
     incw hl                 ;2cb8  86
     pop ax                  ;2cb9  b0
-    call !sub_4092          ;2cba  9a 92 40
+    call !sub_4092          ;2cba  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
     ret                     ;2cbd  af
 
 sub_2cbe:
@@ -7801,7 +7830,7 @@ lab_2cc7:
     cmp a,#0x32             ;2cc8  4d 32
     bnc lab_2cd0            ;2cca  9d 04
     inc a                   ;2ccc  41
-    call !sub_4092          ;2ccd  9a 92 40
+    call !sub_4092          ;2ccd  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
 
 lab_2cd0:
     ret                     ;2cd0  af
@@ -7813,7 +7842,7 @@ lab_2cd1:
 
 lab_2cd6:
     mov a,[de]              ;2cd6  85
-    call !sub_4092          ;2cd7  9a 92 40
+    call !sub_4092          ;2cd7  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
     incw hl                 ;2cda  86
     incw de                 ;2cdb  84
     dbnz b,lab_2cd6         ;2cdc  8b f8
@@ -11194,6 +11223,8 @@ lab_408e:
     ret                     ;408e  af
 
 sub_408f:
+;Write A to [HL+B] then do unknown calculation with mem_f26c/mem_f26d
+;HL+B must be in range of mem_f206 - mem_f26b
 ;Possibly EEPROM related?
 ;Called with:
 ;  HL = an address
@@ -11203,7 +11234,8 @@ sub_408f:
     br lab_4095             ;4090  fa 03
 
 sub_4092:
-;Possibly EEPROM related?
+;Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+;HL must be in range of mem_f206 - mem_f26b
 ;Called with:
 ;  HL = an address
 ;  A = value
@@ -11214,16 +11246,16 @@ lab_4095:
     cmp a,[hl+b]            ;4095  31 4b
     bz lab_40d4_done        ;4097  ad 3b        If [HL+B] = A then branch (nothing to do)
 
-    push ax                 ;4099  b1
+    push ax                 ;4099  b1           Push value to write to [HL+B]
 
-    ;AX = HL + B
+    ;Compute AX = HL+B to test if HL+B is in range
     mov x,#0x00             ;409a  a0 00
     mov a,b                 ;409c  63
     add a,l                 ;409d  61 0e
     xch a,x                 ;409f  30
     addc a,h                ;40a0  61 2f
 
-    ;Check if AX is in range #mem_f206 - #mem_f26b (inclusive)
+    ;Check if HL+B would be in range #mem_f206 - #mem_f26b (inclusive)
     cmpw ax,#mem_f206       ;40a2  ea 06 f2
     bc lab_40ac_out_of_range ;40a5  8d 05       If AX < #mem_f206 then branch (out of range)
     cmpw ax,#mem_f26b       ;40a7  ea 6b f2
@@ -11231,21 +11263,23 @@ lab_4095:
     ;Fall through to out of range
 
 lab_40ac_out_of_range:
-;AX is out of range
+;HL+B is out of range
     callf !sub_0879         ;40ac  0c 79        Just returns
     pop ax                  ;40ae  b0
     br lab_40d4_done        ;40af  fa 23        Branch to pop bc and ret
 
 lab_40b1_in_range:
-;AX is within range of #mem_f206 - #mem_f26b (inclusive)
+;HL+B is within range of #mem_f206 - #mem_f26b (inclusive)
     mov a,!mem_f26c         ;40b1  8e 6c f2
     sub a,[hl+b]            ;40b4  31 1b
     mov c,a                 ;40b6  72
     mov a,!mem_f26d         ;40b7  8e 6d f2
     subc a,#0x00            ;40ba  3d 00
     mov !mem_f26d,a         ;40bc  9e 6d f2
-    pop ax                  ;40bf  b0
-    mov [hl+b],a            ;40c0  bb
+
+    pop ax                  ;40bf  b0           Pop value to write to [HL+B]
+    mov [hl+b],a            ;40c0  bb           Store A in [HL+B]
+
     xch a,c                 ;40c1  32
     add a,c                 ;40c2  61 0a
     mov !mem_f26c,a         ;40c4  9e 6c f2
@@ -11253,6 +11287,7 @@ lab_40b1_in_range:
     addc a,#0x00            ;40ca  2d 00
     mov !mem_f26d,a         ;40cc  9e 6d f2
     mov a,c                 ;40cf  62
+
     clr1 mem_fe63.6         ;40d0  6b 63
     set1 mem_fe63.5         ;40d2  5a 63
 
@@ -11265,7 +11300,7 @@ sub_40d6:
     mov a,#0x00             ;40d6  a1 00
 
 lab_40d8_loop:
-    call !sub_4092          ;40d8  9a 92 40
+    call !sub_4092          ;40d8  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
     incw hl                 ;40db  86
     dbnz b,lab_40d8_loop    ;40dc  8b fa
     ret                     ;40de  af
@@ -11841,7 +11876,7 @@ lab_4452:
 lab_445d:
     mov a,mem_fe30          ;445d  f0 30
     movw hl,#mem_f256       ;445f  16 56 f2
-    call !sub_4092          ;4462  9a 92 40
+    call !sub_4092          ;4462  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
 
 lab_4465:
     ret                     ;4465  af
@@ -11872,7 +11907,7 @@ lab_447c:
     bz lab_448f             ;4486  ad 07
     mov a,x                 ;4488  60
     movw hl,#mem_f256       ;4489  16 56 f2
-    call !sub_4092          ;448c  9a 92 40
+    call !sub_4092          ;448c  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
 
 lab_448f:
     mov a,#0x00             ;448f  a1 00
@@ -11915,9 +11950,10 @@ lab_44cc:
     mov a,!mem_f256         ;44cc  8e 56 f2
     cmp a,#0x02             ;44cf  4d 02
     bnz lab_44db            ;44d1  bd 08
+
     mov a,#0x01             ;44d3  a1 01
     movw hl,#mem_f256       ;44d5  16 56 f2
-    call !sub_4092          ;44d8  9a 92 40
+    call !sub_4092          ;44d8  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
 
 lab_44db:
     mov mem_fed4,#0x02      ;44db  11 d4 02
@@ -12053,9 +12089,10 @@ lab_459a:
 lab_45aa:
     dbnz b,lab_459a         ;45aa  8b ee
     bf mem_fe64.4,lab_45b9  ;45ac  31 43 64 09
+
     mov a,!mem_f193         ;45b0  8e 93 f1
     movw hl,#mem_f256       ;45b3  16 56 f2
-    call !sub_4092          ;45b6  9a 92 40
+    call !sub_4092          ;45b6  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
 
 lab_45b9:
     ret                     ;45b9  af
@@ -13629,7 +13666,7 @@ lab_4d88:
     mov !mem_fbc5,a         ;4d9c  9e c5 fb
     mov !mem_fbc6,a         ;4d9f  9e c6 fb     KWP1281 radio to cluster connection state
     mov !mem_fbc7,a         ;4da2  9e c7 fb
-    clr1 mem_fe65.3         ;4da5  3b 65
+    clr1 mem_fe65.3         ;4da5  3b 65        Clear bit to indicate not logged in
     clr1 mem_fe65.4         ;4da7  4b 65
     mov a,#0xc0             ;4da9  a1 c0
     callt [0x0042]          ;4dab  c3           Calls sub_09b9
@@ -21723,7 +21760,7 @@ lab_7cb7:
     mov a,mem_fed6          ;7cbd  f0 d6
     mov b,a                 ;7cbf  73
     mov a,#0x00             ;7cc0  a1 00
-    call !sub_408f          ;7cc2  9a 8f 40
+    call !sub_408f          ;7cc2  9a 8f 40     Write A to [HL+B] then do unknown calculation with mem_f26c/mem_f26d
     cmp mem_fed9,#0x88      ;7cc5  c8 d9 88
     bz lab_7cd4             ;7cc8  ad 0a
     bf mem_fed9.7,lab_7cd4  ;7cca  31 73 d9 06
@@ -21735,7 +21772,7 @@ lab_7cd4:
     mov a,mem_fed6          ;7cd7  f0 d6
     mov b,a                 ;7cd9  73
     mov a,mem_fed7          ;7cda  f0 d7
-    call !sub_408f          ;7cdc  9a 8f 40
+    call !sub_408f          ;7cdc  9a 8f 40     Write A to [HL+B] then do unknown calculation with mem_f26c/mem_f26d
 
 lab_7cdf:
     clr1 mem_fe6a.7         ;7cdf  7b 6a
@@ -21780,7 +21817,7 @@ lab_7d1e:
     mov a,mem_fed6          ;7d21  f0 d6
     mov b,a                 ;7d23  73
     mov a,mem_fed8          ;7d24  f0 d8
-    call !sub_408f          ;7d26  9a 8f 40
+    call !sub_408f          ;7d26  9a 8f 40     Write A to [HL+B] then do unknown calculation with mem_f26c/mem_f26d
     set1 mem_fe6a.5         ;7d29  5a 6a
 
 lab_7d2b:
@@ -21807,7 +21844,7 @@ lab_7d4f:
     mov a,mem_fed6          ;7d52  f0 d6
     mov b,a                 ;7d54  73
     mov a,mem_fed9          ;7d55  f0 d9
-    call !sub_408f          ;7d57  9a 8f 40
+    call !sub_408f          ;7d57  9a 8f 40     Write A to [HL+B] then do unknown calculation with mem_f26c/mem_f26d
     br lab_7ce3             ;7d5a  fa 87
 
 lab_7d5c:
@@ -27767,10 +27804,11 @@ sub_a514:
 sub_a529:
     mov a,#0x0a             ;a529  a1 0a
     movw hl,#mem_f258       ;a52b  16 58 f2
-    call !sub_4092          ;a52e  9a 92 40
+    call !sub_4092          ;a52e  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+
     mov a,#0x0a             ;a531  a1 0a
     movw hl,#mem_f257       ;a533  16 57 f2
-    call !sub_4092          ;a536  9a 92 40
+    call !sub_4092          ;a536  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
     ret                     ;a539  af
 
 sub_a53a:
@@ -27779,7 +27817,7 @@ sub_a53a:
     movw hl,#mem_f258       ;a53e  16 58 f2
 
 lab_a541:
-    call !sub_408f          ;a541  9a 8f 40
+    call !sub_408f          ;a541  9a 8f 40     Write A to [HL+B] then do unknown calculation with mem_f26c/mem_f26d
     dbnz b,lab_a541         ;a544  8b fb
     ret                     ;a546  af
 
@@ -28069,9 +28107,10 @@ lab_a6f5:
 lab_a6fc:
     bt mem_fe5e.0,lab_a70b  ;a6fc  8c 5e 0c
     bt mem_fe23.6,lab_a70b  ;a6ff  ec 23 09
+
     mov a,!mem_fe57         ;a702  8e 57 fe
     movw hl,#mem_f268       ;a705  16 68 f2
-    call !sub_4092          ;a708  9a 92 40
+    call !sub_4092          ;a708  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
 
 lab_a70b:
     ret                     ;a70b  af
@@ -28273,7 +28312,7 @@ sub_a82e:
 
 lab_a830:
     mov a,[de]              ;a830  85
-    call !sub_4092          ;a831  9a 92 40
+    call !sub_4092          ;a831  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
     incw de                 ;a834  84
     incw hl                 ;a835  86
     dbnz b,lab_a830         ;a836  8b f8
@@ -28441,7 +28480,7 @@ lab_a926:
     add a,c                 ;a927  61 0a
     push de                 ;a929  b5
     pop hl                  ;a92a  b6
-    call !sub_4092          ;a92b  9a 92 40
+    call !sub_4092          ;a92b  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
     call !sub_a7fe          ;a92e  9a fe a7
 
 lab_a931:
@@ -28695,7 +28734,7 @@ sub_aaae:
     mov a,!mem_f257         ;aaae  8e 57 f2
     call !sub_aaba          ;aab1  9a ba aa
     movw hl,#mem_f257       ;aab4  16 57 f2
-    call !sub_4092          ;aab7  9a 92 40
+    call !sub_4092          ;aab7  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
 
 sub_aaba:
     bf a.7,lab_aac0         ;aaba  31 7f 03
@@ -28714,7 +28753,7 @@ sub_aac7:
     mov a,!mem_f258         ;aac7  8e 58 f2
     call !sub_aad3          ;aaca  9a d3 aa
     movw hl,#mem_f258       ;aacd  16 58 f2
-    call !sub_4092          ;aad0  9a 92 40
+    call !sub_4092          ;aad0  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
 
 sub_aad3:
     bf a.7,lab_aad9         ;aad3  31 7f 03
@@ -28785,7 +28824,7 @@ lab_ab26:
 
 lab_ab2c:
     movw hl,#mem_f259       ;ab2c  16 59 f2
-    call !sub_408f          ;ab2f  9a 8f 40
+    call !sub_408f          ;ab2f  9a 8f 40     Write A to [HL+B] then do unknown calculation with mem_f26c/mem_f26d
 
 lab_ab32:
     ret                     ;ab32  af
@@ -37683,7 +37722,7 @@ lab_d5a9:
 
 lab_d5bd:
     movw hl,#mem_f256       ;d5bd  16 56 f2
-    call !sub_4092          ;d5c0  9a 92 40
+    call !sub_4092          ;d5c0  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
     mov a,#0x19             ;d5c3  a1 19
     mov !mem_fb3d,a         ;d5c5  9e 3d fb
     call !sub_d950          ;d5c8  9a 50 d9
