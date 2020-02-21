@@ -6778,10 +6778,26 @@ lab_274a:
 sub_274e:
 ;Get next fault code
 ;Called from lab_537d (sending response to read or clear faults)
+;
+;Clear mem_fe5f.3 to 0 and then start calling this subroutine to
+;read each fault.
+;
+;If there are no faults, the first call will return a special
+;fault meaning "no fault" (AX=0xFFFF, E=0x88) with carry clear.
+;Calling again will return the same.
+;
+;If there are faults, each call will return one with the carry clear.
+;When all faults have been read, it will return with the carry set.
+;Calling again will start over from the first fault.
+;
+;Call with:
+;  mem_fe5f.3=0 to start reading faults from the beginning
+;
 ;Returns:
 ;  AX = fault code
 ;   E = fault elaboration
 ;  Carry clear = fault, Carry set = no fault
+;
     bt mem_fe5f.3,lab_2762_loop  ;274e  bc 5f 11  Branch if we have already started reading faults
 
     ;We have not started reading faults yet
