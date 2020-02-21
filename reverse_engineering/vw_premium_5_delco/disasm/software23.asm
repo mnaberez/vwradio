@@ -161,15 +161,24 @@ mem_f209 = 0xf209
 mem_f20a = 0xf20a           ;KWP1281 login attempt counter
 mem_f20b = 0xf20b           ;SAFE code attempt counter
 mem_f20c = 0xf20c
-mem_f20d = 0xf20d
-mem_f211 = 0xf211
-mem_f212 = 0xf212
-mem_f213 = 0xf213
-mem_f214 = 0xf214
-mem_f215 = 0xf215
-mem_f216 = 0xf216
-mem_f217 = 0xf217
-mem_f218 = 0xf218
+
+;Faults buffer #2 (12 bytes)
+;See also sub_2790
+;Each byte contains a fault elaboration code where 0x88 = "no fault"
+
+mem_f20d = 0xf20d           ;00668 - Supply Voltage Terminal 30                       mem_f20d  mem_fc1a
+;mem_f20e                   ;00849 - S-contact at Ignition/Starter Switch (D)         mem_f20e  mem_fc1b
+;mem_f20f                   ;00850 - Control Output Active; Radio Amplifier           mem_f20f  mem_fc1c
+;mem_f210                   ;00851 - Loudspeaker(s)                                   mem_f210  mem_fc1d
+mem_f211 = 0xf211           ;00852 - Loudspeaker(s); Front                            mem_f211  mem_fc1e
+mem_f212 = 0xf212           ;00853 - Loudspeaker(s); Rear                             mem_f212  mem_fc1f
+mem_f213 = 0xf213           ;00854 - Radio Display Output in Dash Panel Insert        mem_f213  mem_fc20
+mem_f214 = 0xf214           ;00855 - Connection to CD changer                         mem_f214  mem_fc21
+mem_f215 = 0xf215           ;00856 - Radio Antenna                                    mem_f215  mem_fc22
+mem_f216 = 0xf216           ;01044 - Control Module Incorrectly Coded                 mem_f216
+mem_f217 = 0xf217           ;01195 - End                                              mem_f217
+mem_f218 = 0xf218           ;65535 - Internal Control Module Memory Error             mem_f218
+
 mem_f219 = 0xf219
 mem_f21a = 0xf21a
 mem_f225 = 0xf225
@@ -361,13 +370,21 @@ mem_fc12 = 0xfc12           ;I2C attempt counter used in sub_623d (read EEPROM)
 mem_fc14 = 0xfc14
 mem_fc16 = 0xfc16
 mem_fc17 = 0xfc17
-mem_fc1a = 0xfc1a
-mem_fc1c = 0xfc1c
-mem_fc1e = 0xfc1e
-mem_fc1f = 0xfc1f
-mem_fc20 = 0xfc20
-mem_fc21 = 0xfc21
-mem_fc22 = 0xfc22
+
+;Faults buffer #1 (9 bytes)
+;See also sub_2790
+;Each byte contains a fault elaboration code where 0x88 = "no fault"
+
+mem_fc1a = 0xfc1a             ;00668 - Supply Voltage Terminal 30                 mem_f20d  mcm_fc1a
+;mem_fc1b                     ;00849 - S-contact at Ignition/Starter Switch (D)   mem_f20e  mem_fc1b
+mem_fc1c = 0xfc1c             ;00850 - Control Output Active; Radio Amplifier     mem_f20f  mem_fc1c
+;mem_fc1d                     ;00851 - Loudspeaker(s)                             mem_f210  mem_fc1d
+mem_fc1e = 0xfc1e             ;00852 - Loudspeaker(s); Front                      mem_f211  mem_fc1e
+mem_fc1f = 0xfc1f             ;00853 - Loudspeaker(s); Rear                       mem_f212  mem_fc1f
+mem_fc20 = 0xfc20             ;00854 - Radio Display Output in Dash Panel Insert  mem_f213  mem_fc20
+mem_fc21 = 0xfc21             ;00855 - Connection to CD changer                   mem_f214  mem_fc21
+mem_fc22 = 0xfc22             ;00856 - Radio Antenna                              mem_f215  mem_fc22
+
 mem_fc23 = 0xfc23
 mem_fc24 = 0xfc24
 mem_fc25 = 0xfc25
@@ -3676,7 +3693,7 @@ lab_13e7:
     set1 mem_fe41.7         ;13e7  7a 41
 
 lab_13e9:
-    movw hl,#mem_fc1a       ;13e9  16 1a fc
+    movw hl,#mem_fc1a       ;13e9  16 1a fc     HL = faults buffer #1
     movw de,#mem_fb30       ;13ec  14 30 fb
     mov b,#0x08             ;13ef  a3 08
     mov a,#0x00             ;13f1  a1 00
@@ -6759,51 +6776,84 @@ lab_274a:
 
 
 sub_274e:
-;Unknown; uses table of KWP1281 fault codes at mem_afe8
-;Returns carry clear = fault, carry set = no fault
-;Returns KWP1281 fault code in AX and fault elaboration in E
-    bt mem_fe5f.3,lab_2762_loop  ;274e  bc 5f 11
-    call !sub_2c98          ;2751  9a 98 2c
-    bc lab_275c             ;2754  8d 06      Branch if sub_2c98 returned a fault
+;Get next fault code
+;Called from lab_537d (sending response to read or clear faults)
+;Returns:
+;  AX = fault code
+;   E = fault elaboration
+;  Carry clear = fault, Carry set = no fault
+    bt mem_fe5f.3,lab_2762_loop  ;274e  bc 5f 11  Branch if we have already started reading faults
 
-    ;sub_2c98 did not return a fault
-    ;carry is clear
-    mov e,#0x88             ;2756  a4 88      0x88 = fault elaboration for "no fault"
-    movw ax,#0xffff         ;2758  10 ff ff   0xFF = fault code for "no fault"
+    ;We have not started reading faults yet
+    call !sub_2c98          ;2751  9a 98 2c     Find the first fault set in the faults buffer (if any)
+                            ;                     Returns HL=pointer to fault
+                            ;                           carry set = found a fault, clear = no fault
+    bc lab_275c             ;2754  8d 06        Branch if sub_2c98 found at least one fault
+
+    ;No faults are present
+    ;Prepare the special fault that means "no fault"
+    ;and return it with carry clear
+    mov e,#0x88             ;2756  a4 88        0x88 = fault elaboration for "no fault"
+    movw ax,#0xffff         ;2758  10 ff ff     0xFF = fault code for "no fault"
     ret                     ;275b  af
 
 lab_275c:
-    set1 mem_fe5f.3         ;275c  3a 5f
-    movw ax,hl              ;275e  c6
-    movw !mem_f002,ax       ;275f  03 02 f0
+;We just started reading faults.
+;We called sub_2c98 and it found at least one fault.
+    set1 mem_fe5f.3         ;275c  3a 5f        Set bit to indicate we have started reading the faults buffer
+    movw ax,hl              ;275e  c6           AX = pointer to the first fault found by sub_2c98
+    movw !mem_f002,ax       ;275f  03 02 f0     Store pointer in mem_f002
 
 lab_2762_loop:
-    movw ax,!mem_f002       ;2762  02 02 f0
-    cmpw ax,#mem_f20d       ;2765  ea 0d f2
-    bc lab_278c_cy1         ;2768  8d 22
-    cmpw ax,#mem_f219       ;276a  ea 19 f2
-    bnc lab_278c_cy1        ;276d  9d 1d
-    movw de,ax              ;276f  d4
-    incw ax                 ;2770  80
-    movw !mem_f002,ax       ;2771  03 02 f0
-    mov a,[de]              ;2774  85
+;Checking each fault elaboration at the mfm_f20d buffer for a fault
+
+    ;Get pointer to current position in faults buffer
+    ;Check if it is valid
+    movw ax,!mem_f002       ;2762  02 02 f0     A = pointer to faults buffer
+    cmpw ax,#mem_f20d       ;2765  ea 0d f2     HL = faults buffer #2
+    bc lab_278c_no_fault    ;2768  8d 22        Branch to "no fault" if AX < #mem_f20d
+    cmpw ax,#mem_f218+1     ;276a  ea 19 f2
+    bnc lab_278c_no_fault   ;276d  9d 1d        Branch to "no fault" if AX >= #mem_f218+1
+
+    ;AX contains a valid pointer into the faults buffer
+    ;Move it to DE
+    movw de,ax              ;276f  d4           DE = pointer to current fault
+
+    ;Increment pointer to faults buffer for next time around
+    incw ax                 ;2770  80           Increment AX for next time around
+    movw !mem_f002,ax       ;2771  03 02 f0     Store AX for next time around
+
+    ;Check if a fault is present at [DE]
+    mov a,[de]              ;2774  85           A = elaboration code for this fault
     cmp a,#0x88             ;2775  4d 88        0x88 = fault elaboration for "no fault"
-    bz lab_2762_loop        ;2777  ad e9        Loop if no fault
-    push ax                 ;2779  b1
-    movw hl,#mem_f20d       ;277a  16 0d f2
+    bz lab_2762_loop        ;2777  ad e9        Loop to next position in buffer if no fault
+
+    ;Fault was found in faults buffer at [DE]
+
+    ;Look up the KWP1281 fault code for faults buffer position [DE]
+    push ax                 ;2779  b1           Push the fault elaboration code
+                            ;                   DE contains the position of the fault we found
+    movw hl,#mem_f20d       ;277a  16 0d f2     HL = faults buffer #2
     call !sub_2cbe          ;277d  9a be 2c     A = DE - HL
-    mov b,a                 ;2780  73
+    mov b,a                 ;2780  73           Copy it to B as index to fault codes table
     movw hl,#mem_afe8+1     ;2781  16 e9 af     HL = pointer to table of KWP1281 fault codes
     callf !sub_0c48         ;2784  4c 48        Load DE with word at position B in table [HL]
-    pop ax                  ;2786  b0
-    bc lab_278c_cy1         ;2787  8d 03        Branch if table lookup failed
-    mov x,a                 ;2789  70
-    xchw ax,de              ;278a  e4
+
+    pop ax                  ;2786  b0           Pop fault elaboration code
+    bc lab_278c_no_fault    ;2787  8d 03        Branch if table lookup failed
+
+    ;DE now contains the KWP1281 fault code for the fault
+    ;A contains the KWP1281 fault elaboration code for the fault
+
+    mov x,a                 ;2789  70           Move A to X so it ends up in E after XCHW
+    xchw ax,de              ;278a  e4           After swapping:
+                            ;                     AX = fault code
+                            ;                      E = fault elaboration
     ret                     ;278b  af
 
-lab_278c_cy1:
-    clr1 mem_fe5f.3         ;278c  3b 5f
-    set1 cy                 ;278e  20
+lab_278c_no_fault:
+    clr1 mem_fe5f.3         ;278c  3b 5f        Clear bit to indicate we are done reading the faults buffer
+    set1 cy                 ;278e  20           Set carry to indicate no fault
     ret                     ;278f  af
 
 
@@ -6821,14 +6871,14 @@ sub_2790:
     bz lab_27ce_ret         ;279e  ad 2e        XXX redundant; never branches
 
     mov b,a                 ;27a0  73
-    movw de,#mem_fc1a       ;27a1  14 1a fc
-    movw hl,#mem_f20d       ;27a4  16 0d f2
+    movw de,#mem_fc1a       ;27a1  14 1a fc     HL = faults buffer #1
+    movw hl,#mem_f20d       ;27a4  16 0d f2     HL = faults buffer #2
 
 lab_27a7_loop:
     mov a,[de]              ;27a7  85
     cmp a,[hl]              ;27a8  4f
     bz lab_27b0             ;27a9  ad 05
-    mov a,#0x88             ;27ab  a1 88        0x88 = fault elaboration for "no fault"
+    mov a,#0x88             ;27ab  a1 88        A = 0x88 (fault elaboration for "no fault")
     call !sub_4092          ;27ad  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
 
 lab_27b0:
@@ -6836,16 +6886,16 @@ lab_27b0:
     incw de                 ;27b1  84
     dbnz b,lab_27a7_loop    ;27b2  8b f3
 
-    movw hl,#mem_f217       ;27b4  16 17 f2
-    mov a,#0x88             ;27b7  a1 88        0x88 = fault elaboration for "no fault"
+    movw hl,#mem_f217       ;27b4  16 17 f2     HL = pointer to faults buffer #2 "01195 - End"
+    mov a,#0x88             ;27b7  a1 88        A = 0x88 (fault elaboration for "no fault")
     call !sub_4092          ;27b9  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
 
-    movw hl,#mem_f218       ;27bc  16 18 f2
-    mov a,#0x88             ;27bf  a1 88        0x88 = fault elaboration for "no fault"
+    movw hl,#mem_f218       ;27bc  16 18 f2     HL = pointer to faults buffer #2 "65535 - Internal Control Module Memory Error"
+    mov a,#0x88             ;27bf  a1 88        A = 0x88 (fault elaboration for "no fault")
     call !sub_4092          ;27c1  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
 
     movw hl,#mem_f219       ;27c4  16 19 f2
-    mov a,#0x00             ;27c7  a1 00
+    mov a,#0x00             ;27c7  a1 00        A = 0
     call !sub_4092          ;27c9  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
 
     clr1 mem_fe6d.3         ;27cc  3b 6d        ROM checksum calculation = not performed
@@ -7080,7 +7130,7 @@ lab_28e2:
     bnz lab_2900            ;28eb  bd 13
     mov e,#0x00             ;28ed  a4 00
 
-    movw hl,#mem_fc1c       ;28ef  16 1c fc
+    movw hl,#mem_fc1c       ;28ef  16 1c fc   HL = faults buffer "00850 - Control Output Active; Radio Amplifier"
     mov a,[hl]              ;28f2  87
     cmp a,#0x00             ;28f3  4d 00
     bz lab_28fd             ;28f5  ad 06
@@ -7115,7 +7165,7 @@ lab_291b:
 lab_291e:
     cmp a,#0xe1             ;291e  4d e1
     bnz lab_292c            ;2920  bd 0a
-    movw hl,#mem_fc1e       ;2922  16 1e fc
+    movw hl,#mem_fc1e       ;2922  16 1e fc     HL = faults buffer "00852 - Loudspeaker(s); Front"
     mov a,[hl]              ;2925  87
     call !sub_26b6          ;2926  9a b6 26
     br !lab_29af            ;2929  9b af 29
@@ -7123,7 +7173,7 @@ lab_291e:
 lab_292c:
     cmp a,#0xe2             ;292c  4d e2
     bnz lab_2939            ;292e  bd 09
-    movw hl,#mem_fc1f       ;2930  16 1f fc
+    movw hl,#mem_fc1f       ;2930  16 1f fc     HL = faults buffer "00853 - Loudspeaker(s); Rear"
     mov a,[hl]              ;2933  87
     call !sub_26b6          ;2934  9a b6 26
     br lab_29af             ;2937  fa 76
@@ -7142,7 +7192,7 @@ lab_2947:
 lab_2949:
     cmp a,#0xe4             ;2949  4d e4
     bnz lab_2956            ;294b  bd 09
-    movw hl,#mem_fc22       ;294d  16 22 fc
+    movw hl,#mem_fc22       ;294d  16 22 fc   HL = pointer to faults buffer #2 "00856 - Radio Antenna"
     mov a,[hl]              ;2950  87
     call !sub_26b6          ;2951  9a b6 26
     br lab_29af             ;2954  fa 59
@@ -7150,7 +7200,7 @@ lab_2949:
 lab_2956:
     cmp a,#0xe5             ;2956  4d e5
     bnz lab_2963            ;2958  bd 09
-    movw hl,#mem_fc21       ;295a  16 21 fc
+    movw hl,#mem_fc21       ;295a  16 21 fc   HL = pointer to faults buffer #2 "00855 - Connection to CD changer"
     mov a,[hl]              ;295d  87
     call !sub_26c9          ;295e  9a c9 26
     br lab_29af             ;2961  fa 4c
@@ -7158,7 +7208,7 @@ lab_2956:
 lab_2963:
     cmp a,#0xe6             ;2963  4d e6
     bnz lab_2970            ;2965  bd 09
-    movw hl,#mem_fc20       ;2967  16 20 fc
+    movw hl,#mem_fc20       ;2967  16 20 fc   HL = pointer to faults buffer #2 "00854 - Radio Display Output in Dash Panel Insert"
     mov a,[hl]              ;296a  87
     call !sub_26c9          ;296b  9a c9 26
     br lab_29af             ;296e  fa 3f
@@ -7247,24 +7297,24 @@ lab_29ce:
     mov b,a                 ;29d3  73
     bt a.0,lab_29df         ;29d4  31 0e 08
 
-    movw hl,#mem_f215       ;29d7  16 15 f2
-    mov a,#0x88             ;29da  a1 88
+    movw hl,#mem_f215       ;29d7  16 15 f2     HL = pointer to faults buffer #2 "00856 - Radio Antenna"
+    mov a,#0x88             ;29da  a1 88        A = 0x88 (fault elaboration for "no fault")
     call !sub_4092          ;29dc  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
 
 lab_29df:
     mov a,b                 ;29df  63
     bt a.1,lab_29eb         ;29e0  31 1e 08
 
-    movw hl,#mem_f214       ;29e3  16 14 f2
-    mov a,#0x88             ;29e6  a1 88
+    movw hl,#mem_f214       ;29e3  16 14 f2     HL = pointer to faults buffer #2 "00855 - Connection to CD changer"
+    mov a,#0x88             ;29e6  a1 88        A = 0x88 (fault elaboration for "no fault")
     call !sub_4092          ;29e8  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
 
 lab_29eb:
     mov a,b                 ;29eb  63
     bt a.2,lab_29f7         ;29ec  31 2e 08
 
-    movw hl,#mem_f213       ;29ef  16 13 f2
-    mov a,#0x88             ;29f2  a1 88
+    movw hl,#mem_f213       ;29ef  16 13 f2     HL = pointer to faults buffer #2 "00854 - Radio Display Output in Dash Panel Insert"
+    mov a,#0x88             ;29f2  a1 88        A = 0x88 (fault elaboration for "no fault")
     call !sub_4092          ;29f4  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
 
 lab_29f7:
@@ -7273,12 +7323,12 @@ lab_29f7:
     cmp a,!mem_f1ff         ;29fb  48 ff f1
     bz lab_2a10             ;29fe  ad 10
 
-    movw hl,#mem_f211       ;2a00  16 11 f2
-    mov a,#0x88             ;2a03  a1 88
+    movw hl,#mem_f211       ;2a00  16 11 f2     HL = pointer to faults buffer #2 "00852 - Loudspeaker(s); Front"
+    mov a,#0x88             ;2a03  a1 88        A = 0x88 (fault elaboration for "no fault")
     call !sub_4092          ;2a05  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
 
-    movw hl,#mem_f212       ;2a08  16 12 f2
-    mov a,#0x88             ;2a0b  a1 88
+    movw hl,#mem_f212       ;2a08  16 12 f2     HL = pointer to faults buffer #2 "00853 - Loudspeaker(s); Rear"
+    mov a,#0x88             ;2a0b  a1 88        A = 0x88 (fault elaboration for "no fault")
     call !sub_4092          ;2a0d  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
 
 lab_2a10:
@@ -7364,8 +7414,8 @@ lab_2a9f:
     call !sub_628e          ;2aac  9a 8e 62     Write A bytes to EEPROM address DE from [HL]
     bnc lab_2ab9            ;2aaf  9d 08        Branch if write failed
 
-    movw hl,#mem_f216       ;2ab1  16 16 f2
-    mov a,#0x88             ;2ab4  a1 88
+    movw hl,#mem_f216       ;2ab1  16 16 f2     HL = pointer to faults buffer #2 "01044 - Control Module Incorrectly Coded"
+    mov a,#0x88             ;2ab4  a1 88        A = 0x88 (fault elaboration for "no fault")
     call !sub_4092          ;2ab6  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
 
 lab_2ab9:
@@ -7777,35 +7827,46 @@ read_kwp_rx_3:
     ret                     ;2c97  af
 
 sub_2c98:
-;Returns carry set = fault, carry clear = no fault
-    movw hl,#mem_f20d       ;2c98  16 0d f2
-    movw de,#mem_f219       ;2c9b  14 19 f2
+;Find the first fault set in the faults buffer (if any)
+;
+;Checks 0x0C bytes in the faults buffer at mem_f20d.  Any byte that is not equal
+;to 0x88 ("no fault") is a fault.
+;
+;Returns:
+;  HL = pointer to the fault in the buffer
+;  Carry set = found a fault, carry clear = no faults set in the buffer
+;
+    movw hl,#mem_f20d       ;2c98  16 0d f2   HL = faults buffer #2
+    movw de,#mem_f218+1     ;2c9b  14 19 f2
     call !sub_2cbe          ;2c9e  9a be 2c   A = DE - HL
                             ;                 Results in A=0x0c
-    mov b,a                 ;2ca1  73
+    mov b,a                 ;2ca1  73         Copy it to B (number of faults to check)
 
 lab_2ca2_loop:
-    mov a,[hl]              ;2ca2  87
+    mov a,[hl]              ;2ca2  87         A = read an elaboration from the faults buffer
     cmp a,#0x88             ;2ca3  4d 88      0x88 = fault elaboration for "no fault"
-    bnz lab_2cac_cy1        ;2ca5  bd 05
-    incw hl                 ;2ca7  86
-    dbnz b,lab_2ca2_loop    ;2ca8  8b f8
-    clr1 cy                 ;2caa  21
+    bnz lab_2cac_fault      ;2ca5  bd 05      If not equal, branch because a fault has occurred
+    incw hl                 ;2ca7  86         Increment pointer to next fault elaboration byte
+    dbnz b,lab_2ca2_loop    ;2ca8  8b f8      Decrement B, loop until all faults are checked
+    ;No faults
+    clr1 cy                 ;2caa  21         Return carry clear for no faults
     ret                     ;2cab  af
 
-lab_2cac_cy1:
-    set1 cy                 ;2cac  20
+lab_2cac_fault:
+    set1 cy                 ;2cac  20         Return carry set for faults
     ret                     ;2cad  af
 
 sub_2cae:
+;Write 0 to mem_f218 and A to mem_f219 via sub_4092
     mov x,#0x00             ;2cae  a0 00
 
 sub_2cb0:
+;Write X to mem_f218 and A to mem_f219 via sub_4092
     push ax                 ;2cb0  b1
     xch a,x                 ;2cb1  30
     movw hl,#mem_f218       ;2cb2  16 18 f2
     call !sub_4092          ;2cb5  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
-    incw hl                 ;2cb8  86
+    incw hl                 ;2cb8  86           Increment HL to 0xf219
     pop ax                  ;2cb9  b0
     call !sub_4092          ;2cba  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
     ret                     ;2cbd  af
@@ -7956,7 +8017,7 @@ lab_2d33:
 
 sub_2d35:
 ;Clear bits in mem_fe5f and mem_fe60
-    clr1 mem_fe5f.3         ;2d35  3b 5f
+    clr1 mem_fe5f.3         ;2d35  3b 5f      Clear bit = done reading the faults buffer
     clr1 mem_fe5f.4         ;2d37  4b 5f
     clr1 mem_fe5f.6         ;2d39  6b 5f
     clr1 mem_fe5f.7         ;2d3b  7b 5f
@@ -10060,7 +10121,7 @@ lab_392c:
     call !sub_4109          ;3932  9a 09 41
     bf mem_fe62.0,lab_393e  ;3935  31 03 62 05
     mov a,#0x03             ;3939  a1 03
-    call !sub_2cae          ;393b  9a ae 2c
+    call !sub_2cae          ;393b  9a ae 2c       Write 0 to mem_f218 and A to mem_f219 via sub_4092
 
 lab_393e:
     call !sub_8090          ;393e  9a 90 80       Perform ROM checksum if not already performed
@@ -13661,7 +13722,7 @@ lab_4d88:
     mov !mem_fbca,a         ;4d90  9e ca fb
     mov !mem_fbcb,a         ;4d93  9e cb fb     KWP1281 block counter = 0
     clr1 mem_fe66.0         ;4d96  0b 66
-    clr1 mem_fe66.1         ;4d98  1b 66
+    clr1 mem_fe66.1         ;4d98  1b 66        Clear bit to indicate we are not sending faults
     mov a,#0x00             ;4d9a  a1 00
     mov !mem_fbc5,a         ;4d9c  9e c5 fb
     mov !mem_fbc6,a         ;4d9f  9e c6 fb     KWP1281 radio to cluster connection state
@@ -14145,13 +14206,14 @@ kwp_56_09_ack:
 lab_4fe1:
     cmp a,#0x04             ;4fe1  4d 04
     bnz lab_4ff3            ;4fe3  bd 0e
-    bt mem_fe66.1,lab_4ff0  ;4fe5  9c 66 08
+    bt mem_fe66.1,lab_4ff0  ;4fe5  9c 66 08     Branch if we are sending faults
     mov a,#0x00             ;4fe8  a1 00
     mov !mem_fbc5,a         ;4fea  9e c5 fb
     br !lab_532a            ;4fed  9b 2a 53     Branch to send ACK response
 
 lab_4ff0:
-    br !lab_537d            ;4ff0  9b 7d 53
+;We are sending faults
+    br !lab_537d            ;4ff0  9b 7d 53     Branch to continue sending faults
 
 lab_4ff3:
     cmp a,#0x01             ;4ff3  4d 01
@@ -14818,19 +14880,25 @@ lab_5370:
 
 lab_537b:
 ;Send response to read or clear faults (index 0x0a)
-    set1 mem_fe66.1         ;537b  1a 66
+;If there are no faults, a special fault that means "no fault" (code=0xFFFF, elaboration=0x88)
+;is returned and mem_fe66.1 is cleared.  Otherwise, up to 4 faults are returned.  If there are
+;no more faults left to send, mem_fe66.1 is cleared and we are done sending faults.  Otherwise,
+;we leave fe66.1 set and then lab_537d gets called to send another block of up to 4 faults.
+    set1 mem_fe66.1         ;537b  1a 66        Set bit to indicate we are sending faults
 
 lab_537d:
-;Send response to read or clear faults (index 0x0a) without setting mem_fe66.1
+;Continue sending response to read or clear faults (index 0x0a)
+;We can only send 4 faults in a faults response.  If there are more than 4 faults to
+;send, we leave mem_fe66.1 set and we get called again.
     mov b,#0x0a             ;537d  a3 0a        B = index 0x0a response to read/clear faults
     call !sub_5292          ;537f  9a 92 52     Set block title, counter, length in KWP1281 tx buf
-    mov c,#0x04             ;5382  a2 04        C = 4 faults in this block?
+    mov c,#0x04             ;5382  a2 04        C = send up to 4 faults in this block
 
 lab_5384_loop:
     push hl                 ;5384  b7           Push KWP1281 tx buffer pointer
     push bc                 ;5385  b3           Push index into tx buffer pointer, fault countdown
 
-    call !sub_274e          ;5386  9a 4e 27     Unknown; uses table of KWP1281 fault codes at mem_afe8
+    call !sub_274e          ;5386  9a 4e 27     Get next fault code
                             ;                     Returns carry clear = fault, carry set = no fault
                             ;                     Returns KWP1281 fault code in AX and fault elaboration in E
 
@@ -14855,11 +14923,16 @@ lab_5384_loop:
     inc b                   ;5394  43
     cmp a,#0x88             ;5395  4d 88        0x88 = fault elaboration for "no fault"
     bz lab_539d             ;5397  ad 04
-    dbnz c,lab_5384_loop    ;5399  8a e9
+    dbnz c,lab_5384_loop    ;5399  8a e9        Decrement C, loop until we've written up to 4 faults in this block
+
+    ;We have written 4 faults into the KWP1281 tx buffer but there are more
+    ;faults left to send.  Branch to send the response but leave mem_fe66.1
+    ;set so we come back to send more.
     br lab_539f             ;539b  fa 02
 
 lab_539d:
-    clr1 mem_fe66.1         ;539d  1b 66
+;No more faults left to send
+    clr1 mem_fe66.1         ;539d  1b 66        Clear bit to indicate we're not sending faults anymore
 
 lab_539f:
     mov a,b                 ;539f  63           B = index to KWP1281 tx buffer
@@ -15752,7 +15825,7 @@ lab_57f2:
     bt mem_fe67.2,lab_580a  ;5800  ac 67 07
     mov a,#0x01             ;5803  a1 01
     mov x,#0x80             ;5805  a0 80
-    call !sub_2cb0          ;5807  9a b0 2c
+    call !sub_2cb0          ;5807  9a b0 2c     Write X to mem_f218 and A to mem_f219 via sub_4092
 
 lab_580a:
     mov a,!mem_fc27         ;580a  8e 27 fc
@@ -15844,7 +15917,7 @@ lab_5880:
 
 lab_5887:
     mov a,#0x01             ;5887  a1 01
-    call !sub_2cae          ;5889  9a ae 2c
+    call !sub_2cae          ;5889  9a ae 2c   Write 0 to mem_f218 and A to mem_f219 via sub_4092
 
 lab_588c:
     br lab_58d5             ;588c  fa 47      Branch to clr1 mem_fe66.5 and return
@@ -21035,22 +21108,28 @@ lab_77a4:
     mov a,mem_fed5          ;77a4  f0 d5
     mov b,a                 ;77a6  73
     dec b                   ;77a7  53
+
     movw hl,#mem_770a       ;77a8  16 0a 77
     mov a,[hl+b]            ;77ab  ab
     mov mem_fed6,a          ;77ac  f2 d6
     mov c,a                 ;77ae  72
+
     movw hl,#mem_fb30       ;77af  16 30 fb
     mov a,[hl+b]            ;77b2  ab
     mov mem_fedc,a          ;77b3  f2 dc
-    movw hl,#mem_f20d       ;77b5  16 0d f2
+
+    movw hl,#mem_f20d       ;77b5  16 0d f2     HL = faults buffer #2
     mov a,[hl+c]            ;77b8  aa
     mov mem_fed9,a          ;77b9  f2 d9
+
     movw hl,#mem_f21a       ;77bb  16 1a f2
     mov a,[hl+c]            ;77be  aa
     mov mem_fed8,a          ;77bf  f2 d8
-    movw hl,#mem_fc1a       ;77c1  16 1a fc
+
+    movw hl,#mem_fc1a       ;77c1  16 1a fc     HL = faults buffer #1
     mov a,[hl+c]            ;77c4  aa
     mov mem_fedd,a          ;77c5  f2 dd
+
     mov mem_fed7,#0x88      ;77c7  11 d7 88
     bf mem_fe62.1,lab_77d3  ;77ca  31 13 62 05
     cmp mem_fed5,#0x04      ;77ce  c8 d5 04
@@ -21069,7 +21148,7 @@ lab_77e2:
     mov a,mem_fed6          ;77e2  f0 d6
     mov c,a                 ;77e4  72
     mov a,mem_fedd          ;77e5  f0 dd
-    movw hl,#mem_fc1a       ;77e7  16 1a fc
+    movw hl,#mem_fc1a       ;77e7  16 1a fc     HL = faults buffer #1
     mov [hl+c],a            ;77ea  ba
     mov a,mem_fed5          ;77eb  f0 d5
     mov c,a                 ;77ed  72
@@ -21627,13 +21706,13 @@ lab_7bcb:
     mov a,[hl+b]            ;7bd0  ab
     mov mem_fed6,a          ;7bd1  f2 d6
     mov c,a                 ;7bd3  72
-    movw hl,#mem_f20d       ;7bd4  16 0d f2
+    movw hl,#mem_f20d       ;7bd4  16 0d f2     HL = faults buffer #2
     mov a,[hl+c]            ;7bd7  aa
     mov mem_fed9,a          ;7bd8  f2 d9
     movw hl,#mem_f21a       ;7bda  16 1a f2
     mov a,[hl+c]            ;7bdd  aa
     mov mem_fed8,a          ;7bde  f2 d8
-    movw hl,#mem_fc1a       ;7be0  16 1a fc
+    movw hl,#mem_fc1a       ;7be0  16 1a fc     HL = faults buffer #1
     mov a,[hl+c]            ;7be3  aa
     mov mem_fedd,a          ;7be4  f2 dd
     mov mem_fed7,a          ;7be6  f2 d7
@@ -21681,7 +21760,7 @@ lab_7c3a:
     mov a,mem_fed6          ;7c3a  f0 d6
     mov c,a                 ;7c3c  72
     mov a,mem_fedd          ;7c3d  f0 dd
-    movw hl,#mem_fc1a       ;7c3f  16 1a fc
+    movw hl,#mem_fc1a       ;7c3f  16 1a fc       HL = faults buffer #1
     mov [hl+c],a            ;7c42  ba
     bf mem_fe41.5,lab_7c50  ;7c43  31 53 41 09
     clr1 mem_fe41.5         ;7c47  5b 41
@@ -21768,7 +21847,7 @@ lab_7cb7:
     set1 mem_fe6a.4         ;7cd2  4a 6a
 
 lab_7cd4:
-    movw hl,#mem_f20d       ;7cd4  16 0d f2
+    movw hl,#mem_f20d       ;7cd4  16 0d f2     HL = faults buffer #2
     mov a,mem_fed6          ;7cd7  f0 d6
     mov b,a                 ;7cd9  73
     mov a,mem_fed7          ;7cda  f0 d7
@@ -21840,7 +21919,7 @@ lab_7d47:
     set1 mem_fed9.7         ;7d4d  7a d9
 
 lab_7d4f:
-    movw hl,#mem_f20d       ;7d4f  16 0d f2
+    movw hl,#mem_f20d       ;7d4f  16 0d f2     HL = faults buffer #2
     mov a,mem_fed6          ;7d52  f0 d6
     mov b,a                 ;7d54  73
     mov a,mem_fed9          ;7d55  f0 d9
@@ -22361,7 +22440,7 @@ lab_80a4_bad:
     cmp a,#0x03             ;80a7  4d 03
     bz lab_80b0_ret         ;80a9  ad 05
     mov a,#0x02             ;80ab  a1 02
-    call !sub_2cae          ;80ad  9a ae 2c
+    call !sub_2cae          ;80ad  9a ae 2c     Write 0 to mem_f218 and A to mem_f219 via sub_4092
 
 lab_80b0_ret:
     ret                     ;80b0  af
@@ -30010,19 +30089,20 @@ mem_afe4:
 
 mem_afe8:
 ;Table of KWP1281 fault codes used by sub_274e
+;Same order as mem_f20d faults buffer
     .byte 0x0c              ;afe8  0c          DATA 0x0c        12 entries below:
-    .word 0x029c            ;00668 - Supply Voltage Terminal 30
-    .word 0x0351            ;00849 - S-contact at Ignition/Starter Switch (D)
-    .word 0x0352            ;00850 - Control Output Active; Radio Amplifier
-    .word 0x0353            ;00851 - Loudspeaker(s)
-    .word 0x0354            ;00852 - Loudspeaker(s); Front
-    .word 0x0355            ;00853 - Loudspeaker(s); Rear
-    .word 0x0356            ;00854 - Radio Display Output in Dash Panel Insert
-    .word 0x0357            ;00855 - Connection to CD changer
-    .word 0x0358            ;00856 - Radio Antenna
-    .word 0x0414            ;01044 - Control Module Incorrectly Coded
-    .word 0x04ab            ;01195 - End
-    .word 0xffff            ;65535 - Internal Control Module Memory Error
+    .word 0x029c            ;00668 - Supply Voltage Terminal 30                       mem_f20d  mem_fc1a
+    .word 0x0351            ;00849 - S-contact at Ignition/Starter Switch (D)         mem_f20e  mem_fc1b
+    .word 0x0352            ;00850 - Control Output Active; Radio Amplifier           mem_f20f  mem_fc1c
+    .word 0x0353            ;00851 - Loudspeaker(s)                                   mem_f210  mem_fc1d
+    .word 0x0354            ;00852 - Loudspeaker(s); Front                            mem_f211  mem_fc1e
+    .word 0x0355            ;00853 - Loudspeaker(s); Rear                             mem_f212  mem_fc1f
+    .word 0x0356            ;00854 - Radio Display Output in Dash Panel Insert        mem_f213  mem_fc20
+    .word 0x0357            ;00855 - Connection to CD changer                         mem_f214  mem_fc21
+    .word 0x0358            ;00856 - Radio Antenna                                    mem_f215  mem_fc22
+    .word 0x0414            ;01044 - Control Module Incorrectly Coded                 mem_f216
+    .word 0x04ab            ;01195 - End                                              mem_f217
+    .word 0xffff            ;65535 - Internal Control Module Memory Error             mem_f218
 
 mem_b001:
 ;table of words used with sub_0c48
