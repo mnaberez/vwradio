@@ -163,7 +163,7 @@ mem_f20b = 0xf20b           ;SAFE code attempt counter
 mem_f20c = 0xf20c
 
 ;Faults buffer #2 (12 bytes)
-;See also sub_2790
+;See also clear_faults
 ;Each byte contains a fault elaboration code where 0x88 = "no fault"
 
 mem_f20d = 0xf20d           ;00668 - Supply Voltage Terminal 30                       mem_f20d  mem_fc1a
@@ -372,7 +372,7 @@ mem_fc16 = 0xfc16
 mem_fc17 = 0xfc17
 
 ;Faults buffer #1 (9 bytes)
-;See also sub_2790
+;See also clear_faults
 ;Each byte contains a fault elaboration code where 0x88 = "no fault"
 
 mem_fc1a = 0xfc1a             ;00668 - Supply Voltage Terminal 30                 mem_f20d  mcm_fc1a
@@ -6775,8 +6775,8 @@ lab_274a:
     ret                     ;274d  af
 
 
-sub_274e:
-;Get next fault code
+read_next_fault:
+;Read the next fault code
 ;Called from lab_537d (sending response to read or clear faults)
 ;
 ;Clear mem_fe5f.3 to 0 and then start calling this subroutine to
@@ -6801,10 +6801,10 @@ sub_274e:
     bt mem_fe5f.3,lab_2762_loop  ;274e  bc 5f 11  Branch if we have already started reading faults
 
     ;We have not started reading faults yet
-    call !sub_2c98          ;2751  9a 98 2c     Find the first fault set in the faults buffer (if any)
+    call !find_first_fault  ;2751  9a 98 2c     Find the first fault set in the faults buffer
                             ;                     Returns HL=pointer to fault
                             ;                           carry set = found a fault, clear = no fault
-    bc lab_275c             ;2754  8d 06        Branch if sub_2c98 found at least one fault
+    bc lab_275c             ;2754  8d 06        Branch if find_first_fault found at least one fault
 
     ;No faults are present
     ;Prepare the special fault that means "no fault"
@@ -6815,9 +6815,9 @@ sub_274e:
 
 lab_275c:
 ;We just started reading faults.
-;We called sub_2c98 and it found at least one fault.
+;We called find_first_fault and it found there is at least one fault.
     set1 mem_fe5f.3         ;275c  3a 5f        Set bit to indicate we have started reading the faults buffer
-    movw ax,hl              ;275e  c6           AX = pointer to the first fault found by sub_2c98
+    movw ax,hl              ;275e  c6           AX = pointer to the first fault found by find_first_fault
     movw !mem_f002,ax       ;275f  03 02 f0     Store pointer in mem_f002
 
 lab_2762_loop:
@@ -6852,7 +6852,7 @@ lab_2762_loop:
     movw hl,#mem_f20d       ;277a  16 0d f2     HL = faults buffer #2
     call !sub_2cbe          ;277d  9a be 2c     A = DE - HL
     mov b,a                 ;2780  73           Copy it to B as index to fault codes table
-    movw hl,#mem_afe8+1     ;2781  16 e9 af     HL = pointer to table of KWP1281 fault codes
+    movw hl,#fault_codes+1  ;2781  16 e9 af     HL = pointer to table of KWP1281 fault codes
     callf !sub_0c48         ;2784  4c 48        Load DE with word at position B in table [HL]
 
     pop ax                  ;2786  b0           Pop fault elaboration code
@@ -6873,9 +6873,14 @@ lab_278c_no_fault:
     ret                     ;278f  af
 
 
-sub_2790:
+clear_faults:
 ;Clear faults
 ;Called from kwp_56_05_clear_faults
+;
+;This does not guarantee that faults will actually be cleared.  If the
+;underlying condition that caused a fault still persists, the fault
+;will persist or occur again.
+;
     call !sub_2d35          ;2790  9a 35 2d     Clear bits in mem_fe5f and mem_fe60
 
     movw hl,#mem_f20c       ;2793  16 0c f2
@@ -7842,8 +7847,8 @@ read_kwp_rx_3:
 
     ret                     ;2c97  af
 
-sub_2c98:
-;Find the first fault set in the faults buffer (if any)
+find_first_fault:
+;Find the first fault set in the faults buffer
 ;
 ;Checks 0x0C bytes in the faults buffer at mem_f20d.  Any byte that is not equal
 ;to 0x88 ("no fault") is a fault.
@@ -14301,7 +14306,7 @@ kwp_56_07_read_faults:
 
 kwp_56_05_clear_faults:
 ;clear faults (kwp_56_handlers)
-    call !sub_2790          ;5060  9a 90 27
+    call !clear_faults       ;5060  9a 90 27
     br kwp_56_07_read_faults ;5063  fa f3
 
 kwp_56_04_output_tests:
@@ -14914,16 +14919,16 @@ lab_5384_loop:
     push hl                 ;5384  b7           Push KWP1281 tx buffer pointer
     push bc                 ;5385  b3           Push index into tx buffer pointer, fault countdown
 
-    call !sub_274e          ;5386  9a 4e 27     Get next fault code
+    call !read_next_fault   ;5386  9a 4e 27     Read the next fault code
                             ;                     Returns carry clear = fault, carry set = no fault
                             ;                     Returns KWP1281 fault code in AX and fault elaboration in E
 
     pop bc                  ;5389  b2           Pop index into B=tx buffer pointer, C=fault countdown
     pop hl                  ;538a  b6           Pop HL = KWP1281 tx buffer pointer
 
-    bc lab_539d             ;538b  8d 10        Branch if sub_274e did not return a fault
+    bc lab_539d             ;538b  8d 10        Branch if read_next_fault did not return a fault
 
-    ;sub_274e returned a fault
+    ;read_next_fault returned a fault
     ;AX=fault code, E=fault elaboration code
 
     mov [hl+b],a            ;538d  bb           Write fault code high byte into KWP1281 tx buffer
@@ -30103,8 +30108,8 @@ mem_afe4:
     .byte 0x01              ;afe6  01          DATA 0x01
     .byte 0x06              ;afe7  06          DATA 0x06
 
-mem_afe8:
-;Table of KWP1281 fault codes used by sub_274e
+fault_codes:
+;Table of KWP1281 fault codes used by read_next_fault
 ;Same order as mem_f20d faults buffer
     .byte 0x0c              ;afe8  0c          DATA 0x0c        12 entries below:
     .word 0x029c            ;00668 - Supply Voltage Terminal 30                       mem_f20d  mem_fc1a
