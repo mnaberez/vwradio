@@ -312,8 +312,8 @@ mem_fb6f = 0xfb6f           ;Bit 0: off=CD MIX 1,    on=CD MIX 6
 mem_fb70 = 0xfb70
 mem_fb71 = 0xfb71
 mem_fb72 = 0xfb72
-mem_fb73 = 0xfb73
-mem_fb74 = 0xfb74
+mem_fb73 = 0xfb73           ;Result of sub_2537 security access computation (high byte)
+mem_fb74 = 0xfb74           ;Result of sub_2537 security access computation (low byte)
 mem_fb75 = 0xfb75           ;Entered SAFE code (BCD high byte)
 mem_fb76 = 0xfb76           ;Entered SAFE code (BCD low byte)
 mem_fb79 = 0xfb79
@@ -6050,19 +6050,21 @@ lab_22f9:
     br !sub_2227            ;22f9  9b 27 22
 
 sub_22fc:
-;Unknown security access related; called from lab_256c only
-;title 0x3d security access response processing
+;Lock or unlock SAFE mode based on security access computation result
+;called from sub_2537 only (title 0x3d security access response processing)
     bt mem_fe23.6,lab_234b  ;22fc  ec 23 4c     Branch to just return
     bt mem_fe23.5,lab_2317  ;22ff  dc 23 15
     clr1 mem_fe23.7         ;2302  7b 23        SAFE mode = locked
 
-    mov a,!mem_fb73         ;2304  8e 73 fb
+    mov a,!mem_fb73         ;2304  8e 73 fb     A = sub_2537 security access computation result (high byte)
     cmp a,!mem_f208         ;2307  48 08 f2
-    bnz lab_2327            ;230a  bd 1b
+    bnz lab_2327            ;230a  bd 1b        Branch if computation result is not equal
 
-    mov a,!mem_fb74         ;230c  8e 74 fb
+    mov a,!mem_fb74         ;230c  8e 74 fb     A = sub_2537 security access computation result (low byte)
     cmp a,!mem_f209         ;230f  48 09 f2
-    bnz lab_2327            ;2312  bd 13
+    bnz lab_2327            ;2312  bd 13        Branch if computation result is not equal
+
+    ;Computation result is equal
 
     set1 mem_fe23.7         ;2314  7a 23        SAFE mode = unlocked
     ret                     ;2316  af
@@ -6080,11 +6082,11 @@ lab_2327:
     cmp a,#0xc3             ;232a  4d c3
     bz lab_234b             ;232c  ad 1d        Branch to just return
 
-    mov a,!mem_fb73         ;232e  8e 73 fb
+    mov a,!mem_fb73         ;232e  8e 73 fb     A = sub_2537 security access computation result (high byte)
     movw hl,#mem_f208       ;2331  16 08 f2
     call !sub_4092          ;2334  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
 
-    mov a,!mem_fb74         ;2337  8e 74 fb
+    mov a,!mem_fb74         ;2337  8e 74 fb     sub_2537 security access computation result (low byte)
     movw hl,#mem_f209       ;233a  16 09 f2
     call !sub_4092          ;233d  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
 
@@ -6421,48 +6423,70 @@ lab_2532:
     ret                     ;2536  af
 
 sub_2537:
-;Process title 0x3d security access response block
+;Process title 0x3d security access response block.  Perform a computation
+;on the 4 bytes.  Compare the computation result to an expected result and
+;either lock or unlock SAFE mode.
 ;
 ;TODO unknown constants 0xBDE7 and 0x0018 below are also found in the
 ;Premium 4 firmware routine sub_e6ca which also seems to be security access related
 ;
     movw hl,#kwp_rx_buf+3   ;2537  16 8d f0     HL = source address (KWP1281 rx buffer byte 3)
     movw de,#mem_fed4       ;253a  14 d4 fe     DE = destination address
-    mov a,#0x04             ;253d  a1 04        A = 4 bytes to copy
+    mov a,#4                ;253d  a1 04        A = 4 bytes to copy
     callf !sub_0c9e         ;253f  4c 9e        Copy A bytes from [HL] to [DE]
 
+    ;After copying, mem_fed4 contains the 4 bytes from the request block:
+    ;  kwp_rx_buf+3 -> mem_fed4
+    ;  kwp_rx_buf+4 -> mem_fed5
+    ;  kwp_rx_buf+5 -> mem_fed6
+    ;  kwp_rx_buf+6 -> mem_fed7
+
+    ;Word at mem_fed4 = Word at mem_fed4 - 0xbde7
     movw ax,mem_fed4        ;2541  89 d4
     subw ax,#0xbde7         ;2543  da e7 bd
     movw mem_fed4,ax        ;2546  99 d4
+
+    ;AX = Word at mem_fed6
+    ;If previous subtraction resulted in a borrow, decrement AX
     movw ax,mem_fed6        ;2548  89 d6
-    bnc lab_254d            ;254a  9d 01
+    bnc lab_254d_nc         ;254a  9d 01
     decw ax                 ;254c  90
 
-lab_254d:
+lab_254d_nc:
+    ;Word at mem_fed6 = AX - 0x0018
     subw ax,#0x0018         ;254d  da 18 00
     movw mem_fed6,ax        ;2550  99 d6
-    call !sub_258e          ;2552  9a 8e 25     mem_fed4 = mem_fed4 xor mem_fed6
-                            ;                   mem_fed5 = mem_fed5 xor mem_fed7
-    mov a,mem_fed4          ;2555  f0 d4
-    mov c,#0x02             ;2557  a2 02
-    mov mem_fed8,#0x00      ;2559  11 d8 00
 
-lab_255c:
-    mov b,#0x08             ;255c  a3 08
+    ;Word at mem_fed4 = Word at mem_fed4 XOR Word at mem_fed6
+    call !sub_258e
 
-lab_255e:
-    ror a,1                 ;255e  24
-    bc lab_2563             ;255f  8d 02
-    inc mem_fed8            ;2561  81 d8
+    mov a,mem_fed4          ;2555  f0 d4      A = low byte of word at mem_fed4
+    mov c,#0x02             ;2557  a2 02      C = 2 passes of counting number of "0" bits word at mem_fed4
+    mov mem_fed8,#0         ;2559  11 d8 00   mem_fed = 0 (counts number of "0" bits)
 
-lab_2563:
-    dbnz b,lab_255e         ;2563  8b f9
-    mov a,mem_fed5          ;2565  f0 d5
-    dbnz c,lab_255c         ;2567  8a f3
+lab_255c_c_loop:
+    ;Add the count of "0" bits in A to byte in mem_fed8
+    ;Original byte in A is preserved
+    mov b,#8                ;255c  a3 08      B = 8 bits to rotate
+lab_255e_b_loop:
+    ror a,1                 ;255e  24         Rotate A to the right around itself
+                            ;                 Bit 0 is rotated into both bit 7 and carry flag
+    bc lab_2563_cy          ;255f  8d 02      Skip incrementing mem_fed8 if bit rotated out = 1
+    ;Bit rotated out = 0
+    inc mem_fed8            ;2561  81 d8      Increment mem_fed8
+lab_2563_cy:
+    dbnz b,lab_255e_b_loop  ;2563  8b f9      Loop until all 8 bits are tested
+
+    mov a,mem_fed5          ;2565  f0 d5      A = high byte of word at mem_fed4
+    dbnz c,lab_255c_c_loop  ;2567  8a f3      Loop until C=0
+
+    ;B = count of "0" bits computed above
     mov a,mem_fed8          ;2569  f0 d8
     mov b,a                 ;256b  73
 
-lab_256c:
+    ;Carry flag from operations above is used below
+
+lab_256c_b_loop:
     mov a,mem_fed6          ;256c  f0 d6
     rorc a,1                ;256e  25
     mov mem_fed6,a          ;256f  f2 d6
@@ -6470,20 +6494,22 @@ lab_256c:
     rorc a,1                ;2573  25
     mov mem_fed7,a          ;2574  f2 d7
     mov1 mem_fed6.7,cy      ;2576  71 71 d6
-    dbnz b,lab_256c         ;2579  8b f1
-    call !sub_258e          ;257b  9a 8e 25     mem_fed4 = mem_fed4 xor mem_fed6
-                            ;                   mem_fed5 = mem_fed5 xor mem_fed7
+    dbnz b,lab_256c_b_loop  ;2579  8b f1
+
+    call !sub_258e          ;257b  9a 8e 25     Word at mem_fed4 = Word at mem_fed4 XOR Word at mem_fed6
+
+    ;Copy result of computation into mem_fb73/mem_fb74 for use comparision in sub_22fc
     movw ax,mem_fed4        ;257e  89 d4
-    mov !mem_fb73,a         ;2580  9e 73 fb
+    mov !mem_fb73,a         ;2580  9e 73 fb     mem_fb73 = Word at mem_fed4 high byte
     mov a,x                 ;2583  60
-    mov !mem_fb74,a         ;2584  9e 74 fb
-    call !sub_22fc          ;2587  9a fc 22
+    mov !mem_fb74,a         ;2584  9e 74 fb     mem_fb74 = Word at mem_fed5 low byte
+
+    call !sub_22fc          ;2587  9a fc 22     Lock or unlock SAFE mode based on security access computation result
     call !sub_24f1          ;258a  9a f1 24
     ret                     ;258d  af
 
 sub_258e:
-;mem_fed4 = mem_fed4 xor mem_fed6
-;mem_fed5 = mem_fed5 xor mem_fed7
+;Word at mem_fed4 = Word at mem_fed4 XOR Word at mem_fed6
     mov a,mem_fed4          ;258e  f0 d4
     xor a,mem_fed6          ;2590  7e d6
     mov mem_fed4,a          ;2592  f2 d4    mem_fed4 = mem_fed4 xor mem_fed6
@@ -7018,7 +7044,7 @@ sub_2830:
 ;  A = formula byte
 ;  X = measurement high byte
 ;  E = measurement low byte
-;  D = 0x0F if an error occurred
+;  D = 0 if success, 0x0F if error
 ;  Carry clear = measurement data in A/X/E, carry clear = no measurement
 ;
     bt mem_fe5f.4,lab_287a  ;2830  cc 5f 47     Branch if we have already started reading
@@ -7056,12 +7082,12 @@ lab_2849_not_0x19_0x06:
 
 lab_2858_failed:
 ;Failure
-    mov d,#0x0f             ;2858  a5 0f
+    mov d,#0x0f             ;2858  a5 0f        D=0x0F (error occurred)
     ;Fall through
 
-lab_285a_no_data:
+lab_285a_ret_no_data:
     clr1 mem_fe5f.4         ;285a  4b 5f        Clear bit = done reading measuring block group
-    set1 cy                 ;285c  20           Set carry = no measurement data returned this time
+    set1 cy                 ;285c  20           Set carry = no measurement data returned
     ret                     ;285d  af
 
 lab_285e_group_0x19:
@@ -7098,11 +7124,11 @@ lab_2877:
 
 lab_287a:
 ;Read the next measurement from the group
-    mov d,#0x00             ;287a  a5 00
+    mov d,#0x00             ;287a  a5 00        D=0 (no error)
 
     mov a,!mem_f050         ;287c  8e 50 f0     A = number of measurements in group left to read
     cmp a,#0x00             ;287f  4d 00        Is it zero?
-    bz lab_285a_no_data     ;2881  ad d7          Yes: nothing to do, return with no data
+    bz lab_285a_ret_no_data ;2881  ad d7          Yes: nothing to do, return with no data
 
     ;At least one measurement left to read
 
@@ -7168,13 +7194,13 @@ lab_28b7:
     mov a,c                 ;28d3  62
     add a,#0x30             ;28d4  0d 30
     xch a,e                 ;28d6  34
-    br !lab_29b0            ;28d7  9b b0 29
+    br !lab_29b0_ret_data   ;28d7  9b b0 29   Branch to return with measurement data
 
 lab_28da:
     mov a,#0x20             ;28da  a1 20
     mov x,#0x20             ;28dc  a0 20
     xch a,e                 ;28de  34
-    br !lab_29b0            ;28df  9b b0 29
+    br !lab_29b0_ret_data   ;28df  9b b0 29   Branch to return with measurement data
 
 lab_28e2:
     ;group number != 7
@@ -7196,10 +7222,10 @@ lab_28e2:
 
 lab_28fd:
 ;mem_fc1c = 0 or 0x88
-    br !lab_29af            ;28fd  9b af 29
+    br !lab_29af_ret_data   ;28fd  9b af 29   Branch to return with measurement data
 
 lab_2900:
-    br !lab_29af            ;2900  9b af 29
+    br !lab_29af_ret_data   ;2900  9b af 29   Branch to return with measurement data
 
 lab_2903:
     mov a,e                 ;2903  64
@@ -7211,28 +7237,28 @@ lab_2903:
     bnz lab_291e            ;290d  bd 0f
     set1 mem_fe63.0         ;290f  0a 63
     mov e,#0x87             ;2911  a4 87
-    set1 pm9.0              ;2913  71 0a 29     PM90=input
-    bt p9.0,lab_291b        ;2916  8c 09 02     Branch if P90=1
+    set1 pm9.0              ;2913  71 0a 29   PM90=input
+    bt p9.0,lab_291b        ;2916  8c 09 02   Branch if P90=1
     mov e,#0x88             ;2919  a4 88
 
 lab_291b:
-    br !lab_29af            ;291b  9b af 29
+    br !lab_29af_ret_data   ;291b  9b af 29   Branch to return with measurement data
 
 lab_291e:
     cmp a,#0xe1             ;291e  4d e1
     bnz lab_292c            ;2920  bd 0a
-    movw hl,#mem_fc1e       ;2922  16 1e fc     HL = faults buffer "00852 - Loudspeaker(s); Front"
+    movw hl,#mem_fc1e       ;2922  16 1e fc   HL = faults buffer "00852 - Loudspeaker(s); Front"
     mov a,[hl]              ;2925  87
     call !sub_26b6          ;2926  9a b6 26
-    br !lab_29af            ;2929  9b af 29
+    br !lab_29af_ret_data   ;2929  9b af 29   Branch to return with measurement data
 
 lab_292c:
     cmp a,#0xe2             ;292c  4d e2
     bnz lab_2939            ;292e  bd 09
-    movw hl,#mem_fc1f       ;2930  16 1f fc     HL = faults buffer "00853 - Loudspeaker(s); Rear"
+    movw hl,#mem_fc1f       ;2930  16 1f fc   HL = faults buffer "00853 - Loudspeaker(s); Rear"
     mov a,[hl]              ;2933  87
     call !sub_26b6          ;2934  9a b6 26
-    br lab_29af             ;2937  fa 76
+    br lab_29af_ret_data    ;2937  fa 76      Branch to return with measurement data
 
 lab_2939:
     cmp a,#0xe3             ;2939  4d e3
@@ -7243,7 +7269,7 @@ lab_2939:
     mov e,#0x11             ;2945  a4 11
 
 lab_2947:
-    br lab_29af             ;2947  fa 66
+    br lab_29af_ret_data    ;2947  fa 66      Branch to return with measurement data
 
 lab_2949:
     cmp a,#0xe4             ;2949  4d e4
@@ -7251,7 +7277,7 @@ lab_2949:
     movw hl,#mem_fc22       ;294d  16 22 fc   HL = pointer to faults buffer #2 "00856 - Radio Antenna"
     mov a,[hl]              ;2950  87
     call !sub_26b6          ;2951  9a b6 26
-    br lab_29af             ;2954  fa 59
+    br lab_29af_ret_data    ;2954  fa 59      Branch to return with measurement data
 
 lab_2956:
     cmp a,#0xe5             ;2956  4d e5
@@ -7259,7 +7285,7 @@ lab_2956:
     movw hl,#mem_fc21       ;295a  16 21 fc   HL = pointer to faults buffer #2 "00855 - Connection to CD changer"
     mov a,[hl]              ;295d  87
     call !sub_26c9          ;295e  9a c9 26
-    br lab_29af             ;2961  fa 4c
+    br lab_29af_ret_data    ;2961  fa 4c      Branch to return with measurement data
 
 lab_2963:
     cmp a,#0xe6             ;2963  4d e6
@@ -7267,21 +7293,21 @@ lab_2963:
     movw hl,#mem_fc20       ;2967  16 20 fc   HL = pointer to faults buffer #2 "00854 - Radio Display Output in Dash Panel Insert"
     mov a,[hl]              ;296a  87
     call !sub_26c9          ;296b  9a c9 26
-    br lab_29af             ;296e  fa 3f
+    br lab_29af_ret_data    ;296e  fa 3f      Branch to return with measurement data
 
 lab_2970:
-    br lab_29af             ;2970  fa 3d
+    br lab_29af_ret_data    ;2970  fa 3d      Branch to return with measurement data
 
 lab_2972:
     mov a,e                 ;2972  64
     cmp a,#0xff             ;2973  4d ff
     bnz lab_297c            ;2975  bd 05
     mov a,!mem_f18d         ;2977  8e 8d f1
-    br lab_29ae             ;297a  fa 32
+    br lab_29ae_ret_data    ;297a  fa 32      Branch to return with measurement data
 
 lab_297c:
     cmp a,#0xfe             ;297c  4d fe
-    bnz lab_29af            ;297e  bd 2f
+    bnz lab_29af_ret_data   ;297e  bd 2f      Branch to return with measurement data
 
     mov a,!mem_fca3         ;2980  8e a3 fc   A = P92/ANI20 analog: Illumination voltage (0=off, 0xff=full)
     mov b,a                 ;2983  73         Save illumination analog in B
@@ -7297,7 +7323,7 @@ lab_297c:
     mov a,#0x0f             ;298c  a1 0f
 
 lab_298e:
-    br lab_29ae             ;298e  fa 1e
+    br lab_29ae_ret_data    ;298e  fa 1e      Branch to return with measurement data
 
 lab_2990:
 ;Illumination analog >= 0x20
@@ -7314,21 +7340,21 @@ lab_2990:
     mulu x                  ;29a3  31 88
     divuw c                 ;29a5  31 82
     cmp a,#0x00             ;29a7  4d 00
-    bz lab_29ad             ;29a9  ad 02
+    bz lab_29ad_ret_data    ;29a9  ad 02      Branch to return with measurement data
     mov x,#0xff             ;29ab  a0 ff
 
-lab_29ad:
+lab_29ad_ret_data:
     xch a,x                 ;29ad  30
 
-lab_29ae:
+lab_29ae_ret_data:
     mov e,a                 ;29ae  74
 
-lab_29af:
+lab_29af_ret_data:
     pop ax                  ;29af  b0
 
-lab_29b0:
-    mov d,#0x00             ;29b0  a5 00
-    clr1 cy                 ;29b2  21
+lab_29b0_ret_data:
+    mov d,#0x00             ;29b0  a5 00        D=0 (no error)
+    clr1 cy                 ;29b2  21           Clear carry = measurement data returned
     ret                     ;29b3  af
 
 sub_29b4:
@@ -14538,7 +14564,10 @@ kwp_3f_3d_secure_access:
 
 lab_5144:
 ;we received a 0x3d security access response block and we were expecting it
-    call !sub_2537          ;5144  9a 37 25     Process title 0x3d security access response block
+    call !sub_2537          ;5144  9a 37 25     Process title 0x3d security access response block.
+                            ;                   Perform a computation on the 4 bytes.  Compare the
+                            ;                   computation result to an expected result and
+                            ;                   either lock or unlock SAFE mode.
     mov a,#0x00             ;5147  a1 00
     mov !mem_fbc6,a         ;5149  9e c6 fb     Store new KWP1281 radio to cluster connection state
     br !lab_5337            ;514c  9b 37 53     Branch to Send End Session
@@ -15107,21 +15136,24 @@ lab_5422:
 ;branched from group reading kwp_56_29_group_reading
     mov b,#0x12             ;5422  a3 12        B = index 0x12 response to group reading
     call !sub_5292          ;5424  9a 92 52     Set block title, counter, length in KWP1281 tx buf
-
-    mov c,#0x04             ;5427  a2 04        C = 4 values to read in group
+                            ;                     HL = pointer to KWP1281 tx buffer byte 0 (block length)
+                            ;                     A = block length from kwp_lengths_b280 table
+                            ;                     X = block length from kwp_lengths_b280 table (again)
+                            ;                     B = 3 (offset to first byte after block title)
+    mov c,#0x04             ;5427  a2 04        C = 4 measurements to read in group
 
 lab_5429_loop:
     push hl                 ;5429  b7           Push HL (address of KWP1281 tx buffer)
-    push bc                 ;542a  b3           Push BC (B = 3, offset into tx buffer)
+    push bc                 ;542a  b3           Push BC (B = tx buffer offset, C = measurements countdown)
 
     call !sub_2830          ;542b  9a 30 28     Read one measurement from the group
                             ;                     A = formula byte
                             ;                     X = measurement high byte
                             ;                     E = measurement low byte
-                            ;                     D = 0x0F if an error occurred
+                            ;                     D = 0 if success, 0x0F if error
                             ;                     Carry clear = measurement data in A/X/E, carry clear = no measurement
 
-    pop bc                  ;542e  b2           Pop BC (offset into tx buffer)
+    pop bc                  ;542e  b2           Pop BC (B = tx buffer offset, C = measurements countdown)
     pop hl                  ;542f  b6           Pop HL (address of KWP1281 tx buffer)
 
     bc lab_543c             ;5430  8d 0a        Branch if sub_2830 did not return a measurement
@@ -15144,7 +15176,7 @@ lab_543c:
 ;or all 4 measurements have been read
     mov a,d                 ;543c  65           A=D (error code returned in D by sub_2830)
     cmp a,#0x0f             ;543d  4d 0f        Is it the 0x0F error code?
-    bnz lab_544c            ;543f  bd 0b          No: branch to lab_544c to send the group response
+    bnz lab_544c            ;543f  bd 0b          No: branch to lab_544c to continue working on group response
                             ;                     Yes: fall through to send a NAK response
 
     ;error from sub_2830
@@ -15155,9 +15187,10 @@ lab_543c:
 
 lab_544c:
 ;no error from sub_2830
-    mov a,b                 ;544c  63
+    mov a,b                 ;544c  63           A = B (tx buffer offset)
     cmp a,#0x03             ;544d  4d 03
     bz lab_5429_loop        ;544f  ad d8
+
     mov [hl],a              ;5451  97
     mov !mem_f06b,a         ;5452  9e 6b f0     Store block length
     mov a,#0x03             ;5455  a1 03        A = 0x03 block end
