@@ -6802,10 +6802,10 @@ lab_274a:
 
 
 read_next_fault:
-;Read the next fault code
+;Read the next KWP1281 fault code
 ;Called from lab_537d (sending response to read or clear faults)
 ;
-;Clear mem_fe5f.3 to 0 and then start calling this subroutine to
+;Clear mem_fe5f.3 and then start calling this subroutine to
 ;read each fault.
 ;
 ;If there are no faults, the first call will return a special
@@ -7032,9 +7032,21 @@ lab_2824:
     set1 mem_fe5f.5         ;282d  5a 5f
     ret                     ;282f  af
 
-sub_2830:
-;Group reading: read one measurement (of up to four) from the group
+read_next_meas:
+;Read the next measurement for a KWP1281 measuring blocks group
 ;Called from group reading lab_5429_loop
+;
+;The group number will have been received in kwp_rx_buf+3.  Clear
+;mem_fe5f.4 and start calling read_next_meas.  Call it up to 4 times,
+;once for each possible measurement.  If a call returns carry=clear,
+;measurement data is available in A/X/E.  If a call returns carry=set,
+;no more data is available.  Carry=set means either the group had fewer
+;than 4 measurements or an error occurred.
+;
+;After 4 calls were made or carry=set was returned, check the status
+;in D.  If D=0xF then an error occurred and a NAK response should be
+;sent on KWP1281.  Otherwise, return a group reading response with
+;the measurements.
 ;
 ;Call with:
 ;  mem_fe5f.4 = 0 to start reading first measurement
@@ -15140,13 +15152,15 @@ lab_5422:
                             ;                     A = block length from kwp_lengths_b280 table
                             ;                     X = block length from kwp_lengths_b280 table (again)
                             ;                     B = 3 (offset to first byte after block title)
-    mov c,#0x04             ;5427  a2 04        C = 4 measurements to read in group
+
+    ;A group may contain up to 4 measurements (some groups may have less than 4)
+    mov c,#0x04             ;5427  a2 04        C = 4 measurements max to read in group
 
 lab_5429_loop:
     push hl                 ;5429  b7           Push HL (address of KWP1281 tx buffer)
     push bc                 ;542a  b3           Push BC (B = tx buffer offset, C = measurements countdown)
 
-    call !sub_2830          ;542b  9a 30 28     Read one measurement from the group
+    call !read_next_meas    ;542b  9a 30 28     Read the next measurement from the group
                             ;                     A = formula byte
                             ;                     X = measurement high byte
                             ;                     E = measurement low byte
@@ -15156,7 +15170,9 @@ lab_5429_loop:
     pop bc                  ;542e  b2           Pop BC (B = tx buffer offset, C = measurements countdown)
     pop hl                  ;542f  b6           Pop HL (address of KWP1281 tx buffer)
 
-    bc lab_543c             ;5430  8d 0a        Branch if sub_2830 did not return a measurement
+    bc lab_543c             ;5430  8d 0a        Branch if read_next_meas did not return a measurement
+                            ;                     (a group may contain less than 4 measurements so this
+                            ;                      early exit may be normal for some groups)
 
     ;Write the measurment into the KWP1281 tx buffer
     mov [hl+b],a            ;5432  bb           Write formula byte (A)
@@ -15172,29 +15188,36 @@ lab_5429_loop:
                             ;                     have been written to the tx buffer
 
 lab_543c:
-;either sub_2830 did not return a measurement
+;either read_next_meas did not return a measurement
 ;or all 4 measurements have been read
-    mov a,d                 ;543c  65           A=D (error code returned in D by sub_2830)
+    mov a,d                 ;543c  65           A=D (error code returned in D by read_next_meas)
     cmp a,#0x0f             ;543d  4d 0f        Is it the 0x0F error code?
     bnz lab_544c            ;543f  bd 0b          No: branch to lab_544c to continue working on group response
                             ;                     Yes: fall through to send a NAK response
 
-    ;error from sub_2830
+    ;error from read_next_meas
     mov a,!mem_fbcb         ;5441  8e cb fb     A = block counter
     sub a,#0x01             ;5444  1d 01        Decrement it
     mov !mem_fbcb,a         ;5446  9e cb fb     Store block counter
     br !lab_5355            ;5449  9b 55 53     Branch to Send NAK response (index 0x04)
 
 lab_544c:
-;no error from sub_2830
-    mov a,b                 ;544c  63           A = B (tx buffer offset)
-    cmp a,#0x03             ;544d  4d 03
-    bz lab_5429_loop        ;544f  ad d8
+;no error from read_next_meas
+    mov a,b                 ;544c  63           A = B (tx buffer offset, also block length)
 
-    mov [hl],a              ;5451  97
+    ;XXX this check may be a bug.  It branches back to the C countdown loop again
+    ;without writing C.  C might be 0 when this code is reached, so entering the
+    ;loop again would decrement it past 0.  Maybe it was supposed to branch to 0x5427 instead?
+    cmp a,#0x03             ;544d  4d 03        Is the offset = 3 (first byte after block title)?
+    bz lab_5429_loop        ;544f  ad d8          Yes: no data measurement data was written to the
+                            ;                          tx buffer, branch to try again.
+
+    mov [hl],a              ;5451  97           Store block length in KWP1281 tx buffer
     mov !mem_f06b,a         ;5452  9e 6b f0     Store block length
+
     mov a,#0x03             ;5455  a1 03        A = 0x03 block end
     mov [hl+b],a            ;5457  bb           Store block end in KWP1281 tx buffer
+
     br !sub_34f7            ;5458  9b f7 34     Set flags to start sending the KWP1281 tx buffer
 
 lab_545b:
