@@ -40,7 +40,7 @@ mem_f04b = 0xf04b
 mem_f04c = 0xf04c           ;byte count for KWP1281 read ram, read eeprom, or write eeprom commands
 mem_f04e = 0xf04e
 mem_f04f = 0xf04f           ;KWP1281 Group number
-mem_f050 = 0xf050
+mem_f050 = 0xf050           ;KWP1281 number of measurements in group left to read
 mem_f051 = 0xf051
 fis_tx_buf = 0xf052         ;FIS display 3LB packet buffer (20 bytes)
 mem_f066 = 0xf066
@@ -7007,9 +7007,26 @@ lab_2824:
     ret                     ;282f  af
 
 sub_2830:
-;called from group reading lab_5429
-;returns some status in D where D=0x0F means error
-    bt mem_fe5f.4,lab_287a  ;2830  cc 5f 47
+;Group reading: read one measurement (of up to four) from the group
+;Called from group reading lab_5429_loop
+;
+;Call with:
+;  mem_fe5f.4 = 0 to start reading first measurement
+;  kwp_rx_buf+3 = group number
+;
+;Returns:
+;  A = formula byte
+;  X = measurement high byte
+;  E = measurement low byte
+;  D = 0x0F if an error occurred
+;  Carry clear = measurement data in A/X/E, carry clear = no measurement
+;
+    bt mem_fe5f.4,lab_287a  ;2830  cc 5f 47     Branch if we have already started reading
+                            ;                     the measuring block group
+
+    ;We have just started this group reading.  Check the group number, perform setup,
+    ;then fall through to return the data for the first measurement in the group
+
     mov a,!kwp_rx_buf+3     ;2833  8e 8d f0     A = KWP1281 rx buffer byte 3 (group number)
     mov !mem_f04f,a         ;2836  9e 4f f0     Store group number in mem_f04f
 
@@ -7023,28 +7040,28 @@ sub_2830:
     mov a,!mem_f1e9         ;2841  8e e9 f1
     bt a.0,lab_2858_failed  ;2844  31 0e 11     Branch if FIS display is disabled
                             ;                     TODO: is that what bit 0 really means?
-    mov a,#0x06             ;2847  a1 06
+    mov a,#0x06             ;2847  a1 06        XXX redundant; A is already 0x06
     ;Fall through
 
 lab_2849_not_0x19_0x06:
 ;Group is not 0x19 or 0x06
-    movw hl,#mem_af8d+1     ;2849  16 8e af     HL = pointer to table of valid group numbers
-    call !sub_0b0d          ;284c  9a 0d 0b     Find A in table [HL] and load its position in B
-    bnc lab_2858_failed     ;284f  9d 07        Branch if find failed
+    movw hl,#group_numbers+1        ;2849  16 8e af     HL = pointer to table of valid group numbers
+    call !sub_0b0d                  ;284c  9a 0d 0b     Find A in table [HL] and load its position in B
+    bnc lab_2858_failed             ;284f  9d 07        Branch if find failed
 
-    movw hl,#mem_af96+1     ;2851  16 97 af     HL = pointer to table of group data pointers
-    callf !sub_0c48         ;2854  4c 48        Load DE with word at position B in table [HL]
-    bnc lab_2862_group_ok   ;2856  9d 0a        Branch if table lookup succeeded
+    movw hl,#group_data_pointers+1  ;2851  16 97 af     HL = pointer to table of group data pointers
+    callf !sub_0c48                 ;2854  4c 48        Load DE with word at position B in table [HL]
+    bnc lab_2862_group_ok           ;2856  9d 0a        Branch if table lookup succeeded
+    ;Fall through
 
 lab_2858_failed:
 ;Failure
     mov d,#0x0f             ;2858  a5 0f
     ;Fall through
 
-lab_285a_success:
-;Success
-    clr1 mem_fe5f.4         ;285a  4b 5f
-    set1 cy                 ;285c  20
+lab_285a_no_data:
+    clr1 mem_fe5f.4         ;285a  4b 5f        Clear bit = done reading measuring block group
+    set1 cy                 ;285c  20           Set carry = no measurement data returned this time
     ret                     ;285d  af
 
 lab_285e_group_0x19:
@@ -7054,51 +7071,69 @@ lab_285e_group_0x19:
 
 lab_2862_group_ok:
 ;Group number lookup succeeded
-;DE contains one of the pointers to group reading data from table at mem_af96+1
-    movw ax,de              ;2862  c4           AX = pointer to group reading data
+;DE contains one of the pointers to group reading data from table at group_data_pointers+1
+    movw ax,de              ;2862  c4           AX = pointer to group reading data (group_N_data)
     movw !mem_f002,ax       ;2863  03 02 f0     Save it in mem_f002
 
-    decw de                 ;2866  94           DE = back up one to read number of entries in table
-    mov a,[de]              ;2867  85           A = number of entries in group reading data table
+    decw de                 ;2866  94           DE = back up one to read number of bytes in table
+    mov a,[de]              ;2867  85           A = number of bytes in group reading data table
     incw de                 ;2868  84           DE = forward to point to first entry again
 
-    mov x,a                 ;2869  70
-    mov a,#0x00             ;286a  a1 00
-    mov c,#0x03             ;286c  a2 03
-    divuw c                 ;286e  31 82
-    mov a,x                 ;2870  60
+    ;A = number of measurements in group
+    ;Computed by number of bytes in group data table / 3
+    mov x,a                 ;2869  70           X = number of bytes in group reading data table
+    mov a,#0x00             ;286a  a1 00        A = 0 (high byte for division)
+    mov c,#0x03             ;286c  a2 03        C = 3 bytes per measurement (formula + high + low)
+    divuw c                 ;286e  31 82        AX = AX / C
+    mov a,x                 ;2870  60           A = X (quotient low byte)
+
     cmp a,#0x05             ;2871  4d 05
-    bc lab_2877             ;2873  8d 02
-    mov a,#0x04             ;2875  a1 04
+    bc lab_2877             ;2873  8d 02        Branch if number of measurements in group < 5
+
+    ;Number of measurements in group >= 5
+    mov a,#0x04             ;2875  a1 04        Cap number of measurements at 4
 
 lab_2877:
-    mov !mem_f050,a         ;2877  9e 50 f0
+    mov !mem_f050,a         ;2877  9e 50 f0     Store number of measurements in group left to read
 
 lab_287a:
+;Read the next measurement from the group
     mov d,#0x00             ;287a  a5 00
-    mov a,!mem_f050         ;287c  8e 50 f0
-    cmp a,#0x00             ;287f  4d 00
-    bz lab_285a_success     ;2881  ad d7
-    dec a                   ;2883  51
-    mov !mem_f050,a         ;2884  9e 50 f0
-    set1 mem_fe5f.4         ;2887  4a 5f
+
+    mov a,!mem_f050         ;287c  8e 50 f0     A = number of measurements in group left to read
+    cmp a,#0x00             ;287f  4d 00        Is it zero?
+    bz lab_285a_no_data     ;2881  ad d7          Yes: nothing to do, return with no data
+
+    ;At least one measurement left to read
+
+    dec a                   ;2883  51           Decrement number of measurements in group left to read
+    mov !mem_f050,a         ;2884  9e 50 f0     Store it decremented value
+
+    set1 mem_fe5f.4         ;2887  4a 5f        Set bit = currently reading a measuring block group
+
     movw ax,!mem_f002       ;2889  02 02 f0
-    movw hl,ax              ;288c  d6
+    movw hl,ax              ;288c  d6           HL = pointer to group reading data (group_N_data)
+
     mov a,[hl]              ;288d  87
     mov e,a                 ;288e  74
+
     incw hl                 ;288f  86
     mov a,[hl]              ;2890  87
     mov x,a                 ;2891  70
+
     incw hl                 ;2892  86
     mov a,[hl]              ;2893  87
     xch a,e                 ;2894  34
+
     push ax                 ;2895  b1
     incw hl                 ;2896  86
     movw ax,hl              ;2897  c6
-    movw !mem_f002,ax       ;2898  03 02 f0
+    movw !mem_f002,ax       ;2898  03 02 f0     Save incremented pointer to group reading data
+                            ;                     (now pointing at the first byte of the next
+                            ;                      measurement in the group)
     pop ax                  ;289b  b0
-    push ax                 ;289c  b1
 
+    push ax                 ;289c  b1
     mov a,!mem_f04f         ;289d  8e 4f f0     A = KWP1281 group number
     cmp a,#0x07             ;28a0  4d 07
     mov a,e                 ;28a2  64
@@ -7310,7 +7345,7 @@ sub_29b4:
     call !sub_2d44          ;29c3  9a 44 2d
     call !sub_2d6e          ;29c6  9a 6e 2d
     bc lab_29ce             ;29c9  8d 03
-    br !lab_2ab9            ;29cb  9b b9 2a
+    br !lab_2ab9_ret        ;29cb  9b b9 2a
 
 lab_29ce:
     mov a,mem_fed4          ;29ce  f0 d4
@@ -7353,14 +7388,16 @@ lab_29f7:
     call !sub_4092          ;2a0d  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
 
 lab_2a10:
-    movw hl,#mem_f1f9       ;2a10  16 f9 f1
-    mov a,#0x09             ;2a13  a1 09
-    call !sub_2de6          ;2a15  9a e6 2d
-    push ax                 ;2a18  b1
+    movw hl,#mem_f1f9       ;2a10  16 f9 f1     HL = pointer to buffer to sum
+    mov a,#0x09             ;2a13  a1 09        A = 9 bytes to sum
+    call !sub_2de6          ;2a15  9a e6 2d     AX = sum of A bytes in buffer [HL]
+    push ax                 ;2a18  b1           Push sum of 9 bytes at mem_f1f9
+
     movw hl,#kwp_rx_buf+3   ;2a19  16 8d f0     HL = source address (KWP1281 rx buffer byte 3)
     movw de,#mem_f1f9       ;2a1c  14 f9 f1     DE = destination address
     mov a,#0x04             ;2a1f  a1 04        A = 4 bytes to copy
     callf !sub_0c9e         ;2a21  4c 9e        Copy A bytes from [HL] to [DE]
+
     mov a,mem_fed4          ;2a23  f0 d4
     and a,#0x0f             ;2a25  5d 0f
     mov !mem_f1fd,a         ;2a27  9e fd f1
@@ -7379,14 +7416,16 @@ lab_2a10:
     and a,#0x0f             ;2a45  5d 0f
     mov !mem_f201,a         ;2a47  9e 01 f2
     set1 mem_fe73.5         ;2a4a  5a 73
-    movw hl,#mem_f1f9       ;2a4c  16 f9 f1
-    mov a,#0x09             ;2a4f  a1 09
-    call !sub_2de6          ;2a51  9a e6 2d
+
+    movw hl,#mem_f1f9       ;2a4c  16 f9 f1     HL = pointer to buffer to sum
+    mov a,#0x09             ;2a4f  a1 09        A = 9 bytes to sum
+    call !sub_2de6          ;2a51  9a e6 2d     AX = sum of A bytes in buffer [HL]
     movw de,ax              ;2a54  d4
+
     movw mem_fed4,ax        ;2a55  99 d4
-    pop bc                  ;2a57  b2
+    pop bc                  ;2a57  b2           Pop sum of 9 bytes at mem_f1f9
     movw hl,#mem_f202       ;2a58  16 02 f2
-    call !sub_2df8          ;2a5b  9a f8 2d
+    call !sub_2df8          ;2a5b  9a f8 2d     [HL] = [HL] - BC
 
 lab_2a5e:
     call !sub_6217          ;2a5e  9a 17 62     Unknown; EEPROM related
@@ -7399,56 +7438,60 @@ lab_2a65:
     movw de,#mem_fed6       ;2a68  14 d6 fe     DE = pointer to buffer to receive EEPROM contents
     mov a,#0x09             ;2a6b  a1 09        A = 9 bytes to read from EEPROM
     call !sub_6238          ;2a6d  9a 38 62     Read A bytes from EEPROM address HL into [DE]
-    bc lab_2a74             ;2a70  8d 02        Branch if EEPROM read succeeded
-    br lab_2ab9             ;2a72  fa 45
+    bc lab_2a74_success     ;2a70  8d 02        Branch if EEPROM read succeeded
+    br lab_2ab9_ret         ;2a72  fa 45        Branch to just return on failure
 
-lab_2a74:
-    movw hl,#mem_fed6       ;2a74  16 d6 fe
-    mov a,#0x09             ;2a77  a1 09
-    call !sub_2de6          ;2a79  9a e6 2d
-    movw bc,ax              ;2a7c  d2
+lab_2a74_success:
+    movw hl,#mem_fed6       ;2a74  16 d6 fe     HL = pointer to buffer to sum
+    mov a,#0x09             ;2a77  a1 09        A = 9 bytes to sum
+    call !sub_2de6          ;2a79  9a e6 2d     AX = sum of A bytes in buffer [HL]
+    movw bc,ax              ;2a7c  d2           Save the sum in BC
+
     movw hl,#0x0061         ;2a7d  16 61 00     HL = EEPROM address 0x0061
     movw de,#mem_fed6       ;2a80  14 d6 fe     DE = pointer to buffer to receive EEPROM contents
     mov a,#0x02             ;2a83  a1 02        A = 2 bytes to read from EEPROM
     call !sub_6238          ;2a85  9a 38 62     Read A bytes from EEPROM address HL into [DE]
-    bc lab_2a8c             ;2a88  8d 02        Branch if EEPROM read succeeded
-    br lab_2ab9             ;2a8a  fa 2d
+    bc lab_2a8c_success     ;2a88  8d 02        Branch if EEPROM read succeeded
+    br lab_2ab9_ret         ;2a8a  fa 2d        Branch to just return on failure
 
-lab_2a8c:
+lab_2a8c_success:
     movw ax,mem_fed4        ;2a8c  89 d4
     movw de,ax              ;2a8e  d4
     movw hl,#mem_fed6       ;2a8f  16 d6 fe     HL = pointer to buffer to write to EEPROM
-    call !sub_2df8          ;2a92  9a f8 2d
+    call !sub_2df8          ;2a92  9a f8 2d     [HL] = [HL] - BC
     movw de,#0x0061         ;2a95  14 61 00     DE = EEPROM address 0x0061
     mov a,#0x02             ;2a98  a1 02        A = 2 bytes to write to EEPROM
     call !sub_628e          ;2a9a  9a 8e 62     Write A bytes to EEPROM address DE from [HL]
-    bnc lab_2ab9            ;2a9d  9d 1a        Branch if write failed
+    bnc lab_2ab9_ret        ;2a9d  9d 1a        Branch if write failed
+    ;Fall through on success
 
-lab_2a9f:
+lab_2a9f_loop:
     call !sub_6217          ;2a9f  9a 17 62     Unknown; EEPROM related
-    bnc lab_2a9f            ;2aa2  9d fb        Repeat until success
+    bnc lab_2a9f_loop       ;2aa2  9d fb        Repeat until success
 
     movw hl,#mem_f1f9       ;2aa4  16 f9 f1     HL = pointer to buffer to write to EEPROM
     ;TODO EEPROM addresses 0x0058-0x0061 are protected in lab_2c60
     movw de,#0x0058         ;2aa7  14 58 00     DE = EEPROM address 0x0058
     mov a,#0x09             ;2aaa  a1 09        A = 9 bytes to write to EEPROM
     call !sub_628e          ;2aac  9a 8e 62     Write A bytes to EEPROM address DE from [HL]
-    bnc lab_2ab9            ;2aaf  9d 08        Branch if write failed
+    bnc lab_2ab9_ret        ;2aaf  9d 08        Branch if write failed
 
     movw hl,#mem_f216       ;2ab1  16 16 f2     HL = pointer to faults buffer #2 "01044 - Control Module Incorrectly Coded"
     mov a,#0x88             ;2ab4  a1 88        A = 0x88 (fault elaboration for "no fault")
     call !sub_4092          ;2ab6  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
 
-lab_2ab9:
+lab_2ab9_ret:
     ret                     ;2ab9  af
 
 sub_2aba:
 ;called when login succeeds
     call !sub_2d35          ;2aba  9a 35 2d     Clear bits in mem_fe5f and mem_fe60
-    movw hl,#mem_f1f9       ;2abd  16 f9 f1
-    mov a,#0x09             ;2ac0  a1 09
-    call !sub_2de6          ;2ac2  9a e6 2d
-    push ax                 ;2ac5  b1
+
+    movw hl,#mem_f1f9       ;2abd  16 f9 f1     HL = pointer to buffer to sum
+    mov a,#0x09             ;2ac0  a1 09        A = 9 bytes to sum
+    call !sub_2de6          ;2ac2  9a e6 2d     AX = sum of A bytes in buffer [HL]
+    push ax                 ;2ac5  b1           Push sum of 9 bytes at mem_f1f9
+
     mov a,!kwp_rx_buf+5     ;2ac6  8e 8f f0     KWP1281 rx buffer byte 5
     and a,#0x01             ;2ac9  5d 01
     mov x,a                 ;2acb  70
@@ -7462,61 +7505,66 @@ sub_2aba:
     mov !mem_f1fb,a         ;2ad9  9e fb f1
     mov a,!kwp_rx_buf+7     ;2adc  8e 91 f0     KWP1281 rx buffer byte 7
     mov !mem_f1fc,a         ;2adf  9e fc f1
-    movw hl,#mem_f1f9       ;2ae2  16 f9 f1
-    mov a,#0x09             ;2ae5  a1 09
-    call !sub_2de6          ;2ae7  9a e6 2d
+
+    movw hl,#mem_f1f9       ;2ae2  16 f9 f1     HL = pointer to buffer to sum
+    mov a,#0x09             ;2ae5  a1 09        A = 9 bytes to sum
+    call !sub_2de6          ;2ae7  9a e6 2d     AX = sum of A bytes in buffer [HL]
     movw de,ax              ;2aea  d4
+
     movw mem_fed4,ax        ;2aeb  99 d4
-    pop bc                  ;2aed  b2
+    pop bc                  ;2aed  b2           Pop sum of 9 bytes at mem_f1f9
     movw hl,#mem_f202       ;2aee  16 02 f2
-    call !sub_2df8          ;2af1  9a f8 2d
+    call !sub_2df8          ;2af1  9a f8 2d     [HL] = [HL] - BC
 
-lab_2af4:
+lab_2af4_loop:
     call !sub_6217          ;2af4  9a 17 62     Unknown; EEPROM related
-    bc lab_2afb             ;2af7  8d 02        Branch if success
-    br lab_2af4             ;2af9  fa f9        Repeat until success
+    bc lab_2afb_success     ;2af7  8d 02        Branch if success
+    br lab_2af4_loop        ;2af9  fa f9        Repeat until success
 
-lab_2afb:
+lab_2afb_success:
     ;TODO EEPROM addresses 0x0058-0x0061 are protected in lab_2c60
     movw hl,#0x0058         ;2afb  16 58 00     HL = EEPROM address 0x0058
     movw de,#mem_fed6       ;2afe  14 d6 fe     DE = pointer to buffer to receive EEPROM contents
     mov a,#0x09             ;2b01  a1 09        A = 9 bytes to read from EEPROM
     call !sub_6238          ;2b03  9a 38 62     Read A bytes from EEPROM address HL into [DE]
-    bc lab_2b0a             ;2b06  8d 02        Branch if EEPROM read succeeded
-    br lab_2b45             ;2b08  fa 3b
+    bc lab_2b0a_success     ;2b06  8d 02        Branch if EEPROM read succeeded
+    br lab_2b45_ret         ;2b08  fa 3b        Branch to just return on failure
 
-lab_2b0a:
-    movw hl,#mem_fed6       ;2b0a  16 d6 fe
-    mov a,#0x09             ;2b0d  a1 09
-    call !sub_2de6          ;2b0f  9a e6 2d
-    movw bc,ax              ;2b12  d2
+lab_2b0a_success:
+    movw hl,#mem_fed6       ;2b0a  16 d6 fe     HL = pointer to buffer to sum
+    mov a,#0x09             ;2b0d  a1 09        A = 9 bytes to sum
+    call !sub_2de6          ;2b0f  9a e6 2d     AX = sum of A bytes in buffer [HL]
+    movw bc,ax              ;2b12  d2           Save the sum in BC
+
     movw hl,#0x0061         ;2b13  16 61 00     HL = EEPROM address 0x0061
     movw de,#mem_fed6       ;2b16  14 d6 fe     DE = pointer to buffer to receive EEPROM contents
     mov a,#0x02             ;2b19  a1 02        A = 2 bytes to read from EEPROM
     call !sub_6238          ;2b1b  9a 38 62     Read A bytes from EEPROM address HL into [DE]
-    bc lab_2b22             ;2b1e  8d 02        Branch if EEPROM read succeeded
-    br lab_2b45             ;2b20  fa 23
 
-lab_2b22:
+    bc lab_2b22_success     ;2b1e  8d 02        Branch if EEPROM read succeeded
+    br lab_2b45_ret         ;2b20  fa 23        Branch to just return on failure
+
+lab_2b22_success:
     movw ax,mem_fed4        ;2b22  89 d4
     movw de,ax              ;2b24  d4
     movw hl,#mem_fed6       ;2b25  16 d6 fe     HL = pointer to buffer to write to EEPROM
-    call !sub_2df8          ;2b28  9a f8 2d
+    call !sub_2df8          ;2b28  9a f8 2d     [HL] = [HL] - BC
     movw de,#0x0061         ;2b2b  14 61 00     DE = EEPROM address 0x0061
     mov a,#0x02             ;2b2e  a1 02        A = 2 bytes to write to EEPROM
     call !sub_628e          ;2b30  9a 8e 62     Write A bytes to EEPROM address DE from [HL]
-    bnc lab_2b45            ;2b33  9d 10        Branch if write failed
+    bnc lab_2b45_ret        ;2b33  9d 10        Branch to just return if write failed
+    ;Fall through to success
 
-lab_2b35:
+lab_2b35_success:
     call !sub_6217          ;2b35  9a 17 62     Unknown; EEPROM related
-    bnc lab_2b35            ;2b38  9d fb        Repeat until success
+    bnc lab_2b35_success    ;2b38  9d fb        Repeat until success
 
     movw hl,#mem_f1fa       ;2b3a  16 fa f1     HL = pointer to buffer to write to EEPROM
     movw de,#0x0059         ;2b3d  14 59 00     DE = EEPROM address 0x0059
     mov a,#0x03             ;2b40  a1 03        A = 3 bytes to write to EEPROM
     call !sub_628e          ;2b42  9a 8e 62     Write A bytes to EEPROM address DE from [HL]
 
-lab_2b45:
+lab_2b45_ret:
     ret                     ;2b45  af
 
 sub_2b46:
@@ -8038,8 +8086,8 @@ lab_2d33:
 
 sub_2d35:
 ;Clear bits in mem_fe5f and mem_fe60
-    clr1 mem_fe5f.3         ;2d35  3b 5f      Clear bit = done reading the faults buffer
-    clr1 mem_fe5f.4         ;2d37  4b 5f
+    clr1 mem_fe5f.3         ;2d35  3b 5f      Clear bit = not currently reading the faults buffer
+    clr1 mem_fe5f.4         ;2d37  4b 5f      Clear bit = not currently reading a measuring block group
     clr1 mem_fe5f.6         ;2d39  6b 5f
     clr1 mem_fe5f.7         ;2d3b  7b 5f
     clr1 mem_fe60.0         ;2d3d  0b 60
@@ -8165,23 +8213,25 @@ sub_2dd6:
 
 
 sub_2de6:
+;AX = sum of A bytes in buffer [HL]
     push bc                 ;2de6  b3
     decw hl                 ;2de7  96
     mov b,a                 ;2de8  73
-    mov a,#0x00             ;2de9  a1 00
-    mov x,#0x00             ;2deb  a0 00
-
-lab_2ded:
+    mov a,#0                ;2de9  a1 00
+    mov x,#0                ;2deb  a0 00
+lab_2ded_loop:
     mov c,a                 ;2ded  72
     mov a,[hl+b]            ;2dee  ab
     add x,a                 ;2def  61 00
     mov a,c                 ;2df1  62
-    addc a,#0x00            ;2df2  2d 00
-    dbnz b,lab_2ded         ;2df4  8b f7
+    addc a,#0               ;2df2  2d 00
+    dbnz b,lab_2ded_loop    ;2df4  8b f7
     pop bc                  ;2df6  b2
     ret                     ;2df7  af
 
+
 sub_2df8:
+;[HL] = [HL] - BC
     mov a,[hl]              ;2df8  87
     sub a,c                 ;2df9  61 1a
     xch a,x                 ;2dfb  30
@@ -8194,6 +8244,7 @@ sub_2df8:
     addc a,d                ;2e05  61 2d
     mov [hl+0x01],a         ;2e07  be 01
     ret                     ;2e09  af
+
 
 sub_2e0a:
 ;Convert lower nibble of A to hexadecimal digit in ASCII
@@ -14721,11 +14772,14 @@ sub_5292:
 ;Set block title, counter, length in KWP1281 tx buffer
 ;Stores block length in mem_f06b, increments block counter in mem_fbcb
 ;
-;Call with B = index to kwp_lengths_b280
-;Returns HL = pointer to KWP1281 tx buffer byte 0 (block length)
-;Returns A = block length from kwp_lengths_b280 table
-;Returns X = block length from kwp_lengths_b280 table (again)
-;Returns B = 3 (offset to first byte after block title)
+;Call with:
+;  B = index to kwp_lengths_b280
+;
+;Returns:
+;  HL = pointer to KWP1281 tx buffer byte 0 (block length)
+;  A = block length from kwp_lengths_b280 table
+;  X = block length from kwp_lengths_b280 table (again)
+;  B = 3 (offset to first byte after block title)
 ;
     movw hl,#kwp_lengths_b280+1 ;5292  16 81 b2
     mov a,[hl+b]            ;5295  ab           A = block length from table
@@ -15056,35 +15110,44 @@ lab_5422:
 
     mov c,#0x04             ;5427  a2 04        C = 4 values to read in group
 
-lab_5429:
+lab_5429_loop:
     push hl                 ;5429  b7           Push HL (address of KWP1281 tx buffer)
     push bc                 ;542a  b3           Push BC (B = 3, offset into tx buffer)
 
-    call !sub_2830          ;542b  9a 30 28     Group lookup
-                            ;                   Returns D=0x0F on error
+    call !sub_2830          ;542b  9a 30 28     Read one measurement from the group
+                            ;                     A = formula byte
+                            ;                     X = measurement high byte
+                            ;                     E = measurement low byte
+                            ;                     D = 0x0F if an error occurred
+                            ;                     Carry clear = measurement data in A/X/E, carry clear = no measurement
 
-    pop bc                  ;542e  b2           Pop BC (B = 3, offset into tx buffer)
+    pop bc                  ;542e  b2           Pop BC (offset into tx buffer)
     pop hl                  ;542f  b6           Pop HL (address of KWP1281 tx buffer)
-    bc lab_543c             ;5430  8d 0a
 
-    mov [hl+b],a            ;5432  bb
-    inc b                   ;5433  43           B = 4 (offset into tx buffer)
+    bc lab_543c             ;5430  8d 0a        Branch if sub_2830 did not return a measurement
+
+    ;Write the measurment into the KWP1281 tx buffer
+    mov [hl+b],a            ;5432  bb           Write formula byte (A)
+    inc b                   ;5433  43
     mov a,x                 ;5434  60
-    mov [hl+b],a            ;5435  bb
-
-    inc b                   ;5436  43           B = 5 (offset into tx buffer)
+    mov [hl+b],a            ;5435  bb           Write measurement high byte (X)
+    inc b                   ;5436  43
     mov a,e                 ;5437  64
-    mov [hl+b],a            ;5438  bb
+    mov [hl+b],a            ;5438  bb           Write measurement low byte (E)
+    inc b                   ;5439  43
 
-    inc b                   ;5439  43           B = 6 (offset into tx buffer)
-    dbnz c,lab_5429         ;543a  8a ed
+    dbnz c,lab_5429_loop    ;543a  8a ed        Loop until all 4 measurements in this group
+                            ;                     have been written to the tx buffer
 
 lab_543c:
+;either sub_2830 did not return a measurement
+;or all 4 measurements have been read
     mov a,d                 ;543c  65           A=D (error code returned in D by sub_2830)
-    cmp a,#0x0f             ;543d  4d 0f
-    bnz lab_544c            ;543f  bd 0b
+    cmp a,#0x0f             ;543d  4d 0f        Is it the 0x0F error code?
+    bnz lab_544c            ;543f  bd 0b          No: branch to lab_544c to send the group response
+                            ;                     Yes: fall through to send a NAK response
 
-;error from sub_2830
+    ;error from sub_2830
     mov a,!mem_fbcb         ;5441  8e cb fb     A = block counter
     sub a,#0x01             ;5444  1d 01        Decrement it
     mov !mem_fbcb,a         ;5446  9e cb fb     Store block counter
@@ -15094,7 +15157,7 @@ lab_544c:
 ;no error from sub_2830
     mov a,b                 ;544c  63
     cmp a,#0x03             ;544d  4d 03
-    bz lab_5429             ;544f  ad d8
+    bz lab_5429_loop        ;544f  ad d8
     mov [hl],a              ;5451  97
     mov !mem_f06b,a         ;5452  9e 6b f0     Store block length
     mov a,#0x03             ;5455  a1 03        A = 0x03 block end
@@ -29987,7 +30050,7 @@ mem_af75:
     .byte 0b01111111        ;af8b  7f          DATA 0x7f
     .byte 0b11111111        ;af8c  ff          DATA 0xff
 
-mem_af8d:
+group_numbers:
 ;group reading related
 ;valid group numbers
 ;used with sub_0b0d
@@ -30001,20 +30064,20 @@ mem_af8d:
     .byte 0x07              ;af94  07          DATA 0x07    Group 7 (Steering Wheel Control)
     .byte 0x19              ;af95  19          DATA 0x19    Group 25 (Protection)
 
-mem_af96:
+group_data_pointers:
 ;group reading related
-;pointer to data table for each group, same order as mem_af8d
+;pointer to data table for each group, same order as group_numbers
 ;used with sub_0c48
     .byte 0x07              ;af96  07          DATA 0x07        7 entries below:
-    .word mem_afa5+1        ;af97              POINTER          Group 1 (General)
-    .word mem_afb2+1        ;af99              POINTER          Group 2 (Speakers)
-    .word mem_afbf+1        ;af9b              POINTER          Group 3 (Antenna)
-    .word mem_afc9+1        ;af9d              POINTER          Group 4 (Amplifier)
-    .word mem_afcd+1        ;af9f              POINTER          Group 5 (CD Changer)
-    .word mem_afd4+1        ;afa1              POINTER          Group 6 (External Display)
-    .word mem_afdb+1        ;afa3              POINTER          Group 7 (Steering Wheel Control)
+    .word group_1_data+1    ;af97              POINTER          Group 1 (General)
+    .word group_2_data+1    ;af99              POINTER          Group 2 (Speakers)
+    .word group_3_data+1    ;af9b              POINTER          Group 3 (Antenna)
+    .word group_4_data+1    ;af9d              POINTER          Group 4 (Amplifier)
+    .word group_5_data+1    ;af9f              POINTER          Group 5 (CD Changer)
+    .word group_6_data+1    ;afa1              POINTER          Group 6 (External Display)
+    .word group_7_data+1    ;afa3              POINTER          Group 7 (Steering Wheel Control)
 
-mem_afa5:
+group_1_data:
 ;Group 1 (General)
     .byte 0x0c              ;afa5  0c          DATA 0x0c        12 entries below:
     .byte 0x25              ;afa6  25          DATA 0x25 '%'    type        \
@@ -30030,7 +30093,7 @@ mem_afa5:
     .byte 0x00              ;afb0  00          DATA 0x00        value a      S-Contact Status
     .byte 0xe0              ;afb1  e0          DATA 0xe0        value b     /
 
-mem_afb2:
+group_2_data:
 ;Group 2 (Speakers)
     .byte 0x0c              ;afb2  0c          DATA 0x0c        12 entries below:
     .byte 0x25              ;afb3  25          DATA 0x25 '%'    type        \
@@ -30046,7 +30109,7 @@ mem_afb2:
     .byte 0x00              ;afbd  00          DATA 0x00        value a      Status
     .byte 0xe2              ;afbe  e2          DATA 0xe2        value b     /
 
-mem_afbf:
+group_3_data:
 ;Group 3 (Antenna)
     .byte 0x09              ;afbf  09          DATA 0x09        9 entries below:
     .byte 0x25              ;afc0  25          DATA 0x25 '%'    type        \
@@ -30059,14 +30122,14 @@ mem_afbf:
     .byte 0x00              ;afc7  00          DATA 0x00        value a      Status
     .byte 0xe4              ;afc8  e4          DATA 0xe4        value b     /
 
-mem_afc9:
+group_4_data:
 ;Group 4 (Amplifier)
     .byte 0x03              ;afc9  03          DATA 0x03        3 entries below
     .byte 0x10              ;afca  10          DATA 0x10        type        \
     .byte 0x01              ;afcb  01          DATA 0x01        value a      Amplifier Output
     .byte 0xd1              ;afcc  d1          DATA 0xd1        value b     /
 
-mem_afcd:
+group_5_data:
 ;Group 5 (CD Changer)
     .byte 0x06              ;afcd  06          DATA 0x06        6 entries below:
     .byte 0x25              ;afce  25          DATA 0x25 '%'    type        \
@@ -30076,7 +30139,7 @@ mem_afcd:
     .byte 0x00              ;afd2  00          DATA 0x00        value a      Status
     .byte 0xe5              ;afd3  e5          DATA 0xe5        value b     /
 
-mem_afd4:
+group_6_data:
 ;Group 6 (External Display)
     .byte 0x06              ;afd4  06          DATA 0x06        6 entries below:
     .byte 0x25              ;afd5  25          DATA 0x25 '%'    type        \
@@ -30086,7 +30149,7 @@ mem_afd4:
     .byte 0x00              ;afd9  00          DATA 0x00        value a      Status
     .byte 0xe6              ;afda  e6          DATA 0xe6        value b     /
 
-mem_afdb:
+group_7_data:
 ;Group 7 (Steering Wheel Control)
     .byte 0x03              ;afdb  03          DATA 0x03        3 entries below:
     .byte 0x11              ;afdc  11          DATA 0x11        type        \
