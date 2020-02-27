@@ -62,4 +62,4 @@ Operation of the S-contact:
   accessory position, the S-contact turns on it.  It will remain on
   if the key is turned again to the ignition position.  Once the
   S-contact is turned on, it will remain on until the key is removed
-  from the ignition, even if the key is turned al the way back.
+  from the ignition, even if the key is turned all the way back.
