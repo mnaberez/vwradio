@@ -38,7 +38,7 @@ mem_f034 = 0xf034
 mem_f03b = 0xf03b
 mem_f04b = 0xf04b
 mem_f04c = 0xf04c           ;byte count for KWP1281 read ram, read eeprom, or write eeprom commands
-mem_f04e = 0xf04e
+mem_f04e = 0xf04e           ;KWP1281 Output Test index
 mem_f04f = 0xf04f           ;KWP1281 Group number
 mem_f050 = 0xf050           ;KWP1281 number of measurements in group left to read
 mem_f051 = 0xf051
@@ -3073,7 +3073,7 @@ lab_0f1b:
     set1 mk0h.5             ;0f81  71 5a e5     Set CSIMK31 (disables INTCSI31)
 
     mov a,#0x00             ;0f84  a1 00
-    mov !mem_f04e,a         ;0f86  9e 4e f0
+    mov !mem_f04e,a         ;0f86  9e 4e f0     KWP1281 Output Test index = 0
     clr1 mem_fe5f.5         ;0f89  5b 5f
     call !sub_2d35          ;0f8b  9a 35 2d     Clear bits in mem_fe5f and mem_fe60
     set1 shadow_p2.5        ;0f8e  5a cc        P25/TxD0 = 1
@@ -6951,38 +6951,47 @@ lab_27ce_ret:
     ret                     ;27ce  af
 
 
-sub_27cf:
+perform_next_test:
+;Perform the next output test
+;Returns:
+;  AX = one of the words from the output_tests table
+;  Carry set = output tests finished, carry clear = output tests continuing
     push hl                 ;27cf  b7
     push bc                 ;27d0  b3
     call !sub_2d35          ;27d1  9a 35 2d     Clear bits in mem_fe5f and mem_fe60
-    mov a,!mem_f04e         ;27d4  8e 4e f0
+    mov a,!mem_f04e         ;27d4  8e 4e f0     A = KWP1281 Output Test index
     cmp a,#0x03             ;27d7  4d 03
-    bc lab_27e6             ;27d9  8d 0b
+    bc lab_27e6             ;27d9  8d 0b        Branch if mem_f04e < 3
+    ;Output tests finished
     clr1 mem_fe5f.5         ;27db  5b 5f
     mov a,#0x00             ;27dd  a1 00
-    mov !mem_f04e,a         ;27df  9e 4e f0
+    mov !mem_f04e,a         ;27df  9e 4e f0     KWP1281 Output Test index = 0
     pop bc                  ;27e2  b2
     pop hl                  ;27e3  b6
-    set1 cy                 ;27e4  20
+    set1 cy                 ;27e4  20           Carry set = output tests finished
     ret                     ;27e5  af
 
 lab_27e6:
-    mov b,a                 ;27e6  73
-    inc a                   ;27e7  41
-    mov !mem_f04e,a         ;27e8  9e 4e f0
-    movw hl,#mem_b001+1     ;27eb  16 02 b0
+;mem_f04e < 3
+;More output tests are remaining in output_tests table
+;Do the next one
+    mov b,a                 ;27e6  73           B = KWP1281 Output Test index
+    inc a                   ;27e7  41           Increment it
+    mov !mem_f04e,a         ;27e8  9e 4e f0     Store as KWP1281 Output Test index
+
+    movw hl,#output_tests+1 ;27eb  16 02 b0     HL = pointer to table of Output Test codes
     callf !sub_0c48         ;27ee  4c 48        Load DE with word at position B in table [HL]
     bc lab_2818             ;27f0  8d 26        Branch if table lookup failed
                             ;                     (branches to pop registers, clear carry, and ret)
 
-    movw ax,de              ;27f2  c4
+    movw ax,de              ;27f2  c4           AX = word loaded from output_tests table
     cmpw ax,#0x0353         ;27f3  ea 53 03     Compare with 00851 - Loudspeaker(s)
     bnz lab_27ff            ;27f6  bd 07
 
     ;AX = 0x0353 (00851 - Loudspeaker(s))
-    ;XXX redundant: this push/call/pop does nothing
+    ;XXX redundant: this push/call/pop does nothing because loudspeakers test is unimplemented
     push ax                 ;27f8  b1
-    call !sub_7bbd          ;27f9  9a bd 7b     Just returns
+    call !sub_7bbd          ;27f9  9a bd 7b     Perform loudspeakers output test (just returns)
     pop ax                  ;27fc  b0
 
     br lab_2818             ;27fd  fa 19        Branch to pop registers, clear carry, and return
@@ -6996,6 +7005,7 @@ lab_27ff:
     call !sub_7bbe          ;2805  9a be 7b
     call !fis_display_test  ;2808  9a 21 28     Copy display_test text into fis_tx_buf
     pop ax                  ;280b  b0
+
     br lab_2818             ;280c  fa 0a        Branch to pop registers, clear carry, and return
 
 lab_280e:
@@ -7008,9 +7018,9 @@ lab_280e:
     pop ax                      ;2817  b0
                                 ;                   Fall through to pop registers, clear carry, and ret
 lab_2818:
-    pop bc                  ;2818  b2
-    pop hl                  ;2819  b6
-    clr1 cy                 ;281a  21
+    pop bc                  ;2818  b2           Pop BC pushed at beginning of perform_next_test
+    pop hl                  ;2819  b6           Pop HL pushed at beginning of perform_next_test
+    clr1 cy                 ;281a  21           Clear carry = output tests are continuing
     ret                     ;281b  af
 
 fis_display_test_end:
@@ -7026,7 +7036,7 @@ fis_display_test:
 
 lab_2824:
     movw de,#fis_tx_buf+3   ;2824  14 55 f0     DE = destination address
-    mov a,#16             ;2827  a1 10          A = 16 bytes to copy (8 chars * 2 lines)
+    mov a,#16               ;2827  a1 10        A = 16 bytes to copy (8 chars * 2 lines)
     callf !sub_0c9e         ;2829  4c 9e        Copy A bytes from [HL] to [DE]
     set1 mem_fe60.3         ;282b  3a 60
     set1 mem_fe5f.5         ;282d  5a 5f
@@ -7177,7 +7187,7 @@ lab_287a:
     mov a,e                 ;28a2  64
     bnz lab_28e2            ;28a3  bd 3d
 
-    ;group number = 7
+    ;group number = 7 (Steering Wheel Control)
     pop ax                  ;28a5  b0
     xch a,e                 ;28a6  34
     movw hl,ax              ;28a7  d6
@@ -7189,6 +7199,7 @@ lab_287a:
     mov !mem_fb23,a         ;28b4  9e 23 fb
 
 lab_28b7:
+;group number != 7
     mov a,!mem_fb23         ;28b7  8e 23 fb
     cmp a,#0x00             ;28ba  4d 00
     bz lab_28da             ;28bc  ad 1c
@@ -7370,7 +7381,7 @@ lab_29b0_ret_data:
     ret                     ;29b3  af
 
 sub_29b4:
-;Called from recoding
+;Called from kwp_56_10_recoding
     call !sub_2d35          ;29b4  9a 35 2d     Clear bits in mem_fe5f and mem_fe60
     mov a,!kwp_rx_buf+4     ;29b7  8e 8e f0     A = KWP1281 rx buffer byte 4
     mov x,a                 ;29ba  70           Copy it to X
@@ -7388,35 +7399,39 @@ sub_29b4:
 lab_29ce:
     mov a,mem_fed4          ;29ce  f0 d4
     and a,!mem_f1fd         ;29d0  58 fd f1
-    mov b,a                 ;29d3  73
-    bt a.0,lab_29df         ;29d4  31 0e 08
+    mov b,a                 ;29d3  73           B = mem_fed4 & mem_f1fd
+    bt a.0,lab_29df         ;29d4  31 0e 08     Branch to skip clearing antenna fault
 
+    ;mem_fed4.0 & mem_f1fd.0 = 0
     movw hl,#mem_f215       ;29d7  16 15 f2     HL = pointer to faults buffer #2 "00856 - Radio Antenna"
     mov a,#0x88             ;29da  a1 88        A = 0x88 (fault elaboration for "no fault")
     call !sub_4092          ;29dc  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
 
 lab_29df:
-    mov a,b                 ;29df  63
+    mov a,b                 ;29df  63           A = recall result of mem_fed4 & mem_f1fd
     bt a.1,lab_29eb         ;29e0  31 1e 08
 
+    ;mem_fed4.1 & mem_f1fd.1 = 0
     movw hl,#mem_f214       ;29e3  16 14 f2     HL = pointer to faults buffer #2 "00855 - Connection to CD changer"
     mov a,#0x88             ;29e6  a1 88        A = 0x88 (fault elaboration for "no fault")
     call !sub_4092          ;29e8  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
 
 lab_29eb:
-    mov a,b                 ;29eb  63
+    mov a,b                 ;29eb  63           A = recall result of mem_fed4 & mem_f1fd
     bt a.2,lab_29f7         ;29ec  31 2e 08
 
+    ;mem_fed4.2 & mem_f1fd.2 = 0
     movw hl,#mem_f213       ;29ef  16 13 f2     HL = pointer to faults buffer #2 "00854 - Radio Display Output in Dash Panel Insert"
     mov a,#0x88             ;29f2  a1 88        A = 0x88 (fault elaboration for "no fault")
     call !sub_4092          ;29f4  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
 
 lab_29f7:
     mov a,mem_fed5          ;29f7  f0 d5
-    and a,#0x0f             ;29f9  5d 0f
+    and a,#0b00001111       ;29f9  5d 0f
     cmp a,!mem_f1ff         ;29fb  48 ff f1
     bz lab_2a10             ;29fe  ad 10
 
+    ;mem_fed5 & 0b00001111 != 0
     movw hl,#mem_f211       ;2a00  16 11 f2     HL = pointer to faults buffer #2 "00852 - Loudspeaker(s); Front"
     mov a,#0x88             ;2a03  a1 88        A = 0x88 (fault elaboration for "no fault")
     call !sub_4092          ;2a05  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
@@ -9480,13 +9495,13 @@ lab_3481:
 lab_348b:
     mov a,#0x00             ;348b  a1 00
     mov !mem_fbc9,a         ;348d  9e c9 fb
-    bf mem_fe65.5,lab_34a2  ;3490  31 53 65 0e    Clears many state bits + 3 more
+    bf mem_fe65.5,lab_34a2  ;3490  31 53 65 0e  Clears many state bits + 3 more
     set1 mem_fe7d.3         ;3494  3a 7d
     clr1 mem_fe61.4         ;3496  4b 61
     clr1 mem_fe5f.5         ;3498  5b 5f
     mov a,#0x00             ;349a  a1 00
     mov !mem_fb2e,a         ;349c  9e 2e fb
-    mov !mem_f04e,a         ;349f  9e 4e f0
+    mov !mem_f04e,a         ;349f  9e 4e f0     KWP128 Output Test index = 0
 
 lab_34a2:
 ;Clears many state bits + 3 more
@@ -15089,24 +15104,30 @@ lab_53c4:
     br !sub_34f7            ;53cc  9b f7 34     Set flags to start sending the KWP1281 tx buffer
 
 lab_53cf:
-;Jumped to from output tests
+;Jumped to from output tests (kwp_56_04_output_tests)
     mov b,#0x0d             ;53cf  a3 0d        B = index 0x0d response to output tests
     call !sub_5292          ;53d1  9a 92 52     Set block title, counter, length in KWP1281 tx buf
-    call !sub_27cf          ;53d4  9a cf 27
-    bnc lab_53e4            ;53d7  9d 0b
+    call !perform_next_test ;53d4  9a cf 27     Perform the next output test
+                            ;                     AX = one of the words from the output_tests table
+                            ;                     Carry set = output tests finished, carry clear = output tests continuing
+    bnc lab_53e4            ;53d7  9d 0b        Branch if output tests are continuing
+
+    ;Output tests have finished; send an ACK response
     mov a,!mem_fbcb         ;53d9  8e cb fb     A = block counter
     sub a,#0x01             ;53dc  1d 01        Decrement it
     mov !mem_fbcb,a         ;53de  9e cb fb     Store block counter
     br !lab_532a            ;53e1  9b 2a 53     Branch to send ACK response
 
 lab_53e4:
-    mov [hl+b],a            ;53e4  bb
+;Output tests are continuing; send an output test response
+;AX contains a word from the output_tests table
+    mov [hl+b],a            ;53e4  bb           Store A in KWP1281 tx buffer byte 3 (output test code high byte)
     inc b                   ;53e5  43
     mov a,x                 ;53e6  60
-    mov [hl+b],a            ;53e7  bb
+    mov [hl+b],a            ;53e7  bb           Store X in KWP1281 tx buffer byte 4 (output test code low byte)
     inc b                   ;53e8  43
-    mov a,#0x03             ;53e9  a1 03
-    mov [hl+b],a            ;53eb  bb
+    mov a,#0x03             ;53e9  a1 03        A = 0x03 block end
+    mov [hl+b],a            ;53eb  bb           Store block end in KWP1281 tx buffer byte 5
     br !sub_34f7            ;53ec  9b f7 34     Set flags to start sending the KWP1281 tx buffer
 
 lab_53ef:
@@ -21827,12 +21848,14 @@ lab_7bbb:
 lab_7bbc:
     ret                     ;7bbc  af
 
+;Perform loudspeakers output test
+;XXX this test is unimplemented and does nothing
 sub_7bbd:
     ret                     ;7bbd  af
 
 sub_7bbe:
     bf mem_fe62.1,lab_7bc5  ;7bbe  31 13 62 03
-    br !lab_7c50            ;7bc2  9b 50 7c
+    br !lab_7c50_ret        ;7bc2  9b 50 7c     Branch to return
 
 lab_7bc5:
     set1 mem_fe41.5         ;7bc5  5a 41
@@ -21902,13 +21925,13 @@ lab_7c3a:
     mov a,mem_fedd          ;7c3d  f0 dd
     movw hl,#mem_fc1a       ;7c3f  16 1a fc       HL = faults buffer #1
     mov [hl+c],a            ;7c42  ba
-    bf mem_fe41.5,lab_7c50  ;7c43  31 53 41 09
+    bf mem_fe41.5,lab_7c50_ret  ;7c43  31 53 41 09
     clr1 mem_fe41.5         ;7c47  5b 41
     mov a,#0x05             ;7c49  a1 05
     mov mem_fed5,a          ;7c4b  f2 d5
     br !lab_7bcb            ;7c4d  9b cb 7b
 
-lab_7c50:
+lab_7c50_ret:
     ret                     ;7c50  af
 
 sub_7c51:
@@ -30244,8 +30267,11 @@ fault_codes:
     .word 0x04ab            ;01195 - End                                              mem_f217
     .word 0xffff            ;65535 - Internal Control Module Memory Error             mem_f218
 
-mem_b001:
-;table of words used with sub_0c48
+output_tests:
+;Table of KWP1281 output tests codes used by perform_next_test
+;This table is indexed by mem_f04e and controls the sequence of the output tests.
+;As each test is performed, one of these codes is returned in the output tests
+;response block.  These codes are the same as the fault codes.
     .byte 0x03              ;b001  03          DATA 0x03        3 entries below:
     .word 0x0353            ;00851 - Loudspeaker(s)
     .word 0x0356            ;00854 - Radio Display Output in Dash Panel Insert
