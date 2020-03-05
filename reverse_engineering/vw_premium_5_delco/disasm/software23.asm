@@ -7409,12 +7409,25 @@ lab_29b0_ret_data:
     clr1 cy                 ;29b2  21           Clear carry = measurement data returned
     ret                     ;29b3  af
 
-sub_29b4:
-;Called from kwp_56_10_recoding
+
+recode:
+;Change the coding to a user-provided value.
+;
+;The requested coding is first checked.  If any of it is found to be
+;invalid, no changes are made.  Otherwise, the coding is changed and
+;written to the EEPROM.
+;
+;Call with:
+;  kwp_rx_buf+3 = Requested coding in binary, high byte
+;  kwp_rx_buf+4 = Requested coding in binary, low byte
+;
+;Returns:
+;  Nothing.  There's no indication of whether recoding succeeded or not.
+;
     call !sub_2d35          ;29b4  9a 35 2d     Clear bits in mem_fe5f and mem_fe60
-    mov a,!kwp_rx_buf+4     ;29b7  8e 8e f0     A = KWP1281 rx buffer byte 4
+    mov a,!kwp_rx_buf+4     ;29b7  8e 8e f0     A = KWP1281 rx buffer byte 4 (coding in binary, low byte)
     mov x,a                 ;29ba  70           Copy it to X
-    mov a,!kwp_rx_buf+3     ;29bb  8e 8d f0     A = KWP1281 rx buffer byte 3
+    mov a,!kwp_rx_buf+3     ;29bb  8e 8d f0     A = KWP1281 rx buffer byte 3 (coding in binary, high byte)
     clr1 cy                 ;29be  21
     rorc a,1                ;29bf  25
     xch a,x                 ;29c0  30
@@ -7572,6 +7585,7 @@ lab_2a9f_loop:
 
 lab_2ab9_ret:
     ret                     ;2ab9  af
+
 
 sub_2aba:
 ;called when login succeeds
@@ -14516,8 +14530,15 @@ kwp_56_10_recoding:
     mov a,#0x01               ;507d  a1 01
     mov !mem_fbc5,a           ;507f  9e c5 fb
     set1 mem_fe66.0           ;5082  0a 66
-    call !sub_29b4            ;5084  9a b4 29
+
+    call !recode              ;5084  9a b4 29     Change the coding to a user-provided value
+                              ;                     Coding may not be accepted if found to be invalid
+                              ;                     but there is no return value to indicate this.
+
     br !lab_52ea_id_part_num  ;5087  9b ea 52     Branch to Send id block 1/4 with "1J0035180B" (Block length=0x0F)
+                              ;                     Recoding sends the same multi-block response as
+                              ;                     identification.  The coding will be sent in
+                              ;                     id block 4/4 (see lab_52b1_id_coding.
 
 kwp_56_2b_login:
 ;login (kwp_56_handlers)
