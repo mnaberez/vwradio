@@ -7418,8 +7418,10 @@ recode:
 ;written to the EEPROM.
 ;
 ;Call with:
-;  kwp_rx_buf+3 = Requested coding in binary, high byte
-;  kwp_rx_buf+4 = Requested coding in binary, low byte
+;  kwp_rx_buf+3 = Soft Coding high byte (binary)
+;  kwp_rx_buf+4 = Soft Coding low byte (binary)
+;  kwp_rx_buf+5 = Workshop Code high byte (binary)
+;  kwp_rx_buf+6 = Workshop Code low byte (binary)
 ;
 ;Returns:
 ;  Nothing.  There's no indication of whether recoding succeeded or not.
@@ -14543,12 +14545,17 @@ kwp_56_10_recoding:
 ;recoding (kwp_56_handlers)
 ;
 ;Request block:
-;  0x07 Block length                            kwp_rx_buf+0
-;   xx  Block counter                           kwp_rx_buf+1
-;  0x10 Block title                             kwp_rx_buf+2
-;   xx  Requested coding in binary, high byte   kwp_rx_buf+3
-;   xx  Requested coding in binary, low byte    kwp_rx_buf+4
-;  0x03 Block end
+;  0x07 Block length                      kwp_rx_buf+0
+;   xx  Block counter                     kwp_rx_buf+1
+;  0x10 Block title                       kwp_rx_buf+2
+;   xx  Soft Coding high byte (binary)    kwp_rx_buf+3
+;   xx  Soft Coding low byte (binary)     kwp_rx_buf+4
+;   xx  Workshop Code high byte (binary)  kwp_rx_buf+5
+;   xx  Workshop Code low byte (binary)   kwp_rx_buf+6
+;  0x03 Block end                         kwp_rx_buf+7
+;
+;After recoding, regardless of success or failure, the response for
+;KWP1281 request block title 0x00 ID code request/ECU info is returned.
 ;
     mov a,#0x01               ;507d  a1 01
     mov !mem_fbc5,a           ;507f  9e c5 fb
