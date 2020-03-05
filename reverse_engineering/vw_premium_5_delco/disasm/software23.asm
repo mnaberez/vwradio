@@ -7419,7 +7419,7 @@ sub_29b4:
     xch a,x                 ;29c0  30
     rorc a,1                ;29c1  25
     xch a,x                 ;29c2  30
-    call !sub_2d44          ;29c3  9a 44 2d
+    call !sub_2d44          ;29c3  9a 44 2d     Convert 16-bit binary number in AX to BCD in mem_fed4-mem_fed6
     call !sub_2d6e          ;29c6  9a 6e 2d
     bc lab_29ce             ;29c9  8d 03
     br !lab_2ab9_ret        ;29cb  9b b9 2a
@@ -7482,20 +7482,25 @@ lab_2a10:
     mov a,mem_fed4          ;2a23  f0 d4
     and a,#0x0f             ;2a25  5d 0f
     mov !mem_f1fd,a         ;2a27  9e fd f1
+
     mov a,mem_fed4          ;2a2a  f0 d4
     and a,#0xf0             ;2a2c  5d f0
     callf !ror_a_4          ;2a2e  2c 9e        A = A >> 4
     mov !mem_f1fe,a         ;2a30  9e fe f1     TODO coding, monsoon related
+
     mov a,mem_fed5          ;2a33  f0 d5
     and a,#0x0f             ;2a35  5d 0f
     mov !mem_f1ff,a         ;2a37  9e ff f1
+
     mov a,mem_fed5          ;2a3a  f0 d5
     and a,#0xf0             ;2a3c  5d f0
     callf !ror_a_4          ;2a3e  2c 9e        A = A >> 4
     mov !mem_f200,a         ;2a40  9e 00 f2
+
     mov a,mem_fed6          ;2a43  f0 d6
     and a,#0x0f             ;2a45  5d 0f
     mov !mem_f201,a         ;2a47  9e 01 f2
+
     set1 mem_fe73.5         ;2a4a  5a 73
 
     movw hl,#mem_f1f9       ;2a4c  16 f9 f1     HL = pointer to buffer to sum
@@ -8151,6 +8156,7 @@ lab_2d21:
     mov c,a                 ;2d21  72
     ret                     ;2d22  af
 
+
 sub_2d23:
 ;TODO seems to be length check for EEPROM read
     mov a,#0x00             ;2d23  a1 00
@@ -8165,6 +8171,7 @@ lab_2d33:
     mov c,a                 ;2d33  72
     ret                     ;2d34  af
 
+
 sub_2d35:
 ;Clear bits in mem_fe5f and mem_fe60
     clr1 mem_fe5f.3         ;2d35  3b 5f      Clear bit = not currently reading the faults buffer
@@ -8176,12 +8183,18 @@ sub_2d35:
     clr1 mem_fe60.2         ;2d41  2b 60      Clear bit = address is memory (not EEPROM)
     ret                     ;2d43  af
 
+
 sub_2d44:
+;Convert 16-bit binary number in AX to BCD in mem_fed4-mem_fed6
+;Examples:
+; AX=0x0000 -> mem_fed4=0x00, mem_fed5=0x00, mem_fed6=0x00 (0)
+; AX=0x04d2 -> mem_fed4=0x34, mem_fed5=0x12, mem_fed6=0x00 (1234)
+; AX=0xFFFF -> mem_fed4=0x35, mem_fed5=0x55, mem_fed6=0x06 (65535)
     movw mem_fed4,#0x0000   ;2d44  ee d4 00 00
     mov mem_fed6,#0x00      ;2d48  11 d6 00
     mov b,#0x10             ;2d4b  a3 10
 
-lab_2d4d:
+lab_2d4d_loop:
     xch a,x                 ;2d4d  30
     rolc a,1                ;2d4e  27
     xch a,x                 ;2d4f  30
@@ -8200,8 +8213,9 @@ lab_2d4d:
     adjba                   ;2d66  61 80
     mov mem_fed6,a          ;2d68  f2 d6
     pop ax                  ;2d6a  b0
-    dbnz b,lab_2d4d         ;2d6b  8b e0
+    dbnz b,lab_2d4d_loop    ;2d6b  8b e0
     ret                     ;2d6d  af
+
 
 sub_2d6e:
     mov a,mem_fed4          ;2d6e  f0 d4
@@ -8237,10 +8251,10 @@ lab_2d9a:
 lab_2da3:
     mov b,#0x03             ;2da3  a3 03
 
-lab_2da5:
+lab_2da5_loop:
     cmp a,[hl+b]            ;2da5  31 4b
     bz lab_2dc4             ;2da7  ad 1b
-    dbnz b,lab_2da5         ;2da9  8b fa
+    dbnz b,lab_2da5_loop   ;2da9  8b fa
     clr1 cy                 ;2dab  21
     br !lab_2dd5_ret        ;2dac  9b d5 2d
 
@@ -8253,10 +8267,10 @@ lab_2daf:
 lab_2db8:
     mov b,#0x02             ;2db8  a3 02
 
-lab_2dba:
+lab_2dba_loop:
     cmp a,[hl+b]            ;2dba  31 4b
     bz lab_2dc4             ;2dbc  ad 06
-    dbnz b,lab_2dba         ;2dbe  8b fa
+    dbnz b,lab_2dba_loop    ;2dbe  8b fa
     clr1 cy                 ;2dc0  21
     br !lab_2dd5_ret        ;2dc1  9b d5 2d
 
@@ -30294,7 +30308,7 @@ group_7_data:
     .byte 0xfc              ;afde  fc          DATA 0xfc        value b     /
 
 mem_afdf:
-;unknown table used with lab_2d9a
+;unknown table used with lab_2d9a (coding related)
     .byte 0x04              ;afdf  04          DATA 0x04        4 entries below:
     .byte 0x00              ;afe0  00          DATA 0x00
     .byte 0x01              ;afe1  01          DATA 0x01
@@ -30302,7 +30316,7 @@ mem_afdf:
     .byte 0x04              ;afe3  04          DATA 0x04
 
 mem_afe4:
-;unknown table used with lab_2daf
+;unknown table used with lab_2daf (coding related)
     .byte 0x03              ;afe4  03          DATA 0x03        3 entries below:
     .byte 0x00              ;afe5  00          DATA 0x00
     .byte 0x01              ;afe6  01          DATA 0x01
