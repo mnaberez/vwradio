@@ -8257,12 +8257,19 @@ check_coding:
 ;Returns:
 ;  carry set = valid, carry clear = invalid
 ;
+;mem_fed4 low nibble:  BCD ones place           = 0-7 Antenna/CD/FIS
+;mem_fed4 high nibble: BCD tens place           = 0-1 Amplifier System
+;mem_fed5 low nibble:  BCD hundreds place       = 0-4 Speakers
+;mem_fed5 high nibble: BCD thousands place      = 0-9 Car Model
+;mem_fed6 low nibble:  BCD ten thousands place  = 0
+;
     mov a,mem_fed4          ;2d6e  f0 d4
     and a,#0x0f             ;2d70  5d 0f        Mask to leave only low nibble (BCD ones place)
     cmp a,#0x08             ;2d72  4d 08
-    bnc lab_2dd5_ret        ;2d74  9d 5f
+    bnc lab_2dd5_ret        ;2d74  9d 5f        Branch if >= 0x08 (invalid)
     cmp a,#0x04             ;2d76  4d 04
-    bc lab_2d80             ;2d78  8d 06
+    bc lab_2d80             ;2d78  8d 06        Branch if < 0x04
+    ;A >= 0x04
     mov a,!mem_f1e9         ;2d7a  8e e9 f1
     bt a.0,lab_2dd5_ret     ;2d7d  31 0e 55
 
@@ -8271,56 +8278,63 @@ lab_2d80:
     and a,#0xf0             ;2d82  5d f0        Mask to leave only high nibble (BCD tens place)
     callf !ror_a_4          ;2d84  2c 9e        A = A >> 4
     cmp a,#0x05             ;2d86  4d 05
-    bnc lab_2dd5_ret        ;2d88  9d 4b
+    bnc lab_2dd5_ret        ;2d88  9d 4b        Branch if >= 0x05 (invalid)
     cmp a,#0x00             ;2d8a  4d 00
-    bz lab_2dc4             ;2d8c  ad 36
+    bz lab_2dc4_speakers    ;2d8c  ad 36        Branch if = 0x00
     cmp a,#0x03             ;2d8e  4d 03
-    bz lab_2daf             ;2d90  ad 1d
+    bz lab_2daf_cars_2      ;2d90  ad 1d        Branch if = 0x03
     cmp a,#0x04             ;2d92  4d 04
-    bz lab_2d9a             ;2d94  ad 04
-    clr1 cy                 ;2d96  21
-    br !lab_2dd5_ret        ;2d97  9b d5 2d
+    bz lab_2d9a_cars_1      ;2d94  ad 04        Branch if = 0x04
 
-lab_2d9a:
+    clr1 cy                 ;2d96  21           Clear carry = coding is invalid
+    br !lab_2dd5_ret        ;2d97  9b d5 2d     Branch to return (invalid)
+
+lab_2d9a_cars_1:
+;Check car model is one of:
+;  All with MFSW, Golf/GTI, Jetta, All without MFSW
     mov a,mem_fed5          ;2d9a  f0 d5
     and a,#0xf0             ;2d9c  5d f0        Mask to leave only high nibble (BCD thousands place)
     callf !ror_a_4          ;2d9e  2c 9e        A = A >> 4
 
-    movw hl,#mem_afdf+1     ;2da0  16 e0 af
-    mov b,#0x03             ;2da3  a3 03
+    movw hl,#cars_1+1       ;2da0  16 e0 af     HL = pointer to table of car models
+    mov b,#0x03             ;2da3  a3 03        B = offset to last table entry for HL+B
 lab_2da5_loop:
     cmp a,[hl+b]            ;2da5  31 4b
-    bz lab_2dc4             ;2da7  ad 1b
-    dbnz b,lab_2da5_loop   ;2da9  8b fa
-    clr1 cy                 ;2dab  21
-    br !lab_2dd5_ret        ;2dac  9b d5 2d
+    bz lab_2dc4_speakers    ;2da7  ad 1b
+    dbnz b,lab_2da5_loop    ;2da9  8b fa
 
-lab_2daf:
+    clr1 cy                 ;2dab  21           Clear carry = coding is invalid
+    br !lab_2dd5_ret        ;2dac  9b d5 2d     Branch to return (invalid)
+
+lab_2daf_cars_2:
+;Check car model is one of:
+;  All without MFSW, Golf/GTI, New Beetle
     mov a,mem_fed5          ;2daf  f0 d5
     and a,#0xf0             ;2db1  5d f0        Mask to leave only high nibble (BCD thousands place)
     callf !ror_a_4          ;2db3  2c 9e        A = A >> 4
 
-    movw hl,#mem_afe4+1     ;2db5  16 e5 af
-    mov b,#0x02             ;2db8  a3 02
+    movw hl,#cars_2+1       ;2db5  16 e5 af     HL = pointer to table of car models
+    mov b,#0x02             ;2db8  a3 02        B = offset to last table entry for HL+B
 lab_2dba_loop:
     cmp a,[hl+b]            ;2dba  31 4b
-    bz lab_2dc4             ;2dbc  ad 06
+    bz lab_2dc4_speakers    ;2dbc  ad 06
     dbnz b,lab_2dba_loop    ;2dbe  8b fa
-    clr1 cy                 ;2dc0  21
-    br !lab_2dd5_ret        ;2dc1  9b d5 2d
 
-lab_2dc4:
+    clr1 cy                 ;2dc0  21           Clear carry = coding is invalid
+    br !lab_2dd5_ret        ;2dc1  9b d5 2d     Branch to return (invalid)
+
+lab_2dc4_speakers:
     mov a,mem_fed5          ;2dc4  f0 d5
     and a,#0x0f             ;2dc6  5d 0f        Mask to leave only low nibble (BCD hundreds place)
     cmp a,#0x05             ;2dc8  4d 05
-    bnc lab_2dd5_ret        ;2dca  9d 09
+    bnc lab_2dd5_ret        ;2dca  9d 09        Branch if >= 0x05 (invalid)
 
     mov a,mem_fed6          ;2dcc  f0 d6
     and a,#0x0f             ;2dce  5d 0f        Mask to leave only low nibble (BCD ten thousands place)
     cmp a,#0x01             ;2dd0  4d 01
-    bnc lab_2dd5_ret        ;2dd2  9d 01
+    bnc lab_2dd5_ret        ;2dd2  9d 01        Branch if >= 0x01 (invalid)
 
-    set1 cy                 ;2dd4  20           ;Set carry = coding is valid
+    set1 cy                 ;2dd4  20           Set carry = coding is valid
 
 lab_2dd5_ret:
     ret                     ;2dd5  af
@@ -14527,6 +14541,15 @@ kwp_56_29_group_reading:
 
 kwp_56_10_recoding:
 ;recoding (kwp_56_handlers)
+;
+;Request block:
+;  0x07 Block length                            kwp_rx_buf+0
+;   xx  Block counter                           kwp_rx_buf+1
+;  0x10 Block title                             kwp_rx_buf+2
+;   xx  Requested coding in binary, high byte   kwp_rx_buf+3
+;   xx  Requested coding in binary, low byte    kwp_rx_buf+4
+;  0x03 Block end
+;
     mov a,#0x01               ;507d  a1 01
     mov !mem_fbc5,a           ;507f  9e c5 fb
     set1 mem_fe66.0           ;5082  0a 66
@@ -30351,20 +30374,20 @@ group_7_data:
     .byte 0x25              ;afdd  25          DATA 0x25 '%'    value a      Steering Wheel buttons
     .byte 0xfc              ;afde  fc          DATA 0xfc        value b     /
 
-mem_afdf:
-;unknown table used with lab_2d9a (coding related)
+cars_1:
+;Table of car models used by lab_2d9a_cars_1 to check coding
     .byte 0x04              ;afdf  04          DATA 0x04        4 entries below:
-    .byte 0x00              ;afe0  00          DATA 0x00
-    .byte 0x01              ;afe1  01          DATA 0x01
-    .byte 0x02              ;afe2  02          DATA 0x02
-    .byte 0x04              ;afe3  04          DATA 0x04
+    .byte 0x00              ;afe0  00          DATA 0x00        All models without MFSW
+    .byte 0x01              ;afe1  01          DATA 0x01        Golf/GTI
+    .byte 0x02              ;afe2  02          DATA 0x02        Jetta
+    .byte 0x04              ;afe3  04          DATA 0x04        All models with MFSW
 
-mem_afe4:
-;unknown table used with lab_2daf (coding related)
+cars_2:
+;Table of car models used by lab_2daf_cars_2 to check coding
     .byte 0x03              ;afe4  03          DATA 0x03        3 entries below:
-    .byte 0x00              ;afe5  00          DATA 0x00
-    .byte 0x01              ;afe6  01          DATA 0x01
-    .byte 0x06              ;afe7  06          DATA 0x06
+    .byte 0x00              ;afe5  00          DATA 0x00        All models without MFSW
+    .byte 0x01              ;afe6  01          DATA 0x01        Golf/GTI
+    .byte 0x06              ;afe7  06          DATA 0x06        New Beetle
 
 fault_codes:
 ;Table of KWP1281 fault codes used by read_next_fault
