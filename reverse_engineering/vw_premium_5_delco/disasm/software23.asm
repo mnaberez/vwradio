@@ -1940,6 +1940,7 @@ sub_0a60:
 lab_0a7e:
     ret                     ;0a7e  af
 
+
 bin_to_bcd:
 ;Convert AX to BCD, store word in mem_fed4
 ;
@@ -7419,12 +7420,15 @@ sub_29b4:
     xch a,x                 ;29c0  30
     rorc a,1                ;29c1  25
     xch a,x                 ;29c2  30
-    call !sub_2d44          ;29c3  9a 44 2d     Convert 16-bit binary number in AX to BCD in mem_fed4-mem_fed6
-    call !sub_2d6e          ;29c6  9a 6e 2d
-    bc lab_29ce             ;29c9  8d 03
-    br !lab_2ab9_ret        ;29cb  9b b9 2a
+    call !coding_bin_to_bcd ;29c3  9a 44 2d     Convert 16-bit binary number in AX to BCD in mem_fed4-mem_fed6
+    call !check_coding      ;29c6  9a 6e 2d     Check that requested coding is valid
+    bc lab_29ce             ;29c9  8d 03        Branch if valid
+
+    ;Requested coding is invalid
+    br !lab_2ab9_ret        ;29cb  9b b9 2a     Branch to just return
 
 lab_29ce:
+    ;Requested coding is valid
     mov a,mem_fed4          ;29ce  f0 d4
     and a,!mem_f1fd         ;29d0  58 fd f1
     mov b,a                 ;29d3  73           B = mem_fed4 & mem_f1fd
@@ -8184,12 +8188,25 @@ sub_2d35:
     ret                     ;2d43  af
 
 
-sub_2d44:
+coding_bin_to_bcd:
 ;Convert 16-bit binary number in AX to BCD in mem_fed4-mem_fed6
+;Used only for KWP1281 coding
+;
+;Call with:
+;  AX = 16-bit binary number (X=low, A=high)
+;
+;Returns BCD number in mem_fed4-mem_fed6:
+;  mem_fed4 low nibble:  BCD ones place
+;  mem_fed4 high nibble: BCD tens place
+;  mem_fed5 low nibble:  BCD hundreds place
+;  mem_fed5 high nibble: BCD thousands place
+;  mem_fed6 low nibble:  BCD ten thousands place
+;
 ;Examples:
 ; AX=0x0000 -> mem_fed4=0x00, mem_fed5=0x00, mem_fed6=0x00 (0)
 ; AX=0x04d2 -> mem_fed4=0x34, mem_fed5=0x12, mem_fed6=0x00 (1234)
 ; AX=0xFFFF -> mem_fed4=0x35, mem_fed5=0x55, mem_fed6=0x06 (65535)
+;
     movw mem_fed4,#0x0000   ;2d44  ee d4 00 00
     mov mem_fed6,#0x00      ;2d48  11 d6 00
     mov b,#0x10             ;2d4b  a3 10
@@ -8217,9 +8234,17 @@ lab_2d4d_loop:
     ret                     ;2d6d  af
 
 
-sub_2d6e:
+check_coding:
+;Check that the requested coding is valid
+;
+;Call with:
+;  mem_fed4-mem_fed6 = Requested coding in BCD from coding_bin_to_bcd
+;
+;Returns:
+;  carry set = valid, carry clear = invalid
+;
     mov a,mem_fed4          ;2d6e  f0 d4
-    and a,#0x0f             ;2d70  5d 0f
+    and a,#0x0f             ;2d70  5d 0f        Mask to leave only low nibble (BCD ones place)
     cmp a,#0x08             ;2d72  4d 08
     bnc lab_2dd5_ret        ;2d74  9d 5f
     cmp a,#0x04             ;2d76  4d 04
@@ -8229,7 +8254,7 @@ sub_2d6e:
 
 lab_2d80:
     mov a,mem_fed4          ;2d80  f0 d4
-    and a,#0xf0             ;2d82  5d f0
+    and a,#0xf0             ;2d82  5d f0        Mask to leave only high nibble (BCD tens place)
     callf !ror_a_4          ;2d84  2c 9e        A = A >> 4
     cmp a,#0x05             ;2d86  4d 05
     bnc lab_2dd5_ret        ;2d88  9d 4b
@@ -8244,13 +8269,11 @@ lab_2d80:
 
 lab_2d9a:
     mov a,mem_fed5          ;2d9a  f0 d5
-    and a,#0xf0             ;2d9c  5d f0
+    and a,#0xf0             ;2d9c  5d f0        Mask to leave only high nibble (BCD thousands place)
     callf !ror_a_4          ;2d9e  2c 9e        A = A >> 4
+
     movw hl,#mem_afdf+1     ;2da0  16 e0 af
-
-lab_2da3:
     mov b,#0x03             ;2da3  a3 03
-
 lab_2da5_loop:
     cmp a,[hl+b]            ;2da5  31 4b
     bz lab_2dc4             ;2da7  ad 1b
@@ -8260,13 +8283,11 @@ lab_2da5_loop:
 
 lab_2daf:
     mov a,mem_fed5          ;2daf  f0 d5
-    and a,#0xf0             ;2db1  5d f0
+    and a,#0xf0             ;2db1  5d f0        Mask to leave only high nibble (BCD thousands place)
     callf !ror_a_4          ;2db3  2c 9e        A = A >> 4
+
     movw hl,#mem_afe4+1     ;2db5  16 e5 af
-
-lab_2db8:
     mov b,#0x02             ;2db8  a3 02
-
 lab_2dba_loop:
     cmp a,[hl+b]            ;2dba  31 4b
     bz lab_2dc4             ;2dbc  ad 06
@@ -8276,14 +8297,16 @@ lab_2dba_loop:
 
 lab_2dc4:
     mov a,mem_fed5          ;2dc4  f0 d5
-    and a,#0x0f             ;2dc6  5d 0f
+    and a,#0x0f             ;2dc6  5d 0f        Mask to leave only low nibble (BCD hundreds place)
     cmp a,#0x05             ;2dc8  4d 05
     bnc lab_2dd5_ret        ;2dca  9d 09
+
     mov a,mem_fed6          ;2dcc  f0 d6
-    and a,#0x0f             ;2dce  5d 0f
+    and a,#0x0f             ;2dce  5d 0f        Mask to leave only low nibble (BCD ten thousands place)
     cmp a,#0x01             ;2dd0  4d 01
     bnc lab_2dd5_ret        ;2dd2  9d 01
-    set1 cy                 ;2dd4  20
+
+    set1 cy                 ;2dd4  20           ;Set carry = coding is valid
 
 lab_2dd5_ret:
     ret                     ;2dd5  af
