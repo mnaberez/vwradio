@@ -141,10 +141,10 @@ mem_f1ea = 0xf1ea
 mem_f1eb = 0xf1eb
 mem_f1ec = 0xf1ec
 mem_f1ed = 0xf1ed
-mem_f1f9 = 0xf1f9
-mem_f1fa = 0xf1fa
-mem_f1fb = 0xf1fb
-mem_f1fc = 0xf1fc
+mem_f1f9 = 0xf1f9           ;KWP1281 Soft Coding in binary, high byte
+mem_f1fa = 0xf1fa           ;KWP1281 Soft Coding in binary, low byte
+mem_f1fb = 0xf1fb           ;KWP1281 Workshop Code, high byte
+mem_f1fc = 0xf1fc           ;KWP1281 Workshop Code, low byte
 mem_f1fd = 0xf1fd
 mem_f1fe = 0xf1fe
 mem_f1ff = 0xf1ff
@@ -7493,6 +7493,12 @@ lab_2a10:
     call !sub_2de6          ;2a15  9a e6 2d     AX = sum of A bytes in buffer [HL]
     push ax                 ;2a18  b1           Push sum of 9 bytes at mem_f1f9
 
+    ;Copy coding and workshop from KWP rx buffer:
+    ;  kwp_rx_buf+3 -> mem_f1f9 (Soft coding in binary, high byte)
+    ;  kwp_rx_buf+4 -> mem_f1fa (Soft coding in binary, low byte)
+    ;  kwp_rx_buf+5 -> mem_f1fb (Workshop code, high byte)
+    ;  kwp_rx_buf+6 -> mem_f1fc (Workshop code, low byte)
+
     movw hl,#kwp_rx_buf+3   ;2a19  16 8d f0     HL = source address (KWP1281 rx buffer byte 3)
     movw de,#mem_f1f9       ;2a1c  14 f9 f1     DE = destination address
     mov a,#0x04             ;2a1f  a1 04        A = 4 bytes to copy
@@ -7608,9 +7614,9 @@ sub_2aba:
     mov !mem_f1fa,a         ;2ad3  9e fa f1
 
     mov a,!kwp_rx_buf+6     ;2ad6  8e 90 f0     KWP1281 rx buffer byte 6
-    mov !mem_f1fb,a         ;2ad9  9e fb f1
+    mov !mem_f1fb,a         ;2ad9  9e fb f1     Store as Workshop Code (high byte)
     mov a,!kwp_rx_buf+7     ;2adc  8e 91 f0     KWP1281 rx buffer byte 7
-    mov !mem_f1fc,a         ;2adf  9e fc f1
+    mov !mem_f1fc,a         ;2adf  9e fc f1     Store as Workshop Code (low byte)
 
     movw hl,#mem_f1f9       ;2ae2  16 f9 f1     HL = pointer to buffer to sum
     mov a,#0x09             ;2ae5  a1 09        A = 9 bytes to sum
@@ -7673,13 +7679,23 @@ lab_2b35_success:
 lab_2b45_ret:
     ret                     ;2b45  af
 
-sub_2b46:
-;Returns X = value at mem_f1fa, A = value at mem_f1f9, DE = #mem_f1fa
+get_coding:
+;Get the Soft Coding (in binary) into AX
+;
+;Returns:
+;  A = Soft Coding in binary, high byte (mem_f1f9)
+;  X = Soft Coding in binary, low byte (mem_f1fa)
+;  DE = #mem_f1f9 (pointer to high byte)
     movw de,#mem_f1fa       ;2b46  14 fa f1
     br lab_2b4e             ;2b49  fa 03
 
-sub_2b4b:
-;Returns X = value at mem_f1fc, A = value at mem_f1fb, DE = #mem_f1fb
+get_workshop:
+;Get the Workshop Code into AX
+;
+;Returns:
+;  A = Workshop Code high byte (mem_f1fb)
+;  X = Workshop Code low byte (mem_f1fc)
+;  DE = #mem_f1fb (pointer to low byte)
     movw de,#mem_f1fc       ;2b4b  14 fc f1
 
 lab_2b4e:
@@ -8287,7 +8303,7 @@ lab_2d80:
     bz lab_2daf_cars_2      ;2d90  ad 1d        Branch if = 0x03
     cmp a,#0x04             ;2d92  4d 04
     bz lab_2d9a_cars_1      ;2d94  ad 04        Branch if = 0x04
-
+    ;A = 0x01, 0x02
     clr1 cy                 ;2d96  21           Clear carry = coding is invalid
     br !lab_2dd5_ret        ;2d97  9b d5 2d     Branch to return (invalid)
 
@@ -15002,22 +15018,26 @@ lab_52b1_id_coding:
     mov a,#0x00             ;52bb  a1 00        A = 0
     mov [hl+b],a            ;52bd  bb           Store 0 in KWP1281 tx buffer byte 3
 
-    ;KWP1281 tx buffer byte 4 = value at mem_f1f9
+    ;KWP1281 tx buffer byte 4 = Soft Coding in binary, high byte (mem_f1f9)
     inc b                   ;52be  43           Increment to offset 4
-    call !sub_2b46          ;52bf  9a 46 2b     X = value at mem_f1fa, A = value at mem_f1f9, DE = #mem_f1fa
+    call !get_coding        ;52bf  9a 46 2b     Get the Soft Coding (in binary) into AX
+                            ;                     A = Soft Coding in binary, high byte (mem_f1f9)
+                            ;                     X = Soft Coding in binary, low byte (mem_f1fa)
     mov [hl+b],a            ;52c2  bb           Store value at mem_f1f9 in KWP1281 tx buffer byte 4
 
-    ;KWP1281 tx buffer byte 5 = value at mem_f1fa
+    ;KWP1281 tx buffer byte 5 = Soft Coding in binary, low byte (mem_f1fa)
     inc b                   ;52c3  43           Increment to offset 5
     mov a,x                 ;52c4  60           A = value at mem_f1fa
     mov [hl+b],a            ;52c5  bb           Store value at mem_f1fa in KWP1281 tx buffer byte 5
 
-    ;KWP1281 tx buffer byte 6 = value at mem_f1fb
+    ;KWP1281 tx buffer byte 6 = Workshop Code, high byte (mem_f1fb)
     inc b                   ;52c6  43           Increment to offset 6
-    call !sub_2b4b          ;52c7  9a 4b 2b     Returns X = value at mem_f1fc, A = value at mem_f1fb, DE = #mem_f1fb
+    call !get_workshop      ;52c7  9a 4b 2b     Get the Workshop Code into AX
+                            ;                     A = Workshop Code high byte (mem_f1fb)
+                            ;                     X = Workshop Code low byte (mem_f1fc)
     mov [hl+b],a            ;52ca  bb           Store value at mem_f1fb in KWP1281 tx buffer byte 6
 
-    ;KWP1281 tx buffer byte 7 = value at mem_f1fc
+    ;KWP1281 tx buffer byte 7 = Workshop Code, low byte (mem_f1fc)
     inc b                   ;52cb  43           Increment to offset 7
     mov a,x                 ;52cc  60           A = value at mem_f1fc
     mov [hl+b],a            ;52cd  bb           Store value at mem_f1fc in KWP1281 tx buffer byte 7
@@ -15391,20 +15411,25 @@ lab_545b:
 ;TODO investigate this unknown kwp1281 code
     mov b,#0x13             ;545b  a3 13        B = index 013 recoding
     call !init_kwp_tx_buf   ;545d  9a 92 52     Set block title, counter, length in KWP1281 tx buf
-    call !sub_2b46          ;5460  9a 46 2b     X = value at mem_f1fa, A = value at mem_f1f9, DE = #mem_f1fa
+
+    call !get_coding        ;5460  9a 46 2b     Get the Soft Coding (in binary) into AX
+                            ;                     A = Soft Coding in binary, high byte (mem_f1f9)
+                            ;                     X = Soft Coding in binary, low byte (mem_f1fa)
     mov [hl+b],a            ;5463  bb
     inc b                   ;5464  43
     mov a,x                 ;5465  60
     mov [hl+b],a            ;5466  bb
     inc b                   ;5467  43
 
-    call !sub_2b4b          ;5468  9a 4b 2b     Returns X = value at mem_f1fc, A = value at mem_f1fb, DE = #mem_f1fb
-
+    call !get_workshop      ;5468  9a 4b 2b     Get the Workshop Code into AX
+                            ;                     A = Workshop Code high byte (mem_f1fb)
+                            ;                     X = Workshop Code low byte (mem_f1fc)
     mov [hl+b],a            ;546b  bb
     inc b                   ;546c  43
     mov a,x                 ;546d  60
     mov [hl+b],a            ;546e  bb
     inc b                   ;546f  43
+
     mov a,#0x03             ;5470  a1 03
     mov [hl+b],a            ;5472  bb
     br !send_kwp_tx_buf     ;5473  9b f7 34     Set flags to start sending the KWP1281 tx buffer
@@ -15454,14 +15479,18 @@ lab_5495:
     mov [hl+b],a            ;549f  bb           Store block length in KWP1281 tx buffer at byte 5 (weird)
 
     inc b                   ;54a0  43           Increment to offset 6
-    call !sub_2b46          ;54a1  9a 46 2b     X = value at mem_f1fa, A = value at mem_f1f9, DE = #mem_f1fa
+    call !get_coding        ;54a1  9a 46 2b     Get the Soft Coding (in binary) into AX
+                            ;                     A = Soft Coding in binary, high byte (mem_f1f9)
+                            ;                     X = Soft Coding in binary, low byte (mem_f1fa)
     mov a,x                 ;54a4  60
     and a,#0x01             ;54a5  5d 01
     mov [hl+b],a            ;54a7  bb
 
     inc b                   ;54a8  43           Increment to offset 7
 
-    call !sub_2b4b          ;54a9  9a 4b 2b     Returns X = value at mem_f1fc, A = value at mem_f1fb, DE = #mem_f1fb
+    call !get_workshop      ;54a9  9a 4b 2b     Get the Workshop Code into AX
+                            ;                     A = Workshop Code high byte (mem_f1fb)
+                            ;                     X = Workshop Code low byte (mem_f1fc)
 
     mov [hl+b],a            ;54ac  bb
     inc b                   ;54ad  43
@@ -15502,14 +15531,18 @@ lab_54ca:
     mov [hl+b],a            ;54d2  bb
 
     inc b                   ;54d3  43
-    call !sub_2b46          ;54d4  9a 46 2b     X = value at mem_f1fa, A = value at mem_f1f9, DE = #mem_f1fa
+    call !get_coding        ;54d4  9a 46 2b     Get the Soft Coding (in binary) into AX
+                            ;                     A = Soft Coding in binary, high byte (mem_f1f9)
+                            ;                     X = Soft Coding in binary, low byte (mem_f1fa)
 
     mov a,x                 ;54d7  60
     and a,#0x01             ;54d8  5d 01
     mov [hl+b],a            ;54da  bb
     inc b                   ;54db  43
 
-    call !sub_2b4b          ;54dc  9a 4b 2b     Returns X = value at mem_f1fc, A = value at mem_f1fb, DE = #mem_f1fb
+    call !get_workshop      ;54dc  9a 4b 2b     Get the Workshop Code into AX
+                            ;                     A = Workshop Code high byte (mem_f1fb)
+                            ;                     X = Workshop Code low byte (mem_f1fc)
 
     mov [hl+b],a            ;54df  bb
     inc b                   ;54e0  43
