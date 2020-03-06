@@ -136,11 +136,11 @@ mem_f1e5 = 0xf1e5
 mem_f1e6 = 0xf1e6
 mem_f1e7 = 0xf1e7
 mem_f1e8 = 0xf1e8
-mem_f1e9 = 0xf1e9
-mem_f1ea = 0xf1ea
-mem_f1eb = 0xf1eb
-mem_f1ec = 0xf1ec
-mem_f1ed = 0xf1ed
+mem_f1e9 = 0xf1e9           ;Bit 7: on="DELCO mode", off=normal
+mem_f1ea = 0xf1ea           ;KWP1281 id block 3/4 "0001" byte for "DELCO mode" (see kwp_id_0001)
+mem_f1eb = 0xf1eb           ;KWP1281 id block 3/4 "0001", low byte
+mem_f1ec = 0xf1ec           ;KWP1281 id block 3/4 "0001", high byte
+mem_f1ed = 0xf1ed           ;KWP1281 id block 1/4 part number like "1J0035180B  " (12 bytes)
 mem_f1f9 = 0xf1f9           ;KWP1281 Soft Coding in binary, high byte
 mem_f1fa = 0xf1fa           ;KWP1281 Soft Coding in binary, low byte
 mem_f1fb = 0xf1fb           ;KWP1281 Workshop Code, high byte
@@ -931,15 +931,16 @@ mem_00b4:
     .byte 0x20              ;00c5  20          DATA 0x20 ' '
 
 mem_00c6:
-    .byte 0x03              ;00c6  03          DATA 0x03
-    .byte 0x20              ;00c7  20          DATA 0x20 ' '
-    .byte 0x00              ;00c8  00          DATA 0x00
-    .byte 0x00              ;00c9  00          DATA 0x00
-    .byte 0x00              ;00ca  00          DATA 0x00
-    .byte 0x00              ;00cb  00          DATA 0x00
-    .byte 0x04              ;00cc  04          DATA 0x04
-    .byte 0x00              ;00cd  00          DATA 0x00
-    .byte 0x00              ;00ce  00          DATA 0x00
+;Defaults written to mem_f1f9 - mem_f201
+    .byte 0x03              ;00c6  03          DATA 0x03        -> mem_f1f9 KWP1281 Soft Coding in binary, high byte
+    .byte 0x20              ;00c7  20          DATA 0x20 ' '    -> mem_f1fa KWP1281 Soft Coding in binary, low byte
+    .byte 0x00              ;00c8  00          DATA 0x00        -> mem_f1fb KWP1281 Workshop Code, high byte
+    .byte 0x00              ;00c9  00          DATA 0x00        -> mem_f1fc KWP1281 Workshop Code, low byte
+    .byte 0x00              ;00ca  00          DATA 0x00        -> mem_f1fd
+    .byte 0x00              ;00cb  00          DATA 0x00        -> mem_f1fe
+    .byte 0x04              ;00cc  04          DATA 0x04        -> mem_f1ff
+    .byte 0x00              ;00cd  00          DATA 0x00        -> mem_f200
+    .byte 0x00              ;00ce  00          DATA 0x00        -> mem_f201
 
 mem_00cf:
     .byte 0x00              ;00cf  00          DATA 0x00
@@ -6739,7 +6740,7 @@ kwp_id_part_num:
 ;Returns DE = pointer to "1J0035180B  ",0x03 (13 bytes)
     movw hl,#mem_f1ed       ;26e4  16 ed f1     HL = source address (EEPROM area "1J0035180B  ")
     movw de,#mem_f03b       ;26e7  14 3b f0     DE = destination address
-    mov a,#0x0c             ;26ea  a1 0c        A = number of bytes to copy
+    mov a,#0x0c             ;26ea  a1 0c        A = number of bytes to copy (12)
     callf !sub_0c9e         ;26ec  4c 9e        Copy A bytes from [HL] to [DE]
 
     movw hl,#mem_f03b       ;26ee  16 3b f0
@@ -7427,16 +7428,21 @@ recode:
 ;  Nothing.  There's no indication of whether recoding succeeded or not.
 ;
     call !sub_2d35          ;29b4  9a 35 2d     Clear bits in mem_fe5f and mem_fe60
+
+    ;AX = requested coding in binary
     mov a,!kwp_rx_buf+4     ;29b7  8e 8e f0     A = KWP1281 rx buffer byte 4 (coding in binary, low byte)
     mov x,a                 ;29ba  70           Copy it to X
     mov a,!kwp_rx_buf+3     ;29bb  8e 8d f0     A = KWP1281 rx buffer byte 3 (coding in binary, high byte)
+
+    ;AX = AX >> 1
     clr1 cy                 ;29be  21
     rorc a,1                ;29bf  25
     xch a,x                 ;29c0  30
     rorc a,1                ;29c1  25
     xch a,x                 ;29c2  30
+
     call !coding_bin_to_bcd ;29c3  9a 44 2d     Convert 16-bit binary number in AX to BCD in mem_fed4-mem_fed6
-    call !check_coding      ;29c6  9a 6e 2d     Check that requested coding is valid
+    call !check_coding_bcd  ;29c6  9a 6e 2d     Check that requested coding in BCD is valid
     bc lab_29ce             ;29c9  8d 03        Branch if valid
 
     ;Requested coding is invalid
@@ -7529,7 +7535,7 @@ lab_2a10:
     set1 mem_fe73.5         ;2a4a  5a 73
 
     movw hl,#mem_f1f9       ;2a4c  16 f9 f1     HL = pointer to buffer to sum
-    mov a,#0x09             ;2a4f  a1 09        A = 9 bytes to sum
+    mov a,#0x09             ;2a4f  a1 09        A = 9 bytes to sum (2 Soft Coding + 2 Workshop Code + 5 more)
     call !sub_2de6          ;2a51  9a e6 2d     AX = sum of A bytes in buffer [HL]
     movw de,ax              ;2a54  d4
 
@@ -7583,7 +7589,7 @@ lab_2a9f_loop:
     movw hl,#mem_f1f9       ;2aa4  16 f9 f1     HL = pointer to buffer to write to EEPROM
     ;TODO EEPROM addresses 0x0058-0x0061 are protected in lab_2c60
     movw de,#0x0058         ;2aa7  14 58 00     DE = EEPROM address 0x0058
-    mov a,#0x09             ;2aaa  a1 09        A = 9 bytes to write to EEPROM
+    mov a,#0x09             ;2aaa  a1 09        A = 9 bytes to write to EEPROM (2 Soft Coding + 2 Workshop Code + 5 more)
     call !sub_628e          ;2aac  9a 8e 62     Write A bytes to EEPROM address DE from [HL]
     bnc lab_2ab9_ret        ;2aaf  9d 08        Branch if write failed
 
@@ -7600,7 +7606,7 @@ sub_2aba:
     call !sub_2d35          ;2aba  9a 35 2d     Clear bits in mem_fe5f and mem_fe60
 
     movw hl,#mem_f1f9       ;2abd  16 f9 f1     HL = pointer to buffer to sum
-    mov a,#0x09             ;2ac0  a1 09        A = 9 bytes to sum
+    mov a,#0x09             ;2ac0  a1 09        A = 9 bytes to sum (2 Soft Coding + 2 Workshop Code + 5 more)
     call !sub_2de6          ;2ac2  9a e6 2d     AX = sum of A bytes in buffer [HL]
     push ax                 ;2ac5  b1           Push sum of 9 bytes at mem_f1f9
 
@@ -7619,7 +7625,7 @@ sub_2aba:
     mov !mem_f1fc,a         ;2adf  9e fc f1     Store as Workshop Code (low byte)
 
     movw hl,#mem_f1f9       ;2ae2  16 f9 f1     HL = pointer to buffer to sum
-    mov a,#0x09             ;2ae5  a1 09        A = 9 bytes to sum
+    mov a,#0x09             ;2ae5  a1 09        A = 9 bytes to sum (2 Soft Coding + 2 Workshop Code + 5 more)
     call !sub_2de6          ;2ae7  9a e6 2d     AX = sum of A bytes in buffer [HL]
     movw de,ax              ;2aea  d4
 
@@ -8266,8 +8272,8 @@ lab_2d4d_loop:
     ret                     ;2d6d  af
 
 
-check_coding:
-;Check that the requested coding is valid
+check_coding_bcd:
+;Check that the requested coding in BCD is valid
 ;
 ;Call with:
 ;  mem_fed4-mem_fed6 = Requested coding in BCD from coding_bin_to_bcd
@@ -11782,7 +11788,7 @@ lab_41ed:
     ;TODO EEPROM addresses 0x0058-0x0061 are protected in lab_2c60
     movw hl,#0x0058         ;41ef  16 58 00
     movw de,#0x0061         ;41f2  14 61 00
-    callf !sub_09ef         ;41f5  1c ef        A = DE - HL
+    callf !sub_09ef         ;41f5  1c ef        A = DE - HL (0x0061 - 0x0058 = 9)
     movw hl,#mem_00c6       ;41f7  16 c6 00
     movw de,#mem_f1f9       ;41fa  14 f9 f1
     callf !sub_0c9e         ;41fd  4c 9e        Copy A bytes from [HL] to [DE]
