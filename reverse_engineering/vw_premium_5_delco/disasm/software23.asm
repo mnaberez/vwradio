@@ -6765,11 +6765,15 @@ lab_2705:
 
 
 kwp_id_0001:
-;Returns DE = pointer to "       0001",0x00,0x03
+;Returns DE = pointer to "       0001",0x00,0x03 (13 bytes)
 ;where the "0001" is an unknown code built from memory
+;
+;XXX confusing: the actual response we send will only be 12 bytes.
+;It will not contain the null byte.  See lab_52d5_id_0001.
+;
     movw hl,#kwp_0001       ;2706  16 89 26     HL = source address of "       0001",0x00,0x03
     movw de,#mem_f03b       ;2709  14 3b f0     DE = destination address
-    mov a,#0x0d             ;270c  a1 0d        A = number of bytes to copy
+    mov a,#0x0d             ;270c  a1 0d        A = number of bytes to copy (13)
     callf !sub_0c9e         ;270e  4c 9e        Copy A bytes from [HL] to [DE]
 
     ;mem_f03b buffer now contains 13 bytes:
@@ -7424,6 +7428,8 @@ recode:
 ;  kwp_rx_buf+5 = Workshop Code high byte (binary)
 ;  kwp_rx_buf+6 = Workshop Code low byte (binary)
 ;
+;See the description and examples in kwp_56_10_recoding.
+;
 ;Returns:
 ;  Nothing.  There's no indication of whether recoding succeeded or not.
 ;
@@ -7687,6 +7693,14 @@ lab_2b45_ret:
 
 get_coding:
 ;Get the Soft Coding (in binary) into AX
+;
+;This returns the KWP1281 representation.  The scan tool will
+;receive this number, divide it by 2, then show it to the user
+;as a 15-bit decimal number (0-32767).
+;
+;Example:
+;  If the radio is coded for 01404 (decimal), then
+;  this subroutine will return AX=0x0AF8.
 ;
 ;Returns:
 ;  A = Soft Coding in binary, high byte (mem_f1f9)
@@ -14564,7 +14578,21 @@ kwp_56_29_group_reading:
     br !lab_5422            ;507a  9b 22 54
 
 kwp_56_10_recoding:
-;recoding (kwp_56_handlers)
+;Recoding (kwp_56_handlers)
+;
+;The scan tool presents the soft coding to the user as a 15-bit number
+;in decimal (00000-32767).  The scan tool multiplies this number by 2
+;and then sends it in bytes 3 (high) and 4 (low).  The scan tool sends
+;the workshop code directly in bytes 5 (high) and 6 (low).
+;
+;Example:
+;  Soft Coding 01404 (decimal):
+;    hex(1404 * 2) => 0x0AF8 => request byte 3 = 0x0A (high)
+;                            => request byte 4 = 0xF8 (low)
+;
+;  Workshop Code 12345 (decimal):
+;    hex(12345)    => 0x3039 => request byte 5 = 0x30 (high)
+;                            => request byte 6 = 0x39 (low)
 ;
 ;Request block:
 ;  0x07 Block length                      kwp_rx_buf+0
@@ -14578,6 +14606,8 @@ kwp_56_10_recoding:
 ;
 ;After recoding, regardless of success or failure, the response for
 ;KWP1281 request block title 0x00 ID code request/ECU info is returned.
+;This is a multi-block response of 4 id blocks where the id block 4/4
+;contains the coding and workshop code (see lab_52b1_id_coding).
 ;
     mov a,#0x01               ;507d  a1 01
     mov !mem_fbc5,a           ;507f  9e c5 fb
@@ -15014,7 +15044,22 @@ init_kwp_tx_buf:
 
 lab_52b1_id_coding:
 ;Send id block 4/4 with coding (Block length=0x08)
-    mov a,#0x10             ;52b1  a1 10
+;
+;Response block:
+;  0x08 Block length                  kwp_tx_buf+0
+;   xx  Block counter                 kwp_tx_buf+1
+;  0xF9 Block title (ascii/data)      kwp_tx_buf+2
+;  0x00 Unknown, always 0             kwp_tx_buf+3
+;   xx  Soft Coding (high byte)       kwp_tx_buf+4
+;   xx  Soft Coding (low byte)        kwp_tx_buf+5
+;   xx  Workshop Code (high byte)     kwp_tx_buf+6
+;   xx  Workshop Code (low byte)      kwp_tx_buf+7
+;  0x03 Block end                     kwp_tx_buf+8
+;
+;The format of the coding and workshop code is the same as the
+;recoding request block.  See kwp_56_10_recoding for examples.
+;
+    mov a,#0x10             ;52b1  a1 10        State 0x10 = Sending id block 4/4 with coding (Block length=0x08)
     mov !mem_fbca,a         ;52b3  9e ca fb
 
     mov b,#0x05             ;52b6  a3 05        B = index 0x05 response with ascii/data (id block 4/4 with coding)
@@ -15055,32 +15100,103 @@ lab_52b1_id_coding:
     br !send_kwp_tx_buf     ;52d2  9b f7 34     Set flags to start sending the KWP1281 tx buffer
 
 lab_52d5_id_0001:
-;Send id block 3/4 with "0001" (Block length=0x0E)
-    mov a,#0x11             ;52d5  a1 11
+;Send id block 3/4 with "       0001" (Block length=0x0E)
+;
+;Response block:
+;  0x0E Block length                  kwp_tx_buf+0
+;   xx  Block counter                 kwp_tx_buf+1
+;  0xF9 Block title (ascii/data)      kwp_tx_buf+2
+;  0x20 " "                           kwp_tx_buf+3
+;  0x20 " "                           kwp_tx_buf+4
+;  0x20 " "                           kwp_tx_buf+5
+;  0x20 " "                           kwp_tx_buf+6
+;  0x20 " "                           kwp_tx_buf+7
+;  0x20 " "                           kwp_tx_buf+8
+;  0x20 " "                           kwp_tx_buf+9
+;  0x44 "0"                           kwp_tx_buf+10
+;  0x45 "0"                           kwp_tx_buf+11
+;  0x32 "0"                           kwp_tx_buf+12
+;  0x20 "1"                           kwp_tx_buf+13
+;  0x03 Block end                     kwp_tx_buf+14
+;
+    mov a,#0x11             ;52d5  a1 11        State 0x11 = Send id block 3/4 with "       0001" (Block length=0x0E)
     mov !mem_fbca,a         ;52d7  9e ca fb
-    call !kwp_id_0001       ;52da  9a 06 27     ;DE = pointer to "       0001",0x00,0x03
-                                                ;  where the "0001" is an unknown code built from memory
+    call !kwp_id_0001       ;52da  9a 06 27     DE = pointer to "       0001",0x00,0x03
+                            ;                     where the "0001" is an unknown code built from memory
+                            ;
+                            ;                   XXX This is confusing because the null byte and the
+                            ;                       block end are not used.  Later, lab_5314 will write
+                            ;                       its own block end byte immediately after the "0001".
+                            ;                       The response is like that shown above (no null byte).
+
     br !lab_52f2_send       ;52dd  9b f2 52     Branch to finish building ascii/data response
 
 lab_52e0_id_radio:
-;Send id block 2/4 with "Radio DE2" (Block length=0x0F)
-    mov a,#0x12             ;52e0  a1 12
+;Send id block 2/4 with " Radio DE2  " (Block length=0x0F)
+;
+;Response block:
+;  0x0F Block length                  kwp_tx_buf+0
+;   xx  Block counter                 kwp_tx_buf+1
+;  0xF9 Block title (ascii/data)      kwp_tx_buf+2
+;  0x20 " "                           kwp_tx_buf+3
+;  0x52 "R"                           kwp_tx_buf+4
+;  0x61 "a"                           kwp_tx_buf+5
+;  0x64 "d"                           kwp_tx_buf+6
+;  0x69 "i"                           kwp_tx_buf+7
+;  0x6f "o"                           kwp_tx_buf+8
+;  0x20 " "                           kwp_tx_buf+9
+;  0x44 "D"                           kwp_tx_buf+10
+;  0x45 "E"                           kwp_tx_buf+11
+;  0x32 "2"                           kwp_tx_buf+12
+;  0x20 " "                           kwp_tx_buf+13
+;  0x20 " "                           kwp_tx_buf+14
+;  0x03 Block end                     kwp_tx_buf+15
+;
+    mov a,#0x12             ;52e0  a1 12        State 0x12 = Send id block 2/4 with " Radio DE2  " (Block length=0x0F)
     mov !mem_fbca,a         ;52e2  9e ca fb
-    call !kwp_id_radio      ;52e5  9a f9 26     ;Returns DE = pointer to " Radio DE2  ",0x03
-                                                ;  or DE = pointer to " Radio DELCO",0x03 if in "DELCO mode"
+    call !kwp_id_radio      ;52e5  9a f9 26     Returns DE = pointer to " Radio DE2  ",0x03
+                            ;                     or DE = pointer to " Radio DELCO",0x03 if in "DELCO mode"
     br lab_52f2_send        ;52e8  fa 08        Branch to finish building ascii/data response
 
 lab_52ea_id_part_num:
-;Send id block 1/4 with "1J0035180B" (Block length=0x0F)
-    mov a,#0x13             ;52ea  a1 13
+;Send id block 1/4 with "1J0035180B  " (Block length=0x0F)
+;
+;Response block:
+;  0x0F Block length                  kwp_tx_buf+0
+;   xx  Block counter                 kwp_tx_buf+1
+;  0xF9 Block title (ascii/data)      kwp_tx_buf+2
+;  0x31 "1"                           kwp_tx_buf+3
+;  0x4a "J"                           kwp_tx_buf+4
+;  0x30 "0"                           kwp_tx_buf+5
+;  0x30 "0"                           kwp_tx_buf+6
+;  0x33 "3"                           kwp_tx_buf+7
+;  0x35 "5"                           kwp_tx_buf+8
+;  0x31 "1"                           kwp_tx_buf+9
+;  0x38 "8"                           kwp_tx_buf+10
+;  0x30 "0"                           kwp_tx_buf+11
+;  0x42 "B"                           kwp_tx_buf+12
+;  0x20 " "                           kwp_tx_buf+13
+;  0x20 " "                           kwp_tx_buf+14
+;  0x03 Block end                     kwp_tx_buf+15
+;
+    mov a,#0x13             ;52ea  a1 13        State 0x13 = Send id block 1/4 with "1J0035180B  " (Block length=0x0F)
     mov !mem_fbca,a         ;52ec  9e ca fb
     call !kwp_id_part_num   ;52ef  9a e4 26     DE = pointer to "1J0035180B  ",0x03 (13 bytes)
                             ;                     with the part number built from the EEPROM
                             ;                   Fall through to finish building ascii/data response
-    ;Fall through
+    ;Fall through to lab_52f2_send
 
 lab_52f2_send:
-;Send ascii/data resonse with buffer [DE]
+;Send ascii/data response with buffer [DE]
+;
+;Used by id blocks 1,2,3:
+;  lab_52ea_id_part_num   Send id block 1/4 with "1J0035180B  " (Block length=0x0F)
+;  lab_52e0_id_radio      Send id block 2/4 with " Radio DE2  " (Block length=0x0F)
+;  lab_52d5_id_0001       Send id block 3/4 with "       0001" (Block length=0x0E)
+;
+;Not used by id block 4:
+;  lab_52b1_id_coding     Send id block 4/4 with coding (Block length=0x08)
+;
     mov b,#0x07             ;52f2  a3 07        B = index 0x07 response with ascii/data (id block 1/4 "1J0035180B", 2/4 with "Radio DE2")
     call !init_kwp_tx_buf   ;52f4  9a 92 52     Set block title, counter, length in KWP1281 tx buf
                             ;                     HL = pointer to KWP1281 tx buffer byte 0 (block length)

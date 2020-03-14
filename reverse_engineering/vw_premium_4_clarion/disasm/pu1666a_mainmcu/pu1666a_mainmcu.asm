@@ -11114,11 +11114,19 @@ lab_b937:
 mem_0080_is_08:
 ;KWP1281 Recoding
 ;
-;Soft Coding 01404 (decimal):
-;  hex(01404 * 2) => 0x0AF9 in request bytes 3, 4
+;The scan tool presents the soft coding to the user as a 15-bit number
+;in decimal (00000-32767).  The scan tool multiplies this number by 2
+;and then sends it in bytes 3 (high) and 4 (low).  The scan tool sends
+;the workshop code directly in bytes 5 (high) and 6 (low).
 ;
-;Workshop Code 12345 (decimal):
-;  hex(12345 & 0xFFFF) => 0x3039 in request bytes 5, 6
+;Example:
+;  Soft Coding 01404 (decimal):
+;    hex(1404 * 2) => 0x0AF8 => request byte 3 = 0x0A (high)
+;                            => request byte 4 = 0xF8 (low)
+;
+;  Workshop Code 12345 (decimal):
+;    hex(12345)    => 0x3039 => request byte 5 = 0x30 (high)
+;                            => request byte 6 = 0x39 (low)
 ;
 ;Recoding request block:
 ;  0x07 Block length                        mem_0118+0
