@@ -15260,7 +15260,7 @@ lab_5337:
     mov [hl+b],a            ;5340  bb           Store in KWP1281 tx buffer byte 3
     br !send_kwp_tx_buf     ;5341  9b f7 34     Set flags to start sending the KWP1281 tx buffer
 
-lab_5344_bad      :
+lab_5344_bad:
 ;Send NAK response (index 0x03)
     mov b,#0x03             ;5344  a3 03        B = index 0x03 nak
     call !init_kwp_tx_buf   ;5346  9a 92 52     Set block title, counter, length in KWP1281 tx buf
