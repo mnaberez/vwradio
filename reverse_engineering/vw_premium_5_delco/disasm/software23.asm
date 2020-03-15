@@ -35,7 +35,7 @@ mem_f022 = 0xf022
 mem_f032 = 0xf032
 mem_f033 = 0xf033
 mem_f034 = 0xf034
-mem_f03b = 0xf03b
+kwp_tmp_buf = 0xf03b        ;KWP1281 temporary buffer (16 bytes)
 mem_f04b = 0xf04b
 mem_f04c = 0xf04c           ;byte count for KWP1281 read ram, read eeprom, or write eeprom commands
 mem_f04e = 0xf04e           ;KWP1281 Output Test index
@@ -6739,15 +6739,15 @@ sub_26d6:
 kwp_id_part_num:
 ;Returns DE = pointer to "1J0035180B  ",0x03 (13 bytes)
     movw hl,#mem_f1ed       ;26e4  16 ed f1     HL = source address (EEPROM area "1J0035180B  ")
-    movw de,#mem_f03b       ;26e7  14 3b f0     DE = destination address
+    movw de,#kwp_tmp_buf    ;26e7  14 3b f0     DE = destination address
     mov a,#0x0c             ;26ea  a1 0c        A = number of bytes to copy (12)
     callf !sub_0c9e         ;26ec  4c 9e        Copy A bytes from [HL] to [DE]
 
-    movw hl,#mem_f03b       ;26ee  16 3b f0
+    movw hl,#kwp_tmp_buf    ;26ee  16 3b f0
     mov a,#0x03             ;26f1  a1 03        A = 0x03 block end
     mov [hl+0x0c],a         ;26f3  be 0c        Put block end after part number
 
-    movw de,#mem_f03b       ;26f5  14 3b f0     DE = destination address
+    movw de,#kwp_tmp_buf    ;26f5  14 3b f0     DE = destination address
     ret                     ;26f8  af
 
 
@@ -6772,16 +6772,16 @@ kwp_id_0001:
 ;It will not contain the null byte.  See lab_52d5_id_0001.
 ;
     movw hl,#kwp_0001       ;2706  16 89 26     HL = source address of "       0001",0x00,0x03
-    movw de,#mem_f03b       ;2709  14 3b f0     DE = destination address
+    movw de,#kwp_tmp_buf    ;2709  14 3b f0     DE = destination address
     mov a,#0x0d             ;270c  a1 0d        A = number of bytes to copy (13)
     callf !sub_0c9e         ;270e  4c 9e        Copy A bytes from [HL] to [DE]
 
-    ;mem_f03b buffer now contains 13 bytes:
+    ;kwp_tmp_buf now contains 13 bytes:
     ;"       0001",0x00,0x03
 
     ;Overwrite the first ASCII digit in "0001"
     ;  with high nibble of mem_f1ec converted to ASCII
-    movw hl,#mem_f03b       ;2710  16 3b f0
+    movw hl,#kwp_tmp_buf    ;2710  16 3b f0
     mov a,!mem_f1ec         ;2713  8e ec f1
     and a,#0xf0             ;2716  5d f0
     ror a,1                 ;2718  24
@@ -6789,16 +6789,16 @@ kwp_id_0001:
     ror a,1                 ;271a  24
     ror a,1                 ;271b  24
     add a,#'0               ;271c  0d 30
-    mov [hl+0x07],a         ;271e  be 07        mem_f03b buffer: "       0001",0x00,0x03
-                            ;                                            ^
+    mov [hl+0x07],a         ;271e  be 07        kwp_tmp_buf: "       0001",0x00,0x03
+                            ;                                        ^
 
     ;Overwrite the second ASCII digit in "0001"
     ;  with low nibble of mem_f1ec converted to ASCII
     mov a,!mem_f1ec         ;2720  8e ec f1
     and a,#0x0f             ;2723  5d 0f
     add a,#'0               ;2725  0d 30
-    mov [hl+0x08],a         ;2727  be 08        mem_f03b buffer: "       0001",0x00,0x03
-                            ;                                             ^
+    mov [hl+0x08],a         ;2727  be 08        kwp_tmp_buf: "       0001",0x00,0x03
+                            ;                                         ^
 
     ;Overwrite the third ASCII digit in "0001"
     ;  with high nibble of mem_f1eb converted to ASCII
@@ -6809,16 +6809,16 @@ kwp_id_0001:
     ror a,1                 ;2730  24
     ror a,1                 ;2731  24
     add a,#'0               ;2732  0d 30
-    mov [hl+0x09],a         ;2734  be 09        mem_f03b buffer: "       0001",0x00,0x03
-                            ;                                              ^
+    mov [hl+0x09],a         ;2734  be 09        kwp_tmp_buf: "       0001",0x00,0x03
+                            ;                                          ^
 
     ;Overwrite the fourth ASCII digit in "0001"
     ;  with low nibble of mem_f1eb converted to ASCII
     mov a,!mem_f1eb         ;2736  8e eb f1
     and a,#0x0f             ;2739  5d 0f
     add a,#'0               ;273b  0d 30
-    mov [hl+0x0a],a         ;273d  be 0a        mem_f03b buffer: "       0001",0x00,0x03
-                            ;                                               ^
+    mov [hl+0x0a],a         ;273d  be 0a        kwp_tmp_buf: "       0001",0x00,0x03
+                            ;                                           ^
 
     ;Check for "DELCO mode"
     mov a,!mem_f1e9         ;273f  8e e9 f1
@@ -6827,11 +6827,11 @@ kwp_id_0001:
     ;"DELCO mode" is on (see also kwp_id_radio)
     ;Overwrite the first ASCII digit in "0001" again
     mov a,!mem_f1ea         ;2745  8e ea f1
-    mov [hl+0x07],a         ;2748  be 07        mem_f03b buffer: "       0001",0x00,0x03
-                            ;                                            ^
+    mov [hl+0x07],a         ;2748  be 07        kwp_tmp_buf: "       0001",0x00,0x03
+                            ;                                        ^
 
 lab_274a:
-    movw de,#mem_f03b       ;274a  14 3b f0     DE = pointer to start of buffer created above
+    movw de,#kwp_tmp_buf    ;274a  14 3b f0     DE = pointer to start of buffer created above
     ret                     ;274d  af
 
 
@@ -7768,7 +7768,7 @@ sub_2b6e:
     push ax                 ;2b70  b1
     movw hl,ax              ;2b71  d6
     mov a,c                 ;2b72  62
-    movw de,#mem_f03b       ;2b73  14 3b f0     DE = pointer to buffer to receive EEPROM contents
+    movw de,#kwp_tmp_buf    ;2b73  14 3b f0     DE = pointer to buffer to receive EEPROM contents
     call !sub_6238          ;2b76  9a 38 62     Read A bytes from EEPROM address HL into [DE]
     pop ax                  ;2b79  b0
     bnc lab_2bb6            ;2b7a  9d 3a        Branch if EEPROM read failed
@@ -7784,7 +7784,7 @@ sub_2b6e:
     inc c                   ;2b8d  42
     cmpw ax,#0x0014         ;2b8e  ea 14 00
     bc lab_2bb0             ;2b91  8d 1d
-    movw hl,#mem_f03b       ;2b93  16 3b f0
+    movw hl,#kwp_tmp_buf    ;2b93  16 3b f0
     decw hl                 ;2b96  96
 
 lab_2b97:
