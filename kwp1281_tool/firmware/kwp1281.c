@@ -132,7 +132,7 @@ static kwp_result_t _recv_keyword(uint16_t *keyword_out)
 kwp_result_t kwp_send_block(uint8_t *buf)
 {
     uint8_t block_length = buf[0];
-    // minumum block length of 3 = counter + title + end
+    // minimum block length of 3 = counter + title + end
     if (block_length < 3) { return KWP_TX_BLK_MALFORMED; }
 
     buf[1] = ++kwp_block_counter;   // insert block counter
