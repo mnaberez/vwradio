@@ -553,8 +553,10 @@ static kwp_result_t _send_read_ident_block(void)
  *
  * A module will normally send 4 blocks:
  *
- *  - 3 with component info
- *  - 1 with workshop and coding
+ *  - 1/4: VAG Number               "1J0035180B  "  (Block length=0x0F)
+ *  - 2/4: Component Info Part 1    " Radio DE2  "  (Block length=0x0F)
+ *  - 3/4: Component Info Part 2    "       0001"   (Block length=0x0E)
+ *  - 4/4: Coding and Workshop Code                 (Block length=0x08)
  *
  * In some rare cases, like the Premium 5 radio in manufacturing mode (address
  * 0x7C), there will be no ASCII/data blocks sent during the initial connection.
