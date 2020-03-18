@@ -14675,7 +14675,7 @@ lab_50ca:
 
 lab_50d1:
 ;Login and Group 0x19 verified
-;Proceed to read the EEPROm
+;Proceed to read the EEPROM
     br !lab_5581            ;50d1  9b 81 55     Branch to Read EEPROM and send response
 
 kwp_56_0c_write_eeprom:
@@ -15375,7 +15375,7 @@ lab_53ae:
     mov a,!mem_fbcb         ;53ae  8e cb fb     A = block counter
     sub a,#0x01             ;53b1  1d 01        Decrement it
     mov !mem_fbcb,a         ;53b3  9e cb fb     Store block counter
-    br !lab_532a_ack            ;53b6  9b 2a 53     Branch to send ACK response
+    br !lab_532a_ack        ;53b6  9b 2a 53     Branch to send ACK response
 
 lab_53b9:
     mov b,#0x0b             ;53b9  a3 0b        B = index 0x0b clear faults
@@ -15404,7 +15404,7 @@ lab_53cf:
     mov a,!mem_fbcb         ;53d9  8e cb fb     A = block counter
     sub a,#0x01             ;53dc  1d 01        Decrement it
     mov !mem_fbcb,a         ;53de  9e cb fb     Store block counter
-    br !lab_532a_ack            ;53e1  9b 2a 53     Branch to send ACK response
+    br !lab_532a_ack        ;53e1  9b 2a 53     Branch to send ACK response
 
 lab_53e4:
 ;Output tests are continuing; send an output test response
