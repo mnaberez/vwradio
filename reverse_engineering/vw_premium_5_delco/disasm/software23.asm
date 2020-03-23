@@ -1067,9 +1067,9 @@ lab_0148:
     clr1 mk1l.0             ;014b  71 0b e6       Clear WTNIMK0 (enables INTWTNI0)
     clr1 pr1l.0             ;014e  71 0b ea       Clear WTNIPR0 (makes INTWTNI0 high priority)
 
-    inc mem_fe28            ;0151  81 28
+    inc mem_fe28              ;0151  81 28
     btclr mem_fe28.7,lab_015a ;0153  31 71 28 03
-    br !lab_0265            ;0157  9b 65 02
+    br !lab_0265_reti         ;0157  9b 65 02
 
 lab_015a:
     clr1 if1l.0             ;015a  71 0b e2       Clear WTNIIF0 (WTNIIF0 interrupt flag)
@@ -1202,7 +1202,7 @@ lab_025a:
     mov mem_fe28,#0x80      ;025f  11 28 80
     set1 mk1h.0             ;0262  71 0a e7     Set WTNMK0 (disables INTWTN0)
 
-lab_0265:
+lab_0265_reti:
     reti                    ;0265  8f
 
 lab_0266:
@@ -3086,7 +3086,8 @@ lab_0f1b:
     mov a,shadow_p2         ;0f96  f0 cc
     mov p2,a                ;0f98  f2 02
 
-    call !sub_3468          ;0f9a  9a 68 34
+    call !kwp_disconnect    ;0f9a  9a 68 34     Disconnect and clear all KWP1281 state
+
     mov a,rxb0_txs0         ;0f9d  f0 18
     clr1 pu2.4              ;0f9f  71 4b 32
     set1 pm2.4              ;0fa2  71 4a 22
@@ -9045,12 +9046,12 @@ intsr0_30e8:
     push de                 ;30eb  b5
     mov a,rxb0_txs0         ;30ec  f0 18            A = KWP1281 byte received from UART
     bf mem_fe7a.2,lab_3148  ;30ee  31 23 7a 56
-    btclr mem_fe79.0,lab_313f ;30f2  31 01 79 49
-    btclr mem_fe79.7,lab_3142 ;30f6  31 71 79 48
-    btclr mem_fe79.3,lab_3158 ;30fa  31 31 79 5a    Branch to check received KWP1281 sync byte (0x55)
-    btclr mem_fe79.4,lab_3167 ;30fe  31 41 79 65    Branch to check received KWP1281 first keyword byte (0x01)
-    bt mem_fe79.5,lab_3176  ;3102  dc 79 71         Branch to check received KWP1281 second keyword byte (0x8a)
-    bf mem_fe7a.0,lab_3153  ;3105  31 03 7a 4a      Branch to pop all registers off stack and return
+    btclr mem_fe79.0,lab_313f_br_3242 ;30f2  31 01 79 49    Branch to lab_3242
+    btclr mem_fe79.7,lab_3142_br_3190 ;30f6  31 71 79 48    Branch to lab_3190
+    btclr mem_fe79.3,lab_3158_sync_55 ;30fa  31 31 79 5a    Branch to check received KWP1281 sync byte (0x55)
+    btclr mem_fe79.4,lab_3167_kw_01   ;30fe  31 41 79 65    Branch to check received KWP1281 first keyword byte (0x01)
+    bt mem_fe79.5,lab_3176_kw_8a      ;3102  dc 79 71       Branch to check received KWP1281 second keyword byte (0x8a)
+    bf mem_fe7a.0,lab_3153_pop_reti   ;3105  31 03 7a 4a    Branch to pop registers and reti
     clr1 mem_fe79.2         ;3109  2b 79
     mov x,a                 ;310b  70               X = Remember KWP1281 byte received from UART
 
@@ -9065,7 +9066,7 @@ intsr0_30e8:
 lab_3118:
     mov a,c                 ;3118  62
     cmp a,!mem_f06c         ;3119  48 6c f0     Compare to KWP1281 byte received from UART
-    bz lab_3145             ;311c  ad 27
+    bz lab_3145_br_31f6     ;311c  ad 27
     cmp a,#0xff             ;311e  4d ff
     bc lab_3127             ;3120  8d 05
     bz lab_3127             ;3122  ad 03
@@ -9086,68 +9087,75 @@ lab_312c:
     mov !mem_f06e,a         ;3136  9e 6e f0
     set1 mem_fe79.6         ;3139  6a 79
     set1 mem_fe79.1         ;313b  1a 79
-    br lab_3153             ;313d  fa 14        Branch to pop all registers off stack and reti
+    br lab_3153_pop_reti    ;313d  fa 14        Branch to pop registers and reti
 
-lab_313f:
+lab_313f_br_3242:
     br !lab_3242            ;313f  9b 42 32
 
-lab_3142:
+lab_3142_br_3190:
     br !lab_3190            ;3142  9b 90 31
 
-lab_3145:
+lab_3145_br_31f6:
     br !lab_31f6            ;3145  9b f6 31
 
 lab_3148:
     bf mem_fe2b.7,lab_3150  ;3148  31 73 2b 04
     clr1 mem_fe7b.6         ;314c  6b 7b
-    br lab_3153             ;314e  fa 03        Branch to pop all registers off stack and reti
+    br lab_3153_pop_reti    ;314e  fa 03        Branch to pop registers and reti
 
 lab_3150:
     clr1 asim0.6            ;3150  71 6b a0     RXE0=0 (disable UART0 receive)
 
-lab_3153:
-;Pop all registers off stack and return
+lab_3153_pop_reti:
+;Pop all registers off stack and return from interrupt
     pop de                  ;3153  b4
     pop hl                  ;3154  b6
     pop bc                  ;3155  b2
     pop ax                  ;3156  b0
     reti                    ;3157  8f
 
-lab_3158:
+lab_3158_sync_55:
 ;Check received KWP1281 sync byte (0x55)
     cmp a,#0x55             ;3158  4d 55
-    bnz lab_318a            ;315a  bd 2e
+    bnz lab_318a_unexpected ;315a  bd 2e
+
+    ;Sync byte (0x55) is OK
     mov a,#0x04             ;315c  a1 04
     mov !mem_f06f,a         ;315e  9e 6f f0
     set1 mem_fe79.4         ;3161  4a 79
     set1 mem_fe79.2         ;3163  2a 79
-    br lab_3153             ;3165  fa ec
+    br lab_3153_pop_reti    ;3165  fa ec        Branch to pop registers and reti
 
-lab_3167:
+lab_3167_kw_01:
 ;Check received KWP1281 first keyword byte (0x01)
     cmp a,#0x01             ;3167  4d 01
-    bnz lab_318a            ;3169  bd 1f
+    bnz lab_318a_unexpected ;3169  bd 1f
+
+    ;First keyword byte (0x01) is OK
     mov a,#0x04             ;316b  a1 04
     mov !mem_f06f,a         ;316d  9e 6f f0
     set1 mem_fe79.5         ;3170  5a 79
     set1 mem_fe79.2         ;3172  2a 79
-    br lab_3153             ;3174  fa dd
+    br lab_3153_pop_reti    ;3174  fa dd        Branch to pop registers and reti
 
-lab_3176:
+lab_3176_kw_8a:
 ;Check received KWP1281 second keyword byte (0x8a)
     cmp a,#0x8a             ;3176  4d 8a
-    bnz lab_318a            ;3178  bd 10
+    bnz lab_318a_unexpected ;3178  bd 10
+
+    ;Second keyword byte (0x8a) is OK
     mov !mem_f06a,a         ;317a  9e 6a f0
     mov a,#0x0e             ;317d  a1 0e
     mov !mem_f06e,a         ;317f  9e 6e f0
     set1 mem_fe79.6         ;3182  6a 79
     set1 mem_fe79.1         ;3184  1a 79
     clr1 mem_fe79.2         ;3186  2b 79
-    br lab_3153             ;3188  fa c9
+    br lab_3153_pop_reti    ;3188  fa c9        Branch to pop registers and reti
 
-lab_318a:
-    call !sub_3468          ;318a  9a 68 34
-    br !lab_3153            ;318d  9b 53 31
+lab_318a_unexpected:
+;Sync byte or one of the keyword bytes is not the expected value
+    call !kwp_disconnect    ;318a  9a 68 34     Disconnect and clear all KWP1281 state
+    br !lab_3153_pop_reti   ;318d  9b 53 31     Branch to pop registers and reti
 
 lab_3190:
     clr1 mem_fe79.2         ;3190  2b 79
@@ -9199,16 +9207,16 @@ lab_31d2:
 
 lab_31e4:
     bc lab_31e9             ;31e4  8d 03
-    call !sub_3468          ;31e6  9a 68 34
+    call !kwp_disconnect    ;31e6  9a 68 34     Disconnect and clear all KWP1281 state
 
 lab_31e9:
-    br !lab_3153            ;31e9  9b 53 31
+    br !lab_3153_pop_reti   ;31e9  9b 53 31     Branch to pop registers and reti
 
 lab_31ec:
     set1 mem_fe7c.0         ;31ec  0a 7c
     mov a,#0x05             ;31ee  a1 05
     mov !mem_fbc9,a         ;31f0  9e c9 fb
-    br !lab_3153            ;31f3  9b 53 31
+    br !lab_3153_pop_reti   ;31f3  9b 53 31     Branch to pop registers and reti
 
 lab_31f6:
     mov a,x                 ;31f6  60
@@ -9253,7 +9261,7 @@ lab_322c:
     br lab_323c             ;323a  fa 00
 
 lab_323c:
-    br !lab_3153            ;323c  9b 53 31
+    br !lab_3153_pop_reti   ;323c  9b 53 31     Branch to pop registers and reti
 
 lab_323f:
     mov a,!mem_f06a         ;323f  8e 6a f0
@@ -9296,12 +9304,12 @@ lab_3269:
     br lab_32dc             ;3286  fa 54
 
 lab_3288:
-    call !sub_3468          ;3288  9a 68 34
+    call !kwp_disconnect    ;3288  9a 68 34     Disconnect and clear all KWP1281 state
     br lab_32dc             ;328b  fa 4f
 
 lab_328d:
-    bf shadow_p2.6,lab_323f ;328d  31 63 cc ae    Branch if P26 = 0 (K-line mode = normal)
-    call !sub_3468          ;3291  9a 68 34
+    bf shadow_p2.6,lab_323f ;328d  31 63 cc ae  Branch if P26 = 0 (K-line mode = normal)
+    call !kwp_disconnect    ;3291  9a 68 34     Disconnect and clear all KWP1281 state
     br lab_32dc             ;3294  fa 46
 
 lab_3296:
@@ -9348,7 +9356,7 @@ lab_32ba:
     br lab_32dc             ;32da  fa 00
 
 lab_32dc:
-    br !lab_3153            ;32dc  9b 53 31
+    br !lab_3153_pop_reti   ;32dc  9b 53 31     Branch to pop registers and reti
 
 intser0_32df:
 ;UART0 receive error interrupt
@@ -9370,13 +9378,13 @@ intser0_32df:
     bt mem_fe79.0,lab_3301  ;32f2  8c 79 0c
     bt mem_fe7a.1,lab_32fd  ;32f5  9c 7a 05
     bt mem_fe7a.0,lab_32ff  ;32f8  8c 7a 04
-    br lab_3324             ;32fb  fa 27          Branch to pop all registers off stack and return
+    br lab_3324_pop_reti    ;32fb  fa 27          Branch to pop registers off stack and reti
 
 lab_32fd:
-    br lab_3324             ;32fd  fa 25          Branch to pop all registers off stack and return
+    br lab_3324_pop_reti    ;32fd  fa 25          Branch to pop registers off stack and reti
 
 lab_32ff:
-    br lab_3324             ;32ff  fa 23          Branch to pop all registers off stack and return
+    br lab_3324_pop_reti    ;32ff  fa 23          Branch to pop registers off stack and reti
 
 lab_3301:
     br !lab_323f            ;3301  9b 3f 32
@@ -9397,18 +9405,18 @@ lab_3304:
 lab_3318:
     ;Receive error is not a framing error
     clr1 mem_fe7b.6         ;3318  6b 7b
-    br lab_3324             ;331a  fa 08          Branch to pop all registers off stack and reti
+    br lab_3324_pop_reti    ;331a  fa 08          Branch to pop registers off stack and reti
 
 lab_331c:
     ;K-line mode = radio as tester
     clr1 mem_fe7b.4         ;331c  4b 7b
-    call !sub_3468          ;331e  9a 68 34
+    call !kwp_disconnect    ;331e  9a 68 34       Disconnect and clear all KWP1281 state
 
 lab_3321:
     clr1 asim0.6            ;3321  71 6b a0       RXE0=0 (disable UART0 receive)
 
-lab_3324:
-;Pop all registers off stack and return
+lab_3324_pop_reti:
+;Pop registers off stack and reti
     pop de                  ;3324  b4
     pop hl                  ;3325  b6
     pop bc                  ;3326  b2
@@ -9478,7 +9486,7 @@ lab_3392:
     mov a,shadow_p2         ;3394  f0 cc
     mov p2,a                ;3396  f2 02
     mov asim0,#0x00         ;3398  13 a0 00       UART0 mode register = 0 (UART fully disabled)
-    br !sub_3468            ;339b  9b 68 34
+    br !kwp_disconnect      ;339b  9b 68 34       Disconnect and clear all KWP1281 state
 
 sub_339e:
     bt mem_fe7a.0,lab_33de  ;339e  8c 7a 3d
@@ -9511,7 +9519,7 @@ lab_33be:
 
 lab_33d8:
     bc lab_33dd             ;33d8  8d 03
-    br !sub_3468            ;33da  9b 68 34
+    br !kwp_disconnect      ;33da  9b 68 34       Disconnect and clear all KWP1281 state
 
 lab_33dd:
     ret                     ;33dd  af
@@ -9571,7 +9579,7 @@ lab_3422:
     set1 cy                 ;3434  20
 
 lab_3435:
-    bc lab_3453             ;3435  8d 1c
+    bc lab_3453_br_kwp_disconnect ;3435  8d 1c        Disconnect and clear all KWP1281 state
     clr1 mem_fe7a.1         ;3437  1b 7a
     set1 mem_fe7a.0         ;3439  0a 7a
     mov a,#0x00             ;343b  a1 00
@@ -9588,8 +9596,8 @@ lab_3435:
     set1 mem_fe79.2         ;3450  2a 79
     ret                     ;3452  af
 
-lab_3453:
-    br !sub_3468            ;3453  9b 68 34
+lab_3453_br_kwp_disconnect:
+    br !kwp_disconnect      ;3453  9b 68 34     Disconnect and clear all KWP1281 state
 
 lab_3456:
     mov a,#0x0f             ;3456  a1 0f
@@ -9603,11 +9611,14 @@ lab_3460:
     mov !mem_fbc9,a         ;3464  9e c9 fb
     ret                     ;3467  af
 
-sub_3468:
+kwp_disconnect:
+;Disconnect and clear all KWP1281 state
     clr1 mem_fe7a.2         ;3468  2b 7a
+
     set1 shadow_p2.5        ;346a  5a cc        P25/TxD0 = 1
     mov a,shadow_p2         ;346c  f0 cc
     mov p2,a                ;346e  f2 02
+
     btclr mem_fe7b.4,lab_348b ;3470  31 41 7b 17
 
     clr1 shadow_p2.6        ;3474  6b cc        P26 = 0 (K-line mode = normal)
@@ -9626,7 +9637,7 @@ lab_3481:
 lab_348b:
     mov a,#0x00             ;348b  a1 00
     mov !mem_fbc9,a         ;348d  9e c9 fb
-    bf mem_fe65.5,lab_34a2  ;3490  31 53 65 0e  Clears many state bits + 3 more
+    bf mem_fe65.5,lab_34a2  ;3490  31 53 65 0e  Clear many KWP1281 state bits + 3 more
     set1 mem_fe7d.3         ;3494  3a 7d
     clr1 mem_fe61.4         ;3496  4b 61
     clr1 mem_fe5f.5         ;3498  5b 5f
@@ -9635,13 +9646,13 @@ lab_348b:
     mov !mem_f04e,a         ;349f  9e 4e f0     KWP128 Output Test index = 0
 
 lab_34a2:
-;Clears many state bits + 3 more
+;Clear many KWP1281 state bits + 3 more
     clr1 mem_fe65.5         ;34a2  5b 65
     clr1 mem_fe65.7         ;34a4  7b 65
     clr1 mem_fe65.6         ;34a6  6b 65
 
-sub_34a8:
-;Clears many state bits
+kwp_clear_state:
+;Clear many KWP1281 state bits
     clr1 mem_fe79.2         ;34a8  2b 79
     clr1 mem_fe79.1         ;34aa  1b 79
     clr1 mem_fe7a.0         ;34ac  0b 7a
@@ -9836,7 +9847,7 @@ lab_35dc:
     set1 mem_fe7c.0         ;35dc  0a 7c
     mov a,#0x03             ;35de  a1 03
     mov !mem_fbc9,a         ;35e0  9e c9 fb
-    call !sub_34a8          ;35e3  9a a8 34     Clears many state bits
+    call !kwp_clear_state   ;35e3  9a a8 34     Clears KWP1281 many state bits
     set1 mem_fe7a.2         ;35e6  2a 7a
 
 lab_35e8:
@@ -9996,7 +10007,7 @@ lab_36d0:
     set1 mem_fe7c.0         ;36d4  0a 7c
     mov a,#0x01             ;36d6  a1 01
     mov !mem_fbc9,a         ;36d8  9e c9 fb
-    call !sub_34a8          ;36db  9a a8 34       Clears many state bits
+    call !kwp_clear_state   ;36db  9a a8 34       Clear many KWP1281 state bits
     set1 mem_fe7a.2         ;36de  2a 7a
     ret                     ;36e0  af
 
@@ -10793,12 +10804,12 @@ lab_3c03:
     br !sub_3dbd            ;3c05  9b bd 3d
 
 lab_3c08:
-    bt mem_fe62.7,lab_3c58  ;3c08  fc 62 4d
-    bt mem_fe62.1,lab_3c58  ;3c0b  9c 62 4a
-    bf mem_fe65.5,lab_3c1a  ;3c0e  31 53 65 08
-    cmp mem_fe43,#0x33      ;3c12  c8 43 33
-    bz lab_3c58             ;3c15  ad 41
-    call !sub_51c3          ;3c17  9a c3 51
+    bt mem_fe62.7,lab_3c58      ;3c08  fc 62 4d
+    bt mem_fe62.1,lab_3c58      ;3c0b  9c 62 4a
+    bf mem_fe65.5,lab_3c1a      ;3c0e  31 53 65 08
+    cmp mem_fe43,#0x33          ;3c12  c8 43 33
+    bz lab_3c58                 ;3c15  ad 41
+    call !kwp_logout_disconnect ;3c17  9a c3 51     Branch to Clear KWP1281 auth bits and end session
 
 lab_3c1a:
     set1 mem_fe2c.3         ;3c1a  3a 2c
@@ -10850,9 +10861,9 @@ lab_3c60:
     clr1 mem_fe62.6         ;3c62  6b 62
 
 lab_3c64:
-    clr1 mem_fe2c.5         ;3c64  5b 2c
-    bf mem_fe65.5,lab_3c6d  ;3c66  31 53 65 03
-    call !sub_51c3          ;3c6a  9a c3 51
+    clr1 mem_fe2c.5             ;3c64  5b 2c
+    bf mem_fe65.5,lab_3c6d      ;3c66  31 53 65 03
+    call !kwp_logout_disconnect ;3c6a  9a c3 51     Branch to Clear KWP1281 auth bits and end session
 
 lab_3c6d:
     bt mem_fe2c.2,lab_3c7f  ;3c6d  ac 2c 0f
@@ -10939,11 +10950,11 @@ lab_3cf2:
     ret                     ;3cf2  af
 
 lab_3cf3:
-    call !sub_51c3          ;3cf3  9a c3 51
-    clr1 mem_fe2c.5         ;3cf6  5b 2c
-    clr1 mem_fe62.6         ;3cf8  6b 62
-    bf mem_fe2c.3,lab_3d00  ;3cfa  31 33 2c 02
-    set1 mem_fe62.6         ;3cfe  6a 62
+    call !kwp_logout_disconnect ;3cf3  9a c3 51     Branch to Clear KWP1281 auth bits and end session
+    clr1 mem_fe2c.5             ;3cf6  5b 2c
+    clr1 mem_fe62.6             ;3cf8  6b 62
+    bf mem_fe2c.3,lab_3d00      ;3cfa  31 33 2c 02
+    set1 mem_fe62.6             ;3cfe  6a 62
 
 lab_3d00:
     clr1 mem_fe2c.3         ;3d00  3b 2c
@@ -11051,12 +11062,12 @@ lab_3d9a:
     br lab_3dbc             ;3da4  fa 16
 
 lab_3da6:
-    cmp a,#0x35             ;3da6  4d 35
-    bc lab_3db5             ;3da8  8d 0b
-    clr1 mem_fe62.2         ;3daa  2b 62
-    bf mem_fe65.5,lab_3dbc  ;3dac  31 53 65 0c
-    call !sub_51c3          ;3db0  9a c3 51
-    br lab_3dbc             ;3db3  fa 07
+    cmp a,#0x35                 ;3da6  4d 35
+    bc lab_3db5                 ;3da8  8d 0b
+    clr1 mem_fe62.2             ;3daa  2b 62
+    bf mem_fe65.5,lab_3dbc      ;3dac  31 53 65 0c
+    call !kwp_logout_disconnect ;3db0  9a c3 51     Branch to Clear KWP1281 auth bits and end session
+    br lab_3dbc                 ;3db3  fa 07
 
 lab_3db5:
     set1 mem_fe62.4         ;3db5  4a 62
@@ -12487,15 +12498,15 @@ sub_461b:
     br !sub_4495            ;4622  9b 95 44
 
 sub_4625:
-    mov a,!mem_fb28         ;4625  8e 28 fb
-    cmp a,#0x00             ;4628  4d 00
-    bnz lab_463c            ;462a  bd 10
-    clr1 mem_fe64.7         ;462c  7b 64
-    call !sub_51c3          ;462e  9a c3 51     Branch to clear auth bits and end session
-    cmp mem_fe31,#0x00      ;4631  c8 31 00
-    bz lab_463a             ;4634  ad 04
-    mov a,#0x00             ;4636  a1 00
-    mov mem_fe31,a          ;4638  f2 31
+    mov a,!mem_fb28             ;4625  8e 28 fb
+    cmp a,#0x00                 ;4628  4d 00
+    bnz lab_463c                ;462a  bd 10
+    clr1 mem_fe64.7             ;462c  7b 64
+    call !kwp_logout_disconnect ;462e  9a c3 51     Branch to Clear KWP1281 auth bits and end session
+    cmp mem_fe31,#0x00          ;4631  c8 31 00
+    bz lab_463a                 ;4634  ad 04
+    mov a,#0x00                 ;4636  a1 00
+    mov mem_fe31,a              ;4638  f2 31
 
 lab_463a:
     br lab_4688             ;463a  fa 4c
@@ -14195,10 +14206,10 @@ kwp_7c_09_ack:
 
 kwp_7c_06_end_session:
 ;end session (kwp_7c_handlers)
-    mov a,#0x00             ;4eb3  a1 00
-    mov !mem_fbc7,a         ;4eb5  9e c7 fb
-    call !sub_4822          ;4eb8  9a 22 48     Sets mem_fb28 = 0 and returns
-    br !sub_51c3            ;4ebb  9b c3 51     Branch to clear auth bits and end session
+    mov a,#0x00               ;4eb3  a1 00
+    mov !mem_fbc7,a           ;4eb5  9e c7 fb
+    call !sub_4822            ;4eb8  9a 22 48     Sets mem_fb28 = 0 and returns
+    br !kwp_logout_disconnect ;4ebb  9b c3 51     Branch to Clear KWP1281 auth bits and end session
 
 lab_4ebe:
     br !lab_532a_ack        ;4ebe  9b 2a 53     Branch to send ACK response
@@ -14513,10 +14524,20 @@ lab_501b_coding:
     br !lab_52b1_id_coding  ;501b  9b b1 52     Branch to Send id block 4/4 with coding (Block length=0x08)
 
 kwp_56_06_end_session:
-;end session (kwp_56_handlers)
-    mov a,#0x00             ;501e  a1 00
-    mov !mem_fbc5,a         ;5020  9e c5 fb
-    br !sub_51c3            ;5023  9b c3 51     Branch to clear auth bits and end session
+;End Session (kwp_56_handlers)
+;
+;Request block:
+;  0x03 Block length      kwp_rx_buf+0
+;   xx  Block counter     kwp_rx_buf+1
+;  0x06 End Session       kwp_rx_buf+2
+;  0x03 Block end         kwp_rx_buf+3
+;
+;Upon receiving this command, the radio disconnects immediately.
+;No response block is sent.
+;
+    mov a,#0x00               ;501e  a1 00
+    mov !mem_fbc5,a           ;5020  9e c5 fb
+    br !kwp_logout_disconnect ;5023  9b c3 51     Branch to Clear KWP1281 auth bits and end session
 
 lab_5026:
     mov a,#0x00             ;5026  a1 00
@@ -14624,12 +14645,12 @@ kwp_56_10_recoding:
 
 kwp_56_2b_login:
 ;login (kwp_56_handlers)
-    mov a,#0x00             ;508a  a1 00
-    mov !mem_fbc5,a         ;508c  9e c5 fb
-    call !auth_login_safe   ;508f  9a ac 25     Authenticate login using SAFE code
-    bt mem_fe65.3,lab_5098  ;5092  bc 65 03     Branch if login succeeded
+    mov a,#0x00               ;508a  a1 00
+    mov !mem_fbc5,a           ;508c  9e c5 fb
+    call !auth_login_safe     ;508f  9a ac 25     Authenticate login using SAFE code
+    bt mem_fe65.3,lab_5098    ;5092  bc 65 03     Branch if login succeeded
     ;login failed
-    br !sub_51c3            ;5095  9b c3 51     Branch to clear auth bits and end session
+    br !kwp_logout_disconnect ;5095  9b c3 51     Branch to Clear KWP1281 auth bits and end session
 
 lab_5098:
 ;login succeeded
@@ -14719,7 +14740,7 @@ lab_50ec:
 ;  Radio expects to receive a title 0x09 ACK block.
 ;  Radio sends a title 0xD7 security access request block (lab_55de).
 ;  Radio expects to receive a title 0x3D response to security access block (sub_2537).
-;  Radio sends a title 0x06 end session block.
+;  Radio sends a title 0x06 end session block (cluster does not send a response block).
 ;
 
 kwp_3f_09_ack:
@@ -14737,10 +14758,10 @@ lab_50fe:
 
 kwp_3f_06_end_session:
 ;end session (kwp_3f_handlers)
-    call !sub_259b          ;5106  9a 9b 25     Turn SAFE mode = locked
-    mov a,#0x00             ;5109  a1 00
-    mov !mem_fbc6,a         ;510b  9e c6 fb     Store new KWP1281 radio to cluster connection state
-    br !sub_51c3            ;510e  9b c3 51     Branch to clear auth bits and end session
+    call !sub_259b            ;5106  9a 9b 25     Turn SAFE mode = locked
+    mov a,#0x00               ;5109  a1 00
+    mov !mem_fbc6,a           ;510b  9e c6 fb     Store new KWP1281 radio to cluster connection state
+    br !kwp_logout_disconnect ;510e  9b c3 51     Branch to Clear KWP1281 auth bits and end session
 
 lab_5111:
     call !sub_259b          ;5111  9a 9b 25     Turn SAFE mode = locked
@@ -14863,11 +14884,11 @@ lab_51b8:
     mov !mem_fbcb,a         ;51bd  9e cb fb     Store incremented block counter
     br !lab_5344_bad        ;51c0  9b 44 53     Send NAK response (index 0x03)
 
-sub_51c3:
-;clear auth bits and end session
+kwp_logout_disconnect:
+;Clear KWP1281 auth bits and end session
     clr1 mem_fe65.3         ;51c3  3b 65       Clear bit to indicate not logged in
     clr1 mem_fe65.4         ;51c5  4b 65       Clear bit to indicate group read 0x19 not performed
-    br !sub_3468            ;51c7  9b 68 34
+    br !kwp_disconnect      ;51c7  9b 68 34    Disconnect and clear all KWP1281 state
 
 lab_51ca:
     movw hl,#kwp_brgc0_b02c+1 ;51ca  16 2d b0
@@ -14907,10 +14928,10 @@ lab_51fa:
     mov b,#0x03             ;5200  a3 03          B = number of valid addresses in table
 
 lab_5202:
-    cmp a,[hl+b]            ;5202  31 4b          Compare address to current entry in table
-    bz lab_520b             ;5204  ad 05          Branch if equal
-    dbnz b,lab_5202         ;5206  8b fa          Keep going until end of table
-    br !sub_51c3            ;5208  9b c3 51       Branch to clear auth bits and end session
+    cmp a,[hl+b]              ;5202  31 4b          Compare address to current entry in table
+    bz lab_520b               ;5204  ad 05          Branch if equal
+    dbnz b,lab_5202           ;5206  8b fa          Keep going until end of table
+    br !kwp_logout_disconnect ;5208  9b c3 51       Branch to Clear KWP1281 auth bits and end session
 
 lab_520b:
 ;kwp1281 address found in table
@@ -16509,10 +16530,10 @@ lab_593a:
 ;Fires on the falling edge of the STOP/EJECT key
 ;STOP/EJECT key is P06 (0=pressed, 1=not pressed)
 intp6_stop_key:
-    bt mem_fe62.1,lab_5940  ;593b  9c 62 02
-    set1 mem_fe7d.7         ;593e  7a 7d
+    bt mem_fe62.1,lab_5940_reti ;593b  9c 62 02
+    set1 mem_fe7d.7             ;593e  7a 7d
 
-lab_5940:
+lab_5940_reti:
     reti                    ;5940  8f
 
 lab_5941:
@@ -16545,7 +16566,7 @@ lab_596e:
     inc mem_fe34            ;596e  81 34
     mov a,#0x05             ;5970  a1 05
     mov !mem_fb05,a         ;5972  9e 05 fb
-    br !lab_5a0e            ;5975  9b 0e 5a     Branch to pop registers and reti
+    br !lab_5a0e_pop_reti   ;5975  9b 0e 5a     Branch to pop registers and reti
 
 lab_5978:
     xch a,x                 ;5978  30
@@ -16560,7 +16581,7 @@ lab_5978:
     mov mem_fe34,#0x00      ;5989  11 34 00
     mov a,#0x9f             ;598c  a1 9f
     mov !mem_fb05,a         ;598e  9e 05 fb
-    br lab_5a0e             ;5991  fa 7b      Branch to pop registers and reti
+    br lab_5a0e_pop_reti    ;5991  fa 7b      Branch to pop registers and reti
 
 ;MFSW (Multi-Function Steering Wheel)
 ;
@@ -16607,7 +16628,7 @@ lab_59b7:
     bnc lab_59fd            ;59c0  9d 3b
     mov a,#0x64             ;59c2  a1 64
     mov !mem_fb0e,a         ;59c4  9e 0e fb
-    br lab_5a0e             ;59c7  fa 45        Branch to pop registers and reti
+    br lab_5a0e_pop_reti    ;59c7  fa 45        Branch to pop registers and reti
 
 lab_59c9:
 ;P0.0 = high
@@ -16647,7 +16668,7 @@ lab_59fd:
     set1 egp.0              ;5a08  71 0a 48     Set EGP0 (enables INTP0 on rising edge)
     clr1 egn.0              ;5a0b  71 0b 49     Clear EGN0 (disables INTP0 on falling edge)
 
-lab_5a0e:
+lab_5a0e_pop_reti:
 ;Pop registers and reti
     pop hl                  ;5a0e  b6
     pop de                  ;5a0f  b4
@@ -16677,7 +16698,7 @@ lab_5a27:
     movw !mem_f00e,ax       ;5a31  03 0e f0
     mov a,#0x0e             ;5a34  a1 0e
     mov !mem_fb05,a         ;5a36  9e 05 fb
-    br lab_5a0e             ;5a39  fa d3        Branch to pop registers and reti
+    br lab_5a0e_pop_reti    ;5a39  fa d3        Branch to pop registers and reti
 
 lab_5a3b:
     br lab_59fd             ;5a3b  fa c0
@@ -16692,7 +16713,7 @@ lab_5a3d:
     clr1 egn.0              ;5a4d  71 0b 49     Clear EGN0 (disables INTP0 on falling edge)
     mov a,#0x07             ;5a50  a1 07
     mov !mem_fb05,a         ;5a52  9e 05 fb
-    br !lab_5a0e            ;5a55  9b 0e 5a     Branch to pop registers and reti
+    br !lab_5a0e_pop_reti   ;5a55  9b 0e 5a     Branch to pop registers and reti
 
 lab_5a58:
     cmpw ax,#0x1d7d         ;5a58  ea 7d 1d
@@ -16705,7 +16726,7 @@ lab_5a58:
     set1 mem_fe68.0         ;5a6a  0a 68
     mov a,#0x05             ;5a6c  a1 05
     mov !mem_fb05,a         ;5a6e  9e 05 fb
-    br !lab_5a0e            ;5a71  9b 0e 5a     Branch to pop registers and reti
+    br !lab_5a0e_pop_reti   ;5a71  9b 0e 5a     Branch to pop registers and reti
 
 lab_5a74:
     mov mem_fe34,#0x00      ;5a74  11 34 00
@@ -16714,7 +16735,7 @@ lab_5a74:
     clr1 mem_fe67.7         ;5a7b  7b 67
     mov a,#0xd7             ;5a7d  a1 d7
     mov !mem_fb05,a         ;5a7f  9e 05 fb
-    br !lab_5a0e            ;5a82  9b 0e 5a     Branch to pop registers and reti
+    br !lab_5a0e_pop_reti   ;5a82  9b 0e 5a     Branch to pop registers and reti
 
 sub_5a85:
     xch a,x                 ;5a85  30
@@ -16767,7 +16788,7 @@ lab_5ad1:
     movw cr011,ax           ;5ade  99 12
     movw !0xf018,ax         ;5ae0  03 18 f0
     set1 mem_fe68.2         ;5ae3  2a 68
-    br !lab_5ba0            ;5ae5  9b a0 5b     Branch to pop registers and reti
+    br !lab_5ba0_pop_reti   ;5ae5  9b a0 5b     Branch to pop registers and reti
 
 lab_5ae8:
     movw ax,#0x0608         ;5ae8  10 08 06
@@ -16777,7 +16798,7 @@ lab_5ae8:
     movw cr011,ax           ;5af2  99 12
     movw !0xf018,ax         ;5af4  03 18 f0
     clr1 mem_fe68.2         ;5af7  2b 68
-    br !lab_5ba0            ;5af9  9b a0 5b     Branch to pop registers and reti
+    br !lab_5ba0_pop_reti   ;5af9  9b a0 5b     Branch to pop registers and reti
 
 lab_5afc:
     xch a,x                 ;5afc  30
@@ -16790,7 +16811,7 @@ lab_5b04:
     bz lab_5b0f             ;5b06  ad 07
     xch a,x                 ;5b08  30
     movw !0xf010,ax         ;5b09  03 10 f0
-    br !lab_5ba0            ;5b0c  9b a0 5b     Branch to pop registers and reti
+    br !lab_5ba0_pop_reti   ;5b0c  9b a0 5b     Branch to pop registers and reti
 
 lab_5b0f:
     movw ax,#0x0000         ;5b0f  10 00 00
@@ -16804,7 +16825,7 @@ lab_5b1b:
     addw ax,#lab_312c       ;5b1f  ca 2c 31
     movw cr011,ax           ;5b22  99 12
     movw !0xf018,ax         ;5b24  03 18 f0
-    br !lab_5ba0            ;5b27  9b a0 5b     Branch to pop registers and reti
+    br !lab_5ba0_pop_reti   ;5b27  9b a0 5b     Branch to pop registers and reti
 
 lab_5b2a:
     mov a,!mem_f199         ;5b2a  8e 99 f1
@@ -16827,12 +16848,12 @@ lab_5b2a:
     movw cr011,ax           ;5b51  99 12
     movw !0xf018,ax         ;5b53  03 18 f0
     clr1 mem_fe68.2         ;5b56  2b 68
-    br lab_5ba0             ;5b58  fa 46      Branch to pop registers and reti
+    br lab_5ba0_pop_reti    ;5b58  fa 46      Branch to pop registers and reti
 
-lab_5b5a:
+lab_5b5a_br_5c31:
     br !lab_5c31            ;5b5a  9b 31 5c
 
-lab_5b5d:
+lab_5b5d_br_5ad1:
     br !lab_5ad1            ;5b5d  9b d1 5a
 
 inttm011_5b60:
@@ -16857,8 +16878,8 @@ inttm011_5b60:
 
 lab_5b83:
     cmp a,#0x05             ;5b83  4d 05
-    bc lab_5b5a             ;5b85  8d d3
-    bz lab_5b5d             ;5b87  ad d4
+    bc lab_5b5a_br_5c31     ;5b85  8d d3
+    bz lab_5b5d_br_5ad1     ;5b87  ad d4
     cmp a,#0x06             ;5b89  4d 06
     bnz lab_5b90            ;5b8b  bd 03
     br !lab_5afc            ;5b8d  9b fc 5a
@@ -16873,8 +16894,8 @@ lab_5b90:
     set1 mk1l.4             ;5b9d  71 4a e6     Set TMMK011 (disables INTTM011)
     ;Fall through to pop registers and reti
 
-lab_5ba0:
-;Pop registers and return
+lab_5ba0_pop_reti:
+;Pop registers and reti
     pop hl                  ;5ba0  b6
     pop de                  ;5ba1  b4
     pop ax                  ;5ba2  b0
@@ -16891,7 +16912,7 @@ lab_5ba4:
     movw cr011,ax           ;5bb1  99 12
     movw !0xf018,ax         ;5bb3  03 18 f0
     set1 mem_fe68.2         ;5bb6  2a 68
-    br !lab_5ba0            ;5bb8  9b a0 5b     Branch to pop registers and reti
+    br !lab_5ba0_pop_reti   ;5bb8  9b a0 5b     Branch to pop registers and reti
 
 lab_5bbb:
     movw ax,#0x0220         ;5bbb  10 20 02
@@ -16901,7 +16922,7 @@ lab_5bbb:
     movw cr011,ax           ;5bc5  99 12
     movw !0xf018,ax         ;5bc7  03 18 f0
     clr1 mem_fe68.2         ;5bca  2b 68
-    br !lab_5ba0            ;5bcc  9b a0 5b     Branch to pop registers and reti
+    br !lab_5ba0_pop_reti   ;5bcc  9b a0 5b     Branch to pop registers and reti
 
 lab_5bcf:
     xch a,x                 ;5bcf  30
@@ -16927,14 +16948,14 @@ lab_5be8:
     addw ax,#0x0937         ;5bed  ca 37 09
     movw cr011,ax           ;5bf0  99 12
     movw !0xf018,ax         ;5bf2  03 18 f0
-    br !lab_5ba0            ;5bf5  9b a0 5b     Branch to pop registers and reti
+    br !lab_5ba0_pop_reti   ;5bf5  9b a0 5b     Branch to pop registers and reti
 
 lab_5bf8:
     movw ax,de              ;5bf8  c4
     addw ax,#0x1ba5         ;5bf9  ca a5 1b
     movw cr011,ax           ;5bfc  99 12
     movw !0xf018,ax         ;5bfe  03 18 f0
-    br !lab_5ba0            ;5c01  9b a0 5b     Branch to pop registers and reti
+    br !lab_5ba0_pop_reti   ;5c01  9b a0 5b     Branch to pop registers and reti
 
 lab_5c04:
     xch a,x                 ;5c04  30
@@ -16944,7 +16965,7 @@ lab_5c04:
     movw cr011,ax           ;5c0c  99 12
     movw !0xf018,ax         ;5c0e  03 18 f0
     set1 mem_fe68.2         ;5c11  2a 68
-    br !lab_5ba0            ;5c13  9b a0 5b     Branch to pop registers and reti
+    br !lab_5ba0_pop_reti   ;5c13  9b a0 5b     Branch to pop registers and reti
 
 lab_5c16:
     xch a,x                 ;5c16  30
@@ -16972,7 +16993,7 @@ lab_5c31:
     bz lab_5c41             ;5c38  ad 07
     xch a,x                 ;5c3a  30
     movw !0xf010,ax         ;5c3b  03 10 f0
-    br !lab_5ba0            ;5c3e  9b a0 5b     Branch to pop registers and reti
+    br !lab_5ba0_pop_reti   ;5c3e  9b a0 5b     Branch to pop registers and reti
 
 lab_5c41:
     bf mem_fe68.1,lab_5c4d  ;5c41  31 13 68 08
@@ -16984,14 +17005,14 @@ lab_5c4d:
     movw ax,#0x0000         ;5c4d  10 00 00
     movw !0xf010,ax         ;5c50  03 10 f0
     set1 mem_fe68.2         ;5c53  2a 68
-    br !lab_5ba0            ;5c55  9b a0 5b     Branch to pop registers and reti
+    br !lab_5ba0_pop_reti   ;5c55  9b a0 5b     Branch to pop registers and reti
 
 lab_5c58:
     movw ax,de              ;5c58  c4
     addw ax,#0xa9fd         ;5c59  ca fd a9
     movw cr011,ax           ;5c5c  99 12
     movw !0xf018,ax         ;5c5e  03 18 f0
-    br !lab_5ba0            ;5c61  9b a0 5b     Branch to pop registers and reti
+    br !lab_5ba0_pop_reti   ;5c61  9b a0 5b     Branch to pop registers and reti
 
 sub_5c64:
     mov mem_fed4,a          ;5c64  f2 d4
