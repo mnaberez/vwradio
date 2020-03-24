@@ -908,8 +908,30 @@ kwp_result_t kwp_retrying_connect(uint8_t address)
     return KWP_TIMEOUT;
 }
 
+static kwp_result_t _send_disconnect_block(void)
+{
+    uart_puts(UART_DEBUG, "PERFORM DISCONNECT\r\n");
+    uint8_t block[] = {
+        0x03,             // block length
+        0,                // placeholder for block counter
+        KWP_DISCONNECT,   // block title
+        0,                // placeholder for block end
+    };
+    return kwp_send_block(block);
+}
+
 kwp_result_t kwp_disconnect(void)
 {
+    _send_disconnect_block();
+
+    // the module is expected to disconnect immediately.  it does not send
+    // a response block.
+    uart_disable(UART_KLINE);
+
+    // we need to wait some time to allow the module to get back to a state
+    // where it can respond to the 5 baud init again.  this time varies by
+    // module.  vw rhapsody (technisat) is not reliable below 2000ms.
     _delay_ms(KWP_DISCONNECT_MS);
+
     return KWP_SUCCESS;
 }

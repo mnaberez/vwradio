@@ -16,6 +16,9 @@ static void _crack_clarion(void)
     kwp_result_t result = kwp_p4_read_safe_code_bcd(&safe_code);
     kwp_panic_if_error(result);
 
+    result = kwp_disconnect();
+    kwp_panic_if_error(result);
+
     _print_hex16("\r\nSAFE Code: ", safe_code);
 }
 
@@ -32,15 +35,20 @@ static void _crack_delco_vw_premium_5(void)
     result = kwp_p5_read_safe_code_bcd(&safe_code);
     kwp_panic_if_error(result);
 
+    result = kwp_disconnect();
+    kwp_panic_if_error(result);
+
     _print_hex16("\r\nSAFE Code: ", safe_code);
 }
 
 static void _crack_delco_seat_liceo(void)
 {
-    kwp_disconnect();
-
-    kwp_result_t result = kwp_connect(KWP_RADIO_MFG);
+    kwp_result_t result = kwp_disconnect();
     kwp_panic_if_error(result);
+
+    result = kwp_connect(KWP_RADIO_MFG);
+    kwp_panic_if_error(result);
+
     result = kwp_sl_login_mfg();
     kwp_panic_if_error(result);
 
@@ -48,12 +56,16 @@ static void _crack_delco_seat_liceo(void)
     result = kwp_sl_read_safe_code_bcd(&safe_code);
     kwp_panic_if_error(result);
 
+    result = kwp_disconnect();
+    kwp_panic_if_error(result);
+
     _print_hex16("\r\nSAFE Code: ", safe_code);
 }
 
 static void _crack_technisat(void)
 {
-    kwp_disconnect();
+    kwp_result_t result = kwp_disconnect();
+    kwp_panic_if_error(result);
 
     tsat_result_t tresult;
     tresult = tsat_connect(KWP_RADIO_MFG, kwp_baud_rate);

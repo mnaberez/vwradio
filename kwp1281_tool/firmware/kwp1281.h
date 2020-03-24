@@ -78,7 +78,7 @@ uint8_t kwp_component_2[16];    // "        0001"
 #define KWP_RECV_TIMEOUT_MS   3000  /* Timeout if no byte received from module for this long */
 #define KWP_ECHO_TIMEOUT_MS   100   /* Timeout if our byte echo is not received for this long */
 #define KWP_POSTKEYWORD_MS    30    /* Delay to wait after initial 55 01 8A before sending 75 */
-#define KWP_DISCONNECT_MS     5000  /* Do nothing for this long to disconnect */
+#define KWP_DISCONNECT_MS     2000  /* Do nothing for this long after sending disconnect block */
 #define KWP_CONNECT_RETRY_MS  2000  /* Between auto-connect tries */
 
 // Block Titles
@@ -88,7 +88,7 @@ uint8_t kwp_component_2[16];    // "        0001"
 #define KWP_READ_ROM_EEPROM     0x03  /* Read ROM or EEPROM                         *1  *1      */
 #define KWP_OUTPUT_TESTS        0x04  /* Actuator/Output Tests                      X   X       */
 #define KWP_CLEAR_FAULTS        0x05  /* Clear Faults                               X   X       */
-#define KWP_END_SESSION         0x06  /* End Session                                X   X       */
+#define KWP_DISCONNECT          0x06  /* Disconnect                                 X   X       */
 #define KWP_READ_FAULTS         0x07  /* Read Faults                                X   X       */
 #define KWP_SINGLE_READING      0x08  /* Single Reading                                         */
 #define KWP_ACK                 0x09  /* Request or Response to Acknowledge         X   X       */
