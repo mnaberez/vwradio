@@ -8304,7 +8304,7 @@ mem_ac03:
     .word mem_0080_is_0b_or_0c    ;ac1b  bb 17       VECTOR     Protected: Read EEPROM
     .word mem_0080_is_0d          ;ac1d  b1 89       VECTOR     No Acknowledge
     .word mem_0080_is_0e          ;ac1f  b1 ec       VECTOR     Unrecognized Block Title
-    .word mem_0080_is_0f          ;ac21  bb 9e       VECTOR     End Session
+    .word mem_0080_is_0f          ;ac21  bb 9e       VECTOR     Disconnect
     .word mem_0080_is_10          ;ac23  b2 b9       VECTOR     Read or write SAFE code word
 
 sub_ac25:
@@ -8489,7 +8489,7 @@ mem_ad1f:
 ;0x0B        0x03            Protected: Read ROM
 ;0x0C        0x19            Protected: Read EEPROM
 ;0x0D        0x0A            No Acknowledge
-;0x0F        0x06            End Session
+;0x0F        0x06            Disconnect
 ;0x10        0xF0            Read or write SAFE code word
 ;
     ;ID code request/ECU Info
@@ -8517,7 +8517,7 @@ mem_ad1f:
     .byte 0x05              ;T = 0x05 (eventually stored in mem_0080)
     .word lab_ad9f
 
-    ;End Session
+    ;Disconnect
     .byte 0x06              ;A = Block title 0x06
     .byte 0x0F              ;T = 0x0f (eventually stored in mem_0080)
     .word lab_ad9f
@@ -8630,7 +8630,7 @@ lab_ad9f:
 ;
 ;  Block title 0x00: ID code request/ECU Info
 ;  Block title 0x05: Clear Faults
-;  Block title 0x06: End Session
+;  Block title 0x06: Disconnect
 ;  Block title 0x07: Read Faults
 ;  Block title 0x10: Recoding
 ;  Block title 0x2b: Login
@@ -11707,7 +11707,7 @@ lab_bb9a:
 
 
 mem_0080_is_0f:
-;KWP1281 End Session
+;KWP1281 Disconnect
     setb mem_008c:6         ;bb9e  ae 8c
     ret                     ;bba0  20
 
@@ -18148,10 +18148,10 @@ kwp_title_d7:
     .byte 0x00              ;dd6c  00          DATA '\x00'
     .byte 0x03              ;dd6d  03          DATA '\x03'  Block end
 
-kwp_end_session:
+kwp_disconnect:
     .byte 0x03              ;dd6e  03          DATA '\x03'  Block length
     .byte 0x00              ;dd6f  00          DATA '\x00'  Block counter
-    .byte 0x06              ;dd70  06          DATA '\x06'  Block title (0x06 = End Session)
+    .byte 0x06              ;dd70  06          DATA '\x06'  Block title (0x06 = Disconnect)
     .byte 0x03              ;dd71  03          DATA '\x03'  Block end
 
 
@@ -19384,7 +19384,7 @@ mem_e3bd:
 ;  0x02 set unknown values ->
 ;  0x03 if block title received is title 0x3d security access response ->
 ;  0x04 read 4 bytes from 4x buffer, call sub_e61f ->
-;  0x06 end session
+;  0x06 disconnect
 ;
     .word lab_e480          ;VECTOR 0       Does nothing
     .word lab_e3d9          ;VECTOR 1       Read tchr, send block title 0xD7 security access request, set mem_038b=0x0b
@@ -19394,7 +19394,7 @@ mem_e3bd:
                             ;               If other received block title, send no acknowledge, set mem_038b=0x02
     .word lab_e4b5          ;VECTOR 4       Read 4 bytes from RX buffer, call sub_e61f, set mem_038b=0x06
     .word lab_e4e0          ;VECTOR 5       Change mem_00fd, set mem_038b=0x06
-    .word lab_e4eb          ;VECTOR 6       Change mem_00fd, send kwp_end_session, set mem_038b=0x07
+    .word lab_e4eb          ;VECTOR 6       Change mem_00fd, send kwp_disconnect, set mem_038b=0x07
     .word lab_e502          ;VECTOR 7
     .word lab_e547          ;VECTOR 8
     .word lab_e552          ;VECTOR 9
@@ -19591,7 +19591,7 @@ lab_e4eb:
     call set_00fd_hi_nib_b  ;e4f0  31 e3 a2     Store 0xb in mem_00fd high nibble
 
     mov mem_00a5, #0x04     ;e4f3  85 a5 04     4 bytes in KWP1281 packet
-    movw a, #kwp_end_session ;e4f6  e4 dd 6e
+    movw a, #kwp_disconnect ;e4f6  e4 dd 6e
     movw mem_0084, a        ;e4f9  d5 84        Pointer: source for KWP1281 buffer copy
     call sub_e366           ;e4fb  31 e3 66
 

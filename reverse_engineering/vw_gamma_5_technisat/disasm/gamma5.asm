@@ -634,7 +634,7 @@ lab_2402:
 lab_2407:
     bbs 0,0xe8,lab_2413     ;2407  07 e8 09
     bbc 5,0xf4,lab_2413     ;240a  b7 f4 06
-    jsr sub_9f33            ;240d  20 33 9f     end session
+    jsr sub_9f33            ;240d  20 33 9f     disconnect
     jmp lab_249f            ;2410  4c 9f 24
 
 lab_2413:
@@ -644,7 +644,7 @@ lab_2413:
     jsr sub_33c6            ;241b  20 c6 33
     bcs lab_2429            ;241e  b0 09
     bbs 3,0xe7,lab_2429     ;2420  67 e7 06
-    jsr sub_9f33            ;2423  20 33 9f     end session
+    jsr sub_9f33            ;2423  20 33 9f     disconnect
     jmp lab_249f            ;2426  4c 9f 24
 
 lab_2429:
@@ -2223,7 +2223,7 @@ lab_2cc2:
 sub_2cc3:
     bbc 5,0xf4,lab_2cce     ;2cc3  b7 f4 08
     bbs 3,0xe7,lab_2d18     ;2cc6  67 e7 4f
-    jsr sub_9f33            ;2cc9  20 33 9f     end session
+    jsr sub_9f33            ;2cc9  20 33 9f     disconnect
     bra lab_2d18            ;2ccc  80 4a
 
 lab_2cce:
@@ -2600,7 +2600,7 @@ lab_2f38:
 sub_2f40:
     bbc 0,0xe8,lab_2f50     ;2f40  17 e8 0d
     bbs 1,0xe8,lab_2f4b     ;2f43  27 e8 05     Branch if TechniSat protocol is active
-    jsr sub_9f33            ;2f46  20 33 9f     end session
+    jsr sub_9f33            ;2f46  20 33 9f     disconnect
     bra lab_2f50            ;2f49  80 05
 
 lab_2f4b:
@@ -23097,7 +23097,7 @@ lab_9ef9:
     seb 3,0xe9              ;9f30  6f e9
     rts                     ;9f32  60
 
-;KWP1281 0x06 End Session
+;KWP1281 0x06 Disconnect
 sub_9f33:
     ldy #0x27               ;9f33  a0 27
     jsr sub_3361            ;9f35  20 61 33
@@ -24311,7 +24311,7 @@ lab_a591:
 ;
 lab_a595:
     bbc 3,0xf1,lab_a59d     ;a595  77 f1 05
-    jsr sub_9f33            ;a598  20 33 9f     end session
+    jsr sub_9f33            ;a598  20 33 9f     disconnect
     bra lab_a605            ;a59b  80 68
 
 lab_a59d:
@@ -24370,7 +24370,7 @@ lab_a5ac:
 
 lab_a5e3:
     ;login failed
-    jsr sub_9f33            ;a5e3  20 33 9f     end session
+    jsr sub_9f33            ;a5e3  20 33 9f     disconnect
     bbs 5,0xe7,lab_a5fb     ;a5e6  a7 e7 12
     seb 5,0xe7              ;a5e9  af e7
     lda 0x05c0              ;a5eb  ad c0 05
@@ -27190,7 +27190,7 @@ lab_b4b9:
     .byte 0x03              ;b4c4  03          DATA 0x03        protected: read rom/eeprom
     .byte 0x04              ;b4c5  04          DATA 0x04        output tests
     .byte 0x05              ;b4c6  05          DATA 0x05        clear faults
-    .byte 0x06              ;b4c7  06          DATA 0x06        end session
+    .byte 0x06              ;b4c7  06          DATA 0x06        disconnect
     .byte 0x07              ;b4c8  07          DATA 0x07        read faults
     .byte 0x08              ;b4c9  08          DATA 0x08        nak: single reading
     .byte 0x09              ;b4ca  09          DATA 0x09        ack
@@ -27219,7 +27219,7 @@ lab_b4b9:
     .word lab_a236          ;b4e1  36 a2       VECTOR   protected: read rom/eeprom
     .word lab_a29f          ;b4e3  9f a2       VECTOR   output tests
     .word lab_a353          ;b4e5  53 a3       VECTOR   clear faults
-    .word sub_9f33          ;b4e7  33 9f       VECTOR   end session
+    .word sub_9f33          ;b4e7  33 9f       VECTOR   disconnect
     .word lab_a3d6          ;b4e9  d6 a3       VECTOR   read faults
     .word lab_a45f          ;b4eb  5f a4       VECTOR   nak: single reading
     .word sub_b45b          ;b4ed  5b b4       VECTOR   ack

@@ -14459,7 +14459,7 @@ lab_4625:
     cmp a,#0x00             ;4628  4d 00
     bnz lab_463c            ;462a  bd 10
     clr1 mem_fe64.7         ;462c  7b 64
-    call !sub_51c3          ;462e  9a c3 51     Branch to clear auth bits and end session
+    call !sub_51c3          ;462e  9a c3 51     Branch to clear auth bits and disconnect
     cmp mem_fe31,#0x00      ;4631  c8 31 00
     bz lab_463a             ;4634  ad 04
     mov a,#0x00             ;4636  a1 00
@@ -16073,12 +16073,12 @@ kwp_7c_09_ack:
     call !sub_4828          ;4ead  9a 28 48
     br !lab_532a            ;4eb0  9b 2a 53     Branch to send ACK response
 
-kwp_7c_06_end_session:
-;end session (kwp_7c_handlers)
+kwp_7c_06_disconnect:
+;disconnect (kwp_7c_handlers)
     mov a,#0x00             ;4eb3  a1 00
     mov !mem_fbc7,a         ;4eb5  9e c7 fb
     call !sub_4822          ;4eb8  9a 22 48
-    br !sub_51c3            ;4ebb  9b c3 51     Branch to clear auth bits and end session
+    br !sub_51c3            ;4ebb  9b c3 51     Branch to clear auth bits and disconnect
 
 lab_4ebe:
     br !lab_532a            ;4ebe  9b 2a 53     Branch to send ACK response
@@ -16376,11 +16376,11 @@ lab_500b:
 lab_501b:
     br !lab_52b1            ;501b  9b b1 52
 
-kwp_56_06_end_session:
-;end session (kwp_56_handlers)
+kwp_56_06_disconnect:
+;disconnect (kwp_56_handlers)
     mov a,#0x00             ;501e  a1 00
     mov !mem_fbc5,a         ;5020  9e c5 fb
-    br !sub_51c3            ;5023  9b c3 51     Branch to clear auth bits and end session
+    br !sub_51c3            ;5023  9b c3 51     Branch to clear auth bits and disconnect
 
 lab_5026:
     mov a,#0x00             ;5026  a1 00
@@ -16456,7 +16456,7 @@ kwp_56_2b_login:
     call !auth_login_safe   ;508f  9a ac 25     Authenticate login using SAFE code
     bt mem_fe65.3,lab_5098  ;5092  bc 65 03     Branch if login succeeded
     ;login failed
-    br !sub_51c3            ;5095  9b c3 51     Branch to clear auth bits and end session
+    br !sub_51c3            ;5095  9b c3 51     Branch to clear auth bits and disconnect
 
 lab_5098:
 ;login succeeded
@@ -16541,18 +16541,18 @@ lab_50fe:
     mov !mem_fbc6,a         ;5100  9e c6 fb
     br !lab_55de            ;5103  9b de 55
 
-kwp_f06d_3_end_session:
-;end session (kwp_handlers_b2f6)
+kwp_f06d_3_disconnect:
+;disconnect (kwp_handlers_b2f6)
     call !sub_259b          ;5106  9a 9b 25     Does "clr1 mem_fe23.7" only
     mov a,#0x00             ;5109  a1 00
     mov !mem_fbc6,a         ;510b  9e c6 fb
-    br !sub_51c3            ;510e  9b c3 51     Branch to clear auth bits and end session
+    br !sub_51c3            ;510e  9b c3 51     Branch to clear auth bits and disconnect
 
 lab_5111:
     call !sub_259b          ;5111  9a 9b 25     Does "clr1 mem_fe23.7" only
     mov a,#0x00             ;5114  a1 00
     mov !mem_fbc6,a         ;5116  9e c6 fb
-    br !lab_5337            ;5119  9b 37 53     Branch to Send End Session response
+    br !lab_5337            ;5119  9b 37 53     Branch to Send Disconnect response
 
 kwp_f06d_3_nak:
 ;nak (kwp_handlers_b2f6)
@@ -16569,7 +16569,7 @@ lab_512f:
     call !sub_259b          ;512f  9a 9b 25     Does "clr1 mem_fe23.7" only
     mov a,#0x00             ;5132  a1 00
     mov !mem_fbc6,a         ;5134  9e c6 fb
-    br !lab_5337            ;5137  9b 37 53     Branch to Send End Session response
+    br !lab_5337            ;5137  9b 37 53     Branch to Send Disconnect response
 
 kwp_f06d_3_secure_access:
 ;? security access (kwp_handlers_b2f6)
@@ -16582,7 +16582,7 @@ lab_5144:
     call !sub_2537          ;5144  9a 37 25
     mov a,#0x00             ;5147  a1 00
     mov !mem_fbc6,a         ;5149  9e c6 fb
-    br !lab_5337            ;514c  9b 37 53     Branch to Send End Session response
+    br !lab_5337            ;514c  9b 37 53     Branch to Send Disconnect response
 
     .byte 0xaf              ;514f  af          DATA 0xaf
 
@@ -16666,7 +16666,7 @@ lab_51b8:
     br !lab_5344_bad        ;51c0  9b 44 53     Send NAK response (index 0x03)
 
 sub_51c3:
-;clear auth bits and end session
+;clear auth bits and disconnect
     clr1 mem_fe65.3         ;51c3  3b 65       Clear bit to indicate not logged in
     clr1 mem_fe65.4         ;51c5  4b 65       Clear bit to indicate group read 0x19 not performed
     br !sub_3468            ;51c7  9b 68 34
@@ -16708,7 +16708,7 @@ lab_5202:
     cmp a,[hl+b]            ;5202  31 4b          Compare address to current entry in table
     bz lab_520b             ;5204  ad 05          Branch if equal
     dbnz b,lab_5202         ;5206  8b fa          Keep going until end of table
-    br !sub_51c3            ;5208  9b c3 51       Branch to clear auth bits and end session
+    br !sub_51c3            ;5208  9b c3 51       Branch to clear auth bits and disconnect
 
 lab_520b:
 ;kwp1281 address found in table
@@ -16915,8 +16915,8 @@ lab_532a:
     br !sub_34f7            ;5334  9b f7 34
 
 lab_5337:
-;Send End Session response
-    mov b,#0x02             ;5337  a3 02        B = index 0x02 end session
+;Send Disconnect response
+    mov b,#0x02             ;5337  a3 02        B = index 0x02 disconnect
     call !sub_5292          ;5339  9a 92 52     Set block title, counter, length in KWP1281 tx buf
     set1 mem_fe7b.2         ;533c  2a 7b
     mov a,#0x03             ;533e  a1 03        A = 0x03 block end
@@ -37715,7 +37715,7 @@ kwp_titles_b25c:
     .byte 0x23              ;b25c  23          DATA 0x23 '#'    35 entries below:
     .byte 0xff              ;b25d  ff          DATA 0xff        B=0x00
     .byte 0x09              ;b25e  09          DATA 0x09        B=0x01 ack
-    .byte 0x06              ;b25f  06          DATA 0x06        B=0x02 end session
+    .byte 0x06              ;b25f  06          DATA 0x06        B=0x02 disconnect
     .byte 0x0a              ;b260  0a          DATA 0x0a        B=0x03 nak
     .byte 0x0a              ;b261  0a          DATA 0x0a        B=0x04 nak
     .byte 0xf6              ;b262  f6          DATA 0xf6        B=0x05 response with ascii/data
@@ -37755,7 +37755,7 @@ kwp_lengths_b280:
     .byte 0x23              ;b280  23          DATA 0x23 '#'    35 entries below:
     .byte 0x00              ;b281  00          DATA 0x00        B=0x00
     .byte 0x03              ;b282  03          DATA 0x03        B=0x01 ack
-    .byte 0x03              ;b283  03          DATA 0x03        B=0x02 end session
+    .byte 0x03              ;b283  03          DATA 0x03        B=0x02 disconnect
     .byte 0x04              ;b284  04          DATA 0x04        B=0x03 nak
     .byte 0x04              ;b285  04          DATA 0x04        B=0x04 nak
     .byte 0x08              ;b286  08          DATA 0x08        B=0x05 response with ascii/data
@@ -37795,7 +37795,7 @@ kwp_7c_titles:
     .byte 0x09              ;b2a4  09          DATA 0x09        9 entries below:
     .byte 0xff              ;b2a5  ff          DATA 0xff        B=0 <bad title: send nak>
     .byte 0x09              ;b2a6  09          DATA 0x09        B=1 ack
-    .byte 0x06              ;b2a7  06          DATA 0x06        B=2 end session
+    .byte 0x06              ;b2a7  06          DATA 0x06        B=2 disconnect
     .byte 0x0a              ;b2a8  0a          DATA 0x0a        B=3 nak
     .byte 0x2b              ;b2a9  2b          DATA 0x2b '+'    B=4 login
     .byte 0x1b              ;b2aa  1b          DATA 0x1b        B=5 ? custom usage
@@ -37809,7 +37809,7 @@ kwp_7c_handlers:
     .byte 0x09                    ;b2ae  09          DATA 0x09        9 entries below:
     .word lab_5344_bad            ;b2af  44 53       VECTOR           B=0 <bad title: send nak>
     .word kwp_7c_09_ack           ;b2b1  ad 4e       VECTOR           B=1 ack
-    .word kwp_7c_06_end_session   ;b2b3  b3 4e       VECTOR           B=2 end session
+    .word kwp_7c_06_disconnect   ;b2b3  b3 4e       VECTOR           B=2 disconnect
     .word kwp_7c_0a_nak           ;b2b5  c1 4e       VECTOR           B=3 nak
     .word kwp_7c_2b_login         ;b2b7  e1 4e       VECTOR           B=4 login
     .word kwp_7c_1b_custom        ;b2b9  4f 4f       VECTOR           B=5 ? custom usage
@@ -37823,7 +37823,7 @@ kwp_56_titles:
     .byte 0x0f              ;b2c1  0f          DATA 0x0f        15 entries below:
     .byte 0xff              ;b2c2  ff          DATA 0xff        B= 0 <bad title: send nak>
     .byte 0x09              ;b2c3  09          DATA 0x09        B= 1 ack
-    .byte 0x06              ;b2c4  06          DATA 0x06        B= 2 end session
+    .byte 0x06              ;b2c4  06          DATA 0x06        B= 2 disconnect
     .byte 0x0a              ;b2c5  0a          DATA 0x0a        B= 3 nak
     .byte 0x00              ;b2c6  00          DATA 0x00        B= 4 read identification
     .byte 0x07              ;b2c7  07          DATA 0x07        B= 5 read faults
@@ -37843,7 +37843,7 @@ kwp_56_handlers:
     .byte 0x0f                    ;b2d1  0f          DATA 0x0f        15 entries below:
     .word lab_5344_bad            ;b2d2  44 53       VECTOR           B= 0 <bad title: send nak>
     .word kwp_56_09_ack           ;b2d4  d7 4f       VECTOR           B= 1 ack
-    .word kwp_56_06_end_session   ;b2d6  1e 50       VECTOR           B= 2 end session
+    .word kwp_56_06_disconnect   ;b2d6  1e 50       VECTOR           B= 2 disconnect
     .word kwp_56_0a_nak           ;b2d8  2e 50       VECTOR           B= 3 nak
     .word kwp_56_00_read_id       ;b2da  4e 50       VECTOR           B= 4 read identification
     .word kwp_56_07_read_faults   ;b2dc  58 50       VECTOR           B= 5 read faults
@@ -37863,7 +37863,7 @@ kwp_titles_b2f0:
     .byte 0x05              ;b2f0  05          DATA 0x05        5 entries below:
     .byte 0xff              ;b2f1  ff          DATA 0xff        B=0 <bad title: send nak>
     .byte 0x09              ;b2f2  09          DATA 0x09        B=1 ack
-    .byte 0x06              ;b2f3  06          DATA 0x06        B=2 end session
+    .byte 0x06              ;b2f3  06          DATA 0x06        B=2 disconnect
     .byte 0x0a              ;b2f4  0a          DATA 0x0a        B=3 nak
     .byte 0x3d              ;b2f5  3d          DATA 0x3d '='    B=4 ? security access
 
@@ -37873,7 +37873,7 @@ kwp_handlers_b2f6:
     .byte 0x05                      ;b2f6  05          DATA 0x05        5 entries below:
     .word lab_5344_bad              ;b2f7  44 53       VECTOR           B=0 <bad title: send nak>
     .word kwp_f06d_3_ack            ;b2f9  f4 50       VECTOR           B=1 ack
-    .word kwp_f06d_3_end_session    ;b2fb  06 51       VECTOR           B=2 end session
+    .word kwp_f06d_3_disconnect    ;b2fb  06 51       VECTOR           B=2 disconnect
     .word kwp_f06d_3_nak            ;b2fd  1c 51       VECTOR           B=3 nak
     .word kwp_f06d_3_secure_access  ;b2ff  3a 51       VECTOR           B=4 ? security access
 
