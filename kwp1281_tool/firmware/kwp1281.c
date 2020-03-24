@@ -52,8 +52,8 @@ static kwp_result_t _send_byte(uint8_t tx_byte)
 
     // consume its echo
     uint8_t echo;
-    uint8_t uart_ready = uart_blocking_get_with_timeout(UART_KLINE, KWP_ECHO_TIMEOUT_MS, &echo);
-    if (!uart_ready) { return KWP_TIMEOUT; }
+    uart_status_t uart_status = uart_blocking_get_with_timeout(UART_KLINE, KWP_ECHO_TIMEOUT_MS, &echo);
+    if (uart_status == UART_NOT_READY) { return KWP_TIMEOUT; }
     if (echo != tx_byte) { return KWP_BAD_ECHO; }
 
     uart_puthex(UART_DEBUG, tx_byte);
@@ -69,8 +69,8 @@ static kwp_result_t _send_byte_recv_compl(uint8_t tx_byte)
     if (result != KWP_SUCCESS) { return result; }
 
     uint8_t complement;
-    uint8_t uart_ready = uart_blocking_get_with_timeout(UART_KLINE, KWP_RECV_TIMEOUT_MS, &complement);
-    if (!uart_ready) { return KWP_TIMEOUT; }
+    uart_status_t uart_status = uart_blocking_get_with_timeout(UART_KLINE, KWP_RECV_TIMEOUT_MS, &complement);
+    if (uart_status == UART_NOT_READY) { return KWP_TIMEOUT; }
     if (complement != (tx_byte ^ 0xff)) { return KWP_BAD_COMPLEMENT; }
 
     return KWP_SUCCESS;
@@ -80,8 +80,8 @@ static kwp_result_t _send_byte_recv_compl(uint8_t tx_byte)
 // Receive byte only
 static kwp_result_t _recv_byte(uint8_t *rx_byte_out)
 {
-    uint8_t uart_ready = uart_blocking_get_with_timeout(UART_KLINE, KWP_RECV_TIMEOUT_MS, rx_byte_out);
-    if (!uart_ready) { return KWP_TIMEOUT; }
+    uart_status_t uart_status = uart_blocking_get_with_timeout(UART_KLINE, KWP_RECV_TIMEOUT_MS, rx_byte_out);
+    if (uart_status == UART_NOT_READY) { return KWP_TIMEOUT; }
 
     uart_puthex(UART_DEBUG, *rx_byte_out);
     uart_put(UART_DEBUG, ' ');
@@ -103,7 +103,7 @@ static kwp_result_t _recv_byte_send_compl(uint8_t *rx_byte_out)
 
     // consume its echo
     uint8_t echo;
-    uint8_t uart_ready = uart_blocking_get_with_timeout(UART_KLINE, KWP_ECHO_TIMEOUT_MS, &echo);
+    uart_status_t uart_ready = uart_blocking_get_with_timeout(UART_KLINE, KWP_ECHO_TIMEOUT_MS, &echo);
     if (!uart_ready) { return KWP_TIMEOUT; }
     if (echo != complement) { return KWP_BAD_ECHO; }
 
