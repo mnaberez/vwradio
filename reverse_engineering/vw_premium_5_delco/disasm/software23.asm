@@ -14558,12 +14558,16 @@ kwp_56_0a_nak:
 ;Request block:
 ;  0x04 Block length                  kwp_rx_buf+0
 ;   xx  Block counter                 kwp_rx_buf+1
-;  0x06 Block title (Not Acknowlege)  kwp_rx_buf+2
-;   xx  ?                             kwp_rx_buf+3
+;  0x0A Block title (Not Acknowledge) kwp_rx_buf+2
+;   xx  Bad block counter             kwp_rx_buf+3
 ;  0x03 Block end                     kwp_rx_buf+4
 ;
+;If the Bad block counter is the same as the request's own block
+;counter, an ACK response is returned.  Otherwise, the last block
+;sent will be sent again (with an updated block counter).
+;
     movw hl,#kwp_rx_buf     ;502e  16 8a f0     HL = pointer to KWP1281 rx buffer
-    mov a,[hl+0x03]         ;5031  ae 03        A = unknown ?
+    mov a,[hl+0x03]         ;5031  ae 03        A = Bad Block counter
     cmp a,[hl+0x01]         ;5033  49 01        Compare with block counter of received block
     bz lab_5026             ;5035  ad ef        Branch to send ACK if equal
 
