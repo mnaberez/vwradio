@@ -46,10 +46,10 @@ fis_tx_buf = 0xf052         ;FIS display 3LB packet buffer (20 bytes)
 mem_f066 = 0xf066
 mem_f067 = 0xf067
 mem_f068 = 0xf068
-mem_f069 = 0xf069
-mem_f06a = 0xf06a
+mem_f069 = 0xf069           ;KWP1281 rx buffer index
+mem_f06a = 0xf06a           
 mem_f06b = 0xf06b           ;KWP1281 tx block length
-mem_f06c = 0xf06c
+mem_f06c = 0xf06c           ;KWP1281 rx block length
 mem_f06d = 0xf06d           ;KWP1281 mode: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
 mem_f06e = 0xf06e
 mem_f06f = 0xf06f
@@ -64,7 +64,7 @@ mem_f077 = 0xf077
 mem_f078 = 0xf078
 mem_f079 = 0xf079
 kwp_tx_buf = 0xf07a         ;KWP1281 transmit buffer (16 bytes)
-kwp_rx_buf = 0xf08a         ;KWP1281 receive buffer (16 bytes)
+kwp_rx_buf = 0xf08a         ;KWP1281 receive buffer (256 bytes)
 mem_f18a = 0xf18a
 mem_f18b = 0xf18b
 mem_f18c = 0xf18c
@@ -2957,10 +2957,10 @@ lab_0e39:
     ;    in expansion RAM which was already cleared above at lab_0e39.
     mov a,#0x00             ;0e7c  a1 00
     mov !mem_f068,a         ;0e7e  9e 68 f0
-    mov !mem_f069,a         ;0e81  9e 69 f0
+    mov !mem_f069,a         ;0e81  9e 69 f0     KWP1281 rx buffer index
     mov !mem_f06a,a         ;0e84  9e 6a f0
-    mov !mem_f06b,a         ;0e87  9e 6b f0     Store tx block length
-    mov !mem_f06c,a         ;0e8a  9e 6c f0
+    mov !mem_f06b,a         ;0e87  9e 6b f0     KWP1281 tx block length
+    mov !mem_f06c,a         ;0e8a  9e 6c f0     KWP1281 rx blcok length
     mov !mem_f06d,a         ;0e8d  9e 6d f0
     mov !mem_f06e,a         ;0e90  9e 6e f0
     mov !mem_f06f,a         ;0e93  9e 6f f0
@@ -9056,36 +9056,44 @@ intsr0_30e8:
     bt mem_fe79.5,lab_3176_kw_8a      ;3102  dc 79 71       Branch to check received KWP1281 second keyword byte (0x8a)
     bf mem_fe7a.0,lab_3153_pop_reti   ;3105  31 03 7a 4a    Branch to pop registers and reti
     clr1 mem_fe79.2         ;3109  2b 79
-    mov x,a                 ;310b  70               X = Remember KWP1281 byte received from UART
+    mov x,a                 ;310b  70           X = Remember KWP1281 byte received from UART
 
-    mov a,!mem_f069         ;310c  8e 69 f0
-    mov c,a                 ;310f  72
-    cmp a,#0x00             ;3110  4d 00
-    bnz lab_3118            ;3112  bd 04
+    mov a,!mem_f069         ;310c  8e 69 f0     A = KWP1281 rx buffer index
+    mov c,a                 ;310f  72           Copy rx buffer index to C
+    cmp a,#0x00             ;3110  4d 00        Are we receiving the first byte (block length)?
+    bnz lab_3118            ;3112  bd 04          No: skip storing block length
 
+    ;Received first byte (block length)
     mov a,x                 ;3114  60           A = Recall KWP1281 byte received from UART
-    mov !mem_f06c,a         ;3115  9e 6c f0     Save KWP1281 byte received from UART
+    mov !mem_f06c,a         ;3115  9e 6c f0     Save as KWP1281 rx block length
 
 lab_3118:
-    mov a,c                 ;3118  62
-    cmp a,!mem_f06c         ;3119  48 6c f0     Compare to KWP1281 byte received from UART
-    bz lab_3145_br_31f6     ;311c  ad 27
-    cmp a,#0xff             ;311e  4d ff
-    bc lab_3127             ;3120  8d 05
-    bz lab_3127             ;3122  ad 03
-    mov a,x                 ;3124  60
-    br lab_312c             ;3125  fa 05
+    mov a,c                 ;3118  62           A = KWP1281 rx buffer index
+    cmp a,!mem_f06c         ;3119  48 6c f0     Compare to KWP1281 rx block length
+    bz lab_3145_br_31f6     ;311c  ad 27        Branch if equal (entire block has been received)
+
+    ;Check if rx buffer index is within bounds of rx buffer
+    cmp a,#0xff             ;311e  4d ff        A = length of KWP1281 rx buffer
+    bc lab_3127             ;3120  8d 05        Branch if KWP1281 rx buffer index < 0xFF
+    bz lab_3127             ;3122  ad 03        Branch if KWP1281 rx buffer index = 0xFF
+
+    ;No more room in RX buffer
+    mov a,x                 ;3124  60           A = Recall KWP1281 byte received from UART
+    br lab_312c             ;3125  fa 05        Branch to skip over storing in rx buffer
 
 lab_3127:
+    ;Store byte received in rx buffer
     movw hl,#kwp_rx_buf     ;3127  16 8a f0     HL = pointer to KWP1281 rx buffer
-    mov a,x                 ;312a  60           A = block length
-    mov [hl+c],a            ;312b  ba
+    mov a,x                 ;312a  60           A = Recall KWP1281 byte received from UART
+    mov [hl+c],a            ;312b  ba           Store byte receved in KWP1281 rx buffer
 
 lab_312c:
     mov !mem_f06a,a         ;312c  9e 6a f0
-    inc c                   ;312f  42
-    mov a,c                 ;3130  62
-    mov !mem_f069,a         ;3131  9e 69 f0
+
+    inc c                   ;312f  42           Increment KWP1281 rx buffer index in C
+    mov a,c                 ;3130  62           Move it to A
+    mov !mem_f069,a         ;3131  9e 69 f0     Store as KWP1281 rx buffer index
+
     mov a,#0x02             ;3134  a1 02
     mov !mem_f06e,a         ;3136  9e 6e f0
     set1 mem_fe79.6         ;3139  6a 79
@@ -9099,6 +9107,7 @@ lab_3142_br_3190:
     br !lab_3190            ;3142  9b 90 31
 
 lab_3145_br_31f6:
+;Entire block has been received
     br !lab_31f6            ;3145  9b f6 31
 
 lab_3148:
@@ -9222,9 +9231,10 @@ lab_31ec:
     br !lab_3153_pop_reti   ;31f3  9b 53 31     Branch to pop registers and reti
 
 lab_31f6:
-    mov a,x                 ;31f6  60
-    cmp a,#0x03             ;31f7  4d 03
-    bnz lab_322c            ;31f9  bd 31
+;Entire block has been received
+    mov a,x                 ;31f6  60           A = Recall KWP1281 byte received from UART
+    cmp a,#0x03             ;31f7  4d 03        Is it the Block End byte (0x03)?
+    bnz lab_322c            ;31f9  bd 31          No: Branch to handle bad block end byte
 
     movw hl,#kwp_unknown_b03b+1 ;31fb  16 3c b0
     mov a,!mem_f06d         ;31fe  8e 6d f0
@@ -9238,7 +9248,7 @@ lab_31f6:
     clr1 mem_fe7b.3         ;320c  3b 7b
 
     mov a,#0xff             ;320e  a1 ff
-    cmp a,!mem_f06c         ;3210  48 6c f0
+    cmp a,!mem_f06c         ;3210  48 6c f0     Compare to KWP1281 rx block length
     bc lab_3223             ;3213  8d 0e
 
     mov a,#0x00             ;3215  a1 00
@@ -9255,13 +9265,14 @@ lab_3223:
     br lab_323c             ;322a  fa 10
 
 lab_322c:
+;Block End byte received is not correct
     mov a,#0x1e             ;322c  a1 1e
     mov !mem_f06f,a         ;322e  9e 6f f0
     set1 mem_fe7b.3         ;3231  3a 7b
     set1 mem_fe79.2         ;3233  2a 79
     mov a,#0x00             ;3235  a1 00
-    mov !mem_f069,a         ;3237  9e 69 f0
-    br lab_323c             ;323a  fa 00
+    mov !mem_f069,a         ;3237  9e 69 f0     KWP1281 rx buffer index
+    br lab_323c             ;323a  fa 00        XXX redundant; could just fall through
 
 lab_323c:
     br !lab_3153_pop_reti   ;323c  9b 53 31     Branch to pop registers and reti
@@ -9293,7 +9304,7 @@ lab_3269:
     clr1 mem_fe7a.1         ;326b  1b 7a
     set1 mem_fe7a.0         ;326d  0a 7a
     mov a,#0x00             ;326f  a1 00
-    mov !mem_f069,a         ;3271  9e 69 f0
+    mov !mem_f069,a         ;3271  9e 69 f0     KWP1281 rx buffer index
     mov a,#0x00             ;3274  a1 00
     mov !mem_f06f,a         ;3276  9e 6f f0
 
@@ -9341,7 +9352,7 @@ lab_32ba:
     clr1 mem_fe7a.1         ;32ba  1b 7a
     set1 mem_fe7a.0         ;32bc  0a 7a
     mov a,#0x00             ;32be  a1 00
-    mov !mem_f069,a         ;32c0  9e 69 f0
+    mov !mem_f069,a         ;32c0  9e 69 f0     KWP1281 rx buffer index
 
     movw hl,#kwp_asim0_b031+1 ;32c3  16 32 b0
     mov a,!mem_f06d         ;32c6  8e 6d f0
@@ -9530,7 +9541,7 @@ lab_33dd:
 lab_33de:
     btclr mem_fe7b.3,lab_33f5 ;33de  31 31 7b 13
     mov a,#0x00             ;33e2  a1 00
-    mov !mem_f069,a         ;33e4  9e 69 f0
+    mov !mem_f069,a         ;33e4  9e 69 f0       KWP1281 rx buffer index
 
     movw hl,#kwp_unknown_b03b+1 ;33e7  16 3c b0
     mov a,!mem_f06d         ;33ea  8e 6d f0
@@ -9575,18 +9586,18 @@ lab_3422:
     mov a,!mem_f079         ;3424  8e 79 f0
     inc a                   ;3427  41
     mov !mem_f079,a         ;3428  9e 79 f0
-    cmp a,#0x0a             ;342b  4d 0a
+    cmp a,#0x0a             ;342b  4d 0a          A = 0x0A
     bc lab_3456             ;342d  8d 27
     clr1 cy                 ;342f  21
     bf mem_fe7b.2,lab_3435  ;3430  31 23 7b 01
     set1 cy                 ;3434  20
 
 lab_3435:
-    bc lab_3453_br_kwp_disconnect ;3435  8d 1c        Disconnect and clear all KWP1281 state
+    bc lab_3453_br_kwp_disconnect ;3435  8d 1c    Disconnect and clear all KWP1281 state
     clr1 mem_fe7a.1         ;3437  1b 7a
     set1 mem_fe7a.0         ;3439  0a 7a
     mov a,#0x00             ;343b  a1 00
-    mov !mem_f069,a         ;343d  9e 69 f0
+    mov !mem_f069,a         ;343d  9e 69 f0       KWP1281 rx buffer index
     mov a,#0x00             ;3440  a1 00
     mov !mem_f06f,a         ;3442  9e 6f f0
 
@@ -9603,12 +9614,18 @@ lab_3453_br_kwp_disconnect:
     br !kwp_disconnect      ;3453  9b 68 34     Disconnect and clear all KWP1281 state
 
 lab_3456:
-    mov a,#0x0f             ;3456  a1 0f
+;TODO nak related
+;XXX TODO this seems to be dealing with an rx block length, not tx
+    mov a,#0x0f             ;3456  a1 0f        A = 0x0F
     cmp a,!mem_f06b         ;3458  48 6b f0     Compare A with KWP1281 tx block length
-    bc lab_3460             ;345b  8d 03
+    bc lab_3460             ;345b  8d 03        Branch if tx block length > 0x0F
+
+    ;KWP1281 tx block length <= 0x0F
+
     br !send_kwp_tx_buf     ;345d  9b f7 34     Set flags to start sending the KWP1281 tx buffer
 
 lab_3460:
+;KWP1281 tx block length > 0x0F
     set1 mem_fe7c.0         ;3460  0a 7c
     mov a,#0x09             ;3462  a1 09
     mov !mem_fbc9,a         ;3464  9e c9 fb
@@ -12544,7 +12561,7 @@ lab_4654:
     call !sub_333f          ;467d  9a 3f 33
 
 lab_4680:
-    call !sub_4dd8          ;4680  9a d8 4d
+    call !sub_4dd8          ;4680  9a d8 4d     Dispatch KWP1281 routine in mem_b247 table based on value in mem_fbc9
     call !sub_6305          ;4683  9a 05 63
     br sub_4625             ;4686  fa 9d
 
@@ -14037,6 +14054,7 @@ lab_4dd7_ret:
     ret                     ;4dd7  af
 
 sub_4dd8:
+;Dispatch KWP1281 routine in mem_b247 table based on value in mem_fbc9
     mov a,#0x09             ;4dd8  a1 09
     cmp a,!mem_fbc9         ;4dda  48 c9 fb
     bc lab_4df4             ;4ddd  8d 15
@@ -14871,6 +14889,7 @@ lab_516f:
     mov a,!mem_fbca         ;516f  8e ca fb
     cmp a,#0x01             ;5172  4d 01
     bnz lab_5179            ;5174  bd 03
+
     ;mem_fbca = 0x01
     br !lab_5527            ;5176  9b 27 55     send read ram response with faked address
                             ;                   from mem_f000 and faked byte count from mem_f04c
@@ -14878,6 +14897,7 @@ lab_516f:
 lab_5179:
     cmp a,#0x02             ;5179  4d 02
     bnz lab_5180            ;517b  bd 03
+
     ;mem_fbca = 0x02
     br !lab_557e            ;517d  9b 7e 55     send read eeprom response with faked address
                             ;                   from mem_f000 and faked byte count from mem_f04c
