@@ -312,8 +312,8 @@ mem_fb6f = 0xfb6f           ;Bit 0: off=CD MIX 1,    on=CD MIX 6
 mem_fb70 = 0xfb70
 mem_fb71 = 0xfb71
 mem_fb72 = 0xfb72
-mem_fb73 = 0xfb73           ;Result of sub_2537 security access computation (high byte)
-mem_fb74 = 0xfb74           ;Result of sub_2537 security access computation (low byte)
+mem_fb73 = 0xfb73           ;Result of sub_2537_secure_resp security access computation (high byte)
+mem_fb74 = 0xfb74           ;Result of sub_2537_secure_resp security access computation (low byte)
 mem_fb75 = 0xfb75           ;Entered SAFE code (BCD high byte)
 mem_fb76 = 0xfb76           ;Entered SAFE code (BCD low byte)
 mem_fb79 = 0xfb79
@@ -6054,16 +6054,16 @@ lab_22f9:
 
 sub_22fc:
 ;Lock or unlock SAFE mode based on security access computation result
-;called from sub_2537 only (title 0x3d security access response processing)
+;called from sub_2537_secure_resp only (title 0x3d security access response processing)
     bt mem_fe23.6,lab_234b  ;22fc  ec 23 4c     Branch to just return
     bt mem_fe23.5,lab_2317  ;22ff  dc 23 15
     clr1 mem_fe23.7         ;2302  7b 23        SAFE mode = locked
 
-    mov a,!mem_fb73         ;2304  8e 73 fb     A = sub_2537 security access computation result (high byte)
+    mov a,!mem_fb73         ;2304  8e 73 fb     A = sub_2537_secure_resp security access computation result (high byte)
     cmp a,!mem_f208         ;2307  48 08 f2
     bnz lab_2327            ;230a  bd 1b        Branch if computation result is not equal
 
-    mov a,!mem_fb74         ;230c  8e 74 fb     A = sub_2537 security access computation result (low byte)
+    mov a,!mem_fb74         ;230c  8e 74 fb     A = sub_2537_secure_resp security access computation result (low byte)
     cmp a,!mem_f209         ;230f  48 09 f2
     bnz lab_2327            ;2312  bd 13        Branch if computation result is not equal
 
@@ -6085,11 +6085,11 @@ lab_2327:
     cmp a,#0xc3             ;232a  4d c3
     bz lab_234b             ;232c  ad 1d        Branch to just return
 
-    mov a,!mem_fb73         ;232e  8e 73 fb     A = sub_2537 security access computation result (high byte)
+    mov a,!mem_fb73         ;232e  8e 73 fb     A = sub_2537_secure_resp security access computation result (high byte)
     movw hl,#mem_f208       ;2331  16 08 f2
     call !sub_4092          ;2334  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
 
-    mov a,!mem_fb74         ;2337  8e 74 fb     sub_2537 security access computation result (low byte)
+    mov a,!mem_fb74         ;2337  8e 74 fb     sub_2537_secure_resp security access computation result (low byte)
     movw hl,#mem_f209       ;233a  16 09 f2
     call !sub_4092          ;233d  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
 
@@ -6425,10 +6425,10 @@ lab_2532:
     mov p3,a                ;2534  f2 03
     ret                     ;2536  af
 
-sub_2537:
-;Process title 0x3d security access response block.  Perform a computation
-;on the 4 bytes.  Compare the computation result to an expected result and
-;either lock or unlock SAFE mode.
+sub_2537_secure_resp:
+;Process the title 0x3D Security Access Response block received from
+;the instrument cluster.  Perform a computation on the 4 bytes.  Compare
+;the computation result to an expected result and either lock or unlock SAFE mode.
 ;
 ;TODO unknown constants 0xBDE7 and 0x0018 below are also found in the
 ;Premium 4 firmware routine sub_e6ca which also seems to be security access related
@@ -6438,7 +6438,7 @@ sub_2537:
     mov a,#4                ;253d  a1 04        A = 4 bytes to copy
     callf !sub_0c9e         ;253f  4c 9e        Copy A bytes from [HL] to [DE]
 
-    ;After copying, mem_fed4 contains the 4 bytes from the request block:
+    ;After copying, mem_fed4 contains the 4 bytes from the received block:
     ;  kwp_rx_buf+3 -> mem_fed4
     ;  kwp_rx_buf+4 -> mem_fed5
     ;  kwp_rx_buf+5 -> mem_fed6
@@ -6527,9 +6527,12 @@ sub_259b:
     clr1 mem_fe23.7         ;259b  7b 23    SAFE mode = locked
     ret                     ;259d  af
 
-sub_259e:
-;Generate the 4 byte payload for the 0xD7 security access request block
+sub_259e_secure_req:
+;Generate the 4 byte payload for the 0xD7 Security Access Request
+;block that will be sent to the instrument cluster.
+;
 ;Returns the 4 bytes in A, X, D, E
+;
     movw ax,#mem_fe3d       ;259e  10 3d fe
     sub a,mem_fe3d          ;25a1  1e 3d
     xch a,x                 ;25a3  30
@@ -9983,7 +9986,6 @@ sub_36bb:
 ;Compare KWP1281 address in A, sets a bunch of state
 ;
     movw hl,#kwp_addresses+1 ;36bb  16 23 b0      HL = pointer to KWP1281 addresses table
-
     mov b,#0x03             ;36be  a3 03          B = index to last entry in table
 lab_36c0:
     cmp a,[hl+b]            ;36c0  31 4b          Compare A to address in table
@@ -9993,15 +9995,14 @@ lab_36c0:
 
 lab_36c7:
 ;KWP1281 address found in table
-    movw hl,#kwp_unknown_b027+1 ;36c7  16 28 b0   Unknown table: returns 0 for all KWP1281 addresses
-                                ;                 except 0x3F.  Returns 1 address 0x3F.
-    mov a,[hl+b]            ;36ca  ab
-    cmp a,#0x00             ;36cb  4d 00
-    bz lab_36d0             ;36cd  ad 01          Branch if address is not 0x3F
-    ret                     ;36cf  af             Otherwise just return
+    movw hl,#kwp_modes+1    ;36c7  16 28 b0     HL = pointer to KWP1281 modes table
+    mov a,[hl+b]            ;36ca  ab           A = value from table (0=normal, 1="radio as tester")
+    cmp a,#0x00             ;36cb  4d 00        Is it a normal address (i.e. not address 0x3F for cluster security)?
+    bz lab_36d0             ;36cd  ad 01          Yes: Continue
+    ret                     ;36cf  af             No, it's "radio as tester" for cluster security: Just return
 
 lab_36d0:
-;KWP1281 address is not 0x3F
+;KWP1281 address is recognized and is not 0x3F (cluster security)
     mov a,b                 ;36d0  63
     mov !mem_f06d,a         ;36d1  9e 6d f0
     set1 mem_fe7c.0         ;36d4  0a 7c
@@ -14053,6 +14054,7 @@ sub_4dd8:
     br ax                   ;4df2  31 98
 
 lab_4df4:
+;mem_fbc9=0x00
     mov a,#0x00             ;4df4  a1 00
     mov !mem_fbc9,a         ;4df6  9e c9 fb
 
@@ -14060,6 +14062,7 @@ lab_4df9_ret:
     ret                     ;4df9  af
 
 lab_4dfa:
+;mem_fbc9=0x04
     movw hl,#kwp_rx_buf     ;4dfa  16 8a f0     HL = pointer to KWP1281 rx buffer
     mov a,[hl+0x01]         ;4dfd  ae 01        A = block counter received
     mov !mem_fbcb,a         ;4dff  9e cb fb     Store block counter received
@@ -14068,34 +14071,37 @@ lab_4dfa:
     mov b,#0x22             ;4e07  a3 22        B = 0x22 valid entries in table
 
 lab_4e09:
-    cmp a,[hl+b]               ;4e09  31 4b        Compare received block title to entry in table
-    bz lab_4e12                ;4e0b  ad 05        Branch if block title matched
-    dbnz b,lab_4e09            ;4e0d  8b fa        Keep going until end of table
-    br !lab_5355_nak_resp_cnt  ;4e0f  9b 55 53     Branch to Send NAK with bad block counter = response's counter
+    cmp a,[hl+b]            ;4e09  31 4b        Compare received block title to entry in table
+    bz lab_4e12             ;4e0b  ad 05        Branch if block title matched
+    dbnz b,lab_4e09         ;4e0d  8b fa        Keep going until end of table
+    br !lab_5355_nak_fail   ;4e0f  9b 55 53     Branch to Send NAK response for general failure
 
 lab_4e12:
 ;block title is ok
     movw hl,#kwp_rx_buf     ;4e12  16 8a f0     HL = pointer to KWP1281 rx buffer
     mov a,[hl]              ;4e15  87           A = block length from rx buffer
-    mov x,a                 ;4e16  70           X = actual block length
+    mov x,a                 ;4e16  70           X = block length from rx buffer
     movw hl,#kwp_lengths+1  ;4e17  16 81 b2     HL = pointer to block lengths table
-    mov a,[hl+b]            ;4e1a  ab           A = expected block length
-    cmp a,#0xff             ;4e1b  4d ff        Is it a variable length request block?
-    bz lab_4e26             ;4e1d  ad 07          Yes: skip compare
-    ;Block length is not variable
-    cmp a,x                 ;4e1f  61 48        Actual block length match expected?
-    bz lab_4e26             ;4e21  ad 03          Yes: lab_4e26
+    mov a,[hl+b]            ;4e1a  ab           A = read expected block length from table
+    cmp a,#0xff             ;4e1b  4d ff        Does the expected length vary (0xff)?
+    bz lab_4e26             ;4e1d  ad 07          Yes: skip length comparison for variable length
+    ;Expected block length is not variable
+    cmp a,x                 ;4e1f  61 48        Compare expected block length (A) with received (X)
+    bz lab_4e26             ;4e21  ad 03        Branch if they are equal
     ;Block length does not match expected
-    br !lab_5344_nak_req_cnt  ;4e23  9b 44 53     No: Send NAK with bad block counter = request's counter
+    br !lab_5344_nak_req_cnt  ;4e23  9b 44 53   Send NAK with Block counter to resend = request's counter
 
 lab_4e26:
 ;block length in table = 0xff or block length matched table entry
     mov a,!mem_f06d         ;4e26  8e 6d f0
     mov b,a                 ;4e29  73
-    movw hl,#kwp_unknown_b027+1 ;4e2a  16 28 b0
-    mov a,[hl+b]            ;4e2d  ab
-    cmp a,#0x00             ;4e2e  4d 00
-    bz lab_4e3d             ;4e30  ad 0b
+
+    movw hl,#kwp_modes+1    ;4e2a  16 28 b0   HL = pointer to KWP1281 modes table
+    mov a,[hl+b]            ;4e2d  ab         A = value from table (0=normal, 1="radio as tester")
+    cmp a,#0x00             ;4e2e  4d 00      Is it a normal address (i.e. not address 0x3F for cluster security)?
+    bz lab_4e3d             ;4e30  ad 0b        Yes: branch to lab_4e3d
+
+    ;KWP1281 mode is "radio as tester" for cluster security
     mov a,!mem_f06d         ;4e32  8e 6d f0
     cmp a,#0x03             ;4e35  4d 03
     bnz lab_4e3c            ;4e37  bd 03
@@ -14106,6 +14112,7 @@ lab_4e3c:
     ret                     ;4e3c  af
 
 lab_4e3d:
+;KWP1281 address is a normal one (not cluster security)
     mov a,!mem_f06d         ;4e3d  8e 6d f0
     cmp a,#0x01             ;4e40  4d 01
     bnz lab_4e47            ;4e42  bd 03
@@ -14133,7 +14140,7 @@ lab_4e59:
     dbnz b,lab_4e59         ;4e5d  8b fa        Keep going until end of table
 
     ;title not found
-    br !lab_5355_nak_resp_cnt  ;4e5f  9b 55 53     Branch to Send NAK with bad block counter = response's counter
+    br !lab_5355_nak_fail   ;4e5f  9b 55 53     Branch to Send NAK response for general failure
 
 lab_4e62_title_ok:
 ;title found in kwp_7c_titles
@@ -14160,7 +14167,7 @@ lab_4e78:
     cmp a,[hl+b]            ;4e78  31 4b
     bz lab_4e81_title_ok    ;4e7a  ad 05
     dbnz b,lab_4e78         ;4e7c  8b fa
-    br !lab_5355_nak_resp_cnt  ;4e7e  9b 55 53     Branch to Send NAK with bad block counter = response's counter
+    br !lab_5355_nak_fail   ;4e7e  9b 55 53     Branch to Send NAK response for general failure
 
 lab_4e81_title_ok:
 ;title found in kwp_56_titles
@@ -14186,7 +14193,7 @@ lab_4e97:
     cmp a,[hl+b]            ;4e97  31 4b
     bz lab_4ea0_title_ok    ;4e99  ad 05
     dbnz b,lab_4e97         ;4e9b  8b fa
-    br !lab_5355_nak_resp_cnt  ;4e9d  9b 55 53     Branch to Send NAK with bad block counter = response's counter
+    br !lab_5355_nak_fail   ;4e9d  9b 55 53     Branch to Send NAK response for general failure
 
 lab_4ea0_title_ok:
 ;title found in kwp_3f_titles
@@ -14242,12 +14249,12 @@ lab_4ede_br_516f:
 
 kwp_7c_2b_login:
 ;login (kwp_7c_handlers)
-    call !auth_login_ocled    ;4ee1  9a 94 46     Authenticate login using "DELCO" backwards
-    bc lab_4eee_login_ok      ;4ee4  8d 08        Branch if successful login
+    call !auth_login_ocled  ;4ee1  9a 94 46     Authenticate login using "DELCO" backwards
+    bc lab_4eee_login_ok    ;4ee4  8d 08        Branch if successful login
     ;login failed
-    mov a,#0x01               ;4ee6  a1 01
-    mov !mem_fbc7,a           ;4ee8  9e c7 fb
-    br !lab_5355_nak_resp_cnt ;4eeb  9b 55 53     Branch to Send NAK with bad block counter = response's counter
+    mov a,#0x01             ;4ee6  a1 01
+    mov !mem_fbc7,a         ;4ee8  9e c7 fb
+    br !lab_5355_nak_fail   ;4eeb  9b 55 53     Branch to Send NAK response for general failure
 
 lab_4eee_login_ok:
     ;login succeeded
@@ -14257,48 +14264,48 @@ lab_4eee_login_ok:
 
 kwp_7c_01_read_ram:
 ;read ram (kwp_7c_handlers)
-    mov a,!mem_fbc7            ;4ef6  8e c7 fb
-    cmp a,#0x01                ;4ef9  4d 01
-    bnz lab_4f00               ;4efb  bd 03
-    br !lab_5355_nak_resp_cnt  ;4efd  9b 55 53     Branch to Send NAK with bad block counter = response's counter
+    mov a,!mem_fbc7         ;4ef6  8e c7 fb
+    cmp a,#0x01             ;4ef9  4d 01
+    bnz lab_4f00            ;4efb  bd 03
+    br !lab_5355_nak_fail   ;4efd  9b 55 53     Branch to Send NAK response for general failure
 
 lab_4f00:
-    mov a,#0x00               ;4f00  a1 00
-    mov !mem_fbc7,a           ;4f02  9e c7 fb
-    clr1 cy                   ;4f05  21
-    call !sub_4828            ;4f06  9a 28 48     If mem_fb28 = 0 then just return, else set mem_fb28 = 0x34
-    set1 cy                   ;4f09  20
-    bc lab_4f0f               ;4f0a  8d 03
-    br !lab_5355_nak_resp_cnt ;4f0c  9b 55 53     Branch to Send NAK with bad block counter = response's counter
+    mov a,#0x00             ;4f00  a1 00
+    mov !mem_fbc7,a         ;4f02  9e c7 fb
+    clr1 cy                 ;4f05  21
+    call !sub_4828          ;4f06  9a 28 48     If mem_fb28 = 0 then just return, else set mem_fb28 = 0x34
+    set1 cy                 ;4f09  20
+    bc lab_4f0f             ;4f0a  8d 03
+    br !lab_5355_nak_fail   ;4f0c  9b 55 53     Branch to Send NAK response for general failure
 
 lab_4f0f:
     br !lab_552a            ;4f0f  9b 2a 55     Branch to Send 0x1c response to read ram or send nak
 
 kwp_7c_03_read_eeprom:
 ;read eeprom (kwp_7c_handlers)
-    mov a,!mem_fbc7           ;4f12  8e c7 fb
-    cmp a,#0x01               ;4f15  4d 01
-    bnz lab_4f1c              ;4f17  bd 03
-    br !lab_5355_nak_resp_cnt ;4f19  9b 55 53     Branch to Send NAK with bad block counter = response's counter
+    mov a,!mem_fbc7         ;4f12  8e c7 fb
+    cmp a,#0x01             ;4f15  4d 01
+    bnz lab_4f1c            ;4f17  bd 03
+    br !lab_5355_nak_fail   ;4f19  9b 55 53     Branch to Send NAK response for general failure
 
 lab_4f1c:
-    mov a,#0x00               ;4f1c  a1 00
-    mov !mem_fbc7,a           ;4f1e  9e c7 fb
-    clr1 cy                   ;4f21  21
-    call !sub_4828            ;4f22  9a 28 48     If mem_fb28 = 0 then just return, else set mem_fb28 = 0x34
-    set1 cy                   ;4f25  20
-    bc lab_4f2b               ;4f26  8d 03
-    br !lab_5355_nak_resp_cnt ;4f28  9b 55 53     Branch to Send NAK with bad block counter = response's counter
+    mov a,#0x00             ;4f1c  a1 00
+    mov !mem_fbc7,a         ;4f1e  9e c7 fb
+    clr1 cy                 ;4f21  21
+    call !sub_4828          ;4f22  9a 28 48     If mem_fb28 = 0 then just return, else set mem_fb28 = 0x34
+    set1 cy                 ;4f25  20
+    bc lab_4f2b             ;4f26  8d 03
+    br !lab_5355_nak_fail   ;4f28  9b 55 53     Branch to Send NAK response for general failure
 
 lab_4f2b:
     br !lab_5581            ;4f2b  9b 81 55     Branch to send read EEPROM response
 
 kwp_7c_0c_write_eeprom:
 ;write eeprom (kwp_7c_handlers)
-    mov a,!mem_fbc7            ;4f2e  8e c7 fb
-    cmp a,#0x01                ;4f31  4d 01
-    bnz lab_4f38               ;4f33  bd 03
-    br !lab_5355_nak_resp_cnt  ;4f35  9b 55 53     Branch to Send NAK with bad block counter = response's counter
+    mov a,!mem_fbc7         ;4f2e  8e c7 fb
+    cmp a,#0x01             ;4f31  4d 01
+    bnz lab_4f38            ;4f33  bd 03
+    br !lab_5355_nak_fail   ;4f35  9b 55 53     Branch to Send NAK response for general failure
 
 lab_4f38:
     mov a,#0x00             ;4f38  a1 00
@@ -14309,29 +14316,29 @@ lab_4f38:
     bc lab_4f47             ;4f42  8d 03
 
 lab_4f44:
-    br !lab_5355_nak_resp_cnt  ;4f44  9b 55 53     Branch to Send NAK with bad block counter = response's counter
+    br !lab_5355_nak_fail   ;4f44  9b 55 53     Branch to Send NAK response for general failure
 
 lab_4f47:
     call !sub_2c33          ;4f47  9a 33 2c     Perform EEPROM write from KWP1281 request.
                             ;                     Sets carry on failure.
-    bc lab_4f44             ;4f4a  8d f8        Branch to Send NAK with bad block counter = response's counter
+    bc lab_4f44             ;4f4a  8d f8        Branch to Send NAK response for general failure
     br !lab_55c5            ;4f4c  9b c5 55     Branch to Send EEPROM write response
 
 kwp_7c_1b_custom:
 ;kwp ? custom usage (kwp_7c_handlers)
-    mov a,!mem_fbc7           ;4f4f  8e c7 fb
-    cmp a,#0x01               ;4f52  4d 01
-    bnz lab_4f59              ;4f54  bd 03
-    br !lab_5355_nak_resp_cnt ;4f56  9b 55 53     Branch to Send NAK with bad block counter = response's counter
+    mov a,!mem_fbc7         ;4f4f  8e c7 fb
+    cmp a,#0x01             ;4f52  4d 01
+    bnz lab_4f59            ;4f54  bd 03
+    br !lab_5355_nak_fail   ;4f56  9b 55 53     Branch to Send NAK response for general failure
 
 lab_4f59:
-    mov a,#0x00               ;4f59  a1 00
-    mov !mem_fbc7,a           ;4f5b  9e c7 fb
-    movw hl,#kwp_rx_buf       ;4f5e  16 8a f0     HL = pointer to KWP1281 rx buffer
-    mov a,[hl+0x03]           ;4f61  ae 03        A = first payload byte after block title
-    cmp a,#0x31               ;4f63  4d 31        Is it a "1" (unknown constant)?
-    bz lab_4f6a               ;4f65  ad 03          Yes: lab_4f6a
-    br !lab_5355_nak_resp_cnt ;4f67  9b 55 53       No:  lab_5355 Send NAK with bad block counter = response's counter
+    mov a,#0x00             ;4f59  a1 00
+    mov !mem_fbc7,a         ;4f5b  9e c7 fb
+    movw hl,#kwp_rx_buf     ;4f5e  16 8a f0     HL = pointer to KWP1281 rx buffer
+    mov a,[hl+0x03]         ;4f61  ae 03        A = first payload byte after block title
+    cmp a,#0x31             ;4f63  4d 31        Is it a "1" (unknown constant)?
+    bz lab_4f6a             ;4f65  ad 03          Yes: lab_4f6a
+    br !lab_5355_nak_fail   ;4f67  9b 55 53       No:  lab_5355 Send NAK response for general failure
 
 lab_4f6a:
     mov a,[hl+0x04]         ;4f6a  ae 04        A = KWP1281 rx buffer subtitle
@@ -14339,10 +14346,10 @@ lab_4f6a:
     mov b,#0x0a             ;4f6f  a3 0a
 
 lab_4f71:
-    cmp a,[hl+b]              ;4f71  31 4b
-    bz lab_4f7a               ;4f73  ad 05
-    dbnz b,lab_4f71           ;4f75  8b fa
-    br !lab_5355_nak_resp_cnt ;4f77  9b 55 53     Branch to Send NAK with bad block counter = response's counter
+    cmp a,[hl+b]            ;4f71  31 4b
+    bz lab_4f7a             ;4f73  ad 05
+    dbnz b,lab_4f71         ;4f75  8b fa
+    br !lab_5355_nak_fail   ;4f77  9b 55 53     Branch to Send NAK response for general failure
 
 lab_4f7a:
     ;found a match in kwp_7c_1b_subtitles
@@ -14351,7 +14358,7 @@ lab_4f7a:
     movw hl,#kwp_7c_1b_lengths+1 ;4f7e  16 0e b3
     cmp a,[hl+b]                 ;4f81  31 4b
     bz lab_4f88                  ;4f83  ad 03
-    br !lab_5355_nak_resp_cnt    ;4f85  9b 55 53     Branch to Send NAK with bad block counter = response's counter
+    br !lab_5355_nak_fail        ;4f85  9b 55 53     Branch to Send NAK response for general failure
 
 lab_4f88:
     ;found a match in kwp_7c_1b_lengths
@@ -14553,22 +14560,22 @@ lab_5026:
     br !lab_532a_ack        ;502b  9b 2a 53     Branch to send ACK response
 
 kwp_56_0a_nak:
-;Not Acknowledge (kwp_56_handlers)
+;No Acknowledge (kwp_56_handlers)
 ;
 ;Request block:
 ;  0x04 Block length                  kwp_rx_buf+0
 ;   xx  Block counter                 kwp_rx_buf+1
-;  0x0A Block title (Not Acknowledge) kwp_rx_buf+2
-;   xx  Bad block counter             kwp_rx_buf+3
+;  0x0A Block title (No Acknowledge)  kwp_rx_buf+2
+;   xx  Block counter to resend       kwp_rx_buf+3
 ;  0x03 Block end                     kwp_rx_buf+4
 ;
-;If the Bad block counter is the same as the request's own block
+;If the Block counter to resend is the same as the request's own block
 ;counter, an ACK response is returned.  Otherwise, the last block
 ;sent will be sent again (with an updated block counter).
 ;
     movw hl,#kwp_rx_buf     ;502e  16 8a f0     HL = pointer to KWP1281 rx buffer
-    mov a,[hl+0x03]         ;5031  ae 03        A = Bad Block counter
-    cmp a,[hl+0x01]         ;5033  49 01        Compare with block counter of received block
+    mov a,[hl+0x03]         ;5031  ae 03        A = Block counter to resend
+    cmp a,[hl+0x01]         ;5033  49 01        Compare with block counter of request block
     bz lab_5026             ;5035  ad ef        Branch to send ACK if equal
 
     mov a,#0x0f             ;5037  a1 0f        A = 0x0F
@@ -14614,9 +14621,9 @@ kwp_56_04_output_tests:
 
 kwp_56_28_basic_setting:
 ;basic setting (kwp_56_handlers)
-    mov a,#0x00               ;506d  a1 00
-    mov !mem_fbc5,a           ;506f  9e c5 fb
-    br !lab_5355_nak_resp_cnt ;5072  9b 55 53     Branch to Send NAK with bad block counter = response's counter
+    mov a,#0x00             ;506d  a1 00
+    mov !mem_fbc5,a         ;506f  9e c5 fb
+    br !lab_5355_nak_fail   ;5072  9b 55 53     Branch to Send NAK response for general failure
 
 kwp_56_29_group_reading:
 ;group reading (kwp_56_handlers)
@@ -14685,40 +14692,40 @@ lab_5098:
 
 kwp_56_01_read_ram:
 ;read ram (kwp_56_handlers)
-    mov a,#0x00               ;509e  a1 00
-    mov !mem_fbc5,a           ;50a0  9e c5 fb
-    bt mem_fe65.3,lab_50a9    ;50a3  bc 65 03     Branch if logged in
-    br !lab_5355_nak_resp_cnt ;50a6  9b 55 53     Branch to Send NAK with bad block counter = response's counter
+    mov a,#0x00             ;509e  a1 00
+    mov !mem_fbc5,a         ;50a0  9e c5 fb
+    bt mem_fe65.3,lab_50a9  ;50a3  bc 65 03     Branch if logged in
+    br !lab_5355_nak_fail   ;50a6  9b 55 53     Branch to Send NAK response for general failure
 
 lab_50a9:
-    bt mem_fe65.4,lab_50af    ;50a9  cc 65 03     Branch if group read 0x19 was performed
-    br !lab_5355_nak_resp_cnt ;50ac  9b 55 53     Branch to Send NAK with bad block counter = response's counter
+    bt mem_fe65.4,lab_50af  ;50a9  cc 65 03     Branch if group read 0x19 was performed
+    br !lab_5355_nak_fail   ;50ac  9b 55 53     Branch to Send NAK response for general failure
 
 lab_50af:
-    clr1 cy                   ;50af  21
-    set1 cy                   ;50b0  20
-    bc lab_50b6               ;50b1  8d 03
-    br !lab_5355_nak_resp_cnt ;50b3  9b 55 53     Branch to Send NAK with bad block counter = response's counter
+    clr1 cy                 ;50af  21           XXX redundant
+    set1 cy                 ;50b0  20
+    bc lab_50b6             ;50b1  8d 03
+    br !lab_5355_nak_fail   ;50b3  9b 55 53     Branch to Send NAK response for general failure
 
 lab_50b6:
     br !lab_552a            ;50b6  9b 2a 55     Branch to Send 0x1c response to read ram or send nak
 
 kwp_56_03_read_eeprom:
 ;read eeprom (kwp_56_handlers)
-    mov a,#0x00               ;50b9  a1 00
-    mov !mem_fbc5,a           ;50bb  9e c5 fb
-    bt mem_fe65.3,lab_50c4    ;50be  bc 65 03     Branch if logged in
-    br !lab_5355_nak_resp_cnt ;50c1  9b 55 53     Branch to Send NAK with bad block counter = response's counter
+    mov a,#0x00             ;50b9  a1 00
+    mov !mem_fbc5,a         ;50bb  9e c5 fb
+    bt mem_fe65.3,lab_50c4  ;50be  bc 65 03     Branch if logged in
+    br !lab_5355_nak_fail   ;50c1  9b 55 53     Branch to Send NAK response for general failure
 
 lab_50c4:
-    bt mem_fe65.4,lab_50ca    ;50c4  cc 65 03     Branch if group read 0x19 was performed
-    br !lab_5355_nak_resp_cnt ;50c7  9b 55 53     Branch to Send NAK with bad block counter = response's counter
+    bt mem_fe65.4,lab_50ca  ;50c4  cc 65 03     Branch if group read 0x19 was performed
+    br !lab_5355_nak_fail   ;50c7  9b 55 53     Branch to Send NAK response for general failure
 
 lab_50ca:
-    clr1 cy                   ;50ca  21
-    set1 cy                   ;50cb  20
-    bc lab_50d1               ;50cc  8d 03
-    br !lab_5355_nak_resp_cnt ;50ce  9b 55 53     Branch to Send NAK with bad block counter = response's counter
+    clr1 cy                 ;50ca  21
+    set1 cy                 ;50cb  20
+    bc lab_50d1             ;50cc  8d 03
+    br !lab_5355_nak_fail   ;50ce  9b 55 53     Branch to Send NAK response for general failure
 
 lab_50d1:
 ;Login and Group 0x19 verified
@@ -14727,14 +14734,14 @@ lab_50d1:
 
 kwp_56_0c_write_eeprom:
 ;write eeprom (kwp_56_handlers)
-    mov a,#0x00               ;50d4  a1 00
-    mov !mem_fbc5,a           ;50d6  9e c5 fb
-    bt mem_fe65.3,lab_50df    ;50d9  bc 65 03     Branch if logged in
-    br !lab_5355_nak_resp_cnt ;50dc  9b 55 53     Branch to Send NAK with bad block counter = response's counter
+    mov a,#0x00             ;50d4  a1 00
+    mov !mem_fbc5,a         ;50d6  9e c5 fb
+    bt mem_fe65.3,lab_50df  ;50d9  bc 65 03     Branch if logged in
+    br !lab_5355_nak_fail   ;50dc  9b 55 53     Branch to Send NAK response for general failure
 
 lab_50df:
-    bt mem_fe65.4,lab_50e5    ;50df  cc 65 03     Branch if group read 0x19 was performed
-    br !lab_5355_nak_resp_cnt ;50e2  9b 55 53     Branch to Send NAK with bad block counter = response's counter
+    bt mem_fe65.4,lab_50e5  ;50df  cc 65 03     Branch if group read 0x19 was performed
+    br !lab_5355_nak_fail   ;50e2  9b 55 53     Branch to Send NAK response for general failure
 
 lab_50e5:
     clr1 cy                 ;50e5  21
@@ -14742,7 +14749,7 @@ lab_50e5:
     bc lab_50ec             ;50e7  8d 03
 
 lab_50e9:
-    br !lab_5355_nak_resp_cnt ;50e9  9b 55 53     Branch to Send NAK with bad block counter = response's counter
+    br !lab_5355_nak_fail   ;50e9  9b 55 53     Branch to Send NAK response for general failure
 
 lab_50ec:
 ;write eeprom related
@@ -14761,29 +14768,31 @@ lab_50ec:
 ;This flow is just like the Premium 4 firmware at mem_e3bd.
 ;
 ;Successful connection flow:
-;  Radio initiates KWP1281 connection to the instrument cluster on address 0x3F.
+;  Radio sends 5 baud init to instrument cluster on address 0x3F.
 ;    The cluster must use 10400 baud because the radio hardcodes the baud rate.
-;  Radio expects to receive a title 0x09 ACK block.
-;  Radio sends a title 0xD7 security access request block (lab_55de).
-;  Radio expects to receive a title 0x3D response to security access block (sub_2537).
-;  Radio sends a title 0x06 disconnect block (cluster does not send a response block).
+;  Cluster sends a 0x09 ACK block after the send keyword byte exchange.
+;  Radio sends a 0xD7 Security Access Request block (lab_55de_secure_req).
+;  Cluster sends a 0x3D Security Access Response block (sub_2537_secure_resp).
+;  Radio sends a 0x06 Disconnect block (no response from cluster; end of communication).
 ;
 
 kwp_3f_09_ack:
-;ack (kwp_3f_handlers)
-    mov a,!mem_fbc6           ;50f4  8e c6 fb     A = KWP1281 radio to cluster connection state
-    cmp a,#0x01               ;50f7  4d 01
-    bz lab_50fe               ;50f9  ad 03        Branch if we are expecting this block
-    br !lab_5355_nak_resp_cnt ;50fb  9b 55 53     Branch to Send NAK with bad block counter = response's counter
+;Acknowledge block received from cluster (kwp_3f_handlers)
+;
+    mov a,!mem_fbc6         ;50f4  8e c6 fb     A = KWP1281 radio to cluster connection state
+    cmp a,#0x01             ;50f7  4d 01
+    bz lab_50fe             ;50f9  ad 03        Branch if we are expecting this block
+    br !lab_5355_nak_fail   ;50fb  9b 55 53     Branch to Send NAK response for general failure
 
 lab_50fe:
 ;we received a 0x09 ack block and we were expecting it
-    mov a,#0x02             ;50fe  a1 02
-    mov !mem_fbc6,a         ;5100  9e c6 fb     Store new KWP1281 radio to cluster connection state
-    br !lab_55de            ;5103  9b de 55     Branch to Send Security Access Request (title 0xD7)
+    mov a,#0x02               ;50fe  a1 02
+    mov !mem_fbc6,a           ;5100  9e c6 fb     Store new KWP1281 radio to cluster connection state
+    br !lab_55de_secure_req   ;5103  9b de 55     Branch to Send Security Access Request (title 0xD7)
 
 kwp_3f_06_disconnect:
-;disconnect (kwp_3f_handlers)
+;Disconnect block received from cluster (kwp_3f_handlers)
+;
     call !sub_259b            ;5106  9a 9b 25     Turn SAFE mode = locked
     mov a,#0x00               ;5109  a1 00
     mov !mem_fbc6,a           ;510b  9e c6 fb     Store new KWP1281 radio to cluster connection state
@@ -14793,14 +14802,15 @@ lab_5111:
     call !sub_259b          ;5111  9a 9b 25     Turn SAFE mode = locked
     mov a,#0x00             ;5114  a1 00
     mov !mem_fbc6,a         ;5116  9e c6 fb     Store new KWP1281 radio to cluster connection state
-    br !lab_5337            ;5119  9b 37 53     Branch to Send Disconnect
+    br !lab_5337_disconnect ;5119  9b 37 53     Branch to Send Disconnect request to instrument cluster
 
 kwp_3f_0a_nak:
-;nak (kwp_3f_handlers)
+;No Acknowledge block received from cluster (kwp_3f_handlers)
+;
     movw hl,#kwp_rx_buf     ;511c  16 8a f0     HL = pointer to KWP1281 rx buffer
-    mov a,[hl+0x03]         ;511f  ae 03
-    cmp a,[hl+0x01]         ;5121  49 01
-    bz lab_5111             ;5123  ad ec
+    mov a,[hl+0x03]         ;511f  ae 03        A = Block counter to resend
+    cmp a,[hl+0x01]         ;5121  49 01        Compare with request's block counter
+    bz lab_5111             ;5123  ad ec        If equal, branch to lock SAFE mode and disconnect
 
     mov a,!mem_fbc6         ;5125  8e c6 fb     A = KWP1281 radio to cluster connection state
     cmp a,#0x01             ;5128  4d 01
@@ -14812,28 +14822,30 @@ lab_512f:
     call !sub_259b          ;512f  9a 9b 25     Turn SAFE mode = locked
     mov a,#0x00             ;5132  a1 00
     mov !mem_fbc6,a         ;5134  9e c6 fb     Store new KWP1281 radio to cluster connection state
-    br !lab_5337            ;5137  9b 37 53     Branch to Send Disconnect
+    br !lab_5337_disconnect ;5137  9b 37 53     Branch to Send Disconnect request to instrument cluster
 
 kwp_3f_3d_secure_access:
-;response to security access (title 0x3d) received (kwp_3f_handlers)
-    mov a,!mem_fbc6           ;513a  8e c6 fb     A = KWP1281 radio to cluster connection state
-    cmp a,#0x02               ;513d  4d 02
-    bz lab_5144               ;513f  ad 03        Branch if we are expecting this 0x3d block
-    br !lab_5355_nak_resp_cnt ;5141  9b 55 53     Branch to Send NAK with bad block counter = response's counter
+;Security Access Response (title 0x3D) block received from cluster (kwp_3f_handlers)
+;
+    mov a,!mem_fbc6         ;513a  8e c6 fb     A = KWP1281 radio to cluster connection state
+    cmp a,#0x02             ;513d  4d 02
+    bz lab_5144             ;513f  ad 03        Branch if we are expecting this 0x3d block
+    br !lab_5355_nak_fail   ;5141  9b 55 53     Branch to Send NAK response for general failure
 
 lab_5144:
 ;we received a 0x3d security access response block and we were expecting it
-    call !sub_2537          ;5144  9a 37 25     Process title 0x3d security access response block.
-                            ;                   Perform a computation on the 4 bytes.  Compare the
-                            ;                   computation result to an expected result and
-                            ;                   either lock or unlock SAFE mode.
-    mov a,#0x00             ;5147  a1 00
-    mov !mem_fbc6,a         ;5149  9e c6 fb     Store new KWP1281 radio to cluster connection state
-    br !lab_5337            ;514c  9b 37 53     Branch to Send Disconnect
+    call !sub_2537_secure_resp  ;5144  9a 37 25     Process title 0x3d security access response block.
+                                ;                   Perform a computation on the 4 bytes.  Compare the
+                                ;                   computation result to an expected result and
+                                ;                   either lock or unlock SAFE mode.
+    mov a,#0x00                 ;5147  a1 00
+    mov !mem_fbc6,a             ;5149  9e c6 fb     Store new KWP1281 radio to cluster connection state
+    br !lab_5337_disconnect     ;514c  9b 37 53     Branch to Send Disconnect request to instrument cluster
 
     ret                     ;514f  af
 
 lab_5150:
+;mem_fbc9=0x06
     mov a,!mem_fbca         ;5150  8e ca fb
     cmp a,#0x01             ;5153  4d 01
     bnz lab_515a            ;5155  bd 03
@@ -14850,6 +14862,7 @@ lab_5161:
     ret                     ;5166  af
 
 lab_5167:
+;mem_fbc9=0x09
     mov a,!mem_fbcb         ;5167  8e cb fb     A = block counter
     sub a,#0x01             ;516a  1d 01        Decement it
     mov !mem_fbcb,a         ;516c  9e cb fb     Store decremented block counter
@@ -14875,6 +14888,7 @@ lab_5180:
     ret                     ;5185  af
 
 lab_5186:
+;mem_fbc9=0x07
     mov a,!mem_fbcb         ;5186  8e cb fb     A = block counter
     add a,#0x01             ;5189  0d 01        Increment it
     mov !mem_fbcb,a         ;518b  9e cb fb     Store incremented block counter
@@ -14889,13 +14903,13 @@ lab_5198_loop:
     dbnz b,lab_5198_loop    ;519c  8b fa        Loop until end of table
 
     ;Block title not found in table
-    br !lab_5355_nak_resp_cnt  ;519e  9b 55 53
+    br !lab_5355_nak_fail   ;519e  9b 55 53  Branch to Send NAK response for general failure
 
 lab_51a1_title_found:
     movw hl,#kwp_rx_buf     ;51a1  16 8a f0     HL = pointer to KWP1281 rx buffer
-    mov a,[hl]              ;51a4  87           A = block length received
-    mov x,a                 ;51a5  70           X = block length received
-    movw hl,#kwp_lengths+1  ;51a6  16 81 b2     HL = pointer to table of block lengths
+    mov a,[hl]              ;51a4  87           A = block length from rx buffer
+    mov x,a                 ;51a5  70           X = block length from rx buffer
+    movw hl,#kwp_lengths+1  ;51a6  16 81 b2     HL = pointer to block lengths table
     mov a,[hl+b]            ;51a9  ab           A = read expected block length from table
     cmp a,#0xff             ;51aa  4d ff        Does the expected length vary (0xff)?
     bz lab_51b5             ;51ac  ad 07          Yes: skip length comparison for variable length
@@ -14903,18 +14917,19 @@ lab_51a1_title_found:
     cmp a,x                 ;51ae  61 48        Compare expected block length (A) with received (X)
     bz lab_51b5             ;51b0  ad 03        Branch if they are equal
     ;Block length does not match expected
-    br !lab_5344_nak_req_cnt  ;51b2  9b 44 53   Send NAK with bad block counter = request's counter
+    br !lab_5344_nak_req_cnt  ;51b2  9b 44 53   Send NAK with Block counter to resend = request's counter
 
 lab_51b5:
     ;Block length expected is variable or length matches expected
     ;TODO - doesn't make sense, length is valid but sends NAK?
-    br !lab_5355_nak_resp_cnt  ;51b5  9b 55 53     Send NAK with bad block counter = response's counter
+    br !lab_5355_nak_fail   ;51b5  9b 55 53     Send NAK response for general failure
 
 lab_51b8:
+;mem_fbc9=0x08
     mov a,!mem_fbcb           ;51b8  8e cb fb     A = block counter
     add a,#0x01               ;51bb  0d 01        Increment it
     mov !mem_fbcb,a           ;51bd  9e cb fb     Store incremented block counter
-    br !lab_5344_nak_req_cnt  ;51c0  9b 44 53     Send NAK with bad block counter = request's counter
+    br !lab_5344_nak_req_cnt  ;51c0  9b 44 53     Send NAK with Block counter to resend = request's counter
 
 kwp_logout_disconnect:
 ;Clear KWP1281 auth bits and disconnect
@@ -14923,6 +14938,7 @@ kwp_logout_disconnect:
     br !kwp_disconnect      ;51c7  9b 68 34    Disconnect and clear all KWP1281 state
 
 lab_51ca:
+;mem_fbc9=0x01
     movw hl,#kwp_brgc0_b02c+1 ;51ca  16 2d b0
     mov a,!mem_f06d         ;51cd  8e 6d f0
     mov b,a                 ;51d0  73
@@ -14939,6 +14955,7 @@ lab_51ca:
     ret                     ;51e1  af
 
 lab_51e2:
+;mem_fbc9=0x02
     movw hl,#kwp_brgc0_b02c+1 ;51e2  16 2d b0
     mov a,!mem_f06d         ;51e5  8e 6d f0
     mov b,a                 ;51e8  73
@@ -14955,6 +14972,7 @@ lab_51e2:
     ret                     ;51f9  af
 
 lab_51fa:
+;mem_fbc9=0x03
     mov a,!mem_f073         ;51fa  8e 73 f0       A = KWP1281 address received
     movw hl,#kwp_addresses+1 ;51fd  16 23 b0      HL = pointer to table of KWP1281 addresses
     mov b,#0x03             ;5200  a3 03          B = number of valid addresses in table
@@ -14995,6 +15013,7 @@ lab_5230:
     ret                     ;5230  af
 
 lab_5231:
+;mem_fbc9=0x05
     btclr mem_fe79.3,lab_523e ;5231  31 31 79 09
     btclr mem_fe79.4,lab_5248 ;5235  31 41 79 0f
     btclr mem_fe79.5,lab_5252 ;5239  31 51 79 15
@@ -15304,8 +15323,8 @@ lab_532a_ack:
     mov [hl+b],a            ;5333  bb           Store in KWP1281 tx buffer byte 3
     br !send_kwp_tx_buf     ;5334  9b f7 34     Set flags to start sending the KWP1281 tx buffer
 
-lab_5337:
-;Send Disconnect (index 0x02)
+lab_5337_disconnect:
+;Send Disconnect request to instrument cluster (index 0x02)
     mov b,#0x02             ;5337  a3 02        B = index 0x02 disconnect
     call !init_kwp_tx_buf   ;5339  9a 92 52     Set block title, counter, length in KWP1281 tx buf
     set1 mem_fe7b.2         ;533c  2a 7b
@@ -15314,22 +15333,22 @@ lab_5337:
     br !send_kwp_tx_buf     ;5341  9b f7 34     Set flags to start sending the KWP1281 tx buffer
 
 lab_5344_nak_req_cnt:
-;Send NAK with bad block counter = request's counter
+;Send NAK response with Block counter to resend = request's counter
 ;
 ;Response block:
-;  0x04 Block length        kwp_tx_buf+0
-;   xx  Block counter       kwp_tx_buf+1
-;  0x0A Block title (NAK)   kwp_tx_buf+2
-;   xx  Bad Block counter   kwp_tx_buf+3  (Counter of the request block)
-;  0x03 Block end           kwp_tx_buf+4
+;  0x04 Block length              kwp_tx_buf+0
+;   xx  Block counter             kwp_tx_buf+1
+;  0x0A Block title (NAK)         kwp_tx_buf+2
+;   xx  Block counter to resend   kwp_tx_buf+3  (Counter of the request block)
+;  0x03 Block end                 kwp_tx_buf+4
 ;
     mov b,#0x03             ;5344  a3 03        B = index 0x03 nak
     call !init_kwp_tx_buf   ;5346  9a 92 52     Set block title, counter, length in KWP1281 tx buf
 
-    ;Bad Block Counter = Block counter of the request block
+    ;Block counter to resend = Block counter of the request block
     mov a,!mem_fbcb         ;5349  8e cb fb
     dec a                   ;534c  51           A = block counter - 1
-    mov [hl+b],a            ;534d  bb           Store in KWP1281 tx buffer byte 3 (Bad block counter)
+    mov [hl+b],a            ;534d  bb           Store in KWP1281 tx buffer byte 3 (Block counter to resend)
 
     inc b                   ;534e  43
     mov a,#0x03             ;534f  a1 03        A = 0x03 block end
@@ -15337,22 +15356,25 @@ lab_5344_nak_req_cnt:
 
     br !send_kwp_tx_buf     ;5352  9b f7 34     Set flags to start sending the KWP1281 tx buffer
 
-lab_5355_nak_resp_cnt:
-;Send NAK with bad block counter = response's counter
+lab_5355_nak_fail:
+;Send NAK response for general failure
+;
+;To indicate a general failure, the "Block counter to reset" will be
+;set to the response's own block counter.
 ;
 ;Response block:
-;  0x04 Block length        kwp_tx_buf+0
-;   xx  Block counter       kwp_tx_buf+1
-;  0x0A Block title (NAK)   kwp_tx_buf+2
-;   xx  Bad Block counter   kwp_tx_buf+3  (Counter of this response block)
-;  0x03 Block end           kwp_tx_buf+4
+;  0x04 Block length              kwp_tx_buf+0
+;   xx  Block counter             kwp_tx_buf+1
+;  0x0A Block title (NAK)         kwp_tx_buf+2
+;   xx  Block counter to resend   kwp_tx_buf+3  (Counter of this response block)
+;  0x03 Block end                 kwp_tx_buf+4
 ;
     mov b,#0x04             ;5355  a3 04        B = index 0x04 nak
     call !init_kwp_tx_buf   ;5357  9a 92 52     Set block title, counter, length in KWP1281 tx buf
 
-    ;Bad Block Counter = Block counter of this response block
+    ;Block counter to resend = Block counter of this response block
     mov a,!mem_fbcb         ;535a  8e cb fb     A = block counter
-    mov [hl+b],a            ;535d  bb           Store in KWP1281 tx buffer byte 3 (Bad Block counter)
+    mov [hl+b],a            ;535d  bb           Store in KWP1281 tx buffer byte 3 (Block counter to resend)
 
     inc b                   ;535e  43
     mov a,#0x03             ;535f  a1 03        A = 0x03 block end
@@ -15510,7 +15532,7 @@ lab_53fa:
     br !send_kwp_tx_buf     ;5402  9b f7 34     Set flags to start sending the KWP1281 tx buffer
 
 lab_5405:
-    br !lab_5355_nak_resp_cnt  ;5405  9b 55 53     Branch to Send NAK with bad block counter = response's counter
+    br !lab_5355_nak_fail   ;5405  9b 55 53     Branch to Send NAK response for general failure
 
 lab_5408:
     mov b,#0x10             ;5408  a3 10        B = index 0x10 basic setting
@@ -15582,10 +15604,10 @@ lab_543c:
                             ;                     Yes: fall through to send a NAK response
 
     ;error from read_next_meas
-    mov a,!mem_fbcb           ;5441  8e cb fb     A = block counter
-    sub a,#0x01               ;5444  1d 01        Decrement it
-    mov !mem_fbcb,a           ;5446  9e cb fb     Store block counter
-    br !lab_5355_nak_resp_cnt ;5449  9b 55 53     Branch to Send NAK with bad block counter = response's counter
+    mov a,!mem_fbcb         ;5441  8e cb fb     A = block counter
+    sub a,#0x01             ;5444  1d 01        Decrement it
+    mov !mem_fbcb,a         ;5446  9e cb fb     Store block counter
+    br !lab_5355_nak_fail   ;5449  9b 55 53     Branch to Send NAK response for general failure
 
 lab_544c:
 ;no error from read_next_meas
@@ -15702,7 +15724,7 @@ lab_5495:
     br !send_kwp_tx_buf     ;54b4  9b f7 34     Set flags to start sending the KWP1281 tx buffer
 
 lab_54b7:
-    br !lab_5355_nak_resp_cnt  ;54b7  9b 55 53     Branch to Send NAK with bad block counter = response's counter
+    br !lab_5355_nak_fail   ;54b7  9b 55 53     Branch to Send NAK response for general failure
 
 lab_54ba:
 ;TODO investigate this unknown kwp1281 code
@@ -15717,7 +15739,7 @@ lab_54ba:
     br !send_kwp_tx_buf     ;54c4  9b f7 34     Set flags to start sending the KWP1281 tx buffer
 
 lab_54c7:
-    br !lab_5355_nak_resp_cnt  ;54c7  9b 55 53     Branch to Send NAK with bad block counter = response's counter
+    br !lab_5355_nak_fail   ;54c7  9b 55 53     Branch to Send NAK response for general failure
 
 lab_54ca:
 ;TODO investigate this unknown kwp1281 code
@@ -15808,16 +15830,16 @@ lab_5527:
 lab_552a:
 ;Send 0x1c response to read ram or send nak
 ;branched to from both read ram handlers
-    mov a,#0x01               ;552a  a1 01
-    mov !mem_fbca,a           ;552c  9e ca fb
-    mov b,#0x1c               ;552f  a3 1c        B = index 0x1c response to read ram
-    call !init_kwp_tx_buf     ;5531  9a 92 52     Set block title, counter, length in KWP1281 tx buf
-    call !sub_2bb9            ;5534  9a b9 2b
-    bnc lab_5544              ;5537  9d 0b
-    mov a,!mem_fbcb           ;5539  8e cb fb     A = block counter
-    sub a,#0x01               ;553c  1d 01        Decrement it
-    mov !mem_fbcb,a           ;553e  9e cb fb     Store block counter
-    br !lab_5355_nak_resp_cnt ;5541  9b 55 53     Branch to Send NAK with bad block counter = response's counter
+    mov a,#0x01             ;552a  a1 01
+    mov !mem_fbca,a         ;552c  9e ca fb
+    mov b,#0x1c             ;552f  a3 1c        B = index 0x1c response to read ram
+    call !init_kwp_tx_buf   ;5531  9a 92 52     Set block title, counter, length in KWP1281 tx buf
+    call !sub_2bb9          ;5534  9a b9 2b
+    bnc lab_5544            ;5537  9d 0b
+    mov a,!mem_fbcb         ;5539  8e cb fb     A = block counter
+    sub a,#0x01             ;553c  1d 01        Decrement it
+    mov !mem_fbcb,a         ;553e  9e cb fb     Store block counter
+    br !lab_5355_nak_fail   ;5541  9b 55 53     Branch to Send NAK response for general failure
 
 lab_5544:
     add a,#0x03             ;5544  0d 03
@@ -15887,10 +15909,10 @@ lab_5581:
     bnc lab_559b            ;558e  9d 0b        Branch if failed
 
     ;Something related to EEPROM failed
-    mov a,!mem_fbcb           ;5590  8e cb fb     A = block counter
-    sub a,#0x01               ;5593  1d 01        Decrement it
-    mov !mem_fbcb,a           ;5595  9e cb fb     Store block counter
-    br !lab_5355_nak_resp_cnt ;5598  9b 55 53     Branch to Send NAK with bad block counter = response's counter
+    mov a,!mem_fbcb         ;5590  8e cb fb     A = block counter
+    sub a,#0x01             ;5593  1d 01        Decrement it
+    mov !mem_fbcb,a         ;5595  9e cb fb     Store block counter
+    br !lab_5355_nak_fail   ;5598  9b 55 53     Branch to Send NAK response for general failure
 
 lab_559b:
     ;Something related to EEPROM succeeded
@@ -15955,13 +15977,13 @@ lab_55c5:
     mov [hl+b],a            ;55da  bb           Store in KWP1281 tx buffer byte 7
     br !send_kwp_tx_buf     ;55db  9b f7 34     Set flags to start sending the KWP1281 tx buffer
 
-lab_55de:
-;Send Security Access Request (title 0xD7)
+lab_55de_secure_req:
+;Send Security Access Request to cluster (title 0xD7)
     mov b,#0x21             ;55de  a3 21        B = index 0x21 title 0xd7 security access request
     call !init_kwp_tx_buf   ;55e0  9a 92 52     Set block title, counter, length in KWP1281 tx buf
 
-    call !sub_259e          ;55e3  9a 9e 25     Generate the 4 byte payload for the 0xD7 security access request block
-                            ;                   Returns the 4 bytes in A, X, D, E
+    call !sub_259e_secure_req ;55e3  9a 9e 25     Generate the 4 byte payload for the 0xD7 security access request block
+                              ;                   Returns the 4 bytes in A, X, D, E
 
     ;KWP1281 tx buffer byte 3 = value in A
     mov [hl+b],a            ;55e6  bb           Store A in KWP1281 tx buffer byte 3
@@ -15989,7 +16011,7 @@ lab_55de:
     br !send_kwp_tx_buf     ;55f4  9b f7 34     Set flags to start sending the KWP1281 tx buffer
 
 lab_55f7:
-    br !lab_5355_nak_resp_cnt  ;55f7  9b 55 53     Branch to Send NAK with bad block counter = response's counter
+    br !lab_5355_nak_fail   ;55f7  9b 55 53     Branch to Send NAK response for general failure
 
 sub_55fa:
 ;Convert lower nibble of A to hexadecimal digit in ASCII
@@ -30684,38 +30706,39 @@ mem_b019:
     .word lab_3066          ;b020   DATA
 
 kwp_addresses:
+;kwp1281 address bytes received during 5 baud init
     .byte 0x04              ;b022  04          DATA 0x04        4 entries below:
-    .byte 0x00              ;b023  00          DATA 0x00        <not found>
-    .byte 0x7c              ;b024  7c          DATA 0x7c '|'    DELCO manufacturing address (0x7C)
-    .byte 0xd6              ;b025  d6          DATA 0xd6        Normal radio address (0xD6)
-    .byte 0xbf              ;b026  bf          DATA 0xbf        Cluster security(?) address (0x3F)
+    .byte 0x00              ;b023  00          DATA 0x00          <not found>
+    .byte 0x7c              ;b024  7c          DATA 0x7c '|'      DELCO manufacturing address (0x7C)
+    .byte 0xd6              ;b025  d6          DATA 0xd6          Normal radio address (0xD6)
+    .byte 0xbf              ;b026  bf          DATA 0xbf          Cluster security address (0x3F)
 
-kwp_unknown_b027:
-;unknown; related to mem_f06d
-;same order as kwp_addresses
+kwp_modes:
+;specifies whether an address is for normal mode or "radio as tester" mode
+;indexed by mem_f06d
     .byte 0x04              ;b027  04          DATA 0x04        4 entries below:
-    .byte 0x00              ;b028  00          DATA 0x00
-    .byte 0x00              ;b029  00          DATA 0x00
-    .byte 0x00              ;b02a  00          DATA 0x00
-    .byte 0x01              ;b02b  01          DATA 0x01
+    .byte 0x00              ;b028  00          DATA 0x00          Normal (<address not found>)
+    .byte 0x00              ;b029  00          DATA 0x00          Normal (DELCO manufacturing address)
+    .byte 0x00              ;b02a  00          DATA 0x00          Normal (Normal radio address)
+    .byte 0x01              ;b02b  01          DATA 0x01          Radio as Tester (Cluster security address)
 
 kwp_brgc0_b02c:
 ;values to be stored in BRGC0
 ;indexed by mem_f06d
     .byte 0x04              ;b02c  04          DATA 0x04        4 entries below:
-    .byte 0x39              ;b02d  39          DATA 0x39 '9'      0x39 = 10400 baud
-    .byte 0x39              ;b02e  39          DATA 0x39 '9'      0x39 = 10400 baud
-    .byte 0x39              ;b02f  39          DATA 0x39 '9'      0x39 = 10400 baud
-    .byte 0x39              ;b030  39          DATA 0x39 '9'      0x39 = 10400 baud
+    .byte 0x39              ;b02d  39          DATA 0x39 '9'      0x39 = 10400 baud (<address not found>)
+    .byte 0x39              ;b02e  39          DATA 0x39 '9'      0x39 = 10400 baud (DELCO manufacturing address)
+    .byte 0x39              ;b02f  39          DATA 0x39 '9'      0x39 = 10400 baud (Normal radio address)
+    .byte 0x39              ;b030  39          DATA 0x39 '9'      0x39 = 10400 baud (Cluster security address)
 
 kwp_asim0_b031:
 ;values to be stored in ASIM0
 ;indexed by mem_f06d
     .byte 0x04              ;b031  04          DATA 0x04        4 entries below:
-    .byte 0x00              ;b032  00          DATA 0x00          0x00 = UART fully disabled
-    .byte 0xca              ;b033  ca          DATA 0xca          0xCA = UART TX & RX enabled, N81
-    .byte 0xca              ;b034  ca          DATA 0xca          0xCA = UART TX & RX enabled, N81
-    .byte 0xca              ;b035  ca          DATA 0xca          0xCA = UART TX & RX enabled, N81
+    .byte 0x00              ;b032  00          DATA 0x00          0x00 = UART fully disabled (<address not found>)
+    .byte 0xca              ;b033  ca          DATA 0xca          0xCA = UART TX & RX enabled, N81 (DELCO manufacturing address)
+    .byte 0xca              ;b034  ca          DATA 0xca          0xCA = UART TX & RX enabled, N81 (Normal radio address)
+    .byte 0xca              ;b035  ca          DATA 0xca          0xCA = UART TX & RX enabled, N81 (Cluster security address)
 
 kwp_unknown_b036:
 ;unknown values to be stored in mem_f06f
@@ -31162,9 +31185,9 @@ mem_b1fa:
     .byte 0x26                  ;b1fa  26          DATA 0x26 '&'      38 entries below:
     .word lab_4dd2              ;0x00
     .word lab_532a_ack          ;0x01 Send ACK
-    .word lab_5337              ;0x02 Send Disconnect
-    .word lab_5344_nak_req_cnt  ;0x03 Send NAK with bad block counter = request's counter
-    .word lab_5355_nak_resp_cnt ;0x04 Send NAK with bad block counter = response's counter
+    .word lab_5337_disconnect   ;0x02 Send Disconnect request to instrument cluster
+    .word lab_5344_nak_req_cnt  ;0x03 Send NAK response with Block counter to resend = request's counter
+    .word lab_5355_nak_fail     ;0x04 Send NAK response with Block counter to resend = response's counter
     .word lab_5365              ;0x05 index 0x08 read identification
     .word lab_52ea_id_part_num  ;0x06 Send id block 1/4 with "1J0035180B" (Block length=0x0F)
     .word lab_52e0_id_radio     ;0x07 Send id block 2/4 with "Radio DE2"  (Block length=0x0F)
@@ -31176,7 +31199,7 @@ mem_b1fa:
     .word lab_53c4              ;0x0d index 0x0c output tests
     .word lab_53cf              ;0x0e Send index 0x0d response to output tests
     .word lab_53ef              ;0x0f index 0x0e ? TODO
-    .word lab_5405              ;0x10 Send NAK with bad block counter = response's counter
+    .word lab_5405              ;0x10 Send NAK response for general failure
     .word lab_53fa              ;0x11 index 0x0f ? TODO
     .word lab_5408              ;0x12 index 0x10 basic setting
     .word lab_5422              ;0x13 Send index 0x12 response to group reading
@@ -31185,9 +31208,9 @@ mem_b1fa:
     .word lab_5476              ;0x16 index 0x14 adaptation
     .word lab_5483              ;0x17 index 0x15 ? TODO
     .word lab_5495              ;0x18 index 0x16 ? TODO
-    .word lab_54b7              ;0x19 Send NAK with bad block counter = response's counter
+    .word lab_54b7              ;0x19 Send NAK response for general failure
     .word lab_54ba              ;0x1a index 0x17 single reading
-    .word lab_54c7              ;0x1b Send NAK with bad block counter = response's counter
+    .word lab_54c7              ;0x1b Send NAK response for general failure
     .word lab_54ca              ;0x1c index 0x18 login
     .word lab_54ea              ;0x1d index 0x19 read eeprom
     .word lab_54fb              ;0x1e Send response to title 0x1b custom usage with data
@@ -31196,22 +31219,22 @@ mem_b1fa:
     .word lab_556b              ;0x21 index 0x1d read rom or eeprom
     .word lab_5581              ;0x22 Send read EEPROM response
     .word lab_55c5              ;0x23 Send EEPROM write response
-    .word lab_55de              ;0x24 Send Security Access Request (title 0xD7)
-    .word lab_55f7              ;0x25 Send NAK with bad block counter = response's counter
+    .word lab_55de_secure_req   ;0x24 Send Security Access Request (title 0xD7)
+    .word lab_55f7              ;0x25 Send NAK response for general failure
 
 mem_b247:
 ;indexed by mem_fbc9
     .byte 0x0a              ;b247              DATA 0x0a        10 entries below:
-    .word lab_4df4          ;b248              VECTOR
-    .word lab_51ca          ;b24a              VECTOR
-    .word lab_51e2          ;b24c              VECTOR
-    .word lab_51fa          ;b24e              VECTOR
-    .word lab_4dfa          ;b250              VECTOR
-    .word lab_5231          ;b252              VECTOR
-    .word lab_5150          ;b254              VECTOR
-    .word lab_5186          ;b256              VECTOR
-    .word lab_51b8          ;b258              VECTOR
-    .word lab_5167          ;b25a              VECTOR
+    .word lab_4df4          ;b248              VECTOR           B=0x00  Sets mem_fbc9=0, does nothing
+    .word lab_51ca          ;b24a              VECTOR           B=0x01  Sets UART baud and mode
+    .word lab_51e2          ;b24c              VECTOR           B=0x02  Sets UART baud and mode
+    .word lab_51fa          ;b24e              VECTOR           B=0x03  KWP1281 address lookup
+    .word lab_4dfa          ;b250              VECTOR           B=0x04  KWP1281 block title lookup
+    .word lab_5231          ;b252              VECTOR           B=0x05  Clears some state bits only
+    .word lab_5150          ;b254              VECTOR           B=0x06  Unknown; seems to be Read RAM / EEPROM related
+    .word lab_5186          ;b256              VECTOR           B=0x07  KWP1281 block title lookup
+    .word lab_51b8          ;b258              VECTOR           B=0x08  Branches to lab_5344_nak_req_cnt
+    .word lab_5167          ;b25a              VECTOR           B=0x09  Send Read RAM / EEPROM response
 
 kwp_titles:
 ;table of all block titles
@@ -31250,8 +31273,8 @@ kwp_titles:
     .byte 0xfd              ;b27b  fd          DATA 0xfd        B=0x1e response to read rom, eeprom
     .byte 0x0c              ;b27c  0c          DATA 0x0c        B=0x1f write eeprom
     .byte 0xf9              ;b27d  f9          DATA 0xf9        B=0x20 response to write eeprom
-    .byte 0xd7              ;b27e  d7          DATA 0xd7        B=0x21 security access request
-    .byte 0x3d              ;b27f  3d          DATA 0x3d '='    D=0x22 response to security access
+    .byte 0xd7              ;b27e  d7          DATA 0xd7        B=0x21 Security Access Request (Radio->Cluster)
+    .byte 0x3d              ;b27f  3d          DATA 0x3d '='    D=0x22 Security Access Response (Cluster->Radio)
 
 kwp_lengths:
 ;table of block lengths; same order as kwp_titles
@@ -31291,8 +31314,8 @@ kwp_lengths:
     .byte 0xff              ;b29f  ff          DATA 0xff        B=0x1e response to read rom, eeprom
     .byte 0xff              ;b2a0  ff          DATA 0xff        B=0x1f write eeprom
     .byte 0x07              ;b2a1  07          DATA 0x07        B=0x20 response to write eeprom
-    .byte 0x07              ;b2a2  07          DATA 0x07        B=0x21 security access request
-    .byte 0x07              ;b2a3  07          DATA 0x07        B=0x22 response to security access
+    .byte 0x07              ;b2a2  07          DATA 0x07        B=0x21 Security Access Request (Radio->Cluster)
+    .byte 0x07              ;b2a3  07          DATA 0x07        B=0x22 Security Access Response (Cluster->Radio)
 
 kwp_7c_titles:
 ;block titles accepted on address 0x7c
