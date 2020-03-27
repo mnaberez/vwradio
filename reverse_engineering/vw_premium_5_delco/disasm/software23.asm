@@ -45,9 +45,9 @@ mem_f051 = 0xf051
 fis_tx_buf = 0xf052         ;FIS display 3LB packet buffer (20 bytes)
 mem_f066 = 0xf066
 mem_f067 = 0xf067
-mem_f068 = 0xf068
+mem_f068 = 0xf068           ;KWP1281 tx buffer index
 mem_f069 = 0xf069           ;KWP1281 rx buffer index
-mem_f06a = 0xf06a
+mem_f06a = 0xf06a           ;KWP1281 last byte sent or received; used for error detection
 mem_f06b = 0xf06b           ;KWP1281 tx block length
 mem_f06c = 0xf06c           ;KWP1281 rx block length
 mem_f06d = 0xf06d           ;KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
@@ -2956,9 +2956,9 @@ lab_0e39:
     ;XXX Note that this is redundant because these addresses are all
     ;    in expansion RAM which was already cleared above at lab_0e39.
     mov a,#0x00             ;0e7c  a1 00
-    mov !mem_f068,a         ;0e7e  9e 68 f0
+    mov !mem_f068,a         ;0e7e  9e 68 f0     KWP1281 tx buffer index
     mov !mem_f069,a         ;0e81  9e 69 f0     KWP1281 rx buffer index
-    mov !mem_f06a,a         ;0e84  9e 6a f0
+    mov !mem_f06a,a         ;0e84  9e 6a f0     KWP1281 last byte sent or received; used for error detection
     mov !mem_f06b,a         ;0e87  9e 6b f0     KWP1281 tx block length
     mov !mem_f06c,a         ;0e8a  9e 6c f0     KWP1281 rx block length
     mov !mem_f06d,a         ;0e8d  9e 6d f0     KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
@@ -9001,16 +9001,16 @@ sub_308f:
     bt mem_fe79.4,lab_30cf_send_0x01  ;30b2  cc 79 1a       Branch to send KWP1281 first keyword byte (0x01)
     bt mem_fe79.5,lab_30d3_send_0x8a  ;30b5  dc 79 1b       Branch to send KWP1281 second keyword byte (0x8A)
 
-    mov a,!mem_f068         ;30b8  8e 68 f0
+    mov a,!mem_f068         ;30b8  8e 68 f0       A = KWP1281 tx buffer index
     and a,#0x0f             ;30bb  5d 0f
     mov b,a                 ;30bd  73
 
-    mov a,!mem_f068         ;30be  8e 68 f0
-    inc a                   ;30c1  41
-    mov !mem_f068,a         ;30c2  9e 68 f0
+    mov a,!mem_f068         ;30be  8e 68 f0       A = KWP1281 tx buffer index
+    inc a                   ;30c1  41             Increment it
+    mov !mem_f068,a         ;30c2  9e 68 f0       Store as new KWP1281 tx buffer index
 
     movw hl,#kwp_tx_buf     ;30c5  16 7a f0       HL = pointer to KWP1281 tx buffer
-    mov a,[hl+b]            ;30c8  ab
+    mov a,[hl+b]            ;30c8  ab             A = read byte from KWP tx buffer
     br lab_30de_send_a      ;30c9  fa 13          Branch to send KWP1281 byte in A out UART0
 
 lab_30cb_send_0x55:
@@ -9027,15 +9027,15 @@ lab_30d3_send_0x8a:
 
 lab_30d7_send_comp:
 ;Send complement of last byte received out UART0
-    mov a,!mem_f06a         ;30d7  8e 6a f0
-    xor a,#0xff             ;30da  7d ff
+    mov a,!mem_f06a         ;30d7  8e 6a f0       A = KWP1281 last byte sent or received; used for error detection
+    xor a,#0xff             ;30da  7d ff          Complement it
     br lab_30de_send_a      ;30dc  fa 00          XXX useless branch (could just fall through)
 
 lab_30de_send_a:
 ;Send byte in A out UART0
     set1 mem_fe79.0         ;30de  0a 79
-    mov !mem_f06a,a         ;30e0  9e 6a f0
-    mov rxb0_txs0,a         ;30e3  f2 18
+    mov !mem_f06a,a         ;30e0  9e 6a f0       Store as KWP1281 last byte sent or received; used for error detection
+    mov rxb0_txs0,a         ;30e3  f2 18          Send the byte out UART0
     br lab_30e7_ret         ;30e5  fa 00          XXX useless branch (could just fall through)
 
 lab_30e7_ret:
@@ -9088,7 +9088,7 @@ lab_3127:
     mov [hl+c],a            ;312b  ba           Store byte receved in KWP1281 rx buffer
 
 lab_312c:
-    mov !mem_f06a,a         ;312c  9e 6a f0
+    mov !mem_f06a,a         ;312c  9e 6a f0     Store as KWP1281 last byte sent or received; used for error detection
 
     inc c                   ;312f  42           Increment KWP1281 rx buffer index in C
     mov a,c                 ;3130  62           Move it to A
@@ -9096,6 +9096,7 @@ lab_312c:
 
     mov a,#0x02             ;3134  a1 02
     mov !mem_f06e,a         ;3136  9e 6e f0
+
     set1 mem_fe79.6         ;3139  6a 79
     set1 mem_fe79.1         ;313b  1a 79
     br lab_3153_pop_reti    ;313d  fa 14        Branch to pop registers and reti
@@ -9158,9 +9159,11 @@ lab_3176_kw_8a:
     bnz lab_318a_unexpected ;3178  bd 10
 
     ;Second keyword byte (0x8a) is OK
-    mov !mem_f06a,a         ;317a  9e 6a f0
+    mov !mem_f06a,a         ;317a  9e 6a f0     Store as KWP1281 last byte sent or received; used for error detection
+
     mov a,#0x0e             ;317d  a1 0e
     mov !mem_f06e,a         ;317f  9e 6e f0
+
     set1 mem_fe79.6         ;3182  6a 79
     set1 mem_fe79.1         ;3184  1a 79
     clr1 mem_fe79.2         ;3186  2b 79
@@ -9180,9 +9183,11 @@ lab_3190_comp:
 
     ;Complement byte received is good
     bt mem_fe79.5,lab_31ec  ;3199  dc 79 50
-    mov a,!mem_f068         ;319c  8e 68 f0
+
+    mov a,!mem_f068         ;319c  8e 68 f0     A = KWP1281 tx buffer index
     and a,#0x0f             ;319f  5d 0f
     bnz lab_31aa            ;31a1  bd 07
+
     set1 mem_fe7c.0         ;31a3  0a 7c
     mov a,#0x06             ;31a5  a1 06        0x06 = Unknown; seems to be Read RAM / EEPROM related
     mov !mem_fbc9,a         ;31a7  9e c9 fb
@@ -9190,9 +9195,11 @@ lab_3190_comp:
 lab_31aa:
     mov a,#0x02             ;31aa  a1 02
     mov !mem_f06e,a         ;31ac  9e 6e f0
+
     mov a,!mem_fbc9         ;31af  8e c9 fb
     cmp a,#0x06             ;31b2  4d 06
     bnz lab_31bb            ;31b4  bd 05
+
     mov a,#0x08             ;31b6  a1 08
     mov !mem_f06e,a         ;31b8  9e 6e f0
 
@@ -9296,11 +9303,11 @@ lab_323c_br_pop_reti:
     br !lab_3153_pop_reti   ;323c  9b 53 31     Branch to pop registers and reti
 
 lab_323f:
-    mov a,!mem_f06a         ;323f  8e 6a f0
+    mov a,!mem_f06a         ;323f  8e 6a f0     A = KWP1281 last byte sent or received; used for error detection
 
 lab_3242_echo:
 ;Check echo received for last byte sent
-    cmp a,!mem_f06a         ;3242  48 6a f0     A = last byte sent
+    cmp a,!mem_f06a         ;3242  48 6a f0     A = last byte sent out UART0
     bnz lab_328d_bad_echo   ;3245  bd 46        Branch if echo is bad
 
     ;Echo of last byte sent is good
@@ -9308,11 +9315,13 @@ lab_3242_echo:
     bt mem_fe79.3,lab_31ec  ;324b  bc 79 9e
     bt mem_fe79.4,lab_31ec  ;324e  cc 79 9b
     bt mem_fe79.5,lab_3296  ;3251  dc 79 42
-    mov a,!mem_f068         ;3254  8e 68 f0
+
+    mov a,!mem_f068         ;3254  8e 68 f0     A = KWP1281 tx buffer index
     cmp a,#0x00             ;3257  4d 00
     bz lab_3263             ;3259  ad 08
-    mov a,!mem_f06b         ;325b  8e 6b f0       A = KWP1281 tx block length
-    cmp a,!mem_f068         ;325e  48 68 f0
+
+    mov a,!mem_f06b         ;325b  8e 6b f0     A = KWP1281 tx block length
+    cmp a,!mem_f068         ;325e  48 68 f0     Compare with KWP1281 tx buffer index
     bnc lab_3296            ;3261  9d 33
 
 lab_3263:
@@ -9473,7 +9482,9 @@ sub_3329:
 sub_333f:
     bf mem_fe7a.2,lab_336f  ;333f  31 23 7a 2c
     bt mem_fe79.2,lab_3356  ;3343  ac 79 10
+
     mov a,!mem_f06e         ;3346  8e 6e f0
+
     bf mem_fe79.1,lab_335d  ;3349  31 13 79 10
     cmp a,#0x00             ;334d  4d 00
     bz lab_335d             ;334f  ad 0c
@@ -9757,7 +9768,7 @@ send_kwp_tx_buf:
 
 lab_34fc:
     mov a,#0x00             ;34fc  a1 00
-    mov !mem_f068,a         ;34fe  9e 68 f0
+    mov !mem_f068,a         ;34fe  9e 68 f0     Store as KWP1281 tx buffer index
     set1 mem_fe79.1         ;3501  1a 79
     set1 mem_fe7a.1         ;3503  1a 7a
     ret                     ;3505  af
@@ -15005,6 +15016,7 @@ lab_51ca:
 
     mov a,#0x2e             ;51d8  a1 2e
     mov !mem_f06e,a         ;51da  9e 6e f0
+
     set1 mem_fe79.1         ;51dd  1a 79
     set1 mem_fe79.3         ;51df  3a 79
     ret                     ;51e1  af
@@ -15023,6 +15035,7 @@ lab_51e2:
 
     mov a,#0x79             ;51f0  a1 79
     mov !mem_f06e,a         ;51f2  9e 6e f0
+
     set1 mem_fe79.1         ;51f5  1a 79
     set1 mem_fe79.3         ;51f7  3a 79
     ret                     ;51f9  af
@@ -15079,15 +15092,19 @@ lab_5231:
 
 lab_523e:
     set1 mem_fe79.4         ;523e  4a 79
+
     mov a,#0x04             ;5240  a1 04
     mov !mem_f06e,a         ;5242  9e 6e f0
+
     set1 mem_fe79.1         ;5245  1a 79
     ret                     ;5247  af
 
 lab_5248:
     set1 mem_fe79.5         ;5248  5a 79
+
     mov a,#0x02             ;524a  a1 02
     mov !mem_f06e,a         ;524c  9e 6e f0
+
     set1 mem_fe79.1         ;524f  1a 79
     ret                     ;5251  af
 
@@ -15370,6 +15387,7 @@ lab_5314:
 lab_5322:
     mov a,#0x0e             ;5322  a1 0e
     mov !mem_f06e,a         ;5324  9e 6e f0
+
     br !lab_34fc            ;5327  9b fc 34
 
 lab_532a_ack:
