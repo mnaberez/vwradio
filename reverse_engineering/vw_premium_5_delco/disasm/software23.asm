@@ -9047,10 +9047,10 @@ intsr0_30e8:
     push bc                 ;30e9  b3
     push hl                 ;30ea  b7
     push de                 ;30eb  b5
-    mov a,rxb0_txs0         ;30ec  f0 18            A = KWP1281 byte received from UART
+    mov a,rxb0_txs0         ;30ec  f0 18        A = KWP1281 byte received from UART
     bf mem_fe7a.2,lab_3148  ;30ee  31 23 7a 56
-    btclr mem_fe79.0,lab_313f_br_3242 ;30f2  31 01 79 49    Branch to lab_3242
-    btclr mem_fe79.7,lab_3142_br_3190 ;30f6  31 71 79 48    Branch to lab_3190
+    btclr mem_fe79.0,lab_313f_br_echo ;30f2  31 01 79 49    Branch to check echo received for last byte sent
+    btclr mem_fe79.7,lab_3142_br_comp ;30f6  31 71 79 48    Branch to check complement received for last byte sent
     btclr mem_fe79.3,lab_3158_sync_55 ;30fa  31 31 79 5a    Branch to check received KWP1281 sync byte (0x55)
     btclr mem_fe79.4,lab_3167_kw_01   ;30fe  31 41 79 65    Branch to check received KWP1281 first keyword byte (0x01)
     bt mem_fe79.5,lab_3176_kw_8a      ;3102  dc 79 71       Branch to check received KWP1281 second keyword byte (0x8a)
@@ -9100,11 +9100,13 @@ lab_312c:
     set1 mem_fe79.1         ;313b  1a 79
     br lab_3153_pop_reti    ;313d  fa 14        Branch to pop registers and reti
 
-lab_313f_br_3242:
-    br !lab_3242            ;313f  9b 42 32
+lab_313f_br_echo:
+;Branch to check echo received for last byte sent
+    br !lab_3242_echo       ;313f  9b 42 32
 
-lab_3142_br_3190:
-    br !lab_3190            ;3142  9b 90 31
+lab_3142_br_comp:
+;Branch to check complement received for last byte sent
+    br !lab_3190_comp       ;3142  9b 90 31
 
 lab_3145_br_31f6:
 ;Entire block has been received
@@ -9169,11 +9171,14 @@ lab_318a_unexpected:
     call !kwp_disconnect    ;318a  9a 68 34     Disconnect and clear all KWP1281 state
     br !lab_3153_pop_reti   ;318d  9b 53 31     Branch to pop registers and reti
 
-lab_3190:
+lab_3190_comp:
+;Check complement received for last byte sent
     clr1 mem_fe79.2         ;3190  2b 79
-    xor a,#0xff             ;3192  7d ff
-    cmp a,!mem_f06a         ;3194  48 6a f0
-    bnz lab_31bf            ;3197  bd 26
+    xor a,#0xff             ;3192  7d ff        Complement byte just received to make original byte again
+    cmp a,!mem_f06a         ;3194  48 6a f0     Is it the same as the byte we sent?
+    bnz lab_31bf_bad_comp   ;3197  bd 26          No: Branch to handle bad complement
+
+    ;Complement byte received is good
     bt mem_fe79.5,lab_31ec  ;3199  dc 79 50
     mov a,!mem_f068         ;319c  8e 68 f0
     and a,#0x0f             ;319f  5d 0f
@@ -9195,7 +9200,8 @@ lab_31bb:
     set1 mem_fe79.1         ;31bb  1a 79
     br lab_31e9             ;31bd  fa 2a
 
-lab_31bf:
+lab_31bf_bad_comp:
+;Complement received for last byte sent is bad
     btclr mem_fe79.5,lab_31d2 ;31bf  31 51 79 0f
 
     movw hl,#kwp_unknown_b036+1 ;31c3  16 37 b0
@@ -9266,7 +9272,7 @@ lab_31f6:
     set1 mem_fe7c.0         ;321a  0a 7c
     mov a,#0x04             ;321c  a1 04        0x04 = Block received and it fit in RX buffer; dispatch it
     mov !mem_fbc9,a         ;321e  9e c9 fb
-    br lab_323c_br_3153     ;3221  fa 19        Branch to pop registers and reti
+    br lab_323c_br_pop_reti ;3221  fa 19        Branch to pop registers and reti
 
 lab_3223:
 ;Block received exceeded RX buffer length
@@ -9274,7 +9280,7 @@ lab_3223:
     set1 mem_fe7c.0         ;3223  0a 7c
     mov a,#0x07             ;3225  a1 07        0x07 = Block received exceeded RX buffer length
     mov !mem_fbc9,a         ;3227  9e c9 fb
-    br lab_323c_br_3153     ;322a  fa 10        Branch to pop registers and reti
+    br lab_323c_br_pop_reti ;322a  fa 10        Branch to pop registers and reti
 
 lab_322c:
 ;Block End byte received is bad
@@ -9284,17 +9290,20 @@ lab_322c:
     set1 mem_fe79.2         ;3233  2a 79
     mov a,#0x00             ;3235  a1 00
     mov !mem_f069,a         ;3237  9e 69 f0     KWP1281 rx buffer index
-    br lab_323c_br_3153     ;323a  fa 00        XXX redundant; could just fall through
+    br lab_323c_br_pop_reti ;323a  fa 00        XXX redundant; could just fall through
 
-lab_323c_br_3153:
+lab_323c_br_pop_reti:
     br !lab_3153_pop_reti   ;323c  9b 53 31     Branch to pop registers and reti
 
 lab_323f:
     mov a,!mem_f06a         ;323f  8e 6a f0
 
-lab_3242:
-    cmp a,!mem_f06a         ;3242  48 6a f0
-    bnz lab_328d            ;3245  bd 46
+lab_3242_echo:
+;Check echo received for last byte sent
+    cmp a,!mem_f06a         ;3242  48 6a f0     A = last byte sent
+    bnz lab_328d_bad_echo   ;3245  bd 46        Branch if echo is bad
+
+    ;Echo of last byte sent is good
     btclr mem_fe79.6,lab_32a7 ;3247  31 61 79 5c
     bt mem_fe79.3,lab_31ec  ;324b  bc 79 9e
     bt mem_fe79.4,lab_31ec  ;324e  cc 79 9b
@@ -9327,16 +9336,17 @@ lab_3269:
     mov !mem_f070,a         ;3281  9e 70 f0
 
     set1 mem_fe79.2         ;3284  2a 79
-    br lab_32dc             ;3286  fa 54
+    br lab_32dc_br_pop_reti ;3286  fa 54        Branch to pop registers and reti
 
 lab_3288:
     call !kwp_disconnect    ;3288  9a 68 34     Disconnect and clear all KWP1281 state
-    br lab_32dc             ;328b  fa 4f
+    br lab_32dc_br_pop_reti ;328b  fa 4f        Branch to pop registers and reti
 
-lab_328d:
+lab_328d_bad_echo:
+;Echo received for last byte sent is bad
     bf shadow_p2.6,lab_323f ;328d  31 63 cc ae  Branch if P26 = 0 (K-line mode = normal)
     call !kwp_disconnect    ;3291  9a 68 34     Disconnect and clear all KWP1281 state
-    br lab_32dc             ;3294  fa 46
+    br lab_32dc_br_pop_reti ;3294  fa 46        Branch to pop registers and reti
 
 lab_3296:
     movw hl,#kwp_unknown_b036+1 ;3296  16 37 b0
@@ -9347,7 +9357,7 @@ lab_3296:
 
     set1 mem_fe79.2         ;32a1  2a 79
     set1 mem_fe79.7         ;32a3  7a 79
-    br lab_32dc             ;32a5  fa 35
+    br lab_32dc_br_pop_reti ;32a5  fa 35        Branch to pop registers and reti
 
 lab_32a7:
     movw hl,#kwp_unknown_b036+1 ;32a7  16 37 b0
@@ -9358,7 +9368,7 @@ lab_32a7:
 
     set1 mem_fe79.2         ;32b2  2a 79
     btclr mem_fe79.5,lab_32ba ;32b4  31 51 79 02
-    br lab_32dc             ;32b8  fa 22
+    br lab_32dc_br_pop_reti ;32b8  fa 22       Branch to pop registers and reti
 
 lab_32ba:
     clr1 mem_fe7a.1         ;32ba  1b 7a
@@ -9379,9 +9389,9 @@ lab_32ba:
     mov !mem_f070,a         ;32d5  9e 70 f0
 
     set1 mem_fe79.2         ;32d8  2a 79
-    br lab_32dc             ;32da  fa 00
+    br lab_32dc_br_pop_reti ;32da  fa 00        Branch to pop registers and reti
 
-lab_32dc:
+lab_32dc_br_pop_reti:
     br !lab_3153_pop_reti   ;32dc  9b 53 31     Branch to pop registers and reti
 
 intser0_32df:
