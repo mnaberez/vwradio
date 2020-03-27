@@ -9073,7 +9073,7 @@ lab_3118:
     bz lab_3145_br_31f6     ;311c  ad 27        Branch if equal (entire block has been received)
 
     ;Check if rx buffer index is within bounds of rx buffer
-    cmp a,#0xff             ;311e  4d ff        A = length of KWP1281 rx buffer
+    cmp a,#0xff             ;311e  4d ff        A = length of KWP1281 rx buffer (0xFF)
     bc lab_3127             ;3120  8d 05        Branch if KWP1281 rx buffer index < 0xFF
     bz lab_3127             ;3122  ad 03        Branch if KWP1281 rx buffer index = 0xFF
 
@@ -9179,7 +9179,7 @@ lab_3190:
     and a,#0x0f             ;319f  5d 0f
     bnz lab_31aa            ;31a1  bd 07
     set1 mem_fe7c.0         ;31a3  0a 7c
-    mov a,#0x06             ;31a5  a1 06
+    mov a,#0x06             ;31a5  a1 06        0x06 = Unknown; seems to be Read RAM / EEPROM related
     mov !mem_fbc9,a         ;31a7  9e c9 fb
 
 lab_31aa:
@@ -9214,7 +9214,7 @@ lab_31d2:
     cmp a,#0x02             ;31d9  4d 02
     bnc lab_31e4            ;31db  9d 07
     set1 mem_fe7c.0         ;31dd  0a 7c
-    mov a,#0x02             ;31df  a1 02
+    mov a,#0x02             ;31df  a1 02        0x02 = Sets UART baud and mode
     mov !mem_fbc9,a         ;31e1  9e c9 fb
 
 lab_31e4:
@@ -9226,7 +9226,7 @@ lab_31e9:
 
 lab_31ec:
     set1 mem_fe7c.0         ;31ec  0a 7c
-    mov a,#0x05             ;31ee  a1 05
+    mov a,#0x05             ;31ee  a1 05        0x05 = Clears some state bits only
     mov !mem_fbc9,a         ;31f0  9e c9 fb
     br !lab_3153_pop_reti   ;31f3  9b 53 31     Branch to pop registers and reti
 
@@ -9249,22 +9249,32 @@ lab_31f6:
     clr1 mem_fe7a.0         ;320a  0b 7a
     clr1 mem_fe7b.3         ;320c  3b 7b        Block end byte flag = block end is good
 
-    mov a,#0xff             ;320e  a1 ff
+    ;Check if the entire block we just received fit in the RX buffer
+    ;This is done because we can receive a block longer than the RX buffer and
+    ;the overflow will not be stored (see the comparison near lab_3118).  However,
+    ;because the RX buffer length is 0xFF, this overflow never actually occurs.
+    mov a,#0xff             ;320e  a1 ff        A = length of KWP1281 rx buffer (0xFF)
     cmp a,!mem_f06c         ;3210  48 6c f0     Compare to KWP1281 rx block length
-    bc lab_3223             ;3213  8d 0e
+    bc lab_3223             ;3213  8d 0e        Branch if RX block length > 0xFF
+                            ;                   XXX with A=0xFF, the carry will never be set for any
+                            ;                       value of mem_f06c.  this branch is never taken.
+
+    ;RX block length <= 0xFF
 
     mov a,#0x00             ;3215  a1 00
     mov !mem_f079,a         ;3217  9e 79 f0
     set1 mem_fe7c.0         ;321a  0a 7c
-    mov a,#0x04             ;321c  a1 04
+    mov a,#0x04             ;321c  a1 04        0x04 = Block received and it fit in RX buffer; dispatch it
     mov !mem_fbc9,a         ;321e  9e c9 fb
-    br lab_323c             ;3221  fa 19
+    br lab_323c_br_3153     ;3221  fa 19        Branch to pop registers and reti
 
 lab_3223:
+;Block received exceeded RX buffer length
+;This is never reached (see comments above)
     set1 mem_fe7c.0         ;3223  0a 7c
-    mov a,#0x07             ;3225  a1 07
+    mov a,#0x07             ;3225  a1 07        0x07 = Block received exceeded RX buffer length
     mov !mem_fbc9,a         ;3227  9e c9 fb
-    br lab_323c             ;322a  fa 10
+    br lab_323c_br_3153     ;322a  fa 10        Branch to pop registers and reti
 
 lab_322c:
 ;Block End byte received is bad
@@ -9274,9 +9284,9 @@ lab_322c:
     set1 mem_fe79.2         ;3233  2a 79
     mov a,#0x00             ;3235  a1 00
     mov !mem_f069,a         ;3237  9e 69 f0     KWP1281 rx buffer index
-    br lab_323c             ;323a  fa 00        XXX redundant; could just fall through
+    br lab_323c_br_3153     ;323a  fa 00        XXX redundant; could just fall through
 
-lab_323c:
+lab_323c_br_3153:
     br !lab_3153_pop_reti   ;323c  9b 53 31     Branch to pop registers and reti
 
 lab_323f:
@@ -9530,12 +9540,12 @@ lab_33be:
     cmp a,#0x02             ;33cd  4d 02
     bnc lab_33d8            ;33cf  9d 07
     set1 mem_fe7c.0         ;33d1  0a 7c
-    mov a,#0x02             ;33d3  a1 02
+    mov a,#0x02             ;33d3  a1 02        0x02 = Sets UART baud and mode
     mov !mem_fbc9,a         ;33d5  9e c9 fb
 
 lab_33d8:
     bc lab_33dd             ;33d8  8d 03
-    br !kwp_disconnect      ;33da  9b 68 34       Disconnect and clear all KWP1281 state
+    br !kwp_disconnect      ;33da  9b 68 34     Disconnect and clear all KWP1281 state
 
 lab_33dd:
     ret                     ;33dd  af
@@ -9619,8 +9629,6 @@ lab_3453_br_kwp_disconnect:
     br !kwp_disconnect      ;3453  9b 68 34     Disconnect and clear all KWP1281 state
 
 lab_3456:
-;TODO nak related
-;XXX TODO this seems to be dealing with an rx block length, not tx
     mov a,#0x0f             ;3456  a1 0f        A = 0x0F
     cmp a,!mem_f06b         ;3458  48 6b f0     Compare A with KWP1281 tx block length
     bc lab_3460             ;345b  8d 03        Branch if tx block length > 0x0F
@@ -9632,7 +9640,7 @@ lab_3456:
 lab_3460:
 ;KWP1281 tx block length > 0x0F
     set1 mem_fe7c.0         ;3460  0a 7c
-    mov a,#0x09             ;3462  a1 09
+    mov a,#0x09             ;3462  a1 09        0x09 = Send Read RAM / EEPROM response
     mov !mem_fbc9,a         ;3464  9e c9 fb
     ret                     ;3467  af
 
@@ -9660,7 +9668,7 @@ lab_3481:
     set1 mem_fe7d.0         ;3489  0a 7d
 
 lab_348b:
-    mov a,#0x00             ;348b  a1 00
+    mov a,#0x00             ;348b  a1 00        0x00 = Sets mem_fbc9=0, does nothing
     mov !mem_fbc9,a         ;348d  9e c9 fb
     bf mem_fe65.5,lab_34a2  ;3490  31 53 65 0e  Clear many KWP1281 state bits + 3 more
     set1 mem_fe7d.3         ;3494  3a 7d
@@ -9870,7 +9878,7 @@ lab_35d2:
 
 lab_35dc:
     set1 mem_fe7c.0         ;35dc  0a 7c
-    mov a,#0x03             ;35de  a1 03
+    mov a,#0x03             ;35de  a1 03        0x03 = Address received; dispatch it
     mov !mem_fbc9,a         ;35e0  9e c9 fb
     call !kwp_clear_state   ;35e3  9a a8 34     Clears KWP1281 many state bits
     set1 mem_fe7a.2         ;35e6  2a 7a
@@ -10028,7 +10036,7 @@ lab_36d0:
     mov a,b                 ;36d0  63
     mov !mem_f06d,a         ;36d1  9e 6d f0     KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
     set1 mem_fe7c.0         ;36d4  0a 7c
-    mov a,#0x01             ;36d6  a1 01
+    mov a,#0x01             ;36d6  a1 01        0x01 = Sets UART baud and mode
     mov !mem_fbc9,a         ;36d8  9e c9 fb
     call !kwp_clear_state   ;36db  9a a8 34     Clear many KWP1281 state bits
     set1 mem_fe7a.2         ;36de  2a 7a
@@ -14078,7 +14086,8 @@ sub_4dd8:
 
 lab_4df4:
 ;mem_fbc9=0x00
-    mov a,#0x00             ;4df4  a1 00
+;Sets mem_fbc9=0, does nothing
+    mov a,#0x00             ;4df4  a1 00        0x00 = Sets mem_fbc9=0, does nothing
     mov !mem_fbc9,a         ;4df6  9e c9 fb
 
 lab_4df9_ret:
@@ -14086,6 +14095,7 @@ lab_4df9_ret:
 
 lab_4dfa:
 ;mem_fbc9=0x04
+;Block received and it fit in RX buffer; dispatch it
     movw hl,#kwp_rx_buf     ;4dfa  16 8a f0     HL = pointer to KWP1281 rx buffer
     mov a,[hl+0x01]         ;4dfd  ae 01        A = block counter received
     mov !mem_fbcb,a         ;4dff  9e cb fb     Store block counter received
@@ -14869,6 +14879,7 @@ lab_5144:
 
 lab_5150:
 ;mem_fbc9=0x06
+;Unknown; seems to be Read RAM / EEPROM related
     mov a,!mem_fbca         ;5150  8e ca fb
     cmp a,#0x01             ;5153  4d 01
     bnz lab_515a            ;5155  bd 03
@@ -14886,6 +14897,7 @@ lab_5161:
 
 lab_5167:
 ;mem_fbc9=0x09
+;Send Read RAM / EEPROM response
     mov a,!mem_fbcb         ;5167  8e cb fb     A = block counter
     sub a,#0x01             ;516a  1d 01        Decement it
     mov !mem_fbcb,a         ;516c  9e cb fb     Store decremented block counter
@@ -14914,6 +14926,10 @@ lab_5180:
 
 lab_5186:
 ;mem_fbc9=0x07
+;Block received but it exceeded RX buffer length
+;
+;XXX This state is never reached.  See the comments at lab_3223 and above it.
+;
     mov a,!mem_fbcb         ;5186  8e cb fb     A = block counter
     add a,#0x01             ;5189  0d 01        Increment it
     mov !mem_fbcb,a         ;518b  9e cb fb     Store incremented block counter
@@ -14945,12 +14961,15 @@ lab_51a1_title_found:
     br !lab_5344_nak_resend ;51b2  9b 44 53     Send NAK response asking for the last block to be sent again
 
 lab_51b5:
-    ;Block length expected is variable or length matches expected
-    ;TODO - doesn't make sense, length is valid but sends NAK?
+    ;Block length expected is variable or length matches expected.
+    ;
+    ;The block's title and length passed the checks above but the
+    ;block exceeded the length of the RX buffer.  We can't process it.
     br !lab_5355_nak_fail   ;51b5  9b 55 53     Send NAK response for general failure
 
 lab_51b8:
 ;mem_fbc9=0x08
+;Bad block end byte received
     mov a,!mem_fbcb         ;51b8  8e cb fb   A = block counter
     add a,#0x01             ;51bb  0d 01      Increment it
     mov !mem_fbcb,a         ;51bd  9e cb fb   Store incremented block counter
@@ -14964,6 +14983,7 @@ kwp_logout_disconnect:
 
 lab_51ca:
 ;mem_fbc9=0x01
+;Sets UART baud and mode
     movw hl,#kwp_brgc0_b02c+1 ;51ca  16 2d b0
     mov a,!mem_f06d         ;51cd  8e 6d f0     A = KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
     mov b,a                 ;51d0  73
@@ -14981,6 +15001,7 @@ lab_51ca:
 
 lab_51e2:
 ;mem_fbc9=0x02
+;Sets UART baud and mode
     movw hl,#kwp_brgc0_b02c+1 ;51e2  16 2d b0
     mov a,!mem_f06d         ;51e5  8e 6d f0     KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
     mov b,a                 ;51e8  73
@@ -14998,6 +15019,7 @@ lab_51e2:
 
 lab_51fa:
 ;mem_fbc9=0x03
+;Address received; dispatch it
     mov a,!mem_f073         ;51fa  8e 73 f0       A = KWP1281 address received
     movw hl,#kwp_addresses+1 ;51fd  16 23 b0      HL = pointer to table of KWP1281 addresses
     mov b,#0x03             ;5200  a3 03          B = number of valid addresses in table
@@ -15039,6 +15061,7 @@ lab_5230:
 
 lab_5231:
 ;mem_fbc9=0x05
+;Clears some state bits only
     btclr mem_fe79.3,lab_523e ;5231  31 31 79 09
     btclr mem_fe79.4,lab_5248 ;5235  31 41 79 0f
     btclr mem_fe79.5,lab_5252 ;5239  31 51 79 15
@@ -15362,6 +15385,18 @@ lab_5344_nak_resend:
 ;
 ;To ask the sender to resend the last block, the "Block counter to resend"
 ;will be set to the block counter of the last block received.
+;
+;This type of NAK is returned under only two conditions:
+;
+;  1. A bad block end byte was received (probably due to line noise).  The block
+;     end byte is special because it is the only one where we do not send back
+;     a complement.  Instead, we ask the block to be sent again if it is bad.
+;
+;  2. The block title is a known one, but the block length is not one that is
+;     expected for that title.  It's not clear why we ask the block to be sent again
+;     for this case because it should not help.  When the tester sent the block
+;     length, we sent back the complement, so the sender should have detected if
+;     the length was corrupted on the line and dealt with it at that moment.
 ;
 ;Response block:
 ;  0x04 Block length              kwp_tx_buf+0
@@ -31257,12 +31292,12 @@ mem_b247:
     .word lab_4df4          ;b248              VECTOR           B=0x00  Sets mem_fbc9=0, does nothing
     .word lab_51ca          ;b24a              VECTOR           B=0x01  Sets UART baud and mode
     .word lab_51e2          ;b24c              VECTOR           B=0x02  Sets UART baud and mode
-    .word lab_51fa          ;b24e              VECTOR           B=0x03  KWP1281 address lookup
-    .word lab_4dfa          ;b250              VECTOR           B=0x04  KWP1281 block title lookup
+    .word lab_51fa          ;b24e              VECTOR           B=0x03  Address received; dispatch it
+    .word lab_4dfa          ;b250              VECTOR           B=0x04  Block received and it fit in RX buffer; dispatch it
     .word lab_5231          ;b252              VECTOR           B=0x05  Clears some state bits only
     .word lab_5150          ;b254              VECTOR           B=0x06  Unknown; seems to be Read RAM / EEPROM related
-    .word lab_5186          ;b256              VECTOR           B=0x07  KWP1281 block title lookup
-    .word lab_51b8          ;b258              VECTOR           B=0x08  Branches to lab_5344_nak_resend
+    .word lab_5186          ;b256              VECTOR           B=0x07  Block received but it exceeded RX buffer length
+    .word lab_51b8          ;b258              VECTOR           B=0x08  Bad block end byte received
     .word lab_5167          ;b25a              VECTOR           B=0x09  Send Read RAM / EEPROM response
 
 kwp_titles:
