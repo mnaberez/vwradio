@@ -47,7 +47,7 @@ mem_f066 = 0xf066
 mem_f067 = 0xf067
 mem_f068 = 0xf068
 mem_f069 = 0xf069           ;KWP1281 rx buffer index
-mem_f06a = 0xf06a           
+mem_f06a = 0xf06a
 mem_f06b = 0xf06b           ;KWP1281 tx block length
 mem_f06c = 0xf06c           ;KWP1281 rx block length
 mem_f06d = 0xf06d           ;KWP1281 mode: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
@@ -1151,10 +1151,10 @@ lab_01df:
 
 lab_01f9:
     mov a,!mem_f1e9         ;01f9  8e e9 f1
-    bf a.2,lab_0202         ;01fc  31 2f 03
+    bf a.2,lab_2020_br_025a ;01fc  31 2f 03
     call !sub_8178          ;01ff  9a 78 81
 
-lab_0202:
+lab_2020_br_025a:
     br lab_025a             ;0202  fa 56
 
 lab_0204:
@@ -1198,14 +1198,14 @@ lab_0204:
 
 lab_025a:
     di                      ;025a  7b 1e
-    dbnz mem_fe28,lab_0266  ;025c  04 28 07
+    dbnz mem_fe28,lab_0266_br_0160  ;025c  04 28 07
     mov mem_fe28,#0x80      ;025f  11 28 80
     set1 mk1h.0             ;0262  71 0a e7     Set WTNMK0 (disables INTWTN0)
 
 lab_0265_reti:
     reti                    ;0265  8f
 
-lab_0266:
+lab_0266_br_0160:
     br !lab_0160            ;0266  9b 60 01
 
 sub_0269:
@@ -2994,7 +2994,7 @@ lab_0e39:
     clr1 mem_fe7b.0         ;0ed1  0b 7b
     clr1 mem_fe7b.1         ;0ed3  1b 7b
     clr1 mem_fe7b.2         ;0ed5  2b 7b
-    clr1 mem_fe7b.3         ;0ed7  3b 7b
+    clr1 mem_fe7b.3         ;0ed7  3b 7b        Block end byte flag = block end is good
     clr1 mem_fe7b.4         ;0ed9  4b 7b
     clr1 mem_fe7b.5         ;0edb  5b 7b
     clr1 mem_fe7b.6         ;0edd  6b 7b
@@ -9236,6 +9236,8 @@ lab_31f6:
     cmp a,#0x03             ;31f7  4d 03        Is it the Block End byte (0x03)?
     bnz lab_322c            ;31f9  bd 31          No: Branch to handle bad block end byte
 
+    ;Block End byte is good
+
     movw hl,#kwp_unknown_b03b+1 ;31fb  16 3c b0
     mov a,!mem_f06d         ;31fe  8e 6d f0
     mov b,a                 ;3201  73
@@ -9245,7 +9247,7 @@ lab_31f6:
     set1 mem_fe79.2         ;3206  2a 79
     clr1 mem_fe79.2         ;3208  2b 79
     clr1 mem_fe7a.0         ;320a  0b 7a
-    clr1 mem_fe7b.3         ;320c  3b 7b
+    clr1 mem_fe7b.3         ;320c  3b 7b        Block end byte flag = block end is good
 
     mov a,#0xff             ;320e  a1 ff
     cmp a,!mem_f06c         ;3210  48 6c f0     Compare to KWP1281 rx block length
@@ -9265,10 +9267,10 @@ lab_3223:
     br lab_323c             ;322a  fa 10
 
 lab_322c:
-;Block End byte received is not correct
+;Block End byte received is bad
     mov a,#0x1e             ;322c  a1 1e
     mov !mem_f06f,a         ;322e  9e 6f f0
-    set1 mem_fe7b.3         ;3231  3a 7b
+    set1 mem_fe7b.3         ;3231  3a 7b        Block end byte flag = block end is bad
     set1 mem_fe79.2         ;3233  2a 79
     mov a,#0x00             ;3235  a1 00
     mov !mem_f069,a         ;3237  9e 69 f0     KWP1281 rx buffer index
@@ -9539,7 +9541,9 @@ lab_33dd:
     ret                     ;33dd  af
 
 lab_33de:
-    btclr mem_fe7b.3,lab_33f5 ;33de  31 31 7b 13
+    btclr mem_fe7b.3,lab_33f5 ;33de  31 31 7b 13  If Block end byte flag = block end is bad,
+                              ;                     clear the flag to "block end is good" and branch
+
     mov a,#0x00             ;33e2  a1 00
     mov !mem_f069,a         ;33e4  9e 69 f0       KWP1281 rx buffer index
 
@@ -9553,10 +9557,11 @@ lab_33de:
     ret                     ;33f4  af
 
 lab_33f5:
+;Block end byte is bad
     clr1 mem_fe79.2         ;33f5  2b 79
     clr1 mem_fe7a.0         ;33f7  0b 7a
     set1 mem_fe7c.0         ;33f9  0a 7c
-    mov a,#0x08             ;33fb  a1 08
+    mov a,#0x08             ;33fb  a1 08        0x08 = State that will cause a NAK resend (lab_5344_nak_resend)
     mov !mem_fbc9,a         ;33fd  9e c9 fb
     ret                     ;3400  af
 
@@ -9687,7 +9692,7 @@ kwp_clear_state:
     clr1 mem_fe79.7         ;34be  7b 79
     clr1 mem_fe7b.1         ;34c0  1b 7b
     clr1 mem_fe7b.2         ;34c2  2b 7b
-    clr1 mem_fe7b.3         ;34c4  3b 7b
+    clr1 mem_fe7b.3         ;34c4  3b 7b        Block end byte flag = block end is good
     clr1 mem_fe7b.4         ;34c6  4b 7b
     clr1 mem_fe7b.5         ;34c8  5b 7b
     clr1 mem_fe7b.6         ;34ca  6b 7b
@@ -14107,7 +14112,7 @@ lab_4e12:
     cmp a,x                 ;4e1f  61 48        Compare expected block length (A) with received (X)
     bz lab_4e26             ;4e21  ad 03        Branch if they are equal
     ;Block length does not match expected
-    br !lab_5344_nak_req_cnt  ;4e23  9b 44 53   Send NAK with Block counter to resend = request's counter
+    br !lab_5344_nak_resend ;4e23  9b 44 53     Send NAK response asking for the last block to be sent again
 
 lab_4e26:
 ;block length in table = 0xff or block length matched table entry
@@ -14923,7 +14928,7 @@ lab_5198_loop:
     dbnz b,lab_5198_loop    ;519c  8b fa        Loop until end of table
 
     ;Block title not found in table
-    br !lab_5355_nak_fail   ;519e  9b 55 53  Branch to Send NAK response for general failure
+    br !lab_5355_nak_fail   ;519e  9b 55 53     Branch to Send NAK response for general failure
 
 lab_51a1_title_found:
     movw hl,#kwp_rx_buf     ;51a1  16 8a f0     HL = pointer to KWP1281 rx buffer
@@ -14937,7 +14942,7 @@ lab_51a1_title_found:
     cmp a,x                 ;51ae  61 48        Compare expected block length (A) with received (X)
     bz lab_51b5             ;51b0  ad 03        Branch if they are equal
     ;Block length does not match expected
-    br !lab_5344_nak_req_cnt  ;51b2  9b 44 53   Send NAK with Block counter to resend = request's counter
+    br !lab_5344_nak_resend ;51b2  9b 44 53     Send NAK response asking for the last block to be sent again
 
 lab_51b5:
     ;Block length expected is variable or length matches expected
@@ -14946,10 +14951,10 @@ lab_51b5:
 
 lab_51b8:
 ;mem_fbc9=0x08
-    mov a,!mem_fbcb           ;51b8  8e cb fb     A = block counter
-    add a,#0x01               ;51bb  0d 01        Increment it
-    mov !mem_fbcb,a           ;51bd  9e cb fb     Store incremented block counter
-    br !lab_5344_nak_req_cnt  ;51c0  9b 44 53     Send NAK with Block counter to resend = request's counter
+    mov a,!mem_fbcb         ;51b8  8e cb fb   A = block counter
+    add a,#0x01             ;51bb  0d 01      Increment it
+    mov !mem_fbcb,a         ;51bd  9e cb fb   Store incremented block counter
+    br !lab_5344_nak_resend ;51c0  9b 44 53   Send NAK response asking for the last block to be sent again
 
 kwp_logout_disconnect:
 ;Clear KWP1281 auth bits and disconnect
@@ -15352,8 +15357,11 @@ lab_5337_disconnect:
     mov [hl+b],a            ;5340  bb           Store in KWP1281 tx buffer byte 3
     br !send_kwp_tx_buf     ;5341  9b f7 34     Set flags to start sending the KWP1281 tx buffer
 
-lab_5344_nak_req_cnt:
-;Send NAK response with Block counter to resend = request's counter
+lab_5344_nak_resend:
+;Send NAK response asking for the last block to be sent again
+;
+;To ask the sender to resend the last block, the "Block counter to resend"
+;will be set to the block counter of the last block received.
 ;
 ;Response block:
 ;  0x04 Block length              kwp_tx_buf+0
@@ -15366,8 +15374,8 @@ lab_5344_nak_req_cnt:
     call !init_kwp_tx_buf   ;5346  9a 92 52     Set block title, counter, length in KWP1281 tx buf
 
     ;Block counter to resend = Block counter of the request block
-    mov a,!mem_fbcb         ;5349  8e cb fb
-    dec a                   ;534c  51           A = block counter - 1
+    mov a,!mem_fbcb         ;5349  8e cb fb     A = block counter
+    dec a                   ;534c  51           Subtract 1 to get counter of last block received
     mov [hl+b],a            ;534d  bb           Store in KWP1281 tx buffer byte 3 (Block counter to resend)
 
     inc b                   ;534e  43
@@ -15379,8 +15387,9 @@ lab_5344_nak_req_cnt:
 lab_5355_nak_fail:
 ;Send NAK response for general failure
 ;
-;To indicate a general failure, the "Block counter to reset" will be
-;set to the response's own block counter.
+;To indicate a general failure, the "Block counter to resend" will be
+;set to the response's own block counter.  This is the type of NAK
+;that will be send in the vast majority of cases.
 ;
 ;Response block:
 ;  0x04 Block length              kwp_tx_buf+0
@@ -31206,8 +31215,8 @@ mem_b1fa:
     .word lab_4dd2              ;0x00
     .word lab_532a_ack          ;0x01 Send ACK
     .word lab_5337_disconnect   ;0x02 Send Disconnect request to instrument cluster
-    .word lab_5344_nak_req_cnt  ;0x03 Send NAK response with Block counter to resend = request's counter
-    .word lab_5355_nak_fail     ;0x04 Send NAK response with Block counter to resend = response's counter
+    .word lab_5344_nak_resend   ;0x03 Send NAK response asking for the last block to be sent again
+    .word lab_5355_nak_fail     ;0x04 Send NAK response for general failure
     .word lab_5365              ;0x05 index 0x08 read identification
     .word lab_52ea_id_part_num  ;0x06 Send id block 1/4 with "1J0035180B" (Block length=0x0F)
     .word lab_52e0_id_radio     ;0x07 Send id block 2/4 with "Radio DE2"  (Block length=0x0F)
@@ -31253,7 +31262,7 @@ mem_b247:
     .word lab_5231          ;b252              VECTOR           B=0x05  Clears some state bits only
     .word lab_5150          ;b254              VECTOR           B=0x06  Unknown; seems to be Read RAM / EEPROM related
     .word lab_5186          ;b256              VECTOR           B=0x07  KWP1281 block title lookup
-    .word lab_51b8          ;b258              VECTOR           B=0x08  Branches to lab_5344_nak_req_cnt
+    .word lab_51b8          ;b258              VECTOR           B=0x08  Branches to lab_5344_nak_resend
     .word lab_5167          ;b25a              VECTOR           B=0x09  Send Read RAM / EEPROM response
 
 kwp_titles:
@@ -31341,7 +31350,7 @@ kwp_7c_titles:
 ;block titles accepted on address 0x7c
 ;used if mem_f06d = 0x01
     .byte 0x09              ;b2a4  09          DATA 0x09        9 entries below:
-    .byte 0xff              ;b2a5  ff          DATA 0xff        B=0 <bad title: send nak>
+    .byte 0xff              ;b2a5  ff          DATA 0xff        B=0 <bad title>
     .byte 0x09              ;b2a6  09          DATA 0x09        B=1 ack
     .byte 0x06              ;b2a7  06          DATA 0x06        B=2 disconnect
     .byte 0x0a              ;b2a8  0a          DATA 0x0a        B=3 nak
@@ -31355,7 +31364,9 @@ kwp_7c_handlers:
 ;handlers for block titles on address 0x56
 ;same order as kwp_7c_titles
     .byte 0x09                    ;b2ae  09          DATA 0x09        9 entries below:
-    .word lab_5344_nak_req_cnt    ;b2af  44 53       VECTOR           B=0 <bad title: send nak>
+    ;XXX misleading: the B=0 handler is not actually used by the code.  even more confusing, the
+    ;XXX   code calls lab_5355_nak_fail for a bad title (not lab_5344_nak_resend as here).
+    .word lab_5344_nak_resend     ;b2af  44 53       VECTOR           B=0 <bad title> XXX
     .word kwp_7c_09_ack           ;b2b1  ad 4e       VECTOR           B=1 ack
     .word kwp_7c_06_disconnect    ;b2b3  b3 4e       VECTOR           B=2 disconnect
     .word kwp_7c_0a_nak           ;b2b5  c1 4e       VECTOR           B=3 nak
@@ -31369,7 +31380,7 @@ kwp_56_titles:
 ;block titles accepted on address 0x56
 ;used if mem_f06d = 0x02
     .byte 0x0f              ;b2c1  0f          DATA 0x0f        15 entries below:
-    .byte 0xff              ;b2c2  ff          DATA 0xff        B= 0 <bad title: send nak>
+    .byte 0xff              ;b2c2  ff          DATA 0xff        B= 0 <bad title>
     .byte 0x09              ;b2c3  09          DATA 0x09        B= 1 ack
     .byte 0x06              ;b2c4  06          DATA 0x06        B= 2 disconnect
     .byte 0x0a              ;b2c5  0a          DATA 0x0a        B= 3 nak
@@ -31389,7 +31400,9 @@ kwp_56_handlers:
 ;handlers for block titles on address 0x56
 ;same order as kwp_56_titles
     .byte 0x0f                    ;b2d1  0f          DATA 0x0f        15 entries below:
-    .word lab_5344_nak_req_cnt    ;b2d2  44 53       VECTOR           B= 0 <bad title: send nak>
+    ;XXX misleading: the B=0 handler is not actually used by the code.  even more confusing, the
+    ;XXX   code calls lab_5355_nak_fail for a bad title (not lab_5344_nak_resend as here).
+    .word lab_5344_nak_resend     ;b2d2  44 53       VECTOR           B= 0 <bad title> XXX
     .word kwp_56_09_ack           ;b2d4  d7 4f       VECTOR           B= 1 ack
     .word kwp_56_06_disconnect    ;b2d6  1e 50       VECTOR           B= 2 disconnect
     .word kwp_56_0a_nak           ;b2d8  2e 50       VECTOR           B= 3 nak
@@ -31409,7 +31422,7 @@ kwp_3f_titles:
 ;block titles accepted on address 0x3f
 ;used if mem_f06d = 0x03
     .byte 0x05              ;b2f0  05          DATA 0x05        5 entries below:
-    .byte 0xff              ;b2f1  ff          DATA 0xff        B=0 <bad title: send nak>
+    .byte 0xff              ;b2f1  ff          DATA 0xff        B=0 <bad title>
     .byte 0x09              ;b2f2  09          DATA 0x09        B=1 ack
     .byte 0x06              ;b2f3  06          DATA 0x06        B=2 disconnect
     .byte 0x0a              ;b2f4  0a          DATA 0x0a        B=3 nak
@@ -31419,7 +31432,9 @@ kwp_3f_handlers:
 ;handlers for block titles on address 0x3f
 ;same order as kwp_3f_titles
     .byte 0x05                      ;b2f6  05          DATA 0x05        5 entries below:
-    .word lab_5344_nak_req_cnt      ;b2f7  44 53       VECTOR           B=0 <bad title: send nak>
+    ;XXX misleading: the B=0 handler is not actually used by the code.  even more confusing, the
+    ;XXX   code calls lab_5355_nak_fail for a bad title (not lab_5344_nak_resend as here).
+    .word lab_5344_nak_resend       ;b2f7  44 53       VECTOR           B=0 <bad title> XXX
     .word kwp_3f_09_ack             ;b2f9  f4 50       VECTOR           B=1 ack
     .word kwp_3f_06_disconnect      ;b2fb  06 51       VECTOR           B=2 disconnect
     .word kwp_3f_0a_nak             ;b2fd  1c 51       VECTOR           B=3 nak
@@ -31460,7 +31475,9 @@ kwp_7c_1b_handlers:
 ;handlers for subtitles of block title 0x1b on address 0x7c
 ;same order as kwp_7c_1b_subtitles
     .byte 0x0b                  ;b319  0b          DATA 0x0b        11 entries below:
-    .word lab_5344_nak_req_cnt  ;b31a  44 53       VECTOR           B=0x00  <bad title: send nak>
+    ;XXX misleading: the B=0 handler is not actually used by the code.  even more confusing, the
+    ;XXX   code calls lab_5355_nak_fail for a bad subtitle (not lab_5344_nak_resend as here).
+    .word lab_5344_nak_resend   ;b31a  44 53       VECTOR           B=0x00  <bad title> XXX
     .word kwp_7c_1b_26          ;b31c  9e 4f       VECTOR           B=0x01  Title=0x1b  Subtitle=0x26
     .word kwp_7c_1b_27          ;b31e  a4 4f       VECTOR           B=0x02  Title=0x1b  Subtitle=0x27
     .word kwp_7c_1b_28          ;b320  aa 4f       VECTOR           B=0x03  Title=0x1b  Subtitle=0x28
