@@ -45,18 +45,18 @@ mem_f051 = 0xf051
 fis_tx_buf = 0xf052         ;FIS display 3LB packet buffer (20 bytes)
 mem_f066 = 0xf066
 mem_f067 = 0xf067
-mem_f068 = 0xf068           ;KWP1281 tx buffer index
-mem_f069 = 0xf069           ;KWP1281 rx buffer index
-mem_f06a = 0xf06a           ;KWP1281 last byte sent or received; used for error detection
-mem_f06b = 0xf06b           ;KWP1281 tx block length
-mem_f06c = 0xf06c           ;KWP1281 rx block length
-mem_f06d = 0xf06d           ;KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
+kwp_tx_idx = 0xf068         ;KWP1281 tx buffer index
+kwp_rx_idx = 0xf069         ;KWP1281 rx buffer index
+kwp_last_byte = 0xf06a      ;KWP1281 last byte sent or received; used for error detection
+kwp_tx_len = 0xf06b         ;KWP1281 tx block length
+kwp_rx_len = 0xf06c         ;KWP1281 rx block length
+kwp_addr_idx = 0xf06d       ;KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
 mem_f06e = 0xf06e
 mem_f06f = 0xf06f
 mem_f070 = 0xf070
 mem_f071 = 0xf071
 mem_f072 = 0xf072
-mem_f073 = 0xf073           ;KWP1281 address
+mem_f073 = 0xf073           ;KWP1281 address received
 mem_f074 = 0xf074           ;Copy of KWP1281 address rotated during bit-banging 5 baud init
 mem_f075 = 0xf075
 mem_f076 = 0xf076
@@ -2956,12 +2956,12 @@ lab_0e39:
     ;XXX Note that this is redundant because these addresses are all
     ;    in expansion RAM which was already cleared above at lab_0e39.
     mov a,#0x00             ;0e7c  a1 00
-    mov !mem_f068,a         ;0e7e  9e 68 f0     KWP1281 tx buffer index
-    mov !mem_f069,a         ;0e81  9e 69 f0     KWP1281 rx buffer index
-    mov !mem_f06a,a         ;0e84  9e 6a f0     KWP1281 last byte sent or received; used for error detection
-    mov !mem_f06b,a         ;0e87  9e 6b f0     KWP1281 tx block length
-    mov !mem_f06c,a         ;0e8a  9e 6c f0     KWP1281 rx block length
-    mov !mem_f06d,a         ;0e8d  9e 6d f0     KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
+    mov !kwp_tx_idx,a       ;0e7e  9e 68 f0     KWP1281 tx buffer index
+    mov !kwp_rx_idx,a       ;0e81  9e 69 f0     KWP1281 rx buffer index
+    mov !kwp_last_byte,a    ;0e84  9e 6a f0     KWP1281 last byte sent or received; used for error detection
+    mov !kwp_tx_len,a       ;0e87  9e 6b f0     KWP1281 tx block length
+    mov !kwp_rx_len,a       ;0e8a  9e 6c f0     KWP1281 rx block length
+    mov !kwp_addr_idx,a     ;0e8d  9e 6d f0     KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
     mov !mem_f06e,a         ;0e90  9e 6e f0
     mov !mem_f06f,a         ;0e93  9e 6f f0
     mov !mem_f070,a         ;0e96  9e 70 f0
@@ -9001,16 +9001,16 @@ sub_308f:
     bt mem_fe79.4,lab_30cf_send_0x01  ;30b2  cc 79 1a       Branch to send KWP1281 first keyword byte (0x01)
     bt mem_fe79.5,lab_30d3_send_0x8a  ;30b5  dc 79 1b       Branch to send KWP1281 second keyword byte (0x8A)
 
-    mov a,!mem_f068         ;30b8  8e 68 f0       A = KWP1281 tx buffer index
+    mov a,!kwp_tx_idx       ;30b8  8e 68 f0       A = KWP1281 tx buffer index
     and a,#0x0f             ;30bb  5d 0f
     mov b,a                 ;30bd  73
 
-    mov a,!mem_f068         ;30be  8e 68 f0       A = KWP1281 tx buffer index
+    mov a,!kwp_tx_idx       ;30be  8e 68 f0       A = KWP1281 tx buffer index
     inc a                   ;30c1  41             Increment it
-    mov !mem_f068,a         ;30c2  9e 68 f0       Store as new KWP1281 tx buffer index
+    mov !kwp_tx_idx,a       ;30c2  9e 68 f0       Store as new KWP1281 tx buffer index
 
     movw hl,#kwp_tx_buf     ;30c5  16 7a f0       HL = pointer to KWP1281 tx buffer
-    mov a,[hl+b]            ;30c8  ab             A = read byte from KWP tx buffer
+    mov a,[hl+b]            ;30c8  ab             A = read byte from KWP1281 tx buffer
     br lab_30de_send_a      ;30c9  fa 13          Branch to send KWP1281 byte in A out UART0
 
 lab_30cb_send_0x55:
@@ -9027,14 +9027,14 @@ lab_30d3_send_0x8a:
 
 lab_30d7_send_comp:
 ;Send complement of last byte received out UART0
-    mov a,!mem_f06a         ;30d7  8e 6a f0       A = KWP1281 last byte sent or received; used for error detection
+    mov a,!kwp_last_byte    ;30d7  8e 6a f0       A = KWP1281 last byte sent or received; used for error detection
     xor a,#0xff             ;30da  7d ff          Complement it
     br lab_30de_send_a      ;30dc  fa 00          XXX useless branch (could just fall through)
 
 lab_30de_send_a:
 ;Send byte in A out UART0
     set1 mem_fe79.0         ;30de  0a 79
-    mov !mem_f06a,a         ;30e0  9e 6a f0       Store as KWP1281 last byte sent or received; used for error detection
+    mov !kwp_last_byte,a    ;30e0  9e 6a f0       Store as KWP1281 last byte sent or received; used for error detection
     mov rxb0_txs0,a         ;30e3  f2 18          Send the byte out UART0
     br lab_30e7_ret         ;30e5  fa 00          XXX useless branch (could just fall through)
 
@@ -9058,18 +9058,18 @@ intsr0_30e8:
     clr1 mem_fe79.2         ;3109  2b 79
     mov x,a                 ;310b  70           X = Remember KWP1281 byte received from UART
 
-    mov a,!mem_f069         ;310c  8e 69 f0     A = KWP1281 rx buffer index
+    mov a,!kwp_rx_idx       ;310c  8e 69 f0     A = KWP1281 rx buffer index
     mov c,a                 ;310f  72           Copy rx buffer index to C
     cmp a,#0x00             ;3110  4d 00        Are we receiving the first byte (block length)?
     bnz lab_3118            ;3112  bd 04          No: skip storing block length
 
     ;Received first byte (block length)
     mov a,x                 ;3114  60           A = Recall KWP1281 byte received from UART
-    mov !mem_f06c,a         ;3115  9e 6c f0     Save as KWP1281 rx block length
+    mov !kwp_rx_len,a       ;3115  9e 6c f0     Save as KWP1281 rx block length
 
 lab_3118:
     mov a,c                 ;3118  62           A = KWP1281 rx buffer index
-    cmp a,!mem_f06c         ;3119  48 6c f0     Compare to KWP1281 rx block length
+    cmp a,!kwp_rx_len       ;3119  48 6c f0     Compare to KWP1281 rx block length
     bz lab_3145_br_31f6     ;311c  ad 27        Branch if equal (entire block has been received)
 
     ;Check if rx buffer index is within bounds of rx buffer
@@ -9088,11 +9088,11 @@ lab_3127:
     mov [hl+c],a            ;312b  ba           Store byte receved in KWP1281 rx buffer
 
 lab_312c:
-    mov !mem_f06a,a         ;312c  9e 6a f0     Store as KWP1281 last byte sent or received; used for error detection
+    mov !kwp_last_byte,a    ;312c  9e 6a f0     Store as KWP1281 last byte sent or received; used for error detection
 
     inc c                   ;312f  42           Increment KWP1281 rx buffer index in C
     mov a,c                 ;3130  62           Move it to A
-    mov !mem_f069,a         ;3131  9e 69 f0     Store as KWP1281 rx buffer index
+    mov !kwp_rx_idx,a       ;3131  9e 69 f0     Store as KWP1281 rx buffer index
 
     mov a,#0x02             ;3134  a1 02
     mov !mem_f06e,a         ;3136  9e 6e f0
@@ -9159,7 +9159,7 @@ lab_3176_kw_8a:
     bnz lab_318a_unexpected ;3178  bd 10
 
     ;Second keyword byte (0x8a) is OK
-    mov !mem_f06a,a         ;317a  9e 6a f0     Store as KWP1281 last byte sent or received; used for error detection
+    mov !kwp_last_byte,a    ;317a  9e 6a f0     Store as KWP1281 last byte sent or received; used for error detection
 
     mov a,#0x0e             ;317d  a1 0e
     mov !mem_f06e,a         ;317f  9e 6e f0
@@ -9178,13 +9178,13 @@ lab_3190_comp:
 ;Check complement received for last byte sent
     clr1 mem_fe79.2         ;3190  2b 79
     xor a,#0xff             ;3192  7d ff        Complement byte just received to make original byte again
-    cmp a,!mem_f06a         ;3194  48 6a f0     Is it the same as the byte we sent?
+    cmp a,!kwp_last_byte    ;3194  48 6a f0     Is it the same as the byte we sent?
     bnz lab_31bf_bad_comp   ;3197  bd 26          No: Branch to handle bad complement
 
     ;Complement byte received is good
     bt mem_fe79.5,lab_31ec  ;3199  dc 79 50
 
-    mov a,!mem_f068         ;319c  8e 68 f0     A = KWP1281 tx buffer index
+    mov a,!kwp_tx_idx       ;319c  8e 68 f0     A = KWP1281 tx buffer index
     and a,#0x0f             ;319f  5d 0f
     bnz lab_31aa            ;31a1  bd 07
 
@@ -9212,7 +9212,7 @@ lab_31bf_bad_comp:
     btclr mem_fe79.5,lab_31d2 ;31bf  31 51 79 0f
 
     movw hl,#kwp_unknown_b036+1 ;31c3  16 37 b0
-    mov a,!mem_f06d         ;31c6  8e 6d f0     A = KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
+    mov a,!kwp_addr_idx     ;31c6  8e 6d f0     A = KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
     mov b,a                 ;31c9  73
     mov a,[hl+b]            ;31ca  ab
     mov !mem_f06f,a         ;31cb  9e 6f f0
@@ -9252,7 +9252,7 @@ lab_31f6:
     ;Block End byte is good
 
     movw hl,#kwp_unknown_b03b+1 ;31fb  16 3c b0
-    mov a,!mem_f06d         ;31fe  8e 6d f0     A = KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
+    mov a,!kwp_addr_idx     ;31fe  8e 6d f0     A = KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
     mov b,a                 ;3201  73
     mov a,[hl+b]            ;3202  ab
     mov !mem_f070,a         ;3203  9e 70 f0
@@ -9267,10 +9267,10 @@ lab_31f6:
     ;the overflow will not be stored (see the comparison near lab_3118).  However,
     ;because the RX buffer length is 0xFF, this overflow never actually occurs.
     mov a,#0xff             ;320e  a1 ff        A = length of KWP1281 rx buffer (0xFF)
-    cmp a,!mem_f06c         ;3210  48 6c f0     Compare to KWP1281 rx block length
+    cmp a,!kwp_rx_len       ;3210  48 6c f0     Compare to KWP1281 rx block length
     bc lab_3223             ;3213  8d 0e        Branch if RX block length > 0xFF
                             ;                   XXX with A=0xFF, the carry will never be set for any
-                            ;                       value of mem_f06c.  this branch is never taken.
+                            ;                       value of kwp_rx_len.  this branch is never taken.
 
     ;RX block length <= 0xFF
 
@@ -9296,18 +9296,18 @@ lab_322c:
     set1 mem_fe7b.3         ;3231  3a 7b        Block end byte flag = block end is bad
     set1 mem_fe79.2         ;3233  2a 79
     mov a,#0x00             ;3235  a1 00
-    mov !mem_f069,a         ;3237  9e 69 f0     KWP1281 rx buffer index
+    mov !kwp_rx_idx,a       ;3237  9e 69 f0     KWP1281 rx buffer index
     br lab_323c_br_pop_reti ;323a  fa 00        XXX redundant; could just fall through
 
 lab_323c_br_pop_reti:
     br !lab_3153_pop_reti   ;323c  9b 53 31     Branch to pop registers and reti
 
 lab_323f:
-    mov a,!mem_f06a         ;323f  8e 6a f0     A = KWP1281 last byte sent or received; used for error detection
+    mov a,!kwp_last_byte    ;323f  8e 6a f0     A = KWP1281 last byte sent or received; used for error detection
 
 lab_3242_echo:
 ;Check echo received for last byte sent
-    cmp a,!mem_f06a         ;3242  48 6a f0     A = last byte sent out UART0
+    cmp a,!kwp_last_byte    ;3242  48 6a f0     A = last byte sent out UART0
     bnz lab_328d_bad_echo   ;3245  bd 46        Branch if echo is bad
 
     ;Echo of last byte sent is good
@@ -9316,12 +9316,12 @@ lab_3242_echo:
     bt mem_fe79.4,lab_31ec  ;324e  cc 79 9b
     bt mem_fe79.5,lab_3296  ;3251  dc 79 42
 
-    mov a,!mem_f068         ;3254  8e 68 f0     A = KWP1281 tx buffer index
+    mov a,!kwp_tx_idx       ;3254  8e 68 f0     A = KWP1281 tx buffer index
     cmp a,#0x00             ;3257  4d 00
     bz lab_3263             ;3259  ad 08
 
-    mov a,!mem_f06b         ;325b  8e 6b f0     A = KWP1281 tx block length
-    cmp a,!mem_f068         ;325e  48 68 f0     Compare with KWP1281 tx buffer index
+    mov a,!kwp_tx_len       ;325b  8e 6b f0     A = KWP1281 tx block length
+    cmp a,!kwp_tx_idx       ;325e  48 68 f0     Compare with KWP1281 tx buffer index
     bnc lab_3296            ;3261  9d 33
 
 lab_3263:
@@ -9334,12 +9334,12 @@ lab_3269:
     clr1 mem_fe7a.1         ;326b  1b 7a
     set1 mem_fe7a.0         ;326d  0a 7a
     mov a,#0x00             ;326f  a1 00
-    mov !mem_f069,a         ;3271  9e 69 f0     KWP1281 rx buffer index
+    mov !kwp_rx_idx,a       ;3271  9e 69 f0     KWP1281 rx buffer index
     mov a,#0x00             ;3274  a1 00
     mov !mem_f06f,a         ;3276  9e 6f f0
 
     movw hl,#kwp_unknown_b03b+1 ;3279  16 3c b0
-    mov a,!mem_f06d         ;327c  8e 6d f0     A = KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
+    mov a,!kwp_addr_idx     ;327c  8e 6d f0     A = KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
     mov b,a                 ;327f  73
     mov a,[hl+b]            ;3280  ab
     mov !mem_f070,a         ;3281  9e 70 f0
@@ -9359,7 +9359,7 @@ lab_328d_bad_echo:
 
 lab_3296:
     movw hl,#kwp_unknown_b036+1 ;3296  16 37 b0
-    mov a,!mem_f06d         ;3299  8e 6d f0     A = KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
+    mov a,!kwp_addr_idx     ;3299  8e 6d f0     A = KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
     mov b,a                 ;329c  73
     mov a,[hl+b]            ;329d  ab
     mov !mem_f06f,a         ;329e  9e 6f f0
@@ -9370,7 +9370,7 @@ lab_3296:
 
 lab_32a7:
     movw hl,#kwp_unknown_b036+1 ;32a7  16 37 b0
-    mov a,!mem_f06d         ;32aa  8e 6d f0     A = KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
+    mov a,!kwp_addr_idx     ;32aa  8e 6d f0     A = KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
     mov b,a                 ;32ad  73
     mov a,[hl+b]            ;32ae  ab
     mov !mem_f06f,a         ;32af  9e 6f f0
@@ -9383,16 +9383,16 @@ lab_32ba:
     clr1 mem_fe7a.1         ;32ba  1b 7a
     set1 mem_fe7a.0         ;32bc  0a 7a
     mov a,#0x00             ;32be  a1 00
-    mov !mem_f069,a         ;32c0  9e 69 f0     KWP1281 rx buffer index
+    mov !kwp_rx_idx,a       ;32c0  9e 69 f0     KWP1281 rx buffer index
 
     movw hl,#kwp_asim0_b031+1 ;32c3  16 32 b0
-    mov a,!mem_f06d         ;32c6  8e 6d f0     KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
+    mov a,!kwp_addr_idx     ;32c6  8e 6d f0     KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
     mov b,a                 ;32c9  73
     mov a,[hl+b]            ;32ca  ab
     mov asim0,a             ;32cb  f6 a0        Load UART0 mode register
 
     movw hl,#kwp_unknown_b03b+1 ;32cd  16 3c b0
-    mov a,!mem_f06d         ;32d0  8e 6d f0     KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
+    mov a,!kwp_addr_idx     ;32d0  8e 6d f0     KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
     mov b,a                 ;32d3  73
     mov a,[hl+b]            ;32d4  ab
     mov !mem_f070,a         ;32d5  9e 70 f0
@@ -9543,7 +9543,7 @@ sub_339e:
     btclr mem_fe79.5,lab_33be ;33ac  31 51 79 0e
 
     movw hl,#kwp_unknown_b03b+1 ;33b0  16 3c b0
-    mov a,!mem_f06d         ;33b3  8e 6d f0       KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
+    mov a,!kwp_addr_idx     ;33b3  8e 6d f0       KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
     mov b,a                 ;33b6  73
     mov a,[hl+b]            ;33b7  ab
     mov !mem_f070,a         ;33b8  9e 70 f0
@@ -9576,10 +9576,10 @@ lab_33de:
                               ;                     clear the flag to "block end is good" and branch
 
     mov a,#0x00             ;33e2  a1 00
-    mov !mem_f069,a         ;33e4  9e 69 f0       KWP1281 rx buffer index
+    mov !kwp_rx_idx,a       ;33e4  9e 69 f0       KWP1281 rx buffer index
 
     movw hl,#kwp_unknown_b03b+1 ;33e7  16 3c b0
-    mov a,!mem_f06d         ;33ea  8e 6d f0       KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
+    mov a,!kwp_addr_idx     ;33ea  8e 6d f0       KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
     mov b,a                 ;33ed  73
     mov a,[hl+b]            ;33ee  ab
     mov !mem_f070,a         ;33ef  9e 70 f0
@@ -9601,7 +9601,7 @@ lab_3401:
     set1 mem_fe7b.1         ;3405  1a 7b
 
     movw hl,#kwp_unknown_b036+1 ;3407  16 37 b0
-    mov a,!mem_f06d         ;340a  8e 6d f0     KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
+    mov a,!kwp_addr_idx     ;340a  8e 6d f0     KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
     mov b,a                 ;340d  73
     mov a,[hl+b]            ;340e  ab
     mov !mem_f06f,a         ;340f  9e 6f f0
@@ -9609,7 +9609,7 @@ lab_3401:
     set1 mem_fe79.2         ;3412  2a 79
 
     movw hl,#kwp_unknown_b03b+1 ;3414  16 3c b0
-    mov a,!mem_f06d         ;3417  8e 6d f0     KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
+    mov a,!kwp_addr_idx     ;3417  8e 6d f0     KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
     mov b,a                 ;341a  73
     mov a,[hl+b]            ;341b  ab
     mov !mem_f070,a         ;341c  9e 70 f0
@@ -9633,12 +9633,12 @@ lab_3435:
     clr1 mem_fe7a.1         ;3437  1b 7a
     set1 mem_fe7a.0         ;3439  0a 7a
     mov a,#0x00             ;343b  a1 00
-    mov !mem_f069,a         ;343d  9e 69 f0       KWP1281 rx buffer index
+    mov !kwp_rx_idx,a       ;343d  9e 69 f0       KWP1281 rx buffer index
     mov a,#0x00             ;3440  a1 00
     mov !mem_f06f,a         ;3442  9e 6f f0
 
     movw hl,#kwp_unknown_b03b+1 ;3445  16 3c b0
-    mov a,!mem_f06d         ;3448  8e 6d f0       KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
+    mov a,!kwp_addr_idx     ;3448  8e 6d f0       KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
     mov b,a                 ;344b  73
     mov a,[hl+b]            ;344c  ab
     mov !mem_f070,a         ;344d  9e 70 f0
@@ -9651,7 +9651,7 @@ lab_3453_br_kwp_disconnect:
 
 lab_3456:
     mov a,#0x0f             ;3456  a1 0f        A = 0x0F
-    cmp a,!mem_f06b         ;3458  48 6b f0     Compare A with KWP1281 tx block length
+    cmp a,!kwp_tx_len       ;3458  48 6b f0     Compare A with KWP1281 tx block length
     bc lab_3460             ;345b  8d 03        Branch if tx block length > 0x0F
 
     ;KWP1281 tx block length <= 0x0F
@@ -9734,14 +9734,14 @@ lab_34d4:
     clr1 cy                 ;34d4  21
     bt mem_fe7a.2,lab_34de  ;34d5  ac 7a 06
     set1 mem_fe7a.2         ;34d8  2a 7a
-    mov !mem_f06d,a         ;34da  9e 6d f0     KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
+    mov !kwp_addr_idx,a     ;34da  9e 6d f0     KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
     set1 cy                 ;34dd  20
 
 lab_34de:
     ret                     ;34de  af
 
 lab_34df:
-    cmp a,!mem_f06d         ;34df  48 6d f0     KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
+    cmp a,!kwp_addr_idx     ;34df  48 6d f0     KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
     clr1 cy                 ;34e2  21
     bnz lab_34e8            ;34e3  bd 03
     clr1 mem_fe7a.2         ;34e5  2b 7a
@@ -9751,7 +9751,7 @@ lab_34e8:
     ret                     ;34e8  af
 
 lab_34e9:
-    cmp a,!mem_f06d         ;34e9  48 6d f0     KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
+    cmp a,!kwp_addr_idx     ;34e9  48 6d f0     KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
     clr1 cy                 ;34ec  21
     bnz lab_34f6            ;34ed  bd 07
     bt mem_fe7a.1,lab_34f6  ;34ef  9c 7a 04
@@ -9768,7 +9768,7 @@ send_kwp_tx_buf:
 
 lab_34fc:
     mov a,#0x00             ;34fc  a1 00
-    mov !mem_f068,a         ;34fe  9e 68 f0     Store as KWP1281 tx buffer index
+    mov !kwp_tx_idx,a       ;34fe  9e 68 f0     Store as KWP1281 tx buffer index
     set1 mem_fe79.1         ;3501  1a 79
     set1 mem_fe7a.1         ;3503  1a 7a
     ret                     ;3505  af
@@ -9977,6 +9977,7 @@ lab_3650:
 lab_365d:
     mov a,#0x00             ;365d  a1 00
     mov !mem_f072,a         ;365f  9e 72 f0
+
     mov a,!mem_f076         ;3662  8e 76 f0
     inc a                   ;3665  41
     mov !mem_f076,a         ;3666  9e 76 f0
@@ -10055,7 +10056,7 @@ lab_36c7:
 lab_36d0:
 ;KWP1281 address is recognized and is not 0x3F (cluster security)
     mov a,b                 ;36d0  63
-    mov !mem_f06d,a         ;36d1  9e 6d f0     KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
+    mov !kwp_addr_idx,a     ;36d1  9e 6d f0     KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
     set1 mem_fe7c.0         ;36d4  0a 7c
     mov a,#0x01             ;36d6  a1 01        0x01 = Sets UART baud and mode
     mov !mem_fbc9,a         ;36d8  9e c9 fb
@@ -14147,7 +14148,7 @@ lab_4e12:
 
 lab_4e26:
 ;block length in table = 0xff or block length matched table entry
-    mov a,!mem_f06d         ;4e26  8e 6d f0     A = KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
+    mov a,!kwp_addr_idx     ;4e26  8e 6d f0     A = KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
     mov b,a                 ;4e29  73
 
     movw hl,#kwp_modes+1    ;4e2a  16 28 b0     HL = pointer to KWP1281 modes table
@@ -14156,18 +14157,18 @@ lab_4e26:
     bz lab_4e3d             ;4e30  ad 0b          Yes: branch to lab_4e3d
 
     ;KWP1281 mode is "radio as tester" for cluster security
-    mov a,!mem_f06d         ;4e32  8e 6d f0     A = KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
+    mov a,!kwp_addr_idx     ;4e32  8e 6d f0     A = KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
     cmp a,#0x03             ;4e35  4d 03
     bnz lab_4e3c            ;4e37  bd 03
     br !lab_4e8d_eq_3       ;4e39  9b 8d 4e     Branch to handle mem_f0fd = 0x03
                             ;                     (Address 0x3F block title dispatch)
-    ;mem_f06d != 0x03
+    ;kwp_addr_idx != 0x03
 lab_4e3c:
     ret                     ;4e3c  af
 
 lab_4e3d:
 ;KWP1281 address is a normal one (not cluster security)
-    mov a,!mem_f06d         ;4e3d  8e 6d f0     A = KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
+    mov a,!kwp_addr_idx     ;4e3d  8e 6d f0     A = KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
     cmp a,#0x01             ;4e40  4d 01
     bnz lab_4e47            ;4e42  bd 03
     br !lab_4e4f_eq_1       ;4e44  9b 4f 4e     Branch to handle mem_f0fd = 0x01
@@ -14181,7 +14182,7 @@ lab_4e4e:
     ret                     ;4e4e  af
 
 lab_4e4f_eq_1:
-;used if mem_f06d = 0x01
+;used if kwp_addr_idx = 0x01
 ;Block title dispatch for address 0x56 (normal address)
     movw hl,#kwp_rx_buf     ;4e4f  16 8a f0     HL = pointer to KWP1281 rx buffer
     mov a,[hl+0x02]         ;4e52  ae 02        A = block title to find
@@ -14209,13 +14210,13 @@ lab_4e62_title_ok:
     br ax                   ;4e6c  31 98        Branch to KWP1281 block title handler
 
 lab_4e6e_eq_2:
-;used if mem_f06d = 0x02
+;used if kwp_addr_idx = 0x02
 ;Block title dispatch for address 0x56 (normal address)
 ;
-    movw hl,#kwp_rx_buf     ;4e6e  16 8a f0     HL = pointer to KWP1281 rx buffer
-    mov a,[hl+0x02]         ;4e71  ae 02        A = block title
+    movw hl,#kwp_rx_buf      ;4e6e  16 8a f0     HL = pointer to KWP1281 rx buffer
+    mov a,[hl+0x02]          ;4e71  ae 02        A = block title
     movw hl,#kwp_56_titles+1 ;4e73  16 c2 b2    HL = pointer to table of block titles
-    mov b,#0x0e             ;4e76  a3 0e        B = 0x0e block titles in table
+    mov b,#0x0e              ;4e76  a3 0e        B = 0x0e block titles in table
 
 lab_4e78:
     cmp a,[hl+b]            ;4e78  31 4b
@@ -14236,12 +14237,12 @@ lab_4e81_title_ok:
     br ax                   ;4e8b  31 98        Branch to KWP1281 block title handler
 
 lab_4e8d_eq_3:
-;used if mem_f06d = 0x03
+;used if kwp_addr_idx = 0x03
 ;Block title dispatch for address 0x3F (cluster)
-    movw hl,#kwp_rx_buf     ;4e8d  16 8a f0     HL = pointer to KWP1281 rx buffer
-    mov a,[hl+0x02]         ;4e90  ae 02        A = block title
+    movw hl,#kwp_rx_buf      ;4e8d  16 8a f0     HL = pointer to KWP1281 rx buffer
+    mov a,[hl+0x02]          ;4e90  ae 02        A = block title
     movw hl,#kwp_3f_titles+1 ;4e92  16 f1 b2    HL = pointer to table of block titles
-    mov b,#0x04             ;4e95  a3 04        B = 4 block titles in table
+    mov b,#0x04              ;4e95  a3 04        B = 4 block titles in table
 
 lab_4e97:
     cmp a,[hl+b]            ;4e97  31 4b
@@ -14285,7 +14286,7 @@ kwp_7c_0a_nak:
     bz lab_4ebe             ;4ec8  ad f4        Branch to send ACK response
 
     mov a,#0x0f             ;4eca  a1 0f        A = 0x0F
-    cmp a,!mem_f06b         ;4ecc  48 6b f0     Compare A with KWP1281 tx block length
+    cmp a,!kwp_tx_len       ;4ecc  48 6b f0     Compare A with KWP1281 tx block length
     bc lab_4ede_br_516f     ;4ecf  8d 0d        Branch if tx block length > 0x0F
 
     ;KWP1281 tx block length <= 0x0F
@@ -14633,7 +14634,7 @@ kwp_56_0a_nak:
     bz lab_5026             ;5035  ad ef        Branch to send ACK if equal
 
     mov a,#0x0f             ;5037  a1 0f        A = 0x0F
-    cmp a,!mem_f06b         ;5039  48 6b f0     Compare A with KWP1281 tx block length
+    cmp a,!kwp_tx_len       ;5039  48 6b f0     Compare A with KWP1281 tx block length
     bc lab_504b_br_516f     ;503c  8d 0d        Branch if tx block length > 0x0F
 
     ;KWP1281 tx block length <= 0x0F
@@ -15006,7 +15007,7 @@ lab_51ca:
 ;mem_fbc9=0x01
 ;Sets UART baud and mode
     movw hl,#kwp_brgc0_b02c+1 ;51ca  16 2d b0
-    mov a,!mem_f06d         ;51cd  8e 6d f0     A = KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
+    mov a,!kwp_addr_idx     ;51cd  8e 6d f0     A = KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
     mov b,a                 ;51d0  73
     mov a,[hl+b]            ;51d1  ab
     mov brgc0,a             ;51d2  f6 a2        Load baud rate generator 0 with A
@@ -15025,7 +15026,7 @@ lab_51e2:
 ;mem_fbc9=0x02
 ;Sets UART baud and mode
     movw hl,#kwp_brgc0_b02c+1 ;51e2  16 2d b0
-    mov a,!mem_f06d         ;51e5  8e 6d f0     KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
+    mov a,!kwp_addr_idx     ;51e5  8e 6d f0     KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
     mov b,a                 ;51e8  73
     mov a,[hl+b]            ;51e9  ab
     mov brgc0,a             ;51ea  f6 a2        Load baud rate generate 0 with A
@@ -15056,10 +15057,10 @@ lab_5202:
 lab_520b:
 ;kwp1281 address found in table
     mov a,b                 ;520b  63             B = kwp_addresses table index
-    mov !mem_f06d,a         ;520c  9e 6d f0       Store it as KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
+    mov !kwp_addr_idx,a     ;520c  9e 6d f0       Store it as KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
 
     movw hl,#kwp_brgc0_b02c+1 ;520f  16 2d b0
-    mov a,!mem_f06d         ;5212  8e 6d f0       A = KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
+    mov a,!kwp_addr_idx     ;5212  8e 6d f0       A = KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
     mov b,a                 ;5215  73
     mov a,[hl+b]            ;5216  ab
     mov brgc0,a             ;5217  f6 a2          Load baud rate generator 0 with A
@@ -15072,11 +15073,11 @@ lab_520b:
     set1 mem_fe79.3         ;5222  3a 79
     set1 mem_fe79.2         ;5224  2a 79
 
-    mov a,!mem_f06d         ;5226  8e 6d f0       A = KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
+    mov a,!kwp_addr_idx     ;5226  8e 6d f0       A = KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
     cmp a,#0x03             ;5229  4d 03
     bnz lab_5230            ;522b  bd 03
 
-    ;mem_f06d = 3 (address 0x3F)
+    ;kwp_addr_idx = 3 (address 0x3F)
     br !lab_528c            ;522d  9b 8c 52
 
 lab_5230:
@@ -15110,7 +15111,7 @@ lab_5248:
 
 lab_5252:
     movw hl,#kwp_brgc0_b02c+1 ;5252  16 2d b0
-    mov a,!mem_f06d         ;5255  8e 6d f0       A = KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
+    mov a,!kwp_addr_idx     ;5255  8e 6d f0       A = KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
     mov b,a                 ;5258  73
     mov a,[hl+b]            ;5259  ab
     mov brgc0,a             ;525a  f6 a2          Load baud rate generator 0 with A
@@ -15119,7 +15120,7 @@ lab_5252:
     mov a,[hl+b]            ;525f  ab
     mov asim0,a             ;5260  f6 a0          Load UART0 mode register
 
-    mov a,!mem_f06d         ;5262  8e 6d f0       A = KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
+    mov a,!kwp_addr_idx     ;5262  8e 6d f0       A = KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
     cmp a,#0x01             ;5265  4d 01
     bnz lab_526c            ;5267  bd 03
     br !lab_5274            ;5269  9b 74 52
@@ -15133,14 +15134,14 @@ lab_5273:
     ret                     ;5273  af
 
 lab_5274:
-;mem_f06d = 0x01 (address 0x7c)
+;kwp_addr_idx = 0x01 (address 0x7c)
     set1 mem_fe65.7         ;5274  7a 65
     mov a,#0x01             ;5276  a1 01
     mov !mem_fbc7,a         ;5278  9e c7 fb
     br !lab_532a_ack        ;527b  9b 2a 53     Branch to send an ACK block
 
 lab_527e:
-;mem_f06d = 0x02 (address 0x56)
+;kwp_addr_idx = 0x02 (address 0x56)
     set1 mem_fe65.5           ;527e  5a 65
     set1 mem_fe7d.4           ;5280  4a 7d
     mov a,#0x01               ;5282  a1 01
@@ -15149,7 +15150,7 @@ lab_527e:
     br !lab_52ea_id_part_num  ;5289  9b ea 52   Branch to Send id block 1/4 with "1J0035180B" (Block length=0x0F)
 
 lab_528c:
-;mem_f06d = 0x03 (address 0x3F)
+;kwp_addr_idx = 0x03 (address 0x3F)
     mov a,#0x01             ;528c  a1 01
     mov !mem_fbc6,a         ;528e  9e c6 fb     Store new KWP1281 radio to cluster connection state
     ret                     ;5291  af
@@ -15157,7 +15158,7 @@ lab_528c:
 
 init_kwp_tx_buf:
 ;Set block title, counter, length in KWP1281 tx buffer
-;Stores block length in mem_f06b, increments block counter in mem_fbcb
+;Stores block length in kwp_tx_len, increments block counter in mem_fbcb
 ;
 ;Call with:
 ;  B = index to kwp_lengths and kwp_titles tables
@@ -15171,7 +15172,7 @@ init_kwp_tx_buf:
     movw hl,#kwp_lengths+1  ;5292  16 81 b2
     mov a,[hl+b]            ;5295  ab           A = block length from table
     mov x,a                 ;5296  70           Remember it in X
-    mov !mem_f06b,a         ;5297  9e 6b f0     Store tx block length
+    mov !kwp_tx_len,a       ;5297  9e 6b f0     Store tx block length
 
     movw hl,#kwp_titles+1   ;529a  16 5d b2
     mov a,[hl+b]            ;529d  ab           A = block title from table
@@ -15376,7 +15377,7 @@ lab_530a:
 lab_5314:
     mov a,#0x0e             ;5314  a1 0e        A = 14
     mov [hl],a              ;5316  97
-    mov !mem_f06b,a         ;5317  9e 6b f0     Store tx block length
+    mov !kwp_tx_len,a       ;5317  9e 6b f0     Store tx block length
 
     mov b,#0x0e             ;531a  a3 0e        B = offset 14
     mov a,#0x03             ;531c  a1 03        A = 0x03 block end
@@ -15553,7 +15554,7 @@ lab_539f:
     ;At least one fault was written to the KWP1281 tx buffer
     ;Finish sending a faults response
 
-    mov !mem_f06b,a         ;53a4  9e 6b f0     Store tx block length
+    mov !kwp_tx_len,a       ;53a4  9e 6b f0     Store tx block length
     mov [hl],a              ;53a7  97           Write block length to KWP1281 tx buffer
 
     mov a,#0x03             ;53a8  a1 03        0x03 = block end
@@ -15713,7 +15714,7 @@ lab_544c:
                             ;                          tx buffer, branch to try again.
 
     mov [hl],a              ;5451  97           Store block length in KWP1281 tx buffer
-    mov !mem_f06b,a         ;5452  9e 6b f0     Store tx block length
+    mov !kwp_tx_len,a       ;5452  9e 6b f0     Store tx block length
 
     mov a,#0x03             ;5455  a1 03        A = 0x03 block end
     mov [hl+b],a            ;5457  bb           Store block end in KWP1281 tx buffer
@@ -15873,7 +15874,7 @@ lab_54ea:
     inc b                   ;54ef  43
     mov a,b                 ;54f0  63
     mov [hl],a              ;54f1  97
-    mov !mem_f06b,a         ;54f2  9e 6b f0     Store tx block length
+    mov !kwp_tx_len,a       ;54f2  9e 6b f0     Store tx block length
     mov a,#0x03             ;54f5  a1 03
     mov [hl+b],a            ;54f7  bb
     br !send_kwp_tx_buf     ;54f8  9b f7 34     Set flags to start sending the KWP1281 tx buffer
@@ -15892,7 +15893,7 @@ lab_5503:
     dbnz c,lab_5503         ;5507  8a fa
     mov a,b                 ;5509  63
     mov [hl],a              ;550a  97
-    mov !mem_f06b,a         ;550b  9e 6b f0     Store tx block length
+    mov !kwp_tx_len,a       ;550b  9e 6b f0     Store tx block length
     mov a,#0x03             ;550e  a1 03        3 = block end?
     mov [hl+b],a            ;5510  bb
     br !send_kwp_tx_buf     ;5511  9b f7 34     Set flags to start sending the KWP1281 tx buffer
@@ -15936,7 +15937,7 @@ lab_552a:
 lab_5544:
     add a,#0x03             ;5544  0d 03
     mov [hl],a              ;5546  97
-    mov !mem_f06b,a         ;5547  9e 6b f0     Store tx block length
+    mov !kwp_tx_len,a       ;5547  9e 6b f0     Store tx block length
     call !send_kwp_tx_buf   ;554a  9a f7 34     Set flags to start sending the KWP1281 tx buffer
 
 lab_554d:
@@ -16010,7 +16011,7 @@ lab_559b:
     ;Something related to EEPROM succeeded
     add a,#0x03             ;559b  0d 03
     mov [hl],a              ;559d  97
-    mov !mem_f06b,a         ;559e  9e 6b f0     Store tx block length
+    mov !kwp_tx_len,a       ;559e  9e 6b f0     Store tx block length
     call !send_kwp_tx_buf   ;55a1  9a f7 34     Set flags to start sending the KWP1281 tx buffer
 
 lab_55a4:
@@ -30807,7 +30808,7 @@ kwp_addresses:
 
 kwp_modes:
 ;specifies whether an address is for normal mode or "radio as tester" mode
-;indexed by mem_f06d
+;indexed by kwp_addr_idx
     .byte 0x04              ;b027  04          DATA 0x04        4 entries below:
     .byte 0x00              ;b028  00          DATA 0x00          Normal (<address not found>)
     .byte 0x00              ;b029  00          DATA 0x00          Normal (DELCO manufacturing address)
@@ -30816,7 +30817,7 @@ kwp_modes:
 
 kwp_brgc0_b02c:
 ;values to be stored in BRGC0
-;indexed by mem_f06d
+;indexed by kwp_addr_idx
     .byte 0x04              ;b02c  04          DATA 0x04        4 entries below:
     .byte 0x39              ;b02d  39          DATA 0x39 '9'      0x39 = 10400 baud (<address not found>)
     .byte 0x39              ;b02e  39          DATA 0x39 '9'      0x39 = 10400 baud (DELCO manufacturing address)
@@ -30825,7 +30826,7 @@ kwp_brgc0_b02c:
 
 kwp_asim0_b031:
 ;values to be stored in ASIM0
-;indexed by mem_f06d
+;indexed by kwp_addr_idx
     .byte 0x04              ;b031  04          DATA 0x04        4 entries below:
     .byte 0x00              ;b032  00          DATA 0x00          0x00 = UART fully disabled (<address not found>)
     .byte 0xca              ;b033  ca          DATA 0xca          0xCA = UART TX & RX enabled, N81 (DELCO manufacturing address)
@@ -30834,7 +30835,7 @@ kwp_asim0_b031:
 
 kwp_unknown_b036:
 ;unknown values to be stored in mem_f06f
-;indexed by mem_f06d
+;indexed by kwp_addr_idx
     .byte 0x04              ;b036  04          DATA 0x04        4 entries below:
     .byte 0x08              ;b037  08          DATA 0x08
     .byte 0x08              ;b038  08          DATA 0x08
@@ -30843,7 +30844,7 @@ kwp_unknown_b036:
 
 kwp_unknown_b03b:
 ;unknown values to be stored in mem_f06f
-;indexed by mem_f06d
+;indexed by kwp_addr_idx
     .byte 0x04              ;b03b  04          DATA 0x04        4 entries below:
     .byte 0x25              ;b03c  25          DATA 0x25 '%'
     .byte 0xff              ;b03d  ff          DATA 0xff
@@ -31411,7 +31412,7 @@ kwp_lengths:
 
 kwp_7c_titles:
 ;block titles accepted on address 0x7c
-;used if mem_f06d = 0x01
+;used if kwp_addr_idx = 0x01
     .byte 0x09              ;b2a4  09          DATA 0x09        9 entries below:
     .byte 0xff              ;b2a5  ff          DATA 0xff        B=0 <bad title>
     .byte 0x09              ;b2a6  09          DATA 0x09        B=1 ack
@@ -31441,7 +31442,7 @@ kwp_7c_handlers:
 
 kwp_56_titles:
 ;block titles accepted on address 0x56
-;used if mem_f06d = 0x02
+;used if kwp_addr_idx = 0x02
     .byte 0x0f              ;b2c1  0f          DATA 0x0f        15 entries below:
     .byte 0xff              ;b2c2  ff          DATA 0xff        B= 0 <bad title>
     .byte 0x09              ;b2c3  09          DATA 0x09        B= 1 ack
@@ -31483,7 +31484,7 @@ kwp_56_handlers:
 
 kwp_3f_titles:
 ;block titles accepted on address 0x3f
-;used if mem_f06d = 0x03
+;used if kwp_addr_idx = 0x03
     .byte 0x05              ;b2f0  05          DATA 0x05        5 entries below:
     .byte 0xff              ;b2f1  ff          DATA 0xff        B=0 <bad title>
     .byte 0x09              ;b2f2  09          DATA 0x09        B=1 ack
