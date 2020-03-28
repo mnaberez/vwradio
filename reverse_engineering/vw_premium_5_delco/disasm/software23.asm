@@ -21,10 +21,10 @@
 
 ;Expansion RAM: 0xF000 - 0xF7FF (2K)
 
-mem_f000 = 0xf000           ;memory address for KWP1281 read ram or read eeprom (2 bytes)
-mem_f002 = 0xf002           ;eeprom address for KWP1281 write eeprom (2 bytes)
+mem_f000 = 0xf000           ;KWP1281 memory address for read ram or read eeprom (2 bytes)
+mem_f002 = 0xf002           ;KWP1281 eeprom address for write eeprom (2 bytes)
 mem_f004 = 0xf004
-mem_f006 = 0xf006
+fis_tx_ptr = 0xf006         ;FIS pointer to 3LB packet buffer used during transmit (2 bytes)
 mem_f00e = 0xf00e
 mem_f00f = 0xf00f
 mem_f016 = 0xf016
@@ -37,14 +37,14 @@ mem_f033 = 0xf033
 mem_f034 = 0xf034
 kwp_tmp_buf = 0xf03b        ;KWP1281 temporary buffer (16 bytes)
 mem_f04b = 0xf04b
-mem_f04c = 0xf04c           ;byte count for KWP1281 read ram, read eeprom, or write eeprom commands
-mem_f04e = 0xf04e           ;KWP1281 Output Test index
-mem_f04f = 0xf04f           ;KWP1281 Group number
-mem_f050 = 0xf050           ;KWP1281 number of measurements in group left to read
-mem_f051 = 0xf051
+mem_f04c = 0xf04c           ;KWP1281 byte count for read ram, read eeprom, or write eeprom commands
+kwp_test_idx = 0xf04e       ;KWP1281 Output Test index
+kwp_group_num = 0xf04f      ;KWP1281 Group number
+kwp_meas_count = 0xf050     ;KWP1281 number of measurements in group left to read
+kwp_meas_f051 = 0xf051      ;KWP1281 unknown used in group reading
 fis_tx_buf = 0xf052         ;FIS display 3LB packet buffer (20 bytes)
-mem_f066 = 0xf066
-mem_f067 = 0xf067
+fis_tx_count = 0xf066       ;FIS number of bytes left to send
+fis_f067 = 0xf067           ;FIS unknown (timer countdown?)
 kwp_tx_idx = 0xf068         ;KWP1281 tx buffer index
 kwp_rx_idx = 0xf069         ;KWP1281 rx buffer index
 kwp_last_byte = 0xf06a      ;KWP1281 last byte sent or received; used for error detection
@@ -1096,7 +1096,7 @@ lab_0160:
     br lab_01a0             ;0189  fa 15
 
 lab_018b:
-    mov a,!mem_f066         ;018b  8e 66 f0
+    mov a,!fis_tx_count     ;018b  8e 66 f0     A = FIS number of bytes left to send
     cmp a,#0x01             ;018e  4d 01
     bz lab_019c             ;0190  ad 0a
     clr1 pu4.5              ;0192  71 5b 34     PU45 pull-up resistor disabled
@@ -3075,7 +3075,7 @@ lab_0f1b:
     set1 mk0h.5             ;0f81  71 5a e5     Set CSIMK31 (disables INTCSI31)
 
     mov a,#0x00             ;0f84  a1 00
-    mov !mem_f04e,a         ;0f86  9e 4e f0     KWP1281 Output Test index = 0
+    mov !kwp_test_idx,a     ;0f86  9e 4e f0     KWP1281 Output Test index = 0
     clr1 mem_fe5f.5         ;0f89  5b 5f
     call !sub_2d35          ;0f8b  9a 35 2d     Clear bits in mem_fe5f and mem_fe60
     set1 shadow_p2.5        ;0f8e  5a cc        P25/TxD0 = 1
@@ -6997,25 +6997,25 @@ perform_next_test:
     push hl                 ;27cf  b7
     push bc                 ;27d0  b3
     call !sub_2d35          ;27d1  9a 35 2d     Clear bits in mem_fe5f and mem_fe60
-    mov a,!mem_f04e         ;27d4  8e 4e f0     A = KWP1281 Output Test index
+    mov a,!kwp_test_idx     ;27d4  8e 4e f0     A = KWP1281 Output Test index
     cmp a,#0x03             ;27d7  4d 03
-    bc lab_27e6             ;27d9  8d 0b        Branch if mem_f04e < 3
+    bc lab_27e6             ;27d9  8d 0b        Branch if kwp_test_idx < 3
     ;Output tests finished
     clr1 mem_fe5f.5         ;27db  5b 5f
     mov a,#0x00             ;27dd  a1 00
-    mov !mem_f04e,a         ;27df  9e 4e f0     KWP1281 Output Test index = 0
+    mov !kwp_test_idx,a     ;27df  9e 4e f0     KWP1281 Output Test index = 0
     pop bc                  ;27e2  b2
     pop hl                  ;27e3  b6
     set1 cy                 ;27e4  20           Carry set = output tests finished
     ret                     ;27e5  af
 
 lab_27e6:
-;mem_f04e < 3
+;kwp_test_idx < 3
 ;More output tests are remaining in output_tests table
 ;Do the next one
     mov b,a                 ;27e6  73           B = KWP1281 Output Test index
     inc a                   ;27e7  41           Increment it
-    mov !mem_f04e,a         ;27e8  9e 4e f0     Store as KWP1281 Output Test index
+    mov !kwp_test_idx,a     ;27e8  9e 4e f0     Store as KWP1281 Output Test index
 
     movw hl,#output_tests+1 ;27eb  16 02 b0     HL = pointer to table of Output Test codes
     callf !sub_0c48         ;27ee  4c 48        Load DE with word at position B in table [HL]
@@ -7114,7 +7114,7 @@ read_next_meas:
     ;then fall through to return the data for the first measurement in the group
 
     mov a,!kwp_rx_buf+3     ;2833  8e 8d f0     A = KWP1281 rx buffer byte 3 (group number)
-    mov !mem_f04f,a         ;2836  9e 4f f0     Store group number in mem_f04f
+    mov !kwp_group_num,a    ;2836  9e 4f f0     Store group number in kwp_group_num
 
     cmp a,#0x19                 ;2839  4d 19    Is it KWP1281 group 0x19 (protection)?
     bz lab_285e_group_0x19      ;283b  ad 21      Yes: branch to lab_285e_group_0x19
@@ -7180,20 +7180,20 @@ lab_2862_group_ok:
     mov a,#0x04             ;2875  a1 04        Cap number of measurements at 4
 
 lab_2877:
-    mov !mem_f050,a         ;2877  9e 50 f0     Store number of measurements in group left to read
+    mov !kwp_meas_count,a   ;2877  9e 50 f0     Store number of measurements in group left to read
 
 lab_287a:
 ;Read the next measurement from the group
     mov d,#0x00             ;287a  a5 00        D=0 (no error)
 
-    mov a,!mem_f050         ;287c  8e 50 f0     A = number of measurements in group left to read
+    mov a,!kwp_meas_count   ;287c  8e 50 f0     A = number of measurements in group left to read
     cmp a,#0x00             ;287f  4d 00        Is it zero?
     bz lab_285a_ret_no_data ;2881  ad d7          Yes: nothing to do, return with no data
 
     ;At least one measurement left to read
 
     dec a                   ;2883  51           Decrement number of measurements in group left to read
-    mov !mem_f050,a         ;2884  9e 50 f0     Store it decremented value
+    mov !kwp_meas_count,a   ;2884  9e 50 f0     Store it decremented value
 
     set1 mem_fe5f.4         ;2887  4a 5f        Set bit = currently reading a measuring block group
 
@@ -7220,7 +7220,7 @@ lab_287a:
     pop ax                  ;289b  b0
 
     push ax                 ;289c  b1
-    mov a,!mem_f04f         ;289d  8e 4f f0     A = KWP1281 group number
+    mov a,!kwp_group_num    ;289d  8e 4f f0     A = KWP1281 group number
     cmp a,#0x07             ;28a0  4d 07
     mov a,e                 ;28a2  64
     bnz lab_28e2            ;28a3  bd 3d
@@ -7232,7 +7232,7 @@ lab_287a:
     mov a,!mem_f197         ;28a8  8e 97 f1
     cmp a,#0xff             ;28ab  4d ff
     bz lab_28b7             ;28ad  ad 08
-    mov !mem_f051,a         ;28af  9e 51 f0
+    mov !kwp_meas_f051,a    ;28af  9e 51 f0
     mov a,#0x1e             ;28b2  a1 1e
     mov !mem_fb23,a         ;28b4  9e 23 fb
 
@@ -7242,9 +7242,9 @@ lab_28b7:
     cmp a,#0x00             ;28ba  4d 00
     bz lab_28da             ;28bc  ad 1c
     mov a,#0x63             ;28be  a1 63
-    cmp a,!mem_f051         ;28c0  48 51 f0
+    cmp a,!kwp_meas_f051    ;28c0  48 51 f0
     bc lab_28da             ;28c3  8d 15
-    mov a,!mem_f051         ;28c5  8e 51 f0
+    mov a,!kwp_meas_f051    ;28c5  8e 51 f0
     mov x,#0x00             ;28c8  a0 00
     xch a,x                 ;28ca  30
     mov c,#0x0a             ;28cb  a2 0a
@@ -7852,7 +7852,14 @@ sub_2bd4:
 ;Prepare for KWP1281 read RAM or read EEPROM
 ;Checks if number of bytes to read != 0
 ;Checks if all addresses that would be read are valid
-;Returns carry set = failure, carry clear = success
+;
+;Call with:
+;  DE = address
+;  A  = number of bytes to read
+;
+;Returns:
+;  Carry set = failure, Carry clear = success
+;
     cmp a,#0x01             ;2bd4  4d 01        Number of bytes to read = 0?
     bc lab_2bf3_ret         ;2bd6  8d 1b          Yes: branch to exit on failure
 
@@ -8493,7 +8500,7 @@ lab_2e5c:
 
 sub_2e5d:
     mov a,#0x00             ;2e5d  a1 00
-    mov !mem_f066,a         ;2e5f  9e 66 f0
+    mov !fis_tx_count,a     ;2e5f  9e 66 f0     Store as FIS number of bytes left to send
     mov mem_fe25,#0x00      ;2e62  11 25 00
     mov mem_fe26,a          ;2e65  f2 26
     clr1 mem_fe60.6         ;2e67  6b 60
@@ -8813,10 +8820,10 @@ fis_cksum_and_send:
     set1 mem_fe61.0                     ;2f98  0a 61
     clr1 mem_fe60.3                     ;2f9a  3b 60
     movw ax,#fis_tx_buf                 ;2f9c  10 52 f0
-    movw !mem_f006,ax                   ;2f9f  03 06 f0
+    movw !fis_tx_ptr,ax                 ;2f9f  03 06 f0
     mov a,#20                           ;2fa2  a1 14        A = 20 bytes in FIS buffer to send
                                         ;                       XXX hardcoded FIS command length
-    mov !mem_f066,a                     ;2fa4  9e 66 f0
+    mov !fis_tx_count,a                 ;2fa4  9e 66 f0     Store as FIS number of bytes left to send
     br lab_2faa                         ;2fa7  fa 01
 
 lab_2fa9_ret:
@@ -8834,7 +8841,7 @@ lab_2fb5:
     br lab_302d             ;2fb7  fa 74
 
 lab_2fb9:
-    mov a,!mem_f066         ;2fb9  8e 66 f0
+    mov a,!fis_tx_count     ;2fb9  8e 66 f0     A = FIS number of bytes left to send
     cmp a,#20+1             ;2fbc  4d 15        Compare to FIS command length + 1
                             ;                     XXX hardcoded FIS command length
     bc lab_2fc3             ;2fbe  8d 03        Branch if less
@@ -8887,14 +8894,14 @@ lab_2ff4:
     clr1 mk0h.4             ;3002  71 4b e5     Clear CSIMK30 (enables INTCSI30)
     clr1 pr0h.4             ;3005  71 4b e9     Clear CSIPR30 (makes INTCSI30 high priority)
 
-    movw ax,!mem_f006       ;3008  02 06 f0
+    movw ax,!fis_tx_ptr     ;3008  02 06 f0
     push ax                 ;300b  b1           Push: pointer to buffer to transfer
     mov a,#0x01             ;300c  a1 01
     push ax                 ;300e  b1           Push: number of bytes to transfer
 
     sel rb2                 ;300f  61 f0        Select register bank used by intcsi30_08a9
     pop bc                  ;3011  b2           Pop: B  = number of bytes to transfer (1)
-    pop hl                  ;3012  b6           Pop: HL = pointer to buffer to transfer (mem_f006)
+    pop hl                  ;3012  b6           Pop: HL = pointer to buffer to transfer (fis_tx_ptr)
 
     clr1 mem_fe5f.0         ;3013  0b 5f        SPI packet complete flag = not complete
     mov c,#0x01             ;3015  a2 01        C = number of bytes sent
@@ -8903,9 +8910,9 @@ lab_2ff4:
     mov sio30,a             ;301a  f2 1a        Send first byte in buffer (INTCSI30 sends the rest)
 
     sel rb0                 ;301c  61 d0        Select normal register bank
-    movw ax,!mem_f006       ;301e  02 06 f0
+    movw ax,!fis_tx_ptr     ;301e  02 06 f0
     incw ax                 ;3021  80
-    movw !mem_f006,ax       ;3022  03 06 f0
+    movw !fis_tx_ptr,ax     ;3022  03 06 f0
 
     mov mem_fe25,#0x02      ;3025  11 25 02
     mov a,#0x03             ;3028  a1 03
@@ -8917,25 +8924,25 @@ lab_302d:
 lab_302e:
     clr1 pu4.5              ;302e  71 5b 34     PU45 pull-up resistor disabled
     set1 pm4.5              ;3031  71 5a 24     PM45=input
-    mov a,!mem_f066         ;3034  8e 66 f0
+    mov a,!fis_tx_count     ;3034  8e 66 f0     A = FIS number of bytes left to send
     cmp a,#0x01             ;3037  4d 01
     bz lab_3066             ;3039  ad 2b
     bf p4.5,lab_304b        ;303b  31 53 04 0c  Branch if P4.5=0
     dec a                   ;303f  51
-    mov !mem_f066,a         ;3040  9e 66 f0
+    mov !fis_tx_count,a     ;3040  9e 66 f0     Store as FIS number of bytes left to send
     mov a,#0x0a             ;3043  a1 0a
-    mov !mem_f067,a         ;3045  9e 67 f0
+    mov !fis_f067,a         ;3045  9e 67 f0     Store as FIS unknown (timer countdown?)
     br !lab_2faa            ;3048  9b aa 2f
 
 lab_304b:
     mov a,!mem_fb02         ;304b  8e 02 fb
     cmp a,#0x00             ;304e  4d 00
     bnz lab_3065            ;3050  bd 13
-    mov a,!mem_f067         ;3052  8e 67 f0
+    mov a,!fis_f067         ;3052  8e 67 f0     A = FIS unknown (timer countdown?)
     cmp a,#0x00             ;3055  4d 00
     bz lab_3061             ;3057  ad 08
     dec a                   ;3059  51
-    mov !mem_f067,a         ;305a  9e 67 f0
+    mov !fis_f067,a         ;305a  9e 67 f0     Store as FIS unknown (timer countdown?)
     set1 mem_fe60.3         ;305d  3a 60
     br lab_3066             ;305f  fa 05
 
@@ -9205,7 +9212,7 @@ lab_31aa:
 
 lab_31bb:
     set1 mem_fe79.1         ;31bb  1a 79
-    br lab_31e9             ;31bd  fa 2a
+    br lab_31e9_br_pop_reti ;31bd  fa 2a        Branch to pop registers and reti
 
 lab_31bf_bad_comp:
 ;Complement received for last byte sent is bad
@@ -9218,7 +9225,7 @@ lab_31bf_bad_comp:
     mov !mem_f06f,a         ;31cb  9e 6f f0
 
     set1 mem_fe79.2         ;31ce  2a 79
-    br lab_31e9             ;31d0  fa 17
+    br lab_31e9_br_pop_reti ;31d0  fa 17        Branch to pop registers and reti
 
 lab_31d2:
     mov a,!mem_f079         ;31d2  8e 79 f0
@@ -9231,10 +9238,10 @@ lab_31d2:
     mov !mem_fbc9,a         ;31e1  9e c9 fb
 
 lab_31e4:
-    bc lab_31e9             ;31e4  8d 03
+    bc lab_31e9_br_pop_reti ;31e4  8d 03        If ??TODO?? Branch to pop registers and reti
     call !kwp_disconnect    ;31e6  9a 68 34     Disconnect and clear all KWP1281 state
 
-lab_31e9:
+lab_31e9_br_pop_reti:
     br !lab_3153_pop_reti   ;31e9  9b 53 31     Branch to pop registers and reti
 
 lab_31ec:
@@ -9697,7 +9704,7 @@ lab_348b:
     clr1 mem_fe5f.5         ;3498  5b 5f
     mov a,#0x00             ;349a  a1 00
     mov !mem_fb2e,a         ;349c  9e 2e fb
-    mov !mem_f04e,a         ;349f  9e 4e f0     KWP128 Output Test index = 0
+    mov !kwp_test_idx,a     ;349f  9e 4e f0     KWP128 Output Test index = 0
 
 lab_34a2:
 ;Clear many KWP1281 state bits + 3 more
@@ -30762,7 +30769,7 @@ fault_codes:
 
 output_tests:
 ;Table of KWP1281 output tests codes used by perform_next_test
-;This table is indexed by mem_f04e and controls the sequence of the output tests.
+;This table is indexed by kwp_test_idx and controls the sequence of the output tests.
 ;As each test is performed, one of these codes is returned in the output tests
 ;response block.  These codes are the same as the fault codes.
     .byte 0x03              ;b001  03          DATA 0x03        3 entries below:
