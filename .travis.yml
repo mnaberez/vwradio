@@ -3,15 +3,15 @@ language: python
 matrix:
   include:
     - python: 3.4
-      dist: trusty
+      dist: xenial
     - python: 3.5
-      dist: trusty
+      dist: xenial
     - python: 3.6
-      dist: trusty
+      dist: xenial
     - python: 3.7
-      dist: xenial  # required for Python >= 3.7
+      dist: xenial
     - python: 3.8
-      dist: xenial  # required for Python >= 3.7
+      dist: xenial
 
 addons:
   apt:
@@ -20,6 +20,8 @@ addons:
     packages:
       - avr-libc
       - gcc-avr
+      - gcc-arm-none-eabi
+      - libnewlib-arm-none-eabi
       - srecord
 
 before_install:
@@ -48,5 +50,5 @@ script:
   - make -C reverse_engineering/vw_premium_5_delco/custom/loopback_irq
   - make -C reverse_engineering/vw_premium_5_delco/custom/loopback_poll
   - make -C reverse_engineering/vw_rhapsody_technisat/disasm
-  - make -C volume_monitor/firmware
   - make -C tape_emulator/firmware
+  - make -C volume_monitor/firmware
