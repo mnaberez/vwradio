@@ -7732,14 +7732,14 @@ lab_2b4e:
     ret                     ;2b52  af
 
 sub_2b53:
-;Called from lab_5581 (read eeprom related)
+;Called from lab_5581 (Read EEPROM related)
 ;Returns carry clear = success, carry set = failure
     push hl                 ;2b53  b7
     call !sub_2d35          ;2b54  9a 35 2d     Clear bits in mem_fe5f and mem_fe60
 
     set1 mem_fe60.2         ;2b57  2a 60        Set bit = address is an EEPROM address
 
-    call !read_kwp_rx_3     ;2b59  9a 8b 2c     Read 3 bytes from KWP1281 rx buffer:
+    call !read_rx_addr_len  ;2b59  9a 8b 2c     Read address and length from KWP1281 rx buffer:
                             ;                       A = KWP1281 rx buffer byte 3 (number of bytes)
                             ;                       D = KWP1281 rx buffer byte 4 (address high)
                             ;                       E = KWP1281 rx buffer byte 5 (address low)
@@ -7825,13 +7825,13 @@ lab_2bb6:
     ret                     ;2bb8  af
 
 sub_2bb9:
-;Called from lab_552a (read ram related)
+;Called from lab_552a (Read RAM related)
     push hl                 ;2bb9  b7
     call !sub_2d35          ;2bba  9a 35 2d     Clear bits in mem_fe5f and mem_fe60
-    call !read_kwp_rx_3     ;2bbd  9a 8b 2c     Read 3 bytes from KWP1281 rx buffer:
+    call !read_rx_addr_len  ;2bbd  9a 8b 2c     Read address and length from KWP1281 rx buffer
                             ;                        A = KWP1281 rx buffer byte 3 (number of bytes)
-                            ;                        D = KWP1281 rx buffer byte 4 (address high)
-                            ;                        E = KWP1281 rx buffer byte 5 (address low)
+                            ;                        D = KWP1281 rx buffer byte 4 (RAM address high)
+                            ;                        E = KWP1281 rx buffer byte 5 (RAM address low)
     mov !mem_f04c,a         ;2bc0  9e 4c f0     Store number of bytes to read
 
     xchw ax,de              ;2bc3  e4
@@ -7942,7 +7942,7 @@ lab_2c32:
 
 sub_2c33:
 ;Perform EEPROM write from KWP1281 request
-;Called from lab_4f47, lab_50ec (write eeprom related)
+;Called from lab_4f47, lab_50ec (Write EEPROM related)
 ;Returns carry clear = success, carry set = failure
     call !sub_6217          ;2c33  9a 17 62     Unknown; EEPROM related
     bnc sub_2c33            ;2c36  9d fb        Repeat until success
@@ -7951,7 +7951,7 @@ sub_2c33:
 
     set1 mem_fe60.2         ;2c3b  2a 60        Set bit to indicate region is in EEPROM
 
-    call !read_kwp_rx_3     ;2c3d  9a 8b 2c     Read 3 bytes from KWP1281 rx buffer:
+    call !read_rx_addr_len  ;2c3d  9a 8b 2c     Read address and length from KWP1281 rx buffer:
                             ;                       A = KWP1281 rx buffer byte 3 (number of bytes)
                             ;                       D = KWP1281 rx buffer byte 4 (EEPROM addr high)
                             ;                       E = KWP1281 rx buffer byte 5 (EEPROM addr low)
@@ -8025,28 +8025,32 @@ sub_2c7f:
     mov a,!mem_f04c         ;2c87  8e 4c f0     A = byte at mem_f04c
     ret                     ;2c8a  af
 
-read_kwp_rx_3:
-;Read 3 bytes from KWP1281 rx buffer:
-;  A = KWP1281 rx buffer byte 3
-;  D = KWP1281 rx buffer byte 4
-;  E = KWP1281 rx buffer byte 5
+read_rx_addr_len:
+;Read address and length from KWP1281 rx buffer
+;Used by Read RAM, Read EEPROM, and Write EEPROM commands
+;
+;Returns:
+;  A = KWP1281 rx buffer byte 3 (number of bytes)
+;  D = KWP1281 rx buffer byte 4 (address high)
+;  E = KWP1281 rx buffer byte 5 (address low)
 ;
     movw hl,#kwp_rx_buf+3   ;2c8b  16 8d f0
     mov a,[hl]              ;2c8e  87
-    mov e,a                 ;2c8f  74         E = KWP1281 rx buffer byte 3
+    mov e,a                 ;2c8f  74         E = KWP1281 rx buffer byte 3 (number of bytes)
 
     incw hl                 ;2c90  86
     mov a,[hl]              ;2c91  87
-    mov d,a                 ;2c92  75         D = KWP1281 rx buffer byte 4
+    mov d,a                 ;2c92  75         D = KWP1281 rx buffer byte 4 (address high)
 
     incw hl                 ;2c93  86
-    mov a,[hl]              ;2c94  87         A = KWP1281 rx buffer byte 5
+    mov a,[hl]              ;2c94  87         A = KWP1281 rx buffer byte 5 (address low)
 
-    xch a,e                 ;2c95  34         Swap A and E
-
+    xch a,e                 ;2c95  34         Swap A and E so that:
+                            ;                   A = KWP1281 rx buffer byte 3 (number of bytes)
+                            ;                   E = KWP1281 rx buffer byte 5 (EEPROM addr low)
     ret                     ;2c96  af
 
-    ret                     ;2c97  af
+    ret                     ;2c97  af         XXX redundant; already returned
 
 find_first_fault:
 ;Find the first fault set in the faults buffer
