@@ -36,8 +36,8 @@ mem_f032 = 0xf032
 mem_f033 = 0xf033
 mem_f034 = 0xf034
 kwp_tmp_buf = 0xf03b        ;KWP1281 temporary buffer (16 bytes)
-mem_f04b = 0xf04b
-mem_f04c = 0xf04c           ;KWP1281 byte count for read ram, read eeprom, or write eeprom commands
+kwp_rw_count = 0xf04b       ;KWP1281 number of bytes left to send for read ram or r/w eeprom
+kwp_rw_total = 0xf04c       ;KWP1281 total bytes originally requested for read ram or r/w eeprom
 kwp_test_idx = 0xf04e       ;KWP1281 Output Test index
 kwp_group_num = 0xf04f      ;KWP1281 Group number
 kwp_meas_count = 0xf050     ;KWP1281 number of measurements in group left to read
@@ -7733,7 +7733,11 @@ lab_2b4e:
 
 sub_2b53:
 ;Called from lab_5581 (Read EEPROM related)
-;Returns carry clear = success, carry set = failure
+;
+;Returns:
+;  A = number of bytes read (XXX not used by caller)
+;  Carry clear = success, Carry set = failure
+;
     push hl                 ;2b53  b7
     call !sub_2d35          ;2b54  9a 35 2d     Clear bits in mem_fe5f and mem_fe60
 
@@ -7744,7 +7748,7 @@ sub_2b53:
                             ;                       D = KWP1281 rx buffer byte 4 (address high)
                             ;                       E = KWP1281 rx buffer byte 5 (address low)
 
-    mov !mem_f04c,a         ;2b5c  9e 4c f0     mem_f04c = number of bytes to read
+    mov !kwp_rw_total,a     ;2b5c  9e 4c f0     Store number of bytes to read in total
 
     xchw ax,de              ;2b5f  e4           Swap so that:
                             ;                     AX = EEPROM address
@@ -7756,10 +7760,12 @@ sub_2b53:
 
     ;At this point:
     ;  mem_f000: EEPROM address to read (2 bytes)
-    ;  mem_f04c: number of bytes to read
+    ;  kwp_rw_total: number of bytes to read in total
     call !sub_2bd4          ;2b64  9a d4 2b     Prepare for KWP1281 read RAM or read EEPROM
     bc lab_2b6c             ;2b67  8d 03        Branch if invalid
-    mov a,!mem_f04c         ;2b69  8e 4c f0
+
+    mov a,!kwp_rw_total     ;2b69  8e 4c f0     A = number of bytes to read in total
+                            ;                   XXX this is not used by the caller
 
 lab_2b6c:
     pop hl                  ;2b6c  b6
@@ -7832,7 +7838,7 @@ sub_2bb9:
                             ;                        A = KWP1281 rx buffer byte 3 (number of bytes)
                             ;                        D = KWP1281 rx buffer byte 4 (RAM address high)
                             ;                        E = KWP1281 rx buffer byte 5 (RAM address low)
-    mov !mem_f04c,a         ;2bc0  9e 4c f0     Store number of bytes to read
+    mov !kwp_rw_total,a     ;2bc0  9e 4c f0     Store number of bytes to read in total
 
     xchw ax,de              ;2bc3  e4
     movw !mem_f000,ax       ;2bc4  03 00 f0     Store memory address to read
@@ -7841,7 +7847,7 @@ sub_2bb9:
     call !sub_2bd4          ;2bc8  9a d4 2b     Prepare for KWP1281 read RAM or read EEPROM
     bc lab_2bd2             ;2bcb  8d 05        Branch if invalid
 
-    mov a,!mem_f04c         ;2bcd  8e 4c f0
+    mov a,!kwp_rw_total     ;2bcd  8e 4c f0     A = number of bytes to read in total
     set1 mem_fe5f.6         ;2bd0  6a 5f
 
 lab_2bd2:
@@ -7863,10 +7869,10 @@ sub_2bd4:
     cmp a,#0x01             ;2bd4  4d 01        Number of bytes to read = 0?
     bc lab_2bf3_ret         ;2bd6  8d 1b          Yes: branch to exit on failure
 
-    mov !mem_f04b,a         ;2bd8  9e 4b f0
+    mov !kwp_rw_count,a     ;2bd8  9e 4b f0     Number of bytes left to send = number requested
     movw ax,de              ;2bdb  c4
     movw !mem_f002,ax       ;2bdc  03 02 f0
-    call !sub_2d11          ;2bdf  9a 11 2d
+    call !dec_rw_count_0x0d ;2bdf  9a 11 2d     Decrease kwp_rx_count by 0x0D, return A = decrease
 
     mov l,a                 ;2be2  76           HL = number of bytes to read
     mov h,#0x00             ;2be3  a7 00
@@ -7918,11 +7924,16 @@ lab_2c18:
 
 sub_2c1a:
 ;Returns carry set = invalid, carry clear = valid
-    call !sub_2d23          ;2c1a  9a 23 2d
-    cmp a,#0x01             ;2c1d  4d 01
-    bc lab_2c32             ;2c1f  8d 11
-    mov l,a                 ;2c21  76
+    call !dec_rw_count_0x10 ;2c1a  9a 23 2d   Decrease kwp_rx_count by 0x10, return A = decrease
+
+    cmp a,#0x00+1           ;2c1d  4d 01
+    bc lab_2c32             ;2c1f  8d 11      Branch if A < 0x00+1
+
+    ;A >= 0x00+1
+
+    mov l,a                 ;2c21  76         HL = number of bytes
     mov h,#0x00             ;2c22  a7 00
+
     movw ax,!mem_f002       ;2c24  02 02 f0
     call !sub_2cdf          ;2c27  9a df 2c   Check if a region in memory or EEPROM is valid
                             ;                     AX = start address
@@ -7956,7 +7967,7 @@ sub_2c33:
                             ;                       D = KWP1281 rx buffer byte 4 (EEPROM addr high)
                             ;                       E = KWP1281 rx buffer byte 5 (EEPROM addr low)
 
-    mov !mem_f04c,a         ;2c40  9e 4c f0     Store number of bytes to write
+    mov !kwp_rw_total,a     ;2c40  9e 4c f0     Store number of bytes to write in total
 
     mov l,a                 ;2c43  76           HL = number of bytes to write
     mov h,#0x00             ;2c44  a7 00
@@ -7997,7 +8008,7 @@ lab_2c60:
 lab_2c6c_write:
 ;Perform EEPROM write
     movw hl,#kwp_rx_buf+6   ;2c6c  16 90 f0     HL = pointer to KWP1281 rx buffer bytes 6+
-    mov a,!mem_f04c         ;2c6f  8e 4c f0     A = number of bytes to write to EEPROM
+    mov a,!kwp_rw_total     ;2c6f  8e 4c f0     A = number of bytes to write to EEPROM in total
     call !sub_628e          ;2c72  9a 8e 62     Write A bytes to EEPROM address DE from [HL]
     bnc lab_2c7b_failed     ;2c75  9d 04        Branch if write failed
 
@@ -8017,12 +8028,12 @@ sub_2c7f:
 ;called from write eeprom lab_55c5
 ;Returns DE = word at mem_f004
 ;Returns X = KWP1281 rx buffer byte 6
-;Returns A = byte at mem_f04c
+;Returns A = number of bytes to write in total
     movw ax,!mem_f004       ;2c7f  02 04 f0
     movw de,ax              ;2c82  d4           DE = word at mem_f004
     mov a,!kwp_rx_buf+6     ;2c83  8e 90 f0
     mov x,a                 ;2c86  70           X = KWP1281 rx buffer byte 6
-    mov a,!mem_f04c         ;2c87  8e 4c f0     A = byte at mem_f04c
+    mov a,!kwp_rw_total     ;2c87  8e 4c f0     A = number of bytes to write in total
     ret                     ;2c8a  af
 
 read_rx_addr_len:
@@ -8214,32 +8225,54 @@ lab_2d0f_invalid:
     ret                     ;2d10  af
 
 
-sub_2d11:
+;Decrease kwp_rx_count by 0x0D, return A = decrease
+;
+;if kwp_rw_count <= 0x0d:
+;  A, C = kwp_rw_count
+;  kwp_rw_count = 0
+;else:
+;  A, C = 0x0d
+;  kwp_rw_count = kwp_rw_count - 0x0d
+;
+dec_rw_count_0x0d:
     mov a,#0x00             ;2d11  a1 00
-    xch a,!mem_f04b         ;2d13  ce 4b f0
-    cmp a,#0x0e             ;2d16  4d 0e
-    bc lab_2d21             ;2d18  8d 07
-    sub a,#0x0d             ;2d1a  1d 0d
-    mov !mem_f04b,a         ;2d1c  9e 4b f0
-    mov a,#0x0d             ;2d1f  a1 0d
+    xch a,!kwp_rw_count     ;2d13  ce 4b f0     A = kwp_rw_count, kwp_rw_count = 0
 
+    cmp a,#0x0d+1           ;2d16  4d 0e
+    bc lab_2d21             ;2d18  8d 07        Branch if A < 0x0d+1
+
+    ;A >= 0x0d+1
+    sub a,#0x0d             ;2d1a  1d 0d        A = A - 0x0d
+    mov !kwp_rw_count,a     ;2d1c  9e 4b f0     Store result in mem_f04d
+
+    mov a,#0x0d             ;2d1f  a1 0d        A = 0x0d
 lab_2d21:
-    mov c,a                 ;2d21  72
+    mov c,a                 ;2d21  72           C = A (XXX C is not used by caller)
     ret                     ;2d22  af
 
 
-sub_2d23:
-;TODO seems to be length check for EEPROM read
+;Decrease kwp_rx_count by 0x10, return A = decrease
+;
+;if kwp_rw_count <= 0x10:
+;  A, C = kwp_rw_count
+;  kwp_rw_count = 0
+;else:
+;  A, C = 0x10
+;  kwp_rw_count = kwp_rw_count - 0x10
+dec_rw_count_0x10:
     mov a,#0x00             ;2d23  a1 00
-    xch a,!mem_f04b         ;2d25  ce 4b f0
-    cmp a,#0x11             ;2d28  4d 11          maximum 11
-    bc lab_2d33             ;2d2a  8d 07
-    sub a,#0x10             ;2d2c  1d 10
-    mov !mem_f04b,a         ;2d2e  9e 4b f0
-    mov a,#0x10             ;2d31  a1 10
+    xch a,!kwp_rw_count     ;2d25  ce 4b f0     A = kwp_rw_count, kwp_rw_count = 0
 
+    cmp a,#0x10+1           ;2d28  4d 11
+    bc lab_2d33             ;2d2a  8d 07        Branch if A < 0x10+1
+
+    ;A >= 0x10+1
+    sub a,#0x10             ;2d2c  1d 10        A = A - 0x10
+    mov !kwp_rw_count,a     ;2d2e  9e 4b f0     Store result in kwp_rw_count
+
+    mov a,#0x10             ;2d31  a1 10        A = 0x10
 lab_2d33:
-    mov c,a                 ;2d33  72
+    mov c,a                 ;2d33  72           C = A (XXX C is not used by caller)
     ret                     ;2d34  af
 
 
@@ -8393,12 +8426,20 @@ lab_2dd5_ret:
     ret                     ;2dd5  af
 
 
-sub_2dd6:
+fake_rx_addr_len:
 ;Fake KWP1281 address and byte count in KWP1281 rx buffer
-;Reads address from mem_f000, reads byte count from mem_f04c
+;See also read_rx_addr_len
+;
+;Call with:
+;  mem_f000 = address to read
+;  kwp_rw_total = number of bytes to read in total
+;
+;Writes to the KWP1281 rx buffer as if the values had been
+;received from the remote.
+;
     movw hl,#kwp_rx_buf+3   ;2dd6  16 8d f0     HL = pointer to KWP1281 rx buffer byte 3
                             ;                        (number of bytes to read)
-    mov a,!mem_f04c         ;2dd9  8e 4c f0     A = value at mem_f04c
+    mov a,!kwp_rw_total     ;2dd9  8e 4c f0     A = number of bytes to read in total
     mov [hl],a              ;2ddc  97           Store it in KWP1281 rx buffer byte 3
 
     incw hl                 ;2ddd  86           HL = pointer to KWP1281 rx buf byte 4 (address high)
@@ -14757,7 +14798,17 @@ lab_5098:
     br !lab_532a_ack        ;509b  9b 2a 53     Branch to send ACK response
 
 kwp_56_01_read_ram:
-;read ram (kwp_56_handlers)
+;Read RAM (kwp_56_handlers)
+;
+;Request block:
+;  0x06 Block length              kwp_rx_buf+0
+;   xx  Block counter             kwp_rx_buf+1
+;  0x01 Block title               kwp_rx_buf+2
+;   xx  Number of bytes to read   kwp_rx_buf+3
+;   xx  Address high              kwp_rx_buf+4
+;   xx  Address low               kwp_rx_buf+5
+;  0x03 Block end                 kwp_rx_buf+6
+;
     mov a,#0x00             ;509e  a1 00
     mov !mem_fbc5,a         ;50a0  9e c5 fb
     bt mem_fe65.3,lab_50a9  ;50a3  bc 65 03     Branch if logged in
@@ -14788,7 +14839,7 @@ lab_50c4:
     br !lab_5355_nak_fail   ;50c7  9b 55 53     Branch to Send NAK response for general failure
 
 lab_50ca:
-    clr1 cy                 ;50ca  21
+    clr1 cy                 ;50ca  21           XXX redundant
     set1 cy                 ;50cb  20
     bc lab_50d1             ;50cc  8d 03
     br !lab_5355_nak_fail   ;50ce  9b 55 53     Branch to Send NAK response for general failure
@@ -14942,7 +14993,7 @@ lab_516f:
 
     ;mem_fbca = 0x01
     br !lab_5527            ;5176  9b 27 55     send read ram response with faked address
-                            ;                   from mem_f000 and faked byte count from mem_f04c
+                            ;                   from mem_f000 and faked byte count from kwp_rw_total
 
 lab_5179:
     cmp a,#0x02             ;5179  4d 02
@@ -14950,7 +15001,7 @@ lab_5179:
 
     ;mem_fbca = 0x02
     br !lab_557e            ;517d  9b 7e 55     send read eeprom response with faked address
-                            ;                   from mem_f000 and faked byte count from mem_f04c
+                            ;                   from mem_f000 and faked byte count from kwp_rw_total
 
 lab_5180:
     mov a,#0x00             ;5180  a1 00
@@ -15926,28 +15977,32 @@ lab_5514:
     br !send_kwp_tx_buf     ;5524  9b f7 34     Set flags to start sending the KWP1281 tx buffer
 
 lab_5527:
-;send read ram response with faked address from mem_f000 and faked byte count from mem_f04c
+;send read ram response with faked address from mem_f000 and faked byte count from kwp_rw_total
 ;branched to when mem_fbca = 0x01
-    call !sub_2dd6          ;5527  9a d6 2d     Fake KWP1281 address, byte count in KWP1281 rx buf
-                            ;                   Reads addr from mem_f000, byte count from mem_f04c
+    call !fake_rx_addr_len  ;5527  9a d6 2d     Fake KWP1281 address, byte count in KWP1281 rx buf
+                            ;                   Reads addr from mem_f000, byte count from kwp_rw_total
 
 lab_552a:
 ;Send 0x1c response to read ram or send nak
 ;branched to from both read ram handlers
     mov a,#0x01             ;552a  a1 01
     mov !mem_fbca,a         ;552c  9e ca fb
+
     mov b,#0x1c             ;552f  a3 1c        B = index 0x1c response to read ram
     call !init_kwp_tx_buf   ;5531  9a 92 52     Set block title, counter, length in KWP1281 tx buf
+
     call !sub_2bb9          ;5534  9a b9 2b
-    bnc lab_5544            ;5537  9d 0b
+    bnc lab_5544_success    ;5537  9d 0b        Branch if success
+
+    ;Failed
     mov a,!mem_fbcb         ;5539  8e cb fb     A = block counter
     sub a,#0x01             ;553c  1d 01        Decrement it
     mov !mem_fbcb,a         ;553e  9e cb fb     Store block counter
     br !lab_5355_nak_fail   ;5541  9b 55 53     Branch to Send NAK response for general failure
 
-lab_5544:
-    add a,#0x03             ;5544  0d 03
-    mov [hl],a              ;5546  97
+lab_5544_success:
+    add a,#0x03             ;5544  0d 03        A = 0x03 Block end
+    mov [hl],a              ;5546  97           Write block end into KWP1281 tx buffer
     mov !kwp_tx_len,a       ;5547  9e 6b f0     Store tx block length
     call !send_kwp_tx_buf   ;554a  9a f7 34     Set flags to start sending the KWP1281 tx buffer
 
@@ -15995,10 +16050,10 @@ lab_556b:
 
 lab_557e:
 ;possible nak handling related
-;send read eeprom response with faked address from mem_f000 and faked byte count from mem_f04c
+;send read eeprom response with faked address from mem_f000 and faked byte count from kwp_rw_total
 ;branched to when mem_fbca = 0x02
-    call !sub_2dd6          ;557e  9a d6 2d     Fake KWP1281 address, byte count in KWP1281 rx buf
-                            ;                   Read addr from mem_f000, byte count from mem_f04c
+    call !fake_rx_addr_len  ;557e  9a d6 2d     Fake KWP1281 address, byte count in KWP1281 rx buf
+                            ;                   Read addr from mem_f000, byte count from kwp_rw_total
 
 lab_5581:
 ;KWP1281 Read EEPROM
@@ -16009,19 +16064,18 @@ lab_5581:
     mov b,#0x1e             ;5586  a3 1e        B = index 0x1e response to read eeprom
     call !init_kwp_tx_buf   ;5588  9a 92 52     Set block title, counter, length in KWP1281 tx buf
 
-    call !sub_2b53          ;558b  9a 53 2b     TODO something related to EEPROM
-    bnc lab_559b            ;558e  9d 0b        Branch if failed
+    call !sub_2b53          ;558b  9a 53 2b
+    bnc lab_559b_success    ;558e  9d 0b        Branch if success
 
-    ;Something related to EEPROM failed
+    ;Failed
     mov a,!mem_fbcb         ;5590  8e cb fb     A = block counter
     sub a,#0x01             ;5593  1d 01        Decrement it
     mov !mem_fbcb,a         ;5595  9e cb fb     Store block counter
     br !lab_5355_nak_fail   ;5598  9b 55 53     Branch to Send NAK response for general failure
 
-lab_559b:
-    ;Something related to EEPROM succeeded
-    add a,#0x03             ;559b  0d 03
-    mov [hl],a              ;559d  97
+lab_559b_success:
+    add a,#0x03             ;559b  0d 03        A = 0x03 Block end
+    mov [hl],a              ;559d  97           Write block end into KWP1281 tx buffer
     mov !kwp_tx_len,a       ;559e  9e 6b f0     Store tx block length
     call !send_kwp_tx_buf   ;55a1  9a f7 34     Set flags to start sending the KWP1281 tx buffer
 
@@ -16060,7 +16114,7 @@ lab_55c5:
 
     call !sub_2c7f          ;55ca  9a 7f 2c     Returns DE = word at mem_f004
                             ;                   Returns X = KWP1281 rx buffer byte 6
-                            ;                   Returns A = byte at mem_f04c
+                            ;                   Returns A = byte at kwp_rw_total
 
     mov [hl+b],a            ;55cd  bb           Store A in KWP1281 tx buffer byte 3
 
