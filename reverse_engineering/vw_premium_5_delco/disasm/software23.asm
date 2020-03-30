@@ -1585,15 +1585,15 @@ lab_08db:
 
 sio31_disable:
 ;Disable SIO31 (CDC SPI)
-    set1 shadow_p2.2        ;08df  2a cc
+    set1 shadow_p2.2        ;08df  2a cc        CDC CLK = 1
     set1 shadow_p2.1        ;08e1  1a cc
     mov a,shadow_p2         ;08e3  f0 cc
     mov p2,a                ;08e5  f2 02
     mov csim31,#0x00        ;08e7  13 b8 00     SIO31 = operation stopped
-    clr1 pm2.2              ;08ea  71 2b 22
-    clr1 pm2.1              ;08ed  71 1b 22
-    clr1 pu2.0              ;08f0  71 0b 32
-    set1 pm2.0              ;08f3  71 0a 22     PM20 = input
+    clr1 pm2.2              ;08ea  71 2b 22     PM22 = output (CDC CLK)
+    clr1 pm2.1              ;08ed  71 1b 22     PM21 = output
+    clr1 pu2.0              ;08f0  71 0b 32     PU20 pull-up resistor disabled
+    set1 pm2.0              ;08f3  71 0a 22     PM20 = input (CDC DI)
     ret                     ;08f6  af
 
 ;CSI31 is the CD changer interface (CDC)
@@ -3199,8 +3199,8 @@ lab_1036:
     set1 egp.0              ;1099  71 0a 48     Set EGN0 (enables INTP0 on rising edge)
     clr1 egn.0              ;109c  71 0b 49     Clear EGN0 (disables INTP0 on falling edge)
 
-    clr1 pm5.7              ;109f  71 7b 25     PM57 = output
-    set1 shadow_p5.7        ;10a2  7a cf
+    clr1 pm5.7              ;109f  71 7b 25     PM57 = output (CDC TX)
+    set1 shadow_p5.7        ;10a2  7a cf        CDC TX = 1
     mov a,shadow_p5         ;10a4  f0 cf
     mov p5,a                ;10a6  f2 05
 
@@ -6642,13 +6642,13 @@ sio30_enable:
     ret                     ;262e  af
 
 sio31_enable:
-;Enable SIO31 (unknown SPI)
+;Enable SIO31 (CDC RX SPI)
     mov csim31,#0x84        ;262f  13 b8 84     SIO31 mode = ena, rx only, clock = external to SCK31
-    clr1 pu2.2              ;2632  71 2b 32
-    set1 pm2.2              ;2635  71 2a 22
-    clr1 pm2.1              ;2638  71 1b 22
-    clr1 pu2.0              ;263b  71 0b 32
-    set1 pm2.0              ;263e  71 0a 22
+    clr1 pu2.2              ;2632  71 2b 32     PU22 pull-up resistor disabled (CDC CLK)
+    set1 pm2.2              ;2635  71 2a 22     PM22 = input (CDC CLK)
+    clr1 pm2.1              ;2638  71 1b 22     PM21 = output
+    clr1 pu2.0              ;263b  71 0b 32     PU20 pull-up resistor disabled
+    set1 pm2.0              ;263e  71 0a 22     PM20 = input (CDC DI)
     clr1 shadow_p2.1        ;2641  1b cc
     mov a,shadow_p2         ;2643  f0 cc
     mov p2,a                ;2645  f2 02
@@ -16989,8 +16989,8 @@ sub_5a85:
     movw ax,#0x0102         ;5aa7  10 02 01
     movw !0xf010,ax         ;5aaa  03 10 f0
 
-    clr1 pm5.7              ;5aad  71 7b 25     PM57 = output
-    set1 shadow_p5.7        ;5ab0  7a cf
+    clr1 pm5.7              ;5aad  71 7b 25     PM57 = output (CDC TX)
+    set1 shadow_p5.7        ;5ab0  7a cf        CDC TX = 1
     mov a,shadow_p5         ;5ab2  f0 cf
     mov p5,a                ;5ab4  f2 05
 
@@ -17098,7 +17098,7 @@ inttm011_5b60:
     push hl                 ;5b62  b7
 
     mov1 cy,mem_fe68.2      ;5b63  71 24 68     Carry = CDC TX bit
-    mov1 shadow_p5.7,cy     ;5b66  71 71 cf
+    mov1 shadow_p5.7,cy     ;5b66  71 71 cf     CDC TX = Carry
     mov a,shadow_p5         ;5b69  f0 cf
     mov p5,a                ;5b6b  f2 05
 
@@ -17126,8 +17126,8 @@ lab_5b90:
     clr1 mem_fe68.1         ;5b90  1b 68
     clr1 mem_fe68.3         ;5b92  3b 68
 
-    clr1 pm5.7              ;5b94  71 7b 25     PM57 = output
-    set1 shadow_p5.7        ;5b97  7a cf
+    clr1 pm5.7              ;5b94  71 7b 25     PM57 = output (CDC TX)
+    set1 shadow_p5.7        ;5b97  7a cf        CDC TX = 1
     mov a,shadow_p5         ;5b99  f0 cf
     mov p5,a                ;5b9b  f2 05
 
