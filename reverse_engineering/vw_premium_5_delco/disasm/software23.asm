@@ -3178,7 +3178,7 @@ lab_1036:
     clr1 mem_fe66.6         ;1068  6b 66
     mov tmc01,#0x00         ;106a  13 68 00
     set1 mk1l.3             ;106d  71 3a e6     Set TMMK001 (disables INTTM001)
-    set1 mk1l.4             ;1070  71 4a e6     Set TMMK011 (disables INTTM011)
+    set1 mk1l.4             ;1070  71 4a e6     Set TMMK011 (disables INTTM011; CDC TX)
     mov tmc01,#0x04         ;1073  13 68 04
     set1 mk0l.1             ;1076  71 1a e4     Set PMK0 (disables INTP0)
     mov a,#0x00             ;1079  a1 00
@@ -3199,10 +3199,11 @@ lab_1036:
     set1 egp.0              ;1099  71 0a 48     Set EGN0 (enables INTP0 on rising edge)
     clr1 egn.0              ;109c  71 0b 49     Clear EGN0 (disables INTP0 on falling edge)
 
-    clr1 pm5.7              ;109f  71 7b 25
+    clr1 pm5.7              ;109f  71 7b 25     PM57 = output
     set1 shadow_p5.7        ;10a2  7a cf
     mov a,shadow_p5         ;10a4  f0 cf
     mov p5,a                ;10a6  f2 05
+
     mov a,#0x02             ;10a8  a1 02
     callf !sub_09d7         ;10aa  1c d7
     call !sub_6947          ;10ac  9a 47 69     Store 0x80 in mem_f1aa and return
@@ -10733,8 +10734,8 @@ sub_3acf:
     clr1 shadow_p2.7        ;3ae7  7b cc
     mov a,shadow_p2         ;3ae9  f0 cc
     mov p2,a                ;3aeb  f2 02
-    clr1 pu5.7              ;3aed  71 7b 35
-    set1 pm5.7              ;3af0  71 7a 25
+    clr1 pu5.7              ;3aed  71 7b 35   PU57 pull-up resistor disabled
+    set1 pm5.7              ;3af0  71 7a 25   PM57 = input
     clr1 pu7.0              ;3af3  71 0b 37
     set1 pm7.0              ;3af6  71 0a 27
     clr1 pu5.0              ;3af9  71 0b 35
@@ -16895,8 +16896,8 @@ lab_59fd:
     mov !mem_fb05,a         ;5a01  9e 05 fb
     clr1 mem_fe67.4         ;5a04  4b 67
     clr1 mem_fe67.5         ;5a06  5b 67
-    set1 egp.0              ;5a08  71 0a 48     Set EGP0 (enables INTP0 on rising edge)
-    clr1 egn.0              ;5a0b  71 0b 49     Clear EGN0 (disables INTP0 on falling edge)
+    set1 egp.0              ;5a08  71 0a 48     Set EGP0 (enables INTP0 on rising edge; MFSW)
+    clr1 egn.0              ;5a0b  71 0b 49     Clear EGN0 (disables INTP0 on falling edge; MFSW)
 
 lab_5a0e_pop_reti:
 ;Pop registers and reti
@@ -16922,8 +16923,8 @@ lab_5a23:
 
 lab_5a27:
     mov mem_fe34,#0x01      ;5a27  11 34 01
-    set1 egn.0              ;5a2a  71 0a 49     Set EGN0 (enables INTP0 on falling edge)
-    clr1 egp.0              ;5a2d  71 0b 48     Clear EGP0 (disables INTP0 on rising edge)
+    set1 egn.0              ;5a2a  71 0a 49     Set EGN0 (enables INTP0 on falling edge; MFSW)
+    clr1 egp.0              ;5a2d  71 0b 48     Clear EGP0 (disables INTP0 on rising edge; MFSW)
     movw ax,de              ;5a30  c4
     movw !mem_f00e,ax       ;5a31  03 0e f0
     mov a,#0x0e             ;5a34  a1 0e
@@ -16939,8 +16940,8 @@ lab_5a3d:
     cmpw ax,#0xc49c         ;5a42  ea 9c c4
     bnc lab_59fd            ;5a45  9d b6
     mov mem_fe34,#0x02      ;5a47  11 34 02
-    set1 egp.0              ;5a4a  71 0a 48     Set EGP0 (enables INTP0 on rising edge)
-    clr1 egn.0              ;5a4d  71 0b 49     Clear EGN0 (disables INTP0 on falling edge)
+    set1 egp.0              ;5a4a  71 0a 48     Set EGP0 (enables INTP0 on rising edge; MFSW)
+    clr1 egn.0              ;5a4d  71 0b 49     Clear EGN0 (disables INTP0 on falling edge; MFSW)
     mov a,#0x07             ;5a50  a1 07
     mov !mem_fb05,a         ;5a52  9e 05 fb
     br !lab_5a0e_pop_reti   ;5a55  9b 0e 5a     Branch to pop registers and reti
@@ -16987,18 +16988,20 @@ sub_5a85:
     movw !0xf014,ax         ;5aa4  03 14 f0
     movw ax,#0x0102         ;5aa7  10 02 01
     movw !0xf010,ax         ;5aaa  03 10 f0
-    clr1 pm5.7              ;5aad  71 7b 25
-    set1 shadow_p5.7         ;5ab0  7a cf
-    mov a,shadow_p5          ;5ab2  f0 cf
+
+    clr1 pm5.7              ;5aad  71 7b 25     PM57 = output
+    set1 shadow_p5.7        ;5ab0  7a cf
+    mov a,shadow_p5         ;5ab2  f0 cf
     mov p5,a                ;5ab4  f2 05
+
     movw ax,tm01            ;5ab6  89 14
     addw ax,#0x0937         ;5ab8  ca 37 09
-    movw cr011,ax           ;5abb  99 12
+    movw cr011,ax           ;5abb  99 12        Store as compare value for CDC TX timer interrupt
     movw !0xf018,ax         ;5abd  03 18 f0
-    clr1 mem_fe68.2         ;5ac0  2b 68
-    clr1 pr1l.4             ;5ac2  71 4b ea     Clear TMPR011 (makes INTTM011 high priority)
+    clr1 mem_fe68.2         ;5ac0  2b 68        CDC TX bit = 0
+    clr1 pr1l.4             ;5ac2  71 4b ea     Clear TMPR011 (makes INTTM011 high priority; CDC TX)
     clr1 if1l.4             ;5ac5  71 4b e2     Clear TMIF001 (INTWTNI0 interrupt flag)
-    clr1 mk1l.4             ;5ac8  71 4b e6     Clear TMMK011 (enables INTTM011)
+    clr1 mk1l.4             ;5ac8  71 4b e6     Clear TMMK011 (enables INTTM011; CDC TX)
     set1 mem_fe68.3         ;5acb  3a 68
     set1 cy                 ;5acd  20
     ret                     ;5ace  af
@@ -17015,9 +17018,9 @@ lab_5ad1:
     movw !0xf010,ax         ;5ad7  03 10 f0
     movw ax,de              ;5ada  c4
     addw ax,#0x9374         ;5adb  ca 74 93
-    movw cr011,ax           ;5ade  99 12
+    movw cr011,ax           ;5ade  99 12        Store as compare value for CDC TX timer interrupt
     movw !0xf018,ax         ;5ae0  03 18 f0
-    set1 mem_fe68.2         ;5ae3  2a 68
+    set1 mem_fe68.2         ;5ae3  2a 68        CDC TX bit = 1
     br !lab_5ba0_pop_reti   ;5ae5  9b a0 5b     Branch to pop registers and reti
 
 lab_5ae8:
@@ -17025,9 +17028,9 @@ lab_5ae8:
     movw !0xf010,ax         ;5aeb  03 10 f0
     movw ax,de              ;5aee  c4
     addw ax,#0x49ba         ;5aef  ca ba 49
-    movw cr011,ax           ;5af2  99 12
+    movw cr011,ax           ;5af2  99 12        Store as compare value for CDC TX timer interrupt
     movw !0xf018,ax         ;5af4  03 18 f0
-    clr1 mem_fe68.2         ;5af7  2b 68
+    clr1 mem_fe68.2         ;5af7  2b 68        CDC TX bit = 0
     br !lab_5ba0_pop_reti   ;5af9  9b a0 5b     Branch to pop registers and reti
 
 lab_5afc:
@@ -17047,13 +17050,13 @@ lab_5b0f:
     movw ax,#0x0000         ;5b0f  10 00 00
     bf mem_fe68.1,lab_5b1b  ;5b12  31 13 68 05
     movw ax,#0x0608         ;5b16  10 08 06
-    clr1 mem_fe68.2         ;5b19  2b 68
+    clr1 mem_fe68.2         ;5b19  2b 68        CDC TX bit = 0
 
 lab_5b1b:
     movw !0xf010,ax         ;5b1b  03 10 f0
     movw ax,de              ;5b1e  c4
-    addw ax,#lab_312c       ;5b1f  ca 2c 31
-    movw cr011,ax           ;5b22  99 12
+    addw ax,#0x312c         ;5b1f  ca 2c 31
+    movw cr011,ax           ;5b22  99 12        Store as compare value for CDC TX timer interrupt
     movw !0xf018,ax         ;5b24  03 18 f0
     br !lab_5ba0_pop_reti   ;5b27  9b a0 5b     Branch to pop registers and reti
 
@@ -17075,10 +17078,10 @@ lab_5b2a:
     movw !0xf010,ax         ;5b49  03 10 f0
     movw ax,tm01            ;5b4c  89 14
     addw ax,#0x0937         ;5b4e  ca 37 09
-    movw cr011,ax           ;5b51  99 12
+    movw cr011,ax           ;5b51  99 12        Store as compare value for CDC TX timer interrupt
     movw !0xf018,ax         ;5b53  03 18 f0
-    clr1 mem_fe68.2         ;5b56  2b 68
-    br lab_5ba0_pop_reti    ;5b58  fa 46      Branch to pop registers and reti
+    clr1 mem_fe68.2         ;5b56  2b 68        CDC TX bit = 0
+    br lab_5ba0_pop_reti    ;5b58  fa 46        Branch to pop registers and reti
 
 lab_5b5a_br_5c31:
     br !lab_5c31            ;5b5a  9b 31 5c
@@ -17087,13 +17090,18 @@ lab_5b5d_br_5ad1:
     br !lab_5ad1            ;5b5d  9b d1 5a
 
 inttm011_5b60:
+;CDC TX timer interrupt
+;Fires when TM01 count value matches CR011 compare value
+;
     push ax                 ;5b60  b1
     push de                 ;5b61  b5
     push hl                 ;5b62  b7
-    mov1 cy,mem_fe68.2      ;5b63  71 24 68
+
+    mov1 cy,mem_fe68.2      ;5b63  71 24 68     Carry = CDC TX bit
     mov1 shadow_p5.7,cy     ;5b66  71 71 cf
     mov a,shadow_p5         ;5b69  f0 cf
     mov p5,a                ;5b6b  f2 05
+
     movw ax,tm01            ;5b6d  89 14
     movw de,ax              ;5b6f  d4
     movw ax,!0xf010         ;5b70  02 10 f0
@@ -17117,11 +17125,13 @@ lab_5b83:
 lab_5b90:
     clr1 mem_fe68.1         ;5b90  1b 68
     clr1 mem_fe68.3         ;5b92  3b 68
-    clr1 pm5.7              ;5b94  71 7b 25
+
+    clr1 pm5.7              ;5b94  71 7b 25     PM57 = output
     set1 shadow_p5.7        ;5b97  7a cf
     mov a,shadow_p5         ;5b99  f0 cf
     mov p5,a                ;5b9b  f2 05
-    set1 mk1l.4             ;5b9d  71 4a e6     Set TMMK011 (disables INTTM011)
+
+    set1 mk1l.4             ;5b9d  71 4a e6     Set TMMK011 (disables INTTM011; CDC TX)
     ;Fall through to pop registers and reti
 
 lab_5ba0_pop_reti:
@@ -17141,7 +17151,7 @@ lab_5ba4:
     addw ax,#0x9374         ;5bae  ca 74 93
     movw cr011,ax           ;5bb1  99 12
     movw !0xf018,ax         ;5bb3  03 18 f0
-    set1 mem_fe68.2         ;5bb6  2a 68
+    set1 mem_fe68.2         ;5bb6  2a 68        CDC TX bit = 1
     br !lab_5ba0_pop_reti   ;5bb8  9b a0 5b     Branch to pop registers and reti
 
 lab_5bbb:
@@ -17151,7 +17161,7 @@ lab_5bbb:
     addw ax,#0x49ba         ;5bc2  ca ba 49
     movw cr011,ax           ;5bc5  99 12
     movw !0xf018,ax         ;5bc7  03 18 f0
-    clr1 mem_fe68.2         ;5bca  2b 68
+    clr1 mem_fe68.2         ;5bca  2b 68        CDC TX bit = 0
     br !lab_5ba0_pop_reti   ;5bcc  9b a0 5b     Branch to pop registers and reti
 
 lab_5bcf:
@@ -17172,7 +17182,7 @@ lab_5bdb:
     movw !0xf014,ax         ;5be5  03 14 f0
 
 lab_5be8:
-    clr1 mem_fe68.2         ;5be8  2b 68
+    clr1 mem_fe68.2         ;5be8  2b 68        CDC TX bit = 0
     bc lab_5bf8             ;5bea  8d 0c
     movw ax,de              ;5bec  c4
     addw ax,#0x0937         ;5bed  ca 37 09
@@ -17194,7 +17204,7 @@ lab_5c04:
     addw ax,#0x0937         ;5c09  ca 37 09
     movw cr011,ax           ;5c0c  99 12
     movw !0xf018,ax         ;5c0e  03 18 f0
-    set1 mem_fe68.2         ;5c11  2a 68
+    set1 mem_fe68.2         ;5c11  2a 68        CDC TX bit = 1
     br !lab_5ba0_pop_reti   ;5c13  9b a0 5b     Branch to pop registers and reti
 
 lab_5c16:
@@ -17228,13 +17238,13 @@ lab_5c31:
 lab_5c41:
     bf mem_fe68.1,lab_5c4d  ;5c41  31 13 68 08
     movw ax,#0x0502         ;5c45  10 02 05
-    clr1 mem_fe68.2         ;5c48  2b 68
+    clr1 mem_fe68.2         ;5c48  2b 68        CDC TX bit = 0
     br !lab_5c58            ;5c4a  9b 58 5c
 
 lab_5c4d:
     movw ax,#0x0000         ;5c4d  10 00 00
     movw !0xf010,ax         ;5c50  03 10 f0
-    set1 mem_fe68.2         ;5c53  2a 68
+    set1 mem_fe68.2         ;5c53  2a 68        CDC TX bit = 1
     br !lab_5ba0_pop_reti   ;5c55  9b a0 5b     Branch to pop registers and reti
 
 lab_5c58:

@@ -35,8 +35,17 @@
 |Pin 34 |P34/TO00     |Unknown output                                 |
 |Pin 35 |P35/TI000    |Unknown input                                  |
 |Pin 36 |P36/TI010    |Unknown input/output                           |
+|Pin 37 |PTI010       |                                               |
+|Pin 38 |P50          |                                               |
+|Pin 39 |P51          |                                               |
+|Pin 40 |P52          |                                               |
+|Pin 41 |P53          |                                               |
+|Pin 42 |P54          |                                               |
+|Pin 43 |P55          |                                               |
+|Pin 44 |P56          |                                               |
+|Pin 45 |P57          |CDC DO (TODO inverted or not?)                 |
 |Pin 46 |P20/SI31     |CDC DI (inverted)                              |
-|Pin 47 |P21/SO31     |TODO: probably CDC                             |
+|Pin 47 |P21/SO31     |                                               |
 |Pin 48 |P22/SCK31    |CDC CLK (inverted)                             |
 |Pin 49 |P04/INTP4    |INTP4: POWER key (0=pressed)                   |
 |Pin 50 |P05/INTP5    |uPD16432B KEYREQ (not used in firmware)        |
