@@ -32,9 +32,8 @@ mem_f01a = 0xf01a           ;EEPROM address for I2C read or write EEPROM (2 byte
 mem_f020 = 0xf020
 mem_f021 = 0xf021
 mem_f022 = 0xf022
-mem_f032 = 0xf032
-mem_f033 = 0xf033
-mem_f034 = 0xf034
+cdc_isr_rx_idx = 0xf032     ;CDC CSI31 ISR receive buffer index
+cdc_isr_rx_buf = 0xf033     ;CDC CSI31 ISR receive buffer (8 bytes)
 kwp_tmp_buf = 0xf03b        ;KWP1281 temporary buffer (16 bytes)
 kwp_rw_count = 0xf04b       ;KWP1281 number of bytes left to send for read ram or r/w eeprom
 kwp_rw_total = 0xf04c       ;KWP1281 total bytes originally requested for read ram or r/w eeprom
@@ -415,13 +414,7 @@ mem_fc67 = 0xfc67
 mem_fc6b = 0xfc6b
 mem_fc6c = 0xfc6c
 mem_fc6d = 0xfc6d
-mem_fc6e = 0xfc6e
-mem_fc6f = 0xfc6f
-mem_fc70 = 0xfc70
-mem_fc71 = 0xfc71
-mem_fc72 = 0xfc72
-mem_fc73 = 0xfc73
-mem_fc74 = 0xfc74
+cdc_rx_buf = 0xfc6e         ;CDC RX buffer (7 bytes; copied from cdc_isr_rx_buf except first byte)
 mem_fc75 = 0xfc75           ;CD track number
 mem_fc76 = 0xfc76
 mem_fc77 = 0xfc77
@@ -1609,7 +1602,7 @@ intcsi31_08f7:
     push bc                 ;08f8  b3
     push de                 ;08f9  b5
     push hl                 ;08fa  b7
-    mov a,!mem_f032         ;08fb  8e 32 f0
+    mov a,!cdc_isr_rx_idx   ;08fb  8e 32 f0
     mov b,a                 ;08fe  73
     mov a,!mem_fb0a         ;08ff  8e 0a fb
     cmp a,#0x00             ;0902  4d 00
@@ -1618,15 +1611,15 @@ intcsi31_08f7:
 
 lab_0908:
     xch a,sio31             ;0908  83 1b
-    movw hl,#mem_f033       ;090a  16 33 f0
+    movw hl,#cdc_isr_rx_buf ;090a  16 33 f0
     mov [hl+b],a            ;090d  bb
     inc b                   ;090e  43
     mov a,b                 ;090f  63
     cmp a,#0x08             ;0910  4d 08
     bnz lab_0925            ;0912  bd 11
     mov b,#0x07             ;0914  a3 07
-    movw hl,#mem_f034       ;0916  16 34 f0
-    movw de,#mem_fc6e       ;0919  14 6e fc
+    movw hl,#cdc_isr_rx_buf+1 ;0916  16 34 f0
+    movw de,#cdc_rx_buf     ;0919  14 6e fc
 
 lab_091c:
     mov a,[hl]              ;091c  87
@@ -1638,7 +1631,7 @@ lab_091c:
     mov a,b                 ;0924  63
 
 lab_0925:
-    mov !mem_f032,a         ;0925  9e 32 f0
+    mov !cdc_isr_rx_idx,a   ;0925  9e 32 f0
     mov a,#0x04             ;0928  a1 04
     mov !mem_fb0a,a         ;092a  9e 0a fb
     pop hl                  ;092d  b6
@@ -2656,6 +2649,7 @@ lab_0ce7:
     ret                     ;0ce7  af
 
 sub_0ce8:
+;TODO CDC related (see lab_dbee)
     cmp a,#0xa0             ;0ce8  4d a0
     bnc lab_0cf2            ;0cea  9d 06
     push ax                 ;0cec  b1
@@ -3070,7 +3064,7 @@ lab_0f1b:
     call !sio31_disable     ;0f74  9a df 08     Disable SIO31 (unknown SPI)
     clr1 mem_fe5f.2         ;0f77  2b 5f
     mov a,#0x00             ;0f79  a1 00
-    mov !mem_f032,a         ;0f7b  9e 32 f0
+    mov !cdc_isr_rx_idx,a   ;0f7b  9e 32 f0
     clr1 if0h.5             ;0f7e  71 5b e1     Clear CSIIF31 (CSIIF31 interrupt flag)
     set1 mk0h.5             ;0f81  71 5a e5     Set CSIMK31 (disables INTCSI31)
 
@@ -38738,7 +38732,7 @@ lab_d724:
     ret                     ;d724  af
 
 lab_d725:
-    mov a,!mem_fc6e         ;d725  8e 6e fc
+    mov a,!cdc_rx_buf       ;d725  8e 6e fc
     and a,#0x0f             ;d728  5d 0f
     mov !mem_fc7d,a         ;d72a  9e 7d fc
     mov a,#0xff             ;d72d  a1 ff
@@ -38871,11 +38865,11 @@ lab_d818:
     ret                     ;d818  af
 
 sub_d819:
-    mov a,!mem_fc74         ;d819  8e 74 fc
+    mov a,!cdc_rx_buf+6     ;d819  8e 74 fc
     and a,#0x07             ;d81c  5d 07
     cmp a,#0x03             ;d81e  4d 03
     bnz lab_d83b            ;d820  bd 19
-    mov a,!mem_fc74         ;d822  8e 74 fc
+    mov a,!cdc_rx_buf+6     ;d822  8e 74 fc
     cmp mem_fe30,#0x03      ;d825  c8 30 03
     bz lab_d82e             ;d828  ad 04
     clr1 mem_fe46.4         ;d82a  4b 46
@@ -38886,7 +38880,7 @@ lab_d82e:
     mov1 mem_fe46.4,cy      ;d830  71 41 46
 
 lab_d833:
-    mov a,!mem_fc6e         ;d833  8e 6e fc
+    mov a,!cdc_rx_buf       ;d833  8e 6e fc
     bt a.7,lab_d83e         ;d836  31 7e 05
     br lab_d867             ;d839  fa 2c
 
@@ -38911,7 +38905,7 @@ lab_d83e:
     rol a,1                 ;d854  26
     mov b,a                 ;d855  73
     movw hl,#mem_fc4f       ;d856  16 4f fc
-    movw de,#mem_fc6f       ;d859  14 6f fc
+    movw de,#cdc_rx_buf+1   ;d859  14 6f fc
     mov c,#0x04             ;d85c  a2 04
 
 lab_d85e:
@@ -38927,7 +38921,7 @@ lab_d864:
 lab_d867:
     mov a,mem_fe49          ;d867  f0 49
     mov !mem_fc6b,a         ;d869  9e 6b fc
-    mov a,!mem_fc73         ;d86c  8e 73 fc
+    mov a,!cdc_rx_buf+5     ;d86c  8e 73 fc
     and a,#0xf0             ;d86f  5d f0
     mov mem_fe49,a          ;d871  f2 49
     cmp mem_fe49,#0x10      ;d873  c8 49 10
@@ -38971,7 +38965,7 @@ lab_d8ad:
     clr1 mem_fe47.4         ;d8b1  4b 47
 
 lab_d8b3:
-    mov a,!mem_fc72         ;d8b3  8e 72 fc
+    mov a,!cdc_rx_buf+4     ;d8b3  8e 72 fc
     mov1 cy,a.2             ;d8b6  61 ac
     mov1 mem_fe6e.2,cy      ;d8b8  71 21 6e
     mov1 cy,a.5             ;d8bb  61 dc
@@ -38979,7 +38973,7 @@ lab_d8b3:
     mov1 mem_fe6e.1,cy      ;d8c0  71 11 6e     Copy carry into MIX flag
     mov1 cy,a.4             ;d8c3  61 cc
     mov1 mem_fe6e.0,cy      ;d8c5  71 01 6e
-    mov a,!mem_fc73         ;d8c8  8e 73 fc
+    mov a,!cdc_rx_buf+5     ;d8c8  8e 73 fc
     mov1 cy,a.3             ;d8cb  61 bc
     bnc lab_d8e9            ;d8cd  9d 1a
     mov a,!mem_fc7e         ;d8cf  8e 7e fc
@@ -39002,7 +38996,7 @@ lab_d8e9:
     mov !mem_fc7e,a         ;d8ed  9e 7e fc
 
 lab_d8f0:
-    mov a,!mem_fc73         ;d8f0  8e 73 fc
+    mov a,!cdc_rx_buf+5     ;d8f0  8e 73 fc
     and a,#0x06             ;d8f3  5d 06
     ror a,1                 ;d8f5  24
     and a,#0x03             ;d8f6  5d 03
@@ -39100,7 +39094,7 @@ sub_d966:
     mov a,!mem_fc75         ;d966  8e 75 fc
     mov x,a                 ;d969  70
     mov b,a                 ;d96a  73
-    movw hl,#mem_fc48         ;d96b  16 48 fc
+    movw hl,#mem_fc48       ;d96b  16 48 fc
     mov c,#0x06             ;d96e  a2 06
     inc c                   ;d970  42
 
@@ -39431,10 +39425,10 @@ lab_db74:
     br !sub_d1bf            ;db87  9b bf d1
 
 sub_db8a:
-    mov a,!mem_fc6e         ;db8a  8e 6e fc
+    mov a,!cdc_rx_buf       ;db8a  8e 6e fc
     bt a.7,lab_dba6         ;db8d  31 7e 16
     bf mem_fe46.2,lab_dba6  ;db90  31 23 46 12
-    mov a,!mem_fc6e         ;db94  8e 6e fc
+    mov a,!cdc_rx_buf       ;db94  8e 6e fc
     and a,#0x0f             ;db97  5d 0f
     cmp a,!mem_fc7b         ;db99  48 7b fc
     bz lab_dba6             ;db9c  ad 08
@@ -39454,12 +39448,12 @@ sub_dba7:
     set1 mem_fe47.3         ;dbb4  3a 47
 
 lab_dbb6:
-    mov a,!mem_fc6e         ;dbb6  8e 6e fc
-    bt a.7,lab_dc2e         ;dbb9  31 7e 72
+    mov a,!cdc_rx_buf       ;dbb6  8e 6e fc
+    bt a.7,lab_dc2e_ret     ;dbb9  31 7e 72
     and a,#0x0f             ;dbbc  5d 0f
     bf mem_fe46.2,lab_dbd3  ;dbbe  31 23 46 11
     cmp a,!mem_fc7b         ;dbc2  48 7b fc
-    bnz lab_dc2e            ;dbc5  bd 67
+    bnz lab_dc2e_ret        ;dbc5  bd 67
     clr1 mem_fe46.2         ;dbc7  2b 46
     push ax                 ;dbc9  b1
     mov a,#0xff             ;dbca  a1 ff
@@ -39471,45 +39465,50 @@ lab_dbd3:
     bf mem_fe47.3,lab_dbee  ;dbd3  31 33 47 17
     mov b,a                 ;dbd7  73
     mov a,!mem_f1a6         ;dbd8  8e a6 f1
-    cmp a,#0x09             ;dbdb  4d 09          9 Writes "CD  CD ERR "
-    bz lab_dc2e             ;dbdd  ad 4f
+    cmp a,#0x09             ;dbdb  4d 09        9 Writes "CD  CD ERR "
+    bz lab_dc2e_ret         ;dbdd  ad 4f        Branch to just return
     mov a,b                 ;dbdf  63
     cmp a,#0x00             ;dbe0  4d 00
-    bz lab_dc2e             ;dbe2  ad 4a
+    bz lab_dc2e_ret         ;dbe2  ad 4a        Branch to just return
     cmp a,#0x07             ;dbe4  4d 07
-    bnc lab_dc2e            ;dbe6  9d 46
+    bnc lab_dc2e_ret        ;dbe6  9d 46        Branch to just return
     mov !mem_fc75,a         ;dbe8  9e 75 fc
     mov !mem_fc7b,a         ;dbeb  9e 7b fc
 
 lab_dbee:
-    mov a,!mem_fc6f         ;dbee  8e 6f fc
+    mov a,!cdc_rx_buf+1     ;dbee  8e 6f fc
     call !sub_0ce8          ;dbf1  9a e8 0c
-    bc lab_dc2e             ;dbf4  8d 38
+    bc lab_dc2e_ret         ;dbf4  8d 38        Branch to just return
     cmp a,#0x00             ;dbf6  4d 00
-    bz lab_dc2e             ;dbf8  ad 34
-    mov a,!mem_fc70         ;dbfa  8e 70 fc
+    bz lab_dc2e_ret         ;dbf8  ad 34        Branch to just return
+
+    mov a,!cdc_rx_buf+2     ;dbfa  8e 70 fc
     and a,#0xf0             ;dbfd  5d f0
     cmp a,#0xa0             ;dbff  4d a0
     bz lab_dc0b             ;dc01  ad 08
-    mov a,!mem_fc70         ;dc03  8e 70 fc
+
+    mov a,!cdc_rx_buf+2     ;dc03  8e 70 fc
     call !sub_0ce8          ;dc06  9a e8 0c
-    bc lab_dc2e             ;dc09  8d 23
+    bc lab_dc2e_ret         ;dc09  8d 23        Branch to just return
 
 lab_dc0b:
-    mov a,!mem_fc71         ;dc0b  8e 71 fc
+    mov a,!cdc_rx_buf+3     ;dc0b  8e 71 fc
     call !sub_0ce8          ;dc0e  9a e8 0c
-    bc lab_dc2e             ;dc11  8d 1b
-    bt mem_fe47.6,lab_dc2e  ;dc13  ec 47 18
-    mov a,!mem_fc6e         ;dc16  8e 6e fc
-    bt a.7,lab_dc2e         ;dc19  31 7e 12
-    mov a,!mem_fc6f         ;dc1c  8e 6f fc
+    bc lab_dc2e_ret         ;dc11  8d 1b        Branch to just return
+
+    bt mem_fe47.6,lab_dc2e_ret ;dc13  ec 47 18  Branch to just return
+
+    mov a,!cdc_rx_buf+0     ;dc16  8e 6e fc
+    bt a.7,lab_dc2e_ret     ;dc19  31 7e 12     Branch to just return
+
+    mov a,!cdc_rx_buf+1     ;dc1c  8e 6f fc
     mov !mem_fc76,a         ;dc1f  9e 76 fc
-    mov a,!mem_fc70         ;dc22  8e 70 fc
+    mov a,!cdc_rx_buf+2     ;dc22  8e 70 fc
     mov !mem_fc77,a         ;dc25  9e 77 fc
-    mov a,!mem_fc71         ;dc28  8e 71 fc
+    mov a,!cdc_rx_buf+3     ;dc28  8e 71 fc
     mov !mem_fc78,a         ;dc2b  9e 78 fc
 
-lab_dc2e:
+lab_dc2e_ret:
     ret                     ;dc2e  af
 
 sub_dc2f:
