@@ -7727,7 +7727,7 @@ lab_2b4e:
     ret                     ;2b52  af
 
 sub_2b53:
-;Called from lab_5581 (Read EEPROM related)
+;Called from lab_5581_read_eeprom
 ;
 ;Returns:
 ;  A = number of bytes read (XXX not used by caller)
@@ -7766,8 +7766,23 @@ lab_2b6c:
     pop hl                  ;2b6c  b6
     ret                     ;2b6d  af
 
-sub_2b6e:
+read_ee_sanitized:
+;Read EEPROM into temporary buffer with SAFE code sanitization
 ;Called from KWP1281 Read EEPROM
+;
+;When sanitization is enabled by mem_fe65.5=1, the two SAFE
+;code locations will be zeroed.  All other EEPROM locations
+;will be passed straight through.
+;
+;Call with:
+;  DE = EEPROM address
+;  C = number of bytes to read
+;  mem_fe65.5 = 0 to sanitize, 1 to not sanitize
+;
+;Returns:
+;  DE = pointer to buffer with data (kwp_tmp_buf)
+;  Carry set = failed, carry clear = success (XXX not used by caller)
+;
     push hl                 ;2b6e  b7
     movw ax,de              ;2b6f  c4
     push ax                 ;2b70  b1
@@ -7776,57 +7791,72 @@ sub_2b6e:
     movw de,#kwp_tmp_buf    ;2b73  14 3b f0     DE = pointer to buffer to receive EEPROM contents
     call !sub_6238          ;2b76  9a 38 62     Read A bytes from EEPROM address HL into [DE]
     pop ax                  ;2b79  b0
-    bnc lab_2bb6            ;2b7a  9d 3a        Branch if EEPROM read failed
+    bnc lab_2bb6_failed     ;2b7a  9d 3a        Branch if EEPROM read failed
     push bc                 ;2b7c  b3
-    bf mem_fe65.5,lab_2bb0  ;2b7d  31 53 65 2f
+    bf mem_fe65.5,lab_2bb0_done  ;2b7d  31 53 65 2f  Skip sanitizing if ?? bit is off
+
+    ;Some addresses will be sanitized
+
     cmpw ax,#0x0016         ;2b81  ea 16 00
-    bnc lab_2bb0            ;2b84  9d 2a
+    bnc lab_2bb0_done       ;2b84  9d 2a        Branch if AX >= 0x0016
+
+    ;AX < 0x0016
+
     dec c                   ;2b86  52
     xch a,x                 ;2b87  30
     add a,c                 ;2b88  61 0a
     xch a,x                 ;2b8a  30
     addc a,#0x00            ;2b8b  2d 00
     inc c                   ;2b8d  42
+
     cmpw ax,#0x0014         ;2b8e  ea 14 00
-    bc lab_2bb0             ;2b91  8d 1d
+    bc lab_2bb0_done        ;2b91  8d 1d        Branch if AX < 0x0014 (SAFE code location in EEPROM)
+
+    ;AX >= 0x0014
     movw hl,#kwp_tmp_buf    ;2b93  16 3b f0
     decw hl                 ;2b96  96
 
-lab_2b97:
+lab_2b97_loop:
     cmpw ax,#0x0015         ;2b97  ea 15 00
-    bnz lab_2ba3            ;2b9a  bd 07
+    bnz lab_2ba3_ne_0x0015  ;2b9a  bd 07        Branch if AX != 0x0015
+
+    ;AX = 0x0015 (SAFE code low byte)
+    ;Overwrite with it 0 in the buffer
     mov b,#0x00             ;2b9c  a3 00
     xch a,b                 ;2b9e  33
     mov [hl+c],a            ;2b9f  ba
     xch a,b                 ;2ba0  33
-    br lab_2bad             ;2ba1  fa 0a
+    br lab_2bad_next        ;2ba1  fa 0a
 
-lab_2ba3:
+lab_2ba3_ne_0x0015:
     cmpw ax,#0x0014         ;2ba3  ea 14 00
-    bnz lab_2bad            ;2ba6  bd 05
+    bnz lab_2bad_next       ;2ba6  bd 05        Branch if AX != 0x0014
+
+    ;AX = 0x0014 (SAFE code high byte)
+    ;Overwrite with it 0 in the buffer
     mov b,#0x00             ;2ba8  a3 00
     xch a,b                 ;2baa  33
     mov [hl+c],a            ;2bab  ba
     xch a,b                 ;2bac  33
 
-lab_2bad:
+lab_2bad_next:
     decw ax                 ;2bad  90
-    dbnz c,lab_2b97         ;2bae  8a e7
+    dbnz c,lab_2b97_loop    ;2bae  8a e7
 
-lab_2bb0:
+lab_2bb0_done:
     pop bc                  ;2bb0  b2
     pop hl                  ;2bb1  b6
     set1 mem_fe5f.7         ;2bb2  7a 5f
     clr1 cy                 ;2bb4  21
     ret                     ;2bb5  af
 
-lab_2bb6:
+lab_2bb6_failed:
     pop hl                  ;2bb6  b6
     set1 cy                 ;2bb7  20
     ret                     ;2bb8  af
 
 sub_2bb9:
-;Called from lab_552a (Read RAM related)
+;Called from lab_552a_read_ram (Read RAM related)
     push hl                 ;2bb9  b7
     call !sub_2d35          ;2bba  9a 35 2d     Clear bits in mem_fe5f and mem_fe60
     call !read_rx_addr_len  ;2bbd  9a 8b 2c     Read address and length from KWP1281 rx buffer
@@ -7890,6 +7920,7 @@ lab_2bf3_ret:
     ret                     ;2bf3  af
 
 sub_2bf4:
+;Called only from lab_55b6
     push hl                 ;2bf4  b7
     set1 cy                 ;2bf5  20
     bf mem_fe5f.7,lab_2c05  ;2bf6  31 73 5f 0b
@@ -14377,11 +14408,11 @@ lab_4f00:
     clr1 cy                 ;4f05  21
     call !sub_4828          ;4f06  9a 28 48     If mem_fb28 = 0 then just return, else set mem_fb28 = 0x34
     set1 cy                 ;4f09  20
-    bc lab_4f0f             ;4f0a  8d 03
+    bc lab_4f0f             ;4f0a  8d 03        Branch always
     br !lab_5355_nak_fail   ;4f0c  9b 55 53     Branch to Send NAK response for general failure
 
 lab_4f0f:
-    br !lab_552a            ;4f0f  9b 2a 55     Branch to Send 0x1c response to read ram or send nak
+    br !lab_552a_read_ram            ;4f0f  9b 2a 55     Branch to Send 0x1c response to read ram or send nak
 
 kwp_7c_03_read_eeprom:
 ;read eeprom (kwp_7c_handlers)
@@ -14396,11 +14427,11 @@ lab_4f1c:
     clr1 cy                 ;4f21  21
     call !sub_4828          ;4f22  9a 28 48     If mem_fb28 = 0 then just return, else set mem_fb28 = 0x34
     set1 cy                 ;4f25  20
-    bc lab_4f2b             ;4f26  8d 03
+    bc lab_4f2b             ;4f26  8d 03        Branch always
     br !lab_5355_nak_fail   ;4f28  9b 55 53     Branch to Send NAK response for general failure
 
 lab_4f2b:
-    br !lab_5581            ;4f2b  9b 81 55     Branch to send read EEPROM response
+    br !lab_5581_read_eeprom ;4f2b  9b 81 55     Branch to send read EEPROM response
 
 kwp_7c_0c_write_eeprom:
 ;write eeprom (kwp_7c_handlers)
@@ -14415,7 +14446,7 @@ lab_4f38:
     clr1 cy                 ;4f3d  21
     call !sub_4828          ;4f3e  9a 28 48     If mem_fb28 = 0 then just return, else set mem_fb28 = 0x34
     set1 cy                 ;4f41  20
-    bc lab_4f47             ;4f42  8d 03
+    bc lab_4f47             ;4f42  8d 03        Branch always
 
 lab_4f44:
     br !lab_5355_nak_fail   ;4f44  9b 55 53     Branch to Send NAK response for general failure
@@ -14820,10 +14851,26 @@ lab_50af:
     br !lab_5355_nak_fail   ;50b3  9b 55 53     Branch to Send NAK response for general failure
 
 lab_50b6:
-    br !lab_552a            ;50b6  9b 2a 55     Branch to Send 0x1c response to read ram or send nak
+    br !lab_552a_read_ram   ;50b6  9b 2a 55     Branch to Send 0x1c response to read ram or send nak
 
 kwp_56_03_read_eeprom:
-;read eeprom (kwp_56_handlers)
+;Read EEPROM (kwp_56_handlers)
+;
+;EEPROM addresses 0x0014-0x0015 containing the SAFE code word are
+;sanitized (always returned as 0) because on address 0x56,
+;mem_fe65.5=1 (see read_ee_sanitized).  All other addresses in
+;the EEPROM are readable.  Reading the EEPROM on address 0x7C
+;does not have any sanitization.
+;
+;Request block format:
+;  0x06 Block length                    kwp_rx_buf+0
+;   xx  Block counter                   kwp_rx_buf+1
+;  0x03 Block title (0x03)              kwp_rx_buf+2
+;   xx  Number of bytes to read         kwp_rx_buf+3
+;   xx  Address high                    kwp_rx_buf+4
+;   xx  Address low                     kwp_rx_buf+5
+;  0x03 Block end                       kwp_rx_buf+6
+;
     mov a,#0x00             ;50b9  a1 00
     mov !mem_fbc5,a         ;50bb  9e c5 fb
     bt mem_fe65.3,lab_50c4  ;50be  bc 65 03     Branch if logged in
@@ -14836,13 +14883,13 @@ lab_50c4:
 lab_50ca:
     clr1 cy                 ;50ca  21           XXX redundant
     set1 cy                 ;50cb  20
-    bc lab_50d1             ;50cc  8d 03
+    bc lab_50d1             ;50cc  8d 03        Branch always
     br !lab_5355_nak_fail   ;50ce  9b 55 53     Branch to Send NAK response for general failure
 
 lab_50d1:
 ;Login and Group 0x19 verified
 ;Proceed to read the EEPROM
-    br !lab_5581            ;50d1  9b 81 55     Branch to Read EEPROM and send response
+    br !lab_5581_read_eeprom ;50d1  9b 81 55     Branch to Read EEPROM and send response
 
 kwp_56_0c_write_eeprom:
 ;write eeprom (kwp_56_handlers)
@@ -14856,9 +14903,9 @@ lab_50df:
     br !lab_5355_nak_fail   ;50e2  9b 55 53     Branch to Send NAK response for general failure
 
 lab_50e5:
-    clr1 cy                 ;50e5  21
+    clr1 cy                 ;50e5  21           XXX redundant
     set1 cy                 ;50e6  20
-    bc lab_50ec             ;50e7  8d 03
+    bc lab_50ec             ;50e7  8d 03        Branch always
 
 lab_50e9:
     br !lab_5355_nak_fail   ;50e9  9b 55 53     Branch to Send NAK response for general failure
@@ -15199,7 +15246,7 @@ lab_5274:
 
 lab_527e:
 ;kwp_addr_idx = 0x02 (address 0x56)
-    set1 mem_fe65.5           ;527e  5a 65
+    set1 mem_fe65.5           ;527e  5a 65      Set bit to enable some protection checks (e.g. read_ee_sanitized)
     set1 mem_fe7d.4           ;5280  4a 7d
     mov a,#0x01               ;5282  a1 01
     mov !mem_fbc5,a           ;5284  9e c5 fb
@@ -15977,7 +16024,7 @@ lab_5527:
     call !fake_rx_addr_len  ;5527  9a d6 2d     Fake KWP1281 address, byte count in KWP1281 rx buf
                             ;                   Reads addr from mem_f000, byte count from kwp_rw_total
 
-lab_552a:
+lab_552a_read_ram:
 ;Send 0x1c response to read ram or send nak
 ;branched to from both read ram handlers
     mov a,#0x01             ;552a  a1 01
@@ -16049,10 +16096,12 @@ lab_557e:
 ;branched to when mem_fbca = 0x02
     call !fake_rx_addr_len  ;557e  9a d6 2d     Fake KWP1281 address, byte count in KWP1281 rx buf
                             ;                   Read addr from mem_f000, byte count from kwp_rw_total
+    ;Fall through
 
-lab_5581:
-;KWP1281 Read EEPROM
+lab_5581_read_eeprom:
+;KWP1281 Read EEPROM (block title 0x03)
 ;Login and Group 0x19 have already been verified
+;Called to handle both address 0x56 and address 0x7C
 ;
     mov a,#0x02             ;5581  a1 02
     mov !mem_fbca,a         ;5583  9e ca fb
@@ -16069,27 +16118,30 @@ lab_5581:
     br !lab_5355_nak_fail   ;5598  9b 55 53     Branch to Send NAK response for general failure
 
 lab_559b_success:
-    add a,#0x03             ;559b  0d 03        A = 0x03 Block end
-    mov [hl],a              ;559d  97           Write block end into KWP1281 tx buffer
+    add a,#0x03             ;559b  0d 03        TODO comment this length calculation
+    mov [hl],a              ;559d  97
     mov !kwp_tx_len,a       ;559e  9e 6b f0     Store tx block length
     call !send_kwp_tx_buf   ;55a1  9a f7 34     Set flags to start sending the KWP1281 tx buffer
 
 lab_55a4:
-    call !sub_2b6e          ;55a4  9a 6e 2b     Actual EEPROM read is performed here
+    call !read_ee_sanitized ;55a4  9a 6e 2b     Read EEPROM into temporary buffer with SAFE code sanitization
+                            ;                     DE = pointer to buffer with data (kwp_tmp_buf)
+                            ;                     Returns carry set = failed, carry clear = success
 
-lab_55a7:
-    mov a,[de]              ;55a7  85
-    mov [hl+b],a            ;55a8  bb
-    inc b                   ;55a9  43
-    incw de                 ;55aa  84
-    dbnz c,lab_55a7         ;55ab  8a fa
+lab_55a7_loop:
+    mov a,[de]              ;55a7  85           A = byte read from EEPROM
+    mov [hl+b],a            ;55a8  bb           Store it in KWP1281 tx buffer
+    inc b                   ;55a9  43           Increment tx buffer position
+    incw de                 ;55aa  84           Increment pointer to EEPROM data
+    dbnz c,lab_55a7_loop    ;55ab  8a fa        Loop until all bytes were copied to KWP1281 tx buffer
+
     mov a,b                 ;55ad  63
     cmp a,#0x10             ;55ae  4d 10
     bnc lab_55b5            ;55b0  9d 03
 
 lab_55b2:
-    mov a,#0x03             ;55b2  a1 03
-    mov [hl+b],a            ;55b4  bb
+    mov a,#0x03             ;55b2  a1 03        A = 0x03 block end
+    mov [hl+b],a            ;55b4  bb           Write block end into KWP1281 tx buffer
 
 lab_55b5:
     ret                     ;55b5  af
@@ -18049,13 +18101,13 @@ lab_611f:
 
 lab_612c:
     mov b,a                 ;612c  73
-    movw hl,#mem_f1be         ;612d  16 be f1
+    movw hl,#mem_f1be       ;612d  16 be f1
     mov a,[hl+b]            ;6130  ab
     mov mem_fed8,a          ;6131  f2 d8
-    movw hl,#mem_f1c0         ;6133  16 c0 f1
+    movw hl,#mem_f1c0       ;6133  16 c0 f1
     mov a,[hl+b]            ;6136  ab
     mov mem_fed9,a          ;6137  f2 d9
-    movw hl,#mem_f1c2         ;6139  16 c2 f1
+    movw hl,#mem_f1c2       ;6139  16 c2 f1
     mov a,[hl+b]            ;613c  ab
     mov mem_feda,a          ;613d  f2 da
     mov a,#0xc7             ;613f  a1 c7
@@ -31377,9 +31429,9 @@ mem_b1fa:
     .word lab_54ea              ;0x1d index 0x19 read eeprom
     .word lab_54fb              ;0x1e Send response to title 0x1b custom usage with data
     .word lab_5514              ;0x1f index 0x1b read ram
-    .word lab_552a              ;0x20 Send 0x1c response to read ram or send nak
+    .word lab_552a_read_ram     ;0x20 Send 0x1c response to read ram or send nak
     .word lab_556b              ;0x21 index 0x1d read rom or eeprom
-    .word lab_5581              ;0x22 Send read EEPROM response
+    .word lab_5581_read_eeprom  ;0x22 Send read EEPROM response
     .word lab_55c5              ;0x23 Send EEPROM write response
     .word lab_55de_secure_req   ;0x24 Send Security Access Request (title 0xD7)
     .word lab_55f7              ;0x25 Send NAK response for general failure
@@ -31559,7 +31611,7 @@ kwp_3f_titles:
     .byte 0x09              ;b2f2  09          DATA 0x09        B=1 ack
     .byte 0x06              ;b2f3  06          DATA 0x06        B=2 disconnect
     .byte 0x0a              ;b2f4  0a          DATA 0x0a        B=3 nak
-    .byte 0x3d              ;b2f5  3d          DATA 0x3d '='    B=4 security access response
+    .byte 0x3d              ;b2f5  3d          DATA 0x3d '='    B=4 Security Access Response (Cluster->Radio)
 
 kwp_3f_handlers:
 ;handlers for block titles on address 0x3f
@@ -31571,7 +31623,7 @@ kwp_3f_handlers:
     .word kwp_3f_09_ack             ;b2f9  f4 50       VECTOR           B=1 ack
     .word kwp_3f_06_disconnect      ;b2fb  06 51       VECTOR           B=2 disconnect
     .word kwp_3f_0a_nak             ;b2fd  1c 51       VECTOR           B=3 nak
-    .word kwp_3f_3d_secure_access   ;b2ff  3a 51       VECTOR           B=4 security access response
+    .word kwp_3f_3d_secure_access   ;b2ff  3a 51       VECTOR           B=4 Security Access Response (Cluster->Radio)
 
 kwp_7c_1b_subtitles:
 ;subtitles accepted by block title 0x1b on address 0x7c
