@@ -23333,6 +23333,8 @@ lab_a091:
     sta 0x0106              ;a0ae  8d 06 01
 
 sub_a0b1:
+;Probably writes the 3 bytes at 0x103-0x105 to the EEPROM
+;Called from sub_a124 after successful login
     lda #0x50               ;a0b1  a9 50
     sta 0x0101              ;a0b3  8d 01 01
     lda #0x03               ;a0b6  a9 03
@@ -23418,19 +23420,25 @@ sub_a10a:
 
 
 sub_a124:
+;Called after successful login
     jsr sub_a040            ;a124  20 40 a0
+
     lda 0x0103              ;a127  ad 03 01
     and #0xfe               ;a12a  29 fe
     sta 0x0103              ;a12c  8d 03 01
-    lda 0x0325              ;a12f  ad 25 03     A = uart rx buffer byte 5
+
+    lda 0x0325              ;a12f  ad 25 03     A = uart rx buffer byte 5 (Unknown byte 0)
     and #0x01               ;a132  29 01
     ora 0x0103              ;a134  0d 03 01
     sta 0x0103              ;a137  8d 03 01
-    lda 0x0326              ;a13a  ad 26 03     A = uart rx buffer byte 6
+
+    lda 0x0326              ;a13a  ad 26 03     A = uart rx buffer byte 6 (Workshop Code high byte (binary))
     sta 0x0104              ;a13d  8d 04 01
-    lda 0x0327              ;a140  ad 27 03     A = uart rx buffer byte 7
+
+    lda 0x0327              ;a140  ad 27 03     A = uart rx buffer byte 7 (Workshop Code low byte (binary))
     sta 0x0105              ;a143  8d 05 01
-    jsr sub_a0b1            ;a146  20 b1 a0
+
+    jsr sub_a0b1            ;a146  20 b1 a0     Probably writes the 3 bytes at 0x103-0x105 to the EEPROM
     rts                     ;a149  60
 
 sub_a14a:
