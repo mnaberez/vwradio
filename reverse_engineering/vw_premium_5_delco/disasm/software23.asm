@@ -6543,7 +6543,7 @@ auth_login_safe:
 ;
     mov a,!mem_fb52         ;25ac  8e 52 fb     A = KWP1281 rate limit countdown
     cmp a,#0x00             ;25af  4d 00
-    bnz lab_25f9            ;25b1  bd 46        Branch to do nothing and return if rate limited
+    bnz lab_25f9_ret        ;25b1  bd 46        Branch to do nothing and return if rate limited
 
     ;not currently being rate limited
 
@@ -6573,7 +6573,7 @@ lab_25c5_compare:
     bnz lab_25e0_fail       ;25cf  bd 0f        Branch if not equal
 
     set1 mem_fe65.3         ;25d1  3a 65        Set bit to indicate successful login
-    bf mem_fe23.6,lab_25f9  ;25d3  31 63 23 22
+    bf mem_fe23.6,lab_25f9_ret ;25d3  31 63 23 22
     call !sub_23e6          ;25d7  9a e6 23
     call !sub_248f          ;25da  9a 8f 24
     br !sub_24f1            ;25dd  9b f1 24
@@ -6588,13 +6588,13 @@ lab_25e0_fail:
 
     cmp a,#0x02             ;25ee  4d 02
     bnc lab_25f4            ;25f0  9d 02
-    br lab_25f9             ;25f2  fa 05
+    br lab_25f9_ret         ;25f2  fa 05
 
 lab_25f4:
     mov a,#0x3c             ;25f4  a1 3c
     mov !mem_fb52,a         ;25f6  9e 52 fb     Save KWP1281 rate limit countdown
 
-lab_25f9:
+lab_25f9_ret:
     ret                     ;25f9  af
 
 sub_25fa:
@@ -7543,11 +7543,11 @@ lab_2a10:
     mov a,#0x09             ;2a4f  a1 09        A = 9 bytes to sum (2 Soft Coding + 2 Workshop Code + 5 more)
     call !sub_2de6          ;2a51  9a e6 2d     AX = sum of A bytes in buffer [HL]
     movw de,ax              ;2a54  d4
-
     movw mem_fed4,ax        ;2a55  99 d4
-    pop bc                  ;2a57  b2           Pop sum of 9 bytes at mem_f1f9
+
+    pop bc                  ;2a57  b2           BC = Pop sum of 9 bytes at mem_f1f9
     movw hl,#mem_f202       ;2a58  16 02 f2
-    call !sub_2df8          ;2a5b  9a f8 2d     [HL] = [HL] - BC
+    call !sub_2df8          ;2a5b  9a f8 2d     Word [HL] = Word [HL] - BC + DE
 
 lab_2a5e:
     call !sub_6217          ;2a5e  9a 17 62     Unknown; EEPROM related
@@ -7555,7 +7555,8 @@ lab_2a5e:
     br lab_2a5e             ;2a63  fa f9        Repeat until success
 
 lab_2a65:
-    ;TODO EEPROM addresses 0x0058-0x0061 are protected in lab_2c60
+    ;Read 9 bytes from EEPROM at 0x0058 into mem_fed6
+    ;TODO 9 EEPROM addresses 0x0058-0x0060 are protected in lab_2c60
     movw hl,#0x0058         ;2a65  16 58 00     HL = EEPROM address 0x0058
     movw de,#mem_fed6       ;2a68  14 d6 fe     DE = pointer to buffer to receive EEPROM contents
     mov a,#0x09             ;2a6b  a1 09        A = 9 bytes to read from EEPROM
@@ -7564,11 +7565,14 @@ lab_2a65:
     br lab_2ab9_ret         ;2a72  fa 45        Branch to just return on failure
 
 lab_2a74_success:
+    ;Reading the 9 bytes from EEPROM at 0x0058 succeeded
+    ;Now compute BC = sum of the 9 bytes
     movw hl,#mem_fed6       ;2a74  16 d6 fe     HL = pointer to buffer to sum
     mov a,#0x09             ;2a77  a1 09        A = 9 bytes to sum
     call !sub_2de6          ;2a79  9a e6 2d     AX = sum of A bytes in buffer [HL]
     movw bc,ax              ;2a7c  d2           Save the sum in BC
 
+    ;Read 2 bytes from EEPROM at 0x0061 into mem_fed6
     movw hl,#0x0061         ;2a7d  16 61 00     HL = EEPROM address 0x0061
     movw de,#mem_fed6       ;2a80  14 d6 fe     DE = pointer to buffer to receive EEPROM contents
     mov a,#0x02             ;2a83  a1 02        A = 2 bytes to read from EEPROM
@@ -7577,10 +7581,12 @@ lab_2a74_success:
     br lab_2ab9_ret         ;2a8a  fa 2d        Branch to just return on failure
 
 lab_2a8c_success:
-    movw ax,mem_fed4        ;2a8c  89 d4
+    ;Reading the 2 bytes from EEPROM at 0x0061 succeeded
+    movw ax,mem_fed4        ;2a8c  89 d4        AX = sum of 9 bytes at mem_f1f9 computed near 2a51 above
     movw de,ax              ;2a8e  d4
     movw hl,#mem_fed6       ;2a8f  16 d6 fe     HL = pointer to buffer to write to EEPROM
-    call !sub_2df8          ;2a92  9a f8 2d     [HL] = [HL] - BC
+    call !sub_2df8          ;2a92  9a f8 2d     Word [HL] = Word [HL] - BC + DE
+
     movw de,#0x0061         ;2a95  14 61 00     DE = EEPROM address 0x0061
     mov a,#0x02             ;2a98  a1 02        A = 2 bytes to write to EEPROM
     call !sub_628e          ;2a9a  9a 8e 62     Write A bytes to EEPROM address DE from [HL]
@@ -7592,7 +7598,7 @@ lab_2a9f_loop:
     bnc lab_2a9f_loop       ;2aa2  9d fb        Repeat until success
 
     movw hl,#mem_f1f9       ;2aa4  16 f9 f1     HL = pointer to buffer to write to EEPROM
-    ;TODO EEPROM addresses 0x0058-0x0061 are protected in lab_2c60
+    ;TODO 9 EEPROM addresses 0x0058-0x0060 are protected in lab_2c60
     movw de,#0x0058         ;2aa7  14 58 00     DE = EEPROM address 0x0058
     mov a,#0x09             ;2aaa  a1 09        A = 9 bytes to write to EEPROM (2 Soft Coding + 2 Workshop Code + 5 more)
     call !sub_628e          ;2aac  9a 8e 62     Write A bytes to EEPROM address DE from [HL]
@@ -7615,14 +7621,14 @@ sub_2aba:
     call !sub_2de6          ;2ac2  9a e6 2d     AX = sum of A bytes in buffer [HL]
     push ax                 ;2ac5  b1           Push sum of 9 bytes at mem_f1f9
 
-    mov a,!kwp_rx_buf+5     ;2ac6  8e 8f f0     KWP1281 rx buffer byte 5
+    mov a,!kwp_rx_buf+5     ;2ac6  8e 8f f0     KWP1281 rx buffer byte 5 (Unknown byte)
     and a,#0x01             ;2ac9  5d 01
     mov x,a                 ;2acb  70
 
-    mov a,!mem_f1fa         ;2acc  8e fa f1
+    mov a,!mem_f1fa         ;2acc  8e fa f1     A = Soft coding in binary, low byte
     and a,#0xfe             ;2acf  5d fe
     or a,x                  ;2ad1  61 68
-    mov !mem_f1fa,a         ;2ad3  9e fa f1
+    mov !mem_f1fa,a         ;2ad3  9e fa f1     Store as Soft coding in binary, low byte
 
     mov a,!kwp_rx_buf+6     ;2ad6  8e 90 f0     KWP1281 rx buffer byte 6
     mov !mem_f1fb,a         ;2ad9  9e fb f1     Store as Workshop Code (high byte)
@@ -7637,7 +7643,7 @@ sub_2aba:
     movw mem_fed4,ax        ;2aeb  99 d4
     pop bc                  ;2aed  b2           Pop sum of 9 bytes at mem_f1f9
     movw hl,#mem_f202       ;2aee  16 02 f2
-    call !sub_2df8          ;2af1  9a f8 2d     [HL] = [HL] - BC
+    call !sub_2df8          ;2af1  9a f8 2d     Word [HL] = Word [HL] - BC + DE
 
 lab_2af4_loop:
     call !sub_6217          ;2af4  9a 17 62     Unknown; EEPROM related
@@ -7645,7 +7651,7 @@ lab_2af4_loop:
     br lab_2af4_loop        ;2af9  fa f9        Repeat until success
 
 lab_2afb_success:
-    ;TODO EEPROM addresses 0x0058-0x0061 are protected in lab_2c60
+    ;TODO 9 EEPROM addresses 0x0058-0x0060 are protected in lab_2c60
     movw hl,#0x0058         ;2afb  16 58 00     HL = EEPROM address 0x0058
     movw de,#mem_fed6       ;2afe  14 d6 fe     DE = pointer to buffer to receive EEPROM contents
     mov a,#0x09             ;2b01  a1 09        A = 9 bytes to read from EEPROM
@@ -7671,7 +7677,7 @@ lab_2b22_success:
     movw ax,mem_fed4        ;2b22  89 d4
     movw de,ax              ;2b24  d4
     movw hl,#mem_fed6       ;2b25  16 d6 fe     HL = pointer to buffer to write to EEPROM
-    call !sub_2df8          ;2b28  9a f8 2d     [HL] = [HL] - BC
+    call !sub_2df8          ;2b28  9a f8 2d     Word [HL] = Word [HL] - BC + DE
     movw de,#0x0061         ;2b2b  14 61 00     DE = EEPROM address 0x0061
     mov a,#0x02             ;2b2e  a1 02        A = 2 bytes to write to EEPROM
     call !sub_628e          ;2b30  9a 8e 62     Write A bytes to EEPROM address DE from [HL]
@@ -7683,8 +7689,12 @@ lab_2b35_success:
     bnc lab_2b35_success    ;2b38  9d fb        Repeat until success
 
     movw hl,#mem_f1fa       ;2b3a  16 fa f1     HL = pointer to buffer to write to EEPROM
+                            ;                        (Soft coding in binary, low byte)
     movw de,#0x0059         ;2b3d  14 59 00     DE = EEPROM address 0x0059
-    mov a,#0x03             ;2b40  a1 03        A = 3 bytes to write to EEPROM
+    mov a,#0x03             ;2b40  a1 03        A = 3 bytes to write to EEPROM:
+                            ;                         0x0059 = mem_f1fa Soft coding in binary, low byte
+                            ;                         0x005a = mem_f1fb Workshop code, high byte
+                            ;                         0x005c = mem_f1fc Workshop code, low byte
     call !sub_628e          ;2b42  9a 8e 62     Write A bytes to EEPROM address DE from [HL]
 
 lab_2b45_ret:
@@ -8023,7 +8033,7 @@ sub_2c33:
                             ;                     falsely report success
 
 lab_2c60:
-;Protect 9 EEPROM addresses: 0x0058-0x0060 (??)
+;Protect 9 EEPROM addresses: 0x0058-0x0060
     cmpw ax,#0x0058         ;2c60  ea 58 00
     bc lab_2c6c_write       ;2c63  8d 07        Branch if EEPROM address < 0x0058
     cmpw ax,#0x0061         ;2c65  ea 61 00
@@ -8497,7 +8507,8 @@ lab_2ded_loop:
 
 
 sub_2df8:
-;[HL] = [HL] - BC
+;Word [HL] = Word [HL] - BC + DE
+;Read word at HL, subtract BC from it, add DE to it, store result at HL
     mov a,[hl]              ;2df8  87
     sub a,c                 ;2df9  61 1a
     xch a,x                 ;2dfb  30
@@ -11941,7 +11952,7 @@ lab_41ec:
 
 lab_41ed:
     set1 mem_fe64.0         ;41ed  0a 64
-    ;TODO EEPROM addresses 0x0058-0x0061 are protected in lab_2c60
+    ;TODO 9 EEPROM addresses 0x0058-0x0060 are protected in lab_2c60
     movw hl,#0x0058         ;41ef  16 58 00
     movw de,#0x0061         ;41f2  14 61 00
     callf !sub_09ef         ;41f5  1c ef        A = DE - HL (0x0061 - 0x0058 = 9)
