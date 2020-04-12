@@ -9914,7 +9914,7 @@ lab_b3cc:
     mov mem_012b+1, a       ;b3da  61 01 2c     Store it in KWP1281 TX Buffer byte 1: Block counter
 
     mov a, #0x00            ;b3dd  04 00
-    mov mem_012b+3, a       ;b3df  61 01 2e     KWP1281 TX Buffer byte 3: ? TODO
+    mov mem_012b+3, a       ;b3df  61 01 2e     KWP1281 TX Buffer byte 3: Unknown, always 0
 
     mov a, #0x03            ;b3e2  04 03        0x03 = Block End
     mov mem_012b+8, a       ;b3e4  61 01 33     KWP1281 TX Buffer byte 8: Block End
@@ -11422,15 +11422,15 @@ mem_0080_is_09:
 ;the lockout period expires, the process starts over.
 ;
 ;Login request block:
-;  0x08 Block length                        mem_0118+0
-;  0x3E Block counter                       mem_0118+1
-;  0x2B Block title (Login)                 mem_0118+2
-;  0x04 SAFE code high byte (binary)        mem_0118+3
-;  0xD2 SAFE code low byte (binary)         mem_0118+4
-;  0x01 Unknown byte 0                      mem_0118+5
-;  0x86 Workshop Code high byte (binary)    mem_0118+6
-;  0x9F Workshop Code low byte (binary)     mem_0118+7
-;  0x03 Block end                           mem_0118+8
+;  0x08 Block length                            mem_0118+0
+;  0x3E Block counter                           mem_0118+1
+;  0x2B Block title (Login)                     mem_0118+2
+;  0x04 SAFE code high byte (binary)            mem_0118+3
+;  0xD2 SAFE code low byte (binary)             mem_0118+4
+;  0x01 Unknown byte; bit 0 influences coding   mem_0118+5    See lab_baed
+;  0x86 Workshop Code high byte (binary)        mem_0118+6
+;  0x9F Workshop Code low byte (binary)         mem_0118+7
+;  0x03 Block end                               mem_0118+8
 ;
     mov a, mem_0081         ;ba7a  05 81
     cmp a, #0x01            ;ba7c  14 01
@@ -11524,10 +11524,13 @@ lab_baa8_success:
 lab_baed:
     setb mem_00e4:6         ;baed  ae e4        Set bit to indicate successful login
 
-    mov a, mem_0118+5       ;baef  60 01 1d     KWP1281 RX Buffer byte 5: Unknown byte 0
-    and a, #0x01            ;baf2  64 01
+    ;Replace bit 0 in the Soft Coding low byte with bit 0 from
+    ;KWP1281 rx buffer byte 5 (Unknown byte).  TODO: what does this do?
+
+    mov a, mem_0118+5       ;baef  60 01 1d     KWP1281 RX Buffer byte 5: Unknown byte
+    and a, #0b00000001      ;baf2  64 01
     mov a, mem_0175+1       ;baf4  60 01 76     A = Soft Coding low byte (binary)
-    and a, #0xfe            ;baf7  64 fe
+    and a, #0b11111110      ;baf7  64 fe
     or a                    ;baf9  72
     mov mem_0175+1, a       ;bafa  61 01 76
 

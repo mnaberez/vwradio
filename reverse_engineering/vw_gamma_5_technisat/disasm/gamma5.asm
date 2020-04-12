@@ -15563,7 +15563,12 @@ lab_78d0:
     rts                     ;78d0  60
 
 sub_78d1:
-    jsr sub_a040            ;78d1  20 40 a0
+    jsr sub_a040            ;78d1  20 40 a0     EEPROM related, probably reads from EEPROM
+                            ;                   Probably returns:
+                            ;                     0x102 Soft coding high byte
+                            ;                     0x103 Soft coding low byte
+                            ;                     0x104 Workshop code high byte
+                            ;                     0x105 Workshop code low byte
     jsr sub_a0d5            ;78d4  20 d5 a0
     lda 0x0117              ;78d7  ad 17 01
     and #0x0f               ;78da  29 0f
@@ -23225,7 +23230,12 @@ lab_9fd8:
     rts                     ;9fe1  60
 
 sub_9fe2:
-    jsr sub_a040            ;9fe2  20 40 a0
+    jsr sub_a040            ;9fe2  20 40 a0     EEPROM related, probably reads from EEPROM
+                            ;                   Probably returns:
+                            ;                     0x102 Soft coding high byte
+                            ;                     0x103 Soft coding low byte
+                            ;                     0x104 Workshop code high byte
+                            ;                     0x105 Workshop code low byte
     jsr sub_a0d5            ;9fe5  20 d5 a0
     lda 0x011a              ;9fe8  ad 1a 01
     asl a                   ;9feb  0a
@@ -23278,6 +23288,12 @@ lab_a03a:
     rts                     ;a03f  60
 
 sub_a040:
+;EEPROM related, probably reads from EEPROM
+;Probably returns:
+;  0x102 Soft coding high byte
+;  0x103 Soft coding low byte
+;  0x104 Workshop code high byte
+;  0x105 Workshop code low byte
     lda #0x50               ;a040  a9 50
     sta 0x0101              ;a042  8d 01 01
     lda #0x03               ;a045  a9 03
@@ -23421,22 +23437,32 @@ sub_a10a:
 
 sub_a124:
 ;Called after successful login
-    jsr sub_a040            ;a124  20 40 a0
+    jsr sub_a040            ;a124  20 40 a0     EEPROM related, probably reads from EEPROM
+                            ;                   Probably returns:
+                            ;                     0x102 Soft coding high byte
+                            ;                     0x103 Soft coding low byte
+                            ;                     0x104 Workshop code high byte
+                            ;                     0x105 Workshop code low byte
 
-    lda 0x0103              ;a127  ad 03 01
-    and #0xfe               ;a12a  29 fe
-    sta 0x0103              ;a12c  8d 03 01
+    ;Replace bit 0 in the Soft Coding low byte with bit 0 from
+    ;KWP1281 rx buffer byte 5 (Unknown byte).  TODO: what does this do?
 
-    lda 0x0325              ;a12f  ad 25 03     A = uart rx buffer byte 5 (Unknown byte 0)
-    and #0x01               ;a132  29 01
-    ora 0x0103              ;a134  0d 03 01
-    sta 0x0103              ;a137  8d 03 01
+    lda 0x0103              ;a127  ad 03 01     A = Soft coding low byte
+    and #0b11111110         ;a12a  29 fe        Clear bit 0 of existing soft coding low byte
+    sta 0x0103              ;a12c  8d 03 01     Store soft coding low byte
+
+    lda 0x0325              ;a12f  ad 25 03     A = uart rx buffer byte 5 (Unknown byte)
+    and #0b00000001         ;a132  29 01        Mask to leave only bit 0
+    ora 0x0103              ;a134  0d 03 01     A = Soft coding with bit 0 replaced with bit 0 from unknown byte
+    sta 0x0103              ;a137  8d 03 01     Store soft coding low byte
+
+    ;Set Workshop Code from KWP1281 RX Buffer bytes 6 & 7
 
     lda 0x0326              ;a13a  ad 26 03     A = uart rx buffer byte 6 (Workshop Code high byte (binary))
-    sta 0x0104              ;a13d  8d 04 01
+    sta 0x0104              ;a13d  8d 04 01     Store workshop code high byte
 
     lda 0x0327              ;a140  ad 27 03     A = uart rx buffer byte 7 (Workshop Code low byte (binary))
-    sta 0x0105              ;a143  8d 05 01
+    sta 0x0105              ;a143  8d 05 01     Store workshop code low byte
 
     jsr sub_a0b1            ;a146  20 b1 a0     Probably writes the 3 bytes at 0x103-0x105 to the EEPROM
     rts                     ;a149  60
@@ -24307,15 +24333,15 @@ lab_a591:
 ;KWP1281 0x2b Login
 ;
 ;Request block format:
-;  0x08 Block length                        0x0320
-;  0x?? Block counter                       0x0321
-;  0x2B Block title (Login)                 0x0322
-;  0x?? SAFE code high byte (binary)        0x0323
-;  0x?? SAFE code low byte (binary)         0x0324
-;  0x?? Unknown byte 0                      0x0325
-;  0x?? Workshop Code high byte (binary)    0x0326
-;  0x?? Workshop Code low byte (binary)     0x0327
-;  0x03 Block end                           0x0328
+;  0x08 Block length                            0x0320
+;  0x?? Block counter                           0x0321
+;  0x2B Block title (Login)                     0x0322
+;  0x?? SAFE code high byte (binary)            0x0323
+;  0x?? SAFE code low byte (binary)             0x0324
+;  0x?? Unknown byte; bit 0 influences coding   0x0325    See sub_a124
+;  0x?? Workshop Code high byte (binary)        0x0326
+;  0x?? Workshop Code low byte (binary)         0x0327
+;  0x03 Block end                               0x0328
 ;
 lab_a595:
     bbc 3,0xf1,lab_a59d     ;a595  77 f1 05

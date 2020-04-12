@@ -7616,30 +7616,39 @@ sub_2aba:
 ;called when login succeeds
     call !sub_2d35          ;2aba  9a 35 2d     Clear bits in mem_fe5f and mem_fe60
 
+    ;Sum the 9 bytes before making any changes
+
     movw hl,#mem_f1f9       ;2abd  16 f9 f1     HL = pointer to buffer to sum
     mov a,#0x09             ;2ac0  a1 09        A = 9 bytes to sum (2 Soft Coding + 2 Workshop Code + 5 more)
     call !sub_2de6          ;2ac2  9a e6 2d     AX = sum of A bytes in buffer [HL]
     push ax                 ;2ac5  b1           Push sum of 9 bytes at mem_f1f9
 
-    mov a,!kwp_rx_buf+5     ;2ac6  8e 8f f0     KWP1281 rx buffer byte 5 (Unknown byte)
-    and a,#0x01             ;2ac9  5d 01
-    mov x,a                 ;2acb  70
+    ;Replace bit 0 in the Soft Coding low byte with bit 0 from
+    ;KWP1281 rx buffer byte 5 (Unknown byte).  TODO: what does this do?
+
+    mov a,!kwp_rx_buf+5     ;2ac6  8e 8f f0     A = KWP1281 rx buffer byte 5 (Unknown byte)
+    and a,#0b00000001       ;2ac9  5d 01        Mask to leave only bit 0
+    mov x,a                 ;2acb  70           Move it to X
 
     mov a,!mem_f1fa         ;2acc  8e fa f1     A = Soft coding in binary, low byte
-    and a,#0xfe             ;2acf  5d fe
-    or a,x                  ;2ad1  61 68
+    and a,#0b11111110       ;2acf  5d fe        Clear bit 0 of existing soft coding low byte
+    or a,x                  ;2ad1  61 68        Replace bit 0 with bit 0 from KWP1281 rx buffer byte 5 (Unknown byte)
     mov !mem_f1fa,a         ;2ad3  9e fa f1     Store as Soft coding in binary, low byte
+
+    ;Store Workshop Code from KWP1281 rx buffer
 
     mov a,!kwp_rx_buf+6     ;2ad6  8e 90 f0     KWP1281 rx buffer byte 6
     mov !mem_f1fb,a         ;2ad9  9e fb f1     Store as Workshop Code (high byte)
     mov a,!kwp_rx_buf+7     ;2adc  8e 91 f0     KWP1281 rx buffer byte 7
     mov !mem_f1fc,a         ;2adf  9e fc f1     Store as Workshop Code (low byte)
 
+    ;Sum the 9 bytes again now that the changes have been made
+
     movw hl,#mem_f1f9       ;2ae2  16 f9 f1     HL = pointer to buffer to sum
     mov a,#0x09             ;2ae5  a1 09        A = 9 bytes to sum (2 Soft Coding + 2 Workshop Code + 5 more)
     call !sub_2de6          ;2ae7  9a e6 2d     AX = sum of A bytes in buffer [HL]
-    movw de,ax              ;2aea  d4
 
+    movw de,ax              ;2aea  d4
     movw mem_fed4,ax        ;2aeb  99 d4
     pop bc                  ;2aed  b2           Pop sum of 9 bytes at mem_f1f9
     movw hl,#mem_f202       ;2aee  16 02 f2
@@ -14821,7 +14830,19 @@ kwp_56_10_recoding:
                               ;                     id block 4/4 (see lab_52b1_id_coding.
 
 kwp_56_2b_login:
-;login (kwp_56_handlers)
+;Login (kwp_56_handlers)
+;
+;Request block:
+;  0x08 Block length                            kwp_rx_buf+0
+;   xx  Block counter                           kwp_rx_buf+1
+;  0x2B Block title (Login)                     kwp_rx_buf+2
+;   xx  SAFE code high byte (binary)            kwp_rx_buf+3
+;   xx  SAFE code low byte (binary)             kwp_rx_buf+4
+;   xx  Unknown byte; bit 0 influences coding   kwp_rx_buf+5    See sub_2aba
+;   xx  Workshop Code high byte (binary)        kwp_rx_buf+6
+;   xx  Workshop Code low byte (binary)         kwp_rx_buf+7
+;  0x03 Block end                               kwp_rx_buf+8
+;
     mov a,#0x00               ;508a  a1 00
     mov !mem_fbc5,a           ;508c  9e c5 fb
     call !auth_login_safe     ;508f  9a ac 25     Authenticate login using SAFE code
