@@ -12714,11 +12714,13 @@ auth_login_ocled:
 ;  clear = login failed, set = login successful
 ;
     clr1 mem_fe64.7         ;4694  7b 64        Clear bit to indicate no DELCO login
+
     movw hl,#kwp_rx_buf+3   ;4696  16 8d f0     HL = pointer to KWP1281 rx buffer byte 3
     movw de,#kwp_login_b1eb ;4699  14 eb b1     DE = pointer to "OCLED" (DELCO backwards)
     mov a,#0x05             ;469c  a1 05        A = 5 bytes to compare
     callf !sub_0cca         ;469e  4c ca        Compare A bytes between [HL] to [DE]
     bnz lab_46a9            ;46a0  bd 07        Branch if buffers are not equal
+
     ;login succeeded
     set1 mem_fe64.7         ;46a2  7a 64        Set bit to indicate successful DELCO login
     mov a,#0x34             ;46a4  a1 34
@@ -14401,9 +14403,27 @@ lab_4ede_br_516f:
     br !lab_516f            ;4ede  9b 6f 51     Branch to resend the longer Read RAM or Read EEPROM responses
 
 kwp_7c_2b_login:
-;login (kwp_7c_handlers)
+;Login (kwp_7c_handlers)
+;
+;Unlike login on address 0x56 (kwp_56_2b_login), a successful login
+;does not affect the coding or workshop code.  The login block is
+;the same length but the coding and workshop bytes are used as a
+;longer password of "OCLED" ("DELCO" backwards).
+;
+;Request block:
+;  0x08 Block length          kwp_rx_buf+0
+;   xx  Block counter         kwp_rx_buf+1
+;  0x2B Block title (Login)   kwp_rx_buf+2
+;  0x4F "O"                   kwp_rx_buf+3
+;  0x43 "C"                   kwp_rx_buf+4
+;  0x4C "L"                   kwp_rx_buf+5
+;  0x45 "E"                   kwp_rx_buf+6
+;  0x44 "D"                   kwp_rx_buf+7
+;  0x03 Block end             kwp_rx_buf+8
+;
     call !auth_login_ocled  ;4ee1  9a 94 46     Authenticate login using "DELCO" backwards
     bc lab_4eee_login_ok    ;4ee4  8d 08        Branch if successful login
+
     ;login failed
     mov a,#0x01             ;4ee6  a1 01
     mov !mem_fbc7,a         ;4ee8  9e c7 fb
@@ -14832,6 +14852,9 @@ kwp_56_10_recoding:
 kwp_56_2b_login:
 ;Login (kwp_56_handlers)
 ;
+;On successful login, the workshop code will be changed along with
+;one bit of the coding (see sub_2aba).
+;
 ;Request block:
 ;  0x08 Block length                            kwp_rx_buf+0
 ;   xx  Block counter                           kwp_rx_buf+1
@@ -14847,6 +14870,7 @@ kwp_56_2b_login:
     mov !mem_fbc5,a           ;508c  9e c5 fb
     call !auth_login_safe     ;508f  9a ac 25     Authenticate login using SAFE code
     bt mem_fe65.3,lab_5098    ;5092  bc 65 03     Branch if login succeeded
+
     ;login failed
     br !kwp_logout_disconnect ;5095  9b c3 51     Branch to Clear KWP1281 auth bits and disconnect
 
