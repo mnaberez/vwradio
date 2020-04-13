@@ -461,10 +461,6 @@ kwp_result_t kwp_send_group_reading_block(uint8_t group)
 /*
  * Perform a group reading (measuring blocks) for the specific group,
  * receive the response block and validate it.
- *
- * TODO: figure out what to do about advanced id's (groups 0x50 & 0x51)
- * found in the Gamma 5 (TechniSat) radio.  Those responses are an 0xE7
- * block title but the data does not conform to the usual 0xE7 format.
  */
 kwp_result_t kwp_read_group(uint8_t group)
 {
@@ -474,6 +470,10 @@ kwp_result_t kwp_read_group(uint8_t group)
     result = kwp_receive_block();
     if (result != KWP_SUCCESS) { return result; }
 
+    /*
+     * Handle ACK response
+     */
+
     // in some rare cases, a module may return an ACK title instead
     // of the usual 0xE7 title.  this happens when the group number
     // is valid but there are no measurements to return.  this can be
@@ -482,30 +482,71 @@ kwp_result_t kwp_read_group(uint8_t group)
     uint8_t block_title = kwp_rx_buf[2];
     if (block_title == KWP_ACK) { return KWP_SUCCESS; }
 
-    // otherwise, expect the typical 0xE7 response title
+    /*
+     * Handle 0xE7 measurements or string response
+     */
     if (block_title != KWP_R_GROUP_READING) { return KWP_UNEXPECTED; }
 
     /*
-     * Response:
-     * 0F C7 E7 01 C8 16 05 0F 7C 14 64 7E 04 4B 6D 03
-     * LL CC TT A0 A1 A2 B0 B1 B2 C0 C1 C2 D0 D1 D2 EE
+     * 0xE7 measurements response:
+     *   0F xx E7 01 C8 16 05 0F 7C 14 64 7E 04 4B 6D 03
+     *   LL CC TT A0 A1 A2 B0 B1 B2 C0 C1 C2 D0 D1 D2 EE
      *
-     * LL    = Block length
-     * CC    = Block counter
-     * TT    = Block title (0xE7 = response to group reading)
-     * A0    = Measurement 1 Formula (0x01 = RPM)
-     * A1,A2 = Measurement 1 Value
-     * B0    = Measurement 2 Formula (0x05 = deg C)
-     * B1,B2 = Measurement 2 Value
-     * C0    = Measurement 3 Formula (0x14 = %)
-     * C1,B2 = Measurement 3 Value
-     * D0    = Measurement 4 Formula (0x04 = ATDC/BTDC)
-     * D1,D2 = Measurement 4 Value
-     * EE    = Block end
+     *   LL    = Block length
+     *   CC    = Block counter
+     *   TT    = Block title (0xE7 = response to group reading)
+     *   A0    = Measurement 1 Formula (0x01 = RPM)
+     *   A1,A2 = Measurement 1 Value
+     *   B0    = Measurement 2 Formula (0x05 = deg C)
+     *   B1,B2 = Measurement 2 Value
+     *   C0    = Measurement 3 Formula (0x14 = %)
+     *   C1,B2 = Measurement 3 Value
+     *   D0    = Measurement 4 Formula (0x04 = ATDC/BTDC)
+     *   D1,D2 = Measurement 4 Value
+     *   EE    = Block end
+     *
+     * 0xE7 string response:
+     *   2C xx E7 3F .. .. .. 03
+     *   LL CC TT A0 SS SS SS EE
+     *
+     *   LL = Block length
+     *   CC = Block counter
+     *   TT = Block title (0xE7 = response to group reading)
+     *   A0 = Measurement 1 Formula (0x3F = String)
+     *   SS = String data (0 or more bytes; variable)
+     *   EE = Block end
      */
+
     uint8_t datalen = kwp_rx_buf[0] - 3;  // block length - (counter + title + end)
 
+    // all 0xE7 responses must have at least one byte after the block title
+    // (the first formula byte)
+    if (datalen < 1) { return KWP_DATA_TOO_SHORT; }
+
+    /*
+     * Handle 0xE7 string response
+     */
+
+    // if the first formula byte is 0x3F, this is the special string
+    // response.  the rest of the bytes are the string.  this has only
+    // been seen on the vw gamma 5 (technisat) radio groups 0x50 & 0x51.
+    // the string length was 40 bytes for both groups.  we don't assume
+    // 40 is a magic number so we accept 0 or more bytes for the string.
+    if (kwp_rx_buf[3] == 0x3F) {
+        uart_puts(UART_DEBUG, "STRING: \"");
+        for (uint8_t i=0; i<datalen; i++) {
+          uart_put(UART_DEBUG, kwp_rx_buf[4+i]);
+        }
+        uart_puts(UART_DEBUG, "\"\r\n");
+        return KWP_SUCCESS;
+    }
+
+    /*
+     * Handle 0xE7 measurements response
+     */
+
     // module may send up to 4 measurements (4 * 3 bytes = 12)
+    // groups with fewer than 4 measurements are common
     if (datalen > 12) { return KWP_DATA_TOO_LONG; }
 
     // must receive 3 bytes for each measurement
