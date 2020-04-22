@@ -530,8 +530,10 @@ kwp_result_t kwp_read_group(uint8_t group)
     // if the first formula byte is 0x3F, this is the special string
     // response.  the rest of the bytes are the string.  this has only
     // been seen on the vw gamma 5 (technisat) radio groups 0x50 & 0x51.
-    // the string length was 40 bytes for both groups.  we don't assume
-    // 40 is a magic number so we accept 0 or more bytes for the string.
+    // the string length was 40 bytes for both groups.  the length of
+    // 40 bytes corresponds directly to the 40 characters on the second
+    // line of the vag 1552's 40x2 character lcd.  we don't assume 40 is
+    // a magic number so we accept 0 or more bytes for the string.
     if (kwp_rx_buf[3] == 0x3F) {
         uart_puts(UART_DEBUG, "STRING: \"");
         for (uint8_t i=0; i<datalen; i++) {
