@@ -7916,7 +7916,7 @@ sub_2bd4:
     mov !kwp_rw_count,a     ;2bd8  9e 4b f0     Number of bytes left to send = number requested
     movw ax,de              ;2bdb  c4
     movw !mem_f002,ax       ;2bdc  03 02 f0
-    call !dec_rw_count_0x0d ;2bdf  9a 11 2d     Decrease kwp_rx_count by 0x0D, return A = decrease
+    call !dec_rw_count_0x0d ;2bdf  9a 11 2d     Decrease kwp_rw_count by 0x0D, return A = decrease
 
     mov l,a                 ;2be2  76           HL = number of bytes to read
     mov h,#0x00             ;2be3  a7 00
@@ -7969,7 +7969,7 @@ lab_2c18:
 
 sub_2c1a:
 ;Returns carry set = invalid, carry clear = valid
-    call !dec_rw_count_0x10 ;2c1a  9a 23 2d   Decrease kwp_rx_count by 0x10, return A = decrease
+    call !dec_rw_count_0x10 ;2c1a  9a 23 2d   Decrease kwp_rw_count by 0x10, return A = decrease
 
     cmp a,#0x00+1           ;2c1d  4d 01
     bc lab_2c32             ;2c1f  8d 11      Branch if A < 0x00+1
@@ -8270,7 +8270,7 @@ lab_2d0f_invalid:
     ret                     ;2d10  af
 
 
-;Decrease kwp_rx_count by 0x0D, return A = decrease
+;Decrease kwp_rw_count by 0x0D, return A = decrease
 ;
 ;if kwp_rw_count <= 0x0d:
 ;  A, C = kwp_rw_count
@@ -8296,7 +8296,7 @@ lab_2d21:
     ret                     ;2d22  af
 
 
-;Decrease kwp_rx_count by 0x10, return A = decrease
+;Decrease kwp_rw_count by 0x10, return A = decrease
 ;
 ;if kwp_rw_count <= 0x10:
 ;  A, C = kwp_rw_count
