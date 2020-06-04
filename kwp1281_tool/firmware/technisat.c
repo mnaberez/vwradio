@@ -190,6 +190,38 @@ tsat_result_t tsat_read_ram(uint16_t address, uint8_t count)
     }
 }
 
+// Gamma 5 only allows writing to ranges allowed by sub_5e47.  Writing
+// to 0x0040-0x053f is allowed (the first 1.5K RAM, including the stack!).
+tsat_result_t tsat_write_ram(uint16_t address, uint8_t size, uint8_t *data)
+{
+    uart_puts(UART_DEBUG, "PERFORM WRITE RAM\r\n");
+
+    uint8_t block[64] = {0};
+    block[0] = 0x10;          // only responds if this is 2-0xff
+    block[1] = 0x01;          // only responds if this is 1
+    block[2] = 2 + size;      // number of parameters after command
+    block[3] = 0x45;          // command
+    block[4] = LOW(address);
+    block[5] = HIGH(address);
+    for (uint8_t i=0; i<size; i++) { block[6+i] = data[i]; }
+    // one more byte in the buffer is used for the checksum written by tsat_send_block()
+
+    tsat_result_t result = tsat_send_block(block);
+    if (result != TSAT_SUCCESS) { return result; }
+
+    // receive write ram response block
+    result = tsat_receive_block();
+    if (result != TSAT_SUCCESS) { return result; }
+
+    // check status
+    if ((tsat_rx_buf[2] == 0x5e) && (tsat_rx_buf[3] == 0x00)) {
+        // write ram succeeded
+        return TSAT_SUCCESS;
+    } else {
+        return TSAT_UNEXPECTED;
+    }
+}
+
 
 tsat_result_t tsat_hello(void)
 {
