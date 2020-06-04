@@ -160,6 +160,7 @@ tsat_result_t tsat_disconnect(void)
 }
 
 
+// Gamma 5 allows reading all bytes within 0x0000-0x053f only
 tsat_result_t tsat_read_ram(uint16_t address, uint8_t count)
 {
     uart_puts(UART_DEBUG, "PERFORM READ RAM\r\n");
@@ -182,7 +183,7 @@ tsat_result_t tsat_read_ram(uint16_t address, uint8_t count)
     if (result != TSAT_SUCCESS) { return result; }
 
     // check status
-    if ((tsat_rx_buf[2] == 0x44) && (tsat_rx_buf[3] == 0x00)) {
+    if ((tsat_rx_buf[2] == 0x44) && (tsat_rx_buf[1] == count)) {
         return TSAT_SUCCESS;
     } else {
         return TSAT_UNEXPECTED;
