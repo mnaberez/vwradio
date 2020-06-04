@@ -19,6 +19,12 @@
 ;in the internal flash ROM of the M38869FFAHP chip.  The SHA-1
 ;hash of that binary is: 2d9344b56ba4329e762a984150c304cc35d51b13.
 ;
+;Memory Map:
+;  0000-003F  Special Function Registers (SFRs)
+;  0040-083F  RAM (2K)
+;  1000-1FFF  Flash ROM Unused (4K)
+;  2000-FFFF  Flash ROM (56K)
+;
 
     .area CODE1 (ABS)
     .org 0x2000
@@ -83,9 +89,10 @@ lab_2000:
     sei                     ;2000  78
     clt                     ;2001  12
     cld                     ;2002  d8
-    ldm #0x0c,CPUM          ;2003  3c 0c 3b
+    ldm #0b1100,CPUM        ;2003  3c 0c 3b     Processor mode = single-chip mode
+                            ;                   Stack page selection bit = stack at 0x1XX
     ldx #0xff               ;2006  a2 ff
-    txs                     ;2008  9a
+    txs                     ;2008  9a           Set stack pointer = 0xFF
     ldm #0x11,P0            ;2009  3c 11 00
     ldm #0xee,P0D           ;200c  3c ee 01
     ldm #0xc5,P1            ;200f  3c c5 02
@@ -183,7 +190,7 @@ lab_20ec:
     jsr sub_4979            ;2107  20 79 49
     ldy #0x0a               ;210a  a0 0a
     jsr sub_f22c            ;210c  20 2c f2
-    seb 4,CPUM              ;210f  8f 3b
+    seb 4,CPUM              ;210f  8f 3b        Port Xc switch bit = 1: Xcin-Xcout oscillating function
     lda #0x06               ;2111  a9 06
     jsr sub_26d8            ;2113  20 d8 26
     sta 0x0268              ;2116  8d 68 02
@@ -258,7 +265,7 @@ lab_21a1:
     jmp lab_2154            ;21a2  4c 54 21
 
 lab_21a5:
-    seb 4,CPUM              ;21a5  8f 3b
+    seb 4,CPUM              ;21a5  8f 3b        Port Xc switch bit
     jsr sub_6f45            ;21a7  20 45 6f
     lda 0x67                ;21aa  a5 67
 
@@ -267,16 +274,16 @@ lab_21ac:
     beq lab_21ac            ;21ae  f0 fc
     ldm #0x0f,PRE12         ;21b0  3c 0f 20
     ldm #0x7f,T1            ;21b3  3c 7f 21
-    seb 7,CPUM              ;21b6  ef 3b
+    seb 7,CPUM              ;21b6  ef 3b        Main clock division ratio selection bit
     nop                     ;21b8  ea
     nop                     ;21b9  ea
     nop                     ;21ba  ea
-    seb 5,CPUM              ;21bb  af 3b
+    seb 5,CPUM              ;21bb  af 3b        Main clock stop bit
     nop                     ;21bd  ea
     seb 4,0xf5              ;21be  8f f5
 
 lab_21c0:
-    bbc 7,CPUM,lab_21ed     ;21c0  f7 3b 2a
+    bbc 7,CPUM,lab_21ed     ;21c0  f7 3b 2a     Main clock dvision ratio selection bit
     bbs 2,0xe7,lab_21c9     ;21c3  47 e7 03
     bbc 4,P4,lab_21ed       ;21c6  97 08 24
 
@@ -303,9 +310,9 @@ lab_21ea:
     jmp lab_21c0            ;21ea  4c c0 21
 
 lab_21ed:
-    clb 5,CPUM              ;21ed  bf 3b
-    bbc 7,CPUM,lab_21fb     ;21ef  f7 3b 09
-    clb 7,CPUM              ;21f2  ff 3b
+    clb 5,CPUM              ;21ed  bf 3b        Main clock stop bit
+    bbc 7,CPUM,lab_21fb     ;21ef  f7 3b 09     Main clock division ratio selection bit
+    clb 7,CPUM              ;21f2  ff 3b        Main clock division ratio selection bit
     nop                     ;21f4  ea
     ldm #0x7c,PRE12         ;21f5  3c 7c 20
     ldm #0x04,T1            ;21f8  3c 04 21
@@ -3115,10 +3122,10 @@ sub_2f51:
     .byte 0xd9              ;3159  d9          DATA 0xd9
 
 lab_315a:
-    bbc 7,CPUM,lab_316e     ;315a  f7 3b 11
-    clb 5,CPUM              ;315d  bf 3b
+    bbc 7,CPUM,lab_316e     ;315a  f7 3b 11     Main clock division ratio selection bit
+    clb 5,CPUM              ;315d  bf 3b        Main clock stop bit
     nop                     ;315f  ea
-    clb 7,CPUM              ;3160  ff 3b
+    clb 7,CPUM              ;3160  ff 3b        Main clock division ratio selection bit
     nop                     ;3162  ea
     ldm #0x7c,PRE12         ;3163  3c 7c 20
     ldm #0x04,T1            ;3166  3c 04 21
@@ -3823,8 +3830,8 @@ lab_34f4:
     .word lab_5b37          ;358a  37 5b       VECTOR   cmd=5f   Disconnect (terminate session)
     .word lab_5b4a          ;358c  4a 5b       VECTOR   cmd=42
     .word lab_5bbb          ;358e  bb 5b       VECTOR   cmd=43
-    .word lab_5beb          ;3590  eb 5b       VECTOR   cmd=44   Read arbitrary memory <= 0x0500 ?
-    .word lab_5c2e          ;3592  2e 5c       VECTOR   cmd=45   Disables EEPROM filtering based on payload
+    .word lab_5beb          ;3590  eb 5b       VECTOR   cmd=44   Read RAM in allowed range
+    .word lab_5c2e          ;3592  2e 5c       VECTOR   cmd=45   Write RAM in allowed range or disable EEPROM filtering
     .word lab_5c7e          ;3594  7e 5c       VECTOR   cmd=46   AND memory in allowed ranges with complement of a value
     .word lab_5cb2          ;3596  b2 5c       VECTOR   cmd=47   OR memory in allowed ranges with a value
     .word lab_5ce4          ;3598  e4 5c       VECTOR   cmd=4a   ? mem_59fd read bytes [0x4c],y
@@ -10186,28 +10193,32 @@ lab_5be7:
 
 ;TechniSat protocol command 0x44
 lab_5beb:
+;Read RAM in allowed range
+;Allows reading all bytes 0x0000-0x053f
     bbc 7,0xe8,lab_5c2d     ;5beb  f7 e8 3f
     ldy #0x01               ;5bee  a0 01
     jsr sub_f22c            ;5bf0  20 2c f2
 
-    lda 0x0323              ;5bf3  ad 23 03     A = uart rx buffer byte 3
+    lda 0x0323              ;5bf3  ad 23 03     A = uart rx buffer byte 3 (address low)
     sta 0x4c                ;5bf6  85 4c
 
-    lda 0x0324              ;5bf8  ad 24 03     A = uart rx buffer byte 4
+    lda 0x0324              ;5bf8  ad 24 03     A = uart rx buffer byte 4 (address high)
     sta 0x4d                ;5bfb  85 4d
 
-    lda 0x0325              ;5bfd  ad 25 03     A = uart rx buffer byte 5
+    lda 0x0325              ;5bfd  ad 25 03     A = uart rx buffer byte 5 (number of bytes to read?)
     sta 0x4f                ;5c00  85 4f
 
-    dec a                   ;5c02  1a
+    ;TODO is this a range check based on 0x0325?
+
+    dec a                   ;5c02  1a           Decrement number of bytes to read
     clc                     ;5c03  18
-    adc 0x4c                ;5c04  65 4c
-    sta 0x4e                ;5c06  85 4e
+    adc 0x4c                ;5c04  65 4c        Add memory address low byte
+    sta 0x4e                ;5c06  85 4e        Store in ?? end address ?? low
 
     lda #0x00               ;5c08  a9 00
-    adc 0x4d                ;5c0a  65 4d
+    adc 0x4d                ;5c0a  65 4d        Add memory address high byte
     cmp #0x05               ;5c0c  c9 05
-    bcc lab_5c18            ;5c0e  90 08
+    bcc lab_5c18            ;5c0e  90 08        Branch if less
     bne lab_5c25            ;5c10  d0 13
 
     lda 0x4e                ;5c12  a5 4e
@@ -10219,6 +10230,8 @@ lab_5c18:
     lda #0x00               ;5c1b  a9 00
     sta 0x0344              ;5c1d  8d 44 03     Store as TechniSat protocol status byte
     jsr sub_5e05            ;5c20  20 05 5e     Send 10 4F 44 <data [0x4c],y...> CS
+                            ;                     Pointer to memory address in 0x004C
+                            ;                     Number of bytes to send in 0x4F
     bra lab_5c2d            ;5c23  80 08
 
 lab_5c25:
@@ -10230,34 +10243,50 @@ lab_5c2d:
     rts                     ;5c2d  60
 
 ;TechniSat protocol command 0x45
-;Disables EEPROM filtering based on payload
-;Also performs unknown functions
+;Write to RAM or disable EEPROM filtering
 ;
-;Send: 10 01 02 45 62 14 41
-;Recv: 10 01 5E 20 70         EEPROM filtering now disabled
+;Write arbitrary data to some areas of RAM (see sub_5e47).
+;Notably, the allowed areas include 0x0040-0x053f.  That's the
+;first 1.5K of RAM (including the stack!).
 ;
-;Filtering can also be disabled with command 0x4D
-;and this may be preferable; see lab_5db3.
+;Request block:
+;  0x10     unknown
+;  0x01     unknown
+;  0x03     number of parameters                0x321
+;  0x45     command (0x45 = write ram)          0x322
+;  0x0c     param 0: memory address low         0x323
+;  0x00     param 1: memory address high        0x324
+;           ... bytes to write ...              0x325...
+;  <CS>     checksum                              xx
+;
+;If the address given is a magic number, instead of writing to
+;RAM, disable the EEPROM filtering and perform other unknown
+;functions.  Disabling the EEPROM filtering can also be done
+;with command 0x4D and this may be preferable; see lab_5db3.
+;
 lab_5c2e:
     ldy #0x01               ;5c2e  a0 01
     jsr sub_f22c            ;5c30  20 2c f2
 
-    lda 0x0323              ;5c33  ad 23 03     A = uart rx buffer byte 3 (magic number; see below)
-    sta 0x4c                ;5c36  85 4c
-
+    ;Store address to write, or magic number, as word in 0x004C
+    lda 0x0323              ;5c33  ad 23 03     A = uart rx buffer byte 3
+    sta 0x4c                ;5c36  85 4c        Store as write address low byte or magic number low byte
     lda 0x0324              ;5c38  ad 24 03     A = uart rx buffer byte 4 (magic number; see below)
-    sta 0x4d                ;5c3b  85 4d
+    sta 0x4d                ;5c3b  85 4d        Store as write address high byte or magic number high byte
 
-    lda 0x0321              ;5c3d  ad 21 03     A = uart rx buffer byte 1
-    dec a                   ;5c40  1a
-    dec a                   ;5c41  1a
-    sta 0x4e                ;5c42  85 4e
+    ;Store number of bytes to write as word in 0x004E
+    ;(High byte is forced to zero)
+    lda 0x0321              ;5c3d  ad 21 03     A = uart rx buffer byte 1 (number of parameters)
+    dec a                   ;5c40  1a           -1 for address low
+    dec a                   ;5c41  1a           -1 for address high
+    sta 0x4e                ;5c42  85 4e        Store number of bytes to write
     ldm #0x00,0x4f          ;5c44  3c 00 4f
 
+    ;Check for magic number in address
     jsr sub_5e84            ;5c47  20 84 5e     Disable EEPROM filtering based on magic number in 0x4c/0x4d
     bcs lab_5c6b            ;5c4a  b0 1f        Branch if magic number check failed
 
-    ;magic number check passed
+    ;Address is the magic number
     bbc 0,0xf1,lab_5c61     ;5c4c  17 f1 12
     clb 7,0xf0              ;5c4f  ff f0
     clb 0,0xf1              ;5c51  1f f1
@@ -10271,13 +10300,17 @@ lab_5c61:
     lda #0x20               ;5c61  a9 20
     sta 0x0344              ;5c63  8d 44 03     Store as TechniSat protocol status byte
     jsr sub_5adf            ;5c66  20 df 5a     Send 10 01 5E <0x0344> CS
-    bra lab_5c7d            ;5c69  80 12
+    bra lab_5c7d            ;5c69  80 12        Branch to return
 
 lab_5c6b:
+    ;Address is not the magic number
+    ;Perform a memory write with address in 0x004C and number of bytes to write in 0x004E
+
     lda #0x00               ;5c6b  a9 00
     sta 0x0344              ;5c6d  8d 44 03     Store as TechniSat protocol status byte
 
-    jsr sub_5e47            ;5c70  20 47 5e     TODO write to memory from uart rx buffer to [0x4c,x]
+    jsr sub_5e47            ;5c70  20 47 5e     Write to allowed memory from uart rx buffer to [0x4c,x]
+                            ;                     Allowed ranges = 0, 2, 4, 6, 8, a, c, e, 0x10, 0x0040-0x053f
     bcc lab_5c7a            ;5c73  90 05        Branch if success
 
     lda #0x04               ;5c75  a9 04
@@ -10308,7 +10341,8 @@ lab_5c7e:
 
     ldm #0x00,0x4f          ;5c94  3c 00 4f
 
-    jsr sub_5e62            ;5c97  20 62 5e     Check if word in 0x4c is in allowed ranges
+    jsr sub_5e62            ;5c97  20 62 5e     Check if word in 0x4c is in allowed ranges:
+                            ;                     0, 2, 4, 6, 8, a, c, e, 0x10, 0x0040-0x053f
     bcs lab_5ca9            ;5c9a  b0 0d        Branch if not allowed
 
     ldy #0x00               ;5c9c  a0 00
@@ -10345,7 +10379,8 @@ lab_5cb2:
 
     ldm #0x00,0x4f          ;5cc6  3c 00 4f
 
-    jsr sub_5e62            ;5cc9  20 62 5e     Check if word in 0x4c is in allowed ranges
+    jsr sub_5e62            ;5cc9  20 62 5e     Check if word in 0x4c is in allowed ranges:
+                            ;                     0, 2, 4, 6, 8, a, c, e, 0x10, 0x0040-0x053f
     bcs lab_5cdb            ;5ccc  b0 0d        Branch if not allowed
 
     ldy #0x00               ;5cce  a0 00
@@ -10395,6 +10430,8 @@ lab_5d0f:
     lda #0x00               ;5d0f  a9 00
     sta 0x0344              ;5d11  8d 44 03     Store as TechniSat protocol status byte
     jsr sub_5e05            ;5d14  20 05 5e     Send 10 4F 44 <data [0x4c],y...> CS
+                            ;                     Pointer to memory address in 0x004C
+                            ;                     Number of bytes to send in 0x4F
     bra lab_5d1e            ;5d17  80 05
 
 lab_5d19:
@@ -10416,11 +10453,14 @@ lab_5d22:
     bcs lab_5d60            ;5d2c  b0 32
     asl a                   ;5d2e  0a
     tay                     ;5d2f  a8
+
     lda mem_59fd,y          ;5d30  b9 fd 59
     sta 0x4c                ;5d33  85 4c
+
     lda mem_59fd+1,y        ;5d35  b9 fe 59
     and #0x0f               ;5d38  29 0f
     sta 0x4d                ;5d3a  85 4d
+
     ldm #0x01,0x4e          ;5d3c  3c 01 4e
     lda mem_59fd+1,y        ;5d3f  b9 fe 59
     bbc 5,a,lab_5d47        ;5d42  b3 03
@@ -10438,7 +10478,8 @@ lab_5d47:
     lda #0x00               ;5d56  a9 00
     sta 0x0344              ;5d58  8d 44 03     Store as TechniSat protocol status byte
 
-    jsr sub_5e47            ;5d5b  20 47 5e     TODO write to memory from uart rx buffer to [0x4c,x]
+    jsr sub_5e47            ;5d5b  20 47 5e     Write to allowed memory from uart rx buffer to [0x4c,x]
+                            ;                     Allowed ranges = 0, 2, 4, 6, 8, a, c, e, 0x10, 0x0040-0x053f
     bcc lab_5d65            ;5d5e  90 05        Branch if success
 
 lab_5d60:
@@ -10564,6 +10605,8 @@ lab_5e01:
 
 
 ;Send 10 4F 44 <data [0x4c],y...> CS
+;Pointer to memory address in 0x004C
+;Number of bytes to send in 0x4F
 sub_5e05:
     seb 6,0xe5              ;5e05  cf e5
     lda #0x10               ;5e07  a9 10
@@ -10598,7 +10641,8 @@ lab_5e29:
     rts                     ;5e46  60
 
 
-;TODO write to memory from uart rx buffer to [0x4c,x]
+;Write to allowed memory from uart rx buffer to [0x4c,x]
+;Allowed ranges = 0, 2, 4, 6, 8, a, c, e, 0x10, 0x0040-0x053f
 ;
 ;Called from TechniSat command 0x45 (lab_5c2e)
 ;   and from TechniSat command 0x4B (lab_5d22)
@@ -10609,7 +10653,8 @@ sub_5e47:
     ldy #0x00               ;5e49  a0 00
 
 lab_5e4b:
-    jsr sub_5e62            ;5e4b  20 62 5e     Check if word in 0x4c is in allowed ranges
+    jsr sub_5e62            ;5e4b  20 62 5e     Check if word in 0x4c is in allowed ranges:
+                            ;                     0, 2, 4, 6, 8, a, c, e, 0x10, 0x0040-0x053f
     bcs lab_5e61            ;5e4e  b0 11        Branch if not allowed
 
     lda 0x0325,y            ;5e50  b9 25 03     A = uart rx buffer byte 5 +
@@ -10779,7 +10824,7 @@ lab_5ef6:
 ;  0x03 Block end                   0x0326
 ;
 sub_5ef7:
-    ;Set pointer to buffer at 0x100 will receive EEPROM contents (used by sub_46e5)
+    ;Set pointer to buffer at 0x0100 will receive EEPROM contents (used by sub_46e5)
     lda #0x00               ;5ef7  a9 00    A = Buffer address low
     sta 0x4c                ;5ef9  85 4c    Store in pointer low
     lda #0x01               ;5efb  a9 01    A = Buffer address high
@@ -10814,7 +10859,7 @@ sub_5ef7:
     ;  0x00 Number of bytes to read     0x0325
     ;  0x03 Block end                   0x0326
 
-    ;TODO: setting up something in 0x100-0x101
+    ;TODO: setting up something in 0x0100-0x0101
     lda 0x0323              ;5f15  ad 23 03     A = KWP1281 rx buffer: End Address low
     sta 0x0101              ;5f18  8d 01 01     Store it in 0x0101
 
@@ -13674,34 +13719,23 @@ lab_6cd3:
     .byte 0x8a              ;6d1e  8a          DATA 0x8a
     .byte 0x02              ;6d1f  02          DATA 0x02
     .byte 0x0a              ;6d20  0a          DATA 0x0a
-    .byte 0xaa              ;6d21  aa          DATA 0xaa
-    .byte 0xa9              ;6d22  a9          DATA 0xa9
-    .byte 0x91              ;6d23  91          DATA 0x91
-    .byte 0x8d              ;6d24  8d          DATA 0x8d
-    .byte 0x10              ;6d25  10          DATA 0x10
-    .byte 0x01              ;6d26  01          DATA 0x01
-    .byte 0xbd              ;6d27  bd          DATA 0xbd
-    .byte 0xd7              ;6d28  d7          DATA 0xd7
-    .byte 0x6c              ;6d29  6c          DATA 0x6c 'l'
-    .byte 0x8d              ;6d2a  8d          DATA 0x8d
-    .byte 0x11              ;6d2b  11          DATA 0x11
-    .byte 0x01              ;6d2c  01          DATA 0x01
-    .byte 0xbd              ;6d2d  bd          DATA 0xbd
-    .byte 0xd8              ;6d2e  d8          DATA 0xd8
-    .byte 0x6c              ;6d2f  6c          DATA 0x6c 'l'
-    .byte 0x8d              ;6d30  8d          DATA 0x8d
-    .byte 0x12              ;6d31  12          DATA 0x12
-    .byte 0x01              ;6d32  01          DATA 0x01
-    .byte 0x20              ;6d33  20          DATA 0x20 ' '
-    .byte 0xc0              ;6d34  c0          DATA 0xc0
-    .byte 0x6c              ;6d35  6c          DATA 0x6c 'l'
-    .byte 0x60              ;6d36  60          DATA 0x60 '`'
+
+sub_6d21:
+    tax                     ;6d21  aa
+    lda #0x91               ;6d22  a9 91
+    sta 0x0110              ;6d24  8d 10 01
+    lda 0x6cd7,x            ;6d27  bd d7 6c
+    sta 0x0111              ;6d2a  8d 11 01
+    lda 0x6cd8,x            ;6d2d  bd d8 6c
+    sta 0x0112              ;6d30  8d 12 01
+    jsr sub_6cc0            ;6d33  20 c0 6c
+    rts                     ;6d36  60
 
 lab_6d37:
-    bbc 7,CPUM,lab_6d46     ;6d37  f7 3b 0c
-    clb 5,CPUM              ;6d3a  bf 3b
+    bbc 7,CPUM,lab_6d46     ;6d37  f7 3b 0c     Main clock division ratio selection bit
+    clb 5,CPUM              ;6d3a  bf 3b        Main clock stop bit
     nop                     ;6d3c  ea
-    clb 7,CPUM              ;6d3d  ff 3b
+    clb 7,CPUM              ;6d3d  ff 3b        Main clock division ratio selection bit
     nop                     ;6d3f  ea
     ldm #0x7c,PRE12         ;6d40  3c 7c 20
     ldm #0x04,T1            ;6d43  3c 04 21
@@ -17273,10 +17307,10 @@ lab_7f88:
     .byte 0x4e              ;810a  4e          DATA 0x4e 'N'
 
 lab_810b:
-    bbc 7,CPUM,lab_811a     ;810b  f7 3b 0c
-    clb 5,CPUM              ;810e  bf 3b
+    bbc 7,CPUM,lab_811a     ;810b  f7 3b 0c     Main clock division ratio selection bit
+    clb 5,CPUM              ;810e  bf 3b        Main clock stop bit
     nop                     ;8110  ea
-    clb 7,CPUM              ;8111  ff 3b
+    clb 7,CPUM              ;8111  ff 3b        Main clock division ratio selection bit
     nop                     ;8113  ea
     ldm #0x7c,PRE12         ;8114  3c 7c 20
     ldm #0x04,T1            ;8117  3c 04 21
@@ -37048,10 +37082,10 @@ sub_f1f9:
     rts                     ;f203  60
 
 lab_f204:
-    bbc 7,CPUM,lab_f213     ;f204  f7 3b 0c
-    clb 5,CPUM              ;f207  bf 3b
+    bbc 7,CPUM,lab_f213     ;f204  f7 3b 0c     Main clock division ratio selection bit
+    clb 5,CPUM              ;f207  bf 3b        Main clock stop bit
     nop                     ;f209  ea
-    clb 7,CPUM              ;f20a  ff 3b
+    clb 7,CPUM              ;f20a  ff 3b        Main clock division ratio selection bit
     nop                     ;f20c  ea
     ldm #0x7c,PRE12         ;f20d  3c 7c 20
     ldm #0x04,T1            ;f210  3c 04 21
