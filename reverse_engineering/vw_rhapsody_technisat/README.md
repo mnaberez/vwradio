@@ -6,7 +6,10 @@ and use the Renesas (Mitsubishi) [M38869FFAHP](http://archive.6502.org/datasheet
 
 ## Firmware
 
-Since the M38869FFAHP has no code protection, the firmware can be dumped by several hardware methods that are documented in the datasheet.  One of these modes allows the M38869FFAHP to read like an M5M28F101 flash memory.  I used this method (see the notes for the Gamma 5).  Unlike Gamma 5, I have not found a way to dump the Rhapsody firmware via the K-line.  Desoldering the microcontroller is the only way I know to dump it.
+Since the M38869FFAHP has no code protection, the firmware can be dumped by several hardware methods that are documented in the datasheet.  One of these modes allows the M38869FFAHP to read like an M5M28F101 flash memory.  I used this method initially (see the notes for the Gamma 5).  
+
+Gamma 5 allows dumping the firmware over KWP1281.  In the Rhapsody, TechniSat removed that command and there is no built-in way to read out the firmware.  I found that both the Gamma 5 and Rhapsody have a "Write RAM"
+command on the TechniSat protocol.  The "Write RAM" command allows the stack to be overwritten which permits Remote Code Execution (RCE).  I was able to dump the firmware of both Gamma 5 and Rhapsody over the K-line by using RCE.
 
 ## KWP1281 Protocol
 
