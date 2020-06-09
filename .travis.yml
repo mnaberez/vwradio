@@ -40,6 +40,7 @@ script:
   - make -C faceplate_emulator/firmware
   - python faceplate_emulator/host/setup.py test -q
   - make -C kwp1281_tool/firmware
+  - make -C reverse_engineering/seat_liceo_delco/disasm
   - make -C reverse_engineering/vw_gamma_5_technisat/disasm
   - make -C reverse_engineering/vw_premium_4_clarion/disasm/pu1666a_mainmcu
   - make -C reverse_engineering/vw_premium_4_clarion/disasm/pu1666a_submcu

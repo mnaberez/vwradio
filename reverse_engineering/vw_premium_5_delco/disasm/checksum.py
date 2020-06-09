@@ -1,5 +1,5 @@
 '''
-Premium 5 ROM checksum utility
+Delphi/Delco ROM checksum utility
 
 Calculate the checksum of a ROM.  For "compare", read the
 checksum bytes at the end of the ROM file and report if they
