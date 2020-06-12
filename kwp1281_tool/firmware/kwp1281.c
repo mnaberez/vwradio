@@ -678,7 +678,7 @@ kwp_result_t kwp_read_identification(void)
 }
 
 
-int _send_read_mem_block(uint8_t title, uint16_t address, uint8_t length)
+static kwp_result_t _send_read_mem_block(uint8_t title, uint16_t address, uint8_t length)
 {
     uart_puts(UART_DEBUG, "PERFORM READ xx MEMORY\r\n");
     uint8_t block[] = {
