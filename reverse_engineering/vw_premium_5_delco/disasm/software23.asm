@@ -2938,7 +2938,8 @@ lab_0e39:
     mov a,shadow_p2         ;0e6d  f0 cc
     mov p2,a                ;0e6f  f2 02
 
-    clr1 shadow_p2.6        ;0e71  6b cc        P26 = 0 (K-line mode = normal)
+    clr1 shadow_p2.6        ;0e71  6b cc        P26 = 0 (K-line resistor = disconnected;
+                            ;                            radio is not acting as a tester)
     mov a,shadow_p2         ;0e73  f0 cc
     mov p2,a                ;0e75  f2 02
 
@@ -3076,7 +3077,8 @@ lab_0f1b:
     mov a,shadow_p2         ;0f90  f0 cc
     mov p2,a                ;0f92  f2 02
 
-    clr1 shadow_p2.6        ;0f94  6b cc        P26 = 0 (K-line mode = normal)
+    clr1 shadow_p2.6        ;0f94  6b cc        P26 = 0 (K-line resistor = disconnected;
+                            ;                            radio is not acting as a tester)
     mov a,shadow_p2         ;0f96  f0 cc
     mov p2,a                ;0f98  f2 02
 
@@ -9451,7 +9453,8 @@ lab_3288:
 
 lab_328d_bad_echo:
 ;Echo received for last byte sent is bad
-    bf shadow_p2.6,lab_323f ;328d  31 63 cc ae  Branch if P26 = 0 (K-line mode = normal)
+    bf shadow_p2.6,lab_323f ;328d  31 63 cc ae  Branch if P26 = 0 (K-line resistor = disconnected;
+                            ;                                      radio is not acting as a tester)
     call !kwp_disconnect    ;3291  9a 68 34     Disconnect and clear all KWP1281 state
     br lab_32dc_br_pop_reti ;3294  fa 46        Branch to pop registers and reti
 
@@ -9515,9 +9518,10 @@ intser0_32df:
     clr1 if0h.2             ;32e8  71 2b e1       Clear SRIF0 (INTSR0 interrupt flag)
 
     bf mem_fe7a.2,lab_3304  ;32eb  31 23 7a 15
-    bt shadow_p2.6,lab_331c ;32ef  ec cc 2a       Branch if P26 = 1 (K-line mode = radio as tester)
+    bt shadow_p2.6,lab_331c ;32ef  ec cc 2a       Branch if P26 = 1 (K-line resistor = connected;
+                            ;                                        radio is acting as a tester)
 
-    ;K-line mode is normal (not as a tester)
+    ;K-line resistor = disconnected (radio is not acting as a tester)
     bt mem_fe79.0,lab_3301  ;32f2  8c 79 0c
     bt mem_fe7a.1,lab_32fd  ;32f5  9c 7a 05
     bt mem_fe7a.0,lab_32ff  ;32f8  8c 7a 04
@@ -9551,7 +9555,7 @@ lab_3318:
     br lab_3324_pop_reti    ;331a  fa 08          Branch to pop registers off stack and reti
 
 lab_331c:
-    ;K-line mode = radio as tester
+    ;K-line resistor = connected (radio is acting as a tester)
     clr1 mem_fe7b.4         ;331c  4b 7b
     call !kwp_disconnect    ;331e  9a 68 34       Disconnect and clear all KWP1281 state
 
@@ -9610,7 +9614,8 @@ lab_336f:
 
 sub_3370:
     clr1 mem_fe79.2         ;3370  2b 79
-    bf shadow_p2.6,lab_3392 ;3372  31 63 cc 1c    Branch if P26 = 0 (K-line mode = normal)
+    bf shadow_p2.6,lab_3392 ;3372  31 63 cc 1c    Branch if P26 = 0 (K-line resistor = disconnected;
+                            ;                                        radio is not acting as a tester)
 
     mov a,!mem_f078         ;3376  8e 78 f0
     cmp a,#0x01             ;3379  4d 01
@@ -9773,7 +9778,8 @@ kwp_disconnect:
 
     btclr mem_fe7b.4,lab_348b ;3470  31 41 7b 17
 
-    clr1 shadow_p2.6        ;3474  6b cc        P26 = 0 (K-line mode = normal)
+    clr1 shadow_p2.6        ;3474  6b cc        P26 = 0 (K-line resistor = disconnected;
+                            ;                            radio is not acting as a tester)
     mov a,shadow_p2         ;3476  f0 cc
     mov p2,a                ;3478  f2 02
 
@@ -9891,7 +9897,8 @@ sub_3518:
     clr1 mem_fe7a.6         ;3528  6b 7a
 
 lab_352a:
-    clr1 shadow_p2.6        ;352a  6b cc        P26 = 0 (K-line mode = normal)
+    clr1 shadow_p2.6        ;352a  6b cc        P26 = 0 (K-line resistor = disconnected;
+                            ;                            radio is not acting as a tester)
     mov a,shadow_p2         ;352c  f0 cc
     mov p2,a                ;352e  f2 02
 
@@ -9918,7 +9925,8 @@ lab_3541:
 lab_3554:
     mov asim0,#0x00         ;3554  13 a0 00     UART0 mode register = 0 (UART fully disabled)
 
-    set1 shadow_p2.6        ;3557  6a cc        P26 = 1 (K-line mode = radio as tester)
+    set1 shadow_p2.6        ;3557  6a cc        P26 = 1 (K-line resistor = connected;
+                            ;                            radio is acting as a tester)
     mov a,shadow_p2         ;3559  f0 cc
     mov p2,a                ;355b  f2 02
 
@@ -9949,7 +9957,8 @@ sub_357c:
     bf mem_fe7a.6,lab_35e8  ;358b  31 63 7a 59
     bt p2.4,lab_35e8        ;358f  cc 02 56     Branch if P24/RxD0 = 1
 
-    clr1 shadow_p2.6        ;3592  6b cc        P26 = 0 (K-line mode = normal)
+    clr1 shadow_p2.6        ;3592  6b cc        P26 = 0 (K-line resistor = disconnected;
+                            ;                            radio is not acting as a tester)
     mov a,shadow_p2         ;3594  f0 cc
     mov p2,a                ;3596  f2 02
 
@@ -10023,7 +10032,8 @@ lab_35f6:
 lab_3607:
     clr1 mem_fe65.6         ;3607  6b 65
 
-    clr1 shadow_p2.6        ;3609  6b cc        P26 = 0 (K-line mode = normal)
+    clr1 shadow_p2.6        ;3609  6b cc        P26 = 0 (K-line resistor = disconnected;
+                            ;                            radio is not acting as a tester)
     mov a,shadow_p2         ;360b  f0 cc
     mov p2,a                ;360d  f2 02
 

@@ -54,7 +54,7 @@
 |Pin 53 |P23          |Tape METAL sense (1=metal)                     |
 |Pin 54 |P24/RxD0     |L9637D RX (K-line)                             |
 |Pin 55 |P25/TxD0     |L9637D TX (K-line)                             |
-|Pin 56 |P26          |K-line mode (0=normal, 1=radio as tester)      |
+|Pin 56 |P26          |K-line resistor (0=disconnected, 1=connected)  |
 |Pin 57 |P27/TI51/TO51|Unknown output                                 |
 |Pin 72 |P90/ANI00    |Unknown input                                  |
 |Pin 73 |P91/ANI10    |Unknown input (used as analog; mem_fca2)       |
