@@ -1,11 +1,8 @@
 # VW Radios
 
-![Photo](https://user-images.githubusercontent.com/52712/38045152-b4fae3bc-3270-11e8-9463-c228bd5f6f46.jpg)
+![Photo](./reverse_engineering/vw_premium_5_delco/photos/front.jpg)
 
-This repository is all about reverse engineering older Volkswagen car radios, like the Premium 4
-radio shown above.  The radios studied here are over fifteen years old and are the single-DIN
-size.  Despite their age, they are intelligent and support
-on-board diagnostics (using VW's KWP1281 protocol on the K-line).  You'll find notes about protocols and hardware here, along with partial disassembles of firmware, but no original binaries of firmware or EEPROMs.
+This repository is all about reverse engineering older Volkswagen car radios, like the Premium 5 radio shown above.  The radios studied here are over fifteen years old and are the single-DIN size.  Despite their age, they are intelligent and support on-board diagnostics (using VW's KWP1281 protocol on the K-line).  You'll find notes about protocols and hardware here, along with partial disassembles of firmware, but no original binaries of firmware or EEPROMs.
 
 VW radios from this era require a four digit security code often referred to as the "SAFE code". The radios usually store the SAFE code in a serial EEPROM like a 93C46 or a 24C04. The SAFE code can be found by opening up the radio, desoldering the EEPROM, reading it, and then soldering the EEPROM back in. I wanted to know if there was an easier way.
 
