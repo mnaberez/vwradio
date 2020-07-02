@@ -4,6 +4,10 @@ The VW Rhapsody is a single-disc CD radio for the European market manufactured b
 derived from an earlier TechniSat cassette radio, the [Gamma 5](../vw_gamma_5_technisat).  Both have similar PCB layouts
 and use the Renesas (Mitsubishi) [M38869FFAHP](http://archive.6502.org/datasheets/renesas_3886_group_users_manual.pdf) microcontroller.
 
+## Versions
+
+There are two known versions of the Rhapsody radio: 1J0035156 and 1J0035156A.  They have different CD player mechanisms and different firmware.  They are externally identical.  The information below applies to both.  The SAFE code is stored in the same location in both and the protocols behave the same in both.
+
 ## Firmware
 
 Since the M38869FFAHP has no code protection, the firmware can be dumped by several hardware methods that are documented in the datasheet.  One of these modes allows the M38869FFAHP to read like an M5M28F101 flash memory.  I used this method initially (see the notes for the Gamma 5).  
