@@ -6,7 +6,7 @@ and use the Renesas (Mitsubishi) [M38869FFAHP](http://archive.6502.org/datasheet
 
 ## Versions
 
-There are two known versions of the Rhapsody radio: 1J0035156 and 1J0035156A.  They have different CD player mechanisms and different firmware.  They are externally identical.  The information below applies to both.  The SAFE code is stored in the same location in both and the protocols behave the same in both.
+There are two known versions of the Rhapsody radio: 1J0035156 and 1J0035156A.  They have different CD player mechanisms and different firmware.  They are externally identical.  The information below applies to both.  The SAFE code is stored in the same location in both.  The protocols are the same in both except where noted below.
 
 ## Firmware
 
@@ -19,7 +19,7 @@ command on the TechniSat protocol.  The "Write RAM" command allows the stack to 
 
 The Rhapsody firmware is generally quite similar to the Gamma 5, but the KWP1281 commands have been reduced.  Several protected KWP1281 commands that are supported on Gamma 5 have been changed to unconditionally return NAK on Rhapsody.  Notably, Gamma 5 supports reading memory (including the firmware) via KWP1281 but the data returned is encrypted.  Rhapsody doesn't allow reading memory at all.
 
-Rhapsody has an interesting KWP1281 bug not found in the Gamma 5.  The Gamma 5, and all other radios I've studied, always return consecutive block counter numbers for the entire session.  Rhapsody usually does this, but not always.  It sometimes returns a block counter out of sequence.  An earlier version of my KWP1281 tool didn't like this, so I changed it to be more forgiving about the block counter.  I found that a commercial scan tool communicates fine with the Rhapsody, so perhaps other modules have this behavior as well.
+The 1J0035156 version of the Rhapsody has an interesting KWP1281 bug not found in the Gamma 5.  The Gamma 5, and all other radios I've studied, always return consecutive block counter numbers for the entire session.  The 1J0035156 version of the Rhapsody usually does this, but not always.  It sometimes returns a block counter out of sequence.  An earlier version of my KWP1281 tool halted on error when it detected a block counter out sequence, so I removed that check from my tool.  TechniSat fixed this bug in the 1J0035156A version of the Rhapsody.
 
 ## TechniSat Protocol
 

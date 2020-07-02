@@ -195,9 +195,10 @@ kwp_result_t kwp_receive_block(void)
                 } else {
                     kwp_block_counter++;
                     // we used to detect a mismatch in the block counter here but had
-                    // to remove the check.  it worked fine on several radios but not
-                    // on the vw rhapsody (technisat), which does not always send the
-                    // correct block counter.
+                    // to remove the check because the vw rhapsody "1j0035156" radio
+                    // made by technisat has a bug where it does not always send the
+                    // correct block counter.  technisat fixed this bug in the vw
+                    // rhapsody "1j0035156a" radio.
                 }
                 // fall through
             default:
