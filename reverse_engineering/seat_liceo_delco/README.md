@@ -1,7 +1,9 @@
 # Seat Liceo (Delco)
 
+![Photo](./photos/front.jpg)
+
 The Seat Liceo is a single-disc CD radio for the European market manufactured by Delco.  The radio
-uses an unknown NEC microcontroller with the 78K0 instruction set.  
+uses an unknown NEC microcontroller with the 78K0 instruction set.
 
 ## Microcontroller
 
