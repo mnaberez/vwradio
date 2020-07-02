@@ -1,5 +1,7 @@
 # VW Rhapsody (TechniSat)
 
+![Photo](./photos/front.jpg)
+
 The VW Rhapsody is a single-disc CD radio for the European market manufactured by TechniSat.  It was very likely
 derived from an earlier TechniSat cassette radio, the [Gamma 5](../vw_gamma_5_technisat).  Both have similar PCB layouts
 and use the Renesas (Mitsubishi) [M38869FFAHP](http://archive.6502.org/datasheets/renesas_3886_group_users_manual.pdf) microcontroller.
@@ -10,7 +12,7 @@ There are two known versions of the Rhapsody radio: 1J0035156 and 1J0035156A.  T
 
 ## Firmware
 
-Since the M38869FFAHP has no code protection, the firmware can be dumped by several hardware methods that are documented in the datasheet.  One of these modes allows the M38869FFAHP to read like an M5M28F101 flash memory.  I used this method initially (see the notes for the Gamma 5).  
+Since the M38869FFAHP has no code protection, the firmware can be dumped by several hardware methods that are documented in the datasheet.  One of these modes allows the M38869FFAHP to read like an M5M28F101 flash memory.  I used this method initially (see the notes for the Gamma 5).
 
 Gamma 5 allows dumping the firmware over KWP1281.  In the Rhapsody, TechniSat removed that command and there is no built-in way to read out the firmware.  I found that both the Gamma 5 and Rhapsody have a "Write RAM"
 command on the TechniSat protocol.  The "Write RAM" command allows the stack to be overwritten which permits Remote Code Execution (RCE).  I was able to dump the firmware of both Gamma 5 and Rhapsody over the K-line by using RCE.
