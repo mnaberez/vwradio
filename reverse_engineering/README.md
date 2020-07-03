@@ -12,6 +12,7 @@ The [VW Premium 5](./vw_premium_5_delco) is special in the list of models below 
 | ------                                | ------------ | ------        | ----      | ------ | --------- | -------- |
 | [VW Premium 4](./vw_premium_4_clarion)| Clarion      | North America | ✓         | ✓      | ✓         | Done     |
 | [VW Premium 5](./vw_premium_5_delco)  | Delco        | North America | ✓         | ✓      | ✓         | Done     |
+| [VW SAM 2002](./vw_sam_2002_delco)    | Delco        | Europe        |           |        |           | In Progress |
 | [Seat Liceo](./seat_liceo_delco)      | Delco        | Europe        | ✓         | ✓      | ✓         | Done     |
 | [VW Gamma 5](./vw_gamma_5_sony)       | Sony         | Europe        |           |        |           | In Progress |
 | [VW Gamma 5](./vw_gamma_5_technisat)  | TechniSat    | Europe        | ✓         | ✓      | ✓         | Done     |
