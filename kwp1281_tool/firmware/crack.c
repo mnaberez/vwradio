@@ -41,6 +41,27 @@ static void _crack_delco_vw_premium_5(void)
     _print_hex16("\r\nSAFE Code: ", safe_code);
 }
 
+static void _crack_delco_vw_sam_2002(void)
+{
+    kwp_result_t result = kwp_disconnect();
+    kwp_panic_if_error(result);
+
+    result = kwp_connect(KWP_RADIO_MFG);
+    kwp_panic_if_error(result);
+
+    result = kwp_sam_2002_login_mfg();
+    kwp_panic_if_error(result);
+
+    uint16_t safe_code;
+    result = kwp_sam_2002_read_safe_code_bcd(&safe_code);
+    kwp_panic_if_error(result);
+
+    result = kwp_disconnect();
+    kwp_panic_if_error(result);
+
+    _print_hex16("\r\nSAFE Code: ", safe_code);
+}
+
 static void _crack_delco_seat_liceo(void)
 {
     kwp_result_t result = kwp_disconnect();
@@ -89,6 +110,10 @@ void crack(void)
     if (memcmp(&kwp_component_1[7], "3CP", 3) == 0) {
         uart_puts(UART_DEBUG, "VW PREMIUM 4 (CLARION) DETECTED\r\n");
         _crack_clarion();
+
+    } else if (memcmp(&kwp_vag_number, "5X0035119C", 10) == 0) {
+        uart_puts(UART_DEBUG, "VW SAM 2002 (DELCO) DETECTED\r\n");
+        _crack_delco_vw_sam_2002();
 
     } else if (memcmp(&kwp_component_1[7], "DE2", 3) == 0) {
         uart_puts(UART_DEBUG, "VW PREMIUM 5 (DELCO) DETECTED\r\n");

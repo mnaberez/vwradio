@@ -850,6 +850,19 @@ kwp_result_t kwp_sl_read_safe_code_bcd(uint16_t *safe_code)
     return _delco_read_safe_code_bcd(eeprom_address, safe_code);
 }
 
+// VW SAM 2002 mfg mode (address 0x7c) only =================================
+
+kwp_result_t kwp_sam_2002_login_mfg(void)
+{
+    return _delco_login_mfg();
+}
+
+kwp_result_t kwp_sam_2002_read_safe_code_bcd(uint16_t *safe_code)
+{
+    uint16_t eeprom_address = 0x002C;
+    return _delco_read_safe_code_bcd(eeprom_address, safe_code);
+}
+
 // ==========================================================================
 
 // Switch to 5 baud, send address byte, then switch back to previous settings

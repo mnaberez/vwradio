@@ -44,6 +44,8 @@ kwp_result_t kwp_p5_read_safe_code_bcd(uint16_t *safe_code);
 kwp_result_t kwp_p5_calc_rom_checksum(uint16_t *rom_checksum);
 kwp_result_t kwp_sl_login_mfg(void);
 kwp_result_t kwp_sl_read_safe_code_bcd(uint16_t *safe_code);
+kwp_result_t kwp_sam_2002_login_mfg(void);
+kwp_result_t kwp_sam_2002_read_safe_code_bcd(uint16_t *safe_code);
 kwp_result_t kwp_acknowledge(void);
 kwp_result_t kwp_disconnect(void);
 void kwp_print_module_info(void);
