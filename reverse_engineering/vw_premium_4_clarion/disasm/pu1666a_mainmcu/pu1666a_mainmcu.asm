@@ -8663,7 +8663,7 @@ sub_adac:
     mov a, mem_02e0         ;adaf  60 02 e0
     beq lab_adc1            ;adb2  fd 0d
     cmp a, #0xff            ;adb4  14 ff
-    beq lab_add3            ;adb6  fd 1b        Branch to set PHANTON_ON=high and return
+    beq lab_add3            ;adb6  fd 1b        Branch to set PHANTOM_ON=high and return
     cmp a, #0x02            ;adb8  14 02
     beq lab_adcb            ;adba  fd 0f
     cmp a, #0x01            ;adbc  14 01
@@ -8672,28 +8672,28 @@ sub_adac:
 
 lab_adc1:
     mov a, mem_0329         ;adc1  60 03 29
-    bne lab_add3            ;adc4  fc 0d        Branch to set PHANTON_ON=high and return
+    bne lab_add3            ;adc4  fc 0d        Branch to set PHANTOM_ON=high and return
     mov a, mem_031f         ;adc6  60 03 1f
-    beq lab_add3            ;adc9  fd 08        Branch to set PHANTON_ON=high and return
+    beq lab_add3            ;adc9  fd 08        Branch to set PHANTOM_ON=high and return
 
 lab_adcb:
 ;Set PHANTOM_ON=low, mem_02e1=0x14, and return
-    clrb pdr2:0             ;adcb  a0 04        PHANTON_ON=low
+    clrb pdr2:0             ;adcb  a0 04        PHANTOM_ON=low
     mov a, #0x14            ;adcd  04 14
     mov mem_02e1, a         ;adcf  61 02 e1
     ret                     ;add2  20
 
 lab_add3:
-;Set PHANTON_ON=high and return
-    setb pdr2:0             ;add3  a8 04        PHANTON_ON=high
+;Set PHANTOM_ON=high and return
+    setb pdr2:0             ;add3  a8 04        PHANTOM_ON=high
     ret                     ;add5  20
 
 lab_add6:
     ;Active Antenna
     mov a, mem_02e0         ;add6  60 02 e0
-    beq lab_add3            ;add9  fd f8        Branch to set PHANTON_ON=high and return
+    beq lab_add3            ;add9  fd f8        Branch to set PHANTOM_ON=high and return
     cmp a, #0xff            ;addb  14 ff
-    beq lab_add3            ;addd  fd f4        Branch to set PHANTON_ON=high and return
+    beq lab_add3            ;addd  fd f4        Branch to set PHANTOM_ON=high and return
     bne lab_adcb            ;addf  fc ea        BRANCH_ALWAYS_TAKEN
                             ;                   Branch to set PHANTOM_ON=low, mem_02e1=0x14, and return
 
