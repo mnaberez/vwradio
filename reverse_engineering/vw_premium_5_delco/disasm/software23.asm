@@ -5472,9 +5472,9 @@ lab_1f35:
     mov [hl+c],a            ;1f3a  ba
     inc c                   ;1f3b  42
     dbnz c,lab_1f11         ;1f3c  8a d3
-    clr1 mem_fe5e.1         ;1f3e  1b 5e
+    clr1 mem_fe5e.1         ;1f3e  1b 5e      FERN status = off
     bf shadow_p8.1,lab_1f46_ret  ;1f40  31 13 d2 02
-    set1 mem_fe5e.1         ;1f44  1a 5e
+    set1 mem_fe5e.1         ;1f44  1a 5e      FERN status = on
 
 lab_1f46_ret:
     ret                     ;1f46  af
@@ -6539,8 +6539,8 @@ sub_259e_secure_req:
     mulu x                  ;25a9  31 88
     ret                     ;25ab  af
 
-auth_login_safe:
-;Authenticate login using SAFE code
+auth_login_56_safe:
+;Authenticate login on address 0x56 using SAFE code
 ;Called from kwp_56_2b_login
 ;
     mov a,!mem_fb52         ;25ac  8e 52 fb     A = KWP1281 rate limit countdown
@@ -6612,7 +6612,7 @@ lab_25ff:
 
 read_ee_safe:
 ;Read SAFE code from EEPROM, store BCD word in 0xfed6
-;Called from login auth_login_safe
+;Called from login auth_login_56_safe
 ;
 ;Stores:
 ;  mem_fed6: SAFE code BCD high byte
@@ -7614,8 +7614,9 @@ lab_2ab9_ret:
     ret                     ;2ab9  af
 
 
-sub_2aba:
-;called when login succeeds
+login_56_success:
+;Login on address 0x56 has just been authenticated
+;Process the successful login
     call !sub_2d35          ;2aba  9a 35 2d     Clear bits in mem_fe5f and mem_fe60
 
     ;Sum the 9 bytes before making any changes
@@ -9801,7 +9802,7 @@ lab_348b:
     clr1 mem_fe5f.5         ;3498  5b 5f
     mov a,#0x00             ;349a  a1 00
     mov !mem_fb2e,a         ;349c  9e 2e fb
-    mov !kwp_test_idx,a     ;349f  9e 4e f0     KWP128 Output Test index = 0
+    mov !kwp_test_idx,a     ;349f  9e 4e f0     KWP1281 Output Test index = 0
 
 lab_34a2:
 ;Clear many KWP1281 state bits + 3 more
@@ -12717,8 +12718,8 @@ lab_4688:
 lab_4693:
     ret                     ;4693  af
 
-auth_login_ocled:
-;Authenticate login using "OCLED" (DELCO backwards)
+auth_login_7c_ocled:
+;Authenticate login on address 0x7C using "OCLED" (DELCO backwards)
 ;called from kwp_7c_2b_login (login related, kwp_7c_handlers)
 ;set mem_fe64.7 and returns it in the carry:
 ;  clear = login failed, set = login successful
@@ -14431,8 +14432,8 @@ kwp_7c_2b_login:
 ;  0x44 "D"                   kwp_rx_buf+7
 ;  0x03 Block end             kwp_rx_buf+8
 ;
-    call !auth_login_ocled  ;4ee1  9a 94 46     Authenticate login using "DELCO" backwards
-    bc lab_4eee_login_ok    ;4ee4  8d 08        Branch if successful login
+    call !auth_login_7c_ocled  ;4ee1  9a 94 46     Authenticate login on address 0x7C using "DELCO" backwards
+    bc lab_4eee_login_ok       ;4ee4  8d 08        Branch if successful login
 
     ;login failed
     mov a,#0x01             ;4ee6  a1 01
@@ -14863,7 +14864,7 @@ kwp_56_2b_login:
 ;Login (kwp_56_handlers)
 ;
 ;On successful login, the workshop code will be changed along with
-;one bit of the coding (see sub_2aba).
+;one bit of the coding (see login_56_success).
 ;
 ;Request block:
 ;  0x08 Block length                            kwp_rx_buf+0
@@ -14871,14 +14872,14 @@ kwp_56_2b_login:
 ;  0x2B Block title (Login)                     kwp_rx_buf+2
 ;   xx  SAFE code high byte (binary)            kwp_rx_buf+3
 ;   xx  SAFE code low byte (binary)             kwp_rx_buf+4
-;   xx  Unknown byte; bit 0 influences coding   kwp_rx_buf+5    See sub_2aba
+;   xx  Unknown byte; bit 0 influences coding   kwp_rx_buf+5    See login_56_success
 ;   xx  Workshop Code high byte (binary)        kwp_rx_buf+6
 ;   xx  Workshop Code low byte (binary)         kwp_rx_buf+7
 ;  0x03 Block end                               kwp_rx_buf+8
 ;
     mov a,#0x00               ;508a  a1 00
     mov !mem_fbc5,a           ;508c  9e c5 fb
-    call !auth_login_safe     ;508f  9a ac 25     Authenticate login using SAFE code
+    call !auth_login_56_safe  ;508f  9a ac 25     Authenticate login on address 0x56 using SAFE code
     bt mem_fe65.3,lab_5098    ;5092  bc 65 03     Branch if login succeeded
 
     ;login failed
@@ -14886,7 +14887,7 @@ kwp_56_2b_login:
 
 lab_5098:
 ;login succeeded
-    call !sub_2aba          ;5098  9a ba 2a
+    call !login_56_success  ;5098  9a ba 2a
     br !lab_532a_ack        ;509b  9b 2a 53     Branch to send ACK response
 
 kwp_56_01_read_ram:
@@ -21201,8 +21202,9 @@ lab_7303:
 lab_733e:
     mov b,#0x0a             ;733e  a3 0a
     movw hl,#fern_on        ;7340  16 e1 64     HL = pointer to 11,"FERN   ON  "
-    mov1 cy,mem_fe5e.1      ;7343  71 14 5e
-    bc lab_734b             ;7346  8d 03
+    mov1 cy,mem_fe5e.1      ;7343  71 14 5e     CY = FERN status (0=FERN off, 1=FERN on)
+    bc lab_734b             ;7346  8d 03        Branch if FERN is on
+    ; FERN is off
     movw hl,#fern_off       ;7348  16 ed 64     HL = pointer to 11,"FERN   OFF "
 
 lab_734b:

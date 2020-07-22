@@ -26,7 +26,7 @@ kwp_result_t kwp_connect(uint8_t address);
 kwp_result_t kwp_retrying_connect(uint8_t address);
 void kwp_send_address(uint8_t address);
 kwp_result_t kwp_send_group_reading_block(uint8_t group);
-kwp_result_t kwp_send_login_block(uint16_t safe_code, uint8_t fern, uint16_t workshop);
+kwp_result_t kwp_send_login_block(uint16_t safe_code, uint8_t unknown, uint16_t workshop);
 kwp_result_t kwp_send_block(uint8_t *buf);
 kwp_result_t kwp_receive_block(void);
 kwp_result_t kwp_receive_block_expect(uint8_t title);
@@ -117,8 +117,8 @@ uint8_t kwp_component_2[16];    // "        0001"
 // *1 On Premium 4, block title 0x03 reads ROM (MB89677AR)
 //    On Premium 5, block title 0x03 reads EEPROM (24C04)
 //
-// *2 Premium 5 only, and only when connected to address 0x7c
+// *2 Premium 5 only, and only when connected to address 0x7C
 //
-// *3 Radios use these block titles to communicate with an unknown module (the cluster?)
-//    on address 0x3F.  The radio will initiate the connection, send 0xD7 Security Access Request,
-//    and then expect to receive 0x3D Response to Security Access.
+// *3 Radios use these block titles to communicate with the cluster on address 0x3F.  The radio
+//    will initiate the connection, send 0xD7 Security Access Request, and then expect to
+//    receive 0x3D Response to Security Access.

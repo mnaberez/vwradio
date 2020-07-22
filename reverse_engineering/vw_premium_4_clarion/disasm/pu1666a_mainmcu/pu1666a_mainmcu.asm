@@ -11545,7 +11545,8 @@ lab_baed:
     mov mem_00f1, #0xad     ;bb09  85 f1 ad
 
 lab_bb0c_ack:
-;First incorrect login attempt
+;Send Acknowledge response
+;This is also branched to after the first incorrect login attempt
     call sub_b16b_ack       ;bb0c  31 b1 6b     Send Acknowledge
     mov mem_0081, #0x02     ;bb0f  85 81 02
     ret                     ;bb12  20

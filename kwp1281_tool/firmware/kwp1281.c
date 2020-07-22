@@ -257,8 +257,13 @@ kwp_result_t kwp_acknowledge(void)
   return kwp_receive_block_expect(KWP_ACK);
 }
 
-
-kwp_result_t kwp_send_login_block(uint16_t safe_code, uint8_t fern, uint16_t workshop)
+/*
+ * For the unknown byte, see:
+ *   vw_premium_5_delco/disasm/software23.asm         near 0x508a, 0x2ac6
+ *   vw_premium_4_clarion/disasm/pu1666a_mainmcu.asm  near 0xba7a, 0xbaef
+ *   vw_gamma_5_technisat/disasm/gamma5.asm           near 0xa595, 0xa127
+ */
+kwp_result_t kwp_send_login_block(uint16_t safe_code, uint8_t unknown, uint16_t workshop)
 {
     uart_puts(UART_DEBUG, "PERFORM LOGIN\r\n");
     uint8_t block[] = {
@@ -267,7 +272,7 @@ kwp_result_t kwp_send_login_block(uint16_t safe_code, uint8_t fern, uint16_t wor
         KWP_LOGIN,          // block title
         HIGH(safe_code),    // safe code high byte
         LOW(safe_code),     // safe code low byte
-        fern,               // fern byte
+        unknown,            // unknown byte; bit 0 influences coding
         HIGH(workshop),     // workshop code high byte
         LOW(workshop),      // workshop code low byte
         0,                  // placeholder for block end
