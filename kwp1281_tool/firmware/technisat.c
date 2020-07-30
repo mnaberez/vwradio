@@ -269,11 +269,11 @@ tsat_result_t tsat_rce_read_memory(uint16_t address, uint16_t size)
 
         // write code payload
         tresult = tsat_write_ram(code_address, sizeof(code), code);
-        if (tresult != TSAT_SUCCESS) { break; }
+        if (tresult != TSAT_SUCCESS) { return tresult; }
 
         // overwrite the stack
         tresult = tsat_write_ram(stack_address, sizeof(stack), stack);
-        if (tresult != TSAT_SUCCESS) { break; }
+        if (tresult != TSAT_SUCCESS) { return tresult; }
 
         // payload should be executing now.  receive the bytes it sends.
         // the payload sends raw bytes without any technisat protocol framing.
@@ -284,7 +284,7 @@ tsat_result_t tsat_rce_read_memory(uint16_t address, uint16_t size)
         for (uint8_t i=0; i<chunk_size; i++) {
           uint8_t c;
           tresult = _recv_byte(&c); // echoes byte received to debug uart
-          if (tresult != TSAT_SUCCESS) { break; }
+          if (tresult != TSAT_SUCCESS) { return tresult; }
         }
         uart_puts(UART_DEBUG, "\r\n");
 
