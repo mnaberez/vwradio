@@ -9889,16 +9889,16 @@ lab_59d2:
     .byte 0x60              ;59fc  60          DATA 0x60 '`'
 
 mem_59fd:
-    .word 0x20b0            ;59fd   2 bytes at 0x00b0
-    .word 0x10f0            ;59ff   2 bytes at 0x00f0
-    .word 0x10f1            ;5a01   1 byte  at 0x00f1
-    .word 0x10f2            ;5a03   1 byte  at 0x00f2
-    .word 0x10e9            ;5a05   1 byte  at 0x00e9
-    .word 0x1288            ;5a07   1 byte  at 0x0288
-    .word 0x1050            ;5a98   1 byte  at 0x0050
-    .word 0x1071            ;5a0b   1 byte  at 0x0071
-    .word 0x2090            ;5a0d   2 bytes at 0x0090
-    .word 0x10ff            ;5a0f   1 byte  at 0x00ff
+    .word 0x20b0            ;59fd   2 bytes at 0x00b0   (index 0)
+    .word 0x10f0            ;59ff   2 bytes at 0x00f0   (index 1)
+    .word 0x10f1            ;5a01   1 byte  at 0x00f1   (index 2)
+    .word 0x10f2            ;5a03   1 byte  at 0x00f2   (index 3)
+    .word 0x10e9            ;5a05   1 byte  at 0x00e9   (index 4)
+    .word 0x1288            ;5a07   1 byte  at 0x0288   (index 5)
+    .word 0x1050            ;5a98   1 byte  at 0x0050   (index 6)
+    .word 0x1071            ;5a0b   1 byte  at 0x0071   (index 7)
+    .word 0x2090            ;5a0d   2 bytes at 0x0090   (index 8)
+    .word 0x10ff            ;5a0f   1 byte  at 0x00ff   (index 9)
 
 ;ISR for INT_FFF6
 ;Serial I/O 1 reception
@@ -10402,13 +10402,13 @@ lab_5cb2:
     ldy #0x01               ;5cb2  a0 01
     jsr sub_f22c_delay      ;5cb4  20 2c f2     Delay an unknown time period for Y iterations
 
-    lda 0x0323              ;5cb7  ad 23 03     A = uart rx buffer byte 3
+    lda 0x0323              ;5cb7  ad 23 03     A = uart rx buffer byte 3 (Address low byte)
     sta 0x4c                ;5cba  85 4c
 
-    lda 0x0324              ;5cbc  ad 24 03     A = uart rx buffer byte 4
+    lda 0x0324              ;5cbc  ad 24 03     A = uart rx buffer byte 4 (Address high byte)
     sta 0x4d                ;5cbf  85 4d
 
-    lda 0x0325              ;5cc1  ad 25 03     A = uart rx buffer byte 5
+    lda 0x0325              ;5cc1  ad 25 03     A = uart rx buffer byte 5 (Mask for OR)
     sta 0x4e                ;5cc4  85 4e
 
     ldm #0x00,0x4f          ;5cc6  3c 00 4f
@@ -10434,6 +10434,7 @@ lab_5ce0:
     rts                     ;5ce3  60
 
 ;TechniSat protocol command 0x4a
+;? mem_59fd read bytes [0x4c],y
 lab_5ce4:
     bbc 7,0xe8,lab_5d21     ;5ce4  f7 e8 3a
     ldy #0x01               ;5ce7  a0 01
@@ -10479,6 +10480,7 @@ lab_5d21:
     rts                     ;5d21  60
 
 ;TechniSat protocol command 0x4b
+;? mem_59fd write bytes [0x4c,x]
 lab_5d22:
     ldy #0x01               ;5d22  a0 01
     jsr sub_f22c_delay      ;5d24  20 2c f2     Delay an unknown time period for Y iterations
@@ -10525,6 +10527,7 @@ lab_5d65:
     rts                     ;5d68  60
 
 ;TechniSat protocol command 0x4c
+;? mem_59fd AND bytes [0x4c],y
 lab_5d69:
     ldy #0x01               ;5d69  a0 01
     jsr sub_f22c_delay      ;5d6b  20 2c f2     Delay an unknown time period for Y iterations
