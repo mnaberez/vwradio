@@ -324,6 +324,23 @@ tsat_result_t tsat_hello(void)
     }
 }
 
+
+/*
+ * Disable EEPROM filtering that prevents some locations, particularly
+ * the SAFE code, from being read.
+ *
+ * Works on:
+ *   VW Gamma 5
+ *   VW Rhapsody 1J0035156  "SW_001"
+ *   VW Rhapsody 1J0035156A "SW_002"
+ *
+ * Does not work on:
+ *   Skoda Symphony 1U0035156E "SK_0015"
+ *
+ * On the Skoda Symphony, the command returns the "success" status code
+ * but the EEPROM filter is not actually disabled.  Reading the SAFE code
+ * area of the EEPROM returns all zeroes.
+ */
 tsat_result_t tsat_disable_eeprom_filter(void)
 {
     uart_puts(UART_DEBUG, "PERFORM DISABLE EEPROM FILTER\r\n");
@@ -352,6 +369,10 @@ tsat_result_t tsat_disable_eeprom_filter(void)
 }
 
 
+/*
+ * If EEPROM filtering is enabled, some protected locations (particularly
+ * the SAFE code) will be returned as zeroes.
+ */
 tsat_result_t tsat_read_eeprom(uint16_t address, uint8_t size)
 {
     uart_puts(UART_DEBUG, "PERFORM READ EEPROM\r\n");
@@ -379,6 +400,27 @@ tsat_result_t tsat_read_eeprom(uint16_t address, uint8_t size)
     } else {
         return TSAT_UNEXPECTED;
     }
+}
+
+
+/*
+ * Read the SAFE code from the EEPROM.  The SAFE code is protected so
+ * EEPROM must be disabled first.  If EEPROM filtering is not disabled,
+ * it will still succeed but 0 will be returned instead of the SAFE code.
+ */
+tsat_result_t tsat_read_safe_code_bcd(uint16_t *safe_code)
+{
+    tsat_result_t result = tsat_read_eeprom(0x000c, 4);
+    if (result != TSAT_SUCCESS) { return result; }
+
+    // safe code is stored as 4 ascii digits in eeprom
+    *safe_code = 0;
+    *safe_code += (tsat_rx_buf[3] - 0x30) << 12;
+    *safe_code += (tsat_rx_buf[4] - 0x30) << 8;
+    *safe_code += (tsat_rx_buf[5] - 0x30) << 4;
+    *safe_code += (tsat_rx_buf[6] - 0x30);
+
+    return TSAT_SUCCESS;
 }
 
 
@@ -416,22 +458,6 @@ tsat_result_t tsat_write_eeprom(uint16_t address, uint8_t size, uint8_t *data)
     } else {
         return TSAT_UNEXPECTED;
     }
-}
-
-
-tsat_result_t tsat_read_safe_code_bcd(uint16_t *safe_code)
-{
-    tsat_result_t result = tsat_read_eeprom(0x000c, 4);
-    if (result != TSAT_SUCCESS) { return result; }
-
-    // safe code is stored as 4 ascii digits in eeprom
-    *safe_code = 0;
-    *safe_code += (tsat_rx_buf[3] - 0x30) << 12;
-    *safe_code += (tsat_rx_buf[4] - 0x30) << 8;
-    *safe_code += (tsat_rx_buf[5] - 0x30) << 4;
-    *safe_code += (tsat_rx_buf[6] - 0x30);
-
-    return TSAT_SUCCESS;
 }
 
 
