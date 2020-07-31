@@ -11340,28 +11340,31 @@ lab_6176:
     jsr sub_5adf            ;6176  20 df 5a     Send 10 01 5E <0x0344> CS
     rts                     ;6179  60
 
-;table of 2 bytes used by lab_619a
+;table used by lab_619a
 mem_617a:
-    .byte 0x1c              ;617a  1c          DATA 0x1c
-    .byte 0x62              ;617b  62          DATA 0x62 'b'
+    .word mem_621c          ;617a   DATA        lookup table
+    .word sub_624a          ;617c   VECTOR      code
 
-;table of code addresses used by lab_619a
-mem_617c:
-    .word sub_624a          ;617c   VECTOR
-    .word sub_6225          ;617e   VECTOR
-    .word sub_62af          ;6180   VECTOR
-    .word sub_622f          ;6182   VECTOR
-    .word sub_62b8          ;6184   VECTOR
-    .word sub_6238          ;6186   VECTOR
-    .word sub_62c3          ;6188   VECTOR
-    .word sub_623f          ;618a   VECTOR
-    .word sub_6249          ;618c   VECTOR
-    .word sub_623f          ;618e   VECTOR
-    .word sub_6249          ;6190   VECTOR
-    .word sub_6240          ;6192   VECTOR
-    .word sub_62c9          ;6194   VECTOR
-    .word sub_6244          ;6196   VECTOR
-    .word sub_62d2          ;6198   VECTOR
+    .word mem_6225          ;617e   DATA        lookup table
+    .word sub_62af          ;6180   VECTOR      code
+
+    .word mem_622f          ;6182   DATA        lookup table
+    .word sub_62b8          ;6184   VECTOR      code
+
+    .word mem_6238          ;6186   DATA        lookup table
+    .word sub_62c3          ;6188   VECTOR      code
+
+    .word mem_623f          ;618a   DATA        lookup table
+    .word sub_6249          ;618c   VECTOR      code
+
+    .word mem_623f          ;618e   DATA        lookup table
+    .word sub_6249          ;6190   VECTOR      code
+
+    .word mem_6240          ;6192   DATA        lookup table
+    .word sub_62c9          ;6194   VECTOR      code
+
+    .word mem_6244          ;6196   DATA        lookup table
+    .word sub_62d2          ;6198   VECTOR      code
 
 ;TechniSat protocol command 0x53
 lab_619a:
@@ -11373,22 +11376,26 @@ lab_619a:
     lda #0x10               ;61a2  a9 10
     sta 0x0344              ;61a4  8d 44 03     Store as TechniSat protocol status byte
     lda 0x0323              ;61a7  ad 23 03
-    cmp #0x08               ;61aa  c9 08
+    cmp #0x08               ;61aa  c9 08        Compare to number of address pairs in mem_617a
     bcs lab_6218            ;61ac  b0 6a
     lda 0x0323              ;61ae  ad 23 03
     sta 0x0322              ;61b1  8d 22 03
     asl a                   ;61b4  0a
     asl a                   ;61b5  0a
     tay                     ;61b6  a8
-    lda mem_617a,y          ;61b7  b9 7a 61
+
+    lda mem_617a,y          ;61b7  b9 7a 61     Lookup table address low byte
     sta 0x40                ;61ba  85 40
-    lda mem_617a+1,y        ;61bc  b9 7b 61
+    lda mem_617a+1,y        ;61bc  b9 7b 61     Lookup table address high byte
     sta 0x41                ;61bf  85 41
-    lda mem_617c,y          ;61c1  b9 7c 61
+
+    lda mem_617a+2,y        ;61c1  b9 7c 61     Code address low byte
     sta 0x42                ;61c4  85 42
-    lda mem_617c+1,y        ;61c6  b9 7d 61
+    lda mem_617a+3,y        ;61c6  b9 7d 61     Code address high byte
     sta 0x43                ;61c9  85 43
+
     jsr [0x42]              ;61cb  02 42
+
     ldy #0x00               ;61cd  a0 00
     lda [0x40],y            ;61cf  b1 40
     beq lab_6218            ;61d1  f0 45
@@ -11437,7 +11444,9 @@ lab_6218:
 lab_621b:
     rts                     ;621b  60
 
-    .byte 0x08              ;621c  08          DATA 0x08
+mem_621c:
+;lookup table used by lab_619a
+    .byte 0x08              ;621c  08          DATA 0x08        8 bytes follow:
     .byte 0xf0              ;621d  f0          DATA 0xf0
     .byte 0x43              ;621e  43          DATA 0x43 'C'
     .byte 0x50              ;621f  50          DATA 0x50 'P'
@@ -11447,9 +11456,9 @@ lab_621b:
     .byte 0x45              ;6223  45          DATA 0x45 'E'
     .byte 0x46              ;6224  46          DATA 0x46 'F'
 
-sub_6225:
-;TODO disassemble as code
-    .byte 0x09              ;6225  09          DATA 0x09
+mem_6225:
+;lookup table used by lab_619a
+    .byte 0x09              ;6225  09          DATA 0x09        9 bytes follow:
     .byte 0xf0              ;6226  f0          DATA 0xf0
     .byte 0x43              ;6227  43          DATA 0x43 'C'
     .byte 0x50              ;6228  50          DATA 0x50 'P'
@@ -11460,9 +11469,9 @@ sub_6225:
     .byte 0x91              ;622d  91          DATA 0x91
     .byte 0x44              ;622e  44          DATA 0x44 'D'
 
-sub_622f:
-;TODO disassemble as code
-    .byte 0x08              ;622f  08          DATA 0x08
+mem_622f:
+;lookup table used by lab_619a
+    .byte 0x08              ;622f  08          DATA 0x08        8 bytes follow:
     .byte 0x42              ;6230  42          DATA 0x42 'B'
     .byte 0x43              ;6231  43          DATA 0x43 'C'
     .byte 0x44              ;6232  44          DATA 0x44 'D'
@@ -11472,9 +11481,9 @@ sub_622f:
     .byte 0x48              ;6236  48          DATA 0x48 'H'
     .byte 0x49              ;6237  49          DATA 0x49 'I'
 
-sub_6238:
-;TODO disassemble as code
-    .byte 0x06              ;6238  06          DATA 0x06
+mem_6238:
+;lookup table used by lab_619a
+    .byte 0x06              ;6238  06          DATA 0x06        6 bytes follow:
     .byte 0xa0              ;6239  a0          DATA 0xa0
     .byte 0xa1              ;623a  a1          DATA 0xa1
     .byte 0xa2              ;623b  a2          DATA 0xa2
@@ -11482,183 +11491,122 @@ sub_6238:
     .byte 0xa4              ;623d  a4          DATA 0xa4
     .byte 0x42              ;623e  42          DATA 0x42 'B'
 
-sub_623f:
-;TODO disasemble as code
-    .byte 0x00              ;623f  00          DATA 0x00
+mem_623f:
+;lookup table used by lab_619a
+    .byte 0x00              ;623f  00          DATA 0x00        0 bytes follow:
 
-sub_6240:
-;TODO disasemble as code
-    .byte 0x03              ;6240  03          DATA 0x03
+mem_6240:
+;lookup table used by lab_619a
+    .byte 0x03              ;6240  03          DATA 0x03        3 bytes follow:
     .byte 0xf0              ;6241  f0          DATA 0xf0
     .byte 0xf1              ;6242  f1          DATA 0xf1
     .byte 0x42              ;6243  42          DATA 0x42 'B'
 
-sub_6244:
-;TODO disassemble as code
-    .byte 0x04              ;6244  04          DATA 0x04
+mem_6244:
+;lookup table used by lab_619a
+    .byte 0x04              ;6244  04          DATA 0x04        4 bytes follow:
     .byte 0xf0              ;6245  f0          DATA 0xf0
     .byte 0xf1              ;6246  f1          DATA 0xf1
     .byte 0xaf              ;6247  af          DATA 0xaf
     .byte 0xaf              ;6248  af          DATA 0xaf
 
 sub_6249:
-;TODO disassemble as code
-    .byte 0x60              ;6249  60          DATA 0x60 '`'
+    rts                     ;6249  60
 
 sub_624a:
-;TODO disassemble as code
-    .byte 0xa5              ;624a  a5          DATA 0xa5
-    .byte 0x68              ;624b  68          DATA 0x68 'h'
-    .byte 0x85              ;624c  85          DATA 0x85
-    .byte 0x42              ;624d  42          DATA 0x42 'B'
-    .byte 0xa5              ;624e  a5          DATA 0xa5
-    .byte 0x69              ;624f  69          DATA 0x69 'i'
-    .byte 0x85              ;6250  85          DATA 0x85
-    .byte 0x43              ;6251  43          DATA 0x43 'C'
-    .byte 0x46              ;6252  46          DATA 0x46 'F'
-    .byte 0x43              ;6253  43          DATA 0x43 'C'
-    .byte 0x66              ;6254  66          DATA 0x66 'f'
-    .byte 0x42              ;6255  42          DATA 0x42 'B'
-    .byte 0x46              ;6256  46          DATA 0x46 'F'
-    .byte 0x43              ;6257  43          DATA 0x43 'C'
-    .byte 0x66              ;6258  66          DATA 0x66 'f'
-    .byte 0x42              ;6259  42          DATA 0x42 'B'
-    .byte 0x46              ;625a  46          DATA 0x46 'F'
-    .byte 0x43              ;625b  43          DATA 0x43 'C'
-    .byte 0x66              ;625c  66          DATA 0x66 'f'
-    .byte 0x42              ;625d  42          DATA 0x42 'B'
-    .byte 0x3c              ;625e  3c          DATA 0x3c '<'
-    .byte 0x00              ;625f  00          DATA 0x00
-    .byte 0x43              ;6260  43          DATA 0x43 'C'
-    .byte 0xad              ;6261  ad          DATA 0xad
-    .byte 0x88              ;6262  88          DATA 0x88
-    .byte 0x02              ;6263  02          DATA 0x02
-    .byte 0x13              ;6264  13          DATA 0x13
-    .byte 0x02              ;6265  02          DATA 0x02
-    .byte 0x0f              ;6266  0f          DATA 0x0f
-    .byte 0x43              ;6267  43          DATA 0x43 'C'
-    .byte 0x37              ;6268  37          DATA 0x37 '7'
-    .byte 0xf3              ;6269  f3          DATA 0xf3
-    .byte 0x02              ;626a  02          DATA 0x02
-    .byte 0x2f              ;626b  2f          DATA 0x2f '/'
-    .byte 0x43              ;626c  43          DATA 0x43 'C'
-    .byte 0x57              ;626d  57          DATA 0x57 'W'
-    .byte 0xf3              ;626e  f3          DATA 0xf3
-    .byte 0x02              ;626f  02          DATA 0x02
-    .byte 0x4f              ;6270  4f          DATA 0x4f 'O'
-    .byte 0x43              ;6271  43          DATA 0x43 'C'
-    .byte 0x77              ;6272  77          DATA 0x77 'w'
-    .byte 0xf3              ;6273  f3          DATA 0xf3
-    .byte 0x02              ;6274  02          DATA 0x02
-    .byte 0x6f              ;6275  6f          DATA 0x6f 'o'
-    .byte 0x43              ;6276  43          DATA 0x43 'C'
-    .byte 0x17              ;6277  17          DATA 0x17
-    .byte 0xf9              ;6278  f9          DATA 0xf9
-    .byte 0x02              ;6279  02          DATA 0x02
-    .byte 0x8f              ;627a  8f          DATA 0x8f
-    .byte 0x43              ;627b  43          DATA 0x43 'C'
-    .byte 0x77              ;627c  77          DATA 0x77 'w'
-    .byte 0xfa              ;627d  fa          DATA 0xfa
-    .byte 0x02              ;627e  02          DATA 0x02
-    .byte 0xaf              ;627f  af          DATA 0xaf
-    .byte 0x43              ;6280  43          DATA 0x43 'C'
-    .byte 0x57              ;6281  57          DATA 0x57 'W'
-    .byte 0xf4              ;6282  f4          DATA 0xf4
-    .byte 0x02              ;6283  02          DATA 0x02
-    .byte 0xcf              ;6284  cf          DATA 0xcf
-    .byte 0x43              ;6285  43          DATA 0x43 'C'
-    .byte 0x17              ;6286  17          DATA 0x17
-    .byte 0xfd              ;6287  fd          DATA 0xfd
-    .byte 0x02              ;6288  02          DATA 0x02
-    .byte 0xef              ;6289  ef          DATA 0xef
-    .byte 0x43              ;628a  43          DATA 0x43 'C'
-    .byte 0xa5              ;628b  a5          DATA 0xa5
-    .byte 0x6a              ;628c  6a          DATA 0x6a 'j'
-    .byte 0x85              ;628d  85          DATA 0x85
-    .byte 0x44              ;628e  44          DATA 0x44 'D'
-    .byte 0xa5              ;628f  a5          DATA 0xa5
-    .byte 0x6b              ;6290  6b          DATA 0x6b 'k'
-    .byte 0x85              ;6291  85          DATA 0x85
-    .byte 0x45              ;6292  45          DATA 0x45 'E'
-    .byte 0x46              ;6293  46          DATA 0x46 'F'
-    .byte 0x45              ;6294  45          DATA 0x45 'E'
-    .byte 0x66              ;6295  66          DATA 0x66 'f'
-    .byte 0x44              ;6296  44          DATA 0x44 'D'
-    .byte 0x46              ;6297  46          DATA 0x46 'F'
-    .byte 0x45              ;6298  45          DATA 0x45 'E'
-    .byte 0x66              ;6299  66          DATA 0x66 'f'
-    .byte 0x44              ;629a  44          DATA 0x44 'D'
-    .byte 0x46              ;629b  46          DATA 0x46 'F'
-    .byte 0x45              ;629c  45          DATA 0x45 'E'
-    .byte 0x66              ;629d  66          DATA 0x66 'f'
-    .byte 0x44              ;629e  44          DATA 0x44 'D'
-    .byte 0xa9              ;629f  a9          DATA 0xa9
-    .byte 0x07              ;62a0  07          DATA 0x07
-    .byte 0x20              ;62a1  20          DATA 0x20 ' '
-    .byte 0xd8              ;62a2  d8          DATA 0xd8
-    .byte 0x26              ;62a3  26          DATA 0x26 '&'
-    .byte 0x85              ;62a4  85          DATA 0x85
-    .byte 0x45              ;62a5  45          DATA 0x45 'E'
-    .byte 0x3c              ;62a6  3c          DATA 0x3c '<'
-    .byte 0x00              ;62a7  00          DATA 0x00
-    .byte 0x46              ;62a8  46          DATA 0x46 'F'
-    .byte 0x97              ;62a9  97          DATA 0x97
-    .byte 0x00              ;62aa  00          DATA 0x00
-    .byte 0x02              ;62ab  02          DATA 0x02
-    .byte 0x0f              ;62ac  0f          DATA 0x0f
-    .byte 0x46              ;62ad  46          DATA 0x46 'F'
-    .byte 0x60              ;62ae  60          DATA 0x60 '`'
+    lda 0x68                ;624a  a5 68
+    sta 0x42                ;624c  85 42
+    lda 0x69                ;624e  a5 69
+    sta 0x43                ;6250  85 43
+    lsr 0x43                ;6252  46 43
+    ror 0x42                ;6254  66 42
+    lsr 0x43                ;6256  46 43
+    ror 0x42                ;6258  66 42
+    lsr 0x43                ;625a  46 43
+    ror 0x42                ;625c  66 42
+    ldm #0x00,0x43          ;625e  3c 00 43
+    lda 0x0288              ;6261  ad 88 02
+    bbc 0,a,lab_6268        ;6264  13 02
+    seb 0,0x43              ;6266  0f 43
+
+lab_6268:
+    bbc 1,0xf3,lab_626d     ;6268  37 f3 02
+    seb 1,0x43              ;626b  2f 43
+
+lab_626d:
+    bbc 2,0xf3,lab_6272     ;626d  57 f3 02
+    seb 2,0x43              ;6270  4f 43
+
+lab_6272:
+    bbc 3,0xf3,lab_6277     ;6272  77 f3 02
+    seb 3,0x43              ;6275  6f 43
+
+lab_6277:
+    bbc 0,0xf9,lab_627c     ;6277  17 f9 02
+    seb 4,0x43              ;627a  8f 43
+
+lab_627c:
+    bbc 3,0xfa,lab_6281     ;627c  77 fa 02
+    seb 5,0x43              ;627f  af 43
+
+lab_6281:
+    bbc 2,0xf4,lab_6286     ;6281  57 f4 02
+    seb 6,0x43              ;6284  cf 43
+
+lab_6286:
+    bbc 0,0xfd,lab_628b     ;6286  17 fd 02
+    seb 7,0x43              ;6289  ef 43
+
+lab_628b:
+    lda 0x6a                ;628b  a5 6a
+    sta 0x44                ;628d  85 44
+    lda 0x6b                ;628f  a5 6b
+    sta 0x45                ;6291  85 45
+    lsr 0x45                ;6293  46 45
+    ror 0x44                ;6295  66 44
+    lsr 0x45                ;6297  46 45
+    ror 0x44                ;6299  66 44
+    lsr 0x45                ;629b  46 45
+    ror 0x44                ;629d  66 44
+    lda #0x07               ;629f  a9 07
+    jsr sub_26d8            ;62a1  20 d8 26
+    sta 0x45                ;62a4  85 45
+    ldm #0x00,0x46          ;62a6  3c 00 46
+    bbc 4,P0,lab_62ae       ;62a9  97 00 02
+    seb 0,0x46              ;62ac  0f 46
+
+lab_62ae:
+    rts                     ;62ae  60
 
 sub_62af:
-;TODO disassemble as code
-    .byte 0x20              ;62af  20          DATA 0x20 ' '
-    .byte 0x4a              ;62b0  4a          DATA 0x4a 'J'
-    .byte 0x62              ;62b1  62          DATA 0x62 'b'
-    .byte 0xad              ;62b2  ad          DATA 0xad
-    .byte 0x51              ;62b3  51          DATA 0x51 'Q'
-    .byte 0x01              ;62b4  01          DATA 0x01
-    .byte 0x85              ;62b5  85          DATA 0x85
-    .byte 0x44              ;62b6  44          DATA 0x44 'D'
-    .byte 0x60              ;62b7  60          DATA 0x60 '`'
+    jsr sub_624a            ;62af  20 4a 62
+    lda 0x0151              ;62b2  ad 51 01
+    sta 0x44                ;62b5  85 44
+    rts                     ;62b7  60
 
 sub_62b8:
-;TODO disassemble as code
-    .byte 0xa2              ;62b8  a2          DATA 0xa2
-    .byte 0x07              ;62b9  07          DATA 0x07
-    .byte 0xbd              ;62ba  bd          DATA 0xbd
-    .byte 0x40              ;62bb  40          DATA 0x40 '@'
-    .byte 0x01              ;62bc  01          DATA 0x01
-    .byte 0x95              ;62bd  95          DATA 0x95
-    .byte 0x42              ;62be  42          DATA 0x42 'B'
-    .byte 0xca              ;62bf  ca          DATA 0xca
-    .byte 0x10              ;62c0  10          DATA 0x10
-    .byte 0xf8              ;62c1  f8          DATA 0xf8
-    .byte 0x60              ;62c2  60          DATA 0x60 '`'
+    ldx #0x07               ;62b8  a2 07
+lab_62ba:
+    lda 0x0140,x            ;62ba  bd 40 01
+    sta 0x42,x              ;62bd  95 42
+    dex                     ;62bf  ca
+    bpl lab_62ba            ;62c0  10 f8
+    rts                     ;62c2  60
 
 sub_62c3:
-;TODO disassemble as code
-    .byte 0xad              ;62c3  ad          DATA 0xad
-    .byte 0x89              ;62c4  89          DATA 0x89
-    .byte 0x02              ;62c5  02          DATA 0x02
-    .byte 0x85              ;62c6  85          DATA 0x85
-    .byte 0x42              ;62c7  42          DATA 0x42 'B'
-    .byte 0x60              ;62c8  60          DATA 0x60 '`'
+    lda 0x0289              ;62c3  ad 89 02
+    sta 0x42                ;62c6  85 42
+    rts                     ;62c8  60
 
 sub_62c9:
-;TODO disassemble as code
-    .byte 0x20              ;62c9  20          DATA 0x20 ' '
-    .byte 0x86              ;62ca  86          DATA 0x86
-    .byte 0xd2              ;62cb  d2          DATA 0xd2
-    .byte 0xbd              ;62cc  bd          DATA 0xbd
-    .byte 0xe5              ;62cd  e5          DATA 0xe5
-    .byte 0x62              ;62ce  62          DATA 0x62 'b'
-    .byte 0x85              ;62cf  85          DATA 0x85
-    .byte 0x42              ;62d0  42          DATA 0x42 'B'
-    .byte 0x60              ;62d1  60          DATA 0x60 '`'
+    jsr sub_d286            ;62c9  20 86 d2
+    lda 0x62e5,x            ;62cc  bd e5 62
+    sta 0x42                ;62cf  85 42
+    rts                     ;62d1  60
 
 sub_62d2:
-;TODO disassemble as code
-    .byte 0x60              ;62d2  60          DATA 0x60 '`'
+    rts                     ;62d2  60
+
     .byte 0x07              ;62d3  07          DATA 0x07
     .byte 0xf2              ;62d4  f2          DATA 0xf2
     .byte 0x0e              ;62d5  0e          DATA 0x0e
