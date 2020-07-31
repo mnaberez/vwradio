@@ -3715,6 +3715,7 @@ lab_34f4:
 
 ;TechniSat protocol related (commands?)
 ;used by lab_3618
+mem_34f5:
     .byte 0x3f              ;34f5  3f          DATA 0x3f '?'
     .byte 0x1a              ;34f6  1a          DATA 0x1a
     .byte 0x1b              ;34f7  1b          DATA 0x1b
@@ -3760,6 +3761,7 @@ lab_34f4:
 ;TechniSat protocol handlers
 ;same order as table of bytes at 0x34f5
 ;used by lab_3624
+mem_351e:
     .word lab_3703          ;351e  03 37       VECTOR
     .word lab_3758          ;3520  58 37       VECTOR
     .word lab_3758          ;3522  58 37       VECTOR
@@ -3809,6 +3811,7 @@ lab_34f4:
 ;                        ^^
 ;                        command byte from this table
 ;
+mem_3570:
     .byte 0x5e              ;3570  5e          DATA 0x5e '^'
     .byte 0x5f              ;3571  5f          DATA 0x5f '_'
     .byte 0x42              ;3572  42          DATA 0x42 'B'
@@ -3837,6 +3840,7 @@ lab_34f4:
 ;TechniSat protocol handlers
 ;same order as table of bytes at 0x3570
 ;used by lab_3640
+mem_3588:
     .word sub_5adf          ;3588  df 5a       VECTOR   cmd=5e   Send 10 01 5E <0x0344> CS
     .word lab_5b37          ;358a  37 5b       VECTOR   cmd=5f   Disconnect (terminate session)
     .word lab_5b4a          ;358c  4a 5b       VECTOR   cmd=42
@@ -3847,7 +3851,7 @@ lab_34f4:
     .word lab_5cb2          ;3596  b2 5c       VECTOR   cmd=47   OR memory in allowed ranges with a value
     .word lab_5ce4          ;3598  e4 5c       VECTOR   cmd=4a   ? mem_59fd read bytes [0x4c],y
     .word lab_5d22          ;359a  22 5d       VECTOR   cmd=4b   ? mem_59fd write bytes [0x4c,x]
-    .word lab_5d69          ;359c  69 5d       VECTOR   cmd=4c   ? mem_95fd AND bytes [0x4c],y
+    .word lab_5d69          ;359c  69 5d       VECTOR   cmd=4c   ? mem_59fd AND bytes [0x4c],y
     .word lab_5db3          ;359e  b3 5d       VECTOR   cmd=4d   Disables EEPROM filtering based on payload
     .word lab_5e97          ;35a0  97 5e       VECTOR   cmd=48   Read EEPROM data
     .word lab_5f4d          ;35a2  4d 5f       VECTOR   cmd=49   Write EEPROM data
@@ -3924,7 +3928,7 @@ lab_360e:
     bcc lab_3634            ;3616  90 1c
 
 lab_3618:
-    cmp 0x34f5,x            ;3618  dd f5 34
+    cmp mem_34f5,x          ;3618  dd f5 34
     beq lab_3624            ;361b  f0 07
     inx                     ;361d  e8
     cpx #0x29               ;361e  e0 29
@@ -3935,9 +3939,9 @@ lab_3624:
     txa                     ;3624  8a
     asl a                   ;3625  0a
     tay                     ;3626  a8
-    lda 0x351e,y            ;3627  b9 1e 35
+    lda mem_351e,y          ;3627  b9 1e 35
     sta 0x40                ;362a  85 40
-    lda 0x351f,y            ;362c  b9 1f 35
+    lda mem_351e+1,y        ;362c  b9 1f 35
     sta 0x41                ;362f  85 41
     clc                     ;3631  18
 
@@ -3945,7 +3949,7 @@ lab_3632:
     bra lab_3650            ;3632  80 1c
 
 lab_3634:
-    cmp 0x3570,x            ;3634  dd 70 35
+    cmp mem_3570,x          ;3634  dd 70 35
     beq lab_3640            ;3637  f0 07
     inx                     ;3639  e8
     cpx #0x18               ;363a  e0 18
@@ -3956,9 +3960,9 @@ lab_3640:
     txa                     ;3640  8a
     asl a                   ;3641  0a
     tay                     ;3642  a8
-    lda 0x3588,y            ;3643  b9 88 35
+    lda mem_3588,y          ;3643  b9 88 35
     sta 0x40                ;3646  85 40
-    lda 0x3589,y            ;3648  b9 89 35
+    lda mem_3588+1,y        ;3648  b9 89 35
     sta 0x41                ;364b  85 41
     clc                     ;364d  18
 
@@ -10221,9 +10225,9 @@ lab_5be7:
     rts                     ;5bea  60
 
 ;TechniSat protocol command 0x44
-lab_5beb:
 ;Read RAM in allowed range
 ;Allows reading all bytes 0x0000-0x053f
+lab_5beb:
     bbc 7,0xe8,lab_5c2d     ;5beb  f7 e8 3f
 
     ldy #0x01               ;5bee  a0 01
@@ -10583,7 +10587,7 @@ lab_5db3:
 
     lda 0x0323              ;5db8  ad 23 03     A = uart rx buffer byte 3
     cmp #0x0a               ;5dbb  c9 0a
-    bcs lab_5dfc_failed            ;5dbd  b0 3d
+    bcs lab_5dfc_failed     ;5dbd  b0 3d
 
     cmp #0x04               ;5dbf  c9 04
     beq lab_5dea            ;5dc1  f0 27        Disables EEPROM filtering
@@ -11343,21 +11347,21 @@ mem_617a:
 
 ;table of code addresses used by lab_619a
 mem_617c:
-    .word 0x624a            ;617c   VECTOR
-    .word 0x6225            ;617e   VECTOR
-    .word 0x62af            ;6180   VECTOR
-    .word 0x622f            ;6182   VECTOR
-    .word 0x62b8            ;6184   VECTOR
-    .word 0x6238            ;6186   VECTOR
-    .word 0x62c3            ;6188   VECTOR
-    .word 0x623f            ;618a   VECTOR
-    .word 0x6249            ;618c   VECTOR
-    .word 0x623f            ;618e   VECTOR
-    .word 0x6249            ;6190   VECTOR
-    .word 0x6240            ;6192   VECTOR
-    .word 0x62c9            ;6194   VECTOR
-    .word 0x6244            ;6196   VECTOR
-    .word 0x62d2            ;6198   VECTOR
+    .word sub_624a          ;617c   VECTOR
+    .word sub_6225          ;617e   VECTOR
+    .word sub_62af          ;6180   VECTOR
+    .word sub_622f          ;6182   VECTOR
+    .word sub_62b8          ;6184   VECTOR
+    .word sub_6238          ;6186   VECTOR
+    .word sub_62c3          ;6188   VECTOR
+    .word sub_623f          ;618a   VECTOR
+    .word sub_6249          ;618c   VECTOR
+    .word sub_623f          ;618e   VECTOR
+    .word sub_6249          ;6190   VECTOR
+    .word sub_6240          ;6192   VECTOR
+    .word sub_62c9          ;6194   VECTOR
+    .word sub_6244          ;6196   VECTOR
+    .word sub_62d2          ;6198   VECTOR
 
 ;TechniSat protocol command 0x53
 lab_619a:
@@ -11376,13 +11380,13 @@ lab_619a:
     asl a                   ;61b4  0a
     asl a                   ;61b5  0a
     tay                     ;61b6  a8
-    lda mem_617a,y            ;61b7  b9 7a 61
+    lda mem_617a,y          ;61b7  b9 7a 61
     sta 0x40                ;61ba  85 40
-    lda mem_617a+1,y            ;61bc  b9 7b 61
+    lda mem_617a+1,y        ;61bc  b9 7b 61
     sta 0x41                ;61bf  85 41
-    lda mem_617c,y            ;61c1  b9 7c 61
+    lda mem_617c,y          ;61c1  b9 7c 61
     sta 0x42                ;61c4  85 42
-    lda mem_617c+1,y            ;61c6  b9 7d 61
+    lda mem_617c+1,y        ;61c6  b9 7d 61
     sta 0x43                ;61c9  85 43
     jsr [0x42]              ;61cb  02 42
     ldy #0x00               ;61cd  a0 00
@@ -11442,6 +11446,9 @@ lab_621b:
     .byte 0x44              ;6222  44          DATA 0x44 'D'
     .byte 0x45              ;6223  45          DATA 0x45 'E'
     .byte 0x46              ;6224  46          DATA 0x46 'F'
+
+sub_6225:
+;TODO disassemble as code
     .byte 0x09              ;6225  09          DATA 0x09
     .byte 0xf0              ;6226  f0          DATA 0xf0
     .byte 0x43              ;6227  43          DATA 0x43 'C'
@@ -11452,6 +11459,9 @@ lab_621b:
     .byte 0x90              ;622c  90          DATA 0x90
     .byte 0x91              ;622d  91          DATA 0x91
     .byte 0x44              ;622e  44          DATA 0x44 'D'
+
+sub_622f:
+;TODO disassemble as code
     .byte 0x08              ;622f  08          DATA 0x08
     .byte 0x42              ;6230  42          DATA 0x42 'B'
     .byte 0x43              ;6231  43          DATA 0x43 'C'
@@ -11461,6 +11471,9 @@ lab_621b:
     .byte 0x47              ;6235  47          DATA 0x47 'G'
     .byte 0x48              ;6236  48          DATA 0x48 'H'
     .byte 0x49              ;6237  49          DATA 0x49 'I'
+
+sub_6238:
+;TODO disassemble as code
     .byte 0x06              ;6238  06          DATA 0x06
     .byte 0xa0              ;6239  a0          DATA 0xa0
     .byte 0xa1              ;623a  a1          DATA 0xa1
@@ -11468,17 +11481,32 @@ lab_621b:
     .byte 0xa3              ;623c  a3          DATA 0xa3
     .byte 0xa4              ;623d  a4          DATA 0xa4
     .byte 0x42              ;623e  42          DATA 0x42 'B'
+
+sub_623f:
+;TODO disasemble as code
     .byte 0x00              ;623f  00          DATA 0x00
+
+sub_6240:
+;TODO disasemble as code
     .byte 0x03              ;6240  03          DATA 0x03
     .byte 0xf0              ;6241  f0          DATA 0xf0
     .byte 0xf1              ;6242  f1          DATA 0xf1
     .byte 0x42              ;6243  42          DATA 0x42 'B'
+
+sub_6244:
+;TODO disassemble as code
     .byte 0x04              ;6244  04          DATA 0x04
     .byte 0xf0              ;6245  f0          DATA 0xf0
     .byte 0xf1              ;6246  f1          DATA 0xf1
     .byte 0xaf              ;6247  af          DATA 0xaf
     .byte 0xaf              ;6248  af          DATA 0xaf
+
+sub_6249:
+;TODO disassemble as code
     .byte 0x60              ;6249  60          DATA 0x60 '`'
+
+sub_624a:
+;TODO disassemble as code
     .byte 0xa5              ;624a  a5          DATA 0xa5
     .byte 0x68              ;624b  68          DATA 0x68 'h'
     .byte 0x85              ;624c  85          DATA 0x85
@@ -11580,6 +11608,9 @@ lab_621b:
     .byte 0x0f              ;62ac  0f          DATA 0x0f
     .byte 0x46              ;62ad  46          DATA 0x46 'F'
     .byte 0x60              ;62ae  60          DATA 0x60 '`'
+
+sub_62af:
+;TODO disassemble as code
     .byte 0x20              ;62af  20          DATA 0x20 ' '
     .byte 0x4a              ;62b0  4a          DATA 0x4a 'J'
     .byte 0x62              ;62b1  62          DATA 0x62 'b'
@@ -11589,6 +11620,9 @@ lab_621b:
     .byte 0x85              ;62b5  85          DATA 0x85
     .byte 0x44              ;62b6  44          DATA 0x44 'D'
     .byte 0x60              ;62b7  60          DATA 0x60 '`'
+
+sub_62b8:
+;TODO disassemble as code
     .byte 0xa2              ;62b8  a2          DATA 0xa2
     .byte 0x07              ;62b9  07          DATA 0x07
     .byte 0xbd              ;62ba  bd          DATA 0xbd
@@ -11600,12 +11634,18 @@ lab_621b:
     .byte 0x10              ;62c0  10          DATA 0x10
     .byte 0xf8              ;62c1  f8          DATA 0xf8
     .byte 0x60              ;62c2  60          DATA 0x60 '`'
+
+sub_62c3:
+;TODO disassemble as code
     .byte 0xad              ;62c3  ad          DATA 0xad
     .byte 0x89              ;62c4  89          DATA 0x89
     .byte 0x02              ;62c5  02          DATA 0x02
     .byte 0x85              ;62c6  85          DATA 0x85
     .byte 0x42              ;62c7  42          DATA 0x42 'B'
     .byte 0x60              ;62c8  60          DATA 0x60 '`'
+
+sub_62c9:
+;TODO disassemble as code
     .byte 0x20              ;62c9  20          DATA 0x20 ' '
     .byte 0x86              ;62ca  86          DATA 0x86
     .byte 0xd2              ;62cb  d2          DATA 0xd2
@@ -11615,6 +11655,9 @@ lab_621b:
     .byte 0x85              ;62cf  85          DATA 0x85
     .byte 0x42              ;62d0  42          DATA 0x42 'B'
     .byte 0x60              ;62d1  60          DATA 0x60 '`'
+
+sub_62d2:
+;TODO disassemble as code
     .byte 0x60              ;62d2  60          DATA 0x60 '`'
     .byte 0x07              ;62d3  07          DATA 0x07
     .byte 0xf2              ;62d4  f2          DATA 0xf2
@@ -27325,7 +27368,7 @@ lab_b49d:
 
 lab_b49f:
     inx                     ;b49f  e8
-    lda 0xb4c1,x            ;b4a0  bd c1 b4     A = KWP1281 block title from table
+    lda mem_b4c1,x          ;b4a0  bd c1 b4     A = KWP1281 block title from table
     bmi lab_b4b9            ;b4a3  30 14        Branch if end of table reached
 
     cmp 0x05b3              ;b4a5  cd b3 05     Compare to block title received
@@ -27335,9 +27378,9 @@ lab_b49f:
     txa                     ;b4aa  8a
     asl a                   ;b4ab  0a
     tax                     ;b4ac  aa
-    lda 0xb4db,x            ;b4ad  bd db b4     Set up pointer to handler
+    lda mem_b4db,x          ;b4ad  bd db b4     Set up pointer to handler
     sta 0xc0                ;b4b0  85 c0
-    lda 0xb4dc,x            ;b4b2  bd dc b4
+    lda mem_b4db+1,x        ;b4b2  bd dc b4
     sta 0xc1                ;b4b5  85 c1
     jmp [0xc0]              ;b4b7  b2 c0        Jump to handler
 
@@ -27348,6 +27391,7 @@ lab_b4b9:
     jmp sub_b461            ;b4be  4c 61 b4     send nak response
 
 ;KWP1281 Block Titles
+mem_b4c1:
     .byte 0x00              ;b4c1  00          DATA 0x00        read identification
     .byte 0x01              ;b4c2  01          DATA 0x01        protected: read ram
     .byte 0x02              ;b4c3  02          DATA 0x02        protected: write ram
@@ -27376,7 +27420,8 @@ lab_b4b9:
     .byte 0xff              ;b4da  ff          DATA 0xff
 
 ;KWP1281 Block Title Handlers
-;same order as table b4c1
+;same order as table mem_b4c1
+mem_b4db:
     .word sub_a1ae          ;b4db  ae a1       VECTOR   read identification
     .word lab_a247          ;b4dd  47 a2       VECTOR   protected: read ram
     .word lab_a298          ;b4df  98 a2       VECTOR   protected: nak: write ram
