@@ -224,14 +224,25 @@ tsat_result_t tsat_write_ram(uint16_t address, uint8_t size, uint8_t *data)
 }
 
 
-// Read any memory without restrictions by using Remote Code Execution (RCE).
-//
-// This is primarily used to dump the firmware of the VW Rhapsody radio.  It
-// has been tested and found to be reliable on both the VW Gamma 5 and VW Rhapsody.
-// On the VW Gamma 5, the firmware has a KWP1281 command that will dump the
-// firmware.  On the VW Rhapsody, there is no command in KWP1281 or the TechniSat
-// protocol that can dump the firmware.  This RCE is the only way to do it.
-//
+/* Read any memory without restrictions by using Remote Code Execution (RCE).
+ *
+ * Works on:
+ *   VW Gamma 5  1J0035186D "VW_0004"
+ *   VW Rhapsody 1J0035156  "SW_001"
+ *   VW Rhapsody 1J0035156A "SW_002"
+ *
+ * Does not work on:
+ *   Skoda Symphony 1U0035156E "SK_0015"
+ *
+ * This is used to dump the firmware of the VW Rhapsody radio.  It has been
+ * tested and found to be reliable on both the VW Gamma 5 and VW Rhapsody.  On
+ * the VW Gamma 5, the firmware has a KWP1281 command that will dump the firmware.
+ * On the VW Rhapsody, there is no command in KWP1281 or the TechniSat protocol
+ * that can dump the firmware.  This RCE is the only way to do it.
+ *
+ * On the Skoda Symphony, the "write RAM" command always seems to fail regardless
+ * of location.  It may have been removed.
+ */
 tsat_result_t tsat_rce_read_memory(uint16_t address, uint16_t size)
 {
     tsat_result_t tresult = TSAT_SUCCESS;
@@ -330,7 +341,7 @@ tsat_result_t tsat_hello(void)
  * the SAFE code, from being read.
  *
  * Works on:
- *   VW Gamma 5
+ *   VW Gamma 5  1J0035186D "VW_0004"
  *   VW Rhapsody 1J0035156  "SW_001"
  *   VW Rhapsody 1J0035156A "SW_002"
  *
