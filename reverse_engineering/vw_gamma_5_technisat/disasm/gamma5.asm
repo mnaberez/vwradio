@@ -188,16 +188,20 @@ lab_20ec:
     jsr sub_4bec            ;2101  20 ec 4b
     jsr sub_435d            ;2104  20 5d 43
     jsr sub_4979            ;2107  20 79 49
+
     ldy #0x0a               ;210a  a0 0a
-    jsr sub_f22c            ;210c  20 2c f2
+    jsr sub_f22c_delay      ;210c  20 2c f2     Delay an unknown time period for Y iterations
+
     seb 4,CPUM              ;210f  8f 3b        Port Xc switch bit = 1: Xcin-Xcout oscillating function
     lda #0x06               ;2111  a9 06
     jsr sub_26d8            ;2113  20 d8 26
     sta 0x0268              ;2116  8d 68 02
     jsr sub_27b1            ;2119  20 b1 27
     jsr sub_9e9e            ;211c  20 9e 9e
+
     ldy #0x0a               ;211f  a0 0a
-    jsr sub_f22c            ;2121  20 2c f2
+    jsr sub_f22c_delay      ;2121  20 2c f2     Delay an unknown time period for Y iterations
+
     clb 5,0xe9              ;2124  bf e9
 
 lab_2126:
@@ -1381,13 +1385,17 @@ lab_2821:
 
 sub_2822:
     clb 0,P8_P4I            ;2822  1f 10
+
     ldy #0x14               ;2824  a0 14
-    jsr sub_f22c            ;2826  20 2c f2
+    jsr sub_f22c_delay      ;2826  20 2c f2     Delay an unknown time period for Y iterations
+
     clb 3,P3                ;2829  7f 06
     clb 2,P1                ;282b  5f 02
     clb 3,P1                ;282d  7f 02
+
     ldy #0x78               ;282f  a0 78
-    jsr sub_f22c            ;2831  20 2c f2
+    jsr sub_f22c_delay      ;2831  20 2c f2     Delay an unknown time period for Y iterations
+
     rts                     ;2834  60
 
 sub_2835:
@@ -2415,8 +2423,9 @@ sub_2de8:
     ora #0xa0               ;2e06  09 a0
     sta 0x0100              ;2e08  8d 00 01
     jsr sub_46e5            ;2e0b  20 e5 46     TODO probably read from I2C EEPROM
+
     ldy #0x0a               ;2e0e  a0 0a
-    jsr sub_f22c            ;2e10  20 2c f2
+    jsr sub_f22c_delay      ;2e10  20 2c f2     Delay an unknown time period for Y iterations
 
 lab_2e13:
     rts                     ;2e13  60
@@ -2480,8 +2489,10 @@ sub_2e3a:
     ldm #0x05,0x4e          ;2e60  3c 05 4e
     ldm #0x00,0x4f          ;2e63  3c 00 4f
     jsr sub_46e5            ;2e66  20 e5 46     TODO probably read from I2C EEPROM
+
     ldy #0x0a               ;2e69  a0 0a
-    jsr sub_f22c            ;2e6b  20 2c f2
+    jsr sub_f22c_delay      ;2e6b  20 2c f2     Delay an unknown time period for Y iterations
+
     rts                     ;2e6e  60
 
     .byte 0xa9              ;2e6f  a9          DATA 0xa9
@@ -5667,7 +5678,8 @@ lab_414f:
 
 lab_4153:
     ldy #0x04               ;4153  a0 04
-    jsr sub_f22c            ;4155  20 2c f2
+    jsr sub_f22c_delay      ;4155  20 2c f2     Delay an unknown time period for Y iterations
+
     jsr sub_50a0            ;4158  20 a0 50
     jsr sub_7bb8            ;415b  20 b8 7b
     ldy #0x11               ;415e  a0 11
@@ -7374,8 +7386,10 @@ lab_4b67:
     inc 0x4e                ;4b77  e6 4e
     inc 0x4e                ;4b79  e6 4e
     jsr sub_46e5            ;4b7b  20 e5 46     TODO probably read from I2C EEPROM
+
     ldy #0x0a               ;4b7e  a0 0a
-    jsr sub_f22c            ;4b80  20 2c f2
+    jsr sub_f22c_delay      ;4b80  20 2c f2     Delay an unknown time period for Y iterations
+
     pla                     ;4b83  68
     sta 0x4e                ;4b84  85 4e
     sec                     ;4b86  38
@@ -7609,8 +7623,10 @@ lab_4cab:
     inc 0x4e                ;4cc2  e6 4e
     ldm #0x00,0x4f          ;4cc4  3c 00 4f
     jsr sub_46e5            ;4cc7  20 e5 46     TODO probably read from I2C EEPROM
+
     ldy #0x0a               ;4cca  a0 0a
-    jsr sub_f22c            ;4ccc  20 2c f2
+    jsr sub_f22c_delay      ;4ccc  20 2c f2     Delay an unknown time period for Y iterations
+
     rts                     ;4ccf  60
 
 sub_4cd0:
@@ -7651,8 +7667,10 @@ sub_4cf9:
     ldm #0x03,0x4e          ;4d14  3c 03 4e
     ldm #0x00,0x4f          ;4d17  3c 00 4f
     jsr sub_46e5            ;4d1a  20 e5 46     TODO probably read from I2C EEPROM
+
     ldy #0x0a               ;4d1d  a0 0a
-    jsr sub_f22c            ;4d1f  20 2c f2
+    jsr sub_f22c_delay      ;4d1f  20 2c f2     Delay an unknown time period for Y iterations
+
     rts                     ;4d22  60
 
     .byte 0x20              ;4d23  20          DATA 0x20 ' '
@@ -7734,8 +7752,9 @@ lab_4d7a:
     ldm #0x06,0x4e          ;4d96  3c 06 4e
     ldm #0x00,0x4f          ;4d99  3c 00 4f
     jsr sub_46e5            ;4d9c  20 e5 46     TODO probably read from I2C EEPROM
+
     ldy #0x0a               ;4d9f  a0 0a
-    jsr sub_f22c            ;4da1  20 2c f2
+    jsr sub_f22c_delay      ;4da1  20 2c f2     Delay an unknown time period for Y iterations
 
 lab_4da4:
     rts                     ;4da4  60
@@ -10067,8 +10086,10 @@ sub_5adf:
     adc 0x0344              ;5b01  6d 44 03
     eor #0xff               ;5b04  49 ff
     jsr sub_5ad5            ;5b06  20 d5 5a     Send checksum byte
+
     ldy #0x01               ;5b09  a0 01
-    jsr sub_f22c            ;5b0b  20 2c f2
+    jsr sub_f22c_delay      ;5b0b  20 2c f2     Delay an unknown time period for Y iterations
+
     clb 6,0xe5              ;5b0e  df e5
 
 lab_5b10:
@@ -10090,8 +10111,10 @@ lab_5b1d:
     clb 6,0xe9              ;5b27  df e9        Clear bit 6 = Enable EEPROM filtering
     lda #0x00               ;5b29  a9 00
     sta 0x0344              ;5b2b  8d 44 03     Store as TechniSat protocol status byte
+
     ldy #0x01               ;5b2e  a0 01
-    jsr sub_f22c            ;5b30  20 2c f2
+    jsr sub_f22c_delay      ;5b30  20 2c f2     Delay an unknown time period for Y iterations
+
     jsr sub_5adf            ;5b33  20 df 5a     Send 10 01 5E <0x0344> CS
     rts                     ;5b36  60
 
@@ -10099,7 +10122,8 @@ lab_5b1d:
 ;Disconnect (terminate session)
 lab_5b37:
     ldy #0x01               ;5b37  a0 01
-    jsr sub_f22c            ;5b39  20 2c f2
+    jsr sub_f22c_delay      ;5b39  20 2c f2     Delay an unknown time period for Y iterations
+
     jsr sub_5adf            ;5b3c  20 df 5a     Send 10 01 5E <0x0344> CS
     ldm #0x40,BRG           ;5b3f  3c 40 1c
     clb 6,0xe9              ;5b42  df e9        Clear bit 6 = Enable EEPROM filtering
@@ -10110,8 +10134,10 @@ lab_5b37:
 ;TechniSat protocol command 0x42
 lab_5b4a:
     bbc 7,0xe8,lab_5bba     ;5b4a  f7 e8 6d
+
     ldy #0x01               ;5b4d  a0 01
-    jsr sub_f22c            ;5b4f  20 2c f2
+    jsr sub_f22c_delay      ;5b4f  20 2c f2     Delay an unknown time period for Y iterations
+
     lda 0x0325              ;5b52  ad 25 03     A = uart rx buffer byte 5
     and #0xf0               ;5b55  29 f0
     cmp #0xa0               ;5b57  c9 a0
@@ -10152,8 +10178,10 @@ lab_5b92:
     bcc lab_5b92            ;5ba2  90 ee
     eor #0xff               ;5ba4  49 ff
     jsr sub_5ad5            ;5ba6  20 d5 5a     Send checksum byte
+
     ldy #0x01               ;5ba9  a0 01
-    jsr sub_f22c            ;5bab  20 2c f2
+    jsr sub_f22c_delay      ;5bab  20 2c f2     Delay an unknown time period for Y iterations
+
     clb 6,0xe5              ;5bae  df e5
     bra lab_5bba            ;5bb0  80 08
 
@@ -10168,7 +10196,8 @@ lab_5bba:
 ;TechniSat protocol command 0x43
 lab_5bbb:
     ldy #0x01               ;5bbb  a0 01
-    jsr sub_f22c            ;5bbd  20 2c f2
+    jsr sub_f22c_delay      ;5bbd  20 2c f2     Delay an unknown time period for Y iterations
+
     lda #0x10               ;5bc0  a9 10
     sta 0x0344              ;5bc2  8d 44 03     Store as TechniSat protocol status byte
     lda 0x0325              ;5bc5  ad 25 03     A = uart rx buffer byte 5
@@ -10196,8 +10225,9 @@ lab_5beb:
 ;Read RAM in allowed range
 ;Allows reading all bytes 0x0000-0x053f
     bbc 7,0xe8,lab_5c2d     ;5beb  f7 e8 3f
+
     ldy #0x01               ;5bee  a0 01
-    jsr sub_f22c            ;5bf0  20 2c f2
+    jsr sub_f22c_delay      ;5bf0  20 2c f2     Delay an unknown time period for Y iterations
 
     lda 0x0323              ;5bf3  ad 23 03     A = uart rx buffer byte 3 (address low)
     sta 0x4c                ;5bf6  85 4c
@@ -10219,11 +10249,11 @@ lab_5beb:
     adc 0x4d                ;5c0a  65 4d        Add memory address high byte
     cmp #0x05               ;5c0c  c9 05
     bcc lab_5c18            ;5c0e  90 08        Branch if less
-    bne lab_5c25            ;5c10  d0 13
+    bne lab_5c25_failed     ;5c10  d0 13
 
     lda 0x4e                ;5c12  a5 4e
     cmp #0x40               ;5c14  c9 40
-    bcs lab_5c25            ;5c16  b0 0d
+    bcs lab_5c25_failed     ;5c16  b0 0d
 
 lab_5c18:
     ldm #0x00,0x4e          ;5c18  3c 00 4e
@@ -10234,7 +10264,7 @@ lab_5c18:
                             ;                     Number of bytes to send in 0x4F
     bra lab_5c2d            ;5c23  80 08
 
-lab_5c25:
+lab_5c25_failed:
     lda #0x04               ;5c25  a9 04
     sta 0x0344              ;5c27  8d 44 03     Store as TechniSat protocol status byte
     jsr sub_5adf            ;5c2a  20 df 5a     Send 10 01 5E <0x0344> CS
@@ -10266,7 +10296,7 @@ lab_5c2d:
 ;
 lab_5c2e:
     ldy #0x01               ;5c2e  a0 01
-    jsr sub_f22c            ;5c30  20 2c f2
+    jsr sub_f22c_delay      ;5c30  20 2c f2     Delay an unknown time period for Y iterations
 
     ;Store address to write, or magic number, as word in 0x004C
     lda 0x0323              ;5c33  ad 23 03     A = uart rx buffer byte 3
@@ -10284,7 +10314,7 @@ lab_5c2e:
 
     ;Check for magic number in address
     jsr sub_5e84            ;5c47  20 84 5e     Disable EEPROM filtering based on magic number in 0x4c/0x4d
-    bcs lab_5c6b            ;5c4a  b0 1f        Branch if magic number check failed
+    bcs lab_5c6b_not_magic  ;5c4a  b0 1f        Branch if magic number check failed
 
     ;Address is the magic number
     bbc 0,0xf1,lab_5c61     ;5c4c  17 f1 12
@@ -10300,9 +10330,9 @@ lab_5c61:
     lda #0x20               ;5c61  a9 20
     sta 0x0344              ;5c63  8d 44 03     Store as TechniSat protocol status byte
     jsr sub_5adf            ;5c66  20 df 5a     Send 10 01 5E <0x0344> CS
-    bra lab_5c7d            ;5c69  80 12        Branch to return
+    bra lab_5c7d_ret        ;5c69  80 12        Branch to return
 
-lab_5c6b:
+lab_5c6b_not_magic:
     ;Address is not the magic number
     ;Perform a memory write with address in 0x004C and number of bytes to write in 0x004E
 
@@ -10311,15 +10341,15 @@ lab_5c6b:
 
     jsr sub_5e47            ;5c70  20 47 5e     Write to allowed memory from uart rx buffer to [0x4c,x]
                             ;                     Allowed ranges = 0, 2, 4, 6, 8, a, c, e, 0x10, 0x0040-0x053f
-    bcc lab_5c7a            ;5c73  90 05        Branch if success
+    bcc lab_5c7a_success    ;5c73  90 05        Branch if success
 
     lda #0x04               ;5c75  a9 04
     sta 0x0344              ;5c77  8d 44 03     Store as TechniSat protocol status byte
 
-lab_5c7a:
+lab_5c7a_success:
     jsr sub_5adf            ;5c7a  20 df 5a     Send 10 01 5E <0x0344> CS
 
-lab_5c7d:
+lab_5c7d_ret:
     rts                     ;5c7d  60
 
 ;TechniSat protocol command 0x46
@@ -10327,7 +10357,7 @@ lab_5c7d:
 ;allowed ranges = 0, 2, 4, 6, 8, a, c, e, 0x10, 0x0040-0x053f
 lab_5c7e:
     ldy #0x01               ;5c7e  a0 01
-    jsr sub_f22c            ;5c80  20 2c f2
+    jsr sub_f22c_delay      ;5c80  20 2c f2     Delay an unknown time period for Y iterations
 
     lda 0x0323              ;5c83  ad 23 03     A = uart rx buffer byte 3
     sta 0x4c                ;5c86  85 4c
@@ -10343,7 +10373,7 @@ lab_5c7e:
 
     jsr sub_5e62            ;5c97  20 62 5e     Check if word in 0x4c is in allowed ranges:
                             ;                     0, 2, 4, 6, 8, a, c, e, 0x10, 0x0040-0x053f
-    bcs lab_5ca9            ;5c9a  b0 0d        Branch if not allowed
+    bcs lab_5ca9_failed     ;5c9a  b0 0d        Branch if not allowed
 
     ldy #0x00               ;5c9c  a0 00
     sty 0x0344              ;5c9e  8c 44 03     Store as TechniSat protocol status byte
@@ -10353,7 +10383,7 @@ lab_5c7e:
     sta [0x4c],y            ;5ca5  91 4c
     bra lab_5cae            ;5ca7  80 05
 
-lab_5ca9:
+lab_5ca9_failed:
     lda #0x04               ;5ca9  a9 04
     sta 0x0344              ;5cab  8d 44 03     Store as TechniSat protocol status byte
 
@@ -10366,7 +10396,7 @@ lab_5cae:
 ;allowed ranges = 0, 2, 4, 6, 8, a, c, e, 0x10, 0x0040-0x053f
 lab_5cb2:
     ldy #0x01               ;5cb2  a0 01
-    jsr sub_f22c            ;5cb4  20 2c f2
+    jsr sub_f22c_delay      ;5cb4  20 2c f2     Delay an unknown time period for Y iterations
 
     lda 0x0323              ;5cb7  ad 23 03     A = uart rx buffer byte 3
     sta 0x4c                ;5cba  85 4c
@@ -10381,7 +10411,7 @@ lab_5cb2:
 
     jsr sub_5e62            ;5cc9  20 62 5e     Check if word in 0x4c is in allowed ranges:
                             ;                     0, 2, 4, 6, 8, a, c, e, 0x10, 0x0040-0x053f
-    bcs lab_5cdb            ;5ccc  b0 0d        Branch if not allowed
+    bcs lab_5cdb_failed     ;5ccc  b0 0d        Branch if not allowed
 
     ldy #0x00               ;5cce  a0 00
     sty 0x0344              ;5cd0  8c 44 03     Store as TechniSat protocol status byte
@@ -10391,7 +10421,7 @@ lab_5cb2:
     sta [0x4c],y            ;5cd7  91 4c
     bra lab_5ce0            ;5cd9  80 05
 
-lab_5cdb:
+lab_5cdb_failed:
     lda #0x06               ;5cdb  a9 06
     sta 0x0344              ;5cdd  8d 44 03     Store as TechniSat protocol status byte
 
@@ -10403,11 +10433,11 @@ lab_5ce0:
 lab_5ce4:
     bbc 7,0xe8,lab_5d21     ;5ce4  f7 e8 3a
     ldy #0x01               ;5ce7  a0 01
-    jsr sub_f22c            ;5ce9  20 2c f2
+    jsr sub_f22c_delay      ;5ce9  20 2c f2     Delay an unknown time period for Y iterations
 
     lda 0x0323              ;5cec  ad 23 03     A = uart rx buffer byte 3
     cmp #0x0a               ;5cef  c9 0a        Compare to number of words in mem_59fd
-    bcs lab_5d19            ;5cf1  b0 26        Branch if out of range
+    bcs lab_5d19_failed     ;5cf1  b0 26        Branch if out of range
 
     asl a                   ;5cf3  0a           * 2 to calculate offset of word
     tay                     ;5cf4  a8
@@ -10434,7 +10464,7 @@ lab_5d0f:
                             ;                     Number of bytes to send in 0x4F
     bra lab_5d1e            ;5d17  80 05
 
-lab_5d19:
+lab_5d19_failed:
     lda #0x06               ;5d19  a9 06
     sta 0x0344              ;5d1b  8d 44 03     Store as TechniSat protocol status byte
 
@@ -10447,10 +10477,10 @@ lab_5d21:
 ;TechniSat protocol command 0x4b
 lab_5d22:
     ldy #0x01               ;5d22  a0 01
-    jsr sub_f22c            ;5d24  20 2c f2
+    jsr sub_f22c_delay      ;5d24  20 2c f2     Delay an unknown time period for Y iterations
     lda 0x0323              ;5d27  ad 23 03     A = uart rx buffer byte 3
     cmp #0x0a               ;5d2a  c9 0a
-    bcs lab_5d60            ;5d2c  b0 32
+    bcs lab_5d60_failed     ;5d2c  b0 32
     asl a                   ;5d2e  0a
     tay                     ;5d2f  a8
 
@@ -10482,7 +10512,7 @@ lab_5d47:
                             ;                     Allowed ranges = 0, 2, 4, 6, 8, a, c, e, 0x10, 0x0040-0x053f
     bcc lab_5d65            ;5d5e  90 05        Branch if success
 
-lab_5d60:
+lab_5d60_failed:
     lda #0x06               ;5d60  a9 06
     sta 0x0344              ;5d62  8d 44 03     Store as TechniSat protocol status byte
 
@@ -10493,10 +10523,11 @@ lab_5d65:
 ;TechniSat protocol command 0x4c
 lab_5d69:
     ldy #0x01               ;5d69  a0 01
-    jsr sub_f22c            ;5d6b  20 2c f2
+    jsr sub_f22c_delay      ;5d6b  20 2c f2     Delay an unknown time period for Y iterations
+
     lda 0x0323              ;5d6e  ad 23 03     A = uart rx buffer byte 3
     cmp #0x0a               ;5d71  c9 0a
-    bcs lab_5daa            ;5d73  b0 35
+    bcs lab_5daa_failed     ;5d73  b0 35
     cmp #0x04               ;5d75  c9 04
     beq lab_5da2            ;5d77  f0 29
     cmp #0x09               ;5d79  c9 09
@@ -10527,7 +10558,7 @@ lab_5da6:
     clb 1,0xff              ;5da6  3f ff
     bra lab_5daf            ;5da8  80 05
 
-lab_5daa:
+lab_5daa_failed:
     lda #0x06               ;5daa  a9 06
     sta 0x0344              ;5dac  8d 44 03     Store as TechniSat protocol status byte
 
@@ -10548,11 +10579,11 @@ lab_5daf:
 ;contains a value other then 0x04.
 lab_5db3:
     ldy #0x01               ;5db3  a0 01
-    jsr sub_f22c            ;5db5  20 2c f2
+    jsr sub_f22c_delay      ;5db5  20 2c f2     Delay an unknown time period for Y iterations
 
     lda 0x0323              ;5db8  ad 23 03     A = uart rx buffer byte 3
     cmp #0x0a               ;5dbb  c9 0a
-    bcs lab_5dfc            ;5dbd  b0 3d
+    bcs lab_5dfc_failed            ;5dbd  b0 3d
 
     cmp #0x04               ;5dbf  c9 04
     beq lab_5dea            ;5dc1  f0 27        Disables EEPROM filtering
@@ -10595,7 +10626,7 @@ lab_5dee:
     seb 1,0xff              ;5df8  2f ff
     bra lab_5e01            ;5dfa  80 05
 
-lab_5dfc:
+lab_5dfc_failed:
     lda #0x04               ;5dfc  a9 04
     sta 0x0344              ;5dfe  8d 44 03     Store as TechniSat protocol status byte
 
@@ -10635,8 +10666,10 @@ lab_5e29:
     bne lab_5e29            ;5e38  d0 ef
     eor #0xff               ;5e3a  49 ff
     jsr sub_5ad5            ;5e3c  20 d5 5a     Send checksum byte
+
     ldy #0x01               ;5e3f  a0 01
-    jsr sub_f22c            ;5e41  20 2c f2
+    jsr sub_f22c_delay      ;5e41  20 2c f2     Delay an unknown time period for Y iterations
+
     clb 6,0xe5              ;5e44  df e5
     rts                     ;5e46  60
 
@@ -10655,7 +10688,7 @@ sub_5e47:
 lab_5e4b:
     jsr sub_5e62            ;5e4b  20 62 5e     Check if word in 0x4c is in allowed ranges:
                             ;                     0, 2, 4, 6, 8, a, c, e, 0x10, 0x0040-0x053f
-    bcs lab_5e61            ;5e4e  b0 11        Branch if not allowed
+    bcs lab_5e61_ret        ;5e4e  b0 11        Branch if not allowed
 
     lda 0x0325,y            ;5e50  b9 25 03     A = uart rx buffer byte 5 +
     sta [0x4c,x]            ;5e53  81 4c
@@ -10669,7 +10702,7 @@ lab_5e5b:
     bcc lab_5e4b            ;5e5e  90 eb
     clc                     ;5e60  18
 
-lab_5e61:
+lab_5e61_ret:
     rts                     ;5e61  60
 
 
@@ -10688,22 +10721,22 @@ sub_5e62:
     cmp #0x40               ;5e68  c9 40
     bcc lab_5e6f            ;5e6a  90 03
     clc                     ;5e6c  18
-    bra lab_5e83            ;5e6d  80 14
+    bra lab_5e83_ret        ;5e6d  80 14
 lab_5e6f:
     lsr a                   ;5e6f  4a
-    bcs lab_5e83            ;5e70  b0 11
+    bcs lab_5e83_ret        ;5e70  b0 11
     cmp #0x09               ;5e72  c9 09
-    bra lab_5e83            ;5e74  80 0d
+    bra lab_5e83_ret        ;5e74  80 0d
 lab_5e76:
     cmp #0x05               ;5e76  c9 05
-    bcc lab_5e83            ;5e78  90 09
-    bne lab_5e82            ;5e7a  d0 06
+    bcc lab_5e83_ret        ;5e78  90 09
+    bne lab_5e82_denied     ;5e7a  d0 06
     lda 0x4c                ;5e7c  a5 4c
     cmp #0x40               ;5e7e  c9 40
-    bcc lab_5e83            ;5e80  90 01
-lab_5e82:
+    bcc lab_5e83_ret        ;5e80  90 01
+lab_5e82_denied:
     sec                     ;5e82  38
-lab_5e83:
+lab_5e83_ret:
     rts                     ;5e83  60
 
 
@@ -10713,16 +10746,16 @@ lab_5e83:
 sub_5e84:
     lda 0x4d                ;5e84  a5 4d    A = high byte
     cmp #0x14               ;5e86  c9 14
-    bne lab_5e95            ;5e88  d0 0b
+    bne lab_5e95_denied     ;5e88  d0 0b
     lda 0x4c                ;5e8a  a5 4c    A = low byte
     cmp #0x62               ;5e8c  c9 62
-    bne lab_5e95            ;5e8e  d0 05
+    bne lab_5e95_denied     ;5e8e  d0 05
     seb 6,0xe9              ;5e90  cf e9    Set bit = Disable EEPROM filtering
     clc                     ;5e92  18
-    bra lab_5e96            ;5e93  80 01
-lab_5e95:
+    bra lab_5e96_ret        ;5e93  80 01
+lab_5e95_denied:
     sec                     ;5e95  38
-lab_5e96:
+lab_5e96_ret:
     rts                     ;5e96  60
 
 
@@ -10760,10 +10793,10 @@ lab_5e97:
 
 lab_5e9b:
     ldy #0x01               ;5e9b  a0 01
-    jsr sub_f22c            ;5e9d  20 2c f2
+    jsr sub_f22c_delay      ;5e9d  20 2c f2     Delay an unknown time period for Y iterations
 
-    jsr sub_5ef7            ;5ea0  20 f7 5e     Read from EEPROM
-    bcs lab_5eee            ;5ea3  b0 49        If read from EEPROM failed, branch
+    jsr sub_5ef7            ;5ea0  20 f7 5e     Read from EEPROM with some addresses filtered
+    bcs lab_5eee_failed     ;5ea3  b0 49        If read from EEPROM failed, branch
 
     seb 6,0xe5              ;5ea5  cf e5
     lda #0x00               ;5ea7  a9 00
@@ -10794,12 +10827,14 @@ lab_5ece:
     bne lab_5ece            ;5ede  d0 ee
     eor #0xff               ;5ee0  49 ff
     jsr sub_5ad5            ;5ee2  20 d5 5a     Send byte   (checksum)
+
     ldy #0x01               ;5ee5  a0 01
-    jsr sub_f22c            ;5ee7  20 2c f2
+    jsr sub_f22c_delay      ;5ee7  20 2c f2     Delay an unknown time period for Y iterations
+
     clb 6,0xe5              ;5eea  df e5
     bra lab_5ef6            ;5eec  80 08
 
-lab_5eee:
+lab_5eee_failed:
     lda #0x05               ;5eee  a9 05
     sta 0x0344              ;5ef0  8d 44 03     Store as TechniSat protocol status byte
     jsr sub_5adf            ;5ef3  20 df 5a     Send 10 01 5E <0x0344> CS
@@ -10807,7 +10842,7 @@ lab_5eee:
 lab_5ef6:
     rts                     ;5ef6  60
 
-;Read from EEPROM
+;Read from EEPROM with some addresses filtered
 ;Called from KWP1281 Read EEPROM (lab_a48d)
 ;Also called from TechniSat protocol command 0x48 (lab_5e97)
 ;Returns carry clear = success, carry set = failed
@@ -10937,7 +10972,8 @@ lab_5f4c:
 ;
 lab_5f4d:
     ldy #0x01               ;5f4d  a0 01
-    jsr sub_f22c            ;5f4f  20 2c f2
+    jsr sub_f22c_delay      ;5f4f  20 2c f2     Delay an unknown time period for Y iterations
+
     jsr sub_5f59            ;5f52  20 59 5f
     jsr sub_5adf            ;5f55  20 df 5a     Send 10 01 5E <0x0344> CS
     rts                     ;5f58  60
@@ -11069,7 +11105,8 @@ lab_5fe1:
 ;TechniSat protocol command 0x50
 lab_5fe4:
     ldy #0x01               ;5fe4  a0 01
-    jsr sub_f22c            ;5fe6  20 2c f2
+    jsr sub_f22c_delay      ;5fe6  20 2c f2     Delay an unknown time period for Y iterations
+
     lda #0x10               ;5fe9  a9 10
     sta 0x0344              ;5feb  8d 44 03     Store as TechniSat protocol status byte
     lda 0x0323              ;5fee  ad 23 03
@@ -11137,7 +11174,8 @@ lab_606c:
 ;TechniSat protocol command 0x51
 lab_6070:
     ldy #0x01               ;6070  a0 01
-    jsr sub_f22c            ;6072  20 2c f2
+    jsr sub_f22c_delay      ;6072  20 2c f2     Delay an unknown time period for Y iterations
+
     lda #0x10               ;6075  a9 10
     sta 0x0344              ;6077  8d 44 03     Store as TechniSat protocol status byte
     lda 0x0324              ;607a  ad 24 03
@@ -11164,7 +11202,8 @@ lab_609f:
 ;TechniSat protocol command 0x52
 lab_60a3:
     ldy #0x01               ;60a3  a0 01
-    jsr sub_f22c            ;60a5  20 2c f2
+    jsr sub_f22c_delay      ;60a5  20 2c f2     Delay an unknown time period for Y iterations
+
     lda #0x10               ;60a8  a9 10
     sta 0x0344              ;60aa  8d 44 03     Store as TechniSat protocol status byte
     ldy #0x00               ;60ad  a0 00
@@ -11212,7 +11251,8 @@ lab_60ee:
 ;Response will be sent at current baud rate, then rate changed.
 lab_60f6:
     ldy #0x01               ;60f6  a0 01
-    jsr sub_f22c            ;60f8  20 2c f2
+    jsr sub_f22c_delay      ;60f8  20 2c f2     Delay an unknown time period for Y iterations
+
     lda #0x00               ;60fb  a9 00
     ldx 0x0323              ;60fd  ae 23 03
     cpx #0x04               ;6100  e0 04
@@ -11234,8 +11274,10 @@ lab_6119:
 ;TechniSat protocol command 0x58
 lab_611a:
     bbc 7,0xe8,lab_613e     ;611a  f7 e8 21
+
     ldy #0x01               ;611d  a0 01
-    jsr sub_f22c            ;611f  20 2c f2
+    jsr sub_f22c_delay      ;611f  20 2c f2     Delay an unknown time period for Y iterations
+
     ldx #0x10               ;6122  a2 10
     lda 0x0323              ;6124  ad 23 03
     cmp #0x10               ;6127  c9 10
@@ -11256,7 +11298,8 @@ lab_613e:
 ;TechniSat protocol command 0x5a
 lab_613f:
     ldy #0x01               ;613f  a0 01
-    jsr sub_f22c            ;6141  20 2c f2
+    jsr sub_f22c_delay      ;6141  20 2c f2     Delay an unknown time period for Y iterations
+
     lda 0x0321              ;6144  ad 21 03
     tax                     ;6147  aa
     lda 0x0323              ;6148  ad 23 03
@@ -11319,8 +11362,10 @@ mem_617c:
 ;TechniSat protocol command 0x53
 lab_619a:
     bbc 7,0xe8,lab_621b     ;619a  f7 e8 7e
+
     ldy #0x01               ;619d  a0 01
-    jsr sub_f22c            ;619f  20 2c f2
+    jsr sub_f22c_delay      ;619f  20 2c f2     Delay an unknown time period for Y iterations
+
     lda #0x10               ;61a2  a9 10
     sta 0x0344              ;61a4  8d 44 03     Store as TechniSat protocol status byte
     lda 0x0323              ;61a7  ad 23 03
@@ -11375,8 +11420,10 @@ lab_61f8:
     bne lab_61f8            ;6208  d0 ee
     eor #0xff               ;620a  49 ff
     jsr sub_5ad5            ;620c  20 d5 5a     Send byte
+
     ldy #0x01               ;620f  a0 01
-    jsr sub_f22c            ;6211  20 2c f2
+    jsr sub_f22c_delay      ;6211  20 2c f2     Delay an unknown time period for Y iterations
+
     clb 6,0xe5              ;6214  df e5
     bra lab_621b            ;6216  80 03
 
@@ -13973,7 +14020,8 @@ sub_6e61:
 
 lab_6e82:
     ldy #0x01               ;6e82  a0 01
-    jsr sub_f22c            ;6e84  20 2c f2
+    jsr sub_f22c_delay      ;6e84  20 2c f2     Delay an unknown time period for Y iterations
+
     ldy 0x026c              ;6e87  ac 6c 02
     bne lab_6e9f            ;6e8a  d0 13
     cmp #0x19               ;6e8c  c9 19
@@ -13990,7 +14038,8 @@ lab_6e93:
 
 lab_6e9f:
     ldy #0x02               ;6e9f  a0 02
-    jsr sub_f22c            ;6ea1  20 2c f2
+    jsr sub_f22c_delay      ;6ea1  20 2c f2     Delay an unknown time period for Y iterations
+
     lda 0x73                ;6ea4  a5 73
     cmp #0x1f               ;6ea6  c9 1f
     bne lab_6eaf            ;6ea8  d0 05
@@ -14934,8 +14983,10 @@ sub_74d2:
     lda 0x0289              ;74d5  ad 89 02
     beq lab_7514            ;74d8  f0 3a
     clb 5,P0                ;74da  bf 00
+
     ldy #0x32               ;74dc  a0 32
-    jsr sub_f22c            ;74de  20 2c f2
+    jsr sub_f22c_delay      ;74de  20 2c f2     Delay an unknown time period for Y iterations
+
     jsr sub_7518            ;74e1  20 18 75
     jsr sub_7539            ;74e4  20 39 75
     jsr sub_757f            ;74e7  20 7f 75
@@ -14956,8 +15007,10 @@ lab_7503:
     bne lab_74ef            ;7505  d0 e8
     jsr sub_75e0            ;7507  20 e0 75
     jsr sub_755c            ;750a  20 5c 75
+
     ldy #0x32               ;750d  a0 32
-    jsr sub_f22c            ;750f  20 2c f2
+    jsr sub_f22c_delay      ;750f  20 2c f2     Delay an unknown time period for Y iterations
+
     seb 5,P0                ;7512  af 00
 
 lab_7514:
@@ -15444,8 +15497,10 @@ sub_77f8:
     ldm #0x04,0x4e          ;780d  3c 04 4e
     ldm #0x00,0x4f          ;7810  3c 00 4f
     jsr sub_46e5            ;7813  20 e5 46     TODO probably read from I2C EEPROM
+
     ldy #0x0a               ;7816  a0 0a
-    jsr sub_f22c            ;7818  20 2c f2
+    jsr sub_f22c_delay      ;7818  20 2c f2     Delay an unknown time period for Y iterations
+
     rts                     ;781b  60
 
     .byte 0xa5              ;781c  a5          DATA 0xa5
@@ -16460,8 +16515,10 @@ lab_7d33:
     ldm #0x03,0x4e          ;7d5c  3c 03 4e
     ldm #0x00,0x4f          ;7d5f  3c 00 4f
     jsr sub_46e5            ;7d62  20 e5 46     TODO probably read from I2C EEPROM
+
     ldy #0x0a               ;7d65  a0 0a
-    jsr sub_f22c            ;7d67  20 2c f2
+    jsr sub_f22c_delay      ;7d67  20 2c f2     Delay an unknown time period for Y iterations
+
     ldy 0x028a              ;7d6a  ac 8a 02
     cpy #0x07               ;7d6d  c0 07
     bcc lab_7d99            ;7d6f  90 28
@@ -16480,8 +16537,9 @@ lab_7d33:
     ldm #0x03,0x4e          ;7d8b  3c 03 4e
     ldm #0x00,0x4f          ;7d8e  3c 00 4f
     jsr sub_46e5            ;7d91  20 e5 46     TODO probably read from I2C EEPROM
+
     ldy #0x0a               ;7d94  a0 0a
-    jsr sub_f22c            ;7d96  20 2c f2
+    jsr sub_f22c_delay      ;7d96  20 2c f2     Delay an unknown time period for Y iterations
 
 lab_7d99:
     rts                     ;7d99  60
@@ -19418,8 +19476,10 @@ lab_8be5:
     bcs lab_8c09            ;8bf5  b0 12
     sta 0x71                ;8bf7  85 71
     jsr sub_4dd1            ;8bf9  20 d1 4d
+
     ldy #0x04               ;8bfc  a0 04
-    jsr sub_f22c            ;8bfe  20 2c f2
+    jsr sub_f22c_delay      ;8bfe  20 2c f2     Delay an unknown time period for Y iterations
+
     jsr sub_8e1c            ;8c01  20 1c 8e
     ldx 0x44                ;8c04  a6 44
     sta 0x0170,x            ;8c06  9d 70 01
@@ -19433,8 +19493,10 @@ lab_8c09:
     sta 0x71                ;8c11  85 71
     jsr sub_4dd1            ;8c13  20 d1 4d
     seb 0,0xf9              ;8c16  0f f9
+
     ldy #0x04               ;8c18  a0 04
-    jsr sub_f22c            ;8c1a  20 2c f2
+    jsr sub_f22c_delay      ;8c1a  20 2c f2     Delay an unknown time period for Y iterations
+
     jsr sub_51d8            ;8c1d  20 d8 51
     clc                     ;8c20  18
     pla                     ;8c21  68
@@ -19918,8 +19980,10 @@ lab_8e7e:
     sta 0x40                ;8e7e  85 40
     dec 0x71                ;8e80  c6 71
     jsr sub_4dd1            ;8e82  20 d1 4d
+
     ldy #0x14               ;8e85  a0 14
-    jsr sub_f22c            ;8e87  20 2c f2
+    jsr sub_f22c_delay      ;8e87  20 2c f2     Delay an unknown time period for Y iterations
+
     lda #0x02               ;8e8a  a9 02
     jsr sub_26d8            ;8e8c  20 d8 26
     cmp 0x40                ;8e8f  c5 40
@@ -19927,8 +19991,10 @@ lab_8e7e:
     inc 0x71                ;8e93  e6 71
     inc 0x71                ;8e95  e6 71
     jsr sub_4dd1            ;8e97  20 d1 4d
+
     ldy #0x14               ;8e9a  a0 14
-    jsr sub_f22c            ;8e9c  20 2c f2
+    jsr sub_f22c_delay      ;8e9c  20 2c f2     Delay an unknown time period for Y iterations
+
     lda #0x02               ;8e9f  a9 02
     jsr sub_26d8            ;8ea1  20 d8 26
     cmp 0x40                ;8ea4  c5 40
@@ -20678,7 +20744,8 @@ lab_927f:
 
 lab_9282:
     ldy #0x02               ;9282  a0 02
-    jsr sub_f22c            ;9284  20 2c f2
+    jsr sub_f22c_delay      ;9284  20 2c f2     Delay an unknown time period for Y iterations
+
     jsr sub_51d8            ;9287  20 d8 51
     jsr sub_8cdc            ;928a  20 dc 8c
     clb 4,0xfb              ;928d  9f fb
@@ -22922,8 +22989,10 @@ sub_9da1:
     lda 0x0266              ;9daa  ad 66 02
     sta 0x71                ;9dad  85 71
     jsr sub_2c1a            ;9daf  20 1a 2c
+
     ldy #0x0a               ;9db2  a0 0a
-    jsr sub_f22c            ;9db4  20 2c f2
+    jsr sub_f22c_delay      ;9db4  20 2c f2     Delay an unknown time period for Y iterations
+
     clb 0,0xf9              ;9db7  1f f9
     jsr sub_44a7            ;9db9  20 a7 44
     jsr sub_890d            ;9dbc  20 0d 89
@@ -23399,8 +23468,9 @@ sub_a0b1:
     ldm #0x07,0x4e          ;a0c6  3c 07 4e
     ldm #0x00,0x4f          ;a0c9  3c 00 4f
     jsr sub_46e5            ;a0cc  20 e5 46     TODO probably read from I2C EEPROM
+
     ldy #0x0a               ;a0cf  a0 0a
-    jsr sub_f22c            ;a0d1  20 2c f2
+    jsr sub_f22c_delay      ;a0d1  20 2c f2     Delay an unknown time period for Y iterations
 
 lab_a0d4:
     rts                     ;a0d4  60
@@ -24128,7 +24198,7 @@ lab_a48d:
     adc #0x03               ;a4a5  69 03        Add 3 for block counter, block title, block end
     sta 0x0331              ;a4a7  8d 31 03     Store in KWP1281 tx buffer: block length
 
-    jsr sub_5ef7            ;a4aa  20 f7 5e     Read from EEPROM
+    jsr sub_5ef7            ;a4aa  20 f7 5e     Read from EEPROM with some addresses filtered
     bcs lab_a4cb            ;a4ad  b0 1c        If read from EEPROM failed, send nak response
 
     ldy #0xef               ;a4af  a0 ef        Y = block title 0xEF
@@ -25671,8 +25741,10 @@ sub_ab9d:
     ldm #0x03,0x4e          ;abb2  3c 03 4e
     ldm #0x00,0x4f          ;abb5  3c 00 4f
     jsr sub_46e5            ;abb8  20 e5 46     TODO probably read from I2C EEPROM
+
     ldy #0x0a               ;abbb  a0 0a
-    jsr sub_f22c            ;abbd  20 2c f2
+    jsr sub_f22c_delay      ;abbd  20 2c f2     Delay an unknown time period for Y iterations
+
     rts                     ;abc0  60
 
     .byte 0x12              ;abc1  12          DATA 0x12
@@ -26957,8 +27029,10 @@ lab_b29b:
     bcs lab_b2c2            ;b2a2  b0 1e
     sta 0x71                ;b2a4  85 71
     jsr sub_4dd1            ;b2a6  20 d1 4d
+
     ldy #0x04               ;b2a9  a0 04
-    jsr sub_f22c            ;b2ab  20 2c f2
+    jsr sub_f22c_delay      ;b2ab  20 2c f2     Delay an unknown time period for Y iterations
+
     jsr sub_8eb2            ;b2ae  20 b2 8e
     jsr sub_51a7            ;b2b1  20 a7 51
     ldx 0x44                ;b2b4  a6 44
@@ -26973,8 +27047,10 @@ lab_b2c2:
     pla                     ;b2c2  68
     sta 0x71                ;b2c3  85 71
     jsr sub_4dd1            ;b2c5  20 d1 4d
+
     ldy #0x04               ;b2c8  a0 04
-    jsr sub_f22c            ;b2ca  20 2c f2
+    jsr sub_f22c_delay      ;b2ca  20 2c f2     Delay an unknown time period for Y iterations
+
     jsr sub_8e1c            ;b2cd  20 1c 8e
     clc                     ;b2d0  18
     pla                     ;b2d1  68
@@ -27072,7 +27148,8 @@ sub_b33b:
 
 lab_b376:
     ldy #0x04               ;b376  a0 04
-    jsr sub_f22c            ;b378  20 2c f2
+    jsr sub_f22c_delay      ;b378  20 2c f2     Delay an unknown time period for Y iterations
+
     jsr sub_51d8            ;b37b  20 d8 51
     ldm #0x64,0xb5          ;b37e  3c 64 b5
     clb 4,0xfb              ;b381  9f fb
@@ -27108,8 +27185,10 @@ sub_b388:
     seb 6,0xfe              ;b3bc  cf fe
     ldy #0x31               ;b3be  a0 31
     jsr sub_3300            ;b3c0  20 00 33
+
     ldy #0x04               ;b3c3  a0 04
-    jsr sub_f22c            ;b3c5  20 2c f2
+    jsr sub_f22c_delay      ;b3c5  20 2c f2     Delay an unknown time period for Y iterations
+
     jsr sub_51d8            ;b3c8  20 d8 51
     seb 0,0xf9              ;b3cb  0f f9
     rts                     ;b3cd  60
@@ -30382,8 +30461,10 @@ sub_c70f:
     pha                     ;c714  48
     jsr sub_cc91            ;c715  20 91 cc
     jsr sub_cd6e            ;c718  20 6e cd
+
     ldy #0x46               ;c71b  a0 46
-    jsr sub_f22c            ;c71d  20 2c f2
+    jsr sub_f22c_delay      ;c71d  20 2c f2     Delay an unknown time period for Y iterations
+
     bbs 3,0xec,lab_c726     ;c720  67 ec 03
     jmp lab_c76c            ;c723  4c 6c c7
 
@@ -30523,8 +30604,10 @@ lab_c7f1:
 lab_c7f4:
     jsr sub_7673            ;c7f4  20 73 76
     jsr sub_cd6e            ;c7f7  20 6e cd
+
     ldy #0x46               ;c7fa  a0 46
-    jsr sub_f22c            ;c7fc  20 2c f2
+    jsr sub_f22c_delay      ;c7fc  20 2c f2     Delay an unknown time period for Y iterations
+
     jsr sub_cc91            ;c7ff  20 91 cc
     bbc 3,0xec,lab_c80d     ;c802  77 ec 08
     ldx #0x04               ;c805  a2 04
@@ -30596,8 +30679,10 @@ lab_c874:
 lab_c87e:
     jsr sub_7673            ;c87e  20 73 76
     jsr sub_cd6e            ;c881  20 6e cd
+
     ldy #0x46               ;c884  a0 46
-    jsr sub_f22c            ;c886  20 2c f2
+    jsr sub_f22c_delay      ;c886  20 2c f2     Delay an unknown time period for Y iterations
+
     jsr sub_cc91            ;c889  20 91 cc
     bbc 2,0xec,lab_c899     ;c88c  57 ec 0a
     lda #0x00               ;c88f  a9 00
@@ -30638,8 +30723,10 @@ lab_c8bc:
     jsr sub_cd68            ;c8cb  20 68 cd
     lda 0x031d              ;c8ce  ad 1d 03
     bbs 1,a,lab_c8fb        ;c8d1  23 28
+
     ldy #0x05               ;c8d3  a0 05
-    jsr sub_f22c            ;c8d5  20 2c f2
+    jsr sub_f22c_delay      ;c8d5  20 2c f2     Delay an unknown time period for Y iterations
+
     lda #0x23               ;c8d8  a9 23
     sta 0x0102              ;c8da  8d 02 01
     lda #0x8c               ;c8dd  a9 8c
@@ -30791,13 +30878,13 @@ sub_c9af:
 sub_c9bd:
     jsr sub_cd6a            ;c9bd  20 6a cd
     ldy #0x1e               ;c9c0  a0 1e
-
+;XXX disassembly looks incorrect
     .byte 0x20              ;c9c2  20          DATA 0x20 ' '
 
     bit 0x20f2              ;c9c3  2c f2 20
     ror a                   ;c9c6  6a
     cmp 0x3ca0              ;c9c7  cd a0 3c
-    jsr sub_f22c            ;c9ca  20 2c f2
+    jsr sub_f22c_delay      ;c9ca  20 2c f2     Delay an unknown time period for Y iterations
     rts                     ;c9cd  60
 
 sub_c9ce:
@@ -30826,8 +30913,10 @@ sub_c9f2:
     bbs 0,a,lab_ca13        ;c9f5  03 1c
     bbc 2,a,lab_ca0d        ;c9f7  53 14
     jsr sub_cd6e            ;c9f9  20 6e cd
+
     ldy #0x46               ;c9fc  a0 46
-    jsr sub_f22c            ;c9fe  20 2c f2
+    jsr sub_f22c_delay      ;c9fe  20 2c f2     Delay an unknown time period for Y iterations
+
     clb 5,0xf0              ;ca01  bf f0
     lda #0x00               ;ca03  a9 00
     sta 0x031d              ;ca05  8d 1d 03
@@ -30845,8 +30934,10 @@ sub_ca14:
     lda 0x031d              ;ca14  ad 1d 03
     bbc 2,a,lab_ca30        ;ca17  53 17
     jsr sub_cd6e            ;ca19  20 6e cd
+
     ldy #0x46               ;ca1c  a0 46
-    jsr sub_f22c            ;ca1e  20 2c f2
+    jsr sub_f22c_delay      ;ca1e  20 2c f2     Delay an unknown time period for Y iterations
+
     clb 5,0xf0              ;ca21  bf f0
     lda #0x00               ;ca23  a9 00
     sta 0x031d              ;ca25  8d 1d 03
@@ -30865,8 +30956,10 @@ sub_ca36:
     lda 0x031d              ;ca3b  ad 1d 03
     bbc 0,a,lab_ca81        ;ca3e  13 41
     jsr sub_cd6e            ;ca40  20 6e cd
+
     ldy #0x46               ;ca43  a0 46
-    jsr sub_f22c            ;ca45  20 2c f2
+    jsr sub_f22c_delay      ;ca45  20 2c f2     Delay an unknown time period for Y iterations
+
     jsr sub_cc91            ;ca48  20 91 cc
     lda 0xa8                ;ca4b  a5 a8
     sta 0x031e              ;ca4d  8d 1e 03
@@ -30943,8 +31036,10 @@ sub_caca:
     ldy #0x14               ;cacf  a0 14
     jsr sub_3361            ;cad1  20 61 33
     jsr sub_cd6e            ;cad4  20 6e cd
+
     ldy #0x46               ;cad7  a0 46
-    jsr sub_f22c            ;cad9  20 2c f2
+    jsr sub_f22c_delay      ;cad9  20 2c f2     Delay an unknown time period for Y iterations
+
     jsr sub_cc70            ;cadc  20 70 cc
 
 lab_cadf:
@@ -30975,8 +31070,10 @@ sub_caec:
     clb 3,a                 ;cb00  7b
     sta 0x031d              ;cb01  8d 1d 03
     jsr sub_cd6e            ;cb04  20 6e cd
+
     ldy #0x46               ;cb07  a0 46
-    jsr sub_f22c            ;cb09  20 2c f2
+    jsr sub_f22c_delay      ;cb09  20 2c f2     Delay an unknown time period for Y iterations
+
     jsr sub_d18f            ;cb0c  20 8f d1
     bcs lab_cb1e            ;cb0f  b0 0d
     lda 0x031c              ;cb11  ad 1c 03
@@ -31001,8 +31098,10 @@ sub_cb22:
     cmp #0x09               ;cb2a  c9 09
     bcs lab_cb21            ;cb2c  b0 f3
     jsr sub_cd6e            ;cb2e  20 6e cd
+
     ldy #0x46               ;cb31  a0 46
-    jsr sub_f22c            ;cb33  20 2c f2
+    jsr sub_f22c_delay      ;cb33  20 2c f2     Delay an unknown time period for Y iterations
+
     ldy #0x14               ;cb36  a0 14
     jsr sub_3361            ;cb38  20 61 33
     lda 0x031c              ;cb3b  ad 1c 03
@@ -31030,8 +31129,10 @@ sub_cb54:
     jsr sub_3361            ;cb5b  20 61 33
     jsr sub_7673            ;cb5e  20 73 76
     jsr sub_cd6e            ;cb61  20 6e cd
+
     ldy #0x46               ;cb64  a0 46
-    jsr sub_f22c            ;cb66  20 2c f2
+    jsr sub_f22c_delay      ;cb66  20 2c f2     Delay an unknown time period for Y iterations
+
     clb 5,0xf0              ;cb69  bf f0
     lda #0x00               ;cb6b  a9 00
     sta 0x031d              ;cb6d  8d 1d 03
@@ -32093,10 +32194,13 @@ sub_d1fe:
     ldy #0x21               ;d207  a0 21
     jsr sub_33c6            ;d209  20 c6 33
     bcs lab_d222            ;d20c  b0 14
+
     lda #0xfa               ;d20e  a9 fa
-    jsr sub_f22c            ;d210  20 2c f2
+    jsr sub_f22c_delay      ;d210  20 2c f2     Delay an unknown time period for Y iterations
+
     lda #0x64               ;d213  a9 64
-    jsr sub_f22c            ;d215  20 2c f2
+    jsr sub_f22c_delay      ;d215  20 2c f2     Delay an unknown time period for Y iterations
+
     lda #0x16               ;d218  a9 16
     jsr sub_d522            ;d21a  20 22 d5
     ldy #0x22               ;d21d  a0 22
@@ -32173,8 +32277,10 @@ lab_d25d:
 
 sub_d279:
     clb 5,P1                ;d279  bf 02
+
     ldy #0x16               ;d27b  a0 16
-    jsr sub_f22c            ;d27d  20 2c f2
+    jsr sub_f22c_delay      ;d27d  20 2c f2     Delay an unknown time period for Y iterations
+
     clb 7,P0                ;d280  ff 00
     jsr sub_2822            ;d282  20 22 28
     rts                     ;d285  60
@@ -32249,8 +32355,10 @@ sub_d2df:
     clb 3,0xea              ;d2e3  7f ea
     ldm #0x0f,0xac          ;d2e5  3c 0f ac
     clb 5,P1                ;d2e8  bf 02
+
     ldy #0x1e               ;d2ea  a0 1e
-    jsr sub_f22c            ;d2ec  20 2c f2
+    jsr sub_f22c_delay      ;d2ec  20 2c f2     Delay an unknown time period for Y iterations
+
     seb 5,P1                ;d2ef  af 02
     seb 0,0xea              ;d2f1  0f ea
     bbs 4,0xea,lab_d2fa     ;d2f3  87 ea 04
@@ -32299,8 +32407,10 @@ lab_d31e:
 
 lab_d324:
     clb 5,P1                ;d324  bf 02
+
     ldy #0x16               ;d326  a0 16
-    jsr sub_f22c            ;d328  20 2c f2
+    jsr sub_f22c_delay      ;d328  20 2c f2     Delay an unknown time period for Y iterations
+
     clb 7,P0                ;d32b  ff 00
     clc                     ;d32d  18
     bra lab_d33e            ;d32e  80 0e
@@ -32357,8 +32467,10 @@ lab_d37c:
 
 lab_d38a:
     jsr sub_d522            ;d38a  20 22 d5
+
     ldy #0x01               ;d38d  a0 01
-    jsr sub_f22c            ;d38f  20 2c f2
+    jsr sub_f22c_delay      ;d38f  20 2c f2     Delay an unknown time period for Y iterations
+
     lda #0x13               ;d392  a9 13
     jsr sub_d522            ;d394  20 22 d5
 
@@ -32533,8 +32645,10 @@ sub_d48d:
     jsr sub_43b9            ;d4a6  20 b9 43
     jsr sub_437f            ;d4a9  20 7f 43
     jsr sub_664a            ;d4ac  20 4a 66
+
     ldy #0x96               ;d4af  a0 96
-    jsr sub_f22c            ;d4b1  20 2c f2
+    jsr sub_f22c_delay      ;d4b1  20 2c f2     Delay an unknown time period for Y iterations
+
     seb 1,0xea              ;d4b4  2f ea
     bbs 0,P1,lab_d4c0       ;d4b6  07 02 07
     clb 1,0xea              ;d4b9  3f ea
@@ -32917,7 +33031,8 @@ lab_d6f6:
 
 lab_d709:
     ldy #0xc8               ;d709  a0 c8
-    jsr sub_f22c            ;d70b  20 2c f2
+    jsr sub_f22c_delay      ;d70b  20 2c f2     Delay an unknown time period for Y iterations
+
     jsr sub_7694            ;d70e  20 94 76
     jsr sub_70bb            ;d711  20 bb 70
     ldy #0x20               ;d714  a0 20
@@ -33012,8 +33127,10 @@ lab_d795:
     jsr sub_43b9            ;d799  20 b9 43
     jsr sub_437f            ;d79c  20 7f 43
     jsr sub_664a            ;d79f  20 4a 66
+
     ldy #0xc8               ;d7a2  a0 c8
-    jsr sub_f22c            ;d7a4  20 2c f2
+    jsr sub_f22c_delay      ;d7a4  20 2c f2     Delay an unknown time period for Y iterations
+
     jsr sub_7694            ;d7a7  20 94 76
     jsr sub_70bb            ;d7aa  20 bb 70
     ldy #0x1e               ;d7ad  a0 1e
@@ -33117,8 +33234,10 @@ lab_d845:
     jsr sub_43b9            ;d848  20 b9 43
     jsr sub_437f            ;d84b  20 7f 43
     jsr sub_664a            ;d84e  20 4a 66
+
     ldy #0x96               ;d851  a0 96
-    jsr sub_f22c            ;d853  20 2c f2
+    jsr sub_f22c_delay      ;d853  20 2c f2     Delay an unknown time period for Y iterations
+
     seb 1,0xea              ;d856  2f ea
     bbs 0,P1,lab_d86b       ;d858  07 02 10
     clb 1,0xea              ;d85b  3f ea
@@ -34939,8 +35058,10 @@ lab_e42d:
     clb 0,0xf9              ;e448  1f f9
     jsr sub_544b            ;e44a  20 4b 54     Clears many registers
     jsr sub_4dd1            ;e44d  20 d1 4d
+
     ldy #0x04               ;e450  a0 04
-    jsr sub_f22c            ;e452  20 2c f2
+    jsr sub_f22c_delay      ;e452  20 2c f2     Delay an unknown time period for Y iterations
+
     jsr sub_51d8            ;e455  20 d8 51
     lda 0xb2                ;e458  a5 b2
     sta 0x90                ;e45a  85 90
@@ -36269,7 +36390,8 @@ lab_ecd0:
 
 sub_ecd4:
     ldy #0x02               ;ecd4  a0 02
-    jsr sub_f22c            ;ecd6  20 2c f2
+    jsr sub_f22c_delay      ;ecd6  20 2c f2     Delay an unknown time period for Y iterations
+
     lda #0x02               ;ecd9  a9 02
     jsr sub_26d8            ;ecdb  20 d8 26
     jsr sub_51a7            ;ecde  20 a7 51
@@ -36832,8 +36954,10 @@ lab_f059:
     lda 0x41                ;f05f  a5 41
     pha                     ;f061  48
     jsr sub_4dd1            ;f062  20 d1 4d
+
     ldy #0x02               ;f065  a0 02
-    jsr sub_f22c            ;f067  20 2c f2
+    jsr sub_f22c_delay      ;f067  20 2c f2     Delay an unknown time period for Y iterations
+
     ldy #0x02               ;f06a  a0 02
     jsr sub_f21e            ;f06c  20 1e f2
     lda #0x02               ;f06f  a9 02
@@ -36870,8 +36994,10 @@ lab_f098:
     pha                     ;f0a0  48
     jsr sub_4dd1            ;f0a1  20 d1 4d
     seb 0,0xf9              ;f0a4  0f f9
+
     ldy #0x01               ;f0a6  a0 01
-    jsr sub_f22c            ;f0a8  20 2c f2
+    jsr sub_f22c_delay      ;f0a8  20 2c f2     Delay an unknown time period for Y iterations
+
     jsr sub_7664            ;f0ab  20 64 76
     pla                     ;f0ae  68
     sta 0x41                ;f0af  85 41
@@ -37117,51 +37243,49 @@ lab_f221:
     pla                     ;f22a  68
     rts                     ;f22b  60
 
-sub_f22c:
+
+sub_f22c_delay:
+;Delay an unknown time period for Y iterations
     pha                     ;f22c  48
     txa                     ;f22d  8a
     pha                     ;f22e  48
-
-lab_f22f:
+lab_f22f_loop_1:
     lda #0xcd               ;f22f  a9 cd
-
-lab_f231:
+lab_f231_loop_2:
     ldx #0x03               ;f231  a2 03
-
-lab_f233:
+lab_f233_loop_3:
     dex                     ;f233  ca
-    bne lab_f233            ;f234  d0 fd
+    bne lab_f233_loop_3     ;f234  d0 fd
     dec a                   ;f236  1a
-    bne lab_f231            ;f237  d0 f8
+    bne lab_f231_loop_2     ;f237  d0 f8
     dey                     ;f239  88
-    bne lab_f22f            ;f23a  d0 f3
+    bne lab_f22f_loop_1     ;f23a  d0 f3
     pla                     ;f23c  68
     tax                     ;f23d  aa
     pla                     ;f23e  68
     rts                     ;f23f  60
 
+
 sub_f240:
     pha                     ;f240  48
     txa                     ;f241  8a
     pha                     ;f242  48
-
-lab_f243:
+lab_f243_loop_1:
     lda #0xc9               ;f243  a9 c9
-
-lab_f245:
+lab_f245_loop_2:
     ldx #0x28               ;f245  a2 28
-
-lab_f247:
+lab_f247_loop_3:
     dex                     ;f247  ca
-    bne lab_f247            ;f248  d0 fd
+    bne lab_f247_loop_3     ;f248  d0 fd
     dec a                   ;f24a  1a
-    bne lab_f245            ;f24b  d0 f8
+    bne lab_f245_loop_2     ;f24b  d0 f8
     dey                     ;f24d  88
-    bne lab_f243            ;f24e  d0 f3
+    bne lab_f243_loop_1     ;f24e  d0 f3
     pla                     ;f250  68
     tax                     ;f251  aa
     pla                     ;f252  68
     rts                     ;f253  60
+
 
 sub_f254:
     ldx #0x44               ;f254  a2 44
@@ -37207,8 +37331,10 @@ sub_f296:
     pha                     ;f289  48
     tya                     ;f28a  98
     pha                     ;f28b  48
-    ldy #0x01               ;f28c  a0 01
-    jsr sub_f22c            ;f28e  20 2c f2
+
+    ldy #0x01               ;f28c  a0 01        Y = 1 iteration to wait
+    jsr sub_f22c_delay      ;f28e  20 2c f2     Delay an unknown time period for Y iterations
+
     pla                     ;f291  68
     tay                     ;f292  a8
     pla                     ;f293  68
@@ -37219,7 +37345,7 @@ sub_f297:
     seb 6,P4                ;f297  cf 08
     clb 6,P4                ;f299  df 08
     pha                     ;f29b  48
-    jsr sub_f22c            ;f29c  20 2c f2
+    jsr sub_f22c_delay      ;f29c  20 2c f2     Delay an unknown time period for Y iterations
     pla                     ;f29f  68
     seb 6,P4                ;f2a0  cf 08
     rts                     ;f2a2  60
