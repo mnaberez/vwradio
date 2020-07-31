@@ -11,6 +11,7 @@ typedef enum
     TSAT_BAD_ECHO = 2,
     TSAT_BAD_CHECKSUM = 3,
     TSAT_UNEXPECTED = 4,
+    TSAT_SAFE_CODE_FILTERED = 5,
 } tsat_result_t;
 
 tsat_result_t tsat_connect(uint8_t address, uint32_t baud);
@@ -18,7 +19,8 @@ tsat_result_t tsat_disconnect(void);
 tsat_result_t tsat_send_block(uint8_t *buf);
 tsat_result_t tsat_receive_block(void);
 tsat_result_t tsat_hello(void);
-tsat_result_t tsat_disable_eeprom_filter(void);
+tsat_result_t tsat_disable_eeprom_filter_0x4d(void);
+tsat_result_t tsat_disable_eeprom_filter_0x45(void);
 tsat_result_t tsat_read_ram(uint16_t address, uint8_t size);
 tsat_result_t tsat_write_ram(uint16_t address, uint8_t size, uint8_t *data);
 tsat_result_t tsat_read_eeprom(uint16_t address, uint8_t size);

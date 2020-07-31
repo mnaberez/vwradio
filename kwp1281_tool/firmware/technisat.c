@@ -9,12 +9,13 @@
 // Return a string description of a result
 const char * tsat_describe_result(tsat_result_t result) {
     switch (result) {
-        case TSAT_SUCCESS:           return "Success";
-        case TSAT_TIMEOUT:           return "Timeout";
-        case TSAT_BAD_ECHO:          return "Bad echo received";
-        case TSAT_BAD_CHECKSUM:      return "Bad checksum";
-        case TSAT_UNEXPECTED:        return "Unexpected response";
-        default:                     return "???";
+        case TSAT_SUCCESS:            return "Success";
+        case TSAT_TIMEOUT:            return "Timeout";
+        case TSAT_BAD_ECHO:           return "Bad echo received";
+        case TSAT_BAD_CHECKSUM:       return "Bad checksum";
+        case TSAT_UNEXPECTED:         return "Unexpected response";
+        case TSAT_SAFE_CODE_FILTERED: return "SAFE code locations filtered";
+        default:                      return "???";
     }
 }
 
@@ -190,9 +191,20 @@ tsat_result_t tsat_read_ram(uint16_t address, uint8_t size)
     }
 }
 
-// Write RAM using command 0x45
-// Gamma 5 only allows writing to ranges allowed by sub_5e47.  Writing
-// to 0x0040-0x053f is allowed (the first 1.5K RAM, including the stack!).
+/* Write RAM using command 0x45
+ *
+ * Most radios only allow writing to some ranges of memory.  This can be
+ * seen in the Gamma 5 disassembly at sub_5e47.  However, usually the range
+ * 0x0040-0x053f is allowed (the first 1.5K RAM, including the stack!).
+ * See the RCE function below for more info on this.
+ *
+ * This command has a dual use.  In addition to writing to RAM, the radios check
+ * if the address is a magic number (0x1462).  See the Gamma 5 disassembly at
+ * lab_5c2e.  When the magic number is received, the radio does not write to RAM
+ * but instead it disables the filtering that prevents the SAFE code locations
+ * from being read from the EEPROM.  It also has other side effects.  See the
+ * EEPROM filter disable functions below for more info.
+ */
 tsat_result_t tsat_write_ram(uint16_t address, uint8_t size, uint8_t *data)
 {
     uart_puts(UART_DEBUG, "PERFORM WRITE RAM\r\n");
@@ -216,7 +228,10 @@ tsat_result_t tsat_write_ram(uint16_t address, uint8_t size, uint8_t *data)
 
     // check status
     if ((tsat_rx_buf[2] == 0x5e) && (tsat_rx_buf[3] == 0x00)) {
-        // write ram succeeded
+        // code indicates normal write ram success
+        return TSAT_SUCCESS;
+    } else if ((tsat_rx_buf[2] == 0x5e) && (tsat_rx_buf[3] == 0x20)) {
+        // code indicates writing magic number for eeprom filter disable succeeded
         return TSAT_SUCCESS;
     } else {
         return TSAT_UNEXPECTED;
@@ -240,8 +255,8 @@ tsat_result_t tsat_write_ram(uint16_t address, uint8_t size, uint8_t *data)
  * On the VW Rhapsody, there is no command in KWP1281 or the TechniSat protocol
  * that can dump the firmware.  This RCE is the only way to do it.
  *
- * On the Skoda Symphony, the "write RAM" command always seems to fail regardless
- * of location.  It may have been removed.
+ * On the Skoda Symphony, the "write RAM" command fails when writing to
+ * the stack page.
  */
 tsat_result_t tsat_rce_read_memory(uint16_t address, uint16_t size)
 {
@@ -338,7 +353,8 @@ tsat_result_t tsat_hello(void)
 
 /*
  * Disable EEPROM filtering that prevents some locations, particularly
- * the SAFE code, from being read.
+ * the SAFE code, from being read.  This uses command 0x4d, which has
+ * fewer side effects than command 0x45.
  *
  * Works on:
  *   VW Gamma 5  1J0035186D "VW_0004"
@@ -352,7 +368,7 @@ tsat_result_t tsat_hello(void)
  * but the EEPROM filter is not actually disabled.  Reading the SAFE code
  * area of the EEPROM returns all zeroes.
  */
-tsat_result_t tsat_disable_eeprom_filter(void)
+tsat_result_t tsat_disable_eeprom_filter_0x4d(void)
 {
     uart_puts(UART_DEBUG, "PERFORM DISABLE EEPROM FILTER\r\n");
 
@@ -377,6 +393,33 @@ tsat_result_t tsat_disable_eeprom_filter(void)
     } else {
         return TSAT_UNEXPECTED;
     }
+}
+
+
+/* Disable EEPROM filtering that prevents some locations, particularly
+ * the SAFE code, from being read.  This uses command 0x45, which has
+ * unknown side effects.  One side effect of 0x45 is that the radio may
+ * not respond to a subsequent connection on address 0x7c unless the radio
+ * is unplugged first.  It is preferable to use command 0x4d (see above)
+ * instead.  However, it is necessary to use 0x45 on the Skoda Symphony
+ * because 0x4d does not work on that radio.
+ *
+ * Works on:
+ *   VW Gamma 5  1J0035186D "VW_0004"
+ *   VW Rhapsody 1J0035156  "SW_001"
+ *   VW Rhapsody 1J0035156A "SW_002"
+ *   Skoda Symphony 1U0035156E "SK_0015"
+ */
+tsat_result_t tsat_disable_eeprom_filter_0x45(void)
+{
+    uart_puts(UART_DEBUG, "Warning: Radio may not respond to a subsequent "
+                          "connection on 0x7C without being unplugged first.\r\n");
+
+    uint16_t magic_address = 0x1462;
+    uint8_t byte_count = 0;
+    uint8_t data[] = {0};
+
+    return tsat_write_ram(magic_address, byte_count, data);
 }
 
 
@@ -416,16 +459,24 @@ tsat_result_t tsat_read_eeprom(uint16_t address, uint8_t size)
 
 /*
  * Read the SAFE code from the EEPROM.  The SAFE code is protected so
- * EEPROM must be disabled first.  If EEPROM filtering is not disabled,
- * it will still succeed but 0 will be returned instead of the SAFE code.
+ * EEPROM filtering must be disabled first.
  */
 tsat_result_t tsat_read_safe_code_bcd(uint16_t *safe_code)
 {
+    *safe_code = 0;
+
     tsat_result_t result = tsat_read_eeprom(0x000c, 4);
     if (result != TSAT_SUCCESS) { return result; }
 
-    // safe code is stored as 4 ascii digits in eeprom
-    *safe_code = 0;
+    // safe code should be 4 ascii chars.  if filtering is still
+    // enabled then we will get all zeroes instead of ascii chars.
+    if ((tsat_rx_buf[3] == 0) && (tsat_rx_buf[4] == 0) &&
+        (tsat_rx_buf[5] == 0) && (tsat_rx_buf[6] == 0)) {
+
+        return TSAT_SAFE_CODE_FILTERED;
+    }
+
+    // convert 4 ascii chars to 16-bit bcd number
     *safe_code += (tsat_rx_buf[3] - 0x30) << 12;
     *safe_code += (tsat_rx_buf[4] - 0x30) << 8;
     *safe_code += (tsat_rx_buf[5] - 0x30) << 4;

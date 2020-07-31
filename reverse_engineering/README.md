@@ -17,7 +17,7 @@ The [VW Premium 5](./vw_premium_5_delco) is special in the list of models below 
 | [VW Gamma 5](./vw_gamma_5_sony)               | Sony         | Europe        |           |        |           | In Progress |
 | [VW Gamma 5](./vw_gamma_5_technisat)          | TechniSat    | Europe        | ✓         | ✓      | ✓         | Done     |
 | [VW Rhapsody](./vw_rhapsody_technisat)        | TechniSat    | Europe        | ✓         | ✓      | ✓         | Done     |
-| [Skoda Symphony](./skoda_symphony_technisat)  | TechniSat    | Europe        |           |        |           | In Progress |
+| [Skoda Symphony](./skoda_symphony_technisat)  | TechniSat    | Europe        |           | ✓      | ✓         | In Progress |
 
 Legend:
 
