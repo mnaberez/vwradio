@@ -30877,14 +30877,15 @@ sub_c9af:
 
 sub_c9bd:
     jsr sub_cd6a            ;c9bd  20 6a cd
-    ldy #0x1e               ;c9c0  a0 1e
-;XXX disassembly looks incorrect
-    .byte 0x20              ;c9c2  20          DATA 0x20 ' '
 
-    bit 0x20f2              ;c9c3  2c f2 20
-    ror a                   ;c9c6  6a
-    cmp 0x3ca0              ;c9c7  cd a0 3c
+    ldy #0x1e               ;c9c0  a0 1e
+    jsr sub_f22c_delay      ;c9c2  20 2c f2     Delay an unknown time period for Y iterations
+
+    jsr sub_cd6a            ;c9c5  20 6a cd
+
+    ldy #0x3c               ;c9c8  a0 3c
     jsr sub_f22c_delay      ;c9ca  20 2c f2     Delay an unknown time period for Y iterations
+
     rts                     ;c9cd  60
 
 sub_c9ce:
