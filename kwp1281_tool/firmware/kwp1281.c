@@ -788,7 +788,7 @@ static kwp_result_t _delco_login_mfg(void)
 {
     kwp_result_t result = kwp_send_login_block(0x4f43, 0x4c, 0x4544);  // "OCLED"
     if (result != KWP_SUCCESS) { return result; }
-    kwp_panic_if_error(result);
+
     result = kwp_receive_block_expect(KWP_ACK);
     return result;
 }
