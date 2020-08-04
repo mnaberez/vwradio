@@ -259,9 +259,9 @@ kwp_result_t kwp_acknowledge(void)
 
 /*
  * For the unknown byte, see:
- *   vw_premium_5_delco/disasm/software23.asm         near 0x508a, 0x2ac6
- *   vw_premium_4_clarion/disasm/pu1666a_mainmcu.asm  near 0xba7a, 0xbaef
- *   vw_gamma_5_technisat/disasm/gamma5.asm           near 0xa595, 0xa127
+ *   delco/vw_premium_5/disasm/software23.asm         near 0x508a, 0x2ac6
+ *   clarion/vw_premium_4/disasm/pu1666a_mainmcu.asm  near 0xba7a, 0xbaef
+ *   technisat/vw_gamma_5/disasm/gamma5.asm           near 0xa595, 0xa127
  */
 kwp_result_t kwp_send_login_block(uint16_t safe_code, uint8_t unknown, uint16_t workshop)
 {

@@ -3,7 +3,7 @@
 ![Photo](./photos/front.jpg)
 
 The VW Rhapsody is a single-disc CD radio for the European market manufactured by TechniSat.  It was very likely
-derived from an earlier TechniSat cassette radio, the [Gamma 5](../vw_gamma_5_technisat).  Both have similar PCB layouts
+derived from an earlier TechniSat cassette radio, the [Gamma 5](../vw_gamma_5).  Both have similar PCB layouts
 and use the Renesas (Mitsubishi) [M38869FFAHP](http://archive.6502.org/datasheets/renesas_3886_group_users_manual.pdf) microcontroller.
 
 ## Versions

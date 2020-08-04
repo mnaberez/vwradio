@@ -4,7 +4,7 @@
 
 ## Overview
 
-This is an ATmega1284 project that partially emulates for the SCA4.4 cassette tape module, which is used in the [Premium 4](../reverse_engineering/vw_premium_4_clarion) radio.  The main IC on the SCA4.4 is the Philips TDA3612, which is undocumented (no datasheet available).
+This is an ATmega1284 project that partially emulates for the SCA4.4 cassette tape module, which is used in the [Premium 4](../reverse_engineering/clarion/vw_premium_4) radio.  The main IC on the SCA4.4 is the Philips TDA3612, which is undocumented (no datasheet available).
 
 The purpose of this emulator is to trick the Premium 4 into thinking that a cassette is playing so that it switches on the cassette audio input.  This allows the SCA4.4 to be completely removed from the radio while the cassette audio input can be used with another audio source.
 
@@ -30,4 +30,4 @@ The emulator will output debug messages on its UART at 115200-N-8-1.  It will sh
 
 ## Status
 
-This project was built as a proof-of-concept and is no longer developed.  I replaced the Premium 4 in my car with the [Premium 5](../reverse_engineering/vw_premium_5_delco).  Unlike the Premium 4 which has code in mask ROM that can't be changed, the Premium 5 has code in flash that can be rewritten.  Custom firmware can be developed for the Premium 5, so hacks like this emulator are not needed.
+This project was built as a proof-of-concept and is no longer developed.  I replaced the Premium 4 in my car with the [Premium 5](../reverse_engineering/delco/vw_premium_5).  Unlike the Premium 4 which has code in mask ROM that can't be changed, the Premium 5 has code in flash that can be rewritten.  Custom firmware can be developed for the Premium 5, so hacks like this emulator are not needed.

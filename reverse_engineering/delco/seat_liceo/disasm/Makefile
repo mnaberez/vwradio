@@ -1,7 +1,7 @@
 all: clean out.hex diff
 
 diff: out.bin
-	python ../../vw_premium_5_delco/disasm/checksum.py compare out.bin
+	python ../../vw_premium_5/disasm/checksum.py compare out.bin
 	openssl sha1 out.bin | cut -d ' ' -f 2 > out.sha1
 	diff liceo.sha1 out.sha1
 
