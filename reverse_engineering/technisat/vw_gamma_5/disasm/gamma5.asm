@@ -144,12 +144,12 @@ lab_2000:
     sta FCON                ;208e  8d fe 0f
     sta FCMD                ;2091  8d ff 0f
     jsr sub_2709            ;2094  20 09 27
-    jsr sub_272b            ;2097  20 2b 27
-    jsr sub_2740            ;209a  20 40 27
-    jsr sub_274b            ;209d  20 4b 27
-    jsr sub_2756            ;20a0  20 56 27
-    jsr sub_2761            ;20a3  20 61 27
-    jsr sub_276c            ;20a6  20 6c 27
+    jsr clear_0x0200_0x03ff ;2097  20 2b 27   Clear 0x0200 - 0x03FF
+    jsr clear_0x0400_0x04ff ;209a  20 40 27   Clear 0x0400 - 0x04FF
+    jsr clear_0x0500_0x05ff ;209d  20 4b 27   Clear 0x0500 - 0x05FF
+    jsr clear_0x0600_0x06ff ;20a0  20 56 27   Clear 0x0600 - 0x06FF
+    jsr clear_0x0700_0x07ff ;20a3  20 61 27   Clear 0x0700 - 0x07FF
+    jsr clear_0x0800_0x083f ;20a6  20 6c 27   Clear 0x0800 - 0x083F
     clb 2,0xf6              ;20a9  5f f6
     ldm #0x01,0xa5          ;20ab  3c 01 a5
     ldm #0x10,0xa0          ;20ae  3c 10 a0
@@ -396,15 +396,15 @@ lab_2256:
     rts                     ;2257  60
 
 sub_2258:
-    bbc 7,0xf7,lab_2266     ;2258  f7 f7 0b
+    bbc 7,0xf7,sub_2266_rts ;2258  f7 f7 0b
     clb 7,0xf7              ;225b  ff f7
     lda 0x72                ;225d  a5 72
     jsr sub_35b8            ;225f  20 b8 35
-    bcs lab_2266            ;2262  b0 02
+    bcs sub_2266_rts        ;2262  b0 02
     jsr [0x40]              ;2264  02 40
 
 ;TechniSat protocol related
-lab_2266:
+sub_2266_rts:
     rts                     ;2266  60
 
 sub_2267:
@@ -1193,72 +1193,78 @@ lab_2724:
     bpl lab_2724            ;2728  10 fa
     rts                     ;272a  60
 
-sub_272b:
+
+;Clear 0x0200 - 0x03FF
+clear_0x0200_0x03ff:
     ldx #0x00               ;272b  a2 00
     lda #0x00               ;272d  a9 00
-
-lab_272f:
+lab_272f_loop_0x2xx:
     sta 0x0200,x            ;272f  9d 00 02
     dex                     ;2732  ca
-    bne lab_272f            ;2733  d0 fa
+    bne lab_272f_loop_0x2xx ;2733  d0 fa
     ldx #0x00               ;2735  a2 00
     lda #0x00               ;2737  a9 00
-
-lab_2739:
+lab_2739_loop_0x3xx:
     sta 0x0300,x            ;2739  9d 00 03
     dex                     ;273c  ca
-    bne lab_2739            ;273d  d0 fa
+    bne lab_2739_loop_0x3xx ;273d  d0 fa
     rts                     ;273f  60
 
-sub_2740:
+
+;Clear 0x0400 - 0x04FF
+clear_0x0400_0x04ff:
     ldx #0x00               ;2740  a2 00
     lda #0x00               ;2742  a9 00
-
-lab_2744:
+lab_2744_loop:
     sta 0x0400,x            ;2744  9d 00 04
     dex                     ;2747  ca
-    bne lab_2744            ;2748  d0 fa
+    bne lab_2744_loop       ;2748  d0 fa
     rts                     ;274a  60
 
-sub_274b:
+
+;Clear 0x0500 - 0x05FF
+clear_0x0500_0x05ff:
     ldx #0x00               ;274b  a2 00
     lda #0x00               ;274d  a9 00
-
-lab_274f:
+lab_274f_loop:
     sta 0x0500,x            ;274f  9d 00 05
     dex                     ;2752  ca
-    bne lab_274f            ;2753  d0 fa
+    bne lab_274f_loop       ;2753  d0 fa
     rts                     ;2755  60
 
-sub_2756:
+
+;Clear 0x0600 - 0x06FF
+clear_0x0600_0x06ff:
     ldx #0x00               ;2756  a2 00
     lda #0x00               ;2758  a9 00
-
-lab_275a:
+lab_275a_loop:
     sta 0x0600,x            ;275a  9d 00 06
     dex                     ;275d  ca
-    bne lab_275a            ;275e  d0 fa
+    bne lab_275a_loop       ;275e  d0 fa
     rts                     ;2760  60
 
-sub_2761:
+
+;Clear 0x0700 - 0x07FF
+clear_0x0700_0x07ff:
     ldx #0x00               ;2761  a2 00
     lda #0x00               ;2763  a9 00
-
 lab_2765:
     sta 0x0700,x            ;2765  9d 00 07
     dex                     ;2768  ca
     bne lab_2765            ;2769  d0 fa
     rts                     ;276b  60
 
-sub_276c:
+
+;Clear 0x0800-0x083F
+clear_0x0800_0x083f:
     ldx #0x3f               ;276c  a2 3f
     lda #0x00               ;276e  a9 00
-
 lab_2770:
     sta 0x0800,x            ;2770  9d 00 08
     dex                     ;2773  ca
     bpl lab_2770            ;2774  10 fa
     rts                     ;2776  60
+
 
     .byte 0xa9              ;2777  a9          DATA 0xa9
     .byte 0x00              ;2778  00          DATA 0x00
@@ -3769,7 +3775,7 @@ mem_351e:
     .word lab_3758          ;3526  58 37       VECTOR
     .word lab_3758          ;3528  58 37       VECTOR
     .word lab_3758          ;352a  58 37       VECTOR
-    .word lab_2266          ;352c  66 22       VECTOR
+    .word sub_2266_rts      ;352c  66 22       VECTOR
     .word lab_3b98          ;352e  98 3b       VECTOR
     .word lab_3c02          ;3530  02 3c       VECTOR
     .word lab_3c15          ;3532  15 3c       VECTOR
@@ -3800,7 +3806,7 @@ mem_351e:
     .word lab_400c          ;3564  0c 40       VECTOR
     .word lab_5b1d          ;3566  1d 5b       VECTOR
     .word lab_3f82          ;3568  82 3f       VECTOR
-    .word lab_2266          ;356a  66 22       VECTOR
+    .word sub_2266_rts      ;356a  66 22       VECTOR
     .word lab_3ea3          ;356c  a3 3e       VECTOR
     .word lab_40ef          ;356e  ef 40       VECTOR
 
@@ -3841,30 +3847,30 @@ mem_3570:
 ;same order as table of bytes at 0x3570
 ;used by lab_3640
 mem_3588:
-    .word sub_5adf          ;3588  df 5a       VECTOR   cmd=5e   Send 10 01 5E <0x0344> CS
-    .word lab_5b37          ;358a  37 5b       VECTOR   cmd=5f   Disconnect (terminate session)
-    .word lab_5b4a          ;358c  4a 5b       VECTOR   cmd=42
-    .word lab_5bbb          ;358e  bb 5b       VECTOR   cmd=43
-    .word lab_5beb          ;3590  eb 5b       VECTOR   cmd=44   Read RAM in allowed range
-    .word lab_5c2e          ;3592  2e 5c       VECTOR   cmd=45   Write RAM in allowed range or disable EEPROM filtering
-    .word lab_5c7e          ;3594  7e 5c       VECTOR   cmd=46   AND memory in allowed ranges with complement of a value
-    .word lab_5cb2          ;3596  b2 5c       VECTOR   cmd=47   OR memory in allowed ranges with a value
-    .word lab_5ce4          ;3598  e4 5c       VECTOR   cmd=4a   ? mem_59fd read bytes [0x4c],y
-    .word lab_5d22          ;359a  22 5d       VECTOR   cmd=4b   ? mem_59fd write bytes [0x4c,x]
-    .word lab_5d69          ;359c  69 5d       VECTOR   cmd=4c   ? mem_59fd AND bytes [0x4c],y
-    .word lab_5db3          ;359e  b3 5d       VECTOR   cmd=4d   Disables EEPROM filtering based on payload
-    .word lab_5e97          ;35a0  97 5e       VECTOR   cmd=48   Read EEPROM data
-    .word lab_5f4d          ;35a2  4d 5f       VECTOR   cmd=49   Write EEPROM data
-    .word lab_2266          ;35a4  66 22       VECTOR   cmd=7f   Bad command?
-    .word lab_2266          ;35a6  66 22       VECTOR   cmd=7f   Bad command?
-    .word lab_5fe4          ;35a8  e4 5f       VECTOR   cmd=50
-    .word lab_6070          ;35aa  70 60       VECTOR   cmd=51
-    .word lab_60a3          ;35ac  a3 60       VECTOR   cmd=52
-    .word lab_619a          ;35ae  9a 61       VECTOR   cmd=53
-    .word lab_611a          ;35b0  1a 61       VECTOR   cmd=58
-    .word lab_60f6          ;35b2  f6 60       VECTOR   cmd=59   Change baud rate
-    .word lab_613f          ;35b4  3f 61       VECTOR   cmd=5a
-    .word lab_2266          ;35b6  66 22       VECTOR   cmd=7f   Bad command?
+    .word sub_5adf_resp     ;3588  df 5a       VECTOR   cmd=5e   Send 10 01 5E <0x0344> CS
+    .word sub_5b37_cmd_5f   ;358a  37 5b       VECTOR   cmd=5f   Disconnect (terminate session)
+    .word sub_5b4a_cmd_42   ;358c  4a 5b       VECTOR   cmd=42
+    .word sub_5bbb_cmd_43   ;358e  bb 5b       VECTOR   cmd=43
+    .word sub_5beb_cmd_44   ;3590  eb 5b       VECTOR   cmd=44   Read RAM in allowed range
+    .word sub_5c2e_cmd_45   ;3592  2e 5c       VECTOR   cmd=45   Write RAM in allowed range or disable EEPROM filtering
+    .word sub_5c7e_cmd_46   ;3594  7e 5c       VECTOR   cmd=46   AND memory in allowed ranges with complement of a value
+    .word sub_5cb2_cmd_47   ;3596  b2 5c       VECTOR   cmd=47   OR memory in allowed ranges with a value
+    .word sub_5ce4_cmd_4a   ;3598  e4 5c       VECTOR   cmd=4a   ? mem_59fd read bytes [0x4c],y
+    .word sub_5d22_cmd_4b   ;359a  22 5d       VECTOR   cmd=4b   ? mem_59fd write bytes [0x4c,x]
+    .word sub_5d69_cmd_4c   ;359c  69 5d       VECTOR   cmd=4c   ? mem_59fd AND bytes [0x4c],y
+    .word sub_5db3_cmd_4d   ;359e  b3 5d       VECTOR   cmd=4d   Disables EEPROM filtering based on payload
+    .word sub_5e97_cmd_48   ;35a0  97 5e       VECTOR   cmd=48   Read EEPROM data
+    .word sub_5f4d_cmd_49   ;35a2  4d 5f       VECTOR   cmd=49   Write EEPROM data
+    .word sub_2266_rts      ;35a4  66 22       VECTOR   cmd=7f   Bad command (does RTS only)
+    .word sub_2266_rts      ;35a6  66 22       VECTOR   cmd=7f   Bad command (does RTS only)
+    .word sub_5fe4_cmd_50   ;35a8  e4 5f       VECTOR   cmd=50
+    .word sub_6070_cmd_51   ;35aa  70 60       VECTOR   cmd=51
+    .word sub_60a3_cmd_52   ;35ac  a3 60       VECTOR   cmd=52
+    .word sub_619a_cmd_53   ;35ae  9a 61       VECTOR   cmd=53
+    .word sub_611a_cmd_58   ;35b0  1a 61       VECTOR   cmd=58
+    .word sub_60f6_cmd_59   ;35b2  f6 60       VECTOR   cmd=59   Change baud rate
+    .word sub_613f_cmd_5a   ;35b4  3f 61       VECTOR   cmd=5a   Write to buffer at 0x0110 and call sub_6cc0 to do unknown I/O
+    .word sub_2266_rts      ;35b6  66 22       VECTOR   cmd=7f   Bad command (does RTS only)
 
 sub_35b8:
     ldy #0x0e               ;35b8  a0 0e
@@ -10072,7 +10078,7 @@ lab_5ada:
 
 ;TechniSat protocol command 0x5E
 ;Send 10 01 5E <0x0344> CS
-sub_5adf:
+sub_5adf_resp:
     ldm #0xff,0x75          ;5adf  3c ff 75
     clb 2,0xf7              ;5ae2  5f f7
     bbc 7,0xe8,lab_5b10     ;5ae4  f7 e8 29
@@ -10119,16 +10125,16 @@ lab_5b1d:
     ldy #0x01               ;5b2e  a0 01
     jsr sub_f22c_delay      ;5b30  20 2c f2     Delay an unknown time period for Y iterations
 
-    jsr sub_5adf            ;5b33  20 df 5a     Send 10 01 5E <0x0344> CS
+    jsr sub_5adf_resp  ;5b33  20 df 5a     Send 10 01 5E <0x0344> CS
     rts                     ;5b36  60
 
 ;TechniSat protocol command 0x5F
 ;Disconnect (terminate session)
-lab_5b37:
+sub_5b37_cmd_5f:
     ldy #0x01               ;5b37  a0 01
     jsr sub_f22c_delay      ;5b39  20 2c f2     Delay an unknown time period for Y iterations
 
-    jsr sub_5adf            ;5b3c  20 df 5a     Send 10 01 5E <0x0344> CS
+    jsr sub_5adf_resp  ;5b3c  20 df 5a     Send 10 01 5E <0x0344> CS
     ldm #0x40,BRG           ;5b3f  3c 40 1c
     clb 6,0xe9              ;5b42  df e9        Clear bit 6 = Enable EEPROM filtering
     clb 0,0xef              ;5b44  1f ef
@@ -10136,7 +10142,7 @@ lab_5b37:
     rts                     ;5b49  60
 
 ;TechniSat protocol command 0x42
-lab_5b4a:
+sub_5b4a_cmd_42:
     bbc 7,0xe8,lab_5bba     ;5b4a  f7 e8 6d
 
     ldy #0x01               ;5b4d  a0 01
@@ -10192,13 +10198,13 @@ lab_5b92:
 lab_5bb2:
     lda #0x10               ;5bb2  a9 10
     sta 0x0344              ;5bb4  8d 44 03     Store as TechniSat protocol status byte
-    jsr sub_5adf            ;5bb7  20 df 5a     Send 10 01 5E <0x0344> CS
+    jsr sub_5adf_resp       ;5bb7  20 df 5a     Send 10 01 5E <0x0344> CS
 
 lab_5bba:
     rts                     ;5bba  60
 
 ;TechniSat protocol command 0x43
-lab_5bbb:
+sub_5bbb_cmd_43:
     ldy #0x01               ;5bbb  a0 01
     jsr sub_f22c_delay      ;5bbd  20 2c f2     Delay an unknown time period for Y iterations
 
@@ -10221,13 +10227,13 @@ lab_5bbb:
     jsr sub_46e5            ;5be4  20 e5 46     TODO probably read from I2C EEPROM
 
 lab_5be7:
-    jsr sub_5adf            ;5be7  20 df 5a     Send 10 01 5E <0x0344> CS
+    jsr sub_5adf_resp       ;5be7  20 df 5a     Send 10 01 5E <0x0344> CS
     rts                     ;5bea  60
 
 ;TechniSat protocol command 0x44
 ;Read RAM in allowed range
 ;Allows reading all bytes 0x0000-0x053f
-lab_5beb:
+sub_5beb_cmd_44:
     bbc 7,0xe8,lab_5c2d     ;5beb  f7 e8 3f
 
     ldy #0x01               ;5bee  a0 01
@@ -10271,7 +10277,7 @@ lab_5c18:
 lab_5c25_failed:
     lda #0x04               ;5c25  a9 04
     sta 0x0344              ;5c27  8d 44 03     Store as TechniSat protocol status byte
-    jsr sub_5adf            ;5c2a  20 df 5a     Send 10 01 5E <0x0344> CS
+    jsr sub_5adf_resp       ;5c2a  20 df 5a     Send 10 01 5E <0x0344> CS
 
 lab_5c2d:
     rts                     ;5c2d  60
@@ -10296,9 +10302,9 @@ lab_5c2d:
 ;If the address given is a magic number, instead of writing to
 ;RAM, disable the EEPROM filtering and perform other unknown
 ;functions.  Disabling the EEPROM filtering can also be done
-;with command 0x4D and this may be preferable; see lab_5db3.
+;with command 0x4D and this may be preferable; see sub_5db3_cmd_4d.
 ;
-lab_5c2e:
+sub_5c2e_cmd_45:
     ldy #0x01               ;5c2e  a0 01
     jsr sub_f22c_delay      ;5c30  20 2c f2     Delay an unknown time period for Y iterations
 
@@ -10333,7 +10339,7 @@ lab_5c2e:
 lab_5c61:
     lda #0x20               ;5c61  a9 20
     sta 0x0344              ;5c63  8d 44 03     Store as TechniSat protocol status byte
-    jsr sub_5adf            ;5c66  20 df 5a     Send 10 01 5E <0x0344> CS
+    jsr sub_5adf_resp       ;5c66  20 df 5a     Send 10 01 5E <0x0344> CS
     bra lab_5c7d_ret        ;5c69  80 12        Branch to return
 
 lab_5c6b_not_magic:
@@ -10351,7 +10357,7 @@ lab_5c6b_not_magic:
     sta 0x0344              ;5c77  8d 44 03     Store as TechniSat protocol status byte
 
 lab_5c7a_success:
-    jsr sub_5adf            ;5c7a  20 df 5a     Send 10 01 5E <0x0344> CS
+    jsr sub_5adf_resp       ;5c7a  20 df 5a     Send 10 01 5E <0x0344> CS
 
 lab_5c7d_ret:
     rts                     ;5c7d  60
@@ -10359,7 +10365,7 @@ lab_5c7d_ret:
 ;TechniSat protocol command 0x46
 ;AND one memory address in allowed ranges with complement of a value
 ;allowed ranges = 0, 2, 4, 6, 8, a, c, e, 0x10, 0x0040-0x053f
-lab_5c7e:
+sub_5c7e_cmd_46:
     ldy #0x01               ;5c7e  a0 01
     jsr sub_f22c_delay      ;5c80  20 2c f2     Delay an unknown time period for Y iterations
 
@@ -10392,13 +10398,13 @@ lab_5ca9_failed:
     sta 0x0344              ;5cab  8d 44 03     Store as TechniSat protocol status byte
 
 lab_5cae:
-    jsr sub_5adf            ;5cae  20 df 5a     Send 10 01 5E <0x0344> CS
+    jsr sub_5adf_resp       ;5cae  20 df 5a     Send 10 01 5E <0x0344> CS
     rts                     ;5cb1  60
 
 ;TechniSat protocol command 0x47
 ;OR one memory address in allowed ranges with a value
 ;allowed ranges = 0, 2, 4, 6, 8, a, c, e, 0x10, 0x0040-0x053f
-lab_5cb2:
+sub_5cb2_cmd_47:
     ldy #0x01               ;5cb2  a0 01
     jsr sub_f22c_delay      ;5cb4  20 2c f2     Delay an unknown time period for Y iterations
 
@@ -10430,12 +10436,12 @@ lab_5cdb_failed:
     sta 0x0344              ;5cdd  8d 44 03     Store as TechniSat protocol status byte
 
 lab_5ce0:
-    jsr sub_5adf            ;5ce0  20 df 5a     Send 10 01 5E <0x0344> CS
+    jsr sub_5adf_resp       ;5ce0  20 df 5a     Send 10 01 5E <0x0344> CS
     rts                     ;5ce3  60
 
 ;TechniSat protocol command 0x4a
 ;? mem_59fd read bytes [0x4c],y
-lab_5ce4:
+sub_5ce4_cmd_4a:
     bbc 7,0xe8,lab_5d21     ;5ce4  f7 e8 3a
     ldy #0x01               ;5ce7  a0 01
     jsr sub_f22c_delay      ;5ce9  20 2c f2     Delay an unknown time period for Y iterations
@@ -10474,14 +10480,14 @@ lab_5d19_failed:
     sta 0x0344              ;5d1b  8d 44 03     Store as TechniSat protocol status byte
 
 lab_5d1e:
-    jsr sub_5adf            ;5d1e  20 df 5a     Send 10 01 5E <0x0344> CS
+    jsr sub_5adf_resp       ;5d1e  20 df 5a     Send 10 01 5E <0x0344> CS
 
 lab_5d21:
     rts                     ;5d21  60
 
 ;TechniSat protocol command 0x4b
 ;? mem_59fd write bytes [0x4c,x]
-lab_5d22:
+sub_5d22_cmd_4b:
     ldy #0x01               ;5d22  a0 01
     jsr sub_f22c_delay      ;5d24  20 2c f2     Delay an unknown time period for Y iterations
     lda 0x0323              ;5d27  ad 23 03     A = uart rx buffer byte 3
@@ -10523,12 +10529,12 @@ lab_5d60_failed:
     sta 0x0344              ;5d62  8d 44 03     Store as TechniSat protocol status byte
 
 lab_5d65:
-    jsr sub_5adf            ;5d65  20 df 5a     Send 10 01 5E <0x0344> CS
+    jsr sub_5adf_resp       ;5d65  20 df 5a     Send 10 01 5E <0x0344> CS
     rts                     ;5d68  60
 
 ;TechniSat protocol command 0x4c
 ;? mem_59fd AND bytes [0x4c],y
-lab_5d69:
+sub_5d69_cmd_4c:
     ldy #0x01               ;5d69  a0 01
     jsr sub_f22c_delay      ;5d6b  20 2c f2     Delay an unknown time period for Y iterations
 
@@ -10570,7 +10576,7 @@ lab_5daa_failed:
     sta 0x0344              ;5dac  8d 44 03     Store as TechniSat protocol status byte
 
 lab_5daf:
-    jsr sub_5adf            ;5daf  20 df 5a     Send 10 01 5E <0x0344> CS
+    jsr sub_5adf_resp       ;5daf  20 df 5a     Send 10 01 5E <0x0344> CS
     rts                     ;5db2  60
 
 ;TechniSat protocol command 0x4d
@@ -10584,7 +10590,7 @@ lab_5daf:
 ;
 ;This command also sets unknown values in memory if the payload
 ;contains a value other then 0x04.
-lab_5db3:
+sub_5db3_cmd_4d:
     ldy #0x01               ;5db3  a0 01
     jsr sub_f22c_delay      ;5db5  20 2c f2     Delay an unknown time period for Y iterations
 
@@ -10638,7 +10644,7 @@ lab_5dfc_failed:
     sta 0x0344              ;5dfe  8d 44 03     Store as TechniSat protocol status byte
 
 lab_5e01:
-    jsr sub_5adf            ;5e01  20 df 5a     Send 10 01 5E <0x0344> CS
+    jsr sub_5adf_resp       ;5e01  20 df 5a     Send 10 01 5E <0x0344> CS
     rts                     ;5e04  60
 
 
@@ -10684,8 +10690,8 @@ lab_5e29:
 ;Write to allowed memory from uart rx buffer to [0x4c,x]
 ;Allowed ranges = 0, 2, 4, 6, 8, a, c, e, 0x10, 0x0040-0x053f
 ;
-;Called from TechniSat command 0x45 (lab_5c2e)
-;   and from TechniSat command 0x4B (lab_5d22)
+;Called from TechniSat command 0x45 (sub_5c2e_cmd_45)
+;   and from TechniSat command 0x4B (sub_5d22_cmd_4b)
 ;
 ;Returns carry clear=success, carry set=failure
 sub_5e47:
@@ -10749,7 +10755,7 @@ lab_5e83_ret:
 
 ;Check word in 0x4c for magic number; disable EEPROM filtering if it matches
 ;Returns carry clear = matches, carry set = does not match
-;Called from TechniSat command 0x45 (lab_5c2e)
+;Called from TechniSat command 0x45 (sub_5c2e_cmd_45)
 sub_5e84:
     lda 0x4d                ;5e84  a5 4d    A = high byte
     cmp #0x14               ;5e86  c9 14
@@ -10794,7 +10800,7 @@ lab_5e96_ret:
 ;
 ;On failure, returns error code 5 (10 01 5E 05 CS).
 ;
-lab_5e97:
+sub_5e97_cmd_48:
     bbs 7,0xe8,lab_5e9b     ;5e97  e7 e8 01
     rts                     ;5e9a  60
 
@@ -10844,18 +10850,18 @@ lab_5ece:
 lab_5eee_failed:
     lda #0x05               ;5eee  a9 05
     sta 0x0344              ;5ef0  8d 44 03     Store as TechniSat protocol status byte
-    jsr sub_5adf            ;5ef3  20 df 5a     Send 10 01 5E <0x0344> CS
+    jsr sub_5adf_resp       ;5ef3  20 df 5a     Send 10 01 5E <0x0344> CS
 
 lab_5ef6:
     rts                     ;5ef6  60
 
 ;Read from EEPROM with some addresses filtered
 ;Called from KWP1281 Read EEPROM (lab_a48d)
-;Also called from TechniSat protocol command 0x48 (lab_5e97)
+;Also called from TechniSat protocol command 0x48 (sub_5e97_cmd_48)
 ;Returns carry clear = success, carry set = failed
 ;
 ;The KWP1281 rx buffer is modified before this subroutine
-;is called.  See the notes in lab_5e97.  It looks like this:
+;is called.  See the notes in sub_5e97_cmd_48.  It looks like this:
 ;
 ;  0x06 Block length                0x0320
 ;  0x3E Block counter               0x0321
@@ -10977,12 +10983,12 @@ lab_5f4c:
 ;Response block:
 ;  10 01 5E 00 90
 ;
-lab_5f4d:
+sub_5f4d_cmd_49:
     ldy #0x01               ;5f4d  a0 01
     jsr sub_f22c_delay      ;5f4f  20 2c f2     Delay an unknown time period for Y iterations
 
     jsr sub_5f59            ;5f52  20 59 5f
-    jsr sub_5adf            ;5f55  20 df 5a     Send 10 01 5E <0x0344> CS
+    jsr sub_5adf_resp       ;5f55  20 df 5a     Send 10 01 5E <0x0344> CS
     rts                     ;5f58  60
 
 sub_5f59:
@@ -11110,24 +11116,31 @@ lab_5fe1:
     .byte 0x60              ;5fe3  60          DATA 0x60 '`'
 
 ;TechniSat protocol command 0x50
-lab_5fe4:
+sub_5fe4_cmd_50:
     ldy #0x01               ;5fe4  a0 01
     jsr sub_f22c_delay      ;5fe6  20 2c f2     Delay an unknown time period for Y iterations
 
     lda #0x10               ;5fe9  a9 10
     sta 0x0344              ;5feb  8d 44 03     Store as TechniSat protocol status byte
-    lda 0x0323              ;5fee  ad 23 03
+
+    lda 0x0323              ;5fee  ad 23 03     A = param 0
     cmp #0x05               ;5ff1  c9 05
-    bcs lab_606c            ;5ff3  b0 77
-    sta 0x59                ;5ff5  85 59
+    bcs lab_606c            ;5ff3  b0 77        Branch to return status 0x10 response if param 0 >= 0x05
+
+    ;Param 0 is < 0x05
+    sta 0x59                ;5ff5  85 59        Store param 0 in 0x59
     cmp #0x03               ;5ff7  c9 03
-    bcs lab_6025            ;5ff9  b0 2a
-    lda 0x0324              ;5ffb  ad 24 03
+    bcs lab_6025            ;5ff9  b0 2a        Branch if param 0 >= 0x03
+
+    ;Param 0 is one of: 0x00, 0x01, 0x02
+    lda 0x0324              ;5ffb  ad 24 03     A = param 1
     cmp #0xce               ;5ffe  c9 ce
-    bcs lab_606c            ;6000  b0 6a
+    bcs lab_606c            ;6000  b0 6a        Branch to return status 0x10 response if param 1 >= 0xCE
+
+    ;Param 1 is < 0xCE
     jsr sub_3cb5            ;6002  20 b5 3c
-    lda 0x0324              ;6005  ad 24 03
-    sta 0x71                ;6008  85 71
+    lda 0x0324              ;6005  ad 24 03     A = param 1
+    sta 0x71                ;6008  85 71        Store param 1 in 0x71
     ldm #0x02,0xf0          ;600a  3c 02 f0
     clb 0,0xf2              ;600d  1f f2
     clb 1,0xf2              ;600f  3f f2
@@ -11138,14 +11151,15 @@ lab_5fe4:
     jsr sub_544b            ;601a  20 4b 54     Clears many registers
     jsr sub_44a7            ;601d  20 a7 44
     jsr sub_890d            ;6020  20 0d 89
-    bra lab_6044            ;6023  80 1f
+    bra lab_6044            ;6023  80 1f        Branch over lab_6025
 
 lab_6025:
-    lda 0x0324              ;6025  ad 24 03
+;Param 0 is one of: 0x03, 0x04
+    lda 0x0324              ;6025  ad 24 03     A = param 1
     cmp #0x88               ;6028  c9 88
     bcs lab_606c            ;602a  b0 40
     jsr sub_3d64            ;602c  20 64 3d
-    lda 0x0324              ;602f  ad 24 03
+    lda 0x0324              ;602f  ad 24 03     A = param 1
     sta 0x71                ;6032  85 71
     ldm #0x04,0xf0          ;6034  3c 04 f0
     seb 0,0xf2              ;6037  0f f2
@@ -11175,21 +11189,21 @@ lab_6064:
     sta 0x0344              ;6069  8d 44 03     Store as TechniSat protocol status byte
 
 lab_606c:
-    jsr sub_5adf            ;606c  20 df 5a     Send 10 01 5E <0x0344> CS
+    jsr sub_5adf_resp       ;606c  20 df 5a     Send 10 01 5E <0x0344> CS
     rts                     ;606f  60
 
 ;TechniSat protocol command 0x51
-lab_6070:
+sub_6070_cmd_51:
     ldy #0x01               ;6070  a0 01
     jsr sub_f22c_delay      ;6072  20 2c f2     Delay an unknown time period for Y iterations
 
     lda #0x10               ;6075  a9 10
     sta 0x0344              ;6077  8d 44 03     Store as TechniSat protocol status byte
-    lda 0x0324              ;607a  ad 24 03
+    lda 0x0324              ;607a  ad 24 03     A = param 1
     cmp #0x2e               ;607d  c9 2e
     bcs lab_609f            ;607f  b0 1e
     sta 0xa0                ;6081  85 a0
-    ldx 0x0323              ;6083  ae 23 03
+    ldx 0x0323              ;6083  ae 23 03     A = param 0
     cpx #0x08               ;6086  e0 08
     bcs lab_609f            ;6088  b0 15
     stx 0xa5                ;608a  86 a5
@@ -11203,11 +11217,11 @@ lab_6070:
     sta 0x0344              ;609c  8d 44 03     Store as TechniSat protocol status byte
 
 lab_609f:
-    jsr sub_5adf            ;609f  20 df 5a     Send 10 01 5E <0x0344> CS
+    jsr sub_5adf_resp       ;609f  20 df 5a     Send 10 01 5E <0x0344> CS
     rts                     ;60a2  60
 
 ;TechniSat protocol command 0x52
-lab_60a3:
+sub_60a3_cmd_52:
     ldy #0x01               ;60a3  a0 01
     jsr sub_f22c_delay      ;60a5  20 2c f2     Delay an unknown time period for Y iterations
 
@@ -11222,9 +11236,9 @@ lab_60af:
     iny                     ;60b6  c8
     cpy #0x04               ;60b7  c0 04
     bcc lab_60af            ;60b9  90 f4
-    lda 0x0323              ;60bb  ad 23 03
+    lda 0x0323              ;60bb  ad 23 03     A = param 0
     sta 0xa1                ;60be  85 a1
-    lda 0x0324              ;60c0  ad 24 03
+    lda 0x0324              ;60c0  ad 24 03     A = param 1
     sta 0xa2                ;60c3  85 a2
     lda 0x0325              ;60c5  ad 25 03
     sta 0xa3                ;60c8  85 a3
@@ -11243,10 +11257,11 @@ lab_60af:
     sta 0x0344              ;60eb  8d 44 03     Store as TechniSat protocol status byte
 
 lab_60ee:
-    jsr sub_5adf            ;60ee  20 df 5a     Send 10 01 5E <0x0344> CS
+    jsr sub_5adf_resp       ;60ee  20 df 5a     Send 10 01 5E <0x0344> CS
     rts                     ;60f1  60
 
 ;table of BRG values used by lab_6106
+brg_values:
     .byte 0x40              ;60f2  40          DATA 0x40 '@'
     .byte 0x20              ;60f3  20          DATA 0x20 ' '
     .byte 0x0f              ;60f4  0f          DATA 0x0f
@@ -11256,7 +11271,7 @@ lab_60ee:
 ;Change baud rate
 ;First parameter is an index to the baud rates table above.
 ;Response will be sent at current baud rate, then rate changed.
-lab_60f6:
+sub_60f6_cmd_59:
     ldy #0x01               ;60f6  a0 01
     jsr sub_f22c_delay      ;60f8  20 2c f2     Delay an unknown time period for Y iterations
 
@@ -11268,82 +11283,151 @@ lab_60f6:
 
 lab_6106:
     sta 0x0344              ;6106  8d 44 03     Store as TechniSat protocol status byte
-    jsr sub_5adf            ;6109  20 df 5a     Send 10 01 5E <0x0344> CS
+    jsr sub_5adf_resp       ;6109  20 df 5a     Send 10 01 5E <0x0344> CS
     lda 0x0344              ;610c  ad 44 03
     bne lab_6119            ;610f  d0 08
     ldx 0x0323              ;6111  ae 23 03
-    lda 0x60f2,x            ;6114  bd f2 60
+    lda brg_values,x        ;6114  bd f2 60
     sta BRG                 ;6117  85 1c
 
 lab_6119:
     rts                     ;6119  60
 
 ;TechniSat protocol command 0x58
-lab_611a:
-    bbc 7,0xe8,lab_613e     ;611a  f7 e8 21
+sub_611a_cmd_58:
+    bbc 7,0xe8,lab_613e_rts ;611a  f7 e8 21
 
     ldy #0x01               ;611d  a0 01
     jsr sub_f22c_delay      ;611f  20 2c f2     Delay an unknown time period for Y iterations
 
     ldx #0x10               ;6122  a2 10
-    lda 0x0323              ;6124  ad 23 03
+    lda 0x0323              ;6124  ad 23 03     A = param 0
     cmp #0x10               ;6127  c9 10
     bcs lab_612d            ;6129  b0 02
     ldx #0x00               ;612b  a2 00
 
 lab_612d:
     stx 0x0344              ;612d  8e 44 03
-    jsr sub_5adf            ;6130  20 df 5a     Send 10 01 5E <0x0344> CS
+    jsr sub_5adf_resp       ;6130  20 df 5a     Send 10 01 5E <0x0344> CS
     lda 0x0344              ;6133  ad 44 03
-    bne lab_613e            ;6136  d0 06
-    lda 0x0323              ;6138  ad 23 03
+    bne lab_613e_rts        ;6136  d0 06
+    lda 0x0323              ;6138  ad 23 03     A = param 0
     sta 0x0342              ;613b  8d 42 03
 
-lab_613e:
+lab_613e_rts:
     rts                     ;613e  60
 
 ;TechniSat protocol command 0x5a
-lab_613f:
+;Write to buffer at 0x0110 and call sub_6cc0 to do unknown I/O
+;
+;Request block:
+;  0x10     unknown
+;  0x01     unknown
+;  0x03     number of parameters          0x0321
+;  0x5a     command (0x5a)                0x0322
+;           param 0: first byte to write  0x0323
+;           ... more bytes to write ...   0x0324...
+;  <CS>     checksum                        xx
+;
+;There is some initial validation before copying starts.  If the number of
+;parameters = 3 then bit 4 of param 0 must be set.  If the number of parameters != 3
+;then param 0 & 0b111 must = 3.  If either check fails, no bytes are copied and
+;status code 0x10 is returned.
+;
+;The buffer copy works backwards from the end of the payload.  Before each byte
+;is copied, it is checked.  If the byte equals 0xFF, then then the byte is not
+;copied and copying stops.  The unknown I/O routine at sub_6cc0 is not called
+;and status code 0x10 is returend.  Note, however, that any bytes before the
+;0xFF will have been copied into the buffer.
+;
+;If all bytes are copied successfully (no 0xFF encountered), then the unknown
+;I/O routine at sub_6cc0 is called.  Status code 0x00 is then returned.
+;
+;The following demonstrates how to write 4 bytes into the buffer area
+;without triggering the call to the I/O routine:
+;
+;    Request block:
+;        0x10     unknown
+;        0x01     unknown
+;        0x06     number of parameters (6)         0x0321
+;        0x5a     command (0x5a)                   0x0322
+;        0x03     param 0: 0x03                    0x0323  (0x03 to pass the check; not copied)
+;        0xff     param 1: 0xFF                    0x0324  (0xFF to stop copying; not copied)
+;         xx      param 2: any byte except 0xFF    0x0325  (copied to 0x0112)
+;         xx      param 3: any byte except 0xFF    0x0326  (copied to 0x0113)
+;         xx      param 4: any byte except 0xFF    0x0327  (copied to 0x0114)
+;         xx      param 5: any byte except 0xFF    0x0328  (copied to 0x0115)
+;        <CS>     checksum                           xx
+;
+;    The routine will copy the payload in this order:
+;        Param 5 (0x0328 -> 0x0110+5)
+;        Param 4 (0x0327 -> 0x0110+4)
+;        Param 3 (0x0326 -> 0x0110+3)
+;        Param 2 (0x0325 -> 0x0110+2)
+;        Param 1 (0x0324 -> 0x0110+1) 0xFF: stops the copying; not copied
+;
+;    The four bytes will be copied to 0x0112 - 0x115.  The I/O routine will not
+;    be called and status code 0x10 will be returned.
+;
+;Note that by making the payload longer, data can be written much higher in the page.
+;Also note that this same page contains the stack!  This routine looks like it could
+;be a candidate for overwriting the stack.  However, it seems that a payload of 28
+;"parameter" bytes is the most that can be received before this routine is called.
+;That does not reach high enough into the stack to obtain code execution.
+;
+sub_613f_cmd_5a:
     ldy #0x01               ;613f  a0 01
     jsr sub_f22c_delay      ;6141  20 2c f2     Delay an unknown time period for Y iterations
 
-    lda 0x0321              ;6144  ad 21 03
-    tax                     ;6147  aa
-    lda 0x0323              ;6148  ad 23 03
-    cpx #0x03               ;614b  e0 03
-    beq lab_6157            ;614d  f0 08
-    and #0x07               ;614f  29 07
-    cmp #0x03               ;6151  c9 03
-    bne lab_6171            ;6153  d0 1c
-    bra lab_6159            ;6155  80 02
+    lda 0x0321              ;6144  ad 21 03     A = number of parameters
+    tax                     ;6147  aa           Save number of parameters in X
 
-lab_6157:
-    bbc 4,a,lab_6171        ;6157  93 18
+    lda 0x0323              ;6148  ad 23 03     A = param 0
 
-lab_6159:
-    dex                     ;6159  ca
+    cpx #0x03               ;614b  e0 03        Number of parameters = 3?
+    beq lab_6157_eq_3       ;614d  f0 08          Yes: branch to lab lab_6157_eq_3
 
-lab_615a:
-    lda 0x0323,x            ;615a  bd 23 03
-    cmp #0xff               ;615d  c9 ff
-    beq lab_6171            ;615f  f0 10
-    sta 0x0110,x            ;6161  9d 10 01
-    dex                     ;6164  ca
-    bpl lab_615a            ;6165  10 f3
-    lda #0x00               ;6167  a9 00
+    ;Number of parameters != 3
+    ;Param 0 & 0b111 must equal 3 to continue
+    and #0b00000111         ;614f  29 07        Mask off all bit lower 3 bits of param 0
+    cmp #0x03               ;6151  c9 03        Does the lower 3 bits of param 0 = 0x03?
+    bne lab_6171_0x10       ;6153  d0 1c          No: branch to return status 0x10 response
+    bra lab_6159_start_copy ;6155  80 02          Yes: branch to skip over param 0 bit 4 check
+
+lab_6157_eq_3:
+    ;Number of parameters = 3
+    bbc 4,a,lab_6171_0x10   ;6157  93 18        If param 0 bit 4 = 0 then branch to return status 0x10 response
+
+lab_6159_start_copy:
+    ;Start copying parameters into 0x110 buffer
+    dex                     ;6159  ca           Decrement number of parameters remaining to copy
+
+lab_615a_loop:
+    lda 0x0323,x            ;615a  bd 23 03     A = param 0+x...
+
+    cmp #0xff               ;615d  c9 ff        Is it 0xFF?
+    beq lab_6171_0x10       ;615f  f0 10          Yes: Branch to return status 0x10 response
+
+    sta 0x0110,x            ;6161  9d 10 01     Store param 0+x in 0x0110+x
+    dex                     ;6164  ca           Decrement number of parameters remaining to copy
+    bpl lab_615a_loop       ;6165  10 f3        Loop until all parameters have been copied into the 0x0110 buffer
+
+    lda #0x00               ;6167  a9 00        A = status 0x00
     sta 0x0344              ;6169  8d 44 03     Store as TechniSat protocol status byte
-    jsr sub_6cc0            ;616c  20 c0 6c
-    bra lab_6176            ;616f  80 05
 
-lab_6171:
-    lda #0x10               ;6171  a9 10
+    jsr sub_6cc0            ;616c  20 c0 6c     Perform unknown I/O using buffer at 0x0110
+
+    bra lab_6176            ;616f  80 05        Branch to send status 0x00 response and return
+
+lab_6171_0x10:
+    lda #0x10               ;6171  a9 10        A = status code 0x10
     sta 0x0344              ;6173  8d 44 03     Store as TechniSat protocol status byte
 
 lab_6176:
-    jsr sub_5adf            ;6176  20 df 5a     Send 10 01 5E <0x0344> CS
+    jsr sub_5adf_resp       ;6176  20 df 5a     Send 10 01 5E <0x0344> CS
     rts                     ;6179  60
 
-;table used by lab_619a
+;table used by sub_619a_cmd_53
 mem_617a:
     .word mem_621c          ;617a   DATA        lookup table
     .word sub_624a          ;617c   VECTOR      code
@@ -11370,7 +11454,7 @@ mem_617a:
     .word sub_62d2          ;6198   VECTOR      code
 
 ;TechniSat protocol command 0x53
-lab_619a:
+sub_619a_cmd_53:
     bbc 7,0xe8,lab_621b     ;619a  f7 e8 7e
 
     ldy #0x01               ;619d  a0 01
@@ -11442,13 +11526,13 @@ lab_61f8:
     bra lab_621b            ;6216  80 03
 
 lab_6218:
-    jsr sub_5adf            ;6218  20 df 5a     Send 10 01 5E <0x0344> CS
+    jsr sub_5adf_resp       ;6218  20 df 5a     Send 10 01 5E <0x0344> CS
 
 lab_621b:
     rts                     ;621b  60
 
 mem_621c:
-;lookup table used by lab_619a
+;lookup table used by sub_619a_cmd_53
     .byte 0x08              ;621c  08          DATA 0x08        8 bytes follow:
     .byte 0xf0              ;621d  f0          DATA 0xf0
     .byte 0x43              ;621e  43          DATA 0x43 'C'
@@ -11460,7 +11544,7 @@ mem_621c:
     .byte 0x46              ;6224  46          DATA 0x46 'F'
 
 mem_6225:
-;lookup table used by lab_619a
+;lookup table used by sub_619a_cmd_53
     .byte 0x09              ;6225  09          DATA 0x09        9 bytes follow:
     .byte 0xf0              ;6226  f0          DATA 0xf0
     .byte 0x43              ;6227  43          DATA 0x43 'C'
@@ -11473,7 +11557,7 @@ mem_6225:
     .byte 0x44              ;622e  44          DATA 0x44 'D'
 
 mem_622f:
-;lookup table used by lab_619a
+;lookup table used by sub_619a_cmd_53
     .byte 0x08              ;622f  08          DATA 0x08        8 bytes follow:
     .byte 0x42              ;6230  42          DATA 0x42 'B'
     .byte 0x43              ;6231  43          DATA 0x43 'C'
@@ -11485,7 +11569,7 @@ mem_622f:
     .byte 0x49              ;6237  49          DATA 0x49 'I'
 
 mem_6238:
-;lookup table used by lab_619a
+;lookup table used by sub_619a_cmd_53
     .byte 0x06              ;6238  06          DATA 0x06        6 bytes follow:
     .byte 0xa0              ;6239  a0          DATA 0xa0
     .byte 0xa1              ;623a  a1          DATA 0xa1
@@ -11495,18 +11579,18 @@ mem_6238:
     .byte 0x42              ;623e  42          DATA 0x42 'B'
 
 mem_623f:
-;lookup table used by lab_619a
+;lookup table used by sub_619a_cmd_53
     .byte 0x00              ;623f  00          DATA 0x00        0 bytes follow:
 
 mem_6240:
-;lookup table used by lab_619a
+;lookup table used by sub_619a_cmd_53
     .byte 0x03              ;6240  03          DATA 0x03        3 bytes follow:
     .byte 0xf0              ;6241  f0          DATA 0xf0
     .byte 0xf1              ;6242  f1          DATA 0xf1
     .byte 0x42              ;6243  42          DATA 0x42 'B'
 
 mem_6244:
-;lookup table used by lab_619a
+;lookup table used by sub_619a_cmd_53
     .byte 0x04              ;6244  04          DATA 0x04        4 bytes follow:
     .byte 0xf0              ;6245  f0          DATA 0xf0
     .byte 0xf1              ;6246  f1          DATA 0xf1
@@ -23419,6 +23503,7 @@ lab_a075:
     rts                     ;a075  60
 
 sub_a076:
+;Called from KWP1281 0x10 Recoding
     lda 0x0323              ;a076  ad 23 03     A = uart rx buffer byte 3
     sta 0x0102              ;a079  8d 02 01
     lda 0x0324              ;a07c  ad 24 03     A = uart rx buffer byte 4
