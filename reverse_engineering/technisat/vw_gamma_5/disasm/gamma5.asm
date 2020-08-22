@@ -125,7 +125,7 @@ lab_2000:
     ldm #0xc8,TM            ;2060  3c c8 23
     ldm #0xb0,SIO1CON       ;2063  3c b0 1a
     ldm #0x00,UARTCON       ;2066  3c 00 1b
-    ldm #0x40,BRG           ;2069  3c 40 1c
+    ldm #0x40,BRG           ;2069  3c 40 1c     Baud rate = 9600 bps
     ldm #0x6b,SIO2CON       ;206c  3c 6b 1d
     clb 7,SIO1CON           ;206f  ff 1a        Serial I/O1 enabled bit = disabled
     lda #0x00               ;2071  a9 00
@@ -645,7 +645,7 @@ lab_2402:
 lab_2407:
     bbs 0,0xe8,lab_2413     ;2407  07 e8 09
     bbc 5,0xf4,lab_2413     ;240a  b7 f4 06
-    jsr sub_9f33            ;240d  20 33 9f     disconnect
+    jsr kwp_06_disconnect   ;240d  20 33 9f     disconnect
     jmp lab_249f            ;2410  4c 9f 24
 
 lab_2413:
@@ -655,7 +655,7 @@ lab_2413:
     jsr sub_33c6            ;241b  20 c6 33
     bcs lab_2429            ;241e  b0 09
     bbs 3,0xe7,lab_2429     ;2420  67 e7 06
-    jsr sub_9f33            ;2423  20 33 9f     disconnect
+    jsr kwp_06_disconnect    ;2423  20 33 9f     disconnect
     jmp lab_249f            ;2426  4c 9f 24
 
 lab_2429:
@@ -1321,7 +1321,7 @@ lab_27b0:
 
 sub_27b1:
     jsr sub_6f1c            ;27b1  20 1c 6f
-    jsr sub_b40f            ;27b4  20 0f b4     Terminate KWP1281 or TechniSat session
+    jsr sub_b40f_disconnect ;27b4  20 0f b4     Terminate KWP1281 or TechniSat session
     jsr sub_822c            ;27b7  20 2c 82
     clb 0,0xf7              ;27ba  1f f7
     ldm #0xff,0x72          ;27bc  3c ff 72
@@ -2244,7 +2244,7 @@ lab_2cc2:
 sub_2cc3:
     bbc 5,0xf4,lab_2cce     ;2cc3  b7 f4 08
     bbs 3,0xe7,lab_2d18     ;2cc6  67 e7 4f
-    jsr sub_9f33            ;2cc9  20 33 9f     disconnect
+    jsr kwp_06_disconnect   ;2cc9  20 33 9f     disconnect
     bra lab_2d18            ;2ccc  80 4a
 
 lab_2cce:
@@ -2624,11 +2624,11 @@ lab_2f38:
 sub_2f40:
     bbc 0,0xe8,lab_2f50     ;2f40  17 e8 0d
     bbs 1,0xe8,lab_2f4b     ;2f43  27 e8 05     Branch if TechniSat protocol is active
-    jsr sub_9f33            ;2f46  20 33 9f     disconnect
+    jsr kwp_06_disconnect   ;2f46  20 33 9f     disconnect
     bra lab_2f50            ;2f49  80 05
 
 lab_2f4b:
-    jsr sub_b40f            ;2f4b  20 0f b4     Terminate KWP1281 or TechniSat session
+    jsr sub_b40f_disconnect ;2f4b  20 0f b4     Terminate KWP1281 or TechniSat session
     clb 6,0xe9              ;2f4e  df e9        Clear bit 6 = Enable EEPROM filtering
 
 lab_2f50:
@@ -10088,18 +10088,23 @@ sub_5adf_resp:
     ;0xE8 Bit 7 is set
 
     seb 6,0xe5              ;5ae7  cf e5
+
     lda #0x10               ;5ae9  a9 10
     jsr sub_5ad5            ;5aeb  20 d5 5a     Send byte 0x10
+
     lda #0x01               ;5aee  a9 01
     jsr sub_5ad5            ;5af0  20 d5 5a     Send byte 0x01
+
     lda #0x5e               ;5af3  a9 5e
     jsr sub_5ad5            ;5af5  20 d5 5a     Send byte 0x5e
+
     lda 0x0344              ;5af8  ad 44 03
-    jsr sub_5ad5            ;5afb  20 d5 5a     Send byte in 0x0344
-    clc                     ;5afe  18
-    lda #0x6f               ;5aff  a9 6f
-    adc 0x0344              ;5b01  6d 44 03
-    eor #0xff               ;5b04  49 ff
+    jsr sub_5ad5            ;5afb  20 d5 5a     Send byte in 0x0344 (status code)
+
+    clc                     ;5afe  18           Clear carry for checksum calculation
+    lda #0x10+0x01+0x5e     ;5aff  a9 6f        Start with the sum of 0x10 + 0x01 + 0x5e
+    adc 0x0344              ;5b01  6d 44 03     Add the status code byte
+    eor #0xff               ;5b04  49 ff        XOR to finish the checksum calculation
     jsr sub_5ad5            ;5b06  20 d5 5a     Send checksum byte
 
     ldy #0x01               ;5b09  a0 01
@@ -10122,7 +10127,7 @@ lab_5b1d:
     lda #0x01               ;5b1d  a9 01
     sta 0x0342              ;5b1f  8d 42 03
     seb 7,0xe8              ;5b22  ef e8
-    ldm #0x40,BRG           ;5b24  3c 40 1c
+    ldm #0x40,BRG           ;5b24  3c 40 1c     Baud rate = 9600 bps
     clb 6,0xe9              ;5b27  df e9        Clear bit 6 = Enable EEPROM filtering
     lda #0x00               ;5b29  a9 00
     sta 0x0344              ;5b2b  8d 44 03     Store as TechniSat protocol status byte
@@ -10140,10 +10145,10 @@ sub_5b37_cmd_5f:
     jsr sub_f22c_delay      ;5b39  20 2c f2     Delay an unknown time period for Y iterations
 
     jsr sub_5adf_resp       ;5b3c  20 df 5a     Send 10 01 5E <0x0344> CS
-    ldm #0x40,BRG           ;5b3f  3c 40 1c
+    ldm #0x40,BRG           ;5b3f  3c 40 1c     Baud rate = 9600 bps
     clb 6,0xe9              ;5b42  df e9        Clear bit 6 = Enable EEPROM filtering
     clb 0,0xef              ;5b44  1f ef
-    jsr sub_b40f            ;5b46  20 0f b4     Terminate KWP1281 or TechniSat session
+    jsr sub_b40f_disconnect ;5b46  20 0f b4     Terminate KWP1281 or TechniSat session
     rts                     ;5b49  60
 
 ;TechniSat protocol command 0x42
@@ -10791,7 +10796,7 @@ lab_5e96_ret:
 ;Disable filtering with command 0x4D or 0x45 to read these.
 ;
 ;Address range is the same as KWP1281 Read EEPROM (0x19).
-;See lab_a48d for more.
+;See kwp_19_read_eeprom for more.
 ;
 ;Request block:
 ;  0x10     unknown
@@ -10871,7 +10876,7 @@ lab_5ef6:
     rts                     ;5ef6  60
 
 ;Read from EEPROM with some addresses filtered
-;Called from KWP1281 Read EEPROM (lab_a48d)
+;Called from KWP1281 Read EEPROM (kwp_19_read_eeprom)
 ;Also called from TechniSat protocol command 0x48 (sub_5e97_cmd_48)
 ;Returns carry clear = success, carry set = failed
 ;
@@ -10980,7 +10985,7 @@ lab_5f4c:
 ;Disable filtering with command 0x4D or 0x45 to write these.
 ;
 ;Address range is the same as KWP1281 Read EEPROM (0x19).
-;See lab_a48d for more.
+;See kwp_19_read_eeprom for more.
 ;
 ;The number of parameters (0x322) is the number of address
 ;bytes (always 2) plus the number of data bytes (0x325+).
@@ -23362,7 +23367,7 @@ lab_9ef9:
     rts                     ;9f32  60
 
 ;KWP1281 0x06 Disconnect
-sub_9f33:
+kwp_06_disconnect:
     ldy #0x27               ;9f33  a0 27
     jsr sub_3361            ;9f35  20 61 33
     ldy #0x28               ;9f38  a0 28
@@ -23375,7 +23380,7 @@ sub_9f33:
 lab_9f47:
     lda #0x00               ;9f47  a9 00
     sta 0x05b9              ;9f49  8d b9 05
-    jsr sub_b40f            ;9f4c  20 0f b4     Terminate KWP1281 or TechniSat session
+    jsr sub_b40f_disconnect ;9f4c  20 0f b4     Terminate KWP1281 or TechniSat session
     clb 5,0xf4              ;9f4f  bf f4
     bbs 0,0xf1,lab_9f56     ;9f51  07 f1 02
     clb 7,0xf0              ;9f54  ff f0
@@ -23800,7 +23805,7 @@ lab_a1ad:
 
 
 ;KWP1281 0x00 Read Identification
-sub_a1ae:
+kwp_00_read_id:
     lda 0x05b7              ;a1ae  ad b7 05
     cmp #0xff               ;a1b1  c9 ff
     bne lab_a1de            ;a1b3  d0 29
@@ -23882,7 +23887,7 @@ lab_a22f:
 ;  0x00 Address low                     0x0325
 ;  0x03 Block end                       0x0326
 ;
-lab_a236:
+kwp_03_read_rom:
     lda 0x0324              ;a236  ad 24 03     A = address high
 
     cmp #0x20               ;a239  c9 20        Compare address high to 0x20 (ROM starts at 0x2000)
@@ -23906,7 +23911,7 @@ lab_a236:
 ;  0x00 Address low                     0x0325
 ;  0x03 Block end                       0x0326
 ;
-lab_a247:
+kwp_01_read_ram:
     ldm #0x00,0x4e          ;a247  3c 00 4e     Encryption selector = 0 (bit 7 clear disables encryption)
     ldx #0xfe               ;a24a  a2 fe        X = block title 0xFE: Response to Read RAM
 
@@ -23967,13 +23972,13 @@ lab_a294:
     rts                     ;a297  60
 
 ;KWP1281 0x02 Write RAM
-lab_a298:
+kwp_02_write_ram:
     bbc 1,0xe7,lab_a294     ;a298  37 e7 f9     if not authorized, branch to send nak response
     jsr sub_b461            ;a29b  20 61 b4     send nak response
     rts                     ;a29e  60
 
 ;KWP1281 0x04 Output Tests
-lab_a29f:
+kwp_04_output_tests:
     lda 0x05b9              ;a29f  ad b9 05
     cmp #0x00               ;a2a2  c9 00
     bne lab_a2b8            ;a2a4  d0 12
@@ -24012,7 +24017,7 @@ lab_a2e2:
     bne lab_a2f0            ;a2e4  d0 0a
     lda #0x00               ;a2e6  a9 00
     sta 0x05b9              ;a2e8  8d b9 05
-    jsr sub_b45b            ;a2eb  20 5b b4     send ack response
+    jsr kwp_09_ack          ;a2eb  20 5b b4     send ack response
     bra lab_a302            ;a2ee  80 12
 
 lab_a2f0:
@@ -24098,7 +24103,7 @@ lab_a323:
     .byte 0x20              ;a352  20          DATA 0x20 ' '
 
 ;KWP1281 0x05 Clear Faults
-lab_a353:
+kwp_05_clear_faults:
     ldx #0x04               ;a353  a2 04
 
 lab_a355:
@@ -24178,7 +24183,7 @@ sub_a3c7:
     .byte 0x60              ;a3d5  60          DATA 0x60 '`'
 
 ;KWP1281 0x07 Read Faults
-lab_a3d6:
+kwp_07_read_faults:
     lda 0x05b7              ;a3d6  ad b7 05
     cmp #0xff               ;a3d9  c9 ff
     bne lab_a3e5            ;a3db  d0 08
@@ -24258,7 +24263,7 @@ lab_a458:
     rts                     ;a45e  60
 
 ;KWP1281 0x08 Single Reading
-lab_a45f:
+kwp_08_single_meas:
     jsr sub_b461            ;a45f  20 61 b4     send nak response
     rts                     ;a462  60
 
@@ -24268,12 +24273,12 @@ lab_a45f:
     .byte 0x60              ;a466  60          DATA 0x60 '`'
 
 ;KWP1281 0x0C Write EEPROM
-lab_a467:
+kwp_0c_write_eeprom:
     jsr sub_b461            ;a467  20 61 b4     send nak response
     rts                     ;a46a  60
 
 ;KWP1281 0x10 Recoding
-lab_a46b:
+kwp_10_recoding:
     jsr sub_a076            ;a46b  20 76 a0
     jsr sub_9fe2            ;a46e  20 e2 9f
     jsr sub_855f            ;a471  20 5f 85
@@ -24282,16 +24287,16 @@ lab_a46b:
     sta 0x05bc              ;a479  8d bc 05
     lda #0x00               ;a47c  a9 00
     sta 0x05b3              ;a47e  8d b3 05
-    jsr sub_a1ae            ;a481  20 ae a1
+    jsr kwp_00_read_id      ;a481  20 ae a1
     rts                     ;a484  60
 
 ;KWP1281 0x11 Basic Setting Read
-lab_a485:
+kwp_11_basic_read_nak:
     jsr sub_b461            ;a485  20 61 b4     send nak reponse
     rts                     ;a488  60
 
 ;KWP1281 0x12 ?
-lab_a489:
+kwp_12_unknown_nak:
     jsr sub_b461            ;a489  20 61 b4     send nak reponse
     rts                     ;a48c  60
 
@@ -24326,7 +24331,7 @@ lab_a489:
 ;  ... data bytes ...               0x0334
 ;  0x03 Block end (0x03)
 ;
-lab_a48d:
+kwp_19_read_eeprom:
     bbc 1,0xe7,lab_a4cb     ;a48d  37 e7 3b     if not authorized, branch to send nak response
     clb 6,0xe9              ;a490  df e9        Clear bit 6 = Enable EEPROM filtering
 
@@ -24378,7 +24383,7 @@ lab_a4cb:
     rts                     ;a4ce  60
 
 ;KWP1281 0x1A Write EEPROM
-lab_a4cf:
+kwp_1a_write_eeprom:
     bra lab_a4cb            ;a4cf  80 fa        branch to send nak response
 
     .byte 0x37              ;a4d1  37          DATA 0x37 '7'
@@ -24459,31 +24464,31 @@ lab_a4cf:
 
 ;KWP1281 0x1B Custom Usage
 ;nak: custom usage
-lab_a51c:
+kwp_1b_unknown_nak:
     jsr sub_b461            ;a51c  20 61 b4     send nak response
     rts                     ;a51f  60
 
 ;KWP1281 0x21 Adaptation Read
 ;nak: adaptation read
-lab_a520:
+kwp_21_adp_read_nak:
     jsr sub_b461            ;a520  20 61 b4     send nak response
     rts                     ;a523  60
 
 ;KWP1281 0x22 Adaptation Transfer
 ;nak: adaptation transfer
-lab_a524:
+kwp_22_adp_tran_nak:
     jsr sub_b461            ;a524  20 61 b4     send nak response
     rts                     ;a527  60
 
 ;KWP1281 0x27 ?
 ;nak: ?
-lab_a528:
+kwp_27_unknown_nak:
     jsr sub_b461            ;a528  20 61 b4     send nak response
     rts                     ;a52b  60
 
 ;KWP1281 0x28 Basic Setting
 ;nak: basic setting
-lab_a52c:
+kwp_28_basic_set_nak:
     jsr sub_b461            ;a52c  20 61 b4     send nak response
     rts                     ;a52f  60
 
@@ -24522,7 +24527,7 @@ group_handlers:
 ;   0x01 Group Number                   0x0323
 ;   0x03 Block end                      0x0324
 ;
-lab_a54e:
+kwp_29_group_read:
     lda 0x0323              ;a54e  ad 23 03     A = KWP1281 rx buffer: group number
     sta 0x05bb              ;a551  8d bb 05
 
@@ -24604,7 +24609,7 @@ lab_a590:
 
 ;KWP1281 0x2a Adaptation Save
 ;nak: ?
-lab_a591:
+kwp_2a_adp_save_nak:
     jsr sub_b461            ;a591  20 61 b4     send nak response
     rts                     ;a594  60
 
@@ -24621,14 +24626,14 @@ lab_a591:
 ;  0x?? Workshop Code low byte (binary)         0x0327
 ;  0x03 Block end                               0x0328
 ;
-lab_a595:
+kwp_2b_login:
     bbc 3,0xf1,lab_a59d     ;a595  77 f1 05
-    jsr sub_9f33            ;a598  20 33 9f     disconnect
+    jsr kwp_06_disconnect   ;a598  20 33 9f     disconnect
     bra lab_a605            ;a59b  80 68
 
 lab_a59d:
-    jsr sub_a10a            ;a59d  20 0a a1     ;Convert SAFE code binary number in KWP1281 rx buffer
-                                                ;into a five digit decimal number in ASCII in 0x116-0x11a
+    jsr sub_a10a            ;a59d  20 0a a1     Convert SAFE code binary number in KWP1281 rx buffer
+                            ;                   into a five digit decimal number in ASCII in 0x116-0x11a
 
     ;Result of sub_a10a:
     ;  0x0116   Attempted SAFE code as a decimal number in ASCII (ten thousands place)
@@ -24664,7 +24669,7 @@ lab_a5ac:
 
     ;login succeeded
     jsr sub_a124            ;a5b9  20 24 a1
-    jsr sub_b45b            ;a5bc  20 5b b4     send ack response
+    jsr kwp_09_ack          ;a5bc  20 5b b4     send ack response
     seb 0,0xe7              ;a5bf  0f e7
     clb 5,0xe7              ;a5c1  bf e7
     lda 0x05c0              ;a5c3  ad c0 05
@@ -24682,7 +24687,7 @@ lab_a5ac:
 
 lab_a5e3:
     ;login failed
-    jsr sub_9f33            ;a5e3  20 33 9f     disconnect
+    jsr kwp_06_disconnect   ;a5e3  20 33 9f     disconnect
     bbs 5,0xe7,lab_a5fb     ;a5e6  a7 e7 12
     seb 5,0xe7              ;a5e9  af e7
     lda 0x05c0              ;a5eb  ad c0 05
@@ -27398,11 +27403,11 @@ lab_b3f7:
     rts                     ;b40e  60
 
 ;Terminate KWP1281 or TechniSat session
-sub_b40f:
+sub_b40f_disconnect:
     clb 7,SIO1CON           ;b40f  ff 1a        Serial I/O1 enabled bit = disabled
     seb 5,P4                ;b411  af 08
     clb 7,P4                ;b413  ff 08
-    ldm #0x40,BRG           ;b415  3c 40 1c
+    ldm #0x40,BRG           ;b415  3c 40 1c     Baud rate = 9600 bps
     lda #0x00               ;b418  a9 00
     sta 0x05b1              ;b41a  8d b1 05
     sta 0x05b2              ;b41d  8d b2 05
@@ -27432,7 +27437,7 @@ sub_b40f:
     rts                     ;b45a  60
 
 ;KWP1281 0x09 Acknowledge
-sub_b45b:
+kwp_09_ack:
     ldx #0x03               ;b45b  a2 03        block length
     lda #0x09               ;b45d  a9 09        A = block title 0x09 (Acknowledge)
     bra lab_b470            ;b45f  80 0f
@@ -27442,7 +27447,7 @@ sub_b461:
     bra lab_b469            ;b464  80 03
 
 ;KWP1281 7f ?
-lab_b466:
+kwp_7f_unknown_nak:
     lda 0x0321              ;b466  ad 21 03     A = uart rx buffer byte 1
 
 lab_b469:
@@ -27536,31 +27541,31 @@ mem_b4c1:
 ;KWP1281 Block Title Handlers
 ;same order as table mem_b4c1
 mem_b4db:
-    .word sub_a1ae          ;b4db  ae a1       VECTOR   read identification
-    .word lab_a247          ;b4dd  47 a2       VECTOR   protected: read ram
-    .word lab_a298          ;b4df  98 a2       VECTOR   protected: nak: write ram
-    .word lab_a236          ;b4e1  36 a2       VECTOR   protected: read rom/eeprom
-    .word lab_a29f          ;b4e3  9f a2       VECTOR   output tests
-    .word lab_a353          ;b4e5  53 a3       VECTOR   clear faults
-    .word sub_9f33          ;b4e7  33 9f       VECTOR   disconnect
-    .word lab_a3d6          ;b4e9  d6 a3       VECTOR   read faults
-    .word lab_a45f          ;b4eb  5f a4       VECTOR   nak: single reading
-    .word sub_b45b          ;b4ed  5b b4       VECTOR   ack
-    .word lab_a467          ;b4ef  67 a4       VECTOR   nak: write eeprom
-    .word lab_a46b          ;b4f1  6b a4       VECTOR   recoding
-    .word lab_a485          ;b4f3  85 a4       VECTOR   nak: basic setting read
-    .word lab_a489          ;b4f5  89 a4       VECTOR   nak: ?
-    .word lab_a48d          ;b4f7  8d a4       VECTOR   protected: read eeprom
-    .word lab_a4cf          ;b4f9  cf a4       VECTOR   nak: write eeprom
-    .word lab_a51c          ;b4fb  1c a5       VECTOR   nak: custom
-    .word lab_a520          ;b4fd  20 a5       VECTOR   nak: adaptation read
-    .word lab_a524          ;b4ff  24 a5       VECTOR   nak: adaptation transfer
-    .word lab_a528          ;b501  28 a5       VECTOR   nak: ?
-    .word lab_a52c          ;b503  2c a5       VECTOR   nak: basic setting
-    .word lab_a54e          ;b505  4e a5       VECTOR   group reading
-    .word lab_a591          ;b507  91 a5       VECTOR   nak: adaptation save
-    .word lab_a595          ;b509  95 a5       VECTOR   login
-    .word lab_b466          ;b50b  66 b4       VECTOR   7f ???
+    .word kwp_00_read_id        ;b4db  ae a1       VECTOR   title=0x00  read identification
+    .word kwp_01_read_ram       ;b4dd  47 a2       VECTOR   title=0x01  protected: read ram
+    .word kwp_02_write_ram      ;b4df  98 a2       VECTOR   title=0x02  protected: nak: write ram
+    .word kwp_03_read_rom       ;b4e1  36 a2       VECTOR   title=0x03  protected: read rom/eeprom
+    .word kwp_04_output_tests   ;b4e3  9f a2       VECTOR   title=0x04  output tests
+    .word kwp_05_clear_faults   ;b4e5  53 a3       VECTOR   title=0x05  clear faults
+    .word kwp_06_disconnect     ;b4e7  33 9f       VECTOR   title=0x06  disconnect
+    .word kwp_07_read_faults    ;b4e9  d6 a3       VECTOR   title=0x07  read faults
+    .word kwp_08_single_meas    ;b4eb  5f a4       VECTOR   title=0x08  nak: single reading
+    .word kwp_09_ack            ;b4ed  5b b4       VECTOR   title=0x09  ack
+    .word kwp_0c_write_eeprom   ;b4ef  67 a4       VECTOR   title=0x0c  nak: write eeprom
+    .word kwp_10_recoding       ;b4f1  6b a4       VECTOR   title=0x10  recoding
+    .word kwp_11_basic_read_nak ;b4f3  85 a4       VECTOR   title=0x11  nak: basic setting read
+    .word kwp_12_unknown_nak    ;b4f5  89 a4       VECTOR   title=0x12  nak: ?
+    .word kwp_19_read_eeprom    ;b4f7  8d a4       VECTOR   title=0x19  protected: read eeprom
+    .word kwp_1a_write_eeprom   ;b4f9  cf a4       VECTOR   title=0x1a  nak: write eeprom
+    .word kwp_1b_unknown_nak    ;b4fb  1c a5       VECTOR   title=0x1b  nak: custom
+    .word kwp_21_adp_read_nak   ;b4fd  20 a5       VECTOR   title=0x21  nak: adaptation read
+    .word kwp_22_adp_tran_nak   ;b4ff  24 a5       VECTOR   title=0x22  nak: adaptation transfer
+    .word kwp_27_unknown_nak    ;b501  28 a5       VECTOR   title=0x27  nak: ?
+    .word kwp_28_basic_set_nak  ;b503  2c a5       VECTOR   title=0x28  nak: basic setting
+    .word kwp_29_group_read     ;b505  4e a5       VECTOR   title=0x29  group reading
+    .word kwp_2a_adp_save_nak   ;b507  91 a5       VECTOR   title=0x2a  nak: adaptation save
+    .word kwp_2b_login          ;b509  95 a5       VECTOR   title=0x2b  login
+    .word kwp_7f_unknown_nak    ;b50b  66 b4       VECTOR   title=0x7f  7f ???
 
 sub_b50d:
     lda 0x05b1              ;b50d  ad b1 05
@@ -27866,7 +27871,7 @@ lab_b6e6:
     lda 0x05b6              ;b6ef  ad b6 05
     cmp 0x05b5              ;b6f2  cd b5 05
     beq lab_b710            ;b6f5  f0 19
-    jsr sub_b40f            ;b6f7  20 0f b4     Terminate KWP1281 or TechniSat session
+    jsr sub_b40f_disconnect ;b6f7  20 0f b4     Terminate KWP1281 or TechniSat session
     lda 0x05b1              ;b6fa  ad b1 05
     cmp #0x0a               ;b6fd  c9 0a
     bne lab_b710            ;b6ff  d0 0f
@@ -27917,7 +27922,7 @@ lab_b739:
     jmp lab_b845            ;b759  4c 45 b8
 
 lab_b75c:
-    jsr sub_b40f            ;b75c  20 0f b4     Terminate KWP1281 or TechniSat session
+    jsr sub_b40f_disconnect ;b75c  20 0f b4     Terminate KWP1281 or TechniSat session
     jmp lab_b845            ;b75f  4c 45 b8
 
 lab_b762:
@@ -27941,7 +27946,7 @@ lab_b77e:
     beq lab_b7ce            ;b787  f0 45
     cmp #0x05               ;b789  c9 05
     beq lab_b7ee            ;b78b  f0 61
-    jsr sub_b40f            ;b78d  20 0f b4     Terminate KWP1281 or TechniSat session
+    jsr sub_b40f_disconnect ;b78d  20 0f b4     Terminate KWP1281 or TechniSat session
     jmp lab_b845            ;b790  4c 45 b8
 
 lab_b793:
@@ -27970,7 +27975,7 @@ lab_b7a8:
     jmp lab_b845            ;b7c5  4c 45 b8
 
 lab_b7c8:
-    jsr sub_b40f            ;b7c8  20 0f b4     Terminate KWP1281 or TechniSat session
+    jsr sub_b40f_disconnect ;b7c8  20 0f b4     Terminate KWP1281 or TechniSat session
     jmp lab_b845            ;b7cb  4c 45 b8
 
 lab_b7ce:
@@ -27986,7 +27991,7 @@ lab_b7ce:
     jmp lab_b83d            ;b7e5  4c 3d b8
 
 lab_b7e8:
-    jsr sub_b40f            ;b7e8  20 0f b4     Terminate KWP1281 or TechniSat session
+    jsr sub_b40f_disconnect ;b7e8  20 0f b4     Terminate KWP1281 or TechniSat session
     jmp lab_b845            ;b7eb  4c 45 b8
 
 lab_b7ee:
@@ -28166,7 +28171,7 @@ lab_b91f:
 lab_b931:
     lda 0x05a4              ;b931  ad a4 05
     beq lab_b943            ;b934  f0 0d
-    jsr sub_b40f            ;b936  20 0f b4     Terminate KWP1281 or TechniSat session
+    jsr sub_b40f_disconnect ;b936  20 0f b4     Terminate KWP1281 or TechniSat session
     lda #0x02               ;b939  a9 02
     sta 0x01af              ;b93b  8d af 01
     ldy #0x2a               ;b93e  a0 2a
@@ -28200,7 +28205,7 @@ lab_b958:
     jmp lab_ba21            ;b974  4c 21 ba
 
 lab_b977:
-    jsr sub_b40f            ;b977  20 0f b4     Terminate KWP1281 or TechniSat session
+    jsr sub_b40f_disconnect ;b977  20 0f b4     Terminate KWP1281 or TechniSat session
     lda #0x05               ;b97a  a9 05
     sta 0x05a4              ;b97c  8d a4 05
     lda #0x02               ;b97f  a9 02
@@ -28226,7 +28231,7 @@ lab_b98c:
     jmp lab_ba21            ;b9ad  4c 21 ba
 
 lab_b9b0:
-    jsr sub_b40f            ;b9b0  20 0f b4     Terminate KWP1281 or TechniSat session
+    jsr sub_b40f_disconnect ;b9b0  20 0f b4     Terminate KWP1281 or TechniSat session
     lda #0x05               ;b9b3  a9 05
     sta 0x05a4              ;b9b5  8d a4 05
     lda #0x02               ;b9b8  a9 02
@@ -28246,7 +28251,7 @@ lab_b9c5:
     lda 0x05b6              ;b9d9  ad b6 05
     cmp #0x03               ;b9dc  c9 03
     beq lab_b9f0            ;b9de  f0 10
-    jsr sub_b40f            ;b9e0  20 0f b4     Terminate KWP1281 or TechniSat session
+    jsr sub_b40f_disconnect ;b9e0  20 0f b4     Terminate KWP1281 or TechniSat session
     lda #0x02               ;b9e3  a9 02
     sta 0x01af              ;b9e5  8d af 01
     ldy #0x2a               ;b9e8  a0 2a
@@ -28272,7 +28277,7 @@ lab_ba02:
     jmp lab_ba21            ;ba11  4c 21 ba
 
 lab_ba14:
-    jsr sub_b40f            ;ba14  20 0f b4     Terminate KWP1281 or TechniSat session
+    jsr sub_b40f_disconnect ;ba14  20 0f b4     Terminate KWP1281 or TechniSat session
     lda #0x02               ;ba17  a9 02
     sta 0x01af              ;ba19  8d af 01
     ldy #0x2a               ;ba1c  a0 2a
@@ -28893,7 +28898,7 @@ lab_ba21:
 
 sub_bc83:
     bbc 0,0xe8,lab_bc89     ;bc83  17 e8 03
-    jmp lab_bdaa            ;bc86  4c aa bd
+    jmp lab_bdaa_rts        ;bc86  4c aa bd
 
 lab_bc89:
     lda 0x05b1              ;bc89  ad b1 05
@@ -28903,11 +28908,11 @@ lab_bc89:
     beq lab_bca1            ;bc92  f0 0d
     cmp #0x08               ;bc94  c9 08
     beq lab_bcda            ;bc96  f0 42
-    jmp lab_bdaa            ;bc98  4c aa bd
+    jmp lab_bdaa_rts        ;bc98  4c aa bd
 
 lab_bc9b:
     jsr sub_bdab            ;bc9b  20 ab bd
-    jmp lab_bdaa            ;bc9e  4c aa bd
+    jmp lab_bdaa_rts        ;bc9e  4c aa bd
 
 lab_bca1:
     bbs 2,0xe8,lab_bcbd     ;bca1  47 e8 19
@@ -28920,7 +28925,7 @@ lab_bca1:
     sta 0x05a3              ;bcb2  8d a3 05
     lda #0x2c               ;bcb5  a9 2c
     sta 0x05a2              ;bcb7  8d a2 05
-    jmp lab_bdaa            ;bcba  4c aa bd
+    jmp lab_bdaa_rts        ;bcba  4c aa bd
 
 lab_bcbd:
     bbs 1,0xee,lab_bcd4     ;bcbd  27 ee 14
@@ -28935,7 +28940,7 @@ lab_bcbd:
 
 lab_bcd4:
     jsr sub_bdab            ;bcd4  20 ab bd
-    jmp lab_bdaa            ;bcd7  4c aa bd
+    jmp lab_bdaa_rts        ;bcd7  4c aa bd
 
 lab_bcda:
     bbs 1,0xee,lab_bce7     ;bcda  27 ee 0a
@@ -28952,7 +28957,7 @@ lab_bce7:
     bbs 4,P4,lab_bcfc       ;bcf1  87 08 08
     lda #0x01               ;bcf4  a9 01
     sta 0x05a4              ;bcf6  8d a4 05
-    jsr sub_b40f            ;bcf9  20 0f b4     Terminate KWP1281 or TechniSat session
+    jsr sub_b40f_disconnect ;bcf9  20 0f b4     Terminate KWP1281 or TechniSat session
 
 lab_bcfc:
     lda 0x05a4              ;bcfc  ad a4 05
@@ -28961,7 +28966,7 @@ lab_bcfc:
     sta 0x01af              ;bd03  8d af 01
     ldy #0x2a               ;bd06  a0 2a
     jsr sub_3300            ;bd08  20 00 33
-    jmp lab_bdaa            ;bd0b  4c aa bd
+    jmp lab_bdaa_rts        ;bd0b  4c aa bd
 
 lab_bd0e:
     lda 0x05a2              ;bd0e  ad a2 05
@@ -28977,7 +28982,7 @@ lab_bd18:
     dec 0x05a3              ;bd22  ce a3 05
 
 lab_bd25:
-    jmp lab_bdaa            ;bd25  4c aa bd
+    jmp lab_bdaa_rts        ;bd25  4c aa bd
 
 lab_bd28:
     lda 0x05a6              ;bd28  ad a6 05
@@ -28988,7 +28993,7 @@ lab_bd28:
     cmp #0x04               ;bd33  c9 04
     bcc lab_bd78            ;bd35  90 41
     beq lab_bd8c            ;bd37  f0 53
-    jmp lab_bdaa            ;bd39  4c aa bd
+    jmp lab_bdaa_rts        ;bd39  4c aa bd
 
 lab_bd3c:
     clb 5,P4                ;bd3c  bf 08
@@ -28998,7 +29003,7 @@ lab_bd3c:
     sta 0x05a3              ;bd45  8d a3 05
     lda #0xc8               ;bd48  a9 c8
     sta 0x05a2              ;bd4a  8d a2 05
-    jmp lab_bdaa            ;bd4d  4c aa bd
+    jmp lab_bdaa_rts        ;bd4d  4c aa bd
 
 lab_bd50:
     seb 5,P4                ;bd50  af 08
@@ -29008,7 +29013,7 @@ lab_bd50:
     sta 0x05a3              ;bd59  8d a3 05
     lda #0xb0               ;bd5c  a9 b0
     sta 0x05a2              ;bd5e  8d a2 05
-    jmp lab_bdaa            ;bd61  4c aa bd
+    jmp lab_bdaa_rts        ;bd61  4c aa bd
 
 lab_bd64:
     clb 5,P4                ;bd64  bf 08
@@ -29018,7 +29023,7 @@ lab_bd64:
     sta 0x05a3              ;bd6d  8d a3 05
     lda #0xc8               ;bd70  a9 c8
     sta 0x05a2              ;bd72  8d a2 05
-    jmp lab_bdaa            ;bd75  4c aa bd
+    jmp lab_bdaa_rts        ;bd75  4c aa bd
 
 lab_bd78:
     seb 5,P4                ;bd78  af 08
@@ -29028,10 +29033,10 @@ lab_bd78:
     sta 0x05a3              ;bd81  8d a3 05
     lda #0x90               ;bd84  a9 90
     sta 0x05a2              ;bd86  8d a2 05
-    jmp lab_bdaa            ;bd89  4c aa bd
+    jmp lab_bdaa_rts        ;bd89  4c aa bd
 
 lab_bd8c:
-    ldm #0x3c,BRG           ;bd8c  3c 3c 1c
+    ldm #0x3c,BRG           ;bd8c  3c 3c 1c     Baud rate = 10400 bps
     seb 7,SIO1CON           ;bd8f  ef 1a        Serial I/O1 enabled bit = enabled
     lda #0x09               ;bd91  a9 09
     sta 0x05b1              ;bd93  8d b1 05
@@ -29044,7 +29049,7 @@ lab_bd8c:
     lda #0x03               ;bda5  a9 03
     sta 0x05a2              ;bda7  8d a2 05
 
-lab_bdaa:
+lab_bdaa_rts:
     rts                     ;bdaa  60
 
 sub_bdab:
@@ -29118,7 +29123,7 @@ lab_be10:
     lda 0x05a9              ;be2a  ad a9 05
     cmp #0xa0               ;be2d  c9 a0
     bcs lab_be37            ;be2f  b0 06
-    jsr sub_b40f            ;be31  20 0f b4     Terminate KWP1281 or TechniSat session
+    jsr sub_b40f_disconnect ;be31  20 0f b4     Terminate KWP1281 or TechniSat session
     jmp lab_bead            ;be34  4c ad be
 
 lab_be37:
@@ -29129,7 +29134,7 @@ lab_be3d:
     lda 0x05a9              ;be3d  ad a9 05
     cmp #0xa0               ;be40  c9 a0
     bcs lab_be4a            ;be42  b0 06
-    jsr sub_b40f            ;be44  20 0f b4     Terminate KWP1281 or TechniSat session
+    jsr sub_b40f_disconnect ;be44  20 0f b4     Terminate KWP1281 or TechniSat session
     jmp lab_bead            ;be47  4c ad be
 
 lab_be4a:
@@ -29140,7 +29145,7 @@ lab_be50:
     lda 0x05aa              ;be50  ad aa 05
     cmp #0xa0               ;be53  c9 a0
     bcs lab_be5f            ;be55  b0 08
-    jsr sub_b40f            ;be57  20 0f b4     Terminate KWP1281 or TechniSat session
+    jsr sub_b40f_disconnect ;be57  20 0f b4     Terminate KWP1281 or TechniSat session
     seb 2,0xe7              ;be5a  4f e7
     jmp lab_bead            ;be5c  4c ad be
 
@@ -29152,7 +29157,7 @@ lab_be5f:
     beq lab_be98            ;be68  f0 2e
 
 lab_be6a:
-    jsr sub_b40f            ;be6a  20 0f b4     Terminate KWP1281 or TechniSat session
+    jsr sub_b40f_disconnect ;be6a  20 0f b4     Terminate KWP1281 or TechniSat session
     jmp lab_bead            ;be6d  4c ad be
 
 ;Address 0xD6 (KWP1281 protocol)
