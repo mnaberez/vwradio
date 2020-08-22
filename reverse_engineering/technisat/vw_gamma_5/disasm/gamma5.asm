@@ -3867,7 +3867,7 @@ mem_3588:
     .word sub_6070_cmd_51   ;35aa  70 60       VECTOR   cmd=51
     .word sub_60a3_cmd_52   ;35ac  a3 60       VECTOR   cmd=52
     .word sub_619a_cmd_53   ;35ae  9a 61       VECTOR   cmd=53
-    .word sub_611a_cmd_58   ;35b0  1a 61       VECTOR   cmd=58
+    .word sub_611a_cmd_58   ;35b0  1a 61       VECTOR   cmd=58   Set the value of location 0x0342 (TODO what does this do?)
     .word sub_60f6_cmd_59   ;35b2  f6 60       VECTOR   cmd=59   Change baud rate
     .word sub_613f_cmd_5a   ;35b4  3f 61       VECTOR   cmd=5a   Write to buffer at 0x0110 and call sub_6cc0 to do unknown I/O
     .word sub_2266_rts      ;35b6  66 22       VECTOR   cmd=7f   Bad command (does RTS only)
@@ -9943,18 +9943,20 @@ lab_5a32:
 ;Called from ISR at lab_5a11
 sub_5a36:
     ldy 0x0320              ;5a36  ac 20 03     Y = number of bytes received
-    bne lab_5a5e            ;5a39  d0 23        Branch if any bytes were already received
+    bne lab_5a5e_not_first  ;5a39  d0 23        Branch if any bytes were already received
 
     cmp #0x00               ;5a3b  c9 00        Is the received byte = 0?
-    beq lab_5a48            ;5a3d  f0 09          Yes: branch
+    beq lab_5a48_got_zero   ;5a3d  f0 09          Yes: branch
 
     cmp 0x0342              ;5a3f  cd 42 03
-    bne lab_5a5c            ;5a42  d0 18        Branch to RTS
+    bne lab_5a5c_not_0x0342 ;5a42  d0 18        Branch to RTS
+
+    ;Byte received equals byte in 0x0342
 
     seb 7,0xe8              ;5a44  ef e8
     bra lab_5a4a            ;5a46  80 02
 
-lab_5a48:
+lab_5a48_got_zero:
     clb 7,0xe8              ;5a48  ff e8
 
 ;first byte received
@@ -9970,11 +9972,11 @@ lab_5a4a:
 
     inc 0x0320              ;5a59  ee 20 03     Increment number of bytes received
 
-lab_5a5c:
-    bra lab_5ab4            ;5a5c  80 56        Branch to RTS
+lab_5a5c_not_0x0342:
+    bra lab_5ab4_rts        ;5a5c  80 56        Branch to RTS
 
 ;not first byte received
-lab_5a5e:
+lab_5a5e_not_first:
     sta 0x0320,y            ;5a5e  99 20 03     Store byte in UART rx buffer
 
     ;branches if 0x320 > (0x321 + 2)
@@ -9990,14 +9992,14 @@ lab_5a5e:
     sta 0x0343              ;5a6f  8d 43 03     Update checksum
     inc 0x0320              ;5a72  ee 20 03     Increment number of bytes received
     ldm #0x31,T2            ;5a75  3c 31 22
-    bra lab_5ab4            ;5a78  80 3a        Branch to RTS
+    bra lab_5ab4_rts        ;5a78  80 3a        Branch to RTS
 
 lab_5a7a:
     lda 0x0343              ;5a7a  ad 43 03     A = expected checksum byte
     eor #0xff               ;5a7d  49 ff
     ldy 0x0320              ;5a7f  ac 20 03     Get number of bytes received
     cmp 0x0320,y            ;5a82  d9 20 03     Compare to last byte of rx buffer
-    beq lab_5a91            ;5a85  f0 0a
+    beq lab_5a91_csum_good  ;5a85  f0 0a
 
     ;checksum is bad
 
@@ -10007,11 +10009,11 @@ lab_5a7a:
     lda #0x5e               ;5a8c  a9 5e
     sta 0x0322              ;5a8e  8d 22 03     Store in uart rx buffer byte 2
 
-lab_5a91:
-;checksum is good
+lab_5a91_csum_good:
+;checksum is good or fell through from checksum is bad
     lda 0x0322              ;5a91  ad 22 03     A = UART rx buffer byte 2
     cmp #0x40               ;5a94  c9 40
-    bne lab_5aaa            ;5a96  d0 12
+    bne lab_5aaa_not_0x40   ;5a96  d0 12
 
     ;0x0322 = 40
 
@@ -10025,7 +10027,7 @@ lab_5a91:
     seb 2,0xf7              ;5aa6  4f f7
     bra lab_5ab1            ;5aa8  80 07
 
-lab_5aaa:
+lab_5aaa_not_0x40:
     sta 0x73                ;5aaa  85 73
     seb 0,0xf7              ;5aac  0f f7
     ldm #0x00,0x5e          ;5aae  3c 00 5e
@@ -10033,7 +10035,7 @@ lab_5aaa:
 lab_5ab1:
     ldm #0x31,T2            ;5ab1  3c 31 22
 
-lab_5ab4:
+lab_5ab4_rts:
     rts                     ;5ab4  60
 
 
@@ -10045,8 +10047,8 @@ lab_5ab5:
 lab_5abb:
     pha                     ;5abb  48
     clb 7,ICON1             ;5abc  ff 3e
-    lda #0x00               ;5abe  a9 00
-    sta 0x0320              ;5ac0  8d 20 03
+    lda #0x00               ;5abe  a9 00        A = 0 bytes received
+    sta 0x0320              ;5ac0  8d 20 03     Store as number of bytes received
     pla                     ;5ac3  68
     rti                     ;5ac4  40
 
@@ -10081,7 +10083,10 @@ lab_5ada:
 sub_5adf_resp:
     ldm #0xff,0x75          ;5adf  3c ff 75
     clb 2,0xf7              ;5ae2  5f f7
-    bbc 7,0xe8,lab_5b10     ;5ae4  f7 e8 29
+    bbc 7,0xe8,lab_5b10     ;5ae4  f7 e8 29     Branch if 0xE8 bit 7 is clear
+
+    ;0xE8 Bit 7 is set
+
     seb 6,0xe5              ;5ae7  cf e5
     lda #0x10               ;5ae9  a9 10
     jsr sub_5ad5            ;5aeb  20 d5 5a     Send byte 0x10
@@ -10103,8 +10108,8 @@ sub_5adf_resp:
     clb 6,0xe5              ;5b0e  df e5
 
 lab_5b10:
-    lda #0x00               ;5b10  a9 00
-    sta 0x0320              ;5b12  8d 20 03
+    lda #0x00               ;5b10  a9 00        A = 0 bytes received
+    sta 0x0320              ;5b12  8d 20 03     Store as number of bytes received
     rts                     ;5b15  60
 
 lab_5b16:
@@ -10125,7 +10130,7 @@ lab_5b1d:
     ldy #0x01               ;5b2e  a0 01
     jsr sub_f22c_delay      ;5b30  20 2c f2     Delay an unknown time period for Y iterations
 
-    jsr sub_5adf_resp  ;5b33  20 df 5a     Send 10 01 5E <0x0344> CS
+    jsr sub_5adf_resp       ;5b33  20 df 5a     Send 10 01 5E <0x0344> CS
     rts                     ;5b36  60
 
 ;TechniSat protocol command 0x5F
@@ -10134,7 +10139,7 @@ sub_5b37_cmd_5f:
     ldy #0x01               ;5b37  a0 01
     jsr sub_f22c_delay      ;5b39  20 2c f2     Delay an unknown time period for Y iterations
 
-    jsr sub_5adf_resp  ;5b3c  20 df 5a     Send 10 01 5E <0x0344> CS
+    jsr sub_5adf_resp       ;5b3c  20 df 5a     Send 10 01 5E <0x0344> CS
     ldm #0x40,BRG           ;5b3f  3c 40 1c
     clb 6,0xe9              ;5b42  df e9        Clear bit 6 = Enable EEPROM filtering
     clb 0,0xef              ;5b44  1f ef
@@ -10143,7 +10148,9 @@ sub_5b37_cmd_5f:
 
 ;TechniSat protocol command 0x42
 sub_5b4a_cmd_42:
-    bbc 7,0xe8,lab_5bba     ;5b4a  f7 e8 6d
+    bbc 7,0xe8,lab_5bba_rts ;5b4a  f7 e8 6d     Branch if 0xE8 bit 7 is clear
+
+    ;0xE8 Bit 7 is set
 
     ldy #0x01               ;5b4d  a0 01
     jsr sub_f22c_delay      ;5b4f  20 2c f2     Delay an unknown time period for Y iterations
@@ -10193,14 +10200,14 @@ lab_5b92:
     jsr sub_f22c_delay      ;5bab  20 2c f2     Delay an unknown time period for Y iterations
 
     clb 6,0xe5              ;5bae  df e5
-    bra lab_5bba            ;5bb0  80 08
+    bra lab_5bba_rts        ;5bb0  80 08
 
 lab_5bb2:
     lda #0x10               ;5bb2  a9 10
     sta 0x0344              ;5bb4  8d 44 03     Store as TechniSat protocol status byte
     jsr sub_5adf_resp       ;5bb7  20 df 5a     Send 10 01 5E <0x0344> CS
 
-lab_5bba:
+lab_5bba_rts:
     rts                     ;5bba  60
 
 ;TechniSat protocol command 0x43
@@ -10234,7 +10241,9 @@ lab_5be7:
 ;Read RAM in allowed range
 ;Allows reading all bytes 0x0000-0x053f
 sub_5beb_cmd_44:
-    bbc 7,0xe8,lab_5c2d     ;5beb  f7 e8 3f
+    bbc 7,0xe8,lab_5c2d_rts ;5beb  f7 e8 3f     Branch if 0xE8 Bit 7 is clear
+
+    ;0xE8 Bit 7 is set
 
     ldy #0x01               ;5bee  a0 01
     jsr sub_f22c_delay      ;5bf0  20 2c f2     Delay an unknown time period for Y iterations
@@ -10272,14 +10281,14 @@ lab_5c18:
     jsr sub_5e05            ;5c20  20 05 5e     Send 10 4F 44 <data [0x4c],y...> CS
                             ;                     Pointer to memory address in 0x004C
                             ;                     Number of bytes to send in 0x4F
-    bra lab_5c2d            ;5c23  80 08
+    bra lab_5c2d_rts        ;5c23  80 08
 
 lab_5c25_failed:
     lda #0x04               ;5c25  a9 04
     sta 0x0344              ;5c27  8d 44 03     Store as TechniSat protocol status byte
     jsr sub_5adf_resp       ;5c2a  20 df 5a     Send 10 01 5E <0x0344> CS
 
-lab_5c2d:
+lab_5c2d_rts:
     rts                     ;5c2d  60
 
 ;TechniSat protocol command 0x45
@@ -10442,7 +10451,10 @@ lab_5ce0:
 ;TechniSat protocol command 0x4a
 ;? mem_59fd read bytes [0x4c],y
 sub_5ce4_cmd_4a:
-    bbc 7,0xe8,lab_5d21     ;5ce4  f7 e8 3a
+    bbc 7,0xe8,lab_5d21_rts ;5ce4  f7 e8 3a     Branch if 0xE8 Bit 7 is clear
+
+    ;0xE8 Bit 7 is set
+
     ldy #0x01               ;5ce7  a0 01
     jsr sub_f22c_delay      ;5ce9  20 2c f2     Delay an unknown time period for Y iterations
 
@@ -10482,7 +10494,7 @@ lab_5d19_failed:
 lab_5d1e:
     jsr sub_5adf_resp       ;5d1e  20 df 5a     Send 10 01 5E <0x0344> CS
 
-lab_5d21:
+lab_5d21_rts:
     rts                     ;5d21  60
 
 ;TechniSat protocol command 0x4b
@@ -10801,10 +10813,13 @@ lab_5e96_ret:
 ;On failure, returns error code 5 (10 01 5E 05 CS).
 ;
 sub_5e97_cmd_48:
-    bbs 7,0xe8,lab_5e9b     ;5e97  e7 e8 01
+    bbs 7,0xe8,lab_5e9b_set ;5e97  e7 e8 01     Branch if 0xE8 bit 7 is set
+
+    ;0xE8 Bit 7 is clear
     rts                     ;5e9a  60
 
-lab_5e9b:
+lab_5e9b_set:
+    ;0xE8 Bit 7 is set
     ldy #0x01               ;5e9b  a0 01
     jsr sub_f22c_delay      ;5e9d  20 2c f2     Delay an unknown time period for Y iterations
 
@@ -11199,20 +11214,24 @@ sub_6070_cmd_51:
 
     lda #0x10               ;6075  a9 10
     sta 0x0344              ;6077  8d 44 03     Store as TechniSat protocol status byte
+
     lda 0x0324              ;607a  ad 24 03     A = param 1
     cmp #0x2e               ;607d  c9 2e
     bcs lab_609f            ;607f  b0 1e
     sta 0xa0                ;6081  85 a0
+
     ldx 0x0323              ;6083  ae 23 03     A = param 0
     cpx #0x08               ;6086  e0 08
     bcs lab_609f            ;6088  b0 15
     stx 0xa5                ;608a  86 a5
+
     seb 5,P8_P4I            ;608c  af 10
     seb 7,P2                ;608e  ef 04
     jsr sub_70db            ;6090  20 db 70
     jsr sub_7694            ;6093  20 94 76
     seb 5,P0                ;6096  af 00
     seb 6,P8_P4I            ;6098  cf 10
+
     lda #0x00               ;609a  a9 00
     sta 0x0344              ;609c  8d 44 03     Store as TechniSat protocol status byte
 
@@ -11227,92 +11246,149 @@ sub_60a3_cmd_52:
 
     lda #0x10               ;60a8  a9 10
     sta 0x0344              ;60aa  8d 44 03     Store as TechniSat protocol status byte
-    ldy #0x00               ;60ad  a0 00
 
-lab_60af:
+    ldy #0x00               ;60ad  a0 00
+lab_60af_loop:
     lda 0x0323,y            ;60af  b9 23 03
     cmp #0x13               ;60b2  c9 13
-    bcs lab_60ee            ;60b4  b0 38
+    bcs lab_60ee_done       ;60b4  b0 38
     iny                     ;60b6  c8
     cpy #0x04               ;60b7  c0 04
-    bcc lab_60af            ;60b9  90 f4
+    bcc lab_60af_loop       ;60b9  90 f4
+
     lda 0x0323              ;60bb  ad 23 03     A = param 0
     sta 0xa1                ;60be  85 a1
+
     lda 0x0324              ;60c0  ad 24 03     A = param 1
     sta 0xa2                ;60c3  85 a2
-    lda 0x0325              ;60c5  ad 25 03
+
+    lda 0x0325              ;60c5  ad 25 03     A = param 2
     sta 0xa3                ;60c8  85 a3
-    lda 0x0326              ;60ca  ad 26 03
+
+    lda 0x0326              ;60ca  ad 26 03     A = param 3
     sta 0xa4                ;60cd  85 a4
-    lda 0x0327              ;60cf  ad 27 03
+
+    lda 0x0327              ;60cf  ad 27 03     A = param 4
     and #0x01               ;60d2  29 01
     sta 0x0289              ;60d4  8d 89 02
+
     jsr sub_72ef            ;60d7  20 ef 72
     jsr sub_7353            ;60da  20 53 73
     jsr sub_739e            ;60dd  20 9e 73
     jsr sub_73f7            ;60e0  20 f7 73
     jsr sub_746f            ;60e3  20 6f 74
     jsr sub_71bc            ;60e6  20 bc 71
+
     lda #0x00               ;60e9  a9 00
     sta 0x0344              ;60eb  8d 44 03     Store as TechniSat protocol status byte
 
-lab_60ee:
+lab_60ee_done:
     jsr sub_5adf_resp       ;60ee  20 df 5a     Send 10 01 5E <0x0344> CS
     rts                     ;60f1  60
 
-;table of BRG values used by lab_6106
+;table of BRG values used by lab_6119_valid
 brg_values:
-    .byte 0x40              ;60f2  40          DATA 0x40 '@'
-    .byte 0x20              ;60f3  20          DATA 0x20 ' '
-    .byte 0x0f              ;60f4  0f          DATA 0x0f
-    .byte 0x0a              ;60f5  0a          DATA 0x0a
+    .byte 0x40              ;60f2  40          DATA 0x40 '@'    0 = 9600 bps
+    .byte 0x20              ;60f3  20          DATA 0x20 ' '    1 = 19200 bps
+    .byte 0x0f              ;60f4  0f          DATA 0x0f        2 = 38400 bps
+    .byte 0x0a              ;60f5  0a          DATA 0x0a        3 = 57600 bps
 
 ;TechniSat protocol command 0x59
 ;Change baud rate
-;First parameter is an index to the baud rates table above.
-;Response will be sent at current baud rate, then rate changed.
+;
+;Request block:
+;  0x10     unknown
+;  0x01     unknown
+;  0x01     number of parameters (1)            0x321
+;  0x59     command (0x59 = change baud rate)   0x322
+;  0x00     param 0: baud rate index            0x323
+;  <CS>     checksum
+;
+;Baud rate index:
+;  0=9600 bps, 1=19200 bps, 2=38400 bps, 3=57600 bps
+;
+;Response block:
+;  10 01 5E 00 90  Baud rate index is valid.
+;  10 01 5E 10 90  Baud rate index is not valid.
+;
+;Response will be sent at current baud rate.  If baud rate index
+;given is valid, the baud rate will then be changed.  The baud rate
+;will only be changed for the current connection (after waking up
+;with 5 baud init, the baud rate is always 9600 bps).
+;
 sub_60f6_cmd_59:
     ldy #0x01               ;60f6  a0 01
     jsr sub_f22c_delay      ;60f8  20 2c f2     Delay an unknown time period for Y iterations
 
-    lda #0x00               ;60fb  a9 00
-    ldx 0x0323              ;60fd  ae 23 03
-    cpx #0x04               ;6100  e0 04
-    bcc lab_6106            ;6102  90 02
-    lda #0x10               ;6104  a9 10
+    lda #0x00               ;60fb  a9 00        A = status code 0
 
-lab_6106:
+    ldx 0x0323              ;60fd  ae 23 03     A = param 0
+    cpx #0x04               ;6100  e0 04        Is it within range of the brg_values table?
+    bcc lab_6119_valid      ;6102  90 02          Yes: branch to keep status code 0
+
+    ;Baud rate index is not valid
+    lda #0x10               ;6104  a9 10        A = status code 0x10
+
+lab_6119_valid:
     sta 0x0344              ;6106  8d 44 03     Store as TechniSat protocol status byte
     jsr sub_5adf_resp       ;6109  20 df 5a     Send 10 01 5E <0x0344> CS
-    lda 0x0344              ;610c  ad 44 03
-    bne lab_6119            ;610f  d0 08
-    ldx 0x0323              ;6111  ae 23 03
-    lda brg_values,x        ;6114  bd f2 60
-    sta BRG                 ;6117  85 1c
 
-lab_6119:
+    lda 0x0344              ;610c  ad 44 03     A = status code value we just sent
+    bne lab_6119_rts        ;610f  d0 08        Did we send the error status (0x10)?
+                            ;                     Yes: branch to skip changing BRG
+
+    ;Baud rate index is valid
+    ldx 0x0323              ;6111  ae 23 03     X = param 0
+    lda brg_values,x        ;6114  bd f2 60     X = read new BRG value from table
+    sta BRG                 ;6117  85 1c        Store BRG value
+
+lab_6119_rts:
     rts                     ;6119  60
 
 ;TechniSat protocol command 0x58
+;Set the value of location 0x0342 (TODO what does this do?)
+;
+;Request block:
+;  0x10     unknown
+;  0x01     unknown
+;  0x01     number of parameters (1)             0x0321
+;  0x58     command (0x59 = set value of 0x0342) 0x0322
+;  0x00     param 0: value                       0x0323
+;  <CS>     checksum
+;
+;Value:
+;  0x00 - 0x0F
+;
+;Response block:
+;  10 01 5E 00 90  Value is valid (in the range of 0x00-0x0F)
+;  10 01 5E 10 90  Value is not valid
+;
 sub_611a_cmd_58:
-    bbc 7,0xe8,lab_613e_rts ;611a  f7 e8 21
+    bbc 7,0xe8,lab_613e_rts ;611a  f7 e8 21     Branch if 0xE8 bit 7 is clear
+
+    ;0xE8 Bit 7 is set
 
     ldy #0x01               ;611d  a0 01
     jsr sub_f22c_delay      ;611f  20 2c f2     Delay an unknown time period for Y iterations
 
-    ldx #0x10               ;6122  a2 10
+    ldx #0x10               ;6122  a2 10        X = status code 0x10
+
     lda 0x0323              ;6124  ad 23 03     A = param 0
     cmp #0x10               ;6127  c9 10
-    bcs lab_612d            ;6129  b0 02
-    ldx #0x00               ;612b  a2 00
+    bcs lab_612d_valid      ;6129  b0 02        Branch if >= 0x10
 
-lab_612d:
+    ldx #0x00               ;612b  a2 00        X = status code 0
+
+lab_612d_valid:
     stx 0x0344              ;612d  8e 44 03
     jsr sub_5adf_resp       ;6130  20 df 5a     Send 10 01 5E <0x0344> CS
-    lda 0x0344              ;6133  ad 44 03
-    bne lab_613e_rts        ;6136  d0 06
+
+    lda 0x0344              ;6133  ad 44 03     A = status code value we just sent
+    bne lab_613e_rts        ;6136  d0 06        Did we send the error status (0x10)?
+                            ;                     Yes: branch to skip changing ??? TODO ???
+
     lda 0x0323              ;6138  ad 23 03     A = param 0
-    sta 0x0342              ;613b  8d 42 03
+    sta 0x0342              ;613b  8d 42 03     Store it in location 0x0342
 
 lab_613e_rts:
     rts                     ;613e  60
@@ -11442,10 +11518,10 @@ mem_617a:
     .word sub_62c3          ;6188   VECTOR      code
 
     .word mem_623f          ;618a   DATA        lookup table
-    .word sub_6249          ;618c   VECTOR      code
+    .word sub_6249_rts      ;618c   VECTOR      code
 
     .word mem_623f          ;618e   DATA        lookup table
-    .word sub_6249          ;6190   VECTOR      code
+    .word sub_6249_rts      ;6190   VECTOR      code
 
     .word mem_6240          ;6192   DATA        lookup table
     .word sub_62c9          ;6194   VECTOR      code
@@ -11455,7 +11531,9 @@ mem_617a:
 
 ;TechniSat protocol command 0x53
 sub_619a_cmd_53:
-    bbc 7,0xe8,lab_621b     ;619a  f7 e8 7e
+    bbc 7,0xe8,lab_621b_rts ;619a  f7 e8 7e     Branch if 0xE8 bit 7 is clear
+
+    ;0xE8 Bit 7 is set
 
     ldy #0x01               ;619d  a0 01
     jsr sub_f22c_delay      ;619f  20 2c f2     Delay an unknown time period for Y iterations
@@ -11523,12 +11601,12 @@ lab_61f8:
     jsr sub_f22c_delay      ;6211  20 2c f2     Delay an unknown time period for Y iterations
 
     clb 6,0xe5              ;6214  df e5
-    bra lab_621b            ;6216  80 03
+    bra lab_621b_rts        ;6216  80 03
 
 lab_6218:
     jsr sub_5adf_resp       ;6218  20 df 5a     Send 10 01 5E <0x0344> CS
 
-lab_621b:
+lab_621b_rts:
     rts                     ;621b  60
 
 mem_621c:
@@ -11597,7 +11675,7 @@ mem_6244:
     .byte 0xaf              ;6247  af          DATA 0xaf
     .byte 0xaf              ;6248  af          DATA 0xaf
 
-sub_6249:
+sub_6249_rts:
     rts                     ;6249  60
 
 sub_624a:
