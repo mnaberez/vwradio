@@ -239,7 +239,8 @@ tsat_result_t tsat_write_ram(uint16_t address, uint8_t size, uint8_t *data)
 }
 
 
-/* Read any memory without restrictions by using Remote Code Execution (RCE).
+/* Read any memory without restrictions by using Remote Code Execution (RCE)
+ * on most radios that use the M38869FFAHP microcontroller.
  *
  * Works on:
  *   VW Gamma 5  1J0035186D "VW_0004"
@@ -248,6 +249,7 @@ tsat_result_t tsat_write_ram(uint16_t address, uint8_t size, uint8_t *data)
  *
  * Does not work on:
  *   Skoda Symphony 1U0035156E "SK_0015"
+ *   Skoda Symphony MP3 SKZA7H 1U0035156F "SK_004" (MCU is M306N5FCTFP)
  *
  * This is used to dump the firmware of the VW Rhapsody radio.  It has been
  * tested and found to be reliable on both the VW Gamma 5 and VW Rhapsody.  On
@@ -255,8 +257,8 @@ tsat_result_t tsat_write_ram(uint16_t address, uint8_t size, uint8_t *data)
  * On the VW Rhapsody, there is no command in KWP1281 or the TechniSat protocol
  * that can dump the firmware.  This RCE is the only way to do it.
  *
- * On the Skoda Symphony, the "write RAM" command fails when writing to
- * the stack page.
+ * On the Skoda Symphony 1U0035156E "SK_0015", the "write RAM" command
+ * fails when writing to the stack page.
  */
 tsat_result_t tsat_rce_read_memory(uint16_t address, uint16_t size)
 {
@@ -363,6 +365,7 @@ tsat_result_t tsat_hello(void)
  *
  * Does not work on:
  *   Skoda Symphony 1U0035156E "SK_0015"
+ *   Skoda Symphony MP3 SKZA7H 1U0035156F "SK_004"
  *
  * On the Skoda Symphony, the command returns the "success" status code
  * but the EEPROM filter is not actually disabled.  Reading the SAFE code
@@ -409,6 +412,7 @@ tsat_result_t tsat_disable_eeprom_filter_0x4d(void)
  *   VW Rhapsody 1J0035156  "SW_001"
  *   VW Rhapsody 1J0035156A "SW_002"
  *   Skoda Symphony 1U0035156E "SK_0015"
+ *   Skoda Symphony MP3 SKZA7H 1U0035156F "SK_004"
  */
 tsat_result_t tsat_disable_eeprom_filter_0x45(void)
 {
