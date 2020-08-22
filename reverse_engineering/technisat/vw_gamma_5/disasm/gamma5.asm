@@ -3847,7 +3847,7 @@ mem_3570:
 ;same order as table of bytes at 0x3570
 ;used by lab_3640
 mem_3588:
-    .word sub_5adf_resp     ;3588  df 5a       VECTOR   cmd=5e   Send 10 01 5E <0x0344> CS
+    .word sub_5adf_stat_resp;3588  df 5a       VECTOR   cmd=5e   Send 10 01 5E <0x0344> CS status response
     .word sub_5b37_cmd_5f   ;358a  37 5b       VECTOR   cmd=5f   Disconnect (terminate session)
     .word sub_5b4a_cmd_42   ;358c  4a 5b       VECTOR   cmd=42
     .word sub_5bbb_cmd_43   ;358e  bb 5b       VECTOR   cmd=43
@@ -10079,8 +10079,8 @@ lab_5ada:
 
 
 ;TechniSat protocol command 0x5E
-;Send 10 01 5E <0x0344> CS
-sub_5adf_resp:
+;Send 10 01 5E <0x0344> CS status response
+sub_5adf_stat_resp:
     ldm #0xff,0x75          ;5adf  3c ff 75
     clb 2,0xf7              ;5ae2  5f f7
     bbc 7,0xe8,lab_5b10     ;5ae4  f7 e8 29     Branch if 0xE8 bit 7 is clear
@@ -10135,7 +10135,7 @@ lab_5b1d:
     ldy #0x01               ;5b2e  a0 01
     jsr sub_f22c_delay      ;5b30  20 2c f2     Delay an unknown time period for Y iterations
 
-    jsr sub_5adf_resp       ;5b33  20 df 5a     Send 10 01 5E <0x0344> CS
+    jsr sub_5adf_stat_resp  ;5b33  20 df 5a     Send 10 01 5E <0x0344> CS status response
     rts                     ;5b36  60
 
 ;TechniSat protocol command 0x5F
@@ -10144,7 +10144,7 @@ sub_5b37_cmd_5f:
     ldy #0x01               ;5b37  a0 01
     jsr sub_f22c_delay      ;5b39  20 2c f2     Delay an unknown time period for Y iterations
 
-    jsr sub_5adf_resp       ;5b3c  20 df 5a     Send 10 01 5E <0x0344> CS
+    jsr sub_5adf_stat_resp  ;5b3c  20 df 5a     Send 10 01 5E <0x0344> CS status response
     ldm #0x40,BRG           ;5b3f  3c 40 1c     Baud rate = 9600 bps
     clb 6,0xe9              ;5b42  df e9        Clear bit 6 = Enable EEPROM filtering
     clb 0,0xef              ;5b44  1f ef
@@ -10210,7 +10210,7 @@ lab_5b92:
 lab_5bb2:
     lda #0x10               ;5bb2  a9 10
     sta 0x0344              ;5bb4  8d 44 03     Store as TechniSat protocol status byte
-    jsr sub_5adf_resp       ;5bb7  20 df 5a     Send 10 01 5E <0x0344> CS
+    jsr sub_5adf_stat_resp  ;5bb7  20 df 5a     Send 10 01 5E <0x0344> CS status response
 
 lab_5bba_rts:
     rts                     ;5bba  60
@@ -10239,7 +10239,7 @@ sub_5bbb_cmd_43:
     jsr sub_46e5            ;5be4  20 e5 46     TODO probably read from I2C EEPROM
 
 lab_5be7:
-    jsr sub_5adf_resp       ;5be7  20 df 5a     Send 10 01 5E <0x0344> CS
+    jsr sub_5adf_stat_resp  ;5be7  20 df 5a     Send 10 01 5E <0x0344> CS status response
     rts                     ;5bea  60
 
 ;TechniSat protocol command 0x44
@@ -10291,7 +10291,7 @@ lab_5c18:
 lab_5c25_failed:
     lda #0x04               ;5c25  a9 04
     sta 0x0344              ;5c27  8d 44 03     Store as TechniSat protocol status byte
-    jsr sub_5adf_resp       ;5c2a  20 df 5a     Send 10 01 5E <0x0344> CS
+    jsr sub_5adf_stat_resp  ;5c2a  20 df 5a     Send 10 01 5E <0x0344> CS status response
 
 lab_5c2d_rts:
     rts                     ;5c2d  60
@@ -10353,7 +10353,7 @@ sub_5c2e_cmd_45:
 lab_5c61:
     lda #0x20               ;5c61  a9 20
     sta 0x0344              ;5c63  8d 44 03     Store as TechniSat protocol status byte
-    jsr sub_5adf_resp       ;5c66  20 df 5a     Send 10 01 5E <0x0344> CS
+    jsr sub_5adf_stat_resp  ;5c66  20 df 5a     Send 10 01 5E <0x0344> CS status response
     bra lab_5c7d_ret        ;5c69  80 12        Branch to return
 
 lab_5c6b_not_magic:
@@ -10371,7 +10371,7 @@ lab_5c6b_not_magic:
     sta 0x0344              ;5c77  8d 44 03     Store as TechniSat protocol status byte
 
 lab_5c7a_success:
-    jsr sub_5adf_resp       ;5c7a  20 df 5a     Send 10 01 5E <0x0344> CS
+    jsr sub_5adf_stat_resp  ;5c7a  20 df 5a     Send 10 01 5E <0x0344> CS status response
 
 lab_5c7d_ret:
     rts                     ;5c7d  60
@@ -10412,7 +10412,7 @@ lab_5ca9_failed:
     sta 0x0344              ;5cab  8d 44 03     Store as TechniSat protocol status byte
 
 lab_5cae:
-    jsr sub_5adf_resp       ;5cae  20 df 5a     Send 10 01 5E <0x0344> CS
+    jsr sub_5adf_stat_resp  ;5cae  20 df 5a     Send 10 01 5E <0x0344> CS status response
     rts                     ;5cb1  60
 
 ;TechniSat protocol command 0x47
@@ -10450,7 +10450,7 @@ lab_5cdb_failed:
     sta 0x0344              ;5cdd  8d 44 03     Store as TechniSat protocol status byte
 
 lab_5ce0:
-    jsr sub_5adf_resp       ;5ce0  20 df 5a     Send 10 01 5E <0x0344> CS
+    jsr sub_5adf_stat_resp  ;5ce0  20 df 5a     Send 10 01 5E <0x0344> CS status response
     rts                     ;5ce3  60
 
 ;TechniSat protocol command 0x4a
@@ -10497,7 +10497,7 @@ lab_5d19_failed:
     sta 0x0344              ;5d1b  8d 44 03     Store as TechniSat protocol status byte
 
 lab_5d1e:
-    jsr sub_5adf_resp       ;5d1e  20 df 5a     Send 10 01 5E <0x0344> CS
+    jsr sub_5adf_stat_resp  ;5d1e  20 df 5a     Send 10 01 5E <0x0344> CS status response
 
 lab_5d21_rts:
     rts                     ;5d21  60
@@ -10546,7 +10546,7 @@ lab_5d60_failed:
     sta 0x0344              ;5d62  8d 44 03     Store as TechniSat protocol status byte
 
 lab_5d65:
-    jsr sub_5adf_resp       ;5d65  20 df 5a     Send 10 01 5E <0x0344> CS
+    jsr sub_5adf_stat_resp  ;5d65  20 df 5a     Send 10 01 5E <0x0344> CS status response
     rts                     ;5d68  60
 
 ;TechniSat protocol command 0x4c
@@ -10593,7 +10593,7 @@ lab_5daa_failed:
     sta 0x0344              ;5dac  8d 44 03     Store as TechniSat protocol status byte
 
 lab_5daf:
-    jsr sub_5adf_resp       ;5daf  20 df 5a     Send 10 01 5E <0x0344> CS
+    jsr sub_5adf_stat_resp  ;5daf  20 df 5a     Send 10 01 5E <0x0344> CS status response
     rts                     ;5db2  60
 
 ;TechniSat protocol command 0x4d
@@ -10661,7 +10661,7 @@ lab_5dfc_failed:
     sta 0x0344              ;5dfe  8d 44 03     Store as TechniSat protocol status byte
 
 lab_5e01:
-    jsr sub_5adf_resp       ;5e01  20 df 5a     Send 10 01 5E <0x0344> CS
+    jsr sub_5adf_stat_resp  ;5e01  20 df 5a     Send 10 01 5E <0x0344> CS status response
     rts                     ;5e04  60
 
 
@@ -10828,7 +10828,7 @@ lab_5e9b_set:
     ldy #0x01               ;5e9b  a0 01
     jsr sub_f22c_delay      ;5e9d  20 2c f2     Delay an unknown time period for Y iterations
 
-    jsr sub_5ef7            ;5ea0  20 f7 5e     Read from EEPROM with some addresses filtered
+    jsr sub_5ef7_read_eeprom;5ea0  20 f7 5e     Read from EEPROM with some addresses filtered
     bcs lab_5eee_failed     ;5ea3  b0 49        If read from EEPROM failed, branch
 
     seb 6,0xe5              ;5ea5  cf e5
@@ -10868,70 +10868,49 @@ lab_5ece:
     bra lab_5ef6            ;5eec  80 08
 
 lab_5eee_failed:
-    lda #0x05               ;5eee  a9 05
+    lda #0x05               ;5eee  a9 05        A = status 0x05 (failed)
     sta 0x0344              ;5ef0  8d 44 03     Store as TechniSat protocol status byte
-    jsr sub_5adf_resp       ;5ef3  20 df 5a     Send 10 01 5E <0x0344> CS
+    jsr sub_5adf_stat_resp  ;5ef3  20 df 5a     Send 10 01 5E <0x0344> CS status response
 
 lab_5ef6:
     rts                     ;5ef6  60
 
 ;Read from EEPROM with some addresses filtered
-;Called from KWP1281 Read EEPROM (kwp_19_read_eeprom)
-;Also called from TechniSat protocol command 0x48 (sub_5e97_cmd_48)
+;Called from TechniSat protocol command 0x48 (sub_5e97_cmd_48).
+;Also called from KWP1281 Read EEPROM (kwp_19_read_eeprom)
 ;Returns carry clear = success, carry set = failed
 ;
-;The KWP1281 rx buffer is modified before this subroutine
-;is called.  See the notes in sub_5e97_cmd_48.  It looks like this:
-;
-;  0x06 Block length                0x0320
-;  0x3E Block counter               0x0321
-;  0x03 Block title (0x19)          0x0322
-;  0x00 Address low                 0x0323 <-+
-;  0x00 Address high                0x0324   | swapped from original request
-;  0x00 Number of bytes to read     0x0325 <-+
-;  0x03 Block end                   0x0326
-;
-sub_5ef7:
+sub_5ef7_read_eeprom:
     ;Set pointer to buffer at 0x0100 will receive EEPROM contents (used by sub_46e5)
-    lda #0x00               ;5ef7  a9 00    A = Buffer address low
-    sta 0x4c                ;5ef9  85 4c    Store in pointer low
-    lda #0x01               ;5efb  a9 01    A = Buffer address high
-    sta 0x4d                ;5efd  85 4d    Store in pointer high
+    lda #0x00               ;5ef7  a9 00        A = Buffer address low
+    sta 0x4c                ;5ef9  85 4c        Store in pointer low
+    lda #0x01               ;5efb  a9 01        A = Buffer address high
+    sta 0x4d                ;5efd  85 4d        Store in pointer high
 
     ldm #0x02,0x4e          ;5eff  3c 02 4e     TODO what is 4e?
 
-    ;Now the KWP1281 rx buffer is going to be modified again.
-    ;The address in 0x0323-0324 is the start address to read.
-    ;It's now going to be changed to the end address.
+    ;Now the TechniSat protocol rx buffer is going to be modified.
+    ;The EEPROM address in 0x0323-0324 is the start address to read.
+    ;It's now going to be changed to be the end address.
 
-    lda 0x0325              ;5f02  ad 25 03     A = KWP1281 rx buffer: Number of bytes to read
+    lda 0x0325              ;5f02  ad 25 03     A = param 2: number of bytes to read
     sta 0x4f                ;5f05  85 4f        Save number of bytes (used by sub_46e5)
 
     dec a                   ;5f07  1a
     clc                     ;5f08  18
-    adc 0x0323              ;5f09  6d 23 03     Add to KWP1281 rx buffer: Address low
+    adc 0x0323              ;5f09  6d 23 03     Add to param 0: eeprom address low
     lda #0x00               ;5f0c  a9 00
-    adc 0x0324              ;5f0e  6d 24 03     Add to KWP1281 rx buffer: Address high
+    adc 0x0324              ;5f0e  6d 24 03     Add to param 1: eeprom address high
 
     ;Check address high
-
     cmp #0x08               ;5f11  c9 08        Compare address high with 0x08:
     bcs lab_5f4c            ;5f13  b0 37        Return with carry set if address high >= 0x08
 
-    ;At this point, the KWP1281 rx buffer looks like this:
-    ;  0x06 Block length                0x0320
-    ;  0x3E Block counter               0x0321
-    ;  0x03 Block title (0x19)          0x0322
-    ;  0x00 End Address low             0x0323
-    ;  0x00 End Address high            0x0324
-    ;  0x00 Number of bytes to read     0x0325
-    ;  0x03 Block end                   0x0326
-
     ;TODO: setting up something in 0x0100-0x0101
-    lda 0x0323              ;5f15  ad 23 03     A = KWP1281 rx buffer: End Address low
+    lda 0x0323              ;5f15  ad 23 03     A = param 0: End address low for EEPROM read
     sta 0x0101              ;5f18  8d 01 01     Store it in 0x0101
 
-    lda 0x0324              ;5f1b  ad 24 03     A = KWP1281 rx buffer: End Address high
+    lda 0x0324              ;5f1b  ad 24 03     A = param 1: End address high for EEPROM read
     asl a                   ;5f1e  0a
     ora #0xa0               ;5f1f  09 a0
     sta 0x0100              ;5f21  8d 00 01
@@ -10944,9 +10923,9 @@ sub_5ef7:
 
     ;Set up pointer at 0x004c with end address (used by sub_5fbf)
     ;TODO might not be end address, notice Y increments below
-    lda 0x0323              ;5f2a  ad 23 03     A = KWP1281 rx buffer: End Address low
+    lda 0x0323              ;5f2a  ad 23 03     A = param 0: End address low for EEPROM read
     sta 0x4c                ;5f2d  85 4c
-    lda 0x0324              ;5f2f  ad 24 03     A = KWP1281 rx buffer: End Address high
+    lda 0x0324              ;5f2f  ad 24 03     A = param 1: End address high for EEPROM read
     sta 0x4d                ;5f32  85 4d
     ldy #0x00               ;5f34  a0 00
 
@@ -11007,11 +10986,15 @@ sub_5f4d_cmd_49:
     ldy #0x01               ;5f4d  a0 01
     jsr sub_f22c_delay      ;5f4f  20 2c f2     Delay an unknown time period for Y iterations
 
-    jsr sub_5f59            ;5f52  20 59 5f
-    jsr sub_5adf_resp       ;5f55  20 df 5a     Send 10 01 5E <0x0344> CS
+    jsr sub_5ef7_writ_eeprom;5f52  20 59 5f
+    jsr sub_5adf_stat_resp  ;5f55  20 df 5a     Send 10 01 5E <0x0344> CS status response
     rts                     ;5f58  60
 
-sub_5f59:
+;Write to EEPROM with some addresses filtered
+;Called from TechniSat protocol command 0x49 (sub_5f4d_cmd_49).
+;Also called from KWP1281 0x1A Write EEPROM (kwp_1a_write_eeprom)
+;Sets TechniSat protocol status byte 0x0344 to indicate success or failure
+sub_5ef7_writ_eeprom:
     lda #0x05               ;5f59  a9 05
     sta 0x0344              ;5f5b  8d 44 03     Store as TechniSat protocol status byte
 
@@ -11030,7 +11013,7 @@ sub_5f59:
     lda #0x00               ;5f6d  a9 00
     adc 0x0324              ;5f6f  6d 24 03     Add to param 1 (EEPROM address high)
     cmp #0x08               ;5f72  c9 08
-    bcs lab_5fbe            ;5f74  b0 48        Branch if >= end address high byte 0x08
+    bcs lab_5fbe_rts        ;5f74  b0 48        Branch if >= end address high byte 0x08
 
     ;EEPROM address is in range 0-0x7FF
 
@@ -11064,7 +11047,7 @@ lab_5f90:
     ;End of EEPROM filtering
 
 lab_5f96:
-    bcs lab_5fbe            ;5f96  b0 26
+    bcs lab_5fbe_rts        ;5f96  b0 26
     lda 0x0323              ;5f98  ad 23 03     A = param 0 (EEPROM address low)
     sta 0x4a                ;5f9b  85 4a
     lda 0x0324              ;5f9d  ad 24 03     A = param 1 (EEPROM address high)
@@ -11085,7 +11068,7 @@ lab_5fad:
     lda #0x00               ;5fb9  a9 00
     sta 0x0344              ;5fbb  8d 44 03     Store as TechniSat protocol status byte
 
-lab_5fbe:
+lab_5fbe_rts:
     rts                     ;5fbe  60
 
 sub_5fbf:
@@ -11209,7 +11192,7 @@ lab_6064:
     sta 0x0344              ;6069  8d 44 03     Store as TechniSat protocol status byte
 
 lab_606c:
-    jsr sub_5adf_resp       ;606c  20 df 5a     Send 10 01 5E <0x0344> CS
+    jsr sub_5adf_stat_resp  ;606c  20 df 5a     Send 10 01 5E <0x0344> CS status response
     rts                     ;606f  60
 
 ;TechniSat protocol command 0x51
@@ -11241,7 +11224,7 @@ sub_6070_cmd_51:
     sta 0x0344              ;609c  8d 44 03     Store as TechniSat protocol status byte
 
 lab_609f:
-    jsr sub_5adf_resp       ;609f  20 df 5a     Send 10 01 5E <0x0344> CS
+    jsr sub_5adf_stat_resp  ;609f  20 df 5a     Send 10 01 5E <0x0344> CS status response
     rts                     ;60a2  60
 
 ;TechniSat protocol command 0x52
@@ -11288,7 +11271,7 @@ lab_60af_loop:
     sta 0x0344              ;60eb  8d 44 03     Store as TechniSat protocol status byte
 
 lab_60ee_done:
-    jsr sub_5adf_resp       ;60ee  20 df 5a     Send 10 01 5E <0x0344> CS
+    jsr sub_5adf_stat_resp  ;60ee  20 df 5a     Send 10 01 5E <0x0344> CS status response
     rts                     ;60f1  60
 
 ;table of BRG values used by lab_6119_valid
@@ -11336,7 +11319,7 @@ sub_60f6_cmd_59:
 
 lab_6119_valid:
     sta 0x0344              ;6106  8d 44 03     Store as TechniSat protocol status byte
-    jsr sub_5adf_resp       ;6109  20 df 5a     Send 10 01 5E <0x0344> CS
+    jsr sub_5adf_stat_resp  ;6109  20 df 5a     Send 10 01 5E <0x0344> CS status response
 
     lda 0x0344              ;610c  ad 44 03     A = status code value we just sent
     bne lab_6119_rts        ;610f  d0 08        Did we send the error status (0x10)?
@@ -11386,7 +11369,7 @@ sub_611a_cmd_58:
 
 lab_612d_valid:
     stx 0x0344              ;612d  8e 44 03
-    jsr sub_5adf_resp       ;6130  20 df 5a     Send 10 01 5E <0x0344> CS
+    jsr sub_5adf_stat_resp  ;6130  20 df 5a     Send 10 01 5E <0x0344> CS status response
 
     lda 0x0344              ;6133  ad 44 03     A = status code value we just sent
     bne lab_613e_rts        ;6136  d0 06        Did we send the error status (0x10)?
@@ -11505,7 +11488,7 @@ lab_6171_0x10:
     sta 0x0344              ;6173  8d 44 03     Store as TechniSat protocol status byte
 
 lab_6176:
-    jsr sub_5adf_resp       ;6176  20 df 5a     Send 10 01 5E <0x0344> CS
+    jsr sub_5adf_stat_resp  ;6176  20 df 5a     Send 10 01 5E <0x0344> CS status response
     rts                     ;6179  60
 
 ;table used by sub_619a_cmd_53
@@ -11609,7 +11592,7 @@ lab_61f8:
     bra lab_621b_rts        ;6216  80 03
 
 lab_6218:
-    jsr sub_5adf_resp       ;6218  20 df 5a     Send 10 01 5E <0x0344> CS
+    jsr sub_5adf_stat_resp  ;6218  20 df 5a     Send 10 01 5E <0x0344> CS status response
 
 lab_621b_rts:
     rts                     ;621b  60
@@ -24318,7 +24301,7 @@ kwp_12_unknown_nak:
 ;Request block format:
 ;  0x06 Block length                0x0320
 ;  0x?? Block counter               0x0321
-;  0x03 Block title (0x19)          0x0322
+;  0x19 Block title (0x19)          0x0322
 ;  0x?? Number of bytes to read     0x0323
 ;  0x?? Address high                0x0324
 ;  0x?? Address low                 0x0325
@@ -24332,135 +24315,148 @@ kwp_12_unknown_nak:
 ;  0x03 Block end (0x03)
 ;
 kwp_19_read_eeprom:
-    bbc 1,0xe7,lab_a4cb     ;a48d  37 e7 3b     if not authorized, branch to send nak response
+    bbc 1,0xe7,lab_a4cb_nak ;a48d  37 e7 3b     if not authorized, branch to send nak response
     clb 6,0xe9              ;a490  df e9        Clear bit 6 = Enable EEPROM filtering
 
     lda 0x0323              ;a492  ad 23 03     A = number of bytes to read
-    beq lab_a4cb            ;a495  f0 34        Send nak response if number = 0
-
+    beq lab_a4cb_nak        ;a495  f0 34        Send nak response if number = 0
     cmp #0x21               ;a497  c9 21        Compare to 41
-    bcs lab_a4cb            ;a499  b0 30        Send nak response if number >= 41
+    bcs lab_a4cb_nak        ;a499  b0 30        Send nak response if number >= 41
 
-    ;Swap bytes 0x323 and 0x325 in the KWP1281 rx buffer
-    ldx 0x0325              ;a49b  ae 25 03     X = address low
-    stx 0x0323              ;a49e  8e 23 03     Store address low in KWP1281 rx buffer # of bytes to read
-    sta 0x0325              ;a4a1  8d 25 03     Store # of bytes to read in KWP1281 rx buffer address low
+    ;At this point we need to move some data around in the KWP1281 rx buffer.  This same buffer
+    ;memory is also used for TechniSat protocol requests.  We make the buffer look a little
+    ;more like a TechniSat protocol request, since we call sub_5ef7_read_eeprom and it is
+    ;actually a TechniSat protocol function.
 
-    ;Now the KWP1281 rx buffer looks like this:
-    ;  0x06 Block length                0x0320
-    ;  0x3E Block counter               0x0321
-    ;  0x03 Block title (0x19)          0x0322
-    ;  0x00 Address low                 0x0323 <-+
-    ;  0x00 Address high                0x0324   | swapped from original request
-    ;  0x00 Number of bytes to read     0x0325 <-+
-    ;  0x03 Block end                   0x0326
+    ldx 0x0325              ;a49b  ae 25 03     X = EEPROM address low
+    stx 0x0323              ;a49e  8e 23 03     Store X as TechniSat protocol command 0x48 request param 0: eeprom address low
+    sta 0x0325              ;a4a1  8d 25 03     Store A as TechniSat protocol command 0x48 request param 2: number of bytes to read
+
+    ;Now the receive buffer looks more like a TechniSat protocol command 0x48 request:
+    ;
+    ;  number of parameters                0x321   don't care
+    ;  command (0x48 = read eeprom)        0x322   don't care
+    ;  param 0: eeprom address low         0x323   populated from KWP1281 request
+    ;  param 1: eeprom address high        0x324   populated from KWP1281 request
+    ;  param 2: number of bytes to read    0x325   populated from KWP1281 request
+    ;  checksum                            0x326   don't care
 
     ;A still contains number of bytes to read
     clc                     ;a4a4  18
     adc #0x03               ;a4a5  69 03        Add 3 for block counter, block title, block end
     sta 0x0331              ;a4a7  8d 31 03     Store in KWP1281 tx buffer: block length
 
-    jsr sub_5ef7            ;a4aa  20 f7 5e     Read from EEPROM with some addresses filtered
-    bcs lab_a4cb            ;a4ad  b0 1c        If read from EEPROM failed, send nak response
+    jsr sub_5ef7_read_eeprom;a4aa  20 f7 5e     Read from EEPROM with some addresses filtered
+    bcs lab_a4cb_nak        ;a4ad  b0 1c        If read from EEPROM failed, send nak response
 
-    ldy #0xef               ;a4af  a0 ef        Y = block title 0xEF
+    ldy #0xef               ;a4af  a0 ef        Y = block title 0xEF (Read EEPROM Response)
     sty 0x0333              ;a4b1  8c 33 03     Store in KWP1281 tx buffer: block title
-    ldy #0x00               ;a4b4  a0 00
 
-lab_a4b6:
+    ldy #0x00               ;a4b4  a0 00
+lab_a4b6_loop:
     lda 0x0102,y            ;a4b6  b9 02 01     Read data byte
     sta 0x0334,y            ;a4b9  99 34 03     Copy it into KWP1281 tx buffer
     iny                     ;a4bc  c8
     cpy 0x0325              ;a4bd  cc 25 03     Compare to number of bytes to read
-    bcc lab_a4b6            ;a4c0  90 f4        Keep going until all bytes are copied
+    bcc lab_a4b6_loop       ;a4c0  90 f4        Keep going until all bytes are copied
+
     lda #0x00               ;a4c2  a9 00
     sta 0x05b7              ;a4c4  8d b7 05
     jsr sub_b69f            ;a4c7  20 9f b6
     rts                     ;a4ca  60
 
-lab_a4cb:
+lab_a4cb_nak:
     jsr sub_b461            ;a4cb  20 61 b4     Send nak response
     rts                     ;a4ce  60
 
 ;KWP1281 0x1A Write EEPROM
+;
+;This implementation is unreachable because the routine begins with an
+;unconditional branch to send NAK.  This code as written and then disabled.
+;It is still possible to write the EEPROM using the TechniSat protocol
+;on address 0x7C.
+;
+;Request block format:
+;  0x06 Block length                  0x0320
+;  0x?? Block counter                 0x0321
+;  0x1A Block title (0x1A)            0x0322
+;  0x?? Number of bytes to write      0x0323    Must always be 1
+;  0x?? Address high                  0x0324
+;  0x?? Address low                   0x0325
+;  0x?? Data byte to write            0x0326
+;  0x03 Block end                     0x0327
+;
+;Response block format:
+;  0x07 Block length (7)              0x0331
+;  0x?? Block counter                 0x0332
+;  0xF9 Block title (0xF9)            0x0333
+;  0x?? Number of bytes written       0x0334    Always 1, even on failure
+;  0x?? Address high                  0x0335
+;  0x?? Address low                   0x0336
+;  0x?? Status (0=success, 1=failure) 0x0337
+;  0x03 Block end (0x03)              0x0338
+;
 kwp_1a_write_eeprom:
-    bra lab_a4cb            ;a4cf  80 fa        branch to send nak response
+    bra lab_a4cb_nak        ;a4cf  80 fa        unconditionally branch to send nak response
 
-    .byte 0x37              ;a4d1  37          DATA 0x37 '7'
-    .byte 0xe7              ;a4d2  e7          DATA 0xe7
-    .byte 0xf7              ;a4d3  f7          DATA 0xf7
-    .byte 0xdf              ;a4d4  df          DATA 0xdf
-    .byte 0xe9              ;a4d5  e9          DATA 0xe9
-    .byte 0xad              ;a4d6  ad          DATA 0xad
-    .byte 0x23              ;a4d7  23          DATA 0x23 '#'
-    .byte 0x03              ;a4d8  03          DATA 0x03
-    .byte 0xf0              ;a4d9  f0          DATA 0xf0
-    .byte 0xf0              ;a4da  f0          DATA 0xf0
-    .byte 0xc9              ;a4db  c9          DATA 0xc9
-    .byte 0x02              ;a4dc  02          DATA 0x02
-    .byte 0xb0              ;a4dd  b0          DATA 0xb0
-    .byte 0xec              ;a4de  ec          DATA 0xec
-    .byte 0xae              ;a4df  ae          DATA 0xae
-    .byte 0x25              ;a4e0  25          DATA 0x25 '%'
-    .byte 0x03              ;a4e1  03          DATA 0x03
-    .byte 0x8e              ;a4e2  8e          DATA 0x8e
-    .byte 0x23              ;a4e3  23          DATA 0x23 '#'
-    .byte 0x03              ;a4e4  03          DATA 0x03
-    .byte 0x8e              ;a4e5  8e          DATA 0x8e
-    .byte 0x36              ;a4e6  36          DATA 0x36 '6'
-    .byte 0x03              ;a4e7  03          DATA 0x03
-    .byte 0xae              ;a4e8  ae          DATA 0xae
-    .byte 0x26              ;a4e9  26          DATA 0x26 '&'
-    .byte 0x03              ;a4ea  03          DATA 0x03
-    .byte 0x8e              ;a4eb  8e          DATA 0x8e
-    .byte 0x25              ;a4ec  25          DATA 0x25 '%'
-    .byte 0x03              ;a4ed  03          DATA 0x03
-    .byte 0x8d              ;a4ee  8d          DATA 0x8d
-    .byte 0x34              ;a4ef  34          DATA 0x34 '4'
-    .byte 0x03              ;a4f0  03          DATA 0x03
-    .byte 0x3a              ;a4f1  3a          DATA 0x3a ':'
-    .byte 0x3a              ;a4f2  3a          DATA 0x3a ':'
-    .byte 0x8d              ;a4f3  8d          DATA 0x8d
-    .byte 0x21              ;a4f4  21          DATA 0x21 '!'
-    .byte 0x03              ;a4f5  03          DATA 0x03
-    .byte 0xa9              ;a4f6  a9          DATA 0xa9
-    .byte 0x07              ;a4f7  07          DATA 0x07
-    .byte 0x8d              ;a4f8  8d          DATA 0x8d
-    .byte 0x31              ;a4f9  31          DATA 0x31 '1'
-    .byte 0x03              ;a4fa  03          DATA 0x03
-    .byte 0x20              ;a4fb  20          DATA 0x20 ' '
-    .byte 0x59              ;a4fc  59          DATA 0x59 'Y'
-    .byte 0x5f              ;a4fd  5f          DATA 0x5f '_'
-    .byte 0xa0              ;a4fe  a0          DATA 0xa0
-    .byte 0xf9              ;a4ff  f9          DATA 0xf9
-    .byte 0x8c              ;a500  8c          DATA 0x8c
-    .byte 0x33              ;a501  33          DATA 0x33 '3'
-    .byte 0x03              ;a502  03          DATA 0x03
-    .byte 0xad              ;a503  ad          DATA 0xad
-    .byte 0x24              ;a504  24          DATA 0x24 '$'
-    .byte 0x03              ;a505  03          DATA 0x03
-    .byte 0x8d              ;a506  8d          DATA 0x8d
-    .byte 0x35              ;a507  35          DATA 0x35 '5'
-    .byte 0x03              ;a508  03          DATA 0x03
-    .byte 0xad              ;a509  ad          DATA 0xad
-    .byte 0x44              ;a50a  44          DATA 0x44 'D'
-    .byte 0x03              ;a50b  03          DATA 0x03
-    .byte 0xf0              ;a50c  f0          DATA 0xf0
-    .byte 0x02              ;a50d  02          DATA 0x02
-    .byte 0xa9              ;a50e  a9          DATA 0xa9
-    .byte 0x01              ;a50f  01          DATA 0x01
-    .byte 0x8d              ;a510  8d          DATA 0x8d
-    .byte 0x37              ;a511  37          DATA 0x37 '7'
-    .byte 0x03              ;a512  03          DATA 0x03
-    .byte 0xa9              ;a513  a9          DATA 0xa9
-    .byte 0x00              ;a514  00          DATA 0x00
-    .byte 0x8d              ;a515  8d          DATA 0x8d
-    .byte 0xb7              ;a516  b7          DATA 0xb7
-    .byte 0x05              ;a517  05          DATA 0x05
-    .byte 0x20              ;a518  20          DATA 0x20 ' '
-    .byte 0x9f              ;a519  9f          DATA 0x9f
-    .byte 0xb6              ;a51a  b6          DATA 0xb6
-    .byte 0x60              ;a51b  60          DATA 0x60 '`'
+    bbc 1,0xe7,lab_a4cb_nak ;a4d1  37 e7 f7     if not authorized, branch to send nak response
+    clb 6,0xe9              ;a4d4  df e9        Clear bit 6 = Enable EEPROM filtering
+
+    ;Check that the number of bytes to write is exactly 1
+    lda 0x0323              ;a4d6  ad 23 03     A = number of bytes to write
+    beq lab_a4cb_nak        ;a4d9  f0 f0        Send nak response if number = 0
+    cmp #0x02               ;a4db  c9 02        Compare to 2
+    bcs lab_a4cb_nak        ;a4dd  b0 ec        Send nak response if number >= 2
+
+    ;At this point we need to move some data around in the KWP1281 rx buffer.  This same buffer
+    ;memory is also used for TechniSat protocol requests.  We make the buffer look a little
+    ;more like a TechniSat protocol request, since we call sub_5ef7_writ_eeprom and it is
+    ;actually a TechniSat protocol function.
+
+    ldx 0x0325              ;a4df  ae 25 03     X = EEPROM address low
+    stx 0x0323              ;a4e2  8e 23 03     Store X as TechniSat protocol command 0x49 request param 0: eeprom address low
+    stx 0x0336              ;a4e5  8e 36 03     Store as KWP1281 tx buffer: EEPROM address low
+    ldx 0x0326              ;a4e8  ae 26 03     X = data byte to write
+    stx 0x0325              ;a4eb  8e 25 03     Store X as TechniSat protocol command 0x49 request param 2: data byte
+
+    ;A still contains number of bytes to write (always = 1)
+    sta 0x0334              ;a4ee  8d 34 03     Store in KWP1281 tx buffer: number of bytes written (always = 1)
+    inc a                   ;a4f1  3a           +1 for TechniSat protocol command 0x49 param 0: eeprom address low
+    inc a                   ;a4f2  3a           +1 for TechniSat protocol command 0x49 param 1: eeprom adddress high
+    sta 0x0321              ;a4f3  8d 21 03     Store as TechniSat protocol command 0x49 number of parameters
+
+    ;Now the receive buffer looks more like a TechniSat protocol command 0x49 request:
+    ;  number of parameters                0x321    populated from KWP1281 request
+    ;  command (0x49 = write eeprom)       0x322    don't care
+    ;  param 0: eeprom address low         0x323    populated from KWP1281 request
+    ;  param 1: eeprom address high        0x324    populated from KWP1281 request
+    ;  param 2+:  ... data bytes ...       0x325    populated from KWP1281 request
+    ;  checksum                            0x326    don't care
+
+    lda #0x07               ;a4f6  a9 07        A = 7 (block length of resposne)
+    sta 0x0331              ;a4f8  8d 31 03     Store in KWP1281 tx buffer: block length
+
+    jsr sub_5ef7_writ_eeprom;a4fb  20 59 5f     Write to the EEPROM with some addresses filtered
+
+    ldy #0xf9               ;a4fe  a0 f9        A = KWP1281 Block title 0xF9 (Write EEPROM response)
+    sty 0x0333              ;a500  8c 33 03     Store in KWP1281 tx buffer: block title
+
+    lda 0x0324              ;a503  ad 24 03     A = EEPROM address high
+    sta 0x0335              ;a506  8d 35 03     Store in KWP1281 tx buffer: EEPROM address high
+
+    lda 0x0344              ;a509  ad 44 03     A = TechniSat protocol status byte (set by sub_5ef7_writ_eeprom)
+    beq lab_a510            ;a50c  f0 02        Branch if status byte = 0 (success)
+
+    ;EEPROM write failed
+    lda #0x01               ;a50e  a9 01        A = 1
+
+lab_a510:
+    sta 0x0337              ;a510  8d 37 03     Store write status in KWP1281 tx buffer
+
+    lda #0x00               ;a513  a9 00
+    sta 0x05b7              ;a515  8d b7 05
+    jsr sub_b69f            ;a518  20 9f b6
+    rts                     ;a51b  60
 
 ;KWP1281 0x1B Custom Usage
 ;nak: custom usage
