@@ -1416,7 +1416,7 @@ sub_2835:
     clb 2,0xf4              ;2847  5f f4
     clb 6,0xfb              ;2849  df fb
     clb 3,0xfa              ;284b  7f fa
-    jsr sub_44a7            ;284d  20 a7 44
+    jsr sub_44a7            ;284d  20 a7 44     Clears several buffers and flags
     jsr sub_890d            ;2850  20 0d 89
     seb 6,P0                ;2853  cf 00
     seb 7,P0                ;2855  ef 00
@@ -2640,7 +2640,7 @@ sub_2f51:
     clb 3,0xfa              ;2f56  7f fa
     clb 0,0xf9              ;2f58  1f f9
     jsr sub_544b            ;2f5a  20 4b 54     Clears many registers
-    jsr sub_44a7            ;2f5d  20 a7 44
+    jsr sub_44a7            ;2f5d  20 a7 44     Clears several buffers and flags
     jsr sub_890d            ;2f60  20 0d 89
     jsr sub_9dcd            ;2f63  20 cd 9d
     ldm #0x00,0x5d          ;2f66  3c 00 5d
@@ -3689,7 +3689,7 @@ lab_34b2:
     ror a                   ;34c4  6a
     cmp #0x32               ;34c5  c9 32
     bcs lab_34d5            ;34c7  b0 0c
-    jsr sub_44a7            ;34c9  20 a7 44
+    jsr sub_44a7            ;34c9  20 a7 44     Clears several buffers and flags
     jsr sub_437f            ;34cc  20 7f 43
     jsr sub_43b9            ;34cf  20 b9 43
     jsr sub_664a            ;34d2  20 4a 66
@@ -3849,8 +3849,8 @@ mem_3570:
 mem_3588:
     .word sub_5adf_stat_resp;3588  df 5a       VECTOR   cmd=5e   Send 10 01 5E <0x0344> CS status response
     .word sub_5b37_cmd_5f   ;358a  37 5b       VECTOR   cmd=5f   Disconnect (terminate session)
-    .word sub_5b4a_cmd_42   ;358c  4a 5b       VECTOR   cmd=42
-    .word sub_5bbb_cmd_43   ;358e  bb 5b       VECTOR   cmd=43
+    .word sub_5b4a_cmd_42   ;358c  4a 5b       VECTOR   cmd=42   TODO I2C related: writes data then reads data
+    .word sub_5bbb_cmd_43   ;358e  bb 5b       VECTOR   cmd=43   TODO I2C related: writes data only
     .word sub_5beb_cmd_44   ;3590  eb 5b       VECTOR   cmd=44   Read RAM in allowed range
     .word sub_5c2e_cmd_45   ;3592  2e 5c       VECTOR   cmd=45   Write RAM in allowed range or disable EEPROM filtering
     .word sub_5c7e_cmd_46   ;3594  7e 5c       VECTOR   cmd=46   AND memory in allowed ranges with complement of a value
@@ -4448,7 +4448,7 @@ lab_38d4:
     lda #0x00               ;38e7  a9 00
     sta 0x02b7              ;38e9  8d b7 02
     clb 5,0xf5              ;38ec  bf f5
-    jsr sub_44a7            ;38ee  20 a7 44
+    jsr sub_44a7            ;38ee  20 a7 44     Clears several buffers and flags
     jsr sub_890d            ;38f1  20 0d 89
     jsr sub_9043            ;38f4  20 43 90
     lda #0x00               ;38f7  a9 00
@@ -4473,7 +4473,7 @@ lab_3910:
     lda #0x00               ;3923  a9 00
     sta 0x02b7              ;3925  8d b7 02
     clb 5,0xf5              ;3928  bf f5
-    jsr sub_44a7            ;392a  20 a7 44
+    jsr sub_44a7            ;392a  20 a7 44     Clears several buffers and flags
     jsr sub_890d            ;392d  20 0d 89
     jsr sub_9043            ;3930  20 43 90
     lda #0x00               ;3933  a9 00
@@ -6247,10 +6247,10 @@ sub_4485:
 lab_44a6:
     rts                     ;44a6  60
 
+;Clears several buffers and flags
 sub_44a7:
     ldx #0x07               ;44a7  a2 07
-
-lab_44a9:
+lab_44a9_loop:
     lda #0x00               ;44a9  a9 00
     sta 0x0138,x            ;44ab  9d 38 01
     sta 0x0140,x            ;44ae  9d 40 01
@@ -6258,7 +6258,7 @@ lab_44a9:
     lda #0x01               ;44b4  a9 01
     sta 0x0130,x            ;44b6  9d 30 01
     dex                     ;44b9  ca
-    bpl lab_44a9            ;44ba  10 ed
+    bpl lab_44a9_loop       ;44ba  10 ed
     clb 2,0xfb              ;44bc  5f fb
     clb 3,0xfb              ;44be  7f fb
     rts                     ;44c0  60
@@ -7106,7 +7106,7 @@ lab_49a1:
 
 lab_49a3:
     sta 0x71                ;49a3  85 71
-    jsr sub_44a7            ;49a5  20 a7 44
+    jsr sub_44a7            ;49a5  20 a7 44   Clears several buffers and flags
     jsr sub_890d            ;49a8  20 0d 89
     jmp lab_4a3f            ;49ab  4c 3f 4a
 
@@ -7148,7 +7148,7 @@ lab_49cd:
     bra lab_49fe            ;49f9  80 03
 
 lab_49fb:
-    jsr sub_44a7            ;49fb  20 a7 44
+    jsr sub_44a7            ;49fb  20 a7 44     Clears several buffers and flags
 
 lab_49fe:
     lda 0x0102              ;49fe  ad 02 01
@@ -7180,7 +7180,7 @@ lab_4a27:
     lda #0x00               ;4a2a  a9 00
     sta 0x90                ;4a2c  85 90
     sta 0x91                ;4a2e  85 91
-    jsr sub_44a7            ;4a30  20 a7 44
+    jsr sub_44a7            ;4a30  20 a7 44     Clears several buffers and flags
     jsr sub_890d            ;4a33  20 0d 89
     jsr sub_4a72            ;4a36  20 72 4a
     bra lab_4a3f            ;4a39  80 04
@@ -10152,11 +10152,23 @@ lab_5b1d:
 
 ;TechniSat protocol command 0x5F
 ;Disconnect (terminate session)
+;
+;Request block:
+;  0x10     unknown
+;  0x01     unknown
+;  0x00     number of parameters                0x0321
+;  0x5F     command (0x5F = disconnect)         0x0322
+;  <CS>     checksum                            0x0322
+;
+;Response block:
+;  10 01 5E 00 90
+;
 sub_5b37_cmd_5f:
     ldy #0x01               ;5b37  a0 01
     jsr sub_f22c_delay      ;5b39  20 2c f2     Delay an unknown time period for Y iterations
 
     jsr sub_5adf_stat_resp  ;5b3c  20 df 5a     Send 10 01 5E <0x0344> CS status response
+
     ldm #0x40,BRG           ;5b3f  3c 40 1c     Baud rate = 9600 bps
     clb 6,0xe9              ;5b42  df e9        Clear bit 6 = Enable EEPROM filtering
     clb 0,0xef              ;5b44  1f ef
@@ -10164,6 +10176,22 @@ sub_5b37_cmd_5f:
     rts                     ;5b49  60
 
 ;TechniSat protocol command 0x42
+;TODO I2C related: writes data then reads data
+;
+;Request block:
+;  0x10     unknown
+;  0x01     unknown
+;  0x00     number of parameters                             0x0321
+;  0x42     command (0x42)                                   0x0322
+;   xx      param 0 number of bytes to write to the EEPROM?  0x0323  (up to 16)
+;   xx      param 1 number of bytes to read from the EEPROM  0x0324  (up to 16)
+;   xx      param 2 EEPROM address high byte?                0x0325  (must be 0xA0 - 0xAF)
+;   xx      param 3 EEPROM address low byte?                 0x0326
+;   xx      param 4 ...up to 14 more bytes to write...         xx
+;  <CS>     checksum                                           xx
+;
+;TODO response block
+;
 sub_5b4a_cmd_42:
     bbc 7,0xe8,lab_5bba_rts ;5b4a  f7 e8 6d     Branch if 0xE8 bit 7 is clear
 
@@ -10172,45 +10200,65 @@ sub_5b4a_cmd_42:
     ldy #0x01               ;5b4d  a0 01
     jsr sub_f22c_delay      ;5b4f  20 2c f2     Delay an unknown time period for Y iterations
 
-    lda 0x0325              ;5b52  ad 25 03     A = uart rx buffer byte 5
+    ;Param 2 must be 0xA0-0xAF
+    lda 0x0325              ;5b52  ad 25 03     A = param 2 maybe address high byte?
     and #0xf0               ;5b55  29 f0
     cmp #0xa0               ;5b57  c9 a0
-    beq lab_5bb2            ;5b59  f0 57
+    beq lab_5bb2_invalid    ;5b59  f0 57
+
+    ;Set 0x004C pointer to point to Param 2 (0x0325)
     lda #0x25               ;5b5b  a9 25
-    sta 0x4c                ;5b5d  85 4c
+    sta 0x4c                ;5b5d  85 4c        Store as buffer address low byte
     lda #0x03               ;5b5f  a9 03
-    sta 0x4d                ;5b61  85 4d
-    lda 0x0323              ;5b63  ad 23 03     A = uart rx buffer byte 3
-    sta 0x4e                ;5b66  85 4e
+    sta 0x4d                ;5b61  85 4d        Store as buffer address high byte
+
+    ;Param 0 (number of bytes to write) must be 0x00-0x0F
+    lda 0x0323              ;5b63  ad 23 03     A = param 0
+    sta 0x4e                ;5b66  85 4e        Store as number of bytes to write to the EEPROM
     cmp #0x11               ;5b68  c9 11
-    bcs lab_5bb2            ;5b6a  b0 46
-    lda 0x0324              ;5b6c  ad 24 03     A = uart rx buffer byte 4
-    sta 0x4f                ;5b6f  85 4f
+    bcs lab_5bb2_invalid    ;5b6a  b0 46        Branch if >= 0x11
+
+    ;Param 1 (number of bytes to read) must be 0x00-0x0F
+    lda 0x0324              ;5b6c  ad 24 03     A = param 1
+    sta 0x4f                ;5b6f  85 4f        Store as number of bytes to read from the EEPROM
     cmp #0x11               ;5b71  c9 11
-    bcs lab_5bb2            ;5b73  b0 3d
+    bcs lab_5bb2_invalid    ;5b73  b0 3d        Branch if >= 0x11
+
+    ;sub_46e5_i2c_read wants:
+    ;  0x004C-0x004D pointer to buffer that will receive EEPROM contents
+    ;                first two bytes of the buffer contain the EEPROM address
+    ;  0x004E = number of bytes to write to the EEPROM
+    ;  0x004F = number of bytes to read from the EEPROM
+
     jsr sub_46e5_i2c_read   ;5b75  20 e5 46     TODO probably reads from an I2C EEPROM
+
     lda 0x4f                ;5b78  a5 4f
-    sta 0x0325              ;5b7a  8d 25 03
+    sta 0x0325              ;5b7a  8d 25 03     Store in param 2? TODO why?
     inc 0x4f                ;5b7d  e6 4f
     inc 0x4f                ;5b7f  e6 4f
     lda #0x42               ;5b81  a9 42
-    sta 0x0326              ;5b83  8d 26 03
+    sta 0x0326              ;5b83  8d 26 03     Store in param 2? TODO why?
     seb 6,0xe5              ;5b86  cf e5
-    lda #0x10               ;5b88  a9 10
-    sta 0x0343              ;5b8a  8d 43 03
-    jsr sub_5ad5            ;5b8d  20 d5 5a     Send byte
-    ldy #0x00               ;5b90  a0 00
 
-lab_5b92:
-    lda 0x0325,y            ;5b92  b9 25 03     A = uart rx buffer byte 5+
+    ;Send first byte of response (0x10)
+    lda #0x10               ;5b88  a9 10        A = 0x10 (first byte of response)
+    sta 0x0343              ;5b8a  8d 43 03     Start checksum with byte 0x10
+    jsr sub_5ad5            ;5b8d  20 d5 5a     Send byte 0x10
+
+    ldy #0x00               ;5b90  a0 00
+lab_5b92_loop:
+    lda 0x0325,y            ;5b92  b9 25 03     A = param 2*
     jsr sub_5ad5            ;5b95  20 d5 5a     Send byte
-    clc                     ;5b98  18
-    adc 0x0343              ;5b99  6d 43 03
-    sta 0x0343              ;5b9c  8d 43 03
-    iny                     ;5b9f  c8
-    cpy 0x4f                ;5ba0  c4 4f
-    bcc lab_5b92            ;5ba2  90 ee
-    eor #0xff               ;5ba4  49 ff
+
+    clc                     ;5b98  18           Clear carry for checksum addition
+    adc 0x0343              ;5b99  6d 43 03     Add current byte to checksum
+    sta 0x0343              ;5b9c  8d 43 03     Store updated checksum
+
+    iny                     ;5b9f  c8           Increment number of bytes sent
+    cpy 0x4f                ;5ba0  c4 4f        Compare to number of bytes to read from EEPROM
+    bcc lab_5b92_loop       ;5ba2  90 ee        Loop if more bytes to read
+
+    eor #0xff               ;5ba4  49 ff        XOR to finish the checksum calculation
     jsr sub_5ad5            ;5ba6  20 d5 5a     Send checksum byte
 
     ldy #0x01               ;5ba9  a0 01
@@ -10219,7 +10267,7 @@ lab_5b92:
     clb 6,0xe5              ;5bae  df e5
     bra lab_5bba_rts        ;5bb0  80 08
 
-lab_5bb2:
+lab_5bb2_invalid:
     lda #0x10               ;5bb2  a9 10
     sta 0x0344              ;5bb4  8d 44 03     Store as TechniSat protocol status byte
     jsr sub_5adf_stat_resp  ;5bb7  20 df 5a     Send 10 01 5E <0x0344> CS status response
@@ -10228,29 +10276,61 @@ lab_5bba_rts:
     rts                     ;5bba  60
 
 ;TechniSat protocol command 0x43
+;TODO I2C related: writes data only
+;
+;Request block:
+;  0x10     unknown
+;  0x01     unknown
+;  0x00     number of parameters                             0x0321
+;  0x42     command (0x42)                                   0x0322
+;   xx      param 0 number of bytes to write to the EEPROM?  0x0323  (up to 16)
+;  0x00     param 1 ignored                                  0x0324
+;   xx      param 1 EEPROM address high byte?                0x0325  (must be 0xA0 - 0xAF)
+;   xx      param 2 EEPROM address low byte?                 0x0326
+;   xx      param 3 ...up to 14 more bytes to write...         xx
+;  <CS>     checksum                                           xx
+;
+;TODO response block
+;
 sub_5bbb_cmd_43:
     ldy #0x01               ;5bbb  a0 01
     jsr sub_f22c_delay      ;5bbd  20 2c f2     Delay an unknown time period for Y iterations
 
     lda #0x10               ;5bc0  a9 10
     sta 0x0344              ;5bc2  8d 44 03     Store as TechniSat protocol status byte
-    lda 0x0325              ;5bc5  ad 25 03     A = uart rx buffer byte 5
+
+    ;Param 2 must be 0xA0-0xAF
+    lda 0x0325              ;5bc5  ad 25 03     A = param 2 maybe address high byte?
     and #0xf0               ;5bc8  29 f0
     cmp #0xa0               ;5bca  c9 a0
-    beq lab_5be7            ;5bcc  f0 19
+    beq lab_5be7_done       ;5bcc  f0 19
+
     lda #0x00               ;5bce  a9 00
     sta 0x0344              ;5bd0  8d 44 03     Store as TechniSat protocol status byte
+
+    ;sub_46e5_i2c_read wants:
+    ;  0x004C-0x004D pointer to buffer that will receive EEPROM contents
+    ;                first two bytes of the buffer contain the EEPROM address
+    ;  0x004E = number of bytes to write to the EEPROM
+    ;  0x004F = number of bytes to read from the EEPROM
+
+    ;Set 0x004C pointer to point to Param 2 (0x0325)
     lda #0x25               ;5bd3  a9 25
-    sta 0x4c                ;5bd5  85 4c
+    sta 0x4c                ;5bd5  85 4c        Store as buffer address low byte
     lda #0x03               ;5bd7  a9 03
-    sta 0x4d                ;5bd9  85 4d
-    lda 0x0323              ;5bdb  ad 23 03     A = uart rx buffer byte 3
-    sta 0x4e                ;5bde  85 4e
-    lda #0x00               ;5be0  a9 00
-    sta 0x4f                ;5be2  85 4f
+    sta 0x4d                ;5bd9  85 4d        Store as buffer address high byte
+
+    ;Set number of bytes to write
+    lda 0x0323              ;5bdb  ad 23 03     A = param 0
+    sta 0x4e                ;5bde  85 4e        Store as number of bytes to write
+
+    ;Force number of bytes to read to 0
+    lda #0x00               ;5be0  a9 00        A = 0
+    sta 0x4f                ;5be2  85 4f        Store as number of bytes to read
+
     jsr sub_46e5_i2c_read   ;5be4  20 e5 46     TODO probably reads from an I2C EEPROM
 
-lab_5be7:
+lab_5be7_done:
     jsr sub_5adf_stat_resp  ;5be7  20 df 5a     Send 10 01 5E <0x0344> CS status response
     rts                     ;5bea  60
 
@@ -10915,7 +10995,7 @@ sub_5ef7_read_eeprom:
     adc 0x0324              ;5f0e  6d 24 03     Add to param 1: eeprom address high
 
     ;Check address high
-    cmp #0x08               ;5f11  c9 08        Compare address high with 0x08:
+    cmp #0x08               ;5f11  c9 08        Compare address high with 0x08
     bcs lab_5f4c            ;5f13  b0 37        Return with carry set if address high >= 0x08
 
     ;TODO: setting up something in 0x0100-0x0101
@@ -11162,12 +11242,12 @@ sub_5fe4_cmd_50:
     ldm #0x02,0xf0          ;600a  3c 02 f0
     clb 0,0xf2              ;600d  1f f2
     clb 1,0xf2              ;600f  3f f2
-    lda 0x0323              ;6011  ad 23 03
+    lda 0x0323              ;6011  ad 23 03     A = param 0
     sta 0x59                ;6014  85 59
     clb 3,P0                ;6016  7f 00
     seb 4,0xfa              ;6018  8f fa
     jsr sub_544b            ;601a  20 4b 54     Clears many registers
-    jsr sub_44a7            ;601d  20 a7 44
+    jsr sub_44a7            ;601d  20 a7 44     Clears several buffers and flags
     jsr sub_890d            ;6020  20 0d 89
     bra lab_6044            ;6023  80 1f        Branch over lab_6025
 
@@ -11182,7 +11262,7 @@ lab_6025:
     ldm #0x04,0xf0          ;6034  3c 04 f0
     seb 0,0xf2              ;6037  0f f2
     clb 2,0xf2              ;6039  5f f2
-    lda 0x0323              ;603b  ad 23 03
+    lda 0x0323              ;603b  ad 23 03     A = param 0
     sta 0x59                ;603e  85 59
     seb 3,P0                ;6040  6f 00
     clb 4,0xfa              ;6042  9f fa
@@ -11252,9 +11332,9 @@ sub_60a3_cmd_52:
 
     ldy #0x00               ;60ad  a0 00
 lab_60af_loop:
-    lda 0x0323,y            ;60af  b9 23 03
+    lda 0x0323,y            ;60af  b9 23 03     A = param 0+y
     cmp #0x13               ;60b2  c9 13
-    bcs lab_60ee_done       ;60b4  b0 38
+    bcs lab_60ee_done       ;60b4  b0 38        Branch if >= 0x13
     iny                     ;60b6  c8
     cpy #0x04               ;60b7  c0 04
     bcc lab_60af_loop       ;60b9  90 f4
@@ -11508,29 +11588,29 @@ lab_6176:
 
 ;table used by sub_619a_cmd_53
 mem_617a:
-    .word mem_621c          ;617a   DATA        lookup table
-    .word sub_624a          ;617c   VECTOR      code
+    .word mem_621c_cmd_53_00  ;617a   DATA        table
+    .word sub_624a_cmd_53_00  ;617c   VECTOR      code
 
-    .word mem_6225          ;617e   DATA        lookup table
-    .word sub_62af          ;6180   VECTOR      code
+    .word mem_6225_cmd_53_01  ;617e   DATA        table
+    .word sub_62af_cmd_53_01  ;6180   VECTOR      code
 
-    .word mem_622f          ;6182   DATA        lookup table
-    .word sub_62b8          ;6184   VECTOR      code
+    .word mem_622f_cmd_53_02  ;6182   DATA        table
+    .word sub_62b8_cmd_53_02  ;6184   VECTOR      code
 
-    .word mem_6238          ;6186   DATA        lookup table
-    .word sub_62c3          ;6188   VECTOR      code
+    .word mem_6238_cmd_53_03  ;6186   DATA        table
+    .word sub_62c3_cmd_53_03  ;6188   VECTOR      code
 
-    .word mem_623f          ;618a   DATA        lookup table
-    .word sub_6249_rts      ;618c   VECTOR      code
+    .word mem_623f            ;618a   DATA        table
+    .word sub_6249_rts        ;618c   VECTOR      code
 
-    .word mem_623f          ;618e   DATA        lookup table
-    .word sub_6249_rts      ;6190   VECTOR      code
+    .word mem_623f            ;618e   DATA        table
+    .word sub_6249_rts        ;6190   VECTOR      code
 
-    .word mem_6240          ;6192   DATA        lookup table
-    .word sub_62c9          ;6194   VECTOR      code
+    .word mem_6240_cmd_53_05  ;6192   DATA        table
+    .word sub_62c9_cmd_53_05  ;6194   VECTOR      code
 
-    .word mem_6244          ;6196   DATA        lookup table
-    .word sub_62d2          ;6198   VECTOR      code
+    .word mem_6244_cmd_53_06  ;6196   DATA        table
+    .word sub_62d2_cmd_53_06  ;6198   VECTOR      code
 
 ;TechniSat protocol command 0x53
 sub_619a_cmd_53:
@@ -11545,7 +11625,7 @@ sub_619a_cmd_53:
     sta 0x0344              ;61a4  8d 44 03     Store as TechniSat protocol status byte
     lda 0x0323              ;61a7  ad 23 03
     cmp #0x08               ;61aa  c9 08        Compare to number of address pairs in mem_617a
-    bcs lab_6218            ;61ac  b0 6a
+    bcs lab_6218_done       ;61ac  b0 6a
     lda 0x0323              ;61ae  ad 23 03
     sta 0x0322              ;61b1  8d 22 03
     asl a                   ;61b4  0a
@@ -11566,29 +11646,29 @@ sub_619a_cmd_53:
 
     ldy #0x00               ;61cd  a0 00
     lda [0x40],y            ;61cf  b1 40
-    beq lab_6218            ;61d1  f0 45
+    beq lab_6218_done       ;61d1  f0 45
     sta 0x0321              ;61d3  8d 21 03
     inc a                   ;61d6  3a
     inc a                   ;61d7  3a
     sta 0x4f                ;61d8  85 4f
-    ldy #0x01               ;61da  a0 01
 
-lab_61dc:
+    ldy #0x01               ;61da  a0 01
+lab_61dc_loop:
     lda [0x40],y            ;61dc  b1 40
     tax                     ;61de  aa
     lda P0,x                ;61df  b5 00
     sta 0x0322,y            ;61e1  99 22 03
     iny                     ;61e4  c8
     cpy 0x0321              ;61e5  cc 21 03
-    bcc lab_61dc            ;61e8  90 f2
-    beq lab_61dc            ;61ea  f0 f0
+    bcc lab_61dc_loop       ;61e8  90 f2
+    beq lab_61dc_loop       ;61ea  f0 f0
     seb 6,0xe5              ;61ec  cf e5
     lda #0x10               ;61ee  a9 10
     sta 0x0343              ;61f0  8d 43 03
     jsr sub_5ad5            ;61f3  20 d5 5a     Send byte
-    ldy #0x00               ;61f6  a0 00
 
-lab_61f8:
+    ldy #0x00               ;61f6  a0 00
+lab_61f8_loop:
     lda 0x0321,y            ;61f8  b9 21 03
     jsr sub_5ad5            ;61fb  20 d5 5a     Send byte
     clc                     ;61fe  18
@@ -11596,7 +11676,8 @@ lab_61f8:
     sta 0x0343              ;6202  8d 43 03
     iny                     ;6205  c8
     cpy 0x4f                ;6206  c4 4f
-    bne lab_61f8            ;6208  d0 ee
+    bne lab_61f8_loop       ;6208  d0 ee
+
     eor #0xff               ;620a  49 ff
     jsr sub_5ad5            ;620c  20 d5 5a     Send byte
 
@@ -11606,14 +11687,14 @@ lab_61f8:
     clb 6,0xe5              ;6214  df e5
     bra lab_621b_rts        ;6216  80 03
 
-lab_6218:
+lab_6218_done:
     jsr sub_5adf_stat_resp  ;6218  20 df 5a     Send 10 01 5E <0x0344> CS status response
 
 lab_621b_rts:
     rts                     ;621b  60
 
-mem_621c:
-;lookup table used by sub_619a_cmd_53
+mem_621c_cmd_53_00:
+;table used by sub_624a_cmd_53_00
     .byte 0x08              ;621c  08          DATA 0x08        8 bytes follow:
     .byte 0xf0              ;621d  f0          DATA 0xf0
     .byte 0x43              ;621e  43          DATA 0x43 'C'
@@ -11624,8 +11705,8 @@ mem_621c:
     .byte 0x45              ;6223  45          DATA 0x45 'E'
     .byte 0x46              ;6224  46          DATA 0x46 'F'
 
-mem_6225:
-;lookup table used by sub_619a_cmd_53
+mem_6225_cmd_53_01:
+;table used by sub_62af_cmd_53_01
     .byte 0x09              ;6225  09          DATA 0x09        9 bytes follow:
     .byte 0xf0              ;6226  f0          DATA 0xf0
     .byte 0x43              ;6227  43          DATA 0x43 'C'
@@ -11637,8 +11718,8 @@ mem_6225:
     .byte 0x91              ;622d  91          DATA 0x91
     .byte 0x44              ;622e  44          DATA 0x44 'D'
 
-mem_622f:
-;lookup table used by sub_619a_cmd_53
+mem_622f_cmd_53_02:
+;table used by sub_62b8_cmd_53_02
     .byte 0x08              ;622f  08          DATA 0x08        8 bytes follow:
     .byte 0x42              ;6230  42          DATA 0x42 'B'
     .byte 0x43              ;6231  43          DATA 0x43 'C'
@@ -11649,8 +11730,8 @@ mem_622f:
     .byte 0x48              ;6236  48          DATA 0x48 'H'
     .byte 0x49              ;6237  49          DATA 0x49 'I'
 
-mem_6238:
-;lookup table used by sub_619a_cmd_53
+mem_6238_cmd_53_03:
+;table used by sub_62c3_cmd_53_03
     .byte 0x06              ;6238  06          DATA 0x06        6 bytes follow:
     .byte 0xa0              ;6239  a0          DATA 0xa0
     .byte 0xa1              ;623a  a1          DATA 0xa1
@@ -11660,18 +11741,18 @@ mem_6238:
     .byte 0x42              ;623e  42          DATA 0x42 'B'
 
 mem_623f:
-;lookup table used by sub_619a_cmd_53
+;table used by sub_619a_cmd_53
     .byte 0x00              ;623f  00          DATA 0x00        0 bytes follow:
 
-mem_6240:
-;lookup table used by sub_619a_cmd_53
+mem_6240_cmd_53_05:
+;table used by sub_62c9_cmd_53_05
     .byte 0x03              ;6240  03          DATA 0x03        3 bytes follow:
     .byte 0xf0              ;6241  f0          DATA 0xf0
     .byte 0xf1              ;6242  f1          DATA 0xf1
     .byte 0x42              ;6243  42          DATA 0x42 'B'
 
-mem_6244:
-;lookup table used by sub_619a_cmd_53
+mem_6244_cmd_53_06:
+;table used by mem_6244_cmd_53_06
     .byte 0x04              ;6244  04          DATA 0x04        4 bytes follow:
     .byte 0xf0              ;6245  f0          DATA 0xf0
     .byte 0xf1              ;6246  f1          DATA 0xf1
@@ -11681,7 +11762,7 @@ mem_6244:
 sub_6249_rts:
     rts                     ;6249  60
 
-sub_624a:
+sub_624a_cmd_53_00:
     lda 0x68                ;624a  a5 68
     sta 0x42                ;624c  85 42
     lda 0x69                ;624e  a5 69
@@ -11740,19 +11821,19 @@ lab_628b:
     jsr sub_26d8            ;62a1  20 d8 26
     sta 0x45                ;62a4  85 45
     ldm #0x00,0x46          ;62a6  3c 00 46
-    bbc 4,P0,lab_62ae       ;62a9  97 00 02
+    bbc 4,P0,lab_62ae_rts   ;62a9  97 00 02
     seb 0,0x46              ;62ac  0f 46
 
-lab_62ae:
+lab_62ae_rts:
     rts                     ;62ae  60
 
-sub_62af:
-    jsr sub_624a            ;62af  20 4a 62
+sub_62af_cmd_53_01:
+    jsr sub_624a_cmd_53_00  ;62af  20 4a 62
     lda 0x0151              ;62b2  ad 51 01
     sta 0x44                ;62b5  85 44
     rts                     ;62b7  60
 
-sub_62b8:
+sub_62b8_cmd_53_02:
     ldx #0x07               ;62b8  a2 07
 lab_62ba:
     lda 0x0140,x            ;62ba  bd 40 01
@@ -11761,18 +11842,18 @@ lab_62ba:
     bpl lab_62ba            ;62c0  10 f8
     rts                     ;62c2  60
 
-sub_62c3:
+sub_62c3_cmd_53_03:
     lda 0x0289              ;62c3  ad 89 02
     sta 0x42                ;62c6  85 42
     rts                     ;62c8  60
 
-sub_62c9:
+sub_62c9_cmd_53_05:
     jsr sub_d286            ;62c9  20 86 d2
-    lda 0x62e5,x            ;62cc  bd e5 62
+    lda mem_62e5,x          ;62cc  bd e5 62
     sta 0x42                ;62cf  85 42
     rts                     ;62d1  60
 
-sub_62d2:
+sub_62d2_cmd_53_06:
     rts                     ;62d2  60
 
     .byte 0x07              ;62d3  07          DATA 0x07
@@ -11793,6 +11874,8 @@ sub_62d2:
     .byte 0x00              ;62e2  00          DATA 0x00
     .byte 0xbb              ;62e3  bb          DATA 0xbb
     .byte 0x60              ;62e4  60          DATA 0x60 '`'
+
+mem_62e5:
     .byte 0x06              ;62e5  06          DATA 0x06
     .byte 0x07              ;62e6  07          DATA 0x07
     .byte 0x02              ;62e7  02          DATA 0x02
@@ -19158,15 +19241,14 @@ sub_8639:
 
 sub_890d:
     ldy #0x19               ;890d  a0 19
-
-lab_890f:
+lab_890f_loop:
     lda #0xcd               ;890f  a9 cd
     sta 0x0150,y            ;8911  99 50 01
     sta 0x0200,y            ;8914  99 00 02
     lda #0x00               ;8917  a9 00
     sta 0x0170,y            ;8919  99 70 01
     dey                     ;891c  88
-    bpl lab_890f            ;891d  10 f0
+    bpl lab_890f_loop       ;891d  10 f0
     sta 0x0200              ;891f  8d 00 02
     sta 0xb8                ;8922  85 b8
     clb 0,0xfd              ;8924  1f fd
@@ -19181,11 +19263,10 @@ lab_890f:
 sub_8936:
     ldy #0x19               ;8936  a0 19
     lda #0xcd               ;8938  a9 cd
-
-lab_893a:
+lab_893a_loop:
     sta 0x0200,y            ;893a  99 00 02
     dey                     ;893d  88
-    bne lab_893a            ;893e  d0 fa
+    bne lab_893a_loop            ;893e  d0 fa
     lda #0x00               ;8940  a9 00
     sta 0x0200              ;8942  8d 00 02
     rts                     ;8945  60
@@ -22778,7 +22859,7 @@ sub_9b0a:
     clb 5,0xf5              ;9b13  bf f5
     clb 0,0xf9              ;9b15  1f f9
     jsr sub_544b            ;9b17  20 4b 54     Clears many registers
-    jsr sub_44a7            ;9b1a  20 a7 44
+    jsr sub_44a7            ;9b1a  20 a7 44     Clears several buffers and flags
     jsr sub_890d            ;9b1d  20 0d 89
     jsr sub_9043            ;9b20  20 43 90
     ldm #0x00,0x5d          ;9b23  3c 00 5d
@@ -22980,7 +23061,7 @@ lab_9c85:
     lda 0x93                ;9c90  a5 93
     sta 0x91                ;9c92  85 91
     jsr sub_de52            ;9c94  20 52 de
-    jsr sub_44a7            ;9c97  20 a7 44
+    jsr sub_44a7            ;9c97  20 a7 44     Clears several buffers and flags
     jsr sub_890d            ;9c9a  20 0d 89
     seb 0,0xf4              ;9c9d  0f f4
     jsr sub_9b99            ;9c9f  20 99 9b
@@ -23116,7 +23197,7 @@ sub_9d57:
     sta 0x90                ;9d67  85 90
     lda 0x04e0,x            ;9d69  bd e0 04
     sta 0x91                ;9d6c  85 91
-    jsr sub_44a7            ;9d6e  20 a7 44
+    jsr sub_44a7            ;9d6e  20 a7 44     Clears several buffers and flags
     jsr sub_890d            ;9d71  20 0d 89
     jsr sub_9d43            ;9d74  20 43 9d
     ldm #0x00,0x5d          ;9d77  3c 00 5d
@@ -23130,7 +23211,7 @@ sub_9d7d:
     ldm #0x00,0x5d          ;9d85  3c 00 5d
     ldm #0x00,0x5c          ;9d88  3c 00 5c
     clb 0,0xf9              ;9d8b  1f f9
-    jsr sub_44a7            ;9d8d  20 a7 44
+    jsr sub_44a7            ;9d8d  20 a7 44     Clears several buffers and flags
     jsr sub_890d            ;9d90  20 0d 89
     jsr sub_544b            ;9d93  20 4b 54     Clears many registers
     clb 2,0xfa              ;9d96  5f fa
@@ -23153,7 +23234,7 @@ sub_9da1:
     jsr sub_f22c_delay      ;9db4  20 2c f2     Delay an unknown time period for Y iterations
 
     clb 0,0xf9              ;9db7  1f f9
-    jsr sub_44a7            ;9db9  20 a7 44
+    jsr sub_44a7            ;9db9  20 a7 44     Clears several buffers and flags
     jsr sub_890d            ;9dbc  20 0d 89
     jsr sub_544b            ;9dbf  20 4b 54     Clears many registers
     clb 2,0xfa              ;9dc2  5f fa
@@ -23871,7 +23952,7 @@ lab_a20e:
 
 lab_a22f:
     dec 0x05b7              ;a22f  ce b7 05
-    jsr sub_b69f            ;a232  20 9f b6
+    jsr kwp_send_tx_buf     ;a232  20 9f b6     Send the block in the KWP1281 tx buffer
     rts                     ;a235  60
 
 ;KWP1281 0x03 Read ROM/EEPROM
@@ -23889,10 +23970,10 @@ kwp_03_read_rom:
     lda 0x0324              ;a236  ad 24 03     A = address high
 
     cmp #0x20               ;a239  c9 20        Compare address high to 0x20 (ROM starts at 0x2000)
-    bcc lab_a294            ;a23b  90 57        Send nak response if address high < 0x20
+    bcc lab_a294            ;a23b  90 57        Send NAK response block if address high < 0x20
 
     cmp #0xff               ;a23d  c9 ff        Compare address high to 0xFF (XOR key starts at 0xFF00)
-    bcs lab_a294            ;a23f  b0 53        Send nak response if address high >= 0xFF
+    bcs lab_a294            ;a23f  b0 53        Send NAK response block if address high >= 0xFF
 
     ldx #0xfd               ;a241  a2 fd        X = block title 0xFD: Response to Read ROM
     stx 0x4e                ;a243  86 4e        Encryption selector = 0xFD (bit 7 set enables encryption)
@@ -23915,22 +23996,22 @@ kwp_01_read_ram:
 
     lda 0x0324              ;a24c  ad 24 03     A = address high
     cmp #0x08               ;a24f  c9 08        Compare to 0x08 (RAM ends at 0x07FF)
-    bcs lab_a294            ;a251  b0 41        Send nak response if address high >= 0x08
+    bcs lab_a294            ;a251  b0 41        Send NAK response block if address high >= 0x08
 
     ;Fall through into memory read common code
 
 ;routine common to read rom/eeprom and read ram
 lab_a253:
-    bbc 1,0xe7,lab_a294     ;a253  37 e7 3e     if not authorized, branch to send nak response
+    bbc 1,0xe7,lab_a294     ;a253  37 e7 3e     if not authorized, branch to Send NAK response block
     sta 0x4d                ;a256  85 4d        Store address high as pointer high byte
     stx 0x0333              ;a258  8e 33 03     Store X in KWP1281 tx buffer: block title
     ldx 0x0320              ;a25b  ae 20 03     X = block length
     cpx #0x07               ;a25e  e0 07        Compare to 7 (expected block length = 6)
-    bcs lab_a294            ;a260  b0 32        Send nak response if length >= 7
+    bcs lab_a294            ;a260  b0 32        Send NAK response block if length >= 7
     lda 0x0323              ;a262  ad 23 03     A = number of bytes to read
-    beq lab_a294            ;a265  f0 2d        Send nak response if number = 0
+    beq lab_a294            ;a265  f0 2d        Send NAK response block if number = 0
     cmp #0x29               ;a267  c9 29        Compare to 41
-    bcs lab_a294            ;a269  b0 29        Send nak response if number >= 41
+    bcs lab_a294            ;a269  b0 29        Send NAK response block if number >= 41
 
     ;number of bytes to read is between 1-40
 
@@ -23962,17 +24043,17 @@ lab_a282:
     bcc lab_a278            ;a289  90 ed
     lda #0x00               ;a28b  a9 00
     sta 0x05b7              ;a28d  8d b7 05
-    jsr sub_b69f            ;a290  20 9f b6
+    jsr kwp_send_tx_buf     ;a290  20 9f b6     Send the block in the KWP1281 tx buffer
     rts                     ;a293  60
 
 lab_a294:
-    jsr sub_b461            ;a294  20 61 b4     send nak response
+    jsr kwp_send_nak        ;a294  20 61 b4     Send NAK response block
     rts                     ;a297  60
 
 ;KWP1281 0x02 Write RAM
 kwp_02_write_ram:
-    bbc 1,0xe7,lab_a294     ;a298  37 e7 f9     if not authorized, branch to send nak response
-    jsr sub_b461            ;a29b  20 61 b4     send nak response
+    bbc 1,0xe7,lab_a294     ;a298  37 e7 f9     if not authorized, branch to Send NAK response block
+    jsr kwp_send_nak        ;a29b  20 61 b4     Send NAK response block
     rts                     ;a29e  60
 
 ;KWP1281 0x04 Output Tests
@@ -24015,7 +24096,7 @@ lab_a2e2:
     bne lab_a2f0            ;a2e4  d0 0a
     lda #0x00               ;a2e6  a9 00
     sta 0x05b9              ;a2e8  8d b9 05
-    jsr kwp_09_ack          ;a2eb  20 5b b4     send ack response
+    jsr kwp_09_ack          ;a2eb  20 5b b4     Send ACK response block
     bra lab_a302            ;a2ee  80 12
 
 lab_a2f0:
@@ -24025,7 +24106,7 @@ lab_a2f0:
     sta 0x0333              ;a2f7  8d 33 03     Store in KWP1281 tx buffer: block title
     lda #0x00               ;a2fa  a9 00
     sta 0x05b7              ;a2fc  8d b7 05
-    jsr sub_b69f            ;a2ff  20 9f b6
+    jsr kwp_send_tx_buf     ;a2ff  20 9f b6     Send the block in the KWP1281 tx buffer
 
 lab_a302:
     rts                     ;a302  60
@@ -24257,12 +24338,12 @@ lab_a444:
 
 lab_a458:
     stx 0x05b7              ;a458  8e b7 05
-    jsr sub_b69f            ;a45b  20 9f b6
+    jsr kwp_send_tx_buf     ;a45b  20 9f b6     Send the block in the KWP1281 tx buffer
     rts                     ;a45e  60
 
 ;KWP1281 0x08 Single Reading
 kwp_08_single_meas:
-    jsr sub_b461            ;a45f  20 61 b4     send nak response
+    jsr kwp_send_nak        ;a45f  20 61 b4    Send NAK response block
     rts                     ;a462  60
 
     .byte 0x20              ;a463  20          DATA 0x20 ' '
@@ -24272,7 +24353,7 @@ kwp_08_single_meas:
 
 ;KWP1281 0x0C Write EEPROM
 kwp_0c_write_eeprom:
-    jsr sub_b461            ;a467  20 61 b4     send nak response
+    jsr kwp_send_nak        ;a467  20 61 b4     Send NAK response block
     rts                     ;a46a  60
 
 ;KWP1281 0x10 Recoding
@@ -24290,19 +24371,22 @@ kwp_10_recoding:
 
 ;KWP1281 0x11 Basic Setting Read
 kwp_11_basic_read_nak:
-    jsr sub_b461            ;a485  20 61 b4     send nak reponse
+    jsr kwp_send_nak        ;a485  20 61 b4     Send NAK response block
     rts                     ;a488  60
 
 ;KWP1281 0x12 ?
 kwp_12_unknown_nak:
-    jsr sub_b461            ;a489  20 61 b4     send nak reponse
+    jsr kwp_send_nak        ;a489  20 61 b4     Send NAK response block
     rts                     ;a48c  60
 
 ;KWP1281 0x19 Read EEPROM
 ;
 ;Returns the unencrypted contents of the two 24C08 EEPROMs (1K each).
 ;Responds with title 0xEF (unlike Premium 4 and 5 which respond with 0xFD).
-;Only allows reading 0x0000-0x07FF (2K).
+;
+;The two 1K EPROMs are presented as a single 0x0000-0x07FF (2K)
+;address range.  Only this range may be read.  Also, some addresses
+;are filtered from reading.  See sub_5ef7_read_eeprom for all the details.
 ;
 ;0x0000-0x03FF (first 1K)
 ;  "Right side" 24C08 EEPROM (closest to the antenna)
@@ -24330,13 +24414,13 @@ kwp_12_unknown_nak:
 ;  0x03 Block end (0x03)
 ;
 kwp_19_read_eeprom:
-    bbc 1,0xe7,lab_a4cb_nak ;a48d  37 e7 3b     if not authorized, branch to send nak response
+    bbc 1,0xe7,lab_a4cb_nak ;a48d  37 e7 3b     if not authorized, branch to Send NAK response block
     clb 6,0xe9              ;a490  df e9        Clear bit 6 = Enable EEPROM filtering
 
     lda 0x0323              ;a492  ad 23 03     A = number of bytes to read
-    beq lab_a4cb_nak        ;a495  f0 34        Send nak response if number = 0
+    beq lab_a4cb_nak        ;a495  f0 34        Send NAK response block if number = 0
     cmp #0x21               ;a497  c9 21        Compare to 41
-    bcs lab_a4cb_nak        ;a499  b0 30        Send nak response if number >= 41
+    bcs lab_a4cb_nak        ;a499  b0 30        Send NAK response block if number >= 41
 
     ;At this point we need to move some data around in the KWP1281 rx buffer.  This same buffer
     ;memory is also used for TechniSat protocol requests.  We make the buffer look a little
@@ -24362,7 +24446,7 @@ kwp_19_read_eeprom:
     sta 0x0331              ;a4a7  8d 31 03     Store in KWP1281 tx buffer: block length
 
     jsr sub_5ef7_read_eeprom;a4aa  20 f7 5e     Read from EEPROM with some addresses filtered
-    bcs lab_a4cb_nak        ;a4ad  b0 1c        If read from EEPROM failed, send nak response
+    bcs lab_a4cb_nak        ;a4ad  b0 1c        If read from EEPROM failed, Send NAK response block
 
     ldy #0xef               ;a4af  a0 ef        Y = block title 0xEF (Read EEPROM Response)
     sty 0x0333              ;a4b1  8c 33 03     Store in KWP1281 tx buffer: block title
@@ -24377,19 +24461,19 @@ lab_a4b6_loop:
 
     lda #0x00               ;a4c2  a9 00
     sta 0x05b7              ;a4c4  8d b7 05
-    jsr sub_b69f            ;a4c7  20 9f b6
+    jsr kwp_send_tx_buf     ;a4c7  20 9f b6     Send the block in the KWP1281 tx buffer
     rts                     ;a4ca  60
 
 lab_a4cb_nak:
-    jsr sub_b461            ;a4cb  20 61 b4     Send nak response
+    jsr kwp_send_nak        ;a4cb  20 61 b4     Send NAK response block
     rts                     ;a4ce  60
 
 ;KWP1281 0x1A Write EEPROM
 ;
 ;This implementation is unreachable because the routine begins with an
-;unconditional branch to send NAK.  This code as written and then disabled.
+;unconditional branch to send NAK.  This code was written and then disabled.
 ;It is still possible to write the EEPROM using the TechniSat protocol
-;on address 0x7C.
+;command 0x49 on address 0x7C.
 ;
 ;Request block format:
 ;  0x06 Block length                  0x0320
@@ -24412,16 +24496,16 @@ lab_a4cb_nak:
 ;  0x03 Block end (0x03)              0x0338
 ;
 kwp_1a_write_eeprom:
-    bra lab_a4cb_nak        ;a4cf  80 fa        unconditionally branch to send nak response
+    bra lab_a4cb_nak        ;a4cf  80 fa        unconditionally branch to Send NAK response block
 
-    bbc 1,0xe7,lab_a4cb_nak ;a4d1  37 e7 f7     if not authorized, branch to send nak response
+    bbc 1,0xe7,lab_a4cb_nak ;a4d1  37 e7 f7     if not authorized, branch to Send NAK response block
     clb 6,0xe9              ;a4d4  df e9        Clear bit 6 = Enable EEPROM filtering
 
     ;Check that the number of bytes to write is exactly 1
     lda 0x0323              ;a4d6  ad 23 03     A = number of bytes to write
-    beq lab_a4cb_nak        ;a4d9  f0 f0        Send nak response if number = 0
+    beq lab_a4cb_nak        ;a4d9  f0 f0        Send NAK response block if number = 0
     cmp #0x02               ;a4db  c9 02        Compare to 2
-    bcs lab_a4cb_nak        ;a4dd  b0 ec        Send nak response if number >= 2
+    bcs lab_a4cb_nak        ;a4dd  b0 ec        Send NAK response block if number >= 2
 
     ;At this point we need to move some data around in the KWP1281 rx buffer.  This same buffer
     ;memory is also used for TechniSat protocol requests.  We make the buffer look a little
@@ -24470,37 +24554,37 @@ lab_a510:
 
     lda #0x00               ;a513  a9 00
     sta 0x05b7              ;a515  8d b7 05
-    jsr sub_b69f            ;a518  20 9f b6
+    jsr kwp_send_tx_buf     ;a518  20 9f b6     Send the block in the KWP1281 tx buffer
     rts                     ;a51b  60
 
 ;KWP1281 0x1B Custom Usage
 ;nak: custom usage
 kwp_1b_unknown_nak:
-    jsr sub_b461            ;a51c  20 61 b4     send nak response
+    jsr kwp_send_nak        ;a51c  20 61 b4     Send NAK response block
     rts                     ;a51f  60
 
 ;KWP1281 0x21 Adaptation Read
 ;nak: adaptation read
 kwp_21_adp_read_nak:
-    jsr sub_b461            ;a520  20 61 b4     send nak response
+    jsr kwp_send_nak        ;a520  20 61 b4     Send NAK response block
     rts                     ;a523  60
 
 ;KWP1281 0x22 Adaptation Transfer
 ;nak: adaptation transfer
 kwp_22_adp_tran_nak:
-    jsr sub_b461            ;a524  20 61 b4     send nak response
+    jsr kwp_send_nak        ;a524  20 61 b4     Send NAK response block
     rts                     ;a527  60
 
 ;KWP1281 0x27 ?
 ;nak: ?
 kwp_27_unknown_nak:
-    jsr sub_b461            ;a528  20 61 b4     send nak response
+    jsr kwp_send_nak        ;a528  20 61 b4     Send NAK response block
     rts                     ;a52b  60
 
 ;KWP1281 0x28 Basic Setting
 ;nak: basic setting
 kwp_28_basic_set_nak:
-    jsr sub_b461            ;a52c  20 61 b4     send nak response
+    jsr kwp_send_nak        ;a52c  20 61 b4     Send NAK response block
     rts                     ;a52f  60
 
 ;group reading valid group numbers
@@ -24553,7 +24637,7 @@ lab_a556:
 
 lab_a560:
     ;group not found
-    jsr sub_b461            ;a560  20 61 b4     send nak response
+    jsr kwp_send_nak        ;a560  20 61 b4     Send NAK response block
     bra lab_a590            ;a563  80 2b
 
 lab_a565:
@@ -24613,7 +24697,7 @@ lab_a585:
 lab_a588:
     lda #0x00               ;a588  a9 00
     sta 0x05b7              ;a58a  8d b7 05
-    jsr sub_b69f            ;a58d  20 9f b6
+    jsr kwp_send_tx_buf     ;a58d  20 9f b6     Send the block in the KWP1281 tx buffer
 
 lab_a590:
     rts                     ;a590  60
@@ -24621,7 +24705,7 @@ lab_a590:
 ;KWP1281 0x2a Adaptation Save
 ;nak: ?
 kwp_2a_adp_save_nak:
-    jsr sub_b461            ;a591  20 61 b4     send nak response
+    jsr kwp_send_nak        ;a591  20 61 b4     Send NAK response block
     rts                     ;a594  60
 
 ;KWP1281 0x2b Login
@@ -24680,7 +24764,7 @@ lab_a5ac:
 
     ;login succeeded
     jsr sub_a124            ;a5b9  20 24 a1
-    jsr kwp_09_ack          ;a5bc  20 5b b4     send ack response
+    jsr kwp_09_ack          ;a5bc  20 5b b4     Send ACK response block
     seb 0,0xe7              ;a5bf  0f e7
     clb 5,0xe7              ;a5c1  bf e7
     lda 0x05c0              ;a5c3  ad c0 05
@@ -26371,7 +26455,7 @@ sub_ad9b:
     clb 0,0xf3              ;ada9  1f f3
     clb 0,0xf9              ;adab  1f f9
     jsr sub_544b            ;adad  20 4b 54     Clears many registers
-    jsr sub_44a7            ;adb0  20 a7 44
+    jsr sub_44a7            ;adb0  20 a7 44     Clears several buffers and flags
     jsr sub_890d            ;adb3  20 0d 89
     lda #0x00               ;adb6  a9 00
     sta 0x90                ;adb8  85 90
@@ -27453,7 +27537,7 @@ kwp_09_ack:
     lda #0x09               ;b45d  a9 09        A = block title 0x09 (Acknowledge)
     bra lab_b470            ;b45f  80 0f
 
-sub_b461:
+kwp_send_nak:
     lda 0x05ae              ;b461  ad ae 05
     bra lab_b469            ;b464  80 03
 
@@ -27471,7 +27555,7 @@ lab_b470:
     sta 0x0333              ;b473  8d 33 03     Store A in KWP1281 tx buffer: block title
     lda #0x00               ;b476  a9 00
     sta 0x05b7              ;b478  8d b7 05
-    jsr sub_b69f            ;b47b  20 9f b6
+    jsr kwp_send_tx_buf     ;b47b  20 9f b6     Send the block in the KWP1281 tx buffer
     rts                     ;b47e  60
 
 sub_b47f:
@@ -27480,7 +27564,7 @@ sub_b47f:
     bne lab_b491            ;b484  d0 0b          No: branch to b491
     lda 0x0323              ;b486  ad 23 03     A = group number
     cmp #0x01               ;b489  c9 01        Is it group 1?
-    bne lab_b491            ;b48b  d0 04            No: branch to b491
+    bne lab_b491            ;b48b  d0 04          No: branch to b491
     seb 3,0xe7              ;b48d  6f e7        TODO looks interesting
     bra lab_b493            ;b48f  80 02
 
@@ -27518,7 +27602,7 @@ lab_b49f:
 lab_b4b9:
     lda #0x00               ;b4b9  a9 00
     sta 0x05b7              ;b4bb  8d b7 05
-    jmp sub_b461            ;b4be  4c 61 b4     send nak response
+    jmp kwp_send_nak        ;b4be  4c 61 b4     Send NAK response block
 
 ;KWP1281 Block Titles
 mem_b4c1:
@@ -27590,7 +27674,7 @@ sub_b50d:
     beq lab_b567            ;b51e  f0 47
     cmp #0x05               ;b520  c9 05
     beq lab_b57c            ;b522  f0 58
-    jmp lab_b625            ;b524  4c 25 b6
+    jmp lab_b625_rts        ;b524  4c 25 b6
 
 lab_b527:
     lda #0x55               ;b527  a9 55
@@ -27601,7 +27685,7 @@ lab_b527:
     sta 0x01af              ;b533  8d af 01
     ldy #0x27               ;b536  a0 27
     jsr sub_3300            ;b538  20 00 33
-    jmp lab_b625            ;b53b  4c 25 b6
+    jmp lab_b625_rts        ;b53b  4c 25 b6
 
 lab_b53e:
     lda #0x01               ;b53e  a9 01
@@ -27612,7 +27696,7 @@ lab_b53e:
     sta 0x01af              ;b54a  8d af 01
     ldy #0x27               ;b54d  a0 27
     jsr sub_3300            ;b54f  20 00 33
-    jmp lab_b625            ;b552  4c 25 b6
+    jmp lab_b625_rts        ;b552  4c 25 b6
 
 lab_b555:
     lda #0x8a               ;b555  a9 8a
@@ -27621,7 +27705,7 @@ lab_b555:
     sta 0x01af              ;b55c  8d af 01
     ldy #0x28               ;b55f  a0 28
     jsr sub_3300            ;b561  20 00 33
-    jmp lab_b625            ;b564  4c 25 b6
+    jmp lab_b625_rts        ;b564  4c 25 b6
 
 lab_b567:
     lda #0x05               ;b567  a9 05
@@ -27631,7 +27715,7 @@ lab_b567:
     lda #0x00               ;b571  a9 00
     sta 0x05b3              ;b573  8d b3 05
     jsr sub_b47f            ;b576  20 7f b4
-    jmp lab_b625            ;b579  4c 25 b6
+    jmp lab_b625_rts        ;b579  4c 25 b6
 
 lab_b57c:
     lda 0x05b2              ;b57c  ad b2 05
@@ -27643,12 +27727,12 @@ lab_b57c:
     beq lab_b5d3            ;b589  f0 48
     cmp #0x06               ;b58b  c9 06
     beq lab_b60b            ;b58d  f0 7c
-    jmp lab_b625            ;b58f  4c 25 b6
+    jmp lab_b625_rts        ;b58f  4c 25 b6
 
 lab_b592:
     lda 0x0322              ;b592  ad 22 03     A = KWP1281 rx buffer: block title
     cmp #0x0a               ;b595  c9 0a        Is it NAK?
-    bne lab_b5aa            ;b597  d0 11            No: branch
+    bne lab_b5aa            ;b597  d0 11          No: branch
 
     ;block title = nak
     lda 0x0323              ;b599  ad 23 03     A = uart rx buffer byte 3
@@ -27656,7 +27740,7 @@ lab_b592:
     beq lab_b5aa            ;b59f  f0 09
     inc 0x0332              ;b5a1  ee 32 03     Increment KWP1281 tx buffer: block counter
     inc 0x0332              ;b5a4  ee 32 03     Increment KWP1281 tx buffer: block counter again
-    jmp sub_b69f            ;b5a7  4c 9f b6
+    jmp kwp_send_tx_buf     ;b5a7  4c 9f b6     Send the block in the KWP1281 tx buffer
 
 ;block title != nak
 lab_b5aa:
@@ -27667,7 +27751,7 @@ lab_b5aa:
 
 lab_b5b5:
     jsr sub_b47f            ;b5b5  20 7f b4
-    jmp lab_b625            ;b5b8  4c 25 b6
+    jmp lab_b625_rts        ;b5b8  4c 25 b6
 
 lab_b5bb:
     lda 0x0331              ;b5bb  ad 31 03     A = KWP1281 tx buffer: block length
@@ -27678,7 +27762,7 @@ lab_b5bb:
     sta 0x01af              ;b5c8  8d af 01
     ldy #0x28               ;b5cb  a0 28
     jsr sub_3300            ;b5cd  20 00 33
-    jmp lab_b625            ;b5d0  4c 25 b6
+    jmp lab_b625_rts        ;b5d0  4c 25 b6
 
 lab_b5d3:
     inc 0x05ad              ;b5d3  ee ad 05
@@ -27694,7 +27778,7 @@ lab_b5d3:
     sta 0x01af              ;b5ee  8d af 01
     ldy #0x28               ;b5f1  a0 28
     jsr sub_3300            ;b5f3  20 00 33
-    jmp lab_b625            ;b5f6  4c 25 b6
+    jmp lab_b625_rts        ;b5f6  4c 25 b6
 
 lab_b5f9:
     lda #0x03               ;b5f9  a9 03
@@ -27703,7 +27787,7 @@ lab_b5f9:
     sta 0x01af              ;b600  8d af 01
     ldy #0x28               ;b603  a0 28
     jsr sub_3300            ;b605  20 00 33
-    jmp lab_b625            ;b608  4c 25 b6
+    jmp lab_b625_rts        ;b608  4c 25 b6
 
 lab_b60b:
     ldx 0x05ad              ;b60b  ae ad 05
@@ -27717,7 +27801,7 @@ lab_b60b:
     ldy #0x28               ;b620  a0 28
     jsr sub_3300            ;b622  20 00 33
 
-lab_b625:
+lab_b625_rts:
     rts                     ;b625  60
 
     .byte 0xad              ;b626  ad          DATA 0xad
@@ -27842,7 +27926,7 @@ lab_b625:
     .byte 0x9f              ;b69d  9f          DATA 0x9f
     .byte 0x60              ;b69e  60          DATA 0x60 '`'
 
-sub_b69f:
+kwp_send_tx_buf:
     lda #0x00               ;b69f  a9 00
     sta 0x05ad              ;b6a1  8d ad 05
     lda 0x05ae              ;b6a4  ad ae 05
@@ -27851,10 +27935,10 @@ sub_b69f:
     sta 0x05b2              ;b6ac  8d b2 05
     lda 0x0331              ;b6af  ad 31 03     A = KWP1281 tx buffer: block length
     sta 0x05b4              ;b6b2  8d b4 05
-    lda #0x03               ;b6b5  a9 03
+    lda #0x03               ;b6b5  a9 03        0x03 = Block end byte
     ldx 0x05b4              ;b6b7  ae b4 05
-    sta 0x0331,x            ;b6ba  9d 31 03     Store byte in KWP1281 tx buffer
-    lda 0x0331              ;b6bd  ad 31 03
+    sta 0x0331,x            ;b6ba  9d 31 03     Store block end byte in KWP1281 tx buffer
+    lda 0x0331              ;b6bd  ad 31 03     A = KWP1281 tx buffer: block length
     jsr sub_5ac5            ;b6c0  20 c5 5a     Send byte
     lda #0x06               ;b6c3  a9 06
     sta 0x01af              ;b6c5  8d af 01
@@ -27894,7 +27978,7 @@ lab_b6e6:
     jsr sub_3300            ;b70d  20 00 33
 
 lab_b710:
-    jmp lab_b845            ;b710  4c 45 b8
+    jmp lab_b845_rts        ;b710  4c 45 b8
 
 lab_b713:
     ldy #0x28               ;b713  a0 28
@@ -27908,13 +27992,13 @@ lab_b713:
     beq lab_b739            ;b725  f0 12
     cmp #0x05               ;b727  c9 05
     beq lab_b77e            ;b729  f0 53
-    jmp lab_b845            ;b72b  4c 45 b8
+    jmp lab_b845_rts        ;b72b  4c 45 b8
 
 lab_b72e:
     ldy #0x2a               ;b72e  a0 2a
     jsr sub_3361            ;b730  20 61 33
     jsr sub_b8cf            ;b733  20 cf b8
-    jmp lab_b845            ;b736  4c 45 b8
+    jmp lab_b845_rts        ;b736  4c 45 b8
 
 lab_b739:
     lda 0x05b6              ;b739  ad b6 05
@@ -27930,11 +28014,11 @@ lab_b739:
     sta 0x01af              ;b751  8d af 01
     ldy #0x27               ;b754  a0 27
     jsr sub_3300            ;b756  20 00 33
-    jmp lab_b845            ;b759  4c 45 b8
+    jmp lab_b845_rts        ;b759  4c 45 b8
 
 lab_b75c:
     jsr sub_b40f_disconnect ;b75c  20 0f b4     Terminate KWP1281 or TechniSat session
-    jmp lab_b845            ;b75f  4c 45 b8
+    jmp lab_b845_rts        ;b75f  4c 45 b8
 
 lab_b762:
     lda #0x04               ;b762  a9 04
@@ -27947,7 +28031,7 @@ lab_b762:
     sta 0x01af              ;b773  8d af 01
     ldy #0x27               ;b776  a0 27
     jsr sub_3300            ;b778  20 00 33
-    jmp lab_b845            ;b77b  4c 45 b8
+    jmp lab_b845_rts        ;b77b  4c 45 b8
 
 lab_b77e:
     lda 0x05b2              ;b77e  ad b2 05
@@ -27958,7 +28042,7 @@ lab_b77e:
     cmp #0x05               ;b789  c9 05
     beq lab_b7ee            ;b78b  f0 61
     jsr sub_b40f_disconnect ;b78d  20 0f b4     Terminate KWP1281 or TechniSat session
-    jmp lab_b845            ;b790  4c 45 b8
+    jmp lab_b845_rts        ;b790  4c 45 b8
 
 lab_b793:
     ldx 0x05ad              ;b793  ae ad 05
@@ -27983,11 +28067,11 @@ lab_b7a8:
     sta 0x01af              ;b7bd  8d af 01
     ldy #0x27               ;b7c0  a0 27
     jsr sub_3300            ;b7c2  20 00 33
-    jmp lab_b845            ;b7c5  4c 45 b8
+    jmp lab_b845_rts        ;b7c5  4c 45 b8
 
 lab_b7c8:
     jsr sub_b40f_disconnect ;b7c8  20 0f b4     Terminate KWP1281 or TechniSat session
-    jmp lab_b845            ;b7cb  4c 45 b8
+    jmp lab_b845_rts        ;b7cb  4c 45 b8
 
 lab_b7ce:
     lda #0x00               ;b7ce  a9 00
@@ -28003,7 +28087,7 @@ lab_b7ce:
 
 lab_b7e8:
     jsr sub_b40f_disconnect ;b7e8  20 0f b4     Terminate KWP1281 or TechniSat session
-    jmp lab_b845            ;b7eb  4c 45 b8
+    jmp lab_b845_rts        ;b7eb  4c 45 b8
 
 lab_b7ee:
     inc 0x05ad              ;b7ee  ee ad 05
@@ -28038,7 +28122,7 @@ lab_b81a:
     stx 0x01af              ;b82d  8e af 01
     ldy #0x27               ;b830  a0 27
     jsr sub_3300            ;b832  20 00 33
-    jmp lab_b845            ;b835  4c 45 b8
+    jmp lab_b845_rts        ;b835  4c 45 b8
 
 lab_b838:
     lda #0x06               ;b838  a9 06
@@ -28049,7 +28133,7 @@ lab_b83d:
     jsr sub_f21e            ;b83f  20 1e f2
     jsr sub_b50d            ;b842  20 0d b5
 
-lab_b845:
+lab_b845_rts:
     rts                     ;b845  60
 
 sub_b846:
@@ -34954,7 +35038,7 @@ lab_e236:
     sta 0x93                ;e248  85 93
     lda 0x0266              ;e24a  ad 66 02
     sta 0x71                ;e24d  85 71
-    jsr sub_44a7            ;e24f  20 a7 44
+    jsr sub_44a7            ;e24f  20 a7 44     Clears several buffers and flags
     jsr sub_890d            ;e252  20 0d 89
     jsr sub_4dd1            ;e255  20 d1 4d
     clc                     ;e258  18
@@ -34970,7 +35054,7 @@ lab_e25b:
     sta 0x93                ;e26a  85 93
     lda 0x03c0,x            ;e26c  bd c0 03
     sta 0x71                ;e26f  85 71
-    jsr sub_44a7            ;e271  20 a7 44
+    jsr sub_44a7            ;e271  20 a7 44     Clears several buffers and flags
     jsr sub_890d            ;e274  20 0d 89
     jsr sub_4dd1            ;e277  20 d1 4d
     sec                     ;e27a  38
@@ -35226,7 +35310,7 @@ lab_e42d:
     sta 0x039c              ;e434  8d 9c 03
     lda 0x0266              ;e437  ad 66 02
     sta 0x71                ;e43a  85 71
-    jsr sub_44a7            ;e43c  20 a7 44
+    jsr sub_44a7            ;e43c  20 a7 44     Clears several buffers and flags
     jsr sub_890d            ;e43f  20 0d 89
     clb 6,0xf3              ;e442  df f3
     clb 3,0xf3              ;e444  7f f3
@@ -36251,7 +36335,7 @@ sub_eacb:
     sta 0x93                ;eae8  85 93
     clb 2,0xf4              ;eaea  5f f4
     clb 6,0xfb              ;eaec  df fb
-    jsr sub_44a7            ;eaee  20 a7 44
+    jsr sub_44a7            ;eaee  20 a7 44     Clears several buffers and flags
     jsr sub_890d            ;eaf1  20 0d 89
     ldy 0x71                ;eaf4  a4 71
     lda #0x00               ;eaf6  a9 00
@@ -37587,7 +37671,7 @@ id_0004:
     .byte 0x34              ;ff69  34          DATA 0x34 '4'
 
 default_serial:
-    .ascii "VWZAZ3B0000000??????"
+    .ascii "VWZAZ3B0000000??????" ;ff70
 
 advanced_id:
 ;For advanced id 1 (0x50), this entire string is used.
