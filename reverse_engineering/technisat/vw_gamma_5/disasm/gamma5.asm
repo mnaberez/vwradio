@@ -1944,7 +1944,7 @@ lab_294a:
 
 sub_2ab8:
     bbs 4,0xe8,lab_2ae3     ;2ab8  87 e8 28
-    jsr sub_2dc9            ;2abb  20 c9 2d
+    jsr read_ee_safe        ;2abb  20 c9 2d     Read the SAFE code from the EEPROM
     lda 0x0102              ;2abe  ad 02 01
     cmp #0x03               ;2ac1  c9 03
     bcc lab_2ac7            ;2ac3  90 02
@@ -2336,16 +2336,17 @@ sub_2d50:
     jsr sub_40a3            ;2d58  20 a3 40
     bcc lab_2dc8            ;2d5b  90 6b
     jsr sub_74d2            ;2d5d  20 d2 74
-    jsr sub_2dc9            ;2d60  20 c9 2d
-    ldy #0x00               ;2d63  a0 00
+    jsr read_ee_safe        ;2d60  20 c9 2d     Read the SAFE code from the EEPROM
 
-lab_2d65:
+    ldy #0x00               ;2d63  a0 00
+lab_2d65_loop:
     lda 0x012c,y            ;2d65  b9 2c 01
     cmp 0x0103,y            ;2d68  d9 03 01
-    bne lab_2db3            ;2d6b  d0 46
+    bne lab_2db3_failed     ;2d6b  d0 46
     iny                     ;2d6d  c8
     cpy #0x04               ;2d6e  c0 04
-    bcc lab_2d65            ;2d70  90 f3
+    bcc lab_2d65_loop       ;2d70  90 f3
+
     jsr sub_4cd0            ;2d72  20 d0 4c     TODO probably some kind of I2C read
     cmp #0x33               ;2d75  c9 33
     bcs lab_2d81            ;2d77  b0 08
@@ -2363,7 +2364,7 @@ lab_2d8c:
     lda #0x00               ;2d8c  a9 00
     sta 0x0102              ;2d8e  8d 02 01
     ldy #0x01               ;2d91  a0 01
-    jsr sub_2de8            ;2d93  20 e8 2d
+    jsr sub_2de8            ;2d93  20 e8 2d     TODO seems to be updating the SAFE code attempt count in the EEPROM
     clb 7,0xf0              ;2d96  ff f0
     clb 0,0xf1              ;2d98  1f f1
     clb 1,0xf1              ;2d9a  3f f1
@@ -2377,7 +2378,8 @@ lab_2d8c:
     ldm #0x0a,0x5b          ;2dae  3c 0a 5b
     bra lab_2dc8            ;2db1  80 15
 
-lab_2db3:
+lab_2db3_failed:
+;SAFE code does not match expected
     lda 0x0102              ;2db3  ad 02 01
     inc a                   ;2db6  3a
     cmp #0x02               ;2db7  c9 02
@@ -2387,33 +2389,46 @@ lab_2db3:
 lab_2dbd:
     sta 0x0102              ;2dbd  8d 02 01
     ldy #0x01               ;2dc0  a0 01
-    jsr sub_2de8            ;2dc2  20 e8 2d
+    jsr sub_2de8            ;2dc2  20 e8 2d     TODO seems to be updating the SAFE code attempt count in the EEPROM
     jsr sub_2ab8            ;2dc5  20 b8 2a
 
 lab_2dc8:
     rts                     ;2dc8  60
 
-sub_2dc9:
+
+read_ee_safe:
+;Read the SAFE code from the EEPROM
+;TODO actually reads 5 bytes instead of the expected 4
+;Is the first byte the attempt count?
+;
+    ;I2C buffer byte 1 = EEPROM address 0x0B
     lda #0x0b               ;2dc9  a9 0b
     sta 0x0101              ;2dcb  8d 01 01
+
+    ;I2C buffer byte 0 = I2C control byte: address 0x50, direction bit = 0 (read)
     lda #0x00               ;2dce  a9 00
     asl a                   ;2dd0  0a
-    ora #0xa0               ;2dd1  09 a0
+    ora #0x50<<1            ;2dd1  09 a0
     sta 0x0100              ;2dd3  8d 00 01
+
+    ;Set buffer pointer to 0x0100
     lda #0x00               ;2dd6  a9 00
-    sta 0x4c                ;2dd8  85 4c
+    sta 0x4c                ;2dd8  85 4c        Store pointer low byte
     lda #0x01               ;2dda  a9 01
-    sta 0x4d                ;2ddc  85 4d
-    ldm #0x02,0x4e          ;2dde  3c 02 4e
-    ldm #0x05,0x4f          ;2de1  3c 05 4f
-    jsr sub_46e5_i2c_read   ;2de4  20 e5 46     TODO probably reads from an I2C EEPROM
+    sta 0x4d                ;2ddc  85 4d        Store pointer high byte
+
+    ldm #0x02,0x4e          ;2dde  3c 02 4e     Number of bytes to write = 2
+    ldm #0x05,0x4f          ;2de1  3c 05 4f     Number of bytes to read = 5
+    jsr sub_46e5_i2c_wr_rd  ;2de4  20 e5 46     Perform an I2C write-then-read transaction
     rts                     ;2de7  60
 
+
 sub_2de8:
+;TODO seems to be updating the SAFE code attempt count in the EEPROM
     tya                     ;2de8  98
-    beq lab_2e13            ;2de9  f0 28
+    beq lab_2e13_rts        ;2de9  f0 28
     cmp #0x06               ;2deb  c9 06
-    bcs lab_2e13            ;2ded  b0 24
+    bcs lab_2e13_rts        ;2ded  b0 24
     inc a                   ;2def  3a
     inc a                   ;2df0  3a
     sta 0x4e                ;2df1  85 4e
@@ -2428,12 +2443,12 @@ sub_2de8:
     asl a                   ;2e05  0a
     ora #0xa0               ;2e06  09 a0
     sta 0x0100              ;2e08  8d 00 01
-    jsr sub_46e5_i2c_read   ;2e0b  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;2e0b  20 e5 46     Perform an I2C write-then-read transaction
 
     ldy #0x0a               ;2e0e  a0 0a
     jsr sub_f22c_delay      ;2e10  20 2c f2     Delay an unknown time period for Y iterations
 
-lab_2e13:
+lab_2e13_rts:
     rts                     ;2e13  60
 
     .byte 0xa9              ;2e14  a9          DATA 0xa9
@@ -2494,7 +2509,7 @@ sub_2e3a:
     sta 0x4d                ;2e5e  85 4d
     ldm #0x05,0x4e          ;2e60  3c 05 4e
     ldm #0x00,0x4f          ;2e63  3c 00 4f
-    jsr sub_46e5_i2c_read   ;2e66  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;2e66  20 e5 46     Perform an I2C write-then-read transaction
 
     ldy #0x0a               ;2e69  a0 0a
     jsr sub_f22c_delay      ;2e6b  20 2c f2     Delay an unknown time period for Y iterations
@@ -2536,7 +2551,7 @@ sub_2e8a:
     sta 0x026a              ;2e91  8d 6a 02
     sta 0x0102              ;2e94  8d 02 01
     ldy #0x01               ;2e97  a0 01
-    jsr sub_2de8            ;2e99  20 e8 2d
+    jsr sub_2de8            ;2e99  20 e8 2d     TODO seems to be updating the SAFE code attempt count in the EEPROM
     ldy #0x01               ;2e9c  a0 01
     jsr sub_3361            ;2e9e  20 61 33
     rts                     ;2ea1  60
@@ -3849,8 +3864,8 @@ mem_3570:
 mem_3588:
     .word sub_5adf_stat_resp;3588  df 5a       VECTOR   cmd=5e   Send 10 01 5E <0x0344> CS status response
     .word sub_5b37_cmd_5f   ;358a  37 5b       VECTOR   cmd=5f   Disconnect (terminate session)
-    .word sub_5b4a_cmd_42   ;358c  4a 5b       VECTOR   cmd=42   TODO I2C related: writes data then reads data
-    .word sub_5bbb_cmd_43   ;358e  bb 5b       VECTOR   cmd=43   TODO I2C related: writes data only
+    .word sub_5b4a_cmd_42   ;358c  4a 5b       VECTOR   cmd=42   Perform an I2C write-then-read transaction
+    .word sub_5bbb_cmd_43   ;358e  bb 5b       VECTOR   cmd=43   Perform an I2C write-only transaction
     .word sub_5beb_cmd_44   ;3590  eb 5b       VECTOR   cmd=44   Read RAM in allowed range
     .word sub_5c2e_cmd_45   ;3592  2e 5c       VECTOR   cmd=45   Write RAM in allowed range or disable EEPROM filtering
     .word sub_5c7e_cmd_46   ;3594  7e 5c       VECTOR   cmd=46   AND memory in allowed ranges with complement of a value
@@ -5718,7 +5733,7 @@ lab_4181:
     sta 0x4d                ;418c  85 4d
     ldm #0x02,0x4e          ;418e  3c 02 4e
     ldm #0x02,0x4f          ;4191  3c 02 4f
-    jsr sub_46e5_i2c_read   ;4194  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;4194  20 e5 46     Perform an I2C write-then-read transaction
     lda 0x0102              ;4197  ad 02 01
     bbs 7,a,lab_41a3        ;419a  e3 07
     lda 0x0103              ;419c  ad 03 01
@@ -5748,7 +5763,7 @@ lab_41b7:
     sta 0x4d                ;41c2  85 4d
     ldm #0x02,0x4e          ;41c4  3c 02 4e
     ldm #0x04,0x4f          ;41c7  3c 04 4f
-    jsr sub_46e5_i2c_read   ;41ca  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;41ca  20 e5 46     Perform an I2C write-then-read transaction
     lda 0x0102              ;41cd  ad 02 01
     bbs 7,a,lab_41f9        ;41d0  e3 27
     lda 0x0104              ;41d2  ad 04 01
@@ -5809,7 +5824,7 @@ lab_421a:
     sta 0x4d                ;4225  85 4d
     ldm #0x02,0x4e          ;4227  3c 02 4e
     ldm #0x04,0x4f          ;422a  3c 04 4f
-    jsr sub_46e5_i2c_read   ;422d  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;422d  20 e5 46     Perform an I2C write-then-read transaction
     lda 0x0102              ;4230  ad 02 01
     bbs 7,a,lab_4262        ;4233  e3 2d
     bbc 0,a,lab_4262        ;4235  13 2b
@@ -5827,7 +5842,7 @@ lab_421a:
     sta 0x4d                ;4250  85 4d
     ldm #0x02,0x4e          ;4252  3c 02 4e
     ldm #0x0e,0x4f          ;4255  3c 0e 4f
-    jsr sub_46e5_i2c_read   ;4258  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;4258  20 e5 46     Perform an I2C write-then-read transaction
     jsr sub_4a7c            ;425b  20 7c 4a
     seb 2,0xfb              ;425e  4f fb
     bra lab_4272            ;4260  80 10
@@ -6597,7 +6612,7 @@ sub_46ce:
 ;              first two bytes of the buffer contain the EEPROM address
 ;0x004E = number of bytes to write to the EEPROM
 ;0x004F = number of bytes to read from the EEPROM
-sub_46e5_i2c_read:
+sub_46e5_i2c_wr_rd:
     bbc 1,0xff,lab_46e9     ;46e5  37 ff 01
     rts                     ;46e8  60
 
@@ -6969,7 +6984,7 @@ lab_48a6:
     sta 0x4d                ;48b1  85 4d
     ldm #0x02,0x4e          ;48b3  3c 02 4e
     ldm #0x06,0x4f          ;48b6  3c 06 4f
-    jsr sub_46e5_i2c_read   ;48b9  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;48b9  20 e5 46     Perform an I2C write-then-read transaction
 
     lda 0x0102              ;48bc  ad 02 01
     sta 0x48                ;48bf  85 48
@@ -7094,7 +7109,7 @@ sub_4979:
     sta 0x4d                ;4989  85 4d
     ldm #0x02,0x4e          ;498b  3c 02 4e
     ldm #0x02,0x4f          ;498e  3c 02 4f
-    jsr sub_46e5_i2c_read   ;4991  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;4991  20 e5 46     Perform an I2C write-then-read transaction
     bbs 0,0xff,lab_49bf     ;4994  07 ff 28
     lda 0x0102              ;4997  ad 02 01
     bbs 7,a,lab_49a1        ;499a  e3 05
@@ -7117,7 +7132,7 @@ lab_49ae:
     sta 0x4d                ;49b4  85 4d
     ldm #0x02,0x4e          ;49b6  3c 02 4e
     ldm #0x0e,0x4f          ;49b9  3c 0e 4f
-    jsr sub_46e5_i2c_read   ;49bc  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;49bc  20 e5 46     Perform an I2C write-then-read transaction
 
 lab_49bf:
     bbs 0,0xff,lab_4a3b     ;49bf  07 ff 79
@@ -7270,7 +7285,7 @@ sub_4a9d:
     sta 0x4d                ;4aa8  85 4d
     ldm #0x02,0x4e          ;4aaa  3c 02 4e
     ldm #0x02,0x4f          ;4aad  3c 02 4f
-    jsr sub_46e5_i2c_read   ;4ab0  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;4ab0  20 e5 46     Perform an I2C write-then-read transaction
     bbs 0,0xff,lab_4b24     ;4ab3  07 ff 6e
     lda 0x0103              ;4ab6  ad 03 01
     pha                     ;4ab9  48
@@ -7282,7 +7297,7 @@ sub_4a9d:
     sta 0x4d                ;4ac5  85 4d
     ldm #0x02,0x4e          ;4ac7  3c 02 4e
     ldm #0x11,0x4f          ;4aca  3c 11 4f
-    jsr sub_46e5_i2c_read   ;4acd  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;4acd  20 e5 46     Perform an I2C write-then-read transaction
     pla                     ;4ad0  68
     bbs 0,0xff,lab_4b24     ;4ad1  07 ff 50
     tay                     ;4ad4  a8
@@ -7401,7 +7416,7 @@ lab_4b67:
     pha                     ;4b76  48
     inc 0x4e                ;4b77  e6 4e
     inc 0x4e                ;4b79  e6 4e
-    jsr sub_46e5_i2c_read   ;4b7b  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;4b7b  20 e5 46     Perform an I2C write-then-read transaction
 
     ldy #0x0a               ;4b7e  a0 0a
     jsr sub_f22c_delay      ;4b80  20 2c f2     Delay an unknown time period for Y iterations
@@ -7497,7 +7512,7 @@ sub_4bec:
     sta 0x4d                ;4bf5  85 4d
     ldm #0x02,0x4e          ;4bf7  3c 02 4e
     ldm #0x10,0x4f          ;4bfa  3c 10 4f
-    jsr sub_46e5_i2c_read   ;4bfd  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;4bfd  20 e5 46     Perform an I2C write-then-read transaction
 
     ldy #0x03               ;4c00  a0 03
     lda 0x0102,y            ;4c02  b9 02 01
@@ -7642,7 +7657,7 @@ lab_4cab:
     inc 0x4e                ;4cc0  e6 4e
     inc 0x4e                ;4cc2  e6 4e
     ldm #0x00,0x4f          ;4cc4  3c 00 4f
-    jsr sub_46e5_i2c_read   ;4cc7  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;4cc7  20 e5 46     Perform an I2C write-then-read transaction
 
     ldy #0x0a               ;4cca  a0 0a
     jsr sub_f22c_delay      ;4ccc  20 2c f2     Delay an unknown time period for Y iterations
@@ -7663,7 +7678,7 @@ sub_4cd0:
     sta 0x4d                ;4ce3  85 4d
     ldm #0x02,0x4e          ;4ce5  3c 02 4e
     ldm #0x01,0x4f          ;4ce8  3c 01 4f
-    jsr sub_46e5_i2c_read   ;4ceb  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;4ceb  20 e5 46     Perform an I2C write-then-read transaction
     lda 0x0102              ;4cee  ad 02 01
     bbc 7,a,lab_4cf5        ;4cf1  f3 02
     lda #0x00               ;4cf3  a9 00
@@ -7688,7 +7703,7 @@ sub_4cf9:
     sta 0x4d                ;4d12  85 4d
     ldm #0x03,0x4e          ;4d14  3c 03 4e
     ldm #0x00,0x4f          ;4d17  3c 00 4f
-    jsr sub_46e5_i2c_read   ;4d1a  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;4d1a  20 e5 46     Perform an I2C write-then-read transaction
 
     ldy #0x0a               ;4d1d  a0 0a
     jsr sub_f22c_delay      ;4d1f  20 2c f2     Delay an unknown time period for Y iterations
@@ -7773,7 +7788,7 @@ lab_4d7a:
     sta 0x4d                ;4d94  85 4d
     ldm #0x06,0x4e          ;4d96  3c 06 4e
     ldm #0x00,0x4f          ;4d99  3c 00 4f
-    jsr sub_46e5_i2c_read   ;4d9c  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;4d9c  20 e5 46     Perform an I2C write-then-read transaction
 
     ldy #0x0a               ;4d9f  a0 0a
     jsr sub_f22c_delay      ;4da1  20 2c f2     Delay an unknown time period for Y iterations
@@ -7794,7 +7809,7 @@ sub_4da5:
     sta 0x4d                ;4db8  85 4d
     ldm #0x02,0x4e          ;4dba  3c 02 4e
     ldm #0x04,0x4f          ;4dbd  3c 04 4f
-    jsr sub_46e5_i2c_read   ;4dc0  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;4dc0  20 e5 46     Perform an I2C write-then-read transaction
     rts                     ;4dc3  60
 
 sub_4dc4:
@@ -7893,7 +7908,7 @@ lab_4e6b:
     sta 0x4d                ;4e71  85 4d
     ldm #0x04,0x4e          ;4e73  3c 04 4e
     ldm #0x00,0x4f          ;4e76  3c 00 4f
-    jsr sub_46e5_i2c_read   ;4e79  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;4e79  20 e5 46     Perform an I2C write-then-read transaction
     bbc 0,0xff,lab_4e83     ;4e7c  17 ff 04
     clb 0,0xff              ;4e7f  1f ff
     seb 0,0x76              ;4e81  0f 76
@@ -7941,7 +7956,7 @@ lab_4eb6:
     sta 0x4d                ;4ec2  85 4d
     ldm #0x02,0x4e          ;4ec4  3c 02 4e
     ldm #0x01,0x4f          ;4ec7  3c 01 4f
-    jsr sub_46e5_i2c_read   ;4eca  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;4eca  20 e5 46     Perform an I2C write-then-read transaction
     lda 0x0102              ;4ecd  ad 02 01
     beq lab_4ef3            ;4ed0  f0 21
     ldy #0x00               ;4ed2  a0 00
@@ -7982,7 +7997,7 @@ lab_4f04:
     sta 0x4d                ;4f10  85 4d
     ldm #0x02,0x4e          ;4f12  3c 02 4e
     ldm #0x1d,0x4f          ;4f15  3c 1d 4f
-    jsr sub_46e5_i2c_read   ;4f18  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;4f18  20 e5 46     Perform an I2C write-then-read transaction
     ldy #0x00               ;4f1b  a0 00
 
 lab_4f1d:
@@ -8028,7 +8043,7 @@ sub_4f4b:
     sta 0x4d                ;4f5e  85 4d
     ldm #0x02,0x4e          ;4f60  3c 02 4e
     ldm #0x02,0x4f          ;4f63  3c 02 4f
-    jsr sub_46e5_i2c_read   ;4f66  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;4f66  20 e5 46     Perform an I2C write-then-read transaction
     ldx #0x00               ;4f69  a2 00
     bbc 0,0xf2,lab_4f70     ;4f6b  17 f2 02
     ldx #0x01               ;4f6e  a2 01
@@ -8065,7 +8080,7 @@ lab_4f8a:
     sta 0x4d                ;4fa3  85 4d
     ldm #0x1f,0x4e          ;4fa5  3c 1f 4e
     ldm #0x00,0x4f          ;4fa8  3c 00 4f
-    jsr sub_46e5_i2c_read   ;4fab  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;4fab  20 e5 46     Perform an I2C write-then-read transaction
     rts                     ;4fae  60
 
 sub_4faf:
@@ -8082,7 +8097,7 @@ sub_4faf:
     sta 0x4d                ;4fc7  85 4d
     ldm #0x03,0x4e          ;4fc9  3c 03 4e
     ldm #0x00,0x4f          ;4fcc  3c 00 4f
-    jsr sub_46e5_i2c_read   ;4fcf  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;4fcf  20 e5 46     Perform an I2C write-then-read transaction
     rts                     ;4fd2  60
 
 sub_4fd3:
@@ -8099,7 +8114,7 @@ sub_4fd3:
     sta 0x4d                ;4feb  85 4d
     ldm #0x03,0x4e          ;4fed  3c 03 4e
     ldm #0x00,0x4f          ;4ff0  3c 00 4f
-    jsr sub_46e5_i2c_read   ;4ff3  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;4ff3  20 e5 46     Perform an I2C write-then-read transaction
     rts                     ;4ff6  60
 
 sub_4ff7:
@@ -8116,7 +8131,7 @@ sub_4ff7:
     sta 0x4d                ;500e  85 4d
     ldm #0x03,0x4e          ;5010  3c 03 4e
     ldm #0x00,0x4f          ;5013  3c 00 4f
-    jsr sub_46e5_i2c_read   ;5016  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;5016  20 e5 46     Perform an I2C write-then-read transaction
     rts                     ;5019  60
 
 sub_501a:
@@ -8134,7 +8149,7 @@ sub_501a:
     sta 0x4d                ;5034  85 4d
     ldm #0x03,0x4e          ;5036  3c 03 4e
     ldm #0x00,0x4f          ;5039  3c 00 4f
-    jsr sub_46e5_i2c_read   ;503c  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;503c  20 e5 46     Perform an I2C write-then-read transaction
 
 lab_503f:
     rts                     ;503f  60
@@ -10176,19 +10191,19 @@ sub_5b37_cmd_5f:
     rts                     ;5b49  60
 
 ;TechniSat protocol command 0x42
-;TODO I2C related: writes data then reads data
+;Perform an I2C write-then-read transaction
+;Accessing the two EEPROMs is not allowed but all other I2C devices are permitted.
 ;
 ;Request block:
 ;  0x10     unknown
 ;  0x01     unknown
-;  0x00     number of parameters                             0x0321
-;  0x42     command (0x42)                                   0x0322
-;   xx      param 0 number of bytes to write to the EEPROM?  0x0323  (up to 16)
-;   xx      param 1 number of bytes to read from the EEPROM  0x0324  (up to 16)
-;   xx      param 2 EEPROM address high byte?                0x0325  (must be 0xA0 - 0xAF)
-;   xx      param 3 EEPROM address low byte?                 0x0326
-;   xx      param 4 ...up to 14 more bytes to write...         xx
-;  <CS>     checksum                                           xx
+;  0x00     number of parameters                                0x0321
+;  0x42     command (0x42)                                      0x0322
+;   xx      param 0 number of I2C bytes to write                0x0323  (up to 16)
+;   xx      param 1 number of I2C bytes to read                 0x0324  (up to 16)
+;   xx      param 2 I2C control byte (address & direction bit)  0x0325  (must not be 0xA0 - 0xAF)
+;   xx      param 3 ...up to 15 more I2C bytes to write...        xx
+;  <CS>     checksum                                              xx
 ;
 ;TODO response block
 ;
@@ -10200,10 +10215,11 @@ sub_5b4a_cmd_42:
     ldy #0x01               ;5b4d  a0 01
     jsr sub_f22c_delay      ;5b4f  20 2c f2     Delay an unknown time period for Y iterations
 
-    ;Param 2 must be 0xA0-0xAF
-    lda 0x0325              ;5b52  ad 25 03     A = param 2 maybe address high byte?
+    ;I2C control byte (address & direction) must not be 0xA0-0xAF
+    ;This is to prevent accessing the two EEPROMs
+    lda 0x0325              ;5b52  ad 25 03     A = param 2: i2c control byte (address & direction bit)
     and #0xf0               ;5b55  29 f0
-    cmp #0xa0               ;5b57  c9 a0
+    cmp #0x50<<1            ;5b57  c9 a0        EEPROM addresses are 0x50, 0x51
     beq lab_5bb2_invalid    ;5b59  f0 57
 
     ;Set 0x004C pointer to point to Param 2 (0x0325)
@@ -10224,13 +10240,13 @@ sub_5b4a_cmd_42:
     cmp #0x11               ;5b71  c9 11
     bcs lab_5bb2_invalid    ;5b73  b0 3d        Branch if >= 0x11
 
-    ;sub_46e5_i2c_read wants:
+    ;sub_46e5_i2c_wr_rd wants:
     ;  0x004C-0x004D pointer to buffer that will receive EEPROM contents
     ;                first two bytes of the buffer contain the EEPROM address
     ;  0x004E = number of bytes to write to the EEPROM
     ;  0x004F = number of bytes to read from the EEPROM
 
-    jsr sub_46e5_i2c_read   ;5b75  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;5b75  20 e5 46     Perform an I2C write-then-read transaction
 
     lda 0x4f                ;5b78  a5 4f
     sta 0x0325              ;5b7a  8d 25 03     Store in param 2? TODO why?
@@ -10276,19 +10292,19 @@ lab_5bba_rts:
     rts                     ;5bba  60
 
 ;TechniSat protocol command 0x43
-;TODO I2C related: writes data only
+;Perform an I2C write-only transaction
+;Accessing the two EEPROMs is not allowed but all other I2C devices are permitted.
 ;
 ;Request block:
 ;  0x10     unknown
 ;  0x01     unknown
-;  0x00     number of parameters                             0x0321
-;  0x42     command (0x42)                                   0x0322
-;   xx      param 0 number of bytes to write to the EEPROM?  0x0323  (up to 16)
-;  0x00     param 1 ignored                                  0x0324
-;   xx      param 1 EEPROM address high byte?                0x0325  (must be 0xA0 - 0xAF)
-;   xx      param 2 EEPROM address low byte?                 0x0326
-;   xx      param 3 ...up to 14 more bytes to write...         xx
-;  <CS>     checksum                                           xx
+;  0x00     number of parameters                                0x0321
+;  0x43     command (0x43)                                      0x0322
+;   xx      param 0 number of I2C bytes to write                0x0323  (up to 16)
+;  0x00     param 1 ignored                                     0x0324
+;   xx      param 2 I2C control byte (address & direction bit)  0x0325  (must not be 0xA0 - 0xAF)
+;   xx      param 3 ...up to 15 more I2C bytes to write...        xx
+;  <CS>     checksum                                              xx
 ;
 ;TODO response block
 ;
@@ -10299,20 +10315,15 @@ sub_5bbb_cmd_43:
     lda #0x10               ;5bc0  a9 10
     sta 0x0344              ;5bc2  8d 44 03     Store as TechniSat protocol status byte
 
-    ;Param 2 must be 0xA0-0xAF
-    lda 0x0325              ;5bc5  ad 25 03     A = param 2 maybe address high byte?
+    ;I2C control byte (address & direction) must not be 0xA0-0xAF
+    ;This is to prevent accessing the two EEPROMs
+    lda 0x0325              ;5bc5  ad 25 03     A = param 2: i2c control byte (address & direction bit)
     and #0xf0               ;5bc8  29 f0
-    cmp #0xa0               ;5bca  c9 a0
+    cmp #0x50<<1            ;5bca  c9 a0        EEPROM addresses are 0x50, 0x51
     beq lab_5be7_done       ;5bcc  f0 19
 
     lda #0x00               ;5bce  a9 00
     sta 0x0344              ;5bd0  8d 44 03     Store as TechniSat protocol status byte
-
-    ;sub_46e5_i2c_read wants:
-    ;  0x004C-0x004D pointer to buffer that will receive EEPROM contents
-    ;                first two bytes of the buffer contain the EEPROM address
-    ;  0x004E = number of bytes to write to the EEPROM
-    ;  0x004F = number of bytes to read from the EEPROM
 
     ;Set 0x004C pointer to point to Param 2 (0x0325)
     lda #0x25               ;5bd3  a9 25
@@ -10328,7 +10339,13 @@ sub_5bbb_cmd_43:
     lda #0x00               ;5be0  a9 00        A = 0
     sta 0x4f                ;5be2  85 4f        Store as number of bytes to read
 
-    jsr sub_46e5_i2c_read   ;5be4  20 e5 46     TODO probably reads from an I2C EEPROM
+    ;sub_46e5_i2c_wr_rd wants:
+    ;  0x004C-0x004D pointer to buffer that will receive EEPROM contents
+    ;                first two bytes of the buffer contain the EEPROM address
+    ;  0x004E = number of bytes to write to the EEPROM
+    ;  0x004F = number of bytes to read from the EEPROM
+
+    jsr sub_46e5_i2c_wr_rd  ;5be4  20 e5 46     Perform an I2C write-then-read transaction
 
 lab_5be7_done:
     jsr sub_5adf_stat_resp  ;5be7  20 df 5a     Send 10 01 5E <0x0344> CS status response
@@ -10337,6 +10354,19 @@ lab_5be7_done:
 ;TechniSat protocol command 0x44
 ;Read RAM in allowed range
 ;Allows reading all bytes 0x0000-0x053f
+;
+;Request block:
+;  0x10     unknown
+;  0x01     unknown
+;  0x00     number of parameters                             0x0321
+;  0x42     command (0x42)                                   0x0322
+;   xx      param 0: address low                             0x0323
+;   xx      param 1: address high                            0x0324
+;   xx      param 2: number of bytes to read                 0x0325
+;  <CS>     checksum                                         0x0326
+;
+;TODO response block
+;
 sub_5beb_cmd_44:
     bbc 7,0xe8,lab_5c2d_rts ;5beb  f7 e8 3f     Branch if 0xE8 Bit 7 is clear
 
@@ -10345,13 +10375,13 @@ sub_5beb_cmd_44:
     ldy #0x01               ;5bee  a0 01
     jsr sub_f22c_delay      ;5bf0  20 2c f2     Delay an unknown time period for Y iterations
 
-    lda 0x0323              ;5bf3  ad 23 03     A = uart rx buffer byte 3 (address low)
+    lda 0x0323              ;5bf3  ad 23 03     A = param 0 (address low)
     sta 0x4c                ;5bf6  85 4c
 
-    lda 0x0324              ;5bf8  ad 24 03     A = uart rx buffer byte 4 (address high)
+    lda 0x0324              ;5bf8  ad 24 03     A = param 1 (address high)
     sta 0x4d                ;5bfb  85 4d
 
-    lda 0x0325              ;5bfd  ad 25 03     A = uart rx buffer byte 5 (number of bytes to read?)
+    lda 0x0325              ;5bfd  ad 25 03     A = param 2 (number of bytes to read)
     sta 0x4f                ;5c00  85 4f
 
     ;TODO is this a range check based on 0x0325?
@@ -10364,23 +10394,23 @@ sub_5beb_cmd_44:
     lda #0x00               ;5c08  a9 00
     adc 0x4d                ;5c0a  65 4d        Add memory address high byte
     cmp #0x05               ;5c0c  c9 05
-    bcc lab_5c18            ;5c0e  90 08        Branch if less
-    bne lab_5c25_failed     ;5c10  d0 13
+    bcc lab_5c18_valid      ;5c0e  90 08        Branch if less
+    bne lab_5c25_invalid    ;5c10  d0 13
 
     lda 0x4e                ;5c12  a5 4e
     cmp #0x40               ;5c14  c9 40
-    bcs lab_5c25_failed     ;5c16  b0 0d
+    bcs lab_5c25_invalid     ;5c16  b0 0d
 
-lab_5c18:
+lab_5c18_valid:
     ldm #0x00,0x4e          ;5c18  3c 00 4e
     lda #0x00               ;5c1b  a9 00
     sta 0x0344              ;5c1d  8d 44 03     Store as TechniSat protocol status byte
-    jsr sub_5e05            ;5c20  20 05 5e     Send 10 4F 44 <data [0x4c],y...> CS
+    jsr sub_5e05_send_mem   ;5c20  20 05 5e     Send 10 4F 44 <data [0x4c],y...> CS
                             ;                     Pointer to memory address in 0x004C
                             ;                     Number of bytes to send in 0x4F
     bra lab_5c2d_rts        ;5c23  80 08
 
-lab_5c25_failed:
+lab_5c25_invalid:
     lda #0x04               ;5c25  a9 04
     sta 0x0344              ;5c27  8d 44 03     Store as TechniSat protocol status byte
     jsr sub_5adf_stat_resp  ;5c2a  20 df 5a     Send 10 01 5E <0x0344> CS status response
@@ -10579,7 +10609,7 @@ sub_5ce4_cmd_4a:
 lab_5d0f:
     lda #0x00               ;5d0f  a9 00
     sta 0x0344              ;5d11  8d 44 03     Store as TechniSat protocol status byte
-    jsr sub_5e05            ;5d14  20 05 5e     Send 10 4F 44 <data [0x4c],y...> CS
+    jsr sub_5e05_send_mem   ;5d14  20 05 5e     Send 10 4F 44 <data [0x4c],y...> CS
                             ;                     Pointer to memory address in 0x004C
                             ;                     Number of bytes to send in 0x4F
     bra lab_5d1e            ;5d17  80 05
@@ -10670,21 +10700,21 @@ sub_5d69_cmd_4c:
     lda [0x4c],y            ;5d9a  b1 4c
     and 0x4e                ;5d9c  25 4e
     sta [0x4c],y            ;5d9e  91 4c
-    bra lab_5daf            ;5da0  80 0d
+    bra lab_5daf_done       ;5da0  80 0d
 
 lab_5da2:
     clb 6,0xe9              ;5da2  df e9        Clear bit 6 = Enable EEPROM filtering
-    bra lab_5daf            ;5da4  80 09
+    bra lab_5daf_done       ;5da4  80 09
 
 lab_5da6:
     clb 1,0xff              ;5da6  3f ff
-    bra lab_5daf            ;5da8  80 05
+    bra lab_5daf_done       ;5da8  80 05
 
 lab_5daa_failed:
     lda #0x06               ;5daa  a9 06
     sta 0x0344              ;5dac  8d 44 03     Store as TechniSat protocol status byte
 
-lab_5daf:
+lab_5daf_done:
     jsr sub_5adf_stat_resp  ;5daf  20 df 5a     Send 10 01 5E <0x0344> CS status response
     rts                     ;5db2  60
 
@@ -10733,26 +10763,27 @@ sub_5db3_cmd_4d:
     ora 0x4e                ;5de4  05 4e
     sta [0x4c],y            ;5de6  91 4c
 
-    bra lab_5e01            ;5de8  80 17
+    bra lab_5e01_done       ;5de8  80 17
 
 lab_5dea:
     seb 6,0xe9              ;5dea  cf e9        Set bit 6 = Disable EEPROM filtering
-    bra lab_5e01            ;5dec  80 13
+    bra lab_5e01_done       ;5dec  80 13
 
 lab_5dee:
-    bbc 6,0xe9,lab_5e01     ;5dee  d7 e9 10     Branch if EEPROM filtering is enabled
+    bbc 6,0xe9,lab_5e01_done;5dee  d7 e9 10     Branch if EEPROM filtering is enabled
 
     lda 0x0324              ;5df1  ad 24 03     A = uart rx buffer byte 4
     cmp #0x02               ;5df4  c9 02
-    bne lab_5e01            ;5df6  d0 09
+    bne lab_5e01_done       ;5df6  d0 09
+
     seb 1,0xff              ;5df8  2f ff
-    bra lab_5e01            ;5dfa  80 05
+    bra lab_5e01_done       ;5dfa  80 05
 
 lab_5dfc_failed:
     lda #0x04               ;5dfc  a9 04
     sta 0x0344              ;5dfe  8d 44 03     Store as TechniSat protocol status byte
 
-lab_5e01:
+lab_5e01_done:
     jsr sub_5adf_stat_resp  ;5e01  20 df 5a     Send 10 01 5E <0x0344> CS status response
     rts                     ;5e04  60
 
@@ -10760,7 +10791,7 @@ lab_5e01:
 ;Send 10 4F 44 <data [0x4c],y...> CS
 ;Pointer to memory address in 0x004C
 ;Number of bytes to send in 0x4F
-sub_5e05:
+sub_5e05_send_mem:
     seb 6,0xe5              ;5e05  cf e5
     lda #0x10               ;5e07  a9 10
     sta 0x0343              ;5e09  8d 43 03
@@ -11007,7 +11038,7 @@ sub_5ef7_read_eeprom:
     ora #0xa0               ;5f1f  09 a0
     sta 0x0100              ;5f21  8d 00 01
 
-    jsr sub_46e5_i2c_read   ;5f24  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;5f24  20 e5 46     Perform an I2C write-then-read transaction
 
     bbs 6,0xe9,lab_5f4b     ;5f27  c7 e9 21     Skip EEPROM filtering if it has been disabled
 
@@ -14504,7 +14535,7 @@ lab_6fca:
     sta 0x4d                ;6fd6  85 4d
     ldm #0x02,0x4e          ;6fd8  3c 02 4e
     ldm #0x01,0x4f          ;6fdb  3c 01 4f
-    jsr sub_46e5_i2c_read   ;6fde  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;6fde  20 e5 46     Perform an I2C write-then-read transaction
     lda 0x0102              ;6fe1  ad 02 01
     cmp #0xe0               ;6fe4  c9 e0
     bcc lab_7009            ;6fe6  90 21
@@ -14546,7 +14577,7 @@ lab_701a:
     sta 0x4d                ;7026  85 4d
     ldm #0x02,0x4e          ;7028  3c 02 4e
     ldm #0x20,0x4f          ;702b  3c 20 4f
-    jsr sub_46e5_i2c_read   ;702e  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;702e  20 e5 46     Perform an I2C write-then-read transaction
 
 lab_7031:
     lda 0x0107              ;7031  ad 07 01
@@ -14581,7 +14612,7 @@ lab_7031:
     sta 0x4d                ;707f  85 4d
     ldm #0x22,0x4e          ;7081  3c 22 4e
     ldm #0x00,0x4f          ;7084  3c 00 4f
-    jsr sub_46e5_i2c_read   ;7087  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;7087  20 e5 46     Perform an I2C write-then-read transaction
     bbc 0,0xff,lab_7091     ;708a  17 ff 04
     clb 0,0xff              ;708d  1f ff
     seb 4,0x76              ;708f  8f 76
@@ -14678,7 +14709,7 @@ lab_70f5:
     sta 0x4d                ;7121  85 4d
     ldm #0x03,0x4e          ;7123  3c 03 4e
     ldm #0x00,0x4f          ;7126  3c 00 4f
-    jsr sub_46e5_i2c_read   ;7129  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;7129  20 e5 46     Perform an I2C write-then-read transaction
     lda 0x42                ;712c  a5 42
     cmp #0x06               ;712e  c9 06
     beq lab_713a            ;7130  f0 08
@@ -14723,7 +14754,7 @@ lab_7163:
     sta 0x4d                ;7173  85 4d
     ldm #0x03,0x4e          ;7175  3c 03 4e
     ldm #0x00,0x4f          ;7178  3c 00 4f
-    jsr sub_46e5_i2c_read   ;717b  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;717b  20 e5 46     Perform an I2C write-then-read transaction
     jsr sub_77b5            ;717e  20 b5 77
     ldx 0x02c5              ;7181  ae c5 02
     ldy #0x01               ;7184  a0 01
@@ -14743,7 +14774,7 @@ lab_718c:
     sta 0x4d                ;719f  85 4d
     ldm #0x03,0x4e          ;71a1  3c 03 4e
     ldm #0x00,0x4f          ;71a4  3c 00 4f
-    jsr sub_46e5_i2c_read   ;71a7  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;71a7  20 e5 46     Perform an I2C write-then-read transaction
     ldy #0x02               ;71aa  a0 02
     lda [0x40],y            ;71ac  b1 40
     tax                     ;71ae  aa
@@ -14878,7 +14909,7 @@ lab_727e:
     sta 0x4d                ;7297  85 4d
     ldm #0x04,0x4e          ;7299  3c 04 4e
     ldm #0x00,0x4f          ;729c  3c 00 4f
-    jsr sub_46e5_i2c_read   ;729f  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;729f  20 e5 46     Perform an I2C write-then-read transaction
     bra lab_72dc            ;72a2  80 38
 
 lab_72a4:
@@ -14907,7 +14938,7 @@ lab_72c8:
     sta 0x4d                ;72d1  85 4d
     ldm #0x05,0x4e          ;72d3  3c 05 4e
     ldm #0x00,0x4f          ;72d6  3c 00 4f
-    jsr sub_46e5_i2c_read   ;72d9  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;72d9  20 e5 46     Perform an I2C write-then-read transaction
 
 lab_72dc:
     lda 0xa0                ;72dc  a5 a0
@@ -14943,7 +14974,7 @@ sub_72ef:
     sta 0x4d                ;7302  85 4d
     ldm #0x02,0x4e          ;7304  3c 02 4e
     ldm #0x01,0x4f          ;7307  3c 01 4f
-    jsr sub_46e5_i2c_read   ;730a  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;730a  20 e5 46     Perform an I2C write-then-read transaction
     lda 0x0102              ;730d  ad 02 01
     beq lab_7322            ;7310  f0 10
     ldx 0xa1                ;7312  a6 a1
@@ -14970,7 +15001,7 @@ lab_7322:
     sta 0x4d                ;733b  85 4d
     ldm #0x02,0x4e          ;733d  3c 02 4e
     ldm #0x02,0x4f          ;7340  3c 02 4f
-    jsr sub_46e5_i2c_read   ;7343  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;7343  20 e5 46     Perform an I2C write-then-read transaction
     lda 0x0102              ;7346  ad 02 01
     sta 0x02c1              ;7349  8d c1 02
     lda 0x0103              ;734c  ad 03 01
@@ -14992,7 +15023,7 @@ sub_7353:
     sta 0x4d                ;7369  85 4d
     ldm #0x03,0x4e          ;736b  3c 03 4e
     ldm #0x00,0x4f          ;736e  3c 00 4f
-    jsr sub_46e5_i2c_read   ;7371  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;7371  20 e5 46     Perform an I2C write-then-read transaction
     lda #0x0a               ;7374  a9 0a
     sta 0x0101              ;7376  8d 01 01
     lda 0x02c2              ;7379  ad c2 02
@@ -15003,7 +15034,7 @@ sub_7353:
     sta 0x4d                ;7385  85 4d
     ldm #0x03,0x4e          ;7387  3c 03 4e
     ldm #0x00,0x4f          ;738a  3c 00 4f
-    jsr sub_46e5_i2c_read   ;738d  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;738d  20 e5 46     Perform an I2C write-then-read transaction
     rts                     ;7390  60
 
     .byte 0x20              ;7391  20          DATA 0x20 ' '
@@ -15033,7 +15064,7 @@ sub_739e:
     sta 0x4d                ;73b1  85 4d
     ldm #0x02,0x4e          ;73b3  3c 02 4e
     ldm #0x01,0x4f          ;73b6  3c 01 4f
-    jsr sub_46e5_i2c_read   ;73b9  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;73b9  20 e5 46     Perform an I2C write-then-read transaction
     lda 0x0102              ;73bc  ad 02 01
     beq lab_73c8            ;73bf  f0 07
     ldx 0xa2                ;73c1  a6 a2
@@ -15056,7 +15087,7 @@ lab_73c8:
     sta 0x4d                ;73e0  85 4d
     ldm #0x02,0x4e          ;73e2  3c 02 4e
     ldm #0x01,0x4f          ;73e5  3c 01 4f
-    jsr sub_46e5_i2c_read   ;73e8  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;73e8  20 e5 46     Perform an I2C write-then-read transaction
     lda 0x0102              ;73eb  ad 02 01
 
 lab_73ee:
@@ -15078,7 +15109,7 @@ sub_73f7:
     sta 0x4d                ;740d  85 4d
     ldm #0x03,0x4e          ;740f  3c 03 4e
     ldm #0x00,0x4f          ;7412  3c 00 4f
-    jsr sub_46e5_i2c_read   ;7415  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;7415  20 e5 46     Perform an I2C write-then-read transaction
     rts                     ;7418  60
 
     .byte 0x00              ;7419  00          DATA 0x00
@@ -15216,7 +15247,7 @@ lab_74b8:
     sta 0x4d                ;74c6  85 4d
     ldm #0x06,0x4e          ;74c8  3c 06 4e
     ldm #0x00,0x4f          ;74cb  3c 00 4f
-    jsr sub_46e5_i2c_read   ;74ce  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;74ce  20 e5 46     Perform an I2C write-then-read transaction
     rts                     ;74d1  60
 
 sub_74d2:
@@ -15273,7 +15304,7 @@ sub_7518:
     sta 0x4d                ;752d  85 4d
     ldm #0x03,0x4e          ;752f  3c 03 4e
     ldm #0x00,0x4f          ;7532  3c 00 4f
-    jsr sub_46e5_i2c_read   ;7535  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;7535  20 e5 46     Perform an I2C write-then-read transaction
     rts                     ;7538  60
 
 sub_7539:
@@ -15290,7 +15321,7 @@ sub_7539:
     sta 0x4d                ;7550  85 4d
     ldm #0x03,0x4e          ;7552  3c 03 4e
     ldm #0x00,0x4f          ;7555  3c 00 4f
-    jsr sub_46e5_i2c_read   ;7558  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;7558  20 e5 46     Perform an I2C write-then-read transaction
     rts                     ;755b  60
 
 sub_755c:
@@ -15307,7 +15338,7 @@ sub_755c:
     sta 0x4d                ;7573  85 4d
     ldm #0x03,0x4e          ;7575  3c 03 4e
     ldm #0x00,0x4f          ;7578  3c 00 4f
-    jsr sub_46e5_i2c_read   ;757b  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;757b  20 e5 46     Perform an I2C write-then-read transaction
     rts                     ;757e  60
 
 sub_757f:
@@ -15331,7 +15362,7 @@ lab_7599:
     sta 0x4d                ;759f  85 4d
     ldm #0x03,0x4e          ;75a1  3c 03 4e
     ldm #0x00,0x4f          ;75a4  3c 00 4f
-    jsr sub_46e5_i2c_read   ;75a7  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;75a7  20 e5 46     Perform an I2C write-then-read transaction
     lda 0x0102              ;75aa  ad 02 01
     bne lab_75b1            ;75ad  d0 02
     lda #0x80               ;75af  a9 80
@@ -15398,7 +15429,7 @@ lab_7609:
     sta 0x4d                ;7612  85 4d
     ldm #0x03,0x4e          ;7614  3c 03 4e
     ldm #0x00,0x4f          ;7617  3c 00 4f
-    jsr sub_46e5_i2c_read   ;761a  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;761a  20 e5 46     Perform an I2C write-then-read transaction
     lda 0x0102              ;761d  ad 02 01
     cmp #0x80               ;7620  c9 80
     bne lab_7626            ;7622  d0 02
@@ -15476,7 +15507,7 @@ sub_7673:
     sta 0x4d                ;7688  85 4d
     ldm #0x03,0x4e          ;768a  3c 03 4e
     ldm #0x00,0x4f          ;768d  3c 00 4f
-    jsr sub_46e5_i2c_read   ;7690  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;7690  20 e5 46     Perform an I2C write-then-read transaction
     rts                     ;7693  60
 
 sub_7694:
@@ -15528,7 +15559,7 @@ lab_76cc:
     sta 0x4d                ;76e6  85 4d
     ldm #0x03,0x4e          ;76e8  3c 03 4e
     ldm #0x00,0x4f          ;76eb  3c 00 4f
-    jsr sub_46e5_i2c_read   ;76ee  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;76ee  20 e5 46     Perform an I2C write-then-read transaction
 
 lab_76f1:
     rts                     ;76f1  60
@@ -15670,7 +15701,7 @@ lab_7780:
     sta 0x4d                ;779a  85 4d
     ldm #0x03,0x4e          ;779c  3c 03 4e
     ldm #0x00,0x4f          ;779f  3c 00 4f
-    jsr sub_46e5_i2c_read   ;77a2  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;77a2  20 e5 46     Perform an I2C write-then-read transaction
     rts                     ;77a5  60
 
 sub_77a6:
@@ -15709,7 +15740,7 @@ sub_77cd:
     sta 0x4d                ;77d6  85 4d
     ldm #0x02,0x4e          ;77d8  3c 02 4e
     ldm #0x02,0x4f          ;77db  3c 02 4f
-    jsr sub_46e5_i2c_read   ;77de  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;77de  20 e5 46     Perform an I2C write-then-read transaction
     lda 0x0102              ;77e1  ad 02 01
     cmp #0x14               ;77e4  c9 14
     bcc lab_77ea            ;77e6  90 02
@@ -15738,7 +15769,7 @@ sub_77f8:
     sta 0x4d                ;780b  85 4d
     ldm #0x04,0x4e          ;780d  3c 04 4e
     ldm #0x00,0x4f          ;7810  3c 00 4f
-    jsr sub_46e5_i2c_read   ;7813  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;7813  20 e5 46     Perform an I2C write-then-read transaction
 
     ldy #0x0a               ;7816  a0 0a
     jsr sub_f22c_delay      ;7818  20 2c f2     Delay an unknown time period for Y iterations
@@ -15868,7 +15899,7 @@ sub_7897:
     sta 0x4d                ;78a0  85 4d
     ldm #0x02,0x4e          ;78a2  3c 02 4e
     ldm #0x03,0x4f          ;78a5  3c 03 4f
-    jsr sub_46e5_i2c_read   ;78a8  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;78a8  20 e5 46     Perform an I2C write-then-read transaction
     lda 0x0104              ;78ab  ad 04 01
     cmp #0x40               ;78ae  c9 40
     bcc lab_78d0            ;78b0  90 1e
@@ -15919,7 +15950,7 @@ lab_78e2:
     sta 0x4d                ;78f5  85 4d
     ldm #0x03,0x4e          ;78f7  3c 03 4e
     ldm #0x00,0x4f          ;78fa  3c 00 4f
-    jsr sub_46e5_i2c_read   ;78fd  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;78fd  20 e5 46     Perform an I2C write-then-read transaction
     lda 0x0103              ;7900  ad 03 01
     sta 0x0102              ;7903  8d 02 01
     lda 0x0104              ;7906  ad 04 01
@@ -15932,7 +15963,7 @@ lab_78e2:
     sta 0x4d                ;7917  85 4d
     ldm #0x04,0x4e          ;7919  3c 04 4e
     ldm #0x00,0x4f          ;791c  3c 00 4f
-    jsr sub_46e5_i2c_read   ;791f  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;791f  20 e5 46     Perform an I2C write-then-read transaction
     rts                     ;7922  60
 
     .byte 0xad              ;7923  ad          DATA 0xad
@@ -16005,7 +16036,7 @@ sub_796d:
     sta 0x4d                ;7982  85 4d
     ldm #0x03,0x4e          ;7984  3c 03 4e
     ldm #0x00,0x4f          ;7987  3c 00 4f
-    jsr sub_46e5_i2c_read   ;798a  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;798a  20 e5 46     Perform an I2C write-then-read transaction
     lda #0x01               ;798d  a9 01
     sta 0x0101              ;798f  8d 01 01
     lda #0x00               ;7992  a9 00
@@ -16016,7 +16047,7 @@ sub_796d:
     sta 0x4d                ;799d  85 4d
     ldm #0x03,0x4e          ;799f  3c 03 4e
     ldm #0x00,0x4f          ;79a2  3c 00 4f
-    jsr sub_46e5_i2c_read   ;79a5  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;79a5  20 e5 46     Perform an I2C write-then-read transaction
     rts                     ;79a8  60
 
     .byte 0x36              ;79a9  36          DATA 0x36 '6'
@@ -16483,7 +16514,7 @@ sub_7b65:
     sta 0x4d                ;7b89  85 4d
     ldm #0x04,0x4e          ;7b8b  3c 04 4e
     ldm #0x00,0x4f          ;7b8e  3c 00 4f
-    jsr sub_46e5_i2c_read   ;7b91  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;7b91  20 e5 46     Perform an I2C write-then-read transaction
     rts                     ;7b94  60
 
 sub_7b95:
@@ -16525,7 +16556,7 @@ lab_7bba:
     sta 0x4d                ;7bd0  85 4d
     ldm #0x03,0x4e          ;7bd2  3c 03 4e
     ldm #0x00,0x4f          ;7bd5  3c 00 4f
-    jsr sub_46e5_i2c_read   ;7bd8  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;7bd8  20 e5 46     Perform an I2C write-then-read transaction
     rts                     ;7bdb  60
 
 sub_7bdc:
@@ -16541,7 +16572,7 @@ sub_7bdc:
     sta 0x4d                ;7bef  85 4d
     ldm #0x02,0x4e          ;7bf1  3c 02 4e
     ldm #0x01,0x4f          ;7bf4  3c 01 4f
-    jsr sub_46e5_i2c_read   ;7bf7  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;7bf7  20 e5 46     Perform an I2C write-then-read transaction
     lda 0x0102              ;7bfa  ad 02 01
     beq lab_7c15            ;7bfd  f0 16
     ldy #0x00               ;7bff  a0 00
@@ -16571,7 +16602,7 @@ lab_7c15:
     sta 0x4d                ;7c28  85 4d
     ldm #0x02,0x4e          ;7c2a  3c 02 4e
     ldm #0x08,0x4f          ;7c2d  3c 08 4f
-    jsr sub_46e5_i2c_read   ;7c30  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;7c30  20 e5 46     Perform an I2C write-then-read transaction
     ldy #0x00               ;7c33  a0 00
 
 lab_7c35:
@@ -16756,7 +16787,7 @@ lab_7d33:
     sta 0x4d                ;7d5a  85 4d
     ldm #0x03,0x4e          ;7d5c  3c 03 4e
     ldm #0x00,0x4f          ;7d5f  3c 00 4f
-    jsr sub_46e5_i2c_read   ;7d62  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;7d62  20 e5 46     Perform an I2C write-then-read transaction
 
     ldy #0x0a               ;7d65  a0 0a
     jsr sub_f22c_delay      ;7d67  20 2c f2     Delay an unknown time period for Y iterations
@@ -16778,7 +16809,7 @@ lab_7d33:
     sta 0x4d                ;7d89  85 4d
     ldm #0x03,0x4e          ;7d8b  3c 03 4e
     ldm #0x00,0x4f          ;7d8e  3c 00 4f
-    jsr sub_46e5_i2c_read   ;7d91  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;7d91  20 e5 46     Perform an I2C write-then-read transaction
 
     ldy #0x0a               ;7d94  a0 0a
     jsr sub_f22c_delay      ;7d96  20 2c f2     Delay an unknown time period for Y iterations
@@ -16811,7 +16842,7 @@ lab_7dba:
     sta 0x4d                ;7dc0  85 4d
     ldm #0x0a,0x4e          ;7dc2  3c 0a 4e
     ldm #0x00,0x4f          ;7dc5  3c 00 4f
-    jsr sub_46e5_i2c_read   ;7dc8  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;7dc8  20 e5 46     Perform an I2C write-then-read transaction
     lda 0x0285              ;7dcb  ad 85 02
     sta 0x028c              ;7dce  8d 8c 02
 
@@ -17820,7 +17851,7 @@ sub_822c:
     sta 0x4d                ;823f  85 4d
     ldm #0x02,0x4e          ;8241  3c 02 4e
     ldm #0x04,0x4f          ;8244  3c 04 4f
-    jsr sub_46e5_i2c_read   ;8247  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;8247  20 e5 46     Perform an I2C write-then-read transaction
     lda 0x0104              ;824a  ad 04 01
     and #0x1f               ;824d  29 1f
     sta 0x02c9              ;824f  8d c9 02
@@ -18354,7 +18385,7 @@ sub_853b:
     sta 0x4d                ;854e  85 4d
     ldm #0x02,0x4e          ;8550  3c 02 4e
     ldm #0x18,0x4f          ;8553  3c 18 4f
-    jsr sub_46e5_i2c_read   ;8556  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;8556  20 e5 46     Perform an I2C write-then-read transaction
     bbc 0,0xff,lab_855e     ;8559  17 ff 02
     seb 1,0x76              ;855c  2f 76
 
@@ -18541,7 +18572,7 @@ sub_8639:
     sta 0x4d                ;864b  85 4d
     ldm #0x01,0x4e          ;864d  3c 01 4e
     ldm #0x00,0x4f          ;8650  3c 00 4f
-    jsr sub_46e5_i2c_read   ;8653  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;8653  20 e5 46     Perform an I2C write-then-read transaction
     rts                     ;8656  60
 
     .byte 0xad              ;8657  ad          DATA 0xad
@@ -23327,7 +23358,7 @@ sub_9e44:
     sta 0x4d                ;9e57  85 4d
     ldm #0x02,0x4e          ;9e59  3c 02 4e
     ldm #0x04,0x4f          ;9e5c  3c 04 4f
-    jsr sub_46e5_i2c_read   ;9e5f  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;9e5f  20 e5 46     Perform an I2C write-then-read transaction
     lda #0x00               ;9e62  a9 00
     bbs 5,0xf3,lab_9e8a     ;9e64  a7 f3 23
     bbs 6,0xf3,lab_9e8a     ;9e67  c7 f3 20
@@ -23548,7 +23579,7 @@ sub_9fa7:
     sta 0x4d                ;9fba  85 4d
     ldm #0x02,0x4e          ;9fbc  3c 02 4e
     ldm #0x0c,0x4f          ;9fbf  3c 0c 4f
-    jsr sub_46e5_i2c_read   ;9fc2  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;9fc2  20 e5 46     Perform an I2C write-then-read transaction
     lda 0x0102              ;9fc5  ad 02 01
     bbc 7,a,lab_9fd5        ;9fc8  f3 0b
 
@@ -23650,7 +23681,7 @@ sub_a040:
     sta 0x4d                ;a053  85 4d
     ldm #0x02,0x4e          ;a055  3c 02 4e
     ldm #0x05,0x4f          ;a058  3c 05 4f
-    jsr sub_46e5_i2c_read   ;a05b  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;a05b  20 e5 46     Perform an I2C write-then-read transaction
     lda 0x0106              ;a05e  ad 06 01
     beq lab_a075            ;a061  f0 12
     lda #0x03               ;a063  a9 03
@@ -23708,7 +23739,7 @@ sub_a0b1:
     sta 0x4d                ;a0c4  85 4d
     ldm #0x07,0x4e          ;a0c6  3c 07 4e
     ldm #0x00,0x4f          ;a0c9  3c 00 4f
-    jsr sub_46e5_i2c_read   ;a0cc  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;a0cc  20 e5 46     Perform an I2C write-then-read transaction
 
     ldy #0x0a               ;a0cf  a0 0a
     jsr sub_f22c_delay      ;a0d1  20 2c f2     Delay an unknown time period for Y iterations
@@ -23829,7 +23860,7 @@ sub_a14a:
     ldm #0x02,0x4e          ;a15f  3c 02 4e
     ldm #0x06,0x4f          ;a162  3c 06 4f
 
-    jsr sub_46e5_i2c_read   ;a165  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;a165  20 e5 46     Perform an I2C write-then-read transaction
 
     lda 0x0102              ;a168  ad 02 01     A = first byte from EEPROM data
     and #0xcf               ;a16b  29 cf
@@ -23863,7 +23894,7 @@ sub_a17d:
     ldm #0x02,0x4e          ;a192  3c 02 4e
     ldm #0x0e,0x4f          ;a195  3c 0e 4f
 
-    jsr sub_46e5_i2c_read   ;a198  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;a198  20 e5 46     Perform an I2C write-then-read transaction
 
     lda 0x0102              ;a19b  ad 02 01     A = first byte of serial number read from EEPROM
     cmp #'V                 ;a19e  c9 56        Is it a "V" as in "VWZAZ..."?
@@ -24724,7 +24755,7 @@ kwp_2a_adp_save_nak:
 kwp_2b_login:
     bbc 3,0xf1,lab_a59d     ;a595  77 f1 05
     jsr kwp_06_disconnect   ;a598  20 33 9f     disconnect
-    bra lab_a605            ;a59b  80 68
+    bra lab_a605_rts            ;a59b  80 68
 
 lab_a59d:
     jsr sub_a10a            ;a59d  20 0a a1     Convert SAFE code binary number in KWP1281 rx buffer
@@ -24739,13 +24770,13 @@ lab_a59d:
 
     ;Check attempted SAFE code is 0-9999
     lda 0x0116              ;a5a0  ad 16 01     A = SAFE code as decimal in ASCII (ten thousands place)
-    cmp #0x30               ;a5a3  c9 30        Is the ten thousands place = 0?
-    bne lab_a5e3            ;a5a5  d0 3c          No: branch to login failed
+    cmp #'0                 ;a5a3  c9 30        Is the ten thousands place = 0?
+    bne lab_a5e3_failed     ;a5a5  d0 3c          No: branch to login failed
 
-    ;TODO probably reading EEPROM
-    jsr sub_2dc9            ;a5a7  20 c9 2d
+    ;Read the SAFE code from the EEPROM
+    jsr read_ee_safe        ;a5a7  20 c9 2d
 
-    ;Result of sub_2dc9:
+    ;Result of read_ee_safe:
     ;  0x0103   Actual SAFE code as a decimal number in ASCII (thousands place)
     ;  0x0104   Actual SAFE code as a decimal number in ASCII (hundreds place)
     ;  0x0105   Actual SAFE code as a decimal number in ASCII (tens place)
@@ -24753,14 +24784,13 @@ lab_a59d:
 
     ;Compare attempted SAFE code with actual
     ldy #0x00               ;a5aa  a0 00
-
-lab_a5ac:
+lab_a5ac_loop:
     lda 0x0117,y            ;a5ac  b9 17 01
     cmp 0x0103,y            ;a5af  d9 03 01
-    bne lab_a5e3            ;a5b2  d0 2f
+    bne lab_a5e3_failed     ;a5b2  d0 2f
     iny                     ;a5b4  c8
     cpy #0x04               ;a5b5  c0 04
-    bcc lab_a5ac            ;a5b7  90 f3
+    bcc lab_a5ac_loop       ;a5b7  90 f3
 
     ;login succeeded
     jsr sub_a124            ;a5b9  20 24 a1
@@ -24772,15 +24802,15 @@ lab_a5ac:
     sta 0x05c0              ;a5c8  8d c0 05
     sta 0x0102              ;a5cb  8d 02 01
     jsr sub_ab9d            ;a5ce  20 9d ab
-    bbc 2,0xf1,lab_a605     ;a5d1  57 f1 31
+    bbc 2,0xf1,lab_a605_rts ;a5d1  57 f1 31
     jsr sub_4cd0            ;a5d4  20 d0 4c     TODO probably some kind of I2C read
     lda 0x026b              ;a5d7  ad 6b 02
     cmp #0x33               ;a5da  c9 33
-    bcs lab_a605            ;a5dc  b0 27
+    bcs lab_a605_rts        ;a5dc  b0 27
     jsr sub_2e8a            ;a5de  20 8a 2e
-    bra lab_a605            ;a5e1  80 22
+    bra lab_a605_rts        ;a5e1  80 22
 
-lab_a5e3:
+lab_a5e3_failed:
     ;login failed
     jsr kwp_06_disconnect   ;a5e3  20 33 9f     disconnect
     bbs 5,0xe7,lab_a5fb     ;a5e6  a7 e7 12
@@ -24790,7 +24820,7 @@ lab_a5e3:
     sta 0x05c0              ;a5f0  8d c0 05
     sta 0x0102              ;a5f3  8d 02 01
     jsr sub_ab9d            ;a5f6  20 9d ab
-    bra lab_a605            ;a5f9  80 0a
+    bra lab_a605_rts        ;a5f9  80 0a
 
 lab_a5fb:
     ldy #0x36               ;a5fb  a0 36
@@ -24798,7 +24828,7 @@ lab_a5fb:
     seb 3,0xf1              ;a600  6f f1
     jsr sub_4c63            ;a602  20 63 4c
 
-lab_a605:
+lab_a605_rts:
     rts                     ;a605  60
 
     .byte 0x38              ;a606  38          DATA 0x38 '8'
@@ -25947,7 +25977,7 @@ sub_ab35:
     sta 0x4d                ;ab4d  85 4d
     ldm #0x02,0x4e          ;ab4f  3c 02 4e
     ldm #0x01,0x4f          ;ab52  3c 01 4f
-    jsr sub_46e5_i2c_read   ;ab55  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;ab55  20 e5 46     Perform an I2C write-then-read transaction
     pla                     ;ab58  68
     cmp 0x0102              ;ab59  cd 02 01
     beq lab_ab7d            ;ab5c  f0 1f
@@ -25981,7 +26011,7 @@ sub_ab7e:
     sta 0x4d                ;ab91  85 4d
     ldm #0x02,0x4e          ;ab93  3c 02 4e
     ldm #0x01,0x4f          ;ab96  3c 01 4f
-    jsr sub_46e5_i2c_read   ;ab99  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;ab99  20 e5 46     Perform an I2C write-then-read transaction
     rts                     ;ab9c  60
 
 sub_ab9d:
@@ -25997,7 +26027,7 @@ sub_ab9d:
     sta 0x4d                ;abb0  85 4d
     ldm #0x03,0x4e          ;abb2  3c 03 4e
     ldm #0x00,0x4f          ;abb5  3c 00 4f
-    jsr sub_46e5_i2c_read   ;abb8  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;abb8  20 e5 46     Perform an I2C write-then-read transaction
 
     ldy #0x0a               ;abbb  a0 0a
     jsr sub_f22c_delay      ;abbd  20 2c f2     Delay an unknown time period for Y iterations
@@ -30998,7 +31028,7 @@ lab_c8bc:
     sta 0x4d                ;c8ed  85 4d
     ldm #0x03,0x4e          ;c8ef  3c 03 4e
     ldm #0x00,0x4f          ;c8f2  3c 00 4f
-    jsr sub_46e5_i2c_read   ;c8f5  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;c8f5  20 e5 46     Perform an I2C write-then-read transaction
     jsr sub_7694            ;c8f8  20 94 76
 
 lab_c8fb:
@@ -31057,7 +31087,7 @@ sub_c929:
     sta 0x4d                ;c93c  85 4d
     ldm #0x02,0x4e          ;c93e  3c 02 4e
     ldm #0x01,0x4f          ;c941  3c 01 4f
-    jsr sub_46e5_i2c_read   ;c944  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;c944  20 e5 46     Perform an I2C write-then-read transaction
     lda 0x0102              ;c947  ad 02 01
     beq lab_c951            ;c94a  f0 05
     jsr sub_c9af            ;c94c  20 af c9
@@ -31076,7 +31106,7 @@ lab_c951:
     sta 0x4d                ;c964  85 4d
     ldm #0x02,0x4e          ;c966  3c 02 4e
     ldm #0x20,0x4f          ;c969  3c 20 4f
-    jsr sub_46e5_i2c_read   ;c96c  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;c96c  20 e5 46     Perform an I2C write-then-read transaction
     ldx #0x1f               ;c96f  a2 1f
 
 lab_c971:
@@ -32994,7 +33024,7 @@ sub_d522:
     sta 0x4d                ;d530  85 4d
     ldm #0x02,0x4e          ;d532  3c 02 4e
     ldm #0x00,0x4f          ;d535  3c 00 4f
-    jsr sub_46e5_i2c_read   ;d538  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;d538  20 e5 46     Perform an I2C write-then-read transaction
     rts                     ;d53b  60
 
 sub_d53c:
@@ -33009,7 +33039,7 @@ sub_d53c:
     sta 0x4d                ;d54b  85 4d
     ldm #0x01,0x4e          ;d54d  3c 01 4e
     ldm #0x05,0x4f          ;d550  3c 05 4f
-    jsr sub_46e5_i2c_read   ;d553  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;d553  20 e5 46     Perform an I2C write-then-read transaction
     lda 0x0101              ;d556  ad 01 01
     cmp #0x04               ;d559  c9 04
     beq lab_d55f            ;d55b  f0 02
@@ -37018,7 +37048,7 @@ sub_eefc:
     sta 0x4d                ;ef16  85 4d
     ldm #0x03,0x4e          ;ef18  3c 03 4e
     ldm #0x00,0x4f          ;ef1b  3c 00 4f
-    jsr sub_46e5_i2c_read   ;ef1e  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;ef1e  20 e5 46     Perform an I2C write-then-read transaction
     lda #0xc4               ;ef21  a9 c4
     sta 0x0100              ;ef23  8d 00 01
     lda #0x09               ;ef26  a9 09
@@ -37031,7 +37061,7 @@ sub_eefc:
     sta 0x4d                ;ef36  85 4d
     ldm #0x03,0x4e          ;ef38  3c 03 4e
     ldm #0x00,0x4f          ;ef3b  3c 00 4f
-    jsr sub_46e5_i2c_read   ;ef3e  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;ef3e  20 e5 46     Perform an I2C write-then-read transaction
     rts                     ;ef41  60
 
 sub_ef42:
@@ -37047,7 +37077,7 @@ sub_ef42:
     sta 0x4d                ;ef58  85 4d
     ldm #0x03,0x4e          ;ef5a  3c 03 4e
     ldm #0x00,0x4f          ;ef5d  3c 00 4f
-    jsr sub_46e5_i2c_read   ;ef60  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;ef60  20 e5 46     Perform an I2C write-then-read transaction
     lda #0xc4               ;ef63  a9 c4
     sta 0x0100              ;ef65  8d 00 01
     lda #0x09               ;ef68  a9 09
@@ -37060,7 +37090,7 @@ sub_ef42:
     sta 0x4d                ;ef79  85 4d
     ldm #0x03,0x4e          ;ef7b  3c 03 4e
     ldm #0x00,0x4f          ;ef7e  3c 00 4f
-    jsr sub_46e5_i2c_read   ;ef81  20 e5 46     TODO probably reads from an I2C EEPROM
+    jsr sub_46e5_i2c_wr_rd  ;ef81  20 e5 46     Perform an I2C write-then-read transaction
     rts                     ;ef84  60
 
     .byte 0x87              ;ef85  87          DATA 0x87
