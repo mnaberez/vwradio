@@ -325,6 +325,7 @@ lab_21fb:
     jmp lab_2154            ;21fb  4c 54 21
 
 ;unknown table used by lab_2213
+mem_21fe:
     .byte 0x73              ;21fe  73          DATA 0x73 's'
     .byte 0x74              ;21ff  74          DATA 0x74 't'
     .byte 0x75              ;2200  75          DATA 0x75 'u'
@@ -347,7 +348,7 @@ lab_2213:
     lsr a                   ;2214  4a
     bcc lab_2213            ;2215  90 fc
 
-    lda 0x21fe,x            ;2217  bd fe 21
+    lda mem_21fe,x          ;2217  bd fe 21
     sta 0x40                ;221a  85 40
     ldy #0x00               ;221c  a0 00
     sty 0x41                ;221e  84 41
@@ -10205,7 +10206,14 @@ sub_5b37_cmd_5f:
 ;   xx      param 3 ...up to 15 more I2C bytes to write...        xx
 ;  <CS>     checksum                                              xx
 ;
-;TODO response block
+;Response block (example shows 3 bytes of I2C data read):
+;  0x10     unknown                          <not in buffer>
+;  0x03     number params (3)                0x325
+;  0x42     response 0x42                    0x326     (The addresses are not an
+;   xx      param 0: i2c data read byte 0    0x327      error!  The response is
+;   xx      param 1: i2c data read byte 1    0x328      sent from the rx buffer!)
+;   xx      param 2: i2c data read byte 0    0x329
+;   xx      checksum                         <not in buffer>
 ;
 sub_5b4a_cmd_42:
     bbc 7,0xe8,lab_5bba_rts ;5b4a  f7 e8 6d     Branch if 0xE8 bit 7 is clear
@@ -10222,38 +10230,49 @@ sub_5b4a_cmd_42:
     cmp #0x50<<1            ;5b57  c9 a0        EEPROM addresses are 0x50, 0x51
     beq lab_5bb2_invalid    ;5b59  f0 57
 
-    ;Set 0x004C pointer to point to Param 2 (0x0325)
+    ;Set I2C buffer pointer (0x004C) to point to Param 2 (0x0325)
     lda #0x25               ;5b5b  a9 25
     sta 0x4c                ;5b5d  85 4c        Store as buffer address low byte
     lda #0x03               ;5b5f  a9 03
     sta 0x4d                ;5b61  85 4d        Store as buffer address high byte
 
-    ;Param 0 (number of bytes to write) must be 0x00-0x0F
+    ;Param 0 (number of bytes to write) must be 0x00-0x10
     lda 0x0323              ;5b63  ad 23 03     A = param 0
     sta 0x4e                ;5b66  85 4e        Store as number of bytes to write to the EEPROM
     cmp #0x11               ;5b68  c9 11
     bcs lab_5bb2_invalid    ;5b6a  b0 46        Branch if >= 0x11
 
-    ;Param 1 (number of bytes to read) must be 0x00-0x0F
+    ;Param 1 (number of bytes to read) must be 0x00-0x10
     lda 0x0324              ;5b6c  ad 24 03     A = param 1
     sta 0x4f                ;5b6f  85 4f        Store as number of bytes to read from the EEPROM
     cmp #0x11               ;5b71  c9 11
     bcs lab_5bb2_invalid    ;5b73  b0 3d        Branch if >= 0x11
 
     ;sub_46e5_i2c_wr_rd wants:
-    ;  0x004C-0x004D pointer to buffer that will receive EEPROM contents
-    ;                first two bytes of the buffer contain the EEPROM address
-    ;  0x004E = number of bytes to write to the EEPROM
-    ;  0x004F = number of bytes to read from the EEPROM
+    ;  0x004C-0x004D pointer to an I2C data buffer
+    ;                first byte of buffer contains I2C control byte (address & direction)
+    ;  0x004E = number of bytes to write to the I2C device (read from pointer + 1...)
+    ;  0x004F = number of bytes to read from the I2C device (written to pointer + 2...)
 
     jsr sub_46e5_i2c_wr_rd  ;5b75  20 e5 46     Perform an I2C write-then-read transaction
 
-    lda 0x4f                ;5b78  a5 4f
-    sta 0x0325              ;5b7a  8d 25 03     Store in param 2? TODO why?
-    inc 0x4f                ;5b7d  e6 4f
-    inc 0x4f                ;5b7f  e6 4f
-    lda #0x42               ;5b81  a9 42
-    sta 0x0326              ;5b83  8d 26 03     Store in param 2? TODO why?
+    ;The code below is confusing because sub_46e5_i2c_wr_rd uses the same buffer
+    ;for the write and read operations.  This means that the I2C data is returned to
+    ;to us in the receive buffer.  We are sending the response from the receive buffer!
+
+    ;Store "number of params" for response
+    lda 0x4f                ;5b78  a5 4f        A = number of I2C bytes read from device
+    sta 0x0325              ;5b7a  8d 25 03     Store as response: number of params
+
+    ;Set up counter used to send response bytes
+    ;0x4F contains number of I2C bytes from from device
+    inc 0x4f                ;5b7d  e6 4f        +1 for number of params byte
+    inc 0x4f                ;5b7f  e6 4f        +1 for response title 0x42
+
+    ;Store "title" for response
+    lda #0x42               ;5b81  a9 42        A = 0x42
+    sta 0x0326              ;5b83  8d 26 03     Store as response: title 0x42
+
     seb 6,0xe5              ;5b86  cf e5
 
     ;Send first byte of response (0x10)
@@ -10261,9 +10280,11 @@ sub_5b4a_cmd_42:
     sta 0x0343              ;5b8a  8d 43 03     Start checksum with byte 0x10
     jsr sub_5ad5            ;5b8d  20 d5 5a     Send byte 0x10
 
+    ;Send the buffer (everything after the 0x10 and before the checksum)
+
     ldy #0x00               ;5b90  a0 00
 lab_5b92_loop:
-    lda 0x0325,y            ;5b92  b9 25 03     A = param 2*
+    lda 0x0325,y            ;5b92  b9 25 03     A = byte from buffer
     jsr sub_5ad5            ;5b95  20 d5 5a     Send byte
 
     clc                     ;5b98  18           Clear carry for checksum addition
@@ -10274,8 +10295,12 @@ lab_5b92_loop:
     cpy 0x4f                ;5ba0  c4 4f        Compare to number of bytes to read from EEPROM
     bcc lab_5b92_loop       ;5ba2  90 ee        Loop if more bytes to read
 
+    ;Done sending the buffer.  Now send the checksum.
+
     eor #0xff               ;5ba4  49 ff        XOR to finish the checksum calculation
     jsr sub_5ad5            ;5ba6  20 d5 5a     Send checksum byte
+
+    ;The entire response has been sent.
 
     ldy #0x01               ;5ba9  a0 01
     jsr sub_f22c_delay      ;5bab  20 2c f2     Delay an unknown time period for Y iterations
@@ -10300,7 +10325,7 @@ lab_5bba_rts:
 ;  0x01     unknown
 ;  0x00     number of parameters                                0x0321
 ;  0x43     command (0x43)                                      0x0322
-;   xx      param 0 number of I2C bytes to write                0x0323  (up to 16)
+;   xx      param 0 number of I2C bytes to write                0x0323
 ;  0x00     param 1 ignored                                     0x0324
 ;   xx      param 2 I2C control byte (address & direction bit)  0x0325  (must not be 0xA0 - 0xAF)
 ;   xx      param 3 ...up to 15 more I2C bytes to write...        xx
@@ -10325,7 +10350,7 @@ sub_5bbb_cmd_43:
     lda #0x00               ;5bce  a9 00
     sta 0x0344              ;5bd0  8d 44 03     Store as TechniSat protocol status byte
 
-    ;Set 0x004C pointer to point to Param 2 (0x0325)
+    ;Set I2C buffer pointer (0x004C) to point to Param 2 (0x0325)
     lda #0x25               ;5bd3  a9 25
     sta 0x4c                ;5bd5  85 4c        Store as buffer address low byte
     lda #0x03               ;5bd7  a9 03
