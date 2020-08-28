@@ -23747,23 +23747,23 @@ lab_a075_rts:
 
 
 sub_a076:
-;Called from KWP1281 0x10 Recoding
+;Called from KWP1281 0x10 Recoding (kwp_10_recoding)
     lda 0x0323              ;a076  ad 23 03     A = uart rx buffer byte 3
     sta 0x0102              ;a079  8d 02 01
     lda 0x0324              ;a07c  ad 24 03     A = uart rx buffer byte 4
     sta 0x0103              ;a07f  8d 03 01
     jsr sub_a0d5            ;a082  20 d5 a0
-    ldy #0x04               ;a085  a0 04
 
-lab_a087:
+    ldy #0x04               ;a085  a0 04
+lab_a087_loop:
     lda 0x0116,y            ;a087  b9 16 01
     cmp 0xac26,y            ;a08a  d9 26 ac
-    beq lab_a091            ;a08d  f0 02
-    bcs lab_a0d4            ;a08f  b0 43
-
-lab_a091:
+    beq lab_a091_eq         ;a08d  f0 02
+    bcs lab_a0d4_rts        ;a08f  b0 43
+lab_a091_eq:
     dey                     ;a091  88
-    bpl lab_a087            ;a092  10 f3
+    bpl lab_a087_loop       ;a092  10 f3
+
     lda 0x0323              ;a094  ad 23 03     A = uart rx buffer byte 3
     sta 0x0102              ;a097  8d 02 01
     lda 0x0324              ;a09a  ad 24 03     A = uart rx buffer byte 4
@@ -23775,21 +23775,21 @@ lab_a091:
     lda #0x00               ;a0ac  a9 00
     sta 0x0106              ;a0ae  8d 06 01
 
-sub_a0b1:
-;Probably writes the 3 bytes at 0x103-0x105 to the EEPROM
+write_ee_coding:
+;Write coding and workshop code to the EEPROM
 ;Called from sub_a124 after successful login
     lda #0x50               ;a0b1  a9 50
-    sta 0x0101              ;a0b3  8d 01 01
+    sta 0x0101              ;a0b3  8d 01 01     Store as EEPROM address
 
     lda #0x03               ;a0b6  a9 03
     asl a                   ;a0b8  0a
     ora #0xa0               ;a0b9  09 a0
-    sta 0x0100              ;a0bb  8d 00 01
+    sta 0x0100              ;a0bb  8d 00 01     Store as I2C control byte (address & direction)
 
     lda #0x00               ;a0be  a9 00
-    sta 0x4c                ;a0c0  85 4c
+    sta 0x4c                ;a0c0  85 4c        Store as buffer pointer low
     lda #0x01               ;a0c2  a9 01
-    sta 0x4d                ;a0c4  85 4d
+    sta 0x4d                ;a0c4  85 4d        Store as buffer pointer high
 
     ldm #0x07,0x4e          ;a0c6  3c 07 4e     Number of I2C bytes to write = 7
     ldm #0x00,0x4f          ;a0c9  3c 00 4f     Number of I2C bytes to read = 0
@@ -23798,7 +23798,7 @@ sub_a0b1:
     ldy #0x0a               ;a0cf  a0 0a
     jsr sub_f22c_delay      ;a0d1  20 2c f2     Delay an unknown time period for Y iterations
 
-lab_a0d4:
+lab_a0d4_rts:
     rts                     ;a0d4  60
 
 sub_a0d5:
@@ -23806,6 +23806,7 @@ sub_a0d5:
     pha                     ;a0d7  48
     lda 0x45                ;a0d8  a5 45
     pha                     ;a0da  48
+
     lda 0x0102              ;a0db  ad 02 01
     lsr a                   ;a0de  4a
     sta 0x45                ;a0df  85 45
@@ -23813,6 +23814,7 @@ sub_a0d5:
     ror a                   ;a0e4  6a
     sta 0x44                ;a0e5  85 44
     jsr sub_6be9            ;a0e7  20 e9 6b     Convert binary number in 0x44-0x45 to decimal number in ASCII in 0x0116-0x11a
+
     pla                     ;a0ea  68
     sta 0x45                ;a0eb  85 45
     pla                     ;a0ed  68
@@ -23895,7 +23897,7 @@ sub_a124:
     lda 0x0327              ;a140  ad 27 03     A = uart rx buffer byte 7 (Workshop Code low byte (binary))
     sta 0x0105              ;a143  8d 05 01     Store workshop code low byte
 
-    jsr sub_a0b1            ;a146  20 b1 a0     Probably writes the 3 bytes at 0x103-0x105 to the EEPROM
+    jsr write_ee_coding     ;a146  20 b1 a0     Write coding and workshop code to EEPROM
     rts                     ;a149  60
 
 sub_a14a:
@@ -23903,14 +23905,17 @@ sub_a14a:
 ;called from sub_a84f (group reading: 0x50 advanced id 1)
     lda #0x0e               ;a14a  a9 0e
     sta 0x0101              ;a14c  8d 01 01
+
     lda #0x03               ;a14f  a9 03
     asl a                   ;a151  0a
     ora #0xa0               ;a152  09 a0
     sta 0x0100              ;a154  8d 00 01
+
     lda #0x00               ;a157  a9 00
     sta 0x4c                ;a159  85 4c
     lda #0x01               ;a15b  a9 01
     sta 0x4d                ;a15d  85 4d
+
     ldm #0x02,0x4e          ;a15f  3c 02 4e     Number of I2C bytes to write = 2
     ldm #0x06,0x4f          ;a162  3c 06 4f     Number of I2C bytes to read = 6
     jsr sub_46e5_i2c_wr_rd  ;a165  20 e5 46     Perform an I2C write-then-read transaction
