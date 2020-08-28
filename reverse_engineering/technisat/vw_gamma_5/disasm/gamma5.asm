@@ -2418,8 +2418,8 @@ read_ee_safe:
     lda #0x01               ;2dda  a9 01
     sta 0x4d                ;2ddc  85 4d        Store pointer high byte
 
-    ldm #0x02,0x4e          ;2dde  3c 02 4e     Number of bytes to write = 2
-    ldm #0x05,0x4f          ;2de1  3c 05 4f     Number of bytes to read = 5
+    ldm #0x02,0x4e          ;2dde  3c 02 4e     Number of I2C bytes to write = 2
+    ldm #0x05,0x4f          ;2de1  3c 05 4f     Number of I2C bytes to read = 5
     jsr sub_46e5_i2c_wr_rd  ;2de4  20 e5 46     Perform an I2C write-then-read transaction
     rts                     ;2de7  60
 
@@ -2432,8 +2432,8 @@ sub_2de8:
     bcs lab_2e13_rts        ;2ded  b0 24
     inc a                   ;2def  3a
     inc a                   ;2df0  3a
-    sta 0x4e                ;2df1  85 4e
-    ldm #0x00,0x4f          ;2df3  3c 00 4f
+    sta 0x4e                ;2df1  85 4e        Number of I2C bytes to write = A
+    ldm #0x00,0x4f          ;2df3  3c 00 4f     Number of I2C bytes to read = 0
     lda #0x00               ;2df6  a9 00
     sta 0x4c                ;2df8  85 4c
     lda #0x01               ;2dfa  a9 01
@@ -2508,8 +2508,8 @@ sub_2e3a:
     sta 0x4c                ;2e5a  85 4c
     lda #0x01               ;2e5c  a9 01
     sta 0x4d                ;2e5e  85 4d
-    ldm #0x05,0x4e          ;2e60  3c 05 4e
-    ldm #0x00,0x4f          ;2e63  3c 00 4f
+    ldm #0x05,0x4e          ;2e60  3c 05 4e     Number of I2C bytes to write = 5
+    ldm #0x00,0x4f          ;2e63  3c 00 4f     Number of I2C bytes to read = 0
     jsr sub_46e5_i2c_wr_rd  ;2e66  20 e5 46     Perform an I2C write-then-read transaction
 
     ldy #0x0a               ;2e69  a0 0a
@@ -5732,8 +5732,8 @@ lab_4181:
     sta 0x4c                ;4188  85 4c
     lda #0x01               ;418a  a9 01
     sta 0x4d                ;418c  85 4d
-    ldm #0x02,0x4e          ;418e  3c 02 4e
-    ldm #0x02,0x4f          ;4191  3c 02 4f
+    ldm #0x02,0x4e          ;418e  3c 02 4e     Number of I2C bytes to write = 2
+    ldm #0x02,0x4f          ;4191  3c 02 4f     Number of I2C bytes to read = 2
     jsr sub_46e5_i2c_wr_rd  ;4194  20 e5 46     Perform an I2C write-then-read transaction
     lda 0x0102              ;4197  ad 02 01
     bbs 7,a,lab_41a3        ;419a  e3 07
@@ -5762,8 +5762,8 @@ lab_41b7:
     sta 0x4c                ;41be  85 4c
     lda #0x01               ;41c0  a9 01
     sta 0x4d                ;41c2  85 4d
-    ldm #0x02,0x4e          ;41c4  3c 02 4e
-    ldm #0x04,0x4f          ;41c7  3c 04 4f
+    ldm #0x02,0x4e          ;41c4  3c 02 4e     Number of I2C bytes to write = 2
+    ldm #0x04,0x4f          ;41c7  3c 04 4f     Number of I2C bytes to read = 4
     jsr sub_46e5_i2c_wr_rd  ;41ca  20 e5 46     Perform an I2C write-then-read transaction
     lda 0x0102              ;41cd  ad 02 01
     bbs 7,a,lab_41f9        ;41d0  e3 27
@@ -5823,8 +5823,8 @@ lab_421a:
     sta 0x4c                ;4221  85 4c
     lda #0x01               ;4223  a9 01
     sta 0x4d                ;4225  85 4d
-    ldm #0x02,0x4e          ;4227  3c 02 4e
-    ldm #0x04,0x4f          ;422a  3c 04 4f
+    ldm #0x02,0x4e          ;4227  3c 02 4e     Number of I2C bytes to write = 2
+    ldm #0x04,0x4f          ;422a  3c 04 4f     Number of I2C bytes to read = 4
     jsr sub_46e5_i2c_wr_rd  ;422d  20 e5 46     Perform an I2C write-then-read transaction
     lda 0x0102              ;4230  ad 02 01
     bbs 7,a,lab_4262        ;4233  e3 2d
@@ -5841,8 +5841,8 @@ lab_421a:
     sta 0x4c                ;424c  85 4c
     lda #0x01               ;424e  a9 01
     sta 0x4d                ;4250  85 4d
-    ldm #0x02,0x4e          ;4252  3c 02 4e
-    ldm #0x0e,0x4f          ;4255  3c 0e 4f
+    ldm #0x02,0x4e          ;4252  3c 02 4e     Number of I2C bytes to write = 2
+    ldm #0x0e,0x4f          ;4255  3c 0e 4f     Number of I2C bytes to read = 14
     jsr sub_46e5_i2c_wr_rd  ;4258  20 e5 46     Perform an I2C write-then-read transaction
     jsr sub_4a7c            ;425b  20 7c 4a
     seb 2,0xfb              ;425e  4f fb
@@ -6608,11 +6608,14 @@ sub_46ce:
     clb 1,0xff              ;46e2  3f ff
     rts                     ;46e4  60
 
-;TODO probably read from I2C EEPROM
-;0x004C-0x004D pointer to buffer that will receive EEPROM contents
-;              first two bytes of the buffer contain the EEPROM address
-;0x004E = number of bytes to write to the EEPROM
-;0x004F = number of bytes to read from the EEPROM
+;Perform an I2C write-then-read transaction
+;
+;Call with:
+;  0x004C-0x004D pointer to an I2C data buffer
+;                first byte of buffer contains I2C control byte (address & direction)
+;  0x004E = number of bytes to write to the I2C device (read from pointer + 1...)
+;  0x004F = number of bytes to read from the I2C device (written to pointer + 2...)
+;
 sub_46e5_i2c_wr_rd:
     bbc 1,0xff,lab_46e9     ;46e5  37 ff 01
     rts                     ;46e8  60
@@ -6983,8 +6986,8 @@ lab_48a6:
     sta 0x4c                ;48ad  85 4c
     lda #0x01               ;48af  a9 01
     sta 0x4d                ;48b1  85 4d
-    ldm #0x02,0x4e          ;48b3  3c 02 4e
-    ldm #0x06,0x4f          ;48b6  3c 06 4f
+    ldm #0x02,0x4e          ;48b3  3c 02 4e     Number of I2C bytes to write = 2
+    ldm #0x06,0x4f          ;48b6  3c 06 4f     Number of I2C bytes to read = 6
     jsr sub_46e5_i2c_wr_rd  ;48b9  20 e5 46     Perform an I2C write-then-read transaction
 
     lda 0x0102              ;48bc  ad 02 01
@@ -7108,8 +7111,8 @@ sub_4979:
     sta 0x4c                ;4985  85 4c
     lda #0x01               ;4987  a9 01
     sta 0x4d                ;4989  85 4d
-    ldm #0x02,0x4e          ;498b  3c 02 4e
-    ldm #0x02,0x4f          ;498e  3c 02 4f
+    ldm #0x02,0x4e          ;498b  3c 02 4e     Number of I2C bytes to write = 2
+    ldm #0x02,0x4f          ;498e  3c 02 4f     Number of I2C bytes to read = 2
     jsr sub_46e5_i2c_wr_rd  ;4991  20 e5 46     Perform an I2C write-then-read transaction
     bbs 0,0xff,lab_49bf     ;4994  07 ff 28
     lda 0x0102              ;4997  ad 02 01
@@ -7131,8 +7134,8 @@ lab_49ae:
     sta 0x4c                ;49b0  85 4c
     lda #0x01               ;49b2  a9 01
     sta 0x4d                ;49b4  85 4d
-    ldm #0x02,0x4e          ;49b6  3c 02 4e
-    ldm #0x0e,0x4f          ;49b9  3c 0e 4f
+    ldm #0x02,0x4e          ;49b6  3c 02 4e     Number of I2C bytes to write = 2
+    ldm #0x0e,0x4f          ;49b9  3c 0e 4f     Number of I2C bytes to read = 14
     jsr sub_46e5_i2c_wr_rd  ;49bc  20 e5 46     Perform an I2C write-then-read transaction
 
 lab_49bf:
@@ -7284,8 +7287,8 @@ sub_4a9d:
     sta 0x4c                ;4aa4  85 4c
     lda #0x01               ;4aa6  a9 01
     sta 0x4d                ;4aa8  85 4d
-    ldm #0x02,0x4e          ;4aaa  3c 02 4e
-    ldm #0x02,0x4f          ;4aad  3c 02 4f
+    ldm #0x02,0x4e          ;4aaa  3c 02 4e     Number of I2C bytes to write = 2
+    ldm #0x02,0x4f          ;4aad  3c 02 4f     Number of I2C bytes to read = 2
     jsr sub_46e5_i2c_wr_rd  ;4ab0  20 e5 46     Perform an I2C write-then-read transaction
     bbs 0,0xff,lab_4b24     ;4ab3  07 ff 6e
     lda 0x0103              ;4ab6  ad 03 01
@@ -7296,8 +7299,8 @@ sub_4a9d:
     sta 0x4c                ;4ac1  85 4c
     lda #0x01               ;4ac3  a9 01
     sta 0x4d                ;4ac5  85 4d
-    ldm #0x02,0x4e          ;4ac7  3c 02 4e
-    ldm #0x11,0x4f          ;4aca  3c 11 4f
+    ldm #0x02,0x4e          ;4ac7  3c 02 4e     Number of I2C bytes to write = 2
+    ldm #0x11,0x4f          ;4aca  3c 11 4f     Number of I2C bytes to read = 17
     jsr sub_46e5_i2c_wr_rd  ;4acd  20 e5 46     Perform an I2C write-then-read transaction
     pla                     ;4ad0  68
     bbs 0,0xff,lab_4b24     ;4ad1  07 ff 50
@@ -7511,8 +7514,8 @@ sub_4bec:
     sta 0x4c                ;4bf1  85 4c
     lda #0x01               ;4bf3  a9 01
     sta 0x4d                ;4bf5  85 4d
-    ldm #0x02,0x4e          ;4bf7  3c 02 4e
-    ldm #0x10,0x4f          ;4bfa  3c 10 4f
+    ldm #0x02,0x4e          ;4bf7  3c 02 4e     Number of I2C bytes to write = 2
+    ldm #0x10,0x4f          ;4bfa  3c 10 4f     Number of I2C bytes to read = 16
     jsr sub_46e5_i2c_wr_rd  ;4bfd  20 e5 46     Perform an I2C write-then-read transaction
 
     ldy #0x03               ;4c00  a0 03
@@ -7657,7 +7660,7 @@ lab_4cab:
     sta 0x4d                ;4cbe  85 4d
     inc 0x4e                ;4cc0  e6 4e
     inc 0x4e                ;4cc2  e6 4e
-    ldm #0x00,0x4f          ;4cc4  3c 00 4f
+    ldm #0x00,0x4f          ;4cc4  3c 00 4f     Number of I2C bytes to read = 0
     jsr sub_46e5_i2c_wr_rd  ;4cc7  20 e5 46     Perform an I2C write-then-read transaction
 
     ldy #0x0a               ;4cca  a0 0a
@@ -7677,8 +7680,8 @@ sub_4cd0:
     sta 0x4c                ;4cdf  85 4c
     lda #0x01               ;4ce1  a9 01
     sta 0x4d                ;4ce3  85 4d
-    ldm #0x02,0x4e          ;4ce5  3c 02 4e
-    ldm #0x01,0x4f          ;4ce8  3c 01 4f
+    ldm #0x02,0x4e          ;4ce5  3c 02 4e     Number of I2C bytes to write = 2
+    ldm #0x01,0x4f          ;4ce8  3c 01 4f     Number of I2C bytes to read = 1
     jsr sub_46e5_i2c_wr_rd  ;4ceb  20 e5 46     Perform an I2C write-then-read transaction
     lda 0x0102              ;4cee  ad 02 01
     bbc 7,a,lab_4cf5        ;4cf1  f3 02
@@ -7702,8 +7705,8 @@ sub_4cf9:
     sta 0x4c                ;4d0e  85 4c
     lda #0x01               ;4d10  a9 01
     sta 0x4d                ;4d12  85 4d
-    ldm #0x03,0x4e          ;4d14  3c 03 4e
-    ldm #0x00,0x4f          ;4d17  3c 00 4f
+    ldm #0x03,0x4e          ;4d14  3c 03 4e     Number of I2C bytes to write = 3
+    ldm #0x00,0x4f          ;4d17  3c 00 4f     Number of I2C bytes to read = 0
     jsr sub_46e5_i2c_wr_rd  ;4d1a  20 e5 46     Perform an I2C write-then-read transaction
 
     ldy #0x0a               ;4d1d  a0 0a
@@ -7735,7 +7738,7 @@ sub_4cf9:
     .byte 0x60              ;4d38  60          DATA 0x60 '`'
 
 sub_4d39:
-    jsr sub_4da5            ;4d39  20 a5 4d
+    jsr sub_4da5            ;4d39  20 a5 4d     TODO writes 2 bytes, reads 4 bytes to an unknown I2C device
     ldx #0x06               ;4d3c  a2 06
 
 lab_4d3e:
@@ -7787,8 +7790,8 @@ lab_4d7a:
     sta 0x4c                ;4d90  85 4c
     lda #0x01               ;4d92  a9 01
     sta 0x4d                ;4d94  85 4d
-    ldm #0x06,0x4e          ;4d96  3c 06 4e
-    ldm #0x00,0x4f          ;4d99  3c 00 4f
+    ldm #0x06,0x4e          ;4d96  3c 06 4e     Number of I2C bytes to write = 6
+    ldm #0x00,0x4f          ;4d99  3c 00 4f     Number of I2C bytes to read = 0
     jsr sub_46e5_i2c_wr_rd  ;4d9c  20 e5 46     Perform an I2C write-then-read transaction
 
     ldy #0x0a               ;4d9f  a0 0a
@@ -7797,6 +7800,7 @@ lab_4d7a:
 lab_4da4:
     rts                     ;4da4  60
 
+;TODO writes 2 bytes, reads 4 bytes to an unknown I2C device
 sub_4da5:
     lda #0x00               ;4da5  a9 00
     sta 0x0101              ;4da7  8d 01 01
@@ -7808,8 +7812,8 @@ sub_4da5:
     sta 0x4c                ;4db4  85 4c
     lda #0x01               ;4db6  a9 01
     sta 0x4d                ;4db8  85 4d
-    ldm #0x02,0x4e          ;4dba  3c 02 4e
-    ldm #0x04,0x4f          ;4dbd  3c 04 4f
+    ldm #0x02,0x4e          ;4dba  3c 02 4e     Number of I2C bytes to write = 2
+    ldm #0x04,0x4f          ;4dbd  3c 04 4f     Number of I2C bytes to read = 4
     jsr sub_46e5_i2c_wr_rd  ;4dc0  20 e5 46     Perform an I2C write-then-read transaction
     rts                     ;4dc3  60
 
@@ -7907,8 +7911,8 @@ lab_4e6b:
     sta 0x4c                ;4e6d  85 4c
     lda #0x01               ;4e6f  a9 01
     sta 0x4d                ;4e71  85 4d
-    ldm #0x04,0x4e          ;4e73  3c 04 4e
-    ldm #0x00,0x4f          ;4e76  3c 00 4f
+    ldm #0x04,0x4e          ;4e73  3c 04 4e     Number of I2C bytes to write = 4
+    ldm #0x00,0x4f          ;4e76  3c 00 4f     Number of I2C bytes to read = 0
     jsr sub_46e5_i2c_wr_rd  ;4e79  20 e5 46     Perform an I2C write-then-read transaction
     bbc 0,0xff,lab_4e83     ;4e7c  17 ff 04
     clb 0,0xff              ;4e7f  1f ff
@@ -7925,7 +7929,7 @@ sub_4e8a:
     jsr sub_4ea5            ;4e8a  20 a5 4e
     jsr sub_4f4b            ;4e8d  20 4b 4f
     jsr sub_5092            ;4e90  20 92 50
-    jsr sub_4f7e            ;4e93  20 7e 4f
+    jsr sub_4f7e            ;4e93  20 7e 4f     TODO writes 31 bytes to an unknown I2C device
     lda #0x00               ;4e96  a9 00
     sta 0x0267              ;4e98  8d 67 02
     bbs 0,0xf2,lab_4ea2     ;4e9b  07 f2 04
@@ -7955,8 +7959,8 @@ lab_4eb6:
     sta 0x4c                ;4ebe  85 4c
     lda #0x01               ;4ec0  a9 01
     sta 0x4d                ;4ec2  85 4d
-    ldm #0x02,0x4e          ;4ec4  3c 02 4e
-    ldm #0x01,0x4f          ;4ec7  3c 01 4f
+    ldm #0x02,0x4e          ;4ec4  3c 02 4e     Number of I2C bytes to write = 2
+    ldm #0x01,0x4f          ;4ec7  3c 01 4f     Number of I2C bytes to read = 1
     jsr sub_46e5_i2c_wr_rd  ;4eca  20 e5 46     Perform an I2C write-then-read transaction
     lda 0x0102              ;4ecd  ad 02 01
     beq lab_4ef3            ;4ed0  f0 21
@@ -7996,8 +8000,8 @@ lab_4f04:
     sta 0x4c                ;4f0c  85 4c
     lda #0x01               ;4f0e  a9 01
     sta 0x4d                ;4f10  85 4d
-    ldm #0x02,0x4e          ;4f12  3c 02 4e
-    ldm #0x1d,0x4f          ;4f15  3c 1d 4f
+    ldm #0x02,0x4e          ;4f12  3c 02 4e     Number of I2C bytes to write = 2
+    ldm #0x1d,0x4f          ;4f15  3c 1d 4f     Number of I2C bytes to read = 29
     jsr sub_46e5_i2c_wr_rd  ;4f18  20 e5 46     Perform an I2C write-then-read transaction
     ldy #0x00               ;4f1b  a0 00
 
@@ -8042,36 +8046,34 @@ sub_4f4b:
     sta 0x4c                ;4f5a  85 4c
     lda #0x01               ;4f5c  a9 01
     sta 0x4d                ;4f5e  85 4d
-    ldm #0x02,0x4e          ;4f60  3c 02 4e
-    ldm #0x02,0x4f          ;4f63  3c 02 4f
+    ldm #0x02,0x4e          ;4f60  3c 02 4e     Number of I2C bytes to write = 2
+    ldm #0x02,0x4f          ;4f63  3c 02 4f     Number of I2C bytes to read = 2
     jsr sub_46e5_i2c_wr_rd  ;4f66  20 e5 46     Perform an I2C write-then-read transaction
     ldx #0x00               ;4f69  a2 00
     bbc 0,0xf2,lab_4f70     ;4f6b  17 f2 02
     ldx #0x01               ;4f6e  a2 01
-
 lab_4f70:
     lda 0x0102,x            ;4f70  bd 02 01
     cmp #0x20               ;4f73  c9 20
     bcc lab_4f7a            ;4f75  90 03
     lda 0x4f49,x            ;4f77  bd 49 4f
-
 lab_4f7a:
     sta 0x025d              ;4f7a  8d 5d 02
     rts                     ;4f7d  60
 
+;TODO writes 31 bytes to an unknown I2C device
 sub_4f7e:
     lda #0xc4               ;4f7e  a9 c4
     sta 0x0100              ;4f80  8d 00 01
     lda #0x20               ;4f83  a9 20
     sta 0x0101              ;4f85  8d 01 01
     ldy #0x00               ;4f88  a0 00
-
-lab_4f8a:
+lab_4f8a_loop:
     lda 0x0240,y            ;4f8a  b9 40 02
     sta 0x0102,y            ;4f8d  99 02 01
     iny                     ;4f90  c8
     cpy #0x1d               ;4f91  c0 1d
-    bcc lab_4f8a            ;4f93  90 f5
+    bcc lab_4f8a_loop       ;4f93  90 f5
     jsr sub_504d            ;4f95  20 4d 50
     ldy #0x16               ;4f98  a0 16
     sta 0x0102,y            ;4f9a  99 02 01
@@ -8079,11 +8081,12 @@ lab_4f8a:
     sta 0x4c                ;4f9f  85 4c
     lda #0x01               ;4fa1  a9 01
     sta 0x4d                ;4fa3  85 4d
-    ldm #0x1f,0x4e          ;4fa5  3c 1f 4e
-    ldm #0x00,0x4f          ;4fa8  3c 00 4f
+    ldm #0x1f,0x4e          ;4fa5  3c 1f 4e     Number of I2C bytes to write = 31
+    ldm #0x00,0x4f          ;4fa8  3c 00 4f     Number of I2C bytes to read = 0
     jsr sub_46e5_i2c_wr_rd  ;4fab  20 e5 46     Perform an I2C write-then-read transaction
     rts                     ;4fae  60
 
+;TODO writes 3 bytes to an unknown I2C device
 sub_4faf:
     lda #0xc4               ;4faf  a9 c4
     sta 0x0100              ;4fb1  8d 00 01
@@ -8096,11 +8099,12 @@ sub_4faf:
     sta 0x4c                ;4fc3  85 4c
     lda #0x01               ;4fc5  a9 01
     sta 0x4d                ;4fc7  85 4d
-    ldm #0x03,0x4e          ;4fc9  3c 03 4e
-    ldm #0x00,0x4f          ;4fcc  3c 00 4f
+    ldm #0x03,0x4e          ;4fc9  3c 03 4e     Number of I2C bytes to write = 3
+    ldm #0x00,0x4f          ;4fcc  3c 00 4f     Number of I2C bytes to read = 0
     jsr sub_46e5_i2c_wr_rd  ;4fcf  20 e5 46     Perform an I2C write-then-read transaction
     rts                     ;4fd2  60
 
+;TODO writes 3 bytes to an unknown I2C device
 sub_4fd3:
     lda #0xc4               ;4fd3  a9 c4
     sta 0x0100              ;4fd5  8d 00 01
@@ -8113,11 +8117,12 @@ sub_4fd3:
     sta 0x4c                ;4fe7  85 4c
     lda #0x01               ;4fe9  a9 01
     sta 0x4d                ;4feb  85 4d
-    ldm #0x03,0x4e          ;4fed  3c 03 4e
-    ldm #0x00,0x4f          ;4ff0  3c 00 4f
+    ldm #0x03,0x4e          ;4fed  3c 03 4e     Number of I2C bytes to write = 3
+    ldm #0x00,0x4f          ;4ff0  3c 00 4f     Number of I2C bytes to read = 0
     jsr sub_46e5_i2c_wr_rd  ;4ff3  20 e5 46     Perform an I2C write-then-read transaction
     rts                     ;4ff6  60
 
+;TODO writes 3 bytes to an unknown I2C device
 sub_4ff7:
     lda #0xc4               ;4ff7  a9 c4
     sta 0x0100              ;4ff9  8d 00 01
@@ -8130,13 +8135,14 @@ sub_4ff7:
     sta 0x4c                ;500a  85 4c
     lda #0x01               ;500c  a9 01
     sta 0x4d                ;500e  85 4d
-    ldm #0x03,0x4e          ;5010  3c 03 4e
-    ldm #0x00,0x4f          ;5013  3c 00 4f
+    ldm #0x03,0x4e          ;5010  3c 03 4e     Number of I2C bytes to write = 3
+    ldm #0x00,0x4f          ;5013  3c 00 4f     Number of I2C bytes to read = 0
     jsr sub_46e5_i2c_wr_rd  ;5016  20 e5 46     Perform an I2C write-then-read transaction
     rts                     ;5019  60
 
+;TODO writes 3 bytes to an unknown I2C device
 sub_501a:
-    bbc 0,0xf2,lab_503f     ;501a  17 f2 22
+    bbc 0,0xf2,lab_503f_done;501a  17 f2 22
     lda #0xc4               ;501d  a9 c4
     sta 0x0100              ;501f  8d 00 01
     lda #0x12               ;5022  a9 12
@@ -8148,11 +8154,10 @@ sub_501a:
     sta 0x4c                ;5030  85 4c
     lda #0x01               ;5032  a9 01
     sta 0x4d                ;5034  85 4d
-    ldm #0x03,0x4e          ;5036  3c 03 4e
-    ldm #0x00,0x4f          ;5039  3c 00 4f
+    ldm #0x03,0x4e          ;5036  3c 03 4e     Number of I2C bytes to write = 3
+    ldm #0x00,0x4f          ;5039  3c 00 4f     Number of I2C bytes to read = 0
     jsr sub_46e5_i2c_wr_rd  ;503c  20 e5 46     Perform an I2C write-then-read transaction
-
-lab_503f:
+lab_503f_done:
     rts                     ;503f  60
 
     .byte 0x20              ;5040  20          DATA 0x20 ' '
@@ -8171,25 +8176,25 @@ lab_503f:
 
 sub_504d:
     lda 0x0256              ;504d  ad 56 02
-    bbc 2,P0,lab_506f       ;5050  57 00 1c
-    bbc 5,0xef,lab_506f     ;5053  b7 ef 19
+    bbc 2,P0,lab_506f_rts   ;5050  57 00 1c
+    bbc 5,0xef,lab_506f_rts ;5053  b7 ef 19
     and #0x3f               ;5056  29 3f
     bbc 5,a,lab_5065        ;5058  b3 0b
     sec                     ;505a  38
     sbc 0x025d              ;505b  ed 5d 02
-    bbs 5,a,lab_506f        ;505e  a3 0f
+    bbs 5,a,lab_506f_rts    ;505e  a3 0f
     eor #0x1f               ;5060  49 1f
     inc a                   ;5062  3a
-    bra lab_506f            ;5063  80 0a
+    bra lab_506f_rts        ;5063  80 0a
 
 lab_5065:
     clc                     ;5065  18
     adc 0x025d              ;5066  6d 5d 02
     cmp #0x1f               ;5069  c9 1f
-    bcc lab_506f            ;506b  90 02
+    bcc lab_506f_rts        ;506b  90 02
     lda #0x1f               ;506d  a9 1f
 
-lab_506f:
+lab_506f_rts:
     rts                     ;506f  60
 
     .byte 0xa9              ;5070  a9          DATA 0xa9
@@ -10206,7 +10211,7 @@ sub_5b37_cmd_5f:
 ;   xx      param 3 ...up to 15 more I2C bytes to write...        xx
 ;  <CS>     checksum                                              xx
 ;
-;Response block (example shows 3 bytes of I2C data read):
+;Response block after successful I2C transaction (example shows 3 bytes of I2C data read):
 ;  0x10     unknown                          <not in buffer>
 ;  0x03     number params (3)                0x325
 ;  0x42     response 0x42                    0x326     (The addresses are not an
@@ -10214,6 +10219,9 @@ sub_5b37_cmd_5f:
 ;   xx      param 1: i2c data read byte 1    0x328      sent from the rx buffer!)
 ;   xx      param 2: i2c data read byte 0    0x329
 ;   xx      checksum                         <not in buffer>
+;
+;Response block if request is invalid:
+;  10 01 5E 10 CS
 ;
 sub_5b4a_cmd_42:
     bbc 7,0xe8,lab_5bba_rts ;5b4a  f7 e8 6d     Branch if 0xE8 bit 7 is clear
@@ -10331,7 +10339,11 @@ lab_5bba_rts:
 ;   xx      param 3 ...up to 15 more I2C bytes to write...        xx
 ;  <CS>     checksum                                              xx
 ;
-;TODO response block
+;Response block after successful I2C transaction:
+;  10 01 5E 00 CS (TODO verify this)
+;
+;Response block if request is invalid:
+;  10 01 5E 10 CS
 ;
 sub_5bbb_cmd_43:
     ldy #0x01               ;5bbb  a0 01
@@ -10371,6 +10383,9 @@ sub_5bbb_cmd_43:
     ;  0x004F = number of bytes to read from the EEPROM
 
     jsr sub_46e5_i2c_wr_rd  ;5be4  20 e5 46     Perform an I2C write-then-read transaction
+
+    ;Fall through into lab_5be7_done.
+    ;This means sub_46e5_i2c_wr_rd returns A=0 (TODO verify this).
 
 lab_5be7_done:
     jsr sub_5adf_stat_resp  ;5be7  20 df 5a     Send 10 01 5E <0x0344> CS status response
@@ -11042,7 +11057,7 @@ sub_5ef7_read_eeprom:
     ;It's now going to be changed to be the end address.
 
     lda 0x0325              ;5f02  ad 25 03     A = param 2: number of bytes to read
-    sta 0x4f                ;5f05  85 4f        Save number of bytes (used by sub_46e5)
+    sta 0x4f                ;5f05  85 4f        Save number of bytes (used by sub_46e5_i2c_wr_rd)
 
     dec a                   ;5f07  1a
     clc                     ;5f08  18
@@ -14558,8 +14573,8 @@ lab_6fca:
     sta 0x4c                ;6fd2  85 4c
     lda #0x01               ;6fd4  a9 01
     sta 0x4d                ;6fd6  85 4d
-    ldm #0x02,0x4e          ;6fd8  3c 02 4e
-    ldm #0x01,0x4f          ;6fdb  3c 01 4f
+    ldm #0x02,0x4e          ;6fd8  3c 02 4e     Number of I2C bytes to write = 2
+    ldm #0x01,0x4f          ;6fdb  3c 01 4f     Number of I2C bytes to read = 1
     jsr sub_46e5_i2c_wr_rd  ;6fde  20 e5 46     Perform an I2C write-then-read transaction
     lda 0x0102              ;6fe1  ad 02 01
     cmp #0xe0               ;6fe4  c9 e0
@@ -14600,8 +14615,8 @@ lab_701a:
     sta 0x4c                ;7022  85 4c
     lda #0x01               ;7024  a9 01
     sta 0x4d                ;7026  85 4d
-    ldm #0x02,0x4e          ;7028  3c 02 4e
-    ldm #0x20,0x4f          ;702b  3c 20 4f
+    ldm #0x02,0x4e          ;7028  3c 02 4e     Number of I2C bytes to write = 2
+    ldm #0x20,0x4f          ;702b  3c 20 4f     Number of I2C bytes to read = 32
     jsr sub_46e5_i2c_wr_rd  ;702e  20 e5 46     Perform an I2C write-then-read transaction
 
 lab_7031:
@@ -14635,8 +14650,8 @@ lab_7031:
     sta 0x4c                ;707b  85 4c
     lda #0x01               ;707d  a9 01
     sta 0x4d                ;707f  85 4d
-    ldm #0x22,0x4e          ;7081  3c 22 4e
-    ldm #0x00,0x4f          ;7084  3c 00 4f
+    ldm #0x22,0x4e          ;7081  3c 22 4e     Number of I2C bytes to write = 34
+    ldm #0x00,0x4f          ;7084  3c 00 4f     Number of I2C bytes to read = 0
     jsr sub_46e5_i2c_wr_rd  ;7087  20 e5 46     Perform an I2C write-then-read transaction
     bbc 0,0xff,lab_7091     ;708a  17 ff 04
     clb 0,0xff              ;708d  1f ff
@@ -14732,8 +14747,8 @@ lab_70f5:
     sta 0x4c                ;711d  85 4c
     lda #0x01               ;711f  a9 01
     sta 0x4d                ;7121  85 4d
-    ldm #0x03,0x4e          ;7123  3c 03 4e
-    ldm #0x00,0x4f          ;7126  3c 00 4f
+    ldm #0x03,0x4e          ;7123  3c 03 4e     Number of I2C bytes to write = 3
+    ldm #0x00,0x4f          ;7126  3c 00 4f     Number of I2C bytes to read = 0
     jsr sub_46e5_i2c_wr_rd  ;7129  20 e5 46     Perform an I2C write-then-read transaction
     lda 0x42                ;712c  a5 42
     cmp #0x06               ;712e  c9 06
@@ -14777,8 +14792,8 @@ lab_7163:
     sta 0x4c                ;716f  85 4c
     lda #0x01               ;7171  a9 01
     sta 0x4d                ;7173  85 4d
-    ldm #0x03,0x4e          ;7175  3c 03 4e
-    ldm #0x00,0x4f          ;7178  3c 00 4f
+    ldm #0x03,0x4e          ;7175  3c 03 4e     Number of I2C bytes to write = 3
+    ldm #0x00,0x4f          ;7178  3c 00 4f     Number of I2C bytes to read = 0
     jsr sub_46e5_i2c_wr_rd  ;717b  20 e5 46     Perform an I2C write-then-read transaction
     jsr sub_77b5            ;717e  20 b5 77
     ldx 0x02c5              ;7181  ae c5 02
@@ -14797,8 +14812,8 @@ lab_718c:
     sta 0x4c                ;719b  85 4c
     lda #0x01               ;719d  a9 01
     sta 0x4d                ;719f  85 4d
-    ldm #0x03,0x4e          ;71a1  3c 03 4e
-    ldm #0x00,0x4f          ;71a4  3c 00 4f
+    ldm #0x03,0x4e          ;71a1  3c 03 4e     Number of I2C bytes to write = 3
+    ldm #0x00,0x4f          ;71a4  3c 00 4f     Number of I2C bytes to read = 0
     jsr sub_46e5_i2c_wr_rd  ;71a7  20 e5 46     Perform an I2C write-then-read transaction
     ldy #0x02               ;71aa  a0 02
     lda [0x40],y            ;71ac  b1 40
@@ -14932,8 +14947,8 @@ lab_727e:
     sta 0x4c                ;7293  85 4c
     lda #0x01               ;7295  a9 01
     sta 0x4d                ;7297  85 4d
-    ldm #0x04,0x4e          ;7299  3c 04 4e
-    ldm #0x00,0x4f          ;729c  3c 00 4f
+    ldm #0x04,0x4e          ;7299  3c 04 4e     Number of I2C bytes to write = 4
+    ldm #0x00,0x4f          ;729c  3c 00 4f     Number of I2C bytes to read = 0
     jsr sub_46e5_i2c_wr_rd  ;729f  20 e5 46     Perform an I2C write-then-read transaction
     bra lab_72dc            ;72a2  80 38
 
@@ -14961,8 +14976,8 @@ lab_72c8:
     sta 0x4c                ;72cd  85 4c
     lda #0x01               ;72cf  a9 01
     sta 0x4d                ;72d1  85 4d
-    ldm #0x05,0x4e          ;72d3  3c 05 4e
-    ldm #0x00,0x4f          ;72d6  3c 00 4f
+    ldm #0x05,0x4e          ;72d3  3c 05 4e     Number of I2C bytes to write = 5
+    ldm #0x00,0x4f          ;72d6  3c 00 4f     Number of I2C bytes to read = 0
     jsr sub_46e5_i2c_wr_rd  ;72d9  20 e5 46     Perform an I2C write-then-read transaction
 
 lab_72dc:
@@ -14997,8 +15012,8 @@ sub_72ef:
     sta 0x4c                ;72fe  85 4c
     lda #0x01               ;7300  a9 01
     sta 0x4d                ;7302  85 4d
-    ldm #0x02,0x4e          ;7304  3c 02 4e
-    ldm #0x01,0x4f          ;7307  3c 01 4f
+    ldm #0x02,0x4e          ;7304  3c 02 4e     Number of I2C bytes to write = 2
+    ldm #0x01,0x4f          ;7307  3c 01 4f     Number of I2C bytes to read = 1
     jsr sub_46e5_i2c_wr_rd  ;730a  20 e5 46     Perform an I2C write-then-read transaction
     lda 0x0102              ;730d  ad 02 01
     beq lab_7322            ;7310  f0 10
@@ -15024,8 +15039,8 @@ lab_7322:
     sta 0x4c                ;7337  85 4c
     lda #0x01               ;7339  a9 01
     sta 0x4d                ;733b  85 4d
-    ldm #0x02,0x4e          ;733d  3c 02 4e
-    ldm #0x02,0x4f          ;7340  3c 02 4f
+    ldm #0x02,0x4e          ;733d  3c 02 4e     Number of I2C bytes to write = 2
+    ldm #0x02,0x4f          ;7340  3c 02 4f     Number of I2C bytes to read = 2
     jsr sub_46e5_i2c_wr_rd  ;7343  20 e5 46     Perform an I2C write-then-read transaction
     lda 0x0102              ;7346  ad 02 01
     sta 0x02c1              ;7349  8d c1 02
@@ -15046,8 +15061,8 @@ sub_7353:
     sta 0x4c                ;7365  85 4c
     lda #0x01               ;7367  a9 01
     sta 0x4d                ;7369  85 4d
-    ldm #0x03,0x4e          ;736b  3c 03 4e
-    ldm #0x00,0x4f          ;736e  3c 00 4f
+    ldm #0x03,0x4e          ;736b  3c 03 4e     Number of I2C bytes to write = 3
+    ldm #0x00,0x4f          ;736e  3c 00 4f     Number of I2C bytes to read = 0
     jsr sub_46e5_i2c_wr_rd  ;7371  20 e5 46     Perform an I2C write-then-read transaction
     lda #0x0a               ;7374  a9 0a
     sta 0x0101              ;7376  8d 01 01
@@ -15057,8 +15072,8 @@ sub_7353:
     sta 0x4c                ;7381  85 4c
     lda #0x01               ;7383  a9 01
     sta 0x4d                ;7385  85 4d
-    ldm #0x03,0x4e          ;7387  3c 03 4e
-    ldm #0x00,0x4f          ;738a  3c 00 4f
+    ldm #0x03,0x4e          ;7387  3c 03 4e     Number of I2C bytes to write = 3
+    ldm #0x00,0x4f          ;738a  3c 00 4f     Number of I2C bytes to read = 0
     jsr sub_46e5_i2c_wr_rd  ;738d  20 e5 46     Perform an I2C write-then-read transaction
     rts                     ;7390  60
 
@@ -15087,8 +15102,8 @@ sub_739e:
     sta 0x4c                ;73ad  85 4c
     lda #0x01               ;73af  a9 01
     sta 0x4d                ;73b1  85 4d
-    ldm #0x02,0x4e          ;73b3  3c 02 4e
-    ldm #0x01,0x4f          ;73b6  3c 01 4f
+    ldm #0x02,0x4e          ;73b3  3c 02 4e     Number of I2C bytes to write = 2
+    ldm #0x01,0x4f          ;73b6  3c 01 4f     Number of I2C bytes to read = 1
     jsr sub_46e5_i2c_wr_rd  ;73b9  20 e5 46     Perform an I2C write-then-read transaction
     lda 0x0102              ;73bc  ad 02 01
     beq lab_73c8            ;73bf  f0 07
@@ -15110,8 +15125,8 @@ lab_73c8:
     sta 0x4c                ;73dc  85 4c
     lda #0x01               ;73de  a9 01
     sta 0x4d                ;73e0  85 4d
-    ldm #0x02,0x4e          ;73e2  3c 02 4e
-    ldm #0x01,0x4f          ;73e5  3c 01 4f
+    ldm #0x02,0x4e          ;73e2  3c 02 4e     Number of I2C bytes to write = 2
+    ldm #0x01,0x4f          ;73e5  3c 01 4f     Number of I2C bytes to read = 1
     jsr sub_46e5_i2c_wr_rd  ;73e8  20 e5 46     Perform an I2C write-then-read transaction
     lda 0x0102              ;73eb  ad 02 01
 
@@ -15132,8 +15147,8 @@ sub_73f7:
     sta 0x4c                ;7409  85 4c
     lda #0x01               ;740b  a9 01
     sta 0x4d                ;740d  85 4d
-    ldm #0x03,0x4e          ;740f  3c 03 4e
-    ldm #0x00,0x4f          ;7412  3c 00 4f
+    ldm #0x03,0x4e          ;740f  3c 03 4e     Number of I2C bytes to write = 3
+    ldm #0x00,0x4f          ;7412  3c 00 4f     Number of I2C bytes to read = 0
     jsr sub_46e5_i2c_wr_rd  ;7415  20 e5 46     Perform an I2C write-then-read transaction
     rts                     ;7418  60
 
@@ -15270,8 +15285,8 @@ lab_74b8:
     sta 0x4c                ;74c2  85 4c
     lda #0x01               ;74c4  a9 01
     sta 0x4d                ;74c6  85 4d
-    ldm #0x06,0x4e          ;74c8  3c 06 4e
-    ldm #0x00,0x4f          ;74cb  3c 00 4f
+    ldm #0x06,0x4e          ;74c8  3c 06 4e     Number of I2C bytes to write = 6
+    ldm #0x00,0x4f          ;74cb  3c 00 4f     Number of I2C bytes to read = 0
     jsr sub_46e5_i2c_wr_rd  ;74ce  20 e5 46     Perform an I2C write-then-read transaction
     rts                     ;74d1  60
 
@@ -15327,8 +15342,8 @@ sub_7518:
     sta 0x4c                ;7529  85 4c
     lda #0x01               ;752b  a9 01
     sta 0x4d                ;752d  85 4d
-    ldm #0x03,0x4e          ;752f  3c 03 4e
-    ldm #0x00,0x4f          ;7532  3c 00 4f
+    ldm #0x03,0x4e          ;752f  3c 03 4e     Number of I2C bytes to write = 3
+    ldm #0x00,0x4f          ;7532  3c 00 4f     Number of I2C bytes to read = 0
     jsr sub_46e5_i2c_wr_rd  ;7535  20 e5 46     Perform an I2C write-then-read transaction
     rts                     ;7538  60
 
@@ -15344,8 +15359,8 @@ sub_7539:
     sta 0x4c                ;754c  85 4c
     lda #0x01               ;754e  a9 01
     sta 0x4d                ;7550  85 4d
-    ldm #0x03,0x4e          ;7552  3c 03 4e
-    ldm #0x00,0x4f          ;7555  3c 00 4f
+    ldm #0x03,0x4e          ;7552  3c 03 4e     Number of I2C bytes to write = 3
+    ldm #0x00,0x4f          ;7555  3c 00 4f     Number of I2C bytes to read = 0
     jsr sub_46e5_i2c_wr_rd  ;7558  20 e5 46     Perform an I2C write-then-read transaction
     rts                     ;755b  60
 
@@ -15361,8 +15376,8 @@ sub_755c:
     sta 0x4c                ;756f  85 4c
     lda #0x01               ;7571  a9 01
     sta 0x4d                ;7573  85 4d
-    ldm #0x03,0x4e          ;7575  3c 03 4e
-    ldm #0x00,0x4f          ;7578  3c 00 4f
+    ldm #0x03,0x4e          ;7575  3c 03 4e     Number of I2C bytes to write = 3
+    ldm #0x00,0x4f          ;7578  3c 00 4f     Number of I2C bytes to read = 0
     jsr sub_46e5_i2c_wr_rd  ;757b  20 e5 46     Perform an I2C write-then-read transaction
     rts                     ;757e  60
 
@@ -15385,8 +15400,8 @@ lab_7599:
     sta 0x4c                ;759b  85 4c
     lda #0x01               ;759d  a9 01
     sta 0x4d                ;759f  85 4d
-    ldm #0x03,0x4e          ;75a1  3c 03 4e
-    ldm #0x00,0x4f          ;75a4  3c 00 4f
+    ldm #0x03,0x4e          ;75a1  3c 03 4e     Number of I2C bytes to write = 3
+    ldm #0x00,0x4f          ;75a4  3c 00 4f     Number of I2C bytes to read = 0
     jsr sub_46e5_i2c_wr_rd  ;75a7  20 e5 46     Perform an I2C write-then-read transaction
     lda 0x0102              ;75aa  ad 02 01
     bne lab_75b1            ;75ad  d0 02
@@ -15452,8 +15467,8 @@ lab_7609:
     sta 0x4c                ;760e  85 4c
     lda #0x01               ;7610  a9 01
     sta 0x4d                ;7612  85 4d
-    ldm #0x03,0x4e          ;7614  3c 03 4e
-    ldm #0x00,0x4f          ;7617  3c 00 4f
+    ldm #0x03,0x4e          ;7614  3c 03 4e     Number of I2C bytes to write = 3
+    ldm #0x00,0x4f          ;7617  3c 00 4f     Number of I2C bytes to read = 0
     jsr sub_46e5_i2c_wr_rd  ;761a  20 e5 46     Perform an I2C write-then-read transaction
     lda 0x0102              ;761d  ad 02 01
     cmp #0x80               ;7620  c9 80
@@ -15530,8 +15545,8 @@ sub_7673:
     sta 0x4c                ;7684  85 4c
     lda #0x01               ;7686  a9 01
     sta 0x4d                ;7688  85 4d
-    ldm #0x03,0x4e          ;768a  3c 03 4e
-    ldm #0x00,0x4f          ;768d  3c 00 4f
+    ldm #0x03,0x4e          ;768a  3c 03 4e     Number of I2C bytes to write = 3
+    ldm #0x00,0x4f          ;768d  3c 00 4f     Number of I2C bytes to read = 0
     jsr sub_46e5_i2c_wr_rd  ;7690  20 e5 46     Perform an I2C write-then-read transaction
     rts                     ;7693  60
 
@@ -15582,8 +15597,8 @@ lab_76cc:
     sta 0x4c                ;76e2  85 4c
     lda #0x01               ;76e4  a9 01
     sta 0x4d                ;76e6  85 4d
-    ldm #0x03,0x4e          ;76e8  3c 03 4e
-    ldm #0x00,0x4f          ;76eb  3c 00 4f
+    ldm #0x03,0x4e          ;76e8  3c 03 4e     Number of I2C bytes to write = 3
+    ldm #0x00,0x4f          ;76eb  3c 00 4f     Number of I2C bytes to read = 0
     jsr sub_46e5_i2c_wr_rd  ;76ee  20 e5 46     Perform an I2C write-then-read transaction
 
 lab_76f1:
@@ -15724,8 +15739,8 @@ lab_7780:
     sta 0x4c                ;7796  85 4c
     lda #0x01               ;7798  a9 01
     sta 0x4d                ;779a  85 4d
-    ldm #0x03,0x4e          ;779c  3c 03 4e
-    ldm #0x00,0x4f          ;779f  3c 00 4f
+    ldm #0x03,0x4e          ;779c  3c 03 4e     Number of I2C bytes to write = 3
+    ldm #0x00,0x4f          ;779f  3c 00 4f     Number of I2C bytes to read = 0
     jsr sub_46e5_i2c_wr_rd  ;77a2  20 e5 46     Perform an I2C write-then-read transaction
     rts                     ;77a5  60
 
@@ -15763,8 +15778,8 @@ sub_77cd:
     sta 0x4c                ;77d2  85 4c
     lda #0x01               ;77d4  a9 01
     sta 0x4d                ;77d6  85 4d
-    ldm #0x02,0x4e          ;77d8  3c 02 4e
-    ldm #0x02,0x4f          ;77db  3c 02 4f
+    ldm #0x02,0x4e          ;77d8  3c 02 4e     Number of I2C bytes to write = 2
+    ldm #0x02,0x4f          ;77db  3c 02 4f     Number of I2C bytes to read = 2
     jsr sub_46e5_i2c_wr_rd  ;77de  20 e5 46     Perform an I2C write-then-read transaction
     lda 0x0102              ;77e1  ad 02 01
     cmp #0x14               ;77e4  c9 14
@@ -15792,8 +15807,8 @@ sub_77f8:
     sta 0x4c                ;7807  85 4c
     lda #0x01               ;7809  a9 01
     sta 0x4d                ;780b  85 4d
-    ldm #0x04,0x4e          ;780d  3c 04 4e
-    ldm #0x00,0x4f          ;7810  3c 00 4f
+    ldm #0x04,0x4e          ;780d  3c 04 4e     Number of I2C bytes to write = 4
+    ldm #0x00,0x4f          ;7810  3c 00 4f     Number of I2C bytes to read = 0
     jsr sub_46e5_i2c_wr_rd  ;7813  20 e5 46     Perform an I2C write-then-read transaction
 
     ldy #0x0a               ;7816  a0 0a
@@ -15922,8 +15937,8 @@ sub_7897:
     sta 0x4c                ;789c  85 4c
     lda #0x01               ;789e  a9 01
     sta 0x4d                ;78a0  85 4d
-    ldm #0x02,0x4e          ;78a2  3c 02 4e
-    ldm #0x03,0x4f          ;78a5  3c 03 4f
+    ldm #0x02,0x4e          ;78a2  3c 02 4e     Number of I2C bytes to write = 2
+    ldm #0x03,0x4f          ;78a5  3c 03 4f     Number of I2C bytes to read = 3
     jsr sub_46e5_i2c_wr_rd  ;78a8  20 e5 46     Perform an I2C write-then-read transaction
     lda 0x0104              ;78ab  ad 04 01
     cmp #0x40               ;78ae  c9 40
@@ -15950,8 +15965,8 @@ lab_78d0:
     rts                     ;78d0  60
 
 sub_78d1:
-    jsr sub_a040            ;78d1  20 40 a0     EEPROM related, probably reads from EEPROM
-                            ;                   Probably returns:
+    jsr read_ee_coding      ;78d1  20 40 a0     Read coding and workshop code from EEPROM, or a default
+                            ;                   Returns:
                             ;                     0x102 Soft coding high byte
                             ;                     0x103 Soft coding low byte
                             ;                     0x104 Workshop code high byte
@@ -15973,8 +15988,8 @@ lab_78e2:
     sta 0x4c                ;78f1  85 4c
     lda #0x01               ;78f3  a9 01
     sta 0x4d                ;78f5  85 4d
-    ldm #0x03,0x4e          ;78f7  3c 03 4e
-    ldm #0x00,0x4f          ;78fa  3c 00 4f
+    ldm #0x03,0x4e          ;78f7  3c 03 4e     Number of I2C bytes to write = 3
+    ldm #0x00,0x4f          ;78fa  3c 00 4f     Number of I2C bytes to read = 0
     jsr sub_46e5_i2c_wr_rd  ;78fd  20 e5 46     Perform an I2C write-then-read transaction
     lda 0x0103              ;7900  ad 03 01
     sta 0x0102              ;7903  8d 02 01
@@ -15986,8 +16001,8 @@ lab_78e2:
     sta 0x4c                ;7913  85 4c
     lda #0x01               ;7915  a9 01
     sta 0x4d                ;7917  85 4d
-    ldm #0x04,0x4e          ;7919  3c 04 4e
-    ldm #0x00,0x4f          ;791c  3c 00 4f
+    ldm #0x04,0x4e          ;7919  3c 04 4e     Number of I2C bytes to write = 4
+    ldm #0x00,0x4f          ;791c  3c 00 4f     Number of I2C bytes to read = 0
     jsr sub_46e5_i2c_wr_rd  ;791f  20 e5 46     Perform an I2C write-then-read transaction
     rts                     ;7922  60
 
@@ -16059,8 +16074,8 @@ sub_796d:
     sta 0x4c                ;797e  85 4c
     lda #0x01               ;7980  a9 01
     sta 0x4d                ;7982  85 4d
-    ldm #0x03,0x4e          ;7984  3c 03 4e
-    ldm #0x00,0x4f          ;7987  3c 00 4f
+    ldm #0x03,0x4e          ;7984  3c 03 4e     Number of I2C bytes to write = 3
+    ldm #0x00,0x4f          ;7987  3c 00 4f     Number of I2C bytes to read = 0
     jsr sub_46e5_i2c_wr_rd  ;798a  20 e5 46     Perform an I2C write-then-read transaction
     lda #0x01               ;798d  a9 01
     sta 0x0101              ;798f  8d 01 01
@@ -16070,8 +16085,8 @@ sub_796d:
     sta 0x4c                ;7999  85 4c
     lda #0x01               ;799b  a9 01
     sta 0x4d                ;799d  85 4d
-    ldm #0x03,0x4e          ;799f  3c 03 4e
-    ldm #0x00,0x4f          ;79a2  3c 00 4f
+    ldm #0x03,0x4e          ;799f  3c 03 4e     Number of I2C bytes to write = 3
+    ldm #0x00,0x4f          ;79a2  3c 00 4f     Number of I2C bytes to read = 0
     jsr sub_46e5_i2c_wr_rd  ;79a5  20 e5 46     Perform an I2C write-then-read transaction
     rts                     ;79a8  60
 
@@ -16537,8 +16552,8 @@ sub_7b65:
     sta 0x4c                ;7b85  85 4c
     lda #0x01               ;7b87  a9 01
     sta 0x4d                ;7b89  85 4d
-    ldm #0x04,0x4e          ;7b8b  3c 04 4e
-    ldm #0x00,0x4f          ;7b8e  3c 00 4f
+    ldm #0x04,0x4e          ;7b8b  3c 04 4e     Number of I2C bytes to write = 4
+    ldm #0x00,0x4f          ;7b8e  3c 00 4f     Number of I2C bytes to read = 0
     jsr sub_46e5_i2c_wr_rd  ;7b91  20 e5 46     Perform an I2C write-then-read transaction
     rts                     ;7b94  60
 
@@ -16579,8 +16594,8 @@ lab_7bba:
     sta 0x4c                ;7bcc  85 4c
     lda #0x01               ;7bce  a9 01
     sta 0x4d                ;7bd0  85 4d
-    ldm #0x03,0x4e          ;7bd2  3c 03 4e
-    ldm #0x00,0x4f          ;7bd5  3c 00 4f
+    ldm #0x03,0x4e          ;7bd2  3c 03 4e     Number of I2C bytes to write = 3
+    ldm #0x00,0x4f          ;7bd5  3c 00 4f     Number of I2C bytes to read = 0
     jsr sub_46e5_i2c_wr_rd  ;7bd8  20 e5 46     Perform an I2C write-then-read transaction
     rts                     ;7bdb  60
 
@@ -16595,8 +16610,8 @@ sub_7bdc:
     sta 0x4c                ;7beb  85 4c
     lda #0x01               ;7bed  a9 01
     sta 0x4d                ;7bef  85 4d
-    ldm #0x02,0x4e          ;7bf1  3c 02 4e
-    ldm #0x01,0x4f          ;7bf4  3c 01 4f
+    ldm #0x02,0x4e          ;7bf1  3c 02 4e     Number of I2C bytes to write = 2
+    ldm #0x01,0x4f          ;7bf4  3c 01 4f     Number of I2C bytes to read = 1
     jsr sub_46e5_i2c_wr_rd  ;7bf7  20 e5 46     Perform an I2C write-then-read transaction
     lda 0x0102              ;7bfa  ad 02 01
     beq lab_7c15            ;7bfd  f0 16
@@ -16625,8 +16640,8 @@ lab_7c15:
     sta 0x4c                ;7c24  85 4c
     lda #0x01               ;7c26  a9 01
     sta 0x4d                ;7c28  85 4d
-    ldm #0x02,0x4e          ;7c2a  3c 02 4e
-    ldm #0x08,0x4f          ;7c2d  3c 08 4f
+    ldm #0x02,0x4e          ;7c2a  3c 02 4e     Number of I2C bytes to write = 2
+    ldm #0x08,0x4f          ;7c2d  3c 08 4f     Number of I2C bytes to read = 8
     jsr sub_46e5_i2c_wr_rd  ;7c30  20 e5 46     Perform an I2C write-then-read transaction
     ldy #0x00               ;7c33  a0 00
 
@@ -16810,8 +16825,8 @@ lab_7d33:
     sta 0x4c                ;7d56  85 4c
     lda #0x01               ;7d58  a9 01
     sta 0x4d                ;7d5a  85 4d
-    ldm #0x03,0x4e          ;7d5c  3c 03 4e
-    ldm #0x00,0x4f          ;7d5f  3c 00 4f
+    ldm #0x03,0x4e          ;7d5c  3c 03 4e     Number of I2C bytes to write = 3
+    ldm #0x00,0x4f          ;7d5f  3c 00 4f     Number of I2C bytes to read = 0
     jsr sub_46e5_i2c_wr_rd  ;7d62  20 e5 46     Perform an I2C write-then-read transaction
 
     ldy #0x0a               ;7d65  a0 0a
@@ -16832,8 +16847,8 @@ lab_7d33:
     sta 0x4c                ;7d85  85 4c
     lda #0x01               ;7d87  a9 01
     sta 0x4d                ;7d89  85 4d
-    ldm #0x03,0x4e          ;7d8b  3c 03 4e
-    ldm #0x00,0x4f          ;7d8e  3c 00 4f
+    ldm #0x03,0x4e          ;7d8b  3c 03 4e     Number of I2C bytes to write = 3
+    ldm #0x00,0x4f          ;7d8e  3c 00 4f     Number of I2C bytes to read = 0
     jsr sub_46e5_i2c_wr_rd  ;7d91  20 e5 46     Perform an I2C write-then-read transaction
 
     ldy #0x0a               ;7d94  a0 0a
@@ -16865,8 +16880,8 @@ lab_7dba:
     sta 0x4c                ;7dbc  85 4c
     lda #0x01               ;7dbe  a9 01
     sta 0x4d                ;7dc0  85 4d
-    ldm #0x0a,0x4e          ;7dc2  3c 0a 4e
-    ldm #0x00,0x4f          ;7dc5  3c 00 4f
+    ldm #0x0a,0x4e          ;7dc2  3c 0a 4e     Number of I2C bytes to write = 10
+    ldm #0x00,0x4f          ;7dc5  3c 00 4f     Number of I2C bytes to read = 0
     jsr sub_46e5_i2c_wr_rd  ;7dc8  20 e5 46     Perform an I2C write-then-read transaction
     lda 0x0285              ;7dcb  ad 85 02
     sta 0x028c              ;7dce  8d 8c 02
@@ -17874,8 +17889,8 @@ sub_822c:
     sta 0x4c                ;823b  85 4c
     lda #0x01               ;823d  a9 01
     sta 0x4d                ;823f  85 4d
-    ldm #0x02,0x4e          ;8241  3c 02 4e
-    ldm #0x04,0x4f          ;8244  3c 04 4f
+    ldm #0x02,0x4e          ;8241  3c 02 4e     Number of I2C bytes to write = 2
+    ldm #0x04,0x4f          ;8244  3c 04 4f     Number of I2C bytes to read = 4
     jsr sub_46e5_i2c_wr_rd  ;8247  20 e5 46     Perform an I2C write-then-read transaction
     lda 0x0104              ;824a  ad 04 01
     and #0x1f               ;824d  29 1f
@@ -18408,8 +18423,8 @@ sub_853b:
     sta 0x4c                ;854a  85 4c
     lda #0x01               ;854c  a9 01
     sta 0x4d                ;854e  85 4d
-    ldm #0x02,0x4e          ;8550  3c 02 4e
-    ldm #0x18,0x4f          ;8553  3c 18 4f
+    ldm #0x02,0x4e          ;8550  3c 02 4e     Number of I2C bytes to write = 2
+    ldm #0x18,0x4f          ;8553  3c 18 4f     Number of I2C bytes to read = 24
     jsr sub_46e5_i2c_wr_rd  ;8556  20 e5 46     Perform an I2C write-then-read transaction
     bbc 0,0xff,lab_855e     ;8559  17 ff 02
     seb 1,0x76              ;855c  2f 76
@@ -18595,8 +18610,8 @@ sub_8639:
     sta 0x4c                ;8647  85 4c
     lda #0x01               ;8649  a9 01
     sta 0x4d                ;864b  85 4d
-    ldm #0x01,0x4e          ;864d  3c 01 4e
-    ldm #0x00,0x4f          ;8650  3c 00 4f
+    ldm #0x01,0x4e          ;864d  3c 01 4e     Number of I2C bytes to write = 1
+    ldm #0x00,0x4f          ;8650  3c 00 4f     Number of I2C bytes to read = 0
     jsr sub_46e5_i2c_wr_rd  ;8653  20 e5 46     Perform an I2C write-then-read transaction
     rts                     ;8656  60
 
@@ -22933,10 +22948,10 @@ lab_9b3d:
     bbs 0,0xf2,lab_9b4c     ;9b40  07 f2 09
     bbs 3,0xf3,lab_9b4c     ;9b43  67 f3 06
     bbs 0,0xf5,lab_9b4c     ;9b46  07 f5 03
-    jsr sub_4faf            ;9b49  20 af 4f
+    jsr sub_4faf            ;9b49  20 af 4f     TODO writes 3 bytes to an unknown I2C device
 
 lab_9b4c:
-    jsr sub_501a            ;9b4c  20 1a 50
+    jsr sub_501a            ;9b4c  20 1a 50     TODO writes 3 bytes to an unknown I2C device
     jsr sub_437f            ;9b4f  20 7f 43
     jsr sub_43b9            ;9b52  20 b9 43
     jsr sub_664a            ;9b55  20 4a 66
@@ -23068,8 +23083,8 @@ sub_9c25:
     clb 1,0xf5              ;9c32  3f f5
     ldy #0x08               ;9c34  a0 08
     jsr sub_3361            ;9c36  20 61 33
-    jsr sub_4fd3            ;9c39  20 d3 4f
-    jsr sub_4ff7            ;9c3c  20 f7 4f
+    jsr sub_4fd3            ;9c39  20 d3 4f     TODO writes 3 bytes to an unknown I2C device
+    jsr sub_4ff7            ;9c3c  20 f7 4f     TODO writes 3 bytes to an unknown I2C device
     jsr sub_437f            ;9c3f  20 7f 43
     jsr sub_43b9            ;9c42  20 b9 43
     jsr sub_664a            ;9c45  20 4a 66
@@ -23324,8 +23339,8 @@ lab_9df3:
     jsr sub_3361            ;9df8  20 61 33
     ldy #0x1b               ;9dfb  a0 1b
     jsr sub_3361            ;9dfd  20 61 33
-    jsr sub_4fd3            ;9e00  20 d3 4f
-    jsr sub_4ff7            ;9e03  20 f7 4f
+    jsr sub_4fd3            ;9e00  20 d3 4f     TODO writes 3 bytes to an unknown I2C device
+    jsr sub_4ff7            ;9e03  20 f7 4f     TODO writes 3 bytes to an unknown I2C device
     lda 0x0266              ;9e06  ad 66 02
     sta 0x71                ;9e09  85 71
     jsr sub_4dd1            ;9e0b  20 d1 4d
@@ -23381,8 +23396,8 @@ sub_9e44:
     sta 0x4c                ;9e53  85 4c
     lda #0x01               ;9e55  a9 01
     sta 0x4d                ;9e57  85 4d
-    ldm #0x02,0x4e          ;9e59  3c 02 4e
-    ldm #0x04,0x4f          ;9e5c  3c 04 4f
+    ldm #0x02,0x4e          ;9e59  3c 02 4e     Number of I2C bytes to write = 2
+    ldm #0x04,0x4f          ;9e5c  3c 04 4f     Number of I2C bytes to read = 4
     jsr sub_46e5_i2c_wr_rd  ;9e5f  20 e5 46     Perform an I2C write-then-read transaction
     lda #0x00               ;9e62  a9 00
     bbs 5,0xf3,lab_9e8a     ;9e64  a7 f3 23
@@ -23602,8 +23617,8 @@ sub_9fa7:
     sta 0x4c                ;9fb6  85 4c
     lda #0x01               ;9fb8  a9 01
     sta 0x4d                ;9fba  85 4d
-    ldm #0x02,0x4e          ;9fbc  3c 02 4e
-    ldm #0x0c,0x4f          ;9fbf  3c 0c 4f
+    ldm #0x02,0x4e          ;9fbc  3c 02 4e     Number of I2C bytes to write = 2
+    ldm #0x0c,0x4f          ;9fbf  3c 0c 4f     Number of I2C bytes to read = 12
     jsr sub_46e5_i2c_wr_rd  ;9fc2  20 e5 46     Perform an I2C write-then-read transaction
     lda 0x0102              ;9fc5  ad 02 01
     bbc 7,a,lab_9fd5        ;9fc8  f3 0b
@@ -23630,8 +23645,8 @@ lab_9fd8:
     rts                     ;9fe1  60
 
 sub_9fe2:
-    jsr sub_a040            ;9fe2  20 40 a0     EEPROM related, probably reads from EEPROM
-                            ;                   Probably returns:
+    jsr read_ee_coding      ;9fe2  20 40 a0     Read coding and workshop code from EEPROM, or a default
+                            ;                   Returns:
                             ;                     0x102 Soft coding high byte
                             ;                     0x103 Soft coding low byte
                             ;                     0x104 Workshop code high byte
@@ -23687,38 +23702,49 @@ lab_a03a:
     bcc lab_a030            ;a03d  90 f1
     rts                     ;a03f  60
 
-sub_a040:
-;EEPROM related, probably reads from EEPROM
-;Probably returns:
+
+read_ee_coding:
+;Read coding and workshop code from EEPROM, or a default
+;
+;Returns:
 ;  0x102 Soft coding high byte
 ;  0x103 Soft coding low byte
 ;  0x104 Workshop code high byte
 ;  0x105 Workshop code low byte
+;  0x106 Unknown (should be 0)
+;
     lda #0x50               ;a040  a9 50
-    sta 0x0101              ;a042  8d 01 01
+    sta 0x0101              ;a042  8d 01 01     Store as EEPROM address byte
+
     lda #0x03               ;a045  a9 03
     asl a                   ;a047  0a
     ora #0xa0               ;a048  09 a0
-    sta 0x0100              ;a04a  8d 00 01
+    sta 0x0100              ;a04a  8d 00 01     Store as I2C control byte (address & direction)
+
     lda #0x00               ;a04d  a9 00
-    sta 0x4c                ;a04f  85 4c
+    sta 0x4c                ;a04f  85 4c        Store as I2C buffer pointer (low)
     lda #0x01               ;a051  a9 01
-    sta 0x4d                ;a053  85 4d
-    ldm #0x02,0x4e          ;a055  3c 02 4e
-    ldm #0x05,0x4f          ;a058  3c 05 4f
+    sta 0x4d                ;a053  85 4d        Store as I2C buffer pointer (high)
+
+    ldm #0x02,0x4e          ;a055  3c 02 4e     Number of I2C bytes to write = 2
+    ldm #0x05,0x4f          ;a058  3c 05 4f     Number of I2C bytes to read = 5
     jsr sub_46e5_i2c_wr_rd  ;a05b  20 e5 46     Perform an I2C write-then-read transaction
+
     lda 0x0106              ;a05e  ad 06 01
-    beq lab_a075            ;a061  f0 12
+    beq lab_a075_rts        ;a061  f0 12
+
     lda #0x03               ;a063  a9 03
-    sta 0x0102              ;a065  8d 02 01
+    sta 0x0102              ;a065  8d 02 01     Soft coding high byte
     lda #0x20               ;a068  a9 20
-    sta 0x0103              ;a06a  8d 03 01
+    sta 0x0103              ;a06a  8d 03 01     Soft coding low byte
+
     lda #0x00               ;a06d  a9 00
     sta 0x0104              ;a06f  8d 04 01
     sta 0x0105              ;a072  8d 05 01
 
-lab_a075:
+lab_a075_rts:
     rts                     ;a075  60
+
 
 sub_a076:
 ;Called from KWP1281 0x10 Recoding
@@ -23754,16 +23780,19 @@ sub_a0b1:
 ;Called from sub_a124 after successful login
     lda #0x50               ;a0b1  a9 50
     sta 0x0101              ;a0b3  8d 01 01
+
     lda #0x03               ;a0b6  a9 03
     asl a                   ;a0b8  0a
     ora #0xa0               ;a0b9  09 a0
     sta 0x0100              ;a0bb  8d 00 01
+
     lda #0x00               ;a0be  a9 00
     sta 0x4c                ;a0c0  85 4c
     lda #0x01               ;a0c2  a9 01
     sta 0x4d                ;a0c4  85 4d
-    ldm #0x07,0x4e          ;a0c6  3c 07 4e
-    ldm #0x00,0x4f          ;a0c9  3c 00 4f
+
+    ldm #0x07,0x4e          ;a0c6  3c 07 4e     Number of I2C bytes to write = 7
+    ldm #0x00,0x4f          ;a0c9  3c 00 4f     Number of I2C bytes to read = 0
     jsr sub_46e5_i2c_wr_rd  ;a0cc  20 e5 46     Perform an I2C write-then-read transaction
 
     ldy #0x0a               ;a0cf  a0 0a
@@ -23839,8 +23868,8 @@ sub_a10a:
 
 sub_a124:
 ;Called after successful login
-    jsr sub_a040            ;a124  20 40 a0     EEPROM related, probably reads from EEPROM
-                            ;                   Probably returns:
+    jsr read_ee_coding      ;a124  20 40 a0     Read coding and workshop code from EEPROM, or a default
+                            ;                   Returns:
                             ;                     0x102 Soft coding high byte
                             ;                     0x103 Soft coding low byte
                             ;                     0x104 Workshop code high byte
@@ -23882,9 +23911,8 @@ sub_a14a:
     sta 0x4c                ;a159  85 4c
     lda #0x01               ;a15b  a9 01
     sta 0x4d                ;a15d  85 4d
-    ldm #0x02,0x4e          ;a15f  3c 02 4e
-    ldm #0x06,0x4f          ;a162  3c 06 4f
-
+    ldm #0x02,0x4e          ;a15f  3c 02 4e     Number of I2C bytes to write = 2
+    ldm #0x06,0x4f          ;a162  3c 06 4f     Number of I2C bytes to read = 6
     jsr sub_46e5_i2c_wr_rd  ;a165  20 e5 46     Perform an I2C write-then-read transaction
 
     lda 0x0102              ;a168  ad 02 01     A = first byte from EEPROM data
@@ -23916,9 +23944,8 @@ sub_a17d:
     sta 0x4c                ;a18c  85 4c
     lda #0x01               ;a18e  a9 01
     sta 0x4d                ;a190  85 4d
-    ldm #0x02,0x4e          ;a192  3c 02 4e
-    ldm #0x0e,0x4f          ;a195  3c 0e 4f
-
+    ldm #0x02,0x4e          ;a192  3c 02 4e     Number of I2C bytes to write = 2
+    ldm #0x0e,0x4f          ;a195  3c 0e 4f     Number of I2C bytes to read = 14
     jsr sub_46e5_i2c_wr_rd  ;a198  20 e5 46     Perform an I2C write-then-read transaction
 
     lda 0x0102              ;a19b  ad 02 01     A = first byte of serial number read from EEPROM
@@ -26000,8 +26027,8 @@ sub_ab35:
     sta 0x4c                ;ab49  85 4c
     lda #0x01               ;ab4b  a9 01
     sta 0x4d                ;ab4d  85 4d
-    ldm #0x02,0x4e          ;ab4f  3c 02 4e
-    ldm #0x01,0x4f          ;ab52  3c 01 4f
+    ldm #0x02,0x4e          ;ab4f  3c 02 4e     Number of I2C bytes to write = 2
+    ldm #0x01,0x4f          ;ab52  3c 01 4f     Number of I2C bytes to read = 1
     jsr sub_46e5_i2c_wr_rd  ;ab55  20 e5 46     Perform an I2C write-then-read transaction
     pla                     ;ab58  68
     cmp 0x0102              ;ab59  cd 02 01
@@ -26034,8 +26061,8 @@ sub_ab7e:
     sta 0x4c                ;ab8d  85 4c
     lda #0x01               ;ab8f  a9 01
     sta 0x4d                ;ab91  85 4d
-    ldm #0x02,0x4e          ;ab93  3c 02 4e
-    ldm #0x01,0x4f          ;ab96  3c 01 4f
+    ldm #0x02,0x4e          ;ab93  3c 02 4e     Number of I2C bytes to write = 2
+    ldm #0x01,0x4f          ;ab96  3c 01 4f     Number of I2C bytes to read = 1
     jsr sub_46e5_i2c_wr_rd  ;ab99  20 e5 46     Perform an I2C write-then-read transaction
     rts                     ;ab9c  60
 
@@ -26050,8 +26077,8 @@ sub_ab9d:
     sta 0x4c                ;abac  85 4c
     lda #0x01               ;abae  a9 01
     sta 0x4d                ;abb0  85 4d
-    ldm #0x03,0x4e          ;abb2  3c 03 4e
-    ldm #0x00,0x4f          ;abb5  3c 00 4f
+    ldm #0x03,0x4e          ;abb2  3c 03 4e     Number of I2C bytes to write = 3
+    ldm #0x00,0x4f          ;abb5  3c 00 4f     Number of I2C bytes to read = 0
     jsr sub_46e5_i2c_wr_rd  ;abb8  20 e5 46     Perform an I2C write-then-read transaction
 
     ldy #0x0a               ;abbb  a0 0a
@@ -30127,7 +30154,7 @@ lab_c32e:
     sta 0x0114,x            ;c331  9d 14 01
     dex                     ;c334  ca
     bpl lab_c32e            ;c335  10 f7
-    jsr sub_4da5            ;c337  20 a5 4d
+    jsr sub_4da5            ;c337  20 a5 4d     TODO writes 2 bytes, reads 4 bytes to an unknown I2C device
     lda 0x0104              ;c33a  ad 04 01
     lsr a                   ;c33d  4a
     lsr a                   ;c33e  4a
@@ -31051,8 +31078,8 @@ lab_c8bc:
     sta 0x4c                ;c8e9  85 4c
     lda #0x01               ;c8eb  a9 01
     sta 0x4d                ;c8ed  85 4d
-    ldm #0x03,0x4e          ;c8ef  3c 03 4e
-    ldm #0x00,0x4f          ;c8f2  3c 00 4f
+    ldm #0x03,0x4e          ;c8ef  3c 03 4e     Number of I2C bytes to write = 3
+    ldm #0x00,0x4f          ;c8f2  3c 00 4f     Number of I2C bytes to read = 0
     jsr sub_46e5_i2c_wr_rd  ;c8f5  20 e5 46     Perform an I2C write-then-read transaction
     jsr sub_7694            ;c8f8  20 94 76
 
@@ -31110,8 +31137,8 @@ sub_c929:
     sta 0x4c                ;c938  85 4c
     lda #0x01               ;c93a  a9 01
     sta 0x4d                ;c93c  85 4d
-    ldm #0x02,0x4e          ;c93e  3c 02 4e
-    ldm #0x01,0x4f          ;c941  3c 01 4f
+    ldm #0x02,0x4e          ;c93e  3c 02 4e     Number of I2C bytes to write = 2
+    ldm #0x01,0x4f          ;c941  3c 01 4f     Number of I2C bytes to read = 1
     jsr sub_46e5_i2c_wr_rd  ;c944  20 e5 46     Perform an I2C write-then-read transaction
     lda 0x0102              ;c947  ad 02 01
     beq lab_c951            ;c94a  f0 05
@@ -31129,8 +31156,8 @@ lab_c951:
     sta 0x4c                ;c960  85 4c
     lda #0x01               ;c962  a9 01
     sta 0x4d                ;c964  85 4d
-    ldm #0x02,0x4e          ;c966  3c 02 4e
-    ldm #0x20,0x4f          ;c969  3c 20 4f
+    ldm #0x02,0x4e          ;c966  3c 02 4e     Number of I2C bytes to write = 2
+    ldm #0x20,0x4f          ;c969  3c 20 4f     Number of I2C bytes to read = 32
     jsr sub_46e5_i2c_wr_rd  ;c96c  20 e5 46     Perform an I2C write-then-read transaction
     ldx #0x1f               ;c96f  a2 1f
 
@@ -33047,8 +33074,8 @@ sub_d522:
     sta 0x4c                ;d52c  85 4c
     lda #0x01               ;d52e  a9 01
     sta 0x4d                ;d530  85 4d
-    ldm #0x02,0x4e          ;d532  3c 02 4e
-    ldm #0x00,0x4f          ;d535  3c 00 4f
+    ldm #0x02,0x4e          ;d532  3c 02 4e     Number of I2C bytes to write = 2
+    ldm #0x00,0x4f          ;d535  3c 00 4f     Number of I2C bytes to read = 0
     jsr sub_46e5_i2c_wr_rd  ;d538  20 e5 46     Perform an I2C write-then-read transaction
     rts                     ;d53b  60
 
@@ -33062,8 +33089,8 @@ sub_d53c:
     sta 0x4c                ;d547  85 4c
     lda #0x01               ;d549  a9 01
     sta 0x4d                ;d54b  85 4d
-    ldm #0x01,0x4e          ;d54d  3c 01 4e
-    ldm #0x05,0x4f          ;d550  3c 05 4f
+    ldm #0x01,0x4e          ;d54d  3c 01 4e     Number of I2C bytes to write = 1
+    ldm #0x05,0x4f          ;d550  3c 05 4f     Number of I2C bytes to read = 5
     jsr sub_46e5_i2c_wr_rd  ;d553  20 e5 46     Perform an I2C write-then-read transaction
     lda 0x0101              ;d556  ad 01 01
     cmp #0x04               ;d559  c9 04
@@ -37071,8 +37098,8 @@ sub_eefc:
     sta 0x4c                ;ef12  85 4c
     lda #0x01               ;ef14  a9 01
     sta 0x4d                ;ef16  85 4d
-    ldm #0x03,0x4e          ;ef18  3c 03 4e
-    ldm #0x00,0x4f          ;ef1b  3c 00 4f
+    ldm #0x03,0x4e          ;ef18  3c 03 4e     Number of I2C bytes to write = 3
+    ldm #0x00,0x4f          ;ef1b  3c 00 4f     Number of I2C bytes to read = 0
     jsr sub_46e5_i2c_wr_rd  ;ef1e  20 e5 46     Perform an I2C write-then-read transaction
     lda #0xc4               ;ef21  a9 c4
     sta 0x0100              ;ef23  8d 00 01
@@ -37084,8 +37111,8 @@ sub_eefc:
     sta 0x4c                ;ef32  85 4c
     lda #0x01               ;ef34  a9 01
     sta 0x4d                ;ef36  85 4d
-    ldm #0x03,0x4e          ;ef38  3c 03 4e
-    ldm #0x00,0x4f          ;ef3b  3c 00 4f
+    ldm #0x03,0x4e          ;ef38  3c 03 4e     Number of I2C bytes to write = 3
+    ldm #0x00,0x4f          ;ef3b  3c 00 4f     Number of I2C bytes to read = 0
     jsr sub_46e5_i2c_wr_rd  ;ef3e  20 e5 46     Perform an I2C write-then-read transaction
     rts                     ;ef41  60
 
@@ -37100,8 +37127,8 @@ sub_ef42:
     sta 0x4c                ;ef54  85 4c
     lda #0x01               ;ef56  a9 01
     sta 0x4d                ;ef58  85 4d
-    ldm #0x03,0x4e          ;ef5a  3c 03 4e
-    ldm #0x00,0x4f          ;ef5d  3c 00 4f
+    ldm #0x03,0x4e          ;ef5a  3c 03 4e     Number of I2C bytes to write = 3
+    ldm #0x00,0x4f          ;ef5d  3c 00 4f     Number of I2C bytes to read = 0
     jsr sub_46e5_i2c_wr_rd  ;ef60  20 e5 46     Perform an I2C write-then-read transaction
     lda #0xc4               ;ef63  a9 c4
     sta 0x0100              ;ef65  8d 00 01
@@ -37113,8 +37140,8 @@ sub_ef42:
     sta 0x4c                ;ef75  85 4c
     lda #0x01               ;ef77  a9 01
     sta 0x4d                ;ef79  85 4d
-    ldm #0x03,0x4e          ;ef7b  3c 03 4e
-    ldm #0x00,0x4f          ;ef7e  3c 00 4f
+    ldm #0x03,0x4e          ;ef7b  3c 03 4e     Number of I2C bytes to write = 3
+    ldm #0x00,0x4f          ;ef7e  3c 00 4f     Number of I2C bytes to read = 0
     jsr sub_46e5_i2c_wr_rd  ;ef81  20 e5 46     Perform an I2C write-then-read transaction
     rts                     ;ef84  60
 
