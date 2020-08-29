@@ -1342,7 +1342,7 @@ sub_27b1:
 lab_27de:
     seb 7,0xf0              ;27de  ef f0
     seb 0,0xf1              ;27e0  0f f1
-    jsr sub_4c63            ;27e2  20 63 4c
+    jsr sub_4c63            ;27e2  20 63 4c     TODO unknown I2C activities
 
 lab_27e5:
     jsr sub_b846            ;27e5  20 46 b8
@@ -1447,7 +1447,7 @@ sub_2835:
 lab_288b:
     jsr sub_3387            ;288b  20 87 33
     seb 6,0xf1              ;288e  cf f1
-    jsr sub_4c63            ;2890  20 63 4c
+    jsr sub_4c63            ;2890  20 63 4c     TODO unknown I2C activities
     bbs 2,0xe6,lab_28d8     ;2893  47 e6 42
     ldy #0x0c               ;2896  a0 0c
     jsr sub_3300            ;2898  20 00 33
@@ -1572,7 +1572,7 @@ lab_2940:
     ldy #0x0e               ;2940  a0 0e
     jsr sub_3300            ;2942  20 00 33
     seb 3,0xf2              ;2945  6f f2
-    jsr sub_4c63            ;2947  20 63 4c
+    jsr sub_4c63            ;2947  20 63 4c     TODO unknown I2C activities
 
 lab_294a:
     rts                     ;294a  60
@@ -1944,8 +1944,16 @@ lab_294a:
     .byte 0x60              ;2ab7  60          DATA 0x60 '`'
 
 sub_2ab8:
-    bbs 4,0xe8,lab_2ae3     ;2ab8  87 e8 28
-    jsr read_ee_safe        ;2abb  20 c9 2d     Read the SAFE code from the EEPROM
+    bbs 4,0xe8,lab_2ae3_rts ;2ab8  87 e8 28
+    jsr read_ee_safe        ;2abb  20 c9 2d     Read the SAFE code data from the EEPROM
+
+    ;Result of read_ee_safe:
+    ;  0x0102   SAFE code attempt count
+    ;  0x0103   SAFE code as a decimal number in ASCII (thousands place)
+    ;  0x0104   SAFE code as a decimal number in ASCII (hundreds place)
+    ;  0x0105   SAFE code as a decimal number in ASCII (tens place)
+    ;  0x0106   SAFE code as a decimal number in ASCII (ones place)
+
     lda 0x0102              ;2abe  ad 02 01
     cmp #0x03               ;2ac1  c9 03
     bcc lab_2ac7            ;2ac3  90 02
@@ -1956,7 +1964,7 @@ lab_2ac7:
     lda 0x026a              ;2aca  ad 6a 02
     bne lab_2ad4            ;2acd  d0 05
     jsr sub_2d19            ;2acf  20 19 2d
-    bra lab_2ae3            ;2ad2  80 0f
+    bra lab_2ae3_rts        ;2ad2  80 0f
 
 lab_2ad4:
     clb 1,0xf4              ;2ad4  3f f4
@@ -1966,7 +1974,7 @@ lab_2ad4:
     ldy #0x2d               ;2ade  a0 2d
     jsr sub_3300            ;2ae0  20 00 33
 
-lab_2ae3:
+lab_2ae3_rts:
     rts                     ;2ae3  60
 
 sub_2ae4:
@@ -2026,7 +2034,7 @@ sub_2b17:
 
 lab_2b4b:
     clb 3,0xf2              ;2b4b  7f f2
-    jsr sub_4c63            ;2b4d  20 63 4c
+    jsr sub_4c63            ;2b4d  20 63 4c     TODO unknown I2C activities
     rts                     ;2b50  60
 
 sub_2b51:
@@ -2055,13 +2063,13 @@ lab_2b62:
     clb 4,0xf1              ;2b80  9f f1
     clb 3,0xf2              ;2b82  7f f2
     clb 6,0xf1              ;2b84  df f1
-    jsr sub_4c63            ;2b86  20 63 4c
+    jsr sub_4c63            ;2b86  20 63 4c     TODO unknown I2C activities
     bra lab_2b9b            ;2b89  80 10
 
 lab_2b8b:
     clb 6,0xf1              ;2b8b  df f1
     jsr sub_4281            ;2b8d  20 81 42
-    jsr sub_4c51            ;2b90  20 51 4c
+    jsr sub_4c51            ;2b90  20 51 4c     TODO unknown I2C activities
     jsr sub_4b29            ;2b93  20 29 4b
     bcc lab_2b9b            ;2b96  90 03
     jsr sub_486d            ;2b98  20 6d 48
@@ -2155,7 +2163,7 @@ sub_2c1a:
 sub_2c23:
     seb 7,0xf0              ;2c23  ef f0
     seb 0,0xf1              ;2c25  0f f1
-    jsr sub_4c63            ;2c27  20 63 4c
+    jsr sub_4c63            ;2c27  20 63 4c     TODO unknown I2C activities
     bbs 5,0xf4,lab_2c65     ;2c2a  a7 f4 38
     bbs 6,0xf1,lab_2c4d     ;2c2d  c7 f1 1d
     bbs 3,0xe6,lab_2c65     ;2c30  67 e6 32
@@ -2171,7 +2179,7 @@ lab_2c3b:
 lab_2c43:
     jsr sub_ae94            ;2c43  20 94 ae
     seb 7,0xf1              ;2c46  ef f1
-    jsr sub_4c63            ;2c48  20 63 4c
+    jsr sub_4c63            ;2c48  20 63 4c     TODO unknown I2C activities
     bra lab_2c65            ;2c4b  80 18
 
 lab_2c4d:
@@ -2331,22 +2339,31 @@ lab_2d3b:
     .byte 0x60              ;2d4f  60          DATA 0x60 '`'
 
 sub_2d50:
-    bbs 2,0xf1,lab_2dc8     ;2d50  47 f1 75
-    bbc 1,0xf4,lab_2dc8     ;2d53  37 f4 72
+    bbs 2,0xf1,lab_2dc8_rts ;2d50  47 f1 75
+    bbc 1,0xf4,lab_2dc8_rts ;2d53  37 f4 72
     ldy #0xc8               ;2d56  a0 c8
     jsr sub_40a3            ;2d58  20 a3 40
-    bcc lab_2dc8            ;2d5b  90 6b
+    bcc lab_2dc8_rts        ;2d5b  90 6b
     jsr sub_74d2            ;2d5d  20 d2 74
-    jsr read_ee_safe        ;2d60  20 c9 2d     Read the SAFE code from the EEPROM
+    jsr read_ee_safe        ;2d60  20 c9 2d     Read the SAFE code data from the EEPROM
+
+    ;Result of read_ee_safe:
+    ;  0x0102   SAFE code attempt count
+    ;  0x0103   SAFE code as a decimal number in ASCII (thousands place)
+    ;  0x0104   SAFE code as a decimal number in ASCII (hundreds place)
+    ;  0x0105   SAFE code as a decimal number in ASCII (tens place)
+    ;  0x0106   SAFE code as a decimal number in ASCII (ones place)
 
     ldy #0x00               ;2d63  a0 00
 lab_2d65_loop:
     lda 0x012c,y            ;2d65  b9 2c 01
     cmp 0x0103,y            ;2d68  d9 03 01
-    bne lab_2db3_failed     ;2d6b  d0 46
+    bne lab_2db3_failed     ;2d6b  d0 46        SAFE code digit did not match
     iny                     ;2d6d  c8
     cpy #0x04               ;2d6e  c0 04
-    bcc lab_2d65_loop       ;2d70  90 f3
+    bcc lab_2d65_loop       ;2d70  90 f3        Loop until all 4 bytes compared
+
+    ;SAFE code matches
 
     jsr sub_4cd0            ;2d72  20 d0 4c     TODO probably some kind of I2C read
     cmp #0x33               ;2d75  c9 33
@@ -2359,48 +2376,56 @@ lab_2d81:
     bbs 4,0xe8,lab_2d8c     ;2d81  87 e8 08
     lda 0x05a4              ;2d84  ad a4 05
     bne lab_2d8c            ;2d87  d0 03
-    jsr sub_2e3a            ;2d89  20 3a 2e
+    jsr sub_2e3a            ;2d89  20 3a 2e     TODO writes 3 unknown bytes to an EEPROM
 
 lab_2d8c:
     lda #0x00               ;2d8c  a9 00
-    sta 0x0102              ;2d8e  8d 02 01
-    ldy #0x01               ;2d91  a0 01
-    jsr sub_2de8            ;2d93  20 e8 2d     TODO seems to be updating the SAFE code attempt count in the EEPROM
+    sta 0x0102              ;2d8e  8d 02 01     Store A as SAFE code attempt count to write to EEPROM
+    ldy #0x01               ;2d91  a0 01        Y = 1 byte to write (SAFE code attempt count only)
+    jsr write_ee_safe       ;2d93  20 e8 2d     Write the SAFE code data to the EEPROM
     clb 7,0xf0              ;2d96  ff f0
     clb 0,0xf1              ;2d98  1f f1
     clb 1,0xf1              ;2d9a  3f f1
     clb 1,0xf4              ;2d9c  3f f4
     seb 1,P5                ;2d9e  2f 0a
-    jsr sub_4c63            ;2da0  20 63 4c
+    jsr sub_4c63            ;2da0  20 63 4c     TODO unknown I2C activities
     clb 1,P5                ;2da3  3f 0a
     jsr sub_b846            ;2da5  20 46 b8
     jsr sub_9a75            ;2da8  20 75 9a
     jsr sub_40cf            ;2dab  20 cf 40
     ldm #0x0a,0x5b          ;2dae  3c 0a 5b
-    bra lab_2dc8            ;2db1  80 15
+    bra lab_2dc8_rts        ;2db1  80 15
 
 lab_2db3_failed:
 ;SAFE code does not match expected
-    lda 0x0102              ;2db3  ad 02 01
-    inc a                   ;2db6  3a
+    lda 0x0102              ;2db3  ad 02 01     A = SAFE code attempt count
+    inc a                   ;2db6  3a           Increment it
     cmp #0x02               ;2db7  c9 02
-    bcc lab_2dbd            ;2db9  90 02
-    lda #0x02               ;2dbb  a9 02
+    bcc lab_2dbd            ;2db9  90 02        Branch if < 2
+
+    ;Attempt count < 2
+    lda #0x02               ;2dbb  a9 02        Cap attempt count at 2
 
 lab_2dbd:
-    sta 0x0102              ;2dbd  8d 02 01
-    ldy #0x01               ;2dc0  a0 01
-    jsr sub_2de8            ;2dc2  20 e8 2d     TODO seems to be updating the SAFE code attempt count in the EEPROM
+    sta 0x0102              ;2dbd  8d 02 01     Store A as SAFE code attempt count to write to EEPROM
+    ldy #0x01               ;2dc0  a0 01        Y = 1 byte to write (SAFE code attempt count only)
+    jsr write_ee_safe       ;2dc2  20 e8 2d     Write the SAFE code data to the EEPROM
+
     jsr sub_2ab8            ;2dc5  20 b8 2a
 
-lab_2dc8:
+lab_2dc8_rts:
     rts                     ;2dc8  60
 
 
 read_ee_safe:
-;Read the SAFE code from the EEPROM
-;TODO actually reads 5 bytes instead of the expected 4
-;Is the first byte the attempt count?
+;Read the SAFE code data from the EEPROM
+;
+;Returns:
+;  0x0102   SAFE code attempt count
+;  0x0103   SAFE code as a decimal number in ASCII (thousands place)
+;  0x0104   SAFE code as a decimal number in ASCII (hundreds place)
+;  0x0105   SAFE code as a decimal number in ASCII (tens place)
+;  0x0106   SAFE code as a decimal number in ASCII (ones place)
 ;
     ;I2C buffer byte 1 = EEPROM address 0x0B
     lda #0x0b               ;2dc9  a9 0b
@@ -2424,26 +2449,49 @@ read_ee_safe:
     rts                     ;2de7  60
 
 
-sub_2de8:
-;TODO seems to be updating the SAFE code attempt count in the EEPROM
-    tya                     ;2de8  98
-    beq lab_2e13_rts        ;2de9  f0 28
+write_ee_safe:
+;Write the SAFE code data to the EEPROM
+;Seems to always be called with Y=1
+;
+;Call with:
+;  Y = number of bytes to write (first byte at 0x0102)
+;  Buffer at 0x0102 = data to write
+;
+;Buffer at 0x0102:
+;  0x0102   SAFE code attempt count
+;  0x0103   SAFE code as a decimal number in ASCII (thousands place)
+;  0x0104   SAFE code as a decimal number in ASCII (hundreds place)
+;  0x0105   SAFE code as a decimal number in ASCII (tens place)
+;  0x0106   SAFE code as a decimal number in ASCII (ones place)
+;
+    ;Check number of bytes to write
+    tya                     ;2de8  98           A = number of bytes to write
+    beq lab_2e13_rts        ;2de9  f0 28        Branch if number of bytes to write = 0
     cmp #0x06               ;2deb  c9 06
-    bcs lab_2e13_rts        ;2ded  b0 24
-    inc a                   ;2def  3a
-    inc a                   ;2df0  3a
+    bcs lab_2e13_rts        ;2ded  b0 24        Branch if number of bytes to write >= 6
+
+    ;Set I2C number of bytes to write, read
+    inc a                   ;2def  3a           +1 for I2C control byte
+    inc a                   ;2df0  3a           +1 for EEPROM address
     sta 0x4e                ;2df1  85 4e        Number of I2C bytes to write = A
     ldm #0x00,0x4f          ;2df3  3c 00 4f     Number of I2C bytes to read = 0
+
+    ;Set I2C buffer pointer
     lda #0x00               ;2df6  a9 00
-    sta 0x4c                ;2df8  85 4c
+    sta 0x4c                ;2df8  85 4c        Set I2C buffer pointer low
     lda #0x01               ;2dfa  a9 01
-    sta 0x4d                ;2dfc  85 4d
+    sta 0x4d                ;2dfc  85 4d        Set I2C buffer pointer high
+
+    ;Set I2C payload byte 1: EEPROM address
     lda #0x0b               ;2dfe  a9 0b
-    sta 0x0101              ;2e00  8d 01 01
+    sta 0x0101              ;2e00  8d 01 01     Store as EEPROM address
+
+    ;Set I2C payload byte 0: I2C control byte
     lda #0x00               ;2e03  a9 00
     asl a                   ;2e05  0a
     ora #0xa0               ;2e06  09 a0
-    sta 0x0100              ;2e08  8d 00 01
+    sta 0x0100              ;2e08  8d 00 01     Store as control byte (address & direction)
+
     jsr sub_46e5_i2c_wr_rd  ;2e0b  20 e5 46     Perform an I2C write-then-read transaction
 
     ldy #0x0a               ;2e0e  a0 0a
@@ -2491,23 +2539,30 @@ lab_2e13_rts:
     .byte 0x38              ;2e38  38          DATA 0x38 '8'
     .byte 0x60              ;2e39  60          DATA 0x60 '`'
 
+;TODO writes 3 unknown bytes to an EEPROM
 sub_2e3a:
     lda #0x00               ;2e3a  a9 00
     sta 0x0104              ;2e3c  8d 04 01
+
     lda 0x05a1              ;2e3f  ad a1 05
     sta 0x0103              ;2e42  8d 03 01
+
     lda 0x05a0              ;2e45  ad a0 05
     sta 0x0102              ;2e48  8d 02 01
+
     lda #0x55               ;2e4b  a9 55
-    sta 0x0101              ;2e4d  8d 01 01
+    sta 0x0101              ;2e4d  8d 01 01     Store as EEPROM address
+
     lda #0x03               ;2e50  a9 03
     asl a                   ;2e52  0a
     ora #0xa0               ;2e53  09 a0
-    sta 0x0100              ;2e55  8d 00 01
+    sta 0x0100              ;2e55  8d 00 01     Store as I2C control byte (address & direction)
+
     lda #0x00               ;2e58  a9 00
-    sta 0x4c                ;2e5a  85 4c
+    sta 0x4c                ;2e5a  85 4c        Store as I2C buffer pointer low
     lda #0x01               ;2e5c  a9 01
-    sta 0x4d                ;2e5e  85 4d
+    sta 0x4d                ;2e5e  85 4d        Store as I2C buffer pointer high
+
     ldm #0x05,0x4e          ;2e60  3c 05 4e     Number of I2C bytes to write = 5
     ldm #0x00,0x4f          ;2e63  3c 00 4f     Number of I2C bytes to read = 0
     jsr sub_46e5_i2c_wr_rd  ;2e66  20 e5 46     Perform an I2C write-then-read transaction
@@ -2547,12 +2602,12 @@ sub_2e3a:
 
 sub_2e8a:
     clb 2,0xf1              ;2e8a  5f f1
-    jsr sub_4c63            ;2e8c  20 63 4c
+    jsr sub_4c63            ;2e8c  20 63 4c     TODO unknown I2C activities
     lda #0x00               ;2e8f  a9 00
     sta 0x026a              ;2e91  8d 6a 02
-    sta 0x0102              ;2e94  8d 02 01
-    ldy #0x01               ;2e97  a0 01
-    jsr sub_2de8            ;2e99  20 e8 2d     TODO seems to be updating the SAFE code attempt count in the EEPROM
+    sta 0x0102              ;2e94  8d 02 01     Store A as SAFE code attempt count to write to EEPROM
+    ldy #0x01               ;2e97  a0 01        Y = 1 byte to write (SAFE code attempt count only)
+    jsr write_ee_safe       ;2e99  20 e8 2d     Write the SAFE code data to the EEPROM
     ldy #0x01               ;2e9c  a0 01
     jsr sub_3361            ;2e9e  20 61 33
     rts                     ;2ea1  60
@@ -2662,7 +2717,7 @@ sub_2f51:
     ldm #0x00,0x5d          ;2f66  3c 00 5d
     clb 7,0xf8              ;2f69  ff f8
     jsr sub_4281            ;2f6b  20 81 42
-    jsr sub_4c51            ;2f6e  20 51 4c
+    jsr sub_4c51            ;2f6e  20 51 4c     TODO unknown I2C activities
     rts                     ;2f71  60
 
     .byte 0x04              ;2f72  04          DATA 0x04
@@ -3595,7 +3650,7 @@ lab_33f8:
     rts                     ;3404  60
     seb 7,0xf0              ;3405  ef f0
     seb 0,0xf1              ;3407  0f f1
-    jsr sub_4c63            ;3409  20 63 4c
+    jsr sub_4c63            ;3409  20 63 4c     TODO unknown I2C activities
     bbs 3,0xe6,lab_3422     ;340c  67 e6 13
     bbc 3,0xf2,lab_3422     ;340f  77 f2 10
     jsr sub_2b17            ;3412  20 17 2b
@@ -4301,7 +4356,7 @@ lab_37bf:
     jsr sub_40f8            ;37c9  20 f8 40
     clb 3,0xfc              ;37cc  7f fc
     jsr sub_4281            ;37ce  20 81 42
-    jsr sub_4c51            ;37d1  20 51 4c
+    jsr sub_4c51            ;37d1  20 51 4c     TODO unknown I2C activities
     bra lab_3802            ;37d4  80 2c
 
 lab_37d6:
@@ -4890,7 +4945,7 @@ lab_3b98:
     jsr sub_4281            ;3bb2  20 81 42
     jsr sub_3c28            ;3bb5  20 28 3c
     jsr sub_4281            ;3bb8  20 81 42
-    jsr sub_4c51            ;3bbb  20 51 4c
+    jsr sub_4c51            ;3bbb  20 51 4c     TODO unknown I2C activities
     bra lab_3c01            ;3bbe  80 41
 
 lab_3bc0:
@@ -4939,7 +4994,7 @@ lab_3c02:
     jsr sub_4281            ;3c08  20 81 42
     jsr sub_3cb5            ;3c0b  20 b5 3c
     jsr sub_4281            ;3c0e  20 81 42
-    jsr sub_4c51            ;3c11  20 51 4c
+    jsr sub_4c51            ;3c11  20 51 4c     TODO unknown I2C activities
 
 lab_3c14:
     rts                     ;3c14  60
@@ -4950,7 +5005,7 @@ lab_3c15:
     jsr sub_4281            ;3c1b  20 81 42
     jsr sub_3d64            ;3c1e  20 64 3d
     jsr sub_4281            ;3c21  20 81 42
-    jsr sub_4c51            ;3c24  20 51 4c
+    jsr sub_4c51            ;3c24  20 51 4c     TODO unknown I2C activities
 
 lab_3c27:
     rts                     ;3c27  60
@@ -7569,6 +7624,7 @@ lab_4c4a:
     jsr sub_42ee            ;4c4d  20 ee 42
     rts                     ;4c50  60
 
+;TODO unknown I2C activities
 sub_4c51:
     ldm #0x10,0x4e          ;4c51  3c 10 4e
     lda #0xbe               ;4c54  a9 be
@@ -7579,6 +7635,7 @@ sub_4c51:
     jsr sub_4ca9            ;4c5f  20 a9 4c     TODO probably some kind of I2C read
     rts                     ;4c62  60
 
+;TODO unknown I2C activities
 sub_4c63:
     ldm #0x03,0x4e          ;4c63  3c 03 4e
     lda #0xbe               ;4c66  a9 be
@@ -10507,7 +10564,7 @@ sub_5c2e_cmd_45:
     clb 7,0xf0              ;5c4f  ff f0
     clb 0,0xf1              ;5c51  1f f1
     clb 1,0xf1              ;5c53  3f f1
-    jsr sub_4c63            ;5c55  20 63 4c
+    jsr sub_4c63            ;5c55  20 63 4c     TODO unknown I2C activities
     bbs 3,0xe6,lab_5c61     ;5c58  67 e6 06
     jsr sub_2835            ;5c5b  20 35 28
     jsr sub_2921            ;5c5e  20 21 29
@@ -15965,12 +16022,13 @@ lab_78d0:
     rts                     ;78d0  60
 
 sub_78d1:
-    jsr read_ee_coding      ;78d1  20 40 a0     Read coding and workshop code from EEPROM, or a default
+    jsr read_ee_coding      ;78d1  20 40 a0     Read coding and workshop code from EEPROM, or defaults
                             ;                   Returns:
                             ;                     0x102 Soft coding high byte
                             ;                     0x103 Soft coding low byte
                             ;                     0x104 Workshop code high byte
                             ;                     0x105 Workshop code low byte
+                            ;                     0x106 "EEPROM valid" flag byte (0=valid, 0xFF=invalid)
     jsr sub_a0d5            ;78d4  20 d5 a0
     lda 0x0117              ;78d7  ad 17 01
     and #0x0f               ;78da  29 0f
@@ -18407,7 +18465,7 @@ lab_852a:
     bcc lab_84fd            ;8530  90 cb
     bbc 2,0xe9,lab_853a     ;8532  57 e9 05
     clb 2,0xe9              ;8535  5f e9
-    jsr sub_855f            ;8537  20 5f 85
+    jsr sub_855f            ;8537  20 5f 85     TODO writes unknown data to an unknown I2C device
 
 lab_853a:
     rts                     ;853a  60
@@ -18432,17 +18490,18 @@ sub_853b:
 lab_855e:
     rts                     ;855e  60
 
+
+;TODO writes unknown data to an unknown I2C device
 sub_855f:
     ldx #0x00               ;855f  a2 00
-
-lab_8561:
+lab_8561_loop:
     lda 0x0290,x            ;8561  bd 90 02
     sta 0x0102,x            ;8564  9d 02 01
     lda 0x02a0,x            ;8567  bd a0 02
     sta 0x010e,x            ;856a  9d 0e 01
     inx                     ;856d  e8
     cpx #0x0c               ;856e  e0 0c
-    bcc lab_8561            ;8570  90 ef
+    bcc lab_8561_loop       ;8570  90 ef
     lda #0x70               ;8572  a9 70
     sta 0x4a                ;8574  85 4a
     lda #0x03               ;8576  a9 03
@@ -18454,11 +18513,11 @@ lab_8561:
     ldm #0x18,0x4e          ;8582  3c 18 4e
     ldm #0x00,0x4f          ;8585  3c 00 4f
     jsr sub_4b4e_i2c_write  ;8588  20 4e 4b     TODO probably writes to an I2C device
-    bbc 0,0xff,lab_8590     ;858b  17 ff 02
+    bbc 0,0xff,lab_8590_rts ;858b  17 ff 02
     seb 1,0x76              ;858e  2f 76
-
-lab_8590:
+lab_8590_rts:
     rts                     ;8590  60
+
 
 sub_8591:
     bbs 5,P8_P4I,lab_85a8   ;8591  a7 10 14
@@ -23443,7 +23502,7 @@ sub_9e9e:
     sta 0x05bc              ;9ea3  8d bc 05
     sta 0x05bf              ;9ea6  8d bf 05
     sta 0x05be              ;9ea9  8d be 05
-    jsr sub_9fe2            ;9eac  20 e2 9f
+    jsr sub_9fe2            ;9eac  20 e2 9f     TODO coding related, maybe activates new coding
     jsr sub_ab7e            ;9eaf  20 7e ab
     lda 0x0102              ;9eb2  ad 02 01
     cmp #0x80               ;9eb5  c9 80
@@ -23645,12 +23704,14 @@ lab_9fd8:
     rts                     ;9fe1  60
 
 sub_9fe2:
-    jsr read_ee_coding      ;9fe2  20 40 a0     Read coding and workshop code from EEPROM, or a default
+;TODO coding related, maybe activates new coding
+    jsr read_ee_coding      ;9fe2  20 40 a0     Read coding and workshop code from EEPROM, or defaults
                             ;                   Returns:
                             ;                     0x102 Soft coding high byte
                             ;                     0x103 Soft coding low byte
                             ;                     0x104 Workshop code high byte
                             ;                     0x105 Workshop code low byte
+                            ;                     0x106 "EEPROM valid" flag byte (0=valid, 0xFF=invalid)
     jsr sub_a0d5            ;9fe5  20 d5 a0
     lda 0x011a              ;9fe8  ad 1a 01
     asl a                   ;9feb  0a
@@ -23704,14 +23765,14 @@ lab_a03a:
 
 
 read_ee_coding:
-;Read coding and workshop code from EEPROM, or a default
+;Read coding and workshop code from EEPROM, or defaults
 ;
 ;Returns:
 ;  0x102 Soft coding high byte
 ;  0x103 Soft coding low byte
 ;  0x104 Workshop code high byte
 ;  0x105 Workshop code low byte
-;  0x106 Unknown (should be 0)
+;  0x106 "EEPROM valid" flag byte (0=valid, 0xFF=invalid)
 ;
     lda #0x50               ;a040  a9 50
     sta 0x0101              ;a042  8d 01 01     Store as EEPROM address byte
@@ -23730,24 +23791,30 @@ read_ee_coding:
     ldm #0x05,0x4f          ;a058  3c 05 4f     Number of I2C bytes to read = 5
     jsr sub_46e5_i2c_wr_rd  ;a05b  20 e5 46     Perform an I2C write-then-read transaction
 
-    lda 0x0106              ;a05e  ad 06 01
-    beq lab_a075_rts        ;a061  f0 12
+    lda 0x0106              ;a05e  ad 06 01     Is the flag byte 0?
+    beq lab_a075_rts        ;a061  f0 12          Yes: EEPROM has been programmed, branch
 
+    ;EEPROM has not been programmed; return defaults instead
+
+    ;Set default coding to 0x0320 (would be displayed as "0400" on tester)
     lda #0x03               ;a063  a9 03
     sta 0x0102              ;a065  8d 02 01     Soft coding high byte
     lda #0x20               ;a068  a9 20
     sta 0x0103              ;a06a  8d 03 01     Soft coding low byte
 
+    ;Set default workshop code to 0x0000 (would be displyed as "00000" on tester)
     lda #0x00               ;a06d  a9 00
-    sta 0x0104              ;a06f  8d 04 01
-    sta 0x0105              ;a072  8d 05 01
+    sta 0x0104              ;a06f  8d 04 01     Workshop code high byte
+    sta 0x0105              ;a072  8d 05 01     Workshop code low byte
 
 lab_a075_rts:
     rts                     ;a075  60
 
 
-sub_a076:
+kwp_write_ee_coding:
+;Check if new coding from KWP1281 recoding is valid, write to EEPROM if so
 ;Called from KWP1281 0x10 Recoding (kwp_10_recoding)
+;
     lda 0x0323              ;a076  ad 23 03     A = uart rx buffer byte 3
     sta 0x0102              ;a079  8d 02 01
     lda 0x0324              ;a07c  ad 24 03     A = uart rx buffer byte 4
@@ -23757,26 +23824,36 @@ sub_a076:
     ldy #0x04               ;a085  a0 04
 lab_a087_loop:
     lda 0x0116,y            ;a087  b9 16 01
-    cmp 0xac26,y            ;a08a  d9 26 ac
+    cmp mem_ac26,y          ;a08a  d9 26 ac
     beq lab_a091_eq         ;a08d  f0 02
     bcs lab_a0d4_rts        ;a08f  b0 43
 lab_a091_eq:
     dey                     ;a091  88
     bpl lab_a087_loop       ;a092  10 f3
 
+    ;Coding is valid.  Now set up to write coding & workshop code to the EEPROM.
+
     lda 0x0323              ;a094  ad 23 03     A = uart rx buffer byte 3
-    sta 0x0102              ;a097  8d 02 01
+    sta 0x0102              ;a097  8d 02 01     Store as Soft coding high byte
+
     lda 0x0324              ;a09a  ad 24 03     A = uart rx buffer byte 4
-    sta 0x0103              ;a09d  8d 03 01
+    sta 0x0103              ;a09d  8d 03 01     Store as Soft coding low byte
+
     lda 0x0325              ;a0a0  ad 25 03     A = uart rx buffer byte 5
-    sta 0x0104              ;a0a3  8d 04 01
+    sta 0x0104              ;a0a3  8d 04 01     Store as Workshop code high byte
+
     lda 0x0326              ;a0a6  ad 26 03     A = uart rx buffer byte 6
-    sta 0x0105              ;a0a9  8d 05 01
-    lda #0x00               ;a0ac  a9 00
-    sta 0x0106              ;a0ae  8d 06 01
+    sta 0x0105              ;a0a9  8d 05 01     Store as Workshop code low byte
+
+    lda #0x00               ;a0ac  a9 00        A = 0
+    sta 0x0106              ;a0ae  8d 06 01     Store as "EEPROM valid" flag byte (0=valid, 0xFF=invalid)
+
+    ; Fall through into write_ee_coding
+
 
 write_ee_coding:
 ;Write coding and workshop code to the EEPROM
+;This is unconditional; the values not checked first.
 ;Called from sub_a124 after successful login
     lda #0x50               ;a0b1  a9 50
     sta 0x0101              ;a0b3  8d 01 01     Store as EEPROM address
@@ -23801,7 +23878,9 @@ write_ee_coding:
 lab_a0d4_rts:
     rts                     ;a0d4  60
 
+
 sub_a0d5:
+    ;Push 0x44, 0x45
     lda 0x44                ;a0d5  a5 44
     pha                     ;a0d7  48
     lda 0x45                ;a0d8  a5 45
@@ -23815,13 +23894,16 @@ sub_a0d5:
     sta 0x44                ;a0e5  85 44
     jsr sub_6be9            ;a0e7  20 e9 6b     Convert binary number in 0x44-0x45 to decimal number in ASCII in 0x0116-0x11a
 
+    ;Pop 0x44, 0x45
     pla                     ;a0ea  68
     sta 0x45                ;a0eb  85 45
     pla                     ;a0ed  68
     sta 0x44                ;a0ee  85 44
     rts                     ;a0f0  60
 
+
 sub_a0f1:
+;Called by KWP1281 0x00 Read Identification (kwp_00_read_id)
     lda 0x0102              ;a0f1  ad 02 01
     sta 0x0335              ;a0f4  8d 35 03
     lda 0x0103              ;a0f7  ad 03 01
@@ -23831,6 +23913,7 @@ sub_a0f1:
     lda 0x0105              ;a103  ad 05 01
     sta 0x0338              ;a106  8d 38 03
     rts                     ;a109  60
+
 
 ;Called by KWP1281 0x2b Login
 ;Convert SAFE code binary number in KWP1281 rx buffer
@@ -23870,12 +23953,13 @@ sub_a10a:
 
 sub_a124:
 ;Called after successful login
-    jsr read_ee_coding      ;a124  20 40 a0     Read coding and workshop code from EEPROM, or a default
+    jsr read_ee_coding      ;a124  20 40 a0     Read coding and workshop code from EEPROM, or defaults
                             ;                   Returns:
                             ;                     0x102 Soft coding high byte
                             ;                     0x103 Soft coding low byte
                             ;                     0x104 Workshop code high byte
                             ;                     0x105 Workshop code low byte
+                            ;                     0x106 "EEPROM valid" flag byte (0=valid, 0xFF=invalid)
 
     ;Replace bit 0 in the Soft Coding low byte with bit 0 from
     ;KWP1281 rx buffer byte 5 (Unknown byte).  TODO: what does this do?
@@ -23900,21 +23984,22 @@ sub_a124:
     jsr write_ee_coding     ;a146  20 b1 a0     Write coding and workshop code to EEPROM
     rts                     ;a149  60
 
+
 sub_a14a:
 ;Read unknown data from EEPROM, or a default
 ;called from sub_a84f (group reading: 0x50 advanced id 1)
     lda #0x0e               ;a14a  a9 0e
-    sta 0x0101              ;a14c  8d 01 01
+    sta 0x0101              ;a14c  8d 01 01     Store as EEPROM address
 
     lda #0x03               ;a14f  a9 03
     asl a                   ;a151  0a
     ora #0xa0               ;a152  09 a0
-    sta 0x0100              ;a154  8d 00 01
+    sta 0x0100              ;a154  8d 00 01     Store as I2C control byte (address & direction)
 
     lda #0x00               ;a157  a9 00
-    sta 0x4c                ;a159  85 4c
+    sta 0x4c                ;a159  85 4c        Store as buffer pointer low byte
     lda #0x01               ;a15b  a9 01
-    sta 0x4d                ;a15d  85 4d
+    sta 0x4d                ;a15d  85 4d        Store as buffer pointer high byte
 
     ldm #0x02,0x4e          ;a15f  3c 02 4e     Number of I2C bytes to write = 2
     ldm #0x06,0x4f          ;a162  3c 06 4f     Number of I2C bytes to read = 6
@@ -23936,38 +24021,41 @@ lab_a17c:
     rts                     ;a17c  60
 
 
-sub_a17d:
+read_ee_serial:
 ;Read serial number from EEPROM, or a default if none
-;called from sub_a88c (group reading advanced id 2)
+;Returns 14-byte serial number like "VWZAZ3B0000000" in buffer at 0x0102
+;Called from sub_a88c (group reading advanced id 2)
     lda #0x00               ;a17d  a9 00
-    sta 0x0101              ;a17f  8d 01 01
+    sta 0x0101              ;a17f  8d 01 01     Store as EEPROM address
+
     lda #0x03               ;a182  a9 03
     asl a                   ;a184  0a
     ora #0xa0               ;a185  09 a0
-    sta 0x0100              ;a187  8d 00 01
+    sta 0x0100              ;a187  8d 00 01     Store as I2C control byte (address & direction)
+
     lda #0x00               ;a18a  a9 00
-    sta 0x4c                ;a18c  85 4c
+    sta 0x4c                ;a18c  85 4c        Store as buffer pointer low
     lda #0x01               ;a18e  a9 01
-    sta 0x4d                ;a190  85 4d
+    sta 0x4d                ;a190  85 4d        Store as buffer pointer high
+
     ldm #0x02,0x4e          ;a192  3c 02 4e     Number of I2C bytes to write = 2
     ldm #0x0e,0x4f          ;a195  3c 0e 4f     Number of I2C bytes to read = 14
     jsr sub_46e5_i2c_wr_rd  ;a198  20 e5 46     Perform an I2C write-then-read transaction
 
     lda 0x0102              ;a19b  ad 02 01     A = first byte of serial number read from EEPROM
     cmp #'V                 ;a19e  c9 56        Is it a "V" as in "VWZAZ..."?
-    beq lab_a1ad            ;a1a0  f0 0b          Yes, serial number is valid, branch to RTS
+    beq lab_a1ad_rts        ;a1a0  f0 0b          Yes, serial number is valid, branch to RTS
 
     ;EEPROM serial number is invalid
     ;Fill buffer with default serial number of "VWZAZ3B0000000"
-
     ldx #0x0e               ;a1a2  a2 0e
-lab_a1a4:
+lab_a1a4_loop:
     lda default_serial,x    ;a1a4  bd 6a ff     A = byte from "VWZAZ3B0000000"
     sta 0x0102,x            ;a1a7  9d 02 01
     dex                     ;a1aa  ca
-    bpl lab_a1a4            ;a1ab  10 f7
+    bpl lab_a1a4_loop       ;a1ab  10 f7
 
-lab_a1ad:
+lab_a1ad_rts:
     rts                     ;a1ad  60
 
 
@@ -24004,7 +24092,7 @@ lab_a1de:
     sta 0x0333              ;a1e9  8d 33 03     Store in KWP1281 tx buffer: block title
     lda #0x00               ;a1ec  a9 00
     sta 0x0334              ;a1ee  8d 34 03
-    jsr sub_9fe2            ;a1f1  20 e2 9f
+    jsr sub_9fe2            ;a1f1  20 e2 9f     TODO coding related, maybe activates new coding
     jsr sub_a0f1            ;a1f4  20 f1 a0
     bra lab_a22f            ;a1f7  80 36
 
@@ -24324,7 +24412,7 @@ lab_a39c:
     jsr sub_a3c7            ;a3a7  20 c7 a3
 
 lab_a3aa:
-    jsr sub_855f            ;a3aa  20 5f 85
+    jsr sub_855f            ;a3aa  20 5f 85     TODO writes unknown data to an unknown I2C device
     lda #0x07               ;a3ad  a9 07
     sta 0x05b3              ;a3af  8d b3 05
     lda #0xc8               ;a3b2  a9 c8
@@ -24445,17 +24533,47 @@ kwp_0c_write_eeprom:
     rts                     ;a46a  60
 
 ;KWP1281 0x10 Recoding
+;
+;The scan tool presents the soft coding to the user as a 15-bit number
+;in decimal (00000-32767).  The scan tool multiplies this number by 2
+;and then sends it in bytes 3 (high) and 4 (low).  The scan tool sends
+;the workshop code directly in bytes 5 (high) and 6 (low).
+;
+;Example:
+;  Soft Coding 01404 (decimal):
+;    hex(1404 * 2) => 0x0AF8 => request byte 3 = 0x0A (high)
+;                            => request byte 4 = 0xF8 (low)
+;
+;  Workshop Code 12345 (decimal):
+;    hex(12345)    => 0x3039 => request byte 5 = 0x30 (high)
+;                            => request byte 6 = 0x39 (low)
+;
+;Request block:
+;  0x04 Block length                      0x0320
+;   xx  Block counter                     0x0321
+;  0x10 Block title                       0x0323
+;   xx  Soft Coding high byte (binary)    0x0324
+;   xx  Soft Coding low byte (binary)     0x0325
+;   xx  Workshop Code high byte (binary)  0x0326
+;   xx  Workshop Code low byte (binary)   0x0327
+;  0x03 Block end                         0x0328
+;
+;After recoding, regardless of success or failure, the response for
+;KWP1281 request block title 0x00 ID code request/ECU info is returned.
+;This is a multi-block response of 4 id blocks where the id block 4/4
+;contains the coding and workshop code.
+;
 kwp_10_recoding:
-    jsr sub_a076            ;a46b  20 76 a0
-    jsr sub_9fe2            ;a46e  20 e2 9f
-    jsr sub_855f            ;a471  20 5f 85
-    lda #0x00               ;a474  a9 00
-    sta 0x05bd              ;a476  8d bd 05
-    sta 0x05bc              ;a479  8d bc 05
-    lda #0x00               ;a47c  a9 00
-    sta 0x05b3              ;a47e  8d b3 05
-    jsr kwp_00_read_id      ;a481  20 ae a1
-    rts                     ;a484  60
+    jsr kwp_write_ee_coding   ;a46b  20 76 a0     Write new coding from KWP1281 to EEPROM if it is valid
+    jsr sub_9fe2              ;a46e  20 e2 9f     TODO coding related, maybe activates new coding
+    jsr sub_855f              ;a471  20 5f 85     TODO writes unknown data to an unknown I2C device
+    lda #0x00                 ;a474  a9 00
+    sta 0x05bd                ;a476  8d bd 05
+    sta 0x05bc                ;a479  8d bc 05
+    lda #0x00                 ;a47c  a9 00
+    sta 0x05b3                ;a47e  8d b3 05
+    jsr kwp_00_read_id        ;a481  20 ae a1
+    rts                       ;a484  60
 
 ;KWP1281 0x11 Basic Setting Read
 kwp_11_basic_read_nak:
@@ -24830,14 +24948,15 @@ lab_a59d:
     cmp #'0                 ;a5a3  c9 30        Is the ten thousands place = 0?
     bne lab_a5e3_failed     ;a5a5  d0 3c          No: branch to login failed
 
-    ;Read the SAFE code from the EEPROM
+    ;Read the SAFE code data from the EEPROM
     jsr read_ee_safe        ;a5a7  20 c9 2d
 
     ;Result of read_ee_safe:
-    ;  0x0103   Actual SAFE code as a decimal number in ASCII (thousands place)
-    ;  0x0104   Actual SAFE code as a decimal number in ASCII (hundreds place)
-    ;  0x0105   Actual SAFE code as a decimal number in ASCII (tens place)
-    ;  0x0106   Actual SAFE code as a decimal number in ASCII (ones place)
+    ;  0x0102   SAFE code attempt count
+    ;  0x0103   SAFE code as a decimal number in ASCII (thousands place)
+    ;  0x0104   SAFE code as a decimal number in ASCII (hundreds place)
+    ;  0x0105   SAFE code as a decimal number in ASCII (tens place)
+    ;  0x0106   SAFE code as a decimal number in ASCII (ones place)
 
     ;Compare attempted SAFE code with actual
     ldy #0x00               ;a5aa  a0 00
@@ -24883,7 +25002,7 @@ lab_a5fb:
     ldy #0x36               ;a5fb  a0 36
     jsr sub_3300            ;a5fd  20 00 33
     seb 3,0xf1              ;a600  6f f1
-    jsr sub_4c63            ;a602  20 63 4c
+    jsr sub_4c63            ;a602  20 63 4c     TODO unknown I2C activities
 
 lab_a605_rts:
     rts                     ;a605  60
@@ -25480,15 +25599,15 @@ lab_a898_loop:
     bpl lab_a898_loop       ;a89f  10 f7
 
     ;Read serial number or default
-    jsr sub_a17d            ;a8a1  20 7d a1     Read serial number from EEPROM, or a default if none
+    jsr read_ee_serial      ;a8a1  20 7d a1     Read serial number from EEPROM, or a default if none
 
     ;Copy serial number into KWP1281 tx buffer
     ldx #0x0d               ;a8a4  a2 0d
-lab_a8a6:
+lab_a8a6_loop:
     lda 0x0102,x            ;a8a6  bd 02 01     A = byte from serial number
     sta 0x0346,x            ;a8a9  9d 46 03     Store it in the KWP1281 tx buffer
     dex                     ;a8ac  ca
-    bpl lab_a8a6            ;a8ad  10 f7
+    bpl lab_a8a6_loop       ;a8ad  10 f7
     rts                     ;a8af  60
 
 sub_a8b0:
@@ -26192,11 +26311,14 @@ sub_ab9d:
     .byte 0x07              ;ac23  07          DATA 0x07
     .byte 0xff              ;ac24  ff          DATA 0xff
     .byte 0x31              ;ac25  31          DATA 0x31 '1'
+
+mem_ac26:
     .byte 0x30              ;ac26  30          DATA 0x30 '0'
     .byte 0x39              ;ac27  39          DATA 0x39 '9'
     .byte 0x35              ;ac28  35          DATA 0x35 '5'
     .byte 0x32              ;ac29  32          DATA 0x32 '2'
     .byte 0x37              ;ac2a  37          DATA 0x37 '7'
+
     .byte 0xd7              ;ac2b  d7          DATA 0xd7
     .byte 0xf1              ;ac2c  f1          DATA 0xf1
     .byte 0x41              ;ac2d  41          DATA 0x41 'A'
@@ -28224,21 +28346,21 @@ lab_b845_rts:
     rts                     ;b845  60
 
 sub_b846:
-    bbc 1,0xee,lab_b87e     ;b846  37 ee 35
-    bbs 4,0xe8,lab_b87e     ;b849  87 e8 32
+    bbc 1,0xee,lab_b87e_rts ;b846  37 ee 35
+    bbs 4,0xe8,lab_b87e_rts ;b849  87 e8 32
     ldy #0x33               ;b84c  a0 33
     jsr sub_33c6            ;b84e  20 c6 33
-    bcs lab_b87e            ;b851  b0 2b
+    bcs lab_b87e_rts        ;b851  b0 2b
     jsr sub_4cd0            ;b853  20 d0 4c     TODO probably some kind of I2C read
     lda 0x026b              ;b856  ad 6b 02
     cmp #0x33               ;b859  c9 33
-    bcc lab_b87e            ;b85b  90 21
+    bcc lab_b87e_rts        ;b85b  90 21
     bbs 0,0xf1,lab_b87b     ;b85d  07 f1 1b
     lda 0x05a4              ;b860  ad a4 05
-    beq lab_b87e            ;b863  f0 19
+    beq lab_b87e_rts        ;b863  f0 19
     lda 0x0381              ;b865  ad 81 03
     cmp #0x14               ;b868  c9 14
-    bcs lab_b87e            ;b86a  b0 12
+    bcs lab_b87e_rts        ;b86a  b0 12
     ldy #0x32               ;b86c  a0 32
     jsr sub_33c6            ;b86e  20 c6 33
     bcs lab_b87b            ;b871  b0 08
@@ -28249,7 +28371,7 @@ sub_b846:
 lab_b87b:
     jsr sub_b87f            ;b87b  20 7f b8
 
-lab_b87e:
+lab_b87e_rts:
     rts                     ;b87e  60
 
 sub_b87f:
@@ -28263,7 +28385,7 @@ sub_b87f:
     lda #0x07               ;b891  a9 07
     sta 0x05b1              ;b893  8d b1 05
     clb 0,0xf9              ;b896  1f f9
-    jmp lab_b8ce            ;b898  4c ce b8
+    jmp lab_b8ce_rts        ;b898  4c ce b8
 
 lab_b89b:
     bbs 0,0xe8,lab_b8ad     ;b89b  07 e8 0f
@@ -28272,7 +28394,7 @@ lab_b89b:
     sta 0x05b1              ;b8a2  8d b1 05
     ldy #0x2b               ;b8a5  a0 2b
     jsr sub_3300            ;b8a7  20 00 33
-    jmp lab_b8ce            ;b8aa  4c ce b8
+    jmp lab_b8ce_rts        ;b8aa  4c ce b8
 
 lab_b8ad:
     lda #0x01               ;b8ad  a9 01
@@ -28281,7 +28403,7 @@ lab_b8ad:
     sta 0x01af              ;b8b4  8d af 01
     ldy #0x2a               ;b8b7  a0 2a
     jsr sub_3300            ;b8b9  20 00 33
-    jmp lab_b8ce            ;b8bc  4c ce b8
+    jmp lab_b8ce_rts        ;b8bc  4c ce b8
 
 lab_b8bf:
     lda #0x02               ;b8bf  a9 02
@@ -28291,7 +28413,7 @@ lab_b8bf:
     ldy #0x2a               ;b8c9  a0 2a
     jsr sub_3300            ;b8cb  20 00 33
 
-lab_b8ce:
+lab_b8ce_rts:
     rts                     ;b8ce  60
 
 sub_b8cf:
@@ -37478,7 +37600,7 @@ lab_f173:
     jsr sub_4319            ;f179  20 19 43
     lda 0x028b              ;f17c  ad 8b 02
     sta 0xa0                ;f17f  85 a0
-    jsr sub_4c51            ;f181  20 51 4c
+    jsr sub_4c51            ;f181  20 51 4c     TODO unknown I2C activities
     jsr sub_4b29            ;f184  20 29 4b
     bcc lab_f18c            ;f187  90 03
     jsr sub_486d            ;f189  20 6d 48
@@ -37551,7 +37673,7 @@ sub_f1f9:
     jsr sub_f1dc            ;f1f9  20 dc f1
     clb 5,0xe6              ;f1fc  bf e6
     seb 7,0xf1              ;f1fe  ef f1
-    jsr sub_4c63            ;f200  20 63 4c
+    jsr sub_4c63            ;f200  20 63 4c     TODO unknown I2C activities
     rts                     ;f203  60
 
 lab_f204:
