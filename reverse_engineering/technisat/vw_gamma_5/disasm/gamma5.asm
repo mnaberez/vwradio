@@ -23502,7 +23502,7 @@ sub_9e9e:
     sta 0x05bc              ;9ea3  8d bc 05
     sta 0x05bf              ;9ea6  8d bf 05
     sta 0x05be              ;9ea9  8d be 05
-    jsr sub_9fe2            ;9eac  20 e2 9f     TODO coding related, maybe activates new coding
+    jsr sub_9fe2_coding     ;9eac  20 e2 9f     TODO coding related, reads coding, maybe activates new coding
     jsr sub_ab7e            ;9eaf  20 7e ab
     lda 0x0102              ;9eb2  ad 02 01
     cmp #0x80               ;9eb5  c9 80
@@ -23665,24 +23665,33 @@ lab_9f74:
     .byte 0xd1              ;9fa5  d1          DATA 0xd1
     .byte 0x60              ;9fa6  60          DATA 0x60 '`'
 
-sub_9fa7:
+
+read_ee_part_num:
+;Read part number from EEPROM, or a default
     lda #0xf4               ;9fa7  a9 f4
-    sta 0x0101              ;9fa9  8d 01 01
+    sta 0x0101              ;9fa9  8d 01 01     Store as EEPROM address
+
     lda #0x02               ;9fac  a9 02
     asl a                   ;9fae  0a
     ora #0xa0               ;9faf  09 a0
-    sta 0x0100              ;9fb1  8d 00 01
+    sta 0x0100              ;9fb1  8d 00 01     Store as I2C control byte (address & direction)
+
     lda #0x00               ;9fb4  a9 00
-    sta 0x4c                ;9fb6  85 4c
+    sta 0x4c                ;9fb6  85 4c        Store as I2C buffer pointer low
     lda #0x01               ;9fb8  a9 01
-    sta 0x4d                ;9fba  85 4d
+    sta 0x4d                ;9fba  85 4d        Store as I2C buffer pointer low
+
     ldm #0x02,0x4e          ;9fbc  3c 02 4e     Number of I2C bytes to write = 2
     ldm #0x0c,0x4f          ;9fbf  3c 0c 4f     Number of I2C bytes to read = 12
     jsr sub_46e5_i2c_wr_rd  ;9fc2  20 e5 46     Perform an I2C write-then-read transaction
-    lda 0x0102              ;9fc5  ad 02 01
-    bbc 7,a,lab_9fd5        ;9fc8  f3 0b
 
-    ;Copy "TechniSat" string
+    lda 0x0102              ;9fc5  ad 02 01     A = first byte of part number
+    bbc 7,a,lab_9fd5_rts    ;9fc8  f3 0b        Branch if bit 7 is clear
+
+    ;Bit 7 is set.  Presumably this means that the part number has not been written
+    ;to the EEPROM and contains all 0xFF.  Return a default "TechniSat  " string.
+
+    ;Copy "TechniSat  " string
     ldx #0x0b               ;9fca  a2 0b
 lab_9fcc_loop:
     lda technisat,x         ;9fcc  bd 40 ff
@@ -23690,21 +23699,23 @@ lab_9fcc_loop:
     dex                     ;9fd2  ca
     bpl lab_9fcc_loop       ;9fd3  10 f7
 
-lab_9fd5:
+lab_9fd5_rts:
     rts                     ;9fd5  60
 
-sub_9fd6:
-    ldx #0x0b               ;9fd6  a2 0b
 
-lab_9fd8:
-    lda 0x0102,x            ;9fd8  bd 02 01
-    sta 0x0334,x            ;9fdb  9d 34 03
+copy_part_num_to_tx:
+;Copy part number read from EEPROM to KWP1281 tx buffer
+    ldx #0x0b               ;9fd6  a2 0b
+lab_9fd8_loop:
+    lda 0x0102,x            ;9fd8  bd 02 01     A = byte from part number read from EEPROM
+    sta 0x0334,x            ;9fdb  9d 34 03     Write it into the KWP1281 tx buffer
     dex                     ;9fde  ca
-    bpl lab_9fd8            ;9fdf  10 f7
+    bpl lab_9fd8_loop       ;9fdf  10 f7        Loop until entire part number has been copied
     rts                     ;9fe1  60
 
-sub_9fe2:
-;TODO coding related, maybe activates new coding
+
+sub_9fe2_coding:
+;TODO coding related: reads coding, maybe activates new coding
     jsr read_ee_coding      ;9fe2  20 40 a0     Read coding and workshop code from EEPROM, or defaults
                             ;                   Returns:
                             ;                     0x102 Soft coding high byte
@@ -23902,16 +23913,20 @@ sub_a0d5:
     rts                     ;a0f0  60
 
 
-sub_a0f1:
+copy_coding_to_tx:
+;Copy coding and workshop read from EEPROM to KWP1281 tx buffer
 ;Called by KWP1281 0x00 Read Identification (kwp_00_read_id)
-    lda 0x0102              ;a0f1  ad 02 01
-    sta 0x0335              ;a0f4  8d 35 03
-    lda 0x0103              ;a0f7  ad 03 01
-    sta 0x0336              ;a0fa  8d 36 03
-    lda 0x0104              ;a0fd  ad 04 01
-    sta 0x0337              ;a100  8d 37 03
-    lda 0x0105              ;a103  ad 05 01
-    sta 0x0338              ;a106  8d 38 03
+    lda 0x0102              ;a0f1  ad 02 01     A = Soft Coding high byte
+    sta 0x0335              ;a0f4  8d 35 03     Store as KWP1281 tx buffer byte 4: Soft Coding (high byte)
+
+    lda 0x0103              ;a0f7  ad 03 01     A = Soft Coding low byte
+    sta 0x0336              ;a0fa  8d 36 03     Store as KWP1281 tx buffer byte 5: Soft Coding (low byte)
+
+    lda 0x0104              ;a0fd  ad 04 01     A = Workshop Code high byte
+    sta 0x0337              ;a100  8d 37 03     Store as KWP1281 tx buffer byte 6: Workshop Code (high byte)
+
+    lda 0x0105              ;a103  ad 05 01     A = Workshop Code low byte
+    sta 0x0338              ;a106  8d 38 03     Store as KWP1281 tx buffer byte 7: Workshop Code (low byte)
     rts                     ;a109  60
 
 
@@ -23985,9 +24000,12 @@ sub_a124:
     rts                     ;a149  60
 
 
-sub_a14a:
-;Read unknown data from EEPROM, or a default
-;called from sub_a84f (group reading: 0x50 advanced id 1)
+read_ee_date:
+;Read date from EEPROM, or a default
+;Called from sub_a84f (group reading: 0x50 advanced id 1)
+;Returns 6 ASCII characters: DDMMYY in buffer at 0x0102
+;If date in EEPROM is invalid, returns "??????"
+;
     lda #0x0e               ;a14a  a9 0e
     sta 0x0101              ;a14c  8d 01 01     Store as EEPROM address
 
@@ -24005,23 +24023,28 @@ sub_a14a:
     ldm #0x06,0x4f          ;a162  3c 06 4f     Number of I2C bytes to read = 6
     jsr sub_46e5_i2c_wr_rd  ;a165  20 e5 46     Perform an I2C write-then-read transaction
 
-    lda 0x0102              ;a168  ad 02 01     A = first byte from EEPROM data
-    and #0xcf               ;a16b  29 cf
+    lda 0x0102              ;a168  ad 02 01     A = first byte from EEPROM data (first char of day in ASCII)
+    and #0b11001111         ;a16b  29 cf
     cmp #0x04               ;a16d  c9 04
-    bcc lab_a17c            ;a16f  90 0b
+    bcc lab_a17c            ;a16f  90 0b        Branch if first char of day is 0-3.  A valid day is
+                            ;                     "00"-"31" so this probably means the date in the
+                            ;                     EEPROM is valid.
 
-    ldx #0x10               ;a171  a2 10
-lab_a173:
-    lda default_serial+14,x ;a173  bd 78 ff
+    ;Date in EEPROM is not valid
+    ;Return a default of "??????" instead
+
+    ldx #0x10               ;a171  a2 10        XXX this is probably a bug.  Date is only 6 chars.
+lab_a173_loop:
+    lda default_date,x      ;a173  bd 78 ff
     sta 0x0102,x            ;a176  9d 02 01
     dex                     ;a179  ca
-    bpl lab_a173            ;a17a  10 f7
+    bpl lab_a173_loop       ;a17a  10 f7
 
 lab_a17c:
     rts                     ;a17c  60
 
 
-read_ee_serial:
+read_ee_serial_num:
 ;Read serial number from EEPROM, or a default if none
 ;Returns 14-byte serial number like "VWZAZ3B0000000" in buffer at 0x0102
 ;Called from sub_a88c (group reading advanced id 2)
@@ -24063,70 +24086,167 @@ lab_a1ad_rts:
 kwp_00_read_id:
     lda 0x05b7              ;a1ae  ad b7 05
     cmp #0xff               ;a1b1  c9 ff
-    bne lab_a1de            ;a1b3  d0 29
+    bne lab_a1de_next       ;a1b3  d0 29
+
+    ;0x05b7 = 0xff
+
     lda #0x00               ;a1b5  a9 00
     cmp 0x05b9              ;a1b7  cd b9 05
     beq lab_a1c7            ;a1ba  f0 0b
+
+    ;0x05b9 = 0x00
+
     sta 0x05b9              ;a1bc  8d b9 05
     jsr sub_7b65            ;a1bf  20 65 7b
     jsr sub_a319            ;a1c2  20 19 a3
     seb 5,P0                ;a1c5  af 00
 
 lab_a1c7:
-    lda #0x0f               ;a1c7  a9 0f        block length
+    ;Send id block 1/4 with "1J0035186D  " (Block length=0x0F)
+    ;
+    ;Response block:
+    ;  0x0F Block length                  0x0331
+    ;   xx  Block counter                 0x0332
+    ;  0xF6 Block title (ascii/data)      0x0333
+    ;  0x31 "1"                           0x0334
+    ;  0x4a "J"                           0x0335
+    ;  0x30 "0"                           0x0336
+    ;  0x30 "0"                           0x0337
+    ;  0x33 "3"                           0x0338
+    ;  0x35 "5"                           0x0339
+    ;  0x31 "1"                           0x033a
+    ;  0x38 "8"                           0x033b
+    ;  0x30 "6"                           0x033c
+    ;  0x42 "D"                           0x033d
+    ;  0x20 " "                           0x033e
+    ;  0x20 " "                           0x033f
+    ;  0x03 Block end                     0x0340
+
+    lda #0x0f               ;a1c7  a9 0f        A = block length
     sta 0x0331              ;a1c9  8d 31 03     Store in KWP1281 tx buffer: block length
+
     lda #0xf6               ;a1cc  a9 f6        A = block title 0xF6 (Response with ASCII Data/ID code)
     sta 0x0333              ;a1ce  8d 33 03     Store in KWP1281 tx buffer: block title
-    jsr sub_9fa7            ;a1d1  20 a7 9f
-    jsr sub_9fd6            ;a1d4  20 d6 9f
+
+    jsr read_ee_part_num    ;a1d1  20 a7 9f     Read part number from EEPROM, or a default
+    jsr copy_part_num_to_tx ;a1d4  20 d6 9f     Copy part number read from EEPROM to KWP1281 tx buffer
+
     lda #0x04               ;a1d7  a9 04
     sta 0x05b7              ;a1d9  8d b7 05
-    bra lab_a22f            ;a1dc  80 51
+    bra lab_a22f_done       ;a1dc  80 51
 
-lab_a1de:
+lab_a1de_next:
     cmp #0x01               ;a1de  c9 01
-    bne lab_a1f9            ;a1e0  d0 17
-    lda #0x08               ;a1e2  a9 08
+    bne lab_a1f9_next       ;a1e0  d0 17
+
+    ;0x05b7 = 0x01
+
+    ;Send id block 4/4 with coding (Block length=0x08)
+    ;
+    ;Response block:
+    ;  0x08 Block length                  0x0331
+    ;   xx  Block counter                 0x0332
+    ;  0xF6 Block title (ascii/data)      0x0333
+    ;  0x00 Unknown, always 0             0x0334
+    ;   xx  Soft Coding (high byte)       0x0335
+    ;   xx  Soft Coding (low byte)        0x0336
+    ;   xx  Workshop Code (high byte)     0x0337
+    ;   xx  Workshop Code (low byte)      0x0338
+    ;  0x03 Block end                     0x0339
+    ;
+    ;The format of the coding and workshop code is the same as the
+    ;recoding request block.  See kwp_10_recoding for examples.
+
+    lda #0x08               ;a1e2  a9 08        A = block length
     sta 0x0331              ;a1e4  8d 31 03     Store in KWP1281 tx buffer: block length
+
     lda #0xf6               ;a1e7  a9 f6        A = block title 0xF6 (Response with ASCII Data/ID code)
     sta 0x0333              ;a1e9  8d 33 03     Store in KWP1281 tx buffer: block title
-    lda #0x00               ;a1ec  a9 00
-    sta 0x0334              ;a1ee  8d 34 03
-    jsr sub_9fe2            ;a1f1  20 e2 9f     TODO coding related, maybe activates new coding
-    jsr sub_a0f1            ;a1f4  20 f1 a0
-    bra lab_a22f            ;a1f7  80 36
 
-lab_a1f9:
+    lda #0x00               ;a1ec  a9 00        A = 0
+    sta 0x0334              ;a1ee  8d 34 03     Store as KWP1281 tx buffer: unknown byte
+
+    jsr sub_9fe2_coding     ;a1f1  20 e2 9f     TODO coding related, reads coding, maybe activates new coding
+    jsr copy_coding_to_tx   ;a1f4  20 f1 a0     Copy coding and workshop read from EEPROM to KWP1281 tx buffer
+    bra lab_a22f_done       ;a1f7  80 36
+
+lab_a1f9_next:
     cmp #0x02               ;a1f9  c9 02
-    bne lab_a20a            ;a1fb  d0 0d
-    ldx #0x0e               ;a1fd  a2 0e
+    bne lab_a20a_next       ;a1fb  d0 0d
 
-lab_a1ff:
-    lda id_0004,x           ;a1ff  bd 5b ff
+    ;0x05b7 = 0x02
+
+    ;Send id block 3/4 with "       0004" (Block length=0x0F)
+    ;
+    ;Response block:
+    ;  0x0F Block length                  0x0331
+    ;   xx  Block counter                 0x0332
+    ;  0xF6 Block title (ascii/data)      0x0333
+    ;  0x20 " "                           0x0334
+    ;  0x20 " "                           0x0335
+    ;  0x20 " "                           0x0336
+    ;  0x20 " "                           0x0337
+    ;  0x20 " "                           0x0338
+    ;  0x20 " "                           0x0339
+    ;  0x20 " "                           0x033a
+    ;  0x20 " "                           0x033b
+    ;  0x44 "0"                           0x033c
+    ;  0x45 "0"                           0x033d
+    ;  0x32 "0"                           0x033e
+    ;  0x20 "4"                           0x033f
+    ;  0x03 Block end                     0x0340
+
+    ldx #0x0e               ;a1fd  a2 0e
+lab_a1ff_loop:
+    lda id_0004,x           ;a1ff  bd 5b ff     A = byte from 0x0f,0,0xf9,"        0004"
     sta 0x0331,x            ;a202  9d 31 03     Store in KWP1281 tx buffer
     dex                     ;a205  ca
-    bpl lab_a1ff            ;a206  10 f7
-    bra lab_a22f            ;a208  80 25
+    bpl lab_a1ff_loop       ;a206  10 f7
+    bra lab_a22f_done       ;a208  80 25
 
-lab_a20a:
+lab_a20a_next:
     cmp #0x03               ;a20a  c9 03
-    ldx #0x0e               ;a20c  a2 0e
 
-lab_a20e:
-    lda id_radio,x          ;a20e  bd 4c ff
+    ;0x05b7 = 0x03
+
+    ;Send id block 2/4 with " Radio YD5  " (Block length=0x0F)
+    ;
+    ;Response block:
+    ;  0x0F Block length                  0x0331
+    ;   xx  Block counter                 0x0332
+    ;  0xF6 Block title (ascii/data)      0x0333
+    ;  0x20 " "                           0x0334
+    ;  0x52 "R"                           0x0335
+    ;  0x61 "a"                           0x0336
+    ;  0x64 "d"                           0x0337
+    ;  0x69 "i"                           0x0338
+    ;  0x6f "o"                           0x0339
+    ;  0x20 " "                           0x033a
+    ;  0x44 "Y"                           0x033b
+    ;  0x45 "D"                           0x033c
+    ;  0x32 "5"                           0x033d
+    ;  0x20 " "                           0x033e
+    ;  0x20 " "                           0x033f
+    ;  0x03 Block end                     0x0340
+
+    ldx #0x0e               ;a20c  a2 0e
+lab_a20e_loop:
+    lda id_radio,x          ;a20e  bd 4c ff     A = byte from 0x0f,0,0xf6," Radio      "
     sta 0x0331,x            ;a211  9d 31 03     Store in KWP1281 tx buffer
     dex                     ;a214  ca
-    bpl lab_a20e            ;a215  10 f7
-    lda 0xff82              ;a217  ad 82 ff
+    bpl lab_a20e_loop       ;a215  10 f7
+
+    lda advanced_id+4       ;a217  ad 82 ff     A = "Y" from "YD5"
     sta 0x033b              ;a21a  8d 3b 03
-    lda 0xff83              ;a21d  ad 83 ff
+    lda advanced_id+5       ;a21d  ad 83 ff     A = "D" from "YD5"
     sta 0x033c              ;a220  8d 3c 03
-    lda 0xff84              ;a223  ad 84 ff
+    lda advanced_id+6       ;a223  ad 84 ff     A = "5" from "YD5"
     sta 0x033d              ;a226  8d 3d 03
-    bbs 5,0xf4,lab_a22f     ;a229  a7 f4 03
+
+    bbs 5,0xf4,lab_a22f_done;a229  a7 f4 03
     jsr sub_9ed9            ;a22c  20 d9 9e
 
-lab_a22f:
+lab_a22f_done:
     dec 0x05b7              ;a22f  ce b7 05
     jsr kwp_send_tx_buf     ;a232  20 9f b6     Send the block in the KWP1281 tx buffer
     rts                     ;a235  60
@@ -24236,46 +24356,58 @@ kwp_02_write_ram:
 kwp_04_output_tests:
     lda 0x05b9              ;a29f  ad b9 05
     cmp #0x00               ;a2a2  c9 00
-    bne lab_a2b8            ;a2a4  d0 12
+    bne lab_a2b8_next       ;a2a4  d0 12
+
+    ;0x05b9 = 0
+
     lda #0x03               ;a2a6  a9 03
     sta 0x0334              ;a2a8  8d 34 03
     lda #0x53               ;a2ab  a9 53
     sta 0x0335              ;a2ad  8d 35 03
     lda #0x03               ;a2b0  a9 03
     sta 0x05b9              ;a2b2  8d b9 05
-    jmp lab_a2f0            ;a2b5  4c f0 a2
+    jmp lab_a2f0_done       ;a2b5  4c f0 a2
 
-lab_a2b8:
+lab_a2b8_next:
     cmp #0x03               ;a2b8  c9 03
-    bne lab_a2cd            ;a2ba  d0 11
+    bne lab_a2cd_next       ;a2ba  d0 11
+
+    ;0x05b9 = 3
+
     lda #0x03               ;a2bc  a9 03
     sta 0x0334              ;a2be  8d 34 03
     lda #0x56               ;a2c1  a9 56
     sta 0x0335              ;a2c3  8d 35 03
     lda #0x02               ;a2c6  a9 02
     sta 0x05b9              ;a2c8  8d b9 05
-    bra lab_a2f0            ;a2cb  80 23
+    bra lab_a2f0_done       ;a2cb  80 23
 
-lab_a2cd:
+lab_a2cd_next:
     cmp #0x02               ;a2cd  c9 02
-    bne lab_a2e2            ;a2cf  d0 11
+    bne lab_a2e2_next       ;a2cf  d0 11
+
+    ;0x05b9 = 2
+
     lda #0x04               ;a2d1  a9 04
     sta 0x0334              ;a2d3  8d 34 03
     lda #0xab               ;a2d6  a9 ab
     sta 0x0335              ;a2d8  8d 35 03
     lda #0x01               ;a2db  a9 01
     sta 0x05b9              ;a2dd  8d b9 05
-    bra lab_a2f0            ;a2e0  80 0e
+    bra lab_a2f0_done       ;a2e0  80 0e
 
-lab_a2e2:
+lab_a2e2_next:
     cmp #0x01               ;a2e2  c9 01
-    bne lab_a2f0            ;a2e4  d0 0a
+    bne lab_a2f0_done       ;a2e4  d0 0a
+
+    ;0x05b9 = 1
+
     lda #0x00               ;a2e6  a9 00
     sta 0x05b9              ;a2e8  8d b9 05
     jsr kwp_09_ack          ;a2eb  20 5b b4     Send ACK response block
-    bra lab_a302            ;a2ee  80 12
+    bra lab_a302_rts        ;a2ee  80 12
 
-lab_a2f0:
+lab_a2f0_done:
     lda #0x05               ;a2f0  a9 05
     sta 0x0331              ;a2f2  8d 31 03     Store in KWP1281 tx buffer: block length
     lda #0xf5               ;a2f5  a9 f5        A = block title 0xF5 (Response to Actuator/Output Tests)
@@ -24284,7 +24416,7 @@ lab_a2f0:
     sta 0x05b7              ;a2fc  8d b7 05
     jsr kwp_send_tx_buf     ;a2ff  20 9f b6     Send the block in the KWP1281 tx buffer
 
-lab_a302:
+lab_a302_rts:
     rts                     ;a302  60
 
 sub_a303:
@@ -24565,7 +24697,7 @@ kwp_0c_write_eeprom:
 ;
 kwp_10_recoding:
     jsr kwp_write_ee_coding   ;a46b  20 76 a0     Write new coding from KWP1281 to EEPROM if it is valid
-    jsr sub_9fe2              ;a46e  20 e2 9f     TODO coding related, maybe activates new coding
+    jsr sub_9fe2_coding       ;a46e  20 e2 9f     TODO coding related, reads coding, maybe activates new coding
     jsr sub_855f              ;a471  20 5f 85     TODO writes unknown data to an unknown I2C device
     lda #0x00                 ;a474  a9 00
     sta 0x05bd                ;a476  8d bd 05
@@ -25558,25 +25690,35 @@ lab_a85b_loop:
     dex                     ;a861  ca
     bpl lab_a85b_loop       ;a862  10 f7
 
-    jsr sub_a14a            ;a864  20 4a a1     Read unknown data from EEPROM, or a default
+    ;The KWP1281 tx buffer now contains the template "YD5-001  --.--.--".
+    ;Now we need to read the date from the EEPROM and write it into
+    ;the buffer so it looks like "YD5-001  27.01.04"
 
-    lda 0x0102              ;a867  ad 02 01
-    sta 0x033e              ;a86a  8d 3e 03
+    jsr read_ee_date        ;a864  20 4a a1     Read date from EEPROM, or a default
 
-    lda 0x0103              ;a86d  ad 03 01
-    sta 0x033f              ;a870  8d 3f 03
+    ;Copy 2 character Day
 
-    lda 0x0104              ;a873  ad 04 01
-    sta 0x0341              ;a876  8d 41 03
+    lda 0x0102              ;a867  ad 02 01     A = first char of day read from EEPROM
+    sta 0x033e              ;a86a  8d 3e 03     Store it in KWP1281 tx buffer
 
-    lda 0x0105              ;a879  ad 05 01
-    sta 0x0342              ;a87c  8d 42 03
+    lda 0x0103              ;a86d  ad 03 01     A = second char of day read from EEPROM
+    sta 0x033f              ;a870  8d 3f 03     Store it in KWP1281 tx buffer
 
-    lda 0x0106              ;a87f  ad 06 01
-    sta 0x0344              ;a882  8d 44 03
+    ;Copy 2 character Month
 
-    lda 0x0107              ;a885  ad 07 01
-    sta 0x0345              ;a888  8d 45 03
+    lda 0x0104              ;a873  ad 04 01     A = first char of month read from EEPROM
+    sta 0x0341              ;a876  8d 41 03     Store it in KWP1281 tx buffer
+
+    lda 0x0105              ;a879  ad 05 01     A = second char of month read from EEPROM
+    sta 0x0342              ;a87c  8d 42 03     Store it in KWP1281 tx buffer
+
+    ;Copy 2 character Year
+
+    lda 0x0106              ;a87f  ad 06 01     A = first char of year read from EEPROM
+    sta 0x0344              ;a882  8d 44 03     Store it in KWP1281 tx buffer
+
+    lda 0x0107              ;a885  ad 07 01     A = second char of year read from EEPROM
+    sta 0x0345              ;a888  8d 45 03     Store it in KWP1281 tx buffer
     rts                     ;a88b  60
 
 ;group reading: 0x51 advanced id 2 ("VWZAZ3D2301808")
@@ -25599,7 +25741,7 @@ lab_a898_loop:
     bpl lab_a898_loop       ;a89f  10 f7
 
     ;Read serial number or default
-    jsr read_ee_serial      ;a8a1  20 7d a1     Read serial number from EEPROM, or a default if none
+    jsr read_ee_serial_num  ;a8a1  20 7d a1     Read serial number from EEPROM, or a default if none
 
     ;Copy serial number into KWP1281 tx buffer
     ldx #0x0d               ;a8a4  a2 0d
@@ -30244,6 +30386,8 @@ lab_c2e7:
 
 lab_c2e8:
     jmp lab_c2e7            ;c2e8  4c e7 c2
+
+lab_c2eb:
     lda #0x11               ;c2eb  a9 11
     sta 0x5a                ;c2ed  85 5a
     lda #0x00               ;c2ef  a9 00
@@ -30252,13 +30396,15 @@ lab_c2e8:
     lda #0x0a               ;c2f6  a9 0a
     sta 0x5b                ;c2f8  85 5b
     jsr sub_686e            ;c2fa  20 6e 68
-    ldx #0x02               ;c2fd  a2 02
 
-lab_c2ff:
-    lda 0xff82,x            ;c2ff  bd 82 ff
+    ;Copy "YD5" into the buffer
+    ldx #0x02               ;c2fd  a2 02
+lab_c2ff_loop:
+    lda advanced_id+4,x     ;c2ff  bd 82 ff     A = byte from "YD5"
     sta 0x0115,x            ;c302  9d 15 01
     dex                     ;c305  ca
-    bpl lab_c2ff            ;c306  10 f7
+    bpl lab_c2ff_loop       ;c306  10 f7
+
     lda #0x54               ;c308  a9 54
     sta 0x0119              ;c30a  8d 19 01
     lda #0x3a               ;c30d  a9 3a
@@ -30268,6 +30414,8 @@ lab_c2ff:
     jsr sub_6cc0            ;c318  20 c0 6c
     jsr sub_becf            ;c31b  20 cf be
     rts                     ;c31e  60
+
+lab_c31f:
     clb 1,0xed              ;c31f  3f ed
     lda #0x12               ;c321  a9 12
     sta 0x5a                ;c323  85 5a
@@ -37880,7 +38028,10 @@ id_0004:
     .byte 0x34              ;ff69  34          DATA 0x34 '4'
 
 default_serial:
-    .ascii "VWZAZ3B0000000??????" ;ff70
+    .ascii "VWZAZ3B0000000" ;ff6a
+
+default_date:
+    .ascii "??????"         ;ff78
 
 advanced_id:
 ;For advanced id 1 (0x50), this entire string is used.
