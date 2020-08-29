@@ -15367,7 +15367,7 @@ lab_52b1_id_coding:
 ;Response block:
 ;  0x08 Block length                  kwp_tx_buf+0
 ;   xx  Block counter                 kwp_tx_buf+1
-;  0xF9 Block title (ascii/data)      kwp_tx_buf+2
+;  0xF6 Block title (ascii/data)      kwp_tx_buf+2
 ;  0x00 Unknown, always 0             kwp_tx_buf+3
 ;   xx  Soft Coding (high byte)       kwp_tx_buf+4
 ;   xx  Soft Coding (low byte)        kwp_tx_buf+5
@@ -15424,7 +15424,7 @@ lab_52d5_id_0001:
 ;Response block:
 ;  0x0E Block length                  kwp_tx_buf+0
 ;   xx  Block counter                 kwp_tx_buf+1
-;  0xF9 Block title (ascii/data)      kwp_tx_buf+2
+;  0xF6 Block title (ascii/data)      kwp_tx_buf+2
 ;  0x20 " "                           kwp_tx_buf+3
 ;  0x20 " "                           kwp_tx_buf+4
 ;  0x20 " "                           kwp_tx_buf+5
@@ -15456,7 +15456,7 @@ lab_52e0_id_radio:
 ;Response block:
 ;  0x0F Block length                  kwp_tx_buf+0
 ;   xx  Block counter                 kwp_tx_buf+1
-;  0xF9 Block title (ascii/data)      kwp_tx_buf+2
+;  0xF6 Block title (ascii/data)      kwp_tx_buf+2
 ;  0x20 " "                           kwp_tx_buf+3
 ;  0x52 "R"                           kwp_tx_buf+4
 ;  0x61 "a"                           kwp_tx_buf+5
@@ -15483,7 +15483,7 @@ lab_52ea_id_part_num:
 ;Response block:
 ;  0x0F Block length                  kwp_tx_buf+0
 ;   xx  Block counter                 kwp_tx_buf+1
-;  0xF9 Block title (ascii/data)      kwp_tx_buf+2
+;  0xF6 Block title (ascii/data)      kwp_tx_buf+2
 ;  0x31 "1"                           kwp_tx_buf+3
 ;  0x4a "J"                           kwp_tx_buf+4
 ;  0x30 "0"                           kwp_tx_buf+5
