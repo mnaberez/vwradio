@@ -3643,11 +3643,15 @@ lab_33ed:
 
 lab_33f8:
     rts                     ;33f8  60
+
+lab_33f9:
     jsr sub_2e8a            ;33f9  20 8a 2e
     lda #0x01               ;33fc  a9 01
     sta 0x0269              ;33fe  8d 69 02
     jsr sub_2ae4            ;3401  20 e4 2a
     rts                     ;3404  60
+
+lab_3405:
     seb 7,0xf0              ;3405  ef f0
     seb 0,0xf1              ;3407  0f f1
     jsr sub_4c63            ;3409  20 63 4c     TODO unknown I2C activities
@@ -23864,7 +23868,7 @@ lab_a091_eq:
 
 write_ee_coding:
 ;Write coding and workshop code to the EEPROM
-;This is unconditional; the values not checked first.
+;This is unconditional; the values are not checked first.
 ;Called from sub_a124 after successful login
     lda #0x50               ;a0b1  a9 50
     sta 0x0101              ;a0b3  8d 01 01     Store as EEPROM address
@@ -23897,10 +23901,10 @@ sub_a0d5:
     lda 0x45                ;a0d8  a5 45
     pha                     ;a0da  48
 
-    lda 0x0102              ;a0db  ad 02 01
+    lda 0x0102              ;a0db  ad 02 01     A = Soft Coding high byte
     lsr a                   ;a0de  4a
     sta 0x45                ;a0df  85 45
-    lda 0x0103              ;a0e1  ad 03 01
+    lda 0x0103              ;a0e1  ad 03 01     A = Soft Coding low byte
     ror a                   ;a0e4  6a
     sta 0x44                ;a0e5  85 44
     jsr sub_6be9            ;a0e7  20 e9 6b     Convert binary number in 0x44-0x45 to decimal number in ASCII in 0x0116-0x11a
