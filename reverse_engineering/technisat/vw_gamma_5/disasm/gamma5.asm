@@ -4199,6 +4199,7 @@ lab_36d4:
     rts                     ;36d4  60
 
 ;unknown table of bytes used by lab_36f5
+mem_36d5:
     .byte 0x3f              ;36d5  3f          DATA 0x3f '?'
     .byte 0x1a              ;36d6  1a          DATA 0x1a
     .byte 0x1b              ;36d7  1b          DATA 0x1b
@@ -4232,7 +4233,7 @@ sub_36ee:
     ldx #0x00               ;36f3  a2 00
 
 lab_36f5:
-    cmp 0x36d5,x            ;36f5  dd d5 36
+    cmp mem_36d5,x          ;36f5  dd d5 36
     beq lab_3701            ;36f8  f0 07
     inx                     ;36fa  e8
     cpx #0x19               ;36fb  e0 19
