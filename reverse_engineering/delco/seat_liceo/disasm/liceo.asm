@@ -1,7 +1,10 @@
 ;Seat Liceo radio (Delphi/Delco 12238439)
 ;Reverse engineered source code
 ;
-;Unknown NEC 78K0-based microcontroller
+;This source code is for the microcontroller in the radio.  It is a
+;QFP-80 package and has the Delco markings "EJ60 FLASH" and "09386083"
+;on the outside.  It was decapsulated and the die markings identified
+;it as an NEC uPD78F0701Y.
 ;
 ;KWP1281 was used to dump the internal flash ROM contents from a radio
 ;with serial number SEZ4Z1D7192856.  It was dumped 3 times and all
@@ -10,7 +13,7 @@
 ;was found by calculating the checksum.
 ;
 ;No rights are claimed on the executable object code as found
-;in the internal flash ROM of the unknown 78K0-based chip.  The SHA-1
+;in the internal flash ROM of the "EJ60 FLASH" chip.  The SHA-1
 ;hash of that binary is: b893ddb96f135fec8a14df170fa7f95ea9fc5657.
 ;
 
@@ -384,13 +387,13 @@
     crc00 = 0xff62          ;Capture/compare control register 00
     toc00 = 0xff63          ;16-bit timer output control register 00
     tmc01 = 0xff68          ;16-bit timer mode control register 01
-    mem_ff71 = 0xff71
-    mem_ff75 = 0xff75
-    mem_ff7a = 0xff7a
-    mem_ff7b = 0xff7b
+    cr51 = 0xff71           ;8-bit timer compare register 51
+    tm51 = 0xff75           ;8-bit timer/counter 51
+    tcl51 = 0xff7a          ;Timer clock selection register 51
+    tmc51 = 0xff7b          ;8-bit timer mode control register 51
     adm00 = 0xff80          ;A/D converter mode register 00
     ads00 = 0xff81          ;Analog input channel specification register 00
-    mem_ff84 = 0xff84
+    pfm3 = 0xff84           ;Power-fail comparison mode register 3
     asim0 = 0xffa0          ;Asynchronous serial interface mode register 0
     asis0 = 0xffa1          ;Asynchronous serial interface status register 0
     brgc0 = 0xffa2          ;Baud rate generator control register 0
@@ -16193,7 +16196,7 @@ sub_438c:
     ret                     ;4393  af
 
 lab_4394:
-    mov a,mem_ff75          ;4394  f4 75
+    mov a,tm51              ;4394  f4 75
     btclr if1h.0,lab_43af   ;4396  31 05 e3 15
     cmp a,#0x38             ;439a  4d 38
     bc lab_43a0             ;439c  8d 02
@@ -16203,15 +16206,15 @@ lab_43a0:
     mov !mem_fb88,a         ;43a0  9e 88 fb
 
 lab_43a3:
-    clr1 mem_ff7b.7         ;43a3  71 7b 7b
+    clr1 tmc51.7            ;43a3  71 7b 7b
     mov a,#0xcd             ;43a6  a1 cd
     mov !mem_fb04,a         ;43a8  9e 04 fb
-    set1 mem_ff7b.7         ;43ab  71 7a 7b
+    set1 tmc51.7            ;43ab  71 7a 7b
     ret                     ;43ae  af
 
 lab_43af:
     mov a,#0x00             ;43af  a1 00
-    mov mem_ff7b,a          ;43b1  f6 7b
+    mov tmc51,a             ;43b1  f6 7b
     mov !mem_fb88,a         ;43b3  9e 88 fb
     br lab_43a3             ;43b6  fa eb
 
@@ -16239,11 +16242,11 @@ lab_43af:
 sub_43cc:
     clr1 mem_fe28.5         ;43cc  5b 28
     mov a,#0x00             ;43ce  a1 00
-    mov mem_ff7b,a          ;43d0  f6 7b
+    mov tmc51,a             ;43d0  f6 7b
     mov a,#0x01             ;43d2  a1 01
-    mov mem_ff7a,a          ;43d4  f6 7a
+    mov tcl51,a             ;43d4  f6 7a
     mov a,#0xff             ;43d6  a1 ff
-    mov mem_ff71,a          ;43d8  f6 71
+    mov cr51,a              ;43d8  f6 71
     clr1 if1h.0             ;43da  71 0b e3
     set1 mk1h.0             ;43dd  71 0a e7
     mov a,#0x00             ;43e0  a1 00
@@ -54007,7 +54010,7 @@ lab_e45e:
 
 lab_e465:
     mov adm00,#0x20         ;e465  13 80 20
-    mov mem_ff84,#0x00      ;e468  13 84 00
+    mov pfm3,#0x00          ;e468  13 84 00
     clr1 if1h.2             ;e46b  71 2b e3
     set1 mk1h.2             ;e46e  71 2a e7
     set1 adm00.7            ;e471  71 7a 80
