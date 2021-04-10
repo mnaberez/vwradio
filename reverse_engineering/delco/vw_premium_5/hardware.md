@@ -31,7 +31,7 @@
 |Pin 29 |P30/SI30     |uPD16432B DAT in                               |
 |Pin 30 |P31/SO30     |uPD16432B DAT out                              |
 |Pin 31 |P32/SCK30    |uPD16432B CLK                                  |
-|Pin 33 |P33          |Alarm LED                                      |
+|Pin 33 |P33          |Alarm LED (0=on, 1=off)                        |
 |Pin 34 |P34/TO00     |Unknown output                                 |
 |Pin 35 |P35/TI000    |Unknown input                                  |
 |Pin 36 |P36/TI010    |Unknown input/output                           |

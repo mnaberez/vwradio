@@ -467,7 +467,7 @@ mem_fe20 = 0xfe20
 mem_fe21 = 0xfe21
 mem_fe22 = 0xfe22
 mem_fe23 = 0xfe23           ;Bit 7: off = SAFE mode locked, on = SAFE mode unlocked
-mem_fe24 = 0xfe24           ;Alarm LED blink countdown
+mem_fe24 = 0xfe24           ;LED blink countdown
 mem_fe25 = 0xfe25
 mem_fe26 = 0xfe26
 mem_fe27 = 0xfe27
@@ -672,6 +672,9 @@ wd_run_rst = 0b10011000     ;(Re-)Start watchdog in mode 2 (RESET when watchdog 
                             ;  Bit 7   RUN=1 Counter is cleared and counting starts
                             ;  Bit 4 WDTM4=1 \ Watchdog timer mode 2:
                             ;  Bit 3 WDTM3=1 / RESET is activated when watchdog
+
+wtnm0_conf_a = 0b00010011
+wtnm0_conf_b = 0b01110011
 
 ;Vectors
 
@@ -1064,20 +1067,26 @@ mem_00ee:
 
 ;Watch timer interrupt handler
 intwtni0_0135:
-    sel rb1                 ;0135  61 d8
-    bf mem_fe2b.7,lab_0148  ;0137  31 73 2b 0d
+    sel rb1                      ;0135  61 d8
+    bf mem_fe2b.7,lab_0148_more  ;0137  31 73 2b 0d   If bit is off, branch to do more than
+                                 ;                      just blink the LED
+
+    ;mem_fe2b.7=1 so we are only blinking the LED this time
 
     ;Enable watch timer interrupts
-    mov wtnm0,#0b01110011   ;013b  13 41 73
+    mov wtnm0,#wtnm0_conf_b ;013b  13 41 73
     clr1 mk1l.0             ;013e  71 0b e6       Clear WTNIMK0 (enables INTWTNI0)
     clr1 pr1l.0             ;0141  71 0b ea       Clear WTNIPR0 (makes INTWTNI0 high priority)
 
     call !blink_led         ;0144  9a 1a 25       Decrement LED blink counter and set LED pin state
     reti                    ;0147  8f
 
-lab_0148:
+lab_0148_more:
+    ;mem_fe2b.7=0 so we doing more watch timer activities,
+    ;such as updating the display
+
     ;Enable watch timer interrupts
-    mov wtnm0,#0b00010011   ;0148  13 41 13
+    mov wtnm0,#wtnm0_conf_a ;0148  13 41 13
     clr1 mk1l.0             ;014b  71 0b e6       Clear WTNIMK0 (enables INTWTNI0)
     clr1 pr1l.0             ;014e  71 0b ea       Clear WTNIPR0 (makes INTWTNI0 high priority)
 
@@ -2815,6 +2824,7 @@ badisr_0d75:
 ;Force cold start
 ;Handles any unexpected interrupt, unexpected CALLT, or the BRK instruction
 ;Handles watchdog interrupt INTWDT
+;Handles watch timer interrupt INTWTN0 (should never occur)
 ;kwp_7c_1b_2f also branches here
     clr1 shadow_p9.7        ;0d75  7b d3
     clr1 pm9.7              ;0d77  71 7b 29
@@ -2916,26 +2926,26 @@ cold_start:
     ;Includes the stack area, stops before peripheral register shadows
     movw hl,#mem_fb00       ;0e25  16 00 fb
     mov a,#0x00             ;0e28  a1 00
-lab_0e2a:
+lab_0e2a_loop:
     mov [hl],a              ;0e2a  97
     incw hl                 ;0e2b  86
     xchw ax,hl              ;0e2c  e6
     cmpw ax,#shadow_p0      ;0e2d  ea cb fe   Stop at GPIO shadow locations
     xchw ax,hl              ;0e30  e6
-    bc lab_0e2a             ;0e31  8d f7
+    bc lab_0e2a_loop        ;0e31  8d f7
 
     mov wdtm,#wd_run_nmi    ;0e33  13 f9 90   (Re-)Start watchdog in mode 1 (Non-maskable INTWDT when watchdog fires)
 
     ;Clear RAM: all of Expansion RAM
     ;2K: 0xF000 - 0xF7FF
     movw hl,#mem_f000       ;0e36  16 00 f0
-lab_0e39:
+lab_0e39_loop:
     mov [hl],a              ;0e39  97
     incw hl                 ;0e3a  86
     xchw ax,hl              ;0e3b  e6
     cmpw ax,#mem_f000+0x800 ;0e3c  ea 00 f8     Stop at end of Expansion RAM
     xchw ax,hl              ;0e3f  e6
-    bc lab_0e39             ;0e40  8d f7
+    bc lab_0e39_loop        ;0e40  8d f7
 
     mov wdtm,#wd_run_nmi    ;0e42  13 f9 90     (Re-)Start watchdog in mode 1 (Non-maskable INTWDT when watchdog fires)
 
@@ -3125,7 +3135,12 @@ lab_0f1b:
     clr1 mem_fe7a.7         ;0fc1  7b 7a
 
     ;Enable watch timer interrupts
-    mov wtnm0,#0b00010011   ;0fc3  13 41 13
+    mov wtnm0,#wtnm0_conf_a ;0fc3  13 41 13     Bit 3: WTNM02=0 \ Watch timer interrupt =
+                            ;                   Bit 2: WTNM02=0 / fires INTWTN0 every 0.5 seconds
+                            ;                   Bit 1: WTNM01=1 5-bit counter operation = start
+                            ;                   Bit 0: WTNM00=1 Watch timer enable = enabled
+
+
     clr1 mk1l.0             ;0fc6  71 0b e6     Clear WTNIMK0 (enables INTWTNI0)
     clr1 pr1l.0             ;0fc9  71 0b ea     Clear WTNIPR0 (makes INTWTNI0 high priority)
 
@@ -3310,7 +3325,7 @@ lab_1123:
     ei                      ;1149  7a 1e
 
     ;Enable watch timer interrupts
-    mov wtnm0,#0b00010011   ;114b  13 41 13
+    mov wtnm0,#wtnm0_conf_a ;114b  13 41 13
     clr1 mk1l.0             ;114e  71 0b e6       Clear WTNIMK0 (enables INTWTNI0)
     clr1 pr1l.0             ;1151  71 0b ea       Clear WTNIPR0 (makes INTWTNI0 high priority)
 
@@ -3330,7 +3345,7 @@ lab_115c:
     clr1 pm9.4              ;116e  71 4b 29
     mov a,shadow_p9         ;1171  f0 d3
     mov p9,a                ;1173  f2 09
-    set1 mem_fe2b.7         ;1175  7a 2b
+    set1 mem_fe2b.7         ;1175  7a 2b        Bit set = watch timer interrupt INTWTNI0 only blinks the LED
     call !sub_3acf          ;1177  9a cf 3a     Disable I2C, disable timers, set many pins to inputs
 
 lab_117a:
@@ -6426,20 +6441,20 @@ lab_2515:
 blink_led:
 ;Decrement LED blink counter and set LED pin state
     cmp mem_fe24,#0x30      ;251a  c8 24 30     Compare LED blink countdown
-    bnc lab_2521            ;251d  9d 02        Skip turning LED ? if not counted down yet
-    set1 shadow_p3.3        ;251f  3a cd        LED = ?
+    bnc lab_2521            ;251d  9d 02        Skip turning LED off if not counted down yet
+    set1 shadow_p3.3        ;251f  3a cd        LED = off
 
 lab_2521:
-    dbnz mem_fe24,lab_2532  ;2521  04 24 0e     Decrement LED blink countdown
-    bt mem_fe2c.2,lab_252f  ;2524  ac 2c 08     Skip turning LED on if ??? bit is set
-    bt mem_fe2c.3,lab_252f  ;2527  bc 2c 05     Skip turning LED on if ??? bit is set
-    clr1 pm3.3              ;252a  71 3b 23     PM33=output (alarm LED)
-    clr1 shadow_p3.3        ;252d  3b cd        LED = ?
+    dbnz mem_fe24,lab_2532_write_done   ;2521  04 24 0e     Decrement LED blink countdown
+    bt mem_fe2c.2,lab_252f_reset_count  ;2524  ac 2c 08     Skip turning LED on if ??? bit is set
+    bt mem_fe2c.3,lab_252f_reset_count  ;2527  bc 2c 05     Skip turning LED on if ??? bit is set
+    clr1 pm3.3                          ;252a  71 3b 23     PM33=output (LED)
+    clr1 shadow_p3.3                    ;252d  3b cd        LED = on
 
-lab_252f:
+lab_252f_reset_count:
     mov mem_fe24,#0x30      ;252f  11 24 30     Reset blink countdown
 
-lab_2532:
+lab_2532_write_done:
     mov a,shadow_p3         ;2532  f0 cd
     mov p3,a                ;2534  f2 03
     ret                     ;2536  af
@@ -9237,7 +9252,8 @@ lab_3145_br_31f6:
     br !lab_31f6            ;3145  9b f6 31
 
 lab_3148:
-    bf mem_fe2b.7,lab_3150  ;3148  31 73 2b 04
+    bf mem_fe2b.7,lab_3150  ;3148  31 73 2b 04  Branch if bit is off, indicating that we are
+                            ;                     doing more than just blinking the LED in INTWTNI0
     clr1 mem_fe7b.6         ;314c  6b 7b
     br lab_3153_pop_reti    ;314e  fa 03        Branch to pop registers and reti
 
@@ -9560,7 +9576,9 @@ lab_3301:
     br !lab_323f            ;3301  9b 3f 32
 
 lab_3304:
-    bf mem_fe2b.7,lab_3321  ;3304  31 73 2b 19    Branch to disable UART0 RX, pop registers, and reti
+    bf mem_fe2b.7,lab_3321  ;3304  31 73 2b 19    Bit off = we doing more than just blinking the LED in INTWTNI0
+                            ;                     Branch to disable UART0 RX, pop registers, and reti
+
     bf mem_fe2c.2,lab_3321  ;3308  31 23 2c 15    Branch to disable UART0 RX, pop registers, and reti
 
     mov a,x                 ;330c  60             A = UART0 status register when interrupt occurred
@@ -10414,7 +10432,7 @@ lab_3830:
 
 lab_3836:
     mov mem_fe2a,#0x07      ;3836  11 2a 07
-    clr1 mem_fe2b.7         ;3839  7b 2b
+    clr1 mem_fe2b.7         ;3839  7b 2b        Clear bit = do more than just blink the LED in INTWTNI0
     clr1 mem_fe2b.6         ;383b  6b 2b
     bf mem_fe2c.5,lab_384c  ;383d  31 53 2c 0b
     bt mem_fe2b.4,lab_3856  ;3841  cc 2b 12
@@ -10677,7 +10695,7 @@ lab_39ed:
 
     call !sub_3a06          ;39f6  9a 06 3a     PM80=output, P80=1
 
-    clr1 mem_fe2b.7         ;39f9  7b 2b
+    clr1 mem_fe2b.7         ;39f9  7b 2b        Clear bit = do more than just blink the LED in INTWTNI0
     mov mem_fe2a,#0x00      ;39fb  11 2a 00
     mov a,#0x02             ;39fe  a1 02
     call !sub_3dbd          ;3a00  9a bd 3d
