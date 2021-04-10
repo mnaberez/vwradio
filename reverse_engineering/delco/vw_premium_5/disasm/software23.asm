@@ -654,6 +654,27 @@ ixs = 0xfff4                ;Internal expansion RAM size switching register
 wdtm = 0xfff9               ;Watchdog timer mode register
 pcc = 0xfffb                ;Processor clock control register
 
+;Constants
+
+wd_clk_250ms = 0b00000111   ;Watchdog clock select = watchdog fires after 250ms
+
+wd_run_irq = 0b10000000     ;(Re-)Start watchdog in interval mode (Maskable INTWDT when watchdog fires)
+                            ;  Bit 7   RUN=1 Counter is cleared and counting starts
+                            ;  Bit 4 WDTM4=0 \ Interval timer mode:
+                            ;  Bit 3 WDTM3=0 / Maskable INTWDT occurs when watchdog fires
+
+wd_run_nmi = 0b10010000     ;(Re-)Start watchdog in mode 1 (Non-maskable INTWDT when watchdog fires)
+                            ;  Bit 7   RUN=1 Counter is cleared and counting starts
+                            ;  Bit 4 WDTM4=1 \ Watchdog timer mode 1:
+                            ;  Bit 3 WDTM3=0 / Non-maskable INTWDT occurs when watchdog fires
+
+wd_run_rst = 0b10011000     ;(Re-)Start watchdog in mode 2 (RESET when watchdog fires)
+                            ;  Bit 7   RUN=1 Counter is cleared and counting starts
+                            ;  Bit 4 WDTM4=1 \ Watchdog timer mode 2:
+                            ;  Bit 3 WDTM3=1 / RESET is activated when watchdog
+
+;Vectors
+
 rst_vect:
     .word rst_0d88          ;0000  88 0d       VECTOR RST
 
@@ -1377,7 +1398,7 @@ lab_0328:
 
 filler_0331:
     .rept 1231
-    brk                     ;0331  bf
+    brk                     ;0331  bf         Force cold start via badisr_0d75
     .endm
 
 sub_0800:
@@ -2793,6 +2814,7 @@ lab_0d73:
 badisr_0d75:
 ;Force cold start
 ;Handles any unexpected interrupt, unexpected CALLT, or the BRK instruction
+;Handles watchdog interrupt INTWDT
 ;kwp_7c_1b_2f also branches here
     clr1 shadow_p9.7        ;0d75  7b d3
     clr1 pm9.7              ;0d77  71 7b 29
@@ -2800,15 +2822,15 @@ badisr_0d75:
     mov p9,a                ;0d7c  f2 09
     mov a,#0x00             ;0d7e  a1 00
     mov !mem_f18e,a         ;0d80  9e 8e f1     Clear cookie to cause a cold start
-    mov wdtm,#0x98          ;0d83  13 f9 98
-
-lab_0d86:
-    br lab_0d86             ;0d86  fa fe
+    mov wdtm,#wd_run_rst    ;0d83  13 f9 98     (Re-)Start watchdog in mode 2 (RESET when watchdog fires)
+lab_0d86_wait:
+    br lab_0d86_wait        ;0d86  fa fe        Loop forever until watchdog fires, causing RESET
 
 rst_0d88:
+;RESET occurred
     di                      ;0d88  7b 1e
-    mov wdcs,#0x07          ;0d8a  13 42 07
-    mov wdtm,#0x90          ;0d8d  13 f9 90
+    mov wdcs,#wd_clk_250ms  ;0d8a  13 42 07     Watchdog clock select = watchdog fires after 250ms
+    mov wdtm,#wd_run_nmi    ;0d8d  13 f9 90     (Re-)Start watchdog in mode 1 (Non-maskable INTWDT when watchdog fires)
     mov pcc,#0x00           ;0d90  13 fb 00
     movw sp,#stack_top      ;0d93  ee 1c 1f fe  Initialize stack pointer (stack grows down)
 
@@ -2844,10 +2866,10 @@ cold_or_warm_start:
     mov ixs,#0x08           ;0dcf  13 f4 08     Internal expansion RAM size = 2048 bytes
     mov ims,#0xcf           ;0dd2  13 f0 cf     Internal high-speed RAM size = 1024 bytes
     movw sp,#stack_top      ;0dd5  ee 1c 1f fe  Initialize stack pointer (stack grows down)
-    mov a,#0x07             ;0dd9  a1 07
-    mov wdcs,a              ;0ddb  f6 42
-    mov a,#0x90             ;0ddd  a1 90
-    mov wdtm,a              ;0ddf  f6 f9
+    mov a,#wd_clk_250ms     ;0dd9  a1 07
+    mov wdcs,a              ;0ddb  f6 42        Watchdog clock select = watchdog fires after 250ms
+    mov a,#wd_run_nmi       ;0ddd  a1 90        (Re-)Start watchdog in mode 1 (Non-maskable INTWDT when watchdog fires)
+    mov wdtm,a              ;0ddf  f6 f9        Set watchdog mode
     clr1 shadow_p9.7        ;0de1  7b d3
     clr1 pm9.7              ;0de3  71 7b 29
     mov a,shadow_p9         ;0de6  f0 d3
@@ -2884,10 +2906,10 @@ cold_start:
 ;Cold start the system
 ;Wipes all RAM and starts fresh.
     di                      ;0e1b  7b 1e
-    mov a,#0x07             ;0e1d  a1 07
-    mov wdcs,a              ;0e1f  f6 42
-    mov a,#0x90             ;0e21  a1 90
-    mov wdtm,a              ;0e23  f6 f9
+    mov a,#wd_clk_250ms     ;0e1d  a1 07
+    mov wdcs,a              ;0e1f  f6 42      Watchdog clock select = watchdog fires after 250ms
+    mov a,#wd_run_nmi       ;0e21  a1 90      (Re-)Start watchdog in mode 1 (Non-maskable INTWDT when watchdog fires)
+    mov wdtm,a              ;0e23  f6 f9      Set watchdog mode
 
     ;Clear RAM: most of High Speed RAM
     ;Almost 1K: 0xFB00 - 0xFECA
@@ -2898,11 +2920,11 @@ lab_0e2a:
     mov [hl],a              ;0e2a  97
     incw hl                 ;0e2b  86
     xchw ax,hl              ;0e2c  e6
-    cmpw ax,#shadow_p0      ;0e2d  ea cb fe     Stop at GPIO shadow locations
+    cmpw ax,#shadow_p0      ;0e2d  ea cb fe   Stop at GPIO shadow locations
     xchw ax,hl              ;0e30  e6
     bc lab_0e2a             ;0e31  8d f7
 
-    mov wdtm,#0x90          ;0e33  13 f9 90     Keep watchdog happy
+    mov wdtm,#wd_run_nmi    ;0e33  13 f9 90   (Re-)Start watchdog in mode 1 (Non-maskable INTWDT when watchdog fires)
 
     ;Clear RAM: all of Expansion RAM
     ;2K: 0xF000 - 0xF7FF
@@ -2915,7 +2937,7 @@ lab_0e39:
     xchw ax,hl              ;0e3f  e6
     bc lab_0e39             ;0e40  8d f7
 
-    mov wdtm,#0x90          ;0e42  13 f9 90     Keep watchdog happy
+    mov wdtm,#wd_run_nmi    ;0e42  13 f9 90     (Re-)Start watchdog in mode 1 (Non-maskable INTWDT when watchdog fires)
 
     call !sub_0a17          ;0e45  9a 17 0a     Copy 0x4F bytes from mem_0080 to mem_f1b3
                             ;                   Copy 0x66 bytes from mem_00cf to mem_f206
@@ -3148,12 +3170,12 @@ lab_1012:
     mov !mem_f18c,a         ;1027  9e 8c f1
     call !sub_3bf7          ;102a  9a f7 3b
     bz lab_1030             ;102d  ad 01
-    brk                     ;102f  bf
+    brk                     ;102f  bf           Force cold start via badisr_0d75
 
 lab_1030:
     call !sub_4495          ;1030  9a 95 44
     bz lab_1036             ;1033  ad 01
-    brk                     ;1035  bf
+    brk                     ;1035  bf           Force cold start via badisr_0d75
 
 lab_1036:
     clr1 mem_fe64.7         ;1036  7b 64        Clear bit to indicate no DELCO login
@@ -3259,11 +3281,11 @@ lab_1036:
     mov !mem_fb91,a         ;1115  9e 91 fb
 
 lab_1118:
-    mov wdtm,#0x90          ;1118  13 f9 90     Keep watchdog happy
+    mov wdtm,#wd_run_nmi    ;1118  13 f9 90     (Re-)Start watchdog in mode 1 (Non-maskable INTWDT when watchdog fires)
     mov a,!mem_fb4e         ;111b  8e 4e fb
     cmp a,#0x00             ;111e  4d 00
     bnz lab_1123            ;1120  bd 01
-    brk                     ;1122  bf
+    brk                     ;1122  bf           Force cold start via badisr_0d75
 
 lab_1123:
     di                      ;1123  7b 1e
@@ -3315,7 +3337,7 @@ lab_117a:
     halt                    ;117a  71 10
 
 lab_117c:
-    mov wdtm,#0x90          ;117c  13 f9 90     Keep watchdog happy
+    mov wdtm,#wd_run_nmi    ;117c  13 f9 90     (Re-)Start watchdog in mode 1 (Non-maskable INTWDT when watchdog fires)
     bt p0.2,lab_117a        ;117f  ac 00 f8
     set1 mk0l.3             ;1182  71 3a e4     Set INTP2 (disables INTP2)
     clr1 if0l.3             ;1185  71 3b e0     Clear PIF2 (INTP2 interrupt flag)
@@ -3440,7 +3462,7 @@ lab_1225:
     movw hl,#mem_b0b6+1     ;1232  16 b7 b0
     callf !sub_0c48         ;1235  4c 48        Load DE with word at position B in table [HL]
     bnc lab_123a            ;1237  9d 01        Branch if table lookup succeeded
-    brk                     ;1239  bf
+    brk                     ;1239  bf           Force cold start via badisr_0d75
 
 lab_123a:
     pop bc                  ;123a  b2
@@ -3489,7 +3511,7 @@ lab_1271:
     call !sub_127f          ;1274  9a 7f 12
     cmp mem_fe2f,#0x0b      ;1277  c8 2f 0b
     bz lab_127d             ;127a  ad 01
-    brk                     ;127c  bf
+    brk                     ;127c  bf           Force cold start via badisr_0d75
 
 lab_127d:
     clr1 cy                 ;127d  21
@@ -3824,13 +3846,13 @@ lab_14c9:
     bz lab_14d6             ;14d3  ad 01
 
 lab_14d5:
-    brk                     ;14d5  bf
+    brk                     ;14d5  bf           Force cold start via badisr_0d75
 
 lab_14d6:
-    mov a,#0x07             ;14d6  a1 07
-    mov wdcs,a              ;14d8  f6 42
-    mov a,#0x90             ;14da  a1 90
-    mov wdtm,a              ;14dc  f6 f9
+    mov a,#wd_clk_250ms     ;14d6  a1 07
+    mov wdcs,a              ;14d8  f6 42        Watchdog clock select = watchdog fires after 250ms
+    mov a,#wd_run_nmi       ;14da  a1 90        (Re-)Start watchdog in mode 1 (Non-maskable INTWDT when watchdog fires)
+    mov wdtm,a              ;14dc  f6 f9        Set watchdog mode
     mov a,mem_fe2c          ;14de  f0 2c
     push ax                 ;14e0  b1
     call !sub_3e76          ;14e1  9a 76 3e
@@ -4023,7 +4045,7 @@ lab_1636:
     bf mem_fefb.6,lab_165e  ;163b  31 63 fb 1f
     call !sub_0823          ;163f  9a 23 08
     bz lab_164d             ;1642  ad 09
-    brk                     ;1644  bf
+    brk                     ;1644  bf           Force cold start via badisr_0d75
 
 lab_1645:
     mov a,#0x80             ;1645  a1 80
@@ -10588,8 +10610,8 @@ lab_3979:
     halt                    ;397b  71 10
 
 lab_397d:
-    mov a,#0x80             ;397d  a1 80
-    mov !wdtm,a             ;397f  9e f9 ff
+    mov a,#wd_run_irq       ;397d  a1 80        (Re-)Start watchdog in interval mode (Maskable INTWDT when watchdog fires)
+    mov !wdtm,a             ;397f  9e f9 ff     Set watchdog mode
     bf mem_fe7b.7,lab_3991  ;3982  31 73 7b 0b
     call !sub_3a23          ;3986  9a 23 3a
     bf mem_fe7b.5,lab_3991  ;3989  31 53 7b 04
@@ -11949,7 +11971,7 @@ lab_41c8_loop:
     bz lab_41ec             ;41d2  ad 18
 
 lab_41d4:
-    mov wdtm,#0x80          ;41d4  13 f9 80
+    mov wdtm,#wd_run_irq    ;41d4  13 f9 80     (Re-)Start watchdog in interval mode (Maskable INTWDT when watchdog fires)
     call !sub_6217          ;41d7  9a 17 62     Unknown; EEPROM related
     bnc lab_41d4            ;41da  9d f8        Repeat until success
 
@@ -12692,7 +12714,7 @@ lab_4654:
     bnz lab_4680            ;465d  bd 21
     mov a,#0x08             ;465f  a1 08
     mov !mem_fb04,a         ;4661  9e 04 fb
-    mov wdtm,#0x80          ;4664  13 f9 80
+    mov wdtm,#wd_run_irq    ;4664  13 f9 80     (Re-)Start watchdog in interval mode (Maskable INTWDT when watchdog fires)
     mov a,#0x0f             ;4667  a1 0f
     mov !mem_fb4e,a         ;4669  9e 4e fb
     call !sub_3329          ;466c  9a 29 33
@@ -12993,7 +13015,7 @@ lab_480b_loop:
     bnc lab_4812_nc         ;480c  9d 04
 
     inc x                   ;480e  40           Increment checksum high byte
-    mov wdtm,#0x80          ;480f  13 f9 80     Keep watchdog happy
+    mov wdtm,#wd_run_irq    ;480f  13 f9 80     (Re-)Start watchdog in interval mode (Maskable INTWDT when watchdog fires)
 
 lab_4812_nc:
     incw hl                 ;4812  86           Increment current address
@@ -22776,7 +22798,7 @@ lab_7d5c:
     bf mem_fefb.6,lab_7d7f  ;7d5f  31 63 fb 1c
     call !sub_7f33          ;7d63  9a 33 7f
     bz lab_7d69             ;7d66  ad 01
-    brk                     ;7d68  bf
+    brk                     ;7d68  bf           Force cold start via badisr_0d75
 
 lab_7d69:
     mov mem_fe43,#0x00      ;7d69  11 43 00
@@ -23095,7 +23117,7 @@ lab_7f77:
     bf mem_fefb.6,lab_7f8f  ;7f7a  31 63 fb 11
     call !sub_8085          ;7f7e  9a 85 80
     bz lab_7f8c             ;7f81  ad 09
-    brk                     ;7f83  bf
+    brk                     ;7f83  bf           Force cold start via badisr_0d75
 
 lab_7f84:
     call !sub_7faf          ;7f84  9a af 7f
@@ -24750,7 +24772,7 @@ lab_89cb:
     clr1 mem_fe6f.7         ;89de  7b 6f
     call !sub_8f8f          ;89e0  9a 8f 8f
     bz lab_8a3f             ;89e3  ad 5a
-    brk                     ;89e5  bf
+    brk                     ;89e5  bf           Force cold start via badisr_0d75
 
 lab_89e6:
     clr1 pu6.5              ;89e6  71 5b 36
@@ -28623,7 +28645,7 @@ lab_a47d:
     bf mem_fefb.6,lab_a49d  ;a47d  31 63 fb 1c
     call !sub_aa9c          ;a481  9a 9c aa
     bz lab_a487             ;a484  ad 01
-    brk                     ;a486  bf
+    brk                     ;a486  bf           Force cold start via badisr_0d75
 
 lab_a487:
     set1 mem_fe72.6         ;a487  6a 72
@@ -37954,7 +37976,7 @@ lab_d102:
     clr1 pm3.6              ;d105  71 6b 23
     call !sub_d8fd          ;d108  9a fd d8
     bz lab_d10e             ;d10b  ad 01
-    brk                     ;d10d  bf
+    brk                     ;d10d  bf           Force cold start via badisr_0d75
 
 lab_d10e:
     mov a,#0x03             ;d10e  a1 03
@@ -39679,7 +39701,7 @@ lab_dc63:
 
 filler_dc64:
     .rept 5018
-    brk                     ;dc64  bf
+    brk                     ;dc64  bf           Force cold start via badisr_0d75
     .endm
 
 checksum:
