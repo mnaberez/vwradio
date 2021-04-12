@@ -676,6 +676,13 @@ wd_run_rst = 0b10011000     ;(Re-)Start watchdog in mode 2 (RESET when watchdog 
 wtnm0_conf_a = 0b00010011
 wtnm0_conf_b = 0b01110011
 
+brgc0_value = 0x39          ;Baud rate used for KWP1281:
+                            ;  0x39 = 10400 baud (the normal baud rate of this radio)
+                            ;  0x3b = 9600 baud
+                            ;  0x4b = 4800 baud   KWP1281 has been found to work reliably
+                            ;  0x5b = 2400 baud   on this radio at all of these baud rates.
+                            ;  0x6b = 1200 baud
+
 ;Vectors
 
 rst_vect:
@@ -2965,7 +2972,7 @@ lab_0e39_loop:
     clr1 pu2.6              ;0e5f  71 6b 32     PU26 pull-up resistor disabled
     set1 pm2.6              ;0e62  71 6a 22     PM26 = output
     mov asim0,#0x00         ;0e65  13 a0 00     UART0 mode register = 0 (UART fully disabled)
-    mov brgc0,#0x39         ;0e68  13 a2 39     Baud rate generator 0 = 10400 baud
+    mov brgc0,#brgc0_value  ;0e68  13 a2 39     Baud rate generator 0 = 10400 baud
     set1 shadow_p2.5        ;0e6b  5a cc        P25/TxD0 = 1
     mov a,shadow_p2         ;0e6d  f0 cc
     mov p2,a                ;0e6f  f2 02
@@ -31048,10 +31055,10 @@ kwp_brgc0_b02c:
 ;values to be stored in BRGC0
 ;indexed by kwp_addr_idx
     .byte 0x04              ;b02c  04          DATA 0x04        4 entries below:
-    .byte 0x39              ;b02d  39          DATA 0x39 '9'      0x39 = 10400 baud (<address not found>)
-    .byte 0x39              ;b02e  39          DATA 0x39 '9'      0x39 = 10400 baud (DELCO manufacturing address)
-    .byte 0x39              ;b02f  39          DATA 0x39 '9'      0x39 = 10400 baud (Normal radio address)
-    .byte 0x39              ;b030  39          DATA 0x39 '9'      0x39 = 10400 baud (Cluster security address)
+    .byte brgc0_value       ;b02d  39          DATA 0x39 '9'      0x39 = 10400 baud (<address not found>)
+    .byte brgc0_value       ;b02e  39          DATA 0x39 '9'      0x39 = 10400 baud (DELCO manufacturing address)
+    .byte brgc0_value       ;b02f  39          DATA 0x39 '9'      0x39 = 10400 baud (Normal radio address)
+    .byte brgc0_value       ;b030  39          DATA 0x39 '9'      0x39 = 10400 baud (Cluster security address)
 
 kwp_asim0_b031:
 ;values to be stored in ASIM0

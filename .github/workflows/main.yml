@@ -48,7 +48,6 @@ jobs:
         make -C reverse_engineering/clarion/vw_premium_4/disasm/pu1666a_submcu
         make -C reverse_engineering/delco/seat_liceo/disasm
         make -C reverse_engineering/delco/vw_premium_5/disasm
-        make -C reverse_engineering/delco/vw_premium_5/custom/baudrate
         make -C reverse_engineering/delco/vw_premium_5/custom/dumpram
         make -C reverse_engineering/delco/vw_premium_5/custom/faultcodes
         make -C reverse_engineering/delco/vw_premium_5/custom/loopback_irq
