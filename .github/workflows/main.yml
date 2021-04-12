@@ -8,7 +8,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.5, 3.6, 3.7, 3.8]
+        python-version: [3.6, 3.7, 3.8]
 
     steps:
     - uses: actions/checkout@v2
@@ -18,10 +18,15 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
-    - name: Install avr-gcc
+    - name: Install arm-gcc
       run: |
-        sudo add-apt-repository -y ppa:pmjdebruijn/gcc-avr-release
-        sudo apt-get install -y avr-libc gcc-avr gcc-arm-none-eabi libnewlib-arm-none-eabi
+        sudo apt-get install gcc-arm-none-eabi libnewlib-arm-none-eabi
+
+#    - name: Install avr-gcc
+#      run: |
+# TODO: ppa:pmjdebruijn/gcc-avr-release has disappeared
+#        sudo add-apt-repository -y ppa:pmjdebruijn/gcc-avr-release
+#        sudo apt-get install -y avr-libc gcc-avr
 
     - name: Install avra
       run: |
@@ -40,10 +45,12 @@ jobs:
       run: sudo apt-get install srecord
 
     - name: Run all tests
+# TODO: requires avr-gcc
+#        make -C faceplate_emulator/firmware
+#        make -C kwp1281_tool/firmware
+#        make -C tape_emulator/firmware
       run: |
-        make -C faceplate_emulator/firmware
         python faceplate_emulator/host/setup.py test -q
-        make -C kwp1281_tool/firmware
         make -C reverse_engineering/clarion/vw_premium_4/disasm/pu1666a_mainmcu
         make -C reverse_engineering/clarion/vw_premium_4/disasm/pu1666a_submcu
         make -C reverse_engineering/delco/seat_liceo/disasm
@@ -54,5 +61,4 @@ jobs:
         make -C reverse_engineering/delco/vw_premium_5/custom/loopback_poll
         make -C reverse_engineering/technisat/vw_gamma_5/disasm
         make -C reverse_engineering/technisat/vw_rhapsody/disasm
-        make -C tape_emulator/firmware
         make -C volume_monitor/firmware
