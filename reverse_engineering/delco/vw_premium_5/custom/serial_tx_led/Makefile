@@ -4,7 +4,7 @@ out.hex: out.bin
 	srec_cat out.bin -binary -o out.hex -intel -address-length=2 -line-length=76 -crlf
 
 out.bin:
-	cp -f serial_tx.asm out.asm
+	cp -f serial_tx_led.asm out.asm
 	as78k0 -l -o out.asm
 	rm -f out.asm
 	aslink out -i

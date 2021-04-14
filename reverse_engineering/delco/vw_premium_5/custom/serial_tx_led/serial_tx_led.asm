@@ -2,7 +2,9 @@
     .org 0
 
 rxb0_txs0 = 0xff18          ;Transmit shift register 0 / Receive buffer register 0
+p3 = 0xff03                 ;Port 3
 pm2 = 0xff22                ;Port mode register 2
+pm3 = 0xff23                ;Port mode register 3
 asim0 = 0xffa0              ;Asynchronous serial interface mode register 0
 asis0 = 0xffa1              ;Asynchronous serial interface status register 0
 brgc0 = 0xffa2              ;Baud rate generator control register 0
@@ -93,10 +95,16 @@ reset:
     clr1 if0h.3             ;Clear transmit complete interrupt flag
     mov asim0,#0b10001010   ;Enable UART for TX only and 8-N-1
     clr1 pm2.5              ;PM25=output (TxD0)
+    clr1 pm3.3              ;PM33=output (Alarm LED)
 
-;Send "Hello World" out the UART every 90-100ms at 9600-N-8-1
+;Every ~250ms, toggle the LED and send "Hello World"
+;out the UART at 9600-N-8-1.
 loop:
-    movw hl,#hello
+    mov1 cy,p3.3            ;Invert the LED
+    not1 cy
+    mov1 p3.3,cy
+
+    movw hl,#hello          ;Send "Hello World"
 1$:
     mov a,[hl]
     cmp a,#0
@@ -105,7 +113,7 @@ loop:
     incw hl
     br 1$
 2$:
-    call delay
+    call delay              ;Wait 250ms
     br loop
 
 send_byte:
@@ -116,7 +124,7 @@ send_byte:
     ret
 
 delay:
-    movw ax,#0x6000
+    movw ax,#0xffff
 1$:
     cmpw ax,#0
     decw ax
@@ -125,4 +133,4 @@ delay:
 
 hello:
     .ascii "Hello World"
-    .byte 0
+    .byte 0x0d,0x0a,0
