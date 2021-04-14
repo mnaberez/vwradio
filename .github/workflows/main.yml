@@ -55,6 +55,7 @@ jobs:
         make -C reverse_engineering/delco/vw_premium_5/custom/faultcodes
         make -C reverse_engineering/delco/vw_premium_5/custom/loopback_irq
         make -C reverse_engineering/delco/vw_premium_5/custom/loopback_poll
+        make -C reverse_engineering/delco/vw_premium_5/custom/serial_tx
         make -C reverse_engineering/technisat/vw_gamma_5/disasm
         make -C reverse_engineering/technisat/vw_rhapsody/disasm
         make -C tape_emulator/firmware
