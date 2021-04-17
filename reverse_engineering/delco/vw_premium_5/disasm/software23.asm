@@ -574,12 +574,44 @@ mem_fedb = 0xfedb
 mem_fedc = 0xfedc
 mem_fedd = 0xfedd
 mem_fede = 0xfede
-mem_fef8 = 0xfef8
-mem_fefa = 0xfefa
-mem_fefb = 0xfefb
-mem_fefd = 0xfefd
-mem_fefe = 0xfefe
-mem_feff = 0xfeff
+
+;Register Banks are part of the High Speed RAM and are not cleared on reset:
+
+rb3_x = 0xfee0              ;RB3 R0/X  \
+rb3_a = 0xfee1              ;RB3 R1/A  |
+rb3_c = 0xfee2              ;RB3 R2/C  |
+rb3_b = 0xfee3              ;RB3 R3/B  |  RB3 appears completely unused
+rb3_e = 0xfee4              ;RB3 R4/E  |
+rb3_d = 0xfee5              ;RB3 R5/D  |
+rb3_l = 0xfee6              ;RB3 R6/L  |
+rb3_h = 0xfee7              ;RB3 R7/H  /
+
+rb2_x = 0xfee8              ;RB2 R0/X  \
+rb2_a = 0xfee9              ;RB2 R1/A  |
+rb2_c = 0xfeea              ;RB2 R2/C  |
+rb2_b = 0xfeeb              ;RB2 R3/B  |  RB2 is used by the SPI interrupt
+rb2_e = 0xfeec              ;RB2 R4/E  |  intcsi30_08a9 and by routines
+rb2_d = 0xfeed              ;RB2 R5/D  |  that interact with it
+rb2_l = 0xfeee              ;RB2 R6/L  |
+rb2_h = 0xfeef              ;RB2 R7/H  /
+
+rb1_x = 0xfef0              ;RB1 R0/X  \
+rb1_a = 0xfef1              ;RB1 R1/A  |
+rb1_c = 0xfef2              ;RB1 R2/C  |
+rb1_b = 0xfef3              ;RB1 R3/B  |  RB1 is used only in the
+rb1_e = 0xfef4              ;RB1 R4/E  |  watch timer interrupt
+rb1_d = 0xfef5              ;RB1 R5/D  |  intwtni0_0135
+rb1_l = 0xfef6              ;RB1 R6/L  |
+rb1_h = 0xfef7              ;RB1 R7/H  /
+
+rb0_x = 0xfef8              ;RB0 R0/X  \
+rb0_a = 0xfef9              ;RB0 R1/A  |
+rb0_c = 0xfefa              ;RB0 R2/C  |
+rb0_b = 0xfefb              ;RB0 R3/B  |  RB0 is the normal register
+rb0_e = 0xfefc              ;RB0 R4/E  |  bank used by most of the code
+rb0_d = 0xfefd              ;RB0 R5/D  |
+rb0_l = 0xfefe              ;RB0 R6/L  |
+rb0_h = 0xfeff              ;RB0 R7/H  /
 
 ;Peripheral Registers:
 
@@ -3160,8 +3192,8 @@ lab_0f1b:
     mov !mem_fb50,a         ;0fdc  9e 50 fb
     mov mem_fe28,#0x80      ;0fdf  11 28 80
     movw ax,#0x8000         ;0fe2  10 00 80
-    call !sub_3ba2          ;0fe5  9a a2 3b
-    call !sub_3b27          ;0fe8  9a 27 3b
+    call !sub_3ba2          ;0fe5  9a a2 3b     Performs only: movw !0xf008,ax
+    call !sub_3b27          ;0fe8  9a 27 3b     Performs only: mov prm00,#0x00
     bt mem_fe65.1,lab_0ff1  ;0feb  9c 65 03
     call !sub_3b3a          ;0fee  9a 3a 3b     Disable timers and their interrupts
 
@@ -3973,7 +4005,7 @@ lab_159f:
     br !lab_12d7            ;159f  9b d7 12
 
 lab_15a2:
-    call !sub_3b27          ;15a2  9a 27 3b
+    call !sub_3b27          ;15a2  9a 27 3b   Performs only: mov prm00,#0x00
     set1 mem_fe77.4         ;15a5  4a 77
     br !lab_12d7            ;15a7  9b d7 12
 
@@ -4063,8 +4095,8 @@ lab_1631:
 
 lab_1636:
     set1 mem_fe5d.5         ;1636  5a 5d
-    bt mem_fefb.7,lab_1645  ;1638  fc fb 0a
-    bf mem_fefb.6,lab_165e  ;163b  31 63 fb 1f
+    bt rb0_b.7,lab_1645     ;1638  fc fb 0a
+    bf rb0_b.6,lab_165e     ;163b  31 63 fb 1f
     call !sub_0823          ;163f  9a 23 08
     bz lab_164d             ;1642  ad 09
     brk                     ;1644  bf           Force cold start via badisr_0d75
@@ -4791,7 +4823,7 @@ lab_1ab4:
     call !sub_1a9d          ;1ab4  9a 9d 1a
     bnc lab_1ac0            ;1ab7  9d 07
     inc b                   ;1ab9  43
-    cmp mem_fefb,#0x07      ;1aba  c8 fb 07
+    cmp rb0_b,#0x07         ;1aba  c8 fb 07
     bc lab_1ab4             ;1abd  8d f5
     set1 cy                 ;1abf  20
 
@@ -5018,7 +5050,7 @@ sub_1bff:
     movw hl,#mem_f1b2       ;1c1f  16 b2 f1
     mov a,x                 ;1c22  60
     add l,a                 ;1c23  61 06
-    addc mem_feff,#0x00     ;1c25  a8 ff 00
+    addc rb0_h,#0x00        ;1c25  a8 ff 00
 
 lab_1c28:
     mov a,[hl+b]            ;1c28  ab
@@ -5049,7 +5081,7 @@ lab_1c46:
     and a,#0x0f             ;1c47  5d 0f
     call !sub_0812          ;1c49  9a 12 08     Compare A to mem_fb57
     bz lab_1c55             ;1c4c  ad 07
-    add mem_fefa,#0x06      ;1c4e  88 fa 06
+    add rb0_c,#0x06         ;1c4e  88 fa 06
     dbnz b,lab_1c46         ;1c51  8b f3
     set1 cy                 ;1c53  20
     ret                     ;1c54  af
@@ -5057,7 +5089,7 @@ lab_1c46:
 lab_1c55:
     mov a,c                 ;1c55  62
     add l,a                 ;1c56  61 06
-    addc mem_feff,#0x00     ;1c58  a8 ff 00
+    addc rb0_h,#0x00        ;1c58  a8 ff 00
     mov a,[hl]              ;1c5b  87
     clr1 cy                 ;1c5c  21
     ret                     ;1c5d  af
@@ -5683,7 +5715,7 @@ mem_2033:
     .byte 0xe1              ;2036  e1          DATA 0xe1
 
 lab_2037:
-    bf mem_fefb.7,lab_2057  ;2037  31 73 fb 1c
+    bf rb0_b.7,lab_2057     ;2037  31 73 fb 1c
     set1 mem_fe5e.6         ;203b  6a 5e
     mov a,#0xc3             ;203d  a1 c3
     mov !mem_fb71,a         ;203f  9e 71 fb
@@ -5698,7 +5730,7 @@ lab_2037:
     br !lab_2133            ;2054  9b 33 21
 
 lab_2057:
-    bf mem_fefb.6,lab_20c0  ;2057  31 63 fb 65
+    bf rb0_b.6,lab_20c0     ;2057  31 63 fb 65
     clr1 mem_fe23.4         ;205b  4b 23
     clr1 mem_fe5e.5         ;205d  5b 5e
     mov a,b                 ;205f  63
@@ -8593,8 +8625,8 @@ lab_2e16_ret:
     ret                     ;2e16  af
 
 lab_2e17:
-    bt mem_fefb.7,lab_2e1e  ;2e17  fc fb 04
-    bf mem_fefb.6,lab_2e38  ;2e1a  31 63 fb 1a
+    bt rb0_b.7,lab_2e1e     ;2e17  fc fb 04
+    bf rb0_b.6,lab_2e38     ;2e1a  31 63 fb 1a
 
 lab_2e1e:
     mov a,#0xc0             ;2e1e  a1 c0
@@ -10257,8 +10289,8 @@ lab_3714:
     ret                     ;3714  af
 
 lab_3715:
-    bt mem_fefb.7,lab_371c  ;3715  fc fb 04
-    bf mem_fefb.6,lab_3722  ;3718  31 63 fb 06
+    bt rb0_b.7,lab_371c     ;3715  fc fb 04
+    bf rb0_b.6,lab_3722     ;3718  31 63 fb 06
 
 lab_371c:
     mov a,#0xc0             ;371c  a1 c0
@@ -11462,7 +11494,7 @@ lab_3edd:
     br lab_3f4a             ;3ee0  fa 68
 
 lab_3ee2:
-    bf mem_fefb.7,lab_3efb  ;3ee2  31 73 fb 15
+    bf rb0_b.7,lab_3efb     ;3ee2  31 73 fb 15
     mov a,#0x05             ;3ee6  a1 05
     mov !mem_fb97,a         ;3ee8  9e 97 fb
     mov !mem_fb98,a         ;3eeb  9e 98 fb
@@ -11474,7 +11506,7 @@ lab_3ee2:
     callt [0x0042]          ;3efa  c3           Calls sub_09b9
 
 lab_3efb:
-    bf mem_fefb.6,lab_3f2f  ;3efb  31 63 fb 30
+    bf rb0_b.6,lab_3f2f     ;3efb  31 63 fb 30
     clr1 mem_fe63.6         ;3eff  6b 63
     call !sub_6217          ;3f01  9a 17 62     Unknown; EEPROM related
     bnc lab_3f2e            ;3f04  9d 28        Branch to just return if failed
@@ -14189,8 +14221,8 @@ sub_4d63:
     ret                     ;4d7e  af
 
 lab_4d7f:
-    bt mem_fefb.7,lab_4d88  ;4d7f  fc fb 06
-    bt mem_fefb.6,lab_4d88  ;4d82  ec fb 03
+    bt rb0_b.7,lab_4d88     ;4d7f  fc fb 06
+    bt rb0_b.6,lab_4d88     ;4d82  ec fb 03
     br !lab_4dad            ;4d85  9b ad 4d
 
 lab_4d88:
@@ -16737,38 +16769,38 @@ lab_581a:
     cmp a,#0x00             ;582b  4d 00
     bz lab_5862             ;582d  ad 33
 
-    mov mem_fef8,a          ;582f  f2 f8
+    mov rb0_x,a             ;582f  f2 f8
     mov a,!mem_f1e9         ;5831  8e e9 f1
     and a,#0x01             ;5834  5d 01
     cmp a,#0x00             ;5836  4d 00
-    mov a,mem_fef8          ;5838  f0 f8
+    mov a,rb0_x             ;5838  f0 f8
     bz lab_5862             ;583a  ad 26
 
     clr1 a.7                ;583c  61 fb
 
     cmp a,#0x1c             ;583e  4d 1c
     bnz lab_5847            ;5840  bd 05
-    cmp mem_fefb,#0x8a      ;5842  c8 fb 8a
+    cmp rb0_b,#0x8a         ;5842  c8 fb 8a
     bz lab_585d             ;5845  ad 16
 
 lab_5847:
     cmp a,#0x1d             ;5847  4d 1d
     bnz lab_5850            ;5849  bd 05
-    cmp mem_fefb,#0x8b      ;584b  c8 fb 8b
+    cmp rb0_b,#0x8b         ;584b  c8 fb 8b
     bz lab_585d             ;584e  ad 0d
 
 lab_5850:
     cmp a,#0x1b             ;5850  4d 1b
     bnz lab_5859            ;5852  bd 05
-    cmp mem_fefb,#0x90      ;5854  c8 fb 90
+    cmp rb0_b,#0x90         ;5854  c8 fb 90
     bz lab_585d             ;5857  ad 04
 
 lab_5859:
-    mov a,mem_fef8          ;5859  f0 f8
+    mov a,rb0_x             ;5859  f0 f8
     br lab_5862             ;585b  fa 05
 
 lab_585d:
-    mov a,mem_fef8          ;585d  f0 f8
+    mov a,rb0_x             ;585d  f0 f8
     set1 a.7                ;585f  61 fa
     mov b,a                 ;5861  73
 
@@ -16808,11 +16840,11 @@ lab_588e:
     mov a,b                 ;5893  63
 
 lab_5894:
-    mov mem_fef8,a          ;5894  f2 f8
+    mov rb0_x,a             ;5894  f2 f8
     mov a,!mem_f1e9         ;5896  8e e9 f1
     and a,#0x01             ;5899  5d 01
     cmp a,#0x00             ;589b  4d 00
-    mov a,mem_fef8          ;589d  f0 f8
+    mov a,rb0_x             ;589d  f0 f8
     bz lab_58bb             ;589f  ad 1a
     and a,#0x7f             ;58a1  5d 7f
     cmp a,#0x0a             ;58a3  4d 0a
@@ -16830,7 +16862,7 @@ lab_58af:
     mov a,#0x1b             ;58b3  a1 1b
 
 lab_58b5:
-    bf mem_fef8.7,lab_58bb  ;58b5  31 73 f8 02
+    bf rb0_x.7,lab_58bb     ;58b5  31 73 f8 02
     set1 a.7                ;58b9  61 fa
 
 lab_58bb:
@@ -17643,32 +17675,32 @@ lab_5da3:
     bz lab_5db4             ;5da7  ad 0b
     inc a                   ;5da9  41
     push hl                 ;5daa  b7
-    movw hl,#mem_fef8       ;5dab  16 f8 fe
+    movw hl,#rb0_x          ;5dab  16 f8 fe
     call !sub_5e2a          ;5dae  9a 2a 5e
     pop hl                  ;5db1  b6
     bc lab_5e25             ;5db2  8d 71
 
 lab_5db4:
     clr1 mem_fe68.4         ;5db4  4b 68
-    bf mem_fefa.6,lab_5dbc  ;5db6  31 63 fa 02
+    bf rb0_c.6,lab_5dbc     ;5db6  31 63 fa 02
     set1 mem_fe68.4         ;5dba  4a 68
 
 lab_5dbc:
-    and mem_fefa,#0x3f      ;5dbc  d8 fa 3f
+    and rb0_c,#0x3f         ;5dbc  d8 fa 3f
 
 lab_5dbf:
-    mov mem_fefb,#0x08      ;5dbf  11 fb 08
+    mov rb0_b,#0x08         ;5dbf  11 fb 08
     clr1 pu7.4              ;5dc2  71 4b 37
     set1 pm7.4              ;5dc5  71 4a 27
 
 lab_5dc8:
     clr1 pm7.3              ;5dc8  71 3b 27
-    cmp mem_fefb,#0x00      ;5dcb  c8 fb 00
-    cmp mem_fefb,#0x00      ;5dce  c8 fb 00
+    cmp rb0_b,#0x00         ;5dcb  c8 fb 00
+    cmp rb0_b,#0x00         ;5dce  c8 fb 00
     nop                     ;5dd1  00
     clr1 pu7.3              ;5dd2  71 3b 37
     set1 pm7.3              ;5dd5  71 3a 27
-    cmp mem_fefb,#0x00      ;5dd8  c8 fb 00
+    cmp rb0_b,#0x00         ;5dd8  c8 fb 00
     nop                     ;5ddb  00
     nop                     ;5ddc  00
     mov1 cy,p7.4            ;5ddd  71 44 07
@@ -17681,11 +17713,11 @@ lab_5dc8:
     bf mem_fe68.4,lab_5e08  ;5dea  31 43 68 1a
     clr1 pu7.3              ;5dee  71 3b 37
     set1 pm7.3              ;5df1  71 3a 27
-    cmp mem_fefb,#0x00      ;5df4  c8 fb 00
-    cmp mem_fefb,#0x00      ;5df7  c8 fb 00
+    cmp rb0_b,#0x00         ;5df4  c8 fb 00
+    cmp rb0_b,#0x00         ;5df7  c8 fb 00
     nop                     ;5dfa  00
     clr1 pm7.3              ;5dfb  71 3b 27
-    cmp mem_fefb,#0x00      ;5dfe  c8 fb 00
+    cmp rb0_b,#0x00         ;5dfe  c8 fb 00
     nop                     ;5e01  00
     nop                     ;5e02  00
     call !sub_5eb3          ;5e03  9a b3 5e
@@ -17695,14 +17727,14 @@ lab_5e08:
     clr1 pm7.4              ;5e08  71 4b 27
     clr1 pu7.3              ;5e0b  71 3b 37
     set1 pm7.3              ;5e0e  71 3a 27
-    cmp mem_fefb,#0x00      ;5e11  c8 fb 00
-    cmp mem_fefb,#0x00      ;5e14  c8 fb 00
+    cmp rb0_b,#0x00         ;5e11  c8 fb 00
+    cmp rb0_b,#0x00         ;5e14  c8 fb 00
     nop                     ;5e17  00
     clr1 pm7.3              ;5e18  71 3b 27
-    cmp mem_fefb,#0x00      ;5e1b  c8 fb 00
+    cmp rb0_b,#0x00         ;5e1b  c8 fb 00
     nop                     ;5e1e  00
     nop                     ;5e1f  00
-    cmp mem_fefa,#0x00      ;5e20  c8 fa 00
+    cmp rb0_c,#0x00         ;5e20  c8 fa 00
     bnz lab_5dbf            ;5e23  bd 9a
 
 lab_5e25:
@@ -17742,7 +17774,7 @@ lab_5e3c:
     mov p7,a                ;5e56  f2 07
     pop ax                  ;5e58  b0
     clr1 pm7.4              ;5e59  71 4b 27
-    cmp mem_fefb,#0x00      ;5e5c  c8 fb 00
+    cmp rb0_b,#0x00         ;5e5c  c8 fb 00
     nop                     ;5e5f  00
     nop                     ;5e60  00
     nop                     ;5e61  00
@@ -17772,8 +17804,8 @@ lab_5e7c:
     nop                     ;5e7c  00
     clr1 pu7.3              ;5e7d  71 3b 37
     set1 pm7.3              ;5e80  71 3a 27
-    cmp mem_fefb,#0x00      ;5e83  c8 fb 00
-    cmp mem_fefb,#0x00      ;5e86  c8 fb 00
+    cmp rb0_b,#0x00         ;5e83  c8 fb 00
+    cmp rb0_b,#0x00         ;5e86  c8 fb 00
     nop                     ;5e89  00
     clr1 pm7.3              ;5e8a  71 3b 27
     dbnz c,lab_5e6e         ;5e8d  8a df
@@ -17781,8 +17813,8 @@ lab_5e7c:
     set1 pm7.4              ;5e92  71 4a 27
     clr1 pu7.3              ;5e95  71 3b 37
     set1 pm7.3              ;5e98  71 3a 27
-    cmp mem_fefb,#0x00      ;5e9b  c8 fb 00
-    cmp mem_fefb,#0x00      ;5e9e  c8 fb 00
+    cmp rb0_b,#0x00         ;5e9b  c8 fb 00
+    cmp rb0_b,#0x00         ;5e9e  c8 fb 00
     nop                     ;5ea1  00
     nop                     ;5ea2  00
     nop                     ;5ea3  00
@@ -17799,7 +17831,7 @@ sub_5eb3:
     clr1 pm7.4              ;5eb3  71 4b 27
     clr1 pu7.3              ;5eb6  71 3b 37
     set1 pm7.3              ;5eb9  71 3a 27
-    cmp mem_fefb,#0x00      ;5ebc  c8 fb 00
+    cmp rb0_b,#0x00         ;5ebc  c8 fb 00
     nop                     ;5ebf  00
     nop                     ;5ec0  00
     clr1 pu7.4              ;5ec1  71 4b 37
@@ -17809,13 +17841,13 @@ sub_5eb3:
 
 lab_5ec9:
     clr1 pm7.3              ;5ec9  71 3b 27
-    cmp mem_fefb,#0x00      ;5ecc  c8 fb 00
+    cmp rb0_b,#0x00         ;5ecc  c8 fb 00
     nop                     ;5ecf  00
     nop                     ;5ed0  00
     clr1 pm7.4              ;5ed1  71 4b 27
     clr1 pu7.3              ;5ed4  71 3b 37
     set1 pm7.3              ;5ed7  71 3a 27
-    cmp mem_fefb,#0x00      ;5eda  c8 fb 00
+    cmp rb0_b,#0x00         ;5eda  c8 fb 00
     nop                     ;5edd  00
     nop                     ;5ede  00
     clr1 pu7.4              ;5edf  71 4b 37
@@ -17842,7 +17874,7 @@ lab_5ef2:
     bz lab_5f05             ;5ef6  ad 0d
     inc a                   ;5ef8  41
     push hl                 ;5ef9  b7
-    movw hl,#mem_fef8       ;5efa  16 f8 fe
+    movw hl,#rb0_x          ;5efa  16 f8 fe
     call !sub_5f51          ;5efd  9a 51 5f     TODO perform I2C write?
     pop hl                  ;5f00  b6
     bnc lab_5f05            ;5f01  9d 02        Branch if success
@@ -17850,11 +17882,11 @@ lab_5ef2:
 
 lab_5f05:
     clr1 mem_fe68.5         ;5f05  5b 68
-    bf mem_fefa.6,lab_5f0d  ;5f07  31 63 fa 02
+    bf rb0_c.6,lab_5f0d     ;5f07  31 63 fa 02
     set1 mem_fe68.5         ;5f0b  5a 68
 
 lab_5f0d:
-    and mem_fefa,#0x3f      ;5f0d  d8 fa 3f
+    and rb0_c,#0x3f         ;5f0d  d8 fa 3f
     mov a,c                 ;5f10  62
     mov b,a                 ;5f11  73
     set1 iicc0.2            ;5f12  71 2a a8
@@ -18063,8 +18095,8 @@ sub_602d:
     clr1 pm7.2              ;603f  71 2b 27     PM72=output (I2C SCL)
 
 lab_6042:
-    cmp mem_fefb,#0x00      ;6042  c8 fb 00
-    cmp mem_fefb,#0x00      ;6045  c8 fb 00
+    cmp rb0_b,#0x00         ;6042  c8 fb 00
+    cmp rb0_b,#0x00         ;6045  c8 fb 00
     nop                     ;6048  00
     nop                     ;6049  00
     nop                     ;604a  00
@@ -22819,8 +22851,8 @@ lab_7d4f:
     br lab_7ce3             ;7d5a  fa 87
 
 lab_7d5c:
-    bt mem_fefb.7,lab_7d69  ;7d5c  fc fb 0a
-    bf mem_fefb.6,lab_7d7f  ;7d5f  31 63 fb 1c
+    bt rb0_b.7,lab_7d69     ;7d5c  fc fb 0a
+    bf rb0_b.6,lab_7d7f     ;7d5f  31 63 fb 1c
     call !sub_7f33          ;7d63  9a 33 7f
     bz lab_7d69             ;7d66  ad 01
     brk                     ;7d68  bf           Force cold start via badisr_0d75
@@ -23021,7 +23053,7 @@ lab_7e99:
 
 lab_7eb6:
     inc c                   ;7eb6  42
-    cmp mem_fefa,#0x0f      ;7eb7  c8 fa 0f
+    cmp rb0_c,#0x0f         ;7eb7  c8 fa 0f
     bc lab_7e4e             ;7eba  8d 92
     mov a,#0x00             ;7ebc  a1 00
     mov !mem_fc2c,a         ;7ebe  9e 2c fc
@@ -23138,8 +23170,8 @@ lab_7f69:
     br lab_7f9b             ;7f75  fa 24
 
 lab_7f77:
-    bt mem_fefb.7,lab_7f84  ;7f77  fc fb 0a
-    bf mem_fefb.6,lab_7f8f  ;7f7a  31 63 fb 11
+    bt rb0_b.7,lab_7f84     ;7f77  fc fb 0a
+    bf rb0_b.6,lab_7f8f     ;7f7a  31 63 fb 11
     call !sub_8085          ;7f7e  9a 85 80
     bz lab_7f8c             ;7f81  ad 09
     brk                     ;7f83  bf           Force cold start via badisr_0d75
@@ -24723,16 +24755,16 @@ lab_894f:
     mov a,mem_fe4c          ;8952  f0 4c
     mov b,a                 ;8954  73
     movw de,#mem_b862       ;8955  14 62 b8
-    cmp mem_fefb,#0x08      ;8958  c8 fb 08
+    cmp rb0_b,#0x08         ;8958  c8 fb 08
     bc lab_8963             ;895b  8d 06
     movw de,#mem_b910       ;895d  14 10 b9
-    sub mem_fefb,#0x08      ;8960  98 fb 08
+    sub rb0_b,#0x08         ;8960  98 fb 08
 
 lab_8963:
     movw hl,#mem_af75       ;8963  16 75 af     HL = pointer to table of bit patterns
     mov a,[hl+b]            ;8966  ab
     call !sub_5c64          ;8967  9a 64 5c
-    cmp mem_fefb,#0x00      ;896a  c8 fb 00
+    cmp rb0_b,#0x00         ;896a  c8 fb 00
     bnz lab_8972            ;896d  bd 03
     br !lab_8a9d            ;896f  9b 9d 8a
 
@@ -24768,10 +24800,10 @@ lab_899d:
     br lab_89b3             ;89ae  fa 03
 
 lab_89b0:
-    mov mem_fefb,#0xff      ;89b0  11 fb ff
+    mov rb0_b,#0xff         ;89b0  11 fb ff
 
 lab_89b3:
-    cmp mem_fefb,#0xff      ;89b3  c8 fb ff
+    cmp rb0_b,#0xff         ;89b3  c8 fb ff
     bnz lab_89bb            ;89b6  bd 03
     br !lab_8a9d            ;89b8  9b 9d 8a
 
@@ -24781,14 +24813,14 @@ lab_89bb:
     br !lab_8a8a            ;89c0  9b 8a 8a
 
 lab_89c3:
-    bt mem_fefb.7,lab_89e6  ;89c3  fc fb 20
-    bt mem_fefb.6,lab_89cb  ;89c6  ec fb 02
+    bt rb0_b.7,lab_89e6     ;89c3  fc fb 20
+    bt rb0_b.6,lab_89cb     ;89c6  ec fb 02
     br lab_8a42             ;89c9  fa 77
 
 lab_89cb:
     clr1 pm8.7              ;89cb  71 7b 28
-    set1 shadow_p8.7         ;89ce  7a d2
-    mov a,shadow_p8          ;89d0  f0 d2
+    set1 shadow_p8.7        ;89ce  7a d2
+    mov a,shadow_p8         ;89d0  f0 d2
     mov p8,a                ;89d2  f2 08
     clr1 pu2.3              ;89d4  71 3b 32
     set1 pm2.3              ;89d7  71 3a 22
@@ -24806,20 +24838,20 @@ lab_89e6:
     set1 pm6.6              ;89ef  71 6a 26
     clr1 pu6.7              ;89f2  71 7b 36
     set1 pm6.7              ;89f5  71 7a 26
-    set1 shadow_p5.0         ;89f8  0a cf
-    set1 shadow_p5.1         ;89fa  1a cf
+    set1 shadow_p5.0        ;89f8  0a cf
+    set1 shadow_p5.1        ;89fa  1a cf
     push ax                 ;89fc  b1
-    mov a,shadow_p5          ;89fd  f0 cf
+    mov a,shadow_p5         ;89fd  f0 cf
     mov p5,a                ;89ff  f2 05
     pop ax                  ;8a01  b0
     clr1 pm5.0              ;8a02  71 0b 25
     clr1 pm5.1              ;8a05  71 1b 25
-    set1 shadow_p5.2         ;8a08  2a cf
-    set1 shadow_p5.3         ;8a0a  3a cf
-    set1 shadow_p5.4         ;8a0c  4a cf
-    set1 shadow_p5.5         ;8a0e  5a cf
+    set1 shadow_p5.2        ;8a08  2a cf
+    set1 shadow_p5.3        ;8a0a  3a cf
+    set1 shadow_p5.4        ;8a0c  4a cf
+    set1 shadow_p5.5        ;8a0e  5a cf
     push ax                 ;8a10  b1
-    mov a,shadow_p5          ;8a11  f0 cf
+    mov a,shadow_p5         ;8a11  f0 cf
     mov p5,a                ;8a13  f2 05
     pop ax                  ;8a15  b0
     clr1 pm5.2              ;8a16  71 2b 25
@@ -24830,7 +24862,7 @@ lab_89e6:
     set1 pm5.6              ;8a25  71 6a 25
     clr1 pu0.7              ;8a28  71 7b 30
     set1 pm0.7              ;8a2b  71 7a 20
-    clr1 shadow_p6.4         ;8a2e  4b d0
+    clr1 shadow_p6.4        ;8a2e  4b d0
     clr1 pm6.4              ;8a30  71 4b 26
     mov a,#0x20             ;8a33  a1 20
     callt [0x0042]          ;8a35  c3           Calls sub_09b9
@@ -27690,7 +27722,7 @@ lab_9e35:
 sub_9e36:
     movw mem_fed6,ax        ;9e36  99 d6
     call !sub_0bad          ;9e38  9a ad 0b
-    add mem_fefd,#0x80      ;9e3b  88 fd 80
+    add rb0_d,#0x80         ;9e3b  88 fd 80
     bnc lab_9e41            ;9e3e  9d 01
     incw bc                 ;9e40  82
 
@@ -27845,7 +27877,7 @@ lab_9f3e:
     mov a,#0x1e             ;9f46  a1 1e
     call !sub_9f55          ;9f48  9a 55 9f
     pop hl                  ;9f4b  b6
-    add mem_fefe,#0x1e      ;9f4c  88 fe 1e
+    add rb0_l,#0x1e         ;9f4c  88 fe 1e
     bnc lab_9f52            ;9f4f  9d 01
     inc h                   ;9f51  47
 
@@ -28662,12 +28694,12 @@ lab_a473_ret:
     ret                     ;a473  af
 
 lab_a474:
-    bf mem_fefb.7,lab_a47d  ;a474  31 73 fb 05
+    bf rb0_b.7,lab_a47d     ;a474  31 73 fb 05
     call !sub_a4fe          ;a478  9a fe a4
     br lab_a498             ;a47b  fa 1b
 
 lab_a47d:
-    bf mem_fefb.6,lab_a49d  ;a47d  31 63 fb 1c
+    bf rb0_b.6,lab_a49d     ;a47d  31 63 fb 1c
     call !sub_aa9c          ;a481  9a 9c aa
     bz lab_a487             ;a484  ad 01
     brk                     ;a486  bf           Force cold start via badisr_0d75
@@ -28849,12 +28881,12 @@ lab_a594:
     mov a,#0x7a             ;a59c  a1 7a
 
 lab_a59e:
-    bf mem_feff.7,lab_a5a4  ;a59e  31 73 ff 02
+    bf rb0_h.7,lab_a5a4     ;a59e  31 73 ff 02
     mov a,#0x00             ;a5a2  a1 00
 
 lab_a5a4:
     push ax                 ;a5a4  b1
-    bf mem_fefb.7,lab_a5be  ;a5a5  31 73 fb 15
+    bf rb0_b.7,lab_a5be     ;a5a5  31 73 fb 15
     cmp mem_fe5a,#0x00      ;a5a9  c8 5a 00
     bz lab_a5e8             ;a5ac  ad 3a
     mov a,mem_fe5a          ;a5ae  f0 5a
@@ -37986,8 +38018,8 @@ mem_d0e9:
     .byte 0xff              ;d0f5  ff          DATA 0xff    HL+3
 
 lab_d0f6:
-    bt mem_fefb.7,lab_d0fe  ;d0f6  fc fb 05
-    bt mem_fefb.6,lab_d102  ;d0f9  ec fb 06
+    bt rb0_b.7,lab_d0fe     ;d0f6  fc fb 05
+    bt rb0_b.6,lab_d102     ;d0f9  ec fb 06
     br lab_d10e             ;d0fc  fa 10
 
 lab_d0fe:
