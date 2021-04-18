@@ -200,6 +200,8 @@ mem_f26b = 0xf26b
 mem_f26c = 0xf26c
 mem_f26d = 0xf26d
 
+;0xF26E - 0xF7FF in Expansion RAM appears completely unused
+
 ;High Speed RAM: 0xFB00 - 0xFEFF (1K)
 
 mem_fb00 = 0xfb00
@@ -551,6 +553,8 @@ mem_fe7e = 0xfe7e
 mem_fe7f = 0xfe7f
 mem_fe80 = 0xfe80
 mem_fe81 = 0xfe81
+
+;0xFE82-0xFECA in High Speed RAM appears completely unused 
 
 ;High Speed RAM from 0xFECB to 0xFEFF is not cleared on reset:
 
