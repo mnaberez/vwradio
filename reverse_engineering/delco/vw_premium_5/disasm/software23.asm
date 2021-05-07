@@ -917,78 +917,80 @@ callt_31_vect:
     .word badisr_0d75       ;007e  75 0d       VECTOR CALLT #31
 
 mem_0080:
-    .byte 0x1d              ;0080  1d          DATA 0x1d
-    .byte 0x1d              ;0081  1d          DATA 0x1d
-    .byte 0x10              ;0082  10          DATA 0x10
-    .byte 0x10              ;0083  10          DATA 0x10
-    .byte 0x00              ;0084  00          DATA 0x00
-    .byte 0x00              ;0085  00          DATA 0x00
-    .byte 0x0c              ;0086  0c          DATA 0x0c
-    .byte 0x12              ;0087  12          DATA 0x12
-    .byte 0x40              ;0088  40          DATA 0x40 '@'
-    .byte 0x40              ;0089  40          DATA 0x40 '@'
-    .byte 0x40              ;008a  40          DATA 0x40 '@'
-    .byte 0x4f              ;008b  4f          DATA 0x4f 'O'
-    .byte 0x00              ;008c  00          DATA 0x00
-    .byte 0x65              ;008d  65          DATA 0x65 'e'
-    .byte 0xc0              ;008e  c0          DATA 0xc0
-    .byte 0x20              ;008f  20          DATA 0x20 ' '
-    .byte 0xcd              ;0090  cd          DATA 0xcd
-    .byte 0xe6              ;0091  e6          DATA 0xe6
-    .byte 0x04              ;0092  04          DATA 0x04
-    .byte 0x80              ;0093  80          DATA 0x80
-    .byte 0x02              ;0094  02          DATA 0x02
-    .byte 0xd2              ;0095  d2          DATA 0xd2
-    .byte 0x0f              ;0096  0f          DATA 0x0f
-    .byte 0xa1              ;0097  a1          DATA 0xa1
-    .byte 0x0f              ;0098  0f          DATA 0x0f
-    .byte 0x76              ;0099  76          DATA 0x76 'v'
-    .byte 0x04              ;009a  04          DATA 0x04
-    .byte 0xcc              ;009b  cc          DATA 0xcc
-    .byte 0x05              ;009c  05          DATA 0x05
-    .byte 0x66              ;009d  66          DATA 0x66 'f'
-    .byte 0x0f              ;009e  0f          DATA 0x0f
-    .byte 0x2e              ;009f  2e          DATA 0x2e '.'
-    .byte 0x03              ;00a0  03          DATA 0x03
-    .byte 0x31              ;00a1  31          DATA 0x31 '1'
-    .byte 0x00              ;00a2  00          DATA 0x00
-    .byte 0x40              ;00a3  40          DATA 0x40 '@'
-    .byte 0x03              ;00a4  03          DATA 0x03
-    .byte 0xd0              ;00a5  d0          DATA 0xd0
-    .byte 0x0f              ;00a6  0f          DATA 0x0f
-    .byte 0x2d              ;00a7  2d          DATA 0x2d '-'
-    .byte 0x01              ;00a8  01          DATA 0x01
-    .byte 0x9a              ;00a9  9a          DATA 0x9a
-    .byte 0x03              ;00aa  03          DATA 0x03
-    .byte 0x56              ;00ab  56          DATA 0x56 'V'
-    .byte 0x00              ;00ac  00          DATA 0x00
-    .byte 0x00              ;00ad  00          DATA 0x00
-    .byte 0x07              ;00ae  07          DATA 0x07
-    .byte 0xff              ;00af  ff          DATA 0xff
-    .byte 0x03              ;00b0  03          DATA 0x03
-    .byte 0x30              ;00b1  30          DATA 0x30 '0'
-    .byte 0x03              ;00b2  03          DATA 0x03
-    .byte 0x30              ;00b3  30          DATA 0x30 '0'
+;Defaults written to mem_f1b3 - mem_f1e6
+    .byte 0x1d              ;0080  1d          DATA 0x1d        -> mem_f1b3
+    .byte 0x1d              ;0081  1d          DATA 0x1d        -> mem_f1b4
+    .byte 0x10              ;0082  10          DATA 0x10        -> mem_f1b5
+    .byte 0x10              ;0083  10          DATA 0x10        -> mem_f1b6
+    .byte 0x00              ;0084  00          DATA 0x00        -> mem_f1b7
+    .byte 0x00              ;0085  00          DATA 0x00        -> mem_f1b8
+    .byte 0x0c              ;0086  0c          DATA 0x0c        -> mem_f1b9
+    .byte 0x12              ;0087  12          DATA 0x12        -> mem_f1ba
+    .byte 0x40              ;0088  40          DATA 0x40 '@'    -> mem_f1bb
+    .byte 0x40              ;0089  40          DATA 0x40 '@'    -> mem_f1bc
+    .byte 0x40              ;008a  40          DATA 0x40 '@'    -> mem_f1bd
+    .byte 0x4f              ;008b  4f          DATA 0x4f 'O'    -> mem_f1be
+    .byte 0x00              ;008c  00          DATA 0x00        -> mem_f1bf
+    .byte 0x65              ;008d  65          DATA 0x65 'e'    -> mem_f1c0
+    .byte 0xc0              ;008e  c0          DATA 0xc0        -> mem_f1c1
+    .byte 0x20              ;008f  20          DATA 0x20 ' '    -> mem_f1c2
+    .byte 0xcd              ;0090  cd          DATA 0xcd        -> mem_f1c3
+    .byte 0xe6              ;0091  e6          DATA 0xe6        -> mem_f1c4
+    .byte 0x04              ;0092  04          DATA 0x04        -> mem_f1c5
+    .byte 0x80              ;0093  80          DATA 0x80        -> mem_f1c6
+    .byte 0x02              ;0094  02          DATA 0x02        -> mem_f1c7
+    .byte 0xd2              ;0095  d2          DATA 0xd2        -> mem_f1c8
+    .byte 0x0f              ;0096  0f          DATA 0x0f        -> mem_f1c9
+    .byte 0xa1              ;0097  a1          DATA 0xa1        -> mem_f1ca
+    .byte 0x0f              ;0098  0f          DATA 0x0f        -> mem_f1cb
+    .byte 0x76              ;0099  76          DATA 0x76 'v'    -> mem_f1cc
+    .byte 0x04              ;009a  04          DATA 0x04        -> mem_f1cd
+    .byte 0xcc              ;009b  cc          DATA 0xcc        -> mem_f1ce
+    .byte 0x05              ;009c  05          DATA 0x05        -> mem_f1cf
+    .byte 0x66              ;009d  66          DATA 0x66 'f'    -> mem_f1d0
+    .byte 0x0f              ;009e  0f          DATA 0x0f        -> mem_f1d1
+    .byte 0x2e              ;009f  2e          DATA 0x2e '.'    -> mem_f1d2
+    .byte 0x03              ;00a0  03          DATA 0x03        -> mem_f1d3
+    .byte 0x31              ;00a1  31          DATA 0x31 '1'    -> mem_f1d4
+    .byte 0x00              ;00a2  00          DATA 0x00        -> mem_f1d5
+    .byte 0x40              ;00a3  40          DATA 0x40 '@'    -> mem_f1d6
+    .byte 0x03              ;00a4  03          DATA 0x03        -> mem_f1d7
+    .byte 0xd0              ;00a5  d0          DATA 0xd0        -> mem_f1d8
+    .byte 0x0f              ;00a6  0f          DATA 0x0f        -> mem_f1d9
+    .byte 0x2d              ;00a7  2d          DATA 0x2d '-'    -> mem_f1da
+    .byte 0x01              ;00a8  01          DATA 0x01        -> mem_f1db
+    .byte 0x9a              ;00a9  9a          DATA 0x9a        -> mem_f1dc
+    .byte 0x03              ;00aa  03          DATA 0x03        -> mem_f1dd
+    .byte 0x56              ;00ab  56          DATA 0x56 'V'    -> mem_f1de
+    .byte 0x00              ;00ac  00          DATA 0x00        -> mem_f1df
+    .byte 0x00              ;00ad  00          DATA 0x00        -> mem_f1e0
+    .byte 0x07              ;00ae  07          DATA 0x07        -> mem_f1e1
+    .byte 0xff              ;00af  ff          DATA 0xff        -> mem_f1e2
+    .byte 0x03              ;00b0  03          DATA 0x03        -> mem_f1e3
+    .byte 0x30              ;00b1  30          DATA 0x30 '0'    -> mem_f1e4
+    .byte 0x03              ;00b2  03          DATA 0x03        -> mem_f1e5
+    .byte 0x30              ;00b3  30          DATA 0x30 '0'    -> mem_f1e6
 
 mem_00b4:
-    .byte 0x00              ;00b4  00          DATA 0x00
-    .byte 0xaa              ;00b5  aa          DATA 0xaa
-    .byte 0x04              ;00b6  04          DATA 0x04
-    .byte 0x41              ;00b7  41          DATA 0x41 'A'
-    .byte 0x01              ;00b8  01          DATA 0x01
-    .byte 0x00              ;00b9  00          DATA 0x00
-    .byte 0x31              ;00ba  31          DATA 0x31 '1'
-    .byte 0x4a              ;00bb  4a          DATA 0x4a 'J'
-    .byte 0x30              ;00bc  30          DATA 0x30 '0'
-    .byte 0x30              ;00bd  30          DATA 0x30 '0'
-    .byte 0x33              ;00be  33          DATA 0x33 '3'
-    .byte 0x35              ;00bf  35          DATA 0x35 '5'
-    .byte 0x31              ;00c0  31          DATA 0x31 '1'
-    .byte 0x38              ;00c1  38          DATA 0x38 '8'
-    .byte 0x30              ;00c2  30          DATA 0x30 '0'
-    .byte 0x42              ;00c3  42          DATA 0x42 'B'
-    .byte 0x20              ;00c4  20          DATA 0x20 ' '
-    .byte 0x20              ;00c5  20          DATA 0x20 ' '
+;Defaults written to mem_f1e7 - mem_f1f8
+    .byte 0x00              ;00b4  00          DATA 0x00        -> mem_f1e7
+    .byte 0xaa              ;00b5  aa          DATA 0xaa        -> mem_f1e8
+    .byte 0x04              ;00b6  04          DATA 0x04        -> mem_f1e9
+    .byte 0x41              ;00b7  41          DATA 0x41 'A'    -> mem_f1ea
+    .byte 0x01              ;00b8  01          DATA 0x01        -> mem_f1eb
+    .byte 0x00              ;00b9  00          DATA 0x00        -> mem_f1ec
+    .byte 0x31              ;00ba  31          DATA 0x31 '1'    -> mem_f1ed
+    .byte 0x4a              ;00bb  4a          DATA 0x4a 'J'    -> mem_f1ee
+    .byte 0x30              ;00bc  30          DATA 0x30 '0'    -> mem_f1ef
+    .byte 0x30              ;00bd  30          DATA 0x30 '0'    -> mem_f1f0
+    .byte 0x33              ;00be  33          DATA 0x33 '3'    -> mem_f1f1
+    .byte 0x35              ;00bf  35          DATA 0x35 '5'    -> mem_f1f2
+    .byte 0x31              ;00c0  31          DATA 0x31 '1'    -> mem_f1f3
+    .byte 0x38              ;00c1  38          DATA 0x38 '8'    -> mem_f1f4
+    .byte 0x30              ;00c2  30          DATA 0x30 '0'    -> mem_f1f5
+    .byte 0x42              ;00c3  42          DATA 0x42 'B'    -> mem_f1f6
+    .byte 0x20              ;00c4  20          DATA 0x20 ' '    -> mem_f1f7
+    .byte 0x20              ;00c5  20          DATA 0x20 ' '    -> mem_f1f8
 
 mem_00c6:
 ;Defaults written to mem_f1f9 - mem_f201
@@ -1003,110 +1005,112 @@ mem_00c6:
     .byte 0x00              ;00ce  00          DATA 0x00        -> mem_f201
 
 mem_00cf:
-    .byte 0x00              ;00cf  00          DATA 0x00
-    .byte 0x44              ;00d0  44          DATA 0x44 'D'
-    .byte 0x00              ;00d1  00          DATA 0x00
-    .byte 0x00              ;00d2  00          DATA 0x00
-    .byte 0x00              ;00d3  00          DATA 0x00
-    .byte 0x00              ;00d4  00          DATA 0x00
-    .byte 0x45              ;00d5  45          DATA 0x45 'E'
-    .byte 0x88              ;00d6  88          DATA 0x88
-    .byte 0x88              ;00d7  88          DATA 0x88
-    .byte 0x88              ;00d8  88          DATA 0x88
-    .byte 0x88              ;00d9  88          DATA 0x88
-    .byte 0x88              ;00da  88          DATA 0x88
-    .byte 0x88              ;00db  88          DATA 0x88
-    .byte 0x88              ;00dc  88          DATA 0x88
-    .byte 0x88              ;00dd  88          DATA 0x88
-    .byte 0x88              ;00de  88          DATA 0x88
-    .byte 0x23              ;00df  23          DATA 0x23 '#'
-    .byte 0x88              ;00e0  88          DATA 0x88
-    .byte 0x88              ;00e1  88          DATA 0x88
-    .byte 0x00              ;00e2  00          DATA 0x00
-    .byte 0x00              ;00e3  00          DATA 0x00
-    .byte 0x00              ;00e4  00          DATA 0x00
-    .byte 0x00              ;00e5  00          DATA 0x00
-    .byte 0x00              ;00e6  00          DATA 0x00
-    .byte 0x00              ;00e7  00          DATA 0x00
-    .byte 0x00              ;00e8  00          DATA 0x00
-    .byte 0x00              ;00e9  00          DATA 0x00
-    .byte 0x00              ;00ea  00          DATA 0x00
-    .byte 0x00              ;00eb  00          DATA 0x00
-    .byte 0x00              ;00ec  00          DATA 0x00
-    .byte 0x00              ;00ed  00          DATA 0x00
+;Defaults written to mem_f206 - mem_f224
+    .byte 0x00              ;00cf  00          DATA 0x00        -> mem_f206
+    .byte 0x44              ;00d0  44          DATA 0x44 'D'    -> mem_f207
+    .byte 0x00              ;00d1  00          DATA 0x00        -> mem_f208
+    .byte 0x00              ;00d2  00          DATA 0x00        -> mem_f209
+    .byte 0x00              ;00d3  00          DATA 0x00        -> mem_f20a
+    .byte 0x00              ;00d4  00          DATA 0x00        -> mem_f20b
+    .byte 0x45              ;00d5  45          DATA 0x45 'E'    -> mem_f20c
+    .byte 0x88              ;00d6  88          DATA 0x88        -> mem_f20d
+    .byte 0x88              ;00d7  88          DATA 0x88        -> mem_f20e
+    .byte 0x88              ;00d8  88          DATA 0x88        -> mem_f20f
+    .byte 0x88              ;00d9  88          DATA 0x88        -> mem_f210
+    .byte 0x88              ;00da  88          DATA 0x88        -> mem_f211
+    .byte 0x88              ;00db  88          DATA 0x88        -> mem_f212
+    .byte 0x88              ;00dc  88          DATA 0x88        -> mem_f213
+    .byte 0x88              ;00dd  88          DATA 0x88        -> mem_f214
+    .byte 0x88              ;00de  88          DATA 0x88        -> mem_f215
+    .byte 0x23              ;00df  23          DATA 0x23 '#'    -> mem_f216
+    .byte 0x88              ;00e0  88          DATA 0x88        -> mem_f217
+    .byte 0x88              ;00e1  88          DATA 0x88        -> mem_f218
+    .byte 0x00              ;00e2  00          DATA 0x00        -> mem_f219
+    .byte 0x00              ;00e3  00          DATA 0x00        -> mem_f21a
+    .byte 0x00              ;00e4  00          DATA 0x00        -> mem_f21b
+    .byte 0x00              ;00e5  00          DATA 0x00        -> mem_f21c
+    .byte 0x00              ;00e6  00          DATA 0x00        -> mem_f21d
+    .byte 0x00              ;00e7  00          DATA 0x00        -> mem_f21e
+    .byte 0x00              ;00e8  00          DATA 0x00        -> mem_f21f
+    .byte 0x00              ;00e9  00          DATA 0x00        -> mem_f220
+    .byte 0x00              ;00ea  00          DATA 0x00        -> mem_f221
+    .byte 0x00              ;00eb  00          DATA 0x00        -> mem_f222
+    .byte 0x00              ;00ec  00          DATA 0x00        -> mem_f223
+    .byte 0x00              ;00ed  00          DATA 0x00        -> mem_f224
 
 mem_00ee:
-    .byte 0x04              ;00ee  04          DATA 0x04
-    .byte 0x06              ;00ef  06          DATA 0x06
-    .byte 0x04              ;00f0  04          DATA 0x04
-    .byte 0x06              ;00f1  06          DATA 0x06
-    .byte 0x08              ;00f2  08          DATA 0x08
-    .byte 0x06              ;00f3  06          DATA 0x06
-    .byte 0x21              ;00f4  21          DATA 0x21 '!'
-    .byte 0x06              ;00f5  06          DATA 0x06
-    .byte 0x3a              ;00f6  3a          DATA 0x3a ':'
-    .byte 0x06              ;00f7  06          DATA 0x06
-    .byte 0x5d              ;00f8  5d          DATA 0x5d ']'
-    .byte 0x06              ;00f9  06          DATA 0x06
-    .byte 0x04              ;00fa  04          DATA 0x04
-    .byte 0x06              ;00fb  06          DATA 0x06
-    .byte 0x35              ;00fc  35          DATA 0x35 '5'
-    .byte 0x06              ;00fd  06          DATA 0x06
-    .byte 0x02              ;00fe  02          DATA 0x02
-    .byte 0x06              ;00ff  06          DATA 0x06
-    .byte 0x03              ;0100  03          DATA 0x03
-    .byte 0x06              ;0101  06          DATA 0x06
-    .byte 0x35              ;0102  35          DATA 0x35 '5'
-    .byte 0x06              ;0103  06          DATA 0x06
-    .byte 0x2c              ;0104  2c          DATA 0x2c ','
-    .byte 0x06              ;0105  06          DATA 0x06
-    .byte 0x66              ;0106  66          DATA 0x66 'f'
-    .byte 0x06              ;0107  06          DATA 0x06
-    .byte 0x51              ;0108  51          DATA 0x51 'Q'
-    .byte 0x06              ;0109  06          DATA 0x06
-    .byte 0x01              ;010a  01          DATA 0x01
-    .byte 0x06              ;010b  06          DATA 0x06
-    .byte 0x01              ;010c  01          DATA 0x01
-    .byte 0x06              ;010d  06          DATA 0x06
-    .byte 0x08              ;010e  08          DATA 0x08
-    .byte 0x06              ;010f  06          DATA 0x06
-    .byte 0x35              ;0110  35          DATA 0x35 '5'
-    .byte 0x06              ;0111  06          DATA 0x06
-    .byte 0x58              ;0112  58          DATA 0x58 'X'
-    .byte 0x06              ;0113  06          DATA 0x06
-    .byte 0x77              ;0114  77          DATA 0x77 'w'
-    .byte 0x06              ;0115  06          DATA 0x06
-    .byte 0x01              ;0116  01          DATA 0x01
-    .byte 0x06              ;0117  06          DATA 0x06
-    .byte 0x06              ;0118  06          DATA 0x06
-    .byte 0x06              ;0119  06          DATA 0x06
-    .byte 0x06              ;011a  06          DATA 0x06
-    .byte 0x00              ;011b  00          DATA 0x00
-    .byte 0x01              ;011c  01          DATA 0x01
-    .byte 0x42              ;011d  42          DATA 0x42 'B'
-    .byte 0x00              ;011e  00          DATA 0x00
-    .byte 0x01              ;011f  01          DATA 0x01
-    .byte 0x0a              ;0120  0a          DATA 0x0a
-    .byte 0x0a              ;0121  0a          DATA 0x0a
-    .byte 0x0a              ;0122  0a          DATA 0x0a
-    .byte 0x0a              ;0123  0a          DATA 0x0a
-    .byte 0x0a              ;0124  0a          DATA 0x0a
-    .byte 0x0a              ;0125  0a          DATA 0x0a
-    .byte 0x0a              ;0126  0a          DATA 0x0a
-    .byte 0x0a              ;0127  0a          DATA 0x0a
-    .byte 0x0a              ;0128  0a          DATA 0x0a
-    .byte 0x0a              ;0129  0a          DATA 0x0a
-    .byte 0x0a              ;012a  0a          DATA 0x0a
-    .byte 0x0a              ;012b  0a          DATA 0x0a
-    .byte 0x0a              ;012c  0a          DATA 0x0a
-    .byte 0x0a              ;012d  0a          DATA 0x0a
-    .byte 0x0a              ;012e  0a          DATA 0x0a
-    .byte 0x0a              ;012f  0a          DATA 0x0a
-    .byte 0x0a              ;0130  0a          DATA 0x0a
-    .byte 0x42              ;0131  42          DATA 0x42 'B'
-    .byte 0x06              ;0132  06          DATA 0x06
-    .byte 0x06              ;0133  06          DATA 0x06
-    .byte 0x55              ;0134  55          DATA 0x55 'U'
+;Defaults written to mem_f225 - mem_f26b
+    .byte 0x04              ;00ee  04          DATA 0x04        -> mem_f225
+    .byte 0x06              ;00ef  06          DATA 0x06        -> mem_f226
+    .byte 0x04              ;00f0  04          DATA 0x04        -> mem_f227
+    .byte 0x06              ;00f1  06          DATA 0x06        -> mem_f228
+    .byte 0x08              ;00f2  08          DATA 0x08        -> mem_f229
+    .byte 0x06              ;00f3  06          DATA 0x06        -> mem_f22a
+    .byte 0x21              ;00f4  21          DATA 0x21 '!'    -> mem_f22b
+    .byte 0x06              ;00f5  06          DATA 0x06        -> mem_f22c
+    .byte 0x3a              ;00f6  3a          DATA 0x3a ':'    -> mem_f22d
+    .byte 0x06              ;00f7  06          DATA 0x06        -> mem_f22e
+    .byte 0x5d              ;00f8  5d          DATA 0x5d ']'    -> mem_f22f
+    .byte 0x06              ;00f9  06          DATA 0x06        -> mem_f230
+    .byte 0x04              ;00fa  04          DATA 0x04        -> mem_f231
+    .byte 0x06              ;00fb  06          DATA 0x06        -> mem_f232
+    .byte 0x35              ;00fc  35          DATA 0x35 '5'    -> mem_f233
+    .byte 0x06              ;00fd  06          DATA 0x06        -> mem_f234
+    .byte 0x02              ;00fe  02          DATA 0x02        -> mem_f235
+    .byte 0x06              ;00ff  06          DATA 0x06        -> mem_f236
+    .byte 0x03              ;0100  03          DATA 0x03        -> mem_f237
+    .byte 0x06              ;0101  06          DATA 0x06        -> mem_f238
+    .byte 0x35              ;0102  35          DATA 0x35 '5'    -> mem_f239
+    .byte 0x06              ;0103  06          DATA 0x06        -> mem_f23a
+    .byte 0x2c              ;0104  2c          DATA 0x2c ','    -> mem_f23b
+    .byte 0x06              ;0105  06          DATA 0x06        -> mem_f23c
+    .byte 0x66              ;0106  66          DATA 0x66 'f'    -> mem_f23d
+    .byte 0x06              ;0107  06          DATA 0x06        -> mem_f23e
+    .byte 0x51              ;0108  51          DATA 0x51 'Q'    -> mem_f23f
+    .byte 0x06              ;0109  06          DATA 0x06        -> mem_f240
+    .byte 0x01              ;010a  01          DATA 0x01        -> mem_f241
+    .byte 0x06              ;010b  06          DATA 0x06        -> mem_f242
+    .byte 0x01              ;010c  01          DATA 0x01        -> mem_f243
+    .byte 0x06              ;010d  06          DATA 0x06        -> mem_f244
+    .byte 0x08              ;010e  08          DATA 0x08        -> mem_f245
+    .byte 0x06              ;010f  06          DATA 0x06        -> mem_f246
+    .byte 0x35              ;0110  35          DATA 0x35 '5'    -> mem_f247
+    .byte 0x06              ;0111  06          DATA 0x06        -> mem_f248
+    .byte 0x58              ;0112  58          DATA 0x58 'X'    -> mem_f249
+    .byte 0x06              ;0113  06          DATA 0x06        -> mem_f24a
+    .byte 0x77              ;0114  77          DATA 0x77 'w'    -> mem_f24b
+    .byte 0x06              ;0115  06          DATA 0x06        -> mem_f24c
+    .byte 0x01              ;0116  01          DATA 0x01        -> mem_f24d
+    .byte 0x06              ;0117  06          DATA 0x06        -> mem_f24e
+    .byte 0x06              ;0118  06          DATA 0x06        -> mem_f24f
+    .byte 0x06              ;0119  06          DATA 0x06        -> mem_f250
+    .byte 0x06              ;011a  06          DATA 0x06        -> mem_f251
+    .byte 0x00              ;011b  00          DATA 0x00        -> mem_f252
+    .byte 0x01              ;011c  01          DATA 0x01        -> mem_f253
+    .byte 0x42              ;011d  42          DATA 0x42 'B'    -> mem_f254
+    .byte 0x00              ;011e  00          DATA 0x00        -> mem_f255
+    .byte 0x01              ;011f  01          DATA 0x01        -> mem_f256
+    .byte 0x0a              ;0120  0a          DATA 0x0a        -> mem_f257
+    .byte 0x0a              ;0121  0a          DATA 0x0a        -> mem_f258
+    .byte 0x0a              ;0122  0a          DATA 0x0a        -> mem_f259
+    .byte 0x0a              ;0123  0a          DATA 0x0a        -> mem_f25a
+    .byte 0x0a              ;0124  0a          DATA 0x0a        -> mem_f25b
+    .byte 0x0a              ;0125  0a          DATA 0x0a        -> mem_f25c
+    .byte 0x0a              ;0126  0a          DATA 0x0a        -> mem_f25d
+    .byte 0x0a              ;0127  0a          DATA 0x0a        -> mem_f25e
+    .byte 0x0a              ;0128  0a          DATA 0x0a        -> mem_f25f
+    .byte 0x0a              ;0129  0a          DATA 0x0a        -> mem_f260
+    .byte 0x0a              ;012a  0a          DATA 0x0a        -> mem_f261
+    .byte 0x0a              ;012b  0a          DATA 0x0a        -> mem_f262
+    .byte 0x0a              ;012c  0a          DATA 0x0a        -> mem_f263
+    .byte 0x0a              ;012d  0a          DATA 0x0a        -> mem_f264
+    .byte 0x0a              ;012e  0a          DATA 0x0a        -> mem_f265
+    .byte 0x0a              ;012f  0a          DATA 0x0a        -> mem_f266
+    .byte 0x0a              ;0130  0a          DATA 0x0a        -> mem_f267
+    .byte 0x42              ;0131  42          DATA 0x42 'B'    -> mem_f268
+    .byte 0x06              ;0132  06          DATA 0x06        -> mem_f269
+    .byte 0x06              ;0133  06          DATA 0x06        -> mem_f26a
+    .byte 0x55              ;0134  55          DATA 0x55 'U'    -> mem_f26b
 
 ;Watch timer interrupt handler
 intwtni0_0135:
@@ -3884,10 +3888,10 @@ lab_147c:
 lab_148f:
     call !kwp_check_idle    ;148f  9a 3f 33     Decrement KWP1281 idle countdown and disconnect KWP1281 connection if needed
     call !sub_3e1d          ;1492  9a 1d 3e
-    call !sub_3d09          ;1495  9a 09 3d     Read analog input 0x01 and ???
+    call !sub_3d09          ;1495  9a 09 3d     Read analog input 0x01 (P91/ANI10) and ???
     call !sub_4889          ;1498  9a 89 48     Set uPD16432B LED output latches based on illumination voltage (P92/ANI20) and then ???
     call !sub_58d8          ;149b  9a d8 58     Check POWER key and ???
-    call !sub_56cc          ;149e  9a cc 56
+    call !sub_56cc          ;149e  9a cc 56     Read uPD16432B key data if ??? conditions are met
     bf mem_fe2d.0,lab_14a8  ;14a1  31 03 2d 03
     call !sub_9140          ;14a5  9a 40 91
 
@@ -6803,30 +6807,51 @@ display_test_end:
     .ascii "        "   ;FIS line 1
     .ascii "  END   "   ;FIS line 2
 
-sub_26b6:
+
+sub_26b6_elab_1:
+;Given a fault elaboration in A, return something in E
+;that is used for measuring block responses
+;
+;Called when:
+;  "value b" = 0xE1 (Front Speakers Status)
+;  "value b" = 0xE2 (Rear Speakers Status)
+;  "value b" = 0xE4 (Antenna Status)
+;
     mov e,#0xc2             ;26b6  a4 c2
     cmp a,#0x00             ;26b8  4d 00
-    bz lab_26c8             ;26ba  ad 0c
+    bz lab_26c8_ret         ;26ba  ad 0c    If A=0 (0 "-") then return with E=0xC2
+
     cmp a,#0x88             ;26bc  4d 88
-    bz lab_26c8             ;26be  ad 08
+    bz lab_26c8_ret         ;26be  ad 08    If A=0x88 (no fault) then return with E=0xC2
+
     mov e,#0xf2             ;26c0  a4 f2
     cmp a,#0x2c             ;26c2  4d 2c
-    bz lab_26c8             ;26c4  ad 02
-    mov e,#0xf3             ;26c6  a4 f3
+    bz lab_26c8_ret         ;26c4  ad 02    If A=0x2C (44 "Short Circuit") then return with E=0xF2
 
-lab_26c8:
+    mov e,#0xf3             ;26c6  a4 f3    Otherwise return with E=0xF3
+lab_26c8_ret:
     ret                     ;26c8  af
 
-sub_26c9:
+
+sub_26c9_elab_2:
+;Given a fault elaboration in A, return something in E
+;that is used for measuring block responses
+;
+;Called when:
+;  "value b" = 0xE5 (CD Changer Status)
+;  "value b" = 0xE6 (External Display Status)
+;
     mov e,#0xc2             ;26c9  a4 c2
     cmp a,#0x00             ;26cb  4d 00
-    bz lab_26d5             ;26cd  ad 06
-    cmp a,#0x88             ;26cf  4d 88
-    bz lab_26d5             ;26d1  ad 02
-    mov e,#0xc3             ;26d3  a4 c3
+    bz lab_26d5_ret         ;26cd  ad 06    If A=0 (0 "-") then return with E=0xC2
 
-lab_26d5:
+    cmp a,#0x88             ;26cf  4d 88
+    bz lab_26d5_ret         ;26d1  ad 02    If A=0x88 (no fault) then return with E=0xC2
+
+    mov e,#0xc3             ;26d3  a4 c3    Otherwise return with E=0xC3
+lab_26d5_ret:
     ret                     ;26d5  af
+
 
 sub_26d6:
     call !sub_7697          ;26d6  9a 97 76
@@ -7294,37 +7319,47 @@ lab_287a:
 
     set1 mem_fe5f.4         ;2887  4a 5f        Set bit = currently reading a measuring block group
 
+    ;Read the next three values (type, value a, value b) from a group_N_data type
+
     movw ax,!mem_f002       ;2889  02 02 f0
     movw hl,ax              ;288c  d6           HL = pointer to group reading data (group_N_data)
 
-    mov a,[hl]              ;288d  87
-    mov e,a                 ;288e  74
+    mov a,[hl]              ;288d  87           A = type
+    mov e,a                 ;288e  74           E = type
 
-    incw hl                 ;288f  86
-    mov a,[hl]              ;2890  87
-    mov x,a                 ;2891  70
+    incw hl                 ;288f  86           HL = increment pointer to next byte (value a)
+    mov a,[hl]              ;2890  87           A = value a
+    mov x,a                 ;2891  70           X = value a
 
-    incw hl                 ;2892  86
-    mov a,[hl]              ;2893  87
-    xch a,e                 ;2894  34
+    incw hl                 ;2892  86           HL = increment pointer to next byte (value b)
+    mov a,[hl]              ;2893  87           A = value b
+    xch a,e                 ;2894  34           Swap so that: A = type, E = value b
+
+    ;At this point:
+    ;  A = type, X = value a, E = value b
+
+    ;Increment pointer and save it in mem_f002
 
     push ax                 ;2895  b1
-    incw hl                 ;2896  86
+    incw hl                 ;2896  86           Increment pointer to next byte in a group_N_data table
     movw ax,hl              ;2897  c6
     movw !mem_f002,ax       ;2898  03 02 f0     Save incremented pointer to group reading data
                             ;                     (now pointing at the first byte of the next
                             ;                      measurement in the group)
     pop ax                  ;289b  b0
 
-    push ax                 ;289c  b1
+    ;At this point again:
+    ;  A = type, X = value a, E = value b
+
+    push ax                 ;289c  b1           Push onto stack: A = type, X = value a
     mov a,!kwp_group_num    ;289d  8e 4f f0     A = KWP1281 group number
-    cmp a,#0x07             ;28a0  4d 07
-    mov a,e                 ;28a2  64
+    cmp a,#0x07             ;28a0  4d 07        Is it 7 (Steering Wheel Control)?
+    mov a,e                 ;28a2  64           Move so that: A=value b, X=value a, E=value b
     bnz lab_28e2            ;28a3  bd 3d
 
     ;group number = 7 (Steering Wheel Control)
-    pop ax                  ;28a5  b0
-    xch a,e                 ;28a6  34
+    pop ax                  ;28a5  b0           Pop so that: A = type, X = value a, E = value b
+    xch a,e                 ;28a6  34           Swap so that: A = value b, X = value a, E = type
     movw hl,ax              ;28a7  d6
     mov a,!mem_f197         ;28a8  8e 97 f1
     cmp a,#0xff             ;28ab  4d ff
@@ -7332,9 +7367,7 @@ lab_287a:
     mov !kwp_meas_f051,a    ;28af  9e 51 f0
     mov a,#0x1e             ;28b2  a1 1e
     mov !mem_fb23,a         ;28b4  9e 23 fb
-
 lab_28b7:
-;group number != 7
     mov a,!mem_fb23         ;28b7  8e 23 fb
     cmp a,#0x00             ;28ba  4d 00
     bz lab_28da             ;28bc  ad 1c
@@ -7353,7 +7386,6 @@ lab_28b7:
     add a,#0x30             ;28d4  0d 30
     xch a,e                 ;28d6  34
     br !lab_29b0_ret_data   ;28d7  9b b0 29   Branch to return with measurement data
-
 lab_28da:
     mov a,#0x20             ;28da  a1 20
     mov x,#0x20             ;28dc  a0 20
@@ -7361,24 +7393,31 @@ lab_28da:
     br !lab_29b0_ret_data   ;28df  9b b0 29   Branch to return with measurement data
 
 lab_28e2:
-    ;group number != 7
-    and a,#0xf0             ;28e2  5d f0
-    cmp a,#0xd0             ;28e4  4d d0
+;group number != 7
+;At this point:
+;  A=value b, X=value a, E=value b
+;  Top of stack: A = type, X = value a
+    and a,#0xf0             ;28e2  5d f0    A = "value b" AND 0xF0
+    cmp a,#0xd0             ;28e4  4d d0    Is ANDed value = 0xD0?  (0xD1 = amplifier output)
     bnz lab_2903            ;28e6  bd 1b
-    mov a,e                 ;28e8  64
-    cmp a,#0xd1             ;28e9  4d d1
+
+    mov a,e                 ;28e8  64       A = value B
+    cmp a,#0xd1             ;28e9  4d d1    Is it = 0xD1 (amplifier output)?
     bnz lab_2900            ;28eb  bd 13
+
     mov e,#0x00             ;28ed  a4 00
 
-    movw hl,#mem_fc1c       ;28ef  16 1c fc   HL = faults buffer "00850 - Control Output Active; Radio Amplifier"
-    mov a,[hl]              ;28f2  87
-    cmp a,#0x00             ;28f3  4d 00
-    bz lab_28fd             ;28f5  ad 06
-    cmp a,#0x88             ;28f7  4d 88
-    bz lab_28fd             ;28f9  ad 02
+    movw hl,#mem_fc1c       ;28ef  16 1c fc HL = faults buffer "00850 - Control Output Active; Radio Amplifier"
+    mov a,[hl]              ;28f2  87       A = fault elaboration
+    cmp a,#0x00             ;28f3  4d 00    Is it 0 (0 "-")?
+    bz lab_28fd_ok          ;28f5  ad 06    Branch if = 0
+    cmp a,#0x88             ;28f7  4d 88    Is it 0x88 (no fault)?
+    bz lab_28fd_ok          ;28f9  ad 02    Branch if = 0x88
+
+    ;Fault elaboration is not 0 or 0x88
     mov e,#0x01             ;28fb  a4 01
 
-lab_28fd:
+lab_28fd_ok:
 ;mem_fc1c = 0 or 0x88
     br !lab_29af_ret_data   ;28fd  9b af 29   Branch to return with measurement data
 
@@ -7386,41 +7425,67 @@ lab_2900:
     br !lab_29af_ret_data   ;2900  9b af 29   Branch to return with measurement data
 
 lab_2903:
-    mov a,e                 ;2903  64
-    and a,#0xf0             ;2904  5d f0
-    cmp a,#0xe0             ;2906  4d e0
-    bnz lab_2972            ;2908  bd 68
-    mov a,e                 ;290a  64
-    cmp a,#0xe0             ;290b  4d e0
-    bnz lab_291e            ;290d  bd 0f
-    set1 mem_fe63.0         ;290f  0a 63      Set bit = do not initiate a KWP1281 connection to the cluster
-    mov e,#0x87             ;2911  a4 87
-    set1 pm9.0              ;2913  71 0a 29   PM90=input
-    bt p9.0,lab_291b        ;2916  8c 09 02   Branch if P90=1
-    mov e,#0x88             ;2919  a4 88
+;At this point:
+;  A=(value b AND 0xF0), X=value a, E=value b
+;  Top of stack: A = type, X = value a
+    mov a,e                 ;2903  64         A = value b
+    and a,#0xf0             ;2904  5d f0      A = "value b" AND 0xF0
+    cmp a,#0xe0             ;2906  4d e0      Is the ANDed value = 0xE0?
+                            ;                    0xE0 = S-Contact Status,
+                            ;                    0xE1 = Front Speakers Status,
+                            ;                    0xE2 = Rear Speakers Status
+                            ;                    0xE3 = Antenna Type,
+                            ;                    0xE4 = Antenna Status
+                            ;                    0xE5 = CD Changer Status
+                            ;                    0xE6 = External Display Status
+    bnz lab_2972_check_0xff            ;2908  bd 68
 
+    mov a,e                 ;290a  64         E = value b
+    cmp a,#0xe0             ;290b  4d e0      Is "value b" = 0xE0 (S-Contact Status)?
+    bnz lab_291e_check_0xe1 ;290d  bd 0f      Branch if not equal
+
+    ;"value b" = 0xE0 (S-Contact Status)
+
+    ;XXX It seems that reading the measuring block for the S-Contact has the side effect of
+    ;    disabling the radio-as-tester communication to the cluster.  Is this to obscure it?
+    set1 mem_fe63.0         ;290f  0a 63      Set bit = do not initiate a KWP1281 connection to the cluster
+
+    mov e,#0x87             ;2911  a4 87
+    set1 pm9.0              ;2913  71 0a 29   PM90=input (S-Contact)
+    bt p9.0,lab_291b        ;2916  8c 09 02   Branch if P90=1 (S-Contact)
+
+    mov e,#0x88             ;2919  a4 88
 lab_291b:
     br !lab_29af_ret_data   ;291b  9b af 29   Branch to return with measurement data
 
-lab_291e:
-    cmp a,#0xe1             ;291e  4d e1
-    bnz lab_292c            ;2920  bd 0a
+lab_291e_check_0xe1:
+    cmp a,#0xe1             ;291e  4d e1      Is "value b" = 0xE1 (Front Speakers Status)?
+    bnz lab_292c_check_0xe2 ;2920  bd 0a      Branch if not equal
+
+    ;"value b" = 0xE1 (Front Speakers Status)
+
     movw hl,#mem_fc1e       ;2922  16 1e fc   HL = faults buffer "00852 - Loudspeaker(s); Front"
     mov a,[hl]              ;2925  87
-    call !sub_26b6          ;2926  9a b6 26
+    call !sub_26b6_elab_1   ;2926  9a b6 26   Given a fault elaboration in A, return something in E
     br !lab_29af_ret_data   ;2929  9b af 29   Branch to return with measurement data
 
-lab_292c:
-    cmp a,#0xe2             ;292c  4d e2
-    bnz lab_2939            ;292e  bd 09
+lab_292c_check_0xe2:
+    cmp a,#0xe2             ;292c  4d e2      Is "value b" = 0xE2 (Rear Speakers Status)?
+    bnz lab_2939_check_0xe3 ;292e  bd 09      Branch if not equal
+
+    ;"value b" = 0xE2 (Rear Speakers Status)
+
     movw hl,#mem_fc1f       ;2930  16 1f fc   HL = faults buffer "00853 - Loudspeaker(s); Rear"
     mov a,[hl]              ;2933  87
-    call !sub_26b6          ;2934  9a b6 26
+    call !sub_26b6_elab_1   ;2934  9a b6 26   Given a fault elaboration in A, return something in E
     br lab_29af_ret_data    ;2937  fa 76      Branch to return with measurement data
 
-lab_2939:
-    cmp a,#0xe3             ;2939  4d e3
-    bnz lab_2949            ;293b  bd 0c
+lab_2939_check_0xe3:
+    cmp a,#0xe3             ;2939  4d e3      Is "value b" = 0xE3 (Antenna Type)?
+    bnz lab_2949_check_0xe4 ;293b  bd 0c      Branch if not equal
+
+    ;"value b" = 0xE3 (Antenna Type)
+
     mov e,#0x12             ;293d  a4 12
     mov a,!mem_f1fd         ;293f  8e fd f1
     bt a.0,lab_2947         ;2942  31 0e 02
@@ -7429,43 +7494,58 @@ lab_2939:
 lab_2947:
     br lab_29af_ret_data    ;2947  fa 66      Branch to return with measurement data
 
-lab_2949:
-    cmp a,#0xe4             ;2949  4d e4
-    bnz lab_2956            ;294b  bd 09
+lab_2949_check_0xe4:
+    cmp a,#0xe4             ;2949  4d e4      Is "value b" = 0xE4 (Antenna Status)?
+    bnz lab_2956_check_0xe5 ;294b  bd 09      Branch if not equal
+
+    ;"value b" = 0xE4 (Antenna Status)
+
     movw hl,#mem_fc22       ;294d  16 22 fc   HL = pointer to faults buffer #2 "00856 - Radio Antenna"
     mov a,[hl]              ;2950  87
-    call !sub_26b6          ;2951  9a b6 26
+    call !sub_26b6_elab_1   ;2951  9a b6 26   Given a fault elaboration in A, return something in E
     br lab_29af_ret_data    ;2954  fa 59      Branch to return with measurement data
 
-lab_2956:
-    cmp a,#0xe5             ;2956  4d e5
-    bnz lab_2963            ;2958  bd 09
+lab_2956_check_0xe5:
+    cmp a,#0xe5             ;2956  4d e5      Is "value b" = 0xE5 (CD Changer Status)
+    bnz lab_2963_check_0xe6 ;2958  bd 09      Branch if not equal
+
+    ;"value b" = 0xE5 (CD Changer Status)
+
     movw hl,#mem_fc21       ;295a  16 21 fc   HL = pointer to faults buffer #2 "00855 - Connection to CD changer"
     mov a,[hl]              ;295d  87
-    call !sub_26c9          ;295e  9a c9 26
+    call !sub_26c9_elab_2   ;295e  9a c9 26   Given a fault elaboration in A, return something in E
     br lab_29af_ret_data    ;2961  fa 4c      Branch to return with measurement data
 
-lab_2963:
-    cmp a,#0xe6             ;2963  4d e6
-    bnz lab_2970            ;2965  bd 09
+lab_2963_check_0xe6:
+    cmp a,#0xe6             ;2963  4d e6      Is "value b" = 0xE6 (External Display Status)
+    bnz lab_2970_bad_0xe0   ;2965  bd 09      Branch if not equal
+
+    ;"value b" = 0xE6 (External Display Status)
+
     movw hl,#mem_fc20       ;2967  16 20 fc   HL = pointer to faults buffer #2 "00854 - Radio Display Output in Dash Panel Insert"
     mov a,[hl]              ;296a  87
-    call !sub_26c9          ;296b  9a c9 26
+    call !sub_26c9_elab_2;296b  9a c9 26   Given a fault elaboration in A, return something in E
     br lab_29af_ret_data    ;296e  fa 3f      Branch to return with measurement data
 
-lab_2970:
+lab_2970_bad_0xe0:
+;No matching "value b" for 0xE0-0xEF
     br lab_29af_ret_data    ;2970  fa 3d      Branch to return with measurement data
 
-lab_2972:
-    mov a,e                 ;2972  64
-    cmp a,#0xff             ;2973  4d ff
-    bnz lab_297c            ;2975  bd 05
+lab_2972_check_0xff:
+    mov a,e                 ;2972  64         E = value b
+    cmp a,#0xff             ;2973  4d ff      Is "value b" = 0xFF (Supply Voltage Terminal 30)?
+    bnz lab_297c_check_0xfe ;2975  bd 05      Branch if not equal
+
+    ;"value b" = 0xFF (Supply Voltage Terminal 30)
+
     mov a,!mem_f18d         ;2977  8e 8d f1
     br lab_29ae_ret_data    ;297a  fa 32      Branch to return with measurement data
 
-lab_297c:
-    cmp a,#0xfe             ;297c  4d fe
+lab_297c_check_0xfe:
+    cmp a,#0xfe             ;297c  4d fe      Is "value b" = 0xFE (Illumination %)?
     bnz lab_29af_ret_data   ;297e  bd 2f      Branch to return with measurement data
+
+    ;"value b" = 0xFE (Illumination %)
 
     mov a,!mem_fca3         ;2980  8e a3 fc   A = P92/ANI20 analog: Illumination voltage (0=off, 0xff=full)
     mov b,a                 ;2983  73         Save illumination analog in B
@@ -10807,15 +10887,15 @@ lab_39bc:
 
 lab_39bf:
     bt mem_fe7d.7,lab_39ed  ;39bf  fc 7d 2b     If ??? branch to turn on P70 and P80, call unknown, then cold or warm start
-    set1 pm9.0              ;39c2  71 0a 29     PM90=input
+    set1 pm9.0              ;39c2  71 0a 29     PM90=input (S-Contact)
     bf mem_fe2c.2,lab_39d4  ;39c5  31 23 2c 0b
-    mov1 cy,p9.0            ;39c9  71 04 09
+    mov1 cy,p9.0            ;39c9  71 04 09     CY = P90 (S-Contact)
     mov1 mem_fe2c.2,cy      ;39cc  71 21 2c
     mov1 mem_fe2c.6,cy      ;39cf  71 61 2c
     br lab_39d7             ;39d2  fa 03
 
 lab_39d4:
-    bt p9.0,lab_39ed        ;39d4  8c 09 16     If P90=1 branch to turn on P70 and P80, call unknown, then cold or warm start
+    bt p9.0,lab_39ed        ;39d4  8c 09 16     If P90=1 (S-Contact) branch to turn on P70 and P80, call unknown, then cold or warm start
 
 lab_39d7:
     bt mem_fe2c.3,lab_39ed  ;39d7  bc 2c 13     If ??? branch to turn on P70 and P80, call unknown, then cold or warm start
@@ -11321,9 +11401,9 @@ lab_3d00:
     ret                     ;3d08  af
 
 sub_3d09:
-;Read analog input 0x01 and ???
+;Read analog input 0x01 (P91/ANI10) and ???
     bf mem_fe62.1,lab_3d18  ;3d09  31 13 62 0b
-    movw ax,#0x017f         ;3d0d  10 7f 01     A = analog input 0x01
+    movw ax,#0x017f         ;3d0d  10 7f 01     A = analog input 0x01 (P91/ANI10)
                             ;                   X = 0x7f ???
     call !sub_abc3          ;3d10  9a c3 ab     Read analog input number A and do ???
     bc lab_3d57_ret         ;3d13  8d 42        Branch to return if failed
@@ -11496,12 +11576,12 @@ lab_3e1c:
     ret                     ;3e1c  af
 
 sub_3e1d:
-    set1 pm9.0                  ;3e1d  71 0a 29     PM90=input
+    set1 pm9.0                  ;3e1d  71 0a 29     PM90=input (S-Contact)
     bt mem_fe63.0,lab_3e75_ret  ;3e20  8c 63 52     If mem_fe63.0=1, we're not supposed to initiate a KWP1281
                                 ;                     connection to the cluster right now, so just return.
     bt mem_fe2c.2,lab_3e3f      ;3e23  ac 2c 19
     mov a,#0x02                 ;3e26  a1 02
-    bf p9.0,lab_3e72            ;3e28  31 03 09 46  Branch if P90=0
+    bf p9.0,lab_3e72            ;3e28  31 03 09 46  Branch if P90=0 (S-Contact)
     bf mem_fe63.7,lab_3e75_ret  ;3e2c  31 73 63 45
 
 lab_3e30:
@@ -11515,7 +11595,7 @@ lab_3e30:
 
 lab_3e3f:
     mov a,#0x08                    ;3e3f  a1 08
-    bf p9.0,lab_3e30               ;3e41  31 03 09 eb    Branch if P90=0
+    bf p9.0,lab_3e30               ;3e41  31 03 09 eb    Branch if P90=0 (S-Contact)
     bt mem_fe63.1,lab_3e72         ;3e45  9c 63 2a
     push ax                        ;3e48  b1
     mov a,!mem_f207                ;3e49  8e 07 f2
@@ -13382,7 +13462,7 @@ lab_4901_ret:
 
 sub_4902:
 ;Read illumination voltage (P92/ANI20) and ???
-    movw ax,#0x027f         ;4902  10 7f 02     A = P92/ANI20
+    movw ax,#0x027f         ;4902  10 7f 02     A = analog input 0x02 (P92/ANI20)
                             ;                   X = 0x7f ???
     call !sub_abc3          ;4905  9a c3 ab     Read analog input number A and do ???
     bc lab_4913_ret         ;4908  8d 09        Branch to return if analog read failed
@@ -16620,6 +16700,7 @@ lab_56cb:
     ret                     ;56cb  af
 
 sub_56cc:
+;Read uPD16432B key data if ??? conditions are met
     bf mem_fe62.1,lab_56d1  ;56cc  31 13 62 01
     ret                     ;56d0  af
 
@@ -16664,7 +16745,7 @@ lab_56f3:
 
 lab_5713:
     bnc lab_5718            ;5713  9d 03
-    br !lab_58d5            ;5715  9b d5 58
+    br !lab_58d5            ;5715  9b d5 58     Branch to clr1 mem_fe66.5 and return
 
 lab_5718:
     clr1 shadow_p4.7        ;5718  7b ce        Deselect uPD16432B (STB=low)

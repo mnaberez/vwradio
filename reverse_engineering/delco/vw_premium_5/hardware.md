@@ -56,12 +56,12 @@
 |Pin 55 |P25/TxD0     |L9637D TX (K-line)                             |
 |Pin 56 |P26          |K-line resistor (0=disconnected, 1=connected)  |
 |Pin 57 |P27/TI51/TO51|Unknown output                                 |
-|Pin 72 |P90/ANI00    |Unknown input                                  |
-|Pin 73 |P91/ANI10    |Unknown input (used as analog; mem_fca2)       |
+|Pin 72 |P90/ANI00    |S-Contact                                      |
+|Pin 73 |P91/ANI10    |Unknown analog input (mem_fca2)                |
 |Pin 74 |P92/ANI20    |Illumination analog input (0=off, 0xff=full)   |
 |Pin 75 |P93/ANI30    |Unknown input                                  |
 |Pin 76 |P94/ANI40    |Unknown output                                 |
-|Pin 77 |P95/ANI50    |Unknown input (used as analog; mem_fca4)       |
+|Pin 77 |P95/ANI50    |Unknown analog input (mem_fca4)                |
 |Pin 78 |P96/ANI60    |Unknown input                                  |
 |Pin 79 |P97/ANI70    |Unknown output                                 |
 
