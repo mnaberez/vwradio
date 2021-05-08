@@ -50,18 +50,18 @@ kwp_last_byte = 0xf06a      ;KWP1281 last byte sent or received; used for error 
 kwp_tx_len = 0xf06b         ;KWP1281 tx block length
 kwp_rx_len = 0xf06c         ;KWP1281 rx block length
 kwp_addr_idx = 0xf06d       ;KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
-mem_f06e = 0xf06e
-mem_f06f = 0xf06f
+mem_f06e = 0xf06e ;TODO countdown
+mem_f06f = 0xf06f ;TODO another countdown
 kwp_idle_ms = 0xf070        ;KWP1281 counts down milliseconds until connection times out
-mem_f071 = 0xf071
-mem_f072 = 0xf072
-mem_f073 = 0xf073           ;KWP1281 address received
-mem_f074 = 0xf074           ;Copy of KWP1281 address rotated during bit-banging 5 baud init
-mem_f075 = 0xf075
-mem_f076 = 0xf076           ;KWP1281 bit count for 5 baud init
-mem_f077 = 0xf077
-mem_f078 = 0xf078           ;KWP1281 radio-as-tester connection attempt count
-mem_f079 = 0xf079
+mem_f071 = 0xf071 ;TODO unknown timer, counts up
+mem_f072 = 0xf072 ;TODO unknown timer, counts up
+kwp_tx_address = 0xf073     ;KWP1281 address to send (used only in radio-as-tester mode)
+kwp_tx_addr_rot = 0xf074    ;KWP1281 address to send being rotated out (used only in radio-as-tester mode)
+mem_f075 = 0xf075 ;TODO another address rotation?
+kwp_tx_bit_count = 0xf076   ;KWP1281 bit count for 5 baud address
+kwp_bit_ms = 0xf077         ;KWP1281 counts down ms in current bit of 5 baud address
+kwp_conn_attempts = 0xf078  ;KWP1281 connection attempt count (used only in radio-as-tester mode)
+kwp_err_retries = 0xf079    ;KWP1281 error retries count
 kwp_tx_buf = 0xf07a         ;KWP1281 transmit buffer (16 bytes)
 kwp_rx_buf = 0xf08a         ;KWP1281 receive buffer (256 bytes)
 mem_f18a = 0xf18a
@@ -1178,14 +1178,14 @@ lab_019c:
     set1 mem_fe7c.2         ;019e  2a 7c
 
 lab_01a0:
-    call !sub_357c          ;01a0  9a 7c 35
+    call !sub_357c          ;01a0  9a 7c 35     Unknown; related to 5 baud address tx/rx
     mov a,!mem_fb95         ;01a3  8e 95 fb
     inc a                   ;01a6  41
     mov !mem_fb95,a         ;01a7  9e 95 fb
     btclr mem_fe61.3,lab_01cd ;01aa  31 31 61 1f
     set1 mem_fe61.3         ;01ae  3a 61
     bf mem_fe23.4,lab_01b7  ;01b0  31 43 23 03
-    call !sub_250d          ;01b4  9a 0d 25
+    call !blink_led_mem_fb00;01b4  9a 0d 25     If mem_fb00=0, set it to 0x3e and do blink_led.
 
 lab_01b7:
     call !sub_308f          ;01b7  9a 8f 30
@@ -1661,7 +1661,7 @@ lab_08db:
 
 
 sio31_disable:
-;Disable SIO31 (CDC SPI)
+;Disable SIO31 (used for CDC RX SPI)
     set1 shadow_p2.2        ;08df  2a cc        CDC CLK = 1
     set1 shadow_p2.1        ;08e1  1a cc
     mov a,shadow_p2         ;08e3  f0 cc
@@ -3030,10 +3030,10 @@ lab_0e39_loop:
     mov p2,a                ;0e75  f2 02
 
     mov a,#0xdb             ;0e77  a1 db
-    mov !mem_f077,a         ;0e79  9e 77 f0
+    mov !kwp_bit_ms,a    ;0e79  9e 77 f0     kwp_bit_ms = 0xDB (219 ms?)
 
     ;Clear RAM: 0xF068 - 0xF079 (except 0xF077!)
-    ;These are all or mostly KWP1281 variables.
+    ;These are all KWP1281 variables.
     ;XXX Note that this is redundant because these addresses are all
     ;    in expansion RAM which was already cleared above at lab_0e39.
     mov a,#0x00             ;0e7c  a1 00
@@ -3048,13 +3048,13 @@ lab_0e39_loop:
     mov !kwp_idle_ms,a      ;0e96  9e 70 f0     KWP1281 connection timeout countdown = 0 ms
     mov !mem_f071,a         ;0e99  9e 71 f0
     mov !mem_f072,a         ;0e9c  9e 72 f0
-    mov !mem_f073,a         ;0e9f  9e 73 f0     KWP1281 address = 0
-    mov !mem_f074,a         ;0ea2  9e 74 f0     Copy of KWP1281 address used for 5 baud init = 0
+    mov !kwp_tx_address,a   ;0e9f  9e 73 f0     KWP1281 address to send = 0
+    mov !kwp_tx_addr_rot,a  ;0ea2  9e 74 f0     KWP1281 address to send being rotated out during 5 baud init = 0
     mov !mem_f075,a         ;0ea5  9e 75 f0
-    mov !mem_f076,a         ;0ea8  9e 76 f0     KWP1281 bit count for 5 baud init = 0
-    ;XXX does not clear mem_f077
-    mov !mem_f078,a         ;0eab  9e 78 f0     KWP1281 radio-as-tester connection attempt count
-    mov !mem_f079,a         ;0eae  9e 79 f0
+    mov !kwp_tx_bit_count,a ;0ea8  9e 76 f0     KWP1281 bit count for 5 baud init = 0
+    ;XXX does not clear kwp_bit_ms
+    mov !kwp_conn_attempts,a;0eab  9e 78 f0     KWP1281 radio-as-tester connection attempt count = 0
+    mov !kwp_err_retries,a  ;0eae  9e 79 f0     KWP1281 error retries = 0
 
     clr1 mem_fe7a.2         ;0eb1  2b 7a
     clr1 mem_fe79.0         ;0eb3  0b 79
@@ -3148,7 +3148,7 @@ lab_0f1b:
     clr1 if0h.4             ;0f6e  71 4b e1     Clear CSIIF30 (INTCSI0 interrupt flag)
     set1 mk0h.4             ;0f71  71 4a e5     Set CSIMK30 (disables INTCSI30)
 
-    call !sio31_disable     ;0f74  9a df 08     Disable SIO31 (unknown SPI)
+    call !sio31_disable     ;0f74  9a df 08     Disable SIO31 (used for CDC RX SPI)
     clr1 mem_fe5f.2         ;0f77  2b 5f
     mov a,#0x00             ;0f79  a1 00
     mov !cdc_isr_rx_idx,a   ;0f7b  9e 32 f0
@@ -3193,7 +3193,6 @@ lab_0f1b:
                             ;                   Bit 2: WTNM02=0 / fires INTWTN0 every 0.5 seconds
                             ;                   Bit 1: WTNM01=1 5-bit counter operation = start
                             ;                   Bit 0: WTNM00=1 Watch timer enable = enabled
-
 
     clr1 mk1l.0             ;0fc6  71 0b e6     Clear WTNIMK0 (enables INTWTNI0)
     clr1 pr1l.0             ;0fc9  71 0b ea     Clear WTNIPR0 (makes INTWTNI0 high priority)
@@ -3319,7 +3318,7 @@ lab_1036:
     clr1 mem_fe6c.2         ;10d4  2b 6c
     mov a,#0x00             ;10d6  a1 00
     mov !mem_fb13,a         ;10d8  9e 13 fb
-    call !sio31_enable      ;10db  9a 2f 26     Enable SIO31 (unknown SPI)
+    call !sio31_enable      ;10db  9a 2f 26     Enable SIO31 (used for CDC RX SPI)
     clr1 mk0h.5             ;10de  71 5b e5     Clear CSIMK31 (enables INTCSI31)
     clr1 pr0h.5             ;10e1  71 5b e9     Clear CSIPR31 (makes INTCSI31 high priority)
     callf !sub_08cc         ;10e4  0c cc        SPI xfer on SIO31 (send byte in A, recv byte in A)
@@ -3618,7 +3617,7 @@ lab_1291:
 lab_129b:
     call !sub_1ca9          ;129b  9a a9 1c
     call !sub_3329          ;129e  9a 29 33     Decrements mem_f06f
-    call !sub_35e9          ;12a1  9a e9 35
+    call !sub_35e9          ;12a1  9a e9 35     Unknown; related to 5 baud address tx/tx
     call !sub_6305          ;12a4  9a 05 63
     bf mem_fe40.0,lab_12b5  ;12a7  31 03 40 0a
     mov a,!mem_fb12         ;12ab  8e 12 fb
@@ -3650,7 +3649,7 @@ lab_12d7:
     ret                     ;12e2  af
 
 lab_12e3:
-    call !sub_3518          ;12e3  9a 18 35
+    call !sub_3518          ;12e3  9a 18 35       Unknown, related to 5 baud address tx/rx
     btclr mem_fe68.0,lab_1312 ;12e6  31 01 68 28
     bt mem_fe67.6,lab_1326  ;12ea  ec 67 39
     bf mem_fe67.4,lab_12f8  ;12ed  31 43 67 07
@@ -6492,15 +6491,19 @@ sub_24f1:
     mov b,#0x07             ;2508  a3 07
     br !sub_0bf6            ;250a  9b f6 0b
 
-sub_250d:
-    mov a,!mem_fb00         ;250d  8e 00 fb
-    cmp a,#0x00             ;2510  4d 00
-    bz lab_2515             ;2512  ad 01
-    ret                     ;2514  af
 
-lab_2515:
+blink_led_mem_fb00:
+;If mem_fb00=0, set it to 0x3e and do blink_led.
+    mov a,!mem_fb00         ;250d  8e 00 fb
+    cmp a,#0x00             ;2510  4d 00        Is mem_fb00 = 0?
+    bz lab_2515_blink       ;2512  ad 01          Yes: go to set mem_fb00=0x3e and do blink_led
+    ret                     ;2514  af             No: do nothing and return
+
+lab_2515_blink:
     mov a,#0x3e             ;2515  a1 3e
     mov !mem_fb00,a         ;2517  9e 00 fb
+    ;Fall through to blink_led
+
 
 blink_led:
 ;Decrement LED blink counter and set LED pin state
@@ -6748,7 +6751,7 @@ sio30_enable:
     ret                     ;262e  af
 
 sio31_enable:
-;Enable SIO31 (CDC RX SPI)
+;Enable SIO31 (used for CDC RX SPI)
     mov csim31,#0x84        ;262f  13 b8 84     SIO31 mode = ena, rx only, clock = external to SCK31
     clr1 pu2.2              ;2632  71 2b 32     PU22 pull-up resistor disabled (CDC CLK)
     set1 pm2.2              ;2635  71 2a 22     PM22 = input (CDC CLK)
@@ -9203,13 +9206,13 @@ lab_302e_fis:
     set1 pm4.5              ;3031  71 5a 24     PM45=input
     mov a,!fis_tx_count     ;3034  8e 66 f0     A = FIS number of bytes left to send
     cmp a,#0x01             ;3037  4d 01
-    bz lab_3066_fis             ;3039  ad 2b
+    bz lab_3066_fis         ;3039  ad 2b
     bf p4.5,lab_304b        ;303b  31 53 04 0c  Branch if P4.5=0
     dec a                   ;303f  51
     mov !fis_tx_count,a     ;3040  9e 66 f0     Store as FIS number of bytes left to send
     mov a,#0x0a             ;3043  a1 0a
     mov !fis_f067,a         ;3045  9e 67 f0     Store as FIS unknown (timer countdown?)
-    br !lab_2faa_fis            ;3048  9b aa 2f
+    br !lab_2faa_fis       ;3048  9b aa 2f
 
 lab_304b:
     mov a,!mem_fb02         ;304b  8e 02 fb
@@ -9221,11 +9224,11 @@ lab_304b:
     dec a                   ;3059  51
     mov !fis_f067,a         ;305a  9e 67 f0     Store as FIS unknown (timer countdown?)
     set1 mem_fe60.3         ;305d  3a 60
-    br lab_3066_fis             ;305f  fa 05
+    br lab_3066_fis         ;305f  fa 05
 
 lab_3061:
     clr1 mem_fe61.2         ;3061  2b 61
-    br lab_3066_fis             ;3063  fa 01
+    br lab_3066_fis         ;3063  fa 01
 
 lab_3065:
     ret                     ;3065  af
@@ -9506,7 +9509,7 @@ lab_31bf_bad_comp:
 
     ;We received a bad complement byte during the keyword bytes
 
-    movw hl,#kwp_unknown_f06f_b036+1 ;31c3  16 37 b0
+    movw hl,#kwp_f06f_values+1 ;31c3  16 37 b0
     mov a,!kwp_addr_idx     ;31c6  8e 6d f0     A = KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
     mov b,a                 ;31c9  73
     mov a,[hl+b]            ;31ca  ab
@@ -9518,25 +9521,25 @@ lab_31bf_bad_comp:
 lab_31d2:
     ;We received a bad complement byte during a regular KWP1281 block
 
-    ;Increment mem_f079 retry count
-    mov a,!mem_f079         ;31d2  8e 79 f0
+    ;Increment kwp_err_retries count
+    mov a,!kwp_err_retries     ;31d2  8e 79 f0
     inc a                   ;31d5  41
-    mov !mem_f079,a         ;31d6  9e 79 f0
+    mov !kwp_err_retries,a     ;31d6  9e 79 f0
 
-    ;Have we exceeded the max retry count?
+    ;We allow 1 retry (kwp_err_retries: 0->1).  Have we done 1 retry?
     cmp a,#0x02             ;31d9  4d 02
-    bnc lab_31e4            ;31db  9d 07        Branch if A >= 2 (We exceeded the mem_f079 retry count)
+    bnc lab_31e4            ;31db  9d 07        Branch if A >= 2 (We exceeded the kwp_err_retries count)
 
-    ;No.  We have more retries left.  Set up for another retry.
+    ;Set up for another retry.
     set1 mem_fe7c.0         ;31dd  0a 7c
     mov a,#0x02             ;31df  a1 02        0x02 = Sets UART baud and mode
     mov !mem_fbc9,a         ;31e1  9e c9 fb
 
 lab_31e4:
-    bc lab_31e9_br_pop_reti ;31e4  8d 03        If we have not exceeded the mem_f079 retry
+    bc lab_31e9_br_pop_reti ;31e4  8d 03        If we have not exceeded the kwp_err_retries
                             ;                     count, branch to pop registers and reti.
 
-    ;We exceeded the mem_f079 retry count, so give up.
+    ;We exceeded the kwp_err_retries count, so give up.
     call !kwp_disconnect    ;31e6  9a 68 34     Disconnect and clear all KWP1281 state
 
 lab_31e9_br_pop_reti:
@@ -9581,7 +9584,7 @@ lab_31f6:
     ;RX block length <= 0xFF
 
     mov a,#0x00             ;3215  a1 00
-    mov !mem_f079,a         ;3217  9e 79 f0
+    mov !kwp_err_retries,a  ;3217  9e 79 f0     KWP1281 error retries count = 0
 
     set1 mem_fe7c.0         ;321a  0a 7c
     mov a,#0x04             ;321c  a1 04        0x04 = Block received and it fit in RX buffer; dispatch it
@@ -9603,8 +9606,10 @@ lab_322c:
 
     set1 mem_fe7b.3         ;3231  3a 7b        Block end byte flag = block end is bad
     set1 mem_fe79.2         ;3233  2a 79
+
     mov a,#0x00             ;3235  a1 00
-    mov !kwp_rx_idx,a       ;3237  9e 69 f0     KWP1281 rx buffer index
+    mov !kwp_rx_idx,a       ;3237  9e 69 f0     KWP1281 rx buffer index = 0
+
     br lab_323c_br_pop_reti ;323a  fa 00        XXX redundant; could just fall through
 
 lab_323c_br_pop_reti:
@@ -9676,7 +9681,7 @@ lab_328d_bad_echo:
     br lab_32dc_br_pop_reti ;3294  fa 46        Branch to pop registers and reti
 
 lab_3296:
-    movw hl,#kwp_unknown_f06f_b036+1 ;3296  16 37 b0
+    movw hl,#kwp_f06f_values+1 ;3296  16 37 b0
     mov a,!kwp_addr_idx     ;3299  8e 6d f0     A = KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
     mov b,a                 ;329c  73
     mov a,[hl+b]            ;329d  ab
@@ -9687,7 +9692,7 @@ lab_3296:
     br lab_32dc_br_pop_reti ;32a5  fa 35        Branch to pop registers and reti
 
 lab_32a7:
-    movw hl,#kwp_unknown_f06f_b036+1 ;32a7  16 37 b0
+    movw hl,#kwp_f06f_values+1 ;32a7  16 37 b0
     mov a,!kwp_addr_idx     ;32aa  8e 6d f0     A = KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
     mov b,a                 ;32ad  73
     mov a,[hl+b]            ;32ae  ab
@@ -9742,7 +9747,7 @@ intser0_32df:
     ;K-line resistor = disconnected (radio is not acting as a tester)
     bt mem_fe79.0,lab_3301_br_lab_323f_error    ;32f2  8c 79 0c  If ??? Branch to handle receive error
     bt mem_fe7a.1,lab_32fd_br_lab_3324_pop_reti ;32f5  9c 7a 05  If ??? Branch to pop registers off stack and reti
-    bt mem_fe7a.0,lab_32ff_br_lab_3324_pop_reti           ;32f8  8c 7a 04  If ??? Branch to pop registers off stack and reti
+    bt mem_fe7a.0,lab_32ff_br_lab_3324_pop_reti ;32f8  8c 7a 04  If ??? Branch to pop registers off stack and reti
     br lab_3324_pop_reti                      ;32fb  fa 27     Branch to pop registers off stack and reti
 
 lab_32fd_br_lab_3324_pop_reti:
@@ -9861,20 +9866,23 @@ sub_3370_disconnect_or_reconnect:
 
     ;Radio is acting as a tester
 
-    mov a,!mem_f078         ;3376  8e 78 f0       A = KWP1281 radio-as-tester connection attempt count
+    mov a,!kwp_conn_attempts;3376  8e 78 f0       A = KWP1281 radio-as-tester connection attempt count
     cmp a,#0x01             ;3379  4d 01
     bnc lab_3392_disconnect ;337b  9d 15          Branch to give up if too many attempts (A >= 1)
     inc a                   ;337d  41
-    mov !mem_f078,a         ;337e  9e 78 f0       Save incremented count
+    mov !kwp_conn_attempts,a;337e  9e 78 f0       Save incremented count
 
     ;Attempt to connect again
 
-    mov a,!mem_f073         ;3381  8e 73 f0       A = KWP1281 address
-    mov !mem_f074,a         ;3384  9e 74 f0       Copy it to location used for 5 baud init
+    mov a,!kwp_tx_address   ;3381  8e 73 f0       A = KWP1281 address to send
+    mov !kwp_tx_addr_rot,a  ;3384  9e 74 f0       Copy it so the bits can be rotated out during 5 baud init
+
     set1 mem_fe7a.3         ;3387  3a 7a
     set1 mem_fe7a.6         ;3389  6a 7a
+
     mov a,#0x1b             ;338b  a1 1b
-    mov !mem_f077,a         ;338d  9e 77 f0
+    mov !kwp_bit_ms,a       ;338d  9e 77 f0       kwp_bit_ms = 0x1b (27ms?)
+
     set1 mem_fe7b.4         ;3390  4a 7b
 
 lab_3392_disconnect:
@@ -9906,22 +9914,28 @@ lab_33be:
     clr1 mem_fe79.2         ;33c2  2b 79
     clr1 mem_fe79.7         ;33c4  7b 79
 
-    mov a,!mem_f079         ;33c6  8e 79 f0
+    ;Increment kwp_err_retries count
+    mov a,!kwp_err_retries  ;33c6  8e 79 f0
     inc a                   ;33c9  41
-    mov !mem_f079,a         ;33ca  9e 79 f0
+    mov !kwp_err_retries,a  ;33ca  9e 79 f0
 
+    ;We allow 1 retry (kwp_err_retries: 0->1).  Have we done 1 retry?
     cmp a,#0x02             ;33cd  4d 02
-    bnc lab_33d8            ;33cf  9d 07        Branch if >= 2
+    bnc lab_33d8            ;33cf  9d 07        Branch if A >= 2 (We exceeded the kwp_err_retries count)
 
+    ;Set up for another retry.
     set1 mem_fe7c.0         ;33d1  0a 7c
     mov a,#0x02             ;33d3  a1 02        0x02 = Sets UART baud and mode
     mov !mem_fbc9,a         ;33d5  9e c9 fb
 
 lab_33d8:
-    bc lab_33dd             ;33d8  8d 03
+    bc lab_33dd_ret         ;33d8  8d 03        If we have not exceeded the kwp_err_retries,
+                            ;                     count, branch to return.
+
+    ;We exceeded the kwp_err_retries count, so give up.
     br !kwp_disconnect      ;33da  9b 68 34     Disconnect and clear all KWP1281 state
 
-lab_33dd:
+lab_33dd_ret:
     ret                     ;33dd  af
 
 lab_33de:
@@ -9953,7 +9967,7 @@ lab_3401:
     btclr mem_fe7b.1,lab_3422 ;3401  31 11 7b 1d
     set1 mem_fe7b.1         ;3405  1a 7b
 
-    movw hl,#kwp_unknown_f06f_b036+1 ;3407  16 37 b0
+    movw hl,#kwp_f06f_values+1 ;3407  16 37 b0
     mov a,!kwp_addr_idx     ;340a  8e 6d f0     KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
     mov b,a                 ;340d  73
     mov a,[hl+b]            ;340e  ab
@@ -9965,7 +9979,7 @@ lab_3401:
     mov a,!kwp_addr_idx     ;3417  8e 6d f0     KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
     mov b,a                 ;341a  73
     mov a,[hl+b]            ;341b  ab
-    mov !kwp_idle_ms,a         ;341c  9e 70 f0
+    mov !kwp_idle_ms,a      ;341c  9e 70 f0
 
     set1 mem_fe79.2         ;341f  2a 79
     ret                     ;3421  af
@@ -9973,9 +9987,10 @@ lab_3401:
 lab_3422:
     clr1 mem_fe79.2         ;3422  2b 79
 
-    mov a,!mem_f079         ;3424  8e 79 f0
+    ;Increment kwp_err_retries count
+    mov a,!kwp_err_retries  ;3424  8e 79 f0
     inc a                   ;3427  41
-    mov !mem_f079,a         ;3428  9e 79 f0
+    mov !kwp_err_retries,a  ;3428  9e 79 f0
 
     cmp a,#0x0a             ;342b  4d 0a          A = 0x0A
     bc lab_3456             ;342d  8d 27          Branch if < 10
@@ -9986,8 +10001,10 @@ lab_3422:
 
 lab_3435:
     bc lab_3453_br_kwp_disconnect ;3435  8d 1c    Disconnect and clear all KWP1281 state
+
     clr1 mem_fe7a.1         ;3437  1b 7a
     set1 mem_fe7a.0         ;3439  0a 7a
+
     mov a,#0x00             ;343b  a1 00
     mov !kwp_rx_idx,a       ;343d  9e 69 f0       KWP1281 rx buffer index
 
@@ -9998,13 +10015,14 @@ lab_3435:
     mov a,!kwp_addr_idx     ;3448  8e 6d f0       KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
     mov b,a                 ;344b  73
     mov a,[hl+b]            ;344c  ab
-    mov !kwp_idle_ms,a         ;344d  9e 70 f0
+    mov !kwp_idle_ms,a      ;344d  9e 70 f0
 
     set1 mem_fe79.2         ;3450  2a 79
     ret                     ;3452  af
 
 lab_3453_br_kwp_disconnect:
     br !kwp_disconnect      ;3453  9b 68 34     Disconnect and clear all KWP1281 state
+
 
 lab_3456:
     mov a,#0x0f             ;3456  a1 0f        A = 0x0F
@@ -10014,6 +10032,7 @@ lab_3456:
     ;KWP1281 tx block length <= 0x0F
 
     br !send_kwp_tx_buf     ;345d  9b f7 34     Set flags to start sending the KWP1281 tx buffer
+
 
 lab_3460:
 ;KWP1281 tx block length > 0x0F
@@ -10084,8 +10103,10 @@ kwp_clear_state:
     clr1 mem_fe7b.4         ;34c6  4b 7b
     clr1 mem_fe7b.5         ;34c8  5b 7b
     clr1 mem_fe7b.6         ;34ca  6b 7b
+
     mov a,#0x00             ;34cc  a1 00
-    mov !mem_f079,a         ;34ce  9e 79 f0
+    mov !kwp_err_retries,a;34ce  9e 79 f0
+
     clr1 mem_fe63.0         ;34d1  0b 63        Clear bit = it's OK to initiate a KWP1281 connection to the cluster
     ret                     ;34d3  af
 
@@ -10140,23 +10161,27 @@ lab_34fc:
 kwp_init_5baud:
 ;Set up to bit-bang 5 baud init with address in A
 ;Used to start a radio-as-tester KWP1281 connection to the cluster
-    mov !mem_f073,a         ;3506  9e 73 f0     KWP1281 address = A
+    mov !kwp_tx_address,a   ;3506  9e 73 f0     KWP1281 address to send = A
+
     mov a,#0x00             ;3509  a1 00
-    mov !mem_f078,a         ;350b  9e 78 f0     KWP1281 radio-as-tester connection attempt count = 0
+    mov !kwp_conn_attempts,a;350b  9e 78 f0     KWP1281 radio-as-tester connection attempt count = 0
+
     mov a,#0xdb             ;350e  a1 db
-    mov !mem_f077,a         ;3510  9e 77 f0
+    mov !kwp_bit_ms,a    ;3510  9e 77 f0     kwp_bit_ms = 0xdb (219 ms?)
+
     clr1 mem_fe7a.4         ;3513  4b 7a
     set1 mem_fe7a.3         ;3515  3a 7a
     ret                     ;3517  af
 
 
 sub_3518:
+;Unknown, related to 5 baud address tx/rx
     bf mem_fe7a.3,lab_357b_ret  ;3518  31 33 7a 5f
     bt mem_fe7a.2,lab_357b_ret  ;351c  ac 7a 5c
     bt mem_fe7a.5,lab_357b_ret  ;351f  dc 7a 59
-    bt mem_fe62.1,lab_352a  ;3522  9c 62 05
-    bt p2.4,lab_3541        ;3525  cc 02 19     Branch if P24/RxD0 = 1
-    clr1 mem_fe7a.6         ;3528  6b 7a
+    bt mem_fe62.1,lab_352a      ;3522  9c 62 05
+    bt p2.4,lab_3541            ;3525  cc 02 19     Branch if P24/RxD0 = 1
+    clr1 mem_fe7a.6             ;3528  6b 7a
 
 lab_352a:
     clr1 shadow_p2.6        ;352a  6b cc        P26 = 0 (K-line resistor = disconnected;
@@ -10167,8 +10192,10 @@ lab_352a:
     set1 shadow_p2.5        ;3530  5a cc        P25/TxD0 = 1
     mov a,shadow_p2         ;3532  f0 cc
     mov p2,a                ;3534  f2 02
+
     mov a,#0xdb             ;3536  a1 db
-    mov !mem_f077,a         ;3538  9e 77 f0
+    mov !kwp_bit_ms,a    ;3538  9e 77 f0     kwp_bit_ms = 0xdb (219 ms?)
+
     clr1 mem_fe7a.4         ;353b  4b 7a
     clr1 mem_fe65.6         ;353d  6b 65
     br lab_357b_ret         ;353f  fa 3a
@@ -10176,16 +10203,19 @@ lab_352a:
 lab_3541:
     set1 mem_fe7a.6         ;3541  6a 7a
     set1 mem_fe65.6         ;3543  6a 65
-    mov a,!mem_f077         ;3545  8e 77 f0
+
+    mov a,!kwp_bit_ms    ;3545  8e 77 f0
     cmp a,#0x00             ;3548  4d 00
     bz lab_3554             ;354a  ad 08
+
     dec a                   ;354c  51
-    mov !mem_f077,a         ;354d  9e 77 f0
+    mov !kwp_bit_ms,a    ;354d  9e 77 f0
+
     cmp a,#0x00             ;3550  4d 00
     bnz lab_357b_ret        ;3552  bd 27
 
 lab_3554:
-;mem_f077 has reached 0
+;kwp_bit_ms has reached 0
     mov asim0,#0x00         ;3554  13 a0 00     UART0 mode register = 0 (UART fully disabled)
 
     set1 shadow_p2.6        ;3557  6a cc        P26 = 1 (K-line resistor = connected;
@@ -10199,10 +10229,12 @@ lab_3554:
     mov a,#0x00             ;3563  a1 00
     mov !mem_f071,a         ;3565  9e 71 f0
     mov a,#0x00             ;3568  a1 00
-    mov !mem_f076,a         ;356a  9e 76 f0     KWP1281 bit count for 5 baud init = 0
+    mov !kwp_tx_bit_count,a ;356a  9e 76 f0     KWP1281 bit count for 5 baud init = 0
     clr1 mem_fe7a.6         ;356d  6b 7a
-    mov a,!mem_f073         ;356f  8e 73 f0     A = KWP1281 address
-    mov !mem_f074,a         ;3572  9e 74 f0     Copy it to location used for 5 baud init
+
+    mov a,!kwp_tx_address   ;356f  8e 73 f0     A = KWP1281 address to send
+    mov !kwp_tx_addr_rot,a  ;3572  9e 74 f0     Copy it so the bits can be rotated out during 5 baud init
+
     clr1 mem_fe7a.3         ;3575  3b 7a
     set1 mem_fe7a.4         ;3577  4a 7a
     clr1 mem_fe7a.5         ;3579  5b 7a
@@ -10212,6 +10244,7 @@ lab_357b_ret:
 
 
 sub_357c:
+;Unknown, related to 5 baud address tx/rx
     bf mem_fe7a.4,lab_35e8_ret  ;357c  31 43 7a 68
     mov a,!mem_f071             ;3580  8e 71 f0
     inc a                       ;3583  41
@@ -10229,8 +10262,10 @@ sub_357c:
     set1 shadow_p2.5        ;3598  5a cc        P25/TxD0 = 1
     mov a,shadow_p2         ;359a  f0 cc
     mov p2,a                ;359c  f2 02
+
     mov a,#0xdb             ;359e  a1 db
-    mov !mem_f077,a         ;35a0  9e 77 f0
+    mov !kwp_bit_ms,a    ;35a0  9e 77 f0     kwp_bit_ms = 0xdb (219 ms?)
+
     clr1 mem_fe7a.4         ;35a3  4b 7a
     set1 mem_fe7a.3         ;35a5  3a 7a
     clr1 mem_fe65.6         ;35a7  6b 65
@@ -10240,20 +10275,18 @@ lab_35ab:
     mov a,#0x00             ;35ab  a1 00
     mov !mem_f071,a         ;35ad  9e 71 f0
 
-    mov a,!mem_f076         ;35b0  8e 76 f0     A = KWP1281 bit count for 5 baud init
+    mov a,!kwp_tx_bit_count ;35b0  8e 76 f0     A = KWP1281 bit count for 5 baud init
     inc a                   ;35b3  41           Increment it
-    mov !mem_f076,a         ;35b4  9e 76 f0     Save incremented bit count
+    mov !kwp_tx_bit_count,a ;35b4  9e 76 f0     Save incremented bit count
 
     cmp a,#0x09             ;35b7  4d 09
     bz lab_35d2             ;35b9  ad 17
     cmp a,#0x09             ;35bb  4d 09
     bnc lab_35dc            ;35bd  9d 1d
 
-    mov a,!mem_f074         ;35bf  8e 74 f0     A = KWP1281 address to transmit at 5 baud
+    mov a,!kwp_tx_addr_rot  ;35bf  8e 74 f0     A = KWP1281 address to send being rotated out
     ror a,1                 ;35c2  24           Rotate one bit to the right
-    mov !mem_f074,a         ;35c3  9e 74 f0     Save rotated value
-
-    ;TODO this looks like bit-bang transmitting the address at 5 baud
+    mov !kwp_tx_addr_rot,a  ;35c3  9e 74 f0     Save rotated value
 
     mov1 mem_fe7a.6,cy      ;35c6  71 61 7a
     mov1 shadow_p2.5,cy     ;35c9  71 51 cc     P25/TxD0 = CY
@@ -10270,7 +10303,7 @@ lab_35d2:
 
 lab_35dc:
     set1 mem_fe7c.0         ;35dc  0a 7c
-    mov a,#0x03             ;35de  a1 03        0x03 = Address received; dispatch it
+    mov a,#0x03             ;35de  a1 03        0x03 = Address sent; dispatch to handler
     mov !mem_fbc9,a         ;35e0  9e c9 fb
     call !kwp_clear_state   ;35e3  9a a8 34     Clears KWP1281 many state bits
     set1 mem_fe7a.2         ;35e6  2a 7a
@@ -10280,6 +10313,7 @@ lab_35e8_ret:
 
 
 sub_35e9:
+;Unknown; related to 5 baud address tx/tx
     bt mem_fe2c.2,lab_35f6  ;35e9  ac 2c 0a
     bt mem_fe2c.5,lab_35f6  ;35ec  dc 2c 07
     bt mem_fe2c.3,lab_35f6  ;35ef  bc 2c 04
@@ -10311,7 +10345,7 @@ lab_3607:
     mov a,#0x00             ;361c  a1 00
     mov !mem_f072,a         ;361e  9e 72 f0
     mov a,#0x00             ;3621  a1 00
-    mov !mem_f076,a         ;3623  9e 76 f0     KWP1281 bit count for 5 baud init = 0
+    mov !kwp_tx_bit_count,a ;3623  9e 76 f0     KWP1281 bit count for 5 baud init = 0
     mov a,#0x00             ;3626  a1 00
     mov !mem_f075,a         ;3628  9e 75 f0
     clr1 mem_fe7b.5         ;362b  5b 7b
@@ -10351,9 +10385,9 @@ lab_365d:
     mov a,#0x00             ;365d  a1 00
     mov !mem_f072,a         ;365f  9e 72 f0
 
-    mov a,!mem_f076         ;3662  8e 76 f0     A = KWP1281 bit count for 5 baud init
+    mov a,!kwp_tx_bit_count ;3662  8e 76 f0     A = KWP1281 bit count for 5 baud init
     inc a                   ;3665  41           Increment it
-    mov !mem_f076,a         ;3666  9e 76 f0     Save incremented bit count
+    mov !kwp_tx_bit_count,a ;3666  9e 76 f0     Save incremented bit count
 
     cmp a,#0x09             ;3669  4d 09
     bz lab_3697_ret         ;366b  ad 2a        Branch to just return
@@ -10366,13 +10400,13 @@ lab_365d:
     mov1 cy,mem_fe7a.6      ;3674  71 64 7a
     rorc a,1                ;3677  25
     mov !mem_f075,a         ;3678  9e 75 f0
-    br lab_36ad_ret             ;367b  fa 30
+    br lab_36ad_ret         ;367b  fa 30
 
 lab_367d:
     mov a,#0x00             ;367d  a1 00
     mov !mem_f072,a         ;367f  9e 72 f0
 
-    mov a,!mem_f076         ;3682  8e 76 f0     A = KWP1281 bit count for 5 baud init
+    mov a,!kwp_tx_bit_count ;3682  8e 76 f0     A = KWP1281 bit count for 5 baud init
     cmp a,#0x09             ;3685  4d 09
     bz lab_3693             ;3687  ad 0a
 
@@ -10978,7 +11012,7 @@ lab_3a47:
     clr1 mem_fe7a.6         ;3a4f  6b 7a
     mov a,#0x00             ;3a51  a1 00
     mov !mem_f072,a         ;3a53  9e 72 f0
-    mov !mem_f076,a         ;3a56  9e 76 f0     KWP1281 bit count for 5 baud init = 0
+    mov !kwp_tx_bit_count,a ;3a56  9e 76 f0     KWP1281 bit count for 5 baud init = 0
     mov !mem_f075,a         ;3a59  9e 75 f0
     br lab_3acb_ret         ;3a5c  fa 6d        Branch to return
 
@@ -10994,9 +11028,9 @@ lab_3a6b:
     mov a,#0x00             ;3a6b  a1 00
     mov !mem_f072,a         ;3a6d  9e 72 f0
 
-    mov a,!mem_f076         ;3a70  8e 76 f0     A = KWP1281 bit count for 5 baud init = 0
+    mov a,!kwp_tx_bit_count ;3a70  8e 76 f0     A = KWP1281 bit count for 5 baud init = 0
     inc a                   ;3a73  41           Increment it
-    mov !mem_f076,a         ;3a74  9e 76 f0     Save incremented bit count
+    mov !kwp_tx_bit_count,a ;3a74  9e 76 f0     Save incremented bit count
 
     cmp a,#0x09             ;3a77  4d 09
     bc lab_3a81             ;3a79  8d 06
@@ -11016,7 +11050,7 @@ lab_3a8d:
     mov a,#0x00             ;3a8d  a1 00
     mov !mem_f072,a         ;3a8f  9e 72 f0
 
-    mov a,!mem_f076         ;3a92  8e 76 f0     A = KWP1281 bit count for 5 baud init
+    mov a,!kwp_tx_bit_count ;3a92  8e 76 f0     A = KWP1281 bit count for 5 baud init
     cmp a,#0x09             ;3a95  4d 09
     bz lab_3a9b             ;3a97  ad 02
     br lab_3acb_ret         ;3a99  fa 30        Branch to return
@@ -12971,7 +13005,7 @@ lab_4654:
     mov wdtm,#wd_run_irq    ;4664  13 f9 80     (Re-)Start watchdog in interval mode (Maskable INTWDT when watchdog fires)
     mov a,#0x0f             ;4667  a1 0f
     mov !mem_fb4e,a         ;4669  9e 4e fb
-    call !sub_3329          ;466c  9a 29 33
+    call !sub_3329          ;466c  9a 29 33     Decrements mem_f06f
     mov a,!mem_fbb0         ;466f  8e b0 fb
     dec a                   ;4672  51
     mov !mem_fbb0,a         ;4673  9e b0 fb
@@ -15490,10 +15524,10 @@ lab_51e2:
 
 lab_51fa:
 ;mem_fbc9=0x03
-;Address received; dispatch it
-    mov a,!mem_f073         ;51fa  8e 73 f0       A = KWP1281 address received
-    movw hl,#kwp_addresses+1 ;51fd  16 23 b0      HL = pointer to table of KWP1281 addresses
-    mov b,#0x03             ;5200  a3 03          B = number of valid addresses in table
+;Radio-as-tester only: start connection if address sent is cluster
+    mov a,!kwp_tx_address     ;51fa  8e 73 f0     A = KWP1281 address to send
+    movw hl,#kwp_addresses+1  ;51fd  16 23 b0     HL = pointer to table of KWP1281 addresses
+    mov b,#0x03               ;5200  a3 03        B = number of valid addresses in table
 
 lab_5202:
     cmp a,[hl+b]              ;5202  31 4b        Compare address to current entry in table
@@ -15523,21 +15557,20 @@ lab_520b:
 
     mov a,!kwp_addr_idx     ;5226  8e 6d f0       A = KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
     cmp a,#0x03             ;5229  4d 03
-    bnz lab_5230            ;522b  bd 03
+    bnz lab_5230_ret        ;522b  bd 03
 
-    ;kwp_addr_idx = 3 (address 0x3F)
-    br !lab_528c            ;522d  9b 8c 52
+    ;kwp_addr_idx = 3 (address 0x3F = cluster)
+    br !lab_528c_addr_0x3f  ;522d  9b 8c 52
 
-lab_5230:
+lab_5230_ret:
     ret                     ;5230  af
 
 lab_5231:
 ;mem_fbc9=0x05
-;Clears some state bits only
     btclr mem_fe79.3,lab_523e ;5231  31 31 79 09
     btclr mem_fe79.4,lab_5248 ;5235  31 41 79 0f
-    btclr mem_fe79.5,lab_5252 ;5239  31 51 79 15
-    ret                     ;523d  af
+    btclr mem_fe79.5,lab_5252 ;5239  31 51 79 15  Set baud rate and start connection on 0x56 or 0x7C
+    ret                       ;523d  af
 
 lab_523e:
     set1 mem_fe79.4         ;523e  4a 79
@@ -15558,6 +15591,7 @@ lab_5248:
     ret                     ;5251  af
 
 lab_5252:
+;Set baud rate and start connection on 0x56 or 0x7C
     movw hl,#kwp_brgc0_b02c+1 ;5252  16 2d b0
     mov a,!kwp_addr_idx     ;5255  8e 6d f0       A = KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
     mov b,a                 ;5258  73
@@ -15571,24 +15605,26 @@ lab_5252:
     mov a,!kwp_addr_idx     ;5262  8e 6d f0       A = KWP1281 kwp_addresses index: 1 = 0x7C DELCO, 2 = 0x56 Normal, 3 = 0x3F Radio to Cluster
     cmp a,#0x01             ;5265  4d 01
     bnz lab_526c            ;5267  bd 03
-    br !lab_5274            ;5269  9b 74 52
+    br !lab_527e_addr_0x7c  ;5269  9b 74 52
 
 lab_526c:
     cmp a,#0x02             ;526c  4d 02
-    bnz lab_5273            ;526e  bd 03
-    br !lab_527e            ;5270  9b 7e 52
+    bnz lab_5273_ret        ;526e  bd 03
+    br !lab_527e_addr_0x56  ;5270  9b 7e 52
 
-lab_5273:
+lab_5273_ret:
     ret                     ;5273  af
 
-lab_5274:
+lab_527e_addr_0x7c:
+;KWP1281 connection has just been established on address 0x7C (DELCO address).
 ;kwp_addr_idx = 0x01 (address 0x7c)
     set1 mem_fe65.7         ;5274  7a 65
     mov a,#0x01             ;5276  a1 01
     mov !mem_fbc7,a         ;5278  9e c7 fb
     br !lab_532a_ack        ;527b  9b 2a 53     Branch to send an ACK block
 
-lab_527e:
+lab_527e_addr_0x56:
+;KWP1281 connection has just been established on address 0x56 (Normal radio address).
 ;kwp_addr_idx = 0x02 (address 0x56)
     set1 mem_fe65.5           ;527e  5a 65      Set bit to enable some protection checks (e.g. read_ee_sanitized)
     set1 mem_fe7d.4           ;5280  4a 7d
@@ -15597,7 +15633,8 @@ lab_527e:
     set1 mem_fe66.0           ;5287  0a 66
     br !lab_52ea_id_part_num  ;5289  9b ea 52   Branch to Send id block 1/4 with "1J0035180B" (Block length=0x0F)
 
-lab_528c:
+lab_528c_addr_0x3f:
+;KWP1281 connection has just been establised on address 0x3F (radio-as-tester; 0x3F=cluster address)
 ;kwp_addr_idx = 0x03 (address 0x3F)
     mov a,#0x01             ;528c  a1 01
     mov !mem_fbc6,a         ;528e  9e c6 fb     Store new KWP1281 radio to cluster connection state
@@ -18599,7 +18636,7 @@ sub_6217:
     push hl                 ;621a  b7
     bf mem_fe2d.0,lab_622c  ;621b  31 03 2d 0d
     call !sub_6305          ;621f  9a 05 63
-    xch a,!mem_fbff         ;6222  ce ff fb   TODO mem_fbff is I2C attempt counter
+    xch a,!mem_fbff         ;6222  ce ff fb     TODO mem_fbff is I2C attempt counter
     cmp a,#0x00             ;6225  4d 00
     xch a,!mem_fbff         ;6227  ce ff fb
     bz lab_6230             ;622a  ad 04
@@ -18684,6 +18721,7 @@ lab_624f_attempt:
     movw hl,#i2c_buf        ;625f  16 db fb
     call !sub_5f51          ;6262  9a 51 5f     TODO perform I2C write?
     pop ax                  ;6265  b0
+
     set1 a.0                ;6266  61 8a
     mov x,a                 ;6268  70
     mov a,!mem_fc10         ;6269  8e 10 fc
@@ -19475,7 +19513,7 @@ sub_67be:
     mov !mem_f1a6,a         ;67c0  9e a6 f1
     ret                     ;67c3  af           f Writes " DIAG  "
 
-lab_67c4:
+sub_67c4:
     rolc a,1                ;67c4  27
     mov b,a                 ;67c5  73
     movw hl,#mem_6535       ;67c6  16 35 65
@@ -19548,7 +19586,7 @@ lab_6813_lt_0x0a:
 lab_6815_ret:
     ret                     ;6815  af
 
-lab_6816:
+sub_6816:
 ;XXX writes before start of upd_disp buffer; may not be used
     movw hl,#upd_disp       ;6816  16 9a f1
     mov a,#'R               ;6819  a1 52
@@ -28233,7 +28271,7 @@ sub_a04d:
     mov !i2c_buf+1,a        ;a04d  9e dc fb
     mov a,x                 ;a050  60
     mov !i2c_buf+2,a        ;a051  9e dd fb
-    mov a,#0x1C<<1          ;a054  a1 38         0x1C = SAA7705H I2C address
+    mov a,#0x1C<<1          ;a054  a1 38        0x1C = SAA7705H I2C address
     mov !i2c_buf,a          ;a056  9e db fb
     mov a,#0x83             ;a059  a1 83
     movw hl,#i2c_buf        ;a05b  16 db fb
@@ -31302,7 +31340,7 @@ kwp_asim0_b031:
     .byte 0xca              ;b034  ca          DATA 0xca          0xCA = UART TX & RX enabled, N81 (Normal radio address)
     .byte 0xca              ;b035  ca          DATA 0xca          0xCA = UART TX & RX enabled, N81 (Cluster security address)
 
-kwp_unknown_f06f_b036:
+kwp_f06f_values:
 ;unknown values to be stored in mem_f06f
 ;indexed by kwp_addr_idx
     .byte 0x04              ;b036  04          DATA 0x04        4 entries below:
@@ -31455,8 +31493,8 @@ mem_b0d1:
     .word lab_14c2
     .word lab_14ae
     .word lab_147c
-    .word lab_12e3
-    .word lab_129b          ;Among other things, decrements mem_f06f, kwp_idle_ms
+    .word lab_12e3          ;Sends 5 baud address in radio-as-tester mode and ???
+    .word lab_129b          ;Decrements mem_f06f, kwp_idle_ms and ???
 
 mem_b0e4:
 ;unknown table used with lab_3ecf
@@ -31791,9 +31829,9 @@ mem_b247:
     .word lab_4df4          ;b248              VECTOR           B=0x00  Sets mem_fbc9=0, does nothing
     .word lab_51ca          ;b24a              VECTOR           B=0x01  Sets UART baud and mode
     .word lab_51e2          ;b24c              VECTOR           B=0x02  Sets UART baud and mode
-    .word lab_51fa          ;b24e              VECTOR           B=0x03  Address received; dispatch it
+    .word lab_51fa          ;b24e              VECTOR           B=0x03  Radio-as-tester only: start connection if address sent is cluster
     .word lab_4dfa          ;b250              VECTOR           B=0x04  Block received and it fit in RX buffer; dispatch it
-    .word lab_5231          ;b252              VECTOR           B=0x05  Clears some state bits only
+    .word lab_5231          ;b252              VECTOR           B=0x05  Unknown; dispatches to various routines
     .word lab_5150          ;b254              VECTOR           B=0x06  Unknown; seems to be Read RAM / EEPROM related
     .word lab_5186          ;b256              VECTOR           B=0x07  Block received but it exceeded RX buffer length
     .word lab_51b8          ;b258              VECTOR           B=0x08  Bad block end byte received
