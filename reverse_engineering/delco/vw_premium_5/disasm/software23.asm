@@ -486,8 +486,8 @@ mem_fe31 = 0xfe31
 mem_fe32 = 0xfe32
 mem_fe34 = 0xfe34
 upd_pict = 0xfe35           ;uPD16432B pictograph buffer (8 bytes)
-mem_fe3d = 0xfe3d
-upd_leds = 0xfe3e           ;Value to write to uPD16432B LED output latch
+upd_tick = 0xfe3d           ;Increments on watch timer; used for some uPD updates \ Used as 16-bit pseudorandom
+upd_leds = 0xfe3e           ;Value to write to uPD16432B LED output latch         / number for cluster security
 mem_fe3f = 0xfe3f
 mem_fe40 = 0xfe40
 mem_fe41 = 0xfe41
@@ -1217,7 +1217,7 @@ lab_01df:
     bnz lab_01f9            ;01f0  bd 07
     mov a,#0x0f             ;01f2  a1 0f
     mov !mem_fb11,a         ;01f4  9e 11 fb
-    inc mem_fe3d            ;01f7  81 3d
+    inc upd_tick            ;01f7  81 3d
 
 lab_01f9:
     mov a,!mem_f1e9         ;01f9  8e e9 f1
@@ -6563,7 +6563,7 @@ lab_254d_nc:
     movw mem_fed6,ax        ;2550  99 d6
 
     ;Word at mem_fed4 = Word at mem_fed4 XOR Word at mem_fed6
-    call !sub_258e
+    call !sub_258e_xor_words
 
     mov a,mem_fed4          ;2555  f0 d4      A = low byte of word at mem_fed4
     mov c,#0x02             ;2557  a2 02      C = 2 passes of counting number of "0" bits word at mem_fed4
@@ -6604,7 +6604,7 @@ lab_256c_b_loop:
 
     dbnz b,lab_256c_b_loop  ;2579  8b f1      Loop once for each "0" bit counted above
 
-    call !sub_258e          ;257b  9a 8e 25   Word at mem_fed4 = Word at mem_fed4 XOR Word at mem_fed6
+    call !sub_258e_xor_words;257b  9a 8e 25   Word at mem_fed4 = Word at mem_fed4 XOR Word at mem_fed6
 
     ;Copy result of computation into mem_fb73/mem_fb74 for use comparision in sub_22fc
     movw ax,mem_fed4        ;257e  89 d4
@@ -6618,7 +6618,7 @@ lab_256c_b_loop:
     call !sub_24f1          ;258a  9a f1 24   XXX Unknown
     ret                     ;258d  af
 
-sub_258e:
+sub_258e_xor_words:
 ;Word at mem_fed4 = Word at mem_fed4 XOR Word at mem_fed6
     mov a,mem_fed4          ;258e  f0 d4
     xor a,mem_fed6          ;2590  7e d6
@@ -6629,24 +6629,32 @@ sub_258e:
     mov mem_fed5,a          ;2598  f2 d5    mem_fed5 = mem_fed5 xor mem_fed7
     ret                     ;259a  af
 
-sub_259b:
+sub_259b_safe_lock:
 ;Turn SAFE mode = locked
     clr1 mem_fe23.7         ;259b  7b 23    SAFE mode = locked
     ret                     ;259d  af
 
-sub_259e_secure_req:
-;Generate the 4 byte payload for the 0xD7 Security Access Request
-;block that will be sent to the instrument cluster.
+sub_259e_gen_rand:
+;Generate the 4-byte pseudorandom number for the 0xD7 Security Access Request
+;block that will be sent to the instrument cluster.  It's based on the upd_tick
+;counter value, together the upd_leds value, and some math to obfuscate them.
+;
+;The Premium 4 firmware generates its pseudorandom number at lab_e3d9.  It also
+;uses a timer but completely different math, suggesting that the math below is
+;just for obfuscation and not checked as part of the security algorithm.
 ;
 ;Returns the 4 bytes in A, X, D, E
 ;
-    movw ax,#mem_fe3d       ;259e  10 3d fe
-    sub a,mem_fe3d          ;25a1  1e 3d
-    xch a,x                 ;25a3  30
-    movw de,ax              ;25a4  d4
-    xor a,x                 ;25a5  61 78
-    add a,mem_fe3d          ;25a7  0e 3d
-    mulu x                  ;25a9  31 88
+    movw ax,#upd_tick       ;259e  10 3d fe   X = upd_tick (constantly incremented in watch timer interrupt)
+                            ;                 A = upd_leds (uPD16432B LED output latch; usually 0x0F)
+
+    sub a,upd_tick          ;25a1  1e 3d      A = A - upd_tick
+    xch a,x                 ;25a3  30         Swap A and X
+    movw de,ax              ;25a4  d4         DE = AX
+
+    xor a,x                 ;25a5  61 78      A = A ^ X
+    add a,upd_tick          ;25a7  0e 3d      A = A + upd_tick
+    mulu x                  ;25a9  31 88      AX = A * X
     ret                     ;25ab  af
 
 auth_login_56_safe:
@@ -7584,7 +7592,7 @@ lab_2990:
     mov a,!mem_f18d         ;299d  8e 8d f1
     mov c,a                 ;29a0  72
     mov a,#0x9e             ;29a1  a1 9e
-    mulu x                  ;29a3  31 88
+    mulu x                  ;29a3  31 88      AX = A * X
     divuw c                 ;29a5  31 82
     cmp a,#0x00             ;29a7  4d 00
     bz lab_29ad_ret_data    ;29a9  ad 02      Branch to return with measurement data
@@ -15382,14 +15390,14 @@ lab_50fe:
 kwp_3f_06_disconnect:
 ;Disconnect block received from cluster (kwp_3f_handlers)
 ;
-    call !sub_259b            ;5106  9a 9b 25     Turn SAFE mode = locked
+    call !sub_259b_safe_lock  ;5106  9a 9b 25     Turn SAFE mode = locked
     mov a,#0x00               ;5109  a1 00
     mov !kwp_con_3f_state,a   ;510b  9e c6 fb     Store new KWP1281 connection state on cluster address (0x3F; radio-as-tester)
 
     br !kwp_logout_disconnect ;510e  9b c3 51     Branch to Clear KWP1281 auth bits and disconnect
 
 lab_5111:
-    call !sub_259b          ;5111  9a 9b 25     Turn SAFE mode = locked
+    call !sub_259b_safe_lock;5111  9a 9b 25     Turn SAFE mode = locked
     mov a,#0x00             ;5114  a1 00
     mov !kwp_con_3f_state,a ;5116  9e c6 fb     Store new KWP1281 connection state on cluster address (0x3F; radio-as-tester)
 
@@ -15410,7 +15418,7 @@ kwp_3f_0a_nak:
     br !send_kwp_tx_buf     ;512c  9b f7 34     Set flags to start sending the KWP1281 tx buffer
 
 lab_512f:
-    call !sub_259b          ;512f  9a 9b 25     Turn SAFE mode = locked
+    call !sub_259b_safe_lock;512f  9a 9b 25     Turn SAFE mode = locked
     mov a,#0x00             ;5132  a1 00
     mov !kwp_con_3f_state,a ;5134  9e c6 fb     Store new KWP1281 connection state on cluster address (0x3F; radio-as-tester)
     br !lab_5337_disconnect ;5137  9b 37 53     Branch to Send Disconnect request to instrument cluster
@@ -16629,8 +16637,9 @@ lab_55de_secure_req:
     mov b,#0x21             ;55de  a3 21        B = index 0x21 title 0xd7 security access request
     call !init_kwp_tx_buf   ;55e0  9a 92 52     Set block title, counter, length in KWP1281 tx buf
 
-    call !sub_259e_secure_req ;55e3  9a 9e 25     Generate the 4 byte payload for the 0xD7 security access request block
-                              ;                   Returns the 4 bytes in A, X, D, E
+    call !sub_259e_gen_rand ;55e3  9a 9e 25     Generate the 4-byte pseudorandom number to send
+                            ;                     in the 0xD7 security access request block
+                            ;                   Returns the 4 bytes in A, X, D, E
 
     ;KWP1281 tx buffer byte 3 = value in A
     mov [hl+b],a            ;55e6  bb           Store A in KWP1281 tx buffer byte 3
@@ -19964,18 +19973,18 @@ lab_69d6:
     ret                     ;69de  af
 
 lab_69df:
-    bf mem_fe3d.1,lab_69f5  ;69df  31 13 3d 12
+    bf upd_tick.1,lab_69f5_ret  ;69df  31 13 3d 12
     mov a,!mem_f1af         ;69e3  8e af f1
     and a,#0x0f             ;69e6  5d 0f
     mov b,a                 ;69e8  73
     movw hl,#mem_b480+1     ;69e9  16 81 b4
     callf !sub_0c48         ;69ec  4c 48        Load DE with word at position B in table [HL]
-    movw ax,#lab_69f5       ;69ee  10 f5 69
+    movw ax,#lab_69f5_ret   ;69ee  10 f5 69
     push ax                 ;69f1  b1
     movw ax,de              ;69f2  c4
     br ax                   ;69f3  31 98
 
-lab_69f5:
+lab_69f5_ret:
     ret                     ;69f5  af
 
 lab_69f6:
@@ -20283,16 +20292,16 @@ lab_6bc2:
     ret                     ;6bca  af
 
 lab_6bcb:
-    bf mem_fe3d.1,lab_6bdd  ;6bcb  31 13 3d 0e
+    bf upd_tick.1,lab_6bdd_ret  ;6bcb  31 13 3d 0e
     mov a,!mem_f1b1         ;6bcf  8e b1 f1
     mov b,a                 ;6bd2  73
     movw hl,#mem_b4de+1     ;6bd3  16 df b4
     callf !sub_0c48         ;6bd6  4c 48        Load DE with word at position B in table [HL]
-    bc lab_6bdd             ;6bd8  8d 03        Branch if table lookup failed
+    bc lab_6bdd_ret         ;6bd8  8d 03        Branch if table lookup failed
     movw ax,de              ;6bda  c4
     br ax                   ;6bdb  31 98
 
-lab_6bdd:
+lab_6bdd_ret:
     ret                     ;6bdd  af
 
 lab_6bde:
@@ -21443,7 +21452,7 @@ lab_7249:
     mov [hl],a              ;725e  97           '2..........'
     mov a,#0xff             ;725f  a1 ff
     mov b,#0xff             ;7261  a3 ff
-    bf mem_fe3d.1,lab_7290  ;7263  31 13 3d 29  Branch to copy msg from [HL] to display buf and return
+    bf upd_tick.1,lab_7290  ;7263  31 13 3d 29  Branch to copy msg from [HL] to display buf and return
     mov a,#0x0a             ;7267  a1 0a
     mov b,#0xff             ;7269  a3 ff
     movw hl,#blank          ;726b  16 11 65     HL = pointer to 11,"           "
