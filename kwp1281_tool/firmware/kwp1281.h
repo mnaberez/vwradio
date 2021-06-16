@@ -20,11 +20,16 @@ typedef enum
     KWP_UNEXPECTED = 11,
     KWP_DATA_TOO_SHORT = 12,
     KWP_DATA_TOO_LONG = 13,
+    KWP_ADDR_LINE_BUSY = 14,
+    KWP_ADDR_BAD_START = 15,
+    KWP_ADDR_BAD_PARITY = 16,
+    KWP_ADDR_BAD_STOP = 17,
 } kwp_result_t;
 
 kwp_result_t kwp_connect(uint8_t address);
 kwp_result_t kwp_retrying_connect(uint8_t address);
 void kwp_send_address(uint8_t address);
+kwp_result_t kwp_recv_address(uint8_t *address);
 kwp_result_t kwp_send_group_reading_block(uint8_t group);
 kwp_result_t kwp_send_login_block(uint16_t safe_code, uint8_t unknown, uint16_t workshop);
 kwp_result_t kwp_send_block(uint8_t *buf);

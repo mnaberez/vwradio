@@ -23,6 +23,10 @@ const char * kwp_describe_result(kwp_result_t result) {
         case KWP_UNEXPECTED:        return "Unexpected block title received";
         case KWP_DATA_TOO_SHORT:    return "Length of data returned is shorter than expected";
         case KWP_DATA_TOO_LONG:     return "Length of data returned is longer than expected";
+        case KWP_ADDR_BAD_START:    return "Bad start bit received while receiving address";
+        case KWP_ADDR_BAD_PARITY:   return "Bad parity bit received while receiving address";
+        case KWP_ADDR_BAD_STOP:     return "Bad stop bit received while receiving address";
+        case KWP_ADDR_LINE_BUSY:    return "Line activity detected while receiving address";
         default:                    return "???";
     }
 }
@@ -870,7 +874,23 @@ kwp_result_t kwp_sam_2002_read_safe_code_bcd(uint16_t *safe_code)
 
 // ==========================================================================
 
-// Switch to 5 baud, send address byte, then switch back to previous settings
+// Read the state of the K-line
+// Assumes pin is configured for reading
+static uint8_t _read_k() {
+    return (uint8_t)(PIND & _BV(PD2)) == _BV(PD2);
+}
+
+// Set the state of the K-line
+// Assumes pin is configured for writing
+static void _write_k(uint8_t state) {
+    if (state) {
+        PORTD |= _BV(PD3);  // high
+    } else {
+        PORTD &= ~_BV(PD3); // low
+    }
+}
+
+// Send address byte at 5 baud
 // This is blocking so it will hang for about 2 seconds
 void kwp_send_address(uint8_t address)
 {
@@ -892,14 +912,66 @@ void kwp_send_address(uint8_t address)
                 parity ^= bit;
         }
 
-        if (bit == 1) {
-            PORTD |= _BV(PD3);  // high
-        } else {
-            PORTD &= ~_BV(PD3); // low
-        }
+        _write_k(bit);
         _delay_ms(200);         // 1000ms / 5bps = 200ms per bit
     }
 }
+
+// Receive address byte at 5 baud
+// This is blocking so it will hang for at least 2 seconds
+// If no address is received, it will block forever
+kwp_result_t kwp_recv_address(uint8_t *address)
+{
+    *address = 0;
+
+    // Wait 500ms to ensure K-line is not in use
+    for (uint16_t i=0; i<500; i++) {
+        uint8_t bit = _read_k();
+        if (bit == 0) { return KWP_ADDR_LINE_BUSY; }
+        _delay_ms(1);
+    }
+
+    // Wait for falling edge start of start bit
+    while (_read_k() == 1);
+
+    // Falling edge of start bit has been detected.  Now wait half
+    // of one bit period, so that we are in the middle of the start bit.
+    _delay_ms(200 / 2);
+    uint8_t start = _read_k();
+    if (start != 0) { return KWP_ADDR_BAD_START; }
+
+    uint8_t data = 0;
+    uint8_t expected_parity = 1;
+
+    // Receive the 7 data bits
+    for (uint8_t i=0; i<7; i++) {
+        // Wait one full bit period.  Since we started in the middle of the
+        // start bit, one full bit period puts us in the middle of a bit.
+        _delay_ms(200);
+
+        uint8_t bit = _read_k();
+        data = (data >> 1);
+        if (bit) { data |= 0x80; }
+        expected_parity ^= bit;
+    }
+
+    // One more rotation because no 8th data bit is sent
+    data = data >> 1;
+
+    // Receive the parity bit
+    _delay_ms(200);
+    uint8_t parity = _read_k();
+    if (parity != expected_parity) { return KWP_ADDR_BAD_PARITY; }
+
+    // Receive the stop bit
+    _delay_ms(200);
+    uint8_t stop = _read_k();
+    if (stop != 1) { return KWP_ADDR_BAD_STOP; }
+
+    *address = data;
+    return KWP_SUCCESS;
+}
+
 
 // TODO restore support for a fixed baud rate (no autobaud)
 kwp_result_t kwp_connect(uint8_t address)

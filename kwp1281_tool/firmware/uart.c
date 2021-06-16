@@ -101,11 +101,13 @@ void uart_disable(uart_num_t uartnum)
         case UART0:
             UCSR0B &= ~_BV(RXEN0);  // Disable RX (PD0/RXD0)
             UCSR0B &= ~_BV(TXEN0);  // Disable TX (PD1/TXD0)
+            PORTD |= _BV(PD1);      // PD1 = 1 (line idles high)
             DDRD |= _BV(PD1);       // PD1 = output
             break;
         case UART1:
             UCSR1B &= ~_BV(RXEN1);  // Disable RX (PD2/RXD1)
             UCSR1B &= ~_BV(TXEN1);  // Disable TX (PD3/TXD1)
+            PORTD |= _BV(PD3);      // PD3 = 1 (line idles high)
             DDRD |= _BV(PD3);       // PD3 = output
             break;
         default:
