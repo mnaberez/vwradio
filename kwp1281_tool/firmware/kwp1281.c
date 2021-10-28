@@ -846,7 +846,7 @@ kwp_result_t kwp_p5_calc_rom_checksum(uint16_t *rom_checksum)
     return KWP_SUCCESS;
 }
 
-// Seat Liceo mfg mode (address 0x7c) only ==================================
+// Seat Liceo or VW Konzern 2004 MP3 mfg mode (address 0x7c) only ===========
 
 kwp_result_t kwp_sl_login_mfg(void)
 {

@@ -64,7 +64,7 @@ static void _crack_delco_vw_sam_2002(void)
     _print_hex16("\r\nSAFE Code: ", safe_code);
 }
 
-static void _crack_delco_seat_liceo(void)
+static void _crack_delco_seat_liceo_or_vw_konzern_2004(void)
 {
     kwp_result_t result = kwp_disconnect();
     kwp_panic_if_error(result);
@@ -135,13 +135,17 @@ void crack(void)
         uart_puts(UART_DEBUG, "VW SAM 2002 (DELCO) DETECTED\r\n");
         _crack_delco_vw_sam_2002();
 
+    } else if (memcmp(&kwp_vag_number, "6KE035119A", 10) == 0) {
+        uart_puts(UART_DEBUG, "VW KONZERN 2004 MP3 (DELCO) DETECTED\r\n");
+        _crack_delco_seat_liceo_or_vw_konzern_2004();
+
     } else if (memcmp(&kwp_component_1[7], "DE2", 3) == 0) {
         uart_puts(UART_DEBUG, "VW PREMIUM 5 (DELCO) DETECTED\r\n");
         _crack_delco_vw_premium_5();
 
     } else if (memcmp(&kwp_component_1[7], "FF6", 3) == 0) {
         uart_puts(UART_DEBUG, "SEAT LICEO (DELCO) DETECTED\r\n");
-        _crack_delco_seat_liceo();
+        _crack_delco_seat_liceo_or_vw_konzern_2004();
 
     } else if (memcmp(&kwp_vag_number, "1J0035156", 9) == 0) {
         uart_puts(UART_DEBUG, "VW RHAPSODY (TECHNISAT) DETECTED\r\n");
