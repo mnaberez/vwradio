@@ -846,6 +846,44 @@ kwp_result_t kwp_p5_calc_rom_checksum(uint16_t *rom_checksum)
     return KWP_SUCCESS;
 }
 
+// Dump the firmware (0x0000-0xEFFF) with workarounds
+// for the bug in the read memory command
+kwp_result_t kwp_p5_dump_firmware()
+{
+    // read 0x0000 - 0xEFEF in chunks of 32 bytes
+    kwp_result_t result = kwp_read_ram(0, 0xeff0, 32);
+    if (result != KWP_SUCCESS) { return result; }
+
+    // due to a bug in the read memory command, the bytes near the
+    // end do not read correctly unless we read them individually
+
+    // read 0xEFF0 - 0xEFFE in chunks of 1 byte
+    result = kwp_read_ram(0xeff0, 15, 1);
+    if (result != KWP_SUCCESS) { return result; }
+
+    // also due to the bug, the last byte (0xEFFF) can't be read
+    // at all.  however, the last two bytes (0xEFFE-0xEFFF) are
+    // the checksum.  to get the missing byte, we ask the firmware
+    // to calculate its checksum.  as long as the firmware is good,
+    // the calculated checksum will match the bytes in 0xEFFE-0xEFFF.
+
+    // calculate checksum to determine byte at 0xEFFF
+    uint16_t rom_checksum = 0;
+    result = kwp_p5_calc_rom_checksum(&rom_checksum);
+    if (result != KWP_SUCCESS) { return result; }
+
+    uart_puts(UART_DEBUG, "ROM Checksum: ");
+    uart_puthex16(UART_DEBUG, rom_checksum);
+    uart_puts(UART_DEBUG, "\r\n");
+
+    uint8_t assumed_byte_at_efff = HIGH(rom_checksum);
+    uart_puts(UART_DEBUG, "MEM: EFFF: ");
+    uart_puthex(UART_DEBUG, assumed_byte_at_efff);
+    uart_puts(UART_DEBUG, "\r\n");
+
+    return KWP_SUCCESS;
+}
+
 // Seat Liceo or VW Konzern 2004 MP3 mfg mode (address 0x7c) only ===========
 
 kwp_result_t kwp_sl_login_mfg(void)
