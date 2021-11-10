@@ -884,7 +884,7 @@ kwp_result_t kwp_p5_dump_firmware()
     return KWP_SUCCESS;
 }
 
-// Seat Liceo or VW Konzern 2004 MP3 mfg mode (address 0x7c) only ===========
+// Seat Liceo or VW Konzern 2004 DAC or MP3 mfg mode (address 0x7c) only ====
 
 kwp_result_t kwp_sl_login_mfg(void)
 {

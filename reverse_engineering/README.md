@@ -12,14 +12,15 @@ The [VW Premium 5](./delco/vw_premium_5) is special in the list of models below 
 | ------                                              | ------------ | ------        | ----      | ------ | --------- | -------- |
 | [VW Premium 4](./clarion/vw_premium_4)              | Clarion      | North America | ✓         | ✓      | ✓         | Done     |
 | [VW Premium 5](./delco/vw_premium_5)                | Delco        | North America | ✓         | ✓      | ✓         | Done     |
+| [VW Konzern 2004 DAC](./delco/vw_konzern_2004_dac)  | Delco        | South America | ✓         | ✓      | ✓         | Done     |
 | [VW Konzern 2004 MP3](./delco/vw_konzern_2004_mp3)  | Delco        | South America | ✓         | ✓      | ✓         | Done     |
 | [VW SAM 2002](./delco/vw_sam_2002)                  | Delco        | Europe        | ✓         | ✓      | ✓         | Done     |
 | [Seat Liceo](./delco/seat_liceo)                    | Delco        | Europe        | ✓         | ✓      | ✓         | Done     |
 | [VW Gamma 5](./sony/vw_gamma_5)                     | Sony         | Europe        |           |        |           | On Hold  |
 | [VW Gamma 5](./technisat/vw_gamma_5)                | TechniSat    | Europe        | ✓         | ✓      | ✓         | Done     |
 | [VW Rhapsody](./technisat/vw_rhapsody)              | TechniSat    | Europe        | ✓         | ✓      | ✓         | Done     |
-| [Skoda Symphony](./technisat/skoda_symphony)        | TechniSat    | Europe        |           | ✓      | ✓         | On Hold |
-| Skoda Symphony MP3 SKZA7H                           | TechniSat    | Europe        |           | ✓      | ✓         | On Hold |
+| [Skoda Symphony](./technisat/skoda_symphony)        | TechniSat    | Europe        |           | ✓      | ✓         | On Hold  |
+| Skoda Symphony MP3 SKZA7H                           | TechniSat    | Europe        |           | ✓      | ✓         | On Hold  |
 
 Legend:
 
