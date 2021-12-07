@@ -135,7 +135,8 @@ void crack(void)
         uart_puts(UART_DEBUG, "VW SAM 2002 (DELCO) DETECTED\r\n");
         _crack_delco_vw_sam_2002();
 
-    } else if (memcmp(&kwp_vag_number, "6KE035119", 9) == 0) {
+    } else if ((memcmp(&kwp_vag_number, "5Z0035119C", 10) == 0) ||
+               (memcmp(&kwp_vag_number, "6KE035119", 9) == 0)) {
         uart_puts(UART_DEBUG, "VW KONZERN 2004 (DELCO) DETECTED\r\n");
         _crack_delco_seat_liceo_or_vw_konzern_2004();
 
