@@ -7,7 +7,7 @@ out.bin:
 	cp -f serial_tx_led.asm out.asm
 	as78k0 -l -o out.asm
 	rm -f out.asm
-	aslink out -i
+	aslink -i out
 	srec_cat out.ihx -intel -fill 0xff 0x0000 0xf000 -o out.bin -binary
 	rm out.hlr out.ihx out.rel
 

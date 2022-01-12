@@ -8,7 +8,7 @@ out.bin:
 	cp -f pu1666a_mainmcu.asm out.asm
 	asf2mc8 -l -o out.asm
 	rm -f out.asm
-	aslink out -i
+	aslink -i out
 	srec_cat out.ihx -intel -offset -0x8000 -o out.bin -binary
 
 clean:
