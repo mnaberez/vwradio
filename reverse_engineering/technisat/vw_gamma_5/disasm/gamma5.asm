@@ -28176,104 +28176,58 @@ lab_ba14:
 lab_ba21:
     rts                     ;ba21  60
 
-    .byte 0xff              ;ba22  ff          DATA 0xff
-    .byte 0x08              ;ba23  08          DATA 0x08
-    .byte 0xad              ;ba24  ad          DATA 0xad
-    .byte 0xb1              ;ba25  b1          DATA 0xb1
-    .byte 0x05              ;ba26  05          DATA 0x05
-    .byte 0xc9              ;ba27  c9          DATA 0xc9
-    .byte 0x07              ;ba28  07          DATA 0x07
-    .byte 0xd0              ;ba29  d0          DATA 0xd0
-    .byte 0x05              ;ba2a  05          DATA 0x05
-    .byte 0xa9              ;ba2b  a9          DATA 0xa9
-    .byte 0x00              ;ba2c  00          DATA 0x00
-    .byte 0x8d              ;ba2d  8d          DATA 0x8d
-    .byte 0xb1              ;ba2e  b1          DATA 0xb1
-    .byte 0x05              ;ba2f  05          DATA 0x05
-    .byte 0xa9              ;ba30  a9          DATA 0xa9
-    .byte 0x01              ;ba31  01          DATA 0x01
-    .byte 0x8d              ;ba32  8d          DATA 0x8d
-    .byte 0xa4              ;ba33  a4          DATA 0xa4
-    .byte 0x05              ;ba34  05          DATA 0x05
-    .byte 0xa9              ;ba35  a9          DATA 0xa9
-    .byte 0x00              ;ba36  00          DATA 0x00
-    .byte 0x8d              ;ba37  8d          DATA 0x8d
-    .byte 0xa0              ;ba38  a0          DATA 0xa0
-    .byte 0x05              ;ba39  05          DATA 0x05
-    .byte 0x8d              ;ba3a  8d          DATA 0x8d
-    .byte 0xa1              ;ba3b  a1          DATA 0xa1
-    .byte 0x05              ;ba3c  05          DATA 0x05
-    .byte 0x20              ;ba3d  20          DATA 0x20 ' '
-    .byte 0x52              ;ba3e  52          DATA 0x52 'R'
-    .byte 0x2a              ;ba3f  2a          DATA 0x2a '*'
-    .byte 0x60              ;ba40  60          DATA 0x60 '`'
-    .byte 0xff              ;ba41  ff          DATA 0xff
-    .byte 0x08              ;ba42  08          DATA 0x08
-    .byte 0xad              ;ba43  ad          DATA 0xad
-    .byte 0xa4              ;ba44  a4          DATA 0xa4
-    .byte 0x05              ;ba45  05          DATA 0x05
-    .byte 0xf0              ;ba46  f0          DATA 0xf0
-    .byte 0x0e              ;ba47  0e          DATA 0x0e
-    .byte 0xa9              ;ba48  a9          DATA 0xa9
-    .byte 0x00              ;ba49  00          DATA 0x00
-    .byte 0x8d              ;ba4a  8d          DATA 0x8d
-    .byte 0xa0              ;ba4b  a0          DATA 0xa0
-    .byte 0x05              ;ba4c  05          DATA 0x05
-    .byte 0x8d              ;ba4d  8d          DATA 0x8d
-    .byte 0xa1              ;ba4e  a1          DATA 0xa1
-    .byte 0x05              ;ba4f  05          DATA 0x05
-    .byte 0x20              ;ba50  20          DATA 0x20 ' '
-    .byte 0x52              ;ba51  52          DATA 0x52 'R'
-    .byte 0x2a              ;ba52  2a          DATA 0x2a '*'
-    .byte 0x4c              ;ba53  4c          DATA 0x4c 'L'
-    .byte 0x83              ;ba54  83          DATA 0x83
-    .byte 0xba              ;ba55  ba          DATA 0xba
-    .byte 0xad              ;ba56  ad          DATA 0xad
-    .byte 0xa5              ;ba57  a5          DATA 0xa5
-    .byte 0x05              ;ba58  05          DATA 0x05
-    .byte 0xf0              ;ba59  f0          DATA 0xf0
-    .byte 0x15              ;ba5a  15          DATA 0x15
-    .byte 0xce              ;ba5b  ce          DATA 0xce
-    .byte 0xa5              ;ba5c  a5          DATA 0xa5
-    .byte 0x05              ;ba5d  05          DATA 0x05
-    .byte 0x20              ;ba5e  20          DATA 0x20 ' '
-    .byte 0x0f              ;ba5f  0f          DATA 0x0f
-    .byte 0xb4              ;ba60  b4          DATA 0xb4
-    .byte 0x5f              ;ba61  5f          DATA 0x5f '_'
-    .byte 0xe8              ;ba62  e8          DATA 0xe8
-    .byte 0xa9              ;ba63  a9          DATA 0xa9
-    .byte 0x07              ;ba64  07          DATA 0x07
-    .byte 0x8d              ;ba65  8d          DATA 0x8d
-    .byte 0xb1              ;ba66  b1          DATA 0xb1
-    .byte 0x05              ;ba67  05          DATA 0x05
-    .byte 0xa0              ;ba68  a0          DATA 0xa0
-    .byte 0x2b              ;ba69  2b          DATA 0x2b '+'
-    .byte 0x20              ;ba6a  20          DATA 0x20 ' '
-    .byte 0x00              ;ba6b  00          DATA 0x00
-    .byte 0x33              ;ba6c  33          DATA 0x33 '3'
-    .byte 0x4c              ;ba6d  4c          DATA 0x4c 'L'
-    .byte 0x83              ;ba6e  83          DATA 0x83
-    .byte 0xba              ;ba6f  ba          DATA 0xba
-    .byte 0x20              ;ba70  20          DATA 0x20 ' '
-    .byte 0x0f              ;ba71  0f          DATA 0x0f
-    .byte 0xb4              ;ba72  b4          DATA 0xb4
-    .byte 0xa9              ;ba73  a9          DATA 0xa9
-    .byte 0x04              ;ba74  04          DATA 0x04
-    .byte 0x8d              ;ba75  8d          DATA 0x8d
-    .byte 0xa4              ;ba76  a4          DATA 0xa4
-    .byte 0x05              ;ba77  05          DATA 0x05
-    .byte 0xa9              ;ba78  a9          DATA 0xa9
-    .byte 0x00              ;ba79  00          DATA 0x00
-    .byte 0x8d              ;ba7a  8d          DATA 0x8d
-    .byte 0xa0              ;ba7b  a0          DATA 0xa0
-    .byte 0x05              ;ba7c  05          DATA 0x05
-    .byte 0x8d              ;ba7d  8d          DATA 0x8d
-    .byte 0xa1              ;ba7e  a1          DATA 0xa1
-    .byte 0x05              ;ba7f  05          DATA 0x05
-    .byte 0x20              ;ba80  20          DATA 0x20 ' '
-    .byte 0x52              ;ba81  52          DATA 0x52 'R'
-    .byte 0x2a              ;ba82  2a          DATA 0x2a '*'
-    .byte 0x60              ;ba83  60          DATA 0x60 '`'
+;XXX appears unused
+sub_ba22:
+    clb 7,P4                ;ba22  ff 08
+    lda 0x05b1              ;ba24  ad b1 05
+    cmp #0x07               ;ba27  c9 07
+    bne lab_ba30            ;ba29  d0 05
+    lda #0x00               ;ba2b  a9 00
+    sta 0x05b1              ;ba2d  8d b1 05
+
+lab_ba30:
+    lda #0x01               ;ba30  a9 01
+    sta 0x05a4              ;ba32  8d a4 05
+    lda #0x00               ;ba35  a9 00
+    sta 0x05a0              ;ba37  8d a0 05
+    sta 0x05a1              ;ba3a  8d a1 05
+    jsr sub_2a52            ;ba3d  20 52 2a
+    rts                     ;ba40  60
+
+;XXX appears unused
+sub_ba41:
+    clb 7,P4                ;ba41  ff 08
+    lda 0x05a4              ;ba43  ad a4 05
+    beq lab_ba56            ;ba46  f0 0e
+    lda #0x00               ;ba48  a9 00
+    sta 0x05a0              ;ba4a  8d a0 05
+    sta 0x05a1              ;ba4d  8d a1 05
+    jsr sub_2a52            ;ba50  20 52 2a
+    jmp lab_ba83_ret        ;ba53  4c 83 ba
+
+lab_ba56:
+    lda 0x05a5              ;ba56  ad a5 05
+    beq lab_ba70            ;ba59  f0 15
+    dec 0x05a5              ;ba5b  ce a5 05
+    jsr sub_b40f_disconnect ;ba5e  20 0f b4     Terminate KWP1281 or TechniSat session
+    clb 2,0x00e8            ;ba61  5f e8
+    lda #0x07               ;ba63  a9 07
+    sta 0x05b1              ;ba65  8d b1 05
+    ldy #0x2b               ;ba68  a0 2b
+    jsr sub_3300            ;ba6a  20 00 33
+    jmp lab_ba83_ret        ;ba6d  4c 83 ba
+
+lab_ba70:
+    jsr sub_b40f_disconnect ;ba70  20 0f b4     Terminate KWP1281 or TechniSat session
+    lda #0x04               ;ba73  a9 04
+    sta 0x05a4              ;ba75  8d a4 05
+    lda #0x00               ;ba78  a9 00
+    sta 0x05a0              ;ba7a  8d a0 05
+    sta 0x05a1              ;ba7d  8d a1 05
+    jsr sub_2a52            ;ba80  20 52 2a
+
+lab_ba83_ret:
+    rts                     ;ba83  60
 
 ;TODO appears unused
 sub_ba84:
@@ -28443,12 +28397,18 @@ lab_bb8f:
     ldx 0x05ad              ;bb92  ae ad 05
     lda 0x0331,x            ;bb95  bd 31 03
     jsr sub_5ac5            ;bb98  20 c5 5a
+
     lda 0x05ad              ;bb9b  ad ad 05
     cmp 0x05b4              ;bb9e  cd b4 05
     bne lab_bbd1            ;bba1  d0 2e
+
     lda 0x0333              ;bba3  ad 33 03     A = KWP1281 tx buffer: block title
-    cmp #0x06               ;bba6  c9 06        Are we sending 0x06 Disconnect?
-    bne lab_bbbf            ;bba8  d0 15          No: keep going
+    cmp #0x06               ;bba6  c9 06        Are we about to send 0x06 Disconnect?
+    bne lab_bbbf_continue   ;bba8  d0 15          No: continue the session with the cluster
+
+    ;We're about the send 0x06 Disconnect, which means that we just received
+    ;a 0x3D Security Response block from the cluster.  It's in the KWP1281 buffer
+    ;now.  Descramble the "Cluster ID" to try and unlock from SAFE mode.
 
     jsr sub_bc04_descramble ;bbaa  20 04 bc
 
@@ -28462,7 +28422,8 @@ lab_bb8f:
     jsr sub_3300            ;bbb9  20 00 33
     jmp lab_bc03_rts        ;bbbc  4c 03 bc     Jump to return
 
-lab_bbbf:
+;Not time to disconnect yet; continue the session with the cluster
+lab_bbbf_continue:
     lda #0x04               ;bbbf  a9 04
     sta 0x05b2              ;bbc1  8d b2 05
     lda #0x6e               ;bbc4  a9 6e
