@@ -1682,40 +1682,50 @@ sub_2a46:
     jsr sub_3300            ;2a4b  20 00 33
     jsr sub_b846            ;2a4e  20 46 b8
     rts                     ;2a51  60
-;xxxxxxxxxx
 
 sub_2a52:
     clb 4,0x00e8            ;2a52  9f e8
     bbs 0,0x00f1,lab_2a61   ;2a54  07 f1 0a
+
     lda 0x05a4              ;2a57  ad a4 05
-    bne lab_2ab7            ;2a5a  d0 5b
-    jsr sub_2e3a            ;2a5c  20 3a 2e
-    bra lab_2ab7            ;2a5f  80 56
+    bne lab_2ab7_rts        ;2a5a  d0 5b
+
+    jsr write_ee_cluster_id ;2a5c  20 3a 2e     Write a new Cluster ID to the EEPROM
+    bra lab_2ab7_rts        ;2a5f  80 56        Branch always
 
 lab_2a61:
     lda 0x05a4              ;2a61  ad a4 05
-    bne lab_2a93            ;2a64  d0 2d
-    jsr sub_2e14            ;2a66  20 14 2e
-    bcs lab_2a93            ;2a69  b0 28
-    lda 0x0102              ;2a6b  ad 02 01
-    cmp 0x05a0              ;2a6e  cd a0 05
-    bne lab_2a93            ;2a71  d0 20
-    lda 0x0103              ;2a73  ad 03 01
-    cmp 0x05a1              ;2a76  cd a1 05
-    bne lab_2a93            ;2a79  d0 18
-    jsr sub_2e8a            ;2a7b  20 8a 2e
+    bne lab_2a93_fail       ;2a64  d0 2d
+
+    jsr read_ee_cluster_id  ;2a66  20 14 2e     Read the Cluster ID from the EEPROM
+    bcs lab_2a93_fail       ;2a69  b0 28        Branch if EEPROM read failed
+
+    ;Cluster ID check
+    ;high/low byte order is a guess
+
+    lda 0x0102              ;2a6b  ad 02 01     A = Cluster ID from EEPROM (high byte) (???)
+    cmp 0x05a0              ;2a6e  cd a0 05     Compare with Descrambled Cluster ID from cluster (high byte)
+    bne lab_2a93_fail       ;2a71  d0 20        Branch if not equal
+
+    lda 0x0103              ;2a73  ad 03 01     A = Cluster ID from EEPROM (low byte) (???)
+    cmp 0x05a1              ;2a76  cd a1 05     Compare with Descrambled Cluster ID from cluster (low byte)
+    bne lab_2a93_fail       ;2a79  d0 18        Branch if not equal
+
+    ;Descrambled Cluster ID matches the Cluster ID in the EEPROM
+
+    jsr sub_2e8a            ;2a7b  20 8a 2e     Write SAFE code attempt count = 0 to EEPROM, possibly other stuff
     clb 7,0x00f0            ;2a7e  ff f0
     clb 0,0x00f1            ;2a80  1f f1
     clb 1,0x00f1            ;2a82  3f f1
     seb 1,P5                ;2a84  2f 0a
-    jsr sub_4c63            ;2a86  20 63 4c
+    jsr sub_4c63            ;2a86  20 63 4c     TODO unknown I2C activities
     clb 1,P5                ;2a89  3f 0a
-    bbc 3,0x00f2,lab_2ab7   ;2a8b  77 f2 29
+    bbc 3,0x00f2,lab_2ab7_rts ;2a8b  77 f2 29
     jsr sub_9a75            ;2a8e  20 75 9a
-    bra lab_2ab7            ;2a91  80 24
+    bra lab_2ab7_rts        ;2a91  80 24        Branch always to return
 
-lab_2a93:
-    bbc 3,0x00f2,lab_2ab7   ;2a93  77 f2 21
+lab_2a93_fail:
+    bbc 3,0x00f2,lab_2ab7_rts ;2a93  77 f2 21
     lda 0x05a4              ;2a96  ad a4 05
     beq lab_2a9f            ;2a99  f0 04
     cmp #0x04               ;2a9b  c9 04
@@ -1724,18 +1734,18 @@ lab_2a93:
 lab_2a9f:
     ldy #0x0e               ;2a9f  a0 0e
     jsr sub_33c6            ;2aa1  20 c6 33
-    bcs lab_2ab7            ;2aa4  b0 11
+    bcs lab_2ab7_rts        ;2aa4  b0 11
     ldy #0x0f               ;2aa6  a0 0f
     jsr sub_33c6            ;2aa8  20 c6 33
-    bcs lab_2ab7            ;2aab  b0 0a
+    bcs lab_2ab7_rts        ;2aab  b0 0a
     jsr sub_2ab8            ;2aad  20 b8 2a
-    bra lab_2ab7            ;2ab0  80 05
+    bra lab_2ab7_rts        ;2ab0  80 05
 
 lab_2ab2:
     ldy #0x0f               ;2ab2  a0 0f
     jsr sub_3300            ;2ab4  20 00 33
 
-lab_2ab7:
+lab_2ab7_rts:
     rts                     ;2ab7  60
 
 sub_2ab8:
@@ -2167,7 +2177,7 @@ lab_2d81:
     bbs 4,0xe8,lab_2d8c     ;2d81  87 e8 08
     lda 0x05a4              ;2d84  ad a4 05
     bne lab_2d8c            ;2d87  d0 03
-    jsr sub_2e3a            ;2d89  20 3a 2e     TODO writes 3 unknown bytes to an EEPROM
+    jsr write_ee_cluster_id ;2d89  20 3a 2e     Write a new Cluster ID to the EEPROM
 
 lab_2d8c:
     lda #0x00               ;2d8c  a9 00
@@ -2291,9 +2301,11 @@ write_ee_safe:
 lab_2e13_rts:
     rts                     ;2e13  60
 
-sub_2e14:
+;Read the Cluster ID from the EEPROM
+;Returns carry clear = success
+read_ee_cluster_id:
     lda #0x55               ;2e14  a9 55
-    sta 0x0101              ;2e16  8d 01 01
+    sta 0x0101              ;2e16  8d 01 01     Store as EEPROM address
     lda #0x03               ;2e19  a9 03
     asl a                   ;2e1b  0a
     ora #0xa0               ;2e1c  09 a0
@@ -2307,27 +2319,28 @@ sub_2e14:
     jsr sub_46e5_i2c_wr_rd  ;2e2f  20 e5 46
     clc                     ;2e32  18
     lda 0x0104              ;2e33  ad 04 01
-    beq lab_2e39            ;2e36  f0 01
+    beq lab_2e39_rts            ;2e36  f0 01
     sec                     ;2e38  38
-
-lab_2e39:
+lab_2e39_rts:
     rts                     ;2e39  60
 
-;TODO writes 3 unknown bytes to an EEPROM
-sub_2e3a:
+;Write a new Cluster ID to the EEPROM
+write_ee_cluster_id:
     lda #0x00               ;2e3a  a9 00
     sta 0x0104              ;2e3c  8d 04 01
 
-    lda 0x05a1              ;2e3f  ad a1 05
-    sta 0x0103              ;2e42  8d 03 01
+    ;TODO high/low byte is a guess
 
-    lda 0x05a0              ;2e45  ad a0 05
-    sta 0x0102              ;2e48  8d 02 01
+    lda 0x05a1              ;2e3f  ad a1 05     A = Descrambled Cluster ID from cluster (low byte)
+    sta 0x0103              ;2e42  8d 03 01     Store in buffer as EEPROM Cluster ID (low byte)
+
+    lda 0x05a0              ;2e45  ad a0 05     A = Descrambled Cluster ID from cluster (high byte)
+    sta 0x0102              ;2e48  8d 02 01     Store in buffer as EEPROM Cluster ID (high byte)
 
     lda #0x55               ;2e4b  a9 55
     sta 0x0101              ;2e4d  8d 01 01     Store as EEPROM address
 
-    lda #0x03               ;2e50  a9 03
+    lda #0x03               ;2e50  a9 03        A = 3 bytes to write (address + 2 more)
     asl a                   ;2e52  0a
     ora #0xa0               ;2e53  09 a0
     sta 0x0100              ;2e55  8d 00 01     Store as I2C control byte (address & direction)
@@ -2346,34 +2359,21 @@ sub_2e3a:
 
     rts                     ;2e6e  60
 
-    .byte 0xa9              ;2e6f  a9          DATA 0xa9
-    .byte 0x00              ;2e70  00          DATA 0x00
-    .byte 0x8d              ;2e71  8d          DATA 0x8d
-    .byte 0x02              ;2e72  02          DATA 0x02
-    .byte 0x01              ;2e73  01          DATA 0x01
-    .byte 0xa9              ;2e74  a9          DATA 0xa9
-    .byte 0x31              ;2e75  31          DATA 0x31 '1'
-    .byte 0x8d              ;2e76  8d          DATA 0x8d
-    .byte 0x03              ;2e77  03          DATA 0x03
-    .byte 0x01              ;2e78  01          DATA 0x01
-    .byte 0xa9              ;2e79  a9          DATA 0xa9
-    .byte 0x30              ;2e7a  30          DATA 0x30 '0'
-    .byte 0x8d              ;2e7b  8d          DATA 0x8d
-    .byte 0x04              ;2e7c  04          DATA 0x04
-    .byte 0x01              ;2e7d  01          DATA 0x01
-    .byte 0x8d              ;2e7e  8d          DATA 0x8d
-    .byte 0x05              ;2e7f  05          DATA 0x05
-    .byte 0x01              ;2e80  01          DATA 0x01
-    .byte 0x8d              ;2e81  8d          DATA 0x8d
-    .byte 0x06              ;2e82  06          DATA 0x06
-    .byte 0x01              ;2e83  01          DATA 0x01
-    .byte 0xa0              ;2e84  a0          DATA 0xa0
-    .byte 0x05              ;2e85  05          DATA 0x05
-    .byte 0x20              ;2e86  20          DATA 0x20 ' '
-    .byte 0xe8              ;2e87  e8          DATA 0xe8
-    .byte 0x2d              ;2e88  2d          DATA 0x2d '-'
-    .byte 0x60              ;2e89  60          DATA 0x60 '`'
+;XXX appears unused
+sub_2e6f:
+    lda #0x00               ;2e6f  a9 00
+    sta 0x0102              ;2e71  8d 02 01
+    lda #'1                 ;2e74  a9 31
+    sta 0x0103              ;2e76  8d 03 01
+    lda #'0                 ;2e79  a9 30
+    sta 0x0104              ;2e7b  8d 04 01
+    sta 0x0105              ;2e7e  8d 05 01
+    sta 0x0106              ;2e81  8d 06 01
+    ldy #0x05               ;2e84  a0 05
+    jsr write_ee_safe       ;2e86  20 e8 2d
+    rts                     ;2e89  60
 
+;Write SAFE code attempt count = 0 to EEPROM, possibly other stuff
 sub_2e8a:
     clb 2,0xf1              ;2e8a  5f f1
     jsr sub_4c63            ;2e8c  20 63 4c     TODO unknown I2C activities
@@ -3419,7 +3419,7 @@ lab_33f8:
     rts                     ;33f8  60
 
 lab_33f9:
-    jsr sub_2e8a            ;33f9  20 8a 2e
+    jsr sub_2e8a            ;33f9  20 8a 2e     Write SAFE code attempt count = 0 to EEPROM, possibly other stuff
     lda #0x01               ;33fc  a9 01
     sta 0x0269              ;33fe  8d 69 02
     jsr sub_2ae4            ;3401  20 e4 2a
@@ -6755,7 +6755,7 @@ sub_4826:
     ldy 0x42                ;484a  a4 42
     clc                     ;484c  18
     adc [0x40],y            ;484d  71 40
-    sta 0x0101              ;484f  8d 01 01
+    sta 0x0101              ;484f  8d 01 01     Store as EEPROM address
     sta 0x4a                ;4852  85 4a
     pla                     ;4854  68
     and #0x07               ;4855  29 07
@@ -7620,7 +7620,7 @@ lab_4da4:
 ;TODO writes 2 bytes, reads 4 bytes to an unknown I2C device
 sub_4da5:
     lda #0x00               ;4da5  a9 00
-    sta 0x0101              ;4da7  8d 01 01
+    sta 0x0101              ;4da7  8d 01 01     Store as EEPROM address
     lda #0x00               ;4daa  a9 00
     asl a                   ;4dac  0a
     ora #0xa0               ;4dad  09 a0
@@ -7652,7 +7652,7 @@ sub_4dd1:
     lda #0xc4               ;4dd7  a9 c4
     sta 0x0100              ;4dd9  8d 00 01
     lda #0x22               ;4ddc  a9 22
-    sta 0x0101              ;4dde  8d 01 01
+    sta 0x0101              ;4dde  8d 01 01     Store as EEPROM address
     bbs 0,0xf2,lab_4e2b     ;4de1  07 f2 47
     ldx #0x00               ;4de4  a2 00
     lda #0x02               ;4de6  a9 02
@@ -7761,11 +7761,11 @@ lab_4ea4:
 
 sub_4ea5:
     lda #0x1d               ;4ea5  a9 1d
-    sta 0x0101              ;4ea7  8d 01 01
+    sta 0x0101              ;4ea7  8d 01 01     Store as EEPROM address
     lda #0x04               ;4eaa  a9 04
     bbc 0,0xf2,lab_4eb6     ;4eac  17 f2 07
     lda #0x3d               ;4eaf  a9 3d
-    sta 0x0101              ;4eb1  8d 01 01
+    sta 0x0101              ;4eb1  8d 01 01     Store as EEPROM address
     lda #0x04               ;4eb4  a9 04
 
 lab_4eb6:
@@ -7802,11 +7802,11 @@ lab_4ee7:
 
 lab_4ef3:
     lda #0x00               ;4ef3  a9 00
-    sta 0x0101              ;4ef5  8d 01 01
+    sta 0x0101              ;4ef5  8d 01 01     Store as EEPROM address
     lda #0x04               ;4ef8  a9 04
     bbc 0,0xf2,lab_4f04     ;4efa  17 f2 07
     lda #0x20               ;4efd  a9 20
-    sta 0x0101              ;4eff  8d 01 01
+    sta 0x0101              ;4eff  8d 01 01     Store as EEPROM address
     lda #0x04               ;4f02  a9 04
 
 lab_4f04:
@@ -7854,7 +7854,7 @@ lab_4f48:
 
 sub_4f4b:
     lda #0xd4               ;4f4b  a9 d4
-    sta 0x0101              ;4f4d  8d 01 01
+    sta 0x0101              ;4f4d  8d 01 01     Store as EEPROM address
     lda #0x04               ;4f50  a9 04
     asl a                   ;4f52  0a
     ora #0xa0               ;4f53  09 a0
@@ -7883,7 +7883,7 @@ sub_4f7e:
     lda #0xc4               ;4f7e  a9 c4
     sta 0x0100              ;4f80  8d 00 01
     lda #0x20               ;4f83  a9 20
-    sta 0x0101              ;4f85  8d 01 01
+    sta 0x0101              ;4f85  8d 01 01     Store as EEPROM address
     ldy #0x00               ;4f88  a0 00
 lab_4f8a_loop:
     lda 0x0240,y            ;4f8a  b9 40 02
@@ -7908,7 +7908,7 @@ sub_4faf:
     lda #0xc4               ;4faf  a9 c4
     sta 0x0100              ;4fb1  8d 00 01
     lda #0x09               ;4fb4  a9 09
-    sta 0x0101              ;4fb6  8d 01 01
+    sta 0x0101              ;4fb6  8d 01 01     Store as EEPROM address
     lda 0x0249              ;4fb9  ad 49 02
     and #0x1f               ;4fbc  29 1f
     sta 0x0102              ;4fbe  8d 02 01
@@ -7926,7 +7926,7 @@ sub_4fd3:
     lda #0xc4               ;4fd3  a9 c4
     sta 0x0100              ;4fd5  8d 00 01
     lda #0x09               ;4fd8  a9 09
-    sta 0x0101              ;4fda  8d 01 01
+    sta 0x0101              ;4fda  8d 01 01     Store as EEPROM address
     lda 0x0249              ;4fdd  ad 49 02
     ora #0x80               ;4fe0  09 80
     sta 0x0102              ;4fe2  8d 02 01
@@ -7944,7 +7944,7 @@ sub_4ff7:
     lda #0xc4               ;4ff7  a9 c4
     sta 0x0100              ;4ff9  8d 00 01
     lda #0x12               ;4ffc  a9 12
-    sta 0x0101              ;4ffe  8d 01 01
+    sta 0x0101              ;4ffe  8d 01 01     Store as EEPROM address
     lda 0x0252              ;5001  ad 52 02
     clb 0,a                 ;5004  1b
     sta 0x0102              ;5005  8d 02 01
@@ -7963,7 +7963,7 @@ sub_501a:
     lda #0xc4               ;501d  a9 c4
     sta 0x0100              ;501f  8d 00 01
     lda #0x12               ;5022  a9 12
-    sta 0x0101              ;5024  8d 01 01
+    sta 0x0101              ;5024  8d 01 01     Store as EEPROM address
     lda 0x0252              ;5027  ad 52 02
     seb 0,a                 ;502a  0b
     sta 0x0102              ;502b  8d 02 01
@@ -10321,7 +10321,7 @@ lab_5c61:
     lda #0x20               ;5c61  a9 20
     sta 0x0344              ;5c63  8d 44 03     Store as TechniSat protocol status byte
     jsr sub_5adf_stat_resp  ;5c66  20 df 5a     Send 10 01 5E <0x0344> CS status response
-    bra lab_5c7d_ret        ;5c69  80 12        Branch to return
+    bra lab_5c7d_rts        ;5c69  80 12        Branch to return
 
 lab_5c6b_not_magic:
     ;Address is not the magic number
@@ -10340,7 +10340,7 @@ lab_5c6b_not_magic:
 lab_5c7a_success:
     jsr sub_5adf_stat_resp  ;5c7a  20 df 5a     Send 10 01 5E <0x0344> CS status response
 
-lab_5c7d_ret:
+lab_5c7d_rts:
     rts                     ;5c7d  60
 
 ;TechniSat protocol command 0x46
@@ -10686,7 +10686,7 @@ sub_5e47:
 lab_5e4b:
     jsr sub_5e62            ;5e4b  20 62 5e     Check if word in 0x4c is in allowed ranges:
                             ;                     0, 2, 4, 6, 8, a, c, e, 0x10, 0x0040-0x053f
-    bcs lab_5e61_ret        ;5e4e  b0 11        Branch if not allowed
+    bcs lab_5e61_rts        ;5e4e  b0 11        Branch if not allowed
 
     lda 0x0325,y            ;5e50  b9 25 03     A = uart rx buffer byte 5 +
     sta [0x4c,x]            ;5e53  81 4c
@@ -10700,7 +10700,7 @@ lab_5e5b:
     bcc lab_5e4b            ;5e5e  90 eb
     clc                     ;5e60  18
 
-lab_5e61_ret:
+lab_5e61_rts:
     rts                     ;5e61  60
 
 
@@ -10719,22 +10719,22 @@ sub_5e62:
     cmp #0x40               ;5e68  c9 40
     bcc lab_5e6f            ;5e6a  90 03
     clc                     ;5e6c  18
-    bra lab_5e83_ret        ;5e6d  80 14
+    bra lab_5e83_rts        ;5e6d  80 14
 lab_5e6f:
     lsr a                   ;5e6f  4a
-    bcs lab_5e83_ret        ;5e70  b0 11
+    bcs lab_5e83_rts        ;5e70  b0 11
     cmp #0x09               ;5e72  c9 09
-    bra lab_5e83_ret        ;5e74  80 0d
+    bra lab_5e83_rts        ;5e74  80 0d
 lab_5e76:
     cmp #0x05               ;5e76  c9 05
-    bcc lab_5e83_ret        ;5e78  90 09
+    bcc lab_5e83_rts        ;5e78  90 09
     bne lab_5e82_denied     ;5e7a  d0 06
     lda 0x4c                ;5e7c  a5 4c
     cmp #0x40               ;5e7e  c9 40
-    bcc lab_5e83_ret        ;5e80  90 01
+    bcc lab_5e83_rts        ;5e80  90 01
 lab_5e82_denied:
     sec                     ;5e82  38
-lab_5e83_ret:
+lab_5e83_rts:
     rts                     ;5e83  60
 
 
@@ -10750,10 +10750,10 @@ sub_5e84:
     bne lab_5e95_denied     ;5e8e  d0 05
     seb 6,0xe9              ;5e90  cf e9    Set bit = Disable EEPROM filtering
     clc                     ;5e92  18
-    bra lab_5e96_ret        ;5e93  80 01
+    bra lab_5e96_rts        ;5e93  80 01
 lab_5e95_denied:
     sec                     ;5e95  38
-lab_5e96_ret:
+lab_5e96_rts:
     rts                     ;5e96  60
 
 
@@ -10874,14 +10874,14 @@ sub_5ef7_read_eeprom:
     cmp #0x08               ;5f11  c9 08        Compare address high with 0x08
     bcs lab_5f4c            ;5f13  b0 37        Return with carry set if address high >= 0x08
 
-    ;TODO: setting up something in 0x0100-0x0101
+    ;Set EEPROM address high
     lda 0x0323              ;5f15  ad 23 03     A = param 0: End address low for EEPROM read
-    sta 0x0101              ;5f18  8d 01 01     Store it in 0x0101
+    sta 0x0101              ;5f18  8d 01 01     Store it as EEPROM address
 
     lda 0x0324              ;5f1b  ad 24 03     A = param 1: End address high for EEPROM read
     asl a                   ;5f1e  0a
     ora #0xa0               ;5f1f  09 a0
-    sta 0x0100              ;5f21  8d 00 01
+    sta 0x0100              ;5f21  8d 00 01     Store I2C command byte
 
     jsr sub_46e5_i2c_wr_rd  ;5f24  20 e5 46     Perform an I2C write-then-read transaction
 
@@ -24610,8 +24610,8 @@ lab_a5ac_loop:
     lda 0x026b              ;a5d7  ad 6b 02
     cmp #0x33               ;a5da  c9 33
     bcs lab_a605_rts        ;a5dc  b0 27
-    jsr sub_2e8a            ;a5de  20 8a 2e
-    bra lab_a605_rts        ;a5e1  80 22
+    jsr sub_2e8a            ;a5de  20 8a 2e     Write SAFE code attempt count = 0 to EEPROM, possibly other stuff
+    bra lab_a605_rts        ;a5e1  80 22        Branch always to return
 
 lab_a5e3_failed:
     ;login failed
@@ -28040,8 +28040,8 @@ sub_ba41:
     lda #0x00               ;ba48  a9 00
     sta 0x05a0              ;ba4a  8d a0 05
     sta 0x05a1              ;ba4d  8d a1 05
-    jsr sub_2a52            ;ba50  20 52 2a
-    jmp lab_ba83_ret        ;ba53  4c 83 ba
+    jsr sub_2a52            ;ba50  20 52 2a     TODO sub_2a52 is immediately above SAFE Code related code
+    jmp lab_ba83_rts        ;ba53  4c 83 ba
 
 lab_ba56:
     lda 0x05a5              ;ba56  ad a5 05
@@ -28053,7 +28053,7 @@ lab_ba56:
     sta 0x05b1              ;ba65  8d b1 05
     ldy #0x2b               ;ba68  a0 2b
     jsr sub_3300            ;ba6a  20 00 33
-    jmp lab_ba83_ret        ;ba6d  4c 83 ba
+    jmp lab_ba83_rts        ;ba6d  4c 83 ba
 
 lab_ba70:
     jsr sub_b40f_disconnect ;ba70  20 0f b4     Terminate KWP1281 or TechniSat session
@@ -28062,9 +28062,9 @@ lab_ba70:
     lda #0x00               ;ba78  a9 00
     sta 0x05a0              ;ba7a  8d a0 05
     sta 0x05a1              ;ba7d  8d a1 05
-    jsr sub_2a52            ;ba80  20 52 2a
+    jsr sub_2a52            ;ba80  20 52 2a     TODO sub_2a52 is immediately above SAFE Code related code
 
-lab_ba83_ret:
+lab_ba83_rts:
     rts                     ;ba83  60
 
 ;TODO appears unused
@@ -28302,48 +28302,56 @@ lab_bc03_rts:
 ;this is very likely the code that descrambles the cluster id from the cluster 0x3d response block
 sub_bc04_descramble:
     sec                     ;bc04  38
+
     lda 0x0323              ;bc05  ad 23 03     A = uart rx buffer byte 3
     sbc #0xe7               ;bc08  e9 e7
     sta 0x0320              ;bc0a  8d 20 03
+
     lda 0x0324              ;bc0d  ad 24 03     A = uart rx buffer byte 4
     sbc #0xbd               ;bc10  e9 bd
     sta 0x0321              ;bc12  8d 21 03
+
     lda 0x0325              ;bc15  ad 25 03
     sbc #0x18               ;bc18  e9 18
     sta 0x0322              ;bc1a  8d 22 03
+
     lda 0x0326              ;bc1d  ad 26 03     A = uart rx buffer byte 6
     sbc #0x00               ;bc20  e9 00
     sta 0x0323              ;bc22  8d 23 03
+
     lda 0x0320              ;bc25  ad 20 03
     eor 0x0322              ;bc28  4d 22 03
     sta 0x0324              ;bc2b  8d 24 03
+
     lda 0x0321              ;bc2e  ad 21 03
     eor 0x0323              ;bc31  4d 23 03
     sta 0x0325              ;bc34  8d 25 03
+
     lda #0x00               ;bc37  a9 00
     sta 0x0326              ;bc39  8d 26 03
+
     ldx #0x08               ;bc3c  a2 08
     lda 0x0324              ;bc3e  ad 24 03
 
 lab_bc41:
     lsr a                   ;bc41  4a
-    bcs lab_bc47            ;bc42  b0 03
+    bcs lab_bc47_cs         ;bc42  b0 03
     inc 0x0326              ;bc44  ee 26 03
 
-lab_bc47:
+lab_bc47_cs:
     dex                     ;bc47  ca
     bne lab_bc41            ;bc48  d0 f7
     ldx #0x08               ;bc4a  a2 08
     lda 0x0325              ;bc4c  ad 25 03
 
-lab_bc4f:
+lab_bc4f_ne:
     lsr a                   ;bc4f  4a
     bcs lab_bc55            ;bc50  b0 03
     inc 0x0326              ;bc52  ee 26 03
 
 lab_bc55:
     dex                     ;bc55  ca
-    bne lab_bc4f            ;bc56  d0 f7
+    bne lab_bc4f_ne         ;bc56  d0 f7
     ldx 0x0326              ;bc58  ae 26 03
 
 lab_bc5b:
@@ -28359,9 +28367,11 @@ lab_bc5b:
     lda 0x0323              ;bc71  ad 23 03
     eor 0x0325              ;bc74  4d 25 03
     sta 0x05a1              ;bc77  8d a1 05
+
     lda #0x00               ;bc7a  a9 00
     sta 0x05a4              ;bc7c  8d a4 05
-    jsr sub_2a52            ;bc7f  20 52 2a
+
+    jsr sub_2a52            ;bc7f  20 52 2a     TODO sub_2a52 is immediately above SAFE Code related code
     rts                     ;bc82  60
 
 sub_bc83:
