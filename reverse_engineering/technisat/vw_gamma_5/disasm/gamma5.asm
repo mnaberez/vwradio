@@ -28302,7 +28302,7 @@ lab_ba95:
 lab_bab3:
     lda 0x05b2              ;bab3  ad b2 05
     cmp #0x01               ;bab6  c9 01
-    beq lab_bad2            ;bab8  f0 18
+    beq lab_bad2_dispatch   ;bab8  f0 18        Dispatch KWP1281 response from cluster
     cmp #0x02               ;baba  c9 02
     bne lab_bac1            ;babc  d0 03
     jmp lab_bb8f            ;babe  4c 8f bb
@@ -28320,28 +28320,39 @@ lab_bac8:
 lab_bacf:
     jmp lab_bc03            ;bacf  4c 03 bc
 
-lab_bad2:
-    lda 0x0322              ;bad2  ad 22 03
-    cmp #0x09               ;bad5  c9 09
-    beq lab_bb00            ;bad7  f0 27
-    cmp #0x0a               ;bad9  c9 0a
-    beq lab_bb2b            ;badb  f0 4e
-    cmp #0x3d               ;badd  c9 3d
-    beq lab_bb44            ;badf  f0 63
-    lda #0x04               ;bae1  a9 04
-    sta 0x0331              ;bae3  8d 31 03
-    lda 0x0321              ;bae6  ad 21 03
-    inc a                   ;bae9  3a
-    sta 0x0332              ;baea  8d 32 03
-    lda #0x0a               ;baed  a9 0a
-    sta 0x0333              ;baef  8d 33 03
-    lda 0x0321              ;baf2  ad 21 03
-    sta 0x0334              ;baf5  8d 34 03
+;Dispatch KWP1281 response from cluster
+lab_bad2_dispatch:
+    lda 0x0322              ;bad2  ad 22 03     A = KWP1281 rx buffer: block title
+
+    cmp #0x09               ;bad5  c9 09        0x09 ACK
+    beq lab_bb00_09_ack     ;bad7  f0 27
+
+    cmp #0x0a               ;bad9  c9 0a        0x0A NAK
+    beq lab_bb2b_0a_nak     ;badb  f0 4e
+
+    cmp #0x3d               ;badd  c9 3d        0x3D Security Response
+    beq lab_bb44_3d_secure  ;badf  f0 63
+
+    lda #0x04               ;bae1  a9 04        A = 4 bytes in response
+    sta 0x0331              ;bae3  8d 31 03     Store in KWP1281 tx buffer: block length
+
+    lda 0x0321              ;bae6  ad 21 03     A = Block counter from KWP1281 rx buffer
+    inc a                   ;bae9  3a           Increment block counter
+    sta 0x0332              ;baea  8d 32 03     Store in KWP1281 tx buffer: block counter
+
+    lda #0x0a               ;baed  a9 0a        A = 0x0A NAK
+    sta 0x0333              ;baef  8d 33 03     Store in KWP1281 tx buffer: block title
+
+    lda 0x0321              ;baf2  ad 21 03     A = our block counter
+    sta 0x0334              ;baf5  8d 34 03     Store in KWP1281 tx buffer to signal no NAK retry
+
     lda #0x03               ;baf8  a9 03
     sta 0x0335              ;bafa  8d 35 03
-    jmp lab_bb5a            ;bafd  4c 5a bb
 
-lab_bb00:
+    jmp lab_bb5a_send_resp  ;bafd  4c 5a bb
+
+;Received a 0x09 ACK block from the cluster
+lab_bb00_09_ack:
     lda #0x07               ;bb00  a9 07
     sta 0x0331              ;bb02  8d 31 03
     lda 0x0321              ;bb05  ad 21 03
@@ -28357,22 +28368,25 @@ lab_bb00:
     jsr sub_279f            ;bb1f  20 9f 27
     sta 0x0336              ;bb22  8d 36 03
     stx 0x0337              ;bb25  8e 37 03
-    jmp lab_bb5a            ;bb28  4c 5a bb
+    jmp lab_bb5a_send_resp  ;bb28  4c 5a bb     Send KWP1281 response block to the cluster
 
-lab_bb2b:
+;Received a 0x0A block from the cluster
+lab_bb2b_0a_nak:
     lda 0x0323              ;bb2b  ad 23 03
     cmp 0x0321              ;bb2e  cd 21 03
     bne lab_bb3b            ;bb31  d0 08
+
     lda #0x03               ;bb33  a9 03
     sta 0x05a4              ;bb35  8d a4 05
-    jmp lab_bb5a            ;bb38  4c 5a bb
+    jmp lab_bb5a_send_resp  ;bb38  4c 5a bb     Send KWP1281 response block to the cluster
 
 lab_bb3b:
     inc 0x0332              ;bb3b  ee 32 03
     inc 0x0332              ;bb3e  ee 32 03
-    jmp lab_bb5a            ;bb41  4c 5a bb
+    jmp lab_bb5a_send_resp  ;bb41  4c 5a bb     Send KWP1281 response block to the cluster
 
-lab_bb44:
+;Received a KWP1281 0x3D Security Response block from the cluster
+lab_bb44_3d_secure:
     lda #0x03               ;bb44  a9 03
     sta 0x0331              ;bb46  8d 31 03
     lda 0x0321              ;bb49  ad 21 03
@@ -28382,8 +28396,11 @@ lab_bb44:
     sta 0x0333              ;bb52  8d 33 03
     lda #0x03               ;bb55  a9 03
     sta 0x0334              ;bb57  8d 34 03
+    ;Fall through
 
-lab_bb5a:
+;Sent KWP2181 response bluck to the cluster
+;Response has already been prepared in tx buffer at 0x0331
+lab_bb5a_send_resp:
     lda 0x05a4              ;bb5a  ad a4 05
     beq lab_bb6c            ;bb5d  f0 0d
     lda #0x02               ;bb5f  a9 02
