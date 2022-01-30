@@ -28280,10 +28280,12 @@ sub_ba84:
     lda 0x05b1              ;ba84  ad b1 05
     cmp #0x09               ;ba87  c9 09
     beq lab_ba95            ;ba89  f0 0a
+
     lda 0x05b1              ;ba8b  ad b1 05
     cmp #0x0a               ;ba8e  c9 0a
     beq lab_bab3            ;ba90  f0 21
-    jmp lab_bc03            ;ba92  4c 03 bc
+
+    jmp lab_bc03_rts        ;ba92  4c 03 bc
 
 lab_ba95:
     lda #0x8a               ;ba95  a9 8a
@@ -28297,7 +28299,7 @@ lab_ba95:
     sta 0x05b1              ;baa8  8d b1 05
     lda #0x04               ;baab  a9 04
     sta 0x05b2              ;baad  8d b2 05
-    jmp lab_bc03            ;bab0  4c 03 bc
+    jmp lab_bc03_rts        ;bab0  4c 03 bc
 
 lab_bab3:
     lda 0x05b2              ;bab3  ad b2 05
@@ -28315,10 +28317,10 @@ lab_bac1:
 lab_bac8:
     cmp #0x07               ;bac8  c9 07
     bne lab_bacf            ;baca  d0 03
-    jmp lab_bc00            ;bacc  4c 00 bc
+    jmp lab_bc00_disconnect ;bacc  4c 00 bc     Disconnect and return
 
 lab_bacf:
-    jmp lab_bc03            ;bacf  4c 03 bc
+    jmp lab_bc03_rts        ;bacf  4c 03 bc     Jump to return
 
 ;Dispatch KWP1281 response from cluster
 lab_bad2_dispatch:
@@ -28333,6 +28335,8 @@ lab_bad2_dispatch:
     cmp #0x3d               ;badd  c9 3d        0x3D Security Response
     beq lab_bb44_3d_secure  ;badf  f0 63
 
+    ;Unrecognized block title received; send NAK
+
     lda #0x04               ;bae1  a9 04        A = 4 bytes in response
     sta 0x0331              ;bae3  8d 31 03     Store in KWP1281 tx buffer: block length
 
@@ -28346,10 +28350,10 @@ lab_bad2_dispatch:
     lda 0x0321              ;baf2  ad 21 03     A = our block counter
     sta 0x0334              ;baf5  8d 34 03     Store in KWP1281 tx buffer to signal no NAK retry
 
-    lda #0x03               ;baf8  a9 03
-    sta 0x0335              ;bafa  8d 35 03
+    lda #0x03               ;baf8  a9 03        A = 0x03 Block End
+    sta 0x0335              ;bafa  8d 35 03     Store in KWP1281 tx buffer
 
-    jmp lab_bb5a_send_resp  ;bafd  4c 5a bb
+    jmp lab_bb5a_next_block  ;bafd  4c 5a bb     Send KWP1281 response block to the cluster
 
 ;Received a 0x09 ACK block from the cluster
 lab_bb00_09_ack:
@@ -28368,9 +28372,9 @@ lab_bb00_09_ack:
     jsr sub_279f            ;bb1f  20 9f 27
     sta 0x0336              ;bb22  8d 36 03
     stx 0x0337              ;bb25  8e 37 03
-    jmp lab_bb5a_send_resp  ;bb28  4c 5a bb     Send KWP1281 response block to the cluster
+    jmp lab_bb5a_next_block ;bb28  4c 5a bb      Send the next KWP1281 block to the cluster
 
-;Received a 0x0A block from the cluster
+;Received a 0x0A NAK block from the cluster
 lab_bb2b_0a_nak:
     lda 0x0323              ;bb2b  ad 23 03
     cmp 0x0321              ;bb2e  cd 21 03
@@ -28378,51 +28382,61 @@ lab_bb2b_0a_nak:
 
     lda #0x03               ;bb33  a9 03
     sta 0x05a4              ;bb35  8d a4 05
-    jmp lab_bb5a_send_resp  ;bb38  4c 5a bb     Send KWP1281 response block to the cluster
+    jmp lab_bb5a_next_block ;bb38  4c 5a bb     Send the next KWP1281 block to the cluster
 
 lab_bb3b:
     inc 0x0332              ;bb3b  ee 32 03
     inc 0x0332              ;bb3e  ee 32 03
-    jmp lab_bb5a_send_resp  ;bb41  4c 5a bb     Send KWP1281 response block to the cluster
+    jmp lab_bb5a_next_block ;bb41  4c 5a bb     Send the next KWP1281 block to the cluster
 
 ;Received a KWP1281 0x3D Security Response block from the cluster
 lab_bb44_3d_secure:
-    lda #0x03               ;bb44  a9 03
-    sta 0x0331              ;bb46  8d 31 03
-    lda 0x0321              ;bb49  ad 21 03
-    inc a                   ;bb4c  3a
-    sta 0x0332              ;bb4d  8d 32 03
-    lda #0x06               ;bb50  a9 06
-    sta 0x0333              ;bb52  8d 33 03
-    lda #0x03               ;bb55  a9 03
-    sta 0x0334              ;bb57  8d 34 03
+    lda #0x03               ;bb44  a9 03        A = 3 bytes in response
+    sta 0x0331              ;bb46  8d 31 03     Store in KWP1281 tx buffer: block length
+
+    lda 0x0321              ;bb49  ad 21 03     A = Block counter from KWP1281 rx buffer
+    inc a                   ;bb4c  3a           Increment it
+    sta 0x0332              ;bb4d  8d 32 03     Store in KWP1281 tx buffer: block counter
+
+    lda #0x06               ;bb50  a9 06        A = 0x06 Disconnect
+    sta 0x0333              ;bb52  8d 33 03     Store in KWP1281 tx buffer: block title
+
+    lda #0x03               ;bb55  a9 03        A = 0x03 Block End
+    sta 0x0334              ;bb57  8d 34 03     Store in KWP1281 tx buffer
     ;Fall through
 
-;Sent KWP2181 response bluck to the cluster
-;Response has already been prepared in tx buffer at 0x0331
-lab_bb5a_send_resp:
+;Send the next KWP1281 block to the cluster
+;The block has already been prepared in tx buffer at 0x0331
+lab_bb5a_next_block:
     lda 0x05a4              ;bb5a  ad a4 05
     beq lab_bb6c            ;bb5d  f0 0d
+
     lda #0x02               ;bb5f  a9 02
     sta 0x01af              ;bb61  8d af 01
+
     ldy #0x2a               ;bb64  a0 2a
     jsr sub_3300            ;bb66  20 00 33
-    jmp lab_bc03            ;bb69  4c 03 bc
+    jmp lab_bc03_rts        ;bb69  4c 03 bc     Jump to return
 
 lab_bb6c:
     lda 0x0331              ;bb6c  ad 31 03
     sta 0x05b4              ;bb6f  8d b4 05
+
     lda #0x00               ;bb72  a9 00
     sta 0x05ad              ;bb74  8d ad 05
+
     lda 0x0331              ;bb77  ad 31 03
     jsr sub_5ac5            ;bb7a  20 c5 5a
+
     lda #0x03               ;bb7d  a9 03
     sta 0x05b2              ;bb7f  8d b2 05
+
     lda #0x06               ;bb82  a9 06
     sta 0x01af              ;bb84  8d af 01
+
     ldy #0x2a               ;bb87  a0 2a
     jsr sub_3300            ;bb89  20 00 33
-    jmp lab_bc03            ;bb8c  4c 03 bc
+    jmp lab_bc03_rts        ;bb8c  4c 03 bc     Jump to return
 
 lab_bb8f:
     inc 0x05ad              ;bb8f  ee ad 05
@@ -28432,17 +28446,21 @@ lab_bb8f:
     lda 0x05ad              ;bb9b  ad ad 05
     cmp 0x05b4              ;bb9e  cd b4 05
     bne lab_bbd1            ;bba1  d0 2e
-    lda 0x0333              ;bba3  ad 33 03
-    cmp #0x06               ;bba6  c9 06
-    bne lab_bbbf            ;bba8  d0 15
+    lda 0x0333              ;bba3  ad 33 03     A = KWP1281 tx buffer: block title
+    cmp #0x06               ;bba6  c9 06        Are we sending 0x06 Disconnect?
+    bne lab_bbbf            ;bba8  d0 15          No: keep going
+
     jsr sub_bc04_descramble ;bbaa  20 04 bc
+
     lda #0x07               ;bbad  a9 07
     sta 0x05b2              ;bbaf  8d b2 05
+
     lda #0x01               ;bbb2  a9 01
     sta 0x01af              ;bbb4  8d af 01
+
     ldy #0x29               ;bbb7  a0 29
     jsr sub_3300            ;bbb9  20 00 33
-    jmp lab_bc03            ;bbbc  4c 03 bc
+    jmp lab_bc03_rts        ;bbbc  4c 03 bc     Jump to return
 
 lab_bbbf:
     lda #0x04               ;bbbf  a9 04
@@ -28451,7 +28469,7 @@ lab_bbbf:
     sta 0x01af              ;bbc6  8d af 01
     ldy #0x2a               ;bbc9  a0 2a
     jsr sub_3300            ;bbcb  20 00 33
-    jmp lab_bc03            ;bbce  4c 03 bc
+    jmp lab_bc03_rts        ;bbce  4c 03 bc     Jump to return
 
 lab_bbd1:
     lda #0x03               ;bbd1  a9 03
@@ -28460,7 +28478,7 @@ lab_bbd1:
     sta 0x01af              ;bbd8  8d af 01
     ldy #0x2a               ;bbdb  a0 2a
     jsr sub_3300            ;bbdd  20 00 33
-    jmp lab_bc03            ;bbe0  4c 03 bc
+    jmp lab_bc03_rts        ;bbe0  4c 03 bc     Jump to return
 
 lab_bbe3:
     ldx 0x05ad              ;bbe3  ae ad 05
@@ -28473,12 +28491,12 @@ lab_bbe3:
     sta 0x01af              ;bbf5  8d af 01
     ldy #0x2a               ;bbf8  a0 2a
     jsr sub_3300            ;bbfa  20 00 33
-    jmp lab_bc03            ;bbfd  4c 03 bc
+    jmp lab_bc03_rts        ;bbfd  4c 03 bc     Jump to return
 
-lab_bc00:
-    jsr sub_b40f_disconnect ;bc00  20 0f b4
+lab_bc00_disconnect:
+    jsr sub_b40f_disconnect ;bc00  20 0f b4     Terminate KWP1281 or TechniSat session
 
-lab_bc03:
+lab_bc03_rts:
     rts                     ;bc03  60
 
 ;0xBDE7 and 0x0018 constants appear here and also uart buffer.
