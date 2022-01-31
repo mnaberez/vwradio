@@ -1701,14 +1701,13 @@ lab_2a61:
     bcs lab_2a93_fail       ;2a69  b0 28        Branch if EEPROM read failed
 
     ;Cluster ID check
-    ;high/low byte order is a guess
 
-    lda 0x0102              ;2a6b  ad 02 01     A = Cluster ID from EEPROM (high byte) (???)
-    cmp 0x05a0              ;2a6e  cd a0 05     Compare with Descrambled Cluster ID from cluster (high byte)
+    lda 0x0102              ;2a6b  ad 02 01     A = Cluster ID from EEPROM (low byte)
+    cmp 0x05a0              ;2a6e  cd a0 05     Compare with Descrambled Cluster ID from cluster (low byte)
     bne lab_2a93_fail       ;2a71  d0 20        Branch if not equal
 
-    lda 0x0103              ;2a73  ad 03 01     A = Cluster ID from EEPROM (low byte) (???)
-    cmp 0x05a1              ;2a76  cd a1 05     Compare with Descrambled Cluster ID from cluster (low byte)
+    lda 0x0103              ;2a73  ad 03 01     A = Cluster ID from EEPROM (high byte)
+    cmp 0x05a1              ;2a76  cd a1 05     Compare with Descrambled Cluster ID from cluster (high byte)
     bne lab_2a93_fail       ;2a79  d0 18        Branch if not equal
 
     ;Descrambled Cluster ID matches the Cluster ID in the EEPROM
@@ -2319,7 +2318,7 @@ read_ee_cluster_id:
     jsr sub_46e5_i2c_wr_rd  ;2e2f  20 e5 46
     clc                     ;2e32  18
     lda 0x0104              ;2e33  ad 04 01
-    beq lab_2e39_rts            ;2e36  f0 01
+    beq lab_2e39_rts        ;2e36  f0 01
     sec                     ;2e38  38
 lab_2e39_rts:
     rts                     ;2e39  60
@@ -2329,13 +2328,11 @@ write_ee_cluster_id:
     lda #0x00               ;2e3a  a9 00
     sta 0x0104              ;2e3c  8d 04 01
 
-    ;TODO high/low byte is a guess
+    lda 0x05a1              ;2e3f  ad a1 05     A = Descrambled Cluster ID from cluster (high byte)
+    sta 0x0103              ;2e42  8d 03 01     Store in buffer as EEPROM Cluster ID (high byte)
 
-    lda 0x05a1              ;2e3f  ad a1 05     A = Descrambled Cluster ID from cluster (low byte)
-    sta 0x0103              ;2e42  8d 03 01     Store in buffer as EEPROM Cluster ID (low byte)
-
-    lda 0x05a0              ;2e45  ad a0 05     A = Descrambled Cluster ID from cluster (high byte)
-    sta 0x0102              ;2e48  8d 02 01     Store in buffer as EEPROM Cluster ID (high byte)
+    lda 0x05a0              ;2e45  ad a0 05     A = Descrambled Cluster ID from cluster (low byte)
+    sta 0x0102              ;2e48  8d 02 01     Store in buffer as EEPROM Cluster ID (low byte)
 
     lda #0x55               ;2e4b  a9 55
     sta 0x0101              ;2e4d  8d 01 01     Store as EEPROM address
@@ -28298,16 +28295,26 @@ lab_bc00_disconnect:
 lab_bc03_rts:
     rts                     ;bc03  60
 
+;Descrambles the Cluster ID from the cluster 0x3D response block
 ;0xBDE7 and 0x0018 constants appear here and also uart buffer.
-;this is very likely the code that descrambles the cluster id from the cluster 0x3d response block
+;
+;RX buffer from cluster:
+;  0x06 Block length                    0x0320
+;   ??  Block counter                   0x0321
+;  0x3D Block title (Security Access)   0x0322
+;   ??  Payload byte 0                  0x0323
+;   ??  Payload byte 1                  0x0324
+;   ??  Payload byte 2                  0x0325
+;   ??  Payload byte 3                  0x0326
+;  0x03 Block end                       0x0327
 sub_bc04_descramble:
     sec                     ;bc04  38
 
-    lda 0x0323              ;bc05  ad 23 03     A = uart rx buffer byte 3
+    lda 0x0323              ;bc05  ad 23 03
     sbc #0xe7               ;bc08  e9 e7
     sta 0x0320              ;bc0a  8d 20 03
 
-    lda 0x0324              ;bc0d  ad 24 03     A = uart rx buffer byte 4
+    lda 0x0324              ;bc0d  ad 24 03
     sbc #0xbd               ;bc10  e9 bd
     sta 0x0321              ;bc12  8d 21 03
 
@@ -28315,7 +28322,7 @@ sub_bc04_descramble:
     sbc #0x18               ;bc18  e9 18
     sta 0x0322              ;bc1a  8d 22 03
 
-    lda 0x0326              ;bc1d  ad 26 03     A = uart rx buffer byte 6
+    lda 0x0326              ;bc1d  ad 26 03
     sbc #0x00               ;bc20  e9 00
     sta 0x0323              ;bc22  8d 23 03
 
