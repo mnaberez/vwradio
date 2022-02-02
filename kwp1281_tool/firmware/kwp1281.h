@@ -46,6 +46,7 @@ kwp_result_t kwp_clear_faults(void);
 kwp_result_t kwp_p4_read_safe_code_bcd(uint16_t *safe_code);
 kwp_result_t kwp_p5_login_mfg(void);
 kwp_result_t kwp_p5_read_safe_code_bcd(uint16_t *safe_code);
+kwp_result_t kwp_p5_read_cluster_id(uint16_t *safe_code);
 kwp_result_t kwp_p5_calc_rom_checksum(uint16_t *rom_checksum);
 kwp_result_t kwp_p5_dump_firmware();
 kwp_result_t kwp_sl_login_mfg(void);

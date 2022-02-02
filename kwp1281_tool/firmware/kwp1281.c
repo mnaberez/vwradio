@@ -797,7 +797,7 @@ static kwp_result_t _delco_login_mfg(void)
     return result;
 }
 
-static kwp_result_t _delco_read_safe_code_bcd(uint16_t eeprom_address, uint16_t *safe_code)
+static kwp_result_t _delco_read_eeprom_word_be(uint16_t eeprom_address, uint16_t *word)
 {
     kwp_result_t result = _send_read_mem_block(KWP_READ_ROM_EEPROM, eeprom_address, 0x02);
     if (result != KWP_SUCCESS) { return result; }
@@ -805,7 +805,7 @@ static kwp_result_t _delco_read_safe_code_bcd(uint16_t eeprom_address, uint16_t 
     result = kwp_receive_block_expect(KWP_R_READ_ROM_EEPROM);
     if (result != KWP_SUCCESS) { return result; }
 
-    *safe_code = WORD(kwp_rx_buf[3], kwp_rx_buf[4]);
+    *word = WORD(kwp_rx_buf[3], kwp_rx_buf[4]); // big-endian
     return KWP_SUCCESS;
 }
 
@@ -817,7 +817,13 @@ kwp_result_t kwp_p5_login_mfg(void)
 kwp_result_t kwp_p5_read_safe_code_bcd(uint16_t *safe_code)
 {
     uint16_t eeprom_address = 0x0014;
-    return _delco_read_safe_code_bcd(eeprom_address, safe_code);
+    return _delco_read_eeprom_word_be(eeprom_address, safe_code);
+}
+
+kwp_result_t kwp_p5_read_cluster_id(uint16_t *cluster_id)
+{
+    uint16_t eeprom_address = 0x0065;
+    return _delco_read_eeprom_word_be(eeprom_address, cluster_id);
 }
 
 static kwp_result_t _send_calc_rom_checksum_block(void)
@@ -894,7 +900,7 @@ kwp_result_t kwp_sl_login_mfg(void)
 kwp_result_t kwp_sl_read_safe_code_bcd(uint16_t *safe_code)
 {
     uint16_t eeprom_address = 0x0028;
-    return _delco_read_safe_code_bcd(eeprom_address, safe_code);
+    return _delco_read_eeprom_word_be(eeprom_address, safe_code);
 }
 
 // VW SAM 2002 mfg mode (address 0x7c) only =================================
@@ -907,7 +913,7 @@ kwp_result_t kwp_sam_2002_login_mfg(void)
 kwp_result_t kwp_sam_2002_read_safe_code_bcd(uint16_t *safe_code)
 {
     uint16_t eeprom_address = 0x002C;
-    return _delco_read_safe_code_bcd(eeprom_address, safe_code);
+    return _delco_read_eeprom_word_be(eeprom_address, safe_code);
 }
 
 // ==========================================================================

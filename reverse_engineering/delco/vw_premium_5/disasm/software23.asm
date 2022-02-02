@@ -166,8 +166,8 @@ mem_f205 = 0xf205
 
 mem_f206 = 0xf206           ;EEPROM 0063
 mem_f207 = 0xf207           ;EEPROM 0064
-mem_f208 = 0xf208           ;EEPROM 0065
-mem_f209 = 0xf209           ;EEPROM 0066
+mem_f208 = 0xf208           ;EEPROM 0065  Cluster ID, high byte
+mem_f209 = 0xf209           ;EEPROM 0066  Cluster ID, low byte
 mem_f20a = 0xf20a           ;EEPROM 0067  KWP1281 login attempt counter
 mem_f20b = 0xf20b           ;EEPROM 0068  SAFE code attempt counter
 mem_f20c = 0xf20c           ;EEPROM 0069
