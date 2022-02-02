@@ -24271,6 +24271,7 @@ lab_bb70:
     sta 0xcf                ;bb72  85 cf
     jmp sub_bbed            ;bb74  4c ed bb
 
+;TODO probably unlock from cluster; constants 0xBDE7 and 0x0018 below
 lab_bb77:
     sec                     ;bb77  38
     lda 0x0323              ;bb78  ad 23 03
