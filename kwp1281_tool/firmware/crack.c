@@ -104,6 +104,11 @@ static void _crack_technisat(void)
     tresult = tsat_connect(KWP_RADIO_MFG, kwp_baud_rate);
     tsat_panic_if_error(tresult);
 
+    uint16_t cluster_id;
+    tresult = tsat_read_cluster_id(&cluster_id);
+    tsat_panic_if_error(tresult);
+
+    // eeprom filtering must be disabled to read the safe code
     tresult = tsat_disable_eeprom_filter_0x4d();
     tsat_panic_if_error(tresult);
 
@@ -127,7 +132,8 @@ static void _crack_technisat(void)
     tresult = tsat_disconnect();
     tsat_panic_if_error(tresult);
 
-    _print_hex16("\r\nSAFE Code: ", safe_code);
+    _print_hex16("\r\nCluster ID: ", cluster_id);
+    _print_hex16("SAFE Code: ", safe_code);
 }
 
 void crack(void)

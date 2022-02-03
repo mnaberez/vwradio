@@ -26,6 +26,7 @@ tsat_result_t tsat_write_ram(uint16_t address, uint8_t size, uint8_t *data);
 tsat_result_t tsat_read_eeprom(uint16_t address, uint8_t size);
 tsat_result_t tsat_write_eeprom(uint16_t address, uint8_t size, uint8_t *data);
 tsat_result_t tsat_read_safe_code_bcd(uint16_t *safe_code);
+tsat_result_t tsat_read_cluster_id(uint16_t *cluster_id);
 tsat_result_t tsat_rce_read_memory(uint16_t address, uint16_t size);
 tsat_result_t tsat_disconnect(void);
 const char * tsat_describe_result(tsat_result_t result);

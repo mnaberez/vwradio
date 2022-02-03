@@ -490,6 +490,20 @@ tsat_result_t tsat_read_safe_code_bcd(uint16_t *safe_code)
 }
 
 
+tsat_result_t tsat_read_cluster_id(uint16_t *cluster_id)
+{
+    *cluster_id = 0;
+
+    tsat_result_t result = tsat_read_eeprom(0x355, 2);
+    if (result != TSAT_SUCCESS) { return result; }
+
+    *cluster_id += tsat_rx_buf[3];      // low byte
+    *cluster_id += tsat_rx_buf[4] << 8; // high byte
+
+    return TSAT_SUCCESS;
+}
+
+
 tsat_result_t tsat_write_eeprom(uint16_t address, uint8_t size, uint8_t *data)
 {
     uart_puts(UART_DEBUG, "PERFORM WRITE EEPROM\r\n");
