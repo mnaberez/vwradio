@@ -90,8 +90,8 @@
     mem_f727 = 0xf727
     mem_f74e = 0xf74e
     mem_f75f = 0xf75f
-    mem_f760 = 0xf760       ;Cluster ID word stored in EEPROM (big-endian; high byte)
-    mem_f761 = 0xf761       ;Cluster ID word stored in EEPROM (big-endian; low byte)
+    mem_f760 = 0xf760       ;EEPROM 0097  Cluster ID word stored in EEPROM (big-endian; high byte)
+    mem_f761 = 0xf761       ;EEPROM 0098  Cluster ID word stored in EEPROM (big-endian; low byte)
     mem_f762 = 0xf762
     mem_f77e = 0xf77e
     mem_f7e4 = 0xf7e4

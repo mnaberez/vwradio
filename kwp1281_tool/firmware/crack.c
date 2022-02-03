@@ -80,6 +80,10 @@ static void _crack_delco_seat_liceo_or_vw_konzern_2004(void)
     result = kwp_sl_login_mfg();
     kwp_panic_if_error(result);
 
+    uint16_t cluster_id;
+    result = kwp_sl_read_cluster_id(&cluster_id);
+    kwp_panic_if_error(result);
+
     uint16_t safe_code;
     result = kwp_sl_read_safe_code_bcd(&safe_code);
     kwp_panic_if_error(result);
@@ -87,7 +91,8 @@ static void _crack_delco_seat_liceo_or_vw_konzern_2004(void)
     result = kwp_disconnect();
     kwp_panic_if_error(result);
 
-    _print_hex16("\r\nSAFE Code: ", safe_code);
+    _print_hex16("\r\nCluster ID: ", cluster_id);
+    _print_hex16("SAFE Code: ", safe_code);
 }
 
 static void _crack_technisat(void)

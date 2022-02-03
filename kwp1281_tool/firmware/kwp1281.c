@@ -903,6 +903,12 @@ kwp_result_t kwp_sl_read_safe_code_bcd(uint16_t *safe_code)
     return _delco_read_eeprom_word_be(eeprom_address, safe_code);
 }
 
+kwp_result_t kwp_sl_read_cluster_id(uint16_t *cluster_id)
+{
+    uint16_t eeprom_address = 0x0097;
+    return _delco_read_eeprom_word_be(eeprom_address, cluster_id);
+}
+
 // VW SAM 2002 mfg mode (address 0x7c) only =================================
 
 kwp_result_t kwp_sam_2002_login_mfg(void)
