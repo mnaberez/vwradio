@@ -550,22 +550,22 @@
     mem_039b = 0x39b
     mem_039c = 0x39c
     mem_039d = 0x39d
-    mem_039f = 0x39f
-    mem_03a0 = 0x3a0
-    mem_03a1 = 0x3a1
-    mem_03a2 = 0x3a2
-    mem_03a3 = 0x3a3
-    mem_03a5 = 0x3a5
-    mem_03a7 = 0x3a7
-    mem_03a9 = 0x3a9
-    mem_03ab = 0x3ab
+    mem_039f_ee_cluster_id_hi = 0x39f
+    mem_03a0_ee_cluster_id_lo = 0x3a0
+    mem_03a1_ds_cluster_id_hi = 0x3a1
+    mem_03a2_ds_cluster_id_lo = 0x3a2
+    mem_03a3_random = 0x3a3
+    mem_03a5_rotated_copy_2 = 0x3a5
+    mem_03a7_rotated_copy_1 = 0x3a7
+    mem_03a9_flipped_copy = 0x3a9
+    mem_03ab_rotated = 0x3ab
     mem_03ac = 0x3ac
-    mem_03ad = 0x3ad
+    mem_03ad_flipped = 0x3ad
     mem_03ae = 0x3ae
     mem_03af = 0x3af
     mem_03b0 = 0x3b0
     mem_03b2 = 0x3b2
-    mem_03b4 = 0x3b4
+    mem_03b4_zero_count = 0x3b4
     mem_03b5 = 0x3b5    ;Copy of Sub-to-Main Byte 3
     mem_03b6 = 0x3b6
     mem_03b7 = 0x3b7
@@ -1117,15 +1117,16 @@ sub_826e:
 
     mov a, #0x00            ;8325  04 00
     mov mem_0307, a         ;8327  61 03 07
-    movw a, #0x0000         ;832a  e4 00 00
-    movw mem_039f, a        ;832d  d4 03 9f
 
-    call sub_e5ae           ;8330  31 e5 ae     Unknown, uses mem_e5aa table
+    movw a, #0x0000                   ;832a  e4 00 00
+    movw mem_039f_ee_cluster_id_hi, a ;832d  d4 03 9f
 
-    movw a, mem_03ab        ;8333  c4 03 ab
-    movw mem_03b0, a        ;8336  d4 03 b0
-    movw a, mem_03ad        ;8339  c4 03 ad
-    movw mem_03b2, a        ;833c  d4 03 b2
+    call sub_e5ae           ;8330  31 e5 ae     Unknown, uses mem_e5aa_magics table
+
+    movw a, mem_03ab_rotated  ;8333  c4 03 ab
+    movw mem_03b0, a          ;8336  d4 03 b0
+    movw a, mem_03ad_flipped  ;8339  c4 03 ad
+    movw mem_03b2, a          ;833c  d4 03 b2
 
     mov a, #0x20            ;833f  04 20
     mov mem_00ae, a         ;8341  45 ae
@@ -6399,18 +6400,19 @@ lab_a10b:
     bhs lab_a09c            ;a10b  f8 8f
     call sub_b974           ;a10d  31 b9 74     Recoding related with mem_0175
 
-    movw a, mem_03b0        ;a110  c4 03 b0
-    movw mem_03ab, a        ;a113  d4 03 ab
+    movw a, mem_03b0          ;a110  c4 03 b0
+    movw mem_03ab_rotated, a  ;a113  d4 03 ab
 
-    movw a, mem_03b2        ;a116  c4 03 b2
-    movw mem_03ad, a        ;a119  d4 03 ad
+    movw a, mem_03b2          ;a116  c4 03 b2
+    movw mem_03ad_flipped, a  ;a119  d4 03 ad
 
-    call sub_e61f           ;a11c  31 e6 1f     Unknown, uses mem_e5aa table
+    call sub_e61f_descramble  ;a11c  31 e6 1f     Unknown, uses mem_e5aa_magics table
 
-    movw a, mem_03a1        ;a11f  c4 03 a1
-    movw mem_039f, a        ;a122  d4 03 9f
-    call sub_dd72           ;a125  31 dd 72
-    jmp lab_a0fa            ;a128  21 a0 fa
+    movw a, mem_03a1_ds_cluster_id_hi ;a11f  c4 03 a1
+    movw mem_039f_ee_cluster_id_hi, a ;a122  d4 03 9f
+    call sub_dd72                     ;a125  31 dd 72
+
+    jmp lab_a0fa                      ;a128  21 a0 fa
 
 lab_a12b:
 ;(mem_0096=0x02 CODE entry)
@@ -6534,14 +6536,14 @@ lab_a1c4:
 
 lab_a1c7:
 ;(mem_0096=0x03 SAFE entry)
-    .word lab_a1e7          ;a1c7  a1 e7       VECTOR
-    .word lab_a1d7          ;a1c9  a1 d7       VECTOR
-    .word lab_a1e8          ;a1cb  a1 e8       VECTOR
-    .word lab_a1ff          ;a1cd  a1 ff       VECTOR
-    .word lab_a254          ;a1cf  a2 54       VECTOR
-    .word lab_a286          ;a1d1  a2 86       VECTOR
-    .word lab_a29e          ;a1d3  a2 9e       VECTOR
-    .word sub_a239          ;a1d5  a2 39       VECTOR
+    .word lab_a1e7                    ;a1c7  a1 e7       VECTOR
+    .word lab_a1d7                    ;a1c9  a1 d7       VECTOR
+    .word lab_a1e8                    ;a1cb  a1 e8       VECTOR
+    .word lab_a1ff                    ;a1cd  a1 ff       VECTOR
+    .word lab_a254                    ;a1cf  a2 54       VECTOR
+    .word lab_a286                    ;a1d1  a2 86       VECTOR
+    .word lab_a29e                    ;a1d3  a2 9e       VECTOR
+    .word sub_a239_maybe_safe_unlock  ;a1d5  a2 39       VECTOR
 
 lab_a1d7:
     mov a, #0x05            ;a1d7  04 05        A = mem_0201 value for SAFE
@@ -6612,7 +6614,7 @@ lab_a22d:
     cmpw a                  ;a236  13
     bne lab_a250            ;a237  fc 17
 
-sub_a239:
+sub_a239_maybe_safe_unlock:
     mov a, #0x0a            ;a239  04 0a
     mov mem_02c1, a         ;a23b  61 02 c1
 
@@ -8946,8 +8948,8 @@ lab_af36:
     bne lab_af46            ;af3e  fc 06        Branch if not reading EEPROM
 
     ;Reading EEPROM
-    call sub_cb72           ;af40  31 cb 72     Read byte from EEPROM, store it in mem_0089
-    jmp lab_af50            ;af43  21 af 50
+    call sub_cb72_read_ee_byte_sanitized  ;af40  31 cb 72     Read byte from EEPROM, store it in mem_0089
+    jmp lab_af50                          ;af43  21 af 50
 
 lab_af46:
     ;Reading RAM
@@ -9334,7 +9336,7 @@ lab_b12c:
     clrb mem_008b:6         ;b133  a6 8b
     ret                     ;b135  20
 
-sub_b136:
+sub_b136_copy_to_tx:
 ;Copy mem_00a5 bytes from @mem_0084 to KWP1281 TX Buffer
 ;
 ;mem_0084 = Pointer to buffer to read
@@ -9510,7 +9512,7 @@ sub_b20e_no_ack:
     movw a, #kwp_no_ack     ;b20e  e4 ff 3b
     movw mem_0084, a        ;b211  d5 84        Pointer: source for KWP1281 buffer copy
     mov mem_00a5, #0x05     ;b213  85 a5 05     5 bytes in KWP1281 packet
-    call sub_b136           ;b216  31 b1 36     Copy mem_00a5 bytes from @mem_0084 to KWP1281 TX Buffer
+    call sub_b136_copy_to_tx;b216  31 b1 36     Copy mem_00a5 bytes from @mem_0084 to KWP1281 TX Buffer
 
     mov a, mem_0116         ;b219  60 01 16     A = Block counter copied from KWP1281 RX Buffer
     jmp lab_b22e            ;b21c  21 b2 2e
@@ -9519,7 +9521,7 @@ sub_b21f_no_ack:
     movw a, #kwp_no_ack     ;b21f  e4 ff 3b
     movw mem_0084, a        ;b222  d5 84        Pointer: source for KWP1281 buffer copy
     mov mem_00a5, #0x05     ;b224  85 a5 05     5 bytes in KWP1281 packet
-    call sub_b136           ;b227  31 b1 36     Copy mem_00a5 bytes from @mem_0084 to KWP1281 TX Buffer
+    call sub_b136_copy_to_tx;b227  31 b1 36     Copy mem_00a5 bytes from @mem_0084 to KWP1281 TX Buffer
 
     mov a, mem_0116         ;b22a  60 01 16     A = Block counter copied from KWP1281 RX Buffer
     incw a                  ;b22d  c0           Increment block counter
@@ -9692,7 +9694,7 @@ lab_b2d4_read:
     mov mem_00a5, #0x06     ;b2d4  85 a5 06     6 bytes in KWP1281 packet
     movw a, #kwp_rw_safe    ;b2d7  e4 ff 5d
     movw mem_0084, a        ;b2da  d5 84        Pointer: source for KWP1281 buffer copy
-    call sub_b136           ;b2dc  31 b1 36     Copy mem_00a5 bytes from @mem_0084 to KWP1281 TX Buffer
+    call sub_b136_copy_to_tx;b2dc  31 b1 36     Copy mem_00a5 bytes from @mem_0084 to KWP1281 TX Buffer
 
     movw a, mem_020f        ;b2df  c4 02 0f     Read actual SAFE code word
     movw mem_012b+3, a      ;b2e2  d4 01 2e     Put it into KWP1281 TX Buffer bytes 3 and 4
@@ -10137,7 +10139,7 @@ lab_b4e9:
     mov mem_00a5, #0x07     ;b4e9  85 a5 07     7 bytes in KWP1281 packet
     movw a, #kwp_faults_none ;b4ec  e4 ff 44
     movw mem_0084, a        ;b4ef  d5 84        Pointer: source for KWP1281 buffer copy
-    call sub_b136           ;b4f1  31 b1 36     Copy mem_00a5 bytes from @mem_0084 to KWP1281 TX Buffer
+    call sub_b136_copy_to_tx;b4f1  31 b1 36     Copy mem_00a5 bytes from @mem_0084 to KWP1281 TX Buffer
 
     mov mem_0081, #0x03     ;b4f4  85 81 03
 
@@ -11717,7 +11719,7 @@ mem_0080_is_0f:
 
 
 sub_bba1:
-    call sub_b136           ;bba1  31 b1 36     Copy mem_00a5 bytes from @mem_0084 to KWP1281 TX Buffer
+    call sub_b136_copy_to_tx;bba1  31 b1 36     Copy mem_00a5 bytes from @mem_0084 to KWP1281 TX Buffer
 
 sub_bba4:
     mov a, #0x01            ;bba4  04 01
@@ -11725,7 +11727,7 @@ sub_bba4:
     bne call_sub_bbbf       ;bba9  fc 14        BRANCH_ALWAYS_TAKEN
 
 sub_bbab:
-    call sub_b136           ;bbab  31 b1 36     Copy mem_00a5 bytes from @mem_0084 to KWP1281 TX Buffer
+    call sub_b136_copy_to_tx;bbab  31 b1 36     Copy mem_00a5 bytes from @mem_0084 to KWP1281 TX Buffer
 
 sub_bbae:
     mov a, #0x01            ;bbae  04 01
@@ -14410,37 +14412,37 @@ lab_cb22:
 
 lab_cb2d:
 ;mem_cb16 table case 3
-    movw a, #0x8003         ;cb2d  e4 80 03
-    callv #6                ;cb30  ee           EEPROM related (CALLV #6 = callv6_cb98)
-    movw a, #0xc007         ;cb31  e4 c0 07
-    callv #6                ;cb34  ee           EEPROM related (CALLV #6 = callv6_cb98)
-    jmp lab_cb6f            ;cb35  21 cb 6f
+    movw a, #0x8003                         ;cb2d  e4 80 03
+    callv #6                                ;cb30  ee           EEPROM related (CALLV #6 = callv6_cb98)
+    movw a, #0xc007                         ;cb31  e4 c0 07
+    callv #6                                ;cb34  ee           EEPROM related (CALLV #6 = callv6_cb98)
+    jmp lab_cb6f_eeprom_cs_disable_and_ret  ;cb35  21 cb 6f
 
 lab_cb38:
 ;mem_cb16 table case 4
-    movw a, #0x8003         ;cb38  e4 80 03
-    callv #6                ;cb3b  ee           EEPROM related (CALLV #6 = callv6_cb98)
-    movw a, #0x0007         ;cb3c  e4 00 07
-    callv #6                ;cb3f  ee           EEPROM related (CALLV #6 = callv6_cb98)
-    jmp lab_cb6f            ;cb40  21 cb 6f
+    movw a, #0x8003                     ;cb38  e4 80 03
+    callv #6                            ;cb3b  ee           EEPROM related (CALLV #6 = callv6_cb98)
+    movw a, #0x0007                     ;cb3c  e4 00 07
+    callv #6                            ;cb3f  ee           EEPROM related (CALLV #6 = callv6_cb98)
+    jmp lab_cb6f_eeprom_cs_disable_and_ret  ;cb40  21 cb 6f
 
 lab_cb43:
 ;mem_cb16 table case 2
-    movw a, #0xc003         ;cb43  e4 c0 03
-    callv #6                ;cb46  ee           EEPROM related (CALLV #6 = callv6_cb98)
-    call sub_cb9c           ;cb47  31 cb 9c     EEPROM related
-    call sub_cbc6           ;cb4a  31 cb c6     Read byte from EEPROM, store it in mem_026b
-    jmp lab_cb6f            ;cb4d  21 cb 6f
+    movw a, #0xc003                         ;cb43  e4 c0 03
+    callv #6                                ;cb46  ee           EEPROM related (CALLV #6 = callv6_cb98)
+    call sub_cb9c_eeprom_related            ;cb47  31 cb 9c     EEPROM related
+    call sub_cbc6_eeprom_read_byte          ;cb4a  31 cb c6     Read byte from EEPROM, store it in mem_026b
+    jmp lab_cb6f_eeprom_cs_disable_and_ret  ;cb4d  21 cb 6f
 
 lab_cb50:
 ;mem_cb16 table case 1
-    movw a, #0xa003         ;cb50  e4 a0 03
-    callv #6                ;cb53  ee           EEPROM related (CALLV #6 = callv6_cb98)
-    call sub_cb9c           ;cb54  31 cb 9c     EEPROM related
-    mov a, mem_026b         ;cb57  60 02 6b
-    mov mem_009f, a         ;cb5a  45 9f
-    mov mem_00a0, #0x08     ;cb5c  85 a0 08
-    call sub_cba6           ;cb5f  31 cb a6     EEPROM related
+    movw a, #0xa003               ;cb50  e4 a0 03
+    callv #6                      ;cb53  ee           EEPROM related (CALLV #6 = callv6_cb98)
+    call sub_cb9c_eeprom_related  ;cb54  31 cb 9c     EEPROM related
+    mov a, mem_026b               ;cb57  60 02 6b
+    mov mem_009f, a               ;cb5a  45 9f
+    mov mem_00a0, #0x08           ;cb5c  85 a0 08
+    call sub_cba6                 ;cb5f  31 cb a6     EEPROM related
 
 lab_cb62:
     clrb pdr0:5             ;cb62  a5 00        EEPROM_CS=low (disabled)
@@ -14452,12 +14454,12 @@ lab_cb62:
     mov mem_0271, a         ;cb6b  61 02 71
     ret                     ;cb6e  20
 
-lab_cb6f:
+lab_cb6f_eeprom_cs_disable_and_ret:
     clrb pdr0:5             ;cb6f  a5 00        EEPROM_CS=low (disabled)
     ret                     ;cb71  20
 
 
-sub_cb72:
+sub_cb72_read_ee_byte_sanitized:
 ;Read byte from EEPROM, store it in mem_0089 (KWP1281 byte to send)
 ;Used only for KWP1281 Block title 0x19 Read EEPROM (mem_0080 = 0xc0)
     mov a, mem_0147+1       ;cb72  60 01 48     A = EEPROM address to read
@@ -14479,13 +14481,13 @@ lab_cb80:
 lab_cb84:
 ;EEPROM address is not 0x0E-0x0F
 ;Read the data byte from the EEPROM
-    setb pdr0:5             ;cb84  ad 00        EEPROM_CS=high (enabled)
-    movw a, #0xc003         ;cb86  e4 c0 03
-    callv #6                ;cb89  ee           EEPROM related (CALLV #6 = callv6_cb98)
-    call sub_cb9c           ;cb8a  31 cb 9c     EEPROM related
-    call sub_cbc6           ;cb8d  31 cb c6     Read byte from EEPROM, store it in mem_026b
-    clrb pdr0:5             ;cb90  a5 00        EEPROM_CS=low (disabled)
-    mov a, mem_026b         ;cb92  60 02 6b     A = byte read from EEPROM
+    setb pdr0:5                     ;cb84  ad 00        EEPROM_CS=high (enabled)
+    movw a, #0xc003                 ;cb86  e4 c0 03
+    callv #6                        ;cb89  ee           EEPROM related (CALLV #6 = callv6_cb98)
+    call sub_cb9c_eeprom_related    ;cb8a  31 cb 9c     EEPROM related
+    call sub_cbc6_eeprom_read_byte  ;cb8d  31 cb c6     Read byte from EEPROM, store it in mem_026b
+    clrb pdr0:5                     ;cb90  a5 00        EEPROM_CS=low (disabled)
+    mov a, mem_026b                 ;cb92  60 02 6b     A = byte read from EEPROM
 
 lab_cb95:
     mov mem_0089, a         ;cb95  45 89        KWP1281 byte to send = A
@@ -14497,7 +14499,7 @@ callv6_cb98:
     movw mem_009f, a        ;cb98  d5 9f
     bne sub_cba6            ;cb9a  fc 0a        EEPROM related
 
-sub_cb9c:
+sub_cb9c_eeprom_related:
     mov a, mem_026d         ;cb9c  60 02 6d
     clrc                    ;cb9f  81
     rolc a                  ;cba0  02
@@ -14529,12 +14531,12 @@ lab_cbb4_no_carry:
     clrb pdr1:0             ;cbc3  a0 02        SK=low
     ret                     ;cbc5  20
 
-sub_cbc6:
+sub_cbc6_eeprom_read_byte:
 ;Read byte from EEPROM, store it in mem_026b
     clrb pdr1:0             ;cbc6  a0 02        SK=low
     mov mem_00a0, #0x08     ;cbc8  85 a0 08
 
-lab_cbcb:
+lab_cbcb_loop:
     setb pdr1:0             ;cbcb  a8 02        SK=high
     cmpw a                  ;cbcd  13
     clrb pdr1:0             ;cbce  a0 02        SK=low
@@ -14551,7 +14553,7 @@ lab_cbd6:
     decw a                  ;cbdd  d0
     mov mem_00a0, a         ;cbde  45 a0
     cmp a, #0x00            ;cbe0  14 00
-    bne lab_cbcb            ;cbe2  fc e7
+    bne lab_cbcb_loop       ;cbe2  fc e7
     mov a, mem_00a1         ;cbe4  05 a1
     mov mem_026b, a         ;cbe6  61 02 6b
     ret                     ;cbe9  20
@@ -19274,7 +19276,7 @@ sub_e338_no_ack_2:
     movw a, #kwp_no_ack_2   ;e33d  e4 dd 5d
     movw mem_0084, a        ;e340  d5 84        Pointer: source for KWP1281 buffer copy
     mov mem_00a5, #0x05     ;e342  85 a5 05     5 bytes in KWP1281 packet
-    call sub_b136           ;e345  31 b1 36     Copy mem_00a5 bytes from @mem_0084 to KWP1281 TX Buffer
+    call sub_b136_copy_to_tx;e345  31 b1 36     Copy mem_00a5 bytes from @mem_0084 to KWP1281 TX Buffer
 
     mov a, mem_0116         ;e348  60 01 16     A = Block counter copied from KWP1281 RX Buffer
     jmp lab_e35f            ;e34b  21 e3 5f
@@ -19285,7 +19287,7 @@ sub_e34e_no_ack_2:
     movw a, #kwp_no_ack_2   ;e350  e4 dd 5d
     movw mem_0084, a        ;e353  d5 84        Pointer: source for KWP1281 buffer copy
     mov mem_00a5, #0x05     ;e355  85 a5 05     5 bytes in KWP1281 packet
-    call sub_b136           ;e358  31 b1 36     Copy mem_00a5 bytes from @mem_0084 to KWP1281 TX Buffer
+    call sub_b136_copy_to_tx;e358  31 b1 36     Copy mem_00a5 bytes from @mem_0084 to KWP1281 TX Buffer
 
     mov a, mem_0116         ;e35b  60 01 16     A = Block counter copied from KWP1281 RX Buffer
     incw a                  ;e35e  c0
@@ -19296,7 +19298,7 @@ lab_e35f:
     ret                     ;e365  20
 
 sub_e366:
-    call sub_b136           ;e366  31 b1 36     Copy mem_00a5 bytes from @mem_0084 to KWP1281 TX Buffer
+    call sub_b136_copy_to_tx;e366  31 b1 36     Copy mem_00a5 bytes from @mem_0084 to KWP1281 TX Buffer
 
 sub_e369:
 ;Set mem_038a=1, increment block counter, reset KWP1281 tx/rx counts
@@ -19387,71 +19389,71 @@ mem_e3bd:
 ;  0x0b set unknown counters ->
 ;  0x02 set unknown values ->
 ;  0x03 if block title received is title 0x3d security access response ->
-;  0x04 read 4 bytes from 4x buffer, call sub_e61f ->
+;  0x04 read 4 bytes from 4x buffer, call sub_e61f_descramble ->
 ;  0x06 disconnect
 ;
-    .word lab_e480          ;VECTOR 0       Does nothing
-    .word lab_e3d9          ;VECTOR 1       Read tchr, send block title 0xD7 security access request, set mem_038b=0x0b
-    .word lab_e42a          ;VECTOR 2       Sets unknown values, set mem_038b=0x03
-    .word lab_e442          ;VECTOR 3       If received block title 0x3d (security access response), set mem_038b=0x04
-                            ;               If received block title 0x0a (no acknowledge), set mem_038b=0x02
-                            ;               If other received block title, send no acknowledge, set mem_038b=0x02
-    .word lab_e4b5          ;VECTOR 4       Read 4 bytes from RX buffer, call sub_e61f, set mem_038b=0x06
-    .word lab_e4e0          ;VECTOR 5       Change mem_00fd, set mem_038b=0x06
-    .word lab_e4eb          ;VECTOR 6       Change mem_00fd, send kwp_disconnect, set mem_038b=0x07
-    .word lab_e502          ;VECTOR 7
-    .word lab_e547          ;VECTOR 8
-    .word lab_e552          ;VECTOR 9
-    .word callv7_e55c       ;VECTOR 0x0a    Reset many KWP1281 state variables
-    .word lab_e41e          ;VECTOR 0x0b
-    .word lab_e4a3          ;VECTOR 0x0c
-    .word lab_e59c          ;VECTOR 0x0d
+    .word lab_e480            ;VECTOR 0       Does nothing
+    .word lab_e3d9_send_d7    ;VECTOR 1       Read tchr, send block title 0xD7 security access request, set mem_038b=0x0b
+    .word lab_e42a            ;VECTOR 2       Sets unknown values, set mem_038b=0x03
+    .word lab_e442            ;VECTOR 3       If received block title 0x3d (security access response), set mem_038b=0x04
+                              ;               If received block title 0x0a (no acknowledge), set mem_038b=0x02
+                              ;               If other received block title, send no acknowledge, set mem_038b=0x02
+    .word lab_e4b5_resp_3d    ;VECTOR 4       Read 4 bytes from RX buffer, call sub_e61f_descramble, set mem_038b=0x06
+    .word lab_e4e0            ;VECTOR 5       Change mem_00fd, set mem_038b=0x06
+    .word lab_e4eb_disconnect ;VECTOR 6       Change mem_00fd, send kwp_disconnect, set mem_038b=0x07
+    .word lab_e502            ;VECTOR 7
+    .word lab_e547            ;VECTOR 8
+    .word lab_e552            ;VECTOR 9
+    .word callv7_e55c         ;VECTOR 0x0a    Reset many KWP1281 state variables
+    .word lab_e41e            ;VECTOR 0x0b
+    .word lab_e4a3            ;VECTOR 0x0c
+    .word lab_e59c            ;VECTOR 0x0d
 
-lab_e3d9:
+lab_e3d9_send_d7:
 ;Send title 0xD7 security access request block
 ;(mem_0388=2, mem_038b=1)
-    call set_00fd_hi_nib_9  ;e3d9  31 e3 9a     Store 0x9 in mem_00fd high nibble
+    call set_00fd_hi_nib_9    ;e3d9  31 e3 9a     Store 0x9 in mem_00fd high nibble
 
-    movw a, tchr            ;e3dc  c5 19        16-bit timer count register
-    rolc a                  ;e3de  02
-    swap                    ;e3df  10
-    rolc a                  ;e3e0  02
-    swap                    ;e3e1  10
-    movw mem_03ab, a        ;e3e2  d4 03 ab
+    movw a, tchr              ;e3dc  c5 19        16-bit timer count register
+    rolc a                    ;e3de  02
+    swap                      ;e3df  10
+    rolc a                    ;e3e0  02
+    swap                      ;e3e1  10
+    movw mem_03ab_rotated, a  ;e3e2  d4 03 ab
 
-    movw a, tchr            ;e3e5  c5 19        16-bit timer count register
-    rorc a                  ;e3e7  03
-    swap                    ;e3e8  10
-    rorc a                  ;e3e9  03
-    swap                    ;e3ea  10
-    movw mem_03ad, a        ;e3eb  d4 03 ad
+    movw a, tchr              ;e3e5  c5 19        16-bit timer count register
+    rorc a                    ;e3e7  03
+    swap                      ;e3e8  10
+    rorc a                    ;e3e9  03
+    swap                      ;e3ea  10
+    movw mem_03ad_flipped, a  ;e3eb  d4 03 ad
 
-    movw a, #kwp_title_d7   ;e3ee  e4 dd 66     A = pointer to KWP1281 security access request (title 0xD7) block
-    movw mem_0084, a        ;e3f1  d5 84        Pointer: source for KWP1281 buffer copy
-    mov mem_00a5, #0x08     ;e3f3  85 a5 08     8 bytes in KWP1281 packet
-    call sub_b136           ;e3f6  31 b1 36     Copy mem_00a5 bytes from @mem_0084 to KWP1281 TX Buffer
+    movw a, #kwp_title_d7     ;e3ee  e4 dd 66     A = pointer to KWP1281 security access request (title 0xD7) block
+    movw mem_0084, a          ;e3f1  d5 84        Pointer: source for KWP1281 buffer copy
+    mov mem_00a5, #0x08       ;e3f3  85 a5 08     8 bytes in KWP1281 packet
+    call sub_b136_copy_to_tx  ;e3f6  31 b1 36     Copy mem_00a5 bytes from @mem_0084 to KWP1281 TX Buffer
 
-    mov a, mem_03ab         ;e3f9  60 03 ab
-    mov mem_012b+6, a       ;e3fc  61 01 31     KWP1281 TX Buffer byte 6
+    mov a, mem_03ab_rotated   ;e3f9  60 03 ab
+    mov mem_012b+6, a         ;e3fc  61 01 31     KWP1281 TX Buffer byte 6
 
-    mov a, mem_03ac         ;e3ff  60 03 ac
-    mov mem_012b+5, a       ;e402  61 01 30     KWP1281 TX Buffer byte 5
+    mov a, mem_03ac           ;e3ff  60 03 ac
+    mov mem_012b+5, a         ;e402  61 01 30     KWP1281 TX Buffer byte 5
 
-    mov a, mem_03ad         ;e405  60 03 ad
-    mov mem_012b+4, a       ;e408  61 01 2f     KWP1281 TX Buffer byte 4
+    mov a, mem_03ad_flipped   ;e405  60 03 ad
+    mov mem_012b+4, a         ;e408  61 01 2f     KWP1281 TX Buffer byte 4
 
-    mov a, mem_03ae         ;e40b  60 03 ae
-    mov mem_012b+3, a       ;e40e  61 01 2e     KWP1281 TX Buffer byte 3
+    mov a, mem_03ae           ;e40b  60 03 ae
+    mov mem_012b+3, a         ;e40e  61 01 2e     KWP1281 TX Buffer byte 3
 
-    mov a, #0x11            ;e411  04 11
-    mov mem_038c, a         ;e413  61 03 8c
+    mov a, #0x11              ;e411  04 11
+    mov mem_038c, a           ;e413  61 03 8c
 
-    mov a, #0x0b            ;e416  04 0b        A = value to store mem_038b
-    bne lab_e47d            ;e418  fc 63        BRANCH_ALWAYS_TAKEN
+    mov a, #0x0b              ;e416  04 0b        A = value to store mem_038b
+    bne lab_e47d              ;e418  fc 63        BRANCH_ALWAYS_TAKEN
 
     ;0xea41 looks unreachable
-    mov a, #0x0a            ;e41a  04 0a        A = value to store in mem_038b
-    bne lab_e47d            ;e41c  fc 5f        BRANCH_ALWAYS_TAKEN
+    mov a, #0x0a              ;e41a  04 0a        A = value to store in mem_038b
+    bne lab_e47d              ;e41c  fc 5f        BRANCH_ALWAYS_TAKEN
 
 lab_e41e:
 ;(mem_0388=2, mem_038b=0x0b)
@@ -19548,31 +19550,46 @@ lab_e4a3:
     mov mem_0389, a         ;e4b0  61 03 89
     beq lab_e47d            ;e4b3  fd c8        BRANCH_ALWAYS_TAKEN
 
-lab_e4b5:
+lab_e4b5_resp_3d:
 ;Process received Block title 0x3d security access response
 ;(mem_0388=2, mem_038b=4) (Block title 0x3d: Security access response)
+;
+;RX buffer from cluster:
+;  0x06 Block length                    mem_0118+0
+;   ??  Block counter                   mem_0118+1
+;  0x3D Block title (Security Access)   mem_0118+2
+;   ??  Payload byte 0                  mem_0118+3    flipped low byte  -> mem_03ae
+;   ??  Payload byte 1                  mem_0118+4    flipped high byte -> mem_03ad_flipped
+;   ??  Payload byte 2                  mem_0118+5    rotated low byte  -> mem_03ac
+;   ??  Payload byte 3                  mem_0118+6    rotated high byte -> mem_03ab_rotated
+;  0x03 Block end                       mem_0118+7
+;
     mov a, mem_0118+6       ;e4b5  60 01 1e     KWP1281 RX Buffer byte 6
-    mov mem_03ab, a         ;e4b8  61 03 ab
+    mov mem_03ab_rotated, a         ;e4b8  61 03 ab
 
     mov a, mem_0118+5       ;e4bb  60 01 1d     KWP1281 RX Buffer byte 5
     mov mem_03ac, a         ;e4be  61 03 ac
 
     mov a, mem_0118+4       ;e4c1  60 01 1c     KWP1281 RX Buffer byte 4
-    mov mem_03ad, a         ;e4c4  61 03 ad
+    mov mem_03ad_flipped, a         ;e4c4  61 03 ad
 
     mov a, mem_0118+3       ;e4c7  60 01 1b     KWP1281 RX Buffer byte 3
     mov mem_03ae, a         ;e4ca  61 03 ae
 
-    call sub_e61f           ;e4cd  31 e6 1f     Unknown title 0x3d security access response processing, uses mem_e5aa table
-    jmp lab_e4e5            ;e4d0  21 e4 e5
+    ;At this point:
+    ;   mem_03ab_rotated = rotated word
+    ;   mem_03ad_flipped = flipped word
 
-sub_e4d3:
-;Copy mem_03a1->mem_039f, mem_03a2->mem_03a0
-    mov a, mem_03a1         ;e4d3  60 03 a1
-    mov mem_039f, a         ;e4d6  61 03 9f
-    mov a, mem_03a2         ;e4d9  60 03 a2
-    mov mem_03a0, a         ;e4dc  61 03 a0
-    ret                     ;e4df  20
+    call sub_e61f_descramble  ;e4cd  31 e6 1f     Unknown title 0x3d security access response processing, uses mem_e5aa_magics table
+    jmp lab_e4e5              ;e4d0  21 e4 e5     Set mem_038b=0x06 to disconnect and return
+
+sub_e4d3_copy_ds_to_ee:
+;Copy mem_03a1_ds_cluster_id_hi->mem_039f_ee_cluster_id_hi, mem_03a2_ds_cluster_id_lo->mem_03a0_ee_cluster_id_lo
+    mov a, mem_03a1_ds_cluster_id_hi  ;e4d3  60 03 a1
+    mov mem_039f_ee_cluster_id_hi, a  ;e4d6  61 03 9f
+    mov a, mem_03a2_ds_cluster_id_lo  ;e4d9  60 03 a2
+    mov mem_03a0_ee_cluster_id_lo, a  ;e4dc  61 03 a0
+    ret                               ;e4df  20
 
 lab_e4e0:
 ;(mem_0388=2, mem_038b=5)
@@ -19588,7 +19605,7 @@ lab_e4e7:
 lab_e4ea:
     ret                     ;e4ea  20
 
-lab_e4eb:
+lab_e4eb_disconnect:
 ;(mem_0388=2, mem_038b=6)
     mov a, mem_038c         ;e4eb  60 03 8c
     bne lab_e4ea            ;e4ee  fc fa
@@ -19604,7 +19621,7 @@ lab_e4eb:
 
 lab_e502:
 ;(mem_0388=2, mem_038b=7)
-    bbc mem_00f9:1, lab_e55b ;e502  b1 f9 56
+    bbc mem_00f9:1, lab_e55b_ret ;e502  b1 f9 56
     clrb mem_00f9:1         ;e505  a1 f9
 
     mov a, #0x02            ;e507  04 02
@@ -19613,33 +19630,33 @@ lab_e502:
     mov a, mem_03af         ;e50c  60 03 af
     bne lab_e517            ;e50f  fc 06
 
-    call sub_e4d3           ;e511  31 e4 d3     Copy mem_03a1->mem_039f, mem_03a2->mem_03a0
+    call sub_e4d3_copy_ds_to_ee ;e511  31 e4 d3     Copy mem_03a1_ds_cluster_id_hi->mem_039f_ee_cluster_id_hi, mem_03a2_ds_cluster_id_lo->mem_03a0_ee_cluster_id_lo
 
-    jmp lab_e536            ;e514  21 e5 36
+    jmp lab_e536_success    ;e514  21 e5 36
 
 lab_e517:
-    mov a, mem_03a1         ;e517  60 03 a1
-    mov a, mem_039f         ;e51a  60 03 9f
-    cmp a                   ;e51d  12
-    bne lab_e52b            ;e51e  fc 0b
+    mov a, mem_03a1_ds_cluster_id_hi  ;e517  60 03 a1
+    mov a, mem_039f_ee_cluster_id_hi  ;e51a  60 03 9f
+    cmp a                             ;e51d  12
+    bne lab_e52b_fail                 ;e51e  fc 0b
 
-    mov a, mem_03a2         ;e520  60 03 a2
-    mov a, mem_03a0         ;e523  60 03 a0
-    cmp a                   ;e526  12
-    bne lab_e52b            ;e527  fc 02
+    mov a, mem_03a2_ds_cluster_id_lo  ;e520  60 03 a2
+    mov a, mem_03a0_ee_cluster_id_lo  ;e523  60 03 a0
+    cmp a                             ;e526  12
+    bne lab_e52b_fail                 ;e527  fc 02
 
-    ;Word at mem_03a1 == Word at mem_039f
+    ;Word at mem_03a1_ds_cluster_id_hi == Word at mem_039f_ee_cluster_id_hi
 
-    beq lab_e536            ;e529  fd 0b        BRANCH_ALWAYS_TAKEN
+    beq lab_e536_success              ;e529  fd 0b        BRANCH_ALWAYS_TAKEN
 
-lab_e52b:
-    ;Word at mem_03a1 != Word at mem_039f
-    call sub_e4d3           ;e52b  31 e4 d3     Copy mem_03a1->mem_039f, mem_03a2->mem_03a0
-    mov a, #0x03            ;e52e  04 03        A = value to store in mem_00fd low nibble
-    call set_00fd_lo_nib    ;e530  31 e3 ac     Store low nibble of A in mem_00fd low nibble
-    bbc mem_00de:6, lab_e544 ;e533  b6 de 0e
+lab_e52b_fail:
+    ;Word at mem_03a1_ds_cluster_id_hi != Word at mem_039f_ee_cluster_id_hi
+    call sub_e4d3_copy_ds_to_ee ;e52b  31 e4 d3     Copy mem_03a1_ds_cluster_id_hi->mem_039f_ee_cluster_id_hi, mem_03a2_ds_cluster_id_lo->mem_03a0_ee_cluster_id_lo
+    mov a, #0x03                ;e52e  04 03        A = value to store in mem_00fd low nibble
+    call set_00fd_lo_nib        ;e530  31 e3 ac     Store low nibble of A in mem_00fd low nibble
+    bbc mem_00de:6, lab_e544    ;e533  b6 de 0e
 
-lab_e536:
+lab_e536_success:
     mov a, #0x02            ;e536  04 02        A = value to store in mem_00fd low nibble
     call set_00fd_lo_nib    ;e538  31 e3 ac     Store low nibble of A in mem_00fd low nibble
     mov a, #0x01            ;e53b  04 01
@@ -19653,7 +19670,7 @@ lab_e544:
 lab_e547:
 ;(mem_0388=2, mem_038b=8)
     mov a, mem_00f1         ;e547  05 f1
-    bne lab_e55b            ;e549  fc 10
+    bne lab_e55b_ret        ;e549  fc 10
     mov mem_00f1, #0x81     ;e54b  85 f1 81
     mov a, #0x0d            ;e54e  04 0d
     bne lab_e558            ;e550  fc 06        BRANCH_ALWAYS_TAKEN
@@ -19661,7 +19678,7 @@ lab_e547:
 lab_e552:
 ;(mem_0388=2, mem_038b=9)
     mov a, mem_00f1         ;e552  05 f1
-    bne lab_e55b            ;e554  fc 05
+    bne lab_e55b_ret        ;e554  fc 05
 
 lab_e556:
     mov a, #0x0a            ;e556  04 0a        A = value to store in mem_038b
@@ -19669,7 +19686,7 @@ lab_e556:
 lab_e558:
     mov mem_038b, a         ;e558  61 03 8b
 
-lab_e55b:
+lab_e55b_ret:
     ret                     ;e55b  20
 
 callv7_e55c:
@@ -19703,189 +19720,203 @@ callv7_e55c:
 
 lab_e59c:
 ;(mem_0388=2, mem_038b=0x0d)
-    mov a, mem_00f1         ;e59c  05 f1
-    bne lab_e55b            ;e59e  fc bb
-    call sub_a239           ;e5a0  31 a2 39
-    mov mem_00cd, #0x00     ;e5a3  85 cd 00
-    mov a, #0x09            ;e5a6  04 09
-    bne lab_e558            ;e5a8  fc ae        BRANCH_ALWAYS_TAKEN
+    mov a, mem_00f1                 ;e59c  05 f1
+    bne lab_e55b_ret                ;e59e  fc bb
 
-mem_e5aa:
-;Table used by sub_e5ae and sub_e61f
-;Note: this table is read backwards starting at 0xe5ad
-    .byte 0x00              ;e5aa  00          DATA '\x00'
-    .byte 0x18              ;e5ab  18          DATA '\x18'
-    .byte 0xBD              ;e5ac  bd          DATA '\xbd'
-    .byte 0xE7              ;e5ad  e7          DATA '\xe7'
+    call sub_a239_maybe_safe_unlock ;e5a0  31 a2 39
+    mov mem_00cd, #0x00             ;e5a3  85 cd 00
+    mov a, #0x09                    ;e5a6  04 09
+    bne lab_e558                    ;e5a8  fc ae        BRANCH_ALWAYS_TAKEN
+
+mem_e5aa_magics:
+;Table used by sub_e5ae and sub_e61f_descramble
+;Note: this table is read backwards
+    .word 0x0018            ;e5aa
+    .word 0xBDE7            ;e5ac
 
 sub_e5ae:
-;Unknown, uses mem_e5aa table
+;Unknown, uses mem_e5aa_magics table
 ;Called only from sub_826e
 ;
-    movw a, mem_039f        ;e5ae  c4 03 9f
-    movw mem_03a1, a        ;e5b1  d4 03 a1
+    movw a, mem_039f_ee_cluster_id_hi   ;e5ae  c4 03 9f
+    movw mem_03a1_ds_cluster_id_hi, a   ;e5b1  d4 03 a1
 
-    movw a, #0x0000         ;e5b4  e4 00 00
-    movw mem_03a3, a        ;e5b7  d4 03 a3
-    movw mem_03a5, a        ;e5ba  d4 03 a5
-    movw mem_03a7, a        ;e5bd  d4 03 a7
-    movw mem_03a9, a        ;e5c0  d4 03 a9
-    movw mem_03ab, a        ;e5c3  d4 03 ab
-    movw mem_03ad, a        ;e5c6  d4 03 ad
-    mov mem_03b4, a         ;e5c9  61 03 b4
+    movw a, #0x0000                     ;e5b4  e4 00 00
+    movw mem_03a3_random, a             ;e5b7  d4 03 a3
+    movw mem_03a5_rotated_copy_2, a     ;e5ba  d4 03 a5
+    movw mem_03a7_rotated_copy_1, a     ;e5bd  d4 03 a7
+    movw mem_03a9_flipped_copy, a       ;e5c0  d4 03 a9
+    movw mem_03ab_rotated, a            ;e5c3  d4 03 ab
+    movw mem_03ad_flipped, a            ;e5c6  d4 03 ad
+    mov mem_03b4_zero_count, a          ;e5c9  61 03 b4
 
-    movw a, tchr            ;e5cc  c5 19        16-bit timer count register
-    movw mem_03a3, a        ;e5ce  d4 03 a3
+    movw a, tchr                        ;e5cc  c5 19        16-bit timer count register
+    movw mem_03a3_random, a             ;e5ce  d4 03 a3
 
-    movw a, mem_03a1        ;e5d1  c4 03 a1
-    movw a, mem_03a3        ;e5d4  c4 03 a3
-    xorw a                  ;e5d7  53
-    movw mem_03a5, a        ;e5d8  d4 03 a5
+    movw a, mem_03a1_ds_cluster_id_hi   ;e5d1  c4 03 a1
+    movw a, mem_03a3_random             ;e5d4  c4 03 a3
+    xorw a                              ;e5d7  53
+    movw mem_03a5_rotated_copy_2, a     ;e5d8  d4 03 a5
 
-    mov r3, #0x00           ;e5db  8b 00
-    call sub_e672           ;e5dd  31 e6 72
+    mov r3, #0x00                       ;e5db  8b 00
+    call sub_e672_rotate_left_or_right  ;e5dd  31 e6 72
 
-    movw a, mem_03a5        ;e5e0  c4 03 a5
-    movw mem_03a7, a        ;e5e3  d4 03 a7
+    movw a, mem_03a5_rotated_copy_2     ;e5e0  c4 03 a5
+    movw mem_03a7_rotated_copy_1, a     ;e5e3  d4 03 a7
 
-    movw a, mem_03a3        ;e5e6  c4 03 a3
-    movw a, mem_03a7        ;e5e9  c4 03 a7
-    xorw a                  ;e5ec  53
-    movw mem_03a9, a        ;e5ed  d4 03 a9
+    movw a, mem_03a3_random             ;e5e6  c4 03 a3
+    movw a, mem_03a7_rotated_copy_1     ;e5e9  c4 03 a7
+    xorw a                              ;e5ec  53
+    movw mem_03a9_flipped_copy, a       ;e5ed  d4 03 a9
 
-    movw a, mem_03a7        ;e5f0  c4 03 a7
-    movw mem_03ab, a        ;e5f3  d4 03 ab
+    movw a, mem_03a7_rotated_copy_1     ;e5f0  c4 03 a7
+    movw mem_03ab_rotated, a            ;e5f3  d4 03 ab
 
-    movw a, mem_03a9        ;e5f6  c4 03 a9
-    movw mem_03ad, a        ;e5f9  d4 03 ad
+    movw a, mem_03a9_flipped_copy       ;e5f6  c4 03 a9
+    movw mem_03ad_flipped, a            ;e5f9  d4 03 ad
 
-    movw ix, #mem_03ab+3    ;e5fc  e6 03 ae
-    movw ep, #mem_e5aa+3    ;e5ff  e7 e5 ad
-    call sub_e6ca           ;e602  31 e6 ca     Add 4 bytes @EP to 4 bytes @IX (overwrites @IX)
-                            ;                   @IX = ((@IX + 0x0018BDE7) & 0xFFFFFFFF)
-    ret                     ;e605  20
+    movw ix, #mem_03ab_rotated+3        ;e5fc  e6 03 ae
+    movw ep, #mem_e5aa_magics+3         ;e5ff  e7 e5 ad
+    call sub_e6ca_add_magics            ;e602  31 e6 ca     Add 4 bytes @EP to 4 bytes @IX (overwrites @IX)
+                                        ;                   @IX = ((@IX + 0x0018BDE7) & 0xFFFFFFFF)
+    ret                                 ;e605  20
 
 
-sub_e606:
-;Unknown, does something to mem_03a3/mem_03a4
-;Stores result in mem_03b4
-;Called only from sub_e672
+sub_e606_rol_count_zeroes:
+;Unknown, does something to mem_03a3_random/mem_03a4
+;Stores result in mem_03b4_zero_count
+;Called only from sub_e672_rotate_left_or_right
 ;
-    mov r1, #0x00           ;e606  89 00
-    mov r2, #0x02           ;e608  8a 02
-    movw a, mem_03a3        ;e60a  c4 03 a3
+    mov r1, #0x00               ;e606  89 00
+    mov r2, #0x02               ;e608  8a 02      R2 = 2 passes (high byte and low byte)
+    movw a, mem_03a3_random     ;e60a  c4 03 a3
 
-lab_e60d:
-    mov r7, #0x08           ;e60d  8f 08
+lab_e60d_byte_loop:
+    mov r7, #0x08               ;e60d  8f 08      R7 = 8 bits
 
-lab_e60f:
-    rolc a                  ;e60f  02
-    bc lab_e613             ;e610  f9 01
-    inc r1                  ;e612  c9
+lab_e60f_bit_loop:
+    rolc a                      ;e60f  02
+    bc lab_e613_bc              ;e610  f9 01
+    inc r1                      ;e612  c9
 
-lab_e613:
-    dec r7                  ;e613  df
-    bne lab_e60f            ;e614  fc f9
-    swap                    ;e616  10
-    dec r2                  ;e617  da
-    bne lab_e60d            ;e618  fc f3
-    mov a, r1               ;e61a  09
-    mov mem_03b4, a         ;e61b  61 03 b4
-    ret                     ;e61e  20
+lab_e613_bc:
+    dec r7                      ;e613  df
+    bne lab_e60f_bit_loop       ;e614  fc f9
+    swap                        ;e616  10         Swap AH and AL
+    dec r2                      ;e617  da
+    bne lab_e60d_byte_loop      ;e618  fc f3
+    mov a, r1                   ;e61a  09
+    mov mem_03b4_zero_count, a  ;e61b  61 03 b4
+    ret                         ;e61e  20
 
 
-sub_e61f:
-;Unknown title 0x3d security access response processing, uses mem_e5aa table
+sub_e61f_descramble:
+;Unknown title 0x3d security access response processing, uses mem_e5aa_magics table
 ;Called from e4cd (Block title 0x3d security access response)
 ;Also called from a11c (unknown)
 ;
 ;Inputs:
-;  mem_03ab - mem_03ae
+;   mem_03ab_rotated = Rotated word
+;   mem_03ad_flipped = Flipped word
 ;
-    movw a, #0x0000         ;e61f  e4 00 00
-    movw mem_03a1, a        ;e622  d4 03 a1
-    movw mem_03a3, a        ;e625  d4 03 a3
-    movw mem_03a5, a        ;e628  d4 03 a5
-    movw mem_03a7, a        ;e62b  d4 03 a7
-    movw mem_03a9, a        ;e62e  d4 03 a9
-    mov mem_03b4, a         ;e631  61 03 b4
+;Outputs:
+;   mem_03a1_ds_cluster_id_hi  Descrambled Cluster ID from 0x3D response
+;
+    movw a, #0x0000                   ;e61f  e4 00 00
+    movw mem_03a1_ds_cluster_id_hi, a ;e622  d4 03 a1
+    movw mem_03a3_random, a           ;e625  d4 03 a3
+    movw mem_03a5_rotated_copy_2, a   ;e628  d4 03 a5
+    movw mem_03a7_rotated_copy_1, a   ;e62b  d4 03 a7
+    movw mem_03a9_flipped_copy, a     ;e62e  d4 03 a9
+    mov mem_03b4_zero_count, a        ;e631  61 03 b4
 
-    ;Copy 4 bytes at mem_03ab- to mem_03b0-
-    movw a, mem_03ab        ;e634  c4 03 ab
-    movw mem_03b0, a        ;e637  d4 03 b0
-    movw a, mem_03ad        ;e63a  c4 03 ad
-    movw mem_03b2, a        ;e63d  d4 03 b2
+    ;Copy 4 bytes at mem_03ab_rotated- to mem_03b0-:
+    ;  mem_03b0 = Rotated word
+    ;  mem_03b2 = Flipped word
+    movw a, mem_03ab_rotated        ;e634  c4 03 ab     Rotated word
+    movw mem_03b0, a                ;e637  d4 03 b0
+    movw a, mem_03ad_flipped        ;e63a  c4 03 ad     Flipped word
+    movw mem_03b2, a                ;e63d  d4 03 b2
 
-    movw ix, #mem_03ab+3    ;e640  e6 03 ae
-    movw ep, #mem_e5aa+3    ;e643  e7 e5 ad
-    call sub_e6b3           ;e646  31 e6 b3     Subtract 4 bytes @EP from 4 bytes @IX (overwrites @IX)
-                            ;                   @IX = ((@IX - 0x0018BDE7) & 0xFFFFFFFF)
+    ;Deobfuscate "rotated" and "flipped" words
+    ;  Rotated = Rotated - 0x0018
+    ;  Flipped = Flipped - 0xbde7 - (borrow from "rotated" subtraction)
+    movw ix, #mem_03ab_rotated+3    ;e640  e6 03 ae     IX = #rotated
+    movw ep, #mem_e5aa_magics+3     ;e643  e7 e5 ad
+    call sub_e6b3_subtract_magics   ;e646  31 e6 b3     Subtract 4 bytes @EP from 4 bytes @IX (overwrites @IX)
+                                    ;                   @IX = ((@IX - 0x0018BDE7) & 0xFFFFFFFF)
 
-    ;Copy 4 bytes at mem_03ab- to mem_03a7-
-    movw a, mem_03ab        ;e649  c4 03 ab
-    movw mem_03a7, a        ;e64c  d4 03 a7
-    movw a, mem_03ad        ;e64f  c4 03 ad
-    movw mem_03a9, a        ;e652  d4 03 a9
+    ;Copy 4 bytes at mem_03ab_rotated- to mem_03a7_rotated_copy_1-
+    ;  mem_03a7_rotated_copy_1 = Rotated word
+    ;  mem_03a9_flipped_copy = Flipped word
+    movw a, mem_03ab_rotated        ;e649  c4 03 ab
+    movw mem_03a7_rotated_copy_1, a ;e64c  d4 03 a7
+    movw a, mem_03ad_flipped        ;e64f  c4 03 ad
+    movw mem_03a9_flipped_copy, a   ;e652  d4 03 a9
 
-    ;mem_03a3- = mem_03a9- XORW mem_03a7-
-    movw a, mem_03a9        ;e655  c4 03 a9
-    movw a, mem_03a7        ;e658  c4 03 a7
-    xorw a                  ;e65b  53
-    movw mem_03a3, a        ;e65c  d4 03 a3
+    ;Recover random word into mem_03a3_random
+    ;random = flipped ^ rotated
+    movw a, mem_03a9_flipped_copy   ;e655  c4 03 a9     Copy of Flipped word
+    movw a, mem_03a7_rotated_copy_1 ;e658  c4 03 a7     Copy of Rotated word
+    xorw a                          ;e65b  53
+    movw mem_03a3_random, a         ;e65c  d4 03 a3     Random word
 
     ;At this point:
     ;  4 bytes at mem_03b0-mem_03b3 contain original bytes from KWP1281 block title 0x3d response
-    ;  4 bytes at mem_03ab-mem_03ae contain those bytes after sub_e6b3 subtraction
-    ;  4 bytes at mem_03a7-mem_03a9 also contain those bytes after sub_e6b3 subtraction
-    ;  2 bytes at mem_03a3-mem_03a4 contain XOR of 2 bytes at mem_03a9 with 2 bytes at mem_03a7
+    ;  4 bytes at mem_03ab_rotated-mem_03ae contain those bytes after sub_e6b3_subtract_magics subtraction
+    ;  4 bytes at mem_03a7_rotated_copy_1-mem_03a9_flipped_copy also contain those bytes after sub_e6b3_subtract_magics subtraction
+    ;  2 bytes at mem_03a3_random-mem_03a4 contain XOR of 2 bytes at mem_03a9_flipped_copy with 2 bytes at mem_03a7_rotated_copy_1
 
-    mov r3, #0x01           ;e65f  8b 01
-    call sub_e672           ;e661  31 e6 72
+    mov r3, #0x01                       ;e65f  8b 01        R3 = 1 for right rotate
+    call sub_e672_rotate_left_or_right  ;e661  31 e6 72     Rotate left (R3=0) or right (R3=1)
 
-    movw a, mem_03a7        ;e664  c4 03 a7
-    movw mem_03a5, a        ;e667  d4 03 a5
+    ;cluster_id = rotated ^ random
+    movw a, mem_03a7_rotated_copy_1   ;e664  c4 03 a7
+    movw mem_03a5_rotated_copy_2, a   ;e667  d4 03 a5     ?
+    movw a, mem_03a3_random           ;e66a  c4 03 a3
+    xorw a                            ;e66d  53
+    movw mem_03a1_ds_cluster_id_hi, a ;e66e  d4 03 a1     Descrambled Cluster ID
+    ret                               ;e671  20
 
-    movw a, mem_03a3        ;e66a  c4 03 a3
-    xorw a                  ;e66d  53
-    movw mem_03a1, a        ;e66e  d4 03 a1
-    ret                     ;e671  20
 
-
-sub_e672:
+sub_e672_rotate_left_or_right:
+;Rotate right or left
+;
 ;Called only from:
-;  sub_e61f with R3=1
+;  sub_e61f_descramble with R3=1 (right rotate)
 ;  sub_e5ae with R3=0
 ;
-    call sub_e606           ;e672  31 e6 06     Unknown, does something to mem_03a3/mem_03a4
-                            ;                   Stores result in mem_03b4
-lab_e675:
-    mov a, mem_03b4         ;e675  60 03 b4
-    beq lab_e690            ;e678  fd 16
+    call sub_e606_rol_count_zeroes  ;e672  31 e6 06     Unknown, does something to mem_03a3_random/mem_03a4
+                                    ;                   Stores result in mem_03b4_zero_count
+lab_e675_loop:
+    mov a, mem_03b4_zero_count      ;e675  60 03 b4
+    beq lab_e690_ret                ;e678  fd 16
 
-    mov a, r3               ;e67a  0b
-    bne lab_e683            ;e67b  fc 06
+    mov a, r3                       ;e67a  0b
+    bne lab_e683_ror                ;e67b  fc 06
 
     ;(R3 = 0)
-    call sub_e6a3           ;e67d  31 e6 a3     Rotate mem_03a5 one bit to the left
-    jmp lab_e686            ;e680  21 e6 86
-lab_e683:
+    call sub_e6a3_rol               ;e67d  31 e6 a3     Rotate mem_03a5_rotated_copy_2 one bit to the left
+    jmp lab_e686                    ;e680  21 e6 86
+lab_e683_ror:
     ;(R3 != 0)
-    call sub_e691           ;e683  31 e6 91     Rotate mem_03a7 one bit to the right
+    call sub_e691_ror               ;e683  31 e6 91     Rotate mem_03a7_rotated_copy_1 one bit to the right
 
 lab_e686:
-    mov a, mem_03b4         ;e686  60 03 b4
-    decw a                  ;e689  d0
-    mov mem_03b4, a         ;e68a  61 03 b4
-    jmp lab_e675            ;e68d  21 e6 75
-lab_e690:
-    ret                     ;e690  20
+    mov a, mem_03b4_zero_count      ;e686  60 03 b4
+    decw a                          ;e689  d0
+    mov mem_03b4_zero_count, a      ;e68a  61 03 b4
+    jmp lab_e675_loop               ;e68d  21 e6 75
+
+lab_e690_ret:
+    ret                             ;e690  20
 
 
-sub_e691:
-;Rotate mem_03a7 one bit to the right
-;Called only from sub_e672 when R3 != 1
+sub_e691_ror:
+;Rotate mem_03a7_rotated_copy_1 one bit to the right
+;Called only from sub_e672_rotate_left_or_right when R3 != 1
 ;
-    movw a, mem_03a7        ;e691  c4 03 a7
+    movw a, mem_03a7_rotated_copy_1        ;e691  c4 03 a7
     clrc                    ;e694  81
     swap                    ;e695  10
     rorc a                  ;e696  03
@@ -19896,15 +19927,15 @@ sub_e691:
     or a, #0b10000000       ;e69c  74 80
     swap                    ;e69e  10
 lab_e69f:
-    movw mem_03a7, a        ;e69f  d4 03 a7
+    movw mem_03a7_rotated_copy_1, a        ;e69f  d4 03 a7
     ret                     ;e6a2  20
 
 
-sub_e6a3:
-;Rotate mem_03a5 one bit to the left
-;Called only from sub_e672 when R3 = 0
+sub_e6a3_rol:
+;Rotate mem_03a5_rotated_copy_2 one bit to the left
+;Called only from sub_e672_rotate_left_or_right when R3 = 0
 ;
-    movw a, mem_03a5        ;e6a3  c4 03 a5
+    movw a, mem_03a5_rotated_copy_2        ;e6a3  c4 03 a5
     clrc                    ;e6a6  81
     rolc a                  ;e6a7  02
     swap                    ;e6a8  10
@@ -19913,16 +19944,16 @@ sub_e6a3:
     bnc lab_e6af            ;e6ab  f8 02
     or a, #0b00000001       ;e6ad  74 01
 lab_e6af:
-    movw mem_03a5, a        ;e6af  d4 03 a5
+    movw mem_03a5_rotated_copy_2, a        ;e6af  d4 03 a5
     ret                     ;e6b2  20
 
 
-sub_e6b3:
+sub_e6b3_subtract_magics:
 ;Subtract 4 bytes @EP from 4 bytes @IX (overwrites @IX)
 ;
-;Called only from sub_e61f with:
-;  IX = #mem_03ab+3
-;  IX = #mem_e5aa+3     (mem_e5aa contains 0x0018BDE7)
+;Called only from sub_e61f_descramble with:
+;  IX = #mem_03ab_rotated+3
+;  IX = #mem_e5aa_magics+3     (mem_e5aa_magics contains 0x0018BDE7)
 ;
 ;Equivalent to:
 ;  @IX = ((@IX - 0x0018BDE7) & 0xFFFFFFFF)
@@ -19947,12 +19978,12 @@ lab_e6b7:
     ret                     ;e6c9  20
 
 
-sub_e6ca:
+sub_e6ca_add_magics:
 ;Add 4 bytes @EP to 4 bytes @IX (overwrites @IX)
 ;
 ;Called only from sub_e5ae with:
-;  IX = #mem_03ab+3
-;  EP = #mem_e5aa+3     (mem_e5aa contains 0x0018BDE7)
+;  IX = #mem_03ab_rotated+3
+;  EP = #mem_e5aa_magics+3     (mem_e5aa_magics contains 0x0018BDE7)
 ;
 ;Equivalent to:
 ;  @IX = ((@IX + 0x0018BDE7) & 0xFFFFFFFF)
