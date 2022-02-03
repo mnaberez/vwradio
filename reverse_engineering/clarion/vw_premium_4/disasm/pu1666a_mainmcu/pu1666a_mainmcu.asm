@@ -19004,12 +19004,12 @@ lab_e1e2:
 ;(mem_0393=1)
 ;Check if (KWP1281 byte received & 0x7f) = 0x01
     mov a, mem_038c         ;e1e2  60 03 8c
-    beq lab_e1fe            ;e1e5  fd 17
+    beq lab_e1fe_ret        ;e1e5  fd 17
 
     mov a, mem_0088         ;e1e7  05 88        A = KWP1281 byte received
     and a, #0x7f            ;e1e9  64 7f
     cmp a, #0x01            ;e1eb  14 01
-    bne lab_e1fe            ;e1ed  fc 0f
+    bne lab_e1fe_ret        ;e1ed  fc 0f
 
     call sub_e0bf           ;e1ef  31 e0 bf     Set up for KWP1281 10416.67 bps, 7-O-1 receive
     clrb mem_00f9:3         ;e1f2  a3 f9
@@ -19020,7 +19020,7 @@ lab_e1e2:
 lab_e1fb:
     mov mem_0393, a         ;e1fb  61 03 93
 
-lab_e1fe:
+lab_e1fe_ret:
     ret                     ;e1fe  20
 
 
@@ -19028,12 +19028,12 @@ lab_e1ff:
 ;(mem_0393=2)
 ;Check if (KWP1281 byte received & 0x7f) = 0x0a
     mov a, mem_038c         ;e1ff  60 03 8c
-    beq lab_e1fe            ;e202  fd fa
+    beq lab_e1fe_ret        ;e202  fd fa
 
     mov a, mem_0088         ;e204  05 88        A = KWP1281 byte received
     and a, #0x7f            ;e206  64 7f
     cmp a, #0x0a            ;e208  14 0a
-    bne lab_e1fe            ;e20a  fc f2
+    bne lab_e1fe_ret        ;e20a  fc f2
 
     mov a, #0x09            ;e20c  04 09
     mov mem_038c, a         ;e20e  61 03 8c
