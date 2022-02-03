@@ -28146,21 +28146,27 @@ lab_bad2_dispatch:
 
 ;Received a 0x09 ACK block from the cluster
 lab_bb00_09_ack:
-    lda #0x07               ;bb00  a9 07
+    lda #0x07               ;bb00  a9 07        A = 7 bytes in response
     sta 0x0331              ;bb02  8d 31 03
-    lda 0x0321              ;bb05  ad 21 03
-    inc a                   ;bb08  3a
-    sta 0x0332              ;bb09  8d 32 03
-    lda #0xd7               ;bb0c  a9 d7
-    sta 0x0333              ;bb0e  8d 33 03
-    lda #0x03               ;bb11  a9 03
+
+    lda 0x0321              ;bb05  ad 21 03     A = Block counter from KWP1281 rx buffer
+    inc a                   ;bb08  3a           Increment block counter
+    sta 0x0332              ;bb09  8d 32 03     Store in KWP1281 tx buffer: block counter
+
+    lda #0xd7               ;bb0c  a9 d7        A = 0xD7 Security Access Request
+    sta 0x0333              ;bb0e  8d 33 03     Store in KWP1281 tx buffer: block title
+
+    lda #0x03               ;bb11  a9 03        A = Block End
     sta 0x0338              ;bb13  8d 38 03
+
     jsr sub_279f            ;bb16  20 9f 27
     sta 0x0334              ;bb19  8d 34 03
     stx 0x0335              ;bb1c  8e 35 03
+
     jsr sub_279f            ;bb1f  20 9f 27
     sta 0x0336              ;bb22  8d 36 03
     stx 0x0337              ;bb25  8e 37 03
+
     jmp lab_bb5a_next_block ;bb28  4c 5a bb      Send the next KWP1281 block to the cluster
 
 ;Received a 0x0A NAK block from the cluster
