@@ -301,10 +301,10 @@ mem_fb52 = 0xfb52           ;KWP1281 Login rate limiter countdown
 mem_fb53 = 0xfb53
 mem_fb54 = 0xfb54
 mem_fb55 = 0xfb55
-mem_fb56 = 0xfb56
+freq_idx = 0xfb56
 mem_fb57 = 0xfb57
 mem_fb58 = 0xfb58
-mem_fb59 = 0xfb59
+freq_idx_max = 0xfb59
 mem_fb5a = 0xfb5a
 mem_fb5b = 0xfb5b
 mem_fb5e = 0xfb5e
@@ -1509,7 +1509,8 @@ sub_0823:
     movw hl,#mem_fe20       ;0826  16 20 fe
     mov b,#0x02             ;0829  a3 02
     call !sub_0bef          ;082b  9a ef 0b
-    movw hl,#mem_fb59       ;082e  16 59 fb
+
+    movw hl,#freq_idx_max   ;082e  16 59 fb
     mov b,#0x01             ;0831  a3 01
     br !sub_0bf6            ;0833  9b f6 0b
 
@@ -2434,6 +2435,10 @@ sub_0bef:
 lab_0bf4:
     mov x,#0x55             ;0bf4  a0 55
 
+;Unknown
+;Called with HL=address, DE=address, and B=number of bytes
+;Adds something in [HL+...]
+;Reads one byte from [DE], Writes ony byte to [DE]
 sub_0bf6:
     clr1 cy                 ;0bf6  21
 
@@ -2441,22 +2446,24 @@ lab_0bf7:
     push psw                ;0bf7  22
     decw hl                 ;0bf8  96
 
-lab_0bf9:
+lab_0bf9_loop:
     mov a,[hl+b]            ;0bf9  ab
     add x,a                 ;0bfa  61 00
-    dbnz b,lab_0bf9         ;0bfc  8b fb
+    dbnz b,lab_0bf9_loop    ;0bfc  8b fb
+
     incw hl                 ;0bfe  86
     mov a,[de]              ;0bff  85
     pop psw                 ;0c00  23
-    bc lab_0c05             ;0c01  8d 02
+    bc lab_0c05_cs          ;0c01  8d 02
+
     xch a,x                 ;0c03  30
     mov [de],a              ;0c04  95
 
-lab_0c05:
-    bf mem_fe31.0,lab_0c0a  ;0c05  31 03 31 01
+lab_0c05_cs:
+    bf mem_fe31.0,lab_0c0a_done  ;0c05  31 03 31 01
     mov a,x                 ;0c09  60
 
-lab_0c0a:
+lab_0c0a_done:
     cmp a,x                 ;0c0a  61 48
     ret                     ;0c0c  af
 
@@ -4287,7 +4294,7 @@ lab_172b:
 lab_172e:
     call !sub_1d4f          ;172e  9a 4f 1d
     call !sub_1a73          ;1731  9a 73 1a
-    mov !mem_fb56,a         ;1734  9e 56 fb
+    mov !freq_idx,a         ;1734  9e 56 fb
     mov mem_fe20,#0x00      ;1737  11 20 00
 
 lab_173a:
@@ -4315,13 +4322,13 @@ lab_174f:
 lab_1754:
     set1 mem_fe5d.6         ;1754  6a 5d
     set1 mem_fe5d.1         ;1756  1a 5d
-    set1 mem_fe5c.6         ;1758  6a 5c
+    set1 mem_fe5c.6         ;1758  6a 5c      Freq inc/dec flag = 1=increment
     br lab_1762             ;175a  fa 06
 
 lab_175c:
     set1 mem_fe5d.6         ;175c  6a 5d
     set1 mem_fe5d.1         ;175e  1a 5d
-    clr1 mem_fe5c.6         ;1760  6b 5c
+    clr1 mem_fe5c.6         ;1760  6b 5c      Freq inc/dec flag = 0=decrement
 
 lab_1762:
     cmp mem_fe20,#0x03      ;1762  c8 20 03
@@ -4333,11 +4340,11 @@ lab_176c:
     call !sub_1a5d          ;176c  9a 5d 1a
 
 lab_176f:
-    call !sub_1b4b          ;176f  9a 4b 1b
+    call !freq_idx_inc_dec  ;176f  9a 4b 1b   Increment or decrement freq_idx based on flag mem_fe5c.6
 
 lab_1772:
     call !sub_1d59          ;1772  9a 59 1d
-    call !sub_1ad1          ;1775  9a d1 1a
+    call !freq_idx_constrain;1775  9a d1 1a   Constrain freq_idx to its allowed range
     clr1 mem_fe5c.2         ;1778  2b 5c
     call !sub_a694          ;177a  9a 94 a6
     cmp a,#0x00             ;177d  4d 00
@@ -4437,12 +4444,12 @@ lab_180c:
     br !lab_1945            ;1811  9b 45 19
 
 lab_1814:
-    set1 mem_fe5c.6         ;1814  6a 5c
+    set1 mem_fe5c.6         ;1814  6a 5c        Freq inc/dec flag = 1=increment
     call !sub_1b59          ;1816  9a 59 1b
     br !lab_1934            ;1819  9b 34 19
 
 lab_181c:
-    set1 mem_fe5c.6         ;181c  6a 5c
+    set1 mem_fe5c.6         ;181c  6a 5c        Freq inc/dec flag = 1=increment
 
 lab_181e:
     mov mem_fe20,#0x04      ;181e  11 20 04
@@ -4498,11 +4505,11 @@ lab_1874:
     ret                     ;187f  af
 
 lab_1880:
-    set1 mem_fe5c.6         ;1880  6a 5c
+    set1 mem_fe5c.6         ;1880  6a 5c        Freq inc/dec flag = 1=increment
     br lab_1886             ;1882  fa 02
 
 lab_1884:
-    clr1 mem_fe5c.6         ;1884  6b 5c
+    clr1 mem_fe5c.6         ;1884  6b 5c        Freq inc/dec flag = 0=decrement
 
 lab_1886:
     bt mem_fe66.6,lab_18e9  ;1886  ec 66 60
@@ -4560,11 +4567,11 @@ lab_18e9:
     ret                     ;18e9  af
 
 lab_18ea:
-    set1 mem_fe5c.6         ;18ea  6a 5c
+    set1 mem_fe5c.6         ;18ea  6a 5c        Freq inc/dec flag = 1=increment
     br lab_18f0             ;18ec  fa 02
 
 lab_18ee:
-    clr1 mem_fe5c.6         ;18ee  6b 5c
+    clr1 mem_fe5c.6         ;18ee  6b 5c        Freq inc/dec flag = 0=decrement
 
 lab_18f0:
     call !sub_1d59          ;18f0  9a 59 1d
@@ -4767,7 +4774,7 @@ sub_1a2c:
     call !sub_408f          ;1a39  9a 8f 40     Write A to [HL+B] then do unknown calculation with mem_f26c/mem_f26d
 
 lab_1a3c:
-    mov a,!mem_fb56         ;1a3c  8e 56 fb
+    mov a,!freq_idx         ;1a3c  8e 56 fb
     call !sub_4092          ;1a3f  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
     ret                     ;1a42  af
 
@@ -4776,7 +4783,7 @@ sub_1a43:
     mov a,!mem_fb5a         ;1a45  8e 5a fb
     mov b,a                 ;1a48  73
     call !sub_1a66          ;1a49  9a 66 1a
-    call !sub_1ad1          ;1a4c  9a d1 1a
+    call !freq_idx_constrain;1a4c  9a d1 1a     Constrain freq_idx to its allowed range
     br lab_1a3c             ;1a4f  fa eb
 
 sub_1a51:
@@ -4793,7 +4800,7 @@ sub_1a5d:
 
 sub_1a66:
     call !sub_1a75          ;1a66  9a 75 1a
-    mov !mem_fb56,a         ;1a69  9e 56 fb
+    mov !freq_idx,a         ;1a69  9e 56 fb
     push hl                 ;1a6c  b7
     mov a,x                 ;1a6d  60
     call !sub_a7ce          ;1a6e  9a ce a7
@@ -4841,7 +4848,7 @@ lab_1a9c:
 
 sub_1a9d:
     call !sub_1a75          ;1a9d  9a 75 1a
-    cmp a,!mem_fb56         ;1aa0  48 56 fb
+    cmp a,!freq_idx         ;1aa0  48 56 fb
     bnz lab_1aa8            ;1aa3  bd 03
     mov a,b                 ;1aa5  63
     clr1 cy                 ;1aa6  21
@@ -4873,7 +4880,7 @@ lab_1ac0:
 
 sub_1ac1:
     clr1 mem_fe5c.2         ;1ac1  2b 5c
-    call !sub_1ad1          ;1ac3  9a d1 1a
+    call !freq_idx_constrain;1ac3  9a d1 1a     Constrain freq_idx to its allowed range
     call !sub_1aaa          ;1ac6  9a aa 1a
     bc lab_1ad0             ;1ac9  8d 05
     set1 mem_fe5c.2         ;1acb  2a 5c
@@ -4882,21 +4889,23 @@ sub_1ac1:
 lab_1ad0:
     ret                     ;1ad0  af
 
-sub_1ad1:
-    mov a,!mem_fb56         ;1ad1  8e 56 fb
-    cmp a,!mem_fb59         ;1ad4  48 59 fb
-    bz lab_1ae6             ;1ad7  ad 0d
+;Constrain freq_idx to its allowed range
+freq_idx_constrain:
+    mov a,!freq_idx         ;1ad1  8e 56 fb
+    cmp a,!freq_idx_max     ;1ad4  48 59 fb
+    bz lab_1ae6_done        ;1ad7  ad 0d
     bc lab_1adf             ;1ad9  8d 04
     mov a,#0x01             ;1adb  a1 01
-    br lab_1ae6             ;1add  fa 07
+    br lab_1ae6_done        ;1add  fa 07
 
 lab_1adf:
     cmp a,#0x00             ;1adf  4d 00
-    bnz lab_1ae6            ;1ae1  bd 03
-    mov a,!mem_fb59         ;1ae3  8e 59 fb
+    bnz lab_1ae6_done       ;1ae1  bd 03
 
-lab_1ae6:
-    mov !mem_fb56,a         ;1ae6  9e 56 fb
+    mov a,!freq_idx_max     ;1ae3  8e 59 fb
+
+lab_1ae6_done:
+    mov !freq_idx,a         ;1ae6  9e 56 fb
     ret                     ;1ae9  af
 
 sub_1aea:
@@ -4957,9 +4966,10 @@ lab_1b48:
     clr1 mem_fe5d.1         ;1b48  1b 5d
     ret                     ;1b4a  af
 
-sub_1b4b:
-    mov a,!mem_fb56         ;1b4b  8e 56 fb
-    bt mem_fe5c.6,lab_1b54  ;1b4e  ec 5c 03
+;Increment or decrement freq_idx based on flag mem_fe5c.6
+freq_idx_inc_dec:
+    mov a,!freq_idx         ;1b4b  8e 56 fb
+    bt mem_fe5c.6,lab_1b54  ;1b4e  ec 5c 03     Freq inc/dec flag = 1=increment
     dec a                   ;1b51  51
     br lab_1b55             ;1b52  fa 01
 
@@ -4967,7 +4977,7 @@ lab_1b54:
     inc a                   ;1b54  41
 
 lab_1b55:
-    mov !mem_fb56,a         ;1b55  9e 56 fb
+    mov !freq_idx,a         ;1b55  9e 56 fb
     ret                     ;1b58  af
 
 sub_1b59:
@@ -5086,7 +5096,7 @@ sub_1bff:
     mov x,#0x02             ;1c14  a0 02
     mulu x                  ;1c16  31 88
     mov a,[hl+0x04]         ;1c18  ae 04
-    mov !mem_fb59,a         ;1c1a  9e 59 fb
+    mov !freq_idx_max,a     ;1c1a  9e 59 fb
     mov b,#0x02             ;1c1d  a3 02
     movw hl,#mem_f1b2       ;1c1f  16 b2 f1
     mov a,x                 ;1c22  60
@@ -5103,19 +5113,19 @@ lab_1c28:
     ret                     ;1c31  af
 
 sub_1c32:
-    mov a,!mem_f1e7         ;1c32  8e e7 f1
-    and a,#0x07             ;1c35  5d 07
-    mov b,a                 ;1c37  73
-    movw hl,#mem_ad34+1     ;1c38  16 35 ad
-    callf !sub_0c48         ;1c3b  4c 48        Load DE with word at position B in table [HL]
-    movw ax,de              ;1c3d  c4
-    movw hl,ax              ;1c3e  d6
-    decw hl                 ;1c3f  96
-    mov a,[hl]              ;1c40  87
-    incw hl                 ;1c41  86
-    mov x,a                 ;1c42  70
-    mov b,a                 ;1c43  73
-    mov c,#0x00             ;1c44  a2 00
+    mov a,!mem_f1e7                 ;1c32  8e e7 f1
+    and a,#0x07                     ;1c35  5d 07
+    mov b,a                         ;1c37  73
+    movw hl,#mem_ad34_freq_tables+1 ;1c38  16 35 ad     Table of pointers to frequency info tables
+    callf !sub_0c48                 ;1c3b  4c 48        Load DE with word at position B in table [HL]
+    movw ax,de                      ;1c3d  c4
+    movw hl,ax                      ;1c3e  d6
+    decw hl                         ;1c3f  96
+    mov a,[hl]                      ;1c40  87
+    incw hl                         ;1c41  86
+    mov x,a                         ;1c42  70
+    mov b,a                         ;1c43  73
+    mov c,#0x00                     ;1c44  a2 00
 
 lab_1c46:
     mov a,[hl+c]            ;1c46  aa
@@ -5210,48 +5220,48 @@ lab_1cbf:
     movw ax,de              ;1cc3  c4
     br ax                   ;1cc4  31 98
 
-lab_1cc6:
-    mov a,mem_fe20          ;1cc6  f0 20
-    cmp a,#0x02             ;1cc8  4d 02
-    bz lab_1cd0             ;1cca  ad 04
-    cmp a,#0x03             ;1ccc  4d 03
-    bnz lab_1d01            ;1cce  bd 31
+lab_1cc6_maybe_freq_inc_dec:
+    mov a,mem_fe20                  ;1cc6  f0 20
+    cmp a,#0x02                     ;1cc8  4d 02
+    bz lab_1cd0                     ;1cca  ad 04
+    cmp a,#0x03                     ;1ccc  4d 03
+    bnz lab_1d01_call_sub_1d4f_ret  ;1cce  bd 31
 
 lab_1cd0:
-    call !sub_1b4b          ;1cd0  9a 4b 1b
-    call !sub_1ad1          ;1cd3  9a d1 1a
-    call !sub_609e          ;1cd6  9a 9e 60
-    call !sub_0845          ;1cd9  9a 45 08
+    call !freq_idx_inc_dec    ;1cd0  9a 4b 1b   Increment or decrement freq_idx based on flag mem_fe5c.6
+    call !freq_idx_constrain  ;1cd3  9a d1 1a   Constrain freq_idx to its allowed range
+    call !sub_609e            ;1cd6  9a 9e 60
+    call !sub_0845            ;1cd9  9a 45 08
 
 lab_1cdc:
-    bf mem_fe5b.4,lab_1d04  ;1cdc  31 43 5b 24
-    bf mem_fe5b.5,lab_1d05  ;1ce0  31 53 5b 21
-    call !sub_085d          ;1ce4  9a 5d 08
+    bf mem_fe5b.4,lab_1d04_ret  ;1cdc  31 43 5b 24
+    bf mem_fe5b.5,lab_1d05      ;1ce0  31 53 5b 21
+    call !sub_085d              ;1ce4  9a 5d 08
 
 lab_1ce7:
-    bf mem_fe5b.6,lab_1d04  ;1ce7  31 63 5b 19
-    bf mem_fe5b.7,lab_1d05  ;1ceb  31 73 5b 16
-    call !sub_0800          ;1cef  9a 00 08     Return mem_f253 in A, also copy it into mem_fb58
-    cmp a,#0x02             ;1cf2  4d 02
-    bz lab_1d01             ;1cf4  ad 0b
-    call !sub_1d6e          ;1cf6  9a 6e 1d
+    bf mem_fe5b.6,lab_1d04_ret    ;1ce7  31 63 5b 19
+    bf mem_fe5b.7,lab_1d05        ;1ceb  31 73 5b 16
+    call !sub_0800                ;1cef  9a 00 08     Return mem_f253 in A, also copy it into mem_fb58
+    cmp a,#0x02                   ;1cf2  4d 02
+    bz lab_1d01_call_sub_1d4f_ret ;1cf4  ad 0b
+    call !sub_1d6e                ;1cf6  9a 6e 1d
 
 lab_1cf9:
-    bf mem_fe5c.0,lab_1d04  ;1cf9  31 03 5c 07
-    bf mem_fe5c.1,lab_1d05  ;1cfd  31 13 5c 04
+    bf mem_fe5c.0,lab_1d04_ret    ;1cf9  31 03 5c 07
+    bf mem_fe5c.1,lab_1d05        ;1cfd  31 13 5c 04
 
-lab_1d01:
+lab_1d01_call_sub_1d4f_ret:
     call !sub_1d4f          ;1d01  9a 4f 1d
 
-lab_1d04:
+lab_1d04_ret:
     ret                     ;1d04  af
 
 lab_1d05:
-    call !sub_1a73          ;1d05  9a 73 1a
-    cmp a,!mem_fb56         ;1d08  48 56 fb
-    bnz lab_1cc6            ;1d0b  bd b9
-    set1 mem_fe5b.3         ;1d0d  3a 5b
-    br lab_1d01             ;1d0f  fa f0
+    call !sub_1a73                  ;1d05  9a 73 1a
+    cmp a,!freq_idx                 ;1d08  48 56 fb
+    bnz lab_1cc6_maybe_freq_inc_dec ;1d0b  bd b9
+    set1 mem_fe5b.3                 ;1d0d  3a 5b
+    br lab_1d01_call_sub_1d4f_ret   ;1d0f  fa f0
 
 lab_1d11:
     mov a,!mem_fb63         ;1d11  8e 63 fb
@@ -6506,6 +6516,7 @@ sub_24f1:
     movw hl,#mem_fe23       ;24fd  16 23 fe
     mov b,#0x01             ;2500  a3 01
     call !sub_0bef          ;2502  9a ef 0b
+
     movw hl,#mem_fb70       ;2505  16 70 fb
     mov b,#0x07             ;2508  a3 07
     br !sub_0bf6            ;250a  9b f6 0b
@@ -12758,6 +12769,7 @@ sub_4495:
     movw hl,#mem_fe30       ;4498  16 30 fe
     mov b,#0x01             ;449b  a3 01
     callf !sub_0bef         ;449d  3c ef
+
     movw hl,#mem_f18f       ;449f  16 8f f1
     mov b,#0x03             ;44a2  a3 03
     br !sub_0bf6            ;44a4  9b f6 0b
@@ -18498,7 +18510,7 @@ sub_60ac:
     mov x,a                 ;60bb  70
     mov a,[hl+0x01]         ;60bc  ae 01
     cmp a,#0x02             ;60be  4d 02
-    mov a,!mem_fb56         ;60c0  8e 56 fb
+    mov a,!freq_idx         ;60c0  8e 56 fb
     bnz lab_60c7            ;60c3  bd 02
     clr1 cy                 ;60c5  21
     rorc a,1                ;60c6  25
@@ -18526,7 +18538,7 @@ lab_60dd:
     mov a,[hl+0x07]         ;60ec  ae 07
 
 lab_60ee:
-    sub a,!mem_fb56         ;60ee  18 56 fb
+    sub a,!freq_idx         ;60ee  18 56 fb
     bnc lab_60f4            ;60f1  9d 01
     dec x                   ;60f3  50
 
@@ -18540,7 +18552,7 @@ lab_60f8:
     mov a,[hl+0x03]         ;60fb  ae 03
 
 lab_60fd:
-    add a,!mem_fb56         ;60fd  08 56 fb
+    add a,!freq_idx         ;60fd  08 56 fb
     xch a,x                 ;6100  30
     addc a,#0x00            ;6101  2d 00
     xch a,x                 ;6103  30
@@ -18555,7 +18567,7 @@ lab_6106:
     bnz lab_611f            ;6111  bd 0c
     push ax                 ;6113  b1
     mov a,#0x01             ;6114  a1 01
-    cmp a,!mem_fb56         ;6116  48 56 fb
+    cmp a,!freq_idx         ;6116  48 56 fb
     pop ax                  ;6119  b0
     bnz lab_611f            ;611a  bd 03
     xch a,x                 ;611c  30
@@ -18700,7 +18712,7 @@ sub_61e7:
     bc lab_6209             ;61fb  8d 0c        Branch if table lookup failed
     movw ax,de              ;61fd  c4
     movw hl,ax              ;61fe  d6
-    mov a,!mem_fb56         ;61ff  8e 56 fb
+    mov a,!freq_idx         ;61ff  8e 56 fb
     call !sub_0b0d          ;6202  9a 0d 0b     Find A in table [HL] and load its position in B
     bnc lab_6209            ;6205  9d 02        Branch if find failed
 
@@ -20796,55 +20808,61 @@ sub_6ea7_ret:
     ret                     ;6ea7  af
 
 lab_6ea8:
-    cmp a,#0xff             ;6ea8  4d ff
-    bz lab_6eb1             ;6eaa  ad 05
-    and a,#0b01111111       ;6eac  5d 7f        Mask off bit 7
-    call !sub_6eb2          ;6eae  9a b2 6e
+    cmp a,#0xff                 ;6ea8  4d ff
+    bz lab_6eb1                 ;6eaa  ad 05
+    and a,#0b01111111           ;6eac  5d 7f        Mask off bit 7
+    call !freq_idx_to_upd_disp  ;6eae  9a b2 6e     Write the frequency in upd_disp
 
 lab_6eb1:
     ret                     ;6eb1  af
 
-sub_6eb2:
+freq_idx_to_upd_disp:
     push ax                 ;6eb2  b1
-    call !sub_6ebb          ;6eb3  9a bb 6e
+    call !freq_idx_to_bcd   ;6eb3  9a bb 6e
     pop ax                  ;6eb6  b0
     mov b,a                 ;6eb7  73
-    br !lab_6f40            ;6eb8  9b 40 6f     Write BCD word at mem_fed4 to upd_disp
+    br !freq_bcd_to_upd_disp;6eb8  9b 40 6f     Write BCD word at mem_fed4 to upd_disp
 
-sub_6ebb:
-    call !sub_0800          ;6ebb  9a 00 08     Return mem_f253 in A, also copy it into mem_fb58
-    mov mem_fed6,a          ;6ebe  f2 d6
-    mov a,!mem_f1e7         ;6ec0  8e e7 f1
-    mov x,a                 ;6ec3  70
-    mov a,!mem_fb56         ;6ec4  8e 56 fb
-    dec a                   ;6ec7  51
-    cmp mem_fed6,#0x02      ;6ec8  c8 d6 02
-    bz lab_6f06             ;6ecb  ad 39
-    xch a,x                 ;6ecd  30
-    cmp a,#0x01             ;6ece  4d 01
-    xch a,x                 ;6ed0  30
-    bz lab_6efe             ;6ed1  ad 2b
-    xch a,x                 ;6ed3  30
-    cmp a,#0x02             ;6ed4  4d 02
-    xch a,x                 ;6ed6  30
-    bz lab_6ef6             ;6ed7  ad 1d
-    xch a,x                 ;6ed9  30
-    cmp a,#0x03             ;6eda  4d 03
-    xch a,x                 ;6edc  30
-    bz lab_6ef6             ;6edd  ad 17
-    xch a,x                 ;6edf  30
-    cmp a,#0x07             ;6ee0  4d 07
-    xch a,x                 ;6ee2  30
-    bnz lab_6eea            ;6ee3  bd 05
-    movw bc,#0x02f7         ;6ee5  12 f7 02     BC = 759
-    br lab_6eed             ;6ee8  fa 03
+freq_idx_to_bcd:
+    call !sub_0800                  ;6ebb  9a 00 08     Return mem_f253 in A, also copy it into mem_fb58
+    mov mem_fed6,a                  ;6ebe  f2 d6
 
-lab_6eea:
-;A = 7
+    mov a,!mem_f1e7                 ;6ec0  8e e7 f1
+    mov x,a                         ;6ec3  70
+
+    mov a,!freq_idx                 ;6ec4  8e 56 fb
+    dec a                           ;6ec7  51
+
+    cmp mem_fed6,#0x02              ;6ec8  c8 d6 02
+    bz lab_6f06_mem_fed6_eq_2       ;6ecb  ad 39
+
+    xch a,x                         ;6ecd  30
+    cmp a,#0x01                     ;6ece  4d 01
+    xch a,x                         ;6ed0  30
+    bz lab_6efe_mem_f1e7_eq_1       ;6ed1  ad 2b
+
+    xch a,x                         ;6ed3  30
+    cmp a,#0x02                     ;6ed4  4d 02
+    xch a,x                         ;6ed6  30
+    bz lab_6ef6_mem_f1e7_eq_2_or_3  ;6ed7  ad 1d
+
+    xch a,x                         ;6ed9  30
+    cmp a,#0x03                     ;6eda  4d 03
+    xch a,x                         ;6edc  30
+    bz lab_6ef6_mem_f1e7_eq_2_or_3  ;6edd  ad 17
+
+    xch a,x                         ;6edf  30
+    cmp a,#0x07                     ;6ee0  4d 07
+    xch a,x                         ;6ee2  30
+    bnz lab_6eea_mem_f1e7_ne_7      ;6ee3  bd 05
+
+    movw bc,#0x02f7                 ;6ee5  12 f7 02     BC = 759
+    br lab_6eed_mem_f1e7_eq_7       ;6ee8  fa 03
+
+lab_6eea_mem_f1e7_ne_7:
     movw bc,#0x036d         ;6eea  12 6d 03     BC = 877
 
-lab_6eed:
-;A != 2, 3, 7
+lab_6eed_mem_f1e7_eq_7:
     clr1 cy                 ;6eed  21
     rolc a,1                ;6eee  27
     mov x,a                 ;6eef  70
@@ -20852,21 +20870,19 @@ lab_6eed:
     addc a,#0x00            ;6ef2  2d 00
     br lab_6f37             ;6ef4  fa 41
 
-lab_6ef6:
-;A = 2, 3
+lab_6ef6_mem_f1e7_eq_2_or_3:
     movw bc,#0x036b         ;6ef6  12 6b 03     BC = 875
     mov x,a                 ;6ef9  70
     mov a,#0x00             ;6efa  a1 00
     br lab_6f37             ;6efc  fa 39
 
-lab_6efe:
-;A = 1
+lab_6efe_mem_f1e7_eq_1:
     movw bc,#0x02f8         ;6efe  12 f8 02     BC = 760
     mov x,a                 ;6f01  70
     mov a,#0x00             ;6f02  a1 00
     br lab_6f37             ;6f04  fa 31
 
-lab_6f06:
+lab_6f06_mem_fed6_eq_2:
     movw bc,#0x020a         ;6f06  12 0a 02     BC = 522
     xch a,x                 ;6f09  30
     cmp a,#0x01             ;6f0a  4d 01
@@ -20912,7 +20928,7 @@ lab_6f37:
                             ;                       mem_fed5: BCD high byte
     ret                     ;6f3f  af
 
-lab_6f40:
+freq_bcd_to_upd_disp:
     push hl                 ;6f40  b7
     mov a,mem_fed4          ;6f41  f0 d4        A = BCD low byte
     call !write_digit       ;6f43  9a 6c 6f     Convert A to ASCII, write to buf at offset B, decr B
@@ -25988,9 +26004,11 @@ sub_8f8f:
     movw hl,#mem_fe4c       ;8f92  16 4c fe
     mov b,#0x03             ;8f95  a3 03
     call !sub_0bef          ;8f97  9a ef 0b
+
     movw hl,#mem_fc85       ;8f9a  16 85 fc
     mov b,#0x02             ;8f9d  a3 02
     br !sub_0bf6            ;8f9f  9b f6 0b
+
 sub_8fa2:
     bt mem_fe7d.2,lab_8fe3  ;8fa2  ac 7d 3e
 
@@ -30055,6 +30073,7 @@ sub_aa9c:
     movw hl,#mem_fe58       ;aa9f  16 58 fe
     mov b,#0x01             ;aaa2  a3 01
     callf !sub_0bef         ;aaa4  3c ef
+
     movw hl,#mem_fc9b       ;aaa6  16 9b fc
     mov b,#0x02             ;aaa9  a3 02
     br !sub_0bf6            ;aaab  9b f6 0b
@@ -30621,7 +30640,8 @@ lab_ac4e:
     .byte 0xff              ;ad32  ff          DATA 0xff
     .byte 0x16              ;ad33  16          DATA 0x16
 
-mem_ad34:
+mem_ad34_freq_tables:
+;Table of pointers to frequency info tables
 ;table of words used with sub_0c48
     .byte 0x08              ;ad34  08          DATA 0x08        8 entries below:
     .word mem_ad45+1
@@ -30634,12 +30654,12 @@ mem_ad34:
     .word mem_ad99+1
 
 mem_ad45:
-    .byte 0x03              ;ad45  03          DATA 0x03
-    .byte 0x10              ;ad46  10          DATA 0x10
-    .byte 0x04              ;ad47  04          DATA 0x04
-    .byte 0x07              ;ad48  07          DATA 0x07
-    .byte 0xac              ;ad49  ac          DATA 0xac
-    .byte 0x66              ;ad4a  66          DATA 0x66 'f'
+    .byte 0x03              ;ad45  03          DATA 0x03        ?
+    .byte 0x10              ;ad46  10          DATA 0x10        0
+    .byte 0x04              ;ad47  04          DATA 0x04        1
+    .byte 0x07              ;ad48  07          DATA 0x07        2
+    .byte 0xac              ;ad49  ac          DATA 0xac        3
+    .byte 0x66              ;ad4a  66          DATA 0x66 'f'    4 = 0x66
     .byte 0x3b              ;ad4b  3b          DATA 0x3b ';'
     .byte 0x11              ;ad4c  11          DATA 0x11
     .byte 0x04              ;ad4d  04          DATA 0x04
@@ -30657,12 +30677,12 @@ mem_ad45:
     .byte 0xc4              ;ad59  c4          DATA 0xc4
 
 mem_ad5a:
-    .byte 0x03              ;ad5a  03          DATA 0x03
-    .byte 0x10              ;ad5b  10          DATA 0x10
-    .byte 0x02              ;ad5c  02          DATA 0x02
-    .byte 0x06              ;ad5d  06          DATA 0x06
-    .byte 0xc4              ;ad5e  c4          DATA 0xc4
-    .byte 0x8d              ;ad5f  8d          DATA 0x8d
+    .byte 0x03              ;ad5a  03          DATA 0x03        ?
+    .byte 0x10              ;ad5b  10          DATA 0x10        0
+    .byte 0x02              ;ad5c  02          DATA 0x02        1
+    .byte 0x06              ;ad5d  06          DATA 0x06        2
+    .byte 0xc4              ;ad5e  c4          DATA 0xc4        3
+    .byte 0x8d              ;ad5f  8d          DATA 0x8d        4 = 0x8d
     .byte 0x00              ;ad60  00          DATA 0x00
     .byte 0x11              ;ad61  11          DATA 0x11
     .byte 0x02              ;ad62  02          DATA 0x02
@@ -30680,12 +30700,12 @@ mem_ad5a:
     .byte 0xcb              ;ad6e  cb          DATA 0xcb
 
 mem_ad6f:
-    .byte 0x03              ;ad6f  03          DATA 0x03
-    .byte 0x10              ;ad70  10          DATA 0x10
-    .byte 0x02              ;ad71  02          DATA 0x02
-    .byte 0x07              ;ad72  07          DATA 0x07
-    .byte 0xaa              ;ad73  aa          DATA 0xaa
-    .byte 0xce              ;ad74  ce          DATA 0xce
+    .byte 0x03              ;ad6f  03          DATA 0x03        ?
+    .byte 0x10              ;ad70  10          DATA 0x10        0
+    .byte 0x02              ;ad71  02          DATA 0x02        1
+    .byte 0x07              ;ad72  07          DATA 0x07        2
+    .byte 0xaa              ;ad73  aa          DATA 0xaa        3
+    .byte 0xce              ;ad74  ce          DATA 0xce        4 = 0xce
     .byte 0x3a              ;ad75  3a          DATA 0x3a ':'
     .byte 0x11              ;ad76  11          DATA 0x11
     .byte 0x02              ;ad77  02          DATA 0x02
@@ -30703,12 +30723,12 @@ mem_ad6f:
     .byte 0xc2              ;ad83  c2          DATA 0xc2
 
 mem_ad84:
-    .byte 0x03              ;ad84  03          DATA 0x03
-    .byte 0x10              ;ad85  10          DATA 0x10
-    .byte 0x02              ;ad86  02          DATA 0x02
-    .byte 0x07              ;ad87  07          DATA 0x07
-    .byte 0xaa              ;ad88  aa          DATA 0xaa
-    .byte 0xce              ;ad89  ce          DATA 0xce
+    .byte 0x03              ;ad84  03          DATA 0x03        ?
+    .byte 0x10              ;ad85  10          DATA 0x10        0
+    .byte 0x02              ;ad86  02          DATA 0x02        1
+    .byte 0x07              ;ad87  07          DATA 0x07        2
+    .byte 0xaa              ;ad88  aa          DATA 0xaa        3
+    .byte 0xce              ;ad89  ce          DATA 0xce        4 = 0xce
     .byte 0x3a              ;ad8a  3a          DATA 0x3a ':'
     .byte 0x11              ;ad8b  11          DATA 0x11
     .byte 0x02              ;ad8c  02          DATA 0x02
@@ -30726,12 +30746,12 @@ mem_ad84:
     .byte 0xc2              ;ad98  c2          DATA 0xc2
 
 mem_ad99:
-    .byte 0x03              ;ad99  03          DATA 0x03
-    .byte 0x10              ;ad9a  10          DATA 0x10
-    .byte 0x04              ;ad9b  04          DATA 0x04
-    .byte 0x06              ;ad9c  06          DATA 0x06
-    .byte 0xc0              ;ad9d  c0          DATA 0xc0
-    .byte 0xa2              ;ad9e  a2          DATA 0xa2
+    .byte 0x03              ;ad99  03          DATA 0x03        ?
+    .byte 0x10              ;ad9a  10          DATA 0x10        0
+    .byte 0x04              ;ad9b  04          DATA 0x04        1
+    .byte 0x06              ;ad9c  06          DATA 0x06        2
+    .byte 0xc0              ;ad9d  c0          DATA 0xc0        3
+    .byte 0xa2              ;ad9e  a2          DATA 0xa2        4 = 0xa2
     .byte 0x00              ;ad9f  00          DATA 0x00
     .byte 0x11              ;ada0  11          DATA 0x11
     .byte 0x04              ;ada1  04          DATA 0x04
@@ -30750,12 +30770,12 @@ mem_ad99:
     .byte 0x1a              ;adae  1a          DATA 0x1a
 
 mem_adaf:
-    .byte 0x98              ;adaf  98          DATA 0x98
-    .byte 0x16              ;adb0  16          DATA 0x16
-    .byte 0x2e              ;adb1  2e          DATA 0x2e '.'
-    .byte 0x17              ;adb2  17          DATA 0x17
-    .byte 0x2b              ;adb3  2b          DATA 0x2b '+'
-    .byte 0x17              ;adb4  17          DATA 0x17
+    .byte 0x98              ;adaf  98          DATA 0x98        ?
+    .byte 0x16              ;adb0  16          DATA 0x16        0
+    .byte 0x2e              ;adb1  2e          DATA 0x2e '.'    1
+    .byte 0x17              ;adb2  17          DATA 0x17        2
+    .byte 0x2b              ;adb3  2b          DATA 0x2b '+'    3
+    .byte 0x17              ;adb4  17          DATA 0x17        4 = 0x17
     .byte 0xe2              ;adb5  e2          DATA 0xe2
     .byte 0x17              ;adb6  17          DATA 0x17
     .byte 0xef              ;adb7  ef          DATA 0xef
@@ -30841,7 +30861,7 @@ mem_ae0e:
     .word lab_1d7b
     .word lab_1d7b
     .word lab_1cf9
-    .word lab_1cc6
+    .word lab_1cc6_maybe_freq_inc_dec   ;Frequency inc/dec if mem_fe20 = 2,3
 
 mem_ae25:
     .byte 0x01              ;ae25  01          DATA 0x01
@@ -31771,7 +31791,7 @@ mem_b18f:
     .word mem_af70          ;DATA
     .word mem_fe30          ;DATA
     .word mem_af70          ;DATA
-    .word mem_fb56          ;DATA
+    .word freq_idx          ;DATA
     .word mem_f225          ;DATA
     .word mem_fe57          ;DATA
     .word mem_f257          ;DATA
@@ -39545,6 +39565,7 @@ sub_d8fd:
     movw hl,#mem_fe44       ;d900  16 44 fe
     mov b,#0x06             ;d903  a3 06
     callf !sub_0bef         ;d905  3c ef
+
     movw hl,#mem_fc48       ;d907  16 48 fc
     mov b,#0x25             ;d90a  a3 25
     callf !sub_0bf6         ;d90c  3c f6
