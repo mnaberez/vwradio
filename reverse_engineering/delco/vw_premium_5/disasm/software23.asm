@@ -189,19 +189,60 @@ mem_f218 = 0xf218           ;EEPROM 0075  Fault 65535 - Internal Control Module 
 mem_f219 = 0xf219           ;EEPROM 0076
 mem_f21a = 0xf21a           ;EEPROM 0077
 
-mem_f225 = 0xf225           ;EEPROM 0082
+mem_f225 = 0xf225           ;EEPROM 0082  FM1 Current Frequency Index
+
+                            ;EEPROM 0084  FM1 Preset 1 Frequency Index
+
+                            ;EEPROM 0086  FM1 Preset 2 Frequency Index
+
+                            ;EEPROM 0088  FM1 Preset 3 Frequency Index
+
+                            ;EEPROM 008A  FM1 Preset 4 Frequency Index
+
+                            ;EEPROM 008C  FM1 Preset 5 Frequency Index
+
+                            ;EEPROM 008E  FM1 Preset 6 Frequency Index
+
+                            ;EEPROM 0090  FM2 Current Frequency Index
+
+                            ;EEPROM 0092  FM2 Preset 1 Frequency Index
+
+                            ;EEPROM 0094  FM2 Preset 2 Frequency Index
+
+                            ;EEPROM 0096  FM2 Preset 3 Frequency Index
+
+                            ;EEPROM 0098  FM2 Preset 4 Frequency Index
+
+                            ;EEPROM 009A  FM2 Preset 5 Frequency Index
+
+                            ;EEPROM 009C  FM2 Preset 6 Frequency Index
+
+                            ;EEPROM 009E  AM Current Frequency Index
+
+                            ;EEPROM 00A0  AM Preset 1 Frequency Index
+
+                            ;EEPROM 00A2  AM Preset 2 Frequency Index
+
+                            ;EEPROM 00A4  AM Preset 3 Frequency Index
+
+                            ;EEPROM 00A6  AM Preset 4 Frequency Index
+
+                            ;EEPROM 00A8  AM Preset 5 Frequency Index
+
+                            ;EEPROM 00AA  AM Preset 6 Frequency Index
 
 mem_f24f = 0xf24f           ;EEPROM 00AC
 
 mem_f252 = 0xf252           ;EEPROM 00AF
 mem_f253 = 0xf253           ;EEPROM 00B0
-mem_f254 = 0xf254           ;EEPROM 00B1
+mem_f254 = 0xf254           ;EEPROM 00B1  ONVOL
 mem_f255 = 0xf255           ;EEPROM 00B2
 mem_f256 = 0xf256           ;EEPROM 00B3
-mem_f257 = 0xf257           ;EEPROM 00B4
-mem_f258 = 0xf258           ;EEPROM 00B5
-mem_f259 = 0xf259           ;EEPROM 00B6
-
+mem_f257 = 0xf257           ;EEPROM 00B4  FADE = CENTER
+mem_f258 = 0xf258           ;EEPROM 00B5  BAL = CENTER
+mem_f259 = 0xf259           ;EEPROM 00B6  BASS = 0
+                            ;EEPROM 00B7  MID = 0
+                            ;EEPROM 00B8  TREB = 0
 mem_f25c = 0xf25c           ;EEPROM 00B9
 
 mem_f25f = 0xf25f           ;EEPROM 00BC
@@ -1031,15 +1072,15 @@ mem_00cf:
     .byte 0x00              ;00d3  00          DATA 0x00        -> mem_f20a   EEPROM 0067
     .byte 0x00              ;00d4  00          DATA 0x00        -> mem_f20b   EEPROM 0068
     .byte 0x45              ;00d5  45          DATA 0x45 'E'    -> mem_f20c   EEPROM 0069
-    .byte 0x88              ;00d6  88          DATA 0x88        -> mem_f20d   EEPROM 006A
-    .byte 0x88              ;00d7  88          DATA 0x88        -> mem_f20e   EEPROM 006B
-    .byte 0x88              ;00d8  88          DATA 0x88        -> mem_f20f   EEPROM 006C
-    .byte 0x88              ;00d9  88          DATA 0x88        -> mem_f210   EEPROM 006D
-    .byte 0x88              ;00da  88          DATA 0x88        -> mem_f211   EEPROM 006E
-    .byte 0x88              ;00db  88          DATA 0x88        -> mem_f212   EEPROM 006F
-    .byte 0x88              ;00dc  88          DATA 0x88        -> mem_f213   EEPROM 0070
-    .byte 0x88              ;00dd  88          DATA 0x88        -> mem_f214   EEPROM 0071
-    .byte 0x88              ;00de  88          DATA 0x88        -> mem_f215   EEPROM 0072
+    .byte 0x88              ;00d6  88          DATA 0x88        -> mem_f20d   EEPROM 006A   Fault 00668 - Supply Voltage Terminal 30
+    .byte 0x88              ;00d7  88          DATA 0x88        -> mem_f20e   EEPROM 006B   Fault 00849 - S-contact at Ignition/Starter Switch (D)
+    .byte 0x88              ;00d8  88          DATA 0x88        -> mem_f20f   EEPROM 006C   Fault 00850 - Control Output Active; Radio Amplifier
+    .byte 0x88              ;00d9  88          DATA 0x88        -> mem_f210   EEPROM 006D   Fault 00851 - Loudspeaker(s)
+    .byte 0x88              ;00da  88          DATA 0x88        -> mem_f211   EEPROM 006E   Fault 00852 - Loudspeaker(s); Front
+    .byte 0x88              ;00db  88          DATA 0x88        -> mem_f212   EEPROM 006F   Fault 00853 - Loudspeaker(s); Rear
+    .byte 0x88              ;00dc  88          DATA 0x88        -> mem_f213   EEPROM 0070   Fault 00854 - Radio Display Output in Dash Panel Insert
+    .byte 0x88              ;00dd  88          DATA 0x88        -> mem_f214   EEPROM 0071   Fault 00855 - Connection to CD changer
+    .byte 0x88              ;00de  88          DATA 0x88        -> mem_f215   EEPROM 0072   Fault 00856 - Radio Antenna
     .byte 0x23              ;00df  23          DATA 0x23 '#'    -> mem_f216   EEPROM 0073
     .byte 0x88              ;00e0  88          DATA 0x88        -> mem_f217   EEPROM 0074
     .byte 0x88              ;00e1  88          DATA 0x88        -> mem_f218   EEPROM 0075
@@ -1058,61 +1099,61 @@ mem_00cf:
 
 mem_00ee:
 ;Defaults written to mem_f225 - mem_f26b
-    .byte 0x04              ;00ee  04          DATA 0x04        -> mem_f225   EEPROM 0082
+    .byte 0x04              ;00ee  04          DATA 0x04        -> mem_f225   EEPROM 0082   FM1 Current Frequency Index = 88.3 MHz
     .byte 0x06              ;00ef  06          DATA 0x06        -> mem_f226   EEPROM 0083
-    .byte 0x04              ;00f0  04          DATA 0x04        -> mem_f227   EEPROM 0084
+    .byte 0x04              ;00f0  04          DATA 0x04        -> mem_f227   EEPROM 0084   FM1 Preset 1 Frequency Index = 88.3 MHz
     .byte 0x06              ;00f1  06          DATA 0x06        -> mem_f228   EEPROM 0085
-    .byte 0x08              ;00f2  08          DATA 0x08        -> mem_f229   EEPROM 0086
+    .byte 0x08              ;00f2  08          DATA 0x08        -> mem_f229   EEPROM 0086   FM1 Preset 2 Frequency Index = 89.1 MHz
     .byte 0x06              ;00f3  06          DATA 0x06        -> mem_f22a   EEPROM 0087
-    .byte 0x21              ;00f4  21          DATA 0x21 '!'    -> mem_f22b   EEPROM 0088
+    .byte 0x21              ;00f4  21          DATA 0x21 '!'    -> mem_f22b   EEPROM 0088   FM1 Preset 3 Frequency Index = 94.1 MHz
     .byte 0x06              ;00f5  06          DATA 0x06        -> mem_f22c   EEPROM 0089
-    .byte 0x3a              ;00f6  3a          DATA 0x3a ':'    -> mem_f22d   EEPROM 008A
+    .byte 0x3a              ;00f6  3a          DATA 0x3a ':'    -> mem_f22d   EEPROM 008A   FM1 Preset 4 Frequency Index = 99.1 MHz
     .byte 0x06              ;00f7  06          DATA 0x06        -> mem_f22e   EEPROM 008B
-    .byte 0x5d              ;00f8  5d          DATA 0x5d ']'    -> mem_f22f   EEPROM 008C
+    .byte 0x5d              ;00f8  5d          DATA 0x5d ']'    -> mem_f22f   EEPROM 008C   FM1 Preset 5 Frequency Index = 106.1 MHz
     .byte 0x06              ;00f9  06          DATA 0x06        -> mem_f230   EEPROM 008D
-    .byte 0x04              ;00fa  04          DATA 0x04        -> mem_f231   EEPROM 008E
+    .byte 0x04              ;00fa  04          DATA 0x04        -> mem_f231   EEPROM 008E   FM1 Preset 6 Frequency Index = 88.3 MHz
     .byte 0x06              ;00fb  06          DATA 0x06        -> mem_f232   EEPROM 008F
-    .byte 0x35              ;00fc  35          DATA 0x35 '5'    -> mem_f233   EEPROM 0090
+    .byte 0x35              ;00fc  35          DATA 0x35 '5'    -> mem_f233   EEPROM 0090   FM2 Current Frequency Index = 98.1 MHz
     .byte 0x06              ;00fd  06          DATA 0x06        -> mem_f234   EEPROM 0091
-    .byte 0x02              ;00fe  02          DATA 0x02        -> mem_f235   EEPROM 0092
+    .byte 0x02              ;00fe  02          DATA 0x02        -> mem_f235   EEPROM 0092   FM2 Preset 1 Frequency Index = 87.9 MHz
     .byte 0x06              ;00ff  06          DATA 0x06        -> mem_f236   EEPROM 0093
-    .byte 0x03              ;0100  03          DATA 0x03        -> mem_f237   EEPROM 0094
+    .byte 0x03              ;0100  03          DATA 0x03        -> mem_f237   EEPROM 0094   FM2 Preset 2 Frequency Index = 88.1 MHz
     .byte 0x06              ;0101  06          DATA 0x06        -> mem_f238   EEPROM 0095
-    .byte 0x35              ;0102  35          DATA 0x35 '5'    -> mem_f239   EEPROM 0096
+    .byte 0x35              ;0102  35          DATA 0x35 '5'    -> mem_f239   EEPROM 0096   FM2 Preset 3 Frequency Index = 98.1 MHz
     .byte 0x06              ;0103  06          DATA 0x06        -> mem_f23a   EEPROM 0097
-    .byte 0x2c              ;0104  2c          DATA 0x2c ','    -> mem_f23b   EEPROM 0098
+    .byte 0x2c              ;0104  2c          DATA 0x2c ','    -> mem_f23b   EEPROM 0098   FM2 Preset 4 Frequency Index = 96.3 MHz
     .byte 0x06              ;0105  06          DATA 0x06        -> mem_f23c   EEPROM 0099
-    .byte 0x66              ;0106  66          DATA 0x66 'f'    -> mem_f23d   EEPROM 009A
+    .byte 0x66              ;0106  66          DATA 0x66 'f'    -> mem_f23d   EEPROM 009A   FM2 Preset 5 Frequency Index = 107.9 MHz
     .byte 0x06              ;0107  06          DATA 0x06        -> mem_f23e   EEPROM 009B
-    .byte 0x51              ;0108  51          DATA 0x51 'Q'    -> mem_f23f   EEPROM 009C
+    .byte 0x51              ;0108  51          DATA 0x51 'Q'    -> mem_f23f   EEPROM 009C   FM2 Preset 6 Frequency Index = 103.7 MHz
     .byte 0x06              ;0109  06          DATA 0x06        -> mem_f240   EEPROM 009D
-    .byte 0x01              ;010a  01          DATA 0x01        -> mem_f241   EEPROM 009E
+    .byte 0x01              ;010a  01          DATA 0x01        -> mem_f241   EEPROM 009E   AM Current Frequency Index = 530 kHz
     .byte 0x06              ;010b  06          DATA 0x06        -> mem_f242   EEPROM 009F
-    .byte 0x01              ;010c  01          DATA 0x01        -> mem_f243   EEPROM 00A0
+    .byte 0x01              ;010c  01          DATA 0x01        -> mem_f243   EEPROM 00A0   AM Preset 1 Frequency Index = 530 kHz
     .byte 0x06              ;010d  06          DATA 0x06        -> mem_f244   EEPROM 00A1
-    .byte 0x08              ;010e  08          DATA 0x08        -> mem_f245   EEPROM 00A2
+    .byte 0x08              ;010e  08          DATA 0x08        -> mem_f245   EEPROM 00A2   AM Preset 2 Frequency Index = 600 kHz
     .byte 0x06              ;010f  06          DATA 0x06        -> mem_f246   EEPROM 00A3
-    .byte 0x35              ;0110  35          DATA 0x35 '5'    -> mem_f247   EEPROM 00A4
+    .byte 0x35              ;0110  35          DATA 0x35 '5'    -> mem_f247   EEPROM 00A4   AM Preset 3 Frequency Index = 1050 kHz
     .byte 0x06              ;0111  06          DATA 0x06        -> mem_f248   EEPROM 00A5
-    .byte 0x58              ;0112  58          DATA 0x58 'X'    -> mem_f249   EEPROM 00A6
+    .byte 0x58              ;0112  58          DATA 0x58 'X'    -> mem_f249   EEPROM 00A6   AM Preset 4 Frequency Index = 1400 kHz
     .byte 0x06              ;0113  06          DATA 0x06        -> mem_f24a   EEPROM 00A7
-    .byte 0x77              ;0114  77          DATA 0x77 'w'    -> mem_f24b   EEPROM 00A8
+    .byte 0x77              ;0114  77          DATA 0x77 'w'    -> mem_f24b   EEPROM 00A8   AM Preset 5 Frequency Index = 1710 kHz
     .byte 0x06              ;0115  06          DATA 0x06        -> mem_f24c   EEPROM 00A9
-    .byte 0x01              ;0116  01          DATA 0x01        -> mem_f24d   EEPROM 00AA
+    .byte 0x01              ;0116  01          DATA 0x01        -> mem_f24d   EEPROM 00AA   AM Preset 6 Frequency Index = 530 kHz
     .byte 0x06              ;0117  06          DATA 0x06        -> mem_f24e   EEPROM 00AB
     .byte 0x06              ;0118  06          DATA 0x06        -> mem_f24f   EEPROM 00AC
     .byte 0x06              ;0119  06          DATA 0x06        -> mem_f250   EEPROM 00AD
     .byte 0x06              ;011a  06          DATA 0x06        -> mem_f251   EEPROM 00AE
     .byte 0x00              ;011b  00          DATA 0x00        -> mem_f252   EEPROM 00AF
     .byte 0x01              ;011c  01          DATA 0x01        -> mem_f253   EEPROM 00B0
-    .byte 0x42              ;011d  42          DATA 0x42 'B'    -> mem_f254   EEPROM 00B1
+    .byte 0x42              ;011d  42          DATA 0x42 'B'    -> mem_f254   EEPROM 00B1   ONVOL = 33
     .byte 0x00              ;011e  00          DATA 0x00        -> mem_f255   EEPROM 00B2
     .byte 0x01              ;011f  01          DATA 0x01        -> mem_f256   EEPROM 00B3
-    .byte 0x0a              ;0120  0a          DATA 0x0a        -> mem_f257   EEPROM 00B4
-    .byte 0x0a              ;0121  0a          DATA 0x0a        -> mem_f258   EEPROM 00B5
-    .byte 0x0a              ;0122  0a          DATA 0x0a        -> mem_f259   EEPROM 00B6
-    .byte 0x0a              ;0123  0a          DATA 0x0a        -> mem_f25a   EEPROM 00B7
-    .byte 0x0a              ;0124  0a          DATA 0x0a        -> mem_f25b   EEPROM 00B8
+    .byte 0x0a              ;0120  0a          DATA 0x0a        -> mem_f257   EEPROM 00B4   FADE = CENTER
+    .byte 0x0a              ;0121  0a          DATA 0x0a        -> mem_f258   EEPROM 00B5   BAL = CENTER
+    .byte 0x0a              ;0122  0a          DATA 0x0a        -> mem_f259   EEPROM 00B6   BASS = 0
+    .byte 0x0a              ;0123  0a          DATA 0x0a        -> mem_f25a   EEPROM 00B7   MID = 0
+    .byte 0x0a              ;0124  0a          DATA 0x0a        -> mem_f25b   EEPROM 00B8   TREB = 0
     .byte 0x0a              ;0125  0a          DATA 0x0a        -> mem_f25c   EEPROM 00B9
     .byte 0x0a              ;0126  0a          DATA 0x0a        -> mem_f25d   EEPROM 00BA
     .byte 0x0a              ;0127  0a          DATA 0x0a        -> mem_f25e   EEPROM 00BB
@@ -5494,7 +5535,7 @@ lab_1e77:
     clr1 mem_fe5d.7         ;1e77  7b 5d
     bf mem_fe5e.0,lab_1eae  ;1e79  31 03 5e 31
     mov a,!mem_fb6e         ;1e7d  8e 6e fb
-    movw hl,#mem_f254       ;1e80  16 54 f2
+    movw hl,#mem_f254       ;1e80  16 54 f2     HL = address of ONVOL
     call !sub_1f47          ;1e83  9a 47 1f     Just calls sub_4092 and returns (Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d)
     clr1 mem_fe5e.0         ;1e86  0b 5e
     br lab_1eae             ;1e88  fa 24
@@ -5538,7 +5579,7 @@ lab_1ed0:
     br lab_1f46_ret         ;1ed4  fa 70
 
 lab_1ed6:
-    mov a,!mem_f254         ;1ed6  8e 54 f2
+    mov a,!mem_f254         ;1ed6  8e 54 f2     A=ONVOL
     mov !mem_fe57,a         ;1ed9  9e 57 fe
     mov a,!mem_fb68         ;1edc  8e 68 fb
     set1 mem_fe73.3         ;1edf  3a 73
@@ -5630,13 +5671,13 @@ lab_1f57:
     call !sub_4092          ;1f6b  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
 
     mov !mem_fb6d,a         ;1f6e  9e 6d fb
-    mov a,!mem_f254         ;1f71  8e 54 f2
+    mov a,!mem_f254         ;1f71  8e 54 f2     A=ONVOL
     bf mem_fe74.6,lab_1f86  ;1f74  31 63 74 0e
     cmp a,#0x5b             ;1f78  4d 5b
     bc lab_1f8c             ;1f7a  8d 10
 
     mov a,#0x5a             ;1f7c  a1 5a
-    movw hl,#mem_f254       ;1f7e  16 54 f2
+    movw hl,#mem_f254       ;1f7e  16 54 f2     HL = address of ONVOL
     call !sub_4092          ;1f81  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
 
     br lab_1f8c             ;1f84  fa 06
@@ -5675,7 +5716,7 @@ lab_1fbb:
     cmp a,#0x07             ;1fc2  4d 07
     bz lab_1fdb             ;1fc4  ad 15
     mov a,!mem_fe57         ;1fc6  8e 57 fe
-    movw hl,#mem_f254       ;1fc9  16 54 f2
+    movw hl,#mem_f254       ;1fc9  16 54 f2     HL = address of ONVOL
     br !sub_1f47            ;1fcc  9b 47 1f     Just calls sub_4092 and returns (Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d)
 
 lab_1fcf:
@@ -13165,7 +13206,8 @@ sub_46fc:
 ;Replies with ACK only
     call !sub_4835          ;46fc  9a 35 48     Reads rx buffer bytes 5,6 and
                             ;                     does something with mem_fe65.0
-    bc lab_4730             ;46ff  8d 2f
+    bc lab_4730             ;46ff  8d 2f        Branch if failed
+
     movw hl,ax              ;4701  d6
     mov !mem_fb9d,a         ;4702  9e 9d fb
     mov a,x                 ;4705  60
@@ -13307,7 +13349,8 @@ sub_47d2:
     call !sub_486f          ;47d7  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to mem_fb9b
     call !sub_4835          ;47da  9a 35 48     Reads rx buffer bytes 5,6 and
                             ;                     does something with mem_fe65.0
-    bc lab_47f5             ;47dd  8d 16
+    bc lab_47f5             ;47dd  8d 16        Branch if failed
+
     movw de,ax              ;47df  d4
     mov !mem_fb9d,a         ;47e0  9e 9d fb
     mov a,x                 ;47e3  60
@@ -13394,12 +13437,14 @@ lab_4834:
 
 sub_4835:
 ;Reads rx buffer bytes 5,6 and does something with mem_fe65.0
+;Sets mem_fe65.0 if out of range
+;Returns carry set on failure
     clr1 mem_fe65.0         ;4835  0b 65
     mov a,!kwp_rx_buf+5     ;4837  8e 8f f0     A = value at KWP1281 rx buffer byte 5
     mov b,a                 ;483a  73
     movw hl,#mem_b18f+1     ;483b  16 90 b1
     callf !sub_0c48         ;483e  4c 48        Load DE with word at position B in table [HL]
-    bc lab_4859             ;4840  8d 17        Branch if table lookup failed
+    bc lab_4859_ret         ;4840  8d 17        Branch if table lookup failed
     mov x,#0x00             ;4842  a0 00
     mov a,!kwp_rx_buf+6     ;4844  8e 90 f0     KWP1281 rx buffer byte 6
     bf a.7,lab_484c         ;4847  31 7f 02
@@ -13409,14 +13454,15 @@ lab_484c:
     add a,e                 ;484c  61 0c
     xch a,x                 ;484e  30
     addc a,d                ;484f  61 2d
-    cmpw ax,#0x0200         ;4851  ea 00 02
-    bnc lab_4858            ;4854  9d 02
+    cmpw ax,#0x0200         ;4851  ea 00 02     0x200 = 512 bytes in EEPROM
+    bnc lab_4858            ;4854  9d 02        Branch if address is out of range
+    ;carry is set
     set1 mem_fe65.0         ;4856  0a 65
 
 lab_4858:
     clr1 cy                 ;4858  21
 
-lab_4859:
+lab_4859_ret:
     ret                     ;4859  af
 
 sub_485a:
@@ -19631,7 +19677,7 @@ sub_67c4:
     ret                     ;67d8  af
 
 sub_67d9:
-    movw hl,#mem_f259       ;67d9  16 59 f2
+    movw hl,#mem_f259       ;67d9  16 59 f2     HL = address of BASS
     mov a,mem_fe30          ;67dc  f0 30
     inc a                   ;67de  41
     cmp mem_fe30,#0x01      ;67df  c8 30 01
@@ -21639,7 +21685,7 @@ lab_7351:
     mov b,#0xff             ;7356  a3 ff
     call !sub_6e70          ;7358  9a 70 6e     Copy message from [HL] to display buf; uses A, B
 
-    mov a,!mem_f254         ;735b  8e 54 f2     ONVOL related
+    mov a,!mem_f254         ;735b  8e 54 f2     A=ONVOL
     clr1 a.0                ;735e  61 8b
     ror a,1                 ;7360  24
     call !sub_0cf4          ;7361  9a f4 0c     Convert binary number in A to BCD number in AX
@@ -29132,7 +29178,7 @@ sub_a4fe:
     mov !mem_fc9b,a         ;a504  9e 9b fc
     mov a,#0x15             ;a507  a1 15
     mov !mem_fe57,a         ;a509  9e 57 fe
-    call !sub_a529          ;a50c  9a 29 a5
+    call !center_fade_bal   ;a50c  9a 29 a5     Set FADE=CENTER and BALANCE=CENTER
     call !sub_a53a          ;a50f  9a 3a a5
     set1 mem_fe76.7         ;a512  7a 76
 
@@ -29148,13 +29194,14 @@ sub_a514:
     set1 mem_fe77.4         ;a526  4a 77
     ret                     ;a528  af
 
-sub_a529:
-    mov a,#0x0a             ;a529  a1 0a
-    movw hl,#mem_f258       ;a52b  16 58 f2
+;Set FADE=CENTER and BALANCE=CENTER
+center_fade_bal:
+    mov a,#0x0a             ;a529  a1 0a        0x0A = CENTER
+    movw hl,#mem_f258       ;a52b  16 58 f2     BALANCE
     call !sub_4092          ;a52e  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
 
-    mov a,#0x0a             ;a531  a1 0a
-    movw hl,#mem_f257       ;a533  16 57 f2
+    mov a,#0x0a             ;a531  a1 0a        0x0A = CENTER
+    movw hl,#mem_f257       ;a533  16 57 f2     FADE
     call !sub_4092          ;a536  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
     ret                     ;a539  af
 
@@ -29618,7 +29665,7 @@ sub_a7ee:
     bz lab_a7fd             ;a7f1  ad 0a
     call !sub_a80e          ;a7f3  9a 0e a8
     movw de,ax              ;a7f6  d4
-    movw hl,#mem_f259       ;a7f7  16 59 f2
+    movw hl,#mem_f259       ;a7f7  16 59 f2     HL = address of BASS
     call !sub_a82e          ;a7fa  9a 2e a8
 
 lab_a7fd:
@@ -29629,7 +29676,7 @@ sub_a7fe:
     bz lab_a80d             ;a801  ad 0a
     call !sub_a80e          ;a803  9a 0e a8
     movw hl,ax              ;a806  d6
-    movw de,#mem_f259       ;a807  14 59 f2
+    movw de,#mem_f259       ;a807  14 59 f2     HL = address of BASS
     call !sub_a82e          ;a80a  9a 2e a8
 
 lab_a80d:
@@ -29704,7 +29751,7 @@ lab_a872:
     ret                     ;a872  af
 
 lab_a873:
-    call !sub_a529          ;a873  9a 29 a5
+    call !center_fade_bal   ;a873  9a 29 a5     Set FADE=CENTER and BALANCE=CENTER
     br lab_a865             ;a876  fa ed
 
 lab_a878:
@@ -30159,7 +30206,7 @@ sub_ab0a:
     mov b,a                 ;ab17  73
     mov a,mem_feda          ;ab18  f0 da
     mov b,a                 ;ab1a  73
-    movw hl,#mem_f259       ;ab1b  16 59 f2
+    movw hl,#mem_f259       ;ab1b  16 59 f2     HL = address of BASS
     mov a,[hl+b]            ;ab1e  ab
     bf a.7,lab_ab26         ;ab1f  31 7f 04
     mov a,#0x00             ;ab22  a1 00
@@ -30171,7 +30218,7 @@ lab_ab26:
     mov a,#0x14             ;ab2a  a1 14
 
 lab_ab2c:
-    movw hl,#mem_f259       ;ab2c  16 59 f2
+    movw hl,#mem_f259       ;ab2c  16 59 f2     HL = Address of BASS
     call !sub_408f          ;ab2f  9a 8f 40     Write A to [HL+B] then do unknown calculation with mem_f26c/mem_f26d
 
 lab_ab32:
@@ -30194,7 +30241,7 @@ sub_ab3c:
     set1 mem_fe75.3         ;ab4c  3a 75
     mov a,!mem_f268         ;ab4e  8e 68 f2
     mov b,a                 ;ab51  73
-    mov a,!mem_f254         ;ab52  8e 54 f2     ONVOL related
+    mov a,!mem_f254         ;ab52  8e 54 f2     A=ONVOL
     cmp a,b                 ;ab55  61 4b
     bc lab_ab5a             ;ab57  8d 01
     mov a,b                 ;ab59  63
