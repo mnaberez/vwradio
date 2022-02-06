@@ -233,8 +233,8 @@ mem_f225 = 0xf225           ;EEPROM 0082  FM1 Current Frequency Index
 
 mem_f24f = 0xf24f           ;EEPROM 00AC
 
-mem_f252 = 0xf252           ;EEPROM 00AF
-mem_f253 = 0xf253           ;EEPROM 00B0
+mem_f252 = 0xf252           ;EEPROM 00AF  FM1/FM2: 0x00=FM1, 0x01=FM2
+mem_f253 = 0xf253           ;EEPROM 00B0  Mode: 0x00=?, 0x01=FM1/FM2, 0x02=AM
 mem_f254 = 0xf254           ;EEPROM 00B1  ONVOL
 mem_f255 = 0xf255           ;EEPROM 00B2
 mem_f256 = 0xf256           ;EEPROM 00B3
@@ -1144,8 +1144,8 @@ mem_00ee:
     .byte 0x06              ;0118  06          DATA 0x06        -> mem_f24f   EEPROM 00AC
     .byte 0x06              ;0119  06          DATA 0x06        -> mem_f250   EEPROM 00AD
     .byte 0x06              ;011a  06          DATA 0x06        -> mem_f251   EEPROM 00AE
-    .byte 0x00              ;011b  00          DATA 0x00        -> mem_f252   EEPROM 00AF
-    .byte 0x01              ;011c  01          DATA 0x01        -> mem_f253   EEPROM 00B0
+    .byte 0x00              ;011b  00          DATA 0x00        -> mem_f252   EEPROM 00AF   FM1/FM2 = 0x00=FM1
+    .byte 0x01              ;011c  01          DATA 0x01        -> mem_f253   EEPROM 00B0   Mode = 0x01=FM1/FM2
     .byte 0x42              ;011d  42          DATA 0x42 'B'    -> mem_f254   EEPROM 00B1   ONVOL = 33
     .byte 0x00              ;011e  00          DATA 0x00        -> mem_f255   EEPROM 00B2
     .byte 0x01              ;011f  01          DATA 0x01        -> mem_f256   EEPROM 00B3
@@ -1516,8 +1516,8 @@ filler_0331:
     brk                     ;0331  bf         Force cold start via badisr_0d75
     .endm
 
-sub_0800:
-;Return mem_f253 in A, also copy it into mem_fb58
+sub_0800_mode:
+;Return mem_f253 in A (0x00=?, 0x01=FM1/FM2, 0x02=AM), also copy it into mem_fb58
     mov a,!mem_f253         ;0800  8e 53 f2     mem_fb58 = mem_f253
     mov !mem_fb58,a         ;0803  9e 58 fb
     ret                     ;0806  af
@@ -1527,8 +1527,8 @@ sub_0807:
     cmp a,!mem_fb58         ;0807  48 58 fb
     ret                     ;080a  af
 
-sub_080b:
-;Return mem_f252 in A, also copy it into mem_fb57
+sub_080b_fm1fm2:
+;Return mem_f252 in A (FM1/FM2: 0x00=FM1, 0x01=FM2), also copy it into mem_fb57
     mov a,!mem_f252         ;080b  8e 52 f2
     mov !mem_fb57,a         ;080e  9e 57 fb
     ret                     ;0811  af
@@ -1542,7 +1542,7 @@ sub_0816:
     clr1 mem_fe5b.1         ;0816  1b 5b
     clr1 mem_fe5c.5         ;0818  5b 5c
     call !sub_1c9d          ;081a  9a 9d 1c
-    call !sub_080b          ;081d  9a 0b 08         Return mem_f252 in A, also copy it into mem_fb57
+    call !sub_080b_fm1fm2   ;081d  9a 0b 08     Return mem_f252 in A (FM1/FM2: 0x00=FM1, 0x01=FM2), also copy it into mem_fb57
     call !sub_1bff          ;0820  9a ff 1b
 
 sub_0823:
@@ -1572,8 +1572,8 @@ sub_0845:
 lab_0848:
     clr1 mem_fe5b.4         ;0848  4b 5b
     clr1 mem_fe5b.5         ;084a  5b 5b
-    call !sub_0800          ;084c  9a 00 08     Return mem_f253 in A, also copy it into mem_fb58
-    mov b,a                 ;084f  73
+    call !sub_0800_mode     ;084c  9a 00 08     Return mem_f253 in A (0x00=?, 0x01=FM1/FM2, 0x02=AM), also copy it into mem_fb58
+    mov b,a                 ;084f  73           B = mode
     movw hl,#mem_b408       ;0850  16 08 b4
     mov a,[hl+b]            ;0853  ab
     mov !mem_fb63,a         ;0854  9e 63 fb
@@ -4161,7 +4161,7 @@ sub_1601:
 
     mov a,#0x00             ;1607  a1 00
     mov !mem_fb57,a         ;1609  9e 57 fb
-    movw hl,#mem_f252       ;160c  16 52 f2
+    movw hl,#mem_f252       ;160c  16 52 f2     Return mem_f252 in A (FM1/FM2: 0x00=FM1, 0x01=FM2), also copy it into mem_fb57
     call !sub_4092          ;160f  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
 
     mov a,#0x01             ;1612  a1 01
@@ -4264,7 +4264,7 @@ lab_16a7:
 lab_16b1:
     bt mem_fe5c.3,lab_16f5  ;16b1  bc 5c 41
     mov mem_fe21,#0x00      ;16b4  11 21 00
-    call !sub_080b          ;16b7  9a 0b 08     Return mem_f252 in A, also copy it into mem_fb57
+    call !sub_080b_fm1fm2   ;16b7  9a 0b 08     Return mem_f252 in A (FM1/FM2: 0x00=FM1, 0x01=FM2), also copy it into mem_fb57
     mov b,a                 ;16ba  73
     movw hl,#mem_fb5b       ;16bb  16 5b fb
     mov a,mem_fe43          ;16be  f0 43
@@ -4417,9 +4417,10 @@ lab_17a0:
     br lab_17bd             ;17a3  fa 18
 
 lab_17a5:
-    call !sub_0800          ;17a5  9a 00 08
+    call !sub_0800_mode     ;17a5  9a 00 08     Return mem_f253 in A (0x00=?, 0x01=FM1/FM2, 0x02=AM), also copy it into mem_fb58
     cmp a,#0x02             ;17a8  4d 02
     bnz lab_17b8            ;17aa  bd 0c
+    ;mem_f253=0x02 (AM)
     cmp mem_fe20,#0x02      ;17ac  c8 20 02
     bz lab_17b6             ;17af  ad 05
     cmp mem_fe20,#0x03      ;17b1  c8 20 03
@@ -4707,16 +4708,18 @@ lab_198d:
     mov mem_fe21,#0x0f      ;198d  11 21 0f
     mov a,#0x1e             ;1990  a1 1e
     mov !mem_fb09,a         ;1992  9e 09 fb
-    call !sub_0800          ;1995  9a 00 08
+    call !sub_0800_mode     ;1995  9a 00 08     Return mem_f253 in A (0x00=?, 0x01=FM1/FM2, 0x02=AM), also copy it into mem_fb58
     cmp a,#0x02             ;1998  4d 02
     bnz lab_19a1            ;199a  bd 05
+    ;mem_f253=0x02 (AM)
     mov a,#0x4b             ;199c  a1 4b
     mov !mem_fb09,a         ;199e  9e 09 fb
 
 lab_19a1:
-    call !sub_0800          ;19a1  9a 00 08
+    call !sub_0800_mode     ;19a1  9a 00 08     Return mem_f253 in A (0x00=?, 0x01=FM1/FM2, 0x02=AM), also copy it into mem_fb58
     cmp a,#0x01             ;19a4  4d 01
     bnz lab_19aa            ;19a6  bd 02
+    ;mem_f253=0x02 (FM1/FM2)
     br lab_19aa             ;19a8  fa 00
 
 lab_19aa:
@@ -4765,7 +4768,7 @@ lab_19f0:
     ret                     ;19f0  af
 
 sub_19f1:
-    call !sub_0800          ;19f1  9a 00 08     Return mem_f253 in A, also copy it into mem_fb58
+    call !sub_0800_mode     ;19f1  9a 00 08     Return mem_f253 in A (0x00=?, 0x01=FM1/FM2, 0x02=AM), also copy it into mem_fb58a
 
 sub_19f4:
     mov a,c                 ;19f4  62
@@ -4798,12 +4801,13 @@ lab_1a15:
 
 sub_1a17:
     mov b,#0x00             ;1a17  a3 00
-    call !sub_080b          ;1a19  9a 0b 08     Return mem_f252 in A, also copy it into mem_fb57
+    call !sub_080b_fm1fm2   ;1a19  9a 0b 08     Return mem_f252 in A (FM1/FM2: 0x00=FM1, 0x01=FM2), also copy it into mem_fb57
     mov !mem_fb5e,a         ;1a1c  9e 5e fb
-    call !sub_0800          ;1a1f  9a 00 08     Return mem_f253 in A, also copy it into mem_fb58
+    call !sub_0800_mode     ;1a1f  9a 00 08     Return mem_f253 in A (0x00=?, 0x01=FM1/FM2, 0x02=AM), also copy it into mem_fb58
     cmp a,#0x01             ;1a22  4d 01
     bnz sub_1a2c            ;1a24  bd 06
-    call !sub_080b          ;1a26  9a 0b 08     Return mem_f252 in A, also copy it into mem_fb57
+    ;mem_f253=0x01 (FM1/FM2)
+    call !sub_080b_fm1fm2   ;1a26  9a 0b 08     Return mem_f252 in A (FM1/FM2: 0x00=FM1, 0x01=FM2), also copy it into mem_fb57
     mov !mem_fb5f,a         ;1a29  9e 5f fb
 
 sub_1a2c:
@@ -4830,7 +4834,7 @@ sub_1a43:
 sub_1a51:
     mov a,!mem_fb5e         ;1a51  8e 5e fb
     mov !mem_fb57,a         ;1a54  9e 57 fb
-    movw hl,#mem_f252       ;1a57  16 52 f2
+    movw hl,#mem_f252       ;1a57  16 52 f2     Return mem_f252 in A (FM1/FM2: 0x00=FM1, 0x01=FM2), also copy it into mem_fb57
     call !sub_4092          ;1a5a  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
 
 sub_1a5d:
@@ -4866,7 +4870,7 @@ sub_1a82:
     movw hl,#mem_fb5b       ;1a82  16 5b fb
 
 lab_1a85:
-    call !sub_080b          ;1a85  9a 0b 08     Return mem_f252 in A, also copy it into mem_fb57
+    call !sub_080b_fm1fm2   ;1a85  9a 0b 08
     mov c,a                 ;1a88  72
     mov a,[hl+c]            ;1a89  aa
     mov b,a                 ;1a8a  73
@@ -4952,7 +4956,7 @@ lab_1ae6_done:
 sub_1aea:
     push ax                 ;1aea  b1
     mov x,#0x0e             ;1aeb  a0 0e
-    call !sub_080b          ;1aed  9a 0b 08     Return mem_f252 in A, also copy it into mem_fb57
+    call !sub_080b_fm1fm2   ;1aed  9a 0b 08     Return mem_f252 in A (FM1/FM2: 0x00=FM1, 0x01=FM2), also copy it into mem_fb57
     mulu x                  ;1af0  31 88
     xch a,x                 ;1af2  30
     add a,#0x25             ;1af3  0d 25
@@ -4977,7 +4981,7 @@ lab_1b09:
     mov b,#0x01             ;1b11  a3 01
     call !sub_408f          ;1b13  9a 8f 40     Write A to [HL+B] then do unknown calculation with mem_f26c/mem_f26d
     movw hl,#mem_f24f       ;1b16  16 4f f2
-    call !sub_080b          ;1b19  9a 0b 08     Return mem_f252 in A, also copy it into mem_fb57
+    call !sub_080b_fm1fm2   ;1b19  9a 0b 08     Return mem_f252 in A (FM1/FM2: 0x00=FM1, 0x01=FM2), also copy it into mem_fb57
     mov b,a                 ;1b1c  73
     mov a,!mem_fc9c         ;1b1d  8e 9c fc
     call !sub_408f          ;1b20  9a 8f 40     Write A to [HL+B] then do unknown calculation with mem_f26c/mem_f26d
@@ -5033,7 +5037,7 @@ lab_1b5e:
     mov mem_fed4,#0x01      ;1b67  11 d4 01
 
 lab_1b6a:
-    call !sub_080b          ;1b6a  9a 0b 08     Return mem_f252 in A, also copy it into mem_fb57
+    call !sub_080b_fm1fm2   ;1b6a  9a 0b 08     Return mem_f252 in A (FM1/FM2: 0x00=FM1, 0x01=FM2), also copy it into mem_fb57
     inc a                   ;1b6d  41
     movw hl,#mem_f252       ;1b6e  16 52 f2
     mov !mem_fb57,a         ;1b71  9e 57 fb
@@ -5059,23 +5063,25 @@ lab_1b92:
     mov a,mem_fed4          ;1b92  f0 d4
     mov !mem_fb5a,a         ;1b94  9e 5a fb
     movw hl,#mem_fb5b       ;1b97  16 5b fb
-    call !sub_080b          ;1b9a  9a 0b 08     Return mem_f252 in A, also copy it into mem_fb57
+    call !sub_080b_fm1fm2   ;1b9a  9a 0b 08     Return mem_f252 in A (FM1/FM2: 0x00=FM1, 0x01=FM2), also copy it into mem_fb57
     mov c,a                 ;1b9d  72
     mov a,!mem_fb5a         ;1b9e  8e 5a fb
     mov [hl+c],a            ;1ba1  ba
     br !sub_1a43            ;1ba2  9b 43 1a
 
 sub_1ba5:
-    call !sub_0800          ;1ba5  9a 00 08
+    call !sub_0800_mode     ;1ba5  9a 00 08     Return mem_f253 in A (0x00=?, 0x01=FM1/FM2, 0x02=AM), also copy it into mem_fb58
     cmp a,#0x01             ;1ba8  4d 01
     bnz sub_1bbb            ;1baa  bd 0f
+    ;mem_f253=0x01 (FM1/FM2)
 
 lab_1bac:
     call !sub_1bc8          ;1bac  9a c8 1b
-    call !sub_0800          ;1baf  9a 00 08
+    call !sub_0800_mode     ;1baf  9a 00 08     Return mem_f253 in A (0x00=?, 0x01=FM1/FM2, 0x02=AM), also copy it into mem_fb58
     cmp a,#0x01             ;1bb2  4d 01
     bnz lab_1bac            ;1bb4  bd f6
-    call !sub_080b          ;1bb6  9a 0b 08     Return mem_f252 in A, also copy it into mem_fb57
+    ;mem_f253=0x01 (FM1/FM2)
+    call !sub_080b_fm1fm2   ;1bb6  9a 0b 08     Return mem_f252 in A (FM1/FM2: 0x00=FM1, 0x01=FM2), also copy it into mem_fb57
     br lab_1bf4             ;1bb9  fa 39
 
 sub_1bbb:
@@ -5089,7 +5095,7 @@ sub_1bc2:
     br lab_1bf4             ;1bc6  fa 2c
 
 sub_1bc8:
-    call !sub_080b          ;1bc8  9a 0b 08     Return mem_f252 in A, also copy it into mem_fb57
+    call !sub_080b_fm1fm2   ;1bc8  9a 0b 08     Return mem_f252 in A (FM1/FM2: 0x00=FM1, 0x01=FM2), also copy it into mem_fb57
     inc a                   ;1bcb  41
     movw hl,#mem_f252       ;1bcc  16 52 f2
     mov !mem_fb57,a         ;1bcf  9e 57 fb
@@ -5097,7 +5103,7 @@ sub_1bc8:
 
     call !sub_1c32          ;1bd5  9a 32 1c
     bnc lab_1bee            ;1bd8  9d 14
-    call !sub_080b          ;1bda  9a 0b 08     Return mem_f252 in A, also copy it into mem_fb57
+    call !sub_080b_fm1fm2   ;1bda  9a 0b 08     Return mem_f252 in A (FM1/FM2: 0x00=FM1, 0x01=FM2), also copy it into mem_fb57
     cmp a,#0x05             ;1bdd  4d 05
     bc sub_1bc8             ;1bdf  8d e7
 
@@ -5203,43 +5209,43 @@ lab_1c6d:
     ret                     ;1c6e  af
 
 sub_1c6f:
-    bt mem_fe7d.2,lab_1c8c  ;1c6f  ac 7d 1a
+    bt mem_fe7d.2,lab_1c8c_ret  ;1c6f  ac 7d 1a
     call !sub_1c5e          ;1c72  9a 5e 1c
     bc lab_1c81             ;1c75  8d 0a
     set1 mem_fe5b.1         ;1c77  1a 5b
     cmp mem_fe20,#0x00      ;1c79  c8 20 00
-    bz lab_1c8c             ;1c7c  ad 0e
+    bz lab_1c8c_ret             ;1c7c  ad 0e
     br !lab_172e            ;1c7e  9b 2e 17
 
 lab_1c81:
     cmp mem_fe20,#0x00      ;1c81  c8 20 00
-    bnz lab_1c8c            ;1c84  bd 06
+    bnz lab_1c8c_ret        ;1c84  bd 06
     mov mem_fe20,#0x01      ;1c86  11 20 01
     br !lab_17e2            ;1c89  9b e2 17
 
-lab_1c8c:
+lab_1c8c_ret:
     ret                     ;1c8c  af
 
 sub_1c8d:
     call !sub_1c32          ;1c8d  9a 32 1c
-    bc lab_1c9c             ;1c90  8d 0a
+    bc lab_1c9c_ret         ;1c90  8d 0a
     and a,#0xf0             ;1c92  5d f0
     callf !ror_a_4          ;1c94  2c 9e
     call !sub_0807          ;1c96  9a 07 08     Compare mem_fb58 to A
-    bz lab_1c9c             ;1c99  ad 01
+    bz lab_1c9c_ret         ;1c99  ad 01
     set1 cy                 ;1c9b  20
 
-lab_1c9c:
+lab_1c9c_ret:
     ret                     ;1c9c  af
 
 sub_1c9d:
     clr1 mem_fe5d.4         ;1c9d  4b 5d
     mov a,!mem_f1e7         ;1c9f  8e e7 f1
     and a,#0x07             ;1ca2  5d 07
-    bnz lab_1ca8            ;1ca4  bd 02
+    bnz lab_1ca8_ret        ;1ca4  bd 02
     set1 mem_fe5d.4         ;1ca6  4a 5d
 
-lab_1ca8:
+lab_1ca8_ret:
     ret                     ;1ca8  af
 
 sub_1ca9:
@@ -5282,9 +5288,10 @@ lab_1cdc:
 lab_1ce7:
     bf mem_fe5b.6,lab_1d04_ret    ;1ce7  31 63 5b 19
     bf mem_fe5b.7,lab_1d05        ;1ceb  31 73 5b 16
-    call !sub_0800                ;1cef  9a 00 08     Return mem_f253 in A, also copy it into mem_fb58
+    call !sub_0800_mode           ;1cef  9a 00 08     Return mem_f253 in A (0x00=?, 0x01=FM1/FM2, 0x02=AM), also copy it into mem_fb58
     cmp a,#0x02                   ;1cf2  4d 02
     bz lab_1d01_call_sub_1d4f_ret ;1cf4  ad 0b
+    ;mem_f253 != 0x02
     call !sub_1d6e                ;1cf6  9a 6e 1d
 
 lab_1cf9:
@@ -5351,7 +5358,7 @@ sub_1d4f:
 
 sub_1d59:
     clr1 mem_fe5c.2         ;1d59  2b 5c
-    call !sub_080b          ;1d5b  9a 0b 08     Return mem_f252 in A, also copy it into mem_fb57
+    call !sub_080b_fm1fm2   ;1d5b  9a 0b 08     Return mem_f252 in A (FM1/FM2: 0x00=FM1, 0x01=FM2), also copy it into mem_fb57
     mov c,a                 ;1d5e  72
     movw hl,#mem_fb5b       ;1d5f  16 5b fb
     mov a,#0x00             ;1d62  a1 00
@@ -8961,13 +8968,15 @@ lab_2e9a_not_blank:
 
 lab_2eb5:
 ;mem_fe30 = 0x01
-    call !sub_0800          ;2eb5  9a 00 08     Return mem_f253 in A, also copy it into mem_fb58
+    call !sub_0800_mode     ;2eb5  9a 00 08     Return mem_f253 in A (0x00=?, 0x01=FM1/FM2, 0x02=AM), also copy it into mem_fb58
+    cmp a,#0x02             ;2eb8  4d 02        Mode = 0x02 AM?
 
-    ;Compare uPD16432B:
-    ;  "..X........" to "2" (e.g. the "2" in "FM2")
-    cmp a,#0x02             ;2eb8  4d 02
-    mov a,!upd_disp+2       ;2eba  8e 9c f1
-    bz lab_2ec5             ;2ebd  ad 06
+    ;Copy from uPD16432B:
+    ;  "..X........" (e.g. the "2" in "FM2")
+    mov a,!upd_disp+2       ;2eba  8e 9c f1     A = "1"/"2"/" " for "FM1", "FM2", or "AM "
+    bz lab_2ec5             ;2ebd  ad 06        Branch if AM mode
+
+    ;FM1 or FM2
 
     cmp a,#0x20             ;2ebf  4d 20        Compare to space character
     bnc lab_2ec5            ;2ec1  9d 02        Branch if >= space
@@ -18548,9 +18557,10 @@ sub_60a0:
 
 sub_60ac:
     call !sub_61e7          ;60ac  9a e7 61
-    call !sub_0800          ;60af  9a 00 08     Return mem_f253 in A, also copy it into mem_fb58
+    call !sub_0800_mode     ;60af  9a 00 08     Return mem_f253 in A (0x00=?, 0x01=FM1/FM2, 0x02=AM), also copy it into mem_fb58
     cmp a,#0x01             ;60b2  4d 01
     bnz lab_60d4            ;60b4  bd 1e
+    ;mem_f253 = 0x01 (FM1/FM2)
     call !sub_1c32          ;60b6  9a 32 1c
     mov a,[hl+0x05]         ;60b9  ae 05
     mov x,a                 ;60bb  70
@@ -18607,10 +18617,11 @@ lab_60fd:
 lab_6106:
     bf mem_fe5d.4,lab_611f  ;6106  31 43 5d 15
     push ax                 ;610a  b1
-    call !sub_0800          ;610b  9a 00 08     Return mem_f253 in A, also copy it into mem_fb58
+    call !sub_0800_mode     ;610b  9a 00 08     Return mem_f253 in A (0x00=?, 0x01=FM1/FM2, 0x02=AM), also copy it into mem_fb58
     cmp a,#0x01             ;610e  4d 01
     pop ax                  ;6110  b0
     bnz lab_611f            ;6111  bd 0c
+    ;mem_f253 = 0x01 (FM1/FM2)
     push ax                 ;6113  b1
     mov a,#0x01             ;6114  a1 01
     cmp a,!freq_idx         ;6116  48 56 fb
@@ -18626,10 +18637,10 @@ lab_611f:
     mov mem_fed5,a          ;6122  f2 d5
     set1 mem_fe69.1         ;6124  1a 69
     mov mem_fed4,#0xc2      ;6126  11 d4 c2
-    call !sub_0800          ;6129  9a 00 08     Return mem_f253 in A, also copy it into mem_fb58
+    call !sub_0800_mode     ;6129  9a 00 08     Return mem_f253 in A (0x00=?, 0x01=FM1/FM2, 0x02=AM), also copy it into mem_fb58
 
 lab_612c:
-    mov b,a                 ;612c  73
+    mov b,a                 ;612c  73           B = mem_f253 mode
     movw hl,#mem_f1be       ;612d  16 be f1
     mov a,[hl+b]            ;6130  ab
     mov mem_fed8,a          ;6131  f2 d8
@@ -18689,8 +18700,8 @@ lab_617d:
     set1 mem_fe69.1         ;6184  1a 69
     mov x,#0xc3             ;6186  a0 c3
     call !sub_5d99          ;6188  9a 99 5d
-    call !sub_0800          ;618b  9a 00 08
-    mov b,a                 ;618e  73
+    call !sub_0800_mode     ;618b  9a 00 08     Return mem_f253 in A (0x00=?, 0x01=FM1/FM2, 0x02=AM), also copy it into mem_fb58
+    mov b,a                 ;618e  73           B = mem_f253 mode
     movw hl,#mem_b40e       ;618f  16 0e b4
     mov a,[hl+b]            ;6192  ab
     cmp a,mem_fed4          ;6193  4e d4
@@ -18747,9 +18758,10 @@ sub_61dc:
 
 sub_61e7:
     clr1 mem_fe69.7         ;61e7  7b 69
-    call !sub_0800          ;61e9  9a 00 08     Return mem_f253 in A, also copy it into mem_fb58
+    call !sub_0800_mode     ;61e9  9a 00 08     Return mem_f253 in A (0x00=?, 0x01=FM1/FM2, 0x02=AM), also copy it into mem_fb58
     cmp a,#0x02             ;61ec  4d 02
     bnz lab_6209            ;61ee  bd 19
+    ;mem_f253 = 0x02 (AM)
     mov a,!mem_f1e7         ;61f0  8e e7 f1
     and a,#0x07             ;61f3  5d 07
     mov b,a                 ;61f5  73
@@ -19684,9 +19696,10 @@ sub_67d9:
     bnz lab_67f4            ;67e2  bd 10
     push ax                 ;67e4  b1
     push bc                 ;67e5  b3
-    call !sub_0800          ;67e6  9a 00 08     Return mem_f253 in A, also copy it into mem_fb58
+    call !sub_0800_mode     ;67e6  9a 00 08     Return mem_f253 in A (0x00=?, 0x01=FM1/FM2, 0x02=AM), also copy it into mem_fb58
     cmp a,#0x01             ;67e9  4d 01
     bnz lab_67f2            ;67eb  bd 05
+    ;mem_f253 = 0x01 (FM1/FM2)
     pop bc                  ;67ed  b2
     pop ax                  ;67ee  b0
     dec a                   ;67ef  51
@@ -20642,10 +20655,12 @@ sub_6d61:
 
 sub_6d64:
 ;Write AM/kHz or FM/MHz without freq to display buf
-    call !sub_0800          ;6d64  9a 00 08     Return mem_f253 in A, also copy it into mem_fb58
+    call !sub_0800_mode     ;6d64  9a 00 08     Return mem_f253 in A (0x00=?, 0x01=FM1/FM2, 0x02=AM), also copy it into mem_fb58
 
-    cmp a,#0x01             ;6d67  4d 01
+    cmp a,#0x01             ;6d67  4d 01        FM mode?
     bz lab_6db1             ;6d69  ad 46        Branch to write FM / MHz
+
+    ;mem_f253 != 0x01 (must be 0x02 AM)
 
     mov a,!mem_f1ab         ;6d6b  8e ab f1
     and a,#0x0f             ;6d6e  5d 0f
@@ -20684,7 +20699,7 @@ lab_6d9d:
     br !lab_6e3c            ;6dae  9b 3c 6e
 
 lab_6db1:
-    call !sub_080b          ;6db1  9a 0b 08     Return mem_f252 in A, also copy it into mem_fb57
+    call !sub_080b_fm1fm2   ;6db1  9a 0b 08     Return mem_f252 in A (FM1/FM2: 0x00=FM1, 0x01=FM2), also copy it into mem_fb57
     cmp a,#0x01             ;6db4  4d 01
     bz lab_6dfb             ;6db6  ad 43
     mov a,!mem_f1ab         ;6db8  8e ab f1
@@ -20870,8 +20885,8 @@ freq_idx_to_upd_disp:
     br !freq_bcd_to_upd_disp;6eb8  9b 40 6f     Write BCD word at mem_fed4 to upd_disp
 
 freq_idx_to_bcd:
-    call !sub_0800                  ;6ebb  9a 00 08     Return mem_f253 in A, also copy it into mem_fb58
-    mov mem_fed6,a                  ;6ebe  f2 d6
+    call !sub_0800_mode             ;6ebb  9a 00 08     Return mem_f253 in A (0x00=?, 0x01=FM1/FM2, 0x02=AM), also copy it into mem_fb58
+    mov mem_fed6,a                  ;6ebe  f2 d6        mem_fed6 = mem_f253 mode
 
     mov a,!mem_f1e7                 ;6ec0  8e e7 f1
     mov x,a                         ;6ec3  70
@@ -20978,9 +20993,10 @@ freq_bcd_to_upd_disp:
     push hl                 ;6f40  b7
     mov a,mem_fed4          ;6f41  f0 d4        A = BCD low byte
     call !write_digit       ;6f43  9a 6c 6f     Convert A to ASCII, write to buf at offset B, decr B
-    call !sub_0800          ;6f46  9a 00 08     Return mem_f253 in A, also copy it into mem_fb58
-    cmp a,#0x02             ;6f49  4d 02
-    bz lab_6f4f             ;6f4b  ad 02
+    call !sub_0800_mode     ;6f46  9a 00 08     Return mem_f253 in A (0x00=?, 0x01=FM1/FM2, 0x02=AM), also copy it into mem_fb58
+    cmp a,#0x02             ;6f49  4d 02        AM mode?
+    bz lab_6f4f             ;6f4b  ad 02        Branch if AM
+    ;mem_f253 != 0x02 (must be FM mode)
     set1 upd_pict+4.5       ;6f4d  5a 39        Turn on period pictograph
 
 lab_6f4f:
@@ -26456,9 +26472,10 @@ lab_9217:
 
 lab_921d:
     set1 mem_fe75.0         ;921d  0a 75
-    call !sub_0800          ;921f  9a 00 08
+    call !sub_0800_mode     ;921f  9a 00 08     Return mem_f253 in A (0x00=?, 0x01=FM1/FM2, 0x02=AM), also copy it into mem_fb58
     cmp a,#0x01             ;9222  4d 01
     bnz lab_9238            ;9224  bd 12
+    ;mem_f253 = 0 (FM1/FM2)
     clr1 mem_fe75.0         ;9226  0b 75
     br lab_9238             ;9228  fa 0e
 
@@ -27001,12 +27018,13 @@ lab_95c1:
     br !lab_9d1f            ;95c1  9b 1f 9d
 
 lab_95c4:
-    call !sub_0800          ;95c4  9a 00 08
+    call !sub_0800_mode     ;95c4  9a 00 08     Return mem_f253 in A (0x00=?, 0x01=FM1/FM2, 0x02=AM), also copy it into mem_fb58
     cmp a,#0x01             ;95c7  4d 01
-    bnz lab_95ce            ;95c9  bd 03
-    br !lab_96ed            ;95cb  9b ed 96
+    bnz lab_95ce_am         ;95c9  bd 03
+    ;mem_f253 = 0x01 (FM1/FM2)
+    br !lab_96ed_fm         ;95cb  9b ed 96
 
-lab_95ce:
+lab_95ce_am:
     set1 mem_fe75.0         ;95ce  0a 75
     movw hl,#mem_bc85       ;95d0  16 85 bc
     call !sub_9f2a          ;95d3  9a 2a 9f
@@ -27143,7 +27161,7 @@ lab_96d3:
 lab_96ea:
     br !lab_99d7            ;96ea  9b d7 99
 
-lab_96ed:
+lab_96ed_fm:
     movw hl,#mem_bc7f       ;96ed  16 7f bc
     call !sub_9f2a          ;96f0  9a 2a 9f
     mov mem_fe55,#0x01      ;96f3  11 55 01
@@ -27880,7 +27898,7 @@ lab_9c9f:
     bf mem_fe73.6,lab_9d00  ;9c9f  31 63 73 5d
 
 lab_9ca3:
-    movw ax,#sub_0800       ;9ca3  10 00 08
+    movw ax,#0x0800         ;9ca3  10 00 08
     mov !i2c_buf+3,a        ;9ca6  9e de fb
     mov !i2c_buf+5,a        ;9ca9  9e e0 fb
     mov !i2c_buf+7,a        ;9cac  9e e2 fb
@@ -27952,16 +27970,18 @@ sub_9d25:
     mov b,a                 ;9d2a  73
     cmp a,#0x01             ;9d2b  4d 01
     bnz lab_9d36            ;9d2d  bd 07
-    call !sub_0800          ;9d2f  9a 00 08
+    call !sub_0800_mode     ;9d2f  9a 00 08     Return mem_f253 in A (0x00=?, 0x01=FM1/FM2, 0x02=AM), also copy it into mem_fb58
     cmp a,#0x01             ;9d32  4d 01
-    bz lab_9d3d             ;9d34  ad 07
+    bz lab_9d3d_fm          ;9d34  ad 07
+
+    ;mem_f253 != 0x01 (must be AM)
 
 lab_9d36:
     movw hl,#mem_c2cc+1     ;9d36  16 cd c2
     callf !sub_0c7d         ;9d39  4c 7d        Load A with byte at position B in table [HL]
     bnc lab_9d3f            ;9d3b  9d 02        Branch if lookup succeeded
 
-lab_9d3d:
+lab_9d3d_fm:
     mov a,#0xf6             ;9d3d  a1 f6
 
 lab_9d3f:
@@ -29685,7 +29705,7 @@ lab_a80d:
 sub_a80e:
     cmp mem_fe58,#0x01      ;a80e  c8 58 01
     bnz lab_a822            ;a811  bd 0f
-    call !sub_080b          ;a813  9a 0b 08       Return mem_f252 in A, also copy it into mem_fb57
+    call !sub_080b_fm1fm2   ;a813  9a 0b 08       Return mem_f252 in A (FM1/FM2: 0x00=FM1, 0x01=FM2), also copy it into mem_fb57
     cmp a,#0x02             ;a816  4d 02
     movw ax,#mem_f25c       ;a818  10 5c f2
     bnz lab_a82d            ;a81b  bd 10
@@ -30026,13 +30046,14 @@ sub_aa14:
     bc lab_aa3b             ;aa1c  8d 1d        Branch if lookup failed
     cmp a,#0x01             ;aa1e  4d 01
     bnz lab_aa3d            ;aa20  bd 1b
-    call !sub_0800          ;aa22  9a 00 08
+    call !sub_0800_mode     ;aa22  9a 00 08     Return mem_f253 in A (0x00=?, 0x01=FM1/FM2, 0x02=AM), also copy it into mem_fb58
     cmp a,#0x01             ;aa25  4d 01
-    bz lab_aa2e             ;aa27  ad 05
+    bz lab_aa2e_fm          ;aa27  ad 05
+    ;mem_f253 != 0x01 (must be AM)
     bt mem_fe76.4,lab_aa36  ;aa29  cc 76 0a
     br lab_aa32             ;aa2c  fa 04
 
-lab_aa2e:
+lab_aa2e_fm:
     bf mem_fe76.4,lab_aa36  ;aa2e  31 43 76 04
 
 lab_aa32:
@@ -30071,12 +30092,13 @@ lab_aa51:
     bnz lab_aa6b            ;aa57  bd 12
     push ax                 ;aa59  b1
     set1 mem_fe76.4         ;aa5a  4a 76
-    call !sub_0800          ;aa5c  9a 00 08
+    call !sub_0800_mode     ;aa5c  9a 00 08     Return mem_f253 in A (0x00=?, 0x01=FM1/FM2, 0x02=AM), also copy it into mem_fb58
     cmp a,#0x01             ;aa5f  4d 01
-    bz lab_aa65             ;aa61  ad 02
+    bz lab_aa65_fm          ;aa61  ad 02
+    ;mem_f253 != 0x01 (must be AM)
     clr1 mem_fe76.4         ;aa63  4b 76
 
-lab_aa65:
+lab_aa65_fm:
     pop ax                  ;aa65  b0
     cmp mem_fe58,#0x01      ;aa66  c8 58 01
     bz lab_aa6d             ;aa69  ad 02
@@ -32371,22 +32393,22 @@ mem_b3fc:
     .byte 0x76              ;b407  76          DATA 0x76 'v'
 
 mem_b408:
-;unknown table
+;unknown table indexed by mem_f253 mode
     .byte 0x02              ;b408  02          DATA 0x02        2 entries below:
-    .byte 0x02              ;b409  02          DATA 0x02
-    .byte 0x05              ;b40a  05          DATA 0x05
+    .byte 0x02              ;b409  02          DATA 0x02        mem_f253=0x00 (FM1)
+    .byte 0x05              ;b40a  05          DATA 0x05        mem_f253=0x01 (FM2)
 
 mem_b40b:
-;unknown table
+;unknown table indexed by mem_f253 mode
     .byte 0x02              ;b40b  02          DATA 0x02        2 entries below:
-    .byte 0x5f              ;b40c  5f          DATA 0x5f '_'
-    .byte 0x2b              ;b40d  2b          DATA 0x2b '+'
+    .byte 0x5f              ;b40c  5f          DATA 0x5f '_'    mem_f253=0x00 (FM1)
+    .byte 0x2b              ;b40d  2b          DATA 0x2b '+'    mem_f253=0x01 (FM2)
 
 mem_b40e:
-;unknown table
+;unknown table indexed by mem_f253 mode
     .byte 0x02              ;b40e  02          DATA 0x02        2 entries below:
-    .byte 0x59              ;b40f  59          DATA 0x59 'Y'
-    .byte 0x25              ;b410  25          DATA 0x25 '%'
+    .byte 0x59              ;b40f  59          DATA 0x59 'Y'    mem_f253=0x00 (FM1)
+    .byte 0x25              ;b410  25          DATA 0x25 '%'    mem_f253=0x01 (FM2)
 
 ;unknown table
     .byte 0x04              ;b411  04          DATA 0x04        4 entries below:
