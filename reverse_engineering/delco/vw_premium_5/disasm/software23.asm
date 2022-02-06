@@ -141,7 +141,7 @@ mem_f1e4 = 0xf1e4           ;EEPROM 0041
 mem_f1e5 = 0xf1e5           ;EEPROM 0042
 mem_f1e6 = 0xf1e6           ;EEPROM 0043
 
-mem_f1e7 = 0xf1e7           ;EEPROM 0046
+mem_f1e7_region = 0xf1e7    ;EEPROM 0046  Region (see description in mem_ad34_freq_tables)
 mem_f1e8 = 0xf1e8           ;EEPROM 0047
 mem_f1e9 = 0xf1e9           ;EEPROM 0048  Bit 7: on="DELCO mode", off=normal
 mem_f1ea = 0xf1ea           ;EEPROM 0049  KWP1281 id block 3/4 "0001" byte for "DELCO mode" (see kwp_id_0001)
@@ -1031,25 +1031,25 @@ mem_0080:
     .byte 0x30              ;00b3  30          DATA 0x30 '0'    -> mem_f1e6   EEPROM 0043
 
 mem_00b4:
-;Defaults written to mem_f1e7 - mem_f1f8
-    .byte 0x00              ;00b4  00          DATA 0x00        -> mem_f1e7   EEPROM 0046
-    .byte 0xaa              ;00b5  aa          DATA 0xaa        -> mem_f1e8   EEPROM 0047
-    .byte 0x04              ;00b6  04          DATA 0x04        -> mem_f1e9   EEPROM 0048
-    .byte 0x41              ;00b7  41          DATA 0x41 'A'    -> mem_f1ea   EEPROM 0049
-    .byte 0x01              ;00b8  01          DATA 0x01        -> mem_f1eb   EEPROM 004A
-    .byte 0x00              ;00b9  00          DATA 0x00        -> mem_f1ec   EEPROM 004B
-    .byte 0x31              ;00ba  31          DATA 0x31 '1'    -> mem_f1ed   EEPROM 004C
-    .byte 0x4a              ;00bb  4a          DATA 0x4a 'J'    -> mem_f1ee   EEPROM 004D
-    .byte 0x30              ;00bc  30          DATA 0x30 '0'    -> mem_f1ef   EEPROM 004E
-    .byte 0x30              ;00bd  30          DATA 0x30 '0'    -> mem_f1f0   EEPROM 004F
-    .byte 0x33              ;00be  33          DATA 0x33 '3'    -> mem_f1f1   EEPROM 0050
-    .byte 0x35              ;00bf  35          DATA 0x35 '5'    -> mem_f1f2   EEPROM 0051
-    .byte 0x31              ;00c0  31          DATA 0x31 '1'    -> mem_f1f3   EEPROM 0052
-    .byte 0x38              ;00c1  38          DATA 0x38 '8'    -> mem_f1f4   EEPROM 0053
-    .byte 0x30              ;00c2  30          DATA 0x30 '0'    -> mem_f1f5   EEPROM 0054
-    .byte 0x42              ;00c3  42          DATA 0x42 'B'    -> mem_f1f6   EEPROM 0055
-    .byte 0x20              ;00c4  20          DATA 0x20 ' '    -> mem_f1f7   EEPROM 0056
-    .byte 0x20              ;00c5  20          DATA 0x20 ' '    -> mem_f1f8   EEPROM 0057
+;Defaults written to mem_f1e7_region - mem_f1f8
+    .byte 0x00              ;00b4  00          DATA 0x00        -> mem_f1e7_region  EEPROM 0046
+    .byte 0xaa              ;00b5  aa          DATA 0xaa        -> mem_f1e8         EEPROM 0047
+    .byte 0x04              ;00b6  04          DATA 0x04        -> mem_f1e9         EEPROM 0048
+    .byte 0x41              ;00b7  41          DATA 0x41 'A'    -> mem_f1ea         EEPROM 0049
+    .byte 0x01              ;00b8  01          DATA 0x01        -> mem_f1eb         EEPROM 004A
+    .byte 0x00              ;00b9  00          DATA 0x00        -> mem_f1ec         EEPROM 004B
+    .byte 0x31              ;00ba  31          DATA 0x31 '1'    -> mem_f1ed         EEPROM 004C
+    .byte 0x4a              ;00bb  4a          DATA 0x4a 'J'    -> mem_f1ee         EEPROM 004D
+    .byte 0x30              ;00bc  30          DATA 0x30 '0'    -> mem_f1ef         EEPROM 004E
+    .byte 0x30              ;00bd  30          DATA 0x30 '0'    -> mem_f1f0         EEPROM 004F
+    .byte 0x33              ;00be  33          DATA 0x33 '3'    -> mem_f1f1         EEPROM 0050
+    .byte 0x35              ;00bf  35          DATA 0x35 '5'    -> mem_f1f2         EEPROM 0051
+    .byte 0x31              ;00c0  31          DATA 0x31 '1'    -> mem_f1f3         EEPROM 0052
+    .byte 0x38              ;00c1  38          DATA 0x38 '8'    -> mem_f1f4         EEPROM 0053
+    .byte 0x30              ;00c2  30          DATA 0x30 '0'    -> mem_f1f5         EEPROM 0054
+    .byte 0x42              ;00c3  42          DATA 0x42 'B'    -> mem_f1f6         EEPROM 0055
+    .byte 0x20              ;00c4  20          DATA 0x20 ' '    -> mem_f1f7         EEPROM 0056
+    .byte 0x20              ;00c5  20          DATA 0x20 ' '    -> mem_f1f8         EEPROM 0057
 
 mem_00c6:
 ;Defaults written to mem_f1f9 - mem_f201
@@ -4334,7 +4334,7 @@ lab_172b:
 
 lab_172e:
     call !sub_1d4f          ;172e  9a 4f 1d
-    call !sub_1a73          ;1731  9a 73 1a
+    call !get_cur_freq_idx  ;1731  9a 73 1a
     mov !freq_idx,a         ;1734  9e 56 fb
     mov mem_fe20,#0x00      ;1737  11 20 00
 
@@ -4791,11 +4791,11 @@ lab_1a02:
 sub_1a0c:
     xch a,b                 ;1a0c  33
     cmp a,#0x07             ;1a0d  4d 07
-    bc lab_1a15             ;1a0f  8d 04
+    bc lab_1a15_bc          ;1a0f  8d 04
     mov a,#0x00             ;1a11  a1 00
     set1 mem_fe5c.7         ;1a13  7a 5c
 
-lab_1a15:
+lab_1a15_bc:
     xch a,b                 ;1a15  33
     ret                     ;1a16  af
 
@@ -4811,7 +4811,7 @@ sub_1a17:
     mov !mem_fb5f,a         ;1a29  9e 5f fb
 
 sub_1a2c:
-    call !sub_1aea          ;1a2c  9a ea 1a
+    call !find_preset_addr  ;1a2c  9a ea 1a
     cmp mem_fe58,#0x01      ;1a2f  c8 58 01
     bnz lab_1a3c            ;1a32  bd 08
     mov a,!mem_fc9c         ;1a34  8e 9c fc
@@ -4844,7 +4844,7 @@ sub_1a5d:
     clr1 mem_fe5d.0         ;1a64  0b 5d
 
 sub_1a66:
-    call !sub_1a75          ;1a66  9a 75 1a
+    call !get_pset_freq_idx ;1a66  9a 75 1a
     mov !freq_idx,a         ;1a69  9e 56 fb
     push hl                 ;1a6c  b7
     mov a,x                 ;1a6d  60
@@ -4852,11 +4852,11 @@ sub_1a66:
     pop hl                  ;1a71  b6
     ret                     ;1a72  af
 
-sub_1a73:
-    mov b,#0x00             ;1a73  a3 00
+get_cur_freq_idx:
+    mov b,#0x00             ;1a73  a3 00        B = 0 (Current Frequency Index)
 
-sub_1a75:
-    call !sub_1aea          ;1a75  9a ea 1a
+get_pset_freq_idx:
+    call !find_preset_addr  ;1a75  9a ea 1a     HL = address of Frequency Index
     mov a,[hl+0x01]         ;1a78  ae 01
     mov x,a                 ;1a7a  70
     mov a,[hl]              ;1a7b  87
@@ -4892,7 +4892,7 @@ lab_1a9c:
     mov b,a                 ;1a9c  73
 
 sub_1a9d:
-    call !sub_1a75          ;1a9d  9a 75 1a
+    call !get_pset_freq_idx ;1a9d  9a 75 1a
     cmp a,!freq_idx         ;1aa0  48 56 fb
     bnz lab_1aa8            ;1aa3  bd 03
     mov a,b                 ;1aa5  63
@@ -4953,19 +4953,22 @@ lab_1ae6_done:
     mov !freq_idx,a         ;1ae6  9e 56 fb
     ret                     ;1ae9  af
 
-sub_1aea:
+;Find RAM address of frequency index
+;B = Preset number (0=current channel, 1-6)
+;Returns location in HL
+find_preset_addr:
     push ax                 ;1aea  b1
     mov x,#0x0e             ;1aeb  a0 0e
     call !sub_080b_fm1fm2   ;1aed  9a 0b 08     Return mem_f252 in A (FM1/FM2: 0x00=FM1, 0x01=FM2), also copy it into mem_fb57
-    mulu x                  ;1af0  31 88
+    mulu x                  ;1af0  31 88        AX = A * X
     xch a,x                 ;1af2  30
-    add a,#0x25             ;1af3  0d 25
+    add a,#<mem_f225        ;1af3  0d 25
     xch a,x                 ;1af5  30
-    addc a,#0xf2            ;1af6  2d f2
+    addc a,#>mem_f225       ;1af6  2d f2
     movw hl,ax              ;1af8  d6
     call !sub_1a0c          ;1af9  9a 0c 1a
     mov a,b                 ;1afc  63
-    mov x,#0x02             ;1afd  a0 02
+    mov x,#2                ;1afd  a0 02
     mulu x                  ;1aff  31 88
     xch a,x                 ;1b01  30
     add l,a                 ;1b02  61 06
@@ -4974,9 +4977,10 @@ sub_1aea:
     pop ax                  ;1b07  b0
     ret                     ;1b08  af
 
-lab_1b09:
-    mov b,#0x00             ;1b09  a3 00
-    call !sub_1aea          ;1b0b  9a ea 1a
+;XXX appears unused
+sub_1b09:
+    mov b,#0x00             ;1b09  a3 00        B=0 (Current Frequency Index)
+    call !find_preset_addr  ;1b0b  9a ea 1a
     mov a,!mem_fc9c         ;1b0e  8e 9c fc
     mov b,#0x01             ;1b11  a3 01
     call !sub_408f          ;1b13  9a 8f 40     Write A to [HL+B] then do unknown calculation with mem_f26c/mem_f26d
@@ -4993,7 +4997,7 @@ sub_1b24:
     set1 mem_fe5c.2         ;1b29  2a 5c
     mov !mem_fb5a,a         ;1b2b  9e 5a fb
     bt mem_fe5d.0,lab_1b40  ;1b2e  8c 5d 0f
-    call !sub_1a75          ;1b31  9a 75 1a
+    call !get_pset_freq_idx ;1b31  9a 75 1a
     mov a,x                 ;1b34  60
     call !sub_a7ce          ;1b35  9a ce a7
     br lab_1b40             ;1b38  fa 06
@@ -5160,7 +5164,7 @@ lab_1c28:
     ret                     ;1c31  af
 
 sub_1c32:
-    mov a,!mem_f1e7                 ;1c32  8e e7 f1
+    mov a,!mem_f1e7_region          ;1c32  8e e7 f1
     and a,#0x07                     ;1c35  5d 07
     mov b,a                         ;1c37  73
     movw hl,#mem_ad34_freq_tables+1 ;1c38  16 35 ad     Table of pointers to frequency info tables
@@ -5240,7 +5244,7 @@ lab_1c9c_ret:
 
 sub_1c9d:
     clr1 mem_fe5d.4         ;1c9d  4b 5d
-    mov a,!mem_f1e7         ;1c9f  8e e7 f1
+    mov a,!mem_f1e7_region  ;1c9f  8e e7 f1
     and a,#0x07             ;1ca2  5d 07
     bnz lab_1ca8_ret        ;1ca4  bd 02
     set1 mem_fe5d.4         ;1ca6  4a 5d
@@ -5305,7 +5309,7 @@ lab_1d04_ret:
     ret                     ;1d04  af
 
 lab_1d05:
-    call !sub_1a73                  ;1d05  9a 73 1a
+    call !get_cur_freq_idx          ;1d05  9a 73 1a
     cmp a,!freq_idx                 ;1d08  48 56 fb
     bnz lab_1cc6_maybe_freq_inc_dec ;1d0b  bd b9
     set1 mem_fe5b.3                 ;1d0d  3a 5b
@@ -12210,7 +12214,7 @@ sub_40df:
     push bc                 ;40e1  b3
     push ax                 ;40e2  b1
     cmp a,#0x00             ;40e3  4d 00
-    bz lab_4104_pop_ret     ;40e5  ad 1d      Branch to pop registers and return
+    bz lab_4104_pop_ret     ;40e5  ad 1d        Branch to pop registers and return
 
     mov mem_fed5,a          ;40e7  f2 d5
 
@@ -12294,7 +12298,7 @@ lab_4165:
     movw de,#0x0063         ;4168  14 63 00
     callf !sub_09ef         ;416b  1c ef        A = DE - HL
     bt mem_fe64.5,lab_4187  ;416d  dc 64 17
-    movw de,#mem_f1e7       ;4170  14 e7 f1
+    movw de,#mem_f1e7_region;4170  14 e7 f1
     call !sub_40df          ;4173  9a df 40
     push de                 ;4176  b5
     pop hl                  ;4177  b6
@@ -12310,7 +12314,7 @@ lab_4165:
 lab_4187:
     push ax                 ;4187  b1
     movw hl,#mem_00b4       ;4188  16 b4 00     HL = source address
-    movw de,#mem_f1e7       ;418b  14 e7 f1     DE = destination address
+    movw de,#mem_f1e7_region;418b  14 e7 f1     DE = destination address
     callf !sub_0c9e         ;418e  4c 9e        Copy A bytes from [HL] to [DE]
     pop ax                  ;4190  b0
     bt mem_fe64.5,lab_41ff  ;4191  dc 64 6b
@@ -12393,7 +12397,7 @@ lab_41ff:
     movw de,#0x0061         ;4202  14 61 00
     callf !sub_09ef         ;4205  1c ef        A = DE - HL
     push ax                 ;4207  b1
-    movw hl,#mem_f1e7       ;4208  16 e7 f1
+    movw hl,#mem_f1e7_region;4208  16 e7 f1
     movw de,#mem_f202       ;420b  14 02 f2
     push hl                 ;420e  b7
     callf !sub_0c12         ;420f  4c 12
@@ -18762,7 +18766,7 @@ sub_61e7:
     cmp a,#0x02             ;61ec  4d 02
     bnz lab_6209            ;61ee  bd 19
     ;mem_f253 = 0x02 (AM)
-    mov a,!mem_f1e7         ;61f0  8e e7 f1
+    mov a,!mem_f1e7_region  ;61f0  8e e7 f1
     and a,#0x07             ;61f3  5d 07
     mov b,a                 ;61f5  73
     movw hl,#mem_b3d9+1     ;61f6  16 da b3
@@ -20888,42 +20892,44 @@ freq_idx_to_bcd:
     call !sub_0800_mode             ;6ebb  9a 00 08     Return mem_f253 in A (0x00=?, 0x01=FM1/FM2, 0x02=AM), also copy it into mem_fb58
     mov mem_fed6,a                  ;6ebe  f2 d6        mem_fed6 = mem_f253 mode
 
-    mov a,!mem_f1e7                 ;6ec0  8e e7 f1
+    mov a,!mem_f1e7_region          ;6ec0  8e e7 f1
     mov x,a                         ;6ec3  70
 
     mov a,!freq_idx                 ;6ec4  8e 56 fb
     dec a                           ;6ec7  51
 
     cmp mem_fed6,#0x02              ;6ec8  c8 d6 02
-    bz lab_6f06_mem_fed6_eq_2       ;6ecb  ad 39
+    bz lab_6f06_am                  ;6ecb  ad 39
+
+    ;FM1/FM2
 
     xch a,x                         ;6ecd  30
     cmp a,#0x01                     ;6ece  4d 01
     xch a,x                         ;6ed0  30
-    bz lab_6efe_mem_f1e7_eq_1       ;6ed1  ad 2b
+    bz lab_6efe_mem_f1e7_region_eq_1  ;6ed1  ad 2b
 
     xch a,x                         ;6ed3  30
     cmp a,#0x02                     ;6ed4  4d 02
     xch a,x                         ;6ed6  30
-    bz lab_6ef6_mem_f1e7_eq_2_or_3  ;6ed7  ad 1d
+    bz lab_6ef6_mem_f1e7_region_eq_2_or_3   ;6ed7  ad 1d
 
     xch a,x                         ;6ed9  30
     cmp a,#0x03                     ;6eda  4d 03
     xch a,x                         ;6edc  30
-    bz lab_6ef6_mem_f1e7_eq_2_or_3  ;6edd  ad 17
+    bz lab_6ef6_mem_f1e7_region_eq_2_or_3  ;6edd  ad 17
 
     xch a,x                         ;6edf  30
     cmp a,#0x07                     ;6ee0  4d 07
     xch a,x                         ;6ee2  30
-    bnz lab_6eea_mem_f1e7_ne_7      ;6ee3  bd 05
+    bnz lab_6eea_mem_f1e7_region_ne_7 ;6ee3  bd 05
 
-    movw bc,#0x02f7                 ;6ee5  12 f7 02     BC = 759
-    br lab_6eed_mem_f1e7_eq_7       ;6ee8  fa 03
+    movw bc,#0x02f7                   ;6ee5  12 f7 02     BC = 759
+    br lab_6eed_mem_f1e7_region_eq_7  ;6ee8  fa 03
 
-lab_6eea_mem_f1e7_ne_7:
+lab_6eea_mem_f1e7_region_ne_7:
     movw bc,#0x036d         ;6eea  12 6d 03     BC = 877
 
-lab_6eed_mem_f1e7_eq_7:
+lab_6eed_mem_f1e7_region_eq_7:
     clr1 cy                 ;6eed  21
     rolc a,1                ;6eee  27
     mov x,a                 ;6eef  70
@@ -20931,19 +20937,19 @@ lab_6eed_mem_f1e7_eq_7:
     addc a,#0x00            ;6ef2  2d 00
     br lab_6f37             ;6ef4  fa 41
 
-lab_6ef6_mem_f1e7_eq_2_or_3:
+lab_6ef6_mem_f1e7_region_eq_2_or_3:
     movw bc,#0x036b         ;6ef6  12 6b 03     BC = 875
     mov x,a                 ;6ef9  70
     mov a,#0x00             ;6efa  a1 00
     br lab_6f37             ;6efc  fa 39
 
-lab_6efe_mem_f1e7_eq_1:
+lab_6efe_mem_f1e7_region_eq_1:
     movw bc,#0x02f8         ;6efe  12 f8 02     BC = 760
     mov x,a                 ;6f01  70
     mov a,#0x00             ;6f02  a1 00
     br lab_6f37             ;6f04  fa 31
 
-lab_6f06_mem_fed6_eq_2:
+lab_6f06_am:
     movw bc,#0x020a         ;6f06  12 0a 02     BC = 522
     xch a,x                 ;6f09  30
     cmp a,#0x01             ;6f0a  4d 01
@@ -29452,7 +29458,7 @@ lab_a693:
 sub_a694:
     mov a,#0x00             ;a694  a1 00
     cmp mem_fe58,#0x00      ;a696  c8 58 00
-    bz lab_a6cc             ;a699  ad 31
+    bz lab_a6cc_ret         ;a699  ad 31
     mov a,!mem_fe57         ;a69b  8e 57 fe
     mov x,a                 ;a69e  70
     mov a,#0x00             ;a69f  a1 00
@@ -29466,7 +29472,7 @@ lab_a6b0:
     add a,x                 ;a6b0  61 08
     bf a.7,lab_a6bb         ;a6b2  31 7f 06
     mov a,#0x00             ;a6b5  a1 00
-    br lab_a6cc             ;a6b7  fa 13
+    br lab_a6cc_ret         ;a6b7  fa 13
 
 lab_a6b9:
     add a,x                 ;a6b9  61 08
@@ -29474,16 +29480,16 @@ lab_a6b9:
 lab_a6bb:
     bt mem_fe74.6,lab_a6c6  ;a6bb  ec 74 08
     cmp a,#0x7b             ;a6be  4d 7b
-    bc lab_a6cc             ;a6c0  8d 0a
+    bc lab_a6cc_ret         ;a6c0  8d 0a
     mov a,#0x7a             ;a6c2  a1 7a
-    br lab_a6cc             ;a6c4  fa 06
+    br lab_a6cc_ret         ;a6c4  fa 06
 
 lab_a6c6:
     cmp a,#0x5b             ;a6c6  4d 5b
-    bc lab_a6cc             ;a6c8  8d 02
+    bc lab_a6cc_ret         ;a6c8  8d 02
     mov a,#0x5a             ;a6ca  a1 5a
 
-lab_a6cc:
+lab_a6cc_ret:
     ret                     ;a6cc  af
 
 lab_a6cd:
@@ -29705,7 +29711,7 @@ lab_a80d:
 sub_a80e:
     cmp mem_fe58,#0x01      ;a80e  c8 58 01
     bnz lab_a822            ;a811  bd 0f
-    call !sub_080b_fm1fm2   ;a813  9a 0b 08       Return mem_f252 in A (FM1/FM2: 0x00=FM1, 0x01=FM2), also copy it into mem_fb57
+    call !sub_080b_fm1fm2   ;a813  9a 0b 08     Return mem_f252 in A (FM1/FM2: 0x00=FM1, 0x01=FM2), also copy it into mem_fb57
     cmp a,#0x02             ;a816  4d 02
     movw ax,#mem_f25c       ;a818  10 5c f2
     bnz lab_a82d            ;a81b  bd 10
@@ -30713,14 +30719,14 @@ mem_ad34_freq_tables:
 ;Table of pointers to frequency info tables
 ;table of words used with sub_0c48
     .byte 0x08              ;ad34  08          DATA 0x08        8 entries below:
-    .word mem_ad45+1
-    .word mem_ad5a+1
-    .word mem_ad6f+1
-    .word mem_ad84+1
-    .word mem_ad45+1
-    .word mem_ad45+1
-    .word mem_ad45+1
-    .word mem_ad99+1
+    .word mem_ad45+1  ;Region 0
+    .word mem_ad5a+1  ;Region 1
+    .word mem_ad6f+1  ;Region 2
+    .word mem_ad84+1  ;Region 3
+    .word mem_ad45+1  ;Region 4
+    .word mem_ad45+1  ;Region 5
+    .word mem_ad45+1  ;Region 6
+    .word mem_ad99+1  ;Region 7
 
 mem_ad45:
     .byte 0x03              ;ad45  03          DATA 0x03        ?
@@ -32341,14 +32347,14 @@ mem_b3d2:
 mem_b3d9:
 ;table of words used with sub_0c48
     .byte 0x08              ;b3d9  08          DATA 0x08        8 entries below:
-    .word mem_b3ea+1
-    .word mem_b3f9+1
-    .word mem_b3f6+1
-    .word mem_b3f6+1
-    .word mem_b3ea+1
-    .word mem_b3ea+1
-    .word mem_b3ea+1
-    .word mem_b3fc+1
+    .word mem_b3ea+1  ;Region 0: FM 87.7 - 107.9, AM 530 - 1710
+    .word mem_b3f9+1  ;Region 1: FM 76.0 -  90.0, AM 522 - 1584
+    .word mem_b3f6+1  ;Region 2: FM 87.5 - 108.0, AM 531 - 1629
+    .word mem_b3f6+1  ;Region 3: FM 87.5 - 108.0, AM 531 - 1620
+    .word mem_b3ea+1  ;Region 4: FM 87.7 - 107.9, AM 530 - 1710
+    .word mem_b3ea+1  ;Region 5: FM 87.7 - 107.9, AM 530 - 1710
+    .word mem_b3ea+1  ;Region 6: FM 87.7 - 107.9, AM 530 - 1710
+    .word mem_b3fc+1  ;Region 7: FM 75.9 - 108.1, AM 520 - 1710
 
 mem_b3ea:
 ;unknown table
