@@ -2304,7 +2304,7 @@ lab_0b2c:
     and a,#0x07             ;0b3d  5d 07
     mov b,a                 ;0b3f  73
     push hl                 ;0b40  b7
-    movw hl,#mem_af75       ;0b41  16 75 af     HL = pointer to table of bit patterns
+    movw hl,#mem_af75_patterns ;0b41  16 75 af     HL = pointer to table of bit patterns
     mov a,[hl+b]            ;0b44  ab
     pop hl                  ;0b45  b6
     xch a,e                 ;0b46  34
@@ -2686,7 +2686,7 @@ sub_0c87:
     xch a,b                 ;0c90  33
     and a,#0x07             ;0c91  5d 07
     push hl                 ;0c93  b7
-    movw hl,#mem_af75       ;0c94  16 75 af     HL = pointer to table of bit patterns
+    movw hl,#mem_af75_patterns ;0c94  16 75 af     HL = pointer to table of bit patterns
     mov c,a                 ;0c97  72
     mov a,[hl+c]            ;0c98  aa
     pop hl                  ;0c99  b6
@@ -4122,7 +4122,7 @@ lab_15b7:
     movw de,#0xaca7         ;15c8  14 a7 ac
     mov a,mem_fe20          ;15cb  f0 20
     mov b,a                 ;15cd  73
-    movw hl,#mem_af75       ;15ce  16 75 af   HL = pointer to table of bit patterns
+    movw hl,#mem_af75_patterns ;15ce  16 75 af   HL = pointer to table of bit patterns
     mov a,[hl+b]            ;15d1  ab
     call !sub_5c64          ;15d2  9a 64 5c
     bz lab_15f9             ;15d5  ad 22
@@ -4152,7 +4152,7 @@ lab_15f9:
     br !lab_168d            ;15f9  9b 8d 16
 
 lab_15fc:
-    movw hl,#mem_adaf       ;15fc  16 af ad
+    movw hl,#mem_adae+1     ;15fc  16 af ad
     br lab_167b             ;15ff  fa 7a
 
 sub_1601:
@@ -4259,6 +4259,8 @@ lab_16a7:
     call !lab_17ef          ;16a7  9a ef 17
     cmp mem_fe20,#0x03      ;16aa  c8 20 03
     bz lab_16b1             ;16ad  ad 02
+
+lab_16af:
     clr1 mem_fe5b.0         ;16af  0b 5b
 
 lab_16b1:
@@ -4363,12 +4365,16 @@ lab_174f:
 lab_1754:
     set1 mem_fe5d.6         ;1754  6a 5d
     set1 mem_fe5d.1         ;1756  1a 5d
+
+lab_1758:
     set1 mem_fe5c.6         ;1758  6a 5c      Freq inc/dec flag = 1=increment
     br lab_1762             ;175a  fa 06
 
 lab_175c:
     set1 mem_fe5d.6         ;175c  6a 5d
     set1 mem_fe5d.1         ;175e  1a 5d
+
+lab_1760:
     clr1 mem_fe5c.6         ;1760  6b 5c      Freq inc/dec flag = 0=decrement
 
 lab_1762:
@@ -5214,6 +5220,8 @@ lab_1c6d:
 
 sub_1c6f:
     bt mem_fe7d.2,lab_1c8c_ret  ;1c6f  ac 7d 1a
+
+lab_1c72:
     call !sub_1c5e          ;1c72  9a 5e 1c
     bc lab_1c81             ;1c75  8d 0a
     set1 mem_fe5b.1         ;1c77  1a 5b
@@ -5458,7 +5466,7 @@ lab_1deb:
     movw de,#0xae27         ;1deb  14 27 ae
     mov a,!mem_fb68         ;1dee  8e 68 fb
     mov b,a                 ;1df1  73
-    movw hl,#mem_af75       ;1df2  16 75 af     HL = pointer to table of bit patterns
+    movw hl,#mem_af75_patterns ;1df2  16 75 af     HL = pointer to table of bit patterns
     mov a,[hl+b]            ;1df5  ab
     call !sub_5c64          ;1df6  9a 64 5c
     bz lab_1e0d             ;1df9  ad 12
@@ -5916,7 +5924,7 @@ lab_20e0:
     mov b,#0x07             ;20ea  a3 07
 
 lab_20ec:
-    movw hl,#mem_af75       ;20ec  16 75 af     HL = pointer to table of bit patterns
+    movw hl,#mem_af75_patterns ;20ec  16 75 af     HL = pointer to table of bit patterns
     mov a,[hl+b]            ;20ef  ab
     call !sub_5c64          ;20f0  9a 64 5c
     cmp a,#0xff             ;20f3  4d ff
@@ -12454,7 +12462,7 @@ lab_4243:
 
 lab_4266:
     mov b,a                 ;4266  73
-    movw hl,#mem_af75       ;4267  16 75 af     HL = pointer to table of bit patterns
+    movw hl,#mem_af75_patterns ;4267  16 75 af     HL = pointer to table of bit patterns
     mov a,[hl+b]            ;426a  ab
     call !sub_5c64          ;426b  9a 64 5c
     bz sub_42be             ;426e  ad 4e
@@ -19778,7 +19786,7 @@ lab_6832:
     movw de,#mem_b56b       ;6832  14 6b b5
     mov a,mem_fe30          ;6835  f0 30
     mov b,a                 ;6837  73
-    movw hl,#mem_af75       ;6838  16 75 af     HL = pointer to table of bit patterns
+    movw hl,#mem_af75_patterns ;6838  16 75 af     HL = pointer to table of bit patterns
     mov a,[hl+b]            ;683b  ab
     call !sub_5c64          ;683c  9a 64 5c
     bz sub_6853             ;683f  ad 12
@@ -20889,111 +20897,121 @@ freq_idx_to_upd_disp:
     br !freq_bcd_to_upd_disp;6eb8  9b 40 6f     Write BCD word at mem_fed4 to upd_disp
 
 freq_idx_to_bcd:
-    call !sub_0800_mode             ;6ebb  9a 00 08     Return mem_f253 in A (0x00=?, 0x01=FM1/FM2, 0x02=AM), also copy it into mem_fb58
-    mov mem_fed6,a                  ;6ebe  f2 d6        mem_fed6 = mem_f253 mode
+    call !sub_0800_mode      ;6ebb  9a 00 08     Return mem_f253 in A (0x00=?, 0x01=FM1/FM2, 0x02=AM), also copy it into mem_fb58
+    mov mem_fed6,a           ;6ebe  f2 d6        mem_fed6 = mem_f253 mode
 
-    mov a,!mem_f1e7_region          ;6ec0  8e e7 f1
-    mov x,a                         ;6ec3  70
+    mov a,!mem_f1e7_region   ;6ec0  8e e7 f1
+    mov x,a                  ;6ec3  70
 
-    mov a,!freq_idx                 ;6ec4  8e 56 fb
-    dec a                           ;6ec7  51
+    mov a,!freq_idx          ;6ec4  8e 56 fb
+    dec a                    ;6ec7  51
 
-    cmp mem_fed6,#0x02              ;6ec8  c8 d6 02
-    bz lab_6f06_am                  ;6ecb  ad 39
+    cmp mem_fed6,#0x02       ;6ec8  c8 d6 02
+    bz lab_6f06_am           ;6ecb  ad 39
 
     ;FM1/FM2
 
     xch a,x                         ;6ecd  30
     cmp a,#0x01                     ;6ece  4d 01
     xch a,x                         ;6ed0  30
-    bz lab_6efe_mem_f1e7_region_eq_1  ;6ed1  ad 2b
+    bz lab_6efe_fm_region_1         ;6ed1  ad 2b  Region 1: FM 76.0 - 90.0
 
     xch a,x                         ;6ed3  30
     cmp a,#0x02                     ;6ed4  4d 02
     xch a,x                         ;6ed6  30
-    bz lab_6ef6_mem_f1e7_region_eq_2_or_3   ;6ed7  ad 1d
+    bz lab_6ef6_fm_region_2_3       ;6ed7  ad 1d  Region 2: FM 87.5 - 108.0
 
     xch a,x                         ;6ed9  30
     cmp a,#0x03                     ;6eda  4d 03
     xch a,x                         ;6edc  30
-    bz lab_6ef6_mem_f1e7_region_eq_2_or_3  ;6edd  ad 17
+    bz lab_6ef6_fm_region_2_3       ;6edd  ad 17  Region 3: FM 87.5 - 108.0
 
     xch a,x                         ;6edf  30
     cmp a,#0x07                     ;6ee0  4d 07
     xch a,x                         ;6ee2  30
-    bnz lab_6eea_mem_f1e7_region_ne_7 ;6ee3  bd 05
+    bnz lab_6eea_fm_region_0_4_5_6  ;6ee3  bd 05  Region 0: FM 87.7 - 107.9
+                                    ;             Region 4: FM 87.7 - 107.9
+                                    ;             Region 5: FM 87.7 - 107.9
+                                    ;             Region 6: FM 87.7 - 107.9
 
-    movw bc,#0x02f7                   ;6ee5  12 f7 02     BC = 759
-    br lab_6eed_mem_f1e7_region_eq_7  ;6ee8  fa 03
+    ;Region 7: FM 75.9 - 108.1
+    movw bc,#0x02f7                 ;6ee5  12 f7 02     BC = 759
+    br lab_6eed_fm_region_eq_7      ;6ee8  fa 03
 
-lab_6eea_mem_f1e7_region_ne_7:
-    movw bc,#0x036d         ;6eea  12 6d 03     BC = 877
+lab_6eea_fm_region_0_4_5_6:
+    movw bc,#0x036d                 ;6eea  12 6d 03     BC = 877
 
-lab_6eed_mem_f1e7_region_eq_7:
-    clr1 cy                 ;6eed  21
-    rolc a,1                ;6eee  27
-    mov x,a                 ;6eef  70
-    mov a,#0x00             ;6ef0  a1 00
-    addc a,#0x00            ;6ef2  2d 00
-    br lab_6f37             ;6ef4  fa 41
+lab_6eed_fm_region_eq_7:
+    clr1 cy                         ;6eed  21
+    rolc a,1                        ;6eee  27
+    mov x,a                         ;6eef  70
+    mov a,#0x00                     ;6ef0  a1 00
+    addc a,#0x00                    ;6ef2  2d 00
+    br lab_6f37                     ;6ef4  fa 41
 
-lab_6ef6_mem_f1e7_region_eq_2_or_3:
-    movw bc,#0x036b         ;6ef6  12 6b 03     BC = 875
-    mov x,a                 ;6ef9  70
-    mov a,#0x00             ;6efa  a1 00
-    br lab_6f37             ;6efc  fa 39
+lab_6ef6_fm_region_2_3:
+    movw bc,#0x036b                 ;6ef6  12 6b 03     BC = 875
+    mov x,a                         ;6ef9  70
+    mov a,#0x00                     ;6efa  a1 00
+    br lab_6f37                     ;6efc  fa 39
 
-lab_6efe_mem_f1e7_region_eq_1:
-    movw bc,#0x02f8         ;6efe  12 f8 02     BC = 760
-    mov x,a                 ;6f01  70
-    mov a,#0x00             ;6f02  a1 00
-    br lab_6f37             ;6f04  fa 31
+lab_6efe_fm_region_1:
+    movw bc,#0x02f8                 ;6efe  12 f8 02     BC = 760
+    mov x,a                         ;6f01  70
+    mov a,#0x00                     ;6f02  a1 00
+    br lab_6f37                     ;6f04  fa 31
 
+;AM
 lab_6f06_am:
-    movw bc,#0x020a         ;6f06  12 0a 02     BC = 522
-    xch a,x                 ;6f09  30
-    cmp a,#0x01             ;6f0a  4d 01
-    xch a,x                 ;6f0c  30
-    bz lab_6f33             ;6f0d  ad 24
+    movw bc,#0x020a                 ;6f06  12 0a 02     BC = 522
+    xch a,x                         ;6f09  30           A = mem_f1e7_region
+    cmp a,#0x01                     ;6f0a  4d 01
+    xch a,x                         ;6f0c  30
+    bz lab_6f33_am_region_1_2_3     ;6f0d  ad 24        Region 1: AM 530 - 1710
 
-    movw bc,#0x0213         ;6f0f  12 13 02     BC = 531
-    xch a,x                 ;6f12  30
-    cmp a,#0x02             ;6f13  4d 02
-    xch a,x                 ;6f15  30
-    bz lab_6f33             ;6f16  ad 1b
+    movw bc,#0x0213                 ;6f0f  12 13 02     BC = 531
+    xch a,x                         ;6f12  30
+    cmp a,#0x02                     ;6f13  4d 02
+    xch a,x                         ;6f15  30
+    bz lab_6f33_am_region_1_2_3     ;6f16  ad 1b        Region 2: AM 531 - 1629
 
-    movw bc,#0x0213         ;6f18  12 13 02     BC = 531
-    xch a,x                 ;6f1b  30
-    cmp a,#0x03             ;6f1c  4d 03
-    xch a,x                 ;6f1e  30
-    bz lab_6f33             ;6f1f  ad 12
+    movw bc,#0x0213                 ;6f18  12 13 02     BC = 531
+    xch a,x                         ;6f1b  30
+    cmp a,#0x03                     ;6f1c  4d 03
+    xch a,x                         ;6f1e  30
+    bz lab_6f33_am_region_1_2_3     ;6f1f  ad 12        Region 3: AM 531 - 1620
 
-    movw bc,#0x0208         ;6f21  12 08 02     BC = 520
-    xch a,x                 ;6f24  30
-    cmp a,#0x07             ;6f25  4d 07
-    xch a,x                 ;6f27  30
-    bz lab_6f2d             ;6f28  ad 03
+    movw bc,#0x0208                 ;6f21  12 08 02     BC = 520
+    xch a,x                         ;6f24  30
+    cmp a,#0x07                     ;6f25  4d 07
+    xch a,x                         ;6f27  30
+    bz lab_6f2d                     ;6f28  ad 03        Region 7: AM 520 - 1710
 
-    movw bc,#0x0212         ;6f2a  12 12 02     BC = 530
+    ;Region 0: AM 530 - 1710
+    ;Region 4: AM 530 - 1710
+    ;Region 5: AM 530 - 1710
+    ;Region 6: AM 530 - 1710
+
+    movw bc,#0x0212                 ;6f2a  12 12 02     BC = 530
 
 lab_6f2d:
-    mov x,#0x0a             ;6f2d  a0 0a        X = 10
-    mulu x                  ;6f2f  31 88        AX = A * 10
-    br lab_6f37             ;6f31  fa 04
+    mov x,#0x0a                     ;6f2d  a0 0a        X = 10
+    mulu x                          ;6f2f  31 88        AX = A * 10
+    br lab_6f37                     ;6f31  fa 04
 
-lab_6f33:
-    mov x,#0x09             ;6f33  a0 09        X = 9
-    mulu x                  ;6f35  31 88        AX = A * 9
+lab_6f33_am_region_1_2_3:
+    mov x,#0x09                     ;6f33  a0 09        X = 9
+    mulu x                          ;6f35  31 88        AX = A * 9
 
 lab_6f37:
-    xch a,x                 ;6f37  30
-    add a,c                 ;6f38  61 0a
-    xch a,x                 ;6f3a  30
-    addc a,b                ;6f3b  61 2b
-    callf !bin_to_bcd       ;6f3d  2c 7f        Convert AX to BCD, store word in mem_fed4
-                            ;                       mem_fed4: BCD low byte
-                            ;                       mem_fed5: BCD high byte
-    ret                     ;6f3f  af
+    xch a,x                         ;6f37  30
+    add a,c                         ;6f38  61 0a
+    xch a,x                         ;6f3a  30
+    addc a,b                        ;6f3b  61 2b
+    callf !bin_to_bcd               ;6f3d  2c 7f        Convert AX to BCD, store word in mem_fed4
+                                    ;                       mem_fed4: BCD low byte
+                                    ;                       mem_fed5: BCD high byte
+    ret                             ;6f3f  af
 
 freq_bcd_to_upd_disp:
     push hl                 ;6f40  b7
@@ -21181,7 +21199,7 @@ lab_700c:
     ror a,1                 ;7013  24
     ror a,1                 ;7014  24
     mov b,a                 ;7015  73
-    movw hl,#mem_af75       ;7016  16 75 af     HL = pointer to table of bit patterns
+    movw hl,#mem_af75_patterns ;7016  16 75 af     HL = pointer to table of bit patterns
     mov a,[hl+b]            ;7019  ab
     mov b,a                 ;701a  73
     pop ax                  ;701b  b0
@@ -25171,7 +25189,7 @@ lab_894f:
     sub rb0_b,#0x08         ;8960  98 fb 08
 
 lab_8963:
-    movw hl,#mem_af75       ;8963  16 75 af     HL = pointer to table of bit patterns
+    movw hl,#mem_af75_patterns ;8963  16 75 af     HL = pointer to table of bit patterns
     mov a,[hl+b]            ;8966  ab
     call !sub_5c64          ;8967  9a 64 5c
     cmp rb0_b,#0x00         ;896a  c8 fb 00
@@ -30426,7 +30444,7 @@ sub_abf5:
     ;Set corresponding port mode bit in PM9 to input
     and a,#0b00000111       ;abf8  5d 07
     mov b,a                 ;abfa  73
-    movw hl,#mem_af75       ;abfb  16 75 af       HL = pointer to table of bit patterns
+    movw hl,#mem_af75_patterns ;abfb  16 75 af       HL = pointer to table of bit patterns
     mov a,pm9               ;abfe  f4 29
     or a,[hl+b]             ;ac00  31 6b          OR with mask to turn a bit on (make it an input)
     mov pm9,a               ;ac02  f6 29
@@ -30459,7 +30477,7 @@ lab_ac25:
     ;Set corresponding port mode bit in PM8 to input
     and a,#0b00000111       ;ac25  5d 07
     mov b,a                 ;ac27  73
-    movw hl,#mem_af75       ;ac28  16 75 af     HL = pointer to table of bit patterns
+    movw hl,#mem_af75_patterns ;ac28  16 75 af     HL = pointer to table of bit patterns
     mov a,pm8               ;ac2b  f4 28
     or a,[hl+b]             ;ac2d  31 6b        OR with mask to turn a bit on (make it an input)
     mov pm8,a               ;ac2f  f6 28
@@ -30719,16 +30737,16 @@ mem_ad34_freq_tables:
 ;Table of pointers to frequency info tables
 ;table of words used with sub_0c48
     .byte 0x08              ;ad34  08          DATA 0x08        8 entries below:
-    .word mem_ad45+1  ;Region 0
-    .word mem_ad5a+1  ;Region 1
-    .word mem_ad6f+1  ;Region 2
-    .word mem_ad84+1  ;Region 3
-    .word mem_ad45+1  ;Region 4
-    .word mem_ad45+1  ;Region 5
-    .word mem_ad45+1  ;Region 6
-    .word mem_ad99+1  ;Region 7
+    .word mem_ad45_region_0_4_5_6+1 ;Region 0
+    .word mem_ad5a_region_1+1       ;Region 1
+    .word mem_ad6f_region_2+1       ;Region 2
+    .word mem_ad84_region_3+1       ;Region 3
+    .word mem_ad45_region_0_4_5_6+1 ;Region 4
+    .word mem_ad45_region_0_4_5_6+1 ;Region 5
+    .word mem_ad45_region_0_4_5_6+1 ;Region 6
+    .word mem_ad99_region_7+1       ;Region 7
 
-mem_ad45:
+mem_ad45_region_0_4_5_6:
     .byte 0x03              ;ad45  03          DATA 0x03        ?
     .byte 0x10              ;ad46  10          DATA 0x10        0
     .byte 0x04              ;ad47  04          DATA 0x04        1
@@ -30751,7 +30769,7 @@ mem_ad45:
     .byte 0x27              ;ad58  27          DATA 0x27 '''
     .byte 0xc4              ;ad59  c4          DATA 0xc4
 
-mem_ad5a:
+mem_ad5a_region_1:
     .byte 0x03              ;ad5a  03          DATA 0x03        ?
     .byte 0x10              ;ad5b  10          DATA 0x10        0
     .byte 0x02              ;ad5c  02          DATA 0x02        1
@@ -30774,7 +30792,7 @@ mem_ad5a:
     .byte 0x27              ;ad6d  27          DATA 0x27 '''
     .byte 0xcb              ;ad6e  cb          DATA 0xcb
 
-mem_ad6f:
+mem_ad6f_region_2:
     .byte 0x03              ;ad6f  03          DATA 0x03        ?
     .byte 0x10              ;ad70  10          DATA 0x10        0
     .byte 0x02              ;ad71  02          DATA 0x02        1
@@ -30797,7 +30815,7 @@ mem_ad6f:
     .byte 0x27              ;ad82  27          DATA 0x27 '''
     .byte 0xc2              ;ad83  c2          DATA 0xc2
 
-mem_ad84:
+mem_ad84_region_3:
     .byte 0x03              ;ad84  03          DATA 0x03        ?
     .byte 0x10              ;ad85  10          DATA 0x10        0
     .byte 0x02              ;ad86  02          DATA 0x02        1
@@ -30820,7 +30838,7 @@ mem_ad84:
     .byte 0x27              ;ad97  27          DATA 0x27 '''
     .byte 0xc2              ;ad98  c2          DATA 0xc2
 
-mem_ad99:
+mem_ad99_region_7:
     .byte 0x03              ;ad99  03          DATA 0x03        ?
     .byte 0x10              ;ad9a  10          DATA 0x10        0
     .byte 0x04              ;ad9b  04          DATA 0x04        1
@@ -30842,61 +30860,36 @@ mem_ad99:
     .byte 0x00              ;adab  00          DATA 0x00
     .byte 0x27              ;adac  27          DATA 0x27 '''
     .byte 0xce              ;adad  ce          DATA 0xce
-    .byte 0x1a              ;adae  1a          DATA 0x1a
 
-mem_adaf:
-    .byte 0x98              ;adaf  98          DATA 0x98        ?
-    .byte 0x16              ;adb0  16          DATA 0x16        0
-    .byte 0x2e              ;adb1  2e          DATA 0x2e '.'    1
-    .byte 0x17              ;adb2  17          DATA 0x17        2
-    .byte 0x2b              ;adb3  2b          DATA 0x2b '+'    3
-    .byte 0x17              ;adb4  17          DATA 0x17        4 = 0x17
-    .byte 0xe2              ;adb5  e2          DATA 0xe2
-    .byte 0x17              ;adb6  17          DATA 0x17
-    .byte 0xef              ;adb7  ef          DATA 0xef
-    .byte 0x17              ;adb8  17          DATA 0x17
-    .byte 0xa5              ;adb9  a5          DATA 0xa5
-    .byte 0x17              ;adba  17          DATA 0x17
-    .byte 0x9b              ;adbb  9b          DATA 0x9b
-    .byte 0x17              ;adbc  17          DATA 0x17
-    .byte 0xce              ;adbd  ce          DATA 0xce
-    .byte 0x17              ;adbe  17          DATA 0x17
-    .byte 0x1c              ;adbf  1c          DATA 0x1c
-    .byte 0x18              ;adc0  18          DATA 0x18
-    .byte 0x4f              ;adc1  4f          DATA 0x4f 'O'
-    .byte 0x17              ;adc2  17          DATA 0x17
-    .byte 0x0c              ;adc3  0c          DATA 0x0c
-    .byte 0x18              ;adc4  18          DATA 0x18
-    .byte 0x74              ;adc5  74          DATA 0x74 't'
-    .byte 0x18              ;adc6  18          DATA 0x18
-    .byte 0x80              ;adc7  80          DATA 0x80
-    .byte 0x18              ;adc8  18          DATA 0x18
-    .byte 0xea              ;adc9  ea          DATA 0xea
-    .byte 0x18              ;adca  18          DATA 0x18
-    .byte 0xee              ;adcb  ee          DATA 0xee
-    .byte 0x18              ;adcc  18          DATA 0x18
-    .byte 0x9b              ;adcd  9b          DATA 0x9b
-    .byte 0x16              ;adce  16          DATA 0x16
-    .byte 0xaf              ;adcf  af          DATA 0xaf
-    .byte 0x16              ;add0  16          DATA 0x16
-    .byte 0xfb              ;add1  fb          DATA 0xfb
-    .byte 0x16              ;add2  16          DATA 0x16
-    .byte 0x0d              ;add3  0d          DATA 0x0d
-    .byte 0x17              ;add4  17          DATA 0x17
-    .byte 0x58              ;add5  58          DATA 0x58 'X'
-    .byte 0x17              ;add6  17          DATA 0x17
-    .byte 0x60              ;add7  60          DATA 0x60 '`'
-    .byte 0x17              ;add8  17          DATA 0x17
-    .byte 0x14              ;add9  14          DATA 0x14
-    .byte 0x18              ;adda  18          DATA 0x18
-    .byte 0x72              ;addb  72          DATA 0x72 'r'
-    .byte 0x1c              ;addc  1c          DATA 0x1c
-    .byte 0xa0              ;addd  a0          DATA 0xa0
-    .byte 0x17              ;adde  17          DATA 0x17
-    .byte 0x54              ;addf  54          DATA 0x54 'T'
-    .byte 0x17              ;ade0  17          DATA 0x17
-    .byte 0x5c              ;ade1  5c          DATA 0x5c '\'
-    .byte 0x17              ;ade2  17          DATA 0x17
+mem_adae:
+;table of words used with sub_0c48
+    .byte 0x1a              ;adae  1a          DATA 0x1a        26 entries below:
+    .word lab_1698
+    .word lab_172e
+    .word lab_172b
+    .word lab_17e2
+    .word lab_17ef
+    .word lab_17a5
+    .word lab_179b
+    .word lab_17ce
+    .word lab_181c
+    .word lab_174f
+    .word lab_180c
+    .word lab_1874
+    .word lab_1880
+    .word lab_18ea
+    .word lab_18ee
+    .word lab_169b
+    .word lab_16af
+    .word lab_16fb
+    .word lab_170d
+    .word lab_1758
+    .word lab_1760
+    .word lab_1814
+    .word lab_1c72
+    .word lab_17a0
+    .word lab_1754
+    .word lab_175c
 
 mem_ade3:
 ;table of words used with sub_0c48
@@ -31275,14 +31268,15 @@ mem_af57:
     .word safe_code_1000    ;af6c   DATA  Set entered SAFE code to default of 1000
     .word sub_223a          ;af6e   DATA
 
-mem_af70:
+mem_af70_a99cz23:
+;See also lab_72e9
     .byte 0x41              ;af70  41          DATA 0x41 'A'
     .byte 0x99              ;af71  99          DATA 0x99
     .byte 0x43              ;af72  43          DATA 0x43 'C'
     .byte 0x5a              ;af73  5a          DATA 0x5a 'Z'
     .byte 0x23              ;af74  23          DATA 0x23 '#'
 
-mem_af75:
+mem_af75_patterns:
 ;Table of bit patterns
     .byte 0b00000001        ;af75  01          DATA 0x01
     .byte 0b00000010        ;af76  02          DATA 0x02
@@ -31862,10 +31856,10 @@ mem_b18f:
     .byte 0x12              ;b18f  12          DATA 0x12        18 entries below:
     .word .                 ;DATA  b190
     .word mem_b1b4+1        ;DATA
-    .word mem_af70          ;DATA
-    .word mem_af70          ;DATA
+    .word mem_af70_a99cz23  ;DATA
+    .word mem_af70_a99cz23  ;DATA
     .word mem_fe30          ;DATA
-    .word mem_af70          ;DATA
+    .word mem_af70_a99cz23  ;DATA
     .word freq_idx          ;DATA
     .word mem_f225          ;DATA
     .word mem_fe57          ;DATA
@@ -31873,7 +31867,7 @@ mem_b18f:
     .word mem_fe43          ;DATA
     .word mem_fbac          ;DATA
     .word mem_f1b3          ;DATA
-    .word mem_af70          ;DATA
+    .word mem_af70_a99cz23  ;DATA
     .word mem_f1b9          ;DATA
     .word mem_fe4c          ;DATA
     .word mem_fe44          ;DATA
@@ -38474,7 +38468,7 @@ lab_d121:
     movw de,#mem_b6c2       ;d124  14 c2 b6
     mov a,mem_fe44          ;d127  f0 44
     mov b,a                 ;d129  73
-    movw hl,#mem_af75       ;d12a  16 75 af     HL = pointer to table of bit patterns
+    movw hl,#mem_af75_patterns ;d12a  16 75 af     HL = pointer to table of bit patterns
     mov a,[hl+b]            ;d12d  ab
     call !sub_5c64          ;d12e  9a 64 5c
     bf mem_fe5d.7,lab_d137  ;d131  31 73 5d 02
