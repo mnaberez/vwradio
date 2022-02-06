@@ -25,6 +25,7 @@ mem_f000 = 0xf000           ;KWP1281 memory address for read ram or read eeprom 
 mem_f002 = 0xf002           ;KWP1281 eeprom address for write eeprom (2 bytes)
 mem_f004 = 0xf004
 fis_tx_ptr = 0xf006         ;FIS pointer to 3LB packet buffer used during transmit (2 bytes)
+mem_f00c = 0xf00c           ;Unknown; 2 bytes
 mem_f00e = 0xf00e
 mem_f00f = 0xf00f
 mem_f016 = 0xf016
@@ -141,7 +142,7 @@ mem_f1e4 = 0xf1e4           ;EEPROM 0041
 mem_f1e5 = 0xf1e5           ;EEPROM 0042
 mem_f1e6 = 0xf1e6           ;EEPROM 0043
 
-mem_f1e7_region = 0xf1e7    ;EEPROM 0046  Region (see description in mem_ad34_freq_tables)
+mem_f1e7_region = 0xf1e7    ;EEPROM 0046  Region (see description in mem_b3d9)
 mem_f1e8 = 0xf1e8           ;EEPROM 0047
 mem_f1e9 = 0xf1e9           ;EEPROM 0048  Bit 7: on="DELCO mode", off=normal
 mem_f1ea = 0xf1ea           ;EEPROM 0049  KWP1281 id block 3/4 "0001" byte for "DELCO mode" (see kwp_id_0001)
@@ -235,14 +236,14 @@ mem_f24f = 0xf24f           ;EEPROM 00AC
 
 mem_f252 = 0xf252           ;EEPROM 00AF  FM1/FM2: 0x00=FM1, 0x01=FM2
 mem_f253 = 0xf253           ;EEPROM 00B0  Mode: 0x00=?, 0x01=FM1/FM2, 0x02=AM
-mem_f254 = 0xf254           ;EEPROM 00B1  ONVOL
+mem_f254_onvol = 0xf254     ;EEPROM 00B1  ONVOL
 mem_f255 = 0xf255           ;EEPROM 00B2
 mem_f256 = 0xf256           ;EEPROM 00B3
-mem_f257 = 0xf257           ;EEPROM 00B4  FADE = CENTER
-mem_f258 = 0xf258           ;EEPROM 00B5  BAL = CENTER
-mem_f259 = 0xf259           ;EEPROM 00B6  BASS = 0
-                            ;EEPROM 00B7  MID = 0
-                            ;EEPROM 00B8  TREB = 0
+mem_f257_fade = 0xf257      ;EEPROM 00B4  FADE
+mem_f258_bal = 0xf258       ;EEPROM 00B5  BAL
+mem_f259_bass = 0xf259      ;EEPROM 00B6  BASS
+mem_f25a_mid = 0xf25a       ;EEPROM 00B7  MID
+mem_f25b_treb = 0xf25b      ;EEPROM 00B8  TREB
 mem_f25c = 0xf25c           ;EEPROM 00B9
 
 mem_f25f = 0xf25f           ;EEPROM 00BC
@@ -255,9 +256,8 @@ mem_f268 = 0xf268           ;EEPROM 00C5
 mem_f269 = 0xf269           ;EEPROM 00C6
 
 mem_f26b = 0xf26b           ;EEPROM 00C8
-
-mem_f26c = 0xf26c
-mem_f26d = 0xf26d
+mem_f26c_csum_lo = 0xf26c   ;EEPROM 00C9
+mem_f26d_csum_hi = 0xf26d   ;EEPROM 00CA
 
 ;0xF26E - 0xF7FF in Expansion RAM appears completely unused
 
@@ -551,7 +551,7 @@ mem_fe3f = 0xfe3f
 mem_fe40 = 0xfe40
 mem_fe41 = 0xfe41
 mem_fe42 = 0xfe42
-mem_fe43 = 0xfe43
+mem_fe43_key = 0xfe43       ;Key being pressed; possibly other uses
 mem_fe44 = 0xfe44
 mem_fe45 = 0xfe45
 mem_fe46 = 0xfe46
@@ -1099,77 +1099,77 @@ mem_00cf:
 
 mem_00ee:
 ;Defaults written to mem_f225 - mem_f26b
-    .byte 0x04              ;00ee  04          DATA 0x04        -> mem_f225   EEPROM 0082   FM1 Current Frequency Index = 88.3 MHz
-    .byte 0x06              ;00ef  06          DATA 0x06        -> mem_f226   EEPROM 0083
-    .byte 0x04              ;00f0  04          DATA 0x04        -> mem_f227   EEPROM 0084   FM1 Preset 1 Frequency Index = 88.3 MHz
-    .byte 0x06              ;00f1  06          DATA 0x06        -> mem_f228   EEPROM 0085
-    .byte 0x08              ;00f2  08          DATA 0x08        -> mem_f229   EEPROM 0086   FM1 Preset 2 Frequency Index = 89.1 MHz
-    .byte 0x06              ;00f3  06          DATA 0x06        -> mem_f22a   EEPROM 0087
-    .byte 0x21              ;00f4  21          DATA 0x21 '!'    -> mem_f22b   EEPROM 0088   FM1 Preset 3 Frequency Index = 94.1 MHz
-    .byte 0x06              ;00f5  06          DATA 0x06        -> mem_f22c   EEPROM 0089
-    .byte 0x3a              ;00f6  3a          DATA 0x3a ':'    -> mem_f22d   EEPROM 008A   FM1 Preset 4 Frequency Index = 99.1 MHz
-    .byte 0x06              ;00f7  06          DATA 0x06        -> mem_f22e   EEPROM 008B
-    .byte 0x5d              ;00f8  5d          DATA 0x5d ']'    -> mem_f22f   EEPROM 008C   FM1 Preset 5 Frequency Index = 106.1 MHz
-    .byte 0x06              ;00f9  06          DATA 0x06        -> mem_f230   EEPROM 008D
-    .byte 0x04              ;00fa  04          DATA 0x04        -> mem_f231   EEPROM 008E   FM1 Preset 6 Frequency Index = 88.3 MHz
-    .byte 0x06              ;00fb  06          DATA 0x06        -> mem_f232   EEPROM 008F
-    .byte 0x35              ;00fc  35          DATA 0x35 '5'    -> mem_f233   EEPROM 0090   FM2 Current Frequency Index = 98.1 MHz
-    .byte 0x06              ;00fd  06          DATA 0x06        -> mem_f234   EEPROM 0091
-    .byte 0x02              ;00fe  02          DATA 0x02        -> mem_f235   EEPROM 0092   FM2 Preset 1 Frequency Index = 87.9 MHz
-    .byte 0x06              ;00ff  06          DATA 0x06        -> mem_f236   EEPROM 0093
-    .byte 0x03              ;0100  03          DATA 0x03        -> mem_f237   EEPROM 0094   FM2 Preset 2 Frequency Index = 88.1 MHz
-    .byte 0x06              ;0101  06          DATA 0x06        -> mem_f238   EEPROM 0095
-    .byte 0x35              ;0102  35          DATA 0x35 '5'    -> mem_f239   EEPROM 0096   FM2 Preset 3 Frequency Index = 98.1 MHz
-    .byte 0x06              ;0103  06          DATA 0x06        -> mem_f23a   EEPROM 0097
-    .byte 0x2c              ;0104  2c          DATA 0x2c ','    -> mem_f23b   EEPROM 0098   FM2 Preset 4 Frequency Index = 96.3 MHz
-    .byte 0x06              ;0105  06          DATA 0x06        -> mem_f23c   EEPROM 0099
-    .byte 0x66              ;0106  66          DATA 0x66 'f'    -> mem_f23d   EEPROM 009A   FM2 Preset 5 Frequency Index = 107.9 MHz
-    .byte 0x06              ;0107  06          DATA 0x06        -> mem_f23e   EEPROM 009B
-    .byte 0x51              ;0108  51          DATA 0x51 'Q'    -> mem_f23f   EEPROM 009C   FM2 Preset 6 Frequency Index = 103.7 MHz
-    .byte 0x06              ;0109  06          DATA 0x06        -> mem_f240   EEPROM 009D
-    .byte 0x01              ;010a  01          DATA 0x01        -> mem_f241   EEPROM 009E   AM Current Frequency Index = 530 kHz
-    .byte 0x06              ;010b  06          DATA 0x06        -> mem_f242   EEPROM 009F
-    .byte 0x01              ;010c  01          DATA 0x01        -> mem_f243   EEPROM 00A0   AM Preset 1 Frequency Index = 530 kHz
-    .byte 0x06              ;010d  06          DATA 0x06        -> mem_f244   EEPROM 00A1
-    .byte 0x08              ;010e  08          DATA 0x08        -> mem_f245   EEPROM 00A2   AM Preset 2 Frequency Index = 600 kHz
-    .byte 0x06              ;010f  06          DATA 0x06        -> mem_f246   EEPROM 00A3
-    .byte 0x35              ;0110  35          DATA 0x35 '5'    -> mem_f247   EEPROM 00A4   AM Preset 3 Frequency Index = 1050 kHz
-    .byte 0x06              ;0111  06          DATA 0x06        -> mem_f248   EEPROM 00A5
-    .byte 0x58              ;0112  58          DATA 0x58 'X'    -> mem_f249   EEPROM 00A6   AM Preset 4 Frequency Index = 1400 kHz
-    .byte 0x06              ;0113  06          DATA 0x06        -> mem_f24a   EEPROM 00A7
-    .byte 0x77              ;0114  77          DATA 0x77 'w'    -> mem_f24b   EEPROM 00A8   AM Preset 5 Frequency Index = 1710 kHz
-    .byte 0x06              ;0115  06          DATA 0x06        -> mem_f24c   EEPROM 00A9
-    .byte 0x01              ;0116  01          DATA 0x01        -> mem_f24d   EEPROM 00AA   AM Preset 6 Frequency Index = 530 kHz
-    .byte 0x06              ;0117  06          DATA 0x06        -> mem_f24e   EEPROM 00AB
-    .byte 0x06              ;0118  06          DATA 0x06        -> mem_f24f   EEPROM 00AC
-    .byte 0x06              ;0119  06          DATA 0x06        -> mem_f250   EEPROM 00AD
-    .byte 0x06              ;011a  06          DATA 0x06        -> mem_f251   EEPROM 00AE
-    .byte 0x00              ;011b  00          DATA 0x00        -> mem_f252   EEPROM 00AF   FM1/FM2 = 0x00=FM1
-    .byte 0x01              ;011c  01          DATA 0x01        -> mem_f253   EEPROM 00B0   Mode = 0x01=FM1/FM2
-    .byte 0x42              ;011d  42          DATA 0x42 'B'    -> mem_f254   EEPROM 00B1   ONVOL = 33
-    .byte 0x00              ;011e  00          DATA 0x00        -> mem_f255   EEPROM 00B2
-    .byte 0x01              ;011f  01          DATA 0x01        -> mem_f256   EEPROM 00B3
-    .byte 0x0a              ;0120  0a          DATA 0x0a        -> mem_f257   EEPROM 00B4   FADE = CENTER
-    .byte 0x0a              ;0121  0a          DATA 0x0a        -> mem_f258   EEPROM 00B5   BAL = CENTER
-    .byte 0x0a              ;0122  0a          DATA 0x0a        -> mem_f259   EEPROM 00B6   BASS = 0
-    .byte 0x0a              ;0123  0a          DATA 0x0a        -> mem_f25a   EEPROM 00B7   MID = 0
-    .byte 0x0a              ;0124  0a          DATA 0x0a        -> mem_f25b   EEPROM 00B8   TREB = 0
-    .byte 0x0a              ;0125  0a          DATA 0x0a        -> mem_f25c   EEPROM 00B9
-    .byte 0x0a              ;0126  0a          DATA 0x0a        -> mem_f25d   EEPROM 00BA
-    .byte 0x0a              ;0127  0a          DATA 0x0a        -> mem_f25e   EEPROM 00BB
-    .byte 0x0a              ;0128  0a          DATA 0x0a        -> mem_f25f   EEPROM 00BC
-    .byte 0x0a              ;0129  0a          DATA 0x0a        -> mem_f260   EEPROM 00BD
-    .byte 0x0a              ;012a  0a          DATA 0x0a        -> mem_f261   EEPROM 00BE
-    .byte 0x0a              ;012b  0a          DATA 0x0a        -> mem_f262   EEPROM 00BF
-    .byte 0x0a              ;012c  0a          DATA 0x0a        -> mem_f263   EEPROM 00C0
-    .byte 0x0a              ;012d  0a          DATA 0x0a        -> mem_f264   EEPROM 00C1
-    .byte 0x0a              ;012e  0a          DATA 0x0a        -> mem_f265   EEPROM 00C2
-    .byte 0x0a              ;012f  0a          DATA 0x0a        -> mem_f266   EEPROM 00C3
-    .byte 0x0a              ;0130  0a          DATA 0x0a        -> mem_f267   EEPROM 00C4
-    .byte 0x42              ;0131  42          DATA 0x42 'B'    -> mem_f268   EEPROM 00C5
-    .byte 0x06              ;0132  06          DATA 0x06        -> mem_f269   EEPROM 00C6
-    .byte 0x06              ;0133  06          DATA 0x06        -> mem_f26a   EEPROM 00C7
-    .byte 0x55              ;0134  55          DATA 0x55 'U'    -> mem_f26b   EEPROM 00C8
+    .byte 0x04              ;00ee  04          DATA 0x04        -> mem_f225         EEPROM 0082   FM1 Current Frequency Index = 88.3 MHz
+    .byte 0x06              ;00ef  06          DATA 0x06        -> mem_f226         EEPROM 0083
+    .byte 0x04              ;00f0  04          DATA 0x04        -> mem_f227         EEPROM 0084   FM1 Preset 1 Frequency Index = 88.3 MHz
+    .byte 0x06              ;00f1  06          DATA 0x06        -> mem_f228         EEPROM 0085
+    .byte 0x08              ;00f2  08          DATA 0x08        -> mem_f229         EEPROM 0086   FM1 Preset 2 Frequency Index = 89.1 MHz
+    .byte 0x06              ;00f3  06          DATA 0x06        -> mem_f22a         EEPROM 0087
+    .byte 0x21              ;00f4  21          DATA 0x21 '!'    -> mem_f22b         EEPROM 0088   FM1 Preset 3 Frequency Index = 94.1 MHz
+    .byte 0x06              ;00f5  06          DATA 0x06        -> mem_f22c         EEPROM 0089
+    .byte 0x3a              ;00f6  3a          DATA 0x3a ':'    -> mem_f22d         EEPROM 008A   FM1 Preset 4 Frequency Index = 99.1 MHz
+    .byte 0x06              ;00f7  06          DATA 0x06        -> mem_f22e         EEPROM 008B
+    .byte 0x5d              ;00f8  5d          DATA 0x5d ']'    -> mem_f22f         EEPROM 008C   FM1 Preset 5 Frequency Index = 106.1 MHz
+    .byte 0x06              ;00f9  06          DATA 0x06        -> mem_f230         EEPROM 008D
+    .byte 0x04              ;00fa  04          DATA 0x04        -> mem_f231         EEPROM 008E   FM1 Preset 6 Frequency Index = 88.3 MHz
+    .byte 0x06              ;00fb  06          DATA 0x06        -> mem_f232         EEPROM 008F
+    .byte 0x35              ;00fc  35          DATA 0x35 '5'    -> mem_f233         EEPROM 0090   FM2 Current Frequency Index = 98.1 MHz
+    .byte 0x06              ;00fd  06          DATA 0x06        -> mem_f234         EEPROM 0091
+    .byte 0x02              ;00fe  02          DATA 0x02        -> mem_f235         EEPROM 0092   FM2 Preset 1 Frequency Index = 87.9 MHz
+    .byte 0x06              ;00ff  06          DATA 0x06        -> mem_f236         EEPROM 0093
+    .byte 0x03              ;0100  03          DATA 0x03        -> mem_f237         EEPROM 0094   FM2 Preset 2 Frequency Index = 88.1 MHz
+    .byte 0x06              ;0101  06          DATA 0x06        -> mem_f238         EEPROM 0095
+    .byte 0x35              ;0102  35          DATA 0x35 '5'    -> mem_f239         EEPROM 0096   FM2 Preset 3 Frequency Index = 98.1 MHz
+    .byte 0x06              ;0103  06          DATA 0x06        -> mem_f23a         EEPROM 0097
+    .byte 0x2c              ;0104  2c          DATA 0x2c ','    -> mem_f23b         EEPROM 0098   FM2 Preset 4 Frequency Index = 96.3 MHz
+    .byte 0x06              ;0105  06          DATA 0x06        -> mem_f23c         EEPROM 0099
+    .byte 0x66              ;0106  66          DATA 0x66 'f'    -> mem_f23d         EEPROM 009A   FM2 Preset 5 Frequency Index = 107.9 MHz
+    .byte 0x06              ;0107  06          DATA 0x06        -> mem_f23e         EEPROM 009B
+    .byte 0x51              ;0108  51          DATA 0x51 'Q'    -> mem_f23f         EEPROM 009C   FM2 Preset 6 Frequency Index = 103.7 MHz
+    .byte 0x06              ;0109  06          DATA 0x06        -> mem_f240         EEPROM 009D
+    .byte 0x01              ;010a  01          DATA 0x01        -> mem_f241         EEPROM 009E   AM Current Frequency Index = 530 kHz
+    .byte 0x06              ;010b  06          DATA 0x06        -> mem_f242         EEPROM 009F
+    .byte 0x01              ;010c  01          DATA 0x01        -> mem_f243         EEPROM 00A0   AM Preset 1 Frequency Index = 530 kHz
+    .byte 0x06              ;010d  06          DATA 0x06        -> mem_f244         EEPROM 00A1
+    .byte 0x08              ;010e  08          DATA 0x08        -> mem_f245         EEPROM 00A2   AM Preset 2 Frequency Index = 600 kHz
+    .byte 0x06              ;010f  06          DATA 0x06        -> mem_f246         EEPROM 00A3
+    .byte 0x35              ;0110  35          DATA 0x35 '5'    -> mem_f247         EEPROM 00A4   AM Preset 3 Frequency Index = 1050 kHz
+    .byte 0x06              ;0111  06          DATA 0x06        -> mem_f248         EEPROM 00A5
+    .byte 0x58              ;0112  58          DATA 0x58 'X'    -> mem_f249         EEPROM 00A6   AM Preset 4 Frequency Index = 1400 kHz
+    .byte 0x06              ;0113  06          DATA 0x06        -> mem_f24a         EEPROM 00A7
+    .byte 0x77              ;0114  77          DATA 0x77 'w'    -> mem_f24b         EEPROM 00A8   AM Preset 5 Frequency Index = 1710 kHz
+    .byte 0x06              ;0115  06          DATA 0x06        -> mem_f24c         EEPROM 00A9
+    .byte 0x01              ;0116  01          DATA 0x01        -> mem_f24d         EEPROM 00AA   AM Preset 6 Frequency Index = 530 kHz
+    .byte 0x06              ;0117  06          DATA 0x06        -> mem_f24e         EEPROM 00AB
+    .byte 0x06              ;0118  06          DATA 0x06        -> mem_f24f         EEPROM 00AC
+    .byte 0x06              ;0119  06          DATA 0x06        -> mem_f250         EEPROM 00AD
+    .byte 0x06              ;011a  06          DATA 0x06        -> mem_f251         EEPROM 00AE
+    .byte 0x00              ;011b  00          DATA 0x00        -> mem_f252         EEPROM 00AF   FM1/FM2 = 0x00=FM1
+    .byte 0x01              ;011c  01          DATA 0x01        -> mem_f253         EEPROM 00B0   Mode = 0x01=FM1/FM2
+    .byte 0x42              ;011d  42          DATA 0x42 'B'    -> mem_f254_onvol   EEPROM 00B1   ONVOL = 33
+    .byte 0x00              ;011e  00          DATA 0x00        -> mem_f255         EEPROM 00B2
+    .byte 0x01              ;011f  01          DATA 0x01        -> mem_f256         EEPROM 00B3
+    .byte 0x0a              ;0120  0a          DATA 0x0a        -> mem_f257_fade    EEPROM 00B4   FADE = CENTER
+    .byte 0x0a              ;0121  0a          DATA 0x0a        -> mem_f258_bal     EEPROM 00B5   BAL = CENTER
+    .byte 0x0a              ;0122  0a          DATA 0x0a        -> mem_f259_bass    EEPROM 00B6   BASS = 0
+    .byte 0x0a              ;0123  0a          DATA 0x0a        -> mem_f25a_mid     EEPROM 00B7   MID = 0
+    .byte 0x0a              ;0124  0a          DATA 0x0a        -> mem_f25b_treb    EEPROM 00B8   TREB = 0
+    .byte 0x0a              ;0125  0a          DATA 0x0a        -> mem_f25c         EEPROM 00B9
+    .byte 0x0a              ;0126  0a          DATA 0x0a        -> mem_f25d         EEPROM 00BA
+    .byte 0x0a              ;0127  0a          DATA 0x0a        -> mem_f25e         EEPROM 00BB
+    .byte 0x0a              ;0128  0a          DATA 0x0a        -> mem_f25f         EEPROM 00BC
+    .byte 0x0a              ;0129  0a          DATA 0x0a        -> mem_f260         EEPROM 00BD
+    .byte 0x0a              ;012a  0a          DATA 0x0a        -> mem_f261         EEPROM 00BE
+    .byte 0x0a              ;012b  0a          DATA 0x0a        -> mem_f262         EEPROM 00BF
+    .byte 0x0a              ;012c  0a          DATA 0x0a        -> mem_f263         EEPROM 00C0
+    .byte 0x0a              ;012d  0a          DATA 0x0a        -> mem_f264         EEPROM 00C1
+    .byte 0x0a              ;012e  0a          DATA 0x0a        -> mem_f265         EEPROM 00C2
+    .byte 0x0a              ;012f  0a          DATA 0x0a        -> mem_f266         EEPROM 00C3
+    .byte 0x0a              ;0130  0a          DATA 0x0a        -> mem_f267         EEPROM 00C4
+    .byte 0x42              ;0131  42          DATA 0x42 'B'    -> mem_f268         EEPROM 00C5
+    .byte 0x06              ;0132  06          DATA 0x06        -> mem_f269         EEPROM 00C6
+    .byte 0x06              ;0133  06          DATA 0x06        -> mem_f26a         EEPROM 00C7
+    .byte 0x55              ;0134  55          DATA 0x55 'U'    -> mem_f26b         EEPROM 00C8
 
 ;Watch timer interrupt handler
 intwtni0_0135:
@@ -1541,7 +1541,7 @@ sub_0812:
 sub_0816:
     clr1 mem_fe5b.1         ;0816  1b 5b
     clr1 mem_fe5c.5         ;0818  5b 5c
-    call !sub_1c9d          ;081a  9a 9d 1c
+    call !sub_1c9d_region   ;081a  9a 9d 1c     Set mem_fe5d.4 if mem_f1e7_region & 0x07 = 0, otherwise clear it
     call !sub_080b_fm1fm2   ;081d  9a 0b 08     Return mem_f252 in A (FM1/FM2: 0x00=FM1, 0x01=FM2), also copy it into mem_fb57
     call !sub_1bff          ;0820  9a ff 1b
 
@@ -1963,8 +1963,8 @@ lab_0a0c_ret:
     ret                     ;0a0c  af
 
 sub_0a0d:
-;A=0x66, mem_fed6=0x66 (difference of #mem_f26c - #mem_f206)
-    movw ax,#mem_f26c       ;0a0d  10 6c f2
+;A=0x66, mem_fed6=0x66 (difference of #mem_f26c_csum_lo - #mem_f206)
+    movw ax,#mem_f26c_csum_lo       ;0a0d  10 6c f2
     subw ax,#mem_f206       ;0a10  da 06 f2
     mov a,x                 ;0a13  60
     mov mem_fed6,a          ;0a14  f2 d6
@@ -1989,7 +1989,7 @@ sub_0a1c:
 
 sub_0a2c:
 ;Copy 0x66 bytes from mem_00cf to mem_f206
-    callf !sub_0a0d         ;0a2c  2c 0d        A=0x66, mem_fed6=0x66 (0x66 = #mem_f26c - #mem_f206)
+    callf !sub_0a0d         ;0a2c  2c 0d        A=0x66, mem_fed6=0x66 (0x66 = #mem_f26c_csum_lo - #mem_f206)
     movw hl,#mem_00cf       ;0a2e  16 cf 00     HL = source address
     movw de,#mem_f206       ;0a31  14 06 f2     DE = destination address
 
@@ -2057,12 +2057,12 @@ sub_0a60:
     bf a.6,lab_0a7e         ;0a67  31 6f 14
 
     ;Copy 0x47 bytes from mem_00ee to mem_f225
-    movw hl,#mem_00ee       ;0a6a  16 ee 00     HL = source address
-    movw de,#mem_f225       ;0a6d  14 25 f2     DE = destination address
-    movw ax,#mem_f26c       ;0a70  10 6c f2     AX = #mem_f26c
-    subw ax,#mem_f225       ;0a73  da 25 f2     AX = #mem_f26c - #mem_f225 = 0x47
-    mov a,x                 ;0a76  60           A = number of bytes to copy (0x47)
-    callf !sub_0c9e         ;0a77  4c 9e        Copy A bytes from [HL] to [DE]
+    movw hl,#mem_00ee         ;0a6a  16 ee 00     HL = source address
+    movw de,#mem_f225         ;0a6d  14 25 f2     DE = destination address
+    movw ax,#mem_f26c_csum_lo ;0a70  10 6c f2     AX = #mem_f26c_csum_lo
+    subw ax,#mem_f225         ;0a73  da 25 f2     AX = #mem_f26c_csum_lo - #mem_f225 = 0x47
+    mov a,x                   ;0a76  60           A = number of bytes to copy (0x47)
+    callf !sub_0c9e           ;0a77  4c 9e        Copy A bytes from [HL] to [DE]
 
     call !sub_4053          ;0a79  9a 53 40
 
@@ -2372,7 +2372,7 @@ lab_0b83:
     or a,c                  ;0b83  61 6a
     pop psw                 ;0b85  23
     bnc lab_0b8d            ;0b86  9d 05
-    call !sub_408f          ;0b88  9a 8f 40     Write A to [HL+B] then do unknown calculation with mem_f26c/mem_f26d
+    call !eeram_wr_byte_hl_b;0b88  9a 8f 40     Write A to EEPROM area in RAM at [HL+B], add to checksum
     br lab_0b8e             ;0b8b  fa 01
 
 lab_0b8d:
@@ -4119,7 +4119,7 @@ lab_15b7:
     bnc sub_1601            ;15c1  9d 3e
     call !sub_1c8d          ;15c3  9a 8d 1c
     bc sub_1601             ;15c6  8d 39
-    movw de,#0xaca7         ;15c8  14 a7 ac
+    movw de,#mem_aca7       ;15c8  14 a7 ac
     mov a,mem_fe20          ;15cb  f0 20
     mov b,a                 ;15cd  73
     movw hl,#mem_af75_patterns ;15ce  16 75 af   HL = pointer to table of bit patterns
@@ -4130,20 +4130,20 @@ lab_15b7:
     bf mem_fe5d.7,lab_15e5  ;15d8  31 73 5d 09
     mov a,!mem_fb68         ;15dc  8e 68 fb
     cmp a,#0x05             ;15df  4d 05
-    bc lab_15f4             ;15e1  8d 11
-    br lab_15f2             ;15e3  fa 0d
+    bc lab_15f4_am          ;15e1  8d 11
+    br lab_15f2_fm          ;15e3  fa 0d
 
 lab_15e5:
-    bt mem_fe2c.5,lab_15f4  ;15e5  dc 2c 0c
-    cmp mem_fe43,#0x16      ;15e8  c8 43 16
-    bz lab_15f2             ;15eb  ad 05
-    cmp mem_fe43,#0x17      ;15ed  c8 43 17
-    bnz lab_15f4            ;15f0  bd 02
+    bt mem_fe2c.5,lab_15f4_am ;15e5  dc 2c 0c
+    cmp mem_fe43_key,#0x16    ;15e8  c8 43 16     Key = MODE_AM?
+    bz lab_15f2_fm            ;15eb  ad 05
+    cmp mem_fe43_key,#0x17    ;15ed  c8 43 17     Key = MODE_FM?
+    bnz lab_15f4_am           ;15f0  bd 02
 
-lab_15f2:
+lab_15f2_fm:
     mov b,#0xff             ;15f2  a3 ff
 
-lab_15f4:
+lab_15f4_am:
     mov a,b                 ;15f4  63
     cmp a,#0xff             ;15f5  4d ff
     bnz lab_15fc            ;15f7  bd 03
@@ -4162,12 +4162,12 @@ sub_1601:
     mov a,#0x00             ;1607  a1 00
     mov !mem_fb57,a         ;1609  9e 57 fb
     movw hl,#mem_f252       ;160c  16 52 f2     Return mem_f252 in A (FM1/FM2: 0x00=FM1, 0x01=FM2), also copy it into mem_fb57
-    call !sub_4092          ;160f  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+    call !eeram_wr_byte_hl  ;160f  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
 
     mov a,#0x01             ;1612  a1 01
     mov !mem_fb58,a         ;1614  9e 58 fb
     movw hl,#mem_f253       ;1617  16 53 f2
-    call !sub_4092          ;161a  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+    call !eeram_wr_byte_hl  ;161a  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
 
     mov a,#0x00             ;161d  a1 00
     mov !mem_fc2f,a         ;161f  9e 2f fc
@@ -4224,7 +4224,7 @@ lab_165e:
 
 lab_167b:
     callf !sub_0c48         ;167b  4c 48        Load DE with word at position B in table [HL]
-    bc sub_1601             ;167d  8d 82
+    bc sub_1601             ;167d  8d 82        Branch if table lookup failed
 
 lab_167f:
     movw ax,#lab_1686       ;167f  10 86 16
@@ -4269,7 +4269,7 @@ lab_16b1:
     call !sub_080b_fm1fm2   ;16b7  9a 0b 08     Return mem_f252 in A (FM1/FM2: 0x00=FM1, 0x01=FM2), also copy it into mem_fb57
     mov b,a                 ;16ba  73
     movw hl,#mem_fb5b       ;16bb  16 5b fb
-    mov a,mem_fe43          ;16be  f0 43
+    mov a,mem_fe43_key      ;16be  f0 43
     sub a,#0x00             ;16c0  1d 00
     mov !mem_fb5a,a         ;16c2  9e 5a fb
     mov [hl+b],a            ;16c5  bb
@@ -4822,11 +4822,11 @@ sub_1a2c:
     bnz lab_1a3c            ;1a32  bd 08
     mov a,!mem_fc9c         ;1a34  8e 9c fc
     mov b,#0x01             ;1a37  a3 01
-    call !sub_408f          ;1a39  9a 8f 40     Write A to [HL+B] then do unknown calculation with mem_f26c/mem_f26d
+    call !eeram_wr_byte_hl_b;1a39  9a 8f 40     Write A to EEPROM area in RAM at [HL+B], add to checksum
 
 lab_1a3c:
     mov a,!freq_idx         ;1a3c  8e 56 fb
-    call !sub_4092          ;1a3f  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+    call !eeram_wr_byte_hl  ;1a3f  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
     ret                     ;1a42  af
 
 sub_1a43:
@@ -4841,7 +4841,7 @@ sub_1a51:
     mov a,!mem_fb5e         ;1a51  8e 5e fb
     mov !mem_fb57,a         ;1a54  9e 57 fb
     movw hl,#mem_f252       ;1a57  16 52 f2     Return mem_f252 in A (FM1/FM2: 0x00=FM1, 0x01=FM2), also copy it into mem_fb57
-    call !sub_4092          ;1a5a  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+    call !eeram_wr_byte_hl  ;1a5a  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
 
 sub_1a5d:
     mov b,#0x00             ;1a5d  a3 00
@@ -4989,12 +4989,12 @@ sub_1b09:
     call !find_preset_addr  ;1b0b  9a ea 1a
     mov a,!mem_fc9c         ;1b0e  8e 9c fc
     mov b,#0x01             ;1b11  a3 01
-    call !sub_408f          ;1b13  9a 8f 40     Write A to [HL+B] then do unknown calculation with mem_f26c/mem_f26d
+    call !eeram_wr_byte_hl_b;1b13  9a 8f 40     Write A to EEPROM area in RAM at [HL+B], add to checksum
     movw hl,#mem_f24f       ;1b16  16 4f f2
     call !sub_080b_fm1fm2   ;1b19  9a 0b 08     Return mem_f252 in A (FM1/FM2: 0x00=FM1, 0x01=FM2), also copy it into mem_fb57
     mov b,a                 ;1b1c  73
     mov a,!mem_fc9c         ;1b1d  8e 9c fc
-    call !sub_408f          ;1b20  9a 8f 40     Write A to [HL+B] then do unknown calculation with mem_f26c/mem_f26d
+    call !eeram_wr_byte_hl_b;1b20  9a 8f 40     Write A to EEPROM area in RAM at [HL+B], add to checksum
     ret                     ;1b23  af
 
 sub_1b24:
@@ -5051,7 +5051,7 @@ lab_1b6a:
     inc a                   ;1b6d  41
     movw hl,#mem_f252       ;1b6e  16 52 f2
     mov !mem_fb57,a         ;1b71  9e 57 fb
-    call !sub_4092          ;1b74  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+    call !eeram_wr_byte_hl  ;1b74  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
 
     call !sub_1c32          ;1b77  9a 32 1c
     bnc lab_1b89            ;1b7a  9d 0d
@@ -5059,7 +5059,7 @@ lab_1b6a:
     mov a,#0xff             ;1b7c  a1 ff
     mov !mem_fb57,a         ;1b7e  9e 57 fb
     movw hl,#mem_f252       ;1b81  16 52 f2
-    call !sub_4092          ;1b84  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+    call !eeram_wr_byte_hl  ;1b84  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
 
     br lab_1b6a             ;1b87  fa e1
 
@@ -5109,7 +5109,7 @@ sub_1bc8:
     inc a                   ;1bcb  41
     movw hl,#mem_f252       ;1bcc  16 52 f2
     mov !mem_fb57,a         ;1bcf  9e 57 fb
-    call !sub_4092          ;1bd2  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+    call !eeram_wr_byte_hl  ;1bd2  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
 
     call !sub_1c32          ;1bd5  9a 32 1c
     bnc lab_1bee            ;1bd8  9d 14
@@ -5120,7 +5120,7 @@ sub_1bc8:
     mov a,#0xff             ;1be1  a1 ff
     mov !mem_fb57,a         ;1be3  9e 57 fb
     movw hl,#mem_f252       ;1be6  16 52 f2
-    call !sub_4092          ;1be9  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+    call !eeram_wr_byte_hl  ;1be9  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
 
     br sub_1bc8             ;1bec  fa da
 
@@ -5134,7 +5134,7 @@ lab_1bf4:
     and a,#0x0f             ;1bf4  5d 0f
     movw hl,#mem_f252       ;1bf6  16 52 f2
     mov !mem_fb57,a         ;1bf9  9e 57 fb
-    call !sub_4092          ;1bfc  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+    call !eeram_wr_byte_hl  ;1bfc  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
 
 sub_1bff:
     call !sub_1c32          ;1bff  9a 32 1c
@@ -5146,7 +5146,7 @@ sub_1bff:
     push hl                 ;1c08  b7
     movw hl,#mem_f253       ;1c09  16 53 f2
     mov !mem_fb58,a         ;1c0c  9e 58 fb
-    call !sub_4092          ;1c0f  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+    call !eeram_wr_byte_hl  ;1c0f  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
 
     pop hl                  ;1c12  b6
     dec a                   ;1c13  51
@@ -5250,7 +5250,8 @@ sub_1c8d:
 lab_1c9c_ret:
     ret                     ;1c9c  af
 
-sub_1c9d:
+;Set mem_fe5d.4 if mem_f1e7_region & 0x07 = 0, otherwise clear it
+sub_1c9d_region:
     clr1 mem_fe5d.4         ;1c9d  4b 5d
     mov a,!mem_f1e7_region  ;1c9f  8e e7 f1
     and a,#0x07             ;1ca2  5d 07
@@ -5474,7 +5475,7 @@ lab_1deb:
     bz lab_1e0d             ;1dfd  ad 0e
     movw hl,#mem_aebc+1     ;1dff  16 bd ae
     callf !sub_0c48         ;1e02  4c 48        Load DE with word at position B in table [HL]
-    bc lab_1e0d             ;1e04  8d 07
+    bc lab_1e0d             ;1e04  8d 07        Branch if table lookup failed
     movw ax,#lab_1e0d       ;1e06  10 0d 1e
     push ax                 ;1e09  b1
     movw ax,de              ;1e0a  c4
@@ -5554,8 +5555,8 @@ lab_1e77:
     clr1 mem_fe5d.7         ;1e77  7b 5d
     bf mem_fe5e.0,lab_1eae  ;1e79  31 03 5e 31
     mov a,!mem_fb6e         ;1e7d  8e 6e fb
-    movw hl,#mem_f254       ;1e80  16 54 f2     HL = address of ONVOL
-    call !sub_1f47          ;1e83  9a 47 1f     Just calls sub_4092 and returns (Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d)
+    movw hl,#mem_f254_onvol ;1e80  16 54 f2     HL = address of ONVOL
+    call !sub_1f47          ;1e83  9a 47 1f     Just calls eeram_wr_byte_hl and returns (Write A to EEPROM area in RAM at [HL], add to checksum)
     clr1 mem_fe5e.0         ;1e86  0b 5e
     br lab_1eae             ;1e88  fa 24
 
@@ -5570,7 +5571,7 @@ lab_1e8a:
     set1 mem_fe73.3         ;1e9e  3a 73
     mov a,!mem_fb6f         ;1ea0  8e 6f fb
     movw hl,#mem_f255       ;1ea3  16 55 f2
-    call !sub_1f47          ;1ea6  9a 47 1f     Just calls sub_4092 and returns (Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d)
+    call !sub_1f47          ;1ea6  9a 47 1f     Just calls eeram_wr_byte_hl and returns (Write A to EEPROM area in RAM at [HL], add to checksum)
     set1 mem_fe80.0         ;1ea9  0a 80
     call !sub_7697          ;1eab  9a 97 76
 
@@ -5598,7 +5599,7 @@ lab_1ed0:
     br lab_1f46_ret         ;1ed4  fa 70
 
 lab_1ed6:
-    mov a,!mem_f254         ;1ed6  8e 54 f2     A=ONVOL
+    mov a,!mem_f254_onvol   ;1ed6  8e 54 f2     A=ONVOL
     mov !mem_fe57,a         ;1ed9  9e 57 fe
     mov a,!mem_fb68         ;1edc  8e 68 fb
     set1 mem_fe73.3         ;1edf  3a 73
@@ -5667,8 +5668,8 @@ lab_1f46_ret:
     ret                     ;1f46  af
 
 sub_1f47:
-;Just calls sub_4092 and returns
-    call !sub_4092          ;1f47  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+;Just calls eeram_wr_byte_hl and returns
+    call !eeram_wr_byte_hl  ;1f47  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
     br lab_1f46_ret         ;1f4a  fa fa        Branch to return
 
 lab_1f4c:
@@ -5687,17 +5688,17 @@ lab_1f57:
     mov !mem_fb4a,a         ;1f62  9e 4a fb
     mov a,!mem_fe57         ;1f65  8e 57 fe
     movw hl,#mem_f268       ;1f68  16 68 f2
-    call !sub_4092          ;1f6b  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+    call !eeram_wr_byte_hl  ;1f6b  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
 
     mov !mem_fb6d,a         ;1f6e  9e 6d fb
-    mov a,!mem_f254         ;1f71  8e 54 f2     A=ONVOL
+    mov a,!mem_f254_onvol   ;1f71  8e 54 f2     A=ONVOL
     bf mem_fe74.6,lab_1f86  ;1f74  31 63 74 0e
     cmp a,#0x5b             ;1f78  4d 5b
     bc lab_1f8c             ;1f7a  8d 10
 
     mov a,#0x5a             ;1f7c  a1 5a
-    movw hl,#mem_f254       ;1f7e  16 54 f2     HL = address of ONVOL
-    call !sub_4092          ;1f81  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+    movw hl,#mem_f254_onvol ;1f7e  16 54 f2     HL = address of ONVOL
+    call !eeram_wr_byte_hl  ;1f81  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
 
     br lab_1f8c             ;1f84  fa 06
 
@@ -5735,8 +5736,8 @@ lab_1fbb:
     cmp a,#0x07             ;1fc2  4d 07
     bz lab_1fdb             ;1fc4  ad 15
     mov a,!mem_fe57         ;1fc6  8e 57 fe
-    movw hl,#mem_f254       ;1fc9  16 54 f2     HL = address of ONVOL
-    br !sub_1f47            ;1fcc  9b 47 1f     Just calls sub_4092 and returns (Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d)
+    movw hl,#mem_f254_onvol ;1fc9  16 54 f2     HL = address of ONVOL
+    br !sub_1f47            ;1fcc  9b 47 1f     Just calls eeram_wr_byte_hl and returns (Write A to EEPROM area in RAM at [HL], add to checksum)
 
 lab_1fcf:
     mov a,!mem_fb6f         ;1fcf  8e 6f fb
@@ -6003,7 +6004,7 @@ sub_214e:
 
     mov a,#0x00             ;215c  a1 00
     movw hl,#mem_f20a       ;215e  16 0a f2
-    call !sub_4092          ;2161  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+    call !eeram_wr_byte_hl  ;2161  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
 
 lab_2164:
     mov a,!mem_fb70         ;2164  8e 70 fb
@@ -6049,7 +6050,7 @@ lab_21a3:
 
     mov a,#0x00             ;21b5  a1 00
     movw hl,#mem_f20b       ;21b7  16 0b f2     HL = pointer to SAFE code attempt counter
-    call !sub_4092          ;21ba  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+    call !eeram_wr_byte_hl  ;21ba  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
 
     mov a,#0x01             ;21bd  a1 01
     mov !mem_fb70,a         ;21bf  9e 70 fb
@@ -6230,7 +6231,7 @@ lab_22dc:
 
 lab_22f1:
     movw hl,#mem_f206       ;22f1  16 06 f2
-    call !sub_4092          ;22f4  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+    call !eeram_wr_byte_hl  ;22f4  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
     mov a,#0x06             ;22f7  a1 06
 
 lab_22f9:
@@ -6263,7 +6264,7 @@ lab_2317:
     mov1 cy,mem_fe23.5      ;231c  71 54 23
     mov1 a.2,cy             ;231f  61 a9
     movw hl,#mem_f207       ;2321  16 07 f2
-    call !sub_4092          ;2324  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+    call !eeram_wr_byte_hl  ;2324  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
 
 lab_2327:
     mov a,!mem_fb71         ;2327  8e 71 fb
@@ -6272,15 +6273,15 @@ lab_2327:
 
     mov a,!mem_fb73         ;232e  8e 73 fb     A = sub_2537_secure_resp security access computation result (high byte)
     movw hl,#mem_f208       ;2331  16 08 f2
-    call !sub_4092          ;2334  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+    call !eeram_wr_byte_hl  ;2334  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
 
     mov a,!mem_fb74         ;2337  8e 74 fb     sub_2537_secure_resp security access computation result (low byte)
     movw hl,#mem_f209       ;233a  16 09 f2
-    call !sub_4092          ;233d  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+    call !eeram_wr_byte_hl  ;233d  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
 
     call !sub_249c          ;2340  9a 9c 24     A = 1 + sum of 6 bytes at mem_f206 - mem_f20b
     movw hl,#mem_f20c       ;2343  16 0c f2
-    call !sub_4092          ;2346  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+    call !eeram_wr_byte_hl  ;2346  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
 
     set1 mem_fe23.7         ;2349  7a 23        SAFE mode = unlocked
 
@@ -6370,19 +6371,19 @@ lab_23a7:
 
     mov a,#0x44             ;23af  a1 44
     movw hl,#mem_f207       ;23b1  16 07 f2
-    call !sub_4092          ;23b4  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+    call !eeram_wr_byte_hl  ;23b4  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
 
     mov a,#0x00             ;23b7  a1 00
     movw hl,#mem_f20b       ;23b9  16 0b f2     HL = pointer to SAFE code attempt counter
-    call !sub_4092          ;23bc  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+    call !eeram_wr_byte_hl  ;23bc  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
 
     mov a,#0x00             ;23bf  a1 00
     movw hl,#mem_f20a       ;23c1  16 0a f2
-    call !sub_4092          ;23c4  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+    call !eeram_wr_byte_hl  ;23c4  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
 
     call !sub_249c          ;23c7  9a 9c 24     A = 1 + sum of 6 bytes at mem_f206 - mem_f20b
     movw hl,#mem_f20c       ;23ca  16 0c f2
-    call !sub_4092          ;23cd  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+    call !eeram_wr_byte_hl  ;23cd  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
 
 lab_23d0:
     set1 mem_fe61.5         ;23d0  5a 61
@@ -6437,7 +6438,7 @@ lab_2419:
     mov1 cy,mem_fe23.6      ;2424  71 64 23
     mov1 a.6,cy             ;2427  61 e9
     movw hl,#mem_f207       ;2429  16 07 f2
-    call !sub_4092          ;242c  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+    call !eeram_wr_byte_hl  ;242c  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
 
 lab_242f:
     br !lab_2213            ;242f  9b 13 22
@@ -6461,7 +6462,7 @@ lab_2442:
     cmp a,#0x03             ;244b  4d 03
     bnc lab_245e            ;244d  9d 0f
     movw hl,#mem_f20b       ;244f  16 0b f2     HL = pointer to SAFE code attempt counter
-    call !sub_4092          ;2452  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+    call !eeram_wr_byte_hl  ;2452  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
     cmp a,#0x02             ;2455  4d 02
     bnc lab_245e            ;2457  9d 05
     mov a,#0x02             ;2459  a1 02
@@ -6481,7 +6482,7 @@ sub_246b:
     mov b,a                 ;2470  73
     mov a,#0x00             ;2471  a1 00
     movw hl,#mem_f20b       ;2473  16 0b f2     HL = pointer to SAFE code attempt counter
-    call !sub_4092          ;2476  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+    call !eeram_wr_byte_hl  ;2476  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
     movw hl,#mem_2033       ;2479  16 33 20
     mov a,#0xe1             ;247c  a1 e1
     call !sub_2482          ;247e  9a 82 24
@@ -6492,7 +6493,7 @@ sub_2482:
 
     call !sub_249c          ;2485  9a 9c 24     A = 1 + sum of 6 bytes at mem_f206 - mem_f20b
     movw hl,#mem_f20c       ;2488  16 0c f2
-    call !sub_4092          ;248b  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+    call !eeram_wr_byte_hl  ;248b  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
 
     ret                     ;248e  af
 
@@ -6570,7 +6571,7 @@ lab_24f0:
 sub_24f1:
     call !sub_249c          ;24f1  9a 9c 24     A = 1 + sum of 6 bytes at mem_f206 - mem_f20b
     movw hl,#mem_f20c       ;24f4  16 0c f2
-    call !sub_4092          ;24f7  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+    call !eeram_wr_byte_hl  ;24f7  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
 
     movw de,#mem_fb77       ;24fa  14 77 fb
     movw hl,#mem_fe23       ;24fd  16 23 fe
@@ -6793,7 +6794,7 @@ lab_25e0_fail:
     cmp a,#0x03             ;25e4  4d 03
     bnc lab_25f4            ;25e6  9d 0c
     movw hl,#mem_f20a       ;25e8  16 0a f2
-    call !sub_4092          ;25eb  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+    call !eeram_wr_byte_hl  ;25eb  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
 
     cmp a,#0x02             ;25ee  4d 02
     bnc lab_25f4            ;25f0  9d 02
@@ -7192,7 +7193,7 @@ lab_27a7_loop:
     cmp a,[hl]              ;27a8  4f
     bz lab_27b0             ;27a9  ad 05
     mov a,#0x88             ;27ab  a1 88        A = 0x88 (fault elaboration for "no fault")
-    call !sub_4092          ;27ad  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+    call !eeram_wr_byte_hl  ;27ad  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
 
 lab_27b0:
     incw hl                 ;27b0  86
@@ -7201,15 +7202,15 @@ lab_27b0:
 
     movw hl,#mem_f217       ;27b4  16 17 f2     HL = pointer to faults buffer #2 "01195 - End"
     mov a,#0x88             ;27b7  a1 88        A = 0x88 (fault elaboration for "no fault")
-    call !sub_4092          ;27b9  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+    call !eeram_wr_byte_hl  ;27b9  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
 
     movw hl,#mem_f218       ;27bc  16 18 f2     HL = pointer to faults buffer #2 "65535 - Internal Control Module Memory Error"
     mov a,#0x88             ;27bf  a1 88        A = 0x88 (fault elaboration for "no fault")
-    call !sub_4092          ;27c1  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+    call !eeram_wr_byte_hl  ;27c1  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
 
     movw hl,#mem_f219       ;27c4  16 19 f2
     mov a,#0x00             ;27c7  a1 00        A = 0
-    call !sub_4092          ;27c9  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+    call !eeram_wr_byte_hl  ;27c9  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
 
     clr1 mem_fe6d.3         ;27cc  3b 6d        ROM checksum calculation = not performed
 
@@ -7751,7 +7752,7 @@ lab_29ce:
     ;mem_fed4.0 & mem_f1fd.0 = 0
     movw hl,#mem_f215       ;29d7  16 15 f2     HL = pointer to faults buffer #2 "00856 - Radio Antenna"
     mov a,#0x88             ;29da  a1 88        A = 0x88 (fault elaboration for "no fault")
-    call !sub_4092          ;29dc  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+    call !eeram_wr_byte_hl  ;29dc  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
 
 lab_29df:
     mov a,b                 ;29df  63           A = recall result of mem_fed4 & mem_f1fd
@@ -7760,7 +7761,7 @@ lab_29df:
     ;mem_fed4.1 & mem_f1fd.1 = 0
     movw hl,#mem_f214       ;29e3  16 14 f2     HL = pointer to faults buffer #2 "00855 - Connection to CD changer"
     mov a,#0x88             ;29e6  a1 88        A = 0x88 (fault elaboration for "no fault")
-    call !sub_4092          ;29e8  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+    call !eeram_wr_byte_hl  ;29e8  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
 
 lab_29eb:
     mov a,b                 ;29eb  63           A = recall result of mem_fed4 & mem_f1fd
@@ -7769,7 +7770,7 @@ lab_29eb:
     ;mem_fed4.2 & mem_f1fd.2 = 0
     movw hl,#mem_f213       ;29ef  16 13 f2     HL = pointer to faults buffer #2 "00854 - Radio Display Output in Dash Panel Insert"
     mov a,#0x88             ;29f2  a1 88        A = 0x88 (fault elaboration for "no fault")
-    call !sub_4092          ;29f4  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+    call !eeram_wr_byte_hl  ;29f4  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
 
 lab_29f7:
     mov a,mem_fed5          ;29f7  f0 d5
@@ -7780,11 +7781,11 @@ lab_29f7:
     ;mem_fed5 & 0b00001111 != 0
     movw hl,#mem_f211       ;2a00  16 11 f2     HL = pointer to faults buffer #2 "00852 - Loudspeaker(s); Front"
     mov a,#0x88             ;2a03  a1 88        A = 0x88 (fault elaboration for "no fault")
-    call !sub_4092          ;2a05  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+    call !eeram_wr_byte_hl  ;2a05  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
 
     movw hl,#mem_f212       ;2a08  16 12 f2     HL = pointer to faults buffer #2 "00853 - Loudspeaker(s); Rear"
     mov a,#0x88             ;2a0b  a1 88        A = 0x88 (fault elaboration for "no fault")
-    call !sub_4092          ;2a0d  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+    call !eeram_wr_byte_hl  ;2a0d  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
 
 lab_2a10:
     movw hl,#mem_f1f9       ;2a10  16 f9 f1     HL = pointer to buffer to sum
@@ -7894,7 +7895,7 @@ lab_2a9f_loop:
 
     movw hl,#mem_f216       ;2ab1  16 16 f2     HL = pointer to faults buffer #2 "01044 - Control Module Incorrectly Coded"
     mov a,#0x88             ;2ab4  a1 88        A = 0x88 (fault elaboration for "no fault")
-    call !sub_4092          ;2ab6  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+    call !eeram_wr_byte_hl  ;2ab6  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
 
 lab_2ab9_ret:
     ret                     ;2ab9  af
@@ -8428,18 +8429,18 @@ lab_2cac_fault:
     ret                     ;2cad  af
 
 sub_2cae:
-;Write 0 to mem_f218 and A to mem_f219 via sub_4092
+;Write 0 to mem_f218 and A to mem_f219 via eeram_wr_byte_hl
     mov x,#0x00             ;2cae  a0 00
 
 sub_2cb0:
-;Write X to mem_f218 and A to mem_f219 via sub_4092
+;Write X to mem_f218 and A to mem_f219 via eeram_wr_byte_hl
     push ax                 ;2cb0  b1
     xch a,x                 ;2cb1  30
     movw hl,#mem_f218       ;2cb2  16 18 f2
-    call !sub_4092          ;2cb5  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+    call !eeram_wr_byte_hl  ;2cb5  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
     incw hl                 ;2cb8  86           Increment HL to 0xf219
     pop ax                  ;2cb9  b0
-    call !sub_4092          ;2cba  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+    call !eeram_wr_byte_hl  ;2cba  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
     ret                     ;2cbd  af
 
 sub_2cbe:
@@ -8462,7 +8463,7 @@ lab_2cc7:
     cmp a,#0x32             ;2cc8  4d 32
     bnc lab_2cd0            ;2cca  9d 04
     inc a                   ;2ccc  41
-    call !sub_4092          ;2ccd  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+    call !eeram_wr_byte_hl  ;2ccd  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
 
 lab_2cd0:
     ret                     ;2cd0  af
@@ -8474,7 +8475,7 @@ lab_2cd1:
 
 lab_2cd6:
     mov a,[de]              ;2cd6  85
-    call !sub_4092          ;2cd7  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+    call !eeram_wr_byte_hl  ;2cd7  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
     incw hl                 ;2cda  86
     incw de                 ;2cdb  84
     dbnz b,lab_2cd6         ;2cdc  8b f8
@@ -10637,7 +10638,7 @@ lab_3722:
     mov b,a                 ;372c  73
     movw hl,#mem_b040+1     ;372d  16 41 b0
     callf !sub_0c48         ;3730  4c 48        Load DE with word at position B in table [HL]
-    bc sub_3755             ;3732  8d 21
+    bc sub_3755             ;3732  8d 21        Branch if table lookup failed
     movw ax,#lab_373b       ;3734  10 3b 37
     push ax                 ;3737  b1
     movw ax,de              ;3738  c4
@@ -10960,7 +10961,7 @@ lab_392c:
     call !sub_4109          ;3932  9a 09 41
     bf mem_fe62.0,lab_393e  ;3935  31 03 62 05
     mov a,#0x03             ;3939  a1 03
-    call !sub_2cae          ;393b  9a ae 2c       Write 0 to mem_f218 and A to mem_f219 via sub_4092
+    call !sub_2cae          ;393b  9a ae 2c       Write 0 to mem_f218 and A to mem_f219 via eeram_wr_byte_hl
 
 lab_393e:
     call !sub_8090          ;393e  9a 90 80       Perform ROM checksum if not already performed
@@ -11387,7 +11388,7 @@ lab_3c08:
     bt mem_fe62.7,lab_3c58      ;3c08  fc 62 4d
     bt mem_fe62.1,lab_3c58      ;3c0b  9c 62 4a
     bf mem_fe65.5,lab_3c1a      ;3c0e  31 53 65 08
-    cmp mem_fe43,#0x33          ;3c12  c8 43 33
+    cmp mem_fe43_key,#0x33      ;3c12  c8 43 33
     bz lab_3c58                 ;3c15  ad 41
     call !kwp_logout_disconnect ;3c17  9a c3 51     Branch to Clear KWP1281 auth bits and disconnect
 
@@ -11406,7 +11407,7 @@ lab_3c29:
     mov a,!mem_fb70         ;3c30  8e 70 fb
     cmp a,#0x06             ;3c33  4d 06
     bz lab_3c3f             ;3c35  ad 08
-    cmp mem_fe43,#0x33      ;3c37  c8 43 33
+    cmp mem_fe43_key,#0x33  ;3c37  c8 43 33
     bnz lab_3c58            ;3c3a  bd 1c
     clr1 mem_fe2c.3         ;3c3c  3b 2c
     ret                     ;3c3e  af
@@ -11450,7 +11451,7 @@ lab_3c6d:
     mov a,!mem_fb54         ;3c70  8e 54 fb
     cmp a,#0x00             ;3c73  4d 00
     bz lab_3c59             ;3c75  ad e2
-    cmp mem_fe43,#0x43      ;3c77  c8 43 43
+    cmp mem_fe43_key,#0x43  ;3c77  c8 43 43
     bnz lab_3c7d            ;3c7a  bd 01
     ret                     ;3c7c  af
 
@@ -11953,7 +11954,7 @@ lab_3f96:
     set1 mem_fe63.5         ;3f96  5a 63
     mov a,#0x20             ;3f98  a1 20
     callt [0x0044]          ;3f9a  c5           Calls sub_09c6
-    callf !sub_0a0d         ;3f9b  2c 0d        A=0x66, mem_fed6=0x66 (0x66 = #mem_f26c - #mem_f206)
+    callf !sub_0a0d         ;3f9b  2c 0d        A=0x66, mem_fed6=0x66 (0x66 = #mem_f26c_csum_lo - #mem_f206)
     mov a,!mem_fb99         ;3f9d  8e 99 fb
     mov b,a                 ;3fa0  73
     movw de,#0x0063         ;3fa1  14 63 00
@@ -12053,7 +12054,7 @@ sub_4023:
     call !sub_6217          ;4023  9a 17 62     Unknown; EEPROM related
     bnc sub_4023            ;4026  9d fb        Repeat until success
 
-    callf !sub_0a0d         ;4028  2c 0d        A=0x66, mem_fed6=0x66 (0x66 = #mem_f26c - #mem_f206)
+    callf !sub_0a0d         ;4028  2c 0d        A=0x66, mem_fed6=0x66 (0x66 = #mem_f26c_csum_lo - #mem_f206)
 
     movw hl,#0x00c8         ;402a  16 c8 00     HL = EEPROM address to read
     movw de,#mem_f206       ;402d  14 06 f2     DE = destination buffer used at lab_4042_nonzero
@@ -12087,18 +12088,18 @@ lab_4049:
     ret                     ;4052  af
 
 sub_4053:
-    push hl                 ;4053  b7
-    push de                 ;4054  b5
-    movw hl,#mem_f206       ;4055  16 06 f2
-    movw de,#mem_f26c       ;4058  14 6c f2
-    callf !sub_0a0d         ;405b  2c 0d        A=0x66, mem_fed6=0x66 (0x66 = #mem_f26c - #mem_f206)
-    mov b,a                 ;405d  73
-    callf !sub_0c12         ;405e  4c 12
-    pop de                  ;4060  b4
-    pop hl                  ;4061  b6
-    bf mem_fe63.2,lab_406b  ;4062  31 23 63 05
-    clr1 mem_fe63.2         ;4066  2b 63
-    br !cold_or_warm_start  ;4068  9b cf 0d
+    push hl                   ;4053  b7
+    push de                   ;4054  b5
+    movw hl,#mem_f206         ;4055  16 06 f2
+    movw de,#mem_f26c_csum_lo ;4058  14 6c f2
+    callf !sub_0a0d           ;405b  2c 0d        A=0x66, mem_fed6=0x66 (0x66 = #mem_f26c_csum_lo - #mem_f206)
+    mov b,a                   ;405d  73
+    callf !sub_0c12           ;405e  4c 12
+    pop de                    ;4060  b4
+    pop hl                    ;4061  b6
+    bf mem_fe63.2,lab_406b    ;4062  31 23 63 05
+    clr1 mem_fe63.2           ;4066  2b 63
+    br !cold_or_warm_start    ;4068  9b cf 0d
 
 lab_406b:
     ret                     ;406b  af
@@ -12113,16 +12114,16 @@ lab_406c_failed:
     ret                     ;4075  af
 
 sub_4076:
-    push hl                 ;4076  b7
-    push de                 ;4077  b5
-    movw hl,#mem_f206       ;4078  16 06 f2
-    movw de,#mem_f26c       ;407b  14 6c f2
-    callf !sub_0a0d         ;407e  2c 0d        A=0x66, mem_fed6=0x66 (0x66 = #mem_f26c - #mem_f206)
-    mov b,a                 ;4080  73
-    callf !sub_0c0d         ;4081  4c 0d
-    pop de                  ;4083  b4
-    pop hl                  ;4084  b6
-    ret                     ;4085  af
+    push hl                   ;4076  b7
+    push de                   ;4077  b5
+    movw hl,#mem_f206         ;4078  16 06 f2
+    movw de,#mem_f26c_csum_lo ;407b  14 6c f2
+    callf !sub_0a0d           ;407e  2c 0d        A=0x66, mem_fed6=0x66 (0x66 = #mem_f26c_csum_lo - #mem_f206)
+    mov b,a                   ;4080  73
+    callf !sub_0c0d           ;4081  4c 0d
+    pop de                    ;4083  b4
+    pop hl                    ;4084  b6
+    ret                       ;4085  af
 
 sub_4086:
     call !sub_4076          ;4086  9a 76 40
@@ -12132,22 +12133,21 @@ sub_4086:
 lab_408e:
     ret                     ;408e  af
 
-sub_408f:
-;Write A to [HL+B] then do unknown calculation with mem_f26c/mem_f26d
-;HL+B must be in range of mem_f206 - mem_f26b
-;Possibly EEPROM related?
+eeram_wr_byte_hl_b:
+;Write A to EEPROM area in RAM at [HL+B], add to checksum
+;If HL+B is not in range of mem_f206 - mem_f26b then do nothing
 ;Called with:
-;  HL = an address
+;  HL = an address in RAM that maps to the EEPROM
 ;  B = index to add to the address
 ;  A = value
     push bc                 ;408f  b3
     br lab_4095             ;4090  fa 03
 
-sub_4092:
-;Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
-;HL must be in range of mem_f206 - mem_f26b
+eeram_wr_byte_hl:
+;Write A to EEPROM area in RAM at [HL+B], add to checksum
+;If HL+B is not in range of mem_f206 - mem_f26b then do nothing
 ;Called with:
-;  HL = an address
+;  HL = an address in RAM that maps to the EEPROM
 ;  A = value
     push bc                 ;4092  b3
     mov b,#0x00             ;4093  a3 00
@@ -12180,22 +12180,22 @@ lab_40ac_out_of_range:
 
 lab_40b1_in_range:
 ;HL+B is within range of #mem_f206 - #mem_f26b (inclusive)
-    mov a,!mem_f26c         ;40b1  8e 6c f2
+    mov a,!mem_f26c_csum_lo ;40b1  8e 6c f2
     sub a,[hl+b]            ;40b4  31 1b
     mov c,a                 ;40b6  72
-    mov a,!mem_f26d         ;40b7  8e 6d f2
+    mov a,!mem_f26d_csum_hi ;40b7  8e 6d f2
     subc a,#0x00            ;40ba  3d 00
-    mov !mem_f26d,a         ;40bc  9e 6d f2
+    mov !mem_f26d_csum_hi,a ;40bc  9e 6d f2
 
     pop ax                  ;40bf  b0           Pop value to write to [HL+B]
     mov [hl+b],a            ;40c0  bb           Store A in [HL+B]
 
     xch a,c                 ;40c1  32
     add a,c                 ;40c2  61 0a
-    mov !mem_f26c,a         ;40c4  9e 6c f2
-    mov a,!mem_f26d         ;40c7  8e 6d f2
+    mov !mem_f26c_csum_lo,a ;40c4  9e 6c f2
+    mov a,!mem_f26d_csum_hi ;40c7  8e 6d f2
     addc a,#0x00            ;40ca  2d 00
-    mov !mem_f26d,a         ;40cc  9e 6d f2
+    mov !mem_f26d_csum_hi,a ;40cc  9e 6d f2
     mov a,c                 ;40cf  62
 
     clr1 mem_fe63.6         ;40d0  6b 63
@@ -12210,7 +12210,7 @@ sub_40d6:
     mov a,#0x00             ;40d6  a1 00
 
 lab_40d8_loop:
-    call !sub_4092          ;40d8  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+    call !eeram_wr_byte_hl  ;40d8  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
     incw hl                 ;40db  86
     dbnz b,lab_40d8_loop    ;40dc  8b fa
     ret                     ;40de  af
@@ -12474,17 +12474,17 @@ lab_4266:
 lab_427a:
     bf mem_fe5d.7,lab_42a3  ;427a  31 73 5d 25
     bf mem_fe5e.0,lab_4291  ;427e  31 03 5e 0f
-    cmp mem_fe43,#0x17      ;4282  c8 43 17
+    cmp mem_fe43_key,#0x17  ;4282  c8 43 17     Key = MODE_FM?
     bz lab_42a1             ;4285  ad 1a
-    cmp mem_fe43,#0x16      ;4287  c8 43 16
+    cmp mem_fe43_key,#0x16  ;4287  c8 43 16     Key = MODE_AM?
     bz lab_42a1             ;428a  ad 15
-    cmp mem_fe43,#0x48      ;428c  c8 43 48
+    cmp mem_fe43_key,#0x48  ;428c  c8 43 48
     bz lab_42a1             ;428f  ad 10
 
 lab_4291:
-    cmp mem_fe43,#0x14      ;4291  c8 43 14
+    cmp mem_fe43_key,#0x14  ;4291  c8 43 14     Key = MODE_CD?
     bz lab_42a1             ;4294  ad 0b
-    cmp mem_fe43,#0x15      ;4296  c8 43 15
+    cmp mem_fe43_key,#0x15  ;4296  c8 43 15     Key = MODE_TAPE?
     bz lab_42a1             ;4299  ad 06
     cmp a,#0x03             ;429b  4d 03
     bz lab_42a1             ;429d  ad 02
@@ -12496,7 +12496,7 @@ lab_42a1:
 lab_42a3:
     cmp a,#0xff             ;42a3  4d ff
     bz sub_42be             ;42a5  ad 17
-    movw de,#0x4466         ;42a7  14 66 44
+    movw de,#lab_4466       ;42a7  14 66 44
     bt a.6,lab_42b7         ;42aa  31 6e 0a
     movw hl,#mem_b170+1     ;42ad  16 71 b1
     callf !sub_0c48         ;42b0  4c 48        Load DE with word at position B in table [HL]
@@ -12690,10 +12690,10 @@ sub_43b1:
     bnz lab_4402            ;43bf  bd 41
     cmp a,#0x01             ;43c1  4d 01
     bnz lab_43ea            ;43c3  bd 25
-    cmp mem_fe43,#0x49      ;43c5  c8 43 49
+    cmp mem_fe43_key,#0x49  ;43c5  c8 43 49
     bz lab_4400             ;43c8  ad 36
     call !sub_7697          ;43ca  9a 97 76
-    cmp mem_fe43,#0x34      ;43cd  c8 43 34
+    cmp mem_fe43_key,#0x34  ;43cd  c8 43 34
     bnz lab_43de            ;43d0  bd 0c
     mov a,#0x23             ;43d2  a1 23
     mov !mem_fb2e,a         ;43d4  9e 2e fb
@@ -12711,7 +12711,7 @@ lab_43de:
 lab_43ea:
     cmp a,#0x02             ;43ea  4d 02
     bnz lab_4400            ;43ec  bd 12
-    cmp mem_fe43,#0x49      ;43ee  c8 43 49
+    cmp mem_fe43_key,#0x49  ;43ee  c8 43 49
     bz lab_4400             ;43f1  ad 0d
     mov a,#0x23             ;43f3  a1 23
     mov !mem_fb2e,a         ;43f5  9e 2e fb
@@ -12786,7 +12786,7 @@ lab_4452:
 lab_445d:
     mov a,mem_fe30          ;445d  f0 30
     movw hl,#mem_f256       ;445f  16 56 f2
-    call !sub_4092          ;4462  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+    call !eeram_wr_byte_hl  ;4462  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
 
 lab_4465:
     ret                     ;4465  af
@@ -12817,7 +12817,7 @@ lab_447c:
     bz lab_448f             ;4486  ad 07
     mov a,x                 ;4488  60
     movw hl,#mem_f256       ;4489  16 56 f2
-    call !sub_4092          ;448c  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+    call !eeram_wr_byte_hl  ;448c  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
 
 lab_448f:
     mov a,#0x00             ;448f  a1 00
@@ -12864,7 +12864,7 @@ lab_44cc:
 
     mov a,#0x01             ;44d3  a1 01
     movw hl,#mem_f256       ;44d5  16 56 f2
-    call !sub_4092          ;44d8  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+    call !eeram_wr_byte_hl  ;44d8  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
 
 lab_44db:
     mov mem_fed4,#0x02      ;44db  11 d4 02
@@ -12898,10 +12898,10 @@ lab_4502:
     mov a,#0x01             ;450d  a1 01
     cmp a,#0x01             ;450f  4d 01
     bnz lab_4538            ;4511  bd 25
-    cmp mem_fe43,#0x49      ;4513  c8 43 49
+    cmp mem_fe43_key,#0x49  ;4513  c8 43 49
     bz lab_454e             ;4516  ad 36
     call !sub_7697          ;4518  9a 97 76
-    cmp mem_fe43,#0x34      ;451b  c8 43 34
+    cmp mem_fe43_key,#0x34  ;451b  c8 43 34
     bnz lab_452c            ;451e  bd 0c
     mov a,#0x23             ;4520  a1 23
     mov !mem_fb2e,a         ;4522  9e 2e fb
@@ -12919,7 +12919,7 @@ lab_452c:
 lab_4538:
     cmp a,#0x02             ;4538  4d 02
     bnz lab_454e            ;453a  bd 12
-    cmp mem_fe43,#0x49      ;453c  c8 43 49
+    cmp mem_fe43_key,#0x49  ;453c  c8 43 49
     bz lab_454e             ;453f  ad 0d
     mov a,#0x23             ;4541  a1 23
     mov !mem_fb2e,a         ;4543  9e 2e fb
@@ -13003,7 +13003,7 @@ lab_45aa:
 
     mov a,!mem_f193         ;45b0  8e 93 f1
     movw hl,#mem_f256       ;45b3  16 56 f2
-    call !sub_4092          ;45b6  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+    call !eeram_wr_byte_hl  ;45b6  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
 
 lab_45b9:
     ret                     ;45b9  af
@@ -17140,7 +17140,7 @@ lab_57f2:
     bt mem_fe67.2,lab_580a  ;5800  ac 67 07
     mov a,#0x01             ;5803  a1 01
     mov x,#0x80             ;5805  a0 80
-    call !sub_2cb0          ;5807  9a b0 2c     Write X to mem_f218 and A to mem_f219 via sub_4092
+    call !sub_2cb0          ;5807  9a b0 2c     Write X to mem_f218 and A to mem_f219 via eeram_wr_byte_hl
 
 lab_580a:
     mov a,!mem_fc27         ;580a  8e 27 fc
@@ -17232,7 +17232,7 @@ lab_5880:
 
 lab_5887:
     mov a,#0x01             ;5887  a1 01
-    call !sub_2cae          ;5889  9a ae 2c   Write 0 to mem_f218 and A to mem_f219 via sub_4092
+    call !sub_2cae          ;5889  9a ae 2c   Write 0 to mem_f218 and A to mem_f219 via eeram_wr_byte_hl
 
 lab_588c:
     br lab_58d5             ;588c  fa 47      Branch to clr1 mem_fe66.5 and return
@@ -17379,12 +17379,12 @@ lab_5944:
     bc lab_5941             ;594c  8d f3
     cmpw ax,#0x1d7d         ;594e  ea 7d 1d
     not1 cy                 ;5951  01
-    movw ax,!0xf00c         ;5952  02 0c f0
+    movw ax,!mem_f00c       ;5952  02 0c f0
     xch a,x                 ;5955  30
     rorc a,1                ;5956  25
     xch a,x                 ;5957  30
     rorc a,1                ;5958  25
-    movw !0xf00c,ax         ;5959  03 0c f0
+    movw !mem_f00c,ax       ;5959  03 0c f0
     cmp mem_fe34,#0x12      ;595c  c8 34 12
     bnz lab_5969            ;595f  bd 08
     cmpw ax,#0x8217         ;5961  ea 17 82
@@ -17859,7 +17859,7 @@ lab_5c58:
 sub_5c64:
     mov mem_fed4,a          ;5c64  f2 d4
     call !sub_7f3e          ;5c66  9a 3e 7f
-    mov a,mem_fe43          ;5c69  f0 43
+    mov a,mem_fe43_key      ;5c69  f0 43
     mov mem_fed5,a          ;5c6b  f2 d5
     mov a,#0x00             ;5c6d  a1 00
     bf mem_fe6d.0,lab_5c75  ;5c6f  31 03 6d 02
@@ -18627,12 +18627,15 @@ lab_60fd:
     dbnz b,lab_60fd         ;6104  8b f7
 
 lab_6106:
-    bf mem_fe5d.4,lab_611f  ;6106  31 43 5d 15
+    bf mem_fe5d.4,lab_611f  ;6106  31 43 5d 15  Branch if mem_f1e7_region & 0x07 != 0 (see sub_1c9d_region)
+
+    ;mem_f1e7_region & 0x07 = 0
     push ax                 ;610a  b1
     call !sub_0800_mode     ;610b  9a 00 08     Return mem_f253 in A (0x00=?, 0x01=FM1/FM2, 0x02=AM), also copy it into mem_fb58
     cmp a,#0x01             ;610e  4d 01
     pop ax                  ;6110  b0
     bnz lab_611f            ;6111  bd 0c
+
     ;mem_f253 = 0x01 (FM1/FM2)
     push ax                 ;6113  b1
     mov a,#0x01             ;6114  a1 01
@@ -19701,7 +19704,7 @@ sub_67c4:
     ret                     ;67d8  af
 
 sub_67d9:
-    movw hl,#mem_f259       ;67d9  16 59 f2     HL = address of BASS
+    movw hl,#mem_f259_bass  ;67d9  16 59 f2     HL = address of BASS
     mov a,mem_fe30          ;67dc  f0 30
     inc a                   ;67de  41
     cmp mem_fe30,#0x01      ;67df  c8 30 01
@@ -19834,7 +19837,7 @@ lab_6877:
     br lab_68e0             ;6880  fa 5e
 
 lab_6882:
-    mov a,!mem_fc30         ;6882  8e 30 fc
+    mov a,!mem_fc30         ;6882  8e 30 fc     Counts how long key is held down?
     cmp a,#0x00             ;6885  4d 00
     bnz lab_6890            ;6887  bd 07
     mov a,!mem_fb2d         ;6889  8e 2d fb
@@ -21725,7 +21728,7 @@ lab_7351:
     mov b,#0xff             ;7356  a3 ff
     call !sub_6e70          ;7358  9a 70 6e     Copy message from [HL] to display buf; uses A, B
 
-    mov a,!mem_f254         ;735b  8e 54 f2     A=ONVOL
+    mov a,!mem_f254_onvol   ;735b  8e 54 f2     A=ONVOL
     clr1 a.0                ;735e  61 8b
     ror a,1                 ;7360  24
     call !sub_0cf4          ;7361  9a f4 0c     Convert binary number in A to BCD number in AX
@@ -23191,7 +23194,7 @@ lab_7cb7:
     mov a,mem_fed6          ;7cbd  f0 d6
     mov b,a                 ;7cbf  73
     mov a,#0x00             ;7cc0  a1 00
-    call !sub_408f          ;7cc2  9a 8f 40     Write A to [HL+B] then do unknown calculation with mem_f26c/mem_f26d
+    call !eeram_wr_byte_hl_b;7cc2  9a 8f 40     Write A to EEPROM area in RAM at [HL+B], add to checksum
     cmp mem_fed9,#0x88      ;7cc5  c8 d9 88
     bz lab_7cd4             ;7cc8  ad 0a
     bf mem_fed9.7,lab_7cd4  ;7cca  31 73 d9 06
@@ -23203,7 +23206,7 @@ lab_7cd4:
     mov a,mem_fed6          ;7cd7  f0 d6
     mov b,a                 ;7cd9  73
     mov a,mem_fed7          ;7cda  f0 d7
-    call !sub_408f          ;7cdc  9a 8f 40     Write A to [HL+B] then do unknown calculation with mem_f26c/mem_f26d
+    call !eeram_wr_byte_hl_b;7cdc  9a 8f 40     Write A to EEPROM area in RAM at [HL+B], add to checksum
 
 lab_7cdf:
     clr1 mem_fe6a.7         ;7cdf  7b 6a
@@ -23248,7 +23251,7 @@ lab_7d1e:
     mov a,mem_fed6          ;7d21  f0 d6
     mov b,a                 ;7d23  73
     mov a,mem_fed8          ;7d24  f0 d8
-    call !sub_408f          ;7d26  9a 8f 40     Write A to [HL+B] then do unknown calculation with mem_f26c/mem_f26d
+    call !eeram_wr_byte_hl_b;7d26  9a 8f 40     Write A to EEPROM area in RAM at [HL+B], add to checksum
     set1 mem_fe6a.5         ;7d29  5a 6a
 
 lab_7d2b:
@@ -23275,7 +23278,7 @@ lab_7d4f:
     mov a,mem_fed6          ;7d52  f0 d6
     mov b,a                 ;7d54  73
     mov a,mem_fed9          ;7d55  f0 d9
-    call !sub_408f          ;7d57  9a 8f 40     Write A to [HL+B] then do unknown calculation with mem_f26c/mem_f26d
+    call !eeram_wr_byte_hl_b;7d57  9a 8f 40     Write A to EEPROM area in RAM at [HL+B], add to checksum
     br lab_7ce3             ;7d5a  fa 87
 
 lab_7d5c:
@@ -23286,7 +23289,7 @@ lab_7d5c:
     brk                     ;7d68  bf           Force cold start via badisr_0d75
 
 lab_7d69:
-    mov mem_fe43,#0x00      ;7d69  11 43 00
+    mov mem_fe43_key,#0x00  ;7d69  11 43 00
     mov a,#0xff             ;7d6c  a1 ff
     mov !mem_fc28,a         ;7d6e  9e 28 fc
     mov a,#0x00             ;7d71  a1 00
@@ -23329,8 +23332,8 @@ lab_7da6:
     call !sub_911b          ;7dad  9a 1b 91
     cmp a,#0x00             ;7db0  4d 00
     bz lab_7dbd             ;7db2  ad 09
-    mov mem_fe43,a          ;7db4  f2 43
-    cmp mem_fe43,#0x4a      ;7db6  c8 43 4a
+    mov mem_fe43_key,a      ;7db4  f2 43
+    cmp mem_fe43_key,#0x4a  ;7db6  c8 43 4a
     bnc lab_7dbd            ;7db9  9d 02
     br lab_7e25             ;7dbb  fa 68
 
@@ -23352,7 +23355,7 @@ lab_7dd1:
 
 lab_7dd8:
     or a,#0x80              ;7dd8  6d 80
-    mov mem_fe43,a          ;7dda  f2 43
+    mov mem_fe43_key,a      ;7dda  f2 43
     mov a,#0xff             ;7ddc  a1 ff
     mov !mem_fc28,a         ;7dde  9e 28 fc
     movw hl,#mem_fc24       ;7de1  16 24 fc
@@ -23385,7 +23388,7 @@ lab_7e0a:
     br !lab_7f09            ;7e0c  9b 09 7f
 
 lab_7e0f:
-    mov mem_fe43,a          ;7e0f  f2 43
+    mov mem_fe43_key,a      ;7e0f  f2 43
     xch a,b                 ;7e11  33
     mov !mem_fc28,a         ;7e12  9e 28 fc
     xch a,b                 ;7e15  33
@@ -23404,7 +23407,7 @@ lab_7e25:
 
 lab_7e2d:
     set1 mem_fe6d.0         ;7e2d  0a 6d
-    mov a,mem_fe43          ;7e2f  f0 43
+    mov a,mem_fe43_key      ;7e2f  f0 43
     and a,#0x7f             ;7e31  5d 7f
     mov b,a                 ;7e33  73
     movw hl,#mem_b5d6+1     ;7e34  16 d7 b5
@@ -23792,7 +23795,7 @@ lab_80a4_bad:
     cmp a,#0x03             ;80a7  4d 03
     bz lab_80b0_ret         ;80a9  ad 05
     mov a,#0x02             ;80ab  a1 02
-    call !sub_2cae          ;80ad  9a ae 2c     Write 0 to mem_f218 and A to mem_f219 via sub_4092
+    call !sub_2cae          ;80ad  9a ae 2c     Write 0 to mem_f218 and A to mem_f219 via eeram_wr_byte_hl
 
 lab_80b0_ret:
     ret                     ;80b0  af
@@ -25199,17 +25202,17 @@ lab_8963:
 lab_8972:
     cmp mem_fe30,#0x02      ;8972  c8 30 02
     bz lab_8997             ;8975  ad 20
-    cmp mem_fe43,#0x27      ;8977  c8 43 27
+    cmp mem_fe43_key,#0x27  ;8977  c8 43 27
     bz lab_89b3             ;897a  ad 37
-    cmp mem_fe43,#0x32      ;897c  c8 43 32
+    cmp mem_fe43_key,#0x32  ;897c  c8 43 32
     bz lab_89b3             ;897f  ad 32
-    cmp mem_fe43,#0x33      ;8981  c8 43 33
+    cmp mem_fe43_key,#0x33  ;8981  c8 43 33
     bz lab_89b3             ;8984  ad 2d
-    cmp mem_fe43,#0x15      ;8986  c8 43 15
+    cmp mem_fe43_key,#0x15  ;8986  c8 43 15
     bz lab_89b3             ;8989  ad 28
-    cmp mem_fe43,#0x34      ;898b  c8 43 34
+    cmp mem_fe43_key,#0x34  ;898b  c8 43 34
     bz lab_89b3             ;898e  ad 23
-    cmp mem_fe43,#0x26      ;8990  c8 43 26
+    cmp mem_fe43_key,#0x26  ;8990  c8 43 26
     bz lab_89b3             ;8993  ad 1e
     br lab_89b0             ;8995  fa 19
 
@@ -25221,9 +25224,9 @@ lab_899d:
     mov a,!mem_f1e9         ;899d  8e e9 f1
     mov1 cy,a.0             ;89a0  61 8c
     bnc lab_89b3            ;89a2  9d 0f
-    cmp mem_fe43,#0x08      ;89a4  c8 43 08
+    cmp mem_fe43_key,#0x08  ;89a4  c8 43 08     Key = SEEK_UP?
     bz lab_89b0             ;89a7  ad 07
-    cmp mem_fe43,#0x09      ;89a9  c8 43 09
+    cmp mem_fe43_key,#0x09  ;89a9  c8 43 09     Key = SEEK_DOWN?
     bz lab_89b0             ;89ac  ad 02
     br lab_89b3             ;89ae  fa 03
 
@@ -27239,8 +27242,10 @@ lab_9743:
     call !sub_9137          ;9759  9a 37 91
 
 lab_975c:
-    bt mem_fe5d.4,lab_9768  ;975c  cc 5d 09
-    movw ax,#0xbcde         ;975f  10 de bc
+    bt mem_fe5d.4,lab_9768  ;975c  cc 5d 09   Branch if mem_f1e7_region & 0x07 = 0 (see sub_1c9d_region)
+
+    ;mem_f1e7_region & 0x07 != 0
+    movw ax,#mem_bcde       ;975f  10 de bc
     movw hl,ax              ;9762  d6
     call !sub_9f33          ;9763  9a 33 9f
     br lab_979b             ;9766  fa 33
@@ -29172,7 +29177,7 @@ lab_a4a5:
 
 lab_a4bd:
     callf !sub_0c48         ;a4bd  4c 48        Load DE with word at position B in table [HL]
-    bnc lab_a4c6            ;a4bf  9d 05
+    bnc lab_a4c6            ;a4bf  9d 05        Branch if table lookup succeeded
     call !sub_a4fe          ;a4c1  9a fe a4
     br lab_a4cd             ;a4c4  fa 07
 
@@ -29222,7 +29227,7 @@ sub_a4fe:
     mov !mem_fc9b,a         ;a504  9e 9b fc
     mov a,#0x15             ;a507  a1 15
     mov !mem_fe57,a         ;a509  9e 57 fe
-    call !center_fade_bal   ;a50c  9a 29 a5     Set FADE=CENTER and BALANCE=CENTER
+    call !center_fade_bal   ;a50c  9a 29 a5     Set FADE=CENTER and BAL=CENTER
     call !sub_a53a          ;a50f  9a 3a a5
     set1 mem_fe76.7         ;a512  7a 76
 
@@ -29238,24 +29243,24 @@ sub_a514:
     set1 mem_fe77.4         ;a526  4a 77
     ret                     ;a528  af
 
-;Set FADE=CENTER and BALANCE=CENTER
+;Set FADE=CENTER and BAL=CENTER
 center_fade_bal:
     mov a,#0x0a             ;a529  a1 0a        0x0A = CENTER
-    movw hl,#mem_f258       ;a52b  16 58 f2     BALANCE
-    call !sub_4092          ;a52e  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+    movw hl,#mem_f258_bal   ;a52b  16 58 f2     BAL
+    call !eeram_wr_byte_hl  ;a52e  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
 
     mov a,#0x0a             ;a531  a1 0a        0x0A = CENTER
-    movw hl,#mem_f257       ;a533  16 57 f2     FADE
-    call !sub_4092          ;a536  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+    movw hl,#mem_f257_fade  ;a533  16 57 f2     FADE
+    call !eeram_wr_byte_hl  ;a536  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
     ret                     ;a539  af
 
 sub_a53a:
     mov a,#0x0a             ;a53a  a1 0a
     mov b,#0x03             ;a53c  a3 03
-    movw hl,#mem_f258       ;a53e  16 58 f2
+    movw hl,#mem_f258_bal   ;a53e  16 58 f2
 
 lab_a541:
-    call !sub_408f          ;a541  9a 8f 40     Write A to [HL+B] then do unknown calculation with mem_f26c/mem_f26d
+    call !eeram_wr_byte_hl_b;a541  9a 8f 40     Write A to EEPROM area in RAM at [HL+B], add to checksum
     dbnz b,lab_a541         ;a544  8b fb
     ret                     ;a546  af
 
@@ -29548,7 +29553,7 @@ lab_a6fc:
 
     mov a,!mem_fe57         ;a702  8e 57 fe
     movw hl,#mem_f268       ;a705  16 68 f2
-    call !sub_4092          ;a708  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+    call !eeram_wr_byte_hl  ;a708  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
 
 lab_a70b:
     ret                     ;a70b  af
@@ -29709,7 +29714,7 @@ sub_a7ee:
     bz lab_a7fd             ;a7f1  ad 0a
     call !sub_a80e          ;a7f3  9a 0e a8
     movw de,ax              ;a7f6  d4
-    movw hl,#mem_f259       ;a7f7  16 59 f2     HL = address of BASS
+    movw hl,#mem_f259_bass  ;a7f7  16 59 f2     HL = address of BASS
     call !sub_a82e          ;a7fa  9a 2e a8
 
 lab_a7fd:
@@ -29720,7 +29725,7 @@ sub_a7fe:
     bz lab_a80d             ;a801  ad 0a
     call !sub_a80e          ;a803  9a 0e a8
     movw hl,ax              ;a806  d6
-    movw de,#mem_f259       ;a807  14 59 f2     HL = address of BASS
+    movw de,#mem_f259_bass  ;a807  14 59 f2     HL = address of BASS
     call !sub_a82e          ;a80a  9a 2e a8
 
 lab_a80d:
@@ -29750,7 +29755,7 @@ sub_a82e:
 
 lab_a830:
     mov a,[de]              ;a830  85
-    call !sub_4092          ;a831  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+    call !eeram_wr_byte_hl  ;a831  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
     incw de                 ;a834  84
     incw hl                 ;a835  86
     dbnz b,lab_a830         ;a836  8b f8
@@ -29795,18 +29800,18 @@ lab_a872:
     ret                     ;a872  af
 
 lab_a873:
-    call !center_fade_bal   ;a873  9a 29 a5     Set FADE=CENTER and BALANCE=CENTER
+    call !center_fade_bal   ;a873  9a 29 a5     Set FADE=CENTER and BAL=CENTER
     br lab_a865             ;a876  fa ed
 
 lab_a878:
     mov a,#0x00             ;a878  a1 00
-    cmp mem_fe43,#0x0d      ;a87a  c8 43 0d
+    cmp mem_fe43_key,#0x0d  ;a87a  c8 43 0d     Key = SOUND_BASS?
     bz lab_a88f             ;a87d  ad 10
     mov a,#0x01             ;a87f  a1 01
-    cmp mem_fe43,#0x0e      ;a881  c8 43 0e
+    cmp mem_fe43_key,#0x0e  ;a881  c8 43 0e     Key = SOUND_MID?
     bz lab_a88f             ;a884  ad 09
     mov a,#0x02             ;a886  a1 02
-    cmp mem_fe43,#0x0f      ;a888  c8 43 0f
+    cmp mem_fe43_key,#0x0f  ;a888  c8 43 0f     Key = SOUND_TREB?
     bz lab_a88f             ;a88b  ad 02
     mov a,#0x00             ;a88d  a1 00
 
@@ -29814,26 +29819,26 @@ lab_a88f:
     mov !mem_fc9e,a         ;a88f  9e 9e fc
     set1 mem_fe77.4         ;a892  4a 77
     cmp mem_fe58,#0x00      ;a894  c8 58 00
-    bz lab_a89c             ;a897  ad 03
+    bz lab_a89c_ret         ;a897  ad 03
     call !sub_a937          ;a899  9a 37 a9
 
-lab_a89c:
+lab_a89c_ret:
     ret                     ;a89c  af
 
 lab_a89d:
-    bt mem_fe5d.7,lab_a89c  ;a89d  fc 5d fc
+    bt mem_fe5d.7,lab_a89c_ret  ;a89d  fc 5d fc
     set1 mem_fe81.1         ;a8a0  1a 81
     mov a,#0x00             ;a8a2  a1 00
     br lab_a88f             ;a8a4  fa e9
 
 lab_a8a6:
-    bt mem_fe5d.7,lab_a89c  ;a8a6  fc 5d f3
+    bt mem_fe5d.7,lab_a89c_ret  ;a8a6  fc 5d f3
     set1 mem_fe81.3         ;a8a9  3a 81
     mov a,#0x02             ;a8ab  a1 02
     br lab_a88f             ;a8ad  fa e0
 
 lab_a8af:
-    bt mem_fe5d.7,lab_a89c  ;a8af  fc 5d ea
+    bt mem_fe5d.7,lab_a89c_ret  ;a8af  fc 5d ea
     set1 mem_fe81.2         ;a8b2  2a 81
     mov a,#0x01             ;a8b4  a1 01
     br lab_a88f             ;a8b6  fa d7
@@ -29842,7 +29847,7 @@ lab_a8b8:
     mov a,!mem_f1a5         ;a8b8  8e a5 f1
     cmp a,#0xff             ;a8bb  4d ff
     bnz lab_a8c1            ;a8bd  bd 02
-    br lab_a936             ;a8bf  fa 75
+    br lab_a936_ret         ;a8bf  fa 75
 
 lab_a8c1:
     mov a,#0x00             ;a8c1  a1 00
@@ -29854,10 +29859,11 @@ lab_a8c1:
 lab_a8cd:
     mov a,!mem_fc9e         ;a8cd  8e 9e fc
     mov b,a                 ;a8d0  73
-    movw hl,#mem_d0b6+1     ;a8d1  16 b7 d0
+    movw hl,#mem_d0b6_sound_adjs+1  ;a8d1  16 b7 d0
     callf !sub_0c48         ;a8d4  4c 48        Load DE with word at position B in table [HL]
-    bc lab_a936             ;a8d6  8d 5e
-    mov a,[de]              ;a8d8  85
+    bc lab_a936_ret         ;a8d6  8d 5e        Branch if table lookup failed
+
+    mov a,[de]              ;a8d8  85           A = sound adjustment byte (BASS, MID, TREB, FADE, BAL)
     mov x,a                 ;a8d9  70
     mov a,!mem_fc9e         ;a8da  8e 9e fc
     cmp a,#0x00             ;a8dd  4d 00
@@ -29918,14 +29924,14 @@ lab_a926:
     add a,c                 ;a927  61 0a
     push de                 ;a929  b5
     pop hl                  ;a92a  b6
-    call !sub_4092          ;a92b  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+    call !eeram_wr_byte_hl  ;a92b  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
     call !sub_a7fe          ;a92e  9a fe a7
 
 lab_a931:
     mov a,#0x32             ;a931  a1 32
     mov !mem_fb2e,a         ;a933  9e 2e fb
 
-lab_a936:
+lab_a936_ret:
     ret                     ;a936  af
 
 sub_a937:
@@ -30172,10 +30178,10 @@ sub_aa9c:
     br !sub_0bf6            ;aaab  9b f6 0b
 
 sub_aaae:
-    mov a,!mem_f257         ;aaae  8e 57 f2
+    mov a,!mem_f257_fade    ;aaae  8e 57 f2
     call !sub_aaba          ;aab1  9a ba aa
-    movw hl,#mem_f257       ;aab4  16 57 f2
-    call !sub_4092          ;aab7  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+    movw hl,#mem_f257_fade  ;aab4  16 57 f2
+    call !eeram_wr_byte_hl  ;aab7  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
 
 sub_aaba:
     bf a.7,lab_aac0         ;aaba  31 7f 03
@@ -30191,10 +30197,10 @@ lab_aac6:
     ret                     ;aac6  af
 
 sub_aac7:
-    mov a,!mem_f258         ;aac7  8e 58 f2
+    mov a,!mem_f258_bal     ;aac7  8e 58 f2
     call !sub_aad3          ;aaca  9a d3 aa
-    movw hl,#mem_f258       ;aacd  16 58 f2
-    call !sub_4092          ;aad0  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+    movw hl,#mem_f258_bal   ;aacd  16 58 f2
+    call !eeram_wr_byte_hl  ;aad0  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
 
 sub_aad3:
     bf a.7,lab_aad9         ;aad3  31 7f 03
@@ -30252,7 +30258,7 @@ sub_ab0a:
     mov b,a                 ;ab17  73
     mov a,mem_feda          ;ab18  f0 da
     mov b,a                 ;ab1a  73
-    movw hl,#mem_f259       ;ab1b  16 59 f2     HL = address of BASS
+    movw hl,#mem_f259_bass  ;ab1b  16 59 f2     HL = address of BASS
     mov a,[hl+b]            ;ab1e  ab
     bf a.7,lab_ab26         ;ab1f  31 7f 04
     mov a,#0x00             ;ab22  a1 00
@@ -30264,8 +30270,8 @@ lab_ab26:
     mov a,#0x14             ;ab2a  a1 14
 
 lab_ab2c:
-    movw hl,#mem_f259       ;ab2c  16 59 f2     HL = Address of BASS
-    call !sub_408f          ;ab2f  9a 8f 40     Write A to [HL+B] then do unknown calculation with mem_f26c/mem_f26d
+    movw hl,#mem_f259_bass  ;ab2c  16 59 f2     HL = Address of BASS
+    call !eeram_wr_byte_hl_b;ab2f  9a 8f 40     Write A to EEPROM area in RAM at [HL+B], add to checksum
 
 lab_ab32:
     ret                     ;ab32  af
@@ -30287,7 +30293,7 @@ sub_ab3c:
     set1 mem_fe75.3         ;ab4c  3a 75
     mov a,!mem_f268         ;ab4e  8e 68 f2
     mov b,a                 ;ab51  73
-    mov a,!mem_f254         ;ab52  8e 54 f2     A=ONVOL
+    mov a,!mem_f254_onvol   ;ab52  8e 54 f2     A=ONVOL
     cmp a,b                 ;ab55  61 4b
     bc lab_ab5a             ;ab57  8d 01
     mov a,b                 ;ab59  63
@@ -30591,6 +30597,8 @@ lab_ac4e:
     .byte 0x09              ;aca4  09          DATA 0x09
     .byte 0x7f              ;aca5  7f          DATA 0x7f
     .byte 0x11              ;aca6  11          DATA 0x11
+
+mem_aca7:
     .byte 0x2a              ;aca7  2a          DATA 0x2a '*'
     .byte 0x52              ;aca8  52          DATA 0x52 'R'
     .byte 0xac              ;aca9  ac          DATA 0xac
@@ -31863,8 +31871,8 @@ mem_b18f:
     .word freq_idx          ;DATA
     .word mem_f225          ;DATA
     .word mem_fe57          ;DATA
-    .word mem_f257          ;DATA
-    .word mem_fe43          ;DATA
+    .word mem_f257_fade     ;DATA
+    .word mem_fe43_key          ;DATA
     .word mem_fbac          ;DATA
     .word mem_f1b3          ;DATA
     .word mem_af70_a99cz23  ;DATA
@@ -34583,6 +34591,8 @@ mem_bcd3:
     .byte 0x76              ;bcdb  76          DATA 0x76 'v'
     .byte 0x08              ;bcdc  08          DATA 0x08
     .byte 0x02              ;bcdd  02          DATA 0x02
+
+mem_bcde:
     .byte 0x01              ;bcde  01          DATA 0x01
     .byte 0x1e              ;bcdf  1e          DATA 0x1e
     .byte 0x02              ;bce0  02          DATA 0x02
@@ -38373,14 +38383,15 @@ mem_d0b1:
     .byte 0x05              ;d0b4  05          DATA 0x05
     .byte 0x06              ;d0b5  06          DATA 0x06
 
-mem_d0b6:
+mem_d0b6_sound_adjs:
+;Locations of sound adjustment bytes in RAM
 ;table of words used with sub_0c48
     .byte 0x05              ;d0b6  05          DATA 0x05        5 entries below:
-    .word 0xf259
-    .word 0xf25a
-    .word 0xf25b
-    .word 0xf257
-    .word 0xf258
+    .word mem_f259_bass ;BASS
+    .word mem_f25a_mid  ;MID
+    .word mem_f25b_treb ;TREB
+    .word mem_f257_fade ;FADE
+    .word mem_f258_bal  ;BAL
 
 mem_d0c1:
 ;table of words used with sub_0c48
@@ -38391,8 +38402,8 @@ mem_d0c1:
 
 mem_d0c8:
 ;table of words used with sub_0c48
-    .word 0xa547
-    .word 0xa95e
+    .word lab_a547
+    .word lab_a95e
 
 mem_d0cc:
 ;table of words used with sub_0c48
@@ -38485,7 +38496,7 @@ lab_d137:
 
 lab_d147:
     callf !sub_0c48         ;d147  4c 48        Load DE with word at position B in table [HL]
-    bc sub_d16e             ;d149  8d 23
+    bc sub_d16e             ;d149  8d 23        Branch if table lookup failed
     movw ax,#lab_d152       ;d14b  10 52 d1
     push ax                 ;d14e  b1
     movw ax,de              ;d14f  c4
@@ -39155,7 +39166,7 @@ lab_d5a9:
 
 lab_d5bd:
     movw hl,#mem_f256       ;d5bd  16 56 f2
-    call !sub_4092          ;d5c0  9a 92 40     Write A to [HL] then do unknown calculation with mem_f26c/mem_f26d
+    call !eeram_wr_byte_hl  ;d5c0  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
     mov a,#0x19             ;d5c3  a1 19
     mov !mem_fb3d,a         ;d5c5  9e 3d fb
     call !sub_d950          ;d5c8  9a 50 d9
