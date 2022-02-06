@@ -12206,9 +12206,10 @@ lab_40d4_done:
     ret                     ;40d5  af
 
 
-sub_40d6:
+;XXX appears unused
+;Clear B bytes in EEPROM at in RAM at [HL], add to checksum
+eeram_clear_b_at_hl:
     mov a,#0x00             ;40d6  a1 00
-
 lab_40d8_loop:
     call !eeram_wr_byte_hl  ;40d8  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
     incw hl                 ;40db  86
@@ -29227,8 +29228,8 @@ sub_a4fe:
     mov !mem_fc9b,a         ;a504  9e 9b fc
     mov a,#0x15             ;a507  a1 15
     mov !mem_fe57,a         ;a509  9e 57 fe
-    call !center_fade_bal   ;a50c  9a 29 a5     Set FADE=CENTER and BAL=CENTER
-    call !sub_a53a          ;a50f  9a 3a a5
+    call !center_fade_bal       ;a50c  9a 29 a5     Set FADE=CENTER and BAL=CENTER
+    call !center_bass_mid_treb  ;a50f  9a 3a a5     Set BASS=0, MID=0, TREB=0
     set1 mem_fe76.7         ;a512  7a 76
 
 sub_a514:
@@ -29254,17 +29255,17 @@ center_fade_bal:
     call !eeram_wr_byte_hl  ;a536  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
     ret                     ;a539  af
 
-sub_a53a:
-    mov a,#0x0a             ;a53a  a1 0a
-    mov b,#0x03             ;a53c  a3 03
-    movw hl,#mem_f258_bal   ;a53e  16 58 f2
-
-lab_a541:
+;Set BASS=0, MID=0, TREB=0
+center_bass_mid_treb:
+    mov a,#0x0a             ;a53a  a1 0a        0x0A = CENTER
+    mov b,#0x03             ;a53c  a3 03        3 = counts down 3 bytes to write, also the offset
+    movw hl,#mem_f25b_treb-3;a53e  16 58 f2
+lab_a541_loop:
     call !eeram_wr_byte_hl_b;a541  9a 8f 40     Write A to EEPROM area in RAM at [HL+B], add to checksum
-    dbnz b,lab_a541         ;a544  8b fb
+    dbnz b,lab_a541_loop    ;a544  8b fb
     ret                     ;a546  af
 
-lab_a547:
+lab_a547_ret:
     ret                     ;a547  af
 
 lab_a548:
@@ -29282,7 +29283,7 @@ lab_a54d:
 
 lab_a55d:
     mov a,x                 ;a55d  60
-    bf shadow_p9.7,lab_a56d  ;a55e  31 73 d3 0b
+    bf shadow_p9.7,lab_a56d ;a55e  31 73 d3 0b
     bf mem_fe76.6,lab_a56e  ;a562  31 63 76 08
     bt mem_fe77.2,lab_a56d  ;a566  ac 77 04
     clr1 mem_fe76.6         ;a569  6b 76
@@ -38402,13 +38403,13 @@ mem_d0c1:
 
 mem_d0c8:
 ;table of words used with sub_0c48
-    .word lab_a547
+    .word lab_a547_ret
     .word lab_a95e
 
 mem_d0cc:
 ;table of words used with sub_0c48
     .byte 0x0e              ;d0cc  0e          DATA 0x0e        14 entries below:
-    .word lab_a547
+    .word lab_a547_ret
     .word lab_aa99
     .word lab_a548
     .word lab_a649
