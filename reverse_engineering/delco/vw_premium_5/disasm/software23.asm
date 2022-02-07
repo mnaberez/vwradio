@@ -980,7 +980,7 @@ callt_31_vect:
     .word badisr_0d75       ;007e  75 0d       VECTOR CALLT #31
 
 mem_0080:
-;Defaults written to mem_f1b3 - mem_f1e6
+;Defaults written to EEPROM area in RAM: mem_f1b3 - mem_f1e6 (52 bytes)
     .byte 0x1d  ;0080  -> mem_f1b3          EEPROM 0010
     .byte 0x1d  ;0081  -> mem_f1b4          EEPROM 0011
     .byte 0x10  ;0082  -> mem_f1b5          EEPROM 0012
@@ -1035,7 +1035,7 @@ mem_0080:
     .byte 0x30  ;00b3  -> mem_f1e6          EEPROM 0043
 
 mem_00b4:
-;Defaults written to mem_f1e7_region - mem_f1f8
+;Defaults written to EEPROM area in RAM: mem_f1e7_region - mem_f1f8 (18 bytes)
     .byte 0x00  ;00b4 -> mem_f1e7_region    EEPROM 0046
     .byte 0xaa  ;00b5 -> mem_f1e8           EEPROM 0047
     .byte 0x04  ;00b6 -> mem_f1e9           EEPROM 0048
@@ -1056,7 +1056,7 @@ mem_00b4:
     .ascii ' '  ;00c5 -> mem_f1f8           EEPROM 0057
 
 mem_00c6:
-;Defaults written to mem_f1f9 - mem_f201
+;Defaults written to EEPROM area in RAM: mem_f1f9 - mem_f201 (9 bytes)
     .byte 0x03  ;00c6 -> mem_f1f9           EEPROM 0058   KWP1281 Soft Coding in binary, high byte
     .byte 0x20  ;00c7 -> mem_f1fa           EEPROM 0059   KWP1281 Soft Coding in binary, low byte
     .byte 0x00  ;00c8 -> mem_f1fb           EEPROM 005A   KWP1281 Workshop Code, high byte
@@ -1068,7 +1068,7 @@ mem_00c6:
     .byte 0x00  ;00ce -> mem_f201           EEPROM 0060
 
 mem_00cf:
-;Defaults written to mem_f206 - mem_f224
+;Defaults written to EEPROM area in RAM: mem_f206 - mem_f224 (31 bytes)
     .byte 0x00  ;00cf -> mem_f206           EEPROM 0063
     .byte 0x44  ;00d0 -> mem_f207           EEPROM 0064
     .byte 0x00  ;00d1 -> mem_f208           EEPROM 0065
@@ -1102,7 +1102,7 @@ mem_00cf:
     .byte 0x00  ;00ed -> mem_f224           EEPROM 0081
 
 mem_00ee:
-;Defaults written to mem_f225 - mem_f26b
+;Defaults written to EEPROM area in RAM: mem_f225 - mem_f26b (71 bytes)
     .byte 0x04  ;00ee -> mem_f225           EEPROM 0082   FM1 Current Frequency Index = 88.3 MHz
     .byte 0x06  ;00ef -> mem_f226           EEPROM 0083
     .byte 0x04  ;00f0 -> mem_f227           EEPROM 0084   FM1 Preset 1 Frequency Index = 88.3 MHz
@@ -1970,20 +1970,26 @@ lab_0a0c_ret:
 
 sub_0a0d:
 ;A=0x66, mem_fed6=0x66 (difference of #mem_f26c_csum_lo - #mem_f206)
-    movw ax,#mem_f26c_csum_lo       ;0a0d  10 6c f2
-    subw ax,#mem_f206       ;0a10  da 06 f2
-    mov a,x                 ;0a13  60
-    mov mem_fed6,a          ;0a14  f2 d6
-    ret                     ;0a16  af
+    movw ax,#mem_f26c_csum_lo ;0a0d  10 6c f2
+    subw ax,#mem_f206         ;0a10  da 06 f2
+    mov a,x                   ;0a13  60
+    mov mem_fed6,a            ;0a14  f2 d6
+    ret                       ;0a16  af
 
-sub_0a17:
+eeram_copy_all_defaults:
+;Copy all of the EEPROM defaults from ROM into the EEPROM area in RAM
+;ROM tables copied: mem_0080, mem_00b4, mem_00c6, mem_00cf, mem_00ee
+;
 ;Copy 0x4F bytes from mem_0080 to mem_f1b3
 ;Copy 0x66 bytes from mem_00cf to mem_f206
-    callf !sub_0a1c         ;0a17  2c 1c        Copy 0x4F bytes from mem_0080 to mem_f1b3
-    callf !sub_0a2c         ;0a19  2c 2c        Copy 0x66 bytes from mem_00cf to mem_f206
-    ret                     ;0a1b  af
+    callf !eeram_copy_defaults_1_of_2  ;0a17  2c 1c        Copy 0x4F bytes from mem_0080 to mem_f1b3
+    callf !eeram_copy_defaults_2_of_2  ;0a19  2c 2c        Copy 0x66 bytes from mem_00cf to mem_f206
+    ret                                ;0a1b  af
 
-sub_0a1c:
+eeram_copy_defaults_1_of_2:
+;Copy some EEPROM defaults from ROM into the EEPROM area in RAM (1 of 2)
+;ROM tables copied: mem_0080, mem_00b4, mem_00c6
+;
 ;Copy 0x4F bytes from mem_0080 to mem_f1b3
     movw hl,#mem_f1b3       ;0a1c  16 b3 f1
     movw de,#mem_f202       ;0a1f  14 02 f2
@@ -1993,7 +1999,10 @@ sub_0a1c:
     movw de,#mem_f1b3       ;0a27  14 b3 f1     DE = destination address
     br lab_0a34             ;0a2a  fa 08        Branch to Copy A bytes from [HL] to [DE] and return
 
-sub_0a2c:
+eeram_copy_defaults_2_of_2:
+;Copy some EEPROM defaults from ROM into the EEPROM area in RAM (2 of 2)
+;ROM tables copied: mem_00cf, mem_00ee
+;
 ;Copy 0x66 bytes from mem_00cf to mem_f206
     callf !sub_0a0d         ;0a2c  2c 0d        A=0x66, mem_fed6=0x66 (0x66 = #mem_f26c_csum_lo - #mem_f206)
     movw hl,#mem_00cf       ;0a2e  16 cf 00     HL = source address
@@ -3075,8 +3084,7 @@ lab_0e39_loop:
 
     mov wdtm,#wd_run_nmi    ;0e42  13 f9 90     (Re-)Start watchdog in mode 1 (Non-maskable INTWDT when watchdog fires)
 
-    call !sub_0a17          ;0e45  9a 17 0a     Copy 0x4F bytes from mem_0080 to mem_f1b3
-                            ;                   Copy 0x66 bytes from mem_00cf to mem_f206
+    call !eeram_copy_all_defaults ;0e45  9a 17 0a     Copy all of the EEPROM defaults from ROM into the EEPROM area in RAM
 
     mov b,#0x0b             ;0e48  a3 0b        B = 0x0b bytes to fill
     mov a,#0x80             ;0e4a  a1 80        A = 0x80 value to fill
@@ -5558,28 +5566,28 @@ lab_1e68:
     br lab_1ebc             ;1e75  fa 45
 
 lab_1e77:
-    clr1 mem_fe5d.7         ;1e77  7b 5d
-    bf mem_fe5e.0,lab_1eae  ;1e79  31 03 5e 31
-    mov a,!mem_fb6e         ;1e7d  8e 6e fb
-    movw hl,#mem_f254_onvol ;1e80  16 54 f2     HL = address of ONVOL
-    call !sub_1f47          ;1e83  9a 47 1f     Just calls eeram_wr_byte_hl and returns (Write A to EEPROM area in RAM at [HL], add to checksum)
-    clr1 mem_fe5e.0         ;1e86  0b 5e
-    br lab_1eae             ;1e88  fa 24
+    clr1 mem_fe5d.7           ;1e77  7b 5d
+    bf mem_fe5e.0,lab_1eae    ;1e79  31 03 5e 31
+    mov a,!mem_fb6e           ;1e7d  8e 6e fb
+    movw hl,#mem_f254_onvol   ;1e80  16 54 f2     HL = address of ONVOL
+    call !to_eeram_wr_byte_hl ;1e83  9a 47 1f     Write A to EEPROM area in RAM at [HL], add to checksum
+    clr1 mem_fe5e.0           ;1e86  0b 5e
+    br lab_1eae               ;1e88  fa 24
 
 lab_1e8a:
-    clr1 mem_fe5d.7         ;1e8a  7b 5d
-    bf mem_fe5e.0,lab_1eae  ;1e8c  31 03 5e 1e
-    clr1 mem_fe5e.0         ;1e90  0b 5e
-    call !sub_1ff3          ;1e92  9a f3 1f
-    mov a,!mem_fb6d         ;1e95  8e 6d fb
-    mov !mem_fe57,a         ;1e98  9e 57 fe
-    call !sub_1ffe          ;1e9b  9a fe 1f
-    set1 mem_fe73.3         ;1e9e  3a 73
-    mov a,!mem_fb6f         ;1ea0  8e 6f fb
-    movw hl,#mem_f255       ;1ea3  16 55 f2
-    call !sub_1f47          ;1ea6  9a 47 1f     Just calls eeram_wr_byte_hl and returns (Write A to EEPROM area in RAM at [HL], add to checksum)
-    set1 mem_fe80.0         ;1ea9  0a 80
-    call !sub_7697          ;1eab  9a 97 76
+    clr1 mem_fe5d.7           ;1e8a  7b 5d
+    bf mem_fe5e.0,lab_1eae    ;1e8c  31 03 5e 1e
+    clr1 mem_fe5e.0           ;1e90  0b 5e
+    call !sub_1ff3            ;1e92  9a f3 1f
+    mov a,!mem_fb6d           ;1e95  8e 6d fb
+    mov !mem_fe57,a           ;1e98  9e 57 fe
+    call !sub_1ffe            ;1e9b  9a fe 1f
+    set1 mem_fe73.3           ;1e9e  3a 73
+    mov a,!mem_fb6f           ;1ea0  8e 6f fb
+    movw hl,#mem_f255         ;1ea3  16 55 f2
+    call !to_eeram_wr_byte_hl ;1ea6  9a 47 1f     Write A to EEPROM area in RAM at [HL], add to checksum
+    set1 mem_fe80.0           ;1ea9  0a 80
+    call !sub_7697            ;1eab  9a 97 76
 
 lab_1eae:
     mov a,#0x00             ;1eae  a1 00
@@ -5673,16 +5681,16 @@ lab_1f35:
 lab_1f46_ret:
     ret                     ;1f46  af
 
-sub_1f47:
+to_eeram_wr_byte_hl:
 ;Just calls eeram_wr_byte_hl and returns
     call !eeram_wr_byte_hl  ;1f47  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
     br lab_1f46_ret         ;1f4a  fa fa        Branch to return
 
 lab_1f4c:
     bf mem_fe2c.5,lab_1f46_ret  ;1f4c  31 53 2c f6
-    bf mem_fe66.6,lab_1f57  ;1f50  31 63 66 03
-    clr1 mem_fe66.6         ;1f54  6b 66
-    ret                     ;1f56  af
+    bf mem_fe66.6,lab_1f57      ;1f50  31 63 66 03
+    clr1 mem_fe66.6             ;1f54  6b 66
+    ret                         ;1f56  af
 
 lab_1f57:
     set1 mem_fe80.0         ;1f57  0a 80
@@ -5743,7 +5751,7 @@ lab_1fbb:
     bz lab_1fdb             ;1fc4  ad 15
     mov a,!mem_fe57         ;1fc6  8e 57 fe
     movw hl,#mem_f254_onvol ;1fc9  16 54 f2     HL = address of ONVOL
-    br !sub_1f47            ;1fcc  9b 47 1f     Just calls eeram_wr_byte_hl and returns (Write A to EEPROM area in RAM at [HL], add to checksum)
+    br !to_eeram_wr_byte_hl ;1fcc  9b 47 1f     Write A to EEPROM area in RAM at [HL], add to checksum
 
 lab_1fcf:
     mov a,!mem_fb6f         ;1fcf  8e 6f fb
@@ -12112,12 +12120,12 @@ lab_406b:
 
 lab_406c_failed:
 ;Branched from lab_406c_failed when sub_0a37 fails
-    push psw                ;406c  22
-    mov a,#0x01             ;406d  a1 01
-    mov !mem_fb96,a         ;406f  9e 96 fb
-    callf !sub_0a2c         ;4072  2c 2c
-    pop psw                 ;4074  23
-    ret                     ;4075  af
+    push psw                           ;406c  22
+    mov a,#0x01                        ;406d  a1 01
+    mov !mem_fb96,a                    ;406f  9e 96 fb
+    callf !eeram_copy_defaults_2_of_2  ;4072  2c 2c    Copy some EEPROM defaults from ROM into the EEPROM area in RAM (2 of 2)
+    pop psw                            ;4074  23
+    ret                                ;4075  af
 
 sub_4076:
     push hl                   ;4076  b7
