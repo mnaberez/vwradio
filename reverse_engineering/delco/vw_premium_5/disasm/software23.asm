@@ -244,14 +244,18 @@ mem_f258_bal = 0xf258       ;EEPROM 00B5  BAL
 mem_f259_bass = 0xf259      ;EEPROM 00B6  BASS
 mem_f25a_mid = 0xf25a       ;EEPROM 00B7  MID
 mem_f25b_treb = 0xf25b      ;EEPROM 00B8  TREB
-mem_f25c = 0xf25c           ;EEPROM 00B9
-
-mem_f25f = 0xf25f           ;EEPROM 00BC
-
-mem_f262 = 0xf262           ;EEPROM 00BF
-
-mem_f265 = 0xf265           ;EEPROM 00C2
-
+mem_f25c_eq1_bass = 0xf25c  ;EEPROM 00B9  EQ#1 BASS
+mem_f25c_eq1_mid = 0xf25d   ;EEPROM 00BA  EQ#1 MID
+mem_f25c_eq1_treb = 0xf25e  ;EEPROM 00BB  EQ#1 TREB
+mem_f25f_eq2_bass = 0xf25f  ;EEPROM 00BC  EQ#2 BASS
+mem_f25f_eq2_mid = 0xf260   ;EEPROM 00BD  EQ#2 MID
+mem_f25f_eq2_treb = 0xf261  ;EEPROM 00BE  EQ#2 TREB
+mem_f262_eq3_bass = 0xf262  ;EEPROM 00BF  EQ#3 BASS
+mem_f262_eq3_mid = 0xf263   ;EEPROM 00C0  EQ#3 MID
+mem_f262_eq3_treb = 0xf264  ;EEPROM 00C1  EQ#3 TREB
+mem_f265_eq4_bass = 0xf265  ;EEPROM 00C2  EQ#4 BASS
+mem_f265_eq4_mid = 0xf266   ;EEPROM 00C3  EQ#4 MID
+mem_f265_eq4_treb = 0xf267  ;EEPROM 00C4  EQ#4 TREB
 mem_f268 = 0xf268           ;EEPROM 00C5
 mem_f269 = 0xf269           ;EEPROM 00C6
 
@@ -977,199 +981,201 @@ callt_31_vect:
 
 mem_0080:
 ;Defaults written to mem_f1b3 - mem_f1e6
-    .byte 0x1d              ;0080  1d          DATA 0x1d        -> mem_f1b3   EEPROM 0010
-    .byte 0x1d              ;0081  1d          DATA 0x1d        -> mem_f1b4   EEPROM 0011
-    .byte 0x10              ;0082  10          DATA 0x10        -> mem_f1b5   EEPROM 0012
-    .byte 0x10              ;0083  10          DATA 0x10        -> mem_f1b6   EEPROM 0013
-    .byte 0x00              ;0084  00          DATA 0x00        -> mem_f1b7   EEPROM 0014
-    .byte 0x00              ;0085  00          DATA 0x00        -> mem_f1b8   EEPROM 0015
-    .byte 0x0c              ;0086  0c          DATA 0x0c        -> mem_f1b9   EEPROM 0016
-    .byte 0x12              ;0087  12          DATA 0x12        -> mem_f1ba   EEPROM 0017
-    .byte 0x40              ;0088  40          DATA 0x40 '@'    -> mem_f1bb   EEPROM 0018
-    .byte 0x40              ;0089  40          DATA 0x40 '@'    -> mem_f1bc   EEPROM 0019
-    .byte 0x40              ;008a  40          DATA 0x40 '@'    -> mem_f1bd   EEPROM 001A
-    .byte 0x4f              ;008b  4f          DATA 0x4f 'O'    -> mem_f1be   EEPROM 001B
-    .byte 0x00              ;008c  00          DATA 0x00        -> mem_f1bf   EEPROM 001C
-    .byte 0x65              ;008d  65          DATA 0x65 'e'    -> mem_f1c0   EEPROM 001D
-    .byte 0xc0              ;008e  c0          DATA 0xc0        -> mem_f1c1   EEPROM 001E
-    .byte 0x20              ;008f  20          DATA 0x20 ' '    -> mem_f1c2   EEPROM 001F
-    .byte 0xcd              ;0090  cd          DATA 0xcd        -> mem_f1c3   EEPROM 0020
-    .byte 0xe6              ;0091  e6          DATA 0xe6        -> mem_f1c4   EEPROM 0021
-    .byte 0x04              ;0092  04          DATA 0x04        -> mem_f1c5   EEPROM 0022
-    .byte 0x80              ;0093  80          DATA 0x80        -> mem_f1c6   EEPROM 0023
-    .byte 0x02              ;0094  02          DATA 0x02        -> mem_f1c7   EEPROM 0024
-    .byte 0xd2              ;0095  d2          DATA 0xd2        -> mem_f1c8   EEPROM 0025
-    .byte 0x0f              ;0096  0f          DATA 0x0f        -> mem_f1c9   EEPROM 0026
-    .byte 0xa1              ;0097  a1          DATA 0xa1        -> mem_f1ca   EEPROM 0027
-    .byte 0x0f              ;0098  0f          DATA 0x0f        -> mem_f1cb   EEPROM 0028
-    .byte 0x76              ;0099  76          DATA 0x76 'v'    -> mem_f1cc   EEPROM 0029
-    .byte 0x04              ;009a  04          DATA 0x04        -> mem_f1cd   EEPROM 002A
-    .byte 0xcc              ;009b  cc          DATA 0xcc        -> mem_f1ce   EEPROM 002B
-    .byte 0x05              ;009c  05          DATA 0x05        -> mem_f1cf   EEPROM 002C
-    .byte 0x66              ;009d  66          DATA 0x66 'f'    -> mem_f1d0   EEPROM 002D
-    .byte 0x0f              ;009e  0f          DATA 0x0f        -> mem_f1d1   EEPROM 002E
-    .byte 0x2e              ;009f  2e          DATA 0x2e '.'    -> mem_f1d2   EEPROM 002F
-    .byte 0x03              ;00a0  03          DATA 0x03        -> mem_f1d3   EEPROM 0030
-    .byte 0x31              ;00a1  31          DATA 0x31 '1'    -> mem_f1d4   EEPROM 0031
-    .byte 0x00              ;00a2  00          DATA 0x00        -> mem_f1d5   EEPROM 0032
-    .byte 0x40              ;00a3  40          DATA 0x40 '@'    -> mem_f1d6   EEPROM 0033
-    .byte 0x03              ;00a4  03          DATA 0x03        -> mem_f1d7   EEPROM 0034
-    .byte 0xd0              ;00a5  d0          DATA 0xd0        -> mem_f1d8   EEPROM 0035
-    .byte 0x0f              ;00a6  0f          DATA 0x0f        -> mem_f1d9   EEPROM 0036
-    .byte 0x2d              ;00a7  2d          DATA 0x2d '-'    -> mem_f1da   EEPROM 0037
-    .byte 0x01              ;00a8  01          DATA 0x01        -> mem_f1db   EEPROM 0038
-    .byte 0x9a              ;00a9  9a          DATA 0x9a        -> mem_f1dc   EEPROM 0039
-    .byte 0x03              ;00aa  03          DATA 0x03        -> mem_f1dd   EEPROM 003A
-    .byte 0x56              ;00ab  56          DATA 0x56 'V'    -> mem_f1de   EEPROM 003B
-    .byte 0x00              ;00ac  00          DATA 0x00        -> mem_f1df   EEPROM 003C
-    .byte 0x00              ;00ad  00          DATA 0x00        -> mem_f1e0   EEPROM 003D
-    .byte 0x07              ;00ae  07          DATA 0x07        -> mem_f1e1   EEPROM 003E
-    .byte 0xff              ;00af  ff          DATA 0xff        -> mem_f1e2   EEPROM 003F
-    .byte 0x03              ;00b0  03          DATA 0x03        -> mem_f1e3   EEPROM 0040
-    .byte 0x30              ;00b1  30          DATA 0x30 '0'    -> mem_f1e4   EEPROM 0041
-    .byte 0x03              ;00b2  03          DATA 0x03        -> mem_f1e5   EEPROM 0042
-    .byte 0x30              ;00b3  30          DATA 0x30 '0'    -> mem_f1e6   EEPROM 0043
+    .byte 0x1d  ;0080  -> mem_f1b3          EEPROM 0010
+    .byte 0x1d  ;0081  -> mem_f1b4          EEPROM 0011
+    .byte 0x10  ;0082  -> mem_f1b5          EEPROM 0012
+    .byte 0x10  ;0083  -> mem_f1b6          EEPROM 0013
+    .byte 0x00  ;0084  -> mem_f1b7          EEPROM 0014
+    .byte 0x00  ;0085  -> mem_f1b8          EEPROM 0015
+    .byte 0x0c  ;0086  -> mem_f1b9          EEPROM 0016
+    .byte 0x12  ;0087  -> mem_f1ba          EEPROM 0017
+    .byte 0x40  ;0088  -> mem_f1bb          EEPROM 0018
+    .byte 0x40  ;0089  -> mem_f1bc          EEPROM 0019
+    .byte 0x40  ;008a  -> mem_f1bd          EEPROM 001A
+    .byte 0x4f  ;008b  -> mem_f1be          EEPROM 001B
+    .byte 0x00  ;008c  -> mem_f1bf          EEPROM 001C
+    .byte 0x65  ;008d  -> mem_f1c0          EEPROM 001D
+    .byte 0xc0  ;008e  -> mem_f1c1          EEPROM 001E
+    .byte 0x20  ;008f  -> mem_f1c2          EEPROM 001F
+    .byte 0xcd  ;0090  -> mem_f1c3          EEPROM 0020
+    .byte 0xe6  ;0091  -> mem_f1c4          EEPROM 0021
+    .byte 0x04  ;0092  -> mem_f1c5          EEPROM 0022
+    .byte 0x80  ;0093  -> mem_f1c6          EEPROM 0023
+    .byte 0x02  ;0094  -> mem_f1c7          EEPROM 0024
+    .byte 0xd2  ;0095  -> mem_f1c8          EEPROM 0025
+    .byte 0x0f  ;0096  -> mem_f1c9          EEPROM 0026
+    .byte 0xa1  ;0097  -> mem_f1ca          EEPROM 0027
+    .byte 0x0f  ;0098  -> mem_f1cb          EEPROM 0028
+    .byte 0x76  ;0099  -> mem_f1cc          EEPROM 0029
+    .byte 0x04  ;009a  -> mem_f1cd          EEPROM 002A
+    .byte 0xcc  ;009b  -> mem_f1ce          EEPROM 002B
+    .byte 0x05  ;009c  -> mem_f1cf          EEPROM 002C
+    .byte 0x66  ;009d  -> mem_f1d0          EEPROM 002D
+    .byte 0x0f  ;009e  -> mem_f1d1          EEPROM 002E
+    .byte 0x2e  ;009f  -> mem_f1d2          EEPROM 002F
+    .byte 0x03  ;00a0  -> mem_f1d3          EEPROM 0030
+    .byte 0x31  ;00a1  -> mem_f1d4          EEPROM 0031
+    .byte 0x00  ;00a2  -> mem_f1d5          EEPROM 0032
+    .byte 0x40  ;00a3  -> mem_f1d6          EEPROM 0033
+    .byte 0x03  ;00a4  -> mem_f1d7          EEPROM 0034
+    .byte 0xd0  ;00a5  -> mem_f1d8          EEPROM 0035
+    .byte 0x0f  ;00a6  -> mem_f1d9          EEPROM 0036
+    .byte 0x2d  ;00a7  -> mem_f1da          EEPROM 0037
+    .byte 0x01  ;00a8  -> mem_f1db          EEPROM 0038
+    .byte 0x9a  ;00a9  -> mem_f1dc          EEPROM 0039
+    .byte 0x03  ;00aa  -> mem_f1dd          EEPROM 003A
+    .byte 0x56  ;00ab  -> mem_f1de          EEPROM 003B
+    .byte 0x00  ;00ac  -> mem_f1df          EEPROM 003C
+    .byte 0x00  ;00ad  -> mem_f1e0          EEPROM 003D
+    .byte 0x07  ;00ae  -> mem_f1e1          EEPROM 003E
+    .byte 0xff  ;00af  -> mem_f1e2          EEPROM 003F
+    .byte 0x03  ;00b0  -> mem_f1e3          EEPROM 0040
+    .byte 0x30  ;00b1  -> mem_f1e4          EEPROM 0041
+    .byte 0x03  ;00b2  -> mem_f1e5          EEPROM 0042
+    .byte 0x30  ;00b3  -> mem_f1e6          EEPROM 0043
 
 mem_00b4:
 ;Defaults written to mem_f1e7_region - mem_f1f8
-    .byte 0x00              ;00b4  00          DATA 0x00        -> mem_f1e7_region  EEPROM 0046
-    .byte 0xaa              ;00b5  aa          DATA 0xaa        -> mem_f1e8         EEPROM 0047
-    .byte 0x04              ;00b6  04          DATA 0x04        -> mem_f1e9         EEPROM 0048
-    .byte 0x41              ;00b7  41          DATA 0x41 'A'    -> mem_f1ea         EEPROM 0049
-    .byte 0x01              ;00b8  01          DATA 0x01        -> mem_f1eb         EEPROM 004A
-    .byte 0x00              ;00b9  00          DATA 0x00        -> mem_f1ec         EEPROM 004B
-    .byte 0x31              ;00ba  31          DATA 0x31 '1'    -> mem_f1ed         EEPROM 004C
-    .byte 0x4a              ;00bb  4a          DATA 0x4a 'J'    -> mem_f1ee         EEPROM 004D
-    .byte 0x30              ;00bc  30          DATA 0x30 '0'    -> mem_f1ef         EEPROM 004E
-    .byte 0x30              ;00bd  30          DATA 0x30 '0'    -> mem_f1f0         EEPROM 004F
-    .byte 0x33              ;00be  33          DATA 0x33 '3'    -> mem_f1f1         EEPROM 0050
-    .byte 0x35              ;00bf  35          DATA 0x35 '5'    -> mem_f1f2         EEPROM 0051
-    .byte 0x31              ;00c0  31          DATA 0x31 '1'    -> mem_f1f3         EEPROM 0052
-    .byte 0x38              ;00c1  38          DATA 0x38 '8'    -> mem_f1f4         EEPROM 0053
-    .byte 0x30              ;00c2  30          DATA 0x30 '0'    -> mem_f1f5         EEPROM 0054
-    .byte 0x42              ;00c3  42          DATA 0x42 'B'    -> mem_f1f6         EEPROM 0055
-    .byte 0x20              ;00c4  20          DATA 0x20 ' '    -> mem_f1f7         EEPROM 0056
-    .byte 0x20              ;00c5  20          DATA 0x20 ' '    -> mem_f1f8         EEPROM 0057
+    .byte 0x00  ;00b4 -> mem_f1e7_region    EEPROM 0046
+    .byte 0xaa  ;00b5 -> mem_f1e8           EEPROM 0047
+    .byte 0x04  ;00b6 -> mem_f1e9           EEPROM 0048
+    .byte 0x41  ;00b7 -> mem_f1ea           EEPROM 0049
+    .byte 0x01  ;00b8 -> mem_f1eb           EEPROM 004A
+    .byte 0x00  ;00b9 -> mem_f1ec           EEPROM 004B
+    .ascii '1'  ;00ba -> mem_f1ed           EEPROM 004C
+    .ascii 'J'  ;00bb -> mem_f1ee           EEPROM 004D
+    .ascii '0'  ;00bc -> mem_f1ef           EEPROM 004E
+    .ascii '0'  ;00bd -> mem_f1f0           EEPROM 004F
+    .ascii '3'  ;00be -> mem_f1f1           EEPROM 0050
+    .ascii '5'  ;00bf -> mem_f1f2           EEPROM 0051
+    .ascii '1'  ;00c0 -> mem_f1f3           EEPROM 0052
+    .ascii '8'  ;00c1 -> mem_f1f4           EEPROM 0053
+    .ascii '0'  ;00c2 -> mem_f1f5           EEPROM 0054
+    .ascii 'B'  ;00c3 -> mem_f1f6           EEPROM 0055
+    .ascii ' '  ;00c4 -> mem_f1f7           EEPROM 0056
+    .ascii ' '  ;00c5 -> mem_f1f8           EEPROM 0057
 
 mem_00c6:
 ;Defaults written to mem_f1f9 - mem_f201
-    .byte 0x03              ;00c6  03          DATA 0x03        -> mem_f1f9   EEPROM 0058   KWP1281 Soft Coding in binary, high byte
-    .byte 0x20              ;00c7  20          DATA 0x20 ' '    -> mem_f1fa   EEPROM 0059   KWP1281 Soft Coding in binary, low byte
-    .byte 0x00              ;00c8  00          DATA 0x00        -> mem_f1fb   EEPROM 005A   KWP1281 Workshop Code, high byte
-    .byte 0x00              ;00c9  00          DATA 0x00        -> mem_f1fc   EEPROM 005B   KWP1281 Workshop Code, low byte
-    .byte 0x00              ;00ca  00          DATA 0x00        -> mem_f1fd   EEPROM 005C
-    .byte 0x00              ;00cb  00          DATA 0x00        -> mem_f1fe   EEPROM 005D
-    .byte 0x04              ;00cc  04          DATA 0x04        -> mem_f1ff   EEPROM 005E
-    .byte 0x00              ;00cd  00          DATA 0x00        -> mem_f200   EEPROM 005F
-    .byte 0x00              ;00ce  00          DATA 0x00        -> mem_f201   EEPROM 0060
+    .byte 0x03  ;00c6 -> mem_f1f9           EEPROM 0058   KWP1281 Soft Coding in binary, high byte
+    .byte 0x20  ;00c7 -> mem_f1fa           EEPROM 0059   KWP1281 Soft Coding in binary, low byte
+    .byte 0x00  ;00c8 -> mem_f1fb           EEPROM 005A   KWP1281 Workshop Code, high byte
+    .byte 0x00  ;00c9 -> mem_f1fc           EEPROM 005B   KWP1281 Workshop Code, low byte
+    .byte 0x00  ;00ca -> mem_f1fd           EEPROM 005C
+    .byte 0x00  ;00cb -> mem_f1fe           EEPROM 005D
+    .byte 0x04  ;00cc -> mem_f1ff           EEPROM 005E
+    .byte 0x00  ;00cd -> mem_f200           EEPROM 005F
+    .byte 0x00  ;00ce -> mem_f201           EEPROM 0060
 
 mem_00cf:
 ;Defaults written to mem_f206 - mem_f224
-    .byte 0x00              ;00cf  00          DATA 0x00        -> mem_f206   EEPROM 0063
-    .byte 0x44              ;00d0  44          DATA 0x44 'D'    -> mem_f207   EEPROM 0064
-    .byte 0x00              ;00d1  00          DATA 0x00        -> mem_f208   EEPROM 0065
-    .byte 0x00              ;00d2  00          DATA 0x00        -> mem_f209   EEPROM 0066
-    .byte 0x00              ;00d3  00          DATA 0x00        -> mem_f20a   EEPROM 0067
-    .byte 0x00              ;00d4  00          DATA 0x00        -> mem_f20b   EEPROM 0068
-    .byte 0x45              ;00d5  45          DATA 0x45 'E'    -> mem_f20c   EEPROM 0069
-    .byte 0x88              ;00d6  88          DATA 0x88        -> mem_f20d   EEPROM 006A   Fault 00668 - Supply Voltage Terminal 30
-    .byte 0x88              ;00d7  88          DATA 0x88        -> mem_f20e   EEPROM 006B   Fault 00849 - S-contact at Ignition/Starter Switch (D)
-    .byte 0x88              ;00d8  88          DATA 0x88        -> mem_f20f   EEPROM 006C   Fault 00850 - Control Output Active; Radio Amplifier
-    .byte 0x88              ;00d9  88          DATA 0x88        -> mem_f210   EEPROM 006D   Fault 00851 - Loudspeaker(s)
-    .byte 0x88              ;00da  88          DATA 0x88        -> mem_f211   EEPROM 006E   Fault 00852 - Loudspeaker(s); Front
-    .byte 0x88              ;00db  88          DATA 0x88        -> mem_f212   EEPROM 006F   Fault 00853 - Loudspeaker(s); Rear
-    .byte 0x88              ;00dc  88          DATA 0x88        -> mem_f213   EEPROM 0070   Fault 00854 - Radio Display Output in Dash Panel Insert
-    .byte 0x88              ;00dd  88          DATA 0x88        -> mem_f214   EEPROM 0071   Fault 00855 - Connection to CD changer
-    .byte 0x88              ;00de  88          DATA 0x88        -> mem_f215   EEPROM 0072   Fault 00856 - Radio Antenna
-    .byte 0x23              ;00df  23          DATA 0x23 '#'    -> mem_f216   EEPROM 0073
-    .byte 0x88              ;00e0  88          DATA 0x88        -> mem_f217   EEPROM 0074
-    .byte 0x88              ;00e1  88          DATA 0x88        -> mem_f218   EEPROM 0075
-    .byte 0x00              ;00e2  00          DATA 0x00        -> mem_f219   EEPROM 0076
-    .byte 0x00              ;00e3  00          DATA 0x00        -> mem_f21a   EEPROM 0077
-    .byte 0x00              ;00e4  00          DATA 0x00        -> mem_f21b   EEPROM 0078
-    .byte 0x00              ;00e5  00          DATA 0x00        -> mem_f21c   EEPROM 0079
-    .byte 0x00              ;00e6  00          DATA 0x00        -> mem_f21d   EEPROM 007A
-    .byte 0x00              ;00e7  00          DATA 0x00        -> mem_f21e   EEPROM 007B
-    .byte 0x00              ;00e8  00          DATA 0x00        -> mem_f21f   EEPROM 007C
-    .byte 0x00              ;00e9  00          DATA 0x00        -> mem_f220   EEPROM 007D
-    .byte 0x00              ;00ea  00          DATA 0x00        -> mem_f221   EEPROM 007E
-    .byte 0x00              ;00eb  00          DATA 0x00        -> mem_f222   EEPROM 007F
-    .byte 0x00              ;00ec  00          DATA 0x00        -> mem_f223   EEPROM 0080
-    .byte 0x00              ;00ed  00          DATA 0x00        -> mem_f224   EEPROM 0081
+    .byte 0x00  ;00cf -> mem_f206           EEPROM 0063
+    .byte 0x44  ;00d0 -> mem_f207           EEPROM 0064
+    .byte 0x00  ;00d1 -> mem_f208           EEPROM 0065
+    .byte 0x00  ;00d2 -> mem_f209           EEPROM 0066
+    .byte 0x00  ;00d3 -> mem_f20a           EEPROM 0067
+    .byte 0x00  ;00d4 -> mem_f20b           EEPROM 0068
+    .byte 0x45  ;00d5 -> mem_f20c           EEPROM 0069
+    .byte 0x88  ;00d6 -> mem_f20d           EEPROM 006A   Fault 00668 - Supply Voltage Terminal 30
+    .byte 0x88  ;00d7 -> mem_f20e           EEPROM 006B   Fault 00849 - S-contact at Ignition/Starter Switch (D)
+    .byte 0x88  ;00d8 -> mem_f20f           EEPROM 006C   Fault 00850 - Control Output Active; Radio Amplifier
+    .byte 0x88  ;00d9 -> mem_f210           EEPROM 006D   Fault 00851 - Loudspeaker(s)
+    .byte 0x88  ;00da -> mem_f211           EEPROM 006E   Fault 00852 - Loudspeaker(s); Front
+    .byte 0x88  ;00db -> mem_f212           EEPROM 006F   Fault 00853 - Loudspeaker(s); Rear
+    .byte 0x88  ;00dc -> mem_f213           EEPROM 0070   Fault 00854 - Radio Display Output in Dash Panel Insert
+    .byte 0x88  ;00dd -> mem_f214           EEPROM 0071   Fault 00855 - Connection to CD changer
+    .byte 0x88  ;00de -> mem_f215           EEPROM 0072   Fault 00856 - Radio Antenna
+    .byte 0x23  ;00df -> mem_f216           EEPROM 0073
+    .byte 0x88  ;00e0 -> mem_f217           EEPROM 0074
+    .byte 0x88  ;00e1 -> mem_f218           EEPROM 0075
+    .byte 0x00  ;00e2 -> mem_f219           EEPROM 0076
+    .byte 0x00  ;00e3 -> mem_f21a           EEPROM 0077
+    .byte 0x00  ;00e4 -> mem_f21b           EEPROM 0078
+    .byte 0x00  ;00e5 -> mem_f21c           EEPROM 0079
+    .byte 0x00  ;00e6 -> mem_f21d           EEPROM 007A
+    .byte 0x00  ;00e7 -> mem_f21e           EEPROM 007B
+    .byte 0x00  ;00e8 -> mem_f21f           EEPROM 007C
+    .byte 0x00  ;00e9 -> mem_f220           EEPROM 007D
+    .byte 0x00  ;00ea -> mem_f221           EEPROM 007E
+    .byte 0x00  ;00eb -> mem_f222           EEPROM 007F
+    .byte 0x00  ;00ec -> mem_f223           EEPROM 0080
+    .byte 0x00  ;00ed -> mem_f224           EEPROM 0081
 
 mem_00ee:
 ;Defaults written to mem_f225 - mem_f26b
-    .byte 0x04              ;00ee  04          DATA 0x04        -> mem_f225         EEPROM 0082   FM1 Current Frequency Index = 88.3 MHz
-    .byte 0x06              ;00ef  06          DATA 0x06        -> mem_f226         EEPROM 0083
-    .byte 0x04              ;00f0  04          DATA 0x04        -> mem_f227         EEPROM 0084   FM1 Preset 1 Frequency Index = 88.3 MHz
-    .byte 0x06              ;00f1  06          DATA 0x06        -> mem_f228         EEPROM 0085
-    .byte 0x08              ;00f2  08          DATA 0x08        -> mem_f229         EEPROM 0086   FM1 Preset 2 Frequency Index = 89.1 MHz
-    .byte 0x06              ;00f3  06          DATA 0x06        -> mem_f22a         EEPROM 0087
-    .byte 0x21              ;00f4  21          DATA 0x21 '!'    -> mem_f22b         EEPROM 0088   FM1 Preset 3 Frequency Index = 94.1 MHz
-    .byte 0x06              ;00f5  06          DATA 0x06        -> mem_f22c         EEPROM 0089
-    .byte 0x3a              ;00f6  3a          DATA 0x3a ':'    -> mem_f22d         EEPROM 008A   FM1 Preset 4 Frequency Index = 99.1 MHz
-    .byte 0x06              ;00f7  06          DATA 0x06        -> mem_f22e         EEPROM 008B
-    .byte 0x5d              ;00f8  5d          DATA 0x5d ']'    -> mem_f22f         EEPROM 008C   FM1 Preset 5 Frequency Index = 106.1 MHz
-    .byte 0x06              ;00f9  06          DATA 0x06        -> mem_f230         EEPROM 008D
-    .byte 0x04              ;00fa  04          DATA 0x04        -> mem_f231         EEPROM 008E   FM1 Preset 6 Frequency Index = 88.3 MHz
-    .byte 0x06              ;00fb  06          DATA 0x06        -> mem_f232         EEPROM 008F
-    .byte 0x35              ;00fc  35          DATA 0x35 '5'    -> mem_f233         EEPROM 0090   FM2 Current Frequency Index = 98.1 MHz
-    .byte 0x06              ;00fd  06          DATA 0x06        -> mem_f234         EEPROM 0091
-    .byte 0x02              ;00fe  02          DATA 0x02        -> mem_f235         EEPROM 0092   FM2 Preset 1 Frequency Index = 87.9 MHz
-    .byte 0x06              ;00ff  06          DATA 0x06        -> mem_f236         EEPROM 0093
-    .byte 0x03              ;0100  03          DATA 0x03        -> mem_f237         EEPROM 0094   FM2 Preset 2 Frequency Index = 88.1 MHz
-    .byte 0x06              ;0101  06          DATA 0x06        -> mem_f238         EEPROM 0095
-    .byte 0x35              ;0102  35          DATA 0x35 '5'    -> mem_f239         EEPROM 0096   FM2 Preset 3 Frequency Index = 98.1 MHz
-    .byte 0x06              ;0103  06          DATA 0x06        -> mem_f23a         EEPROM 0097
-    .byte 0x2c              ;0104  2c          DATA 0x2c ','    -> mem_f23b         EEPROM 0098   FM2 Preset 4 Frequency Index = 96.3 MHz
-    .byte 0x06              ;0105  06          DATA 0x06        -> mem_f23c         EEPROM 0099
-    .byte 0x66              ;0106  66          DATA 0x66 'f'    -> mem_f23d         EEPROM 009A   FM2 Preset 5 Frequency Index = 107.9 MHz
-    .byte 0x06              ;0107  06          DATA 0x06        -> mem_f23e         EEPROM 009B
-    .byte 0x51              ;0108  51          DATA 0x51 'Q'    -> mem_f23f         EEPROM 009C   FM2 Preset 6 Frequency Index = 103.7 MHz
-    .byte 0x06              ;0109  06          DATA 0x06        -> mem_f240         EEPROM 009D
-    .byte 0x01              ;010a  01          DATA 0x01        -> mem_f241         EEPROM 009E   AM Current Frequency Index = 530 kHz
-    .byte 0x06              ;010b  06          DATA 0x06        -> mem_f242         EEPROM 009F
-    .byte 0x01              ;010c  01          DATA 0x01        -> mem_f243         EEPROM 00A0   AM Preset 1 Frequency Index = 530 kHz
-    .byte 0x06              ;010d  06          DATA 0x06        -> mem_f244         EEPROM 00A1
-    .byte 0x08              ;010e  08          DATA 0x08        -> mem_f245         EEPROM 00A2   AM Preset 2 Frequency Index = 600 kHz
-    .byte 0x06              ;010f  06          DATA 0x06        -> mem_f246         EEPROM 00A3
-    .byte 0x35              ;0110  35          DATA 0x35 '5'    -> mem_f247         EEPROM 00A4   AM Preset 3 Frequency Index = 1050 kHz
-    .byte 0x06              ;0111  06          DATA 0x06        -> mem_f248         EEPROM 00A5
-    .byte 0x58              ;0112  58          DATA 0x58 'X'    -> mem_f249         EEPROM 00A6   AM Preset 4 Frequency Index = 1400 kHz
-    .byte 0x06              ;0113  06          DATA 0x06        -> mem_f24a         EEPROM 00A7
-    .byte 0x77              ;0114  77          DATA 0x77 'w'    -> mem_f24b         EEPROM 00A8   AM Preset 5 Frequency Index = 1710 kHz
-    .byte 0x06              ;0115  06          DATA 0x06        -> mem_f24c         EEPROM 00A9
-    .byte 0x01              ;0116  01          DATA 0x01        -> mem_f24d         EEPROM 00AA   AM Preset 6 Frequency Index = 530 kHz
-    .byte 0x06              ;0117  06          DATA 0x06        -> mem_f24e         EEPROM 00AB
-    .byte 0x06              ;0118  06          DATA 0x06        -> mem_f24f         EEPROM 00AC
-    .byte 0x06              ;0119  06          DATA 0x06        -> mem_f250         EEPROM 00AD
-    .byte 0x06              ;011a  06          DATA 0x06        -> mem_f251         EEPROM 00AE
-    .byte 0x00              ;011b  00          DATA 0x00        -> mem_f252         EEPROM 00AF   FM1/FM2 = 0x00=FM1
-    .byte 0x01              ;011c  01          DATA 0x01        -> mem_f253         EEPROM 00B0   Mode = 0x01=FM1/FM2
-    .byte 0x42              ;011d  42          DATA 0x42 'B'    -> mem_f254_onvol   EEPROM 00B1   ONVOL = 33
-    .byte 0x00              ;011e  00          DATA 0x00        -> mem_f255         EEPROM 00B2
-    .byte 0x01              ;011f  01          DATA 0x01        -> mem_f256         EEPROM 00B3
-    .byte 0x0a              ;0120  0a          DATA 0x0a        -> mem_f257_fade    EEPROM 00B4   FADE = CENTER
-    .byte 0x0a              ;0121  0a          DATA 0x0a        -> mem_f258_bal     EEPROM 00B5   BAL = CENTER
-    .byte 0x0a              ;0122  0a          DATA 0x0a        -> mem_f259_bass    EEPROM 00B6   BASS = 0
-    .byte 0x0a              ;0123  0a          DATA 0x0a        -> mem_f25a_mid     EEPROM 00B7   MID = 0
-    .byte 0x0a              ;0124  0a          DATA 0x0a        -> mem_f25b_treb    EEPROM 00B8   TREB = 0
-    .byte 0x0a              ;0125  0a          DATA 0x0a        -> mem_f25c         EEPROM 00B9
-    .byte 0x0a              ;0126  0a          DATA 0x0a        -> mem_f25d         EEPROM 00BA
-    .byte 0x0a              ;0127  0a          DATA 0x0a        -> mem_f25e         EEPROM 00BB
-    .byte 0x0a              ;0128  0a          DATA 0x0a        -> mem_f25f         EEPROM 00BC
-    .byte 0x0a              ;0129  0a          DATA 0x0a        -> mem_f260         EEPROM 00BD
-    .byte 0x0a              ;012a  0a          DATA 0x0a        -> mem_f261         EEPROM 00BE
-    .byte 0x0a              ;012b  0a          DATA 0x0a        -> mem_f262         EEPROM 00BF
-    .byte 0x0a              ;012c  0a          DATA 0x0a        -> mem_f263         EEPROM 00C0
-    .byte 0x0a              ;012d  0a          DATA 0x0a        -> mem_f264         EEPROM 00C1
-    .byte 0x0a              ;012e  0a          DATA 0x0a        -> mem_f265         EEPROM 00C2
-    .byte 0x0a              ;012f  0a          DATA 0x0a        -> mem_f266         EEPROM 00C3
-    .byte 0x0a              ;0130  0a          DATA 0x0a        -> mem_f267         EEPROM 00C4
-    .byte 0x42              ;0131  42          DATA 0x42 'B'    -> mem_f268         EEPROM 00C5
-    .byte 0x06              ;0132  06          DATA 0x06        -> mem_f269         EEPROM 00C6
-    .byte 0x06              ;0133  06          DATA 0x06        -> mem_f26a         EEPROM 00C7
-    .byte 0x55              ;0134  55          DATA 0x55 'U'    -> mem_f26b         EEPROM 00C8
+    .byte 0x04  ;00ee -> mem_f225           EEPROM 0082   FM1 Current Frequency Index = 88.3 MHz
+    .byte 0x06  ;00ef -> mem_f226           EEPROM 0083
+    .byte 0x04  ;00f0 -> mem_f227           EEPROM 0084   FM1 Preset 1 Frequency Index = 88.3 MHz
+    .byte 0x06  ;00f1 -> mem_f228           EEPROM 0085
+    .byte 0x08  ;00f2 -> mem_f229           EEPROM 0086   FM1 Preset 2 Frequency Index = 89.1 MHz
+    .byte 0x06  ;00f3 -> mem_f22a           EEPROM 0087
+    .byte 0x21  ;00f4 -> mem_f22b           EEPROM 0088   FM1 Preset 3 Frequency Index = 94.1 MHz
+    .byte 0x06  ;00f5 -> mem_f22c           EEPROM 0089
+    .byte 0x3a  ;00f6 -> mem_f22d           EEPROM 008A   FM1 Preset 4 Frequency Index = 99.1 MHz
+    .byte 0x06  ;00f7 -> mem_f22e           EEPROM 008B
+    .byte 0x5d  ;00f8 -> mem_f22f           EEPROM 008C   FM1 Preset 5 Frequency Index = 106.1 MHz
+    .byte 0x06  ;00f9 -> mem_f230           EEPROM 008D
+    .byte 0x04  ;00fa -> mem_f231           EEPROM 008E   FM1 Preset 6 Frequency Index = 88.3 MHz
+    .byte 0x06  ;00fb -> mem_f232           EEPROM 008F
+    .byte 0x35  ;00fc -> mem_f233           EEPROM 0090   FM2 Current Frequency Index = 98.1 MHz
+    .byte 0x06  ;00fd -> mem_f234           EEPROM 0091
+    .byte 0x02  ;00fe -> mem_f235           EEPROM 0092   FM2 Preset 1 Frequency Index = 87.9 MHz
+    .byte 0x06  ;00ff -> mem_f236           EEPROM 0093
+    .byte 0x03  ;0100 -> mem_f237           EEPROM 0094   FM2 Preset 2 Frequency Index = 88.1 MHz
+    .byte 0x06  ;0101 -> mem_f238           EEPROM 0095
+    .byte 0x35  ;0102 -> mem_f239           EEPROM 0096   FM2 Preset 3 Frequency Index = 98.1 MHz
+    .byte 0x06  ;0103 -> mem_f23a           EEPROM 0097
+    .byte 0x2c  ;0104 -> mem_f23b           EEPROM 0098   FM2 Preset 4 Frequency Index = 96.3 MHz
+    .byte 0x06  ;0105 -> mem_f23c           EEPROM 0099
+    .byte 0x66  ;0106 -> mem_f23d           EEPROM 009A   FM2 Preset 5 Frequency Index = 107.9 MHz
+    .byte 0x06  ;0107 -> mem_f23e           EEPROM 009B
+    .byte 0x51  ;0108 -> mem_f23f           EEPROM 009C   FM2 Preset 6 Frequency Index = 103.7 MHz
+    .byte 0x06  ;0109 -> mem_f240           EEPROM 009D
+    .byte 0x01  ;010a -> mem_f241           EEPROM 009E   AM Current Frequency Index = 530 kHz
+    .byte 0x06  ;010b -> mem_f242           EEPROM 009F
+    .byte 0x01  ;010c -> mem_f243           EEPROM 00A0   AM Preset 1 Frequency Index = 530 kHz
+    .byte 0x06  ;010d -> mem_f244           EEPROM 00A1
+    .byte 0x08  ;010e -> mem_f245           EEPROM 00A2   AM Preset 2 Frequency Index = 600 kHz
+    .byte 0x06  ;010f -> mem_f246           EEPROM 00A3
+    .byte 0x35  ;0110 -> mem_f247           EEPROM 00A4   AM Preset 3 Frequency Index = 1050 kHz
+    .byte 0x06  ;0111 -> mem_f248           EEPROM 00A5
+    .byte 0x58  ;0112 -> mem_f249           EEPROM 00A6   AM Preset 4 Frequency Index = 1400 kHz
+    .byte 0x06  ;0113 -> mem_f24a           EEPROM 00A7
+    .byte 0x77  ;0114 -> mem_f24b           EEPROM 00A8   AM Preset 5 Frequency Index = 1710 kHz
+    .byte 0x06  ;0115 -> mem_f24c           EEPROM 00A9
+    .byte 0x01  ;0116 -> mem_f24d           EEPROM 00AA   AM Preset 6 Frequency Index = 530 kHz
+    .byte 0x06  ;0117 -> mem_f24e           EEPROM 00AB
+    .byte 0x06  ;0118 -> mem_f24f           EEPROM 00AC
+    .byte 0x06  ;0119 -> mem_f250           EEPROM 00AD
+    .byte 0x06  ;011a -> mem_f251           EEPROM 00AE
+    .byte 0x00  ;011b -> mem_f252           EEPROM 00AF   FM1/FM2 = 0x00=FM1
+    .byte 0x01  ;011c -> mem_f253           EEPROM 00B0   Mode = 0x01=FM1/FM2
+    .byte 0x42  ;011d -> mem_f254_onvol     EEPROM 00B1   ONVOL = 33
+    .byte 0x00  ;011e -> mem_f255           EEPROM 00B2
+    .byte 0x01  ;011f -> mem_f256           EEPROM 00B3
+    .byte 0x0a  ;0120 -> mem_f257_fade      EEPROM 00B4   FADE = CENTER
+    .byte 0x0a  ;0121 -> mem_f258_bal       EEPROM 00B5   BAL = CENTER
+
+    .byte 0x0a  ;0122 -> mem_f259_bass      EEPROM 00B6   BASS = 0
+    .byte 0x0a  ;0123 -> mem_f25a_mid       EEPROM 00B7   MID = 0
+    .byte 0x0a  ;0124 -> mem_f25b_treb      EEPROM 00B8   TREB = 0
+    .byte 0x0a  ;0125 -> mem_f25c_eq1_bass  EEPROM 00B9   EQ#1 BASS = 0
+    .byte 0x0a  ;0126 -> mem_f25d_eq1_mid   EEPROM 00BA   EQ#1 MID = 0
+    .byte 0x0a  ;0127 -> mem_f25e_eq1_treb  EEPROM 00BB   EQ#1 TREB = 0
+    .byte 0x0a  ;0128 -> mem_f25f_eq2_bass  EEPROM 00BC   EQ#2 BASS = 0
+    .byte 0x0a  ;0129 -> mem_f260_eq2_mid   EEPROM 00BD   EQ#2 MID = 0
+    .byte 0x0a  ;012a -> mem_f261_eq2_treb  EEPROM 00BE   EQ#2 TREB = 0
+    .byte 0x0a  ;012b -> mem_f262_eq3_bass  EEPROM 00BF   EQ#3 BASS = 0
+    .byte 0x0a  ;012c -> mem_f263_eq3_mid   EEPROM 00C0   EQ#3 MID = 0
+    .byte 0x0a  ;012d -> mem_f264_eq3_treb  EEPROM 00C1   EQ#3 TREB = 0
+    .byte 0x0a  ;012e -> mem_f265_eq4_bass  EEPROM 00C2   EQ#4 BASS = 0
+    .byte 0x0a  ;012f -> mem_f266_eq4_mid   EEPROM 00C3   EQ#4 TREB = 0
+    .byte 0x0a  ;0130 -> mem_f267_eq4_treb  EEPROM 00C4   EQ#4 TREB = 0
+
+    .byte 0x42  ;0131 -> mem_f268           EEPROM 00C5
+    .byte 0x06  ;0132 -> mem_f269           EEPROM 00C6
+    .byte 0x06  ;0133 -> mem_f26a           EEPROM 00C7
+    .byte 0x55  ;0134 -> mem_f26b           EEPROM 00C8
 
 ;Watch timer interrupt handler
 intwtni0_0135:
@@ -29711,55 +29717,54 @@ lab_a7ed:
     ret                     ;a7ed  af
 
 sub_a7ee:
-    cmp mem_fe58,#0x00      ;a7ee  c8 58 00
-    bz lab_a7fd             ;a7f1  ad 0a
-    call !sub_a80e          ;a7f3  9a 0e a8
+    cmp mem_fe58,#0         ;a7ee  c8 58 00
+    bz lab_a7fd_ret         ;a7f1  ad 0a
+    call !find_eq_area      ;a7f3  9a 0e a8     Find an EQ# EEPROM area of RAM, return address in AX.  Selects EQ#1-4 based on ???
     movw de,ax              ;a7f6  d4
-    movw hl,#mem_f259_bass  ;a7f7  16 59 f2     HL = address of BASS
-    call !sub_a82e          ;a7fa  9a 2e a8
-
-lab_a7fd:
+    movw hl,#mem_f259_bass  ;a7f7  16 59 f2     HL = address of BASS (will write 3 bytes: BASS, MID, TREB)
+    call !eeram_wr_3_de_hl  ;a7fa  9a 2e a8     Write 3 bytes to EEPROM area in RAM from [DE] to [HL]
+lab_a7fd_ret:
     ret                     ;a7fd  af
 
 sub_a7fe:
-    cmp mem_fe58,#0x00      ;a7fe  c8 58 00
-    bz lab_a80d             ;a801  ad 0a
-    call !sub_a80e          ;a803  9a 0e a8
+    cmp mem_fe58,#0         ;a7fe  c8 58 00
+    bz lab_a80d_ret         ;a801  ad 0a
+    call !find_eq_area      ;a803  9a 0e a8     Find an EQ# EEPROM area of RAM, return address in AX.  Selects EQ#1-4 based on ???
     movw hl,ax              ;a806  d6
-    movw de,#mem_f259_bass  ;a807  14 59 f2     HL = address of BASS
-    call !sub_a82e          ;a80a  9a 2e a8
-
-lab_a80d:
+    movw de,#mem_f259_bass  ;a807  14 59 f2     HL = address of BASS (will write 3 bytes: BASS, MID, TREB)
+    call !eeram_wr_3_de_hl  ;a80a  9a 2e a8     Write 3 bytes to EEPROM area in RAM from [DE] to [HL]
+lab_a80d_ret:
     ret                     ;a80d  af
 
-sub_a80e:
-    cmp mem_fe58,#0x01      ;a80e  c8 58 01
-    bnz lab_a822            ;a811  bd 0f
-    call !sub_080b_fm1fm2   ;a813  9a 0b 08     Return mem_f252 in A (FM1/FM2: 0x00=FM1, 0x01=FM2), also copy it into mem_fb57
-    cmp a,#0x02             ;a816  4d 02
-    movw ax,#mem_f25c       ;a818  10 5c f2
-    bnz lab_a82d            ;a81b  bd 10
-    movw ax,#mem_f25f       ;a81d  10 5f f2
-    br lab_a82d             ;a820  fa 0b
+;Find an EQ# EEPROM area of RAM, return address in AX.  Selects EQ#1-4 based on ???
+find_eq_area:
+    cmp mem_fe58,#1             ;a80e  c8 58 01
+    bnz lab_a822                ;a811  bd 0f
+    call !sub_080b_fm1fm2       ;a813  9a 0b 08     Return mem_f252 in A (FM1/FM2: 0x00=FM1, 0x01=FM2), also copy it into mem_fb57
+    cmp a,#0x02                 ;a816  4d 02
+    movw ax,#mem_f25c_eq1_bass  ;a818  10 5c f2
+    bnz lab_a82d_ret            ;a81b  bd 10
+    movw ax,#mem_f25f_eq2_bass  ;a81d  10 5f f2
+    br lab_a82d_ret             ;a820  fa 0b
 
 lab_a822:
-    movw ax,#mem_f262       ;a822  10 62 f2
-    cmp mem_fe58,#0x02      ;a825  c8 58 02
-    bz lab_a82d             ;a828  ad 03
-    movw ax,#mem_f265       ;a82a  10 65 f2
+    movw ax,#mem_f262_eq3_bass  ;a822  10 62 f2
+    cmp mem_fe58,#2             ;a825  c8 58 02
+    bz lab_a82d_ret             ;a828  ad 03
+    movw ax,#mem_f265_eq4_bass  ;a82a  10 65 f2
 
-lab_a82d:
-    ret                     ;a82d  af
+lab_a82d_ret:
+    ret                         ;a82d  af
 
-sub_a82e:
+;Write 3 bytes to EEPROM area in RAM from [DE] to [HL]
+eeram_wr_3_de_hl:
     mov b,#0x03             ;a82e  a3 03
-
-lab_a830:
+lab_a830_loop:
     mov a,[de]              ;a830  85
     call !eeram_wr_byte_hl  ;a831  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
     incw de                 ;a834  84
     incw hl                 ;a835  86
-    dbnz b,lab_a830         ;a836  8b f8
+    dbnz b,lab_a830_loop    ;a836  8b f8
     ret                     ;a838  af
 
 lab_a839:
