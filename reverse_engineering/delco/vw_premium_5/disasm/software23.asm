@@ -16791,11 +16791,13 @@ sub_5607:
     mov a,!mem_fbcd         ;560a  8e cd fb
     call !sub_568f          ;560d  9a 8f 56
     mov !mem_fbcd,a         ;5610  9e cd fb
+
     mov a,!mem_f1a5         ;5613  8e a5 f1
     cmp a,#0xff             ;5616  4d ff
     movw hl,#mem_fbcc       ;5618  16 cc fb
     clr1 mem_fe66.2         ;561b  2b 66
     bnz lab_562f            ;561d  bd 10
+
     movw hl,#mem_fbce       ;561f  16 ce fb
     set1 mem_fe66.2         ;5622  2a 66
     mov a,!mem_fbd0         ;5624  8e d0 fb
@@ -21294,10 +21296,13 @@ lab_708f:
     mov a,!mem_fb2e         ;708f  8e 2e fb
     cmp a,#0x00             ;7092  4d 00
     bnz lab_70a7            ;7094  bd 11
+
     mov a,!mem_f1a5         ;7096  8e a5 f1
     and a,#0x3f             ;7099  5d 3f
-    cmp a,#0x06             ;709b  4d 06
-    bnz lab_70a1            ;709d  bd 02
+    cmp a,#0x06             ;709b  4d 06        A = 0x06 "SELECT EQ #"
+    bnz lab_70a1            ;709d  bd 02        Branch if mem_fa15 != "SELECT EQ #"
+
+    ;A = 0x06 "SELECT EQ #"
     set1 mem_fe80.5         ;709f  5a 80
 
 lab_70a1:
@@ -21308,9 +21313,11 @@ lab_70a1:
 lab_70a7:
     mov a,#0x00             ;70a7  a1 00
     mov !mem_fb2d,a         ;70a9  9e 2d fb
+
     mov a,!mem_f1a5         ;70ac  8e a5 f1
     and a,#0x7f             ;70af  5d 7f
     mov !mem_f1a5,a         ;70b1  9e a5 f1
+
     mov b,a                 ;70b4  73
     movw hl,#mem_b426+1     ;70b5  16 27 b4   HL = pointer to sound control related code table
     br lab_704d             ;70b8  fa 93
@@ -22292,7 +22299,7 @@ sub_7697:
 
     mov a,!mem_f1a6         ;76af  8e a6 f1
     and a,#0x7f             ;76b2  5d 7f
-    cmp a,#0x09             ;76b4  4d 09        9 Writes "CD  CD ERR "
+    cmp a,#0x09             ;76b4  4d 09        Compare with 0x09 "CD  CD ERR "
     bz lab_76c2             ;76b6  ad 0a        Sets mem_f1a5 = 0xff and returns
 
 lab_76b8:
@@ -29180,7 +29187,7 @@ lab_a4a5:
     call !sub_aa40          ;a4b3  9a 40 aa
     mov a,!mem_fc9b         ;a4b6  8e 9b fc
     mov b,a                 ;a4b9  73
-    movw hl,#mem_d0c8       ;a4ba  16 c8 d0
+    movw hl,#mem_d0c7+1     ;a4ba  16 c8 d0
 
 lab_a4bd:
     callf !sub_0c48         ;a4bd  4c 48        Load DE with word at position B in table [HL]
@@ -29780,13 +29787,17 @@ lab_a849:
     mov a,!mem_f1a5         ;a849  8e a5 f1
     cmp a,#0xff             ;a84c  4d ff
     bz lab_a865             ;a84e  ad 15
+
     mov a,!mem_fc9e         ;a850  8e 9e fc
     cmp a,#0x03             ;a853  4d 03
     bz lab_a862             ;a855  ad 0b
+
     cmp a,#0x04             ;a857  4d 04
     bnz lab_a865            ;a859  bd 0a
+
     mov a,#0xff             ;a85b  a1 ff
     mov !mem_f1a5,a         ;a85d  9e a5 f1
+
     br lab_a872             ;a860  fa 10
 
 lab_a862:
@@ -29949,15 +29960,19 @@ sub_a937:
     push ax                 ;a942  b1
     and a,#0x7f             ;a943  5d 7f
     mov b,a                 ;a945  73
+
     mov a,!mem_f1a5         ;a946  8e a5 f1
     and a,#0x7f             ;a949  5d 7f
     cmp a,b                 ;a94b  61 4b
+
     push psw                ;a94d  22
     call !sub_7697          ;a94e  9a 97 76
     pop psw                 ;a951  23
     pop ax                  ;a952  b0
     bz lab_a95d             ;a953  ad 08
+
     mov !mem_f1a5,a         ;a955  9e a5 f1
+
     mov a,#0x32             ;a958  a1 32
     mov !mem_fb2e,a         ;a95a  9e 2e fb
 
@@ -30045,11 +30060,14 @@ lab_a9df:
     mov a,!mem_fb48         ;a9df  8e 48 fb
     cmp a,#0x00             ;a9e2  4d 00
     bnz lab_aa0e            ;a9e4  bd 28
+
     mov a,!mem_f1a5         ;a9e6  8e a5 f1
     cmp a,#0xff             ;a9e9  4d ff
     bnz lab_aa0e            ;a9eb  bd 21
+
     cmp mem_fe5a,#0x00      ;a9ed  c8 5a 00
     bz lab_a9fb             ;a9f0  ad 09
+
     sub mem_fe5a,#0x02      ;a9f2  98 5a 02
     set1 mem_fe73.3         ;a9f5  3a 73
     set1 mem_fe76.2         ;a9f7  2a 76
@@ -38400,14 +38418,18 @@ mem_d0b6_sound_adjs:
     .word mem_f258_bal  ;BAL
 
 mem_d0c1:
-;table of words used with sub_0c48
+;table of bytes used with sub_0c7d
+;indexed by mem_fc9e, values are compared to mem_f1a5
     .byte 0x05              ;d0c1  05          DATA 0x05        5 entries below:
-    .word 0x8382
-    .word 0x8084
-    .word 0x0281
+    .byte 0x80|0x02   ;0x02 = BASS
+    .byte 0x80|0x03   ;0x03 = MID
+    .byte 0x80|0x04   ;0x04 = TREB
+    .byte 0x80|0x00   ;0x00 = FADE
+    .byte 0x80|0x01   ;0x01 = BAL
 
-mem_d0c8:
+mem_d0c7:
 ;table of words used with sub_0c48
+    .byte 0x02              ;d0c7  02         DATA 0x02         2 entries below:
     .word lab_a547_ret
     .word lab_a95e
 
@@ -39502,6 +39524,7 @@ sub_d80f:
     mov a,!mem_f1a5         ;d80f  8e a5 f1
     cmp a,#0xff             ;d812  4d ff
     bnz lab_d818            ;d814  bd 02
+
     clr1 mem_fe47.1         ;d816  1b 47
 
 lab_d818:
