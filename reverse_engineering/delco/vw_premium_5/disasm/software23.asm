@@ -1361,7 +1361,7 @@ lab_0271:
     push psw                ;0276  22
     push de                 ;0277  b5
     pop hl                  ;0278  b6
-    callf !sub_0d6d         ;0279  5c 6d        HL = HL + B
+    callf !add_b_to_hl      ;0279  5c 6d        HL = HL + B
     mov x,#0x00             ;027b  a0 00
     mov a,[hl]              ;027d  87
     pop psw                 ;027e  23
@@ -1395,7 +1395,7 @@ lab_0294:
     rol a,1                 ;029b  26
     push de                 ;029c  b5
     pop hl                  ;029d  b6
-    callf !sub_0d67         ;029e  5c 67        HL = HL + A
+    callf !add_a_to_hl      ;029e  5c 67        HL = HL + A
     mov a,[hl]              ;02a0  87
     mov x,a                 ;02a1  70
     mov a,[hl+0x01]         ;02a2  ae 01
@@ -2009,7 +2009,7 @@ eeram_copy_defaults_2_of_2:
     movw de,#mem_f206       ;0a31  14 06 f2     DE = destination address
 
 lab_0a34:
-    callf !sub_0c9e         ;0a34  4c 9e        Copy A bytes from [HL] to [DE]
+    callf !copy             ;0a34  4c 9e        Copy A bytes from [HL] to [DE]
     ret                     ;0a36  af
 
 sub_0a37:
@@ -2077,7 +2077,7 @@ sub_0a60:
     movw ax,#mem_f26c_csum_lo ;0a70  10 6c f2     AX = #mem_f26c_csum_lo
     subw ax,#mem_f225         ;0a73  da 25 f2     AX = #mem_f26c_csum_lo - #mem_f225 = 0x47
     mov a,x                   ;0a76  60           A = number of bytes to copy (0x47)
-    callf !sub_0c9e           ;0a77  4c 9e        Copy A bytes from [HL] to [DE]
+    callf !copy               ;0a77  4c 9e        Copy A bytes from [HL] to [DE]
 
     call !sub_4053          ;0a79  9a 53 40
 
@@ -2397,6 +2397,7 @@ lab_0b8e:
     pop bc                  ;0b8e  b2
     ret                     ;0b8f  af
 
+
 sub_0b90:
 ;Convert lower nibble of A to hexadecimal digit in ASCII
 ;
@@ -2412,6 +2413,8 @@ lab_0b99:
     add a,#'7               ;0b99  0d 37      Convert to ASCII 'A'-'F'
     ret                     ;0b9b  af
 
+
+;XXX appears unused
 sub_0b9c:
 ;CDE = C * DE
 ;Examples:
@@ -2575,7 +2578,7 @@ lab_0c47:
     ret                     ;0c47  af
 
 
-sub_0c48:
+table_get_word:
 ;Load DE with word at position B in table [HL]
 ;
 ;Called with:
@@ -2616,7 +2619,9 @@ lab_0c62:
     not1 cy                 ;0c62  01
     ret                     ;0c63  af
 
-sub_0c64:
+
+;XXX appears unused
+table_get_nib:
 ;Load A with nibble at position B in table [HL]
 ;
 ;Call with:
@@ -2666,7 +2671,7 @@ lab_0c7b:
     ret                     ;0c7c  af
 
 
-sub_0c7d:
+table_get_byte:
 ;Load A with byte at position B in table [HL]
 ;
 ;Called with:
@@ -2689,6 +2694,7 @@ lab_0c85:
     ret                     ;0c86  af
 
 
+;XXX appears unused
 sub_0c87:
     push bc                 ;0c87  b3
     mov a,b                 ;0c88  63
@@ -2710,7 +2716,7 @@ sub_0c87:
     ret                     ;0c9d  af
 
 
-sub_0c9e:
+copy:
 ;Copy A bytes from [HL] to [DE]
 ;
 ;Preserves X, BC.
@@ -2735,6 +2741,7 @@ lab_0caa_done:
     ret                     ;0cab  af
 
 
+;XXX appears unused
 sub_0cac:
 ;Swap A bytes between [HL] and [DE]
     push bc                 ;0cac  b3
@@ -2757,6 +2764,7 @@ lab_0cbb_done:
     ret                     ;0cbe  af
 
 
+;XXX appears unused
 sub_0cbf:
     push ax                 ;0cbf  b1
     add a,#0x80             ;0cc0  0d 80
@@ -2768,7 +2776,7 @@ sub_0cbf:
     ret                     ;0cc9  af
 
 
-sub_0cca:
+compare:
 ;Compare A bytes between [HL] and [DE]
 ;Sets Z flag if equal, clears Z flag if not equal
     push bc                 ;0cca  b3
@@ -2787,12 +2795,12 @@ lab_0cd8:
     ret                     ;0cd9  af
 
 
-sub_0cda:
+fill_with_0:
 ;Fill B bytes in buffer [HL] with 0
     mov a,#0x00             ;0cda  a1 00
 
 
-sub_0cdc:
+fill_with_a:
 ;Fill B bytes in buffer [HL] with A
     xch a,b                 ;0cdc  33
     cmp a,#0x00             ;0cdd  4d 00
@@ -2820,7 +2828,7 @@ lab_0cf2_not_cy_ret:
     ret                     ;0cf3  af
 
 
-sub_0cf4:
+bin_a_to_bcd_ax:
 ;Convert binary number in A to BCD number in AX
 ;Example: A=123 -> AX=0x0123
     push de                 ;0cf4  b5
@@ -2843,6 +2851,7 @@ lab_0cfa:
     ret                     ;0d0b  af
 
 
+;XXX appears unused
 sub_0d0c:
 ;Convert BCD number in BC to four ASCII digits, backwards, at 0xFEDA.
 ;If the hundreds or thousands place is 0, use a space instead of "0".
@@ -2920,12 +2929,13 @@ sub_0d49:
     ret                     ;0d5d  af
 
 
+;XXX appears unused
 sub_0d5e:
 ;HL = HL + (A * X)
     mulu x                  ;0d5e  31 88      AX = A * X
                             ;Fall through
 
-sub_0d60:
+add_ax_to_hl:
 ;HL = HL + AX, preserves AX
 ;Example: HL=0x1234, AX=0x0101 -> HL=0x1335, AX=0x0101
     xch a,x                 ;0d60  30
@@ -2935,7 +2945,7 @@ sub_0d60:
     ret                     ;0d66  af
 
 
-sub_0d67:
+add_a_to_hl:
 ;HL = HL + A
     add l,a                 ;0d67  61 06
     bnc lab_0d6c            ;0d69  9d 01
@@ -2944,7 +2954,7 @@ lab_0d6c:
     ret                     ;0d6c  af
 
 
-sub_0d6d:
+add_b_to_hl:
 ;HL = HL + B
     xch a,b                 ;0d6d  33
     add l,a                 ;0d6e  61 06
@@ -3089,7 +3099,7 @@ lab_0e39_loop:
     mov b,#0x0b             ;0e48  a3 0b        B = 0x0b bytes to fill
     mov a,#0x80             ;0e4a  a1 80        A = 0x80 value to fill
     movw hl,#mem_fb86       ;0e4c  16 86 fb     HL = pointer to buffer to fill
-    callf !sub_0cdc         ;0e4f  4c dc        Fill B bytes in buffer [HL] with A
+    callf !fill_with_a      ;0e4f  4c dc        Fill B bytes in buffer [HL] with A
 
     callf !sub_093c         ;0e51  1c 3c
     clr1 pu2.4              ;0e53  71 4b 32
@@ -3179,7 +3189,7 @@ lab_0e39_loop:
     mov b,#0x03             ;0f0a  a3 03        B = 3 bytes to fill
     mov a,#0x7f             ;0f0c  a1 7f        A = fill value 0x7f
     movw hl,#mem_fca2       ;0f0e  16 a2 fc     HL = pointer to buffer to fill
-    callf !sub_0cdc         ;0f11  4c dc        Fill B bytes in buffer [HL] with A
+    callf !fill_with_a      ;0f11  4c dc        Fill B bytes in buffer [HL] with A
 
     ;Cold start finished; fall through into warm start
 
@@ -3611,7 +3621,7 @@ lab_1225:
     mov a,b                 ;122f  63
     mov mem_fe2f,a          ;1230  f2 2f
     movw hl,#mem_b0b6+1     ;1232  16 b7 b0
-    callf !sub_0c48         ;1235  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;1235  4c 48        Load DE with word at position B in table [HL]
     bnc lab_123a            ;1237  9d 01        Branch if table lookup succeeded
     brk                     ;1239  bf           Force cold start via badisr_0d75
 
@@ -3689,7 +3699,7 @@ lab_1288_loop:
 
 lab_1291:
     movw hl,#mem_b0d1+1     ;1291  16 d2 b0
-    callf !sub_0c48         ;1294  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;1294  4c 48        Load DE with word at position B in table [HL]
     bc lab_12d7             ;1296  8d 3f        Branch if table lookup failed
     movw ax,de              ;1298  c4
     br ax                   ;1299  31 98
@@ -3773,7 +3783,7 @@ lab_1326:
     bnc lab_12f8            ;1333  9d c3      Branch if find failed
 
     movw hl,#mem_b3b1+1     ;1335  16 b2 b3
-    callf !sub_0c7d         ;1338  4c 7d      Load A with byte at position B in table [HL]
+    callf !table_get_byte   ;1338  4c 7d      Load A with byte at position B in table [HL]
     bc lab_12f8             ;133a  8d bc      Branch if lookup failed
 
     set1 a.7                ;133c  61 fa
@@ -4237,7 +4247,7 @@ lab_165e:
     mov b,a                 ;167a  73
 
 lab_167b:
-    callf !sub_0c48         ;167b  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;167b  4c 48        Load DE with word at position B in table [HL]
     bc sub_1601             ;167d  8d 82        Branch if table lookup failed
 
 lab_167f:
@@ -5188,7 +5198,7 @@ sub_1c32:
     and a,#0x07                     ;1c35  5d 07
     mov b,a                         ;1c37  73
     movw hl,#mem_ad34_freq_tables+1 ;1c38  16 35 ad     Table of pointers to frequency info tables
-    callf !sub_0c48                 ;1c3b  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word           ;1c3b  4c 48        Load DE with word at position B in table [HL]
     movw ax,de                      ;1c3d  c4
     movw hl,ax                      ;1c3e  d6
     decw hl                         ;1c3f  96
@@ -5284,7 +5294,7 @@ lab_1cb1:
     movw hl,#mem_ae0e+1     ;1cb1  16 0f ae
     mov a,mem_fe22          ;1cb4  f0 22
     mov b,a                 ;1cb6  73
-    call !sub_0c48          ;1cb7  9a 48 0c     Load DE with word at position B in table [HL]
+    call !table_get_word    ;1cb7  9a 48 0c     Load DE with word at position B in table [HL]
     bnc lab_1cbf            ;1cba  9d 03        Branch if table lookup succeeded
     br !sub_1601            ;1cbc  9b 01 16
 
@@ -5488,7 +5498,7 @@ lab_1deb:
     cmp a,#0xff             ;1dfb  4d ff
     bz lab_1e0d             ;1dfd  ad 0e
     movw hl,#mem_aebc+1     ;1dff  16 bd ae
-    callf !sub_0c48         ;1e02  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;1e02  4c 48        Load DE with word at position B in table [HL]
     bc lab_1e0d             ;1e04  8d 07        Branch if table lookup failed
     movw ax,#lab_1e0d       ;1e06  10 0d 1e
     push ax                 ;1e09  b1
@@ -5650,7 +5660,7 @@ lab_1f11:
     mov a,c                 ;1f15  62
     mov b,a                 ;1f16  73
     movw hl,#mem_ae6f+1     ;1f17  16 70 ae
-    callf !sub_0c48         ;1f1a  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;1f1a  4c 48        Load DE with word at position B in table [HL]
     movw ax,de              ;1f1c  c4
     movw mem_fedc,ax        ;1f1d  99 dc
     movw hl,#mem_fed4       ;1f1f  16 d4 fe
@@ -5663,7 +5673,7 @@ lab_1f25:
     dec b                   ;1f28  53
     movw ax,mem_fedc        ;1f29  89 dc
     movw hl,ax              ;1f2b  d6
-    callf !sub_0c7d         ;1f2c  4c 7d        Load A with byte at position B in table [HL]
+    callf !table_get_byte   ;1f2c  4c 7d        Load A with byte at position B in table [HL]
     cmp a,mem_fed9          ;1f2e  4e d9
     bc lab_1f35             ;1f30  8d 03
     dbnz mem_fed8,lab_1f25  ;1f32  04 d8 f0
@@ -5950,7 +5960,7 @@ lab_20f9:
     movw hl,#mem_af57+1     ;20f9  16 58 af     HL = pointer to SAFE code entry related code table
 
 lab_20fc:
-    callf !sub_0c48         ;20fc  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;20fc  4c 48        Load DE with word at position B in table [HL]
     bc sub_2138             ;20fe  8d 38        Branch if table lookup failed
     movw ax,#lab_2107       ;2100  10 07 21
     push ax                 ;2103  b1
@@ -5966,7 +5976,7 @@ lab_210e:
     mov a,!mem_fb70         ;210e  8e 70 fb
     mov b,a                 ;2111  73
     movw hl,#mem_aef1+1     ;2112  16 f2 ae
-    callf !sub_0c7d         ;2115  4c 7d        Load A with byte at position B in table [HL]
+    callf !table_get_byte   ;2115  4c 7d        Load A with byte at position B in table [HL]
     bnc lab_211b            ;2117  9d 02        Branch if lookup succeeded
     mov a,#0xff             ;2119  a1 ff
 
@@ -6098,7 +6108,7 @@ sub_21f4:
     mov a,!mem_fb70         ;21f4  8e 70 fb
     mov b,a                 ;21f7  73
     movw hl,#mem_aed3+1     ;21f8  16 d4 ae
-    callf !sub_0c7d         ;21fb  4c 7d        Load A with byte at position B in table [HL]
+    callf !table_get_byte   ;21fb  4c 7d        Load A with byte at position B in table [HL]
     mov !mem_fb22,a         ;21fd  9e 22 fb
     ret                     ;2200  af
 
@@ -6111,14 +6121,14 @@ sub_2201:
 lab_220b:
     mov b,a                 ;220b  73
     movw hl,#mem_aee7+1     ;220c  16 e8 ae
-    callf !sub_0c7d         ;220f  4c 7d        Load A with byte at position B in table [HL]
+    callf !table_get_byte   ;220f  4c 7d        Load A with byte at position B in table [HL]
     br lab_221c             ;2211  fa 09
 
 lab_2213:
     mov a,!mem_fb70         ;2213  8e 70 fb
     mov b,a                 ;2216  73
     movw hl,#mem_aedd+1     ;2217  16 de ae
-    callf !sub_0c7d         ;221a  4c 7d        Load A with byte at position B in table [HL]
+    callf !table_get_byte   ;221a  4c 7d        Load A with byte at position B in table [HL]
 
 lab_221c:
     bc lab_2225             ;221c  8d 07        Branch if lookup failed
@@ -6642,7 +6652,7 @@ sub_2537_secure_resp:
     movw hl,#kwp_rx_buf+3   ;2537  16 8d f0     HL = source address (KWP1281 rx buffer byte 3)
     movw de,#mem_fed4       ;253a  14 d4 fe     DE = destination address
     mov a,#4                ;253d  a1 04        A = 4 bytes to copy
-    callf !sub_0c9e         ;253f  4c 9e        Copy A bytes from [HL] to [DE]
+    callf !copy             ;253f  4c 9e        Copy A bytes from [HL] to [DE]
 
     ;After copying, mem_fed4 contains the 4 bytes from the received block:
     ;  kwp_rx_buf+3 -> mem_fed4
@@ -6988,7 +6998,7 @@ kwp_id_part_num:
     movw hl,#mem_f1ed       ;26e4  16 ed f1     HL = source address (EEPROM area "1J0035180B  ")
     movw de,#kwp_tmp_buf    ;26e7  14 3b f0     DE = destination address
     mov a,#0x0c             ;26ea  a1 0c        A = number of bytes to copy (12)
-    callf !sub_0c9e         ;26ec  4c 9e        Copy A bytes from [HL] to [DE]
+    callf !copy             ;26ec  4c 9e        Copy A bytes from [HL] to [DE]
 
     movw hl,#kwp_tmp_buf    ;26ee  16 3b f0
     mov a,#0x03             ;26f1  a1 03        A = 0x03 block end
@@ -7021,7 +7031,7 @@ kwp_id_0001:
     movw hl,#kwp_0001       ;2706  16 89 26     HL = source address of "       0001",0x00,0x03
     movw de,#kwp_tmp_buf    ;2709  14 3b f0     DE = destination address
     mov a,#0x0d             ;270c  a1 0d        A = number of bytes to copy (13)
-    callf !sub_0c9e         ;270e  4c 9e        Copy A bytes from [HL] to [DE]
+    callf !copy             ;270e  4c 9e        Copy A bytes from [HL] to [DE]
 
     ;kwp_tmp_buf now contains 13 bytes:
     ;"       0001",0x00,0x03
@@ -7160,7 +7170,7 @@ lab_2762_loop:
     call !sub_2cbe          ;277d  9a be 2c     A = DE - HL
     mov b,a                 ;2780  73           Copy it to B as index to fault codes table
     movw hl,#fault_codes+1  ;2781  16 e9 af     HL = pointer to table of KWP1281 fault codes
-    callf !sub_0c48         ;2784  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;2784  4c 48        Load DE with word at position B in table [HL]
 
     pop ax                  ;2786  b0           Pop fault elaboration code
     bc lab_278c_no_fault    ;2787  8d 03        Branch if table lookup failed
@@ -7261,7 +7271,7 @@ lab_27e6:
     mov !kwp_test_idx,a     ;27e8  9e 4e f0     Store as KWP1281 Output Test index
 
     movw hl,#output_tests+1 ;27eb  16 02 b0     HL = pointer to table of Output Test codes
-    callf !sub_0c48         ;27ee  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;27ee  4c 48        Load DE with word at position B in table [HL]
     bc lab_2818             ;27f0  8d 26        Branch if table lookup failed
                             ;                     (branches to pop registers, clear carry, and ret)
 
@@ -7318,7 +7328,7 @@ fis_display_test:
 lab_2824:
     movw de,#fis_tx_buf+3   ;2824  14 55 f0     DE = destination address
     mov a,#16               ;2827  a1 10        A = 16 bytes to copy (8 chars * 2 lines)
-    callf !sub_0c9e         ;2829  4c 9e        Copy A bytes from [HL] to [DE]
+    callf !copy             ;2829  4c 9e        Copy A bytes from [HL] to [DE]
     set1 mem_fe60.3         ;282b  3a 60
     set1 mem_fe5f.5         ;282d  5a 5f
     ret                     ;282f  af
@@ -7379,7 +7389,7 @@ lab_2849_not_0x19_0x06:
     bnc lab_2858_failed             ;284f  9d 07        Branch if find failed
 
     movw hl,#group_data_pointers+1  ;2851  16 97 af     HL = pointer to table of group data pointers
-    callf !sub_0c48                 ;2854  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word           ;2854  4c 48        Load DE with word at position B in table [HL]
     bnc lab_2862_group_ok           ;2856  9d 0a        Branch if table lookup succeeded
     ;Fall through
 
@@ -7816,7 +7826,7 @@ lab_2a10:
     movw hl,#kwp_rx_buf+3   ;2a19  16 8d f0     HL = source address (KWP1281 rx buffer byte 3)
     movw de,#mem_f1f9       ;2a1c  14 f9 f1     DE = destination address
     mov a,#0x04             ;2a1f  a1 04        A = 4 bytes to copy
-    callf !sub_0c9e         ;2a21  4c 9e        Copy A bytes from [HL] to [DE]
+    callf !copy             ;2a21  4c 9e        Copy A bytes from [HL] to [DE]
 
     mov a,mem_fed4          ;2a23  f0 d4
     and a,#0x0f             ;2a25  5d 0f
@@ -8528,7 +8538,7 @@ sub_2cdf:
 ;
 ;See also sub_6364 for another EEPROM range check.
 ;
-    callf !sub_0d60         ;2cdf  5c 60      HL = HL + AX, preserves AX
+    callf !add_ax_to_hl     ;2cdf  5c 60      HL = HL + AX, preserves AX
                             ;                 HL now contains end address of region + 1
 
     xchw ax,hl              ;2ce1  e6         HL = start address of region
@@ -8883,7 +8893,7 @@ lab_2e4b:
     mov a,mem_fe25          ;2e4b  f0 25
     mov b,a                 ;2e4d  73
     movw hl,#mem_b019_fis+1 ;2e4e  16 1a b0     FIS-related routines
-    callf !sub_0c48         ;2e51  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;2e51  4c 48        Load DE with word at position B in table [HL]
     bc sub_2e5d             ;2e53  8d 08        Branch if table lookup failed
     movw ax,#lab_2e5c       ;2e55  10 5c 2e
     push ax                 ;2e58  b1
@@ -8942,14 +8952,14 @@ fis_clear:
     mov b,#16               ;2e7e  a3 10        B = 16 bytes to fill (8 chars * 2 lines)
     movw hl,#fis_tx_buf+3   ;2e80  16 55 f0     HL = pointer to buffer to fill
     mov a,#0x20             ;2e83  a1 20        A = fill value (space character)
-    callf !sub_0cdc         ;2e85  4c dc        Fill B bytes in buffer [HL] with A
+    callf !fill_with_a      ;2e85  4c dc        Fill B bytes in buffer [HL] with A
     ret                     ;2e87  af
 
 fis_zero:
 ;Fill all characters on the FIS display with 0
     mov b,#16               ;2e88  a3 10        B = 16 bytes to fill (8 chars * 2 lines)
     movw hl,#fis_tx_buf+3   ;2e8a  16 55 f0     HL = pointer to buffer to fill
-    callf !sub_0cda         ;2e8d  4c da        Fill B bytes in buffer [HL] with 0
+    callf !fill_with_0      ;2e8d  4c da        Fill B bytes in buffer [HL] with 0
     ret                     ;2e8f  af
 
 fis_build_from_upd:
@@ -8976,7 +8986,7 @@ lab_2e9a_not_blank:
     mov a,#0x02             ;2e9a  a1 02        A = 2 bytes to copy
     movw hl,#upd_disp       ;2e9c  16 9a f1     HL = source address
     movw de,#fis_tx_buf+3   ;2e9f  14 55 f0     DE = destination address
-    callf !sub_0c9e         ;2ea2  4c 9e        Copy A bytes from [HL] to [DE]
+    callf !copy             ;2ea2  4c 9e        Copy A bytes from [HL] to [DE]
 
     cmp mem_fe30,#0x01      ;2ea4  c8 30 01
     bz lab_2eb5             ;2ea7  ad 0c
@@ -8989,7 +8999,7 @@ lab_2e9a_not_blank:
     mov a,#0x02             ;2ea9  a1 02        A = 2 bytes to copy
     movw hl,#upd_disp+2     ;2eab  16 9c f1     HL = source address
     movw de,#fis_tx_buf+5   ;2eae  14 57 f0     DE = destination address
-    callf !sub_0c9e         ;2eb1  4c 9e        Copy A bytes from [HL] to [DE]
+    callf !copy             ;2eb1  4c 9e        Copy A bytes from [HL] to [DE]
 
     br lab_2edc             ;2eb3  fa 27
 
@@ -9059,7 +9069,7 @@ lab_2edc:
     mov a,#0x03               ;2edc  a1 03        A = 3 bytes to copy
     movw hl,#upd_disp+4       ;2ede  16 9e f1     HL = source address
     movw de,#fis_tx_buf+0x0b  ;2ee1  14 5d f0     DE = destination address
-    callf !sub_0c9e           ;2ee4  4c 9e        Copy A bytes from [HL] to [DE]
+    callf !copy               ;2ee4  4c 9e        Copy A bytes from [HL] to [DE]
 
     ;HL now points to uPD16432B:
     ;    ".......X...."
@@ -9086,7 +9096,7 @@ lab_2eee:
     ;Copy 4 bytes from uPD16432B
 
     mov a,#0x04             ;2eee  a1 04        A = 4 bytes to copy
-    callf !sub_0c9e         ;2ef0  4c 9e        Copy A bytes from [HL] to [DE]
+    callf !copy             ;2ef0  4c 9e        Copy A bytes from [HL] to [DE]
 
     ;Convert the entire FIS display to uppercase:
     ;    "XXXXXXXX"
@@ -9137,7 +9147,7 @@ lab_2f25:
     callf !ror_a_4          ;2f29  2c 9e        A = A >> 4
     mov b,a                 ;2f2b  73
     movw hl,#mem_b012+1     ;2f2c  16 13 b0
-    callf !sub_0c48         ;2f2f  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;2f2f  4c 48        Load DE with word at position B in table [HL]
     movw ax,#lab_2f38       ;2f31  10 38 2f
     push ax                 ;2f34  b1
     movw ax,de              ;2f35  c4
@@ -10651,7 +10661,7 @@ lab_3722:
     mov a,mem_fe2a          ;372a  f0 2a
     mov b,a                 ;372c  73
     movw hl,#mem_b040+1     ;372d  16 41 b0
-    callf !sub_0c48         ;3730  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;3730  4c 48        Load DE with word at position B in table [HL]
     bc sub_3755             ;3732  8d 21        Branch if table lookup failed
     movw ax,#lab_373b       ;3734  10 3b 37
     push ax                 ;3737  b1
@@ -11362,7 +11372,7 @@ lab_3bcc:
     cmp a,#0xff             ;3bd1  4d ff
     bz lab_3be9             ;3bd3  ad 14
     movw hl,#mem_b0a1+1     ;3bd5  16 a2 b0
-    callf !sub_0c48         ;3bd8  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;3bd8  4c 48        Load DE with word at position B in table [HL]
     bc sub_3bea             ;3bda  8d 0e        Branch if table lookup failed
     movw ax,#lab_3be3       ;3bdc  10 e3 3b
     push ax                 ;3bdf  b1
@@ -11909,12 +11919,12 @@ lab_3f2f:
     br lab_3f06             ;3f41  fa c3
 
 lab_3f43:
-    movw hl,#mem_b0ef+1     ;3f43  16 f0 b0     HL = pointer to table to read with sub_0c48
+    movw hl,#mem_b0ef+1     ;3f43  16 f0 b0     HL = pointer to table to read with table_get_word
     mov a,!mem_fb96         ;3f46  8e 96 fb
-    mov b,a                 ;3f49  73           B = table position for sub_0c48
+    mov b,a                 ;3f49  73           B = table position for table_get_word
 
 lab_3f4a:
-    callf !sub_0c48         ;3f4a  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;3f4a  4c 48        Load DE with word at position B in table [HL]
     bc lab_3f56             ;3f4c  8d 08        Branch if table lookup failed
 
     movw ax,#lab_3f55       ;3f4e  10 55 3f
@@ -12003,7 +12013,7 @@ lab_3fcb:
     movw ax,de              ;3fcd  c4
     movw hl,ax              ;3fce  d6
     mov a,mem_fed7          ;3fcf  f0 d7
-    callf !sub_0d67         ;3fd1  5c 67        HL = HL + A
+    callf !add_a_to_hl      ;3fd1  5c 67        HL = HL + A
     mov a,mem_fed4          ;3fd3  f0 d4
     push hl                 ;3fd5  b7
     movw de,#i2c_buf        ;3fd6  14 db fb     DE = pointer to buffer to receive EEPROM contents
@@ -12047,7 +12057,7 @@ lab_3fff:
     pop hl                  ;400b  b6
     push ax                 ;400c  b1
     mov a,c                 ;400d  62
-    callf !sub_0d67         ;400e  5c 67        HL = HL + A
+    callf !add_a_to_hl      ;400e  5c 67        HL = HL + A
     movw ax,hl              ;4010  c6
     movw de,ax              ;4011  d4
     pop ax                  ;4012  b0
@@ -12092,7 +12102,7 @@ lab_4042_nonzero:
     mov a,mem_fed6          ;4042  f0 d6        A = number of bytes to copy
     movw hl,#mem_00cf       ;4044  16 cf 00     HL = source address
                             ;                   DE already contains destination (mem_f206)
-    callf !sub_0c9e         ;4047  4c 9e        Copy A bytes from [HL] to [DE]
+    callf !copy             ;4047  4c 9e        Copy A bytes from [HL] to [DE]
 
 lab_4049:
     call !sub_4053          ;4049  9a 53 40
@@ -12248,12 +12258,12 @@ lab_40e9_loop:
     bnc lab_4104_pop_ret    ;40ef  9d 13        Branch if EEPROM read failed
     cmp mem_fed5,#0x00      ;40f1  c8 d5 00
     bz lab_4103             ;40f4  ad 0d
-    callf !sub_0d67         ;40f6  5c 67        HL = HL + A
+    callf !add_a_to_hl      ;40f6  5c 67        HL = HL + A
     push hl                 ;40f8  b7
     movw ax,de              ;40f9  c4
     movw hl,ax              ;40fa  d6
     mov a,b                 ;40fb  63
-    callf !sub_0d67         ;40fc  5c 67        HL = HL + A
+    callf !add_a_to_hl      ;40fc  5c 67        HL = HL + A
     movw ax,hl              ;40fe  c6
     movw de,ax              ;40ff  d4
     pop hl                  ;4100  b6
@@ -12308,7 +12318,7 @@ lab_4114:
     set1 mem_fe62.0         ;414e  0a 62
     movw hl,#mem_0080       ;4150  16 80 00     HL = source address
     movw de,#mem_f1b3       ;4153  14 b3 f1     DE = destination address
-    callf !sub_0c9e         ;4156  4c 9e        Copy A bytes from [HL] to [DE]
+    callf !copy             ;4156  4c 9e        Copy A bytes from [HL] to [DE]
     mov a,!mem_fb97         ;4158  8e 97 fb
     dec a                   ;415b  51
     bz lab_4165             ;415c  ad 07
@@ -12338,7 +12348,7 @@ lab_4187:
     push ax                 ;4187  b1
     movw hl,#mem_00b4       ;4188  16 b4 00     HL = source address
     movw de,#mem_f1e7_region;418b  14 e7 f1     DE = destination address
-    callf !sub_0c9e         ;418e  4c 9e        Copy A bytes from [HL] to [DE]
+    callf !copy             ;418e  4c 9e        Copy A bytes from [HL] to [DE]
     pop ax                  ;4190  b0
     bt mem_fe64.5,lab_41ff  ;4191  dc 64 6b
     mov a,!mem_fb98         ;4194  8e 98 fb
@@ -12358,7 +12368,7 @@ lab_41a1:
     movw de,#mem_f204       ;41af  14 04 f2     DE = pointer to second buffer
     mov a,#0x02             ;41b2  a1 02        A = 2 bytes to compare
     clr1 mem_fe63.3         ;41b4  3b 63
-    callf !sub_0cca         ;41b6  4c ca        Compare A bytes from [HL] to [DE]
+    callf !compare          ;41b6  4c ca        Compare A bytes from [HL] to [DE]
     bz lab_41bc             ;41b8  ad 02        Branch if buffers are equal
     set1 mem_fe63.3         ;41ba  3a 63
 
@@ -12393,13 +12403,13 @@ lab_41d4:
     movw ax,de              ;41de  c4
     movw hl,ax              ;41df  d6
     pop ax                  ;41e0  b0
-    callf !sub_0d67         ;41e1  5c 67        HL = HL + A
+    callf !add_a_to_hl      ;41e1  5c 67        HL = HL + A
     push ax                 ;41e3  b1
     movw ax,hl              ;41e4  c6
     movw de,ax              ;41e5  d4
     pop ax                  ;41e6  b0
     pop hl                  ;41e7  b6
-    callf !sub_0d67         ;41e8  5c 67        HL = HL + A
+    callf !add_a_to_hl      ;41e8  5c 67        HL = HL + A
     br lab_41c8_loop        ;41ea  fa dc
 
 lab_41ec:
@@ -12413,7 +12423,7 @@ lab_41ed:
     callf !sub_09ef         ;41f5  1c ef        A = DE - HL (0x0061 - 0x0058 = 9)
     movw hl,#mem_00c6       ;41f7  16 c6 00
     movw de,#mem_f1f9       ;41fa  14 f9 f1
-    callf !sub_0c9e         ;41fd  4c 9e        Copy A bytes from [HL] to [DE]
+    callf !copy             ;41fd  4c 9e        Copy A bytes from [HL] to [DE]
 
 lab_41ff:
     movw hl,#0x0046         ;41ff  16 46 00
@@ -12514,7 +12524,7 @@ lab_42a3:
     movw de,#lab_4466       ;42a7  14 66 44
     bt a.6,lab_42b7         ;42aa  31 6e 0a
     movw hl,#mem_b170+1     ;42ad  16 71 b1
-    callf !sub_0c48         ;42b0  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;42b0  4c 48        Load DE with word at position B in table [HL]
     bnc lab_42b7            ;42b2  9d 03        Branch if table lookup succeeded
     br !sub_4234            ;42b4  9b 34 42
 
@@ -12696,7 +12706,7 @@ sub_43b1:
     push ax                 ;43b1  b1
     mov b,a                 ;43b2  73
     movw hl,#mem_b0f8+1     ;43b3  16 f9 b0
-    callf !sub_0c48         ;43b6  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;43b6  4c 48        Load DE with word at position B in table [HL]
     pop bc                  ;43b8  b2
     bc lab_4400             ;43b9  8d 45        Branch if table lookup failed
     mov a,[de]              ;43bb  85
@@ -13165,7 +13175,7 @@ auth_login_7c_ocled:
     movw hl,#kwp_rx_buf+3   ;4696  16 8d f0     HL = pointer to KWP1281 rx buffer byte 3
     movw de,#kwp_login_b1eb ;4699  14 eb b1     DE = pointer to "OCLED" (DELCO backwards)
     mov a,#0x05             ;469c  a1 05        A = 5 bytes to compare
-    callf !sub_0cca         ;469e  4c ca        Compare A bytes between [HL] to [DE]
+    callf !compare          ;469e  4c ca        Compare A bytes between [HL] to [DE]
     bnz lab_46a9            ;46a0  bd 07        Branch if buffers are not equal
 
     ;login succeeded
@@ -13214,7 +13224,7 @@ lab_46c9:
     movw hl,#mem_b1df+1     ;46e1  16 e0 b1
 
 lab_46e4:
-    callf !sub_0c7d         ;46e4  4c 7d      Load A with byte at position B in table [HL]
+    callf !table_get_byte   ;46e4  4c 7d      Load A with byte at position B in table [HL]
     bc lab_46f0             ;46e6  8d 08      Branch if lookup failed
 
 lab_46e8:
@@ -13265,7 +13275,7 @@ lab_4712:
 lab_4724:
     movw de,#mem_fb9f       ;4724  14 9f fb     DE = destination address
     mov a,#0x04             ;4727  a1 04        A = 4 bytes to copy
-    callf !sub_0c9e         ;4729  4c 9e        Copy A bytes from [HL] to [DE]
+    callf !copy             ;4729  4c 9e        Copy A bytes from [HL] to [DE]
     mov a,#0x08             ;472b  a1 08
     mov !mem_fbaf,a         ;472d  9e af fb     mem_fbaf = 8
 
@@ -13288,7 +13298,7 @@ sub_4731:
 sub_4746:
     mov a,#0x05             ;4746  a1 05        A = 5 bytes to copy
     movw hl,#kwp_rx_buf+6   ;4748  16 90 f0     HL = source address (KWP rx buffer byte 6)
-    callf !sub_0c9e         ;474b  4c 9e        Copy A bytes from [HL] to [DE]
+    callf !copy             ;474b  4c 9e        Copy A bytes from [HL] to [DE]
 
 lab_474d:
     ret                     ;474d  af
@@ -13347,7 +13357,7 @@ sub_4797:
     call !sub_4746          ;47a2  9a 46 47
     mov a,#0x05             ;47a5  a1 05        A = 5 bytes to copy
     movw hl,#mem_fba7       ;47a7  16 a7 fb     HL = source address
-    callf !sub_0c9e         ;47aa  4c 9e        Copy A bytes from [HL] to [DE]
+    callf !copy             ;47aa  4c 9e        Copy A bytes from [HL] to [DE]
     mov a,!kwp_rx_buf+5     ;47ac  8e 8f f0     A = value at KWP1281 rx buffer byte 5
     ror a,1                 ;47af  24
     ror a,1                 ;47b0  24
@@ -13479,7 +13489,7 @@ sub_4835:
     mov a,!kwp_rx_buf+5     ;4837  8e 8f f0     A = value at KWP1281 rx buffer byte 5
     mov b,a                 ;483a  73
     movw hl,#mem_b18f+1     ;483b  16 90 b1
-    callf !sub_0c48         ;483e  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;483e  4c 48        Load DE with word at position B in table [HL]
     bc lab_4859_ret         ;4840  8d 17        Branch if table lookup failed
     mov x,#0x00             ;4842  a0 00
     mov a,!kwp_rx_buf+6     ;4844  8e 90 f0     KWP1281 rx buffer byte 6
@@ -13517,7 +13527,7 @@ lab_4866:
     ret                     ;486b  af
 
 lab_486c:
-    callf !sub_0c9e         ;486c  4c 9e        Copy A bytes from [HL] to [DE]
+    callf !copy             ;486c  4c 9e        Copy A bytes from [HL] to [DE]
     ret                     ;486e  af
 
 sub_486f:
@@ -13526,7 +13536,7 @@ sub_486f:
     push hl                 ;4870  b7
     movw hl,#kwp_rx_buf+3   ;4871  16 8d f0     HL = source address
     movw de,#mem_fb9b       ;4874  14 9b fb     DE = destination address
-    callf !sub_0c9e         ;4877  4c 9e        Copy A bytes from [HL] to [DE]
+    callf !copy             ;4877  4c 9e        Copy A bytes from [HL] to [DE]
     pop hl                  ;4879  b6
     pop de                  ;487a  b4
     ret                     ;487b  af
@@ -14108,7 +14118,7 @@ lab_4b29:
     movw de,#upd_pict_old   ;4b33  14 bd fb     DE = pointer to last uPD16432B pictograph buf sent
     movw hl,#upd_pict       ;4b36  16 35 fe     HL = pointer to current uPD16432B pictograph buffer
     mov a,#0x08             ;4b39  a1 08        A = 8 bytes to compare
-    callf !sub_0cca         ;4b3b  4c ca        Compare A bytes between [HL] to [DE]
+    callf !compare          ;4b3b  4c ca        Compare A bytes between [HL] to [DE]
     bz lab_4ba9             ;4b3d  ad 6a        Branch if equal (no update needs to be sent)
 
 lab_4b3f:
@@ -14117,7 +14127,7 @@ lab_4b3f:
     movw hl,#upd_pict       ;4b42  16 35 fe     HL = pointer to current uPD16432B pictograph buf
                             ;                          (source)
     mov a,#0x08             ;4b45  a1 08        A = 8 bytes to copy
-    callf !sub_0c9e         ;4b47  4c 9e        Copy A bytes from [HL] to [DE]
+    callf !copy             ;4b47  4c 9e        Copy A bytes from [HL] to [DE]
     mov a,#0x14             ;4b49  a1 14
     mov !mem_fb29,a         ;4b4b  9e 29 fb
     set1 mem_fe60.3         ;4b4e  3a 60
@@ -14198,7 +14208,7 @@ lab_4bb3:
     movw de,#upd_disp_old   ;4bb3  14 b2 fb     DE = pointer to last uPD16432B display buffer sent
     movw hl,#upd_disp       ;4bb6  16 9a f1     HL = pointer to current uPD16432B display buffer
     mov a,#0x0b             ;4bb9  a1 0b        A = 11 bytes to compare
-    callf !sub_0cca         ;4bbb  4c ca        Compare A bytes between [HL] to [DE]
+    callf !compare          ;4bbb  4c ca        Compare A bytes between [HL] to [DE]
     bz lab_4bc2             ;4bbd  ad 03        Branch if equal (no uPD16432B update needs to be sent)
     br !lab_4c5e            ;4bbf  9b 5e 4c     Branch always (uPD16432B needs an update)
 
@@ -14351,7 +14361,7 @@ lab_4c5e:
     movw hl,#upd_disp       ;4c61  16 9a f1     HL = pointer to current uPD16432B display buffer
                             ;                        (source)
     mov a,#0x0b             ;4c64  a1 0b        A = 0x0b bytes to copy
-    callf !sub_0c9e         ;4c66  4c 9e        Copy A bytes from [HL] to [DE]
+    callf !copy             ;4c66  4c 9e        Copy A bytes from [HL] to [DE]
 
     mov a,#0x14             ;4c68  a1 14
     mov !mem_fb2a,a         ;4c6a  9e 2a fb
@@ -17085,13 +17095,13 @@ lab_5794:
     movw hl,#upd_keys       ;57a0  16 d6 fb     HL = source address
     movw de,#mem_fed5       ;57a3  14 d5 fe     HL = destination address
     mov a,#0x04             ;57a6  a1 04        A = 4 bytes to copy
-    callf !sub_0c9e         ;57a8  4c 9e        Copy A bytes from [HL] to [DE]
+    callf !copy             ;57a8  4c 9e        Copy A bytes from [HL] to [DE]
 
     ;Compare 4 byte key data buffer mem_fed5 with upd_keys_1
     movw hl,#mem_fed5       ;57aa  16 d5 fe     HL = source address
     movw de,#upd_keys_1     ;57ad  14 d1 fb     DE = destination address
     mov a,#0x04             ;57b0  a1 04        A = 4 bytes to compare
-    callf !sub_0cca         ;57b2  4c ca        Compare A bytes between [HL] to [DE]
+    callf !compare          ;57b2  4c ca        Compare A bytes between [HL] to [DE]
     bz lab_57c3             ;57b4  ad 0d        Branch if buffers are equal
 
     ;Key data buffers mem_fed5 and upd_keys_1 are not equal
@@ -17100,7 +17110,7 @@ lab_5794:
     movw hl,#mem_fed5       ;57b6  16 d5 fe     HL = source address
     movw de,#upd_keys_1     ;57b9  14 d1 fb     DE = destination address
     mov a,#0x04             ;57bc  a1 04        A = 4 bytes to copy
-    callf !sub_0c9e         ;57be  4c 9e        Copy A bytes from [HL] to [DE]
+    callf !copy             ;57be  4c 9e        Copy A bytes from [HL] to [DE]
     br !lab_58d5            ;57c0  9b d5 58     Branch to clr1 mem_fe66.5 and return
 
 lab_57c3:
@@ -17128,7 +17138,7 @@ lab_57d7:
     movw hl,#upd_keys_1     ;57d7  16 d1 fb     HL = pointer to upd_keys_1 key data buffer
     mov a,#0x04             ;57da  a1 04        A = 4 bytes to compare
     push de                 ;57dc  b5           Save pointer to key_matrix table
-    callf !sub_0cca         ;57dd  4c ca        Compare A bytes between [HL] to [DE]
+    callf !compare          ;57dd  4c ca        Compare A bytes between [HL] to [DE]
     pop ax                  ;57df  b0           AX = Recall pointer to key_matrix table
     bz lab_581a             ;57e0  ad 38        Branch if key_matrix table bytes matched
 
@@ -17972,7 +17982,7 @@ lab_5ce5:
     mov a,b                 ;5ceb  63
     dec a                   ;5cec  51
     rol a,1                 ;5ced  26
-    callf !sub_0d67         ;5cee  5c 67        HL = HL + A
+    callf !add_a_to_hl      ;5cee  5c 67        HL = HL + A
 
 lab_5cf0:
     mov a,[hl]              ;5cf0  87
@@ -17992,7 +18002,7 @@ lab_5d02:
     mov b,a                 ;5d08  73
     push hl                 ;5d09  b7
     movw hl,#mem_b3b6+1     ;5d0a  16 b7 b3
-    callf !sub_0c7d         ;5d0d  4c 7d        Load A with byte at position B in table [HL]
+    callf !table_get_byte   ;5d0d  4c 7d        Load A with byte at position B in table [HL]
     pop hl                  ;5d0f  b6
     bc lab_5d39             ;5d10  8d 27        Branch if lookup failed
     cmp a,!mem_fb3a         ;5d12  48 3a fb
@@ -18038,7 +18048,7 @@ lab_5d3d:
     mov b,a                 ;5d4a  73
     push hl                 ;5d4b  b7
     movw hl,#mem_b3cc+1     ;5d4c  16 cd b3
-    callf !sub_0c7d         ;5d4f  4c 7d        Load A with byte at position B in table [HL]
+    callf !table_get_byte   ;5d4f  4c 7d        Load A with byte at position B in table [HL]
     pop hl                  ;5d51  b6
     bc lab_5d39             ;5d52  8d e5        Branch if lookup failed
     mov !mem_fbda,a         ;5d54  9e da fb
@@ -18075,7 +18085,7 @@ lab_5d88:
     and a,#0x07             ;5d8a  5d 07
     mov b,a                 ;5d8c  73
     movw hl,#mem_b3c3+1     ;5d8d  16 c4 b3
-    callf !sub_0c7d         ;5d90  4c 7d        Load A with byte at position B in table [HL]
+    callf !table_get_byte   ;5d90  4c 7d        Load A with byte at position B in table [HL]
     bc lab_5d39             ;5d92  8d a5        Branch if lookup failed
     mov !mem_fb10,a         ;5d94  9e 10 fb
     br lab_5d3c             ;5d97  fa a3
@@ -18798,7 +18808,7 @@ sub_61e7:
     and a,#0x07             ;61f3  5d 07
     mov b,a                 ;61f5  73
     movw hl,#mem_b3d9+1     ;61f6  16 da b3
-    callf !sub_0c48         ;61f9  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;61f9  4c 48        Load DE with word at position B in table [HL]
     bc lab_6209             ;61fb  8d 0c        Branch if table lookup failed
     movw ax,de              ;61fd  c4
     movw hl,ax              ;61fe  d6
@@ -19001,7 +19011,7 @@ sub_6293:
     movw hl,ax              ;62a7  d6           HL = source address (pointer to buffer to write to EEPROM)
     movw de,#i2c_tmp_buf    ;62a8  14 00 fc     DE = destination address
     mov a,!mem_fc10         ;62ab  8e 10 fc     A = number of bytes to copy
-    callf !sub_0c9e         ;62ae  4c 9e        Copy A bytes from [HL] to [DE]
+    callf !copy             ;62ae  4c 9e        Copy A bytes from [HL] to [DE]
 
     mov a,!mem_fc11         ;62b0  8e 11 fc
     mov b,a                 ;62b3  73
@@ -19020,7 +19030,7 @@ lab_62c6_attempt:
     movw hl,#i2c_tmp_buf    ;62c6  16 00 fc     HL = source address
     movw de,#i2c_buf+2      ;62c9  14 dd fb     DE = destination address
     mov a,!mem_fc10         ;62cc  8e 10 fc     A = number of bytes to copy
-    callf !sub_0c9e         ;62cf  4c 9e        Copy A bytes from [HL] to [DE]
+    callf !copy             ;62cf  4c 9e        Copy A bytes from [HL] to [DE]
 
     ;24C04 Device Select Byte
     ;Bits 7-0: Device Type Identifier
@@ -19098,7 +19108,7 @@ lab_630d:
 
     movw hl,#i2c_tmp_buf    ;632a  16 00 fc     HL = pointer to first buffer
     mov a,!mem_fc10         ;632d  8e 10 fc
-    callf !sub_0cca         ;6330  4c ca        Compare A bytes between [HL] to [DE]
+    callf !compare          ;6330  4c ca        Compare A bytes between [HL] to [DE]
     bz lab_6345             ;6332  ad 11        Branch if buffers are equal
 
 lab_6334:
@@ -19755,7 +19765,7 @@ sub_67fe:
     mov b,#0x0d             ;67fe  a3 0d        B = 13 bytes to fill
     movw hl,#upd_disp+4     ;6800  16 9e f1     HL = pointer to display buffer + 4
     mov a,#0x20             ;6803  a1 20        A = fill value (space)
-    call !sub_0cdc          ;6805  9a dc 0c     Fill B bytes in buffer [HL] with A
+    call !fill_with_a       ;6805  9a dc 0c     Fill B bytes in buffer [HL] with A
     ret                     ;6808  af
 
 sub_6809:
@@ -19799,7 +19809,7 @@ sub_6827:
     movw hl,#upd_disp+4     ;6827  16 9e f1     HL = address to fill
     mov b,#0x0b             ;682a  a3 0b        B = 11 bytes to fill
     mov a,#0x20             ;682c  a1 20        A = space character
-    call !sub_0cdc          ;682e  9a dc 0c     Fill B bytes in buffer [HL] with A
+    call !fill_with_a       ;682e  9a dc 0c     Fill B bytes in buffer [HL] with A
     ret                     ;6831  af
 
 lab_6832:
@@ -19813,7 +19823,7 @@ lab_6832:
     cmp a,#0xff             ;6841  4d ff
     bz sub_6853             ;6843  ad 0e
     movw hl,#mem_b5c0+1     ;6845  16 c1 b5
-    callf !sub_0c48         ;6848  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;6848  4c 48        Load DE with word at position B in table [HL]
     bc sub_6853             ;684a  8d 07        Branch if table lookup failed
     movw ax,#sub_6853       ;684c  10 53 68
     push ax                 ;684f  b1
@@ -19924,7 +19934,7 @@ lab_68e4:
     and a,#0x0f             ;68e5  5d 0f
     xch a,b                 ;68e7  33
     pop hl                  ;68e8  b6
-    callf !sub_0c48         ;68e9  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;68e9  4c 48        Load DE with word at position B in table [HL]
     bc lab_6933             ;68eb  8d 46        Branch if table lookup failed
     movw ax,#lab_68f4       ;68ed  10 f4 68
     push ax                 ;68f0  b1
@@ -20041,14 +20051,14 @@ lab_6991:
     mov a,mem_fed4          ;6991  f0 d4
     and a,#0x0f             ;6993  5d 0f
     mov b,a                 ;6995  73
-    callf !sub_0c7d         ;6996  4c 7d        Load A with byte at position B in table [HL]
+    callf !table_get_byte   ;6996  4c 7d        Load A with byte at position B in table [HL]
     bc lab_69a8             ;6998  8d 0e        Branch if lookup failed
     cmp a,#0xff             ;699a  4d ff
     bz lab_69ab             ;699c  ad 0d
     mov b,a                 ;699e  73
     movw ax,de              ;699f  c4
     movw hl,ax              ;69a0  d6
-    callf !sub_0c48         ;69a1  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;69a1  4c 48        Load DE with word at position B in table [HL]
     bc lab_69a8             ;69a3  8d 03        Branch if table lookup failed
     movw ax,de              ;69a5  c4
     movw hl,ax              ;69a6  d6
@@ -20099,7 +20109,7 @@ lab_69df:
     and a,#0x0f             ;69e6  5d 0f
     mov b,a                 ;69e8  73
     movw hl,#mem_b480+1     ;69e9  16 81 b4
-    callf !sub_0c48         ;69ec  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;69ec  4c 48        Load DE with word at position B in table [HL]
     movw ax,#lab_69f5_ret   ;69ee  10 f5 69
     push ax                 ;69f1  b1
     movw ax,de              ;69f2  c4
@@ -20114,7 +20124,7 @@ lab_69f6:
     mov b,a                 ;69fb  73
     mov !mem_f1ab,a         ;69fc  9e ab f1
     movw hl,#mem_b480+1     ;69ff  16 81 b4
-    callf !sub_0c48         ;6a02  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;6a02  4c 48        Load DE with word at position B in table [HL]
     bc lab_6a09             ;6a04  8d 03        Branch if table lookup failed
     movw ax,de              ;6a06  c4
     br ax                   ;6a07  31 98
@@ -20417,7 +20427,7 @@ lab_6bcb:
     mov a,!mem_f1b1         ;6bcf  8e b1 f1
     mov b,a                 ;6bd2  73
     movw hl,#mem_b4de+1     ;6bd3  16 df b4
-    callf !sub_0c48         ;6bd6  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;6bd6  4c 48        Load DE with word at position B in table [HL]
     bc lab_6bdd_ret         ;6bd8  8d 03        Branch if table lookup failed
     movw ax,de              ;6bda  c4
     br ax                   ;6bdb  31 98
@@ -20430,7 +20440,7 @@ lab_6bde:
     mov b,a                 ;6be1  73
     mov !mem_f1ad,a         ;6be2  9e ad f1
     movw hl,#mem_b4de+1     ;6be5  16 df b4
-    callf !sub_0c48         ;6be8  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;6be8  4c 48        Load DE with word at position B in table [HL]
     bc lab_6bef             ;6bea  8d 03        Branch if table lookup failed
     movw ax,de              ;6bec  c4
     br ax                   ;6bed  31 98
@@ -21087,7 +21097,7 @@ sub_6f78:
 
 lab_6f81:
     movw hl,#mem_b46e+1     ;6f81  16 6f b4
-    callf !sub_0c48         ;6f84  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;6f84  4c 48        Load DE with word at position B in table [HL]
     bnc lab_6f8b            ;6f86  9d 03        Branch if table lookup succeeded
     br !lab_7690            ;6f88  9b 90 76
 
@@ -21137,7 +21147,7 @@ sub_6fb9:
     ror a,1                 ;6fbf  24
     ror a,1                 ;6fc0  24
     mov b,a                 ;6fc1  73
-    callf !sub_0c7d         ;6fc2  4c 7d      Load A with byte at position B in table [HL]
+    callf !table_get_byte   ;6fc2  4c 7d      Load A with byte at position B in table [HL]
     bnc lab_6fc8            ;6fc4  9d 02      Branch if lookup succeeded
     mov a,#0x00             ;6fc6  a1 00
 
@@ -21162,7 +21172,7 @@ lab_6fd9:
     bz lab_6fe0             ;6fd9  ad 05
     mov b,a                 ;6fdb  73
     mov a,#0x20             ;6fdc  a1 20        A = value to fill (0x20)
-    callf !sub_0cdc         ;6fde  4c dc        Fill B bytes in buffer [HL] with A
+    callf !fill_with_a      ;6fde  4c dc        Fill B bytes in buffer [HL] with A
 lab_6fe0:
     ret                     ;6fe0  af
 
@@ -21172,7 +21182,7 @@ upd_clear_pict:
     mov b,#0x08             ;6fe1  a3 08        B = 8 bytes to fill
     bz lab_6fea             ;6fe3  ad 05
     movw hl,#upd_pict       ;6fe5  16 35 fe     HL = pointer to buffer to fill
-    callf !sub_0cda         ;6fe8  4c da        Fill B bytes in buffer [HL] with 0
+    callf !fill_with_0      ;6fe8  4c da        Fill B bytes in buffer [HL] with 0
 lab_6fea:
     ret                     ;6fea  af
 
@@ -21260,7 +21270,7 @@ lab_7041:
     movw hl,#mem_b41b+1     ;704a  16 1c b4
 
 lab_704d:
-    callf !sub_0c48         ;704d  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;704d  4c 48        Load DE with word at position B in table [HL]
     bnc lab_7054            ;704f  9d 03        Branch if table lookup succeeded
     br !lab_7690            ;7051  9b 90 76
 
@@ -21353,7 +21363,7 @@ lab_70d4:
     push bc                 ;70db  b3
     mov !mem_f1a7,a         ;70dc  9e a7 f1
     movw hl,#mem_b535+1     ;70df  16 36 b5
-    callf !sub_0c48         ;70e2  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;70e2  4c 48        Load DE with word at position B in table [HL]
     bnc lab_70ea            ;70e4  9d 04        Branch if table lookup succeeded
     pop ax                  ;70e6  b0
     pop ax                  ;70e7  b0
@@ -21389,12 +21399,12 @@ lab_710b:
     and a,#0x7f             ;710f  5d 7f
     mov b,a                 ;7111  73
     movw hl,#mem_b550+1     ;7112  16 51 b5
-    callf !sub_0c48         ;7115  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;7115  4c 48        Load DE with word at position B in table [HL]
     bc lab_7105             ;7117  8d ec        Branch if table lookup failed
     br !lab_7054            ;7119  9b 54 70
 
 lab_711c:
-    callf !sub_0cf4         ;711c  4c f4        Convert binary number in A to BCD number in AX
+    callf !bin_a_to_bcd_ax  ;711c  4c f4        Convert binary number in A to BCD number in AX
     push ax                 ;711e  b1
     push ax                 ;711f  b1
 
@@ -21544,7 +21554,7 @@ lab_71f2:
 
     movw hl,#upd_disp       ;7201  16 9a f1
     mov a,!mem_f206         ;7204  8e 06 f2
-    call !sub_0cf4          ;7207  9a f4 0c     Convert binary number in A to BCD number in AX
+    call !bin_a_to_bcd_ax   ;7207  9a f4 0c     Convert binary number in A to BCD number in AX
     mov a,x                 ;720a  60
     and a,#0x0f             ;720b  5d 0f
     add a,#'0               ;720d  0d 30        Convert it to ASCII
@@ -21753,7 +21763,7 @@ lab_7351:
     mov a,!mem_f254_onvol   ;735b  8e 54 f2     A=ONVOL
     clr1 a.0                ;735e  61 8b
     ror a,1                 ;7360  24
-    call !sub_0cf4          ;7361  9a f4 0c     Convert binary number in A to BCD number in AX
+    call !bin_a_to_bcd_ax   ;7361  9a f4 0c     Convert binary number in A to BCD number in AX
 
     mov a,x                 ;7364  60
     and a,#0x0f             ;7365  5d 0f
@@ -22512,7 +22522,7 @@ lab_77a4:
 
 lab_77d3:
     movw hl,#mem_b5c5+1     ;77d3  16 c6 b5
-    callf !sub_0c48         ;77d6  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;77d6  4c 48        Load DE with word at position B in table [HL]
     movw ax,#lab_77e2       ;77d8  10 e2 77
     push ax                 ;77db  b1
     call !sub_77f9          ;77dc  9a f9 77
@@ -23331,7 +23341,7 @@ lab_7d89:
     mov a,!mem_fc2b         ;7d89  8e 2b fc
     mov b,a                 ;7d8c  73
     movw hl,#mem_b69a+1     ;7d8d  16 9b b6
-    callf !sub_0c48         ;7d90  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;7d90  4c 48        Load DE with word at position B in table [HL]
     bnc lab_7d9b            ;7d92  9d 07        Branch if table lookup succeeded
     mov a,#0x00             ;7d94  a1 00
     mov !mem_fc2b,a         ;7d96  9e 2b fc
@@ -23433,7 +23443,7 @@ lab_7e2d:
     and a,#0x7f             ;7e31  5d 7f
     mov b,a                 ;7e33  73
     movw hl,#mem_b5d6+1     ;7e34  16 d7 b5
-    callf !sub_0c48         ;7e37  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;7e37  4c 48        Load DE with word at position B in table [HL]
     bnc lab_7e3e            ;7e39  9d 03        Branch if table lookup succeeded
     br !lab_7ed2            ;7e3b  9b d2 7e
 
@@ -23473,11 +23483,11 @@ lab_7e70:
 
 lab_7e78:
     movw hl,#mem_b66b+1     ;7e78  16 6c b6
-    callf !sub_0c7d         ;7e7b  4c 7d        Load A with byte at position B in table [HL]
+    callf !table_get_byte   ;7e7b  4c 7d        Load A with byte at position B in table [HL]
     bc lab_7eb6             ;7e7d  8d 37        Branch if lookup failed
     mov mem_fe2f,a          ;7e7f  f2 2f
     movw hl,#mem_b67b+1     ;7e81  16 7c b6
-    callf !sub_0c48         ;7e84  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;7e84  4c 48        Load DE with word at position B in table [HL]
     bc lab_7eb6             ;7e86  8d 2e        Branch if table lookup failed
     movw ax,de              ;7e88  c4
     cmpw ax,#0x0000         ;7e89  ea 00 00
@@ -23646,7 +23656,7 @@ lab_7f8f:
     mov b,a                 ;7f9a  73
 
 lab_7f9b:
-    callf !sub_0c48         ;7f9b  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;7f9b  4c 48        Load DE with word at position B in table [HL]
     bc sub_7faf             ;7f9d  8d 10        Branch if table lookup failed
     movw ax,#lab_7fa6       ;7f9f  10 a6 7f
     push ax                 ;7fa2  b1
@@ -23869,7 +23879,7 @@ lab_80df:
 lab_80e5:
     mov b,a                 ;80e5  73
     movw hl,#mem_b7a8+1     ;80e6  16 a9 b7
-    callf !sub_0c48         ;80e9  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;80e9  4c 48        Load DE with word at position B in table [HL]
     movw ax,#lab_80f2       ;80eb  10 f2 80
     push ax                 ;80ee  b1
     movw ax,de              ;80ef  c4
@@ -23994,7 +24004,7 @@ lab_8199:
     mov a,mem_fe50          ;8199  f0 50
     mov b,a                 ;819b  73
     movw hl,#mem_b79b+1     ;819c  16 9c b7
-    callf !sub_0c48         ;819f  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;819f  4c 48        Load DE with word at position B in table [HL]
     bnc lab_81a8            ;81a1  9d 05        Branch if table lookup succeeded
     call !sub_8f87          ;81a3  9a 87 8f
     br lab_81bd             ;81a6  fa 15
@@ -24006,7 +24016,7 @@ lab_81a8:
     mov b,a                 ;81ac  73
 
 lab_81ad:
-    callf !sub_0c48         ;81ad  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;81ad  4c 48        Load DE with word at position B in table [HL]
     bnc lab_81b6            ;81af  9d 05        Branch if table lookup succeeded
     call !sub_8f87          ;81b1  9a 87 8f
     br lab_81bd             ;81b4  fa 07
@@ -25361,7 +25371,7 @@ lab_8a79:
 lab_8a8a:
     mov a,!mem_f1e9         ;8a8a  8e e9 f1
     bf a.2,sub_8ad0         ;8a8d  31 2f 40
-    callf !sub_0c48         ;8a90  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;8a90  4c 48        Load DE with word at position B in table [HL]
     bnc lab_8a96            ;8a92  9d 02        Branch if table lookup succeeded
     br sub_8ad0             ;8a94  fa 3a
 
@@ -26368,7 +26378,7 @@ sub_911b:
     callf !sub_0aa7         ;9120  2c a7
     bnc lab_912b            ;9122  9d 07
     movw hl,#mem_ba07+1     ;9124  16 08 ba
-    callf !sub_0c7d         ;9127  4c 7d        Load A with byte at position B in table [HL]
+    callf !table_get_byte   ;9127  4c 7d        Load A with byte at position B in table [HL]
     bnc lab_912d            ;9129  9d 02        Branch if lookup succeeded
 
 lab_912b:
@@ -26544,7 +26554,7 @@ lab_9238:
 
 lab_9240:
     mov b,a                 ;9240  73
-    callf !sub_0c48         ;9241  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;9241  4c 48        Load DE with word at position B in table [HL]
     bc lab_924d             ;9243  8d 08        Branch if table lookup failed
     movw ax,#lab_924c       ;9245  10 4c 92
     push ax                 ;9248  b1
@@ -26665,7 +26675,7 @@ lab_930b:
     mov a,!mem_f200         ;930b  8e 00 f2
     mov b,a                 ;930e  73
     movw hl,#mem_cf68+1     ;930f  16 69 cf
-    callf !sub_0c48         ;9312  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;9312  4c 48        Load DE with word at position B in table [HL]
     movw ax,de              ;9314  c4
     bt mem_fe74.7,lab_9319  ;9315  fc 74 01
     xch a,x                 ;9318  30
@@ -26685,7 +26695,7 @@ lab_9328:
     mov a,mem_fe52          ;9328  f0 52
     mov b,a                 ;932a  73
     movw hl,#mem_cee4+1     ;932b  16 e5 ce
-    callf !sub_0c48         ;932e  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;932e  4c 48        Load DE with word at position B in table [HL]
     movw ax,de              ;9330  c4
     movw hl,ax              ;9331  d6
     inc mem_fe52            ;9332  81 52
@@ -26697,7 +26707,7 @@ lab_933b:
     mov a,mem_fe52          ;933b  f0 52
     mov b,a                 ;933d  73
     movw hl,#mem_cee4+1     ;933e  16 e5 ce
-    callf !sub_0c48         ;9341  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;9341  4c 48        Load DE with word at position B in table [HL]
     movw ax,de              ;9343  c4
     movw hl,ax              ;9344  d6
     inc mem_fe52            ;9345  81 52
@@ -26711,7 +26721,7 @@ lab_934f:
     mov a,mem_fe52          ;934f  f0 52
     mov b,a                 ;9351  73
     movw hl,#mem_cee4+1     ;9352  16 e5 ce
-    callf !sub_0c48         ;9355  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;9355  4c 48        Load DE with word at position B in table [HL]
     movw ax,de              ;9357  c4
     movw hl,ax              ;9358  d6
     inc mem_fe52            ;9359  81 52
@@ -26723,7 +26733,7 @@ lab_9362:
     mov a,mem_fe52          ;9362  f0 52
     mov b,a                 ;9364  73
     movw hl,#mem_cee4+1     ;9365  16 e5 ce
-    callf !sub_0c48         ;9368  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;9368  4c 48        Load DE with word at position B in table [HL]
     movw ax,de              ;936a  c4
     movw hl,ax              ;936b  d6
     inc mem_fe52            ;936c  81 52
@@ -26737,7 +26747,7 @@ lab_9376:
     mov a,mem_fe52          ;9376  f0 52
     mov b,a                 ;9378  73
     movw hl,#mem_cee4+1     ;9379  16 e5 ce
-    callf !sub_0c48         ;937c  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;937c  4c 48        Load DE with word at position B in table [HL]
     movw ax,de              ;937e  c4
     movw hl,ax              ;937f  d6
     inc mem_fe52            ;9380  81 52
@@ -26749,7 +26759,7 @@ lab_9389:
     mov a,mem_fe52          ;9389  f0 52
     mov b,a                 ;938b  73
     movw hl,#mem_cee4+1     ;938c  16 e5 ce
-    callf !sub_0c48         ;938f  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;938f  4c 48        Load DE with word at position B in table [HL]
     movw ax,de              ;9391  c4
     movw hl,ax              ;9392  d6
     inc mem_fe52            ;9393  81 52
@@ -26765,12 +26775,12 @@ lab_939f:
     mov b,a                 ;93a2  73
     bt mem_fe74.2,lab_93ad  ;93a3  ac 74 07
     movw hl,#mem_c933+1     ;93a6  16 34 c9
-    callf !sub_0c48         ;93a9  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;93a9  4c 48        Load DE with word at position B in table [HL]
     br lab_93b2             ;93ab  fa 05
 
 lab_93ad:
     movw hl,#mem_c95d+1     ;93ad  16 5e c9
-    callf !sub_0c48         ;93b0  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;93b0  4c 48        Load DE with word at position B in table [HL]
 
 lab_93b2:
     movw ax,#0x0f8c         ;93b2  10 8c 0f
@@ -26783,12 +26793,12 @@ lab_93bd:
     mov b,a                 ;93c0  73
     bt mem_fe74.2,lab_93cb  ;93c1  ac 74 07
     movw hl,#mem_c948+1     ;93c4  16 49 c9
-    callf !sub_0c48         ;93c7  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;93c7  4c 48        Load DE with word at position B in table [HL]
     br lab_93d0             ;93c9  fa 05
 
 lab_93cb:
     movw hl,#mem_c972+1     ;93cb  16 73 c9
-    callf !sub_0c48         ;93ce  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;93ce  4c 48        Load DE with word at position B in table [HL]
 
 lab_93d0:
     movw ax,#0x0fa0         ;93d0  10 a0 0f
@@ -27648,7 +27658,7 @@ lab_9a4d:
 
 lab_9a70:
     movw hl,#mem_be1b+1     ;9a70  16 1c be
-    call !sub_0c7d          ;9a73  9a 7d 0c     Load A with byte at position B in table [HL]
+    call !table_get_byte    ;9a73  9a 7d 0c     Load A with byte at position B in table [HL]
     cmp a,!mem_fc99         ;9a76  48 99 fc
     bz lab_9a80             ;9a79  ad 05
     mov !mem_fc99,a         ;9a7b  9e 99 fc
@@ -27713,7 +27723,7 @@ lab_9ad4:
     movw hl,#mem_c156+1     ;9adf  16 57 c1
 
 lab_9ae2:
-    callf !sub_0c48         ;9ae2  4c 48            Load DE with word at position B in table [HL]
+    callf !table_get_word   ;9ae2  4c 48            Load DE with word at position B in table [HL]
     bnc lab_9aea            ;9ae4  9d 04            Branch if table lookup succeeded
     mov b,#0x00             ;9ae6  a3 00
     br lab_9aca             ;9ae8  fa e0
@@ -27736,7 +27746,7 @@ lab_9b01:
     movw hl,#mem_c09c+1     ;9b0c  16 9d c0
 
 lab_9b0f:
-    callf !sub_0c48         ;9b0f  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;9b0f  4c 48        Load DE with word at position B in table [HL]
     clr1 mem_fe76.1         ;9b11  1b 76
     call !sub_a1a6          ;9b13  9a a6 a1
     movw ax,#0x08e0         ;9b16  10 e0 08
@@ -27748,7 +27758,7 @@ lab_9b0f:
     movw hl,#mem_c210+1     ;9b27  16 11 c2
 
 lab_9b2a:
-    callf !sub_0c48         ;9b2a  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;9b2a  4c 48        Load DE with word at position B in table [HL]
     movw ax,#0x08fa         ;9b2c  10 fa 08
     call !sub_9f07          ;9b2f  9a 07 9f
     br !lab_9d1f            ;9b32  9b 1f 9d
@@ -27801,7 +27811,7 @@ lab_9b7f:
     movw hl,#mem_c52b+1     ;9b83  16 2c c5
 
 lab_9b86:
-    callf !sub_0c48         ;9b86  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;9b86  4c 48        Load DE with word at position B in table [HL]
     movw ax,#0x0f80         ;9b88  10 80 0f
     call !sub_9e8e          ;9b8b  9a 8e 9e
     mov a,#0x56             ;9b8e  a1 56
@@ -27819,7 +27829,7 @@ lab_9ba0:
     movw hl,#mem_c556+1     ;9ba4  16 57 c5
 
 lab_9ba7:
-    callf !sub_0c48         ;9ba7  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;9ba7  4c 48        Load DE with word at position B in table [HL]
     movw ax,#0x0f94         ;9ba9  10 94 0f
     call !sub_9e8e          ;9bac  9a 8e 9e
     mov a,#0x57             ;9baf  a1 57
@@ -27847,7 +27857,7 @@ lab_9bd5:
     movw hl,#mem_c4d5+1     ;9bd9  16 d6 c4
 
 lab_9bdc:
-    callf !sub_0c48         ;9bdc  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;9bdc  4c 48        Load DE with word at position B in table [HL]
     movw ax,#0x0f84         ;9bde  10 84 0f
     call !sub_9e8e          ;9be1  9a 8e 9e
     mov a,#0x58             ;9be4  a1 58
@@ -27875,7 +27885,7 @@ lab_9c0a:
     movw hl,#mem_c500+1     ;9c0e  16 01 c5
 
 lab_9c11:
-    callf !sub_0c48         ;9c11  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;9c11  4c 48        Load DE with word at position B in table [HL]
     movw ax,#0x0f98         ;9c13  10 98 0f
     call !sub_9e8e          ;9c16  9a 8e 9e
     mov a,#0x59             ;9c19  a1 59
@@ -27895,7 +27905,7 @@ lab_9c2c:
     movw hl,#mem_c6d9+1     ;9c37  16 da c6
 
 lab_9c3a:
-    callf !sub_0c48         ;9c3a  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;9c3a  4c 48        Load DE with word at position B in table [HL]
     movw ax,#0x0f88         ;9c3c  10 88 0f
     call !sub_9e8e          ;9c3f  9a 8e 9e
     mov a,#0x5a             ;9c42  a1 5a
@@ -27915,7 +27925,7 @@ lab_9c55:
     movw hl,#mem_c704+1     ;9c60  16 05 c7
 
 lab_9c63:
-    callf !sub_0c48         ;9c63  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;9c63  4c 48        Load DE with word at position B in table [HL]
     movw ax,#0x0f9c         ;9c65  10 9c 0f
     call !sub_9e8e          ;9c68  9a 8e 9e
     mov a,#0x62             ;9c6b  a1 62
@@ -27964,7 +27974,7 @@ lab_9ca3:
     cmp a,#0x0a             ;9cc3  4d 0a
     bnc lab_9cdc            ;9cc5  9d 15
     movw hl,#mem_c98c+1     ;9cc7  16 8d c9
-    callf !sub_0c48         ;9cca  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;9cca  4c 48        Load DE with word at position B in table [HL]
     movw ax,de              ;9ccc  c4
     mov !i2c_buf+3,a        ;9ccd  9e de fb
     mov !i2c_buf+5,a        ;9cd0  9e e0 fb
@@ -27978,7 +27988,7 @@ lab_9cdc:
     sub a,b                 ;9cde  61 1b
     mov b,a                 ;9ce0  73
     movw hl,#mem_c98c+1     ;9ce1  16 8d c9
-    callf !sub_0c48         ;9ce4  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;9ce4  4c 48        Load DE with word at position B in table [HL]
     movw ax,de              ;9ce6  c4
     mov !i2c_buf+7,a        ;9ce7  9e e2 fb
     mov !i2c_buf+9,a        ;9cea  9e e4 fb
@@ -28029,7 +28039,7 @@ sub_9d25:
 
 lab_9d36:
     movw hl,#mem_c2cc+1     ;9d36  16 cd c2
-    callf !sub_0c7d         ;9d39  4c 7d        Load A with byte at position B in table [HL]
+    callf !table_get_byte   ;9d39  4c 7d        Load A with byte at position B in table [HL]
     bnc lab_9d3f            ;9d3b  9d 02        Branch if lookup succeeded
 
 lab_9d3d_fm:
@@ -28056,7 +28066,7 @@ lab_9d56:
     mov b,a                 ;9d56  73
     mov !mem_fc95,a         ;9d57  9e 95 fc
     movw hl,#mem_c26d+1     ;9d5a  16 6e c2
-    callf !sub_0c48         ;9d5d  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;9d5d  4c 48        Load DE with word at position B in table [HL]
     movw ax,de              ;9d5f  c4
     ret                     ;9d60  af
 
@@ -28076,7 +28086,7 @@ lab_9d72:
     movw hl,#mem_c8dd+1     ;9d7d  16 de c8
 
 lab_9d80:
-    callf !sub_0c48         ;9d80  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;9d80  4c 48        Load DE with word at position B in table [HL]
     movw ax,de              ;9d82  c4
     movw !0xf022,ax         ;9d83  03 22 f0
     pop bc                  ;9d86  b2
@@ -28092,7 +28102,7 @@ lab_9d92:
     movw hl,#mem_c908+1     ;9d9d  16 09 c9
 
 lab_9da0:
-    callf !sub_0c48         ;9da0  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;9da0  4c 48        Load DE with word at position B in table [HL]
     movw ax,de              ;9da2  c4
     movw !0xf024,ax         ;9da3  03 24 f0
     pop bc                  ;9da6  b2
@@ -28102,18 +28112,18 @@ lab_9da0:
     movw hl,#mem_c831+1     ;9daf  16 32 c8
 
 lab_9db2:
-    callf !sub_0c48         ;9db2  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;9db2  4c 48        Load DE with word at position B in table [HL]
     movw ax,de              ;9db4  c4
     movw !0xf02a,ax         ;9db5  03 2a f0
     pop bc                  ;9db8  b2
     bt mem_fe74.6,lab_9dc3  ;9db9  ec 74 07
     movw hl,#mem_c75a+1     ;9dbc  16 5b c7
-    callf !sub_0c48         ;9dbf  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;9dbf  4c 48        Load DE with word at position B in table [HL]
     br lab_9dc8             ;9dc1  fa 05
 
 lab_9dc3:
     movw hl,#mem_c8b2+1     ;9dc3  16 b3 c8
-    callf !sub_0c48         ;9dc6  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;9dc6  4c 48        Load DE with word at position B in table [HL]
 
 lab_9dc8:
     movw ax,de              ;9dc8  c4
@@ -28131,7 +28141,7 @@ sub_9dd3:
     movw hl,#mem_c9fc+1     ;9de0  16 fd c9
 
 lab_9de3:
-    callf !sub_0c48         ;9de3  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;9de3  4c 48        Load DE with word at position B in table [HL]
     movw ax,de              ;9de5  c4
     movw mem_fed4,ax        ;9de6  99 d4
     call !sub_aac7          ;9de8  9a c7 aa
@@ -28140,12 +28150,12 @@ lab_9de3:
     bnc lab_9e11            ;9dee  9d 21
     bt mem_fe74.6,lab_9dfa  ;9df0  ec 74 07
     movw hl,#mem_c9a3+1     ;9df3  16 a4 c9
-    callf !sub_0c48         ;9df6  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;9df6  4c 48        Load DE with word at position B in table [HL]
     br lab_9dff             ;9df8  fa 05
 
 lab_9dfa:
     movw hl,#mem_c9ba+1     ;9dfa  16 bb c9
-    callf !sub_0c48         ;9dfd  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;9dfd  4c 48        Load DE with word at position B in table [HL]
 
 lab_9dff:
     movw ax,de              ;9dff  c4
@@ -28162,12 +28172,12 @@ lab_9e11:
     mov b,a                 ;9e15  73
     bt mem_fe74.6,lab_9e20  ;9e16  ec 74 07
     movw hl,#mem_c9a3+1     ;9e19  16 a4 c9
-    callf !sub_0c48         ;9e1c  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;9e1c  4c 48        Load DE with word at position B in table [HL]
     br lab_9e25             ;9e1e  fa 05
 
 lab_9e20:
     movw hl,#mem_c9ba+1     ;9e20  16 bb c9
-    callf !sub_0c48         ;9e23  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;9e23  4c 48        Load DE with word at position B in table [HL]
 
 lab_9e25:
     movw ax,de              ;9e25  c4
@@ -28225,7 +28235,7 @@ lab_9e75:
     mov a,!mem_f200         ;9e77  8e 00 f2
     mov b,a                 ;9e7a  73
     movw hl,#mem_cf5d+1     ;9e7b  16 5e cf
-    callf !sub_0c7d         ;9e7e  4c 7d        Load A with byte at position B in table [HL]
+    callf !table_get_byte   ;9e7e  4c 7d        Load A with byte at position B in table [HL]
     bt mem_fe74.6,lab_9e89  ;9e80  ec 74 06
     and a,#0xf0             ;9e83  5d f0
     cmp a,#0x01             ;9e85  4d 01
@@ -28357,7 +28367,7 @@ lab_9f5b:
     movw de,#i2c_buf+3      ;9f5b  14 de fb     DE = destination address
     push ax                 ;9f5e  b1
     sub a,#0x03             ;9f5f  1d 03
-    call !sub_0c9e          ;9f61  9a 9e 0c     Copy A bytes from [HL] to [DE]
+    call !copy              ;9f61  9a 9e 0c     Copy A bytes from [HL] to [DE]
     pop ax                  ;9f64  b0
     movw hl,#i2c_buf        ;9f65  16 db fb
     bf mem_fe74.0,lab_9f70  ;9f68  31 03 74 04
@@ -28712,13 +28722,13 @@ sub_a1a6:
 
 lab_a1b4:
     inc b                   ;a1b4  43
-    callf !sub_0c48         ;a1b5  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;a1b5  4c 48        Load DE with word at position B in table [HL]
     dec b                   ;a1b7  53
     br lab_a1be             ;a1b8  fa 04
 
 lab_a1ba:
     dec b                   ;a1ba  53
-    callf !sub_0c48         ;a1bb  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;a1bb  4c 48        Load DE with word at position B in table [HL]
     inc b                   ;a1bd  43
 
 lab_a1be:
@@ -28845,7 +28855,7 @@ lab_a25c:
     mov a,mem_fe52          ;a25c  f0 52
     mov b,a                 ;a25e  73
     movw hl,#mem_cee4+1     ;a25f  16 e5 ce
-    callf !sub_0c48         ;a262  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;a262  4c 48        Load DE with word at position B in table [HL]
     movw ax,de              ;a264  c4
     movw hl,ax              ;a265  d6
     inc mem_fe52            ;a266  81 52
@@ -28857,7 +28867,7 @@ lab_a26f:
     mov a,mem_fe52          ;a26f  f0 52
     mov b,a                 ;a271  73
     movw hl,#mem_cee4+1     ;a272  16 e5 ce
-    callf !sub_0c48         ;a275  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;a275  4c 48        Load DE with word at position B in table [HL]
     movw ax,de              ;a277  c4
     movw hl,ax              ;a278  d6
     inc mem_fe52            ;a279  81 52
@@ -28879,7 +28889,7 @@ lab_a290:
     movw hl,#mem_c4d5+1     ;a294  16 d6 c4
 
 lab_a297:
-    callf !sub_0c48         ;a297  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;a297  4c 48        Load DE with word at position B in table [HL]
     movw ax,#0x0f84         ;a299  10 84 0f
     call !sub_9e8e          ;a29c  9a 8e 9e
     mov a,#0x64             ;a29f  a1 64
@@ -28893,7 +28903,7 @@ lab_a2a4:
     movw hl,#mem_c6d9+1     ;a2af  16 da c6
 
 lab_a2b2:
-    callf !sub_0c48         ;a2b2  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;a2b2  4c 48        Load DE with word at position B in table [HL]
     movw ax,#0x0f88         ;a2b4  10 88 0f
     call !sub_9e8e          ;a2b7  9a 8e 9e
     mov a,#0x65             ;a2ba  a1 65
@@ -28903,7 +28913,7 @@ lab_a2bf:
     mov a,mem_fe52          ;a2bf  f0 52
     mov b,a                 ;a2c1  73
     movw hl,#mem_cee4+1     ;a2c2  16 e5 ce
-    callf !sub_0c48         ;a2c5  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;a2c5  4c 48        Load DE with word at position B in table [HL]
     movw ax,de              ;a2c7  c4
     movw hl,ax              ;a2c8  d6
     inc mem_fe52            ;a2c9  81 52
@@ -28915,7 +28925,7 @@ lab_a2d2:
     mov a,mem_fe52          ;a2d2  f0 52
     mov b,a                 ;a2d4  73
     movw hl,#mem_cee4+1     ;a2d5  16 e5 ce
-    callf !sub_0c48         ;a2d8  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;a2d8  4c 48        Load DE with word at position B in table [HL]
     movw ax,de              ;a2da  c4
     movw hl,ax              ;a2db  d6
     inc mem_fe52            ;a2dc  81 52
@@ -28937,7 +28947,7 @@ lab_a2f3:
     movw hl,#mem_c500+1     ;a2f7  16 01 c5
 
 lab_a2fa:
-    callf !sub_0c48         ;a2fa  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;a2fa  4c 48        Load DE with word at position B in table [HL]
     movw ax,#0x0f98         ;a2fc  10 98 0f
     call !sub_9e8e          ;a2ff  9a 8e 9e
     mov a,#0x67             ;a302  a1 67
@@ -28951,7 +28961,7 @@ lab_a307:
     movw hl,#mem_c704+1     ;a312  16 05 c7
 
 lab_a315:
-    callf !sub_0c48         ;a315  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;a315  4c 48        Load DE with word at position B in table [HL]
     movw ax,#0x0f9c         ;a317  10 9c 0f
     call !sub_9e8e          ;a31a  9a 8e 9e
     mov a,#0x68             ;a31d  a1 68
@@ -28961,7 +28971,7 @@ lab_a322:
     mov a,mem_fe52          ;a322  f0 52
     mov b,a                 ;a324  73
     movw hl,#mem_cee4+1     ;a325  16 e5 ce
-    callf !sub_0c48         ;a328  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;a328  4c 48        Load DE with word at position B in table [HL]
     movw ax,de              ;a32a  c4
     movw hl,ax              ;a32b  d6
     inc mem_fe52            ;a32c  81 52
@@ -28973,7 +28983,7 @@ lab_a335:
     mov a,mem_fe52          ;a335  f0 52
     mov b,a                 ;a337  73
     movw hl,#mem_cee4+1     ;a338  16 e5 ce
-    callf !sub_0c48         ;a33b  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;a33b  4c 48        Load DE with word at position B in table [HL]
     movw ax,de              ;a33d  c4
     movw hl,ax              ;a33e  d6
     inc mem_fe52            ;a33f  81 52
@@ -28994,7 +29004,7 @@ lab_a354:
     movw hl,#mem_c52b+1     ;a358  16 2c c5
 
 lab_a35b:
-    callf !sub_0c48         ;a35b  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;a35b  4c 48        Load DE with word at position B in table [HL]
     movw ax,#0x0f80         ;a35d  10 80 0f
     call !sub_9e8e          ;a360  9a 8e 9e
     mov a,#0x69             ;a363  a1 69
@@ -29012,7 +29022,7 @@ lab_a375:
     movw hl,#mem_c581+1     ;a379  16 82 c5
 
 lab_a37c:
-    callf !sub_0c48         ;a37c  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;a37c  4c 48        Load DE with word at position B in table [HL]
     movw ax,#0x0f84         ;a37e  10 84 0f
     call !sub_9e8e          ;a381  9a 8e 9e
     mov a,#0x6a             ;a384  a1 6a
@@ -29026,7 +29036,7 @@ lab_a389:
     movw hl,#mem_c62d+1     ;a394  16 2e c6
 
 lab_a397:
-    callf !sub_0c48         ;a397  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;a397  4c 48        Load DE with word at position B in table [HL]
     movw ax,#0x0f88         ;a399  10 88 0f
     call !sub_9e8e          ;a39c  9a 8e 9e
     mov a,#0x6b             ;a39f  a1 6b
@@ -29037,12 +29047,12 @@ lab_a3a4:
     mov b,a                 ;a3a7  73
     bt mem_fe74.2,lab_a3b2  ;a3a8  ac 74 07
     movw hl,#mem_c933+1     ;a3ab  16 34 c9
-    callf !sub_0c48         ;a3ae  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;a3ae  4c 48        Load DE with word at position B in table [HL]
     br lab_a3b7             ;a3b0  fa 05
 
 lab_a3b2:
     movw hl,#mem_c95d+1     ;a3b2  16 5e c9
-    callf !sub_0c48         ;a3b5  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;a3b5  4c 48        Load DE with word at position B in table [HL]
 
 lab_a3b7:
     movw ax,#0x0f8c         ;a3b7  10 8c 0f
@@ -29074,7 +29084,7 @@ lab_a3e5:
     movw hl,#mem_c556+1     ;a3e9  16 57 c5
 
 lab_a3ec:
-    callf !sub_0c48         ;a3ec  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;a3ec  4c 48        Load DE with word at position B in table [HL]
     movw ax,#0x0f94         ;a3ee  10 94 0f
     call !sub_9e8e          ;a3f1  9a 8e 9e
     mov a,#0x6e             ;a3f4  a1 6e
@@ -29092,7 +29102,7 @@ lab_a406:
     movw hl,#mem_c5ac+1     ;a40a  16 ad c5
 
 lab_a40d:
-    callf !sub_0c48         ;a40d  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;a40d  4c 48        Load DE with word at position B in table [HL]
     movw ax,#0x0f98         ;a40f  10 98 0f
     call !sub_9e8e          ;a412  9a 8e 9e
     mov a,#0x6f             ;a415  a1 6f
@@ -29106,7 +29116,7 @@ lab_a41a:
     movw hl,#mem_c658+1     ;a425  16 59 c6
 
 lab_a428:
-    callf !sub_0c48         ;a428  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;a428  4c 48        Load DE with word at position B in table [HL]
     movw ax,#0x0f9c         ;a42a  10 9c 0f
     call !sub_9e8e          ;a42d  9a 8e 9e
     mov a,#0x70             ;a430  a1 70
@@ -29117,12 +29127,12 @@ lab_a435:
     mov b,a                 ;a438  73
     bt mem_fe74.2,lab_a443  ;a439  ac 74 07
     movw hl,#mem_c948+1     ;a43c  16 49 c9
-    callf !sub_0c48         ;a43f  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;a43f  4c 48        Load DE with word at position B in table [HL]
     br lab_a448             ;a441  fa 05
 
 lab_a443:
     movw hl,#mem_c972+1     ;a443  16 73 c9
-    callf !sub_0c48         ;a446  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;a446  4c 48        Load DE with word at position B in table [HL]
 
 lab_a448:
     movw ax,#0x0fa0         ;a448  10 a0 0f
@@ -29198,7 +29208,7 @@ lab_a4a5:
     movw hl,#mem_d0c7+1     ;a4ba  16 c8 d0
 
 lab_a4bd:
-    callf !sub_0c48         ;a4bd  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;a4bd  4c 48        Load DE with word at position B in table [HL]
     bnc lab_a4c6            ;a4bf  9d 05        Branch if table lookup succeeded
     call !sub_a4fe          ;a4c1  9a fe a4
     br lab_a4cd             ;a4c4  fa 07
@@ -29674,7 +29684,7 @@ sub_a780:
     mov a,mem_fe30          ;a78f  f0 30
     xch a,b                 ;a791  33
     movw hl,#mem_d0ac+1     ;a792  16 ad d0
-    callf !sub_0c7d         ;a795  4c 7d        Load A with byte at position B in table [HL]
+    callf !table_get_byte   ;a795  4c 7d        Load A with byte at position B in table [HL]
     bc lab_a7b8             ;a797  8d 1f        Branch if lookup failed
     mov b,a                 ;a799  73
     cmp a,#0x00             ;a79a  4d 00
@@ -29682,7 +29692,7 @@ sub_a780:
     cmp a,mem_fe58          ;a79e  4e 58
     bnz lab_a7b8            ;a7a0  bd 16
     movw hl,#mem_d0b1+1     ;a7a2  16 b2 d0
-    callf !sub_0c7d         ;a7a5  4c 7d        Load A with byte at position B in table [HL]
+    callf !table_get_byte   ;a7a5  4c 7d        Load A with byte at position B in table [HL]
     bc lab_a7b8             ;a7a7  8d 0f        Branch if lookup failed
     cmp a,mem_fe2f          ;a7a9  4e 2f
     bnz lab_a7b8            ;a7ab  bd 0b
@@ -29885,7 +29895,7 @@ lab_a8cd:
     mov a,!mem_fc9e         ;a8cd  8e 9e fc
     mov b,a                 ;a8d0  73
     movw hl,#mem_d0b6_sound_adjs+1  ;a8d1  16 b7 d0
-    callf !sub_0c48         ;a8d4  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;a8d4  4c 48        Load DE with word at position B in table [HL]
     bc lab_a936_ret         ;a8d6  8d 5e        Branch if table lookup failed
 
     mov a,[de]              ;a8d8  85           A = sound adjustment byte (BASS, MID, TREB, FADE, BAL)
@@ -29963,7 +29973,7 @@ sub_a937:
     mov a,!mem_fc9e         ;a937  8e 9e fc
     mov b,a                 ;a93a  73
     movw hl,#mem_d0c1+1     ;a93b  16 c2 d0
-    callf !sub_0c7d         ;a93e  4c 7d        Load A with byte at position B in table [HL]
+    callf !table_get_byte   ;a93e  4c 7d        Load A with byte at position B in table [HL]
     bc lab_a95d             ;a940  8d 1b        Branch if lookup failed
     push ax                 ;a942  b1
     and a,#0x7f             ;a943  5d 7f
@@ -30104,7 +30114,7 @@ sub_aa14:
     mov a,mem_fe30          ;aa14  f0 30
     mov b,a                 ;aa16  73
     movw hl,#mem_d0ac+1     ;aa17  16 ad d0
-    callf !sub_0c7d         ;aa1a  4c 7d        Load A with byte at position B in table [HL]
+    callf !table_get_byte   ;aa1a  4c 7d        Load A with byte at position B in table [HL]
     bc lab_aa3b             ;aa1c  8d 1d        Branch if lookup failed
     cmp a,#0x01             ;aa1e  4d 01
     bnz lab_aa3d            ;aa20  bd 1b
@@ -30775,7 +30785,7 @@ mem_aca7:
 
 mem_ad34_freq_tables:
 ;Table of pointers to frequency info tables
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x08              ;ad34  08          DATA 0x08        8 entries below:
     .word mem_ad45_region_0_4_5_6+1 ;Region 0
     .word mem_ad5a_region_1+1       ;Region 1
@@ -30902,7 +30912,7 @@ mem_ad99_region_7:
     .byte 0xce              ;adad  ce          DATA 0xce
 
 mem_adae:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x1a              ;adae  1a          DATA 0x1a        26 entries below:
     .word lab_1698
     .word lab_172e
@@ -30932,7 +30942,7 @@ mem_adae:
     .word lab_175c
 
 mem_ade3:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x15              ;ade3  15          DATA 0x15        21 entries below:
     .word lab_1698
     .word lab_173a
@@ -30957,7 +30967,7 @@ mem_ade3:
     .word lab_1945
 
 mem_ae0e:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x0b              ;ae0e  0b          DATA 0x0b        11 entries below:
     .word sub_1d4f
     .word lab_1d11
@@ -31048,7 +31058,7 @@ mem_ae25:
     .byte 0x07              ;ae6e  07          DATA 0x07
 
 mem_ae6f:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x04              ;ae6f  04          DATA 0x04      4 entries below:
     .word mem_ae78+1
     .word mem_ae89+1
@@ -31132,7 +31142,7 @@ mem_aeab:
     .byte 0xff              ;aebb  ff          DATA 0xff
 
 mem_aebc:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x0b              ;aebc  0b          DATA 0x0b        11 entries below:
     .word lab_1e0e
     .word lab_1e12
@@ -31147,7 +31157,7 @@ mem_aebc:
     .word lab_1faa
 
 mem_aed3:
-;table of bytes used with sub_0c7d
+;table of bytes used with table_get_byte
     .byte 0x09              ;aed3  09          DATA 0x09    9 entries below:
     .byte 0x1e              ;aed4  1e          DATA 0x1e
     .byte 0x01              ;aed5  01          DATA 0x01
@@ -31160,7 +31170,7 @@ mem_aed3:
     .byte 0x0a              ;aedc  0a          DATA 0x0a
 
 mem_aedd:
-;table of bytes used with sub_0c7d
+;table of bytes used with table_get_byte
     .byte 0x09              ;aedd  09          DATA 0x09    9 entries below:
     .byte 0x00              ;aede  00          DATA 0x00
     .byte 0x07              ;aedf  07          DATA 0x07
@@ -31173,7 +31183,7 @@ mem_aedd:
     .byte 0x08              ;aee6  08          DATA 0x08
 
 mem_aee7:
-;table of bytes used with sub_0c7d
+;table of bytes used with table_get_byte
     .byte 0x09              ;aee7  09          DATA 0x09    9 entries below:
     .byte 0x01              ;aee8  01          DATA 0x01
     .byte 0x07              ;aee9  07          DATA 0x07
@@ -31186,7 +31196,7 @@ mem_aee7:
     .byte 0x08              ;aef0  08          DATA 0x08
 
 mem_aef1:
-;table of bytes used with sub_0c7d
+;table of bytes used with table_get_byte
     .byte 0x09              ;aef1  09          DATA 0x09    9 entries below:
     .byte 0x00              ;aef2  00          DATA 0x00
     .byte 0x03              ;aef3  03          DATA 0x03
@@ -31362,7 +31372,7 @@ group_numbers:
 group_data_pointers:
 ;group reading related
 ;pointer to data table for each group, same order as group_numbers
-;used with sub_0c48
+;used with table_get_word
     .byte 0x07              ;af96  07          DATA 0x07        7 entries below:
     .word group_1_data+1    ;af97              POINTER          Group 1 (General)
     .word group_2_data+1    ;af99              POINTER          Group 2 (Speakers)
@@ -31507,7 +31517,7 @@ mem_b008:
     .byte 0x2a              ;b011  2a          DATA 0x2a '*'
 
 mem_b012:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x03              ;b012  03          DATA 0x03        3 entries below:
     .word lab_2f39          ;b013   DATA
     .word lab_2f3e          ;b015   DATA
@@ -31515,7 +31525,7 @@ mem_b012:
 
 mem_b019_fis:
 ;fis-related
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x04              ;b019  04          DATA 0x04        4 entries below:
     .word lab_2f61_fis      ;b01a   DATA
     .word lab_2faa_fis      ;b01c   DATA
@@ -31664,7 +31674,7 @@ mem_b05f:
     .byte 0x01              ;b0a0  01          DATA 0x01
 
 mem_b0a1:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x0a              ;b0a1  0a          DATA 0x0a        10 entries below:
     .word lab_3c02
     .word lab_3c03
@@ -31678,7 +31688,7 @@ mem_b0a1:
     .word lab_3c64
 
 mem_b0b6:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x0b              ;b0b6  0b          DATA 0x0b        11 words below:
     .word lab_7d5c          ;b0b7
     .word lab_2037          ;b0b9
@@ -31700,7 +31710,7 @@ mem_b0cd:
     .byte 0x02              ;b0d0  02          DATA 0x02
 
 mem_b0d1:
-;table of words used with sub_0c48
+;table of words used with table_get_word
 ;TODO routines that seem to be called regularly by a timer?
     .byte 0x09              ;b0d1  09          DATA 0x09        9 entries below:
     .word lab_12d7
@@ -31731,7 +31741,7 @@ mem_b0eb:
     .byte 0x40              ;b0ee  40          DATA 0x40 '@'
 
 mem_b0ef:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x02              ;b0ef  02          DATA 0x02        2 entries below:
     .word lab_3f76          ;b0f0   DATA
     .word lab_3f56          ;b0f2   DATA
@@ -31873,7 +31883,7 @@ mem_b150:
     .byte 0x00              ;b16f  00          DATA 0x00
 
 mem_b170:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x0f              ;b170  0f          DATA 0x0f
     .word lab_4307
     .word sub_432d
@@ -31892,7 +31902,7 @@ mem_b170:
     .word lab_4438
 
 mem_b18f:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x12              ;b18f  12          DATA 0x12        18 entries below:
     .word .                 ;DATA  b190
     .word mem_b1b4+1        ;DATA
@@ -31936,7 +31946,7 @@ mem_b1b4:
     .byte 0x07              ;b1c6  07          DATA 0x07
 
 mem_b1c7:
-;table of bytes used with sub_0c7d
+;table of bytes used with table_get_byte
     .byte 0x0b              ;b1c7  0b          DATA 0x0b        11 entries below:
     .byte 0x00              ;b1c8  00          DATA 0x00
     .byte 0x08              ;b1c9  08          DATA 0x08
@@ -31951,7 +31961,7 @@ mem_b1c7:
     .byte 0x13              ;b1d2  13          DATA 0x13
 
 mem_b1d3:
-;table of bytes used with sub_0c7d
+;table of bytes used with table_get_byte
     .byte 0x0b              ;b1d3  0b          DATA 0x0b        11 entries below:
     .byte 0x00              ;b1d4  00          DATA 0x00
     .byte 0x08              ;b1d5  08          DATA 0x08
@@ -31966,7 +31976,7 @@ mem_b1d3:
     .byte 0x13              ;b1de  13          DATA 0x13
 
 mem_b1df:
-;table of bytes used with sub_0c7d
+;table of bytes used with table_get_byte
     .byte 0x0b              ;b1df  0b          DATA 0x0b        11 entries below:
     .byte 0x00              ;b1e0  00          DATA 0x00
     .byte 0x1c              ;b1e1  1c          DATA 0x1c
@@ -32324,7 +32334,7 @@ mem_b3ac:
     .byte 0x0b              ;b3b0  0b          DATA 0x0b
 
 mem_b3b1:
-;table used with sub_0c7d
+;table used with table_get_byte
     .byte 0x04              ;b3b1  04          DATA 0x04        4 entries below:
     .byte 0x1f              ;b3b2  1f          DATA 0x1f
     .byte 0x1e              ;b3b3  1e          DATA 0x1e
@@ -32379,7 +32389,7 @@ mem_b3d2:
     .byte 0xa2              ;b3d8  a2          DATA 0xa2
 
 mem_b3d9:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x08              ;b3d9  08          DATA 0x08        8 entries below:
     .word mem_b3ea+1  ;Region 0: FM 87.7 - 107.9, AM 530 - 1710
     .word mem_b3f9+1  ;Region 1: FM 76.0 -  90.0, AM 522 - 1584
@@ -32529,7 +32539,7 @@ mem_b459:
     .word lab_73a3          ;b46c              6 Writes "TAPE SKIP  "
 
 mem_b46e:
-;table used at lab_6f81 with sub_0c48
+;table used at lab_6f81 with table_get_word
     .byte 0x04              ;b46e  04          DATA 0x04        4 entries below:
     .word lab_694d          ;b46f
     .word lab_695e          ;b471
@@ -32553,7 +32563,7 @@ mem_b47e:
     .byte 0xb4              ;b47f  b4          DATA 0xb4
 
 mem_b480:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x0a              ;b480  0a          DATA 0x0a        10 entries below:
     .word lab_6a5c          ;b481
     .word lab_6a64          ;b483
@@ -32651,7 +32661,7 @@ mem_b4d1:
     .byte 0x01              ;b4dd  01          DATA 0x01
 
 mem_b4de:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x0d              ;b4de  0d          DATA 0x0d        13 entries below:
     .word lab_6c58          ;b4df   DATA      "CD   TR    "
     .word lab_6c82          ;b4e1   DATA
@@ -32689,7 +32699,7 @@ mem_b4fe:
     .byte 0xff              ;b50a  ff          DATA 0xff
 
 mem_b50b:
-;table used with sub_0c48
+;table used with table_get_word
     .byte 0x07              ;b50b  07          DATA 0x07
     .word mem_b51a+1
     .word mem_b51d+1
@@ -32743,7 +32753,7 @@ mem_b530:
     .byte 0x0d              ;b534  0d          DATA 0x0d
 
 mem_b535:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x0d              ;b535  0d          DATA 0x0d    13 entries below:
     .word 0x0580
     .word 0x0581
@@ -32760,7 +32770,7 @@ mem_b535:
     .word 0x038c
 
 mem_b550:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x0d              ;b550  0d          DATA 0x0d        13 entries below:
     .word lab_716b
     .word lab_717f
@@ -32864,13 +32874,13 @@ mem_b56b:
     .byte 0x01              ;b5bf  01          DATA 0x01
 
 mem_b5c0:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x02              ;b5c0  02          DATA 0x02        2 entries below:
     .word lab_6933
     .word sub_7697
 
 mem_b5c5:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x08              ;b5c5  08          DATA 0x08        8 entries below:
     .word lab_7bbb
     .word lab_7b83
@@ -32882,7 +32892,7 @@ mem_b5c5:
     .word lab_7808
 
 mem_b5d6:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x4a              ;b5d6  4a          DATA 0x4a 'J'    74 entries below:
     .word 0x0000
     .word 0xb098
@@ -32960,7 +32970,7 @@ mem_b5d6:
     .word 0x9180
 
 mem_b66b:
-;table of bytes used with sub_0c7d
+;table of bytes used with table_get_byte
     .byte 0x0f              ;b66b  0f          DATA 0x0f        15 entries below:
     .byte 0xff              ;b66c  ff          DATA 0xff
     .byte 0x03              ;b66d  03          DATA 0x03
@@ -32979,7 +32989,7 @@ mem_b66b:
     .byte 0xff              ;b67a  ff          DATA 0xff
 
 mem_b67b:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x0f              ;b67b  0f          DATA 0x0f          15 entries below:
     .word lab_4243
     .word lab_a4d7
@@ -32998,7 +33008,7 @@ mem_b67b:
     .word lab_1deb
 
 mem_b69a:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x04              ;b69a  04          DATA 0x04
     .word lab_7da6
     .word lab_7e2d
@@ -33022,14 +33032,14 @@ mem_b6a3:
     .byte 0x04              ;b6b0  04          DATA 0x04
 
 mem_b6b1:
-;table used with sub_0c48
+;table used with table_get_word
     .word lab_7fc7
     .word lab_7fd0
     .word lab_7fc8
     .word lab_7fd8
 
 mem_b6b9:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x04              ;b6b9  04          DATA 0x04
     .word lab_7ff6
     .word lab_801f
@@ -33186,7 +33196,7 @@ mem_b6c2:
     .byte 0x00              ;b754  00          DATA 0x00
 
 mem_b755:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x1d              ;b755  1d          DATA 0x1d    29 entries below:
     .word lab_d1cd
     .word lab_d1ce
@@ -33227,7 +33237,7 @@ mem_b790:
     .word lab_d18a
 
 mem_b79b:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x06              ;b79b  06          DATA 0x06        6 entries below:
     .word mem_b7b9+1
     .word mem_b7c6+1
@@ -33309,7 +33319,7 @@ mem_b7fa:
     .word lab_878c
 
 mem_b807:
-;table used with sub_0c48
+;table used with table_get_word
     .byte 0x2d              ;b807  2d          DATA 0x2d '-'    45 entries follow:
     .word lab_878c
     .word lab_87f9
@@ -33671,7 +33681,7 @@ mem_b910:
     .byte 0xaf              ;b996  af          DATA 0xaf
 
 mem_b997:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x20              ;b997  20          DATA 0x20 ' '    32 entries below:
     .word lab_8c7a
     .word lab_8c7f
@@ -33707,7 +33717,7 @@ mem_b997:
     .word lab_8157
 
 mem_b9d8:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x17              ;b9d8  17          DATA 0x17      23 entries below:
     .word lab_8afa
     .word lab_8b12
@@ -33734,7 +33744,7 @@ mem_b9d8:
     .word lab_8fa5
 
 mem_ba07:
-;table of bytes used with sub_0c7d
+;table of bytes used with table_get_byte
     .byte 0x25              ;ba07  25          DATA 0x25 '%'    37 entries below:
     .byte 0x23              ;ba08  23          DATA 0x23 '#'
     .byte 0x24              ;ba09  24          DATA 0x24 '$'
@@ -35000,7 +35010,7 @@ mem_be0f:
     .byte 0x0d              ;be1a  0d          DATA 0x0d
 
 mem_be1b:
-;table of bytes used with sub_0c7d
+;table of bytes used with table_get_byte
     .byte 0x0f              ;be1b  0f          DATA 0x0f        15 entries below:
     .byte 0x00              ;be1c  00          DATA 0x00
     .byte 0x02              ;be1d  02          DATA 0x02
@@ -35019,7 +35029,7 @@ mem_be1b:
     .byte 0x14              ;be2a  14          DATA 0x14
 
 mem_be2b:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x3e              ;be2b  3e          DATA 0x3e '>'    62 entries below:
     .word 0x0f80
     .word 0x0f80
@@ -35085,7 +35095,7 @@ mem_be2b:
     .word 0x0d7f
 
 mem_bea8:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x3e              ;bea8  3e          DATA 0x3e '>'    62 entries below:
     .word 0x0fff
     .word 0x0ffb
@@ -35151,7 +35161,7 @@ mem_bea8:
     .word 0x0800
 
 mem_bf25:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x3e              ;bf25  3e          DATA 0x3e '>'    62 entries below:
     .word 0x0f80
     .word 0x0f80
@@ -35217,7 +35227,7 @@ mem_bf25:
     .word 0x0b00
 
 mem_bfa2:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x3e              ;bfa2  3e          DATA 0x3e '>'  62 entries below:
     .word 0x0fff
     .word 0x0ff6
@@ -35283,7 +35293,7 @@ mem_bfa2:
     .word 0x0800
 
 mem_c019:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x3e              ;c01f  3e          DATA 0x3e '>'  62 entries below:
     .word 0x0000
     .word 0x0000
@@ -35349,7 +35359,7 @@ mem_c019:
     .word 0x07ff
 
 mem_c09c:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x2e              ;c09c  2e          DATA 0x2e '.'    46 entries below:
     .word 0x0f80
     .word 0x0f80
@@ -35399,7 +35409,7 @@ mem_c09c:
     .word 0x0e6c
 
 mem_c0f9:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x2e              ;c0f9  2e          DATA 0x2e '.'    46 entries below:
     .word 0x0f80
     .word 0x0f80
@@ -35449,7 +35459,7 @@ mem_c0f9:
     .word 0x0f36
 
 mem_c156:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x2e              ;c156  2e          DATA 0x2e '.'    46 entries below:
     .word 0x0fff
     .word 0x0ff5
@@ -35499,7 +35509,7 @@ mem_c156:
     .word 0x0800
 
 mem_c1b3:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x2e              ;c1b3  2e          DATA 0x2e '.'    46 entries below:
     .word 0x0fff
     .word 0x0ffb
@@ -35549,7 +35559,7 @@ mem_c1b3:
     .word 0x0800
 
 mem_c210:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x2e              ;c210  2e          DATA 0x2e '.'    46 entries follow:
     .word 0x0000
     .word 0x001a
@@ -35599,7 +35609,7 @@ mem_c210:
     .word 0x07ff
 
 mem_c26d:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x2f              ;c26d  2f          DATA 0x2f '/'    47 entries below:
     .word 0x000a
     .word 0x000b
@@ -35650,7 +35660,7 @@ mem_c26d:
     .word 0x07fb
 
 mem_c2cc:
-;table of bytes used with sub_0c7d
+;table of bytes used with table_get_byte
     .byte 0x04              ;c2cc  04          DATA 0x04        4 entries below:
     .byte 0xf6              ;c2cd  f6          DATA 0xf6
     .byte 0x06              ;c2ce  06          DATA 0x06
@@ -35658,7 +35668,7 @@ mem_c2cc:
     .byte 0xfc              ;c2d0  fc          DATA 0xfc
 
 mem_c2d1:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x15              ;c2d1  15          DATA 0x15        21 entries below:
     .word 0x0069
     .word 0x0069
@@ -35683,7 +35693,7 @@ mem_c2d1:
     .word 0x0069
 
 mem_c2fc:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x15              ;c2fc  15          DATA 0x15        21 entries below:
     .word 0x7510
     .word 0x7510
@@ -35708,7 +35718,7 @@ mem_c2fc:
     .word 0x2f32
 
 mem_c327:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x15              ;c327  15          DATA 0x15        21 entries below:
     .word 0x00d7
     .word 0x00d7
@@ -35733,7 +35743,7 @@ mem_c327:
     .word 0x0186
 
 mem_c352:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x15              ;c352  15          DATA 0x15        21 entries below:
     .word 0x6d28
     .word 0x5d32
@@ -35758,7 +35768,7 @@ mem_c352:
     .word 0x75fe
 
 mem_c37d:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x15              ;c37d  15          DATA 0x15        21 entries below:
     .word 0x0069
     .word 0x0069
@@ -35783,7 +35793,7 @@ mem_c37d:
     .word 0x0069
 
 mem_c3a8:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x15              ;c3a8  15          DATA 0x15        21 entries below:
     .word 0x7510
     .word 0x7510
@@ -35808,7 +35818,7 @@ mem_c3a8:
     .word 0x4f28
 
 mem_c3d3:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x15              ;c3d3  15          DATA 0x15        21 entries below:
     .word 0x00d7
     .word 0x00d7
@@ -35833,7 +35843,7 @@ mem_c3d3:
     .word 0x0186
 
 mem_c3fe:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x15              ;c3fe  15          DATA 0x15        21 entries below:
     .word 0x6d28
     .word 0x652e
@@ -35858,7 +35868,7 @@ mem_c3fe:
     .word 0x7590
 
 mem_c429:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x15              ;c429  15          DATA 0x15        21 entries below:
     .word 0x0106
     .word 0x0106
@@ -35883,7 +35893,7 @@ mem_c429:
     .word 0x02b6
 
 mem_c454:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x15              ;c454  15          DATA 0x15        21 entries below:
     .word 0x7c10
     .word 0x7412
@@ -35908,7 +35918,7 @@ mem_c454:
     .word 0x4488
 
 mem_c47f:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x15              ;c47f  15          DATA 0x15        21 entries below:
     .word 0x0106
     .word 0x0106
@@ -35933,7 +35943,7 @@ mem_c47f:
     .word 0x02b6
 
 mem_c4aa:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x15              ;c4aa  15          DATA 0x15        21 entries below:
     .word 0x7c10
     .word 0x7412
@@ -35958,7 +35968,7 @@ mem_c4aa:
     .word 0x444c
 
 mem_c4d5:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x15              ;c4d5  15          DATA 0x15        21 entries below:
     .word 0x0187
     .word 0x0187
@@ -35983,7 +35993,7 @@ mem_c4d5:
     .word 0x0206
 
 mem_c500:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x15              ;c500  15          DATA 0x15        21 entries below:
     .word 0x6c10
     .word 0x6412
@@ -36008,7 +36018,7 @@ mem_c500:
     .word 0x7588
 
 mem_c52b:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x15              ;c52b  15          DATA 0x15        21 entries below:
     .word 0x0049
     .word 0x0049
@@ -36033,7 +36043,7 @@ mem_c52b:
     .word 0x0049
 
 mem_c556:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x15              ;c556  15          DATA 0x15        21 entries below:
     .word 0x5d10
     .word 0x5d10
@@ -36058,7 +36068,7 @@ mem_c556:
     .word 0x2732
 
 mem_c581:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x15              ;c581  15          DATA 0x15        21 entries below:
     .word 0x00a7
     .word 0x00a7
@@ -36083,7 +36093,7 @@ mem_c581:
     .word 0x0126
 
 mem_c5ac:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x15              ;c5ac  15          DATA 0x15        21 entries below:
     .word 0x6528
     .word 0x4d32
@@ -36108,7 +36118,7 @@ mem_c5ac:
     .word 0x65fe
 
 mem_c5d7:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x15              ;c5d7  15          DATA 0x15        21 entries below:
     .word 0x0df3
     .word 0x0df3
@@ -36133,7 +36143,7 @@ mem_c5d7:
     .word 0x0df3
 
 mem_c602:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x15              ;c602  15          DATA 0x15        21 entries below:
     .word 0x401e
     .word 0x6922
@@ -36158,7 +36168,7 @@ mem_c602:
     .word 0x4980
 
 mem_c62d:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x15              ;c62d  15          DATA 0x15        21 entries below:
     .word 0x0a63
     .word 0x0a63
@@ -36183,7 +36193,7 @@ mem_c62d:
     .word 0x0a63
 
 mem_c658:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x15              ;c658  15          DATA 0x15        21 entries below:
     .word 0x791e
     .word 0x6122
@@ -36208,7 +36218,7 @@ mem_c658:
     .word 0x7a80
 
 mem_c683:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x15              ;c683  15          DATA 0x15        21 entries below:
     .word 0x1f53
     .word 0x1f53
@@ -36233,7 +36243,7 @@ mem_c683:
     .word 0x1f53
 
 mem_c6ae:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x15              ;c6ae  15          DATA 0x15        21 entries below:
     .word 0x6010
     .word 0x5812
@@ -36258,7 +36268,7 @@ mem_c6ae:
     .word 0x6980
 
 mem_c6d9:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x15              ;c6d9  15          DATA 0x15        21 entries below:
     .word 0x1753
     .word 0x1753
@@ -36283,7 +36293,7 @@ mem_c6d9:
     .word 0x1753
 
 mem_c704:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x15              ;c704  15          DATA 0x15        21 entries below:
     .word 0x5810
     .word 0x5012
@@ -36308,7 +36318,7 @@ mem_c704:
     .word 0x5980
 
 mem_c72f:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x15              ;c72f  15          DATA 0x15        21 entries below:
     .word 0x03fa
     .word 0x64fa
@@ -36333,7 +36343,7 @@ mem_c72f:
     .word 0x8705
 
 mem_c75a:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x15              ;c75a  15          DATA 0x15        21 entries below:
     .word 0xff07
     .word 0xff07
@@ -36358,7 +36368,7 @@ mem_c75a:
     .word 0x7802
 
 mem_c785:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x15              ;c785  15          DATA 0x15        21 entries below:
     .word 0xb305
     .word 0x5505
@@ -36383,7 +36393,7 @@ mem_c785:
     .word 0xff00
 
 mem_c7b0:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x15              ;c7b0  15          DATA 0x15        21 entries below:
     .word 0xd906
     .word 0xaa06
@@ -36408,7 +36418,7 @@ mem_c7b0:
     .word 0x7f04
 
 mem_c7db:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x15              ;c7db  15          DATA 0x15        21 entries below:
     .word 0xfb05
     .word 0xa705
@@ -36433,7 +36443,7 @@ mem_c7db:
     .word 0xc001
 
 mem_c806:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x15              ;c806  15          DATA 0x15        21 entries below:
     .word 0xfd06
     .word 0xd306
@@ -36458,7 +36468,7 @@ mem_c806:
     .word 0xe004
 
 mem_c831:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x15              ;c831  15          DATA 0x15        21 entries below:
     .word 0xb6f9
     .word 0x08fa
@@ -36483,7 +36493,7 @@ mem_c831:
     .word 0xdb04
 
 mem_c85c:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x15              ;c85c  15          DATA 0x15        21 entries below:
     .word 0x7d06
     .word 0x4006
@@ -36508,7 +36518,7 @@ mem_c85c:
     .word 0x1f03
 
 mem_c887:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x15              ;c887  15          DATA 0x15        21 entries below:
     .word 0x3e07
     .word 0x2007
@@ -36533,7 +36543,7 @@ mem_c887:
     .word 0x8f05
 
 mem_c8b2:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x15              ;c8b2  15          DATA 0x15        21 entries below:
     .word 0xff07
     .word 0xff07
@@ -36558,7 +36568,7 @@ mem_c8b2:
     .word 0x3f04
 
 mem_c8dd:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x15              ;c8dd  15          DATA 0x15        21 entries below:
     .word 0xae06
     .word 0x7906
@@ -36583,7 +36593,7 @@ mem_c8dd:
     .word 0xa903
 
 mem_c908:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x15              ;c908  15          DATA 0x15        21 entries below:
     .word 0x5707
     .word 0x3c07
@@ -36608,7 +36618,7 @@ mem_c908:
     .word 0xd405
 
 mem_c933:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x0a              ;c933  0a          DATA 0x0a        10 entries below:
     .word 0x0177
     .word 0x0286
@@ -36622,7 +36632,7 @@ mem_c933:
     .word 0x00e7
 
 mem_c948:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x0a              ;c948  0a          DATA 0x0a        10 entries below:
     .word 0x5540
     .word 0x4c24
@@ -36636,7 +36646,7 @@ mem_c948:
     .word 0x7766
 
 mem_c95d:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x0a              ;c95d  0a          DATA 0x0a        10 entries below:
     .word 0x0177
     .word 0x01e6
@@ -36650,7 +36660,7 @@ mem_c95d:
     .word 0x00b7
 
 mem_c972:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x0a              ;c972  0a          DATA 0x0a        10 entries below:
     .word 0x4540
     .word 0x7d24
@@ -36672,7 +36682,7 @@ mem_c98a:
     .byte 0x85              ;c98b  85          DATA 0x85
 
 mem_c98c:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x0b              ;c98c  0b          DATA 0x0b        11 entries below:
     .word 0x0000
     .word 0x0f4a
@@ -36687,7 +36697,7 @@ mem_c98c:
     .word 0x0800
 
 mem_c9a3:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x0b              ;c9a3  0b          DATA 0x0b        11 entries below:
     .word 0x0510
     .word 0x0660
@@ -36702,7 +36712,7 @@ mem_c9a3:
     .word 0x2000
 
 mem_c9ba:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x0b              ;c9ba  0b          DATA 0x0b        11 entries below:
     .word 0x0000
     .word 0x02d9
@@ -36717,7 +36727,7 @@ mem_c9ba:
     .word 0x2000
 
 mem_c9d1:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x15              ;c9d1  15          DATA 0x15        21 entries below:
     .word 0x0800
     .word 0x0800
@@ -36742,7 +36752,7 @@ mem_c9d1:
     .word 0x19e0
 
 mem_c9fc:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x15              ;c9fc  15          DATA 0x15        21 entries below:
     .word 0x0860
     .word 0x0858
@@ -38105,7 +38115,7 @@ mem_ced4:
     .byte 0xa0              ;cee3  a0          DATA 0xa0
 
 mem_cee4:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x3c              ;cee4  3c          DATA 0x3c '<'    60 entries below:
     .word mem_ca73
     .word mem_caac
@@ -38169,7 +38179,7 @@ mem_cee4:
     .word mem_ced4
 
 mem_cf5d:
-;table of bytes used with sub_0c7d
+;table of bytes used with table_get_byte
     .byte 0x0a              ;cf5d  0a          DATA 0x0a    10 entries below:
     .byte 0x00              ;cf5e  00          DATA 0x00
     .byte 0x00              ;cf5f  00          DATA 0x00
@@ -38206,7 +38216,7 @@ mem_cf68:
     .byte 0x00              ;cf7c  00          DATA 0x00
 
 mem_cf7d:
-;table used with sub_0c48
+;table used with table_get_word
     .byte 0x72              ;cf7d  72          DATA 0x72 'r'    114 entries below:
     .word lab_924d
     .word lab_9294
@@ -38400,7 +38410,7 @@ mem_d062:
     .byte 0x09              ;d0ab  09          DATA 0x09
 
 mem_d0ac:
-;table of bytes used with sub_0c7d
+;table of bytes used with table_get_byte
     .byte 0x04              ;d0ac  04          DATA 0x04
     .byte 0x00              ;d0ad  00          DATA 0x00
     .byte 0x01              ;d0ae  01          DATA 0x01
@@ -38408,7 +38418,7 @@ mem_d0ac:
     .byte 0x03              ;d0b0  03          DATA 0x03
 
 mem_d0b1:
-;table of bytes used with sub_0c7d
+;table of bytes used with table_get_byte
     .byte 0x04              ;d0b1  04          DATA 0x04        4 entries below:
     .byte 0xff              ;d0b2  ff          DATA 0xff
     .byte 0x07              ;d0b3  07          DATA 0x07
@@ -38417,7 +38427,7 @@ mem_d0b1:
 
 mem_d0b6_sound_adjs:
 ;Locations of sound adjustment bytes in RAM
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x05              ;d0b6  05          DATA 0x05        5 entries below:
     .word mem_f259_bass ;BASS
     .word mem_f25a_mid  ;MID
@@ -38426,7 +38436,7 @@ mem_d0b6_sound_adjs:
     .word mem_f258_bal  ;BAL
 
 mem_d0c1:
-;table of bytes used with sub_0c7d
+;table of bytes used with table_get_byte
 ;indexed by mem_fc9e, values are compared to mem_f1a5
     .byte 0x05              ;d0c1  05          DATA 0x05        5 entries below:
     .byte 0x80|0x02   ;0x02 = BASS
@@ -38436,13 +38446,13 @@ mem_d0c1:
     .byte 0x80|0x01   ;0x01 = BAL
 
 mem_d0c7:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x02              ;d0c7  02         DATA 0x02         2 entries below:
     .word lab_a547_ret
     .word lab_a95e
 
 mem_d0cc:
-;table of words used with sub_0c48
+;table of words used with table_get_word
     .byte 0x0e              ;d0cc  0e          DATA 0x0e        14 entries below:
     .word lab_a547_ret
     .word lab_aa99
@@ -38531,7 +38541,7 @@ lab_d137:
     br lab_d147             ;d145  fa 00
 
 lab_d147:
-    callf !sub_0c48         ;d147  4c 48        Load DE with word at position B in table [HL]
+    callf !table_get_word   ;d147  4c 48        Load DE with word at position B in table [HL]
     bc sub_d16e             ;d149  8d 23        Branch if table lookup failed
     movw ax,#lab_d152       ;d14b  10 52 d1
     push ax                 ;d14e  b1
