@@ -25,15 +25,28 @@ mem_f000 = 0xf000           ;KWP1281 memory address for read ram or read eeprom 
 mem_f002 = 0xf002           ;KWP1281 eeprom address for write eeprom (2 bytes)
 mem_f004 = 0xf004
 fis_tx_ptr = 0xf006         ;FIS pointer to 3LB packet buffer used during transmit (2 bytes)
+mem_f008 = 0xf008
+mem_f00a = 0xf00a
 mem_f00c = 0xf00c           ;Unknown; 2 bytes
 mem_f00e = 0xf00e
 mem_f00f = 0xf00f
+mem_f010 = 0xf010
+mem_f012 = 0xf012
+mem_f014 = 0xf014
 mem_f016 = 0xf016
+mem_f018 = 0xf018
 mem_f01a = 0xf01a           ;EEPROM address for I2C read or write EEPROM (2 bytes)
 mem_f01c = 0xf01c
+mem_f01e = 0xf01e
 mem_f020 = 0xf020
 mem_f021 = 0xf021
 mem_f022 = 0xf022
+mem_f024 = 0xf024
+mem_f026 = 0xf026
+mem_f028 = 0xf028
+mem_f02a = 0xf02a
+mem_f02c = 0xf02c
+mem_f02e = 0xf02e
 cdc_isr_rx_idx = 0xf032     ;CDC CSI31 ISR receive buffer index
 cdc_isr_rx_buf = 0xf033     ;CDC CSI31 ISR receive buffer (8 bytes)
 kwp_tmp_buf = 0xf03b        ;KWP1281 temporary buffer (16 bytes)
@@ -3297,7 +3310,7 @@ lab_0f1b:
     mov !mem_fb50,a         ;0fdc  9e 50 fb
     mov mem_fe28,#0x80      ;0fdf  11 28 80
     movw ax,#0x8000         ;0fe2  10 00 80
-    call !sub_3ba2          ;0fe5  9a a2 3b     Performs only: movw !0xf008,ax
+    call !sub_3ba2          ;0fe5  9a a2 3b     Performs only: movw !mem_f008,ax
     call !sub_3b27          ;0fe8  9a 27 3b     Performs only: mov prm00,#0x00
     bt mem_fe65.1,lab_0ff1  ;0feb  9c 65 03
     call !sub_3b3a          ;0fee  9a 3a 3b     Disable timers and their interrupts
@@ -11289,15 +11302,15 @@ sub_3b3a:
     set1 mk1l.1             ;3b40  71 1a e6   Set WTNIMK0 (disables INTWTNI0)
     set1 mk1l.2             ;3b43  71 2a e6   Set TMMK000 (disables INTTM000)
     movw ax,#0x0000         ;3b46  10 00 00
-    movw !0xf00a,ax         ;3b49  03 0a f0
+    movw !mem_f00a,ax       ;3b49  03 0a f0
     ret                     ;3b4c  af
 
 sub_3b4d:
     movw mem_fed4,ax        ;3b4d  99 d4
-    movw ax,!0xf008         ;3b4f  02 08 f0
+    movw ax,!mem_f008       ;3b4f  02 08 f0
     movw mem_fed6,ax        ;3b52  99 d6
     call !sub_0bad          ;3b54  9a ad 0b
-    movw ax,!0xf00a         ;3b57  02 0a f0
+    movw ax,!mem_f00a       ;3b57  02 0a f0
     cmp a,b                 ;3b5a  61 4b
     bnz lab_3b6a            ;3b5c  bd 0c
     mov a,x                 ;3b5e  60
@@ -11311,7 +11324,7 @@ lab_3b6a:
     movw ax,bc              ;3b6a  c2
     cmpw ax,#0x0000         ;3b6b  ea 00 00
     bz sub_3b35             ;3b6e  ad c5
-    movw !0xf00a,ax         ;3b70  03 0a f0
+    movw !mem_f00a,ax       ;3b70  03 0a f0
     clr1 if1l.1             ;3b73  71 1b e2     Clear TMIF000 (INTTM000 interrupt flag)
     clr1 mk1l.1             ;3b76  71 1b e6     Clear WTNIMK0 (enables INTWTNI0)
 
@@ -11327,9 +11340,9 @@ sub_3b80:
     mov tmc00,#0x00         ;3b80  13 60 00
     set1 mk1l.1             ;3b83  71 1a e6     Set WTNIMK0 (disables INTWTNI0)
     set1 mk1l.2             ;3b86  71 2a e6     Set TMMK000 (disables INTTM000)
-    movw ax,!0xf00a         ;3b89  02 0a f0
+    movw ax,!mem_f00a       ;3b89  02 0a f0
     movw cr010,ax           ;3b8c  99 0c
-    movw ax,!0xf008         ;3b8e  02 08 f0
+    movw ax,!mem_f008       ;3b8e  02 08 f0
     movw cr000,ax           ;3b91  99 0a
     mov crc00,#0x00         ;3b93  13 62 00
     mov toc00,#0x1b         ;3b96  13 63 1b
@@ -11339,7 +11352,7 @@ sub_3b80:
     ret                     ;3ba1  af
 
 sub_3ba2:
-    movw !0xf008,ax         ;3ba2  03 08 f0
+    movw !mem_f008,ax       ;3ba2  03 08 f0
     ret                     ;3ba5  af
 
 sub_3ba6:
@@ -17613,11 +17626,11 @@ sub_5a85:
     mov x,a                 ;5a9a  70
     xor a,#0xff             ;5a9b  7d ff
     xch a,x                 ;5a9d  30
-    movw !0xf012,ax         ;5a9e  03 12 f0
+    movw !mem_f012,ax       ;5a9e  03 12 f0
     movw ax,#0xca34         ;5aa1  10 34 ca
-    movw !0xf014,ax         ;5aa4  03 14 f0
+    movw !mem_f014,ax       ;5aa4  03 14 f0
     movw ax,#0x0102         ;5aa7  10 02 01
-    movw !0xf010,ax         ;5aaa  03 10 f0
+    movw !mem_f010,ax       ;5aaa  03 10 f0
 
     clr1 pm5.7              ;5aad  71 7b 25     PM57 = output (CDC TX)
     set1 shadow_p5.7        ;5ab0  7a cf        CDC TX = 1
@@ -17627,7 +17640,7 @@ sub_5a85:
     movw ax,tm01            ;5ab6  89 14
     addw ax,#0x0937         ;5ab8  ca 37 09
     movw cr011,ax           ;5abb  99 12        Store as compare value for CDC TX timer interrupt
-    movw !0xf018,ax         ;5abd  03 18 f0
+    movw !mem_f018,ax       ;5abd  03 18 f0
     clr1 mem_fe68.2         ;5ac0  2b 68        CDC TX bit = 0
     clr1 pr1l.4             ;5ac2  71 4b ea     Clear TMPR011 (makes INTTM011 high priority; CDC TX)
     clr1 if1l.4             ;5ac5  71 4b e2     Clear TMIF001 (INTWTNI0 interrupt flag)
@@ -17645,21 +17658,21 @@ lab_5ad1:
     cmp a,#0x00             ;5ad2  4d 00
     bz lab_5ae8             ;5ad4  ad 12
     xch a,x                 ;5ad6  30
-    movw !0xf010,ax         ;5ad7  03 10 f0
+    movw !mem_f010,ax       ;5ad7  03 10 f0
     movw ax,de              ;5ada  c4
     addw ax,#0x9374         ;5adb  ca 74 93
     movw cr011,ax           ;5ade  99 12        Store as compare value for CDC TX timer interrupt
-    movw !0xf018,ax         ;5ae0  03 18 f0
+    movw !mem_f018,ax       ;5ae0  03 18 f0
     set1 mem_fe68.2         ;5ae3  2a 68        CDC TX bit = 1
     br !lab_5ba0_pop_reti   ;5ae5  9b a0 5b     Branch to pop registers and reti
 
 lab_5ae8:
     movw ax,#0x0608         ;5ae8  10 08 06
-    movw !0xf010,ax         ;5aeb  03 10 f0
+    movw !mem_f010,ax       ;5aeb  03 10 f0
     movw ax,de              ;5aee  c4
     addw ax,#0x49ba         ;5aef  ca ba 49
     movw cr011,ax           ;5af2  99 12        Store as compare value for CDC TX timer interrupt
-    movw !0xf018,ax         ;5af4  03 18 f0
+    movw !mem_f018,ax       ;5af4  03 18 f0
     clr1 mem_fe68.2         ;5af7  2b 68        CDC TX bit = 0
     br !lab_5ba0_pop_reti   ;5af9  9b a0 5b     Branch to pop registers and reti
 
@@ -17673,7 +17686,7 @@ lab_5b04:
     cmp a,#0x00             ;5b04  4d 00
     bz lab_5b0f             ;5b06  ad 07
     xch a,x                 ;5b08  30
-    movw !0xf010,ax         ;5b09  03 10 f0
+    movw !mem_f010,ax       ;5b09  03 10 f0
     br !lab_5ba0_pop_reti   ;5b0c  9b a0 5b     Branch to pop registers and reti
 
 lab_5b0f:
@@ -17683,11 +17696,11 @@ lab_5b0f:
     clr1 mem_fe68.2         ;5b19  2b 68        CDC TX bit = 0
 
 lab_5b1b:
-    movw !0xf010,ax         ;5b1b  03 10 f0
+    movw !mem_f010,ax       ;5b1b  03 10 f0
     movw ax,de              ;5b1e  c4
     addw ax,#0x312c         ;5b1f  ca 2c 31
     movw cr011,ax           ;5b22  99 12        Store as compare value for CDC TX timer interrupt
-    movw !0xf018,ax         ;5b24  03 18 f0
+    movw !mem_f018,ax       ;5b24  03 18 f0
     br !lab_5ba0_pop_reti   ;5b27  9b a0 5b     Branch to pop registers and reti
 
 lab_5b2a:
@@ -17701,15 +17714,15 @@ lab_5b2a:
     mov a,[hl+b]            ;5b39  ab
     xor a,#0xff             ;5b3a  7d ff
     xch a,x                 ;5b3c  30
-    movw !0xf012,ax         ;5b3d  03 12 f0
+    movw !mem_f012,ax       ;5b3d  03 12 f0
     movw ax,#0xca34         ;5b40  10 34 ca
-    movw !0xf014,ax         ;5b43  03 14 f0
+    movw !mem_f014,ax       ;5b43  03 14 f0
     movw ax,#0x0102         ;5b46  10 02 01
-    movw !0xf010,ax         ;5b49  03 10 f0
+    movw !mem_f010,ax       ;5b49  03 10 f0
     movw ax,tm01            ;5b4c  89 14
     addw ax,#0x0937         ;5b4e  ca 37 09
     movw cr011,ax           ;5b51  99 12        Store as compare value for CDC TX timer interrupt
-    movw !0xf018,ax         ;5b53  03 18 f0
+    movw !mem_f018,ax       ;5b53  03 18 f0
     clr1 mem_fe68.2         ;5b56  2b 68        CDC TX bit = 0
     br lab_5ba0_pop_reti    ;5b58  fa 46        Branch to pop registers and reti
 
@@ -17734,7 +17747,7 @@ inttm011_5b60:
 
     movw ax,tm01            ;5b6d  89 14
     movw de,ax              ;5b6f  d4
-    movw ax,!0xf010         ;5b70  02 10 f0
+    movw ax,!mem_f010       ;5b70  02 10 f0
     dec x                   ;5b73  50
     cmp a,#0x01             ;5b74  4d 01
     bc lab_5b2a             ;5b76  8d b2
@@ -17776,21 +17789,21 @@ lab_5ba4:
     cmp a,#0x00             ;5ba5  4d 00
     bz lab_5bbb             ;5ba7  ad 12
     xch a,x                 ;5ba9  30
-    movw !0xf010,ax         ;5baa  03 10 f0
+    movw !mem_f010,ax       ;5baa  03 10 f0
     movw ax,de              ;5bad  c4
     addw ax,#0x9374         ;5bae  ca 74 93
     movw cr011,ax           ;5bb1  99 12
-    movw !0xf018,ax         ;5bb3  03 18 f0
+    movw !mem_f018,ax       ;5bb3  03 18 f0
     set1 mem_fe68.2         ;5bb6  2a 68        CDC TX bit = 1
     br !lab_5ba0_pop_reti   ;5bb8  9b a0 5b     Branch to pop registers and reti
 
 lab_5bbb:
     movw ax,#0x0220         ;5bbb  10 20 02
-    movw !0xf010,ax         ;5bbe  03 10 f0
+    movw !mem_f010,ax       ;5bbe  03 10 f0
     movw ax,de              ;5bc1  c4
     addw ax,#0x49ba         ;5bc2  ca ba 49
     movw cr011,ax           ;5bc5  99 12
-    movw !0xf018,ax         ;5bc7  03 18 f0
+    movw !mem_f018,ax       ;5bc7  03 18 f0
     clr1 mem_fe68.2         ;5bca  2b 68        CDC TX bit = 0
     br !lab_5ba0_pop_reti   ;5bcc  9b a0 5b     Branch to pop registers and reti
 
@@ -17803,13 +17816,13 @@ lab_5bcf:
     movw ax,#0x0320         ;5bd8  10 20 03
 
 lab_5bdb:
-    movw !0xf010,ax         ;5bdb  03 10 f0
-    movw ax,!0xf014         ;5bde  02 14 f0
+    movw !mem_f010,ax       ;5bdb  03 10 f0
+    movw ax,!mem_f014       ;5bde  02 14 f0
     xch a,x                 ;5be1  30
     rorc a,1                ;5be2  25
     xch a,x                 ;5be3  30
     rorc a,1                ;5be4  25
-    movw !0xf014,ax         ;5be5  03 14 f0
+    movw !mem_f014,ax       ;5be5  03 14 f0
 
 lab_5be8:
     clr1 mem_fe68.2         ;5be8  2b 68        CDC TX bit = 0
@@ -17817,23 +17830,23 @@ lab_5be8:
     movw ax,de              ;5bec  c4
     addw ax,#0x0937         ;5bed  ca 37 09
     movw cr011,ax           ;5bf0  99 12
-    movw !0xf018,ax         ;5bf2  03 18 f0
+    movw !mem_f018,ax       ;5bf2  03 18 f0
     br !lab_5ba0_pop_reti   ;5bf5  9b a0 5b     Branch to pop registers and reti
 
 lab_5bf8:
     movw ax,de              ;5bf8  c4
     addw ax,#0x1ba5         ;5bf9  ca a5 1b
     movw cr011,ax           ;5bfc  99 12
-    movw !0xf018,ax         ;5bfe  03 18 f0
+    movw !mem_f018,ax       ;5bfe  03 18 f0
     br !lab_5ba0_pop_reti   ;5c01  9b a0 5b     Branch to pop registers and reti
 
 lab_5c04:
     xch a,x                 ;5c04  30
-    movw !0xf010,ax         ;5c05  03 10 f0
+    movw !mem_f010,ax       ;5c05  03 10 f0
     movw ax,de              ;5c08  c4
     addw ax,#0x0937         ;5c09  ca 37 09
     movw cr011,ax           ;5c0c  99 12
-    movw !0xf018,ax         ;5c0e  03 18 f0
+    movw !mem_f018,ax       ;5c0e  03 18 f0
     set1 mem_fe68.2         ;5c11  2a 68        CDC TX bit = 1
     br !lab_5ba0_pop_reti   ;5c13  9b a0 5b     Branch to pop registers and reti
 
@@ -17846,13 +17859,13 @@ lab_5c16:
     movw ax,#0x0404         ;5c1f  10 04 04
 
 lab_5c22:
-    movw !0xf010,ax         ;5c22  03 10 f0
-    movw ax,!0xf012         ;5c25  02 12 f0
+    movw !mem_f010,ax       ;5c22  03 10 f0
+    movw ax,!mem_f012       ;5c25  02 12 f0
     xch a,x                 ;5c28  30
     rorc a,1                ;5c29  25
     xch a,x                 ;5c2a  30
     rorc a,1                ;5c2b  25
-    movw !0xf012,ax         ;5c2c  03 12 f0
+    movw !mem_f012,ax       ;5c2c  03 12 f0
     br lab_5be8             ;5c2f  fa b7
 
 lab_5c31:
@@ -17862,7 +17875,7 @@ lab_5c31:
     cmp a,#0x00             ;5c36  4d 00
     bz lab_5c41             ;5c38  ad 07
     xch a,x                 ;5c3a  30
-    movw !0xf010,ax         ;5c3b  03 10 f0
+    movw !mem_f010,ax       ;5c3b  03 10 f0
     br !lab_5ba0_pop_reti   ;5c3e  9b a0 5b     Branch to pop registers and reti
 
 lab_5c41:
@@ -17873,7 +17886,7 @@ lab_5c41:
 
 lab_5c4d:
     movw ax,#0x0000         ;5c4d  10 00 00
-    movw !0xf010,ax         ;5c50  03 10 f0
+    movw !mem_f010,ax       ;5c50  03 10 f0
     set1 mem_fe68.2         ;5c53  2a 68        CDC TX bit = 1
     br !lab_5ba0_pop_reti   ;5c55  9b a0 5b     Branch to pop registers and reti
 
@@ -17881,7 +17894,7 @@ lab_5c58:
     movw ax,de              ;5c58  c4
     addw ax,#0xa9fd         ;5c59  ca fd a9
     movw cr011,ax           ;5c5c  99 12
-    movw !0xf018,ax         ;5c5e  03 18 f0
+    movw !mem_f018,ax       ;5c5e  03 18 f0
     br !lab_5ba0_pop_reti   ;5c61  9b a0 5b     Branch to pop registers and reti
 
 sub_5c64:
@@ -19026,7 +19039,7 @@ eeprom_unguarded_write:
     sub a,b                 ;62b6  61 1b
     xch a,x                 ;62b8  30
     subc a,#0x00            ;62b9  3d 00
-    movw !0xf01e,ax         ;62bb  03 1e f0
+    movw !mem_f01e,ax       ;62bb  03 1e f0
     mov a,!mem_fc10         ;62be  8e 10 fc
     sub a,b                 ;62c1  61 1b
     mov !mem_fc10,a         ;62c3  9e 10 fc
@@ -19147,7 +19160,7 @@ lab_634a:
     bz lab_6363             ;6353  ad 0e
     movw ax,!mem_f01c       ;6355  02 1c f0
     movw de,ax              ;6358  d4
-    movw ax,!0xf01e         ;6359  02 1e f0
+    movw ax,!mem_f01e       ;6359  02 1e f0
     movw hl,ax              ;635c  d6
     mov a,!mem_fc11         ;635d  8e 11 fc
     call !eeprom_unguarded_write ;6360  9a 93 62     Write A bytes to EEPROM address DE from [HL]
@@ -28094,7 +28107,7 @@ lab_9d72:
 lab_9d80:
     callf !table_get_word   ;9d80  4c 48        Load DE with word at position B in table [HL]
     movw ax,de              ;9d82  c4
-    movw !0xf022,ax         ;9d83  03 22 f0
+    movw !mem_f022,ax       ;9d83  03 22 f0
     pop bc                  ;9d86  b2
     push bc                 ;9d87  b3
     movw hl,#mem_c7b0+1     ;9d88  16 b1 c7
@@ -28110,7 +28123,7 @@ lab_9d92:
 lab_9da0:
     callf !table_get_word   ;9da0  4c 48        Load DE with word at position B in table [HL]
     movw ax,de              ;9da2  c4
-    movw !0xf024,ax         ;9da3  03 24 f0
+    movw !mem_f024,ax       ;9da3  03 24 f0
     pop bc                  ;9da6  b2
     push bc                 ;9da7  b3
     movw hl,#mem_c72f+1     ;9da8  16 30 c7
@@ -28120,7 +28133,7 @@ lab_9da0:
 lab_9db2:
     callf !table_get_word   ;9db2  4c 48        Load DE with word at position B in table [HL]
     movw ax,de              ;9db4  c4
-    movw !0xf02a,ax         ;9db5  03 2a f0
+    movw !mem_f02a,ax       ;9db5  03 2a f0
     pop bc                  ;9db8  b2
     bt mem_fe74.6,lab_9dc3  ;9db9  ec 74 07
     movw hl,#mem_c75a+1     ;9dbc  16 5b c7
@@ -28133,9 +28146,9 @@ lab_9dc3:
 
 lab_9dc8:
     movw ax,de              ;9dc8  c4
-    movw !0xf026,ax         ;9dc9  03 26 f0
+    movw !mem_f026,ax       ;9dc9  03 26 f0
     movw ax,#0x0000         ;9dcc  10 00 00
-    movw !0xf028,ax         ;9dcf  03 28 f0
+    movw !mem_f028,ax       ;9dcf  03 28 f0
     ret                     ;9dd2  af
 
 sub_9dd3:
@@ -28166,10 +28179,10 @@ lab_9dfa:
 lab_9dff:
     movw ax,de              ;9dff  c4
     call !sub_9e36          ;9e00  9a 36 9e
-    movw !0xf02e,ax         ;9e03  03 2e f0
+    movw !mem_f02e,ax       ;9e03  03 2e f0
     movw ax,#0x2000         ;9e06  10 00 20
     call !sub_9e36          ;9e09  9a 36 9e
-    movw !0xf02c,ax         ;9e0c  03 2c f0
+    movw !mem_f02c,ax       ;9e0c  03 2c f0
     br lab_9e35             ;9e0f  fa 24
 
 lab_9e11:
@@ -28188,10 +28201,10 @@ lab_9e20:
 lab_9e25:
     movw ax,de              ;9e25  c4
     call !sub_9e36          ;9e26  9a 36 9e
-    movw !0xf02c,ax         ;9e29  03 2c f0
+    movw !mem_f02c,ax       ;9e29  03 2c f0
     movw ax,#0x2000         ;9e2c  10 00 20
     call !sub_9e36          ;9e2f  9a 36 9e
-    movw !0xf02e,ax         ;9e32  03 2e f0
+    movw !mem_f02e,ax       ;9e32  03 2e f0
 
 lab_9e35:
     ret                     ;9e35  af
