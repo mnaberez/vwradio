@@ -90,7 +90,7 @@ mem_f191 = 0xf191
 mem_f192 = 0xf192
 mem_f193 = 0xf193
 mem_f194 = 0xf194
-mem_f197 = 0xf197
+mfsw_key = 0xf197           ;MFSW key code received (0xFF = no key)
 mem_f198 = 0xf198
 mem_f199 = 0xf199
 mem_f19a = 0xf19a
@@ -1773,21 +1773,23 @@ lab_0908:
     inc b                   ;090e  43
     mov a,b                 ;090f  63
     cmp a,#0x08             ;0910  4d 08
-    bnz lab_0925            ;0912  bd 11
+    bnz lab_0925_more       ;0912  bd 11
+
+    ;Complete CDC packet received
     mov b,#0x07             ;0914  a3 07
     movw hl,#cdc_isr_rx_buf+1 ;0916  16 34 f0
     movw de,#cdc_rx_buf     ;0919  14 6e fc
-
-lab_091c:
+lab_091c_loop:
     mov a,[hl]              ;091c  87
     mov [de],a              ;091d  95
     incw hl                 ;091e  86
     incw de                 ;091f  84
-    dbnz b,lab_091c         ;0920  8b fa
-    set1 mem_fe5f.2         ;0922  2a 5f
+    dbnz b,lab_091c_loop    ;0920  8b fa
+
+    set1 mem_fe5f.2         ;0922  2a 5f        ;Set bit = CDC packet available
     mov a,b                 ;0924  63
 
-lab_0925:
+lab_0925_more:
     mov !cdc_isr_rx_idx,a   ;0925  9e 32 f0
     mov a,#0x04             ;0928  a1 04
     mov !mem_fb0a,a         ;092a  9e 0a fb
@@ -2247,7 +2249,7 @@ sub_0b02:
 lab_0b0c:
     ret                     ;0b0c  af
 
-sub_0b0d:
+table_find_byte:
 ;Find A in table [HL] and load its position in B
 ;
 ;Called with:
@@ -3253,7 +3255,7 @@ lab_0f1b:
     set1 mk0h.4             ;0f71  71 4a e5     Set CSIMK30 (disables INTCSI30)
 
     call !sio31_disable     ;0f74  9a df 08     Disable SIO31 (used for CDC RX SPI)
-    clr1 mem_fe5f.2         ;0f77  2b 5f
+    clr1 mem_fe5f.2         ;0f77  2b 5f        Clear bit = no CDC packet available
     mov a,#0x00             ;0f79  a1 00
     mov !cdc_isr_rx_idx,a   ;0f7b  9e 32 f0
     clr1 if0h.5             ;0f7e  71 5b e1     Clear CSIIF31 (CSIIF31 interrupt flag)
@@ -3778,7 +3780,7 @@ lab_1309:
 
 lab_1312:
     mov a,#0xff             ;1312  a1 ff
-    mov !mem_f197,a         ;1314  9e 97 f1
+    mov !mfsw_key,a         ;1314  9e 97 f1   MFSW key code received = 0xFF (no key)
     mov a,!mem_fc26         ;1317  8e 26 fc
     clr1 a.7                ;131a  61 fb
     br lab_133e             ;131c  fa 20
@@ -3791,14 +3793,19 @@ lab_131e:
 lab_1326:
     clr1 mem_fe67.6         ;1326  6b 67
     clr1 mem_fe67.5         ;1328  5b 67
-    mov a,!mem_f197         ;132a  8e 97 f1
-    movw hl,#mem_b3ac+1     ;132d  16 ad b3
-    call !sub_0b0d          ;1330  9a 0d 0b   Find A in table [HL] and return its position in B
+
+    mov a,!mfsw_key         ;132a  8e 97 f1   A = MFSW key code received
+    movw hl,#mfsw_codes+1   ;132d  16 ad b3   HL = table of supported MFSW key codes
+    call !table_find_byte   ;1330  9a 0d 0b   Find A in table [HL] and return its position in B
     bnc lab_12f8            ;1333  9d c3      Branch if find failed
 
-    movw hl,#mem_b3b1+1     ;1335  16 b2 b3
+    ;MFSW key code received was found in table
+
+    movw hl,#mfsw_equivs+1  ;1335  16 b2 b3
     callf !table_get_byte   ;1338  4c 7d      Load A with byte at position B in table [HL]
     bc lab_12f8             ;133a  8d bc      Branch if lookup failed
+
+    ;An corresponding value was found in mfsw_equivs
 
     set1 a.7                ;133c  61 fa
 
@@ -7399,7 +7406,7 @@ read_next_meas:
 lab_2849_not_0x19_0x06:
 ;Group is not 0x19 or 0x06
     movw hl,#group_numbers+1        ;2849  16 8e af     HL = pointer to table of valid group numbers
-    call !sub_0b0d                  ;284c  9a 0d 0b     Find A in table [HL] and load its position in B
+    call !table_find_byte           ;284c  9a 0d 0b     Find A in table [HL] and load its position in B
     bnc lab_2858_failed             ;284f  9d 07        Branch if find failed
 
     movw hl,#group_data_pointers+1  ;2851  16 97 af     HL = pointer to table of group data pointers
@@ -7506,12 +7513,16 @@ lab_287a:
     pop ax                  ;28a5  b0           Pop so that: A = type, X = value a, E = value b
     xch a,e                 ;28a6  34           Swap so that: A = value b, X = value a, E = type
     movw hl,ax              ;28a7  d6
-    mov a,!mem_f197         ;28a8  8e 97 f1
+
+    mov a,!mfsw_key         ;28a8  8e 97 f1     A = key code from MFSW (0xFF = no key)
     cmp a,#0xff             ;28ab  4d ff
-    bz lab_28b7             ;28ad  ad 08
+    bz lab_28b7             ;28ad  ad 08        Branch if no key was pressed
+
+    ;MFSW key was pressed
     mov !kwp_meas_f051,a    ;28af  9e 51 f0
     mov a,#0x1e             ;28b2  a1 1e
     mov !mem_fb23,a         ;28b4  9e 23 fb
+
 lab_28b7:
     mov a,!mem_fb23         ;28b7  8e 23 fb
     cmp a,#0x00             ;28ba  4d 00
@@ -17413,6 +17424,7 @@ lab_5940_reti:
 lab_5941:
     br !lab_59fd            ;5941  9b fd 59
 
+;MFSW receive
 lab_5944:
     cmpw ax,#0x3126         ;5944  ea 26 31
     bnc lab_5941            ;5947  9d f8
@@ -17428,7 +17440,7 @@ lab_5944:
     movw !mem_f00c,ax       ;5959  03 0c f0
     cmp mem_fe34,#0x12      ;595c  c8 34 12
     bnz lab_5969            ;595f  bd 08
-    cmpw ax,#0x8217         ;5961  ea 17 82
+    cmpw ax,#0x8217         ;5961  ea 17 82     0x82 0x17 are first two bytes of MFSW packet
     bz lab_596e             ;5964  ad 08
     br !lab_59fd            ;5966  9b fd 59
 
@@ -17440,15 +17452,16 @@ lab_596e:
     inc mem_fe34            ;596e  81 34
     mov a,#0x05             ;5970  a1 05
     mov !mem_fb05,a         ;5972  9e 05 fb
-    br !lab_5a0e_pop_reti   ;5975  9b 0e 5a     Branch to pop registers and reti
+    br !lab_5a0e_pop_reti   ;5975  9b 0e 5a   Branch to pop registers and reti
 
 lab_5978:
     xch a,x                 ;5978  30
     xor a,#0xff             ;5979  7d ff
-    cmp a,x                 ;597b  61 48
-    bnz lab_59fd            ;597d  bd 7e
+    cmp a,x                 ;597b  61 48      Check MFSW checksum byte
+    bnz lab_59fd            ;597d  bd 7e      Branch if not good
+    ;MFSW checksum good? (guess)
     xch a,x                 ;597f  30
-    mov !mem_f197,a         ;5980  9e 97 f1
+    mov !mfsw_key,a         ;5980  9e 97 f1   Save as MFSW key code received
     set1 mem_fe67.4         ;5983  4a 67
     set1 mem_fe67.5         ;5985  5a 67
     clr1 mem_fe67.7         ;5987  7b 67
@@ -18827,7 +18840,7 @@ sub_61e7:
     movw ax,de              ;61fd  c4
     movw hl,ax              ;61fe  d6
     mov a,!freq_idx         ;61ff  8e 56 fb
-    call !sub_0b0d          ;6202  9a 0d 0b     Find A in table [HL] and load its position in B
+    call !table_find_byte   ;6202  9a 0d 0b     Find A in table [HL] and load its position in B
     bnc lab_6209            ;6205  9d 02        Branch if find failed
 
     set1 mem_fe69.7         ;6207  7a 69
@@ -31377,7 +31390,7 @@ mem_af75_patterns:
 group_numbers:
 ;group reading related
 ;valid group numbers
-;used with sub_0b0d
+;used with table_find_byte
     .byte 0x08              ;af8d  08          DATA 0x08    8 entries below:
     .byte 0x01              ;af8e  01          DATA 0x01    Group 1 (General)
     .byte 0x02              ;af8f  02          DATA 0x02    Group 2 (Speakers)
@@ -32344,21 +32357,25 @@ key_mask:
 ;remove unused key bits.  Byte 0 is not used by the faceplate.
     .byte 0x00, 0xFF, 0xFF, 0xFF
 
-mem_b3ac:
-;table used with sub_0b0d
+mfsw_codes:
+;MFSW key codes supported by the radio
+;table used with table_find_byte
+;value comes from mfsw_key
     .byte 0x04              ;b3ac  04          DATA 0x04        4 entries below:
-    .byte 0x00              ;b3ad  00          DATA 0x00
-    .byte 0x01              ;b3ae  01          DATA 0x01
-    .byte 0x0a              ;b3af  0a          DATA 0x0a
-    .byte 0x0b              ;b3b0  0b          DATA 0x0b
+    .byte 0x00  ;MFSW Key Code: Volume Down
+    .byte 0x01  ;MFSW Key Code: Volume Up
+    .byte 0x0a  ;MFSW Key Code: Up
+    .byte 0x0b  ;MFSW Key Code: Down
 
-mem_b3b1:
+mfsw_equivs:
 ;table used with table_get_byte
+;indexed by a value from mfsw_codes table above
+;value | 0x80 is stored in mem_fc26
     .byte 0x04              ;b3b1  04          DATA 0x04        4 entries below:
-    .byte 0x1f              ;b3b2  1f          DATA 0x1f
-    .byte 0x1e              ;b3b3  1e          DATA 0x1e
-    .byte 0x21              ;b3b4  21          DATA 0x21 '!'
-    .byte 0x20              ;b3b5  20          DATA 0x20 ' '
+    .byte 0x1f  ;Volume Down
+    .byte 0x1e  ;Volume Up
+    .byte 0x21  ;Up
+    .byte 0x20  ;Down
 
 mem_b3b6:
 ;unknown table
@@ -39567,14 +39584,17 @@ sub_d80f:
 lab_d818:
     ret                     ;d818  af
 
+;Parse complete packet from CDC(?)
 sub_d819:
     mov a,!cdc_rx_buf+6     ;d819  8e 74 fc
     and a,#0x07             ;d81c  5d 07
     cmp a,#0x03             ;d81e  4d 03
     bnz lab_d83b            ;d820  bd 19
+
     mov a,!cdc_rx_buf+6     ;d822  8e 74 fc
     cmp mem_fe30,#0x03      ;d825  c8 30 03
     bz lab_d82e             ;d828  ad 04
+
     clr1 mem_fe46.4         ;d82a  4b 46
     br lab_d833             ;d82c  fa 05
 
@@ -39595,6 +39615,7 @@ lab_d83e:
     and a,#0x0f             ;d83f  5d 0f
     cmp a,#0x0d             ;d841  4d 0d
     bnc lab_d864            ;d843  9d 1f
+
     movw hl,#mem_fc48       ;d845  16 48 fc
     mov b,a                 ;d848  73
     mov a,[hl+b]            ;d849  ab
@@ -39902,15 +39923,20 @@ sub_d9e3:
     ret                     ;d9eb  af
 
 sub_d9ec:
-    bf mem_fe5f.2,lab_da0a  ;d9ec  31 23 5f 1a
-    clr1 mem_fe5f.2         ;d9f0  2b 5f
+    bf mem_fe5f.2,lab_da0a  ;d9ec  31 23 5f 1a  Branch if no CDC packet available
+
+    ;CDC packet is available
+    clr1 mem_fe5f.2         ;d9f0  2b 5f        Clear bit = no CDC packet available
+
     mov a,!mem_fca2         ;d9f2  8e a2 fc     A = P91/ANI10 analog reading
     cmp a,#0x62             ;d9f5  4d 62
     bc lab_da03             ;d9f7  8d 0a
+
     mov a,!mem_fb3b         ;d9f9  8e 3b fb
     cmp a,#0x00             ;d9fc  4d 00
     bnz lab_da03            ;d9fe  bd 03
-    call !sub_d819          ;da00  9a 19 d8
+
+    call !sub_d819          ;da00  9a 19 d8     Parse complete packet from CDC(?)
 
 lab_da03:
     mov a,#0x0f             ;da03  a1 0f
