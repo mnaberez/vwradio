@@ -30,6 +30,7 @@ mem_f00e = 0xf00e
 mem_f00f = 0xf00f
 mem_f016 = 0xf016
 mem_f01a = 0xf01a           ;EEPROM address for I2C read or write EEPROM (2 bytes)
+mem_f01c = 0xf01c
 mem_f020 = 0xf020
 mem_f021 = 0xf021
 mem_f022 = 0xf022
@@ -426,11 +427,11 @@ i2c_buf  = 0xfbdb           ;I2C buffer (18 bytes?)
 mem_fbfc = 0xfbfc
 mem_fbfd = 0xfbfd
 mem_fbfe = 0xfbfe
-mem_fbff = 0xfbff           ;I2C attempt counter used in sub_6293 (write EEPROM) and elsewhere
+mem_fbff = 0xfbff           ;I2C attempt counter used in eeprom_unguarded_write and elsewhere
 i2c_tmp_buf = 0xfc00        ;I2C temporary buffer (16 bytes) used during EEPROM write
 mem_fc10 = 0xfc10
 mem_fc11 = 0xfc11
-mem_fc12 = 0xfc12           ;I2C attempt counter used in sub_623d (read EEPROM)
+mem_fc12 = 0xfc12           ;I2C attempt counter used in eeprom_unguarded_read (read EEPROM)
 mem_fc14 = 0xfc14
 mem_fc16 = 0xfc16
 mem_fc17 = 0xfc17
@@ -1800,12 +1801,12 @@ sub_093c:
     add a,mem_fe2d          ;093e  0e 2d
     add a,mem_fe2f          ;0940  0e 2f
     mov b,#0x0b             ;0942  a3 0b
-lab_0944:
+lab_0944_loop:
     movw hl,#mem_fb85       ;0944  16 85 fb
     add a,[hl+b]            ;0947  31 0b
     movw hl,#mem_fb7a       ;0949  16 7a fb
     add a,[hl+b]            ;094c  31 0b
-    dbnz b,lab_0944         ;094e  8b f4
+    dbnz b,lab_0944_loop    ;094e  8b f4
     cmp a,mem_fe2e          ;0950  4e 2e
     mov mem_fe2e,a          ;0952  f2 2e
     ret                     ;0954  af
@@ -2026,7 +2027,7 @@ sub_0a37:
 
 lab_0a3e_loop:
     mov a,#0x01             ;0a3e  a1 01        A = 1 byte to read from EEPROM this time
-    call !sub_6238          ;0a40  9a 38 62     Read A bytes from EEPROM address HL into [DE]
+    call !eeprom_read       ;0a40  9a 38 62     Read A bytes from EEPROM address HL into [DE]
     bnc lab_0a59_ret        ;0a43  9d 14        Branch if EEPROM read failed.  This will
                             ;                     return carry clear (failure).
 
@@ -4002,7 +4003,7 @@ lab_14bc:
 
 lab_14c2:
     callf !sub_093c         ;14c2  1c 3c
-    bz lab_14c9             ;14c4  ad 03
+    bz lab_14c9             ;14c4  ad 03        Branch if check failed
     br !cold_or_warm_start  ;14c6  9b cf 0d
 
 lab_14c9:
@@ -6859,7 +6860,7 @@ read_ee_safe:
     movw hl,#0x0014         ;2607  16 14 00     HL = EEPROM address 0x0014 (SAFE code)
     movw de,#mem_fed6       ;260a  14 d6 fe     DE = destination buffer
     mov a,#0x02             ;260d  a1 02        A = 2 bytes to read into buffer
-    call !sub_6238          ;260f  9a 38 62     Read A bytes from EEPROM address HL into [DE]
+    call !eeprom_read       ;260f  9a 38 62     Read A bytes from EEPROM address HL into [DE]
     bc lab_2616             ;2612  8d 02        Branch if EEPROM read succeeded
     set1 mem_fe5e.3         ;2614  3a 5e
 lab_2616:
@@ -7863,9 +7864,9 @@ lab_2a10:
     call !sub_2df8          ;2a5b  9a f8 2d     Word [HL] = Word [HL] - BC + DE
 
 lab_2a5e:
-    call !sub_6217          ;2a5e  9a 17 62     Unknown; EEPROM related
-    bc lab_2a65             ;2a61  8d 02        Branch if success
-    br lab_2a5e             ;2a63  fa f9        Repeat until success
+    call !eeprom_guard      ;2a5e  9a 17 62     Check if EEPROM is available for use(?)
+    bc lab_2a65             ;2a61  8d 02        Branch if available
+    br lab_2a5e             ;2a63  fa f9        Repeat until available
 
 lab_2a65:
     ;Read 9 bytes from EEPROM at 0x0058 into mem_fed6
@@ -7873,7 +7874,7 @@ lab_2a65:
     movw hl,#0x0058         ;2a65  16 58 00     HL = EEPROM address 0x0058
     movw de,#mem_fed6       ;2a68  14 d6 fe     DE = pointer to buffer to receive EEPROM contents
     mov a,#0x09             ;2a6b  a1 09        A = 9 bytes to read from EEPROM
-    call !sub_6238          ;2a6d  9a 38 62     Read A bytes from EEPROM address HL into [DE]
+    call !eeprom_read       ;2a6d  9a 38 62     Read A bytes from EEPROM address HL into [DE]
     bc lab_2a74_success     ;2a70  8d 02        Branch if EEPROM read succeeded
     br lab_2ab9_ret         ;2a72  fa 45        Branch to just return on failure
 
@@ -7889,7 +7890,7 @@ lab_2a74_success:
     movw hl,#0x0061         ;2a7d  16 61 00     HL = EEPROM address 0x0061
     movw de,#mem_fed6       ;2a80  14 d6 fe     DE = pointer to buffer to receive EEPROM contents
     mov a,#0x02             ;2a83  a1 02        A = 2 bytes to read from EEPROM
-    call !sub_6238          ;2a85  9a 38 62     Read A bytes from EEPROM address HL into [DE]
+    call !eeprom_read       ;2a85  9a 38 62     Read A bytes from EEPROM address HL into [DE]
     bc lab_2a8c_success     ;2a88  8d 02        Branch if EEPROM read succeeded
     br lab_2ab9_ret         ;2a8a  fa 2d        Branch to just return on failure
 
@@ -7902,19 +7903,19 @@ lab_2a8c_success:
 
     movw de,#0x0061         ;2a95  14 61 00     DE = EEPROM address 0x0061
     mov a,#0x02             ;2a98  a1 02        A = 2 bytes to write to EEPROM
-    call !sub_628e          ;2a9a  9a 8e 62     Write A bytes to EEPROM address DE from [HL]
+    call !eeprom_write      ;2a9a  9a 8e 62     Write A bytes to EEPROM address DE from [HL]
     bnc lab_2ab9_ret        ;2a9d  9d 1a        Branch if write failed
     ;Fall through on success
 
 lab_2a9f_loop:
-    call !sub_6217          ;2a9f  9a 17 62     Unknown; EEPROM related
-    bnc lab_2a9f_loop       ;2aa2  9d fb        Repeat until success
+    call !eeprom_guard      ;2a9f  9a 17 62     Check if EEPROM is available for use(?)
+    bnc lab_2a9f_loop       ;2aa2  9d fb        Repeat until available
 
     movw hl,#mem_f1f9       ;2aa4  16 f9 f1     HL = pointer to buffer to write to EEPROM
     ;TODO 9 EEPROM addresses 0x0058-0x0060 are protected in lab_2c60
     movw de,#0x0058         ;2aa7  14 58 00     DE = EEPROM address 0x0058
     mov a,#0x09             ;2aaa  a1 09        A = 9 bytes to write to EEPROM (2 Soft Coding + 2 Workshop Code + 5 more)
-    call !sub_628e          ;2aac  9a 8e 62     Write A bytes to EEPROM address DE from [HL]
+    call !eeprom_write      ;2aac  9a 8e 62     Write A bytes to EEPROM address DE from [HL]
     bnc lab_2ab9_ret        ;2aaf  9d 08        Branch if write failed
 
     movw hl,#mem_f216       ;2ab1  16 16 f2     HL = pointer to faults buffer #2 "01044 - Control Module Incorrectly Coded"
@@ -7969,16 +7970,16 @@ login_56_success:
     call !sub_2df8          ;2af1  9a f8 2d     Word [HL] = Word [HL] - BC + DE
 
 lab_2af4_loop:
-    call !sub_6217          ;2af4  9a 17 62     Unknown; EEPROM related
-    bc lab_2afb_success     ;2af7  8d 02        Branch if success
-    br lab_2af4_loop        ;2af9  fa f9        Repeat until success
+    call !eeprom_guard      ;2af4  9a 17 62     Check if EEPROM is available for use(?)
+    bc lab_2afb_success     ;2af7  8d 02        Branch if available
+    br lab_2af4_loop        ;2af9  fa f9        Repeat until available
 
 lab_2afb_success:
     ;TODO 9 EEPROM addresses 0x0058-0x0060 are protected in lab_2c60
     movw hl,#0x0058         ;2afb  16 58 00     HL = EEPROM address 0x0058
     movw de,#mem_fed6       ;2afe  14 d6 fe     DE = pointer to buffer to receive EEPROM contents
     mov a,#0x09             ;2b01  a1 09        A = 9 bytes to read from EEPROM
-    call !sub_6238          ;2b03  9a 38 62     Read A bytes from EEPROM address HL into [DE]
+    call !eeprom_read       ;2b03  9a 38 62     Read A bytes from EEPROM address HL into [DE]
     bc lab_2b0a_success     ;2b06  8d 02        Branch if EEPROM read succeeded
     br lab_2b45_ret         ;2b08  fa 3b        Branch to just return on failure
 
@@ -7991,7 +7992,7 @@ lab_2b0a_success:
     movw hl,#0x0061         ;2b13  16 61 00     HL = EEPROM address 0x0061
     movw de,#mem_fed6       ;2b16  14 d6 fe     DE = pointer to buffer to receive EEPROM contents
     mov a,#0x02             ;2b19  a1 02        A = 2 bytes to read from EEPROM
-    call !sub_6238          ;2b1b  9a 38 62     Read A bytes from EEPROM address HL into [DE]
+    call !eeprom_read       ;2b1b  9a 38 62     Read A bytes from EEPROM address HL into [DE]
 
     bc lab_2b22_success     ;2b1e  8d 02        Branch if EEPROM read succeeded
     br lab_2b45_ret         ;2b20  fa 23        Branch to just return on failure
@@ -8003,13 +8004,13 @@ lab_2b22_success:
     call !sub_2df8          ;2b28  9a f8 2d     Word [HL] = Word [HL] - BC + DE
     movw de,#0x0061         ;2b2b  14 61 00     DE = EEPROM address 0x0061
     mov a,#0x02             ;2b2e  a1 02        A = 2 bytes to write to EEPROM
-    call !sub_628e          ;2b30  9a 8e 62     Write A bytes to EEPROM address DE from [HL]
+    call !eeprom_write      ;2b30  9a 8e 62     Write A bytes to EEPROM address DE from [HL]
     bnc lab_2b45_ret        ;2b33  9d 10        Branch to just return if write failed
     ;Fall through to success
 
 lab_2b35_success:
-    call !sub_6217          ;2b35  9a 17 62     Unknown; EEPROM related
-    bnc lab_2b35_success    ;2b38  9d fb        Repeat until success
+    call !eeprom_guard      ;2b35  9a 17 62     Check if EEPROM is available for use(?)
+    bnc lab_2b35_success    ;2b38  9d fb        Repeat until available
 
     movw hl,#mem_f1fa       ;2b3a  16 fa f1     HL = pointer to buffer to write to EEPROM
                             ;                        (Soft coding in binary, low byte)
@@ -8018,7 +8019,7 @@ lab_2b35_success:
                             ;                         0x0059 = mem_f1fa Soft coding in binary, low byte
                             ;                         0x005a = mem_f1fb Workshop code, high byte
                             ;                         0x005c = mem_f1fc Workshop code, low byte
-    call !sub_628e          ;2b42  9a 8e 62     Write A bytes to EEPROM address DE from [HL]
+    call !eeprom_write      ;2b42  9a 8e 62     Write A bytes to EEPROM address DE from [HL]
 
 lab_2b45_ret:
     ret                     ;2b45  af
@@ -8122,7 +8123,7 @@ read_ee_sanitized:
     movw hl,ax              ;2b71  d6
     mov a,c                 ;2b72  62
     movw de,#kwp_tmp_buf    ;2b73  14 3b f0     DE = pointer to buffer to receive EEPROM contents
-    call !sub_6238          ;2b76  9a 38 62     Read A bytes from EEPROM address HL into [DE]
+    call !eeprom_read       ;2b76  9a 38 62     Read A bytes from EEPROM address HL into [DE]
     pop ax                  ;2b79  b0
     bnc lab_2bb6_failed     ;2b7a  9d 3a        Branch if EEPROM read failed
     push bc                 ;2b7c  b3
@@ -8314,8 +8315,8 @@ sub_2c33:
 ;Perform EEPROM write from KWP1281 request
 ;Called from lab_4f47, lab_50ec (Write EEPROM related)
 ;Returns carry clear = success, carry set = failure
-    call !sub_6217          ;2c33  9a 17 62     Unknown; EEPROM related
-    bnc sub_2c33            ;2c36  9d fb        Repeat until success
+    call !eeprom_guard      ;2c33  9a 17 62     Check if EEPROM is available for use(?)
+    bnc sub_2c33            ;2c36  9d fb        Repeat until available
 
     call !sub_2d35          ;2c38  9a 35 2d     Clear bits in mem_fe5f and mem_fe60
 
@@ -8368,7 +8369,7 @@ lab_2c6c_write:
 ;Perform EEPROM write
     movw hl,#kwp_rx_buf+6   ;2c6c  16 90 f0     HL = pointer to KWP1281 rx buffer bytes 6+
     mov a,!kwp_rw_total     ;2c6f  8e 4c f0     A = number of bytes to write to EEPROM in total
-    call !sub_628e          ;2c72  9a 8e 62     Write A bytes to EEPROM address DE from [HL]
+    call !eeprom_write      ;2c72  9a 8e 62     Write A bytes to EEPROM address DE from [HL]
     bnc lab_2c7b_failed     ;2c75  9d 04        Branch if write failed
 
     ;write succeeded
@@ -8536,7 +8537,7 @@ sub_2cdf:
 ;
 ;Preserves BC and DE.
 ;
-;See also sub_6364 for another EEPROM range check.
+;See also eeprom_check_range for another EEPROM range check.
 ;
     callf !add_ax_to_hl     ;2cdf  5c 60      HL = HL + AX, preserves AX
                             ;                 HL now contains end address of region + 1
@@ -11874,8 +11875,8 @@ lab_3ee2:
 lab_3efb:
     bf rb0_b.6,lab_3f2f     ;3efb  31 63 fb 30
     clr1 mem_fe63.6         ;3eff  6b 63
-    call !sub_6217          ;3f01  9a 17 62     Unknown; EEPROM related
-    bnc lab_3f2e            ;3f04  9d 28        Branch to just return if failed
+    call !eeprom_guard      ;3f01  9a 17 62     Check if EEPROM is available for use(?)
+    bnc lab_3f2e            ;3f04  9d 28        Branch to just return if not available
 
 lab_3f06:
     mov a,!mem_fb9a         ;3f06  8e 9a fb
@@ -11888,8 +11889,8 @@ lab_3f06:
     bz lab_3f22             ;3f18  ad 08
 
 lab_3f1a:
-    call !sub_6217          ;3f1a  9a 17 62     Unknown; EEPROM related
-    bnc lab_3f1a            ;3f1d  9d fb        Repeat until success
+    call !eeprom_guard      ;3f1a  9a 17 62     Check if EEPROM is available for use(?)
+    bnc lab_3f1a            ;3f1d  9d fb        Repeat until available
 
     br !cold_or_warm_start  ;3f1f  9b cf 0d
 
@@ -11909,8 +11910,8 @@ lab_3f2f:
     mov a,#0x00             ;3f2f  a1 00
     mov !mem_fb9a,a         ;3f31  9e 9a fb
 
-    call !sub_6217          ;3f34  9a 17 62     Unknown; EEPROM related
-    bnc lab_3f2e            ;3f37  9d f5        Branch to just return if unknown check failed
+    call !eeprom_guard      ;3f34  9a 17 62     Check if EEPROM is available for use(?)
+    bnc lab_3f2e            ;3f37  9d f5        Branch to just return if not available
 
     callf !sub_099c         ;3f39  1c 9c
     callf !sub_09e6         ;3f3b  1c e6        HL = #mem_f1b3, DE = #mem_f202, A = DE - HL
@@ -11941,7 +11942,7 @@ lab_3f56:
     movw hl,#0x00c8         ;3f56  16 c8 00     HL = EEPROM address to read
     movw de,#i2c_buf        ;3f59  14 db fb     DE = pointer to buffer to receive EEPROM contents
     mov a,#0x01             ;3f5c  a1 01        A = 1 byte to read from EEPROM
-    call !sub_6238          ;3f5e  9a 38 62     Read A bytes from EEPROM address HL into [DE]
+    call !eeprom_read       ;3f5e  9a 38 62     Read A bytes from EEPROM address HL into [DE]
     bnc lab_3f70_failed     ;3f61  9d 0d        Branch if EEPROM read failed
 
     ;EEPROM read succeeded, i2c_buf = value from EEPROM address 0x00c8
@@ -12017,7 +12018,7 @@ lab_3fcb:
     mov a,mem_fed4          ;3fd3  f0 d4
     push hl                 ;3fd5  b7
     movw de,#i2c_buf        ;3fd6  14 db fb     DE = pointer to buffer to receive EEPROM contents
-    call !sub_6238          ;3fd9  9a 38 62     Read A bytes from EEPROM address HL into [DE]
+    call !eeprom_read       ;3fd9  9a 38 62     Read A bytes from EEPROM address HL into [DE]
     pop de                  ;3fdc  b4
     bnc lab_3ff1            ;3fdd  9d 12        Branch if EEPROM read failed
     mov c,#0x00             ;3fdf  a2 00
@@ -12064,7 +12065,7 @@ lab_3fff:
     mov !i2c_buf+2,a        ;4013  9e dd fb
     mov a,#0x01             ;4016  a1 01        A = 1 byte to write to EERPOM
     movw hl,#i2c_buf+2      ;4018  16 dd fb     HL = pointer to buffer to write to EEPROM
-    call !sub_628e          ;401b  9a 8e 62     Write A bytes to EEPROM address DE from [HL]
+    call !eeprom_write      ;401b  9a 8e 62     Write A bytes to EEPROM address DE from [HL]
     br lab_3ff5             ;401e  fa d5
 
 lab_4020:
@@ -12075,8 +12076,8 @@ lab_4021:
 
 sub_4023:
 ;Returns carry clear = failure, carry set = success
-    call !sub_6217          ;4023  9a 17 62     Unknown; EEPROM related
-    bnc sub_4023            ;4026  9d fb        Repeat until success
+    call !eeprom_guard      ;4023  9a 17 62     Check if EEPROM is available for use(?)
+    bnc sub_4023            ;4026  9d fb        Repeat until available
 
     callf !sub_0a0d         ;4028  2c 0d        A=0x66, mem_fed6=0x66 (0x66 = #mem_f26c_csum_lo - #mem_f206)
 
@@ -12254,7 +12255,7 @@ sub_40df:
 lab_40e9_loop:
     callf !sub_09f8         ;40e9  1c f8
     mov b,a                 ;40eb  73
-    call !sub_6238          ;40ec  9a 38 62     Read A bytes from EEPROM address HL into [DE]
+    call !eeprom_read       ;40ec  9a 38 62     Read A bytes from EEPROM address HL into [DE]
     bnc lab_4104_pop_ret    ;40ef  9d 13        Branch if EEPROM read failed
     cmp mem_fed5,#0x00      ;40f1  c8 d5 00
     bz lab_4103             ;40f4  ad 0d
@@ -12380,14 +12381,14 @@ sub_41bd:
     bz lab_41ec             ;41bf  ad 2b
 
 lab_41c1:
-    call !sub_6217          ;41c1  9a 17 62     Unknown; EEPROM related
-    bnc lab_41c1            ;41c4  9d fb        Repeat until success
+    call !eeprom_guard      ;41c1  9a 17 62     Check if EEPROM is available for use(?)
+    bnc lab_41c1            ;41c4  9d fb        Repeat until available
 
     mov mem_fed5,a          ;41c6  f2 d5
 
 lab_41c8_loop:
     callf !sub_09f8         ;41c8  1c f8
-    call !sub_628e          ;41ca  9a 8e 62     Write A bytes to EEPROM address DE from [HL]
+    call !eeprom_write      ;41ca  9a 8e 62     Write A bytes to EEPROM address DE from [HL]
     bnc lab_41ec            ;41cd  9d 1d        Branch if write failed
 
     cmp mem_fed5,#0x00      ;41cf  c8 d5 00
@@ -12395,8 +12396,8 @@ lab_41c8_loop:
 
 lab_41d4:
     mov wdtm,#wd_run_irq    ;41d4  13 f9 80     (Re-)Start watchdog in interval mode (Maskable INTWDT when watchdog fires)
-    call !sub_6217          ;41d7  9a 17 62     Unknown; EEPROM related
-    bnc lab_41d4            ;41da  9d f8        Repeat until success
+    call !eeprom_guard      ;41d7  9a 17 62     Check if EEPROM is available for use(?)
+    bnc lab_41d4            ;41da  9d f8        Repeat until available
 
     push hl                 ;41dc  b7
     push ax                 ;41dd  b1
@@ -12443,8 +12444,8 @@ lab_41ff:
     br lab_41a1             ;421f  fa 80
 
 lab_4221:
-    call !sub_6217          ;4221  9a 17 62     Unknown; EEPROM related
-    bnc lab_4221            ;4224  9d fb        Repeat until success
+    call !eeprom_guard      ;4221  9a 17 62     Check if EEPROM is available for use(?)
+    bnc lab_4221            ;4224  9d fb        Repeat until available
     ret                     ;4226  af
 
 sub_4227:
@@ -13263,12 +13264,12 @@ sub_46fc:
     bf mem_fe65.0,lab_4724  ;470e  31 03 65 12
 
 lab_4712:
-    call !sub_6217          ;4712  9a 17 62     Unknown; EEPROM related
-    bnc lab_4712            ;4715  9d fb        Repeat until success
+    call !eeprom_guard      ;4712  9a 17 62     Check if EEPROM is available for use(?)
+    bnc lab_4712            ;4715  9d fb        Repeat until available
 
     mov a,#0x04             ;4717  a1 04        A = 4 bytes to read from EEPROM
     movw de,#i2c_buf        ;4719  14 db fb     DE = pointer to buffer to receive EEPROM contents
-    call !sub_6238          ;471c  9a 38 62     Read A bytes from EEPROM address HL into [DE]
+    call !eeprom_read       ;471c  9a 38 62     Read A bytes from EEPROM address HL into [DE]
     bnc lab_4730            ;471f  9d 0f        Branch if EEPROM read failed
 
     movw hl,#i2c_buf        ;4721  16 db fb     HL = source address
@@ -13522,7 +13523,7 @@ sub_4862:
     bf mem_fe65.0,lab_486c  ;4862  31 03 65 06
 
 lab_4866:
-    call !sub_628e          ;4866  9a 8e 62     Write A bytes to EEPROM address DE from [HL]
+    call !eeprom_write      ;4866  9a 8e 62     Write A bytes to EEPROM address DE from [HL]
     bnc lab_4866            ;4869  9d fb        Repeat until success
     ret                     ;486b  af
 
@@ -18827,9 +18828,14 @@ lab_620a:
     mov a,#0x01             ;6212  a1 01
     br !lab_612c            ;6214  9b 2c 61
 
-sub_6217:
-;Unknown; EEPROM related
-;Returns carry set = success, carry clear = failed
+eeprom_guard:
+;Check if EEPROM is available for use(?)
+;Returns carry set = success (available), carry clear = failed (not available)
+;
+;It's not clear what exactly this routine does but many routines
+;call it repeatedly until it returns carry set before accessing
+;the EEPROM.
+;
     push ax                 ;6217  b1
     push bc                 ;6218  b3
     push de                 ;6219  b5
@@ -18858,7 +18864,7 @@ lab_6236:
     clr1 cy                 ;6236  21
     ret                     ;6237  af
 
-sub_6238:
+eeprom_read:
 ;Read A bytes from EEPROM address HL into [DE]
 ;
 ;HL = EEPROM address to read
@@ -18867,11 +18873,11 @@ sub_6238:
 ;
 ;Returns carry set on success, carry clear on failure
 ;
-    call !sub_6217          ;6238  9a 17 62     Unknown; EEPROM related
-    bnc lab_6236            ;623b  9d f9        Branch if failed
+    call !eeprom_guard      ;6238  9a 17 62     Check if EEPROM is available for use(?)
+    bnc lab_6236            ;623b  9d f9        Branch if not available
 
-sub_623d:
-;Read A bytes from EEPROM address HL into [DE] without sub_6217 check
+eeprom_unguarded_read:
+;Read A bytes from EEPROM address HL into [DE] without eeprom_guard check
 ;
 ;HL = EEPROM address to read
 ;DE = buffer to receive EEPROM contents
@@ -18883,7 +18889,7 @@ sub_623d:
     push bc                 ;623e  b3
     push ax                 ;623f  b1
     push de                 ;6240  b5
-    call !sub_6364          ;6241  9a 64 63     Check EEPROM address HL and number of bytes A are valid
+    call !eeprom_check_range;6241  9a 64 63     Check EEPROM address HL and number of bytes A are valid
     bnc lab_628b_failed     ;6244  9d 45        Branch to clear carry, pop regs, and return if invalid
 
     mov a,#0x05             ;6246  a1 05        A = 5 attempts remaining
@@ -18962,7 +18968,7 @@ lab_628b_failed:
     clr1 cy                 ;628b  21
     br lab_6276_pop_ret     ;628c  fa e8        Branch to pop registers and return
 
-sub_628e:
+eeprom_write:
 ;Write A bytes to EEPROM address DE from [HL]
 ;
 ;HL = pointer to buffer to write to EEPROM
@@ -18971,11 +18977,11 @@ sub_628e:
 ;
 ;Returns carry set on success, carry clear on failure
 ;
-    call !sub_6217          ;628e  9a 17 62     Unknown; EEPROM related
-    bnc lab_6236            ;6291  9d a3        Branch if failed
+    call !eeprom_guard      ;628e  9a 17 62     Check if EEPROM is available for use(?)
+    bnc lab_6236            ;6291  9d a3        Branch if not available
 
-sub_6293:
-;Write A bytes to EEPROM address DE from [HL] without sub_6217 check
+eeprom_unguarded_write:
+;Write A bytes to EEPROM address DE from [HL] without eeprom_guard check
 ;
 ;HL = pointer to buffer to write to EEPROM
 ;DE = EEPROM address to write
@@ -18998,7 +19004,7 @@ sub_6293:
     ;  DE = pointer to buffer to write to EEPROM
     ;  A = number of bytes to write
 
-    call !sub_6364          ;629a  9a 64 63     Check EEPROM address HL and number of bytes A are valid
+    call !eeprom_check_range;629a  9a 64 63     Check EEPROM address HL and number of bytes A are valid
     bnc lab_628b_failed     ;629d  9d ec        Branch to clear carry, pop regs, and return if invalid
 
     movw ax,hl              ;629f  c6           AX = EEPROM start address
@@ -19100,9 +19106,9 @@ lab_630d:
     movw de,#i2c_buf        ;631f  14 db fb
     mov a,!mem_fc10         ;6322  8e 10 fc
 
-    call !sub_623d          ;6325  9a 3d 62     Read A bytes from EEPROM address HL into [DE]
-                            ;                     without sub_6217 check
-    bnc lab_6334            ;6328  9d 0a        Branch if EEPROM read failed
+    call !eeprom_unguarded_read ;6325  9a 3d 62     Read A bytes from EEPROM address HL into [DE]
+                                ;                     without eeprom_guard check
+    bnc lab_6334                ;6328  9d 0a        Branch if EEPROM read failed
 
     ;EEPROM read succeeded
 
@@ -19139,18 +19145,18 @@ lab_634a:
     mov a,!mem_fc11         ;634e  8e 11 fc
     cmp a,#0x00             ;6351  4d 00
     bz lab_6363             ;6353  ad 0e
-    movw ax,!0xf01c         ;6355  02 1c f0
+    movw ax,!mem_f01c       ;6355  02 1c f0
     movw de,ax              ;6358  d4
     movw ax,!0xf01e         ;6359  02 1e f0
     movw hl,ax              ;635c  d6
     mov a,!mem_fc11         ;635d  8e 11 fc
-    call !sub_6293          ;6360  9a 93 62     Write A bytes to EEPROM address DE from [HL]
-                            ;                     without sub_6217 check
+    call !eeprom_unguarded_write ;6360  9a 93 62     Write A bytes to EEPROM address DE from [HL]
+                                 ;                     without eeprom_guard check
 
 lab_6363:
     ret                     ;6363  af
 
-sub_6364:
+eeprom_check_range:
 ;Check EEPROM address HL and number of bytes A are valid
 ;
 ;Checks:
@@ -19202,7 +19208,7 @@ sub_637e:
     mov a,!mem_fc10         ;637f  8e 10 fc
     mov b,a                 ;6382  73
     pop ax                  ;6383  b0
-    movw !0xf01c,ax         ;6384  03 1c f0
+    movw !mem_f01c,ax       ;6384  03 1c f0
     mov a,x                 ;6387  60
     and a,#0x0f             ;6388  5d 0f
     add a,b                 ;638a  61 0b
@@ -19210,13 +19216,13 @@ sub_637e:
     and a,#0x0f             ;638f  5d 0f
     sub b,a                 ;6391  61 13
     push ax                 ;6393  b1
-    movw ax,!0xf01c         ;6394  02 1c f0
+    movw ax,!mem_f01c       ;6394  02 1c f0
     xch a,x                 ;6397  30
     add a,b                 ;6398  61 0b
     xch a,x                 ;639a  30
     addc a,#0x00            ;639b  2d 00
     addw ax,#0x0000         ;639d  ca 00 00
-    movw !0xf01c,ax         ;63a0  03 1c f0
+    movw !mem_f01c,ax       ;63a0  03 1c f0
     pop ax                  ;63a3  b0
     br lab_63a8             ;63a4  fa 02
 
