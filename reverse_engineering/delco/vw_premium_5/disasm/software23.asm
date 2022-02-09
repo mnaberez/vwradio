@@ -3805,7 +3805,7 @@ lab_1326:
     callf !table_get_byte   ;1338  4c 7d      Load A with byte at position B in table [HL]
     bc lab_12f8             ;133a  8d bc      Branch if lookup failed
 
-    ;An corresponding value was found in mfsw_equivs
+    ;A corresponding value was found in mfsw_equivs
 
     set1 a.7                ;133c  61 fa
 
@@ -17421,15 +17421,15 @@ intp6_stop_key:
 lab_5940_reti:
     reti                    ;5940  8f
 
-lab_5941:
-    br !lab_59fd            ;5941  9b fd 59
+lab_5941_to_mfsw_err:
+    br !lab_59fd_mfsw_err   ;5941  9b fd 59
 
 ;MFSW receive
 lab_5944:
     cmpw ax,#0x3126         ;5944  ea 26 31
-    bnc lab_5941            ;5947  9d f8
+    bnc lab_5941_to_mfsw_err;5947  9d f8
     cmpw ax,#0x0831         ;5949  ea 31 08
-    bc lab_5941             ;594c  8d f3
+    bc lab_5941_to_mfsw_err ;594c  8d f3
     cmpw ax,#0x1d7d         ;594e  ea 7d 1d
     not1 cy                 ;5951  01
     movw ax,!mem_f00c       ;5952  02 0c f0
@@ -17441,26 +17441,37 @@ lab_5944:
     cmp mem_fe34,#0x12      ;595c  c8 34 12
     bnz lab_5969            ;595f  bd 08
     cmpw ax,#0x8217         ;5961  ea 17 82     0x82 0x17 are first two bytes of MFSW packet
-    bz lab_596e             ;5964  ad 08
-    br !lab_59fd            ;5966  9b fd 59
+    bz lab_596e_got_header  ;5964  ad 08
+    br !lab_59fd_mfsw_err   ;5966  9b fd 59
 
 lab_5969:
     cmp mem_fe34,#0x22      ;5969  c8 34 22
-    bz lab_5978             ;596c  ad 0a
+    bz lab_5978_got_2_more  ;596c  ad 0a
 
-lab_596e:
+;Header bytes 0x82 and 0x17 received.
+;A=0x82, X=0x17
+lab_596e_got_header:
     inc mem_fe34            ;596e  81 34
     mov a,#0x05             ;5970  a1 05
     mov !mem_fb05,a         ;5972  9e 05 fb
     br !lab_5a0e_pop_reti   ;5975  9b 0e 5a   Branch to pop registers and reti
 
-lab_5978:
-    xch a,x                 ;5978  30
-    xor a,#0xff             ;5979  7d ff
-    cmp a,x                 ;597b  61 48      Check MFSW checksum byte
-    bnz lab_59fd            ;597d  bd 7e      Branch if not good
-    ;MFSW checksum good? (guess)
-    xch a,x                 ;597f  30
+;Got the second two bytes after the header.  The full packet is four bytes:
+;  0x82     0x17      0x0b      0xF4
+;  header1  header2   keycode   checksum
+;The checksum is 0xFF - keycode.
+;
+;A=keycode, X=checksum
+lab_5978_got_2_more:
+    ;Verify checksum
+    xch a,x                 ;5978  30         Swap so that: A=checksum, X=keycode
+    xor a,#0xff             ;5979  7d ff      A = checksum ^ 0xFF (should equal keycode received)
+    cmp a,x                 ;597b  61 48      Compare keycode from checksum (A) with keycode (X)
+    bnz lab_59fd_mfsw_err   ;597d  bd 7e      Branch if not equal (checksum bad)
+
+    ;MFSW checksum is good
+    xch a,x                 ;597f  30         XXX This swap is useless, since we know at this
+                            ;                     point that both A and X contain the same value.
     mov !mfsw_key,a         ;5980  9e 97 f1   Save as MFSW key code received
     set1 mem_fe67.4         ;5983  4a 67
     set1 mem_fe67.5         ;5985  5a 67
@@ -17491,7 +17502,7 @@ intp0_mfsw:
     push hl                 ;5998  b7
     movw de,ax              ;5999  d4
     cmp mem_fe34,#0x23      ;599a  c8 34 23
-    bnc lab_59fd            ;599d  9d 5e
+    bnc lab_59fd_mfsw_err   ;599d  9d 5e
     cmp mem_fe34,#0x01      ;599f  c8 34 01
     bz lab_59a9             ;59a2  ad 05
     bt p0.0,lab_59c9        ;59a4  8c 00 22
@@ -17512,7 +17523,7 @@ lab_59b7:
     inc a                   ;59ba  41
     mov !mem_f198,a         ;59bb  9e 98 f1
     cmp a,#0x03             ;59be  4d 03
-    bnc lab_59fd            ;59c0  9d 3b
+    bnc lab_59fd_mfsw_err   ;59c0  9d 3b
     mov a,#0x64             ;59c2  a1 64
     mov !mem_fb0e,a         ;59c4  9e 0e fb
     br lab_5a0e_pop_reti    ;59c7  fa 45        Branch to pop registers and reti
@@ -17543,10 +17554,10 @@ lab_59e9:
     bc lab_5a3d             ;59f1  8d 4a
     bz lab_5a58             ;59f3  ad 63
     cmp mem_fe34,#0x23      ;59f5  c8 34 23
-    bnc lab_59fd            ;59f8  9d 03
+    bnc lab_59fd_mfsw_err   ;59f8  9d 03
     br !lab_5944            ;59fa  9b 44 59
 
-lab_59fd:
+lab_59fd_mfsw_err:
     mov a,#0x00             ;59fd  a1 00
     mov mem_fe34,a          ;59ff  f2 34
     mov !mem_fb05,a         ;5a01  9e 05 fb
@@ -17565,7 +17576,7 @@ lab_5a0e_pop_reti:
 
 lab_5a13:
     cmp a,#0x7a             ;5a13  4d 7a
-    bnc lab_59fd            ;5a15  9d e6
+    bnc lab_59fd_mfsw_err   ;5a15  9d e6
     set1 mem_fe67.3         ;5a17  3a 67
     set1 mem_fe67.6         ;5a19  6a 67
     cmp a,#0x63             ;5a1b  4d 63
@@ -17588,13 +17599,13 @@ lab_5a27:
     br lab_5a0e_pop_reti    ;5a39  fa d3        Branch to pop registers and reti
 
 lab_5a3b:
-    br lab_59fd             ;5a3b  fa c0
+    br lab_59fd_mfsw_err    ;5a3b  fa c0
 
 lab_5a3d:
     cmpw ax,#0x629b         ;5a3d  ea 9b 62
-    bc lab_59fd             ;5a40  8d bb
+    bc lab_59fd_mfsw_err    ;5a40  8d bb
     cmpw ax,#0xc49c         ;5a42  ea 9c c4
-    bnc lab_59fd            ;5a45  9d b6
+    bnc lab_59fd_mfsw_err   ;5a45  9d b6
     mov mem_fe34,#0x02      ;5a47  11 34 02
     set1 egp.0              ;5a4a  71 0a 48     Set EGP0 (enables INTP0 on rising edge; MFSW)
     clr1 egn.0              ;5a4d  71 0b 49     Clear EGN0 (disables INTP0 on falling edge; MFSW)
@@ -17604,9 +17615,9 @@ lab_5a3d:
 
 lab_5a58:
     cmpw ax,#0x1d7d         ;5a58  ea 7d 1d
-    bc lab_59fd             ;5a5b  8d a0
+    bc lab_59fd_mfsw_err    ;5a5b  8d a0
     cmpw ax,#0x629b         ;5a5d  ea 9b 62
-    bnc lab_59fd            ;5a60  9d 9b
+    bnc lab_59fd_mfsw_err   ;5a60  9d 9b
     cmpw ax,#0x3126         ;5a62  ea 26 31
     bc lab_5a74             ;5a65  8d 0d
     mov mem_fe34,#0x03      ;5a67  11 34 03
@@ -17624,6 +17635,7 @@ lab_5a74:
     mov !mem_fb05,a         ;5a7f  9e 05 fb
     br !lab_5a0e_pop_reti   ;5a82  9b 0e 5a     Branch to pop registers and reti
 
+;CDC related
 sub_5a85:
     xch a,x                 ;5a85  30
     mov1 cy,a.7             ;5a86  61 fc
@@ -38657,7 +38669,7 @@ sub_d1bf:
     mov mem_fe45,#0x01      ;d1c6  11 45 01
 
 lab_d1c9:
-    call !sub_5a85          ;d1c9  9a 85 5a
+    call !sub_5a85          ;d1c9  9a 85 5a     CDC related
 
 lab_d1cc:
     ret                     ;d1cc  af
@@ -38696,11 +38708,11 @@ lab_d1ec:
 
 lab_d1f0:
     cmp mem_fe44,#0x00      ;d1f0  c8 44 00
-    bz lab_d273             ;d1f3  ad 7e
+    bz lab_d273_ret         ;d1f3  ad 7e
     cmp mem_fe44,#0x02      ;d1f5  c8 44 02
-    bz lab_d273             ;d1f8  ad 79
+    bz lab_d273_ret         ;d1f8  ad 79
     cmp mem_fe44,#0x03      ;d1fa  c8 44 03
-    bz lab_d273             ;d1fd  ad 74
+    bz lab_d273_ret         ;d1fd  ad 74
     call !sub_dadd          ;d1ff  9a dd da
     mov a,#0x00             ;d202  a1 00
     mov !mem_fb3d,a         ;d204  9e 3d fb
@@ -38731,9 +38743,9 @@ lab_d22f:
     call !sub_7697          ;d234  9a 97 76
     call !sub_dc2f          ;d237  9a 2f dc
     call !sub_d345          ;d23a  9a 45 d3
-    bt mem_fe6e.0,lab_d273  ;d23d  8c 6e 33
+    bt mem_fe6e.0,lab_d273_ret  ;d23d  8c 6e 33
     cmp mem_fe44,#0x06      ;d240  c8 44 06
-    bz lab_d273             ;d243  ad 2e
+    bz lab_d273_ret         ;d243  ad 2e
     mov mem_fe44,#0x06      ;d245  11 44 06
     br !lab_d376            ;d248  9b 76 d3
 
@@ -38751,11 +38763,11 @@ lab_d24b:
     mov !mem_fb2e,a         ;d262  9e 2e fb
     call !sub_d345          ;d265  9a 45 d3
     cmp mem_fe44,#0x05      ;d268  c8 44 05
-    bz lab_d273             ;d26b  ad 06
+    bz lab_d273_ret         ;d26b  ad 06
     mov mem_fe44,#0x05      ;d26d  11 44 05
     br !lab_d36c            ;d270  9b 6c d3
 
-lab_d273:
+lab_d273_ret:
     ret                     ;d273  af
 
 lab_d274:
