@@ -27,17 +27,16 @@ mem_f004 = 0xf004
 fis_tx_ptr = 0xf006         ;FIS pointer to 3LB packet buffer used during transmit (2 bytes)
 mem_f008 = 0xf008
 mem_f00a = 0xf00a
-mem_f00c = 0xf00c           ;Unknown; 2 bytes
-mem_f00e = 0xf00e
-mem_f00f = 0xf00f
+mfsw_rx_buf = 0xf00c        ;MFSW receive buffer (2 bytes)
+mfsw_timer = 0xf00e         ;MFSW timer word (2 bytes)
 mem_f010 = 0xf010
 mem_f012 = 0xf012
 mem_f014 = 0xf014
 mem_f016 = 0xf016
 mem_f018 = 0xf018
-mem_f01a = 0xf01a           ;EEPROM address for I2C read or write EEPROM (2 bytes)
+i2c_eeprom_addr = 0xf01a    ;EEPROM address for I2C read or write EEPROM (2 bytes)
 mem_f01c = 0xf01c
-mem_f01e = 0xf01e
+mem_f01e = 0xf01e           
 mem_f020 = 0xf020
 mem_f021 = 0xf021
 mem_f022 = 0xf022
@@ -13405,7 +13404,7 @@ lab_47ba:
     br lab_47d0             ;47cb  fa 03
 
 lab_47cd:
-    call !sub_5f51          ;47cd  9a 51 5f     TOOD perform I2C write?
+    call !sub_5f51          ;47cd  9a 51 5f     TODO perform I2C write?
 
 lab_47d0:
     clr1 cy                 ;47d0  21
@@ -17424,20 +17423,20 @@ lab_5940_reti:
 lab_5941_to_mfsw_err:
     br !lab_59fd_mfsw_err   ;5941  9b fd 59
 
-;MFSW receive
-lab_5944:
+;MFSW receive bit
+lab_5944_mfsw_rx_bit:
     cmpw ax,#0x3126         ;5944  ea 26 31
     bnc lab_5941_to_mfsw_err;5947  9d f8
     cmpw ax,#0x0831         ;5949  ea 31 08
     bc lab_5941_to_mfsw_err ;594c  8d f3
     cmpw ax,#0x1d7d         ;594e  ea 7d 1d
     not1 cy                 ;5951  01
-    movw ax,!mem_f00c       ;5952  02 0c f0
+    movw ax,!mfsw_rx_buf    ;5952  02 0c f0
     xch a,x                 ;5955  30
     rorc a,1                ;5956  25
     xch a,x                 ;5957  30
     rorc a,1                ;5958  25
-    movw !mem_f00c,ax       ;5959  03 0c f0
+    movw !mfsw_rx_buf,ax    ;5959  03 0c f0
     cmp mem_fe34,#0x12      ;595c  c8 34 12
     bnz lab_5969            ;595f  bd 08
     cmpw ax,#0x8217         ;5961  ea 17 82     0x82 0x17 are first two bytes of MFSW packet
@@ -17496,11 +17495,11 @@ lab_5978_got_2_more:
 ;
 intp0_mfsw:
     push ax                 ;5993  b1
-    movw ax,tm01            ;5994  89 14
+    movw ax,tm01            ;5994  89 14        Read TM01 as early as possible
     push bc                 ;5996  b3
     push de                 ;5997  b5
     push hl                 ;5998  b7
-    movw de,ax              ;5999  d4
+    movw de,ax              ;5999  d4           Save TM01 in DE
     cmp mem_fe34,#0x23      ;599a  c8 34 23
     bnc lab_59fd_mfsw_err   ;599d  9d 5e
     cmp mem_fe34,#0x01      ;599f  c8 34 01
@@ -17514,48 +17513,56 @@ lab_59a9:
 lab_59ad:
 ;P0.0 = low
     mov a,#0x00             ;59ad  a1 00
+
     cmp a,!mem_fb0e         ;59af  48 0e fb
     bnz lab_59b7            ;59b2  bd 03
+
     mov !mem_f198,a         ;59b4  9e 98 f1
 
 lab_59b7:
     mov a,!mem_f198         ;59b7  8e 98 f1
     inc a                   ;59ba  41
     mov !mem_f198,a         ;59bb  9e 98 f1
+
     cmp a,#0x03             ;59be  4d 03
     bnc lab_59fd_mfsw_err   ;59c0  9d 3b
+
     mov a,#0x64             ;59c2  a1 64
     mov !mem_fb0e,a         ;59c4  9e 0e fb
+
     br lab_5a0e_pop_reti    ;59c7  fa 45        Branch to pop registers and reti
 
 lab_59c9:
 ;P0.0 = high
     mov a,#0x00             ;59c9  a1 00
     mov !mem_f198,a         ;59cb  9e 98 f1
+
     mov a,!mem_fb05         ;59ce  8e 05 fb
     cmp a,#0x00             ;59d1  4d 00
     bz lab_5a23             ;59d3  ad 4e
+
     cmp mem_fe34,#0x00      ;59d5  c8 34 00
     bz lab_5a13             ;59d8  ad 39
-    movw ax,de              ;59da  c4
+
+    movw ax,de              ;59da  c4           AX = Word saved from TM01
     xch a,x                 ;59db  30
-    sub a,!mem_f00e         ;59dc  18 0e f0
+    sub a,!mfsw_timer       ;59dc  18 0e f0
     xch a,x                 ;59df  30
-    subc a,!mem_f00f        ;59e0  38 0f f0
-    bnc lab_59e9            ;59e3  9d 04
+    subc a,!mfsw_timer+1    ;59e0  38 0f f0
+    bnc lab_59e9_nc         ;59e3  9d 04
     addw ax,#0xffff         ;59e5  ca ff ff
     incw ax                 ;59e8  80
 
-lab_59e9:
+lab_59e9_nc:
     xchw ax,de              ;59e9  e4
-    movw !mem_f00e,ax       ;59ea  03 0e f0
+    movw !mfsw_timer,ax     ;59ea  03 0e f0
     xchw ax,de              ;59ed  e4
     cmp mem_fe34,#0x02      ;59ee  c8 34 02
     bc lab_5a3d             ;59f1  8d 4a
     bz lab_5a58             ;59f3  ad 63
     cmp mem_fe34,#0x23      ;59f5  c8 34 23
     bnc lab_59fd_mfsw_err   ;59f8  9d 03
-    br !lab_5944            ;59fa  9b 44 59
+    br !lab_5944_mfsw_rx_bit ;59fa  9b 44 59
 
 lab_59fd_mfsw_err:
     mov a,#0x00             ;59fd  a1 00
@@ -17574,6 +17581,8 @@ lab_5a0e_pop_reti:
     pop ax                  ;5a11  b0
     reti                    ;5a12  8f
 
+
+;mem_fe34 != 0
 lab_5a13:
     cmp a,#0x7a             ;5a13  4d 7a
     bnc lab_59fd_mfsw_err   ;5a15  9d e6
@@ -17593,7 +17602,7 @@ lab_5a27:
     set1 egn.0              ;5a2a  71 0a 49     Set EGN0 (enables INTP0 on falling edge; MFSW)
     clr1 egp.0              ;5a2d  71 0b 48     Clear EGP0 (disables INTP0 on rising edge; MFSW)
     movw ax,de              ;5a30  c4
-    movw !mem_f00e,ax       ;5a31  03 0e f0
+    movw !mfsw_timer,ax     ;5a31  03 0e f0
     mov a,#0x0e             ;5a34  a1 0e
     mov !mem_fb05,a         ;5a36  9e 05 fb
     br lab_5a0e_pop_reti    ;5a39  fa d3        Branch to pop registers and reti
@@ -18934,7 +18943,7 @@ eeprom_unguarded_read:
     mov !mem_fc12,a         ;6248  9e 12 fc     Store as attempt count
 
     movw ax,hl              ;624b  c6           HL = EEPROM start address
-    movw !mem_f01a,ax       ;624c  03 1a f0     Remember EEPROM start address in mem_f01a
+    movw !i2c_eeprom_addr,ax;624c  03 1a f0     Remember EEPROM start address in i2c_eeprom_addr
 
 lab_624f_attempt:
     ;I2C Buffer Offset 1 = Address Byte
@@ -18997,7 +19006,7 @@ lab_627b:
                             ;                     Branch to clear carry, pop registers, and return
     ;More attempts remaining
     mov !mem_fc12,a         ;6282  9e 12 fc     Store updated attempt count
-    movw ax,!mem_f01a       ;6285  02 1a f0     AX = EEPROM start address
+    movw ax,!i2c_eeprom_addr;6285  02 1a f0     AX = EEPROM start address
     movw hl,ax              ;6288  d6           HL = EEPROM start address
     br lab_624f_attempt     ;6289  fa c4        Branch to attempt again
 
@@ -19046,7 +19055,7 @@ eeprom_unguarded_write:
     bnc lab_628b_failed     ;629d  9d ec        Branch to clear carry, pop regs, and return if invalid
 
     movw ax,hl              ;629f  c6           AX = EEPROM start address
-    movw !mem_f01a,ax       ;62a0  03 1a f0     Store EEPROM start address
+    movw !i2c_eeprom_addr,ax;62a0  03 1a f0     Store EEPROM start address
 
     call !sub_637e          ;62a3  9a 7e 63     Unknown; EEPROM related - called only from write EEPROM
 
@@ -19084,7 +19093,7 @@ lab_62c6_attempt:
     ;Bit 0: R=1, W=0
 
     ;I2C Buffer Offset 0 = Device Select Byte
-    movw ax,!mem_f01a       ;62d1  02 1a f0     A = EEPROM address high
+    movw ax,!i2c_eeprom_addr;62d1  02 1a f0     A = EEPROM address high
                             ;                   X = EEPROM address low
     and a,#0b00000111       ;62d4  5d 07
     rol a,1                 ;62d6  26           After rotation:
@@ -19139,7 +19148,7 @@ lab_630d:
     mov a,!mem_fb06         ;6314  8e 06 fb
     cmp a,#0x00             ;6317  4d 00
     bnz lab_6363            ;6319  bd 48
-    movw ax,!mem_f01a       ;631b  02 1a f0     AX = EEPROM address
+    movw ax,!i2c_eeprom_addr;631b  02 1a f0     AX = EEPROM address
     movw hl,ax              ;631e  d6           HL = EEPROM address
     movw de,#i2c_buf        ;631f  14 db fb
     mov a,!mem_fc10         ;6322  8e 10 fc
