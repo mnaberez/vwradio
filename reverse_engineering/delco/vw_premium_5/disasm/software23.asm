@@ -36,7 +36,7 @@ mem_f016 = 0xf016
 mem_f018 = 0xf018
 i2c_eeprom_addr = 0xf01a    ;EEPROM address for I2C read or write EEPROM (2 bytes)
 mem_f01c = 0xf01c
-mem_f01e = 0xf01e           
+mem_f01e = 0xf01e
 mem_f020 = 0xf020
 mem_f021 = 0xf021
 mem_f022 = 0xf022
@@ -32517,14 +32517,16 @@ mem_b40e:
     .byte 0x59              ;b40f  59          DATA 0x59 'Y'    mem_f253=0x00 (FM1)
     .byte 0x25              ;b410  25          DATA 0x25 '%'    mem_f253=0x01 (FM2)
 
-;unknown table
+;XXX appears unused
+;unknown table; identical to mfsw_codes table
     .byte 0x04              ;b411  04          DATA 0x04        4 entries below:
     .byte 0x00              ;b412  00          DATA 0x00
     .byte 0x01              ;b413  01          DATA 0x01
     .byte 0x0a              ;b414  0a          DATA 0x0a
     .byte 0x0b              ;b415  0b          DATA 0x0b
 
-;unknown table
+;XXX appears unused
+;unknown table; identical to mfsw_equivs table
     .byte 0x04              ;b416  04          DATA 0x04        4 entries below:
     .byte 0x1f              ;b417  1f          DATA 0x1f
     .byte 0x1e              ;b418  1e          DATA 0x1e
