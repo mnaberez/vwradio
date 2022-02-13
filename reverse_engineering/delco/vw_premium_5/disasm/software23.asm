@@ -498,9 +498,9 @@ mem_fc76 = 0xfc76
 mem_fc77 = 0xfc77
 mem_fc78 = 0xfc78
 mem_fc79 = 0xfc79
-mem_fc7b = 0xfc7b
+mem_fc7b_cdc_cd = 0xfc7b    ;CD number used when sending CDC commands
 mem_fc7c = 0xfc7c
-mem_fc7d = 0xfc7d           ;CD disc number
+mem_fc7d_upd_cd = 0xfc7d    ;CD number used for display
 mem_fc7e = 0xfc7e
 mem_fc7f = 0xfc7f
 mem_fc80 = 0xfc80
@@ -794,6 +794,24 @@ brgc0_value = 0x39          ;Baud rate used for KWP1281:
                             ;  0x4b = 4800 baud   KWP1281 has been found to work reliably
                             ;  0x5b = 2400 baud   on this radio at all of these baud rates.
                             ;  0x6b = 1200 baud
+
+cdc_scan = 0x05
+cdc_radio = 0x08
+cdc_unknown_0c = 0x0c
+cdc_reverse = 0x1a
+cdc_forward = 0x1b
+cdc_load_cd = 0x1c
+cdc_prev_track = 0x1e
+cdc_next_track = 0x1f
+cdc_enable = 0x27
+cdc_unknown_28 = 0x28
+cdc_cd1 = 0x30
+cdc_cd2 = 0x31
+cdc_cd3 = 0x32
+cdc_cd4 = 0x33
+cdc_cd5 = 0x34
+cdc_cd6 = 0x35
+;See also possible CD commands in table mem_d0b1
 
 ;Vectors
 
@@ -20462,7 +20480,7 @@ lab_6b73:
     call !sub_6e70          ;6b81  9a 70 6e     Copy message from [HL] to display buf; uses A, B
 
     movw hl,#upd_disp       ;6b84  16 9a f1
-    mov a,!mem_fc7d         ;6b87  8e 7d fc     A = CD number
+    mov a,!mem_fc7d_upd_cd  ;6b87  8e 7d fc     A = CD number
     add a,#'0               ;6b8a  0d 30        Convert to ASCII
     mov [hl+0x03],a         ;6b8c  be 03        '...1.......'
     br lab_6b9a             ;6b8e  fa 0a
@@ -20483,7 +20501,7 @@ lab_6b9d:
     call !sub_6e70          ;6ba4  9a 70 6e     Copy message from [HL] to display buf; uses A, B
 
     movw hl,#upd_disp       ;6ba7  16 9a f1
-    mov a,!mem_fc7d         ;6baa  8e 7d fc     A = CD number
+    mov a,!mem_fc7d_upd_cd  ;6baa  8e 7d fc     A = CD number
     add a,#'0               ;6bad  0d 30        Convert to ASCII
     mov [hl+0x03],a         ;6baf  be 03        '...1.......'
     br !lab_6ca5            ;6bb1  9b a5 6c     Branch to return
@@ -29714,33 +29732,34 @@ lab_a747:
 lab_a749:
     br lab_a6eb             ;a749  fa a0
 
+;Unknown, returns set on faliure
 sub_a74b:
     set1 mem_fe76.6         ;a74b  6a 76
     bf mem_fe77.2,lab_a754  ;a74d  31 23 77 03
-    bt mem_fe2d.2,lab_a77e  ;a751  ac 2d 2a
+    bt mem_fe2d.2,lab_a77e_clr_cy_ret  ;a751  ac 2d 2a
 
 lab_a754:
     mov a,mem_fe2f          ;a754  f0 2f
     mov b,#0x03             ;a756  a3 03
 
-lab_a758:
+lab_a758_loop:
     movw hl,#mem_d0b1+1     ;a758  16 b2 d0
     cmp a,[hl+b]            ;a75b  31 4b
-    bz lab_a763             ;a75d  ad 04
-    dbnz b,lab_a758         ;a75f  8b f7
-    br lab_a768             ;a761  fa 05
+    bz lab_a763_found       ;a75d  ad 04
+    dbnz b,lab_a758_loop    ;a75f  8b f7
+    br lab_a768_not_found   ;a761  fa 05
 
-lab_a763:
+lab_a763_found:
     mov a,b                 ;a763  63
     cmp a,mem_fe58          ;a764  4e 58
-    bnz lab_a77e            ;a766  bd 16
+    bnz lab_a77e_clr_cy_ret ;a766  bd 16
 
-lab_a768:
+lab_a768_not_found:
     bt mem_fe2d.2,lab_a77a  ;a768  ac 2d 0f
     clr1 mem_fe80.4         ;a76b  4b 80
     call !sub_a70c          ;a76d  9a 0c a7
     mov a,#0x04             ;a770  a1 04
-    mov a,#0x04             ;a772  a1 04
+    mov a,#0x04             ;a772  a1 04        XXX redundant
     callt [0x0048]          ;a774  c9           Calls sub_09a7
     call !sub_aa9c          ;a775  9a 9c aa
     set1 cy                 ;a778  20
@@ -29750,7 +29769,7 @@ lab_a77a:
     set1 mem_fe77.2         ;a77a  2a 77
     clr1 mem_fe80.4         ;a77c  4b 80
 
-lab_a77e:
+lab_a77e_clr_cy_ret:
     clr1 cy                 ;a77e  21
     ret                     ;a77f  af
 
@@ -33286,12 +33305,12 @@ mem_b755:
 ;table of words used with table_get_word
     .byte 0x1d              ;b755  1d          DATA 0x1d    29 entries below:
     .word lab_d1cd_ret
-    .word lab_d1ce
-    .word lab_d1d4
-    .word lab_d1da
-    .word lab_d1e0
-    .word lab_d1e6
-    .word lab_d1ec
+    .word lab_d1ce_cd1 ;CD 1
+    .word lab_d1d4_cd2 ;CD 2
+    .word lab_d1da_cd3 ;CD 3
+    .word lab_d1e0_cd4 ;CD 4
+    .word lab_d1e6_cd5 ;CD 5
+    .word lab_d1ec_cd6 ;CD 6
     .word lab_d27b
     .word lab_d296
     .word lab_d2b8
@@ -33309,7 +33328,7 @@ mem_b755:
     .word sub_d321
     .word lab_d34f
     .word sub_d345
-    .word lab_d376
+    .word lab_d376_cdcenable_2
     .word lab_d37b
     .word lab_d39c
     .word lab_d3a3
@@ -38506,6 +38525,7 @@ mem_d0ac:
     .byte 0x02              ;d0af  02          DATA 0x02
     .byte 0x03              ;d0b0  03          DATA 0x03
 
+;XXX TODO CD commands? this is a guess
 mem_d0b1:
 ;table of bytes used with table_get_byte
     .byte 0x04              ;d0b1  04          DATA 0x04        4 entries below:
@@ -38676,7 +38696,7 @@ lab_d18a:
     cmp mem_fe49,#0x20        ;d190  c8 49 20
     bnz lab_d19b              ;d193  bd 06
     mov x,#0x01               ;d195  a0 01
-    mov a,#0x27               ;d197  a1 27
+    mov a,#cdc_enable         ;d197  a1 27        A = "Enable" (sent after forward or reverse)
     br lab_d1c9_cdc_tx        ;d199  fa 2e        Branch to call CDC TX related and return
 
 lab_d19b:
@@ -38689,7 +38709,7 @@ lab_d19b:
 lab_d1a5:
     bt mem_fe68.3,lab_d1b7_ret;d1a5  bc 68 0f
     mov x,#0x01               ;d1a8  a0 01
-    mov a,#0x1c               ;d1aa  a1 1c
+    mov a,#cdc_load_cd        ;d1aa  a1 1c        A = "Load CD" (sent after a CD number 1-6)
     mov mem_fe45,#0x02        ;d1ac  11 45 02     Index for mem_b790 lookup (CDC TX related)
     br lab_d1c9_cdc_tx        ;d1af  fa 18        Branch to call CDC TX related and return
 
@@ -38704,7 +38724,7 @@ lab_d1b8_cdc_tx:
     push ax                 ;d1b8  b1
     call !sub_a74b          ;d1b9  9a 4b a7
     pop ax                  ;d1bc  b0
-    bc lab_d1cc_ret         ;d1bd  8d 0d
+    bc lab_d1cc_ret         ;d1bd  8d 0d        Branch if failed
     ;Fall through
 
 sub_d1bf_cdc_tx:
@@ -38723,35 +38743,38 @@ lab_d1cc_ret:
 lab_d1cd_ret:
     ret                     ;d1cd  af
 
-lab_d1ce:
-    mov c,#0x01             ;d1ce  a2 01
-    mov x,#0x30             ;d1d0  a0 30
+lab_d1ce_cd1:
+    mov c,#0x01             ;d1ce  a2 01        C = CD 1
+    mov x,#cdc_cd1          ;d1d0  a0 30        X = CDC command for CD 1
     br lab_d1f0             ;d1d2  fa 1c
 
-lab_d1d4:
-    mov c,#0x02             ;d1d4  a2 02
-    mov x,#0x31             ;d1d6  a0 31
+lab_d1d4_cd2:
+    mov c,#0x02             ;d1d4  a2 02        C = CD 2
+    mov x,#cdc_cd2          ;d1d6  a0 31        X = CDC command for CD 2
     br lab_d1f0             ;d1d8  fa 16
 
-lab_d1da:
-    mov c,#0x03             ;d1da  a2 03
-    mov x,#0x32             ;d1dc  a0 32
+lab_d1da_cd3:
+    mov c,#0x03             ;d1da  a2 03        C = CD 3
+    mov x,#cdc_cd3          ;d1dc  a0 32        X = CDC command for CD 3
     br lab_d1f0             ;d1de  fa 10
 
-lab_d1e0:
-    mov c,#0x04             ;d1e0  a2 04
-    mov x,#0x33             ;d1e2  a0 33
+lab_d1e0_cd4:
+    mov c,#0x04             ;d1e0  a2 04        C = CD 4
+    mov x,#cdc_cd4          ;d1e2  a0 33        X = CDC command for CD 4
     br lab_d1f0             ;d1e4  fa 0a
 
-lab_d1e6:
-    mov c,#0x05             ;d1e6  a2 05
-    mov x,#0x34             ;d1e8  a0 34
+lab_d1e6_cd5:
+    mov c,#0x05             ;d1e6  a2 05        C = CD 5
+    mov x,#cdc_cd5          ;d1e8  a0 34        X = CDC command for CD 5
     br lab_d1f0             ;d1ea  fa 04
 
-lab_d1ec:
-    mov c,#0x06             ;d1ec  a2 06
-    mov x,#0x35             ;d1ee  a0 35
+lab_d1ec_cd6:
+    mov c,#0x06             ;d1ec  a2 06        C = CD 6
+    mov x,#cdc_cd6          ;d1ee  a0 35        X = CDC command for CD 6
 
+;Branch to with:
+;  C = CD number 1-6
+;  X = corresponding CDC command for CD 1-6
 lab_d1f0:
     cmp mem_fe44,#0x00      ;d1f0  c8 44 00
     bz lab_d273_ret         ;d1f3  ad 7e
@@ -38765,9 +38788,11 @@ lab_d1f0:
     clr1 mem_fe46.0         ;d207  0b 46
     clr1 mem_fe47.7         ;d209  7b 47
     clr1 mem_fe46.1         ;d20b  1b 46
-    mov a,!mem_fc7b         ;d20d  8e 7b fc
-    cmp a,c                 ;d210  61 4a
-    bz lab_d22f             ;d212  ad 1b
+
+    mov a,!mem_fc7b_cdc_cd  ;d20d  8e 7b fc
+    cmp a,c                 ;d210  61 4a        Compare to requested CD 1-6
+    bz lab_d22f_same_cd     ;d212  ad 1b
+
     movw hl,#mem_fc48       ;d214  16 48 fc
     mov a,[hl+c]            ;d217  aa
     bf a.6,lab_d24b         ;d218  31 6f 30
@@ -38775,7 +38800,7 @@ lab_d1f0:
 lab_d21b:
     clr1 mem_fe47.5         ;d21b  5b 47
     mov a,c                 ;d21d  62
-    mov !mem_fc7b,a         ;d21e  9e 7b fc
+    mov !mem_fc7b_cdc_cd,a  ;d21e  9e 7b fc
     mov a,x                 ;d221  60
     mov !mem_fc7f,a         ;d222  9e 7f fc
     set1 mem_fe46.2         ;d225  2a 46
@@ -38783,21 +38808,21 @@ lab_d21b:
     mov !mem_fb3f,a         ;d229  9e 3f fb
     br !sub_db8a            ;d22c  9b 8a db
 
-lab_d22f:
-    mov a,#0xff             ;d22f  a1 ff
-    mov !mem_f1a6,a         ;d231  9e a6 f1       f Writes " DIAG  "
-    call !sub_7697          ;d234  9a 97 76
-    call !sub_dc2f          ;d237  9a 2f dc
-    call !sub_d345          ;d23a  9a 45 d3
+lab_d22f_same_cd:
+    mov a,#0xff                 ;d22f  a1 ff
+    mov !mem_f1a6,a             ;d231  9e a6 f1       f Writes " DIAG  "
+    call !sub_7697              ;d234  9a 97 76
+    call !sub_dc2f              ;d237  9a 2f dc
+    call !sub_d345              ;d23a  9a 45 d3
     bt mem_fe6e.0,lab_d273_ret  ;d23d  8c 6e 33
-    cmp mem_fe44,#0x06      ;d240  c8 44 06
-    bz lab_d273_ret         ;d243  ad 2e
-    mov mem_fe44,#0x06      ;d245  11 44 06
-    br !lab_d376            ;d248  9b 76 d3
+    cmp mem_fe44,#0x06          ;d240  c8 44 06
+    bz lab_d273_ret             ;d243  ad 2e
+    mov mem_fe44,#0x06          ;d245  11 44 06
+    br !lab_d376_cdcenable_2    ;d248  9b 76 d3
 
 lab_d24b:
     mov a,c                 ;d24b  62
-    mov !mem_fc7d,a         ;d24c  9e 7d fc
+    mov !mem_fc7d_upd_cd,a  ;d24c  9e 7d fc
     mov a,#0x19             ;d24f  a1 19
     mov !mem_fb3d,a         ;d251  9e 3d fb
     set1 mem_fe80.0         ;d254  0a 80
@@ -38811,7 +38836,7 @@ lab_d24b:
     cmp mem_fe44,#0x05      ;d268  c8 44 05
     bz lab_d273_ret         ;d26b  ad 06
     mov mem_fe44,#0x05      ;d26d  11 44 05
-    br !lab_d36c            ;d270  9b 6c d3
+    br !lab_d36c_cdc_0x0c   ;d270  9b 6c d3
 
 lab_d273_ret:
     ret                     ;d273  af
@@ -38963,27 +38988,26 @@ lab_d34f:
     bnz lab_d366            ;d35c  bd 08
     call !sub_dc2f          ;d35e  9a 2f dc
 
-    mov a,#0x05             ;d361  a1 05
+    mov a,#cdc_scan         ;d361  a1 05        A = "Scan"
     br !sub_d1bf_cdc_tx     ;d363  9b bf d1     CDC TX related
 
 lab_d366:
     ret                     ;d366  af
 
-
-lab_d367:
-    mov a,#0x08             ;d367  a1 08
+lab_d367_cdcradio:
+    mov a,#cdc_radio        ;d367  a1 08        A = "Radio" (sent constantly in radio mode)
     br !sub_d1bf_cdc_tx     ;d369  9b bf d1     CDC TX related
 
-lab_d36c:
-    mov a,#0x0c             ;d36c  a1 0c
+lab_d36c_cdc_0x0c:
+    mov a,#cdc_unknown_0c   ;d36c  a1 0c        TODO what CDC command is this?
     br !lab_d1b8_cdc_tx     ;d36e  9b b8 d1     CDC TX related
 
-lab_d371:
-    mov a,#0x27             ;d371  a1 27
+lab_d371_cdcenable_1:
+    mov a,#cdc_enable       ;d371  a1 27        A = "Enable" (sent after forward or reverse)
     br !sub_d1bf_cdc_tx     ;d373  9b bf d1     CDC TX related
 
-lab_d376:
-    mov a,#0x27             ;d376  a1 27
+lab_d376_cdcenable_2:
+    mov a,#cdc_enable       ;d376  a1 27        A = "Enable" (sent after forward or reverse)
     br !lab_d1b8_cdc_tx     ;d378  9b b8 d1     CDC TX related
 
 lab_d37b:
@@ -38999,7 +39023,7 @@ lab_d388:
     bt mem_fe6d.7,lab_d39a  ;d38d  fc 6d 0a
     call !sub_d90f          ;d390  9a 0f d9
     bf mem_fe46.5,lab_d39a  ;d393  31 53 46 03
-    br !lab_d597            ;d397  9b 97 d5
+    br !lab_d597_no_disc    ;d397  9b 97 d5
 
 lab_d39a:
     br lab_d3d5             ;d39a  fa 39
@@ -39007,7 +39031,7 @@ lab_d39a:
 lab_d39c:
     mov a,#0x00             ;d39c  a1 00
     mov !mem_fb3d,a         ;d39e  9e 3d fb
-    br lab_d367             ;d3a1  fa c4
+    br lab_d367_cdcradio    ;d3a1  fa c4
 
 lab_d3a3:
     clr1 mem_fe6d.4         ;d3a3  4b 6d
@@ -39068,7 +39092,7 @@ lab_d3eb:
     set1 mem_fe7f.7         ;d3fd  7a 7f
     mov a,#0x00             ;d3ff  a1 00
     mov !mem_fb2c,a         ;d401  9e 2c fb
-    br !lab_d367            ;d404  9b 67 d3
+    br !lab_d367_cdcradio   ;d404  9b 67 d3
 
 lab_d407:
     clr1 mem_fe46.6         ;d407  6b 46
@@ -39097,7 +39121,7 @@ lab_d40a:
     bnz lab_d45b            ;d436  bd 23
 
 lab_d438:
-    br !lab_d367            ;d438  9b 67 d3
+    br !lab_d367_cdcradio   ;d438  9b 67 d3
 
 lab_d43b:
     clr1 mem_fe46.5         ;d43b  5b 46
@@ -39125,17 +39149,17 @@ lab_d45c:
     cmp a,#0x00             ;d462  4d 00
     bnz lab_d46c            ;d464  bd 06
     mov mem_fe44,#0x06      ;d466  11 44 06
-    br !lab_d376            ;d469  9b 76 d3
+    br !lab_d376_cdcenable_2;d469  9b 76 d3
 
 lab_d46c:
     cmp mem_fe49,#0x20      ;d46c  c8 49 20
     bz lab_d45b             ;d46f  ad ea
-    br !lab_d36c            ;d471  9b 6c d3
+    br !lab_d36c_cdc_0x0c   ;d471  9b 6c d3
 
 lab_d474:
     cmp mem_fe49,#0xff      ;d474  c8 49 ff
     bnz lab_d47c            ;d477  bd 03
-    br !lab_d583            ;d479  9b 83 d5
+    br !lab_d583_no_changer ;d479  9b 83 d5
 
 lab_d47c:
     bf mem_fe6d.7,lab_d487  ;d47c  31 73 6d 07
@@ -39151,7 +39175,7 @@ lab_d487:
     bf mem_fe47.4,lab_d49f  ;d491  31 43 47 0a
     call !sub_d90f          ;d495  9a 0f d9
     bf mem_fe46.5,lab_d49f  ;d498  31 53 46 03
-    br !lab_d597            ;d49c  9b 97 d5
+    br !lab_d597_no_disc    ;d49c  9b 97 d5
 
 lab_d49f:
     cmp mem_fe44,#0x05      ;d49f  c8 44 05
@@ -39189,7 +39213,7 @@ lab_d4d2:
     cmp mem_fe49,#0xa0      ;d4d7  c8 49 a0
     bz lab_d4cf             ;d4da  ad f3
     bf mem_fe46.5,lab_d4e3  ;d4dc  31 53 46 03
-    br !lab_d597            ;d4e0  9b 97 d5
+    br !lab_d597_no_disc    ;d4e0  9b 97 d5
 
 lab_d4e3:
     cmp mem_fe49,#0x90      ;d4e3  c8 49 90
@@ -39215,7 +39239,7 @@ lab_d4f9:
 lab_d50f:
     mov a,#0x06             ;d50f  a1 06
     mov !mem_fb3e,a         ;d511  9e 3e fb
-    br !lab_d376            ;d514  9b 76 d3
+    br !lab_d376_cdcenable_2;d514  9b 76 d3
 
 lab_d517:
     clr1 mem_fe6d.7         ;d517  7b 6d
@@ -39231,7 +39255,7 @@ lab_d51f:
     mov mem_fe44,#0x06      ;d529  11 44 06
     set1 mem_fe47.3         ;d52c  3a 47
     call !sub_dba7          ;d52e  9a a7 db
-    br !lab_d376            ;d531  9b 76 d3
+    br !lab_d376_cdcenable_2;d531  9b 76 d3
 
 lab_d534:
     cmp mem_fe49,#0xb0      ;d534  c8 49 b0
@@ -39239,7 +39263,7 @@ lab_d534:
     cmp mem_fe49,#0xa0      ;d539  c8 49 a0
     bz lab_d563             ;d53c  ad 25
     bf mem_fe46.5,lab_d544  ;d53e  31 53 46 02
-    br lab_d597             ;d542  fa 53
+    br lab_d597_no_disc     ;d542  fa 53
 
 lab_d544:
     cmp mem_fe49,#0x30      ;d544  c8 49 30
@@ -39264,10 +39288,10 @@ lab_d563:
     set1 mem_fe6d.7         ;d563  7a 6d
     mov a,!mem_fc79         ;d565  8e 79 fc
     cmp a,#0x00             ;d568  4d 00
-    bz lab_d56f             ;d56a  ad 03
+    bz lab_d56f_no_magazin  ;d56a  ad 03
     br !lab_d725            ;d56c  9b 25 d7
 
-lab_d56f:
+lab_d56f_no_magazin:
     mov mem_fe44,#0x02      ;d56f  11 44 02
     mov a,#0xff             ;d572  a1 ff
     mov !mem_f1ad,a         ;d574  9e ad f1
@@ -39277,7 +39301,7 @@ lab_d56f:
     mov !mem_fb2e,a         ;d57e  9e 2e fb
     br lab_d5a9             ;d581  fa 26
 
-lab_d583:
+lab_d583_no_changer:
     mov mem_fe44,#0x00      ;d583  11 44 00
     mov a,#0xff             ;d586  a1 ff
     mov !mem_f1ad,a         ;d588  9e ad f1
@@ -39287,7 +39311,7 @@ lab_d583:
     mov !mem_fb2e,a         ;d592  9e 2e fb
     br lab_d5a9             ;d595  fa 12
 
-lab_d597:
+lab_d597_no_disc:
     mov mem_fe44,#0x03      ;d597  11 44 03
     mov a,#0xff             ;d59a  a1 ff
     mov !mem_f1ad,a         ;d59c  9e ad f1
@@ -39330,7 +39354,7 @@ lab_d5da:
 lab_d5e4:
     bt mem_fe46.2,lab_d5ed  ;d5e4  ac 46 06
     bf mem_fe47.6,lab_d5ed  ;d5e7  31 63 47 02
-    br lab_d597             ;d5eb  fa aa
+    br lab_d597_no_disc     ;d5eb  fa aa
 
 lab_d5ed:
     bf mem_fe46.1,lab_d5f4  ;d5ed  31 13 46 03
@@ -39352,7 +39376,7 @@ lab_d5fb:
 lab_d60b:
     clr1 mem_fe47.2         ;d60b  2b 47
 
-    mov a,#0x28             ;d60d  a1 28
+    mov a,#cdc_unknown_28   ;d60d  a1 28        TODO what CDC command is this?
     call !sub_d1bf_cdc_tx   ;d60f  9a bf d1     CDC TX related
 
 lab_d612:
@@ -39376,18 +39400,18 @@ lab_d627:
     bnz lab_d63e            ;d634  bd 08
     mov a,#0x0f             ;d636  a1 0f
     mov !mem_fb3e,a         ;d638  9e 3e fb
-    br !lab_d36c            ;d63b  9b 6c d3
+    br !lab_d36c_cdc_0x0c   ;d63b  9b 6c d3
 
 lab_d63e:
-    bt mem_fe68.3,lab_d64a  ;d63e  bc 68 09
-    bf mem_fe6e.3,lab_d64a  ;d641  31 33 6e 05
-    clr1 mem_fe6e.3         ;d645  3b 6e
-    br !lab_d371            ;d647  9b 71 d3
+    bt mem_fe68.3,lab_d64a   ;d63e  bc 68 09
+    bf mem_fe6e.3,lab_d64a   ;d641  31 33 6e 05
+    clr1 mem_fe6e.3          ;d645  3b 6e
+    br !lab_d371_cdcenable_1 ;d647  9b 71 d3
 
 lab_d64a:
     bt mem_fe46.2,lab_d669  ;d64a  ac 46 1c
     bf mem_fe47.6,lab_d654  ;d64d  31 63 47 03
-    br !lab_d597            ;d651  9b 97 d5
+    br !lab_d597_no_disc    ;d651  9b 97 d5
 
 lab_d654:
     mov a,!mem_fc79         ;d654  8e 79 fc
@@ -39514,7 +39538,7 @@ lab_d724:
 lab_d725:
     mov a,!cdc_rx_buf       ;d725  8e 6e fc
     and a,#0x0f             ;d728  5d 0f
-    mov !mem_fc7d,a         ;d72a  9e 7d fc
+    mov !mem_fc7d_upd_cd,a  ;d72a  9e 7d fc
     mov a,#0xff             ;d72d  a1 ff
     mov !mem_f1ad,a         ;d72f  9e ad f1
     mov a,#0x09             ;d732  a1 09
@@ -39549,7 +39573,7 @@ lab_d764:
     mov a,#0x1c             ;d769  a1 1c
     mov !mem_fb3d,a         ;d76b  9e 3d fb
     set1 mem_fe46.6         ;d76e  6a 46
-    br !lab_d367            ;d770  9b 67 d3
+    br !lab_d367_cdcradio   ;d770  9b 67 d3
 
 lab_d773:
     bt mem_fe46.1,lab_d7d3  ;d773  9c 46 5d
@@ -39633,7 +39657,7 @@ lab_d7f5:
 
 lab_d80a:
     set1 mem_fe7f.7         ;d80a  7a 7f
-    br !lab_d367            ;d80c  9b 67 d3
+    br !lab_d367_cdcradio   ;d80c  9b 67 d3
 
 sub_d80f:
     mov a,!mem_f1a5         ;d80f  8e a5 f1
@@ -40054,8 +40078,8 @@ sub_da4d:
     call !sub_a74b          ;da67  9a 4b a7
     bc lab_da75             ;da6a  8d 09
     set1 mem_fe6d.7         ;da6c  7a 6d
-    clr1 shadow_p3.6         ;da6e  6b cd
-    mov a,shadow_p3          ;da70  f0 cd
+    clr1 shadow_p3.6        ;da6e  6b cd
+    mov a,shadow_p3         ;da70  f0 cd
     mov p3,a                ;da72  f2 03
     ret                     ;da74  af
 
@@ -40064,8 +40088,8 @@ lab_da75:
     br !sub_3dbd            ;da77  9b bd 3d
 
 lab_da7a:
-    set1 shadow_p3.6         ;da7a  6a cd
-    mov a,shadow_p3          ;da7c  f0 cd
+    set1 shadow_p3.6        ;da7a  6a cd
+    mov a,shadow_p3         ;da7c  f0 cd
     mov p3,a                ;da7e  f2 03
     ret                     ;da80  af
 
@@ -40104,18 +40128,21 @@ lab_dabd:
     call !sub_a74b          ;dabd  9a 4b a7
     set1 mem_fe47.2         ;dac0  2a 47
     set1 mem_fe6d.5         ;dac2  5a 6d
+
     mov a,#0x07             ;dac4  a1 07
     mov !mem_fb3e,a         ;dac6  9e 3e fb
+
     mov a,!mem_fc6c         ;dac9  8e 6c fc
     dec a                   ;dacc  51
     mov !mem_fc6c,a         ;dacd  9e 6c fc
+
     bt mem_fe46.7,lab_dad8  ;dad0  fc 46 05
 
-    mov a,#0x1e             ;dad3  a1 1e
+    mov a,#cdc_prev_track   ;dad3  a1 1e        A = "Previous Track"
     br !sub_d1bf_cdc_tx     ;dad5  9b bf d1     CDC TX related
 
 lab_dad8:
-    mov a,#0x1f             ;dad8  a1 1f
+    mov a,#cdc_next_track   ;dad8  a1 1f        A = "Next Track"
     br !sub_d1bf_cdc_tx     ;dada  9b bf d1     CDC TX related
 
 sub_dadd:
@@ -40164,7 +40191,7 @@ lab_db0f:
     mov a,#0xc8             ;db24  a1 c8
     mov !mem_f1ad,a         ;db26  9e ad f1
     clr1 mem_fe6e.3         ;db29  3b 6e
-    br !lab_d371            ;db2b  9b 71 d3
+    br !lab_d371_cdcenable_1;db2b  9b 71 d3
 
 lab_db2e:
     ret                     ;db2e  af
@@ -40178,7 +40205,7 @@ lab_db2f:
     mov !mem_fb3e,a         ;db3b  9e 3e fb
     set1 mem_fe46.7         ;db3e  7a 46
 
-    mov a,#0x1b             ;db40  a1 1b
+    mov a,#cdc_forward      ;db40  a1 1b        A = "Forward"
     br !sub_d1bf_cdc_tx     ;db42  9b bf d1     CDC TX related
 
 lab_db45:
@@ -40201,7 +40228,7 @@ lab_db54:
     mov a,#0xc9             ;db69  a1 c9
     mov !mem_f1ad,a         ;db6b  9e ad f1
     clr1 mem_fe6e.3         ;db6e  3b 6e
-    br !lab_d371            ;db70  9b 71 d3
+    br !lab_d371_cdcenable_1;db70  9b 71 d3
 
 lab_db73:
     ret                     ;db73  af
@@ -40215,7 +40242,7 @@ lab_db74:
     mov !mem_fb3e,a         ;db80  9e 3e fb
     clr1 mem_fe46.7         ;db83  7b 46
 
-    mov a,#0x1a             ;db85  a1 1a
+    mov a,#cdc_reverse      ;db85  a1 1a        A = "Reverse"
     br !sub_d1bf_cdc_tx     ;db87  9b bf d1     CDC TX related
 
 sub_db8a:
@@ -40224,7 +40251,7 @@ sub_db8a:
     bf mem_fe46.2,lab_dba6  ;db90  31 23 46 12
     mov a,!cdc_rx_buf       ;db94  8e 6e fc
     and a,#0x0f             ;db97  5d 0f
-    cmp a,!mem_fc7b         ;db99  48 7b fc
+    cmp a,!mem_fc7b_cdc_cd  ;db99  48 7b fc
     bz lab_dba6             ;db9c  ad 08
     cmp mem_fe45,#0x00      ;db9e  c8 45 00     Index for mem_b790 lookup (CDC TX related)
     bnz lab_dba6            ;dba1  bd 03
@@ -40246,7 +40273,7 @@ lab_dbb6:
     bt a.7,lab_dc2e_ret     ;dbb9  31 7e 72
     and a,#0x0f             ;dbbc  5d 0f
     bf mem_fe46.2,lab_dbd3  ;dbbe  31 23 46 11
-    cmp a,!mem_fc7b         ;dbc2  48 7b fc
+    cmp a,!mem_fc7b_cdc_cd  ;dbc2  48 7b fc
     bnz lab_dc2e_ret        ;dbc5  bd 67
     clr1 mem_fe46.2         ;dbc7  2b 46
     push ax                 ;dbc9  b1
@@ -40267,7 +40294,7 @@ lab_dbd3:
     cmp a,#0x07             ;dbe4  4d 07
     bnc lab_dc2e_ret        ;dbe6  9d 46        Branch to just return
     mov !mem_fc75,a         ;dbe8  9e 75 fc
-    mov !mem_fc7b,a         ;dbeb  9e 7b fc
+    mov !mem_fc7b_cdc_cd,a  ;dbeb  9e 7b fc
 
 lab_dbee:
     mov a,!cdc_rx_buf+1     ;dbee  8e 6f fc
