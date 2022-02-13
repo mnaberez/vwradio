@@ -33,7 +33,7 @@ mem_f010 = 0xf010
 mem_f012 = 0xf012
 mem_f014 = 0xf014
 mem_f016 = 0xf016
-mem_f018 = 0xf018
+cdc_tx_timer = 0xf018       ;CDC TX timer word (2 bytes)
 i2c_eeprom_addr = 0xf01a    ;EEPROM address for I2C read or write EEPROM (2 bytes)
 mem_f01c = 0xf01c
 mem_f01e = 0xf01e
@@ -17645,14 +17645,15 @@ lab_5a74:
     br !lab_5a0e_pop_reti   ;5a82  9b 0e 5a     Branch to pop registers and reti
 
 ;CDC related
-sub_5a85:
+sub_5a85_cdc_tx:
     xch a,x                 ;5a85  30
     mov1 cy,a.7             ;5a86  61 fc
     mov1 mem_fe68.1,cy      ;5a88  71 11 68
     and a,#0x7f             ;5a8b  5d 7f
     dec a                   ;5a8d  51
     cmp a,#0x03             ;5a8e  4d 03
-    bnc lab_5acf            ;5a90  9d 3d        Branch to clear carry and return
+    bnc lab_5acf_nc         ;5a90  9d 3d        Branch to clear carry and return
+
     mov !mem_f199,a         ;5a92  9e 99 f1
     xchw ax,bc              ;5a95  e2
     movw !mem_f016,ax       ;5a96  03 16 f0
@@ -17661,8 +17662,10 @@ sub_5a85:
     xor a,#0xff             ;5a9b  7d ff
     xch a,x                 ;5a9d  30
     movw !mem_f012,ax       ;5a9e  03 12 f0
+
     movw ax,#0xca34         ;5aa1  10 34 ca
     movw !mem_f014,ax       ;5aa4  03 14 f0
+
     movw ax,#0x0102         ;5aa7  10 02 01
     movw !mem_f010,ax       ;5aaa  03 10 f0
 
@@ -17671,10 +17674,11 @@ sub_5a85:
     mov a,shadow_p5         ;5ab2  f0 cf
     mov p5,a                ;5ab4  f2 05
 
-    movw ax,tm01            ;5ab6  89 14
+    movw ax,tm01            ;5ab6  89 14        AX = TM01
     addw ax,#0x0937         ;5ab8  ca 37 09
     movw cr011,ax           ;5abb  99 12        Store as compare value for CDC TX timer interrupt
-    movw !mem_f018,ax       ;5abd  03 18 f0
+    movw !cdc_tx_timer,ax   ;5abd  03 18 f0
+
     clr1 mem_fe68.2         ;5ac0  2b 68        CDC TX bit = 0
     clr1 pr1l.4             ;5ac2  71 4b ea     Clear TMPR011 (makes INTTM011 high priority; CDC TX)
     clr1 if1l.4             ;5ac5  71 4b e2     Clear TMIF001 (INTWTNI0 interrupt flag)
@@ -17683,8 +17687,8 @@ sub_5a85:
     set1 cy                 ;5acd  20
     ret                     ;5ace  af
 
-lab_5acf:
-    clr1 cy                 ;5acf  21
+lab_5acf_nc:
+    clr1 cy                 ;5acf  21           XXX useless; carry is clear when we branch here
     ret                     ;5ad0  af
 
 lab_5ad1:
@@ -17693,20 +17697,24 @@ lab_5ad1:
     bz lab_5ae8             ;5ad4  ad 12
     xch a,x                 ;5ad6  30
     movw !mem_f010,ax       ;5ad7  03 10 f0
-    movw ax,de              ;5ada  c4
+
+    movw ax,de              ;5ada  c4           AX = value of TM01 saved in DE at top of intp0_mfsw
     addw ax,#0x9374         ;5adb  ca 74 93
     movw cr011,ax           ;5ade  99 12        Store as compare value for CDC TX timer interrupt
-    movw !mem_f018,ax       ;5ae0  03 18 f0
+    movw !cdc_tx_timer,ax   ;5ae0  03 18 f0
+
     set1 mem_fe68.2         ;5ae3  2a 68        CDC TX bit = 1
     br !lab_5ba0_pop_reti   ;5ae5  9b a0 5b     Branch to pop registers and reti
 
 lab_5ae8:
     movw ax,#0x0608         ;5ae8  10 08 06
     movw !mem_f010,ax       ;5aeb  03 10 f0
-    movw ax,de              ;5aee  c4
+
+    movw ax,de              ;5aee  c4           AX = value of TM01 saved in DE at top of intp0_mfsw
     addw ax,#0x49ba         ;5aef  ca ba 49
     movw cr011,ax           ;5af2  99 12        Store as compare value for CDC TX timer interrupt
-    movw !mem_f018,ax       ;5af4  03 18 f0
+    movw !cdc_tx_timer,ax   ;5af4  03 18 f0
+
     clr1 mem_fe68.2         ;5af7  2b 68        CDC TX bit = 0
     br !lab_5ba0_pop_reti   ;5af9  9b a0 5b     Branch to pop registers and reti
 
@@ -17731,10 +17739,12 @@ lab_5b0f:
 
 lab_5b1b:
     movw !mem_f010,ax       ;5b1b  03 10 f0
-    movw ax,de              ;5b1e  c4
+
+    movw ax,de              ;5b1e  c4           AX = value of TM01 saved in DE at top of intp0_mfsw
     addw ax,#0x312c         ;5b1f  ca 2c 31
     movw cr011,ax           ;5b22  99 12        Store as compare value for CDC TX timer interrupt
-    movw !mem_f018,ax       ;5b24  03 18 f0
+    movw !cdc_tx_timer,ax   ;5b24  03 18 f0
+
     br !lab_5ba0_pop_reti   ;5b27  9b a0 5b     Branch to pop registers and reti
 
 lab_5b2a:
@@ -17749,14 +17759,18 @@ lab_5b2a:
     xor a,#0xff             ;5b3a  7d ff
     xch a,x                 ;5b3c  30
     movw !mem_f012,ax       ;5b3d  03 12 f0
+
     movw ax,#0xca34         ;5b40  10 34 ca
     movw !mem_f014,ax       ;5b43  03 14 f0
+
     movw ax,#0x0102         ;5b46  10 02 01
     movw !mem_f010,ax       ;5b49  03 10 f0
+
     movw ax,tm01            ;5b4c  89 14
     addw ax,#0x0937         ;5b4e  ca 37 09
     movw cr011,ax           ;5b51  99 12        Store as compare value for CDC TX timer interrupt
-    movw !mem_f018,ax       ;5b53  03 18 f0
+    movw !cdc_tx_timer,ax   ;5b53  03 18 f0
+
     clr1 mem_fe68.2         ;5b56  2b 68        CDC TX bit = 0
     br lab_5ba0_pop_reti    ;5b58  fa 46        Branch to pop registers and reti
 
@@ -17780,7 +17794,8 @@ inttm011_5b60:
     mov p5,a                ;5b6b  f2 05
 
     movw ax,tm01            ;5b6d  89 14
-    movw de,ax              ;5b6f  d4
+    movw de,ax              ;5b6f  d4           Save TM01 in DE
+
     movw ax,!mem_f010       ;5b70  02 10 f0
     dec x                   ;5b73  50
     cmp a,#0x01             ;5b74  4d 01
@@ -17824,20 +17839,24 @@ lab_5ba4:
     bz lab_5bbb             ;5ba7  ad 12
     xch a,x                 ;5ba9  30
     movw !mem_f010,ax       ;5baa  03 10 f0
-    movw ax,de              ;5bad  c4
+
+    movw ax,de              ;5bad  c4           AX = value of TM01 saved in DE at top of intp0_mfsw
     addw ax,#0x9374         ;5bae  ca 74 93
     movw cr011,ax           ;5bb1  99 12
-    movw !mem_f018,ax       ;5bb3  03 18 f0
+    movw !cdc_tx_timer,ax   ;5bb3  03 18 f0
+
     set1 mem_fe68.2         ;5bb6  2a 68        CDC TX bit = 1
     br !lab_5ba0_pop_reti   ;5bb8  9b a0 5b     Branch to pop registers and reti
 
 lab_5bbb:
     movw ax,#0x0220         ;5bbb  10 20 02
     movw !mem_f010,ax       ;5bbe  03 10 f0
-    movw ax,de              ;5bc1  c4
+
+    movw ax,de              ;5bc1  c4           AX = value of TM01 saved in DE at top of intp0_mfsw
     addw ax,#0x49ba         ;5bc2  ca ba 49
     movw cr011,ax           ;5bc5  99 12
-    movw !mem_f018,ax       ;5bc7  03 18 f0
+    movw !cdc_tx_timer,ax   ;5bc7  03 18 f0
+
     clr1 mem_fe68.2         ;5bca  2b 68        CDC TX bit = 0
     br !lab_5ba0_pop_reti   ;5bcc  9b a0 5b     Branch to pop registers and reti
 
@@ -17851,6 +17870,7 @@ lab_5bcf:
 
 lab_5bdb:
     movw !mem_f010,ax       ;5bdb  03 10 f0
+
     movw ax,!mem_f014       ;5bde  02 14 f0
     xch a,x                 ;5be1  30
     rorc a,1                ;5be2  25
@@ -17861,26 +17881,31 @@ lab_5bdb:
 lab_5be8:
     clr1 mem_fe68.2         ;5be8  2b 68        CDC TX bit = 0
     bc lab_5bf8             ;5bea  8d 0c
-    movw ax,de              ;5bec  c4
+
+    movw ax,de              ;5bec  c4           AX = value of TM01 saved in DE at top of intp0_mfsw
     addw ax,#0x0937         ;5bed  ca 37 09
     movw cr011,ax           ;5bf0  99 12
-    movw !mem_f018,ax       ;5bf2  03 18 f0
+    movw !cdc_tx_timer,ax   ;5bf2  03 18 f0
+
     br !lab_5ba0_pop_reti   ;5bf5  9b a0 5b     Branch to pop registers and reti
 
 lab_5bf8:
-    movw ax,de              ;5bf8  c4
+    movw ax,de              ;5bf8  c4           AX = value of TM01 saved in DE at top of intp0_mfsw
     addw ax,#0x1ba5         ;5bf9  ca a5 1b
     movw cr011,ax           ;5bfc  99 12
-    movw !mem_f018,ax       ;5bfe  03 18 f0
+    movw !cdc_tx_timer,ax   ;5bfe  03 18 f0
+
     br !lab_5ba0_pop_reti   ;5c01  9b a0 5b     Branch to pop registers and reti
 
 lab_5c04:
     xch a,x                 ;5c04  30
     movw !mem_f010,ax       ;5c05  03 10 f0
-    movw ax,de              ;5c08  c4
+
+    movw ax,de              ;5c08  c4           AX = value of TM01 saved in DE at top of intp0_mfsw
     addw ax,#0x0937         ;5c09  ca 37 09
     movw cr011,ax           ;5c0c  99 12
-    movw !mem_f018,ax       ;5c0e  03 18 f0
+    movw !cdc_tx_timer,ax   ;5c0e  03 18 f0
+
     set1 mem_fe68.2         ;5c11  2a 68        CDC TX bit = 1
     br !lab_5ba0_pop_reti   ;5c13  9b a0 5b     Branch to pop registers and reti
 
@@ -17914,7 +17939,7 @@ lab_5c31:
 
 lab_5c41:
     bf mem_fe68.1,lab_5c4d  ;5c41  31 13 68 08
-    movw ax,#0x0502         ;5c45  10 02 05
+    movw ax,#0x0502         ;5c45  10 02 05     XXX lab_5c58 immediately overwrites AX
     clr1 mem_fe68.2         ;5c48  2b 68        CDC TX bit = 0
     br !lab_5c58            ;5c4a  9b 58 5c
 
@@ -17925,10 +17950,11 @@ lab_5c4d:
     br !lab_5ba0_pop_reti   ;5c55  9b a0 5b     Branch to pop registers and reti
 
 lab_5c58:
-    movw ax,de              ;5c58  c4
+    movw ax,de              ;5c58  c4           AX = value of TM01 saved in DE at top of intp0_mfsw
     addw ax,#0xa9fd         ;5c59  ca fd a9
     movw cr011,ax           ;5c5c  99 12
-    movw !mem_f018,ax       ;5c5e  03 18 f0
+    movw !cdc_tx_timer,ax   ;5c5e  03 18 f0
+
     br !lab_5ba0_pop_reti   ;5c61  9b a0 5b     Branch to pop registers and reti
 
 sub_5c64:
@@ -20098,7 +20124,7 @@ lab_6980:
 lab_6989:
     movw de,#mem_b50b+1     ;6989  14 0c b5
     movw hl,#mem_b4fe       ;698c  16 fe b4
-    br lab_6991             ;698f  fa 00
+    br lab_6991             ;698f  fa 00        XXX useless branch; could just fall through
 
 lab_6991:
     mov a,mem_fed4          ;6991  f0 d4
@@ -20410,6 +20436,7 @@ lab_6b52:
     call !sub_6e6f          ;6b58  9a 6f 6e     Just returns
     ret                     ;6b5b  af
 
+;XXX appears unused
 lab_6b5c:
     call !sub_6e70          ;6b5c  9a 70 6e     Copy message from [HL] to display buf; uses A, B
     call !sub_6e6e          ;6b5f  9a 6e 6e     Just returns
@@ -32951,6 +32978,7 @@ mem_b5c5:
     .word lab_7808
 
 mem_b5d6:
+;related somehow to mem_fe43_key
 ;table of words used with table_get_word
     .byte 0x4a              ;b5d6  4a          DATA 0x4a 'J'    74 entries below:
     .word 0x0000
@@ -33257,7 +33285,7 @@ mem_b6c2:
 mem_b755:
 ;table of words used with table_get_word
     .byte 0x1d              ;b755  1d          DATA 0x1d    29 entries below:
-    .word lab_d1cd
+    .word lab_d1cd_ret
     .word lab_d1ce
     .word lab_d1d4
     .word lab_d1da
@@ -38645,20 +38673,20 @@ lab_d18a:
     bnz lab_d19b            ;d193  bd 06
     mov x,#0x01             ;d195  a0 01
     mov a,#0x27             ;d197  a1 27
-    br lab_d1c9             ;d199  fa 2e
+    br lab_d1c9_cdc_tx      ;d199  fa 2e        Branch to call CDC TX related and return
 
 lab_d19b:
     mov x,#0x01             ;d19b  a0 01
     mov a,!mem_fc7f         ;d19d  8e 7f fc
     mov mem_fe45,#0x03      ;d1a0  11 45 03
-    br lab_d1c9             ;d1a3  fa 24
+    br lab_d1c9_cdc_tx      ;d1a3  fa 24        Branch to call CDC TX related and return
 
 lab_d1a5:
     bt mem_fe68.3,lab_d1b7  ;d1a5  bc 68 0f
     mov x,#0x01             ;d1a8  a0 01
     mov a,#0x1c             ;d1aa  a1 1c
     mov mem_fe45,#0x02      ;d1ac  11 45 02
-    br lab_d1c9             ;d1af  fa 18
+    br lab_d1c9_cdc_tx      ;d1af  fa 18        Branch to call CDC TX related and return
 
 lab_d1b1:
     bt mem_fe68.3,lab_d1b7  ;d1b1  bc 68 03
@@ -38671,21 +38699,21 @@ lab_d1b8:
     push ax                 ;d1b8  b1
     call !sub_a74b          ;d1b9  9a 4b a7
     pop ax                  ;d1bc  b0
-    bc lab_d1cc             ;d1bd  8d 0d
+    bc lab_d1cc_ret         ;d1bd  8d 0d
 
 sub_d1bf:
     cmp mem_fe45,#0x02      ;d1bf  c8 45 02
-    bnc lab_d1cc            ;d1c2  9d 08
+    bnc lab_d1cc_ret        ;d1c2  9d 08
     mov x,#0x01             ;d1c4  a0 01
     mov mem_fe45,#0x01      ;d1c6  11 45 01
 
-lab_d1c9:
-    call !sub_5a85          ;d1c9  9a 85 5a     CDC related
+lab_d1c9_cdc_tx:
+    call !sub_5a85_cdc_tx   ;d1c9  9a 85 5a     CDC TX related
 
-lab_d1cc:
+lab_d1cc_ret:
     ret                     ;d1cc  af
 
-lab_d1cd:
+lab_d1cd_ret:
     ret                     ;d1cd  af
 
 lab_d1ce:
