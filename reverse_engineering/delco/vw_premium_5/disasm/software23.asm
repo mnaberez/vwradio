@@ -570,7 +570,7 @@ mem_fe41 = 0xfe41
 mem_fe42 = 0xfe42
 mem_fe43_key = 0xfe43       ;Key being pressed; possibly other uses
 mem_fe44 = 0xfe44
-mem_fe45 = 0xfe45
+mem_fe45 = 0xfe45           ;Index for mem_b790 lookup (CDC TX related)
 mem_fe46 = 0xfe46
 mem_fe47 = 0xfe47
 mem_fe49 = 0xfe49
@@ -17644,7 +17644,7 @@ lab_5a74:
     mov !mem_fb05,a         ;5a7f  9e 05 fb
     br !lab_5a0e_pop_reti   ;5a82  9b 0e 5a     Branch to pop registers and reti
 
-;CDC related
+;CDC TX related
 sub_5a85_cdc_tx:
     xch a,x                 ;5a85  30
     mov1 cy,a.7             ;5a86  61 fc
@@ -17659,7 +17659,7 @@ sub_5a85_cdc_tx:
     movw !mem_f016,ax       ;5a96  03 16 f0
     mov a,c                 ;5a99  62
     mov x,a                 ;5a9a  70
-    xor a,#0xff             ;5a9b  7d ff
+    xor a,#0xff             ;5a9b  7d ff        TODO is this the CDC TX checksum?
     xch a,x                 ;5a9d  30
     movw !mem_f012,ax       ;5a9e  03 12 f0
 
@@ -17756,7 +17756,7 @@ lab_5b2a:
     mov b,a                 ;5b35  73
     movw hl,#mem_f016       ;5b36  16 16 f0
     mov a,[hl+b]            ;5b39  ab
-    xor a,#0xff             ;5b3a  7d ff
+    xor a,#0xff             ;5b3a  7d ff        TODO is this the CDC TX checksum?
     xch a,x                 ;5b3c  30
     movw !mem_f012,ax       ;5b3d  03 12 f0
 
@@ -33316,12 +33316,14 @@ mem_b755:
     .word lab_d3b1
 
 mem_b790:
+;table appears to be cdc tx related
+;indexed by mem_fe45
     .byte 0x05              ;b790  05          DATA 0x05
-    .word lab_d1b7
+    .word lab_d1b7_ret
     .word lab_d1b1
     .word lab_d1b1
-    .word lab_d1a5
-    .word lab_d18a
+    .word lab_d1a5 ;CDC TX related
+    .word lab_d18a ;CDC TX related
 
 mem_b79b:
 ;table of words used with table_get_word
@@ -38602,10 +38604,11 @@ lab_d10e:
     mov a,#0x17             ;d113  a1 17
     callt [0x0046]          ;d115  c7           Calls sub_096c
     call !sub_d164          ;d116  9a 64 d1
-    movw hl,#mem_b790+1     ;d119  16 91 b7
-    mov a,mem_fe45          ;d11c  f0 45
+
+    movw hl,#mem_b790+1     ;d119  16 91 b7     Table appears to be CDC TX related
+    mov a,mem_fe45          ;d11c  f0 45        Index for mem_b790 lookup (CDC TX related)
     mov b,a                 ;d11e  73
-    br lab_d147             ;d11f  fa 26
+    br lab_d147             ;d11f  fa 26        Calls table_get_word, branches to word
 
 lab_d121:
     call !sub_d164          ;d121  9a 64 d1
@@ -38625,7 +38628,7 @@ lab_d137:
     call !sub_d950          ;d13d  9a 50 d9
     clr1 mem_fe47.1         ;d140  1b 47
     movw hl,#mem_b755+1     ;d142  16 56 b7
-    br lab_d147             ;d145  fa 00
+    br lab_d147             ;d145  fa 00        XXX useless branch; could just fall through
 
 lab_d147:
     callf !table_get_word   ;d147  4c 48        Load DE with word at position B in table [HL]
@@ -38649,11 +38652,11 @@ sub_d164:
     cmp mem_fe44,#0x09      ;d164  c8 44 09
     bnc sub_d16e            ;d167  9d 05
     call !sub_d8fd          ;d169  9a fd d8
-    bz lab_d189             ;d16c  ad 1b
+    bz lab_d189_ret         ;d16c  ad 1b
 
 sub_d16e:
     mov mem_fe44,#0x04      ;d16e  11 44 04
-    mov mem_fe45,#0x00      ;d171  11 45 00
+    mov mem_fe45,#0x00      ;d171  11 45 00       Index for mem_b790 lookup (CDC TX related)
     mov mem_fe46,#0x00      ;d174  11 46 00
     mov mem_fe47,#0x00      ;d177  11 47 00
     clr1 mem_fe6d.5         ;d17a  5b 6d
@@ -38663,49 +38666,53 @@ sub_d16e:
     call !sub_dadd          ;d183  9a dd da
     call !sub_d8fd          ;d186  9a fd d8
 
-lab_d189:
+lab_d189_ret:
     ret                     ;d189  af
 
+;CDC TX related
 lab_d18a:
-    bt mem_fe68.3,lab_d1b7  ;d18a  bc 68 2a
-    call !sub_a74b          ;d18d  9a 4b a7
-    cmp mem_fe49,#0x20      ;d190  c8 49 20
-    bnz lab_d19b            ;d193  bd 06
-    mov x,#0x01             ;d195  a0 01
-    mov a,#0x27             ;d197  a1 27
-    br lab_d1c9_cdc_tx      ;d199  fa 2e        Branch to call CDC TX related and return
+    bt mem_fe68.3,lab_d1b7_ret;d18a  bc 68 2a
+    call !sub_a74b            ;d18d  9a 4b a7
+    cmp mem_fe49,#0x20        ;d190  c8 49 20
+    bnz lab_d19b              ;d193  bd 06
+    mov x,#0x01               ;d195  a0 01
+    mov a,#0x27               ;d197  a1 27
+    br lab_d1c9_cdc_tx        ;d199  fa 2e        Branch to call CDC TX related and return
 
 lab_d19b:
-    mov x,#0x01             ;d19b  a0 01
-    mov a,!mem_fc7f         ;d19d  8e 7f fc
-    mov mem_fe45,#0x03      ;d1a0  11 45 03
-    br lab_d1c9_cdc_tx      ;d1a3  fa 24        Branch to call CDC TX related and return
+    mov x,#0x01               ;d19b  a0 01
+    mov a,!mem_fc7f           ;d19d  8e 7f fc
+    mov mem_fe45,#0x03        ;d1a0  11 45 03     Index for mem_b790 lookup (CDC TX related)
+    br lab_d1c9_cdc_tx        ;d1a3  fa 24        Branch to call CDC TX related and return
 
+;CDC TX related
 lab_d1a5:
-    bt mem_fe68.3,lab_d1b7  ;d1a5  bc 68 0f
-    mov x,#0x01             ;d1a8  a0 01
-    mov a,#0x1c             ;d1aa  a1 1c
-    mov mem_fe45,#0x02      ;d1ac  11 45 02
-    br lab_d1c9_cdc_tx      ;d1af  fa 18        Branch to call CDC TX related and return
+    bt mem_fe68.3,lab_d1b7_ret;d1a5  bc 68 0f
+    mov x,#0x01               ;d1a8  a0 01
+    mov a,#0x1c               ;d1aa  a1 1c
+    mov mem_fe45,#0x02        ;d1ac  11 45 02     Index for mem_b790 lookup (CDC TX related)
+    br lab_d1c9_cdc_tx        ;d1af  fa 18        Branch to call CDC TX related and return
 
 lab_d1b1:
-    bt mem_fe68.3,lab_d1b7  ;d1b1  bc 68 03
-    mov mem_fe45,#0x00      ;d1b4  11 45 00
+    bt mem_fe68.3,lab_d1b7_ret;d1b1  bc 68 03
+    mov mem_fe45,#0x00        ;d1b4  11 45 00     Index for mem_b790 lookup (CDC TX related)
 
-lab_d1b7:
+lab_d1b7_ret:
     ret                     ;d1b7  af
 
-lab_d1b8:
+lab_d1b8_cdc_tx:
     push ax                 ;d1b8  b1
     call !sub_a74b          ;d1b9  9a 4b a7
     pop ax                  ;d1bc  b0
     bc lab_d1cc_ret         ;d1bd  8d 0d
+    ;Fall through
 
-sub_d1bf:
-    cmp mem_fe45,#0x02      ;d1bf  c8 45 02
+sub_d1bf_cdc_tx:
+    cmp mem_fe45,#0x02      ;d1bf  c8 45 02     Index for mem_b790 lookup (CDC TX related)
     bnc lab_d1cc_ret        ;d1c2  9d 08
+
     mov x,#0x01             ;d1c4  a0 01
-    mov mem_fe45,#0x01      ;d1c6  11 45 01
+    mov mem_fe45,#0x01      ;d1c6  11 45 01     Index for mem_b790 lookup (CDC TX related)
 
 lab_d1c9_cdc_tx:
     call !sub_5a85_cdc_tx   ;d1c9  9a 85 5a     CDC TX related
@@ -38928,12 +38935,13 @@ sub_d321:
     mov a,!mem_f255         ;d333  8e 55 f2
     and a,#0x01             ;d336  5d 01
     bnz lab_d33f            ;d338  bd 05
+
     mov a,#0x06             ;d33a  a1 06
-    br !sub_d1bf            ;d33c  9b bf d1
+    br !sub_d1bf_cdc_tx     ;d33c  9b bf d1     CDC TX related
 
 lab_d33f:
     mov a,#0x07             ;d33f  a1 07
-    br !sub_d1bf            ;d341  9b bf d1
+    br !sub_d1bf_cdc_tx     ;d341  9b bf d1     CDC TX related
 
 lab_d344:
     ret                     ;d344  af
@@ -38954,8 +38962,9 @@ lab_d34f:
     cmp a,#0x00             ;d35a  4d 00
     bnz lab_d366            ;d35c  bd 08
     call !sub_dc2f          ;d35e  9a 2f dc
+
     mov a,#0x05             ;d361  a1 05
-    br !sub_d1bf            ;d363  9b bf d1
+    br !sub_d1bf_cdc_tx     ;d363  9b bf d1     CDC TX related
 
 lab_d366:
     ret                     ;d366  af
@@ -38963,19 +38972,19 @@ lab_d366:
 
 lab_d367:
     mov a,#0x08             ;d367  a1 08
-    br !sub_d1bf            ;d369  9b bf d1
+    br !sub_d1bf_cdc_tx     ;d369  9b bf d1     CDC TX related
 
 lab_d36c:
     mov a,#0x0c             ;d36c  a1 0c
-    br !lab_d1b8            ;d36e  9b b8 d1
+    br !lab_d1b8_cdc_tx     ;d36e  9b b8 d1     CDC TX related
 
 lab_d371:
     mov a,#0x27             ;d371  a1 27
-    br !sub_d1bf            ;d373  9b bf d1
+    br !sub_d1bf_cdc_tx     ;d373  9b bf d1     CDC TX related
 
 lab_d376:
     mov a,#0x27             ;d376  a1 27
-    br !lab_d1b8            ;d378  9b b8 d1
+    br !lab_d1b8_cdc_tx     ;d378  9b b8 d1     CDC TX related
 
 lab_d37b:
     mov a,#0x00             ;d37b  a1 00
@@ -39028,7 +39037,7 @@ sub_d3c4:
     bf mem_fe46.3,lab_d3ea  ;d3c4  31 33 46 22
     clr1 mem_fe46.3         ;d3c8  3b 46
     bt mem_fe46.6,lab_d3eb  ;d3ca  ec 46 1e
-    cmp mem_fe45,#0x00      ;d3cd  c8 45 00
+    cmp mem_fe45,#0x00      ;d3cd  c8 45 00     Index for mem_b790 lookup (CDC TX related)
     bnz lab_d3ea            ;d3d0  bd 18
     bt mem_fe7d.2,lab_d3ea  ;d3d2  ac 7d 15
 
@@ -39210,7 +39219,7 @@ lab_d50f:
 
 lab_d517:
     clr1 mem_fe6d.7         ;d517  7b 6d
-    cmp mem_fe45,#0x00      ;d519  c8 45 00
+    cmp mem_fe45,#0x00      ;d519  c8 45 00     Index for mem_b790 lookup (CDC TX related)
     bz lab_d51f             ;d51c  ad 01
     ret                     ;d51e  af
 
@@ -39342,8 +39351,9 @@ lab_d5fb:
 
 lab_d60b:
     clr1 mem_fe47.2         ;d60b  2b 47
+
     mov a,#0x28             ;d60d  a1 28
-    call !sub_d1bf          ;d60f  9a bf d1
+    call !sub_d1bf_cdc_tx   ;d60f  9a bf d1     CDC TX related
 
 lab_d612:
     cmp mem_fe49,#0x90      ;d612  c8 49 90
@@ -40100,12 +40110,13 @@ lab_dabd:
     dec a                   ;dacc  51
     mov !mem_fc6c,a         ;dacd  9e 6c fc
     bt mem_fe46.7,lab_dad8  ;dad0  fc 46 05
+
     mov a,#0x1e             ;dad3  a1 1e
-    br !sub_d1bf            ;dad5  9b bf d1
+    br !sub_d1bf_cdc_tx     ;dad5  9b bf d1     CDC TX related
 
 lab_dad8:
     mov a,#0x1f             ;dad8  a1 1f
-    br !sub_d1bf            ;dada  9b bf d1
+    br !sub_d1bf_cdc_tx     ;dada  9b bf d1     CDC TX related
 
 sub_dadd:
     mov a,#0x00             ;dadd  a1 00
@@ -40166,8 +40177,9 @@ lab_db2f:
     mov a,#0x0f             ;db39  a1 0f
     mov !mem_fb3e,a         ;db3b  9e 3e fb
     set1 mem_fe46.7         ;db3e  7a 46
+
     mov a,#0x1b             ;db40  a1 1b
-    br !sub_d1bf            ;db42  9b bf d1
+    br !sub_d1bf_cdc_tx     ;db42  9b bf d1     CDC TX related
 
 lab_db45:
     cmp mem_fe49,#0x40      ;db45  c8 49 40
@@ -40202,8 +40214,9 @@ lab_db74:
     mov a,#0x0f             ;db7e  a1 0f
     mov !mem_fb3e,a         ;db80  9e 3e fb
     clr1 mem_fe46.7         ;db83  7b 46
+
     mov a,#0x1a             ;db85  a1 1a
-    br !sub_d1bf            ;db87  9b bf d1
+    br !sub_d1bf_cdc_tx     ;db87  9b bf d1     CDC TX related
 
 sub_db8a:
     mov a,!cdc_rx_buf       ;db8a  8e 6e fc
@@ -40213,9 +40226,9 @@ sub_db8a:
     and a,#0x0f             ;db97  5d 0f
     cmp a,!mem_fc7b         ;db99  48 7b fc
     bz lab_dba6             ;db9c  ad 08
-    cmp mem_fe45,#0x00      ;db9e  c8 45 00
+    cmp mem_fe45,#0x00      ;db9e  c8 45 00     Index for mem_b790 lookup (CDC TX related)
     bnz lab_dba6            ;dba1  bd 03
-    mov mem_fe45,#0x04      ;dba3  11 45 04
+    mov mem_fe45,#0x04      ;dba3  11 45 04     Index for mem_b790 lookup (CDC TX related)
 
 lab_dba6:
     ret                     ;dba6  af
