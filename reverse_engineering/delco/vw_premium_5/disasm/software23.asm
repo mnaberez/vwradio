@@ -795,6 +795,7 @@ brgc0_value = 0x39          ;Baud rate used for KWP1281:
                             ;  0x5b = 2400 baud   on this radio at all of these baud rates.
                             ;  0x6b = 1200 baud
 
+;Command bytes to send to CDC
 cdc_scan = 0x05
 cdc_radio = 0x08
 cdc_unknown_0c = 0x0c
@@ -812,6 +813,19 @@ cdc_cd4 = 0x33
 cdc_cd5 = 0x34
 cdc_cd6 = 0x35
 ;See also possible CD commands in table mem_d0b1
+
+;CDC receive buffer indexes (CDC sends an 8-byte packet)
+;Note:
+;  cdc_isr_rx_buf has all 8 bytes and starts with cdc_r_first
+;  cdc_rx_buf has only 7 bytes and starts with cd_r_cd
+cdc_r_first = 0
+cdc_r_cd = 1
+cdc_r_track = 2
+cdc_r_minutes = 3
+cdc_r_seconds = 4
+cdc_r_mode = 5
+cdc_r_2ndlast = 6
+cdc_r_last = 7
 
 ;Vectors
 
@@ -1771,6 +1785,7 @@ sio31_disable:
     ret                     ;08f6  af
 
 ;CSI31 is the CD changer interface (CDC)
+;Receive packet
 intcsi31_08f7:
     push ax                 ;08f7  b1
     push bc                 ;08f8  b3
@@ -2850,6 +2865,8 @@ lab_0ce7_ret:
 
 sub_0ce8:
 ;TODO CDC related (see lab_dbee)
+;Called with cdc_r_track, cdc_r_minutes, cdc_r_seconds byte from RX buf
+;Returns some status in carry
     cmp a,#0xa0             ;0ce8  4d a0
     bnc lab_0cf2_not_cy_ret ;0cea  9d 06
     push ax                 ;0cec  b1
@@ -4005,10 +4022,12 @@ lab_1479:
 lab_147c:
     bt mem_fe65.5,lab_148f  ;147c  dc 65 10
     clr1 mem_fe5f.5         ;147f  5b 5f
+
     mov a,!mem_f1a6         ;1481  8e a6 f1
     and a,#0x7f             ;1484  5d 7f
     cmp a,#0x0f             ;1486  4d 0f        f Writes " DIAG  "
     bnz lab_148f            ;1488  bd 05
+
     mov a,#0xff             ;148a  a1 ff
     mov !mem_f1a6,a         ;148c  9e a6 f1     f Writes " DIAG  "
 
@@ -7026,6 +7045,7 @@ sub_26d6:
     call !sub_7697          ;26d6  9a 97 76
     mov a,#0x32             ;26d9  a1 32
     mov !mem_fb2e,a         ;26db  9e 2e fb
+
     mov a,#0x8f             ;26de  a1 8f
     mov !mem_f1a6,a         ;26e0  9e a6 f1     f Writes " DIAG  "
     ret                     ;26e3  af
@@ -11491,6 +11511,7 @@ lab_3c4e:
 ;Monsoon
     mov a,#0x80             ;3c4e  a1 80
     mov !mem_f1a6,a         ;3c50  9e a6 f1       0 Writes "    MONSOON"
+
     mov a,#0x1e             ;3c53  a1 1e
     mov !mem_fb2e,a         ;3c55  9e 2e fb
 
@@ -11590,6 +11611,7 @@ lab_3ce8:
 ;Monsoon
     mov a,#0x80             ;3ce8  a1 80
     mov !mem_f1a6,a         ;3cea  9e a6 f1       0 Writes "    MONSOON"
+
     mov a,#0x1e             ;3ced  a1 1e
     mov !mem_fb2e,a         ;3cef  9e 2e fb
 
@@ -12764,15 +12786,19 @@ sub_43b1:
     bnz lab_43de            ;43d0  bd 0c
     mov a,#0x23             ;43d2  a1 23
     mov !mem_fb2e,a         ;43d4  9e 2e fb
+
     mov a,#0x0a             ;43d7  a1 0a
     mov !mem_f1a6,a         ;43d9  9e a6 f1       a Writes "TAPE ERROR "
+
     br lab_43fd             ;43dc  fa 1f
 
 lab_43de:
     mov a,#0x23             ;43de  a1 23
     mov !mem_fb2e,a         ;43e0  9e 2e fb
+
     mov a,#0x0b             ;43e3  a1 0b
     mov !mem_f1a6,a         ;43e5  9e a6 f1       b Writes "    NO TAPE"
+
     br lab_43fd             ;43e8  fa 13
 
 lab_43ea:
@@ -12782,6 +12808,7 @@ lab_43ea:
     bz lab_4400             ;43f1  ad 0d
     mov a,#0x23             ;43f3  a1 23
     mov !mem_fb2e,a         ;43f5  9e 2e fb
+
     mov a,#0x06             ;43f8  a1 06
     mov !mem_f1a6,a         ;43fa  9e a6 f1       6 Writes "NO  CHANGER"
 
@@ -12812,6 +12839,7 @@ lab_4414:
 
 lab_441f:
     mov !mem_f1a6,a         ;441f  9e a6 f1
+
     call !sub_4609          ;4422  9a 09 46
     br lab_4400             ;4425  fa d9
 
@@ -12833,13 +12861,16 @@ sub_442f:
 
 lab_4438:
     mov a,!mem_f190         ;4438  8e 90 f1
+
     mov mem_fe30,a          ;443b  f2 30
     cmp a,#0x00             ;443d  4d 00
     bz lab_4465             ;443f  ad 24
+
     mov a,!mem_f1a6         ;4441  8e a6 f1
     and a,#0x7f             ;4444  5d 7f
     cmp a,#0x00             ;4446  4d 00
     bz lab_4452             ;4448  ad 08
+
     call !sub_7697          ;444a  9a 97 76
     mov a,#0x00             ;444d  a1 00
     mov !mem_fb2e,a         ;444f  9e 2e fb
@@ -12972,15 +13003,19 @@ lab_4502:
     bnz lab_452c            ;451e  bd 0c
     mov a,#0x23             ;4520  a1 23
     mov !mem_fb2e,a         ;4522  9e 2e fb
+
     mov a,#0x0a             ;4525  a1 0a
     mov !mem_f1a6,a         ;4527  9e a6 f1       a Writes "TAPE ERROR "
+
     br lab_454b             ;452a  fa 1f
 
 lab_452c:
     mov a,#0x23             ;452c  a1 23
     mov !mem_fb2e,a         ;452e  9e 2e fb
+
     mov a,#0x0b             ;4531  a1 0b
     mov !mem_f1a6,a         ;4533  9e a6 f1       b Writes "    NO TAPE"
+
     br lab_454b             ;4536  fa 13
 
 lab_4538:
@@ -12990,6 +13025,7 @@ lab_4538:
     bz lab_454e             ;453f  ad 0d
     mov a,#0x23             ;4541  a1 23
     mov !mem_fb2e,a         ;4543  9e 2e fb
+
     mov a,#0x06             ;4546  a1 06          6 Writes "NO  CHANGER"
     mov !mem_f1a6,a         ;4548  9e a6 f1
 
@@ -21374,10 +21410,12 @@ lab_704d:
 
 lab_7054:
     clr1 upd_pict+4.5       ;7054  5b 39        Turn off period pictograph
+
     mov a,!mem_f1a6         ;7056  8e a6 f1
     and a,#0x0f             ;7059  5d 0f
     cmp a,#0x0e             ;705b  4d 0e        e Writes "  MIN  " or "  MAX  "
     bz lab_7065             ;705d  ad 06
+
     clr1 upd_pict+2.7       ;705f  7b 37        Turn off "METAL" pictograph
     clr1 upd_pict+1.2       ;7061  2b 36        Turn off "DOLBY" pictograph
     clr1 upd_pict+5.1       ;7063  1b 3a        Turn off "MIX" pictograph
@@ -21449,6 +21487,7 @@ lab_70c5:
     mov a,!mem_f1a6         ;70c5  8e a6 f1
     and a,#0x0f             ;70c8  5d 0f
     mov !mem_f1a6,a         ;70ca  9e a6 f1
+
     mov b,a                 ;70cd  73
     movw hl,#mem_b435+1     ;70ce  16 36 b4   HL = pointer to CD, TAPE, DIAG related code table
     br !lab_704d            ;70d1  9b 4d 70
@@ -21958,6 +21997,7 @@ lab_73ec:
     and a,#0x0f             ;73ef  5d 0f
     cmp a,#0x0e             ;73f1  4d 0e        e Writes "  MIN  " or "  MAX  "
     bnz lab_73fa            ;73f3  bd 05
+
     mov a,#0x1e             ;73f5  a1 1e
     mov !mem_fb2e,a         ;73f7  9e 2e fb
 
@@ -22001,6 +22041,7 @@ lab_7433:
     and a,#0x0f             ;7436  5d 0f
     cmp a,#0x0e             ;7438  4d 0e        e Writes "  MIN  " or "  MAX  "
     bnz lab_7441            ;743a  bd 05
+
     mov a,#0xff             ;743c  a1 ff
     mov !mem_f1a6,a         ;743e  9e a6 f1     f Writes " DIAG  "
 
@@ -22054,6 +22095,7 @@ lab_7484:
     and a,#0x0f             ;7487  5d 0f
     cmp a,#0x0e             ;7489  4d 0e        e Writes "  MIN  " or "  MAX  "
     bnz lab_7492            ;748b  bd 05
+
     mov a,#0xff             ;748d  a1 ff
     mov !mem_f1a6,a         ;748f  9e a6 f1      f Writes " DIAG  "
 
@@ -22084,6 +22126,7 @@ lab_74bc:
     and a,#0x0f             ;74bf  5d 0f
     cmp a,#0x0e             ;74c1  4d 0e        e Writes "  MIN  " or "  MAX  "
     bnz lab_74ca            ;74c3  bd 05
+
     mov a,#0xff             ;74c5  a1 ff
     mov !mem_f1a6,a         ;74c7  9e a6 f1     f Writes " DIAG  "
 
@@ -25811,6 +25854,7 @@ lab_8cbf:
     bnz lab_8cd6            ;8cca  bd 0a
     mov a,#0x32             ;8ccc  a1 32
     mov !mem_fb2e,a         ;8cce  9e 2e fb
+
     mov a,#0x8c             ;8cd1  a1 8c        c Writes "TAPE METAL"
     mov !mem_f1a6,a         ;8cd3  9e a6 f1
 
@@ -29525,8 +29569,10 @@ lab_a615:
 
 lab_a61c:
     call !sub_7697          ;a61c  9a 97 76
+
     mov a,#0x8e             ;a61f  a1 8e
     mov !mem_f1a6,a         ;a621  9e a6 f1       e Writes "  MIN  " or "  MAX  "
+
     mov a,#0x1e             ;a624  a1 1e
     mov !mem_fb2e,a         ;a626  9e 2e fb
     mov a,#0x0a             ;a629  a1 0a
@@ -29536,12 +29582,15 @@ lab_a61c:
 lab_a630:
     mov a,#0x55             ;a630  a1 55
     mov !mem_fc9f,a         ;a632  9e 9f fc
+
     mov a,!mem_f1a6         ;a635  8e a6 f1
     and a,#0x7f             ;a638  5d 7f
     cmp a,#0x0e             ;a63a  4d 0e        e Writes "  MIN  " or "  MAX  "
     bnz lab_a648            ;a63c  bd 0a
+
     mov a,#0xff             ;a63e  a1 ff
     mov !mem_f1a6,a         ;a640  9e a6 f1
+
     mov a,#0x00             ;a643  a1 00
     mov !mem_fb2e,a         ;a645  9e 2e fb     f Writes " DIAG  "
 
@@ -38772,7 +38821,7 @@ lab_d1ec_cd6:
     mov c,#0x06             ;d1ec  a2 06        C = CD 6
     mov x,#cdc_cd6          ;d1ee  a0 35        X = CDC command for CD 6
 
-;Branch to with:
+;Branched to with:
 ;  C = CD number 1-6
 ;  X = corresponding CDC command for CD 1-6
 lab_d1f0:
@@ -38811,6 +38860,7 @@ lab_d21b:
 lab_d22f_same_cd:
     mov a,#0xff                 ;d22f  a1 ff
     mov !mem_f1a6,a             ;d231  9e a6 f1       f Writes " DIAG  "
+
     call !sub_7697              ;d234  9a 97 76
     call !sub_dc2f              ;d237  9a 2f dc
     call !sub_d345              ;d23a  9a 45 d3
@@ -38828,8 +38878,10 @@ lab_d24b:
     set1 mem_fe80.0         ;d254  0a 80
     mov a,#0xff             ;d256  a1 ff
     mov !mem_f1ad,a         ;d258  9e ad f1
+
     mov a,#0x08             ;d25b  a1 08        8 Writes "CD   NO CD "
     mov !mem_f1a6,a         ;d25d  9e a6 f1
+
     mov a,#0x1d             ;d260  a1 1d
     mov !mem_fb2e,a         ;d262  9e 2e fb
     call !sub_d345          ;d265  9a 45 d3
@@ -39295,8 +39347,10 @@ lab_d56f_no_magazin:
     mov mem_fe44,#0x02      ;d56f  11 44 02
     mov a,#0xff             ;d572  a1 ff
     mov !mem_f1ad,a         ;d574  9e ad f1
+
     mov a,#0x05             ;d577  a1 05
     mov !mem_f1a6,a         ;d579  9e a6 f1       5 Writes "NO  MAGAZIN"
+
     mov a,#0x1c             ;d57c  a1 1c
     mov !mem_fb2e,a         ;d57e  9e 2e fb
     br lab_d5a9             ;d581  fa 26
@@ -39305,8 +39359,10 @@ lab_d583_no_changer:
     mov mem_fe44,#0x00      ;d583  11 44 00
     mov a,#0xff             ;d586  a1 ff
     mov !mem_f1ad,a         ;d588  9e ad f1
+
     mov a,#0x06             ;d58b  a1 06
     mov !mem_f1a6,a         ;d58d  9e a6 f1       6 Writes "NO  CHANGER"
+
     mov a,#0x1c             ;d590  a1 1c
     mov !mem_fb2e,a         ;d592  9e 2e fb
     br lab_d5a9             ;d595  fa 12
@@ -39315,8 +39371,10 @@ lab_d597_no_disc:
     mov mem_fe44,#0x03      ;d597  11 44 03
     mov a,#0xff             ;d59a  a1 ff
     mov !mem_f1ad,a         ;d59c  9e ad f1
+
     mov a,#0x04             ;d59f  a1 04
     mov !mem_f1a6,a         ;d5a1  9e a6 f1       4 Writes "    NO DISC"
+
     mov a,#0x1c             ;d5a4  a1 1c
     mov !mem_fb2e,a         ;d5a6  9e 2e fb
 
@@ -39536,15 +39594,19 @@ lab_d724:
     ret                     ;d724  af
 
 lab_d725:
-    mov a,!cdc_rx_buf       ;d725  8e 6e fc
-    and a,#0x0f             ;d728  5d 0f
-    mov !mem_fc7d_upd_cd,a  ;d72a  9e 7d fc
+    mov a,!cdc_rx_buf+cdc_r_cd-1  ;d725  8e 6e fc
+    and a,#0x0f                   ;d728  5d 0f
+    mov !mem_fc7d_upd_cd,a        ;d72a  9e 7d fc
+
     mov a,#0xff             ;d72d  a1 ff
     mov !mem_f1ad,a         ;d72f  9e ad f1
+
     mov a,#0x09             ;d732  a1 09
     mov !mem_f1a6,a         ;d734  9e a6 f1       9 Writes "CD  CD ERR "
+
     mov a,#0x1d             ;d737  a1 1d
     mov !mem_fb2e,a         ;d739  9e 2e fb
+
     call !sub_a74b          ;d73c  9a 4b a7
     call !sub_dadd          ;d73f  9a dd da
     call !sub_d92c          ;d742  9a 2c d9
@@ -39583,8 +39645,10 @@ lab_d773:
     mov !mem_f1b2,a         ;d77e  9e b2 f1
     mov a,#0xff             ;d781  a1 ff
     mov !mem_f1ad,a         ;d783  9e ad f1
+
     mov a,#0x07             ;d786  a1 07
     mov !mem_f1a6,a         ;d788  9e a6 f1       7 Writes "CD  CD ROM "
+
     mov a,#0x1d             ;d78b  a1 1d
     mov !mem_fb2e,a         ;d78d  9e 2e fb
     call !sub_a74b          ;d790  9a 4b a7
@@ -39633,8 +39697,10 @@ lab_d7d3:
     mov !mem_f1b2,a         ;d7d8  9e b2 f1
     mov a,#0xff             ;d7db  a1 ff
     mov !mem_f1ad,a         ;d7dd  9e ad f1
+
     mov a,#0x07             ;d7e0  a1 07
     mov !mem_f1a6,a         ;d7e2  9e a6 f1       7 Writes "CD  CD ROM "
+
     mov a,#0x1d             ;d7e5  a1 1d
     mov !mem_fb2e,a         ;d7e7  9e 2e fb
     call !sub_dadd          ;d7ea  9a dd da
@@ -39671,12 +39737,12 @@ lab_d818:
 
 ;Parse complete packet from CDC(?)
 sub_d819:
-    mov a,!cdc_rx_buf+6     ;d819  8e 74 fc
-    and a,#0x07             ;d81c  5d 07
-    cmp a,#0x03             ;d81e  4d 03
-    bnz lab_d83b            ;d820  bd 19
+    mov a,!cdc_rx_buf+cdc_r_last-1 ;d819  8e 74 fc
+    and a,#0x07              ;d81c  5d 07
+    cmp a,#0x03              ;d81e  4d 03
+    bnz lab_d83b             ;d820  bd 19
 
-    mov a,!cdc_rx_buf+6     ;d822  8e 74 fc
+    mov a,!cdc_rx_buf+cdc_r_last-1 ;d822  8e 74 fc
     cmp mem_fe30,#0x03      ;d825  c8 30 03
     bz lab_d82e             ;d828  ad 04
 
@@ -39688,7 +39754,7 @@ lab_d82e:
     mov1 mem_fe46.4,cy      ;d830  71 41 46
 
 lab_d833:
-    mov a,!cdc_rx_buf       ;d833  8e 6e fc
+    mov a,!cdc_rx_buf+cdc_r_cd-1   ;d833  8e 6e fc
     bt a.7,lab_d83e         ;d836  31 7e 05
     br lab_d867             ;d839  fa 2c
 
@@ -39714,15 +39780,15 @@ lab_d83e:
     rol a,1                 ;d854  26
     mov b,a                 ;d855  73
     movw hl,#mem_fc4f       ;d856  16 4f fc
-    movw de,#cdc_rx_buf+1   ;d859  14 6f fc
+    movw de,#cdc_rx_buf+cdc_r_track-1   ;d859  14 6f fc
     mov c,#0x04             ;d85c  a2 04
 
-lab_d85e:
+lab_d85e_loop:
     mov a,[de]              ;d85e  85
     mov [hl+b],a            ;d85f  bb
     inc b                   ;d860  43
     incw de                 ;d861  84
-    dbnz c,lab_d85e         ;d862  8a fa
+    dbnz c,lab_d85e_loop    ;d862  8a fa
 
 lab_d864:
     br !sub_d8fd            ;d864  9b fd d8
@@ -39730,7 +39796,7 @@ lab_d864:
 lab_d867:
     mov a,mem_fe49          ;d867  f0 49
     mov !mem_fc6b,a         ;d869  9e 6b fc
-    mov a,!cdc_rx_buf+5     ;d86c  8e 73 fc
+    mov a,!cdc_rx_buf+cdc_r_2ndlast-1 ;d86c  8e 73 fc
     and a,#0xf0             ;d86f  5d f0
     mov mem_fe49,a          ;d871  f2 49
     cmp mem_fe49,#0x10      ;d873  c8 49 10
@@ -39774,7 +39840,7 @@ lab_d8ad:
     clr1 mem_fe47.4         ;d8b1  4b 47
 
 lab_d8b3:
-    mov a,!cdc_rx_buf+4     ;d8b3  8e 72 fc
+    mov a,!cdc_rx_buf+cdc_r_mode-1 ;d8b3  8e 72 fc
     mov1 cy,a.2             ;d8b6  61 ac
     mov1 mem_fe6e.2,cy      ;d8b8  71 21 6e
     mov1 cy,a.5             ;d8bb  61 dc
@@ -39782,7 +39848,7 @@ lab_d8b3:
     mov1 mem_fe6e.1,cy      ;d8c0  71 11 6e     Copy carry into MIX flag
     mov1 cy,a.4             ;d8c3  61 cc
     mov1 mem_fe6e.0,cy      ;d8c5  71 01 6e
-    mov a,!cdc_rx_buf+5     ;d8c8  8e 73 fc
+    mov a,!cdc_rx_buf+cdc_r_2ndlast-1 ;d8c8  8e 73 fc
     mov1 cy,a.3             ;d8cb  61 bc
     bnc lab_d8e9            ;d8cd  9d 1a
     mov a,!mem_fc7e         ;d8cf  8e 7e fc
@@ -39805,7 +39871,7 @@ lab_d8e9:
     mov !mem_fc7e,a         ;d8ed  9e 7e fc
 
 lab_d8f0:
-    mov a,!cdc_rx_buf+5     ;d8f0  8e 73 fc
+    mov a,!cdc_rx_buf+cdc_r_2ndlast-1 ;d8f0  8e 73 fc
     and a,#0x06             ;d8f3  5d 06
     ror a,1                 ;d8f5  24
     and a,#0x03             ;d8f6  5d 03
@@ -40112,8 +40178,10 @@ sub_da81:
     mov !mem_f1b2,a         ;daa6  9e b2 f1
     mov a,#0xff             ;daa9  a1 ff
     mov !mem_f1ad,a         ;daab  9e ad f1
+
     mov a,#0x07             ;daae  a1 07
     mov !mem_f1a6,a         ;dab0  9e a6 f1       7 Writes "CD  CD ROM "
+
     mov a,#0x1d             ;dab3  a1 1d
     mov !mem_fb2e,a         ;dab5  9e 2e fb
 
@@ -40245,11 +40313,13 @@ lab_db74:
     mov a,#cdc_reverse      ;db85  a1 1a        A = "Reverse"
     br !sub_d1bf_cdc_tx     ;db87  9b bf d1     CDC TX related
 
+
+
 sub_db8a:
-    mov a,!cdc_rx_buf       ;db8a  8e 6e fc
+    mov a,!cdc_rx_buf+cdc_r_cd-1 ;db8a  8e 6e fc
     bt a.7,lab_dba6         ;db8d  31 7e 16
     bf mem_fe46.2,lab_dba6  ;db90  31 23 46 12
-    mov a,!cdc_rx_buf       ;db94  8e 6e fc
+    mov a,!cdc_rx_buf+cdc_r_cd-1  ;db94  8e 6e fc
     and a,#0x0f             ;db97  5d 0f
     cmp a,!mem_fc7b_cdc_cd  ;db99  48 7b fc
     bz lab_dba6             ;db9c  ad 08
@@ -40268,8 +40338,10 @@ sub_dba7:
     clr1 mem_fe46.2         ;dbb2  2b 46
     set1 mem_fe47.3         ;dbb4  3a 47
 
+
+
 lab_dbb6:
-    mov a,!cdc_rx_buf       ;dbb6  8e 6e fc
+    mov a,!cdc_rx_buf+cdc_r_cd-1 ;dbb6  8e 6e fc
     bt a.7,lab_dc2e_ret     ;dbb9  31 7e 72
     and a,#0x0f             ;dbbc  5d 0f
     bf mem_fe46.2,lab_dbd3  ;dbbe  31 23 46 11
@@ -40277,17 +40349,21 @@ lab_dbb6:
     bnz lab_dc2e_ret        ;dbc5  bd 67
     clr1 mem_fe46.2         ;dbc7  2b 46
     push ax                 ;dbc9  b1
+
     mov a,#0xff             ;dbca  a1 ff
     mov !mem_f1a6,a         ;dbcc  9e a6 f1       f Writes " DIAG  "
+
     call !sub_7697          ;dbcf  9a 97 76
     pop ax                  ;dbd2  b0
 
 lab_dbd3:
     bf mem_fe47.3,lab_dbee  ;dbd3  31 33 47 17
     mov b,a                 ;dbd7  73
+
     mov a,!mem_f1a6         ;dbd8  8e a6 f1
     cmp a,#0x09             ;dbdb  4d 09        9 Writes "CD  CD ERR "
     bz lab_dc2e_ret         ;dbdd  ad 4f        Branch to just return
+
     mov a,b                 ;dbdf  63
     cmp a,#0x00             ;dbe0  4d 00
     bz lab_dc2e_ret         ;dbe2  ad 4a        Branch to just return
@@ -40297,36 +40373,36 @@ lab_dbd3:
     mov !mem_fc7b_cdc_cd,a  ;dbeb  9e 7b fc
 
 lab_dbee:
-    mov a,!cdc_rx_buf+1     ;dbee  8e 6f fc
+    mov a,!cdc_rx_buf+cdc_r_track-1 ;dbee  8e 6f fc
     call !sub_0ce8          ;dbf1  9a e8 0c
     bc lab_dc2e_ret         ;dbf4  8d 38        Branch to just return
     cmp a,#0x00             ;dbf6  4d 00
     bz lab_dc2e_ret         ;dbf8  ad 34        Branch to just return
 
-    mov a,!cdc_rx_buf+2     ;dbfa  8e 70 fc
+    mov a,!cdc_rx_buf+cdc_r_minutes-1 ;dbfa  8e 70 fc
     and a,#0xf0             ;dbfd  5d f0
     cmp a,#0xa0             ;dbff  4d a0
     bz lab_dc0b             ;dc01  ad 08
 
-    mov a,!cdc_rx_buf+2     ;dc03  8e 70 fc
+    mov a,!cdc_rx_buf+cdc_r_minutes-1 ;dc03  8e 70 fc
     call !sub_0ce8          ;dc06  9a e8 0c
     bc lab_dc2e_ret         ;dc09  8d 23        Branch to just return
 
 lab_dc0b:
-    mov a,!cdc_rx_buf+3     ;dc0b  8e 71 fc
+    mov a,!cdc_rx_buf+cdc_r_seconds-1 ;dc0b  8e 71 fc
     call !sub_0ce8          ;dc0e  9a e8 0c
     bc lab_dc2e_ret         ;dc11  8d 1b        Branch to just return
 
     bt mem_fe47.6,lab_dc2e_ret ;dc13  ec 47 18  Branch to just return
 
-    mov a,!cdc_rx_buf+0     ;dc16  8e 6e fc
+    mov a,!cdc_rx_buf+cdc_r_cd-1     ;dc16  8e 6e fc
     bt a.7,lab_dc2e_ret     ;dc19  31 7e 12     Branch to just return
 
-    mov a,!cdc_rx_buf+1     ;dc1c  8e 6f fc
+    mov a,!cdc_rx_buf+cdc_r_track-1   ;dc1c  8e 6f fc
     mov !mem_fc76,a         ;dc1f  9e 76 fc
-    mov a,!cdc_rx_buf+2     ;dc22  8e 70 fc
+    mov a,!cdc_rx_buf+cdc_r_minutes-1 ;dc22  8e 70 fc
     mov !mem_fc77,a         ;dc25  9e 77 fc
-    mov a,!cdc_rx_buf+3     ;dc28  8e 71 fc
+    mov a,!cdc_rx_buf+cdc_r_seconds-1 ;dc28  8e 71 fc
     mov !mem_fc78,a         ;dc2b  9e 78 fc
 
 lab_dc2e_ret:
@@ -40337,18 +40413,18 @@ sub_dc2f:
     xor a,#0xff             ;dc31  7d ff
     and a,!mem_f1ad         ;dc33  58 ad f1
     cmp a,#0x48             ;dc36  4d 48
-    bz lab_dc45             ;dc38  ad 0b
+    bz lab_dc45_48_or_49    ;dc38  ad 0b
     cmp a,#0x49             ;dc3a  4d 49
-    bz lab_dc45             ;dc3c  ad 07
+    bz lab_dc45_48_or_49    ;dc3c  ad 07
     mov a,!mem_fe57         ;dc3e  8e 57 fe
     cmp a,#0x00             ;dc41  4d 00
-    bnz lab_dc4a            ;dc43  bd 05
+    bnz lab_dc4a_ret        ;dc43  bd 05
 
-lab_dc45:
+lab_dc45_48_or_49:
     mov a,#0x00             ;dc45  a1 00
     mov !mem_f1ad,a         ;dc47  9e ad f1
 
-lab_dc4a:
+lab_dc4a_ret:
     ret                     ;dc4a  af
 
 sub_dc4b:
