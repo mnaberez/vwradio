@@ -20136,49 +20136,58 @@ sub_6947:
     mov !mem_f1aa,a         ;6949  9e aa f1
     ret                     ;694c  af
 
-lab_694d:
-    mov b,#0x00             ;694d  a3 00
-    movw de,#mem_b471+1     ;694f  14 78 b4
-    movw hl,#lab_6956       ;6952  16 56 69
-    ret                     ;6955  af
+;Blank
 
-lab_6956:
-    movw de,#mem_b47e       ;6956  14 7e b4
-    movw hl,#mem_b47c       ;6959  16 7c b4
-    br lab_6991             ;695c  fa 33
+lab_694d_b_hl_de_blank:
+    mov b,#0x00                     ;694d  a3 00
+    movw de,#mem_b471_blank_msgs+1  ;694f  14 78 b4
+    movw hl,#lab_6956_hl_blank      ;6952  16 56 69
+    ret                             ;6955  af
 
-lab_695e:
-    mov b,#0x01             ;695e  a3 01
-    movw hl,#lab_6967       ;6960  16 67 69
-    movw de,#mem_b480+1     ;6963  14 81 b4
-    ret                     ;6966  af
+lab_6956_hl_blank:
+    movw de,#mem_b47e_blank         ;6956  14 7e b4
+    movw hl,#mem_b47c_blank         ;6959  16 7c b4
+    br lab_6991                     ;695c  fa 33
 
-lab_6967:
-    movw de,#mem_b4a0+1     ;6967  14 a1 b4
-    movw hl,#mem_b495+1     ;696a  16 96 b4
-    br lab_6991             ;696d  fa 22
+;AM/FM
 
-lab_696f:
-    mov b,#0x02             ;696f  a3 02
-    movw de,#mem_b4b0+1     ;6971  14 b1 b4
-    movw hl,#lab_6978       ;6974  16 78 69
-    ret                     ;6977  af
+lab_695e_b_hl_de_amfm:
+    mov b,#0x01                     ;695e  a3 01
+    movw hl,#lab_6967_hl_amfm       ;6960  16 67 69
+    movw de,#mem_b480_amfm_msgs+1   ;6963  14 81 b4
+    ret                             ;6966  af
 
-lab_6978:
-    movw de,#mem_b4d0+1     ;6978  14 d1 b4
-    movw hl,#mem_b4c5+1     ;697b  16 c6 b4
-    br lab_6991             ;697e  fa 11
+lab_6967_hl_amfm:
+    movw de,#mem_b4a0_amfm+1        ;6967  14 a1 b4
+    movw hl,#mem_b495_amfm+1        ;696a  16 96 b4
+    br lab_6991                     ;696d  fa 22
 
-lab_6980:
-    mov b,#0x03                 ;6980  a3 03
-    movw hl,#lab_6989           ;6982  16 89 69
-    movw de,#mem_b4de_cd_msgs+1 ;6985  14 df b4
-    ret                         ;6988  af
+;Tape
 
-lab_6989:
-    movw de,#mem_b50b+1     ;6989  14 0c b5
-    movw hl,#mem_b4fd+1     ;698c  16 fe b4
+lab_696f_b_hl_de_tape:
+    mov b,#0x02                     ;696f  a3 02
+    movw de,#mem_b4b0_tape_msgs+1   ;6971  14 b1 b4
+    movw hl,#lab_6978_hl_tape       ;6974  16 78 69
+    ret                             ;6977  af
+
+lab_6978_hl_tape:
+    movw de,#mem_b4d0_tape+1        ;6978  14 d1 b4
+    movw hl,#mem_b4c5_hl_tape+1     ;697b  16 c6 b4
+    br lab_6991                     ;697e  fa 11
+
+;CD
+
+lab_6980_b_hl_de_cd:
+    mov b,#0x03                     ;6980  a3 03
+    movw hl,#lab_6989_hl_cd         ;6982  16 89 69
+    movw de,#mem_b4de_cd_msgs+1     ;6985  14 df b4
+    ret                             ;6988  af
+
+lab_6989_hl_cd:
+    movw de,#mem_b50b_cd+1  ;6989  14 0c b5
+    movw hl,#mem_b4fd_cd+1  ;698c  16 fe b4
     br lab_6991             ;698f  fa 00        XXX useless branch; could just fall through
+
 
 lab_6991:
     mov a,mem_fed4          ;6991  f0 d4
@@ -20241,7 +20250,7 @@ lab_69df:
     mov a,!mem_f1af         ;69e3  8e af f1
     and a,#0x0f             ;69e6  5d 0f
     mov b,a                 ;69e8  73
-    movw hl,#mem_b480+1     ;69e9  16 81 b4
+    movw hl,#mem_b480_amfm_msgs+1     ;69e9  16 81 b4
     callf !table_get_word   ;69ec  4c 48        Load DE with word at position B in table [HL]
     movw ax,#lab_69f5_ret   ;69ee  10 f5 69
     push ax                 ;69f1  b1
@@ -20256,7 +20265,7 @@ lab_69f6:
     and a,#0x0f             ;69f9  5d 0f
     mov b,a                 ;69fb  73
     mov !mem_f1ab,a         ;69fc  9e ab f1
-    movw hl,#mem_b480+1     ;69ff  16 81 b4
+    movw hl,#mem_b480_amfm_msgs+1     ;69ff  16 81 b4
     callf !table_get_word   ;6a02  4c 48        Load DE with word at position B in table [HL]
     bc lab_6a09             ;6a04  8d 03        Branch if table lookup failed
     movw ax,de              ;6a06  c4
@@ -20417,7 +20426,7 @@ lab_6af1:
     call !sub_6e6e_ret      ;6af1  9a 6e 6e     Just returns
     ret                     ;6af4  af
 
-lab_6af5:
+lab_6af5_tape_load:
     mov b,#0xff             ;6af5  a3 ff
     mov a,#0x0a             ;6af7  a1 0a
     movw hl,#tape_load      ;6af9  16 0b 66     HL = pointer to 11,"TAPE LOAD  "
@@ -20436,38 +20445,38 @@ lab_6b00_tape_metal:
 lab_6b0e:
     ret                     ;6b0e  af
 
-lab_6b0f:
+lab_6b0f_tape_play:
     mov b,#0xff             ;6b0f  a3 ff
     mov a,#0x0a             ;6b11  a1 0a
     movw hl,#tape_play      ;6b13  16 ab 65
     br lab_6b52             ;6b16  fa 3a        Branch to finish tape message
 
-lab_6b18:
+lab_6b18_tape_ff:
     mov a,#0xff             ;6b18  a1 ff
     mov b,#0x0a             ;6b1a  a3 0a
     movw hl,#tape_ff        ;6b1c  16 b7 65
     br lab_6b52             ;6b1f  fa 31        Branch to finish tape message
 
-lab_6b21:
+lab_6b21_tape_rew:
     mov a,#0xff             ;6b21  a1 ff
     mov b,#0x0a             ;6b23  a3 0a
     movw hl,#tape_rew       ;6b25  16 c3 65
     br lab_6b52             ;6b28  fa 28        Branch to finish tape message
 
-lab_6b2a:
+lab_6b2a_tape_scan:
     mov b,#0xff             ;6b2a  a3 ff
     movw hl,#tape_scan      ;6b2c  16 f3 65
     mov a,#0x0a             ;6b2f  a1 0a
     br lab_6b52             ;6b31  fa 1f        Branch to finish tape message
 
-lab_6b33:
+lab_6b33_skip_blank:
     mov b,#0xff             ;6b33  a3 ff
     mov a,#0x0a             ;6b35  a1 0a
     movw hl,#skip_blank     ;6b37  16 e7 65     HL = pointer to 11,"SKIP BLANK "
     call !sub_6e70_copy_upd ;6b3a  9a 70 6e     Copy message from [HL] to display buf; uses A, B
     ret                     ;6b3d  af
 
-lab_6b3e:
+lab_6b3e_tape_mss_ff:
     mov b,#0xff             ;6b3e  a3 ff
     movw hl,#tapemss_ff     ;6b40  16 cf 65     HL = pointer to 11,"TAPEMSS FF "
     mov a,#0x0a             ;6b43  a1 0a
@@ -20475,7 +20484,7 @@ lab_6b3e:
 
     ret                     ;6b47  af
 
-lab_6b48:
+lab_6b48_tapemss_rew:
     mov b,#0xff             ;6b48  a3 ff
     movw hl,#tapemss_rew    ;6b4a  16 db 65     HL = pointer to 11,"TAPE MSS REW"
     mov a,#0x0a             ;6b4d  a1 0a
@@ -21224,7 +21233,7 @@ lab_6f66_pop_ret:
     ret                     ;6f67  af
 
 
-write_nonzero_dig :
+write_nonzero_dig:
 ;Write low nib of A in ASCII to buf at B if nonzero, either way decr B
     and a,#0x0f             ;6f68  5d 0f
     bz lab_6f76_dec_b_ret   ;6f6a  ad 0a
@@ -21251,7 +21260,7 @@ sub_6f78:
     mov b,#0x00             ;6f7f  a3 00
 
 lab_6f81:
-    movw hl,#mem_b46e+1     ;6f81  16 6f b4
+    movw hl,#mem_b46e_blank_amfm_tape_cd+1 ;6f81  16 6f b4
     callf !table_get_word   ;6f84  4c 48        Load DE with word at position B in table [HL]
     bnc lab_6f8b            ;6f86  9d 03        Branch if table lookup succeeded
     br !lab_7690            ;6f88  9b 90 76
@@ -21494,7 +21503,7 @@ lab_70a7:
     mov !mem_f1a5,a         ;70b1  9e a5 f1
 
     mov b,a                 ;70b4  73
-    movw hl,#mem_b426+1     ;70b5  16 27 b4   HL = pointer to sound control related code table
+    movw hl,#mem_b426_sound_msgs+1     ;70b5  16 27 b4   HL = pointer to sound control related code table
     br lab_704d             ;70b8  fa 93
 
 lab_70ba:
@@ -21510,7 +21519,7 @@ lab_70c5:
     mov !mem_f1a6,a         ;70ca  9e a6 f1
 
     mov b,a                 ;70cd  73
-    movw hl,#mem_b435+1     ;70ce  16 36 b4   HL = pointer to CD, TAPE, DIAG related code table
+    movw hl,#mem_b435_error_msgs+1     ;70ce  16 36 b4   HL = pointer to CD, TAPE, DIAG related code table
     br !lab_704d            ;70d1  9b 4d 70
 
 lab_70d4:
@@ -21591,7 +21600,7 @@ lab_7142:
     and a,#0x7f             ;7145  5d 7f
     mov !mem_f1a8,a         ;7147  9e a8 f1
     mov b,a                 ;714a  73
-    movw hl,#mem_b456+1     ;714b  16 57 b4     HL = pointer to table of SAFE code related code table
+    movw hl,#mem_b456_safe_msgs+1     ;714b  16 57 b4     HL = pointer to table of SAFE code related code table
     br !lab_704d            ;714e  9b 4d 70
 
 lab_7151:
@@ -21605,7 +21614,7 @@ lab_715c:
     and a,#0x7f             ;715f  5d 7f
     mov !mem_f1a9,a         ;7161  9e a9 f1
     mov b,a                 ;7164  73
-    movw hl,#mem_b459+1     ;7165  16 60 b4     HL = pointer to table of SCAN menu related code table
+    movw hl,#mem_b459_hold_fb_msgs+1     ;7165  16 60 b4     HL = messages when F/B button is held down
     br !lab_704d            ;7168  9b 4d 70
 
 lab_716b_comm_error:
@@ -22073,7 +22082,7 @@ lab_7441:
     call !sub_6e70_copy_upd ;7448  9a 70 6e     Copy message from [HL] to display buf; uses A, B
     ret                     ;744b  af
 
-lab_744c:
+lab_744c_tape_ab:
     mov b,#0xff             ;744c  a3 ff
     movw hl,#tape           ;744e  16 a6 65     HL = pointer to 4,"TAPE"
     mov a,#0x03             ;7451  a1 03
@@ -32659,7 +32668,7 @@ mem_b41b:
     .word lab_7142
     .word lab_7151
 
-mem_b426:
+mem_b426_sound_msgs:
 ;unknown table used by lab_70a7
 ;indexed by mem_f1a5 & 0x7f
     .byte 0x07                  ;b426  07          DATA 0x07        7 entries below:
@@ -32671,7 +32680,7 @@ mem_b426:
     .word lab_765f_flat         ;                  5 Writes "FLAT"
     .word lab_766a_select_eq    ;                  6 Writes "SELECT EQ #"
 
-mem_b435:
+mem_b435_error_msgs:
 ;unknown table used by lab_70c5
 ;indexed by mem_f1a6 & 0x0f
     .byte 0x10                  ;b435  10          DATA 0x10        16 entries below:
@@ -32692,7 +32701,7 @@ mem_b435:
     .word lab_73cd_min_or_max   ;                  e Writes "  MIN  " or "  MAX  "
     .word lab_74d5_diag         ;                  f Writes " DIAG  "
 
-mem_b456:
+mem_b456_safe_msgs:
 ;unknown table used by lab_7142
 ;indexed by mem_f1a8 & 0x7f
     .byte 0x04              ;b456  04          DATA 0x04        4 entries below:
@@ -32701,7 +32710,8 @@ mem_b456:
     .word lab_7224_safe_3_of_4  ;b45b              2 Writes "     SAFE  "
     .word lab_7294_safe_4_of_4  ;b45d              3 Writes "     SAFE  "
 
-mem_b459:
+mem_b459_hold_fb_msgs:
+;messages shown when F/B button is held down
 ;unknown table used by lab_715c
 ;indexed by mem_f1a9 & 0x7f
     .byte 0x07              ;b45f  07          DATA 0x07        7 entries below:
@@ -32713,31 +32723,33 @@ mem_b459:
     .word lab_7387_set_cdmix    ;b46a              5 Writes "SET CD MIX "
     .word lab_73a3_tape_skip    ;b46c              6 Writes "TAPE SKIP  "
 
-mem_b46e:
+mem_b46e_blank_amfm_tape_cd:
 ;table used at lab_6f81 with table_get_word
-    .byte 0x04              ;b46e  04          DATA 0x04        4 entries below:
-    .word lab_694d          ;b46f
-    .word lab_695e          ;b471
-    .word lab_696f          ;b473
-    .word lab_6980          ;b475
+;indexed by mem_fe30
+    .byte 0x04                  ;b46e  04          DATA 0x04        4 entries below:
+    .word lab_694d_b_hl_de_blank ;b46f               0 Sets DE = mem_b471_blank_msgs
+    .word lab_695e_b_hl_de_amfm  ;b471               1 Sets DE = mem_b480_amfm_msgs
+    .word lab_696f_b_hl_de_tape  ;b473               2 Sets DE = mem_b4b0_tape_msgs
+    .word lab_6980_b_hl_de_cd    ;b475               3 Sets DE = mem_b4de_cd_msgs
 
 ;TODO unknown table
-mem_b471:
+mem_b471_blank_msgs:
     .byte 0x01              ;b477  01          DATA 0x01        1 entry below:
     .word lab_6a2f          ;b478             Writes "           "
 
+
+;TODO XXX these tables are probably wrong
     .byte 0x00              ;b47a  00          DATA 0x00
+mem_b47b:
     .byte 0x01              ;b47b  01          DATA 0x01
-
-mem_b47c:
+mem_b47c_blank:
     .byte 0xff              ;b47c  ff          DATA 0xff
-
     .byte 0x01              ;b47d  01          DATA 0x01
-mem_b47e:
-    .byte 0x7b              ;b47e  7b          DATA 0x7b '{'
-    .byte 0xb4              ;b47f  b4          DATA 0xb4
+mem_b47e_blank:
+    .word mem_b47b        ;b47e
 
-mem_b480:
+
+mem_b480_amfm_msgs:
 ;table of words used with table_get_word
     .byte 0x0a              ;b480  0a          DATA 0x0a        10 entries below:
     .word lab_6a5c          ;b481
@@ -32752,7 +32764,7 @@ mem_b480:
     .word lab_7405          ;b493     Writes AM/kHz or FM/MHz to display buf
 
 ;TODO unknown table
-mem_b495:
+mem_b495_amfm:
     .byte 0x0a              ;b495  0a          DATA 0x0a    10 entries below:
     .byte 0x02              ;b496  02          DATA 0x02
     .byte 0xff              ;b497  ff          DATA 0xff
@@ -32765,7 +32777,7 @@ mem_b495:
     .byte 0xff              ;b49e  ff          DATA 0xff
     .byte 0x01              ;b49f  01          DATA 0x00
 
-mem_b4a0:
+mem_b4a0_amfm:
     .byte 0x03              ;b4a0  03          DATA 0x03    3 entries below:
     .word mem_b4a8+1        ;b4a1
     .word mem_b4aa+1        ;b4a3
@@ -32786,20 +32798,20 @@ mem_b4ae:
     .byte 0x20              ;b4ae  20          DATA 0x20
     .byte 0x09              ;b4af  09          DATA 0x09
 
-mem_b4b0:
-    .byte 0x0a              ;b4b0  0a          DATA 0x0a        10 entries below:
-    .word lab_6b00_tape_metal          ;b4b1
-    .word lab_6b0f          ;b4b3
-    .word lab_6b3e          ;b4b5
-    .word lab_6b48          ;b4b7
-    .word lab_6b2a          ;b4b9
-    .word lab_6b18          ;b4bb
-    .word lab_6b21          ;b4bd
-    .word lab_744c          ;b4bf
-    .word lab_6af5          ;b4c1
-    .word lab_6b33          ;b4c3
+mem_b4b0_tape_msgs:
+    .byte 0x0a                  ;b4b0  0a          DATA 0x0a        10 entries below:
+    .word lab_6b00_tape_metal   ;b4b1
+    .word lab_6b0f_tape_play    ;b4b3
+    .word lab_6b3e_tape_mss_ff  ;b4b5
+    .word lab_6b48_tapemss_rew  ;b4b7
+    .word lab_6b2a_tape_scan    ;b4b9
+    .word lab_6b18_tape_ff      ;b4bb
+    .word lab_6b21_tape_rew     ;b4bd
+    .word lab_744c_tape_ab      ;b4bf
+    .word lab_6af5_tape_load    ;b4c1
+    .word lab_6b33_skip_blank   ;b4c3
 
-mem_b4c5:
+mem_b4c5_hl_tape:
     .byte 0x0a              ;b4c5  0a          DATA 0x0a        10 entries below:
     .byte 0x02              ;b4c6  02          DATA 0x02
     .byte 0xff              ;b4c7  ff          DATA 0xff
@@ -32812,7 +32824,7 @@ mem_b4c5:
     .byte 0xff              ;b4ce  ff          DATA 0xff
     .byte 0xff              ;b4cf  ff          DATA 0xff
 
-mem_b4d0:
+mem_b4d0_tape:
     .byte 0x02              ;b4d0  02          DATA 0x02        2 entries below:
     .word mem_b4d5+1        ;bd41
     .word mem_b4d8+1        ;b4d3
@@ -32857,7 +32869,7 @@ mem_b4f9:
     .byte 0x00              ;b4fb  00          DATA 0x00
     .byte 0x02              ;b4fc  02          DATA 0x02
 
-mem_b4fd:
+mem_b4fd_cd:
     .byte 0x0d              ;b4fd  0d          DATA 0x0d        13 entries below:
     .byte 0x01              ;b4fe  01          DATA 0x01
     .byte 0x02              ;b4ff  02          DATA 0x02
@@ -32873,7 +32885,7 @@ mem_b4fd:
     .byte 0xff              ;b509  ff          DATA 0xff
     .byte 0xff              ;b50a  ff          DATA 0xff
 
-mem_b50b:
+mem_b50b_cd:
 ;table used with table_get_word
     .byte 0x07              ;b50b  07          DATA 0x07
     .word mem_b51a+1
