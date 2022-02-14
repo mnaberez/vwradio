@@ -493,14 +493,14 @@ mem_fc6b = 0xfc6b
 mem_fc6c = 0xfc6c
 mem_fc6d = 0xfc6d
 cdc_rx_buf = 0xfc6e         ;CDC RX buffer (7 bytes; copied from cdc_isr_rx_buf except first byte)
-mem_fc75 = 0xfc75
+mem_fc75_cd_num1 = 0xfc75   ;CD number (copy 1 of 3)
 mem_fc76_cd_trk = 0xfc76
 mem_fc77_cd_mins = 0xfc77
 mem_fc78_cd_secs = 0xfc78
 mem_fc79 = 0xfc79
-mem_fc7b_cdc_cd = 0xfc7b    ;CD number used when sending CDC commands
-mem_fc7c = 0xfc7c
-mem_fc7d_upd_cd = 0xfc7d    ;CD number used for display
+mem_fc7b_cd_cd2 = 0xfc7b    ;CD number (copy 2 of 3)
+mem_fc7c_last_trk = 0xfc7c  ;CD track number received in previous packet to detect track change
+mem_fc7d_upd_cd3 = 0xfc7d   ;CD number (copy 3 of 3)
 mem_fc7e = 0xfc7e
 mem_fc7f = 0xfc7f
 mem_fc80 = 0xfc80
@@ -20170,10 +20170,10 @@ lab_6978:
     br lab_6991             ;697e  fa 11
 
 lab_6980:
-    mov b,#0x03             ;6980  a3 03
-    movw hl,#lab_6989       ;6982  16 89 69
-    movw de,#mem_b4de+1     ;6985  14 df b4
-    ret                     ;6988  af
+    mov b,#0x03                 ;6980  a3 03
+    movw hl,#lab_6989           ;6982  16 89 69
+    movw de,#mem_b4de_cd_msgs+1 ;6985  14 df b4
+    ret                         ;6988  af
 
 lab_6989:
     movw de,#mem_b50b+1     ;6989  14 0c b5
@@ -20270,7 +20270,7 @@ lab_6a0a:
     mov !mem_fb2d,a         ;6a0c  9e 2d fb
     ret                     ;6a0f  af
 
-lab_6a10:
+lab_6a10_monsoon:
     mov a,!mem_f1fe         ;6a10  8e fe f1     TODO coding, monsoon related
     cmp a,#0x03             ;6a13  4d 03
     bz lab_6a1b             ;6a15  ad 04        Branch if coded for Monsoon
@@ -20424,7 +20424,7 @@ lab_6af5:
     call !sub_6e70_copy_upd ;6afc  9a 70 6e     Copy message from [HL] to display buf; uses A, B
     ret                     ;6aff  af
 
-lab_6b00:
+lab_6b00_tape_metal:
     bf mem_fe71.4,lab_6b0e  ;6b00  31 43 71 0a  Branch if METAL sense is off (normal tape)
 
     ;METAL tape
@@ -20486,7 +20486,7 @@ lab_6b48:
 lab_6b52:
 ;Finish tape message
     call !sub_6e70_copy_upd ;6b52  9a 70 6e     Copy message from [HL] to display buf; uses A, B
-    call !sub_6e40          ;6b55  9a 40 6e     Write tape side "A" or "B" and set tape pictographs
+    call !sub_6e40_wr_tap_ab;6b55  9a 40 6e     Write tape side "A" or "B" and set tape pictographs
     call !sub_6e6f_ret      ;6b58  9a 6f 6e     Just returns
     ret                     ;6b5b  af
 
@@ -20497,7 +20497,7 @@ lab_6b5c:
     call !sub_6e6f_ret      ;6b62  9a 6f 6e     Just returns
     ret                     ;6b65  af
 
-lab_6b66:
+lab_6b66_chk_magazin:
     mov a,#0x0a             ;6b66  a1 0a
     movw hl,#chk_magazin    ;6b68  16 ad 67     HL = pointer to 11,"CHK MAGAZIN"
     mov b,#0xff             ;6b6b  a3 ff
@@ -20505,7 +20505,7 @@ lab_6b66:
 
     br !lab_6ca5_ret        ;6b70  9b a5 6c     Branch to return
 
-lab_6b73:
+lab_6b73_cd_cd_err:
     mov a,!mem_fc79         ;6b73  8e 79 fc
     cmp a,#0x03             ;6b76  4d 03
     bz lab_6b90_cd_err_no_cd;6b78  ad 16
@@ -20516,7 +20516,7 @@ lab_6b73:
     call !sub_6e70_copy_upd ;6b81  9a 70 6e     Copy message from [HL] to display buf; uses A, B
 
     movw hl,#upd_disp       ;6b84  16 9a f1
-    mov a,!mem_fc7d_upd_cd  ;6b87  8e 7d fc     A = CD number
+    mov a,!mem_fc7d_upd_cd3  ;6b87  8e 7d fc     A = CD number
     add a,#'0               ;6b8a  0d 30        Convert to ASCII
     mov [hl+0x03],a         ;6b8c  be 03        '...1.......'
     br lab_6b9a             ;6b8e  fa 0a
@@ -20530,14 +20530,14 @@ lab_6b90_cd_err_no_cd:
 lab_6b9a:
     br !lab_6ca5_ret        ;6b9a  9b a5 6c     Branch to return
 
-lab_6b9d:
+lab_6b9d_cd_no_cd:
     mov a,#0x0a             ;6b9d  a1 0a
     mov b,#0xff             ;6b9f  a3 ff
     movw hl,#cd_no_cd       ;6ba1  16 90 66     HL = pointer to 11,"CD   NO CD "
     call !sub_6e70_copy_upd ;6ba4  9a 70 6e     Copy message from [HL] to display buf; uses A, B
 
     movw hl,#upd_disp       ;6ba7  16 9a f1
-    mov a,!mem_fc7d_upd_cd  ;6baa  8e 7d fc     A = CD number
+    mov a,!mem_fc7d_upd_cd3  ;6baa  8e 7d fc     A = CD number
     add a,#'0               ;6bad  0d 30        Convert to ASCII
     mov [hl+0x03],a         ;6baf  be 03        '...1.......'
     br !lab_6ca5_ret        ;6bb1  9b a5 6c     Branch to return
@@ -20558,37 +20558,37 @@ lab_6bc2:
 
 lab_6bcb:
     bf upd_tick.1,lab_6bdd_ret  ;6bcb  31 13 3d 0e
-    mov a,!mem_f1b1         ;6bcf  8e b1 f1
-    mov b,a                 ;6bd2  73
-    movw hl,#mem_b4de+1     ;6bd3  16 df b4
-    callf !table_get_word   ;6bd6  4c 48        Load DE with word at position B in table [HL]
-    bc lab_6bdd_ret         ;6bd8  8d 03        Branch if table lookup failed
-    movw ax,de              ;6bda  c4
-    br ax                   ;6bdb  31 98
+    mov a,!mem_f1b1             ;6bcf  8e b1 f1
+    mov b,a                     ;6bd2  73
+    movw hl,#mem_b4de_cd_msgs+1 ;6bd3  16 df b4
+    callf !table_get_word       ;6bd6  4c 48        Load DE with word at position B in table [HL]
+    bc lab_6bdd_ret             ;6bd8  8d 03        Branch if table lookup failed
+    movw ax,de                  ;6bda  c4
+    br ax                       ;6bdb  31 98
 
 lab_6bdd_ret:
     ret                     ;6bdd  af
 
 lab_6bde:
-    mov a,!mem_f1b1         ;6bde  8e b1 f1
-    mov b,a                 ;6be1  73
-    mov !mem_f1ad,a         ;6be2  9e ad f1
-    movw hl,#mem_b4de+1     ;6be5  16 df b4
-    callf !table_get_word   ;6be8  4c 48        Load DE with word at position B in table [HL]
-    bc lab_6bef             ;6bea  8d 03        Branch if table lookup failed
-    movw ax,de              ;6bec  c4
-    br ax                   ;6bed  31 98
+    mov a,!mem_f1b1             ;6bde  8e b1 f1
+    mov b,a                     ;6be1  73
+    mov !mem_f1ad,a             ;6be2  9e ad f1
+    movw hl,#mem_b4de_cd_msgs+1 ;6be5  16 df b4
+    callf !table_get_word       ;6be8  4c 48        Load DE with word at position B in table [HL]
+    bc lab_6bef                 ;6bea  8d 03        Branch if table lookup failed
+    movw ax,de                  ;6bec  c4
+    br ax                       ;6bed  31 98
 
 lab_6bef:
     ret                     ;6bef  af
 
-lab_6bf0:
+lab_6bf0_scan_tr:
     mov a,#0xff             ;6bf0  a1 ff
     mov b,#0x0a             ;6bf2  a3 0a
     movw hl,#scan_tr        ;6bf4  16 cc 66     HL = pointer to 11,"SCANCD TR  "
-    br lab_6c5f             ;6bf7  fa 66
+    br lab_6c5f_cd_and_track;6bf7  fa 66
 
-lab_6bf9:
+lab_6bf9_cue:
     mov a,#0x0a             ;6bf9  a1 0a
     movw hl,#cue            ;6bfb  16 b4 66     HL = pointer to 11,"CUE        "
     mov b,#0xff             ;6bfe  a3 ff
@@ -20601,7 +20601,7 @@ lab_6c07:
     call !sub_6cac_wr_time  ;6c0a  9a ac 6c     Write minutes and seconds to display buf
     br !lab_6ca5_ret        ;6c0d  9b a5 6c     Branch to return
 
-lab_6c10:
+lab_6c10_cd_mins_secs:
     mov a,#0x0a             ;6c10  a1 0a
     movw hl,#cd__           ;6c12  16 84 66     HL = pointer to 11,"CD         "
     mov b,#0xff             ;6c15  a3 ff
@@ -20611,11 +20611,11 @@ lab_6c10:
 
 lab_6c1e:
     call !sub_6e70_copy_upd ;6c1e  9a 70 6e     Copy message from [HL] to display buf; uses A, B
-    call !sub_6d2f          ;6c21  9a 2f 6d
+    call !write_cd_num      ;6c21  9a 2f 6d     Write the CD number to the buffer
     call !sub_6cac_wr_time  ;6c24  9a ac 6c     Write minutes and seconds to display buf
     br lab_6ca5_ret         ;6c27  fa 7c        Branch to return
 
-lab_6c29:
+lab_6c29_rev:
     mov a,#0x0a             ;6c29  a1 0a
     movw hl,#rev            ;6c2b  16 c0 66     HL = pointer to 11,"REV        "
     mov b,#0xff             ;6c2e  a3 ff
@@ -20628,7 +20628,8 @@ lab_6c37:
     call !sub_6cac_wr_time  ;6c3a  9a ac 6c     Write minutes and seconds to display buf
     br lab_6ca5_ret         ;6c3d  fa 66        Branch to return
 
-lab_6c3f:
+;XXX this is used but it's an exact duplicate of the code in lab_6c10_cd_mins_secs
+lab_6c3f_cd_mins_secs:
     mov a,#0x0a             ;6c3f  a1 0a
     movw hl,#cd__           ;6c41  16 84 66     HL = pointer to 11,"CD         "
     mov b,#0xff             ;6c44  a3 ff
@@ -20638,52 +20639,50 @@ lab_6c3f:
 
 lab_6c4d:
     call !sub_6e70_copy_upd ;6c4d  9a 70 6e     Copy message from [HL] to display buf; uses A, B
-    call !sub_6d2f          ;6c50  9a 2f 6d
+    call !write_cd_num     ;6c50  9a 2f 6d      Write the CD number to the buffer
     call !sub_6cac_wr_time  ;6c53  9a ac 6c     Write minutes and seconds to display buf
     br lab_6ca5_ret         ;6c56  fa 4d        Branch to return
 
-lab_6c58:
+lab_6c58_cd_and_track:
     mov a,#0x0a             ;6c58  a1 0a
     movw hl,#cd_tr          ;6c5a  16 9c 66     HL = pointer to 11,"CD   TR    "
     mov b,#0xff             ;6c5d  a3 ff
 
-lab_6c5f:
+lab_6c5f_cd_and_track:
     call !sub_6e70_copy_upd ;6c5f  9a 70 6e     Copy message from [HL] to display buf; uses A, B
-    call !sub_6d2f          ;6c62  9a 2f 6d
-    call !sub_6d01          ;6c65  9a 01 6d
+    call !write_cd_num      ;6c62  9a 2f 6d      Write the CD number to the buffer
+    call !write_track       ;6c65  9a 01 6d     Write CD track as two digits to the buffer
     br lab_6ca5_ret         ;6c68  fa 3b        Branch to return
 
-lab_6c6a:
+lab_6c6a_track_scan:
     mov b,#0x83             ;6c6a  a3 83
     mov a,#0x10             ;6c6c  a1 10
     movw hl,#track_scan     ;6c6e  16 09 67     HL = pointer to 13,"TRACK SCAN   "
     call !sub_6e70_copy_upd ;6c71  9a 70 6e     Copy message from [HL] to display buf; uses A, B
-
     br lab_6ca5_ret         ;6c74  fa 2f        Branch to return
 
-lab_6c76:
+lab_6c76_disc_scan:
     mov b,#0x83             ;6c76  a3 83
     mov a,#0x10             ;6c78  a1 10
     movw hl,#disc_scan      ;6c7a  16 17 67     HL = pointer to 13,"DISC SCAN    "
     call !sub_6e70_copy_upd ;6c7d  9a 70 6e     Copy message from [HL] to display buf; uses A, B
-
     br lab_6ca5_ret         ;6c80  fa 23        Branch to return
 
-lab_6c82:
+lab_6c82_hl_msg_time:
     mov a,#0xff             ;6c82  a1 ff
     mov b,#0x83             ;6c84  a3 83
     call !sub_6e70_copy_upd ;6c86  9a 70 6e     Copy message from [HL] to display buf; uses A, B
     call !sub_6cac_wr_time  ;6c89  9a ac 6c     Write minutes and seconds to display buf
     br lab_6ca5_ret         ;6c8c  fa 17        Branch to return
 
-lab_6c8e:
+lab_6c8e_hl_msg_cdnum:
     mov a,#0xff             ;6c8e  a1 ff
     mov b,#0x83             ;6c90  a3 83
     call !sub_6e70_copy_upd ;6c92  9a 70 6e     Copy message from [HL] to display buf; uses A, B
-    call !sub_6d2f          ;6c95  9a 2f 6d
+    call !write_cd_num      ;6c95  9a 2f 6d     Write the CD number to the buffer
     br lab_6ca5_ret         ;6c98  fa 0b        Branch to return
 
-lab_6c9a:
+lab_6c9a_hl:
     call !sub_6e70_copy_upd ;6c9a  9a 70 6e     Copy message from [HL] to display buf; uses A, B
     call !sub_6e6f_ret      ;6c9d  9a 6f 6e     Just returns
     br lab_6ca8_ret         ;6ca0  fa 06        Branch to return
@@ -20726,10 +20725,10 @@ lab_6cc6:
     mov c,a                 ;6cc8  72
     xch a,b                 ;6cc9  33
     mov b,#0x08             ;6cca  a3 08
-    call !write_digit       ;6ccc  9a 6c 6f     Convert A to ASCII, write to buf at offset B, decr B
+    call !write_digit       ;6ccc  9a 6c 6f     Write low nib of A in ASCII to buf at offset B, decr B
     mov a,x                 ;6ccf  60
     callf !ror_a_4          ;6cd0  2c 9e        A = A >> 4
-    call !write_digit       ;6cd2  9a 6c 6f     Convert A to ASCII, write to buf at offset B, decr B
+    call !write_digit       ;6cd2  9a 6c 6f     Write low nib of A in ASCII to buf at offset B, decr B
     mov a,c                 ;6cd5  62
     and a,#0xf0             ;6cd6  5d f0
     cmp a,#0xa0             ;6cd8  4d a0
@@ -20747,7 +20746,7 @@ lab_6ce5:
     mov b,#0x06             ;6ce7  a3 06
     mov a,c                 ;6ce9  62
     push ax                 ;6cea  b1
-    call !write_digit       ;6ceb  9a 6c 6f     Convert A to ASCII, write to buf at offset B, decr B
+    call !write_digit       ;6ceb  9a 6c 6f     Write low nib of A in ASCII to buf at offset B, decr B
     pop ax                  ;6cee  b0
     callf !ror_a_4          ;6cef  2c 9e        A = A >> 4
     and a,#0x0f             ;6cf1  5d 0f
@@ -20759,9 +20758,11 @@ lab_6ce5:
     ret                     ;6cfd  af
 
 lab_6cfe:
-    br !sub_6f68            ;6cfe  9b 68 6f
+    br !write_nonzero_dig   ;6cfe  9b 68 6f     Write low nib of A in ASCII to buf at B if nonzero, either way decr B
 
-sub_6d01:
+
+;Write CD track as two digits to the buffer
+write_track:
     mov a,!mem_fc76_cd_trk  ;6d01  8e 76 fc
     cmp a,#0x00             ;6d04  4d 00
     bz lab_6d2d_br_to_ret   ;6d06  ad 25
@@ -20791,13 +20792,15 @@ lab_6d1b:
 
 lab_6d2a:
     pop ax                  ;6d2a  b0           Pop so A = mem_fc76_cd_trk
-    br lab_6d56_write_digits;6d2b  fa 29        Write two digits to buf and return
+    br sub_6d56_write_digits;6d2b  fa 29        Write two digits to buf and return
 
 lab_6d2d_br_to_ret:
     br lab_6d60_ret         ;6d2d  fa 31        Branch to return
 
-sub_6d2f:
-    mov a,!mem_fc75         ;6d2f  8e 75 fc
+
+;Write the CD number to the buffer
+write_cd_num:
+    mov a,!mem_fc75_cd_num1 ;6d2f  8e 75 fc     A = CD number 1-6, or 0 if no CD
     cmp a,#0x00             ;6d32  4d 00
     bz lab_6d60_ret         ;6d34  ad 2a
     cmp a,#0x07             ;6d36  4d 07
@@ -20818,18 +20821,19 @@ lab_6d3c:
 lab_6d4a:
     pop ax                  ;6d4a  b0
     push ax                 ;6d4b  b1
-    call !write_digit       ;6d4c  9a 6c 6f     Convert A to ASCII, write to buf at offset B, decr B
+    call !write_digit       ;6d4c  9a 6c 6f     Write low nib of A in ASCII to buf at offset B, decr B
     pop ax                  ;6d4f  b0
     callf !ror_a_4          ;6d50  2c 9e        A = A >> 4
-    call !sub_6f68          ;6d52  9a 68 6f
+    call !write_nonzero_dig ;6d52  9a 68 6f     Write low nib of A in ASCII to buf at B if nonzero, either way decr B
     ret                     ;6d55  af
 
-lab_6d56_write_digits:
+
+sub_6d56_write_digits:
     push ax                 ;6d56  b1
-    call !write_digit       ;6d57  9a 6c 6f     Convert A to ASCII, write to buf at offset B, decr B
+    call !write_digit       ;6d57  9a 6c 6f     Write low nib of A in ASCII to buf at offset B, decr B
     pop ax                  ;6d5a  b0
     callf !ror_a_4          ;6d5b  2c 9e        A = A >> 4
-    call !write_digit       ;6d5d  9a 6c 6f     Convert A to ASCII, write to buf at offset B, decr B
+    call !write_digit       ;6d5d  9a 6c 6f     Write low nib of A in ASCII to buf at offset B, decr B
 
 lab_6d60_ret:
     ret                     ;6d60  af
@@ -20837,7 +20841,8 @@ lab_6d60_ret:
 sub_6d61:
     call !sub_6e70_copy_upd ;6d61  9a 70 6e     Copy message from [HL] to display buf; uses A, B
 
-sub_6d64:
+
+sub_6d64_wr_band:
 ;Write AM/kHz or FM/MHz without freq to display buf
     call !sub_0800_mode     ;6d64  9a 00 08     Return mem_f253 in A (0x00=?, 0x01=FM1/FM2, 0x02=AM), also copy it into mem_fb58
 
@@ -20960,7 +20965,8 @@ lab_6e3c:
     call !sub_6feb          ;6e3c  9a eb 6f     Copy from [HL] to upd_disp
     ret                     ;6e3f  af
 
-sub_6e40:
+
+sub_6e40_wr_tap_ab:
 ;Write tape side "A" or "B" and set tape pictographs
     mov a,!mem_f1ac         ;6e40  8e ac f1
     cmp a,#0x03             ;6e43  4d 03
@@ -20995,6 +21001,7 @@ sub_6e6e_ret:
 
 sub_6e6f_ret:
     ret                     ;6e6f  af
+
 
 sub_6e70_copy_upd:
 ;HL = pointer to message
@@ -21060,6 +21067,7 @@ lab_6ea8:
 
 lab_6eb1:
     ret                     ;6eb1  af
+
 
 freq_idx_to_upd_disp:
     push ax                 ;6eb2  b1
@@ -21188,7 +21196,7 @@ lab_6f37:
 freq_bcd_to_upd_disp:
     push hl                 ;6f40  b7
     mov a,mem_fed4          ;6f41  f0 d4        A = BCD low byte
-    call !write_digit       ;6f43  9a 6c 6f     Convert A to ASCII, write to buf at offset B, decr B
+    call !write_digit       ;6f43  9a 6c 6f     Write low nib of A in ASCII to buf at offset B, decr B
     call !sub_0800_mode     ;6f46  9a 00 08     Return mem_f253 in A (0x00=?, 0x01=FM1/FM2, 0x02=AM), also copy it into mem_fb58
     cmp a,#0x02             ;6f49  4d 02        AM mode?
     bz lab_6f4f             ;6f4b  ad 02        Branch if AM
@@ -21198,27 +21206,29 @@ freq_bcd_to_upd_disp:
 lab_6f4f:
     mov a,mem_fed4          ;6f4f  f0 d4        A = BCD low byte
     callf !ror_a_4          ;6f51  2c 9e        A = A >> 4
-    call !write_digit       ;6f53  9a 6c 6f     Convert A to ASCII, write to buf at offset B, decr B
+    call !write_digit       ;6f53  9a 6c 6f     Write low nib of A in ASCII to buf at offset B, decr B
 
     mov a,mem_fed5          ;6f56  f0 d5        A = BCD high byte
-    call !write_digit       ;6f58  9a 6c 6f     Convert A to ASCII, write to buf at offset B, decr B
+    call !write_digit       ;6f58  9a 6c 6f     Write low nib of A in ASCII to buf at offset B, decr B
 
     mov a,mem_fed5          ;6f5b  f0 d5        A = BCD high byte
     callf !ror_a_4          ;6f5d  2c 9e        A = A >> 4
     and a,#0x0f             ;6f5f  5d 0f        Mask to leave only low nibble
-    bz lab_6f66             ;6f61  ad 03
-    call !write_digit       ;6f63  9a 6c 6f     Convert A to ASCII, write to buf at offset B, decr B
+    bz lab_6f66_pop_ret     ;6f61  ad 03
+    call !write_digit       ;6f63  9a 6c 6f     Write low nib of A in ASCII to buf at offset B, decr B
 
-lab_6f66:
+lab_6f66_pop_ret:
     pop hl                  ;6f66  b6
     ret                     ;6f67  af
 
-sub_6f68:
+
+write_nonzero_dig :
+;Write low nib of A in ASCII to buf at B if nonzero, either way decr B
     and a,#0x0f             ;6f68  5d 0f
-    bz lab_6f76             ;6f6a  ad 0a
+    bz lab_6f76_dec_b_ret   ;6f6a  ad 0a
 
 write_digit:
-;Convert A to ASCII, write to buf at offset B, decr B
+;Write low nib of A in ASCII to buf at offset B, decr B
     and a,#0x0f             ;6f6c  5d 0f        Mask to leave only low nibble
     add a,#'0               ;6f6e  0d 30        Convert it to ASCII
     push hl                 ;6f70  b7
@@ -21226,9 +21236,10 @@ write_digit:
     mov [hl+b],a            ;6f74  bb           Write it to display at offset B
     pop hl                  ;6f75  b6
 
-lab_6f76:
+lab_6f76_dec_b_ret:
     dec b                   ;6f76  53
     ret                     ;6f77  af
+
 
 sub_6f78:
     mov a,mem_fe30          ;6f78  f0 30
@@ -21566,10 +21577,10 @@ lab_711c:
     pop bc                  ;7134  b2
     pop ax                  ;7135  b0
     push ax                 ;7136  b1
-    call !write_digit       ;7137  9a 6c 6f     Convert A to ASCII, write to buf at offset B, decr B
+    call !write_digit       ;7137  9a 6c 6f     Write low nib of A in ASCII to buf at offset B, decr B
     pop ax                  ;713a  b0
     callf !ror_a_4          ;713b  2c 9e        A = A >> 4
-    call !sub_6f68          ;713d  9a 68 6f
+    call !write_nonzero_dig ;713d  9a 68 6f     Write low nib of A in ASCII to buf at B if nonzero, either way decr B
     pop ax                  ;7140  b0
     ret                     ;7141  af
 
@@ -21604,13 +21615,13 @@ lab_7172:
     call !sub_6e70_copy_upd ;7172  9a 70 6e     Copy message from [HL] to display buf; uses A, B
     ret                     ;7175  af
 
-lab_7176:
+lab_7176_no_tape:
     mov a,#0xff             ;7176  a1 ff
     mov b,#0x0a             ;7178  a3 0a
     movw hl,#no_tape        ;717a  16 17 66     HL = pointer to 11,"    NO TAPE"
     br lab_7172             ;717d  fa f3
 
-lab_717f:
+lab_717f_tape_error:
     mov a,#0xff             ;717f  a1 ff
     mov b,#0x0a             ;7181  a3 0a
     movw hl,#tape_error     ;7183  16 23 66     HL = pointer to 11,"TAPE ERROR "
@@ -21640,13 +21651,13 @@ lab_719e:
     movw hl,#player_error   ;71a2  16 2e 67
     br lab_71d6             ;71a5  fa 2f
 
-lab_71a7:
+lab_71a7_no_changer:
     mov b,#0xff             ;71a7  a3 ff
     mov a,#0x0a             ;71a9  a1 0a
     movw hl,#no_changer     ;71ab  16 71 67     HL = pointer to "NO  CHANGER"
     br lab_71d6             ;71ae  fa 26
 
-lab_71b0:
+lab_71b0_cd_cd_rom:
     mov b,#0xff             ;71b0  a3 ff
     mov a,#0x0a             ;71b2  a1 0a
     movw hl,#cd_cd_rom      ;71b4  16 89 67     HL = pointer to 11,"CD  CD ROM "
@@ -21659,13 +21670,13 @@ lab_71b0:
     mov [hl+b],a            ;71c4  bb
     ret                     ;71c5  af
 
-lab_71c6:
+lab_71c6_no_magazin:
     mov b,#0xff             ;71c6  a3 ff
     mov a,#0x0a             ;71c8  a1 0a
     movw hl,#no_magazin     ;71ca  16 65 67     HL = pointer to 11,"NO  MAGAZIN"
     br lab_71d6             ;71cd  fa 07
 
-lab_71cf:
+lab_71cf_no_disc:
     mov b,#0xff             ;71cf  a3 ff
     mov a,#0x0a             ;71d1  a1 0a
     movw hl,#no_disc        ;71d3  16 7d 67     HL = pointer to 11,"    NO DISC"
@@ -21974,7 +21985,7 @@ lab_73b8:
     mov [hl+b],a            ;73bd  bb           '..........Y'
     ret                     ;73be  af
 
-lab_73bf:
+lab_73bf_cut_tape:
     mov b,#0x07             ;73bf  a3 07
     movw hl,#cut_tape       ;73c1  16 43 66     HL = pointer to 8,"CUT TAPE"
     mov a,#0x0f             ;73c4  a1 0f
@@ -21982,7 +21993,7 @@ lab_73bf:
     call !sub_6e70_copy_upd ;73c9  9a 70 6e     Copy message from [HL] to display buf; uses A, B
     ret                     ;73cc  af
 
-lab_73cd:
+lab_73cd_min_or_max:
     mov a,!mem_fc9f         ;73cd  8e 9f fc
     cmp a,#0x00             ;73d0  4d 00
     bz lab_73ec             ;73d2  ad 18        Branch to write 7,"  MIN  "
@@ -22027,7 +22038,7 @@ lab_7405:
     br !lab_6856            ;7411  9b 56 68
 
 lab_7414:
-    call !sub_6d64          ;7414  9a 64 6d     Write AM/kHz or FM/MHz without freq to display buf
+    call !sub_6d64_wr_band  ;7414  9a 64 6d     Write AM/kHz or FM/MHz without freq to display buf
     mov a,!mem_f1ab         ;7417  8e ab f1
     cmp a,#0x09             ;741a  4d 09
     bz lab_7424             ;741c  ad 06
@@ -22121,7 +22132,7 @@ lab_749d:
     call !sub_6e70_copy_upd ;74a4  9a 70 6e     Copy message from [HL] to display buf; uses A, B
 
     movw hl,#upd_disp       ;74a7  16 9a f1
-    mov a,!mem_fc75         ;74aa  8e 75 fc     TODO what is this?
+    mov a,!mem_fc75_cd_num1 ;74aa  8e 75 fc     A = CD number
     add a,#'0               ;74ad  0d 30        Convert it to ASCII
     mov [hl+0x03],a         ;74af  be 03        '...1.......'
     clr1 upd_pict+5.1       ;74b1  1b 3a        Turn off "MIX" pictograph
@@ -22145,7 +22156,7 @@ lab_74ca:
     call !sub_6e70_copy_upd ;74d1  9a 70 6e     Copy message from [HL] to display buf; uses A, B
     ret                     ;74d4  af
 
-lab_74d5:
+lab_74d5_diag:
     call !upd_clear_disp    ;74d5  9a d0 6f     Fill all characters with spaces in upd_disp buffer
     mov a,#0xff             ;74d8  a1 ff
     mov b,#0x0a             ;74da  a3 0a
@@ -32077,7 +32088,7 @@ mem_b18f:
     .word mem_f1b9          ;DATA
     .word mem_fe4c          ;DATA
     .word mem_fe44          ;DATA
-    .word mem_fc75          ;DATA
+    .word mem_fc75_cd_num1  ;DATA
 
 ;unknown table
 mem_b1b4:
@@ -32661,23 +32672,23 @@ mem_b426:
 mem_b435:
 ;unknown table used by lab_70c5
 ;indexed by mem_f1a6 & 0x0f
-    .byte 0x10              ;b435  10          DATA 0x10        16 entries below:
-    .word lab_6a10          ;b436              0 Writes "    MONSOON"
-    .word lab_6c9a          ;                  1 Writes [HL]
-    .word lab_6c6a          ;                  2 Writes "TRACK SCAN   "
-    .word lab_6c76          ;                  3 Writes "DISC SCAN    "
-    .word lab_71cf          ;                  4 Writes "    NO DISC"
-    .word lab_71c6          ;                  5 Writes "NO  MAGAZIN"
-    .word lab_71a7          ;                  6 Writes "NO  CHANGER"
-    .word lab_71b0          ;                  7 Writes "CD  CD ROM "
-    .word lab_6b9d          ;                  8 Writes "CD   NO CD "
-    .word lab_6b73          ;                  9 Writes "CD  CD ERR "
-    .word lab_717f          ;                  a Writes "TAPE ERROR "
-    .word lab_7176          ;                  b Writes "    NO TAPE"
-    .word lab_6b00          ;                  c Writes "TAPE METAL"
-    .word lab_73bf          ;                  d Writes "CUT TAPE"
-    .word lab_73cd          ;                  e Writes "  MIN  " or "  MAX  "
-    .word lab_74d5          ;                  f Writes " DIAG  "
+    .byte 0x10                ;b435  10          DATA 0x10        16 entries below:
+    .word lab_6a10_monsoon    ;b436              0 Writes "    MONSOON"
+    .word lab_6c9a_hl         ;                  1 Writes [HL]
+    .word lab_6c6a_track_scan ;                  2 Writes "TRACK SCAN   "
+    .word lab_6c76_disc_scan  ;                  3 Writes "DISC SCAN    "
+    .word lab_71cf_no_disc    ;                  4 Writes "    NO DISC"
+    .word lab_71c6_no_magazin ;                  5 Writes "NO  MAGAZIN"
+    .word lab_71a7_no_changer ;                  6 Writes "NO  CHANGER"
+    .word lab_71b0_cd_cd_rom  ;                  7 Writes "CD  CD ROM "
+    .word lab_6b9d_cd_no_cd   ;                  8 Writes "CD   NO CD "
+    .word lab_6b73_cd_cd_err  ;                  9 Writes "CD  CD ERR "
+    .word lab_717f_tape_error ;                  a Writes "TAPE ERROR "
+    .word lab_7176_no_tape    ;                  b Writes "    NO TAPE"
+    .word lab_6b00_tape_metal ;                  c Writes "TAPE METAL"
+    .word lab_73bf_cut_tape   ;                  d Writes "CUT TAPE"
+    .word lab_73cd_min_or_max ;                  e Writes "  MIN  " or "  MAX  "
+    .word lab_74d5_diag       ;                  f Writes " DIAG  "
 
 mem_b456:
 ;unknown table used by lab_7142
@@ -32775,7 +32786,7 @@ mem_b4ae:
 
 mem_b4b0:
     .byte 0x0a              ;b4b0  0a          DATA 0x0a        10 entries below:
-    .word lab_6b00          ;b4b1
+    .word lab_6b00_tape_metal          ;b4b1
     .word lab_6b0f          ;b4b3
     .word lab_6b3e          ;b4b5
     .word lab_6b48          ;b4b7
@@ -32820,22 +32831,22 @@ mem_b4db:
     .byte 0x50              ;b4dc  50          DATA 0x50 'P'
     .byte 0x01              ;b4dd  01          DATA 0x01
 
-mem_b4de:
+mem_b4de_cd_msgs:
 ;table of words used with table_get_word
-    .byte 0x0d              ;b4de  0d          DATA 0x0d        13 entries below:
-    .word lab_6c58          ;b4df   DATA      "CD   TR    "
-    .word lab_6c82          ;b4e1   DATA
-    .word lab_6c8e          ;b4e3   DATA
-    .word lab_6c58          ;b4e5   DATA      "CD   TR    "
-    .word lab_6bcb          ;b4e7   DATA
-    .word lab_6bde          ;b4e9   DATA
-    .word lab_6bf9          ;b4eb   DATA      "CUE        "
-    .word lab_6c29          ;b4ed   DATA      "REV        "
-    .word lab_6c10          ;b4ef   DATA      "CD         "
-    .word lab_6c3f          ;b4f1   DATA      "CD         "
-    .word lab_6bf0          ;b4f3   DATA      "SCANCD TR  "
-    .word lab_6b66          ;b4f5   DATA      "CHK MAGAZIN"
-    .word lab_749d          ;b4f7   DATA      "CD   TR    "
+    .byte 0x0d                  ;b4de  0d          DATA 0x0d        13 entries below:
+    .word lab_6c58_cd_and_track ;b4df   DATA      "CD   TR    "
+    .word lab_6c82_hl_msg_time  ;b4e1   DATA      Message in [HL] with minutes/seconds
+    .word lab_6c8e_hl_msg_cdnum ;b4e3   DATA      Message in [HL] with CD number
+    .word lab_6c58_cd_and_track ;b4e5   DATA      "CD   TR    "
+    .word lab_6bcb              ;b4e7   DATA      Message from this table if upd_tick.1=1
+    .word lab_6bde              ;b4e9   DATA      Message from this table
+    .word lab_6bf9_cue          ;b4eb   DATA      "CUE        "
+    .word lab_6c29_rev          ;b4ed   DATA      "REV        "
+    .word lab_6c10_cd_mins_secs ;b4ef   DATA      "CD         "
+    .word lab_6c3f_cd_mins_secs ;b4f1   DATA      "CD         "
+    .word lab_6bf0_scan_tr      ;b4f3   DATA      "SCANCD TR  "
+    .word lab_6b66_chk_magazin  ;b4f5   DATA      "CHK MAGAZIN"
+    .word lab_749d              ;b4f7   DATA      "CD   TR    "
 
 ;XXX appears unused
 mem_b4f9:
@@ -32935,18 +32946,18 @@ mem_b550:
 ;table of words used with table_get_word
     .byte 0x0d              ;b550  0d          DATA 0x0d        13 entries below:
     .word lab_716b
-    .word lab_717f
+    .word lab_717f_tape_error
     .word lab_7188
     .word lab_7191
     .word lab_719a
     .word lab_719c
     .word lab_719e
     .word lab_71da
-    .word lab_71c6
-    .word lab_71cf
-    .word lab_71a7
-    .word lab_71b0
-    .word lab_6b9d
+    .word lab_71c6_no_magazin
+    .word lab_71cf_no_disc
+    .word lab_71a7_no_changer
+    .word lab_71b0_cd_cd_rom
+    .word lab_6b9d_cd_no_cd
 
 mem_b56b:
     .byte 0x1b              ;b56b  1b          DATA 0x1b
@@ -33383,7 +33394,7 @@ mem_b755:
     .word lab_d2e6
     .word lab_d301
     .word sub_d321
-    .word lab_d34f
+    .word sub_d34f
     .word sub_d345
     .word lab_d376_cdcenable_2
     .word lab_d37b
@@ -38846,7 +38857,7 @@ lab_d1f0:
     clr1 mem_fe47.7         ;d209  7b 47
     clr1 mem_fe46.1         ;d20b  1b 46
 
-    mov a,!mem_fc7b_cdc_cd  ;d20d  8e 7b fc
+    mov a,!mem_fc7b_cd_cd2  ;d20d  8e 7b fc
     cmp a,c                 ;d210  61 4a        Compare to requested CD 1-6
     bz lab_d22f_same_cd     ;d212  ad 1b
 
@@ -38857,7 +38868,7 @@ lab_d1f0:
 lab_d21b:
     clr1 mem_fe47.5         ;d21b  5b 47
     mov a,c                 ;d21d  62
-    mov !mem_fc7b_cdc_cd,a  ;d21e  9e 7b fc
+    mov !mem_fc7b_cd_cd2,a  ;d21e  9e 7b fc
     mov a,x                 ;d221  60
     mov !mem_fc7f,a         ;d222  9e 7f fc
     set1 mem_fe46.2         ;d225  2a 46
@@ -38880,7 +38891,7 @@ lab_d22f_same_cd:
 
 lab_d24b:
     mov a,c                 ;d24b  62
-    mov !mem_fc7d_upd_cd,a  ;d24c  9e 7d fc
+    mov !mem_fc7d_upd_cd3,a  ;d24c  9e 7d fc
     mov a,#0x19             ;d24f  a1 19
     mov !mem_fb3d,a         ;d251  9e 3d fb
     set1 mem_fe80.0         ;d254  0a 80
@@ -39012,11 +39023,11 @@ lab_d311:
 sub_d321:
     call !sub_dadd          ;d321  9a dd da
     cmp mem_fe44,#0x05      ;d324  c8 44 05
-    bz lab_d344             ;d327  ad 1b
+    bz lab_d344_ret         ;d327  ad 1b
 
     mov a,!mem_fc79         ;d329  8e 79 fc
     cmp a,#0x00             ;d32c  4d 00
-    bnz lab_d344            ;d32e  bd 14
+    bnz lab_d344_ret        ;d32e  bd 14
 
     call !sub_dc2f          ;d330  9a 2f dc
     mov a,!mem_f255         ;d333  8e 55 f2
@@ -39030,32 +39041,32 @@ lab_d33f:
     mov a,#0x07             ;d33f  a1 07
     br !sub_d1bf_cdc_tx     ;d341  9b bf d1     CDC TX related
 
-lab_d344:
+lab_d344_ret:
     ret                     ;d344  af
 
 sub_d345:
-    bf mem_fe6e.0,lab_d34e  ;d345  31 03 6e 05
+    bf mem_fe6e.0,lab_d34e_ret  ;d345  31 03 6e 05
     set1 mem_fe47.1         ;d349  1a 47
-    br !lab_d34f            ;d34b  9b 4f d3
+    br !sub_d34f            ;d34b  9b 4f d3
 
-lab_d34e:
+lab_d34e_ret:
     ret                     ;d34e  af
 
-lab_d34f:
+sub_d34f:
     call !sub_dadd          ;d34f  9a dd da
     cmp mem_fe44,#0x05      ;d352  c8 44 05
-    bz lab_d366             ;d355  ad 0f
+    bz lab_d366_ret         ;d355  ad 0f
 
     mov a,!mem_fc79         ;d357  8e 79 fc
     cmp a,#0x00             ;d35a  4d 00
-    bnz lab_d366            ;d35c  bd 08
+    bnz lab_d366_ret        ;d35c  bd 08
 
     call !sub_dc2f          ;d35e  9a 2f dc
 
     mov a,#cdc_scan         ;d361  a1 05        A = "Scan"
     br !sub_d1bf_cdc_tx     ;d363  9b bf d1     CDC TX related
 
-lab_d366:
+lab_d366_ret:
     ret                     ;d366  af
 
 lab_d367_cdcradio:
@@ -39100,10 +39111,10 @@ lab_d39c:
 lab_d3a3:
     clr1 mem_fe6d.4         ;d3a3  4b 6d
     bt mem_fe46.6,lab_d3af  ;d3a5  ec 46 07
-    bf mem_fe6e.0,lab_d3ae  ;d3a8  31 03 6e 02
-    br lab_d34f             ;d3ac  fa a1
+    bf mem_fe6e.0,lab_d3ae_ret  ;d3a8  31 03 6e 02
+    br sub_d34f             ;d3ac  fa a1
 
-lab_d3ae:
+lab_d3ae_ret:
     ret                     ;d3ae  af
 
 lab_d3af:
@@ -39114,11 +39125,11 @@ lab_d3b1:
     mov !mem_fb2c,a         ;d3b3  9e 2c fb
     xch a,!mem_fb3d         ;d3b6  ce 3d fb
     cmp a,#0x00             ;d3b9  4d 00
-    bz lab_d3c3             ;d3bb  ad 06
-    bf mem_fe46.6,lab_d3c3  ;d3bd  31 63 46 02
+    bz lab_d3c3_ret             ;d3bb  ad 06
+    bf mem_fe46.6,lab_d3c3_ret  ;d3bd  31 63 46 02
     set1 mem_fe6d.4         ;d3c1  4a 6d
 
-lab_d3c3:
+lab_d3c3_ret:
     ret                     ;d3c3  af
 
 sub_d3c4:
@@ -39575,19 +39586,19 @@ lab_d6e4:
     cmp mem_fe49,#0x50      ;d6e4  c8 49 50
     bz lab_d6f9             ;d6e7  ad 10
 
-    mov a,!mem_fc7c         ;d6e9  8e 7c fc
+    mov a,!mem_fc7c_last_trk;d6e9  8e 7c fc
     cmp a,!mem_fc76_cd_trk  ;d6ec  48 76 fc
     bz lab_d724_ret         ;d6ef  ad 33
 
     mov a,!mem_fc76_cd_trk  ;d6f1  8e 76 fc
-    mov !mem_fc7c,a         ;d6f4  9e 7c fc
-    br lab_d70e             ;d6f7  fa 15
+    mov !mem_fc7c_last_trk,a;d6f4  9e 7c fc
+    br lab_d70e_new_track   ;d6f7  fa 15
 
 lab_d6f9:
     mov a,!mem_f1ad         ;d6f9  8e ad f1
     and a,#0x7f             ;d6fc  5d 7f
     cmp a,#0x0a             ;d6fe  4d 0a
-    bz lab_d70e             ;d700  ad 0c
+    bz lab_d70e_new_track   ;d700  ad 0c
     and a,#0x0f             ;d702  5d 0f
     cmp a,#0x0a             ;d704  4d 0a
     bz lab_d724_ret         ;d706  ad 1c
@@ -39595,7 +39606,7 @@ lab_d6f9:
     bz lab_d724_ret         ;d70a  ad 18
     br lab_d71f             ;d70c  fa 11
 
-lab_d70e:
+lab_d70e_new_track:
     mov a,!mem_fb49         ;d70e  8e 49 fb
     cmp a,#0x00             ;d711  4d 00
     bnz lab_d724_ret        ;d713  bd 0f
@@ -39614,7 +39625,7 @@ lab_d724_ret:
 lab_d725:
     mov a,!cdc_rx_buf+cdc_r_cd-1  ;d725  8e 6e fc
     and a,#0x0f                   ;d728  5d 0f
-    mov !mem_fc7d_upd_cd,a        ;d72a  9e 7d fc
+    mov !mem_fc7d_upd_cd3,a        ;d72a  9e 7d fc
 
     mov a,#0xff             ;d72d  a1 ff
     mov !mem_f1ad,a         ;d72f  9e ad f1
@@ -39661,8 +39672,10 @@ lab_d773:
     bt mem_fe46.1,lab_d7d3  ;d773  9c 46 5d
     cmp mem_fe44,#0x05      ;d776  c8 44 05
     bz lab_d7a1             ;d779  ad 26
-    mov a,!mem_fc75         ;d77b  8e 75 fc
+
+    mov a,!mem_fc75_cd_num1 ;d77b  8e 75 fc
     mov !mem_f1b2,a         ;d77e  9e b2 f1
+
     mov a,#0xff             ;d781  a1 ff
     mov !mem_f1ad,a         ;d783  9e ad f1
 
@@ -39713,8 +39726,10 @@ lab_d7d2:
 
 lab_d7d3:
     set1 mem_fe47.5         ;d7d3  5a 47
-    mov a,!mem_fc75         ;d7d5  8e 75 fc
+
+    mov a,!mem_fc75_cd_num1 ;d7d5  8e 75 fc
     mov !mem_f1b2,a         ;d7d8  9e b2 f1
+
     mov a,#0xff             ;d7db  a1 ff
     mov !mem_f1ad,a         ;d7dd  9e ad f1
 
@@ -39888,7 +39903,7 @@ lab_d8b3:
 
     set1 mem_fe47.6         ;d8da  6a 47
     movw hl,#mem_fc48       ;d8dc  16 48 fc
-    mov a,!mem_fc75         ;d8df  8e 75 fc
+    mov a,!mem_fc75_cd_num1 ;d8df  8e 75 fc
     mov b,a                 ;d8e2  73
     mov a,[hl+b]            ;d8e3  ab
     clr1 a.6                ;d8e4  61 eb
@@ -39946,7 +39961,7 @@ lab_d928:
 
 sub_d92c:
     movw hl,#mem_fc48       ;d92c  16 48 fc
-    mov a,!mem_fc75         ;d92f  8e 75 fc
+    mov a,!mem_fc75_cd_num1 ;d92f  8e 75 fc
     mov b,a                 ;d932  73
     mov a,[hl+b]            ;d933  ab
     bt a.0,lab_d939         ;d934  31 0e 02
@@ -39998,7 +40013,7 @@ lab_d958:
     ret                     ;d965  af
 
 sub_d966:
-    mov a,!mem_fc75         ;d966  8e 75 fc
+    mov a,!mem_fc75_cd_num1 ;d966  8e 75 fc
     mov x,a                 ;d969  70
     mov b,a                 ;d96a  73
     movw hl,#mem_fc48       ;d96b  16 48 fc
@@ -40028,7 +40043,7 @@ lab_d988:
     ret                     ;d989  af
 
 sub_d98a:
-    mov a,!mem_fc75         ;d98a  8e 75 fc
+    mov a,!mem_fc75_cd_num1 ;d98a  8e 75 fc
     rol a,1                 ;d98d  26
     rol a,1                 ;d98e  26
     mov b,a                 ;d98f  73
@@ -40084,8 +40099,10 @@ lab_d9cf:
     clr1 cy                 ;d9cf  21
     ret                     ;d9d0  af
 
+
+;Unknown; Returns some status in carry
 sub_d9d1:
-    mov a,!mem_fc75         ;d9d1  8e 75 fc
+    mov a,!mem_fc75_cd_num1 ;d9d1  8e 75 fc
     mov b,a                 ;d9d4  73
     movw hl,#mem_fc48       ;d9d5  16 48 fc
     mov a,[hl+b]            ;d9d8  ab
@@ -40093,16 +40110,17 @@ sub_d9d1:
     bf a.5,lab_d9e1         ;d9dc  31 5f 02
     set1 cy                 ;d9df  20
     ret                     ;d9e0  af
-
 lab_d9e1:
     clr1 cy                 ;d9e1  21
     ret                     ;d9e2  af
+
 
 sub_d9e3:
     mov a,#0x00             ;d9e3  a1 00
     mov !mem_fb3d,a         ;d9e5  9e 3d fb
     mov !mem_fb40,a         ;d9e8  9e 40 fb
     ret                     ;d9eb  af
+
 
 sub_d9ec:
     bf mem_fe5f.2,lab_da0a  ;d9ec  31 23 5f 1a  Branch if no CDC packet available
@@ -40207,8 +40225,10 @@ sub_da81:
     call !sub_d9d1          ;da9c  9a d1 d9
     bnc lab_dabc            ;da9f  9d 1b
     set1 mem_fe47.5         ;daa1  5a 47
-    mov a,!mem_fc75         ;daa3  8e 75 fc
+
+    mov a,!mem_fc75_cd_num1 ;daa3  8e 75 fc
     mov !mem_f1b2,a         ;daa6  9e b2 f1
+
     mov a,#0xff             ;daa9  a1 ff
     mov !mem_f1ad,a         ;daab  9e ad f1
 
@@ -40357,7 +40377,7 @@ sub_db8a:
     bf mem_fe46.2,lab_dba6  ;db90  31 23 46 12
     mov a,!cdc_rx_buf+cdc_r_cd-1  ;db94  8e 6e fc
     and a,#0x0f             ;db97  5d 0f
-    cmp a,!mem_fc7b_cdc_cd  ;db99  48 7b fc
+    cmp a,!mem_fc7b_cd_cd2  ;db99  48 7b fc
     bz lab_dba6             ;db9c  ad 08
     cmp mem_fe45,#0x00      ;db9e  c8 45 00     Index for mem_b790 lookup (CDC TX related)
     bnz lab_dba6            ;dba1  bd 03
@@ -40381,7 +40401,7 @@ lab_dbb6:
     bt a.7,lab_dc2e_ret     ;dbb9  31 7e 72
     and a,#0x0f             ;dbbc  5d 0f
     bf mem_fe46.2,lab_dbd3  ;dbbe  31 23 46 11
-    cmp a,!mem_fc7b_cdc_cd  ;dbc2  48 7b fc
+    cmp a,!mem_fc7b_cd_cd2  ;dbc2  48 7b fc
     bnz lab_dc2e_ret        ;dbc5  bd 67
     clr1 mem_fe46.2         ;dbc7  2b 46
     push ax                 ;dbc9  b1
@@ -40405,8 +40425,8 @@ lab_dbd3:
     bz lab_dc2e_ret         ;dbe2  ad 4a        Branch to just return
     cmp a,#0x07             ;dbe4  4d 07
     bnc lab_dc2e_ret        ;dbe6  9d 46        Branch to just return
-    mov !mem_fc75,a         ;dbe8  9e 75 fc
-    mov !mem_fc7b_cdc_cd,a  ;dbeb  9e 7b fc
+    mov !mem_fc75_cd_num1,a ;dbe8  9e 75 fc
+    mov !mem_fc7b_cd_cd2,a  ;dbeb  9e 7b fc
 
 lab_dbee:
     mov a,!cdc_rx_buf+cdc_r_track-1   ;dbee  8e 6f fc
