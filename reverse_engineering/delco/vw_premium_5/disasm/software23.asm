@@ -20341,7 +20341,7 @@ lab_6a71:
     mov b,#0x83             ;6a73  a3 83
 
 lab_6a75:
-    call !sub_6d61          ;6a75  9a 61 6d
+    call !sub_6d61_hl_band  ;6a75  9a 61 6d     Copy message from [HL] to display buf, then write AM/kHz or FM/MHz
     br lab_6ad1             ;6a78  fa 57
 
 lab_6a7a:
@@ -20352,15 +20352,15 @@ lab_6a7a:
     mov b,#0x03             ;6a81  a3 03
     mov a,#0xff             ;6a83  a1 ff
     movw hl,#scan           ;6a85  16 e6 63     HL = pointer to 4,"SCAN"
-    call !sub_6d61          ;6a88  9a 61 6d
+    call !sub_6d61_hl_band  ;6a88  9a 61 6d     Copy message from [HL] to display buf, then write AM/kHz or FM/MHz
     br lab_6ad1             ;6a8b  fa 44
 
 lab_6a8d:
     mov a,#0x88             ;6a8d  a1 88
     mov b,#0x03             ;6a8f  a3 03
     movw hl,#scan           ;6a91  16 e6 63     HL = pointer to 4,"SCAN"
-    call !sub_6d61          ;6a94  9a 61 6d
-    call !sub_6d61          ;6a97  9a 61 6d
+    call !sub_6d61_hl_band  ;6a94  9a 61 6d     Copy message from [HL] to display buf, then write AM/kHz or FM/MHz
+    call !sub_6d61_hl_band  ;6a97  9a 61 6d     XXX redundant
     br lab_6ad1             ;6a9a  fa 35
 
 lab_6a9c:
@@ -20375,7 +20375,7 @@ lab_6a9c:
     movw hl,#pscan          ;6aab  16 cf 63     HL = pointer to 5,"PSCAN"
     mov b,#0x0f             ;6aae  a3 0f
     mov a,#0xff             ;6ab0  a1 ff
-    call !sub_6d61          ;6ab2  9a 61 6d
+    call !sub_6d61_hl_band  ;6ab2  9a 61 6d     Copy message from [HL] to display buf, then write AM/kHz or FM/MHz
     br lab_6ad1             ;6ab5  fa 1a
 
 lab_6ab7:
@@ -20386,14 +20386,14 @@ lab_6ab7:
     mov a,#0xff             ;6abe  a1 ff
     movw hl,#preset_scan    ;6ac0  16 d5 63     HL = pointer to 11,"PRESET SCAN"
     mov b,#0x10             ;6ac3  a3 10
-    call !sub_6d61          ;6ac5  9a 61 6d
+    call !sub_6d61_hl_band  ;6ac5  9a 61 6d     Copy message from [HL] to display buf, then write AM/kHz or FM/MHz
 
     br lab_6ad1             ;6ac8  fa 07
 
 lab_6aca:
     mov a,#0x87             ;6aca  a1 87
     mov b,#0xff             ;6acc  a3 ff
-    call !sub_6d61          ;6ace  9a 61 6d
+    call !sub_6d61_hl_band  ;6ace  9a 61 6d     Copy message from [HL] to display buf, then write AM/kHz or FM/MHz
 
 lab_6ad1:
     bf mem_fe5c.2,lab_6af1  ;6ad1  31 23 5c 1c
@@ -20650,7 +20650,7 @@ lab_6c58_cd_and_track:
 
 lab_6c5f_cd_and_track:
     call !sub_6e70_copy_upd ;6c5f  9a 70 6e     Copy message from [HL] to display buf; uses A, B
-    call !write_cd_num      ;6c62  9a 2f 6d      Write the CD number to the buffer
+    call !write_cd_num      ;6c62  9a 2f 6d     Write the CD number to the buffer
     call !write_track       ;6c65  9a 01 6d     Write CD track as two digits to the buffer
     br lab_6ca5_ret         ;6c68  fa 3b        Branch to return
 
@@ -20838,9 +20838,11 @@ sub_6d56_write_digits:
 lab_6d60_ret:
     ret                     ;6d60  af
 
-sub_6d61:
-    call !sub_6e70_copy_upd ;6d61  9a 70 6e     Copy message from [HL] to display buf; uses A, B
 
+;Copy message from [HL] to display buf, then write AM/kHz or FM/MHz
+sub_6d61_hl_band:
+    call !sub_6e70_copy_upd ;6d61  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+    ;Fall through
 
 sub_6d64_wr_band:
 ;Write AM/kHz or FM/MHz without freq to display buf
@@ -21606,7 +21608,7 @@ lab_715c:
     movw hl,#mem_b459+1     ;7165  16 60 b4     HL = pointer to table of SCAN menu related code table
     br !lab_704d            ;7168  9b 4d 70
 
-lab_716b:
+lab_716b_comm_error:
     mov b,#0x83             ;716b  a3 83
     mov a,#0x0d             ;716d  a1 0d
     movw hl,#comm_error     ;716f  16 55 66     HL = pointer to 10,"Comm Error"
@@ -21627,13 +21629,13 @@ lab_717f_tape_error:
     movw hl,#tape_error     ;7183  16 23 66     HL = pointer to 11,"TAPE ERROR "
     br lab_7172             ;7186  fa ea
 
-lab_7188:
+lab_7188_tight_tape:
     mov b,#0x83             ;7188  a3 83
     mov a,#0x0d             ;718a  a1 0d
     movw hl,#tight_tape     ;718c  16 6c 66
     br lab_7172             ;718f  fa e1
 
-lab_7191:
+lab_7191_wrapped_tape:
     mov b,#0x83             ;7191  a3 83
     mov a,#0x0f             ;7193  a1 0f
     movw hl,#wrapped_tape   ;7195  16 77 66
@@ -21645,7 +21647,7 @@ lab_719a:
 lab_719c:
     br lab_71d6             ;719c  fa 38
 
-lab_719e:
+lab_719e_player_error:
     mov b,#0x83             ;719e  a3 83
     mov a,#0x0f             ;71a0  a1 0f
     movw hl,#player_error   ;71a2  16 2e 67
@@ -21685,13 +21687,13 @@ lab_71d6:
     call !sub_6e70_copy_upd ;71d6  9a 70 6e     Copy message from [HL] to display buf; uses A, B
     ret                     ;71d9  af
 
-lab_71da:
+lab_71da_changer_error:
     mov b,#0x83             ;71da  a3 83
     mov a,#0x0f             ;71dc  a1 0f
     movw hl,#changer_error  ;71de  16 4e 67
     br lab_71d6             ;71e1  fa f3
 
-lab_71e3:
+lab_71e3_safe_1_of_4:
     set1 mem_fe6a.0         ;71e3  0a 6a
     call !upd_clear_pict    ;71e5  9a e1 6f     Turn off all pictographs in upd_pict buffer
     mov b,#0x0a             ;71e8  a3 0a
@@ -21699,7 +21701,7 @@ lab_71e3:
     mov a,#0xff             ;71ed  a1 ff
     br !lab_7290            ;71ef  9b 90 72     Branch to copy msg from [HL] to display buf and return
 
-lab_71f2:
+lab_71f2_safe_2_of_4:
     set1 mem_fe6a.0         ;71f2  0a 6a
     call !upd_clear_pict    ;71f4  9a e1 6f     Turn off all pictographs in upd_pict buffer
 
@@ -21729,7 +21731,7 @@ lab_71f2:
     mov b,#0xff             ;7220  a3 ff
     br lab_7290             ;7222  fa 6c        Branch to copy msg from [HL] to display buf and return
 
-lab_7224:
+lab_7224_safe_3_of_4:
     mov a,!mem_fb2e         ;7224  8e 2e fb
     cmp a,#0x00             ;7227  4d 00
     bnz lab_7249            ;7229  bd 1e
@@ -21790,7 +21792,7 @@ lab_7290:
     call !sub_6e70_copy_upd ;7290  9a 70 6e     Copy message from [HL] to display buf; uses A, B
     ret                     ;7293  af
 
-lab_7294:
+lab_7294_safe_4_of_4:
 ;Write SAFE code attempt count to the display buffer
     mov a,#0x0a             ;7294  a1 0a
     mov b,#0xff             ;7296  a3 ff
@@ -21840,14 +21842,14 @@ lab_72ad:
     mov [hl+b],a            ;72dc  bb           '......6....'
     ret                     ;72dd  af
 
-lab_72de:
+lab_72de_rad_de2:
     mov b,#0x0a             ;72de  a3 0a
     movw hl,#rad_de2        ;72e0  16 bd 64     HL = pointer to 11,"RAD   DE2  "
     mov a,#0xff             ;72e3  a1 ff
     call !sub_6e70_copy_upd ;72e5  9a 70 6e     Copy message from [HL] to display buf; uses A, B
     ret                     ;72e8  af
 
-lab_72e9:
+lab_72e9_vers_a99:
     mov a,#0x0a             ;72e9  a1 0a
     movw hl,#vers_a99cznn   ;72eb  16 d5 64     ;HL = pointer to 11,"VersA99CZnn"
     mov b,#0xff             ;72ee  a3 ff
@@ -21863,7 +21865,7 @@ lab_72e9:
     mov [hl+b],a            ;7301  bb           ;'..........3'    (Low nibble of 0x23)
     ret                     ;7302  af
 
-lab_7303:
+lab_7303_blank:
     mov a,#0x0a             ;7303  a1 0a
     mov b,#0xff             ;7305  a3 ff
     movw hl,#blank          ;7307  16 11 65     HL = pointer to 11,"           "
@@ -21897,7 +21899,7 @@ lab_7303:
     mov [hl+b],a            ;733c  bb           '..........A'
     ret                     ;733d  af
 
-lab_733e:
+lab_733e_fern:
     mov b,#0x0a             ;733e  a3 0a
     movw hl,#fern_on        ;7340  16 e1 64     HL = pointer to 11,"FERN   ON  "
     mov1 cy,mem_fe5e.1      ;7343  71 14 5e     CY = FERN status (0=FERN off, 1=FERN on)
@@ -21910,7 +21912,7 @@ lab_734b:
     call !sub_6e70_copy_upd ;734d  9a 70 6e     Copy message from [HL] to display buf; uses A, B
     ret                     ;7350  af
 
-lab_7351:
+lab_7351_set_onvol:
     mov a,#0x0a             ;7351  a1 0a
     movw hl,#set_onvol      ;7353  16 99 64     HL = pointer to 11,"SET ONVOL  "
     mov b,#0xff             ;7356  a3 ff
@@ -21949,7 +21951,7 @@ lab_7380:
     mov [hl+b],a            ;7385  bb           '.........1.' (onvol tens place)
     ret                     ;7386  af
 
-lab_7387:
+lab_7387_set_cdmix:
     mov a,#0x0a             ;7387  a1 0a
     mov b,#0xff             ;7389  a3 ff
     movw hl,#set_cd_mix     ;738b  16 a5 64     HL = pointer to 11,"SET CD MIX "
@@ -21967,7 +21969,7 @@ lab_739c:
     mov [hl+b],a            ;73a1  bb           '..........6'
     ret                     ;73a2  af
 
-lab_73a3:
+lab_73a3_tape_skip:
     mov a,#0x0a             ;73a3  a1 0a
     mov b,#0xff             ;73a5  a3 ff
     movw hl,#tape_skip      ;73a7  16 b1 64     HL = pointer to 11,"TAPE SKIP  "
@@ -22125,7 +22127,7 @@ lab_7492:
     call !sub_6e70_copy_upd ;7499  9a 70 6e     Copy message from [HL] to display buf; uses A, B
     ret                     ;749c  af
 
-lab_749d:
+lab_749d_cd_tr:
     mov a,#0xff             ;749d  a1 ff
     mov b,#0x0a             ;749f  a3 0a
     movw hl,#cd_tr          ;74a1  16 9c 66     HL = pointer to 11,"CD   TR    "
@@ -22164,7 +22166,7 @@ lab_74d5_diag:
     call !sub_6e70_copy_upd ;74df  9a 70 6e     Copy message from [HL] to display buf; uses A, B
     ret                     ;74e2  af
 
-lab_74e3:
+lab_74e3_bass:
     mov b,#0x00             ;74e3  a3 00
     call !sub_67d9          ;74e5  9a d9 67
     push ax                 ;74e8  b1
@@ -22213,10 +22215,10 @@ lab_7528:
     ret                     ;7528  af
 
 lab_7529:
-    call !sub_6d61          ;7529  9a 61 6d
+    call !sub_6d61_hl_band  ;7529  9a 61 6d     Copy message from [HL] to display buf, then write AM/kHz or FM/MHz
     br !lab_6af1            ;752c  9b f1 6a
 
-lab_752f:
+lab_752f_mid:
     mov b,#0x01             ;752f  a3 01
     call !sub_67d9          ;7531  9a d9 67
     push ax                 ;7534  b1
@@ -22268,7 +22270,7 @@ lab_7575:
     call !sub_6e70_copy_upd ;7575  9a 70 6e     Copy message from [HL] to display buf; uses A, B
     ret                     ;7578  af
 
-lab_7579:
+lab_7579_treb:
     mov b,#0x02             ;7579  a3 02
     call !sub_67d9          ;757b  9a d9 67
     push ax                 ;757e  b1
@@ -22317,10 +22319,10 @@ lab_75be:
     ret                     ;75be  af
 
 lab_75bf:
-    call !sub_6d61          ;75bf  9a 61 6d
+    call !sub_6d61_hl_band  ;75bf  9a 61 6d     Copy message from [HL] to display buf, then write AM/kHz or FM/MHz
     br !lab_6af1            ;75c2  9b f1 6a
 
-lab_75c5:
+lab_75c5_bal:
     call !sub_aac7          ;75c5  9a c7 aa
     push ax                 ;75c8  b1
     cmp a,#0x09             ;75c9  4d 09
@@ -22342,7 +22344,7 @@ lab_75d3_bal_left:
     sub a,x                 ;75e4  61 18
     add a,#'0               ;75e6  0d 30        Convert it to ASCII
     mov [hl],a              ;75e8  97
-    br lab_760b             ;75e9  fa 20
+    br lab_760b_ret         ;75e9  fa 20
 
 lab_75d3_bal_right:
     mov b,#0xff             ;75eb  a3 ff
@@ -22355,7 +22357,7 @@ lab_75d3_bal_right:
     sub a,#0x0b             ;75f9  1d 0b
     add a,#'0               ;75fb  0d 30        Convert it to ASCII
     mov [hl],a              ;75fd  97
-    br lab_760b             ;75fe  fa 0b
+    br lab_760b_ret         ;75fe  fa 0b
 
 lab_75d3_bal_center:
     mov b,#0xff             ;7600  a3 ff
@@ -22365,14 +22367,14 @@ lab_75d3_bal_center:
 
     pop ax                  ;760a  b0
 
-lab_760b:
+lab_760b_ret:
     ret                     ;760b  af
 
 lab_760c:
-    call !sub_6d61          ;760c  9a 61 6d
+    call !sub_6d61_hl_band  ;760c  9a 61 6d     Copy message from [HL] to display buf, then write AM/kHz or FM/MHz
     br !lab_6af1            ;760f  9b f1 6a
 
-lab_7612:
+lab_7612_fade:
     call !sub_aaae          ;7612  9a ae aa
     push ax                 ;7615  b1
     cmp a,#0x09             ;7616  4d 09
@@ -22394,7 +22396,7 @@ lab_75d3_faderear:
     sub a,x                 ;7631  61 18
     add a,#'0               ;7633  0d 30        Convert it to ASCII
     mov [hl],a              ;7635  97
-    br lab_7658             ;7636  fa 20
+    br lab_7658_ret         ;7636  fa 20
 
 lab_75d3_fadefront:
     mov b,#0xff             ;7638  a3 ff
@@ -22407,7 +22409,7 @@ lab_75d3_fadefront:
     sub a,#0x0b             ;7646  1d 0b
     add a,#'0               ;7648  0d 30        Convert it to ASCII
     mov [hl],a              ;764a  97
-    br lab_7658             ;764b  fa 0b
+    br lab_7658_ret         ;764b  fa 0b
 
 lab_75d3_fadecenter:
     mov b,#0xff             ;764d  a3 ff
@@ -22417,14 +22419,14 @@ lab_75d3_fadecenter:
 
     pop ax                  ;7657  b0
 
-lab_7658:
+lab_7658_ret:
     ret                     ;7658  af
 
 lab_7659:
-    call !sub_6d61          ;7659  9a 61 6d
+    call !sub_6d61_hl_band  ;7659  9a 61 6d     Copy message from [HL] to display buf, then write AM/kHz or FM/MHz
     br !lab_6af1            ;765c  9b f1 6a
 
-lab_765f:
+lab_765f_flat:
     mov b,#0x83             ;765f  a3 83
     movw hl,#flat           ;7661  16 1d 65     HL = pointer to 9,"FLAT     "
     mov a,#0x0c             ;7664  a1 0c
@@ -22432,7 +22434,7 @@ lab_765f:
 
     ret                     ;7669  af
 
-lab_766a:
+lab_766a_select_eq:
     mov b,#0x83             ;766a  a3 83
     movw hl,#select_eq      ;766c  16 27 65     HL = pointer to 13,"SELECT EQ #  "
     mov a,#0x10             ;766f  a1 10
@@ -31486,7 +31488,7 @@ mem_af57:
     .word sub_223a          ;af6e   DATA
 
 mem_af70_a99cz23:
-;See also lab_72e9
+;See also lab_72e9_vers_a99
     .byte 0x41              ;af70  41          DATA 0x41 'A'
     .byte 0x99              ;af71  99          DATA 0x99
     .byte 0x43              ;af72  43          DATA 0x43 'C'
@@ -32660,56 +32662,56 @@ mem_b41b:
 mem_b426:
 ;unknown table used by lab_70a7
 ;indexed by mem_f1a5 & 0x7f
-    .byte 0x07              ;b426  07          DATA 0x07        7 entries below:
-    .word lab_7612          ;                  0 Writes "FADE"
-    .word lab_75c5          ;                  1 Writes "BAL"
-    .word lab_74e3          ;                  2 Writes "BASS"
-    .word lab_752f          ;                  3 Writes "MID"
-    .word lab_7579          ;                  4 Writes "TREB"
-    .word lab_765f          ;                  5 Writes "FLAT"
-    .word lab_766a          ;                  6 Writes "SELECT EQ #"
+    .byte 0x07                  ;b426  07          DATA 0x07        7 entries below:
+    .word lab_7612_fade         ;                  0 Writes "FADE"
+    .word lab_75c5_bal          ;                  1 Writes "BAL"
+    .word lab_74e3_bass         ;                  2 Writes "BASS"
+    .word lab_752f_mid          ;                  3 Writes "MID"
+    .word lab_7579_treb         ;                  4 Writes "TREB"
+    .word lab_765f_flat         ;                  5 Writes "FLAT"
+    .word lab_766a_select_eq    ;                  6 Writes "SELECT EQ #"
 
 mem_b435:
 ;unknown table used by lab_70c5
 ;indexed by mem_f1a6 & 0x0f
-    .byte 0x10                ;b435  10          DATA 0x10        16 entries below:
-    .word lab_6a10_monsoon    ;b436              0 Writes "    MONSOON"
-    .word lab_6c9a_hl         ;                  1 Writes [HL]
-    .word lab_6c6a_track_scan ;                  2 Writes "TRACK SCAN   "
-    .word lab_6c76_disc_scan  ;                  3 Writes "DISC SCAN    "
-    .word lab_71cf_no_disc    ;                  4 Writes "    NO DISC"
-    .word lab_71c6_no_magazin ;                  5 Writes "NO  MAGAZIN"
-    .word lab_71a7_no_changer ;                  6 Writes "NO  CHANGER"
-    .word lab_71b0_cd_cd_rom  ;                  7 Writes "CD  CD ROM "
-    .word lab_6b9d_cd_no_cd   ;                  8 Writes "CD   NO CD "
-    .word lab_6b73_cd_cd_err  ;                  9 Writes "CD  CD ERR "
-    .word lab_717f_tape_error ;                  a Writes "TAPE ERROR "
-    .word lab_7176_no_tape    ;                  b Writes "    NO TAPE"
-    .word lab_6b00_tape_metal ;                  c Writes "TAPE METAL"
-    .word lab_73bf_cut_tape   ;                  d Writes "CUT TAPE"
-    .word lab_73cd_min_or_max ;                  e Writes "  MIN  " or "  MAX  "
-    .word lab_74d5_diag       ;                  f Writes " DIAG  "
+    .byte 0x10                  ;b435  10          DATA 0x10        16 entries below:
+    .word lab_6a10_monsoon      ;b436              0 Writes "    MONSOON"
+    .word lab_6c9a_hl           ;                  1 Writes [HL]
+    .word lab_6c6a_track_scan   ;                  2 Writes "TRACK SCAN   "
+    .word lab_6c76_disc_scan    ;                  3 Writes "DISC SCAN    "
+    .word lab_71cf_no_disc      ;                  4 Writes "    NO DISC"
+    .word lab_71c6_no_magazin   ;                  5 Writes "NO  MAGAZIN"
+    .word lab_71a7_no_changer   ;                  6 Writes "NO  CHANGER"
+    .word lab_71b0_cd_cd_rom    ;                  7 Writes "CD  CD ROM "
+    .word lab_6b9d_cd_no_cd     ;                  8 Writes "CD   NO CD "
+    .word lab_6b73_cd_cd_err    ;                  9 Writes "CD  CD ERR "
+    .word lab_717f_tape_error   ;                  a Writes "TAPE ERROR "
+    .word lab_7176_no_tape      ;                  b Writes "    NO TAPE"
+    .word lab_6b00_tape_metal   ;                  c Writes "TAPE METAL"
+    .word lab_73bf_cut_tape     ;                  d Writes "CUT TAPE"
+    .word lab_73cd_min_or_max   ;                  e Writes "  MIN  " or "  MAX  "
+    .word lab_74d5_diag         ;                  f Writes " DIAG  "
 
 mem_b456:
 ;unknown table used by lab_7142
 ;indexed by mem_f1a8 & 0x7f
     .byte 0x04              ;b456  04          DATA 0x04        4 entries below:
-    .word lab_71e3          ;b457              0 Writes "     SAFE  "
-    .word lab_71f2          ;b459              1 Writes "     SAFE  "
-    .word lab_7224          ;b45b              2 Writes "     SAFE  "
-    .word lab_7294          ;b45d              3 Writes "     SAFE  "
+    .word lab_71e3_safe_1_of_4  ;b457              0 Writes "     SAFE  "
+    .word lab_71f2_safe_2_of_4  ;b459              1 Writes "     SAFE  "
+    .word lab_7224_safe_3_of_4  ;b45b              2 Writes "     SAFE  "
+    .word lab_7294_safe_4_of_4  ;b45d              3 Writes "     SAFE  "
 
 mem_b459:
 ;unknown table used by lab_715c
 ;indexed by mem_f1a9 & 0x7f
     .byte 0x07              ;b45f  07          DATA 0x07        7 entries below:
-    .word lab_72de          ;b460              0 Writes "RAD   DE2  "
-    .word lab_72e9          ;b462              1 Writes "VersA99CZnn"
-    .word lab_7303          ;b464              2 Writes "           "
-    .word lab_733e          ;b466              3 Writes "FERN   ON  " or "FERN   ON  "
-    .word lab_7351          ;b468              4 Writes "SET ONVOL  "
-    .word lab_7387          ;b46a              5 Writes "SET CD MIX "
-    .word lab_73a3          ;b46c              6 Writes "TAPE SKIP  "
+    .word lab_72de_rad_de2      ;b460              0 Writes "RAD   DE2  "
+    .word lab_72e9_vers_a99     ;b462              1 Writes "VersA99CZnn"
+    .word lab_7303_blank        ;b464              2 Writes "           "
+    .word lab_733e_fern         ;b466              3 Writes "FERN   ON  " or "FERN   OFF "
+    .word lab_7351_set_onvol    ;b468              4 Writes "SET ONVOL  "
+    .word lab_7387_set_cdmix    ;b46a              5 Writes "SET CD MIX "
+    .word lab_73a3_tape_skip    ;b46c              6 Writes "TAPE SKIP  "
 
 mem_b46e:
 ;table used at lab_6f81 with table_get_word
@@ -32834,19 +32836,19 @@ mem_b4db:
 mem_b4de_cd_msgs:
 ;table of words used with table_get_word
     .byte 0x0d                  ;b4de  0d          DATA 0x0d        13 entries below:
-    .word lab_6c58_cd_and_track ;b4df   DATA      "CD   TR    "
-    .word lab_6c82_hl_msg_time  ;b4e1   DATA      Message in [HL] with minutes/seconds
+    .word lab_6c58_cd_and_track ;b4df   DATA      "CD   TR    " with CD number, track
+    .word lab_6c82_hl_msg_time  ;b4e1   DATA      Message in [HL] with minutes, seconds
     .word lab_6c8e_hl_msg_cdnum ;b4e3   DATA      Message in [HL] with CD number
-    .word lab_6c58_cd_and_track ;b4e5   DATA      "CD   TR    "
+    .word lab_6c58_cd_and_track ;b4e5   DATA      "CD   TR    " with CD number, track
     .word lab_6bcb              ;b4e7   DATA      Message from this table if upd_tick.1=1
     .word lab_6bde              ;b4e9   DATA      Message from this table
-    .word lab_6bf9_cue          ;b4eb   DATA      "CUE        "
-    .word lab_6c29_rev          ;b4ed   DATA      "REV        "
-    .word lab_6c10_cd_mins_secs ;b4ef   DATA      "CD         "
-    .word lab_6c3f_cd_mins_secs ;b4f1   DATA      "CD         "
-    .word lab_6bf0_scan_tr      ;b4f3   DATA      "SCANCD TR  "
+    .word lab_6bf9_cue          ;b4eb   DATA      "CUE        " with minutes, seconds
+    .word lab_6c29_rev          ;b4ed   DATA      "REV        " with minutes, seconds
+    .word lab_6c10_cd_mins_secs ;b4ef   DATA      "CD         " with CD number, minutes, seconds
+    .word lab_6c3f_cd_mins_secs ;b4f1   DATA      "CD         " with CD number, minutes, seconds
+    .word lab_6bf0_scan_tr      ;b4f3   DATA      "SCANCD TR  " with CD number, track
     .word lab_6b66_chk_magazin  ;b4f5   DATA      "CHK MAGAZIN"
-    .word lab_749d              ;b4f7   DATA      "CD   TR    "
+    .word lab_749d_cd_tr        ;b4f7   DATA      "CD   TR    "
 
 ;XXX appears unused
 mem_b4f9:
@@ -32945,14 +32947,14 @@ mem_b535:
 mem_b550:
 ;table of words used with table_get_word
     .byte 0x0d              ;b550  0d          DATA 0x0d        13 entries below:
-    .word lab_716b
+    .word lab_716b_comm_error
     .word lab_717f_tape_error
-    .word lab_7188
-    .word lab_7191
+    .word lab_7188_tight_tape
+    .word lab_7191_wrapped_tape
     .word lab_719a
     .word lab_719c
-    .word lab_719e
-    .word lab_71da
+    .word lab_719e_player_error
+    .word lab_71da_changer_error
     .word lab_71c6_no_magazin
     .word lab_71cf_no_disc
     .word lab_71a7_no_changer
