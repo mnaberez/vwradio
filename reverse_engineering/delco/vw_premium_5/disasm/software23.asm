@@ -54,7 +54,7 @@ kwp_rw_total = 0xf04c       ;KWP1281 total bytes originally requested for read r
 kwp_test_idx = 0xf04e       ;KWP1281 Output Test index
 kwp_group_num = 0xf04f      ;KWP1281 Group number
 kwp_meas_count = 0xf050     ;KWP1281 number of measurements in group left to read
-kwp_meas_f051 = 0xf051      ;KWP1281 unknown used in group reading
+kwp_meas_mfsw_key = 0xf051  ;KWP1281 MFSW key code (value of mfsw_key) during group reading
 fis_tx_buf = 0xf052         ;FIS display 3LB packet buffer (20 bytes)
 fis_tx_count = 0xf066       ;FIS number of bytes left to send
 fis_f067 = 0xf067           ;FIS unknown (timer countdown?)
@@ -7559,33 +7559,49 @@ lab_287a:
     bz lab_28b7             ;28ad  ad 08        Branch if no key was pressed
 
     ;MFSW key was pressed
-    mov !kwp_meas_f051,a    ;28af  9e 51 f0
+    mov !kwp_meas_mfsw_key,a;28af  9e 51 f0     Save key code received from MFSW
+
     mov a,#0x1e             ;28b2  a1 1e
     mov !mem_fb23,a         ;28b4  9e 23 fb
 
 lab_28b7:
     mov a,!mem_fb23         ;28b7  8e 23 fb
     cmp a,#0x00             ;28ba  4d 00
-    bz lab_28da             ;28bc  ad 1c
-    mov a,#0x63             ;28be  a1 63
-    cmp a,!kwp_meas_f051    ;28c0  48 51 f0
-    bc lab_28da             ;28c3  8d 15
-    mov a,!kwp_meas_f051    ;28c5  8e 51 f0
-    mov x,#0x00             ;28c8  a0 00
+    bz lab_28da_mfsw_no_key ;28bc  ad 1c
+
+    mov a,#99               ;28be  a1 63
+    cmp a,!kwp_meas_mfsw_key;28c0  48 51 f0     Compare with key code received from MFSW
+    bc lab_28da_mfsw_no_key ;28c3  8d 15        Branch if kwp_meas_mfsw_key > 99
+
+    ;MFSW key code has been received and is in range 0-99 decimal
+    ;Convert it to a 2-digit decimal number in ASCII.
+    mov a,!kwp_meas_mfsw_key;28c5  8e 51 f0
+    mov x,#0                ;28c8  a0 00
     xch a,x                 ;28ca  30
-    mov c,#0x0a             ;28cb  a2 0a
+    mov c,#10               ;28cb  a2 0a
     divuw c                 ;28cd  31 82
     mov a,x                 ;28cf  60
-    add a,#0x30             ;28d0  0d 30
+    add a,#'0               ;28d0  0d 30
     mov x,a                 ;28d2  70
     mov a,c                 ;28d3  62
-    add a,#0x30             ;28d4  0d 30
+    add a,#'0               ;28d4  0d 30
     xch a,e                 ;28d6  34
+
+    ;XE now contains kwp_meas_mfsw_key as a 2-digit decimal number in ASCII
+    ;where X is the ten's place and E is the one's place.  Examples:
+    ;  MFSW Key       kwp_meas_mfsw_key      X           E
+    ;  Volume Down    0x00 (0)               0x30 "0"    0x30 "0"
+    ;  Volume Up      0x01 (1)               0x30 "0"    0x31 "1"
+    ;  Down           0x0a (10)              0x31 "1"    0x30 "0"
+    ;  Up             0x0b (11)              0x31 "1"    0x31 "1"
     br !lab_29b0_ret_data   ;28d7  9b b0 29   Branch to return with measurement data
-lab_28da:
-    mov a,#0x20             ;28da  a1 20
-    mov x,#0x20             ;28dc  a0 20
+
+lab_28da_mfsw_no_key:
+;No MFSW key pressed or key code is > 99
+    mov a,#0x20             ;28da  a1 20      A = ASCII space character
+    mov x,#0x20             ;28dc  a0 20      X = ASCII space character
     xch a,e                 ;28de  34
+    ;XE now contains two ASCII spaces
     br !lab_29b0_ret_data   ;28df  9b b0 29   Branch to return with measurement data
 
 lab_28e2:
