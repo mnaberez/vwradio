@@ -94,9 +94,8 @@ mem_f198 = 0xf198
 mem_f199 = 0xf199
 mem_f19a = 0xf19a
 upd_disp = 0xf19a           ;uPD16432B display buffer to send to uPD16432B (11 bytes)
-mem_f1a3 = 0xf1a3
-mem_f1a5 = 0xf1a5
-mem_f1a6 = 0xf1a6
+snd_msg_idx = 0xf1a5        ;Index of sound control message to show while msg_countdown is nonzero
+tmp_msg_idx = 0xf1a6        ;Index of temporary message to show while msg_countdown is nonzero
 mem_f1a7 = 0xf1a7
 mem_f1a8 = 0xf1a8
 mem_f1a9 = 0xf1a9
@@ -326,7 +325,7 @@ mem_fb2a = 0xfb2a
 mem_fb2b = 0xfb2b
 mem_fb2c = 0xfb2c
 mem_fb2d = 0xfb2d
-mem_fb2e = 0xfb2e
+msg_countdown = 0xfb2e      ;Counts down tenths of a second that tmp_msg_idx should be displayed
 mem_fb2f = 0xfb2f
 mem_fb30 = 0xfb30
 mem_fb38 = 0xfb38
@@ -4023,13 +4022,13 @@ lab_147c:
     bt mem_fe65.5,lab_148f  ;147c  dc 65 10
     clr1 mem_fe5f.5         ;147f  5b 5f
 
-    mov a,!mem_f1a6         ;1481  8e a6 f1
+    mov a,!tmp_msg_idx      ;1481  8e a6 f1
     and a,#0x7f             ;1484  5d 7f
     cmp a,#0x0f             ;1486  4d 0f        f Writes " DIAG  "
     bnz lab_148f            ;1488  bd 05
 
     mov a,#0xff             ;148a  a1 ff
-    mov !mem_f1a6,a         ;148c  9e a6 f1     f Writes " DIAG  "
+    mov !tmp_msg_idx,a      ;148c  9e a6 f1     f Writes " DIAG  "
 
 lab_148f:
     call !kwp_check_idle    ;148f  9a 3f 33     Decrement KWP1281 idle countdown and disconnect KWP1281 connection if needed
@@ -5838,8 +5837,8 @@ lab_1fe5:
     ret                     ;1fe8  af
 
 lab_1fe9:
-    mov a,#0x3c             ;1fe9  a1 3c
-    mov !mem_fb2e,a         ;1feb  9e 2e fb
+    mov a,#60               ;1fe9  a1 3c      A = 6 seconds
+    mov !msg_countdown,a    ;1feb  9e 2e fb
     ret                     ;1fee  af
 
 lab_1fef:
@@ -6536,16 +6535,19 @@ lab_2438:
     br !sub_2201            ;243f  9b 01 22
 
 lab_2442:
-    mov a,#0x1e             ;2442  a1 1e
-    mov !mem_fb2e,a         ;2444  9e 2e fb
+    mov a,#30               ;2442  a1 1e        A = 3 seconds
+    mov !msg_countdown,a    ;2444  9e 2e fb
+
     mov a,!mem_f20b         ;2447  8e 0b f2     A = SAFE code attempt counter
     inc a                   ;244a  41
     cmp a,#0x03             ;244b  4d 03
     bnc lab_245e            ;244d  9d 0f
+
     movw hl,#mem_f20b       ;244f  16 0b f2     HL = pointer to SAFE code attempt counter
     call !eeram_wr_byte_hl  ;2452  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
     cmp a,#0x02             ;2455  4d 02
     bnc lab_245e            ;2457  9d 05
+
     mov a,#0x02             ;2459  a1 02
     br !sub_2227            ;245b  9b 27 22
 
@@ -7043,11 +7045,12 @@ lab_26d5_ret:
 
 sub_26d6:
     call !sub_7697          ;26d6  9a 97 76
-    mov a,#0x32             ;26d9  a1 32
-    mov !mem_fb2e,a         ;26db  9e 2e fb
+
+    mov a,#50               ;26d9  a1 32        A = 5 seconds
+    mov !msg_countdown,a    ;26db  9e 2e fb
 
     mov a,#0x8f             ;26de  a1 8f
-    mov !mem_f1a6,a         ;26e0  9e a6 f1     f Writes " DIAG  "
+    mov !tmp_msg_idx,a      ;26e0  9e a6 f1     f Writes " DIAG  "
     ret                     ;26e3  af
 
 
@@ -10265,8 +10268,10 @@ lab_348b:
     set1 mem_fe7d.3         ;3494  3a 7d
     clr1 mem_fe61.4         ;3496  4b 61
     clr1 mem_fe5f.5         ;3498  5b 5f
-    mov a,#0x00             ;349a  a1 00
-    mov !mem_fb2e,a         ;349c  9e 2e fb
+
+    mov a,#0                ;349a  a1 00        A = 0 seconds
+    mov !msg_countdown,a    ;349c  9e 2e fb
+
     mov !kwp_test_idx,a     ;349f  9e 4e f0     KWP1281 Output Test index = 0
 
 kwp_clear_more:
@@ -11510,10 +11515,10 @@ lab_3c3f:
 lab_3c4e:
 ;Monsoon
     mov a,#0x80             ;3c4e  a1 80
-    mov !mem_f1a6,a         ;3c50  9e a6 f1       0 Writes "    MONSOON"
+    mov !tmp_msg_idx,a      ;3c50  9e a6 f1       0 Writes "    MONSOON"
 
-    mov a,#0x1e             ;3c53  a1 1e
-    mov !mem_fb2e,a         ;3c55  9e 2e fb
+    mov a,#30               ;3c53  a1 1e          A = 3 seconds
+    mov !msg_countdown,a    ;3c55  9e 2e fb
 
 lab_3c58:
 ;Not Monsoon
@@ -11610,10 +11615,10 @@ lab_3cd4:
 lab_3ce8:
 ;Monsoon
     mov a,#0x80             ;3ce8  a1 80
-    mov !mem_f1a6,a         ;3cea  9e a6 f1       0 Writes "    MONSOON"
+    mov !tmp_msg_idx,a      ;3cea  9e a6 f1       0 Writes "    MONSOON"
 
-    mov a,#0x1e             ;3ced  a1 1e
-    mov !mem_fb2e,a         ;3cef  9e 2e fb
+    mov a,#30               ;3ced  a1 1e          A = 3 seconds
+    mov !msg_countdown,a    ;3cef  9e 2e fb
 
 lab_3cf2:
 ;Not Monsoon
@@ -12784,20 +12789,21 @@ sub_43b1:
     call !sub_7697          ;43ca  9a 97 76
     cmp mem_fe43_key,#0x34  ;43cd  c8 43 34
     bnz lab_43de            ;43d0  bd 0c
-    mov a,#0x23             ;43d2  a1 23
-    mov !mem_fb2e,a         ;43d4  9e 2e fb
+
+    mov a,#35               ;43d2  a1 23        A = 3.5 seconds
+    mov !msg_countdown,a    ;43d4  9e 2e fb
 
     mov a,#0x0a             ;43d7  a1 0a
-    mov !mem_f1a6,a         ;43d9  9e a6 f1       a Writes "TAPE ERROR "
+    mov !tmp_msg_idx,a      ;43d9  9e a6 f1     a Writes "TAPE ERROR "
 
     br lab_43fd             ;43dc  fa 1f
 
 lab_43de:
-    mov a,#0x23             ;43de  a1 23
-    mov !mem_fb2e,a         ;43e0  9e 2e fb
+    mov a,#35               ;43de  a1 23        A = 3.5 seconds
+    mov !msg_countdown,a    ;43e0  9e 2e fb
 
     mov a,#0x0b             ;43e3  a1 0b
-    mov !mem_f1a6,a         ;43e5  9e a6 f1       b Writes "    NO TAPE"
+    mov !tmp_msg_idx,a      ;43e5  9e a6 f1     b Writes "    NO TAPE"
 
     br lab_43fd             ;43e8  fa 13
 
@@ -12806,11 +12812,12 @@ lab_43ea:
     bnz lab_4400            ;43ec  bd 12
     cmp mem_fe43_key,#0x49  ;43ee  c8 43 49
     bz lab_4400             ;43f1  ad 0d
-    mov a,#0x23             ;43f3  a1 23
-    mov !mem_fb2e,a         ;43f5  9e 2e fb
+
+    mov a,#35               ;43f3  a1 23        A = 3.5 seconds
+    mov !msg_countdown,a    ;43f5  9e 2e fb
 
     mov a,#0x06             ;43f8  a1 06
-    mov !mem_f1a6,a         ;43fa  9e a6 f1       6 Writes "NO  CHANGER"
+    mov !tmp_msg_idx,a      ;43fa  9e a6 f1     6 Writes "NO  CHANGER"
 
 lab_43fd:
     call !sub_4609          ;43fd  9a 09 46
@@ -12825,20 +12832,24 @@ lab_4402:
     bnz lab_4427            ;4405  bd 20
     cmp a,#0x02             ;4407  4d 02
     bnz lab_4414            ;4409  bd 09
-    mov a,#0x23             ;440b  a1 23
-    mov !mem_fb2e,a         ;440d  9e 2e fb
+
+    mov a,#35               ;440b  a1 23        A = 3.5 seconds
+    mov !msg_countdown,a    ;440d  9e 2e fb
+
     mov a,#0x05             ;4410  a1 05        5 Writes "NO  MAGAZIN"
     br lab_441f             ;4412  fa 0b
 
 lab_4414:
     cmp a,#0x03             ;4414  4d 03
     bnz lab_4427            ;4416  bd 0f
-    mov a,#0x23             ;4418  a1 23
-    mov !mem_fb2e,a         ;441a  9e 2e fb
+
+    mov a,#35               ;4418  a1 23        A = 3.5 seconds
+    mov !msg_countdown,a    ;441a  9e 2e fb
+
     mov a,#0x04             ;441d  a1 04        4 Writes "    NO DISC"
 
 lab_441f:
-    mov !mem_f1a6,a         ;441f  9e a6 f1
+    mov !tmp_msg_idx,a      ;441f  9e a6 f1
 
     call !sub_4609          ;4422  9a 09 46
     br lab_4400             ;4425  fa d9
@@ -12866,14 +12877,15 @@ lab_4438:
     cmp a,#0x00             ;443d  4d 00
     bz lab_4465             ;443f  ad 24
 
-    mov a,!mem_f1a6         ;4441  8e a6 f1
+    mov a,!tmp_msg_idx      ;4441  8e a6 f1
     and a,#0x7f             ;4444  5d 7f
     cmp a,#0x00             ;4446  4d 00
     bz lab_4452             ;4448  ad 08
 
     call !sub_7697          ;444a  9a 97 76
-    mov a,#0x00             ;444d  a1 00
-    mov !mem_fb2e,a         ;444f  9e 2e fb
+
+    mov a,#0                ;444d  a1 00        A = 0 seconds
+    mov !msg_countdown,a    ;444f  9e 2e fb
 
 lab_4452:
     mov a,mem_fe30          ;4452  f0 30
@@ -13001,20 +13013,21 @@ lab_4502:
     call !sub_7697          ;4518  9a 97 76
     cmp mem_fe43_key,#0x34  ;451b  c8 43 34
     bnz lab_452c            ;451e  bd 0c
-    mov a,#0x23             ;4520  a1 23
-    mov !mem_fb2e,a         ;4522  9e 2e fb
+
+    mov a,#35               ;4520  a1 23        A = 3.5 seconds
+    mov !msg_countdown,a    ;4522  9e 2e fb
 
     mov a,#0x0a             ;4525  a1 0a
-    mov !mem_f1a6,a         ;4527  9e a6 f1       a Writes "TAPE ERROR "
+    mov !tmp_msg_idx,a      ;4527  9e a6 f1     a Writes "TAPE ERROR "
 
     br lab_454b             ;452a  fa 1f
 
 lab_452c:
-    mov a,#0x23             ;452c  a1 23
-    mov !mem_fb2e,a         ;452e  9e 2e fb
+    mov a,#35               ;452c  a1 23        A = 3.5 seconds
+    mov !msg_countdown,a    ;452e  9e 2e fb
 
     mov a,#0x0b             ;4531  a1 0b
-    mov !mem_f1a6,a         ;4533  9e a6 f1       b Writes "    NO TAPE"
+    mov !tmp_msg_idx,a      ;4533  9e a6 f1     b Writes "    NO TAPE"
 
     br lab_454b             ;4536  fa 13
 
@@ -13023,11 +13036,12 @@ lab_4538:
     bnz lab_454e            ;453a  bd 12
     cmp mem_fe43_key,#0x49  ;453c  c8 43 49
     bz lab_454e             ;453f  ad 0d
-    mov a,#0x23             ;4541  a1 23
-    mov !mem_fb2e,a         ;4543  9e 2e fb
 
-    mov a,#0x06             ;4546  a1 06          6 Writes "NO  CHANGER"
-    mov !mem_f1a6,a         ;4548  9e a6 f1
+    mov a,#35               ;4541  a1 23        A = 3.5 seconds
+    mov !msg_countdown,a    ;4543  9e 2e fb
+
+    mov a,#0x06             ;4546  a1 06        6 Writes "NO  CHANGER"
+    mov !tmp_msg_idx,a      ;4548  9e a6 f1
 
 lab_454b:
     call !sub_4609          ;454b  9a 09 46
@@ -14527,11 +14541,11 @@ lab_4cb0:
     sel rb0                 ;4cd3  61 d0        Select normal register bank
 
 lab_4cd5:
-    mov a,!mem_f1a5         ;4cd5  8e a5 f1
+    mov a,!snd_msg_idx      ;4cd5  8e a5 f1
     cmp a,#0xff             ;4cd8  4d ff
     bz lab_4ce1             ;4cda  ad 05
 
-    mov a,!mem_fb2e         ;4cdc  8e 2e fb
+    mov a,!msg_countdown    ;4cdc  8e 2e fb
     bz lab_4ce1             ;4cdf  ad 00
 
 lab_4ce1:
@@ -16888,7 +16902,7 @@ sub_5607:
     call !sub_568f          ;560d  9a 8f 56
     mov !mem_fbcd,a         ;5610  9e cd fb
 
-    mov a,!mem_f1a5         ;5613  8e a5 f1
+    mov a,!snd_msg_idx      ;5613  8e a5 f1
     cmp a,#0xff             ;5616  4d ff
     movw hl,#mem_fbcc       ;5618  16 cc fb
     clr1 mem_fe66.2         ;561b  2b 66
@@ -19528,89 +19542,57 @@ select_eq:
     .byte 0x0d              ;6527  0d          DATA 0x0d        13 bytes follow:
     .ascii "SELECT EQ #  "
 
+;Unknown table used with sub_67c4
+;XXX appears unused since sub_67c4 appears unused
 mem_6535:
-    .byte 0x00              ;6535  00          DATA 0x00
-    .byte 0xdf              ;6536  df          DATA 0xdf
-    .byte 0x00              ;6537  00          DATA 0x00
-    .byte 0xe1              ;6538  e1          DATA 0xe1
-    .byte 0x00              ;6539  00          DATA 0x00
-    .byte 0xe3              ;653a  e3          DATA 0xe3
-    .byte 0x00              ;653b  00          DATA 0x00
-    .byte 0xe5              ;653c  e5          DATA 0xe5
-    .byte 0x01              ;653d  01          DATA 0x01
-    .byte 0xdf              ;653e  df          DATA 0xdf
-    .byte 0x01              ;653f  01          DATA 0x01
-    .byte 0xe1              ;6540  e1          DATA 0xe1
-    .byte 0x01              ;6541  01          DATA 0x01
-    .byte 0xe3              ;6542  e3          DATA 0xe3
-    .byte 0x01              ;6543  01          DATA 0x01
-    .byte 0xe5              ;6544  e5          DATA 0xe5
-    .byte 0x02              ;6545  02          DATA 0x02
-    .byte 0xdf              ;6546  df          DATA 0xdf
-    .byte 0x02              ;6547  02          DATA 0x02
-    .byte 0xe1              ;6548  e1          DATA 0xe1
-    .byte 0x02              ;6549  02          DATA 0x02
-    .byte 0xe3              ;654a  e3          DATA 0xe3
-    .byte 0x02              ;654b  02          DATA 0x02
-    .byte 0xe5              ;654c  e5          DATA 0xe5
-    .byte 0x03              ;654d  03          DATA 0x03
-    .byte 0xd9              ;654e  d9          DATA 0xd9
-    .byte 0x03              ;654f  03          DATA 0x03
-    .byte 0xd9              ;6550  d9          DATA 0xd9
-    .byte 0x03              ;6551  03          DATA 0x03
-    .byte 0xda              ;6552  da          DATA 0xda
-    .byte 0x03              ;6553  03          DATA 0x03
-    .byte 0xdb              ;6554  db          DATA 0xdb
-    .byte 0x03              ;6555  03          DATA 0x03
-    .byte 0xdc              ;6556  dc          DATA 0xdc
-    .byte 0x03              ;6557  03          DATA 0x03
-    .byte 0xdd              ;6558  dd          DATA 0xdd
-    .byte 0x03              ;6559  03          DATA 0x03
-    .byte 0xdd              ;655a  dd          DATA 0xdd
-    .byte 0x04              ;655b  04          DATA 0x04
-    .byte 0xdf              ;655c  df          DATA 0xdf
-    .byte 0x04              ;655d  04          DATA 0x04
-    .byte 0xe1              ;655e  e1          DATA 0xe1
-    .byte 0x04              ;655f  04          DATA 0x04
-    .byte 0xe3              ;6560  e3          DATA 0xe3
-    .byte 0x04              ;6561  04          DATA 0x04
-    .byte 0xe5              ;6562  e5          DATA 0xe5
-    .byte 0x05              ;6563  05          DATA 0x05
-    .byte 0xdf              ;6564  df          DATA 0xdf
-    .byte 0x05              ;6565  05          DATA 0x05
-    .byte 0xe1              ;6566  e1          DATA 0xe1
-    .byte 0x05              ;6567  05          DATA 0x05
-    .byte 0xe3              ;6568  e3          DATA 0xe3
-    .byte 0x05              ;6569  05          DATA 0x05
-    .byte 0xe5              ;656a  e5          DATA 0xe5
-    .byte 0x06              ;656b  06          DATA 0x06
-    .byte 0xdf              ;656c  df          DATA 0xdf
-    .byte 0x06              ;656d  06          DATA 0x06
-    .byte 0xe1              ;656e  e1          DATA 0xe1
-    .byte 0x06              ;656f  06          DATA 0x06
-    .byte 0xe3              ;6570  e3          DATA 0xe3
-    .byte 0x06              ;6571  06          DATA 0x06
-    .byte 0xe5              ;6572  e5          DATA 0xe5
-    .byte 0x00              ;6573  00          DATA 0x00
-    .byte 0x01              ;6574  01          DATA 0x01
-    .byte 0x01              ;6575  01          DATA 0x01
-    .byte 0x02              ;6576  02          DATA 0x02
-    .byte 0x02              ;6577  02          DATA 0x02
-    .byte 0x03              ;6578  03          DATA 0x03
-    .byte 0x03              ;6579  03          DATA 0x03
-    .byte 0x03              ;657a  03          DATA 0x03
-    .byte 0x04              ;657b  04          DATA 0x04
-    .byte 0x04              ;657c  04          DATA 0x04
-    .byte 0x05              ;657d  05          DATA 0x05
-    .byte 0x05              ;657e  05          DATA 0x05
-    .byte 0x06              ;657f  06          DATA 0x06
-    .byte 0xd7              ;6580  d7          DATA 0xd7
-    .byte 0xd6              ;6581  d6          DATA 0xd6
-    .byte 0xd5              ;6582  d5          DATA 0xd5
-    .byte 0xd4              ;6583  d4          DATA 0xd4
-    .byte 0xd3              ;6584  d3          DATA 0xd3
-    .byte 0xd2              ;6585  d2          DATA 0xd2
-    .byte 0xd1              ;6586  d1          DATA 0xd1
+    .byte 0x00, 0xdf
+    .byte 0x00, 0xe1
+    .byte 0x00, 0xe3
+    .byte 0x00, 0xe5
+
+    .byte 0x01, 0xdf
+    .byte 0x01, 0xe1
+    .byte 0x01, 0xe3
+    .byte 0x01, 0xe5
+
+    .byte 0x02, 0xdf
+    .byte 0x02, 0xe1
+    .byte 0x02, 0xe3
+    .byte 0x02, 0xe5
+
+    .byte 0x03, 0xd9
+    .byte 0x03, 0xd9
+    .byte 0x03, 0xda
+    .byte 0x03, 0xdb
+    .byte 0x03, 0xdc
+    .byte 0x03, 0xdd
+    .byte 0x03, 0xdd
+
+    .byte 0x04, 0xdf
+    .byte 0x04, 0xe1
+    .byte 0x04, 0xe3
+    .byte 0x04, 0xe5
+
+    .byte 0x05, 0xdf
+    .byte 0x05, 0xe1
+    .byte 0x05, 0xe3
+    .byte 0x05, 0xe5
+
+    .byte 0x06, 0xdf
+    .byte 0x06, 0xe1
+    .byte 0x06, 0xe3
+    .byte 0x06, 0xe5
+
+    .byte 0x00, 0x01
+    .byte 0x01, 0x02
+    .byte 0x02, 0x03
+    .byte 0x03, 0x03
+    .byte 0x04, 0x04
+    .byte 0x05, 0x05
+    .byte 0x06, 0xd7
+    .byte 0xd6, 0xd5
+    .byte 0xd4, 0xd3
+    .byte 0xd2, 0xd1
 
 normal:
     .byte 0x06              ;6587  06          DATA 0x06        6 bytes follow:
@@ -19841,11 +19823,12 @@ lock:
     .ascii "LOCK"
 
 sub_67be:
-;Sets mem_f1a6 = 0xff (may result in "DIAG" being printed)
+;Sets tmp_msg_idx = 0xff (may result in "DIAG" being printed)
     mov a,#0xff             ;67be  a1 ff
-    mov !mem_f1a6,a         ;67c0  9e a6 f1
+    mov !tmp_msg_idx,a      ;67c0  9e a6 f1
     ret                     ;67c3  af           f Writes " DIAG  "
 
+;XXX appears unused
 sub_67c4:
     rolc a,1                ;67c4  27
     mov b,a                 ;67c5  73
@@ -19857,7 +19840,7 @@ sub_67c4:
     mov b,a                 ;67cd  73
     pop ax                  ;67ce  b0
     xch a,b                 ;67cf  33
-    movw hl,#mem_f1a3       ;67d0  16 a3 f1
+    movw hl,#upd_disp+9     ;67d0  16 a3 f1
     mov [hl+b],a            ;67d3  bb
     mov a,#0xff             ;67d4  a1 ff
     mov b,#0xff             ;67d6  a3 ff
@@ -19894,7 +19877,8 @@ lab_67f4:
     ret                     ;67fd  af
 
 sub_67fe:
-;XXX writes past end of upd_disp buffer; may not be used
+;XXX appears unused
+;XXX writes past end of upd_disp buffer
     mov b,#0x0d             ;67fe  a3 0d        B = 13 bytes to fill
     movw hl,#upd_disp+4     ;6800  16 9e f1     HL = pointer to display buffer + 4
     mov a,#0x20             ;6803  a1 20        A = fill value (space)
@@ -19920,8 +19904,8 @@ lab_6813_lt_0x0a:
 lab_6815_ret:
     ret                     ;6815  af
 
-sub_6816:
 ;XXX writes before start of upd_disp buffer; may not be used
+sub_6816:
     movw hl,#upd_disp       ;6816  16 9a f1
     mov a,#'R               ;6819  a1 52
     mov [hl+b],a            ;681b  bb         Write "R" at upd_disp
@@ -19930,6 +19914,7 @@ sub_6816:
     mov [hl+b],a            ;681f  bb         Write "R" at upd_disp-1  XXX
     ret                     ;6820  af
 
+;XXX appears unused
 sub_6821:
     cmp a,#10               ;6821  4d 0a
     bnc lab_6826_ret        ;6823  9d 01      Branch if >= 10
@@ -19937,8 +19922,8 @@ sub_6821:
 lab_6826_ret:
     ret                     ;6826  af
 
-sub_6827:
 ;XXX fills past end of upd_disp buffer; may not be used
+sub_6827:
     movw hl,#upd_disp+4     ;6827  16 9e f1     HL = address to fill
     mov b,#0x0b             ;682a  a3 0b        B = 11 bytes to fill
     mov a,#0x20             ;682c  a1 20        A = space character
@@ -20291,8 +20276,9 @@ lab_6a1b:
     br lab_6a26             ;6a1d  fa 07
 
 lab_6a1f:
-    mov a,#0x00             ;6a1f  a1 00
-    mov !mem_fb2e,a         ;6a21  9e 2e fb
+    mov a,#0                ;6a1f  a1 00        A = 0 seconds
+    mov !msg_countdown,a    ;6a21  9e 2e fb
+
     mov a,#0xff             ;6a24  a1 ff
 
 lab_6a26:
@@ -20339,11 +20325,12 @@ lab_6a5c:
     br lab_6a75             ;6a62  fa 11
 
 lab_6a64:
-    mov a,!mem_fb2e         ;6a64  8e 2e fb
-    cmp a,#0x00             ;6a67  4d 00
+    mov a,!msg_countdown    ;6a64  8e 2e fb
+    cmp a,#0                ;6a67  4d 00
     bnz lab_6a71            ;6a69  bd 06
-    call !sub_67be          ;6a6b  9a be 67     Sets mem_f1a6 = 0xff (may result in "DIAG" being printed)
-    mov !mem_f1a5,a         ;6a6e  9e a5 f1
+
+    call !sub_67be          ;6a6b  9a be 67     Sets tmp_msg_idx = 0xff (may result in "DIAG" being printed)
+    mov !snd_msg_idx,a      ;6a6e  9e a5 f1
 
 lab_6a71:
     mov a,#0x88             ;6a71  a1 88
@@ -21421,8 +21408,9 @@ lab_7035:
     cmp a,#0xff             ;7036  4d ff
     bnz lab_7041            ;7038  bd 07
     dbnz b,lab_7035         ;703a  8b f9
-    mov a,#0x00             ;703c  a1 00
-    mov !mem_fb2e,a         ;703e  9e 2e fb
+
+    mov a,#0                ;703c  a1 00        A = 0 seconds
+    mov !msg_countdown,a    ;703e  9e 2e fb
 
 lab_7041:
     mov a,b                 ;7041  63
@@ -21441,7 +21429,7 @@ lab_704d:
 lab_7054:
     clr1 upd_pict+4.5       ;7054  5b 39        Turn off period pictograph
 
-    mov a,!mem_f1a6         ;7056  8e a6 f1
+    mov a,!tmp_msg_idx      ;7056  8e a6 f1
     and a,#0x0f             ;7059  5d 0f
     cmp a,#0x0e             ;705b  4d 0e        e Writes "  MIN  " or "  MAX  "
     bz lab_7065             ;705d  ad 06
@@ -21459,8 +21447,10 @@ lab_7065:
 lab_7070:
     bt mem_fe2c.5,lab_7087  ;7070  dc 2c 14
     bt mem_fe65.5,lab_7087  ;7073  dc 65 11
-    mov a,#0x00             ;7076  a1 00
-    mov !mem_fb2e,a         ;7078  9e 2e fb
+
+    mov a,#0                ;7076  a1 00        A = 0 seconds
+    mov !msg_countdown,a    ;7078  9e 2e fb
+
     mov a,#0x0a             ;707b  a1 0a
     mov b,#0xff             ;707d  a3 ff
     movw hl,#blank          ;707f  16 11 65     HL = pointer to 11,"           "
@@ -21477,49 +21467,50 @@ lab_708e:
     ret                     ;708e  af
 
 lab_708f:
-    mov a,!mem_fb2e         ;708f  8e 2e fb
-    cmp a,#0x00             ;7092  4d 00
+    mov a,!msg_countdown    ;708f  8e 2e fb
+    cmp a,#0                ;7092  4d 00
     bnz lab_70a7            ;7094  bd 11
 
-    mov a,!mem_f1a5         ;7096  8e a5 f1
+    mov a,!snd_msg_idx      ;7096  8e a5 f1
     and a,#0x3f             ;7099  5d 3f
     cmp a,#0x06             ;709b  4d 06        A = 0x06 "SELECT EQ #"
-    bnz lab_70a1            ;709d  bd 02        Branch if mem_fa15 != "SELECT EQ #"
+    bnz lab_70a1            ;709d  bd 02        Branch if snd_msg_idx != "SELECT EQ #"
 
     ;A = 0x06 "SELECT EQ #"
     set1 mem_fe80.5         ;709f  5a 80
 
 lab_70a1:
     mov a,#0xff             ;70a1  a1 ff
-    mov !mem_f1a5,a         ;70a3  9e a5 f1
+    mov !snd_msg_idx,a      ;70a3  9e a5 f1
     ret                     ;70a6  af
 
 lab_70a7:
     mov a,#0x00             ;70a7  a1 00
     mov !mem_fb2d,a         ;70a9  9e 2d fb
 
-    mov a,!mem_f1a5         ;70ac  8e a5 f1
+    mov a,!snd_msg_idx      ;70ac  8e a5 f1
     and a,#0x7f             ;70af  5d 7f
-    mov !mem_f1a5,a         ;70b1  9e a5 f1
+    mov !snd_msg_idx,a      ;70b1  9e a5 f1
 
-    mov b,a                 ;70b4  73
-    movw hl,#mem_b426_sound_msgs+1     ;70b5  16 27 b4   HL = pointer to sound control related code table
-    br lab_704d             ;70b8  fa 93
+    mov b,a                        ;70b4  73
+    movw hl,#mem_b426_sound_msgs+1 ;70b5  16 27 b4   HL = pointer to sound control related code table
+    br lab_704d                    ;70b8  fa 93
 
 lab_70ba:
-    mov a,!mem_fb2e         ;70ba  8e 2e fb
-    cmp a,#0x00             ;70bd  4d 00
+    mov a,!msg_countdown    ;70ba  8e 2e fb
+    cmp a,#0                ;70bd  4d 00
     bnz lab_70c5            ;70bf  bd 04
-    call !sub_67be          ;70c1  9a be 67   Sets mem_f1a6 = 0xff (may result in "DIAG" being printed)
+
+    call !sub_67be          ;70c1  9a be 67   Sets tmp_msg_idx = 0xff (may result in "DIAG" being printed)
     ret                     ;70c4  af
 
 lab_70c5:
-    mov a,!mem_f1a6         ;70c5  8e a6 f1
+    mov a,!tmp_msg_idx      ;70c5  8e a6 f1
     and a,#0x0f             ;70c8  5d 0f
-    mov !mem_f1a6,a         ;70ca  9e a6 f1
+    mov !tmp_msg_idx,a      ;70ca  9e a6 f1
 
     mov b,a                 ;70cd  73
-    movw hl,#mem_b435_error_msgs+1     ;70ce  16 36 b4   HL = pointer to CD, TAPE, DIAG related code table
+    movw hl,#mem_b435_tmp_msgs+1     ;70ce  16 36 b4   HL = pointer to CD, TAPE, DIAG related code table
     br !lab_704d            ;70d1  9b 4d 70
 
 lab_70d4:
@@ -21599,6 +21590,7 @@ lab_7142:
     mov a,!mem_f1a8         ;7142  8e a8 f1
     and a,#0x7f             ;7145  5d 7f
     mov !mem_f1a8,a         ;7147  9e a8 f1
+
     mov b,a                 ;714a  73
     movw hl,#mem_b456_safe_msgs+1     ;714b  16 57 b4     HL = pointer to table of SAFE code related code table
     br !lab_704d            ;714e  9b 4d 70
@@ -21741,9 +21733,10 @@ lab_71f2_safe_2_of_4:
     br lab_7290             ;7222  fa 6c        Branch to copy msg from [HL] to display buf and return
 
 lab_7224_safe_3_of_4:
-    mov a,!mem_fb2e         ;7224  8e 2e fb
-    cmp a,#0x00             ;7227  4d 00
+    mov a,!msg_countdown    ;7224  8e 2e fb
+    cmp a,#0                ;7227  4d 00
     bnz lab_7249            ;7229  bd 1e
+
     set1 mem_fe6a.0         ;722b  0a 6a
     call !upd_clear_pict    ;722d  9a e1 6f     Turn off all pictographs in upd_pict buffer
 
@@ -22010,8 +22003,10 @@ lab_73cd_min_or_max:
     bz lab_73ec             ;73d2  ad 18        Branch to write 7,"  MIN  "
     cmp a,#0xff             ;73d4  4d ff
     bz lab_73e3             ;73d6  ad 0b        Branch to write 7,"  MAX  "
-    mov a,#0x00             ;73d8  a1 00
-    mov !mem_fb2e,a         ;73da  9e 2e fb
+
+    mov a,#0                ;73d8  a1 00
+    mov !msg_countdown,a    ;73da  9e 2e fb     A = 0 seconds
+
     mov a,#0xff             ;73dd  a1 ff
     mov b,#0xff             ;73df  a3 ff
     br lab_7401             ;73e1  fa 1e
@@ -22023,13 +22018,13 @@ lab_73e3:
     br lab_7401             ;73ea  fa 15
 
 lab_73ec:
-    mov a,!mem_f1a6         ;73ec  8e a6 f1
+    mov a,!tmp_msg_idx      ;73ec  8e a6 f1
     and a,#0x0f             ;73ef  5d 0f
     cmp a,#0x0e             ;73f1  4d 0e        e Writes "  MIN  " or "  MAX  "
     bnz lab_73fa            ;73f3  bd 05
 
-    mov a,#0x1e             ;73f5  a1 1e
-    mov !mem_fb2e,a         ;73f7  9e 2e fb
+    mov a,#30               ;73f5  a1 1e        A = 3 seconds
+    mov !msg_countdown,a    ;73f7  9e 2e fb
 
 lab_73fa:
     mov b,#0xff             ;73fa  a3 ff
@@ -22067,13 +22062,13 @@ lab_7424:
     mov !upd_disp+3,a       ;7430  9e 9d f1     '...1.......' (preset)
 
 lab_7433:
-    mov a,!mem_f1a6         ;7433  8e a6 f1
+    mov a,!tmp_msg_idx      ;7433  8e a6 f1
     and a,#0x0f             ;7436  5d 0f
     cmp a,#0x0e             ;7438  4d 0e        e Writes "  MIN  " or "  MAX  "
     bnz lab_7441            ;743a  bd 05
 
     mov a,#0xff             ;743c  a1 ff
-    mov !mem_f1a6,a         ;743e  9e a6 f1     f Writes " DIAG  "
+    mov !tmp_msg_idx,a      ;743e  9e a6 f1     f Writes " DIAG  "
 
 lab_7441:
     mov b,#0xff             ;7441  a3 ff
@@ -22121,13 +22116,13 @@ lab_747c:
     set1 upd_pict+2.7       ;7482  7a 37        Turn on "METAL" pictograph
 
 lab_7484:
-    mov a,!mem_f1a6         ;7484  8e a6 f1
+    mov a,!tmp_msg_idx      ;7484  8e a6 f1
     and a,#0x0f             ;7487  5d 0f
     cmp a,#0x0e             ;7489  4d 0e        e Writes "  MIN  " or "  MAX  "
     bnz lab_7492            ;748b  bd 05
 
     mov a,#0xff             ;748d  a1 ff
-    mov !mem_f1a6,a         ;748f  9e a6 f1      f Writes " DIAG  "
+    mov !tmp_msg_idx,a      ;748f  9e a6 f1      f Writes " DIAG  "
 
 lab_7492:
     mov b,#0xff             ;7492  a3 ff
@@ -22152,13 +22147,13 @@ lab_749d_cd_tr:
     mov1 upd_pict+5.1,cy    ;74b9  71 11 3a     Copy carry to "MIX" pictograph
 
 lab_74bc:
-    mov a,!mem_f1a6         ;74bc  8e a6 f1
+    mov a,!tmp_msg_idx      ;74bc  8e a6 f1
     and a,#0x0f             ;74bf  5d 0f
     cmp a,#0x0e             ;74c1  4d 0e        e Writes "  MIN  " or "  MAX  "
     bnz lab_74ca            ;74c3  bd 05
 
     mov a,#0xff             ;74c5  a1 ff
-    mov !mem_f1a6,a         ;74c7  9e a6 f1     f Writes " DIAG  "
+    mov !tmp_msg_idx,a      ;74c7  9e a6 f1     f Writes " DIAG  "
 
 lab_74ca:
     mov b,#0xff             ;74ca  a3 ff
@@ -22476,33 +22471,33 @@ lab_7690:
     ret                     ;7696  af
 
 sub_7697:
-    bt mem_fe5d.7,lab_76c2  ;7697  fc 5d 28     Sets mem_f1a5 = 0xff and returns
-    bt mem_fe64.1,lab_76c2  ;769a  9c 64 25     Sets mem_f1a5 = 0xff and returns
+    bt mem_fe5d.7,lab_76c2  ;7697  fc 5d 28     Sets snd_msg_idx = 0xff and returns
+    bt mem_fe64.1,lab_76c2  ;769a  9c 64 25     Sets snd_msg_idx = 0xff and returns
     cmp mem_fe30,#0x03      ;769d  c8 30 03
     bnz lab_76b8            ;76a0  bd 16
     cmp mem_fe44,#0x04      ;76a2  c8 44 04
-    bc lab_76c2             ;76a5  8d 1b        Sets mem_f1a5 = 0xff and returns
+    bc lab_76c2             ;76a5  8d 1b        Sets snd_msg_idx = 0xff and returns
     cmp mem_fe44,#0x05      ;76a7  c8 44 05
-    bz lab_76c2             ;76aa  ad 16        Sets mem_f1a5 = 0xff and returns
-    bt mem_fe47.5,lab_76c2  ;76ac  dc 47 13     Sets mem_f1a5 = 0xff and returns
+    bz lab_76c2             ;76aa  ad 16        Sets snd_msg_idx = 0xff and returns
+    bt mem_fe47.5,lab_76c2  ;76ac  dc 47 13     Sets snd_msg_idx = 0xff and returns
 
-    mov a,!mem_f1a6         ;76af  8e a6 f1
+    mov a,!tmp_msg_idx      ;76af  8e a6 f1
     and a,#0x7f             ;76b2  5d 7f
     cmp a,#0x09             ;76b4  4d 09        Compare with 0x09 "CD  CD ERR "
-    bz lab_76c2             ;76b6  ad 0a        Sets mem_f1a5 = 0xff and returns
+    bz lab_76c2             ;76b6  ad 0a        Sets snd_msg_idx = 0xff and returns
 
 lab_76b8:
     mov b,#0x05             ;76b8  a3 05
     mov a,#0xff             ;76ba  a1 ff
     movw hl,#upd_disp+10    ;76bc  16 a4 f1
 
-lab_76bf:
+lab_76bf_loop:
     mov [hl+b],a            ;76bf  bb
-    dbnz b,lab_76bf         ;76c0  8b fd
+    dbnz b,lab_76bf_loop    ;76c0  8b fd
 
 lab_76c2:
-;Sets mem_f1a5 = 0xff
-    movw hl,#mem_f1a5       ;76c2  16 a5 f1
+;Sets snd_msg_idx = 0xff
+    movw hl,#snd_msg_idx    ;76c2  16 a5 f1
     mov a,#0xff             ;76c5  a1 ff
     mov [hl],a              ;76c7  97
     ret                     ;76c8  af
@@ -22511,17 +22506,17 @@ sub_76c9:
     mov b,#0x04             ;76c9  a3 04
     mov a,#0x00             ;76cb  a1 00
     movw hl,#mem_f1a9       ;76cd  16 a9 f1
-
-lab_76d0:
+lab_76d0_loop:
     mov [hl+b],a            ;76d0  bb
     push hl                 ;76d1  b7
     movw hl,#mem_f1ad       ;76d2  16 ad f1
     mov [hl+b],a            ;76d5  bb
     pop hl                  ;76d6  b6
-    dbnz b,lab_76d0         ;76d7  8b f7
+    dbnz b,lab_76d0_loop    ;76d7  8b f7
     ret                     ;76d9  af
 
-lab_76da:
+;XXX appears unused
+sub_76da:
     push ax                 ;76da  b1
     mov a,[hl]              ;76db  87
     rorc a,1                ;76dc  25
@@ -22531,19 +22526,18 @@ lab_76da:
     cmp mem_fedc,#0x0b      ;76e3  c8 dc 0b
     bc lab_76eb             ;76e6  8d 03
     mov mem_fedc,#0x0a      ;76e8  11 dc 0a
-
 lab_76eb:
     pop ax                  ;76eb  b0
     ret                     ;76ec  af
 
-lab_76ed:
+;XXX appears unused
+sub_76ed:
     push ax                 ;76ed  b1
     push bc                 ;76ee  b3
     mov a,mem_fedc          ;76ef  f0 dc
     cmp a,#0x00             ;76f1  4d 00
     bz lab_7700             ;76f3  ad 0b
     mov b,a                 ;76f5  73
-
 lab_76f6:
     mov a,[hl]              ;76f6  87
     inc a                   ;76f7  41
@@ -22552,18 +22546,19 @@ lab_76f6:
     addc a,#0x00            ;76fb  2d 00
     xch a,h                 ;76fd  37
     dbnz b,lab_76f6         ;76fe  8b f6
-
 lab_7700:
     pop bc                  ;7700  b2
     pop ax                  ;7701  b0
     ret                     ;7702  af
 
-lab_7703:
+;XXX appears unused
+sub_7703:
     mov a,#0x02             ;7703  a1 02
     mov !mem_fb2f,a         ;7705  9e 2f fb
     ret                     ;7708  af
 
-lab_7709:
+;XXX appears unused
+sub_7709:
     ret                     ;7709  af
 
 mem_770a:
@@ -25877,18 +25872,19 @@ lab_8cb6:
 lab_8cbf:
     mov1 cy,p2.3            ;8cbf  71 34 02     Carry = Tape METAL sense (1=metal)
     mov1 mem_fe71.4,cy      ;8cc2  71 41 71     Store METAL sense
-    bnc lab_8cd6            ;8cc5  9d 0f        Branch if METAL sense is off
+    bnc lab_8cd6_not_metal  ;8cc5  9d 0f        Branch if METAL sense is off
 
     ;METAL tape
     cmp mem_fe30,#0x02      ;8cc7  c8 30 02
-    bnz lab_8cd6            ;8cca  bd 0a
-    mov a,#0x32             ;8ccc  a1 32
-    mov !mem_fb2e,a         ;8cce  9e 2e fb
+    bnz lab_8cd6_not_metal  ;8cca  bd 0a
+
+    mov a,#50               ;8ccc  a1 32        A = 5 seconds
+    mov !msg_countdown,a    ;8cce  9e 2e fb
 
     mov a,#0x8c             ;8cd1  a1 8c        c Writes "TAPE METAL"
-    mov !mem_f1a6,a         ;8cd3  9e a6 f1
+    mov !tmp_msg_idx,a      ;8cd3  9e a6 f1
 
-lab_8cd6:
+lab_8cd6_not_metal:
     cmp mem_fe4c,#0x01      ;8cd6  c8 4c 01
     bz lab_8cdd             ;8cd9  ad 02
     br lab_8d34             ;8cdb  fa 57
@@ -29601,10 +29597,11 @@ lab_a61c:
     call !sub_7697          ;a61c  9a 97 76
 
     mov a,#0x8e             ;a61f  a1 8e
-    mov !mem_f1a6,a         ;a621  9e a6 f1       e Writes "  MIN  " or "  MAX  "
+    mov !tmp_msg_idx,a      ;a621  9e a6 f1     e Writes "  MIN  " or "  MAX  "
 
-    mov a,#0x1e             ;a624  a1 1e
-    mov !mem_fb2e,a         ;a626  9e 2e fb
+    mov a,#30               ;a624  a1 1e        A = 3 seconds
+    mov !msg_countdown,a    ;a626  9e 2e fb
+
     mov a,#0x0a             ;a629  a1 0a
     mov !mem_fb49,a         ;a62b  9e 49 fb
     br lab_a648             ;a62e  fa 18
@@ -29613,16 +29610,16 @@ lab_a630:
     mov a,#0x55             ;a630  a1 55
     mov !mem_fc9f,a         ;a632  9e 9f fc
 
-    mov a,!mem_f1a6         ;a635  8e a6 f1
+    mov a,!tmp_msg_idx      ;a635  8e a6 f1
     and a,#0x7f             ;a638  5d 7f
     cmp a,#0x0e             ;a63a  4d 0e        e Writes "  MIN  " or "  MAX  "
     bnz lab_a648            ;a63c  bd 0a
 
     mov a,#0xff             ;a63e  a1 ff
-    mov !mem_f1a6,a         ;a640  9e a6 f1
+    mov !tmp_msg_idx,a      ;a640  9e a6 f1     f Writes " DIAG  "
 
-    mov a,#0x00             ;a643  a1 00
-    mov !mem_fb2e,a         ;a645  9e 2e fb     f Writes " DIAG  "
+    mov a,#0                ;a643  a1 00        A = 0 seconds
+    mov !msg_countdown,a    ;a645  9e 2e fb
 
 lab_a648:
     ret                     ;a648  af
@@ -29811,7 +29808,7 @@ lab_a747:
 lab_a749:
     br lab_a6eb             ;a749  fa a0
 
-;Unknown, returns set on faliure
+;Unknown, returns set on failure
 sub_a74b:
     set1 mem_fe76.6         ;a74b  6a 76
     bf mem_fe77.2,lab_a754  ;a74d  31 23 77 03
@@ -29980,7 +29977,7 @@ lab_a839:
     bc lab_a872             ;a847  8d 29
 
 lab_a849:
-    mov a,!mem_f1a5         ;a849  8e a5 f1
+    mov a,!snd_msg_idx      ;a849  8e a5 f1
     cmp a,#0xff             ;a84c  4d ff
     bz lab_a865             ;a84e  ad 15
 
@@ -29992,7 +29989,7 @@ lab_a849:
     bnz lab_a865            ;a859  bd 0a
 
     mov a,#0xff             ;a85b  a1 ff
-    mov !mem_f1a5,a         ;a85d  9e a5 f1
+    mov !snd_msg_idx,a      ;a85d  9e a5 f1
 
     br lab_a872             ;a860  fa 10
 
@@ -30057,7 +30054,7 @@ lab_a8af:
     br lab_a88f             ;a8b6  fa d7
 
 lab_a8b8:
-    mov a,!mem_f1a5         ;a8b8  8e a5 f1
+    mov a,!snd_msg_idx      ;a8b8  8e a5 f1
     cmp a,#0xff             ;a8bb  4d ff
     bnz lab_a8c1            ;a8bd  bd 02
     br lab_a936_ret         ;a8bf  fa 75
@@ -30141,8 +30138,8 @@ lab_a926:
     call !sub_a7fe          ;a92e  9a fe a7
 
 lab_a931:
-    mov a,#0x32             ;a931  a1 32
-    mov !mem_fb2e,a         ;a933  9e 2e fb
+    mov a,#50               ;a931  a1 32        A = 5 seconds
+    mov !msg_countdown,a    ;a933  9e 2e fb
 
 lab_a936_ret:
     ret                     ;a936  af
@@ -30157,7 +30154,7 @@ sub_a937:
     and a,#0x7f             ;a943  5d 7f
     mov b,a                 ;a945  73
 
-    mov a,!mem_f1a5         ;a946  8e a5 f1
+    mov a,!snd_msg_idx      ;a946  8e a5 f1
     and a,#0x7f             ;a949  5d 7f
     cmp a,b                 ;a94b  61 4b
 
@@ -30167,10 +30164,10 @@ sub_a937:
     pop ax                  ;a952  b0
     bz lab_a95d             ;a953  ad 08
 
-    mov !mem_f1a5,a         ;a955  9e a5 f1
+    mov !snd_msg_idx,a      ;a955  9e a5 f1
 
-    mov a,#0x32             ;a958  a1 32
-    mov !mem_fb2e,a         ;a95a  9e 2e fb
+    mov a,#50               ;a958  a1 32        A = 5 seconds
+    mov !msg_countdown,a    ;a95a  9e 2e fb
 
 lab_a95d:
     ret                     ;a95d  af
@@ -30230,7 +30227,7 @@ lab_a9b2:
     mov mem_fe59,#0x00      ;a9b2  11 59 00
 
 lab_a9b5:
-    mov a,!mem_f1a5         ;a9b5  8e a5 f1
+    mov a,!snd_msg_idx      ;a9b5  8e a5 f1
     cmp a,#0xff             ;a9b8  4d ff
     bnz lab_aa0e            ;a9ba  bd 52
     cmp mem_fe5a,#0x3d      ;a9bc  c8 5a 3d
@@ -30257,7 +30254,7 @@ lab_a9df:
     cmp a,#0x00             ;a9e2  4d 00
     bnz lab_aa0e            ;a9e4  bd 28
 
-    mov a,!mem_f1a5         ;a9e6  8e a5 f1
+    mov a,!snd_msg_idx      ;a9e6  8e a5 f1
     cmp a,#0xff             ;a9e9  4d ff
     bnz lab_aa0e            ;a9eb  bd 21
 
@@ -32660,7 +32657,7 @@ mem_b40e:
 
 mem_b41b:
 ;unknown table used by lab_7041
-;indexed by mem_fb2e & 0x0f
+;indexed by msg_countdown & 0x0f
     .byte 0x05              ;b41b  05          DATA 0x05        5 entries below:
     .word lab_708f
     .word lab_70ba
@@ -32670,7 +32667,7 @@ mem_b41b:
 
 mem_b426_sound_msgs:
 ;unknown table used by lab_70a7
-;indexed by mem_f1a5 & 0x7f
+;indexed by snd_msg_idx & 0x7f
     .byte 0x07                  ;b426  07          DATA 0x07        7 entries below:
     .word lab_7612_fade         ;                  0 Writes "FADE"
     .word lab_75c5_bal          ;                  1 Writes "BAL"
@@ -32680,9 +32677,9 @@ mem_b426_sound_msgs:
     .word lab_765f_flat         ;                  5 Writes "FLAT"
     .word lab_766a_select_eq    ;                  6 Writes "SELECT EQ #"
 
-mem_b435_error_msgs:
+mem_b435_tmp_msgs:
 ;unknown table used by lab_70c5
-;indexed by mem_f1a6 & 0x0f
+;indexed by tmp_msg_idx & 0x0f
     .byte 0x10                  ;b435  10          DATA 0x10        16 entries below:
     .word lab_6a10_monsoon      ;b436              0 Writes "    MONSOON"
     .word lab_6c9a_hl           ;                  1 Writes [HL]
@@ -38628,7 +38625,7 @@ mem_d0b6_sound_adjs:
 
 mem_d0c1:
 ;table of bytes used with table_get_byte
-;indexed by mem_fc9e, values are compared to mem_f1a5
+;indexed by mem_fc9e, values are compared to snd_msg_idx
     .byte 0x05              ;d0c1  05          DATA 0x05        5 entries below:
     .byte 0x80|0x02   ;0x02 = BASS
     .byte 0x80|0x03   ;0x03 = MID
@@ -38892,7 +38889,7 @@ lab_d21b:
 
 lab_d22f_same_cd:
     mov a,#0xff                 ;d22f  a1 ff
-    mov !mem_f1a6,a             ;d231  9e a6 f1       f Writes " DIAG  "
+    mov !tmp_msg_idx,a          ;d231  9e a6 f1       f Writes " DIAG  "
 
     call !sub_7697              ;d234  9a 97 76
     call !sub_dc2f              ;d237  9a 2f dc
@@ -38905,7 +38902,7 @@ lab_d22f_same_cd:
 
 lab_d24b:
     mov a,c                 ;d24b  62
-    mov !mem_fc7d_upd_cd3,a  ;d24c  9e 7d fc
+    mov !mem_fc7d_upd_cd3,a ;d24c  9e 7d fc
     mov a,#0x19             ;d24f  a1 19
     mov !mem_fb3d,a         ;d251  9e 3d fb
     set1 mem_fe80.0         ;d254  0a 80
@@ -38913,10 +38910,11 @@ lab_d24b:
     mov !mem_f1ad,a         ;d258  9e ad f1
 
     mov a,#0x08             ;d25b  a1 08        8 Writes "CD   NO CD "
-    mov !mem_f1a6,a         ;d25d  9e a6 f1
+    mov !tmp_msg_idx,a      ;d25d  9e a6 f1
 
-    mov a,#0x1d             ;d260  a1 1d
-    mov !mem_fb2e,a         ;d262  9e 2e fb
+    mov a,#29               ;d260  a1 1d        A = 2.9 seconds
+    mov !msg_countdown,a    ;d262  9e 2e fb
+
     call !sub_d345          ;d265  9a 45 d3
     cmp mem_fe44,#0x05      ;d268  c8 44 05
     bz lab_d273_ret         ;d26b  ad 06
@@ -39388,10 +39386,11 @@ lab_d56f_no_magazin:
     mov !mem_f1ad,a         ;d574  9e ad f1
 
     mov a,#0x05             ;d577  a1 05
-    mov !mem_f1a6,a         ;d579  9e a6 f1       5 Writes "NO  MAGAZIN"
+    mov !tmp_msg_idx,a      ;d579  9e a6 f1     5 Writes "NO  MAGAZIN"
 
-    mov a,#0x1c             ;d57c  a1 1c
-    mov !mem_fb2e,a         ;d57e  9e 2e fb
+    mov a,#28               ;d57c  a1 1c
+    mov !msg_countdown,a    ;d57e  9e 2e fb     A = 2.8 seconds
+
     br lab_d5a9             ;d581  fa 26
 
 lab_d583_no_changer:
@@ -39400,10 +39399,11 @@ lab_d583_no_changer:
     mov !mem_f1ad,a         ;d588  9e ad f1
 
     mov a,#0x06             ;d58b  a1 06
-    mov !mem_f1a6,a         ;d58d  9e a6 f1       6 Writes "NO  CHANGER"
+    mov !tmp_msg_idx,a      ;d58d  9e a6 f1     6 Writes "NO  CHANGER"
 
-    mov a,#0x1c             ;d590  a1 1c
-    mov !mem_fb2e,a         ;d592  9e 2e fb
+    mov a,#28               ;d590  a1 1c        A = 2.8 seconds
+    mov !msg_countdown,a    ;d592  9e 2e fb
+
     br lab_d5a9             ;d595  fa 12
 
 lab_d597_no_disc:
@@ -39412,10 +39412,10 @@ lab_d597_no_disc:
     mov !mem_f1ad,a         ;d59c  9e ad f1
 
     mov a,#0x04             ;d59f  a1 04
-    mov !mem_f1a6,a         ;d5a1  9e a6 f1       4 Writes "    NO DISC"
+    mov !tmp_msg_idx,a      ;d5a1  9e a6 f1     4 Writes "    NO DISC"
 
-    mov a,#0x1c             ;d5a4  a1 1c
-    mov !mem_fb2e,a         ;d5a6  9e 2e fb
+    mov a,#28               ;d5a4  a1 1c        A = 2.8 seconds
+    mov !msg_countdown,a    ;d5a6  9e 2e fb
 
 lab_d5a9:
     call !sub_a74b          ;d5a9  9a 4b a7
@@ -39645,10 +39645,10 @@ lab_d725:
     mov !mem_f1ad,a         ;d72f  9e ad f1
 
     mov a,#0x09             ;d732  a1 09
-    mov !mem_f1a6,a         ;d734  9e a6 f1       9 Writes "CD  CD ERR "
+    mov !tmp_msg_idx,a      ;d734  9e a6 f1     9 Writes "CD  CD ERR "
 
-    mov a,#0x1d             ;d737  a1 1d
-    mov !mem_fb2e,a         ;d739  9e 2e fb
+    mov a,#29               ;d737  a1 1d        A = 2.9 seconds
+    mov !msg_countdown,a    ;d739  9e 2e fb
 
     call !sub_a74b          ;d73c  9a 4b a7
     call !sub_dadd          ;d73f  9a dd da
@@ -39694,10 +39694,11 @@ lab_d773:
     mov !mem_f1ad,a         ;d783  9e ad f1
 
     mov a,#0x07             ;d786  a1 07
-    mov !mem_f1a6,a         ;d788  9e a6 f1       7 Writes "CD  CD ROM "
+    mov !tmp_msg_idx,a      ;d788  9e a6 f1     7 Writes "CD  CD ROM "
 
-    mov a,#0x1d             ;d78b  a1 1d
-    mov !mem_fb2e,a         ;d78d  9e 2e fb
+    mov a,#29               ;d78b  a1 1d        A = 2.9 seconds
+    mov !msg_countdown,a    ;d78d  9e 2e fb
+
     call !sub_a74b          ;d790  9a 4b a7
     set1 mem_fe47.5         ;d793  5a 47
     call !sub_d92c          ;d795  9a 2c d9
@@ -39748,10 +39749,11 @@ lab_d7d3:
     mov !mem_f1ad,a         ;d7dd  9e ad f1
 
     mov a,#0x07             ;d7e0  a1 07
-    mov !mem_f1a6,a         ;d7e2  9e a6 f1       7 Writes "CD  CD ROM "
+    mov !tmp_msg_idx,a      ;d7e2  9e a6 f1     7 Writes "CD  CD ROM "
 
-    mov a,#0x1d             ;d7e5  a1 1d
-    mov !mem_fb2e,a         ;d7e7  9e 2e fb
+    mov a,#29               ;d7e5  a1 1d        A = 2.9 seconds
+    mov !msg_countdown,a    ;d7e7  9e 2e fb
+
     call !sub_dadd          ;d7ea  9a dd da
     mov a,!mem_fb40         ;d7ed  8e 40 fb
     cmp a,#0x00             ;d7f0  4d 00
@@ -39775,7 +39777,7 @@ lab_d80a:
     br !lab_d367_cdcradio   ;d80c  9b 67 d3
 
 sub_d80f:
-    mov a,!mem_f1a5         ;d80f  8e a5 f1
+    mov a,!snd_msg_idx         ;d80f  8e a5 f1
     cmp a,#0xff             ;d812  4d ff
     bnz lab_d818            ;d814  bd 02
 
@@ -40247,10 +40249,10 @@ sub_da81:
     mov !mem_f1ad,a         ;daab  9e ad f1
 
     mov a,#0x07             ;daae  a1 07
-    mov !mem_f1a6,a         ;dab0  9e a6 f1       7 Writes "CD  CD ROM "
+    mov !tmp_msg_idx,a      ;dab0  9e a6 f1       7 Writes "CD  CD ROM "
 
-    mov a,#0x1d             ;dab3  a1 1d
-    mov !mem_fb2e,a         ;dab5  9e 2e fb
+    mov a,#29               ;dab3  a1 1d          A = 2.9 seconds
+    mov !msg_countdown,a    ;dab5  9e 2e fb
 
 lab_dab8:
     call !sub_dadd          ;dab8  9a dd da
@@ -40421,7 +40423,7 @@ lab_dbb6:
     push ax                 ;dbc9  b1
 
     mov a,#0xff             ;dbca  a1 ff
-    mov !mem_f1a6,a         ;dbcc  9e a6 f1       f Writes " DIAG  "
+    mov !tmp_msg_idx,a      ;dbcc  9e a6 f1       f Writes " DIAG  "
 
     call !sub_7697          ;dbcf  9a 97 76
     pop ax                  ;dbd2  b0
@@ -40430,7 +40432,7 @@ lab_dbd3:
     bf mem_fe47.3,lab_dbee  ;dbd3  31 33 47 17
     mov b,a                 ;dbd7  73
 
-    mov a,!mem_f1a6         ;dbd8  8e a6 f1
+    mov a,!tmp_msg_idx      ;dbd8  8e a6 f1
     cmp a,#0x09             ;dbdb  4d 09        9 Writes "CD  CD ERR "
     bz lab_dc2e_ret         ;dbdd  ad 4f        Branch to just return
 
