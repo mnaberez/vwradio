@@ -81,7 +81,7 @@ kwp_rx_buf = 0xf08a         ;KWP1281 receive buffer (256 bytes)
 mem_f18a = 0xf18a
 mem_f18b = 0xf18b
 mem_f18c = 0xf18c
-mem_f18d = 0xf18d
+mem_f18d_term30 = 0xf18d    ;Terminal 30 Supply Voltage (tenths of a volt; 0x78 = 120 = 12.0V)
 mem_f18e = 0xf18e           ;Cookie used to determine whether to cold or warm start
 mem_f18f = 0xf18f
 mem_f190 = 0xf190
@@ -533,7 +533,7 @@ mem_fc9d = 0xfc9d
 mem_fc9e = 0xfc9e
 mem_fc9f = 0xfc9f
 mem_fca2 = 0xfca2           ;P91/ANI10 analog (unknown)
-mem_fca3 = 0xfca3           ;P92/ANI20 analog: Illumination voltage (0=off, 0xff=full)
+mem_fca3_illum = 0xfca3     ;P92/ANI20 analog: Illumination voltage (0=off, 0xff=full)
 mem_fca4 = 0xfca4           ;P95/ANI50 analog (unknown)
 stack_bottom = 0xfca5       ;Bottom of stack cookie (value 0x55)
                             ;Stack occupies 375 bytes at 0xFCA6-0xFE1E.  Stack pointer
@@ -3367,7 +3367,7 @@ lab_0ff1:
 
 lab_1012:
     mov a,#0x00             ;1012  a1 00
-    mov !mem_f18d,a         ;1014  9e 8d f1
+    mov !mem_f18d_term30,a  ;1014  9e 8d f1
     mov a,#0x7f             ;1017  a1 7f
     mov !mem_fca2,a         ;1019  9e a2 fc
     clr1 mk0l.2             ;101c  71 2b e4     Clear PMK1 (enables INTP1)
@@ -3386,7 +3386,7 @@ lab_1030:
 
 lab_1036:
     clr1 mem_fe64.7         ;1036  7b 64        Clear bit to indicate no DELCO login
-    call !sub_4902          ;1038  9a 02 49     Read illumination voltage (P92/ANI20) and ???
+    call !sub_4902_illum    ;1038  9a 02 49     Read illumination voltage (P92/ANI20) and ???
     mov a,#0x00             ;103b  a1 00
     mov !mem_fb29,a         ;103d  9e 29 fb
     mov !mem_fb2a,a         ;1040  9e 2a fb
@@ -7750,7 +7750,7 @@ lab_2972_check_0xff:
 
     ;"value b" = 0xFF (Supply Voltage Terminal 30)
 
-    mov a,!mem_f18d         ;2977  8e 8d f1
+    mov a,!mem_f18d_term30  ;2977  8e 8d f1
     br lab_29ae_ret_data    ;297a  fa 32      Branch to return with measurement data
 
 lab_297c_check_0xfe:
@@ -7759,7 +7759,7 @@ lab_297c_check_0xfe:
 
     ;"value b" = 0xFE (Illumination %)
 
-    mov a,!mem_fca3         ;2980  8e a3 fc   A = P92/ANI20 analog: Illumination voltage (0=off, 0xff=full)
+    mov a,!mem_fca3_illum   ;2980  8e a3 fc   A = P92/ANI20 analog: Illumination voltage (0=off, 0xff=full)
     mov b,a                 ;2983  73         Save illumination analog in B
 
     cmp a,#0x20             ;2984  4d 20
@@ -7784,7 +7784,7 @@ lab_2990:
     mov a,b                 ;2998  63
     sub a,#0x14             ;2999  1d 14
     add x,a                 ;299b  61 00
-    mov a,!mem_f18d         ;299d  8e 8d f1
+    mov a,!mem_f18d_term30  ;299d  8e 8d f1
     mov c,a                 ;29a0  72
     mov a,#0x9e             ;29a1  a1 9e
     mulu x                  ;29a3  31 88      AX = A * X
@@ -11122,7 +11122,7 @@ lab_3991:
     set1 asim0.6            ;399f  71 6a a0       RXE0=1 (enable UART0 receive)
 
 lab_39a2:
-    call !sub_4902          ;39a2  9a 02 49     Read illumination voltage (P92/ANI20) and ???
+    call !sub_4902_illum    ;39a2  9a 02 49     Read illumination voltage (P92/ANI20) and ???
     bt mem_fe65.1,lab_39ed  ;39a5  9c 65 45     If ??? branch to turn on P70 and P80, call unknown, then cold or warm start
     bt mem_fe7d.6,lab_39ed  ;39a8  ec 7d 42     If ??? branch to turn on P70 and P80, call unknown, then cold or warm start
     bt mem_fe67.0,lab_39ed  ;39ab  8c 67 3f     If ??? branch to turn on P70 and P80, call unknown, then cold or warm start
@@ -11665,32 +11665,32 @@ sub_3d09:
 
 lab_3d18:
     mov a,!mem_fca2         ;3d18  8e a2 fc
-    sub a,!mem_f18d         ;3d1b  18 8d f1
+    sub a,!mem_f18d_term30  ;3d1b  18 8d f1
     bnc lab_3d34            ;3d1e  9d 14
     xor a,#0xff             ;3d20  7d ff
     inc a                   ;3d22  41
     cmp a,#0x02             ;3d23  4d 02
     bc lab_3d4d             ;3d25  8d 26
-    mov a,!mem_f18d         ;3d27  8e 8d f1
+    mov a,!mem_f18d_term30  ;3d27  8e 8d f1
     cmp a,#0x00             ;3d2a  4d 00
-    bz lab_3d57_ret          ;3d2c  ad 29
+    bz lab_3d57_ret         ;3d2c  ad 29
     dec a                   ;3d2e  51
-    mov !mem_f18d,a         ;3d2f  9e 8d f1
+    mov !mem_f18d_term30,a  ;3d2f  9e 8d f1
     br lab_3d55             ;3d32  fa 21
 
 lab_3d34:
     cmp a,#0x02             ;3d34  4d 02
     bc lab_3d4d             ;3d36  8d 15
-    mov a,!mem_f18d         ;3d38  8e 8d f1
+    mov a,!mem_f18d_term30  ;3d38  8e 8d f1
     cmp a,#0x00             ;3d3b  4d 00
     bnz lab_3d47            ;3d3d  bd 08
     mov a,!mem_fca2         ;3d3f  8e a2 fc
-    mov !mem_f18d,a         ;3d42  9e 8d f1
+    mov !mem_f18d_term30,a  ;3d42  9e 8d f1
     br lab_3d55             ;3d45  fa 0e
 
 lab_3d47:
     inc a                   ;3d47  41
-    mov !mem_f18d,a         ;3d48  9e 8d f1
+    mov !mem_f18d_term30,a  ;3d48  9e 8d f1
     br lab_3d55             ;3d4b  fa 08
 
 lab_3d4d:
@@ -11705,7 +11705,7 @@ lab_3d57_ret:
 
 lab_3d58:
     clr1 mem_fe62.4         ;3d58  4b 62
-    mov a,!mem_f18d         ;3d5a  8e 8d f1
+    mov a,!mem_f18d_term30  ;3d5a  8e 8d f1
     cmp a,#0xfd             ;3d5d  4d fd
     bc lab_3d64             ;3d5f  8d 03
     br !lab_3c60            ;3d61  9b 60 3c
@@ -13664,7 +13664,7 @@ lab_4888_ret:
 
 sub_4889:
 ;Set uPD16432B LED output latches based on illumination voltage (P92/ANI20) and then ???
-    mov a,!mem_fca3         ;4889  8e a3 fc   A = P92/ANI20 analog: Illumination voltage (0=off, 0xff=full)
+    mov a,!mem_fca3_illum   ;4889  8e a3 fc   A = P92/ANI20 analog: Illumination voltage (0=off, 0xff=full)
     bt mem_fe65.1,lab_4895  ;488c  9c 65 06
     cmp a,#0x12             ;488f  4d 12
     bnc lab_48a5            ;4891  9d 12
@@ -13743,13 +13743,13 @@ lab_48fc:
 lab_4901_ret:
     ret                     ;4901  af
 
-sub_4902:
+sub_4902_illum:
 ;Read illumination voltage (P92/ANI20) and ???
     movw ax,#0x027f         ;4902  10 7f 02     A = analog input 0x02 (P92/ANI20)
                             ;                   X = 0x7f ???
     call !sub_abc3          ;4905  9a c3 ab     Read analog input number A and do ???
     bc lab_4913_ret         ;4908  8d 09        Branch to return if analog read failed
-    mov !mem_fca3,a         ;490a  9e a3 fc     Store as P92/ANI20 analog: Illumination voltage (0=off, 0xff=full)
+    mov !mem_fca3_illum,a   ;490a  9e a3 fc     Store as P92/ANI20 analog: Illumination voltage (0=off, 0xff=full)
     cmp a,#0x12             ;490d  4d 12
     bc lab_4913_ret         ;490f  8d 02        Branch if illumination analog < 0x12
     ;Illumination analog >= 0x12
@@ -23163,7 +23163,7 @@ lab_7b07:
     mov1 mem_fe6a.5,cy      ;7b10  71 51 6a
     clr1 mem_fe41.2         ;7b13  2b 41
     set1 mem_fe6a.7         ;7b15  7a 6a
-    mov a,!mem_f18d         ;7b17  8e 8d f1
+    mov a,!mem_f18d_term30  ;7b17  8e 8d f1
     cmp a,#0x61             ;7b1a  4d 61
     bc lab_7b28             ;7b1c  8d 0a
     bf mem_fe6c.3,lab_7b31  ;7b1e  31 33 6c 0f
@@ -23187,7 +23187,7 @@ lab_7b31:
 
 lab_7b41:
     bf mem_fe6c.2,lab_7b4d  ;7b41  31 23 6c 08
-    mov a,!mem_f18d         ;7b45  8e 8d f1
+    mov a,!mem_f18d_term30  ;7b45  8e 8d f1
     cmp a,#0x74             ;7b48  4d 74
     bnc lab_7b4d            ;7b4a  9d 01
     ret                     ;7b4c  af
@@ -38683,7 +38683,7 @@ mem_d0e9:
     .byte 0x01              ;d0ec  01          DATA 0x01    HL+2
     .byte 0xff              ;d0ed  ff          DATA 0xff    HL+3
 
-    ;Analog reading stored in mem_fca3
+    ;Analog reading stored in mem_fca3_illum
     .byte 0x7f              ;d0ee  7f          DATA 0x7f    HL+0
     .byte 0x02              ;d0ef  02          DATA 0x02    HL+1  0x02 = P92/ANI20 (Illumination)
     .byte 0x03              ;d0f0  03          DATA 0x03    HL+2
