@@ -81,7 +81,7 @@ kwp_rx_buf = 0xf08a         ;KWP1281 receive buffer (256 bytes)
 mem_f18a = 0xf18a
 mem_f18b = 0xf18b
 mem_f18c = 0xf18c
-mem_f18d_term30 = 0xf18d    ;Terminal 30 Supply Voltage (tenths of a volt; 0x78 = 120 = 12.0V)
+mem_f18d_t30_avg = 0xf18d   ;Terminal 30 (V = value * 0.1) averaged(?)
 mem_f18e = 0xf18e           ;Cookie used to determine whether to cold or warm start
 mem_f18f = 0xf18f
 mem_f190 = 0xf190
@@ -532,9 +532,9 @@ mem_fc9c = 0xfc9c
 mem_fc9d = 0xfc9d
 mem_fc9e = 0xfc9e
 mem_fc9f = 0xfc9f
-mem_fca2 = 0xfca2           ;P91/ANI10 analog (unknown)
-mem_fca3_illum = 0xfca3     ;P92/ANI20 analog: Illumination voltage (0=off, 0xff=full)
-mem_fca4 = 0xfca4           ;P95/ANI50 analog (unknown)
+mem_fca2_ani_t30 = 0xfca2   ;P91/ANI10 analog: Terminal 30 Constant B+ (V = value * 0.1)
+mem_fca3_ani_t58b = 0xfca3  ;P92/ANI20 analog: Terminal 58b Illumination (V = value * 0.06)
+mem_fca4_ani = 0xfca4       ;P95/ANI50 analog (unknown)
 stack_bottom = 0xfca5       ;Bottom of stack cookie (value 0x55)
                             ;Stack occupies 375 bytes at 0xFCA6-0xFE1E.  Stack pointer
                             ;is initialized to stack_top.  PUSH decrements SP before
@@ -1477,12 +1477,12 @@ lab_02ca:
     mov a,l                 ;02cb  66
     mov x,a                 ;02cc  70
     mov a,b                 ;02cd  63
-    mulu x                  ;02ce  31 88
+    mulu x                  ;02ce  31 88        AX = A * X
     xch a,h                 ;02d0  37
     xch a,x                 ;02d1  30
     mov l,a                 ;02d2  76
     mov a,b                 ;02d3  63
-    mulu x                  ;02d4  31 88
+    mulu x                  ;02d4  31 88        AX = A * X
     xch a,x                 ;02d6  30
     add h,a                 ;02d7  61 07
     mov a,x                 ;02d9  60
@@ -1493,7 +1493,7 @@ lab_02ca:
     mov a,h                 ;02e0  67
     mov x,a                 ;02e1  70
     mov a,b                 ;02e2  63
-    divuw c                 ;02e3  31 82
+    divuw c                 ;02e3  31 82        AX = AX / C
     cmpw ax,#0xffff         ;02e5  ea ff ff
     bz lab_0311             ;02e8  ad 27
     mov a,x                 ;02ea  60
@@ -1502,7 +1502,7 @@ lab_02ca:
     mov x,a                 ;02ed  70
     mov a,mem_fed6          ;02ee  f0 d6
     xch a,c                 ;02f0  32
-    divuw c                 ;02f1  31 82
+    divuw c                 ;02f1  31 82        AX = AX / C
     mov a,x                 ;02f3  60
     mov l,a                 ;02f4  76
     mov a,mem_fed6          ;02f5  f0 d6
@@ -2389,7 +2389,7 @@ lab_0b55:
     ret                     ;0b57  af
 
 sub_0b58:
-    mulu x                  ;0b58  31 88
+    mulu x                  ;0b58  31 88        AX = A * X
     push bc                 ;0b5a  b3
     xch a,c                 ;0b5b  32
     clr1 cy                 ;0b5c  21
@@ -2398,7 +2398,7 @@ sub_0b58:
     mov a,c                 ;0b60  62
     addc a,#0x00            ;0b61  2d 00
     pop bc                  ;0b63  b2
-    divuw c                 ;0b64  31 82
+    divuw c                 ;0b64  31 82        AX = AX / C
     mov a,x                 ;0b66  60
     ret                     ;0b67  af
 
@@ -2472,11 +2472,11 @@ sub_0b9c:
 ;Destroys AX.
     movw ax,bc              ;0b9c  c2
     mov a,e                 ;0b9d  64
-    mulu x                  ;0b9e  31 88
+    mulu x                  ;0b9e  31 88        AX = A * X
     xchw ax,de              ;0ba0  e4
     xch a,x                 ;0ba1  30
     mov a,c                 ;0ba2  62
-    mulu x                  ;0ba3  31 88
+    mulu x                  ;0ba3  31 88        AX = A * X
     xch a,x                 ;0ba5  30
     add d,a                 ;0ba6  61 05
     mov a,x                 ;0ba8  60
@@ -2488,13 +2488,13 @@ sub_0bad:
     mov a,mem_fed4          ;0bad  f0 d4
     mov x,a                 ;0baf  70
     mov a,mem_fed6          ;0bb0  f0 d6
-    mulu x                  ;0bb2  31 88
+    mulu x                  ;0bb2  31 88        AX = A * X
     movw de,ax              ;0bb4  d4
     movw bc,#0x0000         ;0bb5  12 00 00
     mov a,mem_fed4          ;0bb8  f0 d4
     mov x,a                 ;0bba  70
     mov a,mem_fed7          ;0bbb  f0 d7
-    mulu x                  ;0bbd  31 88
+    mulu x                  ;0bbd  31 88        AX = A * X
     xch a,x                 ;0bbf  30
     add d,a                 ;0bc0  61 05
     mov a,x                 ;0bc2  60
@@ -2502,7 +2502,7 @@ sub_0bad:
     mov a,mem_fed5          ;0bc5  f0 d5
     mov x,a                 ;0bc7  70
     mov a,mem_fed6          ;0bc8  f0 d6
-    mulu x                  ;0bca  31 88
+    mulu x                  ;0bca  31 88        AX = A * X
     xch a,x                 ;0bcc  30
     add d,a                 ;0bcd  61 05
     mov a,x                 ;0bcf  60
@@ -2512,7 +2512,7 @@ sub_0bad:
     mov a,mem_fed5          ;0bd6  f0 d5
     mov x,a                 ;0bd8  70
     mov a,mem_fed7          ;0bd9  f0 d7
-    mulu x                  ;0bdb  31 88
+    mulu x                  ;0bdb  31 88        AX = A * X
     xch a,x                 ;0bdd  30
     add c,a                 ;0bde  61 02
     mov a,x                 ;0be0  60
@@ -2968,7 +2968,7 @@ sub_0d49:
     pop ax                  ;0d4e  b0
     callf !sub_0d3b         ;0d4f  5c 3b
     mov x,#0x64             ;0d51  a0 64
-    mulu x                  ;0d53  31 88
+    mulu x                  ;0d53  31 88        AX = A * X
     mov b,a                 ;0d55  73
     mov a,c                 ;0d56  62
     add a,x                 ;0d57  61 08
@@ -3235,10 +3235,12 @@ lab_0e39_loop:
     clr1 mem_fe6f.4         ;0f06  4b 6f        Dolby = off
     clr1 mem_fe6d.3         ;0f08  3b 6d        ROM checksum calculation = not performed
 
-    mov b,#0x03             ;0f0a  a3 03        B = 3 bytes to fill
-    mov a,#0x7f             ;0f0c  a1 7f        A = fill value 0x7f
-    movw hl,#mem_fca2       ;0f0e  16 a2 fc     HL = pointer to buffer to fill
-    callf !fill_with_a      ;0f11  4c dc        Fill B bytes in buffer [HL] with A
+    ;Write defaults for 3 analog voltage readings:
+    ;mem_fca2_ani_t30, mem_fca3_ani_t58b, mem_fca4_ani
+    mov b,#0x03               ;0f0a  a3 03        B = 3 bytes to fill
+    mov a,#127                ;0f0c  a1 7f        A = fill value 127 = 12.7 V
+    movw hl,#mem_fca2_ani_t30 ;0f0e  16 a2 fc     HL = pointer to buffer to fill
+    callf !fill_with_a        ;0f11  4c dc        Fill B bytes in buffer [HL] with A
 
     ;Cold start finished; fall through into warm start
 
@@ -3366,10 +3368,12 @@ lab_0ff1:
     mov !mem_fb54,a         ;100f  9e 54 fb
 
 lab_1012:
-    mov a,#0x00             ;1012  a1 00
-    mov !mem_f18d_term30,a  ;1014  9e 8d f1
-    mov a,#0x7f             ;1017  a1 7f
-    mov !mem_fca2,a         ;1019  9e a2 fc
+    mov a,#0                ;1012  a1 00        A = 0.0 V
+    mov !mem_f18d_t30_avg,a ;1014  9e 8d f1
+
+    mov a,#127              ;1017  a1 7f        A = 12.7 V
+    mov !mem_fca2_ani_t30,a ;1019  9e a2 fc
+
     clr1 mk0l.2             ;101c  71 2b e4     Clear PMK1 (enables INTP1)
     clr1 pr0l.2             ;101f  71 2b e8     Clear PPR1 (makes INTP1 high priority)
     set1 egn.1              ;1022  71 1a 49     Set EGN1 (enables INTP1 on falling edge)
@@ -4033,15 +4037,15 @@ lab_147c:
 lab_148f:
     call !kwp_check_idle    ;148f  9a 3f 33     Decrement KWP1281 idle countdown and disconnect KWP1281 connection if needed
     call !sub_3e1d          ;1492  9a 1d 3e
-    call !sub_3d09          ;1495  9a 09 3d     Read analog input 0x01 (P91/ANI10) and ???
-    call !sub_4889          ;1498  9a 89 48     Set uPD16432B LED output latches based on illumination voltage (P92/ANI20) and then ???
-    call !sub_58d8          ;149b  9a d8 58     Check POWER key and ???
-    call !sub_56cc          ;149e  9a cc 56     Read uPD16432B key data if ??? conditions are met
+    call !sub_3d09_term30   ;1495  9a 09 3d     Read analog input 0x01 (P91/ANI10) Terminal 30 and ???
+    call !sub_4889_led_illum;1498  9a 89 48     Set uPD16432B LED output latches based on illumination voltage (P92/ANI20) and then ???
+    call !sub_58d8_chk_power;149b  9a d8 58     Check POWER key and ???
+    call !sub_56cc_upd_keys ;149e  9a cc 56     Read uPD16432B key data if ??? conditions are met
     bf mem_fe2d.0,lab_14a8  ;14a1  31 03 2d 03
     call !sub_9140          ;14a5  9a 40 91
 
 lab_14a8:
-    call !sub_ab7b          ;14a8  9a 7b ab     Table-driven analog input routine
+    call !read_3_analogs    ;14a8  9a 7b ab     Table-driven analog input routine
     br !lab_12d7            ;14ab  9b d7 12
 
 lab_14ae:
@@ -5055,7 +5059,7 @@ find_preset_addr:
     call !sub_1a0c          ;1af9  9a 0c 1a
     mov a,b                 ;1afc  63
     mov x,#2                ;1afd  a0 02
-    mulu x                  ;1aff  31 88
+    mulu x                  ;1aff  31 88        AX = A * X
     xch a,x                 ;1b01  30
     add l,a                 ;1b02  61 06
     xch a,x                 ;1b04  30
@@ -5231,7 +5235,7 @@ sub_1bff:
     pop hl                  ;1c12  b6
     dec a                   ;1c13  51
     mov x,#0x02             ;1c14  a0 02
-    mulu x                  ;1c16  31 88
+    mulu x                  ;1c16  31 88        AX = A * X
     mov a,[hl+0x04]         ;1c18  ae 04
     mov !freq_idx_max,a     ;1c1a  9e 59 fb
     mov b,#0x02             ;1c1d  a3 02
@@ -5509,7 +5513,7 @@ sub_1d9b:
     xch a,x                 ;1db7  30
     addc a,mem_fed7         ;1db8  2e d7
     mov c,#0x03             ;1dba  a2 03
-    divuw c                 ;1dbc  31 82
+    divuw c                 ;1dbc  31 82      AX = AX / C
     xch a,x                 ;1dbe  30
     mov !mem_fb67,a         ;1dbf  9e 67 fb
     pop bc                  ;1dc2  b2
@@ -7418,8 +7422,8 @@ read_next_meas:
 ;  A = formula byte
 ;  X = measurement high byte
 ;  E = measurement low byte
-;  D = 0 if success, 0x0F if error
-;  Carry clear = measurement data in A/X/E, carry clear = no measurement
+;  D = 0 success, D = 0x0F error occurred
+;  Carry clear = measurement data in A/X/E, carry set = no measurement
 ;
     bt mem_fe5f.4,lab_287a  ;2830  cc 5f 47     Branch if we have already started reading
                             ;                     the measuring block group
@@ -7437,25 +7441,26 @@ read_next_meas:
     bnz lab_2849_not_0x19_0x06  ;283f  bd 08      No: branch to lab_2849_not_0x19_0x06
 
     ;Group number = 6 (external display)
-    mov a,!mem_f1e9         ;2841  8e e9 f1
-    bt a.0,lab_2858_failed  ;2844  31 0e 11     Branch if FIS display is disabled
-                            ;                     TODO: is that what bit 0 really means?
-    mov a,#0x06             ;2847  a1 06        XXX redundant; A is already 0x06
+    mov a,!mem_f1e9             ;2841  8e e9 f1
+    bt a.0,lab_2858_ret_error   ;2844  31 0e 11     Branch if FIS display is disabled
+                                ;                     TODO: is that what bit 0 really means?
+
+    mov a,#0x06                 ;2847  a1 06        XXX redundant; A is already 0x06
     ;Fall through
 
 lab_2849_not_0x19_0x06:
 ;Group is not 0x19 or 0x06
     movw hl,#group_numbers+1        ;2849  16 8e af     HL = pointer to table of valid group numbers
     call !table_find_byte           ;284c  9a 0d 0b     Find A in table [HL] and load its position in B
-    bnc lab_2858_failed             ;284f  9d 07        Branch if find failed
+    bnc lab_2858_ret_error          ;284f  9d 07        Branch if find failed
 
     movw hl,#group_data_pointers+1  ;2851  16 97 af     HL = pointer to table of group data pointers
     callf !table_get_word           ;2854  4c 48        Load DE with word at position B in table [HL]
     bnc lab_2862_group_ok           ;2856  9d 0a        Branch if table lookup succeeded
     ;Fall through
 
-lab_2858_failed:
-;Failure
+;Return D=0x0F (error occurred), CY=1 (no meas data)
+lab_2858_ret_error:
     mov d,#0x0f             ;2858  a5 0f        D=0x0F (error occurred)
     ;Fall through
 
@@ -7467,7 +7472,7 @@ lab_285a_ret_no_data:
 lab_285e_group_0x19:
 ;group number = 0x19
     set1 mem_fe65.4         ;285e  4a 65        Set bit to indicate group read 0x19 was performed
-    br lab_2858_failed      ;2860  fa f6        Branch to failure
+    br lab_2858_ret_error   ;2860  fa f6        Branch to failure
 
 lab_2862_group_ok:
 ;Group number lookup succeeded
@@ -7579,7 +7584,7 @@ lab_28b7:
     mov x,#0                ;28c8  a0 00
     xch a,x                 ;28ca  30
     mov c,#10               ;28cb  a2 0a
-    divuw c                 ;28cd  31 82
+    divuw c                 ;28cd  31 82        AX = AX / C
     mov a,x                 ;28cf  60
     add a,#'0               ;28d0  0d 30
     mov x,a                 ;28d2  70
@@ -7594,7 +7599,7 @@ lab_28b7:
     ;  Volume Up      0x01 (1)               0x30 "0"    0x31 "1"
     ;  Down           0x0a (10)              0x31 "1"    0x30 "0"
     ;  Up             0x0b (11)              0x31 "1"    0x31 "1"
-    br !lab_29b0_ret_data   ;28d7  9b b0 29   Branch to return with measurement data
+    br !lab_29b0_ret_e_nopop;28d7  9b b0 29   Return E as-is, D=0 (no error), CY=0 (meas data returned)
 
 lab_28da_mfsw_no_key:
 ;No MFSW key pressed or key code is > 99
@@ -7602,7 +7607,7 @@ lab_28da_mfsw_no_key:
     mov x,#0x20             ;28dc  a0 20      X = ASCII space character
     xch a,e                 ;28de  34
     ;XE now contains two ASCII spaces
-    br !lab_29b0_ret_data   ;28df  9b b0 29   Branch to return with measurement data
+    br !lab_29b0_ret_e_nopop;28df  9b b0 29   Return E as-is, D=0 (no error), CY=0 (meas data returned)
 
 lab_28e2:
 ;group number != 7
@@ -7631,10 +7636,10 @@ lab_28e2:
 
 lab_28fd_ok:
 ;mem_fc1c = 0 or 0x88
-    br !lab_29af_ret_data   ;28fd  9b af 29   Branch to return with measurement data
+    br !lab_29af_ret_e      ;28fd  9b af 29   Branch to Return E as-is, D=0 (no error), CY=0 (meas data returned)
 
 lab_2900:
-    br !lab_29af_ret_data   ;2900  9b af 29   Branch to return with measurement data
+    br !lab_29af_ret_e      ;2900  9b af 29   Branch to Return E as-is, D=0 (no error), CY=0 (meas data returned)
 
 lab_2903:
 ;At this point:
@@ -7668,7 +7673,7 @@ lab_2903:
 
     mov e,#0x88             ;2919  a4 88
 lab_291b:
-    br !lab_29af_ret_data   ;291b  9b af 29   Branch to return with measurement data
+    br !lab_29af_ret_e      ;291b  9b af 29   Branch to Return E as-is, D=0 (no error), CY=0 (meas data returned)
 
 lab_291e_check_0xe1:
     cmp a,#0xe1             ;291e  4d e1      Is "value b" = 0xE1 (Front Speakers Status)?
@@ -7679,7 +7684,7 @@ lab_291e_check_0xe1:
     movw hl,#mem_fc1e       ;2922  16 1e fc   HL = faults buffer "00852 - Loudspeaker(s); Front"
     mov a,[hl]              ;2925  87
     call !sub_26b6_elab_1   ;2926  9a b6 26   Given a fault elaboration in A, return something in E
-    br !lab_29af_ret_data   ;2929  9b af 29   Branch to return with measurement data
+    br !lab_29af_ret_e      ;2929  9b af 29   Branch to Return E as-is, D=0 (no error), CY=0 (meas data returned)
 
 lab_292c_check_0xe2:
     cmp a,#0xe2             ;292c  4d e2      Is "value b" = 0xE2 (Rear Speakers Status)?
@@ -7690,7 +7695,7 @@ lab_292c_check_0xe2:
     movw hl,#mem_fc1f       ;2930  16 1f fc   HL = faults buffer "00853 - Loudspeaker(s); Rear"
     mov a,[hl]              ;2933  87
     call !sub_26b6_elab_1   ;2934  9a b6 26   Given a fault elaboration in A, return something in E
-    br lab_29af_ret_data    ;2937  fa 76      Branch to return with measurement data
+    br lab_29af_ret_e       ;2937  fa 76      Branch to Return E as-is, D=0 (no error), CY=0 (meas data returned)
 
 lab_2939_check_0xe3:
     cmp a,#0xe3             ;2939  4d e3      Is "value b" = 0xE3 (Antenna Type)?
@@ -7704,7 +7709,7 @@ lab_2939_check_0xe3:
     mov e,#0x11             ;2945  a4 11
 
 lab_2947:
-    br lab_29af_ret_data    ;2947  fa 66      Branch to return with measurement data
+    br lab_29af_ret_e       ;2947  fa 66      Branch to Return E as-is, D=0 (no error), CY=0 (meas data returned)
 
 lab_2949_check_0xe4:
     cmp a,#0xe4             ;2949  4d e4      Is "value b" = 0xE4 (Antenna Status)?
@@ -7715,7 +7720,7 @@ lab_2949_check_0xe4:
     movw hl,#mem_fc22       ;294d  16 22 fc   HL = pointer to faults buffer #2 "00856 - Radio Antenna"
     mov a,[hl]              ;2950  87
     call !sub_26b6_elab_1   ;2951  9a b6 26   Given a fault elaboration in A, return something in E
-    br lab_29af_ret_data    ;2954  fa 59      Branch to return with measurement data
+    br lab_29af_ret_e       ;2954  fa 59      Branch to Return E as-is, D=0 (no error), CY=0 (meas data returned)
 
 lab_2956_check_0xe5:
     cmp a,#0xe5             ;2956  4d e5      Is "value b" = 0xE5 (CD Changer Status)
@@ -7726,7 +7731,7 @@ lab_2956_check_0xe5:
     movw hl,#mem_fc21       ;295a  16 21 fc   HL = pointer to faults buffer #2 "00855 - Connection to CD changer"
     mov a,[hl]              ;295d  87
     call !sub_26c9_elab_2   ;295e  9a c9 26   Given a fault elaboration in A, return something in E
-    br lab_29af_ret_data    ;2961  fa 4c      Branch to return with measurement data
+    br lab_29af_ret_e       ;2961  fa 4c      Branch to Return E as-is, D=0 (no error), CY=0 (meas data returned)
 
 lab_2963_check_0xe6:
     cmp a,#0xe6             ;2963  4d e6      Is "value b" = 0xE6 (External Display Status)
@@ -7736,12 +7741,12 @@ lab_2963_check_0xe6:
 
     movw hl,#mem_fc20       ;2967  16 20 fc   HL = pointer to faults buffer #2 "00854 - Radio Display Output in Dash Panel Insert"
     mov a,[hl]              ;296a  87
-    call !sub_26c9_elab_2;296b  9a c9 26   Given a fault elaboration in A, return something in E
-    br lab_29af_ret_data    ;296e  fa 3f      Branch to return with measurement data
+    call !sub_26c9_elab_2   ;296b  9a c9 26   Given a fault elaboration in A, return something in E
+    br lab_29af_ret_e       ;296e  fa 3f      Branch to Return E as-is, D=0 (no error), CY=0 (meas data returned)
 
 lab_2970_bad_0xe0:
 ;No matching "value b" for 0xE0-0xEF
-    br lab_29af_ret_data    ;2970  fa 3d      Branch to return with measurement data
+    br lab_29af_ret_e       ;2970  fa 3d      Branch to Return E as-is, D=0 (no error), CY=0 (meas data returned)
 
 lab_2972_check_0xff:
     mov a,e                 ;2972  64         E = value b
@@ -7750,20 +7755,20 @@ lab_2972_check_0xff:
 
     ;"value b" = 0xFF (Supply Voltage Terminal 30)
 
-    mov a,!mem_f18d_term30  ;2977  8e 8d f1
-    br lab_29ae_ret_data    ;297a  fa 32      Branch to return with measurement data
+    mov a,!mem_f18d_t30_avg ;2977  8e 8d f1   A = Terminal 30 (V = value * 0.1) averaged(?)
+    br lab_29ae_ret_a_in_e  ;297a  fa 32      Branch to Return E=A, D=0 (no error), CY=0 (meas data returned)
 
 lab_297c_check_0xfe:
     cmp a,#0xfe             ;297c  4d fe      Is "value b" = 0xFE (Illumination %)?
-    bnz lab_29af_ret_data   ;297e  bd 2f      Branch to return with measurement data
+    bnz lab_29af_ret_e      ;297e  bd 2f      Branch to Return E as-is, D=0 (no error), CY=0 (meas data returned)
 
     ;"value b" = 0xFE (Illumination %)
 
-    mov a,!mem_fca3_illum   ;2980  8e a3 fc   A = P92/ANI20 analog: Illumination voltage (0=off, 0xff=full)
+    mov a,!mem_fca3_ani_t58b;2980  8e a3 fc   A = P92/ANI20 analog: Terminal 58b Illumination (V = value * 0.06)
     mov b,a                 ;2983  73         Save illumination analog in B
 
     cmp a,#0x20             ;2984  4d 20
-    bnc lab_2990            ;2986  9d 08      Branch if illumination analog >= 0x20
+    bnc lab_2990_gte_0x20   ;2986  9d 08      Branch if illumination analog >= 0x20
 
     ;Illumination analog < 0x20
     cmp a,#0x0c             ;2988  4d 0c
@@ -7773,37 +7778,41 @@ lab_297c_check_0xfe:
     mov a,#0x0f             ;298c  a1 0f
 
 lab_298e:
-    br lab_29ae_ret_data    ;298e  fa 1e      Branch to return with measurement data
+    br lab_29ae_ret_a_in_e  ;298e  fa 1e      Branch to Return E=A, D=0 (no error), CY=0 (meas data returned)
 
-lab_2990:
+lab_2990_gte_0x20:
 ;Illumination analog >= 0x20
     mov x,#0x14             ;2990  a0 14
-    mulu x                  ;2992  31 88
+    mulu x                  ;2992  31 88      AX = A * X
     mov c,#0xff             ;2994  a2 ff
-    divuw c                 ;2996  31 82
+    divuw c                 ;2996  31 82      AX = AX / C
     mov a,b                 ;2998  63
     sub a,#0x14             ;2999  1d 14
     add x,a                 ;299b  61 00
-    mov a,!mem_f18d_term30  ;299d  8e 8d f1
+    mov a,!mem_f18d_t30_avg ;299d  8e 8d f1   A = Terminal 30 (V = value * 0.1) averaged(?)
     mov c,a                 ;29a0  72
     mov a,#0x9e             ;29a1  a1 9e
     mulu x                  ;29a3  31 88      AX = A * X
-    divuw c                 ;29a5  31 82
+    divuw c                 ;29a5  31 82      AX = AX / C
     cmp a,#0x00             ;29a7  4d 00
-    bz lab_29ad_ret_data    ;29a9  ad 02      Branch to return with measurement data
+    bz lab_29ad_ret_x_in_e  ;29a9  ad 02      Branch to Return E=X, D=0 (no error), CY=0 (meas data returned)
     mov x,#0xff             ;29ab  a0 ff
 
-lab_29ad_ret_data:
+;Return E=X, D=0 (no error), CY=0 (meas data returned)
+lab_29ad_ret_x_in_e:
     xch a,x                 ;29ad  30
 
-lab_29ae_ret_data:
+;Return E=A, D=0 (no error), CY=0 (meas data returned)
+lab_29ae_ret_a_in_e:
     mov e,a                 ;29ae  74
 
-lab_29af_ret_data:
+;Return E as-is, D=0 (no error), CY=0 (meas data returned)
+lab_29af_ret_e:
     pop ax                  ;29af  b0
 
-lab_29b0_ret_data:
-    mov d,#0x00             ;29b0  a5 00        D=0 (no error)
+;Return E as-is, D=0 (no error), CY=0 (meas data returned)
+lab_29b0_ret_e_nopop:
+    mov d,#0                ;29b0  a5 00        D=0 (no error)
     clr1 cy                 ;29b2  21           Clear carry = measurement data returned
     ret                     ;29b3  af
 
@@ -11654,43 +11663,44 @@ lab_3d00:
     clr1 mem_fe63.1         ;3d06  1b 63
     ret                     ;3d08  af
 
-sub_3d09:
-;Read analog input 0x01 (P91/ANI10) and ???
+sub_3d09_term30:
+;Read analog input 0x01 (P91/ANI10) Terminal 30 and ???
     bf mem_fe62.1,lab_3d18  ;3d09  31 13 62 0b
-    movw ax,#0x017f         ;3d0d  10 7f 01     A = analog input 0x01 (P91/ANI10)
-                            ;                   X = 0x7f ???
-    call !sub_abc3          ;3d10  9a c3 ab     Read analog input number A and do ???
+    movw ax,#(0x01<<8)+127  ;3d0d  10 7f 01     A = analog input 0x01 (P91/ANI10)
+                            ;                   X = 127 (12.7 V)
+    call !read_analog       ;3d10  9a c3 ab     Read analog input number A and do ???
     bc lab_3d57_ret         ;3d13  8d 42        Branch to return if failed
-    mov !mem_fca2,a         ;3d15  9e a2 fc
+
+    mov !mem_fca2_ani_t30,a ;3d15  9e a2 fc
 
 lab_3d18:
-    mov a,!mem_fca2         ;3d18  8e a2 fc
-    sub a,!mem_f18d_term30  ;3d1b  18 8d f1
-    bnc lab_3d34            ;3d1e  9d 14
+    mov a,!mem_fca2_ani_t30 ;3d18  8e a2 fc
+    sub a,!mem_f18d_t30_avg ;3d1b  18 8d f1
+    bnc lab_3d34_nc         ;3d1e  9d 14
     xor a,#0xff             ;3d20  7d ff
     inc a                   ;3d22  41
     cmp a,#0x02             ;3d23  4d 02
     bc lab_3d4d             ;3d25  8d 26
-    mov a,!mem_f18d_term30  ;3d27  8e 8d f1
+    mov a,!mem_f18d_t30_avg ;3d27  8e 8d f1
     cmp a,#0x00             ;3d2a  4d 00
     bz lab_3d57_ret         ;3d2c  ad 29
     dec a                   ;3d2e  51
-    mov !mem_f18d_term30,a  ;3d2f  9e 8d f1
+    mov !mem_f18d_t30_avg,a ;3d2f  9e 8d f1
     br lab_3d55             ;3d32  fa 21
 
-lab_3d34:
+lab_3d34_nc:
     cmp a,#0x02             ;3d34  4d 02
     bc lab_3d4d             ;3d36  8d 15
-    mov a,!mem_f18d_term30  ;3d38  8e 8d f1
+    mov a,!mem_f18d_t30_avg ;3d38  8e 8d f1
     cmp a,#0x00             ;3d3b  4d 00
-    bnz lab_3d47            ;3d3d  bd 08
-    mov a,!mem_fca2         ;3d3f  8e a2 fc
-    mov !mem_f18d_term30,a  ;3d42  9e 8d f1
+    bnz lab_3d47_ne         ;3d3d  bd 08
+    mov a,!mem_fca2_ani_t30 ;3d3f  8e a2 fc
+    mov !mem_f18d_t30_avg,a ;3d42  9e 8d f1
     br lab_3d55             ;3d45  fa 0e
 
-lab_3d47:
+lab_3d47_ne:
     inc a                   ;3d47  41
-    mov !mem_f18d_term30,a  ;3d48  9e 8d f1
+    mov !mem_f18d_t30_avg,a ;3d48  9e 8d f1
     br lab_3d55             ;3d4b  fa 08
 
 lab_3d4d:
@@ -11705,29 +11715,29 @@ lab_3d57_ret:
 
 lab_3d58:
     clr1 mem_fe62.4         ;3d58  4b 62
-    mov a,!mem_f18d_term30  ;3d5a  8e 8d f1
-    cmp a,#0xfd             ;3d5d  4d fd
+    mov a,!mem_f18d_t30_avg ;3d5a  8e 8d f1
+    cmp a,#253              ;3d5d  4d fd        Compare with 25.3V
     bc lab_3d64             ;3d5f  8d 03
     br !lab_3c60            ;3d61  9b 60 3c
 
 lab_3d64:
-    cmp a,#0xb3             ;3d64  4d b3
+    cmp a,#179              ;3d64  4d b3        Compare with 17.9V
     bc lab_3d6a             ;3d66  8d 02
     br lab_3d80             ;3d68  fa 16
 
 lab_3d6a:
-    cmp a,#0x62             ;3d6a  4d 62
+    cmp a,#98               ;3d6a  4d 62        Compare with 9.8V
     bc lab_3d7c             ;3d6c  8d 0e
     clr1 mem_fe62.3         ;3d6e  3b 62
-    bf mem_fe62.1,lab_3dbc  ;3d70  31 13 62 48
+    bf mem_fe62.1,lab_3dbc_ret  ;3d70  31 13 62 48
     clr1 mem_fe62.1         ;3d74  1b 62
     clr1 mem_fe62.2         ;3d76  2b 62
     set1 mem_fe7d.3         ;3d78  3a 7d
-    br lab_3dbc             ;3d7a  fa 40
+    br lab_3dbc_ret         ;3d7a  fa 40
 
 lab_3d7c:
-    cmp a,#0x61             ;3d7c  4d 61
-    bnc lab_3dbc            ;3d7e  9d 3c
+    cmp a,#97               ;3d7c  4d 61        COmpare with 9.7V
+    bnc lab_3dbc_ret        ;3d7e  9d 3c
 
 lab_3d80:
     mov mem_fed4,a          ;3d80  f2 d4
@@ -11740,7 +11750,7 @@ lab_3d8c:
     bt mem_fe62.1,lab_3d9a  ;3d8c  9c 62 0b
     mov a,!mem_fb0d         ;3d8f  8e 0d fb
     cmp a,#0x00             ;3d92  4d 00
-    bnz lab_3dbc            ;3d94  bd 26
+    bnz lab_3dbc_ret        ;3d94  bd 26
     mov a,mem_fed4          ;3d96  f0 d4
     set1 mem_fe7d.4         ;3d98  4a 7d
 
@@ -11750,22 +11760,22 @@ lab_3d9a:
     clr1 mem_fe67.0         ;3d9e  0b 67
     set1 mem_fe62.1         ;3da0  1a 62
     set1 mem_fe62.2         ;3da2  2a 62
-    br lab_3dbc             ;3da4  fa 16
+    br lab_3dbc_ret         ;3da4  fa 16
 
 lab_3da6:
     cmp a,#0x35                 ;3da6  4d 35
     bc lab_3db5                 ;3da8  8d 0b
     clr1 mem_fe62.2             ;3daa  2b 62
-    bf mem_fe65.5,lab_3dbc      ;3dac  31 53 65 0c
+    bf mem_fe65.5,lab_3dbc_ret  ;3dac  31 53 65 0c
     call !kwp_logout_disconnect ;3db0  9a c3 51     Branch to Clear KWP1281 auth bits and disconnect
-    br lab_3dbc                 ;3db3  fa 07
+    br lab_3dbc_ret             ;3db3  fa 07
 
 lab_3db5:
     set1 mem_fe62.4         ;3db5  4a 62
     mov a,#0x32             ;3db7  a1 32
     mov !mem_fb0d,a         ;3db9  9e 0d fb
 
-lab_3dbc:
+lab_3dbc_ret:
     ret                     ;3dbc  af
 
 sub_3dbd:
@@ -13230,12 +13240,15 @@ lab_463a:
 lab_463c:
     cmp mem_fe31,#0x00      ;463c  c8 31 00
     bz lab_463a             ;463f  ad f9
+
     mov a,!mem_fbad         ;4641  8e ad fb
     cmp a,#0xff             ;4644  4d ff
     bz lab_4654             ;4646  ad 0c
     mov x,a                 ;4648  70
+
     mov a,!mem_fbae         ;4649  8e ae fb     A = analog number number to read
-    call !sub_abc3          ;464c  9a c3 ab     Read analog input number A and do ???
+    call !read_analog       ;464c  9a c3 ab     Read analog input number A and do ???
+
     mov !mem_fbac,a         ;464f  9e ac fb
     clr1 mem_fe78.1         ;4652  1b 78
 
@@ -13256,7 +13269,7 @@ lab_4654:
     bnz lab_4680            ;4676  bd 08
     mov a,#0x04             ;4678  a1 04
     mov !mem_fbb0,a         ;467a  9e b0 fb
-    call !kwp_check_idle          ;467d  9a 3f 33     Unknown, but decrements KWP1281 related kwp_idle_ms
+    call !kwp_check_idle    ;467d  9a 3f 33     Unknown, but decrements KWP1281 related kwp_idle_ms
 
 lab_4680:
     call !sub_4dd8          ;4680  9a d8 4d     Dispatch KWP1281 routine in mem_b247 table based on value in mem_fbc9
@@ -13662,16 +13675,16 @@ lab_4886_lt_0x0a:
 lab_4888_ret:
     ret                     ;4888  af
 
-sub_4889:
+sub_4889_led_illum:
 ;Set uPD16432B LED output latches based on illumination voltage (P92/ANI20) and then ???
-    mov a,!mem_fca3_illum   ;4889  8e a3 fc   A = P92/ANI20 analog: Illumination voltage (0=off, 0xff=full)
+    mov a,!mem_fca3_ani_t58b;4889  8e a3 fc   A = P92/ANI20 analog: Terminal 58b Illumination (V = value * 0.06)
     bt mem_fe65.1,lab_4895  ;488c  9c 65 06
-    cmp a,#0x12             ;488f  4d 12
+    cmp a,#0x12             ;488f  4d 12      Compare with 1.08V (V = 0x12 * 0.06)
     bnc lab_48a5            ;4891  9d 12
     br lab_4899_leds_0b1111 ;4893  fa 04
 
 lab_4895:
-    cmp a,#0x0a             ;4895  4d 0a
+    cmp a,#0x0a             ;4895  4d 0a      Compare with 0.6V (V = 0x0A * 0.06)
     bnc lab_48a5            ;4897  9d 0c
 
 lab_4899_leds_0b1111:
@@ -13745,13 +13758,15 @@ lab_4901_ret:
 
 sub_4902_illum:
 ;Read illumination voltage (P92/ANI20) and ???
-    movw ax,#0x027f         ;4902  10 7f 02     A = analog input 0x02 (P92/ANI20)
-                            ;                   X = 0x7f ???
-    call !sub_abc3          ;4905  9a c3 ab     Read analog input number A and do ???
+    movw ax,#(0x02<<8)+127  ;4902  10 7f 02     A = analog input 0x02 (P92/ANI20)
+                            ;                   X = 127 (12.7 V)
+    call !read_analog       ;4905  9a c3 ab     Read analog input number A and do ???
     bc lab_4913_ret         ;4908  8d 09        Branch to return if analog read failed
-    mov !mem_fca3_illum,a   ;490a  9e a3 fc     Store as P92/ANI20 analog: Illumination voltage (0=off, 0xff=full)
-    cmp a,#0x12             ;490d  4d 12
+
+    mov !mem_fca3_ani_t58b,a;490a  9e a3 fc     Store as P92/ANI20 analog: Terminal 58b Illumination (V = value * 0.06)
+    cmp a,#0x12             ;490d  4d 12        Compare with 1.08V (V=0x12*0.06)
     bc lab_4913_ret         ;490f  8d 02        Branch if illumination analog < 0x12
+
     ;Illumination analog >= 0x12
     set1 mem_fe65.1         ;4911  1a 65
 
@@ -17038,7 +17053,7 @@ lab_56c3:
 lab_56cb:
     ret                     ;56cb  af
 
-sub_56cc:
+sub_56cc_upd_keys:
 ;Read uPD16432B key data if ??? conditions are met
     bf mem_fe62.1,lab_56d1  ;56cc  31 13 62 01
     ret                     ;56d0  af
@@ -17423,7 +17438,7 @@ lab_58d5:
     clr1 mem_fe66.5         ;58d5  5b 66
     ret                     ;58d7  af
 
-sub_58d8:
+sub_58d8_chk_power:
 ;Check POWER key and ???
     mov a,!mem_f1e9             ;58d8  8e e9 f1
     bf a.0,lab_5903_ret         ;58db  31 0f 25
@@ -19885,7 +19900,7 @@ lab_67f2:
 
 lab_67f4:
     mov x,#0x03             ;67f4  a0 03
-    mulu x                  ;67f6  31 88
+    mulu x                  ;67f6  31 88        AX = A * X
     mov a,x                 ;67f8  60
     add a,b                 ;67f9  61 0b
     mov b,a                 ;67fb  73
@@ -20123,7 +20138,7 @@ sub_6934:
     ror a,1                 ;6939  24
     ror a,1                 ;693a  24
     mov x,#0x0a             ;693b  a0 0a
-    mulu x                  ;693d  31 88
+    mulu x                  ;693d  31 88        AX = A * X
     mov a,x                 ;693f  60
     mov b,a                 ;6940  73
     pop ax                  ;6941  b0
@@ -21552,7 +21567,7 @@ lab_70ea:
     mov !mem_f1a7,a         ;70f1  9e a7 f1
     mov a,d                 ;70f4  65
     mov x,#0x0a             ;70f5  a0 0a
-    mulu x                  ;70f7  31 88
+    mulu x                  ;70f7  31 88        AX = A * X
     xch a,x                 ;70f9  30
     mov !mem_fb2c,a         ;70fa  9e 2c fb
     xch a,x                 ;70fd  30
@@ -23163,12 +23178,12 @@ lab_7b07:
     mov1 mem_fe6a.5,cy      ;7b10  71 51 6a
     clr1 mem_fe41.2         ;7b13  2b 41
     set1 mem_fe6a.7         ;7b15  7a 6a
-    mov a,!mem_f18d_term30  ;7b17  8e 8d f1
-    cmp a,#0x61             ;7b1a  4d 61
+    mov a,!mem_f18d_t30_avg ;7b17  8e 8d f1
+    cmp a,#97               ;7b1a  4d 61        Compare with 9.7V
     bc lab_7b28             ;7b1c  8d 0a
     bf mem_fe6c.3,lab_7b31  ;7b1e  31 33 6c 0f
     clr1 mem_fe6c.3         ;7b22  3b 6c
-    cmp a,#0x73             ;7b24  4d 73
+    cmp a,#115              ;7b24  4d 73        Compare with 11.5V
     bnc lab_7b31            ;7b26  9d 09
 
 lab_7b28:
@@ -23187,8 +23202,8 @@ lab_7b31:
 
 lab_7b41:
     bf mem_fe6c.2,lab_7b4d  ;7b41  31 23 6c 08
-    mov a,!mem_f18d_term30  ;7b45  8e 8d f1
-    cmp a,#0x74             ;7b48  4d 74
+    mov a,!mem_f18d_t30_avg ;7b45  8e 8d f1
+    cmp a,#116              ;7b48  4d 74        Compare with 11.6V
     bnc lab_7b4d            ;7b4a  9d 01
     ret                     ;7b4c  af
 
@@ -25109,8 +25124,8 @@ lab_87b5:
     bnz lab_87f5            ;87ba  bd 39
 
 lab_87bc:
-    mov a,!mem_fca2         ;87bc  8e a2 fc
-    cmp a,#0x62             ;87bf  4d 62
+    mov a,!mem_fca2_ani_t30 ;87bc  8e a2 fc     A = P91/ANI10 analog: Terminal 30 Constant B+ (V = value * 0.1)
+    cmp a,#98               ;87bf  4d 62        Compare with 9.8V
     bc lab_87f5             ;87c1  8d 32
     cmp mem_fe4a,#0x1a      ;87c3  c8 4a 1a
     bnc lab_87f5            ;87c6  9d 2d
@@ -25131,8 +25146,8 @@ lab_87d7:
     ret                     ;87df  af
 
 lab_87e0:
-    mov a,!mem_fca2         ;87e0  8e a2 fc
-    cmp a,#0x62             ;87e3  4d 62
+    mov a,!mem_fca2_ani_t30 ;87e0  8e a2 fc     A = P91/ANI10 analog: Terminal 30 Constant B+ (V = value * 0.1)
+    cmp a,#98               ;87e3  4d 62        Compare with 9.8V
     bc lab_87f5             ;87e5  8d 0e
     cmp mem_fe4a,#0x07      ;87e7  c8 4a 07
     bnc lab_87f5            ;87ea  9d 09
@@ -27197,7 +27212,7 @@ lab_9546:
     mov a,!mem_fc84         ;9546  8e 84 fc
     sub a,#0x02             ;9549  1d 02
     mov x,#0x4c             ;954b  a0 4c
-    mulu x                  ;954d  31 88
+    mulu x                  ;954d  31 88        AX = A * X
     mov !i2c_buf+4,a        ;954f  9e df fb
     xch a,x                 ;9552  30
     mov !i2c_buf+5,a        ;9553  9e e0 fb
@@ -27828,7 +27843,7 @@ lab_9a4d:
     mov x,a                 ;9a58  70
     mov a,#0x00             ;9a59  a1 00
     mov c,#0x02             ;9a5b  a2 02
-    divuw c                 ;9a5d  31 82
+    divuw c                 ;9a5d  31 82        AX = AX / C
     mov a,x                 ;9a5f  60
     bt mem_fe74.6,lab_9a81  ;9a60  ec 74 1e
     push ax                 ;9a63  b1
@@ -30163,9 +30178,9 @@ lab_a936_ret:
 sub_a937:
     mov a,!mem_fc9e         ;a937  8e 9e fc
     mov b,a                 ;a93a  73
-    movw hl,#mem_d0c1+1     ;a93b  16 c2 d0
+    movw hl,#mem_d0c1_sound_vals+1 ;a93b  16 c2 d0
     callf !table_get_byte   ;a93e  4c 7d        Load A with byte at position B in table [HL]
-    bc lab_a95d             ;a940  8d 1b        Branch if lookup failed
+    bc lab_a95d_ret         ;a940  8d 1b        Branch if lookup failed
     push ax                 ;a942  b1
     and a,#0x7f             ;a943  5d 7f
     mov b,a                 ;a945  73
@@ -30178,43 +30193,50 @@ sub_a937:
     call !sub_7697          ;a94e  9a 97 76
     pop psw                 ;a951  23
     pop ax                  ;a952  b0
-    bz lab_a95d             ;a953  ad 08
+    bz lab_a95d_ret         ;a953  ad 08
 
     mov !snd_msg_idx,a      ;a955  9e a5 f1
 
     mov a,#50               ;a958  a1 32        A = 5 seconds
     mov !msg_countdown,a    ;a95a  9e 2e fb
 
-lab_a95d:
+lab_a95d_ret:
     ret                     ;a95d  af
 
 lab_a95e:
     bf mem_fe77.0,lab_a973  ;a95e  31 03 77 11
     cmp mem_fe59,#0x00      ;a962  c8 59 00
     bnz lab_a973            ;a965  bd 0c
-    br !lab_aa0e            ;a967  9b 0e aa
+    br !lab_aa0e_set_1_ret  ;a967  9b 0e aa     Set mem_fc9b=0x1 and return
 
 lab_a96a:
     mov mem_fe5a,#0x00      ;a96a  11 5a 00
     mov mem_fe59,#0x00      ;a96d  11 59 00
-    br !lab_aa09            ;a970  9b 09 aa
+    br !lab_aa09_set_2_ret  ;a970  9b 09 aa     Set mem_fb1d=0x0a, mem_fc9b=0x1 and return
 
 lab_a973:
-    mov a,!mem_fca4         ;a973  8e a4 fc     A = P95/ANI50 analog reading
+    mov a,!mem_fca4_ani     ;a973  8e a4 fc     A = P95/ANI50 analog reading
+
     cmp a,#0x26             ;a976  4d 26
-    bc lab_a983             ;a978  8d 09
+    bc lab_a983_a_lt_0x26   ;a978  8d 09        Branch if A < 0x26 (38)
+
+    ;A >= 0x26
+
     cmp a,#0x30             ;a97a  4d 30
-    bc lab_a980             ;a97c  8d 02
+    bc lab_a980_a_lt_0x30   ;a97c  8d 02        Branch if A < 0x30 (48)
+
+    ;A >= 0x30
+
     br lab_a9df             ;a97e  fa 5f
 
-lab_a980:
-    br !lab_aa0e            ;a980  9b 0e aa
+lab_a980_a_lt_0x30:
+    br !lab_aa0e_set_1_ret  ;a980  9b 0e aa     Set mem_fc9b=0x1 and return
 
-lab_a983:
+lab_a983_a_lt_0x26:
     mov a,!mem_fb1d         ;a983  8e 1d fb
     cmp a,#0x00             ;a986  4d 00
     bz lab_a98d             ;a988  ad 03
-    br !lab_aa0e            ;a98a  9b 0e aa
+    br !lab_aa0e_set_1_ret  ;a98a  9b 0e aa     Set mem_fc9b=0x1 and return
 
 lab_a98d:
     mov b,#0x01             ;a98d  a3 01
@@ -30237,7 +30259,7 @@ lab_a9a4:
 lab_a9ac:
     inc mem_fe59            ;a9ac  81 59
     set1 mem_fe73.5         ;a9ae  5a 73
-    br lab_aa04             ;a9b0  fa 52
+    br lab_aa04_set_3_ret   ;a9b0  fa 52        Set mem_fb48=0x0a, mem_fb1d=0x0a, mem_fc9b=0x1 and return
 
 lab_a9b2:
     mov mem_fe59,#0x00      ;a9b2  11 59 00
@@ -30245,13 +30267,13 @@ lab_a9b2:
 lab_a9b5:
     mov a,!snd_msg_idx      ;a9b5  8e a5 f1
     cmp a,#0xff             ;a9b8  4d ff
-    bnz lab_aa0e            ;a9ba  bd 52
+    bnz lab_aa0e_set_1_ret  ;a9ba  bd 52        Set mem_fc9b=0x1 and return
     cmp mem_fe5a,#0x3d      ;a9bc  c8 5a 3d
     bf mem_fe74.6,lab_a9c6  ;a9bf  31 63 74 03
     cmp mem_fe5a,#0x2d      ;a9c3  c8 5a 2d
 
 lab_a9c6:
-    bnc lab_aa0e            ;a9c6  9d 46
+    bnc lab_aa0e_set_1_ret  ;a9c6  9d 46        Set mem_fc9b=0x1 and return
     add mem_fe5a,#0x02      ;a9c8  88 5a 02
     mov a,!mem_fc97         ;a9cb  8e 97 fc
     sub a,!mem_fc96         ;a9ce  18 96 fc
@@ -30263,16 +30285,16 @@ lab_a9c6:
 lab_a9d9:
     set1 mem_fe73.3         ;a9d9  3a 73
     set1 mem_fe76.2         ;a9db  2a 76
-    br lab_aa04             ;a9dd  fa 25
+    br lab_aa04_set_3_ret   ;a9dd  fa 25        Set mem_fb48=0x0a, mem_fb1d=0x0a, mem_fc9b=0x1 and return
 
 lab_a9df:
     mov a,!mem_fb48         ;a9df  8e 48 fb
     cmp a,#0x00             ;a9e2  4d 00
-    bnz lab_aa0e            ;a9e4  bd 28
+    bnz lab_aa0e_set_1_ret  ;a9e4  bd 28        Set mem_fc9b=0x1 and return
 
     mov a,!snd_msg_idx      ;a9e6  8e a5 f1
     cmp a,#0xff             ;a9e9  4d ff
-    bnz lab_aa0e            ;a9eb  bd 21
+    bnz lab_aa0e_set_1_ret  ;a9eb  bd 21        Set mem_fc9b=0x1 and return
 
     cmp mem_fe5a,#0x00      ;a9ed  c8 5a 00
     bz lab_a9fb             ;a9f0  ad 09
@@ -30280,23 +30302,26 @@ lab_a9df:
     sub mem_fe5a,#0x02      ;a9f2  98 5a 02
     set1 mem_fe73.3         ;a9f5  3a 73
     set1 mem_fe76.2         ;a9f7  2a 76
-    br lab_aa04             ;a9f9  fa 09
+    br lab_aa04_set_3_ret   ;a9f9  fa 09        Set mem_fb48=0x0a, mem_fb1d=0x0a, mem_fc9b=0x1 and return
 
 lab_a9fb:
     cmp mem_fe59,#0x00      ;a9fb  c8 59 00
-    bz lab_aa0e             ;a9fe  ad 0e
+    bz lab_aa0e_set_1_ret   ;a9fe  ad 0e        Set mem_fc9b=0x1 and return
     dec mem_fe59            ;aa00  91 59
     set1 mem_fe73.5         ;aa02  5a 73
 
-lab_aa04:
+;Set mem_fb48=0x0a, mem_fb1d=0x0a, mem_fc9b=0x1 and return
+lab_aa04_set_3_ret:
     mov a,#0x0a             ;aa04  a1 0a
     mov !mem_fb48,a         ;aa06  9e 48 fb
 
-lab_aa09:
+;Set mem_fb1d=0x0a, mem_fc9b=0x1 and return
+lab_aa09_set_2_ret:
     mov a,#0x0a             ;aa09  a1 0a
     mov !mem_fb1d,a         ;aa0b  9e 1d fb
 
-lab_aa0e:
+;Set mem_fc9b=0x1 and return
+lab_aa0e_set_1_ret:
     mov a,#0x01             ;aa0e  a1 01
     mov !mem_fc9b,a         ;aa10  9e 9b fc
     ret                     ;aa13  af
@@ -30555,24 +30580,24 @@ lab_ab75:
     mov !mem_fc9f,a         ;ab77  9e 9f fc
     ret                     ;ab7a  af
 
-sub_ab7b:
+read_3_analogs:
 ;Table-driven analog input routine
 ;
-;Reads 3 analog inputs and stores the readings in mem_fca2-mem_fca4
+;Reads 3 analog inputs and stores the readings in mem_fca2_ani_t30-mem_fca4_ani
 ;
     bf mem_fe2d.0,lab_abc2_ret  ;ab7b  31 03 2d 43  If mem_fe2d.0=1, branch to just return
     bt mem_fe31.1,lab_abc2_ret  ;ab7f  9c 31 40     If mem_fe31.1=1, branch to just return
 
-    mov mem_fed6,#0x03      ;ab82  11 d6 03     mem_fed6 = 3 groups to read in table
-    movw hl,#mem_d0e9+1     ;ab85  16 ea d0     HL = pointer to table of analog inputs to read
-    movw de,#mem_fca2       ;ab88  14 a2 fc     DE = destination address to store analog reading
+    mov mem_fed6,#0x03          ;ab82  11 d6 03     mem_fed6 = 3 groups to read in table
+    movw hl,#mem_d0e9_analogs+1 ;ab85  16 ea d0     HL = pointer to table of analog inputs to read
+    movw de,#mem_fca2_ani_t30   ;ab88  14 a2 fc     DE = destination address to store analog reading
 
 lab_ab8b_loop:
     mov a,[hl+0x00]         ;ab8b  ae 00
     mov x,a                 ;ab8d  70
     mov a,[hl+0x01]         ;ab8e  ae 01
     push hl                 ;ab90  b7
-    call !sub_abc3          ;ab91  9a c3 ab     Read analog input number A and do ???
+    call !read_analog       ;ab91  9a c3 ab     Read analog input number A and do ???
     pop hl                  ;ab94  b6
     bc lab_abb9             ;ab95  8d 22        Branch if analog read failed
     mov x,a                 ;ab97  70
@@ -30612,7 +30637,7 @@ lab_abb9:
 lab_abc2_ret:
     ret                     ;abc2  af
 
-sub_abc3:
+read_analog:
 ;Read analog input number A and do ???
 ;
 ;Call with:
@@ -30626,7 +30651,7 @@ sub_abc3:
     bc lab_abef_failed      ;abc6  8d 27      Branch if analog read failed
     mov c,a                 ;abc8  72
     mov a,x                 ;abc9  60
-    cmp a,#0x7f             ;abca  4d 7f
+    cmp a,#127              ;abca  4d 7f      127 = 12.7 V
     bnz lab_abd3            ;abcc  bd 05
     mov a,c                 ;abce  62
     mov x,#0x00             ;abcf  a0 00
@@ -30645,7 +30670,7 @@ lab_abd3:
 
 lab_abe6:
     mov x,#0x00             ;abe6  a0 00
-    divuw c                 ;abe8  31 82
+    divuw c                 ;abe8  31 82      AX = AX / C
     xch a,x                 ;abea  30
 
 lab_abeb:
@@ -31575,82 +31600,99 @@ group_data_pointers:
 
 group_1_data:
 ;Group 1 (General)
-    .byte 0x0c              ;afa5  0c          DATA 0x0c        12 entries below:
-    .byte 0x25              ;afa6  25          DATA 0x25 '%'    type        \
-    .byte 0x00              ;afa7  00          DATA 0x00        value a      GALA-Signal
-    .byte 0x00              ;afa8  00          DATA 0x00        value b     /
-    .byte 0x06              ;afa9  06          DATA 0x06        type        \
-    .byte 0x5f              ;afaa  5f          DATA 0x5f '_'    value a      Supply Voltage
-    .byte 0xff              ;afab  ff          DATA 0xff        value b     /       (Terminal 30)
-    .byte 0x17              ;afac  17          DATA 0x17        type        \
-    .byte 0x64              ;afad  64          DATA 0x64 'd'    value a      Illumination %
-    .byte 0xfe              ;afae  fe          DATA 0xfe        value b     /       (Terminal 5d)
-    .byte 0x25              ;afaf  25          DATA 0x25 '%'    type        \
-    .byte 0x00              ;afb0  00          DATA 0x00        value a      S-Contact Status
-    .byte 0xe0              ;afb1  e0          DATA 0xe0        value b     /
+    .byte 0x0c              ;12 entries below:
+
+    .byte 0x25              ;A formula     \
+    .byte 0x00              ;X value a      GALA-Signal
+    .byte 0x00              ;E value b     /
+
+    .byte 0x06              ;A formula     \
+    .byte 0x5f              ;X value a      Supply Voltage
+    .byte 0xff              ;E value b     /       (Terminal 30)
+
+    .byte 0x17              ;A formula     \
+    .byte 0x64              ;X value a      Illumination %
+    .byte 0xfe              ;E value b     /       (Terminal 58d)
+
+    .byte 0x25              ;A formula     \
+    .byte 0x00              ;X value a      S-Contact Status
+    .byte 0xe0              ;E value b     /
 
 group_2_data:
 ;Group 2 (Speakers)
-    .byte 0x0c              ;afb2  0c          DATA 0x0c        12 entries below:
-    .byte 0x25              ;afb3  25          DATA 0x25 '%'    type        \
-    .byte 0x00              ;afb4  00          DATA 0x00        value a      Location/Type (Front)
-    .byte 0xf0              ;afb5  f0          DATA 0xf0        value b     /
-    .byte 0x25              ;afb6  25          DATA 0x25 '%'    type        \
-    .byte 0x00              ;afb7  00          DATA 0x00        value a      Status
-    .byte 0xe1              ;afb8  e1          DATA 0xe1        value b     /
-    .byte 0x25              ;afb9  25          DATA 0x25 '%'    type        \
-    .byte 0x00              ;afba  00          DATA 0x00        value a      Location/Type (Rear)
-    .byte 0xf1              ;afbb  f1          DATA 0xf1        value b     /
-    .byte 0x25              ;afbc  25          DATA 0x25 '%'    type        \
-    .byte 0x00              ;afbd  00          DATA 0x00        value a      Status
-    .byte 0xe2              ;afbe  e2          DATA 0xe2        value b     /
+    .byte 0x0c              ;12 entries below:
+
+    .byte 0x25              ;A formula     \
+    .byte 0x00              ;X value a      Location/Type (Front)
+    .byte 0xf0              ;E value b     /
+
+    .byte 0x25              ;A formula     \
+    .byte 0x00              ;X value a      Status
+    .byte 0xe1              ;E value b     /
+
+    .byte 0x25              ;A formula     \
+    .byte 0x00              ;X value a      Location/Type (Rear)
+    .byte 0xf1              ;E value b     /
+
+    .byte 0x25              ;A formula     \
+    .byte 0x00              ;X value a      Status
+    .byte 0xe2              ;E value b     /
 
 group_3_data:
 ;Group 3 (Antenna)
-    .byte 0x09              ;afbf  09          DATA 0x09        9 entries below:
-    .byte 0x25              ;afc0  25          DATA 0x25 '%'    type        \
-    .byte 0x01              ;afc1  01          DATA 0x01        value a      Antenna Type
-    .byte 0xe3              ;afc2  e3          DATA 0xe3        value b     /
-    .byte 0x25              ;afc3  25          DATA 0x25 '%'    type        \
-    .byte 0x00              ;afc4  00          DATA 0x00        value a      Antenna
-    .byte 0xf4              ;afc5  f4          DATA 0xf4        value b     /
-    .byte 0x25              ;afc6  25          DATA 0x25 '%'    type        \
-    .byte 0x00              ;afc7  00          DATA 0x00        value a      Status
-    .byte 0xe4              ;afc8  e4          DATA 0xe4        value b     /
+    .byte 0x09              ;9 entries below:
+
+    .byte 0x25              ;A formula     \
+    .byte 0x01              ;X value a      Antenna Type
+    .byte 0xe3              ;E value b     /
+
+    .byte 0x25              ;A formula     \
+    .byte 0x00              ;X value a      Antenna
+    .byte 0xf4              ;E value b     /
+
+    .byte 0x25              ;A formula     \
+    .byte 0x00              ;X value a      Status
+    .byte 0xe4              ;E value b     /
 
 group_4_data:
 ;Group 4 (Amplifier)
-    .byte 0x03              ;afc9  03          DATA 0x03        3 entries below
-    .byte 0x10              ;afca  10          DATA 0x10        type        \
-    .byte 0x01              ;afcb  01          DATA 0x01        value a      Amplifier Output
-    .byte 0xd1              ;afcc  d1          DATA 0xd1        value b     /
+    .byte 0x03              ;3 entries below:
+
+    .byte 0x10              ;A formula     \
+    .byte 0x01              ;X value a      Amplifier Output
+    .byte 0xd1              ;E value b     /
 
 group_5_data:
 ;Group 5 (CD Changer)
-    .byte 0x06              ;afcd  06          DATA 0x06        6 entries below:
-    .byte 0x25              ;afce  25          DATA 0x25 '%'    type        \
-    .byte 0x00              ;afcf  00          DATA 0x00        value a      Component
-    .byte 0xf6              ;afd0  f6          DATA 0xf6        value b     /
-    .byte 0x25              ;afd1  25          DATA 0x25 '%'    type        \
-    .byte 0x00              ;afd2  00          DATA 0x00        value a      Status
-    .byte 0xe5              ;afd3  e5          DATA 0xe5        value b     /
+    .byte 0x06              ;6 entries below:
+
+    .byte 0x25              ;A formula     \
+    .byte 0x00              ;X value a      Component
+    .byte 0xf6              ;E value b     /
+
+    .byte 0x25              ;A formula     \
+    .byte 0x00              ;X value a      Status
+    .byte 0xe5              ;E value b     /
 
 group_6_data:
 ;Group 6 (External Display)
-    .byte 0x06              ;afd4  06          DATA 0x06        6 entries below:
-    .byte 0x25              ;afd5  25          DATA 0x25 '%'    type        \
-    .byte 0x00              ;afd6  00          DATA 0x00        value a      Component
-    .byte 0xf7              ;afd7  f7          DATA 0xf7        value b     /
-    .byte 0x25              ;afd8  25          DATA 0x25 '%'    type        \
-    .byte 0x00              ;afd9  00          DATA 0x00        value a      Status
-    .byte 0xe6              ;afda  e6          DATA 0xe6        value b     /
+    .byte 0x06              ;6 entries below:
+
+    .byte 0x25              ;A formula     \
+    .byte 0x00              ;X value a      Component
+    .byte 0xf7              ;E value b     /
+
+    .byte 0x25              ;A formula     \
+    .byte 0x00              ;X value a      Status
+    .byte 0xe6              ;E value b     /
 
 group_7_data:
 ;Group 7 (Steering Wheel Control)
-    .byte 0x03              ;afdb  03          DATA 0x03        3 entries below:
-    .byte 0x11              ;afdc  11          DATA 0x11        type        \
-    .byte 0x25              ;afdd  25          DATA 0x25 '%'    value a      Steering Wheel buttons
-    .byte 0xfc              ;afde  fc          DATA 0xfc        value b     /
+    .byte 0x03              ;3 entries below:
+
+    .byte 0x11              ;A formula     \
+    .byte 0x25              ;X value a      Steering Wheel buttons
+    .byte 0xfc              ;E value b     /
 
 cars_1:
 ;Table of car models used by lab_2d9a_cars_1 to check coding
@@ -38639,7 +38681,7 @@ mem_d0b6_sound_adjs:
     .word mem_f257_fade ;FADE
     .word mem_f258_bal  ;BAL
 
-mem_d0c1:
+mem_d0c1_sound_vals:
 ;table of bytes used with table_get_byte
 ;indexed by mem_fc9e, values are compared to snd_msg_idx
     .byte 0x05              ;d0c1  05          DATA 0x05        5 entries below:
@@ -38673,24 +38715,24 @@ mem_d0cc:
     .word lab_a839
     .word lab_ab33
 
-mem_d0e9:
-;Table of analog channels used by sub_ab7b
+mem_d0e9_analogs:
+;Table of analog channels used by read_3_analogs
     .byte 0x03              ;d0e9  03          DATA 0x03    3 groups of 4 bytes below:
 
-    ;Analog reading stored in mem_fca2
-    .byte 0x7f              ;d0ea  7f          DATA 0x7f    HL+0
-    .byte 0x01              ;d0eb  01          DATA 0x01    HL+1  0x01 = P91/ANI10
+    ;Analog reading stored in mem_fca2_ani_t30 (Terminal 30: Constant B+)
+    .byte 127               ;d0ea  7f          DATA 0x7f    HL+0   127 = 12.7 V
+    .byte 0x01              ;d0eb  01          DATA 0x01    HL+1  0x01 = P91/ANI10 (Terminal 30)
     .byte 0x01              ;d0ec  01          DATA 0x01    HL+2
     .byte 0xff              ;d0ed  ff          DATA 0xff    HL+3
 
-    ;Analog reading stored in mem_fca3_illum
-    .byte 0x7f              ;d0ee  7f          DATA 0x7f    HL+0
+    ;Analog reading stored in mem_fca3_ani_t58b (Terminal 58b: Illumination)
+    .byte 127               ;d0ee  7f          DATA 0x7f    HL+0   127 = 12.7 V
     .byte 0x02              ;d0ef  02          DATA 0x02    HL+1  0x02 = P92/ANI20 (Illumination)
     .byte 0x03              ;d0f0  03          DATA 0x03    HL+2
     .byte 0xff              ;d0f1  ff          DATA 0xff    HL+3
 
-    ;Analog reading stored in mem_fca4
-    .byte 0x7f              ;d0f2  7f          DATA 0x7f    HL+0
+    ;Analog reading stored in mem_fca4_ani (???)
+    .byte 127               ;d0f2  7f          DATA 0x7f    HL+0   127 = 12.7 V
     .byte 0x05              ;d0f3  05          DATA 0x05    HL+1  0x05 = P95/ANI50
     .byte 0x03              ;d0f4  03          DATA 0x03    HL+2
     .byte 0xff              ;d0f5  ff          DATA 0xff    HL+3
@@ -40160,9 +40202,9 @@ sub_d9ec:
     ;CDC packet is available
     clr1 mem_fe5f.2         ;d9f0  2b 5f        Clear bit = no CDC packet available
 
-    mov a,!mem_fca2         ;d9f2  8e a2 fc     A = P91/ANI10 analog reading
-    cmp a,#0x62             ;d9f5  4d 62
-    bc lab_da03             ;d9f7  8d 0a
+    mov a,!mem_fca2_ani_t30 ;d9f2  8e a2 fc     P91/ANI10 analog: Terminal 30 Constant B+ (V = value * 0.1)
+    cmp a,#98               ;d9f5  4d 62
+    bc lab_da03             ;d9f7  8d 0a        Branch if Terminal 30 < 9.8V
 
     mov a,!mem_fb3b         ;d9f9  8e 3b fb
     cmp a,#0x00             ;d9fc  4d 00
@@ -40173,23 +40215,24 @@ sub_d9ec:
 lab_da03:
     mov a,#0x0f             ;da03  a1 0f
     mov !mem_fb3c,a         ;da05  9e 3c fb
-    br lab_da4c             ;da08  fa 42
+    br lab_da4c_ret         ;da08  fa 42
 
 lab_da0a:
-    mov a,!mem_fca2         ;da0a  8e a2 fc     A = P91/ANI10 analog reading
-    cmp a,#0x62             ;da0d  4d 62
-    bnc lab_da18            ;da0f  9d 07
+    mov a,!mem_fca2_ani_t30 ;da0a  8e a2 fc     P91/ANI10 analog: Terminal 30 Constant B+ (V = value * 0.1)
+    cmp a,#98               ;da0d  4d 62
+    bnc lab_da18            ;da0f  9d 07        Branch if Terminal 30 >= 9.8V
+
     mov a,#0x0a             ;da11  a1 0a
     mov !mem_fb3b,a         ;da13  9e 3b fb
-    br lab_da4c             ;da16  fa 34
+    br lab_da4c_ret         ;da16  fa 34
 
 lab_da18:
     mov a,!mem_fb3b         ;da18  8e 3b fb
     cmp a,#0x00             ;da1b  4d 00
-    bnz lab_da4c            ;da1d  bd 2d
+    bnz lab_da4c_ret        ;da1d  bd 2d
     mov a,!mem_fb3c         ;da1f  8e 3c fb
     cmp a,#0x00             ;da22  4d 00
-    bnz lab_da4c            ;da24  bd 26
+    bnz lab_da4c_ret        ;da24  bd 26
     mov a,mem_fe49          ;da26  f0 49
     mov !mem_fc6b,a         ;da28  9e 6b fc
     cmp mem_fe49,#0xff      ;da2b  c8 49 ff
@@ -40208,7 +40251,7 @@ lab_da40:
     call !sub_d950          ;da46  9a 50 d9
     call !sub_d8fd          ;da49  9a fd d8
 
-lab_da4c:
+lab_da4c_ret:
     ret                     ;da4c  af
 
 sub_da4d:
