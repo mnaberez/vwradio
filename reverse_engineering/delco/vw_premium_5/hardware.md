@@ -55,7 +55,11 @@
 |Pin 55 |P25/TxD0     |L9637D TX (K-line)                             |
 |Pin 56 |P26          |K-line resistor (0=disconnected, 1=connected)  |
 |Pin 57 |P27/TI51/TO51|Unknown output                                 |
-|Pin 72 |P90/ANI00    |S-Contact                                      |
+|Pin 58 |P64          |                                               |
+|Pin 59 |P65          |                                               |
+|Pin 60 |P66          |                                               |
+|Pin 61 |P67          |                                               |
+|Pin 72 |P90/ANI00    |S-Contact: 0=off, 1=on                         |
 |Pin 73 |P91/ANI10    |Terminal 30 Constant B+ analog input           |
 |Pin 74 |P92/ANI20    |Terminal 58b Illumination analog input         |
 |Pin 75 |P93/ANI30    |Unknown input                                  |

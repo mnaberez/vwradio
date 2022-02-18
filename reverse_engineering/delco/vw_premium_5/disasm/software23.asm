@@ -188,7 +188,7 @@ mem_f20c = 0xf20c           ;EEPROM 0069
 ;See also clear_faults
 ;Each byte contains a fault elaboration code where 0x88 = "no fault"
 mem_f20d = 0xf20d           ;EEPROM 006A  Fault 00668 - Supply Voltage Terminal 30                       mem_f20d  mem_fc1a
-;mem_f20e                   ;EEPROM 006B  Fault 00849 - S-contact at Ignition/Starter Switch (D)         mem_f20e  mem_fc1b
+;mem_f20e                   ;EEPROM 006B  Fault 00849 - S-Contact at Ignition/Starter Switch             mem_f20e  mem_fc1b
 ;mem_f20f                   ;EEPROM 006C  Fault 00850 - Control Output Active; Radio Amplifier           mem_f20f  mem_fc1c
 ;mem_f210                   ;EEPROM 006D  Fault 00851 - Loudspeaker(s)                                   mem_f210  mem_fc1d
 mem_f211 = 0xf211           ;EEPROM 006E  Fault 00852 - Loudspeaker(s); Front                            mem_f211  mem_fc1e
@@ -452,7 +452,7 @@ mem_fc17 = 0xfc17
 ;Each byte contains a fault elaboration code where 0x88 = "no fault"
 
 mem_fc1a = 0xfc1a             ;00668 - Supply Voltage Terminal 30                 mem_f20d  mcm_fc1a
-;mem_fc1b                     ;00849 - S-contact at Ignition/Starter Switch (D)   mem_f20e  mem_fc1b
+;mem_fc1b                     ;00849 - S-Contact at Ignition/Starter Switch       mem_f20e  mem_fc1b
 mem_fc1c = 0xfc1c             ;00850 - Control Output Active; Radio Amplifier     mem_f20f  mem_fc1c
 ;mem_fc1d                     ;00851 - Loudspeaker(s)                             mem_f210  mem_fc1d
 mem_fc1e = 0xfc1e             ;00852 - Loudspeaker(s); Front                      mem_f211  mem_fc1e
@@ -826,6 +826,16 @@ cdc_r_mode = 5
 cdc_r_2ndlast = 6
 cdc_r_last = 7
 
+;KWP1281 Group Reading groups
+kwp_group_01 = 0x01 ;Group 0x1 (General)
+kwp_group_02 = 0x02 ;Group 0x2 (Speakers)
+kwp_group_03 = 0x03 ;Group 0x3 (Antenna)
+kwp_group_04 = 0x04 ;Group 0x4 (Amplifier)
+kwp_group_05 = 0x05 ;Group 0x5 (CD Changer)
+kwp_group_06 = 0x06 ;Group 0x6 (External Display)
+kwp_group_07 = 0x07 ;Group 0x7 (Steering Wheel Control)
+kwp_group_19 = 0x19 ;Group 0x19 (Protection)
+
 ;KWP1281 Group Reading formulas
 kwp_formula_06 = 0x06
 kwp_formula_10 = 0x10
@@ -1155,7 +1165,7 @@ mem_00cf:
     .byte 0x00  ;00d4 -> mem_f20b           EEPROM 0068
     .byte 0x45  ;00d5 -> mem_f20c           EEPROM 0069
     .byte 0x88  ;00d6 -> mem_f20d           EEPROM 006A   Fault 00668 - Supply Voltage Terminal 30
-    .byte 0x88  ;00d7 -> mem_f20e           EEPROM 006B   Fault 00849 - S-contact at Ignition/Starter Switch (D)
+    .byte 0x88  ;00d7 -> mem_f20e           EEPROM 006B   Fault 00849 - S-Contact at Ignition/Starter Switch
     .byte 0x88  ;00d8 -> mem_f20f           EEPROM 006C   Fault 00850 - Control Output Active; Radio Amplifier
     .byte 0x88  ;00d9 -> mem_f210           EEPROM 006D   Fault 00851 - Loudspeaker(s)
     .byte 0x88  ;00da -> mem_f211           EEPROM 006E   Fault 00852 - Loudspeaker(s); Front
@@ -7468,10 +7478,10 @@ read_next_meas:
     mov a,!kwp_rx_buf+3     ;2833  8e 8d f0     A = KWP1281 rx buffer byte 3 (group number)
     mov !kwp_group_num,a    ;2836  9e 4f f0     Store group number in kwp_group_num
 
-    cmp a,#0x19                 ;2839  4d 19    Is it KWP1281 group 0x19 (protection)?
+    cmp a,#kwp_group_19         ;2839  4d 19    Is it KWP1281 group 0x19 (protection)?
     bz lab_285e_group_0x19      ;283b  ad 21      Yes: branch to lab_285e_group_0x19
 
-    cmp a,#0x06                 ;283d  4d 06    Is it KWP1281 group 6 (external display)?
+    cmp a,#kwp_group_06         ;283d  4d 06    Is it KWP1281 group 6 (external display)?
     bnz lab_2849_not_0x19_0x06  ;283f  bd 08      No: branch to lab_2849_not_0x19_0x06
 
     ;Group number = 6 (external display)
@@ -7479,7 +7489,7 @@ read_next_meas:
     bt a.0,lab_2858_ret_error   ;2844  31 0e 11     Branch if FIS display is disabled
                                 ;                     TODO: is that what bit 0 really means?
 
-    mov a,#0x06                 ;2847  a1 06        XXX redundant; A is already 0x06
+    mov a,#kwp_group_06         ;2847  a1 06        XXX redundant; A is already 0x06
     ;Fall through
 
 lab_2849_not_0x19_0x06:
@@ -7504,7 +7514,7 @@ lab_285a_ret_no_data:
     ret                     ;285d  af
 
 lab_285e_group_0x19:
-;group number = 0x19
+;Group number = 0x19
     set1 mem_fe65.4         ;285e  4a 65        Set bit to indicate group read 0x19 was performed
     br lab_2858_ret_error   ;2860  fa f6        Branch to failure
 
@@ -7550,7 +7560,7 @@ lab_287a:
 
     set1 mem_fe5f.4         ;2887  4a 5f        Set bit = currently reading a measuring block group
 
-    ;Read the next three values (type, unknown_value, meas_id) from a group_N_data type
+    ;Read the next three values (formula, unknown_value, meas_id) from a group_N_data type
 
     movw ax,!mem_f002       ;2889  02 02 f0
     movw hl,ax              ;288c  d6           HL = pointer to group reading data (group_N_data)
@@ -7701,11 +7711,13 @@ lab_2903:
     ;    disabling the radio-as-tester communication to the cluster.  Is this to obscure it?
     set1 mem_fe63.0         ;290f  0a 63      Set bit = do not initiate a KWP1281 connection to the cluster
 
-    mov e,#0x87             ;2911  a4 87
-    set1 pm9.0              ;2913  71 0a 29   PM90=input (S-Contact)
-    bt p9.0,lab_291b        ;2916  8c 09 02   Branch if P90=1 (S-Contact)
+    mov e,#0x87             ;2911  a4 87      E = 0x87 (S-Contact = on)
 
-    mov e,#0x88             ;2919  a4 88
+    set1 pm9.0              ;2913  71 0a 29   PM90=input (S-Contact: 0=off, 1=on)
+    bt p9.0,lab_291b        ;2916  8c 09 02   Branch to keep E=0x87 if P90=1 (S-Contact = on)
+
+    mov e,#0x88             ;2919  a4 88      E = 0x88 (S-Contact = off)
+
 lab_291b:
     br !lab_29af_ret_e      ;291b  9b af 29   Branch to Return E as-is, D=0 (no error), CY=0 (meas data returned)
 
@@ -11182,27 +11194,29 @@ lab_39bc:
 
 lab_39bf:
     bt mem_fe7d.7,lab_39ed  ;39bf  fc 7d 2b     If ??? branch to turn on P70 and P80, call unknown, then cold or warm start
-    set1 pm9.0              ;39c2  71 0a 29     PM90=input (S-Contact)
+    set1 pm9.0              ;39c2  71 0a 29     PM90=input (S-Contact: 0=off, 1=on)
     bf mem_fe2c.2,lab_39d4  ;39c5  31 23 2c 0b
-    mov1 cy,p9.0            ;39c9  71 04 09     CY = P90 (S-Contact)
+    mov1 cy,p9.0            ;39c9  71 04 09     CY = P90 (S-Contact: 0=off, 1=on)
     mov1 mem_fe2c.2,cy      ;39cc  71 21 2c
     mov1 mem_fe2c.6,cy      ;39cf  71 61 2c
     br lab_39d7             ;39d2  fa 03
 
 lab_39d4:
-    bt p9.0,lab_39ed        ;39d4  8c 09 16     If P90=1 (S-Contact) branch to turn on P70 and P80, call unknown, then cold or warm start
+    bt p9.0,lab_39ed        ;39d4  8c 09 16     If P90=1 (S-Contact is on) branch to:
+                            ;                     turn on P70 and P80, call unknown, then cold or warm start
+    ;S-Contact is off
 
 lab_39d7:
-    bt mem_fe2c.3,lab_39ed  ;39d7  bc 2c 13     If ??? branch to turn on P70 and P80, call unknown, then cold or warm start
-    bt mem_fe62.5,lab_39ed  ;39da  dc 62 10     If INTP1 occurred branch to turn on P70 and P80, call unknown, then cold or warm start
-    bf p6.7,lab_39eb        ;39dd  31 73 06 0a
-    cmp mem_fe4c,#0x00      ;39e1  c8 4c 00
-    bnz lab_39eb            ;39e4  bd 05
-    cmp mem_fe50,#0x01      ;39e6  c8 50 01
-    bnz lab_39ed            ;39e9  bd 02        Branch to turn on P70 and P80, call unknown, then cold or warm start
+    bt mem_fe2c.3,lab_39ed      ;39d7  bc 2c 13     If ??? branch to turn on P70 and P80, call unknown, then cold or warm start
+    bt mem_fe62.5,lab_39ed      ;39da  dc 62 10     If INTP1 occurred branch to turn on P70 and P80, call unknown, then cold or warm start
+    bf p6.7,lab_39eb_br_ei_halt ;39dd  31 73 06 0a
+    cmp mem_fe4c,#0x00          ;39e1  c8 4c 00
+    bnz lab_39eb_br_ei_halt     ;39e4  bd 05
+    cmp mem_fe50,#0x01          ;39e6  c8 50 01
+    bnz lab_39ed                ;39e9  bd 02        Branch to turn on P70 and P80, call unknown, then cold or warm start
 
-lab_39eb:
-    br lab_3979             ;39eb  fa 8c        Branch to enable interrupts then halt
+lab_39eb_br_ei_halt:
+    br lab_3979                 ;39eb  fa 8c        Branch to enable interrupts then halt
 
 lab_39ed:
 ;PM70=output, P70=1, PM80=output
@@ -11874,12 +11888,15 @@ lab_3e1c:
     ret                     ;3e1c  af
 
 sub_3e1d:
-    set1 pm9.0                  ;3e1d  71 0a 29     PM90=input (S-Contact)
+    set1 pm9.0                  ;3e1d  71 0a 29     PM90=input (S-Contact: 0=off, 1=on)
     bt mem_fe63.0,lab_3e75_ret  ;3e20  8c 63 52     If mem_fe63.0=1, we're not supposed to initiate a KWP1281
                                 ;                     connection to the cluster right now, so just return.
     bt mem_fe2c.2,lab_3e3f      ;3e23  ac 2c 19
     mov a,#0x02                 ;3e26  a1 02
-    bf p9.0,lab_3e72            ;3e28  31 03 09 46  Branch if P90=0 (S-Contact)
+    bf p9.0,lab_3e72            ;3e28  31 03 09 46  Branch if P90=0 (S-Contact is off)
+
+    ;S-Contact is on
+
     bf mem_fe63.7,lab_3e75_ret  ;3e2c  31 73 63 45
 
 lab_3e30:
@@ -11893,7 +11910,10 @@ lab_3e30:
 
 lab_3e3f:
     mov a,#0x08                    ;3e3f  a1 08
-    bf p9.0,lab_3e30               ;3e41  31 03 09 eb    Branch if P90=0 (S-Contact)
+    bf p9.0,lab_3e30               ;3e41  31 03 09 eb    Branch if P90=0 (S-Contact is off)
+
+    ;S-Contact is on
+
     bt mem_fe63.1,lab_3e72         ;3e45  9c 63 2a
     push ax                        ;3e48  b1
     mov a,!mem_f207                ;3e49  8e 07 f2
@@ -31610,14 +31630,14 @@ group_numbers:
 ;valid group numbers
 ;used with table_find_byte
     .byte 0x08              ;af8d  08          DATA 0x08    8 entries below:
-    .byte 0x01              ;af8e  01          DATA 0x01    Group 1 (General)
-    .byte 0x02              ;af8f  02          DATA 0x02    Group 2 (Speakers)
-    .byte 0x03              ;af90  03          DATA 0x03    Group 3 (Antenna)
-    .byte 0x04              ;af91  04          DATA 0x04    Group 4 (Amplifier)
-    .byte 0x05              ;af92  05          DATA 0x05    Group 5 (CD Changer)
-    .byte 0x06              ;af93  06          DATA 0x06    Group 6 (External Display)
-    .byte 0x07              ;af94  07          DATA 0x07    Group 7 (Steering Wheel Control)
-    .byte 0x19              ;af95  19          DATA 0x19    Group 25 (Protection)
+    .byte kwp_group_01      ;af8e  01          DATA 0x01    Group 1 (General)
+    .byte kwp_group_02      ;af8f  02          DATA 0x02    Group 2 (Speakers)
+    .byte kwp_group_03      ;af90  03          DATA 0x03    Group 3 (Antenna)
+    .byte kwp_group_04      ;af91  04          DATA 0x04    Group 4 (Amplifier)
+    .byte kwp_group_05      ;af92  05          DATA 0x05    Group 5 (CD Changer)
+    .byte kwp_group_06      ;af93  06          DATA 0x06    Group 6 (External Display)
+    .byte kwp_group_07      ;af94  07          DATA 0x07    Group 7 (Steering Wheel Control)
+    .byte kwp_group_19      ;af95  19          DATA 0x19    Group 25 (Protection)
 
 group_data_pointers:
 ;group reading related
@@ -31748,7 +31768,7 @@ fault_codes:
 ;Same order as mem_f20d faults buffer
     .byte 0x0c              ;afe8  0c          DATA 0x0c        12 entries below:
     .word 0x029c            ;00668 - Supply Voltage Terminal 30                       mem_f20d  mem_fc1a
-    .word 0x0351            ;00849 - S-contact at Ignition/Starter Switch (D)         mem_f20e  mem_fc1b
+    .word 0x0351            ;00849 - S-Contact at Ignition/Starter Switch             mem_f20e  mem_fc1b
     .word 0x0352            ;00850 - Control Output Active; Radio Amplifier           mem_f20f  mem_fc1c
     .word 0x0353            ;00851 - Loudspeaker(s)                                   mem_f210  mem_fc1d
     .word 0x0354            ;00852 - Loudspeaker(s); Front                            mem_f211  mem_fc1e
