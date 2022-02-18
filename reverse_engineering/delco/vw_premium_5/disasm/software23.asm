@@ -826,6 +826,40 @@ cdc_r_mode = 5
 cdc_r_2ndlast = 6
 cdc_r_last = 7
 
+;KWP1281 Group Reading formulas
+kwp_formula_06 = 0x06
+kwp_formula_10 = 0x10
+kwp_formula_11 = 0x11
+kwp_formula_17 = 0x17
+kwp_formula_25 = 0x25
+
+;KWP1281 Group Reading "measurement IDs".  These IDs don't have anything to
+;do with the protocol.  They identifiers used only within this firmware.
+;Each measurement has a unique value.
+
+meas_id_hi_00 = 0x00 ;
+meas_id_hi_d0 = 0xd0 ; High nibble groups like
+meas_id_hi_e0 = 0xe0 ; like measurements together
+meas_id_hi_f0 = 0xf0 ;
+
+meas_id_gala    = meas_id_hi_00 + 0x00  ;Group 1, first  value: GALA-Signal
+meas_id_amp_out = meas_id_hi_d0 + 0x01  ;Group 4, first  value: Amplifier Out
+meas_id_scon    = meas_id_hi_e0 + 0x00  ;Group 1, fourth value: S-Contact Status
+meas_id_fsp_st  = meas_id_hi_e0 + 0x01  ;Group 2, second value: Front Speaker Status
+meas_id_rsp_st  = meas_id_hi_e0 + 0x02  ;Group 2, fourth value: Rear Speak Status
+meas_id_ant_st  = meas_id_hi_e0 + 0x04  ;Group 3, third  value: Antenna Status
+meas_id_ant_typ = meas_id_hi_e0 + 0x03  ;Group 3, first  value: Antenna Type
+meas_id_cdc_st  = meas_id_hi_e0 + 0x05  ;Group 5, second value: CD-Changer Status
+meas_id_fis_st  = meas_id_hi_e0 + 0x06  ;Group 6, second value: FIS Status
+meas_id_fsp_typ = meas_id_hi_f0 + 0x00  ;Group 2, first  value: Front Speakers Type
+meas_id_rsp_typ = meas_id_hi_f0 + 0x01  ;Group 2, third  value: Rear Speakers Type
+meas_id_ant_ant = meas_id_hi_f0 + 0x04  ;Group 3, second value: Antenna
+meas_id_cdc_cmp = meas_id_hi_f0 + 0x06  ;Group 5, first  value: CD-Changer Component
+meas_id_fis_cmp = meas_id_hi_f0 + 0x07  ;Group 6, first  value: FIS Component
+meas_id_mfsw    = meas_id_hi_f0 + 0x0c  ;Group 7, first  value: MFSW Buttons
+meas_id_t58b    = meas_id_hi_f0 + 0x0e  ;Group 1, third  value: Terminal 58b Illumination %
+meas_id_t30     = meas_id_hi_f0 + 0x0f  ;Group 1, second value: Terminal 30 Voltage
+
 ;Vectors
 
 rst_vect:
@@ -7007,9 +7041,9 @@ sub_26b6_elab_1:
 ;that is used for measuring block responses
 ;
 ;Called when:
-;  "value b" = 0xE1 (Front Speakers Status)
-;  "value b" = 0xE2 (Rear Speakers Status)
-;  "value b" = 0xE4 (Antenna Status)
+;  "meas_id" = meas_id_fsp_st (Front Speakers Status)
+;  "meas_id" = meas_id_rsp_st (Rear Speakers Status)
+;  "meas_id" = meas_id_ant_st (Antenna Status)
 ;
     mov e,#0xc2             ;26b6  a4 c2
     cmp a,#0x00             ;26b8  4d 00
@@ -7032,8 +7066,8 @@ sub_26c9_elab_2:
 ;that is used for measuring block responses
 ;
 ;Called when:
-;  "value b" = 0xE5 (CD Changer Status)
-;  "value b" = 0xE6 (External Display Status)
+;  "meas_id" = meas_id_cdc_st (CD Changer Status)
+;  "meas_id" = meas_id_fis_st (External Display Status)
 ;
     mov e,#0xc2             ;26c9  a4 c2
     cmp a,#0x00             ;26cb  4d 00
@@ -7516,24 +7550,24 @@ lab_287a:
 
     set1 mem_fe5f.4         ;2887  4a 5f        Set bit = currently reading a measuring block group
 
-    ;Read the next three values (type, value a, value b) from a group_N_data type
+    ;Read the next three values (type, unknown_value, meas_id) from a group_N_data type
 
     movw ax,!mem_f002       ;2889  02 02 f0
     movw hl,ax              ;288c  d6           HL = pointer to group reading data (group_N_data)
 
-    mov a,[hl]              ;288d  87           A = type
-    mov e,a                 ;288e  74           E = type
+    mov a,[hl]              ;288d  87           A = formula
+    mov e,a                 ;288e  74           E = formula
 
-    incw hl                 ;288f  86           HL = increment pointer to next byte (value a)
-    mov a,[hl]              ;2890  87           A = value a
-    mov x,a                 ;2891  70           X = value a
+    incw hl                 ;288f  86           HL = increment pointer to next byte (unknown_value)
+    mov a,[hl]              ;2890  87           A = unknown_value
+    mov x,a                 ;2891  70           X = unknown_value
 
-    incw hl                 ;2892  86           HL = increment pointer to next byte (value b)
-    mov a,[hl]              ;2893  87           A = value b
-    xch a,e                 ;2894  34           Swap so that: A = type, E = value b
+    incw hl                 ;2892  86           HL = increment pointer to next byte (meas_id)
+    mov a,[hl]              ;2893  87           A = meas_id
+    xch a,e                 ;2894  34           Swap so that: A = formula, E = meas_id
 
     ;At this point:
-    ;  A = type, X = value a, E = value b
+    ;  A = formula, X = unknown_value, E = meas_id
 
     ;Increment pointer and save it in mem_f002
 
@@ -7546,17 +7580,17 @@ lab_287a:
     pop ax                  ;289b  b0
 
     ;At this point again:
-    ;  A = type, X = value a, E = value b
+    ;  A = formula, X = unknown_value, E = meas_id
 
-    push ax                 ;289c  b1           Push onto stack: A = type, X = value a
+    push ax                 ;289c  b1           Push onto stack: A = formula, X = unknown_value
     mov a,!kwp_group_num    ;289d  8e 4f f0     A = KWP1281 group number
     cmp a,#0x07             ;28a0  4d 07        Is it 7 (Steering Wheel Control)?
-    mov a,e                 ;28a2  64           Move so that: A=value b, X=value a, E=value b
+    mov a,e                 ;28a2  64           Move so that: A=meas_id, X=unknown_value, E=meas_id
     bnz lab_28e2            ;28a3  bd 3d
 
     ;group number = 7 (Steering Wheel Control)
-    pop ax                  ;28a5  b0           Pop so that: A = type, X = value a, E = value b
-    xch a,e                 ;28a6  34           Swap so that: A = value b, X = value a, E = type
+    pop ax                  ;28a5  b0           Pop so that: A = formula, X = unknown_value, E = meas_id
+    xch a,e                 ;28a6  34           Swap so that: A = meas_id, X = unknown_value, E = formula
     movw hl,ax              ;28a7  d6
 
     mov a,!mfsw_key         ;28a8  8e 97 f1     A = key code from MFSW (0xFF = no key)
@@ -7612,14 +7646,14 @@ lab_28da_mfsw_no_key:
 lab_28e2:
 ;group number != 7
 ;At this point:
-;  A=value b, X=value a, E=value b
-;  Top of stack: A = type, X = value a
-    and a,#0xf0             ;28e2  5d f0    A = "value b" AND 0xF0
-    cmp a,#0xd0             ;28e4  4d d0    Is ANDed value = 0xD0?  (0xD1 = amplifier output)
+;  A=meas_id, X=unknown_value, E=meas_id
+;  Top of stack: A = formula, X = unknown_value
+    and a,#0xf0             ;28e2  5d f0    A = "meas_id" AND 0xF0
+    cmp a,#meas_id_hi_d0    ;28e4  4d d0    Is ANDed value = 0xD0?  (0xD1 = amplifier output)
     bnz lab_2903            ;28e6  bd 1b
 
-    mov a,e                 ;28e8  64       A = value B
-    cmp a,#0xd1             ;28e9  4d d1    Is it = 0xD1 (amplifier output)?
+    mov a,e                 ;28e8  64       A = meas_id
+    cmp a,#meas_id_amp_out  ;28e9  4d d1    Is it = 0xD1 (amplifier output)?
     bnz lab_2900            ;28eb  bd 13
 
     mov e,#0x00             ;28ed  a4 00
@@ -7643,11 +7677,11 @@ lab_2900:
 
 lab_2903:
 ;At this point:
-;  A=(value b AND 0xF0), X=value a, E=value b
-;  Top of stack: A = type, X = value a
-    mov a,e                 ;2903  64         A = value b
-    and a,#0xf0             ;2904  5d f0      A = "value b" AND 0xF0
-    cmp a,#0xe0             ;2906  4d e0      Is the ANDed value = 0xE0?
+;  A=(meas_id AND 0xF0), X=unknown_value, E=meas_id
+;  Top of stack: A = formula, X = unknown_value
+    mov a,e                 ;2903  64         A = meas_id
+    and a,#0xf0             ;2904  5d f0      A = "meas_id" AND 0xF0
+    cmp a,#meas_id_hi_e0    ;2906  4d e0      Is the ANDed value = 0xE0?
                             ;                    0xE0 = S-Contact Status,
                             ;                    0xE1 = Front Speakers Status,
                             ;                    0xE2 = Rear Speakers Status
@@ -7657,11 +7691,11 @@ lab_2903:
                             ;                    0xE6 = External Display Status
     bnz lab_2972_check_0xff            ;2908  bd 68
 
-    mov a,e                 ;290a  64         E = value b
-    cmp a,#0xe0             ;290b  4d e0      Is "value b" = 0xE0 (S-Contact Status)?
+    mov a,e                 ;290a  64         E = meas_id
+    cmp a,#meas_id_scon     ;290b  4d e0      Is "meas_id" = 0xE0 (S-Contact Status)?
     bnz lab_291e_check_0xe1 ;290d  bd 0f      Branch if not equal
 
-    ;"value b" = 0xE0 (S-Contact Status)
+    ;"meas_id" = 0xE0 (S-Contact Status)
 
     ;XXX It seems that reading the measuring block for the S-Contact has the side effect of
     ;    disabling the radio-as-tester communication to the cluster.  Is this to obscure it?
@@ -7676,10 +7710,10 @@ lab_291b:
     br !lab_29af_ret_e      ;291b  9b af 29   Branch to Return E as-is, D=0 (no error), CY=0 (meas data returned)
 
 lab_291e_check_0xe1:
-    cmp a,#0xe1             ;291e  4d e1      Is "value b" = 0xE1 (Front Speakers Status)?
+    cmp a,#meas_id_fsp_st   ;291e  4d e1      Is "meas_id" = 0xE1 (Front Speakers Status)?
     bnz lab_292c_check_0xe2 ;2920  bd 0a      Branch if not equal
 
-    ;"value b" = 0xE1 (Front Speakers Status)
+    ;"meas_id" = 0xE1 (Front Speakers Status)
 
     movw hl,#mem_fc1e       ;2922  16 1e fc   HL = faults buffer "00852 - Loudspeaker(s); Front"
     mov a,[hl]              ;2925  87
@@ -7687,10 +7721,10 @@ lab_291e_check_0xe1:
     br !lab_29af_ret_e      ;2929  9b af 29   Branch to Return E as-is, D=0 (no error), CY=0 (meas data returned)
 
 lab_292c_check_0xe2:
-    cmp a,#0xe2             ;292c  4d e2      Is "value b" = 0xE2 (Rear Speakers Status)?
+    cmp a,#meas_id_rsp_st   ;292c  4d e2      Is "meas_id" = 0xE2 (Rear Speakers Status)?
     bnz lab_2939_check_0xe3 ;292e  bd 09      Branch if not equal
 
-    ;"value b" = 0xE2 (Rear Speakers Status)
+    ;"meas_id" = 0xE2 (Rear Speakers Status)
 
     movw hl,#mem_fc1f       ;2930  16 1f fc   HL = faults buffer "00853 - Loudspeaker(s); Rear"
     mov a,[hl]              ;2933  87
@@ -7698,10 +7732,10 @@ lab_292c_check_0xe2:
     br lab_29af_ret_e       ;2937  fa 76      Branch to Return E as-is, D=0 (no error), CY=0 (meas data returned)
 
 lab_2939_check_0xe3:
-    cmp a,#0xe3             ;2939  4d e3      Is "value b" = 0xE3 (Antenna Type)?
+    cmp a,#meas_id_ant_typ  ;2939  4d e3      Is "meas_id" = 0xE3 (Antenna Type)?
     bnz lab_2949_check_0xe4 ;293b  bd 0c      Branch if not equal
 
-    ;"value b" = 0xE3 (Antenna Type)
+    ;"meas_id" = 0xE3 (Antenna Type)
 
     mov e,#0x12             ;293d  a4 12
     mov a,!mem_f1fd         ;293f  8e fd f1
@@ -7712,10 +7746,10 @@ lab_2947:
     br lab_29af_ret_e       ;2947  fa 66      Branch to Return E as-is, D=0 (no error), CY=0 (meas data returned)
 
 lab_2949_check_0xe4:
-    cmp a,#0xe4             ;2949  4d e4      Is "value b" = 0xE4 (Antenna Status)?
+    cmp a,#meas_id_ant_st   ;2949  4d e4      Is "meas_id" = 0xE4 (Antenna Status)?
     bnz lab_2956_check_0xe5 ;294b  bd 09      Branch if not equal
 
-    ;"value b" = 0xE4 (Antenna Status)
+    ;"meas_id" = 0xE4 (Antenna Status)
 
     movw hl,#mem_fc22       ;294d  16 22 fc   HL = pointer to faults buffer #2 "00856 - Radio Antenna"
     mov a,[hl]              ;2950  87
@@ -7723,10 +7757,10 @@ lab_2949_check_0xe4:
     br lab_29af_ret_e       ;2954  fa 59      Branch to Return E as-is, D=0 (no error), CY=0 (meas data returned)
 
 lab_2956_check_0xe5:
-    cmp a,#0xe5             ;2956  4d e5      Is "value b" = 0xE5 (CD Changer Status)
+    cmp a,#meas_id_cdc_st   ;2956  4d e5      Is "meas_id" = 0xE5 (CD Changer Status)
     bnz lab_2963_check_0xe6 ;2958  bd 09      Branch if not equal
 
-    ;"value b" = 0xE5 (CD Changer Status)
+    ;"meas_id" = 0xE5 (CD Changer Status)
 
     movw hl,#mem_fc21       ;295a  16 21 fc   HL = pointer to faults buffer #2 "00855 - Connection to CD changer"
     mov a,[hl]              ;295d  87
@@ -7734,10 +7768,10 @@ lab_2956_check_0xe5:
     br lab_29af_ret_e       ;2961  fa 4c      Branch to Return E as-is, D=0 (no error), CY=0 (meas data returned)
 
 lab_2963_check_0xe6:
-    cmp a,#0xe6             ;2963  4d e6      Is "value b" = 0xE6 (External Display Status)
+    cmp a,#meas_id_fis_st   ;2963  4d e6      Is "meas_id" = 0xE6 (External Display Status)
     bnz lab_2970_bad_0xe0   ;2965  bd 09      Branch if not equal
 
-    ;"value b" = 0xE6 (External Display Status)
+    ;"meas_id" = 0xE6 (External Display Status)
 
     movw hl,#mem_fc20       ;2967  16 20 fc   HL = pointer to faults buffer #2 "00854 - Radio Display Output in Dash Panel Insert"
     mov a,[hl]              ;296a  87
@@ -7745,24 +7779,24 @@ lab_2963_check_0xe6:
     br lab_29af_ret_e       ;296e  fa 3f      Branch to Return E as-is, D=0 (no error), CY=0 (meas data returned)
 
 lab_2970_bad_0xe0:
-;No matching "value b" for 0xE0-0xEF
+;No matching "meas_id" for 0xE0-0xEF
     br lab_29af_ret_e       ;2970  fa 3d      Branch to Return E as-is, D=0 (no error), CY=0 (meas data returned)
 
 lab_2972_check_0xff:
-    mov a,e                 ;2972  64         E = value b
-    cmp a,#0xff             ;2973  4d ff      Is "value b" = 0xFF (Supply Voltage Terminal 30)?
+    mov a,e                 ;2972  64         E = meas_id
+    cmp a,#meas_id_t30      ;2973  4d ff      Is "meas_id" = 0xFF (Supply Voltage Terminal 30)?
     bnz lab_297c_check_0xfe ;2975  bd 05      Branch if not equal
 
-    ;"value b" = 0xFF (Supply Voltage Terminal 30)
+    ;"meas_id" = 0xFF (Supply Voltage Terminal 30)
 
     mov a,!mem_f18d_t30_avg ;2977  8e 8d f1   A = Terminal 30 (V = value * 0.1) averaged(?)
     br lab_29ae_ret_a_in_e  ;297a  fa 32      Branch to Return E=A, D=0 (no error), CY=0 (meas data returned)
 
 lab_297c_check_0xfe:
-    cmp a,#0xfe             ;297c  4d fe      Is "value b" = 0xFE (Illumination %)?
+    cmp a,#meas_id_t58b     ;297c  4d fe      Is "meas_id" = 0xFE (Illumination %)?
     bnz lab_29af_ret_e      ;297e  bd 2f      Branch to Return E as-is, D=0 (no error), CY=0 (meas data returned)
 
-    ;"value b" = 0xFE (Illumination %)
+    ;"meas_id" = 0xFE (Illumination %)
 
     mov a,!mem_fca3_ani_t58b;2980  8e a3 fc   A = P92/ANI20 analog: Terminal 58b Illumination (V = value * 0.06)
     mov b,a                 ;2983  73         Save illumination analog in B
@@ -31602,97 +31636,97 @@ group_1_data:
 ;Group 1 (General)
     .byte 0x0c              ;12 entries below:
 
-    .byte 0x25              ;A formula     \
-    .byte 0x00              ;X value a      GALA-Signal
-    .byte 0x00              ;E value b     /
+    .byte kwp_formula_25    ;A formula        \
+    .byte 0x00              ;X unknown_value   GALA-Signal
+    .byte meas_id_gala      ;E meas_id        /
 
-    .byte 0x06              ;A formula     \
-    .byte 0x5f              ;X value a      Supply Voltage
-    .byte 0xff              ;E value b     /       (Terminal 30)
+    .byte kwp_formula_06    ;A formula        \
+    .byte 0x5f              ;X unknown_value   Supply Voltage
+    .byte meas_id_t30       ;E meas_id        /       (Terminal 30)
 
-    .byte 0x17              ;A formula     \
-    .byte 0x64              ;X value a      Illumination %
-    .byte 0xfe              ;E value b     /       (Terminal 58d)
+    .byte kwp_formula_17    ;A formula        \
+    .byte 0x64              ;X unknown_value   Illumination %
+    .byte meas_id_t58b      ;E meas_id        /       (Terminal 58d)
 
-    .byte 0x25              ;A formula     \
-    .byte 0x00              ;X value a      S-Contact Status
-    .byte 0xe0              ;E value b     /
+    .byte kwp_formula_25    ;A formula        \
+    .byte 0x00              ;X unknown_value   S-Contact Status
+    .byte meas_id_scon      ;E meas_id        /
 
 group_2_data:
 ;Group 2 (Speakers)
     .byte 0x0c              ;12 entries below:
 
-    .byte 0x25              ;A formula     \
-    .byte 0x00              ;X value a      Location/Type (Front)
-    .byte 0xf0              ;E value b     /
+    .byte kwp_formula_25    ;A formula        \
+    .byte 0x00              ;X unknown_value   Location/Type (Front)
+    .byte meas_id_fsp_typ   ;E meas_id        /
 
-    .byte 0x25              ;A formula     \
-    .byte 0x00              ;X value a      Status
-    .byte 0xe1              ;E value b     /
+    .byte kwp_formula_25    ;A formula        \
+    .byte 0x00              ;X unknown_value   Status
+    .byte meas_id_fsp_st    ;E meas_id        /
 
-    .byte 0x25              ;A formula     \
-    .byte 0x00              ;X value a      Location/Type (Rear)
-    .byte 0xf1              ;E value b     /
+    .byte kwp_formula_25    ;A formula        \
+    .byte 0x00              ;X unknown_value   Location/Type (Rear)
+    .byte meas_id_rsp_typ   ;E meas_id        /
 
-    .byte 0x25              ;A formula     \
-    .byte 0x00              ;X value a      Status
-    .byte 0xe2              ;E value b     /
+    .byte kwp_formula_25    ;A formula        \
+    .byte 0x00              ;X unknown_value   Status
+    .byte meas_id_rsp_st    ;E meas_id        /
 
 group_3_data:
 ;Group 3 (Antenna)
     .byte 0x09              ;9 entries below:
 
-    .byte 0x25              ;A formula     \
-    .byte 0x01              ;X value a      Antenna Type
-    .byte 0xe3              ;E value b     /
+    .byte kwp_formula_25    ;A formula        \
+    .byte 0x01              ;X unknown_value   Antenna Type
+    .byte meas_id_ant_typ   ;E meas_id        /
 
-    .byte 0x25              ;A formula     \
-    .byte 0x00              ;X value a      Antenna
-    .byte 0xf4              ;E value b     /
+    .byte kwp_formula_25    ;A formula        \
+    .byte 0x00              ;X unknown_value   Antenna
+    .byte meas_id_ant_ant   ;E meas_id        /
 
-    .byte 0x25              ;A formula     \
-    .byte 0x00              ;X value a      Status
-    .byte 0xe4              ;E value b     /
+    .byte kwp_formula_25    ;A formula        \
+    .byte 0x00              ;X unknown_value   Status
+    .byte meas_id_ant_st    ;E meas_id        /
 
 group_4_data:
 ;Group 4 (Amplifier)
     .byte 0x03              ;3 entries below:
 
-    .byte 0x10              ;A formula     \
-    .byte 0x01              ;X value a      Amplifier Output
-    .byte 0xd1              ;E value b     /
+    .byte kwp_formula_10    ;A formula        \
+    .byte 0x01              ;X unknown_value   Amplifier Output
+    .byte meas_id_amp_out   ;E meas_id        /
 
 group_5_data:
 ;Group 5 (CD Changer)
     .byte 0x06              ;6 entries below:
 
-    .byte 0x25              ;A formula     \
-    .byte 0x00              ;X value a      Component
-    .byte 0xf6              ;E value b     /
+    .byte kwp_formula_25    ;A formula        \
+    .byte 0x00              ;X unknown_value   Component
+    .byte meas_id_cdc_cmp   ;E meas_id        /
 
-    .byte 0x25              ;A formula     \
-    .byte 0x00              ;X value a      Status
-    .byte 0xe5              ;E value b     /
+    .byte kwp_formula_25    ;A formula        \
+    .byte 0x00              ;X unknown_value   Status
+    .byte meas_id_cdc_st    ;E meas_id        /
 
 group_6_data:
 ;Group 6 (External Display)
     .byte 0x06              ;6 entries below:
 
-    .byte 0x25              ;A formula     \
-    .byte 0x00              ;X value a      Component
-    .byte 0xf7              ;E value b     /
+    .byte kwp_formula_25    ;A formula        \
+    .byte 0x00              ;X unknown_value   Component
+    .byte meas_id_fis_cmp   ;E meas_id        /
 
-    .byte 0x25              ;A formula     \
-    .byte 0x00              ;X value a      Status
-    .byte 0xe6              ;E value b     /
+    .byte kwp_formula_25    ;A formula        \
+    .byte 0x00              ;X unknown_value   Status
+    .byte meas_id_fis_st    ;E meas_id        /
 
 group_7_data:
 ;Group 7 (Steering Wheel Control)
     .byte 0x03              ;3 entries below:
 
-    .byte 0x11              ;A formula     \
-    .byte 0x25              ;X value a      Steering Wheel buttons
-    .byte 0xfc              ;E value b     /
+    .byte kwp_formula_11    ;A formula        \
+    .byte 0x25              ;X unknown_value   Steering Wheel buttons
+    .byte meas_id_mfsw      ;E meas_id        /
 
 cars_1:
 ;Table of car models used by lab_2d9a_cars_1 to check coding
