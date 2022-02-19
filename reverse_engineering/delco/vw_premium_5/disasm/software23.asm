@@ -3100,10 +3100,12 @@ rst_0d88:
     mov !mem_f18b,a         ;0db5  9e 8b f1
     set1 mem_fe7d.1         ;0db8  1a 7d
     clr1 mem_fe69.0         ;0dba  0b 69
+
     clr1 pm7.0              ;0dbc  71 0b 27
     clr1 shadow_p7.0        ;0dbf  0b d1
     mov a,shadow_p7         ;0dc1  f0 d1
     mov p7,a                ;0dc3  f2 07
+
     call !sub_4076          ;0dc5  9a 76 40
     bz cold_or_warm_start   ;0dc8  ad 05
     mov a,#0x00             ;0dca  a1 00
@@ -3510,10 +3512,12 @@ lab_1036:
     clr1 pr0h.5             ;10e1  71 5b e9     Clear CSIPR31 (makes INTCSI31 high priority)
     callf !sub_08cc         ;10e4  0c cc        SPI xfer on SIO31 (send byte in A, recv byte in A)
     call !sub_d16e          ;10e6  9a 6e d1
+
     clr1 pm7.0              ;10e9  71 0b 27
     set1 shadow_p7.0        ;10ec  0a d1
     mov a,shadow_p7         ;10ee  f0 d1
     mov p7,a                ;10f0  f2 07
+
     mov a,#0x10             ;10f2  a1 10
     mov !mem_fb1b,a         ;10f4  9e 1b fb
     set1 mem_fe72.0         ;10f7  0a 72
@@ -4303,7 +4307,7 @@ sub_1601:
     call !sub_0816          ;1624  9a 16 08
     call !sub_1c5e          ;1627  9a 5e 1c
     bnc lab_1631            ;162a  9d 05
-    movw de,#lab_17ef       ;162c  14 ef 17
+    movw de,#sub_17ef       ;162c  14 ef 17
     br lab_167f             ;162f  fa 4e
 
 lab_1631:
@@ -4384,7 +4388,7 @@ lab_169b:
     br lab_16b1             ;16a5  fa 0a
 
 lab_16a7:
-    call !lab_17ef          ;16a7  9a ef 17
+    call !sub_17ef          ;16a7  9a ef 17
     cmp mem_fe20,#0x03      ;16aa  c8 20 03
     bz lab_16b1             ;16ad  ad 02
 
@@ -4599,7 +4603,7 @@ lab_17e2:
 lab_17ec:
     call !sub_1bff          ;17ec  9a ff 1b
 
-lab_17ef:
+sub_17ef:
     call !sub_1a5d          ;17ef  9a 5d 1a
     call !sub_1d4f          ;17f2  9a 4f 1d
     call !sub_a694          ;17f5  9a 94 a6
@@ -4616,7 +4620,7 @@ lab_1800:
 
 lab_180c:
     cmp mem_fe21,#0x0b      ;180c  c8 21 0b
-    bnz lab_17ef            ;180f  bd de
+    bnz sub_17ef            ;180f  bd de
     br !lab_1945            ;1811  9b 45 19
 
 lab_1814:
@@ -4657,7 +4661,7 @@ lab_184d:
 
 lab_1858:
     call !sub_1a17          ;1858  9a 17 1a
-    call !lab_19a1          ;185b  9a a1 19
+    call !sub_19a1          ;185b  9a a1 19
     mov a,!mem_fb21         ;185e  8e 21 fb
     cmp a,#0x00             ;1861  4d 00
     bz lab_181e             ;1863  ad b9
@@ -4724,7 +4728,7 @@ lab_18c3:
     call !sub_1b24          ;18c8  9a 24 1b
 
 lab_18cb:
-    call !lab_19a1          ;18cb  9a a1 19
+    call !sub_19a1          ;18cb  9a a1 19
     mov a,!mem_fb21         ;18ce  8e 21 fb
     cmp a,#0x00             ;18d1  4d 00
     bz lab_1892             ;18d3  ad bd
@@ -4763,7 +4767,7 @@ lab_1903:
     mov !mem_fb64,a         ;1905  9e 64 fb
     mov mem_fe20,#0x02      ;1908  11 20 02
     mov b,#0x00             ;190b  a3 00
-    call !lab_1b40          ;190d  9a 40 1b
+    call !sub_1b40          ;190d  9a 40 1b
     mov a,!mem_fb60         ;1910  8e 60 fb
 
 lab_1913:
@@ -4844,12 +4848,12 @@ lab_198d:
     mov !mem_fb09,a         ;1992  9e 09 fb
     call !sub_0800_mode     ;1995  9a 00 08     Return mem_f253 in A (0x00=?, 0x01=FM1/FM2, 0x02=AM), also copy it into mem_fb58
     cmp a,#0x02             ;1998  4d 02
-    bnz lab_19a1            ;199a  bd 05
+    bnz sub_19a1            ;199a  bd 05
     ;mem_f253=0x02 (AM)
     mov a,#0x4b             ;199c  a1 4b
     mov !mem_fb09,a         ;199e  9e 09 fb
 
-lab_19a1:
+sub_19a1:
     call !sub_0800_mode     ;19a1  9a 00 08     Return mem_f253 in A (0x00=?, 0x01=FM1/FM2, 0x02=AM), also copy it into mem_fb58
     cmp a,#0x01             ;19a4  4d 01
     bnz lab_19aa            ;19a6  bd 02
@@ -5130,17 +5134,17 @@ sub_1b24:
     bc lab_1b3a             ;1b27  8d 11
     set1 mem_fe5c.2         ;1b29  2a 5c
     mov !mem_fb5a,a         ;1b2b  9e 5a fb
-    bt mem_fe5d.0,lab_1b40  ;1b2e  8c 5d 0f
+    bt mem_fe5d.0,sub_1b40  ;1b2e  8c 5d 0f
     call !get_pset_freq_idx ;1b31  9a 75 1a
     mov a,x                 ;1b34  60
     call !sub_a7ce          ;1b35  9a ce a7
-    br lab_1b40             ;1b38  fa 06
+    br sub_1b40             ;1b38  fa 06
 
 lab_1b3a:
     call !sub_1a7d          ;1b3a  9a 7d 1a
     call !sub_a7ce          ;1b3d  9a ce a7
 
-lab_1b40:
+sub_1b40:
     clr1 mem_fe5d.0         ;1b40  0b 5d
     bt mem_fe5d.1,lab_1b48  ;1b42  9c 5d 03
     br !sub_1a17            ;1b45  9b 17 1a
@@ -10011,9 +10015,9 @@ intser0_32df:
                             ;                                        radio is acting as a tester)
 
     ;K-line resistor = disconnected (radio is not acting as a tester)
-    bt mem_fe79.0,lab_3301_br_lab_323f_error    ;32f2  8c 79 0c  If ??? Branch to handle receive error
-    bt mem_fe7a.1,lab_32fd_br_lab_3324_pop_reti ;32f5  9c 7a 05  If ??? Branch to pop registers off stack and reti
-    bt mem_fe7a.0,lab_32ff_br_lab_3324_pop_reti ;32f8  8c 7a 04  If ??? Branch to pop registers off stack and reti
+    bt mem_fe79.0,lab_3301_br_lab_323f_error    ;32f2  8c 79 0c  If ??? branch to handle receive error
+    bt mem_fe7a.1,lab_32fd_br_lab_3324_pop_reti ;32f5  9c 7a 05  If ??? branch to pop registers off stack and reti
+    bt mem_fe7a.0,lab_32ff_br_lab_3324_pop_reti ;32f8  8c 7a 04  If ??? branch to pop registers off stack and reti
     br lab_3324_pop_reti                      ;32fb  fa 27     Branch to pop registers off stack and reti
 
 lab_32fd_br_lab_3324_pop_reti:
@@ -10794,7 +10798,7 @@ lab_371c:
 lab_3722:
     mov a,#0x0c             ;3722  a1 0c
     callt [0x0046]          ;3724  c7           Calls sub_096c
-    call !lab_374a          ;3725  9a 4a 37
+    call !sub_374a          ;3725  9a 4a 37
     bnz sub_3755            ;3728  bd 2b
     mov a,mem_fe2a          ;372a  f0 2a
     mov b,a                 ;372c  73
@@ -10816,7 +10820,7 @@ lab_373b:
 lab_3747:
     call !sub_375d          ;3747  9a 5d 37
 
-lab_374a:
+sub_374a:
     movw de,#mem_fb7a       ;374a  14 7a fb
     movw hl,#mem_fe2a       ;374d  16 2a fe
     mov b,#0x02             ;3750  a3 02
@@ -10825,7 +10829,7 @@ lab_374a:
 sub_3755:
     mov mem_fe2a,#0x00      ;3755  11 2a 00
     mov mem_fe2b,#0x00      ;3758  11 2b 00
-    br lab_374a             ;375b  fa ed
+    br sub_374a             ;375b  fa ed
 
 sub_375d:
     clr1 pm8.0              ;375d  71 0b 28
@@ -10854,7 +10858,9 @@ sub_3786:
     clr1 shadow_p9.7        ;3789  7b d3
     clr1 shadow_p9.4        ;378b  4b d3
     clr1 shadow_p8.2        ;378d  2b d2        P82=0 (Monsoon amplifier power off)
-    call !sub_3a06          ;378f  9a 06 3a     PM80=output, P80=1
+
+    call !switched_5v_on    ;378f  9a 06 3a     Turn the switched 5V supply on
+
     mov a,!mem_fb0c         ;3792  8e 0c fb
     cmp a,#0x00             ;3795  4d 00
     bz lab_379a             ;3797  ad 01
@@ -10895,7 +10901,9 @@ lab_37c5:
     mov a,#0x01             ;37c8  a1 01
     callf !sub_09d3         ;37ca  1c d3
     mov mem_fe2b,#0x40      ;37cc  11 2b 40
-    call !sub_3a06          ;37cf  9a 06 3a     PM80=output, P80=1
+
+    call !switched_5v_on    ;37cf  9a 06 3a     Turn the switched 5V supply on
+
     bf mem_fe61.5,lab_37da  ;37d2  31 53 61 04
     set1 shadow_p9.4        ;37d6  4a d3
     br lab_37ef             ;37d8  fa 15
@@ -10937,7 +10945,9 @@ lab_3804:
 lab_380b:
     mov mem_fe2a,#0x06      ;380b  11 2a 06
     mov mem_fe2b,#0x20      ;380e  11 2b 20
-    call !sub_3a06          ;3811  9a 06 3a     PM80=output, P80=1
+
+    call !switched_5v_on    ;3811  9a 06 3a     Turn the switched 5V supply on
+
     bf mem_fe61.5,lab_381c  ;3814  31 53 61 04
     set1 shadow_p9.4        ;3818  4a d3
     br lab_381e             ;381a  fa 02
@@ -11030,7 +11040,9 @@ lab_389a:
 lab_38a2:
     mov mem_fe2a,#0x07      ;38a2  11 2a 07
     bf mem_fe2c.5,lab_38dc  ;38a5  31 53 2c 33
-    call !sub_3a06          ;38a9  9a 06 3a     PM80=output, P80=1
+
+    call !switched_5v_on    ;38a9  9a 06 3a     Turn the switched 5V supply on
+
     bt mem_fe61.4,lab_38c7  ;38ac  cc 61 18
     mov mem_fe2a,#0x09      ;38af  11 2a 09
     mov a,#0x55             ;38b2  a1 55
@@ -11140,22 +11152,22 @@ lab_3952:
     mov mem_fe2a,#0x0d      ;3952  11 2a 0d
     mov a,!mem_fb0c         ;3955  8e 0c fb
     cmp a,#0x00             ;3958  4d 00
-    bz lab_395d             ;395a  ad 01
+    bz lab_395d_power_off_and_halt ;395a  ad 01
     ret                     ;395c  af
 
-lab_395d:
-    call !sub_3a10          ;395d  9a 10 3a     PM80=output, P80=0, PM70=output, P7.0=1
+lab_395d_power_off_and_halt:
+    call !switched_5v_off_p70_1 ;395d  9a 10 3a     Turn the switched 5V supply off (also P70=1???)
     mov asim0,#0x00         ;3960  13 a0 00     UART0 mode register = 0 (UART fully disabled)
     mov brgc0,#0x7e         ;3963  13 a2 7e     Baud rate generator = 546 baud (???)
     mov asim0,#0x48         ;3966  13 a0 48     UART0 mode register = RX only, N81
     call !sub_3acf          ;3969  9a cf 3a     Disable I2C, disable timers, set many pins to inputs
     mov mem_fe2a,#0x0e      ;396c  11 2a 0e
     mov mem_fe2b,#0x80      ;396f  11 2b 80
-    call !lab_374a          ;3972  9a 4a 37
+    call !sub_374a          ;3972  9a 4a 37
     clr1 mem_fe7b.7         ;3975  7b 7b
     clr1 mem_fe7a.5         ;3977  5b 7a
 
-lab_3979:
+lab_3979_ei_halt:
 ;Enable interrupts then halt
     ei                      ;3979  7a 1e
     halt                    ;397b  71 10
@@ -11167,10 +11179,10 @@ lab_397d:
     call !sub_3a23          ;3986  9a 23 3a
     bf mem_fe7b.5,lab_3991  ;3989  31 53 7b 04
     clr1 mem_fe7b.5         ;398d  5b 7b
-    br lab_39ed             ;398f  fa 5c        Branch to turn on P70 and P80, call unknown, then cold or warm start
+    br lab_39ed_power_on_and_start  ;398f  fa 5c        Branch to turn on switched 5V, P70=1(???), call unknown, then cold or warm start
 
 lab_3991:
-    btclr mem_fe7b.5,lab_39ed ;3991  31 51 7b 58  If ??? clear bit and branch to turn on P70 and P80, call unknown, then cold or warm start
+    btclr mem_fe7b.5,lab_39ed_power_on_and_start ;3991  31 51 7b 58  If ??? clear bit and Branch to turn on switched 5V, P70=1(???), call unknown, then cold or warm start
     bf p2.4,lab_39a2        ;3995  31 43 02 09    Branch if P24/RxD0 = 0
     bf mem_fe7b.6,lab_39a2  ;3999  31 63 7b 05
     clr1 mem_fe7b.6         ;399d  6b 7b
@@ -11178,22 +11190,22 @@ lab_3991:
 
 lab_39a2:
     call !sub_4902_illum    ;39a2  9a 02 49     Read illumination voltage (P92/ANI20) and ???
-    bt mem_fe65.1,lab_39ed  ;39a5  9c 65 45     If ??? branch to turn on P70 and P80, call unknown, then cold or warm start
-    bt mem_fe7d.6,lab_39ed  ;39a8  ec 7d 42     If ??? branch to turn on P70 and P80, call unknown, then cold or warm start
-    bt mem_fe67.0,lab_39ed  ;39ab  8c 67 3f     If ??? branch to turn on P70 and P80, call unknown, then cold or warm start
+    bt mem_fe65.1,lab_39ed_power_on_and_start  ;39a5  9c 65 45     If ??? branch to turn on switched 5V, P70=1(???), call unknown, then cold or warm start
+    bt mem_fe7d.6,lab_39ed_power_on_and_start  ;39a8  ec 7d 42     If ??? branch to turn on switched 5V, P70=1(???), call unknown, then cold or warm start
+    bt mem_fe67.0,lab_39ed_power_on_and_start  ;39ab  8c 67 3f     If ??? branch to turn on switched 5V, P70=1(???), call unknown, then cold or warm start
     mov a,!mem_f1e9         ;39ae  8e e9 f1
     bf a.0,lab_39bf         ;39b1  31 0f 0b
     bt p0.4,lab_39bc        ;39b4  cc 00 05     Branch if the POWER key is not being pressed
 
     ;POWER key is being pressed
     bt mem_fe66.7,lab_39bf  ;39b7  fc 66 05
-    br lab_39ed             ;39ba  fa 31        If ??? branch to turn on P70 and P80, call unknown, then cold or warm start
+    br lab_39ed_power_on_and_start   ;39ba  fa 31        If ??? branch to turn on switched 5V, P70=1(???), call unknown, then cold or warm start
 
 lab_39bc:
-    bt mem_fe66.7,lab_39ed  ;39bc  fc 66 2e     If ??? branch to turn on P70 and P80, call unknown, then cold or warm start
+    bt mem_fe66.7,lab_39ed_power_on_and_start  ;39bc  fc 66 2e     If ??? branch to turn on switched 5V, P70=1(???), call unknown, then cold or warm start
 
 lab_39bf:
-    bt mem_fe7d.7,lab_39ed  ;39bf  fc 7d 2b     If ??? branch to turn on P70 and P80, call unknown, then cold or warm start
+    bt mem_fe7d.7,lab_39ed_power_on_and_start  ;39bf  fc 7d 2b     If ??? branch to turn on switched 5V, P70=1(???), call unknown, then cold or warm start
     set1 pm9.0              ;39c2  71 0a 29     PM90=input (S-Contact: 0=off, 1=on)
     bf mem_fe2c.2,lab_39d4  ;39c5  31 23 2c 0b
     mov1 cy,p9.0            ;39c9  71 04 09     CY = P90 (S-Contact: 0=off, 1=on)
@@ -11202,25 +11214,25 @@ lab_39bf:
     br lab_39d7             ;39d2  fa 03
 
 lab_39d4:
-    bt p9.0,lab_39ed        ;39d4  8c 09 16     If P90=1 (S-Contact is on) branch to:
-                            ;                     turn on P70 and P80, call unknown, then cold or warm start
+    bt p9.0,lab_39ed_power_on_and_start ;39d4  8c 09 16     If P90=1 (S-Contact is on) branch to:
+                                        ;                     turn on switched 5V, P70=1(???), call unknown, then cold or warm start
     ;S-Contact is off
 
 lab_39d7:
-    bt mem_fe2c.3,lab_39ed      ;39d7  bc 2c 13     If ??? branch to turn on P70 and P80, call unknown, then cold or warm start
-    bt mem_fe62.5,lab_39ed      ;39da  dc 62 10     If INTP1 occurred branch to turn on P70 and P80, call unknown, then cold or warm start
+    bt mem_fe2c.3,lab_39ed_power_on_and_start  ;39d7  bc 2c 13     If ??? branch to turn on switched 5V, P70=1(???), call unknown, then cold or warm start
+    bt mem_fe62.5,lab_39ed_power_on_and_start  ;39da  dc 62 10     If INTP1 occurred branch to turn on switched 5V, P70=1(???), call unknown, then cold or warm start
     bf p6.7,lab_39eb_br_ei_halt ;39dd  31 73 06 0a
     cmp mem_fe4c,#0x00          ;39e1  c8 4c 00
     bnz lab_39eb_br_ei_halt     ;39e4  bd 05
     cmp mem_fe50,#0x01          ;39e6  c8 50 01
-    bnz lab_39ed                ;39e9  bd 02        Branch to turn on P70 and P80, call unknown, then cold or warm start
+    bnz lab_39ed_power_on_and_start ;39e9  bd 02        Branch to turn on switched 5V, P70=1(???), call unknown, then cold or warm start
 
 lab_39eb_br_ei_halt:
-    br lab_3979                 ;39eb  fa 8c        Branch to enable interrupts then halt
+    br lab_3979_ei_halt         ;39eb  fa 8c        Branch to enable interrupts then halt
 
-lab_39ed:
-;PM70=output, P70=1, PM80=output
-;P80=1
+lab_39ed_power_on_and_start:
+;PM70=output, P70=1 ???
+;Call to turn on switched 5V power
 ;Call unknown subroutine sub_3dbd
 ;Branch to cold or warm start
     clr1 pm7.0              ;39ed  71 0b 27     PM70=output
@@ -11228,7 +11240,7 @@ lab_39ed:
     mov a,shadow_p7         ;39f2  f0 d1
     mov p7,a                ;39f4  f2 07
 
-    call !sub_3a06          ;39f6  9a 06 3a     PM80=output, P80=1
+    call !switched_5v_on    ;39f6  9a 06 3a     Turn the switched 5V supply on
 
     clr1 mem_fe2b.7         ;39f9  7b 2b        Clear bit = do more than just blink the LED in INTWTNI0
     mov mem_fe2a,#0x00      ;39fb  11 2a 00
@@ -11236,18 +11248,19 @@ lab_39ed:
     call !sub_3dbd          ;3a00  9a bd 3d
     br !cold_or_warm_start  ;3a03  9b cf 0d
 
-sub_3a06:
-;TODO this might be turning the power on (unsure)
-;PM80=output, P80=1
+switched_5v_on:
+;Turn the switched 5V supply on
+;PM80=output, P80=1  Powers up uPD16432B, TEA6840H, SAA7705H, HEF401060BT, TDA3613T, TA2025P
     clr1 pm8.0              ;3a06  71 0b 28     PM80 = output
     set1 shadow_p8.0        ;3a09  0a d2        P80 = 1
     mov a,shadow_p8         ;3a0b  f0 d2
     mov p8,a                ;3a0d  f2 08
     ret                     ;3a0f  af
 
-sub_3a10:
-;TODO this might be turning the power off (unsure)
-;PM80=output, P80=0, PM70=output, P7.0=1
+switched_5v_off_p70_1:
+;Turn the switched 5V supply off (also P70=1???)
+;PM80=output, P80=0  Powers down uPD16432B, TEA6840H, SAA7705H, HEF401060BT, TDA3613T, TA2025P
+;PM70=output, P7.0=1 ???
     clr1 pm8.0              ;3a10  71 0b 28     PM80 = output
     clr1 shadow_p8.0        ;3a13  0b d2        P80 = 0
     mov a,shadow_p8         ;3a15  f0 d2
@@ -12740,7 +12753,7 @@ lab_430f:
 lab_4318:
     call !sub_43a1          ;4318  9a a1 43
     bz lab_4320             ;431b  ad 03
-    br !lab_4469            ;431d  9b 69 44
+    br !sub_4469            ;431d  9b 69 44
 
 lab_4320:
     mov a,b                 ;4320  63
@@ -12755,11 +12768,11 @@ lab_432a:
 sub_432d:
     mov a,mem_fe30          ;432d  f0 30
     mov a,#0x00             ;432f  a1 00
-    br !lab_4469            ;4331  9b 69 44
+    br !sub_4469            ;4331  9b 69 44
 
 lab_4334:
     mov a,#0x01             ;4334  a1 01
-    br !lab_4469            ;4336  9b 69 44
+    br !sub_4469            ;4336  9b 69 44
 
 lab_4339:
     bt mem_fe2c.5,lab_4346  ;4339  dc 2c 0a
@@ -12941,7 +12954,7 @@ lab_4427:
 
 lab_442a:
     call !sub_442f          ;442a  9a 2f 44
-    br lab_4469             ;442d  fa 3a
+    br sub_4469             ;442d  fa 3a
 
 sub_442f:
     mov !mem_f191,a         ;442f  9e 91 f1
@@ -12985,7 +12998,7 @@ lab_4466:
     mov a,c                 ;4466  62
     and a,#0x3f             ;4467  5d 3f
 
-lab_4469:
+sub_4469:
     cmp a,#0x04             ;4469  4d 04
     bc lab_446f             ;446b  8d 02
 
@@ -13033,7 +13046,7 @@ sub_44a7:
     mov a,#0x01             ;44ae  a1 01
 
 lab_44b0:
-    call !lab_4469          ;44b0  9a 69 44
+    call !sub_4469          ;44b0  9a 69 44
     br sub_4495             ;44b3  fa e0
 
 lab_44b5:
@@ -13267,7 +13280,7 @@ sub_4609:
     mov a,#0x1e             ;460e  a1 1e
     mov !mem_fb27,a         ;4610  9e 27 fb
     mov a,#0x00             ;4613  a1 00
-    call !lab_4469          ;4615  9a 69 44
+    call !sub_4469          ;4615  9a 69 44
     set1 mem_fe64.1         ;4618  1a 64
     ret                     ;461a  af
 
@@ -26660,8 +26673,8 @@ sub_9140:
     cmp a,#0x00             ;9143  4d 00
     bnz lab_915d            ;9145  bd 16
     clr1 pm7.0              ;9147  71 0b 27
-    clr1 shadow_p7.0         ;914a  0b d1
-    mov a,shadow_p7          ;914c  f0 d1
+    clr1 shadow_p7.0        ;914a  0b d1
+    mov a,shadow_p7         ;914c  f0 d1
     mov p7,a                ;914e  f2 07
     bf mem_fe72.0,lab_915e  ;9150  31 03 72 0a
     clr1 mem_fe72.0         ;9154  0b 72
@@ -31188,7 +31201,7 @@ mem_adae:
     .word lab_172e
     .word lab_172b
     .word lab_17e2
-    .word lab_17ef
+    .word sub_17ef
     .word lab_17a5
     .word lab_179b
     .word lab_17ce
@@ -31229,7 +31242,7 @@ mem_ade3:
     .word lab_1916
     .word lab_1921
     .word lab_1945
-    .word lab_19a1
+    .word sub_19a1
     .word lab_19f8
     .word lab_1798
     .word lab_193c
@@ -31890,7 +31903,7 @@ mem_b040:
     .word lab_389a
     .word lab_38ec
     .word lab_3952
-    .word lab_3979          ;Enable interrupts then halt
+    .word lab_3979_ei_halt          ;Enable interrupts then halt
 
 mem_b05f:
     .byte 0x15              ;b05f  15          DATA 0x15
