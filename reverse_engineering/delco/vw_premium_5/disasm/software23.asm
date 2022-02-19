@@ -3197,12 +3197,19 @@ lab_0e39_loop:
     callf !fill_with_a      ;0e4f  4c dc        Fill B bytes in buffer [HL] with A
 
     callf !sub_093c         ;0e51  1c 3c
-    clr1 pu2.4              ;0e53  71 4b 32
-    set1 pm2.4              ;0e56  71 4a 22
-    clr1 pu2.5              ;0e59  71 5b 32
-    set1 pm2.5              ;0e5c  71 5a 22
+
+    ;P24/RXD0 connects to L9637D
+    clr1 pu2.4              ;0e53  71 4b 32     PU24 pull-up resistor disabled
+    set1 pm2.4              ;0e56  71 4a 22     PM24 = input
+
+    ;P25/TXD0 connects to L9637D
+    clr1 pu2.5              ;0e59  71 5b 32     PU25 pull-up resistor disabled
+    set1 pm2.5              ;0e5c  71 5a 22     PM25 = input
+
+    ;P26 controls K-line resistor
     clr1 pu2.6              ;0e5f  71 6b 32     PU26 pull-up resistor disabled
     set1 pm2.6              ;0e62  71 6a 22     PM26 = output
+
     mov asim0,#0x00         ;0e65  13 a0 00     UART0 mode register = 0 (UART fully disabled)
     mov brgc0,#brgc0_value  ;0e68  13 a2 39     Baud rate generator 0 = 10400 baud
     set1 shadow_p2.5        ;0e6b  5a cc        P25/TxD0 = 1
@@ -3358,9 +3365,15 @@ lab_0f1b:
     call !kwp_disconnect    ;0f9a  9a 68 34     Disconnect and clear all KWP1281 state
 
     mov a,rxb0_txs0         ;0f9d  f0 18
-    clr1 pu2.4              ;0f9f  71 4b 32
-    set1 pm2.4              ;0fa2  71 4a 22
-    clr1 pm2.5              ;0fa5  71 5b 22
+
+    ;P24/RXD0 connects to L9637D
+    clr1 pu2.4              ;0f9f  71 4b 32     PU24 pull-up resistor disabled
+    set1 pm2.4              ;0fa2  71 4a 22     PM24 = input
+
+    ;P25/TXD0 connects to L9637D
+    clr1 pm2.5              ;0fa5  71 5b 22     PM25 = output
+
+    ;P26 controls K-line resistor
     clr1 pm2.6              ;0fa8  71 6b 22     PM26 = output
 
     ;Enable UART0 interrupts
@@ -11383,15 +11396,23 @@ sub_3acf:
 ;Disable I2C, disable timers, set many pins to inputs
     call !sub_6078          ;3acf  9a 78 60   Disable I2C, set SCL and SDA pins to inputs
     call !sub_4d63          ;3ad2  9a 63 4d   Disable timers and their interrupts, set uPD16432B pins to inputs
-    clr1 pu2.4              ;3ad5  71 4b 32
-    set1 pm2.4              ;3ad8  71 4a 22
-    clr1 pu2.5              ;3adb  71 5b 32
-    set1 pm2.5              ;3ade  71 5a 22
+
+    ;P24/RXD0 connects to L9637D
+    clr1 pu2.4              ;3ad5  71 4b 32   PU24 pull-up resistor disabled
+    set1 pm2.4              ;3ad8  71 4a 22   PM24 = input
+
+    ;P25/TXD0 connects to L9637D
+    clr1 pu2.5              ;3adb  71 5b 32   PU25 pull-up resistor disabled
+    set1 pm2.5              ;3ade  71 5a 22   PM25 = input
+
+    ;P26 controls K-line resistor
     clr1 pu2.6              ;3ae1  71 6b 32   PU26 pull-up resistor disabled
     set1 pm2.6              ;3ae4  71 6a 22   PM26 = input
+
     clr1 shadow_p2.7        ;3ae7  7b cc
     mov a,shadow_p2         ;3ae9  f0 cc
     mov p2,a                ;3aeb  f2 02
+
     clr1 pu5.7              ;3aed  71 7b 35   PU57 pull-up resistor disabled
     set1 pm5.7              ;3af0  71 7a 25   PM57 = input
     clr1 pu7.0              ;3af3  71 0b 37
