@@ -1886,7 +1886,7 @@ lab_0939:
     dbnz b,lab_0933         ;0939  8b f8
     ret                     ;093b  af
 
-sub_093c:
+sub_093c_fb86_csm:
     mov a,#0x55             ;093c  a1 55
     add a,mem_fe2d          ;093e  0e 2d
     add a,mem_fe2f          ;0940  0e 2f
@@ -2630,15 +2630,16 @@ lab_0c15:
     mov b,a                 ;0c15  73
     push psw                ;0c16  22
     decw hl                 ;0c17  96
-    mov a,#0x00             ;0c18  a1 00
 
-lab_0c1a:
+    mov a,#0x00             ;0c18  a1 00
+lab_0c1a_loop:
     mov mem_feda,a          ;0c1a  f2 da
     mov a,[hl+b]            ;0c1c  ab
     add x,a                 ;0c1d  61 00
     mov a,mem_feda          ;0c1f  f0 da
     addc a,#0x00            ;0c21  2d 00
-    dbnz b,lab_0c1a         ;0c23  8b f5
+    dbnz b,lab_0c1a_loop    ;0c23  8b f5
+
     movw mem_fede,ax        ;0c25  99 de
     movw ax,de              ;0c27  c4
     movw hl,ax              ;0c28  d6
@@ -3074,6 +3075,7 @@ badisr_0d75:
 lab_0d86_wait:
     br lab_0d86_wait        ;0d86  fa fe        Loop forever until watchdog fires, causing RESET
 
+
 rst_0d88:
 ;RESET occurred
     di                      ;0d88  7b 1e
@@ -3108,6 +3110,7 @@ rst_0d88:
 
     call !sub_4076          ;0dc5  9a 76 40
     bz cold_or_warm_start   ;0dc8  ad 05
+
     mov a,#0x00             ;0dca  a1 00
     mov !mem_f18e,a         ;0dcc  9e 8e f1     Clear cookie to cause a cold start
 
@@ -3115,15 +3118,19 @@ cold_or_warm_start:
 ;Perform some init then do either a cold or warm start
     mov ixs,#0x08           ;0dcf  13 f4 08     Internal expansion RAM size = 2048 bytes
     mov ims,#0xcf           ;0dd2  13 f0 cf     Internal high-speed RAM size = 1024 bytes
+
     movw sp,#stack_top      ;0dd5  ee 1c 1f fe  Initialize stack pointer (stack grows down)
+
     mov a,#wd_clk_250ms     ;0dd9  a1 07
     mov wdcs,a              ;0ddb  f6 42        Watchdog clock select = watchdog fires after 250ms
     mov a,#wd_run_nmi       ;0ddd  a1 90        (Re-)Start watchdog in mode 1 (Non-maskable INTWDT when watchdog fires)
     mov wdtm,a              ;0ddf  f6 f9        Set watchdog mode
+
     clr1 shadow_p9.7        ;0de1  7b d3
     clr1 pm9.7              ;0de3  71 7b 29
     mov a,shadow_p9         ;0de6  f0 d3
     mov p9,a                ;0de8  f2 09
+
     clr1 pu0.2              ;0dea  71 2b 30
     set1 pm0.2              ;0ded  71 2a 20
     clr1 mk0l.3             ;0df0  71 3b e4     Clear PMK2 (enables INTP2)
@@ -3133,20 +3140,20 @@ cold_or_warm_start:
 
     ;Inspect RAM to see if we can warm start
 
-    callf !sub_093c         ;0dfc  1c 3c
-    bnz cold_start          ;0dfe  bd 1b      Check failed
+    callf !sub_093c_fb86_csm;0dfc  1c 3c        Checksum 11 bytes at 0xfb86
+    bnz cold_start          ;0dfe  bd 1b        Branch to cold start if check failed
 
     mov a,#0x55             ;0e00  a1 55
     cmp a,!mem_f18e         ;0e02  48 8e f1
-    bnz cold_start          ;0e05  bd 14      Check failed
+    bnz cold_start          ;0e05  bd 14        Branch to cold start if check failed
     cmp a,!stack_bottom     ;0e07  48 a5 fc
-    bnz cold_start          ;0e0a  bd 0f      Check failed
+    bnz cold_start          ;0e0a  bd 0f        Branch to cold start if check failed
 
     mov a,#0xaa             ;0e0c  a1 aa
     cmp a,!stack_top        ;0e0e  48 1f fe
-    bnz cold_start          ;0e11  bd 08      Check failed
+    bnz cold_start          ;0e11  bd 08        Branch to cold start if check failed
     cmp a,!mem_fb91         ;0e13  48 91 fb
-    bnz cold_start          ;0e16  bd 03      Check failed
+    bnz cold_start          ;0e16  bd 03        Branch to cold start if check failed
 
     ;RAM is intact so we can warm start
 
@@ -3157,9 +3164,9 @@ cold_start:
 ;Wipes all RAM and starts fresh.
     di                      ;0e1b  7b 1e
     mov a,#wd_clk_250ms     ;0e1d  a1 07
-    mov wdcs,a              ;0e1f  f6 42      Watchdog clock select = watchdog fires after 250ms
-    mov a,#wd_run_nmi       ;0e21  a1 90      (Re-)Start watchdog in mode 1 (Non-maskable INTWDT when watchdog fires)
-    mov wdtm,a              ;0e23  f6 f9      Set watchdog mode
+    mov wdcs,a              ;0e1f  f6 42        Watchdog clock select = watchdog fires after 250ms
+    mov a,#wd_run_nmi       ;0e21  a1 90        (Re-)Start watchdog in mode 1 (Non-maskable INTWDT when watchdog fires)
+    mov wdtm,a              ;0e23  f6 f9        Set watchdog mode
 
     ;Clear RAM: most of High Speed RAM
     ;Almost 1K: 0xFB00 - 0xFECA
@@ -3170,11 +3177,11 @@ lab_0e2a_loop:
     mov [hl],a              ;0e2a  97
     incw hl                 ;0e2b  86
     xchw ax,hl              ;0e2c  e6
-    cmpw ax,#shadow_p0      ;0e2d  ea cb fe   Stop at GPIO shadow locations
+    cmpw ax,#shadow_p0      ;0e2d  ea cb fe     Stop at GPIO shadow locations
     xchw ax,hl              ;0e30  e6
     bc lab_0e2a_loop        ;0e31  8d f7
 
-    mov wdtm,#wd_run_nmi    ;0e33  13 f9 90   (Re-)Start watchdog in mode 1 (Non-maskable INTWDT when watchdog fires)
+    mov wdtm,#wd_run_nmi    ;0e33  13 f9 90     (Re-)Start watchdog in mode 1 (Non-maskable INTWDT when watchdog fires)
 
     ;Clear RAM: all of Expansion RAM
     ;2K: 0xF000 - 0xF7FF
@@ -3195,34 +3202,33 @@ lab_0e39_loop:
     mov a,#0x80             ;0e4a  a1 80        A = 0x80 value to fill
     movw hl,#mem_fb86       ;0e4c  16 86 fb     HL = pointer to buffer to fill
     callf !fill_with_a      ;0e4f  4c dc        Fill B bytes in buffer [HL] with A
-
-    callf !sub_093c         ;0e51  1c 3c
+    callf !sub_093c_fb86_csm;0e51  1c 3c        Checksum 11 bytes at 0xfb86
 
     ;P24/RXD0 connects to L9637D
     clr1 pu2.4              ;0e53  71 4b 32     PU24 pull-up resistor disabled
     set1 pm2.4              ;0e56  71 4a 22     PM24 = input
-
     ;P25/TXD0 connects to L9637D
     clr1 pu2.5              ;0e59  71 5b 32     PU25 pull-up resistor disabled
     set1 pm2.5              ;0e5c  71 5a 22     PM25 = input
-
     ;P26 controls K-line resistor
     clr1 pu2.6              ;0e5f  71 6b 32     PU26 pull-up resistor disabled
     set1 pm2.6              ;0e62  71 6a 22     PM26 = output
 
     mov asim0,#0x00         ;0e65  13 a0 00     UART0 mode register = 0 (UART fully disabled)
     mov brgc0,#brgc0_value  ;0e68  13 a2 39     Baud rate generator 0 = 10400 baud
+
+    ;P25/TXD0 connects to L9637D
     set1 shadow_p2.5        ;0e6b  5a cc        P25/TxD0 = 1
     mov a,shadow_p2         ;0e6d  f0 cc
     mov p2,a                ;0e6f  f2 02
-
+    ;P26 controls K-line resistor
     clr1 shadow_p2.6        ;0e71  6b cc        P26 = 0 (K-line resistor = disconnected;
                             ;                            radio is not acting as a tester)
     mov a,shadow_p2         ;0e73  f0 cc
     mov p2,a                ;0e75  f2 02
 
     mov a,#0xdb             ;0e77  a1 db
-    mov !kwp_bit_ms,a    ;0e79  9e 77 f0     kwp_bit_ms = 0xDB (219 ms?)
+    mov !kwp_bit_ms,a       ;0e79  9e 77 f0     kwp_bit_ms = 0xDB (219 ms?)
 
     ;Clear RAM: 0xF068 - 0xF079 (except 0xF077!)
     ;These are all KWP1281 variables.
@@ -3272,28 +3278,35 @@ lab_0e39_loop:
     clr1 mem_fe7b.5         ;0edb  5b 7b
     clr1 mem_fe7b.6         ;0edd  6b 7b
     clr1 mem_fe61.6         ;0edf  6b 61
+
     call !sub_3bea          ;0ee1  9a ea 3b
+
     mov a,#0x00             ;0ee4  a1 00
     mov !mem_f18b,a         ;0ee6  9e 8b f1
+
     call !sub_3bf7          ;0ee9  9a f7 3b
     call !sub_4234          ;0eec  9a 34 42
     call !sub_4495          ;0eef  9a 95 44
     call !sub_4569          ;0ef2  9a 69 45
+
     mov a,#0xff             ;0ef5  a1 ff
     mov !mem_fbad,a         ;0ef7  9e ad fb
+
     call !upd_display_off   ;0efa  9a 1a 4d     Turn uPD16432B display off
-    call !sub_7697          ;0efd  9a 97 76
-    call !sub_76c9          ;0f00  9a c9 76
+    call !sub_7697_snd_cd   ;0efd  9a 97 76     Unknown; snd_msg_idx and CD related
+    call !sub_76c9_f1a9_f1ad;0f00  9a c9 76     Unknown; does something with 4 bytes at mem_f1a9 and at mem_f1ad
+
     mov upd_leds,#0x0f      ;0f03  11 3e 0f     Value to write to uPD16432B LED output latch
+
     clr1 mem_fe6f.4         ;0f06  4b 6f        Dolby = off
     clr1 mem_fe6d.3         ;0f08  3b 6d        ROM checksum calculation = not performed
 
     ;Write defaults for 3 analog voltage readings:
     ;mem_fca2_ani_t30, mem_fca3_ani_t58b, mem_fca4_ani
-    mov b,#0x03               ;0f0a  a3 03        B = 3 bytes to fill
-    mov a,#127                ;0f0c  a1 7f        A = fill value 127 = 12.7 V
-    movw hl,#mem_fca2_ani_t30 ;0f0e  16 a2 fc     HL = pointer to buffer to fill
-    callf !fill_with_a        ;0f11  4c dc        Fill B bytes in buffer [HL] with A
+    mov b,#0x03               ;0f0a  a3 03      B = 3 bytes to fill
+    mov a,#127                ;0f0c  a1 7f      A = fill value 127 = 12.7 V
+    movw hl,#mem_fca2_ani_t30 ;0f0e  16 a2 fc   HL = pointer to buffer to fill
+    callf !fill_with_a        ;0f11  4c dc      Fill B bytes in buffer [HL] with A
 
     ;Cold start finished; fall through into warm start
 
@@ -3301,21 +3314,25 @@ lab_0e39_loop:
 ;Reset occurred but RAM is intact (or cold start was just done).
 warm_start:
     mov mem_fe7c,#0x00      ;0f13  11 7c 00
+
     mov b,#0x0b             ;0f16  a3 0b
     movw hl,#mem_fb85       ;0f18  16 85 fb
-
-lab_0f1b:
+lab_0f1b_loop:
     mov a,[hl+b]            ;0f1b  ab
     or a,#0x40              ;0f1c  6d 40
     and a,#0xfc             ;0f1e  5d fc
     mov [hl+b],a            ;0f20  bb
-    dbnz b,lab_0f1b         ;0f21  8b f8
-    callf !sub_093c         ;0f23  1c 3c
+    dbnz b,lab_0f1b_loop    ;0f21  8b f8
+
+    callf !sub_093c_fb86_csm;0f23  1c 3c        Checksum 11 bytes at 0xfb86
+
     mov a,#0x0f             ;0f25  a1 0f
     mov !mem_fb4e,a         ;0f27  9e 4e fb
+
     mov a,#0x00             ;0f2a  a1 00
     mov !mem_fb94,a         ;0f2c  9e 94 fb
     mov !mem_fb95,a         ;0f2f  9e 95 fb
+
     clr1 pu7.5              ;0f32  71 5b 37
     set1 pm7.5              ;0f35  71 5a 27
     clr1 pu0.3              ;0f38  71 3b 30
@@ -3353,10 +3370,12 @@ lab_0f1b:
     mov !kwp_test_idx,a     ;0f86  9e 4e f0     KWP1281 Output Test index = 0
     clr1 mem_fe5f.5         ;0f89  5b 5f
     call !sub_2d35          ;0f8b  9a 35 2d     Clear bits in mem_fe5f and mem_fe60
+
+    ;P25/TXD0 connects to L9637D
     set1 shadow_p2.5        ;0f8e  5a cc        P25/TxD0 = 1
     mov a,shadow_p2         ;0f90  f0 cc
     mov p2,a                ;0f92  f2 02
-
+    ;P26 controls K-line resistor
     clr1 shadow_p2.6        ;0f94  6b cc        P26 = 0 (K-line resistor = disconnected;
                             ;                            radio is not acting as a tester)
     mov a,shadow_p2         ;0f96  f0 cc
@@ -3369,10 +3388,8 @@ lab_0f1b:
     ;P24/RXD0 connects to L9637D
     clr1 pu2.4              ;0f9f  71 4b 32     PU24 pull-up resistor disabled
     set1 pm2.4              ;0fa2  71 4a 22     PM24 = input
-
     ;P25/TXD0 connects to L9637D
     clr1 pm2.5              ;0fa5  71 5b 22     PM25 = output
-
     ;P26 controls K-line resistor
     clr1 pm2.6              ;0fa8  71 6b 22     PM26 = output
 
@@ -4122,7 +4139,7 @@ lab_14bc:
     br !lab_12d7            ;14bf  9b d7 12
 
 lab_14c2:
-    callf !sub_093c         ;14c2  1c 3c
+    callf !sub_093c_fb86_csm;14c2  1c 3c        Checksum 11 bytes at 0xfb86
     bz lab_14c9             ;14c4  ad 03        Branch if check failed
     br !cold_or_warm_start  ;14c6  9b cf 0d
 
@@ -4692,7 +4709,7 @@ lab_1869:
 
 lab_1874:
     mov mem_fe20,#0x03      ;1874  11 20 03
-    call !sub_7697          ;1877  9a 97 76
+    call !sub_7697_snd_cd   ;1877  9a 97 76     Unknown; snd_msg_idx and CD related
     mov a,#0x83             ;187a  a1 83
     mov !mem_f1ab,a         ;187c  9e ab f1
     ret                     ;187f  af
@@ -4711,7 +4728,7 @@ lab_1886:
     call !sub_1d59          ;188f  9a 59 1d
 
 lab_1892:
-    call !sub_7697          ;1892  9a 97 76
+    call !sub_7697_snd_cd   ;1892  9a 97 76     Unknown; snd_msg_idx and CD related
     mov a,#0x83             ;1895  a1 83
     mov !mem_f1ab,a         ;1897  9e ab f1
     mov a,#0x00             ;189a  a1 00
@@ -4768,7 +4785,7 @@ lab_18ee:
 
 lab_18f0:
     call !sub_1d59          ;18f0  9a 59 1d
-    call !sub_7697          ;18f3  9a 97 76
+    call !sub_7697_snd_cd   ;18f3  9a 97 76     Unknown; snd_msg_idx and CD related
     mov a,#0x80             ;18f6  a1 80
     mov !mem_f1ab,a         ;18f8  9e ab f1
     cmp mem_fe20,#0x03      ;18fb  c8 20 03
@@ -5646,7 +5663,7 @@ lab_1e18:
     br !lab_1f46_ret        ;1e1d  9b 46 1f
 
 lab_1e20:
-    call !sub_7697          ;1e20  9a 97 76
+    call !sub_7697_snd_cd   ;1e20  9a 97 76     Unknown; snd_msg_idx and CD related
     set1 mem_fe5d.7         ;1e23  7a 5d
     clr1 mem_fe5e.0         ;1e25  0b 5e
     mov a,#0x01             ;1e27  a1 01
@@ -5718,7 +5735,7 @@ lab_1e8a:
     movw hl,#mem_f255         ;1ea3  16 55 f2
     call !to_eeram_wr_byte_hl ;1ea6  9a 47 1f     Write A to EEPROM area in RAM at [HL], add to checksum
     set1 mem_fe80.0           ;1ea9  0a 80
-    call !sub_7697            ;1eab  9a 97 76
+    call !sub_7697_snd_cd     ;1eab  9a 97 76     Unknown; snd_msg_idx and CD related
 
 lab_1eae:
     mov a,#0x00             ;1eae  a1 00
@@ -5856,7 +5873,7 @@ lab_1f8c:
     mov !mem_fe57,a         ;1f8c  9e 57 fe
     mov !mem_fb6e,a         ;1f8f  9e 6e fb
     call !sub_1ffe          ;1f92  9a fe 1f
-    call !sub_7697          ;1f95  9a 97 76
+    call !sub_7697_snd_cd   ;1f95  9a 97 76     Unknown; snd_msg_idx and CD related
     set1 mem_fe73.3         ;1f98  3a 73
     mov a,!mem_f255         ;1f9a  8e 55 f2
     mov !mem_fb6f,a         ;1f9d  9e 6f fb
@@ -5907,7 +5924,7 @@ lab_1fe9:
     ret                     ;1fee  af
 
 lab_1fef:
-    call !sub_7697          ;1fef  9a 97 76
+    call !sub_7697_snd_cd   ;1fef  9a 97 76     Unknown; snd_msg_idx and CD related
     ret                     ;1ff2  af
 
 sub_1ff3:
@@ -7109,7 +7126,7 @@ lab_26d5_ret:
 
 
 sub_26d6:
-    call !sub_7697          ;26d6  9a 97 76
+    call !sub_7697_snd_cd   ;26d6  9a 97 76     Unknown; snd_msg_idx and CD related
 
     mov a,#50               ;26d9  a1 32        A = 5 seconds
     mov !msg_countdown,a    ;26db  9e 2e fb
@@ -12900,7 +12917,7 @@ sub_43b1:
     bnz lab_43ea            ;43c3  bd 25
     cmp mem_fe43_key,#0x49  ;43c5  c8 43 49
     bz lab_4400             ;43c8  ad 36
-    call !sub_7697          ;43ca  9a 97 76
+    call !sub_7697_snd_cd   ;43ca  9a 97 76     Unknown; snd_msg_idx and CD related
     cmp mem_fe43_key,#0x34  ;43cd  c8 43 34
     bnz lab_43de            ;43d0  bd 0c
 
@@ -12996,7 +13013,7 @@ lab_4438:
     cmp a,#0x00             ;4446  4d 00
     bz lab_4452             ;4448  ad 08
 
-    call !sub_7697          ;444a  9a 97 76
+    call !sub_7697_snd_cd   ;444a  9a 97 76     Unknown; snd_msg_idx and CD related
 
     mov a,#0                ;444d  a1 00        A = 0 seconds
     mov !msg_countdown,a    ;444f  9e 2e fb
@@ -13098,7 +13115,7 @@ lab_44db:
 lab_44e3:
     cmp mem_fe4c,#0x02      ;44e3  c8 4c 02
     bnz lab_4501            ;44e6  bd 19
-    call !sub_7697          ;44e8  9a 97 76
+    call !sub_7697_snd_cd   ;44e8  9a 97 76     Unknown; snd_msg_idx and CD related
     mov mem_fed4,#0x01      ;44eb  11 d4 01
     mov a,!mem_f194         ;44ee  8e 94 f1
     cmp a,#0x00             ;44f1  4d 00
@@ -13124,7 +13141,7 @@ lab_4502:
     bnz lab_4538            ;4511  bd 25
     cmp mem_fe43_key,#0x49  ;4513  c8 43 49
     bz lab_454e             ;4516  ad 36
-    call !sub_7697          ;4518  9a 97 76
+    call !sub_7697_snd_cd   ;4518  9a 97 76     Unknown; snd_msg_idx and CD related
     cmp mem_fe43_key,#0x34  ;451b  c8 43 34
     bnz lab_452c            ;451e  bd 0c
 
@@ -13183,10 +13200,10 @@ sub_4569:
     movw hl,#mem_f193       ;456d  16 93 f1
     decw hl                 ;4570  96
 
-lab_4571:
+lab_4571_loop:
     mov a,#0x01             ;4571  a1 01
     mov [hl+b],a            ;4573  bb
-    dbnz b,lab_4571         ;4574  8b fb
+    dbnz b,lab_4571_loop    ;4574  8b fb
     ret                     ;4576  af
 
 sub_4577:
@@ -22585,11 +22602,12 @@ lab_768f:
     ret                     ;768f  af
 
 lab_7690:
-    call !sub_7697          ;7690  9a 97 76
-    call !sub_76c9          ;7693  9a c9 76
+    call !sub_7697_snd_cd   ;7690  9a 97 76     Unknown; snd_msg_idx and CD related
+    call !sub_76c9_f1a9_f1ad;7693  9a c9 76     Unknown; does something with 4 bytes at mem_f1a9 and at mem_f1ad
     ret                     ;7696  af
 
-sub_7697:
+sub_7697_snd_cd:
+;Unknown; snd_msg_idx and CD related
     bt mem_fe5d.7,lab_76c2  ;7697  fc 5d 28     Sets snd_msg_idx = 0xff and returns
     bt mem_fe64.1,lab_76c2  ;769a  9c 64 25     Sets snd_msg_idx = 0xff and returns
     cmp mem_fe30,#0x03      ;769d  c8 30 03
@@ -22608,7 +22626,7 @@ sub_7697:
 lab_76b8:
     mov b,#0x05             ;76b8  a3 05
     mov a,#0xff             ;76ba  a1 ff
-    movw hl,#upd_disp+10    ;76bc  16 a4 f1
+    movw hl,#upd_disp+10    ;76bc  16 a4 f1     XXX probably not upd_disp
 
 lab_76bf_loop:
     mov [hl+b],a            ;76bf  bb
@@ -22621,7 +22639,8 @@ lab_76c2:
     mov [hl],a              ;76c7  97
     ret                     ;76c8  af
 
-sub_76c9:
+sub_76c9_f1a9_f1ad:
+;Unknown; does something with 4 bytes at mem_f1a9 and at mem_f1ad
     mov b,#0x04             ;76c9  a3 04
     mov a,#0x00             ;76cb  a1 00
     movw hl,#mem_f1a9       ;76cd  16 a9 f1
@@ -24852,7 +24871,7 @@ lab_8548:
 
 lab_855f:
     bt mem_fe6f.6,lab_856a  ;855f  ec 6f 08
-    call !sub_7697          ;8562  9a 97 76
+    call !sub_7697_snd_cd   ;8562  9a 97 76     Unknown; snd_msg_idx and CD related
     set1 mem_fe7e.6         ;8565  6a 7e
     call !sub_887d          ;8567  9a 7d 88
 
@@ -25153,7 +25172,7 @@ lab_873e:
     clr1 mem_fe6e.4         ;874e  4b 6e
     mov a,#0x00             ;8750  a1 00
     mov !mem_fc80,a         ;8752  9e 80 fc
-    call !sub_7697          ;8755  9a 97 76
+    call !sub_7697_snd_cd   ;8755  9a 97 76     Unknown; snd_msg_idx and CD related
 
 lab_8758:
     set1 mem_fe71.3         ;8758  3a 71
@@ -25703,7 +25722,7 @@ sub_8ad0:
     mov a,!mem_f1e9         ;8ad0  8e e9 f1
     bf a.2,lab_8ae8         ;8ad3  31 2f 12
     set1 mem_fe7e.6         ;8ad6  6a 7e
-    call !sub_7697          ;8ad8  9a 97 76
+    call !sub_7697_snd_cd   ;8ad8  9a 97 76     Unknown; snd_msg_idx and CD related
 
 lab_8adb:
     mov mem_fe4c,#0x00      ;8adb  11 4c 00
@@ -25778,7 +25797,7 @@ lab_8b3c:
     mov a,#0x20             ;8b3c  a1 20
     callt [0x0044]          ;8b3e  c5           Calls sub_09c6
     mov mem_fe4c,#0x02      ;8b3f  11 4c 02
-    call !sub_7697          ;8b42  9a 97 76
+    call !sub_7697_snd_cd   ;8b42  9a 97 76     Unknown; snd_msg_idx and CD related
     mov a,#0x88             ;8b45  a1 88
     mov !mem_f1ac,a         ;8b47  9e ac f1
     clr1 mem_fe4d.6         ;8b4a  6b 4d
@@ -25821,7 +25840,7 @@ lab_8b84:
 
 lab_8b8f:
     mov mem_fe4c,#0x04      ;8b8f  11 4c 04
-    call !sub_7697          ;8b92  9a 97 76
+    call !sub_7697_snd_cd   ;8b92  9a 97 76     Unknown; snd_msg_idx and CD related
     mov a,#0x83             ;8b95  a1 83
     mov !mem_f1ac,a         ;8b97  9e ac f1
     set1 mem_fe4d.7         ;8b9a  7a 4d
@@ -25829,14 +25848,14 @@ lab_8b8f:
 
 lab_8b9f:
     mov mem_fe4c,#0x06      ;8b9f  11 4c 06
-    call !sub_7697          ;8ba2  9a 97 76
+    call !sub_7697_snd_cd   ;8ba2  9a 97 76     Unknown; snd_msg_idx and CD related
     mov a,#0x86             ;8ba5  a1 86
     mov !mem_f1ac,a         ;8ba7  9e ac f1
     set1 mem_fe4d.7         ;8baa  7a 4d
     br !lab_8e26            ;8bac  9b 26 8e
 
 lab_8baf:
-    call !sub_7697          ;8baf  9a 97 76
+    call !sub_7697_snd_cd   ;8baf  9a 97 76     Unknown; snd_msg_idx and CD related
     mov a,#0x82             ;8bb2  a1 82
     mov !mem_f1ac,a         ;8bb4  9e ac f1
     mov mem_fe4c,#0x03      ;8bb7  11 4c 03
@@ -25844,7 +25863,7 @@ lab_8baf:
     br !lab_8e26            ;8bbc  9b 26 8e
 
 lab_8bbf:
-    call !sub_7697          ;8bbf  9a 97 76
+    call !sub_7697_snd_cd   ;8bbf  9a 97 76     Unknown; snd_msg_idx and CD related
     mov a,#0x85             ;8bc2  a1 85
     mov !mem_f1ac,a         ;8bc4  9e ac f1
     mov mem_fe4c,#0x05      ;8bc7  11 4c 05
@@ -25853,7 +25872,7 @@ lab_8bbf:
 
 lab_8bcf:
     mov mem_fe4c,#0x07      ;8bcf  11 4c 07
-    call !sub_7697          ;8bd2  9a 97 76
+    call !sub_7697_snd_cd   ;8bd2  9a 97 76     Unknown; snd_msg_idx and CD related
     mov a,#0x84             ;8bd5  a1 84
     mov !mem_f1ac,a         ;8bd7  9e ac f1
     clr1 mem_fe4d.7         ;8bda  7b 4d
@@ -25861,14 +25880,14 @@ lab_8bcf:
 
 lab_8bdf:
     mov mem_fe4c,#0x07      ;8bdf  11 4c 07
-    call !sub_7697          ;8be2  9a 97 76
+    call !sub_7697_snd_cd   ;8be2  9a 97 76     Unknown; snd_msg_idx and CD related
     mov a,#0x84             ;8be5  a1 84
     mov !mem_f1ac,a         ;8be7  9e ac f1
     clr1 mem_fe4d.7         ;8bea  7b 4d
     br !lab_8e26            ;8bec  9b 26 8e
 
 lab_8bef:
-    call !sub_7697          ;8bef  9a 97 76
+    call !sub_7697_snd_cd   ;8bef  9a 97 76     Unknown; snd_msg_idx and CD related
     mov a,#0x83             ;8bf2  a1 83
     mov !mem_f1ac,a         ;8bf4  9e ac f1
     mov mem_fe4c,#0x04      ;8bf7  11 4c 04
@@ -25876,7 +25895,7 @@ lab_8bef:
     br !lab_8e26            ;8bfc  9b 26 8e
 
 lab_8bff:
-    call !sub_7697          ;8bff  9a 97 76
+    call !sub_7697_snd_cd   ;8bff  9a 97 76     Unknown; snd_msg_idx and CD related
     mov a,#0x82             ;8c02  a1 82
     mov !mem_f1ac,a         ;8c04  9e ac f1
     mov mem_fe4c,#0x03      ;8c07  11 4c 03
@@ -25884,7 +25903,7 @@ lab_8bff:
     br !lab_8e26            ;8c0c  9b 26 8e
 
 lab_8c0f:
-    call !sub_7697          ;8c0f  9a 97 76
+    call !sub_7697_snd_cd   ;8c0f  9a 97 76     Unknown; snd_msg_idx and CD related
     mov a,#0x86             ;8c12  a1 86
     mov !mem_f1ac,a         ;8c14  9e ac f1
     mov mem_fe4c,#0x06      ;8c17  11 4c 06
@@ -25892,7 +25911,7 @@ lab_8c0f:
     br !lab_8e26            ;8c1c  9b 26 8e
 
 lab_8c1f:
-    call !sub_7697          ;8c1f  9a 97 76
+    call !sub_7697_snd_cd   ;8c1f  9a 97 76     Unknown; snd_msg_idx and CD related
     mov a,#0x85             ;8c22  a1 85
     mov !mem_f1ac,a         ;8c24  9e ac f1
     mov mem_fe4c,#0x05      ;8c27  11 4c 05
@@ -26158,7 +26177,7 @@ lab_8ddb:
 
 lab_8de5:
     bf mem_fe71.5,lab_8df9  ;8de5  31 53 71 10
-    call !sub_7697          ;8de9  9a 97 76
+    call !sub_7697_snd_cd   ;8de9  9a 97 76     Unknown; snd_msg_idx and CD related
     mov a,#0x89             ;8dec  a1 89
     mov !mem_f1ac,a         ;8dee  9e ac f1
     clr1 mem_fe4d.7         ;8df1  7b 4d
@@ -29713,7 +29732,7 @@ lab_a615:
     mov !mem_fc9f,a         ;a619  9e 9f fc
 
 lab_a61c:
-    call !sub_7697          ;a61c  9a 97 76
+    call !sub_7697_snd_cd   ;a61c  9a 97 76     Unknown; snd_msg_idx and CD related
 
     mov a,#0x8e             ;a61f  a1 8e
     mov !tmp_msg_idx,a      ;a621  9e a6 f1     e Writes "  MIN  " or "  MAX  "
@@ -30278,7 +30297,7 @@ sub_a937:
     cmp a,b                 ;a94b  61 4b
 
     push psw                ;a94d  22
-    call !sub_7697          ;a94e  9a 97 76
+    call !sub_7697_snd_cd   ;a94e  9a 97 76     Unknown; snd_msg_idx and CD related
     pop psw                 ;a951  23
     pop ax                  ;a952  b0
     bz lab_a95d_ret         ;a953  ad 08
@@ -33207,7 +33226,7 @@ mem_b5c0:
 ;table of words used with table_get_word
     .byte 0x02              ;b5c0  02          DATA 0x02        2 entries below:
     .word lab_6933
-    .word sub_7697
+    .word sub_7697_snd_cd
 
 mem_b5c5:
 ;table of words used with table_get_word
@@ -39035,9 +39054,9 @@ lab_d21b:
 
 lab_d22f_same_cd:
     mov a,#0xff                 ;d22f  a1 ff
-    mov !tmp_msg_idx,a          ;d231  9e a6 f1       f Writes " DIAG  "
+    mov !tmp_msg_idx,a          ;d231  9e a6 f1   f Writes " DIAG  "
 
-    call !sub_7697              ;d234  9a 97 76
+    call !sub_7697_snd_cd       ;d234  9a 97 76   Unknown; snd_msg_idx and CD related
     call !sub_dc2f              ;d237  9a 2f dc
     call !sub_d345              ;d23a  9a 45 d3
     bt mem_fe6e.0,lab_d273_ret  ;d23d  8c 6e 33
@@ -39739,7 +39758,7 @@ lab_d6c6:
     br lab_d71f             ;d6dd  fa 40
 
 lab_d6df:
-    call !sub_7697          ;d6df  9a 97 76
+    call !sub_7697_snd_cd   ;d6df  9a 97 76     Unknown; snd_msg_idx and CD related
     br lab_d71f             ;d6e2  fa 3b
 
 lab_d6e4:
@@ -39770,7 +39789,7 @@ lab_d70e_new_track:
     mov a,!mem_fb49         ;d70e  8e 49 fb
     cmp a,#0x00             ;d711  4d 00
     bnz lab_d724_ret        ;d713  bd 0f
-    call !sub_7697          ;d715  9a 97 76
+    call !sub_7697_snd_cd   ;d715  9a 97 76     Unknown; snd_msg_idx and CD related
     mov a,#0xca             ;d718  a1 ca
     mov !mem_f1ad,a         ;d71a  9e ad f1
     br lab_d724_ret         ;d71d  fa 05
@@ -40570,9 +40589,9 @@ lab_dbb6:
     push ax                 ;dbc9  b1
 
     mov a,#0xff             ;dbca  a1 ff
-    mov !tmp_msg_idx,a      ;dbcc  9e a6 f1       f Writes " DIAG  "
+    mov !tmp_msg_idx,a      ;dbcc  9e a6 f1     f Writes " DIAG  "
 
-    call !sub_7697          ;dbcf  9a 97 76
+    call !sub_7697_snd_cd   ;dbcf  9a 97 76     Unknown; snd_msg_idx and CD related
     pop ax                  ;dbd2  b0
 
 lab_dbd3:
