@@ -16,6 +16,6 @@ These components have 5V only when P80=1:
  - uPD16432B
  - TEA6840H
  - SAA7705H (via BA033)
- - HEF401060BT
+ - HEF40106BT
  - TDA3613T
  - TA2025P (unsure)

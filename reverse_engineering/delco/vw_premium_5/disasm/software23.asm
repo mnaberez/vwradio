@@ -11280,7 +11280,7 @@ lab_39ed_power_on_and_start:
 
 switched_5v_on:
 ;Turn the switched 5V supply on
-;PM80=output, P80=1  Powers up uPD16432B, TEA6840H, SAA7705H, HEF401060BT, TDA3613T, TA2025P
+;PM80=output, P80=1  Powers up uPD16432B, TEA6840H, SAA7705H, HEF40106BT, TDA3613T, TA2025P
     clr1 pm8.0              ;3a06  71 0b 28     PM80 = output
     set1 shadow_p8.0        ;3a09  0a d2        P80 = 1
     mov a,shadow_p8         ;3a0b  f0 d2
@@ -11289,7 +11289,7 @@ switched_5v_on:
 
 switched_5v_off_p70_1:
 ;Turn the switched 5V supply off (also P70=1???)
-;PM80=output, P80=0  Powers down uPD16432B, TEA6840H, SAA7705H, HEF401060BT, TDA3613T, TA2025P
+;PM80=output, P80=0  Powers down uPD16432B, TEA6840H, SAA7705H, HEF40106BT, TDA3613T, TA2025P
 ;PM70=output, P7.0=1 ???
     clr1 pm8.0              ;3a10  71 0b 28     PM80 = output
     clr1 shadow_p8.0        ;3a13  0b d2        P80 = 0
