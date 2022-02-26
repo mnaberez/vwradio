@@ -162,15 +162,15 @@ mem_f1eb = 0xf1eb           ;EEPROM 004A  KWP1281 id block 3/4 "0001", low byte
 mem_f1ec = 0xf1ec           ;EEPROM 004B  KWP1281 id block 3/4 "0001", high byte
 mem_f1ed = 0xf1ed           ;EEPROM 004C  KWP1281 id block 1/4 part number like "1J0035180B  " (12 bytes)
                             ;...
-mem_f1f9 = 0xf1f9           ;EEPROM 0058  KWP1281 Soft Coding in binary, high byte
-mem_f1fa = 0xf1fa           ;EEPROM 0059  KWP1281 Soft Coding in binary, low byte
-mem_f1fb = 0xf1fb           ;EEPROM 005A  KWP1281 Workshop Code, high byte
-mem_f1fc = 0xf1fc           ;EEPROM 005B  KWP1281 Workshop Code, low byte
-mem_f1fd = 0xf1fd           ;EEPROM 005C
-mem_f1fe = 0xf1fe           ;EEPROM 005D
-mem_f1ff = 0xf1ff           ;EEPROM 005E
-mem_f200 = 0xf200           ;EEPROM 005F
-mem_f201 = 0xf201           ;EEPROM 0060
+mem_f1f9 = 0xf1f9           ;EEPROM 0058  (Protected) KWP1281 Soft Coding in binary, high byte
+mem_f1fa = 0xf1fa           ;EEPROM 0059  (Protected) KWP1281 Soft Coding in binary, low byte
+mem_f1fb = 0xf1fb           ;EEPROM 005A  (Protected) KWP1281 Workshop Code, high byte
+mem_f1fc = 0xf1fc           ;EEPROM 005B  (Protected) KWP1281 Workshop Code, low byte
+mem_f1fd = 0xf1fd           ;EEPROM 005C  (Protected)
+mem_f1fe = 0xf1fe           ;EEPROM 005D  (Protected)
+mem_f1ff = 0xf1ff           ;EEPROM 005E  (Protected)
+mem_f200 = 0xf200           ;EEPROM 005F  (Protected)
+mem_f201 = 0xf201           ;EEPROM 0060  (Protected)
 
 mem_f202 = 0xf202
 mem_f203 = 0xf203
@@ -1145,15 +1145,15 @@ mem_00b4:
 
 mem_00c6:
 ;Defaults written to EEPROM area in RAM: mem_f1f9 - mem_f201 (9 bytes)
-    .byte 0x03  ;00c6 -> mem_f1f9           EEPROM 0058   KWP1281 Soft Coding in binary, high byte
-    .byte 0x20  ;00c7 -> mem_f1fa           EEPROM 0059   KWP1281 Soft Coding in binary, low byte
-    .byte 0x00  ;00c8 -> mem_f1fb           EEPROM 005A   KWP1281 Workshop Code, high byte
-    .byte 0x00  ;00c9 -> mem_f1fc           EEPROM 005B   KWP1281 Workshop Code, low byte
-    .byte 0x00  ;00ca -> mem_f1fd           EEPROM 005C
-    .byte 0x00  ;00cb -> mem_f1fe           EEPROM 005D
-    .byte 0x04  ;00cc -> mem_f1ff           EEPROM 005E
-    .byte 0x00  ;00cd -> mem_f200           EEPROM 005F
-    .byte 0x00  ;00ce -> mem_f201           EEPROM 0060
+    .byte 0x03  ;00c6 -> mem_f1f9           EEPROM 0058   (Protected) KWP1281 Soft Coding in binary, high byte
+    .byte 0x20  ;00c7 -> mem_f1fa           EEPROM 0059   (Protected) KWP1281 Soft Coding in binary, low byte
+    .byte 0x00  ;00c8 -> mem_f1fb           EEPROM 005A   (Protected) KWP1281 Workshop Code, high byte
+    .byte 0x00  ;00c9 -> mem_f1fc           EEPROM 005B   (Protected) KWP1281 Workshop Code, low byte
+    .byte 0x00  ;00ca -> mem_f1fd           EEPROM 005C   (Protected)
+    .byte 0x00  ;00cb -> mem_f1fe           EEPROM 005D   (Protected)
+    .byte 0x04  ;00cc -> mem_f1ff           EEPROM 005E   (Protected)
+    .byte 0x00  ;00cd -> mem_f200           EEPROM 005F   (Protected)
+    .byte 0x00  ;00ce -> mem_f201           EEPROM 0060   (Protected)
 
 mem_00cf:
 ;Defaults written to EEPROM area in RAM: mem_f206 - mem_f224 (31 bytes)
@@ -8039,7 +8039,8 @@ lab_2a5e:
 
 lab_2a65:
     ;Read 9 bytes from EEPROM at 0x0058 into mem_fed6
-    ;TODO 9 EEPROM addresses 0x0058-0x0060 are protected in lab_2c60
+    ;These 9 EEPROM addresses 0x0058-0x0060 are protected in lab_2c60
+    ;(Soft Coding and Workshop Code related)
     movw hl,#0x0058         ;2a65  16 58 00     HL = EEPROM address 0x0058
     movw de,#mem_fed6       ;2a68  14 d6 fe     DE = pointer to buffer to receive EEPROM contents
     mov a,#0x09             ;2a6b  a1 09        A = 9 bytes to read from EEPROM
@@ -8055,7 +8056,7 @@ lab_2a74_success:
     call !sub_2de6          ;2a79  9a e6 2d     AX = sum of A bytes in buffer [HL]
     movw bc,ax              ;2a7c  d2           Save the sum in BC
 
-    ;Read 2 bytes from EEPROM at 0x0061 into mem_fed6
+    ;Read 2 bytes from EEPROM at 0x0061 into mem_fed6 (Soft Coding and Workshop Code related)
     movw hl,#0x0061         ;2a7d  16 61 00     HL = EEPROM address 0x0061
     movw de,#mem_fed6       ;2a80  14 d6 fe     DE = pointer to buffer to receive EEPROM contents
     mov a,#0x02             ;2a83  a1 02        A = 2 bytes to read from EEPROM
@@ -8081,7 +8082,8 @@ lab_2a9f_loop:
     bnc lab_2a9f_loop       ;2aa2  9d fb        Repeat until available
 
     movw hl,#mem_f1f9       ;2aa4  16 f9 f1     HL = pointer to buffer to write to EEPROM
-    ;TODO 9 EEPROM addresses 0x0058-0x0060 are protected in lab_2c60
+    ;These 9 EEPROM addresses 0x0058-0x0060 are protected in lab_2c60
+    ;(Soft Coding and Workshop Code related)
     movw de,#0x0058         ;2aa7  14 58 00     DE = EEPROM address 0x0058
     mov a,#0x09             ;2aaa  a1 09        A = 9 bytes to write to EEPROM (2 Soft Coding + 2 Workshop Code + 5 more)
     call !eeprom_write      ;2aac  9a 8e 62     Write A bytes to EEPROM address DE from [HL]
@@ -8144,7 +8146,8 @@ lab_2af4_loop:
     br lab_2af4_loop        ;2af9  fa f9        Repeat until available
 
 lab_2afb_success:
-    ;TODO 9 EEPROM addresses 0x0058-0x0060 are protected in lab_2c60
+    ;These 9 EEPROM addresses 0x0058-0x0060 are protected in lab_2c60
+    ;(Soft Coding and Workshop Code related)
     movw hl,#0x0058         ;2afb  16 58 00     HL = EEPROM address 0x0058
     movw de,#mem_fed6       ;2afe  14 d6 fe     DE = pointer to buffer to receive EEPROM contents
     mov a,#0x09             ;2b01  a1 09        A = 9 bytes to read from EEPROM
@@ -8526,7 +8529,7 @@ sub_2c33:
                             ;                     falsely report success
 
 lab_2c60:
-;Protect 9 EEPROM addresses: 0x0058-0x0060
+;Protect 9 EEPROM addresses: 0x0058-0x0060 (Soft Coding and Workshop related)
     cmpw ax,#0x0058         ;2c60  ea 58 00
     bc lab_2c6c_write       ;2c63  8d 07        Branch if EEPROM address < 0x0058
     cmpw ax,#0x0061         ;2c65  ea 61 00
@@ -12617,7 +12620,8 @@ lab_41ec:
 
 lab_41ed:
     set1 mem_fe64.0         ;41ed  0a 64
-    ;TODO 9 EEPROM addresses 0x0058-0x0060 are protected in lab_2c60
+    ;These 9 EEPROM addresses 0x0058-0x0060 are protected in lab_2c60
+    ;(Soft Coding and Workshop Code related)
     movw hl,#0x0058         ;41ef  16 58 00
     movw de,#0x0061         ;41f2  14 61 00
     callf !sub_09ef         ;41f5  1c ef        A = DE - HL (0x0061 - 0x0058 = 9)
