@@ -179,8 +179,8 @@ mem_f205 = 0xf205
 
 mem_f206 = 0xf206           ;EEPROM 0063
 mem_f207 = 0xf207           ;EEPROM 0064
-mem_f208 = 0xf208           ;EEPROM 0065  Cluster ID, high byte
-mem_f209 = 0xf209           ;EEPROM 0066  Cluster ID, low byte
+ee_cluster_id = 0xf208      ;EEPROM 0065  Cluster ID, high byte
+                            ;EEPROM 0066  Cluster ID, low byte
 mem_f20a = 0xf20a           ;EEPROM 0067  KWP1281 login attempt counter
 mem_f20b = 0xf20b           ;EEPROM 0068  SAFE code attempt counter
 mem_f20c = 0xf20c           ;EEPROM 0069
@@ -388,8 +388,8 @@ mem_fb6f = 0xfb6f           ;Bit 0: off=CD MIX 1,    on=CD MIX 6
 mem_fb70 = 0xfb70
 mem_fb71 = 0xfb71
 mem_fb72 = 0xfb72
-mem_fb73 = 0xfb73           ;Result of sub_2537_secure_resp security access computation (high byte)
-mem_fb74 = 0xfb74           ;Result of sub_2537_secure_resp security access computation (low byte)
+ds_cluster_id = 0xfb73      ;Descrambled Cluster ID word from cluster (2 bytes; big-endian)
+
 mem_fb75 = 0xfb75           ;Entered SAFE code (BCD high byte)
 mem_fb76 = 0xfb76           ;Entered SAFE code (BCD low byte)
 mem_fb79 = 0xfb79
@@ -643,10 +643,13 @@ shadow_p7 = 0xfed1          ;Copy of P7 that will be changed and then written to
 shadow_p8 = 0xfed2          ;Copy of P8 that will be changed and then written to P8
 shadow_p9 = 0xfed3          ;Copy of P9 that will be changed and then written to P9
 mem_fed4 = 0xfed4           ;Bit 6 off=tape side A, on=tape side B
+flipped = mem_fed4          ;Alias: XOR-flipped word (2 bytes)
 mem_fed5 = 0xfed5
 mem_fed6 = 0xfed6
+rotated  = mem_fed6         ;Alias: Rotated word (2 bytes)
 mem_fed7 = 0xfed7
 mem_fed8 = 0xfed8
+zero_count = mem_fed8       ;Alias: Number of zero bits counted during rotation
 mem_fed9 = 0xfed9
 mem_feda = 0xfeda
 mem_fedb = 0xfedb
@@ -1159,8 +1162,8 @@ mem_00cf:
 ;Defaults written to EEPROM area in RAM: mem_f206 - mem_f224 (31 bytes)
     .byte 0x00  ;00cf -> mem_f206           EEPROM 0063
     .byte 0x44  ;00d0 -> mem_f207           EEPROM 0064
-    .byte 0x00  ;00d1 -> mem_f208           EEPROM 0065
-    .byte 0x00  ;00d2 -> mem_f209           EEPROM 0066
+    .byte 0x00  ;00d1 -> ee_cluster_id+0    EEPROM 0065   Cluster ID, high byte
+    .byte 0x00  ;00d2 -> ee_cluster_id+1    EEPROM 0066   Cluster ID, low byte
     .byte 0x00  ;00d3 -> mem_f20a           EEPROM 0067
     .byte 0x00  ;00d4 -> mem_f20b           EEPROM 0068
     .byte 0x45  ;00d5 -> mem_f20c           EEPROM 0069
@@ -6399,23 +6402,24 @@ lab_22f1:
 lab_22f9:
     br !sub_2227            ;22f9  9b 27 22
 
-sub_22fc:
-;Lock or unlock SAFE mode based on security access computation result
-;If word at mem_fb73 equals word mem_f208 then access is granted
-;called from sub_2537_secure_resp only (title 0x3d security access response processing)
-    bt mem_fe23.6,lab_234b_ret  ;22fc  ec 23 4c     Branch to just return
-    bt mem_fe23.5,lab_2317  ;22ff  dc 23 15
-    clr1 mem_fe23.7         ;2302  7b 23        SAFE mode = locked
+sub_22fc_lock_or_unlock:
+;Lock or unlock SAFE mode.  If the descrambled Cluster ID ("ds_cluster_id") word received
+;from the cluster matches the Cluster ID word in the EEPROM ("ee_cluster_id") then unlock.
+    bt mem_fe23.6,lab_234b_ret  ;22fc  ec 23 4c     Branch to just return if ???
+    bt mem_fe23.5,lab_2317      ;22ff  dc 23 15     Branch to lab_2317 if ???
+    clr1 mem_fe23.7             ;2302  7b 23        SAFE mode = locked
 
-    mov a,!mem_fb73         ;2304  8e 73 fb     A = sub_2537_secure_resp security access computation result (high byte)
-    cmp a,!mem_f208         ;2307  48 08 f2
-    bnz lab_2327            ;230a  bd 1b        Branch if computation result is not equal
+    ;Note: ds_cluster_id and ee_cluster_id are big-endian (high byte, low byte)
 
-    mov a,!mem_fb74         ;230c  8e 74 fb     A = sub_2537_secure_resp security access computation result (low byte)
-    cmp a,!mem_f209         ;230f  48 09 f2
-    bnz lab_2327            ;2312  bd 13        Branch if computation result is not equal
+    mov a,!ds_cluster_id+0      ;2304  8e 73 fb
+    cmp a,!ee_cluster_id+0      ;2307  48 08 f2
+    bnz lab_2327                ;230a  bd 1b        Branch if high bytes are not equal
 
-    ;Computation result is equal
+    mov a,!ds_cluster_id+1      ;230c  8e 74 fb
+    cmp a,!ee_cluster_id+1      ;230f  48 09 f2
+    bnz lab_2327                ;2312  bd 13        Branch if low bytes are not equal
+
+    ;Cluster ID received from cluster matches the EEPROM
 
     set1 mem_fe23.7         ;2314  7a 23        SAFE mode = unlocked
     ret                     ;2316  af
@@ -6433,12 +6437,14 @@ lab_2327:
     cmp a,#0xc3             ;232a  4d c3
     bz lab_234b_ret         ;232c  ad 1d        Branch to just return
 
-    mov a,!mem_fb73         ;232e  8e 73 fb     A = sub_2537_secure_resp security access computation result (high byte)
-    movw hl,#mem_f208       ;2331  16 08 f2
+    ;Store new Cluster ID in the EEPROM
+
+    mov a,!ds_cluster_id+0  ;232e  8e 73 fb     A = Descrambled Cluster ID from cluster (high byte)
+    movw hl,#ee_cluster_id+0;2331  16 08 f2
     call !eeram_wr_byte_hl  ;2334  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
 
-    mov a,!mem_fb74         ;2337  8e 74 fb     sub_2537_secure_resp security access computation result (low byte)
-    movw hl,#mem_f209       ;233a  16 09 f2
+    mov a,!ds_cluster_id+1  ;2337  8e 74 fb    A = Descrambled Cluster ID from cluster (low byte)
+    movw hl,#ee_cluster_id+1;233a  16 09 f2
     call !eeram_wr_byte_hl  ;233d  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
 
     call !sub_249c          ;2340  9a 9c 24     A = 1 + sum of 6 bytes at mem_f206 - mem_f20b
@@ -6782,110 +6788,130 @@ lab_2532_write_done:
     mov p3,a                ;2534  f2 03
     ret                     ;2536  af
 
-sub_2537_secure_resp:
-;Process the title 0x3D Security Access Response block received from
-;the instrument cluster.  Perform a computation on the 4 bytes.  Compare
-;the computation result to an expected result and either lock or unlock SAFE mode.
+sub_2537_descramble_and_lock_or_unlock:
+;Descramble the Cluster ID from the cluster's 0x3D response block, then
+;lock or unlock SAFE mode.
 ;
-;TODO unknown constants 0xBDE7 and 0x0018 below are also found in the
-;Premium 4 firmware routine sub_e6ca which also seems to be security access related
+;RX buffer:
+;  0x07 Block length                    kwp_rx_buf+0
+;   ??  Block counter                   kwp_rx_buf+1
+;  0x3D Block title (Security Access)   kwp_rx_buf+2
+;   ??  Payload byte 0                  kwp_rx_buf+3  -> flipped+0 (low byte)
+;   ??  Payload byte 1                  kwp_rx_buf+4  -> flipped+1 (high byte)
+;   ??  Payload byte 2                  kwp_rx_buf+5  -> rotated+0 (low byte)
+;   ??  Payload byte 3                  kwp_rx_buf+6  -> rotated+1 (high byte)
+;  0x03 Block end                       kwp_rx_buf+7
 ;
+    ;Copy 4 bytes:
+    ;  kwp_rx_buf+3 (Payload byte 0) -> flipped+0 (flipped low)
+    ;  kwp_rx_buf+4 (Payload byte 1) -> flipped+1 (flipped high)
+    ;  kwp_rx_buf+5 (Payload byte 2) -> rotated+0 (rotated low)
+    ;  kwp_rx_buf+6 (Payload byte 3) -> rotated+1 (rotated high)
     movw hl,#kwp_rx_buf+3   ;2537  16 8d f0     HL = source address (KWP1281 rx buffer byte 3)
-    movw de,#mem_fed4       ;253a  14 d4 fe     DE = destination address
+    movw de,#flipped        ;253a  14 d4 fe     DE = destination address
     mov a,#4                ;253d  a1 04        A = 4 bytes to copy
     callf !copy             ;253f  4c 9e        Copy A bytes from [HL] to [DE]
 
-    ;After copying, mem_fed4 contains the 4 bytes from the received block:
-    ;  kwp_rx_buf+3 -> mem_fed4
-    ;  kwp_rx_buf+4 -> mem_fed5
-    ;  kwp_rx_buf+5 -> mem_fed6
-    ;  kwp_rx_buf+6 -> mem_fed7
+    ;
+    ;Deobfuscate "flipped" word and "rotated" word
+    ;
 
-    ;Word at mem_fed4 = Word at mem_fed4 - 0xbde7
-    movw ax,mem_fed4        ;2541  89 d4
-    subw ax,#0xbde7         ;2543  da e7 bd
-    movw mem_fed4,ax        ;2546  99 d4
+    ;flipped = flipped - 0xBDE7
+    movw ax,flipped         ;2541  89 d4
+    subw ax,#0xbde7         ;2543  da e7 bd     Deobfuscate
+    movw flipped ,ax        ;2546  99 d4
 
-    ;AX = Word at mem_fed6
-    movw ax,mem_fed6        ;2548  89 d6
-    ;If previous subtraction resulted in a borrow, decrement AX
-    bnc lab_254d_nc         ;254a  9d 01
+    ;rotated = rotated - 0x0018 - borrow
+    movw ax,rotated         ;2548  89 d6
+    bnc lab_254d_nc         ;254a  9d 01        Decrement to account for borrow
     decw ax                 ;254c  90
-
 lab_254d_nc:
-    ;Word at mem_fed6 = AX - 0x0018
-    subw ax,#0x0018         ;254d  da 18 00
-    movw mem_fed6,ax        ;2550  99 d6
+    subw ax,#0x0018         ;254d  da 18 00     Deobfuscate
+    movw rotated,ax         ;2550  99 d6
 
-    ;Word at mem_fed4 = Word at mem_fed4 XOR Word at mem_fed6
-    call !sub_258e_xor_words
+    ;flipped = flipped ^ rotated
+    call !xor_flipped_rotated
 
-    mov a,mem_fed4          ;2555  f0 d4      A = low byte of word at mem_fed4
-    mov c,#0x02             ;2557  a2 02      C = 2 passes of counting number of "0" bits word at mem_fed4
-    mov mem_fed8,#0         ;2559  11 d8 00   mem_fed = 0 (counts number of "0" bits)
+    ;
+    ;Rotate the "flipped" word to the right fully around,
+    ;counting the number of zero bits rotated into the carry
+    ;
 
-lab_255c_c_loop:
-    ;Add the count of "0" bits in A to byte in mem_fed8
-    ;Original byte in A is preserved
+    ;Set up for 2 passes: low byte then high byte
+    mov a,flipped           ;2555  f0 d4      A = low byte of flipped (pass 1: low byte, pass 2: high byte)
+    mov c,#0x02             ;2557  a2 02      C = 2 passes (pass 1: counts zeros in low byte, pass 2: high byte)
+    mov mem_fed8,#0         ;2559  11 d8 00   Number of zero bits counted = 0
+
+lab_255c_byte_loop:
     mov b,#8                ;255c  a3 08      B = 8 bits to rotate
-lab_255e_b_loop:
+lab_255e_bit_loop:
     ror a,1                 ;255e  24         Rotate A to the right around itself
                             ;                 Bit 0 is rotated into both bit 7 and carry flag
     bc lab_2563_cy          ;255f  8d 02      Skip incrementing mem_fed8 if bit rotated out = 1
-    ;Bit rotated out = 0
-    inc mem_fed8            ;2561  81 d8      Increment mem_fed8
+    inc zero_count          ;2561  81 d8      Increment zero_count
 lab_2563_cy:
-    dbnz b,lab_255e_b_loop  ;2563  8b f9      Loop until all 8 bits are tested
+    dbnz b,lab_255e_bit_loop;2563  8b f9      Loop until all 8 bits are tested
 
-    mov a,mem_fed5          ;2565  f0 d5      A = high byte of word at mem_fed4
-    dbnz c,lab_255c_c_loop  ;2567  8a f3      Loop until C=0
+    mov a,flipped+1           ;2565  f0 d5      A = high byte for the second pass
+    dbnz c,lab_255c_byte_loop ;2567  8a f3      Loop to do the second pass for the high byte
 
-    ;B = count of "0" bits computed above
-    mov a,mem_fed8          ;2569  f0 d8
+    ;
+    ;All zero bits in the "flipped" word have been counted.
+    ;Rotate the "rotated" word right by the number of zero bits counted
+    ;
+
+    mov a,zero_count        ;2569  f0 d8
     mov b,a                 ;256b  73         B = Number of "0" bits counted
-
-    ;Carry flag from operations above is used below
-
 lab_256c_b_loop:
-    mov a,mem_fed6          ;256c  f0 d6
+    mov a,rotated+0         ;256c  f0 d6
     rorc a,1                ;256e  25
-    mov mem_fed6,a          ;256f  f2 d6      Rotate mem_fed6 once to the right
+    mov rotated+0,a         ;256f  f2 d6      Rotate low byte
 
-    mov a,mem_fed7          ;2571  f0 d7
+    mov a,rotated+1         ;2571  f0 d7
     rorc a,1                ;2573  25
-    mov mem_fed7,a          ;2574  f2 d7      Rotate mem_fed7 once to the right
+    mov rotated+1,a         ;2574  f2 d7      Rotate high byte
 
-    mov1 mem_fed6.7,cy      ;2576  71 71 d6   Copy carry flag into mem_fed6 bit 7
+    mov1 rotated+0.7,cy     ;2576  71 71 d6   Copy carry flag into rotated+0 bit 7
+    dbnz b,lab_256c_b_loop  ;2579  8b f1      Loop until all rotations have been preformed
 
-    dbnz b,lab_256c_b_loop  ;2579  8b f1      Loop once for each "0" bit counted above
+    ;
+    ;The "rotated" word has now been rotated by the number of zero bits.
+    ;
 
-    call !sub_258e_xor_words;257b  9a 8e 25   Word at mem_fed4 = Word at mem_fed4 XOR Word at mem_fed6
+    ;flipped = flipped ^ rotated
+    call !xor_flipped_rotated;257b  9a 8e 25
 
-    ;Copy result of computation into mem_fb73/mem_fb74 for use comparision in sub_22fc
-    movw ax,mem_fed4        ;257e  89 d4
-    mov !mem_fb73,a         ;2580  9e 73 fb   mem_fb73 = Word at mem_fed4 high byte
+    ;"flipped" word now contains the descrambled Cluster ID word.
+    ;
+    ;Copy it into ds_cluster_id for the comparison in in sub_22fc_lock_or_unlock.
+    ;
+    ;Note: All the words above are little-endian (low byte, high byte) but
+    ;ds_cluster_id and ee_cluster_id are big-endian (high byte, low byte).
+    ;
+    movw ax,flipped         ;257e  89 d4      A=high byte, X=low byte
+    mov !ds_cluster_id+0,a  ;2580  9e 73 fb   ds_cluster_id+0 = flipped+1
     mov a,x                 ;2583  60
-    mov !mem_fb74,a         ;2584  9e 74 fb   mem_fb74 = Word at mem_fed5 low byte
+    mov !ds_cluster_id+1,a  ;2584  9e 74 fb   ds_cluster_id+1 = flipped+0
 
-    call !sub_22fc          ;2587  9a fc 22   Lock or unlock SAFE mode based on security access computation result
-                            ;                 If Word at mem_fb73 equals Word mem_f208 then access is granted
+    call !sub_22fc_lock_or_unlock ;2587  9a fc 22   Lock or unlock SAFE mode based on security access computation result
+                                  ;                 If Word at ds_cluster_id+0 equals Word ee_cluster_id then access is granted
 
     call !sub_24f1          ;258a  9a f1 24   XXX Unknown
     ret                     ;258d  af
 
-sub_258e_xor_words:
-;Word at mem_fed4 = Word at mem_fed4 XOR Word at mem_fed6
-    mov a,mem_fed4          ;258e  f0 d4
-    xor a,mem_fed6          ;2590  7e d6
-    mov mem_fed4,a          ;2592  f2 d4    mem_fed4 = mem_fed4 xor mem_fed6
+xor_flipped_rotated:
+;flipped = flipped ^ rotated
+    mov a,flipped+0         ;258e  f0 d4
+    xor a,rotated+0         ;2590  7e d6
+    mov flipped+0,a         ;2592  f2 d4
 
-    mov a,mem_fed5          ;2594  f0 d5
-    xor a,mem_fed7          ;2596  7e d7
-    mov mem_fed5,a          ;2598  f2 d5    mem_fed5 = mem_fed5 xor mem_fed7
+    mov a,flipped+1         ;2594  f0 d5
+    xor a,rotated+1         ;2596  7e d7
+    mov flipped+1,a         ;2598  f2 d5
     ret                     ;259a  af
 
 sub_259b_safe_lock:
-;Turn SAFE mode = locked
+;Set SAFE mode = locked
     clr1 mem_fe23.7         ;259b  7b 23    SAFE mode = locked
     ret                     ;259d  af
 
@@ -15721,7 +15747,7 @@ lab_50ec:
 ;    The cluster must use 10400 baud because the radio hardcodes the baud rate.
 ;  Cluster sends a 0x09 ACK block after the send keyword byte exchange.
 ;  Radio sends a 0xD7 Security Access Request block (lab_55de_secure_req).
-;  Cluster sends a 0x3D Security Access Response block (sub_2537_secure_resp).
+;  Cluster sends a 0x3D Security Access Response block (sub_2537_descramble_and_lock_or_unlock).
 ;  Radio sends a 0x06 Disconnect block (no response from cluster; end of communication).
 ;
 
@@ -15744,14 +15770,14 @@ lab_50fe:
 kwp_3f_06_disconnect:
 ;Disconnect block received from cluster (kwp_3f_handlers)
 ;
-    call !sub_259b_safe_lock  ;5106  9a 9b 25     Turn SAFE mode = locked
+    call !sub_259b_safe_lock  ;5106  9a 9b 25     Set SAFE mode = locked
     mov a,#0x00               ;5109  a1 00
     mov !kwp_con_3f_state,a   ;510b  9e c6 fb     Store new KWP1281 connection state on cluster address (0x3F; radio-as-tester)
 
     br !kwp_logout_disconnect ;510e  9b c3 51     Branch to Clear KWP1281 auth bits and disconnect
 
 lab_5111:
-    call !sub_259b_safe_lock;5111  9a 9b 25     Turn SAFE mode = locked
+    call !sub_259b_safe_lock;5111  9a 9b 25     Set SAFE mode = locked
     mov a,#0x00             ;5114  a1 00
     mov !kwp_con_3f_state,a ;5116  9e c6 fb     Store new KWP1281 connection state on cluster address (0x3F; radio-as-tester)
 
@@ -15772,7 +15798,7 @@ kwp_3f_0a_nak:
     br !send_kwp_tx_buf     ;512c  9b f7 34     Set flags to start sending the KWP1281 tx buffer
 
 lab_512f:
-    call !sub_259b_safe_lock;512f  9a 9b 25     Turn SAFE mode = locked
+    call !sub_259b_safe_lock;512f  9a 9b 25     Set SAFE mode = locked
     mov a,#0x00             ;5132  a1 00
     mov !kwp_con_3f_state,a ;5134  9e c6 fb     Store new KWP1281 connection state on cluster address (0x3F; radio-as-tester)
     br !lab_5337_disconnect ;5137  9b 37 53     Branch to Send Disconnect request to instrument cluster
@@ -15787,7 +15813,7 @@ kwp_3f_3d_secure_access:
 
 lab_5144:
 ;we received a 0x3d security access response block and we were expecting it
-    call !sub_2537_secure_resp  ;5144  9a 37 25     Process title 0x3d security access response block.
+    call !sub_2537_descramble_and_lock_or_unlock  ;5144  9a 37 25     Process title 0x3d security access response block.
                                 ;                   Perform a computation on the 4 bytes.  Compare the
                                 ;                   computation result to an expected result and
                                 ;                   either lock or unlock SAFE mode.
