@@ -8,7 +8,7 @@
 |Pin  4 |P73/TO01     |Unknown input/output                           |
 |Pin  5 |P74/TI001    |Unknown input/output                           |
 |Pin  6 |P75/TI011    |Unknown input                                  |
-|Pin  7 |P00/INTP0    |INTP0: MFSW (inverted)                         |
+|Pin  7 |P00/INTP0    |INTP0: MFSW (inverted; from HEF40106BT pin 12) |
 |Pin  8 |P01/INTP1    |INTP1: Unknown input                           |
 |Pin  9 |P02/INTP2    |INTP2: Unknown input                           |
 |Pin 10 |P03/INTP3    |Unknown input (not used as INTP3)              |
@@ -42,10 +42,10 @@
 |Pin 42 |P54          |                                               |
 |Pin 43 |P55          |                                               |
 |Pin 44 |P56          |                                               |
-|Pin 45 |P57          |CDC DO (TODO inverted or not?)                 |
-|Pin 46 |P20/SI31     |CDC DI (inverted)                              |
+|Pin 45 |P57          |CDC DO (inverted; to HEF40106BT pin 5)         |
+|Pin 46 |P20/SI31     |CDC DI (inverted; from HEF40106BT pin 2)       |
 |Pin 47 |P21/SO31     |                                               |
-|Pin 48 |P22/SCK31    |CDC CLK (inverted)                             |
+|Pin 48 |P22/SCK31    |CDC CLK (inverted; from HEF40106BT pin 4)      |
 |Pin 49 |P04/INTP4    |INTP4: POWER key (0=pressed)                   |
 |Pin 50 |P05/INTP5    |uPD16432B KEYREQ (not used in firmware)        |
 |Pin 51 |P06/INTP6    |INTP6: STOP/EJECT key (0=pressed)              |
