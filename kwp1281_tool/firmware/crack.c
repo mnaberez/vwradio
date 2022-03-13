@@ -1,15 +1,8 @@
 #include "kwp1281.h"
 #include "technisat.h"
-#include "uart.h"
+#include "printf.h"
 #include <string.h>
 #include <util/delay.h>
-
-static void _print_hex16(char *label, uint16_t word)
-{
-    uart_puts(UART_DEBUG, label);
-    uart_puthex16(UART_DEBUG, word);
-    uart_puts(UART_DEBUG, "\r\n");
-}
 
 static void _crack_clarion(void)
 {
@@ -20,7 +13,7 @@ static void _crack_clarion(void)
     result = kwp_disconnect();
     kwp_panic_if_error(result);
 
-    _print_hex16("\r\nSAFE Code: ", safe_code);
+    printf("\r\nSAFE Code: %04x\r\n", safe_code);
 }
 
 static void _crack_delco_vw_premium_5(void)
@@ -44,8 +37,8 @@ static void _crack_delco_vw_premium_5(void)
     result = kwp_disconnect();
     kwp_panic_if_error(result);
 
-    _print_hex16("\r\nCluster ID: ", cluster_id);
-    _print_hex16("SAFE Code: ", safe_code);
+    printf("\r\nCluster ID: %04x", cluster_id);
+    printf("\r\nSAFE Code: %04x\r\n", safe_code);
 }
 
 static void _crack_delco_vw_sam_2002(void)
@@ -66,7 +59,7 @@ static void _crack_delco_vw_sam_2002(void)
     result = kwp_disconnect();
     kwp_panic_if_error(result);
 
-    _print_hex16("\r\nSAFE Code: ", safe_code);
+    printf("\r\nSAFE Code: %04x\r\n", safe_code);
 }
 
 static void _crack_delco_seat_liceo_or_vw_konzern_2004(void)
@@ -91,8 +84,8 @@ static void _crack_delco_seat_liceo_or_vw_konzern_2004(void)
     result = kwp_disconnect();
     kwp_panic_if_error(result);
 
-    _print_hex16("\r\nCluster ID: ", cluster_id);
-    _print_hex16("SAFE Code: ", safe_code);
+    printf("\r\nCluster ID: %04x\r\n", cluster_id);
+    printf("\r\nSAFE Code: %04x\r\n", safe_code);
 }
 
 static void _crack_technisat(void)
@@ -137,49 +130,49 @@ static void _crack_technisat(void)
     tresult = tsat_disconnect();
     tsat_panic_if_error(tresult);
 
-    _print_hex16("\r\nCluster ID: ", cluster_id);
-    _print_hex16("SAFE Code: ", safe_code);
+    printf("\r\nCluster ID: %04x", cluster_id);
+    printf("\r\nSAFE Code: %04x\r\n", safe_code);
 }
 
 void crack(void)
 {
     if (memcmp(&kwp_component_1[7], "3CP", 3) == 0) {
-        uart_puts(UART_DEBUG, "VW PREMIUM 4 (CLARION) DETECTED\r\n");
+        printf("VW PREMIUM 4 (CLARION) DETECTED\r\n");
         _crack_clarion();
 
     } else if (memcmp(&kwp_vag_number, "5X0035119C", 10) == 0) {
-        uart_puts(UART_DEBUG, "VW SAM 2002 (DELCO) DETECTED\r\n");
+        printf("VW SAM 2002 (DELCO) DETECTED\r\n");
         _crack_delco_vw_sam_2002();
 
     } else if ((memcmp(&kwp_vag_number, "5Z0035119C", 10) == 0) ||
                (memcmp(&kwp_vag_number, "6KE035119", 9) == 0)) {
-        uart_puts(UART_DEBUG, "VW KONZERN 2004 (DELCO) DETECTED\r\n");
+        printf("VW KONZERN 2004 (DELCO) DETECTED\r\n");
         _crack_delco_seat_liceo_or_vw_konzern_2004();
 
     } else if (memcmp(&kwp_component_1[7], "DE2", 3) == 0) {
-        uart_puts(UART_DEBUG, "VW PREMIUM 5 (DELCO) DETECTED\r\n");
+        printf("VW PREMIUM 5 (DELCO) DETECTED\r\n");
         _crack_delco_vw_premium_5();
 
     } else if (memcmp(&kwp_component_1[7], "FF6", 3) == 0) {
-        uart_puts(UART_DEBUG, "SEAT LICEO (DELCO) DETECTED\r\n");
+        printf("SEAT LICEO (DELCO) DETECTED\r\n");
         _crack_delco_seat_liceo_or_vw_konzern_2004();
 
     } else if (memcmp(&kwp_vag_number, "1J0035156", 9) == 0) {
-        uart_puts(UART_DEBUG, "VW RHAPSODY (TECHNISAT) DETECTED\r\n");
+        printf("VW RHAPSODY (TECHNISAT) DETECTED\r\n");
         _crack_technisat();
 
     } else if (memcmp(&kwp_vag_number, "1U0035156", 9) == 0) {
-        uart_puts(UART_DEBUG, "SKODA SYMPHONY (TECHNISAT) DETECTED\r\n");
+        printf("SKODA SYMPHONY (TECHNISAT) DETECTED\r\n");
         _crack_technisat();
 
     } else if (memcmp(&kwp_component_1[7], "YD5", 3) == 0) {
-        uart_puts(UART_DEBUG, "VW GAMMA 5 (TECHNISAT) DETECTED\r\n");
+        printf("VW GAMMA 5 (TECHNISAT) DETECTED\r\n");
         _crack_technisat();
 
     } else {
-        uart_puts(UART_DEBUG, "UNKNOWN RADIO\r\n");
-        uart_puts(UART_DEBUG, "UNCRACKABLE\r\n");
+        printf("UNKNOWN RADIO\r\n");
+        printf("UNCRACKABLE\r\n");
     }
 
-    uart_puts(UART_DEBUG, "Done.\r\n");
+    printf("Done.\r\n");
 }

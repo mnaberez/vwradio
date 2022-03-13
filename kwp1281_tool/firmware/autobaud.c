@@ -1,6 +1,6 @@
 #include "autobaud.h"
 #include "kwp1281.h"
-#include "uart.h"
+#include "printf.h"
 #include <avr/interrupt.h>
 #include <avr/io.h>
 #include <stdio.h>
@@ -164,20 +164,12 @@ kwp_result_t autobaud_sync(uint32_t *actual_baud_rate, uint32_t *normal_baud_rat
  */
 void autobaud_debug(void)
 {
-    char msg[60];
-
-    sprintf(msg, "\r\nEDGES: %d\r\n", _edges);
-    uart_puts(UART_DEBUG, msg);
-
-    sprintf(msg, "START: 0x%04x\r\n", _start_count);
-    uart_puts(UART_DEBUG, msg);
-
-    sprintf(msg, "END:   0x%04x\r\n", _end_count);
-    uart_puts(UART_DEBUG, msg);
+    printf("\r\nEDGES: %d\r\n", _edges);
+    printf("START: 0x%04x\r\n", _start_count);
+    printf("END:   0x%04x\r\n", _end_count);
 
     uint16_t ticks = _end_count - _start_count;
-    sprintf(msg, "TICKS: 0x%04x\r\n\r\n", ticks);
-    uart_puts(UART_DEBUG, msg);
+    printf("TICKS: 0x%04x\r\n\r\n", ticks);
 }
 
 /*
