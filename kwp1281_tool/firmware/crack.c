@@ -140,7 +140,8 @@ void crack(void)
         printf("VW PREMIUM 4 (CLARION) DETECTED\r\n");
         _crack_clarion();
 
-    } else if (memcmp(&kwp_vag_number, "5X0035119C", 10) == 0) {
+    } else if ((memcmp(&kwp_vag_number, "5X0035119C", 10) == 0) ||
+               (memcmp(&kwp_vag_number, "5Z0035119 ", 10) == 0)) {
         printf("VW SAM 2002 (DELCO) DETECTED\r\n");
         _crack_delco_vw_sam_2002();
 
