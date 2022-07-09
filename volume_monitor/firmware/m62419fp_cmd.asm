@@ -40,7 +40,7 @@ cmd_parse_ds0:
     ldd r16, Y+1                ;Load command packet high byte
     sbrc r16, 4                 ;Skip next if bit 4 indicates both channels
     rjmp cpds0_single           ;Jump to handle single channel only
-    call cpds0_parse            ;Parse into channel 0 registers, then
+    rcall cpds0_parse           ;Parse into channel 0 registers, then
     rjmp cpds0_parse_ch1        ;  parse into channel 1 registers and return
 cpds0_single:
     sbrs r16, 5                 ;Skip next if bit 5 indicates channel 1
@@ -58,7 +58,7 @@ cpds0_parse:
     ret
 cpds0_parse_ch1:
     adiw ZH:ZL, ch1             ;Add offset for channel 1
-    call cpds0_parse            ;Parse command into channel 1 registers
+    rcall cpds0_parse           ;Parse command into channel 1 registers
     sbiw ZH:ZL, ch1             ;Restore original Z pointer
     ret
 
