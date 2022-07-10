@@ -57,9 +57,9 @@ cpds0_parse:
     std Z+3, r16
     ret
 cpds0_parse_ch1:
-    adiw ZH:ZL, ch1             ;Add offset for channel 1
+    adiw ZL, ch1                ;Add offset for channel 1
     rcall cpds0_parse           ;Parse command into channel 1 registers
-    sbiw ZH:ZL, ch1             ;Restore original Z pointer
+    sbiw ZL, ch1                ;Restore original Z pointer
     ret
 
 
@@ -220,8 +220,8 @@ cmd_calc_att1_db:
 ;
     push ZL
     push ZH
-    ldi ZL, low(att1_to_db * 2) ;Base address of lookup table
-    ldi ZH, high(att1_to_db * 2)
+    ldi ZL, <(att1_to_db * 2)   ;Base address of lookup table
+    ldi ZH, >(att1_to_db * 2)
 
     cpi r16, 0x20               ;ATT2 code 0x20 and above are invalid
     rjmp finish_db_lookup       ;Look up dB value, return it in R16
@@ -237,8 +237,8 @@ cmd_calc_att2_db:
 ;
     push ZL
     push ZH
-    ldi ZL, low(att2_to_db * 2) ;Base address of lookup table
-    ldi ZH, high(att2_to_db * 2)
+    ldi ZL, <(att2_to_db * 2)   ;Base address of lookup table
+    ldi ZH, >(att2_to_db * 2)
 
     cpi r16, 0x04               ;ATT2 code 0x04 and above are invalid
     rjmp finish_db_lookup       ;Look up dB value, return it in R16
@@ -254,8 +254,8 @@ cmd_calc_fader_db:
 ;
     push ZL
     push ZH
-    ldi ZL, low(fade_to_db * 2) ;Base address of lookup table
-    ldi ZH, high(fade_to_db * 2)
+    ldi ZL, <(fade_to_db * 2)   ;Base address of lookup table
+    ldi ZH, >(fade_to_db * 2)
 
     cpi r16, 0x10               ;Fader code 0x10 and above are invalid
     rjmp finish_db_lookup       ;Look up dB value, return it in R16
@@ -270,8 +270,8 @@ cmd_calc_tone_db:
 ;
     push ZL
     push ZH
-    ldi ZL, low(tone_to_db * 2) ;Base address of lookup table
-    ldi ZH, high(tone_to_db * 2)
+    ldi ZL, <(tone_to_db * 2)   ;Base address of lookup table
+    ldi ZH, >(tone_to_db * 2)
 
     cpi r16, 0x10               ;Tone code 0x10 and above are invalid
 
@@ -290,24 +290,27 @@ finish_db_lookup:
     pop ZL
     ret                         ;Return dB value in R16
 finish_invalid:
-    ldi r16, -127               ;-127 dB = undefined
+    ldi r16, -127 & 0xff        ;-127 dB = undefined
     ret                         ;Return dB value in R16
 
 
-att1_to_db:
+;.nval must used to instead of normal labels to force the addresses to
+;be absolute.  the addresses must be absolute for the "* 2" math above.
+
+.nval att1_to_db,.
     .db -100,  -20,  -52, -127,  -68,   -4,  -36, -127  ;-100 = infinity
     .db  -76,  -12,  -44, -127,  -60, -127,  -28, -127  ;-127 = undefined
     .db  -80,  -16,  -48, -127,  -64,    0,  -32, -127
     .db  -72,   -8,  -40, -127,  -56, -127,  -24, -127
 
-att2_to_db:
+.nval att2_to_db,.
     .db   -3,   -1,   -2,    0
 
-fade_to_db:
+.nval fade_to_db,.
     .db -100,  -10,  -20,   -3,  -45,   -6,  -14,   -1  ;-100 = infinity
     .db  -60,   -8,  -16,   -2,  -30,   -4,  -12,    0
 
-tone_to_db:
+.nval tone_to_db,.
     .db -127,   -2,  -10,    6, -127,    2,   -6,   10  ;-127 = undefined
     .db -127,    0,   -8,    8,  -12,    4,   -4,   12
 
@@ -320,17 +323,17 @@ cmd_calc_att_sum_db:
 ;Reads a signed dB value from R17
 ;Returns total attenuation as signed dB value in R16.  R17 unchanged.
 ;
-    cpi r16, -127               ;Is ATT1 undefined?
+    cpi r16, -127 & 0xff        ;Is ATT1 undefined?
     breq cas_invalid            ;  Yes: sum will also be undefined
 
-    cpi r17, -127               ;Is ATT2 undefined?
+    cpi r17, -127 & 0xff        ;Is ATT2 undefined?
     breq cas_invalid            ;  Yes: sum will also be undefined
 
     add r16, r17                ;ATT1 and ATT2 are valid, so add them
     rjmp cas_done
 
 cas_invalid:
-    ldi r16, -127               ;-127 dB = undefined
+    ldi r16, -127 & 0xff        ;-127 dB = undefined
 
 cas_done:
     ret                         ;Return dB value in R16

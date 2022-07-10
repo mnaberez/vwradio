@@ -26,12 +26,6 @@ jobs:
       run: |
         sudo apt-get install -y binutils-avr gcc-avr avr-libc
 
-    - name: Install avra
-      run: |
-        git clone https://github.com/mnaberez/avra.git
-        make -C avra/src -f makefiles/Makefile.linux
-        echo "$PWD/avra/src" >> $GITHUB_PATH
-
     - name: Install asxxxx
       run: |
         wget --no-verbose --content-disposition https://github.com/6502org/6502.org/blob/b4a4f243d9ae3ea78fc14a487bac650b5a3f7a12/public/tools/asm/asxv5p40_20220112.zip?raw=true

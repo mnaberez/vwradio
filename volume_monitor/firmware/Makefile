@@ -3,13 +3,12 @@ MMCU=atmega1284
 ISPFLAGS=-c atmelice
 
 $(PROJECT).hex: main.asm
-	# requires patched avra for atmega1284 support
-	# https://github.com/mnaberez/avra
-	avra -l $(PROJECT).lst main.asm
-	mv main.hex $(PROJECT).hex
-	rm -f *.cof
-	rm -f *.obj
-	rm -f *.eep.hex
+	cp -f main.asm $(PROJECT).asm
+	asavr -l -o $(PROJECT).asm
+	rm -f $(PROJECT).asm
+	aslink -i $(PROJECT)
+	srec_cat $(PROJECT).ihx -intel -o $(PROJECT).bin -binary
+	rm $(PROJECT).hlr $(PROJECT).ihx $(PROJECT).rel
 
 program: $(PROJECT).hex
 	avrdude $(ISPFLAGS) -p $(MMCU) -U lfuse:w:0xF7:m -U hfuse:w:0x92:m -U efuse:w:0xFC:m

@@ -10,7 +10,7 @@ uart_init:
     ldi r16, 0x0a
     sts UBRR0L, r16
     lds r16, UCSR0A
-    andi r16, ~(1 << U2X0)
+    andi r16, 0xff^(1 << U2X0)
     sts UCSR0A, r16
 
     ;N-8-1

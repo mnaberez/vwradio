@@ -5,36 +5,37 @@
 ;the programmed attenuator values in dB, then dumps the values out
 ;the UART at 115200 bps, N-8-1.
 ;
+.area code (abs)
+
 .include "m1284def.asm"
 
 
-.equ ram             = SRAM_START
+ram             = SRAM_START
 ;Buffers for M62419FP command packets (isr buf -> rx buf -> work buf)
-.equ packet_bitcount = ram      ;Counts down bits remaining to rx in packet
-.equ packet_isr_buf  = ram+$01  ;2 bytes to accumulate SPI packet bits in ISR
-.equ packet_rx_buf   = ram+$03  ;2 bytes for complete SPI packet received
-.equ packet_work_buf = ram+$05  ;2 bytes for SPI packet used during parsing
+packet_bitcount = ram      ;Counts down bits remaining to rx in packet
+packet_isr_buf  = ram+0x01 ;2 bytes to accumulate SPI packet bits in ISR
+packet_rx_buf   = ram+0x03 ;2 bytes for complete SPI packet received
+packet_work_buf = ram+0x05 ;2 bytes for SPI packet used during parsing
 ;Buffer used to track M62419FP state across commands
-.equ m62419fp_buf    = ram+$07  ;12 byte buffer for M62419FP state
+m62419fp_buf    = ram+0x07 ;12 byte buffer for M62419FP state
 
 
 ;Offsets into M62419FP state buffer
-.equ ch0             = 0                ;Channel 0 (Right):
-.equ ch0_att1        = ch0+0            ;  ATT1 5-bit code
-.equ ch0_att2        = ch0+1            ;  ATT2 2-bit code
-.equ ch0_loudness    = ch0+2            ;  Loudness flag (0=off, 1=on)
-.equ ch0_input       = ch0+3            ;  Input selector 2-bit code
-.equ ch1             = ch0_input+1      ;Channel 1 (Left):
-.equ ch1_att1        = ch1+0            ;  ATT1 5-bit code
-.equ ch2_att2        = ch1+1            ;  ATT2 2-bit code
-.equ ch3_loudness    = ch1+2            ;  Loudness bit (0=off, 1=on)
-.equ ch4_input       = ch1+3            ;  Input selector 2-bit code
-.equ common          = ch4_input+1      ;Common to both channels:
-.equ fadesel         = common+0         ;  Fader Select flag (0=front, 1=rear)
-.equ fader           = common+1         ;  Fader 4-bit code
-.equ bass            = common+2         ;  Bass 4-bit tone code
-.equ treble          = common+3         ;  Treble 4-bit tone code
-
+ch0             = 0                ;Channel 0 (Right):
+ch0_att1        = ch0+0            ;  ATT1 5-bit code
+ch0_att2        = ch0+1            ;  ATT2 2-bit code
+ch0_loudness    = ch0+2            ;  Loudness flag (0=off, 1=on)
+ch0_input       = ch0+3            ;  Input selector 2-bit code
+ch1             = ch0_input+1      ;Channel 1 (Left):
+ch1_att1        = ch1+0            ;  ATT1 5-bit code
+ch2_att2        = ch1+1            ;  ATT2 2-bit code
+ch3_loudness    = ch1+2            ;  Loudness bit (0=off, 1=on)
+ch4_input       = ch1+3            ;  Input selector 2-bit code
+common          = ch4_input+1      ;Common to both channels:
+fadesel         = common+0         ;  Fader Select flag (0=front, 1=rear)
+fader           = common+1         ;  Fader 4-bit code
+bass            = common+2         ;  Bass 4-bit tone code
+treble          = common+3         ;  Treble 4-bit tone code
 
 .org 0
     rjmp reset
@@ -46,9 +47,9 @@
 
 
 reset:
-    ldi r16, low(RAMEND)        ;Initialize the stack pointer
+    ldi r16, <RAMEND        ;Initialize the stack pointer
     out SPL, r16
-    ldi r16, high(RAMEND)
+    ldi r16, >RAMEND
     out SPH, r16
 
     rcall uart_init             ;15200 bps, N-8-1
@@ -57,12 +58,12 @@ reset:
 
 loop:
     ;Set Y-pointer to a buffer that will receive a packet
-    ldi YL, low(packet_work_buf)
-    ldi YH, high(packet_work_buf)
+    ldi YL, <packet_work_buf
+    ldi YH, >packet_work_buf
 
     ;Set Z-pointer to M62419FP registers buffer
-    ldi ZL, low(m62419fp_buf)
-    ldi ZH, high(m62419fp_buf)
+    ldi ZL, <m62419fp_buf
+    ldi ZH, >m62419fp_buf
 
 wait:
     ;Wait for an M62419FP command packet
@@ -106,10 +107,10 @@ dump_to_uart:
     clr r18                     ;Channel number = 0
 dump_loop:
     ;Set Z-pointer to buffer area for channel 0 or 1
-    ldi ZL, low(m62419fp_buf)   ;Base address of M62419FP registers buffer
-    ldi ZH, high(m62419fp_buf)
+    ldi ZL, <m62419fp_buf       ;Base address of M62419FP registers buffer
+    ldi ZH, >m62419fp_buf
     sbrc r18, 0                 ;Skip next instruction if this is channel 0
-    adiw ZH:ZL, ch1             ;Add offset for channel 1 registers
+    adiw ZL, ch1                ;Add offset for channel 1 registers
 
     ;Send ATT1 and ATT2 codes, calculate ATT1+ATT2 in dB and send it
     ld r16, Z+                  ;Load ATT1 code
@@ -135,8 +136,8 @@ dump_loop:
     brne dump_loop              ;  No: dump next channel
 
     ;Set Z-pointer to buffer area for fader
-    ldi ZL, low(m62419fp_buf+common)
-    ldi ZH, high(m62419fp_buf+common)
+    ldi ZL, <(m62419fp_buf+common)
+    ldi ZH, >(m62419fp_buf+common)
 
     ld r16, Z+                  ;Load and send fader select
     rcall uart_send_byte

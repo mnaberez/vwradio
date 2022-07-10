@@ -22,7 +22,7 @@ spi_init:
 ;
     ;Set PIN1, PINA0 as input
     in r16, DDRA
-    andi r16, ~((1 << PINA1) | (1 << PINA0))
+    andi r16, 0xff^((1 << PINA1) | (1 << PINA0))
     out DDRA, r16
 
     ;Set pin change enable mask 0 for PA1 (PCINT1) only
