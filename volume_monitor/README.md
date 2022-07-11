@@ -15,7 +15,7 @@ This is an ATmega1284 project that passively monitors SPI commands sent to a Mit
 
 ## Usage
 
-The firmware is written completely in AVR assembly using the  [AVRA](http://avra.sourceforge.net/) assembler.  At the time of writing, AVRA does not support the ATmega1284 as a target.  My [patched version of AVRA](https://github.com/mnaberez/avra) is required to build the source.
+The firmware is written completely in AVR assembly.  It is assembled with ASAVR, part of the [ASxxxx](https://shop-pdp.net/ashtml/) package, and flashed with [AVRDUDE](https://github.com/avrdudes/avrdude).  See the [`Makefile`](./firmware/Makefile) for the required commands.
 
 Build the hardware as described in [`hardware/`](./hardware/) and flash the firmware.
 Connect the two clips to the SPI lines of the M62419FP.  Reset the board first and then the radio.  As soon as the board receives an SPI command, it will interpret the command and send the current state of the M62419FP out its UART using a binary protocol.
