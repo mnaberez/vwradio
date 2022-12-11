@@ -1,7 +1,9 @@
+PYTHON=python3
+
 all: clean out.hex diff
 
 diff: out.bin
-	python checksum.py compare out.bin
+	$(PYTHON) checksum.py compare out.bin
 	openssl sha1 out.bin | cut -d ' ' -f 2 > out.sha1
 	diff software23.sha1 out.sha1
 

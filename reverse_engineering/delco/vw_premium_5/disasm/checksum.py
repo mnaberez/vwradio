@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 '''
 Delphi/Delco ROM checksum utility
 

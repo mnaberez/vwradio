@@ -1,3 +1,5 @@
+PYTHON=python3
+
 all: clean out.hex
 
 out.hex: out.bin
@@ -9,7 +11,7 @@ out.bin:
 	rm -f out.asm
 	aslink -i out
 	srec_cat out.ihx -intel -fill 0xff 0x0000 0xf000 -o out.bin -binary
-	python ../../disasm/checksum.py update out.bin
+	$(PYTHON) ../../disasm/checksum.py update out.bin
 	rm out.hlr out.ihx out.rel
 
 clean:

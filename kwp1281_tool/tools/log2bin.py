@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 '''
 Parse a log file containing "MEM:" lines from the KWP1281 tool
