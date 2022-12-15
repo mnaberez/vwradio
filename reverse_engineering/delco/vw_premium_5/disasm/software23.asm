@@ -19584,173 +19584,217 @@ lab_63a8:
     mov !mem_fc11,a         ;63a8  9e 11 fc
     ret                     ;63ab  af
 
+
 m:
-    .byte 0x01              ;63ac  01          DATA 0x01        1 byte follows:
+    .byte m_len             ;63ac  01   XXX appears unused
     .ascii "M"
+    m_len = . - m - 1
 
 u1:
-    .byte 0x02              ;63ae  02          DATA 0x02        2 bytes follow:
+    .byte u1_len            ;63ae  02   XXX appears unused
     .ascii "U1"
+    u1_len = . - u1 - 1
 
-u2:
-    .byte 0x02              ;63b1  02          DATA 0x02        2 bytes follow:
+u2:                         ;63b1  02   XXX appears unused
+    .byte u2_len              
     .ascii "U2"
+    u2_len = . - u2 - 1
 
-on:
-    .byte 0x02              ;63b4  02          DATA 0x02        2 bytes follow:
+on:                         ;63b4  02   XXX appears unused
+    .byte on_len
     .ascii "ON"
+    on_len = . - on - 1
 
-off:
-    .byte 0x03              ;63b7  03          DATA 0x03        3 bytes follow:
+off:                        ;63b7  03   XXX appears unused
+    .byte off_len              
     .ascii "OFF"
+    off_len = . - off - 1
 
-no:
-    .byte 0x02              ;63bb  02          DATA 0x02        2 bytes follow:
+no:                         ;63bb  02   XXX appears unused
+    .byte 0x02              
     .ascii "NO"
+    no_len = . - no - 1
 
-e__:
-    .byte 0x0b              ;63be  0b          DATA 0x0b        11 bytes follow:
+e__:                        
+    .byte e___len              
     .ascii "E           "
+    e___len = . - e__ - 2   ;XXX this is a bug (off by one)
 
-psc:
-    .byte 0x03              ;63cb  03          DATA 0x03        3 bytes follow:
+psc:                        ;63cb  03   XXX appears unused
+    .byte psc_len              
     .ascii "PSC"
+    psc_len = . - psc - 1
 
 pscan:
-    .byte 0x05              ;63cf  05          DATA 0x05        5 bytes follow:
+    .byte pscan_len              
     .ascii "PSCAN"
+    pscan_len = . - pscan - 1
 
 preset_scan:
-    .byte 0x0b              ;63d5  0b          DATA 0x0b        11 bytes follow:
+    .byte preset_scan_len              
     .ascii "PRESET SCAN"
+    preset_scan_len = . - preset_scan - 1
 
-pset:
-    .byte 0x04              ;63e1  04          DATA 0x04        4 bytes follow:
+pset:                       ;63e1  04   XXX appears unused
+    .byte pset_len             
     .ascii "PSET"
+    pset_len = . - pset - 1
 
 scan:
-    .byte 0x04              ;63e6  04          DATA 0x04        4 bytes follow:
+    .byte scan_len              
     .ascii "SCAN"
+    scan_len = . - scan - 1
 
-seek_plus:
-    .byte 0x06              ;63eb  06          DATA 0x06        6 bytes follow:
+seek_plus:                  ;63eb  06    XXX appears unsued
+    .byte seek_plus_len              
     .ascii "SEEK +"
+    seek_plus_len = . - seek_plus - 1
 
-seek_minus:
-    .byte 0x06              ;63f2  06          DATA 0x06        6 bytes follow:
+seek_minus:                 ;63f2  06    XXX appears unused
+    .byte seek_minus_len              
     .ascii "SEEK -"
+    seek_minus_len = . - seek_minus - 1
 
-vol:
-    .byte 0x0d              ;63f9  0d          DATA 0x0d        13 bytes follow:
+vol:                        ;63f9  0d    XXX appears unused
+    .byte vol_len
     .ascii "VOL          "
+    vol_len = . - vol - 1
 
-fade:
-    .byte 0x04              ;6407  04          DATA 0x04        4 bytes follow:
+fade:                       ;6407  04    XXX appears unused
+    .byte fade_len              
     .ascii "FADE"
+    fade_len = . - fade - 1
 
 fadefront:
-    .byte 0x0b              ;640c  0b          DATA 0x0b        11 bytes follow:
+    .byte fadefront_len              
     .ascii "FADEFRONT  "
+    fadefront_len = . - fadefront - 1
 
 fadecenter:
-    .byte 0x0b              ;6418  0b          DATA 0x0b        11 bytes follow:
+    .byte fadecenter_len              
     .ascii "FADECENTER "
+    fadecenter_len = . - fadecenter - 1
 
 faderear:
-    .byte 0x0b              ;6424  0b          DATA 0x0b        11 bytes follow:
+    .byte faderear_len              
     .ascii "FADEREAR   "
+    faderear_len = . - faderear - 1
 
 bal:
-    .byte 0x04              ;6430  04          DATA 0x04        4 bytes follow:
+    .byte bal_len           ;6430  04   XXX appears unused
     .ascii "BAL "
+    bal_len = . - bal - 1
 
 bal_left:
-    .byte 0x0b              ;6435  0b          DATA 0x0b        11 bytes follow:
+    .byte bal_left_len              
     .ascii "BAL LEFT   "
+    bal_left_len = . - bal_left - 1
 
 bal_center:
-    .byte 0x0b              ;6441  0b          DATA 0x0b        11 bytes follow:
+    .byte bal_center_len              
     .ascii "BAL CENTER "
+    bal_center_len = . - bal_center - 1
 
 bal_right:
-    .byte 0x0b              ;644d  0b          DATA 0x0b        11 bytes follow:
+    .byte bal_right_len              
     .ascii "BAL RIGHT  "
+    bal_right_len = . - bal_right - 1
 
 bass:
-    .byte 0x0b              ;6459  0b          DATA 0x0b        11 bytes follow:
+    .byte bass_len              
     .ascii "BASS       "
+    bass_len = . - bass - 1
 
 mid:
-    .byte 0x0b              ;6465  0b          DATA 0x0b        11 bytes follow:
+    .byte mid_len              
     .ascii "MID        "
+    mid_len = . - mid - 1
 
 treb:
-    .byte 0x0b              ;6471  0b          DATA 0x0b        11 bytes follow:
+    .byte treb_len              
     .ascii "TREB       "
+    treb_len = . - treb - 1
 
 treb_out16:
-    .byte 0x0b              ;647d  0b          DATA 0x0b        11 bytes follow:
+    .byte treb_out16_len    ;647d  0b   XXX appears unused
     .ascii "TREB OUT16 "
+    treb_out16_len = . - treb_out16 - 1
 
 max:
-    .byte 0x07              ;6489  07          DATA 0x07        7 bytes follow:
+    .byte max_len              
     .ascii "  MAX  "
+    max_len = . - max - 1
 
 min:
-    .byte 0x07              ;6491  07          DATA 0x07        7 bytes follow:
+    .byte min_len              
     .ascii "  MIN  "
+    min_len = . - min - 1
 
 set_onvol:
-    .byte 0x0b              ;6499  0b          DATA 0x0b        11 bytes follow:
+    .byte set_onvol_len              
     .ascii "SET ONVOL  "
+    set_onvol_len = . - set_onvol - 1
 
 set_cd_mix:
-    .byte 0x0b              ;64a5  0b          DATA 0x0b        11 bytes follow:
+    .byte set_cd_mix_len              
     .ascii "SET CD MIX "
+    set_cd_mix_len = . - set_cd_mix - 1
 
 tape_skip:
-    .byte 0x0b              ;64b1  0b          DATA 0x0b        11 bytes follow:
+    .byte tape_skip_len              
     .ascii "TAPE SKIP  "
+    tape_skip_len = . - tape_skip - 1
 
 rad_de2:
-    .byte 0x0b              ;64bd  0b          DATA 0x0b        11 bytes follow:
+    .byte rad_de2_len              
     .ascii "RAD   DE2  "
+    rad_de2_len = . - rad_de2 - 1
 
 monsoon:
-    .byte 0x0b              ;64c9  0b          DATA 0x0b        11 bytes follow:
+    .byte monsoon_len              
     .ascii "    MONSOON"
+    monsoon_len = . - monsoon - 1
 
 vers_a99cznn:
-    .byte 0x0b              ;64d5  0b          DATA 0x0b        11 bytes follow:
+    .byte vers_a99cznn_len              
     .ascii "VersA99CZnn"
+    vers_a99cznn_len = . - vers_a99cznn - 1
 
 fern_on:
-    .byte 0x0b              ;64e1  0b          DATA 0x0b        11 bytes follow:
+    .byte fern_on_len              
     .ascii "FERN   ON  "
+    fern_on_len = . - fern_on - 1
 
 fern_off:
-    .byte 0x0b              ;64ed  0b          DATA 0x0b        11 bytes follow:
+    .byte fern_off_len
     .ascii "FERN   OFF "
+    fern_off_len = . - fern_off - 1
 
 safe:
-    .byte 0x0b              ;64f9  0b          DATA 0x0b        11 bytes follow:
+    .byte safe_len              
     .ascii "     SAFE  "
+    safe_len = . - safe - 1
 
-onethousand:
-    .byte 0x0b              ;6505  0b          DATA 0x0b        11 bytes follow:
+onethousand:                ;6505  0b    XXX appears unused
+    .byte onethousand_len              
     .ascii "     1000  "
+    onethousand_len = . - onethousand - 1
 
 blank:
-    .byte 0x0b              ;6511  0b          DATA 0x0b        11 bytes follow:
+    .byte blank_len              
     .ascii "           "
+    blank_len = . - blank - 1
 
 flat:
-    .byte 0x09              ;651d  09          DATA 0x09        9 bytes follow:
+    .byte flat_len
     .ascii "FLAT     "
+    flat_len = . - flat - 1
 
 select_eq:
-    .byte 0x0d              ;6527  0d          DATA 0x0d        13 bytes follow:
+    .byte select_eq_len              
     .ascii "SELECT EQ #  "
+    select_eq_len = . - select_eq - 1
+
 
 ;Unknown table used with sub_67c4
 ;XXX appears unused since sub_67c4 appears unused
@@ -20609,7 +20653,7 @@ lab_6a75:
     call !sub_6d61_hl_band  ;6a75  9a 61 6d     Copy message from [HL] to display buf, then write AM/kHz or FM/MHz
     br lab_6ad1             ;6a78  fa 57
 
-lab_6a7a:
+lab_6a7a_scan_1of2:
     mov a,#0x87             ;6a7a  a1 87
     mov b,#0xff             ;6a7c  a3 ff
     call !upd_multi_copy    ;6a7e  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
@@ -20620,7 +20664,7 @@ lab_6a7a:
     call !sub_6d61_hl_band  ;6a88  9a 61 6d     Copy message from [HL] to display buf, then write AM/kHz or FM/MHz
     br lab_6ad1             ;6a8b  fa 44
 
-lab_6a8d:
+lab_6a8d_scan_2of2:
     mov a,#0x88             ;6a8d  a1 88
     mov b,#0x03             ;6a8f  a3 03
     movw hl,#scan           ;6a91  16 e6 63     HL = pointer to 4,"SCAN"
@@ -20628,7 +20672,7 @@ lab_6a8d:
     call !sub_6d61_hl_band  ;6a97  9a 61 6d     XXX redundant
     br lab_6ad1             ;6a9a  fa 35
 
-lab_6a9c:
+lab_6a9c_pscan:
     mov a,#0x88             ;6a9c  a1 88
     mov b,#0xff             ;6a9e  a3 ff
     call !upd_multi_copy    ;6aa0  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
@@ -20643,7 +20687,7 @@ lab_6a9c:
     call !sub_6d61_hl_band  ;6ab2  9a 61 6d     Copy message from [HL] to display buf, then write AM/kHz or FM/MHz
     br lab_6ad1             ;6ab5  fa 1a
 
-lab_6ab7:
+lab_6ab7_preset_scan:
     mov a,#0xff             ;6ab7  a1 ff
     mov b,#0x83             ;6ab9  a3 83
     call !upd_multi_copy    ;6abb  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
@@ -20655,7 +20699,7 @@ lab_6ab7:
 
     br lab_6ad1             ;6ac8  fa 07
 
-lab_6aca:
+lab_6aca_write_hl:
     mov a,#0x87             ;6aca  a1 87
     mov b,#0xff             ;6acc  a3 ff
     call !sub_6d61_hl_band  ;6ace  9a 61 6d     Copy message from [HL] to display buf, then write AM/kHz or FM/MHz
@@ -33108,17 +33152,17 @@ mem_b47e_blank:
 
 mem_b480_amfm_msgs:
 ;table of words used with table_get_word
-    .byte 0x0a              ;b480  0a          DATA 0x0a        10 entries below:
-    .word lab_6a5c          ;b481
-    .word lab_6a64          ;b483
-    .word lab_6aca          ;b485     Writes [HL]
-    .word lab_6a7a          ;b487     Writes "SCAN"
-    .word lab_6a8d          ;b489     Writes "SCAN"
-    .word lab_6a9c          ;b48b     Writes "PSCAN"
-    .word lab_6ab7          ;b48d     Writes "PRESET SCAN"
-    .word lab_69df          ;b48f
-    .word lab_69f6          ;b491
-    .word lab_7405          ;b493     Writes AM/kHz or FM/MHz to display buf
+    .byte 0x0a                  ;b480  0a          DATA 0x0a        10 entries below:
+    .word lab_6a5c              ;b481
+    .word lab_6a64              ;b483
+    .word lab_6aca_write_hl     ;b485     Writes [HL]
+    .word lab_6a7a_scan_1of2    ;b487     Writes "SCAN"
+    .word lab_6a8d_scan_2of2    ;b489     Writes "SCAN"
+    .word lab_6a9c_pscan        ;b48b     Writes "PSCAN"
+    .word lab_6ab7_preset_scan  ;b48d     Writes "PRESET SCAN"
+    .word lab_69df              ;b48f
+    .word lab_69f6              ;b491
+    .word lab_7405              ;b493     Writes AM/kHz or FM/MHz to display buf
 
 ;TODO unknown table
 mem_b495_amfm:
