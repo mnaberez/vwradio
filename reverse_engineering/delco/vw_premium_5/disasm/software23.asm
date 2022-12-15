@@ -3689,10 +3689,13 @@ lab_11c9:
     br lab_1250             ;11d3  fa 7b
 
 lab_11d5:
-    dbnz b,lab_11b2         ;11d5  8b db
-    call !sub_1269          ;11d7  9a 69 12
-    bc lab_11df             ;11da  8d 03
-    br !lab_1118            ;11dc  9b 18 11
+    dbnz b,lab_11b2                     ;11d5  8b db
+
+    call !sub_1269_next_task_if_time    ;11d7  9a 69 12     Decrement a counter and if it is time, call one of the periodic tasks.
+    bc lab_11df                         ;11da  8d 03        Branch if a task was called
+
+    ;No task was called
+    br !lab_1118                        ;11dc  9b 18 11
 
 lab_11df:
     movw hl,#mem_fb85       ;11df  16 85 fb
@@ -3720,7 +3723,7 @@ lab_11f6:
 
 lab_11fd:
     dbnz c,lab_11f2         ;11fd  8a f3
-    br lab_124d             ;11ff  fa 4c
+    br lab_124d_br_lab_1118 ;11ff  fa 4c
 
 lab_1201:
     mov a,b                 ;1201  63
@@ -3773,7 +3776,7 @@ lab_1242:
     add a,#0x0b             ;1249  0d 0b
     mov mem_fe2e,a          ;124b  f2 2e
 
-lab_124d:
+lab_124d_br_lab_1118:
     br !lab_1118            ;124d  9b 18 11
 
 lab_1250:
@@ -3782,12 +3785,14 @@ lab_1250:
     movw hl,#mem_fb85       ;1252  16 85 fb
 
 lab_1255:
-    dbnz b,lab_1260         ;1255  8b 09
-    call !sub_1269          ;1257  9a 69 12
-    bnc lab_124d            ;125a  9d f1
-    mov a,c                 ;125c  62
-    mov b,a                 ;125d  73
-    br lab_1205             ;125e  fa a5
+    dbnz b,lab_1260                     ;1255  8b 09
+    call !sub_1269_next_task_if_time    ;1257  9a 69 12     Decrement a counter and if it is time, call one of the periodic tasks.
+    bnc lab_124d_br_lab_1118            ;125a  9d f1        Branch if a no task was called
+
+    ;A task was called
+    mov a,c                             ;125c  62
+    mov b,a                             ;125d  73
+    br lab_1205                         ;125e  fa a5
 
 lab_1260:
     mov a,[hl+b]            ;1260  ab
@@ -3795,27 +3800,33 @@ lab_1260:
     bt a.0,lab_1255         ;1264  31 0e ee
     br lab_1225             ;1267  fa bc
 
-sub_1269:
+
+;Decrease a counter and if it is time, call one of the periodic 
+;tasks.  There is also an unknown check on mem_fe2f that causes a cold start.
+;
+;Returns carry set=no task was called, carry clear=a task was called
+sub_1269_next_task_if_time:
     mov a,!mem_fb95         ;1269  8e 95 fb
     sub a,#0x04             ;126c  1d 04
-    bnc lab_1271            ;126e  9d 01
+    bnc lab_1271_nc         ;126e  9d 01
     ret                     ;1270  af
 
-lab_1271:
+lab_1271_nc:
     mov !mem_fb95,a         ;1271  9e 95 fb
-    call !sub_127f          ;1274  9a 7f 12     Call one of the timer routines in mem_b0d
+    call !sub_127f_next_task;1274  9a 7f 12     Call one of the tasks in mem_b0d
     cmp mem_fe2f,#0x0b      ;1277  c8 2f 0b
-    bz lab_127d             ;127a  ad 01
+    bz lab_127d_clr1_cy_ret ;127a  ad 01
     brk                     ;127c  bf           Force cold start via badisr_0d75
 
-lab_127d:
+lab_127d_clr1_cy_ret:
     clr1 cy                 ;127d  21
     ret                     ;127e  af
 
-sub_127f:
-;Seems to be called on a timer, and each time it is called,
-;it somehow dispatches to a different routine in the
-;mem_b0d1 table, using some kind of round-robin counting.
+
+;Seems to be called on a timer (see immediately above), and each time it is called,
+;it somehow dispatches to a different routine in the mem_b0d1_tasks table, 
+;using some kind of round-robin counting.
+sub_127f_next_task:
     mov a,!mem_fb94         ;127f  8e 94 fb
     inc a                   ;1282  41
     mov !mem_fb94,a         ;1283  9e 94 fb
@@ -3829,16 +3840,16 @@ lab_1288_loop:
     dbnz b,lab_1288_loop    ;128f  8b f7  todo timer countdown timers?
 
     ;The above seems to somehow result in a different routine
-    ;from mem_b0d1 being called each time around.
+    ;from mem_b0d1_tasks being called each time around.
 
 lab_1291:
-    movw hl,#mem_b0d1+1     ;1291  16 d2 b0
-    callf !table_get_word   ;1294  4c 48        Load DE with word at position B in table [HL]
-    bc lab_12d7             ;1296  8d 3f        Branch if table lookup failed
-    movw ax,de              ;1298  c4
-    br ax                   ;1299  31 98
+    movw hl,#mem_b0d1_tasks+1     ;1291  16 d2 b0
+    callf !table_get_word         ;1294  4c 48        Load DE with word at position B in table [HL]
+    bc lab_12d7_task_00_exit      ;1296  8d 3f        Branch if table lookup failed
+    movw ax,de                    ;1298  c4
+    br ax                         ;1299  31 98
 
-lab_129b:
+lab_129b_task_08_kwp_related:
     call !sub_1ca9          ;129b  9a a9 1c
     call !sub_3329          ;129e  9a 29 33     Decrements mem_f06f
     call !sub_35e9          ;12a1  9a e9 35     Unknown; related to 5 baud address tx/tx
@@ -3859,12 +3870,17 @@ lab_12b5:
     call !sub_90d2          ;12c6  9a d2 90
 
 lab_12c9:
-    bf mem_fe2d.0,lab_12d7  ;12c9  31 03 2d 0a
-    bt mem_fe73.1,lab_12d7  ;12cd  9c 73 07
-    bf mem_fe66.3,lab_12d7  ;12d0  31 33 66 03
+    bf mem_fe2d.0,lab_12d7_task_00_exit  ;12c9  31 03 2d 0a
+    bt mem_fe73.1,lab_12d7_task_00_exit  ;12cd  9c 73 07
+    bf mem_fe66.3,lab_12d7_task_00_exit  ;12d0  31 33 66 03
     call !sub_9a39          ;12d4  9a 39 9a
 
-lab_12d7:
+
+;Task 0x00
+;Do some housekeeping and return.
+;All tasks seem to exit through this routine.
+;
+lab_12d7_task_00_exit:
     mov a,mem_fe2e          ;12d7  f0 2e
     sub a,mem_fe2f          ;12d9  1e 2f
     add a,#0x0b             ;12db  0d 0b
@@ -3872,16 +3888,21 @@ lab_12d7:
     mov mem_fe2f,#0x0b      ;12df  11 2f 0b
     ret                     ;12e2  af
 
-lab_12e3:
-    call !sub_3518          ;12e3  9a 18 35       Unknown, related to 5 baud address tx/rx
-    btclr mem_fe68.0,lab_1312 ;12e6  31 01 68 28
-    bt mem_fe67.6,lab_1326  ;12ea  ec 67 39
-    bf mem_fe67.4,lab_12f8  ;12ed  31 43 67 07
-    mov a,!mem_fb05         ;12f1  8e 05 fb
-    cmp a,#0x00             ;12f4  4d 00
-    bnz lab_131e            ;12f6  bd 26
 
-lab_12f8:
+;Task 0x07
+;Does stuff related to the KWP1281 5 baud address when in radio-as-tester mode
+;and also stuff related to the MFSW.
+;
+lab_12e3_task_07_5baud_mfsw:
+    call !sub_3518                  ;12e3  9a 18 35       Unknown, related to 5 baud address tx/rx
+    btclr mem_fe68.0,lab_1312       ;12e6  31 01 68 28
+    bt mem_fe67.6,lab_1326          ;12ea  ec 67 39
+    bf mem_fe67.4,lab_12f8_failed   ;12ed  31 43 67 07
+    mov a,!mem_fb05                 ;12f1  8e 05 fb
+    cmp a,#0x00                     ;12f4  4d 00
+    bnz lab_131e                    ;12f6  bd 26
+
+lab_12f8_failed:
     clr1 mem_fe67.4         ;12f8  4b 67
     bf mem_fe67.7,lab_1309  ;12fa  31 73 67 0b
     mov a,!mem_fb0f         ;12fe  8e 0f fb
@@ -3915,13 +3936,13 @@ lab_1326:
     mov a,!mfsw_key         ;132a  8e 97 f1   A = MFSW key code received
     movw hl,#mfsw_codes+1   ;132d  16 ad b3   HL = table of supported MFSW key codes
     call !table_find_byte   ;1330  9a 0d 0b   Find A in table [HL] and return its position in B
-    bnc lab_12f8            ;1333  9d c3      Branch if find failed
+    bnc lab_12f8_failed     ;1333  9d c3      Branch if find failed
 
     ;MFSW key code received was found in table
 
     movw hl,#mfsw_equivs+1  ;1335  16 b2 b3
     callf !table_get_byte   ;1338  4c 7d      Load A with byte at position B in table [HL]
-    bc lab_12f8             ;133a  8d bc      Branch if lookup failed
+    bc lab_12f8_failed      ;133a  8d bc      Branch if lookup failed
 
     ;A corresponding value was found in mfsw_equivs
 
@@ -3955,39 +3976,39 @@ lab_1358:
     set1 mem_fe6b.6         ;136b  6a 6b
 
 lab_136d:
-    bt mem_fe2c.3,lab_13b1  ;136d  bc 2c 41
-    mov mem_fe40,#0x00      ;1370  11 40 00
-    mov mem_fe41,#0x00      ;1373  11 41 00
-    mov mem_fe42,#0x00      ;1376  11 42 00
-    mov mem_fe3f,#0x00      ;1379  11 3f 00
-    clr1 mem_fe6c.7         ;137c  7b 6c
-    clr1 mem_fe6c.6         ;137e  6b 6c
-    clr1 mem_fe6b.6         ;1380  6b 6b
-    br !lab_1479            ;1382  9b 79 14
+    bt mem_fe2c.3,lab_13b1      ;136d  bc 2c 41
+    mov mem_fe40,#0x00          ;1370  11 40 00
+    mov mem_fe41,#0x00          ;1373  11 41 00
+    mov mem_fe42,#0x00          ;1376  11 42 00
+    mov mem_fe3f,#0x00          ;1379  11 3f 00
+    clr1 mem_fe6c.7             ;137c  7b 6c
+    clr1 mem_fe6c.6             ;137e  6b 6c
+    clr1 mem_fe6b.6             ;1380  6b 6b
+    br !lab_1479_br_lab_12d7_task_00_exit    ;1382  9b 79 14
 
 lab_1385:
-    bf mem_fe6b.5,lab_138e  ;1385  31 53 6b 05
-    clr1 mem_fe41.0         ;1389  0b 41
-    br !lab_144f            ;138b  9b 4f 14
+    bf mem_fe6b.5,lab_138e      ;1385  31 53 6b 05
+    clr1 mem_fe41.0             ;1389  0b 41
+    br !lab_144f                ;138b  9b 4f 14
 
 lab_138e:
-    bt mem_fe6b.6,lab_13a7  ;138e  ec 6b 16
-    clr1 shadow_p9.7        ;1391  7b d3
-    mov a,shadow_p9         ;1393  f0 d3
-    mov p9,a                ;1395  f2 09
-    mov a,#0x0f             ;1397  a1 0f
-    mov !mem_fb14,a         ;1399  9e 14 fb
-    clr1 shadow_p9.4        ;139c  4b d3
-    mov a,shadow_p9         ;139e  f0 d3
-    mov p9,a                ;13a0  f2 09
-    set1 mem_fe6b.6         ;13a2  6a 6b
-    br !lab_1479            ;13a4  9b 79 14
+    bt mem_fe6b.6,lab_13a7      ;138e  ec 6b 16
+    clr1 shadow_p9.7            ;1391  7b d3
+    mov a,shadow_p9             ;1393  f0 d3
+    mov p9,a                    ;1395  f2 09
+    mov a,#0x0f                 ;1397  a1 0f
+    mov !mem_fb14,a             ;1399  9e 14 fb
+    clr1 shadow_p9.4            ;139c  4b d3
+    mov a,shadow_p9             ;139e  f0 d3
+    mov p9,a                    ;13a0  f2 09
+    set1 mem_fe6b.6             ;13a2  6a 6b
+    br !lab_1479_br_lab_12d7_task_00_exit    ;13a4  9b 79 14
 
 lab_13a7:
-    mov a,!mem_fb14         ;13a7  8e 14 fb
-    cmp a,#0x00             ;13aa  4d 00
-    bz lab_13b9             ;13ac  ad 0b
-    br !lab_1479            ;13ae  9b 79 14
+    mov a,!mem_fb14             ;13a7  8e 14 fb
+    cmp a,#0x00                 ;13aa  4d 00
+    bz lab_13b9                 ;13ac  ad 0b
+    br !lab_1479_br_lab_12d7_task_00_exit    ;13ae  9b 79 14
 
 lab_13b1:
     bt mem_fe41.7,lab_1405  ;13b1  fc 41 51
@@ -4044,13 +4065,13 @@ lab_1405:
     mov a,#0x0f             ;140d  a1 0f
     mov !mem_fb14,a         ;140f  9e 14 fb
     clr1 mem_fe6b.6         ;1412  6b 6b
-    br lab_1479             ;1414  fa 63
+    br lab_1479_br_lab_12d7_task_00_exit ;1414  fa 63
 
 lab_1416:
     mov a,!mem_fb14         ;1416  8e 14 fb
     cmp a,#0x00             ;1419  4d 00
     bz lab_141f             ;141b  ad 02
-    br lab_1479             ;141d  fa 5a
+    br lab_1479_br_lab_12d7_task_00_exit ;141d  fa 5a
 
 lab_141f:
     bf mem_fe6b.4,lab_1454  ;141f  31 43 6b 31
@@ -4061,49 +4082,52 @@ lab_141f:
     br lab_1454             ;142c  fa 26
 
 lab_142e:
-    set1 mem_fe41.3         ;142e  3a 41
-    mov a,!mem_f1ff         ;1430  8e ff f1
-    cmp a,#0x00             ;1433  4d 00
-    bz lab_1479             ;1435  ad 42
-    bf mem_fe2c.3,lab_1479  ;1437  31 33 2c 3e
-    mov a,!mem_f1fe         ;143b  8e fe f1       TODO coding, monsoon related
-    cmp a,#0x03             ;143e  4d 03
-    bz lab_1479             ;1440  ad 37
-    cmp a,#0x03             ;1442  4d 03
-    bz lab_1479             ;1444  ad 33
-    set1 mem_fe41.0         ;1446  0a 41
-    mov a,!mem_fc16         ;1448  8e 16 fc
-    cmp a,#0x07             ;144b  4d 07
-    bnc lab_1479            ;144d  9d 2a
+    set1 mem_fe41.3                                 ;142e  3a 41
+    mov a,!mem_f1ff                                 ;1430  8e ff f1
+    cmp a,#0x00                                     ;1433  4d 00
+    bz lab_1479_br_lab_12d7_task_00_exit            ;1435  ad 42
+    bf mem_fe2c.3,lab_1479_br_lab_12d7_task_00_exit ;1437  31 33 2c 3e
+    mov a,!mem_f1fe                                 ;143b  8e fe f1       TODO coding, monsoon related
+    cmp a,#0x03                                     ;143e  4d 03
+    bz lab_1479_br_lab_12d7_task_00_exit            ;1440  ad 37
+    cmp a,#0x03                                     ;1442  4d 03
+    bz lab_1479_br_lab_12d7_task_00_exit            ;1444  ad 33
+    set1 mem_fe41.0                                 ;1446  0a 41
+    mov a,!mem_fc16                                 ;1448  8e 16 fc
+    cmp a,#0x07                                     ;144b  4d 07
+    bnc lab_1479_br_lab_12d7_task_00_exit           ;144d  9d 2a
 
 lab_144f:
-    set1 mem_fe6b.4         ;144f  4a 6b
-    call !sub_7c51          ;1451  9a 51 7c
+    set1 mem_fe6b.4                                 ;144f  4a 6b
+    call !sub_7c51                                  ;1451  9a 51 7c
 
 lab_1454:
-    bf mem_fe62.1,lab_145e  ;1454  31 13 62 06
-    clr1 mem_fe40.1         ;1458  1b 40
-    clr1 mem_fe40.0         ;145a  0b 40
-    br lab_1479             ;145c  fa 1b
+    bf mem_fe62.1,lab_145e                          ;1454  31 13 62 06
+    clr1 mem_fe40.1                                 ;1458  1b 40
+    clr1 mem_fe40.0                                 ;145a  0b 40
+    br lab_1479_br_lab_12d7_task_00_exit            ;145c  fa 1b
 
 lab_145e:
-    bt mem_fe40.0,lab_1479  ;145e  8c 40 18
-    mov a,!mem_fb13         ;1461  8e 13 fb
-    cmp a,#0x00             ;1464  4d 00
-    bnz lab_1479            ;1466  bd 11
-    mov a,#0x14             ;1468  a1 14
-    bt mem_fe65.5,lab_1473  ;146a  dc 65 06
-    bf mem_fe6b.4,lab_1473  ;146d  31 43 6b 02
-    mov a,#0x0f             ;1471  a1 0f
+    bt mem_fe40.0,lab_1479_br_lab_12d7_task_00_exit ;145e  8c 40 18
+    mov a,!mem_fb13                                 ;1461  8e 13 fb
+    cmp a,#0x00                                     ;1464  4d 00
+    bnz lab_1479_br_lab_12d7_task_00_exit           ;1466  bd 11
+    mov a,#0x14                                     ;1468  a1 14
+    bt mem_fe65.5,lab_1473                          ;146a  dc 65 06
+    bf mem_fe6b.4,lab_1473                          ;146d  31 43 6b 02
+    mov a,#0x0f                                     ;1471  a1 0f
 
 lab_1473:
-    mov !mem_fb13,a         ;1473  9e 13 fb
-    call !sub_7712          ;1476  9a 12 77
+    mov !mem_fb13,a                     ;1473  9e 13 fb
+    call !sub_7712                      ;1476  9a 12 77
 
-lab_1479:
-    br !lab_12d7            ;1479  9b d7 12
+lab_1479_br_lab_12d7_task_00_exit:
+    br !lab_12d7_task_00_exit         ;1479  9b d7 12
 
-lab_147c:
+
+;Task 0x06 
+;
+lab_147c_task_06_kwp_scon_power_upd_more:
     bt mem_fe65.5,lab_148f  ;147c  dc 65 10
     clr1 mem_fe5f.5         ;147f  5b 5f
 
@@ -4117,7 +4141,7 @@ lab_147c:
 
 lab_148f:
     call !kwp_check_idle    ;148f  9a 3f 33     Decrement KWP1281 idle countdown and disconnect KWP1281 connection if needed
-    call !sub_3e1d          ;1492  9a 1d 3e
+    call !sub_3e1d_s_contact;1492  9a 1d 3e     Check if S-Contact is on/off and ??? 
     call !sub_3d09_term30   ;1495  9a 09 3d     Read analog input 0x01 (P91/ANI10) Terminal 30 and ???
     call !sub_4889_led_illum;1498  9a 89 48     Set uPD16432B LED output latches based on illumination voltage (P92/ANI20) and then ???
     call !sub_58d8_chk_power;149b  9a d8 58     Check POWER key and ???
@@ -4126,32 +4150,39 @@ lab_148f:
     call !sub_9140          ;14a5  9a 40 91
 
 lab_14a8:
-    call !read_3_analogs    ;14a8  9a 7b ab     Table-driven analog input routine
-    br !lab_12d7            ;14ab  9b d7 12
+    call !read_3_analogs        ;14a8  9a 7b ab     Table-driven analog input routine
+    br !lab_12d7_task_00_exit ;14ab  9b d7 12
 
-lab_14ae:
-    bf mem_fe65.5,lab_14b5  ;14ae  31 53 65 03
-    call !sub_26d6          ;14b2  9a d6 26
+
+;Task 0x05
+;
+lab_14ae_task_05_unknown:
+    bf mem_fe65.5,lab_14b5      ;14ae  31 53 65 03
+    call !sub_26d6              ;14b2  9a d6 26
 
 lab_14b5:
-    bf mem_fe64.7,lab_14bc  ;14b5  31 73 64 03
-    call !sub_4625          ;14b9  9a 25 46
+    bf mem_fe64.7,lab_14bc      ;14b5  31 73 64 03
+    call !sub_4625              ;14b9  9a 25 46
 
 lab_14bc:
-    call !sub_6853          ;14bc  9a 53 68
-    br !lab_12d7            ;14bf  9b d7 12
+    call !sub_6853              ;14bc  9a 53 68
+    br !lab_12d7_task_00_exit   ;14bf  9b d7 12
 
-lab_14c2:
-    callf !sub_093c_fb86_csm;14c2  1c 3c        Checksum 11 bytes at 0xfb86
-    bz lab_14c9             ;14c4  ad 03        Branch if check failed
-    br !cold_or_warm_start  ;14c6  9b cf 0d
+
+;Task 0x04 
+;Self-test, set watchdog, call unknown routines
+;
+lab_14c2_task_04_selftest_watchdog_more:
+    callf !sub_093c_fb86_csm    ;14c2  1c 3c        Checksum 11 bytes at 0xfb86
+    bz lab_14c9                 ;14c4  ad 03        Branch if check failed
+    br !cold_or_warm_start      ;14c6  9b cf 0d
 
 lab_14c9:
-    mov a,#0xaa             ;14c9  a1 aa        A = 0xAA cookie that should not be touched
-    cmp a,!stack_top        ;14cb  48 1f fe
-    bnz lab_14d5            ;14ce  bd 05
-    cmp a,!mem_fb91         ;14d0  48 91 fb
-    bz lab_14d6             ;14d3  ad 01
+    mov a,#0xaa                 ;14c9  a1 aa        A = 0xAA cookie that should not be touched
+    cmp a,!stack_top            ;14cb  48 1f fe
+    bnz lab_14d5                ;14ce  bd 05
+    cmp a,!mem_fb91             ;14d0  48 91 fb
+    bz lab_14d6                 ;14d3  ad 01
 
 lab_14d5:
     brk                     ;14d5  bf           Force cold start via badisr_0d75
@@ -4171,41 +4202,49 @@ lab_14d6:
     callt [0x0040]          ;14eb  c1           Calls sub_0994
 
 lab_14ec:
-    bt mem_fe61.7,lab_150c  ;14ec  fc 61 1d     Branch if INTP2 occurred
-    bt mem_fe61.6,lab_150c  ;14ef  ec 61 1a
-    call !sub_0a60          ;14f2  9a 60 0a
-    bf mem_fe63.7,lab_150c  ;14f5  31 73 63 13
-    set1 mem_fe61.6         ;14f9  6a 61
-    mov a,!mem_f207         ;14fb  8e 07 f2
-    bf a.6,lab_150c         ;14fe  31 6f 0b
-    set1 mem_fe7d.7         ;1501  7a 7d
-    call !sub_9118          ;1503  9a 18 91
-    call !sub_1dc4          ;1506  9a c4 1d
-    call !sub_461b          ;1509  9a 1b 46
+    bt mem_fe61.7,lab_150c_br_lab_12d7_task_00_exit   ;14ec  fc 61 1d     Branch if INTP2 occurred
+    bt mem_fe61.6,lab_150c_br_lab_12d7_task_00_exit   ;14ef  ec 61 1a
+    call !sub_0a60                                    ;14f2  9a 60 0a
+    bf mem_fe63.7,lab_150c_br_lab_12d7_task_00_exit   ;14f5  31 73 63 13
+    set1 mem_fe61.6                                   ;14f9  6a 61
+    mov a,!mem_f207                                   ;14fb  8e 07 f2
+    bf a.6,lab_150c_br_lab_12d7_task_00_exit          ;14fe  31 6f 0b
+    set1 mem_fe7d.7                                   ;1501  7a 7d
+    call !sub_9118                                    ;1503  9a 18 91
+    call !sub_1dc4                                    ;1506  9a c4 1d
+    call !sub_461b                                    ;1509  9a 1b 46
 
-lab_150c:
-    br !lab_12d7            ;150c  9b d7 12
+lab_150c_br_lab_12d7_task_00_exit:
+    br !lab_12d7_task_00_exit                         ;150c  9b d7 12
 
-lab_150f:
-    mov mem_fe28,#0x80      ;150f  11 28 80
-    bf mem_fe69.0,lab_1534  ;1512  31 03 69 1e
-    mov iiccl0,#0b00001100  ;1516  13 aa 0c
-    clr1 iicc0.6            ;1519  71 6b a8
-    clr1 iicc0.4            ;151c  71 4b a8
-    clr1 shadow_p7.2        ;151f  2b d1        P72=0 (I2C SCL)
-    mov a,shadow_p7         ;1521  f0 d1
-    mov p7,a                ;1523  f2 07
-    clr1 shadow_p7.1        ;1525  1b d1        P71=0 (I2C SDA)
-    mov a,shadow_p7         ;1527  f0 d1
-    mov p7,a                ;1529  f2 07
-    set1 iicc0.7            ;152b  71 7a a8
-    clr1 pm7.2              ;152e  71 2b 27     PM72=output (I2C SCL)
-    clr1 pm7.1              ;1531  71 1b 27     PM71=output (I2C SDA)
 
-lab_1534:
-    br !lab_12d7            ;1534  9b d7 12
+;Task 0x03
+;I2C related
+;
+lab_150f_task_03_i2c_related:
+    mov mem_fe28,#0x80                                  ;150f  11 28 80
+    bf mem_fe69.0,lab_1534_br_lab_12d7_task_00_exit     ;1512  31 03 69 1e
+    mov iiccl0,#0b00001100                              ;1516  13 aa 0c
+    clr1 iicc0.6                                        ;1519  71 6b a8
+    clr1 iicc0.4                                        ;151c  71 4b a8
+    clr1 shadow_p7.2                                    ;151f  2b d1        P72=0 (I2C SCL)
+    mov a,shadow_p7                                     ;1521  f0 d1
+    mov p7,a                                            ;1523  f2 07
+    clr1 shadow_p7.1                                    ;1525  1b d1        P71=0 (I2C SDA)
+    mov a,shadow_p7                                     ;1527  f0 d1
+    mov p7,a                                            ;1529  f2 07
+    set1 iicc0.7                                        ;152b  71 7a a8
+    clr1 pm7.2                                          ;152e  71 2b 27     PM72=output (I2C SCL)
+    clr1 pm7.1                                          ;1531  71 1b 27     PM71=output (I2C SDA)
 
-lab_1537:
+lab_1534_br_lab_12d7_task_00_exit:
+    br !lab_12d7_task_00_exit            ;1534  9b d7 12
+
+
+;Tasks 0x02
+;Does lots of stuff with ports
+;
+lab_1537_task_02_lots_of_port_stuff:
     bf mem_fe5d.7,lab_153e  ;1537  31 73 5d 03
     call !sub_1ec3          ;153b  9a c3 1e
 
@@ -4239,7 +4278,7 @@ lab_1581:
     call !sub_4495          ;1581  9a 95 44
     bz lab_158b             ;1584  ad 05
     call !sub_4234          ;1586  9a 34 42
-    br lab_159f             ;1589  fa 14
+    br lab_159f_br_lab_12d7_task_00_exit ;1589  fa 14
 
 lab_158b:
     cmp mem_fe30,#0x04      ;158b  c8 30 04
@@ -4250,18 +4289,23 @@ lab_158b:
 
 lab_1597:
     call !sub_4234          ;1597  9a 34 42
-    br lab_159f             ;159a  fa 03
+    br lab_159f_br_lab_12d7_task_00_exit ;159a  fa 03
 
 lab_159c:
     call !sub_42be          ;159c  9a be 42
 
-lab_159f:
-    br !lab_12d7            ;159f  9b d7 12
+lab_159f_br_lab_12d7_task_00_exit:
+    br !lab_12d7_task_00_exit            ;159f  9b d7 12
 
-lab_15a2:
-    call !sub_3b27          ;15a2  9a 27 3b   Performs only: mov prm00,#0x00
-    set1 mem_fe77.4         ;15a5  4a 77
-    br !lab_12d7            ;15a7  9b d7 12
+
+;Task 0x03
+;Just clears PRM00 and sets mem_fe77.4
+;
+lab_150f_task_03_clear_prm00:
+    call !sub_3b27              ;15a2  9a 27 3b   Performs only: mov prm00,#0x00
+    set1 mem_fe77.4             ;15a5  4a 77
+    br !lab_12d7_task_00_exit   ;15a7  9b d7 12
+
 
 sub_15aa:
 ;Convert lower nibble of A to hexadecimal digit in ASCII
@@ -11967,7 +12011,7 @@ lab_3e14:
 lab_3e1c:
     ret                     ;3e1c  af
 
-sub_3e1d:
+sub_3e1d_s_contact:
     set1 pm9.0                  ;3e1d  71 0a 29     PM90=input (S-Contact: 0=off, 1=on)
     bt mem_fe63.0,lab_3e75_ret  ;3e20  8c 63 52     If mem_fe63.0=1, we're not supposed to initiate a KWP1281
                                 ;                     connection to the cluster right now, so just return.
@@ -13365,16 +13409,16 @@ sub_4625:
     clr1 mem_fe64.7             ;462c  7b 64
     call !kwp_logout_disconnect ;462e  9a c3 51     Branch to Clear KWP1281 auth bits and disconnect
     cmp mem_fe31,#0x00          ;4631  c8 31 00
-    bz lab_463a                 ;4634  ad 04
+    bz lab_463a_br_lab_4688     ;4634  ad 04
     mov a,#0x00                 ;4636  a1 00
     mov mem_fe31,a              ;4638  f2 31
 
-lab_463a:
+lab_463a_br_lab_4688:
     br lab_4688             ;463a  fa 4c
 
 lab_463c:
     cmp mem_fe31,#0x00      ;463c  c8 31 00
-    bz lab_463a             ;463f  ad f9
+    bz lab_463a_br_lab_4688 ;463f  ad f9
 
     mov a,!mem_fbad         ;4641  8e ad fb
     cmp a,#0xff             ;4644  4d ff
@@ -19760,233 +19804,292 @@ mem_6535:
     .byte 0xd4, 0xd3
     .byte 0xd2, 0xd1
 
-normal:
-    .byte 0x06              ;6587  06          DATA 0x06        6 bytes follow:
-    .ascii "NORMAL"
 
-loud:
-    .byte 0x04              ;658e  04          DATA 0x04        4 bytes follow:
+normal:                         ;6587  06   XXX appears unused
+    .byte normal_len           
+    .ascii "NORMAL"
+    normal_len = . - normal - 1
+ 
+loud:                           ;658e  04   XXX appears unused
+    .byte loud_len              
     .ascii "LOUD"
+    loud_len = . - loud - 1    
 
 diag:
-    .byte 0x07              ;6593  07          DATA 0x07        7 bytes follow:
+    .byte diag_len              
     .ascii " DIAG  "
+    diag_len = . - diag - 1
 
-none_found:
-    .byte 0x0a              ;659b  0a          DATA 0x0a        10 bytes follow:
+none_found:                     ;659b  0a   XXX appears unused
+    .byte none_found_len        
     .ascii "NONE FOUND"
+    none_found_len = . - none_found - 1
 
 tape:
-    .byte 0x04              ;65a6  04          DATA 0x04        4 bytes follow:
+    .byte tape_len              
     .ascii "TAPE"
+    tape_len = . - tape - 1
 
 tape_play:
-    .byte 0x0b              ;65ab  0b          DATA 0x0b        11 bytes follow:
+    .byte tape_play_len              
     .ascii "TAPE PLAY  "
+    tape_play_len = . - tape_play - 1
 
 tape_ff:
-    .byte 0x0b              ;65b7  0b          DATA 0x0b        11 bytes follow:
+    .byte tape_ff_len              
     .ascii "TAPE  FF   "
+    tape_ff_len = . - tape_ff - 1
 
 tape_rew:
-    .byte 0x0b              ;65c3  0b          DATA 0x0b        11 bytes follow:
+    .byte tape_rew_len              
     .ascii "TAPE  REW  "
+    tape_rew_len = . - tape_rew - 1
 
 tapemss_ff:
-    .byte 0x0b              ;65cf  0b          DATA 0x0b        11 bytes follow:
+    .byte tapemss_ff_len              
     .ascii "TAPEMSS FF "
+    tapemss_ff_len = . - tapemss_ff - 1
 
 tapemss_rew:
-    .byte 0x0b              ;65db  0b          DATA 0x0b        11 bytes follow:
+    .byte tapemss_rew_len              
     .ascii "TAPEMSS REW"
+    tapemss_rew_len = . - tapemss_rew - 1
 
 skip_blank:
-    .byte 0x0b              ;65e7  0b          DATA 0x0b        11 bytes follow:
+    .byte skip_blank_len              
     .ascii "SKIP BLANK "
+    skip_blank_len = . - skip_blank - 1
 
 tape_scan:
-    .byte 0x0b              ;65f3  0b          DATA 0x0b        11 bytes follow:
+    .byte tape_scan_len              
     .ascii "TAPE SCAN  "
+    tape_scan_len = . - tape_scan - 1
 
 tape_metal:
-    .byte 0x0b              ;65ff  0b          DATA 0x0b        11 bytes follow:
+    .byte tape_metal_len              
     .ascii "TAPE METAL "
+    tape_metal_len = . - tape_metal - 1
 
 tape_load:
-    .byte 0x0b              ;660b  0b          DATA 0x0b        11 bytes follow:
+    .byte tape_load_len              
     .ascii "TAPE LOAD  "
+    tape_load_len = . - tape_load - 1
 
 no_tape:
-    .byte 0x0b              ;6617  0b          DATA 0x0b        11 bytes follow:
+    .byte no_tape_len              
     .ascii "    NO TAPE"
+    no_tape_len = . - no_tape - 1
 
 tape_error:
-    .byte 0x0b              ;6623  0b          DATA 0x0b        11 bytes follow:
+    .byte tape_error_len              
     .ascii "TAPE ERROR "
+    tape_error_len = . - tape_error - 1
 
 ff:
-    .byte 0x07              ;662f  07          DATA 0x07        7 bytes follow:
+    .byte ff_len
     .ascii "  FF   "
+    ff_len = . - ff - 1
 
 right_arrow:
-    .byte 0x01              ;6637  01          DATA 0x01        1 byte follows:
+    .byte right_arrow_len
     .ascii ">"
-
+    right_arrow_len = . - right_arrow - 1
+    
 rew:
-    .byte 0x07              ;6639  07          DATA 0x07        7 bytes follow:
+    .byte rew_len              
     .ascii "  REW  "
+    rew_len = . - rew - 1
 
 left_arrow:
-    .byte 0x01              ;6641  01          DATA 0x01        1 byte follows:
+    .byte left_arrow_len
     .ascii "<"
+    left_arrow_len = . - left_arrow - 1
 
 cut_tape:
-    .byte 0x08              ;6643  08          DATA 0x08        8 bytes follow:
+    .byte cut_tape_len
     .ascii "CUT TAPE"
+    cut_tape_len = . - cut_tape - 1
 
 disabled:
-    .byte 0x08              ;664c  08          DATA 0x08        8 bytes follow:
+    .byte disabled_len
     .ascii "DISABLED"
+    disabled_len = . - disabled -1
 
 comm_error:
-    .byte 0x0a              ;6655  0a          DATA 0x0a        10 bytes follow:
+    .byte 0x0a              
     .ascii "Comm Error"
+    comm_error_len = . - comm_error - 1
 
-broken_tape:
-    .byte 0x0b              ;6660  0b          DATA 0x0b        11 bytes follow:
+broken_tape:                ;6660  0b   XXX appears unused
+    .byte broken_tape_len              
     .ascii "Broken Tape"
+    broken_tape_len = . - broken_tape - 1
 
 tight_tape:
-    .byte 0x0a              ;666c  0a          DATA 0x0a        10 bytes follow:
+    .byte tight_tape_len
     .ascii "Tight Tape"
+    tight_tape_len = . - tight_tape - 1
 
 wrapped_tape:
-    .byte 0x0c              ;6677  0c          DATA 0x0c        12 bytes follow:
+    .byte wrapped_tape_len
     .ascii "Wrapped Tape"
+    wrapped_tape_len = . - wrapped_tape - 1
 
 cd__:
-    .byte 0x0b              ;6684  0b          DATA 0x0b        11 bytes follow:
+    .byte cd___len
     .ascii "CD         "
+    cd___len = . - cd__ - 1
 
 cd_no_cd:
-    .byte 0x0b              ;6690  0b          DATA 0x0b        11 bytes follow:
+    .byte cd_no_cd_len
     .ascii "CD   NO CD "
+    cd_no_cd_len = . - cd_no_cd - 1
 
 cd_tr:
-    .byte 0x0b              ;669c  0b          DATA 0x0b        11 bytes follow:
+    .byte cd_tr_len
     .ascii "CD   TR    "
+    cd_tr_len = . - cd_tr - 1
 
-playcd_tr:
-    .byte 0x0b              ;66a8  0b          DATA 0x0b        11 bytes follow:
+playcd_tr:                  ;66a8  0b   XXX appears unused
+    .byte playcd_tr_len
     .ascii "PLAYCD TR  "
+    playcd_tr_len = . - playcd_tr - 1
 
 cue:
-    .byte 0x0b              ;66b4  0b          DATA 0x0b        11 bytes follow:
+    .byte cue_len
     .ascii "CUE        "
+    cue_len = . - cue - 1
 
 rev:
-    .byte 0x0b              ;66c0  0b          DATA 0x0b        11 bytes follow:
+    .byte rev_len
     .ascii "REV        "
+    rev_len = . - rev - 1
 
-scan_tr:
-    .byte 0x0b              ;66cc  0b          DATA 0x0b        11 bytes follow:
+scancd_tr:
+    .byte scancd_tr_len
     .ascii "SCANCD TR  "
+    scancd_tr_len = . - scancd_tr - 1
 
-track:
-    .byte 0x06              ;66d8  06          DATA 0x06        6 bytes follow:
+track:                      ;66d8  06   XXX appears unused
+    .byte track_len       
     .ascii "TRACK "
+    track_len = . - track - 1
 
-rdm:
-    .byte 0x03              ;66df  03          DATA 0x03        3 bytes follow:
+rdm:                        ;66df  03   XXX appears unused
+    .byte rdm_len  
     .ascii "RDM"
+    rdm_len = . - rdm - 1
 
-random_one:
-    .byte 0x0a              ;66e3  0a          DATA 0x0a        10 bytes follow:
+random_one:                 ;66e3  0a   XXX appears unused
+    .byte random_one_len              
     .ascii "RANDOM ONE"
+    random_one_len = . - random_one - 1
 
-random_all:
-    .byte 0x0a              ;66ee  0a          DATA 0x0a        10 bytes follow:
+random_all:                 ;66ee  0a   XXX appears unused
+    .byte random_all_len
     .ascii "RANDOM ALL"
+    random_all_len = . - random_all - 1
 
-rev2:
-    .byte 0x03              ;66f9  03          DATA 0x03        3 bytes follow:
+rev2:                       ;66f9  03   XXX appears unused
+    .byte rev2_len
     .ascii "REV"
+    rev2_len = . - rev2 - 1
 
-fwd:
-    .byte 0x03              ;66fd  03          DATA 0x03        3 bytes follow:
+fwd:                        ;66fd  03   XXX appears unused
+    .byte fwd_len
     .ascii "FWD"
+    fwd_len = . - fwd - 1
 
-et:
-    .byte 0x02              ;6701  02          DATA 0x02        2 bytes follow:
+et:                         ;6701  02   XXX appears unused
+    .byte et_len              
     .ascii "ET"
+    et_len = . - et - 1
 
-eltm:
-    .byte 0x04              ;6704  04          DATA 0x04        4 bytes follow:
+eltm:                       ;6704  04   XXX appears unused
+    .byte eltm_len
     .ascii "ELTM"
+    eltm_len = . - eltm - 1
 
 track_scan:
-    .byte 0x0d              ;6709  0d          DATA 0x0d        13 bytes follow:
+    .byte track_scan_len
     .ascii "TRACK SCAN   "
+    track_scan_len = . - track_scan - 1
 
 disc_scan:
-    .byte 0x0d              ;6717  0d          DATA 0x0d        13 bytes follow:
+    .byte disc_scan_len
     .ascii "DISC SCAN    "
+    disc_scan_len = . - disc_scan - 1
 
 check_cd:
-    .byte 0x08              ;6725  08          DATA 0x08        8 bytes follow:
+    .byte check_cd_len
     .ascii "Check CD"
+    check_cd_len = . - check_cd - 1
 
 player_error:
-    .byte 0x0c              ;672e  0c          DATA 0x0c        12 bytes follow:
+    .byte player_error_len
     .ascii "Player Error"
+    player_error_len = . - player_error - 1
 
-focus:
-    .byte 0x05              ;673b  05          DATA 0x05        5 bytes follow:
+focus:                      ;673b  05   XXX appears unused
+    .byte focus_len
     .ascii "FOCUS"
+    focus_len = . - focus - 1
 
-cd_door_open:
-    .byte 0x0c              ;6741  0c          DATA 0x0c        12 bytes follow:
+cd_door_open:               ;6741  0c   XXX appears unused
+    .byte cd_door_open_len
     .ascii "CD Door Open"
+    cd_door_open_len = . - cd_door_open - 1
 
 changer_error:
-    .byte 0x0c              ;674e  0c          DATA 0x0c        12 bytes follow:
+    .byte changer_error_len              
     .ascii "Changer Error"
+    changer_error_len = . - changer_error - 2 ;XXX this is a bug (off by one)
 
-magazine:
-    .byte 0x08              ;675c  08          DATA 0x08        8 bytes follow:
+magazine:                   
+    .byte magazine_len
     .ascii "MAGAZINE"
+    magazine_len = . - magazine - 1
 
 no_magazin:
-    .byte 0x0b              ;6765  0b          DATA 0x0b        11 bytes follow:
+    .byte no_magazin_len             
     .ascii "NO  MAGAZIN"
+    no_magazin_len = . - no_magazin - 1
 
 no_changer:
-    .byte 0x0b              ;6771  0b          DATA 0x0b        11 bytes follow:
+    .byte no_changer_len
     .ascii "NO  CHANGER"
+    no_changer_len = . - no_changer - 1
 
 no_disc:
-    .byte 0x0b              ;677d  0b          DATA 0x0b        11 bytes follow:
+    .byte no_disc_len   
     .ascii "    NO DISC"
+    no_disc_len = . - no_disc - 1
 
 cd_cd_rom:
-    .byte 0x0b              ;6789  0b          DATA 0x0b        11 bytes follow:
+    .byte cd_cd_rom_len
     .ascii "CD  CD ROM "
+    cd_cd_rom_len = . - cd_cd_rom - 1
 
 cd_cd_err:
-    .byte 0x0b              ;6795  0b          DATA 0x0b        11 bytes follow:
+    .byte cd_cd_err_len
     .ascii "CD  CD ERR "
+    cd_cd_err_len = . - cd_cd_err - 1
 
 cd_error:
-    .byte 0x0b              ;67a1  0b          DATA 0x0b        11 bytes follow:
+    .byte cd_error_len              
     .ascii " CD  ERROR "
+    cd_error_len = . - cd_error - 1
 
 chk_magazin:
-    .byte 0x0b              ;67ad  0b          DATA 0x0b        11 bytes follow:
+    .byte chk_magazin_len
     .ascii "CHK MAGAZIN"
+    chk_magazin_len = . - chk_magazin - 1
 
-lock:
-    .byte 0x04              ;67b9  04          DATA 0x04        4 bytes follow:
+lock:                       ;67b9  04 XXX appears unused
+    .byte lock_len
     .ascii "LOCK"
+    lock_len = . - lock - 1
+
 
 sub_67be:
 ;Sets tmp_msg_idx = 0xff (may result in "DIAG" being printed)
@@ -20450,7 +20553,7 @@ lab_6a1f:
 lab_6a26:
     mov b,#0xff             ;6a26  a3 ff
     movw hl,#monsoon        ;6a28  16 c9 64     HL = pointer to 11,"    MONSOON"
-    call !sub_6e70_copy_upd ;6a2b  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+    call !upd_multi_copy    ;6a2b  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
 
     ret                     ;6a2e  af
 
@@ -20478,7 +20581,7 @@ lab_6a40_lcd_off:
     br lab_6a5b             ;6a54  fa 05      Branch to return
 
 lab_6a56:
-    call !sub_6e70_copy_upd ;6a56  9a 70 6e   Copy message from [HL] to display buf; uses A, B
+    call !upd_multi_copy    ;6a56  9a 70 6e   Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
     br lab_6a5b             ;6a59  fa 00      Branch to return
 
 lab_6a5b:
@@ -20509,7 +20612,7 @@ lab_6a75:
 lab_6a7a:
     mov a,#0x87             ;6a7a  a1 87
     mov b,#0xff             ;6a7c  a3 ff
-    call !sub_6e70_copy_upd ;6a7e  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+    call !upd_multi_copy    ;6a7e  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
 
     mov b,#0x03             ;6a81  a3 03
     mov a,#0xff             ;6a83  a1 ff
@@ -20528,7 +20631,7 @@ lab_6a8d:
 lab_6a9c:
     mov a,#0x88             ;6a9c  a1 88
     mov b,#0xff             ;6a9e  a3 ff
-    call !sub_6e70_copy_upd ;6aa0  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+    call !upd_multi_copy    ;6aa0  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
 
     mov a,!mem_fb5a         ;6aa3  8e 5a fb
     add a,#0x01             ;6aa6  0d 01        Convert to char code for preset (preset 1 = code 2)
@@ -20543,7 +20646,7 @@ lab_6a9c:
 lab_6ab7:
     mov a,#0xff             ;6ab7  a1 ff
     mov b,#0x83             ;6ab9  a3 83
-    call !sub_6e70_copy_upd ;6abb  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+    call !upd_multi_copy    ;6abb  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
 
     mov a,#0xff             ;6abe  a1 ff
     movw hl,#preset_scan    ;6ac0  16 d5 63     HL = pointer to 11,"PRESET SCAN"
@@ -20583,7 +20686,7 @@ lab_6af5_tape_load:
     mov b,#0xff             ;6af5  a3 ff
     mov a,#0x0a             ;6af7  a1 0a
     movw hl,#tape_load      ;6af9  16 0b 66     HL = pointer to 11,"TAPE LOAD  "
-    call !sub_6e70_copy_upd ;6afc  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+    call !upd_multi_copy    ;6afc  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
     ret                     ;6aff  af
 
 lab_6b00_tape_metal:
@@ -20593,7 +20696,7 @@ lab_6b00_tape_metal:
     mov b,#0xff             ;6b04  a3 ff
     mov a,#0x0a             ;6b06  a1 0a
     movw hl,#tape_metal     ;6b08  16 ff 65     HL = pointer to 11,"TAPE METAL"
-    call !sub_6e70_copy_upd ;6b0b  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+    call !upd_multi_copy    ;6b0b  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
 
 lab_6b0e:
     ret                     ;6b0e  af
@@ -20626,7 +20729,7 @@ lab_6b33_skip_blank:
     mov b,#0xff             ;6b33  a3 ff
     mov a,#0x0a             ;6b35  a1 0a
     movw hl,#skip_blank     ;6b37  16 e7 65     HL = pointer to 11,"SKIP BLANK "
-    call !sub_6e70_copy_upd ;6b3a  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+    call !upd_multi_copy    ;6b3a  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
     ret                     ;6b3d  af
 
 lab_6b3e_tape_mss_ff:
@@ -20647,14 +20750,14 @@ lab_6b48_tapemss_rew:
 
 lab_6b52:
 ;Finish tape message
-    call !sub_6e70_copy_upd ;6b52  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+    call !upd_multi_copy    ;6b52  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
     call !sub_6e40_wr_tap_ab;6b55  9a 40 6e     Write tape side "A" or "B" and set tape pictographs
     call !sub_6e6f_ret      ;6b58  9a 6f 6e     Just returns
     ret                     ;6b5b  af
 
 ;XXX appears unused
 lab_6b5c:
-    call !sub_6e70_copy_upd ;6b5c  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+    call !upd_multi_copy    ;6b5c  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
     call !sub_6e6e_ret      ;6b5f  9a 6e 6e     Just returns
     call !sub_6e6f_ret      ;6b62  9a 6f 6e     Just returns
     ret                     ;6b65  af
@@ -20663,7 +20766,7 @@ lab_6b66_chk_magazin:
     mov a,#0x0a             ;6b66  a1 0a
     movw hl,#chk_magazin    ;6b68  16 ad 67     HL = pointer to 11,"CHK MAGAZIN"
     mov b,#0xff             ;6b6b  a3 ff
-    call !sub_6e70_copy_upd ;6b6d  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+    call !upd_multi_copy    ;6b6d  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
 
     br !lab_6ca5_ret        ;6b70  9b a5 6c     Branch to return
 
@@ -20675,7 +20778,7 @@ lab_6b73_cd_cd_err:
     mov a,#0x0a             ;6b7a  a1 0a
     mov b,#0xff             ;6b7c  a3 ff
     movw hl,#cd_cd_err      ;6b7e  16 95 67     HL = pointer to 11,"CD  CD ERR "
-    call !sub_6e70_copy_upd ;6b81  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+    call !upd_multi_copy    ;6b81  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
 
     movw hl,#upd_disp       ;6b84  16 9a f1
     mov a,!mem_fc7d_upd_cd3  ;6b87  8e 7d fc     A = CD number
@@ -20687,7 +20790,7 @@ lab_6b90_cd_err_no_cd:
     mov a,#0x0a             ;6b90  a1 0a
     mov b,#0xff             ;6b92  a3 ff
     movw hl,#cd_error       ;6b94  16 a1 67     HL = pointer to 11," CD  ERROR "
-    call !sub_6e70_copy_upd ;6b97  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+    call !upd_multi_copy    ;6b97  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
 
 lab_6b9a:
     br !lab_6ca5_ret        ;6b9a  9b a5 6c     Branch to return
@@ -20696,7 +20799,7 @@ lab_6b9d_cd_no_cd:
     mov a,#0x0a             ;6b9d  a1 0a
     mov b,#0xff             ;6b9f  a3 ff
     movw hl,#cd_no_cd       ;6ba1  16 90 66     HL = pointer to 11,"CD   NO CD "
-    call !sub_6e70_copy_upd ;6ba4  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+    call !upd_multi_copy    ;6ba4  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
 
     movw hl,#upd_disp       ;6ba7  16 9a f1
     mov a,!mem_fc7d_upd_cd3  ;6baa  8e 7d fc     A = CD number
@@ -20744,10 +20847,10 @@ lab_6bde:
 lab_6bef:
     ret                     ;6bef  af
 
-lab_6bf0_scan_tr:
+lab_6bf0_scancd_tr:
     mov a,#0xff             ;6bf0  a1 ff
     mov b,#0x0a             ;6bf2  a3 0a
-    movw hl,#scan_tr        ;6bf4  16 cc 66     HL = pointer to 11,"SCANCD TR  "
+    movw hl,#scancd_tr      ;6bf4  16 cc 66     HL = pointer to 11,"SCANCD TR  "
     br lab_6c5f_cd_and_track;6bf7  fa 66
 
 lab_6bf9_cue:
@@ -20759,7 +20862,7 @@ lab_6bf9_cue:
     clr1 upd_pict+5.1       ;6c05  1b 3a        Turn off "MIX" pictograph
 
 lab_6c07:
-    call !sub_6e70_copy_upd ;6c07  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+    call !upd_multi_copy    ;6c07  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
     call !sub_6cac_wr_time  ;6c0a  9a ac 6c     Write minutes and seconds to display buf
     br !lab_6ca5_ret        ;6c0d  9b a5 6c     Branch to return
 
@@ -20772,7 +20875,7 @@ lab_6c10_cd_mins_secs:
     clr1 upd_pict+5.1       ;6c1c  1b 3a        Turn off "MIX" pictograph
 
 lab_6c1e:
-    call !sub_6e70_copy_upd ;6c1e  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+    call !upd_multi_copy    ;6c1e  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
     call !write_cd_num      ;6c21  9a 2f 6d     Write the CD number to the buffer
     call !sub_6cac_wr_time  ;6c24  9a ac 6c     Write minutes and seconds to display buf
     br lab_6ca5_ret         ;6c27  fa 7c        Branch to return
@@ -20786,7 +20889,7 @@ lab_6c29_rev:
     clr1 upd_pict+5.1       ;6c35  1b 3a        Turn off "MIX" pictograph
 
 lab_6c37:
-    call !sub_6e70_copy_upd ;6c37  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+    call !upd_multi_copy    ;6c37  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
     call !sub_6cac_wr_time  ;6c3a  9a ac 6c     Write minutes and seconds to display buf
     br lab_6ca5_ret         ;6c3d  fa 66        Branch to return
 
@@ -20800,58 +20903,59 @@ lab_6c3f_cd_mins_secs:
     clr1 upd_pict+5.1       ;6c4b  1b 3a        Turn off "MIX" pictograph
 
 lab_6c4d:
-    call !sub_6e70_copy_upd ;6c4d  9a 70 6e     Copy message from [HL] to display buf; uses A, B
-    call !write_cd_num     ;6c50  9a 2f 6d      Write the CD number to the buffer
+    call !upd_multi_copy    ;6c4d  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
+    call !write_cd_num      ;6c50  9a 2f 6d     Write the CD number to the buffer
     call !sub_6cac_wr_time  ;6c53  9a ac 6c     Write minutes and seconds to display buf
     br lab_6ca5_ret         ;6c56  fa 4d        Branch to return
 
 lab_6c58_cd_and_track:
-    mov a,#0x0a             ;6c58  a1 0a
+    mov a,#0x0a             ;6c58  a1 0a 
     movw hl,#cd_tr          ;6c5a  16 9c 66     HL = pointer to 11,"CD   TR    "
     mov b,#0xff             ;6c5d  a3 ff
 
 lab_6c5f_cd_and_track:
-    call !sub_6e70_copy_upd ;6c5f  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+    call !upd_multi_copy    ;6c5f  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
     call !write_cd_num      ;6c62  9a 2f 6d     Write the CD number to the buffer
     call !write_track       ;6c65  9a 01 6d     Write CD track as two digits to the buffer
     br lab_6ca5_ret         ;6c68  fa 3b        Branch to return
 
 lab_6c6a_track_scan:
-    mov b,#0x83             ;6c6a  a3 83
-    mov a,#0x10             ;6c6c  a1 10
+    mov b,#0x83             ;6c6a  a3 83        
+    mov a,#0x10             ;6c6c  a1 10        A = bits 6-0: offset 0x10 in upd_disp buffer
     movw hl,#track_scan     ;6c6e  16 09 67     HL = pointer to 13,"TRACK SCAN   "
-    call !sub_6e70_copy_upd ;6c71  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+    call !upd_multi_copy    ;6c71  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
     br lab_6ca5_ret         ;6c74  fa 2f        Branch to return
 
 lab_6c76_disc_scan:
-    mov b,#0x83             ;6c76  a3 83
-    mov a,#0x10             ;6c78  a1 10
+    mov b,#0x83             ;6c76  a3 83        
+    mov a,#0x10             ;6c78  a1 10        
     movw hl,#disc_scan      ;6c7a  16 17 67     HL = pointer to 13,"DISC SCAN    "
-    call !sub_6e70_copy_upd ;6c7d  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+    call !upd_multi_copy    ;6c7d  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
     br lab_6ca5_ret         ;6c80  fa 23        Branch to return
 
 lab_6c82_hl_msg_time:
-    mov a,#0xff             ;6c82  a1 ff
-    mov b,#0x83             ;6c84  a3 83
-    call !sub_6e70_copy_upd ;6c86  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+    mov a,#0xff             ;6c82  a1 ff        
+    mov b,#0x83             ;6c84  a3 83        
+    call !upd_multi_copy    ;6c86  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
     call !sub_6cac_wr_time  ;6c89  9a ac 6c     Write minutes and seconds to display buf
     br lab_6ca5_ret         ;6c8c  fa 17        Branch to return
 
 lab_6c8e_hl_msg_cdnum:
-    mov a,#0xff             ;6c8e  a1 ff
-    mov b,#0x83             ;6c90  a3 83
-    call !sub_6e70_copy_upd ;6c92  9a 70 6e     Copy message from [HL] to display buf; uses A, B
-    call !write_cd_num      ;6c95  9a 2f 6d     Write the CD number to the buffer
+    mov a,#0xff             ;6c8e  a1 ff        
+    mov b,#0x83             ;6c90  a3 83        
+    call !upd_multi_copy    ;6c92  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
+    call !write_cd_num      ;6c95  9a 2f 6d     Write the CD number to the upd_disp buffer
     br lab_6ca5_ret         ;6c98  fa 0b        Branch to return
 
 lab_6c9a_hl:
-    call !sub_6e70_copy_upd ;6c9a  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+    call !upd_multi_copy    ;6c9a  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
     call !sub_6e6f_ret      ;6c9d  9a 6f 6e     Just returns
     br lab_6ca8_ret         ;6ca0  fa 06        Branch to return
 
+
 ;XXX appears unused
-lab_6ca2:
-    call !sub_6e70_copy_upd ;6ca2  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+sub_6ca2:
+    call !upd_multi_copy    ;6ca2  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
 
 lab_6ca5_ret:
     call !sub_6e6f_ret      ;6ca5  9a 6f 6e     Just returns
@@ -20859,6 +20963,7 @@ lab_6ca5_ret:
 lab_6ca8_ret:
     call !sub_6e6e_ret      ;6ca8  9a 6e 6e     Just returns
     ret                     ;6cab  af
+
 
 ;Write minutes and seconds to display buf
 sub_6cac_wr_time:
@@ -21003,7 +21108,7 @@ lab_6d60_ret:
 
 ;Copy message from [HL] to display buf, then write AM/kHz or FM/MHz
 sub_6d61_hl_band:
-    call !sub_6e70_copy_upd ;6d61  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+    call !upd_multi_copy    ;6d61  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
     ;Fall through
 
 sub_6d64_wr_band:
@@ -21126,8 +21231,8 @@ lab_6e2b_mhz:
     mov b,#0xff             ;6e3a  a3 ff
 
 lab_6e3c:
-    call !sub_6feb          ;6e3c  9a eb 6f     Copy from [HL] to upd_disp
-    ret                     ;6e3f  af
+    call !upd_copy_len_prefixed_str  ;6e3c  9a eb 6f     Copy length-prefixed string at [HL] into upd_disp buffer
+    ret                              ;6e3f  af
 
 
 sub_6e40_wr_tap_ab:
@@ -21167,91 +21272,125 @@ sub_6e6f_ret:
     ret                     ;6e6f  af
 
 
-sub_6e70_copy_upd:
-;HL = pointer to message
-;A = ?
-;B = ?
-    bt a.7,lab_6e87         ;6e70  31 7e 14
+upd_multi_copy:
+;Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
+;
+;HL = pointer to length-prefixed string to copy to upd_disp buf
+;Bit 7 of A and B control the behavior.
+;The other bits of A and B contain parameters.
+;
+;A.7=0, B.7=0   Call upd_copy_len_prefixed_str twice
+;                   A = bits 6-0: offset in upd_disp buffer to receive the last char in the string
+;                   B = don't care
+;
+;A.7=0, B.7=1   Just call upd_copy_len_prefixed_str
+;                   A = bits 6-0: offset in upd_disp buffer to receive the last char in the string
+;                   B = don't care
+;
+;A.7=1, B.7=0   Call upd_copy_len_prefixed_str then call freq_idx_to_upd_disp
+;                   A = bits 6-0: frequency index or 0xFF for no frequency
+;                   B = bits 6-0: offset in upd_disp buffer to receive the last char in the string
+;
+;A.7=1, B.7=1   Just call to freq_idx_to_upd_disp
+;                   A = bits 6-0: frequency index or 0xFF for no frequency
+;                   B = don't care
+;                   HL = don't care
+;
+    bt a.7,lab_6e87_a7_set          ;6e70  31 7e 14
 
-    ;bit 7 of A is clear
-    ;it seems like bit 7 is clear for all the messages that
-    ;i have seen on the radio
+    ;Bit 7 of A is clear
+    ;It seems like bit 7 is clear for all the messages that I have seen on the radio.
 
-    push ax                 ;6e73  b1
-    mov a,b                 ;6e74  63
-    and a,#0x80             ;6e75  5d 80
-    cmp a,#0x00             ;6e77  4d 00
-    pop ax                  ;6e79  b0
-    bnz lab_6e97            ;6e7a  bd 1b
-    push ax                 ;6e7c  b1
-    call !sub_6feb          ;6e7d  9a eb 6f     Copy from [HL] to upd_disp
-    movw ax,de              ;6e80  c4
-    movw hl,ax              ;6e81  d6
-    pop ax                  ;6e82  b0
-    mov b,a                 ;6e83  73
-    br !sub_6feb            ;6e84  9b eb 6f     Copy from [HL] to upd_disp
+    ;Check if bit 7 of B is set
+    push ax                         ;6e73  b1
+    mov a,b                         ;6e74  63
+    and a,#0x80                     ;6e75  5d 80
+    cmp a,#0x00                     ;6e77  4d 00
+    pop ax                          ;6e79  b0
+    bnz lab_6e97_a7_clear_b7_set    ;6e7a  bd 1b
 
-lab_6e87:
-    ;bit 7 of A is set
-    ;it seems like bit 7 is set only for messages that
-    ;i have never seen on the radio
+    ;Bit 7 of A is clear
+    ;Bit 7 of B is clear
 
-    push ax                 ;6e87  b1
-    mov a,b                 ;6e88  63
-    and a,#0x80             ;6e89  5d 80
-    cmp a,#0x00             ;6e8b  4d 00
-    pop ax                  ;6e8d  b0
-    bnz lab_6ea0            ;6e8e  bd 10
-    push ax                 ;6e90  b1
-    call !sub_6feb          ;6e91  9a eb 6f     Copy from [HL] to upd_disp
-    pop ax                  ;6e94  b0
-    br lab_6ea8             ;6e95  fa 11
+    push ax                         ;6e7c  b1
+    call !upd_copy_len_prefixed_str ;6e7d  9a eb 6f     Copy length-prefixed string at [HL] into upd_disp buffer
+    movw ax,de                      ;6e80  c4
+    movw hl,ax                      ;6e81  d6
+    pop ax                          ;6e82  b0
+    mov b,a                         ;6e83  73
+    br !upd_copy_len_prefixed_str   ;6e84  9b eb 6f     Copy length-prefixed string at [HL] into upd_disp buffer
 
-lab_6e97:
-    push ax                 ;6e97  b1
-    call !sub_6ea7_ret      ;6e98  9a a7 6e     Just returns
-    pop ax                  ;6e9b  b0
-    mov b,a                 ;6e9c  73
-    br !sub_6feb            ;6e9d  9b eb 6f     Copy from [HL] to upd_disp
+lab_6e87_a7_set:
+    ;Bit 7 of A is set
+    ;It seems like bit 7 is set only for messages that I have never seen on the radio
 
-lab_6ea0:
-    push ax                 ;6ea0  b1
-    call !sub_6ea7_ret      ;6ea1  9a a7 6e     Just returns
-    pop ax                  ;6ea4  b0
-    br lab_6ea8             ;6ea5  fa 01
+    ;Check if bit 7 of B is set
+    push ax                         ;6e87  b1
+    mov a,b                         ;6e88  63
+    and a,#0x80                     ;6e89  5d 80
+    cmp a,#0x00                     ;6e8b  4d 00
+    pop ax                          ;6e8d  b0
+    bnz lab_6ea0_a7_set_b7_set      ;6e8e  bd 10
+
+    ;Bit 7 of A is set 
+    ;Bit 7 of B is clear
+
+    push ax                         ;6e90  b1
+    call !upd_copy_len_prefixed_str ;6e91  9a eb 6f     Copy length-prefixed string at [HL] into upd_disp buffer
+    pop ax                          ;6e94  b0
+    br lab_6ea8_freq_ret            ;6e95  fa 11
+
+lab_6e97_a7_clear_b7_set:
+    ;Bit 7 of A is clear
+    ;Bit 7 of B is set
+
+    push ax                         ;6e97  b1
+    call !sub_6ea7_ret              ;6e98  9a a7 6e     Just returns
+    pop ax                          ;6e9b  b0
+    mov b,a                         ;6e9c  73
+    br !upd_copy_len_prefixed_str   ;6e9d  9b eb 6f     Copy length-prefixed string at [HL] into upd_disp buffer
+
+lab_6ea0_a7_set_b7_set:
+    ;Bit 7 of A is set 
+    ;Bit 7 of B is set
+
+    push ax                         ;6ea0  b1
+    call !sub_6ea7_ret              ;6ea1  9a a7 6e     Just returns
+    pop ax                          ;6ea4  b0
+    br lab_6ea8_freq_ret            ;6ea5  fa 01
 
 sub_6ea7_ret:
-    ret                     ;6ea7  af
+    ret                             ;6ea7  af
 
-lab_6ea8:
-    cmp a,#0xff                 ;6ea8  4d ff
-    bz lab_6eb1                 ;6eaa  ad 05
-    and a,#0b01111111           ;6eac  5d 7f        Mask off bit 7
-    call !freq_idx_to_upd_disp  ;6eae  9a b2 6e     Write the frequency in upd_disp
+lab_6ea8_freq_ret:
+    cmp a,#0xff                     ;6ea8  4d ff
+    bz lab_6eb1_ret                 ;6eaa  ad 05
+    and a,#0b01111111               ;6eac  5d 7f        Mask off bit 7
+    call !freq_idx_to_upd_disp      ;6eae  9a b2 6e     Write the frequency in upd_disp
 
-lab_6eb1:
-    ret                     ;6eb1  af
+lab_6eb1_ret:
+    ret                             ;6eb1  af
 
 
 freq_idx_to_upd_disp:
-    push ax                 ;6eb2  b1
-    call !freq_idx_to_bcd   ;6eb3  9a bb 6e
-    pop ax                  ;6eb6  b0
-    mov b,a                 ;6eb7  73
-    br !freq_bcd_to_upd_disp;6eb8  9b 40 6f     Write BCD word at mem_fed4 to upd_disp
+    push ax                     ;6eb2  b1
+    call !freq_idx_to_bcd       ;6eb3  9a bb 6e
+    pop ax                      ;6eb6  b0
+    mov b,a                     ;6eb7  73
+    br !freq_bcd_to_upd_disp    ;6eb8  9b 40 6f     Write BCD word at mem_fed4 to upd_disp
 
 freq_idx_to_bcd:
-    call !sub_0800_mode      ;6ebb  9a 00 08     Return mem_f253 in A (0x00=?, 0x01=FM1/FM2, 0x02=AM), also copy it into mem_fb58
-    mov mem_fed6,a           ;6ebe  f2 d6        mem_fed6 = mem_f253 mode
+    call !sub_0800_mode         ;6ebb  9a 00 08     Return mem_f253 in A (0x00=?, 0x01=FM1/FM2, 0x02=AM), also copy it into mem_fb58
+    mov mem_fed6,a              ;6ebe  f2 d6        mem_fed6 = mem_f253 mode
 
-    mov a,!mem_f1e7_region   ;6ec0  8e e7 f1
-    mov x,a                  ;6ec3  70
+    mov a,!mem_f1e7_region      ;6ec0  8e e7 f1
+    mov x,a                     ;6ec3  70
 
-    mov a,!freq_idx          ;6ec4  8e 56 fb
-    dec a                    ;6ec7  51
+    mov a,!freq_idx             ;6ec4  8e 56 fb
+    dec a                       ;6ec7  51
 
-    cmp mem_fed6,#0x02       ;6ec8  c8 d6 02
-    bz lab_6f06_am           ;6ecb  ad 39
+    cmp mem_fed6,#0x02          ;6ec8  c8 d6 02
+    bz lab_6f06_am              ;6ecb  ad 39
 
     ;FM1/FM2
 
@@ -21497,46 +21636,69 @@ lab_6fe0:
 upd_clear_pict:
 ;Turn off all pictographs in upd_pict buffer
     mov b,#0x08             ;6fe1  a3 08        B = 8 bytes to fill
-    bz lab_6fea             ;6fe3  ad 05
+    bz lab_6fea             ;6fe3  ad 05        XXX never zero?
     movw hl,#upd_pict       ;6fe5  16 35 fe     HL = pointer to buffer to fill
     callf !fill_with_0      ;6fe8  4c da        Fill B bytes in buffer [HL] with 0
 lab_6fea:
     ret                     ;6fea  af
 
 
-sub_6feb:
-;Copy from [HL] into upd_disp
-;TODO not fully understood
-    push de                 ;6feb  b5
-    push bc                 ;6fec  b3
-    mov a,b                 ;6fed  63
-    cmp a,#0x0b             ;6fee  4d 0b
-    bnc lab_7009            ;6ff0  9d 17        TODO bounds check? (11 = LCD size in characters)
-    mov a,[hl]              ;6ff2  87
-    mov c,a                 ;6ff3  72
-    add l,a                 ;6ff4  61 06
-    xch a,h                 ;6ff6  37
-    addc a,#0x00            ;6ff7  2d 00
-    xch a,h                 ;6ff9  37
-    movw ax,hl              ;6ffa  c6
-    movw de,ax              ;6ffb  d4
-    movw hl,#upd_disp       ;6ffc  16 9a f1
+upd_copy_len_prefixed_str:
+;Copy length-prefixed string at [HL] into upd_disp buffer
+;
+;Call with:
+;  HL = Address of string to copy.  First byte at [HL] is the length, successive bytes are the data
+;  B  = Offset in upd_disp buffer to receive the last char in the string (must be between 0 - 0xA inclusive)
+;       B is decremented after each char is copied.
+;
+;Preserves BC and DE.
+;
+    push de                     ;6feb  b5
+    push bc                     ;6fec  b3
 
-lab_6fff:
-    mov a,[de]              ;6fff  85
-    mov [hl+b],a            ;7000  bb
-    decw de                 ;7001  94
-    dec b                   ;7002  53
-    mov a,b                 ;7003  63
-    bt a.7,lab_7009         ;7004  31 7e 02
-    dbnz c,lab_6fff         ;7007  8a f6
+    mov a,b                     ;6fed  63
+    cmp a,#0x0b                 ;6fee  4d 0b    Check if B (offset to upd_disp buffer) fits within the buffer size
+    bnc lab_7009_pop_bc_de_ret  ;6ff0  9d 17    Branch to return if >= 0x0B (decimal 11; LCD size in characters)
 
-lab_7009:
+    ;At this point:
+    ;  A = B
+    ;  value in A and B is < 0x0B
+
+    ;DE = HL + [HL] 
+    mov a,[hl]                  ;6ff2  87       A = value at [HL], which is the number of bytes to copy.
+    mov c,a                     ;6ff3  72       Save it in C (number of bytes to copy)
+    add l,a                     ;6ff4  61 06
+    xch a,h                     ;6ff6  37
+    addc a,#0x00                ;6ff7  2d 00
+    xch a,h                     ;6ff9  37
+    movw ax,hl                  ;6ffa  c6
+    movw de,ax                  ;6ffb  d4
+
+    movw hl,#upd_disp           ;6ffc  16 9a f1
+
+    ;At this point:
+    ;  DE = last address in source buffer to read from
+    ;  HL = first address to destination buffer to write to (upd_disp)
+    ;  B = destination buffer (upd_disp) offset (decrements)
+    ;  C = counts down bytes remaining
+
+lab_6fff_loop:
+    mov a,[de]                      ;6fff  85           A = value from source buffer
+    mov [hl+b],a                    ;7000  bb           Write it to the upd_disp buffer
+    decw de                         ;7001  94           Decrement source buffer address
+    dec b                           ;7002  53           Decrement destination buffer offset
+    mov a,b                         ;7003  63           A = B (destination buffer offset)
+    bt a.7,lab_7009_pop_bc_de_ret   ;7004  31 7e 02     Branch to just return if decremented below 0
+    dbnz c,lab_6fff_loop            ;7007  8a f6        Decrement C (bytes remaining), keep going if > 0
+
+lab_7009_pop_bc_de_ret:
     pop bc                  ;7009  b2
     pop de                  ;700a  b4
     ret                     ;700b  af
 
-lab_700c:
+
+;XXX appears unused
+sub_700c:
     mov a,[de]              ;700c  85
     incw de                 ;700d  84
     push ax                 ;700e  b1
@@ -21562,8 +21724,9 @@ lab_700c:
     pop bc                  ;7029  b2
     mov [hl+b],a            ;702a  bb
     pop ax                  ;702b  b0
-    bt a.7,lab_700c         ;702c  31 7e dd
+    bt a.7,sub_700c         ;702c  31 7e dd
     ret                     ;702f  af
+
 
 sub_7030:
     mov b,#0x05             ;7030  a3 05
@@ -21617,10 +21780,12 @@ lab_7070:
     mov a,#0                ;7076  a1 00        A = 0 seconds
     mov !msg_countdown,a    ;7078  9e 2e fb
 
-    mov a,#0x0a             ;707b  a1 0a
-    mov b,#0xff             ;707d  a3 ff
+    mov a,#0x0a             ;707b  a1 0a        upd_multi_copy options: A.7=0, B.7=1: Just call upd_copy_len_prefixed_str
+    mov b,#0xff             ;707d  a3 ff                                A=0x0A offset in upd_disp to receive last char of string
+                            ;                                           B=0xFF don't care
     movw hl,#blank          ;707f  16 11 65     HL = pointer to 11,"           "
-    call !sub_6e70_copy_upd ;7082  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+    call !upd_multi_copy    ;7082  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
+
     br lab_708e             ;7085  fa 07
 
 lab_7087:
@@ -21735,13 +21900,13 @@ lab_711c:
     mov b,#0x83             ;7120  a3 83
     mov a,#0x10             ;7122  a1 10
     movw hl,#e__            ;7124  16 be 63     HL = pointer to 11,"E           "
-    call !sub_6e70_copy_upd ;7127  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+    call !upd_multi_copy    ;7127  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
 
     mov a,#0xff             ;712a  a1 ff
     mov b,#0x07             ;712c  a3 07
     push bc                 ;712e  b3
     mov b,#0xff             ;712f  a3 ff
-    call !sub_6e70_copy_upd ;7131  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+    call !upd_multi_copy    ;7131  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
     pop bc                  ;7134  b2
     pop ax                  ;7135  b0
     push ax                 ;7136  b1
@@ -21781,7 +21946,7 @@ lab_716b_comm_error:
     movw hl,#comm_error     ;716f  16 55 66     HL = pointer to 10,"Comm Error"
 
 lab_7172:
-    call !sub_6e70_copy_upd ;7172  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+    call !upd_multi_copy    ;7172  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
     ret                     ;7175  af
 
 lab_7176_no_tape:
@@ -21830,7 +21995,7 @@ lab_71b0_cd_cd_rom:
     mov b,#0xff             ;71b0  a3 ff
     mov a,#0x0a             ;71b2  a1 0a
     movw hl,#cd_cd_rom      ;71b4  16 89 67     HL = pointer to 11,"CD  CD ROM "
-    call !sub_6e70_copy_upd ;71b7  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+    call !upd_multi_copy    ;71b7  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
 
     movw hl,#upd_disp       ;71ba  16 9a f1
     mov b,#0x03             ;71bd  a3 03
@@ -21851,7 +22016,7 @@ lab_71cf_no_disc:
     movw hl,#no_disc        ;71d3  16 7d 67     HL = pointer to 11,"    NO DISC"
 
 lab_71d6:
-    call !sub_6e70_copy_upd ;71d6  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+    call !upd_multi_copy    ;71d6  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
     ret                     ;71d9  af
 
 lab_71da_changer_error:
@@ -21875,7 +22040,7 @@ lab_71f2_safe_2_of_4:
     mov b,#0x0a             ;71f7  a3 0a
     movw hl,#safe           ;71f9  16 f9 64     HL = pointer to 11,"     SAFE  "
     mov a,#0xff             ;71fc  a1 ff
-    call !sub_6e70_copy_upd ;71fe  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+    call !upd_multi_copy    ;71fe  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
 
     movw hl,#upd_disp       ;7201  16 9a f1
     mov a,!mem_f206         ;7204  8e 06 f2
@@ -21909,7 +22074,7 @@ lab_7224_safe_3_of_4:
     mov b,#0x0a             ;7230  a3 0a
     movw hl,#safe           ;7232  16 f9 64     HL = pointer to 11,"     SAFE  "
     mov a,#0xff             ;7235  a1 ff
-    call !sub_6e70_copy_upd ;7237  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+    call !upd_multi_copy    ;7237  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
 
     mov a,!mem_f20b         ;723a  8e 0b f2     SAFE code attempt counter
     add a,#'0               ;723d  0d 30        Convert it to ASCII
@@ -21925,7 +22090,7 @@ lab_7249:
     mov b,#0x0a             ;724c  a3 0a
     movw hl,#safe           ;724e  16 f9 64     HL = pointer to 11,"     SAFE  "
     mov a,#0xff             ;7251  a1 ff
-    call !sub_6e70_copy_upd ;7253  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+    call !upd_multi_copy    ;7253  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
 
     mov a,!mem_f20b         ;7256  8e 0b f2     A = SAFE code attempt counter
     add a,#'0               ;7259  0d 30        Convert it to ASCII
@@ -21957,7 +22122,7 @@ lab_7284_lcd_off:
     br !lab_6a5b            ;728d  9b 5b 6a     Branch to return
 
 lab_7290:
-    call !sub_6e70_copy_upd ;7290  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+    call !upd_multi_copy    ;7290  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
     ret                     ;7293  af
 
 lab_7294_safe_4_of_4:
@@ -21966,7 +22131,7 @@ lab_7294_safe_4_of_4:
     mov b,#0xff             ;7296  a3 ff
     movw hl,#blank          ;7298  16 11 65     HL = pointer to 11,"           "
     set1 mem_fe6a.0         ;729b  0a 6a
-    call !sub_6e70_copy_upd ;729d  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+    call !upd_multi_copy    ;729d  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
     movw hl,#upd_disp       ;72a0  16 9a f1
     mov a,!mem_f20b         ;72a3  8e 0b f2     A = SAFE code attempt counter
     cmp a,#0x00             ;72a6  4d 00
@@ -22014,14 +22179,14 @@ lab_72de_rad_de2:
     mov b,#0x0a             ;72de  a3 0a
     movw hl,#rad_de2        ;72e0  16 bd 64     HL = pointer to 11,"RAD   DE2  "
     mov a,#0xff             ;72e3  a1 ff
-    call !sub_6e70_copy_upd ;72e5  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+    call !upd_multi_copy    ;72e5  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
     ret                     ;72e8  af
 
 lab_72e9_vers_a99:
     mov a,#0x0a             ;72e9  a1 0a
     movw hl,#vers_a99cznn   ;72eb  16 d5 64     ;HL = pointer to 11,"VersA99CZnn"
     mov b,#0xff             ;72ee  a3 ff
-    call !sub_6e70_copy_upd ;72f0  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+    call !upd_multi_copy    ;72f0  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
 
     mov a,#0x23             ;72f3  a1 23        ;0x23 = SOFTWARE 23
     call !sub_0be4          ;72f5  9a e4 0b     ;Convert A to two ASCII hex digits in AX
@@ -22037,11 +22202,11 @@ lab_7303_blank:
     mov a,#0x0a             ;7303  a1 0a
     mov b,#0xff             ;7305  a3 ff
     movw hl,#blank          ;7307  16 11 65     HL = pointer to 11,"           "
-    call !sub_6e70_copy_upd ;730a  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+    call !upd_multi_copy    ;730a  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
 
     mov a,#0x83             ;730d  a1 83
     mov b,#0xff             ;730f  a3 ff
-    call !sub_6e70_copy_upd ;7311  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+    call !upd_multi_copy    ;7311  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
 
     clr1 upd_pict+4.5       ;7314  5b 39        Turn off period pictograph
 
@@ -22077,14 +22242,14 @@ lab_733e_fern:
 
 lab_734b:
     mov a,#0xff             ;734b  a1 ff
-    call !sub_6e70_copy_upd ;734d  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+    call !upd_multi_copy    ;734d  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
     ret                     ;7350  af
 
 lab_7351_set_onvol:
     mov a,#0x0a             ;7351  a1 0a
     movw hl,#set_onvol      ;7353  16 99 64     HL = pointer to 11,"SET ONVOL  "
     mov b,#0xff             ;7356  a3 ff
-    call !sub_6e70_copy_upd ;7358  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+    call !upd_multi_copy    ;7358  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
 
     mov a,!mem_f254_onvol   ;735b  8e 54 f2     A=ONVOL
     clr1 a.0                ;735e  61 8b
@@ -22123,7 +22288,7 @@ lab_7387_set_cdmix:
     mov a,#0x0a             ;7387  a1 0a
     mov b,#0xff             ;7389  a3 ff
     movw hl,#set_cd_mix     ;738b  16 a5 64     HL = pointer to 11,"SET CD MIX "
-    call !sub_6e70_copy_upd ;738e  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+    call !upd_multi_copy    ;738e  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
 
     mov a,!mem_fb6f         ;7391  8e 6f fb
     and a,#0x01             ;7394  5d 01
@@ -22141,7 +22306,7 @@ lab_73a3_tape_skip:
     mov a,#0x0a             ;73a3  a1 0a
     mov b,#0xff             ;73a5  a3 ff
     movw hl,#tape_skip      ;73a7  16 b1 64     HL = pointer to 11,"TAPE SKIP  "
-    call !sub_6e70_copy_upd ;73aa  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+    call !upd_multi_copy    ;73aa  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
 
     mov a,!mem_fb6f         ;73ad  8e 6f fb
     and a,#0x02             ;73b0  5d 02
@@ -22160,7 +22325,7 @@ lab_73bf_cut_tape:
     movw hl,#cut_tape       ;73c1  16 43 66     HL = pointer to 8,"CUT TAPE"
     mov a,#0x0f             ;73c4  a1 0f
     movw de,#disabled       ;73c6  14 4c 66     HL = pointer to 8,"DISABLED"
-    call !sub_6e70_copy_upd ;73c9  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+    call !upd_multi_copy    ;73c9  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
     ret                     ;73cc  af
 
 lab_73cd_min_or_max:
@@ -22198,7 +22363,7 @@ lab_73fa:
     movw hl,#min            ;73fe  16 91 64     HL = pointer to 7,"  MIN  "
 
 lab_7401:
-    call !sub_6e70_copy_upd ;7401  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+    call !upd_multi_copy    ;7401  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
     ret                     ;7404  af
 
 lab_7405:
@@ -22240,14 +22405,14 @@ lab_7441:
     mov b,#0xff             ;7441  a3 ff
     mov a,#0x0a             ;7443  a1 0a
     movw hl,#min            ;7445  16 91 64     HL = pointer to 7,"  MIN  "
-    call !sub_6e70_copy_upd ;7448  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+    call !upd_multi_copy    ;7448  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
     ret                     ;744b  af
 
 lab_744c_tape_ab:
     mov b,#0xff             ;744c  a3 ff
     movw hl,#tape           ;744e  16 a6 65     HL = pointer to 4,"TAPE"
     mov a,#0x03             ;7451  a1 03
-    call !sub_6e70_copy_upd ;7453  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+    call !upd_multi_copy    ;7453  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
 
     mov a,!mem_f1ac         ;7456  8e ac f1
     cmp a,#0x03             ;7459  4d 03
@@ -22294,14 +22459,14 @@ lab_7492:
     mov b,#0xff             ;7492  a3 ff
     mov a,#0x0a             ;7494  a1 0a
     movw hl,#min            ;7496  16 91 64     HL = pointer to 7,"  MIN  "
-    call !sub_6e70_copy_upd ;7499  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+    call !upd_multi_copy    ;7499  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
     ret                     ;749c  af
 
 lab_749d_cd_tr:
     mov a,#0xff             ;749d  a1 ff
     mov b,#0x0a             ;749f  a3 0a
     movw hl,#cd_tr          ;74a1  16 9c 66     HL = pointer to 11,"CD   TR    "
-    call !sub_6e70_copy_upd ;74a4  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+    call !upd_multi_copy    ;74a4  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
 
     movw hl,#upd_disp       ;74a7  16 9a f1
     mov a,!mem_fc75_cd_num1 ;74aa  8e 75 fc     A = CD number
@@ -22325,7 +22490,7 @@ lab_74ca:
     mov b,#0xff             ;74ca  a3 ff
     mov a,#0x0a             ;74cc  a1 0a
     movw hl,#min            ;74ce  16 91 64     HL = 7,"  MIN  "
-    call !sub_6e70_copy_upd ;74d1  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+    call !upd_multi_copy    ;74d1  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
     ret                     ;74d4  af
 
 lab_74d5_diag:
@@ -22333,7 +22498,7 @@ lab_74d5_diag:
     mov a,#0xff             ;74d8  a1 ff
     mov b,#0x0a             ;74da  a3 0a
     movw hl,#diag           ;74dc  16 93 65     HL = pointer to 7," DIAG  "
-    call !sub_6e70_copy_upd ;74df  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+    call !upd_multi_copy    ;74df  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
     ret                     ;74e2  af
 
 lab_74e3_bass:
@@ -22344,7 +22509,7 @@ lab_74e3_bass:
     mov b,#0xff             ;74e9  a3 ff
     mov a,#0x0a             ;74eb  a1 0a
     movw hl,#bass           ;74ed  16 59 64   HL = pointer to 11,"BASS       "
-    call !sub_6e70_copy_upd ;74f0  9a 70 6e   Copy message from [HL] to display buf; uses A, B
+    call !upd_multi_copy    ;74f0  9a 70 6e   Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
 
     pop ax                  ;74f3  b0
     mov x,a                 ;74f4  70
@@ -22396,7 +22561,7 @@ lab_752f_mid:
     mov b,#0xff             ;7535  a3 ff
     mov a,#0x0a             ;7537  a1 0a
     movw hl,#mid            ;7539  16 65 64     HL = pointer to 11,"MID        "
-    call !sub_6e70_copy_upd ;753c  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+    call !upd_multi_copy    ;753c  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
 
     pop ax                  ;753f  b0
     mov x,a                 ;7540  70
@@ -22437,7 +22602,7 @@ lab_7574:
     ret                     ;7574  af
 
 lab_7575:
-    call !sub_6e70_copy_upd ;7575  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+    call !upd_multi_copy    ;7575  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
     ret                     ;7578  af
 
 lab_7579_treb:
@@ -22448,7 +22613,7 @@ lab_7579_treb:
     mov b,#0xff             ;757f  a3 ff
     mov a,#0x0a             ;7581  a1 0a
     movw hl,#treb           ;7583  16 71 64     HL = pointer to 11,"TREB       "
-    call !sub_6e70_copy_upd ;7586  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+    call !upd_multi_copy    ;7586  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
 
     pop ax                  ;7589  b0
     mov x,a                 ;758a  70
@@ -22505,7 +22670,7 @@ lab_75d3_bal_left:
     mov b,#0xff             ;75d3  a3 ff
     mov a,#0x0a             ;75d5  a1 0a
     movw hl,#bal_left       ;75d7  16 35 64     HL = pointer to 11,"BAL LEFT   "
-    call !sub_6e70_copy_upd ;75da  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+    call !upd_multi_copy    ;75da  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
 
     movw hl,#upd_disp+10    ;75dd  16 a4 f1
     pop ax                  ;75e0  b0
@@ -22520,7 +22685,7 @@ lab_75d3_bal_right:
     mov b,#0xff             ;75eb  a3 ff
     mov a,#0x0a             ;75ed  a1 0a
     movw hl,#bal_right      ;75ef  16 4d 64     HL = pointer to 11,"BAL RIGHT  "
-    call !sub_6e70_copy_upd ;75f2  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+    call !upd_multi_copy    ;75f2  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
 
     movw hl,#upd_disp+10    ;75f5  16 a4 f1
     pop ax                  ;75f8  b0
@@ -22533,7 +22698,7 @@ lab_75d3_bal_center:
     mov b,#0xff             ;7600  a3 ff
     mov a,#0x0a             ;7602  a1 0a
     movw hl,#bal_center     ;7604  16 41 64     HL = pointer to 11,"BAL CENTER "
-    call !sub_6e70_copy_upd ;7607  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+    call !upd_multi_copy    ;7607  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
 
     pop ax                  ;760a  b0
 
@@ -22557,7 +22722,7 @@ lab_75d3_faderear:
     mov b,#0xff             ;7620  a3 ff
     mov a,#0x0a             ;7622  a1 0a
     movw hl,#faderear       ;7624  16 24 64     HL = pointer to 11,"FADEREAR   "
-    call !sub_6e70_copy_upd ;7627  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+    call !upd_multi_copy    ;7627  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
 
     movw hl,#upd_disp+10    ;762a  16 a4 f1
     pop ax                  ;762d  b0
@@ -22572,7 +22737,7 @@ lab_75d3_fadefront:
     mov b,#0xff             ;7638  a3 ff
     mov a,#0x0a             ;763a  a1 0a
     movw hl,#fadefront      ;763c  16 0c 64     HL = pointer to 11,"FADEFRONT  "
-    call !sub_6e70_copy_upd ;763f  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+    call !upd_multi_copy    ;763f  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
 
     movw hl,#upd_disp+10    ;7642  16 a4 f1
     pop ax                  ;7645  b0
@@ -22585,7 +22750,7 @@ lab_75d3_fadecenter:
     mov b,#0xff             ;764d  a3 ff
     mov a,#0x0a             ;764f  a1 0a
     movw hl,#fadecenter     ;7651  16 18 64     HL = pointer to 11,"FADECENTER "
-    call !sub_6e70_copy_upd ;7654  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+    call !upd_multi_copy    ;7654  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
 
     pop ax                  ;7657  b0
 
@@ -22600,7 +22765,7 @@ lab_765f_flat:
     mov b,#0x83             ;765f  a3 83
     movw hl,#flat           ;7661  16 1d 65     HL = pointer to 9,"FLAT     "
     mov a,#0x0c             ;7664  a1 0c
-    call !sub_6e70_copy_upd ;7666  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+    call !upd_multi_copy    ;7666  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
 
     ret                     ;7669  af
 
@@ -22608,7 +22773,7 @@ lab_766a_select_eq:
     mov b,#0x83             ;766a  a3 83
     movw hl,#select_eq      ;766c  16 27 65     HL = pointer to 13,"SELECT EQ #  "
     mov a,#0x10             ;766f  a1 10
-    call !sub_6e70_copy_upd ;7671  9a 70 6e     Copy message from [HL] to display buf; uses A, B
+    call !upd_multi_copy    ;7671  9a 70 6e     Copy length-prefixed string at [HL] and/or frequency to upd_disp based on A,B options
 
     ret                     ;7674  af
 
@@ -32079,19 +32244,19 @@ mem_b0cd:
     .byte 0x05              ;b0cf  05          DATA 0x05
     .byte 0x02              ;b0d0  02          DATA 0x02
 
-mem_b0d1:
+mem_b0d1_tasks:
 ;table of words used with table_get_word
-;TODO routines that seem to be called regularly by a timer?
-    .byte 0x09              ;b0d1  09          DATA 0x09        9 entries below:
-    .word lab_12d7
-    .word lab_15a2
-    .word lab_1537
-    .word lab_150f
-    .word lab_14c2
-    .word lab_14ae
-    .word lab_147c
-    .word lab_12e3          ;Sends 5 baud address in radio-as-tester mode and ???
-    .word lab_129b          ;Decrements mem_f06f, kwp_idle_ms and ???
+;Tasks that are called regularly by sub_127f_next_task
+    .byte 0x09                          ;b0d1  09          DATA 0x09        9 entries below:
+    .word lab_12d7_task_00_exit
+    .word lab_150f_task_03_clear_prm00                  ;Just clears PRM00 and sets mem_fe77.4
+    .word lab_1537_task_02_lots_of_port_stuff           ;Does lots of stuff with ports
+    .word lab_150f_task_03_i2c_related                  ;I2C related
+    .word lab_14c2_task_04_selftest_watchdog_more       ;Self-test, set watchdog, call unknown routines
+    .word lab_14ae_task_05_unknown
+    .word lab_147c_task_06_kwp_scon_power_upd_more
+    .word lab_12e3_task_07_5baud_mfsw                   ;Sends 5 baud address in radio-as-tester mode and ???
+    .word lab_129b_task_08_kwp_related                  ;Decrements mem_f06f, kwp_idle_ms and ???
 
 mem_b0e4:
 ;unknown table used with lab_3ecf
@@ -33050,7 +33215,7 @@ mem_b4de_cd_msgs:
     .word lab_6c29_rev          ;b4ed   DATA      "REV        " with minutes, seconds
     .word lab_6c10_cd_mins_secs ;b4ef   DATA      "CD         " with CD number, minutes, seconds
     .word lab_6c3f_cd_mins_secs ;b4f1   DATA      "CD         " with CD number, minutes, seconds
-    .word lab_6bf0_scan_tr      ;b4f3   DATA      "SCANCD TR  " with CD number, track
+    .word lab_6bf0_scancd_tr      ;b4f3   DATA      "SCANCD TR  " with CD number, track
     .word lab_6b66_chk_magazin  ;b4f5   DATA      "CHK MAGAZIN"
     .word lab_749d_cd_tr        ;b4f7   DATA      "CD   TR    "
 
