@@ -527,6 +527,13 @@ kwp_result_t kwp_read_group(uint8_t group)
 
     /*
      * Handle 0xE7 string response
+     *
+     * VAG-1552 program card "US/CDN/2.0 1.03.1995" receives a string response
+     * successfully but does not display it.  It always shows a blank line
+     * on the LCD where the string should be shown.
+     *
+     * VAG-1552 program cards "GB/5.A 1999-04-01" and "GB/6.0 2000-06-01"
+     * receive a string of 1-40 bytes and display it on the LCD.
      */
 
     // if the first formula byte is 0x3F, this is the special string
