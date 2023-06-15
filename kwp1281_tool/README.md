@@ -20,15 +20,19 @@ There are other open source projects that implement KWP1281 but this code is not
 
 ## Design
 
-KWP1281 is asynchronous serial, typically 9600 or 10400 baud.  Most computers are able to communicate with a module using only a serial port and a "dumb" electrical interface to the K-line.  However, this has a few issues:
+Instead of using a "KKL cable" or a commercial cable in "dumb" mode, this project uses a microcontroller.  I started off trying to use "dumb" interfaces but found that communication was often unreliable due to timing issues, especially when transferring a lot of data or trying to communicate over long periods of time.  Using a microcontroller solves these issues and is how most commercial interfaces work as well.  Please do not ask me to add "KKL cable" or "dumb" cable support to this project.  
 
- - Before communication starts, the module must be woken up with "slow init" by sending its address at a nonstandard baud rate (5 baud).
+Although computers are often are able to communicate with a module using only a serial port and a "dumb" electrical interface to the K-line, this has a few issues:
 
- - The protocol is designed for automatic baud rate detection.  After a module wakes up, it sends a sync byte (0x55) so that the receiver can measure its baud rate.  To detect the baud rate reliably, a timer with microsecond precision is needed.  A workaround is to blindly try connecting at different baud rates but this increases connection time.
+ - The protocol is designed for automatic baud rate detection.  After a module wakes up, it sends a sync byte (0x55) so that the receiver can measure its baud rate.  To detect the baud rate reliably, a timer with microsecond precision is needed.  A workaround for "dumb" cables is to blindly try connecting at different baud rates but this increases connection time.
 
  - Modules are sensitive to timing.  Once a connection is established, modules typically require a delay of one millisecond before each byte in a block is transmitted.  However, if the byte is delayed by too many milliseconds, the module may return "no acknowledge" or may abort the connection entirely.  Delays caused by the computer's operating system multitasking, or by latencies when using a USB to serial adapter, can cause the KWP1281 connection to be unreliable.
 
-This project is an "intelligent" interface that solves those issues by doing all communications using an Atmel AVR microcontroller.  It bit-bangs the 5 baud init, uses a hardware timer to measure the baud rate, and then uses a hardware UART for serial communications.  It ensures that consistent delays are inserted and that the connection to the module is always kept alive.  In testing with several different modules, it has been able to maintain a connection for hours without retrying or reconnecting.  As it runs, it outputs debugging messages to a second UART with all the raw KWP1281 blocks sent and received.
+ - Before communication starts, the module must be woken up with "slow init" by sending its address at a nonstandard baud rate (5 baud).
+
+The microcontroller used in this project measures the baud rate using a hardware timer and ensures that timing demands are always met.  In testing with several modules, it was able to maintain a connection for hours without retrying or reconnecting.
+
+Again, please do not ask me for "KKL cable" or "dumb" cable support.  If you think a "dumb" cable is a viable solution, you will need explore that on your own.  
 
 ## Usage
 
