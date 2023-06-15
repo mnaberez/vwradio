@@ -14,6 +14,17 @@
 #define UART_UBBR_2400    0x0411  /* 0% error */
 #define UART_UBBR_1200    0x0822  /* 0% error */
 
+#elif F_CPU == 18432000           /* 18.432 MHz crystal */
+#define UART_UBRR_115200  0x0013  /* 0% error */
+#define UART_UBBR_57600   0x0027  /* 0% error */
+#define UART_UBBR_38400   0x003b  /* 0% error */
+#define UART_UBBR_19200   0x0077  /* 0% error */
+#define UART_UBRR_10400   0x00dd  /* 0.2% error */
+#define UART_UBRR_9600    0x00ef  /* 0% error */
+#define UART_UBBR_4800    0x01df  /* 0% error */
+#define UART_UBBR_2400    0x03bf  /* 0% error */
+#define UART_UBBR_1200    0x077f  /* 0% error */
+
 #elif F_CPU == 16000000           /* 16 MHz crystal */
 #define UART_UBRR_115200  0x0010  /* 2.1% error */
 #define UART_UBBR_57600   0x0022  /* -0.8% error */
@@ -24,17 +35,6 @@
 #define UART_UBBR_4800    0x01a0  /* -0.1% error */
 #define UART_UBBR_2400    0x0340  /* 0% error */
 #define UART_UBBR_1200    0x0682  /* 0% error */
-
-#elif F_CPU == 8000000            /* 8 MHz crystal */
-#define UART_UBRR_115200  0x0008  /* -3.5% error */
-#define UART_UBBR_57600   0x0010  /* 2.1% error */
-#define UART_UBBR_38400   0x0019  /* 0.2% error */
-#define UART_UBBR_19200   0x0033  /* 0.2% error */
-#define UART_UBRR_10400   0x005f  /* 0.2% error */
-#define UART_UBRR_9600    0x0067  /* 0.2% error */
-#define UART_UBBR_4800    0x00cf  /* 0.2% error */
-#define UART_UBBR_2400    0x01a0  /* -0.1% error */
-#define UART_UBBR_1200    0x0340  /* 0% error */
 
 #else
 #error "No UART baud rate values defined for this value for F_CPU"

@@ -6,6 +6,10 @@
 #define AUTOBAUD_PRESCALER  _BV(CS11)       /* 20 MHz / 8 prescaler = 2.5 MHz */
 #define AUTOBAUD_PERIOD     0.4             /* 0.4 uS is the period of 2.5 MHz */
 
+#elif F_CPU == 18432000                     /* 18.432 MHz crystal */
+#define AUTOBAUD_PRESCALER  _BV(CS11)       /* 18.432 MHz / 8 prescaler = 2.304 MHz */
+#define AUTOBAUD_PERIOD     0.434           /* 0.434 uS is the period of 2.304 MHz */
+
 #elif F_CPU == 16000000                     /* 16 MHz crystal */
 #define AUTOBAUD_PRESCALER  _BV(CS11)       /* 16 MHz / 8 prescaler = 2 MHz */
 #define AUTOBAUD_PERIOD     0.5             /* 0.5 uS is the period of 2 MHz */
