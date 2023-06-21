@@ -41,8 +41,6 @@ I also developed several other projects as a side effect of this work:
 
 - [f2mc8dasm](https://github.com/mnaberez/f2mc8dasm): Fujitsu F2MC-8 disassembler that generates output compatible with the [asf2mc8](http://shop-pdp.net/ashtml/asf2mc.htm) assembler
 
-- [language-f2mc8](https://github.com/mnaberez/language-f2mc8): Fujitsu F2MC-8 assembly language syntax highlighting for the [Atom](https://atom.io) text editor
-
 - [k0dasm](https://github.com/mnaberez/k0dasm): NEC 78K0 disassembler that generates output compatible with the [as78k0](http://shop-pdp.net/ashtml/as78k0.htm) assember
 
 - [k0emu](https://github.com/mnaberez/k0emu): NEC 78K0 emulator capable of running large portions of the VW Premium 5 firmware
