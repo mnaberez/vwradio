@@ -9,6 +9,7 @@
 *.elf
 *.hex
 *.hlr
+*.kicad_prl
 *.lst
 *.o
 *.obj
@@ -19,7 +20,9 @@
 *.pyo
 *.retry
 *.swp
+*-backups/
 coverage.xml
+fp-info-cache
 nosetests.xml
 out.*
 .eggs/
