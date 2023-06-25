@@ -1,0 +1,4 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "kwp1281tool")(type "KiCad")(uri "${KIPRJMOD}/kwp1281tool.pretty")(options "")(descr ""))
+)
