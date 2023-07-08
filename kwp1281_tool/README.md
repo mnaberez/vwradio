@@ -4,14 +4,15 @@
 
 ## Overview
 
-This is an ATmega1284 project that implements the [KWP1281](https://translate.google.com/translate?hl=en&sl=de&tl=en&u=https%3A%2F%2Fde.wikipedia.org%2Fwiki%2FKWP1281) diagnostics protocol.  It has two serial ports.  The first serial port uses an [L9637D](https://web.archive.org/web/20180405180225/http://www.st.com/content/ccc/resource/technical/document/datasheet/4a/80/83/26/e0/78/4d/18/CD00000234.pdf/files/CD00000234.pdf/jcr:content/translations/en.CD00000234.pdf) transceiver to connect to the K-line in a car or to a module on a bench.  The second serial port connects to a host computer and shows debug messages.
+This is a USB interface that connects to the K-line of a vehicle's OBD port or to the K-line of a control module on a bench.  It uses a microcontroller that has been programmed to implement the [KWP1281](https://de.wikipedia.org/wiki/KWP1281) protocol.
 
 When I reverse engineered the firmware for the VW Premium 4 radio, I found that it responds to several hidden KWP1281 commands.  I wanted to send these commands but I had no way to do so.  The commercial scan tool that I was using at the time did not provide any access to the underlying communications.  I built this project so I could directly interact with the Premium 4 radio using the raw KWP1281 protocol.  I have since used it successfully on other modules as well.
 
-There are other open source projects that implement KWP1281 but this code is not based on any of them.  Therefore, this code may have different features or problems than those other implementations.  VW did not release documentation on KWP1281 to the public.  I had to make various assumptions and best guesses based on my own reverse engineering and what I could find posted by others online.
+There are other open source projects that implement KWP1281 but this project is not based on any of them.  Therefore, it may have different features or problems than those other implementations.  VW did not release any documentation on KWP1281 to the public and I do not have any non-public information.  My implementation is based on my own [reverse engineering](../reverse_engineering/) of the diagnostics routines in several car radios, along with unofficial information posted by others online.
 
 ## Features
 
+ - Galvanic isolation between the USB port and the OBD port
  - Automatically detects the baud rate of the module
  - Capable of sending and receiving raw KWP1281 blocks
  - Outputs a transcript of all KWP1281 blocks sent and received
