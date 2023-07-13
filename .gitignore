@@ -10,6 +10,7 @@
 *.hex
 *.hlr
 *.kicad_prl
+*.lck
 *.lst
 *.o
 *.obj
