@@ -2,12 +2,15 @@
 #include "uart.h"
 #include "kwp1281.h"
 #include "technisat.h"
+#include "passthru.h"
 #include "crack.h"
 #include <avr/interrupt.h>
 
 
 int main(void)
 {
+    passthru_disable();
+
     uart_init(UART_DEBUG, 115200); // debug messages
     uart_init(UART_KLINE, 10400);  // obd-ii kwp1281
     sei();
