@@ -76,18 +76,19 @@ MEAS: GROUP=01 CELL=03 FORMULA=17 VALUE=6400
 MEAS: GROUP=01 CELL=04 FORMULA=25 VALUE=0087
 ```
 
-## Compatibility
+The tool has been tested successfully with over twenty different modules (mostly car radios).  It has been extensively tested with the the VW Premium 5 radio (Delco) and the VW Golf/Jetta Mk3 ABA 2.0L Motronic M5.9 ECU (Bosch).  It can maintain a connection reliably with these modules for hours.
 
-The tool reliably communicates with these radios:
+## Pass-through Mode
 
- - VW Premium 4 (Clarion)
- - VW Premium 5 (Delco)
- - VW Gamma 5 (Sony)
- - VW Gamma 5 (TechniSat)
- - VW Rhapsody (TechniSat)
+Pass-through mode allows the host PC to directly control the K-line so that software written for "dumb" cables can be used with this interface.  Although I do not generally recommend this due to the issues with "dumb" cables noted above, the pass-through mode can be used if you need to run a piece of software that only supports "dumb" cables.
 
-It also reliably communicates with this engine control module:
+Enable the pass-through mode:
 
- - VW Golf/Jetta Mk3 ABA 2.0L Motronic M5.9 (Bosch)
+```
+passthru_enable();
+while(1);
+```
 
-It is likely to work with other modules as well.
+In pass-through mode, the TXD and RXD of the onboard FT232RL are connected directly to the K-line via the L9637D.  The microcontroller's UARTs will still be able to receive data from the host PC and the K-line but they can't transmit to either.
+
+Pass-through mode is also activated if the microcontroller is not installed or is held in reset.
