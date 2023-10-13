@@ -5,11 +5,9 @@ diff: out.bin
 	diff rhapsody.sha1 out.sha1
 
 out.bin:
-	cp -f rhapsody.asm out.asm
-	as740 -l -o out.asm
-	rm -f out.asm
+	as740 -l -o+out rhapsody.asm
 	aslink -i out
-	srec_cat out.ihx -intel -offset -0x4000 -o out.bin -binary
+	srec_cat out.hex -intel -offset -0x4000 -o out.bin -binary
 
 clean:
 	rm -f out.*

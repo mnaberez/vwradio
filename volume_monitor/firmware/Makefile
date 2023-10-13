@@ -3,12 +3,10 @@ MMCU=atmega1284
 ISPFLAGS=-c atmelice
 
 $(PROJECT).hex: main.asm
-	cp -f main.asm $(PROJECT).asm
-	asavr -l -o $(PROJECT).asm
-	rm -f $(PROJECT).asm
+	asavr -l -o+$(PROJECT) main.asm
 	aslink -i $(PROJECT)
-	srec_cat $(PROJECT).ihx -intel -o $(PROJECT).bin -binary
-	rm $(PROJECT).hlr $(PROJECT).ihx $(PROJECT).rel
+	srec_cat $(PROJECT).hex -intel -o $(PROJECT).bin -binary
+	rm $(PROJECT).hlr $(PROJECT).rel
 
 program: $(PROJECT).hex
 	avrdude $(ISPFLAGS) -p $(MMCU) -U lfuse:w:0xF7:m -U hfuse:w:0x92:m -U efuse:w:0xFC:m
